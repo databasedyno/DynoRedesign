@@ -1,0 +1,49 @@
+{
+  "summary": "Frontend-only verification of two fixes: (1) landing Developers snippet URLs and (2) PublicVerifiedBadge tooltip copy + touch behavior + i18n. All acceptance criteria pass.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verification_details": {
+    "landing_developers_snippet": {
+      "code-tab-curl": "Contains https://dynopay.com/api/user/createPayment; no api.dynopay.com",
+      "code-tab-node": "Contains https://dynopay.com/api/user/createPayment; no api.dynopay.com",
+      "code-tab-python": "Contains https://dynopay.com/api/user/createPayment; no api.dynopay.com",
+      "code-copy": "Click succeeded (Copied indicator shown)",
+      "body_text_scan": "No 'api.dynopay.com' anywhere in landing body"
+    },
+    "checkout_verified_badge_desktop_1280x800": {
+      "aria_label": "Verified merchant",
+      "tooltip_text_en": "Dynopay has checked this seller's identity (KYC). This is about the merchant you are paying — not about you.",
+      "role_tooltip_present_on_hover": true
+    },
+    "checkout_verified_badge_mobile_390x844": {
+      "tooltip_opens_on_tap_click": true,
+      "tooltip_text_en_matches": true,
+      "note": "Playwright default context has no hasTouch; used click and dispatched touchstart — both open the tooltip (enterTouchDelay=0 confirmed working)."
+    },
+    "i18n_de": {
+      "switched_via": "header-language-globe -> header-lang-de on landing, then navigated to /pay",
+      "badge_visible_text": "Verifizierter Händler",
+      "tooltip_text_de": "Dynopay hat die Identität dieses Verkäufers geprüft (KYC). Das betrifft den Händler, den du bezahlst — nicht dich.",
+      "match": true
+    },
+    "devhub_regression": {
+      "public-verified-badge_count": 0,
+      "constraint": "at most one",
+      "status": "pass (0 <= 1)"
+    },
+    "pageerrors": {"landing": [], "checkout": []}
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "100%"},
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Both fixes verified in production preview. DE tooltip matches the specified translation exactly. On /devhub, no public-verified-badge was rendered for the currently loaded storefront (0 badges), which still satisfies 'at most one'. Header language switch does NOT set localStorage.i18nextLng in this app (value is null after click) but the language change is applied to subsequent pages — behavior working as intended."
+}

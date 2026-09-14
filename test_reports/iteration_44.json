@@ -1,0 +1,72 @@
+{
+  "summary": "Frontend-only testing (LIVE prod, hostbay@moxx.co) of 3 features + mobile: (1) DRAG reorder of Quick Actions Customize, (2) Empty Volume Hero via route interception, (3) Font consistency on /invoices and /pay-links/products. Reorder + persistence + add/remove counter + reset-to-default: ALL PASS. Empty hero renders correctly with headline 'Make your first sale' and both CTAs navigate correctly (/create-pay-link and /creator). Mobile 390x844 responsive checks all pass (2x2 QA grid, stacked empty-hero CTAs, no horizontal overflow, tappable dialog). Normal hero shown for real active account (empty state correctly hidden). Font issue: /invoices main invoice-list TABLE numeric cells (Total, VAT) still render in Inter, NOT monospace — Roboto Mono is only applied to the Tax Report summary cards, not the invoice-list table. Products price renders in GeistMono (mono OK but not literal Roboto Mono as spec says). Body font is GeistSans app-wide (same as previous iteration). Account left on DEFAULT [paylinks, invoice, wallet, creator].",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "/invoices (Invoices tab, main list table)",
+        "issues": [
+          "Numeric cells in the invoice-list table (Total column, VAT column) render in __Inter (sans), NOT in Roboto Mono. Spec says numeric values should use Roboto Mono / tabular font. Tax Report tab summary cards DO use Roboto Mono correctly ($12.67, $7.30, $5.37, etc.), but the primary invoice-list numerics (e.g., '$1.87', '$1.56') do not. Header 'Total' column values are not wrapped in the var(--font-mono) span."
+        ]
+      },
+      {
+        "screen": "/pay-links/products",
+        "issues": [
+          "Product price ('5.00 USD') renders monospace but uses __GeistMono, not __Roboto_Mono. Visually monospace/tabular ✓, but spec explicitly says 'Roboto Mono'. Prior iteration flagged similar Geist-vs-Inter ambiguity; likely same root cause: var(--font-mono) resolves to Geist Mono globally instead of Roboto Mono for products (while /invoices Tax Report DOES resolve to Roboto Mono, showing the font is registered)."
+        ]
+      },
+      {
+        "screen": "Body font (both /invoices and /pay-links/products)",
+        "issues": [
+          "Body computed fontFamily is __GeistSans, not __Inter. Same as previous iteration 43 finding — consistency with dashboard/wallet/transactions preserved, but if spec strictly requires Inter, the outer Box's `--font-sans: var(--font-inter)` scoping does not appear to override the global Geist Sans on the body element (getComputedStyle(document.body).fontFamily returns Geist Sans on both pages)."
+        ]
+      }
+    ]
+  },
+  "test_report_links": ["/app/test_reports/iteration_44.json"],
+  "action_items": [
+    "Wrap invoice-list table numeric cells (Total, VAT columns) in the var(--font-mono) tabular span on /invoices — currently only the Tax Report summary cards use Roboto Mono; the primary invoice-list table (rendered on the default Invoices tab) still shows numerics in Inter.",
+    "If spec literally requires Roboto Mono (not Geist Mono) on /pay-links/products product price, adjust the CSS var scoping so var(--font-mono) resolves to Roboto Mono on that page too (works on /invoices Tax Report but not on products list).",
+    "If spec literally requires Inter body font, the outer Box `--font-sans` override on both pages doesn't propagate to document.body — check whether the scope needs to apply to a higher ancestor or use `font-family: var(--font-inter)` directly on the Box's sx.",
+    "Note: functional correctness of empty hero + reorder + persistence + mobile is fully verified — the above are cosmetic/spec-literal issues only."
+  ],
+  "critical_code_review_comments": [
+    "VolumeHero empty branch is correctly wired (data-testid=dash2026-hero-empty, CTAs use router.push to /create-pay-link and /creator, framer-motion stack on mobile with flexDirection xs=column). No issues found.",
+    "QuickActionsDock Reorder.Group + drag persists ordered array via PUT /api/user/dashboard-quick-actions; verified by reload showing tiles in new order. Save-disabled when count!=4, Save-enabled at 4/4. Add/Remove sections behave correctly. Reset-to-default works.",
+    "Invoices Tax-Report cards correctly use Roboto Mono — proves the font var is registered. Missing coverage on the invoice-list table cells is likely a one-line span wrap fix on the numeric TD renderers."
+  ],
+  "updated_files": [],
+  "success_rate": { "backend": "n/a (skipped)", "frontend": "~90% (all functional flows PASS; 3 cosmetic font-scoping spec deviations remain)" },
+  "test_credentials": "hostbay@moxx.co / Katiekendra123@ (from /app/memory/test_credentials.md, LIVE prod DB)",
+  "seed_data_creation": "None. Only benign writes were 2 updates to hostbay's dashboard_quick_actions preference (custom then default). Final state restored to DEFAULT [paylinks, invoice, wallet, creator].",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "All primary flows verified: (a) Drag reorder actually changes DOM order of dash2026-qa-pinned-* rows AND persists — reload of /dashboard shows tile order = pinned order (proved by moving 'paylinks' from #1 to #4: tiles reloaded as [invoice, wallet, creator, paylinks]). (b) Add/Remove correctly toggles counter 3/4↔4/4 and enables/disables Save; catalog shows 7 unselected ids when 3 pinned. (c) Reset-to-default restores [paylinks, invoice, wallet, creator]. (d) Empty hero renders via route.route('**/api/dashboard**') interception zeroing data.total_transactions.count, data.total_volume.amount, amount_formatted='$0.00', today_summary.transactions_today; both CTAs (dash2026-hero-empty-cta -> /create-pay-link and -cta2 -> /creator) navigate correctly (use force=True + expect_navigation because MUI CustomButton uses onClick router.push, not href). (e) Normal hero shown for real hostbay account (has sales). (f) Mobile 390x844: no horizontal overflow on dashboard/invoices/products; QA is 2x2 grid; empty-hero CTAs stack vertically; Customize dialog usable and tap-remove works. (g) 0 console errors across all navigations. Remaining known gaps: /invoices main list table Total/VAT numerics still Inter (only Tax Report cards are Roboto Mono); /pay-links/products price uses Geist Mono not Roboto Mono; body font resolves to Geist Sans app-wide.",
+  "detailed_results": {
+    "login": "PASS",
+    "reorder_dom_changed_after_drag": "PASS (paylinks moved from index 0 to index 3)",
+    "reorder_persisted_after_reload": "PASS (tiles reload in [invoice, wallet, creator, paylinks])",
+    "reset_to_default_and_final_state": "PASS ([paylinks, invoice, wallet, creator])",
+    "add_remove_counter": "PASS (4/4 -> remove -> 3/4 Save disabled; add -> 4/4 Save enabled)",
+    "add_catalog_shows_7_unselected": "PASS",
+    "empty_hero_headline": "PASS ('Make your first sale')",
+    "empty_hero_cta1_navigates_create_pay_link": "PASS",
+    "empty_hero_cta2_navigates_creator": "PASS",
+    "normal_hero_for_active_account": "PASS (dash2026-hero present, dash2026-hero-empty absent)",
+    "invoices_body_font": "GEIST_SANS (spec said Inter)",
+    "invoices_list_table_numerics": "INTER (spec said Roboto Mono) — GAP",
+    "invoices_tax_report_summary_numerics": "ROBOTO_MONO PASS",
+    "products_body_font": "GEIST_SANS (spec said Inter)",
+    "products_price_font": "GEIST_MONO (monospace ✓, but not Roboto Mono)",
+    "mobile_empty_hero_ctas_stacked": "PASS",
+    "mobile_dashboard_qa_2x2": "PASS",
+    "mobile_customize_dialog_tap_remove": "PASS",
+    "mobile_no_overflow_dashboard": "PASS (sw=cw=390)",
+    "mobile_no_overflow_invoices": "PASS",
+    "mobile_no_overflow_products": "PASS",
+    "tablet_768_dashboard": "PASS (no overflow)",
+    "regression_console_errors": "PASS (0)"
+  }
+}

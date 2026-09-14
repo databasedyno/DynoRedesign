@@ -1,0 +1,55 @@
+{
+  "meta_title": "Accept crypto payments for your store · Dynopay",
+  "meta_description": "Accept crypto payments for your store with hosted checkout, payment links, and storefront. Funds settle directly to your wallet. Start free in 10 minutes.",
+  "h1": "Accept crypto payments for your store with hosted checkout and payment links",
+  "subheading": "Sell products and collect payment in 15+ cryptocurrencies. Every transaction settles directly to your wallet—Dynopay never holds your funds.",
+  "intro_paragraph": "Dynopay gives online sellers a complete crypto commerce toolkit: hosted checkout pages, no-code payment links, and a full storefront to sell products in Bitcoin, Ethereum, Solana, stablecoins, and 15+ other cryptocurrencies. Because Dynopay is non-custodial, every payment lands directly in your own wallet within minutes—no intermediary holding period, no withdrawal requests, and no chargebacks. You pay a platform fee starting at 1.5% that drops to 0.5% as your volume grows, with zero monthly or setup costs.",
+  "features": [
+    {
+      "title": "Non-custodial payment settlement",
+      "description": "Every crypto payment from your customers arrives directly in your own wallet. Dynopay never holds, freezes, or controls your funds, so you maintain full custody and can move money whenever you choose."
+    },
+    {
+      "title": "Hosted checkout and payment links",
+      "description": "Generate a checkout page or shareable payment link in seconds—no coding required. Customers pay in their preferred crypto, and you receive settlement in your chosen asset including auto-conversion to stablecoins."
+    },
+    {
+      "title": "Volume-based fee structure",
+      "description": "Your first payment is completely free. After that, fees start at 1.5% plus one dollar per transaction and automatically drop to 0.5% as your settled volume increases, with no monthly or hidden charges."
+    }
+  ],
+  "how_it_works": [
+    "Sign up with your email, verify your account, and create your company profile in under three minutes.",
+    "Add your payout wallet address for any supported chain—Bitcoin, Ethereum, Solana, Tron, Polygon, or XRP Ledger.",
+    "Create a payment link or embed the checkout widget on your site and start accepting crypto payments immediately."
+  ],
+  "faqs": [
+    {
+      "question": "Which cryptocurrencies can my store accept with Dynopay?",
+      "answer": "Dynopay supports 15+ cryptocurrencies including Bitcoin, Ethereum, Solana, Litecoin, Dogecoin, XRP, Tron, Polygon, and stablecoins like USDT, USDC, and RLUSD across multiple chains. You choose which assets to accept and which wallet receives settlement."
+    },
+    {
+      "question": "How much does Dynopay charge to accept crypto payments?",
+      "answer": "Your first payment is completely free. After that, fees start at 1.5% plus one dollar per successful transaction and drop automatically to 0.5% at higher volumes. There are no monthly fees, setup costs, or hidden charges, and crypto payments have no chargebacks."
+    },
+    {
+      "question": "Do I need to give Dynopay control of my crypto?",
+      "answer": "No. Dynopay is non-custodial, which means every payment settles directly from your customer to your own wallet. Dynopay never holds, controls, or has access to your funds at any point in the transaction flow."
+    },
+    {
+      "question": "How long does it take to start accepting crypto in my online store?",
+      "answer": "Most merchants go live in under 10 minutes. You sign up, verify your email, add a payout wallet address, and generate a payment link or embed the checkout widget. No lengthy onboarding, no complex integration required for basic sales."
+    },
+    {
+      "question": "Can I convert incoming crypto to stablecoins automatically?",
+      "answer": "Yes. Dynopay offers optional auto-conversion to USDT or USDC at the time of settlement, so you can accept volatile assets like Bitcoin or Ethereum but receive stable value directly in your wallet without manual swapping."
+    }
+  ],
+  "cta_headline": "Start accepting crypto payments today",
+  "cta_body": "Your first transaction is completely free and you can be live in 10 minutes with no monthly fees or setup costs",
+  "_generated_at": "2026-08-29T14:57:11.030787Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "merchants",
+  "_display_name": "Merchants & Online Sellers"
+}

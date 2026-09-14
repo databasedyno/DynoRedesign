@@ -1,0 +1,21 @@
+# Dynopay — Cryptocurrency Payment Gateway
+# https://dynopay.com
+#
+# Indexing is controlled PER PAGE with <meta name="robots" content="noindex">
+# (pages/_app.tsx `isPrivatePage` + individual pages) and reinforced with an
+# `X-Robots-Tag: noindex` response header on private routes (next.config.mjs).
+#
+# Private / authenticated / transactional pages are deliberately CRAWLABLE so
+# Googlebot can SEE that noindex and DROP them from the index. Blocking them
+# here instead is what caused "Indexed, though blocked by robots.txt" — Google
+# indexed the bare URL because it was never allowed to crawl in and read the
+# noindex tag. Only the non-HTML JSON API (no crawl value, never indexable)
+# stays disallowed.
+
+User-agent: *
+Allow: /
+
+# Backend JSON API — not indexable content, no crawl value.
+Disallow: /api/
+
+Sitemap: https://dynopay.com/sitemap.xml

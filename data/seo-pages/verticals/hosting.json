@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto payments for web hosting & domain providers · Dynopay",
+  "meta_description": "Accept Bitcoin, Ethereum, USDT and 15+ cryptocurrencies for hosting and domains. No chargebacks, global reach, funds direct to your wallet. Start free.",
+  "h1": "Crypto payments for web hosting & domain providers built for recurring revenue",
+  "subheading": "Accept Bitcoin, Ethereum, stablecoins and 15+ cryptocurrencies for hosting plans and domain registrations—funds arrive directly in your wallet with zero chargeback risk.",
+  "intro_paragraph": "Web hosting and domain providers lose revenue to fraudulent chargebacks, failed card renewals, and payment processor holds on international transactions. Dynopay is a non-custodial crypto commerce platform that sends every payment directly to your wallet—no intermediary custody, no chargeback fraud, no involuntary churn from expired cards. Bill renewals with API-generated payment links, take one-time domain purchases, and share payment links for manual invoices, all with fees starting at 1.5% that drop to 0.5% as your volume grows.",
+  "features": [
+    {
+      "title": "No Chargebacks, Ever",
+      "description": "Crypto transactions are final. Eliminate fraud from stolen cards and friendly fraud disputes that cost hosting providers thousands monthly in fees, lost service time, and administrative overhead."
+    },
+    {
+      "title": "Stop Losing Recurring Revenue",
+      "description": "Card expiration and bank declines cause involuntary churn. Crypto renewals never fail on an expired card—customers simply pay a fresh link each cycle, so you retain customers who want to pay but can't with traditional rails."
+    },
+    {
+      "title": "Serve Customers in Every Country",
+      "description": "Accept payments globally without currency conversion fees. Customers in markets underserved by card networks can pay you directly in stablecoins like USDT or USDC."
+    }
+  ],
+  "how_it_works": [
+    "Sign up, verify your email, and create your company profile in under three minutes.",
+    "Add one payout wallet address for Bitcoin, Ethereum, or any supported chain where you want funds sent.",
+    "Generate payment links for invoices or embed the checkout widget on your billing page—go live in ten minutes."
+  ],
+  "faqs": [
+    {
+      "question": "Can I accept crypto for monthly hosting subscriptions or just one-time domain purchases?",
+      "answer": "Both. Crypto has no card-style auto-charge, so renewals work as fresh payments each cycle: generate a payment link manually or automate it with the REST API and webhooks. One-time domain purchases use the same links or checkout widget, with funds sent directly to your wallet every time."
+    },
+    {
+      "question": "What happens if a customer pays in Bitcoin but I want to receive stablecoins?",
+      "answer": "By default you receive exactly what the customer sends, straight to your payout wallet. If you prefer stable value, enable optional auto-conversion and volatile assets like Bitcoin settle to USDT or USDC in your wallet instead."
+    },
+    {
+      "question": "How do crypto payment fees compare to credit card processors for hosting providers?",
+      "answer": "Dynopay charges from 1.5% plus one dollar per transaction at starter volume, dropping to 0.5% at scale based on settled volume. There are no monthly fees, setup costs, chargeback fees, or international transaction surcharges. Your first payment is completely fee-free."
+    },
+    {
+      "question": "Do I need to hold crypto or understand blockchain to accept crypto payments?",
+      "answer": "No blockchain expertise required. You provide one wallet address during setup—you can create one using any standard wallet app. Payments arrive automatically, and you control when to convert to fiat through your preferred exchange or hold the crypto long-term."
+    },
+    {
+      "question": "Can customers in countries where my current payment processor doesn't work pay for hosting with crypto?",
+      "answer": "Yes. Dynopay has no country restrictions on receiving crypto payments. Customers in regions underserved by card networks or PayPal can pay you directly in Bitcoin, Ethereum, or stablecoins, expanding your addressable market."
+    }
+  ],
+  "cta_headline": "Start accepting crypto payments in ten minutes",
+  "cta_body": "Your first transaction is fee-free. No monthly costs, no setup fees, and funds go directly to your wallet with zero chargeback risk.",
+  "_generated_at": "2026-08-29T14:55:14.132117Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "hosting",
+  "_display_name": "Web Hosting & Domain Providers"
+}

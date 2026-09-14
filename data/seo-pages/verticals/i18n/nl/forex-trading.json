@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto-betalingen voor trading-opleiders en signaalaanbieders · Dynopay",
+  "meta_description": "Accepteer crypto-betalingen voor tradingcursussen, signalen en mentortrajecten met Dynopay. 15+ cryptovaluta, geen terugboekingen, tarieven vanaf 1,5%. Begin vandaag nog gratis.",
+  "h1": "Accepteer crypto-betalingen voor trading-opleidingen, signalen en mentortrajecten",
+  "subheading": "Met Dynopay worden forex- en trading-opleiders, signaalgroepen en mentoren betaald in Bitcoin, stablecoins en 15+ cryptovaluta, rechtstreeks naar een wallet die zij beheren — een sector met hoog risico die door kaarten routinematig wordt geweigerd.",
+  "intro_paragraph": "Trading-opleidingen, signalen en mentortrajecten worden door kaartverwerkers als hoog risico aangemerkt, wat leidt tot afgewezen aanvragen, bevroren fondsen en betwistingen van leden die geld verliezen op hun eigen trades. Dynopay is een non-custodial crypto-betaalgateway die rechtstreeks naar uw wallet afwikkelt. Reken een signaalabonnement, een mentortraject of een cursus af met een betaallink, een gehoste checkout of de REST API in 15+ cryptovaluta, met tarieven vanaf 1,5% tot 0,5% bij schaal, zonder terugboekingen, zonder maandelijkse kosten en met een gratis eerste betaling.",
+  "features": [
+    {
+      "title": "Goedkeuring zonder de hoog-risicodrempels",
+      "description": "U hebt geen kaartverwerker nodig die een handelsaccount voor 'trading-opleiding' goedkeurt. Voeg een uitbetalingswallet toe en begin diezelfde dag nog crypto te accepteren."
+    },
+    {
+      "title": "Geen betwistingen door tradingverliezen van leden",
+      "description": "Crypto-betalingen zijn definitief, dus een lid met een slechte tradingweek kan uw honorarium niet terugdraaien via een kaartterugboeking nadat het de signalen heeft ontvangen."
+    },
+    {
+      "title": "Wereldwijd publiek, directe afwikkeling",
+      "description": "Traders zijn overal. Accepteer wereldwijd betalingen en ontvang de fondsen binnen enkele minuten in een wallet die u beheert, in stablecoins als u een aan de dollar gekoppeld saldo wilt."
+    }
+  ],
+  "how_it_works": [
+    "Meld u aan, verifieer uw e-mail, maak een bedrijfsprofiel aan en voeg één uitbetalings-walletadres toe voor de afwikkeling.",
+    "Genereer een betaallink voor elk plan of integreer de checkout op uw community- of landingspagina.",
+    "Het lid betaalt in zijn voorkeurscryptovaluta, u verleent toegang via een webhook, en de fondsen komen binnen enkele minuten in uw wallet aan."
+  ],
+  "faqs": [
+    {
+      "question": "Waarom gebruiken trading-opleiders en signaalaanbieders crypto-betalingen?",
+      "answer": "Trading-opleiding wordt als hoog risico aangemerkt, dus kaartverwerkers wijzen het account vaak af of bevriezen fondsen, en leden betwisten betalingen soms na een verliesweek. Crypto is non-custodial en definitief: geen hoog-risicogoedkeuring, geen bevriezing en geen terugboekingen na levering."
+    },
+    {
+      "question": "Kan ik een terugkerend signaalabonnement uitvoeren met crypto?",
+      "answer": "Ja, per cyclus. Crypto kent geen automatische afschrijving zoals kaarten, dus elke verlenging is een nieuwe betaling — gebruik de REST API en webhooks om elke factuurcyclus een betaallink te versturen en toegang automatisch te verlenen of in te trekken."
+    },
+    {
+      "question": "Met welke cryptovaluta kunnen leden betalen?",
+      "answer": "Dynopay ondersteunt 15+ cryptovaluta, waaronder Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, TRX, MATIC en stablecoins zoals USDT (ERC20, TRC20, Polygon), USDC (ERC20) en RLUSD."
+    },
+    {
+      "question": "Wat zijn de tarieven?",
+      "answer": "De tarieven beginnen bij 1,5% plus één dollar per geslaagde betaling en dalen naar 0,5% naarmate het afgewikkelde volume groeit. Geen opstartkosten, geen maandelijkse kosten, en uw eerste betaling is gratis."
+    },
+    {
+      "question": "Houdt Dynopay mijn geld aan?",
+      "answer": "Nee. Dynopay is non-custodial, dus betalingen worden rechtstreeks afgewikkeld naar uw eigen wallet — MetaMask, Coinbase, Ledger of elk adres dat u beheert."
+    }
+  ],
+  "cta_headline": "Begin binnen 10 minuten met het accepteren van crypto voor uw trading-community",
+  "cta_body": "Meld u nu aan en uw eerste transactie is gratis. Geen hoog-risicogoedkeuringen, geen maandelijkse kosten, en de fondsen worden rechtstreeks afgewikkeld naar uw wallet.",
+  "_generated_at": "2026-09-05T00:00:00.000Z",
+  "_model": "dynopay-editorial-2026-09",
+  "_kind": "vertical",
+  "_slug": "forex-trading",
+  "_display_name": "Trading Educators & Signal Providers"
+}

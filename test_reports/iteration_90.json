@@ -1,0 +1,38 @@
+{
+  "summary": "Frontend-only landing-page conversion pass verified on the live public URL. All required hero/how-it-works/audience/honesty/reward/responsive/dark-mode assertions pass. Two nav tests were initially flaky due to Next.js chunk 502s from ingress, but succeeded on retry with full page load waits — the code is correct.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {"flow": "Next.js client-side navigation from home", "issue": "Occasional 502 on prefetched chunk /_next/static/chunks/pages/auth/register.js and router 'Failed to fetch' — click still lands correctly on retry; not a code bug, appears to be ingress/CDN flake in preview env.", "affected_selectors": ["[data-testid=hero-primary-cta]", "[data-testid=hero-creator-link]", "[data-testid=audience-door-developer]"]}
+    ],
+    "design_issues": [
+      {"screen": "/auth/register (out of scope but noted)", "issues": ["Register page footer still shows '1,000+ merchants · $42M+ processed · <1min settlement' — the same dishonest $42M number the user asked to remove from the site. Homepage is clean; register page trust strip should be updated to match the honesty pass."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "OPTIONAL: Remove '$42M+ processed' and '<1min settlement' from the /auth/register trust strip to keep the honesty pass consistent site-wide (homepage is already clean)."
+  ],
+  "critical_code_review_comments": [
+    "Merchant audience door renders the indigo fill on an inner element, so getComputedStyle on the outer [data-testid=audience-door-merchant] reports transparent bg. Visually correct (filled indigo, white text, START HERE ribbon), but if any automated visual test asserts on the outer node's backgroundColor it will fail — consider moving the filled background to the testid element itself."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "100%"},
+  "test_credentials": "none required (public homepage)",
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Homepage hero H1 = 'Accept crypto payments. Settle in stablecoin.' Primary CTA text = 'Start accepting payments' -> /auth/register?ref=hero_primary. Secondary CTA = 'See how it works' (smooth-scrolls to #how-it-works, no URL change). Demo Pay button intentionally non-navigating. Numbers/trust band visible strings: '0.5%', '15+', '24/7', 'Encrypted', 'KYC / AML', 'GDPR', 'Non-custodial' (literal '0 chargebacks' phrase is expressed as 'no chargebacks' in the hero subtext — acceptable). Reward hook 'first payment' appears 3x (hero pill, mid-page, closing). LivePriceStrip removed. Merchants door has 'START HERE' ribbon + indigo fill. Console had 0 React errors; only intermittent Next.js prefetch 502s from preview ingress. Dark-mode toggle works. Mobile 390x844: no horizontal overflow.",
+  "verified_navigations": {
+    "hero-primary-cta": "/auth/register?ref=hero_primary",
+    "how-it-works-cta": "/auth/register?ref=how_it_works",
+    "hero-creator-link": "/for/creators",
+    "audience-door-merchant": "/for/merchants",
+    "audience-door-fundraiser": "/for/fundraisers",
+    "audience-door-creator": "/for/creators",
+    "audience-door-developer": "/documentation",
+    "hero-checkout-demo Pay button": "no navigation (as required)"
+  },
+  "honesty_string_scan": {"$42M": "absent", "42M+": "absent", "SOC2": "absent", "SOC 2": "absent", "4.2s": "absent", "4.2 second": "absent"}
+}

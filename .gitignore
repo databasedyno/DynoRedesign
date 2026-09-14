@@ -1,0 +1,92 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# Defensive: never track any path whose name starts with '--' or '-'.
+# Reason: many shell commands (dash, git, coreutils) interpret leading '--' as
+# an end-of-options marker and leading '-' as a flag, which breaks scripts that
+# pass filenames as bare arguments (see 2026-07-13 push failure: `sh: 0:
+# Illegal option --` caused by an accidental './--version' directory left
+# behind by `husky --version` misinterpreting its arg as a target path).
+/--*
+/-*
+
+# IDE and editors
+.idea/
+.vscode/
+
+# Dependencies
+node_modules/
+/node_modules
+/.pnp
+.pnp.js
+.yarn/install-state.gz
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# Testing
+/coverage
+
+# Next.js
+/.next/
+/out/
+next-env.d.ts
+*.tsbuildinfo
+
+# Production builds
+/build
+dist/
+dist
+
+# Environment and credential files
+.env
+.env.*
+*.env
+*.env.*
+credentials.json
+*token.json*
+*credentials.json*
+*.pem
+*.key
+.credentials
+
+# macOS
+.DS_Store
+
+# Python cache (regenerated on every backend restart; do not track)
+__pycache__/
+**/__pycache__/
+*.py[cod]
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Misc
+.vercel
+.turbo
+
+# Playwright artifacts (test agent screenshots / traces)
+playwright-report/
+test-results/
+
+# Redis dumps (local data snapshots — never commit)
+dump.rdb
+*.rdb
+
+# GCP service-account key — must NEVER be committed (GitHub push protection blocks it)
+backend/dynopay.json
+
+# Jest cache + test logs (pod-local, never commit)
+backend/.jest-cache/
+backend/test-run.log
+.next-prod
+
+# audit helper tokens
+backend/scripts/audit/.tok
+
+# Runtime email dumps (SAFE MODE) — transient, long-line HTML, never commit
+memory/email_outbox/

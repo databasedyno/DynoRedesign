@@ -1,0 +1,55 @@
+{
+  "meta_title": "Paiements crypto pour les boutiques en ligne · Dynopay",
+  "meta_description": "Acceptez les paiements crypto pour les boutiques en ligne. Bitcoin, Ethereum, USDT, Solana et plus de 15 cryptos. Pas de rétrofacturations. Les fonds vont directement dans votre portefeuille. Commencez gratuitement.",
+  "h1": "Acceptez les paiements crypto pour les boutiques en ligne sans rétrofacturations",
+  "subheading": "Recevez Bitcoin, Ethereum, stablecoins et plus de 15 cryptomonnaies directement dans votre portefeuille. Pas de blocage de paiement, pas de litiges frauduleux, pas de frais de traitement de 2 à 4%.",
+  "intro_paragraph": "Les commerçants en ligne perdent 0,47% de leurs revenus à cause des rétrofacturations et 2,9% + 0,30 $ par transaction par carte. Dynopay est une plateforme de commerce crypto non-custodiale conçue pour les boutiques en ligne : vous recevez les fonds directement dans votre propre portefeuille dès qu'un client paie, éliminant ainsi complètement le risque de rétrofacturation. Les tarifs commencent à 1,5% et descendent à 0,5% à grande échelle en fonction du volume, sans frais mensuels, sans coûts d'installation, et votre premier paiement est entièrement gratuit.",
+  "features": [
+    {
+      "title": "Aucun risque de rétrofacturation, jamais",
+      "description": "Les transactions crypto sont finales. Pas de litiges frauduleux, pas de fraude amicale, pas de frais de représentation. Une fois qu'un client paie en Bitcoin, USDT ou ETH, les fonds vous appartiennent et ne peuvent pas être annulés par une banque."
+    },
+    {
+      "title": "Les fonds arrivent dans votre portefeuille",
+      "description": "Dynopay ne conserve jamais votre argent. Les paiements sont réglés directement sur votre adresse Ethereum, votre portefeuille Bitcoin ou votre compte Solana, généralement en quelques minutes. Vous contrôlez les clés privées et la garde à tout moment."
+    },
+    {
+      "title": "Frais inférieurs à ceux des processeurs de cartes",
+      "description": "Payez à partir de 1,5% et regardez les frais diminuer automatiquement à 0,5% à mesure que votre volume augmente. Pas d'interchange, pas de points de base sur les remboursements, pas de frais mensuels de passerelle. Le premier paiement est gratuit."
+    }
+  ],
+  "how_it_works": [
+    "Inscrivez-vous, vérifiez votre e-mail et créez un profil d'entreprise en moins de trois minutes.",
+    "Ajoutez une adresse de portefeuille de paiement pour Bitcoin, Ethereum, USDT ou toute crypto prise en charge que vous souhaitez accepter.",
+    "Générez un lien de paiement ou intégrez le widget de paiement sur votre WooCommerce ou votre boutique personnalisée. Mettez en ligne."
+  ],
+  "faqs": [
+    {
+      "question": "Quelles cryptomonnaies ma boutique en ligne peut-elle accepter avec Dynopay ?",
+      "answer": "Dynopay prend en charge plus de 15 cryptomonnaies, y compris Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP et des stablecoins comme USDT sur Ethereum, Tron et Polygon, USDC sur Ethereum, et RLUSD sur Ethereum et XRP Ledger. Vous choisissez celles à activer."
+    },
+    {
+      "question": "Ai-je besoin d'un portefeuille crypto pour accepter des paiements ?",
+      "answer": "Oui. Dynopay est non-custodial, donc vous fournissez une adresse de portefeuille par cryptomonnaie que vous souhaitez accepter. Les paiements vont directement là-bas. Vous contrôlez les clés privées. Dynopay ne conserve jamais les fonds des clients ni ne vous oblige à retirer."
+    },
+    {
+      "question": "Combien Dynopay facture-t-il par transaction ?",
+      "answer": "Les tarifs commencent à 1,5% plus un dollar par paiement réussi et descendent automatiquement à 0,5% à mesure que votre volume réglé augmente. Pas de frais mensuels, pas de coûts d'installation, pas de frais cachés. Votre premier paiement est entièrement sans frais."
+    },
+    {
+      "question": "Les clients peuvent-ils contester ou annuler un paiement crypto ?",
+      "answer": "Non. Les transactions en cryptomonnaie sont irréversibles par conception. Une fois qu'un client envoie Bitcoin ou USDT et que la blockchain le confirme, le paiement ne peut pas être rétrofacturé, contesté ou récupéré par une banque ou un réseau de cartes."
+    },
+    {
+      "question": "Combien de temps faut-il pour commencer à accepter des crypto sur ma boutique en ligne ?",
+      "answer": "La plupart des commerçants mettent en ligne en moins de 10 minutes. Inscrivez-vous, vérifiez votre e-mail, ajoutez un profil d'entreprise, connectez une adresse de portefeuille, puis générez un lien de paiement ou intégrez le widget dans votre vitrine. Pas de souscription ni de période d'attente."
+    }
+  ],
+  "cta_headline": "Commencez à accepter les paiements crypto aujourd'hui",
+  "cta_body": "Votre premier paiement est gratuit et la configuration prend moins de 10 minutes. Pas de frais mensuels, pas de rétrofacturations, fonds directement dans votre portefeuille.",
+  "_generated_at": "2026-08-29T14:52:47.910056Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "ecommerce",
+  "_display_name": "E-commerce Stores"
+}

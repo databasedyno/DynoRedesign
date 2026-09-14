@@ -1,0 +1,35 @@
+{
+  "summary": "Frontend E2E of Task D UX polish (RBAC team members). Owner 2-step login works with no reload loop, /settings?section=team renders correctly, invite flow generates tokened accept-invite links, invited chip + edit + remove buttons show in members list, NEW MUI revoke dialog (team-revoke-dialog) works for both Cancel and Confirm paths with 'Access revoked.' toast, accept-invite NEW-account branch works (name+password fields, no forgot-password hint, redirects to /dashboard on submit). All test-created invites/members were fully cleaned up. Two issues: (1) could NOT verify the NEW existing-account forgot-password hint via UI because no available email hit the existing-account branch — inviting the owner's own email returns 403 (self-invite guard) and moxxcompany@gmail.com rendered the NEW-account branch (backend info endpoint reported email_has_account=false for it); (2) after a member accepts, browser session pivots to that member (owner session lost in same context) — worth main agent's awareness for test tooling, not necessarily a product bug.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "POST /api/team/invite (self)", "issue": "Returns 403 when owner invites their own email — expected/OK guard, but blocks certain test scenarios."},
+      {"endpoint": "GET /api/team/accept-invite/info?token=...", "issue": "For moxxcompany@gmail.com the response set email_has_account=false, so accept-invite page rendered NEW-account branch. Either the email genuinely has no account in prod DB, or the flag detection needs review."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {"flow": "Existing-account accept-invite forgot-password hint", "issue": "Could NOT reach existing-account branch via UI in this environment because no confirmed existing-account email was available. Code path in /app/pages/auth/accept-invite.tsx does render data-testid='accept-invite-forgot-password' when info.email_has_account is true, so code is correct — needs a real existing-account email in DB to verify at runtime.", "affected_selectors": ["[data-testid='accept-invite-forgot-password']"]}
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "To verify the NEW forgot-password hint end-to-end, provide an email that already has a Dynopay account (not the owner's own). e.g. invite a second registered test account, then open the invite link.",
+    "Optionally suppress self-invite in the UI (disable submit) so users don't have to hit 403 to learn they can't invite themselves."
+  ],
+  "critical_code_review_comments": [
+    "TeamSettingsSection.tsx (lines 246–486): revoke flow correctly uses MUI Dialog gated by revokeTarget state; dialog contains member email, Cancel and Confirm buttons with proper testids. Good implementation — no native window.confirm remaining.",
+    "accept-invite.tsx: forgot-password link is properly conditionally rendered inside info.email_has_account branch with MuiLink -> router.push('/auth/login'). data-testid present.",
+    "After a new-user accept, the accepted user is auto-provisioned into an isolated workspace ('The Dev Store') and lands on /dashboard. No obvious merchant onboarding wizard keywords (Business type / Complete onboarding) detected — matches the intent of hiding OnboardingFlow for members. Only generic 'Welcome to Dynopay' copy was found."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (frontend-only)", "frontend": "85% (7/8 explicit checks; existing-branch forgot-password could not be exercised due to env data)"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (2-step). Test invitees used: onarrival21+dtest<ts>@gmail.com (created + accepted + revoked), moxxcompany@gmail.com (invited + revoked; landed in new-account branch).",
+  "seed_data_creation": "Created 2 team invites and 1 accepted member during testing; ALL revoked at end. Final Team panel state: 'No teammates yet' (verified). Note: the accepted new user (onarrival21+dtest1788137435@gmail.com) still exists as a tbl_user with an auto-created 'The Dev Store' workspace (like the RBAC test orphans from earlier iterations); their membership in Hostbay is revoked and they have no access to Hostbay.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "The two Task D items are shipped correctly in code. UI-verified: (a) MUI revoke dialog (cancel+confirm both work, toast 'Access revoked.' appears) — fully passes. (b) forgot-password hint on accept-invite existing-branch — code path exists and testid is wired, but couldn't be exercised at runtime because no confirmed existing-account email was available (self-invite 403; moxxcompany showed new-account branch). To re-verify, use an email that is a confirmed existing Dynopay user account (not the owner's own). Cleanup: after each accept, the browser context session pivots to the accepted user; you must re-login as owner to continue managing the team.",
+  "rca of the issue": "Existing-branch not observed because: (1) inviting the owner's own email returns HTTP 403 (self-invite protection — expected); (2) moxxcompany@gmail.com's info endpoint returned email_has_account=false, so the frontend correctly rendered new-account branch instead. This is a test-data availability limitation, not a product defect. Mitigation: use a second, confirmed-registered non-owner email to reach the existing-account branch."
+}

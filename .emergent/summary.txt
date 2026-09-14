@@ -1,0 +1,145 @@
+<analysis>**original_problem_statement:** 
+The user's initial request was to set up the project environment. This evolved into a multi-stage bug-fixing and feature-enhancement task based on user feedback and analysis of a provided bug report and production logs.
+
+PRODUCT REQUIREMENTS:
+1.  Fix all bugs listed in the provided Google Sheet.
+2.  Automatically create a default USD API key for users upon completing onboarding.
+3.  Investigate and resolve low gas wallet email alerts.
+4.  Analyze Railway production logs to identify the root cause of failed payments and error emails.
+5.  Recover a specific stuck USDT-TRC20 payment.
+6.  Refactor the payment webhook logic for better clarity and consistency, distinguishing between on-chain confirmation and merchant settlement.
+7.  Ensure the frontend transaction history UI is consistent with the updated backend statuses.
+
+**User's preferred language**: English
+
+**what currently exists?**
+A fully operational crypto payment gateway application (DynoPay) with a React/Next.js frontend and a Node.js/TypeScript backend. The environment is set up, and all services are running. A significant number of bugs related to form validation, UI display, and payment processing have been fixed. The core payment pipeline, especially for TRON (TRC20) tokens, has been made more robust by addressing  errors, fixing gas drain issues, and recovering a stuck payment. The webhook and transaction status system has been refactored for logical consistency across the stack.
+
+**Last working item**:
+-   **Last item agent was working:** The agent was fixing the visibility of the auto-converted icon in the frontend transaction history. This icon disappeared because its display logic was tied to the old status , which has been renamed to . The agent's last attempt to replace the string failed due to a tool constraint.
+-   **Status:** IN PROGRESS
+-   **Agent Testing Done:** N
+-   **Which testing method agent to use?** frontend testing agent
+-   **User Testing Done:** N
+
+**All Pending/In progress Issue list**:
+-   **Issue 1 (P0):** The auto-converted icon is not visible on the transactions page for settled payments.
+
+**Issues Detail:**
+-   **Issue 1:**
+    -   **Attempted fixes:** The agent tried using  to update  to  in . The tool failed because the target string appeared in multiple locations within the file.
+    -   **Next debug checklist:**
+        1.  Use  with  in  to replace all instances of  with .
+        2.  Perform the same replacement in  to ensure consistency in the modal view.
+    -   **Why fix this issue and what will be achieved with the fix?** This fix is required to restore a key visual indicator in the UI, ensuring that users can easily identify which transactions were automatically converted to their preferred currency. It aligns the UI with the recent backend status refactoring.
+    -   **Status:** IN PROGRESS
+    -   **Is recurring issue?** N
+    -   **Should Test frontend/backend/both after fix?** Frontend
+    -   **Blocked on other issue:** None
+
+**In progress Task List**:
+-   There are no other tasks in progress.
+
+**Upcoming and Future Tasks**
+There are no explicit upcoming tasks from the user. The immediate priority is to complete the final bug fix and confirm the stability of all recent changes.
+
+**Completed work in this session**
+-   **Full Project Setup:** Installed all backend (pip) and frontend (yarn) dependencies and successfully started all services.
+-   **Comprehensive Bug Fixing (13+ bugs):**
+    -   **Registration:** Fixed name/referral code validation and added a session timeout ().
+    -   **Payment Link Creation:** Added email validation, a warning for missing API keys, and debounce protection on the create button ().
+    -   **Wallet Management:** Implemented the previously broken Edit Wallet flow and improved validation in the Add Wallet modal ().
+-   **Feature Implementation: Auto API Key:**
+    -   Added logic to automatically create a default USD API key upon first wallet creation during user onboarding ().
+-   **Critical Payment Pipeline Fixes:**
+    -   **TRON  Errors:** Resolved the root cause by increasing energy cost estimates and safety buffers for TRC20 transfers ().
+    -   **TRX Gas Drain:** Fixed a critical bug causing the gas wallet to be drained by repeated, failing transaction attempts. Implemented a gas funding cap and improved webhook deduplication (, ).
+    -   **Stuck Payment Recovery:** Successfully diagnosed and recovered a stuck 3 USDT-TRC20 payment by manually triggering a fixed recovery process.
+-   **Webhook & Status Refactoring:**
+    -   Renamed webhook events for clarity:  (on-chain receipt) and  (merchant wallet deposit).
+    -   Aligned frontend transaction statuses with backend states, introducing a more granular five-status system: , , , , . This impacted multiple files in .
+
+**Earlier issues found/mentioned but not fixed**
+-   None. All identified issues and user requests during this session have been addressed or are currently in progress.
+
+**Known issue recurrence from previous fork**
+-   The initial context mentioned a problem with a TRC20 payment not being forwarded. This was the core theme of this session's work on stuck payments and  errors, which has now been thoroughly investigated and resolved.
+
+**Code Architecture**
+
+
+**Key Technical Concepts**
+-   **Full-Stack:** React/Next.js frontend with a Node.js/TypeScript backend.
+-   **Crypto Payment Processing:** Integrates with the Tatum API for blockchain operations.
+-   **Asynchronous Webhooks:** Uses BullMQ for a reliable webhook queue, including a Dead Letter Queue (DLQ) for failures.
+-   **Payment State Machine:** A robust state machine in  governs the lifecycle of payments.
+-   **TRON Energy Model:** Contains specialized logic to handle the nuances of TRON's energy requirements for TRC20 transfers.
+
+**key DB schema**
+-   **tbl_admin_fee_wallet:** Manages wallets used for funding transaction gas, including , , and .
+-   **tbl_user_temp_address:** Tracks temporary crypto addresses generated for incoming user payments.
+-   **tbl_api_keys:** Stores API keys generated by users.
+-   **tbl_user_wallets:** Stores merchants' final settlement wallet addresses.
+
+**changes in tech stack**
+-   None.
+
+**All files of reference**
+-   : **(Fix In Progress)** Contains the UI for the transaction list where the auto-convert icon logic needs to be fixed.
+-   : Core file for handling incoming webhooks and managing the payment lifecycle. Was heavily refactored.
+-   : A large controller that handles payment creation and verification. Was modified to fix fee alerts and webhook logic.
+-   : Contains the critical logic for calculating TRON energy costs. Was modified to prevent  errors.
+-   : Defines all payment states and their valid transitions. Was updated to align frontend and backend statuses.
+-   : Contains credentials used for accessing Railway production logs for analysis.
+
+**Areas that need refactoring**:
+-   The file  is extremely large (over 8,500 lines) and handles too many responsibilities. It should be broken down into smaller, more focused services to improve readability and maintainability.
+
+**key api endpoints**
+-   : Backend health check.
+-   : Admin endpoint to trigger recovery for a failed payment.
+-   : Fetches the transaction history for the dashboard.
+-   : Creates a public payment link.
+
+**Critical Info for New Agent**
+-   **New Webhook Standard:** The payment webhook system has been refactored.  now signifies on-chain confirmation.  signifies the funds have reached the merchant's wallet. This is a critical distinction.
+-   **New Status System:** The frontend now uses five statuses: ,  (on-chain), ,  (in merchant wallet), and . Ensure any new UI work adheres to this.
+-   **TRON Energy Fixes:** The primary cause of TRON settlement failures () has been fixed by increasing the estimated energy cost for transactions. The logic resides in .
+-   **Gas Wallet:** The system uses a dedicated fee wallet to fund transaction gas. The TRON fee wallet address is . This is separate from the admin wallet that receives profits.
+
+**documents and test reports created in this job**
+-    (updated multiple times)
+-    (and other temporary log files)
+
+**Last 10 User Messages and any pending HUMAN messages**
+1.  **for auto converted, there is a little icon that indicates that, confirm it still exists and working** - User is asking to verify the auto-convert icon works with the new status system. (Status: In Progress, this is the current task).
+2.  **is payment has confirmed, frontend status should also be confirmed and when settled it should be settled and when pending it should be pending.** - User requested precise alignment between backend states and frontend UI statuses. (Status: Completed, implemented granular statuses).
+3.  **yes** - User confirmed to proceed with sending a manual webhook. (Status: Completed).
+4.  **at what stage would webhook be sent to merchant about payment confirmed?** - User asked for clarification on the webhook flow. (Status: Completed).
+5.  **b** - User chose a specific naming convention for the webhook refactor. (Status: Completed).
+6.  **but i thought webhook should be sent when payment received, not if successfully settled? these are two different things** - User identified a key logical flaw in the webhook system, which initiated the refactoring task. (Status: Completed).
+7.  **okay i deployed the latest code, can you also confirm whether webhook was sent for the 3 USDT to Nomadly from the previous railway log after payment was received?** - User confirmed a deployment and asked for log verification. (Status: Completed).
+8.  **yes check if there is actually payment stucked. also, would it send cheaper if the recipients already has USDT before?** - User asked for confirmation of a stuck payment and clarification on TRON fees. (Status: Completed).
+9.  **yes trigger the stuck payment** - User gave approval to attempt recovery of the stuck payment. (Status: Completed).
+10. **okay i just funded the gas wallet again, it was funded less than 12 hours ago also and not sure what is draining the TRX** - User reported an issue with the gas wallet being drained, which led to the discovery and fix of the gas drain bug. (Status: Completed).
+
+**Project Health Check:**
+-   **Broken:** None.
+-   **Mocked:** None.
+
+**3rd Party Integrations**
+-   **Tatum:** Blockchain infrastructure API for all crypto operations. Requires an API key.
+-   **Railway:** Application hosting platform. API is used via a Project-Access-Token for log analysis.
+
+**Testing status**
+-   **Testing agent used after significant changes:** YES
+-   **Troubleshoot agent used after agent stuck in loop:** NO
+-   **Test files created:** None
+-   **Known regressions:** The auto-convert icon on the transaction page is not working due to the recent status name changes. This is the issue currently being fixed.
+
+**Credentials to test flow:**
+-   The Railway Project-Access-Token is stored in  and can be used for production log analysis.
+-   Admin JWT for local API testing can be generated using the  in .
+
+**What agent forgot to execute**
+The agent did not forget any major tasks. The final action was a logical next step that failed due to a tooling limitation ( without ), not a planning error.</analysis>

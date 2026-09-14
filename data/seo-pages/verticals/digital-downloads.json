@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto payments for digital downloads & courses · Dynopay",
+  "meta_description": "Accept crypto payments for digital downloads & course sellers. No chargebacks, no refund abuse. Bitcoin, USDT, Solana & 15+ coins. Live in 10 minutes. Start now.",
+  "h1": "Accept Crypto Payments for Digital Downloads & Course Sellers",
+  "subheading": "Stop losing revenue to chargebacks and refund fraud. Receive Bitcoin, stablecoins, and 15+ cryptocurrencies directly to your wallet—no middleman, no reversals.",
+  "intro_paragraph": "If you sell courses, ebooks, or digital products, you know the cost of chargebacks and serial refunders who consume your content then dispute the charge. Dynopay is a non-custodial crypto payment platform built for creators and educators. You receive funds directly in your own wallet—we never touch your money—and crypto transactions are final. No chargebacks. No refund abuse. Just irreversible payments from customers worldwide, with fees starting at 1.5% and dropping to 0.5% at scale.",
+  "features": [
+    {
+      "title": "No Chargebacks, Ever",
+      "description": "Crypto payments are final once confirmed on-chain. No customer can reverse a transaction after downloading your course or ebook, eliminating chargeback fraud and friendly fraud that plague card processors."
+    },
+    {
+      "title": "Your Wallet, Your Custody",
+      "description": "Funds go directly from customer to your Bitcoin, Ethereum, or stablecoin address. Dynopay never holds balances, so you control your money from the moment of sale with zero withdrawal delays or account freezes."
+    },
+    {
+      "title": "Global Sales Without Barriers",
+      "description": "Sell to customers in any country without cross-border card fees or currency conversion costs. Accept Bitcoin, USDT, USDC, SOL, and 15+ cryptocurrencies from buyers anywhere in the world."
+    }
+  ],
+  "how_it_works": [
+    "Sign up, verify your email, and add the wallet address where you want to receive payments.",
+    "Create a payment link for your course or embed the checkout widget on your existing sales page.",
+    "Customer pays in their preferred crypto; funds arrive in your wallet within minutes, completely fee-free on your first sale."
+  ],
+  "faqs": [
+    {
+      "question": "How do crypto payments prevent refund fraud for digital products?",
+      "answer": "Cryptocurrency transactions are irreversible once confirmed on the blockchain. Unlike credit cards, customers cannot dispute or chargeback a crypto payment after accessing your course or download. The sale is final, protecting you from serial refunders and content pirates who abuse traditional refund policies."
+    },
+    {
+      "question": "Which cryptocurrencies can my students use to buy my courses?",
+      "answer": "Dynopay supports 15+ cryptocurrencies including Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, and stablecoins like USDT and USDC on Ethereum, Polygon, and Tron. Students pay in their preferred coin; you choose which assets to accept in your wallet."
+    },
+    {
+      "question": "What are the fees for accepting crypto payments on digital products?",
+      "answer": "Fees start at 1.5% plus one dollar per successful payment and automatically drop to 0.5% as your volume grows. No monthly fees, no setup costs, no hidden charges. Your very first payment is completely fee-free so you can test the platform risk-free."
+    },
+    {
+      "question": "How quickly can I start accepting crypto for my online course?",
+      "answer": "You can go live in under 10 minutes. Sign up, verify your email, add your payout wallet address, then generate a payment link or embed our checkout widget on your sales page. No lengthy approvals or merchant underwriting required."
+    },
+    {
+      "question": "Do I need KYC verification to receive crypto payments for courses?",
+      "answer": "You can start receiving crypto straight to your own wallet in minutes with no merchant underwriting. Identity verification (KYC) applies to your account once settled volume passes a threshold, and third-party fiat off-ramps run their own KYC when you convert to local currency."
+    }
+  ],
+  "cta_headline": "Start Accepting Crypto Payments Today",
+  "cta_body": "Your first transaction is fee-free. Set up your crypto checkout in under 10 minutes and stop losing revenue to chargebacks.",
+  "_generated_at": "2026-08-29T14:54:48.095503Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "digital-downloads",
+  "_display_name": "Digital Downloads & Course Sellers"
+}

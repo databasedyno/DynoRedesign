@@ -1,0 +1,108 @@
+name: Preflight — TypeScript type-check (backend + frontend)
+
+# Belt-and-braces companion to the local Husky pre-commit hook
+# (scripts/preflight-tsc.sh, which is WARN-only so Save-to-GitHub keeps
+# working). If someone bypasses the hook with `git commit --no-verify`,
+# uses Save-to-GitHub (which may not run local hooks), or pushes from a
+# fresh clone without running `yarn install`, this GitHub Action still
+# catches the exact same errors and marks the commit as failed —
+# before DigitalOcean burns ~7½ min on it.
+#
+# History
+#   2026-07-13 — created after 5 back-to-back DO deploys failed on tsc
+#   2026-08-02 (session 97d) — added `latest` branch and frontend job
+#     after a TS2554 error on `latest` slipped through (previous CI only
+#     watched `main` + `New-Onboarding2`). `latest` IS the DO deploy
+#     branch on the `databasedyno/DynoRedesign` repo, so it MUST be gated.
+#
+# Runs in <60s on a warm cache (yarn cache + node_modules cache).
+# Runs in ~2m on a cold cache. Either way, orders of magnitude
+# faster than a failed DO build.
+
+on:
+  push:
+    branches:
+      - latest       # DigitalOcean auto-deploys this branch — MUST gate
+      - main
+      - New-Onboarding2
+  pull_request:
+    branches:
+      - latest
+      - main
+      - New-Onboarding2
+  workflow_dispatch: {}
+
+concurrency:
+  # Cancel superseded runs — matches DO's "supersede" behavior on rapid pushes.
+  group: preflight-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────
+  # Backend strict tsc — reproduces exactly what DigitalOcean's build runs
+  # in the backend Dockerfile stage:
+  #   RUN yarn install ...
+  #   RUN yarn build           # ← this = tsc (per backend/package.json)
+  #
+  # If this job passes, `yarn build` on DO will pass. Period.
+  # ─────────────────────────────────────────────────────────────────────
+  backend-tsc:
+    name: backend tsc --noEmit
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "yarn"
+          cache-dependency-path: backend/yarn.lock
+
+      - name: Install backend deps
+        working-directory: backend
+        run: |
+          yarn install --ignore-engines --production=false --frozen-lockfile \
+            || yarn install --ignore-engines --production=false
+
+      - name: Run tsc --noEmit (same as DO `yarn build`)
+        working-directory: backend
+        run: ./node_modules/.bin/tsc --noEmit
+
+  # ─────────────────────────────────────────────────────────────────────
+  # Frontend strict tsc — HARD GATE (joined the club 2026-08-02 s97h).
+  #
+  # History
+  #   Before s97e:   286 pre-existing errors, informational only
+  #   s97e:          same 286 errors, added baseline-drift check (report-only)
+  #   s97f (PR #1):  286 → 70 via dead-code deletes + type augments
+  #   s97g (PR #2):  70 → 46 via DashboardLeftSection + policy pages fixes
+  #   s97h (PR #3):  46 → 0 via full sweep — TRUE ZERO
+  #
+  # Now this job is a HARD FAIL like backend-tsc: any TypeScript error on
+  # ANY push/PR to `latest`/`main`/`New-Onboarding2` blocks merge.
+  # ─────────────────────────────────────────────────────────────────────
+  frontend-tsc:
+    name: frontend tsc --noEmit
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "yarn"
+          cache-dependency-path: yarn.lock
+
+      - name: Install frontend deps
+        run: |
+          yarn install --ignore-engines --production=false --frozen-lockfile \
+            || yarn install --ignore-engines --production=false
+
+      - name: Run tsc --noEmit (strict — zero errors allowed)
+        run: ./node_modules/.bin/tsc --noEmit

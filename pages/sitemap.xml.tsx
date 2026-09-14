@@ -1,0 +1,235 @@
+import { GetServerSideProps } from "next";
+import { getAllSEOPagesIndex } from "@/utils/seoContent";
+import { blogPosts } from "@/utils/blogData";
+import helpArticles from "@/hooks/useHelpAndSupportData";
+
+const SITE_URL = "https://dynopay.com";
+const LOCALE_LANGS = ["en", "pt", "fr", "es", "de", "nl"];
+
+/** Fully i18n-driven pages get real per-locale ?lang= hreflang alternates. */
+const isLocalizable = (p: string): boolean =>
+  p === "/" ||
+  p === "/fees" ||
+  p === "/help-support" ||
+  p.startsWith("/help-support/") ||
+  p.startsWith("/for/");
+
+interface SitemapEntry {
+  path: string;
+  changefreq: "always" | "hourly" | "daily" | "weekly" | "monthly" | "yearly" | "never";
+  priority: number;
+  lastmod?: string;
+}
+
+/**
+ * All public, indexable pages.
+ * Add new public pages here and they will appear in the sitemap automatically.
+ * SEO-driven country + vertical landing pages are appended automatically from
+ * the JSON files under /data/seo-pages via getAllSEOPagesIndex().
+ * NOTE: static pages carry NO <lastmod> — we have no real modification date
+ * for them and search engines ignore (or penalise) fabricated dates.
+ */
+const PUBLIC_PAGES: SitemapEntry[] = [
+  { path: "/",                  changefreq: "weekly",   priority: 1.0 },
+  { path: "/fees",              changefreq: "monthly",  priority: 0.8 },
+  { path: "/documentation",     changefreq: "monthly",  priority: 0.8 },
+  { path: "/how-to",            changefreq: "monthly",  priority: 0.7 },
+  { path: "/blog",              changefreq: "weekly",   priority: 0.7 },
+  { path: "/help-support",      changefreq: "weekly",   priority: 0.6 },
+  { path: "/about",             changefreq: "monthly",  priority: 0.6 },
+  { path: "/press",             changefreq: "yearly",   priority: 0.4 },
+  { path: "/referral-program",  changefreq: "monthly",  priority: 0.7 },
+  { path: "/system-status",     changefreq: "daily",    priority: 0.6 },
+  { path: "/terms-conditions",  changefreq: "yearly",   priority: 0.4 },
+  { path: "/privacy-policy",    changefreq: "yearly",   priority: 0.4 },
+  { path: "/aml-policy",        changefreq: "yearly",   priority: 0.4 },
+];
+
+/** English is the only server-rendered, indexable version (no ?lang= alternates). */
+
+function staticEntries(): SitemapEntry[] {
+  const seoEntries: SitemapEntry[] = getAllSEOPagesIndex().map((p) => ({
+    path: p.urlPath,
+    // SEO pages regenerate offline every few weeks — "monthly" fits our cadence.
+    changefreq: "monthly",
+    priority: 0.7,
+    // Real content-generation date (from the page's JSON `_generated_at`), so
+    // Google sees an accurate <lastmod> and can prioritise recrawling new/updated
+    // pages (e.g. the newly added /for/* verticals) without a manual resubmit.
+    lastmod: toDateOnly(p.generatedAt),
+  }));
+  const blogEntries: SitemapEntry[] = blogPosts.map((p) => ({
+    path: `/blog/${p.slug}`,
+    changefreq: "monthly",
+    priority: 0.6,
+    lastmod: toDateOnly(p.publishedAt),
+  }));
+  return [...PUBLIC_PAGES, ...seoEntries, ...blogEntries];
+}
+
+/**
+ * One <url> per canonical page. hreflang alternates are intentionally omitted —
+ * non-English variants are client-side translations (?lang=xx), not distinct
+ * server-rendered URLs, so English is the single indexable version.
+ * <lastmod> is emitted ONLY when we know the real date (blog posts, products,
+ * help articles) — never a fabricated "today".
+ */
+function renderUrl(entry: SitemapEntry): string {
+  const loc = `${SITE_URL}${entry.path}`;
+  const alts = isLocalizable(entry.path)
+    ? "\n" +
+      LOCALE_LANGS.map(
+        (l) =>
+          `    <xhtml:link rel="alternate" hreflang="${l}" href="${l === "en" ? loc : `${loc}?lang=${l}`}" />`,
+      ).join("\n") +
+      `\n    <xhtml:link rel="alternate" hreflang="x-default" href="${loc}" />`
+    : "";
+  return `  <url>
+    <loc>${loc}</loc>${entry.lastmod ? `
+    <lastmod>${entry.lastmod}</lastmod>` : ""}
+    <changefreq>${entry.changefreq}</changefreq>
+    <priority>${entry.priority}</priority>${alts}
+  </url>`;
+}
+
+function generateSitemap(entries: SitemapEntry[]): string {
+  const urls = entries.map((e) => renderUrl(e)).join("\n");
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+${urls}
+</urlset>`;
+}
+
+/** Server-side base URL for reaching the backend during SSR (never the browser). */
+const internalApiBase = (): string =>
+  (
+    process.env.INTERNAL_API_URL ||
+    process.env.INTERNAL_BACKEND_URL ||
+    process.env.NEXT_PUBLIC_BASE_URL ||
+    process.env.NEXT_PUBLIC_SERVER_URL ||
+    ""
+  ).replace(/\/+$/, "");
+
+/** Normalise any date-ish value to YYYY-MM-DD, or undefined when unusable. */
+const toDateOnly = (v: unknown): string | undefined => {
+  if (!v) return undefined;
+  const d = new Date(v as string);
+  return Number.isNaN(d.getTime()) ? undefined : d.toISOString().split("T")[0];
+};
+
+/**
+ * Pull every indexable creator page, storefront + live product from the
+ * backend (read-only) and turn them into /{handle}, /{handle}/shop and
+ * /{handle}/p/{slug} sitemap entries.
+ * Fails soft (returns []) so the sitemap always renders the static pages even
+ * if the catalog feature is off or the backend is briefly unavailable.
+ */
+async function fetchStorefrontEntries(): Promise<SitemapEntry[]> {
+  const base = internalApiBase();
+  if (!base) return [];
+  try {
+    const r = await fetch(`${base}/api/shop-sitemap`, {
+      headers: { Accept: "application/json" },
+    });
+    if (!r.ok) return [];
+    const json = await r.json();
+    const data = json?.data || {};
+    const creators: Array<{ handle: string }> = Array.isArray(data.creators) ? data.creators : [];
+    const shops: Array<{ handle: string }> = Array.isArray(data.shops) ? data.shops : [];
+    const products: Array<{ handle: string; slug: string; lastmod?: string | null }> =
+      Array.isArray(data.products) ? data.products : [];
+
+    const creatorEntries: SitemapEntry[] = creators
+      .filter((c) => c && c.handle)
+      .map((c) => ({ path: `/${c.handle}`, changefreq: "weekly", priority: 0.6 }));
+
+    const shopEntries: SitemapEntry[] = shops
+      .filter((s) => s && s.handle)
+      .map((s) => ({ path: `/${s.handle}/shop`, changefreq: "weekly", priority: 0.7 }));
+
+    const productEntries: SitemapEntry[] = products
+      .filter((p) => p && p.handle && p.slug)
+      .map((p) => ({
+        path: `/${p.handle}/p/${p.slug}`,
+        changefreq: "weekly",
+        priority: 0.6,
+        lastmod: toDateOnly(p.lastmod),
+      }));
+
+    return [...creatorEntries, ...shopEntries, ...productEntries];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Published help-center articles (/help-support/{slug}). The published list is
+ * static (hooks/useHelpAndSupportData); any DB-backed articles are merged in and
+ * carry a real <lastmod>. EN-only content → no hreflang. Static entries omit
+ * <lastmod> (no real modification date to report).
+ */
+async function fetchHelpArticleEntries(): Promise<SitemapEntry[]> {
+  const bySlug = new Map<string, SitemapEntry>();
+
+  // 1. Static, always-present articles from the published help-center list.
+  for (const a of helpArticles as Array<{ slug: string }>) {
+    if (a?.slug) {
+      bySlug.set(a.slug, {
+        path: `/help-support/${a.slug}`,
+        changefreq: "monthly",
+        priority: 0.5,
+      });
+    }
+  }
+
+  // 2. Merge/override with any published DB articles (adds a real <lastmod>).
+  const base = internalApiBase();
+  if (base) {
+    try {
+      const r = await fetch(`${base}/api/kb/articles?limit=500`, {
+        headers: { Accept: "application/json" },
+      });
+      if (r.ok) {
+        const json = await r.json();
+        const articles: Array<{ slug?: string; updatedAt?: string; updated_at?: string }> =
+          Array.isArray(json?.data?.articles) ? json.data.articles : [];
+        for (const a of articles) {
+          if (a?.slug) {
+            bySlug.set(a.slug, {
+              path: `/help-support/${a.slug}`,
+              changefreq: "monthly",
+              priority: 0.5,
+              lastmod: toDateOnly(a.updatedAt || a.updated_at),
+            });
+          }
+        }
+      }
+    } catch {
+      // static list already populated — ignore DB failures
+    }
+  }
+
+  return [...bySlug.values()];
+}
+
+export const getServerSideProps: GetServerSideProps = async ({ res }) => {
+  const [storefrontEntries, helpEntries] = await Promise.all([
+    fetchStorefrontEntries(),
+    fetchHelpArticleEntries(),
+  ]);
+  const sitemap = generateSitemap([...staticEntries(), ...helpEntries, ...storefrontEntries]);
+
+  res.setHeader("Content-Type", "text/xml; charset=utf-8");
+  res.setHeader("Cache-Control", "public, s-maxage=3600, stale-while-revalidate=86400");
+  res.write(sitemap);
+  res.end();
+
+  return { props: {} };
+};
+
+// Component is never rendered — getServerSideProps sends the XML response directly
+export default function SitemapPage() {
+  return null;
+}

@@ -1,0 +1,55 @@
+{
+  "meta_title": "Aceite pagamentos em criptomoeda para a sua loja · Dynopay",
+  "meta_description": "Aceite pagamentos em criptomoeda para a sua loja com checkout alojado, links de pagamento e loja online. Os fundos são liquidadas diretamente na sua carteira. Comece gratuitamente em 10 minutos.",
+  "h1": "Aceite pagamentos em criptomoeda para a sua loja com checkout alojado e links de pagamento",
+  "subheading": "Venda produtos e receba pagamentos em mais de 15 criptomoedas. Cada transação é liquidada diretamente na sua carteira—Dynopay nunca retém os seus fundos.",
+  "intro_paragraph": "Dynopay oferece aos vendedores online um conjunto completo de ferramentas de comércio em criptomoeda: páginas de checkout alojadas, links de pagamento sem código e uma loja completa para vender produtos em Bitcoin, Ethereum, Solana, stablecoins e mais de 15 outras criptomoedas. Como a Dynopay é não-custodial, cada pagamento chega diretamente à sua própria carteira em minutos—sem período de retenção por intermediários, sem pedidos de levantamento e sem estornos. Você paga uma taxa de plataforma a partir de 1.5% que diminui para 0.5% à medida que o seu volume cresce, sem custos mensais ou de configuração.",
+  "features": [
+    {
+      "title": "Liquidação de pagamentos não-custodial",
+      "description": "Cada pagamento em criptomoeda dos seus clientes chega diretamente à sua própria carteira. A Dynopay nunca retém, congela ou controla os seus fundos, por isso você mantém total custódia e pode mover dinheiro sempre que desejar."
+    },
+    {
+      "title": "Checkout alojado e links de pagamento",
+      "description": "Gere uma página de checkout ou um link de pagamento partilhável em segundos—sem necessidade de codificação. Os clientes pagam na sua criptomoeda preferida, e você recebe a liquidação no ativo que escolher, incluindo conversão automática para stablecoins."
+    },
+    {
+      "title": "Estrutura de taxas baseada em volume",
+      "description": "O seu primeiro pagamento é completamente gratuito. Depois disso, as taxas começam em 1.5% mais um dólar por transação e caem automaticamente para 0.5% à medida que o seu volume liquidado aumenta, sem taxas mensais ou ocultas."
+    }
+  ],
+  "how_it_works": [
+    "Registe-se com o seu email, verifique a sua conta e crie o perfil da sua empresa em menos de três minutos.",
+    "Adicione o seu endereço de carteira de pagamento para qualquer cadeia suportada—Bitcoin, Ethereum, Solana, Tron, Polygon ou XRP Ledger.",
+    "Crie um link de pagamento ou incorpore o widget de checkout no seu site e comece a aceitar pagamentos em criptomoeda imediatamente."
+  ],
+  "faqs": [
+    {
+      "question": "Quais criptomoedas pode a minha loja aceitar com a Dynopay?",
+      "answer": "A Dynopay suporta mais de 15 criptomoedas, incluindo Bitcoin, Ethereum, Solana, Litecoin, Dogecoin, XRP, Tron, Polygon e stablecoins como USDT, USDC e RLUSD em várias cadeias. Você escolhe quais ativos aceitar e qual carteira recebe a liquidação."
+    },
+    {
+      "question": "Quanto a Dynopay cobra para aceitar pagamentos em criptomoeda?",
+      "answer": "O seu primeiro pagamento é completamente gratuito. Depois disso, as taxas começam em 1.5% mais um dólar por transação bem-sucedida e caem automaticamente para 0.5% em volumes mais altos. Não há taxas mensais, custos de configuração ou cobranças ocultas, e os pagamentos em criptomoeda não têm estornos."
+    },
+    {
+      "question": "Preciso dar à Dynopay controle sobre a minha criptomoeda?",
+      "answer": "Não. A Dynopay é não-custodial, o que significa que cada pagamento é liquidado diretamente do seu cliente para a sua própria carteira. A Dynopay nunca retém, controla ou tem acesso aos seus fundos em qualquer ponto do fluxo da transação."
+    },
+    {
+      "question": "Quanto tempo leva para começar a aceitar criptomoeda na minha loja online?",
+      "answer": "A maioria dos comerciantes fica online em menos de 10 minutos. Você se regista, verifica o seu email, adiciona um endereço de carteira de pagamento e gera um link de pagamento ou incorpora o widget de checkout. Sem onboarding longo, sem integração complexa necessária para vendas básicas."
+    },
+    {
+      "question": "Posso converter criptomoeda recebida em stablecoins automaticamente?",
+      "answer": "Sim. A Dynopay oferece conversão automática opcional para USDT ou USDC no momento da liquidação, para que você possa aceitar ativos voláteis como Bitcoin ou Ethereum, mas receber valor estável diretamente na sua carteira sem necessidade de troca manual."
+    }
+  ],
+  "cta_headline": "Comece a aceitar pagamentos em criptomoeda hoje",
+  "cta_body": "A sua primeira transação é completamente gratuita e você pode estar online em 10 minutos, sem taxas mensais ou custos de configuração.",
+  "_generated_at": "2026-08-29T14:57:11.030787Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "merchants",
+  "_display_name": "Merchants & Online Sellers"
+}

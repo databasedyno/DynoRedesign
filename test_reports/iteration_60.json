@@ -1,0 +1,33 @@
+{
+  "summary": "Frontend-only RE-TEST of the iteration_59 fixes on the live preview (SAFE MODE, no data created/deleted; reused existing company QA-DELETE-ME id 55). Verified 2-step login at /auth/login (note: /login is NOT the login route - it resolves to a creator-handle 404 page). ITEM 1 COMPANY-SWITCH PERSISTENCE: PASS in BOTH directions. After selecting company-option-1, trigger label='hostbay', localStorage last_company_id=1; after a hard reload AND after goto /invoices the active company REMAINED hostbay (LS=1) and ZERO unsolicited PUT /api/user/last-company fired during load (network listener captured none). Hostbay data intact: /invoices showed 'Receipts (7)' with real rows (no 'No invoices yet'). Then switched to company-option-55, reloaded -> stayed on QA-DELETE-ME (LS=55). Switch+toast regression: PASS - snackbar 'Switched to QA-DELETE-ME' / 'Switched to hostbay' shown, label updates, data refetches (QA company shows empty-state, hostbay shows 7 receipts), no console errors. Trigger tap-area height at 390px = 44px (PASS on height) but WIDTH is only 20.5px (see issue). Customer detail dialog opened at both 1440 (table row) and 390 (customer-card): NO 'validateDOMNesting <h6> in <h2>' console warning and no h6-inside-h2 nodes in the DOM (PASS). Responsive regression: /invoices & /customers render invoices-card-list / customers-card-list with 0 <table> at 390, real <table> at 1440; mobile company dropdown opens and is visible. Left the account back on hostbay (id 1).",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "CompanySelector SelectorTrigger (mobile <=md)", "issue": "Tap target height is now 44px (fix confirmed) but the trigger's rendered WIDTH at 390px is only 20.5px (its wrapper Box is also 20.5px), so only the briefcase icon is visible - the company name text and the expand chevron are clipped out of the header, and the touch target is 20.5x44 (fails the 44x44 guideline). innerText still reads 'hostbay' but is not painted. Recommend giving the wrapper a min-width / flex-basis on mobile so the name + chevron show and width >=44px.", "selector": "[data-testid=\"company-selector-trigger\"]", "priority": "MEDIUM"}
+    ],
+    "integration_issues": [
+      {"flow": "Company switch persistence write", "issue": "Each switch fires PUT /api/user/last-company TWICE with the same payload (once from CompanyDataContext.selectCompany and again from CompanySelector.handleCompanySwitch). Harmless but duplicated network write - drop the redundant PUT in CompanySelector.", "affected_selectors": ["[data-testid=\"company-option-1\"]", "[data-testid=\"company-option-55\"]"]}
+    ],
+    "design_issues": [
+      {"screen": "Dashboard (all viewports)", "issues": ["Recharts console warning repeated 4x: 'The width(-1) and height(-1) of chart should be greater than 0' - chart container measures before layout; set a minHeight/aspect on the ResponsiveContainer."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Fix mobile company-selector trigger width: wrapper/trigger collapses to 20.5px at 390px, hiding the company name + chevron and shrinking the tap target below 44px wide.",
+    "Remove the duplicate PUT /api/user/last-company in CompanySelector.handleCompanySwitch (context already persists).",
+    "Silence the recharts width(-1)/height(-1) warning on the dashboard chart."
+  ],
+  "critical_code_review_comments": [
+    "CompanySelector trigger label falls back to companies[0].company_name when `selected` is undefined; during the brief window before CompanyDataContext resolves the persisted id this can flash the newest company's name. Prefer rendering nothing/skeleton until selectedCompanyId resolves.",
+    "The 'wallet' phase effect still auto-selects companies[companies.length-1] as 'newest' while companyList is documented as newest-FIRST elsewhere - verify ordering so post-create auto-select picks the actually-new company."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not tested", "frontend": "4/4 target fixes PASS (persistence both directions, switch+toast, no h6-in-h2 warning, trigger height 44px); 1 residual medium UI issue (trigger width)"},
+  "seed_data_creation": "None. Reused existing company_id 55 (QA-DELETE-ME). Only the app's own last_company_id writes occurred; account left on hostbay (id 1).",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "test_credentials": "hostbay@moxx.co / Katiekendra123@ - login page is /auth/login (NOT /login)",
+  "context_for_next_testing_agent": "Login route is /auth/login; /login renders the creator-handle 'This page isn't available' page. Company option 55 label = 'QA-DELETE-ME ... hostbay@moxx.co', option 1 label = 'hostbay' (lowercase - don't assert 'Hostbay'). Snackbar auto-hides ~2.5s: assert within ~1s of the click using '.MuiSnackbar-root'. Persistence verified via localStorage last_company_id + a request listener on PUT .../last-company. Known-deferred items (transactions sticky column, settings chip-row scroll, invoice-preview PDF) were not re-tested.",
+  "rca_of_the_issue": "Fix confirmed: removing CompanySelector's auto-select-first effect makes CompanyDataContext the single owner of default selection, so the persisted last_company_id is honoured and no PUT /api/user/last-company fires on page load. Remaining mobile trigger width problem is a layout issue: the wrapper Box uses flex '1 1 auto' with overflow:hidden inside a crowded mobile header, so it is squeezed to the icon's 20.5px."
+}

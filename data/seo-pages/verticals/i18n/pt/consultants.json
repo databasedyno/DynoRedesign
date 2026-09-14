@@ -1,0 +1,55 @@
+{
+  "meta_title": "Pagamentos em cripto para consultores e coaches · Dynopay",
+  "meta_description": "Receba em cripto por consultoria e coaching com a Dynopay. Fature clientes em todo o mundo, sem estornos, mais de 15 criptomoedas, comissões desde 1,5%. Comece grátis.",
+  "h1": "Aceite pagamentos em cripto por consultoria e coaching, de qualquer cliente do mundo",
+  "subheading": "A Dynopay permite que consultores, coaches e assessores faturem os seus clientes em Bitcoin, stablecoins e mais de 15 criptomoedas diretamente numa wallet que controlam — com liquidação instantânea e sem estornos.",
+  "intro_paragraph": "Os consultores e coaches faturam frequentemente clientes internacionais, onde as transferências são lentas e dispendiosas e os estornos de cartão podem surgir após um serviço já prestado. A Dynopay é uma gateway de pagamentos em cripto não custodial que liquida diretamente na sua wallet. Envie um link de pagamento com a sua marca para uma avença, um pacote ou uma sessão avulsa, receba através de um checkout alojado ou automatize a faturação com a API REST em mais de 15 criptomoedas. As comissões começam em 1,5% e descem até 0,5% à escala, sem estornos, sem mensalidades e com o primeiro pagamento grátis.",
+  "features": [
+    {
+      "title": "Fature clientes globais em segundos",
+      "description": "Envie um link de pagamento por e-mail ou chat e seja pago em minutos — sem transferência internacional, sem dias de espera e sem comissões de bancos correspondentes a corroer a sua fatura."
+    },
+    {
+      "title": "Sem estornos depois de o trabalho estar entregue",
+      "description": "Os pagamentos em cripto são definitivos, pelo que um cliente não pode contestar os seus honorários através do emissor do cartão depois de concluídas as sessões ou entregas."
+    },
+    {
+      "title": "Mantenha um saldo estável",
+      "description": "Aceite USDT ou USDC para manter um saldo indexado ao dólar e evitar a volatilidade, e converta para a sua moeda local quando quiser."
+    }
+  ],
+  "how_it_works": [
+    "Registe-se, verifique o seu e-mail, crie um perfil de empresa e adicione um endereço de wallet de recebimento para a liquidação.",
+    "Crie um link de pagamento para cada cliente, avença ou pacote — ou integre o checkout na sua página de marcações.",
+    "O cliente paga na criptomoeda que preferir e os fundos chegam à sua wallet em minutos."
+  ],
+  "faqs": [
+    {
+      "question": "Como são pagos os consultores e coaches com a Dynopay?",
+      "answer": "Crie um link de pagamento para uma sessão, pacote ou avença e envie-o ao cliente, ou integre o checkout na sua página de marcações. Quando ele paga em cripto, os fundos liquidam na sua wallet em minutos — sem atrasos de transferências internacionais."
+    },
+    {
+      "question": "Posso faturar uma avença mensal em cripto?",
+      "answer": "Sim, ciclo a ciclo. A cripto não tem débito automático como os cartões, por isso cada renovação é um novo pagamento — use a API REST e os webhooks para enviar automaticamente um link de pagamento em cada ciclo de faturação."
+    },
+    {
+      "question": "Com que criptomoedas podem pagar os clientes?",
+      "answer": "A Dynopay suporta mais de 15 criptomoedas, incluindo Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, TRX, MATIC e stablecoins como USDT (ERC20, TRC20, Polygon), USDC (ERC20) e RLUSD."
+    },
+    {
+      "question": "Quais são as comissões para aceitar pagamentos de consultoria?",
+      "answer": "As comissões começam em 1,5% mais um dólar por pagamento bem-sucedido e descem até 0,5% à medida que o seu volume liquidado cresce. Sem custos de adesão, sem mensalidades, e o seu primeiro pagamento é grátis."
+    },
+    {
+      "question": "O meu dinheiro fica retido pela Dynopay?",
+      "answer": "Não. A Dynopay é não custodial, pelo que os pagamentos liquidam diretamente numa wallet que controla — MetaMask, Coinbase, Ledger ou qualquer endereço que lhe pertença."
+    }
+  ],
+  "cta_headline": "Comece a faturar os seus clientes em cripto em 10 minutos",
+  "cta_body": "Registe-se agora e a sua primeira transação é sem comissões. Sem custos mensais, e os fundos liquidam diretamente numa wallet que controla.",
+  "_generated_at": "2026-09-05T00:00:00.000Z",
+  "_model": "dynopay-editorial-2026-09",
+  "_kind": "vertical",
+  "_slug": "consultants",
+  "_display_name": "Consultants & Coaches"
+}

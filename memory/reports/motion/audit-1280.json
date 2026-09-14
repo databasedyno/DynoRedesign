@@ -1,0 +1,76 @@
+{
+ "/dashboard": {
+  "total": 823,
+  "withTransition": 163,
+  "hist": {
+   "101-250": 152,
+   ">400": 8,
+   "<=100": 3
+  },
+  "slow": [
+   "div[^dash2026-tier-seg-starter].MuiBox-root 600ms [width] cubic-bezier(0.4",
+   "div[dash2026-fee-tier-bar].MuiBox-root 600ms [width] cubic-bezier(0.4",
+   "div[^dash2026-tier-seg-scale].MuiBox-root 600ms [width] cubic-bezier(0.4",
+   "div[^dash2026-tier-seg-enterprise].MuiBox-root 600ms [width] cubic-bezier(0.4",
+   "div[^dash2026-asset-BTC].MuiBox-root 500ms [width] ease",
+   "div[^dash2026-asset-USDT-TRC20].MuiBox-root 500ms [width] ease",
+   "div[^dash2026-asset-LTC].MuiBox-root 500ms [width] ease",
+   "div[^dash2026-asset-ETH].MuiBox-root 500ms [width] ease"
+  ],
+  "all": [
+   "div.MuiPaper-root.MuiPaper-elevation 100ms"
+  ],
+  "anim": [
+   "div[dash2026-balance-strip].MuiBox-root dashRise 320ms x1",
+   "div[dash2026-actions-row].MuiBox-root dashRise 320ms x1",
+   "div[auto-convert-banner].MuiBox-root dashRise 320ms x1",
+   "div[^auto-convert-banner].MuiBox-root dashRise 320ms x1",
+   "div[^dash2026-root].MuiBox-root dashRise 320ms x1",
+   "input[^add-wallet-dialog].MuiInputBase-input.MuiOutlinedInput-input mui-auto-fill-cancel 10ms x1",
+   "input[wallet-address-input].MuiInputBase-input.MuiOutlinedInput-input mui-auto-fill-cancel 10ms x1",
+   "input.MuiInputBase-input.MuiOutlinedInput-input mui-auto-fill-cancel 10ms x1"
+  ]
+ },
+ "/get-started": {
+  "total": 546,
+  "withTransition": 111,
+  "hist": {
+   "101-250": 107,
+   ">400": 1,
+   "<=100": 3
+  },
+  "slow": [
+   "circle[^gs-rail-ring] 600ms [stroke-dashoffset,stroke] cubic-bezier(0.2"
+  ],
+  "all": [
+   "div.MuiPaper-root.MuiPaper-elevation 100ms"
+  ],
+  "anim": [
+   "div[^gs-wizard].MuiBox-root gsRise 280ms x1",
+   "input[gs-first-name].MuiInputBase-input.MuiOutlinedInput-input mui-auto-fill-cancel 10ms x1",
+   "input[gs-last-name].MuiInputBase-input.MuiOutlinedInput-input mui-auto-fill-cancel 10ms x1",
+   "input[gs-brand-name].MuiInputBase-input.MuiOutlinedInput-input mui-auto-fill-cancel 10ms x1",
+   "input[gs-country-input].MuiInputBase-input.MuiOutlinedInput-input mui-auto-fill-cancel 10ms x1",
+   "input[^add-wallet-dialog].MuiInputBase-input.MuiOutlinedInput-input mui-auto-fill-cancel 10ms x1",
+   "input[wallet-address-input].MuiInputBase-input.MuiOutlinedInput-input mui-auto-fill-cancel 10ms x1",
+   "input.MuiInputBase-input.MuiOutlinedInput-input mui-auto-fill-cancel 10ms x1"
+  ]
+ },
+ "/transactions": {
+  "total": 830,
+  "withTransition": 169,
+  "hist": {
+   "101-250": 166,
+   "<=100": 3
+  },
+  "slow": [],
+  "all": [
+   "div.MuiPaper-root.MuiPaper-elevation 100ms"
+  ],
+  "anim": [
+   "input.MuiInputBase-input.MuiOutlinedInput-input mui-auto-fill-cancel 10ms x1",
+   "input[^add-wallet-dialog].MuiInputBase-input.MuiOutlinedInput-input mui-auto-fill-cancel 10ms x1",
+   "input[wallet-address-input].MuiInputBase-input.MuiOutlinedInput-input mui-auto-fill-cancel 10ms x1"
+  ]
+ }
+}

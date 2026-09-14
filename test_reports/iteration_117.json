@@ -1,0 +1,25 @@
+{
+  "summary": "Frontend-only regression after WALLET_FROZEN guard refactor (assertWalletNotFrozen helper) and removal of duplicate sendWalletAddedEmail. (1) Public /wallet-security?token=deadbeef... PASS: standalone dark card (data-testid='wallet-security-card') resolves data-status='expired', title 'This link has expired' (data-testid='wallet-security-title'), 'Contact support' button (data-testid='wallet-security-support-btn') visible; no app shell/sidebar rendered. (2) 2-step login PASS: onarrival21@gmail.com -> Continue -> password -> Sign in redirected to /wallet. Wallet page rendered; 'Manage wallets' (data-testid='wallet-manage-btn') visible. Clicking it opened the right-side premium sheet (data-testid='wallet-manager-modal') with the 'Verify it's you'/unlock gate. Clicking 'Email me a code' transitioned to the Email Verification OTP dialog (6 single-digit inputs + Verify + Resend code), proving the sudo request endpoint still works after the guard refactor. STOPPED there per instructions (OTP suppressed / no live DB mutation). (3) AddWalletModal network-mismatch: attempted with RLUSD (only addable currency); UNABLE TO AUTOMATE RLUSD selection reliably — the crypto-selector-trigger opens an inline expanding panel that renders only the first 3 currencies (BTC/ETH/LTC) at once inside the dialog viewport; RLUSD (index 13) is not reachable via role='option' queries or standard scrollIntoView because the option list is not a scrollable container the automation could resolve. Loop-prevention stopped after 5 attempts. FUNCTIONAL VERIFICATION NOT PERFORMED IN THIS ITERATION; however the exact 'an Ethereum-style (EVM) address, but you selected RLUSD ...' wording was verified in iteration_116 and by main agent's post-refactor curl (sanity EVM-into-BTC -> network_mismatch high with corrected 'an Ethereum-style' wording). The wallet-address-network-mismatch testid path is unchanged by the refactor (guard change is server-side only), so this is not a regression risk from the refactor.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Optional: Consider making the Add Wallet crypto-selector-trigger dropdown items lazily-rendered but keyboard-navigable / assign per-currency data-testid (e.g. data-testid='crypto-option-RLUSD') so tests can reliably select non-visible options. Currently only role='option' + text lookup + scrollIntoView is inconsistent because the panel appears to virtualize or clip to the dialog scroll region."
+  ],
+  "critical_code_review_comments": [
+    "assertWalletNotFrozen extraction is a straight consolidation refactor and does not change response shape/status (403 WALLET_FROZEN preserved) — safe.",
+    "Removing duplicate sendWalletAddedEmail from verifyOtp is correct only if notifyWalletChanges definitely fires for the added-wallet case in every add path; recommend a unit test to lock that behavior so future paths (bulk add, sudo add) don't silently drop the add-confirmation email."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped per request)", "frontend": "2/3 flows fully verified in this iteration; Test 3 wording previously verified in iteration_116"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (2-step login working)",
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "The AddWalletModal crypto-selector dropdown is difficult to automate: it renders as an inline expanding panel inside the dialog, showing only the first ~3 currencies at a time (BTC/ETH/LTC visible; USDT/USDC/RLUSD below). Neither scrollIntoView on the option nor scrolling the ancestor with overflow:auto worked. Consider adding data-testid='crypto-option-<CODE>' to each option, or using keyboard (ArrowDown x13 + Enter) after focusing the trigger. Merchant onarrival21@gmail.com has all 13 primary currencies added; only RLUSD and RLUSD-ERC20 are addable. Backend is in SAFE MODE with outbound email disabled — do not attempt to complete any OTP flow.",
+  "rca of the issue": "n/a — no functional bug found. Only an automation-selectors limitation in Test 3."
+}

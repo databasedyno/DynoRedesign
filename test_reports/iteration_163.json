@@ -1,0 +1,24 @@
+{
+  "summary": "Frontend-only verification of Donations addition to the v5 Products showcase on the public landing page. All acceptance criteria PASS: headline reads 'Seven ways to get paid. One account.'; 7 tab pills present (Payment links, Hosted checkout, Storefront, Donations, Invoices, Embeds, API) each with expected data-testid; clicking product-tab-donations reveals product-panel-donations with title 'Raise funds and take tips in crypto.', description mentioning goal bar / reward tiers / donor wall, and CTA 'See the donation demo' pointing to /pay/donation-demo; product-shot-donations renders <img src='/landing/products/donations-light.webp' alt='Donations preview' naturalWidth=1280 (image loads, no fallback); products-dot-donations exists (mobile carousel dot). All other tabs (links, checkout, storefront, invoices, embeds, api) still switch and render their panels. Clicking the CTA navigates to /pay/donation-demo which loads the Riverside Community Library donation campaign with goal bar (65% funded, $16,240 / $25,000), preset amounts, share buttons and recent supporters list.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Non-blocking: /pay/donation-demo emits a React devtools warning 'Invalid prop children supplied to ForwardRef(Box)' from Components/Page/Pay3Components/donationCampaign.tsx (~line 161). Page renders fine but the Box likely receives a non-ReactNode child (e.g., false/undefined/object). Out of scope of this fix but worth cleaning up."
+  ],
+  "critical_code_review_comments": [
+    "ProductsV5 TABS array and SHOT_URL correctly include donations. Localized strings verified in EN. Other locales not spot-checked in-browser but files listed in the request cover de/es/fr/pt/nl."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped per request)", "frontend": "100%"},
+  "test_credentials": "None required (public landing + public /pay/donation-demo).",
+  "seed_data_creation": "None.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Landing base URL: https://speedup-check.preview.emergentagent.com/. Key testids: products, product-tab-{links|checkout|storefront|donations|invoices|embeds|api}, product-panel-donations, product-shot-donations, product-cta, products-dot-donations. Showcase auto-rotates every 6s so always click the pill by data-testid.",
+  "rca of the issue": "N/A — donations tab is present and fully functional on the landing page."
+}

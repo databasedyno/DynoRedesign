@@ -1,0 +1,23 @@
+{
+  "summary": "Verified the two Dynopay fixes end-to-end. BUG 1 (storefront hydration on repeat visit for logged-in merchant): reproduced the required flow — logged in as onarrival21@gmail.com, hit /devhub twice within seconds, then repeated with dark theme cookie+localStorage, plus anonymous /devhub x2 and /devhub/shop, plus /pay/demo and /pay?d=rNtQRX (read-only). Zero hydration console errors, zero pageerrors, no <nextjs-portal> overlay on any load; storefront rendered creator name 'The Dev Store' + support widget and public-verified-badge appeared after hydration on both loads. Dark mode renders with data-theme='dark'. BUG 2 (language menu testids): header desktop trigger has data-current-lang; panel exposes all six options (en/pt/fr/es/de/nl) with data-lang and data-selected, and switching each language flips the hero-v5 text to the expected localized copy with no raw 'v5.' key leakage in the body. Footer language menu also exposes all six data-testids and switches languages. Mobile drawer language-trigger + language-option-<code> x6 verified, DE switch flips hero. First-visit lang-onboarding-bar chips carry data-lang for all 6 codes. Auth screen (/auth/login) auth-lang-trigger + auth-lang-option-<code> x6 verified; FR switch renders French tokens (Continuer, Se connecter, e-mail). In-app mobile /dashboard mobile-nav-more opens modal exposing all six mobile-lang-option-<code> options with data-lang + data-selected.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "PublicVerifiedBadge/useMerchantVerified hydrated-flag pattern is the correct fix — badge renders only post-mount, avoiding SSR/CSR mismatch from persisted SWR localStorage cache. No further action needed.",
+    "Language testids are consistent across Header, Footer, Mobile drawer, Auth, Onboarding bar, and In-app Mobile modal — good coverage for automation."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "100%"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (used read-only)",
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Both fixes verified in iteration_148. Hydration regression: use wait_until='load' (never networkidle — live price polling). For rate-limit on /api/pay/creator/<handle>, don't loop /devhub loads too fast. Language switching persists via localStorage i18nextLng + lang_manual — reset to 'en' after tests. Mobile in-app bottom nav uses data-testid=mobile-nav-more which opens a modal listing mobile-lang-option-<code>.",
+  "rca of the issue": "Original hydration mismatch was triggered by utils/swrLocalCache.ts synchronously seeding SWR with verified=true during the client render on a repeat visit within TTL, while SSR had no badge. Fix in Components/UI/PublicVerifiedBadge/useMerchantVerified.ts introduces a `hydrated` state that starts false and flips to true in useEffect after mount, ensuring the hook returns false on the first client render (matching SSR), and only reveals the badge on a subsequent render. Verified: two consecutive full loads of /devhub as the logged-in merchant produce zero hydration errors and no <nextjs-portal>; badge still appears within a few seconds after paint."
+}

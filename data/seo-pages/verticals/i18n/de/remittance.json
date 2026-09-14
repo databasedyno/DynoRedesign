@@ -1,0 +1,55 @@
+{
+  "meta_title": "Krypto-Zahlungen für Überweisungen und grenzüberschreitende Auszahlungen · Dynopay",
+  "meta_description": "Akzeptieren Sie Krypto-Zahlungen für Überweisungen und grenzüberschreitende Auszahlungen. Non-custodial, 15+ Kryptowährungen, Gebühren ab 1,5 %. Keine Rückbuchungen. Starten Sie in 10 Minuten.",
+  "h1": "Krypto-Zahlungen für Überweisungen und grenzüberschreitende Auszahlungen",
+  "subheading": "Erhalten Sie grenzüberschreitende Zahlungen in Bitcoin, USDT, XRP und 12+ anderen Kryptowährungen ohne Korrespondenzbanken, Rückbuchungen oder Haltefristen",
+  "intro_paragraph": "Traditionelle Überweisungskorridore belasten Sie mit 3-7 % FX-Aufschlägen, 3-5 Tagen Abwicklungszeit und langsamen Legacy-Systemen, die Ihre Kunden frustrieren. Dynopay liefert Krypto-Zahlungen direkt an Ihre Wallet – keine Verwahrung, keine Rückbuchungen, keine monatlichen Gebühren. Ihre Kunden zahlen in Bitcoin, Stablecoins oder 15+ Kryptowährungen, und Sie erhalten die Gelder in Minuten in der Wallet, die Sie kontrollieren. Die Gebühren beginnen bei 1,5 % und sinken auf 0,5 %, wenn Ihr Volumen wächst, wobei Ihre erste Transaktion völlig kostenlos ist.",
+  "features": [
+    {
+      "title": "Gelder treffen direkt Ihre Wallet",
+      "description": "Die non-custodial Architektur bedeutet, dass jede Zahlung in der Wallet landet, die Sie während der Einrichtung angeben. Dynopay berührt Ihre Gelder niemals, sodass Sie die volle Kontrolle behalten und Kapital sofort bewegen können."
+    },
+    {
+      "title": "Stablecoins beseitigen FX-Volatilität",
+      "description": "Akzeptieren Sie USDT auf Ethereum, Tron und Polygon sowie USDC auf Ethereum und RLUSD auf Ethereum und dem XRP Ledger. Ihre Empfänger erhalten vorhersehbaren Wert ohne Exposition gegenüber Bitcoin-Preisschwankungen."
+    },
+    {
+      "title": "Keine Rückbuchungen, niemals",
+      "description": "Krypto-Transaktionen sind endgültig. Einmal abgewickelt, können Gelder von einer Bank oder einem Zahlungsdienstleister nicht zurückgebucht werden, wodurch Streitverluste vermieden werden, die die kartenbasierten Überweisungsdienste plagen."
+    }
+  ],
+  "how_it_works": [
+    "Melden Sie sich an, verifizieren Sie Ihre E-Mail, erstellen Sie ein Unternehmensprofil und fügen Sie die Wallet-Adresse hinzu, an die Sie Gelder senden möchten.",
+    "Erstellen Sie einen Zahlungslink oder betten Sie das Checkout-Widget auf Ihrer Plattform ein, damit Kunden in Krypto bezahlen können.",
+    "Kunden zahlen in ihrer gewählten Kryptowährung; Gelder treffen innerhalb von Minuten in Ihrer Wallet ein, abzüglich der Plattformgebühr."
+  ],
+  "faqs": [
+    {
+      "question": "Wie reduzieren Krypto-Zahlungen die Kosten für grenzüberschreitende Auszahlungen im Vergleich zu Banken?",
+      "answer": "Banken erheben Korrespondenzgebühren, FX-Spreads und SWIFT-Gebühren, die insgesamt 3-7 % pro Transaktion betragen. Dynopay erhebt Gebühren ab 1,5 % (sinkend auf 0,5 % bei hohem Volumen) ohne versteckte Gebühren, ohne Zwischenhändler und ohne Währungsumrechnungsaufschläge bei der Verwendung von Stablecoins."
+    },
+    {
+      "question": "Welche Stablecoins unterstützt Dynopay für Überweisungsunternehmen?",
+      "answer": "Dynopay unterstützt USDT auf Ethereum, Polygon und Tron-Netzwerken, USDC auf Ethereum sowie RLUSD sowohl auf Ethereum als auch auf dem XRP Ledger. Dies bietet Ihren Kunden mehrere kostengünstige Optionen für stabile Wertübertragungen."
+    },
+    {
+      "question": "Brauche ich eine Krypto-Wallet, bevor ich Zahlungen akzeptiere?",
+      "answer": "Ja. Während des Onboardings geben Sie eine Wallet-Adresse pro Kryptowährung an, die Sie akzeptieren möchten. Gelder aus jeder Zahlung gehen direkt dorthin. Sie können jede non-custodial Wallet wie MetaMask, Ledger, Exodus oder eine Unternehmens-Treasury-Wallet verwenden."
+    },
+    {
+      "question": "Wie lange dauert es, bis grenzüberschreitende Krypto-Zahlungen abgewickelt sind?",
+      "answer": "Bitcoin bestätigt in 10-60 Minuten, abhängig von der Netzwerküberlastung. Zahlungen auf Ethereum, Polygon, Tron und Solana bestätigen in der Regel in weniger als 5 Minuten. XRP und Litecoin werden in 2-5 Minuten abgewickelt. Alle sind schneller als traditionelle Überweisungen."
+    },
+    {
+      "question": "Können Kunden aus jedem Land mir Krypto-Zahlungen über Dynopay senden?",
+      "answer": "Ja. Krypto hat keine geografischen Grenzen dafür, wer Gelder an Ihre Wallet senden kann. Die Identitätsprüfung (KYC) gilt für Ihr Dynopay-Konto, sobald das abgewickelte Volumen einen Schwellenwert überschreitet, Fiat-Auszahlungsstellen führen ihre eigene KYC durch, und als Überweisungsunternehmen sind Sie weiterhin für Ihre eigenen Lizenzierungs- und AML-Verpflichtungen verantwortlich."
+    }
+  ],
+  "cta_headline": "Beginnen Sie, Krypto-Zahlungen in 10 Minuten zu akzeptieren",
+  "cta_body": "Melden Sie sich jetzt an und Ihre erste Transaktion ist gebührenfrei. Keine Einrichtungskosten, keine monatlichen Gebühren, Gelder direkt an Ihre Wallet.",
+  "_generated_at": "2026-08-29T14:54:22.884958Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "remittance",
+  "_display_name": "Remittance & Cross-Border Payouts"
+}

@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto payments for agencies & consultants · Dynopay",
+  "meta_description": "Accept crypto payments for agencies & consultants with Dynopay. Non-custodial, 15+ cryptocurrencies, fees from 1.5%. Pay global contractors. Start now.",
+  "h1": "Accept crypto payments for agencies & consultants without chargebacks",
+  "subheading": "Bill clients in 15+ cryptocurrencies, pay international contractors in minutes, and eliminate cross-border fees—funds arrive directly in your wallet.",
+  "intro_paragraph": "Agencies and consultants can lose revenue to credit card chargebacks, wait days for international wire transfers, and pay 3-7% in foreign exchange fees when working with global clients. Dynopay is a non-custodial platform that lets you invoice clients and pay contractors in Bitcoin, Ethereum, USDT, USDC, and 11 more cryptocurrencies. You control the funds from payment to payout—Dynopay never holds your money.",
+  "features": [
+    {
+      "title": "Pay contractors in crypto",
+      "description": "Send crypto payments to freelancers and partners worldwide without wire fees, currency conversion, or 3-day holds. They receive funds in minutes, and you avoid intermediary bank charges that eat into project budgets."
+    },
+    {
+      "title": "Eliminate chargeback fraud on retainers",
+      "description": "Crypto transactions are final. Clients who dispute completed work cannot reverse payments months later. You keep what you earn, and your cash flow stays predictable without reserve holds or rolling liability."
+    },
+    {
+      "title": "Invoice clients in stablecoins or Bitcoin",
+      "description": "Generate payment links for one-time projects or recurring retainers. Clients pay in USDT, USDC, BTC, ETH, or 11 other assets. Funds land in your wallet within minutes, and you choose when to convert or hold."
+    }
+  ],
+  "how_it_works": [
+    "Sign up, verify your email, and add the wallet address where you want to receive payments.",
+    "Create a payment link for your invoice or embed the checkout widget on your client portal.",
+    "Client pays in crypto; funds arrive directly in your wallet within minutes. First payment is fee-free."
+  ],
+  "faqs": [
+    {
+      "question": "What cryptocurrencies can agencies accept with Dynopay?",
+      "answer": "Dynopay supports 15+ cryptocurrencies including Bitcoin, Ethereum, USDT (ERC20, TRC20, Polygon), USDC, RLUSD, Litecoin, Dogecoin, Solana, XRP, Polygon, Tron, and Bitcoin Cash. Clients can pay in any supported asset, and you receive funds directly in your wallet."
+    },
+    {
+      "question": "How much does Dynopay charge agencies for crypto payments?",
+      "answer": "Fees start at 1.5% plus one dollar per successful payment and drop automatically to 0.5% as your payment volume grows. Your first payment is completely fee-free. There are no monthly fees, setup costs, or hidden charges."
+    },
+    {
+      "question": "Can I pay international contractors with Dynopay?",
+      "answer": "Yes. You can send crypto to contractors globally without wire transfer fees or multi-day settlement delays. Dynopay has no country restrictions on receiving crypto. Contractors receive funds in minutes, and you avoid intermediary bank fees that can cost 3-7% per transaction."
+    },
+    {
+      "question": "Does Dynopay hold my funds like a payment processor?",
+      "answer": "No. Dynopay is non-custodial. Payments go directly from your client to the wallet address you control. Dynopay never holds, freezes, or controls your funds. You maintain full custody at all times, eliminating counterparty risk and reserve holds."
+    },
+    {
+      "question": "How long does it take to start accepting crypto payments?",
+      "answer": "Most agencies are live in under 10 minutes. Sign up, verify your email, create your company profile, add one payout wallet address, then generate a payment link or embed the checkout widget. You can send your first invoice immediately."
+    }
+  ],
+  "cta_headline": "Start accepting crypto payments in 10 minutes",
+  "cta_body": "Your first payment is fee-free. No setup costs, no monthly fees, and funds arrive directly in your wallet.",
+  "_generated_at": "2026-08-29T14:56:26.929627Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "agencies",
+  "_display_name": "Agencies & Consultants"
+}

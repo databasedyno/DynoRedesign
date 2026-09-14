@@ -1,0 +1,156 @@
+{
+  "mode": {
+    "add": {
+      "title": "Nieuw merk toevoegen",
+      "subtitle": "Maak een nieuw merk om cryptobetalingen te beheren",
+      "primaryButton": "Een merk starten"
+    },
+    "edit": {
+      "title": "Merk bewerken",
+      "subtitle": "Merkgegevens bijwerken",
+      "primaryButton": "Bijwerken"
+    }
+  },
+  "fields": {
+    "companyName": {
+      "label": "Merknaam*",
+      "placeholder": "Voer merknaam in"
+    },
+    "website": {
+      "label": "Website (optioneel)",
+      "placeholder": "https://voorbeeld.nl"
+    },
+    "email": {
+      "label": "E-mail*",
+      "placeholder": "contact@voorbeeld.nl"
+    },
+    "mobile": {
+      "label": "Mobiel*",
+      "placeholder": "Voer uw mobiel nummer in"
+    },
+    "brandLogo": {
+      "label": "Merklogo",
+      "uploadCta": "Klik om te uploaden of sleep en laat los",
+      "uploadHint": "SVG, PNG, JPG (max. 2MB)",
+      "saving": "Opslaan…",
+      "autoSaveHint": "Automatisch opgeslagen wanneer je een bestand kiest",
+      "pendingSaveHint": "Nieuw logo geselecteerd — klik op Wijzigingen opslaan om toe te passen.",
+      "saveHint": "Kies een bestand en klik vervolgens op Wijzigingen opslaan om uw logo bij te werken."
+    },
+    "country": {
+      "label": "Land*",
+      "placeholder": "Land selecteren"
+    },
+    "state": {
+      "label": "Provincie",
+      "placeholder": "Provincie selecteren"
+    },
+    "city": {
+      "label": "Stad",
+      "placeholder": "Stad selecteren"
+    },
+    "addressLine1": {
+      "label": "Adres, regel 1",
+      "placeholder": "Adresregel 1 invoeren"
+    },
+    "addressLine2": {
+      "label": "Adresregel 2 (optioneel)",
+      "placeholder": "Adresregel 2 invoeren"
+    },
+    "zipCode": {
+      "label": "Postcode",
+      "placeholder": "Postcode invoeren"
+    },
+    "vatNumber": {
+      "label": "BTW-nummer (optioneel)",
+      "placeholder": "BTW-nummer invoeren"
+    }
+  },
+  "actions": {
+    "cancel": "Annuleren"
+  },
+  "validation": {
+    "companyNameRequired": "Merknaam is verplicht",
+    "emailInvalid": "Voer een geldig e-mailadres in",
+    "emailRequired": "E-mail is verplicht",
+    "mobileRequired": "Mobiel nummer is verplicht",
+    "mobileMin": "Minimaal 10 cijfers vereist",
+    "mobileMax": "Maximaal 14 cijfers toegestaan",
+    "countryRequired": "Land is verplicht",
+    "stateRequired": "Provincie is verplicht",
+    "cityRequired": "Stad is verplicht",
+    "addressLine1Required": "Adresregel 1 is verplicht",
+    "zipCodeRequired": "Postcode is verplicht"
+  },
+  "mobilePlaceholder": "Voer uw mobiel nummer in",
+  "vatNumber": "BTW-nummer (optioneel)",
+  "vatVerify": "BTW-nummer geverifieerd",
+  "createModal": {
+    "title": "Maak je merk",
+    "subtitle": "Stel je merk in om betalingen te ontvangen",
+    "closeLater": "Ik doe dit later",
+    "sectionYourName": "Je naam",
+    "sectionCompanyDetails": "Merkgegevens",
+    "firstNameLabel": "Voornaam *",
+    "firstNamePlaceholder": "Voornaam",
+    "lastNameLabel": "Achternaam *",
+    "lastNamePlaceholder": "Achternaam",
+    "companyNameLabel": "Merknaam *",
+    "companyNamePlaceholder": "Voer je merknaam in",
+    "businessEmailLabel": "Zakelijke e-mail *",
+    "businessEmailPlaceholder": "Voer je zakelijke e-mail in",
+    "mobileLabel": "Mobiel nummer (optioneel)",
+    "mobilePlaceholder": "Voer mobiel nummer in",
+    "websiteLabel": "Website (optioneel)",
+    "countryLabel": "Land *",
+    "countryPlaceholder": "Begin je land te typen…",
+    "currencyLabel": "Standaardvaluta *",
+    "currencyPlaceholder": "Selecteer valuta",
+    "brandLogoLabel": "Merklogo (optioneel)",
+    "uploadChange": "Wijzigen",
+    "uploadUpload": "Uploaden",
+    "submit": "Merk aanmaken",
+    "progressTitle": "Je merk wordt ingesteld…",
+    "progressStep1": "Je merk wordt aangemaakt…",
+    "progressStep2": "Factuurvoorkeuren worden geconfigureerd…",
+    "progressStep3": "Welkomstmails worden verzonden…",
+    "progressStep4": "Je verkopersaccount wordt ingericht…",
+    "progressStep5": "Bijna klaar — je dashboard wordt voorbereid…",
+    "fileTypeError": "Alleen afbeeldingsbestanden zijn toegestaan (JPEG, PNG, GIF, WebP, SVG)",
+    "fileSizeError": "De bestandsgrootte moet kleiner zijn dan 5 MB",
+    "validation": {
+      "firstNameRequired": "Voornaam is verplicht",
+      "lastNameRequired": "Achternaam is verplicht",
+      "companyNameRequired": "Merknaam is verplicht",
+      "emailRequired": "E-mail is verplicht",
+      "emailInvalid": "Voer een geldig e-mailadres in",
+      "mobileInvalid": "Voer een geldig mobiel nummer in",
+      "websiteInvalid": "Voer een geldige URL in (bijv. https://jouwbedrijf.com)",
+      "countryRequired": "Selecteer je land",
+      "currencyRequired": "Selecteer een valuta"
+    },
+    "addTitle": "Een nieuw merk toevoegen",
+    "addSubtitle": "Stel nog een merk in onder je account",
+    "payLinkSubtitle": "Gebruikt op facturen en bonnen. Duurt ongeveer 30 seconden.",
+    "cancel": "Annuleren",
+    "emailLabelOptional": "E-mail (optioneel)",
+    "stepBrand": "Merk",
+    "stepWallet": "Portemonnee",
+    "nameLockedNotice": "Je naam is geverifieerd en kan hier niet worden gewijzigd. Neem contact op met support om deze bij te werken.",
+    "logoAdded": "Logo toegevoegd"
+  },
+  "addCompanyBtn": "Merk toevoegen",
+  "noCompaniesYet": "Nog geen merken",
+  "createFirstCompanyBody": "Maak je eerste merk om betalingen te ontvangen en alles op één plek te beheren.",
+  "noResultsFound": "Geen resultaten gevonden",
+  "optional": "optioneel",
+  "validateTax": "Valideer belasting-ID",
+  "accountType": {
+    "label": "Accounttype",
+    "individualTitle": "Particulier / maker",
+    "individualDesc": "Persoonlijke betalingen, fooien en een openbare pagina.",
+    "businessTitle": "Geregistreerd bedrijf",
+    "businessDesc": "Facturen, btw/belasting, adres en teamtoegang.",
+    "switchHelper": "Voeg hieronder je bedrijfsnaam en land toe en sla op om over te schakelen naar een zakelijk account. Je wallets, sleutels en geschiedenis blijven ongewijzigd."
+  }
+}

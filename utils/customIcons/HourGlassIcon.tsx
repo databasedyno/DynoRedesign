@@ -1,0 +1,23 @@
+import React from "react";
+import { IconProps } from "../types";
+
+const HourGlassIcon = ({ fill, size }: IconProps) => {
+  return (
+    <svg
+      width={size || 11}
+      height={size || 12}
+      viewBox="0 0 11 12"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M10.0375 1.25H11V0H0V1.25H0.9625V3.8215L1.25015 4.0085L4.3175 6L1.2507 7.9915L0.96305 8.1785V10.75H0V12H11V10.75H10.0375V8.1785L9.74985 7.9915L6.6825 6L9.7493 4.0085L10.037 3.8215L10.0375 1.25ZM8.6625 1.25H2.3375V3.1785L5.5 5.232L8.6625 3.1785V1.25Z"
+        fill={fill}
+      />
+    </svg>
+  );
+};
+
+export default HourGlassIcon;

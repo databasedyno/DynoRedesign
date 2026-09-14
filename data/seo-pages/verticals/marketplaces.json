@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto payments for online marketplaces & platforms · Dynopay",
+  "meta_description": "Accept crypto payments on your marketplace or platform. Non-custodial, 15+ cryptocurrencies, from 1.5% fees. No chargebacks. Start in 10 minutes with Dynopay.",
+  "h1": "Crypto payments for online marketplaces & platforms that keep you in control",
+  "subheading": "Accept Bitcoin, Ethereum, USDT, and 15+ cryptocurrencies directly to your wallet. Eliminate chargebacks, reduce payment friction, and pay sellers globally.",
+  "intro_paragraph": "Online marketplaces and platforms face constant chargeback disputes, cross-border payout headaches, and payment processor restrictions on digital goods. Dynopay is a non-custodial crypto commerce platform that sends funds directly to your wallet—no intermediary holding your money. You get payment links, hosted checkout, full API integration, and automatic fee-tier scaling from 1.5% down to 0.5% based on volume. Your sellers and users can receive crypto payouts in minutes, anywhere in the world, with zero chargeback risk.",
+  "features": [
+    {
+      "title": "Direct wallet settlements, always",
+      "description": "Funds arrive in your own wallet for every transaction. Dynopay never takes custody, so you control liquidity, timing, and compliance. No waiting for batch payouts or intermediary approvals."
+    },
+    {
+      "title": "Zero chargeback exposure",
+      "description": "Crypto transactions are final. Eliminate fraud disputes, friendly fraud, and chargeback fees that erode margins on digital goods, subscriptions, and high-ticket marketplace sales."
+    },
+    {
+      "title": "Pay international sellers in minutes",
+      "description": "Distribute earnings to freelancers, vendors, and creators worldwide in crypto. No wire delays, no correspondent banking fees. They choose their preferred wallet and asset."
+    }
+  ],
+  "how_it_works": [
+    "Sign up, verify your email, and create your company profile in under three minutes.",
+    "Add one payout wallet address for the cryptocurrency you want to receive as settlement.",
+    "Generate a payment link, embed the checkout widget, or integrate via REST API and start accepting payments."
+  ],
+  "faqs": [
+    {
+      "question": "Which cryptocurrencies can my marketplace accept with Dynopay?",
+      "answer": "Dynopay supports 15+ cryptocurrencies including Bitcoin, Ethereum, Litecoin, Dogecoin, USDT on Ethereum, Tron, and Polygon, USDC, RLUSD, Solana, XRP, TRX, Bitcoin Cash, and Polygon (MATIC). All settlements go directly to your wallet."
+    },
+    {
+      "question": "What are Dynopay's fees for processing crypto payments on a platform?",
+      "answer": "Fees start at 1.5% plus one dollar per successful payment and drop automatically to 0.5% as your settled volume grows. No monthly fees, no setup costs, no hidden charges. Your first payment is completely free."
+    },
+    {
+      "question": "How do I pay out sellers or creators on my marketplace in crypto?",
+      "answer": "Each seller or creator provides their own wallet address. You can send crypto directly from your treasury wallet, or integrate Dynopay's API to automate payouts."
+    },
+    {
+      "question": "Does Dynopay hold funds at any point during a transaction?",
+      "answer": "No. Dynopay is non-custodial. Every payment goes directly from the buyer's wallet to your specified payout wallet. You maintain full custody and control over funds at all times, with no intermediary lock-up."
+    },
+    {
+      "question": "How long does it take to start accepting crypto on my platform?",
+      "answer": "Onboarding takes under 10 minutes. Sign up, verify your email, add your company details, specify one payout wallet, and generate a payment link or integrate the checkout. You can go live the same day."
+    }
+  ],
+  "cta_headline": "Start accepting crypto payments in 10 minutes",
+  "cta_body": "Your first payment is fee-free. No setup cost, no monthly fees, and funds settle directly to your wallet.",
+  "_generated_at": "2026-08-29T14:56:01.692406Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "marketplaces",
+  "_display_name": "Online Marketplaces & Platforms"
+}

@@ -1,0 +1,27 @@
+{
+  "summary": "Verified webhook integration docs/spec/blog URL migration from api.dynopay.com -> https://dynopay.com/api. All 5 required checks PASS.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "verification_results": {
+    "grep_target_files_api_dynopay_com": "0 matches (PASS)",
+    "webhook_md_dynopay_com_api_count": "13 (PASS)",
+    "webhook_md_curl_examples_use_correct_host": "PASS (all curl lines pointing at dynopay.com/api/company/webhook-*)",
+    "swagger_docs_json": "HTTP 200, 0 'api.dynopay.com', contains 'https://dynopay.com/api/company/webhook-settings' (PASS)",
+    "swagger_ui_/api/docs": "301 -> /api/docs/ 200 HTML (PASS)",
+    "blog_how-to-accept-crypto-payments": "HTTP 200, contains https://dynopay.com/api/user/createPayment, no api.dynopay.com (PASS)",
+    "blog_userless-payment-api": "HTTP 200, contains createPayment AND cryptoPayment, no api.dynopay.com (PASS)",
+    "landing_code_tabs_curl_node_python": "All 3 tabs show https://dynopay.com/api/user/createPayment, no api.dynopay.com (PASS)",
+    "pageerrors": "0",
+    "prod_sanity_dynopay_com_api_status": "HTTP 200 (PASS)",
+    "prod_sanity_api_dynopay_com": "DNS resolution fails (expected, PASS)"
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "seed_data_creation": "",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "iteration_153 confirmed all api.dynopay.com -> dynopay.com/api replacements across WEBHOOK_INTEGRATION.md (13 occurrences), swagger paths+index, DEVELOPER_INTEGRATION_GUIDE.md, docs/guides/DEPLOY_AND_TEST_GUIDE.md, utils/blogData.ts. Swagger spec served at /api/docs.json is clean. Blog and landing rendered code samples verified."
+}

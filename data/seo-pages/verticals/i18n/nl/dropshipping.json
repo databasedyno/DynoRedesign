@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto-betalingen voor dropshipping-winkels · Dynopay",
+  "meta_description": "Accepteer crypto-betalingen in uw dropshipping-winkel met Dynopay. Geen terugboekingen, geen bevroren accounts, 15+ cryptovaluta. Tarieven vanaf 1,5%. Begin vandaag nog gratis.",
+  "h1": "Accepteer crypto-betalingen voor dropshipping zonder terugboekingen of bevroren accounts",
+  "subheading": "Dynopay helpt dropshippers om te ontsnappen aan de blokkades van betaaldiensten met hoog risico, terugboekingsfraude uit te schakelen en Bitcoin, stablecoins en 15+ cryptovaluta rechtstreeks te ontvangen naar een wallet die zij beheren.",
+  "intro_paragraph": "Dropshipping wordt door kaartverwerkers als hoog risico beschouwd: plotselinge accountbevriezingen, doorlopende reserves en terugboekingen bij lange verzendtermijnen kunnen een winkel van de ene op de andere dag ruïneren. Dynopay is een non-custodial crypto-betaalgateway die betalingen rechtstreeks naar uw wallet afwikkelt — geen betaaldienst die uw saldo vasthoudt en geen reserve. Voeg een crypto-betaaloptie toe met een betaallink, een ingebedde widget of de REST API in 15+ cryptovaluta, met tarieven vanaf 1,5% die bij schaal naar 0,5% dalen. Geen terugboekingen, geen maandelijkse kosten, eerste betaling gratis.",
+  "features": [
+    {
+      "title": "Geen accountbevriezingen of doorlopende reserves",
+      "description": "Dynopay is non-custodial — de fondsen komen rechtstreeks in uw wallet terecht in plaats van op een account van een betaaldienst dat bevroren kan worden of een percentage van elke verkoop als reserve vasthoudt."
+    },
+    {
+      "title": "Terugboekingsbestendige inkomsten bij lange verzendtijden",
+      "description": "Crypto-betalingen zijn definitief, dus een klant kan de betaling niet betwisten terwijl een pakket nog weken onderweg is — de belangrijkste bron van dropshipping-terugboekingen."
+    },
+    {
+      "title": "Verkoop wereldwijd vanaf dag één",
+      "description": "Accepteer betalingen van kopers in markten die slecht door kaarten worden bediend. Met crypto kunt u wereldwijd bestellingen aannemen zonder goedkeuringen van betaaldiensten per land."
+    }
+  ],
+  "how_it_works": [
+    "Meld u aan, verifieer uw e-mail, maak een bedrijfsprofiel aan en voeg één uitbetalings-walletadres toe voor de afwikkeling.",
+    "Voeg Dynopay toe als crypto-betaaloptie met een betaallink of integreer de widget op de checkoutpagina van uw winkel.",
+    "De klant betaalt in zijn voorkeurscryptovaluta en de fondsen komen binnen enkele minuten in uw wallet aan — geen reserve, geen blokkering."
+  ],
+  "faqs": [
+    {
+      "question": "Waarom is crypto beter dan kaartverwerkers voor dropshipping?",
+      "answer": "Kaartverwerkers classificeren dropshipping als hoog risico en reageren met accountbevriezingen, doorlopende reserves en terugboekingsboetes bij lange verzendtermijnen. Crypto-betalingen zijn non-custodial en definitief, dus er is geen reserve, geen bevriezing en geen betwisting na levering."
+    },
+    {
+      "question": "Kan ik crypto-checkout toevoegen aan Shopify, WooCommerce of een eigen winkel?",
+      "answer": "Ja. Gebruik een gehoste betaallink, integreer de Dynopay-checkoutwidget of koppel de REST API en webhooks aan elke winkel, zodat bestellingen automatisch als betaald worden gemarkeerd zodra de crypto-betaling is bevestigd."
+    },
+    {
+      "question": "Met welke cryptovaluta kunnen mijn klanten betalen?",
+      "answer": "Dynopay ondersteunt 15+ cryptovaluta, waaronder Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, TRX, MATIC en stablecoins zoals USDT (ERC20, TRC20, Polygon), USDC (ERC20) en RLUSD."
+    },
+    {
+      "question": "Wat zijn de tarieven van Dynopay voor een dropshipping-winkel?",
+      "answer": "De tarieven beginnen bij 1,5% plus één dollar per geslaagde betaling en dalen naar 0,5% naarmate uw afgewikkelde volume groeit. Geen opstartkosten, geen maandelijkse kosten, en uw eerste betaling is gratis."
+    },
+    {
+      "question": "Moet ik crypto bezitten om Dynopay te gebruiken?",
+      "answer": "Nee. U hebt alleen een walletadres nodig voor de munten die u wilt ontvangen. Betalingen worden afgewikkeld naar uw MetaMask, Coinbase, Ledger of elke wallet die u beheert, en u kunt naar eigen tempo omzetten naar fiat."
+    }
+  ],
+  "cta_headline": "Voeg binnen 10 minuten crypto-checkout toe aan uw winkel",
+  "cta_body": "Meld u nu aan en uw eerste transactie is gratis. Geen reserves, geen maandelijkse kosten, en de fondsen worden rechtstreeks afgewikkeld naar uw wallet.",
+  "_generated_at": "2026-09-05T00:00:00.000Z",
+  "_model": "dynopay-editorial-2026-09",
+  "_kind": "vertical",
+  "_slug": "dropshipping",
+  "_display_name": "Dropshipping Stores"
+}

@@ -1,0 +1,5 @@
+{
+  "common": {
+    "payouts.viewCoinTransactions": { "en": "View {{coin}} transactions", "de": "{{coin}}-Transaktionen anzeigen", "es": "Ver transacciones de {{coin}}", "fr": "Voir les transactions {{coin}}", "nl": "{{coin}}-transacties bekijken", "pt": "Ver transações de {{coin}}" }
+  }
+}

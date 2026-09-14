@@ -1,0 +1,52 @@
+{
+  "landing": {
+    "checkout.status.detectedMempool": {
+      "en": "Payment detected — awaiting confirmation",
+      "de": "Zahlung erkannt – Bestätigung ausstehend",
+      "es": "Pago detectado: esperando confirmación",
+      "fr": "Paiement détecté — en attente de confirmation",
+      "nl": "Betaling gedetecteerd — wacht op bevestiging",
+      "pt": "Pagamento detetado — a aguardar confirmação"
+    },
+    "checkout.humanDetectedMempool": {
+      "en": "Your transaction has been broadcast and is waiting to be included in a block (usually {{eta}}). You can keep this page open or close it; your payment will still complete.",
+      "de": "Ihre Transaktion wurde gesendet und wartet darauf, in einen Block aufgenommen zu werden (meist {{eta}}). Sie können diese Seite offen lassen oder schließen – Ihre Zahlung wird trotzdem abgeschlossen.",
+      "es": "Tu transacción se ha emitido y está esperando a incluirse en un bloque (normalmente {{eta}}). Puedes dejar esta página abierta o cerrarla; el pago se completará igualmente.",
+      "fr": "Votre transaction a été diffusée et attend d'être incluse dans un bloc (généralement {{eta}}). Vous pouvez laisser cette page ouverte ou la fermer ; votre paiement sera tout de même finalisé.",
+      "nl": "Je transactie is uitgezonden en wacht om in een blok te worden opgenomen (meestal {{eta}}). Je kunt deze pagina open laten of sluiten; je betaling wordt alsnog voltooid.",
+      "pt": "A sua transação foi transmitida e aguarda inclusão num bloco (normalmente {{eta}}). Pode manter esta página aberta ou fechá-la; o pagamento será concluído de qualquer forma."
+    },
+    "checkout.humanConfirmingEta": {
+      "en": "We can see your payment — waiting for network confirmations (usually {{eta}}). You can keep this page open or close it; your payment will still complete.",
+      "de": "Wir sehen Ihre Zahlung – wir warten auf Netzwerkbestätigungen (meist {{eta}}). Sie können diese Seite offen lassen oder schließen – Ihre Zahlung wird trotzdem abgeschlossen.",
+      "es": "Ya vemos tu pago: esperando las confirmaciones de la red (normalmente {{eta}}). Puedes dejar esta página abierta o cerrarla; el pago se completará igualmente.",
+      "fr": "Nous voyons votre paiement — en attente des confirmations du réseau (généralement {{eta}}). Vous pouvez laisser cette page ouverte ou la fermer ; votre paiement sera tout de même finalisé.",
+      "nl": "We zien je betaling — wachten op netwerkbevestigingen (meestal {{eta}}). Je kunt deze pagina open laten of sluiten; je betaling wordt alsnog voltooid.",
+      "pt": "Já vemos o seu pagamento — a aguardar confirmações da rede (normalmente {{eta}}). Pode manter esta página aberta ou fechá-la; o pagamento será concluído de qualquer forma."
+    },
+    "checkout.strip.confirming.captionMempool": {
+      "en": "Your transaction is in the {{network}} queue (0 confirmations). It usually confirms within {{eta}}.",
+      "de": "Ihre Transaktion befindet sich in der {{network}}-Warteschlange (0 Bestätigungen). Sie wird meist innerhalb von {{eta}} bestätigt.",
+      "es": "Tu transacción está en la cola de {{network}} (0 confirmaciones). Suele confirmarse en {{eta}}.",
+      "fr": "Votre transaction est dans la file d'attente {{network}} (0 confirmation). Elle est généralement confirmée en {{eta}}.",
+      "nl": "Je transactie staat in de wachtrij van {{network}} (0 bevestigingen). Meestal is ze binnen {{eta}} bevestigd.",
+      "pt": "A sua transação está na fila da rede {{network}} (0 confirmações). Normalmente confirma em {{eta}}."
+    },
+    "checkout.strip.confirming.captionOnChain": {
+      "en": "Confirmed on {{network}} — finalizing your payment now.",
+      "de": "Auf {{network}} bestätigt – Ihre Zahlung wird jetzt abgeschlossen.",
+      "es": "Confirmado en {{network}}: finalizando tu pago ahora.",
+      "fr": "Confirmé sur {{network}} — finalisation de votre paiement en cours.",
+      "nl": "Bevestigd op {{network}} — je betaling wordt nu afgerond.",
+      "pt": "Confirmado na rede {{network}} — a finalizar o seu pagamento."
+    },
+    "checkout.strip.confirming.captionEta": {
+      "en": "We saw your transaction. Confirmations on {{network}} usually take {{eta}}.",
+      "de": "Wir haben Ihre Transaktion gesehen. Bestätigungen auf {{network}} dauern meist {{eta}}.",
+      "es": "Hemos visto tu transacción. Las confirmaciones en {{network}} suelen tardar {{eta}}.",
+      "fr": "Nous avons vu votre transaction. Les confirmations sur {{network}} prennent généralement {{eta}}.",
+      "nl": "We hebben je transactie gezien. Bevestigingen op {{network}} duren meestal {{eta}}.",
+      "pt": "Vimos a sua transação. As confirmações em {{network}} demoram normalmente {{eta}}."
+    }
+  }
+}

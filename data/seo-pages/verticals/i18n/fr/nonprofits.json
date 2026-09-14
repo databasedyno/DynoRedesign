@@ -1,0 +1,55 @@
+{
+  "meta_title": "Paiements crypto pour les ONG et les œuvres de charité · Dynopay",
+  "meta_description": "Acceptez Bitcoin, Ethereum et plus de 15 cryptomonnaies pour les dons. Pas de rétrofacturations, pas de frais mensuels. Les fonds vont directement dans votre portefeuille. Commencez gratuitement aujourd'hui.",
+  "h1": "Acceptez les paiements crypto pour les ONG et les œuvres de charité sans rétrofacturations",
+  "subheading": "Recevez des dons en Bitcoin, Ethereum, USDC et plus de 15 cryptomonnaies—les fonds arrivent directement dans votre portefeuille sans risque de rétrofacturation.",
+  "intro_paragraph": "La fraude aux dons coûte aux ONG des milliers en cadeaux de cartes de crédit annulés et en litiges de traitement. Dynopay élimine complètement les rétrofacturations en acceptant les dons en crypto qui se règlent directement dans le portefeuille de votre organisation—vous gardez la pleine garde dès qu'un donateur envoie des fonds. Lancez des pages de dons, intégrez des widgets de paiement sur votre site ou organisez des campagnes de financement participatif avec suivi des objectifs et mises à jour des donateurs. Les frais commencent à 1,5 % et descendent à 0,5 % à grande échelle, sans frais mensuels et votre premier don est entièrement gratuit.",
+  "features": [
+    {
+      "title": "Risque de rétrofacturation nul sur les dons",
+      "description": "Les transactions crypto sont finales. Une fois qu'un donateur envoie du Bitcoin ou un stablecoin, les fonds ne peuvent pas être annulés ou contestés, protégeant votre budget contre les demandes de remboursement frauduleuses."
+    },
+    {
+      "title": "Les fonds vont directement à vous",
+      "description": "Le modèle non-custodial signifie que les dons arrivent immédiatement dans votre propre portefeuille. Dynopay ne conserve jamais vos fonds, vous contrôlez donc la trésorerie et les paiements sans délais de retrait."
+    },
+    {
+      "title": "Acceptez des dons à l'échelle mondiale",
+      "description": "Les soutiens peuvent faire des dons dans leur cryptomonnaie préférée sans frais de conversion de devises, retards de virements transfrontaliers ou restrictions géographiques des processeurs de paiement."
+    }
+  ],
+  "how_it_works": [
+    "Inscrivez-vous, vérifiez votre email, créez votre profil d'ONG et ajoutez votre adresse de portefeuille de paiement.",
+    "Générez un lien de don ou intégrez le widget de paiement sur votre site web pour commencer à accepter des cryptos.",
+    "Les donateurs envoient du Bitcoin, USDC ou d'autres actifs pris en charge et les fonds se règlent directement dans votre portefeuille."
+  ],
+  "faqs": [
+    {
+      "question": "Les ONG paient-elles des frais de transaction sur les dons en crypto ?",
+      "answer": "Oui. Dynopay facture à partir de 1,5 % plus un dollar par don au niveau Starter, descendant automatiquement à 0,5 % à mesure que votre volume réglé augmente. Pas de frais mensuels ni de coûts d'installation. Votre premier don est entièrement gratuit, et il n'y a pas de frais de rétrofacturation car les paiements crypto sont définitifs."
+    },
+    {
+      "question": "Quelles cryptomonnaies les ONG peuvent-elles accepter pour les dons ?",
+      "answer": "Dynopay prend en charge plus de 15 cryptomonnaies, y compris Bitcoin, Ethereum, Litecoin, Dogecoin, USDT et USDC sur Ethereum et Polygon, Solana, XRP, RLUSD, Tron et Bitcoin Cash. Les donateurs choisissent leur actif préféré lors du paiement."
+    },
+    {
+      "question": "Comment les fonds crypto donnés atteignent-ils le portefeuille de notre ONG ?",
+      "answer": "Dynopay est non-custodial. Les dons vont directement du donateur à l'adresse de portefeuille que vous configurez lors de la configuration. Vous maintenez la pleine garde à tout moment—Dynopay ne conserve, ne regroupe ni ne contrôle vos fonds. Vous pouvez retirer ou dépenser immédiatement."
+    },
+    {
+      "question": "Les soutiens internationaux peuvent-ils faire des dons en crypto aux ONG américaines ?",
+      "answer": "Oui. Les dons en crypto fonctionnent globalement par défaut sans restrictions de pays sur qui peut envoyer des fonds à votre portefeuille. Les donateurs évitent les frais de virement international et les écarts de conversion de devises, et vous recevez des contributions en quelques minutes, peu importe leur emplacement."
+    },
+    {
+      "question": "Combien de temps faut-il pour commencer à accepter des dons en crypto ?",
+      "answer": "Moins de 10 minutes. Inscrivez-vous, vérifiez votre email, créez votre profil d'ONG, ajoutez un portefeuille de paiement, puis générez un lien de don ou intégrez le widget sur votre site web. Aucune approbation de compte marchand ou intégration bancaire requise."
+    }
+  ],
+  "cta_headline": "Commencez à accepter des dons en crypto aujourd'hui",
+  "cta_body": "Votre premier don est sans frais. Mettez-vous en ligne en moins de 10 minutes sans coûts d'installation ni frais mensuels.",
+  "_generated_at": "2026-08-29T14:56:49.775449Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "nonprofits",
+  "_display_name": "Nonprofits & Charities"
+}

@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto-betalingen voor gaming & iGaming · Dynopay",
+  "meta_description": "Accepteer crypto-betalingen voor gaming & iGaming zonder terugboekingen, met wereldwijde reikwijdte en directe afrekeningen. Begin binnen 10 minuten. Eerste betaling gratis.",
+  "h1": "Crypto-betalingen voor gaming & iGaming-platforms met nul terugboekingsrisico",
+  "subheading": "Accepteer 15+ cryptocurrencies van spelers wereldwijd, elimineer betalingsfrictie en ontvang fondsen rechtstreeks in uw wallet—geen tussenpersonen.",
+  "intro_paragraph": "Gaming- en iGaming-operators staan voortdurend voor betalingsuitdagingen: kaartverwerkers blokkeren of beperken accounts, terugboekingen putten de omzet uit en spelers krijgen eindeloze kaartafwijzingen. Dynopay is een non-custodial platform waarmee u Bitcoin, Ethereum, USDT en 12+ andere cryptocurrencies kunt accepteren. U ontvangt fondsen rechtstreeks in uw wallet—Dynopay houdt uw geld nooit vast—en betalingen worden binnen enkele minuten afgehandeld met kosten die beginnen bij 1,5% en dalen naar 0,5% bij schaal. Geen terugboekingen. Geen maandelijkse kosten.",
+  "features": [
+    {
+      "title": "Nul terugboekingsrisico",
+      "description": "Crypto-transacties zijn definitief. Geen frauduleuze geschillen of vriendelijke-fraude terugboekingen die in de omzet snijden, en geen overhead voor geschillenbeheer of herpresentatiekosten om te absorberen."
+    },
+    {
+      "title": "Één betalingsrail voor elke markt",
+      "description": "Accepteer crypto van spelers in de markten waar u actief bent—één integratie in plaats van een lappendeken van regionale verwerkers en bankrelaties. U blijft verantwoordelijk voor uw eigen licenties en markregels."
+    },
+    {
+      "title": "Directe wallet-afrekeningen",
+      "description": "Ontvang fondsen rechtstreeks op uw Ethereum, Bitcoin of USDT wallet binnen enkele minuten. Dynopay houdt uw geld nooit vast, zodat u volledige controle behoudt en onmiddellijk toegang heeft tot kapitaal."
+    }
+  ],
+  "how_it_works": [
+    "Meld u aan, verifieer uw e-mail en maak uw bedrijfsprofiel in minder dan drie minuten aan.",
+    "Voeg uw Bitcoin, Ethereum of stablecoin walletadres toe waar u spelerstortingen wilt ontvangen.",
+    "Genereer betalingslinks of embed de checkout-widget op uw platform en begin met het accepteren van crypto."
+  ],
+  "faqs": [
+    {
+      "question": "Hebben crypto-betalingen voor gaming terugboekingen?",
+      "answer": "Nee. Cryptocurrency-transacties zijn onomkeerbaar van ontwerp. Zodra een speler een storting doet, kan deze deze niet betwisten of terugdraaien, waardoor terugboekingsfraude en de geschilverliezen waar gaming-operators mee te maken hebben bij kaartbetalingen worden geëlimineerd."
+    },
+    {
+      "question": "Welke cryptocurrencies kunnen gaming-platforms accepteren met Dynopay?",
+      "answer": "Dynopay ondersteunt 15+ cryptocurrencies, waaronder Bitcoin, Ethereum, Litecoin, Dogecoin, USDT op Ethereum, Polygon en Tron, USDC, SOL, XRP, RLUSD en anderen. Spelers kiezen hun voorkeursmunt bij het afrekenen."
+    },
+    {
+      "question": "Hoeveel rekent Dynopay voor gaming crypto-betalingen?",
+      "answer": "Kosten beginnen bij 1,5% plus één dollar per transactie en dalen automatisch naar 0,5% naarmate uw verwerkte volume groeit. Geen maandelijkse kosten, geen opstartkosten, en uw eerste betaling is volledig gratis. Geen terugboekingen betekent geen geschilkosten."
+    },
+    {
+      "question": "Kunnen spelers uit verschillende landen met crypto storten?",
+      "answer": "Crypto-betalingen werken wereldwijd, zodat spelers in de markten waar uw platform actief is, kunnen storten zonder kaartafwijzingen of regionale verwerkerstekorten. Identiteitsverificatie (KYC) is van toepassing op uw Dynopay-account zodra het verwerkte volume een drempel overschrijdt, en fiat-afritten hebben hun eigen KYC."
+    },
+    {
+      "question": "Hoe snel kan een gaming-site beginnen met het accepteren van crypto met Dynopay?",
+      "answer": "De meeste operators gaan binnen 10 minuten live. Meld u aan, verifieer uw e-mail, voeg uw uitbetalingswalletadres toe en genereer een betalingslink of embed de checkout-widget. Geen langdurige onderbouwing door verwerkers—uw eigen gaminglicenties en lokale naleving blijven uw verantwoordelijkheid."
+    }
+  ],
+  "cta_headline": "Begin vandaag nog met het accepteren van crypto-betalingen",
+  "cta_body": "Uw eerste betaling is gratis. Geen maandelijkse kosten, geen opstartkosten, en binnen 10 minuten live met nul terugboekingsrisico.",
+  "_generated_at": "2026-08-29T14:53:56.868307Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "gaming",
+  "_display_name": "Gaming & iGaming"
+}

@@ -1,0 +1,17 @@
+{
+  "transactions": {
+    "filters": { "en": "Filters", "de": "Filter", "es": "Filtros", "fr": "Filtres", "nl": "Filters", "pt": "Filtros" },
+    "resultsCount": { "en": "{{count}} results", "de": "{{count}} Ergebnisse", "es": "{{count}} resultados", "fr": "{{count}} résultats", "nl": "{{count}} resultaten", "pt": "{{count}} resultados" },
+    "removeFilter": { "en": "Remove filter {{label}}", "de": "Filter {{label}} entfernen", "es": "Quitar filtro {{label}}", "fr": "Retirer le filtre {{label}}", "nl": "Filter {{label}} verwijderen", "pt": "Remover filtro {{label}}" },
+    "filterSheet.title": { "en": "Filters", "de": "Filter", "es": "Filtros", "fr": "Filtres", "nl": "Filters", "pt": "Filtros" },
+    "filterSheet.close": { "en": "Close", "de": "Schließen", "es": "Cerrar", "fr": "Fermer", "nl": "Sluiten", "pt": "Fechar" },
+    "filterSheet.source": { "en": "Source", "de": "Quelle", "es": "Origen", "fr": "Source", "nl": "Bron", "pt": "Origem" },
+    "filterSheet.status": { "en": "Status", "de": "Status", "es": "Estado", "fr": "Statut", "nl": "Status", "pt": "Estado" },
+    "filterSheet.wallet": { "en": "Coin", "de": "Coin", "es": "Moneda", "fr": "Crypto", "nl": "Coin", "pt": "Moeda" },
+    "filterSheet.dateRange": { "en": "Date range", "de": "Zeitraum", "es": "Rango de fechas", "fr": "Période", "nl": "Periode", "pt": "Período" },
+    "filterSheet.anyDate": { "en": "Any date", "de": "Beliebiges Datum", "es": "Cualquier fecha", "fr": "Toutes les dates", "nl": "Elke datum", "pt": "Qualquer data" },
+    "filterSheet.clearDates": { "en": "Clear dates", "de": "Datum löschen", "es": "Borrar fechas", "fr": "Effacer les dates", "nl": "Datums wissen", "pt": "Limpar datas" },
+    "filterSheet.clearAll": { "en": "Clear all", "de": "Alle löschen", "es": "Borrar todo", "fr": "Tout effacer", "nl": "Alles wissen", "pt": "Limpar tudo" },
+    "filterSheet.show": { "en": "Show {{count}} results", "de": "{{count}} Ergebnisse anzeigen", "es": "Mostrar {{count}} resultados", "fr": "Afficher {{count}} résultats", "nl": "{{count}} resultaten tonen", "pt": "Mostrar {{count}} resultados" }
+  }
+}

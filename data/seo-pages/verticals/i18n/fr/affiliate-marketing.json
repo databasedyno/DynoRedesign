@@ -1,0 +1,55 @@
+{
+  "meta_title": "Paiements et versements en crypto pour affiliés · Dynopay",
+  "meta_description": "Encaissez en crypto et soyez payé partout dans le monde en tant qu'affilié avec Dynopay. Plus de 15 cryptomonnaies, sans rétrofacturation, frais dès 1,5 %. Commencez gratuitement dès aujourd'hui.",
+  "h1": "Acceptez les paiements en crypto en tant qu'affilié, partout dans le monde",
+  "subheading": "Dynopay permet aux affiliés et aux acheteurs média d'être payés en Bitcoin, en stablecoins et dans plus de 15 cryptomonnaies directement sur un wallet qu'ils contrôlent — sans frontières, sans rétrofacturations et sans soldes gelés.",
+  "intro_paragraph": "Les revenus d'affiliation traversent constamment les frontières, et les circuits traditionnels ajoutent des frais de conversion de devises, des virements bancaires lents et le risque d'un compte gelé en cas de pic de volume. Dynopay est une passerelle de paiement crypto non dépositaire qui règle directement sur votre wallet — encaissez des paiements pour des promotions, du média ou vos propres offres avec un lien de paiement, un checkout hébergé ou l'API REST sur plus de 15 cryptomonnaies. Les frais démarrent à 1,5 % et descendent à 0,5 % à grande échelle, sans rétrofacturation, sans frais mensuels et avec un premier paiement gratuit.",
+  "features": [
+    {
+      "title": "Soyez payé à l'international, instantanément",
+      "description": "La crypto se règle en quelques minutes sur un wallet que vous contrôlez, ce qui vous évite les virements bancaires internationaux de plusieurs jours et l'écart de change qui grignote les revenus d'affiliation transfrontaliers."
+    },
+    {
+      "title": "Aucun compte gelé en cas de pic de volume",
+      "description": "Une campagne virale ne déclenchera pas le modèle antifraude d'un prestataire ni ne gèlera votre solde — le règlement non dépositaire signifie que les fonds sont déjà à vous."
+    },
+    {
+      "title": "Des stablecoins pour éviter la volatilité",
+      "description": "Encaissez en USDT ou USDC pour conserver un solde indexé sur le dollar, puis convertissez dans votre devise locale quand le taux vous convient."
+    }
+  ],
+  "how_it_works": [
+    "Inscrivez-vous, vérifiez votre e-mail, créez un profil d'entreprise et ajoutez une adresse de wallet de versement pour le règlement.",
+    "Partagez un lien de paiement, intégrez le checkout ou branchez l'API REST pour facturer partenaires et acheteurs.",
+    "Ils paient dans la cryptomonnaie de leur choix et les fonds arrivent sur votre wallet en quelques minutes."
+  ],
+  "faqs": [
+    {
+      "question": "Comment les affiliés profitent-ils de l'acceptation des cryptos ?",
+      "answer": "Les revenus d'affiliation sont mondiaux et irréguliers. La crypto se règle en quelques minutes sur un wallet que vous contrôlez, évite les délais des banques internationales et les écarts de change, et un prestataire ne peut pas la geler lorsqu'une campagne monte soudainement en charge."
+    },
+    {
+      "question": "Puis-je conserver mes gains dans une monnaie stable indexée sur le dollar ?",
+      "answer": "Oui. Acceptez les paiements en stablecoins comme l'USDT ou l'USDC pour conserver un solde en valeur dollar et éviter la volatilité de la crypto, puis convertissez en monnaie fiat selon votre propre calendrier."
+    },
+    {
+      "question": "Quelles cryptomonnaies sont prises en charge ?",
+      "answer": "Dynopay prend en charge plus de 15 cryptomonnaies, dont Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, TRX, MATIC ainsi que des stablecoins comme l'USDT (ERC20, TRC20, Polygon), l'USDC (ERC20) et le RLUSD."
+    },
+    {
+      "question": "Combien facture Dynopay ?",
+      "answer": "Les frais démarrent à 1,5 % plus un dollar par paiement réussi et descendent à 0,5 % à mesure que votre volume réglé augmente. Aucuns frais d'installation, aucuns frais mensuels, et votre premier paiement est gratuit."
+    },
+    {
+      "question": "Dynopay est-il dépositaire ? Où vont mes fonds ?",
+      "answer": "Dynopay est non dépositaire. Les paiements sont réglés directement sur votre propre wallet — MetaMask, Coinbase, Ledger ou toute adresse que vous contrôlez — Dynopay ne détient donc jamais votre argent."
+    }
+  ],
+  "cta_headline": "Commencez à encaisser des paiements en crypto en 10 minutes",
+  "cta_body": "Inscrivez-vous maintenant et votre première transaction est sans frais. Aucun coût mensuel et les fonds sont réglés directement sur un wallet que vous contrôlez.",
+  "_generated_at": "2026-09-05T00:00:00.000Z",
+  "_model": "dynopay-editorial-2026-09",
+  "_kind": "vertical",
+  "_slug": "affiliate-marketing",
+  "_display_name": "Affiliate Marketers"
+}

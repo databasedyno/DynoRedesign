@@ -1,0 +1,24 @@
+{
+  "summary": "Frontend-only E2E testing of the new Language Auto-Suggest banner on the LIVE account (hostbay@moxx.co). All 4 requested flows PASS: SHOWS (fr-FR spoofed via add_init_script -> banner 'Prefer Français?' / 'Switch to Français' in current app language EN), ACCEPT (whole UI switched to French - sidebar 'Tableau de Bord', 'Liens de Paiement', etc.; document.documentElement.lang='fr'; banner disappeared; localStorage lang='fr' + lang_suggest_dismissed='1'; GET /api/user/profile returned language='fr' i.e. account persistence verified), RESTORE (via /settings?section=profile -> communication-language-select -> language-option-en; profile back to 'en' - verified twice with /app/tests/verify_language_en.py), DISMISS (X hides banner, sets lang_suggest_dismissed='1', banner does NOT reappear after full reload nor after route change to /transactions, app language stayed EN and account NOT mutated), NO-SUGGEST (en-US browser -> banner count 0, no dismiss flag written). Zero console errors in every run. Mobile 390px: banner box y=651 h=104 (bottom 756) sits above the bottom-nav pill - no overlap, bottom-centered on desktop and mobile.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/tests/verify_language_en.py"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Minor (non-blocking): accept() calls remember()+hide() BEFORE awaiting setAppLanguage(); if the PUT /user/profile fails the banner is permanently suppressed while the account keeps the old language (setAppLanguage does set lang_manual='true' so it re-syncs on next authenticated load, so impact is limited).",
+    "Minor: detectBrowserLang picks the first supported base language from navigator.language + navigator.languages; a user with ['en-GB','fr'] correctly gets no suggestion, but ['de','en'] on an EN-app will suggest German even if EN is listed later - acceptable per spec, just noting the precedence rule.",
+    "Note for QA scripts: a Playwright add_init_script that clears lang_suggest_dismissed runs on EVERY navigation, which falsely reproduces a 'banner reappears after reload' bug. Guard with sessionStorage (done in this run)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not tested (frontend-only request)", "frontend": "100% (5/5 scenarios incl. mobile/console regression)"},
+  "seed_data_creation": "None. Only the live account language was temporarily changed en->fr and restored to en (verified via GET /api/user/profile).",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": false,
+  "test_credentials": "hostbay@moxx.co / Katiekendra123@ (2-step login at /auth/login)",
+  "context_for_next_testing_agent": "Language Auto-Suggest banner fully verified. LIVE account language is 'en' at end of this iteration (assert with `python /app/tests/verify_language_en.py`). To retest, spoof navigator.language/languages via page.add_init_script BEFORE navigation and clear lang_suggest_dismissed only once (sessionStorage guard) otherwise dismiss-persistence appears broken. Banner needs ~6s after landing on /dashboard; it re-evaluates on mount/route change/window focus/i18n languageChanged.",
+  "rca_of_the_issue": "No product defect found. The single apparent failure (banner reappearing after reload post-dismiss) was a test-harness artifact: the init script re-deleted the localStorage dismiss flag on every page load. After guarding the clear with sessionStorage, dismiss persistence passed (flag='1', banner count 0 after reload and after route change)."
+}

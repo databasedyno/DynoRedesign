@@ -1,0 +1,77 @@
+# === Git & IDE ===
+.git
+.gitignore
+.vscode
+.idea
+.emergent
+
+# === Dependencies (installed inside container) ===
+node_modules
+**/node_modules
+
+# === Build artifacts (built inside container) ===
+dist
+build
+coverage
+
+# === Frontend (not needed for backend deployment) ===
+frontend
+checkout-frontend
+
+# === Python files (Railway uses Node.js directly) ===
+*.py
+__pycache__
+
+# === Test & dev files ===
+*.test.ts
+*.spec.ts
+tests
+test_result.md
+
+# === Docs & logs ===
+*.md
+!backend/README.md
+*.log
+
+# === Misc ===
+memory
+scripts
+# Exception: indexnow-ping.mjs is COPY'd by the runner stage of Dockerfile
+# (added 2026-07-05 for the IndexNow deploy ping). Without this negation,
+# Kaniko fails with "copy failed: no source files specified" — see
+# failed DO deployment 26906b0d-28a9-4264-b610-e3a56a627311.
+!scripts/indexnow-ping.mjs
+.env.example
+Dockerfile*
+docker-compose*.yml
+CREDENTIAL_UPDATE_LOG.md
+FINAL_MIGRATION_LOG.md
+
+# === Build-context slimming (2026-08-12) ===
+# Stage 1b (`srcguard`) does a bare `COPY . .`, so EVERY root-level file lands
+# in a kaniko snapshot — and kaniko holds snapshot state in RAM out of the same
+# fixed 8 vCPU / 15 GiB budget the Next.js build needs. These are QA/audit
+# artifacts (~3 MB of PNGs alone) that no build stage ever reads.
+# NOTE: patterns without a slash match ROOT level only, so nested assets under
+# public/ and assets/public-runtime/ are untouched.
+*.png
+*.jpg
+*.jpeg
+.screenshots
+test_reports
+docs
+uploads
+dump.rdb
+debug_output.txt
+page_errors.txt
+backend_test*
+test_*.js
+test_*.ts
+*_test.js
+*_test.ts
+.husky
+.github
+.do
+
+# === Archived one-off scripts/reports from past sessions ===
+_archive

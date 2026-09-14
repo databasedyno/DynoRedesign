@@ -1,0 +1,1080 @@
+{
+ "/dashboard": {
+  "en": {
+   "count": 71,
+   "overflow": false,
+   "clipped": []
+  },
+  "de": {
+   "count": 71,
+   "same": [
+    "≈ $90.81/mo saved at this volume",
+    "vs 6 yesterday"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "fr": {
+   "count": 66,
+   "same": [
+    "≈ $90.81/mo saved at this volume",
+    "vs 6 yesterday"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "es": {
+   "count": 70,
+   "same": [
+    "≈ $90.81/mo saved at this volume",
+    "vs 6 yesterday"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "pt": {
+   "count": 66,
+   "same": [
+    "≈ $90.81/mo saved at this volume",
+    "vs 6 yesterday"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "nl": {
+   "count": 71,
+   "same": [
+    "Open wallet",
+    "≈ $90.81/mo saved at this volume",
+    "vs 6 yesterday"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  }
+ },
+ "/pay-links": {
+  "en": {
+   "count": 45,
+   "overflow": false,
+   "clipped": []
+  },
+  "de": {
+   "count": 45,
+   "same": [
+    "Help us build the next anonymous browser with built-in residential IPs",
+    "web design",
+    "short ref QA",
+    "SWR QA smoke test",
+    "QA — preview UI check (safe to delete)",
+    "Order EEF6276C — 1 item"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "fr": {
+   "count": 44,
+   "same": [
+    "Help us build the next anonymous browser with built-in residential IPs",
+    "web design",
+    "short ref QA",
+    "SWR QA smoke test",
+    "QA — preview UI check (safe to delete)",
+    "Order EEF6276C — 1 item"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "es": {
+   "count": 44,
+   "same": [
+    "Help us build the next anonymous browser with built-in residential IPs",
+    "web design",
+    "short ref QA",
+    "SWR QA smoke test",
+    "QA — preview UI check (safe to delete)",
+    "Order EEF6276C — 1 item"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "pt": {
+   "count": 45,
+   "same": [
+    "Help us build the next anonymous browser with built-in residential IPs",
+    "web design",
+    "short ref QA",
+    "SWR QA smoke test",
+    "QA — preview UI check (safe to delete)",
+    "Order EEF6276C — 1 item"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "nl": {
+   "count": 45,
+   "same": [
+    "Help us build the next anonymous browser with built-in residential IPs",
+    "web design",
+    "short ref QA",
+    "SWR QA smoke test",
+    "QA — preview UI check (safe to delete)",
+    "Order EEF6276C — 1 item"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  }
+ },
+ "/create-pay-link": {
+  "en": {
+   "count": 65,
+   "overflow": false,
+   "clipped": []
+  },
+  "de": {
+   "count": 66,
+   "same": [
+    "What is this payment for?",
+    "Pick a product from your store or describe the payment in your own words.",
+    "Shown to your customer at checkout and on the receipt.",
+    "How much?",
+    "Set the price in your currency — the crypto amount is calculated live at checkout.",
+    "Who it's for, how long the link stays open, and who covers network fees.",
+    "Customer pays",
+    "I pay",
+    "Before you can continue, please:",
+    "enter an amount"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "fr": {
+   "count": 67,
+   "same": [
+    "What is this payment for?",
+    "Pick a product from your store or describe the payment in your own words.",
+    "Shown to your customer at checkout and on the receipt.",
+    "How much?",
+    "Set the price in your currency — the crypto amount is calculated live at checkout.",
+    "Who it's for, how long the link stays open, and who covers network fees.",
+    "Customer pays",
+    "I pay",
+    "Before you can continue, please:",
+    "enter an amount"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "es": {
+   "count": 66,
+   "same": [
+    "What is this payment for?",
+    "Pick a product from your store or describe the payment in your own words.",
+    "Shown to your customer at checkout and on the receipt.",
+    "How much?",
+    "Set the price in your currency — the crypto amount is calculated live at checkout.",
+    "Who it's for, how long the link stays open, and who covers network fees.",
+    "Customer pays",
+    "I pay",
+    "Before you can continue, please:",
+    "enter an amount"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "pt": {
+   "count": 67,
+   "same": [
+    "What is this payment for?",
+    "Pick a product from your store or describe the payment in your own words.",
+    "Shown to your customer at checkout and on the receipt.",
+    "How much?",
+    "Set the price in your currency — the crypto amount is calculated live at checkout.",
+    "Who it's for, how long the link stays open, and who covers network fees.",
+    "Customer pays",
+    "I pay",
+    "Before you can continue, please:",
+    "enter an amount"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "nl": {
+   "count": 65,
+   "same": [
+    "What is this payment for?",
+    "Pick a product from your store or describe the payment in your own words.",
+    "Shown to your customer at checkout and on the receipt.",
+    "How much?",
+    "Set the price in your currency — the crypto amount is calculated live at checkout.",
+    "Who it's for, how long the link stays open, and who covers network fees.",
+    "Customer pays",
+    "I pay",
+    "Before you can continue, please:",
+    "enter an amount"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  }
+ },
+ "/transactions": {
+  "en": {
+   "count": 36,
+   "overflow": false,
+   "clipped": []
+  },
+  "de": {
+   "count": 38,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "fr": {
+   "count": 38,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "es": {
+   "count": 37,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "pt": {
+   "count": 38,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "nl": {
+   "count": 38,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  }
+ },
+ "/payouts": {
+  "en": {
+   "count": 64,
+   "overflow": false,
+   "clipped": []
+  },
+  "de": {
+   "count": 0,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "fr": {
+   "count": 65,
+   "same": [
+    "Settling to undefined · undefined",
+    "Incoming crypto auto‑converts to undefined · undefined",
+    "Legacy API Customer"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "es": {
+   "count": 64,
+   "same": [
+    "Settling to undefined · undefined",
+    "Incoming crypto auto‑converts to undefined · undefined",
+    "Legacy API Customer"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "pt": {
+   "count": 65,
+   "same": [
+    "Settling to undefined · undefined",
+    "Incoming crypto auto‑converts to undefined · undefined",
+    "Legacy API Customer"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "nl": {
+   "count": 64,
+   "same": [
+    "Settling to undefined · undefined",
+    "Incoming crypto auto‑converts to undefined · undefined",
+    "Legacy API Customer"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  }
+ },
+ "/wallet": {
+  "en": {
+   "count": 41,
+   "overflow": false,
+   "clipped": []
+  },
+  "de": {
+   "count": 41,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "fr": {
+   "count": 41,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "es": {
+   "count": 40,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "pt": {
+   "count": 41,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "nl": {
+   "count": 41,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  }
+ },
+ "/wallet/security": {
+  "en": {
+   "count": 45,
+   "overflow": false,
+   "clipped": []
+  },
+  "de": {
+   "count": 45,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "fr": {
+   "count": 45,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "es": {
+   "count": 44,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "pt": {
+   "count": 45,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "nl": {
+   "count": 45,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  }
+ },
+ "/invoices": {
+  "en": {
+   "count": 30,
+   "overflow": false,
+   "clipped": []
+  },
+  "de": {
+   "count": 30,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "fr": {
+   "count": 30,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "es": {
+   "count": 29,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "pt": {
+   "count": 30,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "nl": {
+   "count": 30,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  }
+ },
+ "/customers": {
+  "en": {
+   "count": 42,
+   "overflow": false,
+   "clipped": []
+  },
+  "de": {
+   "count": 44,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "fr": {
+   "count": 47,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "es": {
+   "count": 46,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "pt": {
+   "count": 47,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "nl": {
+   "count": 45,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  }
+ },
+ "/referrals": {
+  "en": {
+   "count": 64,
+   "overflow": false,
+   "clipped": []
+  },
+  "de": {
+   "count": 65,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "fr": {
+   "count": 65,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "es": {
+   "count": 64,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "pt": {
+   "count": 65,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "nl": {
+   "count": 65,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  }
+ },
+ "/storefront": {
+  "en": {
+   "count": 112,
+   "overflow": false,
+   "clipped": []
+  },
+  "de": {
+   "count": 114,
+   "same": [
+    "Software. Scripts. APIs. Bots. ⚡ Everything you need to build and scale.",
+    "Buy me a coffee",
+    "Send a tip",
+    "Thanks for supporting Dev Hub! 🚀 Your tip helps us continue building better software, tools, and resources.",
+    "The QA Store",
+    "QA Throwaway Brand 2"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "fr": {
+   "count": 112,
+   "same": [
+    "Software. Scripts. APIs. Bots. ⚡ Everything you need to build and scale.",
+    "Buy me a coffee",
+    "Send a tip",
+    "Thanks for supporting Dev Hub! 🚀 Your tip helps us continue building better software, tools, and resources.",
+    "The QA Store",
+    "QA Throwaway Brand 2"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "es": {
+   "count": 111,
+   "same": [
+    "Software. Scripts. APIs. Bots. ⚡ Everything you need to build and scale.",
+    "Buy me a coffee",
+    "Send a tip",
+    "Thanks for supporting Dev Hub! 🚀 Your tip helps us continue building better software, tools, and resources.",
+    "The QA Store",
+    "QA Throwaway Brand 2"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "pt": {
+   "count": 112,
+   "same": [
+    "Software. Scripts. APIs. Bots. ⚡ Everything you need to build and scale.",
+    "Buy me a coffee",
+    "Send a tip",
+    "Thanks for supporting Dev Hub! 🚀 Your tip helps us continue building better software, tools, and resources.",
+    "The QA Store",
+    "QA Throwaway Brand 2"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "nl": {
+   "count": 114,
+   "same": [
+    "Software. Scripts. APIs. Bots. ⚡ Everything you need to build and scale.",
+    "Thanks for supporting Dev Hub! 🚀 Your tip helps us continue building better software, tools, and resources.",
+    "The QA Store",
+    "QA Throwaway Brand 2"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  }
+ },
+ "/settings": {
+  "en": {
+   "count": 69,
+   "overflow": false,
+   "clipped": []
+  },
+  "de": {
+   "count": 70,
+   "same": [
+    "Chrome on Linux",
+    "· Chrome",
+    "Council Bluffs, United States"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "fr": {
+   "count": 71,
+   "same": [
+    "Chrome on Linux",
+    "· Chrome",
+    "Council Bluffs, United States"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "es": {
+   "count": 69,
+   "same": [
+    "Chrome on Linux",
+    "· Chrome",
+    "Council Bluffs, United States"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "pt": {
+   "count": 60,
+   "same": [
+    "Chrome on Linux",
+    "· Chrome",
+    "Council Bluffs, United States"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "nl": {
+   "count": 70,
+   "same": [
+    "Chrome on Linux",
+    "· Chrome",
+    "Council Bluffs, United States"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  }
+ },
+ "/settings?section=notifications": {
+  "en": {
+   "count": 42,
+   "overflow": false,
+   "clipped": []
+  },
+  "de": {
+   "count": 43,
+   "same": [
+    "Push notifications are blocked. Please enable them in your browser settings."
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "fr": {
+   "count": 43,
+   "same": [
+    "Push notifications are blocked. Please enable them in your browser settings."
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "es": {
+   "count": 43,
+   "same": [
+    "Push notifications are blocked. Please enable them in your browser settings."
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "pt": {
+   "count": 19,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "nl": {
+   "count": 43,
+   "same": [
+    "Inbox (10)",
+    "Push notifications are blocked. Please enable them in your browser settings."
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  }
+ },
+ "/developer-keys": {
+  "en": {
+   "count": 58,
+   "overflow": false,
+   "clipped": []
+  },
+  "de": {
+   "count": 58,
+   "same": [
+    "Live Buy Button",
+    "cURL — POST /api/user/createPayment"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "fr": {
+   "count": 58,
+   "same": [
+    "Live Buy Button",
+    "cURL — POST /api/user/createPayment"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "es": {
+   "count": 57,
+   "same": [
+    "Live Buy Button",
+    "cURL — POST /api/user/createPayment"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "pt": {
+   "count": 58,
+   "same": [
+    "Live Buy Button",
+    "cURL — POST /api/user/createPayment"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "nl": {
+   "count": 58,
+   "same": [
+    "Live Buy Button",
+    "cURL — POST /api/user/createPayment"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  }
+ },
+ "/notifications": {
+  "en": {
+   "count": 47,
+   "overflow": false,
+   "clipped": []
+  },
+  "de": {
+   "count": 47,
+   "same": [
+    "Your company The Dev Store received 0 BTC",
+    "Payment Pending Confirmation",
+    "A payment of 0.000618 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: abeb55c22acbf443...",
+    "A payment of 0.00028087 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: d1b29d3b3029a602...",
+    "Your company The Dev Store received 0.00125342 BTC",
+    "A payment of 0.00129245 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: 4898ca86a3195bfd...",
+    "Your company The Dev Store received 0.00032908 BTC",
+    "A payment of 0.0003583 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: 8850aa3c40168b61...",
+    "Your company The Dev Store received 0.00162788 BTC",
+    "A payment of 0.00165721 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: 63c31e835c47bfa6...",
+    "Your company The Dev Store received 0.00755314 ETH",
+    "A payment of 0.00893 ETH has been detected and is awaiting blockchain confirmation. Transaction ID: 0x0e842e584768c1...",
+    "Your company The Dev Store received 98 USDT-TRC20",
+    "A payment of 100 USDT-TRC20 has been detected and is awaiting blockchain confirmation. Transaction ID: 8121ce77c5ef4337...",
+    "Your company The Dev Store received 0.00036449 BTC",
+    "A payment of 0.00038101 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: e576c948f45dcc80...",
+    "Your company The Dev Store received 1.8032 LTC",
+    "A payment of 1.84 LTC has been detected and is awaiting blockchain confirmation. Transaction ID: e861cffeab0f871e...",
+    "Your company The Dev Store received 0.00042817 BTC",
+    "A payment of 0.00044532 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: d27018c00b587dd9..."
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "fr": {
+   "count": 41,
+   "same": [
+    "Your company The Dev Store received 0 BTC",
+    "Payment Pending Confirmation",
+    "A payment of 0.000618 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: abeb55c22acbf443...",
+    "A payment of 0.00028087 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: d1b29d3b3029a602...",
+    "Your company The Dev Store received 0.00125342 BTC",
+    "A payment of 0.00129245 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: 4898ca86a3195bfd...",
+    "Your company The Dev Store received 0.00032908 BTC",
+    "A payment of 0.0003583 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: 8850aa3c40168b61...",
+    "Your company The Dev Store received 0.00162788 BTC",
+    "A payment of 0.00165721 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: 63c31e835c47bfa6...",
+    "Your company The Dev Store received 0.00755314 ETH",
+    "A payment of 0.00893 ETH has been detected and is awaiting blockchain confirmation. Transaction ID: 0x0e842e584768c1...",
+    "Your company The Dev Store received 98 USDT-TRC20",
+    "A payment of 100 USDT-TRC20 has been detected and is awaiting blockchain confirmation. Transaction ID: 8121ce77c5ef4337...",
+    "Your company The Dev Store received 0.00036449 BTC",
+    "A payment of 0.00038101 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: e576c948f45dcc80...",
+    "Your company The Dev Store received 1.8032 LTC",
+    "A payment of 1.84 LTC has been detected and is awaiting blockchain confirmation. Transaction ID: e861cffeab0f871e...",
+    "Your company The Dev Store received 0.00042817 BTC",
+    "A payment of 0.00044532 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: d27018c00b587dd9..."
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "es": {
+   "count": 45,
+   "same": [
+    "Your company The Dev Store received 0 BTC",
+    "Payment Pending Confirmation",
+    "A payment of 0.000618 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: abeb55c22acbf443...",
+    "A payment of 0.00028087 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: d1b29d3b3029a602...",
+    "Your company The Dev Store received 0.00125342 BTC",
+    "A payment of 0.00129245 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: 4898ca86a3195bfd...",
+    "Your company The Dev Store received 0.00032908 BTC",
+    "A payment of 0.0003583 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: 8850aa3c40168b61...",
+    "Your company The Dev Store received 0.00162788 BTC",
+    "A payment of 0.00165721 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: 63c31e835c47bfa6...",
+    "Your company The Dev Store received 0.00755314 ETH",
+    "A payment of 0.00893 ETH has been detected and is awaiting blockchain confirmation. Transaction ID: 0x0e842e584768c1...",
+    "Your company The Dev Store received 98 USDT-TRC20",
+    "A payment of 100 USDT-TRC20 has been detected and is awaiting blockchain confirmation. Transaction ID: 8121ce77c5ef4337...",
+    "Your company The Dev Store received 0.00036449 BTC",
+    "A payment of 0.00038101 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: e576c948f45dcc80...",
+    "Your company The Dev Store received 1.8032 LTC",
+    "A payment of 1.84 LTC has been detected and is awaiting blockchain confirmation. Transaction ID: e861cffeab0f871e...",
+    "Your company The Dev Store received 0.00042817 BTC",
+    "A payment of 0.00044532 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: d27018c00b587dd9..."
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "pt": {
+   "count": 41,
+   "same": [
+    "Your company The Dev Store received 0 BTC",
+    "Payment Pending Confirmation",
+    "A payment of 0.000618 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: abeb55c22acbf443...",
+    "A payment of 0.00028087 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: d1b29d3b3029a602...",
+    "Your company The Dev Store received 0.00125342 BTC",
+    "A payment of 0.00129245 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: 4898ca86a3195bfd...",
+    "Your company The Dev Store received 0.00032908 BTC",
+    "A payment of 0.0003583 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: 8850aa3c40168b61...",
+    "Your company The Dev Store received 0.00162788 BTC",
+    "A payment of 0.00165721 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: 63c31e835c47bfa6...",
+    "Your company The Dev Store received 0.00755314 ETH",
+    "A payment of 0.00893 ETH has been detected and is awaiting blockchain confirmation. Transaction ID: 0x0e842e584768c1...",
+    "Your company The Dev Store received 98 USDT-TRC20",
+    "A payment of 100 USDT-TRC20 has been detected and is awaiting blockchain confirmation. Transaction ID: 8121ce77c5ef4337...",
+    "Your company The Dev Store received 0.00036449 BTC",
+    "A payment of 0.00038101 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: e576c948f45dcc80...",
+    "Your company The Dev Store received 1.8032 LTC",
+    "A payment of 1.84 LTC has been detected and is awaiting blockchain confirmation. Transaction ID: e861cffeab0f871e...",
+    "Your company The Dev Store received 0.00042817 BTC",
+    "A payment of 0.00044532 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: d27018c00b587dd9..."
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "nl": {
+   "count": 47,
+   "same": [
+    "Inbox (10)",
+    "Your company The Dev Store received 0 BTC",
+    "Payment Pending Confirmation",
+    "A payment of 0.000618 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: abeb55c22acbf443...",
+    "A payment of 0.00028087 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: d1b29d3b3029a602...",
+    "Your company The Dev Store received 0.00125342 BTC",
+    "A payment of 0.00129245 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: 4898ca86a3195bfd...",
+    "Your company The Dev Store received 0.00032908 BTC",
+    "A payment of 0.0003583 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: 8850aa3c40168b61...",
+    "Your company The Dev Store received 0.00162788 BTC",
+    "A payment of 0.00165721 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: 63c31e835c47bfa6...",
+    "Your company The Dev Store received 0.00755314 ETH",
+    "A payment of 0.00893 ETH has been detected and is awaiting blockchain confirmation. Transaction ID: 0x0e842e584768c1...",
+    "Your company The Dev Store received 98 USDT-TRC20",
+    "A payment of 100 USDT-TRC20 has been detected and is awaiting blockchain confirmation. Transaction ID: 8121ce77c5ef4337...",
+    "Your company The Dev Store received 0.00036449 BTC",
+    "A payment of 0.00038101 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: e576c948f45dcc80...",
+    "Your company The Dev Store received 1.8032 LTC",
+    "A payment of 1.84 LTC has been detected and is awaiting blockchain confirmation. Transaction ID: e861cffeab0f871e...",
+    "Your company The Dev Store received 0.00042817 BTC",
+    "A payment of 0.00044532 BTC has been detected and is awaiting blockchain confirmation. Transaction ID: d27018c00b587dd9..."
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  }
+ },
+ "/help-support": {
+  "en": {
+   "count": 31,
+   "overflow": false,
+   "clipped": []
+  },
+  "de": {
+   "count": 31,
+   "same": [
+    "Getting Started with Dynopay",
+    "Learn how to set up your account and accept your first crypto payment in minutes."
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "fr": {
+   "count": 31,
+   "same": [
+    "Getting Started with Dynopay",
+    "Learn how to set up your account and accept your first crypto payment in minutes."
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "es": {
+   "count": 30,
+   "same": [
+    "Getting Started with Dynopay",
+    "Learn how to set up your account and accept your first crypto payment in minutes."
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "pt": {
+   "count": 31,
+   "same": [
+    "Getting Started with Dynopay",
+    "Learn how to set up your account and accept your first crypto payment in minutes."
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "nl": {
+   "count": 31,
+   "same": [
+    "Getting Started with Dynopay",
+    "Learn how to set up your account and accept your first crypto payment in minutes."
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  }
+ },
+ "/kyc": {
+  "en": {
+   "count": 16,
+   "overflow": false,
+   "clipped": []
+  },
+  "de": {
+   "count": 16,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "fr": {
+   "count": 16,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "es": {
+   "count": 15,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "pt": {
+   "count": 16,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "nl": {
+   "count": 16,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  }
+ },
+ "/get-started": {
+  "en": {
+   "count": 27,
+   "overflow": false,
+   "clipped": []
+  },
+  "de": {
+   "count": 27,
+   "same": [
+    "Logo (optional)"
+   ],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "fr": {
+   "count": 26,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "es": {
+   "count": 26,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "pt": {
+   "count": 27,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  },
+  "nl": {
+   "count": 27,
+   "same": [],
+   "overflow": false,
+   "clipped": [],
+   "rawKeys": []
+  }
+ }
+}

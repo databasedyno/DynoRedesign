@@ -1,0 +1,72 @@
+{
+ "common": {
+  "previousPage": {
+   "en": "Previous page",
+   "de": "Vorherige Seite",
+   "es": "Página anterior",
+   "fr": "Page précédente",
+   "nl": "Vorige pagina",
+   "pt": "Página anterior"
+  },
+  "nextPage": {
+   "en": "Next page",
+   "de": "Nächste Seite",
+   "es": "Página siguiente",
+   "fr": "Page suivante",
+   "nl": "Volgende pagina",
+   "pt": "Página seguinte"
+  }
+ },
+ "referrals": {
+  "copyCode": {
+   "en": "Copy referral code",
+   "de": "Empfehlungscode kopieren",
+   "es": "Copiar código de referido",
+   "fr": "Copier le code de parrainage",
+   "nl": "Verwijzingscode kopiëren",
+   "pt": "Copiar código de indicação"
+  },
+  "payoutMethod": {
+   "en": "Payout method",
+   "de": "Auszahlungsmethode",
+   "es": "Método de pago",
+   "fr": "Mode de versement",
+   "nl": "Uitbetalingsmethode",
+   "pt": "Método de pagamento"
+  }
+ },
+ "apiScreen": {
+  "pk.disable": {
+   "en": "Disable",
+   "de": "Deaktivieren",
+   "es": "Desactivar",
+   "fr": "Désactiver",
+   "nl": "Uitschakelen",
+   "pt": "Desativar"
+  },
+  "pk.enable": {
+   "en": "Enable",
+   "de": "Aktivieren",
+   "es": "Activar",
+   "fr": "Activer",
+   "nl": "Inschakelen",
+   "pt": "Ativar"
+  },
+  "pk.edit": {
+   "en": "Edit",
+   "de": "Bearbeiten",
+   "es": "Editar",
+   "fr": "Modifier",
+   "nl": "Bewerken",
+   "pt": "Editar"
+  },
+  "pk.revoke": {
+   "en": "Revoke",
+   "de": "Widerrufen",
+   "es": "Revocar",
+   "fr": "Révoquer",
+   "nl": "Intrekken",
+   "pt": "Revogar"
+  }
+ }
+}

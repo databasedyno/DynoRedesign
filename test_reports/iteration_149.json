@@ -1,0 +1,32 @@
+{
+  "summary": "Frontend-only verification of the new-tab logged-in landing redirect + 'Go to dashboard' header CTA fix. 8/9 behaviours pass on the live preview (crypto-payment-hub-38.preview.emergentagent.com). Only edge case: with an expired JWT injected into localStorage, the '/' route ends up on /auth/login (via the 401-driven unAuthorizedHelper triggered by a page-level authed API call) rather than rendering the landing. The critical guarantee ('stale token must NOT redirect anonymous visitor to /dashboard') is met; the token is also cleared, so no infinite loop.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "Expired-token guard on '/'",
+        "issue": "With a syntactically valid but exp-in-the-past JWT in localStorage, visiting '/' does NOT redirect to /dashboard (correct), but a downstream 401 from an authed request triggers helpers/unAutorizedHelper.ts and Router.replace('/auth/login'), so the anonymous visitor sees the login page instead of the marketing landing. Token IS cleared, so it's not a hard loop, but the SEO/landing story is broken for anyone visiting with a stale token. Not introduced by this iteration's change (the head redirect script itself behaves correctly); flagging as pre-existing edge case surfaced by the test.",
+        "affected_selectors": ["[data-testid=hero-v5]"]
+      }
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "OPTIONAL: consider gating the initial authed API call on the same hasLiveSession() check (or clear expired token pre-flight) so a stale token visit to '/' renders the landing instead of falling through to /auth/login via the 401 interceptor."
+  ],
+  "critical_code_review_comments": [
+    "pages/index.tsx builds EARLY_REDIRECT via LANDING_OVERRIDE.toString() which serialises a JS RegExp literal into the inline script — this happens to work today because the regex has no unusual flags/chars, but interpolating a RegExp toString() into inline HTML is fragile; a hard-coded literal in the template string would be safer and CSP-friendlier.",
+    "Next warns 'Do not add <script> tags using next/head (see inline <script>). Use next/script instead.' for the home-authed-redirect script. Functionally fine (script runs pre-paint as required) but the recommended primitive is next/script with strategy='beforeInteractive'.",
+    "Redirect script silently swallows all errors (try/catch/{}). A malformed JWT payload would just no-op — that's the desired failure mode, but worth an inline comment noting the intent."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "89% (8/9 scenarios)"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (LIVE DB, read-only; logins only)",
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Login testids: [data-testid=login-email-input] is on the <input> itself (not a wrapper) — fill it directly, do NOT append ' input'. Same for [data-testid=password-input] & [data-testid=signin-submit-btn]. Continue button uses text 'Continue' (exact). Landing never reaches networkidle (live price ticker); use wait_until='load'. Verified PASS: T1 remember=ON new-tab -> /dashboard; T2 orig-tab reload of / -> /dashboard; T3 /?view=landing shows hero-v5 + header-dashboard-btn 'Go to dashboard', no 'Log in'; T4 mobile drawer 390x844 shows mobile-dashboard-btn 'Go to dashboard' only; T5 fresh-context logged-out desktop+mobile drawer intact (0 console/pageerrors); T7 SSR HTML still contains hero-v5; T8 remember=OFF new tab still redirects (heartbeat=1789107462334, auth_persistent='0'); T9 post-logout / renders landing + Log in button. FAIL: T6 expired-token ends on /auth/login (pre-existing 401 interceptor, see action_items).",
+  "rca of the issue": "Expired-token edge case: pages/index.tsx redirect script correctly skips (payload.exp*1000 < Date.now()) so no bounce to /dashboard. However, HomePage / other bootstrap code fires an authed request with the stale Bearer token; backend returns 401; axios interceptor calls helpers/unAutorizedHelper.ts which clears the token and Router.replace('/auth/login'). Net effect: anonymous visitor with stale token sees /auth/login, not the marketing landing. Mitigation: pre-clear expired tokens in enforceSessionPersistence (currently only clears on stale heartbeat for session-only logins) or short-circuit any pre-auth API call when decodeJwt(token).exp is in the past."
+}

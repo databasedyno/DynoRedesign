@@ -1,0 +1,12 @@
+{
+  "fees": {
+    "ffWelcomeCtaShare": {
+      "en": "Share your payment link",
+      "de": "Ihren Zahlungslink teilen",
+      "es": "Comparte tu enlace de pago",
+      "fr": "Partagez votre lien de paiement",
+      "nl": "Deel je betaallink",
+      "pt": "Partilhe o seu link de pagamento"
+    }
+  }
+}

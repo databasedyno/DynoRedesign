@@ -1,0 +1,29 @@
+{
+  "summary": "Visual color verification of public DynoPay checkout /pay?d=... for the $10 test link. Verified page loads, semantic colors (amber WAITING pill, indigo status/progress, indigo dropdown highlight), coin brand colors (BTC orange visible), and NO lime-green #CCFF00 anywhere. Currency switching to non-BTC coins could not be verified because the live merchant link only exposes BTC in the dropdown.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/test_reports/checkout_light.png",
+    "/app/test_reports/checkout_dropdown.png",
+    "/app/test_reports/checkout_switched.png",
+    "/app/test_reports/checkout_dark.png"
+  ],
+  "action_items": [
+    "Add data-testid='theme-toggle' on the sun/moon header button so dark-mode automation is deterministic (currently no accessible label / testid).",
+    "Fix minor MUI console warning: 'Invalid prop children supplied to ForwardRef(Box)' in CheckoutShell/CleanCheckoutV2 (non-blocking).",
+    "OPTIONAL: If multi-coin visual verification is desired, generate a $10 test link on a merchant that has ETH/USDT-TRC20/LTC enabled so the dropdown exposes >1 currency (this live merchant only offers BTC)."
+  ],
+  "critical_code_review_comments": [],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "100% for bullets that could be verified"},
+  "seed_data_creation": "None (READ-ONLY per safety note).",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "test_credentials": "n/a (public checkout page)",
+  "context_for_next_testing_agent": "Bullet-by-bullet PASS: (1) Page renders Pay Merchant/$10.00 USD/description/INV-2026-172/network/currency/QR/address bc1qa5eyed02n8qz0ft5ukdphewg4j3z32xcpgcq8k. (2) WAITING pill = amber (color rgb(180,83,9), bg rgba(245,158,11,0.12)); status icon container uses indigo rgba(79,70,229,0.10); NO lime hits in DOM. (3) Currency dropdown option highlight = indigo rgba(79,70,229,0.2). BTC icon visually orange in screenshots. (4) Confirmed 0 lime #CCFF00 hits in both light and (attempted) dark-mode passes. Only limitation: dropdown had a single option BTC on this live link, so multi-coin switch flow (BTC->USDT/ETH/LTC) could not be exercised end-to-end.",
+  "rca_of_the_issue": "n/a - no defects found. Aurora indigo migration is visually consistent on the public checkout."
+}

@@ -1,0 +1,109 @@
+{
+  "summary": "Full CTA audit of the landing page + main marketing pages on https://speedup-check.preview.emergentagent.com (frontend only, Playwright). Clicked 14 header mega-menu items, header logo / Sign in / Start free / mega-featured CTA, hero claim input+button and hero card CTA, all 4 audience doors, all 3 product feature cards, all 3 Learn/Docs cards, FAQ help link, both Final-CTA buttons, all 14 internal footer links, and the primary CTAs on /fees, /for/merchants, /about, /customers, /documentation. RESULT: 100% of the audited CTAs navigate to a working (HTTP 200, non-blank, non-404) page or perform their intended in-page scroll. The two newly added anchors (/#features -> scrollY 0->2115, /#use-cases -> 0->1125) scroll correctly. Mobile (390x844) hamburger menu + hero claim also verified working. Both requested regressions PASS (minicart FAB clickable and drawer opens; socials label reads 'FIND THE DEV STORE ON'). The user's 'majority of CTAs not working' report could NOT be reproduced on this URL. Two genuine, unrelated overlay/duplication defects were found around the bottom-right floating buttons.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "Components/Layout/ScrollToTopButton.tsx vs Components/Common/SupportChatWidget",
+        "issue": "OVERLAY BLOCKS CLICK: the global 'Scroll to top' IconButton is fixed at bottom:32/right:24 with zIndex = theme.zIndex.tooltip + 1 (~1501), which sits ON TOP of the support-chat FAB (zIndex 1451, bottom-right, 56x56). Whenever the page is scrolled >300px, elementFromPoint at the chat FAB centre returns the 'Scroll to top' button and a normal Playwright click on [data-testid=support-chat-button] times out (BLOCKED). Reproduced on /, /fees and /documentation at 1920x1080. Fix: offset the scroll-to-top button (e.g. bottom: 100) or lower its zIndex below 1451.",
+        "selector": "[data-testid=\"support-chat-button\"] / button[aria-label=\"Scroll to top\"]",
+        "priority": "HIGH"
+      },
+      {
+        "component": "pages/documentation.tsx",
+        "issue": "DUPLICATE CONTROL: /documentation renders its own 'Back to top' Fab (aria-label='Back to top', rect 1856,944) in addition to the global 'Scroll to top' button (1856,1008) — two identical stacked up-arrow buttons in the bottom-right corner (visible in screenshot). Remove the page-local one.",
+        "selector": "button[aria-label=\"Back to top\"]",
+        "priority": "MEDIUM"
+      },
+      {
+        "component": "Mobile bottom-right stack (390x844)",
+        "issue": "On mobile the global scroll-to-top button (y 796-836) sits inside the language-onboarding bar band (y 787-844) — it visually collides with the bar; unlike MiniCart it does not consume the --dp-lang-bar offset.",
+        "selector": "button[aria-label=\"Scroll to top\"]",
+        "priority": "LOW"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "/customers",
+        "issues": ["/customers returns 200 but renders the LOGIN screen ('Log in — Welcome back, sign in to manage your payments and payouts', Continue / Continue with Google / Continue with GitHub). It has no marketing content and no CTA of its own. If a 'Customers' marketing page was intended it is effectively missing; note it is not linked from the header or footer."]
+      },
+      {
+        "screen": "Home CTAs testability",
+        "issues": ["None of the home-page body CTAs (audience door cards, product feature cards, Learn/Docs cards, hero claim button, Final-CTA buttons) expose a data-testid; tests had to fall back to nth() on div[role=button]. Add data-testid to these for stable regression testing."]
+      }
+    ]
+  },
+  "per_cta_results": {
+    "header_mega_menu": {
+      "Products > Payment Links (/#features)": "PASS (scroll 0->2115)",
+      "Products > Checkout (/pay/demo)": "PASS",
+      "Products > Creator Pages (/for/creators)": "PASS",
+      "Products > Crypto Payouts (/#use-cases)": "PASS (scroll 0->1125)",
+      "Products > featured CTA (/auth/register)": "PASS",
+      "Developers > Documentation (/documentation)": "PASS",
+      "Developers > API Reference (/documentation#authentication)": "PASS",
+      "Developers > Webhooks (/documentation#webhooks)": "PASS",
+      "Resources > Blog (/blog)": "PASS",
+      "Resources > Fees (/fees)": "PASS",
+      "Resources > System Status (/system-status)": "PASS",
+      "Company > About (/about)": "PASS",
+      "Company > Help & Support (/help-support)": "PASS",
+      "Company > Terms (/terms-conditions)": "PASS",
+      "Company > Privacy (/privacy-policy)": "PASS",
+      "Logo (from /fees -> /)": "PASS",
+      "Sign in (/auth/login)": "PASS",
+      "Start free (/auth/register)": "PASS",
+      "Mobile hamburger > Resources > Fees": "PASS"
+    },
+    "hero": {
+      "Claim button with handle typed": "PASS -> /auth/register?ref=hero_claim&handle=qatester2026 (desktop) and ...handle=mobqa2026 (mobile 390px)",
+      "Hero card 'Send tip' CTA": "PASS -> /auth/register"
+    },
+    "home_body": {
+      "Audience door Merchants/Fundraisers/Creators/Developers": "PASS -> /for/merchants, /for/fundraisers, /for/creators, /documentation",
+      "Product feature cards 1/2/3": "PASS -> /for/merchants, /fees, /documentation",
+      "LearnDocs cards 1/2/3": "PASS -> /documentation, /blog, /fees",
+      "FAQ 'ask us' link": "PASS -> /help-support",
+      "FinalCTA Get started / Read docs": "PASS -> /auth/register, /documentation"
+    },
+    "footer": "All 14 internal links PASS (/#features scrolls; /fees, /documentation, /system-status, /blog, /help-support, /terms-conditions, /privacy-policy, /for/ecommerce, /for/saas, /for/gaming, /for/freelancers, /for/remittance, /for/digital-downloads). 4 social links are external (x/instagram/linkedin/facebook, target=_blank, not clicked).",
+    "marketing_pages": {
+      "/fees 'Calculate my fee'": "PASS (in-page scroll 0->1491 to the calculator — no navigation by design)",
+      "/fees 'Start earning — free'": "PASS -> /auth/register",
+      "/fees 'Read the docs'": "PASS -> /documentation",
+      "/for/merchants hero + bottom CTA": "PASS -> /auth/register?src=seo&page=merchants&kind=vertical",
+      "/for/merchants cross-link /for/developers": "PASS",
+      "/about 'Start free' and 'Create your free account'": "PASS -> /auth/register",
+      "/about 'Talk to us'": "mailto:support@dynopay.com (not clicked, valid mailto)",
+      "/documentation 'Get your API Key'": "PASS -> /auth/register",
+      "/documentation 'View Fees'": "PASS -> /fees",
+      "/documentation 'open the live checkout demo'": "href=/pay/demo (route verified 200)",
+      "/customers": "No marketing CTA — page is the login screen (see design_issues)"
+    },
+    "regressions": {
+      "MiniCart FAB not blocked by language bar (/devhub/p/talk-to-a-developer)": "PASS — add-to-cart worked, elementFromPoint at FAB centre = the FAB's own 'View cart' text, normal (non-forced) click succeeded, minicart-drawer opened with the $100 line item and 'Pay with crypto' CTA",
+      "Socials label full creator name (/devhub)": "PASS — creator-socials-block reads 'FIND THE DEV STORE ON'"
+    }
+  },
+  "test_report_links": ["/app/test_reports/iteration_82.json"],
+  "action_items": [
+    "Fix the z-index/position collision: global ScrollToTopButton (zIndex tooltip+1) covers the support-chat FAB (zIndex 1451) and makes it unclickable on every page once scrolled >300px.",
+    "Remove the duplicate page-local 'Back to top' Fab in pages/documentation.tsx (two identical up-arrow buttons render).",
+    "Make ScrollToTopButton respect the --dp-lang-bar offset on mobile so it doesn't sit inside the language-onboarding bar.",
+    "Decide what /customers should be — it currently renders the login screen with no marketing content.",
+    "Add data-testid to home-page CTAs (audience doors, feature cards, learn cards, hero claim button, final CTA buttons) for stable regression tests."
+  ],
+  "critical_code_review_comments": [
+    "ScrollToTopButton.tsx uses theme.zIndex.tooltip + 1 (~1501) while SupportChatWidget uses 1451 and MiniCart 1600 — the floating-layer z-index/offset budget is ad-hoc and already causing an unclickable CTA. Centralise the bottom-right FAB stack (single container or shared constants + --dp-lang-bar offset) instead of per-component magic numbers.",
+    "The /for/[vertical] dynamic route correctly 404s unknown slugs (/for/nonprofits -> 404) while all linked verticals return 200; no dead links found there.",
+    "Home CTA handlers are a mix of router.push on div[role=button] and real <Link>/href anchors. The router.push cards are not real anchors, so they cannot be middle-clicked/opened in a new tab and are invisible to crawlers — consider using next/link for AudienceDoorsV3, ProductFeatureCards and LearnDocsCards."
+  ],
+  "updated_files": [],
+  "success_rate": { "backend": "not tested", "frontend": "100% of 60+ audited CTAs navigate/scroll correctly; 2 floating-button overlay/duplication defects found" },
+  "seed_data_creation": "None (public pages only). Hero claim test reserved handles 'qatester2026' and 'mobqa2026' via the public reserve-handle endpoint (Redis TTL lock, self-expiring).",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Every landing/marketing CTA was verified working on https://speedup-check.preview.emergentagent.com — the user's 'majority of CTAs not working' report is NOT reproducible here (they were almost certainly on the dead d6d663a8 URL). Do not re-audit these CTAs unless the pages change; instead re-verify: (1) support-chat FAB clickability after the z-index fix, (2) duplicate back-to-top on /documentation. Warm routes with curl first — dev-mode Next.js compiles each route on first visit. Selector notes: header mega items = [data-testid='mega-item-<i18nKey>'] after hovering [data-testid='nav-<section>']; mobile = mobile-menu-toggle -> mnav-<section> -> msub-<i18nKey>; home body cards have no testids (use #use-cases/#features div[role=button]).",
+  "rca_of_the_issue": "Reported bug (dead CTAs) not reproducible — all targets return 200 and all click handlers navigate. Newly found overlay bug RCA: ScrollToTopButton renders fixed at bottom:32/right:24 with zIndex theme.zIndex.tooltip+1 (~1501); SupportChatWidget's FAB is fixed at the same corner with zIndex 1451 and a 56px box, so the 40px scroll-to-top button overlaps the chat FAB's centre and swallows the pointer event once scrollY > 300."
+}

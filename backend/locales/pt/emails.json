@@ -1,0 +1,1131 @@
+{
+  "common": {
+    "greeting": "Olá {{name}},",
+    "greetingDefault": "Olá,",
+    "securedBy": "Este pagamento foi processado de forma segura através da Dynopay, um gateway de pagamentos em cripto sem custódia."
+  },
+  "labels": {
+    "amount": "Montante",
+    "status": "Estado",
+    "date": "Data",
+    "transactionId": "ID da transação",
+    "reference": "Referência",
+    "description": "Descrição",
+    "amountPaid": "Montante pago",
+    "cryptoAmount": "Montante em cripto",
+    "expectedAmount": "Montante esperado",
+    "received": "Recebido",
+    "receivedAmount": "Montante recebido",
+    "remaining": "Em falta",
+    "amountReceived": "Montante recebido",
+    "customer": "Cliente",
+    "confirmations": "Confirmações",
+    "merchantReceives": "O comerciante recebe",
+    "platformFee": "Taxa Dynopay",
+    "feePaidByMerchant": "paga pelo comerciante",
+    "feePaidByCustomer": "adicionada ao seu total",
+    "paymentMethod": "Forma de pagamento"
+  },
+  "statusLabels": {
+    "received": "Recebido",
+    "awaitingConfirmation": "A aguardar confirmação",
+    "complete": "Concluído",
+    "processed": "Processado",
+    "expired": "Expirado"
+  },
+  "paymentReceived": {
+    "subject": "{{amount}} {{currency}} recebidos",
+    "heading": "Pagamento recebido",
+    "intro": "Ótimas notícias! A sua marca <strong>{{companyName}}</strong> recebeu um pagamento.",
+    "outro": "Os fundos estão a caminho da sua carteira de recebimento.",
+    "cta": "Ver transação",
+    "referralCredit": "O crédito de indicação cobriu {{amount}} da sua taxa de plataforma da Dynopay neste pagamento — você ficou com mais.",
+    "preheader": "Os fundos estão a ser liquidados na sua carteira de pagamentos."
+  },
+  "paymentPending": {
+    "subject": "{{amount}} {{currency}} para {{companyName}} — confirmando",
+    "heading": "Confirmando o pagamento",
+    "intro": "Um pagamento de <strong>{{amount}} {{currency}}</strong> está sendo confirmado on-chain para <strong>{{companyName}}</strong>.",
+    "outro": "Avisaremos assim que for definitivo — nada a fazer por enquanto.",
+    "preheader": "Avisaremos assim que for confirmado on-chain."
+  },
+  "paymentConfirming": {
+    "subject": "{{current}}/{{required}} confirmações",
+    "heading": "Pagamento em confirmação",
+    "intro": "Boas notícias! O seu pagamento para <strong>{{companyName}}</strong> está a ser confirmado.",
+    "confirmationsOf": "{{current}} de {{required}}",
+    "completeMsg": "O pagamento atingiu as confirmações necessárias e será creditado em breve!",
+    "pendingMsg": "Faltam {{remaining}} confirmações para que o pagamento seja creditado. Pode acompanhar o estado completo no seu painel Dynopay.",
+    "preheader": "O seu pagamento está a receber confirmações da rede."
+  },
+  "transactionConfirmed": {
+    "subject": "Transação {{status}}",
+    "heading": "Transação {{status}}",
+    "intro": "A sua transação foi <strong>{{statusLower}}</strong>.",
+    "outro": "Pode ver mais detalhes no seu painel Dynopay.",
+    "preheader": "O estado mais recente da sua transação."
+  },
+  "underpaidDigest": {
+    "subject": "{{count}} pagamento(s) parcial(is) precisam de atenção",
+    "heading": "Pagamentos que ficaram abaixo",
+    "intro": "{{count}} pagamento(s) para <strong>{{companyName}}</strong> ficaram abaixo do valor nas últimas 24 horas. Aqui está o resumo para você acompanhar:",
+    "colPayment": "Pagamento",
+    "colReceived": "Recebido",
+    "colRemaining": "Faltando",
+    "moreNote": "…e mais {{extra}}. Veja todos no seu painel.",
+    "outro": "Abra Transações para revisar cada um e decidir como acompanhar.",
+    "cta": "Revisar pagamentos parciais",
+    "preheader": "{{count}} pagamento(s) ficaram abaixo nas últimas 24 h."
+  },
+  "buyerUnderpaid": {
+    "subject": "Está quase lá — envie {{remaining}} {{currency}} para concluir",
+    "heading": "Quase lá — conclua o seu pagamento",
+    "intro": "Recebemos <strong>{{received}} {{currency}}</strong> dos <strong>{{expected}} {{currency}}</strong> devidos a <strong>{{companyName}}</strong>. Envie o valor restante para o mesmo endereço para concluir o seu pagamento.",
+    "windowNote": "Envie os <strong>{{remaining}} {{currency}}</strong> restantes em <strong>{{minutes}} min</strong> — será concluído automaticamente no mesmo endereço de depósito. Toque no botão para reabrir o seu checkout.",
+    "cta": "Concluir o pagamento",
+    "preheader": "Envie o restante para concluir o seu pagamento."
+  },
+  "paymentPartial": {
+    "subject": "Pagamento incompleto: {{received}} de {{expected}} {{currency}}",
+    "heading": "Pagamento incompleto recebido",
+    "intro": "Um comprador enviou <strong>{{received}} {{currency}}</strong> dos <strong>{{expected}} {{currency}}</strong> devidos a {{companyName}}.",
+    "windowNote": "Ele tem <strong>{{minutes}} min</strong> para enviar os <strong>{{remaining}} {{currency}}</strong> restantes. Se não chegar, liquidamos o valor recebido com a taxa ajustada.",
+    "preheader": "Um comprador pagou a menos — o restante ainda pode chegar."
+  },
+  "paymentPartialExpired": {
+    "subjectCompleted": "Pagamento parcial processado",
+    "subjectExpired": "Pagamento parcial expirado",
+    "headingCompleted": "Pagamento parcial processado",
+    "headingExpired": "Período de tolerância do pagamento expirou",
+    "introCompleted": "O pagamento parcial para a sua marca <strong>{{companyName}}</strong> foi processado.",
+    "introExpired": "O período de tolerância para o pagamento parcial à sua marca <strong>{{companyName}}</strong> expirou.",
+    "outroCompleted": "O montante recebido foi processado com taxas ajustadas e encaminhado para a sua carteira.",
+    "outroExpired": "Como o pagamento total não foi recebido dentro do período de tolerância, o montante parcial foi processado. Tenha em atenção que as taxas podem ser mais elevadas para pagamentos incompletos.",
+    "viewDetails": "Pode ver os detalhes da transação no seu painel Dynopay.",
+    "preheaderCompleted": "Processámos o valor parcial que pagou.",
+    "preheaderExpired": "A janela de pagamento fechou antes do pagamento total."
+  },
+  "paymentFailed": {
+    "reasonExpired": "O link de pagamento expirou",
+    "reasonUnderpaid": "Recebemos {{paidAmount}} {{currency}} mas o montante exigido era {{amount}} {{currency}}",
+    "reasonCancelled": "O pagamento foi cancelado",
+    "reasonTimeout": "A sessão de pagamento expirou",
+    "subjectUnderpaid": "Pagamento insuficiente detetado – {{paidAmount}} de {{amount}} {{currency}} recebidos",
+    "subject": "Pagamento sem sucesso – {{companyName}}",
+    "heading": "Pagamento sem sucesso",
+    "customerIntro": "Infelizmente, o seu pagamento para <strong>{{companyName}}</strong> não foi concluído.",
+    "issue": "Problema",
+    "underpaidNote": "Contacte <strong>{{companyName}}</strong> para resolver este pagamento insuficiente ou solicitar um reembolso.",
+    "expiredNote": "Contacte <strong>{{companyName}}</strong> se ainda pretender concluir este pagamento.",
+    "merchantSubjectUnderpaid": "Pagamento insuficiente recebido – {{paidAmount}} de {{amount}} {{currency}}",
+    "merchantSubject": "Pagamento falhou – {{transactionId}}",
+    "merchantHeading": "Alerta de pagamento",
+    "merchantIntro": "Um pagamento de <strong>{{customerName}}</strong> não foi concluído.",
+    "merchantUnderpaidNote": "O cliente foi notificado. Poderá ter de emitir um reembolso parcial ou solicitar o montante em falta.",
+    "cta": "Ver transação",
+    "preheader": "Este pagamento não foi concluído — nada foi cobrado.",
+    "merchantPreheader": "O pagamento de um cliente não foi concluído."
+  },
+  "customerPaymentConfirmation": {
+    "subject": "O seu pagamento a {{companyName}} está confirmado",
+    "heading": "Pagamento bem-sucedido",
+    "intro": "O seu pagamento para <strong>{{companyName}}</strong> foi processado com sucesso.",
+    "pdfAttached": "<strong>Recibo em PDF anexado</strong> - Um recibo detalhado está anexado a este e-mail para os seus registos.",
+    "contact": "Se tiver alguma dúvida sobre este pagamento, contacte diretamente <strong>{{companyName}}</strong>.",
+    "preheader": "O seu recibo de pagamento está em anexo abaixo.",
+    "viewOnlineCta": "Ver recibo online",
+    "viewOnExplorer": "Ver no explorador de blocos"
+  },
+  "buyAgainReceipt": {
+    "title": "Compre de novo na {{brand}}, mais rápido",
+    "titleDonation": "Apoie a {{brand}} novamente",
+    "body": "Guardámos os seus dados — da próxima vez o seu e-mail já vem preenchido. Finalize com um toque.",
+    "bodyDonation": "Obrigado pelo seu apoio. Doe novamente com um toque — os seus dados já vêm preenchidos.",
+    "cta": "Comprar de novo na {{brand}}",
+    "ctaDonation": "Apoiar a {{brand}} novamente"
+  },
+  "invoice": {
+    "title": "FATURA",
+    "number": "Fatura n.º: {{number}}",
+    "date": "Data: {{date}}",
+    "from": "De:",
+    "billTo": "Faturar para:",
+    "taxId": "NIF: {{id}}",
+    "description": "Descrição",
+    "qty": "Qtd.",
+    "price": "Preço",
+    "amount": "Valor",
+    "transactionFee": "Taxa de transação ({{pct}}%)",
+    "blockchainBuffer": "Margem de blockchain ({{pct}}%)",
+    "subtotal": "Subtotal:",
+    "vat": "IVA ({{pct}}%):",
+    "totalAmount": "Valor total:",
+    "cryptoEquivalent": "Equivalente em cripto:",
+    "paymentTerms": "Condições de pagamento:",
+    "underlyingTx": "Transação subjacente (contexto, não faturada): {{amount}}",
+    "feeBreakdown": "  = Fixo {{fixed}} + {{pct}}% de {{base}} ({{fee}})",
+    "transactionReference": "Referência da transação: {{id}}",
+    "thankYou": "Obrigado pela sua preferência!",
+    "paid": "Pago",
+    "termsSettled": "Liquidado automaticamente a partir do valor da transação no momento da liquidação – nenhum pagamento é devido."
+  },
+  "receipt": {
+    "title": "Recibo de pagamento",
+    "successful": "Pagamento concluído",
+    "transactionDetails": "Detalhes da transação",
+    "paymentMethod": "Método de pagamento",
+    "dateTime": "Data e hora",
+    "paidTo": "Pago a",
+    "completed": "Concluído",
+    "cryptocurrency": "Criptomoeda",
+    "autoGenerated": "Este recibo foi gerado automaticamente.",
+    "receiptNo": "Recibo n.º {{number}}",
+    "verifiedMerchant": "Comerciante com identidade verificada",
+    "breakdown": "Detalhe do pagamento",
+    "youPaid": "Você pagou",
+    "contactMerchant": "Dúvidas sobre esta compra? Contacte diretamente {{company}}.",
+    "network": "Rede",
+    "viewOnline": "Ver este recibo online",
+    "downloadPdf": "Baixar PDF",
+    "copyLink": "Copiar link",
+    "linkCopied": "Link copiado",
+    "viewOnExplorer": "Ver no explorador de blocos"
+  },
+  "merchant": {
+    "labels": {
+      "location": "Localização",
+      "device": "Dispositivo",
+      "ipAddress": "Endereço IP",
+      "time": "Hora",
+      "network": "Rede",
+      "blockchain": "Blockchain",
+      "walletName": "Nome da carteira",
+      "wallet": "Carteira",
+      "address": "Endereço",
+      "newAddress": "Novo endereço",
+      "toAddress": "Endereço de destino",
+      "from": "De",
+      "to": "Para",
+      "with": "Com",
+      "current": "Atual",
+      "new": "Novo",
+      "removed": "Removido",
+      "updated": "Atualizado",
+      "type": "Tipo",
+      "details": "Detalhes",
+      "action": "Ação",
+      "failedAttempts": "Tentativas falhadas",
+      "environment": "Ambiente",
+      "keyPreview": "Prévia da chave",
+      "note": "Nota",
+      "plan": "Plano",
+      "nextBilling": "Próxima cobrança",
+      "revenue": "Receita",
+      "effective": "Em vigor",
+      "cancelledBy": "Cancelado por",
+      "reason": "Motivo",
+      "nextRetry": "Próxima tentativa",
+      "retryScheduled": "Nova tentativa agendada",
+      "totalTransactions": "Total de transações",
+      "totalVolume": "Volume total",
+      "completed": "Concluídas",
+      "pending": "Pendentes",
+      "topCurrency": "Moeda principal",
+      "invoiceNumber": "Número da fatura",
+      "invoiceDate": "Data da fatura",
+      "totalAmount": "Valor total",
+      "expires": "Expira",
+      "link": "Link",
+      "crypto": "Cripto",
+      "customer": "Cliente",
+      "brand": "Marca"
+    },
+    "badges": {
+      "updated": "Atualizado",
+      "active": "Ativa",
+      "inProgress": "Em andamento",
+      "permanentDeletion": "Exclusão permanente",
+      "approved": "Aprovado",
+      "production": "Produção",
+      "development": "Desenvolvimento"
+    },
+    "general": "Geral",
+    "you": "Você",
+    "customerWord": "Cliente",
+    "never": "Nunca",
+    "noCompletedTx": "Nenhuma transação concluída",
+    "typeProduction": "produção",
+    "typeDevelopment": "desenvolvimento",
+    "welcome": {
+      "subject": "Bem-vindo à Dynopay — seu primeiro pagamento é sem taxa",
+      "heading": "Bem-vindo à Dynopay",
+      "intro1": "Bem-vindo à Dynopay! Estamos felizes por tê-lo connosco.",
+      "intro2": "A Dynopay torna aceitar cripto simples e seguro — os fundos vão direto para uma carteira que você controla.",
+      "promo": "O seu primeiro pagamento é por nossa conta — isentamos toda a nossa taxa de plataforma no seu primeiro pagamento liquidado, seja qual for o valor.",
+      "nextTitle": "Veja o que pode fazer a seguir:",
+      "next1": "1. Complete o perfil da sua marca",
+      "next2": "2. Adicione a sua carteira de pagamento",
+      "next3": "3. Comece a aceitar pagamentos",
+      "questions": "Se tiver alguma dúvida, a nossa equipa de suporte está aqui para ajudar.",
+      "cta": "Começar",
+      "preheader": "O seu primeiro pagamento liquidado é sem taxas — veja como receber."
+    },
+    "emailVerifyOtp": {
+      "subject": "{{code}} é o seu código de verificação Dynopay",
+      "heading": "Verifique seu e-mail",
+      "intro": "Digite este código para confirmar seu endereço de e-mail:",
+      "expiry": "Expira em 10 minutos. Não solicitou? Ignore este e-mail.",
+      "preheader": "Digite este código para verificar seu e-mail."
+    },
+    "loginOtp": {
+      "subject": "{{code}} é o seu código de acesso Dynopay",
+      "heading": "Seu código de acesso",
+      "intro": "Digite este código para entrar:",
+      "expiry": "Expira em 5 minutos. Nunca o compartilhe — a Dynopay jamais pedirá este código.",
+      "preheader": "Seu código de acesso Dynopay."
+    },
+    "forgotPasswordOtp": {
+      "subject": "{{code}} é o seu código de redefinição de senha",
+      "heading": "Redefina sua senha",
+      "intro": "Use este código para escolher uma nova senha:",
+      "expiry": "Expira em 10 minutos. Não solicitou? Ignore — sua senha permanece a mesma.",
+      "preheader": "Use este código para redefinir sua senha."
+    },
+    "passwordChanged": {
+      "subject": "Sua senha da Dynopay foi alterada",
+      "heading": "Palavra-passe atualizada",
+      "intro": "A sua palavra-passe da Dynopay foi atualizada com sucesso.",
+      "securityNotice": "<strong>Aviso de segurança:</strong> se não fez esta alteração, contacte imediatamente a nossa equipa de suporte para proteger a sua conta.",
+      "cta": "Ver definições da conta",
+      "preheader": "A palavra-passe da sua conta foi alterada."
+    },
+    "profileUpdated": {
+      "subject": "Os dados da sua conta foram alterados",
+      "heading": "Perfil atualizado",
+      "intro": "O perfil da sua conta foi atualizado com sucesso.",
+      "securityNotice": "<strong>Aviso de segurança:</strong> se não fez estas alterações, redefina imediatamente a sua palavra-passe e contacte a nossa equipa de suporte.",
+      "cta": "Ver perfil",
+      "emailChangedSubject": "Seu e-mail de acesso da Dynopay foi alterado",
+      "emailChangedHeading": "Endereço de e-mail alterado",
+      "emailChangedIntro": "O e-mail da sua conta foi alterado de <strong>{{oldEmail}}</strong> para <strong>{{email}}</strong>.",
+      "emailChangedImportantTitle": "Importante",
+      "emailChangedImportantText": "Se não fez esta alteração, a sua conta pode estar comprometida. Contacte imediatamente a nossa equipa de suporte.",
+      "emailChangedCta": "Contactar suporte",
+      "preheader": "Foi feita uma alteração no perfil da sua conta.",
+      "emailChangedPreheader": "O e-mail da sua conta foi alterado."
+    },
+    "securityAlert": {
+      "subject": "Alerta de segurança na sua conta",
+      "heading": "Alerta de segurança",
+      "intro": "Detetámos atividade incomum na sua conta Dynopay.",
+      "detailsTitle": "Detalhes do alerta",
+      "wasThisYou": "<strong>Foi você?</strong><br />Se reconhece esta atividade, pode ignorar esta mensagem.",
+      "didntPerform": "<strong>Não realizou esta ação?</strong><br />Proteja a sua conta imediatamente:<br />1. Altere a sua palavra-passe<br />2. Reveja a sua atividade recente<br />3. Contacte a nossa equipa de suporte",
+      "cta": "Proteger a minha conta",
+      "types": {
+        "otp_lockout": "Código de verificação bloqueado após várias tentativas incorretas",
+        "login_rate_limit": "Demasiadas tentativas de início de sessão falhadas"
+      },
+      "details": {
+        "otpLockout": "Alguém introduziu um código incorreto 5 vezes para: {{channel}}. O código foi invalidado.",
+        "loginRateLimit": "Foram feitas {{count}} tentativas de início de sessão falhadas em 15 minutos e as seguintes foram bloqueadas."
+      },
+      "channels": {
+        "password_reset": "reposição de palavra-passe",
+        "login": "verificação de início de sessão",
+        "email_change": "alteração do endereço de e-mail",
+        "password_change": "alteração da palavra-passe",
+        "email_verification": "verificação de e-mail",
+        "onboarding": "configuração da conta"
+      },
+      "preheader": "Detetámos atividade invulgar na sua conta."
+    },
+    "newDeviceLogin": {
+      "subject": "Um novo dispositivo acessou sua conta",
+      "heading": "Novo início de sessão detetado",
+      "intro": "Notámos um novo início de sessão na sua conta Dynopay a partir de uma localização diferente.",
+      "wasThisYou": "<strong>Foi você?</strong><br />Se reconhece este início de sessão, pode ignorar esta mensagem com segurança.",
+      "didntLogin": "<strong>Não iniciou sessão?</strong><br />Altere imediatamente a sua palavra-passe e reveja a atividade recente da sua conta.",
+      "cta": "Proteger a minha conta",
+      "unknownDevice": "Dispositivo desconhecido",
+      "unknownLocation": "Localização desconhecida"
+    },
+    "loginNotification": {
+      "subject": "Novo início de sessão na sua conta Dynopay",
+      "heading": "Atividade de início de sessão",
+      "intro": "Detetámos um novo início de sessão na sua conta Dynopay.",
+      "wasThisYou": "<strong>Foi você?</strong><br />Se reconhece esta atividade, não é necessária qualquer ação.",
+      "notYou": "<strong>Não foi você?</strong><br />Se não reconhece este início de sessão, clique no botão abaixo para proteger imediatamente a sua conta. Vamos bloquear a sua conta e exigir verificação de identidade para recuperar o acesso.",
+      "cta": "Não fui eu — proteger a minha conta",
+      "unknownLocation": "Localização desconhecida",
+      "preheader": "Foi detetado um novo início de sessão. Foi você?"
+    },
+    "failedLogins": {
+      "subject": "Várias tentativas de início de sessão falhadas na sua conta",
+      "heading": "Alerta de segurança",
+      "intro": "Detetámos <strong>{{count}} tentativas de início de sessão falhadas</strong> na sua conta Dynopay.",
+      "wasThisYou": "<strong>Foi você?</strong><br />Se esqueceu a sua palavra-passe, pode redefini-la usando o botão abaixo.",
+      "wasntYou": "<strong>Não foi você?</strong><br />Alguém pode estar a tentar aceder à sua conta. Recomendamos que altere imediatamente a sua palavra-passe. A sua conta continua segura - bloqueámos estas tentativas de início de sessão.",
+      "cta": "Redefinir palavra-passe",
+      "preheader": "Várias tentativas de início de sessão na sua conta falharam."
+    },
+    "companyCreated": {
+      "subject": "Falta um passo — adicione uma carteira de recebimento para receber",
+      "heading": "Perfil concluído",
+      "intro1": "Excelente! O perfil da marca <strong>{{companyName}}</strong> está agora concluído.",
+      "intro2": "Está quase pronto para começar a aceitar pagamentos. O último passo é adicionar o endereço da sua carteira de pagamento.",
+      "whyTitle": "Porquê adicionar uma carteira?",
+      "whyText": "A sua carteira é para onde enviaremos os pagamentos em cripto que receber. É rápido e seguro.",
+      "cta": "Adicionar carteira",
+      "preheader": "Falta apenas um passo para começar a aceitar pagamentos."
+    },
+    "companyContactWelcome": {
+      "subject": "{{companyName}} foi adicionado à Dynopay",
+      "heading": "Bem-vindo à Dynopay",
+      "hello": "Olá,",
+      "intro1": "<strong>{{companyName}}</strong> foi registada na Dynopay por {{accountHolderName}}.",
+      "intro2": "A Dynopay é um gateway de pagamentos em cripto sem custódia — as empresas aceitam pagamentos em criptomoedas liquidados direto em uma carteira que elas controlam.",
+      "meansTitle": "O que isto significa para si:",
+      "means1": "1. A sua marca pode agora aceitar pagamentos em cripto",
+      "means2": "2. Os fundos são liquidados direto em uma carteira que você controla",
+      "means3": "3. Notificações de pagamento em tempo real",
+      "outro": "Se tiver alguma dúvida sobre este registo, contacte a nossa equipa de suporte ou fale com {{accountHolderName}}.",
+      "cta": "Ir para o painel",
+      "preheader": "A sua empresa está registada — bem-vindo a bordo."
+    },
+    "companyUpdated": {
+      "subject": "Os dados da sua marca foram alterados",
+      "heading": "Perfil atualizado",
+      "intro": "O perfil da marca <strong>{{companyName}}</strong> foi atualizado com sucesso.",
+      "outro": "Se não fez estas alterações, contacte imediatamente a nossa equipa de suporte.",
+      "cta": "Ver perfil",
+      "preheader": "Os dados do perfil da sua marca foram atualizados."
+    },
+    "walletVerified": {
+      "subject": "Carteira de pagamento ativa",
+      "heading": "Carteira ativa",
+      "intro": "A sua carteira de pagamento foi verificada e está agora ativa.",
+      "outro": "Todos os pagamentos que receber serão automaticamente encaminhados para esta carteira. Está tudo pronto para começar a aceitar pagamentos em cripto.",
+      "cta": "Ver painel"
+    },
+    "walletUpdateOtp": {
+      "subject": "Confirme a atualização da carteira",
+      "heading": "Confirme a atualização da carteira",
+      "intro": "Está a atualizar a sua carteira de pagamento. Verifique esta alteração com o código abaixo:",
+      "expiry": "Este código expira em 10 minutos. Se não solicitou esta alteração, proteja a sua conta imediatamente."
+    },
+    "walletDeleted": {
+      "subject": "Carteira removida da sua conta",
+      "heading": "Carteira removida",
+      "intro": "Uma carteira foi removida da sua conta Dynopay.",
+      "outro": "Os pagamentos deixarão de ser encaminhados para esta carteira.",
+      "didntDoThis": "<strong>Não foi você?</strong><br />Se não removeu esta carteira, proteja a sua conta imediatamente e contacte o suporte.",
+      "cta": "Ver carteiras"
+    },
+    "addWalletReminder": {
+      "subject": "Está quase pronto para aceitar pagamentos",
+      "heading": "Adicione a sua carteira",
+      "intro": "Está quase! O perfil de <strong>{{companyName}}</strong> está configurado, mas ainda não adicionou uma carteira de pagamento.",
+      "whyTitle": "Porquê adicionar uma carteira?",
+      "whyText": "Sem uma carteira, não pode receber pagamentos. A configuração demora menos de 2 minutos.",
+      "outro": "Adicione já a sua carteira e comece a aceitar pagamentos em cripto hoje.",
+      "cta": "Adicionar carteira agora"
+    },
+    "walletAdded": {
+      "subject": "Carteira adicionada – {{network}}",
+      "heading": "Carteira adicionada",
+      "intro": "Uma nova carteira de pagamento foi adicionada com sucesso à sua marca <strong>{{companyName}}</strong>.",
+      "outro": "Todos os pagamentos em {{network}} serão encaminhados para esta carteira. Pode gerir as suas carteiras no painel.",
+      "didntDoThis": "<strong>Não foi você?</strong><br />Se não adicionou esta carteira, proteja a sua conta imediatamente.",
+      "cta": "Ver carteiras"
+    },
+    "walletUpdated": {
+      "subject": "Carteira atualizada – {{network}}",
+      "heading": "Carteira atualizada",
+      "intro": "A sua carteira de pagamento para <strong>{{companyName}}</strong> foi atualizada.",
+      "outro": "Os pagamentos futuros em {{network}} serão encaminhados para o novo endereço.",
+      "didntDoThis": "<strong>Não foi você?</strong><br />Se não atualizou esta carteira, proteja a sua conta imediatamente e contacte o suporte.",
+      "cta": "Ver carteiras"
+    },
+    "withdrawalOtp": {
+      "subject": "Confirme o seu levantamento",
+      "heading": "Confirme o levantamento",
+      "intro": "Está prestes a levantar <strong>{{amount}} {{currency}}</strong>. Verifique esta ação com o código abaixo:",
+      "expiry": "Este código expira em <strong>5 minutos</strong>. Se não solicitou este levantamento, ignore este e-mail e proteja a sua conta."
+    },
+    "withdrawalSuccess": {
+      "subject": "Levantamento submetido – {{amount}} {{currency}}",
+      "heading": "Levantamento submetido",
+      "intro": "O seu levantamento de <strong>{{amount}} {{currency}}</strong> foi submetido e está a ser processado.",
+      "outro1": "A transferência está a ser transmitida para a blockchain. Pode demorar alguns minutos a confirmar, dependendo das condições da rede.",
+      "outro2": "Pode acompanhar o estado da transação no seu painel.",
+      "cta": "Ver transações"
+    },
+    "exchangeOtp": {
+      "subject": "Confirme a sua troca",
+      "heading": "Confirme a troca",
+      "intro": "Está prestes a trocar moedas com <strong>{{otherParty}}</strong>. Verifique esta ação com o código abaixo:",
+      "expiry": "Este código expira em <strong>5 minutos</strong>. Se não solicitou esta troca, ignore este e-mail."
+    },
+    "walletEditOtp": {
+      "subject": "Confirme a edição da carteira",
+      "heading": "Confirme a edição da carteira",
+      "intro": "Está prestes a editar um endereço de carteira. Verifique esta ação com o código abaixo:",
+      "expiry": "Este código expira em <strong>10 minutos</strong>. Se não solicitou isto, ignore este e-mail ou contacte o suporte."
+    },
+    "walletDeleteOtp": {
+      "subject": "Confirme a eliminação da carteira",
+      "heading": "Confirme a eliminação da carteira",
+      "intro": "Está prestes a <strong>eliminar permanentemente</strong> um endereço de carteira. Esta ação não pode ser anulada.",
+      "expiry": "Este código expira em <strong>10 minutos</strong>. Se não solicitou isto, ignore este e-mail ou contacte imediatamente o suporte."
+    },
+    "companyDeleteOtp": {
+      "subject": "Confirme a eliminação da marca – {{companyName}}",
+      "heading": "Confirmar eliminação da marca",
+      "intro": "Está prestes a <strong>eliminar permanentemente</strong> a marca <strong>{{companyName}}</strong>. Os seus links de pagamento, chaves API e definições serão removidos. Introduza o código abaixo para confirmar:",
+      "expiry": "Este código expira em <strong>10 minutos</strong>. Se não fez este pedido, ignore este e-mail e proteja a sua conta de imediato.",
+      "preheader": "O seu código único para confirmar a eliminação de {{companyName}}."
+    },
+    "companyDeleted": {
+      "subject": "Marca eliminada – {{companyName}}",
+      "heading": "Marca eliminada",
+      "intro": "A marca <strong>{{companyName}}</strong> foi eliminada permanentemente da sua conta Dynopay.",
+      "removedTitle": "O que foi removido",
+      "removed1": "Todos os links de pagamento desta marca",
+      "removed2": "Chaves API ({{apiKeys}}) — revogadas imediatamente",
+      "removed3": "Definições da marca, webhooks e preferências de conversão automática",
+      "note": "O seu histórico de transações é mantido para os seus registos. As carteiras de pagamento atribuídas a esta marca deixaram de estar associadas a ela.",
+      "didntDoThis": "<strong>Não foi você?</strong><br />Se não eliminou esta marca, proteja a sua conta de imediato e contacte o suporte.",
+      "cta": "Ir para o painel",
+      "preheader": "{{companyName}} foi removida da sua conta."
+    },
+    "apiKeyRevoked": {
+      "subject": "Chave de API {{keyType}} excluída — integrações que a usam vão falhar",
+      "heading": "Chave API revogada",
+      "intro": "Uma chave API de <strong>{{keyType}}</strong> foi eliminada de <strong>{{companyName}}</strong>. Qualquer integração que ainda a utilize deixará de funcionar imediatamente.",
+      "nextTitle": "O que fazer a seguir",
+      "next1": "Atualize as integrações que usavam esta chave para uma chave ativa",
+      "next2": "Se ainda precisar de acesso à API, crie uma nova chave na página de programadores",
+      "didntDoThis": "<strong>Não foi você?</strong><br />Se não revogou esta chave API, proteja a sua conta de imediato e contacte o suporte.",
+      "cta": "Ver chaves API",
+      "preheader": "Uma chave de {{companyName}} deixou de funcionar."
+    },
+    "brandSoftDeleted": {
+      "subject": "A sua marca \"{{companyName}}\" foi eliminada — tem 7 dias para a restaurar",
+      "heading": "A sua marca foi eliminada",
+      "intro": "A sua marca <strong>{{companyName}}</strong> acabou de ser eliminada no Dynopay. Não se preocupe — ainda nada se perdeu. Vamos guardar tudo (links de pagamento, wallets, definições e histórico) em segurança durante os próximos <strong>7 dias</strong>, caso tenha sido um engano.",
+      "status": "Eliminação agendada",
+      "restoreBefore": "Restaurar antes de",
+      "changedMind": "<strong>Mudou de ideias?</strong> Basta responder a este e-mail ou contactar a nossa equipa de suporte antes de <strong>{{date}}</strong> e repomos a marca exatamente como estava — com um clique.",
+      "afterDate": "Depois de {{date}}, a marca e todos os seus dados são eliminados permanentemente e deixam de poder ser recuperados.",
+      "didntDoThis": "Se não eliminou esta marca, contacte-nos de imediato para que possamos proteger a sua conta.",
+      "cta": "Contactar o suporte",
+      "preheader": "{{companyName}} foi eliminada — tem até {{date}} para a restaurar."
+    },
+    "brandPermanentlyDeleted": {
+      "subject": "A sua marca \"{{companyName}}\" foi eliminada permanentemente",
+      "heading": "Marca eliminada permanentemente",
+      "intro": "O período de recuperação de 7 dias da sua marca <strong>{{companyName}}</strong> terminou, pelo que a marca e todos os seus dados foram <strong>eliminados permanentemente</strong> do Dynopay. Esta ação não pode ser anulada.",
+      "status": "Eliminada permanentemente",
+      "createNew": "Se quiser voltar a aceitar pagamentos, pode criar uma nova marca a qualquer momento a partir do seu painel.",
+      "didntExpect": "Se não esperava isto, responda a este e-mail e nós ajudamos.",
+      "cta": "Ir para o painel",
+      "preheader": "{{companyName}} foi eliminada permanentemente do Dynopay."
+    },
+    "brandRestored": {
+      "subject": "Boas notícias — a sua marca \"{{companyName}}\" está de volta",
+      "heading": "A sua marca está de volta",
+      "intro": "Restaurámos a sua marca <strong>{{companyName}}</strong> no Dynopay. Tudo — links de pagamento, wallets, definições e histórico — está exatamente como deixou.",
+      "status": "Restaurada",
+      "pickUp": "Pode retomar exatamente onde ficou a partir do seu painel.",
+      "cta": "Ir para o painel",
+      "preheader": "{{companyName}} foi restaurada — está tudo exatamente como deixou."
+    },
+    "brandDeleteReminder": {
+      "subject": "Último aviso: {{daysLabel}} para restaurar \"{{companyName}}\"",
+      "heading": "A sua marca está prestes a ser eliminada",
+      "intro": "Só para avisar: a sua marca eliminada <strong>{{companyName}}</strong> está agendada para ser <strong>eliminada permanentemente em {{date}}</strong> — ou seja, daqui a cerca de <strong>{{daysLabel}}</strong>. Depois disso, os seus links de pagamento, wallets, definições e histórico não poderão ser recuperados.",
+      "timeLeft": "Tempo restante",
+      "timeLeftBadge": "Restante: {{daysLabel}}",
+      "deletesOn": "Eliminada em",
+      "wantItBack": "Se a quiser de volta, basta responder a este e-mail ou contactar o suporte antes de <strong>{{date}}</strong> e restauramo-la com um clique. Se a eliminação foi intencional, não precisa de fazer nada.",
+      "dayOne": "1 dia",
+      "dayOther": "{{count}} dias",
+      "cta": "Contactar o suporte",
+      "preheader": "{{daysLabel}} para restaurar {{companyName}} antes de ser eliminada permanentemente."
+    },
+    "newDeviceAlert": {
+      "subject": "Um novo dispositivo iniciou sessão na sua conta Dynopay",
+      "heading": "Novo dispositivo com sessão iniciada",
+      "intro": "A sua conta Dynopay acabou de ser acedida a partir de um dispositivo que não conhecíamos. Se foi você, não precisa de fazer nada.",
+      "when": "Quando",
+      "unknownDevice": "Dispositivo desconhecido",
+      "unknownLocation": "Localização desconhecida",
+      "warn": "Não reconhece este acesso? Toque no botão abaixo para terminar sessão em todos os dispositivos de imediato e, em seguida, altere a sua palavra-passe.",
+      "cta": "Não fui eu — terminar sessão em todo o lado",
+      "preheader": "Um novo dispositivo acabou de iniciar sessão na sua conta Dynopay."
+    },
+    "largeTransaction": {
+      "subject": "Pagamento grande: {{amount}} {{currency}}",
+      "heading": "Pagamento elevado recebido",
+      "intro": "<strong>{{companyName}}</strong> recebeu um pagamento elevado que pode exigir a sua atenção.",
+      "outro1": "Este pagamento foi processado automaticamente e encaminhado para a sua carteira.",
+      "outro2": "Já foi liquidado na sua carteira — vale uma olhada rápida antes de atender o pedido.",
+      "cta": "Ver transação"
+    },
+    "paymentLinkCreated": {
+      "subject": "Link pronto: {{amount}} {{currency}}",
+      "heading": "Link de pagamento criado",
+      "intro": "O seu link de pagamento foi criado com sucesso.",
+      "outro": "Partilhe este link com o seu cliente para receber o pagamento.",
+      "cta": "Abrir link de pagamento",
+      "preheader": "O seu link de pagamento está pronto para partilhar."
+    },
+    "crowdfundingCreated": {
+      "subject": "{{title}} está no ar — compartilhe",
+      "heading": "Campanha de crowdfunding no ar",
+      "intro": "A sua campanha de crowdfunding está pronta para receber contribuições.",
+      "outro": "Partilhe a página da campanha com a sua comunidade para começar a receber contribuições. Pode acompanhar o progresso no seu painel.",
+      "cta": "Ver campanha",
+      "labelCampaign": "Campanha",
+      "labelGoal": "Meta",
+      "labelNoGoal": "Aberta (sem meta)",
+      "labelLink": "Link da campanha",
+      "preheader": "A sua campanha está no ar e pronta para contribuições."
+    },
+    "kycRequired": {
+      "subject": "Verifique sua identidade para continuar aceitando pagamentos",
+      "heading": "Verificação necessária",
+      "intro": "Parabéns por atingir <strong>{{symbol}}{{volume}} {{currency}}</strong> em volume de transações!",
+      "intro2": "Para continuar a aceitar pagamentos acima de {{symbol}}{{threshold}}, precisamos de verificar a sua identidade. Este é um requisito regulamentar e ajuda-nos a manter a Dynopay segura.",
+      "needTitle": "O que precisa:",
+      "need1": "1. Um documento de identificação com foto",
+      "need2": "2. Uma selfie rápida para a prova de vida",
+      "need3": "3. Cerca de 5 minutos",
+      "outro": "Conclua a sua verificação agora para continuar a aceitar pagamentos sem interrupções.",
+      "cta": "Iniciar verificação",
+      "preheader": "Verifique a sua identidade para continuar a aceitar pagamentos acima de {{threshold}}."
+    },
+    "kycApproved": {
+      "subject": "Você está verificado — sem limites de pagamento",
+      "heading": "Verificação aprovada",
+      "intro": "A verificação da sua identidade foi aprovada.",
+      "outro": "Agora você pode aceitar pagamentos sem limites e usar todos os recursos da Dynopay.",
+      "cta": "Ver painel",
+      "preheader": "Está verificado — sem limites para aceitar pagamentos."
+    },
+    "kycRejected": {
+      "subject": "Não conseguimos verificar sua identidade",
+      "heading": "Verificação sem sucesso",
+      "intro": "Não foi possível verificar a sua identidade neste momento.",
+      "reasonTitle": "Motivo",
+      "outro1": "Pode reenviar os seus documentos de verificação. Certifique-se de que:",
+      "outro2": "1. Usa imagens nítidas e de alta qualidade<br />2. Toda a informação está visível<br />3. O nome corresponde à sua conta Dynopay",
+      "outro3": "Se precisar de ajuda, a nossa equipa de suporte está aqui para si.",
+      "cta": "Reenviar documentos",
+      "preheader": "Não conseguimos verificar a sua identidade — veja o que fazer."
+    },
+    "kycStarted": {
+      "subject": "Conclua a verificação da sua identidade",
+      "heading": "Verificação de identidade",
+      "intro": "A sua sessão de verificação de identidade foi criada. Conclua a verificação para continuar a usar a Dynopay sem restrições.",
+      "needTitle": "O que vai precisar:",
+      "need1": "1. Um documento de identificação com foto",
+      "need2": "2. Uma selfie rápida para a prova de vida",
+      "need3": "3. Cerca de 5 minutos",
+      "outro": "A verificação demora normalmente 5 a 10 minutos a concluir e é analisada em 24 a 48 horas.",
+      "cta": "Concluir verificação",
+      "preheader": "Conclua a verificação de identidade para remover os limites."
+    },
+    "kycResubmission": {
+      "subject": "Mais uma coisa para sua verificação de identidade",
+      "heading": "Reenvio necessário",
+      "intro": "Precisamos de um pouco mais de informação para concluir a verificação da sua identidade.",
+      "reasonTitle": "Motivo",
+      "outro1": "Este é um pedido comum. Para continuar:",
+      "outro2": "1. Certifique-se de que os documentos estão nítidos e todo o texto é legível<br />2. Verifique se o nome corresponde à sua conta Dynopay<br />3. Use documentos que não estejam expirados",
+      "cta": "Reenviar documentos",
+      "preheader": "Precisamos de mais uma coisa para concluir a sua verificação."
+    },
+    "weeklySummary": {
+      "subject": "O seu resumo semanal da Dynopay",
+      "heading": "O seu resumo semanal",
+      "intro": "Aqui está o resumo da sua atividade semanal de <strong>{{periodStart}}</strong> a <strong>{{periodEnd}}</strong>:",
+      "noActivity": "Não foram registadas transações esta semana. Quando estiver pronto, crie um link de pagamento ou partilhe a sua página de checkout para começar a receber pagamentos.",
+      "greatWeek": "Ótima semana! Processou <strong>{{symbol}}{{volume}} {{currency}}</strong> em {{completed}} transação(ões) concluída(s). Continue assim!",
+      "pendingMsg": "Tem <strong>{{pending}} transação(ões) pendente(s)</strong> a aguardar confirmação. Consulte o seu painel para mais detalhes.",
+      "genericMsg": "Teve {{count}} transação(ões) esta semana. Inicie sessão no seu painel para ver os detalhes completos.",
+      "cta": "Ver análises completas",
+      "preheader": "Os seus pagamentos, recebimentos e taxas desta semana."
+    },
+    "invoice": {
+      "subject": "Fatura de taxa Dynopay {{number}}",
+      "heading": "Fatura gerada",
+      "intro": "Sua fatura de taxa da Dynopay para a transação #{{transactionId}} está pronta.",
+      "outro": "Pode ver e descarregar a sua fatura usando o botão abaixo.",
+      "cta": "Ver fatura",
+      "preheader": "A sua última fatura Dynopay está disponível."
+    },
+    "apiKey": {
+      "subjectCreated": "Nova chave de API {{keyType}} criada",
+      "subjectRegenerated": "Chave de API {{keyType}} rotacionada — a chave antiga parou de funcionar",
+      "heading": "Atualização da chave de API",
+      "introCreated": "A sua chave de API de <strong>{{keyType}}</strong> foi criada.",
+      "introRegenerated": "A sua chave de API de <strong>{{keyType}}</strong> foi regenerada.",
+      "oldInvalid": "A sua chave antiga já não é válida",
+      "productionWarn": "<strong>Importante:</strong> esta é uma chave de produção. Mantenha-a segura e nunca a partilhe publicamente.",
+      "didntCreate": "<strong>Não foi você?</strong><br />Se não criou esta chave de API, proteja a sua conta imediatamente.",
+      "didntRegenerate": "<strong>Não foi você?</strong><br />Se não regenerou esta chave de API, proteja a sua conta imediatamente.",
+      "cta": "Ver chaves de API",
+      "preheader": "Foi criada uma nova chave API na sua conta."
+    },
+    "subscriptionCreated": {
+      "custSubject": "Você assinou {{planName}}",
+      "custHeading": "Subscrição ativa",
+      "custIntro": "A sua subscrição de <strong>{{planName}}</strong> de <strong>{{companyName}}</strong> está agora ativa.",
+      "custOutro": "A cada ciclo de cobrança, enviaremos um link seguro para você pagar em cripto.",
+      "merchSubject": "Novo assinante de {{planName}}",
+      "merchHeading": "Nova subscrição",
+      "merchIntro": "Tem um novo subscritor para <strong>{{planName}}</strong>.",
+      "cta": "Ver subscrições",
+      "custPreheader": "A sua subscrição está agora ativa.",
+      "merchPreheader": "Tem um novo subscritor."
+    },
+    "subscriptionCancelled": {
+      "custSubject": "Assinatura de {{planName}} cancelada",
+      "heading": "Subscrição cancelada",
+      "custIntro": "A sua subscrição de <strong>{{planName}}</strong> de <strong>{{companyName}}</strong> foi cancelada.",
+      "custOutro1": "Continuará a ter acesso até {{effectiveDate}}. Depois disso, não serão feitas mais cobranças.",
+      "custOutro2": "Se mudar de ideias, pode voltar a subscrever a qualquer momento.",
+      "merchSubject": "{{name}} cancelou a assinatura",
+      "merchIntro": "Uma subscrição de <strong>{{planName}}</strong> foi cancelada.",
+      "cta": "Ver subscrições",
+      "custPreheader": "A sua subscrição foi cancelada.",
+      "merchPreheader": "Um subscritor cancelou o seu plano."
+    },
+    "subscriptionPaymentFailed": {
+      "custSubject": "Ação necessária: o pagamento de {{planName}} não foi concluído",
+      "custHeading": "Pagamento falhado",
+      "custIntro": "Não foi possível processar o pagamento da sua subscrição de <strong>{{planName}}</strong> de <strong>{{companyName}}</strong>.",
+      "custSteps": "Para manter a subscrição ativa:<br />1. Abra o link de pagamento seguro abaixo<br />2. Confirme que a sua carteira tem saldo suficiente, incluindo taxas de rede<br />3. Contacte o comerciante se precisar de ajuda",
+      "custWarn": "A sua subscrição pode ser cancelada se o pagamento não for recebido.",
+      "custCta": "Concluir pagamento",
+      "merchSubject": "Pagamento de subscrição falhado – {{name}}",
+      "merchHeading": "Pagamento de subscrição falhado",
+      "merchIntro": "Um pagamento de subscrição falhou para <strong>{{planName}}</strong>.",
+      "merchOutro": "O cliente foi notificado para atualizar o seu método de pagamento.",
+      "merchCta": "Ver subscrição",
+      "custPreheader": "O pagamento da sua subscrição não foi concluído.",
+      "merchPreheader": "O pagamento de um subscritor falhou."
+    },
+    "autoConversion": {
+      "subject": "Pagamento concluído — {{payoutAmount}} {{targetCurrency}} de {{sourceAmount}} {{sourceCurrency}}",
+      "heading": "Pagamento concluído",
+      "cta": "Ver detalhes da conversão",
+      "intro": "O seu pagamento em cripto foi convertido automaticamente e o pagamento foi enviado para a sua carteira.",
+      "outro": "Sua receita está protegida das oscilações de preço das criptos.",
+      "preheader": "A sua cripto foi convertida e paga."
+    },
+    "weeklyConversion": {
+      "heading": "Relatório semanal de conversões",
+      "intro": "Aqui está o seu relatório semanal de conversão automática para <strong>{{companyName}}</strong>.",
+      "preheader": "Um resumo das suas conversões da última semana."
+    },
+    "volumeTierUpgrade": {
+      "subject": "Sua taxa Dynopay agora é {{newPercent}}% (nível {{newTier}})",
+      "intro": "Boa notícia — você ultrapassou <strong>{{volume}}</strong> em volume processado acumulado, e o seu nível de taxa de plataforma acaba de subir de <strong>{{previousTier}}</strong> para <strong>{{newTier}}</strong>.",
+      "rateTitle": "Sua nova taxa",
+      "previousFee": "Taxa anterior",
+      "newFee": "Nova taxa ({{newTier}})",
+      "youSave": "Você economiza",
+      "savingsPerTx": "{{savings}}% por transação",
+      "applied": "Isso é aplicado automaticamente a cada novo pagamento a partir de agora — nenhuma ação necessária. Continue processando, o próximo nível está esperando por você.",
+      "thanks": "",
+      "heading": "Você agora é {{newTier}} — aproveite {{newPercent}}% de taxa",
+      "cta": "Ver seu painel",
+      "preheader": "A sua taxa de plataforma desceu para {{newPercent}}%."
+    },
+    "conversionFailed": {
+      "subject": "A conversão de {{amount}} falhou — fundos guardados com segurança",
+      "heading": "Conversão automática falhou — fundos retidos",
+      "preheader": "Um pagamento não pôde ser convertido. Os seus fundos estão seguros — tente novamente ou contacte o suporte.",
+      "intro": "Não conseguimos converter <strong>{{amount}}</strong> em {{targetCurrency}} após várias tentativas.",
+      "safe": "Os seus fundos estão seguros. Estão guardados na carteira de depósito da exchange e não serão movidos até que tente novamente a conversão ou peça ao suporte para os libertar na moeda original.",
+      "amountLabel": "Montante recebido",
+      "targetLabel": "Converter para",
+      "reasonLabel": "Motivo",
+      "paymentLabel": "Pagamento",
+      "idLabel": "ID da conversão",
+      "next": "Abra Pagamentos para tentar novamente com um clique, ou responda a este e-mail e resolvemos consigo.",
+      "cta": "Abrir Pagamentos"
+    },
+    "signupOtp": {
+      "subject": "{{code}} é o seu código de cadastro Dynopay",
+      "heading": "Confirme seu e-mail",
+      "intro": "Digite este código para criar sua conta Dynopay:",
+      "expiry": "Expira em 10 minutos. Não se cadastrou? Ignore este e-mail.",
+      "preheader": "Confirme seu e-mail para concluir o cadastro."
+    },
+    "changeEmailOtp": {
+      "subject": "{{code}} para confirmar seu novo e-mail",
+      "heading": "Confirme seu novo e-mail",
+      "intro": "Digite este código para confirmar seu novo endereço de e-mail:",
+      "expiry": "Expira em 10 minutos. Não solicitou esta alteração? Ignore este e-mail.",
+      "preheader": "Confirme seu novo endereço de e-mail."
+    },
+    "setPasswordOtp": {
+      "subject": "{{code}} para definir sua senha",
+      "heading": "Defina sua senha",
+      "intro": "Digite este código para definir uma senha na sua conta:",
+      "expiry": "Expira em 10 minutos. Não solicitou? Ignore este e-mail.",
+      "preheader": "Defina uma senha para sua conta."
+    },
+    "apiKeyHashed": {
+      "subject": "Atualização de segurança: as suas chaves API passam a ser mostradas apenas uma vez",
+      "preheader": "As suas chaves continuam a funcionar. Nada a fazer, salvo se precisar de copiar novamente uma chave.",
+      "heading": "Atualização de segurança das chaves API",
+      "intro": "Melhorámos a forma como a Dynopay guarda as suas chaves API. As chaves passam a ser guardadas como um hash unidirecional — o mesmo modelo usado pela Stripe e pela Coinbase —, pelo que nem uma cópia da nossa base de dados poderia revelar a sua chave.",
+      "whatLabel": "O que mudou",
+      "whatValue": "As chaves são mostradas uma única vez, na criação ou rotação, e deixam de poder ser reveladas no painel.",
+      "keysLabel": "As suas chaves atuais",
+      "keysValue": "Continuam a funcionar exatamente como antes. Não é necessária qualquer alteração na sua integração.",
+      "actionLabel": "Ação necessária",
+      "actionValue": "Nenhuma — a menos que não tenha guardado a sua chave em nenhum lugar. Nesse caso, faça uma rotação em Programador › Chaves API.",
+      "rotate": "Para rodar: abra <strong>Programador › Chaves API</strong>, carregue em <strong>Regenerar</strong>, copie de imediato a nova chave e atualize a sua integração. A chave antiga deixa de funcionar no momento em que regenera.",
+      "outro": "Dúvidas? Responda a este e-mail — teremos todo o gosto em ajudar.",
+      "cta": "Abrir chaves API"
+    }
+  },
+  "contributor": {
+    "crowdfundingUpdate": {
+      "subject": "{{title}} — novidade de {{campaign}}",
+      "friend": "amigo",
+      "intro": "O organizador de <strong>{{campaign}}</strong> acabou de publicar uma novidade.",
+      "outro": "Obrigado por apoiar esta campanha. Você recebe este e-mail porque contribuiu anteriormente.",
+      "heading": "Nova novidade de {{campaign}}",
+      "cta": "Ver campanha",
+      "preheader": "Uma nova atualização de {{campaign}}."
+    }
+  },
+  "contributionReceived": {
+    "subject": "Contribuição de {{amount}} {{currency}} para {{campaignName}}",
+    "heading": "Nova contribuição recebida",
+    "intro": "Alguém acabou de apoiar <strong>{{campaignName}}</strong> — aqui estão os detalhes.",
+    "outro": "A lista completa de doadores está no painel da sua campanha.",
+    "cta": "Ver campanha",
+    "preheader": "Chegou agora uma nova contribuição para a sua campanha."
+  },
+  "contributionThankYou": {
+    "subject": "Obrigado por apoiar {{campaignName}}",
+    "heading": "Obrigado por apoiar {{campaignName}}",
+    "intro": "Sua contribuição para <strong>{{campaignName}}</strong> acabou de chegar — obrigado por apoiar esta campanha.",
+    "outro": "O organizador pode enviar atualizações da campanha para você ver aonde vai o seu apoio.",
+    "contact": "O organizador vê seu apoio e pode enviar novidades da campanha.",
+    "preheader": "Obrigado — o recibo da sua contribuição está em anexo."
+  },
+  "walletOtp": {
+    "subject": "Código para validação de endereço de carteira",
+    "heading": "Código de verificação da carteira",
+    "intro": "Você está validando um novo endereço de carteira para {{currency}}.",
+    "walletAddress": "Endereço da carteira",
+    "currency": "Moeda",
+    "expiry": "Este código expira em {{minutes}} minutos."
+  },
+  "overpayment": {
+    "merchantSubject": "Um comprador pagou {{excess}} a mais",
+    "merchantHeading": "Um cliente pagou a mais",
+    "merchantIntro": "Um cliente acabou de concluir um pagamento para {{company}} e enviou MAIS do que o valor devido.",
+    "overpaidBy": "Valor pago a mais",
+    "statusOverpaid": "Pago a mais",
+    "merchantBody": "Seu repasse inclui o valor total devido MAIS o excedente de {{excess}} (≈ {{excessFiat}}) — a Dynopay nunca retém um pagamento a mais. Se o comprador pedir, você pode reembolsar a diferença nos detalhes da transação.",
+    "viewTransactions": "Ver transações"
+  },
+  "payoutDigest": {
+    "subjectActive": "Sua semana na Dynopay: {{amount}} liquidados",
+    "subjectQuiet": "Sua semana na Dynopay: nada liquidado ainda",
+    "headingActive": "Seu resumo semanal de repasses",
+    "headingQuiet": "Resumo semanal de repasses — semana tranquila",
+    "intro": "Aqui está sua semana na Dynopay num relance.",
+    "settledThisWeek": "Liquidado nesta semana",
+    "platformFees": "Taxas da plataforma",
+    "feeTierContext": "Nível {{name}} — {{percent}}%",
+    "thisPeriod": "Este período",
+    "period": "Período",
+    "paymentsSettled": "Pagamentos liquidados",
+    "changeVsPrior": "Variação vs. semana anterior",
+    "newThisWeek": "Novo nesta semana",
+    "totalTopCoins": "Total das principais moedas",
+    "paymentSingular": "pagamento",
+    "paymentPlural": "pagamentos",
+    "compareToLast": "Em comparação com a semana passada ({{prevAmount}}, {{prevCountLabel}}): {{delta}}",
+    "firstActiveWeek": "Esta é a sua primeira semana ativa — bem-vindo ao resumo semanal. {{delta}}",
+    "nothingSettled": "Nada liquidado nesta semana. Envie um link de pagamento a um cliente e vamos concluir o primeiro: {{link}}",
+    "createPayLink": "Criar um link de pagamento →",
+    "openDashboardBody": "Abra o seu painel para explorar transações, ajustar carteiras ou compartilhar um novo link de pagamento.",
+    "openDashboard": "Abrir painel",
+    "preheaderActive": "Um resumo dos seus recebimentos da última semana.",
+    "preheaderQuiet": "Uma verificação rápida da sua conta esta semana."
+  },
+  "referral": {
+    "whyTitle": "Por que a Dynopay?",
+    "why1": "Aceite Bitcoin, Ethereum, USDT, USDC e mais de 15 moedas",
+    "why2": "Sem custódia — os fundos são liquidados direto em uma carteira que você controla",
+    "why3": "Notificações assim que um pagamento é confirmado e um painel organizado",
+    "why4": "Taxas mais baixas que processadores de pagamento tradicionais",
+    "codeLabel": "Seu código:",
+    "unsubscribe": "Cancelar inscrição",
+    "reminder": {
+      "subjectWeek1": "Seu desconto nas taxas da Dynopay está esperando",
+      "subjectWeek2": "{{discountPercent}}% de desconto nas taxas da Dynopay — resgate",
+      "subjectWeek3": "Faltam {{daysRemaining}} dias para seu desconto nas taxas",
+      "subjectFinal": "Última chance: o desconto termina em {{daysRemaining}} dias",
+      "urgencyWeek1": "Você ainda tem <strong>{{daysRemaining}} dias</strong> para resgatar seu desconto exclusivo.",
+      "urgencyWeek2": "Seu <strong>desconto exclusivo de {{discountPercent}}%</strong> ainda está disponível. Restam apenas <strong>{{daysRemaining}} dias</strong>.",
+      "urgencyWeek3": "<strong>O tempo está acabando.</strong> Seu desconto exclusivo de {{discountPercent}}% expira em apenas <strong>{{daysRemaining}} dias</strong>.",
+      "urgencyFinal": "<strong style=\"color: #dc2626;\">Último lembrete:</strong> seu desconto exclusivo de {{discountPercent}}% expira em apenas <strong>{{daysRemaining}} dias</strong>. Esta é sua última chance.",
+      "ctaWeek1": "Resgatar seu desconto",
+      "ctaWeek2": "Comece a economizar hoje",
+      "ctaWeek3": "Não perca",
+      "ctaFinal": "Resgate antes que expire",
+      "intro": "Notamos que você ainda não resgatou seu desconto exclusivo da Dynopay.",
+      "offerTitle": "Sua oferta exclusiva",
+      "offerLine": "<strong>{{discountPercent}}% DE DESCONTO</strong> em todas as taxas de transação por <strong>{{days}} dias</strong>",
+      "heading": "Seu desconto está esperando",
+      "unsubscribeSuffix": "destes lembretes"
+    },
+    "invite": {
+      "subject": "Receba em cripto também — {{discountPercent}}% de desconto nas taxas da Dynopay",
+      "intro": "Obrigado por pagar com a Dynopay! Sabia que você também pode aceitar pagamentos em cripto no seu próprio negócio?",
+      "giftTitle": "Um presente de boas-vindas para você",
+      "offerLine": "<strong>{{discountPercent}}% DE DESCONTO</strong> em todas as taxas da Dynopay por <strong>{{days}} dias</strong>",
+      "cta": "Comece a aceitar cripto",
+      "heading": "Seu presente de boas-vindas da Dynopay",
+      "unsubscribeSuffix": "destes e-mails"
+    }
+  },
+  "activation": {
+    "step": {
+      "d1": {
+        "subject": "Tudo pronto — veja como receber o seu primeiro pagamento",
+        "heading": "Vamos receber o seu primeiro pagamento",
+        "intro": "A sua conta Dynopay está pronta. Receber o seu primeiro pagamento em cripto leva cerca de 2 minutos — veja o próximo passo."
+      },
+      "d3": {
+        "subject": "Continuamos aqui para o ajudar a receber",
+        "heading": "A um passo do seu primeiro pagamento",
+        "intro": "Um lembrete rápido: faltam poucos passos para começar a aceitar cripto. Vamos tratar do próximo."
+      },
+      "d7": {
+        "subject": "A sua conta Dynopay está pronta quando você estiver",
+        "heading": "Continue de onde parou",
+        "intro": "Você configurou a Dynopay há uma semana. Quando quiser, este é o caminho mais rápido para o seu primeiro pagamento."
+      }
+    },
+    "seg": {
+      "madeLink": {
+        "line": "Você já criou um link de pagamento — ótimo. Adicione uma carteira de saque para que, assim que alguém pagar, liquidemos direto numa carteira que você controla.",
+        "cta": "Adicionar carteira de saque"
+      },
+      "noLink": {
+        "line": "Crie o seu primeiro link de pagamento — partilhe em qualquer lugar e comece a aceitar Bitcoin, Ethereum ou stablecoins, sem estornos.",
+        "cta": "Criar o meu primeiro link"
+      },
+      "fundraiser": {
+        "line": "Lance a sua página de arrecadação em minutos — partilhe um único link e comece a receber doações em cripto de qualquer lugar do mundo.",
+        "cta": "Criar página de arrecadação"
+      }
+    },
+    "common": {
+      "videoCta": "Assista ao vídeo de configuração de 2 minutos →",
+      "unsubscribe": "Não quer estas dicas de configuração?",
+      "unsubscribeAction": "Cancelar inscrição"
+    },
+    "gate": {
+      "subject": "Conclua a configuração para receber pagamentos",
+      "heading": "Falta só um passo para você receber",
+      "outro": "Leva apenas um minuto e você continua exatamente de onde parou.",
+      "brand": {
+        "intro": "Você tentou criar um link de pagamento, mas sua conta ainda não tem uma marca. O nome da marca aparece no checkout, nas faturas e nos recibos — adicionar leva cerca de 30 segundos.",
+        "cta": "Adicionar minha marca"
+      },
+      "wallet": {
+        "intro": "Você tentou criar um link de pagamento, mas ainda não há uma carteira de recebimento na sua conta. Os pagamentos são liquidados direto em uma carteira que você controla, então precisamos de um endereço antes de você receber.",
+        "cta": "Adicionar carteira de recebimento"
+      },
+      "kyc": {
+        "intro": "Você já processou mais de US$ 10.000 em pagamentos — ótimo trabalho. Por isso, uma verificação rápida de identidade agora é necessária antes de criar novos links de pagamento. Costuma levar cerca de 5 minutos.",
+        "cta": "Verificar minha identidade"
+      }
+    }
+  },
+  "chrome": {
+    "bestRegards": "Atenciosamente,",
+    "teamSignature": "A equipe da Dynopay",
+    "tagline": "Gateway de pagamento cripto seguro",
+    "rights": "© Dynopay {{year}}. Todos os direitos reservados.",
+    "privacy": "Privacidade",
+    "terms": "Termos",
+    "support": "Suporte"
+  },
+  "orderReceipt": {
+    "subject": "Seu pedido {{ref}} está confirmado",
+    "heading": "Pedido confirmado",
+    "preheader": "Pagamento recebido – o pedido {{ref}} está confirmado.",
+    "thanks": "Obrigado pela sua compra! Recebemos o seu pagamento e o seu pedido está confirmado.",
+    "orderReference": "Referência do pedido:",
+    "digitalNote": "Os links de download acima são válidos por 24 horas. Precisa de um novo link?",
+    "openOrderPage": "Abra a página do seu pedido",
+    "physicalNote": "O comerciante enviará um número de rastreamento por e-mail quando os itens forem despachados.",
+    "viewOrderDetails": "Ver detalhes do pedido →"
+  },
+  "orderTable": {
+    "product": "Produto",
+    "qty": "Qtd",
+    "amount": "Valor",
+    "subtotal": "Subtotal",
+    "shipping": "Frete",
+    "total": "Total",
+    "item": "Item",
+    "download": "Baixar",
+    "licenseKey": "Chave de licença:",
+    "accessPurchase": "Acesse sua compra →",
+    "bookSession": "Agende sua sessão →",
+    "inclusive": "incl.",
+    "reverseCharge": "Autoliquidação (B2B UE). O comprador é responsável pelo imposto.",
+    "merchantTaxId": "ID de {{label}} do comerciante:"
+  },
+  "security": {
+    "twoFaEnabled": {
+      "subject": "A 2FA está ativa na sua conta",
+      "heading": "Autenticação de dois fatores ativada",
+      "intro": "A autenticação de dois fatores (2FA) protege agora a sua conta Dynopay. A partir de agora, precisará de um código da sua aplicação de autenticação sempre que iniciar sessão.",
+      "tip": "Guarde os seus códigos de recuperação num local seguro: são a única forma de entrar se perder o acesso à sua aplicação de autenticação.",
+      "preheader": "A sua conta exige agora um código de autenticação para iniciar sessão."
+    },
+    "twoFaDisabled": {
+      "subject": "A 2FA foi desativada — foi você?",
+      "heading": "Autenticação de dois fatores desativada",
+      "intro": "A autenticação de dois fatores (2FA) acabou de ser desativada na sua conta Dynopay. Agora apenas a sua palavra-passe protege a conta.",
+      "cta": "Voltar a ativar a 2FA",
+      "preheader": "A 2FA foi desativada na sua conta — foi você?"
+    },
+    "backupCodes": {
+      "subject": "Seus códigos de backup 2FA foram substituídos",
+      "heading": "Códigos de recuperação regenerados",
+      "intro": "Foi gerado um novo conjunto de códigos de recuperação para a autenticação de dois fatores da sua conta Dynopay. Os códigos anteriores deixaram de funcionar.",
+      "tip": "Guarde os novos códigos num local seguro e nunca os partilhe.",
+      "preheader": "Os seus códigos de recuperação antigos deixaram de funcionar."
+    },
+    "phoneAdded": {
+      "subject": "Número de telefone adicionado à sua conta",
+      "heading": "Número de telefone adicionado",
+      "intro": "Acabou de ser adicionado um número de telefone à sua conta Dynopay. Já pode iniciar sessão e receber códigos de verificação por SMS.",
+      "preheader": "Já pode receber códigos de verificação por SMS."
+    },
+    "phoneChanged": {
+      "subject": "Número de telefone atualizado na sua conta",
+      "heading": "Número de telefone atualizado",
+      "intro": "O número de telefone da sua conta Dynopay acabou de ser alterado. Os códigos de verificação e os alertas de segurança passam a ser enviados para o novo número.",
+      "preheader": "Os códigos e alertas passam a ir para o seu novo número."
+    },
+    "phoneRemoved": {
+      "subject": "Número de telefone removido da sua conta",
+      "heading": "Número de telefone removido",
+      "intro": "O número de telefone acabou de ser removido da sua conta Dynopay. O início de sessão por SMS deixa de estar disponível até adicionar um novo número.",
+      "preheader": "O início de sessão por SMS já não está disponível na sua conta."
+    },
+    "phoneLabel": "Número de telefone",
+    "accountDeleted": {
+      "subject": "A sua conta Dynopay foi eliminada",
+      "heading": "Conta eliminada",
+      "intro": "Conforme pedido, a sua conta Dynopay e todos os seus dados — marcas, links de pagamento, chaves API, carteiras de pagamento e definições — foram eliminados permanentemente.",
+      "outro": "Se um dia quiser voltar a aceitar cripto, você será bem-vindo.",
+      "notice": "<strong>Não pediu isto?</strong> Contacte imediatamente a nossa equipa de suporte.",
+      "preheader": "A sua conta e os seus dados foram removidos permanentemente."
+    },
+    "accountSuspended": {
+      "subject": "A sua conta Dynopay foi suspensa",
+      "heading": "Conta suspensa",
+      "intro": "A sua conta Dynopay foi temporariamente suspensa. Não poderá iniciar sessão nem processar pagamentos enquanto estiver suspensa.",
+      "outro": "Se acredita que se trata de um erro, ou se quiser resolver a situação, responda a este e-mail ou contacte a nossa equipa de suporte.",
+      "preheader": "O início de sessão e os pagamentos estão em pausa na sua conta."
+    },
+    "accountBanned": {
+      "subject": "A sua conta Dynopay foi encerrada",
+      "heading": "Conta encerrada",
+      "intro": "A sua conta Dynopay foi encerrada permanentemente por violação dos nossos termos de serviço. O início de sessão e o processamento de pagamentos deixaram de estar disponíveis.",
+      "outro": "Se acredita que esta decisão está errada, contacte a nossa equipa de suporte e iremos rever o caso.",
+      "preheader": "A sua conta foi encerrada por violação dos termos de serviço."
+    },
+    "accountReactivated": {
+      "subject": "A sua conta Dynopay está novamente ativa",
+      "heading": "Bem-vindo de volta — a sua conta está ativa",
+      "intro": "Boas notícias: a sua conta Dynopay foi reativada. Pode iniciar sessão e aceitar pagamentos normalmente.",
+      "preheader": "Já pode iniciar sessão e aceitar pagamentos novamente."
+    },
+    "reasonLabel": "Motivo",
+    "didntDoThis": "<strong>Não foi você?</strong> Outra pessoa pode ter acesso à sua conta. Altere a sua palavra-passe imediatamente e contacte a nossa equipa de suporte.",
+    "reviewCta": "Rever a segurança",
+    "supportCta": "Contactar o suporte",
+    "profileCta": "Ver perfil",
+    "dashboardCta": "Ir para o painel"
+  },
+  "paymentRequest": {
+    "subject": "{{companyName}} solicita {{amount}} {{currency}}",
+    "heading": "Pedido de pagamento de {{companyName}}",
+    "intro": "<strong>{{companyName}}</strong> está a pedir-lhe um pagamento. Reveja os detalhes abaixo e pague em segurança com cripto.",
+    "expires": "Expira em",
+    "outro": "Não esperava por isso? Ignore — nada é cobrado até você pagar.",
+    "cta": "Pagar agora",
+    "preheader": "{{companyName}} pede {{amount}} {{currency}}. Pague em segurança com cripto."
+  },
+  "paymentSource": {
+    "api": "API",
+    "paymentLink": "Link de pagamento",
+    "productOrder": "Pedido de produto",
+    "donation": "Campanha de doação",
+    "tip": "Gorjeta / Contribuição"
+  },
+  "buyerPaymentExpired": {
+    "subject": "O teu pagamento a {{companyName}} não foi concluído",
+    "heading": "Janela de pagamento encerrada",
+    "preheader": "O valor restante não chegou a tempo.",
+    "intro": "Enviaste um pagamento parcial a <strong>{{companyName}}</strong>, mas o valor restante não chegou antes de a janela de pagamento encerrar.",
+    "received": "Enviaste",
+    "expected": "Valor em dívida",
+    "whatNext": "O que acontece a seguir: {{companyName}} foi notificado e vê exatamente o que chegou. Contacta-o diretamente para acertar a diferença ou combinar o reembolso do valor parcial."
+  },
+  "paymentLinkReminder": {
+    "subjectReminder1": "Conclui o teu pagamento a {{companyName}}",
+    "subjectReminder2": "O teu pagamento a {{companyName}} continua pendente",
+    "subjectFinalExpiring": "O pagamento expira em breve — {{companyName}}",
+    "subjectFinal": "Último lembrete: pagamento pendente — {{companyName}}",
+    "headingReminder1": "Lembrete de pagamento",
+    "headingReminder2": "Pagamento ainda pendente",
+    "headingFinalExpiring": "Expira em breve",
+    "headingFinal": "Último lembrete",
+    "preheader": "{{amount}} {{currency}} por pagar a {{companyName}}",
+    "intro": "Tens um pedido de pagamento pendente de <strong>{{companyName}}</strong>.",
+    "amountDue": "Valor em dívida",
+    "description": "Descrição",
+    "expires": "Expira",
+    "urgencyReminder1Expiring": "Tens <strong>{{timeRemaining}}</strong> para concluir este pagamento.",
+    "urgencyReminder1": "Por favor, conclui o teu pagamento assim que possível.",
+    "urgencyReminder2Expiring": "<strong>Não te esqueças!</strong> Restam-te <strong>{{timeRemaining}}</strong> para concluir este pagamento.",
+    "urgencyReminder2": "Reparámos que ainda não concluíste o teu pagamento. Se algo não estiver a funcionar, {{companyName}} pode ajudar.",
+    "urgencyFinalExpiring": "{{urgent}} O teu link de pagamento expira em <strong>{{timeRemaining}}</strong>. Conclui o pagamento agora para não perderes o prazo.",
+    "urgent": "URGENTE:",
+    "urgencyFinal": "Este é o último lembrete sobre o teu pagamento pendente. Conclui-o em breve ou contacta {{companyName}} se tiveres dúvidas.",
+    "ctaReminder1": "Concluir pagamento",
+    "ctaReminder2": "Pagar agora",
+    "ctaFinal": "Concluir pagamento agora",
+    "disregard": "Se já concluíste este pagamento, ignora este e-mail. Se tiveres alguma dúvida sobre este pagamento, contacta diretamente {{companyName}}.",
+    "unsubscribe": "Cancelar inscrição",
+    "unsubscribeSuffix": "dos lembretes de pagamento",
+    "timeDay": "1 dia",
+    "timeDays": "{{count}} dias",
+    "timeHour": "1 hora",
+    "timeHours": "{{count}} horas",
+    "timeLessThanHour": "menos de uma hora"
+  }
+}

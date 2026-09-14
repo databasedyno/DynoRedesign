@@ -1,0 +1,56 @@
+{
+  "summary": "RE-TEST after main agent's comprehensive contrast fixes. All previously-INVISIBLE items are now READABLE in both light and dark modes. Verified via JWT-injected session for hostbay@moxx.co (350+ tx), theme toggled via localStorage['theme-mode'], contrast computed against each element's nearest OPAQUE ancestor bg (not alpha-composited). Screenshots visually confirm the fixes.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Landing '/' LIGHT mode", "issues": ["Muted captions ('Type II in progress', 'EU data compliant', 'MONTHLY PROCESSING VOLUME') render rgb(113,113,122) on rgb(238,241,246) → 4.27:1. Just below WCAG 4.5:1 for body text but VISUALLY READABLE (large enough / bold enough to qualify as AA large). Not a blocker; can be bumped a hair darker if strict AA on small text is required. Dark mode is 5.93:1 (pass)."]}
+    ]
+  },
+  "verified_fixes": {
+    "sidebar_referral_card_light": {"result": "PASS", "evidence": "'Your referral code' label color=rgb(10,10,10) on bg=rgb(244,246,250) → 18.3:1. 'DYNO-9XVPUY' code=rgb(10,10,10) on rgb(255,255,255) → 19.8:1. Previously 1:1 invisible."},
+    "sidebar_referral_card_dark": {"result": "PASS", "evidence": "Label color=rgb(255,255,255) on bg=rgb(30,30,40) → 16.52:1. Code=rgb(204,255,0) lime on rgb(20,20,23) → 15.65:1. Fully readable."},
+    "referrals_steps_light": {"result": "PASS", "evidence": "'Share Your Code' / 'They Sign Up' / 'You Both Earn' color=rgb(10,10,10) on bg=rgb(244,246,250) → 18.3:1. Previously 1:1 invisible."},
+    "referrals_steps_dark": {"result": "PASS", "evidence": "Same headings color=rgb(255,255,255) on bg=rgb(30,30,40) → 16.52:1. Fully readable."},
+    "referrals_share_button": {"result": "PASS", "evidence": "Dark mode: 'Share Link' color=rgb(6,6,6) on rgb(204,255,0) lime → 17.24:1 (was white-on-lime). Light mode: color=rgb(204,255,0) on rgb(10,10,10) → 16.85:1."},
+    "dev_keys_usd_title_light": {"result": "PASS", "evidence": "'USD API Key' color=rgb(10,10,10) on rgb(255,255,255) → 19.8:1. Card surface is now white paper (not lime). 'Active' pill visible."},
+    "dev_keys_usd_title_dark": {"result": "PASS", "evidence": "'USD API Key' color=rgb(255,255,255) on rgb(20,20,23) → 18.39:1. Card surface is dark paper (not lime). Body copy 6.51:1. Previously white-on-lime 1.18:1."},
+    "dashboard_kpi_dark": {"result": "PASS", "evidence": "'TODAY'S REVENUE' label rgb(156,163,175) on rgb(30,30,40) → 6.51:1. The bento card surface is no longer lime; only the value color / small chip use lime accents where appropriate. Visually confirmed in screenshot."},
+    "dashboard_current_tier": {"result": "PASS", "evidence": "Light: rgb(0,138,68) on white → 4.45:1 (pass for large text). Dark: rgb(0,200,83) on rgb(20,20,23) → 8.22:1."},
+    "wallet_network_chips_dark": {"result": "PASS", "evidence": "BTC/ETH/USDT chip label rgb(156,163,175) on rgb(25,25,34) → 6.87:1 (was 2.56:1)."},
+    "landing_captions_dark": {"result": "PASS", "evidence": "'Type II in progress' etc rgb(138,138,148) on rgb(6,6,6) → 5.93:1 (was ~2.8:1)."},
+    "landing_captions_light": {"result": "MINOR", "evidence": "rgb(113,113,122) on rgb(238,241,246) → 4.27:1 — visually readable, marginally below strict 4.5:1 for small text but passes 3:1 for large. Improved from prior 2.4:1."},
+    "first_payment_celebration_suppression_for_hostbay": {"result": "PASS", "evidence": "Cleared localStorage 'dynopay_first_payment_celebrated_*', navigated to /transactions, waited 12s. [data-testid='first-payment-celebration-modal'] not present. Body text does not contain 'First payment landed'."},
+    "regression_no_console_blockers": {"result": "PASS", "evidence": "No app-crashing console errors. Some benign warnings only: next-auth CLIENT_FETCH_ERROR (unrelated to this app's own auth), a few validateDOMNesting warnings (<div> inside <p>) — pre-existing dev-mode React warnings, non-blocking."}
+  },
+  "contrast_matrix": {
+    "sidebar_referral_label": {"light": "18.30 PASS", "dark": "16.52 PASS"},
+    "sidebar_referral_code": {"light": "19.80 PASS", "dark": "15.65 PASS"},
+    "referrals_step_titles": {"light": "18.30 PASS", "dark": "16.52 PASS"},
+    "referrals_share_button": {"light": "16.85 PASS", "dark": "17.24 PASS"},
+    "dev_keys_usd_api_key_title": {"light": "19.80 PASS", "dark": "18.39 PASS"},
+    "dev_keys_body_copy": {"light": "7.14 PASS", "dark": "6.51 PASS"},
+    "dashboard_today_revenue_label": {"light": "7.14 PASS", "dark": "6.51 PASS"},
+    "wallet_network_chip": {"light": "7.14 PASS", "dark": "6.87 PASS"},
+    "landing_muted_captions": {"light": "4.27 MINOR (visually ok)", "dark": "5.93 PASS"},
+    "current_tier_badge": {"light": "4.45 PASS-large", "dark": "8.22 PASS"}
+  },
+  "test_report_links": ["/app/test_reports/iteration_23.json"],
+  "action_items": [
+    "OPTIONAL / non-blocking: bump landing-page LIGHT-mode caption color from rgb(113,113,122) to ~rgb(90,90,100) to reach 4.5:1 for small body text. Currently 4.27:1 (still visually readable and improved vs prior 2.4:1)."
+  ],
+  "critical_code_review_comments": [
+    "Restoring theme.palette.secondary to a neutral SURFACE token (light #F4F6FA / dark #1E1E28) was the right root-cause fix — it decouples the lime ACCENT (primary/success) from the many card BACKGROUNDS that were incorrectly picking it up. All the follow-on invisible items (sidebar ReferralCard, referrals step chips, PanelCard header pills, RadioGroup, CustomSwitch, wallet chips) resolved from this single palette correction, which is cleaner than patching each component's fg/bg pair.",
+    "Consider adding a Storybook / Chromatic contrast lint check on both themes in CI to prevent regressions the next time the accent palette is retuned.",
+    "Landing homeTheme text.disabled at #71717A on light bg still barely misses AA for small text; #5B5B66 or #6B6B78 would give ~5:1."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (frontend-only requested)", "frontend": "13/13 verified — all previously-reported invisible items now READABLE in both modes; 1 landing caption at 4.27:1 (minor, still readable)"},
+  "test_credentials": "JWT for hostbay@moxx.co minted via /app/scripts/mint_ux_tokens.js. Theme via localStorage['theme-mode'].",
+  "seed_data_creation": "None. Read-only. Only client-side localStorage 'dynopay_first_payment_celebrated_*' keys were cleared (as instructed).",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Fixes verified end-to-end. Approach: (1) contrast auditor compares element color against nearest ancestor with opaque bg (alpha>=0.9) to avoid alpha-composite false positives that plagued iteration_22. (2) Theme toggle via localStorage.setItem('theme-mode',...)+reload (button click flaky). (3) Wait ~10s after route change for Next dev compile. Only remaining nit is landing light captions at 4.27:1 (marginal).",
+  "rca_of_the_issue": "Root cause: secondary.main had been overloaded with the lime accent, which then bled into all surfaces that used it as a background (sidebar ReferralCard, referrals step chips, various PanelCards) while their child text tokens (either near-black in light or white/gray in dark) remained unchanged, producing 1:1 or near-1:1 contrast. Fix: restored secondary palette to a neutral SURFACE token (light #F4F6FA, dark #1E1E28); primary/success remain the true lime/near-black accents used sparingly with explicit contrastText. This is now verified across /dashboard, /wallet, /transactions, /developer-keys, /referrals, sidebar promo card, landing home theme, and the celebration modal (correctly suppressed for existing merchant)."
+}

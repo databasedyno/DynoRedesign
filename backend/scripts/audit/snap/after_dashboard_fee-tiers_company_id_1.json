@@ -1,0 +1,66 @@
+{
+ "data": {
+  "currency": "USD",
+  "tiers": [
+   {
+    "description": "For new merchants getting started",
+    "display_name": "Starter",
+    "is_current": false,
+    "max_volume": 10000,
+    "max_volume_formatted": "$10,000",
+    "min_volume": 0,
+    "min_volume_formatted": "$0",
+    "name": "starter",
+    "percent": 1.5
+   },
+   {
+    "description": "For growing businesses",
+    "display_name": "Growth",
+    "is_current": true,
+    "max_volume": 100000,
+    "max_volume_formatted": "$100,000",
+    "min_volume": 10000,
+    "min_volume_formatted": "$10,000",
+    "name": "growth",
+    "percent": 1
+   },
+   {
+    "description": "For high-volume operations",
+    "display_name": "Scale",
+    "is_current": false,
+    "max_volume": 500000,
+    "max_volume_formatted": "$500,000",
+    "min_volume": 100000,
+    "min_volume_formatted": "$100,000",
+    "name": "scale",
+    "percent": 0.7
+   },
+   {
+    "description": "Best pricing, priority support",
+    "display_name": "Enterprise",
+    "is_current": false,
+    "max_volume": null,
+    "max_volume_formatted": "Unlimited",
+    "min_volume": 500000,
+    "min_volume_formatted": "$500,000",
+    "name": "enterprise",
+    "percent": 0.5
+   }
+  ],
+  "user_tier": {
+   "amount_to_next_tier": 71044.56,
+   "amount_to_next_tier_formatted": "$71,044.56 USD",
+   "current_tier": "Growth",
+   "current_tier_key": "growth",
+   "current_tier_percent": 1,
+   "next_tier": "Scale",
+   "next_tier_key": "scale",
+   "next_tier_percent": 0.7,
+   "percent_to_next_tier": 29,
+   "tier_description": "For growing businesses",
+   "total_volume": 28955.44,
+   "total_volume_formatted": "$28,955.44 USD"
+  }
+ },
+ "message": "Fee tiers retrieved successfully"
+}

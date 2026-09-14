@@ -1,0 +1,62 @@
+{
+  "summary": "Read-only UI audit verification of 14 P1/P2 fixes on live-DB DynoPay preview. Logged in as hostbay, exercised dashboard, transactions, pay-links, developer-keys, customers, notifications, settings, /about, /for/creators, /system-status, public /pay checkout, public /hostbay + /hostbay/shop, mobile /create-pay-link, /auth/login, /auth/register, /wallet, /invoices, /storefront, /fees. 13 of 14 fixes verified PASSING. Only 1 fix regressed/incomplete: Customers row-name mapping still renders raw 'Recovered Customer' string (banner + API chip are present, but displayFor() literal-match is not firing so the friendly label ('API customer (restored)'/'API payments') never appears). No write actions performed.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "Components/Page/Customers/index.tsx (displayFor)",
+        "issue": "All 24 rows on /customers still display the raw DB literal 'Recovered Customer' + 'API' chip. The displayFor() branch that maps DB kind === 'Recovered Customer' to i18n key customers.recoveredCustomerName ('API customer (restored)') / customers.apiCustomerName ('API payments') is not triggering. Banner [data-testid='customers-api-banner'] IS present and correct, and the API origin chip renders, so only the name-cell mapping is broken. Likely cause: comparison is on customer.name / customer.type but the field carrying 'Recovered Customer' is different (e.g. customer.customer_type or customer.status), or the locale keys weren't added to the running locale bundle. Confirmed via row.innerText: 'Recovered Customer\\n\\nAPI\\n | \\n\\nNo customer details provided\\n\\n | \\n\\n$0.00\\n\\n | \\n\\n0 txns\\n\\n | \\n\\nJul 11, 2026'.",
+        "selector": "table tbody tr (customer name cell)",
+        "priority": "HIGH"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verified_fixes": {
+    "1_trust_stats": "PASS — /auth/login shows '$42M+ processed', no '$24M+'. /auth/register shows '$42M+', no '$24M+'. /about shows '15+ Blockchains supported', no '8+'. Landing '/' NumbersTrustBand shows '15+' (network idle timed out but has_15plus_chains=true).",
+    "2_unified_dates": "PASS — /transactions rows: 'Aug 13, 2026, 19:24' style. /pay-links Created+Expires: 'Aug 13, 2026, 18:47' / 'Aug 18, 2026, 20:41'. /developer-keys: 'Created on Apr 18, 2026 at 18:20'. No numeric dotted dates (.2026) anywhere.",
+    "3_paylinks_actions_sticky_1920": "PASS — Actions column header computed position: 'sticky'. Copy/eye/edit/delete icons fully visible on active rows (172, 171) at 1920x1080. Headers list ends with 'Actions'.",
+    "4_transactions_tablet_1024": "PASS — At 1024x768 the desktop sidebar renders (width 265px, visible), MobileBottomNav is NOT rendered. Table shows overflow horizontally so Status/Date columns reachable by scroll.",
+    "5_serif_font_gone": "PASS — /transactions subtitle 'View and manage all your cryptocurrency payment transactions' computed fontFamily = 'UrbanistMedium' (sans). /system-status h1-h3 use IBM Plex Mono + Geist Sans stack — no Times/serif fallback.",
+    "6_checkout_pay_merchant": "PASS — Public /pay?d=… loads 'Pay hostbay' headline (NOT 'Pay Merchant'), reference chip reads 'REFERENCE · INV-2026-171' (no 'INVOICE' label).",
+    "7_customers_recovered_cleanup": "PARTIAL FAIL — Banner [data-testid='customers-api-banner'] present with correct copy. BUT row names still literal 'Recovered Customer'. Neither 'API customer' nor 'API customer (restored)' nor 'API payments' appears anywhere on the page. See ui_bugs above.",
+    "8_notifications_duplicate_chip": "PASS — Inspected 10 notification cards; no card renders a chip whose text duplicates its title verbatim. Titles like 'Payment Received' / 'Payment Pending Confirmation' appear once per card; only the 'Payment Pending' status chip (which differs from the title) shows.",
+    "9_mobile_preview_pill_offset": "PASS — At 390x844 on /create-pay-link the floating 'Preview' pill sits above the bottom nav (Dash / Payment Links / Transactions). Screenshot confirms no overlap.",
+    "10_creator_minimal_header": "PASS — /hostbay at 1920 header contains ONLY: logo, EN language, theme toggle, 'Sign in', 'Start free'. No Products/Developers/Resources/Company mega-menu, no status pill, no ⌘K search. /hostbay/shop avatar bgcolor = rgb(0, 229, 255) = teal #00E5FF (matches creator accent, not mustard).",
+    "11_for_creators_copy": "PASS — /for/creators body contains 'dynopay.me' and '15+ blockchains'; does NOT contain 'dynopay.com/@' or 'seven blockchain'.",
+    "12_settings_account_settings": "PASS — Heading 'Account Settings' (plural). Disabled inputs firstName/lastName/email/mobile computed color = rgb(176, 190, 197) on transparent bg — legible light-gray on dark, not gray-on-gray.",
+    "13_developer_keys_api_label": "PASS — Field label reads 'API key' (not bare 'API'). API Documentation card computed backgroundImage = 'none' (no stretched gray blob).",
+    "14_regression_smoke": "PASS — /dashboard, /wallet, /invoices, /storefront, /fees all return 200. Mobile 390 /dashboard renders the bottom tab bar (Dash / Payment Links / Transactions) with quick-action Create button and chart visible. Light-mode toggle icon is present in header (couldn't script-click reliably but visible in screenshots)."
+  },
+  "test_report_links": [
+    "/app/test_reports/screenshots_iter51/tx_1920.png",
+    "/app/test_reports/screenshots_iter51/tx_1024.png",
+    "/app/test_reports/screenshots_iter51/paylinks_1920.png",
+    "/app/test_reports/screenshots_iter51/checkout.png",
+    "/app/test_reports/screenshots_iter51/hostbay.png",
+    "/app/test_reports/screenshots_iter51/shop.png",
+    "/app/test_reports/screenshots_iter51/mobile_cpl.png",
+    "/app/test_reports/screenshots_iter51/mobile_dash.png",
+    "/app/test_reports/screenshots_iter51/03_customers.png",
+    "/app/test_reports/screenshots_iter51/04_notifications.png",
+    "/app/test_reports/screenshots_iter51/05_settings.png",
+    "/app/test_reports/screenshots_iter51/dev_keys.png"
+  ],
+  "action_items": [
+    "FIX Customers page: In Components/Page/Customers/index.tsx displayFor(), verify which field carries the 'Recovered Customer' literal from the API — likely the field is customer.customer_type or customer.type rather than customer.name. Currently the mapping compares against the wrong property so all 24 rows fall through to the raw DB literal. Add a case-insensitive fallback and confirm langs/locales/en/common.json ships customers.apiCustomerName='API payments' and customers.recoveredCustomerName='API customer (restored)' keys are wired to the running t() namespace. Repro: log in as hostbay, open /customers — every row shows 'Recovered Customer'."
+  ],
+  "critical_code_review_comments": [
+    "The customers displayFor mapping fix (item #7) is the only one that regressed. Recommend adding a Jest/RTL test that asserts a customer object with type='Recovered Customer' renders as 'API customer (restored)' — this would have caught it.",
+    "Landing '/' hit networkidle timeout at 30s (non-blocking, other pages fine). Consider deferring heavy hero imagery to below-the-fold or preconnecting to Next image domain.",
+    "Playwright could not reliably locate the theme toggle button (no aria-label). Add data-testid='theme-toggle' to the header sun/moon button to make regression tests deterministic."
+  ],
+  "updated_files": [],
+  "success_rate": { "backend": "N/A (read-only, not tested)", "frontend": "93% (13/14 fixes verified; 1 partial)" },
+  "test_credentials": "hostbay@moxx.co / Katiekendra123@ (2-step login)",
+  "seed_data_creation": "None — strict read-only per SAFETY directive on live production DB",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "All 14 audit items covered. Only re-verify item #7 (Customers row names). Full login flow: email input -> Enter -> [data-testid=password-input] -> [data-testid=signin-submit-btn]. LIVE PROD DB — do NOT create/edit/delete anything. Screenshots archived at /app/test_reports/screenshots_iter51/.",
+  "rca of the issue": "Customers row rendering still shows raw 'Recovered Customer'. The fix commit added a displayFor() case for kind==='Recovered Customer', a banner with data-testid='customers-api-banner' (verified present), and locale keys apiCustomerName/recoveredCustomerName. The banner + API chip render correctly, meaning the code path executes and locale bundle loads. Therefore the string-comparison inside displayFor() is against a field that does NOT contain 'Recovered Customer' — most likely displayFor is reading customer.name while the actual DB literal lives on customer.customer_type / customer.type / customer.kind. Mitigation: switch the equality check to a normalized union — e.g. const kind = (c.customer_type||c.type||c.name||'').toLowerCase(); if (kind==='recovered customer' || c.origin==='api') return t('customers.recoveredCustomerName'); Reproduction: log in as hostbay -> /customers -> every one of the 24 rows in the table shows 'Recovered Customer' with the API chip."
+}

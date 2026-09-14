@@ -1,0 +1,55 @@
+{
+  "meta_title": "Krypto-Zahlungen für Gaming & iGaming · Dynopay",
+  "meta_description": "Akzeptieren Sie Krypto-Zahlungen für Gaming & iGaming ohne Rückbuchungen, mit globaler Reichweite und sofortigen Abrechnungen. Starten Sie in 10 Minuten. Erste Zahlung kostenlos.",
+  "h1": "Krypto-Zahlungen für Gaming- und iGaming-Plattformen mit null Rückbuchungsrisiko",
+  "subheading": "Akzeptieren Sie über 15 Kryptowährungen von Spielern weltweit, beseitigen Sie Zahlungsfriktionen und erhalten Sie Gelder direkt in Ihre Wallet—keine Zwischenhändler.",
+  "intro_paragraph": "Gaming- und iGaming-Betreiber stehen ständig vor Zahlungsherausforderungen: Kartenverarbeiter blockieren oder schränken Konten ein, Rückbuchungen mindern Einnahmen, und Spieler erleben endlose Kartenablehnungen. Dynopay ist eine nicht verwahrende Plattform, die es Ihnen ermöglicht, Bitcoin, Ethereum, USDT und über 12 weitere Kryptowährungen zu akzeptieren. Sie erhalten Gelder direkt in Ihre Wallet—Dynopay hält Ihr Geld niemals—und Zahlungen werden in Minuten abgewickelt, mit Gebühren ab 1,5%, die bei größerem Volumen auf 0,5% sinken. Keine Rückbuchungen. Keine monatlichen Gebühren.",
+  "features": [
+    {
+      "title": "Null Rückbuchungsrisiko",
+      "description": "Krypto-Transaktionen sind endgültig. Keine betrügerischen Streitigkeiten oder Rückbuchungen durch freundlichen Betrug, die Einnahmen schmälern, und keine Verwaltungsgebühren für Streitigkeiten oder Wiederpräsentationen zu absorbieren."
+    },
+    {
+      "title": "Eine Zahlungsinfrastruktur für jeden Markt",
+      "description": "Akzeptieren Sie Krypto von Spielern in den Märkten, in denen Sie tätig sind—eine Integration anstelle eines Flickenteppichs aus regionalen Verarbeitern und Bankbeziehungen. Sie behalten die Kontrolle über Ihre eigenen Lizenzen und Marktregeln."
+    },
+    {
+      "title": "Direkte Wallet-Abrechnungen",
+      "description": "Erhalten Sie Gelder direkt auf Ihre Ethereum-, Bitcoin- oder USDT-Wallet innerhalb von Minuten. Dynopay hält Ihr Geld niemals, sodass Sie die volle Kontrolle behalten und sofort auf Kapital zugreifen können."
+    }
+  ],
+  "how_it_works": [
+    "Melden Sie sich an, verifizieren Sie Ihre E-Mail und erstellen Sie Ihr Unternehmensprofil in weniger als drei Minuten.",
+    "Fügen Sie Ihre Bitcoin-, Ethereum- oder Stablecoin-Wallet-Adresse hinzu, an die Sie Spieler-Einzahlungen erhalten möchten.",
+    "Generieren Sie Zahlungslinks oder betten Sie das Checkout-Widget auf Ihrer Plattform ein und beginnen Sie, Krypto zu akzeptieren."
+  ],
+  "faqs": [
+    {
+      "question": "Haben Krypto-Zahlungen für Gaming Rückbuchungen?",
+      "answer": "Nein. Krypto-Transaktionen sind von Natur aus irreversibel. Sobald ein Spieler eine Einzahlung sendet, kann er diese nicht anfechten oder rückgängig machen, was Rückbuchungsbetrug und die Streitverluste, mit denen Gaming-Betreiber bei Kartenzahlungen konfrontiert sind, ausschließt."
+    },
+    {
+      "question": "Welche Kryptowährungen können Gaming-Plattformen mit Dynopay akzeptieren?",
+      "answer": "Dynopay unterstützt über 15 Kryptowährungen, darunter Bitcoin, Ethereum, Litecoin, Dogecoin, USDT auf Ethereum, Polygon und Tron, USDC, SOL, XRP, RLUSD und andere. Spieler wählen ihre bevorzugte Münze beim Checkout."
+    },
+    {
+      "question": "Wie viel berechnet Dynopay für Krypto-Zahlungen im Gaming?",
+      "answer": "Die Gebühren beginnen bei 1,5% plus einem Dollar pro Transaktion und sinken automatisch auf 0,5%, wenn Ihr abgewickeltes Volumen wächst. Keine monatlichen Gebühren, keine Einrichtungskosten, und Ihre erste Zahlung ist völlig kostenlos. Keine Rückbuchungen bedeuten keine Streitgebühren."
+    },
+    {
+      "question": "Können Spieler aus verschiedenen Ländern mit Krypto einzahlen?",
+      "answer": "Krypto-Zahlungen funktionieren global, sodass Spieler in den Märkten, in denen Ihre Plattform tätig ist, ohne Kartenablehnungen oder regionale Verarbeiterlücken einzahlen können. Die Identitätsverifizierung (KYC) gilt für Ihr Dynopay-Konto, sobald das abgewickelte Volumen einen Schwellenwert überschreitet, und Fiat-Auszahlungsstellen führen ihre eigenen KYC durch."
+    },
+    {
+      "question": "Wie schnell kann eine Gaming-Seite mit Dynopay Krypto akzeptieren?",
+      "answer": "Die meisten Betreiber gehen in weniger als 10 Minuten live. Melden Sie sich an, verifizieren Sie Ihre E-Mail, fügen Sie Ihre Auszahlungs-Wallet-Adresse hinzu und generieren Sie einen Zahlungslink oder betten Sie das Checkout-Widget ein. Keine langwierige Verarbeiterprüfung—Ihre eigenen Gaming-Lizenzen und lokale Compliance bleiben Ihre Verantwortung."
+    }
+  ],
+  "cta_headline": "Beginnen Sie noch heute mit der Akzeptanz von Krypto-Zahlungen",
+  "cta_body": "Ihre erste Zahlung ist kostenlos. Keine monatlichen Gebühren, keine Einrichtungskosten und in weniger als 10 Minuten live mit null Rückbuchungsrisiko.",
+  "_generated_at": "2026-08-29T14:53:56.868307Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "gaming",
+  "_display_name": "Gaming & iGaming"
+}

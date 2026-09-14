@@ -1,0 +1,55 @@
+{
+  "meta_title": "Paiements crypto pour agences et consultants · Dynopay",
+  "meta_description": "Acceptez les paiements crypto pour agences et consultants avec Dynopay. Non-custodial, 15+ cryptomonnaies, frais à partir de 1,5 %. Payez des entrepreneurs mondiaux. Commencez maintenant.",
+  "h1": "Acceptez les paiements crypto pour agences et consultants sans rétrofacturations",
+  "subheading": "Facturez vos clients en 15+ cryptomonnaies, payez des entrepreneurs internationaux en quelques minutes et éliminez les frais transfrontaliers—les fonds arrivent directement dans votre portefeuille.",
+  "intro_paragraph": "Les agences et consultants peuvent perdre des revenus à cause des rétrofacturations par carte de crédit, attendre des jours pour des virements internationaux et payer 3-7 % de frais de change en travaillant avec des clients mondiaux. Dynopay est une plateforme non-custodial qui vous permet de facturer vos clients et de payer des entrepreneurs en Bitcoin, Ethereum, USDT, USDC et 11 autres cryptomonnaies. Vous contrôlez les fonds du paiement au retrait—Dynopay ne conserve jamais votre argent.",
+  "features": [
+    {
+      "title": "Payez les entrepreneurs en crypto",
+      "description": "Envoyez des paiements crypto à des freelances et partenaires dans le monde entier sans frais de virement, conversion de devises ou blocages de 3 jours. Ils reçoivent les fonds en quelques minutes, et vous évitez les frais bancaires intermédiaires qui grèvent les budgets de projet."
+    },
+    {
+      "title": "Éliminez la fraude par rétrofacturation sur les retenues",
+      "description": "Les transactions crypto sont finales. Les clients qui contestent un travail terminé ne peuvent pas annuler les paiements des mois plus tard. Vous gardez ce que vous gagnez, et votre flux de trésorerie reste prévisible sans réserves ou responsabilités en cours."
+    },
+    {
+      "title": "Facturez vos clients en stablecoins ou en Bitcoin",
+      "description": "Générez des liens de paiement pour des projets uniques ou des retenues récurrentes. Les clients paient en USDT, USDC, BTC, ETH ou 11 autres actifs. Les fonds arrivent dans votre portefeuille en quelques minutes, et vous choisissez quand convertir ou conserver."
+    }
+  ],
+  "how_it_works": [
+    "Inscrivez-vous, vérifiez votre email et ajoutez l'adresse de portefeuille où vous souhaitez recevoir des paiements.",
+    "Créez un lien de paiement pour votre facture ou intégrez le widget de paiement sur votre portail client.",
+    "Le client paie en crypto ; les fonds arrivent directement dans votre portefeuille en quelques minutes. Le premier paiement est sans frais."
+  ],
+  "faqs": [
+    {
+      "question": "Quelles cryptomonnaies les agences peuvent-elles accepter avec Dynopay ?",
+      "answer": "Dynopay prend en charge 15+ cryptomonnaies, y compris Bitcoin, Ethereum, USDT (ERC20, TRC20, Polygon), USDC, RLUSD, Litecoin, Dogecoin, Solana, XRP, Polygon, Tron et Bitcoin Cash. Les clients peuvent payer dans n'importe quel actif supporté, et vous recevez les fonds directement dans votre portefeuille."
+    },
+    {
+      "question": "Combien Dynopay facture-t-il aux agences pour les paiements crypto ?",
+      "answer": "Les frais commencent à 1,5 % plus un dollar par paiement réussi et diminuent automatiquement à 0,5 % à mesure que votre volume de paiements augmente. Votre premier paiement est complètement sans frais. Il n'y a pas de frais mensuels, de coûts d'installation ou de charges cachées."
+    },
+    {
+      "question": "Puis-je payer des entrepreneurs internationaux avec Dynopay ?",
+      "answer": "Oui. Vous pouvez envoyer des crypto à des entrepreneurs dans le monde entier sans frais de virement ou retards de règlement de plusieurs jours. Dynopay n'a pas de restrictions de pays sur la réception de crypto. Les entrepreneurs reçoivent les fonds en quelques minutes, et vous évitez les frais bancaires intermédiaires qui peuvent coûter 3-7 % par transaction."
+    },
+    {
+      "question": "Dynopay conserve-t-il mes fonds comme un processeur de paiement ?",
+      "answer": "Non. Dynopay est non-custodial. Les paiements vont directement de votre client à l'adresse de portefeuille que vous contrôlez. Dynopay ne conserve, ne gèle ni ne contrôle vos fonds. Vous maintenez la pleine garde à tout moment, éliminant le risque de contrepartie et les réserves."
+    },
+    {
+      "question": "Combien de temps faut-il pour commencer à accepter les paiements crypto ?",
+      "answer": "La plupart des agences sont opérationnelles en moins de 10 minutes. Inscrivez-vous, vérifiez votre email, créez votre profil d'entreprise, ajoutez une adresse de portefeuille de retrait, puis générez un lien de paiement ou intégrez le widget de paiement. Vous pouvez envoyer votre première facture immédiatement."
+    }
+  ],
+  "cta_headline": "Commencez à accepter les paiements crypto en 10 minutes",
+  "cta_body": "Votre premier paiement est sans frais. Pas de coûts d'installation, pas de frais mensuels, et les fonds arrivent directement dans votre portefeuille.",
+  "_generated_at": "2026-08-29T14:56:26.929627Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "agencies",
+  "_display_name": "Agencies & Consultants"
+}

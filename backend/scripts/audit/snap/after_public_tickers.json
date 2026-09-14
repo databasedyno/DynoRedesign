@@ -1,0 +1,65 @@
+{
+ "data": [
+  {
+   "change24h": 1.2561870975442133,
+   "price": 77939,
+   "symbol": "BTC",
+   "updatedAt": 1788438457431
+  },
+  {
+   "change24h": 0.8777541291034487,
+   "price": 2406.72,
+   "symbol": "ETH",
+   "updatedAt": 1788438457431
+  },
+  {
+   "change24h": 3.9603042881029435,
+   "price": 50.8,
+   "symbol": "LTC",
+   "updatedAt": 1788438457431
+  },
+  {
+   "change24h": 2.3165527648014006,
+   "price": 0.08313,
+   "symbol": "DOGE",
+   "updatedAt": 1788438457431
+  },
+  {
+   "change24h": 2.4715608757822314,
+   "price": 100.73,
+   "symbol": "SOL",
+   "updatedAt": 1788438457431
+  },
+  {
+   "change24h": 3.124386053023135,
+   "price": 1.37,
+   "symbol": "XRP",
+   "updatedAt": 1788438457431
+  },
+  {
+   "change24h": 1.8084306348739383,
+   "price": 249.65,
+   "symbol": "BCH",
+   "updatedAt": 1788438457431
+  },
+  {
+   "change24h": 3.86001063054895,
+   "price": 711.18,
+   "symbol": "BNB",
+   "updatedAt": 1788438457431
+  },
+  {
+   "change24h": 1.1595222904043245,
+   "price": 0.327798,
+   "symbol": "TRX",
+   "updatedAt": 1788438457431
+  },
+  {
+   "change24h": 0,
+   "price": 0.126156,
+   "symbol": "POL",
+   "updatedAt": 1788438457431
+  }
+ ],
+ "status": "success"
+}

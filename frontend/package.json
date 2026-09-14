@@ -1,0 +1,17 @@
+{
+  "name": "dynopay-frontend-bridge",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "react": "^18",
+    "react-dom": "^18",
+    "axios": "^1.7.2"
+  },
+  "scripts": {
+    "start": "bash /app/scripts/start-frontend.sh",
+    "start-prod": "cd /app && NODE_OPTIONS=--max-old-space-size=2048 HOSTNAME=0.0.0.0 PORT=3000 node_modules/.bin/next start -p 3000 -H 0.0.0.0",
+    "start-dev": "cd /app && NODE_OPTIONS=--max-old-space-size=2048 HOSTNAME=0.0.0.0 PORT=3000 node_modules/.bin/next dev -p 3000 -H 0.0.0.0",
+    "build": "cd /app && node_modules/.bin/next build",
+    "dev": "cd /app && node_modules/.bin/next dev -p 3000 -H 0.0.0.0"
+  }
+}

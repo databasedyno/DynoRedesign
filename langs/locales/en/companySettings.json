@@ -1,0 +1,69 @@
+{
+  "title": "Brand details",
+  "subtitle": "Here you can check or change information about your brand.",
+  "profileImage": "Profile image",
+  "fields": {
+    "profileName": "Profile name*"
+  },
+  "webhookNotifications": "Webhook notifications",
+  "webhookSubtitle": "Receive automatic notifications when payments are made.",
+  "webhookNotificationUrl": "Notification URL",
+  "webhookNotificationUrlHelper": "Where should we send payment notifications?",
+  "webhookSecretKey": "Secret Key",
+  "webhookSecretKeyHelper": "Use this to verify notifications are really from Dynopay.",
+  "webhookCopy": "Copy",
+  "webhookReveal": "Reveal secret key",
+  "webhookHide": "Hide secret key",
+  "webhookRegenerate": "Regenerate secret key",
+  "webhookRegenerateConfirmTitle": "Generate New Secret Key?",
+  "webhookRegenerateConfirmMessage": "Your current secret key will stop working immediately. Make sure to update your integration before generating a new one.",
+  "webhookRegenerateConfirmButton": "Generate New",
+  "webhookSendTest": "Send Test",
+  "paymentTolerance": "Payment tolerance",
+  "paymentToleranceSubtitle": "Control how much variance to accept in payments.",
+  "paymentToleranceFields": {
+    "acceptUnderpaymentsUpTo": "Accept Underpayments Up To",
+    "acceptUnderpaymentsHelper": "If a $100 payment comes in as $99, it will still be marked as complete.",
+    "flagOverpaymentsAbove": "Flag Overpayments Above",
+    "flagOverpaymentsHelper": "You'll get a notification when someone pays more than this amount over the total.",
+    "timeForPartialPayments": "Time for Partial Payments",
+    "timeForPartialPaymentsHelper": "How long to wait for a customer to complete a partial payment",
+    "minutes": "minutes"
+  },
+  "cryptoConversion": "Crypto conversion",
+  "cryptoConversionSubtitle": "Optional — when enabled, incoming BTC, ETH, LTC on this wallet will be converted to a stablecoin. Off by default; leave off to receive the original coin.",
+  "cryptoConversionAlert": "Please set up your USDT/USDC wallet first.",
+  "cryptoConversionAutoConvert": "Auto-convert volatile crypto",
+  "cryptoConversionYes": "Yes",
+  "cryptoConversionNo": "No",
+  "cryptoConversionFee": "Conversion fee: 0%",
+  "cryptoConversionConvertTo": "Convert to:",
+  "cryptoConversionUsdtTrc20": "USDT (TRC20)",
+  "cryptoConversionUsdtErc20": "USDT (ERC20)",
+  "cryptoConversionUsdcErc20": "USDC (ERC20)",
+  "cryptoConversionEnabledToast": "Auto-convert is on — volatile coins now settle as {{currency}} ({{chain}}).",
+  "cryptoConversionSaveFailed": "Auto-convert could not be saved. Add a matching stablecoin wallet first, then try again.",
+  "actions": {
+    "cancel": "Cancel",
+    "saveChanges": "Save Changes",
+    "delete": "Delete brand"
+  },
+  "placeholders": {
+    "webhook": "Configure webhook notifications (content placeholder).",
+    "paymentTolerance": "Set payment tolerance (content placeholder).",
+    "cryptoConversion": "Configure crypto conversion (content placeholder)."
+  },
+  "delete": {
+    "sendFailed": "Couldn't send the verification code.",
+    "deleteFailed": "Couldn't delete the brand.",
+    "title": "Delete this brand?",
+    "otpTitle": "Enter verification code",
+    "yourEmail": "your email",
+    "confirmCta": "Delete brand",
+    "cancel": "Cancel",
+    "sendCode": "Send code",
+    "body": "This permanently removes {{name}} together with its payment links, API keys and settings. This cannot be undone. We'll email you a 6-digit code to confirm.",
+    "typeToConfirm": "Type {{name}} to continue:",
+    "otpBody": "We sent a 6-digit code to {{email}}. Enter it below to delete {{name}}."
+  }
+}

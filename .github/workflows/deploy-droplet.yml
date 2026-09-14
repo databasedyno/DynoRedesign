@@ -1,0 +1,136 @@
+name: Deploy to Droplet (Option C)
+
+# Builds the combined DynoPay image, pushes to GHCR, and deploys to the
+# DigitalOcean droplet over SSH. Requires the repo secrets listed below.
+#
+# Required GitHub repo secrets:
+#   DEPLOY_HOST                     -> 134.209.94.115 (droplet public IPv4)
+#   DEPLOY_SSH_KEY                  -> private key matching the droplet's authorized_keys
+#   NEXTAUTH_URL, NEXTAUTH_SECRET
+#   NEXT_PUBLIC_BASE_URL, NEXT_PUBLIC_SERVER_URL, NEXT_PUBLIC_API_DOCS_URL,
+#   NEXT_PUBLIC_CYPHER_KEY, NEXT_PUBLIC_GOOGLE_CLIENT_ID, NEXT_PUBLIC_ENABLE_GOOGLE_AUTH,
+#   NEXT_PUBLIC_ENABLE_GITHUB_AUTH, NEXT_PUBLIC_GITHUB_CLIENT_ID, NEXT_PUBLIC_ENABLE_CRYPTO_REFUNDS,
+#   NEXT_PUBLIC_CREATOR_BASE_URL, NEXT_PUBLIC_GOOGLE_CLIENT_SECRET
+# Optional repo VARIABLES (Settings → Variables; non-secret feature flags, may be unset):
+#   NEXT_PUBLIC_SHOW_SOCIAL_LINKS, NEXT_PUBLIC_ENABLE_PRODUCT_CATALOG,
+#   NEXT_PUBLIC_INLINE_TIP_CHECKOUT, NEXT_PUBLIC_CLEAN_CHECKOUT_V2, NEXT_PUBLIC_CHECKOUT_SWR
+#   (the browser reads these flags from server-provided runtime config, so the droplet
+#   .env is the source of truth; build values only affect statically generated pages).
+# GHCR auth uses the built-in GITHUB_TOKEN (packages: write).
+#
+# Post-deploy gate: `scripts/qa/hydration_guard.mjs` loads the public pages on the
+# LIVE site at phone + desktop widths and fails the run on any React hydration error
+# (#418/#423 = server HTML ≠ client render → whole-page client re-render → blank
+# landing page on slow phones, 2026-09). Production-only class of bug, so it is
+# checked against production.
+
+on:
+  push:
+    branches: [Improvement]
+  workflow_dispatch: {}
+
+concurrency:
+  group: deploy-droplet
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    env:
+      IMAGE: ghcr.io/databasedyno/dynopay
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:${{ github.sha }}
+            ${{ env.IMAGE }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NEXT_BUILD_CPUS=4
+            NEXT_PUBLIC_BASE_URL=${{ secrets.NEXT_PUBLIC_BASE_URL }}
+            NEXT_PUBLIC_SERVER_URL=${{ secrets.NEXT_PUBLIC_SERVER_URL }}
+            NEXT_PUBLIC_API_DOCS_URL=${{ secrets.NEXT_PUBLIC_API_DOCS_URL }}
+            NEXT_PUBLIC_CYPHER_KEY=${{ secrets.NEXT_PUBLIC_CYPHER_KEY }}
+            NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
+            NEXT_PUBLIC_ENABLE_GOOGLE_AUTH=${{ secrets.NEXT_PUBLIC_ENABLE_GOOGLE_AUTH }}
+            NEXT_PUBLIC_ENABLE_GITHUB_AUTH=${{ secrets.NEXT_PUBLIC_ENABLE_GITHUB_AUTH }}
+            NEXT_PUBLIC_GITHUB_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GITHUB_CLIENT_ID }}
+            NEXT_PUBLIC_ENABLE_CRYPTO_REFUNDS=${{ secrets.NEXT_PUBLIC_ENABLE_CRYPTO_REFUNDS }}
+            NEXT_PUBLIC_CREATOR_BASE_URL=${{ secrets.NEXT_PUBLIC_CREATOR_BASE_URL }}
+            NEXT_PUBLIC_SHOW_SOCIAL_LINKS=${{ vars.NEXT_PUBLIC_SHOW_SOCIAL_LINKS }}
+            NEXT_PUBLIC_ENABLE_PRODUCT_CATALOG=${{ vars.NEXT_PUBLIC_ENABLE_PRODUCT_CATALOG }}
+            NEXT_PUBLIC_INLINE_TIP_CHECKOUT=${{ vars.NEXT_PUBLIC_INLINE_TIP_CHECKOUT }}
+            NEXT_PUBLIC_CLEAN_CHECKOUT_V2=${{ vars.NEXT_PUBLIC_CLEAN_CHECKOUT_V2 }}
+            NEXT_PUBLIC_CHECKOUT_SWR=${{ vars.NEXT_PUBLIC_CHECKOUT_SWR }}
+            NEXT_PUBLIC_GOOGLE_CLIENT_SECRET=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_SECRET }}
+            NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
+            NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
+
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: root
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          envs: GITHUB_ACTOR,GHCR_TOKEN,GITHUB_SHA
+          script: |
+            set -e
+            cd /opt/dynopay
+            echo "${GHCR_TOKEN}" | docker login ghcr.io -u "${GITHUB_ACTOR}" --password-stdin
+            # Pin the immutable commit SHA (NOT the mutable :latest) so Compose sees a
+            # changed image reference every deploy and actually recreates the container.
+            # With :latest the digest changed but Compose reported "Running" and skipped
+            # the swap, leaving the droplet on the old image.
+            sed -i "s|image: .*|image: ghcr.io/databasedyno/dynopay:${GITHUB_SHA}|" docker-compose.yml
+            docker compose pull
+            docker compose up -d --force-recreate
+            docker image prune -f
+            # Self-verify in the run log which image the container is actually running.
+            echo "=== deployed (expect tag ${GITHUB_SHA}) ==="
+            docker compose images
+            docker compose ps
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_SHA: ${{ github.sha }}
+
+      - name: Wait for the new container to serve traffic
+        run: |
+          for i in $(seq 1 36); do
+            if curl -fsS --max-time 10 https://dynopay.com/health >/dev/null 2>&1; then
+              echo "healthy after $((i*5))s"; exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::https://dynopay.com/health not healthy after 180s"; exit 1
+
+      - name: Setup Node.js (hydration guard)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Hydration guard — live site must hydrate cleanly
+        run: |
+          mkdir -p /tmp/hg && cp scripts/qa/hydration_guard.mjs /tmp/hg/
+          cd /tmp/hg && npm init -y >/dev/null && npm i --no-audit --no-fund playwright@1.61.1 >/dev/null
+          npx playwright install --with-deps chromium >/dev/null
+          GUARD_BASE_URL=https://dynopay.com node hydration_guard.mjs

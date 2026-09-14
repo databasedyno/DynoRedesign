@@ -1,0 +1,161 @@
+{
+ "/dashboard": {
+  "nonFocusableClickables": [],
+  "positiveTabindex": [],
+  "inputsWithoutLabel": [],
+  "iconButtonsWithoutName": [],
+  "tabStops": 54,
+  "noRing": [],
+  "hiddenFocus": []
+ },
+ "/pay-links": {
+  "nonFocusableClickables": [],
+  "positiveTabindex": [],
+  "inputsWithoutLabel": [],
+  "iconButtonsWithoutName": [],
+  "tabStops": 70,
+  "noRing": [],
+  "hiddenFocus": []
+ },
+ "/create-pay-link": {
+  "nonFocusableClickables": [],
+  "positiveTabindex": [],
+  "inputsWithoutLabel": [],
+  "iconButtonsWithoutName": [],
+  "tabStops": 41,
+  "noRing": [],
+  "hiddenFocus": []
+ },
+ "/transactions": {
+  "nonFocusableClickables": [],
+  "positiveTabindex": [],
+  "inputsWithoutLabel": [],
+  "iconButtonsWithoutName": [],
+  "tabStops": 5,
+  "noRing": [
+   "a \"cloudflare.com\"",
+   "a",
+   "a \"Cloudflare\""
+  ],
+  "hiddenFocus": []
+ },
+ "/payouts": {
+  "nonFocusableClickables": [],
+  "positiveTabindex": [],
+  "inputsWithoutLabel": [],
+  "iconButtonsWithoutName": [],
+  "tabStops": 41,
+  "noRing": [],
+  "hiddenFocus": []
+ },
+ "/wallet": {
+  "nonFocusableClickables": [],
+  "positiveTabindex": [],
+  "inputsWithoutLabel": [],
+  "iconButtonsWithoutName": [],
+  "tabStops": 105,
+  "noRing": [],
+  "hiddenFocus": []
+ },
+ "/wallet/security": {
+  "nonFocusableClickables": [],
+  "positiveTabindex": [],
+  "inputsWithoutLabel": [],
+  "iconButtonsWithoutName": [],
+  "tabStops": 29,
+  "noRing": [],
+  "hiddenFocus": []
+ },
+ "/invoices": {
+  "nonFocusableClickables": [],
+  "positiveTabindex": [],
+  "inputsWithoutLabel": [],
+  "iconButtonsWithoutName": [],
+  "tabStops": 44,
+  "noRing": [],
+  "hiddenFocus": []
+ },
+ "/customers": {
+  "nonFocusableClickables": [],
+  "positiveTabindex": [],
+  "inputsWithoutLabel": [],
+  "iconButtonsWithoutName": [],
+  "tabStops": 42,
+  "noRing": [],
+  "hiddenFocus": []
+ },
+ "/referrals": {
+  "nonFocusableClickables": [],
+  "positiveTabindex": [],
+  "inputsWithoutLabel": [],
+  "iconButtonsWithoutName": [],
+  "tabStops": 35,
+  "noRing": [],
+  "hiddenFocus": []
+ },
+ "/storefront": {
+  "nonFocusableClickables": [],
+  "positiveTabindex": [],
+  "inputsWithoutLabel": [],
+  "iconButtonsWithoutName": [],
+  "tabStops": 82,
+  "noRing": [],
+  "hiddenFocus": []
+ },
+ "/settings": {
+  "nonFocusableClickables": [],
+  "positiveTabindex": [],
+  "inputsWithoutLabel": [],
+  "iconButtonsWithoutName": [],
+  "tabStops": 60,
+  "noRing": [],
+  "hiddenFocus": []
+ },
+ "/developer-keys": {
+  "nonFocusableClickables": [],
+  "positiveTabindex": [],
+  "inputsWithoutLabel": [],
+  "iconButtonsWithoutName": [],
+  "tabStops": 54,
+  "noRing": [],
+  "hiddenFocus": []
+ },
+ "/notifications": {
+  "nonFocusableClickables": [],
+  "positiveTabindex": [],
+  "inputsWithoutLabel": [],
+  "iconButtonsWithoutName": [],
+  "tabStops": 48,
+  "noRing": [],
+  "hiddenFocus": []
+ },
+ "/help-support": {
+  "nonFocusableClickables": [],
+  "positiveTabindex": [],
+  "inputsWithoutLabel": [],
+  "iconButtonsWithoutName": [
+   "button[^help-chat-cta]."
+  ],
+  "tabStops": 38,
+  "noRing": [],
+  "hiddenFocus": []
+ },
+ "/kyc": {
+  "nonFocusableClickables": [],
+  "positiveTabindex": [],
+  "inputsWithoutLabel": [],
+  "iconButtonsWithoutName": [],
+  "tabStops": 25,
+  "noRing": [],
+  "hiddenFocus": []
+ },
+ "/get-started": {
+  "nonFocusableClickables": [],
+  "positiveTabindex": [],
+  "inputsWithoutLabel": [],
+  "iconButtonsWithoutName": [],
+  "tabStops": 32,
+  "noRing": [],
+  "hiddenFocus": []
+ }
+}

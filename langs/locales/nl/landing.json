@@ -1,0 +1,1577 @@
+{
+  "howItWorks": "Hoe het werkt",
+  "features": "Functies",
+  "documentation": "Documentatie",
+  "signIn": "Inloggen",
+  "getStarted": "Gratis starten",
+  "nav": {
+    "products": "Producten",
+    "developers": "Ontwikkelaars",
+    "resources": "Bronnen",
+    "company": "Bedrijf",
+    "mega": {
+      "paymentLinks": {
+        "title": "Betaallinks",
+        "desc": "Deelbare links waarmee je in crypto betaald wordt — kopers hebben geen account nodig"
+      },
+      "checkout": {
+        "title": "Checkout",
+        "desc": "Kant-en-klare gehoste checkout voor elke winkel"
+      },
+      "creatorPages": {
+        "title": "Creatorpagina's",
+        "desc": "Je eigen gebrande fooien- en betaalpagina"
+      },
+      "payouts": {
+        "title": "Crypto-uitbetalingen",
+        "desc": "Volg saldi en betaal je geld uit naar een wallet die jij beheert"
+      },
+      "docs": {
+        "title": "Documentatie",
+        "desc": "Handleidingen, snelstarts en referenties"
+      },
+      "api": {
+        "title": "API-referentie",
+        "desc": "REST-API voor betalingen, links en webhooks"
+      },
+      "webhooks": {
+        "title": "Webhooks",
+        "desc": "Realtime meldingen voor elke betaalgebeurtenis"
+      },
+      "blog": {
+        "title": "Blog",
+        "desc": "Productnieuws en inzichten over cryptobetalingen"
+      },
+      "fees": {
+        "title": "Kosten",
+        "desc": "Eenvoudige, transparante tarieven"
+      },
+      "status": {
+        "title": "Systeemstatus",
+        "desc": "Realtime beschikbaarheid en incidentgeschiedenis"
+      },
+      "about": {
+        "title": "Over Dynopay",
+        "desc": "Onze missie, ons bedrijf en vacatures"
+      },
+      "support": {
+        "title": "Hulp en support",
+        "desc": "Handleidingen en manieren om ons te bereiken"
+      },
+      "terms": {
+        "title": "Voorwaarden",
+        "desc": "Algemene voorwaarden"
+      },
+      "privacy": {
+        "title": "Privacy",
+        "desc": "Hoe we je gegevens beschermen"
+      },
+      "featured": {
+        "title": "Begin vandaag gratis",
+        "desc": "Wij schelden onze platformkosten kwijt bij je eerste betaling — geen kaart nodig.",
+        "cta": "Gratis starten"
+      },
+      "press": {
+        "title": "Perskit",
+        "desc": "Logo's, feiten en persmateriaal"
+      },
+      "referral": {
+        "title": "Referral-programma",
+        "desc": "Verdien 25% van hun kosten, 12 maanden lang"
+      }
+    }
+  },
+  "search": {
+    "button": "Zoeken",
+    "placeholder": "Zoek docs, producten en pagina's…",
+    "title": "Snel navigeren",
+    "empty": "Geen resultaten gevonden",
+    "hint": "om te navigeren",
+    "close": "om te sluiten"
+  },
+  "learnMore": "Meer informatie",
+  "footerDescription1": "Accepteer cryptobetalingen in minuten. De moderne",
+  "footerDescription2": "betaalgateway voor vooruitstrevende bedrijven.",
+  "footerTerms": "Algemene voorwaarden",
+  "footerPrivacy": "Privacybeleid",
+  "footerApiStatus": "API-status",
+  "footerSupport": "Hulp & ondersteuning",
+  "footerCopyright": "© Dynopay {{year}}. Alle rechten voorbehouden.",
+  "headerFees": "Kosten",
+  "blog": "Blog",
+  "startFree": "Gratis beginnen",
+  "exitIntentTitle": "Probeer Dynopay nu direct in uw terminal.",
+  "viewApiDocs": "API-documentatie bekijken",
+  "readTheGuide": "Lees de gids",
+  "createFreeAccount": "Maak uw gratis account aan",
+  "blogPostNotFound": "Bericht niet gevonden",
+  "blogReadyCta": "Klaar om cryptobetalingen te accepteren?",
+  "blogSubtitle": "Gidsen, strategieën en developer-resources om crypto te accepteren en uw bedrijf te laten groeien",
+  "v3": {
+    "hero": {
+      "eyebrow": "Dynopay · Cryptobetalingen voor echte bedrijven",
+      "headline1": "Accepteer cryptobetalingen.",
+      "headlineHighlight": "Ontvang",
+      "headline2": "op jouw manier.",
+      "body": "Accepteer Bitcoin, Ethereum en stablecoins via een gehoste checkout, betaallink of API. Houd de munt of <b>converteer automatisch naar USDC of USDT</b> — uitbetaald naar een wallet die jij beheert. Geen terugboekingen.",
+      "claimBtn": "Claim",
+      "chooseHandle": "Kies je creator-handle",
+      "rewardBadge": "Nieuw hier? Wij schelden onze <b>platformkosten</b> kwijt bij je eerste betaling.",
+      "bullets": "Eerste betaling gratis · Geen kaart nodig · 9 blockchains, 15 munten & tokens",
+      "trustLine": "Non-custodial · Versleuteld · AVG / AML",
+      "livePill": "LIVE",
+      "sendTipLabel": "Stuur een tip",
+      "sendTipBtn": "Stuur tip",
+      "metaSettle": "Uitbetaling in de munt die jij kiest · <b>kosten vanaf 1,5%, tot 0,5% bij schaal</b>",
+      "handleAvailable": "is beschikbaar",
+      "handleTaken": "Die naam is niet beschikbaar — probeer een andere.",
+      "primaryCta": "Begin met betalingen ontvangen",
+      "secondaryCta": "Hoe het werkt",
+      "creatorLink": "Ben je maker? <s>Claim je @handle →</s>",
+      "demoLabel": "Live demo",
+      "demoCheckout": "Veilige checkout",
+      "amountDueLabel": "Te betalen",
+      "payBtn": "Betalen"
+    },
+    "story": {
+      "eyebrow": "[ Hoe het werkt ]",
+      "headline": "Drie stappen. Klaar.",
+      "body": "Geen bankpartner. Geen goedkeuringswachtrij. Geen custody. Je koper betaalt, wij vereffenen on-chain, het geld landt in de wallet die je al hebt.",
+      "stepLabel": "Stap",
+      "step1": {
+        "title": "Iemand betaalt je.",
+        "body": "Deel een link, plaats een inline checkout of gebruik de API. Je koper kiest uit 9 blockchains — BTC, ETH, USDC, USDT, XRP, Tron en meer — en betaalt."
+      },
+      "step2": {
+        "title": "Wij vereffenen op jouw manier.",
+        "body": "Houd de originele munt of converteer automatisch naar USDT / USDC op elke chain. Actuele marktkoersen, automatisch omgezet zodra de betaling on-chain is bevestigd — geen handmatige stappen."
+      },
+      "step3": {
+        "title": "Het landt in je wallet.",
+        "body": "De uitbetaling gaat direct naar het walletadres dat jij beheert — nooit door ons aangehouden. 1,5% om te starten, tot 0,5% bij schaal. Geen maandkosten, geen terugboekingen."
+      },
+      "mock": {
+        "awaitingPayment": "Wacht op betaling",
+        "sendUSDT": "Stuur USDT · TRC-20",
+        "openWallet": "Open in wallet",
+        "copyAddress": "Kopieer adres",
+        "today": "Vandaag",
+        "autoConverted": "Auto-geconverteerd",
+        "chainsActive": "actief",
+        "chainsLive": "live",
+        "thPayment": "Betaling",
+        "thAmount": "Bedrag",
+        "thSettle": "Vereffen",
+        "thStatus": "Status",
+        "settled": "Vereffend",
+        "confirming": "Bevestigen",
+        "inYourWallet": "In je wallet",
+        "thisWeek": "deze week"
+      }
+    },
+    "numbers": {
+      "eyebrow": "[ Waarom men ons vertrouwt ]",
+      "headline": "Lage kosten. Geen terugboekingen. Jouw keys.",
+      "body": "Non-custodial van opzet, compliant uit keuze — houd de munt waarin je betaald wordt of zet die automatisch om naar de stablecoin die jij kiest.",
+      "settledLabel": "Vereffend",
+      "settledSub": "Sinds de lancering",
+      "chainsLabel": "Blockchains",
+      "chainsSub": "15 munten & tokens",
+      "feeLabel": "Starttarief",
+      "feeSub": "tot 0,5% bij schaal",
+      "settleLabel": "Mediane vereffening",
+      "settleSub": "On-chain bevestiging",
+      "badgeKYC": "KYC / AML",
+      "badgeGDPR": "AVG",
+      "badgeNonCustodial": "Non-custodial",
+      "chargebacksLabel": "Terugboekingen",
+      "chargebacksSub": "crypto is definitief",
+      "alwaysOnLabel": "Altijd actief",
+      "alwaysOnSub": "geen banktijden",
+      "badgeEncrypted": "Versleuteld"
+    },
+    "features": {
+      "eyebrow": "[ Wat zit erin ]",
+      "headline1": "Alles wat je nodig hebt",
+      "headline2": "om betaald te worden.",
+      "body": "Eén platform, drie manieren om aan te sluiten: een gehoste checkout, automatische afwikkeling en een strakke API. Neem wat je nodig hebt, negeer de rest.",
+      "checkout": {
+        "tag": "Checkout",
+        "title": "Een checkout die elke coin spreekt.",
+        "desc": "Deel één link. Klanten betalen via 9 blockchains — houd de munt of converteer automatisch naar USDC/USDT, jouw keuze.",
+        "cta": "Bekijk checkout"
+      },
+      "convert": {
+        "tag": "Auto-convert",
+        "title": "Neem volatile. Houd stabiel.",
+        "desc": "Accepteer BTC of ETH en laat automatisch uitbetalen in USDT of USDC zodra de betaling is bevestigd — geen koersrisico.",
+        "cta": "Hoe vereffening werkt"
+      },
+      "api": {
+        "tag": "Developer API",
+        "title": "Crypto-betalingen, vanavond live.",
+        "desc": "REST + webhooks, sandbox-keys en copy-paste snippets. Je eerste 201 landt in zo'n tien minuten.",
+        "cta": "Lees de docs"
+      }
+    },
+    "tryit": {
+      "eyebrow": "[ Probeer nu · geen signup ]",
+      "headline1": "Maak je eerste",
+      "headline2": "betaling in 30 seconden.",
+      "body": "Kopieer de cURL, plak in je terminal, krijg een live checkout-URL terug. Sandbox-key inbegrepen — geen kaart, geen signup.",
+      "copyBtn": "Kopieer",
+      "copiedBtn": "Gekopieerd",
+      "responseHeader": "✓ 201 Created",
+      "footBullets": "REST + Webhooks · 9 blockchains · Eerste 201 in ~10 min",
+      "readDocs": "Lees de docs →"
+    },
+    "audience": {
+      "eyebrow": "[ Voor wie is dit? ]",
+      "headline1": "Eén crypto-checkout.",
+      "headline2": "Elk soort bedrijf.",
+      "body": "Verkopers, creators, fondsenwervers, developers — kies je deur. Dezelfde gehoste checkout en betaallinks, dezelfde wallet die jij beheert, dezelfde eenvoudige kosten.",
+      "merchants": {
+        "tag": "01 · Merchants",
+        "title": "Verkoop producten in crypto.",
+        "desc": "Gehoste checkout, productcatalogus en facturen. Automatisch omzetten of de originele munt behouden.",
+        "statLabel": "fees terwijl je groeit",
+        "startHere": "Begin hier"
+      },
+      "fundraisers": {
+        "tag": "02 · Fundraisers",
+        "title": "Draai campagnes die geld ophalen.",
+        "desc": "Doelbalk, niveaus, donateurswand en updates. Elke donatie komt on-chain in je wallet.",
+        "stat": "On-chain",
+        "statLabel": "transparant by default"
+      },
+      "creators": {
+        "tag": "03 · Creators",
+        "title": "Krijg tips van je fans.",
+        "desc": "Je eigen dynopay.com/@handle-pagina met inline fooien — geen terugboekingen; geld komt direct in je wallet zodra de betaling is bevestigd.",
+        "statLabel": "rechtstreeks naar je wallet"
+      },
+      "developers": {
+        "tag": "04 · Developers",
+        "title": "Ship crypto in één avond.",
+        "desc": "REST API + webhooks, sandbox-keys, eerste 201 in minder dan 10 minuten.",
+        "statLabel": "tot je eerste 201"
+      }
+    },
+    "finalcta": {
+      "eyebrow": "[ Als jij er klaar voor bent ]",
+      "headline1": "Krijg betaald in",
+      "headline2": "crypto vandaag.",
+      "body": "Gratis te starten. Geen kaart. Binnen 10 minuten live — neem je wallet mee, hou je geld.",
+      "rewardBadge": "Nieuw hier? Wij schelden onze <b>platformkosten</b> kwijt bij je eerste betaling.",
+      "getStarted": "Gratis starten",
+      "readDocs": "Lees de docs",
+      "trustLine": "Non-custodial · 9 blockchains · Versleuteld · AVG / AML",
+      "talkToSales": "Praat met sales"
+    },
+    "faq": {
+      "eyebrow": "[ Antwoorden ]",
+      "headline": "Veelgestelde vragen.",
+      "q1": "Moet ik crypto bezitten om het te accepteren?",
+      "a1": "Nee. Kopers betalen in een van onze 15 ondersteunde munten & tokens op 9 chains, en jij bepaalt wat je houdt — houd de originele munt of converteer automatisch naar USDC of USDT, uitbetaald naar je wallet zodra de betaling on-chain is bevestigd. Je komt nooit bij een exchange.",
+      "q2": "Waar landen de fondsen?",
+      "a2": "Direct op een wallet-adres dat jij beheert — niet door ons gehouden. Dynopay is non-custodial. Elke vereffening is een echte on-chain transfer naar jouw adres.",
+      "q3": "Wat kost het?",
+      "a3": "Elke betaling kost een eenvoudig percentage — van 1,5% (Starter) tot 0,5% (Enterprise), op basis van je totale afgewikkelde volume — en je eerste betaling is gratis. Geen maandkosten, geen opstartkosten, geen terugboekingen. Zie de Tarievenpagina voor alle details.",
+      "q4": "Hoe snel is de vereffening?",
+      "a4": "Dat hangt af van het netwerk. Stablecoin-rails en snelle chains (TRC-20, Polygon, L2's) bevestigen meestal binnen een minuut of twee; Bitcoin en Ethereum op mainnet kunnen langer duren bij drukte. Je dashboard toont de status live — en als je auto-omzetten hebt aangezet, komt het geld in de door jou gekozen stablecoin zodra de betaling is bevestigd; anders houd je de munt die de koper stuurde.",
+      "q5": "Ondersteunen jullie fiat, refunds of abonnementen?",
+      "a5": "Refunds, ja — on-chain terugboekingen met één klik die het geld rechtstreeks terugsturen naar het adres van de koper. Fiat-kaarten of automatische terugkerende abonnementen bieden we vandaag niet aan: elke betaling is een directe, eenmalige crypto-betaling naar een wallet die jij beheert, met optionele auto-conversie naar USDC of USDT. Terugkerende betaling nodig? Deel gewoon dezelfde link opnieuw.",
+      "stillCurious": "Nog steeds nieuwsgierig?",
+      "askUs": "Vraag ons wat je wilt →",
+      "q6": "Is er een verwijzingsprogramma?",
+      "a6": "Ja. Deel je verwijzingslink en verdien 12 maanden lang 25% van de Dynopay-kosten van elke verkoper die je aanbrengt — als kostentegoed of uitbetaald in USDT (TRC-20). Je vriend krijgt bij aanmelding 30 dagen 50% korting op kosten; jouw omzetdeling start zodra hij zijn eerste betaling ontvangt."
+    },
+    "learn": {
+      "eyebrow": "[ Op je eigen tempo ]",
+      "headline": "Begin bij het begin.",
+      "docs": {
+        "tag": "Developers",
+        "title": "Lees de docs",
+        "desc": "REST API, webhooks en SDKs met copy-paste snippets. Van nul naar je eerste live betaling in minuten."
+      },
+      "guides": {
+        "tag": "Guides",
+        "title": "Leer de basis",
+        "desc": "Nederlandstalige guides over crypto accepteren, auto-conversie naar stablecoins en non-custodial blijven."
+      },
+      "fees": {
+        "tag": "Prijzen",
+        "title": "Bekijk de fees",
+        "desc": "Vanaf 1,5% per betaling, tot 0,5% naarmate je groeit. Geen maandkosten, geen opstartkosten, geen terugboekingen — nooit."
+      },
+      "exploreBtn": "Ontdek"
+    },
+    "header": {
+      "systemsNormal": "Alles draait",
+      "ariaPrimaryNav": "Hoofdnavigatie",
+      "ariaGoHome": "Naar de startpagina",
+      "publicBeta": "Openbare bèta",
+      "ariaSystemStatus": "Systeemstatus",
+      "ariaToggleMenu": "Menu openen/sluiten",
+      "ariaMobileNav": "Mobiele navigatie",
+      "trustEncrypted": "Versleuteld",
+      "trustNonCustodial": "Non-custodial",
+      "trustLive": "Live"
+    },
+    "footer": {
+      "systemsOperational": "Alle systemen operationeel"
+    },
+    "howitworks": {
+      "eyebrow": "[ Klaar in minuten ]",
+      "headline": "Van aanmelden tot je eerste betaling.",
+      "body": "Geen crypto-ervaring nodig. Drie stappen en je ontvangt betalingen die worden uitbetaald in de munt die je kiest — de originele crypto of automatisch omgezet naar stablecoin.",
+      "stepLabel": "Stap",
+      "step1title": "Maak je gratis account",
+      "step1desc": "Meld je aan in een minuut — geen kaart, geen cryptokennis nodig.",
+      "step2title": "Deel een link of voeg checkout toe",
+      "step2desc": "Stuur een betaallink of plaats onze gehoste checkout op je site of winkel.",
+      "step3title": "Word betaald op jouw manier",
+      "step3desc": "Houd de originele munt of zet automatisch om naar USDC of USDT — jouw keuze — uitbetaald op een wallet die jij beheert.",
+      "cta": "Begin met betalingen ontvangen"
+    },
+    "ways": {
+      "eyebrow": "[ Manieren om betaald te worden ]",
+      "headline1": "Negen manieren",
+      "headline2": "om een betaling te innen.",
+      "body": "Kies wat past: een link, een gehoste pagina, een API-aanroep of een volledige winkel. Erachter: één wallet, één dashboard.",
+      "links": {
+        "title": "Betaallinks",
+        "desc": "Deel één link overal. Kopers betalen in seconden – zonder account."
+      },
+      "checkout": {
+        "title": "Gehoste checkout",
+        "desc": "Een betaalpagina in jouw huisstijl, klaar voor elk bedrag of product."
+      },
+      "api": {
+        "title": "REST-API",
+        "desc": "Maak betalingen vanuit je backend, met ondertekende webhooks en testsleutels."
+      },
+      "buttons": {
+        "title": "Koopknoppen",
+        "desc": "Voeg met een stukje HTML een betaalknop toe aan elke website."
+      },
+      "elements": {
+        "title": "Insluitbare elementen",
+        "desc": "Zet de checkout in je eigen pagina's met publiceerbare sleutels."
+      },
+      "storefront": {
+        "title": "Winkel",
+        "desc": "Een volledige catalogus – digitaal, fysiek of dienst – met winkelwagen en btw."
+      },
+      "tips": {
+        "title": "Creator-fooien",
+        "desc": "Je eigen @handle-pagina voor fooien met één tik."
+      },
+      "donations": {
+        "title": "Donaties",
+        "desc": "Inzamelingslinks met doelen, niveaus en een live donateursmuur."
+      },
+      "invoices": {
+        "title": "Facturen",
+        "desc": "Verstuur crypto-facturen met btw, verlegging en pdf-bonnen."
+      }
+    },
+    "whopays": {
+      "eyebrow": "[ Kosten op jouw manier ]",
+      "headline": "Jij kiest wie de kosten betaalt.",
+      "body": "Neem de kosten zelf op je, of geef ze door aan de klant en houd 100% van je prijs. Wissel per link of per checkout, wanneer je wilt.",
+      "tabMerchant": "Ik betaal de kosten",
+      "tabCustomer": "Klant betaalt",
+      "exampleLabel": "Bij een betaling van $100",
+      "customerPaysLabel": "Klant betaalt",
+      "youReceiveLabel": "Jij ontvangt",
+      "merchantNote": "Jij draagt de kosten, dus de prijs die je klant ziet blijft precies $100.",
+      "customerNote": "De kosten komen er bovenop: de klant betaalt ze en jij houdt je volle $100.",
+      "feeFootnote": "Voorbeeld met het Starter-tarief, alle kosten per betaling inbegrepen — zie de Tarievenpagina voor alle details. Je tarief daalt naar 0,5% naarmate je volume groeit.",
+      "value1": "Eerste betaling gratis",
+      "value2": "Geen maandkosten",
+      "value3": "Geen opstartkosten",
+      "value4": "Afwikkeling in stablecoin",
+      "tierLine": "Eenvoudige prijs op basis van gebruik: vanaf 1,5%, dalend naar 0,5% naarmate je groeit — en je eerste betaling is van ons."
+    },
+    "coins": {
+      "eyebrow": "[ Munten & tokens ]",
+      "headline": "15 munten & tokens.",
+      "headline2": "Negen chains.",
+      "body": "Bitcoin, Ethereum, Solana, XRP en meer, plus USDT, USDC en RLUSD op Ethereum, Tron en Polygon.",
+      "convertTitle": "Houd het, of zet automatisch om.",
+      "convertDesc": "Word betaald in elke munt en houd 'm, of zet automatisch om naar USDC of USDT zodra de betaling bevestigt. Jouw keuze, elke keer."
+    },
+    "refunds": {
+      "eyebrow": "[ Vertrouwen ingebouwd ]",
+      "headline": "Crypto die je écht kunt terugbetalen.",
+      "body": "De dingen die crypto spannend maken? Opgelost. Terugbetalingen, bewaring en webhooks, goed geregeld.",
+      "refundsTitle": "Crypto-terugbetalingen met één klik",
+      "refundsDesc": "Betaal een betaling terug op de oorspronkelijke chain, volledig of gedeeltelijk; de klant krijgt een bon per e-mail.",
+      "custodyTitle": "Non-custodial van opzet",
+      "custodyDesc": "Geld komt direct in je eigen wallet. Wij houden je geld nooit vast: jouw sleutels, jouw crypto.",
+      "webhooksTitle": "Ondertekende webhooks",
+      "webhooksDesc": "Met HMAC ondertekende events, automatische herhalingen en een dead-letter-queue houden je systemen in sync."
+    },
+    "solutions": {
+      "eyebrow": "[ Oplossingen ]",
+      "headline1": "Gebouwd voor hoe",
+      "headline2": "jij betaald wordt.",
+      "body": "Wat je ook verkoopt, er is een Dynopay-opzet voor: dezelfde wallet, dezelfde lage kosten, dezelfde non-custodial rails.",
+      "ecommerce": {
+        "title": "E-commerce",
+        "desc": "Een gehoste winkelwagen met btw en directe crypto-checkout voor fysieke of digitale producten."
+      },
+      "saas": {
+        "title": "SaaS",
+        "desc": "Factureer abonnementen en seats via de API, met ondertekende webhooks voor provisioning."
+      },
+      "downloads": {
+        "title": "Digitale downloads",
+        "desc": "Lever bestanden, licentiesleutels of links automatisch zodra de betaling bevestigt."
+      },
+      "freelancers": {
+        "title": "Freelancers",
+        "desc": "Verstuur crypto-facturen met btw en word direct betaald in je eigen wallet."
+      },
+      "remittance": {
+        "title": "Overboekingen",
+        "desc": "Verplaats waarde in minuten over grenzen — geen banktijden, geen terugboekingen."
+      },
+      "gaming": {
+        "title": "Gaming",
+        "desc": "Accepteer wereldwijde top-ups en in-game aankopen met lage, voorspelbare kosten."
+      }
+    },
+    "pain": {
+      "eyebrow": "De oude manier is stuk",
+      "headline": "Crypto accepteren hoeft niet zo moeilijk te zijn",
+      "body": "Volatiele saldi, bewaarrisico bij derden, chargeback-fraude en een omslachtige checkout houden merchants tegen. Dynopay lost ze stuk voor stuk op.",
+      "p1": "Koersen schommelen voordat je kunt uitgeven wat je hebt verdiend.",
+      "f1": "Zet elke betaling automatisch om naar een stablecoin zodra ze is afgewikkeld.",
+      "p2": "Een derde partij beheert je geld — en kan het bevriezen.",
+      "f2": "Non-custodial van opzet: crypto komt in je eigen wallet, nooit die van ons.",
+      "p3": "Creditcard-chargebacks halen je omzet maanden later terug.",
+      "f3": "On-chain betalingen zijn definitief — nul chargebacks, altijd.",
+      "p4": "Integraties slepen aan en de checkout voelt erop geplakt.",
+      "f4": "Een gehoste checkout en heldere REST API zetten je in één middag live."
+    },
+    "why": {
+      "eyebrow": "Waarom Dynopay",
+      "headline": "Anders waar het telt",
+      "body": "We winnen niet met het laagste geadverteerde tarief — we winnen met wat je geld en je tijd echt beschermt.",
+      "c1t": "Non-custodial van opzet",
+      "c1d": "Betalingen komen rechtstreeks in je eigen wallet. Wij houden je crypto nooit vast.",
+      "c2t": "Auto-conversie naar stablecoin",
+      "c2d": "Neutraliseer volatiliteit automatisch zodra een betaling is bevestigd.",
+      "c3t": "Jij kiest wie de fee betaalt",
+      "c3d": "Reken de netwerk- en verwerkingskosten door aan de klant, of neem ze zelf — jouw keuze, per betaling.",
+      "c4t": "On-chain refunds met één klik",
+      "c4d": "Betaal een klant terug in de oorspronkelijke munt, direct vanuit je dashboard.",
+      "c5t": "Geen maand- of opstartkosten",
+      "c5d": "Betaal alleen als je betaald wordt — en je allereerste betaling is helemaal gratis.",
+      "c6t": "Gebouwd voor developers",
+      "c6d": "Een heldere REST API, sandbox-keys en webhooks voor elke betaalgebeurtenis. Geen SDK-lock-in.",
+      "c7t": "Eén account, al je merken",
+      "c7d": "Beheer meerdere merken vanuit één login — elk met een eigen checkout, wallets en uitbetaling. Wissel met één klik."
+    },
+    "developer": {
+      "eyebrow": "Voor developers",
+      "headline": "In één middag live",
+      "body": "Een heldere REST API, een gehoste checkout, sandbox-keys en webhooks voor elke betaalgebeurtenis — zonder SDK-lock-in.",
+      "k1t": "Sandbox-modus",
+      "k1d": "Elk account krijgt test-keys (dpk_test_) om betalingen te bouwen en te simuleren — zonder echt geld.",
+      "k2t": "Realtime webhooks",
+      "k2d": "Word gewaarschuwd zodra een betaling wordt gedetecteerd, bevestigd en afgewikkeld.",
+      "k3t": "Gehoste checkout",
+      "k3d": "Plaats een betaallink of embed — wij regelen munten, netwerken en QR-codes.",
+      "k4t": "Non-custodial",
+      "k4d": "Geld komt in je wallet; jij houdt altijd de controle over je keys.",
+      "ctaDocs": "Lees de API-docs",
+      "ctaDemo": "Bekijk een live demo",
+      "terminalLabel": "Een betaling maken",
+      "snippetNote": "Vereenvoudigd voorbeeld — zie de volledige API-referentie op /documentation."
+    },
+    "showcase": {
+      "eyebrow": "Zie het in actie",
+      "headline": "De checkout die je klanten écht afronden",
+      "body": "Een strakke, gehoste checkout die munten, netwerken en QR-codes regelt — en bevestigt zodra de betaling binnen is. Dit is het echte product, geen mockup.",
+      "cap1": "Gehoste checkout",
+      "sub1": "Kies een munt, scan, betaal — op elk apparaat.",
+      "cap2": "Snelle bevestiging",
+      "sub2": "Seconden op snelle chains, een paar minuten op Bitcoin — de bon komt zodra het is afgewikkeld.",
+      "step0": "Wacht op betaling",
+      "step1": "On-chain bevestigen…",
+      "step2": "Betaling bevestigd",
+      "caption": "In seconden bevestigd op Tron, Solana & XRP — minuten op Bitcoin",
+      "captionSub": "De echte gehoste ervaring — je klant kiest een coin, betaalt, en het wordt rechtstreeks in je wallet afgewikkeld.",
+      "settled": "Afgewikkeld",
+      "stepConvert": "Automatisch omzetten naar USDC",
+      "swapTitle": "Automatisch omzetten",
+      "swapNote": "Houd de munt of zet automatisch om — jouw keuze"
+    },
+    "compare": {
+      "eyebrow": "Waarom wij vs de alternatieven",
+      "headline": "Een eerlijkere deal voor crypto accepteren",
+      "body": "Hoe Dynopay zich verhoudt tot een doorsnee crypto-processor.",
+      "colDyno": "Dynopay",
+      "colOther": "Doorsnee processor",
+      "note": "De vergelijking weerspiegelt gangbare praktijken in de sector; details verschillen per aanbieder.",
+      "r1f": "Bewaring van geld",
+      "r1a": "Non-custodial — naar je eigen wallet",
+      "r1b": "Custodial — zij beheren je geld",
+      "r2f": "Volatiliteit",
+      "r2a": "Zet automatisch om naar stablecoin",
+      "r2b": "Jij blijft met de crypto zitten",
+      "r3f": "Wie betaalt de fee",
+      "r3a": "Jij kiest, per betaling",
+      "r3b": "De merchant, altijd",
+      "r4f": "Refunds",
+      "r4a": "Eén klik, on-chain",
+      "r4b": "Handmatig of niet mogelijk",
+      "r5f": "Maand- en opstartkosten",
+      "r5a": "Geen",
+      "r5b": "Vaak in rekening gebracht",
+      "r6f": "Eerste betaling",
+      "r6a": "Gratis",
+      "r6b": "Vanaf dag één in rekening gebracht"
+    },
+    "trust": {
+      "label": "Accepteer betalingen op 9 blockchains",
+      "chainTooltip": "Bekijk vergoedingen en ondersteunde netwerken"
+    },
+    "brandSpotlight": {
+      "eyebrow": "Multi-brand",
+      "b1": "Eén login voor al je merken — geen aparte accounts meer.",
+      "b2": "Elk merk houdt zijn eigen checkout, wallets en afrekenvaluta.",
+      "b3": "Wissel met één klik tussen merken, op elk apparaat.",
+      "cta": "Start je eerste merk"
+    },
+    "nav": {
+      "aria": "Paginasecties",
+      "explore": "Ontdek",
+      "howitworks": "Hoe het werkt",
+      "usecases": "Toepassingen",
+      "features": "Functies",
+      "why": "Waarom Dynopay",
+      "compare": "Vergelijk",
+      "coins": "Munten",
+      "developers": "Developers",
+      "more": "Meer",
+      "faq": "FAQ",
+      "products": "Producten",
+      "pricing": "Prijzen",
+      "security": "Veiligheid"
+    },
+    "more": {
+      "eyebrow": "[ Meer over Dynopay ]",
+      "tabs": {
+        "pain": "Het probleem dat we oplossen",
+        "solutions": "Oplossingen",
+        "ways": "Manieren om betaald te worden",
+        "whopays": "Wie betaalt de fee",
+        "refunds": "Terugbetalingen & vertrouwen",
+        "learn": "Leren"
+      }
+    }
+  },
+  "checkout": {
+    "expired": {
+      "title": "Betaalvenster verlopen",
+      "body": "Er is niet op tijd een betaling ontvangen. Er is niets afgeschreven.",
+      "startNew": "Nieuwe betaling starten"
+    },
+    "sendWarning": {
+      "line": "Verzenden van een ander asset dan",
+      "orNetwork": "of een ander netwerk gebruikt dan",
+      "willResult": "leidt dit tot permanent en onomkeerbaar verlies van de fondsen."
+    },
+    "memoRequired": {
+      "label": "DESTINATION TAG / MEMO (VERPLICHT)"
+    },
+    "refund": {
+      "label": "Voorkeurs-terugbetaalmethode (optioneel)",
+      "help": "Als je betaling niet kan worden voltooid, storten we terug naar dit adres (minus netwerkkosten). Gebruik een adres op hetzelfde netwerk waarmee je betaalt.",
+      "toggle": "Voeg een terugbetaaladres toe (optioneel)",
+      "placeholder": "Je wallet-adres voor terugbetalingen",
+      "saved": "Terugbetaaladres opgeslagen"
+    },
+    "qrAlt": "QR-code voor betaling",
+    "bank": {
+      "companyName": "Dynopay Payments Ltd."
+    },
+    "amount": "Bedrag",
+    "tax": "Belasting",
+    "networkFee": "Netwerkkosten",
+    "total": "Totaal",
+    "estimated": "ca.",
+    "openInWallet": "Openen in wallet-app",
+    "openInWalletHint": "Opent je crypto-wallet met adres en bedrag al ingevuld.",
+    "reference": "REFERENTIE",
+    "invoice": "FACTUUR",
+    "networkLabel": "NETWERK",
+    "currencyLabel": "VALUTA",
+    "addressLabel": "ADRES",
+    "amountLabel": "BEDRAG",
+    "payPrefix": "Betaal",
+    "payOn": "via",
+    "tapQr": "Tik op de QR om het adres te kopiëren",
+    "addressCopied": "Adres gekopieerd",
+    "copy": "Kopiëren",
+    "copied": "Gekopieerd",
+    "copyAddress": "Adres kopiëren",
+    "copiedExclaim": "Gekopieerd!",
+    "sendExactly": "Stuur exact",
+    "poweredBy": "Mogelijk gemaakt door",
+    "terms": "Voorwaarden",
+    "privacy": "Privacy",
+    "refundPlaceholder": "Je {{coin}}-adres voor terugbetalingen",
+    "success": {
+      "title": "Betaling geslaagd",
+      "titleContribution": "Bedankt voor je bijdrage!",
+      "paidTo": "Betaald aan {{name}}"
+    },
+    "share": {
+      "prompt": "Betalen met crypto bevallen? Vertel het verder",
+      "promptContribution": "Help {{name}} meer mensen te bereiken",
+      "copied": "Link gekopieerd!",
+      "fundraiser": "Deel deze inzameling",
+      "dynopay": "Deel Dynopay"
+    },
+    "status": {
+      "confirming": "Betaling gedetecteerd — bevestigen…",
+      "underpaid": "Onderbetaling gedetecteerd",
+      "waiting": "Wachten op betaling",
+      "detectedMempool": "Betaling gedetecteerd — wacht op bevestiging"
+    },
+    "step": {
+      "confirmed": "Bevestigd",
+      "detected": "Gedetecteerd",
+      "waiting": "Wachten"
+    },
+    "strip": {
+      "pending": {
+        "pill": "WACHTEN",
+        "title": "Wachten op je betaling",
+        "caption": "Stuur het exacte bedrag hieronder. Bevestiging is automatisch zodra we de transactie zien."
+      },
+      "confirming": {
+        "pill": "BEVESTIGEN",
+        "title": "Uitzending op de blockchain",
+        "caption": "We zien je transactie. Bevestigingen duren doorgaans minder dan een minuut.",
+        "captionMempool": "Je transactie staat in de wachtrij van {{network}} (0 bevestigingen). Meestal is ze binnen {{eta}} bevestigd.",
+        "captionOnChain": "Bevestigd op {{network}} — je betaling wordt nu afgerond.",
+        "captionEta": "We hebben je transactie gezien. Bevestigingen op {{network}} duren meestal {{eta}}."
+      },
+      "confirmed": {
+        "pill": "BEVESTIGD",
+        "title": "Betaling bevestigd",
+        "caption": "Het netwerk heeft je betaling bevestigd. Afwikkeling loopt."
+      },
+      "settled": {
+        "pill": "AFGEROND",
+        "title": "Alles is klaar",
+        "caption": "De middelen zijn afgewikkeld. Een bevestiging komt per e-mail."
+      },
+      "failed": {
+        "pill": "MISLUKT",
+        "title": "Er ging iets mis",
+        "caption": "De betaling is niet voltooid. Er is niets afgeschreven — je kunt het opnieuw proberen."
+      },
+      "urgent": {
+        "pill": "HAAST",
+        "title": "Nog maar {{seconds}}s",
+        "caption": "Voltooi je overboeking nu — deze betaallink verloopt binnenkort."
+      }
+    },
+    "demo": {
+      "eyebrow": "Speeltuin voor checkout-statussen",
+      "headline": "De vijf statussen van een Dynopay-checkout",
+      "timerLabel": "Timer-urgentie",
+      "noTimer": "Geen timer",
+      "urgent45": "Nog 45s · urgent",
+      "urgent12": "Nog 12s · zeer urgent",
+      "compactHeader": "Compacte balk (gebruikt in de live /pay-checkout)",
+      "totalDue": "Totaal te betalen",
+      "mockBlurb": "Dit blok simuleert de checkout-body (QR, adres, timer). De animatie, kop en badge hierboven komen allemaal uit <code>&lt;CheckoutShell&gt;</code>."
+    },
+    "supportFallbackTitle": "Steun deze campagne",
+    "completePaymentTitle": "Voltooi je betaling",
+    "receipt": {
+      "preparing": "Bon wordt voorbereid…",
+      "downloaded": "Bon gedownload",
+      "download": "Bon downloaden",
+      "error": "Kon de ontvangst niet ophalen — probeer het opnieuw.",
+      "copyLink": "Bonlink kopiëren",
+      "copying": "Link wordt gemaakt…",
+      "linkCopied": "Bonlink gekopieerd",
+      "linkError": "De link kon niet worden gemaakt – probeer het opnieuw."
+    },
+    "processingFee": "Verwerkingskosten",
+    "totalYouPay": "Totaal dat je betaalt",
+    "store": {
+      "title": "Afrekenen",
+      "backToCart": "← Terug naar winkelwagen",
+      "completeTitle": "Voltooi je betaling",
+      "completeSubtitle": "Betaal hieronder met crypto. Deze pagina wordt automatisch bijgewerkt zodra je betaling is bevestigd.",
+      "orderPrefix": "Bestelling",
+      "emailLabel": "E-mail voor bon & updates",
+      "emailHelp": "We e-mailen je bon en eventuele downloadlinks hierheen.",
+      "nameLabel": "Naam (optioneel)",
+      "vatLabel": "Btw-nummer (optioneel)",
+      "pay": "Betaal met crypto →",
+      "poweredBy": "Mogelijk gemaakt door Dynopay · Betaling gaat rechtstreeks naar de wallet van de verkoper",
+      "emailRequired": "E-mail is verplicht zodat we je bon kunnen sturen.",
+      "emailInvalid": "Voer een geldig e-mailadres in.",
+      "emptyCart": "Je winkelwagen is leeg.",
+      "minTotal": "Het minimale bestelbedrag is {{min}}.",
+      "subtotal": "Subtotaal",
+      "totalLabel": "Totaal",
+      "vatFallback": "Btw",
+      "reverseChargeSuffix": "Verleggingsregeling",
+      "inclSuffix": "incl.",
+      "vatValid": "✓ Geldig EU-btw-nummer — verleggingsregeling van toepassing, er wordt geen btw in rekening gebracht.",
+      "vatInvalid": "Dit btw-nummer kon niet worden gevalideerd — het standaardtarief wordt toegepast.",
+      "vatHint": "Bedrijven in de EU kunnen een btw-nummer invoeren voor de verleggingsregeling.",
+      "reverseChargeNotice": "EU B2B-verleggingsregeling: geen btw in rekening gebracht. Je moet de btw in je eigen lidstaat aangeven.",
+      "viewCart": "Bekijk winkelwagentje",
+      "yourCart": "Je winkelwagentje",
+      "viewFullCart": "Bekijk volledig winkelwagentje",
+      "businessPurchase": "Zakelijke aankoop? Voeg een btw-nummer toe",
+      "feeNote": "Geen extra kosten — de verkoper betaalt de verwerkingskosten. De netwerkkosten van je wallet staan hier los van.",
+      "minTotalAdd": "Minimale bestelling is {{min}} — voeg nog {{more}} toe om af te rekenen.",
+      "viewOrder": "Bekijk je bestelling & downloads",
+      "emptyHint": "Voeg iets toe uit de winkel en kom terug om af te rekenen."
+    },
+    "receiptEmail": {
+      "label": "Stuur mij een bon (optioneel)",
+      "helper": "We e-mailen je bon zodra deze betaling is bevestigd.",
+      "saved": "De bon wordt naar dit e-mailadres gestuurd.",
+      "invalid": "Voer een geldig e-mailadres in.",
+      "savedShort": "Ontvangstbewijs is onderweg naar je inbox.",
+      "successLabel": "Wil je een kopie van je ontvangstbewijs?",
+      "successHelper": "Voeg je e-mailadres toe en we sturen je ontvangstbewijs — geen account nodig."
+    },
+    "notify": {
+      "title": "Betaling bevestigd ✓",
+      "body": "Je betaling aan {{name}} is bevestigd.",
+      "cta": "Waarschuw mij bij bevestiging",
+      "enabled": "Je krijgt een browsermelding zodra deze is bevestigd."
+    },
+    "breakdownTitle": "Betalingsoverzicht",
+    "youPay": "Je betaalt",
+    "youPaid": "Je hebt betaald",
+    "merchantReceives": "Verkoper ontvangt",
+    "dynopayFee": "Dynopay-kosten",
+    "feePaidByMerchant": "betaald door de verkoper",
+    "feePaidByCustomer": "opgeteld bij je totaal",
+    "plusNetworkCover": "+ dekking netwerkkosten",
+    "inclNetworkCover": "incl. dekking netwerkkosten",
+    "loadingCheckout": "Betaling laden…",
+    "expiredTitle": "Dit betalingsvenster is verlopen",
+    "expiredBody": "De tijd om deze betaling te voltooien is verstreken. Als je al geld hebt gestuurd, neem dan contact op met de verkoper. Vraag anders om een nieuwe betalingslink.",
+    "expiredRetry": "Begin opnieuw",
+    "breakdownTrustPaid": "Bedragen geverifieerd — hier is precies hoe je betaling is verdeeld.",
+    "breakdownTrust": "Deze bedragen kloppen precies — je betaling is transparant verdeeld tussen de verkoper en de Dynopay vergoeding.",
+    "preparingAddress": "Betalingsadres voorbereiden…",
+    "underpaid": {
+      "gotPrefix": "We hebben ontvangen",
+      "sendPrefix": "Stuur",
+      "sameAddressTail": "meer naar hetzelfde adres hieronder om je betaling te voltooien.",
+      "graceTimer": "Tijd over om te voltooien",
+      "secondFeeNote": "Je wallet rekent netwerkkosten voor deze aanvulling — dat is normaal en verandert het bedrag hierboven niet."
+    },
+    "tryAgain": "Probeer opnieuw",
+    "tapToCopyAddress": "Tik om het betalingsadres te kopiëren",
+    "failedTitle": "Betaling mislukt",
+    "feeCalcError": "De netwerkkosten voor deze coin konden niet worden berekend. Probeer het opnieuw of kies een andere coin.",
+    "pleaseTryAgain": "Probeer het opnieuw.",
+    "redirectingIn": "We brengen je erheen in {{s}} s",
+    "stayHere": "Hier blijven",
+    "humanDetectedMempool": "Je transactie is uitgezonden en wacht om in een blok te worden opgenomen (meestal {{eta}}). Je kunt deze pagina open laten of sluiten; je betaling wordt alsnog voltooid.",
+    "humanConfirmingEta": "We zien je betaling — wachten op netwerkbevestigingen (meestal {{eta}}). Je kunt deze pagina open laten of sluiten; je betaling wordt alsnog voltooid.",
+    "saveMerchant": {
+      "save": "{{name}} bewaren voor de volgende keer",
+      "saved": "Bewaard op dit apparaat",
+      "view": "Bewaarde verkopers bekijken →"
+    },
+    "orderSummary": "Besteloverzicht"
+  },
+  "creator": {
+    "card": {
+      "supportCampaign": "Steun deze campagne",
+      "emptyTitle": "Hier staat nog niets",
+      "exploreLink": "Ontdek Dynopay-creators →"
+    },
+    "inline": {
+      "preferFullPage": "Liever de volledige pagina? →",
+      "somethingWrong": "Er ging iets mis",
+      "includeMemo": "Voeg memo/tag toe:",
+      "waitingPayment": "Wacht op betaling · ververst automatisch elke 10s",
+      "partialReceived": "Gedeeltelijke betaling ontvangen",
+      "monitoringRemainder": "Bewaakt het restant…",
+      "pickCrypto": "Kies een crypto om {{amount}} te betalen",
+      "accepts": "{{name}} accepteert:",
+      "merchantAccepts": "Deze verkoper accepteert:",
+      "creatorAccepts": "Deze maker accepteert:",
+      "sendAmount": "Stuur {{amount}} {{coin}}",
+      "generatingAddress": "Je {{coin}}-adres wordt aangemaakt…",
+      "changeAmount": "Bedrag wijzigen",
+      "back": "Terug",
+      "showQr": "Toon QR-code",
+      "hideQr": "QR verbergen",
+      "copy": "Kopiëren",
+      "copied": "Gekopieerd",
+      "successNext": "Je betaling is bevestigd op het netwerk — je hoeft niets meer te doen. {{name}} ziet je steun meteen.",
+      "cancel": "Annuleren",
+      "copiedExclaim": "Gekopieerd!",
+      "copyLink": "Link kopiëren",
+      "expiredBody": "Er is geen betaling op tijd ontvangen. Er is niets afgeschreven — je kunt het opnieuw proberen.",
+      "failedBody": "We konden je betaling niet verwerken. Probeer het opnieuw.",
+      "gracePeriod": "{{minutes}} min respijt",
+      "includesFee": "inclusief netwerkkosten",
+      "networkWarning": "Stuur alleen {{coin}} via het {{network}}-netwerk. Andere coins of netwerken kunnen niet worden teruggehaald.",
+      "onNetwork": "via {{network}}",
+      "successNextOrder": "Je betaling is bevestigd. Je downloads, licentiesleutels en boekingsgegevens staan op je bestelpagina.",
+      "viewOrder": "Bekijk je bestelling & downloads"
+    },
+    "support": {
+      "anonymous": "Maak mijn steun anoniem",
+      "trustLine": "Veilige crypto-checkout · geen account nodig",
+      "namePlaceholder": "Jouw naam (optioneel)",
+      "minHint": "Minimaal {{min}}",
+      "amountPlaceholder": "Bedrag (min. {{min}})",
+      "minError": "Voer minimaal {{min}} in.",
+      "addEmail": "Bonnetje nodig? Voeg je e-mail toe",
+      "custom": "Eigen bedrag",
+      "emailInvalid": "Vul een geldig e-mailadres in of laat het veld leeg.",
+      "emailPlaceholder": "E-mail voor je bonnetje (optioneel)",
+      "genericError": "Er ging iets mis. Probeer het opnieuw.",
+      "messagePlaceholder": "Zeg iets aardigs tegen {{name}} (optioneel)",
+      "networkError": "Netwerkfout. Probeer het opnieuw.",
+      "publicNote": "Je voornaam en bedrag kunnen op deze pagina verschijnen tenzij je dit aanvinkt."
+    },
+    "qr": {
+      "claimFirst": "Claim eerst een handle om je QR-code te genereren.",
+      "printHint": "Print hem, zet hem op je kanaalbanner of plak hem op stickers. Elke camera scant hem direct naar je tip-pagina."
+    },
+    "sticky": {
+      "supportName": "Steun {{name}}"
+    },
+    "featured": {
+      "raisedOf": "opgehaald van {{goal}}",
+      "supportName": "Steun {{name}}"
+    },
+    "poweredBy": "Mogelijk gemaakt door",
+    "raised": "opgehaald",
+    "shareLabel": "Delen",
+    "share": {
+      "copied": "Link gekopieerd!",
+      "copyLink": "Link kopiëren",
+      "pageOf": "Deel de pagina van {{name}}"
+    },
+    "socials": {
+      "label": "Vind {{name}} op"
+    },
+    "supporters": "supporters",
+    "shopSection": {
+      "label_one": "Winkel · {{count}} item",
+      "label_other": "Winkel · {{count}} items",
+      "viewAll": "Alles bekijken →",
+      "buy": "Kopen →"
+    }
+  },
+  "order": {
+    "notFound": "Bestelling niet gevonden.",
+    "label": "Bestelling",
+    "soldBy": "Verkocht door",
+    "status": {
+      "paid": "BETAALD",
+      "pending": "IN AFWACHTING",
+      "expired": "VERLOPEN",
+      "underpaid": "ONDERBETAALD",
+      "refunded": "TERUGBETAALD",
+      "refundRequested": "TERUGBET. AANGEVR."
+    },
+    "polling": "Wacht op betalingsbevestiging — deze pagina wordt automatisch bijgewerkt.",
+    "paidNotice": "Betaling ontvangen! Je items staan hieronder.",
+    "item": {
+      "qty": "Aantal",
+      "each": "per stuk",
+      "deliveryPending": "Betaling in afwachting — levering ontgrendelt zodra de betaling bevestigd is.",
+      "openAccess": "Toegangslink openen",
+      "copy": "Kopiëren",
+      "copied": "Gekopieerd!",
+      "download": "Download {{filename}}",
+      "downloadExpired": "Verlopen — {{filename}}",
+      "linksExpireOn": "Links verlopen {{when}}",
+      "linksExpiredCta": "Links zijn verlopen — klik hieronder op \"Downloadlinks opnieuw verzenden\" om nieuwe te krijgen.",
+      "bookSession": "Boek je sessie",
+      "deliveryInProgress": "Levering onderweg — controleer je e-mail."
+    },
+    "resend": {
+      "sending": "Bezig met verzenden…",
+      "button": "Downloadlinks opnieuw verzenden",
+      "hint": "Links verlopen na 24 uur. Verzend nieuwe links naar je e-mail.",
+      "ok": "Nieuwe downloadlinks gegenereerd en per e-mail verzonden.",
+      "err": "Opnieuw verzenden van links mislukt."
+    },
+    "totals": {
+      "subtotal": "Subtotaal",
+      "shipping": "Verzending",
+      "totalPaid": "Totaal betaald"
+    },
+    "tax": {
+      "vat": "BTW",
+      "reverseCharge": "Verlegd",
+      "reverseChargeNotice": "BTW verlegd naar de klant volgens EU-B2B-regels (0% BTW in rekening gebracht). De klant draagt de BTW af in zijn lidstaat.",
+      "merchantVatId": "BTW-nummer verkoper:",
+      "customerVatId": "BTW-nummer klant:"
+    },
+    "receiptSentTo": "Bon verzonden naar",
+    "human": {
+      "pending": "Wachten tot je betaling op het netwerk is bevestigd — meestal 5–15 minuten. Deze pagina wordt vanzelf bijgewerkt.",
+      "paid": "Betaling voltooid — je items en bon staan hieronder. Je hoeft niets meer te doen.",
+      "expired": "Dit betaalvenster is verlopen voordat er een betaling aankwam. Heb je al geld gestuurd, neem dan hieronder contact op met de verkoper.",
+      "underpaid": "Het ontvangen bedrag was lager dan het totaal. Neem hieronder contact op met de verkoper om het verschil te regelen.",
+      "refunded": "Deze bestelling is terugbetaald. Afhankelijk van het netwerk is het geld binnen minuten tot enkele uren terug.",
+      "refund_requested": "Een terugbetaling wordt verwerkt. Afhankelijk van het netwerk kan het enkele uren duren."
+    },
+    "helpLine": "Klopt er iets niet? Neem contact op met {{merchant}} en vermeld bestelling #{{ref}}.",
+    "helpLineSeller": "de verkoper",
+    "helpLineLink": "Bekijk hun pagina"
+  },
+  "seo": {
+    "home": "Home",
+    "industries": "Sectoren",
+    "countries": "Landen",
+    "whyDynopayBadge": "Waarom Dynopay",
+    "whyDynopayTitle": "Alles wat je nodig hebt om in crypto betaald te worden",
+    "whyDynopayHighlight": "in crypto betaald te worden",
+    "whyDynopaySubtitle": "Non-custodial by design. Jij bewaart de wallet, wij verzorgen de checkout.",
+    "howItWorksBadge": "Zo werkt het",
+    "howItWorksTitle": "Live binnen 10 minuten",
+    "howItWorksHighlight": "binnen 10 minuten",
+    "howItWorksSubtitle": "Geen ontwikkelaars nodig. Als je een wallet-adres kunt kopiëren, kun je crypto accepteren.",
+    "faqBadge": "FAQ",
+    "faqTitle": "Veelgestelde vragen",
+    "faqHighlight": "vragen",
+    "faqSubtitle": "Alles wat mensen vragen voordat ze zich aanmelden.",
+    "exploreMoreBadge": "Meer ontdekken",
+    "exploreMoreTitle": "Meer manieren om in crypto betaald te worden",
+    "exploreMoreSubtitle": "Bekijk hoe verkopers, creators en fundraisers Dynopay gebruiken om in crypto betaald te worden.",
+    "relatedCountry": "Accepteer crypto in {{name}}",
+    "relatedVertical": "Cryptobetalingen voor {{name}}",
+    "compareEyebrow": "Vergelijk",
+    "introEyebrow": "In het kort"
+  },
+  "cart": {
+    "store": {
+      "pageTitle": "Winkelwagen",
+      "title": "Je winkelwagen",
+      "empty": "Je winkelwagen is leeg.",
+      "continueShopping": "Verder winkelen",
+      "unitEach": "{{price}} per stuk",
+      "subtotal": "Subtotaal",
+      "estTax": "+ gesch. {{label}}{{rate}}: {{amount}}",
+      "estTotal": "Gesch. totaal: {{amount}}",
+      "checkout": "Afrekenen",
+      "loadError": "Kan winkelwagen niet laden",
+      "validationError": "Validatie van winkelwagen mislukt",
+      "browseShop": "Naar de winkel"
+    }
+  },
+  "shop": {
+    "typeAll": "Alle",
+    "typeDigital": "Digitaal",
+    "typePhysical": "Fysiek",
+    "typeService": "Service",
+    "sortLabel": "Sorteren",
+    "sortFeatured": "Aanbevolen",
+    "sortBestselling": "Best verkocht",
+    "sortNewest": "Nieuwste",
+    "sortPriceAsc": "Prijs: laag naar hoog",
+    "sortPriceDesc": "Prijs: hoog naar laag",
+    "allCategories": "Alle categorieën",
+    "resultOne": "{{count}} resultaat",
+    "resultOther": "{{count}} resultaten",
+    "productOne": "{{count}} product",
+    "productOther": "{{count}} producten",
+    "soldCount": "{{count}} verkocht",
+    "trending": "Trending",
+    "featured": "Uitgelicht",
+    "view": "Bekijken",
+    "fromPrice": "vanaf",
+    "noCoverImage": "Geen omslagafbeelding",
+    "instantCheckout": "Direct afrekenen met crypto",
+    "share": "Delen",
+    "shareOnX": "Delen op X",
+    "shareOnThreads": "Delen op Threads",
+    "shareOnWhatsApp": "Delen op WhatsApp",
+    "copyLink": "Link kopiëren",
+    "copyShopLink": "Winkellink kopiëren",
+    "linkCopied": "Link gekopieerd",
+    "shareText": "Bekijk de winkel van {{name}} op Dynopay",
+    "noMatches": "Geen producten komen overeen met dit filter. Wis de filters of kies een andere categorie.",
+    "emptyOwnerTitle": "Je winkel is een leeg canvas — laten we dat oplossen.",
+    "emptyVisitorTitle": "{{name}} is de winkel aan het inrichten.",
+    "emptyOwnerBody": "Je kunt producten plaatsen, een crowdfundingpagina starten of fooien inschakelen — elke optie brengt een ander soort supporter naar je handle.",
+    "emptyVisitorBody": "Ontdek ondertussen wat creators op Dynopay bouwen — een volledige productcatalogus, campagnepagina's, fooien en geïntegreerd afrekenen met crypto.",
+    "emptyAddTitle": "Voeg je eerste product toe",
+    "emptyAddBody": "Bied een digitale download, e-book of service aan. Word betaald in crypto, direct naar je wallet.",
+    "emptyAddCtaOwner": "Product toevoegen",
+    "emptyAddCtaVisitor": "Meer informatie",
+    "emptyCampaignTitle": "Start een crowdfundingcampagne",
+    "emptyCampaignBody": "Verhaal, galerij, beloningsniveaus, deadline — alles wat een GoFundMe-pagina heeft, afgerekend in crypto.",
+    "emptyCampaignCta": "Campagne starten",
+    "emptyTipsTitle": "Schakel fooien in op je handle",
+    "emptyTipsBody": "Zet de fooienpot van je creatorpagina aan — supporters sturen elk bedrag en jij houdt alles.",
+    "emptyTipsCta": "Creator openen",
+    "backToShop": "← Terug naar de winkel van {{name}}",
+    "chooseOption": "Kies een optie",
+    "variantFallback": "Variant {{id}}",
+    "stockLeft": "nog {{count}}",
+    "oneOffService": "Eenmalige service",
+    "quantity": "Aantal",
+    "addToCart": "In winkelwagen",
+    "buyNow": "Nu kopen",
+    "addedToCart": "Toegevoegd aan winkelwagen.",
+    "viewCartArrow": "Winkelwagen bekijken →",
+    "emptyVisitPage": "Bezoek de pagina van {{name}}",
+    "emptyVisitorBodyV2": "Kom snel terug — of toon in de tussentijd je steun op de pagina.",
+    "emptyVisitorTitleV2": "{{name}} heeft nog niets aangeboden",
+    "galleryImage": "Afbeelding",
+    "minOrderHint": "Min. bestelling {{min}} — combineer met andere items",
+    "minOrderNotice": "Minimale bestelling is {{min}} — voeg dit toe aan je winkelwagen en combineer het met andere items om af te rekenen."
+  },
+  "exitIntentEyebrow": "Wacht — één seconde",
+  "exitIntentBody": "Pak de sandbox-sleutel hieronder en roep onze API aan vanuit uw terminal. Geen registratie. Geen kaart. Echte respons — hetzelfde JSON-formaat als in productie.",
+  "exitIntentClaimCta": "Claim 0% platformkosten op uw eerste betaling",
+  "exitIntentClose": "Sluiten",
+  "blogReadyCtaBody": "Ga binnen enkele minuten aan de slag met de eenvoudige API-integratie van Dynopay.",
+  "about": {
+    "metaTitle": "Over Dynopay — eenvoudige cryptobetalingen voor elk bedrijf",
+    "metaDescription": "Leer Dynopay kennen: onze missie om cryptobetalingen eenvoudig te maken, hoe het platform werkt, de waarden waarop we bouwen en hoe u contact opneemt.",
+    "eyebrow": "Over Dynopay",
+    "heroTitle": "Cryptobetalingen, eenvoudig voor elk bedrijf.",
+    "heroBody": "Dynopay is een crypto-betaalgateway voor het verkopen van producten, het ontvangen van fooien en het voeren van inzamelingsacties — of het integreren van betalingen via de API. Onze missie: digitale valuta accepteren net zo moeiteloos maken als een kaartbetaling, terwijl u de volledige controle over uw geld houdt.",
+    "talkToUs": "Praat met ons",
+    "stats": {
+      "baseFee": "Basistarief — geen maandelijkse kosten",
+      "chains": "Ondersteunde blockchains",
+      "nonCustodial": "Non-custodial uitbetalingen",
+      "since": "Actief sinds"
+    },
+    "values": {
+      "nonCustodial": {
+        "title": "Non-custodial door ontwerp",
+        "body": "Betalingen komen rechtstreeks in uw eigen wallet terecht — houd de originele crypto of converteer automatisch naar USDT/USDC. Wij houden uw geld nooit vast."
+      },
+      "pricing": {
+        "title": "Transparante prijzen",
+        "body": "Eén helder tarief, volumekortingen naarmate u groeit, en geen verborgen kosten of maandelijkse minima. Wat u ziet, is wat u betaalt."
+      },
+      "builder": {
+        "title": "Gemaakt voor ontwikkelaars",
+        "body": "Een overzichtelijke API, gehoste checkout, betaallinks en webhooks — zodat u in minuten crypto accepteert, niet in weken."
+      },
+      "global": {
+        "title": "Wereldwijd als standaard",
+        "body": "Accepteer Bitcoin, Ethereum en stablecoins van klanten overal ter wereld, met snelle uitbetalingen en zonder chargebacks."
+      }
+    },
+    "buildTitle": "Waarop we bouwen",
+    "buildBody": "Een klein, snel team met één focus: handelaren in crypto laten betalen zonder de complexiteit. Dit zijn de principes achter elke functie die we uitbrengen.",
+    "ctaTitle": "Wilt u samen met ons de toekomst van betalingen bouwen?",
+    "ctaBody": "We horen altijd graag van handelaren, partners en mensen die het team willen versterken. Neem gerust contact op — we lezen elk bericht."
+  },
+  "blogIndex": {
+    "metaTitle": "Cryptobetalingen blog — kosten, afwikkeling & integraties · Dynopay",
+    "metaDescription": "Gidsen en strategieën voor verkopen, fooien en inzamelen in crypto — verlaag kosten, reken af in stablecoins en groei met cryptobetalingen.",
+    "ogDescription": "Gidsen, strategieën en inzichten voor handelaren die cryptobetalingen accepteren.",
+    "eyebrow": "Blog",
+    "heroTitleLead": "Inzicht in",
+    "heroTitleAccent": "cryptobetalingen",
+    "allCategories": "Alle"
+  },
+  "press": {
+    "metaTitle": "Dynopay perskit — logo's, feiten & standaardtekst",
+    "metaDescription": "Officiële persbronnen van Dynopay: downloadbare logo's, bedrijfsfeiten, standaardbeschrijving en mediacontact.",
+    "eyebrow": "Perskit",
+    "heroTitle": "Alles wat u nodig heeft om over Dynopay te schrijven.",
+    "heroBody": "Logo's, bedrijfsfeiten en een kant-en-klare standaardtekst — vrij te herpubliceren in artikelen, reviews en gidsen. Meer nodig? Ons team is één e-mail verwijderd.",
+    "boilerplateTitle": "Standaardtekst",
+    "boilerplateBody": "Dynopay is een non-custodial betaalgateway voor cryptovaluta, opgericht in 2024. Verkopers gebruiken het om producten te verkopen, fooien te ontvangen en inzamelingsacties te voeren — of om betalingen via API te integreren — met Bitcoin, Ethereum, stablecoins en 15 munten & tokens op 9 blockchains. Betalingen worden direct afgewikkeld naar een wallet die de verkoper beheert, met optionele automatische conversie naar USDT/USDC. De kosten beginnen bij 1,5% per betaling, tot 0,5% bij schaal, zonder terugboekingen.",
+    "factsTitle": "Feiten in het kort",
+    "facts": {
+      "founded": {
+        "label": "Opgericht",
+        "value": "2024"
+      },
+      "product": {
+        "label": "Product",
+        "value": "Non-custodial crypto-betaalgateway"
+      },
+      "pricing": {
+        "label": "Prijzen",
+        "value": "Vanaf 1,5% per transactie, tot 0,5% bij schaal — geen maandkosten"
+      },
+      "networks": {
+        "label": "Netwerken",
+        "value": "9 blockchains (Bitcoin, Ethereum, Solana, XRP, Tron, Polygon, Litecoin, Dogecoin, Bitcoin Cash) en 15 munten & tokens"
+      },
+      "settlement": {
+        "label": "Uitbetaling",
+        "value": "Rechtstreeks naar de eigen wallet van de handelaar — houd crypto of converteer automatisch naar USDT/USDC"
+      },
+      "chargebacks": {
+        "label": "Chargebacks",
+        "value": "Geen — cryptobetalingen zijn definitief zodra ze bevestigd zijn"
+      }
+    },
+    "logosTitle": "Logo's & merkmateriaal",
+    "logosBody": "Gebruik het woordmerk zoals aangeleverd. Niet herkleuren, vervormen, roteren of van effecten voorzien.",
+    "logoBlackLabel": "Woordmerk — donker op licht",
+    "logoWhiteLabel": "Woordmerk — licht op donker",
+    "iconLabel": "App-icoon",
+    "downloadSvg": "SVG downloaden",
+    "downloadPng": "PNG downloaden",
+    "contactTitle": "Mediacontact",
+    "contactBody": "Voor interviews, reacties of iets dat op deze pagina ontbreekt: schrijf ons — we lezen elk bericht.",
+    "storyCta": "Lees ons verhaal"
+  },
+  "referralProgram": "Referral-programma",
+  "footerNav": {
+    "product": "Product",
+    "solutions": "Oplossingen",
+    "company": "Bedrijf",
+    "logoAlt": "Dynopay-logo",
+    "trustAria": "Vertrouwen en compliance",
+    "verticals": {
+      "ecommerce": "E-commerce",
+      "saas": "SaaS",
+      "gaming": "Gaming",
+      "freelancers": "Freelancers",
+      "remittance": "Geldovermakingen",
+      "digitalDownloads": "Digitale downloads",
+      "hosting": "Hosting & domeinen",
+      "vpn": "VPN & privacy",
+      "marketplaces": "Marktplaatsen",
+      "agencies": "Bureaus & consultants",
+      "nonprofits": "Non-profitorganisaties"
+    },
+    "trust": {
+      "nonCustodial": "Non-custodial",
+      "chains": "9 blockchains",
+      "encrypted": "Versleuteld",
+      "gdpr": "AVG- / AML-conform",
+      "noChargebacks": "Geen chargebacks"
+    }
+  },
+  "verify": {
+    "verifying": "Bezig met verifiëren...."
+  },
+  "donorWall": {
+    "rankTop": "Top supporter",
+    "rank2": "2e",
+    "rank3": "3e",
+    "organizerReplied": "Organisator heeft gereageerd"
+  },
+  "campaignShare": {
+    "shareCampaign": "Deel deze campagne",
+    "shareOnX": "Deel op X",
+    "shareOnThreads": "Deel op Threads",
+    "shareOnWhatsApp": "Deel op WhatsApp",
+    "shareOnLinkedIn": "Deel op LinkedIn",
+    "copyLink": "Kopieer link",
+    "copyCampaignLink": "Kopieer campagne link",
+    "linkCopied": "Link gekopieerd"
+  },
+  "rewardTiers": {
+    "heading": "Beloningsniveaus",
+    "scrollLeft": "Scroll naar links",
+    "scrollRight": "Scroll naar rechts",
+    "mostPopular": "Meest populair"
+  },
+  "v5": {
+    "hero": {
+      "eyebrow": "Cryptobetalingen, uitbetaald in je wallet",
+      "h1a": "Accepteer cryptobetalingen.",
+      "h1b": "Uitbetaald in ",
+      "h1Accent": "de munt die jij kiest",
+      "h1c": ".",
+      "body": "Betaallinks, gehoste checkout, storefront, donaties en API. Kopers betalen met 15 munten op 9 chains; jij houdt de munt of converteert automatisch naar USDC of USDT — rechtstreeks naar een wallet die jij beheert.",
+      "primary": "Begin met betalingen ontvangen",
+      "secondary": "Probeer een live checkout",
+      "primaryHelper": "Gratis starten · Eerste betaling zonder kosten · Geen kaart nodig",
+      "demoNote": "De kaart hierboven is een sandbox — kies een munt en druk op Betalen om een betaling bevestigd te zien worden."
+    },
+    "demo": {
+      "sandbox": "Sandbox · er wordt niets verstuurd",
+      "waiting": "Wachten op betaling…",
+      "confirming": "Bevestigen op {{network}}…",
+      "confirmedTitle": "Betaling bevestigd",
+      "confirmedBody": "Uitbetaald als {{coin}} in de wallet van de verkoper. Er is geen chain aangeraakt — dit is een demo.",
+      "again": "Nog een keer",
+      "pay": "Betaal {{store}}",
+      "settles": "Uitbetaald in {{coin}}",
+      "chooseCoin": "Kies een munt",
+      "send": "Stuur precies",
+      "on": "op {{network}}",
+      "liveRate": "Live koers",
+      "payBtn": "Betaal {{amount}}"
+    },
+    "proof": {
+      "uptime": "Uptime, 90 dagen",
+      "minutes": "{{n}} min",
+      "settle": "Mediane uitbetaling, snelle chains",
+      "month": "Betalingen deze maand",
+      "countries": "Landen",
+      "chains": "Chains"
+    },
+    "open": {
+      "eyebrow": "Open gebouwd",
+      "headline": "Bewijs dat je zelf kunt controleren.",
+      "body": "Geen geleende logo's. Live uptime, openbare docs, echte on-chain uitbetalingen en een checkout in zes talen.",
+      "statusT": "Live status",
+      "statusD": "Uptime van betalingen, koersen, webhooks en API — elke minuut vernieuwd.",
+      "statusCta": "Bekijk status",
+      "docsT": "Openbare API-docs",
+      "docsD": "Elk merchant-endpoint gedocumenteerd voordat je je aanmeldt.",
+      "docsCta": "Lees de docs",
+      "chainT": "Echte uitbetaling",
+      "chainD": "Een echte betaling uit onze eigen winkel, afgewikkeld op Ethereum. Controleer het in een block explorer.",
+      "chainCta": "Bekijk on-chain",
+      "globalT": "Standaard wereldwijd",
+      "globalD": "Verkopers in {{countries}}+ landen, checkout in zes talen, kopers van overal met een wallet.",
+      "globalCta": "Bekijk munten & chains"
+    },
+    "how": {
+      "eyebrow": "Hoe het werkt",
+      "headline": "Drie stappen. Geen cryptokennis nodig.",
+      "body": "Eén keer instellen — daarna volgt elke betaling dezelfde route: van de wallet van je koper naar de jouwe.",
+      "s1t": "Deel een link of checkout",
+      "s1d": "Maak een betaallink, plaats een knop of roep de API aan. Kopers zien het exacte bedrag in de munt die ze kiezen en een QR om te scannen.",
+      "s2t": "Het netwerk bevestigt",
+      "s2d": "Wij volgen de chain en werken de checkout live bij. Zet automatisch converteren aan om USDC of USDT te ontvangen in plaats van de verstuurde munt.",
+      "s3t": "Het geld komt in je wallet",
+      "s3d": "De uitbetaling gaat rechtstreeks naar het uitbetaaladres dat je hebt toegevoegd — non-custodial. Webhook, e-mail en dashboard worden tegelijk bijgewerkt.",
+      "etaLabel": "Gebruikelijke bevestigingstijd",
+      "etaNote": "Dezelfde schattingen die kopers bij de checkout zien. Drukke netwerken kunnen langer duren.",
+      "walletLine": "Je hebt een walletadres nodig voor elke munt die je accepteert — elke wallet die jij beheert.",
+      "walletCta": "Walletgids"
+    },
+    "products": {
+      "donations": {
+        "tab": "Donaties",
+        "title": "Zamel geld en fooien in met crypto.",
+        "desc": "Start een campagne met een doelbalk, beloningsniveaus en een live donateurswand — of een simpele fooienpot. Supporters geven in elke coin, van overal, en elke bijdrage komt direct in je wallet.",
+        "note": "Live demo op /pay/donation-demo — doelbalk, niveaus en donateurswand.",
+        "cta": "Bekijk de donatie-demo"
+      },
+      "eyebrow": "Producten",
+      "headline": "Zeven manieren om betaald te worden. Eén account.",
+      "body": "Kies wat past — alles wordt op dezelfde manier uitbetaald: in je wallet.",
+      "shotAlt": "Voorbeeld van {{name}}",
+      "links": {
+        "tab": "Betaallinks",
+        "title": "Deel een link, word betaald in crypto.",
+        "desc": "Maak een link voor elk bedrag of een donatiedoel, deel hem overal en zie de betaling in je dashboard binnenkomen. Stel een vervaldatum in, kies munten en bepaal wie de kosten betaalt.",
+        "note": "Zonder code. Werkt in een DM, een e-mail of als QR op de toonbank.",
+        "cta": "Maak je eerste link"
+      },
+      "checkout": {
+        "tab": "Gehoste checkout",
+        "title": "Een checkout die kopers begrijpen.",
+        "desc": "Jouw logo en kleuren, live koersen, exact bedrag en QR, en een statustijdlijn van 'wachten' tot 'bevestigd'. Werkt op elke telefoon, in zes talen.",
+        "note": "Probeer de sandbox op /pay/demo — zonder account.",
+        "cta": "Probeer de live demo"
+      },
+      "storefront": {
+        "tab": "Storefront",
+        "title": "Jouw pagina op dynopay.com/jouwnaam.",
+        "desc": "Claim een handle, zet producten online of ontvang tips en deel één URL. Elke verkoop wordt net als elke andere betaling in je wallet uitbetaald.",
+        "note": "Gemaakt voor creators, freelancers en kleine winkels.",
+        "cta": "Bekijk creatorpagina's"
+      },
+      "invoices": {
+        "tab": "Facturen",
+        "title": "Facturen en bonnen, inclusief btw.",
+        "desc": "Stuur een factuur met een betaal-in-crypto-link. Elke afgewikkelde betaling krijgt een bon, en je filtert per periode voor je boekhouder.",
+        "note": "Je belastinginstellingen worden automatisch toegepast.",
+        "cta": "Stuur een factuur"
+      },
+      "embeds": {
+        "tab": "Embeds",
+        "title": "Een koopknop op je eigen site.",
+        "desc": "Plak een snippet in elke pagina en kopers betalen zonder weg te gaan. Publishable keys houden je geheime sleutel uit de browser.",
+        "note": "Eén regel HTML — geen framework nodig.",
+        "cta": "Haal de snippet"
+      },
+      "api": {
+        "tab": "API",
+        "title": "Eén aanroep maakt een betaling.",
+        "desc": "Een eenvoudige REST API met API-sleutels, ondertekende webhooks voor elk event en een sandbox om mee te testen. Geen SDK-lock-in.",
+        "note": "De docs zijn openbaar — lees ze voordat je je aanmeldt.",
+        "cta": "Lees de docs"
+      },
+      "donationsLink": "Fondsenwerving & fooien"
+    },
+    "pricing": {
+      "eyebrow": "Prijzen",
+      "headline": "Eén percentage. Het daalt terwijl je groeit.",
+      "body": "Gebruiksafhankelijke kosten over je totale afgewikkelde volume. Geen maandkosten, geen setupkosten, geen chargebacks.",
+      "firstFree": "Eerste betaling zonder kosten",
+      "noChargebacks": "Geen chargebacks",
+      "fullFees": "Bekijk het volledige tarievenoverzicht, inclusief netwerkkosten →",
+      "tier": {
+        "starter": "Starter",
+        "growth": "Growth",
+        "scale": "Scale",
+        "enterprise": "Enterprise"
+      },
+      "plusFixed": "+ $1 per betaling",
+      "from": "Vanaf {{amount}} afgewikkeld",
+      "upTo": "Tot {{amount}} afgewikkeld"
+    },
+    "calc": {
+      "title": "Schat je kosten",
+      "volume": "Maandvolume",
+      "avg": "Gemiddelde betaling",
+      "dyno": "Dynopay ({{pct}}%)",
+      "cards": "Kaarten (2,9% + $0,30)",
+      "save": "Je bespaart ongeveer {{amount}} per maand ten opzichte van kaarten",
+      "cardsCheaper": "Kaarten zouden bij deze betalingsgrootte ongeveer {{amount}} goedkoper zijn",
+      "note": "Alleen een schatting. Je Dynopay-niveau volgt het totale afgewikkelde volume; netwerkkosten betaalt wie jij kiest. Kaarttarieven zijn gebruikelijke gepubliceerde cijfers."
+    },
+    "compare": {
+      "headline": "Zo verhoudt het zich",
+      "colDyno": "Dynopay",
+      "colCards": "Kaartverwerkers",
+      "colCustodial": "Custodial cryptoverwerkers",
+      "note": "Kaart- en custodial-cijfers zijn gebruikelijke gepubliceerde tarieven — controleer elke aanbieder.",
+      "custody": {
+        "f": "Wie houdt je geld",
+        "dyno": "Jij — het geld wordt in je eigen wallet uitbetaald",
+        "cards": "De verwerker, tot de uitbetaling",
+        "custodial": "De wallet van de verwerker, tot je opneemt"
+      },
+      "volatility": {
+        "f": "Koersschommelingen",
+        "dyno": "Optioneel automatisch converteren naar USDC of USDT bij bevestiging",
+        "cards": "Geen — maar 2,9%+ aan kosten",
+        "custodial": "Vaak pas na handmatig converteren"
+      },
+      "chargebacks": {
+        "f": "Chargebacks",
+        "dyno": "Geen — betalingen zijn definitief; terugbetalen bepaal jij",
+        "cards": "Ja, plus geschilkosten",
+        "custodial": "Geen"
+      },
+      "payout": {
+        "f": "Uitbetaalmoment",
+        "dyno": "Zodra het netwerk bevestigt — minuten",
+        "cards": "2 tot 7 werkdagen",
+        "custodial": "Op opnameverzoek, met limieten"
+      },
+      "fees": {
+        "f": "Verwerkingskosten",
+        "dyno": "1,5%, dalend tot 0,5%",
+        "cards": "Ongeveer 2,9% + $0,30",
+        "custodial": "0,5–1% plus opnamekosten"
+      },
+      "monthly": {
+        "f": "Maand- of setupkosten",
+        "dyno": "Geen",
+        "cards": "Vaak (gateway, terminal)",
+        "custodial": "Meestal geen"
+      }
+    },
+    "security": {
+      "eyebrow": "Vertrouwen & veiligheid",
+      "headline": "De beveiliging staat al live.",
+      "body": "Alles hieronder is vandaag actief in elk account — geen roadmap.",
+      "cta": "Open de statuspagina",
+      "nonCustodial": {
+        "t": "Non-custodial",
+        "d": "Het geld wordt rechtstreeks uitbetaald naar walletadressen die jij toevoegt. Wij houden nooit je saldo vast."
+      },
+      "convert": {
+        "t": "Automatisch converteren naar stablecoin",
+        "d": "Zet het aan en elke betaling komt binnen als USDC of USDT zodra die bevestigd is."
+      },
+      "refunds": {
+        "t": "On-chain terugbetalingen",
+        "d": "Betaal het volledige of een deel van het bedrag terug in de oorspronkelijke munt vanuit je dashboard; de koper ontvangt een bon."
+      },
+      "twofa": {
+        "t": "Tweestapsverificatie",
+        "d": "Authenticator-codes plus eenmalige back-upcodes, met extra controle bij inloggen."
+      },
+      "walletLock": {
+        "t": "Bescherming van het uitbetaaladres",
+        "d": "Adreswijzigingen vereisen een e-mailcode; elke wijziging wordt gelogd en kan vanuit de waarschuwingsmail worden teruggedraaid."
+      },
+      "sessions": {
+        "t": "Apparaat- en sessiebeheer",
+        "d": "Zie elk ingelogd apparaat, log overal uit met één tik en krijg een melding bij inloggen vanaf een nieuw apparaat."
+      },
+      "webhooks": {
+        "t": "Ondertekende webhooks",
+        "d": "HMAC-ondertekende events met automatische herhalingen en een dead-letter queue."
+      },
+      "kyc": {
+        "t": "KYC / AML",
+        "d": "Identiteitscontroles gaan in naarmate je volume groeit; gegevensverwerking volgens de AVG."
+      },
+      "status": {
+        "t": "Openbare statuspagina",
+        "d": "Live uptime voor betalingen, koersen, webhooks en API, met 90 dagen geschiedenis."
+      }
+    },
+    "dev": {
+      "eyebrow": "Ontwikkelaars",
+      "headline": "Eén request. Een echt antwoord.",
+      "body": "Een eenvoudige REST API die je vanuit alles kunt aanroepen. Maak een betaling, stuur de koper door, luister naar de webhook.",
+      "b1": "Ondertekende webhooks voor elk betalingsevent",
+      "b2": "Sandbox-sleutels om te testen zonder geld te verplaatsen",
+      "b3": "Geen SDK nodig — alleen HTTP",
+      "worksWith": "Werkt met elke taal of elk framework dat een HTTP-request kan doen — plus een copy-paste koopknop voor statische sites.",
+      "ctaDocs": "Lees de API-docs",
+      "copy": "Kopiëren",
+      "copied": "Gekopieerd",
+      "response": "Antwoord",
+      "snippetNote": "Er wordt een sandbox-sleutel getoond. Echte sleutels maak je in je dashboard onder Ontwikkelaars; het antwoord heeft in productie dezelfde vorm."
+    },
+    "coins": {
+      "eyebrow": "Munten & chains",
+      "headline": "{{coins}} munten en tokens, 9 chains.",
+      "body": "Elk asset waarmee je kopers kunnen betalen — dezelfde lijst als onze checkout. Inclusief stablecoins op de goedkoopste chains.",
+      "cta": "Bekijk kosten per netwerk"
+    },
+    "faq": {
+      "eyebrow": "FAQ",
+      "headline": "Vragen die verkopers echt stellen.",
+      "still": "Nog vragen?",
+      "ask": "Vraag ons alles →",
+      "cost": {
+        "q": "Wat kost het?",
+        "a": "1,5% per betaling om te beginnen, dalend naar 1,0%, 0,7% en 0,5% naarmate je totale afgewikkelde volume groeit. Je eerste betaling is vrij van platformkosten. Geen maandkosten, geen setupkosten, geen chargebacks. Netwerkkosten gaan naar de blockchain en jij kiest of jij of de koper die betaalt."
+      },
+      "funds": {
+        "q": "Waar gaat het geld heen?",
+        "a": "Rechtstreeks naar een walletadres dat jij beheert. Dynopay is non-custodial — wij houden nooit je saldo vast en elke uitbetaling is een echte on-chain overboeking."
+      },
+      "speed": {
+        "q": "Hoe snel word ik betaald?",
+        "a": "Zo snel als het netwerk bevestigt. Solana en XRP duren seconden; USDT op Tron en Polygon minder dan een minuut; Ethereum enkele minuten; Bitcoin 10–60 minuten. Je ziet de status live en krijgt een webhook en e-mail bij afwikkeling."
+      },
+      "crypto": {
+        "q": "Moet ik crypto begrijpen?",
+        "a": "Nee. Jij stelt een prijs in je valuta in, de koper kiest een munt en wij tonen het exacte bedrag. Zet automatisch converteren aan en je ontvangt USDC of USDT zonder ooit een exchange aan te raken."
+      },
+      "wallet": {
+        "q": "Welke wallet heb ik nodig?",
+        "a": "Elke wallet die jij beheert — een hardware- of mobiele wallet, of een stortingsadres van een exchange. Voeg één uitbetaaladres toe per munt die je accepteert; onze walletgids helpt je erdoorheen."
+      },
+      "buyers": {
+        "q": "Wat hebben mijn kopers nodig?",
+        "a": "Een wallet met een van de ondersteunde munten. Ze scannen de QR of kopiëren adres en bedrag — geen account, geen registratie. De checkout is beschikbaar in zes talen."
+      },
+      "donations": {
+        "q": "Kan ik fondsen werven of fooien ontvangen?",
+        "a": "Ja. Start een crowdfundingcampagne met een doelbalk en beloningsniveaus, of een simpele fooienpot — supporters betalen overal in crypto, zonder account, en het geld komt rechtstreeks in een wallet die jij beheert."
+      },
+      "refunds": {
+        "q": "Kan ik een betaling terugbetalen?",
+        "a": "Ja. Betaal het volledige of een deel van het bedrag terug in de oorspronkelijke munt vanuit je dashboard. De koper ontvangt per e-mail een bon van de terugbetaling."
+      },
+      "wrongAmount": {
+        "q": "Wat als een koper het verkeerde bedrag stuurt?",
+        "a": "Betalingen worden gekoppeld aan het exacte bedrag dat bij de checkout is getoond. Kleine onderbetalingen binnen de tolerantie die jij instelt worden automatisch geaccepteerd; grotere tekorten worden in je dashboard gemarkeerd zodat je kunt terugbetalen of het met de koper kunt oplossen. Overbetalingen worden volledig uitbetaald."
+      },
+      "legal": {
+        "q": "Is dit legaal en compliant?",
+        "a": "Crypto accepteren is in de meeste landen legaal en jij blijft verantwoordelijk voor lokale regels en belastingen. Dynopay voert KYC/AML-controles uit naarmate je volume groeit en verwerkt gegevens volgens de AVG."
+      },
+      "myCountry": {
+        "q": "Kan ik Dynopay vanuit mijn land gebruiken?",
+        "a": "Vrijwel zeker wel. Er is geen landenlijst waarvoor je je moet aanmelden en geen bank of kaartnetwerk dat je hoeft goed te keuren — als je een crypto-wallet kunt aanhouden, kun je betalingen accepteren en rechtstreeks daarop laten uitkeren. Je meldt je aan met een e-mailadres, voegt een uitbetalingswallet toe en kunt dezelfde dag nog beginnen. De enige uitzondering zijn de paar rechtsgebieden waarvoor internationale sancties gelden."
+      },
+      "countries": {
+        "q": "Welke landen ondersteunen jullie?",
+        "a": "Kopers kunnen van overal betalen met een wallet. Verkopers melden zich vandaag aan vanuit 30+ landen; gesanctioneerde gebieden zijn uitgesloten. De checkout is beschikbaar in het Engels, Duits, Spaans, Frans, Portugees en Nederlands."
+      },
+      "referral": {
+        "q": "Is er een verwijzingsprogramma?",
+        "a": "Ja. Deel je verwijzingslink en verdien 12 maanden lang 25% van de Dynopay-kosten van elke verkoper die je aanbrengt — als kostentegoed of uitbetaald in USDT. Wie jij aanbrengt krijgt de eerste 30 dagen 50% korting op de kosten."
+      }
+    },
+    "final": {
+      "eyebrow": "Klaar wanneer jij dat bent",
+      "headline1": "Begin met crypto accepteren",
+      "headline2": "in ongeveer vijf minuten.",
+      "body": "Maak een gratis account, voeg een uitbetaalwallet toe en deel je eerste link. Je eerste betaling is zonder kosten.",
+      "talk": "Praat met ons"
+    },
+    "sticky": {
+      "start": "Gratis starten",
+      "demo": "Live demo"
+    },
+    "eta": {
+      "BTC": "10–60 min",
+      "ERC20": "1–5 min",
+      "LTC": "5–15 min",
+      "DOGE": "2–10 min",
+      "BCH": "10–30 min",
+      "TRC20": "binnen een minuut",
+      "SOL": "enkele seconden",
+      "XRPL": "enkele seconden",
+      "POLYGON": "binnen een minuut"
+    },
+    "live": {
+      "title": "Settling right now",
+      "sub": "Live payments across the network — coin, chain and time only. No names, no amounts.",
+      "now": "just now",
+      "m": "{{n}}m ago",
+      "h": "{{n}}h ago",
+      "d": "{{n}}d ago"
+    },
+    "onchain": {
+      "eyebrow": "Verify on-chain",
+      "headline": "Real settlements, on public explorers.",
+      "body": "A few recent payments to our own Dynopay store. Each one is a real transaction — open it on a block explorer and confirm the money moved.",
+      "verify": "Verify",
+      "ownStore": "Dynopay store",
+      "settledOn": "{{symbol}} on {{network}}"
+    },
+    "wallets": {
+      "title": "Pay from any wallet",
+      "sub": "Buyers scan and send from whatever they already use — no account with us required."
+    },
+    "global": {
+      "eyebrow": "Wereldwijd van nature",
+      "headline": "Betalingen uit meer dan {{countries}} landen.",
+      "body": "Er is geen landenlijst waarvoor je je moet aanmelden en geen bankgoedkeuring om op te wachten. Als je klanten een crypto-wallet kunnen aanhouden, kunnen ze je vanuit de hele wereld betalen — en elke betaling wordt rechtstreeks uitgekeerd op een wallet die jij beheert.",
+      "langs": "6 talen",
+      "chainsLabel": "9 chains",
+      "walletLabel": "Non-custodial"
+    }
+  },
+  "goToDashboard": "Naar dashboard",
+  "signedInBar": {
+    "title": "Je bent ingelogd"
+  },
+  "saved": {
+    "pageTitle": "Bewaarde verkopers",
+    "headerLink": "Bewaarde verkopers",
+    "title": "Je bewaarde verkopers",
+    "subtitle": "Verkopers die je na het betalen hebt bewaard. Alleen op dit apparaat opgeslagen — geen account nodig.",
+    "visit": "Pagina bekijken",
+    "remove": "Verwijderen",
+    "savedOn": "Bewaard op {{date}}",
+    "emptyTitle": "Nog niets bewaard",
+    "emptyBody": "Nadat je een verkoper met Dynopay hebt betaald, tik je op ‘Bewaren voor de volgende keer’ op het bonscherm en verschijnt die hier.",
+    "browse": "Terug naar home"
+  }
+}

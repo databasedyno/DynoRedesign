@@ -1,0 +1,2275 @@
+import React, { useState, useCallback, useMemo, useEffect, memo } from "react";
+import { Box, Typography, useTheme, useMediaQuery, Grid, Divider, Autocomplete, TextField, InputBase, Fab, Fade } from "@mui/material";
+import { styled, alpha } from "@mui/material/styles";
+import { useRouter } from "next/router";
+import PublicPageHero from "@/Components/Page/Home/v5/PublicPageHero";
+import PublicFinalCta from "@/Components/Page/Home/v5/PublicFinalCta";
+import { PrimaryBtn, SecondaryBtn } from "@/Components/Page/Home/v5/shared";
+import { AuroraInk } from "@/Components/Page/Home/v3/styled.v3";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import useIsMobile from "@/hooks/useIsMobile";
+import CodeIcon from "@mui/icons-material/Code";
+import PaymentIcon from "@mui/icons-material/Payment";
+import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
+import CurrencyExchangeIcon from "@mui/icons-material/CurrencyExchange";
+import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
+import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
+import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
+import SpeedIcon from "@mui/icons-material/Speed";
+// OpenInNewIcon import removed (no longer used)
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import CheckIcon from "@mui/icons-material/Check";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import SearchIcon from "@mui/icons-material/Search";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import { useTranslation } from "react-i18next";
+import copyToClipboard from "@/helpers/copyToClipboard";
+import { BRAND_ACCENT } from "@/constants/theme";
+
+/* ================================================================
+   TYPES
+   ================================================================ */
+
+interface Endpoint {
+  id: string;
+  method: "GET" | "POST";
+  path: string;
+  title: string;
+  description: string;
+  auth: "api-key" | "api-key-bearer" | "api-key-optional-bearer" | "publishable-key";
+  headers: { name: string; value: string; description: string }[];
+  body?: { name: string; type: string; required: boolean; description: string }[];
+  queryParams?: { name: string; type: string; required: boolean; description: string }[];
+  pathParams?: { name: string; type: string; description: string }[];
+  responseExample: string;
+  requestExample?: string;
+}
+
+interface Section {
+  id: string;
+  title: string;
+  icon: React.ReactNode;
+  endpoints?: string[];
+}
+
+/* ================================================================
+   STYLED COMPONENTS — BRAND-ALIGNED
+   ================================================================ */
+
+const PageWrapper = styled(Box)({
+  width: "100%",
+  minHeight: "100vh",
+});
+
+const Container = styled(Box)(({ theme }) => ({
+  width: "100%",
+  maxWidth: 1280,
+  margin: "0 auto",
+  paddingLeft: theme.spacing(2),
+  paddingRight: theme.spacing(2),
+}));
+
+const ProductCard = styled(Box)(({ theme }) => {
+  const dk = theme.palette.mode === "dark";
+  return {
+    padding: "24px",
+    borderRadius: "18px",
+    border: `1px solid ${dk ? "rgba(255,255,255,0.08)" : "rgba(10,10,10,0.08)"}`,
+    background: dk ? "#15151B" : "#FFFFFF",
+    cursor: "pointer",
+    transition: "all 0.2s ease",
+    height: "100%",
+    display: "flex",
+    flexDirection: "column" as const,
+    "&:hover": {
+      borderColor: dk ? "#818CF8" : BRAND_ACCENT,
+      transform: "translateY(-2px)",
+      boxShadow: dk
+        ? "0 8px 32px rgba(129,140,248,0.15)"
+        : "0 8px 32px rgba(10,10,10,0.08)",
+    },
+  };
+});
+
+const ProductIcon = styled(Box)(({ theme }) => {
+  const dk = theme.palette.mode === "dark";
+  return {
+    width: 48,
+    height: 48,
+    borderRadius: "14px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: dk ? "rgba(129,140,248,0.1)" : "#0A0A0A0D",
+    color: dk ? "#818CF8" : BRAND_ACCENT,
+    marginBottom: "16px",
+    "& svg": { fontSize: 24 },
+  };
+});
+
+const SidebarWrapper = styled(Box)(({ theme }) => {
+  const dk = theme.palette.mode === "dark";
+  return {
+    width: 240,
+    flexShrink: 0,
+    position: "sticky" as const,
+    top: 80,
+    alignSelf: "flex-start",
+    maxHeight: "calc(100vh - 100px)",
+    overflowY: "auto" as const,
+    paddingRight: "16px",
+    borderRight: `1px solid ${dk ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}`,
+    "&::-webkit-scrollbar": { width: 4 },
+    "&::-webkit-scrollbar-track": { background: "transparent" },
+    "&::-webkit-scrollbar-thumb": {
+      background: dk ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)",
+      borderRadius: 4,
+    },
+  };
+});
+
+const SidebarItem = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "active",
+})<{ active?: boolean }>(({ theme, active }) => {
+  const dk = theme.palette.mode === "dark";
+  return {
+    padding: "8px 12px",
+    borderRadius: "10px",
+    fontSize: "14px",
+    fontFamily: "var(--font-sans)",
+    fontWeight: active ? 600 : 400,
+    color: active ? (dk ? "#818CF8" : BRAND_ACCENT) : theme.palette.text.secondary,
+    background: active ? (dk ? "rgba(129,140,248,0.1)" : "#0A0A0A08") : "transparent",
+    cursor: "pointer",
+    transition: "all 0.15s",
+    "&:hover": {
+      background: dk ? "rgba(129,140,248,0.06)" : "#F8F9FC",
+      color: dk ? "#818CF8" : BRAND_ACCENT,
+    },
+  };
+});
+
+const SubItem = styled(SidebarItem)(() => ({
+  paddingLeft: "28px",
+  fontSize: "13px",
+}));
+
+const SidebarLabel = styled(Typography)(({ theme }) => ({
+  fontSize: "11px",
+  fontWeight: 600,
+  fontFamily: "var(--font-hero), var(--font-sans)",
+  letterSpacing: "1.2px",
+  textTransform: "uppercase" as const,
+  color: theme.palette.text.secondary,
+  padding: "16px 12px 6px",
+}));
+
+const EndpointCardWrapper = styled(Box)(({ theme }) => {
+  const dk = theme.palette.mode === "dark";
+  return {
+    marginBottom: "24px",
+    border: `1px solid ${dk ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}`,
+    borderRadius: "16px",
+    overflow: "hidden",
+    transition: "box-shadow 0.2s",
+    scrollMarginTop: "100px",
+    "&:hover": {
+      boxShadow: dk
+        ? "0 4px 20px rgba(129,140,248,0.08)"
+        : "0 4px 20px rgba(10,10,10,0.04)",
+    },
+  };
+});
+
+const EndpointHeader = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "expanded",
+})<{ expanded?: boolean }>(({ theme, expanded }) => {
+  const dk = theme.palette.mode === "dark";
+  return {
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    padding: "16px 20px",
+    cursor: "pointer",
+    background: expanded
+      ? dk ? "rgba(129,140,248,0.04)" : "#FAFBFF"
+      : dk ? "rgba(255,255,255,0.045)" : "#FFFFFF",
+    transition: "background 0.15s",
+    "&:hover": {
+      background: dk ? "rgba(129,140,248,0.06)" : "#F5F7FF",
+    },
+  };
+});
+
+const MethodBadgeStyled = styled("span", {
+  shouldForwardProp: (prop) => prop !== "isGet",
+})<{ isGet: boolean }>(({ isGet }) => ({
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: "3px 10px",
+  borderRadius: "8px",
+  fontSize: "11px",
+  fontWeight: 700,
+  letterSpacing: "0.5px",
+  fontFamily: "var(--font-tech), monospace",
+  color: "#FFFFFF",
+  background: isGet ? "#22C55E" : "#5865F2",
+  minWidth: 44,
+}));
+
+const AuthBadge = styled("span", {
+  shouldForwardProp: (prop) => prop !== "authType",
+})<{ authType: string }>(({ theme, authType }) => {
+  const dk = theme.palette.mode === "dark";
+  const isApiOnly = authType === "api-key";
+  const isOptionalBearer = authType === "api-key-optional-bearer";
+  const isPublishable = authType === "publishable-key";
+  return {
+    fontSize: "11px",
+    padding: "3px 10px",
+    borderRadius: "6px",
+    fontWeight: 600,
+    fontFamily: "var(--font-sans)",
+    whiteSpace: "nowrap" as const,
+    background: isPublishable
+      ? dk ? "rgba(245,158,11,0.15)" : "#FEF3C7"
+      : (isApiOnly || isOptionalBearer)
+        ? dk ? "rgba(29,78,216,0.15)" : "#DBEAFE"
+        : dk ? "rgba(109,40,217,0.15)" : "#EDE9FE",
+    color: isPublishable ? (dk ? "#FBBF24" : "#B45309") : (isApiOnly || isOptionalBearer) ? "#60A5FA" : "#A78BFA",
+  };
+});
+
+const CodeBlockWrapper = styled(Box)(() => ({
+  position: "relative",
+  marginBottom: "16px",
+}));
+
+const Pre = styled("pre")(({ theme }) => {
+  const dk = theme.palette.mode === "dark";
+  return {
+    background: dk ? "#0D0F1A" : "#1E1E2E",
+    color: "#CDD6F4",
+    borderRadius: "12px",
+    padding: "20px 16px",
+    fontSize: "13px",
+    lineHeight: 1.65,
+    overflowX: "auto" as const,
+    fontFamily: "var(--font-tech), monospace",
+    margin: 0,
+    border: `1px solid ${dk ? "#1E2030" : "rgba(255,255,255,0.06)"}`,
+  };
+});
+
+const CopyBtn = styled("button")(({ theme }) => ({
+  position: "absolute" as const,
+  top: 8,
+  right: 8,
+  background: "rgba(255,255,255,0.08)",
+  border: "1px solid rgba(255,255,255,0.12)",
+  borderRadius: "8px",
+  padding: "5px 12px",
+  color: "#FFFFFF",
+  fontSize: "12px",
+  fontFamily: "var(--font-sans)",
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  gap: "4px",
+  transition: "all 0.15s",
+  "&:hover": { background: "rgba(255,255,255,0.15)" },
+}));
+
+const TableWrapper = styled(Box)(({ theme }) => {
+  const dk = theme.palette.mode === "dark";
+  return {
+    border: `1px solid ${dk ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}`,
+    borderRadius: "12px",
+    overflow: "hidden",
+    marginBottom: "20px",
+  };
+});
+
+const StepCard = styled(Box)(({ theme }) => {
+  const dk = theme.palette.mode === "dark";
+  return {
+    display: "flex",
+    gap: "16px",
+    alignItems: "flex-start",
+    padding: "20px",
+    borderRadius: "14px",
+    border: `1px solid ${dk ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}`,
+    background: dk ? "rgba(255,255,255,0.045)" : "#FFFFFF",
+  };
+});
+
+const StepNumber = styled(Box)(({ theme }) => {
+  const dk = theme.palette.mode === "dark";
+  return {
+    width: 36,
+    height: 36,
+    minWidth: 36,
+    borderRadius: "10px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: dk ? "rgba(129,140,248,0.15)" : "#0A0A0A",
+    color: "#FFFFFF",
+    fontWeight: 700,
+    fontSize: "15px",
+    fontFamily: "var(--font-hero), var(--font-sans)",
+  };
+});
+
+const AuthCard = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "variant",
+})<{ variant: "blue" | "purple" | "green" }>(({ theme, variant }) => {
+  const dk = theme.palette.mode === "dark";
+  const isBlue = variant === "blue";
+  const isGreen = variant === "green";
+  return {
+    padding: "24px",
+    borderRadius: "14px",
+    border: `1px solid ${
+      isBlue
+        ? dk ? "rgba(29,78,216,0.3)" : "#BFDBFE"
+        : isGreen
+          ? dk ? "rgba(5,150,105,0.3)" : "#A7F3D0"
+          : dk ? "rgba(109,40,217,0.3)" : "#DDD6FE"
+    }`,
+    background: isBlue
+      ? dk ? "rgba(29,78,216,0.06)" : "#EFF6FF"
+      : isGreen
+        ? dk ? "rgba(5,150,105,0.06)" : "#ECFDF5"
+        : dk ? "rgba(109,40,217,0.06)" : "#F5F3FF",
+    height: "100%",
+  };
+});
+
+const InfoBox = styled(Box)(({ theme }) => {
+  const dk = theme.palette.mode === "dark";
+  return {
+    padding: "20px",
+    borderRadius: "14px",
+    background: dk
+      ? "linear-gradient(135deg, rgba(129,140,248,0.06) 0%, rgba(109,40,217,0.06) 100%)"
+      : "linear-gradient(135deg, #F0F5FF 0%, #F5F3FF 100%)",
+    border: `1px solid ${dk ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}`,
+  };
+});
+
+/* ================================================================
+   ENDPOINT DATA
+   ================================================================ */
+
+const BASE_URL = "/api/user";
+
+// Public origin shown in copy-paste examples (matches production).
+const DOC_ORIGIN = "https://dynopay.com";
+
+// --- "Try It Live" sandbox playground (migrated from the landing page's
+// TryItNow section, session 14). POST /api/public/sandbox/payment-links is a
+// public, rate-limited endpoint that returns an ephemeral in-memory response —
+// nothing hits the DB, safe to run without an account.
+const SANDBOX_KEY = "dyno_sk_sandbox_demo_9f621db8";
+const SANDBOX_CURL = `curl -X POST "${DOC_ORIGIN}/api/public/sandbox/payment-links" \\
+  -H "Authorization: Bearer ${SANDBOX_KEY}" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "amount": 49.99,
+    "currency": "USD",
+    "description": "Pro Plan – Monthly",
+    "customer_email": "customer@example.com"
+  }'`;
+const SANDBOX_RESPONSE = `{
+  "object": "payment_link",
+  "id": "plink_sandbox_2727324c61ebfb8b",
+  "livemode": false,
+  "sandbox": true,
+  "status": "awaiting_payment",
+  "amount": 49.99,
+  "currency": "USD",
+  "checkout_url": "https://dynopay.com/pay/…",
+  "expires_at": "2026-07-05T16:14:12.536Z",
+  "supported_chains": ["USDT-TRC20", "USDT-ERC20", "USDT-BEP20"]
+}`;
+
+const ENDPOINTS: Endpoint[] = [
+  {
+    id: "create-user",
+    method: "POST",
+    path: "/createUser",
+    title: "Create Customer",
+    description:
+      "Register a new customer under your company. Returns a bearer token for subsequent authenticated requests. If the customer already exists (same email + company), returns their existing token.",
+    auth: "api-key",
+    headers: [
+      { name: "x-api-key", value: "your_api_key", description: "Your Dynopay API key" },
+      { name: "Content-Type", value: "application/json", description: "" },
+    ],
+    body: [
+      { name: "name", type: "string", required: true, description: "Customer's full name" },
+      { name: "email", type: "string", required: true, description: "Customer's email address" },
+      { name: "mobile", type: "string", required: false, description: "Customer's phone number" },
+    ],
+    requestExample: `{
+  "name": "Jane Smith",
+  "email": "jane@example.com",
+  "mobile": "+1234567890"
+}`,
+    responseExample: `{
+  "success": true,
+  "message": "Registered Successful!",
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIs...",
+    "customer_id": "a1b2c3d4-e5f6-..."
+  }
+}`,
+  },
+  {
+    id: "create-payment",
+    method: "POST",
+    path: "/createPayment",
+    title: "Create Checkout Payment",
+    description:
+      "Create a hosted checkout session. Returns a redirect URL where your customer selects their crypto and completes payment. Works with just your API key (userless mode) — no customer creation needed. Optionally include a customer Bearer token for per-customer tracking. The response embeds a stable first-class `payment` object (fiat amounts as numbers, crypto amounts as strings) so you can read `payment.id` and `payment.status` directly without parsing the redirect URL.",
+    auth: "api-key-optional-bearer",
+    headers: [
+      { name: "x-api-key", value: "your_api_key", description: "Your Dynopay API key" },
+      { name: "Authorization", value: "Bearer {customer_token}", description: "(Optional) Token from Create Customer — omit for userless mode" },
+      { name: "Content-Type", value: "application/json", description: "" },
+    ],
+    body: [
+      { name: "amount", type: "number", required: true, description: "Payment amount in your base currency (min 5)" },
+      { name: "redirect_uri", type: "string", required: true, description: "URL to redirect after payment completes" },
+      { name: "fee_payer", type: "string", required: false, description: '"company" (default) or "customer"' },
+      { name: "accepted_currencies", type: "string[]", required: false, description: 'Limit accepted cryptos, e.g. ["BTC","ETH"]' },
+      { name: "webhook_url", type: "string", required: false, description: "URL to receive payment status webhooks" },
+      { name: "callback_url", type: "string", required: false, description: "Callback URL for payment updates" },
+      { name: "meta_data", type: "object", required: false, description: "Custom metadata (order ID, notes, etc.)" },
+      { name: "customer_email", type: "string", required: false, description: "Payer's email — attributes the payment to a real customer (enables receipts + Dynopay referral invites)" },
+      { name: "customer_name", type: "string", required: false, description: "Payer's name (used with customer_email)" },
+    ],
+    requestExample: `{
+  "amount": 50.00,
+  "redirect_uri": "https://yoursite.com/thank-you",
+  "fee_payer": "company",
+  "accepted_currencies": ["BTC", "ETH", "USDT"],
+  "webhook_url": "https://yoursite.com/webhooks/dynopay",
+  "customer_email": "buyer@example.com",
+  "meta_data": { "order_id": "ORD-12345" }
+}`,
+    responseExample: `{
+  "success": true,
+  "message": "Link Generated!",
+  "data": {
+    "redirect_url": "https://checkout.dynopay.com/pay?d=abc123...",
+    "fee_payer": "company",
+    "available_currencies": ["BTC", "ETH", "USDT"],
+    "webhook_url": "configured",
+    "payment": {
+      "id": "abc123...",
+      "object": "payment",
+      "status": "waiting",
+      "hosted_url": "https://checkout.dynopay.com/pay?d=abc123...",
+      "amount": 50,
+      "currency": "USD",
+      "crypto": null,
+      "fee": null,
+      "tax_amount": null,
+      "expires_at": null,
+      "metadata": { "order_id": "ORD-12345" },
+      "created_at": "2026-03-06T12:00:00.000Z",
+      "updated_at": null,
+      "redirect_url": "https://checkout.dynopay.com/pay?d=abc123..."
+    }
+  }
+}`,
+  },
+  {
+    id: "embed-session",
+    method: "POST",
+    path: "/embed/session",
+    title: "Create Embedded Checkout Session",
+    description:
+      "Create a session for the Dynopay Embedded Checkout (iframe on your page). Call this from your SERVER — the returned `client_secret` is safe to hand to the browser; your API key is NOT. Load embed.js (from your checkout origin) and pass the client_secret to `Dynopay.initEmbeddedCheckout({fetchClientSecret})` to mount the checkout inline, or `Dynopay.openCheckout(...)` to open it as a centered modal. Always verify final payment status via the payment.succeeded webhook — the browser onComplete event is UX only.",
+    auth: "api-key",
+    headers: [
+      { name: "x-api-key", value: "your_api_key", description: "Your Dynopay API key (SECRET — never send to the browser)" },
+      { name: "Content-Type", value: "application/json", description: "" },
+    ],
+    body: [
+      { name: "amount", type: "number", required: true, description: "Payment amount in your base currency (min 5)" },
+      { name: "redirect_uri", type: "string", required: false, description: "URL to send the customer after successful payment" },
+      { name: "accepted_currencies", type: "string[]", required: false, description: 'Limit accepted cryptos, e.g. ["USDT-TRC20","BTC"]. Must be a subset of your configured wallet currencies.' },
+      { name: "fee_payer", type: "string", required: false, description: '"company" (default) or "customer"' },
+      { name: "webhook_url", type: "string", required: false, description: "Per-session webhook URL override (otherwise uses the key's default)" },
+      { name: "callback_url", type: "string", required: false, description: "Legacy webhook alias" },
+      { name: "meta_data", type: "object", required: false, description: "Custom metadata echoed back in webhooks" },
+      { name: "customer_email", type: "string", required: false, description: "Payer's email — attributes the payment to a real customer (enables receipts + Dynopay referral invites)" },
+      { name: "customer_name", type: "string", required: false, description: "Payer's name (used with customer_email)" },
+      { name: "allowed_origins", type: "string[]", required: false, description: 'Domains permitted to iframe this session, e.g. ["https://shop.com"]' },
+    ],
+    requestExample: `{
+  "amount": 50.00,
+  "redirect_uri": "https://shop.com/thanks",
+  "webhook_url": "https://shop.com/webhooks/dynopay",
+  "allowed_origins": ["https://shop.com"],
+  "meta_data": { "order_id": "ORD-12345" }
+}`,
+    responseExample: `{
+  "success": true,
+  "message": "Embedded checkout session created",
+  "data": {
+    "client_secret": "a1b2c3d4...",
+    "checkout_url": "https://checkout.dynopay.com/pay?d=a1b2c3d4...&embed=1",
+    "expires_at":  "2026-07-11T10:37:00.000Z",
+    "ui_mode": "embedded",
+    "fee_payer": "company",
+    "payment_methods": [
+      { "type": "crypto", "currencies": ["USDT-TRC20","BTC","ETH"] }
+    ]
+  }
+}`,
+  },
+  {
+    id: "elements-intent",
+    method: "POST",
+    path: "/api/embed/public/elements/intent",
+    title: "Create Elements Payment Intent",
+    description:
+      "Create a payment intent for the **Elements Inline Widget** — the SDK renders the pay UI (currency picker, address, QR, live status) directly in your DOM (no iframe). Called by `Dynopay(pk).elements().create('crypto', { amount }).mount('#el')` — you rarely call it directly. Uses a browser-safe **publishable key**; the request Origin must be on the key's `allowed_domains`. Returns a set of currencies (intersection of your configured wallets, the pk's `allowed_currencies`, and the merchant address pool) and a Redis-backed `intent_id` valid for 24h.",
+    auth: "publishable-key",
+    headers: [
+      { name: "x-publishable-key", value: "pk_live_...", description: "Browser-safe publishable key (domain-locked + amount-capped)" },
+      { name: "Origin", value: "https://your-site.com", description: "Must match an entry in the pk's allowed_domains (wildcards supported)" },
+      { name: "Content-Type", value: "application/json", description: "" },
+    ],
+    body: [
+      { name: "amount", type: "number", required: true, description: "Amount in the pk's base currency (min 5, ≤ pk.max_amount)" },
+      { name: "currency", type: "string", required: false, description: "Optional crypto — if in effective set, the picker is skipped" },
+      { name: "redirect_uri", type: "string", required: false, description: "URL to send the customer after success (not used by the widget, echoed in webhooks)" },
+      { name: "meta_data", type: "object", required: false, description: "Custom metadata echoed back in webhooks" },
+    ],
+    requestExample: `{
+  "amount": 20,
+  "currency": "USDT-TRC20",
+  "meta_data": { "order_id": "ORD-42" }
+}`,
+    responseExample: `{
+  "success": true,
+  "message": "Intent created",
+  "data": {
+    "intent_id": "pi_a1b2c3...",
+    "client_secret": "elm_x9y8z7...",
+    "available_currencies": ["BTC","ETH","USDT-TRC20","USDT-ERC20","LTC"],
+    "amount": 20,
+    "base_currency": "USD",
+    "expires_at": "2026-07-12T09:00:00.000Z",
+    "status": "requires_currency"
+  }
+}`,
+  },
+  {
+    id: "elements-select-currency",
+    method: "POST",
+    path: "/api/embed/public/elements/select-currency",
+    title: "Select Currency (Elements)",
+    description:
+      "Reserve a merchant-pool address for the chosen currency on an existing Elements intent. **Idempotent** — a second call with the same currency returns the SAME address. Switching currency after the intent has reached `processing`/`succeeded` returns `400`. Converts fiat → crypto with the live rate and generates a QR code. Called automatically by `element.mount()` after the customer picks a currency in the widget.",
+    auth: "publishable-key",
+    headers: [
+      { name: "x-publishable-key", value: "pk_live_...", description: "Browser-safe publishable key" },
+      { name: "Origin", value: "https://your-site.com", description: "Must match pk allowed_domains" },
+      { name: "Content-Type", value: "application/json", description: "" },
+    ],
+    body: [
+      { name: "intent_id", type: "string", required: true, description: "The pi_... returned from Create Intent" },
+      { name: "currency", type: "string", required: true, description: "One of the intent's available_currencies (e.g. USDT-TRC20)" },
+    ],
+    requestExample: `{
+  "intent_id": "pi_a1b2c3...",
+  "currency": "USDT-TRC20"
+}`,
+    responseExample: `{
+  "success": true,
+  "message": "Currency selected",
+  "data": {
+    "currency": "USDT-TRC20",
+    "address": "TTve8v6Y48ChsCTEiCjMRFSbjNtz4mAkxR",
+    "qr_code": "data:image/png;base64,...",
+    "amount": 20,
+    "destination_tag": null,
+    "payment_id": "txn_..."
+  }
+}`,
+  },
+  {
+    id: "elements-status",
+    method: "GET",
+    path: "/api/embed/public/elements/status?intent_id=pi_...",
+    title: "Poll Elements Intent Status",
+    description:
+      "Read the live status of an Elements intent. The SDK polls this every 5 seconds. DB status is mapped to a stable client status: `completed/successful/confirmed → succeeded`, `underpaid/partial/processing → processing`, `failed/expired/cancelled → failed`. Otherwise falls back to `requires_currency` / `awaiting_payment` / `expired` (24h TTL). **Fulfillment must be confirmed via the `payment.succeeded` webhook — this endpoint is UX-only.**",
+    auth: "publishable-key",
+    headers: [
+      { name: "x-publishable-key", value: "pk_live_...", description: "Browser-safe publishable key" },
+      { name: "Origin", value: "https://your-site.com", description: "Must match pk allowed_domains" },
+    ],
+    body: [],
+    requestExample: `GET /api/embed/public/elements/status?intent_id=pi_a1b2c3...`,
+    responseExample: `{
+  "success": true,
+  "data": {
+    "intent_id": "pi_a1b2c3...",
+    "status": "awaiting_payment",
+    "currency": "USDT-TRC20",
+    "address": "TTve8v6Y48ChsCTEiCjMRFSbjNtz4mAkxR",
+    "amount": 20,
+    "base_currency": "USD",
+    "payment_id": "txn_...",
+    "expires_at": "2026-07-12T09:00:00.000Z"
+  }
+}`,
+  },
+  {
+    id: "crypto-payment",
+    method: "POST",
+    path: "/cryptoPayment",
+    title: "Create Direct Crypto Payment",
+    description:
+      "Create a direct crypto payment that returns a QR code and wallet address. Use this for in-app payment flows where you handle the UI. Works with just your API key (userless mode) — no customer creation needed. Optionally include a customer Bearer token for per-customer tracking. For XRP/RLUSD, the response includes a destination_tag that must be displayed to the customer. The response also embeds the same first-class `payment` object as the other create/status endpoints (crypto amounts are strings to avoid float drift; fiat amounts are numbers).",
+    auth: "api-key-optional-bearer",
+    headers: [
+      { name: "x-api-key", value: "your_api_key", description: "Your Dynopay API key" },
+      { name: "Authorization", value: "Bearer {customer_token}", description: "(Optional) Token from Create Customer — omit for userless mode" },
+      { name: "Content-Type", value: "application/json", description: "" },
+    ],
+    body: [
+      { name: "amount", type: "number", required: true, description: "Amount in your base fiat currency" },
+      { name: "currency", type: "string", required: true, description: 'Crypto to pay with, e.g. "BTC", "ETH", "USDT"' },
+      { name: "redirect_uri", type: "string", required: false, description: "Redirect URL after completion" },
+      { name: "fee_payer", type: "string", required: false, description: '"company" (default) or "customer"' },
+      { name: "accepted_currencies", type: "string[]", required: false, description: "Limit accepted cryptos" },
+      { name: "webhook_url", type: "string", required: false, description: "Webhook URL for payment events" },
+      { name: "callback_url", type: "string", required: false, description: "Callback URL for updates" },
+      { name: "meta_data", type: "object", required: false, description: "Custom metadata" },
+      { name: "topUp", type: "boolean", required: false, description: "Set true for wallet top-up flow" },
+    ],
+    requestExample: `{
+  "amount": 25.00,
+  "currency": "BTC",
+  "redirect_uri": "https://yoursite.com/done",
+  "meta_data": { "invoice_id": "INV-789" }
+}`,
+    responseExample: `{
+  "success": true,
+  "message": "Payment Created!",
+  "data": {
+    "transaction_id": "txn_abc123...",
+    "qr_code": "data:image/png;base64,...",
+    "address": "bc1q...",
+    "amount": 0.00042,
+    "currency": "BTC",
+    "base_amount": 25.00,
+    "base_currency": "USD",
+    "redirect_uri": "https://yoursite.com/done",
+    "payment": {
+      "id": "txn_abc123...",
+      "object": "payment",
+      "status": "waiting",
+      "hosted_url": null,
+      "amount": 25,
+      "currency": "USD",
+      "crypto": {
+        "amount": "0.00042",
+        "currency": "BTC",
+        "address": "bc1q..."
+      },
+      "fee": null,
+      "tax_amount": null,
+      "expires_at": null,
+      "metadata": null,
+      "created_at": "2026-03-06T12:00:00.000Z",
+      "updated_at": null,
+      "redirect_url": "https://yoursite.com/done"
+    }
+  }
+}`,
+  },
+  {
+    id: "add-funds",
+    method: "POST",
+    path: "/addFunds",
+    title: "Add Funds to Wallet",
+    description: "Add funds to a customer's wallet via a hosted checkout. Returns a redirect URL for the customer to complete the deposit. Works with just your API key (userless mode) or with a customer Bearer token for per-customer wallets.",
+    auth: "api-key-optional-bearer",
+    headers: [
+      { name: "x-api-key", value: "your_api_key", description: "Your Dynopay API key" },
+      { name: "Authorization", value: "Bearer {customer_token}", description: "(Optional) Token from Create Customer — omit for userless mode" },
+      { name: "Content-Type", value: "application/json", description: "" },
+    ],
+    body: [
+      { name: "amount", type: "number", required: true, description: "Deposit amount (min 5)" },
+      { name: "redirect_uri", type: "string", required: true, description: "URL to redirect after deposit" },
+      { name: "fee_payer", type: "string", required: false, description: '"company" (default) or "customer"' },
+    ],
+    requestExample: `{
+  "amount": 100.00,
+  "redirect_uri": "https://yoursite.com/wallet",
+  "fee_payer": "company"
+}`,
+    responseExample: `{
+  "success": true,
+  "message": "Link Generated!",
+  "data": {
+    "redirect_url": "https://checkout.dynopay.com/pay?d=xyz789...",
+    "fee_payer": "company",
+    "available_currencies": ["BTC", "ETH", "USDT", "LTC"]
+  }
+}`,
+  },
+  {
+    id: "use-wallet",
+    method: "POST",
+    path: "/useWallet",
+    title: "Debit from Wallet",
+    description: "Debit a specified amount from a customer's wallet balance. Creates a debit transaction record. Works with just your API key (userless mode) or with a customer Bearer token.",
+    auth: "api-key-optional-bearer",
+    headers: [
+      { name: "x-api-key", value: "your_api_key", description: "Your Dynopay API key" },
+      { name: "Authorization", value: "Bearer {customer_token}", description: "(Optional) Token from Create Customer — omit for userless mode" },
+      { name: "Content-Type", value: "application/json", description: "" },
+    ],
+    body: [{ name: "amount", type: "number", required: true, description: "Amount to debit from wallet" }],
+    requestExample: `{
+  "amount": 15.00
+}`,
+    responseExample: `{
+  "success": true,
+  "message": "amount debited successfully!",
+  "data": {
+    "new_balance": "85.00",
+    "transaction_id": "txn_def456..."
+  }
+}`,
+  },
+  {
+    id: "get-balance",
+    method: "GET",
+    path: "/getBalance",
+    title: "Get Wallet Balance",
+    description: "Retrieve the current wallet balance for a customer. Works with just your API key (userless mode) or with a customer Bearer token.",
+    auth: "api-key-optional-bearer",
+    headers: [
+      { name: "x-api-key", value: "your_api_key", description: "Your Dynopay API key" },
+      { name: "Authorization", value: "Bearer {customer_token}", description: "(Optional) Token from Create Customer — omit for userless mode" },
+    ],
+    responseExample: `{
+  "success": true,
+  "message": "Balance retrieved",
+  "data": [{ "wallet_type": "USD", "amount": 85.00 }]
+}`,
+  },
+  {
+    id: "get-transactions",
+    method: "GET",
+    path: "/getTransactions",
+    title: "List Transactions",
+    description: "Get transaction history for a customer, including auto-conversion details. Supports cursor pagination: pass a `limit` and page forward by sending the previous response's `next_cursor` as `starting_after`. The top-level `has_more` tells you when to stop. Legacy `page`/`limit` offset paging still works unchanged. Works with just your API key (userless mode) or with a customer Bearer token.",
+    auth: "api-key-optional-bearer",
+    headers: [
+      { name: "x-api-key", value: "your_api_key", description: "Your Dynopay API key" },
+      { name: "Authorization", value: "Bearer {customer_token}", description: "(Optional) Token from Create Customer — omit for userless mode" },
+    ],
+    queryParams: [
+      { name: "limit", type: "number", required: false, description: "Results per page (1–100, default: 10)" },
+      { name: "starting_after", type: "string", required: false, description: "Cursor for keyset pagination — returns the results immediately after this transaction id. Use the previous response's next_cursor. Stable when new payments arrive; preferred over page." },
+      { name: "page", type: "number", required: false, description: "(Legacy) Offset page number (default: 1). Ignored when starting_after is supplied." },
+    ],
+    responseExample: `{
+  "success": true,
+  "data": [{
+    "id": "txn_abc123...",
+    "base_amount": "50.00",
+    "paid_currency": "BTC",
+    "payment_status": "settled",
+    "auto_converted": true,
+    "createdAt": "2026-03-06T12:00:00.000Z"
+  }],
+  "display_currency": "USD",
+  "has_more": true,
+  "next_cursor": "txn_abc123...",
+  "limit": 10
+}`,
+  },
+  {
+    id: "get-single-transaction",
+    method: "GET",
+    path: "/getSingleTransaction/:id",
+    title: "Get Transaction Details",
+    description: "Retrieve full details for a single transaction by its ID. Works with just your API key (userless mode) or with a customer Bearer token.",
+    auth: "api-key-optional-bearer",
+    headers: [
+      { name: "x-api-key", value: "your_api_key", description: "Your Dynopay API key" },
+      { name: "Authorization", value: "Bearer {customer_token}", description: "(Optional) Token from Create Customer — omit for userless mode" },
+    ],
+    pathParams: [{ name: "id", type: "string", description: "The transaction ID" }],
+    responseExample: `{
+  "success": true,
+  "data": {
+    "id": "txn_abc123...",
+    "base_amount": "50.00",
+    "paid_currency": "BTC",
+    "payment_status": "completed",
+    "transaction_type": "CREDIT",
+    "createdAt": "2025-03-06T12:00:00.000Z"
+  }
+}`,
+  },
+  {
+    id: "get-crypto-transaction",
+    method: "GET",
+    path: "/getCryptoTransaction/:address",
+    title: "Verify Crypto Payment",
+    description: "Verify a crypto payment by its blockchain deposit address. Use this to poll payment status. Works with just your API key (userless mode) or with a customer Bearer token. Tip: for webhook re-verification prefer GET /getPaymentStatus/:payment_id, which is keyed on the immutable payment_id (not a reusable address) and stays correct after the checkout session expires.",
+    auth: "api-key-optional-bearer",
+    headers: [
+      { name: "x-api-key", value: "your_api_key", description: "Your Dynopay API key" },
+      { name: "Authorization", value: "Bearer {customer_token}", description: "(Optional) Token from Create Customer — omit for userless mode" },
+    ],
+    pathParams: [{ name: "address", type: "string", description: "The deposit address from cryptoPayment response" }],
+    responseExample: `{
+  "success": true,
+  "data": { "status": "completed", "amount": 0.00084, "currency": "BTC", "confirmations": 3 }
+}`,
+  },
+  {
+    id: "get-payment-status",
+    method: "GET",
+    path: "/getPaymentStatus/:payment_id",
+    title: "Verify Payment by ID (recommended)",
+    description:
+      "Verify a payment by its unique payment_id (the id returned by /cryptoPayment). Recommended for confirming payments when you receive a webhook: it is keyed on the immutable payment_id — not a reusable deposit address — and returns the authoritative status straight from the database, so it stays correct even after the checkout session expires. payment_status is one of: waiting, pending, confirmed, processing, settled, underpaid, failed, expired, refunded. Funds have reached your merchant wallet when payment_status is \"settled\" (or is_paid is true). Works with just your API key (userless mode) or with a customer Bearer token.",
+    auth: "api-key-optional-bearer",
+    headers: [
+      { name: "x-api-key", value: "your_api_key", description: "Your Dynopay API key" },
+      { name: "Authorization", value: "Bearer {customer_token}", description: "(Optional) Token from Create Customer — omit for userless mode" },
+    ],
+    pathParams: [{ name: "payment_id", type: "string", description: "The payment_id from the cryptoPayment response" }],
+    responseExample: `{
+  "success": true,
+  "message": "Payment status retrieved",
+  "data": {
+    "payment_id": "0f3a89a2-27bc-4729-898c-d03492854540",
+    "payment_status": "settled",
+    "is_paid": true,
+    "amount": 69,
+    "currency": "USDT-ERC20",
+    "base_amount": 69,
+    "base_currency": "USD",
+    "usd_value": 69,
+    "fee": 1.69,
+    "confirmations": 12,
+    "incoming_tx_hash": "0x3cfa5acc...",
+    "outgoing_tx_hash": "0xd57f5f52...",
+    "created_at": "2026-08-29T17:08:34.000Z",
+    "updated_at": "2026-08-29T17:11:40.000Z",
+    "payment": {
+      "id": "0f3a89a2-27bc-4729-898c-d03492854540",
+      "object": "payment",
+      "status": "settled",
+      "hosted_url": null,
+      "amount": 69,
+      "currency": "USD",
+      "crypto": {
+        "amount": "69",
+        "currency": "USDT-ERC20"
+      },
+      "fee": 1.69,
+      "tax_amount": null,
+      "expires_at": null,
+      "metadata": null,
+      "created_at": "2026-08-29T17:08:34.000Z",
+      "updated_at": "2026-08-29T17:11:40.000Z",
+      "redirect_url": null,
+      "auto_converted": false
+    }
+  }
+}`,
+  },
+  {
+    id: "get-supported-currency",
+    method: "GET",
+    path: "/getSupportedCurrency",
+    title: "Get Supported Currencies",
+    description: "Get the list of cryptocurrencies configured for your merchant account.",
+    auth: "api-key",
+    headers: [{ name: "x-api-key", value: "your_api_key", description: "Your Dynopay API key" }],
+    responseExample: `{
+  "success": true,
+  "data": {
+    "currencies": ["BTC", "ETH", "USDT", "LTC"],
+    "all_supported": ["BTC", "ETH", "USDT", "LTC", "XRP", "BCH", "RLUSD", "SOL"]
+  }
+}`,
+  },
+  {
+    id: "admin-credit-wallet",
+    method: "POST",
+    path: "/customers/:customerId/credit",
+    title: "Credit Customer Wallet",
+    description:
+      "Add store credit to a customer's wallet using your API key — handy for refunds, rewards, promos, or programmatic top-ups. Creates a CREDIT ledger entry. The same balance is visible and adjustable in your dashboard under Customers → customer → Store credit balance.",
+    auth: "api-key",
+    headers: [
+      { name: "x-api-key", value: "your_api_key", description: "Your Dynopay API key" },
+      { name: "Content-Type", value: "application/json", description: "" },
+    ],
+    pathParams: [{ name: "customerId", type: "number", description: "The customer ID (numeric customer_id, not UUID)" }],
+    body: [
+      { name: "amount", type: "number", required: true, description: "Amount to credit to wallet (must be positive)" },
+      { name: "description", type: "string", required: true, description: "Reason or description for the credit" },
+    ],
+    requestExample: `{
+  "amount": 50.00,
+  "description": "Refund for order #12345"
+}`,
+    responseExample: `{
+  "success": true,
+  "message": "Wallet credited successfully",
+  "data": {
+    "customer_id": "123",
+    "previous_balance": "100.00",
+    "amount_credited": "50.00",
+    "new_balance": "150.00",
+    "currency": "USD"
+  }
+}`,
+  },
+  {
+    id: "admin-debit-wallet",
+    method: "POST",
+    path: "/customers/:customerId/debit",
+    title: "Debit Customer Wallet",
+    description:
+      "Deduct store credit from a customer's wallet using your API key — useful for service fees or programmatic adjustments. Validates sufficient balance before debiting and creates a DEBIT ledger entry.",
+    auth: "api-key",
+    headers: [
+      { name: "x-api-key", value: "your_api_key", description: "Your Dynopay API key" },
+      { name: "Content-Type", value: "application/json", description: "" },
+    ],
+    pathParams: [{ name: "customerId", type: "number", description: "The customer ID (numeric customer_id, not UUID)" }],
+    body: [
+      { name: "amount", type: "number", required: true, description: "Amount to debit from wallet (must be positive)" },
+      { name: "description", type: "string", required: true, description: "Reason or description for the debit" },
+    ],
+    requestExample: `{
+  "amount": 25.00,
+  "description": "Service fee for premium support"
+}`,
+    responseExample: `{
+  "success": true,
+  "message": "Wallet debited successfully",
+  "data": {
+    "customer_id": "123",
+    "previous_balance": "150.00",
+    "amount_debited": "25.00",
+    "new_balance": "125.00",
+    "currency": "USD"
+  }
+}`,
+  },
+  {
+    id: "get-events",
+    method: "GET",
+    path: "/events",
+    title: "List Webhook Events",
+    description:
+      "Reconcile webhook deliveries. Lists the events Dynopay has sent to your endpoints (from the delivery log) so you can catch up on anything your server missed — no need to poll getPaymentStatus per payment. Cursor-paginated; filter by `type` (event name) and `status`. Scoped to your API key's brand.",
+    auth: "api-key",
+    headers: [{ name: "x-api-key", value: "your_api_key", description: "Your Dynopay API key" }],
+    queryParams: [
+      { name: "limit", type: "number", required: false, description: "Results per page (1–100, default: 20)" },
+      { name: "starting_after", type: "string", required: false, description: "Cursor — return events after this event id (use the previous response's next_cursor)" },
+      { name: "type", type: "string", required: false, description: "Filter by event name, e.g. payment.confirmed" },
+      { name: "status", type: "string", required: false, description: '"success" or "failed"' },
+    ],
+    responseExample: `{
+  "success": true,
+  "data": [{
+    "id": 1425,
+    "object": "event",
+    "event": "payment.settled",
+    "webhook_id": "8f3a1c2d...",
+    "url": "https://yoursite.com/webhooks/dynopay",
+    "status": "success",
+    "response_status": 200,
+    "response_time_ms": 143,
+    "attempts": 0,
+    "error": null,
+    "created_at": "2026-06-12T18:31:10.523Z",
+    "completed_at": "2026-06-12T18:31:10.666Z"
+  }],
+  "has_more": true,
+  "next_cursor": "1423",
+  "limit": 20
+}`,
+  },
+  {
+    id: "resend-event",
+    method: "POST",
+    path: "/events/:id/resend",
+    title: "Resend a Webhook Event",
+    description:
+      "Re-deliver a single event to its original URL — handy after your endpoint was briefly down. The resend carries a fresh webhook_id, timestamp and signature (signed with your current webhook secret). Scoped to your API key's brand.",
+    auth: "api-key",
+    headers: [{ name: "x-api-key", value: "your_api_key", description: "Your Dynopay API key" }],
+    pathParams: [{ name: "id", type: "number", description: "The event id from List Webhook Events" }],
+    responseExample: `{
+  "success": true,
+  "message": "Event resent",
+  "data": {
+    "id": 1425,
+    "event": "payment.settled",
+    "url": "https://yoursite.com/webhooks/dynopay",
+    "resent": true,
+    "error": null
+  }
+}`,
+  },
+];
+
+const SECTIONS: Section[] = [
+  { id: "overview", title: "Overview", icon: <CodeIcon /> },
+  { id: "getting-started", title: "Getting Started", icon: <CodeIcon /> },
+  { id: "try-it", title: "Try It Live", icon: <PaymentIcon /> },
+  { id: "authentication", title: "Authentication", icon: <ShieldOutlinedIcon /> },
+  { id: "customers", title: "Customers", icon: <PersonAddAlt1Icon />, endpoints: ["create-user"] },
+  { id: "payments", title: "Payments", icon: <PaymentIcon />, endpoints: ["create-payment", "crypto-payment"] },
+  { id: "embed", title: "Embedded Checkout", icon: <CodeIcon />, endpoints: ["embed-session"] },
+  { id: "elements", title: "Elements Inline Widget", icon: <CodeIcon />, endpoints: ["elements-intent", "elements-select-currency", "elements-status"] },
+  { id: "wallets", title: "Wallets", icon: <AccountBalanceWalletIcon />, endpoints: ["add-funds", "use-wallet", "get-balance"] },
+  { id: "transactions", title: "Transactions", icon: <ReceiptLongIcon />, endpoints: ["get-transactions", "get-single-transaction", "get-crypto-transaction", "get-payment-status"] },
+  { id: "events", title: "Webhook Events", icon: <NotificationsActiveIcon />, endpoints: ["get-events", "resend-event"] },
+  { id: "currencies", title: "Currencies", icon: <CurrencyExchangeIcon />, endpoints: ["get-supported-currency"] },
+  { id: "wallet-management", title: "Customer Wallet Adjustments", icon: <AccountBalanceWalletIcon />, endpoints: ["admin-credit-wallet", "admin-debit-wallet"] },
+  { id: "payment-statuses", title: "Payment Statuses", icon: <ReceiptLongIcon /> },
+  { id: "buy-button", title: "Buy Button", icon: <CodeIcon /> },
+  { id: "webhooks", title: "Webhooks", icon: <NotificationsActiveIcon /> },
+  { id: "rate-limits", title: "Rate Limits", icon: <SpeedIcon /> },
+  { id: "errors", title: "Error Handling", icon: <WarningAmberIcon /> },
+];
+
+/* Getting Started — "Quick Example" in multiple languages (curl / Node / Python).
+   Kept in sync: all three create the same checkout payment with just an API key. */
+const GS_EXAMPLES: Record<"curl" | "node" | "python", string> = {
+  curl: `# Create a checkout payment — just your API key, no customer setup!
+curl -X POST https://dynopay.com/api/user/createPayment \\
+  -H "x-api-key: your_api_key" \\
+  -H "Content-Type: application/json" \\
+  -d '{"amount": 50, "redirect_uri": "https://yoursite.com/thanks"}'
+
+# Or create a direct crypto payment with QR code:
+curl -X POST https://dynopay.com/api/user/cryptoPayment \\
+  -H "x-api-key: your_api_key" \\
+  -H "Content-Type: application/json" \\
+  -d '{"amount": 25, "currency": "BTC", "redirect_uri": "https://yoursite.com/done"}'
+
+# Optional: Create a customer for per-customer tracking
+curl -X POST https://dynopay.com/api/user/createUser \\
+  -H "x-api-key: your_api_key" \\
+  -H "Content-Type: application/json" \\
+  -d '{"name": "Jane Smith", "email": "jane@example.com"}'`,
+  node: `// Node.js 18+ (built-in fetch) — no dependencies needed
+const API_KEY = "your_api_key";
+const base = "https://dynopay.com/api/user";
+
+// 1. Create a checkout payment — just your API key, no customer setup!
+const res = await fetch(\`\${base}/createPayment\`, {
+  method: "POST",
+  headers: {
+    "x-api-key": API_KEY,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({ amount: 50, redirect_uri: "https://yoursite.com/thanks" }),
+});
+const data = await res.json();
+console.log("Send your customer here:", data.checkout_url);
+
+// 2. Or create a direct crypto payment with QR code:
+const crypto = await fetch(\`\${base}/cryptoPayment\`, {
+  method: "POST",
+  headers: { "x-api-key": API_KEY, "Content-Type": "application/json" },
+  body: JSON.stringify({ amount: 25, currency: "BTC", redirect_uri: "https://yoursite.com/done" }),
+}).then((r) => r.json());
+console.log(crypto);`,
+  python: `# Python 3 — pip install requests
+import requests
+
+API_KEY = "your_api_key"
+BASE = "https://dynopay.com/api/user"
+headers = {"x-api-key": API_KEY}
+
+# 1. Create a checkout payment — just your API key, no customer setup!
+res = requests.post(
+    f"{BASE}/createPayment",
+    headers=headers,
+    json={"amount": 50, "redirect_uri": "https://yoursite.com/thanks"},
+)
+data = res.json()
+print("Send your customer here:", data.get("checkout_url"))
+
+# 2. Or create a direct crypto payment with QR code:
+crypto = requests.post(
+    f"{BASE}/cryptoPayment",
+    headers=headers,
+    json={"amount": 25, "currency": "BTC", "redirect_uri": "https://yoursite.com/done"},
+).json()
+print(crypto)`,
+};
+
+/* ================================================================
+   HELPER COMPONENTS
+   ================================================================ */
+
+const CopyButton = memo(({ text }: { text: string }) => {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = useCallback(() => {
+    const done = () => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    };
+    copyToClipboard(text).then(done).catch(done);
+  }, [text]);
+  return (
+    <>
+      <CopyBtn
+        onClick={handleCopy}
+        aria-label={copied ? "Copied to clipboard" : "Copy code to clipboard"}
+        aria-live="off"
+        style={copied ? { background: "rgba(34,197,94,0.2)", borderColor: "#22C55E" } : undefined}
+      >
+        {copied ? <><CheckIcon sx={{ fontSize: 12 }} /> Copied</> : <><ContentCopyIcon sx={{ fontSize: 12 }} /> Copy</>}
+      </CopyBtn>
+      {/* F15: screen-reader-only live region announces copy success */}
+      <span
+        role="status"
+        aria-live="polite"
+        style={{
+          position: "absolute",
+          width: 1,
+          height: 1,
+          padding: 0,
+          margin: -1,
+          overflow: "hidden",
+          clip: "rect(0,0,0,0)",
+          whiteSpace: "nowrap",
+          border: 0,
+        }}
+      >
+        {copied ? "Copied to clipboard" : ""}
+      </span>
+    </>
+  );
+});
+CopyButton.displayName = "CopyButton";
+
+const CodeBlock = memo(({ code, lang }: { code: string; lang?: string }) => (
+  <CodeBlockWrapper>
+    <CopyButton text={code} />
+    <Pre>
+      {lang && <span style={{ color: "#6C7086", fontSize: 11, display: "block", marginBottom: 8 }}>{lang}</span>}
+      <code>{code}</code>
+    </Pre>
+  </CodeBlockWrapper>
+));
+CodeBlock.displayName = "CodeBlock";
+
+const ParamTable = memo(({ title, params }: { title: string; params: { name: string; type: string; required?: boolean; description: string }[] }) => {
+  const theme = useTheme();
+  const dk = theme.palette.mode === "dark";
+  const borderClr = dk ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)";
+  const headBg = dk ? "rgba(129,140,248,0.04)" : "#F8F9FC";
+  return (
+    <Box sx={{ mb: 2.5 }}>
+      <Typography sx={{ fontSize: 13, fontWeight: 600, fontFamily: "var(--font-hero), var(--font-sans)", color: "text.primary", mb: 1 }}>{title}</Typography>
+      <TableWrapper>
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+          <thead>
+            <tr style={{ background: headBg }}>
+              {["Parameter", "Type", "Description"].map((h) => (
+                <th key={h} style={{ textAlign: "left", padding: "10px 16px", fontWeight: 500, fontFamily: "var(--font-sans)", color: dk ? "#C8CAD5" : "#374151", borderBottom: `1px solid ${borderClr}`, fontSize: 12 }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {params.map((p, i) => (
+              <tr key={p.name} style={{ borderBottom: i < params.length - 1 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
+                <td style={{ padding: "10px 16px" }}>
+                  <code style={{ color: dk ? "#818CF8" : BRAND_ACCENT, fontWeight: 600, fontSize: 13, fontFamily: "var(--font-tech), monospace" }}>{p.name}</code>
+                  {"required" in p && p.required && <span style={{ color: "#EF4444", fontSize: 11, marginLeft: 6, fontFamily: "var(--font-sans)" }}>required</span>}
+                </td>
+                <td style={{ padding: "10px 16px" }}><code style={{ fontSize: 12, color: dk ? "#8B8FA0" : "#6B7280" }}>{p.type}</code></td>
+                <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)", fontSize: 13 }}>{p.description}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </TableWrapper>
+    </Box>
+  );
+});
+ParamTable.displayName = "ParamTable";
+
+const EndpointCard = memo(({ ep }: { ep: Endpoint }) => {
+  const [expanded, setExpanded] = useState(false);
+  const theme = useTheme();
+  const dk = theme.palette.mode === "dark";
+  return (
+    <EndpointCardWrapper id={ep.id}>
+      <EndpointHeader expanded={expanded} onClick={() => setExpanded((v) => !v)}>
+        <MethodBadgeStyled isGet={ep.method === "GET"}>{ep.method}</MethodBadgeStyled>
+        <Typography sx={{ fontFamily: "var(--font-tech), monospace", fontSize: 13, fontWeight: 500, color: "text.secondary", flex: 1 }}>
+          {ep.path.startsWith("/api/") ? ep.path : `${BASE_URL}${ep.path}`}
+        </Typography>
+        <Typography sx={{ fontSize: 14, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mr: 1, display: { xs: "none", md: "block" } }}>
+          {ep.title}
+        </Typography>
+        <AuthBadge authType={ep.auth}>{ep.auth === "publishable-key" ? "Publishable Key" : "API Key"}</AuthBadge>
+        <ExpandMoreIcon sx={{ fontSize: 20, color: "text.secondary", transform: expanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }} />
+      </EndpointHeader>
+      {expanded && (
+        <Box sx={{ px: 2.5, py: 2.5, borderTop: `1px solid ${dk ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}` }}>
+          <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", mb: 2, lineHeight: 1.7 }}>{ep.description}</Typography>
+          {/* Full production URL — so the correct host + /api prefix is visible where it matters */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2.5, px: 1.5, py: 1, borderRadius: "8px", background: dk ? "rgba(129,140,248,0.05)" : "#F5F6FA", border: `1px solid ${dk ? "rgba(255,255,255,0.10)" : "rgba(10,10,10,0.08)"}`, overflowX: "auto" }}>
+            <Typography component="span" sx={{ fontSize: 11, fontWeight: 700, fontFamily: "var(--font-sans)", color: "text.secondary", flexShrink: 0 }}>{ep.method}</Typography>
+            <Typography component="code" sx={{ fontFamily: "var(--font-tech), monospace", fontSize: 12.5, color: "text.primary", whiteSpace: "nowrap" }}>
+              {`https://dynopay.com${ep.path.startsWith("/api/") ? ep.path : `${BASE_URL}${ep.path}`}`}
+            </Typography>
+          </Box>
+          <ParamTable title="Headers" params={ep.headers.map((h) => ({ name: h.name, type: "string", description: h.description || h.value }))} />
+          {ep.pathParams && ep.pathParams.length > 0 && <ParamTable title="Path Parameters" params={ep.pathParams} />}
+          {ep.queryParams && ep.queryParams.length > 0 && <ParamTable title="Query Parameters" params={ep.queryParams} />}
+          {ep.body && ep.body.length > 0 && <ParamTable title="Request Body" params={ep.body} />}
+          {ep.requestExample && (
+            <Box sx={{ mb: 2 }}>
+              <Typography sx={{ fontSize: 13, fontWeight: 600, fontFamily: "var(--font-hero), var(--font-sans)", color: "text.primary", mb: 1 }}>Request Example</Typography>
+              <CodeBlock code={ep.requestExample} lang="json" />
+            </Box>
+          )}
+          <Box>
+            <Typography sx={{ fontSize: 13, fontWeight: 600, fontFamily: "var(--font-hero), var(--font-sans)", color: "text.primary", mb: 1 }}>Response Example</Typography>
+            <CodeBlock code={ep.responseExample} lang="json" />
+          </Box>
+        </Box>
+      )}
+    </EndpointCardWrapper>
+  );
+});
+EndpointCard.displayName = "EndpointCard";
+
+/* ================================================================
+   MAIN PAGE
+   ================================================================ */
+
+const DocumentationPage = () => {
+  const theme = useTheme();
+  const isMobile = useIsMobile("md");
+  const dk = theme.palette.mode === "dark";
+  const router = useRouter();
+  const [activeSection, setActiveSection] = useState("overview");
+  const [search, setSearch] = useState("");
+  const [showTop, setShowTop] = useState(false);
+  const [gsLang, setGsLang] = useState<"curl" | "node" | "python">("curl");
+
+  // Sections filtered by the search box (matches section title, endpoint title or path)
+  const filteredSections = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return SECTIONS;
+    return SECTIONS.filter((s) => {
+      if (s.title.toLowerCase().includes(q)) return true;
+      return (s.endpoints || []).some((epId) => {
+        const ep = ENDPOINTS.find((e) => e.id === epId);
+        return ep ? ep.title.toLowerCase().includes(q) || ep.path.toLowerCase().includes(q) : false;
+      });
+    });
+  }, [search]);
+
+  const endpointMap = useMemo(() => {
+    const map: Record<string, Endpoint> = {};
+    ENDPOINTS.forEach((ep) => { map[ep.id] = ep; });
+    return map;
+  }, []);
+
+  const scrollTo = useCallback((id: string) => {
+    setActiveSection(id);
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
+  // Track active section on scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowTop(window.scrollY > 600);
+      const sections = SECTIONS.map((s) => document.getElementById(s.id)).filter(Boolean);
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const el = sections[i];
+        if (el && el.getBoundingClientRect().top <= 120) {
+          setActiveSection(SECTIONS[i].id);
+          break;
+        }
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const borderClr = dk ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)";
+  const headBg = dk ? "rgba(129,140,248,0.04)" : "#F8F9FC";
+
+  const productCards = [
+    { title: "Checkout Payments", desc: "Hosted payment page — redirect customers to complete crypto payments in a few clicks.", icon: <PaymentIcon />, section: "payments" },
+    { title: "Direct Crypto API", desc: "Full control over the UI. Get wallet addresses and QR codes via API and build your own flow.", icon: <CodeIcon />, section: "payments" },
+    { title: "Customer Wallets", desc: "Create customer wallets, add funds, debit balances, and track transactions.", icon: <AccountBalanceWalletIcon />, section: "wallets" },
+    { title: "Webhooks", desc: "Receive real-time notifications when payments are confirmed, pending, or underpaid.", icon: <NotificationsActiveIcon />, section: "webhooks" },
+  ];
+
+  return (
+    <>
+      <PageWrapper>
+        {/* ===== HERO ===== */}
+        <PublicPageHero
+          testId="docs-hero"
+          compact
+          eyebrow="Developer Documentation"
+          title={
+            <>
+              Dynopay <AuroraInk>API Reference</AuroraInk>
+            </>
+          }
+          body="Everything you need to accept crypto payments, manage customer wallets, and track transactions programmatically."
+          actions={
+            <>
+              <PrimaryBtn data-testid="docs-hero-api-key" onClick={() => router.push("/auth/register?ref=docs_hero")} endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}>
+                Get your API key
+              </PrimaryBtn>
+              <Box data-testid="docs-base-url" sx={{ display: "inline-flex", alignItems: "center", gap: 1.5, background: dk ? "#0D0F1A" : "#1E1E2E", borderRadius: "999px", px: 2.25, py: 1.25, border: `1px solid ${dk ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.06)"}` }}>
+                <Typography sx={{ fontFamily: "var(--font-tech), monospace", fontSize: 12.5, color: "rgba(255,255,255,0.5)" }}>Base URL</Typography>
+                <Typography sx={{ fontFamily: "var(--font-tech), monospace", fontSize: 12.5, color: "#CDD6F4", fontWeight: 600 }}>https://dynopay.com/api/user</Typography>
+              </Box>
+            </>
+          }
+        />
+
+        {/* ===== PRODUCT CARDS ===== */}
+        <Container>
+          <Grid container spacing={2.5} sx={{ mt: { xs: 2, md: 3 }, mb: { xs: 6, md: 8 } }}>
+            {productCards.map((card) => (
+              <Grid key={card.title} item xs={12} sm={6} md={3}>
+                <ProductCard onClick={() => scrollTo(card.section)}>
+                  <ProductIcon>{card.icon}</ProductIcon>
+                  <Typography sx={{ fontSize: "16px", fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1 }}>
+                    {card.title}
+                  </Typography>
+                  <Typography sx={{ fontSize: "13px", fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: "20px", flex: 1 }}>
+                    {card.desc}
+                  </Typography>
+                  <Typography sx={{ fontSize: "13px", fontFamily: "var(--font-sans)", color: dk ? "#818CF8" : BRAND_ACCENT, mt: 2 }}>
+                    Learn more →
+                  </Typography>
+                </ProductCard>
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
+
+        {/* ===== SIDEBAR + CONTENT ===== */}
+        <Container>
+          <Box sx={{ display: "flex", gap: 5, pb: 10 }}>
+            {/* Sidebar */}
+            {!isMobile && (
+              <SidebarWrapper>
+                <SidebarLabel>Navigation</SidebarLabel>
+                {/* Search / filter */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    px: 1.25,
+                    py: 0.75,
+                    mb: 1.5,
+                    borderRadius: "10px",
+                    border: `1px solid ${borderClr}`,
+                    background: dk ? "rgba(255,255,255,0.04)" : "#F8F9FC",
+                  }}
+                >
+                  <SearchIcon sx={{ fontSize: 16, color: "text.secondary" }} />
+                  <InputBase
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Search docs…"
+                    sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.primary", flex: 1 }}
+                    inputProps={{ "aria-label": "Search documentation" }}
+                  />
+                </Box>
+                {filteredSections.length === 0 ? (
+                  <Typography sx={{ fontSize: 13, color: "text.secondary", fontFamily: "var(--font-sans)", px: 1, py: 1 }}>
+                    No matches for “{search}”.
+                  </Typography>
+                ) : (
+                  filteredSections.map((sec) => (
+                    <Box key={sec.id}>
+                      <SidebarItem active={activeSection === sec.id} onClick={() => scrollTo(sec.id)}>
+                        {sec.title}
+                      </SidebarItem>
+                      {sec.endpoints?.map((epId) => (
+                        <SubItem key={epId} onClick={() => scrollTo(epId)}>
+                          {endpointMap[epId]?.title}
+                        </SubItem>
+                      ))}
+                    </Box>
+                  ))
+                )}
+              </SidebarWrapper>
+            )}
+
+            {/* Main Content */}
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              {/* Mobile: sticky search + jump-to-section (replaces the desktop sidebar) */}
+              {isMobile && (
+                <Box
+                  sx={{
+                    position: "sticky",
+                    top: 64,
+                    zIndex: 20,
+                    mx: -2,
+                    px: 2,
+                    py: 1.25,
+                    mb: 3,
+                    backdropFilter: "blur(8px)",
+                    background: dk ? "rgba(13,15,26,0.92)" : "rgba(255,255,255,0.92)",
+                    borderBottom: `1px solid ${borderClr}`,
+                  }}
+                >
+                  <Autocomplete
+                    options={SECTIONS}
+                    value={SECTIONS.find((s) => s.id === activeSection) || null}
+                    onChange={(_, val) => { if (val) scrollTo(val.id); }}
+                    isOptionEqualToValue={(o, v) => o.id === v.id}
+                    getOptionLabel={(o) => o.title}
+                    blurOnSelect
+                    size="small"
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        placeholder="Search or jump to a section…"
+                        InputProps={{
+                          ...params.InputProps,
+                          startAdornment: <SearchIcon sx={{ fontSize: 18, color: "text.secondary", ml: 0.5, mr: 0.25 }} />,
+                        }}
+                      />
+                    )}
+                  />
+                </Box>
+              )}
+
+              {/* Overview */}
+              <Box id="overview" sx={{ mb: 8, scrollMarginTop: "100px" }}>
+                <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5 }}>
+                  Overview
+                </Typography>
+                <Typography sx={{ fontSize: 15, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.8, mb: 3 }}>
+                  Dynopay provides a simple API to accept cryptocurrency payments, manage customer wallets, and track transactions. Payments are forwarded to your configured wallet as soon as they confirm on-chain, with transparent fees. Every endpoint on this page is a <strong>merchant</strong> endpoint — authenticated with your API key.
+                </Typography>
+
+                <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1 }}>
+                  Base URL
+                </Typography>
+                <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mb: 1.5 }}>
+                  All merchant endpoints are relative to the base URL below. A path shown as <code>/createPayment</code> is called at <code>https://dynopay.com/api/user/createPayment</code>.
+                </Typography>
+                <CodeBlock lang="bash" code={`https://dynopay.com/api/user`} />
+
+                <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1, mt: 3 }}>
+                  Ways to accept payments
+                </Typography>
+                <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mb: 1.5 }}>
+                  Pick whichever fits your stack — every method settles the same way (crypto in, forwarded to your wallet, webhook fired on status change). No code? Start with a Payment Link or a Buy Button.
+                </Typography>
+                <Box component="ul" sx={{ pl: 2.5, m: 0, mb: 3, "& li": { fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.9 } }}>
+                  <li><strong>Hosted Checkout</strong> — call <code>Create Checkout Payment</code>, get a <code>checkout_url</code>, and redirect the buyer to a Dynopay-hosted page. Zero front-end work. See <strong>Payments</strong>.</li>
+                  <li><strong>Payment Links</strong> — create a reusable link in the dashboard (or via API) and share it by email, chat, or QR — e.g. <code>dynopay.com/aBc123</code>. Great for invoices and one-off requests, no site needed.</li>
+                  <li><strong>Buy Button</strong> — drop a <code>&lt;dynopay-buy-button&gt;</code> snippet on any page (Webflow, WordPress, plain HTML). A “Buy Now” button opens checkout in a modal. See <strong>Buy Button</strong> below.</li>
+                  <li><strong>Direct API</strong> — call <code>Create Direct Crypto Payment</code> to get an address + QR and render your own pay screen. Full control. See <strong>Payments</strong>.</li>
+                  <li><strong>Embedded Checkout (iframe)</strong> — mount the full checkout inside your page with <code>embed.js</code> + a server-created session. See <strong>Embedded Checkout</strong>.</li>
+                  <li><strong>Elements</strong> — render the pay UI (currency picker, address, QR, live status) directly in your DOM, no iframe. See <strong>Elements Inline Widget</strong>.</li>
+                  <li><strong>Webhooks</strong> — required for reliable fulfilment: Dynopay POSTs your server the moment a payment’s status changes. See <strong>Webhooks</strong>.</li>
+                </Box>
+
+                <InfoBox>
+                  <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1 }}>Multiple brands, one account</Typography>
+                  <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7 }}>
+                    Run several businesses or brands from a single Dynopay login — each with its own wallets, checkout and settlement. Pass a <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>company_id</code> when creating payments, links or keys to scope them to a specific brand, and switch between brands in the dashboard with one click.
+                  </Typography>
+                </InfoBox>
+
+                <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1, mt: 3 }}>
+                  When to use each section
+                </Typography>
+                <Box component="ul" sx={{ pl: 2.5, m: 0, mb: 3, "& li": { fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.9 } }}>
+                  <li><strong>Customers</strong> — optional. Create a customer to track payments and balances per buyer. Skip it for one-off “userless” checkouts.</li>
+                  <li><strong>Payments</strong> — the core of the API. Create a hosted checkout or a direct crypto payment and the buyer pays in crypto.</li>
+                  <li><strong>Wallets</strong> — top up, debit, and check a customer’s wallet balance.</li>
+                  <li><strong>Customer Wallet Adjustments</strong> — credit or debit a customer’s store-credit balance programmatically (refunds, rewards, fees).</li>
+                  <li><strong>Transactions</strong> — look up payment and transaction history.</li>
+                  <li><strong>Currencies</strong> — list the cryptocurrencies you can accept.</li>
+                  <li><strong>Webhooks</strong> — get notified the moment a payment’s status changes.</li>
+                </Box>
+
+                <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5, mt: 3 }}>
+                  A typical payment, end to end
+                </Typography>
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, mb: 3 }}>
+                  {[
+                    { step: "1", title: "Create a payment", desc: "Call Create Checkout Payment with your API key and an amount. You get back a checkout URL." },
+                    { step: "2", title: "Send the buyer to checkout", desc: "Redirect the buyer to the returned URL. They pick a cryptocurrency and pay." },
+                    { step: "3", title: "Funds forward to your wallet", desc: "Once the payment confirms on-chain, funds are forwarded to your configured wallet, minus transparent fees." },
+                    { step: "4", title: "Get notified via webhook", desc: "Dynopay posts a webhook to your server with the final status, so you can fulfil the order automatically." },
+                  ].map((s) => (
+                    <StepCard key={s.step}>
+                      <StepNumber>{s.step}</StepNumber>
+                      <Box>
+                        <Typography sx={{ fontWeight: 500, fontFamily: "var(--font-sans)", fontSize: 15, color: "text.primary", mb: 0.3 }}>{s.title}</Typography>
+                        <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.6 }}>{s.desc}</Typography>
+                      </Box>
+                    </StepCard>
+                  ))}
+                </Box>
+
+                <InfoBox>
+                  <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1 }}>Quick Integration</Typography>
+                  <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7 }}>
+                    Most integrations only need two API calls: <strong>Create Customer</strong> → <strong>Create Payment</strong>. The customer pays in crypto, and funds forward to your wallet once the payment confirms.
+                  </Typography>
+                </InfoBox>
+              </Box>
+
+              {/* Getting Started */}
+              <Box id="getting-started" sx={{ mb: 8, scrollMarginTop: "100px" }}>
+                <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5 }}>
+                  Getting Started
+                </Typography>
+                <Typography sx={{ fontSize: 15, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.8, mb: 3 }}>
+                  Integrate Dynopay in just two steps — no customer creation needed:
+                </Typography>
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 4 }}>
+                  {[
+                    { step: "1", title: "Get your API Key", desc: 'Go to your Dynopay dashboard → API section → "Create New Key". You\'ll receive an API key for authenticating requests.' },
+                    { step: "2", title: "Create a Payment", desc: "Use the Checkout Payment or Direct Crypto Payment endpoint with just your API key. No customer creation needed. The customer pays in crypto and funds forward to your wallet once the payment confirms." },
+                  ].map((s) => (
+                    <StepCard key={s.step}>
+                      <StepNumber>{s.step}</StepNumber>
+                      <Box>
+                        <Typography sx={{ fontWeight: 500, fontFamily: "var(--font-sans)", fontSize: 15, color: "text.primary", mb: 0.3 }}>{s.title}</Typography>
+                        <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.6 }}>{s.desc}</Typography>
+                      </Box>
+                    </StepCard>
+                  ))}
+                </Box>
+                <Typography sx={{ fontSize: 13, fontWeight: 600, fontFamily: "var(--font-hero), var(--font-sans)", color: "text.primary", mb: 1 }}>Quick Example (Userless — API Key Only)</Typography>
+                {/* Language tabs */}
+                <Box role="tablist" aria-label="Code language" sx={{ display: "flex", gap: 0.5, mb: 1.25, flexWrap: "wrap" }}>
+                  {([
+                    { key: "curl", label: "cURL" },
+                    { key: "node", label: "Node.js" },
+                    { key: "python", label: "Python" },
+                  ] as const).map((tab) => {
+                    const active = gsLang === tab.key;
+                    return (
+                      <Box
+                        key={tab.key}
+                        component="button"
+                        type="button"
+                        role="tab"
+                        aria-selected={active}
+                        data-testid={`gs-lang-${tab.key}`}
+                        onClick={() => setGsLang(tab.key)}
+                        sx={{
+                          cursor: "pointer",
+                          border: `1px solid ${active ? (dk ? "#818CF8" : BRAND_ACCENT) : borderClr}`,
+                          background: active ? (dk ? "rgba(129,140,248,0.12)" : "#0A0A0A") : "transparent",
+                          color: active ? ("#FFFFFF") : "text.secondary",
+                          fontFamily: "var(--font-sans)",
+                          fontSize: 12.5,
+                          fontWeight: 600,
+                          px: 1.5,
+                          py: 0.6,
+                          borderRadius: "8px",
+                          transition: "all 0.15s ease",
+                        }}
+                      >
+                        {tab.label}
+                      </Box>
+                    );
+                  })}
+                </Box>
+                <CodeBlock
+                  lang={gsLang === "curl" ? "bash" : gsLang === "node" ? "javascript" : "python"}
+                  code={GS_EXAMPLES[gsLang]}
+                />
+              </Box>
+
+              {/* Try It Live — sandbox playground (no account needed) */}
+              <Box id="try-it" sx={{ mb: 8, scrollMarginTop: "100px" }}>
+                <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5 }}>
+                  Try It Live
+                </Typography>
+                <Typography sx={{ fontSize: 15, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.8, mb: 3 }}>
+                  Run this request right now — no signup and no API key setup. It hits our public <strong>sandbox</strong> endpoint, returns an ephemeral payment link and never touches real funds or your data. Rate-limited per IP.
+                </Typography>
+                <Typography sx={{ fontSize: 13, fontWeight: 600, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1 }}>Request</Typography>
+                <CodeBlock lang="bash" code={SANDBOX_CURL} />
+                <Typography sx={{ fontSize: 13, fontWeight: 600, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1, mt: 2.5 }}>Sample response</Typography>
+                <CodeBlock lang="json" code={SANDBOX_RESPONSE} />
+                <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mt: 2 }}>
+                  The sandbox key <code style={{ fontSize: 12 }}>{SANDBOX_KEY}</code> is public and only works on this endpoint. When you are ready to go live, create your own API key in the dashboard and switch to the real endpoints below — the request shape is the same. You can also{" "}
+                  <a href="/pay/demo" target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>open the live checkout demo</a>{" "}
+                  to see what your customers experience.
+                </Typography>
+              </Box>
+
+              {/* Authentication */}
+              <Box id="authentication" sx={{ mb: 8, scrollMarginTop: "100px" }}>
+                <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5 }}>
+                  Authentication
+                </Typography>
+                <Typography sx={{ fontSize: 15, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.8, mb: 3 }}>
+                  Your API key is all you need. Every server-side endpoint authenticates with a single <code style={{ background: dk ? "#1E2030" : "#E5E7EB", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>x-api-key</code> header — no customer login and no token exchange. Two other key types exist only for specific cases:
+                </Typography>
+                <Grid container spacing={2.5} sx={{ mb: 3 }}>
+                  <Grid item xs={12} md={4}>
+                    <AuthCard variant="blue">
+                      <Typography sx={{ fontWeight: 500, fontFamily: "var(--font-sans)", fontSize: 15, color: "#60A5FA", mb: 1 }}>API Key — all you need</Typography>
+                      <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mb: 2 }}>
+                        Send your secret <code style={{ background: dk ? "#1E2030" : "#E5E7EB", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>x-api-key</code> header with every request. It powers everything — payments, checkout, wallets and transactions. Keep it server-side; never expose it in a browser.
+                      </Typography>
+                      <CodeBlock code="x-api-key: dpk_live_Ab3k…" />
+                      <Typography sx={{ fontSize: 12.5, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mt: 1.5 }}>
+                        Keys look like <code style={{ background: dk ? "#1E2030" : "#E5E7EB", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>dpk_live_…</code> / <code style={{ background: dk ? "#1E2030" : "#E5E7EB", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>dpk_test_…</code> and are <strong>shown once</strong> when created or regenerated — Dynopay stores only a one-way hash, so a key can never be recovered from our systems. Lost it? Regenerate from Developer › API keys; the old key stops working immediately.
+                      </Typography>
+                    </AuthCard>
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <AuthCard variant="purple">
+                      <Typography sx={{ fontWeight: 500, fontFamily: "var(--font-sans)", fontSize: 15, color: "#A78BFA", mb: 1 }}>Publishable Key (browser)</Typography>
+                      <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mb: 2 }}>
+                        Only for Embedded Checkout and Elements, which run in your customer&apos;s browser. Use your domain-restricted publishable key (<code style={{ background: dk ? "#1E2030" : "#E5E7EB", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>pk_live_…</code>) there — never your secret API key.
+                      </Typography>
+                      <CodeBlock code={`# Browser only\npk_live_xxxxxxxxxxxx`} />
+                    </AuthCard>
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <AuthCard variant="green">
+                      <Typography sx={{ fontWeight: 500, fontFamily: "var(--font-sans)", fontSize: 15, color: "#10B981", mb: 1 }}>Customer Token (optional)</Typography>
+                      <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mb: 2 }}>
+                        Advanced and rarely needed. A few endpoints accept an optional customer Bearer token to scope wallet balances and history to one customer. You obtain it from <code style={{ background: dk ? "#1E2030" : "#E5E7EB", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>POST /createUser</code>. Omit it and the API runs in userless mode.
+                      </Typography>
+                      <CodeBlock code={`x-api-key: your_api_key\n# Optional (advanced):\nAuthorization: Bearer {token_from_createUser}`} />
+                    </AuthCard>
+                  </Grid>
+                </Grid>
+              </Box>
+
+              {/* Endpoint Sections */}
+              {SECTIONS.filter((s) => s.endpoints).map((section) => (
+                <Box key={section.id} id={section.id} sx={{ mb: 8, scrollMarginTop: "100px" }}>
+                  <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 2.5 }}>
+                    {section.title}
+                  </Typography>
+                  {section.endpoints!.map((epId) => {
+                    const ep = endpointMap[epId];
+                    return ep ? <EndpointCard key={ep.id} ep={ep} /> : null;
+                  })}
+                </Box>
+              ))}
+
+              {/* ═══════════════════════════════════════════════════════
+                  PAYMENT STATUSES SECTION
+                  ═══════════════════════════════════════════════════════ */}
+              <Box id="payment-statuses" sx={{ mb: 8, scrollMarginTop: "100px" }}>
+                <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5 }}>
+                  Payment Statuses
+                </Typography>
+                <Typography sx={{ fontSize: 15, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.8, mb: 2.5 }}>
+                  Every crypto payment carries a normalized <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>payment_status</code>. You get it back from every create call, from <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>GET /getPaymentStatus/:payment_id</code>, and inside the <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>payment.*</code> webhooks. Fulfil the order once it reaches <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>settled</code> — the convenience flag <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>is_paid</code> is <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>true</code> only when the status is <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>settled</code>.
+                </Typography>
+                <TableWrapper>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                    <thead>
+                      <tr style={{ background: headBg }}>
+                        {["Status", "In your wallet?", "Final?", "What it means"].map((h) => (
+                          <th key={h} style={{ textAlign: "left", padding: "10px 16px", fontWeight: 500, fontFamily: "var(--font-sans)", color: dk ? "#C8CAD5" : "#374151", borderBottom: `1px solid ${borderClr}`, fontSize: 12 }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        ["waiting", "No", "No", "Payment created — waiting for the customer to send crypto. Nothing detected on-chain yet."],
+                        ["pending", "No", "No", "Crypto has been detected on-chain and is awaiting the required network confirmations."],
+                        ["confirmed", "On-chain", "No", "Confirmations reached — the crypto is received on-chain; forwarding to your merchant wallet comes next."],
+                        ["processing", "In transit", "No", "Settlement in progress — funds are being forwarded (and auto-converted, if enabled) to your wallet."],
+                        ["settled", "Yes", "Yes", "Success. Funds have been delivered to your merchant wallet and is_paid is true. Safe to fulfil the order."],
+                        ["underpaid", "Partial", "No", "The customer sent less than the requested amount. Collect the remainder or issue a refund."],
+                        ["failed", "No", "Yes", "The payment could not be completed after all retries."],
+                        ["expired", "No", "Yes", "The payment window elapsed before sufficient funds arrived."],
+                        ["refunded", "No", "Yes", "Funds were returned to the sender."],
+                      ].map((row, i, arr) => {
+                        const [status, inWallet, terminal, meaning] = row;
+                        const clr =
+                          status === "settled" ? "#22C55E"
+                            : (status === "failed" || status === "expired") ? "#EF4444"
+                              : status === "underpaid" ? "#F59E0B"
+                                : status === "refunded" ? (dk ? "#C8CAD5" : "#6B7280")
+                                  : (dk ? "#818CF8" : BRAND_ACCENT);
+                        return (
+                          <tr key={status} style={{ borderBottom: i < arr.length - 1 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
+                            <td style={{ padding: "10px 16px", whiteSpace: "nowrap" }}>
+                              <code style={{ fontWeight: 700, color: clr, fontFamily: "var(--font-tech), monospace", fontSize: 12.5 }}>{status}</code>
+                            </td>
+                            <td style={{ padding: "10px 16px", fontFamily: "var(--font-sans)", color: dk ? "#A0A3B1" : "#374151", whiteSpace: "nowrap" }}>{inWallet}</td>
+                            <td style={{ padding: "10px 16px", fontFamily: "var(--font-sans)", color: dk ? "#A0A3B1" : "#374151" }}>{terminal}</td>
+                            <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)" }}>{meaning}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </TableWrapper>
+                <Typography sx={{ fontSize: 13.5, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.8, mt: 2 }}>
+                  <strong>Terminal statuses</strong> (<code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>settled</code>, <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>failed</code>, <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>expired</code>, <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>refunded</code>) never change again — stop polling once you see one. Everything else is transitional.
+                </Typography>
+
+                <Typography sx={{ fontSize: { xs: 18, md: 20 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mt: 4, mb: 1.5 }}>
+                  Underpayments: how much is left to pay
+                </Typography>
+                <Typography sx={{ fontSize: 15, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.8, mb: 2 }}>
+                  When a customer sends less than the requested amount the payment goes <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>underpaid</code> and the deposit address stays open for the remainder during the grace period. <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>GET /getPaymentStatus/:payment_id</code> (and the <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>payment.underpaid</code> webhook) report exactly how much arrived and how much is still owed:
+                </Typography>
+                <TableWrapper>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                    <thead>
+                      <tr style={{ background: headBg }}>
+                        {["Field", "What it is"].map((h) => (
+                          <th key={h} style={{ textAlign: "left", padding: "10px 16px", fontWeight: 500, fontFamily: "var(--font-sans)", color: dk ? "#C8CAD5" : "#374151", borderBottom: `1px solid ${borderClr}`, fontSize: 12 }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        ["amount", "Full crypto amount expected for the payment."],
+                        ["amount_received", "Crypto received so far. Equals the full amount once paid; the partial amount while underpaid."],
+                        ["amount_remaining", "Crypto still owed. 0 once fully paid; non-zero only while underpaid."],
+                        ["paid_amount", "Alias of amount_received (crypto received so far)."],
+                        ["amount_received_base", "amount_received expressed in the payment's base_currency (USD, EUR, …)."],
+                        ["amount_remaining_base", "amount_remaining expressed in the payment's base_currency (USD, EUR, …)."],
+                      ].map((row, i, arr) => {
+                        const [field, meaning] = row;
+                        return (
+                          <tr key={field} style={{ borderBottom: i < arr.length - 1 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
+                            <td style={{ padding: "10px 16px", whiteSpace: "nowrap" }}>
+                              <code style={{ fontWeight: 700, color: dk ? "#818CF8" : BRAND_ACCENT, fontFamily: "var(--font-tech), monospace", fontSize: 12.5 }}>{field}</code>
+                            </td>
+                            <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)" }}>{meaning}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </TableWrapper>
+                <Typography sx={{ fontSize: 13.5, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.8, mt: 2 }}>
+                  The customer can complete the payment by sending <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>amount_remaining</code> in the same coin to the same address before the grace period ends — no new payment is needed.
+                </Typography>
+
+                <Typography sx={{ fontSize: { xs: 18, md: 20 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mt: 4, mb: 1.5 }}>
+                  Confirming a payment: webhooks vs. polling
+                </Typography>
+                <InfoBox>
+                  <Box component="ul" sx={{ pl: 2.5, m: 0, "& li": { fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.9, mb: 1 }, "& li:last-of-type": { mb: 0 } }}>
+                    <li><strong>Prefer webhooks.</strong> Subscribe to <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>payment.confirmed</code> and <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>payment.settled</code> (plus <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>payment.underpaid</code> and <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>payment.settlement_failed</code>) to react in real time. Only fulfil the order once the status is <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>settled</code>.</li>
+                    <li><strong>Reconcile with the API.</strong> <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>GET /getPaymentStatus/:payment_id</code> is keyed on the immutable <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>payment_id</code> and returns the authoritative status from the database — still correct after the checkout session expires. Use it to re-verify a webhook, or catch up on anything you missed with <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>GET /events</code>.</li>
+                    <li><strong>If you must poll,</strong> call <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>getPaymentStatus</code> every few seconds, respect the 100 requests/minute limit (back off on <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>429</code>), and stop at the first terminal status.</li>
+                    <li><strong>Do not rely on the browser alone.</strong> The post-payment redirect / <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>onComplete</code> event is UX only — a customer can close the tab. Server-side webhooks (or a reconciliation poll) are the source of truth.</li>
+                  </Box>
+                </InfoBox>
+              </Box>
+
+              {/* ═══════════════════════════════════════════════════════
+                  BUY BUTTON SECTION
+                  ═══════════════════════════════════════════════════════ */}
+              <Box id="buy-button" sx={{ mb: 8, scrollMarginTop: "100px" }}>
+                <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5 }}>
+                  Buy Button
+                </Typography>
+                <Typography sx={{ fontSize: 15, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.8, mb: 3 }}>
+                  The Buy Button is the fastest way to sell without writing back-end code. Create a button once in the dashboard, then paste a small HTML snippet anywhere — a landing page, Webflow, WordPress, a blog, even an email-linked page. Your shopper clicks <strong>Buy Now</strong> and the Dynopay hosted checkout opens in a modal (or inline). The amount is fetched securely from our server by <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>button-id</code>, so it can never be tampered with in the browser.
+                </Typography>
+
+                <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5 }}>
+                  1 · Create a button
+                </Typography>
+                <Box component="ol" sx={{ pl: 2.5, m: 0, mb: 3, "& li": { fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.9 } }}>
+                  <li>Go to <strong>Developers → Buy Buttons</strong> in your dashboard.</li>
+                  <li>Set a <strong>label</strong>, a <strong>fixed price</strong> (or a min/max range so the customer chooses), and the currencies you accept.</li>
+                  <li>Copy the generated snippet. It already includes your <strong>publishable key</strong> (<code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>pk_live_…</code>) and <strong>button id</strong> (<code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>btn_…</code>).</li>
+                </Box>
+
+                <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5 }}>
+                  2 · Paste the snippet
+                </Typography>
+                <CodeBlock
+                  lang="html"
+                  code={`<!-- Dynopay embed SDK — load once per page -->\n<script src="https://checkout.dynopay.com/v1/embed.js"></script>\n\n<!-- Paste the button anywhere on your page -->\n<dynopay-buy-button\n  publishable-key="pk_live_your_key"\n  button-id="btn_xxxxxxxx"\n  mode="modal"\n  theme="dark"\n></dynopay-buy-button>`}
+                />
+
+                <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5, mt: 3 }}>
+                  Attributes
+                </Typography>
+                <TableWrapper>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                    <thead>
+                      <tr style={{ background: headBg }}>
+                        {["Attribute", "Required", "Description"].map((h) => (
+                          <th key={h} style={{ textAlign: "left", padding: "10px 16px", fontWeight: 500, fontFamily: "var(--font-sans)", color: dk ? "#C8CAD5" : "#374151", borderBottom: `1px solid ${borderClr}`, fontSize: 12 }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        ["publishable-key", "Yes", "Your browser-safe key (pk_live_… or pk_test_…). Domain-locked and amount-capped — never your secret API key."],
+                        ["button-id", "Yes", "The btn_… id of the button you created. The price is resolved server-side from this id."],
+                        ["amount", "No", "Only for range/customer-chooses buttons — the default amount to pre-fill. Ignored for fixed-price buttons."],
+                        ["currency", "No", "Pre-select a single crypto (e.g. BTC). Omit to let the buyer choose from your accepted coins."],
+                        ["mode", "No", '"modal" (default) opens checkout in an overlay; "redirect" sends the buyer to the hosted page.'],
+                        ["theme", "No", '"dark" or "light" — match your page.'],
+                      ].map(([attr, req, desc], i) => (
+                        <tr key={attr as string} style={{ borderBottom: i < 5 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
+                          <td style={{ padding: "10px 16px" }}>
+                            <code style={{ fontWeight: 700, color: dk ? "#818CF8" : BRAND_ACCENT, fontFamily: "var(--font-tech), monospace", fontSize: 12 }}>{attr}</code>
+                          </td>
+                          <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)", fontSize: 12 }}>{req}</td>
+                          <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)" }}>{desc}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </TableWrapper>
+
+                <InfoBox>
+                  <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1 }}>Fulfil on the webhook, not the button</Typography>
+                  <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7 }}>
+                    The button is UX only. Always confirm the final payment via the <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>payment.confirmed</code> webhook (see below) before you deliver the product or mark the order paid.
+                  </Typography>
+                </InfoBox>
+              </Box>
+
+              {/* ═══════════════════════════════════════════════════════
+                  WEBHOOKS SECTION
+                  ═══════════════════════════════════════════════════════ */}
+              <Box id="webhooks" sx={{ mb: 8, scrollMarginTop: "100px" }}>
+                <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5 }}>
+                  Webhooks
+                </Typography>
+                <Typography sx={{ fontSize: 15, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.8, mb: 3 }}>
+                  Dynopay sends webhook notifications to your configured URL when payment events occur. You set the <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>webhook_url</code> when creating a payment, or configure a default in your company settings.
+                </Typography>
+
+                {/* Event Types */}
+                <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5 }}>
+                  Event Types
+                </Typography>
+                <TableWrapper>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                    <thead>
+                      <tr style={{ background: headBg }}>
+                        {["Event", "Description", "Action"].map((h) => (
+                          <th key={h} style={{ textAlign: "left", padding: "10px 16px", fontWeight: 500, fontFamily: "var(--font-sans)", color: dk ? "#C8CAD5" : "#374151", borderBottom: `1px solid ${borderClr}`, fontSize: 12 }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        ["payment.pending", "Crypto deposit detected on the blockchain (unconfirmed)", "Show \"payment received\" to user — wait for confirmation"],
+                        ["payment.confirmed", "Payment fully confirmed (sufficient blockchain confirmations)", "Fulfill the order / deliver the product"],
+                        ["payment.underpaid", "Partial payment received (less than expected amount)", "Notify customer or wait for remainder during grace period"],
+                      ].map(([event, desc, action], i) => (
+                        <tr key={event} style={{ borderBottom: i < 2 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
+                          <td style={{ padding: "10px 16px" }}>
+                            <code style={{ fontWeight: 700, color: dk ? "#818CF8" : BRAND_ACCENT, fontFamily: "var(--font-tech), monospace", fontSize: 12 }}>{event}</code>
+                          </td>
+                          <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)" }}>{desc}</td>
+                          <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)", fontSize: 12 }}>{action}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </TableWrapper>
+
+                {/* Payload Example */}
+                <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5, mt: 3 }}>
+                  Webhook Payload
+                </Typography>
+                <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mb: 2 }}>
+                  All webhook events are sent as <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>POST</code> requests with a JSON body to your configured URL.
+                </Typography>
+                <CodeBlock lang="json" code={`{
+  "event": "payment.confirmed",
+  "payment_id": "pay_abc123def456",
+  "transaction_id": "txn_789xyz",
+  "amount": 0.00042,
+  "currency": "BTC",
+  "base_amount": "25.00",
+  "base_currency": "USD",
+  "status": "completed",
+  "customer_email": "jane@example.com",
+  "merchant_id": 38,
+  "destination_tag": null,
+  "meta_data": { "order_id": "ORD-12345" },
+  "timestamp": "2025-07-15T12:00:00.000Z"
+}`} />
+
+                {/* Headers */}
+                <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5, mt: 3 }}>
+                  Webhook Headers
+                </Typography>
+                <TableWrapper>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                    <thead>
+                      <tr style={{ background: headBg }}>
+                        {["Header", "Description"].map((h) => (
+                          <th key={h} style={{ textAlign: "left", padding: "10px 16px", fontWeight: 500, fontFamily: "var(--font-sans)", color: dk ? "#C8CAD5" : "#374151", borderBottom: `1px solid ${borderClr}`, fontSize: 12 }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        ["Content-Type", "application/json"],
+                        ["X-DynoPay-Event", "The event type (e.g. payment.confirmed)"],
+                        ["X-Dynopay-Signature-V2", "(Recommended) t=<unix>,v1=<hex> — HMAC-SHA256 over \"<t>.<rawBody>\" (the exact bytes sent). Only present when a webhook secret is configured."],
+                        ["X-DynoPay-Signature", "(Legacy) HMAC-SHA256 over a re-serialised body — kept for backward compatibility."],
+                        ["X-DynoPay-Timestamp", "Unix timestamp of when the webhook was sent"],
+                        ["X-DynoPay-Webhook-Id", "Unique webhook delivery ID for idempotency"],
+                      ].map(([header, desc], i) => (
+                        <tr key={header} style={{ borderBottom: i < 5 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
+                          <td style={{ padding: "10px 16px" }}>
+                            <code style={{ fontWeight: 600, color: dk ? "#818CF8" : BRAND_ACCENT, fontFamily: "var(--font-tech), monospace", fontSize: 12 }}>{header}</code>
+                          </td>
+                          <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)" }}>{desc}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </TableWrapper>
+
+                {/* Signature Verification */}
+                <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5, mt: 3 }}>
+                  Signature Verification
+                </Typography>
+                <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mb: 2 }}>
+                  Verify the signature header to ensure webhook requests are authentic and haven&apos;t been tampered with. Prefer <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>X-Dynopay-Signature-V2</code>: it is signed over the <strong>exact bytes on the wire</strong>, so you can verify it in any language without re-serialising the parsed JSON. Both headers are sent while you migrate; the legacy <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>X-DynoPay-Signature</code> will be removed after the migration window closes. Signatures are sent <strong>only when your endpoint has a signing secret</strong> — saving a webhook URL auto-generates a <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>whsec_…</code> secret (shown once); endpoints without one receive the payload unsigned.
+                </Typography>
+                <Typography sx={{ fontSize: 15, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1, mt: 2 }}>
+                  V2 (recommended)
+                </Typography>
+                <CodeBlock lang="javascript" code={`const crypto = require('crypto');
+
+// Verify against the RAW request body. Reject anything older than ±300s (replay).
+function verifyWebhookV2(rawBody, headerV2, secret, toleranceSec = 300) {
+  const parts = Object.fromEntries(String(headerV2).split(',').map((kv) => kv.split('=')));
+  const t = Number(parts.t);
+  if (!t || Math.abs(Date.now() / 1000 - t) > toleranceSec) return false;
+  const expected = crypto.createHmac('sha256', secret).update(\`\${t}.\${rawBody}\`).digest('hex');
+  const got = Buffer.from(parts.v1 || '', 'hex');
+  const exp = Buffer.from(expected, 'hex');
+  return got.length === exp.length && crypto.timingSafeEqual(got, exp);
+}
+
+// Express — capture the raw body so the bytes are byte-identical to what was signed.
+app.post('/webhooks/dynopay', express.raw({ type: 'application/json' }), (req, res) => {
+  const rawBody = req.body.toString();
+  const v2 = req.headers['x-dynopay-signature-v2'];
+
+  if (v2 && !verifyWebhookV2(rawBody, v2, process.env.WEBHOOK_SECRET)) {
+    return res.status(401).json({ error: 'Invalid signature' });
+  }
+
+  const event = JSON.parse(rawBody);
+  // Fulfill based on event.event (payment.confirmed, payment.pending, ...)
+  res.status(200).json({ received: true });
+});`} />
+
+                <Typography sx={{ fontSize: 15, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1, mt: 3 }}>
+                  V1 (legacy)
+                </Typography>
+                <CodeBlock lang="javascript" code={`const crypto = require('crypto');
+
+function verifyWebhook(payload, signature, secret) {
+  const expectedSignature = crypto
+    .createHmac('sha256', secret)
+    .update(JSON.stringify(payload))
+    .digest('hex');
+  return signature === expectedSignature;
+}
+
+// In your Express webhook handler:
+app.post('/webhooks/dynopay', (req, res) => {
+  const signature = req.headers['x-dynopay-signature'];
+  const isValid = verifyWebhook(req.body, signature, process.env.WEBHOOK_SECRET);
+
+  if (!isValid) {
+    return res.status(401).json({ error: 'Invalid signature' });
+  }
+
+  switch (req.body.event) {
+    case 'payment.confirmed':
+      // Fulfill order
+      break;
+    case 'payment.pending':
+      // Show pending status
+      break;
+    case 'payment.underpaid':
+      // Notify customer
+      break;
+  }
+
+  // Always return 200 to acknowledge receipt
+  res.status(200).json({ received: true });
+});`} />
+
+                {/* Retry Policy */}
+                <InfoBox sx={{ mt: 3 }}>
+                  <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1 }}>Retry Policy</Typography>
+                  <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7 }}>
+                    If your endpoint returns a non-2xx status code (or times out), Dynopay retries delivery on a fixed schedule — <strong>1 min, 5 min, 30 min, 2 h, 6 h, 12 h, then 24 h</strong> (7 retries over ~24 hours). After the final attempt the event is marked failed. You can list past deliveries with <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>GET /events</code> and re-send any of them with <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>POST /events/:id/resend</code> (or from the dashboard).
+                  </Typography>
+                </InfoBox>
+
+                {/* Webhook URL Priority */}
+                <Typography sx={{ fontSize: 17, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5, mt: 3 }}>
+                  Webhook URL Priority
+                </Typography>
+                <TableWrapper>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                    <thead>
+                      <tr style={{ background: headBg }}>
+                        {["Priority", "Source", "When to Use"].map((h) => (
+                          <th key={h} style={{ textAlign: "left", padding: "10px 16px", fontWeight: 500, fontFamily: "var(--font-sans)", color: dk ? "#C8CAD5" : "#374151", borderBottom: `1px solid ${borderClr}`, fontSize: 12 }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        ["1st", "Per-payment webhook_url field", "Different webhook per payment or product"],
+                        ["2nd", "API Key webhook settings", "Different webhook per API integration"],
+                        ["3rd", "Company default settings", "Same webhook for all payments"],
+                      ].map(([pri, src, use], i) => (
+                        <tr key={pri} style={{ borderBottom: i < 2 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
+                          <td style={{ padding: "10px 16px" }}>
+                            <code style={{ fontWeight: 700, color: "#F59E0B", fontFamily: "var(--font-tech), monospace" }}>{pri}</code>
+                          </td>
+                          <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)" }}>{src}</td>
+                          <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)", fontSize: 13 }}>{use}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </TableWrapper>
+              </Box>
+
+              {/* ═══════════════════════════════════════════════════════
+                  RATE LIMITS SECTION
+                  ═══════════════════════════════════════════════════════ */}
+              <Box id="rate-limits" sx={{ mb: 8, scrollMarginTop: "100px" }}>
+                <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5 }}>
+                  Rate Limits
+                </Typography>
+                <Typography sx={{ fontSize: 15, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.8, mb: 3 }}>
+                  Dynopay enforces rate limits to ensure platform stability. Limits are applied per IP address and per API key.
+                </Typography>
+                <TableWrapper>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                    <thead>
+                      <tr style={{ background: headBg }}>
+                        {["Endpoint Category", "Limit", "Window"].map((h) => (
+                          <th key={h} style={{ textAlign: "left", padding: "10px 16px", fontWeight: 500, fontFamily: "var(--font-sans)", color: dk ? "#C8CAD5" : "#374151", borderBottom: `1px solid ${borderClr}`, fontSize: 12 }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        ["Payment creation", "30 requests", "1 minute"],
+                        ["General API", "100 requests", "1 minute"],
+                        ["Authentication (login)", "10 requests", "15 minutes"],
+                        ["Webhook delivery", "200 requests", "5 minutes"],
+                      ].map(([cat, limit, window], i) => (
+                        <tr key={cat} style={{ borderBottom: i < 3 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
+                          <td style={{ padding: "10px 16px", fontFamily: "var(--font-sans)", color: dk ? "#A0A3B1" : "#374151" }}>{cat}</td>
+                          <td style={{ padding: "10px 16px" }}>
+                            <code style={{ fontWeight: 600, color: dk ? "#818CF8" : BRAND_ACCENT, fontFamily: "var(--font-tech), monospace", fontSize: 12 }}>{limit}</code>
+                          </td>
+                          <td style={{ padding: "10px 16px", fontFamily: "var(--font-sans)", color: dk ? "#A0A3B1" : "#374151" }}>{window}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </TableWrapper>
+                <InfoBox sx={{ mt: 2 }}>
+                  <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7 }}>
+                    When rate limited, the API returns HTTP <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>429 Too Many Requests</code> with a <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>Retry-After</code> header indicating when you can retry.
+                  </Typography>
+                </InfoBox>
+              </Box>
+
+              {/* Error Handling */}
+              <Box id="errors" sx={{ mb: 8, scrollMarginTop: "100px" }}>
+                <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5 }}>
+                  Error Handling
+                </Typography>
+                <Typography sx={{ fontSize: 15, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.8, mb: 2.5 }}>
+                  All errors return the human-readable <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>message</code> plus a machine-readable <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>error</code> object — a stable <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>type</code> and <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>code</code> you can branch on, the offending <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>param</code>, a <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>doc_url</code>, and a <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>request_id</code> (also returned as a <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>Request-Id</code> response header — quote it when contacting support). The legacy <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>success</code>/<code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>message</code>/<code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>errors</code> fields are unchanged, so existing integrations keep working.
+                </Typography>
+                <CodeBlock lang="json" code={`{
+  "success": false,
+  "message": "Amount must be greater than or equal to 5",
+  "errors": [{ "key": "amount", "error": "Invalid amount" }],
+  "error": {
+    "type": "invalid_request_error",
+    "code": "amount_below_minimum",
+    "message": "Amount must be greater than or equal to 5",
+    "param": "amount",
+    "doc_url": "https://dynopay.com/documentation#errors",
+    "request_id": "req_8f3c2a1b"
+  }
+}`} />
+                <Typography sx={{ fontSize: 13.5, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.8, mb: 2, mt: 2.5 }}>
+                  <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>error.type</code> is one of <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>invalid_request_error</code>, <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>authentication_error</code>, <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>rate_limit_error</code> or <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>api_error</code>.
+                </Typography>
+                <TableWrapper>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                    <thead>
+                      <tr style={{ background: headBg }}>
+                        <th style={{ textAlign: "left", padding: "10px 16px", fontWeight: 500, fontFamily: "var(--font-sans)", color: dk ? "#C8CAD5" : "#374151", borderBottom: `1px solid ${borderClr}`, fontSize: 12 }}>Status</th>
+                        <th style={{ textAlign: "left", padding: "10px 16px", fontWeight: 500, fontFamily: "var(--font-sans)", color: dk ? "#C8CAD5" : "#374151", borderBottom: `1px solid ${borderClr}`, fontSize: 12 }}>Meaning</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        ["400", "Bad Request — missing or invalid parameters"],
+                        ["401", "Unauthorized — invalid or missing API key / token"],
+                        ["403", "Forbidden — authenticated but not allowed (e.g. wrong role, or a publishable key used from a disallowed origin)"],
+                        ["404", "Not Found — resource does not exist"],
+                        ["429", "Too Many Requests — rate limit hit; retry after the Retry-After header"],
+                        ["500", "Server Error — something went wrong on our side"],
+                      ].map(([code, desc], i) => (
+                        <tr key={code} style={{ borderBottom: i < 5 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
+                          <td style={{ padding: "10px 16px" }}>
+                            <code style={{ fontWeight: 700, color: Number(code) >= 500 ? "#EF4444" : "#F59E0B", fontFamily: "var(--font-tech), monospace" }}>{code}</code>
+                          </td>
+                          <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)" }}>{desc}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </TableWrapper>
+
+                <Typography sx={{ fontSize: { xs: 18, md: 20 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mt: 4, mb: 1.5 }}>
+                  Error codes
+                </Typography>
+                <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.8, mb: 2 }}>
+                  Branch on <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>error.code</code> — these stay stable even if we reword a message.
+                </Typography>
+                <TableWrapper>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                    <thead>
+                      <tr style={{ background: headBg }}>
+                        <th style={{ textAlign: "left", padding: "10px 16px", fontWeight: 500, fontFamily: "var(--font-sans)", color: dk ? "#C8CAD5" : "#374151", borderBottom: `1px solid ${borderClr}`, fontSize: 12 }}>code</th>
+                        <th style={{ textAlign: "left", padding: "10px 16px", fontWeight: 500, fontFamily: "var(--font-sans)", color: dk ? "#C8CAD5" : "#374151", borderBottom: `1px solid ${borderClr}`, fontSize: 12 }}>HTTP</th>
+                        <th style={{ textAlign: "left", padding: "10px 16px", fontWeight: 500, fontFamily: "var(--font-sans)", color: dk ? "#C8CAD5" : "#374151", borderBottom: `1px solid ${borderClr}`, fontSize: 12 }}>When it fires</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        ["api_key_missing", "401", "No x-api-key header on the request"],
+                        ["api_key_invalid", "401", "API key not recognized or revoked"],
+                        ["amount_invalid", "400", "amount is missing or not greater than 0"],
+                        ["amount_below_minimum", "400", "amount is below the minimum (createPayment: 5)"],
+                        ["currency_required", "400", "currency was omitted"],
+                        ["currency_not_available", "400", "Requested currency has no wallet configured (see param)"],
+                        ["no_wallet_configured", "400", "The merchant has no crypto wallet set up yet"],
+                        ["parameter_missing", "400", "A required field is absent — see error.param"],
+                        ["rate_unavailable", "500", "Could not fetch a conversion rate — safe to retry"],
+                        ["sandbox_restriction", "400", "A test (dpk_test_) key exceeded its sandbox limits"],
+                        ["invalid_idempotency_key", "400", "Idempotency-Key header is empty or too long"],
+                        ["idempotency_key_reused", "409", "Idempotency-Key reused with a different request body"],
+                        ["idempotency_request_in_progress", "409", "The first request with this key is still processing"],
+                      ].map(([code, http, desc], i, arr) => (
+                        <tr key={code} style={{ borderBottom: i < arr.length - 1 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
+                          <td style={{ padding: "10px 16px" }}>
+                            <code style={{ fontWeight: 700, color: dk ? "#A5B4FC" : "#4F46E5", fontFamily: "var(--font-tech), monospace" }}>{code}</code>
+                          </td>
+                          <td style={{ padding: "10px 16px" }}>
+                            <code style={{ fontWeight: 700, color: Number(http) >= 500 ? "#EF4444" : "#F59E0B", fontFamily: "var(--font-tech), monospace" }}>{http}</code>
+                          </td>
+                          <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)" }}>{desc}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </TableWrapper>
+
+                <Typography sx={{ fontSize: { xs: 18, md: 20 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mt: 4, mb: 1.5 }}>
+                  Idempotent retries
+                </Typography>
+                <Typography sx={{ fontSize: 15, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.8, mb: 2 }}>
+                  Send an <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>Idempotency-Key</code> header on any POST (a unique value per logical request, e.g. a UUID) to make it safe to retry. If a network blip makes you retry, the <strong>same key + same body replays the original response</strong> — with an <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>Idempotent-Replay: true</code> header — so a payment is never created twice. Reusing a key with a <em>different</em> body returns <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>409 idempotency_key_reused</code>; keys are remembered for 24 hours.
+                </Typography>
+                <CodeBlock lang="bash" code={`curl https://api.dynopay.com/api/user/createPayment \\
+  -H "x-api-key: $DYNOPAY_API_KEY" \\
+  -H "Idempotency-Key: 8f14e45f-ce2a-4b7d-9a1e-1b2c3d4e5f60" \\
+  -H "Content-Type: application/json" \\
+  -d '{"amount": 25, "redirect_uri": "https://your-site.com/thanks"}'`} />
+              </Box>
+
+            </Box>
+          </Box>
+        </Container>
+
+        <PublicFinalCta
+          attributionRef="docs_final"
+          testId="docs-final-cta"
+          title="Ready to get started?"
+          body="Non-custodial, from 0.5%, no chargebacks — create your API key and take your first payment."
+          actions={
+            <>
+              <PrimaryBtn data-testid="docs-cta-api-key" onClick={() => router.push("/auth/register?ref=docs_final")} endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}>
+                Get your API Key
+              </PrimaryBtn>
+              <SecondaryBtn onDark data-testid="docs-cta-fees" href="/fees">
+                View Fees
+              </SecondaryBtn>
+            </>
+          }
+        />
+
+        {/* Back-to-top is provided globally by <ScrollToTopButton/> in the layout. */}
+      </PageWrapper>
+    </>
+  );
+};
+
+export default memo(DocumentationPage);

@@ -1,0 +1,55 @@
+{
+  "meta_title": "Pagamentos em criptomoeda para remessas e pagamentos transfronteiriços · Dynopay",
+  "meta_description": "Aceite pagamentos em criptomoeda para remessas e pagamentos transfronteiriços. Não custodial, 15+ criptomoedas, taxas a partir de 1,5%. Sem chargebacks. Comece em 10 minutos.",
+  "h1": "Pagamentos em criptomoeda para remessas e pagamentos transfronteiriços",
+  "subheading": "Receba pagamentos transfronteiriços em Bitcoin, USDT, XRP e 12+ outras criptomoedas sem bancos correspondentes, chargebacks ou períodos de espera",
+  "intro_paragraph": "Os corredores de remessa tradicionais impõem-lhe margens de FX de 3-7%, janelas de liquidação de 3-5 dias e sistemas legados lentos que frustram os seus clientes. A Dynopay entrega pagamentos em criptomoeda diretamente na sua carteira—sem custódia, sem chargebacks, sem taxas mensais. Os seus clientes pagam em Bitcoin, stablecoins ou 15+ criptomoedas, e você recebe os fundos em minutos na carteira que controla. As taxas começam em 1,5% e descem para 0,5% à medida que o seu volume cresce, com a sua primeira transação completamente gratuita.",
+  "features": [
+    {
+      "title": "Os fundos chegam diretamente à sua carteira",
+      "description": "A arquitetura não custodial significa que cada pagamento vai para a carteira que você especifica durante a configuração. A Dynopay nunca toca nos seus fundos, por isso você mantém o controle total e pode mover o capital imediatamente."
+    },
+    {
+      "title": "Stablecoins eliminam a volatilidade do FX",
+      "description": "Aceite USDT na Ethereum, Tron e Polygon, além de USDC na Ethereum e RLUSD na Ethereum e no XRP Ledger. Os seus destinatários recebem um valor previsível sem exposição às oscilações de preço do Bitcoin."
+    },
+    {
+      "title": "Sem chargebacks, nunca",
+      "description": "As transações em criptomoeda são finais. Uma vez liquidadas, os fundos não podem ser revertidos por um banco ou processador de pagamentos, eliminando perdas por disputas que afetam os serviços de remessa baseados em cartões."
+    }
+  ],
+  "how_it_works": [
+    "Inscreva-se, verifique o seu e-mail, crie um perfil de empresa e adicione o endereço da carteira para onde deseja que os fundos sejam enviados.",
+    "Gere um link de pagamento ou incorpore o widget de checkout na sua plataforma para que os clientes paguem em criptomoeda.",
+    "Os clientes pagam na criptomoeda de sua escolha; os fundos chegam à sua carteira em minutos, menos a taxa da plataforma."
+  ],
+  "faqs": [
+    {
+      "question": "Como é que os pagamentos em criptomoeda reduzem custos para pagamentos transfronteiriços em comparação com os bancos?",
+      "answer": "Os bancos aplicam taxas de correspondência, spreads de FX e encargos SWIFT que totalizam 3-7% por transação. A Dynopay cobra a partir de 1,5% (descendo para 0,5% com volume) sem taxas ocultas, sem intermediários e sem margens de conversão de moeda ao usar stablecoins."
+    },
+    {
+      "question": "Quais stablecoins a Dynopay suporta para negócios de remessa?",
+      "answer": "A Dynopay suporta USDT nas redes Ethereum, Polygon e Tron, USDC na Ethereum, além de RLUSD tanto na Ethereum quanto no XRP Ledger. Isso oferece aos seus clientes várias opções de transferências de valor estável com baixas taxas."
+    },
+    {
+      "question": "Preciso de uma carteira de criptomoeda antes de começar a aceitar pagamentos?",
+      "answer": "Sim. Durante a integração, você fornece um endereço de carteira por criptomoeda que deseja aceitar. Os fundos de cada pagamento vão diretamente para lá. Você pode usar qualquer carteira não custodial como MetaMask, Ledger, Exodus ou uma carteira de tesouraria empresarial."
+    },
+    {
+      "question": "Quanto tempo leva para os pagamentos em criptomoeda transfronteiriços serem liquidadas?",
+      "answer": "O Bitcoin confirma em 10-60 minutos dependendo da congestão da rede. Os pagamentos na Ethereum, Polygon, Tron e Solana normalmente confirmam em menos de 5 minutos. XRP e Litecoin liquidam em 2-5 minutos. Todos são mais rápidos do que transferências bancárias tradicionais."
+    },
+    {
+      "question": "Clientes de qualquer país podem enviar-me pagamentos em criptomoeda através da Dynopay?",
+      "answer": "Sim. A criptomoeda não tem limites geográficos sobre quem pode enviar fundos para a sua carteira. A verificação de identidade (KYC) aplica-se à sua conta Dynopay uma vez que o volume liquidado ultrapasse um limite, as saídas fiat realizam o seu próprio KYC, e como um negócio de remessa você continua responsável pelas suas próprias obrigações de licenciamento e AML."
+    }
+  ],
+  "cta_headline": "Comece a aceitar pagamentos em criptomoeda em 10 minutos",
+  "cta_body": "Inscreva-se agora e a sua primeira transação é sem taxas. Sem custos de configuração, sem taxas mensais, fundos diretos para a sua carteira.",
+  "_generated_at": "2026-08-29T14:54:22.884958Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "remittance",
+  "_display_name": "Remittance & Cross-Border Payouts"
+}

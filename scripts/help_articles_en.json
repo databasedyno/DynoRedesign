@@ -1,0 +1,204 @@
+{
+  "supported-cryptocurrencies-and-networks": {
+    "title": "Supported Cryptocurrencies & Networks",
+    "description": "See which cryptocurrencies and blockchain networks Dynopay supports and how to choose the right one.",
+    "intro": "Dynopay lets you accept a wide range of cryptocurrencies across multiple blockchain networks. This guide explains which assets and networks are supported, how networks differ, and how to choose the right ones for your business and your customers.",
+    "sections": [
+      {
+        "heading": "What you can accept",
+        "body": "Dynopay supports major cryptocurrencies and stablecoins across the most widely used blockchains. You can enable the assets that make sense for your customers and leave the rest turned off. Stablecoins such as USDT and USDC are popular for businesses because their value stays close to the US dollar, which removes price volatility between the moment a customer pays and the moment funds land in your wallet."
+      },
+      {
+        "heading": "Networks and why they matter",
+        "body": "The same asset can often be sent over more than one network. The network you accept affects confirmation speed and the network fee your customer pays.",
+        "bullets": [
+          "A single coin (for example USDT) may be available on several networks, each with different speeds and fees.",
+          "Faster, lower-fee networks are usually the best default for everyday payments.",
+          "Always make sure your customer sends funds on the same network you selected at checkout — sending on the wrong network can result in lost funds."
+        ]
+      },
+      {
+        "heading": "Choosing the right assets",
+        "body": "Pick assets based on what your customers already hold and how sensitive you are to price movement.",
+        "bullets": [
+          "Prefer stablecoins if you want the amount received to match the amount invoiced.",
+          "Enable well-known coins your audience is likely to use.",
+          "Keep your list focused — offering fewer, clearly labelled options reduces checkout confusion."
+        ]
+      },
+      {
+        "heading": "Enabling assets in your dashboard",
+        "body": "You control which currencies and networks are active from your Dynopay dashboard. Turn on the assets you want to accept, confirm you have a receiving wallet for each, and they will appear as options at checkout. You can adjust this list at any time as your needs change."
+      }
+    ]
+  },
+  "how-crypto-payments-work-for-merchants": {
+    "title": "How Crypto Payments Work for Merchants",
+    "description": "A clear explanation of what happens from the moment a customer pays to when funds are settled.",
+    "intro": "Crypto payments can feel like a black box if you have never taken one. This article walks through exactly what happens from the moment a customer decides to pay to the moment settled funds are in your control.",
+    "sections": [
+      {
+        "heading": "The payment journey, step by step",
+        "bullets": [
+          "You share a payment link, invoice, or hosted checkout with your customer.",
+          "The customer chooses a cryptocurrency and network and is shown the exact amount and a wallet address (usually as a QR code).",
+          "They send the payment from their own wallet or exchange.",
+          "Dynopay detects the transaction on the blockchain and tracks its confirmations in real time.",
+          "Once confirmed, the payment is marked complete and the funds are credited to the wallet you control."
+        ]
+      },
+      {
+        "heading": "Confirmations explained",
+        "body": "A blockchain confirmation is the network agreeing that a transaction is valid and final. Dynopay waits for the appropriate number of confirmations for the chosen network before marking a payment complete. This protects you from payments that could later be reversed, which is why crypto payments have no chargebacks."
+      },
+      {
+        "heading": "Non-custodial by design",
+        "body": "Dynopay is non-custodial: funds are sent to a wallet that you control, not held in a Dynopay account. You keep custody the entire time and can move your crypto whenever you want."
+      },
+      {
+        "heading": "Tracking everything in your dashboard",
+        "body": "Every payment appears in your dashboard with its status, amount, currency, network, and confirmation details. You get a single, real-time view of what has been paid, what is pending, and what has settled."
+      }
+    ]
+  },
+  "fees-rates-and-conversion-logic": {
+    "title": "Fees, Rates & Conversion Logic",
+    "description": "Understand transaction fees, exchange rates, and how payout amounts are calculated.",
+    "intro": "Understanding how fees and exchange rates work helps you price correctly and know exactly what you will receive. This guide covers Dynopay's transaction fees, how rates are locked, and how the final amount is calculated.",
+    "sections": [
+      {
+        "heading": "Transaction fees",
+        "body": "Dynopay charges a simple percentage fee per successful transaction. Fees start at 1.5% and decrease as your processing volume grows, dropping as low as 0.5% for high-volume merchants. Your first payment is free so you can test the full flow at no cost."
+      },
+      {
+        "heading": "Network fees",
+        "body": "Separate from Dynopay's fee, every blockchain charges its own network (gas) fee to move funds. This fee goes to the network, not to Dynopay, and varies by network and congestion. Choosing an efficient network keeps these costs low for you and your customers."
+      },
+      {
+        "heading": "How exchange rates are applied",
+        "bullets": [
+          "When you price in a fiat currency, Dynopay converts the amount to the chosen crypto using a live market rate at checkout.",
+          "The rate is shown to the customer so they know exactly how much crypto to send.",
+          "Paying in a stablecoin keeps the received amount close to the invoiced amount, avoiding volatility."
+        ]
+      },
+      {
+        "heading": "What you actually receive",
+        "body": "The amount credited to your wallet is the payment amount minus the applicable Dynopay fee. Because Dynopay is non-custodial, settled crypto is yours immediately — there is no waiting period imposed by Dynopay before you can use it."
+      }
+    ]
+  },
+  "wallets-payouts-and-settlement-options": {
+    "title": "Wallets, Payouts & Settlement Options",
+    "description": "Learn where your funds go, how payouts work, and which settlement options are available.",
+    "intro": "Where your money goes after a payment is one of the most important things to set up correctly. This article explains receiving wallets, how settlement works, and the payout options available to you.",
+    "sections": [
+      {
+        "heading": "Your receiving wallets",
+        "body": "For each cryptocurrency you accept, you connect a wallet address that you control. Payments for that asset settle directly to that address. Because Dynopay never holds your funds, you retain full custody at all times."
+      },
+      {
+        "heading": "How settlement works",
+        "body": "When a payment reaches the required number of confirmations, it is settled to your connected wallet automatically. There is no manual withdrawal step and no Dynopay-imposed holding period — the funds are already under your control."
+      },
+      {
+        "heading": "Settlement options",
+        "bullets": [
+          "Keep funds in the crypto they were paid in, directly in your connected wallet.",
+          "Accept stablecoins to hold a dollar-pegged balance and avoid volatility.",
+          "Use different wallets for different assets to organise your treasury the way you prefer."
+        ]
+      },
+      {
+        "heading": "Managing wallets safely",
+        "body": "Double-check every wallet address when you add it, and make sure you control the private keys or the account behind it. A payment sent to an address is final, so accurate wallet setup is essential. You can update your receiving wallets in the dashboard whenever you need to."
+      }
+    ]
+  },
+  "invoices-checkout-and-payment-links": {
+    "title": "Invoices, Checkout & Payment Links",
+    "description": "Create invoices, payment links, and customized checkout experiences for your business.",
+    "intro": "Dynopay gives you several ways to request and collect a crypto payment without writing any code. This guide covers payment links, invoices, and the hosted checkout, and when to use each.",
+    "sections": [
+      {
+        "heading": "Payment links",
+        "body": "A payment link is the fastest way to get paid. Create a link for a fixed or customer-entered amount, then share it by email, chat, or social media. When the customer opens it, they see a ready-to-pay checkout — no account required."
+      },
+      {
+        "heading": "Invoices",
+        "body": "Invoices are ideal when you need a clear record tied to a specific customer or order. Add line items and a total, send the invoice, and track its status from draft to paid inside your dashboard."
+      },
+      {
+        "heading": "Hosted checkout",
+        "body": "The hosted checkout is a secure, Dynopay-hosted payment page. Customers pick a currency and network, see the exact amount and a QR code, and pay in a few taps. It handles rate display, network selection, and confirmation tracking for you."
+      },
+      {
+        "heading": "Which one should you use?",
+        "bullets": [
+          "Use a payment link for quick, one-off requests and sharing.",
+          "Use an invoice when you need itemised, customer-specific records.",
+          "Use the hosted checkout when you want a polished, branded payment experience you can point customers to."
+        ]
+      }
+    ]
+  },
+  "api-and-integrations": {
+    "title": "API & Integrations",
+    "description": "Integrate Dynopay into your website, app, or SaaS using our API and ready-made tools.",
+    "intro": "If you want crypto payments built directly into your website, app, or SaaS, Dynopay offers an API and ready-made tools. This guide explains the integration options and how to get started.",
+    "sections": [
+      {
+        "heading": "No-code and low-code options",
+        "bullets": [
+          "Payment links and buy buttons let you accept payments with a copy-and-paste snippet — no backend required.",
+          "Hosted checkout handles the entire payment flow on Dynopay-hosted pages.",
+          "These options are the fastest way to go live and cover most common use cases."
+        ]
+      },
+      {
+        "heading": "The Dynopay API",
+        "body": "For full control, the API lets you create payments, generate checkouts, and read payment status programmatically. You authenticate with API keys generated in your dashboard, and you keep your secret key on your server, never in client-side code."
+      },
+      {
+        "heading": "Webhooks",
+        "body": "Webhooks notify your system in real time when a payment's status changes — for example when it is confirmed. Point a webhook at an endpoint on your server so you can fulfil orders, unlock access, or update records automatically as soon as a payment settles."
+      },
+      {
+        "heading": "Getting started with the API",
+        "bullets": [
+          "Generate an API key in the developer section of your dashboard.",
+          "Review the documentation for the endpoints you need.",
+          "Test with a small transaction before going live, and verify your webhook receives the confirmation event."
+        ]
+      }
+    ]
+  },
+  "security-and-transaction-safety": {
+    "title": "Security & Transaction Safety",
+    "description": "Discover how Dynopay protects transactions, funds, and merchant data.",
+    "intro": "Security is central to how Dynopay is built. This article explains how Dynopay protects transactions, funds, and your account, and the steps you can take to stay safe.",
+    "sections": [
+      {
+        "heading": "Non-custodial funds",
+        "body": "Because Dynopay is non-custodial, your funds settle directly to wallets you control rather than sitting in a Dynopay account. This dramatically reduces custody risk — there is no pooled balance for an attacker to target."
+      },
+      {
+        "heading": "No chargebacks",
+        "body": "Confirmed blockchain payments are final and cannot be reversed. This removes the chargeback fraud that plagues card payments, giving you certainty that a completed payment stays completed."
+      },
+      {
+        "heading": "Protecting your account",
+        "bullets": [
+          "Use a strong, unique password and keep your login credentials private.",
+          "Guard your API secret keys — store them on your server and never expose them in a browser or public repository.",
+          "Verify wallet addresses carefully, since blockchain transfers cannot be undone.",
+          "Review your dashboard regularly so you can spot anything unexpected quickly."
+        ]
+      },
+      {
+        "heading": "Data protection",
+        "body": "Dynopay handles data with encryption and follows privacy and compliance best practices. Sensitive information is protected in transit and at rest, and you stay in control of your account and funds throughout."
+      }
+    ]
+  }
+}

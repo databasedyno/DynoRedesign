@@ -1,0 +1,29 @@
+{
+  "summary": "Batch 6 dark-mode brandFg contrast rollout verified on DynoPay preview. Logged in as hostbay@moxx.co (read-only). Dashboard landed in dark mode (body bg rgb(8,8,10)). Verified brand indigo #818CF8 (rgb(129,140,248)) renders broadly across app chrome (Dashboard 103 elements, Transactions 53, Invoices 79, Create-Pay-Link 50). Stray raw #4F46E5 counts on migrated app-chrome pages are 0–5, consistent with intentionally-left filled-button backgrounds/known exceptions (batch 6 targets TEXT/ICON/SPINNER color only). /pay/demo has its own local theme toggle and rendered #4F46E5 correctly in its default light state (secure-payment shield + text and stepper visible & readable). No color-related console errors — only pre-existing MUI validateDOMNesting warnings (<p> inside <p>) in CompanySettingsDialog, unrelated to this batch.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "TransactionsTable", "issue": "[data-testid='tx-fiat-value'] first matched element returned computed color rgb(255,255,255) (white) in dark mode instead of brand #818CF8. Could be an empty/zero-row rendering — needs manual verification with an actual non-empty transaction row.", "selector": "[data-testid='tx-fiat-value']", "priority": "MEDIUM"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Manually confirm [data-testid='tx-fiat-value'] renders brand indigo (#818CF8 dark / #4F46E5 light) on a Transactions row that has a non-zero fiat amount — automated snapshot found the first element as white (possibly empty-state).",
+    "Optional: audit the 4-5 residual raw rgb(79,70,229) usages on Invoices and Create-Pay-Link to confirm they are filled-button backgrounds (out-of-scope for batch 6) and not missed text/icon/spinner instances.",
+    "Unrelated: fix MUI DOM-nesting warnings (<p> inside <p>, <fieldset> inside <p>) originating from CompanySettingsDialog — pre-existing noise cluttering console."
+  ],
+  "critical_code_review_comments": [
+    "Batch 6 pattern (brandFg(isDark) helper) is applied broadly and consistently — dashboards and lists show only #818CF8 (dark) or #4F46E5 (light) as expected.",
+    "Public /pay/demo maintains its own theme system independent of authenticated app theme toggle — worth documenting this behaviour."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (frontend only)", "frontend": "~90% (5/6 checklist items visually confirmed; light-mode regression on authenticated chrome not verified due to inability to locate theme-toggle-button on the logged-in layout in this run)"},
+  "test_credentials": "hostbay@moxx.co / Katiekendra123@ (LIVE prod, READ-ONLY — do not mutate)",
+  "seed_data_creation": "None (read-only)",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "App lands in DARK by default for this user. [data-testid='theme-toggle-button'] was NOT found on logged-in app-chrome in this run — it may be under a different selector (e.g. header icon-button without that testid) or only in /pay/demo. To verify LIGHT-mode regression on authenticated pages, either find the correct toggle selector (inspect header top-right icon buttons) or set the theme via context/localStorage before load. Brand color verification approach: page.evaluate scanning getComputedStyle(el).color across all elements for rgb(79,70,229) vs rgb(129,140,248) worked well and is the recommended pattern.",
+  "rca of the issue": "N/A — no critical bug reproduced. The one MEDIUM finding (tx-fiat-value=white) is inconclusive without inspecting the actual DOM row content; likely a legitimate empty/N/A state rather than a migration miss."
+}

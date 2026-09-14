@@ -1,0 +1,156 @@
+{
+  "mode": {
+    "add": {
+      "title": "Agregar nueva marca",
+      "subtitle": "Crea una nueva marca para gestionar pagos en cripto",
+      "primaryButton": "Iniciar una marca"
+    },
+    "edit": {
+      "title": "Editar marca",
+      "subtitle": "Actualiza la información de la marca",
+      "primaryButton": "Actualizar"
+    }
+  },
+  "fields": {
+    "companyName": {
+      "label": "Nombre de la marca*",
+      "placeholder": "Ingresa el nombre de la marca"
+    },
+    "website": {
+      "label": "Sitio web (opcional)",
+      "placeholder": "https://ejemplo.com"
+    },
+    "email": {
+      "label": "Correo electrónico*",
+      "placeholder": "contacto@ejemplo.com"
+    },
+    "mobile": {
+      "label": "Móvil*",
+      "placeholder": "Ingresa tu número de móvil"
+    },
+    "brandLogo": {
+      "label": "Logo de marca",
+      "uploadCta": "Haz clic para subir o arrastra y suelta",
+      "uploadHint": "SVG, PNG, JPG (máx. 2MB)",
+      "saving": "Guardando…",
+      "autoSaveHint": "Guardado automáticamente al elegir un archivo",
+      "pendingSaveHint": "Nuevo logo seleccionado — haz clic en Guardar cambios para aplicar.",
+      "saveHint": "Elige un archivo y luego haz clic en Guardar cambios para actualizar tu logo."
+    },
+    "country": {
+      "label": "País*",
+      "placeholder": "Selecciona el país"
+    },
+    "state": {
+      "label": "Estado",
+      "placeholder": "Selecciona el estado/región"
+    },
+    "city": {
+      "label": "Ciudad",
+      "placeholder": "Selecciona la ciudad"
+    },
+    "addressLine1": {
+      "label": "Dirección, línea 1",
+      "placeholder": "Ingresa la dirección línea 1"
+    },
+    "addressLine2": {
+      "label": "Dirección, Línea 2 (opcional)",
+      "placeholder": "Ingresa la dirección línea 2"
+    },
+    "zipCode": {
+      "label": "Código postal",
+      "placeholder": "Ingresa el código postal"
+    },
+    "vatNumber": {
+      "label": "Número de IVA (opcional)",
+      "placeholder": "Ingresa el número de IVA"
+    }
+  },
+  "actions": {
+    "cancel": "Cancelar"
+  },
+  "validation": {
+    "companyNameRequired": "El nombre de la marca es obligatorio",
+    "emailInvalid": "Por favor, ingresa un correo electrónico válido",
+    "emailRequired": "El correo electrónico es obligatorio",
+    "mobileRequired": "El número de móvil es obligatorio",
+    "mobileMin": "Se requieren mínimo 10 dígitos",
+    "mobileMax": "Se permiten máximo 14 dígitos",
+    "countryRequired": "El país es obligatorio",
+    "stateRequired": "El estado/región es obligatorio",
+    "cityRequired": "La ciudad es obligatoria",
+    "addressLine1Required": "La dirección línea 1 es obligatoria",
+    "zipCodeRequired": "El código postal es obligatorio"
+  },
+  "mobilePlaceholder": "Ingresa tu número de móvil",
+  "vatNumber": "Número de IVA (opcional)",
+  "vatVerify": "Número de IVA verificado",
+  "createModal": {
+    "title": "Crea tu marca",
+    "subtitle": "Configura tu marca para empezar a aceptar pagos",
+    "closeLater": "Lo haré más tarde",
+    "sectionYourName": "Tu nombre",
+    "sectionCompanyDetails": "Detalles de la marca",
+    "firstNameLabel": "Nombre *",
+    "firstNamePlaceholder": "Nombre",
+    "lastNameLabel": "Apellido *",
+    "lastNamePlaceholder": "Apellido",
+    "companyNameLabel": "Nombre de la marca *",
+    "companyNamePlaceholder": "Ingresa el nombre de tu marca",
+    "businessEmailLabel": "Correo empresarial *",
+    "businessEmailPlaceholder": "Introduce tu correo empresarial",
+    "mobileLabel": "Número de móvil (opcional)",
+    "mobilePlaceholder": "Introduce el número de móvil",
+    "websiteLabel": "Sitio web (opcional)",
+    "countryLabel": "País *",
+    "countryPlaceholder": "Empieza a escribir tu país…",
+    "currencyLabel": "Moneda predeterminada *",
+    "currencyPlaceholder": "Selecciona una moneda",
+    "brandLogoLabel": "Logotipo de la marca (opcional)",
+    "uploadChange": "Cambiar",
+    "uploadUpload": "Subir",
+    "submit": "Crear marca",
+    "progressTitle": "Configurando tu marca…",
+    "progressStep1": "Creando tu marca…",
+    "progressStep2": "Configurando las preferencias de facturación…",
+    "progressStep3": "Enviando correos de bienvenida…",
+    "progressStep4": "Aprovisionando tu cuenta de comercio…",
+    "progressStep5": "Casi listo: preparando tu panel…",
+    "fileTypeError": "Solo se permiten archivos de imagen (JPEG, PNG, GIF, WebP, SVG)",
+    "fileSizeError": "El tamaño del archivo debe ser inferior a 5 MB",
+    "validation": {
+      "firstNameRequired": "El nombre es obligatorio",
+      "lastNameRequired": "El apellido es obligatorio",
+      "companyNameRequired": "El nombre de la marca es obligatorio",
+      "emailRequired": "El correo es obligatorio",
+      "emailInvalid": "Introduce un correo válido",
+      "mobileInvalid": "Introduce un número de móvil válido",
+      "websiteInvalid": "Introduce una URL válida (p. ej., https://tuempresa.com)",
+      "countryRequired": "Selecciona tu país",
+      "currencyRequired": "Selecciona una moneda"
+    },
+    "addTitle": "Agregar una nueva marca",
+    "addSubtitle": "Configura otra marca en tu cuenta",
+    "payLinkSubtitle": "Se usa en facturas y recibos. Tarda unos 30 segundos.",
+    "cancel": "Cancelar",
+    "emailLabelOptional": "Correo electrónico (opcional)",
+    "stepBrand": "Marca",
+    "stepWallet": "Billetera",
+    "nameLockedNotice": "Tu nombre está verificado y no se puede cambiar aquí. Contacta con soporte para actualizarlo.",
+    "logoAdded": "Logo añadido"
+  },
+  "addCompanyBtn": "Agregar marca",
+  "noCompaniesYet": "Aún no hay marcas",
+  "createFirstCompanyBody": "Crea tu primera marca para empezar a aceptar pagos y gestionar todo en un solo lugar.",
+  "noResultsFound": "No se encontraron resultados",
+  "optional": "opcional",
+  "validateTax": "Validar ID de impuesto",
+  "accountType": {
+    "label": "Tipo de cuenta",
+    "individualTitle": "Individual / creador",
+    "individualDesc": "Pagos personales, propinas y una página pública.",
+    "businessTitle": "Empresa registrada",
+    "businessDesc": "Facturas, IVA/impuestos, dirección y acceso del equipo.",
+    "switchHelper": "Añade el nombre de tu empresa y el país abajo y pulsa Guardar para cambiar a una cuenta de empresa. Tus billeteras, claves e historial se mantienen igual."
+  }
+}

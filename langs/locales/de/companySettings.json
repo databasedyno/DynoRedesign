@@ -1,0 +1,69 @@
+{
+  "title": "Markendetails",
+  "subtitle": "Hier kannst du die Informationen deiner Marke prüfen oder ändern.",
+  "profileImage": "Profilbild",
+  "fields": {
+    "profileName": "Profilname*"
+  },
+  "webhookNotifications": "Webhook-Benachrichtigungen",
+  "webhookSubtitle": "Automatische Benachrichtigungen erhalten, wenn Zahlungen eingehen.",
+  "webhookNotificationUrl": "Benachrichtigungs-URL",
+  "webhookNotificationUrlHelper": "Wohin sollen wir Zahlungsbenachrichtigungen senden?",
+  "webhookSecretKey": "Geheimer Schlüssel",
+  "webhookSecretKeyHelper": "Verwenden Sie diesen, um zu überprüfen, ob Benachrichtigungen wirklich von Dynopay stammen.",
+  "webhookCopy": "Kopieren",
+  "webhookReveal": "Geheimen Schlüssel anzeigen",
+  "webhookHide": "Geheimen Schlüssel verbergen",
+  "webhookRegenerate": "Geheimen Schlüssel neu generieren",
+  "webhookRegenerateConfirmTitle": "Neuen geheimen Schlüssel generieren?",
+  "webhookRegenerateConfirmMessage": "Ihr aktueller geheimer Schlüssel wird sofort ungültig. Stellen Sie sicher, dass Sie Ihre Integration aktualisieren, bevor Sie einen neuen generieren.",
+  "webhookRegenerateConfirmButton": "Neu generieren",
+  "webhookSendTest": "Test senden",
+  "paymentTolerance": "Zahlungstoleranz",
+  "paymentToleranceSubtitle": "Steuern Sie, wie viel Abweichung bei Zahlungen akzeptiert wird.",
+  "paymentToleranceFields": {
+    "acceptUnderpaymentsUpTo": "Unterzahlungen akzeptieren bis zu",
+    "acceptUnderpaymentsHelper": "Wenn eine $100-Zahlung als $99 eingeht, wird sie trotzdem als abgeschlossen markiert.",
+    "flagOverpaymentsAbove": "Überzahlungen markieren ab",
+    "flagOverpaymentsHelper": "Sie erhalten eine Benachrichtigung, wenn jemand mehr als diesen Betrag über den Gesamtbetrag zahlt.",
+    "timeForPartialPayments": "Zeit für Teilzahlungen",
+    "timeForPartialPaymentsHelper": "Wie lange auf den Abschluss einer Teilzahlung gewartet werden soll",
+    "minutes": "Minuten"
+  },
+  "cryptoConversion": "Krypto-Konvertierung",
+  "cryptoConversionSubtitle": "Eingehende BTC, ETH, LTC werden automatisch in einen Stablecoin konvertiert.",
+  "cryptoConversionAlert": "Bitte richten Sie zuerst Ihr USDT/USDC-Wallet ein.",
+  "cryptoConversionAutoConvert": "Volatile Krypto automatisch konvertieren",
+  "cryptoConversionYes": "Ja",
+  "cryptoConversionNo": "Nein",
+  "cryptoConversionFee": "Konvertierungsgebühr: 0%",
+  "cryptoConversionConvertTo": "Konvertieren in:",
+  "cryptoConversionUsdtTrc20": "USDT (TRC20)",
+  "cryptoConversionUsdtErc20": "USDT (ERC20)",
+  "cryptoConversionUsdcErc20": "USDC (ERC20)",
+  "cryptoConversionEnabledToast": "Auto-Umwandlung ist aktiv — volatile Coins werden jetzt als {{currency}} ({{chain}}) abgerechnet.",
+  "cryptoConversionSaveFailed": "Auto-Umwandlung konnte nicht gespeichert werden. Bitte zuerst eine passende Stablecoin-Wallet hinzufügen und erneut versuchen.",
+  "actions": {
+    "cancel": "Abbrechen",
+    "saveChanges": "Änderungen speichern",
+    "delete": "Marke löschen"
+  },
+  "placeholders": {
+    "webhook": "Webhook-Benachrichtigungen konfigurieren.",
+    "paymentTolerance": "Zahlungstoleranz festlegen.",
+    "cryptoConversion": "Krypto-Konvertierung konfigurieren."
+  },
+  "delete": {
+    "sendFailed": "Der Verifizierungscode konnte nicht gesendet werden.",
+    "deleteFailed": "Die Marke konnte nicht gelöscht werden.",
+    "title": "Diese Marke löschen?",
+    "otpTitle": "Verifizierungscode eingeben",
+    "yourEmail": "deine E-Mail",
+    "confirmCta": "Marke löschen",
+    "cancel": "Abbrechen",
+    "sendCode": "Code senden",
+    "body": "Dies entfernt {{name}} dauerhaft zusammen mit seinen Zahlungslinks, API-Schlüsseln und Einstellungen. Dies kann nicht rückgängig gemacht werden. Wir senden Ihnen einen 6-stelligen Code per E-Mail zur Bestätigung.",
+    "typeToConfirm": "Geben Sie {{name}} ein, um fortzufahren:",
+    "otpBody": "Wir haben einen 6-stelligen Code an {{email}} gesendet. Geben Sie ihn unten ein, um {{name}} zu löschen."
+  }
+}

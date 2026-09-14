@@ -1,0 +1,22 @@
+{
+  "summary": "Verified the sessionService refactor (split into services/session/tokens.ts + revocation.ts + slimmer sessionService.ts) is a pure refactor with no behavioural regression. Pre-commit file-size gate now passes (root cause of the missing GitHub commit). All backend regressions and the frontend smoke test pass.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/tests/e2e_signout_others.sh",
+    "/tmp/test_kyc_and_single.sh"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Refactor is clean: sessionService.ts=360, session/tokens.ts=102, session/revocation.ts=123 lines — all well under the 500-line gate.",
+    "Backend hot reload is disabled per note; backend was already restarted post-refactor. authMiddleware imports of isSessionRevoked/isKeptSession are satisfied via re-exports in sessionService.ts (verified indirectly by 100% pass of e2e_signout_others.sh which exercises those paths)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (user 1)",
+  "seed_data_creation": "None. Only read/session operations on user 1 as instructed.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Pre-commit gate: `node backend/scripts/check-file-size.mjs` -> exit 0, '[file-size] OK'. `sh scripts/preflight-tsc.sh` -> exit 0, 'All staged TS gates passed'. sessionService line counts: 360/102/123. e2e_signout_others.sh: before 200/200/200 -> revoke 3 -> after 200/401/401, sessions 200/401, mobile refresh 401, desktop refresh ok=yes, new desktop token 200, twice 200, relogin 200. Single-device revoke: A=200, B=401. KYC status approved for company_id in {none,1,165,179,71}; /api/public/merchant-verification?handle=devhub verified=true. Frontend: 2-step login OK, KYC badge appears ~3s after dashboard load and remains visible after switching to company-option-165 (Nameword). Settings profile shows 7 session rows, 1 marked current. Zero console errors. Company selector data-testid is 'company-selector-trigger' with options 'company-option-{1,165,169,179,71,181}'.",
+  "rca of the issue": "The GitHub commit didn't appear because the .husky/pre-commit hook runs backend/scripts/check-file-size.mjs which failed for backend/services/sessionService.ts (577 lines > 500 gate). Fix: split into session/tokens.ts (102) + session/revocation.ts (123) + slimmer sessionService.ts (360) that re-exports the public API used by authMiddleware and controllers. Gate now passes; behaviour unchanged (all regression suites green)."
+}

@@ -1,0 +1,55 @@
+{
+  "meta_title": "Paiements en crypto pour consultants et coachs · Dynopay",
+  "meta_description": "Soyez payé en crypto pour vos prestations de conseil et de coaching avec Dynopay. Facturez des clients dans le monde entier, sans rétrofacturation, plus de 15 cryptomonnaies, frais dès 1,5 %. Commencez gratuitement.",
+  "h1": "Acceptez les paiements en crypto pour le conseil et le coaching, auprès de tout client dans le monde",
+  "subheading": "Dynopay permet aux consultants, coachs et conseillers de facturer leurs clients en Bitcoin, en stablecoins et dans plus de 15 cryptomonnaies directement sur un wallet qu'ils contrôlent — avec un règlement instantané et sans rétrofacturation.",
+  "intro_paragraph": "Les consultants et les coachs facturent souvent des clients internationaux, pour qui les virements sont lents et coûteux et où une rétrofacturation par carte peut survenir après une prestation déjà livrée. Dynopay est une passerelle de paiement crypto non dépositaire qui règle directement sur votre wallet. Envoyez un lien de paiement à votre marque pour un forfait de suivi, un pack ou une séance unique, encaissez via un checkout hébergé ou automatisez la facturation grâce à l'API REST sur plus de 15 cryptomonnaies. Les frais démarrent à 1,5 % et descendent à 0,5 % à grande échelle, sans rétrofacturation, sans frais mensuels et avec un premier paiement gratuit.",
+  "features": [
+    {
+      "title": "Facturez des clients du monde entier en quelques secondes",
+      "description": "Envoyez un lien de paiement par e-mail ou par messagerie et soyez payé en quelques minutes — pas de virement international, pas de jours d'attente et pas de frais de banque correspondante qui grignotent votre facture."
+    },
+    {
+      "title": "Aucune rétrofacturation une fois le travail livré",
+      "description": "Les paiements en crypto sont définitifs : un client ne peut donc pas contester vos honoraires auprès de l'émetteur de sa carte une fois les séances ou les livrables terminés."
+    },
+    {
+      "title": "Conservez un solde stable",
+      "description": "Acceptez l'USDT ou l'USDC pour conserver un solde indexé sur le dollar et éviter la volatilité, puis convertissez dans votre devise locale quand vous le souhaitez."
+    }
+  ],
+  "how_it_works": [
+    "Inscrivez-vous, vérifiez votre e-mail, créez un profil d'entreprise et ajoutez une adresse de wallet de versement pour le règlement.",
+    "Créez un lien de paiement pour chaque client, forfait de suivi ou pack — ou intégrez le checkout sur votre page de réservation.",
+    "Le client paie dans la cryptomonnaie de son choix et les fonds arrivent sur votre wallet en quelques minutes."
+  ],
+  "faqs": [
+    {
+      "question": "Comment les consultants et les coachs sont-ils payés avec Dynopay ?",
+      "answer": "Créez un lien de paiement pour une séance, un pack ou un forfait de suivi et envoyez-le au client, ou intégrez le checkout sur votre page de réservation. Lorsqu'il paie en crypto, les fonds sont réglés sur votre wallet en quelques minutes — sans les délais des virements internationaux."
+    },
+    {
+      "question": "Puis-je facturer un forfait de suivi mensuel en crypto ?",
+      "answer": "Oui, cycle par cycle. La crypto n'a pas de prélèvement automatique comme les cartes : chaque renouvellement est donc un nouveau paiement — utilisez l'API REST et les webhooks pour envoyer automatiquement un lien de paiement à chaque cycle de facturation."
+    },
+    {
+      "question": "Avec quelles cryptomonnaies les clients peuvent-ils payer ?",
+      "answer": "Dynopay prend en charge plus de 15 cryptomonnaies, dont Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, TRX, MATIC ainsi que des stablecoins comme l'USDT (ERC20, TRC20, Polygon), l'USDC (ERC20) et le RLUSD."
+    },
+    {
+      "question": "Quels sont les frais pour accepter des paiements de conseil ?",
+      "answer": "Les frais démarrent à 1,5 % plus un dollar par paiement réussi et descendent à 0,5 % à mesure que votre volume réglé augmente. Aucuns frais d'installation, aucuns frais mensuels, et votre premier paiement est gratuit."
+    },
+    {
+      "question": "Mon argent est-il détenu par Dynopay ?",
+      "answer": "Non. Dynopay est non dépositaire : les paiements sont réglés directement sur un wallet que vous contrôlez — MetaMask, Coinbase, Ledger ou toute adresse qui vous appartient."
+    }
+  ],
+  "cta_headline": "Commencez à facturer vos clients en crypto en 10 minutes",
+  "cta_body": "Inscrivez-vous maintenant et votre première transaction est sans frais. Aucun coût mensuel, et les fonds sont réglés directement sur un wallet que vous contrôlez.",
+  "_generated_at": "2026-09-05T00:00:00.000Z",
+  "_model": "dynopay-editorial-2026-09",
+  "_kind": "vertical",
+  "_slug": "consultants",
+  "_display_name": "Consultants & Coaches"
+}

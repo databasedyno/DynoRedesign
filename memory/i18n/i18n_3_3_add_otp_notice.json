@@ -1,0 +1,12 @@
+{
+  "walletScreen": {
+    "addOtpNotice": {
+      "en": "We'll email you a 6-digit code to confirm this wallet before it's saved.",
+      "de": "Wir senden Ihnen per E-Mail einen 6-stelligen Code, um diese Wallet vor dem Speichern zu bestätigen.",
+      "es": "Te enviaremos por correo un código de 6 dígitos para confirmar esta cartera antes de guardarla.",
+      "fr": "Nous vous enverrons par e-mail un code à 6 chiffres pour confirmer ce portefeuille avant de l'enregistrer.",
+      "nl": "We e-mailen je een 6-cijferige code om deze wallet te bevestigen voordat hij wordt opgeslagen.",
+      "pt": "Enviaremos por e-mail um código de 6 dígitos para confirmar esta carteira antes de a guardar."
+    }
+  }
+}

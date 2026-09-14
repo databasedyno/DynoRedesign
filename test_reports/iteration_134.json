@@ -1,0 +1,30 @@
+{
+  "summary": "RETEST of iteration_133 fixes. AUTH-003 password set flow PASSES end-to-end (toast: 'Password updated successfully!', POST /api/user/profile/set-password returned 200). DASH-001 STILL FAILS — the ConversionBanner fix was applied to DashboardLeftSection.tsx, but /dashboard renders Dashboard2026 (Components/Page/Dashboard/v2026/index.tsx) which never mounts ConversionBanner, so [data-testid=\"auto-convert-banner\"] never appears in the DOM and no /api/company/auto-convert/{companyId} XHR is fired.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "ConversionBanner / Dashboard2026", "issue": "Auto-convert banner is not rendered on /dashboard. The QA fix targeted DashboardLeftSection.tsx (legacy dashboard), but pages/dashboard.tsx mounts <Dashboard2026 /> from Components/Page/Dashboard/v2026/index.tsx, which does NOT import or render ConversionBanner. Confirmed: [data-testid=\"auto-convert-banner\"] not in DOM after 15s+ and zero /api/company/auto-convert/* network requests fire. Only dash2026-* testids exist on the dashboard.", "selector": "[data-testid=\"auto-convert-banner\"]", "priority": "HIGH"}
+    ],
+    "integration_issues": [
+      {"flow": "InputField (password) — real keyboard typing", "issue": "programmatic value setters (.fill()) work correctly and Formik receives the value (submit enables, form posts, success toast). However, real keystroke events via Playwright keyboard.type() drop the initial 1–8 characters (e.g. 'Katiekendra123@' becomes 'atiekendra123@' or 'dra123@'). Suggests the InputField onChange still causes a re-render race that swallows the first keystrokes before focus/state settles. May not be user-facing at human typing speeds, but is a red-flag worth verifying with slow deliberate typing.", "affected_selectors": ["[data-testid=\"new-password-input\"]", "[data-testid=\"confirm-password-input\"]"]}
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "DASH-001: Import and mount <ConversionBanner /> inside Components/Page/Dashboard/v2026/index.tsx (the actually-rendered dashboard). The current fix in DashboardLeftSection.tsx is dead code on the /dashboard route.",
+    "AUTH-003 (nice-to-have): Verify manually with a real keyboard that the first character of the new/confirm password isn't dropped; investigate InputField onChange remount/re-render that eats leading keystrokes."
+  ],
+  "critical_code_review_comments": [
+    "Two dashboard implementations coexist (DashboardLeftSection.tsx and v2026/index.tsx). Only v2026 is used by pages/dashboard.tsx; the older path receives dashboard feature work by mistake (as in this DASH-001 fix). Consider deleting DashboardLeftSection.tsx or clearly marking it deprecated to prevent future misdirected fixes.",
+    "ConversionBanner keys off companyId with useCallback+useEffect — correct pattern, but the whole component still needs to be mounted somewhere on the actually-rendered dashboard tree."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (frontend only)", "frontend": "50% (1/2 QA items fixed)"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (unchanged, idempotent set-password ran and succeeded)",
+  "seed_data_creation": "none — safe mode respected, toggle NOT flipped ON, password re-set to the same existing value",
+  "retest_needed": true,
+  "main_agent_can_self_test": false,
+  "context_for_next_testing_agent": "Root cause of DASH-001 miss: /app/pages/dashboard.tsx line 8 imports Dashboard2026 from '@/Components/Page/Dashboard/v2026' and renders <Dashboard2026 /> at line 116. That component has NO reference to ConversionBanner (grep confirms). The QA fix in DashboardLeftSection.tsx is never reached. AUTH-003 verified working via Playwright .fill() → submit → 200 → 'Password updated successfully!' toast. OTP retrieval via `node scripts/read_otp.cjs onarrival21@gmail.com` works reliably; auto-verify fires as soon as the 6th digit lands.",
+  "rca of the issue": "DASH-001: fix scoped to wrong file. ConversionBanner is imported only by DashboardLeftSection.tsx which is not used on /dashboard route (Dashboard2026 v2026 index is). Repro: login → /dashboard → wait 15s → querySelector('[data-testid=auto-convert-banner]') === null AND no /api/company/auto-convert/* XHR ever fires. Fix: add <ConversionBanner /> into v2026/index.tsx (e.g., above RecentTransactions or in an appropriate empty-state-guarded slot)."
+}

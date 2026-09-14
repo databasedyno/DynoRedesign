@@ -1,0 +1,22 @@
+{
+  "summary": "Verified DynoPay paid-link resurrection bug fix in cryptoCheckout.ts getData(). Ran 4 pytest cases against POST /api/pay/getData and 2 frontend E2E page loads. All 5 review-request items pass.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_results": {
+    "1_paid_link_818c_getData": "PASS - payment_completed=true, amount=800 USD, paid 0.42472539 ETH, paid_at set, description contains 'Ireland...3CX'",
+    "2_paid_link_89a0_getData": "PASS - payment_completed=true, amount=75 USD, paid 0.00120154 BTC",
+    "3_paid_link_818c_frontend": "PASS - Green 'Payment successful' card rendered with '0.42472539 ETH (\u2248 800.00 USD) paid', 'Paid 1 hour ago \u2022 Aug 13, 2026' chip, and completed ORDER\u2192PAYMENT\u2192DONE stepper. NO QR/currency form shown.",
+    "4_active_link_c86e_regression": "PASS - getData returns amount=10 EUR, available_currencies list present, token present, no payment_completed flag. Frontend renders normal checkout: 'Pay hostbay', REFERENCE \u00b7 INV-2026-171, NETWORK/CURRENCY selectors (Bitcoin/BTC), QR code, WAITING banner.",
+    "5_invalid_ref_deadbeef": "PASS - Returns HTTP 404 (not 500)"
+  },
+  "test_report_links": ["/app/backend/tests/test_paid_link_getdata.py", "/app/test_reports/pytest/paid_link_getdata.xml", "/app/test_reports/screenshots_iter53_paid.png", "/app/test_reports/screenshots_iter53_active.png"],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": ["/app/backend/tests/test_paid_link_getdata.py"],
+  "success_rate": {"backend": "100% (4/4)", "frontend": "100% (2/2)"},
+  "seed_data_creation": "None - read-only testing on live production DB as instructed",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Live production DB - use READ-ONLY approach. Paid refs 818c... and 89a0... are permanent test fixtures. Active ref c86e... is a \u20ac10 test link. Bug fix in backend/controller/payment/cryptoCheckout.ts getData() (hasUsableSession guard + DB fallback for expired sessions on settled links) is working correctly.",
+  "rca of the issue": "Redis checkout session was soft-deleted ~30min after settlement. Backend getData wrote back language BEFORE the empty-session guard, resurrecting expired keys as bare {language} shells that passed the guard with no link_id, so DB paid-status gate never fired. Fix: (1) hasUsableSession requires real checkout fields, (2) language persisted only on usable sessions, (3) session-missing \u2192 DB fallback lookup by payment_link ref returns {payment_completed:true, ...} for settled links or 404. Verified via 4 pytest cases + 2 frontend renders."
+}

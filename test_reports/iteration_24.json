@@ -1,0 +1,52 @@
+{
+  "summary": "Swiss & High-Contrast landing-page redesign PASSED end-to-end frontend testing. All 43 required data-testids render in both LIGHT and DARK modes with zero console errors. Every interactive element in scope works: hero CTAs (primary → /auth/register?ref=hero_swiss, secondary → smooth-scroll to fee calc), fee calculator (slider updates $10k→$22.5k volume and $260→$585 savings; Stripe→PayPal switch updates alt-bar $743→$932 & 2.9%→3.49%; fee-calc-cta → /auth/register?ref=fee_calc), FAQ accordion (item-0 open by default, click item-2 → item-0 closes + item-2 opens with + rotating 45deg), product showcase (next/prev/dot-1 all change slide — elongated dot moves 34→8→34 and mock browser URL flips checkout↔dashboard), final CTA (register → /auth/register?ref=final_cta; docs → /documentation; chat button visible). Mobile 390×844: NO horizontal overflow, hero stacks (terminal y=847 below CTA y=507), stat-wall is 2×2 (2 distinct row tops), all 5 bento cards stack full-width 342px @ left=24. Regression: /fees, /auth/login, /auth/register all load. Header/footer intact on landing. Bento cards contain 0 <img> tags — all UI mockups (checkout with coin pills, JS code block, dynopay.me link, transactions table, donation progress). Dark-mode contrast sampled: bento cards / fee-calc / stat-fee all ~19:1 (excellent). Only one design nit remains from iteration_23's known list.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "Landing '/' LIGHT mode — hero mini-stats & captions",
+        "issues": [
+          "Small labels 'Businesses' / 'Chains' / 'Avg settlement' (10.5px) and '// REAL SETTLEMENT FLOW · REPLAYED' (11px) render color=rgba(10,10,10,0.38) alpha-composited over rgb(238,241,246) → effective rgb(~151,~153,~156) on ~rgb(238,241,246) ≈ 2.4:1 contrast. Fails WCAG AA (needs 4.5:1 for small text). Same pattern found on hero '🇺🇸 Trusted by merchants…' caption. This is essentially the same class of issue iteration_23 flagged as 'MINOR / non-blocking' (was 4.27:1 for the medium captions); the tiny 10.5px labels are worse. Suggested fix: use theme.palette.text.secondary at ~rgba(10,10,10,0.62) or a resolved #5B5B66 to reach 4.5:1+."
+        ]
+      }
+    ]
+  },
+  "verified_functional": {
+    "sections_present_light_dark": "43/43 data-testids present in both themes (hero-terminal, chains-marquee, product-showcase-section, stat-wall+4 stats, fee-calculator-section, core-value-props, use-cases-bento+5 cards, compliance-strip, testimonials-section, testimonial-featured, faq-section+7 items, final-cta-section)",
+    "console_errors": "0 in both light & dark, 0 during interaction, 0 during nav to /fees|/auth/login|/auth/register|/documentation",
+    "hero_cta_primary": "PASS → https://…/auth/register?ref=hero_swiss",
+    "hero_cta_secondary_smooth_scroll": "PASS → scrolled from y=0 to y=2219; fee-calculator-section top-relative = 0px",
+    "fee_calc_slider": "PASS → volume $10,000 → $22,500; savings '$260/mo → $3,119/yr' → '$585/mo → $7,020/yr'. NOTE: fee-calc-bar-dynopay style width did not change because bar height encodes the processor's FEE RATE (constant per processor) — this is expected. Bar text amounts update correctly.",
+    "fee_calc_processor_switch": "PASS → alt-bar text '$743 · Stripe 2.9% + $0.30/tx' → '$932 · PayPal 3.49% + $0.49/tx'. All 5 options present: Stripe, Coinbase Commerce, BitPay, PayPal, Credit card (typical).",
+    "fee_calc_cta": "PASS → /auth/register?ref=fee_calc (bonus: pre-fills 'fee_calc' in referral code field)",
+    "faq_accordion": "PASS → initial item-0 Collapse.entered=true, height=100px, + rotated 45° (matrix(0.707,0.707,-0.707,0.707)). After click item-2: item-0 entered=false height=0 rot=identity; item-2 entered=true height=126 rot=45°. Single-open behavior confirmed.",
+    "product_showcase": "PASS → showcase-next moves elongated dot [34,8,8] → [8,34,8] and mock URL 'checkout.dynopay.co' → 'dynopay.com/dashboard'; showcase-prev reverses; showcase-dot-1 jumps to slide 2.",
+    "final_cta_register": "PASS → /auth/register?ref=final_cta",
+    "final_cta_docs": "PASS → /documentation loaded",
+    "final_cta_chat": "PASS → button visible",
+    "dark_mode_contrast": "PASS → usecase-card-stores 250/250/250 on 17/17/19 ≈19:1; fee-calc-volume-value 245/245/245 on 17/17/19 ≈19:1; stat-fee 250/250/250 on 6/6/6 ≈20:1; body bg confirmed rgb(6,6,6).",
+    "mobile_390x844": "PASS → docScrollW==clientW==390 (no horizontal overflow at ANY scroll position 0..bottom); stat-wall = 2×2 (rows [2461,2589]); hero terminal y=847 stacks below CTA y=507; bento cards all width=342 left=24.",
+    "regression": "PASS → /fees title 'Crypto Payment Processing Fees — Transparent Pricing | DynoPay' loaded; /auth/login form present; /auth/register form present; header + footer render on landing.",
+    "no_stock_photos_in_bento": "PASS → 0 <img> elements inside any usecase-card-*; content is native UI mockups (checkout w/ coin pills; JS code block; dynopay.me payment link; transactions table with SELLER/AMOUNT/CHAIN/STATUS; donation progress 'Clean Water Fund 3,42…')."
+  },
+  "test_report_links": ["/app/test_reports/iteration_24.json"],
+  "action_items": [
+    "OPTIONAL / accessibility polish: bump LIGHT-mode small captions from rgba(10,10,10,0.38) to ~rgba(10,10,10,0.62) (or resolved ~#5B5B66) on 'Businesses'/'Chains'/'Avg settlement' labels, hero '🇺🇸 Trusted by…' line, and '// REAL SETTLEMENT FLOW · REPLAYED' to reach WCAG AA 4.5:1. Currently ~2.4:1. Same class of issue iteration_23 called out; still non-blocking visually but sub-AA."
+  ],
+  "critical_code_review_comments": [
+    "fee-calc-bar-dynopay height reflects fee-rate not volume — this is correct design, but the review's expectation 'the two bars … update' when the slider moves may confuse future testers. Consider adding a subtle numeric-count animation on the $ label inside the bar or a mini annotation ('bars show rate; label shows $ at your volume') to clarify.",
+    "Every landing CTA correctly threads a referral code (?ref=hero_swiss / fee_calc / final_cta) into /auth/register and the register page pre-fills the Referral Code field — nice attribution setup.",
+    "Bento cards are genuinely image-free (verified via query_selector_all('img').length===0) — no stock photos as required.",
+    "Consider adding aria-expanded to the FAQ button (currently only visual + rotation communicates state). Screen-reader users would benefit."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (frontend-only requested)", "frontend": "43/43 testids present · 12/12 flows verified · 3/3 regression pages load · 1 minor design nit (contrast on small light-mode captions, same class as iteration_23 known list)"},
+  "test_credentials": "None needed — landing is public.",
+  "seed_data_creation": "None. Read-only. Only client-side localStorage 'theme-mode' toggled between 'light' and 'dark' (as instructed).",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Redesign is production-ready. Public URL from /app/frontend/.env is https://speedup-check.preview.emergentagent.com (NOT the URL in the review request text; that domain 404s from within the container). Theme via localStorage['theme-mode']='light'|'dark' + reload — the header theme-toggle button works but reload is faster/deterministic. Use wait_until='domcontentloaded' for goto — networkidle times out because the ChainsMarquee animation keeps the raf/network signal busy. Fee calculator slider is a MUI Slider; focus its inner input[type=range] and ArrowRight to increment. Product showcase active dot is identified by width (elongated ~34px vs ~8px), not aria-current. FAQ open state is identified by .MuiCollapse-entered and the + icon transform rotate(45deg). All CTAs thread ?ref=... into /auth/register; register page pre-fills the Referral Code field with that value.",
+  "rca_of_the_issue": "N/A — redesign passes. The one remaining design nit (light-mode small-caption contrast at ~2.4:1) is the same class as iteration_23's known-minor issue and can be resolved by a one-line palette bump (alpha 0.38 → 0.62 on text.disabled or use text.secondary tokens for these labels)."
+}

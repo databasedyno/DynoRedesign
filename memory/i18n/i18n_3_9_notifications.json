@@ -1,0 +1,15 @@
+{
+  "notifications": {
+    "inboxTab": { "en": "Inbox", "de": "Posteingang", "es": "Bandeja", "fr": "Boîte de réception", "nl": "Inbox", "pt": "Caixa de entrada" },
+    "settingsTab": { "en": "Settings", "de": "Einstellungen", "es": "Ajustes", "fr": "Paramètres", "nl": "Instellingen", "pt": "Definições" },
+    "markAllRead": { "en": "Mark all as read", "de": "Alle als gelesen markieren", "es": "Marcar todo como leído", "fr": "Tout marquer comme lu", "nl": "Alles als gelezen markeren", "pt": "Marcar tudo como lido" },
+    "markingAllRead": { "en": "Marking…", "de": "Wird markiert…", "es": "Marcando…", "fr": "Marquage…", "nl": "Markeren…", "pt": "A marcar…" },
+    "group.today": { "en": "Today", "de": "Heute", "es": "Hoy", "fr": "Aujourd'hui", "nl": "Vandaag", "pt": "Hoje" },
+    "group.yesterday": { "en": "Yesterday", "de": "Gestern", "es": "Ayer", "fr": "Hier", "nl": "Gisteren", "pt": "Ontem" },
+    "group.thisWeek": { "en": "This week", "de": "Diese Woche", "es": "Esta semana", "fr": "Cette semaine", "nl": "Deze week", "pt": "Esta semana" },
+    "group.earlier": { "en": "Earlier", "de": "Früher", "es": "Anteriores", "fr": "Plus tôt", "nl": "Eerder", "pt": "Anteriores" },
+    "group.unreadCount": { "en": "{{count}} unread", "de": "{{count}} ungelesen", "es": "{{count}} sin leer", "fr": "{{count}} non lu(s)", "nl": "{{count}} ongelezen", "pt": "{{count}} por ler" },
+    "openTransaction": { "en": "View transaction", "de": "Transaktion anzeigen", "es": "Ver transacción", "fr": "Voir la transaction", "nl": "Transactie bekijken", "pt": "Ver transação" },
+    "openDetails": { "en": "Open", "de": "Öffnen", "es": "Abrir", "fr": "Ouvrir", "nl": "Openen", "pt": "Abrir" }
+  }
+}

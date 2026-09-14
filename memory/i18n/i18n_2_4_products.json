@@ -1,0 +1,33 @@
+{
+  "common": {
+    "products.viewLabel": { "en": "View", "de": "Ansicht", "es": "Vista", "fr": "Affichage", "nl": "Weergave", "pt": "Vista" },
+    "products.view.grid": { "en": "Grid", "de": "Raster", "es": "Cuadrícula", "fr": "Grille", "nl": "Raster", "pt": "Grelha" },
+    "products.view.list": { "en": "List", "de": "Liste", "es": "Lista", "fr": "Liste", "nl": "Lijst", "pt": "Lista" },
+    "products.status.draft": { "en": "Draft", "de": "Entwurf", "es": "Borrador", "fr": "Brouillon", "nl": "Concept", "pt": "Rascunho" },
+    "products.status.live": { "en": "Live", "de": "Live", "es": "Publicado", "fr": "En ligne", "nl": "Live", "pt": "Publicado" },
+    "products.status.archived": { "en": "Archived", "de": "Archiviert", "es": "Archivado", "fr": "Archivé", "nl": "Gearchiveerd", "pt": "Arquivado" },
+    "products.statusLabel": { "en": "Status", "de": "Status", "es": "Estado", "fr": "Statut", "nl": "Status", "pt": "Estado" },
+    "products.type.digital": { "en": "Digital product", "de": "Digitales Produkt", "es": "Producto digital", "fr": "Produit numérique", "nl": "Digitaal product", "pt": "Produto digital" },
+    "products.type.physical": { "en": "Physical product", "de": "Physisches Produkt", "es": "Producto físico", "fr": "Produit physique", "nl": "Fysiek product", "pt": "Produto físico" },
+    "products.type.service": { "en": "Service", "de": "Dienstleistung", "es": "Servicio", "fr": "Service", "nl": "Dienst", "pt": "Serviço" },
+    "products.edit": { "en": "Edit", "de": "Bearbeiten", "es": "Editar", "fr": "Modifier", "nl": "Bewerken", "pt": "Editar" },
+    "products.editFull": { "en": "Edit product", "de": "Produkt bearbeiten", "es": "Editar producto", "fr": "Modifier le produit", "nl": "Product bewerken", "pt": "Editar produto" },
+    "products.quickSell": { "en": "Quick sell", "de": "Schnellverkauf", "es": "Venta rápida", "fr": "Vente rapide", "nl": "Snel verkopen", "pt": "Venda rápida" },
+    "products.archive": { "en": "Archive", "de": "Archivieren", "es": "Archivar", "fr": "Archiver", "nl": "Archiveren", "pt": "Arquivar" },
+    "products.soldCount": { "en": "{{count}} sold", "de": "{{count}} verkauft", "es": "{{count}} vendidos", "fr": "{{count}} vendu(s)", "nl": "{{count}} verkocht", "pt": "{{count}} vendidos" },
+    "products.stock": { "en": "Stock", "de": "Bestand", "es": "Existencias", "fr": "Stock", "nl": "Voorraad", "pt": "Stock" },
+    "products.sold": { "en": "Sold", "de": "Verkauft", "es": "Vendidos", "fr": "Vendus", "nl": "Verkocht", "pt": "Vendidos" },
+    "products.unlimited": { "en": "Unlimited", "de": "Unbegrenzt", "es": "Ilimitado", "fr": "Illimité", "nl": "Onbeperkt", "pt": "Ilimitado" },
+    "products.perVariant": { "en": "Per variant", "de": "Pro Variante", "es": "Por variante", "fr": "Par variante", "nl": "Per variant", "pt": "Por variante" },
+    "products.category": { "en": "Category", "de": "Kategorie", "es": "Categoría", "fr": "Catégorie", "nl": "Categorie", "pt": "Categoria" },
+    "products.shareTitle": { "en": "Share", "de": "Teilen", "es": "Compartir", "fr": "Partager", "nl": "Delen", "pt": "Partilhar" },
+    "products.openPage": { "en": "Open public page", "de": "Öffentliche Seite öffnen", "es": "Abrir página pública", "fr": "Ouvrir la page publique", "nl": "Openbare pagina openen", "pt": "Abrir página pública" },
+    "products.downloadQr": { "en": "Download QR", "de": "QR herunterladen", "es": "Descargar QR", "fr": "Télécharger le QR", "nl": "QR downloaden", "pt": "Transferir QR" },
+    "products.claimHandleHint": { "en": "Claim your page handle to get a shareable product link.", "de": "Sichern Sie sich Ihren Seiten-Handle, um einen teilbaren Produktlink zu erhalten.", "es": "Reclama el identificador de tu página para obtener un enlace de producto compartible.", "fr": "Réservez l'identifiant de votre page pour obtenir un lien produit partageable.", "nl": "Claim je paginanaam om een deelbare productlink te krijgen.", "pt": "Reclame o identificador da sua página para obter um link de produto partilhável." },
+    "products.publishHint": { "en": "Publish this product to get a shareable link and QR code.", "de": "Veröffentlichen Sie dieses Produkt, um einen teilbaren Link und QR-Code zu erhalten.", "es": "Publica este producto para obtener un enlace compartible y un código QR.", "fr": "Publiez ce produit pour obtenir un lien partageable et un QR code.", "nl": "Publiceer dit product om een deelbare link en QR-code te krijgen.", "pt": "Publique este produto para obter um link partilhável e um código QR." },
+    "products.quickEdit": { "en": "Quick edit", "de": "Schnellbearbeitung", "es": "Edición rápida", "fr": "Modification rapide", "nl": "Snel bewerken", "pt": "Edição rápida" },
+    "products.price": { "en": "Price", "de": "Preis", "es": "Precio", "fr": "Prix", "nl": "Prijs", "pt": "Preço" },
+    "products.saveQuick": { "en": "Save", "de": "Speichern", "es": "Guardar", "fr": "Enregistrer", "nl": "Opslaan", "pt": "Guardar" },
+    "products.saveFailed": { "en": "Couldn't save changes.", "de": "Änderungen konnten nicht gespeichert werden.", "es": "No se pudieron guardar los cambios.", "fr": "Impossible d'enregistrer les modifications.", "nl": "Wijzigingen konden niet worden opgeslagen.", "pt": "Não foi possível guardar as alterações." }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "summary": "Iteration 123 — verified all 4 changes on the prod-connected preview in READ-ONLY mode. (1) Backend CORS: blocked/malformed origins now return 403 JSON quietly (5/5 checks pass, 0 '[GlobalErrorHandler] Unhandled error: CORS' lines, 3 'CORS blocked origin' WARN lines instead). (2) Mobile header brand name: 'The Dev Store' fully visible & unclipped at 390 and 375, 82px with ellipsis at 360, no horizontal overflow at any width; kyc badge/search/create/bell/user-menu all visible+clickable; theme-toggle-mobile hidden <600px and visible at 768; user menu contains user-menu-theme-toggle; company switcher popover opens; desktop 1920 header unchanged. (3) Transactions column sorting: default Date desc, amount desc/asc, usdValue desc, pagination reset to 'Showing 1-10', keyboard Enter toggle, non-sortable headers inert, coexists with 'unpaid' status chip. (4) sitemap.xml + robots.txt + /api/shop-sitemap all correct (64 URLs: /how-to, /help-support, 11 creator pages, 15 shops, 6 products, 15 /for pages; /fees has no lastmod, blog entries have YYYY-MM-DD lastmod, 6+x-default hreflang on non-blog/help entries). 6 spot-checked sitemap URLs all 200 (serial, 6s apart). 12/12 backend pytest cases pass; no frontend defects found.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_iter123_cors_sitemap.py",
+    "/app/test_reports/pytest/iter123.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "INFO (not a bug): sitemap contains NO /help-support/{slug} article entries and no '/{handle}/p/zen-panini-8' product — /api/kb/articles returns 0 published articles (expected per request) and 'zen-panini-8' appears to be a stale pod-hostname placeholder in the test request, not a real product slug. Real product entries (6, all under /csvcleanroom/p/*) are present.",
+    "Transactions table rows/cells and the footer counter have no data-testid; tests had to walk the DOM (header.parentElement.children[1]). Adding data-testid=tx-row / tx-cell-amount / tx-cell-date / transactions-footer-count would make future sorting/pagination regressions much cheaper to assert.",
+    "TransactionsTable.tsx is 843 lines — consider extracting the header/sort block and the pagination footer into sub-components.",
+    "Environment note: creating/editing files under /app/backend/tests triggers the uvicorn launcher's watchfiles reload, which restarts the Node backend (~25s of connection-refused). Next agents should write the test file, sleep ~25s and confirm :3300/health before running pytest."
+  ],
+  "updated_files": ["/app/backend/tests/test_iter123_cors_sitemap.py"],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "seed_data_creation": "None — strictly read-only (login, view, sort, filter, GET sitemap/robots, CORS curls).",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": false,
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (from /app/memory/test_credentials.md) — 2-step login worked on preview.",
+  "context_for_next_testing_agent": "Backend regression file for this iteration: /app/backend/tests/test_iter123_cors_sitemap.py (CORS 403 handling, shop-sitemap API, sitemap.xml structure, robots.txt) — 12 tests, all green, safe to re-run (read-only). Transactions date cells render as '%b %d, %Y, %H:%M' (e.g. 'Sep 03, 2026, 13:36') — use that format when parsing. Sort keyboard behaviour: Enter TOGGLES when the column is already active (default active column is dateTime desc), and starts at desc when activating a previously inactive column. Rows can be read via document.querySelector('[data-testid=\"tx-sort-amount\"]').parentElement.parentElement.children[1].children with cell order [id, crypto, amount, usd, vat, date, status].",
+  "rca_of_the_issue": "N/A — no defects reproduced. Two 'FAIL' lines in the first Playwright run were test-script artifacts: the date string format '%b %d, %Y, %H:%M' was not in my strptime list, and the keyboard assertion assumed the first Enter always yields desc even when dateTime was already the active column. Both re-verified as correct product behaviour in a follow-up run."
+}

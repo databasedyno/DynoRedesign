@@ -1,0 +1,55 @@
+{
+  "meta_title": "Krypto-Zahlungen für digitale Downloads & Kurse · Dynopay",
+  "meta_description": "Akzeptieren Sie Krypto-Zahlungen für digitale Downloads & Kursanbieter. Keine Rückbuchungen, kein Missbrauch von Rückerstattungen. Bitcoin, USDT, Solana & 15+ Coins. In 10 Minuten live. Jetzt starten.",
+  "h1": "Akzeptieren Sie Krypto-Zahlungen für digitale Downloads & Kursanbieter",
+  "subheading": "Hören Sie auf, Einnahmen durch Rückbuchungen und Rückerstattungsbetrug zu verlieren. Erhalten Sie Bitcoin, Stablecoins und 15+ Kryptowährungen direkt in Ihre Wallet – kein Zwischenhändler, keine Rückbuchungen.",
+  "intro_paragraph": "Wenn Sie Kurse, E-Books oder digitale Produkte verkaufen, kennen Sie die Kosten von Rückbuchungen und seriellen Rückerstattungsantragstellern, die Ihre Inhalte konsumieren und dann die Zahlung anfechten. Dynopay ist eine nicht verwahrende Krypto-Zahlungsplattform, die für Kreative und Educatoren entwickelt wurde. Sie erhalten die Gelder direkt in Ihre eigene Wallet – wir berühren Ihr Geld niemals – und Krypto-Transaktionen sind endgültig. Keine Rückbuchungen. Kein Missbrauch von Rückerstattungen. Nur irreversible Zahlungen von Kunden weltweit, mit Gebühren ab 1,5 % und sinkend auf 0,5 % bei höherem Volumen.",
+  "features": [
+    {
+      "title": "Keine Rückbuchungen, niemals",
+      "description": "Krypto-Zahlungen sind endgültig, sobald sie on-chain bestätigt sind. Kein Kunde kann eine Transaktion nach dem Herunterladen Ihres Kurses oder E-Books rückgängig machen, wodurch Rückbuchungsbetrug und freundlicher Betrug, die Kartenzahlungsanbieter plagen, ausgeschlossen werden."
+    },
+    {
+      "title": "Ihre Wallet, Ihre Verwahrung",
+      "description": "Die Gelder gehen direkt vom Kunden an Ihre Bitcoin-, Ethereum- oder Stablecoin-Adresse. Dynopay hält niemals Guthaben, sodass Sie Ihr Geld vom Verkaufszeitpunkt an kontrollieren, ohne Verzögerungen bei Abhebungen oder Kontosperrungen."
+    },
+    {
+      "title": "Globale Verkäufe ohne Barrieren",
+      "description": "Verkaufen Sie an Kunden in jedem Land ohne grenzüberschreitende Kartengebühren oder Währungsumrechnungsgebühren. Akzeptieren Sie Bitcoin, USDT, USDC, SOL und 15+ Kryptowährungen von Käufern überall auf der Welt."
+    }
+  ],
+  "how_it_works": [
+    "Melden Sie sich an, verifizieren Sie Ihre E-Mail und fügen Sie die Wallet-Adresse hinzu, an die Sie Zahlungen erhalten möchten.",
+    "Erstellen Sie einen Zahlungslink für Ihren Kurs oder betten Sie das Checkout-Widget auf Ihrer bestehenden Verkaufsseite ein.",
+    "Der Kunde zahlt in seiner bevorzugten Krypto; die Gelder treffen innerhalb von Minuten in Ihrer Wallet ein, völlig gebührenfrei bei Ihrem ersten Verkauf."
+  ],
+  "faqs": [
+    {
+      "question": "Wie verhindern Krypto-Zahlungen Rückerstattungsbetrug bei digitalen Produkten?",
+      "answer": "Kryptowährungs-Transaktionen sind unwiderruflich, sobald sie auf der Blockchain bestätigt sind. Im Gegensatz zu Kreditkarten können Kunden eine Krypto-Zahlung nach dem Zugriff auf Ihren Kurs oder Download nicht anfechten oder zurückbuchen. Der Verkauf ist endgültig und schützt Sie vor seriellen Rückerstattungsantragstellern und Content-Piraten, die traditionelle Rückerstattungsrichtlinien missbrauchen."
+    },
+    {
+      "question": "Welche Kryptowährungen können meine Studenten verwenden, um meine Kurse zu kaufen?",
+      "answer": "Dynopay unterstützt 15+ Kryptowährungen, darunter Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP und Stablecoins wie USDT und USDC auf Ethereum, Polygon und Tron. Studenten zahlen in ihrer bevorzugten Münze; Sie wählen aus, welche Vermögenswerte Sie in Ihrer Wallet akzeptieren möchten."
+    },
+    {
+      "question": "Was sind die Gebühren für die Akzeptanz von Krypto-Zahlungen für digitale Produkte?",
+      "answer": "Die Gebühren beginnen bei 1,5 % plus einem Dollar pro erfolgreicher Zahlung und sinken automatisch auf 0,5 %, wenn Ihr Volumen wächst. Keine monatlichen Gebühren, keine Einrichtungskosten, keine versteckten Gebühren. Ihre erste Zahlung ist völlig gebührenfrei, damit Sie die Plattform risikofrei testen können."
+    },
+    {
+      "question": "Wie schnell kann ich anfangen, Krypto für meinen Online-Kurs zu akzeptieren?",
+      "answer": "Sie können in weniger als 10 Minuten live gehen. Melden Sie sich an, verifizieren Sie Ihre E-Mail, fügen Sie Ihre Auszahlung-Wallet-Adresse hinzu und generieren Sie dann einen Zahlungslink oder betten Sie unser Checkout-Widget auf Ihrer Verkaufsseite ein. Keine langen Genehmigungen oder Händlerprüfungen erforderlich."
+    },
+    {
+      "question": "Benötige ich eine KYC-Verifizierung, um Krypto-Zahlungen für Kurse zu erhalten?",
+      "answer": "Sie können innerhalb von Minuten Krypto direkt in Ihre eigene Wallet erhalten, ohne Händlerprüfungen. Die Identitätsverifizierung (KYC) gilt für Ihr Konto, sobald das abgewickelte Volumen einen Schwellenwert überschreitet, und Drittanbieter-Fiat-Abwicklungen führen ihre eigene KYC durch, wenn Sie in die lokale Währung umwandeln."
+    }
+  ],
+  "cta_headline": "Beginnen Sie noch heute mit der Akzeptanz von Krypto-Zahlungen",
+  "cta_body": "Ihre erste Transaktion ist gebührenfrei. Richten Sie Ihren Krypto-Checkout in weniger als 10 Minuten ein und hören Sie auf, Einnahmen durch Rückbuchungen zu verlieren.",
+  "_generated_at": "2026-08-29T14:54:48.095503Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "digital-downloads",
+  "_display_name": "Digital Downloads & Course Sellers"
+}

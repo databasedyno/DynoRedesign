@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto payments for SaaS & subscription products · Dynopay",
+  "meta_description": "Accept crypto payments for SaaS & subscription products with Dynopay. No chargebacks, global reach, 15+ cryptocurrencies. Fees from 1.5%. Start today.",
+  "h1": "Accept crypto payments for SaaS & subscription products without chargebacks",
+  "subheading": "Dynopay helps subscription businesses eliminate involuntary churn, expand to restricted markets, and receive Bitcoin, stablecoins, and 15+ cryptocurrencies directly to your wallet.",
+  "intro_paragraph": "Subscription businesses routinely lose revenue to failed card payments and involuntary churn. International customers face currency conversion fees and payment method restrictions. Dynopay is a non-custodial platform that deposits crypto payments directly into your wallet—no middleman holding your funds. You get payment links, hosted checkout, and a REST API to bill subscribers in 15+ cryptocurrencies with fees starting at 1.5% and dropping to 0.5% at scale. No chargebacks. No monthly fees. First payment is free.",
+  "features": [
+    {
+      "title": "Non-custodial settlement to your wallet",
+      "description": "Funds go directly to your Ethereum, Bitcoin, or Solana wallet. Dynopay never holds your money, so you maintain full custody and can convert to fiat on your own schedule."
+    },
+    {
+      "title": "Zero involuntary churn from crypto subscribers",
+      "description": "Crypto payments don't expire or decline. Customers who prefer stablecoins or Bitcoin stay subscribed longer because there are no failed card transactions or outdated billing details."
+    },
+    {
+      "title": "Reach customers in underserved markets",
+      "description": "Accept payment from regions poorly served by card networks. Crypto lets customers pay you from anywhere, so you can serve every market you choose to operate in."
+    }
+  ],
+  "how_it_works": [
+    "Sign up, verify your email, create a company profile, and add one payout wallet address for settlement.",
+    "Generate a payment link or embed the checkout widget on your SaaS signup or account page.",
+    "Customer pays in their preferred cryptocurrency. Funds arrive in your wallet within minutes, and you're live."
+  ],
+  "faqs": [
+    {
+      "question": "How do crypto payments reduce involuntary churn for subscription businesses?",
+      "answer": "Crypto wallets don't expire and transactions don't fail due to insufficient funds in the same way cards do. Subscribers who hold stablecoins or Bitcoin can pay reliably without the card decline issues that are a leading cause of involuntary churn in traditional SaaS billing."
+    },
+    {
+      "question": "What cryptocurrencies can my SaaS customers use to pay?",
+      "answer": "Dynopay supports 15+ cryptocurrencies: Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, MATIC, TRX, and stablecoins including USDT (ERC20, TRC20, Polygon), USDC (ERC20), and RLUSD on Ethereum and XRP Ledger."
+    },
+    {
+      "question": "What are Dynopay's fees for subscription payments?",
+      "answer": "Fees start at 1.5% plus one dollar per successful payment and drop automatically to 0.5% as your settled volume grows. No setup fees, no monthly fees, no hidden costs, and your first payment is completely free."
+    },
+    {
+      "question": "Do I need to hold crypto or set up a merchant account?",
+      "answer": "You only need a wallet address for the cryptocurrency you want to receive. Dynopay is non-custodial, so payments go straight to your Coinbase, Ledger, MetaMask, or any wallet you control. No merchant account required."
+    },
+    {
+      "question": "Can I bill recurring subscriptions in cryptocurrency using Dynopay?",
+      "answer": "Yes, on a per-cycle basis. Crypto has no card-style auto-charge, so each renewal is a fresh payment: use the REST API and webhooks to generate a payment link per billing cycle and send it automatically. Renewals never fail on expired cards or issuer declines."
+    }
+  ],
+  "cta_headline": "Start accepting crypto payments in 10 minutes",
+  "cta_body": "Sign up now and your first transaction is fee-free. No monthly costs, no setup fees, and funds go directly to your wallet.",
+  "_generated_at": "2026-08-29T14:53:11.839432Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "saas",
+  "_display_name": "SaaS & Subscription Products"
+}

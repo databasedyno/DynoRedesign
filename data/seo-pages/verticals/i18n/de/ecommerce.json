@@ -1,0 +1,55 @@
+{
+  "meta_title": "Krypto-Zahlungen für E-Commerce-Shops · Dynopay",
+  "meta_description": "Akzeptieren Sie Krypto-Zahlungen für E-Commerce-Shops. Bitcoin, Ethereum, USDT, Solana und 15+ Kryptowährungen. Keine Rückbuchungen. Gelder gehen direkt an Ihre Wallet. Jetzt kostenlos starten.",
+  "h1": "Akzeptieren Sie Krypto-Zahlungen für E-Commerce-Shops ohne Rückbuchungen",
+  "subheading": "Erhalten Sie Bitcoin, Ethereum, Stablecoins und 15+ Kryptowährungen direkt in Ihre Wallet. Keine Zahlungsstopps, keine Betrugsstreitigkeiten, keine 2-4% Bearbeitungsgebühren.",
+  "intro_paragraph": "E-Commerce-Händler verlieren 0,47% des Umsatzes durch Rückbuchungen und weitere 2,9% + 0,30 $ pro Kartentransaktion. Dynopay ist eine nicht verwahrende Krypto-Handelsplattform, die für Online-Shops entwickelt wurde: Sie erhalten Gelder direkt in Ihre eigene Wallet, sobald ein Kunde bezahlt, wodurch das Risiko von Rückbuchungen vollständig entfällt. Die Preise beginnen bei 1,5% und sinken auf 0,5% bei steigenden Volumen, ohne monatliche Gebühren, ohne Einrichtungsgebühren, und Ihre erste Zahlung ist völlig kostenlos.",
+  "features": [
+    {
+      "title": "Kein Rückbuchungsrisiko, jemals",
+      "description": "Krypto-Transaktionen sind endgültig. Keine Betrugsstreitigkeiten, kein freundlicher Betrug, keine Wiederherstellungsgebühren. Sobald ein Kunde Bitcoin, USDT oder ETH bezahlt, gehören die Gelder Ihnen und können von einer Bank nicht zurückgebucht werden."
+    },
+    {
+      "title": "Gelder kommen in Ihrer Wallet an",
+      "description": "Dynopay hält Ihr Geld niemals. Zahlungen werden direkt an Ihre Ethereum-Adresse, Bitcoin-Wallet oder Solana-Konto abgewickelt, normalerweise innerhalb von Minuten. Sie kontrollieren die privaten Schlüssel und die Verwahrung jederzeit."
+    },
+    {
+      "title": "Niedrigere Gebühren als Kartenverarbeiter",
+      "description": "Zahlen Sie ab 1,5% und sehen Sie, wie die Gebühren automatisch auf 0,5% sinken, wenn Ihr Volumen wächst. Keine Interchange-Gebühren, keine Basispunkte auf Rückerstattungen, keine monatlichen Gateway-Gebühren. Die erste Zahlung ist kostenlos."
+    }
+  ],
+  "how_it_works": [
+    "Melden Sie sich an, verifizieren Sie Ihre E-Mail und erstellen Sie ein Unternehmensprofil in weniger als drei Minuten.",
+    "Fügen Sie eine Auszahlungs-Wallet-Adresse für Bitcoin, Ethereum, USDT oder jede unterstützte Krypto hinzu, die Sie akzeptieren möchten.",
+    "Generieren Sie einen Zahlungslink oder betten Sie das Checkout-Widget in Ihren WooCommerce- oder benutzerdefinierten Shop ein. Gehen Sie live."
+  ],
+  "faqs": [
+    {
+      "question": "Welche Kryptowährungen kann mein E-Commerce-Shop mit Dynopay akzeptieren?",
+      "answer": "Dynopay unterstützt 15+ Kryptowährungen, darunter Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP und Stablecoins wie USDT auf Ethereum, Tron und Polygon, USDC auf Ethereum und RLUSD auf Ethereum und XRP Ledger. Sie wählen aus, welche Sie aktivieren möchten."
+    },
+    {
+      "question": "Brauche ich eine Krypto-Wallet, um Zahlungen zu akzeptieren?",
+      "answer": "Ja. Dynopay ist nicht verwahrend, daher geben Sie eine Wallet-Adresse pro Kryptowährung an, die Sie akzeptieren möchten. Zahlungen gehen direkt dorthin. Sie kontrollieren die privaten Schlüssel. Dynopay hält niemals Kundengelder oder verlangt von Ihnen, dass Sie abheben."
+    },
+    {
+      "question": "Wie viel berechnet Dynopay pro Transaktion?",
+      "answer": "Die Preise beginnen bei 1,5% plus einem Dollar pro erfolgreicher Zahlung und sinken automatisch auf 0,5%, wenn Ihr abgewickeltes Volumen steigt. Keine monatlichen Gebühren, keine Einrichtungsgebühren, keine versteckten Kosten. Ihre erste Zahlung ist völlig gebührenfrei."
+    },
+    {
+      "question": "Können Kunden eine Krypto-Zahlung anfechten oder zurückbuchen?",
+      "answer": "Nein. Krypto-Transaktionen sind von Natur aus unwiderruflich. Sobald ein Kunde Bitcoin oder USDT sendet und die Blockchain dies bestätigt, kann die Zahlung nicht zurückgebucht, angefochten oder von einer Bank oder Kartennetzwerk zurückgefordert werden."
+    },
+    {
+      "question": "Wie lange dauert es, bis ich Krypto in meinem Online-Shop akzeptiere?",
+      "answer": "Die meisten Händler gehen in weniger als 10 Minuten live. Melden Sie sich an, verifizieren Sie Ihre E-Mail, fügen Sie ein Unternehmensprofil hinzu, verbinden Sie eine Wallet-Adresse und generieren Sie dann einen Zahlungslink oder fügen Sie das Widget in Ihren Shop ein. Keine Prüfung oder Wartezeit."
+    }
+  ],
+  "cta_headline": "Beginnen Sie noch heute mit der Akzeptanz von Krypto-Zahlungen",
+  "cta_body": "Ihre erste Zahlung ist kostenlos und die Einrichtung dauert weniger als 10 Minuten. Keine monatlichen Gebühren, keine Rückbuchungen, Gelder direkt in Ihre Wallet.",
+  "_generated_at": "2026-08-29T14:52:47.910056Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "ecommerce",
+  "_display_name": "E-commerce Stores"
+}

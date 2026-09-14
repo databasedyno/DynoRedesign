@@ -1,0 +1,81 @@
+{
+  "summary": "P0/P1/P2 Bug Fix Testing - ALL 3 ISSUES VERIFIED AS FIXED. P0: Help & Support shows 8 fallback articles when KB API returns empty. P1: Profile name correctly displays 'Nomadly' (not 'Bozz Mail'). P2: User Menu dropdown has both 'Profile' and 'Settings' items that navigate to /profile.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/test_reports/iteration_6.json"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "P0 FIX VERIFIED: HelpAndSupport/index.tsx properly falls back to HelpAndSupportData (8 hardcoded articles) when KB API returns empty or errors",
+    "P0 FIX VERIFIED: Search functionality falls back to client-side filtering of hardcoded data when search API returns empty",
+    "P1 FIX VERIFIED: Login API returns name='Nomadly', Profile API returns name='Nomadly', UI header displays 'Nomadly'",
+    "P2 FIX VERIFIED: UserMenu/index.tsx has both Profile (data-testid='user-menu-profile') and Settings (data-testid='user-menu-settings') menu items",
+    "P2 FIX VERIFIED: Profile menu item navigates to /profile page correctly",
+    "Translation key 'profile' added to dashboardLayout.json for i18n support"
+  ],
+  "updated_files": [],
+  "success_rate": {
+    "backend": "100% (Login API, Profile API, KB API - all working correctly)",
+    "frontend": "100% (All 3 bugs verified fixed via UI testing)"
+  },
+  "test_credentials": {
+    "email": "nomadly@moxx.co",
+    "password": "Katiekendra123@",
+    "login_flow": "Two-step: 1) Enter email -> Continue 2) Select Password radio -> Enter password -> Continue"
+  },
+  "seed_data_creation": "N/A",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "All P0/P1/P2 bugs verified fixed. Token-based auth for Playwright testing works by setting token in localStorage. Help & Support page at /help-support requires authentication. User menu dropdown opens by clicking on username in header.",
+  "verification_details": {
+    "P0_help_fallback_articles": {
+      "status": "VERIFIED",
+      "description": "Help & Support page shows 8 hardcoded fallback articles when KB API returns empty",
+      "articles_found": [
+        "Getting Started with DynoPay",
+        "Supported Cryptocurrencies & Networks",
+        "How Crypto Payments Work for Merchants",
+        "Fees, Rates & Conversion Logic",
+        "Wallets, Payouts & Settlement Options",
+        "Invoices, Checkout & Payment Links",
+        "API & Integrations",
+        "Security & Transaction Safety"
+      ],
+      "api_response": "GET /api/kb/articles returns {articles: [], pagination: {total: 0}}",
+      "fallback_source": "/app/hooks/useHelpAndSupportData.ts"
+    },
+    "P1_profile_name_nomadly": {
+      "status": "VERIFIED",
+      "description": "Profile name shows 'Nomadly' not 'Bozz Mail'",
+      "api_login_response": "{userData: {name: 'Nomadly', email: 'nomadly@moxx.co'}}",
+      "api_profile_response": "{data: {name: 'Nomadly'}}",
+      "ui_header": "Shows 'Nomadly' in top-right user area",
+      "ui_profile_page": "First name field shows 'Nomadly'"
+    },
+    "P2_profile_menu_item": {
+      "status": "VERIFIED",
+      "description": "User Menu dropdown has 'Profile' link alongside 'Settings'",
+      "profile_item": {
+        "data_testid": "user-menu-profile",
+        "text": "Profile",
+        "icon": "PersonIcon",
+        "navigates_to": "/profile"
+      },
+      "settings_item": {
+        "data_testid": "user-menu-settings",
+        "text": "Settings",
+        "icon": "SettingsIcon",
+        "navigates_to": "/profile"
+      },
+      "code_location": "/app/Components/UI/UserMenu/index.tsx lines 234-278"
+    }
+  }
+}

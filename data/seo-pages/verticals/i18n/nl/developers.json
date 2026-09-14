@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto betalings-API voor ontwikkelaars · Dynopay",
+  "meta_description": "Integreer Bitcoin, Ethereum, Solana en 15+ cryptocurrencies met één REST API. Non-custodial, webhook-gedreven, live in 10 minuten. Begin nu met bouwen.",
+  "h1": "Crypto Betalingen API: Eén Endpoint, 15+ Chains, Geen Bewaringsrisico",
+  "subheading": "Bouw checkout flows, betalingslinks of crowdfunding in je app met een REST API, webhooks en SDK's—fondsen worden rechtstreeks naar je wallet overgemaakt.",
+  "intro_paragraph": "De meeste crypto betalingsintegraties dwingen je om slimme contracten te schrijven, meerdere chain-clients te beheren of een derde partij met bewaring te vertrouwen. Dynopay biedt ontwikkelaars één enkele REST API die Bitcoin, Ethereum, Solana, Tron, Polygon en XRP Ledger dekt—totaal 15+ activa—terwijl elke betaling non-custodially naar de wallet die jij beheert, wordt overgemaakt. Geen maandelijkse kosten, geen opstartkosten, en je eerste transactie is volledig gratis.",
+  "features": [
+    {
+      "title": "Eén API, 15+ Cryptocurrencies",
+      "description": "Accepteer Bitcoin, ETH, USDT (drie netwerken), USDC, SOL, XRP, RLUSD en meer via één enkele REST-interface. Geen noodzaak om nodes te draaien of chain-specifieke logica te schrijven."
+    },
+    {
+      "title": "Non-Custodial by Design",
+      "description": "Betalingen stromen rechtstreeks naar het walletadres dat je tijdens de setup opgeeft. Dynopay houdt, bevriest of controleert je fondsen nooit—je behoudt de bewaring van checkout tot afwikkeling."
+    },
+    {
+      "title": "Webhooks en Real-Time Evenementen",
+      "description": "Luister naar betalingsbevestigingen, terugbetalingen en statuswijzigingen via HTTP callbacks. Bouw dynamische ordervervulling, abonnementslogica of voorwaardelijke workflows zonder polling."
+    }
+  ],
+  "how_it_works": [
+    "Meld je aan, verifieer je e-mail, maak een bedrijfsprofiel aan en registreer één uitbetalingswalletadres.",
+    "Pak je API-sleutel van het dashboard en roep de betalingsendpoint aan of voeg de checkout-widget toe aan je frontend.",
+    "Ontvang webhook-evenementen zodra betalingen on-chain worden bevestigd; fondsen verschijnen binnen enkele minuten in je wallet."
+  ],
+  "faqs": [
+    {
+      "question": "Welke cryptocurrencies ondersteunt de Dynopay API?",
+      "answer": "Dynopay ondersteunt Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum (inclusief USDT, USDC en RLUSD op ERC-20), Polygon (MATIC en USDT), Tron (TRX en USDT-TRC20), Solana en XRP Ledger (XRP en RLUSD)—totaal 15+ activa achter één REST API."
+    },
+    {
+      "question": "Hoeveel rekent Dynopay per transactie?",
+      "answer": "Dynopay rekent een volume-gebaseerde platformvergoeding die begint bij 1,5 procent plus één dollar per succesvolle betaling en automatisch daalt naar 0,5 procent bij schaal op basis van de afgewikkelde volume. Je eerste betaling is volledig gratis, en er zijn geen maandelijkse of opstartkosten."
+    },
+    {
+      "question": "Moet ik slimme contracten implementeren om betalingen te accepteren?",
+      "answer": "Nee. Dynopay regelt de chain-interactie, adresgeneratie en bevestigingsmonitoring voor jou. Je roept een REST endpoint aan, ontvangt een betalingsadres en luistert naar webhook-evenementen—geen Solidity, geen audits, geen gasbeheer."
+    },
+    {
+      "question": "Is Dynopay custodial of controleer ik de fondsen?",
+      "answer": "Dynopay is volledig non-custodial. Elke betaling wordt rechtstreeks afgewikkeld naar het walletadres dat je tijdens de onboarding opgeeft. Dynopay houdt, verplaatst of controleert je cryptocurrency op geen enkel moment in de transactiecyclus."
+    },
+    {
+      "question": "Kan ik de API testen voordat ik live ga?",
+      "answer": "Ja. Dynopay biedt een sandboxomgeving met test-API-sleutels zodat je betalingen kunt simuleren, webhooks kunt activeren en je integratielogica kunt valideren voordat je echte transacties op mainnet verwerkt."
+    }
+  ],
+  "cta_headline": "Begin Vandaag met Bouwen met Dynopay",
+  "cta_body": "Je eerste betaling is gratis en je kunt binnen 10 minuten live gaan. Geen maandelijkse kosten, geen bewakingsrisico.",
+  "_generated_at": "2026-08-29T14:58:16.495546Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "developers",
+  "_display_name": "Developers & Builders"
+}

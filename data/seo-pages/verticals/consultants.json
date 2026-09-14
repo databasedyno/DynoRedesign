@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto payments for consultants & coaches · Dynopay",
+  "meta_description": "Get paid in crypto for consulting and coaching with Dynopay. Invoice clients worldwide, no chargebacks, 15+ cryptocurrencies, fees from 1.5%. Start free.",
+  "h1": "Accept crypto payments for consulting and coaching, from any client worldwide",
+  "subheading": "Dynopay lets consultants, coaches, and advisors invoice clients in Bitcoin, stablecoins, and 15+ cryptocurrencies directly to a wallet they control — with instant settlement and no chargebacks.",
+  "intro_paragraph": "Consultants and coaches often bill international clients, where wire transfers are slow and expensive and card chargebacks can follow a delivered engagement. Dynopay is a non-custodial crypto payment gateway that settles straight to your wallet. Send a branded payment link for a retainer, a package, or a single session, take payment on hosted checkout, or automate invoicing through the REST API across 15+ cryptocurrencies. Fees start at 1.5% and drop to 0.5% at scale, with no chargebacks, no monthly fees, and a free first payment.",
+  "features": [
+    {
+      "title": "Invoice global clients in seconds",
+      "description": "Send a payment link by email or chat and get paid in minutes — no international wire, no waiting days, and no correspondent-bank fees eating your invoice."
+    },
+    {
+      "title": "No chargebacks after the work is delivered",
+      "description": "Crypto payments are final, so a client can't dispute your fee through a card issuer once the sessions or deliverables are done."
+    },
+    {
+      "title": "Hold a stable balance",
+      "description": "Accept USDT or USDC to keep a dollar-pegged balance and avoid volatility, then convert to your local currency whenever you choose."
+    }
+  ],
+  "how_it_works": [
+    "Sign up, verify your email, create a company profile, and add one payout wallet address for settlement.",
+    "Create a payment link for each client, retainer, or package — or embed checkout on your booking page.",
+    "The client pays in their preferred cryptocurrency and funds arrive in your wallet within minutes."
+  ],
+  "faqs": [
+    {
+      "question": "How do consultants and coaches get paid with Dynopay?",
+      "answer": "Create a payment link for a session, package, or retainer and send it to the client, or embed checkout on your booking page. When they pay in crypto, funds settle to your wallet within minutes — no international wire delays."
+    },
+    {
+      "question": "Can I bill a monthly retainer in crypto?",
+      "answer": "Yes, on a per-cycle basis. Crypto has no card auto-charge, so each renewal is a fresh payment — use the REST API and webhooks to send a payment link every billing cycle automatically."
+    },
+    {
+      "question": "Which cryptocurrencies can clients pay with?",
+      "answer": "Dynopay supports 15+ cryptocurrencies including Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, TRX, MATIC, and stablecoins such as USDT (ERC20, TRC20, Polygon), USDC (ERC20), and RLUSD."
+    },
+    {
+      "question": "What are the fees for accepting consulting payments?",
+      "answer": "Fees start at 1.5% plus one dollar per successful payment and drop to 0.5% as your settled volume grows. No setup fees, no monthly fees, and your first payment is free."
+    },
+    {
+      "question": "Is my money held by Dynopay?",
+      "answer": "No. Dynopay is non-custodial, so payments settle directly to a wallet you control — MetaMask, Coinbase, Ledger, or any address you own."
+    }
+  ],
+  "cta_headline": "Start invoicing clients in crypto in 10 minutes",
+  "cta_body": "Sign up now and your first transaction is fee-free. No monthly costs, and funds settle straight to a wallet you control.",
+  "_generated_at": "2026-09-05T00:00:00.000Z",
+  "_model": "dynopay-editorial-2026-09",
+  "_kind": "vertical",
+  "_slug": "consultants",
+  "_display_name": "Consultants & Coaches"
+}

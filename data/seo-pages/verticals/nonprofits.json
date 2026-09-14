@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto payments for nonprofits & charities · Dynopay",
+  "meta_description": "Accept Bitcoin, Ethereum, and 15+ cryptocurrencies for donations. No chargebacks, no monthly fees. Funds go directly to your wallet. Start free today.",
+  "h1": "Accept Crypto Payments for Nonprofits & Charities Without Chargebacks",
+  "subheading": "Receive donations in Bitcoin, Ethereum, USDC, and 15+ cryptocurrencies—funds arrive directly in your wallet with zero chargeback risk.",
+  "intro_paragraph": "Donation fraud costs nonprofits thousands in reversed credit card gifts and processing disputes. Dynopay eliminates chargebacks entirely by accepting crypto donations that settle directly to your organization's wallet—you keep full custody from the moment a donor sends funds. Launch donation pages, embed checkout widgets on your site, or run crowdfunding campaigns with goal tracking and donor updates. Fees start at 1.5% and drop to 0.5% at scale, with no monthly charges and your first donation completely free.",
+  "features": [
+    {
+      "title": "Zero Chargeback Risk on Donations",
+      "description": "Crypto transactions are final. Once a donor sends Bitcoin or stablecoin, the funds cannot be reversed or disputed, protecting your budget from fraudulent refund claims."
+    },
+    {
+      "title": "Funds Go Directly to You",
+      "description": "Non-custodial model means donations arrive in your own wallet immediately. Dynopay never holds your funds, so you control treasury and disbursements without withdrawal delays."
+    },
+    {
+      "title": "Accept Donations Globally",
+      "description": "Supporters anywhere can donate in their preferred cryptocurrency without currency conversion fees, cross-border wire delays, or geographic payment processor restrictions."
+    }
+  ],
+  "how_it_works": [
+    "Sign up, verify your email, create your nonprofit profile, and add your payout wallet address.",
+    "Generate a donation link or embed the checkout widget on your website to start accepting crypto.",
+    "Donors send Bitcoin, USDC, or other supported assets and funds settle directly to your wallet."
+  ],
+  "faqs": [
+    {
+      "question": "Do nonprofits pay transaction fees on crypto donations?",
+      "answer": "Yes. Dynopay charges from 1.5% plus one dollar per donation on the Starter tier, dropping automatically to 0.5% as your settled volume grows. No monthly fees or setup costs. Your first donation is completely fee-free, and there are no chargeback fees because crypto payments are final."
+    },
+    {
+      "question": "Which cryptocurrencies can nonprofits accept for donations?",
+      "answer": "Dynopay supports 15+ cryptocurrencies including Bitcoin, Ethereum, Litecoin, Dogecoin, USDT and USDC stablecoins on Ethereum and Polygon, Solana, XRP, RLUSD, Tron, and Bitcoin Cash. Donors choose their preferred asset at checkout."
+    },
+    {
+      "question": "How do donated crypto funds reach our nonprofit's wallet?",
+      "answer": "Dynopay is non-custodial. Donations go directly from the donor to the wallet address you configure during setup. You maintain full custody at all times—Dynopay never holds, pools, or controls your funds. You can withdraw or spend immediately."
+    },
+    {
+      "question": "Can international supporters donate crypto to US nonprofits?",
+      "answer": "Yes. Crypto donations work globally by default with no country restrictions on who can send funds to your wallet. Donors avoid international wire fees and currency conversion spreads, and you receive contributions in minutes regardless of their location."
+    },
+    {
+      "question": "How long does it take to start accepting crypto donations?",
+      "answer": "Under 10 minutes. Sign up, verify your email, create your nonprofit profile, add one payout wallet, then generate a donation link or embed the widget on your website. No merchant account approvals or banking integration required."
+    }
+  ],
+  "cta_headline": "Start Accepting Crypto Donations Today",
+  "cta_body": "Your first donation is fee-free. Go live in under 10 minutes with no setup costs or monthly charges.",
+  "_generated_at": "2026-08-29T14:56:49.775449Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "nonprofits",
+  "_display_name": "Nonprofits & Charities"
+}

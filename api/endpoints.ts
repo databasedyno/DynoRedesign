@@ -1,0 +1,201 @@
+/**
+ * Central map of backend API endpoint paths.
+ *
+ * Paths are relative to the axios base (`axiosBaseApi`, which already prefixes
+ * `/api/`), so pass them straight to `axiosBaseApi.get/post/put`. For raw
+ * `fetch()` callers, prefix with `/api` (e.g. `fetch("/api" + API_ENDPOINTS...)`).
+ *
+ * Dynamic endpoints are builder functions that interpolate their args VERBATIM
+ * (any `encodeURIComponent(...)` etc. stays at the call site), so the produced
+ * URL is byte-identical to the original inline template it replaced.
+ *
+ * Consolidates inline endpoint strings so a route rename is a one-line change.
+ */
+/** Path segment param — template literals coerce any of these to string. */
+type PathId = string | number | string[];
+
+export const API_ENDPOINTS = {
+  creator: {
+    /** Authenticated availability check (dashboard editor). */
+    checkHandle: "/user/creator/check-handle",
+    /** Public availability check (landing hero, unauthenticated). */
+    checkHandlePublic: "/user/creator/check-handle-public",
+    /** Public reservation (Redis TTL lock) claimed from the landing hero. */
+    reserveHandle: "/user/creator/reserve-handle",
+    /** Get/update the creator profile. */
+    profile: "/user/creator/profile",
+    /** Creator analytics (30-day tips + top supporters). */
+    analytics: "/user/creator/analytics",
+    /** Public creator stats. */
+    stats: "/user/creator/stats",
+    /** Cover-image upload. */
+    uploadCover: "/user/creator/upload-cover",
+    /** Authed availability check with query (handle + optional reservation token). */
+    checkHandleQuery: (handleQuery: string, tokenSuffix: string) =>
+      `/user/creator/check-handle?handle=${handleQuery}${tokenSuffix}`,
+  },
+
+  wallet: {
+    addFunds: "/wallet/addFunds",
+    authStep: "/wallet/authStep",
+    copyWalletAddresses: "/wallet/copyWalletAddresses",
+    reusableWallets: "/wallet/reusable-wallets",
+    validateWalletAddress: "/wallet/validateWalletAddress",
+    verifyCryptoPayment: "/wallet/verifyCryptoPayment",
+    verifyPayment: "/wallet/verifyPayment",
+    updateWallet: (walletId: PathId) => `/wallet/updateWallet/${walletId}`,
+    updateWalletSendOtp: "/wallet/wallet/update/send-otp",
+    updateWalletWithOtp: "/wallet/wallet/update",
+    // Full Package: 10-min security session (sudo) + bulk management
+    sudoStatus: "/wallet/sudo/status",
+    securityStatus: "/wallet/security/status",
+    sudoRequestOtp: "/wallet/sudo/request-otp",
+    sudoVerifyOtp: "/wallet/sudo/verify-otp",
+    sudoRevoke: "/wallet/sudo/revoke",
+    batch: "/wallet/batch",
+    // Pre-save address sanity (network-mismatch + never-received warning)
+    addressSanity: "/wallet/address-sanity",
+  },
+
+  walletSecurity: {
+    // PUBLIC — token-authed "this wasn't me" revert (no Authorization header)
+    revertChange: "/wallet-security/revert-change",
+  },
+
+  pay: {
+    addPayment: "/pay/addPayment",
+    configuredCurrencies: "/pay/configured-currencies",
+    getCurrencyRates: "/pay/getCurrencyRates",
+    uploadCampaignImage: "/pay/uploadCampaignImage",
+    verifyCryptoPayment: "/pay/verifyCryptoPayment",
+    link: (slug: PathId) => `/pay/links/${slug}`,
+    campaignTiers: (linkId: PathId) => `/pay/campaign/${linkId}/tiers`,
+    campaignUpdates: (linkId: PathId) => `/pay/campaign/${linkId}/updates`,
+    campaignWall: (linkId: PathId) => `/pay/campaign/${linkId}/wall?limit=100&sort=recent`,
+    contributionReply: (contribId: PathId) => `/pay/contribution/${contribId}/reply`,
+    tier: (tierId: PathId) => `/pay/tier/${tierId}`,
+    update: (updateId: PathId) => `/pay/update/${updateId}`,
+  },
+
+  user: {
+    activationNudge: "/user/activation-nudge",
+    addEmail: "/user/addEmail",
+    addPhone: "/user/addPhone",
+    checkEmail: "/user/checkEmail?email=",
+    checkPhone: "/user/checkPhone?phone=",
+    forgotPassword: "/user/forgot-password",
+    forgotPasswordPhone: "/user/forgot-password-phone",
+    forgotPasswordPhoneVerifyOtp: "/user/forgot-password-phone/verify-otp",
+    forgotPasswordVerifyOtp: "/user/forgot-password/verify-otp",
+    lastCompany: "/user/last-company",
+    phoneTypeCheck: "/user/phone-type-check",
+    registerEmail: "/user/registerEmail",
+    registerEmailVerifyOtp: "/user/registerEmail/verify-otp",
+    registerPhone: "/user/registerPhone",
+    registerPhoneVerify: "/user/registerPhone/verify",
+    resetPassword: "/user/reset-password",
+    twoFaStatus: "/user/2fa/status",
+    twoFaSetup: "/user/2fa/setup",
+    twoFaVerifySetup: "/user/2fa/verify-setup",
+    twoFaDisable: "/user/2fa/disable",
+    twoFaRegenerateBackupCodes: "/user/2fa/regenerate-backup-codes",
+    twoFaValidate: "/user/2fa/validate",
+    verifyAddEmail: "/user/verifyAddEmail",
+    verifyAddPhone: "/user/verifyAddPhone",
+    deleteAccountSendOtp: "/user/account/send-otp",
+    deleteAccount: "/user/account",
+  },
+
+  company: {
+    deleteSendOtp: (companyId: PathId) => `/company/deleteCompany/${companyId}/send-otp`,
+    autoConvert: (companyId: PathId) => `/company/auto-convert/${companyId}`,
+    upgradeToBusiness: (companyId: PathId) => `/company/upgrade-to-business/${companyId}`,
+    webhookHistory: (companyId: PathId, q: string = "") =>
+      `/company/webhook-history/${companyId}?page=1&limit=20${q}`,
+    webhookHistoryDetail: (companyId: PathId, logId: PathId) =>
+      `/company/webhook-history/${companyId}/detail/${logId}`,
+    webhookHistoryResend: (companyId: PathId, logId: PathId) =>
+      `/company/webhook-history/${companyId}/resend/${logId}`,
+    webhookSettings: (companyId: PathId) => `/company/webhook-settings/${companyId}`,
+    webhookStats: (companyId: PathId) => `/company/webhook-stats/${companyId}?days=30`,
+    webhookTest: (companyId: PathId) => `/company/webhook-test/${companyId}`,
+    webhookReenable: (companyId: PathId) => `/company/webhook-reenable/${companyId}`,
+    webhookDisable: (companyId: PathId) => `/company/webhook-disable/${companyId}`,
+  },
+
+  invoices: {
+    list: "/invoices",
+    taxReport: "/invoices/tax-report",
+    taxReportCsv: "/invoices/tax-report/csv",
+    pdf: (invoiceId: PathId) => `/invoices/${invoiceId}/pdf`,
+  },
+
+  referral: {
+    discountStatus: "/referral/discount-status",
+    earnings: "/referral/earnings",
+    leaderboard: "/referral/leaderboard",
+    leaderboardPublic: "/referral/leaderboard/public",
+    list: "/referral/list",
+    myCode: "/referral/my-code",
+    payoutOverview: "/referral/payout/overview",
+    payoutOtp: "/referral/payout/otp",
+    payoutOptIn: "/referral/payout/opt-in",
+    payoutRequest: "/referral/payout/request",
+    payoutAuto: "/referral/payout/auto",
+    payoutHistory: "/referral/payout/history",
+    payoutHistoryExport: "/referral/payout/history/export",
+  },
+
+  status: {
+    incidents: "/status/incidents",
+    services: "/status/services",
+    uptime: "/status/uptime",
+    gateway: "/status/gateway",
+  },
+
+  kb: {
+    articles: "/kb/articles?limit=20",
+    article: (slug: PathId) => `/kb/articles/${slug}`,
+    articleFeedback: (articleId: PathId) => `/kb/articles/${articleId}/feedback`,
+    articleFeedbackBySlug: (slug: PathId) => `/kb/articles/by-slug/${slug}/feedback`,
+    search: (q: string) => `/kb/search?q=${q}&limit=20`,
+  },
+
+  kyc: {
+    submit: "/kyc/submit",
+    resubmit: "/kyc/resubmit",
+    status: "/kyc/status",
+    requirements: "/kyc/requirements",
+    history: "/kyc/history",
+  },
+
+  notifications: {
+    list: "/notifications",
+    readAll: "/notifications/read-all",
+    markRead: (id: PathId) => `/notifications/${id}/read`,
+  },
+
+  products: {
+    list: "/products",
+    byId: (productId: PathId) => `/products/${productId}`,
+  },
+
+  transactions: {
+    invoice: (transactionId: PathId) => `/transactions/${transactionId}/invoice`,
+    // Accepts DB id, numeric transaction_id, or an on-chain tx hash
+    detail: (idOrHash: PathId) => `/wallet/transaction/${encodeURIComponent(String(idOrHash))}`,
+  },
+
+  userApi: {
+    customers: "/userApi/customers",
+    customer: (customerId: PathId) => `/userApi/customer/${customerId}`,
+    // Unified payments-derived customer directory (re-imagined Customers page)
+    customersDirectory: "/userApi/customers/directory",
+    customersDirectoryDetail: "/userApi/customers/directory/detail",
+    // In-app customer wallet (store credit): ledger + credit/debit (brand-scoped)
+    customersWalletLedger: "/userApi/customers/wallet/ledger",
+    customersWalletAdjust: "/userApi/customers/wallet/adjust",
+  },
+} as const;
+
+export default API_ENDPOINTS;

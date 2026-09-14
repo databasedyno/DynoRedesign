@@ -1,0 +1,112 @@
+{
+  "summary": "Frontend-only regression + brand-extension pass across auth, fees, checkout, dashboard, docs, blog. LOGIN with QA credentials (hostbay@moxx.co) works end-to-end (email → method=Password → password submit → /dashboard + 'Login Successful!' toast). /auth/login DARK+LIGHT render the Swiss brand cleanly (grid backdrop, volt-only mesh, no purple/indigo blobs, glass form card, left panel with Unbounded 'Accept crypto. Straight to your wallet — or auto-convert.' + volt highlight + stat tiles 1,000+ / 15+ / <1min + coin marquee ETH USDT USDC SOL BNB XRP TRX BTC). /auth/register also renders with 'Create your account' + Google + GitHub SSO, form intact. /fees full page passes: title 'Crypto Payment Processing Fees — Transparent Pricing | DynoPay', all 8 required data-testids (fees-step-card-0..3, fees-comparison-table, fees-howto-step-0/3, fees-cta-section), h1 in Unbounded 48px with volt HighlightText, numbered sections 01–05, 'Try the Fee Calculator' smooth-scrolls (0→1218), Payment Amount input change 100→5000 recomputes ($75 platform fee, $76.86 total, You receive $4923.14). /payment/success + /payment/failed render Swiss cards with mono transaction-id boxes (test123 / fail456). /documentation shows '[ DEVELOPER DOCUMENTATION ]' volt eyebrow + 'DynoPay API Reference' in Unbounded 40px, sidebar navigation, code blocks in mono, Copy buttons present. /blog renders 'Crypto Payment Insights' index with 4 posts. Landing / smoke-checks pass (hero-terminal, use-cases-bento, fee-calculator-section, faq-section, final-cta-section all present). Dashboard/wallets/transactions render correctly with volt accents; mobile 390×844 has NO horizontal overflow. Several items don't perfectly match the review's spec — see frontend_issues.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "Pay3Layout — /pay/demo checkout card",
+        "issue": "The center DynoPay 'D' logo inside the checkout card AND the step-indicator dots (Order/Payment/Done) still render a distinctly purple/indigo tint. Review spec explicitly requires 'grid backdrop, indigo glow removed'. Grid backdrop IS present and outer glow IS volt/removed, but these two in-card elements still carry the old indigo palette. See /app/.screenshots/pay_demo.png.",
+        "selector": "[data-testid=\"checkout-card\"] logo + step dots",
+        "priority": "MEDIUM"
+      },
+      {
+        "component": "Dashboard header — page title (Header/index.tsx)",
+        "issue": "Review spec says 'page title in header now renders in Unbounded at 20px'. On /dashboard at 1920×1080 the top AppBar/Toolbar has NO page-title text at all (only hostbay company selector + EN + theme toggle + user avatar). The visible 'Dashboard' text is the main-content H1 with fontFamily='UrbanistMedium', fontSize='30px', fontWeight='500' — NOT Unbounded 20px. Either the header title node isn't rendered on desktop or it's hidden by a breakpoint condition. Same behaviour on /wallet, /transactions, /help-support.",
+        "selector": "header h1/h2 (not found)",
+        "priority": "MEDIUM"
+      },
+      {
+        "component": "/reset-password route",
+        "issue": "GET /reset-password → HTTP 200 but the router redirects to /auth/login (window.location changes to /auth/login and the Log-in card is shown). GET /auth/reset-password → 404. So the review checklist item 'reset-password page renders (uses same AuthContainer/CardWrapper shell that was restyled)' cannot be visually verified — no reset-password form appears without a token. If graceful, add a state that keeps the restyled AuthContainer visible with a 'Request a new reset link' CTA instead of full redirect.",
+        "selector": "n/a",
+        "priority": "MEDIUM"
+      },
+      {
+        "component": "/pay (no token)",
+        "issue": "GET /pay with no ?token/query → renders the LANDING page HTML (title 'DynoPay — Crypto Payment Gateway…', hero terminal, etc.) instead of a dedicated invalid-state on the restyled Pay3Layout. checkout-card testid absent. Not a crash, but the review's 'show its error/invalid state gracefully' expectation is not met by the current fallback — user just sees the marketing site.",
+        "selector": "n/a",
+        "priority": "LOW"
+      },
+      {
+        "component": "/help-support — page title styling",
+        "issue": "Review says help-support 'uses the restyled HomeSectionTitle with new bracket eyebrow + Unbounded heading'. Actual: page-title H1 'Help & Support' is fontFamily='UrbanistMedium', not Unbounded, and there is NO '[ … ]' bracket eyebrow anywhere on the page. Cards+support block render fine; only the header styling wasn't updated on this route.",
+        "selector": "h1:has-text('Help & Support')",
+        "priority": "LOW"
+      },
+      {
+        "component": "/documentation — Copy button feedback",
+        "issue": "Clicking the 'Copy' button on a code block does not toggle the label to 'Copied' (or any equivalent visual state) — body.innerText never contains 'Copied' after click. Users get no confirmation that copy succeeded.",
+        "selector": "button:has-text('Copy')",
+        "priority": "LOW"
+      }
+    ],
+    "integration_issues": [
+      {
+        "flow": "Multiple pages — next-auth session probe",
+        "issue": "Every route logs `[next-auth][error][CLIENT_FETCH_ERROR] /api/auth/session Failed to fetch`. Probably related to a NEXTAUTH_URL / cookie-domain mismatch on the preview host. Does not block any tested flow (login via /api/user/login works), but is noisy in DevTools and could hide real errors.",
+        "affected_selectors": ["global console"]
+      },
+      {
+        "flow": "Dashboard sub-requests",
+        "issue": "Multiple `Failed to load resource: the server responded with a status of 400` after login (secondary/analytics endpoints, based on repeated pattern). UI still renders numbers ($128.03 today, $19,770.95 lifetime, 13 wallets) so these are non-blocking, but worth confirming which endpoint is 400'ing.",
+        "affected_selectors": []
+      }
+    ],
+    "design_issues": [
+      {
+        "screen": "/documentation code blocks",
+        "issues": [
+          "Review spec: 'code blocks use IBM Plex Mono'. Actual computed fontFamily is `__GeistMono_bffd86, __GeistMono_Fallback_bffd86, ui-monospace, …` — the site uses GeistMono, not IBM Plex Mono. Visually monospaced and consistent, but the specific typeface differs from the redesign spec."
+        ]
+      },
+      {
+        "screen": "/blog index",
+        "issues": [
+          "Post card headings computed as GeistSans (system fallback for h3), not Unbounded. Visually large-bold copy still reads correctly, but the review asked for 'Unbounded headings'. h2 hero 'Crypto Payment Insights' IS rendered but heading font wasn't confirmed at h1 level — check /app/.screenshots/blog_index.png."
+        ]
+      }
+    ]
+  },
+  "verified_functional": {
+    "login_flow": "PASS end-to-end (hostbay@moxx.co / Katiekendra123@) → /dashboard reached; 'Login Successful!' toast",
+    "auth_login_dark_light": "PASS both modes; body bg dark=rgb(6,6,6) / light=rgb(238,241,246); no visible indigo blobs; volt glow present bottom-left; SSO google-login-btn + github-login-btn present",
+    "auth_register": "PASS — Google/GitHub SSO buttons + email input + 'Have a referral code?' link + Sign in link back to /auth/login",
+    "fees_page_dark": "PASS — 8/8 required testids; hero H1 fontFamily=Unbounded @ 48px; volt highlight color; smooth-scroll 'Try the Fee Calculator' 0→1218; calculator: payment 100→5000 recomputed platform-fee $1.50→$75.00, total $3.24→$76.86, You receive $96.76→$4923.14",
+    "fees_page_light": "PASS — body bg rgb(238,241,246); layout intact",
+    "payment_success_page": "PASS — 'Payment Successful' + mono 'test123' + volt 'Return Home' CTA on Swiss card",
+    "payment_failed_page": "PASS — 'Payment Failed' + mono 'fail456' + 'Try Again' + 'Return Home' CTAs",
+    "documentation_page": "PASS core — mono [ DEVELOPER DOCUMENTATION ] eyebrow, H2 'DynoPay API Reference' fontFamily=Unbounded @ 40px, sidebar nav (Overview/Getting Started/Try It Live/Authentication/…) visible, code font monospace (GeistMono), Copy button present",
+    "blog_index": "PASS — 4 posts rendered (Accept Crypto Payments, Stablecoin Settlement, Bitcoin vs Credit Card Fees, Userless Payment API) with category chips + read time + author + date",
+    "landing_regression": "PASS — testids hero-terminal, use-cases-bento, fee-calculator-section, faq-section, final-cta-section all present",
+    "dashboard_after_login": "PASS — Today's Revenue $128.03, Lifetime $19,770.95, 13 active wallets, Fee Tier Progress volt chart, referral code DYNO-9XVPUY, Login Successful toast",
+    "wallet_page": "PASS — 5 wallet cards (Bitcoin, Ethereum, Litecoin, Dogecoin, Bitcoin Cash) with volt border ring on active menu item",
+    "transactions_page": "PASS — table with 10 rows, USDT-ERC20 / BTC / LTC / USDT-TRC20 badges, 'Showing 10 of 376 transactions'",
+    "mobile_390_no_overflow": "PASS — /dashboard on 390×844: scrollWidth==clientWidth==390, bottom-nav (Dash/Transactions/Create/Wallets/Account) with volt Dash highlight",
+    "help_support_page": "Renders — 8 topic cards + support@dynopay.com footer. (Design nit: heading uses UrbanistMedium not Unbounded, no bracket eyebrow — see ui_bugs)"
+  },
+  "test_report_links": ["/app/test_reports/iteration_25.json"],
+  "action_items": [
+    "MEDIUM — /pay/demo checkout card: swap the still-indigo center 'D' logo + Order/Payment/Done step-indicator dot colors from the old indigo/violet to volt (or Swiss ink). Grid backdrop + outer glow are already correct.",
+    "MEDIUM — Header/index.tsx: confirm whether the 'page title in header → Unbounded 20px' change actually renders on desktop. On /dashboard, /wallet, /transactions, /help-support the top Toolbar contains no page-title node at 1920px — either the JSX is gated by a breakpoint that hides it above sm, or it's not wired to the router yet. The visible page title is still the main-content H1 in UrbanistMedium 30px.",
+    "MEDIUM — /reset-password: without a token the router hard-redirects to /auth/login (login card shown, url flips). If the intent per the review was to keep the restyled AuthContainer visible, add an 'Enter your email to request a new reset link' state instead of full redirect.",
+    "LOW — /pay (no token): render the restyled Pay3Layout with a proper invalid-state card (currently falls through to the marketing landing).",
+    "LOW — /help-support: swap the UrbanistMedium page-title for Unbounded + add the [ HELP & SUPPORT ] (or similar) mono bracket eyebrow so it matches the restyled HomeSectionTitle mentioned in the review.",
+    "LOW — /documentation: add a 'Copied' state on the Copy button (aria-live + label swap for 1.5s).",
+    "LOW — /documentation code blocks: if IBM Plex Mono is truly desired (per spec), load the font var; current GeistMono works visually but differs from the redesign brief.",
+    "INVESTIGATE — next-auth CLIENT_FETCH_ERROR on /api/auth/session across every page. Not blocking, but noisy — check NEXTAUTH_URL cookie/domain."
+  ],
+  "critical_code_review_comments": [
+    "Login is a 3-step flow (email → choose method 'Password' vs 'Email OTP' → password) — well-designed but automated tests must click the 'Password' method radio between email and password. Consider a data-testid on that method radio (e.g. `data-testid=\"login-method-password\"`) — currently we rely on `text=Password` which could easily false-match.",
+    "The main-content page-title (h1 'Dashboard' / 'Help & Support' / 'Wallets') is still fontFamily='UrbanistMedium' — if the redesign intent is Unbounded everywhere for page titles, this should be updated (currently only /fees, /documentation, /blog, /auth/* actually render Unbounded).",
+    "/pay with no ?token silently 200s and renders the landing HTML — from an ops/SEO angle this is confusing; a proper 404 or dedicated 'checkout link expired' state would be clearer for merchants sharing broken links.",
+    "The `[next-auth][error][CLIENT_FETCH_ERROR]` fires on every route. Merchants opening DevTools will see a red error on the very first page — bad first impression. Either suppress the client-side session probe on public marketing routes or fix the endpoint so it returns 200 with `{user:null}` instead of failing to fetch."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (frontend-only requested)", "frontend": "10/13 review checklist items fully verified; 3 partial (dashboard header title style, /reset-password, /pay no-token invalid state); 6 secondary design nits (pay/demo indigo logo, help-support header, docs Copy feedback, docs IBM Plex Mono, blog h3 font, next-auth console error)"},
+  "test_credentials": "Read from /app/memory/test_credentials.md. Used QA account hostbay@moxx.co / Katiekendra123@ (login = 3-step: email → choose 'Password' radio → Continue → password → submit).",
+  "seed_data_creation": "None. Read-only. Only localStorage['theme-mode'] toggled between 'light' and 'dark' as instructed.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "URL: use https://speedup-check.preview.emergentagent.com (per review request and /app/.env). /app/frontend/.env still points REACT_APP_BACKEND_URL to the older staging-2 alias — both hosts respond 200 but the 9c06619d one is authoritative for THIS iteration. Login is 3-step (email → radio 'Password' → Continue → password). Theme via localStorage['theme-mode']='light'|'dark' + reload. wait_until='domcontentloaded' preferred over networkidle (chains-marquee keeps RAF busy). /reset-password redirects to /auth/login without a token. /pay w/o token falls through to landing HTML. /help-support is auth-guarded → login first. Every route emits the `[next-auth][error][CLIENT_FETCH_ERROR] /api/auth/session` console error — pre-existing, non-blocking.",
+  "rca_of_the_issue": "Pay3Layout indigo remnants: the checkout card's center brand logo and progress-step-indicator dot colors weren't swept when the outer backdrop + glow were converted to volt. File to inspect: /app/Components/Layout/Pay3Layout.tsx and the checkout Card / Stepper components (probably Components/UI/PaymentSteps or similar) — search for indigo/violet/purple token or hex like #6366F1, #7C3AED, #8B5CF6, #A78BFA. Dashboard header Unbounded 20px: /app/Components/Layout/Header/index.tsx should render a `<Typography sx={{fontFamily:'var(--font-hero)', fontSize:20}}>` bound to the current-route label — confirm that JSX exists AND that its parent Toolbar isn't `sx={{display:{xs:'none', md:'flex'}}}`-hiding it, and that its parent isn't the second Toolbar instance meant for mobile only."
+}

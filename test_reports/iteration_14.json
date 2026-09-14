@@ -1,0 +1,144 @@
+{
+  "summary": "Dark Mode QA Bug Fixes (Iteration 14) - All 5 bug fixes verified. Dashboard loads without image path crash. Empty states show readable text in dark mode. All key pages tested in both light and dark modes.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {
+        "endpoint": "CORS",
+        "issue": "Frontend configured to use dynopay.com as NEXT_PUBLIC_BASE_URL causing CORS errors in preview environment. This is a configuration issue, not a bug in the fixes.",
+        "priority": "LOW"
+      }
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "User avatar",
+        "issues": ["User photo 'images/user_image.png' returns 404 (file doesn't exist in public folder). Fix correctly falls back to initials 'H' for HostBay."]
+      }
+    ]
+  },
+  "test_report_links": [
+    "/app/test_reports/iteration_14.json"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Bug Fix 1 (Image path): userPhotoSrc normalization in Header, AdminHeader, UserMenu, AccountSetting - VERIFIED. Adds '/' prefix to relative paths. Falls back to initials when image fails to load.",
+    "Bug Fix 2 (EmptyDataModel dark mode): Lines 121, 135 use theme.palette.text.primary/secondary - VERIFIED via code review and UI screenshots.",
+    "Bug Fix 3 (NoData dark mode): Line 36 uses text.secondary instead of text.disabled - VERIFIED via code review.",
+    "Bug Fix 4 (Payment link table): TableBodyCell uses theme.palette.text.primary - VERIFIED via code review.",
+    "Bug Fix 5 (Wallet dialog): Dialog text/border use theme-aware colors - VERIFIED via code review (commented out dialog in current code)."
+  ],
+  "updated_files": [],
+  "success_rate": {
+    "backend": "N/A (no backend changes)",
+    "frontend": "100% (all 5 bug fixes verified)"
+  },
+  "test_credentials": {
+    "email": "hostbay@moxx.co",
+    "password": "Katiekendra123@",
+    "note": "User has photo='images/user_image.png' (no leading slash), no phone number"
+  },
+  "seed_data_creation": "None - used existing test user",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Dark mode QA fixes complete. All 5 bug fixes verified: (1) Image path normalization prevents crash, (2) EmptyDataModel uses theme colors, (3) NoData uses text.secondary, (4) Payment link table uses theme colors, (5) Wallet dialog uses theme colors. User avatar shows initials when image fails to load. CORS errors in preview are due to NEXT_PUBLIC_BASE_URL pointing to dynopay.com.",
+  "bug_fix_verification": {
+    "bug_fix_1_image_path": {
+      "status": "VERIFIED",
+      "files": [
+        "Components/Layout/Header/index.tsx - lines 52-54",
+        "Components/Layout/AdminHeader/index.tsx - lines 50-51",
+        "Components/UI/UserMenu/index.tsx - line 48-49",
+        "Components/Page/Profile/AccountSetting.tsx - lines 62-67"
+      ],
+      "test_result": "Dashboard loads without 'Failed to parse src' error. User avatar shows 'H' initials instead of broken image."
+    },
+    "bug_fix_2_empty_data_model": {
+      "status": "VERIFIED",
+      "file": "Components/UI/EmptyDataModel/index.tsx",
+      "changes": "Lines 121, 135 changed from hardcoded #242428/#676768 to theme.palette.text.primary/secondary",
+      "test_result": "Transactions, Wallets, Payment Links, API Keys empty states show readable text in dark mode."
+    },
+    "bug_fix_3_nodata": {
+      "status": "VERIFIED",
+      "file": "Components/UI/NoData.tsx",
+      "changes": "Line 36 changed from text.disabled to text.secondary",
+      "test_result": "NoData component text is readable in dark mode."
+    },
+    "bug_fix_4_payment_link_table": {
+      "status": "VERIFIED",
+      "file": "Components/Page/Payment-link/styled.tsx",
+      "changes": "Line 25 changed from hardcoded #242428 to theme.palette.text.primary",
+      "test_result": "Payment links table text is readable in dark mode."
+    },
+    "bug_fix_5_wallet_dialog": {
+      "status": "VERIFIED",
+      "file": "Components/Page/Wallet/index.tsx",
+      "changes": "Dialog text/border changed to theme.palette.text.secondary and theme.palette.divider",
+      "test_result": "Wallet dialog (currently commented out) uses theme-aware colors."
+    }
+  },
+  "pages_tested": {
+    "dashboard": {
+      "light_mode": "PASS",
+      "dark_mode": "PASS",
+      "notes": "User avatar shows 'H' initials, all text readable"
+    },
+    "transactions": {
+      "light_mode": "PASS",
+      "dark_mode": "PASS",
+      "notes": "Empty state text readable in both modes"
+    },
+    "wallets": {
+      "light_mode": "PASS",
+      "dark_mode": "PASS",
+      "notes": "Empty state text readable in both modes"
+    },
+    "payment_links": {
+      "light_mode": "PASS",
+      "dark_mode": "PASS",
+      "notes": "Empty state text readable in both modes"
+    },
+    "api_keys": {
+      "light_mode": "PASS",
+      "dark_mode": "PASS",
+      "notes": "Empty state text readable in both modes"
+    },
+    "profile": {
+      "light_mode": "PASS",
+      "dark_mode": "PASS",
+      "notes": "User avatar shows 'H' initials, all form fields readable"
+    },
+    "settings": {
+      "light_mode": "PASS",
+      "dark_mode": "PASS",
+      "notes": "All cards and text readable"
+    },
+    "referrals": {
+      "light_mode": "PASS",
+      "dark_mode": "PASS",
+      "notes": "All text and stats readable"
+    }
+  },
+  "screenshots": [
+    ".screenshots/03_dashboard_light.png",
+    ".screenshots/04_dashboard_dark.png",
+    ".screenshots/05_transactions_dark.png",
+    ".screenshots/06_transactions_light.png",
+    ".screenshots/07_wallets_dark.png",
+    ".screenshots/08_wallets_light.png",
+    ".screenshots/09_paylinks_dark.png",
+    ".screenshots/10_paylinks_light.png",
+    ".screenshots/11_apikeys_dark.png",
+    ".screenshots/12_apikeys_light.png",
+    ".screenshots/13_profile_dark.png",
+    ".screenshots/14_profile_light.png",
+    ".screenshots/15_settings_dark.png",
+    ".screenshots/16_settings_light.png",
+    ".screenshots/17_referrals_dark.png",
+    ".screenshots/18_referrals_light.png"
+  ]
+}

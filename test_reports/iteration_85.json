@@ -1,0 +1,30 @@
+{
+  "summary": "Backend-only regression testing of the Flutterwave inbound webhook signature guard (POST /api/webhook and POST /api/failed_webhook) against the preview host. Created 10 pytest cases (missing header, wrong header, empty header, malformed body, repeated bad requests, health check) - ALL 10 PASS. Verified via backend logs that the unsigned payload is now rejected BEFORE any processing and no ERR_HTTP_HEADERS_SENT/'headers already sent' error occurs. IMPORTANT: on the first run the running ts-node process was STALE (started 03:19, webhooks/index.ts edited 03:23; ts-node has no hot reload) and still executed the old buggy path - logs showed 'here==========>' + 'IWebHook=============>' and a setRedisItem write for an unsigned 401'd payload. After `supervisorctl restart backend`, the fixed code loaded and post-401 processing lines disappeared entirely.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "POST /api/webhook, /api/failed_webhook", "issue": "Pre-restart (stale ts-node process) the unsigned payload was still processed and wrote a junk Redis key 'flw-txt-TEST_flw-txt-qa-invalid-sig' on the LIVE Redis (from my rejected test payload). Consider deleting that key. Root cause of the stale behaviour: backend runs `ts-node --transpile-only server.ts` with NO hot reload, so any backend TS edit requires `sudo supervisorctl restart backend` before it takes effect (self-checks can otherwise validate old code)."},
+      {"endpoint": "GET /health", "issue": "Health endpoint is mounted on the express app root (server.ts L366), not under /api, so it is unreachable through the public preview host (non-/api paths route to Next -> 404 HTML). Only reachable internally at localhost:8001/health. Suggest also exposing /api/health."},
+      {"endpoint": "POST /api/webhook (catch block)", "issue": "The catch block still does `res.status(401).end()` without checking res.headersSent; if any future code sends a response before throwing this would re-throw ERR_HTTP_HEADERS_SENT. Suggest `if (!res.headersSent) res.status(401).end();` and using 500 for genuine internal errors instead of 401."}
+    ]
+  },
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": ["/app/tests/test_flutterwave_webhook_auth.py", "/app/test_reports/pytest/flutterwave_webhook_auth.xml"],
+  "action_items": [
+    "None blocking - the fix (early `return` after res.status(401).end()) is verified working on the freshly restarted process.",
+    "Optional cleanup: delete the stray Redis key 'flw-txt-TEST_flw-txt-qa-invalid-sig' created by the pre-restart stale process.",
+    "Remember to restart the backend (ts-node, no hot reload) after every backend TS edit before self-verifying."
+  ],
+  "critical_code_review_comments": [
+    "webhooks/index.ts flutterwaveWebHook: guard `if (!verifyFlutterwaveHash(signature)) { res.status(401).end(); return; }` is correct and fires before payload access (verified: malformed non-JSON body with bad hash now returns 401 with no 'Cannot read properties of undefined (reading includes)' error, which the old code logged).",
+    "catch block should guard on res.headersSent and return 5xx for internal errors rather than masking them as 401.",
+    "verifyFlutterwaveHash correctly returns false for missing/empty header and uses constant-time comparison."
+  ],
+  "updated_files": ["/app/tests/test_flutterwave_webhook_auth.py"],
+  "success_rate": {"backend": "100% (10/10 webhook auth tests)", "frontend": "not tested (backend-only request)"},
+  "seed_data_creation": "None. Only rejected (401) requests were sent; no users/payments/wallets created. One junk Redis key was written by the pre-restart stale process (see minor issues).",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Webhook auth regression suite lives at /app/tests/test_flutterwave_webhook_auth.py (run: python -m pytest tests/test_flutterwave_webhook_auth.py). SAFETY: never send a valid verif-hash - this pod is on the LIVE PROD DB/Redis. Backend health only at http://localhost:8001/health (not public, not under /api). Backend is ts-node without hot reload -> restart backend after TS edits.",
+  "rca_of_the_issue": "Original bug: missing `return` after res.status(401).end() let the handler continue to getRedisItem/setRedisItem on an unsigned payload and then res.status(200).end(). Verified reproduced on the stale process (webhookLogs showed processing of a 401'd payload) and verified fixed after restart (401 only, zero processing lines, zero headers-sent errors, /health still status=healthy database=connected)."
+}

@@ -1,0 +1,26 @@
+{
+  "summary": "Phase 1b regression: min_order_usd persistence through Settings → Payments UI verified end-to-end via Playwright on the preview URL using the throwaway QA account. All 4 required steps + optional clear/blank step PASSED. The previously reported 'reverts to old value after Save + reload' bug is CLOSED.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped per request)", "frontend": "100%"},
+  "test_credentials": "qa_minorder_p1b@example.com / QaMinOrder123@ (company_id 231, 'QA MinOrder')",
+  "seed_data_creation": "None. Only mutated min_order_usd on the throwaway QA brand: 25 -> 50 -> blank across the test run.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Payment tolerance accordion is collapsed by default; the min_order_usd input is present in DOM but hidden until the accordion header is clicked. When reading its value with Playwright, use input_value / DOM .value directly (element.is_visible() returns false while collapsed). data-testid attributes used: settings-min-order-input, settings-save-changes-btn, settings-rail-payments, login-email-input, password-input, signin-submit-btn. Field also has name=min_order_usd. Save toast: 'Brand updated successfully!'.",
+  "test_evidence": {
+    "step2_initial_load_value": "25.00 (expected 25/25.00) - PASS - proves initialValues maps min_order_usd on load",
+    "step3_after_save_value": "50.00 (expected 50) - PASS - form remounted with fresh company data, save toast 'Brand updated successfully!' displayed",
+    "step4_after_full_reload_value": "50.00 (expected 50) - PASS - value persists through browser reload, no revert to 25 or blank. CORE REGRESSION CLOSED.",
+    "bonus_clear_save_reload_value": "'' blank (expected blank) - PASS - clearing the field and saving persists as blank (inherits platform default), no error"
+  },
+  "rca of the issue": "N/A - bug already fixed by main agent before this iteration. This run only re-verified UI persistence. Fix was: CompanySettingsDialog initialValues useMemo maps companyAny.min_order_usd (L163-214); PAYMENT_FIELDS includes min_order_usd in handleSubmit scopedValues (L408); handleClose remounts form and onClose refetches companies -- all working as designed."
+}

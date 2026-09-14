@@ -1,0 +1,550 @@
+import useIsMobile from "@/hooks/useIsMobile";
+import { Box, Typography, CircularProgress, Skeleton, useTheme } from "@mui/material";
+import React, { useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import {
+  TypographyDescription,
+  TypographyTime,
+  TypographyTitle,
+} from "@/Components/UI/HomeCard/styled";
+import serviceIcon from "@/assets/Icons/home/service.svg";
+import Image from "next/image";
+import Bars from "@/Components/UI/APIStatus/Bars";
+import { API_ENDPOINTS } from "@/api/endpoints";
+import useApiSWR from "@/hooks/useApiSWR";
+import { useAurora } from "@/Components/Page/Home/v3/theme.v3";
+import PublicPageHero from "@/Components/Page/Home/v5/PublicPageHero";
+import PublicFinalCta from "@/Components/Page/Home/v5/PublicFinalCta";
+
+interface ServiceData {
+  id: string;
+  name: string;
+  status: string;
+  uptime: string;
+  uptime_value: number;
+  latency_ms: number;
+  total_checks: number;
+  failed_checks: number;
+  last_check: string | null;
+}
+
+interface IncidentData {
+  id: number;
+  title: string;
+  description: string;
+  status: string;
+  date: string;
+  formatted_date: string;
+  services_affected: string[];
+}
+
+interface UptimeDay {
+  date: string;
+  status: string;
+}
+
+interface UptimeData {
+  period_days: number;
+  uptime_percentage: string;
+  summary: {
+    operational_days: number;
+    degraded_days: number;
+    outage_days: number;
+  };
+  daily_status: UptimeDay[];
+}
+
+const StatusPage = () => {
+  const isMobile = useIsMobile();
+  const { t } = useTranslation("apiStatus");
+  const s = useAurora();
+
+  // Status data standardized onto the shared SWR hook (refactor item 5) —
+  // three tolerant reads that auto-refresh every 60s (was a manual Promise.all
+  // + setInterval). Each read degrades to an empty/neutral value on error.
+  const { data: services = [], isLoading: sLoading } = useApiSWR<ServiceData[]>(
+    API_ENDPOINTS.status.services,
+    {
+      refreshInterval: 60000,
+      select: (raw) => (raw?.data?.services as ServiceData[]) ?? [],
+    },
+  );
+  const { data: incidents = [], isLoading: iLoading } = useApiSWR<
+    IncidentData[]
+  >(API_ENDPOINTS.status.incidents, {
+    refreshInterval: 60000,
+    select: (raw) => (raw?.data?.incidents as IncidentData[]) ?? [],
+  });
+  const { data: uptimeData = null, isLoading: uLoading } = useApiSWR<
+    UptimeData | null
+  >(API_ENDPOINTS.status.uptime, {
+    refreshInterval: 60000,
+    select: (raw) => (raw?.data as UptimeData) ?? null,
+  });
+
+  const loading = sLoading || iLoading || uLoading;
+  const overallStatus = useMemo<string>(() => {
+    if (!services.length) return "operational";
+    const hasOutage = services.some((s) => s.status === "outage");
+    const allOp = services.every((s) => s.status === "operational");
+    return hasOutage ? "partial_outage" : allOp ? "operational" : "degraded";
+  }, [services]);
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "operational":
+        return "#22C55E";
+      case "degraded":
+        return "#F59E0B";
+      case "outage":
+        return "#EF4444";
+      default:
+        return "#676B7E";
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case "operational":
+        return t("operational");
+      case "degraded":
+        return t("degraded", { defaultValue: "Degraded" });
+      case "outage":
+        return t("outage", { defaultValue: "Outage" });
+      case "partial_outage":
+        return t("partialOutage", { defaultValue: "Partial Outage" });
+      default:
+        return t("unknown", { defaultValue: "Unknown" });
+    }
+  };
+
+  const getOverallChipBorder = () => {
+    switch (overallStatus) {
+      case "operational":
+        return "#22C55E33";
+      case "degraded":
+        return "#F59E0B33";
+      case "partial_outage":
+      case "outage":
+        return "#EF444433";
+      default:
+        return "#22C55E33";
+    }
+  };
+
+  const overallChip = loading ? (
+    <Skeleton variant="rounded" width={260} height={44} sx={{ borderRadius: "999px" }} data-testid="status-overall-loading" />
+  ) : (
+    <Box
+      data-testid="status-overall-chip"
+      data-status={overallStatus}
+      sx={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 1.25,
+        px: 2.25,
+        py: 1.1,
+        borderRadius: "999px",
+        border: "1px solid",
+        borderColor: getOverallChipBorder(),
+        background: s.surface,
+      }}
+    >
+      <Box component="span" sx={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: getStatusColor(overallStatus), flexShrink: 0, boxShadow: `0 0 0 4px ${getStatusColor(overallStatus)}22` }} />
+      <Typography sx={{ fontWeight: 600, fontSize: 14.5, color: getStatusColor(overallStatus), fontFamily: "var(--font-sans)", lineHeight: "20px", letterSpacing: 0 }}>
+        {overallStatus === "operational" ? t("allSystemsOperational") : getStatusLabel(overallStatus)}
+      </Typography>
+    </Box>
+  );
+
+  return (
+    <Box sx={{ width: "100%", background: s.bg }} data-testid="system-status-page">
+      <PublicPageHero
+        testId="status-hero"
+        compact
+        eyebrow={t("eyebrow", { defaultValue: "System status" })}
+        title={t("dynoPayStatus")}
+        body={t("statusSubtitle")}
+        actions={overallChip}
+      />
+
+    <Box
+      sx={{
+        width: isMobile ? "100%" : 768,
+        maxWidth: "100%",
+        minWidth: 320,
+        px: "24px",
+        mx: "auto",
+        pt: isMobile ? 2 : 3,
+        mb: isMobile ? 6 : "93px",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: isMobile ? "23px" : "48px",
+      }}
+    >
+      {/* SERVICES */}
+      <Box
+        width="100%"
+        sx={{
+          border: "1px solid",
+          borderColor: "border.main",
+          borderRadius: "16px",
+          overflow: "hidden",
+        }}
+      >
+        <Box
+          height={57}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            pl: "24px",
+          }}
+        >
+          <Image src={serviceIcon} alt="service" width={20} height={20} />
+          <TypographyTitle>{t("services")}</TypographyTitle>
+        </Box>
+
+        <Box sx={{ display: "flex", flexDirection: "column" }}>
+          {loading
+            ? Array.from({ length: 5 }).map((_, i) => (
+                <Box
+                  key={i}
+                  height={isMobile ? 79 : 57}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    px: "24px",
+                    borderTop: "1px solid",
+                    borderColor: "border.main",
+                  }}
+                >
+                  <Skeleton variant="text" width={150} height={24} />
+                  <Box sx={{ display: "flex", gap: 2 }}>
+                    <Skeleton variant="text" width={80} height={20} />
+                    <Skeleton variant="text" width={80} height={20} />
+                  </Box>
+                </Box>
+              ))
+            : services.map((service, index) => (
+                <Box
+                  key={service.id || index}
+                  height={isMobile ? 79 : 57}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    px: "24px",
+                    borderTop: "1px solid",
+                    borderColor: "border.main",
+                  }}
+                >
+                  <Box
+                    width={isMobile ? 120 : "auto"}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "12px",
+                    }}
+                  >
+                    {/* Status dot */}
+                    <Box
+                      sx={{
+                        width: 10,
+                        height: 10,
+                        borderRadius: "50%",
+                        backgroundColor: getStatusColor(service.status),
+                        flexShrink: 0,
+                      }}
+                    />
+                    <Typography
+                      sx={{
+                        fontFamily: "var(--font-sans)",
+                        lineHeight: "24px",
+                        letterSpacing: 0,
+                        color: "text.primary",
+                      }}
+                    >
+                      {service.name}
+                    </Typography>
+                  </Box>
+
+                  <Box
+                    width={isMobile ? 180 : 240}
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      gap: "12px",
+                      ml: "auto",
+                    }}
+                  >
+                    <TypographyDescription>
+                      {service.uptime} {t("uptime")}
+                    </TypographyDescription>
+
+                    {service.latency_ms > 0 && !isMobile && (
+                      <TypographyDescription>
+                        {service.latency_ms}ms
+                      </TypographyDescription>
+                    )}
+
+                    <Typography
+                      sx={{
+                        fontSize: "14px",
+                        lineHeight: "20px",
+                        letterSpacing: 0,
+                        fontFamily: "var(--font-sans)",
+                        color: getStatusColor(service.status),
+                        textTransform: "capitalize",
+                      }}
+                    >
+                      {getStatusLabel(service.status)}
+                    </Typography>
+                  </Box>
+                </Box>
+              ))}
+        </Box>
+      </Box>
+
+      {/* 90-DAY UPTIME CHART */}
+      <Box
+        width="100%"
+        sx={{
+          border: "1px solid",
+          borderColor: "border.main",
+          borderRadius: "16px",
+          p: isMobile ? "25px" : "24px",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <TypographyTitle>{t("ninetyDayUptime")}</TypographyTitle>
+          {uptimeData && (() => {
+            const s = uptimeData.summary;
+            const daysWithData = s
+              ? s.operational_days + s.degraded_days + s.outage_days
+              : 0;
+            // A "90-day uptime %" is only meaningful once we have enough history.
+            // With only a few days of data, a low figure (e.g. 62.5%) is misleading
+            // and contradicts the "All Systems Operational" banner.
+            const enoughData = daysWithData >= 30;
+            return (
+              <Typography
+                sx={{
+                  fontSize: "14px",
+                  fontFamily: "var(--font-sans)",
+                  color: enoughData ? getStatusColor("operational") : "#8A8F98",
+                }}
+              >
+                {enoughData
+                  ? `${uptimeData.uptime_percentage}%`
+                  : t("collectingData", { defaultValue: "Collecting data" })}
+              </Typography>
+            );
+          })()}
+        </Box>
+
+        {loading ? (
+          <Skeleton
+            variant="rounded"
+            width="100%"
+            height={32}
+            sx={{ mt: "16px" }}
+          />
+        ) : (
+          <Bars dailyStatus={uptimeData?.daily_status} />
+        )}
+
+        <Box
+          sx={{ mt: "8px", display: "flex", justifyContent: "space-between" }}
+        >
+          <TypographyTime>{t("ninetyDaysAgo")}</TypographyTime>
+          <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+            {/* Legend */}
+            <Box sx={{ display: "flex", gap: 0.5, alignItems: "center" }}>
+              <Box
+                sx={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: "2px",
+                  backgroundColor: "#22C55E",
+                }}
+              />
+              <TypographyTime>{t("operational")}</TypographyTime>
+            </Box>
+            <Box sx={{ display: "flex", gap: 0.5, alignItems: "center" }}>
+              <Box
+                sx={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: "2px",
+                  backgroundColor: "#F59E0B",
+                }}
+              />
+              <TypographyTime>{t("degraded", { defaultValue: "Degraded" })}</TypographyTime>
+            </Box>
+            <Box sx={{ display: "flex", gap: 0.5, alignItems: "center" }}>
+              <Box
+                sx={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: "2px",
+                  backgroundColor: "#E5E7EB",
+                }}
+              />
+              <TypographyTime>{t("noData", { defaultValue: "No Data" })}</TypographyTime>
+            </Box>
+          </Box>
+          <TypographyTime>{t("today")}</TypographyTime>
+        </Box>
+      </Box>
+
+      {/* RECENT INCIDENTS */}
+      <Box
+        width="100%"
+        sx={{ display: "flex", flexDirection: "column", gap: "16px" }}
+      >
+        <TypographyTitle>{t("recentIncidents")}</TypographyTitle>
+        {loading ? (
+          Array.from({ length: 2 }).map((_, i) => (
+            <Skeleton
+              key={i}
+              variant="rounded"
+              width="100%"
+              height={136}
+              sx={{ borderRadius: "16px" }}
+            />
+          ))
+        ) : incidents.length === 0 ? (
+          <Box
+            sx={{
+              border: "1px solid",
+          borderColor: "border.main",
+              borderRadius: "16px",
+              p: "24px",
+              textAlign: "center",
+            }}
+          >
+            <TypographyDescription>
+              {t('noRecentIncidents')}
+            </TypographyDescription>
+          </Box>
+        ) : (
+          incidents.map((incident, index) => (
+            <Box
+              key={incident.id || index}
+              sx={{
+                border: "1px solid",
+          borderColor: "border.main",
+                borderRadius: "16px",
+                p: "24px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "8px",
+              }}
+            >
+              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                <Typography
+                  sx={{
+                    fontFamily: "var(--font-sans)",
+                    fontWeight: 500,
+                    lineHeight: "24px",
+                    letterSpacing: 0,
+                    color: "text.primary",
+                  }}
+                >
+                  {incident.title}
+                </Typography>
+                <TypographyTime>{incident.formatted_date}</TypographyTime>
+              </Box>
+              <TypographyDescription>
+                {incident.description}
+              </TypographyDescription>
+              {incident.services_affected &&
+                incident.services_affected.length > 0 && (
+                  <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                    {incident.services_affected.map((svc) => (
+                      <Box
+                        key={svc}
+                        sx={{
+                          px: "8px",
+                          py: "2px",
+                          backgroundColor: "action.hover",
+                          borderRadius: "4px",
+                        }}
+                      >
+                        <Typography
+                          sx={{
+                            fontSize: "11px",
+                            fontFamily: "var(--font-sans)",
+                            color: "text.secondary",
+                            textTransform: "capitalize",
+                          }}
+                        >
+                          {svc.replace(/_/g, " ")}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                )}
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                }}
+              >
+                <Box
+                  component="span"
+                  sx={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: "50%",
+                    flexShrink: 0,
+                    backgroundColor:
+                      incident.status === "resolved" ? "#22C55E" : "#F59E0B",
+                  }}
+                />
+                <Typography
+                  sx={{
+                    fontSize: "12px",
+                    fontFamily: "var(--font-sans)",
+                    fontWeight: 500,
+                    lineHeight: "16px",
+                    letterSpacing: 0,
+                    color:
+                      incident.status === "resolved" ? "#15803D" : "#B45309",
+                    textTransform: "capitalize",
+                  }}
+                >
+                  {incident.status}
+                </Typography>
+              </Box>
+            </Box>
+          ))
+        )}
+      </Box>
+
+      {/* LAST UPDATED */}
+      {!loading && (
+        <TypographyTime sx={{ textAlign: "center" }}>
+          {t('autoRefresh60')}
+        </TypographyTime>
+      )}
+    </Box>
+
+      <PublicFinalCta attributionRef="status_final" />
+    </Box>
+  );
+};
+
+export default StatusPage;

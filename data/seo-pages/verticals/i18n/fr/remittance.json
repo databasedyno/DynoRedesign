@@ -1,0 +1,55 @@
+{
+  "meta_title": "Paiements crypto pour les envois de fonds et les paiements transfrontaliers · Dynopay",
+  "meta_description": "Acceptez les paiements crypto pour les envois de fonds et les paiements transfrontaliers. Non-custodial, 15+ cryptomonnaies, frais à partir de 1,5 %. Pas de rétrofacturations. Commencez en 10 minutes.",
+  "h1": "Paiements crypto pour les envois de fonds et les paiements transfrontaliers",
+  "subheading": "Collectez des paiements transfrontaliers en Bitcoin, USDT, XRP et 12+ autres cryptomonnaies sans banques correspondantes, rétrofacturations ou périodes de blocage",
+  "intro_paragraph": "Les corridors d'envois de fonds traditionnels vous imposent des majorations de 3 à 7 % sur les devises, des délais de règlement de 3 à 5 jours et des rails hérités lents qui frustrent vos clients. Dynopay livre des paiements crypto directement dans votre portefeuille—sans garde, sans rétrofacturations, sans frais mensuels. Vos clients paient en Bitcoin, stablecoins ou 15+ cryptomonnaies, et vous recevez des fonds en quelques minutes dans le portefeuille que vous contrôlez. Les frais commencent à 1,5 % et descendent à 0,5 % à mesure que votre volume augmente, avec votre première transaction entièrement gratuite.",
+  "features": [
+    {
+      "title": "Les fonds arrivent directement dans votre portefeuille",
+      "description": "Une architecture non-custodiale signifie que chaque paiement arrive dans le portefeuille que vous spécifiez lors de la configuration. Dynopay ne touche jamais vos fonds, vous gardez donc un contrôle total et pouvez déplacer le capital immédiatement."
+    },
+    {
+      "title": "Les stablecoins éliminent la volatilité des devises",
+      "description": "Acceptez USDT sur Ethereum, Tron et Polygon, plus USDC sur Ethereum et RLUSD sur Ethereum et le XRP Ledger. Vos destinataires obtiennent une valeur prévisible sans exposition aux fluctuations du prix du Bitcoin."
+    },
+    {
+      "title": "Pas de rétrofacturations, jamais",
+      "description": "Les transactions crypto sont finales. Une fois réglés, les fonds ne peuvent pas être inversés par une banque ou un processeur de paiement, éliminant les pertes dues aux litiges qui affligent les services d'envois de fonds basés sur les cartes."
+    }
+  ],
+  "how_it_works": [
+    "Inscrivez-vous, vérifiez votre email, créez un profil d'entreprise et ajoutez l'adresse du portefeuille où vous souhaitez que les fonds soient envoyés.",
+    "Générez un lien de paiement ou intégrez le widget de paiement sur votre plateforme pour que les clients paient en crypto.",
+    "Les clients paient dans leur cryptomonnaie choisie ; les fonds arrivent dans votre portefeuille en quelques minutes, moins les frais de la plateforme."
+  ],
+  "faqs": [
+    {
+      "question": "Comment les paiements crypto réduisent-ils les coûts pour les paiements transfrontaliers par rapport aux banques ?",
+      "answer": "Les banques ajoutent des frais de correspondance, des écarts de change et des frais SWIFT qui totalisent 3 à 7 % par transaction. Dynopay facture à partir de 1,5 % (descendant à 0,5 % avec le volume) sans frais cachés, sans intermédiaires et sans majorations de conversion de devises lors de l'utilisation de stablecoins."
+    },
+    {
+      "question": "Quels stablecoins Dynopay prend-il en charge pour les entreprises d'envois de fonds ?",
+      "answer": "Dynopay prend en charge USDT sur les réseaux Ethereum, Polygon et Tron, USDC sur Ethereum, plus RLUSD sur Ethereum et le XRP Ledger. Cela offre à vos clients plusieurs options à faible coût pour les transferts à valeur stable."
+    },
+    {
+      "question": "Ai-je besoin d'un portefeuille crypto avant de commencer à accepter des paiements ?",
+      "answer": "Oui. Lors de l'intégration, vous fournissez une adresse de portefeuille par cryptomonnaie que vous souhaitez accepter. Les fonds de chaque paiement vont directement là-bas. Vous pouvez utiliser n'importe quel portefeuille non-custodial comme MetaMask, Ledger, Exodus ou un portefeuille de trésorerie d'entreprise."
+    },
+    {
+      "question": "Combien de temps faut-il pour que les paiements crypto transfrontaliers se règlent ?",
+      "answer": "Le Bitcoin se confirme en 10 à 60 minutes selon la congestion du réseau. Les paiements Ethereum, Polygon, Tron et Solana se confirment généralement en moins de 5 minutes. XRP et Litecoin se règlent en 2 à 5 minutes. Tous sont plus rapides que les virements traditionnels."
+    },
+    {
+      "question": "Les clients de n'importe quel pays peuvent-ils m'envoyer des paiements crypto via Dynopay ?",
+      "answer": "Oui. La crypto n'a pas de limites géographiques sur qui peut envoyer des fonds à votre portefeuille. La vérification d'identité (KYC) s'applique à votre compte Dynopay une fois que le volume réglé dépasse un seuil, les sorties fiat gèrent leur propre KYC, et en tant qu'entreprise d'envois de fonds, vous restez responsable de vos propres obligations de licence et de LBC."
+    }
+  ],
+  "cta_headline": "Commencez à accepter des paiements crypto en 10 minutes",
+  "cta_body": "Inscrivez-vous maintenant et votre première transaction est sans frais. Pas de coûts d'installation, pas de frais mensuels, fonds directement dans votre portefeuille.",
+  "_generated_at": "2026-08-29T14:54:22.884958Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "remittance",
+  "_display_name": "Remittance & Cross-Border Payouts"
+}

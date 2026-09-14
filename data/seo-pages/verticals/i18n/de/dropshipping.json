@@ -1,0 +1,55 @@
+{
+  "meta_title": "Krypto-Zahlungen für Dropshipping-Shops · Dynopay",
+  "meta_description": "Akzeptieren Sie Krypto-Zahlungen für Ihren Dropshipping-Shop mit Dynopay. Keine Rückbuchungen, keine eingefrorenen Konten, 15+ Kryptowährungen. Gebühren ab 1,5%. Starten Sie noch heute kostenlos.",
+  "h1": "Akzeptieren Sie Krypto-Zahlungen für Dropshipping ohne Rückbuchungen oder eingefrorene Konten",
+  "subheading": "Dynopay hilft Dropshippern, den Sperren von Hochrisiko-Zahlungsdienstleistern zu entkommen, Rückbuchungsbetrug zu eliminieren und Bitcoin, Stablecoins und 15+ Kryptowährungen direkt in ein von ihnen kontrolliertes Wallet zu empfangen.",
+  "intro_paragraph": "Dropshipping wird von Kartenzahlungsdienstleistern als Hochrisiko eingestuft: plötzliche Kontosperren, rollierende Reserven und Rückbuchungen bei langen Versandzeiten können einen Shop über Nacht ruinieren. Dynopay ist ein non-custodial Krypto-Zahlungs-Gateway, das Zahlungen direkt in Ihr Wallet abwickelt – kein Zahlungsdienstleister, der Ihr Guthaben zurückhält, und keine Reserve. Fügen Sie eine Krypto-Checkout-Option per Zahlungslink, eingebettetem Widget oder REST API über 15+ Kryptowährungen hinzu, mit Gebühren ab 1,5%, die bei steigendem Volumen auf 0,5% sinken. Keine Rückbuchungen, keine monatlichen Gebühren, erste Zahlung kostenlos.",
+  "features": [
+    {
+      "title": "Keine Kontosperren oder rollierenden Reserven",
+      "description": "Dynopay ist non-custodial – die Gelder landen direkt in Ihrem Wallet statt auf einem Konto eines Zahlungsdienstleisters, das eingefroren werden oder einen Prozentsatz jedes Verkaufs als Reserve zurückhalten kann."
+    },
+    {
+      "title": "Rückbuchungssichere Einnahmen bei langen Versandzeiten",
+      "description": "Krypto-Zahlungen sind endgültig, sodass ein Kunde die Zahlung nicht anfechten kann, während ein Paket noch wochenlang unterwegs ist – die häufigste Ursache für Dropshipping-Rückbuchungen."
+    },
+    {
+      "title": "Verkaufen Sie ab dem ersten Tag weltweit",
+      "description": "Nehmen Sie Zahlungen von Käufern in Märkten an, die von Karten schlecht bedient werden. Krypto ermöglicht es Ihnen, weltweit Bestellungen entgegenzunehmen, ohne länderspezifische Genehmigungen von Zahlungsdienstleistern."
+    }
+  ],
+  "how_it_works": [
+    "Melden Sie sich an, verifizieren Sie Ihre E-Mail, erstellen Sie ein Unternehmensprofil und fügen Sie eine Auszahlungs-Wallet-Adresse für die Abwicklung hinzu.",
+    "Fügen Sie Dynopay als Krypto-Checkout-Option per Zahlungslink hinzu oder betten Sie das Widget auf der Checkout-Seite Ihres Shops ein.",
+    "Der Kunde zahlt in seiner bevorzugten Kryptowährung und die Gelder landen innerhalb von Minuten in Ihrem Wallet – keine Reserve, keine Sperre."
+  ],
+  "faqs": [
+    {
+      "question": "Warum ist Krypto für Dropshipping besser als Kartenzahlungsdienstleister?",
+      "answer": "Kartenzahlungsdienstleister stufen Dropshipping als Hochrisiko ein und reagieren mit Kontosperren, rollierenden Reserven und Rückbuchungsstrafen bei langen Versandzeiten. Krypto-Zahlungen sind non-custodial und endgültig, sodass es keine Reserve, keine Sperre und keine Anfechtung nach der Lieferung gibt."
+    },
+    {
+      "question": "Kann ich Krypto-Checkout zu Shopify, WooCommerce oder einem individuellen Shop hinzufügen?",
+      "answer": "Ja. Verwenden Sie einen gehosteten Zahlungslink, betten Sie das Dynopay-Checkout-Widget ein oder integrieren Sie die REST API und Webhooks in jeden Shop, sodass Bestellungen automatisch als bezahlt markiert werden, sobald die Krypto-Zahlung bestätigt ist."
+    },
+    {
+      "question": "Mit welchen Kryptowährungen können meine Kunden zahlen?",
+      "answer": "Dynopay unterstützt 15+ Kryptowährungen, darunter Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, TRX, MATIC sowie Stablecoins wie USDT (ERC20, TRC20, Polygon), USDC (ERC20) und RLUSD."
+    },
+    {
+      "question": "Welche Gebühren berechnet Dynopay für einen Dropshipping-Shop?",
+      "answer": "Die Gebühren beginnen bei 1,5% plus einem Dollar pro erfolgreicher Zahlung und sinken auf 0,5%, wenn Ihr abgewickeltes Volumen wächst. Keine Einrichtungsgebühren, keine monatlichen Gebühren, und Ihre erste Zahlung ist kostenlos."
+    },
+    {
+      "question": "Muss ich Krypto besitzen, um Dynopay zu nutzen?",
+      "answer": "Nein. Sie benötigen nur eine Wallet-Adresse für die Coins, die Sie empfangen möchten. Zahlungen werden in Ihr MetaMask, Coinbase, Ledger oder jedes von Ihnen kontrollierte Wallet abgewickelt, und Sie können nach Ihrem eigenen Zeitplan in Fiat umwandeln."
+    }
+  ],
+  "cta_headline": "Fügen Sie in 10 Minuten Krypto-Checkout zu Ihrem Shop hinzu",
+  "cta_body": "Melden Sie sich jetzt an, und Ihre erste Transaktion ist gebührenfrei. Keine Reserven, keine monatlichen Kosten, und die Gelder werden direkt in Ihr Wallet abgewickelt.",
+  "_generated_at": "2026-09-05T00:00:00.000Z",
+  "_model": "dynopay-editorial-2026-09",
+  "_kind": "vertical",
+  "_slug": "dropshipping",
+  "_display_name": "Dropshipping Stores"
+}

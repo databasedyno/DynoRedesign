@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto-betalingen voor VPN- en privacysoftware · Dynopay",
+  "meta_description": "Accepteer Bitcoin, Ethereum, USDT en 15+ cryptocurrencies voor uw VPN- of privacyservice. Non-custodial, geen terugboekingen, live in 10 minuten. Begin nu.",
+  "h1": "Accepteer crypto-betalingen voor VPN- en privacysoftware zonder terugboekingen",
+  "subheading": "Stop met het verliezen van inkomsten door betalingsfraude en ongewilde churn. Dynopay levert Bitcoin, stablecoins en 15+ cryptocurrencies rechtstreeks naar uw wallet.",
+  "intro_paragraph": "VPN- en privacysoftwareproviders worden geconfronteerd met constante betalingsfrictie: kaartafwijzingen door beveiligingswaarschuwingen, terugboekingsfraude van gebruikers die bandbreedte hebben verbruikt en vervolgens kosten betwisten, en ongewilde churn wanneer banken terugkerende betalingen als verdacht markeren. Dynopay is een non-custodial crypto commerce platform dat elke betaling rechtstreeks in uw wallet stort—geen tussenliggende bewaring, geen terugboekingsrisico, geen bevroren fondsen. Ondersteun Bitcoin, Ethereum, USDT op drie ketens, en 15+ totale cryptocurrencies met kosten die beginnen bij 1,5% en dalen naar 0,5% naarmate u opschaalt.",
+  "features": [
+    {
+      "title": "Geen terugboekingsrisico, ooit",
+      "description": "Crypto-betalingen zijn definitief. Gebruikers die uw bandbreedte misbruiken kunnen de transactie zes maanden later niet terugdraaien. U behoudt elke dollar die u verdient van legitieme abonnees zonder fraudeaansprakelijkheid."
+    },
+    {
+      "title": "Non-custodial: fondsen komen in uw wallet",
+      "description": "Elke betaling wordt rechtstreeks naar uw Bitcoin-, Ethereum- of stablecoin-wallet gestort. Dynopay houdt uw geld nooit vast, zodat u de liquiditeit controleert en het tegenpartijrisico van betalingsverwerkers elimineert."
+    },
+    {
+      "title": "Verminder ongewilde churn door kaartafwijzingen",
+      "description": "Kaartnetwerken markeren VPN-abonnementen als hoog risico, wat leidt tot valse afwijzingen. Crypto-betalingen omzeilen de legacy rails volledig, zodat privacybewuste gebruikers zonder frictie vernieuwen en u meer inkomsten behoudt."
+    }
+  ],
+  "how_it_works": [
+    "Meld u aan, verifieer uw e-mail en voeg het walletadres toe waar u betalingen wilt ontvangen.",
+    "Genereer een betalingslink of embed de checkout-widget op uw abonnementspagina in minder dan 10 minuten.",
+    "Klanten betalen in Bitcoin, USDT, Ethereum of 15+ crypto's; fondsen komen binnen enkele minuten rechtstreeks in uw wallet aan."
+  ],
+  "faqs": [
+    {
+      "question": "Waarom accepteren VPN-bedrijven cryptocurrency-betalingen?",
+      "answer": "Crypto elimineert terugboekingen, vermindert ongewilde churn door kaartafwijzingen en spreekt privacygerichte gebruikers aan die liever geen bankrekeningen koppelen. Dynopay ondersteunt Bitcoin, Ethereum, USDT op drie ketens, en 15+ totale cryptocurrencies met non-custodial afhandeling rechtstreeks naar uw wallet."
+    },
+    {
+      "question": "Hoeveel rekent Dynopay voor crypto-betalingen?",
+      "answer": "Kosten beginnen bij 1,5% plus één dollar per succesvolle betaling en dalen automatisch naar 0,5% naarmate uw volume groeit. Uw eerste betaling is volledig gratis. Geen maandelijkse kosten, geen opstartkosten, geen verborgen kosten, en geen terugboekingskosten omdat terugboekingen niet bestaan in crypto."
+    },
+    {
+      "question": "Kunnen gebruikers maandelijks abonneren met cryptocurrency?",
+      "answer": "Ja, cyclus voor cyclus. Crypto heeft geen kaartstijl automatische incasso, dus elke vernieuwing is een nieuwe betaling: stuur abonnees een betalingslink per factureringscyclus, of automatiseer het met de REST API en webhooks. Vernieuwingen falen nooit door afwijzingen van de uitgever of verlopen kaarten, zodat ongewilde churn lager blijft dan bij kaartgebaseerde plannen."
+    },
+    {
+      "question": "Welke cryptocurrencies kan mijn VPN accepteren?",
+      "answer": "Dynopay ondersteunt Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum met USDT en USDC, Polygon, Tron met USDT, Solana en XRP Ledger inclusief RLUSD. Dat zijn in totaal 15+ cryptocurrencies, en elke betaling wordt rechtstreeks in de wallet gestort die u beheert—nooit vastgehouden door Dynopay."
+    },
+    {
+      "question": "Hoe snel kan ik beginnen met het accepteren van crypto voor mijn VPN-service?",
+      "answer": "Binnen 10 minuten. Meld u aan, verifieer uw e-mail, maak uw bedrijfsprofiel aan, voeg één uitbetalingswalletadres toe, en genereer vervolgens een betalingslink of embed de checkout-widget. U bent onmiddellijk live zonder technische integratie vereist, hoewel REST API en webhooks beschikbaar zijn voor ontwikkelaars."
+    }
+  ],
+  "cta_headline": "Begin met het accepteren van crypto-betalingen in 10 minuten",
+  "cta_body": "Uw eerste betaling is gratis, geen maandelijkse kosten, en fondsen gaan rechtstreeks naar uw wallet. Meld u nu aan en ga vandaag nog live.",
+  "_generated_at": "2026-08-29T14:55:38.714229Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "vpn",
+  "_display_name": "VPN & Privacy Software"
+}

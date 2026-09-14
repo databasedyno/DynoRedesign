@@ -1,0 +1,899 @@
+================================================================================
+                    DYNOPAY IMPLEMENTATION TASKS
+                    Created: January 2026
+                    Status: IN PROGRESS
+                    Last Updated: January 2026
+================================================================================
+
+TABLE OF CONTENTS
+-----------------
+1. Phase 1: Database Schema Updates [✅ COMPLETED]
+2. Phase 2: Company Profile & Tax Integration
+3. Phase 3: Dashboard APIs
+4. Phase 4: Notifications System
+5. Phase 5: Authentication Fixes
+6. Phase 6: API, Wallet Addresses & Company-Level Data
+7. Phase 7: Transactions
+8. Phase 8: Payment Links
+9. Phase 9: Email Notifications Service
+10. Phase 10: Partial Wallet Configuration
+11. Phase 11: KYC System
+12. Phase 12: Invoice Generation
+13. Summary & Checklist
+14. Configuration & Credentials
+
+================================================================================
+                    PHASE 1: DATABASE SCHEMA UPDATES [✅ COMPLETED]
+================================================================================
+
+TASK 1.1: EXTEND EXISTING TABLES [✅ DONE]
+--------------------------------
+
+MODIFY tbl_company:
+```sql
+ALTER TABLE tbl_company ADD COLUMN IF NOT EXISTS address_line1 VARCHAR(255);
+ALTER TABLE tbl_company ADD COLUMN IF NOT EXISTS address_line2 VARCHAR(255);
+ALTER TABLE tbl_company ADD COLUMN IF NOT EXISTS city VARCHAR(100);
+ALTER TABLE tbl_company ADD COLUMN IF NOT EXISTS state VARCHAR(100);
+ALTER TABLE tbl_company ADD COLUMN IF NOT EXISTS country VARCHAR(100);
+ALTER TABLE tbl_company ADD COLUMN IF NOT EXISTS zip_code VARCHAR(20);
+ALTER TABLE tbl_company ADD COLUMN IF NOT EXISTS vat_number VARCHAR(50);
+ALTER TABLE tbl_company ADD COLUMN IF NOT EXISTS vat_type VARCHAR(10);
+ALTER TABLE tbl_company ADD COLUMN IF NOT EXISTS vat_verified BOOLEAN DEFAULT false;
+```
+
+MODIFY tbl_api:
+```sql
+ALTER TABLE tbl_api ADD COLUMN IF NOT EXISTS api_name VARCHAR(100);
+```
+
+MODIFY tbl_user_wallet:
+```sql
+ALTER TABLE tbl_user_wallet ADD COLUMN IF NOT EXISTS company_id INT REFERENCES tbl_company(company_id);
+ALTER TABLE tbl_user_wallet ADD COLUMN IF NOT EXISTS wallet_name VARCHAR(100);
+```
+
+MODIFY tbl_user_addresses:
+```sql
+ALTER TABLE tbl_user_addresses ADD COLUMN IF NOT EXISTS company_id INT REFERENCES tbl_company(company_id);
+ALTER TABLE tbl_user_addresses ADD COLUMN IF NOT EXISTS wallet_name VARCHAR(100);
+```
+
+--------------------------------------------------------------------------------
+
+TASK 1.2: CREATE NEW TABLES
+---------------------------
+
+tbl_tax_rate - Cache VAT rates by country:
+```sql
+CREATE TABLE tbl_tax_rate (
+  tax_id SERIAL PRIMARY KEY,
+  country_code VARCHAR(2) NOT NULL UNIQUE,
+  country_name VARCHAR(100),
+  tax_acronym VARCHAR(10),
+  standard_rate DECIMAL(5,2),
+  reduced_rates JSONB,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+tbl_invoice - Transaction invoices:
+```sql
+CREATE TABLE tbl_invoice (
+  invoice_id SERIAL PRIMARY KEY,
+  invoice_number VARCHAR(50) UNIQUE,
+  transaction_id INT,
+  company_id INT REFERENCES tbl_company(company_id),
+  provider_name VARCHAR(100) DEFAULT 'Dynotech Innovations, LDA',
+  provider_address TEXT,
+  provider_vat_id VARCHAR(50),
+  customer_name VARCHAR(100),
+  customer_address TEXT,
+  customer_tax_id VARCHAR(50),
+  description TEXT,
+  unit_price DECIMAL(18,8),
+  quantity INT DEFAULT 1,
+  vat_rate DECIMAL(5,2),
+  vat_amount DECIMAL(18,2),
+  fixed_fee DECIMAL(18,2),
+  transaction_fee_percent DECIMAL(5,2),
+  blockchain_buffer_percent DECIMAL(5,2),
+  total_usd DECIMAL(18,2),
+  total_crypto DECIMAL(18,8),
+  crypto_currency VARCHAR(20),
+  payment_terms TEXT,
+  invoice_date TIMESTAMP DEFAULT NOW(),
+  created_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+tbl_notification_preferences - User notification settings:
+```sql
+CREATE TABLE tbl_notification_preferences (
+  preference_id SERIAL PRIMARY KEY,
+  user_id INT NOT NULL REFERENCES tbl_user(user_id),
+  company_id INT REFERENCES tbl_company(company_id),
+  transaction_updates BOOLEAN DEFAULT true,
+  payment_received BOOLEAN DEFAULT false,
+  weekly_summary BOOLEAN DEFAULT true,
+  security_alerts BOOLEAN DEFAULT false,
+  email_notifications BOOLEAN DEFAULT true,
+  sms_notifications BOOLEAN DEFAULT false,
+  browser_notifications BOOLEAN DEFAULT false,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+tbl_notification - Individual notifications:
+```sql
+CREATE TABLE tbl_notification (
+  notification_id SERIAL PRIMARY KEY,
+  user_id INT NOT NULL REFERENCES tbl_user(user_id),
+  company_id INT REFERENCES tbl_company(company_id),
+  type VARCHAR(50) NOT NULL,
+  title VARCHAR(255),
+  message TEXT,
+  data JSONB,
+  is_read BOOLEAN DEFAULT false,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+tbl_kyc - KYC verification:
+```sql
+CREATE TABLE tbl_kyc (
+  kyc_id SERIAL PRIMARY KEY,
+  user_id INT NOT NULL REFERENCES tbl_user(user_id),
+  company_id INT REFERENCES tbl_company(company_id),
+  status VARCHAR(20) DEFAULT 'pending',
+  documents JSONB,
+  rejection_reason TEXT,
+  volume_threshold DECIMAL(18,2),
+  submitted_at TIMESTAMP,
+  reviewed_at TIMESTAMP,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+================================================================================
+                    PHASE 2: COMPANY PROFILE & TAX INTEGRATION
+================================================================================
+
+TASK 2.1: UPDATE COMPANY CONTROLLER
+-----------------------------------
+File: /app/backend/controller/companyController.ts
+
+MODIFY addCompany and updateCompany to accept:
+- address_line1, address_line2, city, state, country, zip_code
+- vat_number, vat_type
+- Trigger VAT verification on save
+
+Form Fields (from Figma UI):
+| Field                      | Type       | Required |
+|---------------------------|------------|----------|
+| profile_name (company_name)| text       | Yes      |
+| website                   | text       | No       |
+| email                     | email      | Yes      |
+| mobile                    | phone      | Yes      |
+| country                   | dropdown   | Yes      |
+| state                     | dropdown   | Yes      |
+| city                      | dropdown   | Yes      |
+| address_line1             | text       | Yes      |
+| address_line2             | text       | No       |
+| zip_code                  | text       | Yes      |
+| vat_type                  | dropdown   | Conditional |
+| vat_number                | text       | No       |
+| profile_image (photo)     | file upload| No       |
+
+--------------------------------------------------------------------------------
+
+TASK 2.2: TAX DATA API INTEGRATION
+----------------------------------
+API Key: xq9nWaQdEWQYEbpJHHfkRZiFeLmyHqJF
+API URL: https://api.apilayer.com/tax_data
+
+New Endpoints:
+| Method | Endpoint                  | Description                    |
+|--------|--------------------------|--------------------------------|
+| GET    | /api/tax/rate/:countryCode| Get VAT rate (cache-first)    |
+| POST   | /api/tax/validate         | Validate Tax ID               |
+| GET    | /api/tax/acronyms         | List all tax acronyms         |
+
+Cache-First Logic:
+1. Check tbl_tax_rate for country
+2. If exists -> return cached rate (0 API calls)
+3. If not exists -> call APILayer API -> save to tbl_tax_rate -> return
+
+Tax Acronyms by Country:
+
+European Union (All use VAT):
+AT, BE, BG, CY, CZ, DE, DK, EE, ES, FI, FR, GR, HR, HU, IE, IT, LT, LU, LV, 
+MT, NL, PL, PT, RO, SE, SI, SK
+
+Rest of World:
+| Country | Acronym | Country | Acronym |
+|---------|---------|---------|---------|
+| AD      | NRT     | MX      | RFC     |
+| AE      | TRN     | MY      | TIN     |
+| AF      | TIN     | NG      | TIN     |
+| AG      | TIN     | NO      | VAT     |
+| AL      | TIN     | NZ      | GST     |
+| AM      | TIN     | OM      | VAT     |
+| AO      | TIN     | PA      | RUC     |
+| AR      | CUIT    | PE      | RUC     |
+| AU      | ABN     | PH      | TIN     |
+| AW      | TIN     | PK      | STRN    |
+| AZ      | TIN     | PY      | TIN     |
+| BA      | TIN     | RS      | TIN     |
+| BB      | TIN     | RU      | INN     |
+| BD      | BIN     | SA      | VAT     |
+| BF      | IFU     | SG      | UEN     |
+| BH      | VAT     | TH      | VAT     |
+| BJ      | IFU     | TR      | TIN     |
+| BO      | TIN     | TW      | VAT     |
+| BR      | CNPJ/CPF| UA      | VAT     |
+| BS      | TIN     | US      | EIN     |
+| BY      | TIN     | UY      | RUT     |
+| CA      | BN      | VE      | RIF     |
+| CH      | VAT     | VN      | TIN     |
+| CL      | RUT     | ZA      | VAT     |
+| CN      | TIN     | GB      | VAT     |
+| CO      | NIT     | GE      | VAT     |
+| CR      | TIN     | GH      | TIN     |
+| DO      | RCN     | GT      | VAT     |
+| DZ      | TIN     | HK      | BR      |
+| EC      | RUC     | ID      | NPWP    |
+| EG      | TIN     | IL      | VAT     |
+| IN      | GST     | IS      | VAT     |
+| JP      | CN      | KE      | PIN     |
+| KR      | BRN     | KZ      | BIN     |
+| LI      | VAT     | MA      | TIN     |
+| MC      | NIF     | MD      | VAT     |
+| ME      | TIN     | MK      | TIN     |
+| MU      | VAT     |         |         |
+
+================================================================================
+                    PHASE 3: DASHBOARD APIs
+================================================================================
+
+TASK 3.1: CREATE DASHBOARD CONTROLLER
+-------------------------------------
+New File: /app/backend/controller/dashboardController.ts
+
+Endpoints:
+| Method | Endpoint              | Description              |
+|--------|-----------------------|--------------------------|
+| GET    | /api/dashboard        | All dashboard statistics |
+| GET    | /api/dashboard/chart  | Volume chart data        |
+
+Dashboard Response Structure:
+```json
+{
+  "total_transactions": {
+    "count": 4,
+    "change_percent": 12,
+    "comparison_period": "last_month"
+  },
+  "total_volume": {
+    "amount": 6479.25,
+    "currency": "USD",
+    "change_percent": 8.5,
+    "comparison_period": "last_month"
+  },
+  "active_wallets": {
+    "count": 3,
+    "wallets": ["BTC", "ETH", "LTC"]
+  },
+  "fee_tier": {
+    "current_tier": "Standard",
+    "monthly_volume": 6479.25,
+    "tier_threshold": 50000,
+    "percent_complete": 13.0,
+    "amount_to_next_tier": 43520.75
+  },
+  "chart_data": [
+    { "date": "2025-11-01", "volume": 1200 },
+    { "date": "2025-11-02", "volume": 800 }
+  ]
+}
+```
+
+Fee Tiers:
+| Tier       | Volume Range           | Description                          |
+|------------|------------------------|--------------------------------------|
+| Starter    | $0 - $10,000          | For new users testing the platform   |
+| Standard   | $10,000 - $50,000     | For growing users                    |
+| Pro        | $50,000 - $250,000    | For serious merchants and creators   |
+| Business   | $250,000 - $1,000,000 | For high-volume operations           |
+| Enterprise | $1,000,000+           | Custom pricing, priority support     |
+
+================================================================================
+                    PHASE 4: NOTIFICATIONS SYSTEM
+================================================================================
+
+TASK 4.1: NOTIFICATION PREFERENCES API
+--------------------------------------
+Endpoints:
+| Method | Endpoint                      | Description                    |
+|--------|-------------------------------|--------------------------------|
+| GET    | /api/notifications/preferences | Get user's notification settings|
+| PUT    | /api/notifications/preferences | Update notification settings   |
+
+Request/Response Body:
+```json
+{
+  "transaction_updates": true,
+  "payment_received": false,
+  "weekly_summary": true,
+  "security_alerts": false,
+  "email_notifications": true,
+  "sms_notifications": false,
+  "browser_notifications": false
+}
+```
+
+UI Toggle Labels:
+- transaction_updates: "Receive notifications when transactions are confirmed or completed"
+- payment_received: "Be notified immediately when you receive a payment"
+- weekly_summary: "Receive a weekly summary of your activities every Monday"
+- security_alerts: "Alerts for suspicious activity or security changes"
+- email_notifications: "Receive important updates via email"
+- sms_notifications: "Receive critical alerts via SMS"
+- browser_notifications: "Receive notifications on your desktop"
+
+--------------------------------------------------------------------------------
+
+TASK 4.2: NOTIFICATIONS LIST API
+--------------------------------
+Endpoints:
+| Method | Endpoint                     | Description              |
+|--------|------------------------------|--------------------------|
+| GET    | /api/notifications           | List notifications       |
+| GET    | /api/notifications/unread-count | Badge count           |
+| PUT    | /api/notifications/:id/read  | Mark single as read      |
+| PUT    | /api/notifications/read-all  | Mark all as read         |
+| DELETE | /api/notifications/:id       | Delete notification      |
+
+--------------------------------------------------------------------------------
+
+TASK 4.3: WEEKLY SUMMARY CRON JOB
+---------------------------------
+Schedule: Every Monday at 9:00 AM UTC
+Logic:
+1. Find users with weekly_summary = true
+2. Aggregate past 7 days: transactions, volume, fees
+3. Send email with summary
+4. Create notification record
+
+================================================================================
+                    PHASE 5: AUTHENTICATION FIXES
+================================================================================
+
+TASK 5.1: FORGOT PASSWORD FLOW
+------------------------------
+Current: OTP -> Login
+Required: OTP -> Change Password UI -> Login after password update
+
+New Endpoints:
+| Method | Endpoint                  | Description                        |
+|--------|---------------------------|------------------------------------|
+| POST   | /api/user/verify-reset-otp | Verify OTP only (no login)        |
+| POST   | /api/user/reset-password   | Set new password after OTP verified|
+
+Flow:
+1. User enters email -> POST /api/user/generateOTP
+2. User enters OTP -> POST /api/user/verify-reset-otp -> Returns temporary reset token
+3. User enters new password -> POST /api/user/reset-password with reset token
+4. Redirect to login page
+
+--------------------------------------------------------------------------------
+
+TASK 5.2: GOOGLE SIGN-IN FIX
+----------------------------
+File: /app/backend/controller/userController.ts (connectSocial function)
+
+Action: Review and fix Google OAuth integration
+- Verify Google OAuth Client ID and Secret in .env
+- Check callback URL configuration
+- Validate token handling
+
+--------------------------------------------------------------------------------
+
+TASK 5.3: MOBILE NUMBER LOGIN (TELNYX)
+--------------------------------------
+Current Code: Uses PROFILE_ID and ACCESS_TOKEN from .env
+
+Action: Verify Telnyx credentials are correct and propagating properly
+
+Required .env variables:
+- ACCESS_TOKEN=<Telnyx API Key>
+- PROFILE_ID=<Telnyx Verify Profile ID>
+
+--------------------------------------------------------------------------------
+
+TASK 5.4: USER DATA SYNC
+------------------------
+Requirement: Refresh user profile data across devices/sessions when updated
+
+Implementation: Update JWT token on profile change
+
+================================================================================
+                    PHASE 6: API, WALLET ADDRESSES & COMPANY-LEVEL DATA
+================================================================================
+
+TASK 6.1: COMPANY-LEVEL DATA SCOPING
+------------------------------------
+Requirement: Transactions must be properly identified and scoped per company
+
+Changes:
+- Add company_id to wallet tables
+- Filter all wallet/transaction queries by company_id
+- Ensure transactions are associated with correct company
+
+--------------------------------------------------------------------------------
+
+TASK 6.2: WALLET ADDRESS COMPANY SEPARATION
+-------------------------------------------
+Requirement: Wallet addresses must NOT be shared across company profiles
+
+Model Changes:
+- tbl_user_wallet: Add company_id, wallet_name
+- tbl_user_addresses: Add company_id, wallet_name
+
+Controller Changes:
+- getWallet: Filter by company_id
+- addWalletAddress: Accept company_id, wallet_name
+- getWalletAddresses: Filter by company_id, return wallet_name
+
+Data Migration:
+- Existing wallets without company_id: Assign to user's first company
+
+--------------------------------------------------------------------------------
+
+TASK 6.3: API KEY & WALLET NAME
+-------------------------------
+Model Changes:
+- tbl_api: Add api_name
+
+Controller Changes:
+- addApi: Accept api_name in request body
+- getApi: Return api_name in response
+
+Form Fields (from Figma UI):
+| Field         | Type                    | Required |
+|---------------|-------------------------|----------|
+| key_name      | text                    | Yes      |
+| base_currency | dropdown (USD, EUR, NGN)| Yes      |
+
+Key Permissions Displayed:
+- Create and manage payment requests
+- View transaction history
+- Receive webhook notifications
+- Access wallet information
+
+API Key Created Modal Shows:
+- API Key (copyable, shown once)
+- Admin Token (copyable, shown once)
+- Security notice
+
+--------------------------------------------------------------------------------
+
+TASK 6.4: EDIT WALLET ADDRESS ENDPOINT
+--------------------------------------
+New Endpoints:
+| Method | Endpoint                    | Description                    |
+|--------|-----------------------------|---------------------------------|
+| POST   | /api/wallet/address/send-otp | Send OTP for wallet edit       |
+| PUT    | /api/wallet/address/:id      | Edit wallet (with OTP verify)  |
+
+Request Body:
+```json
+{
+  "wallet_address": "new_address",
+  "wallet_name": "My BTC Wallet",
+  "otp": "123456"
+}
+```
+
+--------------------------------------------------------------------------------
+
+TASK 6.5: API DOCUMENTATION (SWAGGER)
+-------------------------------------
+Requirement: Generate Swagger/OpenAPI documentation
+
+Implementation:
+- Install swagger-ui-express, swagger-jsdoc
+- Create OpenAPI spec for all endpoints
+- Serve at GET /api/docs
+
+================================================================================
+                    PHASE 7: TRANSACTIONS
+================================================================================
+
+TASK 7.1: TRANSACTION FILTER APIs
+---------------------------------
+MODIFY getAllTransactions endpoint
+
+Filter Parameters:
+| Parameter   | Type   | Description                        |
+|-------------|--------|------------------------------------|
+| date_from   | date   | Start date filter                  |
+| date_to     | date   | End date filter                    |
+| status      | string | Transaction status (Done, Pending, Failed) |
+| currency    | string | Currency/wallet type (BTC, ETH, etc.) |
+| search      | string | Search by transaction ID or reference |
+| company_id  | int    | Filter by company                  |
+| page        | int    | Page number                        |
+| rowsPerPage | int    | Items per page                     |
+
+Table Columns (from Figma UI):
+| Column         | Description              |
+|----------------|--------------------------|
+| Transaction ID | e.g., TX001              |
+| Crypto         | BTC, ETH, LTC icon       |
+| Amount         | e.g., 0.0245 BTC         |
+| USD Value      | e.g., $1,250             |
+| Date & Time    | e.g., 07.11.2025 14:32:00|
+| Status         | Done, Pending, Failed    |
+
+--------------------------------------------------------------------------------
+
+TASK 7.2: TRANSACTION DETAILS
+-----------------------------
+Data to Return (from Figma UI):
+
+| Section              | Fields                                        |
+|----------------------|-----------------------------------------------|
+| Header               | Status badge, Transaction ID, Date & Time     |
+| Amount Details       | Cryptocurrency, Amount, USD Value, Fees, Confirmations |
+| Transaction Hashes   | Incoming Transaction ID, Outgoing Transaction ID |
+| Callback Information | Callback URL, Webhook Response (JSON)         |
+
+--------------------------------------------------------------------------------
+
+TASK 7.3: EXPORT TRANSACTIONS API
+---------------------------------
+New Endpoint:
+| Method | Endpoint                        | Description           |
+|--------|--------------------------------|------------------------|
+| POST   | /api/wallet/transactions/export | Export as CSV         |
+
+Request Body:
+```json
+{
+  "date_from": "2025-11-01",
+  "date_to": "2025-11-30",
+  "status": "done",
+  "currency": "BTC",
+  "company_id": 1,
+  "format": "csv"
+}
+```
+
+CSV Columns:
+Transaction ID, Amount, Currency, Type, Status, Reference, Date, Customer, Email, Company
+
+================================================================================
+                    PHASE 8: PAYMENT LINKS
+================================================================================
+
+TASK 8.1: PAYMENT LINKS LIST
+----------------------------
+Existing: Create payment link (partial)
+
+Table Columns (from Figma UI):
+| Column      | Description                            |
+|-------------|----------------------------------------|
+| Link ID     | e.g., a7b9c1d2e3f4a5                   |
+| Description | e.g., Premium Subscription - Annual Plan|
+| USD Value   | e.g., $1250                            |
+| Created     | e.g., 07.11.2025 15:32:00              |
+| Expires     | e.g., 07.11.2025 14:32:00              |
+| Status      | Active, Expired                        |
+| Times Used  | e.g., 2                                |
+| Actions     | Edit, Delete, Copy Link                |
+
+New Endpoints:
+| Method | Endpoint           | Description        |
+|--------|--------------------|--------------------|
+| GET    | /api/pay/links     | List payment links |
+| GET    | /api/pay/links/:id | Get single link    |
+| PUT    | /api/pay/links/:id | Edit link          |
+| DELETE | /api/pay/links/:id | Delete/deactivate  |
+
+--------------------------------------------------------------------------------
+
+TASK 8.2: CREATE/EDIT PAYMENT LINK
+----------------------------------
+Step 1: Payment Settings (from Figma UI):
+| Field                  | Type                          | Required |
+|------------------------|-------------------------------|----------|
+| value                  | number                        | Yes      |
+| expire                 | dropdown (No, 24h, 7d, 30d)   | Yes      |
+| blockchain_fees_paid_by| radio (Customer, Company)     | Yes      |
+| description            | text                          | Yes      |
+
+Step 2: Post-Payment Settings (from Figma UI):
+| Field        | Type | Required |
+|--------------|------|----------|
+| callback_url | url  | No       |
+| redirect_url | url  | No       |
+| webhook_url  | url  | No       |
+
+Success Modal Shows:
+- Payment Link URL (copyable)
+- Payment Details: Value, Expires, Fees, Description, Link ID
+- "Share the link to receive payment"
+
+================================================================================
+                    PHASE 9: EMAIL NOTIFICATIONS SERVICE
+================================================================================
+
+TASK 9.1: CREATE EMAIL SERVICE
+------------------------------
+New File: /app/backend/services/emailService.ts
+
+Email Provider: Brevo (credentials in .env)
+
+17 Email Templates:
+
+| # | Template               | Subject                                      | Trigger              |
+|---|------------------------|----------------------------------------------|----------------------|
+| 1 | Welcome                | Welcome to Dynopay — Let's get you paid      | User registration    |
+| 2 | Company Profile Created| Profile complete — One step left             | Company created      |
+| 3 | Wallet OTP             | Confirm your payout wallet                   | Adding wallet        |
+| 4 | Wallet Verified        | Payout wallet active                         | Wallet confirmed     |
+| 5 | Wallet Update OTP      | Confirm wallet update                        | Changing wallet      |
+| 6 | Payment Received       | Payment received — {{AMOUNT}} {{CURRENCY}}   | Payment forwarded    |
+| 7 | Add Wallet Reminder    | You're almost ready to accept payments       | No wallet 24hrs      |
+| 8 | Email Verification OTP | Verify your email                            | Email verification   |
+| 9 | Login OTP              | Your login code                              | Login code           |
+|10 | Forgot Password OTP    | Password reset code                          | Password reset       |
+|11 | Password Changed       | Password updated successfully                | Password updated     |
+|12 | Payment Link Created   | Payment link ready — {{AMOUNT}} {{CURRENCY}} | New payment link     |
+|13 | KYC Required           | Verification required — $5,000 volume reached| $5K threshold        |
+|14 | KYC Approved           | Verification approved — You're all set       | Verification passed  |
+|15 | KYC Rejected           | Verification unsuccessful                    | Verification failed  |
+|16 | Weekly Summary         | Your weekly Dynopay summary                  | Every Monday         |
+|17 | Security Alert         | Security alert on your account               | Suspicious activity  |
+
+Template Variables:
+- {{NAME}} - User's name
+- {{COMPANY_NAME}} - Company name
+- {{WALLET_ADDRESS_MASKED}} - Masked wallet address
+- {{NETWORK}} - Blockchain network
+- {{OTP_CODE}} - OTP code
+- {{AMOUNT}} - Transaction amount
+- {{CURRENCY}} - Currency code
+- {{DATE}}, {{TIME}} - Timestamp
+- {{PAYMENT_LINK}} - Payment link URL
+- {{REJECTION_REASON}} - KYC rejection reason
+
+================================================================================
+                    PHASE 10: PARTIAL WALLET CONFIGURATION
+================================================================================
+
+TASK 10.1: UPDATE API KEY CREATION LOGIC
+----------------------------------------
+Current: Requires ALL wallets configured before API key creation
+Required: Allow API key creation with minimum 1 wallet
+
+MODIFY apiController.addApi:
+- Change validation from "has any wallet" to "count(wallets) >= 1 for this company"
+- Scope by company_id
+
+--------------------------------------------------------------------------------
+
+TASK 10.2: CHECKOUT LOGIC - FILTER BY CONFIGURED WALLETS
+--------------------------------------------------------
+Scenario A: User has BTC and ETH saved -> Checkout shows both options
+Scenario B: User has only USDT saved -> Checkout bypasses "Select Asset" screen
+
+MODIFY Checkout Flow:
+- Get user's configured wallets for this company
+- Filter supported currencies
+- If only 1 wallet, skip asset selection
+
+--------------------------------------------------------------------------------
+
+TASK 10.3: API VALIDATION FOR UNCONFIGURED CURRENCIES
+-----------------------------------------------------
+Requirement: Return 400 Bad Request if payment requested for unconfigured currency
+
+MODIFY payment endpoints:
+- Check if wallet exists for requested currency
+- Return error: "No wallet address configured for {currency}. Please add a {currency} wallet first."
+
+================================================================================
+                    PHASE 11: KYC SYSTEM
+================================================================================
+
+TASK 11.1: KYC STATUS API
+-------------------------
+Endpoints:
+| Method | Endpoint            | Description            |
+|--------|---------------------|------------------------|
+| GET    | /api/kyc/status     | Get KYC status         |
+| POST   | /api/kyc/submit     | Submit documents       |
+| GET    | /api/kyc/requirements| Get required documents |
+
+KYC Banner (from Figma UI):
+- Displayed in header: "KYC Required - $X reached"
+- Threshold: $5,000 volume
+
+--------------------------------------------------------------------------------
+
+TASK 11.2: VOLUME MONITORING
+----------------------------
+On each transaction completion:
+1. Calculate user's total volume
+2. If volume >= $5,000 and KYC not submitted -> Create KYC required notification
+3. Pause payments if KYC required but not approved
+
+Required Documents:
+- Government-issued ID (passport, driver's license)
+- Proof of address (utility bill, bank statement)
+- Business registration documents
+
+--------------------------------------------------------------------------------
+
+TASK 11.3: THIRD-PARTY KYC INTEGRATION
+--------------------------------------
+Status: Third-party integration (credentials to be provided later)
+
+================================================================================
+                    PHASE 12: INVOICE GENERATION
+================================================================================
+
+TASK 12.1: AUTO-GENERATE INVOICE PER TRANSACTION
+------------------------------------------------
+On transaction completion, create invoice in tbl_invoice:
+
+Provider Info:
+- Name: Dynotech Innovations, LDA
+- Address: Rua Luís de Camões 1017, 7° Dt°, Montijo 2870-154, Portugal
+- VAT ID: PT518713130
+- Website: dynopay.com
+
+Customer Info (from company profile):
+- Name
+- Address
+- Tax ID
+
+Invoice Details:
+- Invoice date
+- Description
+- Unit price & quantity
+- VAT rate & VAT amount
+- Fixed fee ($)
+- Transaction fee (%)
+- Blockchain buffer (%)
+- Total amount (USD & crypto)
+- Payment terms
+
+--------------------------------------------------------------------------------
+
+TASK 12.2: INVOICE API
+----------------------
+Endpoint:
+| Method | Endpoint                     | Description                |
+|--------|------------------------------|----------------------------|
+| GET    | /api/transactions/:id/invoice | Get invoice for transaction|
+
+================================================================================
+                    SUMMARY & CHECKLIST
+================================================================================
+
+NEW TABLES (5):
+[✅] tbl_tax_rate
+[✅] tbl_invoice
+[✅] tbl_notification
+[✅] tbl_notification_preferences
+[✅] tbl_kyc
+
+SCHEMA CHANGES (4):
+[✅] tbl_company - Add address fields, VAT fields
+[✅] tbl_api - Add api_name
+[✅] tbl_user_wallet - Add company_id, wallet_name
+[✅] tbl_user_addresses - Add company_id, wallet_name
+
+NEW CONTROLLERS/SERVICES (5):
+[ ] Dashboard Controller
+[ ] Tax Controller
+[ ] Notification Controller
+[ ] KYC Controller
+[ ] Email Service
+
+MODIFIED CONTROLLERS (5):
+[ ] Company Controller - Address, VAT fields
+[ ] User Controller - Forgot password flow, data sync
+[ ] Wallet Controller - Company scoping, filters, export, edit
+[ ] API Controller - api_name field
+[ ] Payment Controller - Payment links CRUD, partial wallet support
+
+NEW ENDPOINTS (25+):
+[ ] GET /api/dashboard
+[ ] GET /api/dashboard/chart
+[ ] GET /api/tax/rate/:countryCode
+[ ] POST /api/tax/validate
+[ ] GET /api/tax/acronyms
+[ ] GET /api/notifications
+[ ] GET /api/notifications/unread-count
+[ ] GET /api/notifications/preferences
+[ ] PUT /api/notifications/preferences
+[ ] PUT /api/notifications/:id/read
+[ ] PUT /api/notifications/read-all
+[ ] POST /api/user/verify-reset-otp
+[ ] POST /api/user/reset-password
+[ ] POST /api/wallet/address/send-otp
+[ ] PUT /api/wallet/address/:id
+[ ] POST /api/wallet/transactions/export
+[ ] GET /api/pay/links
+[ ] GET /api/pay/links/:id
+[ ] PUT /api/pay/links/:id
+[ ] DELETE /api/pay/links/:id
+[ ] GET /api/kyc/status
+[ ] POST /api/kyc/submit
+[ ] GET /api/kyc/requirements
+[ ] GET /api/transactions/:id/invoice
+[ ] GET /api/docs
+
+EMAIL TEMPLATES (17):
+[ ] Welcome
+[ ] Company Profile Created
+[ ] Wallet OTP
+[ ] Wallet Verified
+[ ] Wallet Update OTP
+[ ] Payment Received
+[ ] Add Wallet Reminder
+[ ] Email Verification OTP
+[ ] Login OTP
+[ ] Forgot Password OTP
+[ ] Password Changed
+[ ] Payment Link Created
+[ ] KYC Required
+[ ] KYC Approved
+[ ] KYC Rejected
+[ ] Weekly Summary
+[ ] Security Alert
+
+CRON JOBS (2):
+[ ] Weekly Summary - Every Monday 9:00 AM UTC
+[ ] Wallet Reminder - 24hrs after signup with no wallet
+
+================================================================================
+                    CONFIGURATION & CREDENTIALS
+================================================================================
+
+PROVIDER INVOICE DETAILS:
+-------------------------
+Company: Dynotech Innovations, LDA
+Address: Rua Luís de Camões 1017, 7° Dt°
+         Montijo 2870-154
+         Portugal
+VAT ID: PT518713130
+
+TAX DATA API:
+-------------
+API Key: xq9nWaQdEWQYEbpJHHfkRZiFeLmyHqJF
+API URL: https://api.apilayer.com/tax_data
+
+KYC INTEGRATION:
+----------------
+Status: Third-party integration
+Credentials: To be provided when implementation reaches this phase
+
+API DOCUMENTATION:
+------------------
+Type: Swagger/OpenAPI generated docs
+Endpoint: GET /api/docs
+
+DATA MIGRATION:
+---------------
+Existing wallets without company_id: Assign to user's first company
+
+================================================================================
+                    END OF DOCUMENT
+================================================================================

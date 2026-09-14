@@ -1,0 +1,127 @@
+##############################################
+# Stage 1: Dependencies
+##############################################
+FROM node:20-alpine AS deps
+
+WORKDIR /app
+
+# Copy package manifests
+COPY package.json yarn.lock* ./
+
+# Install dependencies
+RUN yarn install --frozen-lockfile || yarn install
+
+##############################################
+# Stage 2: Builder — build Next.js
+##############################################
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY package.json yarn.lock* next.config.mjs tsconfig.json ./
+COPY i18n.js axiosConfig.ts axiosAdmin.ts store.ts ./
+
+# Copy all frontend source directories
+COPY pages/ ./pages/
+COPY Components/ ./Components/
+COPY styles/ ./styles/
+COPY Containers/ ./Containers/
+COPY contexts/ ./contexts/
+COPY hooks/ ./hooks/
+COPY langs/ ./langs/
+COPY utils/ ./utils/
+COPY assets/ ./assets/
+COPY public/ ./public/
+COPY Redux/ ./Redux/
+COPY helpers/ ./helpers/
+# SEO landing-page content — required at build time (getStaticPaths) and
+# runtime (sitemap.xml). Omitting it ships zero SEO pages (production 404s).
+COPY data/ ./data/
+
+# NEXT_PUBLIC_* vars must be set at BUILD time
+# These are inlined into the JavaScript bundle by Next.js
+# Default: empty = relative URLs (works when frontend+backend share the same domain)
+ARG NEXT_PUBLIC_BASE_URL=
+ENV NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL}
+
+ARG NEXT_PUBLIC_SERVER_URL
+ENV NEXT_PUBLIC_SERVER_URL=${NEXT_PUBLIC_SERVER_URL}
+
+ARG NEXT_PUBLIC_API_DOCS_URL
+ENV NEXT_PUBLIC_API_DOCS_URL=${NEXT_PUBLIC_API_DOCS_URL}
+
+ARG NEXT_PUBLIC_CYPHER_KEY
+ENV NEXT_PUBLIC_CYPHER_KEY=${NEXT_PUBLIC_CYPHER_KEY}
+
+ARG NEXT_PUBLIC_GOOGLE_CLIENT_ID
+ENV NEXT_PUBLIC_GOOGLE_CLIENT_ID=${NEXT_PUBLIC_GOOGLE_CLIENT_ID}
+
+# Feature flag: shows the "Continue with Google" button on login/register.
+# MUST be declared here — Docker silently drops undeclared build args, so
+# without this line the platform's NEXT_PUBLIC_ENABLE_GOOGLE_AUTH env never
+# reaches `yarn build` and the flag is inlined as undefined (button hidden).
+ARG NEXT_PUBLIC_ENABLE_GOOGLE_AUTH=
+ENV NEXT_PUBLIC_ENABLE_GOOGLE_AUTH=${NEXT_PUBLIC_ENABLE_GOOGLE_AUTH}
+
+# GitHub OAuth (same rule: must be declared or Docker drops the build arg)
+ARG NEXT_PUBLIC_ENABLE_GITHUB_AUTH=
+ENV NEXT_PUBLIC_ENABLE_GITHUB_AUTH=${NEXT_PUBLIC_ENABLE_GITHUB_AUTH}
+ARG NEXT_PUBLIC_GITHUB_CLIENT_ID=
+ENV NEXT_PUBLIC_GITHUB_CLIENT_ID=${NEXT_PUBLIC_GITHUB_CLIENT_ID}
+
+# Runtime-decided feature flags (helpers/runtimeFlags.ts) — declared so a
+# build-arg is never silently dropped (see Dockerfile for the 2026-09 history).
+ARG NEXT_PUBLIC_SHOW_SOCIAL_LINKS=
+ENV NEXT_PUBLIC_SHOW_SOCIAL_LINKS=${NEXT_PUBLIC_SHOW_SOCIAL_LINKS}
+ARG NEXT_PUBLIC_ENABLE_PRODUCT_CATALOG=
+ENV NEXT_PUBLIC_ENABLE_PRODUCT_CATALOG=${NEXT_PUBLIC_ENABLE_PRODUCT_CATALOG}
+ARG NEXT_PUBLIC_INLINE_TIP_CHECKOUT=
+ENV NEXT_PUBLIC_INLINE_TIP_CHECKOUT=${NEXT_PUBLIC_INLINE_TIP_CHECKOUT}
+ARG NEXT_PUBLIC_CLEAN_CHECKOUT_V2=
+ENV NEXT_PUBLIC_CLEAN_CHECKOUT_V2=${NEXT_PUBLIC_CLEAN_CHECKOUT_V2}
+ARG NEXT_PUBLIC_CHECKOUT_SWR=
+ENV NEXT_PUBLIC_CHECKOUT_SWR=${NEXT_PUBLIC_CHECKOUT_SWR}
+ARG NEXT_PUBLIC_ENABLE_CRYPTO_REFUNDS=
+ENV NEXT_PUBLIC_ENABLE_CRYPTO_REFUNDS=${NEXT_PUBLIC_ENABLE_CRYPTO_REFUNDS}
+ARG NEXT_PUBLIC_CREATOR_BASE_URL=
+ENV NEXT_PUBLIC_CREATOR_BASE_URL=${NEXT_PUBLIC_CREATOR_BASE_URL}
+
+ARG NEXT_PUBLIC_GOOGLE_CLIENT_SECRET
+ENV NEXT_PUBLIC_GOOGLE_CLIENT_SECRET=${NEXT_PUBLIC_GOOGLE_CLIENT_SECRET}
+
+ARG NEXTAUTH_URL=https://dynopay.com
+ENV NEXTAUTH_URL=${NEXTAUTH_URL}
+
+ARG NEXTAUTH_SECRET
+ENV NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+
+# Build Next.js (produces .next/ with standalone output)
+RUN yarn build
+
+##############################################
+# Stage 3: Runner — lean production image
+##############################################
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+RUN apk add --no-cache curl
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+
+# Copy standalone output (includes node_modules and server.js)
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
+# SEO content read via fs at runtime by sitemap.xml
+COPY --from=builder /app/data ./data
+
+EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+  CMD curl -f http://localhost:3000/ || exit 1
+
+CMD ["node", "server.js"]

@@ -1,0 +1,47 @@
+{
+  "summary": "Iteration 122 — Transactions table toolbar (status chips + counts + scoped Export) e2e + export API regression. Backend: 10/11 pytest checks pass against live prod DB (read-only); one REAL bug found — POST /api/wallet/transactions/export ignores the crypto/amount part of `search` (only ILIKEs ut.id / transaction_reference), so exporting while the UI search is 'LTC' yields 0 rows although the grid shows 68. Frontend: every requested scenario verified on desktop 1920x800/900, mobile 390x844 and dark mode — toolbar renders inside data-testid=transactions-table-card above the sticky header, chip counts (All 702 = Settled 445 + Pending 56 + Unpaid 201), zero-count chips hidden, chip click filters rows + syncs ?status=, Export label becomes 'Export 201' with Settled-only hidden, deep links ?status=unpaid|pending pre-select, live counts shrink with search/source, export POST body + CSV contents correct (201 unpaid rows; settled_only:true -> 445 successful/completed), toast 'Transactions exported successfully', sticky opaque header, right-aligned monetary columns, filtered-empty standalone toolbar + Clear filters, no top-bar Export/Settled-only, zero console errors.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {
+        "endpoint": "POST /api/wallet/transactions/export",
+        "issue": "`search` filter is not at parity with the on-screen search. buildTransactionFilters (backend/controller/wallet/walletShared.ts:109-112) only matches ut.id / ut.transaction_reference, while the UI (Components/Page/Transactions/index.tsx:219-229) matches id OR base_amount OR base_currency. Repro: search 'LTC' in the top bar -> grid shows 68 rows; export with search='LTC' returns 0 data rows (verified via API and reproducible from the UI). Fix: extend the SQL to also ILIKE ut.base_currency and CAST(ut.base_amount AS TEXT) (and ideally COALESCE(uw.wallet_type, ut.base_currency))."
+      }
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "Transactions — filtered-empty state (/transactions?source=tip&status=unpaid)",
+        "issues": [
+          "Export button reads 'Export 0' and stays enabled when the active chip count is 0 — clicking it would download an empty CSV. Consider disabling Export when counts[selected] === 0.",
+          "Export tooltip ('Exports only settled payments matching your filters.') renders over the sticky column-header row (covers the 'Status' header) — cosmetic overlay, no interaction blocked."
+        ]
+      }
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_transactions_export.py",
+    "/app/test_reports/pytest/tx_export.xml"
+  ],
+  "action_items": [
+    "Fix export `search` parity: add base_currency / base_amount (and wallet_type) matching in buildTransactionFilters so Export honours the search filter exactly like the grid (currently exports 0 rows for search='LTC').",
+    "Optional polish: disable transactions-export-btn when the selected status chip count is 0; nudge the Export tooltip so it doesn't overlay the sticky header row."
+  ],
+  "critical_code_review_comments": [
+    "walletShared.ts buildTransactionFilters is the single source of search semantics for both list and export; the UI does client-side search over different fields, so any UI-side search field must be mirrored there (root cause of the export/search mismatch).",
+    "index.tsx handleExport correctly sends settled_only = (status === 'all' && settledExport); backend `bucket` resolution (transactionsDetail.ts:248-252) also lets the chip win — verified consistent by test_status_chip_beats_settled_only."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_transactions_export.py"
+  ],
+  "success_rate": {"backend": "91% (10/11)", "frontend": "100% of requested scenarios (10/10)"},
+  "seed_data_creation": "None — READ-ONLY session against the live prod DB (login, filtering, CSV export only).",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (company_id=1, 'The Dev Store')",
+  "context_for_next_testing_agent": "Backend regression suite for this feature: /app/backend/tests/test_transactions_export.py (derives bucket counts from POST /api/wallet/getAllTransactions -> data.customers_transactions, so no hardcoded totals). NOTE: the ASGI proxy watches /app/backend/** including tests/, so writing a test file restarts the backend — poll http://localhost:3300/health until 'healthy' (~30-45s) before running pytest, otherwise every request returns 503 'Backend starting'. Frontend: browser session is fresh per automation call, so log in each script (2-step) and warm /transactions with wait_for_selector timeout>=120s. Desktop has no visible theme switch ([data-testid=theme-toggle-mobile] is hidden >=md); set localStorage 'theme-mode-inapp'='dark' then reload to test dark mode on desktop.",
+  "rca_of_the_issue": "Export search bug: buildTransactionFilters builds SQL `AND (ut.id ILIKE :search OR ut.transaction_reference ILIKE :search)`. Transaction ids are UUIDs, so a currency/amount search term such as 'LTC' matches nothing at the DB level and the CSV comes back with headers only, even though the grid's client-side filter matched 68 rows on base_currency. Mitigation: widen the SQL predicate to the same fields the UI searches."
+}

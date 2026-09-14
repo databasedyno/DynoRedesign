@@ -1,0 +1,35 @@
+{
+  "summary": "Frontend-only regression smoke after app-wide _app/_document/i18n multilingual SSR change. Verified: home (/), /fees EN + /fees?lang=fr (SSR French incl. FAQ), /help-support (8 article cards + working links), article page body renders full content, /help-support/api-and-integrations?lang=de (German SSR body, <html lang=de>), header language switcher (EN->ES updates all visible text client-side), and 2-step merchant login reaching /dashboard. Also curl-verified server HTML: <html lang> correct per ?lang, self-referential canonical + 6 hreflang + x-default on /fees?lang=fr, FAQPage/Service/Offer JSON-LD present, and localized canonical on the DE article. ZERO console errors and ZERO React hydration warnings on /, /fees, /fees?lang=fr, /help-support and article pages. No blocking regressions found.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "HelpArticle page ([slug].tsx)", "issue": "Article H1 sits under the sticky header at initial paint (title visually clipped/faded behind nav at scrollTop=0) — needs top padding/scroll-margin", "selector": "h1 on /help-support/getting-started-with-dynopay", "priority": "MEDIUM"}
+    ],
+    "integration_issues": [
+      {"flow": "Client-side language switch", "issue": "Switching language in the nav does not add ?lang=xx to the URL, so canonical/hreflang stay pointed at the previous locale and the localized view is not shareable/linkable. Functionally fine (text + document.documentElement.lang update, no crash).", "affected_selectors": ["[data-testid=\"header-language-globe\"]"]},
+      {"flow": "Persisted locale vs SSR locale", "issue": "localStorage lang=de causes the plain (no ?lang) URL to re-render in German after hydration while server HTML/canonical are EN. No hydration error observed (i18n switch happens post-mount), but SSR HTML and post-hydration content differ in language for returning visitors — confirm this is intended.", "affected_selectors": ["html[lang]"]},
+      {"flow": "Localized help article metadata", "issue": "On ?lang=de/fr the article <title>, meta description and H1 remain English (no 'title' key in langs/locales/*/helpAndSupport.json articles.<slug>), producing mixed-language localized pages under a localized canonical — weak hreflang signal.", "affected_selectors": ["title", "meta[name=description]", "h1"]}
+    ],
+    "design_issues": [
+      {"screen": "/help-support/<slug> (desktop 1920)", "issues": ["Article body constrained to a ~620px card on the left with ~60% of the viewport empty on the right — no TOC/related-articles/centered layout", "Body paragraph text rgb(113,113,122) on white (~4.0:1) is borderline for WCAG AA on 14-15px text"]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Add localized 'title'/'description' keys for help articles (or drop the localized canonical for untranslated metadata) so ?lang=xx articles are fully translated",
+    "Append ?lang=xx to the URL (shallow router replace) when the nav language switcher is used, so canonical/hreflang and shareable links match the rendered locale",
+    "Fix help-article H1 clipping under the sticky header and widen/center the article layout; darken body text for contrast"
+  ],
+  "critical_code_review_comments": [
+    "hreflang alternates are emitted as hrefLang=\"...\" in the raw server HTML — HTML attribute names are case-insensitive so crawlers are fine, but verify it is next/head output and not a raw string injection",
+    "No article links exist in the SSR HTML source of /help-support (cards are rendered client-side/JS-driven anchors appear only after hydration) — crawl depth to the 8 new articles depends on JS; consider server-rendered <a href> cards plus sitemap entries"
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not tested", "frontend": "100% of smoke flows passed (7/7)"},
+  "seed_data_creation": "none — read-only against PROD DB; login only, no writes",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (2-step login verified, dashboard shell loaded cleanly)",
+  "context_for_next_testing_agent": "Base URL: https://speedup-check.preview.emergentagent.com. Nav language selector testid is header-language-globe (data-testid=language-trigger exists but is hidden -> do not wait on it). Routes respond in <1s once warm; wait on selectors, never networkidle. Article cards on /help-support expose a[href^='/help-support/'] only after hydration. localStorage 'lang' persists between runs — clear it before testing default-EN behaviour.",
+  "rca_of_the_issue": "No regression from the _app/_document/i18n SSR changes: per-request cloned i18n instance + fs-loaded resources render correct translated HTML with correct <html lang>, and client hydration picks the same locale with no mismatch warnings. Remaining findings are SEO polish (untranslated article metadata, URL not updated on client switch) and help-article layout/contrast."
+}

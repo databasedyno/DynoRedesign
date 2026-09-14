@@ -1,0 +1,22 @@
+{
+  "summary": "Frontend-only regression for DynoPay 3 changes. All 4 tested flows PASS. (1) /pay?d=6SpZe9 renders smoothly: clean-checkout-h1 'Pay The Dev Store' first appears at ~3.7s and remains continuously mounted (0 disappearance events over 14s polling every 150ms); clean-checkout-amount '$5.00 USD', clean-checkout-preparing (inline) and pay-status-strip all observed; only 1 page load event (no hard reload/flicker). (2) Branded short link /6SpZe9 correctly SSR-redirects to /pay?d=6SpZe9 and renders the same smooth checkout (0 h1 disappearance events, prep+strip observed). (3) /documentation contains #buy-button section with 'dynopay-buy-button' snippet and attributes 'publishable-key' / 'button-id', and left-nav lists a 'Buy Button' item (initial false-negative was due to insufficient wait — retested with 4s wait and all content is present). (4) Landing / 'why-dynopay' section shows the 7th card 'One account, every brand' with body copy mentioning running multiple brands/businesses from one login.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Console 401 errors observed on /documentation and after /6SpZe9 redirect for an unspecified resource — non-blocking, not related to this run's features, but may be a stray unauthenticated fetch worth investigating (likely a client-side account/session ping)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped)", "frontend": "100% (4/4 flows)"},
+  "test_credentials": "Not used; all flows public. Merchant creds available in /app/memory/test_credentials.md if needed.",
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Throwaway payment link d=6SpZe9 will be deleted by main agent after this run. Key testids: clean-checkout-h1, clean-checkout-amount, clean-checkout-preparing, pay-status-strip, why-dynopay. For docs page ensure at least ~3-4s wait before asserting innerText because SECTIONS render after client hydration; #buy-button id is emitted directly in DOM and is a reliable early check.",
+  "rca of the issue": "N/A — no bugs found. Note on false-negative during initial Test 3 run: page.evaluate('document.body.innerText') was called ~2.5s after domcontentloaded and returned pre-hydration text missing the Buy Button section. Fix: wait ~3-4s or poll for '#buy-button' presence before asserting text content."
+}

@@ -1,0 +1,55 @@
+{
+  "meta_title": "Plataforma de crowdfunding e doações em criptomoedas · Dynopay",
+  "meta_description": "Realize campanhas de crowdfunding e receba doações em mais de 15 criptomoedas. Defina metas, ofereça recompensas, atualize os apoiantes. Fundos para a sua carteira. Comece gratuitamente.",
+  "h1": "Crowdfunding e doações em criptomoedas para organizações sem fins lucrativos e angariadores de fundos",
+  "subheading": "Lance campanhas com metas de financiamento, níveis de recompensa e atualizações para apoiantes—e receba Bitcoin, Ethereum, stablecoins e mais diretamente na sua carteira.",
+  "intro_paragraph": "A Dynopay oferece a organizações sem fins lucrativos e organizadores uma página de campanha completa para angariar fundos em criptomoedas de apoiantes em todo o mundo. Defina uma meta de financiamento, crie níveis de recompensa, publique atualizações que notificam os apoiantes por e-mail e veja as doações chegarem à sua própria carteira—não retidas por um terceiro. Aceite mais de 15 criptomoedas, incluindo Bitcoin, Ethereum, Polygon, Solana, Tron e XRP Ledger. Os preços começam em 1,5% por transação e descem para 0,5% à medida que o seu volume cresce, com o seu primeiro pagamento completamente gratuito.",
+  "features": [
+    {
+      "title": "Páginas de Campanha com Níveis de Recompensa",
+      "description": "Crie uma página de campanha com a sua marca, com a sua meta de financiamento, barra de progresso e múltiplos níveis de recompensa. Os apoiantes escolhem o seu nível de contribuição e você mantém a custódia total de cada doação na sua carteira."
+    },
+    {
+      "title": "Atualizações para Apoiantes via Email",
+      "description": "Publique atualizações da campanha que notificam automaticamente todos os seus apoiantes por e-mail. Mantenha a sua comunidade envolvida, partilhe marcos e construa confiança sem gerir listas de e-mail separadas ou ferramentas de terceiros."
+    },
+    {
+      "title": "Aceite mais de 15 Criptomoedas Globalmente",
+      "description": "Receba Bitcoin, Ethereum, USDT, USDC, RLUSD, Solana, XRP, Dogecoin e mais. Não há restrições geográficas sobre quem pode doar, por isso pode angariar fundos de apoiantes em qualquer parte do mundo."
+    }
+  ],
+  "how_it_works": [
+    "Inscreva-se, verifique o seu e-mail e crie o perfil da sua organização em menos de cinco minutos.",
+    "Adicione o seu endereço de carteira, defina a sua meta de financiamento, crie níveis de recompensa e publique a sua página de campanha.",
+    "Partilhe o link da sua campanha e receba doações diretamente na sua carteira à medida que os apoiantes contribuem."
+  ],
+  "faqs": [
+    {
+      "question": "Quanto custa realizar uma campanha de crowdfunding em criptomoedas?",
+      "answer": "Os preços começam em 1,5% mais um dólar por doação bem-sucedida e descem automaticamente para 0,5% à medida que o seu volume aumenta. O seu primeiro pagamento é completamente gratuito. Sem taxas mensais, sem custos de configuração e sem encargos ocultos."
+    },
+    {
+      "question": "Preciso dar acesso à minha carteira à Dynopay?",
+      "answer": "Não. A Dynopay é não-custodial, o que significa que você fornece um endereço de carteira onde as doações são enviadas diretamente. Você mantém o controle total e a custódia dos seus fundos em todos os momentos. A Dynopay nunca retém ou toca nas suas doações."
+    },
+    {
+      "question": "Quais criptomoedas podem ser usadas pelos doadores?",
+      "answer": "Os apoiantes podem doar usando Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum, USDT, USDC, RLUSD, MATIC, Tron, Solana e XRP. Isso representa mais de 15 criptomoedas em nove blockchains, oferecendo flexibilidade aos doadores na forma como contribuem."
+    },
+    {
+      "question": "Posso oferecer recompensas a doadores em diferentes níveis?",
+      "answer": "Sim. Você pode criar múltiplos níveis de recompensa com diferentes montantes de contribuição e benefícios. Os apoiantes selecionam o seu nível ao doar, e você pode gerir o cumprimento com base no que cada apoiador escolheu durante a sua campanha."
+    },
+    {
+      "question": "Existem restrições por país na coleta de doações?",
+      "answer": "Não há restrições geográficas para receber doações em criptomoedas—apoiantes de qualquer país podem contribuir para a sua campanha. A verificação de identidade (KYC) aplica-se à sua conta Dynopay uma vez que o volume liquidado ultrapasse um limite, e as saídas fiat realizam o seu próprio KYC se você converter para a moeda local."
+    }
+  ],
+  "cta_headline": "Lance a sua campanha de angariação de fundos em criptomoedas hoje",
+  "cta_body": "A sua primeira doação é sem taxas e você pode entrar em funcionamento em menos de 10 minutos com a sua própria página de campanha e carteira.",
+  "_generated_at": "2026-08-29T14:57:54.590424Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "fundraisers",
+  "_display_name": "Fundraisers & Nonprofits"
+}

@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto payments for VPN & privacy software · Dynopay",
+  "meta_description": "Accept Bitcoin, Ethereum, USDT, and 15+ cryptocurrencies for your VPN or privacy service. Non-custodial, no chargebacks, live in 10 minutes. Start now.",
+  "h1": "Accept crypto payments for VPN & privacy software without chargebacks",
+  "subheading": "Stop losing revenue to payment fraud and involuntary churn. Dynopay delivers Bitcoin, stablecoins, and 15+ cryptocurrencies directly to your wallet.",
+  "intro_paragraph": "VPN and privacy software providers face constant payment friction: card declines from security flags, chargeback fraud from users who consumed bandwidth then disputed charges, and involuntary churn when banks flag recurring payments as suspicious. Dynopay is a non-custodial crypto commerce platform that deposits every payment directly into your wallet—no intermediary custody, no chargeback risk, no frozen funds. Support Bitcoin, Ethereum, USDT across three chains, and 15+ total cryptocurrencies with fees starting at 1.5% that drop to 0.5% as you scale.",
+  "features": [
+    {
+      "title": "Zero chargeback risk, ever",
+      "description": "Crypto payments are final. Users who abuse your bandwidth can't reverse the transaction six months later. You keep every dollar you earn from legitimate subscribers without fraud liability."
+    },
+    {
+      "title": "Non-custodial: funds hit your wallet",
+      "description": "Every payment settles directly to your Bitcoin, Ethereum, or stablecoin wallet. Dynopay never holds your money, so you control liquidity and eliminate counterparty risk from payment processors."
+    },
+    {
+      "title": "Cut involuntary churn from card declines",
+      "description": "Card networks flag VPN subscriptions as high-risk, causing false declines. Crypto payments bypass legacy rails entirely, so privacy-conscious users renew without friction and you retain more revenue."
+    }
+  ],
+  "how_it_works": [
+    "Sign up, verify your email, and add the wallet address where you want to receive payments.",
+    "Generate a payment link or embed the checkout widget on your subscription page in under 10 minutes.",
+    "Customers pay in Bitcoin, USDT, Ethereum, or 15+ cryptos; funds arrive directly in your wallet within minutes."
+  ],
+  "faqs": [
+    {
+      "question": "Why do VPN companies accept cryptocurrency payments?",
+      "answer": "Crypto eliminates chargebacks, reduces involuntary churn from card declines, and appeals to privacy-focused users who prefer not to link bank accounts. Dynopay supports Bitcoin, Ethereum, USDT on three chains, and 15+ total cryptocurrencies with non-custodial settlement directly to your wallet."
+    },
+    {
+      "question": "How much does Dynopay charge for crypto payments?",
+      "answer": "Fees start at 1.5% plus one dollar per successful payment and drop automatically to 0.5% as your volume grows. Your first payment is completely free. No monthly fees, no setup costs, no hidden charges, and no chargeback fees because chargebacks don't exist in crypto."
+    },
+    {
+      "question": "Can users subscribe monthly with cryptocurrency?",
+      "answer": "Yes, cycle by cycle. Crypto has no card-style auto-charge, so each renewal is a fresh payment: send subscribers a payment link per billing cycle, or automate it with the REST API and webhooks. Renewals never fail on issuer declines or expired cards, so involuntary churn stays lower than card-based plans."
+    },
+    {
+      "question": "Which cryptocurrencies can my VPN accept?",
+      "answer": "Dynopay supports Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum with USDT and USDC, Polygon, Tron with USDT, Solana, and XRP Ledger including RLUSD. That's 15+ cryptocurrencies total, and every payment deposits directly into the wallet you control—never held by Dynopay."
+    },
+    {
+      "question": "How fast can I start accepting crypto for my VPN service?",
+      "answer": "Under 10 minutes. Sign up, verify your email, create your company profile, add one payout wallet address, then generate a payment link or embed the checkout widget. You're live immediately with no technical integration required, though REST API and webhooks are available for developers."
+    }
+  ],
+  "cta_headline": "Start accepting crypto payments in 10 minutes",
+  "cta_body": "Your first payment is free, no monthly fees, and funds go straight to your wallet. Sign up now and go live today.",
+  "_generated_at": "2026-08-29T14:55:38.714229Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "vpn",
+  "_display_name": "VPN & Privacy Software"
+}

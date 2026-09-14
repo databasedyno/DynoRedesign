@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto payments for forex educators & signal providers · Dynopay",
+  "meta_description": "Accept crypto payments for trading courses, signals, and mentorships with Dynopay. 15+ cryptocurrencies, no chargebacks, fees from 1.5%. Start free today.",
+  "h1": "Accept crypto payments for trading education, signals, and mentorships",
+  "subheading": "Dynopay lets forex and trading educators, signal groups, and mentors get paid in Bitcoin, stablecoins, and 15+ cryptocurrencies directly to a wallet they control — a high-risk vertical cards routinely reject.",
+  "intro_paragraph": "Trading education, signals, and mentorship are flagged as high-risk by card processors, leading to declined applications, frozen funds, and disputes from members who lose money in their own trades. Dynopay is a non-custodial crypto payment gateway that settles straight to your wallet. Charge for a signals subscription, a mentorship, or a course with a payment link, hosted checkout, or the REST API across 15+ cryptocurrencies, with fees from 1.5% down to 0.5% at scale, no chargebacks, no monthly fees, and a free first payment.",
+  "features": [
+    {
+      "title": "Approval without the high-risk gatekeeping",
+      "description": "You don't need a card processor to approve a 'trading education' merchant account. Add a payout wallet and start accepting crypto the same day."
+    },
+    {
+      "title": "No disputes from members' trading losses",
+      "description": "Crypto payments are final, so a member who has a bad trading week can't reverse your fee through a card chargeback after receiving the signals."
+    },
+    {
+      "title": "Global audience, instant settlement",
+      "description": "Traders are everywhere. Accept payment worldwide and receive funds in minutes to a wallet you control, in stablecoins if you want a dollar-pegged balance."
+    }
+  ],
+  "how_it_works": [
+    "Sign up, verify your email, create a company profile, and add one payout wallet address for settlement.",
+    "Generate a payment link for each plan or embed the checkout on your community or landing page.",
+    "The member pays in their preferred cryptocurrency, you grant access via webhook, and funds arrive in your wallet within minutes."
+  ],
+  "faqs": [
+    {
+      "question": "Why do trading educators and signal providers use crypto payments?",
+      "answer": "Trading education is classed as high-risk, so card processors often decline the account or freeze funds, and members sometimes dispute charges after a losing week. Crypto is non-custodial and final: no high-risk approval, no freeze, and no post-delivery chargebacks."
+    },
+    {
+      "question": "Can I run a recurring signals subscription with crypto?",
+      "answer": "Yes, on a per-cycle basis. Crypto has no card-style auto-charge, so each renewal is a fresh payment — use the REST API and webhooks to send a payment link every billing cycle and grant or revoke access automatically."
+    },
+    {
+      "question": "Which cryptocurrencies can members pay with?",
+      "answer": "Dynopay supports 15+ cryptocurrencies including Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, TRX, MATIC, and stablecoins such as USDT (ERC20, TRC20, Polygon), USDC (ERC20), and RLUSD."
+    },
+    {
+      "question": "What are the fees?",
+      "answer": "Fees start at 1.5% plus one dollar per successful payment and drop to 0.5% as settled volume grows. No setup fees, no monthly fees, and your first payment is free."
+    },
+    {
+      "question": "Does Dynopay hold my money?",
+      "answer": "No. Dynopay is non-custodial, so payments settle directly to your own wallet — MetaMask, Coinbase, Ledger, or any address you control."
+    }
+  ],
+  "cta_headline": "Start accepting crypto for your trading community in 10 minutes",
+  "cta_body": "Sign up now and your first transaction is fee-free. No high-risk approvals, no monthly costs, and funds settle straight to your wallet.",
+  "_generated_at": "2026-09-05T00:00:00.000Z",
+  "_model": "dynopay-editorial-2026-09",
+  "_kind": "vertical",
+  "_slug": "forex-trading",
+  "_display_name": "Trading Educators & Signal Providers"
+}

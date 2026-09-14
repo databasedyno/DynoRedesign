@@ -1,0 +1,12 @@
+{
+ "auth": {
+  "secureAccount.invalidDefault": {
+   "en": "This security link has already been used or is invalid.",
+   "de": "Dieser Sicherheitslink wurde bereits verwendet oder ist ungültig.",
+   "es": "Este enlace de seguridad ya se ha utilizado o no es válido.",
+   "fr": "Ce lien de sécurité a déjà été utilisé ou n'est pas valide.",
+   "nl": "Deze beveiligingslink is al gebruikt of is ongeldig.",
+   "pt": "Este link de segurança já foi utilizado ou é inválido."
+  }
+ }
+}

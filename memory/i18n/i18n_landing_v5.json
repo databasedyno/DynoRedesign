@@ -1,0 +1,1772 @@
+{
+  "landing": {
+    "v5.hero.eyebrow": {
+      "en": "Crypto payments, settled to your wallet",
+      "de": "Krypto-Zahlungen, direkt in deine Wallet",
+      "es": "Pagos en cripto, liquidados en tu wallet",
+      "fr": "Paiements crypto, réglés dans votre wallet",
+      "nl": "Cryptobetalingen, uitbetaald in je wallet",
+      "pt": "Pagamentos em cripto, liquidados na sua carteira"
+    },
+    "v5.hero.h1a": {
+      "en": "Accept crypto payments.",
+      "de": "Krypto-Zahlungen annehmen.",
+      "es": "Acepta pagos en cripto.",
+      "fr": "Acceptez les paiements crypto.",
+      "nl": "Accepteer cryptobetalingen.",
+      "pt": "Aceite pagamentos em cripto."
+    },
+    "v5.hero.h1b": {
+      "en": "Settle in ",
+      "de": "Ausgezahlt in ",
+      "es": "Liquida en ",
+      "fr": "Réglés dans ",
+      "nl": "Uitbetaald in ",
+      "pt": "Receba em "
+    },
+    "v5.hero.h1Accent": {
+      "en": "the coin you choose",
+      "de": "der Coin deiner Wahl",
+      "es": "la moneda que elijas",
+      "fr": "la crypto de votre choix",
+      "nl": "de munt die jij kiest",
+      "pt": "a moeda que você escolher"
+    },
+    "v5.hero.h1c": {
+      "en": ".",
+      "de": ".",
+      "es": ".",
+      "fr": ".",
+      "nl": ".",
+      "pt": "."
+    },
+    "v5.hero.body": {
+      "en": "Payment links, hosted checkout, storefront and API. Buyers pay in 15 coins across 9 chains; you keep the coin or auto-convert to USDC or USDT — straight to a wallet you control.",
+      "de": "Zahlungslinks, gehosteter Checkout, Storefront und API. Käufer zahlen in 15 Coins auf 9 Chains; du behältst die Coin oder wandelst automatisch in USDC oder USDT um — direkt in eine Wallet, die du kontrollierst.",
+      "es": "Enlaces de pago, checkout alojado, tienda y API. Los compradores pagan con 15 monedas en 9 cadenas; tú conservas la moneda o la conviertes automáticamente a USDC o USDT — directo a una wallet que controlas.",
+      "fr": "Liens de paiement, checkout hébergé, boutique et API. Vos acheteurs paient avec 15 cryptos sur 9 chaînes ; vous gardez la crypto ou la convertissez automatiquement en USDC ou USDT — directement dans un wallet que vous contrôlez.",
+      "nl": "Betaallinks, gehoste checkout, storefront en API. Kopers betalen met 15 munten op 9 chains; jij houdt de munt of converteert automatisch naar USDC of USDT — rechtstreeks naar een wallet die jij beheert.",
+      "pt": "Links de pagamento, checkout hospedado, loja e API. Os compradores pagam com 15 moedas em 9 redes; você fica com a moeda ou converte automaticamente para USDC ou USDT — direto para uma carteira que você controla."
+    },
+    "v5.hero.primary": {
+      "en": "Start accepting payments",
+      "de": "Jetzt Zahlungen annehmen",
+      "es": "Empieza a aceptar pagos",
+      "fr": "Commencer à encaisser",
+      "nl": "Begin met betalingen ontvangen",
+      "pt": "Comece a aceitar pagamentos"
+    },
+    "v5.hero.secondary": {
+      "en": "Try a live checkout",
+      "de": "Live-Checkout testen",
+      "es": "Prueba un checkout en vivo",
+      "fr": "Essayer un checkout en direct",
+      "nl": "Probeer een live checkout",
+      "pt": "Teste um checkout ao vivo"
+    },
+    "v5.hero.primaryHelper": {
+      "en": "Free to start · First payment fee-free · No card needed",
+      "de": "Kostenlos starten · Erste Zahlung gebührenfrei · Keine Karte nötig",
+      "es": "Gratis para empezar · Primer pago sin comisión · Sin tarjeta",
+      "fr": "Gratuit pour démarrer · Premier paiement sans frais · Aucune carte requise",
+      "nl": "Gratis starten · Eerste betaling zonder kosten · Geen kaart nodig",
+      "pt": "Grátis para começar · Primeiro pagamento sem taxa · Sem cartão"
+    },
+    "v5.hero.demoNote": {
+      "en": "The card above is a sandbox — pick a coin and press Pay to watch a payment confirm.",
+      "de": "Die Karte oben ist eine Sandbox — wähle eine Coin und drücke Bezahlen, um eine Zahlung bestätigen zu sehen.",
+      "es": "La tarjeta de arriba es un sandbox: elige una moneda y pulsa Pagar para ver cómo se confirma un pago.",
+      "fr": "La carte ci-dessus est un bac à sable : choisissez une crypto et appuyez sur Payer pour voir un paiement se confirmer.",
+      "nl": "De kaart hierboven is een sandbox — kies een munt en druk op Betalen om een betaling bevestigd te zien worden.",
+      "pt": "O cartão acima é um sandbox — escolha uma moeda e toque em Pagar para ver um pagamento ser confirmado."
+    },
+    "v5.demo.sandbox": {
+      "en": "Sandbox · nothing is sent",
+      "de": "Sandbox · nichts wird gesendet",
+      "es": "Sandbox · no se envía nada",
+      "fr": "Bac à sable · rien n'est envoyé",
+      "nl": "Sandbox · er wordt niets verstuurd",
+      "pt": "Sandbox · nada é enviado"
+    },
+    "v5.demo.waiting": {
+      "en": "Waiting for payment…",
+      "de": "Warten auf Zahlung…",
+      "es": "Esperando el pago…",
+      "fr": "En attente du paiement…",
+      "nl": "Wachten op betaling…",
+      "pt": "Aguardando pagamento…"
+    },
+    "v5.demo.confirming": {
+      "en": "Confirming on {{network}}…",
+      "de": "Bestätigung auf {{network}}…",
+      "es": "Confirmando en {{network}}…",
+      "fr": "Confirmation sur {{network}}…",
+      "nl": "Bevestigen op {{network}}…",
+      "pt": "Confirmando em {{network}}…"
+    },
+    "v5.demo.confirmedTitle": {
+      "en": "Payment confirmed",
+      "de": "Zahlung bestätigt",
+      "es": "Pago confirmado",
+      "fr": "Paiement confirmé",
+      "nl": "Betaling bevestigd",
+      "pt": "Pagamento confirmado"
+    },
+    "v5.demo.confirmedBody": {
+      "en": "Settled as {{coin}} to the merchant's wallet. No chain was touched — this is a demo.",
+      "de": "Als {{coin}} in die Wallet des Händlers ausgezahlt. Keine Chain wurde berührt — das ist eine Demo.",
+      "es": "Liquidado como {{coin}} en la wallet del comercio. No se tocó ninguna cadena: es una demo.",
+      "fr": "Réglé en {{coin}} dans le wallet du marchand. Aucune chaîne n'a été touchée : c'est une démo.",
+      "nl": "Uitbetaald als {{coin}} in de wallet van de verkoper. Er is geen chain aangeraakt — dit is een demo.",
+      "pt": "Liquidado como {{coin}} na carteira do comerciante. Nenhuma rede foi tocada — isto é uma demonstração."
+    },
+    "v5.demo.again": {
+      "en": "Run it again",
+      "de": "Noch einmal",
+      "es": "Repetir",
+      "fr": "Recommencer",
+      "nl": "Nog een keer",
+      "pt": "Repetir"
+    },
+    "v5.demo.pay": {
+      "en": "Pay {{store}}",
+      "de": "{{store}} bezahlen",
+      "es": "Pagar a {{store}}",
+      "fr": "Payer {{store}}",
+      "nl": "Betaal {{store}}",
+      "pt": "Pagar {{store}}"
+    },
+    "v5.demo.settles": {
+      "en": "Settles in {{coin}}",
+      "de": "Auszahlung in {{coin}}",
+      "es": "Liquida en {{coin}}",
+      "fr": "Réglé en {{coin}}",
+      "nl": "Uitbetaald in {{coin}}",
+      "pt": "Liquida em {{coin}}"
+    },
+    "v5.demo.chooseCoin": {
+      "en": "Choose a coin",
+      "de": "Coin wählen",
+      "es": "Elige una moneda",
+      "fr": "Choisir une crypto",
+      "nl": "Kies een munt",
+      "pt": "Escolha uma moeda"
+    },
+    "v5.demo.send": {
+      "en": "Send exactly",
+      "de": "Sende genau",
+      "es": "Envía exactamente",
+      "fr": "Envoyez exactement",
+      "nl": "Stuur precies",
+      "pt": "Envie exatamente"
+    },
+    "v5.demo.on": {
+      "en": "on {{network}}",
+      "de": "auf {{network}}",
+      "es": "en {{network}}",
+      "fr": "sur {{network}}",
+      "nl": "op {{network}}",
+      "pt": "em {{network}}"
+    },
+    "v5.demo.liveRate": {
+      "en": "Live rate",
+      "de": "Live-Kurs",
+      "es": "Tipo en vivo",
+      "fr": "Cours en direct",
+      "nl": "Live koers",
+      "pt": "Cotação ao vivo"
+    },
+    "v5.demo.payBtn": {
+      "en": "Pay {{amount}}",
+      "de": "{{amount}} bezahlen",
+      "es": "Pagar {{amount}}",
+      "fr": "Payer {{amount}}",
+      "nl": "Betaal {{amount}}",
+      "pt": "Pagar {{amount}}"
+    },
+    "v5.proof.uptime": {
+      "en": "Uptime, 90 days",
+      "de": "Verfügbarkeit, 90 Tage",
+      "es": "Disponibilidad, 90 días",
+      "fr": "Disponibilité, 90 jours",
+      "nl": "Uptime, 90 dagen",
+      "pt": "Disponibilidade, 90 dias"
+    },
+    "v5.proof.minutes": {
+      "en": "{{n}} min",
+      "de": "{{n}} Min.",
+      "es": "{{n}} min",
+      "fr": "{{n}} min",
+      "nl": "{{n}} min",
+      "pt": "{{n}} min"
+    },
+    "v5.proof.settle": {
+      "en": "Median settle, fast rails",
+      "de": "Median-Auszahlung, schnelle Chains",
+      "es": "Liquidación mediana, redes rápidas",
+      "fr": "Règlement médian, réseaux rapides",
+      "nl": "Mediane uitbetaling, snelle chains",
+      "pt": "Liquidação mediana, redes rápidas"
+    },
+    "v5.proof.month": {
+      "en": "Payments settled this month",
+      "de": "Zahlungen diesen Monat",
+      "es": "Pagos liquidados este mes",
+      "fr": "Paiements réglés ce mois-ci",
+      "nl": "Betalingen deze maand",
+      "pt": "Pagamentos liquidados este mês"
+    },
+    "v5.proof.countries": {
+      "en": "Countries served",
+      "de": "Länder",
+      "es": "Países atendidos",
+      "fr": "Pays servis",
+      "nl": "Landen",
+      "pt": "Países atendidos"
+    },
+    "v5.proof.chains": {
+      "en": "Chains",
+      "de": "Chains",
+      "es": "Cadenas",
+      "fr": "Chaînes",
+      "nl": "Chains",
+      "pt": "Redes"
+    },
+    "v5.open.eyebrow": {
+      "en": "Built in the open",
+      "de": "Offen gebaut",
+      "es": "Construido a la vista",
+      "fr": "Construit au grand jour",
+      "nl": "Open gebouwd",
+      "pt": "Construído às claras"
+    },
+    "v5.open.headline": {
+      "en": "Proof you can check yourself.",
+      "de": "Belege, die du selbst prüfen kannst.",
+      "es": "Pruebas que puedes comprobar tú mismo.",
+      "fr": "Des preuves que vous pouvez vérifier vous-même.",
+      "nl": "Bewijs dat je zelf kunt controleren.",
+      "pt": "Provas que você mesmo pode verificar."
+    },
+    "v5.open.body": {
+      "en": "No borrowed logos. Live uptime, public docs, real on-chain settlements and a checkout in six languages.",
+      "de": "Keine geliehenen Logos. Live-Verfügbarkeit, öffentliche Docs, echte On-Chain-Auszahlungen und ein Checkout in sechs Sprachen.",
+      "es": "Sin logos prestados. Disponibilidad en vivo, documentación pública, liquidaciones reales on-chain y un checkout en seis idiomas.",
+      "fr": "Pas de logos empruntés. Disponibilité en direct, documentation publique, règlements on-chain réels et un checkout en six langues.",
+      "nl": "Geen geleende logo's. Live uptime, openbare docs, echte on-chain uitbetalingen en een checkout in zes talen.",
+      "pt": "Sem logotipos emprestados. Disponibilidade ao vivo, documentação pública, liquidações reais on-chain e um checkout em seis idiomas."
+    },
+    "v5.open.statusT": {
+      "en": "Live status",
+      "de": "Live-Status",
+      "es": "Estado en vivo",
+      "fr": "Statut en direct",
+      "nl": "Live status",
+      "pt": "Status ao vivo"
+    },
+    "v5.open.statusD": {
+      "en": "Uptime for payments, rates, webhooks and API — refreshed every minute.",
+      "de": "Verfügbarkeit von Zahlungen, Kursen, Webhooks und API — jede Minute aktualisiert.",
+      "es": "Disponibilidad de pagos, tipos, webhooks y API, actualizada cada minuto.",
+      "fr": "Disponibilité des paiements, cours, webhooks et API, rafraîchie chaque minute.",
+      "nl": "Uptime van betalingen, koersen, webhooks en API — elke minuut vernieuwd.",
+      "pt": "Disponibilidade de pagamentos, cotações, webhooks e API — atualizada a cada minuto."
+    },
+    "v5.open.statusCta": {
+      "en": "View status",
+      "de": "Status ansehen",
+      "es": "Ver estado",
+      "fr": "Voir le statut",
+      "nl": "Bekijk status",
+      "pt": "Ver status"
+    },
+    "v5.open.docsT": {
+      "en": "Public API docs",
+      "de": "Öffentliche API-Docs",
+      "es": "Documentación pública de la API",
+      "fr": "Documentation API publique",
+      "nl": "Openbare API-docs",
+      "pt": "Documentação pública da API"
+    },
+    "v5.open.docsD": {
+      "en": "Every merchant endpoint, documented before you sign up.",
+      "de": "Jeder Händler-Endpunkt dokumentiert, bevor du dich registrierst.",
+      "es": "Cada endpoint para comercios, documentado antes de que te registres.",
+      "fr": "Chaque endpoint marchand est documenté avant même votre inscription.",
+      "nl": "Elk merchant-endpoint gedocumenteerd voordat je je aanmeldt.",
+      "pt": "Cada endpoint para comerciantes, documentado antes de você se cadastrar."
+    },
+    "v5.open.docsCta": {
+      "en": "Read the docs",
+      "de": "Docs lesen",
+      "es": "Leer la documentación",
+      "fr": "Lire la documentation",
+      "nl": "Lees de docs",
+      "pt": "Ler a documentação"
+    },
+    "v5.open.chainT": {
+      "en": "Real settlement",
+      "de": "Echte Auszahlung",
+      "es": "Liquidación real",
+      "fr": "Règlement réel",
+      "nl": "Echte uitbetaling",
+      "pt": "Liquidação real"
+    },
+    "v5.open.chainD": {
+      "en": "An actual payment from our own store, settled on Ethereum. Verify it on a block explorer.",
+      "de": "Eine echte Zahlung aus unserem eigenen Shop, auf Ethereum abgewickelt. Prüfe sie im Block-Explorer.",
+      "es": "Un pago real de nuestra propia tienda, liquidado en Ethereum. Compruébalo en un explorador de bloques.",
+      "fr": "Un vrai paiement de notre propre boutique, réglé sur Ethereum. Vérifiez-le sur un explorateur de blocs.",
+      "nl": "Een echte betaling uit onze eigen winkel, afgewikkeld op Ethereum. Controleer het in een block explorer.",
+      "pt": "Um pagamento real da nossa própria loja, liquidado na Ethereum. Verifique em um explorador de blocos."
+    },
+    "v5.open.chainCta": {
+      "en": "View on chain",
+      "de": "On-Chain ansehen",
+      "es": "Ver en la cadena",
+      "fr": "Voir sur la chaîne",
+      "nl": "Bekijk on-chain",
+      "pt": "Ver on-chain"
+    },
+    "v5.open.globalT": {
+      "en": "Global by default",
+      "de": "Global von Anfang an",
+      "es": "Global por defecto",
+      "fr": "Mondial par défaut",
+      "nl": "Standaard wereldwijd",
+      "pt": "Global por padrão"
+    },
+    "v5.open.globalD": {
+      "en": "Merchants in {{countries}}+ countries, checkout in six languages, buyers from anywhere with a wallet.",
+      "de": "Händler in über {{countries}} Ländern, Checkout in sechs Sprachen, Käufer von überall mit einer Wallet.",
+      "es": "Comercios en más de {{countries}} países, checkout en seis idiomas y compradores desde cualquier lugar con una wallet.",
+      "fr": "Des marchands dans plus de {{countries}} pays, un checkout en six langues, des acheteurs de partout avec un wallet.",
+      "nl": "Verkopers in {{countries}}+ landen, checkout in zes talen, kopers van overal met een wallet.",
+      "pt": "Comerciantes em mais de {{countries}} países, checkout em seis idiomas e compradores de qualquer lugar com uma carteira."
+    },
+    "v5.open.globalCta": {
+      "en": "See coins & chains",
+      "de": "Coins & Chains ansehen",
+      "es": "Ver monedas y cadenas",
+      "fr": "Voir cryptos et chaînes",
+      "nl": "Bekijk munten & chains",
+      "pt": "Ver moedas e redes"
+    },
+    "v5.how.eyebrow": {
+      "en": "How it works",
+      "de": "So funktioniert's",
+      "es": "Cómo funciona",
+      "fr": "Comment ça marche",
+      "nl": "Hoe het werkt",
+      "pt": "Como funciona"
+    },
+    "v5.how.headline": {
+      "en": "Three steps. No crypto expertise.",
+      "de": "Drei Schritte. Kein Krypto-Wissen nötig.",
+      "es": "Tres pasos. Sin saber de cripto.",
+      "fr": "Trois étapes. Aucune expertise crypto.",
+      "nl": "Drie stappen. Geen cryptokennis nodig.",
+      "pt": "Três passos. Sem precisar entender cripto."
+    },
+    "v5.how.body": {
+      "en": "Set up once, then every payment follows the same path — from your buyer's wallet to yours.",
+      "de": "Einmal einrichten — danach nimmt jede Zahlung denselben Weg: von der Wallet deines Käufers in deine.",
+      "es": "Configúralo una vez y cada pago sigue el mismo camino: de la wallet de tu comprador a la tuya.",
+      "fr": "Configurez une fois, puis chaque paiement suit le même chemin : du wallet de votre acheteur au vôtre.",
+      "nl": "Eén keer instellen — daarna volgt elke betaling dezelfde route: van de wallet van je koper naar de jouwe.",
+      "pt": "Configure uma vez e cada pagamento segue o mesmo caminho: da carteira do seu comprador para a sua."
+    },
+    "v5.how.s1t": {
+      "en": "Share a link or checkout",
+      "de": "Link oder Checkout teilen",
+      "es": "Comparte un enlace o checkout",
+      "fr": "Partagez un lien ou un checkout",
+      "nl": "Deel een link of checkout",
+      "pt": "Compartilhe um link ou checkout"
+    },
+    "v5.how.s1d": {
+      "en": "Create a payment link, embed a button or call the API. Buyers see the exact amount in the coin they pick and a QR to scan.",
+      "de": "Erstelle einen Zahlungslink, bette einen Button ein oder rufe die API auf. Käufer sehen den exakten Betrag in ihrer Coin und einen QR-Code.",
+      "es": "Crea un enlace de pago, inserta un botón o llama a la API. Los compradores ven el importe exacto en la moneda que eligen y un QR para escanear.",
+      "fr": "Créez un lien de paiement, intégrez un bouton ou appelez l'API. Les acheteurs voient le montant exact dans la crypto choisie et un QR à scanner.",
+      "nl": "Maak een betaallink, plaats een knop of roep de API aan. Kopers zien het exacte bedrag in de munt die ze kiezen en een QR om te scannen.",
+      "pt": "Crie um link de pagamento, incorpore um botão ou chame a API. Os compradores veem o valor exato na moeda escolhida e um QR para escanear."
+    },
+    "v5.how.s2t": {
+      "en": "The network confirms",
+      "de": "Das Netzwerk bestätigt",
+      "es": "La red confirma",
+      "fr": "Le réseau confirme",
+      "nl": "Het netwerk bevestigt",
+      "pt": "A rede confirma"
+    },
+    "v5.how.s2d": {
+      "en": "We watch the chain and update the checkout live. Turn on auto-convert to receive USDC or USDT instead of the coin sent.",
+      "de": "Wir beobachten die Chain und aktualisieren den Checkout live. Mit Auto-Convert erhältst du USDC oder USDT statt der gesendeten Coin.",
+      "es": "Vigilamos la cadena y actualizamos el checkout en vivo. Activa la conversión automática para recibir USDC o USDT en lugar de la moneda enviada.",
+      "fr": "Nous surveillons la chaîne et mettons le checkout à jour en direct. Activez la conversion automatique pour recevoir de l'USDC ou de l'USDT au lieu de la crypto envoyée.",
+      "nl": "Wij volgen de chain en werken de checkout live bij. Zet automatisch converteren aan om USDC of USDT te ontvangen in plaats van de verstuurde munt.",
+      "pt": "Monitoramos a rede e atualizamos o checkout ao vivo. Ative a conversão automática para receber USDC ou USDT em vez da moeda enviada."
+    },
+    "v5.how.s3t": {
+      "en": "Funds land in your wallet",
+      "de": "Das Geld landet in deiner Wallet",
+      "es": "Los fondos llegan a tu wallet",
+      "fr": "Les fonds arrivent dans votre wallet",
+      "nl": "Het geld komt in je wallet",
+      "pt": "Os fundos chegam à sua carteira"
+    },
+    "v5.how.s3d": {
+      "en": "Settlement goes straight to the payout address you added — non-custodial. Webhook, email and dashboard update together.",
+      "de": "Die Auszahlung geht direkt an die Auszahlungsadresse, die du hinterlegt hast — non-custodial. Webhook, E-Mail und Dashboard aktualisieren sich gemeinsam.",
+      "es": "La liquidación va directa a la dirección de cobro que añadiste, sin custodia. Webhook, correo y panel se actualizan a la vez.",
+      "fr": "Le règlement va directement à l'adresse de versement que vous avez ajoutée, sans garde. Webhook, e-mail et tableau de bord se mettent à jour ensemble.",
+      "nl": "De uitbetaling gaat rechtstreeks naar het uitbetaaladres dat je hebt toegevoegd — non-custodial. Webhook, e-mail en dashboard worden tegelijk bijgewerkt.",
+      "pt": "A liquidação vai direto para o endereço de recebimento que você adicionou — sem custódia. Webhook, e-mail e painel são atualizados juntos."
+    },
+    "v5.how.etaLabel": {
+      "en": "Typical confirmation time",
+      "de": "Typische Bestätigungszeit",
+      "es": "Tiempo de confirmación habitual",
+      "fr": "Délai de confirmation habituel",
+      "nl": "Gebruikelijke bevestigingstijd",
+      "pt": "Tempo de confirmação habitual"
+    },
+    "v5.how.etaNote": {
+      "en": "The same estimates buyers see at checkout. Busy networks can take longer.",
+      "de": "Dieselben Schätzungen, die Käufer im Checkout sehen. Ausgelastete Netzwerke können länger brauchen.",
+      "es": "Las mismas estimaciones que ven los compradores en el checkout. Las redes congestionadas pueden tardar más.",
+      "fr": "Les mêmes estimations que voient les acheteurs au checkout. Les réseaux chargés peuvent prendre plus de temps.",
+      "nl": "Dezelfde schattingen die kopers bij de checkout zien. Drukke netwerken kunnen langer duren.",
+      "pt": "As mesmas estimativas que os compradores veem no checkout. Redes congestionadas podem demorar mais."
+    },
+    "v5.how.walletLine": {
+      "en": "You'll need a wallet address for each coin you accept — any wallet you control.",
+      "de": "Du brauchst eine Wallet-Adresse für jede Coin, die du annimmst — jede Wallet, die du kontrollierst.",
+      "es": "Necesitarás una dirección de wallet por cada moneda que aceptes: cualquier wallet que controles.",
+      "fr": "Il vous faut une adresse de wallet pour chaque crypto acceptée : n'importe quel wallet que vous contrôlez.",
+      "nl": "Je hebt een walletadres nodig voor elke munt die je accepteert — elke wallet die jij beheert.",
+      "pt": "Você precisará de um endereço de carteira para cada moeda que aceitar — qualquer carteira que você controle."
+    },
+    "v5.how.walletCta": {
+      "en": "Wallet guide",
+      "de": "Wallet-Leitfaden",
+      "es": "Guía de wallets",
+      "fr": "Guide des wallets",
+      "nl": "Walletgids",
+      "pt": "Guia de carteiras"
+    },
+    "v5.products.eyebrow": {
+      "en": "Products",
+      "de": "Produkte",
+      "es": "Productos",
+      "fr": "Produits",
+      "nl": "Producten",
+      "pt": "Produtos"
+    },
+    "v5.products.headline": {
+      "en": "Six ways to get paid. One account.",
+      "de": "Sechs Wege, bezahlt zu werden. Ein Konto.",
+      "es": "Seis formas de cobrar. Una cuenta.",
+      "fr": "Six façons d'être payé. Un seul compte.",
+      "nl": "Zes manieren om betaald te worden. Eén account.",
+      "pt": "Seis formas de receber. Uma conta."
+    },
+    "v5.products.body": {
+      "en": "Pick the surface that fits — every one settles the same way, to your wallet.",
+      "de": "Wähle, was passt — jede Variante wird gleich abgewickelt: in deine Wallet.",
+      "es": "Elige la que encaje: todas liquidan igual, en tu wallet.",
+      "fr": "Choisissez ce qui vous convient : tout se règle de la même manière, dans votre wallet.",
+      "nl": "Kies wat past — alles wordt op dezelfde manier uitbetaald: in je wallet.",
+      "pt": "Escolha a que se encaixa — todas liquidam do mesmo jeito, na sua carteira."
+    },
+    "v5.products.shotAlt": {
+      "en": "{{name}} preview",
+      "de": "Vorschau {{name}}",
+      "es": "Vista previa de {{name}}",
+      "fr": "Aperçu : {{name}}",
+      "nl": "Voorbeeld van {{name}}",
+      "pt": "Prévia de {{name}}"
+    },
+    "v5.products.links.tab": {
+      "en": "Payment links",
+      "de": "Zahlungslinks",
+      "es": "Enlaces de pago",
+      "fr": "Liens de paiement",
+      "nl": "Betaallinks",
+      "pt": "Links de pagamento"
+    },
+    "v5.products.links.title": {
+      "en": "Share a link, get paid in crypto.",
+      "de": "Link teilen, in Krypto bezahlt werden.",
+      "es": "Comparte un enlace y cobra en cripto.",
+      "fr": "Partagez un lien, encaissez en crypto.",
+      "nl": "Deel een link, word betaald in crypto.",
+      "pt": "Compartilhe um link, receba em cripto."
+    },
+    "v5.products.links.desc": {
+      "en": "Create a link for any amount or a donation goal, share it anywhere and watch the payment land in your dashboard. Set expiry, pick accepted coins and choose who pays the fee.",
+      "de": "Erstelle einen Link für einen beliebigen Betrag oder ein Spendenziel, teile ihn überall und sieh die Zahlung im Dashboard eintreffen. Ablauf festlegen, Coins wählen und entscheiden, wer die Gebühr zahlt.",
+      "es": "Crea un enlace para cualquier importe o una meta de donación, compártelo donde quieras y ve llegar el pago a tu panel. Define caducidad, elige monedas y decide quién paga la comisión.",
+      "fr": "Créez un lien pour n'importe quel montant ou un objectif de don, partagez-le partout et voyez le paiement arriver dans votre tableau de bord. Fixez l'expiration, choisissez les cryptos acceptées et qui paie les frais.",
+      "nl": "Maak een link voor elk bedrag of een donatiedoel, deel hem overal en zie de betaling in je dashboard binnenkomen. Stel een vervaldatum in, kies munten en bepaal wie de kosten betaalt.",
+      "pt": "Crie um link para qualquer valor ou uma meta de doação, compartilhe em qualquer lugar e veja o pagamento chegar no seu painel. Defina validade, escolha as moedas aceitas e quem paga a taxa."
+    },
+    "v5.products.links.note": {
+      "en": "No code. Works in a DM, an email or a QR on the counter.",
+      "de": "Ohne Code. Funktioniert per DM, E-Mail oder als QR am Tresen.",
+      "es": "Sin código. Funciona por mensaje directo, correo o un QR en el mostrador.",
+      "fr": "Sans code. Fonctionne en message privé, par e-mail ou via un QR au comptoir.",
+      "nl": "Zonder code. Werkt in een DM, een e-mail of als QR op de toonbank.",
+      "pt": "Sem código. Funciona por mensagem direta, e-mail ou um QR no balcão."
+    },
+    "v5.products.links.cta": {
+      "en": "Create your first link",
+      "de": "Ersten Link erstellen",
+      "es": "Crea tu primer enlace",
+      "fr": "Créer votre premier lien",
+      "nl": "Maak je eerste link",
+      "pt": "Crie seu primeiro link"
+    },
+    "v5.products.checkout.tab": {
+      "en": "Hosted checkout",
+      "de": "Gehosteter Checkout",
+      "es": "Checkout alojado",
+      "fr": "Checkout hébergé",
+      "nl": "Gehoste checkout",
+      "pt": "Checkout hospedado"
+    },
+    "v5.products.checkout.title": {
+      "en": "A checkout buyers understand.",
+      "de": "Ein Checkout, den Käufer verstehen.",
+      "es": "Un checkout que los compradores entienden.",
+      "fr": "Un checkout que les acheteurs comprennent.",
+      "nl": "Een checkout die kopers begrijpen.",
+      "pt": "Um checkout que os compradores entendem."
+    },
+    "v5.products.checkout.desc": {
+      "en": "Your logo and colours, live rates, exact amount and QR, and a status timeline from waiting to confirmed. Works on any phone, in six languages.",
+      "de": "Dein Logo und deine Farben, Live-Kurse, exakter Betrag und QR-Code sowie eine Status-Zeitleiste von „wartend“ bis „bestätigt“. Läuft auf jedem Handy, in sechs Sprachen.",
+      "es": "Tu logo y colores, tipos en vivo, importe exacto y QR, y una línea de estado de «esperando» a «confirmado». Funciona en cualquier móvil, en seis idiomas.",
+      "fr": "Votre logo et vos couleurs, des cours en direct, le montant exact et un QR, plus une chronologie de statut de « en attente » à « confirmé ». Fonctionne sur tout téléphone, en six langues.",
+      "nl": "Jouw logo en kleuren, live koersen, exact bedrag en QR, en een statustijdlijn van 'wachten' tot 'bevestigd'. Werkt op elke telefoon, in zes talen.",
+      "pt": "Seu logotipo e cores, cotações ao vivo, valor exato e QR, e uma linha do tempo de status de \"aguardando\" a \"confirmado\". Funciona em qualquer celular, em seis idiomas."
+    },
+    "v5.products.checkout.note": {
+      "en": "Try the sandbox at /pay/demo — no account required.",
+      "de": "Teste die Sandbox unter /pay/demo — ohne Konto.",
+      "es": "Prueba el sandbox en /pay/demo, sin cuenta.",
+      "fr": "Essayez le bac à sable sur /pay/demo, sans compte.",
+      "nl": "Probeer de sandbox op /pay/demo — zonder account.",
+      "pt": "Teste o sandbox em /pay/demo — sem conta."
+    },
+    "v5.products.checkout.cta": {
+      "en": "Try the live demo",
+      "de": "Live-Demo ausprobieren",
+      "es": "Probar la demo en vivo",
+      "fr": "Essayer la démo en direct",
+      "nl": "Probeer de live demo",
+      "pt": "Testar a demonstração ao vivo"
+    },
+    "v5.products.storefront.tab": {
+      "en": "Storefront",
+      "de": "Storefront",
+      "es": "Tienda",
+      "fr": "Boutique",
+      "nl": "Storefront",
+      "pt": "Loja"
+    },
+    "v5.products.storefront.title": {
+      "en": "Your page at dynopay.com/yourname.",
+      "de": "Deine Seite unter dynopay.com/deinname.",
+      "es": "Tu página en dynopay.com/tunombre.",
+      "fr": "Votre page sur dynopay.com/votrenom.",
+      "nl": "Jouw pagina op dynopay.com/jouwnaam.",
+      "pt": "Sua página em dynopay.com/seunome."
+    },
+    "v5.products.storefront.desc": {
+      "en": "Claim a handle, list products or accept tips, and share one URL. Every sale settles to your wallet like any other payment.",
+      "de": "Sichere dir einen Handle, liste Produkte oder nimm Tipps an und teile eine URL. Jeder Verkauf landet wie jede andere Zahlung in deiner Wallet.",
+      "es": "Reclama un alias, publica productos o acepta propinas y comparte una sola URL. Cada venta se liquida en tu wallet como cualquier otro pago.",
+      "fr": "Réservez un identifiant, listez des produits ou acceptez des pourboires, et partagez une seule URL. Chaque vente se règle dans votre wallet comme tout autre paiement.",
+      "nl": "Claim een handle, zet producten online of ontvang tips en deel één URL. Elke verkoop wordt net als elke andere betaling in je wallet uitbetaald.",
+      "pt": "Reserve um identificador, liste produtos ou aceite gorjetas e compartilhe uma única URL. Cada venda é liquidada na sua carteira como qualquer outro pagamento."
+    },
+    "v5.products.storefront.note": {
+      "en": "Built for creators, freelancers and small shops.",
+      "de": "Gemacht für Creator, Freelancer und kleine Shops.",
+      "es": "Pensado para creadores, freelancers y pequeños comercios.",
+      "fr": "Conçu pour les créateurs, les indépendants et les petites boutiques.",
+      "nl": "Gemaakt voor creators, freelancers en kleine winkels.",
+      "pt": "Feito para criadores, freelancers e pequenas lojas."
+    },
+    "v5.products.storefront.cta": {
+      "en": "See creator pages",
+      "de": "Creator-Seiten ansehen",
+      "es": "Ver páginas de creadores",
+      "fr": "Voir les pages créateurs",
+      "nl": "Bekijk creatorpagina's",
+      "pt": "Ver páginas de criadores"
+    },
+    "v5.products.invoices.tab": {
+      "en": "Invoices",
+      "de": "Rechnungen",
+      "es": "Facturas",
+      "fr": "Factures",
+      "nl": "Facturen",
+      "pt": "Faturas"
+    },
+    "v5.products.invoices.title": {
+      "en": "Invoices and receipts, tax included.",
+      "de": "Rechnungen und Belege, inklusive Steuer.",
+      "es": "Facturas y recibos, con impuestos incluidos.",
+      "fr": "Factures et reçus, taxes comprises.",
+      "nl": "Facturen en bonnen, inclusief btw.",
+      "pt": "Faturas e recibos, com impostos incluídos."
+    },
+    "v5.products.invoices.desc": {
+      "en": "Send an invoice with a pay-in-crypto link. Every settled payment gets a receipt, and you can filter by period for your accountant.",
+      "de": "Sende eine Rechnung mit Krypto-Zahlungslink. Jede abgewickelte Zahlung erhält einen Beleg, filterbar nach Zeitraum für deine Buchhaltung.",
+      "es": "Envía una factura con un enlace para pagar en cripto. Cada pago liquidado genera un recibo y puedes filtrar por periodo para tu contable.",
+      "fr": "Envoyez une facture avec un lien de paiement en crypto. Chaque paiement réglé génère un reçu, filtrable par période pour votre comptable.",
+      "nl": "Stuur een factuur met een betaal-in-crypto-link. Elke afgewikkelde betaling krijgt een bon, en je filtert per periode voor je boekhouder.",
+      "pt": "Envie uma fatura com um link para pagar em cripto. Cada pagamento liquidado gera um recibo, e você filtra por período para o seu contador."
+    },
+    "v5.products.invoices.note": {
+      "en": "Your tax settings apply automatically.",
+      "de": "Deine Steuereinstellungen gelten automatisch.",
+      "es": "Tu configuración fiscal se aplica automáticamente.",
+      "fr": "Vos paramètres fiscaux s'appliquent automatiquement.",
+      "nl": "Je belastinginstellingen worden automatisch toegepast.",
+      "pt": "Suas configurações fiscais são aplicadas automaticamente."
+    },
+    "v5.products.invoices.cta": {
+      "en": "Send an invoice",
+      "de": "Rechnung senden",
+      "es": "Enviar una factura",
+      "fr": "Envoyer une facture",
+      "nl": "Stuur een factuur",
+      "pt": "Enviar uma fatura"
+    },
+    "v5.products.embeds.tab": {
+      "en": "Embeds",
+      "de": "Einbettungen",
+      "es": "Integraciones",
+      "fr": "Intégrations",
+      "nl": "Embeds",
+      "pt": "Incorporações"
+    },
+    "v5.products.embeds.title": {
+      "en": "A buy button on your own site.",
+      "de": "Ein Kauf-Button auf deiner eigenen Seite.",
+      "es": "Un botón de compra en tu propio sitio.",
+      "fr": "Un bouton d'achat sur votre propre site.",
+      "nl": "Een koopknop op je eigen site.",
+      "pt": "Um botão de compra no seu próprio site."
+    },
+    "v5.products.embeds.desc": {
+      "en": "Drop a snippet into any page and buyers pay without leaving. Publishable keys keep your secret key off the browser.",
+      "de": "Füge ein Snippet in jede Seite ein und Käufer zahlen, ohne sie zu verlassen. Publishable Keys halten deinen Secret Key aus dem Browser.",
+      "es": "Pega un fragmento en cualquier página y los compradores pagan sin salir. Las claves publicables mantienen tu clave secreta fuera del navegador.",
+      "fr": "Collez un extrait dans n'importe quelle page et vos acheteurs paient sans la quitter. Les clés publiables gardent votre clé secrète hors du navigateur.",
+      "nl": "Plak een snippet in elke pagina en kopers betalen zonder weg te gaan. Publishable keys houden je geheime sleutel uit de browser.",
+      "pt": "Cole um trecho em qualquer página e os compradores pagam sem sair dela. Chaves publicáveis mantêm sua chave secreta fora do navegador."
+    },
+    "v5.products.embeds.note": {
+      "en": "One line of HTML — no framework needed.",
+      "de": "Eine Zeile HTML — kein Framework nötig.",
+      "es": "Una línea de HTML, sin framework.",
+      "fr": "Une ligne de HTML, aucun framework requis.",
+      "nl": "Eén regel HTML — geen framework nodig.",
+      "pt": "Uma linha de HTML — sem framework."
+    },
+    "v5.products.embeds.cta": {
+      "en": "Get the snippet",
+      "de": "Snippet holen",
+      "es": "Obtener el fragmento",
+      "fr": "Obtenir l'extrait",
+      "nl": "Haal de snippet",
+      "pt": "Obter o trecho"
+    },
+    "v5.products.api.tab": {
+      "en": "API",
+      "de": "API",
+      "es": "API",
+      "fr": "API",
+      "nl": "API",
+      "pt": "API"
+    },
+    "v5.products.api.title": {
+      "en": "One call creates a payment.",
+      "de": "Ein Aufruf erstellt eine Zahlung.",
+      "es": "Una llamada crea un pago.",
+      "fr": "Un appel crée un paiement.",
+      "nl": "Eén aanroep maakt een betaling.",
+      "pt": "Uma chamada cria um pagamento."
+    },
+    "v5.products.api.desc": {
+      "en": "A plain REST API with API keys, signed webhooks for every event and a sandbox to test against. No SDK lock-in.",
+      "de": "Eine schlichte REST-API mit API-Keys, signierten Webhooks für jedes Ereignis und einer Sandbox zum Testen. Kein SDK-Lock-in.",
+      "es": "Una API REST sencilla con claves, webhooks firmados para cada evento y un sandbox para probar. Sin dependencia de SDK.",
+      "fr": "Une API REST simple avec clés d'API, webhooks signés pour chaque événement et un bac à sable pour tester. Aucune dépendance à un SDK.",
+      "nl": "Een eenvoudige REST API met API-sleutels, ondertekende webhooks voor elk event en een sandbox om mee te testen. Geen SDK-lock-in.",
+      "pt": "Uma API REST simples com chaves de API, webhooks assinados para cada evento e um sandbox para testar. Sem dependência de SDK."
+    },
+    "v5.products.api.note": {
+      "en": "The docs are public — read them before you sign up.",
+      "de": "Die Docs sind öffentlich — lies sie vor der Registrierung.",
+      "es": "La documentación es pública: léela antes de registrarte.",
+      "fr": "La documentation est publique : lisez-la avant de vous inscrire.",
+      "nl": "De docs zijn openbaar — lees ze voordat je je aanmeldt.",
+      "pt": "A documentação é pública — leia antes de se cadastrar."
+    },
+    "v5.products.api.cta": {
+      "en": "Read the docs",
+      "de": "Docs lesen",
+      "es": "Leer la documentación",
+      "fr": "Lire la documentation",
+      "nl": "Lees de docs",
+      "pt": "Ler a documentação"
+    },
+    "v5.pricing.eyebrow": {
+      "en": "Pricing",
+      "de": "Preise",
+      "es": "Precios",
+      "fr": "Tarifs",
+      "nl": "Prijzen",
+      "pt": "Preços"
+    },
+    "v5.pricing.headline": {
+      "en": "One percentage. It drops as you grow.",
+      "de": "Ein Prozentsatz. Er sinkt, wenn du wächst.",
+      "es": "Un porcentaje. Baja a medida que creces.",
+      "fr": "Un pourcentage. Il baisse à mesure que vous grandissez.",
+      "nl": "Eén percentage. Het daalt terwijl je groeit.",
+      "pt": "Um percentual. Ele cai conforme você cresce."
+    },
+    "v5.pricing.body": {
+      "en": "Usage-based fees on your lifetime settled volume. No monthly fee, no setup fee, no chargebacks.",
+      "de": "Nutzungsbasierte Gebühren auf dein gesamtes abgewickeltes Volumen. Keine Monatsgebühr, keine Einrichtungsgebühr, keine Chargebacks.",
+      "es": "Comisiones por uso sobre tu volumen liquidado total. Sin cuota mensual, sin alta, sin contracargos.",
+      "fr": "Des frais à l'usage sur votre volume réglé cumulé. Pas d'abonnement, pas de frais d'installation, pas de rétrofacturation.",
+      "nl": "Gebruiksafhankelijke kosten over je totale afgewikkelde volume. Geen maandkosten, geen setupkosten, geen chargebacks.",
+      "pt": "Taxas por uso sobre o seu volume liquidado acumulado. Sem mensalidade, sem taxa de adesão, sem chargebacks."
+    },
+    "v5.pricing.firstFree": {
+      "en": "First payment fee-free",
+      "de": "Erste Zahlung gebührenfrei",
+      "es": "Primer pago sin comisión",
+      "fr": "Premier paiement sans frais",
+      "nl": "Eerste betaling zonder kosten",
+      "pt": "Primeiro pagamento sem taxa"
+    },
+    "v5.pricing.noChargebacks": {
+      "en": "No chargebacks",
+      "de": "Keine Chargebacks",
+      "es": "Sin contracargos",
+      "fr": "Aucune rétrofacturation",
+      "nl": "Geen chargebacks",
+      "pt": "Sem chargebacks"
+    },
+    "v5.pricing.fullFees": {
+      "en": "See the full fee schedule, including network fees →",
+      "de": "Vollständige Gebührenübersicht inkl. Netzwerkgebühren →",
+      "es": "Ver la tabla completa de comisiones, incluidas las de red →",
+      "fr": "Voir la grille complète, frais de réseau compris →",
+      "nl": "Bekijk het volledige tarievenoverzicht, inclusief netwerkkosten →",
+      "pt": "Ver a tabela completa de taxas, incluindo as de rede →"
+    },
+    "v5.pricing.tier.starter": {
+      "en": "Starter",
+      "de": "Starter",
+      "es": "Starter",
+      "fr": "Starter",
+      "nl": "Starter",
+      "pt": "Starter"
+    },
+    "v5.pricing.tier.growth": {
+      "en": "Growth",
+      "de": "Growth",
+      "es": "Growth",
+      "fr": "Growth",
+      "nl": "Growth",
+      "pt": "Growth"
+    },
+    "v5.pricing.tier.scale": {
+      "en": "Scale",
+      "de": "Scale",
+      "es": "Scale",
+      "fr": "Scale",
+      "nl": "Scale",
+      "pt": "Scale"
+    },
+    "v5.pricing.tier.enterprise": {
+      "en": "Enterprise",
+      "de": "Enterprise",
+      "es": "Enterprise",
+      "fr": "Enterprise",
+      "nl": "Enterprise",
+      "pt": "Enterprise"
+    },
+    "v5.pricing.plusFixed": {
+      "en": "+ $1 per payment",
+      "de": "+ 1 $ pro Zahlung",
+      "es": "+ 1 $ por pago",
+      "fr": "+ 1 $ par paiement",
+      "nl": "+ $1 per betaling",
+      "pt": "+ US$ 1 por pagamento"
+    },
+    "v5.pricing.from": {
+      "en": "From {{amount}} settled",
+      "de": "Ab {{amount}} Volumen",
+      "es": "Desde {{amount}} liquidados",
+      "fr": "À partir de {{amount}} réglés",
+      "nl": "Vanaf {{amount}} afgewikkeld",
+      "pt": "A partir de {{amount}} liquidados"
+    },
+    "v5.pricing.upTo": {
+      "en": "Up to {{amount}} settled",
+      "de": "Bis {{amount}} Volumen",
+      "es": "Hasta {{amount}} liquidados",
+      "fr": "Jusqu'à {{amount}} réglés",
+      "nl": "Tot {{amount}} afgewikkeld",
+      "pt": "Até {{amount}} liquidados"
+    },
+    "v5.calc.title": {
+      "en": "Estimate your fees",
+      "de": "Gebühren schätzen",
+      "es": "Estima tus comisiones",
+      "fr": "Estimez vos frais",
+      "nl": "Schat je kosten",
+      "pt": "Estime suas taxas"
+    },
+    "v5.calc.volume": {
+      "en": "Monthly volume",
+      "de": "Monatsvolumen",
+      "es": "Volumen mensual",
+      "fr": "Volume mensuel",
+      "nl": "Maandvolume",
+      "pt": "Volume mensal"
+    },
+    "v5.calc.avg": {
+      "en": "Average payment",
+      "de": "Durchschnittliche Zahlung",
+      "es": "Pago medio",
+      "fr": "Paiement moyen",
+      "nl": "Gemiddelde betaling",
+      "pt": "Pagamento médio"
+    },
+    "v5.calc.dyno": {
+      "en": "Dynopay ({{pct}}% + $1)",
+      "de": "Dynopay ({{pct}} % + 1 $)",
+      "es": "Dynopay ({{pct}} % + 1 $)",
+      "fr": "Dynopay ({{pct}} % + 1 $)",
+      "nl": "Dynopay ({{pct}}% + $1)",
+      "pt": "Dynopay ({{pct}}% + US$ 1)"
+    },
+    "v5.calc.cards": {
+      "en": "Cards (2.9% + $0.30)",
+      "de": "Karten (2,9 % + 0,30 $)",
+      "es": "Tarjetas (2,9 % + 0,30 $)",
+      "fr": "Cartes (2,9 % + 0,30 $)",
+      "nl": "Kaarten (2,9% + $0,30)",
+      "pt": "Cartões (2,9% + US$ 0,30)"
+    },
+    "v5.calc.save": {
+      "en": "You'd save about {{amount}} a month vs. cards",
+      "de": "Du sparst etwa {{amount}} pro Monat gegenüber Karten",
+      "es": "Ahorrarías unos {{amount}} al mes frente a las tarjetas",
+      "fr": "Vous économiseriez environ {{amount}} par mois par rapport aux cartes",
+      "nl": "Je bespaart ongeveer {{amount}} per maand ten opzichte van kaarten",
+      "pt": "Você economizaria cerca de {{amount}} por mês em relação aos cartões"
+    },
+    "v5.calc.cardsCheaper": {
+      "en": "Cards would be about {{amount}} cheaper at this payment size",
+      "de": "Karten wären bei dieser Zahlungsgröße etwa {{amount}} günstiger",
+      "es": "Las tarjetas serían unos {{amount}} más baratas con este tamaño de pago",
+      "fr": "Les cartes seraient environ {{amount}} moins chères à cette taille de paiement",
+      "nl": "Kaarten zouden bij deze betalingsgrootte ongeveer {{amount}} goedkoper zijn",
+      "pt": "Os cartões seriam cerca de {{amount}} mais baratos neste tamanho de pagamento"
+    },
+    "v5.calc.note": {
+      "en": "Estimate only. Your Dynopay tier follows lifetime settled volume; network fees are paid by whoever you choose. Card rates are typical published figures.",
+      "de": "Nur eine Schätzung. Deine Dynopay-Stufe folgt dem gesamten abgewickelten Volumen; Netzwerkgebühren zahlt, wen du bestimmst. Kartenraten sind typische veröffentlichte Werte.",
+      "es": "Solo una estimación. Tu nivel en Dynopay depende del volumen liquidado total; las comisiones de red las paga quien tú elijas. Las tarifas de tarjeta son cifras publicadas habituales.",
+      "fr": "Estimation seulement. Votre palier Dynopay suit le volume réglé cumulé ; les frais de réseau sont payés par qui vous choisissez. Les taux carte sont des chiffres publiés typiques.",
+      "nl": "Alleen een schatting. Je Dynopay-niveau volgt het totale afgewikkelde volume; netwerkkosten betaalt wie jij kiest. Kaarttarieven zijn gebruikelijke gepubliceerde cijfers.",
+      "pt": "Apenas uma estimativa. Seu nível na Dynopay segue o volume liquidado acumulado; as taxas de rede são pagas por quem você escolher. As taxas de cartão são valores publicados típicos."
+    },
+    "v5.compare.headline": {
+      "en": "How it compares",
+      "de": "Im Vergleich",
+      "es": "Cómo se compara",
+      "fr": "Comparatif",
+      "nl": "Zo verhoudt het zich",
+      "pt": "Como se compara"
+    },
+    "v5.compare.colDyno": {
+      "en": "Dynopay",
+      "de": "Dynopay",
+      "es": "Dynopay",
+      "fr": "Dynopay",
+      "nl": "Dynopay",
+      "pt": "Dynopay"
+    },
+    "v5.compare.colCards": {
+      "en": "Card processors",
+      "de": "Kartenanbieter",
+      "es": "Procesadores de tarjetas",
+      "fr": "Processeurs de cartes",
+      "nl": "Kaartverwerkers",
+      "pt": "Processadores de cartão"
+    },
+    "v5.compare.colCustodial": {
+      "en": "Custodial crypto processors",
+      "de": "Verwahrende Krypto-Anbieter",
+      "es": "Procesadores cripto con custodia",
+      "fr": "Processeurs crypto avec garde",
+      "nl": "Custodial cryptoverwerkers",
+      "pt": "Processadores cripto com custódia"
+    },
+    "v5.compare.note": {
+      "en": "Card and custodial figures are typical published rates — check each provider.",
+      "de": "Karten- und Verwahrungswerte sind typische veröffentlichte Raten — prüfe jeden Anbieter.",
+      "es": "Las cifras de tarjetas y custodia son tarifas publicadas habituales: comprueba cada proveedor.",
+      "fr": "Les chiffres carte et garde sont des taux publiés typiques : vérifiez auprès de chaque fournisseur.",
+      "nl": "Kaart- en custodial-cijfers zijn gebruikelijke gepubliceerde tarieven — controleer elke aanbieder.",
+      "pt": "Os valores de cartão e custódia são taxas publicadas típicas — confira com cada fornecedor."
+    },
+    "v5.compare.custody.f": {
+      "en": "Who holds your money",
+      "de": "Wer hält dein Geld",
+      "es": "Quién guarda tu dinero",
+      "fr": "Qui détient votre argent",
+      "nl": "Wie houdt je geld",
+      "pt": "Quem guarda o seu dinheiro"
+    },
+    "v5.compare.custody.dyno": {
+      "en": "You — funds settle to your own wallet",
+      "de": "Du — Auszahlung in deine eigene Wallet",
+      "es": "Tú: los fondos se liquidan en tu propia wallet",
+      "fr": "Vous : les fonds sont réglés dans votre propre wallet",
+      "nl": "Jij — het geld wordt in je eigen wallet uitbetaald",
+      "pt": "Você — os fundos são liquidados na sua própria carteira"
+    },
+    "v5.compare.custody.cards": {
+      "en": "The processor, until payout",
+      "de": "Der Anbieter, bis zur Auszahlung",
+      "es": "El procesador, hasta el pago",
+      "fr": "Le processeur, jusqu'au versement",
+      "nl": "De verwerker, tot de uitbetaling",
+      "pt": "O processador, até o repasse"
+    },
+    "v5.compare.custody.custodial": {
+      "en": "The processor's wallet, until you withdraw",
+      "de": "Die Wallet des Anbieters, bis du abhebst",
+      "es": "La wallet del procesador, hasta que retiras",
+      "fr": "Le wallet du processeur, jusqu'à votre retrait",
+      "nl": "De wallet van de verwerker, tot je opneemt",
+      "pt": "A carteira do processador, até você sacar"
+    },
+    "v5.compare.volatility.f": {
+      "en": "Price swings",
+      "de": "Kursschwankungen",
+      "es": "Oscilaciones de precio",
+      "fr": "Variations de cours",
+      "nl": "Koersschommelingen",
+      "pt": "Oscilações de preço"
+    },
+    "v5.compare.volatility.dyno": {
+      "en": "Optional auto-convert to USDC or USDT on confirmation",
+      "de": "Optionaler Auto-Convert in USDC oder USDT bei Bestätigung",
+      "es": "Conversión automática opcional a USDC o USDT al confirmar",
+      "fr": "Conversion automatique optionnelle en USDC ou USDT à la confirmation",
+      "nl": "Optioneel automatisch converteren naar USDC of USDT bij bevestiging",
+      "pt": "Conversão automática opcional para USDC ou USDT na confirmação"
+    },
+    "v5.compare.volatility.cards": {
+      "en": "None — but 2.9%+ in fees",
+      "de": "Keine — aber über 2,9 % Gebühren",
+      "es": "Ninguna, pero más del 2,9 % en comisiones",
+      "fr": "Aucune, mais plus de 2,9 % de frais",
+      "nl": "Geen — maar 2,9%+ aan kosten",
+      "pt": "Nenhuma — mas mais de 2,9% em taxas"
+    },
+    "v5.compare.volatility.custodial": {
+      "en": "Often only after you convert manually",
+      "de": "Oft erst nach manueller Umwandlung",
+      "es": "A menudo solo tras convertir manualmente",
+      "fr": "Souvent seulement après conversion manuelle",
+      "nl": "Vaak pas na handmatig converteren",
+      "pt": "Muitas vezes só após converter manualmente"
+    },
+    "v5.compare.chargebacks.f": {
+      "en": "Chargebacks",
+      "de": "Chargebacks",
+      "es": "Contracargos",
+      "fr": "Rétrofacturations",
+      "nl": "Chargebacks",
+      "pt": "Chargebacks"
+    },
+    "v5.compare.chargebacks.dyno": {
+      "en": "None — payments are final; refunds are your call",
+      "de": "Keine — Zahlungen sind final; Rückerstattungen entscheidest du",
+      "es": "Ninguno: los pagos son finales; los reembolsos los decides tú",
+      "fr": "Aucune : les paiements sont définitifs, vous décidez des remboursements",
+      "nl": "Geen — betalingen zijn definitief; terugbetalen bepaal jij",
+      "pt": "Nenhum — os pagamentos são finais; reembolsos são decisão sua"
+    },
+    "v5.compare.chargebacks.cards": {
+      "en": "Yes, plus dispute fees",
+      "de": "Ja, plus Streitfallgebühren",
+      "es": "Sí, más comisiones por disputa",
+      "fr": "Oui, plus des frais de litige",
+      "nl": "Ja, plus geschilkosten",
+      "pt": "Sim, mais taxas de disputa"
+    },
+    "v5.compare.chargebacks.custodial": {
+      "en": "None",
+      "de": "Keine",
+      "es": "Ninguno",
+      "fr": "Aucune",
+      "nl": "Geen",
+      "pt": "Nenhum"
+    },
+    "v5.compare.payout.f": {
+      "en": "Payout timing",
+      "de": "Auszahlungszeitpunkt",
+      "es": "Plazo de cobro",
+      "fr": "Délai de versement",
+      "nl": "Uitbetaalmoment",
+      "pt": "Prazo de recebimento"
+    },
+    "v5.compare.payout.dyno": {
+      "en": "As soon as the network confirms — minutes",
+      "de": "Sobald das Netzwerk bestätigt — Minuten",
+      "es": "En cuanto la red confirma: minutos",
+      "fr": "Dès la confirmation du réseau : quelques minutes",
+      "nl": "Zodra het netwerk bevestigt — minuten",
+      "pt": "Assim que a rede confirma — minutos"
+    },
+    "v5.compare.payout.cards": {
+      "en": "2 to 7 business days",
+      "de": "2 bis 7 Werktage",
+      "es": "De 2 a 7 días hábiles",
+      "fr": "2 à 7 jours ouvrés",
+      "nl": "2 tot 7 werkdagen",
+      "pt": "De 2 a 7 dias úteis"
+    },
+    "v5.compare.payout.custodial": {
+      "en": "On withdrawal request, subject to limits",
+      "de": "Auf Abhebungsantrag, mit Limits",
+      "es": "Al solicitar el retiro, con límites",
+      "fr": "Sur demande de retrait, avec des limites",
+      "nl": "Op opnameverzoek, met limieten",
+      "pt": "Ao solicitar saque, sujeito a limites"
+    },
+    "v5.compare.fees.f": {
+      "en": "Processing fee",
+      "de": "Verarbeitungsgebühr",
+      "es": "Comisión de procesamiento",
+      "fr": "Frais de traitement",
+      "nl": "Verwerkingskosten",
+      "pt": "Taxa de processamento"
+    },
+    "v5.compare.fees.dyno": {
+      "en": "1.5% + $1, down to 0.5%",
+      "de": "1,5 % + 1 $, bis hinunter zu 0,5 %",
+      "es": "1,5 % + 1 $, hasta bajar al 0,5 %",
+      "fr": "1,5 % + 1 $, jusqu'à 0,5 %",
+      "nl": "1,5% + $1, dalend tot 0,5%",
+      "pt": "1,5% + US$ 1, caindo até 0,5%"
+    },
+    "v5.compare.fees.cards": {
+      "en": "About 2.9% + $0.30",
+      "de": "Etwa 2,9 % + 0,30 $",
+      "es": "Unos 2,9 % + 0,30 $",
+      "fr": "Environ 2,9 % + 0,30 $",
+      "nl": "Ongeveer 2,9% + $0,30",
+      "pt": "Cerca de 2,9% + US$ 0,30"
+    },
+    "v5.compare.fees.custodial": {
+      "en": "0.5–1% plus withdrawal fees",
+      "de": "0,5–1 % plus Abhebungsgebühren",
+      "es": "0,5–1 % más comisiones de retiro",
+      "fr": "0,5–1 % plus des frais de retrait",
+      "nl": "0,5–1% plus opnamekosten",
+      "pt": "0,5–1% mais taxas de saque"
+    },
+    "v5.compare.monthly.f": {
+      "en": "Monthly or setup fees",
+      "de": "Monats- oder Einrichtungsgebühren",
+      "es": "Cuotas mensuales o de alta",
+      "fr": "Frais mensuels ou d'installation",
+      "nl": "Maand- of setupkosten",
+      "pt": "Mensalidade ou taxa de adesão"
+    },
+    "v5.compare.monthly.dyno": {
+      "en": "None",
+      "de": "Keine",
+      "es": "Ninguna",
+      "fr": "Aucun",
+      "nl": "Geen",
+      "pt": "Nenhuma"
+    },
+    "v5.compare.monthly.cards": {
+      "en": "Often (gateway, terminal)",
+      "de": "Häufig (Gateway, Terminal)",
+      "es": "A menudo (pasarela, terminal)",
+      "fr": "Souvent (passerelle, terminal)",
+      "nl": "Vaak (gateway, terminal)",
+      "pt": "Frequentemente (gateway, terminal)"
+    },
+    "v5.compare.monthly.custodial": {
+      "en": "Usually none",
+      "de": "Meist keine",
+      "es": "Normalmente ninguna",
+      "fr": "Généralement aucun",
+      "nl": "Meestal geen",
+      "pt": "Normalmente nenhuma"
+    },
+    "v5.security.eyebrow": {
+      "en": "Trust & security",
+      "de": "Vertrauen & Sicherheit",
+      "es": "Confianza y seguridad",
+      "fr": "Confiance et sécurité",
+      "nl": "Vertrouwen & veiligheid",
+      "pt": "Confiança e segurança"
+    },
+    "v5.security.headline": {
+      "en": "The controls are already shipped.",
+      "de": "Die Schutzmechanismen sind schon da.",
+      "es": "Los controles ya están activos.",
+      "fr": "Les protections sont déjà en place.",
+      "nl": "De beveiliging staat al live.",
+      "pt": "Os controles já estão ativos."
+    },
+    "v5.security.body": {
+      "en": "Everything below is live in every account today — not a roadmap.",
+      "de": "Alles hier ist heute in jedem Konto aktiv — keine Roadmap.",
+      "es": "Todo lo de abajo está disponible hoy en cada cuenta, no es una hoja de ruta.",
+      "fr": "Tout ce qui suit est actif aujourd'hui dans chaque compte, ce n'est pas une feuille de route.",
+      "nl": "Alles hieronder is vandaag actief in elk account — geen roadmap.",
+      "pt": "Tudo abaixo está disponível hoje em todas as contas — não é um roadmap."
+    },
+    "v5.security.cta": {
+      "en": "Open the status page",
+      "de": "Statusseite öffnen",
+      "es": "Abrir la página de estado",
+      "fr": "Ouvrir la page de statut",
+      "nl": "Open de statuspagina",
+      "pt": "Abrir a página de status"
+    },
+    "v5.security.nonCustodial.t": {
+      "en": "Non-custodial",
+      "de": "Non-custodial",
+      "es": "Sin custodia",
+      "fr": "Sans garde",
+      "nl": "Non-custodial",
+      "pt": "Sem custódia"
+    },
+    "v5.security.nonCustodial.d": {
+      "en": "Funds settle straight to wallet addresses you add. We never hold your balance.",
+      "de": "Auszahlungen gehen direkt an die Wallet-Adressen, die du hinterlegst. Wir halten nie dein Guthaben.",
+      "es": "Los fondos se liquidan directamente en las direcciones que añades. Nunca retenemos tu saldo.",
+      "fr": "Les fonds sont réglés directement aux adresses que vous ajoutez. Nous ne détenons jamais votre solde.",
+      "nl": "Het geld wordt rechtstreeks uitbetaald naar walletadressen die jij toevoegt. Wij houden nooit je saldo vast.",
+      "pt": "Os fundos são liquidados diretamente nos endereços que você adiciona. Nunca retemos o seu saldo."
+    },
+    "v5.security.convert.t": {
+      "en": "Auto-convert to stablecoin",
+      "de": "Auto-Convert in Stablecoin",
+      "es": "Conversión automática a stablecoin",
+      "fr": "Conversion automatique en stablecoin",
+      "nl": "Automatisch converteren naar stablecoin",
+      "pt": "Conversão automática para stablecoin"
+    },
+    "v5.security.convert.d": {
+      "en": "Turn it on and each payment lands as USDC or USDT the moment it confirms.",
+      "de": "Einschalten — und jede Zahlung landet als USDC oder USDT, sobald sie bestätigt ist.",
+      "es": "Actívala y cada pago llega como USDC o USDT en el momento en que se confirma.",
+      "fr": "Activez-la et chaque paiement arrive en USDC ou USDT dès sa confirmation.",
+      "nl": "Zet het aan en elke betaling komt binnen als USDC of USDT zodra die bevestigd is.",
+      "pt": "Ative e cada pagamento chega como USDC ou USDT no momento em que é confirmado."
+    },
+    "v5.security.refunds.t": {
+      "en": "On-chain refunds",
+      "de": "On-Chain-Rückerstattungen",
+      "es": "Reembolsos on-chain",
+      "fr": "Remboursements on-chain",
+      "nl": "On-chain terugbetalingen",
+      "pt": "Reembolsos on-chain"
+    },
+    "v5.security.refunds.d": {
+      "en": "Refund the full or a partial amount in the original coin from your dashboard; the buyer gets a receipt.",
+      "de": "Erstatte den vollen oder einen Teilbetrag in der ursprünglichen Coin aus dem Dashboard; der Käufer erhält einen Beleg.",
+      "es": "Reembolsa el importe total o parcial en la moneda original desde tu panel; el comprador recibe un recibo.",
+      "fr": "Remboursez tout ou partie du montant dans la crypto d'origine depuis votre tableau de bord ; l'acheteur reçoit un reçu.",
+      "nl": "Betaal het volledige of een deel van het bedrag terug in de oorspronkelijke munt vanuit je dashboard; de koper ontvangt een bon.",
+      "pt": "Reembolse o valor total ou parcial na moeda original pelo seu painel; o comprador recebe um recibo."
+    },
+    "v5.security.twofa.t": {
+      "en": "Two-factor authentication",
+      "de": "Zwei-Faktor-Authentifizierung",
+      "es": "Autenticación en dos pasos",
+      "fr": "Authentification à deux facteurs",
+      "nl": "Tweestapsverificatie",
+      "pt": "Autenticação em dois fatores"
+    },
+    "v5.security.twofa.d": {
+      "en": "Authenticator codes plus one-time backup codes, with a step-up at login.",
+      "de": "Authenticator-Codes plus einmalige Backup-Codes, mit zusätzlicher Prüfung beim Login.",
+      "es": "Códigos de autenticador más códigos de respaldo de un solo uso, con verificación adicional al iniciar sesión.",
+      "fr": "Codes d'application d'authentification et codes de secours à usage unique, avec vérification renforcée à la connexion.",
+      "nl": "Authenticator-codes plus eenmalige back-upcodes, met extra controle bij inloggen.",
+      "pt": "Códigos de autenticador mais códigos de backup de uso único, com verificação adicional no login."
+    },
+    "v5.security.walletLock.t": {
+      "en": "Payout-address protection",
+      "de": "Schutz der Auszahlungsadresse",
+      "es": "Protección de la dirección de cobro",
+      "fr": "Protection de l'adresse de versement",
+      "nl": "Bescherming van het uitbetaaladres",
+      "pt": "Proteção do endereço de recebimento"
+    },
+    "v5.security.walletLock.d": {
+      "en": "Address changes need an email code; every change is logged and can be reverted from the alert email.",
+      "de": "Adressänderungen brauchen einen E-Mail-Code; jede Änderung wird protokolliert und lässt sich aus der Warn-E-Mail rückgängig machen.",
+      "es": "Cambiar la dirección requiere un código por correo; cada cambio queda registrado y puede revertirse desde el correo de alerta.",
+      "fr": "Tout changement d'adresse exige un code par e-mail ; chaque changement est journalisé et réversible depuis l'e-mail d'alerte.",
+      "nl": "Adreswijzigingen vereisen een e-mailcode; elke wijziging wordt gelogd en kan vanuit de waarschuwingsmail worden teruggedraaid.",
+      "pt": "Mudanças de endereço exigem um código por e-mail; cada mudança é registrada e pode ser revertida pelo e-mail de alerta."
+    },
+    "v5.security.sessions.t": {
+      "en": "Device & session control",
+      "de": "Geräte- & Sitzungskontrolle",
+      "es": "Control de dispositivos y sesiones",
+      "fr": "Contrôle des appareils et sessions",
+      "nl": "Apparaat- en sessiebeheer",
+      "pt": "Controle de dispositivos e sessões"
+    },
+    "v5.security.sessions.d": {
+      "en": "See every signed-in device, sign out everywhere in one tap and get alerted on new-device logins.",
+      "de": "Sieh jedes angemeldete Gerät, melde dich überall mit einem Tipp ab und werde bei Logins von neuen Geräten benachrichtigt.",
+      "es": "Ve cada dispositivo conectado, cierra sesión en todos con un toque y recibe alertas de inicios de sesión desde dispositivos nuevos.",
+      "fr": "Voyez chaque appareil connecté, déconnectez-vous partout en un geste et soyez alerté des connexions depuis un nouvel appareil.",
+      "nl": "Zie elk ingelogd apparaat, log overal uit met één tik en krijg een melding bij inloggen vanaf een nieuw apparaat.",
+      "pt": "Veja cada dispositivo conectado, saia de todos com um toque e receba alertas de login em novos dispositivos."
+    },
+    "v5.security.webhooks.t": {
+      "en": "Signed webhooks",
+      "de": "Signierte Webhooks",
+      "es": "Webhooks firmados",
+      "fr": "Webhooks signés",
+      "nl": "Ondertekende webhooks",
+      "pt": "Webhooks assinados"
+    },
+    "v5.security.webhooks.d": {
+      "en": "HMAC-signed events with automatic retries and a dead-letter queue.",
+      "de": "HMAC-signierte Ereignisse mit automatischen Wiederholungen und Dead-Letter-Queue.",
+      "es": "Eventos firmados con HMAC, reintentos automáticos y cola de mensajes fallidos.",
+      "fr": "Événements signés HMAC, nouvelles tentatives automatiques et file des messages en échec.",
+      "nl": "HMAC-ondertekende events met automatische herhalingen en een dead-letter queue.",
+      "pt": "Eventos assinados com HMAC, novas tentativas automáticas e fila de mensagens com falha."
+    },
+    "v5.security.kyc.t": {
+      "en": "KYC / AML",
+      "de": "KYC / AML",
+      "es": "KYC / AML",
+      "fr": "KYC / AML",
+      "nl": "KYC / AML",
+      "pt": "KYC / AML"
+    },
+    "v5.security.kyc.d": {
+      "en": "Identity checks kick in as your volume grows; GDPR-compliant data handling.",
+      "de": "Identitätsprüfungen greifen mit wachsendem Volumen; DSGVO-konforme Datenverarbeitung.",
+      "es": "Las verificaciones de identidad se activan al crecer tu volumen; tratamiento de datos conforme al RGPD.",
+      "fr": "Les vérifications d'identité s'appliquent à mesure que votre volume augmente ; traitement des données conforme au RGPD.",
+      "nl": "Identiteitscontroles gaan in naarmate je volume groeit; gegevensverwerking volgens de AVG.",
+      "pt": "As verificações de identidade entram em vigor conforme seu volume cresce; tratamento de dados em conformidade com o GDPR."
+    },
+    "v5.security.status.t": {
+      "en": "Public status page",
+      "de": "Öffentliche Statusseite",
+      "es": "Página de estado pública",
+      "fr": "Page de statut publique",
+      "nl": "Openbare statuspagina",
+      "pt": "Página de status pública"
+    },
+    "v5.security.status.d": {
+      "en": "Live uptime for payments, rates, webhooks and API, with 90-day history.",
+      "de": "Live-Verfügbarkeit für Zahlungen, Kurse, Webhooks und API, mit 90-Tage-Historie.",
+      "es": "Disponibilidad en vivo de pagos, tipos, webhooks y API, con historial de 90 días.",
+      "fr": "Disponibilité en direct des paiements, cours, webhooks et API, avec un historique de 90 jours.",
+      "nl": "Live uptime voor betalingen, koersen, webhooks en API, met 90 dagen geschiedenis.",
+      "pt": "Disponibilidade ao vivo de pagamentos, cotações, webhooks e API, com histórico de 90 dias."
+    },
+    "v5.dev.eyebrow": {
+      "en": "Developers",
+      "de": "Entwickler",
+      "es": "Desarrolladores",
+      "fr": "Développeurs",
+      "nl": "Ontwikkelaars",
+      "pt": "Desenvolvedores"
+    },
+    "v5.dev.headline": {
+      "en": "One request. A real response.",
+      "de": "Ein Request. Eine echte Antwort.",
+      "es": "Una petición. Una respuesta real.",
+      "fr": "Une requête. Une vraie réponse.",
+      "nl": "Eén request. Een echt antwoord.",
+      "pt": "Uma requisição. Uma resposta real."
+    },
+    "v5.dev.body": {
+      "en": "A plain REST API you can call from anything. Create a payment, redirect the buyer, listen for the webhook.",
+      "de": "Eine schlichte REST-API, die du von überall aufrufen kannst. Zahlung erstellen, Käufer weiterleiten, auf den Webhook hören.",
+      "es": "Una API REST sencilla que puedes llamar desde cualquier sitio. Crea un pago, redirige al comprador y escucha el webhook.",
+      "fr": "Une API REST simple, appelable depuis n'importe où. Créez un paiement, redirigez l'acheteur, écoutez le webhook.",
+      "nl": "Een eenvoudige REST API die je vanuit alles kunt aanroepen. Maak een betaling, stuur de koper door, luister naar de webhook.",
+      "pt": "Uma API REST simples que você chama de qualquer lugar. Crie um pagamento, redirecione o comprador, escute o webhook."
+    },
+    "v5.dev.b1": {
+      "en": "Signed webhooks for every payment event",
+      "de": "Signierte Webhooks für jedes Zahlungsereignis",
+      "es": "Webhooks firmados para cada evento de pago",
+      "fr": "Webhooks signés pour chaque événement de paiement",
+      "nl": "Ondertekende webhooks voor elk betalingsevent",
+      "pt": "Webhooks assinados para cada evento de pagamento"
+    },
+    "v5.dev.b2": {
+      "en": "Sandbox keys to test without moving funds",
+      "de": "Sandbox-Keys zum Testen ohne echte Transfers",
+      "es": "Claves de sandbox para probar sin mover fondos",
+      "fr": "Clés de bac à sable pour tester sans déplacer de fonds",
+      "nl": "Sandbox-sleutels om te testen zonder geld te verplaatsen",
+      "pt": "Chaves de sandbox para testar sem movimentar fundos"
+    },
+    "v5.dev.b3": {
+      "en": "No SDK required — just HTTP",
+      "de": "Kein SDK nötig — nur HTTP",
+      "es": "Sin SDK: solo HTTP",
+      "fr": "Aucun SDK requis : juste du HTTP",
+      "nl": "Geen SDK nodig — alleen HTTP",
+      "pt": "Sem SDK — só HTTP"
+    },
+    "v5.dev.worksWith": {
+      "en": "Works with any language or framework that can make an HTTP request — plus a copy-paste buy button for static sites.",
+      "de": "Funktioniert mit jeder Sprache und jedem Framework, das HTTP-Requests senden kann — plus ein Copy-Paste-Kauf-Button für statische Seiten.",
+      "es": "Funciona con cualquier lenguaje o framework capaz de hacer una petición HTTP, más un botón de compra para copiar y pegar en sitios estáticos.",
+      "fr": "Fonctionne avec tout langage ou framework capable d'émettre une requête HTTP, plus un bouton d'achat à copier-coller pour les sites statiques.",
+      "nl": "Werkt met elke taal of elk framework dat een HTTP-request kan doen — plus een copy-paste koopknop voor statische sites.",
+      "pt": "Funciona com qualquer linguagem ou framework capaz de fazer uma requisição HTTP — mais um botão de compra de copiar e colar para sites estáticos."
+    },
+    "v5.dev.ctaDocs": {
+      "en": "Read the API docs",
+      "de": "API-Docs lesen",
+      "es": "Leer la documentación de la API",
+      "fr": "Lire la documentation API",
+      "nl": "Lees de API-docs",
+      "pt": "Ler a documentação da API"
+    },
+    "v5.dev.copy": {
+      "en": "Copy",
+      "de": "Kopieren",
+      "es": "Copiar",
+      "fr": "Copier",
+      "nl": "Kopiëren",
+      "pt": "Copiar"
+    },
+    "v5.dev.copied": {
+      "en": "Copied",
+      "de": "Kopiert",
+      "es": "Copiado",
+      "fr": "Copié",
+      "nl": "Gekopieerd",
+      "pt": "Copiado"
+    },
+    "v5.dev.response": {
+      "en": "Response",
+      "de": "Antwort",
+      "es": "Respuesta",
+      "fr": "Réponse",
+      "nl": "Antwoord",
+      "pt": "Resposta"
+    },
+    "v5.dev.snippetNote": {
+      "en": "Sandbox key shown. Live keys are created in your dashboard under Developers; the response shape is identical in production.",
+      "de": "Gezeigt wird ein Sandbox-Key. Live-Keys erstellst du im Dashboard unter Entwickler; die Antwortstruktur ist in Produktion identisch.",
+      "es": "Se muestra una clave de sandbox. Las claves reales se crean en tu panel, en Desarrolladores; la respuesta tiene la misma forma en producción.",
+      "fr": "Clé de bac à sable affichée. Les clés réelles se créent dans votre tableau de bord, section Développeurs ; la réponse a la même forme en production.",
+      "nl": "Er wordt een sandbox-sleutel getoond. Echte sleutels maak je in je dashboard onder Ontwikkelaars; het antwoord heeft in productie dezelfde vorm.",
+      "pt": "Chave de sandbox exibida. As chaves reais são criadas no seu painel, em Desenvolvedores; a resposta tem o mesmo formato em produção."
+    },
+    "v5.coins.eyebrow": {
+      "en": "Coins & chains",
+      "de": "Coins & Chains",
+      "es": "Monedas y cadenas",
+      "fr": "Cryptos et chaînes",
+      "nl": "Munten & chains",
+      "pt": "Moedas e redes"
+    },
+    "v5.coins.headline": {
+      "en": "{{coins}} coins and tokens, 9 chains.",
+      "de": "{{coins}} Coins und Token, 9 Chains.",
+      "es": "{{coins}} monedas y tokens, 9 cadenas.",
+      "fr": "{{coins}} cryptos et tokens, 9 chaînes.",
+      "nl": "{{coins}} munten en tokens, 9 chains.",
+      "pt": "{{coins}} moedas e tokens, 9 redes."
+    },
+    "v5.coins.body": {
+      "en": "Every asset your buyers can pay with — the same list our checkout uses. Stablecoins on the cheapest rails included.",
+      "de": "Alle Assets, mit denen deine Käufer zahlen können — dieselbe Liste wie in unserem Checkout. Stablecoins auf den günstigsten Chains inklusive.",
+      "es": "Todos los activos con los que pueden pagar tus compradores, la misma lista que usa nuestro checkout. Stablecoins en las redes más baratas incluidas.",
+      "fr": "Tous les actifs avec lesquels vos acheteurs peuvent payer, la même liste que notre checkout. Stablecoins sur les réseaux les moins chers compris.",
+      "nl": "Elk asset waarmee je kopers kunnen betalen — dezelfde lijst als onze checkout. Inclusief stablecoins op de goedkoopste chains.",
+      "pt": "Todos os ativos com que seus compradores podem pagar — a mesma lista que o nosso checkout usa. Stablecoins nas redes mais baratas incluídas."
+    },
+    "v5.coins.cta": {
+      "en": "See fees per network",
+      "de": "Gebühren pro Netzwerk ansehen",
+      "es": "Ver comisiones por red",
+      "fr": "Voir les frais par réseau",
+      "nl": "Bekijk kosten per netwerk",
+      "pt": "Ver taxas por rede"
+    },
+    "v5.faq.eyebrow": {
+      "en": "FAQ",
+      "de": "FAQ",
+      "es": "Preguntas frecuentes",
+      "fr": "FAQ",
+      "nl": "FAQ",
+      "pt": "Perguntas frequentes"
+    },
+    "v5.faq.headline": {
+      "en": "Questions merchants actually ask.",
+      "de": "Fragen, die Händler wirklich stellen.",
+      "es": "Lo que de verdad preguntan los comercios.",
+      "fr": "Les questions que posent vraiment les marchands.",
+      "nl": "Vragen die verkopers echt stellen.",
+      "pt": "O que os comerciantes realmente perguntam."
+    },
+    "v5.faq.still": {
+      "en": "Still curious?",
+      "de": "Noch Fragen?",
+      "es": "¿Aún tienes dudas?",
+      "fr": "Encore une question ?",
+      "nl": "Nog vragen?",
+      "pt": "Ainda com dúvidas?"
+    },
+    "v5.faq.ask": {
+      "en": "Ask us anything →",
+      "de": "Frag uns alles →",
+      "es": "Pregúntanos lo que quieras →",
+      "fr": "Demandez-nous tout →",
+      "nl": "Vraag ons alles →",
+      "pt": "Pergunte o que quiser →"
+    },
+    "v5.faq.cost.q": {
+      "en": "What does it cost?",
+      "de": "Was kostet es?",
+      "es": "¿Cuánto cuesta?",
+      "fr": "Combien ça coûte ?",
+      "nl": "Wat kost het?",
+      "pt": "Quanto custa?"
+    },
+    "v5.faq.cost.a": {
+      "en": "1.5% + $1 per payment to start, dropping to 1.0%, 0.7% and 0.5% as your lifetime settled volume grows. Your first payment is platform-fee-free. No monthly fee, no setup fee, no chargebacks. Network fees go to the blockchain, and you choose whether you or the buyer covers them.",
+      "de": "Zum Start 1,5 % + 1 $ pro Zahlung, sinkend auf 1,0 %, 0,7 % und 0,5 % mit wachsendem Gesamtvolumen. Deine erste Zahlung ist plattformgebührenfrei. Keine Monatsgebühr, keine Einrichtungsgebühr, keine Chargebacks. Netzwerkgebühren gehen an die Blockchain, und du entscheidest, ob du oder der Käufer sie trägt.",
+      "es": "1,5 % + 1 $ por pago para empezar, bajando al 1,0 %, 0,7 % y 0,5 % conforme crece tu volumen liquidado total. Tu primer pago no tiene comisión de plataforma. Sin cuota mensual, sin alta, sin contracargos. Las comisiones de red van a la blockchain y tú eliges si las pagas tú o el comprador.",
+      "fr": "1,5 % + 1 $ par paiement au départ, puis 1,0 %, 0,7 % et 0,5 % à mesure que votre volume réglé cumulé augmente. Votre premier paiement est exempt de frais de plateforme. Pas d'abonnement, pas de frais d'installation, pas de rétrofacturation. Les frais de réseau vont à la blockchain et vous choisissez qui les paie, vous ou l'acheteur.",
+      "nl": "1,5% + $1 per betaling om te beginnen, dalend naar 1,0%, 0,7% en 0,5% naarmate je totale afgewikkelde volume groeit. Je eerste betaling is vrij van platformkosten. Geen maandkosten, geen setupkosten, geen chargebacks. Netwerkkosten gaan naar de blockchain en jij kiest of jij of de koper die betaalt.",
+      "pt": "1,5% + US$ 1 por pagamento para começar, caindo para 1,0%, 0,7% e 0,5% conforme o seu volume liquidado acumulado cresce. Seu primeiro pagamento é isento de taxa de plataforma. Sem mensalidade, sem taxa de adesão, sem chargebacks. As taxas de rede vão para a blockchain, e você escolhe se quem paga é você ou o comprador."
+    },
+    "v5.faq.funds.q": {
+      "en": "Where does the money go?",
+      "de": "Wohin geht das Geld?",
+      "es": "¿A dónde va el dinero?",
+      "fr": "Où va l'argent ?",
+      "nl": "Waar gaat het geld heen?",
+      "pt": "Para onde vai o dinheiro?"
+    },
+    "v5.faq.funds.a": {
+      "en": "Directly to a wallet address you control. Dynopay is non-custodial — we never hold your balance, and every settlement is a real on-chain transfer.",
+      "de": "Direkt an eine Wallet-Adresse, die du kontrollierst. Dynopay ist non-custodial — wir halten nie dein Guthaben, und jede Auszahlung ist ein echter On-Chain-Transfer.",
+      "es": "Directamente a una dirección de wallet que controlas. Dynopay no tiene custodia: nunca retenemos tu saldo y cada liquidación es una transferencia real on-chain.",
+      "fr": "Directement à une adresse de wallet que vous contrôlez. Dynopay est sans garde : nous ne détenons jamais votre solde et chaque règlement est un vrai transfert on-chain.",
+      "nl": "Rechtstreeks naar een walletadres dat jij beheert. Dynopay is non-custodial — wij houden nooit je saldo vast en elke uitbetaling is een echte on-chain overboeking.",
+      "pt": "Diretamente para um endereço de carteira que você controla. A Dynopay não tem custódia — nunca retemos o seu saldo, e cada liquidação é uma transferência real on-chain."
+    },
+    "v5.faq.speed.q": {
+      "en": "How fast do I get paid?",
+      "de": "Wie schnell werde ich bezahlt?",
+      "es": "¿Cuánto tardo en cobrar?",
+      "fr": "En combien de temps suis-je payé ?",
+      "nl": "Hoe snel word ik betaald?",
+      "pt": "Em quanto tempo recebo?"
+    },
+    "v5.faq.speed.a": {
+      "en": "As fast as the network confirms. Solana and XRP take seconds; USDT on Tron and Polygon under a minute; Ethereum a few minutes; Bitcoin 10–60 minutes. You see the status live and get a webhook and email when it settles.",
+      "de": "So schnell, wie das Netzwerk bestätigt. Solana und XRP brauchen Sekunden, USDT auf Tron und Polygon unter einer Minute, Ethereum wenige Minuten, Bitcoin 10–60 Minuten. Du siehst den Status live und erhältst Webhook und E-Mail bei Abwicklung.",
+      "es": "Lo que tarde la red en confirmar. Solana y XRP, segundos; USDT en Tron y Polygon, menos de un minuto; Ethereum, unos minutos; Bitcoin, de 10 a 60 minutos. Ves el estado en vivo y recibes un webhook y un correo al liquidarse.",
+      "fr": "Aussi vite que le réseau confirme. Solana et XRP : quelques secondes ; USDT sur Tron et Polygon : moins d'une minute ; Ethereum : quelques minutes ; Bitcoin : 10 à 60 minutes. Vous suivez le statut en direct et recevez un webhook et un e-mail au règlement.",
+      "nl": "Zo snel als het netwerk bevestigt. Solana en XRP duren seconden; USDT op Tron en Polygon minder dan een minuut; Ethereum enkele minuten; Bitcoin 10–60 minuten. Je ziet de status live en krijgt een webhook en e-mail bij afwikkeling.",
+      "pt": "Tão rápido quanto a rede confirma. Solana e XRP levam segundos; USDT na Tron e na Polygon, menos de um minuto; Ethereum, alguns minutos; Bitcoin, de 10 a 60 minutos. Você acompanha o status ao vivo e recebe um webhook e um e-mail na liquidação."
+    },
+    "v5.faq.crypto.q": {
+      "en": "Do I need to understand crypto?",
+      "de": "Muss ich Krypto verstehen?",
+      "es": "¿Necesito entender de cripto?",
+      "fr": "Dois-je connaître la crypto ?",
+      "nl": "Moet ik crypto begrijpen?",
+      "pt": "Preciso entender de cripto?"
+    },
+    "v5.faq.crypto.a": {
+      "en": "No. You set a price in your currency, the buyer picks a coin, and we show them the exact amount. Turn on auto-convert and you receive USDC or USDT without ever touching an exchange.",
+      "de": "Nein. Du legst einen Preis in deiner Währung fest, der Käufer wählt eine Coin und wir zeigen ihm den exakten Betrag. Mit Auto-Convert erhältst du USDC oder USDT, ohne je eine Börse zu nutzen.",
+      "es": "No. Fijas un precio en tu moneda, el comprador elige una cripto y le mostramos el importe exacto. Activa la conversión automática y recibirás USDC o USDT sin tocar nunca un exchange.",
+      "fr": "Non. Vous fixez un prix dans votre devise, l'acheteur choisit une crypto et nous lui affichons le montant exact. Activez la conversion automatique et vous recevez de l'USDC ou de l'USDT sans jamais toucher à une plateforme d'échange.",
+      "nl": "Nee. Jij stelt een prijs in je valuta in, de koper kiest een munt en wij tonen het exacte bedrag. Zet automatisch converteren aan en je ontvangt USDC of USDT zonder ooit een exchange aan te raken.",
+      "pt": "Não. Você define um preço na sua moeda, o comprador escolhe uma cripto e nós mostramos o valor exato. Ative a conversão automática e receba USDC ou USDT sem nunca tocar em uma exchange."
+    },
+    "v5.faq.wallet.q": {
+      "en": "Which wallet do I need?",
+      "de": "Welche Wallet brauche ich?",
+      "es": "¿Qué wallet necesito?",
+      "fr": "Quel wallet me faut-il ?",
+      "nl": "Welke wallet heb ik nodig?",
+      "pt": "Que carteira eu preciso?"
+    },
+    "v5.faq.wallet.a": {
+      "en": "Any wallet you control — a hardware or mobile wallet, or an exchange deposit address. Add one payout address per coin you accept; our wallet guide walks you through it.",
+      "de": "Jede Wallet, die du kontrollierst — Hardware- oder Mobile-Wallet oder eine Börsen-Einzahlungsadresse. Hinterlege eine Auszahlungsadresse pro Coin; unser Wallet-Leitfaden führt dich durch.",
+      "es": "Cualquiera que controles: una wallet física o móvil, o una dirección de depósito de un exchange. Añade una dirección de cobro por cada moneda que aceptes; nuestra guía te acompaña paso a paso.",
+      "fr": "N'importe quel wallet que vous contrôlez : un wallet matériel ou mobile, ou une adresse de dépôt d'une plateforme d'échange. Ajoutez une adresse de versement par crypto acceptée ; notre guide vous accompagne.",
+      "nl": "Elke wallet die jij beheert — een hardware- of mobiele wallet, of een stortingsadres van een exchange. Voeg één uitbetaaladres toe per munt die je accepteert; onze walletgids helpt je erdoorheen.",
+      "pt": "Qualquer carteira que você controle — uma carteira física ou de celular, ou um endereço de depósito de uma exchange. Adicione um endereço de recebimento por moeda aceita; nosso guia de carteiras mostra o passo a passo."
+    },
+    "v5.faq.buyers.q": {
+      "en": "What do my buyers need?",
+      "de": "Was brauchen meine Käufer?",
+      "es": "¿Qué necesitan mis compradores?",
+      "fr": "De quoi mes acheteurs ont-ils besoin ?",
+      "nl": "Wat hebben mijn kopers nodig?",
+      "pt": "O que meus compradores precisam?"
+    },
+    "v5.faq.buyers.a": {
+      "en": "A wallet holding one of the supported coins. They scan the QR or copy the address and amount — no account, no sign-up. The checkout is available in six languages.",
+      "de": "Eine Wallet mit einer der unterstützten Coins. Sie scannen den QR-Code oder kopieren Adresse und Betrag — kein Konto, keine Registrierung. Der Checkout ist in sechs Sprachen verfügbar.",
+      "es": "Una wallet con una de las monedas admitidas. Escanean el QR o copian la dirección y el importe, sin cuenta ni registro. El checkout está disponible en seis idiomas.",
+      "fr": "D'un wallet contenant l'une des cryptos prises en charge. Ils scannent le QR ou copient l'adresse et le montant, sans compte ni inscription. Le checkout est disponible en six langues.",
+      "nl": "Een wallet met een van de ondersteunde munten. Ze scannen de QR of kopiëren adres en bedrag — geen account, geen registratie. De checkout is beschikbaar in zes talen.",
+      "pt": "Uma carteira com uma das moedas suportadas. Eles escaneiam o QR ou copiam o endereço e o valor — sem conta, sem cadastro. O checkout está disponível em seis idiomas."
+    },
+    "v5.faq.refunds.q": {
+      "en": "Can I refund a payment?",
+      "de": "Kann ich eine Zahlung zurückerstatten?",
+      "es": "¿Puedo reembolsar un pago?",
+      "fr": "Puis-je rembourser un paiement ?",
+      "nl": "Kan ik een betaling terugbetalen?",
+      "pt": "Posso reembolsar um pagamento?"
+    },
+    "v5.faq.refunds.a": {
+      "en": "Yes. Refund the full or a partial amount in the original coin from your dashboard. The buyer receives an emailed receipt for the refund.",
+      "de": "Ja. Erstatte den vollen oder einen Teilbetrag in der ursprünglichen Coin aus deinem Dashboard. Der Käufer erhält einen Beleg per E-Mail.",
+      "es": "Sí. Reembolsa el importe total o parcial en la moneda original desde tu panel. El comprador recibe por correo un recibo del reembolso.",
+      "fr": "Oui. Remboursez tout ou partie du montant dans la crypto d'origine depuis votre tableau de bord. L'acheteur reçoit par e-mail un reçu du remboursement.",
+      "nl": "Ja. Betaal het volledige of een deel van het bedrag terug in de oorspronkelijke munt vanuit je dashboard. De koper ontvangt per e-mail een bon van de terugbetaling.",
+      "pt": "Sim. Reembolse o valor total ou parcial na moeda original pelo seu painel. O comprador recebe por e-mail um recibo do reembolso."
+    },
+    "v5.faq.wrongAmount.q": {
+      "en": "What if a buyer sends the wrong amount?",
+      "de": "Was, wenn ein Käufer den falschen Betrag sendet?",
+      "es": "¿Y si un comprador envía un importe incorrecto?",
+      "fr": "Et si un acheteur envoie le mauvais montant ?",
+      "nl": "Wat als een koper het verkeerde bedrag stuurt?",
+      "pt": "E se um comprador enviar o valor errado?"
+    },
+    "v5.faq.wrongAmount.a": {
+      "en": "Payments are matched to the exact amount shown at checkout. Small underpayments within the tolerance you set are accepted automatically; larger shortfalls are flagged in your dashboard so you can refund or resolve them with the buyer. Overpayments settle in full.",
+      "de": "Zahlungen werden mit dem exakten Betrag aus dem Checkout abgeglichen. Kleine Unterzahlungen innerhalb deiner Toleranz werden automatisch akzeptiert; größere Fehlbeträge werden im Dashboard markiert, damit du erstatten oder mit dem Käufer klären kannst. Überzahlungen werden vollständig ausgezahlt.",
+      "es": "Los pagos se cotejan con el importe exacto mostrado en el checkout. Los pagos ligeramente inferiores dentro de la tolerancia que definas se aceptan automáticamente; las diferencias mayores se marcan en tu panel para que reembolses o lo resuelvas con el comprador. Los pagos superiores se liquidan íntegros.",
+      "fr": "Les paiements sont rapprochés du montant exact affiché au checkout. Les légers sous-paiements dans la tolérance que vous définissez sont acceptés automatiquement ; les écarts plus importants sont signalés dans votre tableau de bord pour que vous remboursiez ou régliez la situation avec l'acheteur. Les trop-perçus sont réglés en totalité.",
+      "nl": "Betalingen worden gekoppeld aan het exacte bedrag dat bij de checkout is getoond. Kleine onderbetalingen binnen de tolerantie die jij instelt worden automatisch geaccepteerd; grotere tekorten worden in je dashboard gemarkeerd zodat je kunt terugbetalen of het met de koper kunt oplossen. Overbetalingen worden volledig uitbetaald.",
+      "pt": "Os pagamentos são conferidos com o valor exato mostrado no checkout. Pequenos pagamentos a menos dentro da tolerância que você definir são aceitos automaticamente; diferenças maiores são sinalizadas no seu painel para você reembolsar ou resolver com o comprador. Pagamentos a mais são liquidados integralmente."
+    },
+    "v5.faq.legal.q": {
+      "en": "Is this legal and compliant?",
+      "de": "Ist das legal und regelkonform?",
+      "es": "¿Es legal y cumple la normativa?",
+      "fr": "Est-ce légal et conforme ?",
+      "nl": "Is dit legaal en compliant?",
+      "pt": "Isso é legal e está em conformidade?"
+    },
+    "v5.faq.legal.a": {
+      "en": "Accepting crypto is legal in most countries, and you remain responsible for local rules and taxes. Dynopay applies KYC/AML checks as your volume grows and handles data under GDPR.",
+      "de": "Krypto anzunehmen ist in den meisten Ländern legal; für lokale Regeln und Steuern bleibst du verantwortlich. Dynopay führt KYC/AML-Prüfungen mit wachsendem Volumen durch und verarbeitet Daten DSGVO-konform.",
+      "es": "Aceptar cripto es legal en la mayoría de países, y tú sigues siendo responsable de las normas locales y los impuestos. Dynopay aplica verificaciones KYC/AML según crece tu volumen y trata los datos conforme al RGPD.",
+      "fr": "Accepter la crypto est légal dans la plupart des pays, et vous restez responsable des règles locales et des taxes. Dynopay applique des vérifications KYC/AML à mesure que votre volume augmente et traite les données conformément au RGPD.",
+      "nl": "Crypto accepteren is in de meeste landen legaal en jij blijft verantwoordelijk voor lokale regels en belastingen. Dynopay voert KYC/AML-controles uit naarmate je volume groeit en verwerkt gegevens volgens de AVG.",
+      "pt": "Aceitar cripto é legal na maioria dos países, e você continua responsável pelas regras locais e pelos impostos. A Dynopay aplica verificações KYC/AML conforme o seu volume cresce e trata os dados em conformidade com o GDPR."
+    },
+    "v5.faq.countries.q": {
+      "en": "Which countries do you support?",
+      "de": "Welche Länder unterstützt ihr?",
+      "es": "¿Qué países admitís?",
+      "fr": "Quels pays prenez-vous en charge ?",
+      "nl": "Welke landen ondersteunen jullie?",
+      "pt": "Quais países vocês atendem?"
+    },
+    "v5.faq.countries.a": {
+      "en": "Buyers can pay from anywhere with a wallet. Merchants sign up from 30+ countries today; sanctioned jurisdictions are excluded. Checkout copy is available in English, German, Spanish, French, Portuguese and Dutch.",
+      "de": "Käufer können von überall mit einer Wallet zahlen. Händler registrieren sich heute aus über 30 Ländern; sanktionierte Gebiete sind ausgeschlossen. Der Checkout ist auf Englisch, Deutsch, Spanisch, Französisch, Portugiesisch und Niederländisch verfügbar.",
+      "es": "Los compradores pueden pagar desde cualquier lugar con una wallet. Hoy se registran comercios de más de 30 países; las jurisdicciones sancionadas quedan excluidas. El checkout está en inglés, alemán, español, francés, portugués y neerlandés.",
+      "fr": "Les acheteurs peuvent payer de partout avec un wallet. Des marchands de plus de 30 pays sont inscrits aujourd'hui ; les juridictions sous sanctions sont exclues. Le checkout existe en anglais, allemand, espagnol, français, portugais et néerlandais.",
+      "nl": "Kopers kunnen van overal betalen met een wallet. Verkopers melden zich vandaag aan vanuit 30+ landen; gesanctioneerde gebieden zijn uitgesloten. De checkout is beschikbaar in het Engels, Duits, Spaans, Frans, Portugees en Nederlands.",
+      "pt": "Compradores podem pagar de qualquer lugar com uma carteira. Hoje há comerciantes cadastrados de mais de 30 países; jurisdições sancionadas são excluídas. O checkout está em inglês, alemão, espanhol, francês, português e holandês."
+    },
+    "v5.faq.referral.q": {
+      "en": "Is there a referral program?",
+      "de": "Gibt es ein Empfehlungsprogramm?",
+      "es": "¿Hay un programa de referidos?",
+      "fr": "Y a-t-il un programme de parrainage ?",
+      "nl": "Is er een verwijzingsprogramma?",
+      "pt": "Existe um programa de indicação?"
+    },
+    "v5.faq.referral.a": {
+      "en": "Yes. Share your referral link and earn 25% of the Dynopay fees from every merchant you refer for 12 months, as fee credit or paid out in USDT. Your referral gets 50% off fees for their first 30 days.",
+      "de": "Ja. Teile deinen Empfehlungslink und erhalte 12 Monate lang 25 % der Dynopay-Gebühren jedes empfohlenen Händlers — als Gebührenguthaben oder in USDT ausgezahlt. Dein Kontakt bekommt 50 % Rabatt auf die Gebühren in den ersten 30 Tagen.",
+      "es": "Sí. Comparte tu enlace de referido y gana el 25 % de las comisiones de Dynopay de cada comercio que refieras durante 12 meses, como crédito o pagado en USDT. Tu referido obtiene un 50 % de descuento en comisiones durante sus primeros 30 días.",
+      "fr": "Oui. Partagez votre lien de parrainage et gagnez 25 % des frais Dynopay de chaque marchand parrainé pendant 12 mois, en crédit de frais ou versés en USDT. Votre filleul bénéficie de 50 % de réduction sur les frais pendant ses 30 premiers jours.",
+      "nl": "Ja. Deel je verwijzingslink en verdien 12 maanden lang 25% van de Dynopay-kosten van elke verkoper die je aanbrengt — als kostentegoed of uitbetaald in USDT. Wie jij aanbrengt krijgt de eerste 30 dagen 50% korting op de kosten.",
+      "pt": "Sim. Compartilhe seu link de indicação e ganhe 25% das taxas Dynopay de cada comerciante indicado por 12 meses, como crédito de taxas ou pago em USDT. Quem você indicar ganha 50% de desconto nas taxas nos primeiros 30 dias."
+    },
+    "v5.final.eyebrow": {
+      "en": "Ready when you are",
+      "de": "Bereit, wenn du es bist",
+      "es": "Cuando tú quieras",
+      "fr": "Prêt quand vous l'êtes",
+      "nl": "Klaar wanneer jij dat bent",
+      "pt": "Pronto quando você estiver"
+    },
+    "v5.final.headline1": {
+      "en": "Start accepting crypto",
+      "de": "Krypto annehmen —",
+      "es": "Empieza a aceptar cripto",
+      "fr": "Acceptez la crypto",
+      "nl": "Begin met crypto accepteren",
+      "pt": "Comece a aceitar cripto"
+    },
+    "v5.final.headline2": {
+      "en": "in about five minutes.",
+      "de": "in etwa fünf Minuten.",
+      "es": "en unos cinco minutos.",
+      "fr": "en cinq minutes environ.",
+      "nl": "in ongeveer vijf minuten.",
+      "pt": "em cerca de cinco minutos."
+    },
+    "v5.final.body": {
+      "en": "Create a free account, add a payout wallet and share your first link. Your first payment is fee-free.",
+      "de": "Erstelle ein kostenloses Konto, füge eine Auszahlungs-Wallet hinzu und teile deinen ersten Link. Deine erste Zahlung ist gebührenfrei.",
+      "es": "Crea una cuenta gratis, añade una wallet de cobro y comparte tu primer enlace. Tu primer pago no tiene comisión.",
+      "fr": "Créez un compte gratuit, ajoutez un wallet de versement et partagez votre premier lien. Votre premier paiement est sans frais.",
+      "nl": "Maak een gratis account, voeg een uitbetaalwallet toe en deel je eerste link. Je eerste betaling is zonder kosten.",
+      "pt": "Crie uma conta grátis, adicione uma carteira de recebimento e compartilhe seu primeiro link. Seu primeiro pagamento é sem taxa."
+    },
+    "v5.final.talk": {
+      "en": "Talk to us",
+      "de": "Sprich mit uns",
+      "es": "Habla con nosotros",
+      "fr": "Parlez-nous",
+      "nl": "Praat met ons",
+      "pt": "Fale com a gente"
+    },
+    "v5.sticky.start": {
+      "en": "Start free",
+      "de": "Kostenlos starten",
+      "es": "Empezar gratis",
+      "fr": "Commencer gratuitement",
+      "nl": "Gratis starten",
+      "pt": "Começar grátis"
+    },
+    "v5.sticky.demo": {
+      "en": "Live demo",
+      "de": "Live-Demo",
+      "es": "Demo en vivo",
+      "fr": "Démo en direct",
+      "nl": "Live demo",
+      "pt": "Demonstração ao vivo"
+    },
+    "v5.eta.BTC": {
+      "en": "10–60 min",
+      "de": "10–60 Min.",
+      "es": "10–60 min",
+      "fr": "10–60 min",
+      "nl": "10–60 min",
+      "pt": "10–60 min"
+    },
+    "v5.eta.ERC20": {
+      "en": "1–5 min",
+      "de": "1–5 Min.",
+      "es": "1–5 min",
+      "fr": "1–5 min",
+      "nl": "1–5 min",
+      "pt": "1–5 min"
+    },
+    "v5.eta.LTC": {
+      "en": "5–15 min",
+      "de": "5–15 Min.",
+      "es": "5–15 min",
+      "fr": "5–15 min",
+      "nl": "5–15 min",
+      "pt": "5–15 min"
+    },
+    "v5.eta.DOGE": {
+      "en": "2–10 min",
+      "de": "2–10 Min.",
+      "es": "2–10 min",
+      "fr": "2–10 min",
+      "nl": "2–10 min",
+      "pt": "2–10 min"
+    },
+    "v5.eta.BCH": {
+      "en": "10–30 min",
+      "de": "10–30 Min.",
+      "es": "10–30 min",
+      "fr": "10–30 min",
+      "nl": "10–30 min",
+      "pt": "10–30 min"
+    },
+    "v5.eta.TRC20": {
+      "en": "under a minute",
+      "de": "unter einer Minute",
+      "es": "menos de un minuto",
+      "fr": "moins d'une minute",
+      "nl": "binnen een minuut",
+      "pt": "menos de um minuto"
+    },
+    "v5.eta.SOL": {
+      "en": "a few seconds",
+      "de": "wenige Sekunden",
+      "es": "unos segundos",
+      "fr": "quelques secondes",
+      "nl": "enkele seconden",
+      "pt": "alguns segundos"
+    },
+    "v5.eta.XRPL": {
+      "en": "a few seconds",
+      "de": "wenige Sekunden",
+      "es": "unos segundos",
+      "fr": "quelques secondes",
+      "nl": "enkele seconden",
+      "pt": "alguns segundos"
+    },
+    "v5.eta.POLYGON": {
+      "en": "under a minute",
+      "de": "unter einer Minute",
+      "es": "menos de un minuto",
+      "fr": "moins d'une minute",
+      "nl": "binnen een minuut",
+      "pt": "menos de um minuto"
+    }
+  }
+}

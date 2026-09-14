@@ -1,0 +1,55 @@
+{
+  "summary": "Iteration 156 — verified two new buyer-facing features (empty cart empty-state, buyer receipt nudge + saved merchants) on the deployed preview with mocks for payment-creating endpoints (addPayment, verifyCryptoPayment, receipt, receipt/link, tip; stream aborted). All READ-ONLY vs production DB. Ran /app/scripts/qa/_iter156_suite.mjs and /app/scripts/qa/_lang_de_probe.mjs. 96 checks passed / 98 total. 1 flaky click at 390 (empty-cart nav) and 1 discrepancy vs the spec's language testids — see below.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "Empty cart → 'Browse the shop' link navigation @ width=390",
+        "issue": "Click on data-testid=checkout-empty-browse-btn does not always land on /devhub/shop within 15s at 390 (page URL stayed on /devhub/checkout during the run). At 1920 navigation succeeds. href is correct (/devhub/shop). Likely a mobile viewport click-event race rather than a product bug — the link is a real <a href='/devhub/shop'>. Recommend verifying manually or that click handler is not preventDefault-ing at mobile widths.",
+        "affected_selectors": ["[data-testid=checkout-empty-browse-btn]"]
+      }
+    ],
+    "design_issues": []
+  },
+  "language_testid_discrepancy": {
+    "expected_by_spec": ["header-lang-de", "footer-lang-de", "header-lang-en", "footer-lang-en"],
+    "actual_in_dom": ["header-language-globe", "footer-language-globe", "language-trigger"],
+    "note": "Language switcher is opened by clicking data-testid=header-language-globe (or footer-language-globe) which reveals an MUI listbox of role='option' items ('Deutsch', 'English', 'Português', 'Français', 'Español', 'Nederlands'). If future testers rely on the specced testids (header-lang-de etc.), they will fail. Consider adding per-locale testids on each option (data-testid='header-lang-de' on the Deutsch option) for spec compliance."
+  },
+  "verified_flows": [
+    "Empty cart at 390 & 1920: checkout-empty-state visible, title 'Your cart is empty.', browse-btn href=/devhub/shop, no horizontal overflow",
+    "Hosted checkout /pay?d=rNtQRX success (mocked): clean-checkout-receipt-btn, clean-checkout-receipt-link-btn, save-merchant-btn ('Save The Dev Store for next time', data-saved=false) all present",
+    "Save toggle on hosted checkout: click → 'Saved on this device', data-saved=true, aria-pressed=true, saved-merchants-link (href=/saved) appears, localStorage dynopay_saved_merchants_v1 = [{handle:'devhub',name:'The Dev Store',avatar:<url>,savedAt:<num>}]; second click unsaves and clears the list",
+    "Receipt link copy on hosted checkout: 'Receipt link copied' toast shown",
+    "Receipt download on hosted checkout: download event fires with suggestedFilename receipt-mock.pdf and 'Receipt downloaded' toast",
+    "Creator-page inline tip on /devhub (mocked, preset $10 → LTC): inline-tip-receipt-row with inline-tip-receipt-btn + inline-tip-receipt-link-btn, save-merchant-btn 'Save The Dev Store for next time'; copy link → toast, download → receipt-mock.pdf + toast, save → 'Saved on this device' + localStorage entry; no overflow at 390",
+    "/saved populated at 390 & 1920: saved-page, h1 'Your saved merchants', saved-subtitle, saved-list, saved-merchant-devhub card with name 'The Dev Store', meta '@devhub · Saved Sep 11, 2026', visit href=/devhub, remove btn. Header header-saved-merchants[data-count=1] visible at 1920; mobile-saved-merchants present at 390. No raw i18n keys. No page errors. No horizontal overflow.",
+    "/saved remove: card disappears, saved-empty-state 'Nothing saved yet' with saved-empty-home-btn (href=/), header-saved-merchants no longer rendered, localStorage list []",
+    "/saved fresh (no localStorage): saved-empty-state shown, saved-list absent, header icon absent",
+    "German localisation (via header-language-globe → role=option 'Deutsch'): /saved h1 = 'Deine gespeicherten Händler', visit button = 'Seite öffnen'; /devhub/checkout empty title = 'Dein Warenkorb ist leer.'; no raw i18n keys; switch back to English works",
+    "Regression /pay?d=rNtQRX no mocks at 390 & 1920: amount $15.00 shown, coin buttons present, no console errors, no page errors, no overflow"
+  ],
+  "test_report_links": [
+    "/app/scripts/qa/_iter156_suite.mjs",
+    "/app/scripts/qa/_lang_de_probe.mjs"
+  ],
+  "action_items": [
+    "Optional: investigate mobile (width=390) click race on checkout-empty-browse-btn — the anchor href is correct and navigation succeeded at 1920 but not consistently at 390 within a 15s wait.",
+    "Optional: add per-locale testids (header-lang-de, footer-lang-de, header-lang-en, footer-lang-en) on the language listbox <option> elements to match the spec used by future automated tests. Current implementation only exposes header-language-globe / footer-language-globe / language-trigger."
+  ],
+  "critical_code_review_comments": [
+    "SaveMerchantButton correctly toggles data-saved, aria-pressed, and persists to localStorage key dynopay_saved_merchants_v1 as a single-item de-duplicated list.",
+    "/saved page correctly hides the header heart icon when the list becomes empty (state syncs via the dynopay:saved-merchants event).",
+    "Receipt fallback works: with clipboard permission granted, copy shows the toast; download uses content-disposition filename attribute end-to-end. Good.",
+    "i18n coverage is complete for the checked strings — no raw dot-key leakage on either /saved or /devhub/checkout in EN or DE."
+  ],
+  "updated_files": [],
+  "success_rate": { "backend": "N/A (skipped)", "frontend": "96/98 = 98%" },
+  "test_credentials": "N/A — anonymous buyer flows only, as required by SAFE MODE.",
+  "seed_data_creation": "No DB writes. localStorage-only: dynopay_saved_merchants_v1 seeded via addInitScript for /saved tests.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "All mocks live in /app/scripts/qa/_iter156_suite.mjs (mirrors _saved_probe.mjs / _tip_probe.mjs). If retesting empty-cart nav at 390, wait longer than 15s or attach page.waitForNavigation before the click. Language switcher must be opened via header-language-globe (not header-lang-de) and the DE option is a role='option' element with text 'Deutsch'.",
+  "rca_of_the_issue": "Empty-cart[390] nav flake: header-language-globe + mobile drawer may intercept early events during hydration; the anchor href is /devhub/shop so the navigation is functional (proved at 1920) — this is a test-timing artefact not a product bug."
+}

@@ -1,0 +1,30 @@
+{
+  "summary": "Verified 3 user-facing changes on DynoPay preview. (B) SHORT 6-char base62 ref /pay?d=rNtQRX resolves and auto-progresses to awaiting checkout state (H1='Pay The Dev Store', amount='$15.00 USD', QR + LTC address 'LgMm9d8earcKZJjK...'). PASS. (C) The old 54px linear-gradient Swiss-grid backdrop is GONE from Pay3Layout — programmatic assertion Array.from(...).some(el => bg-image includes 'linear-gradient' && bg-size includes '54px') returned FALSE; no 54px background-size element found anywhere. Screenshot confirms clean background with only soft radial glows. PASS. (D) On /developer-keys the visible page shows ONLY the API key credential (two API key cards, each with a single readonly 'API key' input and its show/copy/regenerate/disable buttons). No 'Admin token' text is visible to the user in the initial render. HOWEVER, the DOM still contains a readonly <input aria-label='Admin Token'> and a visible <span>Admin Token</span> mounted inside a (currently hidden) MuiDialog — this is the SuccessAPIModel dialog that opens after generating a new API key. So while ApiKeysPage.tsx was cleaned as claimed, the admin-token row was NOT removed from Components/UI/ApiKeysModel/SuccessAPIModel/index.tsx (line 188: label={t('generate.adminToken')}). This means as soon as a merchant clicks Regenerate / creates a new key, the Admin Token field with show/copy buttons will re-appear in the success modal — contradicting task (D)'s stated intent that 'only the single API key remains'. No React ErrorBoundary triggered, no red console errors on /pay. On /developer-keys one non-blocking React devwarning (validateDOMNesting: <div> descendant of <p>) originating from ApiKeysPage.tsx line 205 PanelCard/Typography — cosmetic devwarning, no functional impact.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "SuccessAPIModel (Components/UI/ApiKeysModel/SuccessAPIModel/index.tsx:188)", "issue": "Admin token InputField (label t('generate.adminToken'), rendered as 'Admin Token') still present. Task (D) said only the API key credential should remain, but this success dialog — mounted on /developer-keys and shown after every key generation/regeneration — still contains the second readonly 'Admin Token' credential input with its show/copy buttons. Fix needs to be replicated in SuccessAPIModel/index.tsx (remove the Admin Token InputField block + related state).", "selector": "input[aria-label=\"Admin Token\"]", "priority": "HIGH"},
+      {"component": "ApiKeysPage.tsx (line ~205, PanelCard/Typography usage)", "issue": "React validateDOMNesting warning: <div> cannot appear as a descendant of <p>. Cosmetic devwarning, appears in console on /developer-keys page load. Likely a Typography default 'p' wrapping a Box/div child.", "selector": "ApiKeyCard PanelCard header", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Remove the Admin Token InputField row (label t('generate.adminToken')) + its show/copy state from /app/Components/UI/ApiKeysModel/SuccessAPIModel/index.tsx (line 188) so that (D) is fully applied — the admin token must not appear anywhere on /developer-keys, including in the post-generate success dialog.",
+    "Fix the <div>-in-<p> nesting warning in ApiKeysPage.tsx (ApiKeyCard PanelCard around line 205) — likely change a Typography variant that renders as <p> to a Box or set component='div'."
+  ],
+  "critical_code_review_comments": [
+    "Task (D) fix is incomplete: only ApiKeysPage.tsx was cleaned; SuccessAPIModel/index.tsx still renders the admin-token credential — merchants will still see it whenever they generate/regenerate a key.",
+    "Task (B) short-ref /pay?d=rNtQRX confirmed working end-to-end: page loads, coin auto-selected, address reserved, QR rendered.",
+    "Task (C) Swiss-grid backdrop deletion verified programmatically — no 54px gradient anywhere in the rendered checkout DOM."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped per request)", "frontend": "2 of 3 verifications fully clean; (D) partially applied — 66%"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (email+password flow reached via clicking 'Use a code instead →' toggles between OTP and password; password sign-in works).",
+  "seed_data_creation": "None. LIVE prod DB in SAFE MODE — read-only checks only. No payment completed on /pay?d=rNtQRX (address reservation on page load is expected/benign).",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "If (D) is re-fixed in SuccessAPIModel, re-verify by (1) logging in with merchant creds (2-step: email → password) and (2) either scanning DOM on /developer-keys for any 'Admin Token' occurrence (querySelector('input[aria-label=\"Admin Token\"]') should be null AND no text node matching /admin[\\s_]*token/i), OR actually clicking 'Regenerate' on a key and inspecting the resulting success dialog. /pay?d=rNtQRX short link and no-grid-backdrop already confirmed clean — no need to re-test unless Pay3Layout is touched.",
+  "rca of the issue": "The admin_token field is generated server-side and was historically exposed on both (a) the merchant API-keys listing page and (b) the post-generate success modal. The E1 patch removed it from (a) — Components/Page/API/ApiKeysPage.tsx — but did not touch (b) — Components/UI/ApiKeysModel/SuccessAPIModel/index.tsx:188 which still contains `label={t('generate.adminToken')}` with its show/copy adornments. Reproduction: log in as merchant → visit /developer-keys → inspect DOM: querySelector('input[aria-label=\"Admin Token\"]') is non-null (inside the mounted-but-hidden MuiDialog). Live repro: click Regenerate on any API key → success dialog opens → Admin Token credential row is visible with show/copy buttons. Mitigation: delete the admin-token InputField block + related showAdminToken/adminToken/displayAdminToken state in SuccessAPIModel/index.tsx (same pattern as the ApiKeysPage fix)."
+}

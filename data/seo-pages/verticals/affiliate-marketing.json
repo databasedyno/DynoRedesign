@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto payments & payouts for affiliate marketers · Dynopay",
+  "meta_description": "Collect crypto payments and get paid globally as an affiliate marketer with Dynopay. 15+ cryptocurrencies, no chargebacks, fees from 1.5%. Start free today.",
+  "h1": "Accept crypto payments as an affiliate marketer, anywhere in the world",
+  "subheading": "Dynopay lets affiliate marketers and media buyers get paid in Bitcoin, stablecoins, and 15+ cryptocurrencies directly to a wallet they control — no borders, no chargebacks, no frozen balances.",
+  "intro_paragraph": "Affiliate income crosses borders constantly, and traditional rails add currency conversion fees, slow bank transfers, and the risk of a frozen account when volume spikes. Dynopay is a non-custodial crypto payment gateway that settles straight to your wallet — collect payments for promotions, media, or your own offers with a payment link, hosted checkout, or the REST API across 15+ cryptocurrencies. Fees start at 1.5% and drop to 0.5% at scale, with no chargebacks, no monthly fees, and a fee-free first payment.",
+  "features": [
+    {
+      "title": "Get paid across borders, instantly",
+      "description": "Crypto settles in minutes to a wallet you control, so you skip multi-day international bank transfers and the FX spread that eats into cross-border affiliate revenue."
+    },
+    {
+      "title": "No frozen accounts when volume spikes",
+      "description": "A viral campaign won't trip a processor's fraud model and freeze your balance — non-custodial settlement means the funds are already yours."
+    },
+    {
+      "title": "Stablecoins to sidestep volatility",
+      "description": "Take payment in USDT or USDC to hold a dollar-pegged balance, then convert to local currency whenever the rate suits you."
+    }
+  ],
+  "how_it_works": [
+    "Sign up, verify your email, create a company profile, and add one payout wallet address for settlement.",
+    "Share a payment link, embed checkout, or wire up the REST API to invoice partners and buyers.",
+    "They pay in their preferred cryptocurrency and funds arrive in your wallet within minutes."
+  ],
+  "faqs": [
+    {
+      "question": "How do affiliate marketers benefit from accepting crypto?",
+      "answer": "Affiliate revenue is global and spiky. Crypto settles in minutes to a wallet you control, avoids international bank delays and FX spreads, and can't be frozen by a processor when a campaign suddenly scales."
+    },
+    {
+      "question": "Can I hold my earnings in a stable, dollar-pegged coin?",
+      "answer": "Yes. Accept payment in stablecoins like USDT or USDC to keep a dollar-value balance and avoid crypto volatility, then convert to fiat on your own schedule."
+    },
+    {
+      "question": "Which cryptocurrencies are supported?",
+      "answer": "Dynopay supports 15+ cryptocurrencies including Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, TRX, MATIC, and stablecoins such as USDT (ERC20, TRC20, Polygon), USDC (ERC20), and RLUSD."
+    },
+    {
+      "question": "What does Dynopay charge?",
+      "answer": "Fees start at 1.5% plus one dollar per successful payment and drop to 0.5% as your settled volume grows. No setup fees, no monthly fees, and your first payment is free."
+    },
+    {
+      "question": "Is Dynopay custodial? Where do my funds go?",
+      "answer": "Dynopay is non-custodial. Payments settle directly to your own wallet — MetaMask, Coinbase, Ledger, or any address you control — so Dynopay never holds your money."
+    }
+  ],
+  "cta_headline": "Start collecting crypto payments in 10 minutes",
+  "cta_body": "Sign up now and your first transaction is fee-free. No monthly costs and funds settle straight to a wallet you control.",
+  "_generated_at": "2026-09-05T00:00:00.000Z",
+  "_model": "dynopay-editorial-2026-09",
+  "_kind": "vertical",
+  "_slug": "affiliate-marketing",
+  "_display_name": "Affiliate Marketers"
+}

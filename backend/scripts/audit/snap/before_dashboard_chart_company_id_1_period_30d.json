@@ -1,0 +1,214 @@
+{
+ "data": {
+  "chart_data": [
+   {
+    "date": "2026-08-04",
+    "transaction_count": 1,
+    "volume": 175.11
+   },
+   {
+    "date": "2026-08-05",
+    "transaction_count": 4,
+    "volume": 253.2
+   },
+   {
+    "date": "2026-08-06",
+    "transaction_count": 6,
+    "volume": 510.19
+   },
+   {
+    "date": "2026-08-07",
+    "transaction_count": 3,
+    "volume": 257.87
+   },
+   {
+    "date": "2026-08-08",
+    "transaction_count": 2,
+    "volume": 130.06
+   },
+   {
+    "date": "2026-08-09",
+    "transaction_count": 3,
+    "volume": 166.27
+   },
+   {
+    "date": "2026-08-10",
+    "transaction_count": 2,
+    "volume": 56.37
+   },
+   {
+    "date": "2026-08-11",
+    "transaction_count": 1,
+    "volume": 113.84
+   },
+   {
+    "date": "2026-08-12",
+    "transaction_count": 4,
+    "volume": 65.78
+   },
+   {
+    "date": "2026-08-13",
+    "transaction_count": 6,
+    "volume": 1461.28
+   },
+   {
+    "date": "2026-08-14",
+    "transaction_count": 7,
+    "volume": 572.05
+   },
+   {
+    "date": "2026-08-15",
+    "transaction_count": 2,
+    "volume": 116.9
+   },
+   {
+    "date": "2026-08-16",
+    "transaction_count": 2,
+    "volume": 66.3
+   },
+   {
+    "date": "2026-08-17",
+    "transaction_count": 3,
+    "volume": 322.72
+   },
+   {
+    "date": "2026-08-18",
+    "transaction_count": 5,
+    "volume": 275.24
+   },
+   {
+    "date": "2026-08-19",
+    "transaction_count": 1,
+    "volume": 43.69
+   },
+   {
+    "date": "2026-08-20",
+    "transaction_count": 3,
+    "volume": 173.25
+   },
+   {
+    "date": "2026-08-21",
+    "transaction_count": 2,
+    "volume": 93.71
+   },
+   {
+    "date": "2026-08-22",
+    "transaction_count": 1,
+    "volume": 111.86
+   },
+   {
+    "date": "2026-08-23",
+    "transaction_count": 0,
+    "volume": 0
+   },
+   {
+    "date": "2026-08-24",
+    "transaction_count": 6,
+    "volume": 223.6
+   },
+   {
+    "date": "2026-08-25",
+    "transaction_count": 2,
+    "volume": 234.72
+   },
+   {
+    "date": "2026-08-26",
+    "transaction_count": 1,
+    "volume": 28.74
+   },
+   {
+    "date": "2026-08-27",
+    "transaction_count": 2,
+    "volume": 57.37
+   },
+   {
+    "date": "2026-08-28",
+    "transaction_count": 2,
+    "volume": 74.23
+   },
+   {
+    "date": "2026-08-29",
+    "transaction_count": 4,
+    "volume": 144.48
+   },
+   {
+    "date": "2026-08-30",
+    "transaction_count": 3,
+    "volume": 166.32
+   },
+   {
+    "date": "2026-08-31",
+    "transaction_count": 4,
+    "volume": 339.09
+   },
+   {
+    "date": "2026-09-01",
+    "transaction_count": 4,
+    "volume": 288.53
+   },
+   {
+    "date": "2026-09-02",
+    "transaction_count": 4,
+    "volume": 278.15
+   },
+   {
+    "date": "2026-09-03",
+    "transaction_count": 0,
+    "volume": 0
+   }
+  ],
+  "currency": "USD",
+  "currency_breakdown": [
+   {
+    "count": 33,
+    "currency": "BTC",
+    "volume": 2303.66
+   },
+   {
+    "count": 27,
+    "currency": "USDT-TRC20",
+    "volume": 2002.22
+   },
+   {
+    "count": 21,
+    "currency": "ETH",
+    "volume": 1989.56
+   },
+   {
+    "count": 4,
+    "currency": "LTC",
+    "volume": 328.71
+   },
+   {
+    "count": 5,
+    "currency": "USDT-ERC20",
+    "volume": 176.77
+   }
+  ],
+  "end_date": "2026-09-03",
+  "group_by": "day",
+  "period": "30d",
+  "period_summary": {
+   "previous_end_date": "2026-08-04",
+   "previous_start_date": "2026-07-05",
+   "previous_total_transactions": 82,
+   "previous_total_volume": 5095.29,
+   "total_transactions": 90,
+   "total_volume": 6800.92,
+   "transactions_change_percent": 9.76,
+   "volume_change_percent": 33.47
+  },
+  "start_date": "2026-08-04",
+  "status_breakdown": [
+   {
+    "count": 90,
+    "status": "successful"
+   },
+   {
+    "count": 102,
+    "status": "pending"
+   }
+  ]
+ },
+ "message": "Chart data retrieved successfully"
+}

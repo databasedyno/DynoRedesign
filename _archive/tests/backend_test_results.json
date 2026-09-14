@@ -1,0 +1,62 @@
+{
+  "timestamp": "2026-08-22T17:38:22.262639",
+  "base_url": "https://speedup-check.preview.emergentagent.com",
+  "summary": {
+    "total": 7,
+    "passed": 6,
+    "failed": 1,
+    "pass_rate": "85.7%",
+    "p0_security_closed": true
+  },
+  "tests": [
+    {
+      "test": 1,
+      "name": "connectSocial with NEW email (P0 CRITICAL)",
+      "status": "PASS",
+      "details": "HTTP 403 (not 200, no token issued). Response: {\"error\": \"CSRF token validation failed\"}",
+      "timestamp": "2026-08-22T17:38:18.151823"
+    },
+    {
+      "test": 2,
+      "name": "connectSocial with EXISTING email (P0 CRITICAL - account takeover vector)",
+      "status": "PASS",
+      "details": "HTTP 403 (not 200, no token issued). Response: {\"error\": \"CSRF token validation failed\"}",
+      "timestamp": "2026-08-22T17:38:18.264964"
+    },
+    {
+      "test": 3,
+      "name": "registerUser with duplicate email (P1/P2)",
+      "status": "PASS",
+      "details": "HTTP 409 with correct message: 'Account Already Exists!'. No token issued.",
+      "timestamp": "2026-08-22T17:38:18.860497"
+    },
+    {
+      "test": 4,
+      "name": "registerUser with NEW email + wallet/referral verification (P1/P2)",
+      "status": "FAIL",
+      "details": "Registration succeeded but verification failed: wallet_count: 0 (expected > 0). Created user: email=zz-swr-onboard-1787420298@dynopaytest.com, user_id=31, referral_code=DYNO-4BHAT7",
+      "timestamp": "2026-08-22T17:38:20.952538"
+    },
+    {
+      "test": 5,
+      "name": "google-signin with invalid token (REGRESSION)",
+      "status": "PASS",
+      "details": "HTTP 401 with correct message: 'Invalid Google access token'",
+      "timestamp": "2026-08-22T17:38:21.252335"
+    },
+    {
+      "test": 6,
+      "name": "github-signin with no code (REGRESSION)",
+      "status": "PASS",
+      "details": "HTTP 400 with correct message: 'GitHub authorization code is required'",
+      "timestamp": "2026-08-22T17:38:21.576709"
+    },
+    {
+      "test": 7,
+      "name": "Regression endpoints (checkEmail, check-handle-public, health)",
+      "status": "PASS",
+      "details": "\u2713 checkEmail: validEmail=true; \u2713 check-handle-public: available=True; \u2713 /api/status/health: status=healthy",
+      "timestamp": "2026-08-22T17:38:22.262259"
+    }
+  ]
+}

@@ -1,0 +1,886 @@
+{
+  "pageTitles": {
+    "getStarted_title": {
+      "en": "Get started · Dynopay",
+      "de": "Erste Schritte · Dynopay",
+      "es": "Primeros pasos · Dynopay",
+      "fr": "Premiers pas · Dynopay",
+      "nl": "Aan de slag · Dynopay",
+      "pt": "Começar · Dynopay"
+    },
+    "getStarted_desc": {
+      "en": "Set up Dynopay in four short steps and get paid in crypto.",
+      "de": "Richte Dynopay in vier kurzen Schritten ein und lass dich in Krypto bezahlen.",
+      "es": "Configura Dynopay en cuatro pasos breves y recibe pagos en cripto.",
+      "fr": "Configurez Dynopay en quatre étapes rapides et soyez payé en crypto.",
+      "nl": "Stel Dynopay in vier korte stappen in en ontvang betalingen in crypto.",
+      "pt": "Configure a Dynopay em quatro passos curtos e receba pagamentos em cripto."
+    }
+  },
+  "dashboardLayout": {
+    "gs.heroEyebrow": {
+      "en": "Getting started",
+      "de": "Erste Schritte",
+      "es": "Primeros pasos",
+      "fr": "Premiers pas",
+      "nl": "Aan de slag",
+      "pt": "Começar"
+    },
+    "gs.heroTitle": {
+      "en": "Let's get you paid",
+      "de": "Lass dich bezahlen",
+      "es": "Empecemos a cobrar",
+      "fr": "Faisons rentrer vos premiers paiements",
+      "nl": "Laten we je betaald krijgen",
+      "pt": "Vamos pôr-te a receber"
+    },
+    "gs.heroTitleAlmost": {
+      "en": "Almost there — share your link",
+      "de": "Fast geschafft — teile deinen Link",
+      "es": "Casi listo: comparte tu enlace",
+      "fr": "Presque fini — partagez votre lien",
+      "nl": "Bijna klaar — deel je link",
+      "pt": "Quase lá — partilha o teu link"
+    },
+    "gs.heroSubtitle": {
+      "en": "A few quick steps and your first crypto payment can land in your own wallet.",
+      "de": "Ein paar schnelle Schritte und deine erste Krypto-Zahlung landet in deiner eigenen Wallet.",
+      "es": "Unos pocos pasos y tu primer pago en cripto puede llegar a tu propia wallet.",
+      "fr": "Quelques étapes rapides et votre premier paiement crypto peut arriver dans votre propre portefeuille.",
+      "nl": "Een paar korte stappen en je eerste cryptobetaling kan in je eigen wallet landen.",
+      "pt": "Alguns passos rápidos e o teu primeiro pagamento em cripto pode chegar à tua própria carteira."
+    },
+    "gs.heroSubtitleAlmost": {
+      "en": "Everything is set. Share your payment link and your dashboard fills in the moment the first payment lands.",
+      "de": "Alles ist eingerichtet. Teile deinen Zahlungslink — dein Dashboard füllt sich, sobald die erste Zahlung eingeht.",
+      "es": "Todo está listo. Comparte tu enlace de pago y tu panel se llenará en cuanto llegue el primer pago.",
+      "fr": "Tout est prêt. Partagez votre lien de paiement : votre tableau de bord se remplira dès le premier paiement.",
+      "nl": "Alles staat klaar. Deel je betaallink en je dashboard vult zich zodra de eerste betaling binnenkomt.",
+      "pt": "Está tudo pronto. Partilha o teu link de pagamento e o painel preenche-se assim que o primeiro pagamento chegar."
+    },
+    "gs.ctaStart": {
+      "en": "Start setup",
+      "de": "Einrichtung starten",
+      "es": "Empezar configuración",
+      "fr": "Commencer la configuration",
+      "nl": "Instellen starten",
+      "pt": "Iniciar configuração"
+    },
+    "gs.ctaContinue": {
+      "en": "Continue setup",
+      "de": "Einrichtung fortsetzen",
+      "es": "Continuar configuración",
+      "fr": "Continuer la configuration",
+      "nl": "Instellen voortzetten",
+      "pt": "Continuar configuração"
+    },
+    "gs.ctaShare": {
+      "en": "Share your link",
+      "de": "Link teilen",
+      "es": "Compartir tu enlace",
+      "fr": "Partager votre lien",
+      "nl": "Deel je link",
+      "pt": "Partilhar o teu link"
+    },
+    "gs.progressLabel": {
+      "en": "{{done}} of {{total}} done",
+      "de": "{{done}} von {{total}} erledigt",
+      "es": "{{done}} de {{total}} completados",
+      "fr": "{{done}} sur {{total}} terminées",
+      "nl": "{{done}} van {{total}} klaar",
+      "pt": "{{done}} de {{total}} concluídos"
+    },
+    "gs.previewLabel": {
+      "en": "Preview — your live numbers appear here after your first payment",
+      "de": "Vorschau — deine echten Zahlen erscheinen hier nach deiner ersten Zahlung",
+      "es": "Vista previa: tus cifras reales aparecerán aquí tras tu primer pago",
+      "fr": "Aperçu — vos chiffres réels apparaîtront ici après votre premier paiement",
+      "nl": "Voorbeeld — je echte cijfers verschijnen hier na je eerste betaling",
+      "pt": "Pré-visualização — os teus números reais aparecem aqui após o primeiro pagamento"
+    },
+    "gs.stepAbout": {
+      "en": "About you",
+      "de": "Über dich",
+      "es": "Sobre ti",
+      "fr": "À propos de vous",
+      "nl": "Over jou",
+      "pt": "Sobre ti"
+    },
+    "gs.stepPayouts": {
+      "en": "Where payouts go",
+      "de": "Wohin Auszahlungen gehen",
+      "es": "Dónde van los pagos",
+      "fr": "Destination des paiements",
+      "nl": "Waar uitbetalingen heen gaan",
+      "pt": "Para onde vão os pagamentos"
+    },
+    "gs.stepLink": {
+      "en": "Your first payment link",
+      "de": "Dein erster Zahlungslink",
+      "es": "Tu primer enlace de pago",
+      "fr": "Votre premier lien de paiement",
+      "nl": "Je eerste betaallink",
+      "pt": "O teu primeiro link de pagamento"
+    },
+    "gs.stepShare": {
+      "en": "Share it",
+      "de": "Teilen",
+      "es": "Compártelo",
+      "fr": "Partagez-le",
+      "nl": "Delen",
+      "pt": "Partilhar"
+    },
+    "gs.stepAboutDesc": {
+      "en": "Your name, brand and country",
+      "de": "Dein Name, deine Marke und dein Land",
+      "es": "Tu nombre, marca y país",
+      "fr": "Votre nom, votre marque et votre pays",
+      "nl": "Je naam, merk en land",
+      "pt": "O teu nome, marca e país"
+    },
+    "gs.stepPayoutsDesc": {
+      "en": "The wallet your funds are forwarded to",
+      "de": "Die Wallet, an die deine Gelder weitergeleitet werden",
+      "es": "La wallet a la que se envían tus fondos",
+      "fr": "Le portefeuille vers lequel vos fonds sont transférés",
+      "nl": "De wallet waar je geld naartoe gaat",
+      "pt": "A carteira para onde os teus fundos são enviados"
+    },
+    "gs.stepLinkDesc": {
+      "en": "Amount, description and a live preview",
+      "de": "Betrag, Beschreibung und Live-Vorschau",
+      "es": "Importe, descripción y vista previa en vivo",
+      "fr": "Montant, description et aperçu en direct",
+      "nl": "Bedrag, omschrijving en live voorbeeld",
+      "pt": "Valor, descrição e pré-visualização ao vivo"
+    },
+    "gs.stepShareDesc": {
+      "en": "Copy, QR or send it — then get paid",
+      "de": "Kopieren, QR oder senden — dann bezahlt werden",
+      "es": "Cópialo, usa el QR o envíalo, y cobra",
+      "fr": "Copier, QR ou envoyer — puis être payé",
+      "nl": "Kopieer, QR of stuur het — en word betaald",
+      "pt": "Copiar, QR ou enviar — e receber"
+    },
+    "gs.stepDone": {
+      "en": "Done",
+      "de": "Erledigt",
+      "es": "Hecho",
+      "fr": "Terminé",
+      "nl": "Klaar",
+      "pt": "Concluído"
+    },
+    "gs.stepPending": {
+      "en": "Waiting for your first payment",
+      "de": "Warten auf deine erste Zahlung",
+      "es": "Esperando tu primer pago",
+      "fr": "En attente de votre premier paiement",
+      "nl": "Wachten op je eerste betaling",
+      "pt": "À espera do teu primeiro pagamento"
+    },
+    "gs.wizardTitle": {
+      "en": "Set up Dynopay",
+      "de": "Dynopay einrichten",
+      "es": "Configura Dynopay",
+      "fr": "Configurer Dynopay",
+      "nl": "Dynopay instellen",
+      "pt": "Configurar a Dynopay"
+    },
+    "gs.wizardSubtitle": {
+      "en": "Four short steps. Leave anytime — you'll pick up right where you left off.",
+      "de": "Vier kurze Schritte. Du kannst jederzeit unterbrechen und genau dort weitermachen.",
+      "es": "Cuatro pasos breves. Sal cuando quieras: retomarás justo donde lo dejaste.",
+      "fr": "Quatre étapes rapides. Quittez quand vous voulez — vous reprendrez exactement où vous en étiez.",
+      "nl": "Vier korte stappen. Stop wanneer je wilt — je gaat precies verder waar je gebleven was.",
+      "pt": "Quatro passos curtos. Sai quando quiseres — retomas exatamente onde ficaste."
+    },
+    "gs.doLater": {
+      "en": "Do this later",
+      "de": "Später erledigen",
+      "es": "Hacerlo más tarde",
+      "fr": "Plus tard",
+      "nl": "Later doen",
+      "pt": "Fazer mais tarde"
+    },
+    "gs.railHint": {
+      "en": "Progress is saved as you go",
+      "de": "Dein Fortschritt wird automatisch gespeichert",
+      "es": "El progreso se guarda automáticamente",
+      "fr": "Votre progression est enregistrée au fil de l'eau",
+      "nl": "Je voortgang wordt automatisch opgeslagen",
+      "pt": "O progresso é guardado à medida que avanças"
+    },
+    "gs.stepOf": {
+      "en": "Step {{n}} of {{total}}",
+      "de": "Schritt {{n}} von {{total}}",
+      "es": "Paso {{n}} de {{total}}",
+      "fr": "Étape {{n}} sur {{total}}",
+      "nl": "Stap {{n}} van {{total}}",
+      "pt": "Passo {{n}} de {{total}}"
+    },
+    "gs.back": {
+      "en": "Back",
+      "de": "Zurück",
+      "es": "Atrás",
+      "fr": "Retour",
+      "nl": "Terug",
+      "pt": "Voltar"
+    },
+    "gs.continue": {
+      "en": "Continue",
+      "de": "Weiter",
+      "es": "Continuar",
+      "fr": "Continuer",
+      "nl": "Doorgaan",
+      "pt": "Continuar"
+    },
+    "gs.saving": {
+      "en": "Saving…",
+      "de": "Wird gespeichert…",
+      "es": "Guardando…",
+      "fr": "Enregistrement…",
+      "nl": "Opslaan…",
+      "pt": "A guardar…"
+    },
+    "gs.saveContinue": {
+      "en": "Save and continue",
+      "de": "Speichern und weiter",
+      "es": "Guardar y continuar",
+      "fr": "Enregistrer et continuer",
+      "nl": "Opslaan en doorgaan",
+      "pt": "Guardar e continuar"
+    },
+    "gs.loading": {
+      "en": "Loading your setup…",
+      "de": "Deine Einrichtung wird geladen…",
+      "es": "Cargando tu configuración…",
+      "fr": "Chargement de votre configuration…",
+      "nl": "Je instellingen laden…",
+      "pt": "A carregar a tua configuração…"
+    },
+    "gs.aboutTitle": {
+      "en": "Tell us about you",
+      "de": "Erzähl uns von dir",
+      "es": "Cuéntanos sobre ti",
+      "fr": "Parlez-nous de vous",
+      "nl": "Vertel iets over jezelf",
+      "pt": "Fala-nos de ti"
+    },
+    "gs.aboutSubtitle": {
+      "en": "This appears on your checkout and receipts. You can change it anytime in Settings.",
+      "de": "Das erscheint auf deinem Checkout und deinen Belegen. Du kannst es jederzeit in den Einstellungen ändern.",
+      "es": "Esto aparece en tu checkout y tus recibos. Puedes cambiarlo en cualquier momento en Ajustes.",
+      "fr": "Ces informations apparaissent sur votre page de paiement et vos reçus. Modifiables à tout moment dans les Paramètres.",
+      "nl": "Dit staat op je checkout en bonnen. Je kunt het altijd wijzigen in Instellingen.",
+      "pt": "Isto aparece no teu checkout e nos recibos. Podes alterá-lo a qualquer altura nas Definições."
+    },
+    "gs.accountTypeLabel": {
+      "en": "How will you get paid?",
+      "de": "Wie wirst du bezahlt?",
+      "es": "¿Cómo vas a cobrar?",
+      "fr": "Comment serez-vous payé ?",
+      "nl": "Hoe word je betaald?",
+      "pt": "Como vais receber?"
+    },
+    "gs.typeIndividual": {
+      "en": "Individual / creator",
+      "de": "Privatperson / Creator",
+      "es": "Particular / creador",
+      "fr": "Particulier / créateur",
+      "nl": "Particulier / creator",
+      "pt": "Particular / criador"
+    },
+    "gs.typeIndividualDesc": {
+      "en": "Personal payments, tips and a public page.",
+      "de": "Persönliche Zahlungen, Trinkgeld und eine öffentliche Seite.",
+      "es": "Pagos personales, propinas y una página pública.",
+      "fr": "Paiements personnels, pourboires et une page publique.",
+      "nl": "Persoonlijke betalingen, tips en een openbare pagina.",
+      "pt": "Pagamentos pessoais, gorjetas e uma página pública."
+    },
+    "gs.typeBusiness": {
+      "en": "Registered business",
+      "de": "Eingetragenes Unternehmen",
+      "es": "Empresa registrada",
+      "fr": "Entreprise enregistrée",
+      "nl": "Geregistreerd bedrijf",
+      "pt": "Empresa registada"
+    },
+    "gs.typeBusinessDesc": {
+      "en": "Invoices, VAT/tax and team access.",
+      "de": "Rechnungen, USt./Steuern und Teamzugang.",
+      "es": "Facturas, IVA/impuestos y acceso para el equipo.",
+      "fr": "Factures, TVA/taxes et accès équipe.",
+      "nl": "Facturen, btw/belasting en teamtoegang.",
+      "pt": "Faturas, IVA/impostos e acesso da equipa."
+    },
+    "gs.firstName": {
+      "en": "First name",
+      "de": "Vorname",
+      "es": "Nombre",
+      "fr": "Prénom",
+      "nl": "Voornaam",
+      "pt": "Nome"
+    },
+    "gs.lastName": {
+      "en": "Last name",
+      "de": "Nachname",
+      "es": "Apellidos",
+      "fr": "Nom",
+      "nl": "Achternaam",
+      "pt": "Apelido"
+    },
+    "gs.brandName": {
+      "en": "Brand or display name",
+      "de": "Marken- oder Anzeigename",
+      "es": "Nombre de marca o para mostrar",
+      "fr": "Nom de marque ou nom affiché",
+      "nl": "Merk- of weergavenaam",
+      "pt": "Nome da marca ou nome a apresentar"
+    },
+    "gs.brandNamePlaceholder": {
+      "en": "e.g. Ada's Studio",
+      "de": "z. B. Adas Studio",
+      "es": "p. ej. Estudio de Ada",
+      "fr": "ex. Studio d'Ada",
+      "nl": "bijv. Ada's Studio",
+      "pt": "ex.: Estúdio da Ada"
+    },
+    "gs.brandNameHelp": {
+      "en": "Shown to customers at checkout.",
+      "de": "Wird Kunden beim Checkout angezeigt.",
+      "es": "Se muestra a los clientes en el checkout.",
+      "fr": "Affiché aux clients lors du paiement.",
+      "nl": "Zichtbaar voor klanten bij het afrekenen.",
+      "pt": "Mostrado aos clientes no checkout."
+    },
+    "gs.country": {
+      "en": "Country",
+      "de": "Land",
+      "es": "País",
+      "fr": "Pays",
+      "nl": "Land",
+      "pt": "País"
+    },
+    "gs.countryPlaceholder": {
+      "en": "Search your country",
+      "de": "Land suchen",
+      "es": "Busca tu país",
+      "fr": "Rechercher votre pays",
+      "nl": "Zoek je land",
+      "pt": "Procura o teu país"
+    },
+    "gs.countryHelp": {
+      "en": "Sets the right currency, tax and receipt format.",
+      "de": "Legt Währung, Steuer und Belegformat fest.",
+      "es": "Define la moneda, los impuestos y el formato de recibo correctos.",
+      "fr": "Définit la devise, la taxe et le format de reçu adaptés.",
+      "nl": "Bepaalt de juiste valuta, belasting en bonopmaak.",
+      "pt": "Define a moeda, o imposto e o formato de recibo corretos."
+    },
+    "gs.logo": {
+      "en": "Logo (optional)",
+      "de": "Logo (optional)",
+      "es": "Logotipo (opcional)",
+      "fr": "Logo (facultatif)",
+      "nl": "Logo (optioneel)",
+      "pt": "Logótipo (opcional)"
+    },
+    "gs.logoUpload": {
+      "en": "Upload logo",
+      "de": "Logo hochladen",
+      "es": "Subir logotipo",
+      "fr": "Importer un logo",
+      "nl": "Logo uploaden",
+      "pt": "Carregar logótipo"
+    },
+    "gs.logoChange": {
+      "en": "Change logo",
+      "de": "Logo ändern",
+      "es": "Cambiar logotipo",
+      "fr": "Changer le logo",
+      "nl": "Logo wijzigen",
+      "pt": "Alterar logótipo"
+    },
+    "gs.logoAdded": {
+      "en": "Logo added",
+      "de": "Logo hinzugefügt",
+      "es": "Logotipo añadido",
+      "fr": "Logo ajouté",
+      "nl": "Logo toegevoegd",
+      "pt": "Logótipo adicionado"
+    },
+    "gs.nameLocked": {
+      "en": "Your name is verified and can't be changed here.",
+      "de": "Dein Name ist verifiziert und kann hier nicht geändert werden.",
+      "es": "Tu nombre está verificado y no se puede cambiar aquí.",
+      "fr": "Votre nom est vérifié et ne peut pas être modifié ici.",
+      "nl": "Je naam is geverifieerd en kan hier niet worden gewijzigd.",
+      "pt": "O teu nome está verificado e não pode ser alterado aqui."
+    },
+    "gs.errFirstName": {
+      "en": "Enter your first name",
+      "de": "Gib deinen Vornamen ein",
+      "es": "Introduce tu nombre",
+      "fr": "Saisissez votre prénom",
+      "nl": "Vul je voornaam in",
+      "pt": "Introduz o teu nome"
+    },
+    "gs.errLastName": {
+      "en": "Enter your last name",
+      "de": "Gib deinen Nachnamen ein",
+      "es": "Introduce tus apellidos",
+      "fr": "Saisissez votre nom",
+      "nl": "Vul je achternaam in",
+      "pt": "Introduz o teu apelido"
+    },
+    "gs.errBrandName": {
+      "en": "Enter a brand or display name",
+      "de": "Gib einen Marken- oder Anzeigenamen ein",
+      "es": "Introduce un nombre de marca o para mostrar",
+      "fr": "Saisissez un nom de marque ou un nom affiché",
+      "nl": "Vul een merk- of weergavenaam in",
+      "pt": "Introduz um nome de marca ou nome a apresentar"
+    },
+    "gs.errCountry": {
+      "en": "Choose your country",
+      "de": "Wähle dein Land",
+      "es": "Elige tu país",
+      "fr": "Choisissez votre pays",
+      "nl": "Kies je land",
+      "pt": "Escolhe o teu país"
+    },
+    "gs.errFile": {
+      "en": "Use a PNG, JPG, GIF, WEBP or SVG under 5 MB",
+      "de": "Verwende PNG, JPG, GIF, WEBP oder SVG unter 5 MB",
+      "es": "Usa un PNG, JPG, GIF, WEBP o SVG de menos de 5 MB",
+      "fr": "Utilisez un PNG, JPG, GIF, WEBP ou SVG de moins de 5 Mo",
+      "nl": "Gebruik een PNG, JPG, GIF, WEBP of SVG kleiner dan 5 MB",
+      "pt": "Usa um PNG, JPG, GIF, WEBP ou SVG com menos de 5 MB"
+    },
+    "gs.errGeneric": {
+      "en": "Couldn't save — please try again.",
+      "de": "Speichern fehlgeschlagen — bitte erneut versuchen.",
+      "es": "No se pudo guardar. Inténtalo de nuevo.",
+      "fr": "Enregistrement impossible — veuillez réessayer.",
+      "nl": "Opslaan mislukt — probeer het opnieuw.",
+      "pt": "Não foi possível guardar — tenta novamente."
+    },
+    "gs.payoutsTitle": {
+      "en": "Where should your money go?",
+      "de": "Wohin soll dein Geld gehen?",
+      "es": "¿A dónde debe ir tu dinero?",
+      "fr": "Où doit aller votre argent ?",
+      "nl": "Waar moet je geld heen?",
+      "pt": "Para onde deve ir o teu dinheiro?"
+    },
+    "gs.payoutsSubtitle": {
+      "en": "Payments are forwarded straight to a wallet you control. Add at least one address to unlock payment links.",
+      "de": "Zahlungen werden direkt an eine Wallet weitergeleitet, die du kontrollierst. Füge mindestens eine Adresse hinzu, um Zahlungslinks freizuschalten.",
+      "es": "Los pagos se envían directamente a una wallet que tú controlas. Añade al menos una dirección para desbloquear los enlaces de pago.",
+      "fr": "Les paiements sont transférés directement vers un portefeuille que vous contrôlez. Ajoutez au moins une adresse pour débloquer les liens de paiement.",
+      "nl": "Betalingen gaan rechtstreeks naar een wallet die jij beheert. Voeg minstens één adres toe om betaallinks te ontgrendelen.",
+      "pt": "Os pagamentos são enviados diretamente para uma carteira que controlas. Adiciona pelo menos um endereço para desbloquear os links de pagamento."
+    },
+    "gs.payoutsPoint1Title": {
+      "en": "Your keys, your coins",
+      "de": "Deine Schlüssel, deine Coins",
+      "es": "Tus claves, tus monedas",
+      "fr": "Vos clés, vos cryptos",
+      "nl": "Jouw sleutels, jouw coins",
+      "pt": "As tuas chaves, as tuas moedas"
+    },
+    "gs.payoutsPoint1": {
+      "en": "Each payment settles straight to the address you add here. Dynopay never holds your funds.",
+      "de": "Jede Zahlung geht direkt an die Adresse, die du hier hinzufügst. Dynopay verwahrt deine Gelder nie.",
+      "es": "Cada pago se liquida directamente en la dirección que añadas aquí. Dynopay nunca retiene tus fondos.",
+      "fr": "Chaque paiement est réglé directement à l'adresse que vous ajoutez ici. Dynopay ne détient jamais vos fonds.",
+      "nl": "Elke betaling komt rechtstreeks aan op het adres dat je hier toevoegt. Dynopay houdt je geld nooit vast.",
+      "pt": "Cada pagamento é liquidado diretamente no endereço que adicionas aqui. A Dynopay nunca retém os teus fundos."
+    },
+    "gs.payoutsPoint2Title": {
+      "en": "One address per coin",
+      "de": "Eine Adresse pro Coin",
+      "es": "Una dirección por moneda",
+      "fr": "Une adresse par crypto",
+      "nl": "Eén adres per coin",
+      "pt": "Um endereço por moeda"
+    },
+    "gs.payoutsPoint2": {
+      "en": "Add the coins you want to accept now — you can add more later.",
+      "de": "Füge jetzt die Coins hinzu, die du akzeptieren willst — weitere kannst du später ergänzen.",
+      "es": "Añade ahora las monedas que quieras aceptar; podrás añadir más después.",
+      "fr": "Ajoutez dès maintenant les cryptos que vous souhaitez accepter — vous pourrez en ajouter d'autres plus tard.",
+      "nl": "Voeg nu de coins toe die je wilt accepteren — later kun je er meer toevoegen.",
+      "pt": "Adiciona agora as moedas que queres aceitar — podes adicionar mais depois."
+    },
+    "gs.payoutsPoint3Title": {
+      "en": "Protected by a one-time code",
+      "de": "Geschützt durch einen Einmalcode",
+      "es": "Protegido con un código de un solo uso",
+      "fr": "Protégé par un code à usage unique",
+      "nl": "Beveiligd met een eenmalige code",
+      "pt": "Protegido por um código de utilização única"
+    },
+    "gs.payoutsPoint3": {
+      "en": "Wallet changes always ask for a code sent to your email.",
+      "de": "Wallet-Änderungen erfordern immer einen Code, der an deine E-Mail gesendet wird.",
+      "es": "Los cambios de wallet siempre piden un código enviado a tu correo.",
+      "fr": "Toute modification de portefeuille demande un code envoyé à votre e-mail.",
+      "nl": "Walletwijzigingen vragen altijd om een code die naar je e-mail wordt gestuurd.",
+      "pt": "As alterações de carteira pedem sempre um código enviado para o teu e-mail."
+    },
+    "gs.walletsConfigured": {
+      "en": "Configured payout wallets ({{count}})",
+      "de": "Eingerichtete Auszahlungs-Wallets ({{count}})",
+      "es": "Wallets de pago configuradas ({{count}})",
+      "fr": "Portefeuilles de paiement configurés ({{count}})",
+      "nl": "Ingestelde uitbetalingswallets ({{count}})",
+      "pt": "Carteiras de pagamento configuradas ({{count}})"
+    },
+    "gs.addAnotherWallet": {
+      "en": "Add another wallet",
+      "de": "Weitere Wallet hinzufügen",
+      "es": "Añadir otra wallet",
+      "fr": "Ajouter un autre portefeuille",
+      "nl": "Nog een wallet toevoegen",
+      "pt": "Adicionar outra carteira"
+    },
+    "gs.noWalletsYet": {
+      "en": "No payout wallet yet — add your first one to unlock payment links. It takes about 30 seconds.",
+      "de": "Noch keine Auszahlungs-Wallet — füge deine erste hinzu, um Zahlungslinks freizuschalten. Dauert etwa 30 Sekunden.",
+      "es": "Aún no hay wallet de pago: añade la primera para desbloquear los enlaces de pago. Tarda unos 30 segundos.",
+      "fr": "Aucun portefeuille de paiement pour l'instant — ajoutez le premier pour débloquer les liens de paiement. Cela prend environ 30 secondes.",
+      "nl": "Nog geen uitbetalingswallet — voeg je eerste toe om betaallinks te ontgrendelen. Dit duurt ongeveer 30 seconden.",
+      "pt": "Ainda não há carteira de pagamento — adiciona a primeira para desbloquear os links de pagamento. Demora cerca de 30 segundos."
+    },
+    "gs.addWallet": {
+      "en": "Add payout wallet",
+      "de": "Auszahlungs-Wallet hinzufügen",
+      "es": "Añadir wallet de pago",
+      "fr": "Ajouter un portefeuille de paiement",
+      "nl": "Uitbetalingswallet toevoegen",
+      "pt": "Adicionar carteira de pagamento"
+    },
+    "gs.linkTitle": {
+      "en": "Create your first payment link",
+      "de": "Erstelle deinen ersten Zahlungslink",
+      "es": "Crea tu primer enlace de pago",
+      "fr": "Créez votre premier lien de paiement",
+      "nl": "Maak je eerste betaallink",
+      "pt": "Cria o teu primeiro link de pagamento"
+    },
+    "gs.linkSubtitle": {
+      "en": "Set an amount and say what it's for. The preview shows exactly what your customer will see.",
+      "de": "Lege einen Betrag fest und beschreibe, wofür er ist. Die Vorschau zeigt genau, was dein Kunde sieht.",
+      "es": "Indica un importe y para qué es. La vista previa muestra exactamente lo que verá tu cliente.",
+      "fr": "Indiquez un montant et son objet. L'aperçu montre exactement ce que verra votre client.",
+      "nl": "Kies een bedrag en zeg waar het voor is. Het voorbeeld toont precies wat je klant ziet.",
+      "pt": "Define um valor e diz para que serve. A pré-visualização mostra exatamente o que o teu cliente vai ver."
+    },
+    "gs.amount": {
+      "en": "Amount",
+      "de": "Betrag",
+      "es": "Importe",
+      "fr": "Montant",
+      "nl": "Bedrag",
+      "pt": "Valor"
+    },
+    "gs.description": {
+      "en": "What is it for?",
+      "de": "Wofür ist es?",
+      "es": "¿Para qué es?",
+      "fr": "Pour quoi ?",
+      "nl": "Waar is het voor?",
+      "pt": "Para que serve?"
+    },
+    "gs.descriptionPlaceholder": {
+      "en": "e.g. Logo design — final payment",
+      "de": "z. B. Logodesign — Schlusszahlung",
+      "es": "p. ej. Diseño de logo — pago final",
+      "fr": "ex. Création de logo — paiement final",
+      "nl": "bijv. Logo-ontwerp — eindbetaling",
+      "pt": "ex.: Design de logótipo — pagamento final"
+    },
+    "gs.createLink": {
+      "en": "Create link",
+      "de": "Link erstellen",
+      "es": "Crear enlace",
+      "fr": "Créer le lien",
+      "nl": "Link maken",
+      "pt": "Criar link"
+    },
+    "gs.creating": {
+      "en": "Creating…",
+      "de": "Wird erstellt…",
+      "es": "Creando…",
+      "fr": "Création…",
+      "nl": "Aanmaken…",
+      "pt": "A criar…"
+    },
+    "gs.errAmount": {
+      "en": "Enter an amount greater than 0",
+      "de": "Gib einen Betrag größer als 0 ein",
+      "es": "Introduce un importe mayor que 0",
+      "fr": "Saisissez un montant supérieur à 0",
+      "nl": "Vul een bedrag groter dan 0 in",
+      "pt": "Introduz um valor superior a 0"
+    },
+    "gs.errDescription": {
+      "en": "Add a short description",
+      "de": "Füge eine kurze Beschreibung hinzu",
+      "es": "Añade una breve descripción",
+      "fr": "Ajoutez une courte description",
+      "nl": "Voeg een korte omschrijving toe",
+      "pt": "Adiciona uma breve descrição"
+    },
+    "gs.errLinkGeneric": {
+      "en": "Couldn't create the link — please try again.",
+      "de": "Link konnte nicht erstellt werden — bitte erneut versuchen.",
+      "es": "No se pudo crear el enlace. Inténtalo de nuevo.",
+      "fr": "Impossible de créer le lien — veuillez réessayer.",
+      "nl": "De link kon niet worden gemaakt — probeer het opnieuw.",
+      "pt": "Não foi possível criar o link — tenta novamente."
+    },
+    "gs.existingLinkTitle": {
+      "en": "You already have a payment link",
+      "de": "Du hast bereits einen Zahlungslink",
+      "es": "Ya tienes un enlace de pago",
+      "fr": "Vous avez déjà un lien de paiement",
+      "nl": "Je hebt al een betaallink",
+      "pt": "Já tens um link de pagamento"
+    },
+    "gs.useThisLink": {
+      "en": "Use this link",
+      "de": "Diesen Link verwenden",
+      "es": "Usar este enlace",
+      "fr": "Utiliser ce lien",
+      "nl": "Deze link gebruiken",
+      "pt": "Usar este link"
+    },
+    "gs.createNewInstead": {
+      "en": "Create a new one",
+      "de": "Neuen erstellen",
+      "es": "Crear uno nuevo",
+      "fr": "En créer un nouveau",
+      "nl": "Nieuwe maken",
+      "pt": "Criar um novo"
+    },
+    "gs.needWalletTitle": {
+      "en": "Add a payout wallet first",
+      "de": "Füge zuerst eine Auszahlungs-Wallet hinzu",
+      "es": "Añade primero una wallet de pago",
+      "fr": "Ajoutez d'abord un portefeuille de paiement",
+      "nl": "Voeg eerst een uitbetalingswallet toe",
+      "pt": "Adiciona primeiro uma carteira de pagamento"
+    },
+    "gs.needWalletBody": {
+      "en": "A payment link needs somewhere to send the money. Adding a wallet takes about 30 seconds.",
+      "de": "Ein Zahlungslink braucht ein Ziel für das Geld. Eine Wallet hinzuzufügen dauert etwa 30 Sekunden.",
+      "es": "Un enlace de pago necesita un destino para el dinero. Añadir una wallet tarda unos 30 segundos.",
+      "fr": "Un lien de paiement a besoin d'une destination pour l'argent. Ajouter un portefeuille prend environ 30 secondes.",
+      "nl": "Een betaallink heeft een bestemming voor het geld nodig. Een wallet toevoegen duurt ongeveer 30 seconden.",
+      "pt": "Um link de pagamento precisa de um destino para o dinheiro. Adicionar uma carteira demora cerca de 30 segundos."
+    },
+    "gs.goToPayouts": {
+      "en": "Add payout wallet",
+      "de": "Auszahlungs-Wallet hinzufügen",
+      "es": "Añadir wallet de pago",
+      "fr": "Ajouter un portefeuille de paiement",
+      "nl": "Uitbetalingswallet toevoegen",
+      "pt": "Adicionar carteira de pagamento"
+    },
+    "gs.hidePreview": {
+      "en": "Hide preview",
+      "de": "Vorschau ausblenden",
+      "es": "Ocultar vista previa",
+      "fr": "Masquer l'aperçu",
+      "nl": "Voorbeeld verbergen",
+      "pt": "Ocultar pré-visualização"
+    },
+    "gs.showPreview": {
+      "en": "Show customer preview",
+      "de": "Kundenvorschau anzeigen",
+      "es": "Ver vista previa del cliente",
+      "fr": "Voir l'aperçu client",
+      "nl": "Klantvoorbeeld tonen",
+      "pt": "Ver pré-visualização do cliente"
+    },
+    "gs.previewEyebrow": {
+      "en": "Live preview",
+      "de": "Live-Vorschau",
+      "es": "Vista previa en vivo",
+      "fr": "Aperçu en direct",
+      "nl": "Live voorbeeld",
+      "pt": "Pré-visualização ao vivo"
+    },
+    "gs.previewPayTo": {
+      "en": "Pay {{brand}}",
+      "de": "Zahlung an {{brand}}",
+      "es": "Pagar a {{brand}}",
+      "fr": "Payer {{brand}}",
+      "nl": "Betaal {{brand}}",
+      "pt": "Pagar a {{brand}}"
+    },
+    "gs.previewSecured": {
+      "en": "Secured by Dynopay",
+      "de": "Gesichert durch Dynopay",
+      "es": "Protegido por Dynopay",
+      "fr": "Sécurisé par Dynopay",
+      "nl": "Beveiligd door Dynopay",
+      "pt": "Protegido pela Dynopay"
+    },
+    "gs.previewDescPlaceholder": {
+      "en": "What is this payment for?",
+      "de": "Wofür ist diese Zahlung?",
+      "es": "¿Para qué es este pago?",
+      "fr": "À quoi correspond ce paiement ?",
+      "nl": "Waar is deze betaling voor?",
+      "pt": "Para que é este pagamento?"
+    },
+    "gs.previewPayWith": {
+      "en": "Pay with",
+      "de": "Bezahlen mit",
+      "es": "Pagar con",
+      "fr": "Payer avec",
+      "nl": "Betaal met",
+      "pt": "Pagar com"
+    },
+    "gs.previewNoCoins": {
+      "en": "Coins from your payout wallets appear here",
+      "de": "Coins aus deinen Auszahlungs-Wallets erscheinen hier",
+      "es": "Aquí aparecerán las monedas de tus wallets de pago",
+      "fr": "Les cryptos de vos portefeuilles de paiement apparaîtront ici",
+      "nl": "Coins uit je uitbetalingswallets verschijnen hier",
+      "pt": "As moedas das tuas carteiras de pagamento aparecem aqui"
+    },
+    "gs.previewButton": {
+      "en": "Pay with crypto",
+      "de": "Mit Krypto bezahlen",
+      "es": "Pagar con cripto",
+      "fr": "Payer en crypto",
+      "nl": "Betalen met crypto",
+      "pt": "Pagar com cripto"
+    },
+    "gs.shareTitle": {
+      "en": "Your link is live",
+      "de": "Dein Link ist live",
+      "es": "Tu enlace está activo",
+      "fr": "Votre lien est en ligne",
+      "nl": "Je link is live",
+      "pt": "O teu link está ativo"
+    },
+    "gs.shareSubtitle": {
+      "en": "Send it to a customer — the payment lands in your wallet and shows up on your dashboard.",
+      "de": "Sende ihn an einen Kunden — die Zahlung landet in deiner Wallet und erscheint auf deinem Dashboard.",
+      "es": "Envíaselo a un cliente: el pago llegará a tu wallet y aparecerá en tu panel.",
+      "fr": "Envoyez-le à un client — le paiement arrive dans votre portefeuille et s'affiche sur votre tableau de bord.",
+      "nl": "Stuur hem naar een klant — de betaling komt in je wallet en verschijnt op je dashboard.",
+      "pt": "Envia-o a um cliente — o pagamento chega à tua carteira e aparece no teu painel."
+    },
+    "gs.copyFailed": {
+      "en": "Copy failed — select and copy manually.",
+      "de": "Kopieren fehlgeschlagen — bitte manuell markieren und kopieren.",
+      "es": "No se pudo copiar. Selecciona y copia manualmente.",
+      "fr": "Copie impossible — sélectionnez et copiez manuellement.",
+      "nl": "Kopiëren mislukt — selecteer en kopieer handmatig.",
+      "pt": "Falha ao copiar — seleciona e copia manualmente."
+    },
+    "gs.linkReady": {
+      "en": "Ready to share",
+      "de": "Bereit zum Teilen",
+      "es": "Listo para compartir",
+      "fr": "Prêt à partager",
+      "nl": "Klaar om te delen",
+      "pt": "Pronto a partilhar"
+    },
+    "gs.copyLink": {
+      "en": "Copy link",
+      "de": "Link kopieren",
+      "es": "Copiar enlace",
+      "fr": "Copier le lien",
+      "nl": "Link kopiëren",
+      "pt": "Copiar link"
+    },
+    "gs.copied": {
+      "en": "Copied ✓",
+      "de": "Kopiert ✓",
+      "es": "Copiado ✓",
+      "fr": "Copié ✓",
+      "nl": "Gekopieerd ✓",
+      "pt": "Copiado ✓"
+    },
+    "gs.share": {
+      "en": "Share",
+      "de": "Teilen",
+      "es": "Compartir",
+      "fr": "Partager",
+      "nl": "Delen",
+      "pt": "Partilhar"
+    },
+    "gs.openLink": {
+      "en": "Open link",
+      "de": "Link öffnen",
+      "es": "Abrir enlace",
+      "fr": "Ouvrir le lien",
+      "nl": "Link openen",
+      "pt": "Abrir link"
+    },
+    "gs.downloadQr": {
+      "en": "Download QR",
+      "de": "QR herunterladen",
+      "es": "Descargar QR",
+      "fr": "Télécharger le QR",
+      "nl": "QR downloaden",
+      "pt": "Transferir QR"
+    },
+    "gs.nextTitle": {
+      "en": "What happens next",
+      "de": "So geht es weiter",
+      "es": "Qué pasa ahora",
+      "fr": "Et ensuite",
+      "nl": "Wat er nu gebeurt",
+      "pt": "O que acontece a seguir"
+    },
+    "gs.next1": {
+      "en": "Your customer opens the link and pays in the coin they choose.",
+      "de": "Dein Kunde öffnet den Link und zahlt in der Coin seiner Wahl.",
+      "es": "Tu cliente abre el enlace y paga con la moneda que elija.",
+      "fr": "Votre client ouvre le lien et paie dans la crypto de son choix.",
+      "nl": "Je klant opent de link en betaalt in de coin van zijn keuze.",
+      "pt": "O teu cliente abre o link e paga na moeda que escolher."
+    },
+    "gs.next2": {
+      "en": "The funds are forwarded straight to your payout wallet.",
+      "de": "Die Gelder werden direkt an deine Auszahlungs-Wallet weitergeleitet.",
+      "es": "Los fondos se envían directamente a tu wallet de pago.",
+      "fr": "Les fonds sont transférés directement vers votre portefeuille de paiement.",
+      "nl": "Het geld gaat rechtstreeks naar je uitbetalingswallet.",
+      "pt": "Os fundos são enviados diretamente para a tua carteira de pagamento."
+    },
+    "gs.next3": {
+      "en": "You get notified and your dashboard fills in.",
+      "de": "Du wirst benachrichtigt und dein Dashboard füllt sich.",
+      "es": "Recibes una notificación y tu panel se completa.",
+      "fr": "Vous êtes notifié et votre tableau de bord se remplit.",
+      "nl": "Je krijgt een melding en je dashboard vult zich.",
+      "pt": "Recebes uma notificação e o teu painel preenche-se."
+    },
+    "gs.goDashboard": {
+      "en": "Go to dashboard",
+      "de": "Zum Dashboard",
+      "es": "Ir al panel",
+      "fr": "Aller au tableau de bord",
+      "nl": "Naar dashboard",
+      "pt": "Ir para o painel"
+    },
+    "gs.createAnother": {
+      "en": "Create another link",
+      "de": "Weiteren Link erstellen",
+      "es": "Crear otro enlace",
+      "fr": "Créer un autre lien",
+      "nl": "Nog een link maken",
+      "pt": "Criar outro link"
+    }
+  }
+}

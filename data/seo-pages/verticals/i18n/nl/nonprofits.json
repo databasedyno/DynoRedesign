@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto-betalingen voor non-profitorganisaties en goede doelen · Dynopay",
+  "meta_description": "Accepteer Bitcoin, Ethereum en 15+ cryptocurrencies voor donaties. Geen terugboekingen, geen maandelijkse kosten. Fondsen gaan rechtstreeks naar uw portemonnee. Begin vandaag gratis.",
+  "h1": "Accepteer Crypto-betalingen voor Non-profitorganisaties en Goede Doelen Zonder Terugboekingen",
+  "subheading": "Ontvang donaties in Bitcoin, Ethereum, USDC en 15+ cryptocurrencies—fondsen komen rechtstreeks in uw portemonnee aan zonder risico op terugboekingen.",
+  "intro_paragraph": "Donatiefraude kost non-profitorganisaties duizenden aan teruggedraaide creditcardgiften en geschillen over verwerking. Dynopay elimineert terugboekingen volledig door crypto-donaties te accepteren die rechtstreeks naar de portemonnee van uw organisatie worden overgemaakt—u behoudt de volledige controle vanaf het moment dat een donor fondsen verzendt. Start donatiepagina's, embed checkout-widgets op uw site, of voer crowdfundingcampagnes uit met doeltracking en updates voor donoren. Kosten beginnen bij 1,5% en dalen naar 0,5% bij schaalvergroting, zonder maandelijkse kosten en uw eerste donatie is volledig gratis.",
+  "features": [
+    {
+      "title": "Geen Terugboekingsrisico op Donaties",
+      "description": "Crypto-transacties zijn definitief. Zodra een donor Bitcoin of stablecoin verzendt, kunnen de fondsen niet worden teruggedraaid of betwist, wat uw budget beschermt tegen frauduleuze terugvorderingsclaims."
+    },
+    {
+      "title": "Fondsen Gaan Rechtstreeks Naar U",
+      "description": "Het non-custodial model betekent dat donaties onmiddellijk in uw eigen portemonnee aankomen. Dynopay houdt uw fondsen nooit vast, zodat u de controle heeft over de schatkist en uitbetalingen zonder vertragingen bij opnames."
+    },
+    {
+      "title": "Accepteer Donaties Wereldwijd",
+      "description": "Ondersteuners overal kunnen doneren in hun favoriete cryptocurrency zonder kosten voor valutaconversie, vertragingen bij grensoverschrijdende overboekingen of geografische beperkingen van betalingsverwerkers."
+    }
+  ],
+  "how_it_works": [
+    "Meld u aan, verifieer uw e-mail, maak uw non-profitprofiel aan en voeg uw uitbetalingsportemonnee-adres toe.",
+    "Genereer een donatielink of embed de checkout-widget op uw website om crypto te gaan accepteren.",
+    "Donoren sturen Bitcoin, USDC of andere ondersteunde activa en fondsen worden rechtstreeks naar uw portemonnee overgemaakt."
+  ],
+  "faqs": [
+    {
+      "question": "Betalen non-profitorganisaties transactiekosten op crypto-donaties?",
+      "answer": "Ja. Dynopay rekent vanaf 1,5% plus één dollar per donatie op het Starter-niveau, dat automatisch daalt naar 0,5% naarmate uw verwerkte volume groeit. Geen maandelijkse kosten of opstartkosten. Uw eerste donatie is volledig kosteloos, en er zijn geen terugboekingskosten omdat crypto-betalingen definitief zijn."
+    },
+    {
+      "question": "Welke cryptocurrencies kunnen non-profitorganisaties accepteren voor donaties?",
+      "answer": "Dynopay ondersteunt 15+ cryptocurrencies, waaronder Bitcoin, Ethereum, Litecoin, Dogecoin, USDT en USDC stablecoins op Ethereum en Polygon, Solana, XRP, RLUSD, Tron en Bitcoin Cash. Donoren kiezen hun favoriete activa bij de checkout."
+    },
+    {
+      "question": "Hoe komen gedoneerde crypto-fondsen in de portemonnee van onze non-profitorganisatie?",
+      "answer": "Dynopay is non-custodial. Donaties gaan rechtstreeks van de donor naar het portemonnee-adres dat u tijdens de installatie configureert. U behoudt te allen tijde de volledige controle—Dynopay houdt uw fondsen nooit vast, poolt ze niet of controleert ze niet. U kunt onmiddellijk opnemen of uitgeven."
+    },
+    {
+      "question": "Kunnen internationale supporters crypto doneren aan Amerikaanse non-profitorganisaties?",
+      "answer": "Ja. Crypto-donaties werken wereldwijd standaard zonder landbeperkingen voor wie fondsen naar uw portemonnee kan sturen. Donoren vermijden internationale overboekingskosten en kosten voor valutaconversie, en u ontvangt bijdragen binnen enkele minuten, ongeacht hun locatie."
+    },
+    {
+      "question": "Hoe lang duurt het om crypto-donaties te gaan accepteren?",
+      "answer": "Minder dan 10 minuten. Meld u aan, verifieer uw e-mail, maak uw non-profitprofiel aan, voeg één uitbetalingsportemonnee toe, genereer vervolgens een donatielink of embed de widget op uw website. Geen goedkeuringen voor handelsaccounts of bankintegratie vereist."
+    }
+  ],
+  "cta_headline": "Begin Vandaag Met Het Accepteren Van Crypto Donaties",
+  "cta_body": "Uw eerste donatie is kosteloos. Ga live in minder dan 10 minuten zonder opstartkosten of maandelijkse kosten.",
+  "_generated_at": "2026-08-29T14:56:49.775449Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "nonprofits",
+  "_display_name": "Nonprofits & Charities"
+}

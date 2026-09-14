@@ -1,0 +1,53 @@
+{
+  "summary": "Frontend-only verification of the new phone tab bar (Home · Sell · [+] · Money · More) and shared-address chips on /wallet against The Dev Store (company_id=1). 10 of 11 requested items pass. One functional bug: keyboard 'n' shortcut to open the header create menu is permanently blocked by stale hidden MUI dialogs left in the DOM (role=dialog selector in the blocker check does not exclude .MuiModal-hidden ancestors).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "NewHeader/CreateNewButton.tsx",
+        "issue": "Keyboard shortcut 'n' does not open the header create menu on any page. Cause: the guard `document.querySelector(\".MuiModal-root:not(.MuiModal-hidden), [role='dialog'], [role='alertdialog'], dialog[open]\")` short-circuits because MUI keeps closed Dialogs mounted with a .MuiModal-hidden wrapper but the inner element still has role='dialog'. Right after login on /dashboard (The Dev Store) 5 such stale hidden dialogs are present (all inside .MuiModal-hidden, visibility:hidden), so the shortcut is dead 100% of the time.",
+        "selector": "line 72 of Components/Layout/NewHeader/CreateNewButton.tsx",
+        "priority": "MEDIUM",
+        "fix_hint": "Scope the dialog check to visible modals, e.g. `.MuiModal-root:not(.MuiModal-hidden) [role='dialog'], .MuiModal-root:not(.MuiModal-hidden), dialog[open]`, or filter matches by !el.closest('.MuiModal-hidden') && getComputedStyle(el).visibility !== 'hidden'."
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verified_passes": [
+    "PHONE 390x844 mobile-navigation-bar first row = [mobile-nav-home, mobile-nav-sell, mobile-nav-create-slot(+mobile-nav-create), mobile-nav-money, mobile-nav-more] in that exact order.",
+    "No horizontal overflow at 390x844, 360x780, 320x700 (scrollWidth == clientWidth == 256).",
+    "mobile-nav-create is a round '+' button with aria-label='New' and no text label.",
+    "PHONE: data-testid=header-create-new wrapper computed display:none (0x0 rect); header search/bell/account still visible.",
+    "Tapping mobile-nav-create renders header-create-paylink ('Payment link') and header-create-product ('Product') above the tab bar (menu y=660-756 at 390x844).",
+    "Payment link opens QuickCreateLinkPanel drawer; closes cleanly with Escape.",
+    "Product item navigates to /pay-links/products/new on both phone and desktop.",
+    "Active-state routing on phone: /payouts, /transactions, /invoices, /wallet -> mobile-nav-money aria-current=page; /storefront -> mobile-nav-sell aria-current=page.",
+    "More expands to include mobile-nav-storefront, -transactions, -invoices, -wallet, -customers, -api, -referrals, -notifications, -settings, -language, -help-support. No mobile-nav-pay-links and no mobile-nav-payments.",
+    "Tapping mobile-nav-wallet navigates to /wallet AND collapses the More rows (mobile-nav-storefront gone).",
+    "TABLET 1024x800 and DESKTOP 1440x900: mobile-navigation-bar NOT rendered; header-create-new visible (87x44) and its menu works.",
+    "SHARED ADDRESS TAGS on /wallet PHONE 390x844: 9 chips (matches smoke baseline): wallet-shared-tag-1 count=2, tag-2 count=5, tag-3 count=2, tag-4 count=2, tag-5 count=5, tag-6 count=5, tag-11 count=5, tag-12 count=5, tag-13 count=2. Text 'Used on N networks'. No overflow.",
+    "DESKTOP 1440x900 /wallet: same 9 chips with matching data-count. Hover tooltip on wallet-shared-tag-1 shows 'Same address also saved for: BCH' (excludes card's own ticker).",
+    "Manage wallets panel opens from wallet-manage-btn, gate copy contains '13'; OTP flow not verifiable (email disabled) — as instructed.",
+    "Console on /dashboard, /wallet, /pay-links, /payouts, /transactions phone-width: no React errors/hydration warnings. Only benign recharts width(-1) style warning during initial mount."
+  ],
+  "not_verifiable_in_env": [
+    "Manage-wallets shared chips (wallet-manager-shared-<TICKER>): rows render only post-OTP unlock; outbound email is off on this pod. Verified only that the panel opens with the 13-wallet gate."
+  ],
+  "test_report_links": [],
+  "action_items": [
+    "Fix the 'n' keyboard shortcut regression in Components/Layout/NewHeader/CreateNewButton.tsx line 72 so hidden MUI dialogs are ignored (see fix_hint)."
+  ],
+  "critical_code_review_comments": [
+    "CreateNewButton.tsx line 72 uses `[role='dialog']` without visibility check; because MUI Dialogs stay mounted, this selector kills the shortcut 100% of the time in a logged-in session.",
+    "The new-merchant wizard modal (e.g. QA Store brand) contributes additional hidden role=dialog nodes that also block the 'n' shortcut after a brand switch."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "10/11 items pass (~91%)"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ on The Dev Store (company_id=1)",
+  "seed_data_creation": "None (SAFE MODE, read-only on prod DB).",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Only the 'n' keyboard shortcut needs re-verification once fixed. Repro: login, land on /dashboard, click empty body area, press 'n' -> expect header-create-paylink visible. Second 'n' should NOT double-open. All other requested items (tab bar order/routing/active-state, header-create hidden on phone, create menu items, phone/desktop shared-address chips, tooltip, manage-panel gate copy, 1024/1440 regression, console clean) are already verified green on this pod for company_id=1. Do NOT mutate wallets/pay-links/products.",
+  "rca of the issue": "CreateNewButton.tsx registers a global keydown listener that bails out if `document.querySelector(\".MuiModal-root:not(.MuiModal-hidden), [role='dialog'], [role='alertdialog'], dialog[open]\")` returns any element. MUI keeps closed Dialogs mounted; the outer .MuiModal-root gets the MuiModal-hidden class, but the inner Paper/Content still carries role='dialog'. That comma-separated `[role='dialog']` branch is not scoped to visible ancestors, so any once-opened dialog leaves a permanent match and the shortcut is disabled. Mitigation: change the guard to select role='dialog' only under visible modals (e.g. `.MuiModal-root:not(.MuiModal-hidden) [role='dialog']`) OR filter matches by !el.closest('.MuiModal-hidden') and computed visibility !== 'hidden'."
+}

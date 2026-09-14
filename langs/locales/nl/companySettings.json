@@ -1,0 +1,69 @@
+{
+  "title": "Merkgegevens",
+  "subtitle": "Hier kun je de gegevens van je merk bekijken of wijzigen.",
+  "profileImage": "Profielafbeelding",
+  "fields": {
+    "profileName": "Profielnaam*"
+  },
+  "webhookNotifications": "Webhook-meldingen",
+  "webhookSubtitle": "Ontvang automatische meldingen wanneer betalingen worden gedaan.",
+  "webhookNotificationUrl": "Meldings-URL",
+  "webhookNotificationUrlHelper": "Waar moeten we betalingsmeldingen naartoe sturen?",
+  "webhookSecretKey": "Geheime sleutel",
+  "webhookSecretKeyHelper": "Gebruik dit om te verifiëren dat meldingen echt van Dynopay komen.",
+  "webhookCopy": "Kopiëren",
+  "webhookReveal": "Geheime sleutel tonen",
+  "webhookHide": "Geheime sleutel verbergen",
+  "webhookRegenerate": "Geheime sleutel opnieuw genereren",
+  "webhookRegenerateConfirmTitle": "Nieuwe geheime sleutel genereren?",
+  "webhookRegenerateConfirmMessage": "Uw huidige geheime sleutel stopt onmiddellijk met werken. Zorg ervoor dat u uw integratie bijwerkt voordat u een nieuwe genereert.",
+  "webhookRegenerateConfirmButton": "Nieuwe genereren",
+  "webhookSendTest": "Test verzenden",
+  "paymentTolerance": "Betalingstolerantie",
+  "paymentToleranceSubtitle": "Bepaal hoeveel afwijking bij betalingen wordt geaccepteerd.",
+  "paymentToleranceFields": {
+    "acceptUnderpaymentsUpTo": "Onderbetalingen accepteren tot",
+    "acceptUnderpaymentsHelper": "Als een $100-betaling binnenkomt als $99, wordt deze toch als voltooid gemarkeerd.",
+    "flagOverpaymentsAbove": "Overbetalingen markeren boven",
+    "flagOverpaymentsHelper": "U ontvangt een melding wanneer iemand meer betaalt dan dit bedrag boven het totaal.",
+    "timeForPartialPayments": "Tijd voor gedeeltelijke betalingen",
+    "timeForPartialPaymentsHelper": "Hoe lang wachten op voltooiing van een gedeeltelijke betaling",
+    "minutes": "minuten"
+  },
+  "cryptoConversion": "Crypto-conversie",
+  "cryptoConversionSubtitle": "Inkomende BTC, ETH, LTC worden automatisch geconverteerd naar een stablecoin.",
+  "cryptoConversionAlert": "Stel eerst uw USDT/USDC-wallet in.",
+  "cryptoConversionAutoConvert": "Volatiele crypto automatisch converteren",
+  "cryptoConversionYes": "Ja",
+  "cryptoConversionNo": "Nee",
+  "cryptoConversionFee": "Conversiekosten: 0%",
+  "cryptoConversionConvertTo": "Converteren naar:",
+  "cryptoConversionUsdtTrc20": "USDT (TRC20)",
+  "cryptoConversionUsdtErc20": "USDT (ERC20)",
+  "cryptoConversionUsdcErc20": "USDC (ERC20)",
+  "cryptoConversionEnabledToast": "Automatisch omzetten staat aan — volatiele munten worden nu uitbetaald als {{currency}} ({{chain}}).",
+  "cryptoConversionSaveFailed": "Automatisch omzetten kon niet worden opgeslagen. Voeg eerst een passende stablecoin-wallet toe en probeer het opnieuw.",
+  "actions": {
+    "cancel": "Annuleren",
+    "saveChanges": "Wijzigingen opslaan",
+    "delete": "Merk verwijderen"
+  },
+  "placeholders": {
+    "webhook": "Webhook-meldingen configureren.",
+    "paymentTolerance": "Betalingstolerantie instellen.",
+    "cryptoConversion": "Crypto-conversie configureren."
+  },
+  "delete": {
+    "sendFailed": "Kon de verificatiecode niet verzenden.",
+    "deleteFailed": "Kon het merk niet verwijderen.",
+    "title": "Dit merk verwijderen?",
+    "otpTitle": "Voer verificatiecode in",
+    "yourEmail": "je e-mail",
+    "confirmCta": "Merk verwijderen",
+    "cancel": "Annuleren",
+    "sendCode": "Code verzenden",
+    "body": "Dit verwijdert permanent {{name}} samen met de betalingslinks, API-sleutels en instellingen. Dit kan niet ongedaan gemaakt worden. We sturen je een 6-cijferige code per e-mail ter bevestiging.",
+    "typeToConfirm": "Typ {{name}} om door te gaan:",
+    "otpBody": "We hebben een 6-cijferige code naar {{email}} gestuurd. Voer deze hieronder in om {{name}} te verwijderen."
+  }
+}

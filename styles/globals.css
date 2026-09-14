@@ -1,0 +1,559 @@
+/* Google Fonts moved to _document.tsx via <link> for non-blocking load */
+
+/* ── Swiss landing design tokens (2026-07 redesign) ─────────────────────────
+   Display/body/mono font-family CSS vars (--font-hero = Unbounded,
+   --font-body = IBM Plex Sans, --font-tech = IBM Plex Mono) are defined in
+   pages/_app.tsx alongside --font-sans/--font-mono — they resolve to the
+   self-hosted next/font families (display:"swap" since 2026-08-14; "optional"
+   left cold loads stuck on the fallback for the whole visit — hero wrapped in
+   2 lines instead of 3). Do NOT re-declare them here with literal
+   family names — that reintroduces an unmanaged swap. */
+
+@keyframes swiss-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes swiss-beam {
+  0% { left: -18%; }
+  100% { left: 112%; }
+}
+@keyframes swiss-blink {
+  0%, 55% { opacity: 1; }
+  56%, 100% { opacity: 0; }
+}
+@keyframes swiss-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.5); }
+  50% { box-shadow: 0 0 0 5px rgba(99, 102, 241, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .swiss-marquee-track { animation: none !important; }
+  .swiss-beam { display: none !important; }
+}
+
+/* ── Instant theme background (set by blocking script in _document, before React) ── */
+html[data-theme="dark"] {
+  background-color: #0B0D17;
+  color-scheme: dark;
+}
+html[data-theme="light"] {
+  background-color: #F2F3F8;
+  color-scheme: light;
+}
+
+/* ── Dark-mode readability safety net ──────────────────────────────────────
+   Some components hardcode dark text colors / rely on browser defaults that
+   become unreadable on the dark page background. These conservative fallbacks
+   keep raw text and native form controls legible in dark mode. They use low
+   specificity so intentional MUI palette colors (which nest deeper) still win. */
+html[data-theme="dark"] body {
+  color: #FAFAFA;
+}
+html[data-theme="dark"] input,
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] select {
+  color: #FAFAFA;
+}
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder {
+  color: #A1A1AA;
+  opacity: 1;
+}
+/* Chrome/Safari force a white background + dark text on autofilled inputs.
+   This made fields (e.g. the registration phone number) render as a white box
+   in dark mode. Force the themed surface + light text on autofill. */
+html[data-theme="dark"] input:-webkit-autofill,
+html[data-theme="dark"] input:-webkit-autofill:hover,
+html[data-theme="dark"] input:-webkit-autofill:focus,
+html[data-theme="dark"] input:-webkit-autofill:active {
+  -webkit-text-fill-color: #FAFAFA !important;
+  -webkit-box-shadow: 0 0 0 1000px #141625 inset !important;
+  box-shadow: 0 0 0 1000px #141625 inset !important;
+  caret-color: #FAFAFA;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html {
+  overflow-x: hidden;
+}
+
+body {
+  /* `clip` avoids turning <body> into a scroll container (which silently
+     disables `position: sticky` for every descendant); older browsers keep `hidden`. */
+  overflow-x: hidden;
+  overflow-x: clip;
+}
+
+html,
+body {
+  max-width: 100vw;
+  /* BUGFIX 2026-07-09: Geist Sans (via next/font, exposed as --font-sans in _app.tsx).
+     Manrope kept as fallback so any component that still references it directly
+     during hydration doesn't FOUT. */
+  font-family: var(--font-sans, "Manrope"), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-feature-settings: "cv11", "ss01";  /* Geist's stylistic tweaks: better a, distinct 0 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  /* Smooth the root background when the theme toggles (no hard blink) */
+  transition: background-color 0.2s ease;
+}
+
+/* iOS safe area support */
+@supports (padding: env(safe-area-inset-top)) {
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* Prevent iOS zoom on input focus */
+@media screen and (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.customMenu.Mui-selected {
+  color: #fff !important;
+}
+
+.round-img {
+  width: 60px;
+  height: 60px;
+  border-radius: 100%;
+  object-fit: cover;
+  object-position: center;
+  font-size: 36px;
+  font-weight: 900;
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+  height: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #1034a6;
+  border-radius: 20px;
+}
+
+@media (max-width: 999px) {
+  ::-webkit-scrollbar {
+    width: 0px;
+  }
+}
+
+
+/* ============================================================
+   TYPOGRAPHY SYSTEM — Manrope (self-hosted, full charset)
+   'Manrope' is THE app UI font. The legacy families below
+   (UrbanistX / OutfitX) are kept as ALIASES pointing at the
+   matching Manrope weight so the ~1000 existing fontFamily
+   references render Manrope without touching every component.
+   NOTE: "UrbanistSemibold"/"OutfitSemibold" (lowercase b) were
+   referenced in code but never declared — now fixed.
+   ============================================================ */
+
+@font-face {
+  font-family: "Manrope";
+  src: url("/fonts/Manrope-Light.woff2") format("woff2"),
+       url("/fonts/Manrope-Light.woff") format("woff");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
+}
+@font-face {
+  font-family: "Manrope";
+  src: url("/fonts/Manrope-Regular.woff2") format("woff2"),
+       url("/fonts/Manrope-Regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
+}
+@font-face {
+  font-family: "Manrope";
+  src: url("/fonts/Manrope-Medium.woff2") format("woff2"),
+       url("/fonts/Manrope-Medium.woff") format("woff");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
+}
+@font-face {
+  font-family: "Manrope";
+  src: url("/fonts/Manrope-SemiBold.woff2") format("woff2"),
+       url("/fonts/Manrope-SemiBold.woff") format("woff");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
+}
+@font-face {
+  font-family: "Manrope";
+  src: url("/fonts/Manrope-Bold.woff2") format("woff2"),
+       url("/fonts/Manrope-Bold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
+}
+@font-face {
+  font-family: "Manrope";
+  src: url("/fonts/Manrope-ExtraBold.woff2") format("woff2"),
+       url("/fonts/Manrope-ExtraBold.woff") format("woff");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
+}
+
+/* ============================================================
+   Metric-matched fallback for self-hosted Manrope (BUGFIX 2026-08-24).
+   Manrope uses font-display:swap; on a COLD (new-browser) load the heading /
+   hero copy first paints in a plain fallback, then Manrope loads and the text
+   visibly RESIZES ("small then grows bigger"). This face makes the swap-window
+   fallback (Arial) occupy Manrope's exact box, so when Manrope swaps in there
+   is no size jump — same technique next/font applies to its own families.
+   Overrides computed from Manrope-Regular.woff vs Arial (capsize method).
+   Used in the --font-hero / --font-display / MUI HEADING_FONT stacks, placed
+   immediately AFTER "Manrope" so it only shows during the brief swap window.
+   ============================================================ */
+@font-face {
+  font-family: "Manrope Fallback";
+  /* BUGFIX 2026-09-01: the previous `src: local("Arial")` did NOT resolve on
+     platforms that lack a font literally named "Arial" (Linux, many Android
+     devices, headless/embedded browsers). When it failed, the fallback silently
+     dropped to the browser DEFAULT SERIF (Times) — whose x-height is ~15%
+     SMALLER than Manrope — so cold-load headings first painted small in a serif
+     and then visibly GREW when Manrope swapped in (the long-standing "text grows
+     bigger on first load" bug). We now list metric-compatible sans-serif faces
+     for every OS so an Arial-equivalent ALWAYS resolves:
+       Windows / most    -> Arial
+       macOS / iOS       -> Helvetica Neue / Helvetica
+       Linux (Chromium)  -> Liberation Sans / Arimo
+       Android           -> Roboto
+     Measured at 200px: Arial x-height 107 / width 1612 vs Manrope 108 / 1623 —
+     within ~1% on BOTH axes, so size-adjust is ~100% (was an over-tuned 103.69%
+     that only masked the broken serif fallback). */
+  src: local("Arial"), local("Helvetica Neue"), local("Helvetica"),
+       local("Liberation Sans"), local("Arimo"), local("Roboto");
+  ascent-override: 106.6%;
+  descent-override: 30%;
+  line-gap-override: 0%;
+  size-adjust: 101%;
+}
+
+/* --- Legacy weight-carrying aliases (Urbanist*) → Manrope ---
+   These map to Manrope woffs. When referencing one directly (e.g.
+   fontFamily: "UrbanistBold"), ALWAYS include the metric-matched fallback so a
+   cold load doesn't resize, i.e. use: '"UrbanistBold", "Manrope Fallback", sans-serif'
+   (or prefer the --font-display / --font-hero vars, which already include it). */
+@font-face {
+  font-family: "UrbanistLight";
+  src: url("/fonts/Manrope-Light.woff2") format("woff2"),
+       url("/fonts/Manrope-Light.woff") format("woff");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
+}
+@font-face {
+  font-family: "UrbanistRegular";
+  src: url("/fonts/Manrope-Regular.woff2") format("woff2"),
+       url("/fonts/Manrope-Regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
+}
+@font-face {
+  font-family: "UrbanistMedium";
+  src: url("/fonts/Manrope-Medium.woff2") format("woff2"),
+       url("/fonts/Manrope-Medium.woff") format("woff");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
+}
+@font-face {
+  font-family: "UrbanistSemiBold";
+  src: url("/fonts/Manrope-SemiBold.woff2") format("woff2"),
+       url("/fonts/Manrope-SemiBold.woff") format("woff");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
+}
+@font-face {
+  font-family: "UrbanistSemibold";
+  src: url("/fonts/Manrope-SemiBold.woff2") format("woff2"),
+       url("/fonts/Manrope-SemiBold.woff") format("woff");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
+}
+@font-face {
+  font-family: "UrbanistBold";
+  src: url("/fonts/Manrope-Bold.woff2") format("woff2"),
+       url("/fonts/Manrope-Bold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
+}
+@font-face {
+  font-family: "UrbanistExtraBold";
+  src: url("/fonts/Manrope-ExtraBold.woff2") format("woff2"),
+       url("/fonts/Manrope-ExtraBold.woff") format("woff");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
+}
+
+/* --- Legacy weight-carrying aliases (Outfit*) → Manrope --- */
+@font-face {
+  font-family: "OutfitLight";
+  src: url("/fonts/Manrope-Light.woff2") format("woff2"),
+       url("/fonts/Manrope-Light.woff") format("woff");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
+}
+@font-face {
+  font-family: "OutfitRegular";
+  src: url("/fonts/Manrope-Regular.woff2") format("woff2"),
+       url("/fonts/Manrope-Regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
+}
+@font-face {
+  font-family: "OutfitMedium";
+  src: url("/fonts/Manrope-Medium.woff2") format("woff2"),
+       url("/fonts/Manrope-Medium.woff") format("woff");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
+}
+@font-face {
+  font-family: "OutfitSemiBold";
+  src: url("/fonts/Manrope-SemiBold.woff2") format("woff2"),
+       url("/fonts/Manrope-SemiBold.woff") format("woff");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
+}
+@font-face {
+  font-family: "OutfitSemibold";
+  src: url("/fonts/Manrope-SemiBold.woff2") format("woff2"),
+       url("/fonts/Manrope-SemiBold.woff") format("woff");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
+}
+@font-face {
+  font-family: "OutfitBold";
+  src: url("/fonts/Manrope-Bold.woff2") format("woff2"),
+       url("/fonts/Manrope-Bold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
+}
+@font-face {
+  font-family: "OutfitExtraBold";
+  src: url("/fonts/Manrope-ExtraBold.woff2") format("woff2"),
+       url("/fonts/Manrope-ExtraBold.woff") format("woff");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap; /* was optional — on a cold load "optional" gave up and left text stuck on the serif fallback for the whole visit; core weights are now preloaded in _document.tsx so swap has no visible FOUT */
+}
+/* NProgress bar styling */
+#nprogress .bar {
+  background: #6C5CE7 !important;
+  height: 3px !important;
+}
+#nprogress .peg {
+  box-shadow: 0 0 10px #6C5CE7, 0 0 5px #6C5CE7 !important;
+}
+
+/* ── Themed SVG icon handling for dark/light mode ── */
+.themed-icon {
+  transition: filter 0.2s ease;
+}
+html[data-theme="dark"] .themed-icon {
+  filter: brightness(0) saturate(100%) invert(85%) sepia(0%) saturate(0%) brightness(105%) contrast(85%);
+}
+/* Blue-accent icons: remap brand blue to lighter blue in dark mode */
+.themed-icon-primary {
+  transition: filter 0.2s ease;
+}
+html[data-theme="dark"] .themed-icon-primary {
+  filter: brightness(0) saturate(100%) invert(55%) sepia(60%) saturate(3000%) hue-rotate(220deg) brightness(105%) contrast(100%);
+}
+
+/* ============================================================
+   FINANCE-SPECIFIC TYPOGRAPHY HELPERS (added 2026-07-09)
+   Ensures amounts, balances, and rates render with tabular
+   figures so digits align vertically across table rows.
+   Ensures crypto addresses / txids render in monospace with
+   readable letter-spacing.
+   ============================================================ */
+
+.tabular-nums,
+.amount,
+.balance,
+.rate,
+.kpi-value,
+.tx-amount,
+[data-tabular],
+td.numeric {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+.mono,
+.address,
+.txid,
+.crypto-address,
+code {
+  font-family: var(--font-mono, "JetBrains Mono"), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: -0.01em;  /* Geist Mono ships slightly wide by default */
+}
+
+/* De-emphasize trailing crypto decimals (opt-in via .crypto-amount .trailing) */
+.crypto-amount .trailing {
+  opacity: 0.55;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Improved dark-mode text contrast baseline (WCAG AAA on #09090B). */
+html[data-theme="dark"] {
+  --text-primary: #FAFAFA;
+  --text-secondary: #A1A1AA;
+  --text-tertiary: #52525B;
+}
+html[data-theme="light"] {
+  --text-primary: #18181B;
+  --text-secondary: #71717A;
+  --text-tertiary: #A1A1AA;
+}
+
+/* ============================================================
+   HERO TILE PULSE — "new payment landed" attention flash.
+   Triggered from HeroMetrics.tsx when Today's Revenue increments.
+   Design: soft green outer glow + subtle scale 1 → 1.015 → 1.
+   Duration matches the useState timeout (700ms) in the component.
+   Respects prefers-reduced-motion.
+   ============================================================ */
+@keyframes hero-tile-pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.35),
+                0 0 0 0 rgba(16, 185, 129, 0);
+  }
+  40% {
+    transform: scale(1.015);
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.18),
+                0 0 24px 4px rgba(16, 185, 129, 0.25);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0),
+                0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+.hero-tile-pulse {
+  animation: hero-tile-pulse 700ms cubic-bezier(0.16, 1, 0.3, 1);
+  animation-fill-mode: both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-tile-pulse {
+    animation: none;
+  }
+}
+
+
+/* ── Global keyboard focus rings (WCAG 2.4.7) ─────────────────────────────
+   Many MUI components suppress the default outline for aesthetics; add a
+   visible cyber-lime focus indicator that only appears for keyboard-driven
+   focus (`:focus-visible`) so mouse clicks stay clean. Applies to all
+   interactive elements everywhere. */
+:root {
+  --dyno-focus-ring: #4F46E5;
+  --dyno-focus-ring-shadow: 0 0 0 2px rgba(79, 70, 229, 0.35);
+}
+html[data-theme="light"] {
+  --dyno-focus-ring: #0A0A0A;
+  --dyno-focus-ring-shadow: 0 0 0 2px rgba(10, 10, 10, 0.25);
+}
+
+:focus-visible {
+  outline: 2px solid var(--dyno-focus-ring) !important;
+  outline-offset: 2px !important;
+  border-radius: 4px;
+}
+/* MUI Buttons/IconButtons: MUI resets outline to none in some variants,
+   so also add a box-shadow ring which paints even when outline is stripped. */
+.MuiButtonBase-root:focus-visible,
+.MuiIconButton-root:focus-visible,
+.MuiButton-root:focus-visible,
+.MuiChip-root:focus-visible,
+.MuiTab-root:focus-visible,
+.MuiListItemButton-root:focus-visible,
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[role="button"]:focus-visible,
+[role="link"]:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--dyno-focus-ring) !important;
+  outline-offset: 2px !important;
+  box-shadow: var(--dyno-focus-ring-shadow) !important;
+}
+
+/* Do NOT paint the ring for mouse-focus (default browser behaviour); the
+   `:focus-visible` heuristic already covers this, but keep pointer clicks
+   quiet on outlined text inputs. */
+.MuiOutlinedInput-root:focus-visible {
+  outline: none !important;
+}
+
+/* Checkbox / radio / switch: the real <input> is opacity:0, so paint the ring on
+   the visible host when the input has keyboard focus. */
+.MuiCheckbox-root:has(> input:focus-visible),
+.MuiRadio-root:has(> input:focus-visible),
+.MuiSwitch-switchBase:has(> input:focus-visible) {
+  outline: 2px solid var(--dyno-focus-ring) !important;
+  outline-offset: 0 !important;
+  border-radius: 8px;
+}
+.MuiSwitch-switchBase.Mui-focusVisible .MuiSwitch-thumb,
+.MuiSwitch-switchBase:has(> input:focus-visible) .MuiSwitch-thumb {
+  box-shadow: 0 0 0 3px var(--dyno-focus-ring) !important;
+}
+
+/* UX plan 4.2 — honour the OS "reduce motion" preference everywhere: collapse every
+   CSS transition/animation to (effectively) instant. JS-driven effects check
+   usePrefersReducedMotion() themselves. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

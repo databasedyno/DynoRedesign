@@ -1,0 +1,55 @@
+{
+  "meta_title": "Pagamentos em criptomoeda para provedores de alojamento web e domínios · Dynopay",
+  "meta_description": "Aceite Bitcoin, Ethereum, USDT e mais de 15 criptomoedas para alojamento e domínios. Sem chargebacks, alcance global, fundos diretamente na sua carteira. Comece gratuitamente.",
+  "h1": "Pagamentos em criptomoeda para provedores de alojamento web e domínios construídos para receita recorrente",
+  "subheading": "Aceite Bitcoin, Ethereum, stablecoins e mais de 15 criptomoedas para planos de alojamento e registos de domínios—os fundos chegam diretamente à sua carteira com risco zero de chargeback.",
+  "intro_paragraph": "Provedores de alojamento web e domínios perdem receita devido a chargebacks fraudulentos, renovações de cartões falhadas e retenções de processadores de pagamento em transações internacionais. A Dynopay é uma plataforma de comércio em criptomoeda não custodial que envia cada pagamento diretamente para a sua carteira—sem custódia intermediária, sem fraudes de chargeback, sem churn involuntário devido a cartões expirados. Renovações de faturas com links de pagamento gerados por API, compras únicas de domínios e partilha de links de pagamento para faturas manuais, tudo com taxas a partir de 1.5% que caem para 0.5% à medida que o seu volume cresce.",
+  "features": [
+    {
+      "title": "Sem Chargebacks, Nunca",
+      "description": "As transações em criptomoeda são finais. Elimine fraudes de cartões roubados e disputas de fraudes amigáveis que custam aos provedores de alojamento milhares mensalmente em taxas, tempo de serviço perdido e sobrecarga administrativa."
+    },
+    {
+      "title": "Pare de Perder Receita Recorrente",
+      "description": "A expiração de cartões e os recusos bancários causam churn involuntário. As renovações em criptomoeda nunca falham num cartão expirado—os clientes simplesmente pagam um novo link a cada ciclo, para que você retenha clientes que querem pagar, mas não conseguem com métodos tradicionais."
+    },
+    {
+      "title": "Atenda Clientes em Todos os Países",
+      "description": "Aceite pagamentos globalmente sem taxas de conversão de moeda. Clientes em mercados subatendidos por redes de cartões podem pagar diretamente em stablecoins como USDT ou USDC."
+    }
+  ],
+  "how_it_works": [
+    "Inscreva-se, verifique o seu e-mail e crie o seu perfil empresarial em menos de três minutos.",
+    "Adicione um endereço de carteira de pagamento para Bitcoin, Ethereum ou qualquer cadeia suportada onde deseja que os fundos sejam enviados.",
+    "Gere links de pagamento para faturas ou incorpore o widget de checkout na sua página de faturação—vá ao ar em dez minutos."
+  ],
+  "faqs": [
+    {
+      "question": "Posso aceitar criptomoeda para subscrições mensais de alojamento ou apenas para compras únicas de domínios?",
+      "answer": "Ambos. A criptomoeda não tem cobrança automática estilo cartão, por isso as renovações funcionam como novos pagamentos a cada ciclo: gere um link de pagamento manualmente ou automatize-o com a API REST e webhooks. Compras únicas de domínios usam os mesmos links ou widget de checkout, com fundos enviados diretamente para a sua carteira todas as vezes."
+    },
+    {
+      "question": "O que acontece se um cliente pagar em Bitcoin, mas eu quiser receber stablecoins?",
+      "answer": "Por padrão, você recebe exatamente o que o cliente envia, diretamente para a sua carteira de pagamento. Se preferir um valor estável, ative a conversão automática opcional e ativos voláteis como Bitcoin se liquidam em USDT ou USDC na sua carteira em vez disso."
+    },
+    {
+      "question": "Como as taxas de pagamento em criptomoeda se comparam às dos processadores de cartões de crédito para provedores de alojamento?",
+      "answer": "A Dynopay cobra a partir de 1.5% mais um dólar por transação a um volume inicial, caindo para 0.5% em escala com base no volume liquidado. Não há taxas mensais, custos de configuração, taxas de chargeback ou sobretaxas em transações internacionais. O seu primeiro pagamento é completamente isento de taxas."
+    },
+    {
+      "question": "Preciso manter criptomoeda ou entender blockchain para aceitar pagamentos em criptomoeda?",
+      "answer": "Não é necessária experiência em blockchain. Você fornece um endereço de carteira durante a configuração—pode criar um usando qualquer aplicativo de carteira padrão. Os pagamentos chegam automaticamente, e você controla quando converter para fiat através da sua exchange preferida ou manter a criptomoeda a longo prazo."
+    },
+    {
+      "question": "Clientes em países onde o meu atual processador de pagamentos não funciona podem pagar pelo alojamento com criptomoeda?",
+      "answer": "Sim. A Dynopay não tem restrições de país para receber pagamentos em criptomoeda. Clientes em regiões subatendidas por redes de cartões ou PayPal podem pagar diretamente em Bitcoin, Ethereum ou stablecoins, expandindo o seu mercado endereçado."
+    }
+  ],
+  "cta_headline": "Comece a aceitar pagamentos em criptomoeda em dez minutos",
+  "cta_body": "A sua primeira transação é isenta de taxas. Sem custos mensais, sem taxas de configuração, e os fundos vão diretamente para a sua carteira com risco zero de chargeback.",
+  "_generated_at": "2026-08-29T14:55:14.132117Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "hosting",
+  "_display_name": "Web Hosting & Domain Providers"
+}

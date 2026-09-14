@@ -1,0 +1,1583 @@
+<!doctype html><meta charset=utf-8><body style="margin:0;padding:24px;background:#eef2f7;font-family:system-ui;"><h2>Part 2 — live render (EN + DE)</h2>
+  <div style="border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin:0 0 20px;">
+    <div style="padding:10px 14px;background:#0a0a0a;color:#fff;font:600 13px system-ui;">login_otp.en</div>
+    <div style="padding:8px 14px;background:#f8fafc;font:12px system-ui;color:#334155;border-bottom:1px solid #e5e7eb;">
+      <b>Subject:</b> Your login code<br/><b>Preheader:</b> <span style="color:#059669;">Your code expires in a few minutes. Never share it.</span></div>
+    <iframe srcdoc="<!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;>
+<html xmlns=&quot;http://www.w3.org/1999/xhtml&quot; lang=&quot;en&quot;>
+<head>
+  <meta charset=&quot;UTF-8&quot; />
+  <meta content=&quot;width=device-width, initial-scale=1&quot; name=&quot;viewport&quot; />
+  <meta name=&quot;x-apple-disable-message-reformatting&quot; />
+  <meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=edge&quot; />
+  <meta content=&quot;telephone=no&quot; name=&quot;format-detection&quot; />
+  <meta name=&quot;color-scheme&quot; content=&quot;light dark&quot; />
+  <meta name=&quot;supported-color-schemes&quot; content=&quot;light dark&quot; />
+  <title>Dynopay</title>
+  <!--[if mso]>
+  <style type=&quot;text/css&quot;>
+    body, table, td { font-family: Arial, Helvetica, sans-serif !important; }
+  </style>
+  <![endif]-->
+  <style type=&quot;text/css&quot;>
+    :root { color-scheme: light dark; supported-color-schemes: light dark; }
+    body { margin: 0; padding: 0; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; }
+    table { border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+    img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; }
+    @media only screen and (max-width: 620px) {
+      .outer { width: 100% !important; }
+      .inner { padding: 28px 20px !important; }
+      .hdr { padding: 20px !important; }
+      .ftr { padding: 24px 20px !important; }
+    }
+    @media (prefers-color-scheme: dark) {
+      body, .bg { background-color: #0a0a0a !important; }
+      .card { background-color: #18181b !important; }
+      .hdr-bar { background-color: #050505 !important; }
+      h1.hdg { color: #fafafa !important; }
+      /* CTA button: same indigo bg + white text in BOTH modes (inversion-proof) */
+      .btn { background-color: #4338CA !important; color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
+      .btn span { color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
+      /* Content area: override ALL child elements */
+      .msg, .msg p, .msg li, .msg td, .msg div, .msg span { color: #d4d4d8 !important; }
+      .msg strong, .msg b { color: #fafafa !important; }
+      .msg a:not(.btn) { color: #818CF8 !important; }
+      /* Tables inside content */
+      .msg table td { color: #d4d4d8 !important; }
+      .msg table td strong { color: #fafafa !important; }
+      .msg table td span { color: #d4d4d8 !important; }
+      /* Info box */
+      .info-box { background-color: #212124 !important; border-color: #33333a !important; }
+      .info-box td, .info-box p, .info-box span { color: #d4d4d8 !important; }
+      .info-box strong { color: #fafafa !important; }
+      /* Status badges */
+      .status-success { background-color: #052e16 !important; color: #86EFAC !important; }
+      .status-pending { background-color: #78350f !important; color: #fcd34d !important; }
+      .status-error { background-color: #7f1d1d !important; color: #fca5a5 !important; }
+      /* Data rows */
+      .data-row { border-bottom-color: #33333a !important; }
+      /* Sign-off */
+      .sign { color: #a1a1aa !important; }
+      .sign strong { color: #d4d4d8 !important; }
+      .sep { border-top-color: #33333a !important; }
+      /* Footer */
+      .ftr-bg { background-color: #050505 !important; }
+      .ftr-text { color: #71717a !important; }
+      .ftr-link { color: #71717a !important; }
+      /* Colored accent boxes */
+      .alert-box { background-color: #2b2108 !important; border-left-color: #f59e0b !important; }
+      .alert-box td, .alert-box p, .alert-box span { color: #fcd34d !important; }
+      .alert-box strong { color: #fef3c7 !important; }
+      .error-box { background-color: #2c0f0f !important; border-left-color: #ef4444 !important; }
+      .error-box td, .error-box p, .error-box span { color: #fca5a5 !important; }
+      .error-box strong { color: #fee2e2 !important; }
+      .success-box { background-color: #052E16 !important; border-left-color: #12B76A !important; }
+      .success-box td, .success-box p, .success-box span { color: #86EFAC !important; }
+      .success-box strong { color: #DCFCE7 !important; }
+      .neutral-box { background-color: #212124 !important; border-color: #33333a !important; }
+      .neutral-box td, .neutral-box p, .neutral-box span { color: #d4d4d8 !important; }
+      .neutral-box strong { color: #fafafa !important; }
+      /* Stat cards (two-column highlight blocks) */
+      .stat-card { background-color: #212124 !important; }
+      .stat-card td, .stat-card p, .stat-card span { color: #d4d4d8 !important; }
+      .stat-card .stat-value { color: #fafafa !important; }
+      .stat-card .stat-value-green { color: #4ADE80 !important; }
+      /* OTP code block (already dark by design — brighten the frame) */
+      .otp-code { background-color: #0a0a0a !important; border-color: #818CF8 !important; color: #818CF8 !important; }
+      /* Warning/security text */
+      .warn-text, .warn-text p { color: #fca5a5 !important; }
+      .warn-text strong { color: #fee2e2 !important; }
+      /* Monospace text (addresses, tx IDs) */
+      .mono { color: #d4d4d8 !important; }
+      /* Wallet address box */
+      .addr-box { background-color: #212124 !important; }
+      .addr-box td { color: #d4d4d8 !important; }
+      /* Fee table rows */
+      .fee-row td { color: #d4d4d8 !important; border-bottom-color: #33333a !important; }
+      .fee-total td { color: #fafafa !important; }
+      /* Section dividers */
+      .section-border { border-bottom-color: #33333a !important; }
+      /* Gmail workaround */
+      u + .body .bg { background-color: #0a0a0a !important; }
+    }
+  </style>
+</head>
+<body class=&quot;body&quot; style=&quot;margin: 0; padding: 0; background-color: #f5f5f4;&quot;>
+  <div style=&quot;display:none;font-size:1px;color:#f5f5f4;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;&quot;>Your code expires in a few minutes. Never share it.</div>
+  <table role=&quot;presentation&quot; class=&quot;bg&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background-color: #f5f5f4; table-layout: fixed;&quot;>
+    <tr>
+      <td align=&quot;center&quot; style=&quot;padding: 32px 16px;&quot;>
+        <table role=&quot;presentation&quot; class=&quot;outer card&quot; width=&quot;600&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden;&quot;>
+          <!-- Neon accent bar -->
+          <tr>
+            <td style=&quot;background-color: #4338CA; height: 5px; line-height: 5px; font-size: 5px;&quot;>&nbsp;</td>
+          </tr>
+          <!-- Logo Header -->
+          <tr>
+            <td class=&quot;hdr hdr-bar&quot; style=&quot;background-color: #050505; padding: 26px 32px; text-align: center;&quot;>
+              <a href=&quot;https://dynopay.com&quot; style=&quot;text-decoration: none;&quot;>
+                <img src=&quot;https://dynopay.com/api/static/dynopay-email-logo-v2.png&quot; alt=&quot;Dynopay&quot; width=&quot;120&quot; height=&quot;40&quot; style=&quot;display: inline-block; max-width: 120px; height: auto;&quot; />
+              </a>
+            </td>
+          </tr>
+          <!-- Content -->
+          <tr>
+            <td class=&quot;inner msg&quot; style=&quot;padding: 36px 40px 40px 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>
+              <h1 class=&quot;hdg&quot; style=&quot;font-size: 24px; font-weight: 800; color: #0a0a0a; margin: 0 0 20px 0; line-height: 1.3; letter-spacing: -0.3px;&quot;>Your Login Code</h1>
+              <p style=&quot;font-size: 15px; color: #374151; line-height: 1.65; margin: 0 0 14px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; &quot;>Hey Alex,</p>
+    <p style=&quot;font-size: 15px; color: #374151; line-height: 1.65; margin: 0 0 14px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; &quot;>Here's your one-time login code for Dynopay:</p>
+    <table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;margin: 24px 0;&quot;>
+    <tr><td align=&quot;center&quot;>
+      <div class=&quot;otp-code&quot; style=&quot;display: inline-block; background-color: #050505; border: 1px solid #050505; border-radius: 14px; padding: 18px 44px; font-size: 32px; font-weight: 700; color: #818CF8; letter-spacing: 10px; font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;&quot;>481902</div>
+    </td></tr>
+  </table>
+    <p style=&quot;font-size: 15px; color: #374151; line-height: 1.65; margin: 0 0 14px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; &quot;>This code expires in 5 minutes. If you didn't request this code, please secure your account immediately.</p>
+              
+              <!-- Sign-off -->
+              <table role=&quot;presentation&quot; class=&quot;sep&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;margin-top: 32px; border-top: 1px solid #e5e7eb;&quot;>
+                <tr>
+                  <td class=&quot;sign&quot; style=&quot;padding-top: 20px; font-size: 14px; color: #6b7280; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; line-height: 1.5;&quot;>
+                    Best regards,<br /><strong style=&quot;color: #374151;&quot;>The Dynopay Team</strong>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td class=&quot;ftr ftr-bg&quot; style=&quot;background-color: #050505; padding: 28px 32px; text-align: center; border-radius: 0 0 16px 16px;&quot;>
+              <table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;>
+                <tr>
+                  <td align=&quot;center&quot; style=&quot;padding-bottom: 16px;&quot;>
+                    <img src=&quot;https://dynopay.com/api/static/dynopay-email-logo-v2.png&quot; alt=&quot;Dynopay&quot; width=&quot;90&quot; height=&quot;30&quot; style=&quot;display: inline-block; max-width: 90px; height: auto; opacity: 0.8;&quot; />
+                  </td>
+                </tr>
+                <tr>
+                  <td align=&quot;center&quot; class=&quot;ftr-text&quot; style=&quot;color: #818CF8; font-size: 12px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding-bottom: 16px; line-height: 1.5;&quot;>
+                    Secure Crypto Payment Gateway
+                  </td>
+                </tr>
+                <tr>
+                  <td align=&quot;center&quot; style=&quot;padding-bottom: 16px;&quot;>
+                    <table role=&quot;presentation&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;><tr><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://www.facebook.com/dynopay&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Facebook</span></a></td><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://www.instagram.com/dynopay&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Instagram</span></a></td><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://x.com/dynopaycom&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>X</span></a></td><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://www.linkedin.com/company/dynopay/&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>LinkedIn</span></a></td><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://t.me/Dynopay_Announcements&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Telegram</span></a></td></tr></table>
+                  </td>
+                </tr>
+                <tr>
+                  <td align=&quot;center&quot; class=&quot;ftr-text&quot; style=&quot;color: #4b5563; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding-bottom: 12px;&quot;>
+                    © Dynopay 2026. All Rights reserved.
+                  </td>
+                </tr>
+                <tr>
+                  <td align=&quot;center&quot;>
+                    <table role=&quot;presentation&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;>
+                      <tr>
+                        <td style=&quot;padding: 0 10px;&quot;><a class=&quot;ftr-link&quot; href=&quot;https://dynopay.com/privacy-policy&quot; style=&quot;color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Privacy</a></td>
+                        <td class=&quot;ftr-text&quot; style=&quot;color: #4b5563; font-size: 11px;&quot;>|</td>
+                        <td style=&quot;padding: 0 10px;&quot;><a class=&quot;ftr-link&quot; href=&quot;https://dynopay.com/terms-conditions&quot; style=&quot;color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Terms</a></td>
+                        <td class=&quot;ftr-text&quot; style=&quot;color: #4b5563; font-size: 11px;&quot;>|</td>
+                        <td style=&quot;padding: 0 10px;&quot;><a class=&quot;ftr-link&quot; href=&quot;https://dynopay.com/help-support&quot; style=&quot;color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Support</a></td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>" style="width:100%;height:560px;border:0;"></iframe>
+  </div>
+  <div style="border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin:0 0 20px;">
+    <div style="padding:10px 14px;background:#0a0a0a;color:#fff;font:600 13px system-ui;">kyc_required.en</div>
+    <div style="padding:8px 14px;background:#f8fafc;font:12px system-ui;color:#334155;border-bottom:1px solid #e5e7eb;">
+      <b>Subject:</b> Verification required at $10,000 volume<br/><b>Preheader:</b> <span style="color:#059669;">Verify your identity to keep accepting payments past $10,000.</span></div>
+    <iframe srcdoc="<!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;>
+<html xmlns=&quot;http://www.w3.org/1999/xhtml&quot; lang=&quot;en&quot;>
+<head>
+  <meta charset=&quot;UTF-8&quot; />
+  <meta content=&quot;width=device-width, initial-scale=1&quot; name=&quot;viewport&quot; />
+  <meta name=&quot;x-apple-disable-message-reformatting&quot; />
+  <meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=edge&quot; />
+  <meta content=&quot;telephone=no&quot; name=&quot;format-detection&quot; />
+  <meta name=&quot;color-scheme&quot; content=&quot;light dark&quot; />
+  <meta name=&quot;supported-color-schemes&quot; content=&quot;light dark&quot; />
+  <title>Dynopay</title>
+  <!--[if mso]>
+  <style type=&quot;text/css&quot;>
+    body, table, td { font-family: Arial, Helvetica, sans-serif !important; }
+  </style>
+  <![endif]-->
+  <style type=&quot;text/css&quot;>
+    :root { color-scheme: light dark; supported-color-schemes: light dark; }
+    body { margin: 0; padding: 0; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; }
+    table { border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+    img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; }
+    @media only screen and (max-width: 620px) {
+      .outer { width: 100% !important; }
+      .inner { padding: 28px 20px !important; }
+      .hdr { padding: 20px !important; }
+      .ftr { padding: 24px 20px !important; }
+    }
+    @media (prefers-color-scheme: dark) {
+      body, .bg { background-color: #0a0a0a !important; }
+      .card { background-color: #18181b !important; }
+      .hdr-bar { background-color: #050505 !important; }
+      h1.hdg { color: #fafafa !important; }
+      /* CTA button: same indigo bg + white text in BOTH modes (inversion-proof) */
+      .btn { background-color: #4338CA !important; color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
+      .btn span { color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
+      /* Content area: override ALL child elements */
+      .msg, .msg p, .msg li, .msg td, .msg div, .msg span { color: #d4d4d8 !important; }
+      .msg strong, .msg b { color: #fafafa !important; }
+      .msg a:not(.btn) { color: #818CF8 !important; }
+      /* Tables inside content */
+      .msg table td { color: #d4d4d8 !important; }
+      .msg table td strong { color: #fafafa !important; }
+      .msg table td span { color: #d4d4d8 !important; }
+      /* Info box */
+      .info-box { background-color: #212124 !important; border-color: #33333a !important; }
+      .info-box td, .info-box p, .info-box span { color: #d4d4d8 !important; }
+      .info-box strong { color: #fafafa !important; }
+      /* Status badges */
+      .status-success { background-color: #052e16 !important; color: #86EFAC !important; }
+      .status-pending { background-color: #78350f !important; color: #fcd34d !important; }
+      .status-error { background-color: #7f1d1d !important; color: #fca5a5 !important; }
+      /* Data rows */
+      .data-row { border-bottom-color: #33333a !important; }
+      /* Sign-off */
+      .sign { color: #a1a1aa !important; }
+      .sign strong { color: #d4d4d8 !important; }
+      .sep { border-top-color: #33333a !important; }
+      /* Footer */
+      .ftr-bg { background-color: #050505 !important; }
+      .ftr-text { color: #71717a !important; }
+      .ftr-link { color: #71717a !important; }
+      /* Colored accent boxes */
+      .alert-box { background-color: #2b2108 !important; border-left-color: #f59e0b !important; }
+      .alert-box td, .alert-box p, .alert-box span { color: #fcd34d !important; }
+      .alert-box strong { color: #fef3c7 !important; }
+      .error-box { background-color: #2c0f0f !important; border-left-color: #ef4444 !important; }
+      .error-box td, .error-box p, .error-box span { color: #fca5a5 !important; }
+      .error-box strong { color: #fee2e2 !important; }
+      .success-box { background-color: #052E16 !important; border-left-color: #12B76A !important; }
+      .success-box td, .success-box p, .success-box span { color: #86EFAC !important; }
+      .success-box strong { color: #DCFCE7 !important; }
+      .neutral-box { background-color: #212124 !important; border-color: #33333a !important; }
+      .neutral-box td, .neutral-box p, .neutral-box span { color: #d4d4d8 !important; }
+      .neutral-box strong { color: #fafafa !important; }
+      /* Stat cards (two-column highlight blocks) */
+      .stat-card { background-color: #212124 !important; }
+      .stat-card td, .stat-card p, .stat-card span { color: #d4d4d8 !important; }
+      .stat-card .stat-value { color: #fafafa !important; }
+      .stat-card .stat-value-green { color: #4ADE80 !important; }
+      /* OTP code block (already dark by design — brighten the frame) */
+      .otp-code { background-color: #0a0a0a !important; border-color: #818CF8 !important; color: #818CF8 !important; }
+      /* Warning/security text */
+      .warn-text, .warn-text p { color: #fca5a5 !important; }
+      .warn-text strong { color: #fee2e2 !important; }
+      /* Monospace text (addresses, tx IDs) */
+      .mono { color: #d4d4d8 !important; }
+      /* Wallet address box */
+      .addr-box { background-color: #212124 !important; }
+      .addr-box td { color: #d4d4d8 !important; }
+      /* Fee table rows */
+      .fee-row td { color: #d4d4d8 !important; border-bottom-color: #33333a !important; }
+      .fee-total td { color: #fafafa !important; }
+      /* Section dividers */
+      .section-border { border-bottom-color: #33333a !important; }
+      /* Gmail workaround */
+      u + .body .bg { background-color: #0a0a0a !important; }
+    }
+  </style>
+</head>
+<body class=&quot;body&quot; style=&quot;margin: 0; padding: 0; background-color: #f5f5f4;&quot;>
+  <div style=&quot;display:none;font-size:1px;color:#f5f5f4;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;&quot;>Verify your identity to keep accepting payments past $10,000.</div>
+  <table role=&quot;presentation&quot; class=&quot;bg&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background-color: #f5f5f4; table-layout: fixed;&quot;>
+    <tr>
+      <td align=&quot;center&quot; style=&quot;padding: 32px 16px;&quot;>
+        <table role=&quot;presentation&quot; class=&quot;outer card&quot; width=&quot;600&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden;&quot;>
+          <!-- Neon accent bar -->
+          <tr>
+            <td style=&quot;background-color: #4338CA; height: 5px; line-height: 5px; font-size: 5px;&quot;>&nbsp;</td>
+          </tr>
+          <!-- Logo Header -->
+          <tr>
+            <td class=&quot;hdr hdr-bar&quot; style=&quot;background-color: #050505; padding: 26px 32px; text-align: center;&quot;>
+              <a href=&quot;https://dynopay.com&quot; style=&quot;text-decoration: none;&quot;>
+                <img src=&quot;https://dynopay.com/api/static/dynopay-email-logo-v2.png&quot; alt=&quot;Dynopay&quot; width=&quot;120&quot; height=&quot;40&quot; style=&quot;display: inline-block; max-width: 120px; height: auto;&quot; />
+              </a>
+            </td>
+          </tr>
+          <!-- Content -->
+          <tr>
+            <td class=&quot;inner msg&quot; style=&quot;padding: 36px 40px 40px 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>
+              <h1 class=&quot;hdg&quot; style=&quot;font-size: 24px; font-weight: 800; color: #0a0a0a; margin: 0 0 20px 0; line-height: 1.3; letter-spacing: -0.3px;&quot;>Verification Required</h1>
+              <p style=&quot;font-size: 15px; color: #374151; line-height: 1.65; margin: 0 0 14px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; &quot;>Hey Alex,</p>
+    <p style=&quot;font-size: 15px; color: #374151; line-height: 1.65; margin: 0 0 14px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; &quot;>Congratulations on reaching <strong>$12,400 USD</strong> in transaction volume!</p>
+    <p style=&quot;font-size: 15px; color: #374151; line-height: 1.65; margin: 0 0 14px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; &quot;>To continue accepting payments above $10,000, we need to verify your identity. This is a regulatory requirement and helps us keep Dynopay secure.</p>
+    <table role=&quot;presentation&quot; class=&quot;info-box&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background-color: #fafaf9; border: 1px solid #e7e5e4; border-radius: 12px; border-left: 4px solid #4338CA; margin: 20px 0;&quot;>
+    <tr><td style=&quot;padding: 16px 20px;&quot;>
+      <p style=&quot;margin:0 0 8px 0;font-size:14px;font-weight:600;&quot;>What you need:</p>
+      <table role=&quot;presentation&quot; width=&quot;100%&quot;><tr><td style=&quot;padding:2px 0;font-size:14px;&quot;>1. A government-issued photo ID</td></tr>
+      <tr><td style=&quot;padding:2px 0;font-size:14px;&quot;>2. A quick selfie for liveness</td></tr>
+      <tr><td style=&quot;padding:2px 0;font-size:14px;&quot;>3. About 5 minutes</td></tr></table>
+    </td></tr>
+  </table>
+    <p style=&quot;font-size: 15px; color: #374151; line-height: 1.65; margin: 0 0 14px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; &quot;>Complete your verification now to keep accepting payments without interruption.</p>
+              <table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;><tr><td align=&quot;center&quot; style=&quot;padding: 28px 0 8px 0;&quot;>
+        <a href=&quot;#&quot; class=&quot;btn&quot; style=&quot;display: inline-block; background-color: #4338CA; color: #FFFFFF; -webkit-text-fill-color: #FFFFFF; text-decoration: none; padding: 14px 40px; border-radius: 12px; font-weight: 700; font-size: 15px; letter-spacing: 0.2px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; mso-padding-alt: 0; text-align: center;&quot;>
+          <!--[if mso]><i style=&quot;mso-font-width: 150%; mso-text-raise: 26pt;&quot;>&nbsp;</i><![endif]-->
+          <span style=&quot;mso-text-raise: 13pt; color: #FFFFFF; -webkit-text-fill-color: #FFFFFF;&quot;>Start Verification</span>
+          <!--[if mso]><i style=&quot;mso-font-width: 150%;&quot;>&nbsp;</i><![endif]-->
+        </a>
+      </td></tr></table>
+              <!-- Sign-off -->
+              <table role=&quot;presentation&quot; class=&quot;sep&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;margin-top: 32px; border-top: 1px solid #e5e7eb;&quot;>
+                <tr>
+                  <td class=&quot;sign&quot; style=&quot;padding-top: 20px; font-size: 14px; color: #6b7280; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; line-height: 1.5;&quot;>
+                    Best regards,<br /><strong style=&quot;color: #374151;&quot;>The Dynopay Team</strong>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td class=&quot;ftr ftr-bg&quot; style=&quot;background-color: #050505; padding: 28px 32px; text-align: center; border-radius: 0 0 16px 16px;&quot;>
+              <table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;>
+                <tr>
+                  <td align=&quot;center&quot; style=&quot;padding-bottom: 16px;&quot;>
+                    <img src=&quot;https://dynopay.com/api/static/dynopay-email-logo-v2.png&quot; alt=&quot;Dynopay&quot; width=&quot;90&quot; height=&quot;30&quot; style=&quot;display: inline-block; max-width: 90px; height: auto; opacity: 0.8;&quot; />
+                  </td>
+                </tr>
+                <tr>
+                  <td align=&quot;center&quot; class=&quot;ftr-text&quot; style=&quot;color: #818CF8; font-size: 12px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding-bottom: 16px; line-height: 1.5;&quot;>
+                    Secure Crypto Payment Gateway
+                  </td>
+                </tr>
+                <tr>
+                  <td align=&quot;center&quot; style=&quot;padding-bottom: 16px;&quot;>
+                    <table role=&quot;presentation&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;><tr><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://www.facebook.com/dynopay&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Facebook</span></a></td><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://www.instagram.com/dynopay&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Instagram</span></a></td><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://x.com/dynopaycom&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>X</span></a></td><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://www.linkedin.com/company/dynopay/&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>LinkedIn</span></a></td><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://t.me/Dynopay_Announcements&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Telegram</span></a></td></tr></table>
+                  </td>
+                </tr>
+                <tr>
+                  <td align=&quot;center&quot; class=&quot;ftr-text&quot; style=&quot;color: #4b5563; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding-bottom: 12px;&quot;>
+                    © Dynopay 2026. All Rights reserved.
+                  </td>
+                </tr>
+                <tr>
+                  <td align=&quot;center&quot;>
+                    <table role=&quot;presentation&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;>
+                      <tr>
+                        <td style=&quot;padding: 0 10px;&quot;><a class=&quot;ftr-link&quot; href=&quot;https://dynopay.com/privacy-policy&quot; style=&quot;color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Privacy</a></td>
+                        <td class=&quot;ftr-text&quot; style=&quot;color: #4b5563; font-size: 11px;&quot;>|</td>
+                        <td style=&quot;padding: 0 10px;&quot;><a class=&quot;ftr-link&quot; href=&quot;https://dynopay.com/terms-conditions&quot; style=&quot;color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Terms</a></td>
+                        <td class=&quot;ftr-text&quot; style=&quot;color: #4b5563; font-size: 11px;&quot;>|</td>
+                        <td style=&quot;padding: 0 10px;&quot;><a class=&quot;ftr-link&quot; href=&quot;https://dynopay.com/help-support&quot; style=&quot;color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Support</a></td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>" style="width:100%;height:560px;border:0;"></iframe>
+  </div>
+  <div style="border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin:0 0 20px;">
+    <div style="padding:10px 14px;background:#0a0a0a;color:#fff;font:600 13px system-ui;">sub_failed.en</div>
+    <div style="padding:8px 14px;background:#f8fafc;font:12px system-ui;color:#334155;border-bottom:1px solid #e5e7eb;">
+      <b>Subject:</b> Payment failed for Pro Monthly<br/><b>Preheader:</b> <span style="color:#059669;">Your subscription payment didn't go through.</span></div>
+    <iframe srcdoc="<!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;>
+<html xmlns=&quot;http://www.w3.org/1999/xhtml&quot; lang=&quot;en&quot;>
+<head>
+  <meta charset=&quot;UTF-8&quot; />
+  <meta content=&quot;width=device-width, initial-scale=1&quot; name=&quot;viewport&quot; />
+  <meta name=&quot;x-apple-disable-message-reformatting&quot; />
+  <meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=edge&quot; />
+  <meta content=&quot;telephone=no&quot; name=&quot;format-detection&quot; />
+  <meta name=&quot;color-scheme&quot; content=&quot;light dark&quot; />
+  <meta name=&quot;supported-color-schemes&quot; content=&quot;light dark&quot; />
+  <title>Dynopay</title>
+  <!--[if mso]>
+  <style type=&quot;text/css&quot;>
+    body, table, td { font-family: Arial, Helvetica, sans-serif !important; }
+  </style>
+  <![endif]-->
+  <style type=&quot;text/css&quot;>
+    :root { color-scheme: light dark; supported-color-schemes: light dark; }
+    body { margin: 0; padding: 0; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; }
+    table { border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+    img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; }
+    @media only screen and (max-width: 620px) {
+      .outer { width: 100% !important; }
+      .inner { padding: 28px 20px !important; }
+      .hdr { padding: 20px !important; }
+      .ftr { padding: 24px 20px !important; }
+    }
+    @media (prefers-color-scheme: dark) {
+      body, .bg { background-color: #0a0a0a !important; }
+      .card { background-color: #18181b !important; }
+      .hdr-bar { background-color: #050505 !important; }
+      h1.hdg { color: #fafafa !important; }
+      /* CTA button: same indigo bg + white text in BOTH modes (inversion-proof) */
+      .btn { background-color: #4338CA !important; color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
+      .btn span { color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
+      /* Content area: override ALL child elements */
+      .msg, .msg p, .msg li, .msg td, .msg div, .msg span { color: #d4d4d8 !important; }
+      .msg strong, .msg b { color: #fafafa !important; }
+      .msg a:not(.btn) { color: #818CF8 !important; }
+      /* Tables inside content */
+      .msg table td { color: #d4d4d8 !important; }
+      .msg table td strong { color: #fafafa !important; }
+      .msg table td span { color: #d4d4d8 !important; }
+      /* Info box */
+      .info-box { background-color: #212124 !important; border-color: #33333a !important; }
+      .info-box td, .info-box p, .info-box span { color: #d4d4d8 !important; }
+      .info-box strong { color: #fafafa !important; }
+      /* Status badges */
+      .status-success { background-color: #052e16 !important; color: #86EFAC !important; }
+      .status-pending { background-color: #78350f !important; color: #fcd34d !important; }
+      .status-error { background-color: #7f1d1d !important; color: #fca5a5 !important; }
+      /* Data rows */
+      .data-row { border-bottom-color: #33333a !important; }
+      /* Sign-off */
+      .sign { color: #a1a1aa !important; }
+      .sign strong { color: #d4d4d8 !important; }
+      .sep { border-top-color: #33333a !important; }
+      /* Footer */
+      .ftr-bg { background-color: #050505 !important; }
+      .ftr-text { color: #71717a !important; }
+      .ftr-link { color: #71717a !important; }
+      /* Colored accent boxes */
+      .alert-box { background-color: #2b2108 !important; border-left-color: #f59e0b !important; }
+      .alert-box td, .alert-box p, .alert-box span { color: #fcd34d !important; }
+      .alert-box strong { color: #fef3c7 !important; }
+      .error-box { background-color: #2c0f0f !important; border-left-color: #ef4444 !important; }
+      .error-box td, .error-box p, .error-box span { color: #fca5a5 !important; }
+      .error-box strong { color: #fee2e2 !important; }
+      .success-box { background-color: #052E16 !important; border-left-color: #12B76A !important; }
+      .success-box td, .success-box p, .success-box span { color: #86EFAC !important; }
+      .success-box strong { color: #DCFCE7 !important; }
+      .neutral-box { background-color: #212124 !important; border-color: #33333a !important; }
+      .neutral-box td, .neutral-box p, .neutral-box span { color: #d4d4d8 !important; }
+      .neutral-box strong { color: #fafafa !important; }
+      /* Stat cards (two-column highlight blocks) */
+      .stat-card { background-color: #212124 !important; }
+      .stat-card td, .stat-card p, .stat-card span { color: #d4d4d8 !important; }
+      .stat-card .stat-value { color: #fafafa !important; }
+      .stat-card .stat-value-green { color: #4ADE80 !important; }
+      /* OTP code block (already dark by design — brighten the frame) */
+      .otp-code { background-color: #0a0a0a !important; border-color: #818CF8 !important; color: #818CF8 !important; }
+      /* Warning/security text */
+      .warn-text, .warn-text p { color: #fca5a5 !important; }
+      .warn-text strong { color: #fee2e2 !important; }
+      /* Monospace text (addresses, tx IDs) */
+      .mono { color: #d4d4d8 !important; }
+      /* Wallet address box */
+      .addr-box { background-color: #212124 !important; }
+      .addr-box td { color: #d4d4d8 !important; }
+      /* Fee table rows */
+      .fee-row td { color: #d4d4d8 !important; border-bottom-color: #33333a !important; }
+      .fee-total td { color: #fafafa !important; }
+      /* Section dividers */
+      .section-border { border-bottom-color: #33333a !important; }
+      /* Gmail workaround */
+      u + .body .bg { background-color: #0a0a0a !important; }
+    }
+  </style>
+</head>
+<body class=&quot;body&quot; style=&quot;margin: 0; padding: 0; background-color: #f5f5f4;&quot;>
+  <div style=&quot;display:none;font-size:1px;color:#f5f5f4;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;&quot;>Your subscription payment didn't go through.</div>
+  <table role=&quot;presentation&quot; class=&quot;bg&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background-color: #f5f5f4; table-layout: fixed;&quot;>
+    <tr>
+      <td align=&quot;center&quot; style=&quot;padding: 32px 16px;&quot;>
+        <table role=&quot;presentation&quot; class=&quot;outer card&quot; width=&quot;600&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden;&quot;>
+          <!-- Neon accent bar -->
+          <tr>
+            <td style=&quot;background-color: #4338CA; height: 5px; line-height: 5px; font-size: 5px;&quot;>&nbsp;</td>
+          </tr>
+          <!-- Logo Header -->
+          <tr>
+            <td class=&quot;hdr hdr-bar&quot; style=&quot;background-color: #050505; padding: 26px 32px; text-align: center;&quot;>
+              <a href=&quot;https://dynopay.com&quot; style=&quot;text-decoration: none;&quot;>
+                <img src=&quot;https://dynopay.com/api/static/dynopay-email-logo-v2.png&quot; alt=&quot;Dynopay&quot; width=&quot;120&quot; height=&quot;40&quot; style=&quot;display: inline-block; max-width: 120px; height: auto;&quot; />
+              </a>
+            </td>
+          </tr>
+          <!-- Content -->
+          <tr>
+            <td class=&quot;inner msg&quot; style=&quot;padding: 36px 40px 40px 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>
+              <h1 class=&quot;hdg&quot; style=&quot;font-size: 24px; font-weight: 800; color: #0a0a0a; margin: 0 0 20px 0; line-height: 1.3; letter-spacing: -0.3px;&quot;>Payment Failed</h1>
+              <p style=&quot;font-size: 15px; color: #374151; line-height: 1.65; margin: 0 0 14px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; &quot;>Hey Alex,</p>
+    <p style=&quot;font-size: 15px; color: #374151; line-height: 1.65; margin: 0 0 14px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; &quot;>We were unable to process your subscription payment for <strong>Pro Monthly</strong> from <strong>Acme</strong>.</p>
+    <table role=&quot;presentation&quot; class=&quot;info-box&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background-color: #fafaf9; border: 1px solid #e7e5e4; border-radius: 12px; border-left: 4px solid #f59e0b; margin: 20px 0;&quot;>
+    <tr><td style=&quot;padding: 16px 20px;&quot;><p style=&quot;margin:0;font-size:14px;&quot;>To keep your subscription active:<br />1. Open the secure payment link below<br />2. Make sure your wallet has enough balance, including network fees<br />3. Contact the merchant if you need a hand</p></td></tr>
+  </table>
+    <p class=&quot;warn-text&quot; style=&quot;font-size: 14px; color: #991b1b; line-height: 1.65; margin: 0 0 14px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Your subscription may be cancelled if payment is not received.</p>
+              <table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;><tr><td align=&quot;center&quot; style=&quot;padding: 28px 0 8px 0;&quot;>
+        <a href=&quot;#&quot; class=&quot;btn&quot; style=&quot;display: inline-block; background-color: #4338CA; color: #FFFFFF; -webkit-text-fill-color: #FFFFFF; text-decoration: none; padding: 14px 40px; border-radius: 12px; font-weight: 700; font-size: 15px; letter-spacing: 0.2px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; mso-padding-alt: 0; text-align: center;&quot;>
+          <!--[if mso]><i style=&quot;mso-font-width: 150%; mso-text-raise: 26pt;&quot;>&nbsp;</i><![endif]-->
+          <span style=&quot;mso-text-raise: 13pt; color: #FFFFFF; -webkit-text-fill-color: #FFFFFF;&quot;>Complete payment</span>
+          <!--[if mso]><i style=&quot;mso-font-width: 150%;&quot;>&nbsp;</i><![endif]-->
+        </a>
+      </td></tr></table>
+              <!-- Sign-off -->
+              <table role=&quot;presentation&quot; class=&quot;sep&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;margin-top: 32px; border-top: 1px solid #e5e7eb;&quot;>
+                <tr>
+                  <td class=&quot;sign&quot; style=&quot;padding-top: 20px; font-size: 14px; color: #6b7280; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; line-height: 1.5;&quot;>
+                    Best regards,<br /><strong style=&quot;color: #374151;&quot;>The Dynopay Team</strong>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td class=&quot;ftr ftr-bg&quot; style=&quot;background-color: #050505; padding: 28px 32px; text-align: center; border-radius: 0 0 16px 16px;&quot;>
+              <table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;>
+                <tr>
+                  <td align=&quot;center&quot; style=&quot;padding-bottom: 16px;&quot;>
+                    <img src=&quot;https://dynopay.com/api/static/dynopay-email-logo-v2.png&quot; alt=&quot;Dynopay&quot; width=&quot;90&quot; height=&quot;30&quot; style=&quot;display: inline-block; max-width: 90px; height: auto; opacity: 0.8;&quot; />
+                  </td>
+                </tr>
+                <tr>
+                  <td align=&quot;center&quot; class=&quot;ftr-text&quot; style=&quot;color: #818CF8; font-size: 12px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding-bottom: 16px; line-height: 1.5;&quot;>
+                    Secure Crypto Payment Gateway
+                  </td>
+                </tr>
+                <tr>
+                  <td align=&quot;center&quot; style=&quot;padding-bottom: 16px;&quot;>
+                    <table role=&quot;presentation&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;><tr><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://www.facebook.com/dynopay&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Facebook</span></a></td><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://www.instagram.com/dynopay&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Instagram</span></a></td><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://x.com/dynopaycom&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>X</span></a></td><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://www.linkedin.com/company/dynopay/&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>LinkedIn</span></a></td><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://t.me/Dynopay_Announcements&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Telegram</span></a></td></tr></table>
+                  </td>
+                </tr>
+                <tr>
+                  <td align=&quot;center&quot; class=&quot;ftr-text&quot; style=&quot;color: #4b5563; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding-bottom: 12px;&quot;>
+                    © Dynopay 2026. All Rights reserved.
+                  </td>
+                </tr>
+                <tr>
+                  <td align=&quot;center&quot;>
+                    <table role=&quot;presentation&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;>
+                      <tr>
+                        <td style=&quot;padding: 0 10px;&quot;><a class=&quot;ftr-link&quot; href=&quot;https://dynopay.com/privacy-policy&quot; style=&quot;color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Privacy</a></td>
+                        <td class=&quot;ftr-text&quot; style=&quot;color: #4b5563; font-size: 11px;&quot;>|</td>
+                        <td style=&quot;padding: 0 10px;&quot;><a class=&quot;ftr-link&quot; href=&quot;https://dynopay.com/terms-conditions&quot; style=&quot;color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Terms</a></td>
+                        <td class=&quot;ftr-text&quot; style=&quot;color: #4b5563; font-size: 11px;&quot;>|</td>
+                        <td style=&quot;padding: 0 10px;&quot;><a class=&quot;ftr-link&quot; href=&quot;https://dynopay.com/help-support&quot; style=&quot;color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Support</a></td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>" style="width:100%;height:560px;border:0;"></iframe>
+  </div>
+  <div style="border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin:0 0 20px;">
+    <div style="padding:10px 14px;background:#0a0a0a;color:#fff;font:600 13px system-ui;">payment_received.en</div>
+    <div style="padding:8px 14px;background:#f8fafc;font:12px system-ui;color:#334155;border-bottom:1px solid #e5e7eb;">
+      <b>Subject:</b> Payment received – 250.00 USDC<br/><b>Preheader:</b> <span style="color:#059669;">Funds are settling to your payout wallet now.</span></div>
+    <iframe srcdoc="<!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;>
+<html xmlns=&quot;http://www.w3.org/1999/xhtml&quot; lang=&quot;en&quot;>
+<head>
+  <meta charset=&quot;UTF-8&quot; />
+  <meta content=&quot;width=device-width, initial-scale=1&quot; name=&quot;viewport&quot; />
+  <meta name=&quot;x-apple-disable-message-reformatting&quot; />
+  <meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=edge&quot; />
+  <meta content=&quot;telephone=no&quot; name=&quot;format-detection&quot; />
+  <meta name=&quot;color-scheme&quot; content=&quot;light dark&quot; />
+  <meta name=&quot;supported-color-schemes&quot; content=&quot;light dark&quot; />
+  <title>Dynopay</title>
+  <!--[if mso]>
+  <style type=&quot;text/css&quot;>
+    body, table, td { font-family: Arial, Helvetica, sans-serif !important; }
+  </style>
+  <![endif]-->
+  <style type=&quot;text/css&quot;>
+    :root { color-scheme: light dark; supported-color-schemes: light dark; }
+    body { margin: 0; padding: 0; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; }
+    table { border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+    img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; }
+    @media only screen and (max-width: 620px) {
+      .outer { width: 100% !important; }
+      .inner { padding: 28px 20px !important; }
+      .hdr { padding: 20px !important; }
+      .ftr { padding: 24px 20px !important; }
+    }
+    @media (prefers-color-scheme: dark) {
+      body, .bg { background-color: #0a0a0a !important; }
+      .card { background-color: #18181b !important; }
+      .hdr-bar { background-color: #050505 !important; }
+      h1.hdg { color: #fafafa !important; }
+      /* CTA button: same indigo bg + white text in BOTH modes (inversion-proof) */
+      .btn { background-color: #4338CA !important; color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
+      .btn span { color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
+      /* Content area: override ALL child elements */
+      .msg, .msg p, .msg li, .msg td, .msg div, .msg span { color: #d4d4d8 !important; }
+      .msg strong, .msg b { color: #fafafa !important; }
+      .msg a:not(.btn) { color: #818CF8 !important; }
+      /* Tables inside content */
+      .msg table td { color: #d4d4d8 !important; }
+      .msg table td strong { color: #fafafa !important; }
+      .msg table td span { color: #d4d4d8 !important; }
+      /* Info box */
+      .info-box { background-color: #212124 !important; border-color: #33333a !important; }
+      .info-box td, .info-box p, .info-box span { color: #d4d4d8 !important; }
+      .info-box strong { color: #fafafa !important; }
+      /* Status badges */
+      .status-success { background-color: #052e16 !important; color: #86EFAC !important; }
+      .status-pending { background-color: #78350f !important; color: #fcd34d !important; }
+      .status-error { background-color: #7f1d1d !important; color: #fca5a5 !important; }
+      /* Data rows */
+      .data-row { border-bottom-color: #33333a !important; }
+      /* Sign-off */
+      .sign { color: #a1a1aa !important; }
+      .sign strong { color: #d4d4d8 !important; }
+      .sep { border-top-color: #33333a !important; }
+      /* Footer */
+      .ftr-bg { background-color: #050505 !important; }
+      .ftr-text { color: #71717a !important; }
+      .ftr-link { color: #71717a !important; }
+      /* Colored accent boxes */
+      .alert-box { background-color: #2b2108 !important; border-left-color: #f59e0b !important; }
+      .alert-box td, .alert-box p, .alert-box span { color: #fcd34d !important; }
+      .alert-box strong { color: #fef3c7 !important; }
+      .error-box { background-color: #2c0f0f !important; border-left-color: #ef4444 !important; }
+      .error-box td, .error-box p, .error-box span { color: #fca5a5 !important; }
+      .error-box strong { color: #fee2e2 !important; }
+      .success-box { background-color: #052E16 !important; border-left-color: #12B76A !important; }
+      .success-box td, .success-box p, .success-box span { color: #86EFAC !important; }
+      .success-box strong { color: #DCFCE7 !important; }
+      .neutral-box { background-color: #212124 !important; border-color: #33333a !important; }
+      .neutral-box td, .neutral-box p, .neutral-box span { color: #d4d4d8 !important; }
+      .neutral-box strong { color: #fafafa !important; }
+      /* Stat cards (two-column highlight blocks) */
+      .stat-card { background-color: #212124 !important; }
+      .stat-card td, .stat-card p, .stat-card span { color: #d4d4d8 !important; }
+      .stat-card .stat-value { color: #fafafa !important; }
+      .stat-card .stat-value-green { color: #4ADE80 !important; }
+      /* OTP code block (already dark by design — brighten the frame) */
+      .otp-code { background-color: #0a0a0a !important; border-color: #818CF8 !important; color: #818CF8 !important; }
+      /* Warning/security text */
+      .warn-text, .warn-text p { color: #fca5a5 !important; }
+      .warn-text strong { color: #fee2e2 !important; }
+      /* Monospace text (addresses, tx IDs) */
+      .mono { color: #d4d4d8 !important; }
+      /* Wallet address box */
+      .addr-box { background-color: #212124 !important; }
+      .addr-box td { color: #d4d4d8 !important; }
+      /* Fee table rows */
+      .fee-row td { color: #d4d4d8 !important; border-bottom-color: #33333a !important; }
+      .fee-total td { color: #fafafa !important; }
+      /* Section dividers */
+      .section-border { border-bottom-color: #33333a !important; }
+      /* Gmail workaround */
+      u + .body .bg { background-color: #0a0a0a !important; }
+    }
+  </style>
+</head>
+<body class=&quot;body&quot; style=&quot;margin: 0; padding: 0; background-color: #f5f5f4;&quot;>
+  <div style=&quot;display:none;font-size:1px;color:#f5f5f4;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;&quot;>Funds are settling to your payout wallet now.</div>
+  <table role=&quot;presentation&quot; class=&quot;bg&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background-color: #f5f5f4; table-layout: fixed;&quot;>
+    <tr>
+      <td align=&quot;center&quot; style=&quot;padding: 32px 16px;&quot;>
+        <table role=&quot;presentation&quot; class=&quot;outer card&quot; width=&quot;600&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden;&quot;>
+          <!-- Neon accent bar -->
+          <tr>
+            <td style=&quot;background-color: #4338CA; height: 5px; line-height: 5px; font-size: 5px;&quot;>&nbsp;</td>
+          </tr>
+          <!-- Logo Header -->
+          <tr>
+            <td class=&quot;hdr hdr-bar&quot; style=&quot;background-color: #050505; padding: 26px 32px; text-align: center;&quot;>
+              <a href=&quot;https://dynopay.com&quot; style=&quot;text-decoration: none;&quot;>
+                <img src=&quot;https://dynopay.com/api/static/dynopay-email-logo-v2.png&quot; alt=&quot;Dynopay&quot; width=&quot;120&quot; height=&quot;40&quot; style=&quot;display: inline-block; max-width: 120px; height: auto;&quot; />
+              </a>
+            </td>
+          </tr>
+          <!-- Content -->
+          <tr>
+            <td class=&quot;inner msg&quot; style=&quot;padding: 36px 40px 40px 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>
+              <h1 class=&quot;hdg&quot; style=&quot;font-size: 24px; font-weight: 800; color: #0a0a0a; margin: 0 0 20px 0; line-height: 1.3; letter-spacing: -0.3px;&quot;>Payment Received</h1>
+              <p style=&quot;font-size: 15px; color: #374151; line-height: 1.65; margin: 0 0 14px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; &quot;>Hey Alex,</p>
+    <p style=&quot;font-size: 15px; color: #374151; line-height: 1.65; margin: 0 0 14px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; &quot;>Great news! Your company <strong>Acme</strong> has received a payment.</p>
+    <table role=&quot;presentation&quot; class=&quot;info-box&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background-color: #fafaf9; border: 1px solid #e7e5e4; border-radius: 12px; border-left: 4px solid #12B76A; margin: 20px 0;&quot;>
+    <tr><td style=&quot;padding: 16px 20px;&quot;><table role=&quot;presentation&quot; width=&quot;100%&quot;>
+      <tr class=&quot;data-row&quot; style=&quot;border-bottom: 1px solid #f1f5f9;&quot;>
+    <td style=&quot;padding: 10px 0; color: #6b7280; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Amount</td>
+    <td style=&quot;padding: 10px 0; color: #1f2937; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: right;&quot;><strong>250.00 USDC</strong></td>
+  </tr>
+      <tr class=&quot;data-row&quot; style=&quot;&quot;>
+    <td style=&quot;padding: 10px 0; color: #6b7280; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Status</td>
+    <td style=&quot;padding: 10px 0; color: #1f2937; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: right;&quot;><span class=&quot;status-success&quot; style=&quot;display: inline-block; background: #dcfce7; color: #166534; padding: 3px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Received</span></td>
+  </tr>
+    </table></td></tr>
+  </table>
+    <p style=&quot;font-size: 15px; color: #374151; line-height: 1.65; margin: 0 0 14px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; &quot;>The funds have been forwarded to your payout wallet. You can view the full transaction details in your dashboard.</p>
+              <table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;><tr><td align=&quot;center&quot; style=&quot;padding: 28px 0 8px 0;&quot;>
+        <a href=&quot;#&quot; class=&quot;btn&quot; style=&quot;display: inline-block; background-color: #4338CA; color: #FFFFFF; -webkit-text-fill-color: #FFFFFF; text-decoration: none; padding: 14px 40px; border-radius: 12px; font-weight: 700; font-size: 15px; letter-spacing: 0.2px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; mso-padding-alt: 0; text-align: center;&quot;>
+          <!--[if mso]><i style=&quot;mso-font-width: 150%; mso-text-raise: 26pt;&quot;>&nbsp;</i><![endif]-->
+          <span style=&quot;mso-text-raise: 13pt; color: #FFFFFF; -webkit-text-fill-color: #FFFFFF;&quot;>View Transaction</span>
+          <!--[if mso]><i style=&quot;mso-font-width: 150%;&quot;>&nbsp;</i><![endif]-->
+        </a>
+      </td></tr></table>
+              <!-- Sign-off -->
+              <table role=&quot;presentation&quot; class=&quot;sep&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;margin-top: 32px; border-top: 1px solid #e5e7eb;&quot;>
+                <tr>
+                  <td class=&quot;sign&quot; style=&quot;padding-top: 20px; font-size: 14px; color: #6b7280; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; line-height: 1.5;&quot;>
+                    Best regards,<br /><strong style=&quot;color: #374151;&quot;>The Dynopay Team</strong>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td class=&quot;ftr ftr-bg&quot; style=&quot;background-color: #050505; padding: 28px 32px; text-align: center; border-radius: 0 0 16px 16px;&quot;>
+              <table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;>
+                <tr>
+                  <td align=&quot;center&quot; style=&quot;padding-bottom: 16px;&quot;>
+                    <img src=&quot;https://dynopay.com/api/static/dynopay-email-logo-v2.png&quot; alt=&quot;Dynopay&quot; width=&quot;90&quot; height=&quot;30&quot; style=&quot;display: inline-block; max-width: 90px; height: auto; opacity: 0.8;&quot; />
+                  </td>
+                </tr>
+                <tr>
+                  <td align=&quot;center&quot; class=&quot;ftr-text&quot; style=&quot;color: #818CF8; font-size: 12px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding-bottom: 16px; line-height: 1.5;&quot;>
+                    Secure Crypto Payment Gateway
+                  </td>
+                </tr>
+                <tr>
+                  <td align=&quot;center&quot; style=&quot;padding-bottom: 16px;&quot;>
+                    <table role=&quot;presentation&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;><tr><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://www.facebook.com/dynopay&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Facebook</span></a></td><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://www.instagram.com/dynopay&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Instagram</span></a></td><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://x.com/dynopaycom&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>X</span></a></td><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://www.linkedin.com/company/dynopay/&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>LinkedIn</span></a></td><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://t.me/Dynopay_Announcements&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Telegram</span></a></td></tr></table>
+                  </td>
+                </tr>
+                <tr>
+                  <td align=&quot;center&quot; class=&quot;ftr-text&quot; style=&quot;color: #4b5563; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding-bottom: 12px;&quot;>
+                    © Dynopay 2026. All Rights reserved.
+                  </td>
+                </tr>
+                <tr>
+                  <td align=&quot;center&quot;>
+                    <table role=&quot;presentation&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;>
+                      <tr>
+                        <td style=&quot;padding: 0 10px;&quot;><a class=&quot;ftr-link&quot; href=&quot;https://dynopay.com/privacy-policy&quot; style=&quot;color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Privacy</a></td>
+                        <td class=&quot;ftr-text&quot; style=&quot;color: #4b5563; font-size: 11px;&quot;>|</td>
+                        <td style=&quot;padding: 0 10px;&quot;><a class=&quot;ftr-link&quot; href=&quot;https://dynopay.com/terms-conditions&quot; style=&quot;color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Terms</a></td>
+                        <td class=&quot;ftr-text&quot; style=&quot;color: #4b5563; font-size: 11px;&quot;>|</td>
+                        <td style=&quot;padding: 0 10px;&quot;><a class=&quot;ftr-link&quot; href=&quot;https://dynopay.com/help-support&quot; style=&quot;color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Support</a></td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>" style="width:100%;height:560px;border:0;"></iframe>
+  </div>
+  <div style="border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin:0 0 20px;">
+    <div style="padding:10px 14px;background:#0a0a0a;color:#fff;font:600 13px system-ui;">login_otp.de</div>
+    <div style="padding:8px 14px;background:#f8fafc;font:12px system-ui;color:#334155;border-bottom:1px solid #e5e7eb;">
+      <b>Subject:</b> Ihr Anmeldecode<br/><b>Preheader:</b> <span style="color:#059669;">Ihr Code läuft in wenigen Minuten ab. Geben Sie ihn niemals weiter.</span></div>
+    <iframe srcdoc="<!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;>
+<html xmlns=&quot;http://www.w3.org/1999/xhtml&quot; lang=&quot;en&quot;>
+<head>
+  <meta charset=&quot;UTF-8&quot; />
+  <meta content=&quot;width=device-width, initial-scale=1&quot; name=&quot;viewport&quot; />
+  <meta name=&quot;x-apple-disable-message-reformatting&quot; />
+  <meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=edge&quot; />
+  <meta content=&quot;telephone=no&quot; name=&quot;format-detection&quot; />
+  <meta name=&quot;color-scheme&quot; content=&quot;light dark&quot; />
+  <meta name=&quot;supported-color-schemes&quot; content=&quot;light dark&quot; />
+  <title>Dynopay</title>
+  <!--[if mso]>
+  <style type=&quot;text/css&quot;>
+    body, table, td { font-family: Arial, Helvetica, sans-serif !important; }
+  </style>
+  <![endif]-->
+  <style type=&quot;text/css&quot;>
+    :root { color-scheme: light dark; supported-color-schemes: light dark; }
+    body { margin: 0; padding: 0; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; }
+    table { border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+    img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; }
+    @media only screen and (max-width: 620px) {
+      .outer { width: 100% !important; }
+      .inner { padding: 28px 20px !important; }
+      .hdr { padding: 20px !important; }
+      .ftr { padding: 24px 20px !important; }
+    }
+    @media (prefers-color-scheme: dark) {
+      body, .bg { background-color: #0a0a0a !important; }
+      .card { background-color: #18181b !important; }
+      .hdr-bar { background-color: #050505 !important; }
+      h1.hdg { color: #fafafa !important; }
+      /* CTA button: same indigo bg + white text in BOTH modes (inversion-proof) */
+      .btn { background-color: #4338CA !important; color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
+      .btn span { color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
+      /* Content area: override ALL child elements */
+      .msg, .msg p, .msg li, .msg td, .msg div, .msg span { color: #d4d4d8 !important; }
+      .msg strong, .msg b { color: #fafafa !important; }
+      .msg a:not(.btn) { color: #818CF8 !important; }
+      /* Tables inside content */
+      .msg table td { color: #d4d4d8 !important; }
+      .msg table td strong { color: #fafafa !important; }
+      .msg table td span { color: #d4d4d8 !important; }
+      /* Info box */
+      .info-box { background-color: #212124 !important; border-color: #33333a !important; }
+      .info-box td, .info-box p, .info-box span { color: #d4d4d8 !important; }
+      .info-box strong { color: #fafafa !important; }
+      /* Status badges */
+      .status-success { background-color: #052e16 !important; color: #86EFAC !important; }
+      .status-pending { background-color: #78350f !important; color: #fcd34d !important; }
+      .status-error { background-color: #7f1d1d !important; color: #fca5a5 !important; }
+      /* Data rows */
+      .data-row { border-bottom-color: #33333a !important; }
+      /* Sign-off */
+      .sign { color: #a1a1aa !important; }
+      .sign strong { color: #d4d4d8 !important; }
+      .sep { border-top-color: #33333a !important; }
+      /* Footer */
+      .ftr-bg { background-color: #050505 !important; }
+      .ftr-text { color: #71717a !important; }
+      .ftr-link { color: #71717a !important; }
+      /* Colored accent boxes */
+      .alert-box { background-color: #2b2108 !important; border-left-color: #f59e0b !important; }
+      .alert-box td, .alert-box p, .alert-box span { color: #fcd34d !important; }
+      .alert-box strong { color: #fef3c7 !important; }
+      .error-box { background-color: #2c0f0f !important; border-left-color: #ef4444 !important; }
+      .error-box td, .error-box p, .error-box span { color: #fca5a5 !important; }
+      .error-box strong { color: #fee2e2 !important; }
+      .success-box { background-color: #052E16 !important; border-left-color: #12B76A !important; }
+      .success-box td, .success-box p, .success-box span { color: #86EFAC !important; }
+      .success-box strong { color: #DCFCE7 !important; }
+      .neutral-box { background-color: #212124 !important; border-color: #33333a !important; }
+      .neutral-box td, .neutral-box p, .neutral-box span { color: #d4d4d8 !important; }
+      .neutral-box strong { color: #fafafa !important; }
+      /* Stat cards (two-column highlight blocks) */
+      .stat-card { background-color: #212124 !important; }
+      .stat-card td, .stat-card p, .stat-card span { color: #d4d4d8 !important; }
+      .stat-card .stat-value { color: #fafafa !important; }
+      .stat-card .stat-value-green { color: #4ADE80 !important; }
+      /* OTP code block (already dark by design — brighten the frame) */
+      .otp-code { background-color: #0a0a0a !important; border-color: #818CF8 !important; color: #818CF8 !important; }
+      /* Warning/security text */
+      .warn-text, .warn-text p { color: #fca5a5 !important; }
+      .warn-text strong { color: #fee2e2 !important; }
+      /* Monospace text (addresses, tx IDs) */
+      .mono { color: #d4d4d8 !important; }
+      /* Wallet address box */
+      .addr-box { background-color: #212124 !important; }
+      .addr-box td { color: #d4d4d8 !important; }
+      /* Fee table rows */
+      .fee-row td { color: #d4d4d8 !important; border-bottom-color: #33333a !important; }
+      .fee-total td { color: #fafafa !important; }
+      /* Section dividers */
+      .section-border { border-bottom-color: #33333a !important; }
+      /* Gmail workaround */
+      u + .body .bg { background-color: #0a0a0a !important; }
+    }
+  </style>
+</head>
+<body class=&quot;body&quot; style=&quot;margin: 0; padding: 0; background-color: #f5f5f4;&quot;>
+  <div style=&quot;display:none;font-size:1px;color:#f5f5f4;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;&quot;>Ihr Code läuft in wenigen Minuten ab. Geben Sie ihn niemals weiter.</div>
+  <table role=&quot;presentation&quot; class=&quot;bg&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background-color: #f5f5f4; table-layout: fixed;&quot;>
+    <tr>
+      <td align=&quot;center&quot; style=&quot;padding: 32px 16px;&quot;>
+        <table role=&quot;presentation&quot; class=&quot;outer card&quot; width=&quot;600&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden;&quot;>
+          <!-- Neon accent bar -->
+          <tr>
+            <td style=&quot;background-color: #4338CA; height: 5px; line-height: 5px; font-size: 5px;&quot;>&nbsp;</td>
+          </tr>
+          <!-- Logo Header -->
+          <tr>
+            <td class=&quot;hdr hdr-bar&quot; style=&quot;background-color: #050505; padding: 26px 32px; text-align: center;&quot;>
+              <a href=&quot;https://dynopay.com&quot; style=&quot;text-decoration: none;&quot;>
+                <img src=&quot;https://dynopay.com/api/static/dynopay-email-logo-v2.png&quot; alt=&quot;Dynopay&quot; width=&quot;120&quot; height=&quot;40&quot; style=&quot;display: inline-block; max-width: 120px; height: auto;&quot; />
+              </a>
+            </td>
+          </tr>
+          <!-- Content -->
+          <tr>
+            <td class=&quot;inner msg&quot; style=&quot;padding: 36px 40px 40px 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>
+              <h1 class=&quot;hdg&quot; style=&quot;font-size: 24px; font-weight: 800; color: #0a0a0a; margin: 0 0 20px 0; line-height: 1.3; letter-spacing: -0.3px;&quot;>Ihr Anmeldecode</h1>
+              <p style=&quot;font-size: 15px; color: #374151; line-height: 1.65; margin: 0 0 14px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; &quot;>Hallo Alex,</p>
+    <p style=&quot;font-size: 15px; color: #374151; line-height: 1.65; margin: 0 0 14px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; &quot;>Hier ist Ihr einmaliger Anmeldecode für Dynopay:</p>
+    <table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;margin: 24px 0;&quot;>
+    <tr><td align=&quot;center&quot;>
+      <div class=&quot;otp-code&quot; style=&quot;display: inline-block; background-color: #050505; border: 1px solid #050505; border-radius: 14px; padding: 18px 44px; font-size: 32px; font-weight: 700; color: #818CF8; letter-spacing: 10px; font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;&quot;>481902</div>
+    </td></tr>
+  </table>
+    <p style=&quot;font-size: 15px; color: #374151; line-height: 1.65; margin: 0 0 14px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; &quot;>Dieser Code läuft in 5 Minuten ab. Wenn Sie diesen Code nicht angefordert haben, sichern Sie Ihr Konto umgehend.</p>
+              
+              <!-- Sign-off -->
+              <table role=&quot;presentation&quot; class=&quot;sep&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;margin-top: 32px; border-top: 1px solid #e5e7eb;&quot;>
+                <tr>
+                  <td class=&quot;sign&quot; style=&quot;padding-top: 20px; font-size: 14px; color: #6b7280; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; line-height: 1.5;&quot;>
+                    Best regards,<br /><strong style=&quot;color: #374151;&quot;>The Dynopay Team</strong>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td class=&quot;ftr ftr-bg&quot; style=&quot;background-color: #050505; padding: 28px 32px; text-align: center; border-radius: 0 0 16px 16px;&quot;>
+              <table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;>
+                <tr>
+                  <td align=&quot;center&quot; style=&quot;padding-bottom: 16px;&quot;>
+                    <img src=&quot;https://dynopay.com/api/static/dynopay-email-logo-v2.png&quot; alt=&quot;Dynopay&quot; width=&quot;90&quot; height=&quot;30&quot; style=&quot;display: inline-block; max-width: 90px; height: auto; opacity: 0.8;&quot; />
+                  </td>
+                </tr>
+                <tr>
+                  <td align=&quot;center&quot; class=&quot;ftr-text&quot; style=&quot;color: #818CF8; font-size: 12px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding-bottom: 16px; line-height: 1.5;&quot;>
+                    Secure Crypto Payment Gateway
+                  </td>
+                </tr>
+                <tr>
+                  <td align=&quot;center&quot; style=&quot;padding-bottom: 16px;&quot;>
+                    <table role=&quot;presentation&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;><tr><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://www.facebook.com/dynopay&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Facebook</span></a></td><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://www.instagram.com/dynopay&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Instagram</span></a></td><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://x.com/dynopaycom&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>X</span></a></td><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://www.linkedin.com/company/dynopay/&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>LinkedIn</span></a></td><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://t.me/Dynopay_Announcements&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Telegram</span></a></td></tr></table>
+                  </td>
+                </tr>
+                <tr>
+                  <td align=&quot;center&quot; class=&quot;ftr-text&quot; style=&quot;color: #4b5563; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding-bottom: 12px;&quot;>
+                    © Dynopay 2026. All Rights reserved.
+                  </td>
+                </tr>
+                <tr>
+                  <td align=&quot;center&quot;>
+                    <table role=&quot;presentation&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;>
+                      <tr>
+                        <td style=&quot;padding: 0 10px;&quot;><a class=&quot;ftr-link&quot; href=&quot;https://dynopay.com/privacy-policy&quot; style=&quot;color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Privacy</a></td>
+                        <td class=&quot;ftr-text&quot; style=&quot;color: #4b5563; font-size: 11px;&quot;>|</td>
+                        <td style=&quot;padding: 0 10px;&quot;><a class=&quot;ftr-link&quot; href=&quot;https://dynopay.com/terms-conditions&quot; style=&quot;color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Terms</a></td>
+                        <td class=&quot;ftr-text&quot; style=&quot;color: #4b5563; font-size: 11px;&quot;>|</td>
+                        <td style=&quot;padding: 0 10px;&quot;><a class=&quot;ftr-link&quot; href=&quot;https://dynopay.com/help-support&quot; style=&quot;color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Support</a></td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>" style="width:100%;height:560px;border:0;"></iframe>
+  </div>
+  <div style="border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin:0 0 20px;">
+    <div style="padding:10px 14px;background:#0a0a0a;color:#fff;font:600 13px system-ui;">kyc_required.de</div>
+    <div style="padding:8px 14px;background:#f8fafc;font:12px system-ui;color:#334155;border-bottom:1px solid #e5e7eb;">
+      <b>Subject:</b> Verifizierung ab $10,000 Umsatz erforderlich<br/><b>Preheader:</b> <span style="color:#059669;">Verifizieren Sie sich, um über $10,000 weiter Zahlungen anzunehmen.</span></div>
+    <iframe srcdoc="<!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;>
+<html xmlns=&quot;http://www.w3.org/1999/xhtml&quot; lang=&quot;en&quot;>
+<head>
+  <meta charset=&quot;UTF-8&quot; />
+  <meta content=&quot;width=device-width, initial-scale=1&quot; name=&quot;viewport&quot; />
+  <meta name=&quot;x-apple-disable-message-reformatting&quot; />
+  <meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=edge&quot; />
+  <meta content=&quot;telephone=no&quot; name=&quot;format-detection&quot; />
+  <meta name=&quot;color-scheme&quot; content=&quot;light dark&quot; />
+  <meta name=&quot;supported-color-schemes&quot; content=&quot;light dark&quot; />
+  <title>Dynopay</title>
+  <!--[if mso]>
+  <style type=&quot;text/css&quot;>
+    body, table, td { font-family: Arial, Helvetica, sans-serif !important; }
+  </style>
+  <![endif]-->
+  <style type=&quot;text/css&quot;>
+    :root { color-scheme: light dark; supported-color-schemes: light dark; }
+    body { margin: 0; padding: 0; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; }
+    table { border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+    img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; }
+    @media only screen and (max-width: 620px) {
+      .outer { width: 100% !important; }
+      .inner { padding: 28px 20px !important; }
+      .hdr { padding: 20px !important; }
+      .ftr { padding: 24px 20px !important; }
+    }
+    @media (prefers-color-scheme: dark) {
+      body, .bg { background-color: #0a0a0a !important; }
+      .card { background-color: #18181b !important; }
+      .hdr-bar { background-color: #050505 !important; }
+      h1.hdg { color: #fafafa !important; }
+      /* CTA button: same indigo bg + white text in BOTH modes (inversion-proof) */
+      .btn { background-color: #4338CA !important; color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
+      .btn span { color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
+      /* Content area: override ALL child elements */
+      .msg, .msg p, .msg li, .msg td, .msg div, .msg span { color: #d4d4d8 !important; }
+      .msg strong, .msg b { color: #fafafa !important; }
+      .msg a:not(.btn) { color: #818CF8 !important; }
+      /* Tables inside content */
+      .msg table td { color: #d4d4d8 !important; }
+      .msg table td strong { color: #fafafa !important; }
+      .msg table td span { color: #d4d4d8 !important; }
+      /* Info box */
+      .info-box { background-color: #212124 !important; border-color: #33333a !important; }
+      .info-box td, .info-box p, .info-box span { color: #d4d4d8 !important; }
+      .info-box strong { color: #fafafa !important; }
+      /* Status badges */
+      .status-success { background-color: #052e16 !important; color: #86EFAC !important; }
+      .status-pending { background-color: #78350f !important; color: #fcd34d !important; }
+      .status-error { background-color: #7f1d1d !important; color: #fca5a5 !important; }
+      /* Data rows */
+      .data-row { border-bottom-color: #33333a !important; }
+      /* Sign-off */
+      .sign { color: #a1a1aa !important; }
+      .sign strong { color: #d4d4d8 !important; }
+      .sep { border-top-color: #33333a !important; }
+      /* Footer */
+      .ftr-bg { background-color: #050505 !important; }
+      .ftr-text { color: #71717a !important; }
+      .ftr-link { color: #71717a !important; }
+      /* Colored accent boxes */
+      .alert-box { background-color: #2b2108 !important; border-left-color: #f59e0b !important; }
+      .alert-box td, .alert-box p, .alert-box span { color: #fcd34d !important; }
+      .alert-box strong { color: #fef3c7 !important; }
+      .error-box { background-color: #2c0f0f !important; border-left-color: #ef4444 !important; }
+      .error-box td, .error-box p, .error-box span { color: #fca5a5 !important; }
+      .error-box strong { color: #fee2e2 !important; }
+      .success-box { background-color: #052E16 !important; border-left-color: #12B76A !important; }
+      .success-box td, .success-box p, .success-box span { color: #86EFAC !important; }
+      .success-box strong { color: #DCFCE7 !important; }
+      .neutral-box { background-color: #212124 !important; border-color: #33333a !important; }
+      .neutral-box td, .neutral-box p, .neutral-box span { color: #d4d4d8 !important; }
+      .neutral-box strong { color: #fafafa !important; }
+      /* Stat cards (two-column highlight blocks) */
+      .stat-card { background-color: #212124 !important; }
+      .stat-card td, .stat-card p, .stat-card span { color: #d4d4d8 !important; }
+      .stat-card .stat-value { color: #fafafa !important; }
+      .stat-card .stat-value-green { color: #4ADE80 !important; }
+      /* OTP code block (already dark by design — brighten the frame) */
+      .otp-code { background-color: #0a0a0a !important; border-color: #818CF8 !important; color: #818CF8 !important; }
+      /* Warning/security text */
+      .warn-text, .warn-text p { color: #fca5a5 !important; }
+      .warn-text strong { color: #fee2e2 !important; }
+      /* Monospace text (addresses, tx IDs) */
+      .mono { color: #d4d4d8 !important; }
+      /* Wallet address box */
+      .addr-box { background-color: #212124 !important; }
+      .addr-box td { color: #d4d4d8 !important; }
+      /* Fee table rows */
+      .fee-row td { color: #d4d4d8 !important; border-bottom-color: #33333a !important; }
+      .fee-total td { color: #fafafa !important; }
+      /* Section dividers */
+      .section-border { border-bottom-color: #33333a !important; }
+      /* Gmail workaround */
+      u + .body .bg { background-color: #0a0a0a !important; }
+    }
+  </style>
+</head>
+<body class=&quot;body&quot; style=&quot;margin: 0; padding: 0; background-color: #f5f5f4;&quot;>
+  <div style=&quot;display:none;font-size:1px;color:#f5f5f4;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;&quot;>Verifizieren Sie sich, um über $10,000 weiter Zahlungen anzunehmen.</div>
+  <table role=&quot;presentation&quot; class=&quot;bg&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background-color: #f5f5f4; table-layout: fixed;&quot;>
+    <tr>
+      <td align=&quot;center&quot; style=&quot;padding: 32px 16px;&quot;>
+        <table role=&quot;presentation&quot; class=&quot;outer card&quot; width=&quot;600&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden;&quot;>
+          <!-- Neon accent bar -->
+          <tr>
+            <td style=&quot;background-color: #4338CA; height: 5px; line-height: 5px; font-size: 5px;&quot;>&nbsp;</td>
+          </tr>
+          <!-- Logo Header -->
+          <tr>
+            <td class=&quot;hdr hdr-bar&quot; style=&quot;background-color: #050505; padding: 26px 32px; text-align: center;&quot;>
+              <a href=&quot;https://dynopay.com&quot; style=&quot;text-decoration: none;&quot;>
+                <img src=&quot;https://dynopay.com/api/static/dynopay-email-logo-v2.png&quot; alt=&quot;Dynopay&quot; width=&quot;120&quot; height=&quot;40&quot; style=&quot;display: inline-block; max-width: 120px; height: auto;&quot; />
+              </a>
+            </td>
+          </tr>
+          <!-- Content -->
+          <tr>
+            <td class=&quot;inner msg&quot; style=&quot;padding: 36px 40px 40px 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>
+              <h1 class=&quot;hdg&quot; style=&quot;font-size: 24px; font-weight: 800; color: #0a0a0a; margin: 0 0 20px 0; line-height: 1.3; letter-spacing: -0.3px;&quot;>Verifizierung erforderlich</h1>
+              <p style=&quot;font-size: 15px; color: #374151; line-height: 1.65; margin: 0 0 14px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; &quot;>Hallo Alex,</p>
+    <p style=&quot;font-size: 15px; color: #374151; line-height: 1.65; margin: 0 0 14px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; &quot;>Herzlichen Glückwunsch zum Erreichen von <strong>$12,400 USD</strong> Transaktionsvolumen!</p>
+    <p style=&quot;font-size: 15px; color: #374151; line-height: 1.65; margin: 0 0 14px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; &quot;>Um weiterhin Zahlungen über $10,000 zu akzeptieren, müssen wir Ihre Identität verifizieren. Dies ist eine regulatorische Anforderung und hilft uns, Dynopay sicher zu halten.</p>
+    <table role=&quot;presentation&quot; class=&quot;info-box&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background-color: #fafaf9; border: 1px solid #e7e5e4; border-radius: 12px; border-left: 4px solid #4338CA; margin: 20px 0;&quot;>
+    <tr><td style=&quot;padding: 16px 20px;&quot;>
+      <p style=&quot;margin:0 0 8px 0;font-size:14px;font-weight:600;&quot;>Was Sie benötigen:</p>
+      <table role=&quot;presentation&quot; width=&quot;100%&quot;><tr><td style=&quot;padding:2px 0;font-size:14px;&quot;>1. Ein amtlicher Lichtbildausweis</td></tr>
+      <tr><td style=&quot;padding:2px 0;font-size:14px;&quot;>2. Ein kurzes Selfie zur Lebendprüfung</td></tr>
+      <tr><td style=&quot;padding:2px 0;font-size:14px;&quot;>3. Etwa 5 Minuten</td></tr></table>
+    </td></tr>
+  </table>
+    <p style=&quot;font-size: 15px; color: #374151; line-height: 1.65; margin: 0 0 14px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; &quot;>Schließen Sie Ihre Verifizierung jetzt ab, um weiterhin ohne Unterbrechung Zahlungen zu akzeptieren.</p>
+              <table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;><tr><td align=&quot;center&quot; style=&quot;padding: 28px 0 8px 0;&quot;>
+        <a href=&quot;#&quot; class=&quot;btn&quot; style=&quot;display: inline-block; background-color: #4338CA; color: #FFFFFF; -webkit-text-fill-color: #FFFFFF; text-decoration: none; padding: 14px 40px; border-radius: 12px; font-weight: 700; font-size: 15px; letter-spacing: 0.2px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; mso-padding-alt: 0; text-align: center;&quot;>
+          <!--[if mso]><i style=&quot;mso-font-width: 150%; mso-text-raise: 26pt;&quot;>&nbsp;</i><![endif]-->
+          <span style=&quot;mso-text-raise: 13pt; color: #FFFFFF; -webkit-text-fill-color: #FFFFFF;&quot;>Verifizierung starten</span>
+          <!--[if mso]><i style=&quot;mso-font-width: 150%;&quot;>&nbsp;</i><![endif]-->
+        </a>
+      </td></tr></table>
+              <!-- Sign-off -->
+              <table role=&quot;presentation&quot; class=&quot;sep&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;margin-top: 32px; border-top: 1px solid #e5e7eb;&quot;>
+                <tr>
+                  <td class=&quot;sign&quot; style=&quot;padding-top: 20px; font-size: 14px; color: #6b7280; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; line-height: 1.5;&quot;>
+                    Best regards,<br /><strong style=&quot;color: #374151;&quot;>The Dynopay Team</strong>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td class=&quot;ftr ftr-bg&quot; style=&quot;background-color: #050505; padding: 28px 32px; text-align: center; border-radius: 0 0 16px 16px;&quot;>
+              <table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;>
+                <tr>
+                  <td align=&quot;center&quot; style=&quot;padding-bottom: 16px;&quot;>
+                    <img src=&quot;https://dynopay.com/api/static/dynopay-email-logo-v2.png&quot; alt=&quot;Dynopay&quot; width=&quot;90&quot; height=&quot;30&quot; style=&quot;display: inline-block; max-width: 90px; height: auto; opacity: 0.8;&quot; />
+                  </td>
+                </tr>
+                <tr>
+                  <td align=&quot;center&quot; class=&quot;ftr-text&quot; style=&quot;color: #818CF8; font-size: 12px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding-bottom: 16px; line-height: 1.5;&quot;>
+                    Secure Crypto Payment Gateway
+                  </td>
+                </tr>
+                <tr>
+                  <td align=&quot;center&quot; style=&quot;padding-bottom: 16px;&quot;>
+                    <table role=&quot;presentation&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;><tr><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://www.facebook.com/dynopay&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Facebook</span></a></td><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://www.instagram.com/dynopay&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Instagram</span></a></td><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://x.com/dynopaycom&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>X</span></a></td><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://www.linkedin.com/company/dynopay/&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>LinkedIn</span></a></td><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://t.me/Dynopay_Announcements&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Telegram</span></a></td></tr></table>
+                  </td>
+                </tr>
+                <tr>
+                  <td align=&quot;center&quot; class=&quot;ftr-text&quot; style=&quot;color: #4b5563; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding-bottom: 12px;&quot;>
+                    © Dynopay 2026. All Rights reserved.
+                  </td>
+                </tr>
+                <tr>
+                  <td align=&quot;center&quot;>
+                    <table role=&quot;presentation&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;>
+                      <tr>
+                        <td style=&quot;padding: 0 10px;&quot;><a class=&quot;ftr-link&quot; href=&quot;https://dynopay.com/privacy-policy&quot; style=&quot;color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Privacy</a></td>
+                        <td class=&quot;ftr-text&quot; style=&quot;color: #4b5563; font-size: 11px;&quot;>|</td>
+                        <td style=&quot;padding: 0 10px;&quot;><a class=&quot;ftr-link&quot; href=&quot;https://dynopay.com/terms-conditions&quot; style=&quot;color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Terms</a></td>
+                        <td class=&quot;ftr-text&quot; style=&quot;color: #4b5563; font-size: 11px;&quot;>|</td>
+                        <td style=&quot;padding: 0 10px;&quot;><a class=&quot;ftr-link&quot; href=&quot;https://dynopay.com/help-support&quot; style=&quot;color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Support</a></td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>" style="width:100%;height:560px;border:0;"></iframe>
+  </div>
+  <div style="border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin:0 0 20px;">
+    <div style="padding:10px 14px;background:#0a0a0a;color:#fff;font:600 13px system-ui;">sub_failed.de</div>
+    <div style="padding:8px 14px;background:#f8fafc;font:12px system-ui;color:#334155;border-bottom:1px solid #e5e7eb;">
+      <b>Subject:</b> Zahlung für Pro Monthly fehlgeschlagen<br/><b>Preheader:</b> <span style="color:#059669;">Ihre Abonnementzahlung war nicht erfolgreich.</span></div>
+    <iframe srcdoc="<!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;>
+<html xmlns=&quot;http://www.w3.org/1999/xhtml&quot; lang=&quot;en&quot;>
+<head>
+  <meta charset=&quot;UTF-8&quot; />
+  <meta content=&quot;width=device-width, initial-scale=1&quot; name=&quot;viewport&quot; />
+  <meta name=&quot;x-apple-disable-message-reformatting&quot; />
+  <meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=edge&quot; />
+  <meta content=&quot;telephone=no&quot; name=&quot;format-detection&quot; />
+  <meta name=&quot;color-scheme&quot; content=&quot;light dark&quot; />
+  <meta name=&quot;supported-color-schemes&quot; content=&quot;light dark&quot; />
+  <title>Dynopay</title>
+  <!--[if mso]>
+  <style type=&quot;text/css&quot;>
+    body, table, td { font-family: Arial, Helvetica, sans-serif !important; }
+  </style>
+  <![endif]-->
+  <style type=&quot;text/css&quot;>
+    :root { color-scheme: light dark; supported-color-schemes: light dark; }
+    body { margin: 0; padding: 0; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; }
+    table { border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+    img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; }
+    @media only screen and (max-width: 620px) {
+      .outer { width: 100% !important; }
+      .inner { padding: 28px 20px !important; }
+      .hdr { padding: 20px !important; }
+      .ftr { padding: 24px 20px !important; }
+    }
+    @media (prefers-color-scheme: dark) {
+      body, .bg { background-color: #0a0a0a !important; }
+      .card { background-color: #18181b !important; }
+      .hdr-bar { background-color: #050505 !important; }
+      h1.hdg { color: #fafafa !important; }
+      /* CTA button: same indigo bg + white text in BOTH modes (inversion-proof) */
+      .btn { background-color: #4338CA !important; color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
+      .btn span { color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
+      /* Content area: override ALL child elements */
+      .msg, .msg p, .msg li, .msg td, .msg div, .msg span { color: #d4d4d8 !important; }
+      .msg strong, .msg b { color: #fafafa !important; }
+      .msg a:not(.btn) { color: #818CF8 !important; }
+      /* Tables inside content */
+      .msg table td { color: #d4d4d8 !important; }
+      .msg table td strong { color: #fafafa !important; }
+      .msg table td span { color: #d4d4d8 !important; }
+      /* Info box */
+      .info-box { background-color: #212124 !important; border-color: #33333a !important; }
+      .info-box td, .info-box p, .info-box span { color: #d4d4d8 !important; }
+      .info-box strong { color: #fafafa !important; }
+      /* Status badges */
+      .status-success { background-color: #052e16 !important; color: #86EFAC !important; }
+      .status-pending { background-color: #78350f !important; color: #fcd34d !important; }
+      .status-error { background-color: #7f1d1d !important; color: #fca5a5 !important; }
+      /* Data rows */
+      .data-row { border-bottom-color: #33333a !important; }
+      /* Sign-off */
+      .sign { color: #a1a1aa !important; }
+      .sign strong { color: #d4d4d8 !important; }
+      .sep { border-top-color: #33333a !important; }
+      /* Footer */
+      .ftr-bg { background-color: #050505 !important; }
+      .ftr-text { color: #71717a !important; }
+      .ftr-link { color: #71717a !important; }
+      /* Colored accent boxes */
+      .alert-box { background-color: #2b2108 !important; border-left-color: #f59e0b !important; }
+      .alert-box td, .alert-box p, .alert-box span { color: #fcd34d !important; }
+      .alert-box strong { color: #fef3c7 !important; }
+      .error-box { background-color: #2c0f0f !important; border-left-color: #ef4444 !important; }
+      .error-box td, .error-box p, .error-box span { color: #fca5a5 !important; }
+      .error-box strong { color: #fee2e2 !important; }
+      .success-box { background-color: #052E16 !important; border-left-color: #12B76A !important; }
+      .success-box td, .success-box p, .success-box span { color: #86EFAC !important; }
+      .success-box strong { color: #DCFCE7 !important; }
+      .neutral-box { background-color: #212124 !important; border-color: #33333a !important; }
+      .neutral-box td, .neutral-box p, .neutral-box span { color: #d4d4d8 !important; }
+      .neutral-box strong { color: #fafafa !important; }
+      /* Stat cards (two-column highlight blocks) */
+      .stat-card { background-color: #212124 !important; }
+      .stat-card td, .stat-card p, .stat-card span { color: #d4d4d8 !important; }
+      .stat-card .stat-value { color: #fafafa !important; }
+      .stat-card .stat-value-green { color: #4ADE80 !important; }
+      /* OTP code block (already dark by design — brighten the frame) */
+      .otp-code { background-color: #0a0a0a !important; border-color: #818CF8 !important; color: #818CF8 !important; }
+      /* Warning/security text */
+      .warn-text, .warn-text p { color: #fca5a5 !important; }
+      .warn-text strong { color: #fee2e2 !important; }
+      /* Monospace text (addresses, tx IDs) */
+      .mono { color: #d4d4d8 !important; }
+      /* Wallet address box */
+      .addr-box { background-color: #212124 !important; }
+      .addr-box td { color: #d4d4d8 !important; }
+      /* Fee table rows */
+      .fee-row td { color: #d4d4d8 !important; border-bottom-color: #33333a !important; }
+      .fee-total td { color: #fafafa !important; }
+      /* Section dividers */
+      .section-border { border-bottom-color: #33333a !important; }
+      /* Gmail workaround */
+      u + .body .bg { background-color: #0a0a0a !important; }
+    }
+  </style>
+</head>
+<body class=&quot;body&quot; style=&quot;margin: 0; padding: 0; background-color: #f5f5f4;&quot;>
+  <div style=&quot;display:none;font-size:1px;color:#f5f5f4;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;&quot;>Ihre Abonnementzahlung war nicht erfolgreich.</div>
+  <table role=&quot;presentation&quot; class=&quot;bg&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background-color: #f5f5f4; table-layout: fixed;&quot;>
+    <tr>
+      <td align=&quot;center&quot; style=&quot;padding: 32px 16px;&quot;>
+        <table role=&quot;presentation&quot; class=&quot;outer card&quot; width=&quot;600&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden;&quot;>
+          <!-- Neon accent bar -->
+          <tr>
+            <td style=&quot;background-color: #4338CA; height: 5px; line-height: 5px; font-size: 5px;&quot;>&nbsp;</td>
+          </tr>
+          <!-- Logo Header -->
+          <tr>
+            <td class=&quot;hdr hdr-bar&quot; style=&quot;background-color: #050505; padding: 26px 32px; text-align: center;&quot;>
+              <a href=&quot;https://dynopay.com&quot; style=&quot;text-decoration: none;&quot;>
+                <img src=&quot;https://dynopay.com/api/static/dynopay-email-logo-v2.png&quot; alt=&quot;Dynopay&quot; width=&quot;120&quot; height=&quot;40&quot; style=&quot;display: inline-block; max-width: 120px; height: auto;&quot; />
+              </a>
+            </td>
+          </tr>
+          <!-- Content -->
+          <tr>
+            <td class=&quot;inner msg&quot; style=&quot;padding: 36px 40px 40px 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>
+              <h1 class=&quot;hdg&quot; style=&quot;font-size: 24px; font-weight: 800; color: #0a0a0a; margin: 0 0 20px 0; line-height: 1.3; letter-spacing: -0.3px;&quot;>Zahlung fehlgeschlagen</h1>
+              <p style=&quot;font-size: 15px; color: #374151; line-height: 1.65; margin: 0 0 14px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; &quot;>Hallo Alex,</p>
+    <p style=&quot;font-size: 15px; color: #374151; line-height: 1.65; margin: 0 0 14px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; &quot;>Wir konnten Ihre Abonnementzahlung für <strong>Pro Monthly</strong> von <strong>Acme</strong> nicht verarbeiten.</p>
+    <table role=&quot;presentation&quot; class=&quot;info-box&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background-color: #fafaf9; border: 1px solid #e7e5e4; border-radius: 12px; border-left: 4px solid #f59e0b; margin: 20px 0;&quot;>
+    <tr><td style=&quot;padding: 16px 20px;&quot;><p style=&quot;margin:0;font-size:14px;&quot;>So bleibt Ihr Abonnement aktiv:<br />1. Öffnen Sie den sicheren Zahlungslink unten<br />2. Stellen Sie sicher, dass Ihre Wallet genug Guthaben inkl. Netzwerkgebühren hat<br />3. Kontaktieren Sie den Händler, wenn Sie Hilfe brauchen</p></td></tr>
+  </table>
+    <p class=&quot;warn-text&quot; style=&quot;font-size: 14px; color: #991b1b; line-height: 1.65; margin: 0 0 14px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Ihr Abonnement könnte gekündigt werden, wenn die Zahlung nicht eingeht.</p>
+              <table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;><tr><td align=&quot;center&quot; style=&quot;padding: 28px 0 8px 0;&quot;>
+        <a href=&quot;#&quot; class=&quot;btn&quot; style=&quot;display: inline-block; background-color: #4338CA; color: #FFFFFF; -webkit-text-fill-color: #FFFFFF; text-decoration: none; padding: 14px 40px; border-radius: 12px; font-weight: 700; font-size: 15px; letter-spacing: 0.2px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; mso-padding-alt: 0; text-align: center;&quot;>
+          <!--[if mso]><i style=&quot;mso-font-width: 150%; mso-text-raise: 26pt;&quot;>&nbsp;</i><![endif]-->
+          <span style=&quot;mso-text-raise: 13pt; color: #FFFFFF; -webkit-text-fill-color: #FFFFFF;&quot;>Zahlung abschließen</span>
+          <!--[if mso]><i style=&quot;mso-font-width: 150%;&quot;>&nbsp;</i><![endif]-->
+        </a>
+      </td></tr></table>
+              <!-- Sign-off -->
+              <table role=&quot;presentation&quot; class=&quot;sep&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;margin-top: 32px; border-top: 1px solid #e5e7eb;&quot;>
+                <tr>
+                  <td class=&quot;sign&quot; style=&quot;padding-top: 20px; font-size: 14px; color: #6b7280; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; line-height: 1.5;&quot;>
+                    Best regards,<br /><strong style=&quot;color: #374151;&quot;>The Dynopay Team</strong>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td class=&quot;ftr ftr-bg&quot; style=&quot;background-color: #050505; padding: 28px 32px; text-align: center; border-radius: 0 0 16px 16px;&quot;>
+              <table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;>
+                <tr>
+                  <td align=&quot;center&quot; style=&quot;padding-bottom: 16px;&quot;>
+                    <img src=&quot;https://dynopay.com/api/static/dynopay-email-logo-v2.png&quot; alt=&quot;Dynopay&quot; width=&quot;90&quot; height=&quot;30&quot; style=&quot;display: inline-block; max-width: 90px; height: auto; opacity: 0.8;&quot; />
+                  </td>
+                </tr>
+                <tr>
+                  <td align=&quot;center&quot; class=&quot;ftr-text&quot; style=&quot;color: #818CF8; font-size: 12px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding-bottom: 16px; line-height: 1.5;&quot;>
+                    Secure Crypto Payment Gateway
+                  </td>
+                </tr>
+                <tr>
+                  <td align=&quot;center&quot; style=&quot;padding-bottom: 16px;&quot;>
+                    <table role=&quot;presentation&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;><tr><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://www.facebook.com/dynopay&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Facebook</span></a></td><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://www.instagram.com/dynopay&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Instagram</span></a></td><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://x.com/dynopaycom&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>X</span></a></td><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://www.linkedin.com/company/dynopay/&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>LinkedIn</span></a></td><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://t.me/Dynopay_Announcements&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Telegram</span></a></td></tr></table>
+                  </td>
+                </tr>
+                <tr>
+                  <td align=&quot;center&quot; class=&quot;ftr-text&quot; style=&quot;color: #4b5563; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding-bottom: 12px;&quot;>
+                    © Dynopay 2026. All Rights reserved.
+                  </td>
+                </tr>
+                <tr>
+                  <td align=&quot;center&quot;>
+                    <table role=&quot;presentation&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;>
+                      <tr>
+                        <td style=&quot;padding: 0 10px;&quot;><a class=&quot;ftr-link&quot; href=&quot;https://dynopay.com/privacy-policy&quot; style=&quot;color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Privacy</a></td>
+                        <td class=&quot;ftr-text&quot; style=&quot;color: #4b5563; font-size: 11px;&quot;>|</td>
+                        <td style=&quot;padding: 0 10px;&quot;><a class=&quot;ftr-link&quot; href=&quot;https://dynopay.com/terms-conditions&quot; style=&quot;color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Terms</a></td>
+                        <td class=&quot;ftr-text&quot; style=&quot;color: #4b5563; font-size: 11px;&quot;>|</td>
+                        <td style=&quot;padding: 0 10px;&quot;><a class=&quot;ftr-link&quot; href=&quot;https://dynopay.com/help-support&quot; style=&quot;color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Support</a></td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>" style="width:100%;height:560px;border:0;"></iframe>
+  </div>
+  <div style="border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin:0 0 20px;">
+    <div style="padding:10px 14px;background:#0a0a0a;color:#fff;font:600 13px system-ui;">payment_received.de</div>
+    <div style="padding:8px 14px;background:#f8fafc;font:12px system-ui;color:#334155;border-bottom:1px solid #e5e7eb;">
+      <b>Subject:</b> Zahlung erhalten – 250.00 USDC<br/><b>Preheader:</b> <span style="color:#059669;">Das Geld wird jetzt an Ihre Auszahlungs-Wallet überwiesen.</span></div>
+    <iframe srcdoc="<!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;>
+<html xmlns=&quot;http://www.w3.org/1999/xhtml&quot; lang=&quot;en&quot;>
+<head>
+  <meta charset=&quot;UTF-8&quot; />
+  <meta content=&quot;width=device-width, initial-scale=1&quot; name=&quot;viewport&quot; />
+  <meta name=&quot;x-apple-disable-message-reformatting&quot; />
+  <meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=edge&quot; />
+  <meta content=&quot;telephone=no&quot; name=&quot;format-detection&quot; />
+  <meta name=&quot;color-scheme&quot; content=&quot;light dark&quot; />
+  <meta name=&quot;supported-color-schemes&quot; content=&quot;light dark&quot; />
+  <title>Dynopay</title>
+  <!--[if mso]>
+  <style type=&quot;text/css&quot;>
+    body, table, td { font-family: Arial, Helvetica, sans-serif !important; }
+  </style>
+  <![endif]-->
+  <style type=&quot;text/css&quot;>
+    :root { color-scheme: light dark; supported-color-schemes: light dark; }
+    body { margin: 0; padding: 0; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; }
+    table { border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+    img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; }
+    @media only screen and (max-width: 620px) {
+      .outer { width: 100% !important; }
+      .inner { padding: 28px 20px !important; }
+      .hdr { padding: 20px !important; }
+      .ftr { padding: 24px 20px !important; }
+    }
+    @media (prefers-color-scheme: dark) {
+      body, .bg { background-color: #0a0a0a !important; }
+      .card { background-color: #18181b !important; }
+      .hdr-bar { background-color: #050505 !important; }
+      h1.hdg { color: #fafafa !important; }
+      /* CTA button: same indigo bg + white text in BOTH modes (inversion-proof) */
+      .btn { background-color: #4338CA !important; color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
+      .btn span { color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
+      /* Content area: override ALL child elements */
+      .msg, .msg p, .msg li, .msg td, .msg div, .msg span { color: #d4d4d8 !important; }
+      .msg strong, .msg b { color: #fafafa !important; }
+      .msg a:not(.btn) { color: #818CF8 !important; }
+      /* Tables inside content */
+      .msg table td { color: #d4d4d8 !important; }
+      .msg table td strong { color: #fafafa !important; }
+      .msg table td span { color: #d4d4d8 !important; }
+      /* Info box */
+      .info-box { background-color: #212124 !important; border-color: #33333a !important; }
+      .info-box td, .info-box p, .info-box span { color: #d4d4d8 !important; }
+      .info-box strong { color: #fafafa !important; }
+      /* Status badges */
+      .status-success { background-color: #052e16 !important; color: #86EFAC !important; }
+      .status-pending { background-color: #78350f !important; color: #fcd34d !important; }
+      .status-error { background-color: #7f1d1d !important; color: #fca5a5 !important; }
+      /* Data rows */
+      .data-row { border-bottom-color: #33333a !important; }
+      /* Sign-off */
+      .sign { color: #a1a1aa !important; }
+      .sign strong { color: #d4d4d8 !important; }
+      .sep { border-top-color: #33333a !important; }
+      /* Footer */
+      .ftr-bg { background-color: #050505 !important; }
+      .ftr-text { color: #71717a !important; }
+      .ftr-link { color: #71717a !important; }
+      /* Colored accent boxes */
+      .alert-box { background-color: #2b2108 !important; border-left-color: #f59e0b !important; }
+      .alert-box td, .alert-box p, .alert-box span { color: #fcd34d !important; }
+      .alert-box strong { color: #fef3c7 !important; }
+      .error-box { background-color: #2c0f0f !important; border-left-color: #ef4444 !important; }
+      .error-box td, .error-box p, .error-box span { color: #fca5a5 !important; }
+      .error-box strong { color: #fee2e2 !important; }
+      .success-box { background-color: #052E16 !important; border-left-color: #12B76A !important; }
+      .success-box td, .success-box p, .success-box span { color: #86EFAC !important; }
+      .success-box strong { color: #DCFCE7 !important; }
+      .neutral-box { background-color: #212124 !important; border-color: #33333a !important; }
+      .neutral-box td, .neutral-box p, .neutral-box span { color: #d4d4d8 !important; }
+      .neutral-box strong { color: #fafafa !important; }
+      /* Stat cards (two-column highlight blocks) */
+      .stat-card { background-color: #212124 !important; }
+      .stat-card td, .stat-card p, .stat-card span { color: #d4d4d8 !important; }
+      .stat-card .stat-value { color: #fafafa !important; }
+      .stat-card .stat-value-green { color: #4ADE80 !important; }
+      /* OTP code block (already dark by design — brighten the frame) */
+      .otp-code { background-color: #0a0a0a !important; border-color: #818CF8 !important; color: #818CF8 !important; }
+      /* Warning/security text */
+      .warn-text, .warn-text p { color: #fca5a5 !important; }
+      .warn-text strong { color: #fee2e2 !important; }
+      /* Monospace text (addresses, tx IDs) */
+      .mono { color: #d4d4d8 !important; }
+      /* Wallet address box */
+      .addr-box { background-color: #212124 !important; }
+      .addr-box td { color: #d4d4d8 !important; }
+      /* Fee table rows */
+      .fee-row td { color: #d4d4d8 !important; border-bottom-color: #33333a !important; }
+      .fee-total td { color: #fafafa !important; }
+      /* Section dividers */
+      .section-border { border-bottom-color: #33333a !important; }
+      /* Gmail workaround */
+      u + .body .bg { background-color: #0a0a0a !important; }
+    }
+  </style>
+</head>
+<body class=&quot;body&quot; style=&quot;margin: 0; padding: 0; background-color: #f5f5f4;&quot;>
+  <div style=&quot;display:none;font-size:1px;color:#f5f5f4;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;&quot;>Das Geld wird jetzt an Ihre Auszahlungs-Wallet überwiesen.</div>
+  <table role=&quot;presentation&quot; class=&quot;bg&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background-color: #f5f5f4; table-layout: fixed;&quot;>
+    <tr>
+      <td align=&quot;center&quot; style=&quot;padding: 32px 16px;&quot;>
+        <table role=&quot;presentation&quot; class=&quot;outer card&quot; width=&quot;600&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden;&quot;>
+          <!-- Neon accent bar -->
+          <tr>
+            <td style=&quot;background-color: #4338CA; height: 5px; line-height: 5px; font-size: 5px;&quot;>&nbsp;</td>
+          </tr>
+          <!-- Logo Header -->
+          <tr>
+            <td class=&quot;hdr hdr-bar&quot; style=&quot;background-color: #050505; padding: 26px 32px; text-align: center;&quot;>
+              <a href=&quot;https://dynopay.com&quot; style=&quot;text-decoration: none;&quot;>
+                <img src=&quot;https://dynopay.com/api/static/dynopay-email-logo-v2.png&quot; alt=&quot;Dynopay&quot; width=&quot;120&quot; height=&quot;40&quot; style=&quot;display: inline-block; max-width: 120px; height: auto;&quot; />
+              </a>
+            </td>
+          </tr>
+          <!-- Content -->
+          <tr>
+            <td class=&quot;inner msg&quot; style=&quot;padding: 36px 40px 40px 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>
+              <h1 class=&quot;hdg&quot; style=&quot;font-size: 24px; font-weight: 800; color: #0a0a0a; margin: 0 0 20px 0; line-height: 1.3; letter-spacing: -0.3px;&quot;>Zahlung erhalten</h1>
+              <p style=&quot;font-size: 15px; color: #374151; line-height: 1.65; margin: 0 0 14px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; &quot;>Hallo Alex,</p>
+    <p style=&quot;font-size: 15px; color: #374151; line-height: 1.65; margin: 0 0 14px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; &quot;>Gute Nachrichten! Ihr Unternehmen <strong>Acme</strong> hat eine Zahlung erhalten.</p>
+    <table role=&quot;presentation&quot; class=&quot;info-box&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;background-color: #fafaf9; border: 1px solid #e7e5e4; border-radius: 12px; border-left: 4px solid #12B76A; margin: 20px 0;&quot;>
+    <tr><td style=&quot;padding: 16px 20px;&quot;><table role=&quot;presentation&quot; width=&quot;100%&quot;>
+      <tr class=&quot;data-row&quot; style=&quot;border-bottom: 1px solid #f1f5f9;&quot;>
+    <td style=&quot;padding: 10px 0; color: #6b7280; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Betrag</td>
+    <td style=&quot;padding: 10px 0; color: #1f2937; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: right;&quot;><strong>250.00 USDC</strong></td>
+  </tr>
+      <tr class=&quot;data-row&quot; style=&quot;&quot;>
+    <td style=&quot;padding: 10px 0; color: #6b7280; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Status</td>
+    <td style=&quot;padding: 10px 0; color: #1f2937; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: right;&quot;><span class=&quot;status-success&quot; style=&quot;display: inline-block; background: #dcfce7; color: #166534; padding: 3px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Erhalten</span></td>
+  </tr>
+    </table></td></tr>
+  </table>
+    <p style=&quot;font-size: 15px; color: #374151; line-height: 1.65; margin: 0 0 14px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; &quot;>Die Mittel wurden an Ihr Auszahlungs-Wallet weitergeleitet. Alle Transaktionsdetails finden Sie in Ihrem Dashboard.</p>
+              <table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;><tr><td align=&quot;center&quot; style=&quot;padding: 28px 0 8px 0;&quot;>
+        <a href=&quot;#&quot; class=&quot;btn&quot; style=&quot;display: inline-block; background-color: #4338CA; color: #FFFFFF; -webkit-text-fill-color: #FFFFFF; text-decoration: none; padding: 14px 40px; border-radius: 12px; font-weight: 700; font-size: 15px; letter-spacing: 0.2px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; mso-padding-alt: 0; text-align: center;&quot;>
+          <!--[if mso]><i style=&quot;mso-font-width: 150%; mso-text-raise: 26pt;&quot;>&nbsp;</i><![endif]-->
+          <span style=&quot;mso-text-raise: 13pt; color: #FFFFFF; -webkit-text-fill-color: #FFFFFF;&quot;>Transaktion ansehen</span>
+          <!--[if mso]><i style=&quot;mso-font-width: 150%;&quot;>&nbsp;</i><![endif]-->
+        </a>
+      </td></tr></table>
+              <!-- Sign-off -->
+              <table role=&quot;presentation&quot; class=&quot;sep&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;margin-top: 32px; border-top: 1px solid #e5e7eb;&quot;>
+                <tr>
+                  <td class=&quot;sign&quot; style=&quot;padding-top: 20px; font-size: 14px; color: #6b7280; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; line-height: 1.5;&quot;>
+                    Best regards,<br /><strong style=&quot;color: #374151;&quot;>The Dynopay Team</strong>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td class=&quot;ftr ftr-bg&quot; style=&quot;background-color: #050505; padding: 28px 32px; text-align: center; border-radius: 0 0 16px 16px;&quot;>
+              <table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;>
+                <tr>
+                  <td align=&quot;center&quot; style=&quot;padding-bottom: 16px;&quot;>
+                    <img src=&quot;https://dynopay.com/api/static/dynopay-email-logo-v2.png&quot; alt=&quot;Dynopay&quot; width=&quot;90&quot; height=&quot;30&quot; style=&quot;display: inline-block; max-width: 90px; height: auto; opacity: 0.8;&quot; />
+                  </td>
+                </tr>
+                <tr>
+                  <td align=&quot;center&quot; class=&quot;ftr-text&quot; style=&quot;color: #818CF8; font-size: 12px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding-bottom: 16px; line-height: 1.5;&quot;>
+                    Secure Crypto Payment Gateway
+                  </td>
+                </tr>
+                <tr>
+                  <td align=&quot;center&quot; style=&quot;padding-bottom: 16px;&quot;>
+                    <table role=&quot;presentation&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;><tr><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://www.facebook.com/dynopay&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Facebook</span></a></td><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://www.instagram.com/dynopay&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Instagram</span></a></td><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://x.com/dynopaycom&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>X</span></a></td><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://www.linkedin.com/company/dynopay/&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>LinkedIn</span></a></td><td style=&quot;padding: 0 8px;&quot;><a href=&quot;https://t.me/Dynopay_Announcements&quot; target=&quot;_blank&quot; style=&quot;display: inline-block; text-decoration: none;&quot;><span style=&quot;color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Telegram</span></a></td></tr></table>
+                  </td>
+                </tr>
+                <tr>
+                  <td align=&quot;center&quot; class=&quot;ftr-text&quot; style=&quot;color: #4b5563; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding-bottom: 12px;&quot;>
+                    © Dynopay 2026. All Rights reserved.
+                  </td>
+                </tr>
+                <tr>
+                  <td align=&quot;center&quot;>
+                    <table role=&quot;presentation&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot;>
+                      <tr>
+                        <td style=&quot;padding: 0 10px;&quot;><a class=&quot;ftr-link&quot; href=&quot;https://dynopay.com/privacy-policy&quot; style=&quot;color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Privacy</a></td>
+                        <td class=&quot;ftr-text&quot; style=&quot;color: #4b5563; font-size: 11px;&quot;>|</td>
+                        <td style=&quot;padding: 0 10px;&quot;><a class=&quot;ftr-link&quot; href=&quot;https://dynopay.com/terms-conditions&quot; style=&quot;color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Terms</a></td>
+                        <td class=&quot;ftr-text&quot; style=&quot;color: #4b5563; font-size: 11px;&quot;>|</td>
+                        <td style=&quot;padding: 0 10px;&quot;><a class=&quot;ftr-link&quot; href=&quot;https://dynopay.com/help-support&quot; style=&quot;color: #6b7280; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;&quot;>Support</a></td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>" style="width:100%;height:560px;border:0;"></iframe>
+  </div></body>

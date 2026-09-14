@@ -1,0 +1,22 @@
+{
+  "summary": "Post-migration-refactor regression pass on Dynopay backend. All 6 targeted tests PASSED against production DB in SAFE MODE using company_id=231 (qa_minorder_p1b throwaway). Health healthy (db+redis connected) confirms bootMigrations.ts refactor did not break startup. Migration 0026 (min_order_usd) still intact — GET /api/company/webhook-settings/231 succeeds. Migration 0027 columns (webhook_secret_previous, webhook_secret_previous_expires_at) verified: PUT with webhook_secret=generate returns data.previous_secret_valid_until ~24h in the future, and subsequent GET reflects the same ~24h grace. Resend endpoint wired: unauthenticated call rejected; authenticated call for non-existent log id 999999999 returns 404 (ownership+existence enforced).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_webhook_refactor_regression.py",
+    "/app/test_reports/pytest/webhook_refactor.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "bootMigrations.ts now 491 lines — still close to the 500-line pre-commit gate. Any future migration will re-trigger the failure; consider moving all per-column migrations into companyColumnMigrations.ts (or a migrations/ split) proactively.",
+    "GET /api/company/webhook-settings correctly surfaces previous_secret_valid_until even after grace expires — recommend controller null out the field once expires_at < now() to avoid stale UI hints (verify getWebhookSettings clamps expired values)."
+  ],
+  "updated_files": ["/app/backend/tests/test_webhook_refactor_regression.py"],
+  "success_rate": {"backend": "100%", "frontend": "N/A (skipped per request)"},
+  "test_credentials": "qa_minorder_p1b@example.com / QaMinOrder123@ (company_id=231, user_id=221) — throwaway, safe to mutate",
+  "seed_data_creation": "None. Rotated webhook secret on company 231 (throwaway, no configured URL) as required by test scope.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend proxies to Node/TS on :8001 with a startup gate that returns 503 'Backend starting, please retry' immediately after supervisor restart — poll /health until 200 before login. Login token is at data.accessToken (not data.token). Only mutate company_id=231. Test file at /app/backend/tests/test_webhook_refactor_regression.py is safe to re-run.",
+  "rca of the issue": "N/A — refactor confirmed non-regressive. Initial 503s during first run were the Node backend's cold-start gate; retry after ~3s passes."
+}

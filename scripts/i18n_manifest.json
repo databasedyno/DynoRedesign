@@ -1,0 +1,22 @@
+{
+  "walletScreen": {
+    "reuse.copiedCount": "{{count}} wallet(s) copied",
+    "reuse.useSelected": "Use {{count}} selected wallet(s)",
+    "reuseNudge.copiedTo": "{{count}} wallet(s) copied to {{target}}",
+    "reuseNudge.body": "{{count}} address(es) ({{coins}}) are already saved on your other account — copy them to {{target}} and start accepting payments now.",
+    "reuseNudge.copyCta": "Copy {{count}} wallet(s)"
+  },
+  "apiScreen": {
+    "pk.chipUses": "{{count}} uses",
+    "pk.chipCurrencies": "{{count}} currencies",
+    "pk.chipDomains": "{{count}} domain(s)"
+  },
+  "common": {
+    "customers.linksSentShort": "{{count}} payment request sent",
+    "customers.paymentsShort": "{{count}} payments",
+    "payouts.paymentsAwaiting": "{{count}} payments awaiting"
+  },
+  "dashboardLayout": {
+    "assetCryptoMeta": "Across {{count}} wallets"
+  }
+}

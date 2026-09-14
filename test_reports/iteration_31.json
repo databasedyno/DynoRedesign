@@ -1,0 +1,15 @@
+{
+  "summary": "Frontend-only verification of Merchants audience-door scroll bug fix + regression on other doors and tabbed hero. All checks passed.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "100%"},
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Doors verified on desktop 1920x1080: merchant->product-showcase-section (scrollY 0->1532), campaign->crowdfunding-showcase (0->2439), creator->creator-showcase (0->3188), developer->developer-showcase (0->3773); all target rect_top ~0. Hero tabs all visible; H1 line1='Sell, tip, fundraise — in crypto.'; developer CTA='Read the docs' and H1 line2 contains 'Integrate crypto in ~10 minutes.'; campaign CTA='Start a campaign'; merchant CTA='Start selling'. Use domcontentloaded (not networkidle) due to live polling terminal.",
+  "rca of the issue": "Pre-existing bug: AudienceDoors mapped Merchants to '#product-showcase-section' but ProductShowcase.tsx lacked that id; scrollIntoView was a no-op. Main agent's fix (adding id='product-showcase-section' to the ProductShowcase Box ~line 494) resolves it; verified by test."
+}

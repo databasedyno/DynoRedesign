@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto-betalingen voor online cursussen en e-learning · Dynopay",
+  "meta_description": "Accepteer crypto-betalingen voor uw online cursussen en e-learning met Dynopay. Geen terugboekingen, cursisten wereldwijd, 15+ cryptovaluta. Tarieven vanaf 1,5%. Gratis beginnen.",
+  "h1": "Accepteer crypto-betalingen voor online cursussen zonder terugboekingen",
+  "subheading": "Met Dynopay kunnen cursusmakers en e-learningplatforms verkopen aan cursisten overal ter wereld, terugbetalingsfraude uitschakelen en Bitcoin, stablecoins en 15+ cryptovaluta rechtstreeks ontvangen naar een wallet die zij beheren.",
+  "intro_paragraph": "Kennis online verkopen betekent cursisten bereiken in landen waar kaarten falen, terwijl terugboekingsfraude uw marges aantast nadat de content al is geconsumeerd. Dynopay is een non-custodial crypto-betaalgateway die betalingen rechtstreeks in uw wallet stort — geen tussenpersoon die uw fondsen vasthoudt. Verkoop een cursus met een betaallink, integreer de checkout op uw landingspagina of automatiseer de inschrijving met de REST API, in 15+ cryptovaluta met tarieven vanaf 1,5% die bij schaal naar 0,5% dalen. Geen terugboekingen, geen maandelijkse kosten, en uw eerste betaling is gratis.",
+  "features": [
+    {
+      "title": "Geen terugboekingen nadat de cursus is bekeken",
+      "description": "Crypto-betalingen zijn definitief, dus een cursist kan niet uw hele cursus consumeren en daarna het geld terughalen via een kaartbetwisting. De inkomsten die u verdient, blijven verdiend."
+    },
+    {
+      "title": "Schrijf cursisten van overal in",
+      "description": "Accepteer betalingen uit regio's die slecht door kaartnetwerken worden bediend. Cursisten in opkomende markten kunnen u in stablecoins of Bitcoin betalen zonder lokale kaart of bank."
+    },
+    {
+      "title": "Automatiseer toegang met webhooks",
+      "description": "Activeer een webhook op het moment dat een betaling wordt bevestigd om een les te ontgrendelen, LMS-toegang te verlenen of een downloadlink te versturen — zonder handmatige afstemming tussen betaling en inschrijving."
+    }
+  ],
+  "how_it_works": [
+    "Meld u aan, verifieer uw e-mail, maak een bedrijfsprofiel aan en voeg één uitbetalings-walletadres toe voor de afwikkeling.",
+    "Maak een betaallink per cursus of integreer de checkoutwidget op uw verkooppagina of LMS.",
+    "De cursist betaalt in zijn voorkeurscryptovaluta, uw webhook verleent direct toegang, en de fondsen komen binnen enkele minuten in uw wallet aan."
+  ],
+  "faqs": [
+    {
+      "question": "Kan ik automatisch cursustoegang verlenen wanneer een crypto-betaling is bevestigd?",
+      "answer": "Ja. Dynopay verstuurt een webhook wanneer een betaling on-chain wordt bevestigd, zodat uw LMS of lidmaatschapstool de cursus kan ontgrendelen, het cursistaccount kan aanmaken of automatisch een downloadlink per e-mail kan sturen — zonder enige handmatige stap."
+    },
+    {
+      "question": "Met welke cryptovaluta kunnen mijn cursisten betalen?",
+      "answer": "Dynopay ondersteunt 15+ cryptovaluta, waaronder Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, TRX, MATIC en stablecoins zoals USDT (ERC20, TRC20, Polygon), USDC (ERC20) en RLUSD — zodat cursisten kunnen betalen in de munt die ze al bezitten."
+    },
+    {
+      "question": "Hoe stopt crypto terugbetalingsfraude bij digitale cursussen?",
+      "answer": "Kaartbetalingen kunnen weken na levering worden betwist, maar crypto-transacties zijn definitief en onomkeerbaar. Dat verwijdert het patroon 'alles bekijken en dan terugboeken' dat cursusverkopers treft, en beschermt de inkomsten uit content die al is geconsumeerd."
+    },
+    {
+      "question": "Wat zijn de tarieven voor het verkopen van cursussen met Dynopay?",
+      "answer": "De tarieven beginnen bij 1,5% plus één dollar per geslaagde betaling en dalen automatisch naar 0,5% naarmate uw afgewikkelde volume groeit. Er zijn geen opstartkosten, geen maandelijkse kosten, en uw allereerste betaling is volledig gratis."
+    },
+    {
+      "question": "Moet ik crypto bezitten of een handelsaccount beheren?",
+      "answer": "Nee. U hebt alleen een walletadres nodig voor de munten die u wilt ontvangen. Dynopay is non-custodial, dus betalingen gaan rechtstreeks naar uw MetaMask, Coinbase, Ledger of elke wallet die u beheert — geen handelsaccount nodig."
+    }
+  ],
+  "cta_headline": "Begin binnen 10 minuten met het verkopen van uw cursus in crypto",
+  "cta_body": "Meld u nu aan en uw eerste transactie is gratis. Geen maandelijkse kosten, geen opstartkosten, en de fondsen worden rechtstreeks afgewikkeld naar uw wallet.",
+  "_generated_at": "2026-09-05T00:00:00.000Z",
+  "_model": "dynopay-editorial-2026-09",
+  "_kind": "vertical",
+  "_slug": "online-courses",
+  "_display_name": "Online Courses & E-Learning"
+}

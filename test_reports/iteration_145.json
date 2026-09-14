@@ -1,0 +1,42 @@
+{
+  "summary": "Full regression pass for the 67-item UX audit fixes (A/B/C/D/E series). Ran backend API checks + Playwright E2E on preview 671bfbd8. Login as onarrival21@gmail.com works (2-step data-testid flow); zero pageerrors and zero 5xx /api responses across all flows. A1 placeholder scrub verified end-to-end (backend GET /api/shop/csvcleanroom => merchant.name='CSV Cleanroom Tools', /api/pay/creator/csvcleanroom clean; no /_[0-9a-f]{10}$/ leaks anywhere in creator/shop/product/breadcrumb/title/share). D3 (no '\u25eb' glyph anywhere on creator + shop), D4 (branded checkout header 'CSV Cleanroom Tools' + VAT hidden behind 'Business purchase? Add a VAT ID' toggle + line-item avatars visible), D5 (0 <pre> blocks on product page), D6 (Buy now navigates to /csvcleanroom/checkout), D7 ('test' merchant shows visitor-facing empty state, robots meta = 'noindex, follow', no 'Add your first product' CTA), D8 (no 'Sort Sort' duplicate on toolbar; category chips hidden). D1 min-order: shop grid shows 'Min. order $10.00 \u2014 combine with other items' on each <$10 card and /csvcleanroom/cart with $9 PII Shield shows 'Minimum order is $10.00 \u2014 add $1.00 more to check out.' (BUT product detail page itself does NOT show the notice \u2014 minor). E3 Payouts renamed everywhere (sidebar 'Payouts', heading 'Payouts & settlements'); FailedConversionsCard renders with 9 failed-conversion-* testids; 'Balances' no longer in chrome. E2 GET /api/company/conversion-history/1 => 200, includes status field, 3 FAILED rows out of 7. B12/F1 show_fee_split_to_customers radio group (testids fee-split-visibility + fee-split-option-auto/always/never) exists under Settings -> Payments -> Payment tolerance accordion. A2/A3 onboarding: /get-started?step=about shows 'Signed up as John Davis', 0 duplicate first/last inputs, Brand field present; step=link is NOT gated. A5 password-nudge absent (user has password) \u2014 expected. Landing E4/E5: no '0.0% Starter fee' card, 'from 1.5%' present, no 'confirms in seconds' claim. Hosted /pay/demo loaded with Litecoin countdown checkout (no error/expired). i18n JSON integrity PERFECT across all 6 locales (en/de/es/fr/nl/pt) for common.json (1400 keys), dashboardLayout.json (598), landing.json (979) AND backend/locales emails.json (871) \u2014 0 missing keys anywhere.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "/health and /api/health", "issue": "Both return 404. Review request expected 'GET /health returns database=connected, redis=connected'. Only /api/status is exposed (returns operational). If a liveness endpoint is required by infra, expose /health (unauth) or document /api/status as the canonical."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "GetStarted StepPayouts (Components/Page/GetStarted/StepPayouts.tsx + WalletHelp.tsx)", "issue": "data-testid='gs-wallet-help' / 'gs-wallet-help-toggle' / 'gs-wallet-help-body' / 'gs-wallet-link-*' are NOT rendered on /get-started?step=payouts for merchants that already have wallets (this account has 13). Text 'Don\u2019t have a wallet yet?' also not visible. If A4 fix intended to always render the collapsed help, this is a regression. If it is gated on wallets.length===0, please verify with a wallet-less brand.", "selector": "[data-testid=\"gs-wallet-help\"]", "priority": "MEDIUM"},
+      {"component": "Product detail page pages/[handle]/p/[slug].tsx (D1)", "issue": "Individual product detail page for a <$10 item does NOT surface the 'minimum order $10 / add more items' notice. Shop grid + cart page DO show it correctly.", "selector": "n/a", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Creator page /csvcleanroom (C5/C7)", "issues": ["Language switch header EN -> FR reloaded; automated FR-keyword sample check (Partager/Copi\u00e9/Soutenir) found 0 hits on creator page innerText. /pay/demo rendered fully in FR after the same switch, so i18n works \u2014 some creator hero/share strings may still be hard-coded EN. Spot-check advised."]},
+      {"screen": "Payouts /payouts", "issues": ["innerText did not contain literal 'Total settled' or 'Fee tier' \u2014 'Pending' and 'Auto-convert' matched. Copy may differ from audit spec; verify card titles."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Investigate A4 WalletHelp visibility \u2014 expected testid gs-wallet-help missing when merchant has wallets. Confirm intent or always expose the collapsed hint.",
+    "D1: also surface min-order notice on the product detail hero, not just shop grid + cart.",
+    "Expose public GET /health (or document /api/status) so infra probes stop 404\u2019ing.",
+    "Verify FR/DE translations on the public creator page hero + share widget \u2014 /pay is fully translated, creator strings may still leak English.",
+    "Confirm 'Total settled' / 'Fee tier' card labels on /payouts match the audit spec."
+  ],
+  "critical_code_review_comments": [
+    "/app/pages/settings/index.tsx renders CompanySettingsDialog inline with `open` hardcoded true \u2014 defeats the dialog abstraction and mounts the whole tree on /settings. Consider extracting PaymentToleranceSection into its own /settings section component.",
+    "ProductCoverFallback: ensure a11y label describes the product name ('Cover for {name}') for screen readers.",
+    "/pages/pay/index.tsx is 1907 lines (>700 guideline) \u2014 same finding as iteration_98/99. Split into modules.",
+    "backend routes: paymentRouter is mounted at '/pay' but also serves /api/pay/creator/:handle. Semantically odd \u2014 consider a '/creator' router prefix for public creator endpoints."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "95% (all critical endpoints pass; /health missing is minor)", "frontend": "90% (D1 partial on product page, A4 unverifiable on this merchant; all other 15+ audit points pass)"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (user_id=1, company_id=1 The Dev Store) \u2014 verified working via 2-step login.",
+  "seed_data_creation": "None. READ-ONLY as instructed. Added items to localStorage cart on /csvcleanroom (client-side, no backend records).",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Preview URL: https://speedup-check.preview.emergentagent.com. Fee-split UI lives at /settings?section=payments -> click 'Payment tolerance' accordion; testids fee-split-visibility + fee-split-option-{auto|always|never}. Payments settings-rail testid = settings-rail-payments. csvcleanroom has 5 products: local-ops-toolkit ($19), pii-shield ($9), utm-lab, invoiceforge, csv-cleanroom. Backend health lives at /api/status (NOT /api/health).",
+  "rca of the issue": "N/A \u2014 two soft findings: (1) A4 WalletHelp testids invisible because merchant has 13 wallets \u2014 WalletHelp likely conditional on wallets.length===0. (2) /health returns 404 because no such route exists in /app/backend/routes/index.ts; only /api/status is exposed."
+}

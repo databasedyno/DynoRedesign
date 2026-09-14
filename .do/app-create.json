@@ -1,0 +1,861 @@
+{
+  "spec": {
+    "name": "dynopay-onboarding",
+    "region": "nyc",
+    "services": [
+      {
+        "name": "web",
+        "dockerfile_path": "Dockerfile",
+        "source_dir": "/",
+        "github": {
+          "repo": "REPLACE_ME/your-dynopay-repo",
+          "branch": "onboarding",
+          "deploy_on_push": true
+        },
+        "http_port": 8001,
+        "instance_count": 1,
+        "instance_size_slug": "apps-s-1vcpu-1gb",
+        "health_check": {
+          "http_path": "/health",
+          "initial_delay_seconds": 90,
+          "period_seconds": 30,
+          "timeout_seconds": 10,
+          "success_threshold": 1,
+          "failure_threshold": 3
+        },
+        "envs": [
+          {
+            "key": "NODE_ENV",
+            "value": "production",
+            "scope": "RUN_AND_BUILD_TIME"
+          },
+          {
+            "key": "PORT",
+            "value": "8001",
+            "scope": "RUN_AND_BUILD_TIME"
+          },
+          {
+            "key": "API_SERVICE_PORT",
+            "value": "3301",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "INTERNAL_BACKEND_URL",
+            "value": "http://localhost:3300",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "ENABLE_BACKGROUND_JOBS",
+            "value": "true",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "SKIP_MERCHANT_POOL_VALIDATION",
+            "value": "true",
+            "scope": "RUN_AND_BUILD_TIME"
+          },
+          {
+            "key": "SERVER_URL",
+            "value": "https://REPLACE_ME.ondigitalocean.app",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "FRONTEND_URL",
+            "value": "https://REPLACE_ME.ondigitalocean.app",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "CHECKOUT_URL",
+            "value": "https://REPLACE_ME.ondigitalocean.app",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "NEXT_PUBLIC_BASE_URL",
+            "value": "https://REPLACE_ME.ondigitalocean.app/",
+            "scope": "BUILD_TIME"
+          },
+          {
+            "key": "NEXT_PUBLIC_SERVER_URL",
+            "value": "https://REPLACE_ME.ondigitalocean.app",
+            "scope": "BUILD_TIME"
+          },
+          {
+            "key": "NEXT_PUBLIC_API_DOCS_URL",
+            "value": "https://REPLACE_ME.ondigitalocean.app/api/docs",
+            "scope": "BUILD_TIME"
+          },
+          {
+            "key": "NEXT_PUBLIC_CYPHER_KEY",
+            "value": "REPLACE_ME",
+            "scope": "BUILD_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "NEXT_PUBLIC_GOOGLE_CLIENT_ID",
+            "value": "REPLACE_ME",
+            "scope": "BUILD_TIME"
+          },
+          {
+            "key": "NEXT_PUBLIC_GOOGLE_CLIENT_SECRET",
+            "value": "REPLACE_ME",
+            "scope": "BUILD_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "NEXTAUTH_URL",
+            "value": "https://REPLACE_ME.ondigitalocean.app",
+            "scope": "BUILD_TIME"
+          },
+          {
+            "key": "NEXTAUTH_SECRET",
+            "value": "REPLACE_ME",
+            "scope": "BUILD_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "HOST",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "DB_PORT",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "DB_NAME",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "USER_NAME",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "PASSWORD",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "DB_SSL_REJECT_UNAUTHORIZED",
+            "value": "false",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "REDIS_PUBLIC_URL",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "ACCESS_TOKEN",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "ACCESS_TOKEN_SECRET",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "API_SECRET",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "CYPHER_KEY",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "ADMIN_EMAIL",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "BINANCE_API_KEY",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "BINANCE_API_SECRET",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "BINANCE_SECRET_KEY",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "BINANCE_BASE_URL",
+            "value": "https://api.binance.com",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "BINANCE_CONVERT_INTERVAL_MINUTES",
+            "value": "10",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "BINANCE_PROXY_URL",
+            "value": "socks5://127.0.0.1:1080",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "SSH_TUNNEL_HOST",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "SSH_TUNNEL_USER",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "SSH_TUNNEL_PASS",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "SSH_TUNNEL_LOCAL_PORT",
+            "value": "1080",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "TATUM_KEY",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "TATUM_SECRET_KEY",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "TATUM_TESTNET",
+            "value": "false",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "TATUM_TESTNET_KEY",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "TATUM_TESTNET_TYPE",
+            "value": "bitcoin-testnet",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "TATUM_WEBHOOK_SECRET",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "BLOCKCHAIR_API_KEY",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "FAST_FOREX_KEY",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "FASTFOREX_API_KEY",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "TAX_DATA_API_URL",
+            "value": "https://api.apilayer.com/tax_data",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "TAX_DATA_API_KEY",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "FLW_PUBLIC_KEY",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "FLW_SECRET_KEY",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "FLW_SECRET_HASH",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "FLW_ENCRYPTION_KEY",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "CORS_ALLOWED_ORIGINS",
+            "value": "https://dynopay.com,https://checkout.dynopay.com",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "WORKER_ROLE",
+            "value": "primary",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "BREVO_API_KEY",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "BREVO_SENDER_EMAIL",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "TELEGRAM_BOT_TOKEN",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "TELNYX_API_KEY",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "TELNYX_VERIFY_PROFILE_ID",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "TELNYX_PHONE_NUMBER",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "VERIFF_API_KEY",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "VERIFF_API_SECRET",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "PROJECT_ID",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "LOCATION_ID",
+            "value": "global",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "KEY_RING_ID",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "PRIVATE_KEY_ID",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "TEMP_KEY_ID",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "XPUB_KEY_ID",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "GOOGLE_CLIENT_EMAIL",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "GOOGLE_CLIENT_KEY",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "CUSTOMER_ID",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "PROFILE_ID",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "VAPID_PUBLIC_KEY",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "VAPID_PRIVATE_KEY",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "VAPID_SUBJECT",
+            "value": "mailto:support@dynopay.com",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "SLACK_WEBHOOK_URL",
+            "value": "",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "DISCORD_WEBHOOK_URL",
+            "value": "",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "CRYPTO_PUBLIC_KEY",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "CRYPTO_SECRET_KEY",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME",
+            "type": "SECRET"
+          },
+          {
+            "key": "BTC",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "BCH",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "LTC",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "DOGE",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "ETH",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "ETH_FEE_WALLET",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "POLYGON",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "POLYGON_FEE_WALLET",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "TRX",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "TRX_FEE_WALLET",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "SOL",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "XRP",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "XRP_FEE_WALLET",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "XRP_MASTER_WALLET",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "XRP_ADMIN_DESTINATION_TAG",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "USDT_TRC20",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "USDT_ERC20",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "USDT_POLYGON",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "USDC_ERC20",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "RLUSD",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "RLUSD_ERC20",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "RLUSD_ADMIN_WALLET",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "RLUSD_ISSUER",
+            "value": "REPLACE_ME",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "ETH_CONTRACT",
+            "value": "0xdac17f958d2ee523a2206206994597c13d831ec7",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "TRX_CONTRACT",
+            "value": "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "USDC_CONTRACT",
+            "value": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "USDT_POLYGON_CONTRACT",
+            "value": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "RLUSD_ERC20_CONTRACT",
+            "value": "0x8292Bb45bf1Ee4d140127049757C2E0fF06317eD",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "RLUSD_CURRENCY_HEX",
+            "value": "524C555344000000000000000000000000000000",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "BTC_THRESHOLD",
+            "value": "3",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "BCH_THRESHOLD",
+            "value": "3",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "LTC_THRESHOLD",
+            "value": "3",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "DOGE_THRESHOLD",
+            "value": "3",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "ETH_THRESHOLD",
+            "value": "3",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "ETH_SWEEP",
+            "value": "time:3",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "POLYGON_THRESHOLD",
+            "value": "3",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "POLYGON_SWEEP",
+            "value": "time:3",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "TRX_THRESHOLD",
+            "value": "3",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "TRX_SWEEP",
+            "value": "time:3",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "SOL_THRESHOLD",
+            "value": "3",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "SOL_SWEEP",
+            "value": "time:3",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "XRP_THRESHOLD",
+            "value": "3",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "XRP_SWEEP",
+            "value": "time:3",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "USDT_TRC20_THRESHOLD",
+            "value": "3",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "USDT_TRC20_SWEEP",
+            "value": "threshold:3",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "USDT_ERC20_THRESHOLD",
+            "value": "3",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "USDT_ERC20_SWEEP",
+            "value": "threshold:3",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "USDT_POLYGON_THRESHOLD",
+            "value": "3",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "USDT_POLYGON_SWEEP",
+            "value": "threshold:3",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "USDC_ERC20_THRESHOLD",
+            "value": "3",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "USDC_ERC20_SWEEP",
+            "value": "threshold:3",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "RLUSD_THRESHOLD",
+            "value": "3",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "RLUSD_SWEEP",
+            "value": "threshold:3",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "RLUSD_ERC20_THRESHOLD",
+            "value": "3",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "RLUSD_ERC20_SWEEP",
+            "value": "threshold:3",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "TRON_MAX_FEE_LIMIT_TRX",
+            "value": "65",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "TRON_MIN_FEE_LIMIT_TRX",
+            "value": "15",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "TRANSACTION_FEE_PERCENT",
+            "value": "1.5",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "FEE_TIER_1_MIN",
+            "value": "1",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "FEE_TIER_1_MAX",
+            "value": "100",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "FEE_TIER_1_FIXED",
+            "value": "1.00",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "FEE_TIER_2_MIN",
+            "value": "101",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "FEE_TIER_2_MAX",
+            "value": "500",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "FEE_TIER_2_FIXED",
+            "value": "1.00",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "FEE_TIER_3_MIN",
+            "value": "501",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "FEE_TIER_3_MAX",
+            "value": "1000",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "FEE_TIER_3_FIXED",
+            "value": "1.00",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "FEE_TIER_4_MIN",
+            "value": "1001",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "FEE_TIER_4_MAX",
+            "value": "",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "FEE_TIER_4_FIXED",
+            "value": "1.00",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "FREE_TRIAL_VOLUME_USD",
+            "value": "500",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "TRIAL_MIN_AMOUNT_USD",
+            "value": "5",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "TRIAL_MAX_AMOUNT_USD",
+            "value": "500",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "TRIAL_LINK_EXPIRY_HOURS",
+            "value": "24",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "TRIAL_CLAIM_EXPIRY_HOURS",
+            "value": "72",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "TRIAL_LINK_RATE_LIMIT",
+            "value": "5",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "RESERVATION_TIMEOUT_MINUTES",
+            "value": "120",
+            "scope": "RUN_TIME"
+          },
+          {
+            "key": "MERCHANT_POOL_INITIAL_SIZE",
+            "value": "2",
+            "scope": "RUN_TIME"
+          }
+        ]
+      }
+    ]
+  }
+}

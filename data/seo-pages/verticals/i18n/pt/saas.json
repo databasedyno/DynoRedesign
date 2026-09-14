@@ -1,0 +1,55 @@
+{
+  "meta_title": "Pagamentos em criptomoeda para produtos SaaS e de subscrição · Dynopay",
+  "meta_description": "Aceite pagamentos em criptomoeda para produtos SaaS e de subscrição com a Dynopay. Sem chargebacks, alcance global, 15+ criptomoedas. Taxas a partir de 1,5%. Comece hoje.",
+  "h1": "Aceite pagamentos em criptomoeda para produtos SaaS e de subscrição sem chargebacks",
+  "subheading": "A Dynopay ajuda empresas de subscrição a eliminar churn involuntário, expandir para mercados restritos e receber Bitcoin, stablecoins e 15+ criptomoedas diretamente na sua carteira.",
+  "intro_paragraph": "As empresas de subscrição perdem rotineiramente receita devido a falhas em pagamentos com cartão e churn involuntário. Clientes internacionais enfrentam taxas de conversão de moeda e restrições de métodos de pagamento. A Dynopay é uma plataforma não custodial que deposita pagamentos em criptomoeda diretamente na sua carteira—sem intermediários a segurar os seus fundos. Você recebe links de pagamento, checkout hospedado e uma API REST para faturar subscritores em 15+ criptomoedas com taxas a partir de 1,5% e a descer para 0,5% em grande escala. Sem chargebacks. Sem taxas mensais. O primeiro pagamento é gratuito.",
+  "features": [
+    {
+      "title": "Liquidação não custodial na sua carteira",
+      "description": "Os fundos vão diretamente para a sua carteira de Ethereum, Bitcoin ou Solana. A Dynopay nunca segura o seu dinheiro, por isso você mantém total custódia e pode converter para fiat no seu próprio horário."
+    },
+    {
+      "title": "Zero churn involuntário de subscritores em criptomoeda",
+      "description": "Os pagamentos em criptomoeda não expiram nem falham. Clientes que preferem stablecoins ou Bitcoin permanecem subscritos por mais tempo porque não há falhas em transações com cartão ou dados de faturamento desatualizados."
+    },
+    {
+      "title": "Alcance clientes em mercados subatendidos",
+      "description": "Aceite pagamentos de regiões mal servidas por redes de cartões. A criptomoeda permite que os clientes paguem de qualquer lugar, para que você possa servir todos os mercados em que escolher operar."
+    }
+  ],
+  "how_it_works": [
+    "Inscreva-se, verifique o seu e-mail, crie um perfil de empresa e adicione um endereço de carteira para liquidação.",
+    "Gere um link de pagamento ou incorpore o widget de checkout na sua página de inscrição ou conta SaaS.",
+    "O cliente paga na sua criptomoeda preferida. Os fundos chegam à sua carteira em minutos, e você está ativo."
+  ],
+  "faqs": [
+    {
+      "question": "Como é que os pagamentos em criptomoeda reduzem o churn involuntário para empresas de subscrição?",
+      "answer": "As carteiras de criptomoeda não expiram e as transações não falham devido a fundos insuficientes da mesma forma que os cartões. Os subscritores que detêm stablecoins ou Bitcoin podem pagar de forma fiável sem os problemas de recusa de cartão que são uma das principais causas de churn involuntário na faturação SaaS tradicional."
+    },
+    {
+      "question": "Quais criptomoedas podem os meus clientes SaaS usar para pagar?",
+      "answer": "A Dynopay suporta 15+ criptomoedas: Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, MATIC, TRX e stablecoins incluindo USDT (ERC20, TRC20, Polygon), USDC (ERC20) e RLUSD na Ethereum e XRP Ledger."
+    },
+    {
+      "question": "Quais são as taxas da Dynopay para pagamentos de subscrição?",
+      "answer": "As taxas começam em 1,5% mais um dólar por pagamento bem-sucedido e descem automaticamente para 0,5% à medida que o seu volume liquidado cresce. Sem taxas de configuração, sem taxas mensais, sem custos ocultos, e o seu primeiro pagamento é completamente gratuito."
+    },
+    {
+      "question": "Preciso de manter criptomoeda ou configurar uma conta de comerciante?",
+      "answer": "Você só precisa de um endereço de carteira para a criptomoeda que deseja receber. A Dynopay é não custodial, por isso os pagamentos vão diretamente para a sua Coinbase, Ledger, MetaMask ou qualquer carteira que você controle. Não é necessária conta de comerciante."
+    },
+    {
+      "question": "Posso faturar subscrições recorrentes em criptomoeda usando a Dynopay?",
+      "answer": "Sim, com base em cada ciclo. A criptomoeda não tem cobrança automática estilo cartão, por isso cada renovação é um pagamento novo: use a API REST e webhooks para gerar um link de pagamento por ciclo de faturamento e enviá-lo automaticamente. As renovações nunca falham devido a cartões expirados ou recusa do emissor."
+    }
+  ],
+  "cta_headline": "Comece a aceitar pagamentos em criptomoeda em 10 minutos",
+  "cta_body": "Inscreva-se agora e a sua primeira transação é sem taxas. Sem custos mensais, sem taxas de configuração, e os fundos vão diretamente para a sua carteira.",
+  "_generated_at": "2026-08-29T14:53:11.839432Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "saas",
+  "_display_name": "SaaS & Subscription Products"
+}

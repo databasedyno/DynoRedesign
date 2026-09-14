@@ -1,0 +1,167 @@
+{
+  "termsConditionsTitle": "Terms & Conditions",
+  "section1Title": "1. Acceptance of Terms",
+  "section1Desc1": "By creating an account, accessing the dashboard, integrating the API, or processing crypto payments through Dynopay (\"the Service\"), you confirm that:",
+  "section1Desc2": "",
+  "section1Bullets": [
+    "You have read and agree to these Terms & Conditions;",
+    "You are at least 18 years old;",
+    "You are legally allowed to use crypto-related services in your region."
+  ],
+  "section1Footer": "If you do not agree with any part of these Terms, do not use the Service.",
+  "section2Title": "2. Description of the Service",
+  "section2Desc1": "Dynopay provides tools for receiving, managing, and monitoring cryptocurrency payments, including:",
+  "section2Desc2": "",
+  "section2Bullets": [
+    "Crypto payment links",
+    "API-based payment processing",
+    "Wallet aggregation",
+    "Transaction monitoring dashboards",
+    "Fee and settlement tools"
+  ],
+  "section2Footer": "We do not operate as a bank, custodian, broker-dealer, or financial advisor. You remain the legal owner and controller of your crypto wallets.",
+  "section3Title": "3. Eligibility & Compliance",
+  "section3Desc1": "You may use the Service only if it is legal to do so in your country.",
+  "section3Desc2": "You are responsible for:",
+  "section3Bullets": [
+    "Complying with local cryptocurrency regulations",
+    "Ensuring your customers are allowed to pay in crypto",
+    "Completing any required KYC/AML if applicable"
+  ],
+  "section3Footer": "We reserve the right to suspend or limit accounts that violate laws or present compliance risks.",
+  "section4Title": "4. User Account Responsibilities",
+  "section4Desc1": "",
+  "section4Desc2": "You must:",
+  "section4Bullets": [
+    "Provide accurate registration information",
+    "Keep your login credentials secure",
+    "Restrict access to your account",
+    "Notify us immediately of any unauthorized access"
+  ],
+  "section4Footer": "We are not responsible for losses resulting from compromised credentials.",
+  "section5Title": "5. Wallet Connections",
+  "section5Desc1": "You may connect your external cryptocurrency wallets to the Service.",
+  "section5Desc2": "By doing so, you acknowledge:",
+  "section5Bullets": [
+    "We do not take custody of your funds",
+    "All blockchain transactions are irreversible",
+    "Delays or failures caused by network congestion are outside our control"
+  ],
+  "section5Footer": "You remain fully responsible for on-chain activity performed using your wallets",
+  "section6Title": "6. Payment Processing",
+  "section6Desc1": "",
+  "section6Desc2": "By generating a payment link or API request:",
+  "section6Bullets": [
+    "You instruct the customer to transfer cryptocurrency directly to your wallet",
+    "You agree that blockchain confirmations may take time",
+    "You acknowledge that crypto asset values fluctuate"
+  ],
+  "section6Footer": "We do not guarantee price stability, instant settlement, or refundability of crypto transactions.",
+  "section7Title": "7. Fees",
+  "section7Desc1": "",
+  "section7Desc2": "Our fees may include:",
+  "section7Bullets": [
+    "Transaction processing fees",
+    "Subscription fees",
+    "Custom enterprise fees"
+  ],
+  "section7Footer": "All fees are shown in the dashboard and may be updated with notice. You are responsible for blockchain network fees unless explicitly configured otherwise.",
+  "section8Title": "8. Prohibited Activities",
+  "section8Desc1": "",
+  "section8Desc2": "You may NOT use the Service for:",
+  "section8Bullets": [
+    "Money laundering or terrorism financing",
+    "Fraud, scams, or Ponzi-type schemes",
+    "Sale of illegal goods or services",
+    "Obscured mixers/tumblers",
+    "High-risk activities violating applicable law",
+    "Malicious API use"
+  ],
+  "section8Footer": "We may suspend or terminate accounts involved in prohibited activities.",
+  "section9Title": "9. API Usage",
+  "section9Desc1": "You may use the API to create and manage crypto payment requests.",
+  "section9Desc2": "You agree not to:",
+  "section9Bullets": [
+    "Reverse-engineer the API",
+    "Exploit vulnerabilities",
+    "Exceed rate limits",
+    "Use the API for unauthorized scraping or automation"
+  ],
+  "section9Footer": "We may throttle or restrict API access to maintain platform stability.",
+  "section10Title": "10. Data & Privacy",
+  "section10Desc1": "We collect and process data as described in our Privacy Policy.",
+  "section10Desc2": "By using the Service, you consent to:",
+  "section10Bullets": [
+    "Collection of usage data",
+    "Processing of account and wallet metadata",
+    "Storage of logs for security and compliance"
+  ],
+  "section10Footer": "We do not sell personal data to third parties.",
+  "section11Title": "11. Service Availability",
+  "section11Desc1": "",
+  "section11Desc2": "We strive for reliable uptime but do not guarantee:",
+  "section11Bullets": [
+    "Continuous, uninterrupted service",
+    "Zero errors or bugs",
+    "Zero downtime for maintenance"
+  ],
+  "section11Footer": "We may modify or discontinue features without liability.",
+  "section12Title": "12. Intellectual Property",
+  "section12Desc1": "All Service content, UI elements, branding, and code belong to Dynopay.",
+  "section12Desc2": "",
+  "section12Bullets": [],
+  "section12Footer": "You may not copy, resell, modify, or distribute our materials without permission.",
+  "section13Title": "13. Limitation of Liability",
+  "section13Desc1": "",
+  "section13Desc2": "To the maximum extent allowed by law:",
+  "section13Bullets": [
+    "We are not liable for lost profits, lost crypto, business interruption, or indirect damages",
+    "Blockchain delays, volatility, or network failures are outside our control",
+    "You use the Service \"as is,\" without guarantees"
+  ],
+  "section13Footer": "Our total liability will not exceed the amount you paid for the Service in the last 3 months.",
+  "section14Title": "14. Indemnification",
+  "section14Desc1": "",
+  "section14Desc2": "You agree to indemnify and hold Dynopay harmless from any claims, losses, liabilities, or expenses arising from:",
+  "section14Bullets": [
+    "Your misuse of the Service",
+    "Your violation of the law",
+    "Your disputes with customers",
+    "Transactions executed through your connected wallets"
+  ],
+  "section14Footer": "",
+  "section15Title": "15. Termination",
+  "section15Desc1": "",
+  "section15Desc2": "We may suspend or terminate your account if:",
+  "section15Bullets": [
+    "You violate these Terms",
+    "You engage in prohibited activity",
+    "You pose a security or compliance risk",
+    "You request account deletion"
+  ],
+  "section15Footer": "Upon termination, your access to the dashboard and API will be revoked.",
+  "section16Title": "16. Changes to These Terms",
+  "section16Desc1": "We may update these Terms at any time.",
+  "section16Desc2": "Changes become effective when published.",
+  "section16Bullets": [],
+  "section16Footer": "Continued use of the Service means you accept the updated Terms.",
+  "section17Title": "17. Governing Law",
+  "section17Desc1": "These Terms are governed by the laws of Portugal.",
+  "section17Desc2": "Disputes shall be resolved in the courts of Lisbon, Portugal.",
+  "section17Bullets": [],
+  "section17Footer": "",
+  "section18Title": "18. Minimum Payment Amounts & Non-Recoverable Transfers",
+  "section18Desc1": "Every blockchain charges a network (gas) fee to move funds, so each cryptocurrency and network has a minimum payable amount. This minimum is calculated from that network's live transaction cost and is always shown on the checkout page before a customer pays. A merchant may raise this minimum for their brand but can never set it below the network minimum.",
+  "section18Desc2": "Typical minimum amounts by asset and network (the exact figure shown at checkout may be higher when a network is congested):",
+  "section18Bullets": [
+    "High-fee tokens — USDT (TRC-20), USDT (ERC-20), USDC (ERC-20), RLUSD (ERC-20) and USDT (Polygon): approximately US$10;",
+    "Native coins — Bitcoin (BTC), Ethereum (ETH), Tron (TRX), Solana (SOL), BNB, Polygon (POL/MATIC) and Litecoin (LTC): approximately US$5;",
+    "Low-fee networks — XRP, Stellar (XLM) and RLUSD on the XRP Ledger: approximately US$2."
+  ],
+  "section18Footer": "If a customer sends less than the minimum shown for the selected coin and network, the amount is too small to be forwarded on-chain economically. Such below-minimum transfers are NON-RECOVERABLE — they will not be credited to the merchant, cannot be refunded, and are retained by Dynopay to cover network and processing costs. Please ensure customers always pay at or above the minimum displayed at checkout.",
+  "section19Title": "19. Contact Information",
+  "section19Desc1": "For questions or concerns, contact us at:",
+  "section19Desc2": "hi@dynopay.com",
+  "section19Bullets": [],
+  "section19Footer": ""
+}

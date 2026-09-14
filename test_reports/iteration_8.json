@@ -1,0 +1,54 @@
+{
+  "summary": "BLOCKED: Could not test the onboarding checklist on /dashboard because the provided credentials (moxxcompany@gmail.com / Katiekendra123@) FAIL against the LIVE Railway backend. /api/user/checkEmail returns {validEmail:false} and /api/user/login returns 401 'Invalid email or password' for this email (and also for nomadly@moxx.co, admin@moxx.co, info@moxx.co with the same password). Unable to reach /dashboard. Additionally, an SSR hydration mismatch was detected on the /auth/login page itself (theme-dependent logo srcSet differs between server and client).",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "Email login (/auth/login -> /dashboard)",
+        "issue": "Step-1 email-check API (/api/user/checkEmail) returns validEmail:false for moxxcompany@gmail.com so the UI displays 'Email not found! Please try again' and never advances to the password screen. The underlying /api/user/login also returns 401 'Invalid email or password' for the same credentials. Cannot reach dashboard to verify onboarding checklist behavior.",
+        "affected_selectors": ["input[type=email]", "button:has-text('Continue')"]
+      }
+    ],
+    "design_issues": [
+      {
+        "screen": "/auth/login (Login layout)",
+        "issues": [
+          "React hydration warning in browser console: Prop `srcSet` did not match between server and client for the DynoPay logo <Image> (server rendered dynopay-white-logo, client rendered dynopay-logo). Triggered from Containers/Login/index.tsx via the theme-dependent logo. This is an existing SSR/CSR mismatch unrelated to the onboarding changes but still visible to users on the login page."
+        ]
+      }
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "BLOCKER: Provide valid, working credentials for the live Railway backend, OR seed/verify the moxxcompany@gmail.com account exists with password Katiekendra123@. Verified via curl: POST /api/user/login -> 401 for all of moxxcompany@gmail.com, nomadly@moxx.co, admin@moxx.co, info@moxx.co (same response from GET /api/user/checkEmail with validEmail:false for the first two). Without a valid login, none of the onboarding checklist assertions (hidden when fully onboarded, modal-not-auto-opened, stability across reloads, toggle/progress/step clicks) can be executed.",
+    "Hydration mismatch on /auth/login: the theme-dependent logo <Image> renders different srcSet on server vs client (dynopay-white-logo vs dynopay-logo). Fix by either (a) rendering the logo only on the client (suppressHydrationWarning + useEffect-driven theme) or (b) deriving the initial theme on the server (cookie) so SSR matches CSR. This is the same class of hydration bug the new onboarding work claims to avoid; the login page still exhibits it.",
+    "Note for the new onboarding logic: the Redux `fetched`-based derivation in /app/Components/UI/OnboardingFlow/index.tsx (coreReady = company.fetched && wallet.fetched; payLinkFetched = paymentLinkReducer.fetched) cannot be exercised end-to-end until login works."
+  ],
+  "critical_code_review_comments": [
+    "OnboardingFlow/index.tsx: showChecklist logic is correct on paper — checklist is hidden only when coreReady AND allCoreDone AND payLinkFetched && hasLink. Edge case: while payLinkFetched is still false but allCoreDone is true (company+wallet exist, payment-link fetch in-flight), showChecklist will be FALSE (the `else if` branch requires payLinkFetched). That means for a fully-onboarded user the checklist stays hidden during the brief window before paymentLinkReducer.fetched flips true — good (no flicker). But if the paymentLinkReducer never sets fetched:true on API_ERROR (only on success), an error during the payment-link fetch could leave the checklist permanently hidden for a partially-onboarded user. Confirm paymentLinkReducer flips fetched:true on BOTH success and error (the review request claims it does).",
+    "OnboardingFlow/index.tsx auto-open guard: autoOpened.current and dismissed.current are component refs, NOT session-scoped. The constant AUTO_OPEN_SESSION_KEY = 'onboarding_autoopen_seen' is declared but never read or written. So on a hard reload, a brand-new user (no company AND no wallet) will get the company modal auto-opened again every reload. For the already-onboarded test account this is fine (hasCompany is true so the auto-open guard `!hasCompany && !hasWallet` short-circuits), but the per-session intent described in the comment is not actually implemented.",
+    "Hydration risk on first render: companyState.fetched / walletState.fetched / paymentLinkReducer.fetched all start FALSE on the server, so coreReady is false during SSR and showChecklist is false. On the client after rehydration the same is true initially, so SSR and CSR agree — good. The checklist only appears after client-side dispatches resolve, which avoids hydration mismatch. This part of the new design looks correct.",
+    "Image hydration mismatch on /auth/login is the same kind of SSR-vs-CSR issue the onboarding refactor is trying to avoid; recommend the same fix pattern (defer theme-dependent rendering until after mount, or persist theme in a cookie that's read on the server)."
+  ],
+  "updated_files": [],
+  "success_rate": {
+    "backend": "n/a (not in scope)",
+    "frontend": "0% — blocked at login; could not load /dashboard or interact with the onboarding checklist."
+  },
+  "test_credentials": {
+    "admin_email_tried": "moxxcompany@gmail.com",
+    "admin_password_tried": "Katiekendra123@",
+    "result": "FAIL — backend /api/user/checkEmail returns validEmail:false, /api/user/login returns 401",
+    "other_emails_tried": ["nomadly@moxx.co", "admin@moxx.co", "info@moxx.co"],
+    "all_results": "all 401 Invalid email or password"
+  },
+  "seed_data_creation": "None. Per agent-to-agent context note, the live Railway DB is read-only for this run; no users/companies/wallets/payment-links were created or modified.",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Login is the gate; until the main agent provides a working set of merchant credentials for the live Railway backend (or fixes the auth path for moxxcompany@gmail.com), the dashboard onboarding-checklist scenarios cannot be exercised. Once credentials work, the playwright flow is: (1) fill input[type=email] with email, click button 'Continue', wait for the password screen, (2) fill #password (note: previous iteration_7 noted this field renders with placeholder 'Voer uw wachtwoord in' and may use type='text'), click 'Verify & Login', (3) wait for **/dashboard**, then assert data-testid='onboarding-checklist' is HIDDEN (account is reported fully onboarded), assert CreateCompanyModal does NOT auto-open, reload 2-3 times and re-assert, and inspect console for any 'hydration' / 'did not match' warnings (one already exists on /auth/login for the logo image). Also verify behavior with a partially-onboarded account if available.",
+  "rca of the issue": "RCA for blocker: GET /api/user/checkEmail?email=moxxcompany@gmail.com -> 200 {data:{validEmail:false}} and POST /api/user/login {email,password} -> 401 {success:false,message:'Invalid email or password',statusCode:401}. The backend simply does not recognize the supplied email. Either the account does not exist in the live Railway DB, the email was changed, or the password was rotated. Mitigation: ask the user/main agent for the current working credentials, or temporarily seed a read-only test merchant whose company+wallet+payment-link counts match the 'fully onboarded' scenario so the checklist-hidden assertion can be made."
+}

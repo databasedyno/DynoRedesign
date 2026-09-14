@@ -1,0 +1,25 @@
+{
+  "summary": "Frontend-only FR i18n verification of the iteration-76 cleanup on Storefront > Page tab (live account hostbay@moxx.co). Switched UI language to French via /settings?section=profile, verified the FULL Analytics card, the QR dialog and the Compare storefronts panel, scanned for raw key leaks/console errors, then restored the account language to 'en' (verified with /app/tests/verify_language_en.py -> PASS). ALL 4 requested checks PASSED (100%). Also static-verified the 26 keys exist in all 6 locales (en/pt/fr/es/de/nl) - no missing keys.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Storefront > Page > FULL Analytics chart (creator-analytics-full)", "issues": ["Chart X-axis day labels stay English ('Jul 25', 'Aug 4', 'Aug 19') while the whole card is French. formatDayLabel() in AnalyticsWidget.tsx L71-75 calls toLocaleDateString(undefined, ...) so it uses the BROWSER locale, not the app/i18n language. Same for the CustomTooltip date header. Minor, cosmetic, pre-existing - not part of the 26-key scope, but it is the last visible English leftover in this card. Suggested fix: pass i18n.language into toLocaleDateString."]}
+    ]
+  },
+  "test_report_links": ["/app/tests/verify_language_en.py"],
+  "action_items": ["OPTIONAL (minor): localize AnalyticsWidget formatDayLabel/CustomTooltip date via i18n.language instead of undefined so chart axis + tooltip dates follow the app language."],
+  "critical_code_review_comments": [
+    "AnalyticsWidget.tsx / HandleQrCode.tsx / StorefrontComparePanel.tsx / Sparkline.tsx all route the new strings through t() with sane English defaultValue fallbacks - no hardcoded strings left in the tested scope.",
+    "Sparkline.tsx noDataLabel defaults to 'no data' (English) - acceptable since every call site passes t('storefront.noData'), but a missed future call site would silently render English."
+  ],
+  "updated_files": [],
+  "success_rate": { "backend": "not tested (skipped per request)", "frontend": "100%" },
+  "seed_data_creation": "None. No data mutated (read-only verification, only the account language toggled FR then restored to EN).",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "test_credentials": "hostbay@moxx.co / Katiekendra123@ (language restored to 'en', asserted)",
+  "context_for_next_testing_agent": "Verified FRENCH renders on /storefront?tab=page: analytics header 'Pourboires et soutiens' + FR description; toggle 'Affiche sur la page publique'; KPI tiles 'POURBOIRES (30 J)' / 'NB POURBOIRES (30 J)' / 'POURBOIRES CUMULES' / 'SOUTIENS CUMULES'; 'PRINCIPAUX SOUTIENS' heading; supporter row 'Jon - 1 pourboire'. QR dialog: 'Votre QR code', 'Copier le lien', 'Telecharger le PNG', 'Fermer' (closes correctly). Compare panel: hostbay '1 pourboire' / '0 commande', KLOSE sparkline 'aucune donnee'. 0 raw key leaks, 0 console errors. The FR empty-chart string ('Aucun pourboire au cours des 30 derniers jours.') could NOT be exercised live because hostbay HAS 30d tip data - only static/locale verification for that string. The compact public variant was not tested (out of scope).",
+  "rca_of_the_issue": "N/A - no defects found in the tested scope."
+}

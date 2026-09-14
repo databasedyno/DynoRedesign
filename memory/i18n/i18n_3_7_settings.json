@@ -1,0 +1,9 @@
+{
+  "common": {
+    "settingsPage.unsavedChanges": { "en": "Unsaved changes", "de": "Ungespeicherte Änderungen", "es": "Cambios sin guardar", "fr": "Modifications non enregistrées", "nl": "Niet-opgeslagen wijzigingen", "pt": "Alterações não guardadas" },
+    "settingsPage.leaveTitle": { "en": "Leave without saving?", "de": "Ohne Speichern verlassen?", "es": "¿Salir sin guardar?", "fr": "Quitter sans enregistrer ?", "nl": "Verlaten zonder op te slaan?", "pt": "Sair sem guardar?" },
+    "settingsPage.leaveBody": { "en": "You have unsaved changes in {{sections}}. They will be lost if you leave now.", "de": "Sie haben ungespeicherte Änderungen in {{sections}}. Sie gehen verloren, wenn Sie jetzt verlassen.", "es": "Tienes cambios sin guardar en {{sections}}. Se perderán si sales ahora.", "fr": "Vous avez des modifications non enregistrées dans {{sections}}. Elles seront perdues si vous quittez maintenant.", "nl": "Je hebt niet-opgeslagen wijzigingen in {{sections}}. Ze gaan verloren als je nu weggaat.", "pt": "Tem alterações não guardadas em {{sections}}. Serão perdidas se sair agora." },
+    "settingsPage.keepEditing": { "en": "Keep editing", "de": "Weiter bearbeiten", "es": "Seguir editando", "fr": "Continuer la modification", "nl": "Verder bewerken", "pt": "Continuar a editar" },
+    "settingsPage.discardChanges": { "en": "Discard changes", "de": "Änderungen verwerfen", "es": "Descartar cambios", "fr": "Abandonner les modifications", "nl": "Wijzigingen negeren", "pt": "Descartar alterações" }
+  }
+}

@@ -1,0 +1,167 @@
+{
+  "termsConditionsTitle": "Términos y Condiciones",
+  "section1Title": "1. Aceptación de los Términos",
+  "section1Desc1": "Al crear una cuenta, acceder al panel de control, integrar la API o procesar pagos crypto a través de Dynopay (\"el Servicio\"), confirmas que:",
+  "section1Desc2": "",
+  "section1Bullets": [
+    "Has leído y aceptas estos Términos y Condiciones;",
+    "Tienes al menos 18 años;",
+    "Estás legalmente autorizado para usar servicios relacionados con criptomonedas en tu región."
+  ],
+  "section1Footer": "Si no estás de acuerdo con alguna parte de estos Términos, no uses el Servicio.",
+  "section2Title": "2. Descripción del Servicio",
+  "section2Desc1": "Dynopay proporciona herramientas para recibir, administrar y monitorear pagos en criptomonedas, incluyendo:",
+  "section2Desc2": "",
+  "section2Bullets": [
+    "Enlaces de pago crypto",
+    "Procesamiento de pagos por API",
+    "Agregación de billeteras",
+    "Paneles de monitoreo de transacciones",
+    "Herramientas de comisiones y liquidación"
+  ],
+  "section2Footer": "No operamos como banco, custodio, corredor o asesor financiero. Tú sigues siendo el propietario y controlador legal de tus billeteras crypto.",
+  "section3Title": "3. Elegibilidad y Cumplimiento",
+  "section3Desc1": "Solo puedes usar el Servicio si es legal hacerlo en tu país.",
+  "section3Desc2": "Eres responsable de:",
+  "section3Bullets": [
+    "Cumplir con las regulaciones locales de criptomonedas",
+    "Asegurar que tus clientes están autorizados a pagar en crypto",
+    "Completar cualquier KYC/AML requerido si aplica"
+  ],
+  "section3Footer": "Nos reservamos el derecho de suspender o limitar cuentas que violen las leyes o presenten riesgos de cumplimiento.",
+  "section4Title": "4. Responsabilidades de la Cuenta de Usuario",
+  "section4Desc1": "",
+  "section4Desc2": "Debes:",
+  "section4Bullets": [
+    "Proporcionar información de registro precisa",
+    "Mantener tus credenciales de inicio de sesión seguras",
+    "Restringir el acceso a tu cuenta",
+    "Notificarnos inmediatamente de cualquier acceso no autorizado"
+  ],
+  "section4Footer": "No somos responsables de pérdidas resultantes de credenciales comprometidas.",
+  "section5Title": "5. Conexiones de Billetera",
+  "section5Desc1": "Puedes conectar tus billeteras de criptomonedas externas al Servicio.",
+  "section5Desc2": "Al hacerlo, reconoces que:",
+  "section5Bullets": [
+    "No tomamos custodia de tus fondos",
+    "Todas las transacciones blockchain son irreversibles",
+    "Los retrasos o fallos causados por congestión de red están fuera de nuestro control"
+  ],
+  "section5Footer": "Sigues siendo totalmente responsable de la actividad on-chain realizada con tus billeteras.",
+  "section6Title": "6. Procesamiento de Pagos",
+  "section6Desc1": "",
+  "section6Desc2": "Al generar un enlace de pago o solicitud API:",
+  "section6Bullets": [
+    "Instruyes al cliente a transferir criptomonedas directamente a tu billetera",
+    "Aceptas que las confirmaciones blockchain pueden tomar tiempo",
+    "Reconoces que los valores de los activos crypto fluctúan"
+  ],
+  "section6Footer": "No garantizamos la estabilidad de precios, liquidación instantánea o reembolso de transacciones crypto.",
+  "section7Title": "7. Comisiones",
+  "section7Desc1": "",
+  "section7Desc2": "Nuestras comisiones pueden incluir:",
+  "section7Bullets": [
+    "Comisiones de procesamiento de transacciones",
+    "Comisiones de suscripción",
+    "Comisiones empresariales personalizadas"
+  ],
+  "section7Footer": "Todas las comisiones se muestran en el panel de control y pueden actualizarse con aviso previo. Eres responsable de las comisiones de red blockchain a menos que se configure explícitamente de otra manera.",
+  "section8Title": "8. Actividades Prohibidas",
+  "section8Desc1": "",
+  "section8Desc2": "NO puedes usar el Servicio para:",
+  "section8Bullets": [
+    "Lavado de dinero o financiamiento del terrorismo",
+    "Fraude, estafas o esquemas tipo Ponzi",
+    "Venta de bienes o servicios ilegales",
+    "Mezcladores/tumblers ocultos",
+    "Actividades de alto riesgo que violen la ley aplicable",
+    "Uso malicioso de la API"
+  ],
+  "section8Footer": "Podemos suspender o terminar cuentas involucradas en actividades prohibidas.",
+  "section9Title": "9. Uso de la API",
+  "section9Desc1": "Puedes usar la API para crear y administrar solicitudes de pago crypto.",
+  "section9Desc2": "Aceptas no:",
+  "section9Bullets": [
+    "Realizar ingeniería inversa de la API",
+    "Explotar vulnerabilidades",
+    "Exceder los límites de tasa",
+    "Usar la API para scraping o automatización no autorizados"
+  ],
+  "section9Footer": "Podemos limitar o restringir el acceso a la API para mantener la estabilidad de la plataforma.",
+  "section10Title": "10. Datos y Privacidad",
+  "section10Desc1": "Recopilamos y procesamos datos como se describe en nuestra Política de Privacidad.",
+  "section10Desc2": "Al usar el Servicio, consientes:",
+  "section10Bullets": [
+    "La recopilación de datos de uso",
+    "El procesamiento de metadatos de cuenta y billetera",
+    "El almacenamiento de registros para seguridad y cumplimiento"
+  ],
+  "section10Footer": "No vendemos datos personales a terceros.",
+  "section11Title": "11. Disponibilidad del Servicio",
+  "section11Desc1": "",
+  "section11Desc2": "Nos esforzamos por un tiempo de actividad confiable pero no garantizamos:",
+  "section11Bullets": [
+    "Servicio continuo e ininterrumpido",
+    "Cero errores o bugs",
+    "Cero tiempo de inactividad por mantenimiento"
+  ],
+  "section11Footer": "Podemos modificar o descontinuar funciones sin responsabilidad.",
+  "section12Title": "12. Propiedad Intelectual",
+  "section12Desc1": "Todo el contenido del Servicio, elementos de interfaz, marca y código pertenecen a Dynopay.",
+  "section12Desc2": "",
+  "section12Bullets": [],
+  "section12Footer": "No puedes copiar, revender, modificar o distribuir nuestros materiales sin permiso.",
+  "section13Title": "13. Limitación de Responsabilidad",
+  "section13Desc1": "",
+  "section13Desc2": "En la máxima medida permitida por la ley:",
+  "section13Bullets": [
+    "No somos responsables de pérdidas de ganancias, crypto perdido, interrupción del negocio o daños indirectos",
+    "Los retrasos blockchain, la volatilidad o las fallas de red están fuera de nuestro control",
+    "Usas el Servicio \"tal cual\", sin garantías"
+  ],
+  "section13Footer": "Nuestra responsabilidad total no excederá el monto que pagaste por el Servicio en los últimos 3 meses.",
+  "section14Title": "14. Indemnización",
+  "section14Desc1": "",
+  "section14Desc2": "Aceptas indemnizar y mantener indemne a Dynopay de cualquier reclamación, pérdida, responsabilidad o gasto que surja de:",
+  "section14Bullets": [
+    "Tu mal uso del Servicio",
+    "Tu violación de la ley",
+    "Tus disputas con clientes",
+    "Transacciones ejecutadas a través de tus billeteras conectadas"
+  ],
+  "section14Footer": "",
+  "section15Title": "15. Terminación",
+  "section15Desc1": "",
+  "section15Desc2": "Podemos suspender o terminar tu cuenta si:",
+  "section15Bullets": [
+    "Violas estos Términos",
+    "Participas en actividad prohibida",
+    "Presentas un riesgo de seguridad o cumplimiento",
+    "Solicitas la eliminación de tu cuenta"
+  ],
+  "section15Footer": "Al terminar, tu acceso al panel de control y la API será revocado.",
+  "section16Title": "16. Cambios a estos Términos",
+  "section16Desc1": "Podemos actualizar estos Términos en cualquier momento.",
+  "section16Desc2": "Los cambios son efectivos cuando se publican.",
+  "section16Bullets": [],
+  "section16Footer": "El uso continuo del Servicio significa que aceptas los Términos actualizados.",
+  "section17Title": "17. Ley Aplicable",
+  "section17Desc1": "Estos Términos se rigen por las leyes de Portugal.",
+  "section17Desc2": "Las disputas se resolverán en los tribunales de Lisbon, Portugal.",
+  "section17Bullets": [],
+  "section17Footer": "",
+  "section18Title": "18. Montos Mínimos de Pago y Transferencias No Recuperables",
+  "section18Desc1": "Cada blockchain cobra una tarifa de red (gas) para mover fondos, por lo que cada criptomoneda y red tiene un monto mínimo pagadero. Este mínimo se calcula a partir del costo de transacción en tiempo real de esa red y siempre se muestra en la página de pago antes de que el cliente pague. Un comercio puede aumentar este mínimo para su marca, pero nunca puede establecerlo por debajo del mínimo de la red.",
+  "section18Desc2": "Montos mínimos típicos por activo y red (la cifra exacta mostrada en el pago puede ser mayor cuando la red está congestionada):",
+  "section18Bullets": [
+    "Tokens de tarifa alta — USDT (TRC-20), USDT (ERC-20), USDC (ERC-20), RLUSD (ERC-20) y USDT (Polygon): aproximadamente US$10;",
+    "Monedas nativas — Bitcoin (BTC), Ethereum (ETH), Tron (TRX), Solana (SOL), BNB, Polygon (POL/MATIC) y Litecoin (LTC): aproximadamente US$5;",
+    "Redes de tarifa baja — XRP, Stellar (XLM) y RLUSD en el XRP Ledger: aproximadamente US$2."
+  ],
+  "section18Footer": "Si un cliente envía menos del mínimo mostrado para la moneda y red seleccionadas, el monto es demasiado pequeño para reenviarse económicamente on-chain. Dichas transferencias por debajo del mínimo son NO RECUPERABLES: no se acreditarán al comercio, no pueden reembolsarse y Dynopay las retiene para cubrir los costos de red y procesamiento. Asegúrese de que los clientes siempre paguen igual o por encima del mínimo mostrado en el pago.",
+  "section19Title": "19. Información de Contacto",
+  "section19Desc1": "Para preguntas o inquietudes, contáctanos en:",
+  "section19Desc2": "hi@dynopay.com",
+  "section19Bullets": [],
+  "section19Footer": ""
+}

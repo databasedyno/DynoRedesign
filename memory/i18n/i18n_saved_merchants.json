@@ -1,0 +1,116 @@
+{
+  "landing": {
+    "checkout.store.emptyHint": {
+      "en": "Add something from the shop and come back to check out.",
+      "de": "Lege etwas aus dem Shop in den Warenkorb und komm zum Bezahlen zurück.",
+      "es": "Añade algo de la tienda y vuelve para finalizar la compra.",
+      "fr": "Ajoutez un article de la boutique puis revenez pour payer.",
+      "nl": "Voeg iets toe uit de winkel en kom terug om af te rekenen.",
+      "pt": "Adicione algo da loja e volte para finalizar a compra."
+    },
+    "checkout.saveMerchant.save": {
+      "en": "Save {{name}} for next time",
+      "de": "{{name}} für das nächste Mal speichern",
+      "es": "Guardar {{name}} para la próxima vez",
+      "fr": "Enregistrer {{name}} pour la prochaine fois",
+      "nl": "{{name}} bewaren voor de volgende keer",
+      "pt": "Guardar {{name}} para a próxima vez"
+    },
+    "checkout.saveMerchant.saved": {
+      "en": "Saved on this device",
+      "de": "Auf diesem Gerät gespeichert",
+      "es": "Guardado en este dispositivo",
+      "fr": "Enregistré sur cet appareil",
+      "nl": "Bewaard op dit apparaat",
+      "pt": "Guardado neste dispositivo"
+    },
+    "checkout.saveMerchant.view": {
+      "en": "View saved merchants →",
+      "de": "Gespeicherte Händler ansehen →",
+      "es": "Ver comercios guardados →",
+      "fr": "Voir les marchands enregistrés →",
+      "nl": "Bewaarde verkopers bekijken →",
+      "pt": "Ver comerciantes guardados →"
+    },
+    "saved.pageTitle": {
+      "en": "Saved merchants",
+      "de": "Gespeicherte Händler",
+      "es": "Comercios guardados",
+      "fr": "Marchands enregistrés",
+      "nl": "Bewaarde verkopers",
+      "pt": "Comerciantes guardados"
+    },
+    "saved.headerLink": {
+      "en": "Saved merchants",
+      "de": "Gespeicherte Händler",
+      "es": "Comercios guardados",
+      "fr": "Marchands enregistrés",
+      "nl": "Bewaarde verkopers",
+      "pt": "Comerciantes guardados"
+    },
+    "saved.title": {
+      "en": "Your saved merchants",
+      "de": "Deine gespeicherten Händler",
+      "es": "Tus comercios guardados",
+      "fr": "Vos marchands enregistrés",
+      "nl": "Je bewaarde verkopers",
+      "pt": "Os seus comerciantes guardados"
+    },
+    "saved.subtitle": {
+      "en": "Merchants you saved after paying. Stored on this device only — no account needed.",
+      "de": "Händler, die du nach dem Bezahlen gespeichert hast. Nur auf diesem Gerät gespeichert — kein Konto nötig.",
+      "es": "Comercios que guardaste tras pagar. Se guardan solo en este dispositivo, sin necesidad de cuenta.",
+      "fr": "Les marchands que vous avez enregistrés après un paiement. Stockés uniquement sur cet appareil — aucun compte requis.",
+      "nl": "Verkopers die je na het betalen hebt bewaard. Alleen op dit apparaat opgeslagen — geen account nodig.",
+      "pt": "Comerciantes que guardou depois de pagar. Guardados apenas neste dispositivo — sem necessidade de conta."
+    },
+    "saved.visit": {
+      "en": "Visit page",
+      "de": "Seite öffnen",
+      "es": "Visitar página",
+      "fr": "Voir la page",
+      "nl": "Pagina bekijken",
+      "pt": "Visitar página"
+    },
+    "saved.remove": {
+      "en": "Remove",
+      "de": "Entfernen",
+      "es": "Quitar",
+      "fr": "Retirer",
+      "nl": "Verwijderen",
+      "pt": "Remover"
+    },
+    "saved.savedOn": {
+      "en": "Saved {{date}}",
+      "de": "Gespeichert am {{date}}",
+      "es": "Guardado el {{date}}",
+      "fr": "Enregistré le {{date}}",
+      "nl": "Bewaard op {{date}}",
+      "pt": "Guardado em {{date}}"
+    },
+    "saved.emptyTitle": {
+      "en": "Nothing saved yet",
+      "de": "Noch nichts gespeichert",
+      "es": "Aún no hay nada guardado",
+      "fr": "Rien d'enregistré pour l'instant",
+      "nl": "Nog niets bewaard",
+      "pt": "Ainda não há nada guardado"
+    },
+    "saved.emptyBody": {
+      "en": "After you pay a merchant with Dynopay, tap “Save for next time” on the receipt screen and they'll show up here.",
+      "de": "Wenn du einen Händler über Dynopay bezahlt hast, tippe auf dem Belegbildschirm auf „Für das nächste Mal speichern“ – dann erscheint er hier.",
+      "es": "Cuando pagues a un comercio con Dynopay, toca «Guardar para la próxima vez» en la pantalla del recibo y aparecerá aquí.",
+      "fr": "Après avoir payé un marchand avec Dynopay, touchez « Enregistrer pour la prochaine fois » sur l'écran du reçu : il apparaîtra ici.",
+      "nl": "Nadat je een verkoper met Dynopay hebt betaald, tik je op ‘Bewaren voor de volgende keer’ op het bonscherm en verschijnt die hier.",
+      "pt": "Depois de pagar a um comerciante com a Dynopay, toque em “Guardar para a próxima vez” no ecrã do recibo e ele aparecerá aqui."
+    },
+    "saved.browse": {
+      "en": "Back to home",
+      "de": "Zur Startseite",
+      "es": "Volver al inicio",
+      "fr": "Retour à l'accueil",
+      "nl": "Terug naar home",
+      "pt": "Voltar ao início"
+    }
+  }
+}

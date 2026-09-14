@@ -1,0 +1,39 @@
+{
+  "summary": "Frontend-only verification of 4 approved items on the live preview (logged in as hostbay@moxx.co via /auth/login 2-step). ITEM 2 (shared responsive table->card primitive): PASS on all 4 pages x 1440/768/390 x light+dark. ITEM 3 (mobile header 44px tap targets): PASS (header inner box 48px, all 5 top-bar controls >=44px, avatar not clipped). ITEM 4 (company popover flush): PASS (gap=4px, dropdown fully in viewport at 390). ITEM 1 (multi-company switch + toast): PARTIAL FAIL - created the approved temp company 'QA-DELETE-ME' (company_id 55); two companies list correctly, switching updates the trigger label and shows the 'Switched to <name>' snackbar in both directions and re-fetches dashboard data, BUT the selection is CLOBBERED on every full page load: the app re-selects the NEWEST company (55) and PUTs /api/user/last-company={55}, so the merchant silently lands on the wrong company and sees empty data (e.g. /invoices shows 'No invoices yet' for hostbay). Zero page/console errors except one React DOM-nesting warning.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "CompanySelector (mobile trigger)", "issue": "Trigger hit area measures only 21x16px at 390 (well under 44px) even though the surrounding header buttons were raised to 44px", "selector": "[data-testid='company-selector-trigger']", "priority": "MEDIUM"},
+      {"component": "Invoice preview overlay (mobile card tap)", "issue": "Overlay opens correctly from an invoice card but Escape does not close it; PDF body area was still blank ~4s after open (only header + Download PDF / Open in new tab visible)", "selector": "[data-testid^='invoice-card-']", "priority": "MEDIUM"},
+      {"component": "Customers detail dialog", "issue": "React warning: validateDOMNesting - <h6> cannot appear as a child of <h2> (MUI DialogTitle Typography nesting) in Components/Page/Customers/index.tsx", "selector": "[role='dialog']", "priority": "LOW"}
+    ],
+    "integration_issues": [
+      {"flow": "Multi-company switching persistence (ITEM 1)", "issue": "Active company resets to the newest company on every full page load / hard navigation. Measured: switch to hostbay -> trigger 'hostbay', localStorage last_company_id=1, PUT /api/user/last-company -> 200 {last_company_id:1}. After page reload or goto(/invoices): trigger 'QA-DELETE-ME', localStorage=55, a new PUT /api/user/last-company -> 200 {last_company_id:55} fires unprompted, and hostbay's 7 invoices disappear (renders 'No invoices yet').", "affected_selectors": ["[data-testid='company-selector-trigger']", "[data-testid='company-option-1']", "[data-testid^='invoice-card-']"]}
+    ],
+    "design_issues": [
+      {"screen": "/transactions @390", "issues": ["Source filter chip row (transactions-source-chip-*) extends past the viewport right edge (right=453/543 vs 390) - known-deferred scroll affordance, no document-level overflow"]},
+      {"screen": "/pay-links @768", "issues": ["MuiTable is 1391px wide inside a 768px container (inner horizontal scroll only, document does not overflow) - acceptable but the scroll affordance is subtle"]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "FIX (HIGH): Remove/guard the auto-select-first effect in Components/UI/CompanySelector/index.tsx (~line 118: `if (active == null && companies.length > 0) companyState.selectCompany(companies[0].company_id)`). It races CompanyDataContext's restore-from-localStorage effect and, because companyList is newest-first, it overwrites the persisted last_company_id (LS + backend PUT) on every load. Let CompanyDataContext own the default selection, or only auto-select when getLastCompanyId() is null/invalid.",
+    "Enlarge the mobile company-selector trigger hit area to >=44px to match the rest of the ITEM 3 work.",
+    "Make the mobile invoice preview overlay closeable with Escape and add a loading state for the PDF frame (blank black area for several seconds).",
+    "Fix the DialogTitle Typography nesting warning in Customers detail dialog.",
+    "USER ACTION: temporary company 'QA-DELETE-ME' (company_id 55, no wallet added - the forced AddWallet step was left unfinished) was created as approved and should now be deleted. NOTE: while it exists the persistence bug above makes the account land on it by default."
+  ],
+  "critical_code_review_comments": [
+    "CompanySelector auto-select-first effect duplicates default-company logic already in contexts/CompanyDataContext.tsx (lines 130-142) - two sources of truth for selectedCompanyId cause the observed clobber and an extra PUT on every page load.",
+    "handleCompanySwitch fires 5 redux dispatches + wallet refetch with no error/loading state surfaced; if any fail the UI still shows the 'Switched to' toast.",
+    "CreateCompanyModal requires Last Name but the account's profile only prefills First Name, so the required-field error is hit on first submit for such accounts (minor UX)."
+  ],
+  "updated_files": ["/app/Components/UI/UserMenu/index.tsx (added missing data-testid=\"user-menu-trigger\" on UserTrigger for tap-target measurement)"],
+  "success_rate": {"backend": "not tested (frontend-only request)", "frontend": "ITEM 2 PASS, ITEM 3 PASS, ITEM 4 PASS, ITEM 1 PARTIAL (switch+toast work, persistence broken) = 3.5/4"},
+  "seed_data_creation": "Created ONE company 'QA-DELETE-ME' (company_id 55, US/USD, email hostbay@moxx.co) via the approved Add-Company flow. No wallet was saved, no payment links, no other writes. The only other writes were the app's own PUT /api/user/last-company calls during switching.",
+  "should_call_test_agent_after_fix": true,
+  "should_main_agent_self_test": false,
+  "test_credentials": "hostbay@moxx.co / Katiekendra123@ at /auth/login (2-step: textbox.first -> Continue exact=True -> wait ~7s -> input[type=password]:visible -> Sign in)",
+  "context_for_next_testing_agent": "Measured geometry: ITEM 3 @390 hamburger 44x44 (x16,y10), header-create-new 44x44, header-notifications-bell 44x44, theme-toggle-mobile 44x44, user-menu-trigger 44x52 (right=368<390); header inner Box height 48px (outer wrapper 56 incl. padding). @768 create 44x87, bell 44x44, theme 44x44, avatar 44x52, hamburger hidden (0x0, rail nav). ITEM 4 @390: trigger bottom=40, dropdown x=74 y=44 w=300 h=186 right=374, gap=4px, inViewport true. ITEM 2 detection: /pay-links,/invoices,/customers expose a real <table> at 1440+768 and none at 390; /transactions is a custom flex table - detect via [data-testid='tx-fiat-value'] element tag (DIV at 1440/768 = table, P at 390 = card) and count of divs with minWidth:max-content (13 vs 0). document.scrollWidth == clientWidth == 390 on all 4 pages in both themes. Playwright note: page.screenshot(quality=..) fails on .png paths - use .jpg. Company ids: hostbay=1, QA-DELETE-ME=55 (option-55 label also contains the email 'hostbay@moxx.co', so do not match companies by substring 'hostbay').",
+  "rca_of_the_issue": "Company-switch persistence bug: contexts/CompanyDataContext.tsx restores the persisted company from localStorage 'last_company_id' in an effect that runs after companyList resolves, while Components/UI/CompanySelector/index.tsx has its own effect that runs while selectedCompanyId is still null and calls selectCompany(companies[0].company_id). companyList comes back newest-first, so companies[0] is the newly created QA-DELETE-ME (55); selectCompany writes 55 to localStorage AND PUTs it to /api/user/last-company, permanently overwriting the user's real choice. Reproduction: with 2 companies, switch to hostbay (label + toast OK, LS=1, PUT 200 with 1), then reload or hard-navigate -> label reverts to QA-DELETE-ME, LS=55, an unsolicited PUT 55 is observed, and hostbay-scoped data (7 invoices) renders as an empty state. Mitigation: single source of truth for the default company selection."
+}

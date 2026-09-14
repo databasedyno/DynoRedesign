@@ -1,0 +1,55 @@
+{
+  "meta_title": "Paiements crypto pour VPN et logiciels de confidentialité · Dynopay",
+  "meta_description": "Acceptez Bitcoin, Ethereum, USDT et plus de 15 cryptomonnaies pour votre service VPN ou de confidentialité. Non-custodial, sans rétrofacturations, en ligne en 10 minutes. Commencez maintenant.",
+  "h1": "Acceptez des paiements crypto pour VPN et logiciels de confidentialité sans rétrofacturations",
+  "subheading": "Ne perdez plus de revenus à cause de la fraude aux paiements et du churn involontaire. Dynopay livre Bitcoin, stablecoins et plus de 15 cryptomonnaies directement dans votre portefeuille.",
+  "intro_paragraph": "Les fournisseurs de VPN et de logiciels de confidentialité font face à des frictions de paiement constantes : refus de carte à cause de drapeaux de sécurité, fraude par rétrofacturation de la part d'utilisateurs ayant consommé de la bande passante puis contesté des frais, et churn involontaire lorsque les banques signalent des paiements récurrents comme suspects. Dynopay est une plateforme de commerce crypto non-custodial qui dépose chaque paiement directement dans votre portefeuille—pas d'intermédiaire, pas de risque de rétrofacturation, pas de fonds gelés. Supportez Bitcoin, Ethereum, USDT sur trois chaînes, et plus de 15 cryptomonnaies au total avec des frais commençant à 1,5 % qui tombent à 0,5 % à mesure que vous évoluez.",
+  "features": [
+    {
+      "title": "Aucun risque de rétrofacturation, jamais",
+      "description": "Les paiements crypto sont définitifs. Les utilisateurs qui abusent de votre bande passante ne peuvent pas annuler la transaction six mois plus tard. Vous conservez chaque dollar gagné auprès de vos abonnés légitimes sans responsabilité en cas de fraude."
+    },
+    {
+      "title": "Non-custodial : les fonds arrivent dans votre portefeuille",
+      "description": "Chaque paiement se règle directement dans votre portefeuille Bitcoin, Ethereum ou stablecoin. Dynopay ne conserve jamais votre argent, vous contrôlez donc la liquidité et éliminez le risque de contrepartie des processeurs de paiement."
+    },
+    {
+      "title": "Réduisez le churn involontaire dû aux refus de carte",
+      "description": "Les réseaux de cartes signalent les abonnements VPN comme à haut risque, entraînant des refus erronés. Les paiements crypto contournent complètement les rails hérités, permettant aux utilisateurs soucieux de leur vie privée de renouveler sans friction et vous permettant de conserver plus de revenus."
+    }
+  ],
+  "how_it_works": [
+    "Inscrivez-vous, vérifiez votre email et ajoutez l'adresse du portefeuille où vous souhaitez recevoir des paiements.",
+    "Générez un lien de paiement ou intégrez le widget de paiement sur votre page d'abonnement en moins de 10 minutes.",
+    "Les clients paient en Bitcoin, USDT, Ethereum ou plus de 15 cryptos ; les fonds arrivent directement dans votre portefeuille en quelques minutes."
+  ],
+  "faqs": [
+    {
+      "question": "Pourquoi les entreprises de VPN acceptent-elles les paiements en cryptomonnaie ?",
+      "answer": "La crypto élimine les rétrofacturations, réduit le churn involontaire dû aux refus de carte et attire les utilisateurs soucieux de leur vie privée qui préfèrent ne pas lier leurs comptes bancaires. Dynopay prend en charge Bitcoin, Ethereum, USDT sur trois chaînes, et plus de 15 cryptomonnaies au total avec un règlement non-custodial directement dans votre portefeuille."
+    },
+    {
+      "question": "Combien Dynopay facture-t-il pour les paiements en crypto ?",
+      "answer": "Les frais commencent à 1,5 % plus un dollar par paiement réussi et tombent automatiquement à 0,5 % à mesure que votre volume augmente. Votre premier paiement est entièrement gratuit. Pas de frais mensuels, pas de coûts d'installation, pas de frais cachés, et pas de frais de rétrofacturation car les rétrofacturations n'existent pas en crypto."
+    },
+    {
+      "question": "Les utilisateurs peuvent-ils s'abonner mensuellement avec des cryptomonnaies ?",
+      "answer": "Oui, cycle par cycle. La crypto n'a pas de prélèvement automatique de style carte, donc chaque renouvellement est un nouveau paiement : envoyez aux abonnés un lien de paiement par cycle de facturation, ou automatisez-le avec l'API REST et les webhooks. Les renouvellements échouent jamais en cas de refus d'émetteur ou de cartes expirées, donc le churn involontaire reste inférieur à celui des plans basés sur les cartes."
+    },
+    {
+      "question": "Quelles cryptomonnaies mon VPN peut-il accepter ?",
+      "answer": "Dynopay prend en charge Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum avec USDT et USDC, Polygon, Tron avec USDT, Solana et XRP Ledger y compris RLUSD. Cela fait plus de 15 cryptomonnaies au total, et chaque paiement est déposé directement dans le portefeuille que vous contrôlez—jamais détenu par Dynopay."
+    },
+    {
+      "question": "Quelle rapidité pour commencer à accepter la crypto pour mon service VPN ?",
+      "answer": "Moins de 10 minutes. Inscrivez-vous, vérifiez votre email, créez votre profil d'entreprise, ajoutez une adresse de portefeuille de paiement, puis générez un lien de paiement ou intégrez le widget de paiement. Vous êtes en ligne immédiatement sans intégration technique requise, bien que l'API REST et les webhooks soient disponibles pour les développeurs."
+    }
+  ],
+  "cta_headline": "Commencez à accepter des paiements crypto en 10 minutes",
+  "cta_body": "Votre premier paiement est gratuit, pas de frais mensuels, et les fonds vont directement dans votre portefeuille. Inscrivez-vous maintenant et allez en ligne aujourd'hui.",
+  "_generated_at": "2026-08-29T14:55:38.714229Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "vpn",
+  "_display_name": "VPN & Privacy Software"
+}

@@ -1,0 +1,55 @@
+{
+  "meta_title": "Krypto-Zahlungs-API für Entwickler · Dynopay",
+  "meta_description": "Integrieren Sie Bitcoin, Ethereum, Solana und 15+ Kryptowährungen mit einer REST-API. Non-custodial, webhook-gesteuert, in 10 Minuten einsatzbereit. Jetzt mit dem Bauen beginnen.",
+  "h1": "Krypto-Zahlungs-API: Ein Endpunkt, 15+ Chains, Null Verwahrungsrisiko",
+  "subheading": "Erstellen Sie Checkout-Flows, Zahlungslinks oder Crowdfunding in Ihrer App mit einer REST-API, Webhooks und SDKs – die Gelder werden direkt an Ihre Wallet überwiesen.",
+  "intro_paragraph": "Die meisten Krypto-Zahlungsintegrationen zwingen Sie dazu, Smart Contracts zu schreiben, mehrere Chain-Clients zu verwalten oder einem Dritten die Verwahrung anzuvertrauen. Dynopay bietet Entwicklern eine einzige REST-API, die Bitcoin, Ethereum, Solana, Tron, Polygon und XRP Ledger abdeckt – insgesamt 15+ Assets – während jede Zahlung non-custodial an die Wallet überwiesen wird, die Sie kontrollieren. Keine monatlichen Gebühren, keine Einrichtungskosten, und Ihre erste Transaktion ist völlig kostenlos.",
+  "features": [
+    {
+      "title": "Eine API, 15+ Kryptowährungen",
+      "description": "Akzeptieren Sie Bitcoin, ETH, USDT (drei Netzwerke), USDC, SOL, XRP, RLUSD und mehr über eine einzige REST-Schnittstelle. Keine Notwendigkeit, Nodes zu betreiben oder chain-spezifische Logik zu schreiben."
+    },
+    {
+      "title": "Non-Custodial by Design",
+      "description": "Zahlungen fließen direkt an die Wallet-Adresse, die Sie während der Einrichtung angeben. Dynopay hält, friert oder kontrolliert Ihre Gelder niemals – Sie behalten die Verwahrung vom Checkout bis zur Abwicklung."
+    },
+    {
+      "title": "Webhooks und Echtzeit-Events",
+      "description": "Hören Sie auf Zahlungsbestätigungen, Rückerstattungen und Statusänderungen über HTTP-Callbacks. Erstellen Sie dynamische Auftragsabwicklungen, Abonnementlogik oder bedingte Workflows ohne Polling."
+    }
+  ],
+  "how_it_works": [
+    "Melden Sie sich an, verifizieren Sie Ihre E-Mail, erstellen Sie ein Unternehmensprofil und registrieren Sie eine Auszahlung-Wallet-Adresse.",
+    "Holen Sie sich Ihren API-Schlüssel vom Dashboard und rufen Sie den Zahlungsendpunkt auf oder fügen Sie das Checkout-Widget in Ihr Frontend ein.",
+    "Erhalten Sie Webhook-Events, während Zahlungen on-chain bestätigt werden; Gelder erscheinen innerhalb von Minuten in Ihrer Wallet."
+  ],
+  "faqs": [
+    {
+      "question": "Welche Kryptowährungen unterstützt die Dynopay API?",
+      "answer": "Dynopay unterstützt Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum (einschließlich USDT, USDC und RLUSD auf ERC-20), Polygon (MATIC und USDT), Tron (TRX und USDT-TRC20), Solana und XRP Ledger (XRP und RLUSD) – insgesamt 15+ Assets hinter einer REST-API."
+    },
+    {
+      "question": "Wie viel berechnet Dynopay pro Transaktion?",
+      "answer": "Dynopay erhebt eine volumenabhängige Plattformgebühr, die bei 1,5 Prozent plus einem Dollar pro erfolgreicher Zahlung beginnt und automatisch auf 0,5 Prozent bei größerem Volumen sinkt. Ihre erste Zahlung ist völlig kostenlos, und es gibt keine monatlichen oder Einrichtungskosten."
+    },
+    {
+      "question": "Muss ich Smart Contracts bereitstellen, um Zahlungen zu akzeptieren?",
+      "answer": "Nein. Dynopay übernimmt die Chain-Interaktion, Adressgenerierung und Bestätigungsüberwachung für Sie. Sie rufen einen REST-Endpunkt auf, erhalten eine Zahlungsadresse und hören auf Webhook-Events – kein Solidity, keine Audits, kein Gasmanagement."
+    },
+    {
+      "question": "Ist Dynopay custodial oder kontrolliere ich die Gelder?",
+      "answer": "Dynopay ist vollständig non-custodial. Jede Zahlung wird direkt an die Wallet-Adresse überwiesen, die Sie während der Onboarding-Phase angeben. Dynopay hält, bewegt oder kontrolliert Ihre Kryptowährung zu keinem Zeitpunkt im Transaktionszyklus."
+    },
+    {
+      "question": "Kann ich die API testen, bevor ich live gehe?",
+      "answer": "Ja. Dynopay bietet eine Sandbox-Umgebung mit Test-API-Schlüsseln, damit Sie Zahlungen simulieren, Webhooks auslösen und Ihre Integrationslogik validieren können, bevor Sie echte Transaktionen im Mainnet verarbeiten."
+    }
+  ],
+  "cta_headline": "Beginnen Sie noch heute mit Dynopay",
+  "cta_body": "Ihre erste Zahlung ist kostenlos und Sie können in weniger als 10 Minuten live gehen. Keine monatlichen Gebühren, kein Verwahrungsrisiko.",
+  "_generated_at": "2026-08-29T14:58:16.495546Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "developers",
+  "_display_name": "Developers & Builders"
+}

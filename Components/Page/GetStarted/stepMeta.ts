@@ -1,0 +1,44 @@
+import type { SetupStepKey } from "./useSetupProgress";
+
+type TFunction = (key: string, options?: Record<string, unknown>) => string;
+
+export const STEP_ICON: Record<SetupStepKey, string> = {
+  about: "user-round",
+  payouts: "wallet",
+  link: "link",
+  share: "send",
+};
+
+/** Legacy analytics step keys (backend allow-list) for the 4 wizard steps. */
+export const STEP_TRACK_KEY: Record<SetupStepKey, "company" | "wallet" | "link" | "payment"> = {
+  about: "company",
+  payouts: "wallet",
+  link: "link",
+  share: "payment",
+};
+
+export const stepLabel = (t: TFunction, key: SetupStepKey): string => {
+  switch (key) {
+    case "about":
+      return t("gs.stepAbout", { defaultValue: "About you" });
+    case "payouts":
+      return t("gs.stepPayouts", { defaultValue: "Where payouts go" });
+    case "link":
+      return t("gs.stepLink", { defaultValue: "Your first payment link" });
+    default:
+      return t("gs.stepShare", { defaultValue: "Share it" });
+  }
+};
+
+export const stepDesc = (t: TFunction, key: SetupStepKey): string => {
+  switch (key) {
+    case "about":
+      return t("gs.stepAboutDesc", { defaultValue: "Your name, brand and country" });
+    case "payouts":
+      return t("gs.stepPayoutsDesc", { defaultValue: "The wallet your funds are forwarded to" });
+    case "link":
+      return t("gs.stepLinkDesc", { defaultValue: "Amount, description and a live preview" });
+    default:
+      return t("gs.stepShareDesc", { defaultValue: "Copy, QR or send it — then get paid" });
+  }
+};

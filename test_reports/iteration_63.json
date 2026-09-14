@@ -1,0 +1,27 @@
+{
+  "summary": "Verified storefront-per-company flag-OFF scoping fix. Backend: 8/8 pytest passed against LIVE prod (SAFE MODE) — KLOSE (company_id=62) returns storefront_pending shell with account_handle='hostbay', primary_company_id=1, has_handle=false on stats/analytics, and PUT profile is rejected with 400 'doesn't have its own storefront yet'; hostbay (id=1) regressions all intact (no storefront_pending, has_handle=true, no X-Company-Id header defaults to hostbay). Frontend: Playwright confirmed under KLOSE the storefront-pending card renders on Page/Products/Share tabs with correct KLOSE + @hostbay text, storefront-company-hint ('Editing KLOSE's storefront') visible, storefront-open-page action ABSENT, dashboard claim-handle-banner ABSENT. Clicking storefront-pending-switch-btn switches to hostbay, creator-status-banner appears with 'Your creator page is live', and Share tab shows the hostbay URL. Zero console errors. Ended session with hostbay selected (last_company_id=1) as required.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Storefront (hostbay) status banner", "issues": ["Banner text is 'Your creator page is live' — spec wording said 'Your page is live'. Semantic match; not a bug, just wording nuance to note."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_storefront_scope_iter63.py",
+    "/app/test_reports/pytest/iter63_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Fix is correctly scoped: pending shell is returned by /creator/profile, /creator/stats, /creator/analytics for non-primary companies when STOREFRONT_PER_COMPANY=false, and PUT is blocked at controller before any DB write — no data leak from primary company (hostbay).",
+    "Frontend gates on all three storefront tabs + dashboard claim banner are consistent with backend has_handle/storefront_pending signals via useStorefrontProfile."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100% (8/8)", "frontend": "100% (all assertions met, 0 console errors)"},
+  "test_credentials": "hostbay@moxx.co / Katiekendra123@ (from /app/memory/test_credentials.md)",
+  "seed_data_creation": "None — SAFE MODE, no writes performed (PUT under X-Company-Id:62 was rejected by backend as expected; company switch only updated tbl_user.last_company_id and was restored to 1=hostbay at end).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Login path is /auth/login (2-step). To scope requests to a specific company without UI switching, set localStorage 'last_company_id' before navigation; axios interceptor forwards it as X-Company-Id. Login endpoint is POST /api/user/login returning data.accessToken. STOREFRONT_PER_COMPANY=false in backend/.env is intentional — do not toggle."
+}

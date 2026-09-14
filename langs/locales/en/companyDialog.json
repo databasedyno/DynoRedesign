@@ -1,0 +1,156 @@
+{
+  "mode": {
+    "add": {
+      "title": "Add new brand",
+      "subtitle": "Create a new brand to manage crypto payments",
+      "primaryButton": "Start a brand"
+    },
+    "edit": {
+      "title": "Edit brand",
+      "subtitle": "Update brand information",
+      "primaryButton": "Update"
+    }
+  },
+  "fields": {
+    "companyName": {
+      "label": "Brand name*",
+      "placeholder": "Enter brand name"
+    },
+    "website": {
+      "label": "Website (optional)",
+      "placeholder": "https://example.com"
+    },
+    "email": {
+      "label": "E-mail*",
+      "placeholder": "contact@example.com"
+    },
+    "mobile": {
+      "label": "Mobile*",
+      "placeholder": "Enter your mobile number"
+    },
+    "brandLogo": {
+      "label": "Brand logo",
+      "uploadCta": "Click to upload or drag and drop",
+      "uploadHint": "SVG, PNG, JPG (max. 2MB)",
+      "saving": "Saving…",
+      "autoSaveHint": "Saved automatically when you choose a file",
+      "pendingSaveHint": "New logo selected — click Save Changes to apply.",
+      "saveHint": "Choose a file, then click Save Changes to update your logo."
+    },
+    "country": {
+      "label": "Country*",
+      "placeholder": "Select country"
+    },
+    "state": {
+      "label": "State",
+      "placeholder": "Select state"
+    },
+    "city": {
+      "label": "City",
+      "placeholder": "Select city"
+    },
+    "addressLine1": {
+      "label": "Address, Line 1",
+      "placeholder": "Enter address line 1"
+    },
+    "addressLine2": {
+      "label": "Address, Line 2 (optional)",
+      "placeholder": "Enter address line 2"
+    },
+    "zipCode": {
+      "label": "Zip Code",
+      "placeholder": "Enter zip code"
+    },
+    "vatNumber": {
+      "label": "VAT Number (optional)",
+      "placeholder": "Enter VAT number"
+    }
+  },
+  "actions": {
+    "cancel": "Cancel"
+  },
+  "validation": {
+    "companyNameRequired": "Brand name is required",
+    "emailInvalid": "Please enter a valid email",
+    "emailRequired": "Email is required",
+    "mobileRequired": "Mobile number is required",
+    "mobileMin": "Minimum 10 digits are required",
+    "mobileMax": "Maximum 14 digits are allowed",
+    "countryRequired": "Country is required",
+    "stateRequired": "State is required",
+    "cityRequired": "City is required",
+    "addressLine1Required": "Address line 1 is required",
+    "zipCodeRequired": "Zip code is required"
+  },
+  "mobilePlaceholder": "Enter your mobile number",
+  "vatNumber": "VAT Number (optional)",
+  "vatVerify": "VAT Number verified",
+  "createModal": {
+    "title": "Create your brand",
+    "subtitle": "Set up your brand to start accepting payments",
+    "closeLater": "I'll do this later",
+    "sectionYourName": "Your Name",
+    "sectionCompanyDetails": "Brand details",
+    "firstNameLabel": "First Name *",
+    "firstNamePlaceholder": "First name",
+    "lastNameLabel": "Last Name *",
+    "lastNamePlaceholder": "Last name",
+    "companyNameLabel": "Brand name *",
+    "companyNamePlaceholder": "Enter your brand name",
+    "businessEmailLabel": "Business Email *",
+    "businessEmailPlaceholder": "Enter your business email",
+    "mobileLabel": "Mobile Number (optional)",
+    "mobilePlaceholder": "Enter mobile number",
+    "websiteLabel": "Website (optional)",
+    "countryLabel": "Country *",
+    "countryPlaceholder": "Start typing your country…",
+    "currencyLabel": "Default currency *",
+    "currencyPlaceholder": "Select currency",
+    "brandLogoLabel": "Brand Logo (optional)",
+    "uploadChange": "Change",
+    "uploadUpload": "Upload",
+    "submit": "Create brand",
+    "progressTitle": "Setting up your brand…",
+    "progressStep1": "Creating your brand…",
+    "progressStep2": "Configuring billing preferences…",
+    "progressStep3": "Sending welcome emails…",
+    "progressStep4": "Provisioning your merchant account…",
+    "progressStep5": "Almost done — preparing your dashboard…",
+    "fileTypeError": "Only image files are allowed (JPEG, PNG, GIF, WebP, SVG)",
+    "fileSizeError": "File size must be less than 5MB",
+    "validation": {
+      "firstNameRequired": "First name is required",
+      "lastNameRequired": "Last name is required",
+      "companyNameRequired": "Brand name is required",
+      "emailRequired": "Email is required",
+      "emailInvalid": "Please enter a valid email",
+      "mobileInvalid": "Please enter a valid mobile number",
+      "websiteInvalid": "Please enter a valid URL (e.g., https://yourcompany.com)",
+      "countryRequired": "Please select your country",
+      "currencyRequired": "Please select a currency"
+    },
+    "addTitle": "Add a new brand",
+    "addSubtitle": "Set up another brand under your account",
+    "payLinkSubtitle": "Used on invoices and receipts. Takes about 30 seconds.",
+    "cancel": "Cancel",
+    "emailLabelOptional": "Email (optional)",
+    "stepBrand": "Brand",
+    "stepWallet": "Wallet",
+    "nameLockedNotice": "Your name is verified and can't be changed here. Contact support to update it.",
+    "logoAdded": "Logo added"
+  },
+  "addCompanyBtn": "Add brand",
+  "noCompaniesYet": "No brands yet",
+  "createFirstCompanyBody": "Create your first brand to start accepting payments and manage everything in one place.",
+  "noResultsFound": "No results found",
+  "optional": "optional",
+  "validateTax": "Validate Tax ID",
+  "accountType": {
+    "label": "Account type",
+    "individualTitle": "Individual / creator",
+    "individualDesc": "Personal payments, tips and a public page.",
+    "businessTitle": "Registered business",
+    "businessDesc": "Invoices, VAT/tax, address and team access.",
+    "switchHelper": "Add your business name and country below, then Save to switch to a business account. Your wallets, keys and history stay exactly as they are."
+  }
+}

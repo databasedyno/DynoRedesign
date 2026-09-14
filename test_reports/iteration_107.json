@@ -1,0 +1,23 @@
+{
+  "summary": "Backend-only regression test after extracting notifyInviteAccepted from teamController.ts into backend/controller/team/teamNotifications.ts. All 6 tests PASS end-to-end against the live preview backend: owner login, team invite creation (unique plus-addressed email), invite info lookup, /api/team/accept public flow, owner in-app notification (type=team_member_joined with 'accepted your invite and joined' message), team.accept audit row on /api/team/activity, and full cleanup (DELETE /api/team/members/<id> for each newly created member with verification that no non-revoked test members remain). The extracted notifyInviteAccepted module fires correctly (in-app notification + audit row confirmed; outbound email suppressed via DISABLE_OUTBOUND_EMAIL as expected in preview).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_team_accept_regression.py",
+    "/app/test_reports/pytest/team_accept_regression.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "teamNotifications.ts is clean: wraps each company in try/catch so accept flow never fails due to notification errors; correctly skips notifying the joiner themselves (ownerId === memberUserId); email fired with `void` so promise rejections won't crash. Good.",
+    "Import path in teamController.ts './team/teamNotifications' is consistent with the new module location.",
+    "Minor: consider adding a unit test that mocks companyModel to assert notifyInviteAccepted skips when ownerId == memberUserId — currently only covered implicitly."
+  ],
+  "updated_files": ["/app/backend/tests/test_team_accept_regression.py"],
+  "success_rate": {"backend": "100%", "frontend": "skipped"},
+  "test_credentials": "Owner: onarrival21@gmail.com / Katiekendra123@ (user_id=1, company_id=1). Used plus-addressed throwaway onarrival21+regr<ts>@gmail.com for invitee.",
+  "seed_data_creation": "Created 1 invited+accepted team member per run under onarrival21+regr<timestamp>@gmail.com; deleted via DELETE /api/team/members/<id> in the cleanup test. Audit rows (append-only) remain by design.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Regression suite lives at /app/backend/tests/test_team_accept_regression.py and is idempotent (uniquified via timestamp) — safe to rerun. If the very first call returns 503 'Backend starting, please retry', wait ~5s and retry; the preview backend cold-starts.",
+  "rca of the issue": "N/A — refactor preserved behavior; no regressions detected."
+}

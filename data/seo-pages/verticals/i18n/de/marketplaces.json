@@ -1,0 +1,55 @@
+{
+  "meta_title": "Krypto-Zahlungen für Online-Marktplätze & Plattformen · Dynopay",
+  "meta_description": "Akzeptieren Sie Krypto-Zahlungen auf Ihrem Marktplatz oder Ihrer Plattform. Non-Custodial, 15+ Kryptowährungen, ab 1,5% Gebühren. Keine Rückbuchungen. Starten Sie in 10 Minuten mit Dynopay.",
+  "h1": "Krypto-Zahlungen für Online-Marktplätze & Plattformen, die Sie in Kontrolle halten",
+  "subheading": "Akzeptieren Sie Bitcoin, Ethereum, USDT und 15+ Kryptowährungen direkt in Ihrer Wallet. Eliminieren Sie Rückbuchungen, reduzieren Sie Zahlungsfriktionen und zahlen Sie Verkäufer weltweit.",
+  "intro_paragraph": "Online-Marktplätze und Plattformen sehen sich ständig Rückbuchungsstreitigkeiten, grenzüberschreitenden Auszahlungsproblemen und Einschränkungen von Zahlungsanbietern bei digitalen Gütern gegenüber. Dynopay ist eine non-custodial Krypto-Commerce-Plattform, die Gelder direkt an Ihre Wallet sendet – kein Zwischenhändler, der Ihr Geld hält. Sie erhalten Zahlungslinks, gehosteten Checkout, vollständige API-Integration und automatische Gebührenstaffelung von 1,5% bis 0,5% basierend auf dem Volumen. Ihre Verkäufer und Nutzer können Krypto-Auszahlungen in Minuten, überall auf der Welt, mit null Rückbuchungsrisiko erhalten.",
+  "features": [
+    {
+      "title": "Direkte Wallet-Abrechnungen, immer",
+      "description": "Die Gelder gelangen für jede Transaktion in Ihre eigene Wallet. Dynopay übernimmt niemals die Verwahrung, sodass Sie Liquidität, Timing und Compliance kontrollieren. Kein Warten auf Batch-Auszahlungen oder Genehmigungen von Zwischenhändlern."
+    },
+    {
+      "title": "Null Rückbuchungsrisiko",
+      "description": "Krypto-Transaktionen sind endgültig. Eliminieren Sie Betrugsstreitigkeiten, freundlichen Betrug und Rückbuchungsgebühren, die die Margen bei digitalen Gütern, Abonnements und hochpreisigen Marktplatzverkäufen erodieren."
+    },
+    {
+      "title": "Zahlen Sie internationalen Verkäufern in Minuten",
+      "description": "Verteilen Sie Einnahmen an Freiberufler, Anbieter und Kreative weltweit in Krypto. Keine Überweisungsverzögerungen, keine Gebühren für Korrespondenzbanken. Sie wählen ihre bevorzugte Wallet und Vermögenswert."
+    }
+  ],
+  "how_it_works": [
+    "Melden Sie sich an, verifizieren Sie Ihre E-Mail und erstellen Sie Ihr Unternehmensprofil in weniger als drei Minuten.",
+    "Fügen Sie eine Auszahlung-Wallet-Adresse für die Kryptowährung hinzu, die Sie als Abrechnung erhalten möchten.",
+    "Generieren Sie einen Zahlungslink, betten Sie das Checkout-Widget ein oder integrieren Sie über die REST API und beginnen Sie, Zahlungen zu akzeptieren."
+  ],
+  "faqs": [
+    {
+      "question": "Welche Kryptowährungen kann mein Marktplatz mit Dynopay akzeptieren?",
+      "answer": "Dynopay unterstützt 15+ Kryptowährungen, darunter Bitcoin, Ethereum, Litecoin, Dogecoin, USDT auf Ethereum, Tron und Polygon, USDC, RLUSD, Solana, XRP, TRX, Bitcoin Cash und Polygon (MATIC). Alle Abrechnungen gehen direkt an Ihre Wallet."
+    },
+    {
+      "question": "Was sind die Gebühren von Dynopay für die Verarbeitung von Krypto-Zahlungen auf einer Plattform?",
+      "answer": "Die Gebühren beginnen bei 1,5% plus einem Dollar pro erfolgreicher Zahlung und sinken automatisch auf 0,5%, wenn Ihr Abrechnungsvolumen wächst. Keine monatlichen Gebühren, keine Einrichtungskosten, keine versteckten Gebühren. Ihre erste Zahlung ist völlig kostenlos."
+    },
+    {
+      "question": "Wie zahle ich Verkäufer oder Kreative auf meinem Marktplatz in Krypto aus?",
+      "answer": "Jeder Verkäufer oder Kreative gibt seine eigene Wallet-Adresse an. Sie können Krypto direkt von Ihrer Treasury-Wallet senden oder die API von Dynopay integrieren, um Auszahlungen zu automatisieren."
+    },
+    {
+      "question": "Hält Dynopay zu irgendeinem Zeitpunkt während einer Transaktion Gelder?",
+      "answer": "Nein. Dynopay ist non-custodial. Jede Zahlung geht direkt von der Wallet des Käufers an Ihre angegebene Auszahlung-Wallet. Sie behalten jederzeit die volle Verwahrung und Kontrolle über die Gelder, ohne Zwischenhändler-Sperrung."
+    },
+    {
+      "question": "Wie lange dauert es, um Krypto auf meiner Plattform zu akzeptieren?",
+      "answer": "Die Einarbeitung dauert weniger als 10 Minuten. Melden Sie sich an, verifizieren Sie Ihre E-Mail, fügen Sie Ihre Unternehmensdaten hinzu, geben Sie eine Auszahlung-Wallet an und generieren Sie einen Zahlungslink oder integrieren Sie den Checkout. Sie können noch am selben Tag live gehen."
+    }
+  ],
+  "cta_headline": "Beginnen Sie, Krypto-Zahlungen in 10 Minuten zu akzeptieren",
+  "cta_body": "Ihre erste Zahlung ist gebührenfrei. Keine Einrichtungskosten, keine monatlichen Gebühren, und die Gelder werden direkt an Ihre Wallet abgerechnet.",
+  "_generated_at": "2026-08-29T14:56:01.692406Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "marketplaces",
+  "_display_name": "Online Marketplaces & Platforms"
+}

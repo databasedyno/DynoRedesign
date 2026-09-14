@@ -1,0 +1,332 @@
+{
+  "helpAndSupportTitle": "Hilfe & Support",
+  "helpAndSupportDescription": "Erhalten Sie Hilfe und Tipps zur Nutzung von Dynopay",
+  "searchPlaceholder": "Artikel suchen...",
+  "needHelp": "Brauchen Sie Hilfe?",
+  "cllaUs": "Rufen Sie uns an",
+  "emailUs": "Schreiben Sie uns",
+  "emaiResponseTime": "Wir antworten normalerweise innerhalb von 24 Stunden.",
+  "chatUs": "Chatten Sie mit uns",
+  "openChat": "Chat öffnen",
+  "chatResponseTime": "Typische Antwortzeit: unter 3 Minuten",
+  "noResults": "Keine Artikel gefunden. Versuchen Sie einen anderen Suchbegriff.",
+  "articleNotFound": "Artikel nicht gefunden",
+  "backToHelpSupport": "Zurück zu Hilfe & Support",
+  "feedbackThanks": "Vielen Dank für Ihr Feedback!",
+  "wasArticleHelpful": "War dieser Artikel hilfreich?",
+  "gettingStarted": {
+    "step1": {
+      "title": "Schritt 1. Erstellen Sie Ihr Dynopay-Konto",
+      "desc": "Melden Sie sich mit Ihrer geschäftlichen E-Mail-Adresse an und schließen Sie die erste Kontoeinrichtung ab. Nach der Registrierung erhalten Sie Zugriff auf das Dynopay-Dashboard, in dem alle Zahlungen, Wallets und Einstellungen verwaltet werden."
+    },
+    "step2": {
+      "title": "Schritt 2. Grundlegende Geschäftseinrichtung abschließen",
+      "desc": "Fügen Sie Ihre Markendaten hinzu, wie z. B. den Markennamen und das Betriebsland. Je nach Anwendungsfall und Volumen kann Dynopay später zusätzliche Verifizierungen anfordern, aber Sie können sofort mit dem Testen von Zahlungen beginnen."
+    },
+    "step3": {
+      "title": "Schritt 3. Wählen Sie unterstützte Kryptowährungen",
+      "desc": "Wählen Sie aus, welche Kryptowährungen und Netzwerke Sie akzeptieren möchten. Dynopay unterstützt mehrere Vermögenswerte und Chains, sodass Sie Optionen auswählen können, die am besten zu Ihren Kunden und Transaktionsgebühren passen."
+    },
+    "step4": {
+      "title": "Schritt 4. Richten Sie Ihre erste Zahlung ein",
+      "heading": "Sie können Zahlungen auf verschiedene Arten akzeptieren:",
+      "point1": "Erstellen Sie einen Zahlungslink",
+      "point2": "Generieren Sie eine Rechnung",
+      "point3": "Verwenden Sie eine gehostete Checkout-Seite",
+      "point4": "Integrieren Sie Dynopay über die API",
+      "footer": "Für die meisten Unternehmen sind Zahlungslinks oder Rechnungen der schnellste Weg, um zu starten."
+    },
+    "step5": {
+      "title": "Schritt 5. Zahlungen empfangen und verfolgen",
+      "desc": "Sobald ein Kunde eine Zahlung abgeschlossen hat, erscheint die Transaktion in Ihrem Dashboard mit Echtzeit-Statusaktualisierungen. Sie können Bestätigungen, Beträge und Netzwerkdetails an einem Ort verfolgen."
+    },
+    "step6": {
+      "title": "Schritt 6. Auszahlungen konfigurieren",
+      "heading": "Entscheiden Sie, wohin Ihre Gelder gehen sollen:",
+      "point1": "Halten Sie Gelder in Ihrem verbundenen Krypto-Wallet",
+      "point2": "Richten Sie automatische oder manuelle Auszahlungen ein",
+      "footer": "Die Verfügbarkeit von Auszahlungen hängt von der gewählten Währung und dem Netzwerk ab."
+    },
+    "step7": {
+      "title": "Schritt 7. Testen, bevor Sie live gehen",
+      "desc": "Wir empfehlen, eine kleine Testtransaktion durchzuführen, um sicherzustellen, dass alles wie erwartet funktioniert, bevor Sie Zahlungslinks mit Kunden teilen."
+    },
+    "next": {
+      "title": "Was kommt als Nächstes",
+      "desc": "Nachdem Ihre erste Zahlung abgeschlossen ist, können Sie:",
+      "point1": "Das Checkout-Erlebnis anpassen",
+      "point2": "Teammitglieder hinzufügen",
+      "point3": "API-Integrationen aktivieren",
+      "point4": "Gebühren und Abrechnungsoptionen überprüfen",
+      "footer": "Wenn Sie bei einem Schritt Hilfe benötigen, steht der Dynopay-Support jederzeit über das Dashboard zur Verfügung."
+    },
+    "related": {
+      "supported": {
+        "title": "Unterstützte Kryptowährungen & Netzwerke",
+        "desc": "Sehen Sie, welche Kryptowährungen und Blockchain-Netzwerke Dynopay unterstützt und wie Sie die richtige auswählen."
+      },
+      "howItWorks": {
+        "title": "Wie Krypto-Zahlungen für Händler funktionieren",
+        "desc": "Eine klare Erklärung, was passiert, vom Moment der Zahlung durch den Kunden bis zur Abwicklung der Gelder."
+      },
+      "fees": {
+        "title": "Gebühren, Sätze & Umrechnungslogik",
+        "desc": "Verstehen Sie die Transaktionsgebühren, Wechselkurse und wie die Auszahlungsbeträge berechnet werden."
+      }
+    },
+    "pageTitle": "Erste Schritte mit Dynopay",
+    "intro": "Dynopay hilft Unternehmen, Krypto-Zahlungen zu akzeptieren, ohne sich mit komplexen Blockchain-Mechanismen auseinandersetzen zu müssen. Dieser Leitfaden führt Sie durch die grundlegenden Schritte, um loszulegen.",
+    "relatedArticles": "Verwandte Artikel"
+  },
+  "supportChat": {
+    "greeting": "Hallo, ich bin Emily – deine Dynopay Support-Assistentin. Frag mich alles zu Gebühren, unterstützten Coins, Zahlungslinks, Wallets oder unserer API. Du kannst auch einen Screenshot anhängen, und ich schaue mir das an. Brauchst du einen Menschen? Klicke auf das Headset-Symbol oben, um den menschlichen Support zu erreichen.",
+    "quickFees": "Wie werden die Gebühren berechnet?",
+    "quickCoins": "Welche Coins werden unterstützt?",
+    "quickLinks": "Wie funktionieren Zahlungslinks?",
+    "quickPayouts": "Wie funktionieren Auszahlungen & Abrechnungen?",
+    "emojiSmileys": "Smileys",
+    "emojiGestures": "Gesten",
+    "emojiObjects": "Objekte",
+    "replyError": "Entschuldigung – ich konnte keine Antwort generieren. Bitte versuche es erneut.",
+    "rateLimit": "Du sendest Nachrichten etwas zu schnell – bitte warte einen Moment und versuche es erneut.",
+    "sendError": "Entschuldigung, es gab ein Problem beim Erreichen des Supports. Bitte versuche es in einem Moment erneut.",
+    "fileTooLarge": "Datei zu groß (max 5MB).",
+    "uploadFailed": "Upload fehlgeschlagen. Bitte versuche es erneut.",
+    "escalated": "Fertig – dein Gespräch wurde an unser Support-Team weitergeleitet. Ein Mensch wird sich so schnell wie möglich per E-Mail bei dir melden.",
+    "escalateError": "Entschuldigung, die Eskalation konnte gerade nicht gesendet werden. Bitte versuche es in Kürze erneut.",
+    "active": "Aktiv",
+    "talkToHuman": "Sprich mit einem Menschen",
+    "newConversation": "Neues Gespräch",
+    "closeChat": "Chat schließen",
+    "escalateIntro": "Wir werden dieses Gespräch an unser Support-Team per E-Mail senden und dir per E-Mail antworten.",
+    "emailPlaceholder": "Deine E-Mail (optional, wenn angemeldet)",
+    "contactEmailAria": "Kontakt-E-Mail",
+    "notePlaceholder": "Etwas hinzuzufügen? (optional)",
+    "noteAria": "Notiz für den Support",
+    "sending": "Senden…",
+    "sendToTeam": "An das Support-Team senden",
+    "uploading": "Hochladen…",
+    "removeAttachment": "Anhang entfernen",
+    "emoji": "Emoji",
+    "insertEmoji": "Emoji einfügen",
+    "attachTooltip": "Bild oder PDF anhängen (max 5MB)",
+    "attachFile": "Datei anhängen",
+    "inputPlaceholder": "Frage zu Gebühren, Coins, API…",
+    "messageAria": "Nachricht",
+    "sendMessage": "Nachricht senden",
+    "closeSupportChat": "Support-Chat schließen",
+    "chatWithSupport": "Chatte mit dem Support",
+    "openSupportChat": "Support-Chat öffnen",
+    "humanBanner": "Sie chatten jetzt mit einem menschlichen Support-Mitarbeiter.",
+    "agentLabel": "Support-Mitarbeiter"
+  },
+  "articles": {
+    "supported-cryptocurrencies-and-networks": {
+      "title": "Unterstützte Kryptowährungen & Netzwerke",
+      "description": "Sehen Sie, welche Kryptowährungen und Blockchain-Netzwerke Dynopay unterstützt und wie Sie die richtige auswählen.",
+      "intro": "Dynopay ermöglicht es Ihnen, eine Vielzahl von Kryptowährungen über mehrere Blockchain-Netzwerke zu akzeptieren. Dieser Leitfaden erklärt, welche Vermögenswerte und Netzwerke unterstützt werden, wie sich Netzwerke unterscheiden und wie Sie die richtigen für Ihr Unternehmen und Ihre Kunden auswählen.",
+      "sections": [
+        {
+          "heading": "Was Sie akzeptieren können",
+          "body": "Dynopay unterstützt wichtige Kryptowährungen und Stablecoins über die am häufigsten verwendeten Blockchains. Sie können die Vermögenswerte aktivieren, die für Ihre Kunden sinnvoll sind, und den Rest deaktivieren. Stablecoins wie USDT und USDC sind bei Unternehmen beliebt, da ihr Wert nahe am US-Dollar bleibt, was die Preisschwankungen zwischen dem Moment, in dem ein Kunde bezahlt, und dem Moment, in dem die Gelder in Ihrer Brieftasche ankommen, beseitigt."
+        },
+        {
+          "heading": "Netzwerke und warum sie wichtig sind",
+          "body": "Dasselbe Asset kann oft über mehr als ein Netzwerk gesendet werden. Das Netzwerk, das Sie akzeptieren, beeinflusst die Bestätigungszeit und die Netzwerkgebühr, die Ihr Kunde zahlt.",
+          "bullets": [
+            "Eine einzelne Münze (zum Beispiel USDT) kann auf mehreren Netzwerken verfügbar sein, die jeweils unterschiedliche Geschwindigkeiten und Gebühren haben.",
+            "Schnellere Netzwerke mit niedrigeren Gebühren sind in der Regel die beste Standardwahl für alltägliche Zahlungen.",
+            "Stellen Sie immer sicher, dass Ihr Kunde Gelder über dasselbe Netzwerk sendet, das Sie beim Checkout ausgewählt haben — das Senden über das falsche Netzwerk kann zu verlorenen Geldern führen."
+          ]
+        },
+        {
+          "heading": "Die richtigen Vermögenswerte auswählen",
+          "body": "Wählen Sie Vermögenswerte basierend darauf aus, was Ihre Kunden bereits besitzen und wie empfindlich Sie auf Preisbewegungen reagieren.",
+          "bullets": [
+            "Bevorzugen Sie Stablecoins, wenn Sie möchten, dass der erhaltene Betrag dem in Rechnung gestellten Betrag entspricht.",
+            "Aktivieren Sie bekannte Münzen, die Ihre Zielgruppe wahrscheinlich verwenden wird.",
+            "Halten Sie Ihre Liste fokussiert — das Angebot von weniger, klar gekennzeichneten Optionen reduziert Verwirrung beim Checkout."
+          ]
+        },
+        {
+          "heading": "Aktivieren von Vermögenswerten in Ihrem Dashboard",
+          "body": "Sie steuern, welche Währungen und Netzwerke aktiv sind, von Ihrem Dynopay-Dashboard aus. Aktivieren Sie die Vermögenswerte, die Sie akzeptieren möchten, bestätigen Sie, dass Sie eine Empfangsbrieftasche für jeden haben, und sie erscheinen als Optionen beim Checkout. Sie können diese Liste jederzeit anpassen, wenn sich Ihre Bedürfnisse ändern."
+        }
+      ]
+    },
+    "how-crypto-payments-work-for-merchants": {
+      "title": "Wie Krypto-Zahlungen für Händler funktionieren",
+      "description": "Eine klare Erklärung, was passiert, vom Moment an, in dem ein Kunde bezahlt, bis die Gelder abgerechnet sind.",
+      "intro": "Krypto-Zahlungen können sich wie eine Black Box anfühlen, wenn Sie noch nie eine getätigt haben. Dieser Artikel erklärt genau, was passiert, vom Moment, in dem ein Kunde sich entscheidet zu bezahlen, bis die abgerechneten Gelder unter Ihrer Kontrolle sind.",
+      "sections": [
+        {
+          "heading": "Die Zahlungsreise, Schritt für Schritt",
+          "bullets": [
+            "Sie teilen einen Zahlungslink, eine Rechnung oder einen gehosteten Checkout mit Ihrem Kunden.",
+            "Der Kunde wählt eine Kryptowährung und ein Netzwerk aus und sieht den genauen Betrag sowie eine Wallet-Adresse (normalerweise als QR-Code).",
+            "Er sendet die Zahlung von seiner eigenen Brieftasche oder Börse.",
+            "Dynopay erkennt die Transaktion auf der Blockchain und verfolgt ihre Bestätigungen in Echtzeit.",
+            "Sobald die Zahlung bestätigt ist, wird sie als abgeschlossen markiert und die Gelder werden der Brieftasche gutgeschrieben, die Sie kontrollieren."
+          ]
+        },
+        {
+          "heading": "Bestätigungen erklärt",
+          "body": "Eine Blockchain-Bestätigung ist das Einverständnis des Netzwerks, dass eine Transaktion gültig und endgültig ist. Dynopay wartet auf die erforderliche Anzahl von Bestätigungen für das gewählte Netzwerk, bevor eine Zahlung als abgeschlossen markiert wird. Dies schützt Sie vor Zahlungen, die später rückgängig gemacht werden könnten, weshalb Krypto-Zahlungen keine Rückbuchungen haben."
+        },
+        {
+          "heading": "Nicht verwahrend von Design",
+          "body": "Dynopay ist nicht verwahrend: Gelder werden an eine Brieftasche gesendet, die Sie kontrollieren, nicht in einem Dynopay-Konto gehalten. Sie behalten die Kontrolle die ganze Zeit und können Ihre Krypto jederzeit bewegen."
+        },
+        {
+          "heading": "Alles in Ihrem Dashboard verfolgen",
+          "body": "Jede Zahlung erscheint in Ihrem Dashboard mit ihrem Status, Betrag, Währung, Netzwerk und Bestätigungsdetails. Sie erhalten eine einzige, Echtzeit-Ansicht dessen, was bezahlt wurde, was aussteht und was abgerechnet wurde."
+        }
+      ]
+    },
+    "fees-rates-and-conversion-logic": {
+      "title": "Gebühren, Sätze & Umrechnungslogik",
+      "description": "Verstehen Sie Transaktionsgebühren, Wechselkurse und wie Auszahlungsbeträge berechnet werden.",
+      "intro": "Zu verstehen, wie Gebühren und Wechselkurse funktionieren, hilft Ihnen, korrekt zu preisen und genau zu wissen, was Sie erhalten werden. Dieser Leitfaden behandelt die Transaktionsgebühren von Dynopay, wie die Sätze gesperrt werden und wie der endgültige Betrag berechnet wird.",
+      "sections": [
+        {
+          "heading": "Transaktionsgebühren",
+          "body": "Dynopay erhebt eine einfache prozentuale Gebühr pro erfolgreicher Transaktion. Die Gebühren beginnen bei 1,5 % und sinken, wenn Ihr Verarbeitungsvolumen wächst, bis sie für Händler mit hohem Volumen auf bis zu 0,5 % sinken. Ihre erste Zahlung ist kostenlos, damit Sie den gesamten Ablauf ohne Kosten testen können."
+        },
+        {
+          "heading": "Netzwerkgebühren",
+          "body": "Getrennt von der Gebühr von Dynopay erhebt jede Blockchain ihre eigene Netzwerk- (Gas-) Gebühr, um Gelder zu bewegen. Diese Gebühr geht an das Netzwerk, nicht an Dynopay, und variiert je nach Netzwerk und Auslastung. Die Wahl eines effizienten Netzwerks hält diese Kosten für Sie und Ihre Kunden niedrig."
+        },
+        {
+          "heading": "Wie Wechselkurse angewendet werden",
+          "bullets": [
+            "Wenn Sie in einer Fiat-Währung preisen, konvertiert Dynopay den Betrag zum gewählten Krypto unter Verwendung eines aktuellen Marktpreises beim Checkout.",
+            "Der Kurs wird dem Kunden angezeigt, damit er genau weiß, wie viel Krypto er senden muss.",
+            "Die Zahlung in einem Stablecoin hält den erhaltenen Betrag nahe am in Rechnung gestellten Betrag und vermeidet Volatilität."
+          ]
+        },
+        {
+          "heading": "Was Sie tatsächlich erhalten",
+          "body": "Der Betrag, der Ihrer Brieftasche gutgeschrieben wird, ist der Zahlungsbetrag abzüglich der anfallenden Dynopay-Gebühr. Da Dynopay nicht verwahrend ist, gehört die abgerechnete Krypto sofort Ihnen — es gibt keine Wartezeit, die von Dynopay auferlegt wird, bevor Sie sie verwenden können."
+        }
+      ]
+    },
+    "wallets-payouts-and-settlement-options": {
+      "title": "Brieftaschen, Auszahlungen & Abrechnungsoptionen",
+      "description": "Erfahren Sie, wohin Ihre Gelder gehen, wie Auszahlungen funktionieren und welche Abrechnungsoptionen verfügbar sind.",
+      "intro": "Wohin Ihr Geld nach einer Zahlung geht, ist eine der wichtigsten Dinge, die korrekt eingerichtet werden müssen. Dieser Artikel erklärt Empfangsbrieftaschen, wie die Abrechnung funktioniert und welche Auszahlungsoptionen Ihnen zur Verfügung stehen.",
+      "sections": [
+        {
+          "heading": "Ihre Empfangsbrieftaschen",
+          "body": "Für jede Kryptowährung, die Sie akzeptieren, verbinden Sie eine Brieftaschenadresse, die Sie kontrollieren. Zahlungen für dieses Asset werden direkt an diese Adresse abgerechnet. Da Dynopay Ihre Gelder niemals hält, behalten Sie jederzeit die volle Kontrolle."
+        },
+        {
+          "heading": "Wie die Abrechnung funktioniert",
+          "body": "Wenn eine Zahlung die erforderliche Anzahl von Bestätigungen erreicht, wird sie automatisch an Ihre verbundene Brieftasche abgerechnet. Es gibt keinen manuellen Abhebungsprozess und keine von Dynopay auferlegte Haltefrist — die Gelder sind bereits unter Ihrer Kontrolle."
+        },
+        {
+          "heading": "Abrechnungsoptionen",
+          "bullets": [
+            "Halten Sie Gelder in der Krypto, in der sie bezahlt wurden, direkt in Ihrer verbundenen Brieftasche.",
+            "Akzeptieren Sie Stablecoins, um einen an den Dollar gebundenen Saldo zu halten und Volatilität zu vermeiden.",
+            "Verwenden Sie unterschiedliche Brieftaschen für verschiedene Vermögenswerte, um Ihre Kasse so zu organisieren, wie Sie es bevorzugen."
+          ]
+        },
+        {
+          "heading": "Brieftaschen sicher verwalten",
+          "body": "Überprüfen Sie jede Brieftaschenadresse doppelt, wenn Sie sie hinzufügen, und stellen Sie sicher, dass Sie die privaten Schlüssel oder das Konto dahinter kontrollieren. Eine Zahlung, die an eine Adresse gesendet wird, ist endgültig, daher ist eine genaue Brieftelleneinrichtung unerlässlich. Sie können Ihre Empfangsbrieftaschen im Dashboard jederzeit aktualisieren, wenn Sie es benötigen."
+        }
+      ]
+    },
+    "invoices-checkout-and-payment-links": {
+      "title": "Rechnungen, Checkout & Zahlungslinks",
+      "description": "Erstellen Sie Rechnungen, Zahlungslinks und angepasste Checkout-Erlebnisse für Ihr Unternehmen.",
+      "intro": "Dynopay bietet Ihnen mehrere Möglichkeiten, eine Krypto-Zahlung anzufordern und zu sammeln, ohne Code schreiben zu müssen. Dieser Leitfaden behandelt Zahlungslinks, Rechnungen und den gehosteten Checkout und wann Sie jeden verwenden sollten.",
+      "sections": [
+        {
+          "heading": "Zahlungslinks",
+          "body": "Ein Zahlungslink ist der schnellste Weg, um bezahlt zu werden. Erstellen Sie einen Link für einen festen oder vom Kunden eingegebenen Betrag und teilen Sie ihn per E-Mail, Chat oder sozialen Medien. Wenn der Kunde ihn öffnet, sieht er einen bereit zum Bezahlen Checkout — kein Konto erforderlich."
+        },
+        {
+          "heading": "Rechnungen",
+          "body": "Rechnungen sind ideal, wenn Sie einen klaren Nachweis benötigen, der mit einem bestimmten Kunden oder Auftrag verbunden ist. Fügen Sie Positionen und einen Gesamtbetrag hinzu, senden Sie die Rechnung und verfolgen Sie ihren Status von Entwurf bis bezahlt in Ihrem Dashboard."
+        },
+        {
+          "heading": "Gehosteter Checkout",
+          "body": "Der gehostete Checkout ist eine sichere, von Dynopay gehostete Zahlungsseite. Kunden wählen eine Währung und ein Netzwerk aus, sehen den genauen Betrag und einen QR-Code und bezahlen mit wenigen Klicks. Er kümmert sich um die Anzeige des Kurses, die Auswahl des Netzwerks und die Verfolgung der Bestätigungen für Sie."
+        },
+        {
+          "heading": "Welchen sollten Sie verwenden?",
+          "bullets": [
+            "Verwenden Sie einen Zahlungslink für schnelle, einmalige Anfragen und zum Teilen.",
+            "Verwenden Sie eine Rechnung, wenn Sie detaillierte, kundenspezifische Aufzeichnungen benötigen.",
+            "Verwenden Sie den gehosteten Checkout, wenn Sie ein poliertes, markenbezogenes Zahlungserlebnis wünschen, auf das Sie Kunden hinweisen können."
+          ]
+        }
+      ]
+    },
+    "api-and-integrations": {
+      "title": "API & Integrationen",
+      "description": "Integrieren Sie Dynopay in Ihre Website, App oder SaaS mit unserer API und vorgefertigten Tools.",
+      "intro": "Wenn Sie Krypto-Zahlungen direkt in Ihre Website, App oder SaaS integrieren möchten, bietet Dynopay eine API und vorgefertigte Tools. Dieser Leitfaden erklärt die Integrationsoptionen und wie Sie loslegen können.",
+      "sections": [
+        {
+          "heading": "No-Code- und Low-Code-Optionen",
+          "bullets": [
+            "Zahlungslinks und Kauf-Buttons ermöglichen es Ihnen, Zahlungen mit einem Copy-and-Paste-Snippet zu akzeptieren — kein Backend erforderlich.",
+            "Der gehostete Checkout kümmert sich um den gesamten Zahlungsablauf auf von Dynopay gehosteten Seiten.",
+            "Diese Optionen sind der schnellste Weg, um live zu gehen und decken die häufigsten Anwendungsfälle ab."
+          ]
+        },
+        {
+          "heading": "Die Dynopay API",
+          "body": "Für volle Kontrolle ermöglicht die API Ihnen, Zahlungen zu erstellen, Checkouts zu generieren und den Zahlungsstatus programmgesteuert abzurufen. Sie authentifizieren sich mit API-Schlüsseln, die in Ihrem Dashboard generiert werden, und Sie behalten Ihren geheimen Schlüssel auf Ihrem Server, niemals im Client-Code."
+        },
+        {
+          "heading": "Webhooks",
+          "body": "Webhooks benachrichtigen Ihr System in Echtzeit, wenn sich der Status einer Zahlung ändert — zum Beispiel, wenn sie bestätigt wird. Richten Sie einen Webhook auf einen Endpunkt auf Ihrem Server ein, damit Sie Bestellungen erfüllen, Zugänge freischalten oder Aufzeichnungen automatisch aktualisieren können, sobald eine Zahlung abgerechnet wird."
+        },
+        {
+          "heading": "Erste Schritte mit der API",
+          "bullets": [
+            "Generieren Sie einen API-Schlüssel im Entwicklerbereich Ihres Dashboards.",
+            "Überprüfen Sie die Dokumentation für die Endpunkte, die Sie benötigen.",
+            "Testen Sie mit einer kleinen Transaktion, bevor Sie live gehen, und verifizieren Sie, dass Ihr Webhook das Bestätigungsereignis erhält."
+          ]
+        }
+      ]
+    },
+    "security-and-transaction-safety": {
+      "title": "Sicherheit & Transaktionssicherheit",
+      "description": "Erfahren Sie, wie Dynopay Transaktionen, Gelder und Händlerinformationen schützt.",
+      "intro": "Sicherheit steht im Mittelpunkt, wie Dynopay aufgebaut ist. Dieser Artikel erklärt, wie Dynopay Transaktionen, Gelder und Ihr Konto schützt und welche Schritte Sie unternehmen können, um sicher zu bleiben.",
+      "sections": [
+        {
+          "heading": "Nicht verwahrende Gelder",
+          "body": "Da Dynopay nicht verwahrend ist, werden Ihre Gelder direkt an Brieftaschen abgerechnet, die Sie kontrollieren, anstatt in einem Dynopay-Konto zu sitzen. Dies reduziert das Verwahrungsrisiko erheblich — es gibt kein gemeinsames Guthaben, das ein Angreifer ins Visier nehmen könnte."
+        },
+        {
+          "heading": "Keine Rückbuchungen",
+          "body": "Bestätigte Blockchain-Zahlungen sind endgültig und können nicht rückgängig gemacht werden. Dies beseitigt den Rückbuchungsbetrug, der Kartenzahlungen plagt, und gibt Ihnen die Gewissheit, dass eine abgeschlossene Zahlung abgeschlossen bleibt."
+        },
+        {
+          "heading": "Schutz Ihres Kontos",
+          "bullets": [
+            "Verwenden Sie ein starkes, einzigartiges Passwort und halten Sie Ihre Anmeldedaten privat.",
+            "Schützen Sie Ihre API-Geheimschlüssel — speichern Sie sie auf Ihrem Server und setzen Sie sie niemals in einem Browser oder öffentlichen Repository aus.",
+            "Überprüfen Sie Brieftaschenadressen sorgfältig, da Blockchain-Überweisungen nicht rückgängig gemacht werden können.",
+            "Überprüfen Sie Ihr Dashboard regelmäßig, damit Sie unerwartete Dinge schnell erkennen können."
+          ]
+        },
+        {
+          "heading": "Datenschutz",
+          "body": "Dynopay behandelt Daten mit Verschlüsselung und folgt den besten Praktiken für Datenschutz und Compliance. Sensible Informationen sind während der Übertragung und im Ruhezustand geschützt, und Sie behalten die Kontrolle über Ihr Konto und Ihre Gelder während des gesamten Prozesses."
+        }
+      ]
+    },
+    "getting-started-with-dynopay": {
+      "title": "Erste Schritte mit Dynopay",
+      "description": "Erfahren Sie, wie Sie Ihr Konto einrichten und in wenigen Minuten Ihre erste Krypto-Zahlung annehmen."
+    }
+  },
+  "articleStubMore": "Brauchen Sie Hilfe zu diesem Thema? Unser Support-Team ist im Dashboard und unter support@dynopay.com verfügbar."
+}

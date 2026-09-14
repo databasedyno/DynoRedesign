@@ -1,0 +1,7 @@
+{
+  "landing": {
+    "v3.nav.products": {"en": "Products", "de": "Produkte", "es": "Productos", "fr": "Produits", "nl": "Producten", "pt": "Produtos"},
+    "v3.nav.pricing": {"en": "Pricing", "de": "Preise", "es": "Precios", "fr": "Tarifs", "nl": "Prijzen", "pt": "Preços"},
+    "v3.nav.security": {"en": "Security", "de": "Sicherheit", "es": "Seguridad", "fr": "Sécurité", "nl": "Veiligheid", "pt": "Segurança"}
+  }
+}

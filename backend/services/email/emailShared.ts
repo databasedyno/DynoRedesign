@@ -1,0 +1,164 @@
+import mailTransporter from "../../utils/mailTransporter";
+import config from "../../utils/config";
+import { captureError } from "../errorMonitoringService";
+import { baseEmailTemplate, getCurrencySymbol, p, type EmailHero } from "../../utils/emailTemplate";
+import { t as tr, firstNameOnly } from "../../utils/emailI18n";
+import { toFixedStr } from "../../utils/money";
+
+/** Dynamic base URL for all email CTA links — uses FRONTEND_URL env var */
+export const FRONTEND_BASE_URL = (config.frontendUrl || 'https://dynopay.com').replace(/\/$/, '');
+
+/**
+ * Escape untrusted strings for embedding in HTML email bodies.
+ */
+export const escapeHtml = (s: string | null | undefined): string => {
+  if (s == null) return "";
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+};
+
+/**
+ * Dynopay Unified Email Service — shared template helpers
+ * Single source of truth for all email notifications
+ * Provider: Brevo
+ * Uses shared base template from utils/emailTemplate.ts
+ */
+
+// ============================================================
+// SECTION 1: TEMPLATE HELPERS
+// ============================================================
+
+/**
+ * Primary email template wrapper with optional button support.
+ * Used by platform lifecycle emails (welcome, profile, KYC, etc.)
+ */
+export const dynoPayEmailTemplate = (
+  heading: string,
+  content: string,
+  showButton: boolean = false,
+  buttonText: string = "",
+  buttonLink: string = "",
+  preheader: string = "",
+  /** Recipient language — localizes the shared sign-off/footer chrome. Omit for English. */
+  lang?: string | null,
+  /** Per-action hero icon above the heading (see utils/emailTemplate EmailHero). */
+  hero?: EmailHero
+) => {
+  return baseEmailTemplate(heading, content, { showButton, buttonText, buttonLink, preheader, lang: lang || undefined, hero });
+};
+
+/**
+ * Email template wrapper that includes a greeting.
+ * Used by payment lifecycle emails (payment received, admin fees, conversions, etc.)
+ * Also used by diagnosticsRouter for test email rendering.
+ */
+export const dynoPayGreetingTemplate = (
+  name: string,
+  message: string,
+  heading: string,
+  _showImage: boolean = false,
+  lang?: string,
+  preheader?: string,
+  hero?: EmailHero,
+  cta?: { text: string; link: string }
+) => {
+  const cleanName = (name || '').trim();
+  // Never greet someone by their raw email address: if we only know the email
+  // (or the "name" is actually an email), fall back to a friendly generic
+  // greeting ("Hey there," / localized) instead of "Hey buyer@example.com,".
+  const hasRealName = cleanName.length > 0 && !cleanName.includes('@');
+  const greeting = p(
+    hasRealName
+      ? tr('common.greeting', lang, { name: cleanName })
+      : tr('common.greetingDefault', lang)
+  );
+  const bodyContent = `${greeting}<div style="font-size: 15px; color: #374151; line-height: 1.65; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${message}</div>`;
+  return baseEmailTemplate(heading, bodyContent, {
+    lang,
+    preheader,
+    hero,
+    showButton: !!cta,
+    buttonText: cta?.text,
+    buttonLink: cta?.link,
+  });
+};
+
+/**
+ * Greeting paragraph. Uses the recipient's name only when it is a REAL name —
+ * never an e-mail address or its local part ("Hey moxxcompany,"); otherwise the
+ * localized generic greeting ("Hey there,").
+ */
+export const greetingLine = (lang: string | undefined | null, name?: string | null): string => {
+  const clean = (name || '').trim();
+  const hasRealName = clean.length > 0 && !clean.includes('@');
+  return p(hasRealName ? tr('common.greeting', lang || undefined, { name: clean }) : tr('common.greetingDefault', lang || undefined));
+};
+
+export const formatAmountWithCurrency = (amount: number, currency: string = 'USD'): string => {
+  const symbol = getCurrencySymbol(currency);
+  return `${symbol}${toFixedStr(amount, 2)} ${currency}`;
+};
+
+/**
+ * Prefix a MERCHANT notification subject with the brand name so a multi-brand
+ * merchant can tell, straight from their inbox, which brand an email is about.
+ * Language-neutral ("Brand · Localised subject"); a safe no-op when the brand
+ * name is missing or already present in the subject (avoids doubling).
+ */
+export const brandSubject = (
+  companyName: string | null | undefined,
+  subject: string,
+): string => {
+  const brand = (companyName || '').trim();
+  if (!brand) return subject;
+  if (subject.includes(brand)) return subject;
+  return `${brand} · ${subject}`;
+};
+
+/**
+ * Format a crypto/fiat amount for display in emails WITHOUT the noisy trailing
+ * zeros that DECIMAL(20,8) DB columns produce (e.g. "3.20000000").
+ * - Stablecoins / fiat (USDT, USDC, USD, EUR, …) → exactly 2 decimals ("3.20", "220.00").
+ * - Other crypto (BTC, ETH, …) → up to 8 decimals with trailing zeros trimmed.
+ * Accepts a number or a string; returns the input unchanged if it isn't numeric.
+ */
+export const formatMoneyForEmail = (amount: number | string, currency: string = ''): string => {
+  const num = typeof amount === 'number' ? amount : parseFloat(String(amount));
+  if (!isFinite(num)) return String(amount);
+  const upper = String(currency || '').toUpperCase();
+  const isStableOrFiat = /USDT|USDC|BUSD|DAI|TUSD|PYUSD|USD|EUR|GBP|BRL|NGN|INR|CAD|AUD|JPY|ZAR/.test(upper);
+  if (isStableOrFiat) return toFixedStr(num, 2);
+  return toFixedStr(num, 8).replace(/0+$/, '').replace(/\.$/, '');
+};
+
+// ============================================================
+// SECTION 2: GENERIC EMAIL
+// ============================================================
+
+/**
+ * Send a generic email with the Dynopay template
+ */
+export const sendEmail = async (
+  recipientEmail: string,
+  name: string,
+  subject: string,
+  message: string,
+  showImage = false
+) => {
+  try {
+    const htmlBody = dynoPayEmailTemplate(subject, `${p(`Hey ${firstNameOnly(name)},`)}\n${message}`);
+    const info = await mailTransporter({
+      to: recipientEmail,
+      name,
+      subject,
+      body: htmlBody,
+    });
+    return info;
+  } catch (e) {
+    captureError(e, 'email', { extraContext: 'sendEmail (generic)' });
+  }
+};

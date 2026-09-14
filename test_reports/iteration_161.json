@@ -1,0 +1,28 @@
+{
+  "summary": "Frontend-only verification of 4 features on DynoPay preview URL: (1) referral prefill guard on /auth/register, (2) login redirect splash, (3) landing 'any country' copy + FAQ, (4) admin deleted-brands panel + restore. All 4 features verified working.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_results": {
+    "referral_guard": {
+      "marketing_tag_how_to": "PASS - referral field remained collapsed (not visible/prefilled). Body has default 'Have a referral code?' link only.",
+      "genuine_DYNO-TEST99": "PASS - referral input visible on step 2, prefilled with 'DYNO-TEST99', shows 'Get 50% off Dynopay fees for 30 days.' hint."
+    },
+    "login_splash": "PASS (with caveat) - Login as onarrival21@gmail.com/Katiekendra123@ completed via 2-step flow, landed on /dashboard. Splash element was captured in the post-submit screenshot (large pulsing 'dynopay' logo overlay visible while dashboard was still loading). DOM polling loop missed the transient element due to ~50ms polling granularity vs ~850ms splash. Login navigation to /dashboard confirmed OK.",
+    "landing_faq_and_global_copy": "PASS - FAQ question 'Can I use Dynopay from my country?' present and expands to answer: 'Almost certainly, yes. There is no country list to apply to and no bank or card network that has to approve you - if you can hold a crypto wallet, you can accept payments and settle straight to it...'. 'Global by default' band present with reworded crypto-wallet-anywhere-in-the-world copy.",
+    "admin_deleted_brands_restore": "PASS - Logged in as moxxcompany@gmail.com at /admin/login, navigated to /admin/merchants. data-testid=deleted-brands-panel visible with title 'Deleted brands · 1 pending permanent deletion'. Row data-testid=deleted-brand-row-214 showed 'ZZZ QA DeletedPanel safe to delete', ID #214, owner John Davis / onarrival21@gmail.com, '7 days left' chip, 'Purge: Sep 19, 2026'. Clicked data-testid=restore-brand-214-btn -> success toast 'Restored \"ZZZ QA DeletedPanel safe to delete\".' appeared, row and panel disappeared (panel auto-hid since it was the only deleted brand)."
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "100%"},
+  "test_credentials": "Merchant: onarrival21@gmail.com / Katiekendra123@; Admin: moxxcompany@gmail.com / Katiekendra123@",
+  "seed_data_creation": "None. Used pre-seeded soft-deleted brand company_id=214 which is now restored (active) as expected per task note.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Brand 214 'ZZZ QA DeletedPanel safe to delete' was restored to active during this test as an expected side-effect. Main agent will re-soft-delete or clean up. All 4 frontend surfaces are confirmed working end-to-end against the preview URL."
+}

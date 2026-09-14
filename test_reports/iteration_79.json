@@ -1,0 +1,56 @@
+{
+  "summary": "Frontend-only verification of the useStorefrontProfile double-'.data' unwrap fix for merchant 'hostbay' (who already owns handle 'hostbay'). Logged in via /auth/login with provided JWT credentials and verified dashboard + /storefront. All P0 assertions PASS. No console/page runtime errors.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verification_results": {
+    "dashboard": {
+      "url": "/dashboard",
+      "claim-handle-banner_testid_present": false,
+      "claim-banner-cta_testid_present": false,
+      "text_contains_Reserve_hostbay": false,
+      "text_contains_Claim_now": false,
+      "text_contains_Reserve": false,
+      "Grow_with_Dynopay_present": true,
+      "Volume_chart_present": true,
+      "Fee_tier_progress_present": true,
+      "creator_card_testids_found": 0,
+      "notes": "No creator-card testid elements were found on the dashboard (may not render for this merchant layout, or testid differs). Dashboard right column shows 'Fee tier progress' and 'Grow with Dynopay' correctly. Header dashboard actions include Open wallet, Payment links, Creator page, Transactions."
+    },
+    "storefront": {
+      "url": "/storefront",
+      "Your_creator_page_is_live_present": true,
+      "@hostbay_present": true,
+      "/hostbay_present": true,
+      "Support_present": true,
+      "Tips_present": true,
+      "Products_tab_visible_in_DOM": true,
+      "Share_tab_visible_in_DOM": true,
+      "Claim_your_handle_present": false,
+      "Reserve_present": false,
+      "Claim_now_present": false,
+      "claim-banner-cta_testid_present": false,
+      "claim-handle-banner_testid_present": false,
+      "notes": "Storefront Page tab shows green 'Your creator page is live' status pill with public URL '/hostbay', totals (195 visits / 7 this week / 0 supporters), and Live Preview panel showing '@hostbay'. No claim CTA anywhere."
+    },
+    "console_errors": 0,
+    "page_errors": 0
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Products/Share tabs on /storefront are rendered as buttons but Playwright role=tab/button:has-text selectors did not match — likely a custom radix-style toggle group without role='tab'. Consider adding data-testids like 'storefront-tab-page', 'storefront-tab-products', 'storefront-tab-share' for testability.",
+    "CreatorPageCard: no data-testid starting with 'creator-card' was found in the DOM on the hostbay dashboard. If the card is expected to render for merchants with handles, verify the testid is applied; if the card intentionally does not render in this layout, this is fine but should be documented."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "100% (all P0 assertions pass)"},
+  "test_credentials": "hostbay@moxx.co / Katiekendra123@ (LIVE PROD DB — read only)",
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Login route is /auth/login (reached by clicking 'Sign in' on landing page). Selectors: [data-testid='login-email-input'] → press Enter → [data-testid='password-input'] → [data-testid='signin-submit-btn']. Dashboard route: /dashboard. Storefront route: /storefront. Products/Share tab elements exist visually but do not respond to role=tab/button:has-text selectors — needs data-testids.",
+  "rca of the issue": "Root cause was useStorefrontProfile.ts using raw?.data?.data (double unwrap of axios response.data.data) so the select() returned null even when the API returned handle='hostbay'. Consumers (ClaimHandleBanner, CreatorPageCard, PageTab) then treated the merchant as un-claimed and rendered claim CTAs. Fix: change select() to raw?.data. Post-fix verification: dashboard and /storefront both correctly reflect the live/published state; no claim CTA is rendered anywhere for hostbay."
+}

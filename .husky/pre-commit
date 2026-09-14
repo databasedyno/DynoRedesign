@@ -1,0 +1,28 @@
+# Husky pre-commit hook — see scripts/preflight-tsc.sh for rationale.
+# This runs on every `git commit` unless bypassed with --no-verify.
+#
+# Fast path: skips entirely when no backend TS/config files are staged
+# (typical frontend-only commits pay <1s). Full run <20s on cold cache.
+#
+# Husky v9 auto-runs hooks; no sourcing required.
+
+sh scripts/preflight-tsc.sh
+
+# R2 lint budget (memory/ENGINEERING_STRATEGY_REVIEW_2026-08.md): NEW backend
+# files must stay <= 500 lines; legacy files are grandfathered in
+# backend/scripts/file-size-baseline.json. Blocks only on new-file violations.
+node backend/scripts/check-file-size.mjs
+
+# Secrets guard (added 2026-08 after live keys in tracked files blocked GitHub
+# pushes via push protection GH013): scans STAGED files for high-confidence
+# credential patterns. Real values belong only in gitignored .env files.
+node scripts/check-secrets.mjs
+
+# Dark-mode brand-foreground contrast guardrail (warn-only in hook so
+# Save-to-GitHub is never blocked; strict in CI via `yarn lint` / `yarn lint:contrast`).
+node scripts/check-contrast.mjs --hook || true
+
+# Email dark-mode guard (2026-06, after the unreadable "welcome gift" email in
+# Gmail dark mode): no gradients, no unclassed light boxes, no hand-rolled
+# buttons, no "Hey <email-local-part>," greetings in email builders.
+node backend/scripts/check-email-dark-mode.mjs --hook

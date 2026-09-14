@@ -1,0 +1,42 @@
+{
+  "summary": "Frontend-only i18n verification of the Storefront page chrome + 'Page theme' picker + live-preview sample link in FRENCH on the LIVE account (hostbay@moxx.co). Logged in via /auth/login (note: /login is a 404 route), switched account language to FR via /settings?section=profile, loaded /storefront?tab=page and asserted every in-scope string. ALL in-scope items render in French with 0 raw key leaks and 0 console errors. Account language was restored to 'en' and verified with /app/tests/verify_language_en.py (LANGUAGE = en, PASS).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verified_french_renders": {
+    "page_title": "Vitrine",
+    "subtitle": "Votre page Dynopay — pourboires, produits et liens de paiement derrière un seul lien.",
+    "tabs": "storefront-tab-page='Page', -products='Produits', -share='Partager'",
+    "storefront-open-page": "Voir ma page",
+    "storefront-company-hint": "Modification de la vitrine de hostbay (company name rendered in a styled <span> with fontWeight 700 -> visually bold; NO literal '<b>' text in DOM). Note: b/strong tag count is 0 because the Trans component maps 'b' to a MUI Box span - expected, not a defect.",
+    "page_theme_section": "'Thème de la page' + French description; 'Votre page publique' label",
+    "theme_picker": "'Bouton d'accent' preview chip, 'COULEUR D'ACCENT', 'STYLE DE COUVERTURE', tiles Uni/Dégradé/Image/Motif (cover-style-solid/gradient/image/pattern), 'PRÉRÉGLAGE DE DÉGRADÉ' after selecting the gradient tile, theme-reset='Réinitialiser par défaut'",
+    "live_preview": "'Vos liens de paiement apparaissent ici' + 'Lien réutilisable · tout montant'",
+    "raw_key_leaks": "none (regex /storefront\\.[A-Za-z]+/ over body text = empty)",
+    "console_errors": "0 across Page / Products / Share tabs"
+  },
+  "out_of_scope_english_observed": [
+    "CreatorPageSettings (data-testid=creator-settings): helper text '(shown at the top of your public page)' still hardcoded English; also the row actions Edit / Copy / QR / View next to the public URL.",
+    "StorefrontComparePanel (data-testid=storefront-compare-panel): 'Compare storefronts' heading and 'No storefront yet' row label still hardcoded English.",
+    "Buyer-facing widget defaults ('Support me') intentionally untranslated - not flagged."
+  ],
+  "test_report_links": ["/app/tests/verify_language_en.py"],
+  "action_items": [
+    "No blocking issues for this round. Optional next i18n pass: wrap CreatorPageSettings helper text '(shown at the top of your public page)' + Edit/Copy/QR/View actions and StorefrontComparePanel strings ('Compare storefronts', 'No storefront yet')."
+  ],
+  "critical_code_review_comments": [
+    "All 6 locales (en/pt/fr/es/de/nl) contain the same 23 storefront.* keys - verified by key-set diff, no missing keys.",
+    "Every t() call in the touched components carries a defaultValue, so a missing key would degrade to English rather than leaking a raw key - good practice."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not tested", "frontend": "100%"},
+  "seed_data_creation": "none - read-only verification against LIVE DB; only the account language field was toggled fr -> en and restored.",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "test_credentials": "hostbay@moxx.co / Katiekendra123@ (login route is /auth/login, NOT /login)",
+  "context_for_next_testing_agent": "Login route = /auth/login (2-step: login-email-input -> 'Continue' -> password-input -> signin-submit-btn, ~13s). Language switch persists to the LIVE account; ALWAYS restore to en at the end and assert with `python3 /app/tests/verify_language_en.py`. Remaining untranslated storefront strings: creator-settings helper text/row actions, storefront-compare-panel, Products & Share tab bodies.",
+  "rca_of_the_issue": "N/A - no defects found in the tested scope."
+}

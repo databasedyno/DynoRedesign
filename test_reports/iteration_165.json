@@ -1,0 +1,31 @@
+{
+  "summary": "Iter165 regression: all 5 review items pass end-to-end. Backend (7/7 pytest): /api/pay/og-image returns valid 1200x630 PNG for demo=1, shop=jltvisuals (>80KB, larger due to logo), shop=devhub; unknown params and ?shop=___no_such_handle___ both 302-redirect to /og/dynopay-og.png; /api/user/getSupportedCurrency and /api/user/getSingleTransaction/:id both return 401 with full envelope {success:false, message, error:{type:'authentication_error', code:'api_key_missing', doc_url, request_id}} and canonical 'Request-Id' response header equal to error.request_id — the legacyApiAuthMiddleware envelope gap flagged in iter164 is now RESOLVED. Frontend: donation-demo 'Ending soon' shows red urgency banner data-testid=donation-urgency-banner with 'Only 7h left — help it reach the goal' and countdown pill data-testid=donation-countdown-pill with data-severity='critical' reading 'Ends in 7h 59m'; 'Crowdfunding (goal)' hides the urgency banner (count=0); 'Goal reached' hides BOTH banner and countdown pill (both count=0); zero 'Invalid prop children supplied to ForwardRef(Box)' warnings across scenarios. SSR head on /jltvisuals/shop and /jltvisuals: og:image and twitter:image both end with '/api/pay/og-image?shop=jltvisuals' (not the default). /documentation contains 'Error codes' section listing api_key_missing/amount_below_minimum/currency_not_available/idempotency_key_reused and an 'Idempotent retries' section referencing Idempotency-Key + Idempotent-Replay.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter165_share_cards_and_envelope.py",
+    "/app/test_reports/pytest/iter165.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Envelope parity between apiKeyOnlyMiddleware and legacyApiAuthMiddleware is now achieved; consider consolidating both into one implementation in a future cleanup to prevent drift.",
+    "og-image endpoint could benefit from a stale-while-revalidate cache header for social scrapers, but review explicitly allows Cache-Control override — no action needed."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter165_share_cards_and_envelope.py",
+    "/app/test_reports/iteration_165.json"
+  ],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "seed_data_creation": "None. SAFE MODE respected — read-only prod DB, no writes.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "iter165 verified all 5 items in the review request. Cold-start 503 was observed once; retry after ~15-20s (as noted). getSingleTransaction envelope gap from iter164 is now fixed — legacyApiAuthMiddleware emits the new envelope + Request-Id header. Real handles that render logo-rich share cards: jltvisuals (~130-160KB, logo); devhub (smaller, no/generic logo). Fallback: any missing shop -> 302 /og/dynopay-og.png.",
+  "rca of the issue": "N/A — all 7 backend tests and all frontend assertions passed on first successful run post-cold-start."
+}

@@ -1,0 +1,46 @@
+{
+  "summary": "Frontend-only testing (LIVE prod, hostbay@moxx.co) of iteration 46 onboarding/polish: (1) Guided First-Run SPOTLIGHT on Quick Actions Customize pencil, (2) One-time REORDER HINT tooltip on QA tiles, (3) Storefront empty states on /pay-links/products and /customers, (4) DND regression under new MUI Tooltip wrapper, (5) Mobile 390x844 responsive checks, (6) Cross-page regression navigation. ALL FEATURES PASS. Spotlight tooltip 'Personalize & reorder your shortcuts' anchored at dash2026-qa-spotlight shows on first load with fresh localStorage; clicking dash2026-qa-customize opens the dialog AND sets localStorage dp_qa_customize_spotlight_v1='1'; after reload the tooltip does NOT reappear. After the spotlight is dismissed, hovering a QA tile triggers maybeShowReorderHint which sets dp_qa_reorder_hint_v1='1' (screenshot captures the MUI 'Hold & drag to reorder' tooltip anchored to the pencil area); reload confirms it does not reappear. DND regression: long-press (~400ms) + 20-step drag reorders tiles from [paylinks,invoice,wallet,creator] to [invoice,wallet,paylinks,creator] and PERSISTS across reload (PUT /api/user/dashboard-quick-actions). A quick tap on dash2026-qa-invoice still navigates to /invoices. Products empty: intercepted **/api/products?** with items:[], data-testid='products-empty' renders with headline 'Sell your first product' and primary CTA products-empty-new-btn that navigates to /pay-links/products/new. Customers empty: intercepted **/api/userApi/customers** with customers:[]/total:0/pages:1; 'No customers yet' visible, PRIMARY CTA data-testid='customers-empty-primary-cta' labelled 'Create a payment link' navigates to /create-pay-link. Mobile 390x844: QA remains a 2x2 grid (uniqueX=2 uniqueY=2), no horizontal overflow on dashboard, products-empty, customers-empty. Regression nav across dashboard/products/customers/referrals/invoices/wallets: 0 pageerrors. FINAL state RESTORED to default [paylinks, invoice, wallet, creator] via Reset-to-default + Save.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/test_reports/iteration_46.json"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "QuickActionsDock: the controlled MUI <Tooltip> wrapper around the dnd-kit sortable grid does NOT break drag activation — long-press (~400ms exceeds 220ms PointerSensor delay) still reorders and persists. Quick taps still fire router.push. Great composition.",
+    "Spotlight logic correctly gates on localStorage dp_qa_customize_spotlight_v1 and is dismissed on openDialog (pencil click). Verified reload does not re-show. onDragStart also cleanly hides the reorder tooltip.",
+    "Customers empty-state secondary CTAs use router.push() instead of native <a href>. Not a bug, but adding data-testid='customers-empty-docs-cta' / 'customers-empty-keys-cta' would make them easier to test than depending on text content. (Primary CTA already has data-testid — good.)",
+    "Products empty-state matches the design brief: icon badge + headline + subline + primary CTA with data-testid. Clean."
+  ],
+  "updated_files": [],
+  "success_rate": { "backend": "n/a (skipped)", "frontend": "100% (15/15 critical assertions PASS)" },
+  "test_credentials": "hostbay@moxx.co / Katiekendra123@ (from /app/memory/test_credentials.md, LIVE prod DB). Login flow: /auth/login -> email -> Continue -> password -> [data-testid='signin-submit-btn'].",
+  "seed_data_creation": "None. Only benign writes: two PUT /api/user/dashboard-quick-actions (drag reorder + Reset-to-default+Save). FINAL DB state = DEFAULT [paylinks, invoice, wallet, creator]. localStorage flags dp_qa_customize_spotlight_v1='1' and dp_qa_reorder_hint_v1='1' set on the test browser (device-local, non-DB).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Iteration 46 verified end-to-end. Reproducible pattern for next agent: (a) clear localStorage dp_qa_* keys and reload /dashboard -> spotlight tooltip 'Personalize & reorder your shortcuts' renders anchored to data-testid='dash2026-qa-spotlight' and pencil data-testid='dash2026-qa-customize' has the highlight; clicking pencil sets dp_qa_customize_spotlight_v1='1'. (b) After spotlight dismissed, hover any a[data-testid^='dash2026-qa-'] -> maybeShowReorderHint sets dp_qa_reorder_hint_v1='1' (tooltip text 'Hold & drag to reorder' — note: at times the MUI Tooltip title is rendered in a portal and may not appear in document.body.innerText immediately, so assert on the localStorage flag being set AND take a screenshot). (c) DND: mouse.down at tile center + wait 400ms (exceeds 220ms) + 20-step move + mouse.up reorders tiles; PUT /api/user/dashboard-quick-actions persists across reload. Quick click still navigates. (d) Empty states: intercept **/api/products?** (body.data.items=[]) and **/api/userApi/customers** (body.data.customers=[], total=0, pages=1) and fulfill. Assert data-testid='products-empty' + 'products-empty-new-btn' -> /pay-links/products/new; 'customers-empty-primary-cta' -> /create-pay-link. Customers secondary CTAs are onClick router.push (NOT <a href>) — select by text 'View API documentation' / 'Get API keys' if needed. (e) Mobile 390x844 QA 2x2 grid (uniqueX=2 uniqueY=2), no overflow. Final state restored to default order. SAFETY: LIVE prod DB — only touch hostbay dashboard_quick_actions preference; restore to default at end.",
+  "detailed_results": {
+    "login": "PASS",
+    "spotlight_tooltip_visible_first_load": "PASS",
+    "spotlight_pencil_highlighted": "PASS",
+    "spotlight_click_dismisses_and_sets_flag": "PASS (dp_qa_customize_spotlight_v1='1')",
+    "spotlight_not_reappearing_on_reload": "PASS",
+    "reorder_hint_fires_on_hover_flag_set": "PASS (dp_qa_reorder_hint_v1='1')",
+    "reorder_hint_not_reappearing_on_reload": "PASS",
+    "dnd_long_press_reorders": "PASS ([paylinks,invoice,wallet,creator] -> [invoice,wallet,paylinks,creator])",
+    "dnd_reorder_persists_across_reload": "PASS",
+    "tap_navigate_still_works": "PASS (dash2026-qa-invoice -> /invoices)",
+    "products_empty_state_renders": "PASS (data-testid='products-empty' + headline 'Sell your first product')",
+    "products_empty_cta_navigates": "PASS (-> /pay-links/products/new)",
+    "customers_empty_state_renders": "PASS ('No customers yet')",
+    "customers_empty_primary_cta_navigates": "PASS ('Create a payment link' -> /create-pay-link)",
+    "mobile_qa_2x2_grid": "PASS (uniqueX=2 uniqueY=2)",
+    "mobile_no_overflow_dashboard": "PASS",
+    "mobile_no_overflow_products_empty": "PASS",
+    "mobile_no_overflow_customers_empty": "PASS",
+    "regression_nav_no_fatal_errors": "PASS (dashboard, products, customers, referrals, invoices, wallets)",
+    "final_default_order_restored": "PASS ([paylinks, invoice, wallet, creator])"
+  }
+}

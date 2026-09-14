@@ -1,0 +1,55 @@
+{
+  "meta_title": "Acceptez les paiements en crypto pour votre magasin · Dynopay",
+  "meta_description": "Acceptez les paiements en crypto pour votre magasin avec un paiement hébergé, des liens de paiement et une vitrine. Les fonds sont directement réglés sur votre portefeuille. Commencez gratuitement en 10 minutes.",
+  "h1": "Acceptez les paiements en crypto pour votre magasin avec un paiement hébergé et des liens de paiement",
+  "subheading": "Vendez des produits et collectez des paiements en plus de 15 cryptomonnaies. Chaque transaction est directement réglée sur votre portefeuille—Dynopay ne conserve jamais vos fonds.",
+  "intro_paragraph": "Dynopay offre aux vendeurs en ligne un kit complet de commerce crypto : pages de paiement hébergées, liens de paiement sans code, et une vitrine complète pour vendre des produits en Bitcoin, Ethereum, Solana, stablecoins, et plus de 15 autres cryptomonnaies. Comme Dynopay est non-custodial, chaque paiement arrive directement dans votre propre portefeuille en quelques minutes—aucune période de détention intermédiaire, aucune demande de retrait, et aucun rétrofacturation. Vous payez des frais de plateforme commençant à 1,5 % qui tombent à 0,5 % à mesure que votre volume augmente, sans frais mensuels ni coûts d'installation.",
+  "features": [
+    {
+      "title": "Règlement de paiement non-custodial",
+      "description": "Chaque paiement crypto de vos clients arrive directement dans votre propre portefeuille. Dynopay ne conserve, ne gèle ni ne contrôle vos fonds, vous gardez donc la pleine propriété et pouvez déplacer de l'argent quand vous le souhaitez."
+    },
+    {
+      "title": "Paiement hébergé et liens de paiement",
+      "description": "Générez une page de paiement ou un lien de paiement partageable en quelques secondes—aucun codage requis. Les clients paient en leur crypto préférée, et vous recevez le règlement dans l'actif de votre choix, y compris la conversion automatique en stablecoins."
+    },
+    {
+      "title": "Structure de frais basée sur le volume",
+      "description": "Votre premier paiement est complètement gratuit. Après cela, les frais commencent à 1,5 % plus un dollar par transaction et tombent automatiquement à 0,5 % à mesure que votre volume réglé augmente, sans frais mensuels ni charges cachées."
+    }
+  ],
+  "how_it_works": [
+    "Inscrivez-vous avec votre email, vérifiez votre compte et créez votre profil d'entreprise en moins de trois minutes.",
+    "Ajoutez votre adresse de portefeuille de paiement pour toute chaîne supportée—Bitcoin, Ethereum, Solana, Tron, Polygon, ou XRP Ledger.",
+    "Créez un lien de paiement ou intégrez le widget de paiement sur votre site et commencez à accepter les paiements en crypto immédiatement."
+  ],
+  "faqs": [
+    {
+      "question": "Quelles cryptomonnaies mon magasin peut-il accepter avec Dynopay ?",
+      "answer": "Dynopay prend en charge plus de 15 cryptomonnaies, y compris Bitcoin, Ethereum, Solana, Litecoin, Dogecoin, XRP, Tron, Polygon, et des stablecoins comme USDT, USDC, et RLUSD sur plusieurs chaînes. Vous choisissez quels actifs accepter et quel portefeuille reçoit le règlement."
+    },
+    {
+      "question": "Combien Dynopay facture-t-il pour accepter les paiements en crypto ?",
+      "answer": "Votre premier paiement est complètement gratuit. Après cela, les frais commencent à 1,5 % plus un dollar par transaction réussie et tombent automatiquement à 0,5 % à des volumes plus élevés. Il n'y a pas de frais mensuels, de coûts d'installation, ni de charges cachées, et les paiements en crypto n'ont pas de rétrofacturations."
+    },
+    {
+      "question": "Dois-je donner à Dynopay le contrôle de ma crypto ?",
+      "answer": "Non. Dynopay est non-custodial, ce qui signifie que chaque paiement est réglé directement de votre client à votre propre portefeuille. Dynopay ne conserve, ne contrôle ni n'a accès à vos fonds à aucun moment du flux de transaction."
+    },
+    {
+      "question": "Combien de temps faut-il pour commencer à accepter la crypto dans mon magasin en ligne ?",
+      "answer": "La plupart des commerçants sont opérationnels en moins de 10 minutes. Vous vous inscrivez, vérifiez votre email, ajoutez une adresse de portefeuille de paiement, et générez un lien de paiement ou intégrez le widget de paiement. Pas de longue intégration, pas d'intégration complexe requise pour les ventes de base."
+    },
+    {
+      "question": "Puis-je convertir automatiquement la crypto entrante en stablecoins ?",
+      "answer": "Oui. Dynopay propose une conversion automatique optionnelle en USDT ou USDC au moment du règlement, vous permettant d'accepter des actifs volatils comme Bitcoin ou Ethereum tout en recevant une valeur stable directement dans votre portefeuille sans échange manuel."
+    }
+  ],
+  "cta_headline": "Commencez à accepter les paiements en crypto aujourd'hui",
+  "cta_body": "Votre première transaction est complètement gratuite et vous pouvez être opérationnel en 10 minutes sans frais mensuels ni coûts d'installation.",
+  "_generated_at": "2026-08-29T14:57:11.030787Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "merchants",
+  "_display_name": "Merchants & Online Sellers"
+}

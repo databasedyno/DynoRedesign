@@ -1,0 +1,332 @@
+{
+  "helpAndSupportTitle": "Ajuda & suporte",
+  "helpAndSupportDescription": "Obtenha ajuda e dicas sobre como usar o Dynopay.",
+  "searchPlaceholder": "Pesquisar artigos...",
+  "needHelp": "Precisar de ajuda?",
+  "cllaUs": "Ligue para nós",
+  "emailUs": "Envie-nos um e-mail",
+  "emaiResponseTime": "Normalmente respondemos em até 24 horas.",
+  "chatUs": "Converse conosco",
+  "openChat": "Abra o chat",
+  "chatResponseTime": "Tempo de resposta típico: menos de 3 minutos",
+  "noResults": "Nenhum artigo encontrado. Tente um termo de pesquisa diferente.",
+  "articleNotFound": "Artigo não encontrado",
+  "backToHelpSupport": "Voltar para Ajuda e Suporte",
+  "feedbackThanks": "Obrigado pelo seu feedback!",
+  "wasArticleHelpful": "Este artigo foi útil?",
+  "gettingStarted": {
+    "step1": {
+      "title": "Passo 1. Crie a Sua Conta Dynopay",
+      "desc": "Registe-se usando o seu email de empresa e complete a configuração inicial da conta. Uma vez registado, terá acesso ao painel Dynopay onde todos os pagamentos, carteiras e definições são geridos."
+    },
+    "step2": {
+      "title": "Passo 2. Complete a Configuração Básica da Empresa",
+      "desc": "Adicione os detalhes da sua marca, como o nome da marca e o país de operação. Dependendo do seu caso de uso e volume, a Dynopay pode solicitar verificação adicional mais tarde, mas pode começar a testar pagamentos imediatamente."
+    },
+    "step3": {
+      "title": "Passo 3. Escolha as Criptomoedas Suportadas",
+      "desc": "Selecione quais criptomoedas e redes deseja aceitar. A Dynopay suporta múltiplos ativos e cadeias, permitindo que escolha as opções que melhor se adequam aos seus clientes e taxas de transação."
+    },
+    "step4": {
+      "title": "Passo 4. Configure o Seu Primeiro Pagamento",
+      "heading": "Pode aceitar pagamentos de várias maneiras:",
+      "point1": "Criar um link de pagamento",
+      "point2": "Gerar uma fatura",
+      "point3": "Usar uma página de checkout hospedada",
+      "point4": "Integrar a Dynopay via API",
+      "footer": "Para a maioria das empresas, links de pagamento ou faturas são a forma mais rápida de começar."
+    },
+    "step5": {
+      "title": "Passo 5. Receber e Rastrear Pagamentos",
+      "desc": "Uma vez que um cliente complete um pagamento, a transação aparece no seu painel com atualizações de status em tempo real. Pode rastrear confirmações, montantes e detalhes da rede num só lugar."
+    },
+    "step6": {
+      "title": "Passo 6. Configurar Pagamentos",
+      "heading": "Decida para onde devem ir os seus fundos:",
+      "point1": "Manter fundos na sua carteira de criptomoedas conectada",
+      "point2": "Configurar pagamentos automáticos ou manuais",
+      "footer": "A disponibilidade de pagamentos depende da moeda e rede selecionadas."
+    },
+    "step7": {
+      "title": "Passo 7. Teste Antes de Ir ao Vivo",
+      "desc": "Recomendamos realizar uma pequena transação de teste para garantir que tudo funciona como esperado antes de partilhar links de pagamento com os clientes."
+    },
+    "next": {
+      "title": "O Que Vem a Seguir",
+      "desc": "Após o seu primeiro pagamento ser concluído, pode:",
+      "point1": "Personalizar a experiência de checkout",
+      "point2": "Adicionar membros da equipa",
+      "point3": "Ativar integrações de API",
+      "point4": "Rever taxas e opções de liquidação",
+      "footer": "Se precisar de ajuda em qualquer etapa, o suporte da Dynopay está sempre disponível através do painel."
+    },
+    "related": {
+      "supported": {
+        "title": "Criptomoedas e Redes Suportadas",
+        "desc": "Veja quais criptomoedas e redes de blockchain a Dynopay suporta e como escolher a certa."
+      },
+      "howItWorks": {
+        "title": "Como Funcionam os Pagamentos em Cripto para Comerciantes",
+        "desc": "Uma explicação clara do que acontece desde o momento em que um cliente paga até que os fundos sejam liquidadas."
+      },
+      "fees": {
+        "title": "Taxas, Tarifas e Lógica de Conversão",
+        "desc": "Compreenda as taxas de transação, taxas de câmbio e como os montantes de pagamento são calculados."
+      }
+    },
+    "pageTitle": "Começando com a Dynopay",
+    "intro": "A Dynopay ajuda as empresas a aceitar pagamentos em cripto sem lidar com mecânicas complexas de blockchain. Este guia orienta-o através dos passos básicos para começar.",
+    "relatedArticles": "Artigos relacionados"
+  },
+  "supportChat": {
+    "greeting": "Olá, sou a Emily — a sua assistente de suporte Dynopay. Pergunte-me qualquer coisa sobre taxas, moedas suportadas, links de pagamento, carteiras ou a nossa API. Também pode anexar uma captura de ecrã e eu irei analisar. Precisa de uma pessoa? Clique no ícone de auricular acima para contactar o suporte humano.",
+    "quickFees": "Como são calculadas as taxas?",
+    "quickCoins": "Quais moedas são suportadas?",
+    "quickLinks": "Como funcionam os links de pagamento?",
+    "quickPayouts": "Como funcionam os pagamentos e a liquidação?",
+    "emojiSmileys": "Smileys",
+    "emojiGestures": "Gestos",
+    "emojiObjects": "Objetos",
+    "replyError": "Desculpe — não consegui gerar uma resposta. Por favor, tente novamente.",
+    "rateLimit": "Está a enviar mensagens um pouco rápido — por favor, aguarde um momento e tente novamente.",
+    "sendError": "Desculpe, algo correu mal ao contactar o suporte. Por favor, tente novamente em breve.",
+    "fileTooLarge": "Ficheiro demasiado grande (máx. 5MB).",
+    "uploadFailed": "Falha no upload. Por favor, tente novamente.",
+    "escalated": "Concluído — a sua conversa foi encaminhada para a nossa equipa de suporte. Um humano irá responder-lhe por email assim que possível.",
+    "escalateError": "Desculpe, a escalada não pôde ser enviada neste momento. Por favor, tente novamente mais tarde.",
+    "active": "Ativo",
+    "talkToHuman": "Falar com um humano",
+    "newConversation": "Nova conversa",
+    "closeChat": "Fechar chat",
+    "escalateIntro": "Vamos enviar esta conversa para a nossa equipa de suporte e responder-lhe por email.",
+    "emailPlaceholder": "O seu email (opcional se estiver autenticado)",
+    "contactEmailAria": "Email de contacto",
+    "notePlaceholder": "Algo a acrescentar? (opcional)",
+    "noteAria": "Nota para o suporte",
+    "sending": "A enviar…",
+    "sendToTeam": "Enviar para a equipa de suporte",
+    "uploading": "A carregar…",
+    "removeAttachment": "Remover anexo",
+    "emoji": "Emoji",
+    "insertEmoji": "Inserir emoji",
+    "attachTooltip": "Anexar imagem ou PDF (máx. 5MB)",
+    "attachFile": "Anexar um ficheiro",
+    "inputPlaceholder": "Pergunte sobre taxas, moedas, API…",
+    "messageAria": "Mensagem",
+    "sendMessage": "Enviar mensagem",
+    "closeSupportChat": "Fechar chat de suporte",
+    "chatWithSupport": "Conversar com o suporte",
+    "openSupportChat": "Abrir chat de suporte",
+    "humanBanner": "Está a conversar agora com um agente de suporte humano.",
+    "agentLabel": "Agente de suporte"
+  },
+  "articles": {
+    "supported-cryptocurrencies-and-networks": {
+      "title": "Criptomoedas e Redes Suportadas",
+      "description": "Veja quais criptomoedas e redes de blockchain a Dynopay suporta e como escolher a certa.",
+      "intro": "A Dynopay permite que você aceite uma ampla gama de criptomoedas em várias redes de blockchain. Este guia explica quais ativos e redes são suportados, como as redes diferem e como escolher as mais adequadas para o seu negócio e seus clientes.",
+      "sections": [
+        {
+          "heading": "O que você pode aceitar",
+          "body": "A Dynopay suporta as principais criptomoedas e stablecoins nas blockchains mais utilizadas. Você pode ativar os ativos que fazem sentido para seus clientes e deixar os demais desativados. Stablecoins como USDT e USDC são populares entre os negócios porque seu valor permanece próximo ao dólar americano, o que elimina a volatilidade de preços entre o momento em que um cliente paga e o momento em que os fundos chegam à sua carteira."
+        },
+        {
+          "heading": "Redes e por que elas importam",
+          "body": "O mesmo ativo pode frequentemente ser enviado por mais de uma rede. A rede que você aceita afeta a velocidade de confirmação e a taxa de rede que seu cliente paga.",
+          "bullets": [
+            "Uma única moeda (por exemplo, USDT) pode estar disponível em várias redes, cada uma com diferentes velocidades e taxas.",
+            "Redes mais rápidas e com taxas mais baixas são geralmente a melhor opção padrão para pagamentos do dia a dia.",
+            "Certifique-se sempre de que seu cliente envia fundos na mesma rede que você selecionou no checkout — enviar na rede errada pode resultar em fundos perdidos."
+          ]
+        },
+        {
+          "heading": "Escolhendo os ativos certos",
+          "body": "Escolha ativos com base no que seus clientes já possuem e quão sensível você é a movimentos de preços.",
+          "bullets": [
+            "Prefira stablecoins se você quiser que o valor recebido corresponda ao valor faturado.",
+            "Ative moedas conhecidas que seu público provavelmente usará.",
+            "Mantenha sua lista focada — oferecer menos opções claramente rotuladas reduz a confusão no checkout."
+          ]
+        },
+        {
+          "heading": "Ativando ativos no seu painel",
+          "body": "Você controla quais moedas e redes estão ativas a partir do seu painel da Dynopay. Ative os ativos que deseja aceitar, confirme que possui uma carteira receptora para cada um, e eles aparecerão como opções no checkout. Você pode ajustar esta lista a qualquer momento conforme suas necessidades mudam."
+        }
+      ]
+    },
+    "how-crypto-payments-work-for-merchants": {
+      "title": "Como funcionam os pagamentos em cripto para comerciantes",
+      "description": "Uma explicação clara do que acontece desde o momento em que um cliente paga até quando os fundos são liquidadas.",
+      "intro": "Os pagamentos em cripto podem parecer uma caixa preta se você nunca fez um. Este artigo explica exatamente o que acontece desde o momento em que um cliente decide pagar até o momento em que os fundos liquidadas estão sob seu controle.",
+      "sections": [
+        {
+          "heading": "A jornada do pagamento, passo a passo",
+          "bullets": [
+            "Você compartilha um link de pagamento, fatura ou checkout hospedado com seu cliente.",
+            "O cliente escolhe uma criptomoeda e rede e é mostrado o valor exato e um endereço de carteira (geralmente como um código QR).",
+            "Eles enviam o pagamento de sua própria carteira ou exchange.",
+            "A Dynopay detecta a transação na blockchain e rastreia suas confirmações em tempo real.",
+            "Uma vez confirmada, o pagamento é marcado como completo e os fundos são creditados na carteira que você controla."
+          ]
+        },
+        {
+          "heading": "Confirmações explicadas",
+          "body": "Uma confirmação de blockchain é a rede concordando que uma transação é válida e final. A Dynopay espera pelo número apropriado de confirmações para a rede escolhida antes de marcar um pagamento como completo. Isso protege você de pagamentos que poderiam ser revertidos mais tarde, razão pela qual os pagamentos em cripto não têm estornos."
+        },
+        {
+          "heading": "Não custodial por design",
+          "body": "A Dynopay é não custodial: os fundos são enviados para uma carteira que você controla, não mantidos em uma conta da Dynopay. Você mantém a custódia o tempo todo e pode mover sua cripto sempre que quiser."
+        },
+        {
+          "heading": "Rastreando tudo no seu painel",
+          "body": "Cada pagamento aparece no seu painel com seu status, valor, moeda, rede e detalhes de confirmação. Você obtém uma visão única e em tempo real do que foi pago, o que está pendente e o que foi liquidado."
+        }
+      ]
+    },
+    "fees-rates-and-conversion-logic": {
+      "title": "Taxas, Tarifas e Lógica de Conversão",
+      "description": "Entenda as taxas de transação, taxas de câmbio e como os valores de pagamento são calculados.",
+      "intro": "Compreender como as taxas e as taxas de câmbio funcionam ajuda você a precificar corretamente e saber exatamente o que receberá. Este guia cobre as taxas de transação da Dynopay, como as taxas são bloqueadas e como o valor final é calculado.",
+      "sections": [
+        {
+          "heading": "Taxas de transação",
+          "body": "A Dynopay cobra uma taxa percentual simples por transação bem-sucedida. As taxas começam em 1,5% e diminuem à medida que seu volume de processamento cresce, chegando a tão baixo quanto 0,5% para comerciantes de alto volume. Seu primeiro pagamento é gratuito para que você possa testar todo o fluxo sem custo."
+        },
+        {
+          "heading": "Taxas de rede",
+          "body": "Separadas da taxa da Dynopay, cada blockchain cobra sua própria taxa de rede (gas) para mover fundos. Essa taxa vai para a rede, não para a Dynopay, e varia de acordo com a rede e a congestão. Escolher uma rede eficiente mantém esses custos baixos para você e seus clientes."
+        },
+        {
+          "heading": "Como as taxas de câmbio são aplicadas",
+          "bullets": [
+            "Quando você precifica em uma moeda fiduciária, a Dynopay converte o valor para a cripto escolhida usando uma taxa de mercado ao vivo no checkout.",
+            "A taxa é mostrada ao cliente para que ele saiba exatamente quanto de cripto enviar.",
+            "Pagar em uma stablecoin mantém o valor recebido próximo ao valor faturado, evitando volatilidade."
+          ]
+        },
+        {
+          "heading": "O que você realmente recebe",
+          "body": "O valor creditado em sua carteira é o valor do pagamento menos a taxa aplicável da Dynopay. Como a Dynopay é não custodial, a cripto liquidada é sua imediatamente — não há período de espera imposto pela Dynopay antes que você possa usá-la."
+        }
+      ]
+    },
+    "wallets-payouts-and-settlement-options": {
+      "title": "Carteiras, Pagamentos e Opções de Liquidação",
+      "description": "Saiba para onde vão seus fundos, como funcionam os pagamentos e quais opções de liquidação estão disponíveis.",
+      "intro": "Para onde seu dinheiro vai após um pagamento é uma das coisas mais importantes a configurar corretamente. Este artigo explica carteiras receptores, como a liquidação funciona e as opções de pagamento disponíveis para você.",
+      "sections": [
+        {
+          "heading": "Suas carteiras receptoras",
+          "body": "Para cada criptomoeda que você aceita, você conecta um endereço de carteira que controla. Os pagamentos para esse ativo se liquidam diretamente para esse endereço. Como a Dynopay nunca mantém seus fundos, você retém a custódia total o tempo todo."
+        },
+        {
+          "heading": "Como a liquidação funciona",
+          "body": "Quando um pagamento atinge o número necessário de confirmações, ele é liquidado automaticamente para sua carteira conectada. Não há etapa de retirada manual e nenhum período de espera imposto pela Dynopay — os fundos já estão sob seu controle."
+        },
+        {
+          "heading": "Opções de liquidação",
+          "bullets": [
+            "Mantenha os fundos na cripto em que foram pagos, diretamente em sua carteira conectada.",
+            "Aceite stablecoins para manter um saldo atrelado ao dólar e evitar volatilidade.",
+            "Use carteiras diferentes para ativos diferentes para organizar seu tesouro da maneira que preferir."
+          ]
+        },
+        {
+          "heading": "Gerenciando carteiras com segurança",
+          "body": "Verifique cada endereço de carteira cuidadosamente ao adicioná-lo e certifique-se de que controla as chaves privadas ou a conta por trás dele. Um pagamento enviado para um endereço é final, portanto, a configuração precisa da carteira é essencial. Você pode atualizar suas carteiras receptoras no painel sempre que precisar."
+        }
+      ]
+    },
+    "invoices-checkout-and-payment-links": {
+      "title": "Faturas, Checkout e Links de Pagamento",
+      "description": "Crie faturas, links de pagamento e experiências de checkout personalizadas para o seu negócio.",
+      "intro": "A Dynopay oferece várias maneiras de solicitar e coletar um pagamento em cripto sem escrever nenhum código. Este guia cobre links de pagamento, faturas e o checkout hospedado, e quando usar cada um deles.",
+      "sections": [
+        {
+          "heading": "Links de pagamento",
+          "body": "Um link de pagamento é a maneira mais rápida de ser pago. Crie um link para um valor fixo ou um valor inserido pelo cliente, e depois compartilhe por e-mail, chat ou redes sociais. Quando o cliente o abre, ele vê um checkout pronto para pagamento — sem necessidade de conta."
+        },
+        {
+          "heading": "Faturas",
+          "body": "As faturas são ideais quando você precisa de um registro claro vinculado a um cliente ou pedido específico. Adicione itens e um total, envie a fatura e acompanhe seu status de rascunho a pago dentro do seu painel."
+        },
+        {
+          "heading": "Checkout hospedado",
+          "body": "O checkout hospedado é uma página de pagamento segura, hospedada pela Dynopay. Os clientes escolhem uma moeda e rede, veem o valor exato e um código QR, e pagam em alguns toques. Ele cuida da exibição da taxa, seleção da rede e rastreamento de confirmações para você."
+        },
+        {
+          "heading": "Qual você deve usar?",
+          "bullets": [
+            "Use um link de pagamento para solicitações rápidas e únicas e compartilhamento.",
+            "Use uma fatura quando precisar de registros detalhados e específicos para o cliente.",
+            "Use o checkout hospedado quando quiser uma experiência de pagamento polida e com marca que você possa indicar aos clientes."
+          ]
+        }
+      ]
+    },
+    "api-and-integrations": {
+      "title": "API e Integrações",
+      "description": "Integre a Dynopay ao seu site, aplicativo ou SaaS usando nossa API e ferramentas prontas.",
+      "intro": "Se você deseja pagamentos em cripto integrados diretamente ao seu site, aplicativo ou SaaS, a Dynopay oferece uma API e ferramentas prontas. Este guia explica as opções de integração e como começar.",
+      "sections": [
+        {
+          "heading": "Opções sem código e de baixo código",
+          "bullets": [
+            "Links de pagamento e botões de compra permitem que você aceite pagamentos com um trecho de copiar e colar — sem necessidade de backend.",
+            "O checkout hospedado gerencia todo o fluxo de pagamento em páginas hospedadas pela Dynopay.",
+            "Essas opções são a maneira mais rápida de entrar ao vivo e cobrem a maioria dos casos de uso comuns."
+          ]
+        },
+        {
+          "heading": "A API da Dynopay",
+          "body": "Para controle total, a API permite que você crie pagamentos, gere checkouts e leia o status de pagamento programaticamente. Você se autentica com chaves de API geradas no seu painel, e mantém sua chave secreta em seu servidor, nunca no código do lado do cliente."
+        },
+        {
+          "heading": "Webhooks",
+          "body": "Webhooks notificam seu sistema em tempo real quando o status de um pagamento muda — por exemplo, quando é confirmado. Aponte um webhook para um endpoint em seu servidor para que você possa cumprir pedidos, desbloquear acesso ou atualizar registros automaticamente assim que um pagamento for liquidado."
+        },
+        {
+          "heading": "Começando com a API",
+          "bullets": [
+            "Gere uma chave de API na seção de desenvolvedores do seu painel.",
+            "Revise a documentação para os endpoints que você precisa.",
+            "Teste com uma pequena transação antes de entrar ao vivo e verifique se seu webhook recebe o evento de confirmação."
+          ]
+        }
+      ]
+    },
+    "security-and-transaction-safety": {
+      "title": "Segurança e Segurança de Transações",
+      "description": "Descubra como a Dynopay protege transações, fundos e dados de comerciantes.",
+      "intro": "A segurança é central para como a Dynopay é construída. Este artigo explica como a Dynopay protege transações, fundos e sua conta, e as etapas que você pode seguir para se manter seguro.",
+      "sections": [
+        {
+          "heading": "Fundos não custodiais",
+          "body": "Como a Dynopay é não custodial, seus fundos se liquidam diretamente em carteiras que você controla, em vez de ficarem em uma conta da Dynopay. Isso reduz drasticamente o risco de custódia — não há saldo agrupado para um atacante mirar."
+        },
+        {
+          "heading": "Sem estornos",
+          "body": "Pagamentos confirmados em blockchain são finais e não podem ser revertidos. Isso elimina a fraude de estorno que aflige os pagamentos com cartão, dando a você a certeza de que um pagamento concluído permanece concluído."
+        },
+        {
+          "heading": "Protegendo sua conta",
+          "bullets": [
+            "Use uma senha forte e única e mantenha suas credenciais de login privadas.",
+            "Proteja suas chaves secretas da API — armazene-as em seu servidor e nunca as exponha em um navegador ou repositório público.",
+            "Verifique cuidadosamente os endereços de carteira, uma vez que transferências em blockchain não podem ser desfeitas.",
+            "Revise seu painel regularmente para que você possa identificar rapidamente qualquer coisa inesperada."
+          ]
+        },
+        {
+          "heading": "Proteção de dados",
+          "body": "A Dynopay lida com dados com criptografia e segue as melhores práticas de privacidade e conformidade. Informações sensíveis são protegidas em trânsito e em repouso, e você permanece no controle de sua conta e fundos durante todo o tempo."
+        }
+      ]
+    },
+    "getting-started-with-dynopay": {
+      "title": "Começando com a Dynopay",
+      "description": "Saiba como configurar a sua conta e aceitar o seu primeiro pagamento em cripto em minutos."
+    }
+  },
+  "articleStubMore": "Precisa de ajuda com este tópico? A nossa equipa de suporte está disponível no painel e em support@dynopay.com."
+}

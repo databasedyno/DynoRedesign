@@ -1,0 +1,23 @@
+{
+  "summary": "Verified P0 bug fixes on /payouts page + regression on /transactions. Both bugs are fixed: (1) Recent settlements rows now render amount+ticker exactly once (e.g. '0.01536406 ETH', '111.86 USDT-TRC20') with NO duplicated ticker like 'ETH 0.01536406 · ETH'. (2) NO synthetic internal identifiers appear anywhere on the page — none of the banned substrings ('@dynopay.internal', '@dynopay.local', 'legacy-api-', 'pk-buyer-', 'elements-buyer-', 'recovered-') were found. API-sourced rows now show a clean payer label 'Legacy API Customer · <date>' and non-API rows show 'Direct payment · <date>'. Pending funds card shows the empty state 'No payments awaiting confirmation right now.'. Auto-convert protection card renders with '$0.00 THIS MONTH'. Weekly payout digest card renders with toggle; toggling ON reveals the 'Send preview' button (data-testid payouts-digest-preview-btn) as expected, toggling OFF hides it (we did NOT click preview). No console errors. No horizontal overflow at 1920x800 (scrollWidth == clientWidth == 1920). Transactions regression: /transactions renders, the 'Settled only' checkbox (data-testid transactions-export-settled-only) is present next to Export, and the USD Value column shows real values (e.g. $48.46, $37.63, $111.86).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Minor: Could not detect the sonner/toast text via generic selectors after toggling the digest switch — behavior still works (preview button appears/disappears), but if a toast is expected to be shown, verify the toast container has a queryable role or data-testid. This is non-blocking.",
+    "Minor: The digest Switch component does not expose aria-checked attribute (returned None before/after toggle). Consider ensuring the underlying Radix Switch has aria-checked reflected for accessibility/testing. Functional toggle works via visible preview-button appearance."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "100%"},
+  "test_credentials": "hostbay@moxx.co / Katiekendra123@ (login page is at /auth/login, NOT /login or /signin)",
+  "seed_data_creation": "None. Live prod data — no writes performed. Digest toggle left OFF as required.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Preview login lives at /auth/login. After login you land on /dashboard. On /payouts, Recent settlements now renders text like '0.01536406 ETH\\nLegacy API Customer · Aug 24, 2026' — payerLabel()/amountLabel() helpers are working correctly. Pending list is empty for this account. Do NOT click payouts-digest-preview-btn (sends real email). All banned internal-email substrings absent.",
+  "rca of the issue": "Original bug: Payouts rows built the string as `${ticker} ${amount} · ${ticker}` and used raw `customer_email` (synthetic emails like legacy-api-1-...@dynopay.internal for API-sourced rows). Fix (verified): payerLabel() now maps API/store/tip/donation/etc sources to clean labels (e.g. 'Legacy API Customer', 'Direct payment') and filters out any string matching the internal patterns; amountLabel() renders `${amount} ${ticker}` a single time. Verified visually and via full-page text scan for banned substrings + duplicated-ticker regex — both returned zero matches."
+}

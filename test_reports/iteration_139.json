@@ -1,0 +1,20 @@
+{
+  "summary": "Frontend-only verification of /wallet page fixes on The Dev Store (13 wallets). Verified: (1) horizontal overflow eliminated at 1920/1280/768/390 in BOTH light and dark themes (scrollWidth == innerWidth everywhere, zero offenders, wallet-total-hero scrollWidth == clientWidth); (2) all 13 wallet addresses render MASKED by default in first-8 + '…' + last-6 format with data-revealed='false'; (3) reveal eye button toggles per-card only (revealing wallet 1 and 2 did NOT reveal the other 11 - others remained data-revealed='false'); (4) aria-pressed flips false<->true correctly; (5) copy button copies FULL address both while masked and while revealed (clipboard content matches revealed full address exactly for BTC and ETH addresses); (6) data-copied flips to 'true' then reverts to 'false' after ~1.5s; (7) NO success toast appears on copy; (8) mobile 390x844 shows addr/eye/copy on one row (addr r=255, eye l=263 r=307, copy l=315 r=359, iw=390) with no clipping or overlap; (9) Regression: hero shows $29,951.98 + Active 13/Supported 15/Coverage 87%, page-tip-wallet visible on first visit, no console errors, /dashboard and /transactions load with scrollWidth==innerWidth==1920. Read-only mode respected (no clicks on Add/Edit/Delete/Manage).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "100%"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (The Dev Store brand)",
+  "seed_data_creation": "none - read-only against production DB",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "iteration_139 verified WalletTotalHero blob-removal fix and new masked-address reveal/copy UX on /wallet at 4 viewports x 2 themes across 13 real wallets. All acceptance criteria met. Theme toggle is reachable via the account/user menu (not standalone header toggle on this build) - use querySelector for user-menu candidates then click [data-testid=user-menu-theme-toggle].",
+  "rca of the issue": "N/A - all fixes verified working."
+}

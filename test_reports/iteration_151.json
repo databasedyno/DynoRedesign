@@ -1,0 +1,22 @@
+{
+  "summary": "Frontend-only verification of 4 requests: (1) v5 landing DARK at 390/768/1920 — passes: theme=dark, no horizontal overflow, Developers h2 & code-tabs stay within viewport (right<=390 at 390px), Proof band 'EN·DE·FR·ES·PT·NL' meta on ONE line (height~16.5px), zero pageerrors. (2) PublicDashboardBar renders on /fees, /documentation, /how-to when logged in at 390 (fixed to bottom, correct email + 'Go to dashboard' text, chat FAB above the bar, no language-onboarding-bar), NOT rendered at 1920. Clicking the bar navigates to /dashboard. (3) Signed-in landing at '/?view=landing' (390): sticky-mobile-cta hidden, public-dashboard-bar visible. (4) Logged-out regression 390 clean: /fees has no PDB; landing shows sticky-mobile-cta ABOVE language-onboarding-bar. (5) Checkout /pay?d=rNtQRX at 1280 & 390 in light+dark: exactly ONE public-verified-badge with text 'Verified merchant', zero trust-row-verified, merchant-trust-row text 'Payments secured by Dynopay', clean-checkout-brand-row data-variant='merchant' with logo (naturalWidth=686) on LEFT and 'Powered by DYNOPAY' psp-mark on RIGHT (psp.left>logo.right), no 'Identity verified' anywhere in body. (6) /devhub and /devhub/shop: exactly 1 verified badge, 0 trust-row-verified. (7) /pay/demo: loads clean, no verified badge, no errors. German-language regression on public-dashboard-bar was NOT verified via UI (header-language-globe hidden behind mobile hamburger; direct localStorage i18nextLng override didn't switch active i18n instance). All feature acceptance criteria met.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "PublicDashboardBar copy 'You're signed in' concatenates with email in text content ('You're signed inonarrival21@gmail.com') — visually OK due to layout but consider explicit whitespace/testable label for i18n reliability.",
+    "psp-mark textContent renders as 'Powered byDYNOPAY' (no space between text and mark) — again visual only because the mark is a separate inline element with its own spacing, but flags a fragile text assertion contract."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "100% (7/7 core cases; DE-language sub-check not executed via UI)"},
+  "seed_data_creation": "None (read-only prod DB, login-only)",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Public-dashboard-bar renders under Containers/Home for public routes and hides on md+. Landing at '/' when logged in redirects to /dashboard; use '/?view=landing' to inspect the landing while signed in. Header language globe is hidden on mobile — use tablet/desktop viewport with visible header, or click a visible variant like [data-testid=footer-language-globe] to change language. Checkout ref link /pay?d=rNtQRX confirmed to render new brand row variant='merchant' with logo left / psp-mark right and single 'Verified merchant' badge.",
+  "rca of the issue": "N/A — no defects found."
+}

@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto-betalingen voor Web3-projecten en DAO's · Dynopay",
+  "meta_description": "Accepteer crypto-betalingen voor uw Web3-project of DAO met Dynopay. Non-custodial, 15+ cryptovaluta, gehoste checkout en API, tarieven vanaf 1,5%. Gratis beginnen.",
+  "h1": "Accepteer crypto-betalingen voor uw Web3-project of DAO",
+  "subheading": "Dynopay biedt Web3-teams en DAO's een non-custodial manier om bijdragen te innen, toegang te verkopen en Bitcoin, stablecoins en 15+ cryptovaluta rechtstreeks te ontvangen naar een wallet of treasury die zij beheren.",
+  "intro_paragraph": "Web3-projecten en DAO's leven on-chain, maar hebben toch een nette, conforme manier nodig om in fiat geprijsde betalingen te innen voor lidmaatschappen, mints, diensten en bijdragen, zonder de bewaring aan een betaaldienst over te dragen. Dynopay is een non-custodial crypto-betaalgateway die rechtstreeks naar uw wallet of multisig-treasury afwikkelt. Ontvang betalingen via een gehoste checkout, een betaallink of de REST API in 15+ cryptovaluta, prijs in USD terwijl u afwikkelt in de munt van uw keuze, met tarieven van 1,5% tot 0,5% bij schaal, zonder terugboekingen en met een gratis eerste betaling.",
+  "features": [
+    {
+      "title": "Wikkel af naar uw eigen wallet of treasury",
+      "description": "Non-custodial by design: betalingen komen rechtstreeks in de wallet of multisig terecht die u beheert, zodat de DAO-treasury nooit afhankelijk is van een betaaldienst die fondsen vasthoudt."
+    },
+    {
+      "title": "Prijzen in USD, afwikkeling in crypto",
+      "description": "Prijs lidmaatschappen of diensten in dollars voor de duidelijkheid, en ontvang precies de cryptovaluta die u wilt — inclusief stablecoins voor een treasury die niet aan volatiliteit is blootgesteld."
+    },
+    {
+      "title": "Automatiseer toegang met webhooks en API",
+      "description": "Bevestig een bijdrage on-chain en activeer een webhook om Discord-rollen, afgeschermde content of allowlist-plekken te verlenen — allemaal gekoppeld via een nette REST API."
+    }
+  ],
+  "how_it_works": [
+    "Meld u aan, verifieer uw e-mail, maak een projectprofiel aan en voeg één uitbetalings-walletadres (of een treasury-multisig) toe voor de afwikkeling.",
+    "Genereer een betaallink of integreer de gehoste checkout voor lidmaatschappen, mints, diensten of bijdragen.",
+    "Bijdragers betalen in hun voorkeurscryptovaluta, uw webhook verleent toegang, en de fondsen worden binnen enkele minuten naar uw wallet afgewikkeld."
+  ],
+  "faqs": [
+    {
+      "question": "Is Dynopay custodial? Waar worden de DAO-fondsen afgewikkeld?",
+      "answer": "Dynopay is non-custodial. Betalingen worden rechtstreeks afgewikkeld naar de wallet of multisig-treasury die u beheert, zodat uw project nooit afhankelijk is van een derde partij die zijn fondsen aanhoudt."
+    },
+    {
+      "question": "Kan ik in USD prijzen maar stablecoins ontvangen?",
+      "answer": "Ja. Prijs lidmaatschappen of diensten in dollars en kies ervoor stablecoins zoals USDT of USDC te ontvangen — waarmee u een aan de dollar gekoppeld treasury-saldo aanhoudt — of een van de andere ondersteunde munten."
+    },
+    {
+      "question": "Welke cryptovaluta worden ondersteund?",
+      "answer": "Dynopay ondersteunt 15+ cryptovaluta, waaronder Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, TRX, MATIC en stablecoins zoals USDT (ERC20, TRC20, Polygon), USDC (ERC20) en RLUSD."
+    },
+    {
+      "question": "Kan ik toegang of rollen automatiseren wanneer een bijdrage wordt bevestigd?",
+      "answer": "Ja. Dynopay activeert een webhook wanneer een betaling on-chain wordt bevestigd, zodat u Discord-rollen kunt verlenen, afgeschermde content kunt ontgrendelen of een allowlist automatisch kunt bijwerken via de REST API."
+    },
+    {
+      "question": "Wat rekent Dynopay?",
+      "answer": "De tarieven beginnen bij 1,5% plus één dollar per geslaagde betaling en dalen naar 0,5% naarmate het afgewikkelde volume groeit. Geen opstartkosten, geen maandelijkse kosten, en uw eerste betaling is gratis."
+    }
+  ],
+  "cta_headline": "Begin binnen 10 minuten met het innen van betalingen voor uw Web3-project",
+  "cta_body": "Meld u nu aan en uw eerste transactie is gratis. Non-custodial afwikkeling rechtstreeks naar de wallet of treasury die u beheert.",
+  "_generated_at": "2026-09-05T00:00:00.000Z",
+  "_model": "dynopay-editorial-2026-09",
+  "_kind": "vertical",
+  "_slug": "web3-daos",
+  "_display_name": "Web3 Projects & DAOs"
+}

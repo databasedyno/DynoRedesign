@@ -1,0 +1,55 @@
+{
+  "meta_title": "Pagamentos em criptomoeda para downloads digitais e cursos · Dynopay",
+  "meta_description": "Aceite pagamentos em criptomoeda para downloads digitais e vendedores de cursos. Sem chargebacks, sem abusos de reembolso. Bitcoin, USDT, Solana e mais de 15 moedas. Ative em 10 minutos. Comece agora.",
+  "h1": "Aceite Pagamentos em Criptomoeda para Downloads Digitais e Vendedores de Cursos",
+  "subheading": "Pare de perder receitas devido a chargebacks e fraudes de reembolso. Receba Bitcoin, stablecoins e mais de 15 criptomoedas diretamente na sua carteira—sem intermediários, sem reversões.",
+  "intro_paragraph": "Se você vende cursos, ebooks ou produtos digitais, sabe o custo dos chargebacks e dos reembolsos em série que consomem seu conteúdo e depois contestam a cobrança. Dynopay é uma plataforma de pagamento em criptomoeda não custodial, construída para criadores e educadores. Você recebe os fundos diretamente na sua própria carteira—nós nunca tocamos no seu dinheiro—e as transações em criptomoeda são finais. Sem chargebacks. Sem abusos de reembolso. Apenas pagamentos irreversíveis de clientes em todo o mundo, com taxas a partir de 1,5% e reduzindo para 0,5% em grande escala.",
+  "features": [
+    {
+      "title": "Sem Chargebacks, Nunca",
+      "description": "Os pagamentos em criptomoeda são finais uma vez confirmados na blockchain. Nenhum cliente pode reverter uma transação após fazer o download do seu curso ou ebook, eliminando fraudes de chargeback e fraudes amigáveis que afligem os processadores de cartões."
+    },
+    {
+      "title": "Sua Carteira, Sua Custódia",
+      "description": "Os fundos vão diretamente do cliente para o seu endereço de Bitcoin, Ethereum ou stablecoin. A Dynopay nunca mantém saldos, então você controla seu dinheiro desde o momento da venda, sem atrasos nas retiradas ou congelamentos de conta."
+    },
+    {
+      "title": "Vendas Globais Sem Barreiras",
+      "description": "Venda para clientes em qualquer país sem taxas de cartão transfronteiriças ou custos de conversão de moeda. Aceite Bitcoin, USDT, USDC, SOL e mais de 15 criptomoedas de compradores em qualquer parte do mundo."
+    }
+  ],
+  "how_it_works": [
+    "Inscreva-se, verifique seu email e adicione o endereço da carteira onde deseja receber pagamentos.",
+    "Crie um link de pagamento para o seu curso ou incorpore o widget de checkout na sua página de vendas existente.",
+    "O cliente paga na sua criptomoeda preferida; os fundos chegam à sua carteira em minutos, completamente sem taxas na sua primeira venda."
+  ],
+  "faqs": [
+    {
+      "question": "Como os pagamentos em criptomoeda previnem fraudes de reembolso para produtos digitais?",
+      "answer": "As transações em criptomoeda são irreversíveis uma vez confirmadas na blockchain. Ao contrário dos cartões de crédito, os clientes não podem contestar ou fazer chargeback de um pagamento em criptomoeda após acessar seu curso ou download. A venda é final, protegendo você de reembolsadores em série e piratas de conteúdo que abusam das políticas tradicionais de reembolso."
+    },
+    {
+      "question": "Quais criptomoedas os meus alunos podem usar para comprar meus cursos?",
+      "answer": "A Dynopay suporta mais de 15 criptomoedas, incluindo Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP e stablecoins como USDT e USDC na Ethereum, Polygon e Tron. Os alunos pagam na moeda que preferirem; você escolhe quais ativos aceitar na sua carteira."
+    },
+    {
+      "question": "Quais são as taxas para aceitar pagamentos em criptomoeda em produtos digitais?",
+      "answer": "As taxas começam em 1,5% mais um dólar por pagamento bem-sucedido e caem automaticamente para 0,5% à medida que seu volume cresce. Sem taxas mensais, sem custos de configuração, sem cobranças ocultas. O seu primeiro pagamento é completamente isento de taxas para que você possa testar a plataforma sem riscos."
+    },
+    {
+      "question": "Quão rapidamente posso começar a aceitar criptomoeda para meu curso online?",
+      "answer": "Você pode ativar em menos de 10 minutos. Inscreva-se, verifique seu email, adicione o endereço da sua carteira de pagamento e, em seguida, gere um link de pagamento ou incorpore nosso widget de checkout na sua página de vendas. Sem aprovações longas ou subscrição de comerciante necessária."
+    },
+    {
+      "question": "Preciso de verificação KYC para receber pagamentos em criptomoeda por cursos?",
+      "answer": "Você pode começar a receber criptomoeda diretamente na sua própria carteira em minutos, sem subscrição de comerciante. A verificação de identidade (KYC) aplica-se à sua conta uma vez que o volume liquidado ultrapasse um limite, e as saídas fiat de terceiros realizam seu próprio KYC quando você converte para a moeda local."
+    }
+  ],
+  "cta_headline": "Comece a Aceitar Pagamentos em Criptomoeda Hoje",
+  "cta_body": "A sua primeira transação é isenta de taxas. Configure o seu checkout em criptomoeda em menos de 10 minutos e pare de perder receitas devido a chargebacks.",
+  "_generated_at": "2026-08-29T14:54:48.095503Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "digital-downloads",
+  "_display_name": "Digital Downloads & Course Sellers"
+}

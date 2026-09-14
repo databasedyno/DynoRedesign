@@ -1,0 +1,55 @@
+{
+  "meta_title": "Akzeptieren Sie Krypto-Zahlungen für Ihren Shop · Dynopay",
+  "meta_description": "Akzeptieren Sie Krypto-Zahlungen für Ihren Shop mit gehostetem Checkout, Zahlungslinks und einem Shop. Die Gelder werden direkt an Ihre Wallet überwiesen. Starten Sie kostenlos in 10 Minuten.",
+  "h1": "Akzeptieren Sie Krypto-Zahlungen für Ihren Shop mit gehostetem Checkout und Zahlungslinks",
+  "subheading": "Verkaufen Sie Produkte und sammeln Sie Zahlungen in über 15 Kryptowährungen. Jede Transaktion wird direkt an Ihre Wallet überwiesen—Dynopay hält niemals Ihre Gelder.",
+  "intro_paragraph": "Dynopay bietet Online-Verkäufern ein komplettes Toolkit für Krypto-Commerce: gehostete Checkout-Seiten, No-Code-Zahlungslinks und einen vollständigen Shop, um Produkte in Bitcoin, Ethereum, Solana, Stablecoins und über 15 anderen Kryptowährungen zu verkaufen. Da Dynopay nicht verwahrend ist, landet jede Zahlung direkt in Ihrer eigenen Wallet innerhalb von Minuten—keine Zwischenhaltedauer, keine Abhebungsanfragen und keine Rückbuchungen. Sie zahlen eine Plattformgebühr, die bei 1,5% beginnt und auf 0,5% sinkt, wenn Ihr Volumen wächst, ohne monatliche oder Einrichtungsgebühren.",
+  "features": [
+    {
+      "title": "Nicht verwahrende Zahlungsabwicklung",
+      "description": "Jede Krypto-Zahlung von Ihren Kunden kommt direkt in Ihrer eigenen Wallet an. Dynopay hält, friert oder kontrolliert niemals Ihre Gelder, sodass Sie die volle Kontrolle behalten und Geld jederzeit bewegen können."
+    },
+    {
+      "title": "Gehosteter Checkout und Zahlungslinks",
+      "description": "Erstellen Sie in Sekundenschnelle eine Checkout-Seite oder einen teilbaren Zahlungslink—keine Programmierung erforderlich. Kunden zahlen in ihrer bevorzugten Krypto, und Sie erhalten die Abwicklung in Ihrem gewählten Vermögenswert, einschließlich automatischer Umwandlung in Stablecoins."
+    },
+    {
+      "title": "Volumenbasierte Gebührenstruktur",
+      "description": "Ihre erste Zahlung ist völlig kostenlos. Danach beginnen die Gebühren bei 1,5% plus einem Dollar pro Transaktion und sinken automatisch auf 0,5%, wenn Ihr abgewickeltes Volumen steigt, ohne monatliche oder versteckte Gebühren."
+    }
+  ],
+  "how_it_works": [
+    "Melden Sie sich mit Ihrer E-Mail an, verifizieren Sie Ihr Konto und erstellen Sie Ihr Unternehmensprofil in weniger als drei Minuten.",
+    "Fügen Sie Ihre Auszahlungs-Wallet-Adresse für jede unterstützte Kette hinzu—Bitcoin, Ethereum, Solana, Tron, Polygon oder XRP Ledger.",
+    "Erstellen Sie einen Zahlungslink oder betten Sie das Checkout-Widget auf Ihrer Seite ein und beginnen Sie sofort mit der Akzeptanz von Krypto-Zahlungen."
+  ],
+  "faqs": [
+    {
+      "question": "Welche Kryptowährungen kann mein Shop mit Dynopay akzeptieren?",
+      "answer": "Dynopay unterstützt über 15 Kryptowährungen, darunter Bitcoin, Ethereum, Solana, Litecoin, Dogecoin, XRP, Tron, Polygon und Stablecoins wie USDT, USDC und RLUSD über mehrere Ketten. Sie wählen aus, welche Vermögenswerte Sie akzeptieren und welche Wallet die Abwicklung erhält."
+    },
+    {
+      "question": "Wie viel verlangt Dynopay für die Akzeptanz von Krypto-Zahlungen?",
+      "answer": "Ihre erste Zahlung ist völlig kostenlos. Danach beginnen die Gebühren bei 1,5% plus einem Dollar pro erfolgreicher Transaktion und sinken automatisch auf 0,5% bei höheren Volumina. Es gibt keine monatlichen Gebühren, Einrichtungsgebühren oder versteckte Kosten, und Krypto-Zahlungen haben keine Rückbuchungen."
+    },
+    {
+      "question": "Muss ich Dynopay die Kontrolle über meine Krypto geben?",
+      "answer": "Nein. Dynopay ist nicht verwahrend, was bedeutet, dass jede Zahlung direkt von Ihrem Kunden an Ihre eigene Wallet abgewickelt wird. Dynopay hält, kontrolliert oder hat zu keinem Zeitpunkt Zugriff auf Ihre Gelder im Transaktionsfluss."
+    },
+    {
+      "question": "Wie lange dauert es, bis ich Krypto in meinem Online-Shop akzeptieren kann?",
+      "answer": "Die meisten Händler sind in weniger als 10 Minuten live. Sie melden sich an, verifizieren Ihre E-Mail, fügen eine Auszahlungs-Wallet-Adresse hinzu und generieren einen Zahlungslink oder betten das Checkout-Widget ein. Keine langen Onboarding-Prozesse, keine komplexe Integration für grundlegende Verkäufe erforderlich."
+    },
+    {
+      "question": "Kann ich eingehende Krypto automatisch in Stablecoins umwandeln?",
+      "answer": "Ja. Dynopay bietet eine optionale automatische Umwandlung in USDT oder USDC zum Zeitpunkt der Abwicklung, sodass Sie volatile Vermögenswerte wie Bitcoin oder Ethereum akzeptieren, aber stabilen Wert direkt in Ihrer Wallet erhalten können, ohne manuelles Tauschen."
+    }
+  ],
+  "cta_headline": "Beginnen Sie noch heute mit der Akzeptanz von Krypto-Zahlungen",
+  "cta_body": "Ihre erste Transaktion ist völlig kostenlos und Sie können in 10 Minuten live sein, ohne monatliche Gebühren oder Einrichtungsgebühren.",
+  "_generated_at": "2026-08-29T14:57:11.030787Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "merchants",
+  "_display_name": "Merchants & Online Sellers"
+}

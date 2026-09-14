@@ -1,0 +1,28 @@
+{
+  "summary": "Verified DynoPay hydration bugfix. Ran the hydration guard against local prod (localhost:3400, showSocialLinks=false), the preview URL, and live dynopay.com. All expected outcomes were reproduced: guard exits 0 on local-prod (/ ,/fees @ 390/1920) and preview (/ ,/fees ,/pay/demo @ 390/1920), exits 1 on live dynopay.com (correctly reports React #418 and #423), and exits 2 with a usage message when no base URL is provided. Playwright checks on the preview at 390x844 and 1920x800 for /, /fees, /pay/demo produced ZERO hydration errors, hero h1 'Accept crypto payments...' and hero-primary-cta visible, and __NEXT_DATA__.props.runtimeFlags exactly equals {showSocialLinks:true, cleanCheckoutV2:true, inlineTipCheckout:true, checkoutSwr:false, enableProductCatalog:true, enableCryptoRefunds:false}. Footer social links (X/Instagram/LinkedIn/Facebook) are present in both SSR HTML and hydrated DOM on preview; client-side nav / -> /fees preserves them (4 icons). SSR HTML of localhost:3400 shows NO aria-label='Instagram' footer links AND runtimeFlags.showSocialLinks===false; hydrated DOM also has 0 social links -> server and client agree (the exact production repro condition, now fixed). /pay?d=rNtQRX renders CleanCheckoutV2 single panel at both widths without hydration errors and without being clicked. Non-existent [handle] returns normal 404. Dockerfile + Dockerfile.frontend declare ARG/ENV for all 5 NEXT_PUBLIC feature flags. deploy-droplet.yml passes them as build-args via vars.* and includes 'Wait for the new container to serve traffic' and 'Hydration guard' steps; YAML parses successfully.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/scripts/qa/hydration_guard.mjs",
+    "/tmp/local_prod_check.mjs"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "runtimeFlags fix is correctly applied at module boundary: HomeFooter reads getRuntimeFlags() inside the component (not at module scope) so both server and client resolve the same value from __NEXT_DATA__.props.runtimeFlags -> hydration matches.",
+    "Dockerfile ARG/ENV safety net covers all 5 NEXT_PUBLIC feature flags so future runtime-only env drift on the droplet cannot cause SSR/CSR skew again.",
+    "Hydration guard is now wired as a post-deploy step in .github/workflows/deploy-droplet.yml, providing regression protection.",
+    "Guard correctly returns exit 2 with usage message when invoked with no base URL, exit 1 with error listing on live prod (still on the old broken build), and exit 0 on clean builds."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "100%"},
+  "test_credentials": "not used (no login required for this test)",
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Local production Next server at http://localhost:3400 (NEXT_DIST_DIR=/app/.next-prod, NEXT_PUBLIC_SHOW_SOCIAL_LINKS=false) is the exact reproduction of the live dynopay.com condition; verified server+client agree (0 social links, 0 hydration errors). /pay/demo returns 404 on localhost:3400 (BLOCK_DEV_PAGES not inlined at build) — expected, skip there. Guard usage: PLAYWRIGHT_CHROME_EXECUTABLE_PATH=/pw-browsers/chromium_headless_shell-1208/chrome-linux/headless_shell node /app/scripts/qa/hydration_guard.mjs --base=<url> --pages=/,/fees --retries=0",
+  "rca of the issue": "React #418/#423 on mobile production was caused by NEXT_PUBLIC_SHOW_SOCIAL_LINKS being only set in the droplet's runtime .env (not passed as a docker build-arg), so process.env read at module load in HomeFooter was undefined in the browser bundle -> server rendered footer WITHOUT social icons but client re-rendered WITH them, causing hydration mismatch that flipped the whole root to client rendering (blank on mobile before hydration completed). Fix: helpers/runtimeFlags.ts ships flags in __NEXT_DATA__.props.runtimeFlags; components call getRuntimeFlags() (server reads env, client reads cached NEXT_DATA); Dockerfile ARG/ENV safety net for all NEXT_PUBLIC flags; workflow passes vars.* as build-args; post-deploy hydration_guard step gates future deploys."
+}

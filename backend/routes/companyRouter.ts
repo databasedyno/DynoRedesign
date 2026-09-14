@@ -1,0 +1,84 @@
+import express, { RequestHandler } from "express";
+import { companyController } from "../controller";
+import { sendDeleteCompanyOtp } from "../controller/company/deleteCompanyOtp";
+import { companyMiddleware, uploadImage, authMiddleware } from "../middleware";
+import { companyOwnershipMiddleware } from "../middleware/authMiddleware";
+import { requirePermission, requireCompanyOwner } from "../middleware/teamPermissionMiddleware";
+import { auditMutations } from "../utils/activityLog";
+const companyRouter = express.Router();
+
+// Audit every successful mutation on a business to the Team Activity Log. The
+// finish-hook reads res.locals.validatedCompany (set by companyOwnershipMiddleware)
+// so it attributes to the right company; non-mutations and unattributable
+// requests (e.g. addCompany, which has no company yet) are skipped.
+companyRouter.use(auditMutations("company"));
+
+companyRouter.post(
+  "/addCompany",
+  authMiddleware,
+  uploadImage.single("image") as unknown as RequestHandler,
+  companyMiddleware,
+  companyController.addCompany
+);
+
+companyRouter.put(
+  "/updateCompany/:id",
+  authMiddleware,
+  companyOwnershipMiddleware,
+  requirePermission("manage_company_settings"),
+  uploadImage.single("image") as unknown as RequestHandler,
+  companyMiddleware,
+  companyController.updateCompany
+);
+
+// Upgrade an individual account to a business account (owner-only). Flips
+// account_type in place — does NOT create a second company.
+companyRouter.put(
+  "/upgrade-to-business/:id",
+  authMiddleware,
+  companyOwnershipMiddleware,
+  requireCompanyOwner,
+  companyController.upgradeToBusiness
+);
+
+companyRouter.get("/getCompany", authMiddleware, companyController.getCompany);
+companyRouter.get("/getCompany/:id", authMiddleware, companyOwnershipMiddleware, requirePermission("view_dashboard"), companyController.getCompanyById);
+companyRouter.get("/getTransactions/:id", authMiddleware, companyOwnershipMiddleware, requirePermission("view_transactions"), companyController.getTransactions);
+companyRouter.delete("/deleteCompany/:id", authMiddleware, companyOwnershipMiddleware, requireCompanyOwner, companyController.deleteCompany);
+// Brand deletion is OTP-gated: request the emailed code here, then send it as `otp` on the DELETE.
+companyRouter.post("/deleteCompany/:id/send-otp", authMiddleware, companyOwnershipMiddleware, requireCompanyOwner, sendDeleteCompanyOtp);
+
+// TAX ID Validation endpoint
+companyRouter.post("/validateTaxId", authMiddleware, companyController.validateTaxId);
+
+// Webhook configuration endpoints
+companyRouter.put("/webhook-settings/:id", authMiddleware, companyOwnershipMiddleware, requirePermission("manage_company_settings"), companyController.updateWebhookSettings);
+companyRouter.get("/webhook-settings/:id", authMiddleware, companyOwnershipMiddleware, requirePermission("manage_company_settings"), companyController.getWebhookSettings);
+companyRouter.post("/webhook-reenable/:id", authMiddleware, companyOwnershipMiddleware, requirePermission("manage_company_settings"), companyController.reenableWebhook);
+companyRouter.post("/webhook-disable/:id", authMiddleware, companyOwnershipMiddleware, requirePermission("manage_company_settings"), companyController.disableWebhook);
+companyRouter.post("/webhook-test/:id", authMiddleware, companyOwnershipMiddleware, requirePermission("manage_company_settings"), companyController.testWebhook);
+
+// Webhook history and stats endpoints
+companyRouter.get("/webhook-history/:id", authMiddleware, companyOwnershipMiddleware, requirePermission("manage_company_settings"), companyController.getWebhookHistory);
+companyRouter.get("/webhook-history/:id/detail/:logId", authMiddleware, companyOwnershipMiddleware, requirePermission("manage_company_settings"), companyController.getWebhookDetail);
+companyRouter.post("/webhook-history/:id/resend/:logId", authMiddleware, companyOwnershipMiddleware, requirePermission("manage_company_settings"), companyController.resendWebhookDelivery);
+companyRouter.get("/webhook-stats/:id", authMiddleware, companyOwnershipMiddleware, requirePermission("manage_company_settings"), companyController.getWebhookStats);
+
+// Auto-Stablecoin Conversion settings
+companyRouter.get("/auto-convert/:id", authMiddleware, companyOwnershipMiddleware, requirePermission("view_dashboard"), companyController.getAutoConvertSettings);
+companyRouter.put("/auto-convert/:id", authMiddleware, companyOwnershipMiddleware, requirePermission("manage_company_settings"), companyController.updateAutoConvertSettings);
+companyRouter.get("/conversion-history/:id", authMiddleware, companyOwnershipMiddleware, requirePermission("view_transactions"), companyController.getConversionHistory);
+companyRouter.get("/conversion-savings/:id", authMiddleware, companyOwnershipMiddleware, requirePermission("view_dashboard"), companyController.getConversionSavings);
+
+// Single conversion detail & retry
+companyRouter.get("/conversion/:conversionId", authMiddleware, companyController.getConversionDetail);
+companyRouter.post("/conversion/:conversionId/retry", authMiddleware, companyController.retryConversion);
+
+// Fee-Free Trial Status (user-based)
+companyRouter.get("/fee-free-status", authMiddleware, companyController.getFeeFreeStatus);
+
+// Dashboard Display Currency (presentation-only, decoupled from API-key pricing)
+companyRouter.get("/display-currency/:id", authMiddleware, companyOwnershipMiddleware, requirePermission("view_dashboard"), companyController.getDisplayCurrency);
+companyRouter.patch("/display-currency/:id", authMiddleware, companyOwnershipMiddleware, requirePermission("manage_company_settings"), companyController.updateDisplayCurrency);
+
+export default companyRouter;

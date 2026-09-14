@@ -1,0 +1,55 @@
+{
+  "meta_title": "Krypto-Zahlungen & Auszahlungen für Affiliate-Marketer · Dynopay",
+  "meta_description": "Empfangen Sie als Affiliate-Marketer weltweit Krypto-Zahlungen mit Dynopay. 15+ Kryptowährungen, keine Rückbuchungen, Gebühren ab 1,5%. Starten Sie noch heute kostenlos.",
+  "h1": "Akzeptieren Sie als Affiliate-Marketer weltweit Krypto-Zahlungen",
+  "subheading": "Mit Dynopay werden Affiliate-Marketer und Media-Buyer in Bitcoin, Stablecoins und 15+ Kryptowährungen direkt in ein Wallet bezahlt, das sie selbst kontrollieren – ohne Grenzen, ohne Rückbuchungen, ohne eingefrorene Guthaben.",
+  "intro_paragraph": "Affiliate-Einnahmen überschreiten ständig Grenzen, und traditionelle Zahlungswege bringen Währungsumrechnungsgebühren, langsame Banküberweisungen und das Risiko eines eingefrorenen Kontos bei Umsatzspitzen mit sich. Dynopay ist ein non-custodial Krypto-Zahlungs-Gateway, das direkt in Ihr Wallet abwickelt – empfangen Sie Zahlungen für Promotions, Media oder Ihre eigenen Angebote per Zahlungslink, Hosted Checkout oder REST API über 15+ Kryptowährungen. Die Gebühren beginnen bei 1,5% und sinken bei steigendem Volumen auf 0,5%, ohne Rückbuchungen, ohne monatliche Gebühren und mit einer gebührenfreien ersten Zahlung.",
+  "features": [
+    {
+      "title": "Werden Sie sofort grenzüberschreitend bezahlt",
+      "description": "Krypto wird innerhalb von Minuten in ein von Ihnen kontrolliertes Wallet abgewickelt, sodass Sie mehrtägige internationale Banküberweisungen und den Wechselkursaufschlag umgehen, der grenzüberschreitende Affiliate-Einnahmen schmälert."
+    },
+    {
+      "title": "Keine eingefrorenen Konten bei Umsatzspitzen",
+      "description": "Eine virale Kampagne löst kein Betrugsmodell eines Zahlungsdienstleisters aus und friert Ihr Guthaben nicht ein – non-custodial Abwicklung bedeutet, dass die Gelder bereits Ihnen gehören."
+    },
+    {
+      "title": "Stablecoins gegen Volatilität",
+      "description": "Nehmen Sie Zahlungen in USDT oder USDC an, um ein an den Dollar gekoppeltes Guthaben zu halten, und wandeln Sie es in Ihre Landeswährung um, wann immer der Kurs passt."
+    }
+  ],
+  "how_it_works": [
+    "Melden Sie sich an, verifizieren Sie Ihre E-Mail, erstellen Sie ein Unternehmensprofil und fügen Sie eine Auszahlungs-Wallet-Adresse für die Abwicklung hinzu.",
+    "Teilen Sie einen Zahlungslink, betten Sie das Checkout ein oder binden Sie die REST API ein, um Partnern und Käufern Rechnungen zu stellen.",
+    "Sie zahlen in ihrer bevorzugten Kryptowährung und die Gelder landen innerhalb von Minuten in Ihrem Wallet."
+  ],
+  "faqs": [
+    {
+      "question": "Wie profitieren Affiliate-Marketer davon, Krypto zu akzeptieren?",
+      "answer": "Affiliate-Einnahmen sind global und schwankungsanfällig. Krypto wird innerhalb von Minuten in ein von Ihnen kontrolliertes Wallet abgewickelt, vermeidet Verzögerungen bei internationalen Banküberweisungen und Wechselkursaufschläge und kann von einem Zahlungsdienstleister nicht eingefroren werden, wenn eine Kampagne plötzlich skaliert."
+    },
+    {
+      "question": "Kann ich meine Einnahmen in einer stabilen, an den Dollar gekoppelten Coin halten?",
+      "answer": "Ja. Nehmen Sie Zahlungen in Stablecoins wie USDT oder USDC an, um ein Guthaben in Dollar-Wert zu halten und die Krypto-Volatilität zu vermeiden, und wandeln Sie es dann nach Ihrem eigenen Zeitplan in Fiat um."
+    },
+    {
+      "question": "Welche Kryptowährungen werden unterstützt?",
+      "answer": "Dynopay unterstützt 15+ Kryptowährungen, darunter Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, TRX, MATIC sowie Stablecoins wie USDT (ERC20, TRC20, Polygon), USDC (ERC20) und RLUSD."
+    },
+    {
+      "question": "Welche Gebühren berechnet Dynopay?",
+      "answer": "Die Gebühren beginnen bei 1,5% plus einem Dollar pro erfolgreicher Zahlung und sinken auf 0,5%, wenn Ihr abgewickeltes Volumen wächst. Keine Einrichtungsgebühren, keine monatlichen Gebühren, und Ihre erste Zahlung ist kostenlos."
+    },
+    {
+      "question": "Ist Dynopay custodial? Wohin gehen meine Gelder?",
+      "answer": "Dynopay ist non-custodial. Zahlungen werden direkt in Ihr eigenes Wallet abgewickelt – MetaMask, Coinbase, Ledger oder jede Adresse, die Sie kontrollieren – sodass Dynopay Ihr Geld niemals hält."
+    }
+  ],
+  "cta_headline": "Beginnen Sie in 10 Minuten, Krypto-Zahlungen zu empfangen",
+  "cta_body": "Melden Sie sich jetzt an, und Ihre erste Transaktion ist gebührenfrei. Keine monatlichen Kosten, und die Gelder werden direkt in ein von Ihnen kontrolliertes Wallet abgewickelt.",
+  "_generated_at": "2026-09-05T00:00:00.000Z",
+  "_model": "dynopay-editorial-2026-09",
+  "_kind": "vertical",
+  "_slug": "affiliate-marketing",
+  "_display_name": "Affiliate Marketers"
+}

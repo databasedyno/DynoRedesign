@@ -1,0 +1,55 @@
+{
+  "meta_title": "Pagamentos em cripto para formadores de trading e sinais · Dynopay",
+  "meta_description": "Aceite pagamentos em cripto por cursos de trading, sinais e mentorias com a Dynopay. Mais de 15 criptomoedas, sem estornos, comissões desde 1,5%. Comece grátis hoje.",
+  "h1": "Aceite pagamentos em cripto por formação em trading, sinais e mentorias",
+  "subheading": "A Dynopay permite que formadores de forex e trading, grupos de sinais e mentores recebam em Bitcoin, stablecoins e mais de 15 criptomoedas diretamente numa wallet que controlam — um setor de alto risco que os cartões rejeitam com frequência.",
+  "intro_paragraph": "A formação em trading, os sinais e as mentorias são sinalizados como de alto risco pelos processadores de cartões, o que leva a candidaturas recusadas, fundos congelados e contestações de membros que perdem dinheiro nas suas próprias operações. A Dynopay é uma gateway de pagamentos em cripto não custodial que liquida diretamente na sua wallet. Cobre uma subscrição de sinais, uma mentoria ou um curso com um link de pagamento, um checkout alojado ou a API REST em mais de 15 criptomoedas, com comissões desde 1,5% até 0,5% à escala, sem estornos, sem mensalidades e com o primeiro pagamento grátis.",
+  "features": [
+    {
+      "title": "Aprovação sem o crivo de alto risco",
+      "description": "Não precisa de um processador de cartões que aprove uma conta de comerciante de 'formação em trading'. Adicione uma wallet de recebimento e comece a aceitar cripto no próprio dia."
+    },
+    {
+      "title": "Sem contestações pelas perdas de trading dos membros",
+      "description": "Os pagamentos em cripto são definitivos, por isso um membro que tenha uma má semana de trading não pode reverter os seus honorários através de um estorno de cartão depois de receber os sinais."
+    },
+    {
+      "title": "Audiência global, liquidação instantânea",
+      "description": "Os traders estão em todo o lado. Aceite pagamentos em todo o mundo e receba os fundos em minutos numa wallet que controla, em stablecoins se quiser um saldo indexado ao dólar."
+    }
+  ],
+  "how_it_works": [
+    "Registe-se, verifique o seu e-mail, crie um perfil de empresa e adicione um endereço de wallet de recebimento para a liquidação.",
+    "Gere um link de pagamento para cada plano ou integre o checkout na sua comunidade ou página de destino.",
+    "O membro paga na criptomoeda que preferir, concede o acesso através de um webhook, e os fundos chegam à sua wallet em minutos."
+  ],
+  "faqs": [
+    {
+      "question": "Por que motivo os formadores de trading e os fornecedores de sinais usam pagamentos em cripto?",
+      "answer": "A formação em trading é classificada como de alto risco, por isso os processadores de cartões recusam frequentemente a conta ou congelam fundos, e por vezes os membros contestam pagamentos após uma semana de perdas. A cripto é não custodial e definitiva: sem aprovação de alto risco, sem congelamentos e sem estornos após a entrega."
+    },
+    {
+      "question": "Posso ter uma subscrição recorrente de sinais com cripto?",
+      "answer": "Sim, ciclo a ciclo. A cripto não tem débito automático como os cartões, por isso cada renovação é um novo pagamento — use a API REST e os webhooks para enviar um link de pagamento em cada ciclo de faturação e conceder ou revogar o acesso automaticamente."
+    },
+    {
+      "question": "Com que criptomoedas podem pagar os membros?",
+      "answer": "A Dynopay suporta mais de 15 criptomoedas, incluindo Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, TRX, MATIC e stablecoins como USDT (ERC20, TRC20, Polygon), USDC (ERC20) e RLUSD."
+    },
+    {
+      "question": "Quais são as comissões?",
+      "answer": "As comissões começam em 1,5% mais um dólar por pagamento bem-sucedido e descem até 0,5% à medida que o volume liquidado cresce. Sem custos de adesão, sem mensalidades, e o seu primeiro pagamento é grátis."
+    },
+    {
+      "question": "A Dynopay detém o meu dinheiro?",
+      "answer": "Não. A Dynopay é não custodial, pelo que os pagamentos liquidam diretamente na sua própria wallet — MetaMask, Coinbase, Ledger ou qualquer endereço que controle."
+    }
+  ],
+  "cta_headline": "Comece a aceitar cripto para a sua comunidade de trading em 10 minutos",
+  "cta_body": "Registe-se agora e a sua primeira transação é sem comissões. Sem aprovações de alto risco, sem custos mensais, e os fundos liquidam diretamente na sua wallet.",
+  "_generated_at": "2026-09-05T00:00:00.000Z",
+  "_model": "dynopay-editorial-2026-09",
+  "_kind": "vertical",
+  "_slug": "forex-trading",
+  "_display_name": "Trading Educators & Signal Providers"
+}

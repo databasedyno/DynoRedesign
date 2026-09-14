@@ -1,0 +1,36 @@
+{
+  "summary": "Frontend-only regression for expired-JWT landing edge fix. All 4 scenarios PASS.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_results": {
+    "test1_expired_no_refresh": {
+      "status": "PASS",
+      "detail": "URL stays '/', hero-v5 visible, localStorage.token cleared to null, 'Log in' + 'Start free' visible, 0 pageerrors."
+    },
+    "test2_expired_with_bogus_refresh": {
+      "status": "PASS",
+      "detail": "Redirected off landing to /dashboard (stabilized within 8s, hero not visible, no redirect loop). Acceptable per requirement."
+    },
+    "test3_login_regression": {
+      "status": "PASS",
+      "detail": "Logged in as onarrival21@gmail.com; second tab at '/' redirects to /dashboard; '/?view=landing' shows landing with [data-testid=header-dashboard-btn] visible."
+    },
+    "test4_logged_out_regression": {
+      "status": "PASS",
+      "detail": "Fresh context '/' shows hero-v5, header has 'Log in' + 'Start free'; /fees loads; no console errors, no pageerrors."
+    }
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "100% (4/4)"},
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Edge fix for expired JWT on '/' is working. pages/index.tsx clears expired token without refreshToken pre-paint; unAutorizedHelper does not bounce to /auth/login from '/'. Login flow requires exact=True on 'Continue' button (matches google/github buttons otherwise)."
+}

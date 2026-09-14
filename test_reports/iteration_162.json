@@ -1,0 +1,25 @@
+{
+  "summary": "Full-lifecycle UI verification on throwaway merchant qa_acctdel_ui_1789224781@example.com (user_id=209). All four review requests PASS: (D) landing FAQ + Global band translated for DE/ES/FR/PT/NL (no English fallback, no raw i18n keys); (C) brand-delete OTP flow on brand 217 succeeded and backend returned the exact required toast wording; (A) merchant account danger zone renders with '7 days' copy, gating works (disabled initial/wrong email, enabled on exact email), OTP step shows masked email, entering the 6-digit preview_otp auto-submits, session is cleared and browser redirects to /auth/login; (A2) re-login is correctly blocked with 'This account is scheduled for deletion. Contact support within your 7-day recovery window to restore it.'; (B) admin /admin/merchants shows deleted-accounts-panel (header '1 pending permanent deletion') with row 209 (7 days left, Purge: Sep 19, 2026); Restore succeeds ('Restored account qa_acctdel_ui_1789224781@example.com.') and row disappears. Deleted-brands-panel row 217 restored similarly ('Restored \"QA Second Brand\".'). Final state of throwaway account: RESTORED (both account 209 and brand 217).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Main agent may now hard-purge/clean the throwaway account 209 + brand 217 (they were restored during this test)."
+  ],
+  "critical_code_review_comments": [
+    "Landing language switcher uses URL query param '?lang=' (not '?lng=' as hinted in the request). Both work via header globe; ?lang= sets the dp_lang cookie. Cosmetic only — request author may want to align docs.",
+    "Delete Brand OTP modal has data-testids for open/hint/cancel but the 6 digit-boxes and the final 'Delete brand' confirm button lack data-testid attributes. It works because entering the 6th digit auto-submits, but automation-wise a stable data-testid (e.g. delete-brand-otp-input-<i>, delete-brand-confirm-btn) would help. Same for the account-delete modal — only delete-account-otp-hint / delete-account-otp-cancel-btn are exposed."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100% (network responses observed)", "frontend": "100%"},
+  "test_credentials": "Used throwaway qa_acctdel_ui_1789224781@example.com / Katiekendra123@ and admin moxxcompany@gmail.com / Katiekendra123@ per /app/memory/test_credentials.md",
+  "seed_data_creation": "None. Used existing throwaway account per request.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Throwaway account 209 and brand 217 were both restored by the admin restore step at end of test. If further lifecycle testing is needed, they are again active. Backend send-otp endpoints (POST /api/company/deleteCompany/:id/send-otp and POST /api/user/account/send-otp) return data.preview_otp in preview env — captured via response listener. OTP boxes auto-submit on 6th digit so no explicit final button click is needed. Language switcher: header-language-globe + header-lang-<code>, or ?lang=<code> URL param (not ?lng=).",
+  "rca of the issue": "N/A — all features working as expected."
+}

@@ -1,0 +1,24 @@
+{
+  "summary": "Frontend-only i18n verification of the reported register-page translation bug on https://speedup-check.preview.emergentagent.com. Verified: (1) /auth/register Step 1 purpose picker fully translates in PT/FR/EN via the language onboarding bar and via localStorage 'lang' + reload — no English leakage; (2) landing footer headings/links/trust row and header nav + Products mega-menu 'Beta pública' badge translate; (3) /auth/secure-account?token=invalid renders localized FR title + 'Aller à la connexion →'; (4) regression: /auth/register and /auth/login load in EN and PT with zero console errors, zero hydration warnings, zero failed network requests; header logo renders; landing page loads and header globe switch to Français works live. All 4 requested scenarios PASS; one minor hardcoded English string found in secure-account.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "pages/auth/secure-account.tsx (line 33)", "issue": "Hardcoded English message 'This security link has already been used or is invalid.' is shown for the invalid-token state; stays English with lang=fr/pt while the title/link are translated. Needs an i18n key (e.g. secureAccount.invalidDefault) added to all locales.", "selector": "secure-account invalid state body text", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": ["Move the hardcoded invalid-link message in pages/auth/secure-account.tsx (line 33) into auth.json as secureAccount.invalidDefault for all locales (en/pt/fr/es/de/nl)."],
+  "critical_code_review_comments": [
+    "PurposePicker/i18n implementation verified correct: keys resolve for en/pt/fr with no raw key fallbacks and no hydration mismatch (client-only render after mount).",
+    "Note for future tests: text-transform:uppercase on picker question and mega-menu badge means inner_text returns uppercase — assertions must be case-insensitive."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not tested (skipped per request)", "frontend": "100% of requested scenarios passed (1 minor untranslated string)"},
+  "seed_data_creation": "None — no accounts created, register form never submitted.",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Language is set by localStorage 'lang' + reload (or bottom LanguageOnboardingBar which appears only on fresh localStorage). Must clear localStorage keys dyno_purpose_vertical / dyno_seo_attr or the purpose picker auto-hides. Non-EN locale chunk loads async — wait ~2.5s after switching. Verified strings: PT 'PASSO 1 DE 3 / PARA QUE ESTÁ AQUI? / Vender produtos / Angariar fundos / Receber gorjetas / Construir com a API / Saltar — escolho mais tarde'; FR 'ÉTAPE 1 SUR 3 / POURQUOI ÊTES-VOUS ICI ? / Vendre des produits / Collecter des fonds / Recevoir des pourboires / Développer avec l'API / Passer — Je choisirai plus tard'.",
+  "rca_of_the_issue": "Reported bug is resolved: PurposePicker now reads t('purposeQuestion') and t('purposeOptions.<vertical>.label|hint') from the auth namespace, and en/pt/fr auth.json contain all keys, so the picker re-renders in the selected language after the async locale bundle loads."
+}

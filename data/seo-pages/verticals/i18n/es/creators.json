@@ -1,0 +1,55 @@
+{
+  "meta_title": "Acepta propinas en criptomonedas como creador — tu propia página de propinas · Dynopay",
+  "meta_description": "Acepta propinas en criptomonedas como creador con tu propia página dynopay.com/@handle. Los fans pagan en más de 15 criptomonedas, los fondos van directamente a tu billetera. Comienza gratis hoy.",
+  "h1": "Acepta propinas en criptomonedas como creador con tu página de propinas personal",
+  "subheading": "Obtén tu propia página dynopay.com/@handle donde los fans te apoyan en Bitcoin, Ethereum, Solana y más de 12 criptomonedas—pagadas directamente a tu billetera.",
+  "intro_paragraph": "La mayoría de las plataformas retienen tus propinas en su cuenta y te pagan más tarde. Dynopay funciona de manera diferente: cada propina va directamente a tu propia billetera de criptomonedas, y tú mantienes la custodia todo el tiempo. Tu página de propinas personal en dynopay.com/@handle acepta más de 15 criptomonedas, los fans pagan con un toque sin crear una cuenta, y estás en vivo en menos de 10 minutos. El primer pago es completamente gratis, luego las tarifas comienzan en 1.5% y bajan a 0.5% a medida que crece tu volumen.",
+  "features": [
+    {
+      "title": "Propinas directamente a tu billetera",
+      "description": "Cada propina en criptomonedas llega directamente a la billetera que controlas. Dynopay nunca retiene tus fondos, así que tienes plena custodia y puedes mover tu cripto cuando quieras."
+    },
+    {
+      "title": "Tu propia página de propinas de marca",
+      "description": "Reclama tu dynopay.com/@handle y comparte un enlace en todas partes. Los fans pagan en Bitcoin, Ethereum, Solana, USDT o más de 11 criptomonedas sin registrarse ni instalar nada."
+    },
+    {
+      "title": "Las tarifas disminuyen a medida que creces",
+      "description": "Tu primer pago es gratis. Después de eso, las tarifas comienzan en 1.5% y caen automáticamente a 0.5% según tu volumen. Sin cargos mensuales, sin costos de configuración, sin contracargos."
+    }
+  ],
+  "how_it_works": [
+    "Regístrate con tu correo electrónico, crea tu perfil de creador y reclama tu @handle personalizado en dynopay.com.",
+    "Agrega tu dirección de billetera de criptomonedas una vez—Bitcoin, Ethereum, Solana o cualquier cadena que prefieras para los pagos.",
+    "Comparte tu enlace dynopay.com/@handle en tu biografía, superposiciones de transmisión o publicaciones. Los fans te dan propinas en segundos."
+  ],
+  "faqs": [
+    {
+      "question": "¿Qué criptomonedas puedo aceptar como propinas?",
+      "answer": "Puedes aceptar más de 15 criptomonedas, incluyendo Bitcoin, Ethereum, Solana, Dogecoin, Litecoin, XRP, Tron, Polygon y stablecoins como USDT y USDC a través de múltiples redes. Los fans eligen qué cripto enviar, y tú la recibes directamente en tu billetera."
+    },
+    {
+      "question": "¿Necesito crear una billetera para cada criptomoneda?",
+      "answer": "No. Agregas una dirección de billetera de pago por cada criptomoneda que deseas soportar. Por ejemplo, agrega una dirección de Ethereum para recibir ETH, USDT, USDC y RLUSD en Ethereum. Las propinas en esa cripto van directamente a la billetera que proporcionaste."
+    },
+    {
+      "question": "¿Cuánto cobra Dynopay por las propinas en criptomonedas?",
+      "answer": "Tu primer pago es completamente gratis. Después de eso, las tarifas comienzan en 1.5% más un dólar por propina y caen automáticamente a tan solo 0.5% a medida que crece tu volumen. No hay tarifas mensuales, costos de configuración ni cargos ocultos."
+    },
+    {
+      "question": "¿Mis fans necesitan registrarse o instalar algo?",
+      "answer": "No. Los fans visitan tu página dynopay.com/@handle, eligen su cripto y envían la propina desde su billetera existente. No crean una cuenta—como máximo pueden dejar un correo electrónico opcional para un recibo. El pago toma segundos."
+    },
+    {
+      "question": "¿Cuánto tiempo se tarda en comenzar a aceptar propinas en criptomonedas?",
+      "answer": "Menos de 10 minutos. Regístrate, verifica tu correo electrónico, reclama tu @handle y agrega tu dirección de billetera. Tu página de propinas personal se activa inmediatamente y puedes compartir el enlace donde sea que se reúna tu comunidad."
+    }
+  ],
+  "cta_headline": "Reclama tu página de propinas y ve en vivo hoy",
+  "cta_body": "Regístrate en dos minutos, agrega tu billetera y comienza a aceptar propinas en criptomonedas. Tu primer pago es gratis, sin tarifas mensuales nunca.",
+  "_generated_at": "2026-08-29T14:57:33.999072Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "creators",
+  "_display_name": "Creators & Streamers"
+}

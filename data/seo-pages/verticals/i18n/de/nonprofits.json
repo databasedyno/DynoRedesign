@@ -1,0 +1,55 @@
+{
+  "meta_title": "Krypto-Zahlungen für gemeinnützige Organisationen & Wohltätigkeitsorganisationen · Dynopay",
+  "meta_description": "Akzeptieren Sie Bitcoin, Ethereum und 15+ Kryptowährungen für Spenden. Keine Rückbuchungen, keine monatlichen Gebühren. Gelder gehen direkt an Ihre Wallet. Starten Sie noch heute kostenlos.",
+  "h1": "Akzeptieren Sie Krypto-Zahlungen für gemeinnützige Organisationen & Wohltätigkeitsorganisationen ohne Rückbuchungen",
+  "subheading": "Erhalten Sie Spenden in Bitcoin, Ethereum, USDC und 15+ Kryptowährungen – die Gelder kommen direkt in Ihre Wallet ohne Rückbuchungsrisiko.",
+  "intro_paragraph": "Spendenbetrug kostet gemeinnützige Organisationen Tausende an rückgängig gemachten Kreditkartengeschenken und Streitigkeiten bei der Verarbeitung. Dynopay beseitigt Rückbuchungen vollständig, indem es Krypto-Spenden akzeptiert, die direkt in die Wallet Ihrer Organisation fließen – Sie behalten die volle Kontrolle, sobald ein Spender Gelder sendet. Starten Sie Spendenseiten, betten Sie Checkout-Widgets auf Ihrer Website ein oder führen Sie Crowdfunding-Kampagnen mit Zielverfolgung und Spender-Updates durch. Die Gebühren beginnen bei 1,5 % und sinken auf 0,5 % bei größerem Volumen, ohne monatliche Gebühren und Ihre erste Spende ist völlig kostenlos.",
+  "features": [
+    {
+      "title": "Kein Rückbuchungsrisiko bei Spenden",
+      "description": "Krypto-Transaktionen sind endgültig. Sobald ein Spender Bitcoin oder Stablecoin sendet, können die Gelder nicht rückgängig gemacht oder angefochten werden, was Ihr Budget vor betrügerischen Rückforderungsansprüchen schützt."
+    },
+    {
+      "title": "Gelder gehen direkt an Sie",
+      "description": "Das nicht verwahrende Modell bedeutet, dass Spenden sofort in Ihrer eigenen Wallet ankommen. Dynopay hält niemals Ihre Gelder, sodass Sie die Kontrolle über die Kasse und Auszahlungen ohne Verzögerungen bei Abhebungen haben."
+    },
+    {
+      "title": "Akzeptieren Sie Spenden weltweit",
+      "description": "Unterstützer überall können in ihrer bevorzugten Kryptowährung spenden, ohne Währungsumrechnungsgebühren, Verzögerungen bei internationalen Überweisungen oder geografische Einschränkungen bei Zahlungsanbietern."
+    }
+  ],
+  "how_it_works": [
+    "Melden Sie sich an, verifizieren Sie Ihre E-Mail, erstellen Sie Ihr gemeinnütziges Profil und fügen Sie Ihre Auszahlung-Wallet-Adresse hinzu.",
+    "Generieren Sie einen Spendenlink oder betten Sie das Checkout-Widget auf Ihrer Website ein, um Krypto zu akzeptieren.",
+    "Spender senden Bitcoin, USDC oder andere unterstützte Vermögenswerte, und die Gelder werden direkt in Ihre Wallet überwiesen."
+  ],
+  "faqs": [
+    {
+      "question": "Zahlen gemeinnützige Organisationen Transaktionsgebühren auf Krypto-Spenden?",
+      "answer": "Ja. Dynopay erhebt ab 1,5 % plus einen Dollar pro Spende auf der Starter-Stufe, die automatisch auf 0,5 % sinkt, wenn Ihr abgewickeltes Volumen wächst. Keine monatlichen Gebühren oder Einrichtungskosten. Ihre erste Spende ist völlig gebührenfrei, und es gibt keine Rückbuchungsgebühren, da Krypto-Zahlungen endgültig sind."
+    },
+    {
+      "question": "Welche Kryptowährungen können gemeinnützige Organisationen für Spenden akzeptieren?",
+      "answer": "Dynopay unterstützt 15+ Kryptowährungen, darunter Bitcoin, Ethereum, Litecoin, Dogecoin, USDT und USDC-Stablecoins auf Ethereum und Polygon, Solana, XRP, RLUSD, Tron und Bitcoin Cash. Spender wählen ihr bevorzugtes Asset beim Checkout."
+    },
+    {
+      "question": "Wie gelangen gespendete Krypto-Gelder in die Wallet unserer gemeinnützigen Organisation?",
+      "answer": "Dynopay ist nicht verwahrend. Spenden gehen direkt vom Spender an die Wallet-Adresse, die Sie während der Einrichtung konfigurieren. Sie behalten jederzeit die volle Kontrolle – Dynopay hält, bündelt oder kontrolliert niemals Ihre Gelder. Sie können sofort abheben oder ausgeben."
+    },
+    {
+      "question": "Können internationale Unterstützer Krypto an US-amerikanische gemeinnützige Organisationen spenden?",
+      "answer": "Ja. Krypto-Spenden funktionieren standardmäßig weltweit ohne Länderbeschränkungen, wer Gelder an Ihre Wallet senden kann. Spender vermeiden internationale Überweisungsgebühren und Währungsumrechnungsaufschläge, und Sie erhalten Beiträge innerhalb von Minuten, unabhängig von ihrem Standort."
+    },
+    {
+      "question": "Wie lange dauert es, um Krypto-Spenden zu akzeptieren?",
+      "answer": "Unter 10 Minuten. Melden Sie sich an, verifizieren Sie Ihre E-Mail, erstellen Sie Ihr gemeinnütziges Profil, fügen Sie eine Auszahlung-Wallet hinzu und generieren Sie dann einen Spendenlink oder betten Sie das Widget auf Ihrer Website ein. Keine Genehmigungen für Händlerkonten oder Bankintegrationen erforderlich."
+    }
+  ],
+  "cta_headline": "Beginnen Sie noch heute mit der Annahme von Krypto-Spenden",
+  "cta_body": "Ihre erste Spende ist gebührenfrei. Gehen Sie in weniger als 10 Minuten live, ohne Einrichtungskosten oder monatliche Gebühren.",
+  "_generated_at": "2026-08-29T14:56:49.775449Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "nonprofits",
+  "_display_name": "Nonprofits & Charities"
+}

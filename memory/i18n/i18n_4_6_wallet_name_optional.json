@@ -1,0 +1,12 @@
+{
+  "walletScreen": {
+    "walletNameHelper": {
+      "en": "Optional — a label just for you, e.g. “Main USDT payouts”. Leave blank to use the coin name. Your customers never see it.",
+      "de": "Optional — ein Label nur für Sie, z. B. „Haupt-USDT-Auszahlungen“. Leer lassen, um den Coin-Namen zu verwenden. Ihre Kunden sehen es nie.",
+      "es": "Opcional — una etiqueta solo para ti, p. ej., “Pagos USDT principales”. Déjalo en blanco para usar el nombre de la moneda. Tus clientes nunca la ven.",
+      "fr": "Facultatif — un libellé pour vous seul, ex. : « Paiements USDT principaux ». Laissez vide pour utiliser le nom de la crypto. Vos clients ne le voient jamais.",
+      "nl": "Optioneel — een label alleen voor jou, bijv. “Belangrijkste USDT-uitbetalingen”. Laat leeg om de muntnaam te gebruiken. Je klanten zien het nooit.",
+      "pt": "Opcional — uma etiqueta só para si, ex.: “Pagamentos USDT principais”. Deixe em branco para usar o nome da moeda. Os seus clientes nunca a veem."
+    }
+  }
+}

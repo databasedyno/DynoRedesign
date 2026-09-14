@@ -1,0 +1,20 @@
+{
+ "common": {
+  "skipToContent": {
+   "en": "Skip to main content",
+   "de": "Zum Hauptinhalt springen",
+   "es": "Saltar al contenido principal",
+   "fr": "Aller au contenu principal",
+   "nl": "Ga naar de hoofdinhoud",
+   "pt": "Saltar para o conteúdo principal"
+  },
+  "mainNavigation": {
+   "en": "Main navigation",
+   "de": "Hauptnavigation",
+   "es": "Navegación principal",
+   "fr": "Navigation principale",
+   "nl": "Hoofdnavigatie",
+   "pt": "Navegação principal"
+  }
+ }
+}

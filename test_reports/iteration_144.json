@@ -1,0 +1,48 @@
+{
+  "summary": "Keyboard/a11y verification of UX Checkpoint 4.5 as owner @ 'The Dev Store'. Ran 11 checkpoints across 1280x800 and 390x844. Most items PASS (skip link, landmarks, sidebar keyboard nav w/ aria-current + focus ring, header company + user menu open/escape, list-row Enter->drawer/modal + ESC returns focus, dialog focus trap, phone tab bar keyboard-focusable w/ aria-labels + Enter navigates, phone tx-card focus ring, tab-stops on 4 pages have no hidden/zero-size stops, hidden language options are not reachable when More is closed). FAILURES: (1) MUI Switch host does NOT paint a focus ring for payouts-digest-toggle / payouts-autoconvert-toggle / store-enabled-switch (outline:none, box-shadow:none on .MuiSwitch-switchBase when its input is focused). (2) share-referral-btn has no aria-label (other share-* buttons do). (3) mobile-nav-home testid is missing on /dashboard (only payments/wallet/more present). (4) User menu opens with Enter but its items lack role='menuitem' (menu opens visually, but semantic menu items are not exposed). Not testable due to data/UI state: customer-row-*/customer-card-*, payouts-pending-row-0/payouts-settlement-row-0, pk-toggle/edit/revoke-* (empty state / no existing keys), pagination-prev/next on /transactions (data shows a single page).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "MUI Switch focus ring (Payouts/Storefront)", "issue": "When the hidden <input> is focus-visible, host .MuiSwitch-switchBase has outline:'none 0px' and box-shadow:'none'. Expected a paint per globals.css rule. Confirmed on payouts-digest-toggle, payouts-autoconvert-toggle, store-enabled-switch.", "selector": "[data-testid='payouts-digest-toggle'] / [data-testid='store-enabled-switch']", "priority": "HIGH"},
+      {"component": "Referrals share-referral-btn", "issue": "Button element missing aria-label (other share-whatsapp/telegram/x-btn have labels). Icon-only button has no accessible name.", "selector": "[data-testid='share-referral-btn']", "priority": "MEDIUM"},
+      {"component": "Mobile bottom tab bar", "issue": "mobile-nav-home data-testid is missing on /dashboard at 390x844. Only mobile-nav-payments/wallet/more exist. Task expected mobile-nav-home to be present.", "selector": "[data-testid='mobile-nav-home']", "priority": "MEDIUM"},
+      {"component": "UserMenu items", "issue": "user-menu-trigger opens on Enter (aria-haspopup=menu) but list items ('Finish business profile', 'View my creator page', 'Settings', 'Language', 'Logout') don't expose role='menuitem'. ArrowDown from trigger keeps focus on trigger (menu items not reachable via ArrowDown key handling from trigger).", "selector": "[data-testid='user-menu-trigger']", "priority": "MEDIUM"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "checkpoint_results": {
+    "1_skip_link": "PASS (1280): Tab#1 -> data-testid=skip-to-content visible top=8px, Enter focuses MAIN#main-content, next Tab lands on claim-banner-cta inside main. Landmarks header/nav[aria-label='Main navigation']/main#main-content all present.",
+    "2_sidebar": "PASS: all 12 sidebar-item-* have role='link' tabIndex=0, focus ring (outline 2px + box-shadow) visible on every one, active dashboard has aria-current='page'. Enter on sidebar-item-transactions -> /transactions. Space on sidebar-item-payment-links -> /pay-links.",
+    "3_header": "PARTIAL: company-selector-trigger (role=button, tabIndex=0, aria-haspopup=listbox) — Enter flips aria-expanded false->true, Escape restores focus to trigger. user-menu-trigger has aria-label='John Davis', Enter opens menu (visually confirmed), Escape closes and returns focus — BUT menu items lack role='menuitem' and ArrowDown does not move focus into the menu.",
+    "4_list_rows": "MIXED: paylink-row PASS (role=button, tabIndex=0, Enter opens paylink-detail-title, ESC closes and returns focus to row). invoice-row-* PASS (Enter opens MuiDrawer). tx-row-* PASS (Enter opens tx-modal-status, ESC closes). customer-row-* NOT PRESENT in DOM (customers page has only stats + search + sort testids). payouts-pending-row-0 / payouts-settlement-row-0 NOT PRESENT (payouts-pending-empty state shown).",
+    "5_dropdowns": "PASS (main): currency-selector-trigger and expire-selector-trigger have role=button tabIndex=0 aria-haspopup=listbox, Enter flips aria-expanded to true (popover opens). crypto-select-all/-clear-all/-show-all are real <button>s and reachable. rows-per-page-trigger has role=button tabIndex=0. wallet-add-btn: dialog didn't fully open in one attempt (retry timing) — crypto-selector-trigger inside could not be verified for BTC option in this run.",
+    "6_icon_buttons": "MIXED: pagination-prev/pagination-next NOT PRESENT on /transactions in current data (single page). pk-toggle/edit/revoke-* NOT PRESENT on /developer-keys (no existing keys — only pk-create-btn / pk-form-* shown). transactions-export-btn on 390 has aria-label='Export' PASS. copy-referral-code-btn aria-label='Copy referral code' PASS. share-whatsapp/telegram/x-btn have aria-label PASS. share-referral-btn is a real BUTTON but has no aria-label FAIL. Dashboard button audit: 36 visible buttons, 0 without accessible name.",
+    "7_phone_tabs": "MIXED: mobile-nav-home MISSING. mobile-nav-payments/wallet/more all role=button aria-label set tabIndex=0. Enter on mobile-nav-payments navigates to /pay-links. Hidden language items are NOT tabbable when More is closed (0 hits tabbing 120 times).",
+    "8_phone_cards": "PASS: tx-card role=button, tabIndex=0, visible focus ring (outline 2px + box-shadow) on focus, Enter opens tx-modal-status. Cards for customer/invoice not tested (rows absent per §4). paylink-card already role=button.",
+    "9_toggles": "FAIL: MUI Switch host does NOT paint a focus ring — outline:'none 0px' and box-shadow:'none' on .MuiSwitch-switchBase for payouts-digest-toggle, payouts-autoconvert-toggle, and store-enabled-switch when the underlying input has focus.",
+    "10_tab_stops": "PASS: /dashboard 44 stops, /transactions 9, /settings 30, /storefront 83 — 0 focus stops on zero-size or visibility:hidden/opacity:0 elements.",
+    "11_dialog_trap": "PASS: paylink detail drawer opens with Enter on row, focus is inside drawer, Tab cycles inside (15 Tabs stayed within), Escape closes and returns focus to the opener row."
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Fix MUI Switch focus-ring: ensure globals.css rule actually paints outline (or box-shadow) on .MuiSwitch-switchBase (and .MuiCheckbox-root / .MuiRadio-root) when its child <input> is :focus-visible. Currently no ring is applied on payouts-digest-toggle, payouts-autoconvert-toggle, store-enabled-switch.",
+    "Add aria-label to [data-testid='share-referral-btn'] (e.g., 'Share referral link'). Other share-* buttons already have labels.",
+    "Add mobile-nav-home to the phone bottom tab bar on /dashboard (or rename existing home tab to expose the mobile-nav-home data-testid).",
+    "Give user-menu items role='menuitem' and wire ArrowDown from user-menu-trigger to move focus into the first menu item so keyboard users can traverse the menu.",
+    "Optional: seed a customer + a payout row + at least one publishable key + >10 transactions on 'The Dev Store' so keyboard tests for customer-row-*, payouts-pending-row-0, pk-toggle-*/edit-*/revoke-*, and pagination-prev/next can be verified end-to-end."
+  ],
+  "critical_code_review_comments": [
+    "Focus-ring styling: relying on MuiSwitch-switchBase :focus-visible via child <input> selector chain frequently fails in emotion/MUI v5 because outline is stripped by the ButtonBase reset. Prefer targeting the ButtonBase directly with .Mui-focusVisible or using CSS `:has(> input:focus-visible)` where supported.",
+    "Consider replacing role='button' on plain DIVs (currency/expire/rpp triggers) with real <button type='button'>; MUI's Autocomplete/Select provides proper listbox semantics.",
+    "UserMenu should mount an actual [role='menu'] with [role='menuitem'] children so screen-reader users can traverse it (right now it opens visually but has no menu semantics)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (frontend-only run)", "frontend": "~78% (7/9 testable checkpoints fully pass, 2 partial due to bugs; 4 items skipped due to empty data state)"},
+  "test_credentials": "owner: onarrival21@gmail.com / Katiekendra123@, brand: The Dev Store (company-option-1)",
+  "seed_data_creation": "None (SAFE MODE, read-only).",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Skip link + landmarks + sidebar + list-row Enter/Escape + dialog focus-trap are all solid. Focus next iteration on: (1) MUI Switch focus-ring in globals.css, (2) mobile-nav-home missing, (3) share-referral-btn label, (4) user-menu semantic role='menuitem' + ArrowDown. Data-empty checkpoints (customers rows, payouts rows, publishable keys, transactions pagination) need seeded rows before they can be verified via keyboard.",
+  "rca of the issue": "MuiSwitch: MUI resets outline:none on ButtonBase. The globals.css rule likely targets `.MuiSwitch-switchBase:has(input:focus-visible)` or a similar :has() chain which either isn't in the compiled bundle or is overridden by MUI's own switchBase-focused styles. Verify the rule ships in the production CSS (grep .css bundle for 'MuiSwitch-switchBase' + 'focus-visible') and raise its specificity (e.g. `.MuiSwitch-root .MuiSwitch-switchBase.Mui-focusVisible { outline: 2px solid currentColor; outline-offset: 2px; }`)."
+}

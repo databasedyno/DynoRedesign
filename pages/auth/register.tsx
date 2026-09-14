@@ -1,0 +1,1143 @@
+import Logo from "@/assets/Icons/home/dynopay-blackLogo.svg";
+import WhiteLogo from "@/assets/Icons/home/dynopay-whiteLogo.svg";
+import InputField from "@/Components/UI/AuthLayout/InputFields";
+import TitleDescription from "@/Components/UI/AuthLayout/TitleDescription";
+import TrustStrip from "@/Components/UI/AuthLayout/TrustStrip";
+import PurposePicker from "@/Components/UI/AuthLayout/PurposePicker";
+import type { Vertical } from "@/Components/UI/_shared";
+import { verticalToOnboarding } from "@/helpers/verticalOnboarding";
+import CustomButton from "@/Components/UI/Buttons";
+import { AuthHeaderControls } from "@/Components/UI/AuthLayout/AuthShell";
+import { AuthPageBackground, SplitLayoutWrapper, FormPanel } from "@/Containers/Login/styled";
+import useIsMobile from "@/hooks/useIsMobile";
+import CountryPhoneInput from "@/Components/UI/CountryPhoneInput";
+import SocialAuthButtons from "@/Components/Common/SocialAuthButtons";
+import OtpInputPanel from "@/Components/UI/OtpInputPanel";
+import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
+import { USER_LOGIN, USER_LOGIN_2FA_REQUIRED } from "@/Redux/Actions/UserAction";
+import axiosBaseApi from "@/axiosConfig";
+import confetti from "canvas-confetti";
+import Image from "next/image";
+import { useRouter } from "next/router";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useDispatch } from "react-redux";
+import {
+  Box,
+  Typography,
+  ToggleButton,
+  ToggleButtonGroup,
+  useTheme,
+  Divider,
+  Link,
+} from "@mui/material";
+import { ArrowBack, CheckCircleOutline, InfoOutlined, MailOutline, SmartphoneOutlined } from "@mui/icons-material";
+import Head from "next/head";
+import Script from "next/script";
+import { BRAND_ACCENT, brandFg } from "@/constants/theme";
+import { API_ENDPOINTS } from "@/api/endpoints";
+import Spinner from "@/Components/UI/Spinner";
+
+type RegisterMethod = "email" | "phone";
+type Step = "purpose" | "input" | "otp" | "name" | "success";
+
+// Thin wrapper over the shared <Spinner/> that preserves this screen's exact
+// look (translucent white track, solid white arc, 2px ring, 0.8s).
+const LoadingSpinner = ({ size = 20 }: { size?: number }) => (
+  <Spinner
+    size={size}
+    thickness={2}
+    trackColor="rgba(255,255,255,0.3)"
+    color="#fff"
+    speed="0.8s"
+  />
+);
+
+const Register = () => {
+  const { t, i18n } = useTranslation("auth");
+  const theme = useTheme();
+  const isMobile = useIsMobile("sm");
+  const router = useRouter();
+  const dispatch = useDispatch();
+
+  // State
+  const [step, setStep] = useState<Step>("purpose");
+  const [method, setMethod] = useState<RegisterMethod>("email");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [phoneError, setPhoneError] = useState("");
+  const [otpError, setOtpError] = useState("");
+  const [loading, setLoading] = useState(false);
+  // Name step (email/phone signups only — social logins already carry a name
+  // from the provider). Collected right after OTP verification, before the app.
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [nameError, setNameError] = useState("");
+  const [countdown, setCountdown] = useState(0);
+  const [showReferralInput, setShowReferralInput] = useState(false);
+  const [referralCode, setReferralCode] = useState("");
+  const [phoneTypeChecking, setPhoneTypeChecking] = useState(false);
+  // When the entered email/phone already belongs to an account, the backend
+  // sends a login OTP and we switch the UI into "log in" mode instead of "create account".
+  const [accountExists, setAccountExists] = useState(false);
+  // Bumped each time we send a new OTP — tells OtpInputPanel to clear its boxes
+  // and re-focus the first input.
+  const [otpResetKey, setOtpResetKey] = useState(0);
+  // Handle the visitor claimed on the landing hero ("dynopay.com/@<handle>"),
+  // carried here via ?handle= (with a localStorage fallback) so we can show it
+  // is being reserved while they finish signing up.
+  const [claimedHandle, setClaimedHandle] = useState("");
+  // Purpose vertical — captured from the new PurposePicker step OR
+  // auto-detected from SEO attribution / URL query / prior localStorage pick.
+  // Feeds the useVerticalAccent() override so post-signup UI is tinted for
+  // the user's stated intent (creators → volt, fundraisers → violet, etc.).
+  // Persisted client-side only in Phase 2; backend column lands in Phase 3.
+  const [vertical, setVertical] = useState<Vertical | null>(null);
+
+  // Fire a small confetti burst the moment the user lands on step="success" —
+  // only for NEW account creation (not for existing-account log-in), and only once.
+  // Emergent-style delight moment: light celebration → user proceeds to onboarding.
+  const confettiFiredRef = useRef(false);
+  useEffect(() => {
+    if (step !== "success") {
+      confettiFiredRef.current = false;
+      return;
+    }
+    if (confettiFiredRef.current) return;
+    if (accountExists) return; // no need to celebrate a re-login
+    confettiFiredRef.current = true;
+    // Small, tasteful burst — 2 sides, brand colors, 90ms total.
+    try {
+      confetti({ disableForReducedMotion: true,
+        particleCount: 60,
+        spread: 60,
+        startVelocity: 35,
+        origin: { x: 0.3, y: 0.5 },
+        colors: ["#4338CA", "#818CF8", "#10B981", "#F59E0B"],
+        scalar: 0.9,
+        ticks: 200,
+      });
+      confetti({ disableForReducedMotion: true,
+        particleCount: 60,
+        spread: 60,
+        startVelocity: 35,
+        origin: { x: 0.7, y: 0.5 },
+        colors: ["#4338CA", "#818CF8", "#10B981", "#F59E0B"],
+        scalar: 0.9,
+        ticks: 200,
+      });
+    } catch {
+      /* canvas-confetti is client-only and safe to ignore on unusual envs */
+    }
+  }, [step, accountExists]);
+
+  // Check for a GENUINE referral code in the URL.
+  //
+  // Public marketing CTAs pass an attribution tag on ?ref= (e.g. how_to,
+  // docs_hero, fees_calculator, promo_bar) purely to track WHICH button was
+  // clicked — these are NOT referral codes and must never pre-fill the referral
+  // field (doing so misled first-time users into thinking they had a real
+  // referral). Genuine merchant referral codes are uppercase and start with
+  // DYNO / REF (e.g. DYNO-AB12CD, DYNO2026JOH1A2B3, REF-1A2B3C4D). We only
+  // pre-fill when the value matches that shape; attribution tags are silently
+  // ignored — the first-payment-fee-free promo still applies to every new
+  // account regardless.
+  useEffect(() => {
+    const raw = router.query.ref;
+    if (!raw || typeof raw !== "string") return;
+    const code = raw.trim().toUpperCase();
+    const looksLikeReferralCode = /^(DYNO|REF)[A-Z0-9-]{3,}$/.test(code);
+    if (looksLikeReferralCode) {
+      setReferralCode(code);
+      setShowReferralInput(true);
+    }
+  }, [router.query]);
+
+  // ─── SEO-attribution capture ─────────────────────────────────────
+  // When users arrive from /accept-crypto-payments-in/{country} or /for/{vertical}
+  // the SEO pages append `?src=seo&page={slug}&kind={country|vertical}` to the
+  // signup link. Capture it (7-day localStorage window) so we can measure
+  // per-SEO-page conversion downstream. We also SEND it on registerEmail /
+  // registerPhone so the backend can log it against the new-user creation.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const src =
+        typeof router.query.src === "string" ? router.query.src : null;
+      const pageSlug =
+        typeof router.query.page === "string" ? router.query.page : null;
+      const kind =
+        typeof router.query.kind === "string" &&
+        (router.query.kind === "country" || router.query.kind === "vertical")
+          ? router.query.kind
+          : null;
+      if (src === "seo" && pageSlug && kind) {
+        const payload = { src, page: pageSlug, kind, ts: Date.now() };
+        localStorage.setItem("dyno_seo_attr", JSON.stringify(payload));
+      }
+    } catch {
+      /* attribution capture must never break the app */
+    }
+  }, [router.query]);
+
+  // ─── Claimed-handle capture (from the landing hero) ───────────────
+  // The landing hero sends ?handle=<h> and stores it in localStorage. Capture it
+  // so we can (a) reassure the visitor their page is reserved and (b) let the
+  // /creator claim step pre-fill it after signup.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const fromQuery =
+        typeof router.query.handle === "string" ? router.query.handle : "";
+      const raw = fromQuery || localStorage.getItem("dynopay.claimedHandle") || "";
+      const clean = raw.trim().toLowerCase().replace(/[^a-z0-9_-]/g, "").slice(0, 30);
+      if (clean.length >= 3) {
+        setClaimedHandle(clean);
+        localStorage.setItem("dynopay.claimedHandle", clean);
+        // Renew the server-side reservation so the handle stays HARD-held while
+        // the visitor finishes signing up (TTL refreshed on each renew).
+        const token = localStorage.getItem("dynopay.claimedHandleToken") || undefined;
+        fetch(`/api${API_ENDPOINTS.creator.reserveHandle}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ handle: clean, token }),
+        })
+          .then((r) => r.json())
+          .then((j) => {
+            const d = j?.data ?? j;
+            if (d?.token) {
+              try {
+                localStorage.setItem("dynopay.claimedHandleToken", d.token);
+              } catch {
+                /* ignore */
+              }
+            }
+          })
+          .catch(() => {
+            /* renewal is best-effort */
+          });
+      }
+    } catch {
+      /* never break signup over a nice-to-have banner */
+    }
+  }, [router.query]);
+
+  // Load stored SEO attribution (fresh <= 7d) so it survives a browser refresh
+  // between landing on the SEO page and finishing signup.
+  const getSeoAttribution = useCallback((): {
+    src: string;
+    page: string;
+    kind: "country" | "vertical";
+  } | null => {
+    if (typeof window === "undefined") return null;
+    try {
+      const raw = localStorage.getItem("dyno_seo_attr");
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      const MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+      if (
+        parsed?.src === "seo" &&
+        typeof parsed?.page === "string" &&
+        (parsed?.kind === "country" || parsed?.kind === "vertical") &&
+        typeof parsed?.ts === "number" &&
+        Date.now() - parsed.ts <= MAX_AGE_MS
+      ) {
+        return { src: parsed.src, page: parsed.page, kind: parsed.kind };
+      }
+    } catch {
+      /* ignore */
+    }
+    return null;
+  }, []);
+
+  // Countdown timer
+  useEffect(() => {
+    if (countdown <= 0) return;
+    const timer = setInterval(() => setCountdown((c) => c - 1), 1000);
+    return () => clearInterval(timer);
+  }, [countdown]);
+
+  // ─── Google Sign Up ───
+  // Verified Google Identity Services flow ONLY — same as the login page. The
+  // access token is sent to POST /api/user/google-signin, which validates it
+  // server-side against Google. We intentionally do NOT fall back to the
+  // NextAuth redirect flow (the legacy /connectSocial path issued sessions
+  // without any server-side verification and has been retired).
+  const handleGoogleLogin = useCallback(async () => {
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    if (!clientId) {
+      dispatch({ type: TOAST_SHOW, payload: { message: "Google sign-in is not configured", severity: "error" } });
+      return;
+    }
+
+    const runGoogleTokenFlow = () => {
+      const tokenClient = (window as any).google.accounts.oauth2.initTokenClient({
+        client_id: clientId,
+        scope: "openid email profile",
+        callback: async (tokenResponse: any) => {
+          if (!tokenResponse?.access_token) return;
+          try {
+            const res = await axiosBaseApi.post("user/google-signin", {
+              accessToken: tokenResponse.access_token,
+            });
+            const { data, message } = res?.data || {};
+            if (data?.requires_2fa) {
+              dispatch({ type: USER_LOGIN_2FA_REQUIRED, payload: { challenge_token: data.challenge_token } });
+              router.push("/auth/login");
+              return;
+            }
+            if (data?.userData && data?.accessToken) {
+              dispatch({ type: TOAST_SHOW, payload: { message: message || "Login successful" } });
+              dispatch({
+                type: USER_LOGIN,
+                payload: { ...data.userData, accessToken: data.accessToken, refreshToken: data.refreshToken },
+              });
+              // Redirect to the dashboard after a successful Google sign-in. This
+              // was previously missing: an already-registered Google account saw
+              // "Login successful" but stayed on the signup page (QA custom::14).
+              // Mirrors the login page + the email-OTP path.
+              setStep("success");
+              setTimeout(() => router.push("/dashboard"), 1200);
+            } else {
+              throw new Error("Invalid response");
+            }
+          } catch (e: any) {
+            const msg = e.response?.data?.message ?? e.message ?? "Google sign-up failed";
+            dispatch({ type: TOAST_SHOW, payload: { message: msg, severity: "error" } });
+          }
+        },
+      });
+      tokenClient.requestAccessToken();
+    };
+
+    const isGisReady = () =>
+      typeof window !== "undefined" && !!(window as any).google?.accounts?.oauth2;
+
+    if (isGisReady()) {
+      runGoogleTokenFlow();
+      return;
+    }
+
+    // Wait (up to ~2.5s) for the async GIS script (loaded in _document.tsx) to be ready.
+    let waited = 0;
+    const interval = setInterval(() => {
+      waited += 250;
+      if (isGisReady()) {
+        clearInterval(interval);
+        runGoogleTokenFlow();
+      } else if (waited >= 2500) {
+        clearInterval(interval);
+        dispatch({ type: TOAST_SHOW, payload: { message: "Google sign-in is still loading — please try again in a moment.", severity: "error" } });
+      }
+    }, 250);
+  }, [dispatch, router]);
+
+  // ─── GitHub Sign Up — OAuth authorization-code redirect flow ───
+  const handleGithubLogin = useCallback(() => {
+    const clientId = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID;
+    if (!clientId || typeof window === "undefined") return;
+    const state = `${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`;
+    try {
+      sessionStorage.setItem("gh_oauth_state", state);
+    } catch {
+      /* ignore */
+    }
+    const redirectUri = `${window.location.origin}/auth/github/callback`;
+    const params = new URLSearchParams({
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      scope: "read:user user:email",
+      state,
+    });
+    window.location.href = `https://github.com/login/oauth/authorize?${params.toString()}`;
+  }, []);
+
+  // ─── Phone Type Check ───
+  const checkPhoneType = useCallback(async (phoneDigits: string): Promise<boolean> => {
+    setPhoneTypeChecking(true);
+    try {
+      const res = await axiosBaseApi.post(API_ENDPOINTS.user.phoneTypeCheck, { mobile: phoneDigits });
+      const data = res?.data?.data;
+      if (data && !data.is_mobile && data.phone_type !== "unknown") {
+        setPhoneError("Only mobile numbers are accepted. Please use a mobile phone number.");
+        return false;
+      }
+      return true;
+    } catch {
+      // If check fails, allow through
+      return true;
+    } finally {
+      setPhoneTypeChecking(false);
+    }
+  }, []);
+
+  // ─── Step 1: Send OTP ───
+  const handleContinue = useCallback(async () => {
+    setEmailError("");
+    setPhoneError("");
+    setLoading(true);
+
+    try {
+      let exists = false;
+      const attribution = getSeoAttribution();
+      if (method === "email") {
+        if (!email || !email.includes("@")) {
+          setEmailError("Please enter a valid email address");
+          setLoading(false);
+          return;
+        }
+        const res = await axiosBaseApi.post(API_ENDPOINTS.user.registerEmail, {
+          email: email.toLowerCase().trim(),
+          referral_code: referralCode || undefined,
+          attribution: attribution || undefined,
+          purpose_vertical: vertical || undefined,
+        });
+        exists = res?.data?.data?.account_exists === true;
+      } else {
+        const digits = phone.replace(/[^\d]/g, "");
+        if (digits.length < 10) {
+          setPhoneError("Please enter a valid mobile number");
+          setLoading(false);
+          return;
+        }
+
+        // Check phone type first
+        const isMobileNumber = await checkPhoneType(digits);
+        if (!isMobileNumber) {
+          setLoading(false);
+          return;
+        }
+
+        const res = await axiosBaseApi.post(API_ENDPOINTS.user.registerPhone, {
+          mobile: digits,
+          referral_code: referralCode || undefined,
+          attribution: attribution || undefined,
+          purpose_vertical: vertical || undefined,
+        });
+        exists = res?.data?.data?.account_exists === true;
+      }
+
+      setAccountExists(exists);
+      setStep("otp");
+      setOtpResetKey((k) => k + 1);
+      setCountdown(60);
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || "Something went wrong. Please try again.";
+      if (method === "email") setEmailError(msg);
+      else setPhoneError(msg);
+    } finally {
+      setLoading(false);
+    }
+  }, [method, email, phone, referralCode, checkPhoneType, getSeoAttribution, vertical]);
+
+  // ─── Step 2: Verify OTP & Create Account ───
+  const handleVerifyOtp = useCallback(async (otpCode: string) => {
+    if (otpCode.length !== 6) {
+      setOtpError("Please enter the complete 6-digit code");
+      return;
+    }
+
+    // NEW signups must provide their name (collected on this screen) so the account
+    // is created WITH a name — never nameless. Existing-account OTP logins skip this.
+    const isNewSignup = !accountExists;
+    const first = firstName.trim();
+    const last = lastName.trim();
+    if (isNewSignup) {
+      if (!first) { setNameError(t("nameFirstRequired", { defaultValue: "First name is required" })); return; }
+      if (!last) { setNameError(t("nameLastRequired", { defaultValue: "Last name is required" })); return; }
+      setNameError("");
+    }
+    const fullName = `${first} ${last}`.replace(/\s+/g, " ").trim();
+
+    setOtpError("");
+    setLoading(true);
+
+    try {
+      let response;
+      const attribution = getSeoAttribution();
+      if (method === "email") {
+        response = await axiosBaseApi.post(API_ENDPOINTS.user.registerEmailVerifyOtp, {
+          email: email.toLowerCase().trim(),
+          otp: otpCode,
+          first_name: isNewSignup ? first : undefined,
+          last_name: isNewSignup ? last : undefined,
+          name: isNewSignup ? fullName : undefined,
+          language: i18n.language,
+          attribution: attribution || undefined,
+        });
+      } else {
+        const digits = phone.replace(/[^\d]/g, "");
+        response = await axiosBaseApi.post(API_ENDPOINTS.user.registerPhoneVerify, {
+          mobile: digits,
+          otp: otpCode,
+          first_name: isNewSignup ? first : undefined,
+          last_name: isNewSignup ? last : undefined,
+          name: isNewSignup ? fullName : undefined,
+          language: i18n.language,
+          attribution: attribution || undefined,
+        });
+      }
+
+      const data = response?.data?.data;
+      if (data?.requires_2fa) {
+        // Existing account with TOTP enabled — finish on the login page's 2FA prompt.
+        dispatch({ type: USER_LOGIN_2FA_REQUIRED, payload: { challenge_token: data.challenge_token } });
+        router.push("/auth/login");
+        return;
+      }
+      if (data?.accessToken) {
+        const isLogin = accountExists || data?.account_exists === true;
+        // Store token and redirect
+        dispatch({
+          type: USER_LOGIN,
+          payload: data,
+        });
+        dispatch({
+          type: TOAST_SHOW,
+          payload: {
+            message: isLogin ? "Welcome back! Logged in successfully." : "Account created successfully!",
+            severity: "success",
+          },
+        });
+        // NEW signups now provide their name on the OTP screen, so the account is
+        // already created WITH a name — go straight to success. Existing-account
+        // logins are unchanged.
+        setStep("success");
+        // Auto redirect after brief success display.
+        //   • Existing (logged-in) users → /dashboard (unchanged behaviour)
+        //   • New signups with a purpose_vertical → the matching first-run
+        //     setup surface (creator handle / product / donation link / API keys)
+        //   • New signups without a vertical (skipped the picker) → /dashboard
+        setTimeout(() => {
+          const dest = isLogin ? undefined : verticalToOnboarding(vertical);
+          router.push(dest?.path ?? "/dashboard");
+        }, 1500);
+      } else {
+        setOtpError("Account creation failed. Please try again.");
+      }
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || "Invalid verification code. Please try again.";
+      setOtpError(msg);
+    } finally {
+      setLoading(false);
+    }
+  }, [method, email, phone, accountExists, firstName, lastName, dispatch, router, i18n.language, getSeoAttribution, vertical, t]);
+
+  // ─── Resend OTP ───
+  const handleResendOtp = useCallback(async () => {
+    if (countdown > 0) return;
+    setOtpError("");
+    setLoading(true);
+
+    try {
+      if (method === "email") {
+        await axiosBaseApi.post(API_ENDPOINTS.user.registerEmail, {
+          email: email.toLowerCase().trim(),
+          referral_code: referralCode || undefined,
+        });
+      } else {
+        const digits = phone.replace(/[^\d]/g, "");
+        await axiosBaseApi.post(API_ENDPOINTS.user.registerPhone, { mobile: digits });
+      }
+      setCountdown(60);
+      setOtpResetKey((k) => k + 1);
+    } catch {
+      setOtpError("Failed to resend code. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }, [countdown, method, email, phone, referralCode]);
+
+  // ════════════════════════════════════════════════════════
+  // RENDER
+  // ════════════════════════════════════════════════════════
+
+  return (
+    <>
+      <Head>
+        <title>{t("authRegister_title", { ns: "pageTitles", defaultValue: "Create your free account · Dynopay" })}</title>
+      </Head>
+      {/* Google Identity Services — loaded only on this auth page (moved off _document
+          so marketing pages don't pay for it). Handler polls for readiness. */}
+      <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" />
+      <AuthPageBackground>
+        <SplitLayoutWrapper>
+          {/* Form Panel (centered — brand panel dropped in 2025-07 pass) */}
+          <FormPanel>
+            <Box
+              sx={{
+                maxWidth: "420px",
+                width: "100%",
+                py: isMobile ? 2 : 0,
+              }}
+            >
+              {/* Top row: logo + controls, on every breakpoint */}
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  mb: 3,
+                }}
+              >
+                <Image
+                  src={theme.palette.mode === "dark" ? WhiteLogo : Logo}
+                  alt="logo"
+                  width={130}
+                  height={44}
+                  draggable={false}
+                  onClick={() => router.push("/")}
+                  style={{ cursor: "pointer" }}
+                  data-testid="auth-shell-logo"
+                />
+                <AuthHeaderControls />
+              </Box>
+
+              {/* Public-surfaces pass: visible progress — signup is 3 short
+                  steps and users always know where they are. Going back
+                  (chips / "use a different email") keeps entered data. */}
+              {step !== "success" && step !== "name" && (
+                <Box
+                  data-testid="register-progress"
+                  sx={{ display: "flex", alignItems: "center", gap: 1.25, mb: 1.5 }}
+                >
+                  <Typography
+                    sx={{
+                      fontFamily: "var(--font-body)",
+                      fontSize: 11.5,
+                      fontWeight: 700,
+                      letterSpacing: "0.14em",
+                      textTransform: "uppercase",
+                      color: theme.palette.text.secondary,
+                    }}
+                  >
+                    {t("stepOf", {
+                      defaultValue: "Step {{current}} of {{total}}",
+                      current: step === "purpose" ? 1 : step === "input" ? 2 : 3,
+                      total: 3,
+                    })}
+                  </Typography>
+                  <Box sx={{ display: "flex", gap: 0.5 }}>
+                    {[1, 2, 3].map((i) => {
+                      const current = step === "purpose" ? 1 : step === "input" ? 2 : 3;
+                      return (
+                        <Box
+                          key={i}
+                          sx={{
+                            width: 18,
+                            height: 4,
+                            borderRadius: 2,
+                            backgroundColor:
+                              i <= current
+                                ? theme.palette.primary.main
+                                : theme.palette.action.selected,
+                          }}
+                        />
+                      );
+                    })}
+                  </Box>
+                </Box>
+              )}
+
+              {/* ─── STEP 0: Purpose ─── */}
+              {step === "purpose" && (
+                <>
+                  <TitleDescription
+                    title={t("register", { defaultValue: "Create your account" })}
+                    description={t("registerPurposeDescription", {
+                      defaultValue: "Tell us why you're here so we set the app up for you.",
+                    })}
+                    descriptionFontSize="14px"
+                    descriptionColor={theme.palette.text.secondary}
+                  />
+                  <Box sx={{ mt: 2.5 }}>
+                    <PurposePicker
+                      routerQuery={router.query as Record<string, unknown>}
+                      onDetected={(v) => {
+                        setVertical(v);
+                        setStep("input");
+                      }}
+                      onSelect={(v) => {
+                        setVertical(v);
+                        setStep("input");
+                      }}
+                    />
+                    <Typography
+                      onClick={() => setStep("input")}
+                      data-testid="purpose-skip"
+                      sx={{
+                        display: "block",
+                        mt: 1.5,
+                        textAlign: "center",
+                        cursor: "pointer",
+                        fontFamily: "var(--font-body)",
+                        fontSize: 13,
+                        fontWeight: 500,
+                        color: theme.palette.text.secondary,
+                        textDecoration: "underline",
+                        textUnderlineOffset: 3,
+                        "&:hover": { color: theme.palette.text.primary },
+                      }}
+                    >
+                      {t("purposeSkip", { defaultValue: "Skip — I'll pick later" })}
+                    </Typography>
+                  </Box>
+                </>
+              )}
+
+              {/* ─── STEP 1: Input ─── */}
+              {step === "input" && (
+                <>
+                  <TitleDescription
+                    title={t("register")}
+                    description={t("registerDescription")}
+                    descriptionFontSize="14px"
+                    descriptionColor={theme.palette.text.secondary}
+                  />
+
+                  {claimedHandle && (
+                    <Box
+                      data-testid="reserved-handle-banner"
+                      sx={{
+                        mt: 1.5,
+                        px: 1.75,
+                        py: 1.25,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        borderRadius: "12px",
+                        border: `1px solid ${
+                          theme.palette.mode === "dark"
+                            ? "rgba(79,70,229,0.4)"
+                            : "rgba(79,70,229,0.25)"
+                        }`,
+                        background:
+                          theme.palette.mode === "dark"
+                            ? "rgba(79,70,229,0.14)"
+                            : "rgba(79,70,229,0.06)",
+                      }}
+                    >
+                      <CheckCircleOutline
+                        sx={{ fontSize: 20, color: BRAND_ACCENT, flexShrink: 0 }}
+                      />
+                      <Typography
+                        component="div"
+                        sx={{
+                          fontSize: "13px",
+                          lineHeight: 1.35,
+                          color: theme.palette.text.primary,
+                        }}
+                      >
+                        {t("reservedHandlePrefix", {
+                          defaultValue: "You're reserving",
+                        })}{" "}
+                        <b style={{ fontWeight: 700 }}>
+                          dynopay.com/@{claimedHandle}
+                        </b>{" "}
+                        —{" "}
+                        {t("reservedHandleSuffix", {
+                          defaultValue: "finish signing up to claim it.",
+                        })}
+                      </Typography>
+                    </Box>
+                  )}
+
+                  {/* Social Sign Up — hidden when both social flags are off */}
+                  {(process.env.NEXT_PUBLIC_ENABLE_GOOGLE_AUTH === "true" ||
+                    process.env.NEXT_PUBLIC_ENABLE_GITHUB_AUTH === "true") && (
+                    <>
+                      <Box sx={{ mt: 1.5 }}>
+                        <SocialAuthButtons
+                          googleLabel={t("continueWithGoogle")}
+                          onGoogle={handleGoogleLogin}
+                          showGoogle={process.env.NEXT_PUBLIC_ENABLE_GOOGLE_AUTH === "true"}
+                          showGithub={process.env.NEXT_PUBLIC_ENABLE_GITHUB_AUTH === "true"}
+                          onGithub={handleGithubLogin}
+                          githubLabel={t("continueWithGithub")}
+                          githubAriaLabel={t("continueWithGithub")}
+                          googleTestId="google-signup-btn"
+                          githubTestId="github-signup-btn"
+                        />
+                      </Box>
+
+                      {/* Divider */}
+                      <Box sx={{ mt: 1.5, mb: 1.5 }}>
+                        <Divider
+                          sx={{
+                            "&::before, &::after": {
+                              borderColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)",
+                            },
+                          }}
+                        >
+                          <Typography
+                            sx={{
+                              fontSize: "12px",
+                              color: "text.secondary",
+                              fontFamily: "var(--font-sans)",
+                              textTransform: "lowercase",
+                              px: 1,
+                            }}
+                          >
+                            {t("orSignUpWith")}
+                          </Typography>
+                        </Divider>
+                      </Box>
+                    </>
+                  )}
+
+                  {/* Method Toggle was a big segmented pill — replaced in
+                      the 2025-07 Coinbase-clean pass with a subtle text
+                      link below the input (see "Use mobile number instead"
+                      further down). Default lands on email; one click
+                      switches to phone. */}
+
+                  {/* Input Field */}
+                  {method === "email" ? (
+                    <Box sx={{ mb: 1 }}>
+                      <InputField
+                        type="email"
+                        value={email}
+                        onChange={(e) => { setEmail(e.target.value); setEmailError(""); }}
+                        onKeyDown={(e) => { if (e.key === "Enter") handleContinue(); }}
+                        placeholder={t("emailPlaceholder")}
+                        label={t("email")}
+                        error={!!emailError}
+                        helperText={emailError}
+                      />
+                    </Box>
+                  ) : (
+                    <Box sx={{ mb: 1 }}>
+                      <CountryPhoneInput
+                        value={phone}
+                        onChange={(value) => { setPhone(value); setPhoneError(""); }}
+                        label={t("phone")}
+                        error={!!phoneError}
+                        helperText={phoneError}
+                        placeholder={t("enterMobilePlaceholder")}
+                      />
+                      {phoneTypeChecking && (
+                        <Typography sx={{ fontSize: "12px", color: "text.secondary", fontFamily: "var(--font-sans)", mt: 0.5, ml: 0.5 }}>
+                          {t("checkingNumberType")}
+                        </Typography>
+                      )}
+                    </Box>
+                  )}
+
+                  {/* Referral Code */}
+                  {!showReferralInput ? (
+                    <Typography
+                      sx={{
+                        fontSize: "13px",
+                        color: brandFg(theme.palette.mode === "dark"),
+                        fontFamily: "var(--font-sans)",
+                        cursor: "pointer",
+                        textDecoration: "underline",
+                        textUnderlineOffset: "2px",
+                        mb: 1.5,
+                      }}
+                      onClick={() => setShowReferralInput(true)}
+                    >
+                      {t("haveReferralCode")}
+                    </Typography>
+                  ) : (
+                    <Box sx={{ mb: 1.5 }}>
+                      <InputField
+                        type="text"
+                        value={referralCode}
+                        onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                        placeholder={t("referralCodePlaceholder")}
+                        label={t("referralCode")}
+                      />
+                      <Typography
+                        data-testid="referral-benefit-hint"
+                        sx={{
+                          mt: 0.75,
+                          fontSize: "12px",
+                          fontWeight: 600,
+                          color: theme.palette.border?.success || "#12B76A",
+                          fontFamily: "var(--font-sans)",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 0.5,
+                        }}
+                      >
+                        {t("referralBenefitHint")}
+                      </Typography>
+                    </Box>
+                  )}
+
+                  {/* Continue Button */}
+                  <CustomButton
+                    variant="primary"
+                    size="medium"
+                    label={t("continue")}
+                    onClick={handleContinue}
+                    disabled={loading || phoneTypeChecking}
+                    fullWidth
+                    sx={{ fontWeight: 700, padding: "13px 24px", borderRadius: "12px", fontSize: "15px" }}
+                    endIcon={loading ? <LoadingSpinner size={18} /> : undefined}
+                    hideLabelWhenLoading={true}
+                  />
+
+                  {/* Subtle method switch — mirrors login.tsx pattern. */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      mt: 1.75,
+                    }}
+                  >
+                    <Typography
+                      data-testid={method === "email" ? "switch-to-phone-signup" : "switch-to-email-signup"}
+                      onClick={() => {
+                        setMethod(method === "email" ? "phone" : "email");
+                        setEmailError("");
+                        setPhoneError("");
+                      }}
+                      sx={{
+                        fontSize: "13px",
+                        fontWeight: 500,
+                        color: theme.palette.text.secondary,
+                        fontFamily: "var(--font-sans)",
+                        cursor: "pointer",
+                        "&:hover": { color: brandFg(theme.palette.mode === "dark") },
+                      }}
+                    >
+                      {method === "email"
+                        ? t("useMobileNumberInstead", { defaultValue: "Use mobile number instead" })
+                        : t("useEmailInstead", { defaultValue: "Use email instead" })}
+                    </Typography>
+                  </Box>
+
+                  {/* Already have account */}
+                  <Box sx={{ display: "flex", gap: "7px", justifyContent: "center", mt: 2 }}>
+                    <Typography sx={{ fontSize: "13px", color: "text.secondary", fontFamily: "var(--font-sans)" }}>
+                      {t("alreadyHaveAccountLink")}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontSize: "13px", color: brandFg(theme.palette.mode === "dark"), fontWeight: 500,
+                        cursor: "pointer", textDecoration: "underline", fontFamily: "var(--font-sans)",
+                      }}
+                      onClick={() => router.push("/auth/login")}
+                    >
+                      {t("login")}
+                    </Typography>
+                  </Box>
+                </>
+              )}
+
+              {/* ─── STEP 2: OTP ─── */}
+              {step === "otp" && (
+                <>
+                  <Box sx={{ textAlign: "center", mb: 2.5 }}>
+                    <Box
+                      sx={{
+                        width: 56, height: 56, borderRadius: "12px",
+                        background: `linear-gradient(135deg, ${BRAND_ACCENT}, #7C3AED)`,
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        margin: "0 auto 12px",
+                      }}
+                    >
+                      {method === "email" ? (
+                        <MailOutline sx={{ fontSize: 28, color: "#fff" }} />
+                      ) : (
+                        <SmartphoneOutlined sx={{ fontSize: 28, color: "#fff" }} />
+                      )}
+                    </Box>
+                    <Typography sx={{ fontWeight: 700, fontSize: "22px", color: "text.primary", fontFamily: "var(--font-sans)" }} data-testid="register-otp-title">
+                      {accountExists ? t("alreadyHaveAccountTitle", { defaultValue: "You already have an account" }) : method === "email" ? t("verifyYourEmail") : t("verifyYourPhone")}
+                    </Typography>
+                    <Typography sx={{ fontSize: "14px", color: "text.secondary", fontFamily: "var(--font-sans)", mt: 0.5, lineHeight: 1.5 }}>
+                      {t("enterSixDigitCodeSentTo")}{" "}
+                      <Typography component="span" sx={{ fontWeight: 600, color: "text.primary", fontSize: "14px" }}>
+                        {method === "email"
+                          ? email.replace(/(.{2}).*(@.*)/, "$1***$2")
+                          : phone.replace(/(\d{3})\d+(\d{2})/, "$1****$2")}
+                      </Typography>
+                    </Typography>
+                    {accountExists && (
+                      <Box
+                        data-testid="account-exists-banner"
+                        role="status"
+                        sx={{
+                          mt: 1.5,
+                          mx: "auto",
+                          maxWidth: "380px",
+                          px: 1.5,
+                          py: 1.25,
+                          borderRadius: "10px",
+                          display: "flex",
+                          gap: 1,
+                          alignItems: "flex-start",
+                          textAlign: "left",
+                          background: theme.palette.mode === "dark" ? "rgba(245,158,11,0.14)" : "rgba(245,158,11,0.10)",
+                          border: `1px solid ${theme.palette.mode === "dark" ? "rgba(245,158,11,0.45)" : "rgba(180,83,9,0.3)"}`,
+                        }}
+                      >
+                        <InfoOutlined sx={{ fontSize: 18, mt: "1px", flexShrink: 0, color: theme.palette.mode === "dark" ? "#FBBF24" : "#B45309" }} />
+                        <Typography sx={{ fontSize: "13px", color: "text.primary", fontFamily: "var(--font-sans)", lineHeight: 1.5 }}>
+                          {method === "email" ? t("emailAlreadyHasAccount") : t("phoneAlreadyHasAccount")}
+                        </Typography>
+                      </Box>
+                    )}
+                  </Box>
+
+                  {/* NEW signups enter their name here so the account is created
+                      WITH a first + last name. Hidden for existing-account OTP logins. */}
+                  {!accountExists && (
+                    <Box sx={{ mb: 2.5, display: "flex", flexDirection: "column", gap: 1.5 }}>
+                      <Box sx={{ display: "flex", gap: 1.5, flexDirection: isMobile ? "column" : "row" }}>
+                        <Box sx={{ flex: 1 }}>
+                          <InputField
+                            data-testid="register-first-name-input"
+                            type="text"
+                            value={firstName}
+                            onChange={(e) => { setFirstName(e.target.value); if (nameError) setNameError(""); }}
+                            label={t("nameFirstLabel", { defaultValue: "First name" })}
+                            placeholder={t("nameFirstLabel", { defaultValue: "First name" })}
+                          />
+                        </Box>
+                        <Box sx={{ flex: 1 }}>
+                          <InputField
+                            data-testid="register-last-name-input"
+                            type="text"
+                            value={lastName}
+                            onChange={(e) => { setLastName(e.target.value); if (nameError) setNameError(""); }}
+                            label={t("nameLastLabel", { defaultValue: "Last name" })}
+                            placeholder={t("nameLastLabel", { defaultValue: "Last name" })}
+                          />
+                        </Box>
+                      </Box>
+                      {nameError && (
+                        <Typography
+                          data-testid="register-name-error"
+                          sx={{ fontSize: "13px", color: "error.main", fontFamily: "var(--font-sans)" }}
+                        >
+                          {nameError}
+                        </Typography>
+                      )}
+                    </Box>
+                  )}
+
+                  {/* Shared OTP block — auto-submits the moment 6 digits are entered */}
+                  <OtpInputPanel
+                    contactType={method === "email" ? "email" : "phone"}
+                    otpLength={6}
+                    onVerify={handleVerifyOtp}
+                    onResendCode={handleResendOtp}
+                    onClearError={() => setOtpError("")}
+                    countdown={countdown}
+                    loading={loading}
+                    error={otpError}
+                    primaryButtonLabel={accountExists ? t("verifyAndLogin") : t("verifyAndCreateAccount")}
+                    showInfoChip={false}
+                    showLabel={false}
+                    actionsLayout="stacked"
+                    resetKey={otpResetKey}
+                  />
+
+                  {/* Back */}
+                  <Box sx={{ display: "flex", justifyContent: "center", mt: 1.5 }}>
+                    <Link
+                      component="button"
+                      onClick={() => { setStep("input"); setOtpError(""); setAccountExists(false); setOtpResetKey((k) => k + 1); }}
+                      sx={{
+                        fontSize: "13px", color: "text.secondary", fontFamily: "var(--font-sans)",
+                        textDecoration: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px",
+                        background: "transparent", border: "none", padding: 0,
+                        "&:hover": { textDecoration: "underline" },
+                      }}
+                    >
+                      <ArrowBack sx={{ fontSize: "16px" }} />
+                      {method === "email" ? t("changeEmail") : t("changePhone")}
+                    </Link>
+                  </Box>
+                </>
+              )}
+
+              {/* ─── STEP 3: Success ─── */}
+              {step === "success" && (
+                <Box sx={{ textAlign: "center", py: 4 }}>
+                  <Box
+                    sx={{
+                      width: 72, height: 72, borderRadius: "50%",
+                      background: "linear-gradient(135deg, #10B981, #059669)",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      margin: "0 auto 20px",
+                      boxShadow: "0 8px 32px rgba(16, 185, 129, 0.3)",
+                    }}
+                  >
+                    <CheckCircleOutline sx={{ fontSize: 40, color: "#fff" }} />
+                  </Box>
+
+                  {/* Explicit "Email/Phone verified" confirmation chip — Emergent-style */}
+                  <Box
+                    data-testid="verified-confirmation-chip"
+                    sx={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      px: 1.5,
+                      py: 0.75,
+                      mb: 1.5,
+                      borderRadius: "999px",
+                      backgroundColor:
+                        theme.palette.mode === "dark"
+                          ? "rgba(16,185,129,0.16)"
+                          : "rgba(16,185,129,0.10)",
+                      border: `1px solid ${
+                        theme.palette.mode === "dark"
+                          ? "rgba(16,185,129,0.45)"
+                          : "rgba(16,185,129,0.35)"
+                      }`,
+                    }}
+                  >
+                    <CheckCircleOutline sx={{ fontSize: 16, color: "#10B981" }} />
+                    <Typography
+                      sx={{
+                        fontSize: "13px",
+                        color: theme.palette.mode === "dark" ? "#6EE7B7" : "#047857",
+                        fontFamily: "var(--font-sans)",
+                        fontWeight: 600,
+                        lineHeight: 1,
+                      }}
+                    >
+                      {method === "email" ? t("emailVerified") : t("phoneVerified")}
+                    </Typography>
+                  </Box>
+
+                  <Typography sx={{ fontWeight: 700, fontSize: "24px", color: "text.primary", fontFamily: "var(--font-sans)", mb: 1 }}>
+                    {accountExists ? t("welcomeBackToDynopay") : t("accountReadyTitle")}
+                  </Typography>
+                  <Typography sx={{ fontSize: "15px", color: "text.secondary", fontFamily: "var(--font-sans)", lineHeight: 1.6, mb: 1 }}>
+                    {accountExists
+                      ? t("redirectingToDashboard")
+                      : (() => {
+                          // Vertical-specific onboarding hint (2026-08-05 audit).
+                          // Fall back to the original success copy when no
+                          // vertical is set so legacy behaviour is preserved.
+                          const dest = verticalToOnboarding(vertical);
+                          if (!dest) return t("accountReadyDesc");
+                          return t("accountReadyDescVertical", {
+                            defaultValue: `Taking you to set up your ${dest.label}…`,
+                            label: dest.label,
+                          });
+                        })()}
+                  </Typography>
+                  <LoadingSpinner size={24} />
+                </Box>
+              )}
+            </Box>
+          </FormPanel>
+          {/* Slim social-proof strip below the card (Coinbase-clean substitute
+              for the removed side marketing panel). */}
+          <TrustStrip />
+        </SplitLayoutWrapper>
+      </AuthPageBackground>
+    </>
+  );
+};
+
+export default Register;

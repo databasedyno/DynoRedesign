@@ -1,0 +1,73 @@
+{
+  "summary": "Frontend-only visual+UX verification of Dynopay landing 'Digital creators' vanity mockup + /pay checkout lime rebrand. Verified landing use-cases-bento (creators card, stores Pay button, donations bar), /pay/demo full 3-step flow, /pay/crypto-preview coin grid + USDT lime selection + lowfee-hint, and dark-mode legibility.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/pay/demo dark mode", "issues": ["When header theme toggle is switched to dark, the /pay/demo page/card background remains light (body bg=rgb(238,241,246)) while the header turns dark. Not a regression of this task (lime CTA remains lime with dark text and stays legible), but worth confirming the demo page is expected to be light-only."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "(Optional/verification only) Confirm /pay/demo is intentionally light-mode-only — header switches dark but page body does not. No breakage; only a visual observation."
+  ],
+  "critical_code_review_comments": [
+    "The 'Creator page' tag on the creators card renders as uppercase due to CSS text-transform; DOM text is 'Creator page' — matches spec.",
+    "The stores card uses data-testid='usecase-card-stores' (not 'usecase-card-ecommerce' as referenced in the request). The review body only asked visually about the 'Online stores' card's Pay button, which is lime. Naming is fine but noting the discrepancy for future test authors.",
+    "Network tiles TRC20/ERC20/POLYGON on /pay/crypto-preview render but do NOT expose a stable data-testid (e.g., network-tile-TRC20). Consider adding for future E2E stability.",
+    "copy-address-row and checkout-trust-strip could not be visually validated on /pay/crypto-preview because the rate/address API 403s (no payment session, expected). These testids exist in code but are gated on an address being fetched — cannot regression-test them via this preview page."
+  ],
+  "updated_files": [],
+  "success_rate": { "backend": "N/A (skipped)", "frontend": "100%" },
+  "test_credentials": "None required — all tested routes are public.",
+  "seed_data_creation": "None.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "All 4 items in the review request pass. Concrete color evidence collected: creators 'Support my work' btn bg=rgb(204,255,0) color=rgb(10,10,10); /pay/demo crypto-payment-btn bg=rgb(204,255,0) color=rgb(10,10,11) with exact text 'Pay with Cryptocurrency'; /pay/crypto-preview USDT tile after click: border rgb(204,255,0) + bg rgba(204,255,0,0.16); lowfee-hint text = 'TRC-20 usually has the lowest network fees.' Donations progress bar bg=rgb(204,255,0). /pay/crypto-preview shows 2x 403 console errors from the rate/address fetch — EXPECTED per review note (no live session), not a regression. Dark mode landing renders correctly with lime accents (body bg=rgb(6,6,6)) and no console errors. Zero console errors on landing and /pay/demo. copy-address-row and checkout-trust-strip could not be visually validated because they render only after an address is fetched; both selectors are absent from /pay/crypto-preview — this is expected and NOT a bug.",
+  "detailed_findings": {
+    "landing_use_cases_bento": {
+      "creators_card": {
+        "tag": "'Creator page' (rendered uppercase via CSS)",
+        "avatar_A_and_Ava_Designs": true,
+        "meta_3_links_128_supporters": true,
+        "url_pill_dynopay_com_ava_designs": true,
+        "support_button_bg": "rgb(204, 255, 0)",
+        "support_button_color": "rgb(10, 10, 10)"
+      },
+      "stores_card_Pay_USDT": "Rendered lime (visual)",
+      "donations_progress_bar_bg": "rgb(204, 255, 0)",
+      "console_errors": 0
+    },
+    "pay_demo": {
+      "step0_review_your_order": true,
+      "cta_text": "Pay with Cryptocurrency",
+      "cta_bg": "rgb(204, 255, 0)",
+      "cta_color": "rgb(10, 10, 11)",
+      "step1_payment_reached": true,
+      "demo_simulate_received_btn": true,
+      "done_success_reached": true,
+      "console_errors": 0
+    },
+    "pay_crypto_preview": {
+      "crypto_tile_grid": true,
+      "coin_tiles_count": 12,
+      "usdt_selected_border": "rgb(204, 255, 0)",
+      "usdt_selected_bg": "rgba(204, 255, 0, 0.16)",
+      "network_tiles_visible": ["TRC20", "ERC20", "POLYGON"],
+      "lowfee_hint_text": "TRC-20 usually has the lowest network fees.",
+      "copy_address_row_present": false,
+      "checkout_trust_strip_present": false,
+      "console_errors_403_expected": 2,
+      "notes": "copy-address-row and checkout-trust-strip render only after address/rate fetch succeeds; 403 is expected here per review note."
+    },
+    "dark_mode": {
+      "landing_body_bg": "rgb(6, 6, 6)",
+      "landing_lime_accents_legible": true,
+      "landing_console_errors": 0,
+      "pay_demo_cta_bg": "rgb(204, 255, 0)",
+      "pay_demo_cta_color": "rgb(10, 10, 11)",
+      "pay_demo_body_bg": "rgb(238, 241, 246) — page did not turn dark (header did). Lime CTA legibility preserved."
+    }
+  }
+}

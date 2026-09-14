@@ -1,0 +1,30 @@
+{
+  "summary": "SWR checkout regression test BLOCKED — all three provided payment reference links (primary d=294da585... + fallbacks 9352563a... and fa6ad6cd...) return 'This payment link has expired' on the preview host. Neither legacy nor ?swr=1 path can auto-progress past the meta load, so awaiting-state assertions (h1, amount, network/currency selects, pay-status-strip, instruction, QR, address) and verify-polling cadence could not be observed. What WAS verifiable is consistent: both legacy and SWR paths render the IDENTICAL 'expired' fallback screen with no React error boundary, no clean-checkout-error testid, and no red console errors (only a benign 404 on a static resource — most likely favicon — appears on BOTH paths equally). The getData endpoint fires on both paths (legacy: 2 calls, SWR: 1 call after de-dupe), confirming the SWR feature-flag branch at least mounts and requests meta without crashing. No verifyCryptoPayment POSTs were emitted on either path in the 25s window because the checkout short-circuits to the expired state before reaching awaiting — expected given the link state.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "SWR awaiting-state polling verification",
+        "issue": "Cannot exercise CleanCheckoutV2 awaiting/QR/verify-poll path because all supplied d= references are 'expired' on the preview backend. Behaviour parity on the expired branch is confirmed, but the primary claim (SWR path polls /api/pay/verifyCryptoPayment at ~10s cadence) is UNVERIFIED.",
+        "affected_selectors": ["clean-checkout-qr-svg", "clean-checkout-address", "pay-status-strip", "clean-checkout-instruction"]
+      }
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Main agent: provision or provide a fresh, non-expired standard payment link reference (d=…) that is currently active on this preview's live prod DB so awaiting-state + SWR verify-poll can be validated. All three references listed in the review request are expired.",
+    "Re-run this iteration once a live d= is supplied; test script is ready and captures parity + poll cadence in a single pass."
+  ],
+  "critical_code_review_comments": [
+    "Could not perform meaningful code review of the SWR branch behaviour on the awaiting state — link expiry prevented reaching that code path. Static observation only: on the expired branch both paths behave identically and the getData fetch fires on both, so the SWR_ON flag guard on the legacy meta useEffect appears to be honored (no double fetch storm)."
+  ],
+  "updated_files": [],
+  "success_rate": { "backend": "N/A (skipped per request)", "frontend": "Blocked — expired links prevent awaiting-state validation. Expired-branch parity: 100%." },
+  "seed_data_creation": "None",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Reusable test approach: open PREVIEW_URL/pay?d=<active> and PREVIEW_URL/pay?d=<active>&swr=1 in two pages, wait for [data-testid='clean-checkout-qr-svg'] (timeout 45s), snapshot testids (clean-checkout-h1, clean-checkout-amount, clean-checkout-network-select, clean-checkout-currency-select, pay-status-strip, clean-checkout-instruction, clean-checkout-qr-svg, clean-checkout-address, clean-checkout-error), then hook page.on('request') filtering url contains 'verifyCryptoPayment' and method POST, wait 25s, assert count>=2 and interval~10s. Ignore favicon 404 in console errors. Both paths auto-progress (no clicks required). Compare testid values 1:1 for parity.",
+  "rca of the issue": "Root cause of test blockage: the three payment link references documented in the review request (including the 'primary' d=294da585...) are all in the 'expired' state on the live prod DB accessed via SAFE MODE. The frontend correctly short-circuits to the ExpiredPayment fallback view before CleanCheckoutV2 mounts its awaiting-state UI, so the SWR-flagged code path (metaSwr → applyMeta → auto-reserve → verifySwr with refreshInterval 10000) never executes. Mitigation: main agent must create/supply a currently-active standard $20 (or any amount) payment link with no expiry in the live prod DB, then re-run this playwright script with the new d= substituted."
+}

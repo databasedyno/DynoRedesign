@@ -1,0 +1,31 @@
+{
+  "summary": "Follow-up verification (frontend only) of iteration_82 fixes on https://speedup-check.preview.emergentagent.com. (1) Scroll-to-top no longer overlaps the support-chat FAB (desktop rect 1856,944-1896,984 vs FAB 1840,1000-1896,1056 => overlap=False) and scroll-to-top itself clicks normally on desktop and mobile. (2) /documentation now has exactly ONE up-arrow button (global) - page-local aria-label='Back to top' Fab count = 0. PASS. (3) NEW BLOCKER: the support-chat FAB still cannot be clicked with a normal click after scrolling on /, /fees and /documentation - but the obstruction is NOT the scroll-to-top button, it is the bottom language-onboarding bar (data-testid=language-onboarding-bar, position fixed, full width, height 57-61px, zIndex 1500). The FAB is fixed at bottom:24px with zIndex 1451, so its center point (y=1028 at 1920x1080; y=792 at 390x844) falls inside the language bar and Playwright reports 'language-onboarding-bar intercepts pointer events'. Proof of root cause: after dismissing the language bar (X), a normal click on [data-testid=support-chat-button] on /fees succeeded and the chat panel opened. A programmatic dispatch_event('click') also opens the panel, confirming handler wiring is fine - it is purely a z-index/offset stacking defect.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "SupportChatWidget FAB vs LanguageOnboardingBar", "issue": "Chat FAB (bottom:24px, zIndex 1451) is overlapped by the fixed language-onboarding bar (height ~57-61px, zIndex 1500). Real-user clicks on the lower ~60% of the FAB (incl. its centre) hit the language bar instead; Playwright normal click times out with 'language-onboarding-bar intercepts pointer events' on /, /fees, /documentation at 1920x1080 and at 390x844. Works only after the language bar is dismissed.", "selector": "[data-testid=\"support-chat-button\"] vs [data-testid=\"language-onboarding-bar\"]", "priority": "HIGH"},
+      {"component": "SupportChatWidget FAB (mobile occluding mode)", "issue": "In one mobile run the FAB was in 'occluding' state (aria-hidden=true, tabIndex=-1, transform translateX(96px) scale(0.9)) which pushes it to x=416..467 on a 390px viewport, i.e. completely off-screen and unreachable at that scroll offset. Intentional per code comment, but leaves the user with no way to open support chat while the state persists.", "selector": "[data-testid=\"support-chat-button\"]", "priority": "MEDIUM"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "All marketing pages (bottom-right, scrolled)", "issues": ["Chat FAB visually clipped/half-hidden behind the bottom language onboarding bar until the bar is dismissed"]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Offset the support-chat FAB (and chat panel) by the language bar height, e.g. bottom: 'calc(var(--dp-lang-bar, 0px) + 24px)' (same approach already used by ScrollToTopButton on mobile), and/or raise FAB zIndex above the language bar's 1500. Recommended: do the bottom offset so the FAB is never visually clipped.",
+    "After the FAB is offset, re-check ScrollToTopButton desktop bottom (currently fixed 96px) so it stays above the new FAB position when the language bar is visible.",
+    "Review the mobile 'occluding' translateX(96px) hide behaviour - ensure there is always a reachable path to open support chat (e.g. reveal on scroll stop)."
+  ],
+  "critical_code_review_comments": [
+    "Components/Common/SupportChatWidget/index.tsx: fabBottom = {xs:24, md:24} for the marketing layout ignores the --dp-lang-bar CSS variable that other fixed elements respect; zIndex 1451 is below language-onboarding-bar (1500). This is the single root cause of the unclickable chat FAB.",
+    "Both the FAB and support-chat-panel hardcode bottom offsets; centralise the safe-bottom value (var(--dp-lang-bar)) to avoid repeat regressions."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not tested (frontend-only request)", "frontend": "2 of 3 checks passed (67%)"},
+  "seed_data_creation": "none",
+  "should_call_test_agent_after_fix": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Dev-mode Next.js: use wait_until='domcontentloaded' + ~9s wait; 'networkidle' never settles (live crypto ticker polling) and times out. Verified fixed: scroll-to-top/chat FAB no longer overlap; /documentation has a single back-to-top. Remaining blocker: language-onboarding-bar (z1500) intercepts pointer events on the chat FAB (z1451, bottom 24px) on every marketing page at both 1920x1080 and 390x844. Retest by scrolling >600px WITHOUT dismissing the language bar and doing a NORMAL click on [data-testid=support-chat-button].",
+  "rca_of_the_issue": "document.elementFromPoint at the FAB centre returns the language-onboarding-bar; FAB rect 1840,1000-1896,1056 vs bar rect 0,1019-1920,1080 (desktop) and FAB 318,766.8-374,817 vs bar 0,787-390,844 (mobile). --dp-lang-bar is set to 76px but the chat FAB does not consume it, and its zIndex (1451) is lower than the bar's (1500). Dismissing the bar restores normal clickability, confirming the diagnosis."
+}

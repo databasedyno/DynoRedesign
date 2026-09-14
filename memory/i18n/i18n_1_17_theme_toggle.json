@@ -1,0 +1,20 @@
+{
+ "common": {
+  "theme.switchToLight": {
+   "en": "Switch to light mode",
+   "de": "Zum hellen Modus wechseln",
+   "es": "Cambiar al modo claro",
+   "fr": "Passer au mode clair",
+   "nl": "Overschakelen naar lichte modus",
+   "pt": "Mudar para o modo claro"
+  },
+  "theme.switchToDark": {
+   "en": "Switch to dark mode",
+   "de": "Zum dunklen Modus wechseln",
+   "es": "Cambiar al modo oscuro",
+   "fr": "Passer au mode sombre",
+   "nl": "Overschakelen naar donkere modus",
+   "pt": "Mudar para o modo escuro"
+  }
+ }
+}

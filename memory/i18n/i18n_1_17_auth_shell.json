@@ -1,0 +1,78 @@
+{
+ "auth": {
+  "authShell.changeLanguage": {
+   "en": "Change language",
+   "de": "Sprache ändern",
+   "es": "Cambiar idioma",
+   "fr": "Changer de langue",
+   "nl": "Taal wijzigen",
+   "pt": "Alterar idioma"
+  },
+  "setNewPasswordDescription": {
+   "en": "Pick a strong password for {{email}} — you'll use it the next time you log in.",
+   "de": "Wählen Sie ein starkes Passwort für {{email}} — Sie verwenden es bei Ihrer nächsten Anmeldung.",
+   "es": "Elige una contraseña segura para {{email}}: la usarás la próxima vez que inicies sesión.",
+   "fr": "Choisissez un mot de passe fort pour {{email}} — vous l'utiliserez à votre prochaine connexion.",
+   "nl": "Kies een sterk wachtwoord voor {{email}} — je gebruikt het de volgende keer dat je inlogt.",
+   "pt": "Escolha uma palavra-passe forte para {{email}} — vai usá-la na próxima vez que iniciar sessão."
+  },
+  "secureAccount.goToLogin": {
+   "en": "Go to login",
+   "de": "Zur Anmeldung",
+   "es": "Ir al inicio de sesión",
+   "fr": "Aller à la connexion",
+   "nl": "Naar inloggen",
+   "pt": "Ir para o início de sessão"
+  },
+  "secureAccount.headTitle": {
+   "en": "Secure your account",
+   "de": "Konto absichern",
+   "es": "Proteger tu cuenta",
+   "fr": "Sécuriser votre compte",
+   "nl": "Je account beveiligen",
+   "pt": "Proteger a sua conta"
+  },
+  "secureAccount.successTitle": {
+   "en": "Account secured",
+   "de": "Konto gesichert",
+   "es": "Cuenta protegida",
+   "fr": "Compte sécurisé",
+   "nl": "Account beveiligd",
+   "pt": "Conta protegida"
+  },
+  "secureAccount.loadingTitle": {
+   "en": "Securing your account…",
+   "de": "Ihr Konto wird gesichert…",
+   "es": "Protegiendo tu cuenta…",
+   "fr": "Sécurisation de votre compte…",
+   "nl": "Je account wordt beveiligd…",
+   "pt": "A proteger a sua conta…"
+  }
+ },
+ "common": {
+  "acceptInvite.checkingTitle": {
+   "en": "Checking your invite…",
+   "de": "Einladung wird geprüft…",
+   "es": "Comprobando tu invitación…",
+   "fr": "Vérification de votre invitation…",
+   "nl": "Je uitnodiging wordt gecontroleerd…",
+   "pt": "A verificar o seu convite…"
+  },
+  "acceptInvite.checkingSubtitle": {
+   "en": "One moment while we look it up.",
+   "de": "Einen Moment, wir sehen nach.",
+   "es": "Un momento mientras la buscamos.",
+   "fr": "Un instant, nous la recherchons.",
+   "nl": "Een moment, we zoeken hem op.",
+   "pt": "Um momento enquanto o procuramos."
+  },
+  "acceptInvite.namePlaceholder": {
+   "en": "How teammates will see you",
+   "de": "So sehen Sie Ihre Teamkollegen",
+   "es": "Así te verá tu equipo",
+   "fr": "Comment vos coéquipiers vous verront",
+   "nl": "Zo zien teamgenoten je",
+   "pt": "Como a equipa o verá"
+  }
+ }
+}

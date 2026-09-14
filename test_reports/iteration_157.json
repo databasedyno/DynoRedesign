@@ -1,0 +1,16 @@
+{
+  "summary": "Verified account-wide sign-out-all-others and account-level KYC fixes end-to-end (backend + frontend). All 8 scenarios in the review request pass. Ran /app/tests/e2e_signout_others.sh (all lines match expected 200/401 codes, including untracked-JWT invalidation and desktop-token adoption when the desktop itself is untracked). KYC status returns 'approved' for company_id in {none,1,165,179,71}; POST /api/kyc/submit for company 165 returns 400 'Identity already verified for this account'; public merchant-verification?handle=devhub returns verified=true. Single-device DELETE /api/user/sessions/<id> still revokes only that session (target token -> 401, caller -> 200). Frontend: KYC verified badge (data-testid=kyc-verified-badge) persists on default brand and after switching to companies 165, 179, 71 with no console errors. Active devices card: sign-out-all-others button clicked from UI shows success toast, list refreshes, UI stays logged in on /settings and can navigate to /dashboard; the other (curl) token becomes 401. Cross-device revoke: after another device wipes sessions, the logged-in browser is redirected to /auth/login on next navigation and localStorage token is cleared. Public checkout /pay?d=rNtQRX renders 'Pay The Dev Store' with 'Verified merchant' badge and does not redirect to login. No fixes required; no code changes made.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": ["/app/tests/e2e_signout_others.sh", "/tmp/test_kyc_and_single.sh"],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (user_id=1) — from /app/memory/test_credentials.md",
+  "seed_data_creation": "None. Only signed out user 1's own sessions (feature under test).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "e2e_signout_others.sh already covers all sign-out flows including the >=1.2s cutoff wait, untracked JWT, mobile refresh 401, desktop refresh 200, kept-session adoption. For KYC, use the ad-hoc test in /tmp/test_kyc_and_single.sh. UI badge selector is [data-testid=kyc-verified-badge] and is present in DOM on every brand for user 1 (all 4 brands share the same account-level approved KYC). Note: 'Revoked N session(s)' count may include stale curl sessions from earlier iterations — that is expected. JWT iat granularity is 1s, so always sleep >=1.5s between login and DELETE /api/user/sessions.",
+  "rca of the issue": "N/A — this iteration was verification of already-shipped fixes; both bugs are resolved."
+}

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="7" skipped="0" tests="8" time="6.023" timestamp="2026-03-08T20:04:33.048858+00:00" hostname="agent-env-e01e01ce-e03b-4beb-9b2c-25d0be50b954"><testcase classname="test_reports.pytest.test_invoice.TestInvoiceAPI" name="test_get_transactions_list" time="2.599"><failure message="AssertionError: Expected 200, got 404: &lt;!DOCTYPE html&gt;&#10;  &lt;html lang=&quot;en&quot;&gt;&#10;  &lt;head&gt;&#10;  &lt;meta charset=&quot;utf-8&quot;&gt;&#10;  &lt;title&gt;Error&lt;/title&gt;&#10;  &lt;/head&gt;&#10;  &lt;body&gt;&#10;  &lt;pre&gt;Cannot GET /api/transactions&lt;/pre&gt;&#10;  &lt;script&gt;(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML=&quot;window.__CF$cv$params={r:'9d94732ad8c4eb05',t:'MTc3MzAwMDI3NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);&quot;;b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&amp;&amp;(document.onreadystatechange=e,c())}}}})();&lt;/script&gt;&lt;/body&gt;&#10;  &lt;/html&gt;&#10;  &#10;assert 404 == 200&#10; +  where 404 = &lt;Response [404]&gt;.status_code">test_reports/pytest/test_invoice.py:61: in test_get_transactions_list
+    assert response.status_code == 200, f"Expected 200, got {response.status_code}: {response.text}"
+E   AssertionError: Expected 200, got 404: &lt;!DOCTYPE html&gt;
+E     &lt;html lang="en"&gt;
+E     &lt;head&gt;
+E     &lt;meta charset="utf-8"&gt;
+E     &lt;title&gt;Error&lt;/title&gt;
+E     &lt;/head&gt;
+E     &lt;body&gt;
+E     &lt;pre&gt;Cannot GET /api/transactions&lt;/pre&gt;
+E     &lt;script&gt;(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9d94732ad8c4eb05',t:'MTc3MzAwMDI3NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&amp;&amp;(document.onreadystatechange=e,c())}}}})();&lt;/script&gt;&lt;/body&gt;
+E     &lt;/html&gt;
+E     
+E   assert 404 == 200
+E    +  where 404 = &lt;Response [404]&gt;.status_code</failure></testcase><testcase classname="test_reports.pytest.test_invoice.TestInvoiceAPI" name="test_find_completed_transactions" time="0.057"><failure message="assert 404 == 200&#10; +  where 404 = &lt;Response [404]&gt;.status_code">test_reports/pytest/test_invoice.py:77: in test_find_completed_transactions
+    assert response.status_code == 200
+E   assert 404 == 200
+E    +  where 404 = &lt;Response [404]&gt;.status_code</failure></testcase><testcase classname="test_reports.pytest.test_invoice.TestInvoiceAPI" name="test_get_invoice_for_completed_transaction" time="0.056"><failure message="assert 404 == 200&#10; +  where 404 = &lt;Response [404]&gt;.status_code">test_reports/pytest/test_invoice.py:101: in test_get_invoice_for_completed_transaction
+    assert response.status_code == 200
+E   assert 404 == 200
+E    +  where 404 = &lt;Response [404]&gt;.status_code</failure></testcase><testcase classname="test_reports.pytest.test_invoice.TestInvoiceAPI" name="test_download_invoice_pdf" time="0.065"><failure message="assert 404 == 200&#10; +  where 404 = &lt;Response [404]&gt;.status_code">test_reports/pytest/test_invoice.py:138: in test_download_invoice_pdf
+    assert response.status_code == 200
+E   assert 404 == 200
+E    +  where 404 = &lt;Response [404]&gt;.status_code</failure></testcase><testcase classname="test_reports.pytest.test_invoice.TestInvoiceAPI" name="test_invoice_pdf_contains_dynopay_branding" time="0.068"><failure message="assert 404 == 200&#10; +  where 404 = &lt;Response [404]&gt;.status_code">test_reports/pytest/test_invoice.py:189: in test_invoice_pdf_contains_dynopay_branding
+    assert response.status_code == 200
+E   assert 404 == 200
+E    +  where 404 = &lt;Response [404]&gt;.status_code</failure></testcase><testcase classname="test_reports.pytest.test_invoice.TestInvoiceAPI" name="test_invoice_has_required_fields" time="0.069"><failure message="assert 404 == 200&#10; +  where 404 = &lt;Response [404]&gt;.status_code">test_reports/pytest/test_invoice.py:238: in test_invoice_has_required_fields
+    assert response.status_code == 200
+E   assert 404 == 200
+E    +  where 404 = &lt;Response [404]&gt;.status_code</failure></testcase><testcase classname="test_reports.pytest.test_invoice.TestInvoiceAPI" name="test_invoice_not_available_for_pending_transaction" time="0.057"><failure message="assert 404 == 200&#10; +  where 404 = &lt;Response [404]&gt;.status_code">test_reports/pytest/test_invoice.py:284: in test_invoice_not_available_for_pending_transaction
+    assert response.status_code == 200
+E   assert 404 == 200
+E    +  where 404 = &lt;Response [404]&gt;.status_code</failure></testcase><testcase classname="test_reports.pytest.test_invoice.TestInvoiceList" name="test_get_all_invoices" time="2.929" /></testsuite></testsuites>

@@ -1,0 +1,25 @@
+{
+  "summary": "DASH-001 RETEST #2 PASSED. Logged in as onarrival21@gmail.com, navigated to /dashboard (Dashboard2026). The auto-convert banner is now visible on the established-merchant dashboard, the GET /api/company/auto-convert/{companyId} XHR fires (observed 2 calls to /api/company/auto-convert/1), and the toggle is present in OFF state with the Configure link rendered. Did NOT click the toggle ON (SAFE MODE respected).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/dashboard", "issues": ["Console warning from Recharts: chart width(-1)/height(-1) — likely a container sizing race on initial render; cosmetic but worth investigating"]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "ConversionBanner appears only in the established-merchant branch of Dashboard2026 — confirm empty/activation-branch merchants still get the auto-convert entry point somewhere (or intentionally excluded).",
+    "Toggle element exposes no aria-checked/data-state/disabled attributes when queried at root — for a11y and testability, ensure the switch surface (root) has aria-checked and disabled reflected; screenshot confirms visual OFF state but programmatic state is not machine-readable at the [data-testid=auto-convert-toggle] node."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "100%"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (LIVE test merchant — SAFE MODE)",
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "DASH-001 fully verified on Dashboard2026 (v2026/index.tsx). Banner data-testid=auto-convert-banner visible; XHR GET /api/company/auto-convert/1 fires twice on mount (possible duplicate fetch — StrictMode or duplicated effect worth a look but not blocking). Toggle is OFF and interactive (not disabled). Configure link renders. AUTH-003 already passed in iteration_134. Merchant is established (full layout).",
+  "rca of the issue": "Prior fix targeted legacy DashboardLeftSection.tsx; actual rendered dashboard is Dashboard2026. Mounting <ConversionBanner /> after <ActionsRow /> in v2026/index.tsx resolved the visibility gap."
+}

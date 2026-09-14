@@ -1,0 +1,55 @@
+{
+  "meta_title": "Pagos en cripto para proyectos Web3 y DAOs · Dynopay",
+  "meta_description": "Acepta pagos en cripto en tu proyecto Web3 o DAO con Dynopay. No custodial, más de 15 criptomonedas, checkout alojado y API, comisiones desde 1,5%. Empieza gratis.",
+  "h1": "Acepta pagos en cripto para tu proyecto Web3 o DAO",
+  "subheading": "Dynopay ofrece a los equipos Web3 y las DAOs una forma no custodial de recaudar contribuciones, vender acceso y recibir Bitcoin, stablecoins y más de 15 criptomonedas directamente en una wallet o tesorería que controlan.",
+  "intro_paragraph": "Los proyectos Web3 y las DAOs viven on-chain, pero aún necesitan una forma limpia y conforme de cobrar pagos con precio en fiat por membresías, mints, servicios y contribuciones sin ceder la custodia a un procesador. Dynopay es una pasarela de pagos cripto no custodial que liquida directamente en tu wallet o tesorería multifirma. Cobra con un checkout alojado, un enlace de pago o la API REST en más de 15 criptomonedas, fija el precio en USD mientras liquidas en la moneda que elijas, con comisiones desde 1,5% hasta 0,5% a escala, sin contracargos y con el primer pago gratis.",
+  "features": [
+    {
+      "title": "Liquida en tu propia wallet o tesorería",
+      "description": "No custodial por diseño: los pagos llegan directamente a la wallet o multifirma que controlas, así que la tesorería de la DAO nunca depende de un procesador que retenga fondos."
+    },
+    {
+      "title": "Precio en USD, liquidación en cripto",
+      "description": "Fija el precio de membresías o servicios en dólares para mayor claridad y recibe exactamente la criptomoneda que quieras, incluidas stablecoins para una tesorería no expuesta a la volatilidad."
+    },
+    {
+      "title": "Automatiza el acceso con webhooks y API",
+      "description": "Confirma una contribución on-chain y dispara un webhook para conceder roles de Discord, contenido restringido o plazas de allowlist, todo conectado mediante una API REST limpia."
+    }
+  ],
+  "how_it_works": [
+    "Regístrate, verifica tu correo, crea un perfil de proyecto y añade una dirección de wallet de cobro (o una multifirma de tesorería) para la liquidación.",
+    "Genera un enlace de pago o integra el checkout alojado para membresías, mints, servicios o contribuciones.",
+    "Los contribuyentes pagan en su criptomoneda preferida, tu webhook concede el acceso y los fondos se liquidan en tu wallet en minutos."
+  ],
+  "faqs": [
+    {
+      "question": "¿Dynopay es custodial? ¿Dónde se liquidan los fondos de la DAO?",
+      "answer": "Dynopay es no custodial. Los pagos se liquidan directamente en la wallet o tesorería multifirma que controlas, así que tu proyecto nunca depende de un tercero que retenga sus fondos."
+    },
+    {
+      "question": "¿Puedo fijar el precio en USD pero recibir stablecoins?",
+      "answer": "Sí. Fija el precio de membresías o servicios en dólares y elige recibir stablecoins como USDT o USDC, manteniendo un saldo de tesorería vinculado al dólar, o cualquiera de las demás monedas admitidas."
+    },
+    {
+      "question": "¿Qué criptomonedas se admiten?",
+      "answer": "Dynopay admite más de 15 criptomonedas, incluidas Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, TRX, MATIC y stablecoins como USDT (ERC20, TRC20, Polygon), USDC (ERC20) y RLUSD."
+    },
+    {
+      "question": "¿Puedo automatizar el acceso o los roles cuando se confirma una contribución?",
+      "answer": "Sí. Dynopay dispara un webhook cuando un pago se confirma on-chain, para que puedas conceder roles de Discord, desbloquear contenido restringido o actualizar una allowlist automáticamente mediante la API REST."
+    },
+    {
+      "question": "¿Cuánto cobra Dynopay?",
+      "answer": "Las comisiones comienzan en 1,5% más un dólar por pago exitoso y bajan hasta 0,5% a medida que crece el volumen liquidado. Sin cuotas de alta, sin cuotas mensuales y tu primer pago es gratis."
+    }
+  ],
+  "cta_headline": "Empieza a recaudar pagos para tu proyecto Web3 en 10 minutos",
+  "cta_body": "Regístrate ahora y tu primera transacción es sin comisiones. Liquidación no custodial directamente en la wallet o tesorería que controlas.",
+  "_generated_at": "2026-09-05T00:00:00.000Z",
+  "_model": "dynopay-editorial-2026-09",
+  "_kind": "vertical",
+  "_slug": "web3-daos",
+  "_display_name": "Web3 Projects & DAOs"
+}

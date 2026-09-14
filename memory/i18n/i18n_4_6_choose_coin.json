@@ -1,0 +1,12 @@
+{
+  "walletScreen": {
+    "chooseCoin": {
+      "en": "Choose a coin…",
+      "de": "Coin auswählen…",
+      "es": "Elige una moneda…",
+      "fr": "Choisissez une crypto…",
+      "nl": "Kies een munt…",
+      "pt": "Escolha uma moeda…"
+    }
+  }
+}

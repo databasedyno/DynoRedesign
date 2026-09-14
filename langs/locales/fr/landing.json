@@ -1,0 +1,1577 @@
+{
+  "howItWorks": "Comment ça marche",
+  "features": "Fonctionnalités",
+  "documentation": "Documentation",
+  "signIn": "Se connecter",
+  "getStarted": "Commencer",
+  "nav": {
+    "products": "Produits",
+    "developers": "Développeurs",
+    "resources": "Ressources",
+    "company": "Entreprise",
+    "mega": {
+      "paymentLinks": {
+        "title": "Liens de paiement",
+        "desc": "Des liens partageables pour être payé en crypto — aucun compte requis pour l'acheteur"
+      },
+      "checkout": {
+        "title": "Checkout",
+        "desc": "Checkout hébergé prêt à l'emploi pour toute boutique"
+      },
+      "creatorPages": {
+        "title": "Pages créateur",
+        "desc": "Votre propre page de pourboires et de paiement personnalisée"
+      },
+      "payouts": {
+        "title": "Versements crypto",
+        "desc": "Suivez vos soldes et réglez vos fonds sur un wallet que vous contrôlez"
+      },
+      "docs": {
+        "title": "Documentation",
+        "desc": "Guides, démarrages rapides et références"
+      },
+      "api": {
+        "title": "Référence de l'API",
+        "desc": "API REST pour paiements, liens et webhooks"
+      },
+      "webhooks": {
+        "title": "Webhooks",
+        "desc": "Notifications en temps réel pour chaque événement de paiement"
+      },
+      "blog": {
+        "title": "Blog",
+        "desc": "Actualités produit et analyses sur les paiements crypto"
+      },
+      "fees": {
+        "title": "Frais",
+        "desc": "Tarifs simples et transparents"
+      },
+      "status": {
+        "title": "État du système",
+        "desc": "Disponibilité et historique des incidents en temps réel"
+      },
+      "about": {
+        "title": "À propos de Dynopay",
+        "desc": "Notre mission, notre entreprise et nos offres d'emploi"
+      },
+      "support": {
+        "title": "Aide et assistance",
+        "desc": "Guides et moyens de nous contacter"
+      },
+      "terms": {
+        "title": "Conditions",
+        "desc": "Conditions générales"
+      },
+      "privacy": {
+        "title": "Confidentialité",
+        "desc": "Comment nous protégeons vos données"
+      },
+      "featured": {
+        "title": "Commencez gratuitement",
+        "desc": "Nous offrons nos frais de plateforme sur votre premier paiement — sans carte.",
+        "cta": "Commencer gratuitement"
+      },
+      "press": {
+        "title": "Kit presse",
+        "desc": "Logos, chiffres et ressources presse"
+      },
+      "referral": {
+        "title": "Programme de parrainage",
+        "desc": "Gagnez 25% de leurs frais pendant 12 mois"
+      }
+    }
+  },
+  "search": {
+    "button": "Rechercher",
+    "placeholder": "Rechercher docs, produits et pages…",
+    "title": "Accès rapide",
+    "empty": "Aucun résultat",
+    "hint": "pour naviguer",
+    "close": "pour fermer"
+  },
+  "learnMore": "En savoir plus",
+  "footerDescription1": "Acceptez les paiements crypto en quelques minutes. La passerelle",
+  "footerDescription2": "de paiement moderne pour les entreprises tournées vers l'avenir.",
+  "footerTerms": "Conditions générales",
+  "footerPrivacy": "Politique de confidentialité",
+  "footerApiStatus": "État de l'API",
+  "footerSupport": "Aide et support",
+  "footerCopyright": "© Dynopay {{year}}. Tous droits réservés.",
+  "headerFees": "Frais",
+  "blog": "Blog",
+  "startFree": "Commencer gratuitement",
+  "exitIntentTitle": "Essayez Dynopay dans votre terminal, dès maintenant.",
+  "viewApiDocs": "Voir la doc API",
+  "readTheGuide": "Lire le guide",
+  "createFreeAccount": "Créez votre compte gratuit",
+  "blogPostNotFound": "Article introuvable",
+  "blogReadyCta": "Prêt à accepter les paiements en crypto ?",
+  "blogSubtitle": "Guides, stratégies et ressources développeurs pour vous aider à accepter la crypto et développer votre activité",
+  "v3": {
+    "hero": {
+      "eyebrow": "Dynopay · Paiements crypto pour les vraies entreprises",
+      "headline1": "Acceptez les paiements crypto.",
+      "headlineHighlight": "Encaissez",
+      "headline2": "à votre façon.",
+      "body": "Acceptez Bitcoin, Ethereum et stablecoins via un checkout hébergé, un lien de paiement ou une API. Gardez la crypto ou <b>convertissez automatiquement en USDC ou USDT</b> — réglé sur un wallet que vous contrôlez. Aucune rétrofacturation.",
+      "claimBtn": "Réserver",
+      "chooseHandle": "Choisissez votre pseudo de créateur",
+      "rewardBadge": "Nouveau ici ? Nous offrons nos <b>frais de plateforme</b> sur votre premier paiement.",
+      "bullets": "Premier paiement sans frais · Sans carte · 9 blockchains, 15 cryptos et tokens",
+      "trustLine": "Non dépositaire · Chiffré · RGPD / AML",
+      "livePill": "EN DIRECT",
+      "sendTipLabel": "Envoyer un pourboire",
+      "sendTipBtn": "Envoyer",
+      "metaSettle": "Règlement dans la crypto de votre choix · <b>frais à partir de 1,5 %, jusqu'à 0,5 % à grande échelle</b>",
+      "handleAvailable": "est disponible",
+      "handleTaken": "Ce pseudo n'est pas disponible — essayez un autre.",
+      "primaryCta": "Commencer à encaisser",
+      "secondaryCta": "Comment ça marche",
+      "creatorLink": "Vous êtes créateur ? <s>Réservez votre @handle →</s>",
+      "demoLabel": "Démo en direct",
+      "demoCheckout": "Paiement sécurisé",
+      "amountDueLabel": "Montant dû",
+      "payBtn": "Payer"
+    },
+    "story": {
+      "eyebrow": "[ Comment ça marche ]",
+      "headline": "Trois étapes. C'est tout.",
+      "body": "Pas de partenaire bancaire. Pas de file d'approbation. Pas de conservation. Votre acheteur paie, nous réglons on-chain, les fonds arrivent dans le wallet que vous possédez déjà.",
+      "stepLabel": "Étape",
+      "step1": {
+        "title": "Quelqu'un vous paie.",
+        "body": "Partagez un lien, intégrez un checkout ou appelez l'API. Votre acheteur choisit parmi 9 blockchains — BTC, ETH, USDC, USDT, XRP, Tron et plus — et paie."
+      },
+      "step2": {
+        "title": "On règle à votre façon.",
+        "body": "Gardez la crypto d'origine ou convertissez automatiquement en USDT / USDC sur n'importe quelle chaîne. Taux du marché en direct, conversion automatique dès que le paiement est confirmé on-chain — aucune étape manuelle."
+      },
+      "step3": {
+        "title": "Ça arrive dans votre wallet.",
+        "body": "Le règlement va directement à l'adresse du wallet que vous contrôlez — jamais détenu par nous. 1,5 % pour commencer, jusqu'à 0,5 % à grande échelle. Aucun frais mensuel, aucune rétrofacturation."
+      },
+      "mock": {
+        "awaitingPayment": "En attente de paiement",
+        "sendUSDT": "Envoyer USDT · TRC-20",
+        "openWallet": "Ouvrir dans le wallet",
+        "copyAddress": "Copier l'adresse",
+        "today": "Aujourd'hui",
+        "autoConverted": "Auto-converti",
+        "chainsActive": "actives",
+        "chainsLive": "en direct",
+        "thPayment": "Paiement",
+        "thAmount": "Montant",
+        "thSettle": "Régler",
+        "thStatus": "Statut",
+        "settled": "Réglé",
+        "confirming": "Confirmation",
+        "inYourWallet": "Dans votre wallet",
+        "thisWeek": "cette semaine"
+      }
+    },
+    "numbers": {
+      "eyebrow": "[ Pourquoi nous faire confiance ]",
+      "headline": "Frais bas. Zéro rétrofacturation. Vos clés.",
+      "body": "Non dépositaire par conception, conforme par choix — gardez la crypto reçue ou convertissez-la automatiquement dans la stablecoin de votre choix.",
+      "settledLabel": "Réglé",
+      "settledSub": "Depuis le lancement",
+      "chainsLabel": "Blockchains",
+      "chainsSub": "15 cryptos et tokens",
+      "feeLabel": "Frais de départ",
+      "feeSub": "jusqu'à 0,5 % à grande échelle",
+      "settleLabel": "Règlement médian",
+      "settleSub": "Confirmation on-chain",
+      "badgeKYC": "KYC / AML",
+      "badgeGDPR": "RGPD",
+      "badgeNonCustodial": "Non dépositaire",
+      "chargebacksLabel": "Rétrofacturations",
+      "chargebacksSub": "la crypto est définitive",
+      "alwaysOnLabel": "Toujours actif",
+      "alwaysOnSub": "sans horaires bancaires",
+      "badgeEncrypted": "Chiffré"
+    },
+    "features": {
+      "eyebrow": "[ Ce qu'il y a dedans ]",
+      "headline1": "Tout ce qu'il faut",
+      "headline2": "pour être payé.",
+      "body": "Une plateforme, trois façons de vous connecter : un checkout hébergé, un règlement automatique et une API claire. Prenez ce dont vous avez besoin, ignorez le reste.",
+      "checkout": {
+        "tag": "Checkout",
+        "title": "Un checkout qui parle toutes les cryptos.",
+        "desc": "Partagez un lien. Vos clients paient sur 9 blockchains — gardez la crypto ou convertissez automatiquement en USDC/USDT, à vous de choisir.",
+        "cta": "Voir le checkout"
+      },
+      "convert": {
+        "tag": "Auto-conversion",
+        "title": "Acceptez le volatile. Gardez le stable.",
+        "desc": "Acceptez BTC ou ETH et réglez automatiquement en USDT ou USDC dès la confirmation du paiement — sans exposition aux variations de cours.",
+        "cta": "Comment fonctionne le règlement"
+      },
+      "api": {
+        "tag": "API développeur",
+        "title": "Paiements crypto, livrés ce soir.",
+        "desc": "REST + webhooks, clés sandbox et snippets copier-coller. Votre premier 201 arrive en environ dix minutes.",
+        "cta": "Lire la doc"
+      }
+    },
+    "tryit": {
+      "eyebrow": "[ Essayez maintenant · sans inscription ]",
+      "headline1": "Créez votre premier",
+      "headline2": "paiement en 30 secondes.",
+      "body": "Copiez le cURL, collez-le dans votre terminal, recevez une URL de checkout en direct. Clé sandbox incluse — sans carte, sans inscription.",
+      "copyBtn": "Copier",
+      "copiedBtn": "Copié",
+      "responseHeader": "✓ 201 Créé",
+      "footBullets": "REST + Webhooks · 9 blockchains · Premier 201 en ~10 min",
+      "readDocs": "Lire la doc →"
+    },
+    "audience": {
+      "eyebrow": "[ Pour qui ? ]",
+      "headline1": "Un checkout crypto.",
+      "headline2": "Tous les types d'activité.",
+      "body": "Marchands, créateurs, collecteurs de fonds, développeurs — choisissez votre porte. Le même checkout hébergé et les mêmes liens de paiement, le même wallet que vous contrôlez, les mêmes frais simples.",
+      "merchants": {
+        "tag": "01 · Marchands",
+        "title": "Vendez en crypto.",
+        "desc": "Checkout hébergé, catalogue de produits et factures. Conversion automatique ou conservation de la devise d'origine.",
+        "statLabel": "frais qui baissent quand vous grandissez",
+        "startHere": "Commencez ici"
+      },
+      "fundraisers": {
+        "tag": "02 · Collectes",
+        "title": "Lancez des campagnes qui financent.",
+        "desc": "Barre d'objectif, paliers, mur des donateurs et actualités. Chaque don arrive on-chain, dans votre portefeuille.",
+        "stat": "On-chain",
+        "statLabel": "transparent par défaut"
+      },
+      "creators": {
+        "tag": "03 · Créateurs",
+        "title": "Recevez des pourboires de vos fans.",
+        "desc": "Votre page dynopay.com/@handle avec pourboires intégrés — aucune rétrofacturation ; les fonds arrivent sur votre wallet dès la confirmation du paiement.",
+        "statLabel": "directement dans votre wallet"
+      },
+      "developers": {
+        "tag": "04 · Développeurs",
+        "title": "Livrez du crypto en une soirée.",
+        "desc": "API REST + webhooks, clés sandbox, premier 201 en moins de 10 minutes.",
+        "statLabel": "jusqu'à votre premier 201"
+      }
+    },
+    "finalcta": {
+      "eyebrow": "[ Quand vous êtes prêt ]",
+      "headline1": "Encaissez en",
+      "headline2": "crypto aujourd'hui.",
+      "body": "Gratuit au départ. Sans carte. En ligne en moins de 10 minutes — apportez votre portefeuille, gardez votre argent.",
+      "rewardBadge": "Nouveau ici ? Nous offrons nos <b>frais de plateforme</b> sur votre premier paiement.",
+      "getStarted": "Commencer gratuitement",
+      "readDocs": "Lire la doc",
+      "trustLine": "Non-dépositaire · 9 blockchains · Chiffré · RGPD / AML",
+      "talkToSales": "Contacter les ventes"
+    },
+    "faq": {
+      "eyebrow": "[ Réponses ]",
+      "headline": "Questions fréquentes.",
+      "q1": "Faut-il détenir de la crypto pour en accepter ?",
+      "a1": "Non. Les acheteurs paient dans l'une de nos 15 cryptos et tokens pris en charge sur 9 chaînes, et vous décidez de ce que vous gardez — conservez la crypto d'origine ou convertissez automatiquement en USDC ou USDT, réglé sur votre wallet dès la confirmation on-chain. Vous ne touchez jamais à une plateforme d'échange.",
+      "q2": "Où atterrissent les fonds ?",
+      "a2": "Directement à une adresse de wallet que vous contrôlez — pas gardée par nous. Dynopay est non-custodial. Chaque règlement est un vrai transfert on-chain à votre adresse.",
+      "q3": "Combien ça coûte ?",
+      "a3": "Chaque paiement coûte un simple pourcentage — de 1,5 % (Starter) à 0,5 % (Enterprise), selon votre volume réglé cumulé — et votre premier paiement est sans frais. Aucun frais mensuel, aucun frais d'installation, aucune rétrofacturation. Voir la page Tarifs pour le détail complet.",
+      "q4": "Quelle est la vitesse de règlement ?",
+      "a4": "Cela dépend du réseau. Les rails stablecoins et les chaînes rapides (TRC-20, Polygon, L2) confirment généralement en une à deux minutes ; Bitcoin et Ethereum sur le mainnet peuvent être plus longs en période de congestion. Votre tableau de bord affiche le statut en temps réel — et si vous avez activé la conversion automatique, les fonds arrivent dans la stablecoin de votre choix dès la confirmation ; sinon, vous conservez la crypto envoyée par l'acheteur.",
+      "q5": "Vous gérez fiat, remboursements et abonnements ?",
+      "a5": "Les remboursements, oui : des annulations on-chain en un clic qui renvoient les fonds directement à l'adresse de l'acheteur. Nous ne proposons pas de cartes fiat ni d'abonnements récurrents automatiques aujourd'hui : chaque paiement est un règlement crypto direct et unique vers un wallet que vous contrôlez, avec conversion automatique optionnelle en USDC ou USDT. Besoin d'un paiement récurrent ? Repartagez simplement le même lien.",
+      "stillCurious": "Toujours curieux ?",
+      "askUs": "Posez-nous n'importe quelle question →",
+      "q6": "Existe-t-il un programme de parrainage ?",
+      "a6": "Oui. Partagez votre lien de parrainage et gagnez 25% des frais Dynopay de chaque marchand que vous parrainez, pendant 12 mois — en crédit de frais ou en retrait en USDT (TRC-20). Votre ami obtient 50% de réduction sur les frais pendant 30 jours dès son inscription ; votre partage des revenus commence dès son premier paiement."
+    },
+    "learn": {
+      "eyebrow": "[ À votre rythme ]",
+      "headline": "Commencez par les bases.",
+      "docs": {
+        "tag": "Développeurs",
+        "title": "Lire la doc",
+        "desc": "API REST, webhooks et SDKs avec snippets copier-coller. De zéro à votre premier paiement en direct en minutes."
+      },
+      "guides": {
+        "tag": "Guides",
+        "title": "Apprenez les bases",
+        "desc": "Guides en français clair sur accepter la crypto, auto-conversion en stablecoins et rester non-custodial."
+      },
+      "fees": {
+        "tag": "Tarifs",
+        "title": "Voir les tarifs",
+        "desc": "À partir de 1,5 % par paiement, jusqu'à 0,5 % à mesure que vous grandissez. Aucun frais mensuel, aucun frais d'installation, aucune rétrofacturation — jamais."
+      },
+      "exploreBtn": "Explorer"
+    },
+    "header": {
+      "systemsNormal": "Tout fonctionne",
+      "ariaPrimaryNav": "Navigation principale",
+      "ariaGoHome": "Aller à l'accueil",
+      "publicBeta": "Bêta publique",
+      "ariaSystemStatus": "État du système",
+      "ariaToggleMenu": "Afficher/masquer le menu",
+      "ariaMobileNav": "Navigation mobile",
+      "trustEncrypted": "Chiffré",
+      "trustNonCustodial": "Non-custodial",
+      "trustLive": "En direct"
+    },
+    "footer": {
+      "systemsOperational": "Tous les systèmes opérationnels"
+    },
+    "howitworks": {
+      "eyebrow": "[ Démarrez en quelques minutes ]",
+      "headline": "De l'inscription à votre premier paiement.",
+      "body": "Aucune expérience crypto requise. Trois étapes et vous encaissez des paiements reversés dans la crypto de votre choix : l'originale, ou convertie automatiquement en stablecoin.",
+      "stepLabel": "Étape",
+      "step1title": "Créez votre compte gratuit",
+      "step1desc": "Inscrivez-vous en une minute — sans carte ni connaissance de la crypto.",
+      "step2title": "Partagez un lien ou ajoutez le checkout",
+      "step2desc": "Envoyez un lien de paiement ou intégrez notre checkout hébergé à votre site ou boutique.",
+      "step3title": "Encaissez comme vous voulez",
+      "step3desc": "Gardez la crypto d'origine ou convertissez automatiquement en USDC ou USDT — à vous de choisir — reversé sur un portefeuille que vous contrôlez.",
+      "cta": "Commencer à encaisser"
+    },
+    "ways": {
+      "eyebrow": "[ Façons d'être payé ]",
+      "headline1": "Neuf façons",
+      "headline2": "d'encaisser un paiement.",
+      "body": "Choisissez ce qui vous convient : un lien, une page hébergée, un appel API ou une boutique complète. Derrière tout ça, un seul portefeuille et un seul tableau de bord.",
+      "links": {
+        "title": "Liens de paiement",
+        "desc": "Partagez un lien partout. Vos clients paient en quelques secondes, sans compte."
+      },
+      "checkout": {
+        "title": "Checkout hébergé",
+        "desc": "Une page de paiement à votre marque, prête pour n'importe quel montant ou produit."
+      },
+      "api": {
+        "title": "API REST",
+        "desc": "Créez des paiements depuis votre backend, avec webhooks signés et clés de test."
+      },
+      "buttons": {
+        "title": "Boutons d'achat",
+        "desc": "Ajoutez un bouton de paiement à n'importe quel site avec un extrait de HTML."
+      },
+      "elements": {
+        "title": "Éléments intégrables",
+        "desc": "Intégrez le checkout à vos propres pages avec des clés publiables."
+      },
+      "storefront": {
+        "title": "Boutique",
+        "desc": "Un catalogue complet — numérique, physique ou service — avec panier et TVA."
+      },
+      "tips": {
+        "title": "Pourboires créateurs",
+        "desc": "Votre propre page @pseudo pour recevoir des pourboires en un geste."
+      },
+      "donations": {
+        "title": "Dons",
+        "desc": "Des liens de collecte avec objectifs, paliers et mur des donateurs en direct."
+      },
+      "invoices": {
+        "title": "Factures",
+        "desc": "Envoyez des factures crypto avec TVA, autoliquidation et reçus PDF."
+      }
+    },
+    "whopays": {
+      "eyebrow": "[ Frais à votre façon ]",
+      "headline": "Vous choisissez qui paie les frais.",
+      "body": "Prenez les frais à votre charge, ou reportez-les sur le client et gardez 100 % de votre prix. Modifiable par lien ou par checkout, quand vous voulez.",
+      "tabMerchant": "Je paie les frais",
+      "tabCustomer": "Le client paie",
+      "exampleLabel": "Sur un paiement de $100",
+      "customerPaysLabel": "Le client paie",
+      "youReceiveLabel": "Vous recevez",
+      "merchantNote": "Vous couvrez les frais, donc le prix que voit votre client reste exactement $100.",
+      "customerNote": "Les frais s'ajoutent au-dessus : le client les paie et vous gardez vos $100 entiers.",
+      "feeFootnote": "Exemple au tarif Starter, tous les frais par paiement inclus — voir la page Tarifs pour le détail complet. Votre taux descend à 0,5 % à mesure que le volume augmente.",
+      "value1": "Premier paiement offert",
+      "value2": "Aucuns frais mensuels",
+      "value3": "Aucuns frais d'installation",
+      "value4": "Règlement en stablecoin",
+      "tierLine": "Tarification simple à l'usage : à partir de 1,5 %, jusqu'à 0,5 % à mesure que vous grandissez — et votre premier paiement est offert."
+    },
+    "coins": {
+      "eyebrow": "[ Cryptos et tokens ]",
+      "headline": "15 cryptos et tokens.",
+      "headline2": "Neuf chaînes.",
+      "body": "Bitcoin, Ethereum, Solana, XRP et plus, ainsi que USDT, USDC et RLUSD sur Ethereum, Tron et Polygon.",
+      "convertTitle": "Gardez, ou convertissez tout seul.",
+      "convertDesc": "Encaissez dans n'importe quelle crypto et gardez-la, ou convertissez automatiquement en USDC ou USDT dès la confirmation. Votre choix, à chaque fois."
+    },
+    "refunds": {
+      "eyebrow": "[ La confiance intégrée ]",
+      "headline": "De la crypto que vous pouvez vraiment rembourser.",
+      "body": "Ce qui rend la crypto stressante ? Réglé. Remboursements, garde des fonds et webhooks, bien faits.",
+      "refundsTitle": "Remboursements crypto en un clic",
+      "refundsDesc": "Remboursez un paiement sur sa chaîne d'origine, total ou partiel ; le client reçoit un reçu par e-mail.",
+      "custodyTitle": "Non-dépositaire par conception",
+      "custodyDesc": "Les fonds arrivent directement dans votre propre portefeuille. Nous ne détenons jamais votre argent : vos clés, votre crypto.",
+      "webhooksTitle": "Webhooks signés",
+      "webhooksDesc": "Événements signés HMAC, nouvelles tentatives automatiques et file d'attente d'échecs gardent vos systèmes synchronisés."
+    },
+    "solutions": {
+      "eyebrow": "[ Solutions ]",
+      "headline1": "Pensé pour votre",
+      "headline2": "façon d'encaisser.",
+      "body": "Quoi que vous vendiez, il y a une configuration Dynopay pour ça : le même portefeuille, les mêmes frais bas, les mêmes rails non dépositaires.",
+      "ecommerce": {
+        "title": "E-commerce",
+        "desc": "Un panier hébergé avec TVA et checkout crypto instantané pour produits physiques ou numériques."
+      },
+      "saas": {
+        "title": "SaaS",
+        "desc": "Facturez abonnements et sièges via l'API, avec webhooks signés pour le provisionnement."
+      },
+      "downloads": {
+        "title": "Téléchargements",
+        "desc": "Livrez fichiers, clés de licence ou liens automatiquement dès la confirmation du paiement."
+      },
+      "freelancers": {
+        "title": "Freelances",
+        "desc": "Envoyez des factures crypto avec TVA et soyez payé directement sur votre propre portefeuille."
+      },
+      "remittance": {
+        "title": "Transferts",
+        "desc": "Déplacez de la valeur entre pays en minutes — sans horaires bancaires ni rétrofacturations."
+      },
+      "gaming": {
+        "title": "Gaming",
+        "desc": "Acceptez recharges mondiales et achats in-game avec des frais bas et prévisibles."
+      }
+    },
+    "pain": {
+      "eyebrow": "L'ancienne méthode est cassée",
+      "headline": "Les paiements crypto ne devraient pas être si compliqués",
+      "body": "Soldes volatils, risque de conservation par un tiers, fraude au rejet de débit et paiement mal intégré freinent les marchands. Dynopay élimine chacun de ces problèmes.",
+      "p1": "Les cours varient avant même que vous puissiez dépenser ce que vous avez gagné.",
+      "f1": "Conversion automatique de chaque paiement en stablecoin dès son règlement.",
+      "p2": "Un tiers détient vos fonds — et peut les geler.",
+      "f2": "Non-dépositaire par conception : la crypto arrive dans votre propre portefeuille, jamais le nôtre.",
+      "p3": "Les rejets de paiement par carte reprennent vos revenus des mois plus tard.",
+      "f3": "Les paiements on-chain sont définitifs — zéro rejet de débit, jamais.",
+      "p4": "Les intégrations s'éternisent et le paiement semble rajouté.",
+      "f4": "Un checkout hébergé et une API REST claire vous mettent en ligne en un après-midi."
+    },
+    "why": {
+      "eyebrow": "Pourquoi Dynopay",
+      "headline": "Une vraie différence là où ça compte",
+      "body": "Nous ne gagnons pas sur le taux affiché le plus bas — nous gagnons sur ce qui protège vraiment votre argent et votre temps.",
+      "c1t": "Non-dépositaire par conception",
+      "c1d": "Les paiements arrivent directement dans votre portefeuille. Nous ne détenons jamais votre crypto.",
+      "c2t": "Conversion auto en stablecoin",
+      "c2d": "Neutralisez la volatilité automatiquement dès qu'un paiement est confirmé.",
+      "c3t": "Vous choisissez qui paie les frais",
+      "c3d": "Répercutez les frais réseau et de traitement sur le client, ou absorbez-les — à vous de voir, paiement par paiement.",
+      "c4t": "Remboursements on-chain en un clic",
+      "c4d": "Remboursez un client dans la devise d'origine, directement depuis votre tableau de bord.",
+      "c5t": "Aucuns frais mensuels ni d'installation",
+      "c5d": "Payez seulement quand vous êtes payé — et votre tout premier paiement est sans frais.",
+      "c6t": "Conçu pour les développeurs",
+      "c6d": "Une API REST claire, des clés sandbox et des webhooks pour chaque événement de paiement. Sans dépendance à un SDK.",
+      "c7t": "Un compte, toutes vos marques",
+      "c7d": "Gérez plusieurs marques depuis une seule connexion — chacune avec son propre checkout, ses portefeuilles et ses règlements. Passez de l'une à l'autre en un clic."
+    },
+    "developer": {
+      "eyebrow": "Pour les développeurs",
+      "headline": "En ligne en un après-midi",
+      "body": "Une API REST claire, un checkout hébergé, des clés sandbox et des webhooks pour chaque événement de paiement — sans dépendance à un SDK.",
+      "k1t": "Mode sandbox",
+      "k1d": "Chaque compte inclut des clés de test (dpk_test_) pour créer et simuler des paiements — sans fonds réels.",
+      "k2t": "Webhooks en temps réel",
+      "k2d": "Soyez notifié dès qu'un paiement est détecté, confirmé et réglé.",
+      "k3t": "Checkout hébergé",
+      "k3d": "Ajoutez un lien de paiement ou une intégration — nous gérons les coins, réseaux et QR codes.",
+      "k4t": "Non-dépositaire",
+      "k4d": "Les fonds arrivent dans votre portefeuille ; vous gardez toujours le contrôle de vos clés.",
+      "ctaDocs": "Voir la doc API",
+      "ctaDemo": "Voir une démo en direct",
+      "terminalLabel": "Créer un paiement",
+      "snippetNote": "Exemple simplifié — voir la référence complète de l'API sur /documentation."
+    },
+    "showcase": {
+      "eyebrow": "Voyez-le en action",
+      "headline": "Le checkout que vos clients terminent vraiment",
+      "body": "Un checkout hébergé et épuré qui gère les coins, les réseaux et les QR codes — puis confirme dès que le paiement arrive. C'est le vrai produit, pas une maquette.",
+      "cap1": "Checkout hébergé",
+      "sub1": "Choisir une crypto, scanner, payer — sur tout appareil.",
+      "cap2": "Confirmation rapide",
+      "sub2": "Quelques secondes sur les chaînes rapides, quelques minutes sur Bitcoin — le reçu arrive dès le règlement.",
+      "step0": "En attente de paiement",
+      "step1": "Confirmation on-chain…",
+      "step2": "Paiement confirmé",
+      "caption": "Confirmé en secondes sur Tron, Solana et XRP — en minutes sur Bitcoin",
+      "captionSub": "L'expérience hébergée réelle — votre client choisit une crypto, paie, et le règlement arrive directement dans votre wallet.",
+      "settled": "Réglé",
+      "stepConvert": "Conversion auto en USDC",
+      "swapTitle": "Conversion automatique",
+      "swapNote": "Gardez la crypto ou convertissez — c'est vous qui choisissez"
+    },
+    "compare": {
+      "eyebrow": "Pourquoi nous plutôt que les autres",
+      "headline": "Un accord plus juste pour accepter la crypto",
+      "body": "Comment Dynopay se compare à un processeur crypto classique.",
+      "colDyno": "Dynopay",
+      "colOther": "Processeur classique",
+      "note": "La comparaison reflète les pratiques courantes du secteur ; les détails varient selon le prestataire.",
+      "r1f": "Conservation des fonds",
+      "r1a": "Non-dépositaire — versé sur votre portefeuille",
+      "r1b": "Dépositaire — il détient vos fonds",
+      "r2f": "Volatilité",
+      "r2a": "Conversion auto en stablecoin",
+      "r2b": "Vous restez avec la crypto",
+      "r3f": "Qui paie les frais",
+      "r3a": "Vous choisissez, paiement par paiement",
+      "r3b": "Le marchand, toujours",
+      "r4f": "Remboursements",
+      "r4a": "En un clic, on-chain",
+      "r4b": "Manuel ou indisponible",
+      "r5f": "Frais mensuels et d'installation",
+      "r5a": "Aucun",
+      "r5b": "Souvent facturés",
+      "r6f": "Premier paiement",
+      "r6a": "Offert",
+      "r6b": "Facturé dès le premier jour"
+    },
+    "trust": {
+      "label": "Acceptez les paiements sur 9 blockchains",
+      "chainTooltip": "Voir les frais et les réseaux supportés"
+    },
+    "brandSpotlight": {
+      "eyebrow": "Multi-marque",
+      "b1": "Un seul identifiant pour toutes vos marques, sans comptes séparés.",
+      "b2": "Chaque marque garde son propre checkout, ses wallets et sa devise de règlement.",
+      "b3": "Passez d'une marque à l'autre en un clic, sur tous vos appareils.",
+      "cta": "Créez votre première marque"
+    },
+    "nav": {
+      "aria": "Sections de la page",
+      "explore": "Explorer",
+      "howitworks": "Comment ça marche",
+      "usecases": "Cas d'usage",
+      "features": "Fonctionnalités",
+      "why": "Pourquoi Dynopay",
+      "compare": "Comparer",
+      "coins": "Cryptos",
+      "developers": "Développeurs",
+      "more": "Plus",
+      "faq": "FAQ",
+      "products": "Produits",
+      "pricing": "Tarifs",
+      "security": "Sécurité"
+    },
+    "more": {
+      "eyebrow": "[ En savoir plus sur Dynopay ]",
+      "tabs": {
+        "pain": "Le problème que nous réglons",
+        "solutions": "Solutions",
+        "ways": "Façons d'être payé",
+        "whopays": "Qui paie les frais",
+        "refunds": "Remboursements & confiance",
+        "learn": "Apprendre"
+      }
+    }
+  },
+  "checkout": {
+    "expired": {
+      "title": "Fenêtre de paiement expirée",
+      "body": "Aucun paiement n'a été reçu à temps. Rien n'a été prélevé.",
+      "startNew": "Lancer un nouveau paiement"
+    },
+    "sendWarning": {
+      "line": "Envoyer tout actif autre que",
+      "orNetwork": "ou si vous utilisez un réseau autre que",
+      "willResult": "entraînera la perte définitive et irréversible des fonds."
+    },
+    "memoRequired": {
+      "label": "TAG DE DESTINATION / MEMO (OBLIGATOIRE)"
+    },
+    "refund": {
+      "label": "Méthode de remboursement préférée (facultatif)",
+      "help": "Si votre paiement ne peut aboutir, nous rembourserons à cette adresse (hors frais de réseau). Utilisez une adresse sur le même réseau que celui du paiement.",
+      "toggle": "Ajouter une adresse de remboursement (facultatif)",
+      "placeholder": "Votre adresse de portefeuille pour les remboursements",
+      "saved": "Adresse de remboursement enregistrée"
+    },
+    "qrAlt": "QR code de paiement",
+    "bank": {
+      "companyName": "Dynopay Payments Ltd."
+    },
+    "amount": "Montant",
+    "tax": "Taxe",
+    "networkFee": "Frais de réseau",
+    "total": "Total",
+    "estimated": "est.",
+    "openInWallet": "Ouvrir dans l'app wallet",
+    "openInWalletHint": "Ouvre votre portefeuille crypto avec l'adresse et le montant pré-remplis.",
+    "reference": "RÉFÉRENCE",
+    "invoice": "FACTURE",
+    "networkLabel": "RÉSEAU",
+    "currencyLabel": "DEVISE",
+    "addressLabel": "ADRESSE",
+    "amountLabel": "MONTANT",
+    "payPrefix": "Payez",
+    "payOn": "sur",
+    "tapQr": "Touchez le QR pour copier l'adresse",
+    "addressCopied": "Adresse copiée",
+    "copy": "Copier",
+    "copied": "Copié",
+    "copyAddress": "Copier l'adresse",
+    "copiedExclaim": "Copié !",
+    "sendExactly": "Envoyez exactement",
+    "poweredBy": "Propulsé par",
+    "terms": "Conditions",
+    "privacy": "Confidentialité",
+    "refundPlaceholder": "Votre adresse {{coin}} pour les remboursements",
+    "success": {
+      "title": "Paiement réussi",
+      "titleContribution": "Merci pour votre contribution !",
+      "paidTo": "Payé à {{name}}"
+    },
+    "share": {
+      "prompt": "Vous avez aimé payer en crypto ? Faites passer le mot",
+      "promptContribution": "Aidez {{name}} à toucher plus de monde",
+      "copied": "Lien copié !",
+      "fundraiser": "Partager cette collecte",
+      "dynopay": "Partager Dynopay"
+    },
+    "status": {
+      "confirming": "Paiement détecté — confirmation…",
+      "underpaid": "Paiement insuffisant détecté",
+      "waiting": "En attente de paiement",
+      "detectedMempool": "Paiement détecté — en attente de confirmation"
+    },
+    "step": {
+      "confirmed": "Confirmé",
+      "detected": "Détecté",
+      "waiting": "En attente"
+    },
+    "strip": {
+      "pending": {
+        "pill": "EN ATTENTE",
+        "title": "En attente de votre paiement",
+        "caption": "Envoyez le montant exact indiqué. La confirmation est automatique dès la détection."
+      },
+      "confirming": {
+        "pill": "CONFIRMATION",
+        "title": "Diffusion sur la blockchain",
+        "caption": "Votre transaction est détectée. Les confirmations prennent généralement moins d'une minute.",
+        "captionMempool": "Votre transaction est dans la file d'attente {{network}} (0 confirmation). Elle est généralement confirmée en {{eta}}.",
+        "captionOnChain": "Confirmé sur {{network}} — finalisation de votre paiement en cours.",
+        "captionEta": "Nous avons vu votre transaction. Les confirmations sur {{network}} prennent généralement {{eta}}."
+      },
+      "confirmed": {
+        "pill": "CONFIRMÉ",
+        "title": "Paiement confirmé",
+        "caption": "Le réseau a confirmé votre paiement. Le règlement est en cours."
+      },
+      "settled": {
+        "pill": "RÉGLÉ",
+        "title": "Tout est en ordre",
+        "caption": "Les fonds sont réglés. Un reçu vous sera envoyé par email."
+      },
+      "failed": {
+        "pill": "ÉCHEC",
+        "title": "Quelque chose s'est mal passé",
+        "caption": "Le paiement n'a pas abouti. Rien n'a été facturé — vous pouvez réessayer."
+      },
+      "urgent": {
+        "pill": "VITE",
+        "title": "Plus que {{seconds}}s",
+        "caption": "Terminez votre virement maintenant — ce lien expire bientôt."
+      }
+    },
+    "demo": {
+      "eyebrow": "Aire de jeu des états de paiement",
+      "headline": "Les cinq états d'un paiement Dynopay",
+      "timerLabel": "Urgence du minuteur",
+      "noTimer": "Sans minuteur",
+      "urgent45": "45s restantes · urgent",
+      "urgent12": "12s restantes · très urgent",
+      "compactHeader": "Bandeau compact (utilisé dans le paiement /pay en production)",
+      "totalDue": "Total à payer",
+      "mockBlurb": "Ce bloc simule le corps du paiement (QR, adresse, minuteur). L'animation, le titre et le badge proviennent tous de <code>&lt;CheckoutShell&gt;</code>."
+    },
+    "supportFallbackTitle": "Soutenir cette campagne",
+    "completePaymentTitle": "Complétez votre paiement",
+    "receipt": {
+      "preparing": "Préparation du reçu…",
+      "downloaded": "Reçu téléchargé",
+      "download": "Télécharger le reçu",
+      "error": "Impossible de récupérer le reçu — veuillez réessayer.",
+      "copyLink": "Copier le lien du reçu",
+      "copying": "Création du lien…",
+      "linkCopied": "Lien du reçu copié",
+      "linkError": "Impossible de créer le lien – veuillez réessayer."
+    },
+    "processingFee": "Frais de traitement",
+    "totalYouPay": "Total que vous payez",
+    "store": {
+      "title": "Paiement",
+      "backToCart": "← Retour au panier",
+      "completeTitle": "Finalisez votre paiement",
+      "completeSubtitle": "Payez en crypto ci-dessous. Cette page se met à jour automatiquement une fois votre paiement confirmé.",
+      "orderPrefix": "Commande",
+      "emailLabel": "E-mail pour reçu et mises à jour",
+      "emailHelp": "Nous vous enverrons votre reçu et les liens de téléchargement ici.",
+      "nameLabel": "Nom (facultatif)",
+      "vatLabel": "Numéro de TVA (facultatif)",
+      "pay": "Payer en crypto →",
+      "poweredBy": "Propulsé par Dynopay · Le paiement est réglé directement sur le portefeuille du marchand",
+      "emailRequired": "L'e-mail est requis pour vous envoyer votre reçu.",
+      "emailInvalid": "Veuillez saisir une adresse e-mail valide.",
+      "emptyCart": "Votre panier est vide.",
+      "minTotal": "Le total minimum de commande est de {{min}}.",
+      "subtotal": "Sous-total",
+      "totalLabel": "Total",
+      "vatFallback": "TVA",
+      "reverseChargeSuffix": "Autoliquidation",
+      "inclSuffix": "incl.",
+      "vatValid": "✓ Numéro de TVA UE valide — l'autoliquidation s'applique, aucune TVA ne sera facturée.",
+      "vatInvalid": "Ce numéro de TVA n'a pas pu être validé — la taxe standard s'appliquera.",
+      "vatHint": "Les entreprises de l'UE peuvent saisir un numéro de TVA pour l'autoliquidation.",
+      "reverseChargeNotice": "Autoliquidation B2B dans l'UE : aucune TVA facturée. Vous devez déclarer la TVA dans votre propre État membre.",
+      "viewCart": "Voir le panier",
+      "yourCart": "Votre panier",
+      "viewFullCart": "Voir le panier complet",
+      "businessPurchase": "Achat professionnel ? Ajoutez un numéro de TVA",
+      "feeNote": "Aucun frais supplémentaire — le marchand prend en charge les frais de traitement. Les frais de réseau de votre portefeuille sont distincts.",
+      "minTotalAdd": "Commande minimum : {{min}} — ajoutez encore {{more}} pour passer au paiement.",
+      "viewOrder": "Voir votre commande et vos téléchargements",
+      "emptyHint": "Ajoutez un article de la boutique puis revenez pour payer."
+    },
+    "receiptEmail": {
+      "label": "Envoyez-moi un reçu (facultatif)",
+      "helper": "Nous vous enverrons votre reçu par e-mail dès la confirmation du paiement.",
+      "saved": "Le reçu sera envoyé à cette adresse e-mail.",
+      "invalid": "Saisissez une adresse e-mail valide.",
+      "savedShort": "Le reçu est en route vers votre boîte de réception.",
+      "successLabel": "Vous voulez une copie de votre reçu ?",
+      "successHelper": "Ajoutez votre email et nous vous enverrons votre reçu — aucun compte nécessaire."
+    },
+    "notify": {
+      "title": "Paiement confirmé ✓",
+      "body": "Votre paiement à {{name}} est confirmé.",
+      "cta": "Prévenez-moi lors de la confirmation",
+      "enabled": "Vous recevrez une alerte du navigateur lors de la confirmation."
+    },
+    "breakdownTitle": "Détail du paiement",
+    "youPay": "Vous payez",
+    "youPaid": "Vous avez payé",
+    "merchantReceives": "Le marchand reçoit",
+    "dynopayFee": "Frais Dynopay",
+    "feePaidByMerchant": "payés par le marchand",
+    "feePaidByCustomer": "ajoutés à votre total",
+    "plusNetworkCover": "+ couverture des frais de réseau",
+    "inclNetworkCover": "incl. couverture des frais de réseau",
+    "loadingCheckout": "Chargement du paiement…",
+    "expiredTitle": "Cette fenêtre de paiement a expiré",
+    "expiredBody": "Le temps pour compléter ce paiement est écoulé. Si vous avez déjà envoyé des fonds, contactez le marchand. Sinon, demandez-leur un nouveau lien de paiement.",
+    "expiredRetry": "Recommencer",
+    "breakdownTrustPaid": "Montants vérifiés — voici exactement comment votre paiement a été réparti.",
+    "breakdownTrust": "Ces montants correspondent exactement — votre paiement est réparti de manière transparente entre le marchand et les frais Dynopay.",
+    "preparingAddress": "Préparation de l'adresse de paiement…",
+    "underpaid": {
+      "gotPrefix": "Nous avons reçu",
+      "sendPrefix": "Envoyer",
+      "sameAddressTail": "plus à la même adresse ci-dessous pour compléter votre paiement.",
+      "graceTimer": "Temps restant pour compléter",
+      "secondFeeNote": "Votre portefeuille facturera des frais de réseau pour ce complément — c'est normal et cela ne change pas le montant ci-dessus."
+    },
+    "tryAgain": "Réessayer",
+    "tapToCopyAddress": "Appuyez pour copier l'adresse de paiement",
+    "failedTitle": "Paiement échoué",
+    "feeCalcError": "Impossible de calculer les frais de réseau pour cette crypto. Réessayez ou choisissez une autre crypto.",
+    "pleaseTryAgain": "Veuillez réessayer.",
+    "redirectingIn": "Redirection dans {{s}} s",
+    "stayHere": "Rester ici",
+    "humanDetectedMempool": "Votre transaction a été diffusée et attend d'être incluse dans un bloc (généralement {{eta}}). Vous pouvez laisser cette page ouverte ou la fermer ; votre paiement sera tout de même finalisé.",
+    "humanConfirmingEta": "Nous voyons votre paiement — en attente des confirmations du réseau (généralement {{eta}}). Vous pouvez laisser cette page ouverte ou la fermer ; votre paiement sera tout de même finalisé.",
+    "saveMerchant": {
+      "save": "Enregistrer {{name}} pour la prochaine fois",
+      "saved": "Enregistré sur cet appareil",
+      "view": "Voir les marchands enregistrés →"
+    },
+    "orderSummary": "Récapitulatif de la commande"
+  },
+  "creator": {
+    "card": {
+      "supportCampaign": "Soutenir cette campagne",
+      "emptyTitle": "Rien ici pour l'instant",
+      "exploreLink": "Découvrir les créateurs Dynopay →"
+    },
+    "inline": {
+      "preferFullPage": "Vous préférez la page complète ? →",
+      "somethingWrong": "Quelque chose s'est mal passé",
+      "includeMemo": "Inclure le memo/tag :",
+      "waitingPayment": "En attente du paiement · mise à jour toutes les 10s",
+      "partialReceived": "Paiement partiel reçu",
+      "monitoringRemainder": "Surveillance du reste…",
+      "pickCrypto": "Choisissez une crypto pour payer {{amount}}",
+      "accepts": "{{name}} accepte :",
+      "merchantAccepts": "Ce marchand accepte :",
+      "creatorAccepts": "Ce créateur accepte :",
+      "sendAmount": "Envoyez {{amount}} {{coin}}",
+      "generatingAddress": "Génération de votre adresse {{coin}}…",
+      "changeAmount": "Modifier le montant",
+      "back": "Retour",
+      "showQr": "Afficher le QR code",
+      "hideQr": "Masquer le QR",
+      "copy": "Copier",
+      "copied": "Copié",
+      "successNext": "Votre paiement est confirmé sur le réseau — rien d'autre à faire. {{name}} voit votre soutien immédiatement.",
+      "cancel": "Annuler",
+      "copiedExclaim": "Copié !",
+      "copyLink": "Copier le lien",
+      "expiredBody": "Aucun paiement reçu à temps. Rien n'a été débité — vous pouvez réessayer.",
+      "failedBody": "Nous n'avons pas pu traiter votre paiement. Veuillez réessayer.",
+      "gracePeriod": "Délai de grâce de {{minutes}} min",
+      "includesFee": "frais de réseau inclus",
+      "networkWarning": "Envoyez uniquement du {{coin}} sur le réseau {{network}}. Les autres cryptos ou réseaux ne peuvent pas être récupérés.",
+      "onNetwork": "sur {{network}}",
+      "successNextOrder": "Votre paiement est confirmé. Vos téléchargements, clés de licence et détails de réservation sont sur la page de votre commande.",
+      "viewOrder": "Voir votre commande et vos téléchargements"
+    },
+    "support": {
+      "anonymous": "Rendre mon soutien anonyme",
+      "trustLine": "Checkout crypto sécurisé · sans compte",
+      "namePlaceholder": "Votre nom (facultatif)",
+      "minHint": "{{min}} minimum",
+      "amountPlaceholder": "Montant (min. {{min}})",
+      "minError": "Veuillez saisir au moins {{min}}.",
+      "addEmail": "Un reçu ? Ajoutez votre e-mail",
+      "custom": "Montant libre",
+      "emailInvalid": "Saisissez une adresse e-mail valide ou laissez le champ vide.",
+      "emailPlaceholder": "E-mail pour votre reçu (facultatif)",
+      "genericError": "Une erreur s'est produite. Veuillez réessayer.",
+      "messagePlaceholder": "Un petit mot pour {{name}} (facultatif)",
+      "networkError": "Erreur réseau. Veuillez réessayer.",
+      "publicNote": "Votre prénom et le montant peuvent apparaître sur cette page sauf si vous cochez cette case."
+    },
+    "qr": {
+      "claimFirst": "Réservez d'abord un pseudo pour générer votre QR code.",
+      "printHint": "Imprimez-le, ajoutez-le à votre bannière ou collez-le sur des stickers. N'importe quelle caméra le scanne directement vers votre page de pourboires."
+    },
+    "sticky": {
+      "supportName": "Soutenir {{name}}"
+    },
+    "featured": {
+      "raisedOf": "collectés sur {{goal}}",
+      "supportName": "Soutenir {{name}}"
+    },
+    "poweredBy": "Propulsé par",
+    "raised": "collectés",
+    "shareLabel": "Partager",
+    "share": {
+      "copied": "Lien copié !",
+      "copyLink": "Copier le lien",
+      "pageOf": "Partager la page de {{name}}"
+    },
+    "socials": {
+      "label": "Retrouvez {{name}} sur"
+    },
+    "supporters": "soutiens",
+    "shopSection": {
+      "label_one": "Boutique · {{count}} article",
+      "label_other": "Boutique · {{count}} articles",
+      "viewAll": "Tout voir →",
+      "buy": "Acheter →"
+    }
+  },
+  "order": {
+    "notFound": "Commande introuvable.",
+    "label": "Commande",
+    "soldBy": "Vendu par",
+    "status": {
+      "paid": "PAYÉE",
+      "pending": "EN ATTENTE",
+      "expired": "EXPIRÉE",
+      "underpaid": "SOUS-PAYÉE",
+      "refunded": "REMBOURSÉE",
+      "refundRequested": "REMB. DEMANDÉ"
+    },
+    "polling": "En attente de confirmation du paiement — cette page se met à jour automatiquement.",
+    "paidNotice": "Paiement reçu ! Vos articles sont ci-dessous.",
+    "item": {
+      "qty": "Qté",
+      "each": "l'unité",
+      "deliveryPending": "Paiement en attente — la livraison se débloque dès la confirmation du paiement.",
+      "openAccess": "Ouvrir le lien d'accès",
+      "copy": "Copier",
+      "copied": "Copié !",
+      "download": "Télécharger {{filename}}",
+      "downloadExpired": "Expiré — {{filename}}",
+      "linksExpireOn": "Les liens expirent {{when}}",
+      "linksExpiredCta": "Les liens ont expiré — cliquez sur \"Renvoyer les liens de téléchargement\" ci-dessous pour en obtenir de nouveaux.",
+      "bookSession": "Réservez votre séance",
+      "deliveryInProgress": "Livraison en cours — vérifiez votre e-mail."
+    },
+    "resend": {
+      "sending": "Envoi…",
+      "button": "Renvoyer les liens de téléchargement",
+      "hint": "Les liens expirent après 24 h. Renvoyez de nouveaux liens par e-mail.",
+      "ok": "Nouveaux liens de téléchargement générés et envoyés par e-mail.",
+      "err": "Échec du renvoi des liens."
+    },
+    "totals": {
+      "subtotal": "Sous-total",
+      "shipping": "Livraison",
+      "totalPaid": "Total payé"
+    },
+    "tax": {
+      "vat": "TVA",
+      "reverseCharge": "Autoliquidation",
+      "reverseChargeNotice": "TVA autoliquidée par le client selon les règles B2B de l'UE (0% de TVA facturé). Le client est redevable de la TVA dans son État membre.",
+      "merchantVatId": "N° TVA du commerçant :",
+      "customerVatId": "N° TVA du client :"
+    },
+    "receiptSentTo": "Reçu envoyé à",
+    "human": {
+      "pending": "En attente de la confirmation de votre paiement sur le réseau — généralement 5–15 minutes. Cette page se met à jour toute seule.",
+      "paid": "Paiement terminé — vos articles et votre reçu sont ci-dessous. Rien d'autre à faire.",
+      "expired": "Cette fenêtre de paiement a expiré avant l'arrivée d'un paiement. Si vous avez déjà envoyé des fonds, contactez le vendeur ci-dessous.",
+      "underpaid": "Le montant reçu était inférieur au total. Contactez le vendeur ci-dessous pour régler la différence.",
+      "refunded": "Cette commande a été remboursée. Selon le réseau, les fonds reviennent en quelques minutes à quelques heures.",
+      "refund_requested": "Un remboursement est en cours. Selon le réseau, il peut prendre quelques heures à apparaître."
+    },
+    "helpLine": "Quelque chose ne va pas ? Contactez {{merchant}} en mentionnant la commande #{{ref}}.",
+    "helpLineSeller": "le vendeur",
+    "helpLineLink": "Voir sa page"
+  },
+  "seo": {
+    "home": "Accueil",
+    "industries": "Secteurs",
+    "countries": "Pays",
+    "whyDynopayBadge": "Pourquoi Dynopay",
+    "whyDynopayTitle": "Tout ce qu'il faut pour être payé en crypto",
+    "whyDynopayHighlight": "être payé en crypto",
+    "whyDynopaySubtitle": "Non-dépositaire par nature. Vous gardez le portefeuille, nous gérons le paiement.",
+    "howItWorksBadge": "Comment ça marche",
+    "howItWorksTitle": "Opérationnel en moins de 10 minutes",
+    "howItWorksHighlight": "moins de 10 minutes",
+    "howItWorksSubtitle": "Aucun développeur requis. Si vous savez copier-coller une adresse de portefeuille, vous pouvez accepter la crypto.",
+    "faqBadge": "FAQ",
+    "faqTitle": "Questions fréquentes",
+    "faqHighlight": "fréquentes",
+    "faqSubtitle": "Tout ce que les gens demandent avant de s'inscrire.",
+    "exploreMoreBadge": "Explorer plus",
+    "exploreMoreTitle": "D'autres façons d'être payé en crypto",
+    "exploreMoreSubtitle": "Voyez comment vendeurs, créateurs et porteurs de campagne utilisent Dynopay pour être payés en crypto.",
+    "relatedCountry": "Accepter la crypto en {{name}}",
+    "relatedVertical": "Paiements en crypto pour {{name}}",
+    "compareEyebrow": "Comparer",
+    "introEyebrow": "En bref"
+  },
+  "cart": {
+    "store": {
+      "pageTitle": "Panier",
+      "title": "Votre panier",
+      "empty": "Votre panier est vide.",
+      "continueShopping": "Continuer mes achats",
+      "unitEach": "{{price}} l'unité",
+      "subtotal": "Sous-total",
+      "estTax": "+ {{label}} est.{{rate}} : {{amount}}",
+      "estTotal": "Total est. : {{amount}}",
+      "checkout": "Paiement",
+      "loadError": "Échec du chargement du panier",
+      "validationError": "Échec de la validation du panier",
+      "browseShop": "Parcourir la boutique"
+    }
+  },
+  "shop": {
+    "typeAll": "Tous",
+    "typeDigital": "Numérique",
+    "typePhysical": "Physique",
+    "typeService": "Service",
+    "sortLabel": "Trier",
+    "sortFeatured": "En vedette",
+    "sortBestselling": "Meilleures ventes",
+    "sortNewest": "Plus récents",
+    "sortPriceAsc": "Prix : croissant",
+    "sortPriceDesc": "Prix : décroissant",
+    "allCategories": "Toutes les catégories",
+    "resultOne": "{{count}} résultat",
+    "resultOther": "{{count}} résultats",
+    "productOne": "{{count}} produit",
+    "productOther": "{{count}} produits",
+    "soldCount": "{{count}} vendus",
+    "trending": "Tendance",
+    "featured": "En vedette",
+    "view": "Voir",
+    "fromPrice": "à partir de",
+    "noCoverImage": "Pas d'image de couverture",
+    "instantCheckout": "Paiement crypto instantané",
+    "share": "Partager",
+    "shareOnX": "Partager sur X",
+    "shareOnThreads": "Partager sur Threads",
+    "shareOnWhatsApp": "Partager sur WhatsApp",
+    "copyLink": "Copier le lien",
+    "copyShopLink": "Copier le lien de la boutique",
+    "linkCopied": "Lien copié",
+    "shareText": "Découvrez la boutique de {{name}} sur Dynopay",
+    "noMatches": "Aucun produit ne correspond à ce filtre. Essayez d'effacer les filtres ou de choisir une autre catégorie.",
+    "emptyOwnerTitle": "Votre boutique est une page blanche — remédions à cela.",
+    "emptyVisitorTitle": "{{name}} prépare sa boutique.",
+    "emptyOwnerBody": "Vous pouvez lister des produits, lancer une page de financement participatif ou activer les pourboires — chaque option attire un type de soutien différent vers votre handle.",
+    "emptyVisitorBody": "En attendant, découvrez ce que les créateurs conçoivent sur Dynopay — un catalogue de produits complet, des pages de campagne, des pourboires et un paiement crypto intégré.",
+    "emptyAddTitle": "Ajoutez votre premier produit",
+    "emptyAddBody": "Proposez un téléchargement numérique, un ebook ou un service. Soyez payé en crypto, directement sur votre portefeuille.",
+    "emptyAddCtaOwner": "Ajouter un produit",
+    "emptyAddCtaVisitor": "En savoir plus",
+    "emptyCampaignTitle": "Lancez une campagne de financement participatif",
+    "emptyCampaignBody": "Récit, galerie, paliers de récompense, échéance — tout ce qu'offre une page GoFundMe, réglé en crypto.",
+    "emptyCampaignCta": "Lancer la campagne",
+    "emptyTipsTitle": "Activez les pourboires sur votre handle",
+    "emptyTipsBody": "Activez la cagnotte de pourboires de votre page créateur — les soutiens envoient le montant de leur choix, vous gardez tout.",
+    "emptyTipsCta": "Ouvrir Créateur",
+    "backToShop": "← Retour à la boutique de {{name}}",
+    "chooseOption": "Choisissez une option",
+    "variantFallback": "Variante {{id}}",
+    "stockLeft": "{{count}} restants",
+    "oneOffService": "Service unique",
+    "quantity": "Quantité",
+    "addToCart": "Ajouter au panier",
+    "buyNow": "Acheter maintenant",
+    "addedToCart": "Ajouté au panier.",
+    "viewCartArrow": "Voir le panier →",
+    "emptyVisitPage": "Voir la page de {{name}}",
+    "emptyVisitorBodyV2": "Revenez bientôt — ou montrez votre soutien sur sa page en attendant.",
+    "emptyVisitorTitleV2": "{{name}} n'a encore rien mis en vente",
+    "galleryImage": "Image",
+    "minOrderHint": "Commande min. {{min}} — à combiner avec d'autres articles",
+    "minOrderNotice": "Commande minimum : {{min}} — ajoutez cet article au panier et combinez-le avec d'autres pour passer au paiement."
+  },
+  "exitIntentEyebrow": "Attendez — une seconde",
+  "exitIntentBody": "Récupérez la clé sandbox ci-dessous et appelez notre API depuis votre terminal. Sans inscription. Sans carte. Réponse réelle — le même format JSON qu'en production.",
+  "exitIntentClaimCta": "Profitez de 0 % de frais de plateforme sur votre premier paiement",
+  "exitIntentClose": "Fermer",
+  "blogReadyCtaBody": "Démarrez en quelques minutes avec l'intégration API simple de Dynopay.",
+  "about": {
+    "metaTitle": "À propos de Dynopay — des paiements crypto simples pour chaque entreprise",
+    "metaDescription": "Découvrez Dynopay : notre mission de simplifier les paiements crypto, le fonctionnement de la plateforme, nos valeurs et comment nous contacter.",
+    "eyebrow": "À propos de Dynopay",
+    "heroTitle": "Les paiements crypto, simples pour chaque entreprise.",
+    "heroBody": "Dynopay est une passerelle de paiement crypto pour vendre des produits, recevoir des pourboires et mener des campagnes de collecte — ou intégrer les paiements via API. Notre mission : rendre l'acceptation de monnaie numérique aussi simple qu'un paiement par carte, tout en vous laissant le contrôle total de votre argent.",
+    "talkToUs": "Parlez-nous",
+    "stats": {
+      "baseFee": "Frais de base — aucun coût mensuel",
+      "chains": "Blockchains prises en charge",
+      "nonCustodial": "Paiements non-custodial",
+      "since": "En développement depuis"
+    },
+    "values": {
+      "nonCustodial": {
+        "title": "Non-custodial par conception",
+        "body": "Les paiements arrivent directement dans votre propre wallet — conservez la crypto d'origine ou convertissez-la automatiquement en USDT/USDC. Nous ne détenons jamais vos fonds."
+      },
+      "pricing": {
+        "title": "Tarification transparente",
+        "body": "Des frais clairs, des remises de volume à mesure que vous grandissez, sans frais cachés ni minimums mensuels. Ce que vous voyez est ce que vous payez."
+      },
+      "builder": {
+        "title": "Pensé pour les développeurs",
+        "body": "Une API claire, un checkout hébergé, des liens de paiement et des webhooks — pour accepter la crypto en quelques minutes, pas en semaines."
+      },
+      "global": {
+        "title": "Mondial par défaut",
+        "body": "Acceptez Bitcoin, Ethereum et les stablecoins de clients partout dans le monde, avec des paiements rapides et sans rétrofacturation."
+      }
+    },
+    "buildTitle": "Nos fondations",
+    "buildBody": "Une petite équipe rapide, concentrée sur une seule chose : permettre aux marchands d'être payés en crypto sans la complexité. Voici les principes derrière chaque fonctionnalité que nous livrons.",
+    "ctaTitle": "Envie de construire l'avenir des paiements avec nous ?",
+    "ctaBody": "Nous sommes toujours ravis d'échanger avec des marchands, des partenaires et des personnes qui veulent rejoindre l'équipe. Contactez-nous à tout moment — nous lisons chaque message."
+  },
+  "blogIndex": {
+    "metaTitle": "Blog paiements crypto — frais, règlement & intégrations · Dynopay",
+    "metaDescription": "Guides et stratégies pour vendre, recevoir des pourboires et collecter des fonds en crypto — réduisez les frais, réglez en stablecoins et développez-vous avec les paiements en cryptomonnaies.",
+    "ogDescription": "Guides, stratégies et analyses pour les marchands qui acceptent les paiements en cryptomonnaies.",
+    "eyebrow": "Blog",
+    "heroTitleLead": "Les paiements crypto",
+    "heroTitleAccent": "décryptés",
+    "allCategories": "Tous"
+  },
+  "press": {
+    "metaTitle": "Kit presse Dynopay — logos, chiffres et description type",
+    "metaDescription": "Ressources presse officielles de Dynopay : logos téléchargeables, chiffres clés, description type et contact média.",
+    "eyebrow": "Kit presse",
+    "heroTitle": "Tout ce qu'il vous faut pour écrire sur Dynopay.",
+    "heroBody": "Logos, chiffres clés et une description prête à l'emploi — libres de republication dans vos articles, tests et annuaires. Besoin d'autre chose ? Notre équipe est à un e-mail.",
+    "boilerplateTitle": "Description type",
+    "boilerplateBody": "Dynopay est une passerelle de paiement en cryptomonnaies non-dépositaire fondée en 2024. Les marchands l'utilisent pour vendre des produits, recevoir des pourboires et mener des campagnes de collecte — ou pour intégrer les paiements via API — en acceptant Bitcoin, Ethereum, stablecoins et 15 cryptos et tokens sur 9 blockchains. Les paiements sont réglés directement sur un wallet que le marchand contrôle, avec conversion automatique optionnelle en USDT/USDC. Les frais démarrent à 1,5 % par paiement, jusqu'à 0,5 % à grande échelle, sans rétrofacturation.",
+    "factsTitle": "Chiffres clés",
+    "facts": {
+      "founded": {
+        "label": "Création",
+        "value": "2024"
+      },
+      "product": {
+        "label": "Produit",
+        "value": "Passerelle de paiement crypto non-custodial"
+      },
+      "pricing": {
+        "label": "Tarifs",
+        "value": "À partir de 1,5 % par transaction, jusqu'à 0,5 % à grande échelle — aucun frais mensuel"
+      },
+      "networks": {
+        "label": "Réseaux",
+        "value": "9 blockchains (Bitcoin, Ethereum, Solana, XRP, Tron, Polygon, Litecoin, Dogecoin, Bitcoin Cash) et 15 cryptos et tokens"
+      },
+      "settlement": {
+        "label": "Règlement",
+        "value": "Directement dans le wallet du marchand — conservez la crypto ou convertissez-la automatiquement en USDT/USDC"
+      },
+      "chargebacks": {
+        "label": "Rétrofacturation",
+        "value": "Aucune — les paiements crypto sont définitifs une fois confirmés"
+      }
+    },
+    "logosTitle": "Logos et éléments de marque",
+    "logosBody": "Utilisez le logotype tel quel. Merci de ne pas le recolorer, le déformer, le faire pivoter ni lui ajouter d'effets.",
+    "logoBlackLabel": "Logotype — foncé sur clair",
+    "logoWhiteLabel": "Logotype — clair sur foncé",
+    "iconLabel": "Icône de l'app",
+    "downloadSvg": "Télécharger le SVG",
+    "downloadPng": "Télécharger le PNG",
+    "contactTitle": "Contact média",
+    "contactBody": "Pour une interview, un commentaire ou tout élément manquant sur cette page, écrivez-nous — nous lisons chaque message.",
+    "storyCta": "Découvrir notre histoire"
+  },
+  "referralProgram": "Programme de parrainage",
+  "footerNav": {
+    "product": "Produit",
+    "solutions": "Solutions",
+    "company": "Entreprise",
+    "logoAlt": "Logo Dynopay",
+    "trustAria": "Confiance et conformité",
+    "verticals": {
+      "ecommerce": "E-commerce",
+      "saas": "SaaS",
+      "gaming": "Jeux vidéo",
+      "freelancers": "Freelances",
+      "remittance": "Transferts d'argent",
+      "digitalDownloads": "Téléchargements numériques",
+      "hosting": "Hébergement et domaines",
+      "vpn": "VPN et confidentialité",
+      "marketplaces": "Places de marché",
+      "agencies": "Agences et consultants",
+      "nonprofits": "Associations"
+    },
+    "trust": {
+      "nonCustodial": "Non-custodial",
+      "chains": "9 blockchains",
+      "encrypted": "Chiffré",
+      "gdpr": "Conforme RGPD / LCB-FT",
+      "noChargebacks": "Aucune rétrofacturation"
+    }
+  },
+  "verify": {
+    "verifying": "Vérification...."
+  },
+  "donorWall": {
+    "rankTop": "Meilleur soutien",
+    "rank2": "2ème",
+    "rank3": "3ème",
+    "organizerReplied": "L'organisateur a répondu"
+  },
+  "campaignShare": {
+    "shareCampaign": "Partager cette campagne",
+    "shareOnX": "Partager sur X",
+    "shareOnThreads": "Partager sur Threads",
+    "shareOnWhatsApp": "Partager sur WhatsApp",
+    "shareOnLinkedIn": "Partager sur LinkedIn",
+    "copyLink": "Copier le lien",
+    "copyCampaignLink": "Copier le lien de la campagne",
+    "linkCopied": "Lien copié"
+  },
+  "rewardTiers": {
+    "heading": "Niveaux de récompense",
+    "scrollLeft": "Faire défiler les niveaux vers la gauche",
+    "scrollRight": "Faire défiler les niveaux vers la droite",
+    "mostPopular": "Le plus populaire"
+  },
+  "v5": {
+    "hero": {
+      "eyebrow": "Paiements crypto, réglés dans votre wallet",
+      "h1a": "Acceptez les paiements crypto.",
+      "h1b": "Réglés dans ",
+      "h1Accent": "la crypto de votre choix",
+      "h1c": ".",
+      "body": "Liens de paiement, checkout hébergé, boutique, dons et API. Vos acheteurs paient avec 15 cryptos sur 9 chaînes ; vous gardez la crypto ou la convertissez automatiquement en USDC ou USDT — directement dans un wallet que vous contrôlez.",
+      "primary": "Commencer à encaisser",
+      "secondary": "Essayer un checkout en direct",
+      "primaryHelper": "Gratuit pour démarrer · Premier paiement sans frais · Aucune carte requise",
+      "demoNote": "La carte ci-dessus est un bac à sable : choisissez une crypto et appuyez sur Payer pour voir un paiement se confirmer."
+    },
+    "demo": {
+      "sandbox": "Bac à sable · rien n'est envoyé",
+      "waiting": "En attente du paiement…",
+      "confirming": "Confirmation sur {{network}}…",
+      "confirmedTitle": "Paiement confirmé",
+      "confirmedBody": "Réglé en {{coin}} dans le wallet du marchand. Aucune chaîne n'a été touchée : c'est une démo.",
+      "again": "Recommencer",
+      "pay": "Payer {{store}}",
+      "settles": "Réglé en {{coin}}",
+      "chooseCoin": "Choisir une crypto",
+      "send": "Envoyez exactement",
+      "on": "sur {{network}}",
+      "liveRate": "Cours en direct",
+      "payBtn": "Payer {{amount}}"
+    },
+    "proof": {
+      "uptime": "Disponibilité, 90 jours",
+      "minutes": "{{n}} min",
+      "settle": "Règlement médian, réseaux rapides",
+      "month": "Paiements réglés ce mois-ci",
+      "countries": "Pays servis",
+      "chains": "Chaînes"
+    },
+    "open": {
+      "eyebrow": "Construit au grand jour",
+      "headline": "Des preuves que vous pouvez vérifier vous-même.",
+      "body": "Pas de logos empruntés. Disponibilité en direct, documentation publique, règlements on-chain réels et un checkout en six langues.",
+      "statusT": "Statut en direct",
+      "statusD": "Disponibilité des paiements, cours, webhooks et API, rafraîchie chaque minute.",
+      "statusCta": "Voir le statut",
+      "docsT": "Documentation API publique",
+      "docsD": "Chaque endpoint marchand est documenté avant même votre inscription.",
+      "docsCta": "Lire la documentation",
+      "chainT": "Règlement réel",
+      "chainD": "Un vrai paiement de notre propre boutique, réglé sur Ethereum. Vérifiez-le sur un explorateur de blocs.",
+      "chainCta": "Voir sur la chaîne",
+      "globalT": "Mondial par défaut",
+      "globalD": "Des marchands dans plus de {{countries}} pays, un checkout en six langues, des acheteurs de partout avec un wallet.",
+      "globalCta": "Voir cryptos et chaînes"
+    },
+    "how": {
+      "eyebrow": "Comment ça marche",
+      "headline": "Trois étapes. Aucune expertise crypto.",
+      "body": "Configurez une fois, puis chaque paiement suit le même chemin : du wallet de votre acheteur au vôtre.",
+      "s1t": "Partagez un lien ou un checkout",
+      "s1d": "Créez un lien de paiement, intégrez un bouton ou appelez l'API. Les acheteurs voient le montant exact dans la crypto choisie et un QR à scanner.",
+      "s2t": "Le réseau confirme",
+      "s2d": "Nous surveillons la chaîne et mettons le checkout à jour en direct. Activez la conversion automatique pour recevoir de l'USDC ou de l'USDT au lieu de la crypto envoyée.",
+      "s3t": "Les fonds arrivent dans votre wallet",
+      "s3d": "Le règlement va directement à l'adresse de versement que vous avez ajoutée, sans garde. Webhook, e-mail et tableau de bord se mettent à jour ensemble.",
+      "etaLabel": "Délai de confirmation habituel",
+      "etaNote": "Les mêmes estimations que voient les acheteurs au checkout. Les réseaux chargés peuvent prendre plus de temps.",
+      "walletLine": "Il vous faut une adresse de wallet pour chaque crypto acceptée : n'importe quel wallet que vous contrôlez.",
+      "walletCta": "Guide des wallets"
+    },
+    "products": {
+      "donations": {
+        "tab": "Dons",
+        "title": "Collectez des fonds et des pourboires en crypto.",
+        "desc": "Lancez une campagne avec barre d'objectif, paliers de récompense et un mur de donateurs en direct — ou une simple cagnotte à pourboires. Les soutiens donnent dans n'importe quelle crypto, depuis partout, et chaque contribution arrive directement dans votre wallet.",
+        "note": "Démo en direct sur /pay/donation-demo — barre d'objectif, paliers et mur de donateurs.",
+        "cta": "Voir la démo de dons"
+      },
+      "eyebrow": "Produits",
+      "headline": "Sept façons d'être payé. Un seul compte.",
+      "body": "Choisissez ce qui vous convient : tout se règle de la même manière, dans votre wallet.",
+      "shotAlt": "Aperçu : {{name}}",
+      "links": {
+        "tab": "Liens de paiement",
+        "title": "Partagez un lien, encaissez en crypto.",
+        "desc": "Créez un lien pour n'importe quel montant ou un objectif de don, partagez-le partout et voyez le paiement arriver dans votre tableau de bord. Fixez l'expiration, choisissez les cryptos acceptées et qui paie les frais.",
+        "note": "Sans code. Fonctionne en message privé, par e-mail ou via un QR au comptoir.",
+        "cta": "Créer votre premier lien"
+      },
+      "checkout": {
+        "tab": "Checkout hébergé",
+        "title": "Un checkout que les acheteurs comprennent.",
+        "desc": "Votre logo et vos couleurs, des cours en direct, le montant exact et un QR, plus une chronologie de statut de « en attente » à « confirmé ». Fonctionne sur tout téléphone, en six langues.",
+        "note": "Essayez le bac à sable sur /pay/demo, sans compte.",
+        "cta": "Essayer la démo en direct"
+      },
+      "storefront": {
+        "tab": "Boutique",
+        "title": "Votre page sur dynopay.com/votrenom.",
+        "desc": "Réservez un identifiant, listez des produits ou acceptez des pourboires, et partagez une seule URL. Chaque vente se règle dans votre wallet comme tout autre paiement.",
+        "note": "Conçu pour les créateurs, les indépendants et les petites boutiques.",
+        "cta": "Voir les pages créateurs"
+      },
+      "invoices": {
+        "tab": "Factures",
+        "title": "Factures et reçus, taxes comprises.",
+        "desc": "Envoyez une facture avec un lien de paiement en crypto. Chaque paiement réglé génère un reçu, filtrable par période pour votre comptable.",
+        "note": "Vos paramètres fiscaux s'appliquent automatiquement.",
+        "cta": "Envoyer une facture"
+      },
+      "embeds": {
+        "tab": "Intégrations",
+        "title": "Un bouton d'achat sur votre propre site.",
+        "desc": "Collez un extrait dans n'importe quelle page et vos acheteurs paient sans la quitter. Les clés publiables gardent votre clé secrète hors du navigateur.",
+        "note": "Une ligne de HTML, aucun framework requis.",
+        "cta": "Obtenir l'extrait"
+      },
+      "api": {
+        "tab": "API",
+        "title": "Un appel crée un paiement.",
+        "desc": "Une API REST simple avec clés d'API, webhooks signés pour chaque événement et un bac à sable pour tester. Aucune dépendance à un SDK.",
+        "note": "La documentation est publique : lisez-la avant de vous inscrire.",
+        "cta": "Lire la documentation"
+      },
+      "donationsLink": "Collecte & pourboires"
+    },
+    "pricing": {
+      "eyebrow": "Tarifs",
+      "headline": "Un pourcentage. Il baisse à mesure que vous grandissez.",
+      "body": "Des frais à l'usage sur votre volume réglé cumulé. Pas d'abonnement, pas de frais d'installation, pas de rétrofacturation.",
+      "firstFree": "Premier paiement sans frais",
+      "noChargebacks": "Aucune rétrofacturation",
+      "fullFees": "Voir la grille complète, frais de réseau compris →",
+      "tier": {
+        "starter": "Starter",
+        "growth": "Growth",
+        "scale": "Scale",
+        "enterprise": "Enterprise"
+      },
+      "plusFixed": "+ 1 $ par paiement",
+      "from": "À partir de {{amount}} réglés",
+      "upTo": "Jusqu'à {{amount}} réglés"
+    },
+    "calc": {
+      "title": "Estimez vos frais",
+      "volume": "Volume mensuel",
+      "avg": "Paiement moyen",
+      "dyno": "Dynopay ({{pct}} %)",
+      "cards": "Cartes (2,9 % + 0,30 $)",
+      "save": "Vous économiseriez environ {{amount}} par mois par rapport aux cartes",
+      "cardsCheaper": "Les cartes seraient environ {{amount}} moins chères à cette taille de paiement",
+      "note": "Estimation seulement. Votre palier Dynopay suit le volume réglé cumulé ; les frais de réseau sont payés par qui vous choisissez. Les taux carte sont des chiffres publiés typiques."
+    },
+    "compare": {
+      "headline": "Comparatif",
+      "colDyno": "Dynopay",
+      "colCards": "Processeurs de cartes",
+      "colCustodial": "Processeurs crypto avec garde",
+      "note": "Les chiffres carte et garde sont des taux publiés typiques : vérifiez auprès de chaque fournisseur.",
+      "custody": {
+        "f": "Qui détient votre argent",
+        "dyno": "Vous : les fonds sont réglés dans votre propre wallet",
+        "cards": "Le processeur, jusqu'au versement",
+        "custodial": "Le wallet du processeur, jusqu'à votre retrait"
+      },
+      "volatility": {
+        "f": "Variations de cours",
+        "dyno": "Conversion automatique optionnelle en USDC ou USDT à la confirmation",
+        "cards": "Aucune, mais plus de 2,9 % de frais",
+        "custodial": "Souvent seulement après conversion manuelle"
+      },
+      "chargebacks": {
+        "f": "Rétrofacturations",
+        "dyno": "Aucune : les paiements sont définitifs, vous décidez des remboursements",
+        "cards": "Oui, plus des frais de litige",
+        "custodial": "Aucune"
+      },
+      "payout": {
+        "f": "Délai de versement",
+        "dyno": "Dès la confirmation du réseau : quelques minutes",
+        "cards": "2 à 7 jours ouvrés",
+        "custodial": "Sur demande de retrait, avec des limites"
+      },
+      "fees": {
+        "f": "Frais de traitement",
+        "dyno": "1,5 %, jusqu'à 0,5 %",
+        "cards": "Environ 2,9 % + 0,30 $",
+        "custodial": "0,5–1 % plus des frais de retrait"
+      },
+      "monthly": {
+        "f": "Frais mensuels ou d'installation",
+        "dyno": "Aucun",
+        "cards": "Souvent (passerelle, terminal)",
+        "custodial": "Généralement aucun"
+      }
+    },
+    "security": {
+      "eyebrow": "Confiance et sécurité",
+      "headline": "Les protections sont déjà en place.",
+      "body": "Tout ce qui suit est actif aujourd'hui dans chaque compte, ce n'est pas une feuille de route.",
+      "cta": "Ouvrir la page de statut",
+      "nonCustodial": {
+        "t": "Sans garde",
+        "d": "Les fonds sont réglés directement aux adresses que vous ajoutez. Nous ne détenons jamais votre solde."
+      },
+      "convert": {
+        "t": "Conversion automatique en stablecoin",
+        "d": "Activez-la et chaque paiement arrive en USDC ou USDT dès sa confirmation."
+      },
+      "refunds": {
+        "t": "Remboursements on-chain",
+        "d": "Remboursez tout ou partie du montant dans la crypto d'origine depuis votre tableau de bord ; l'acheteur reçoit un reçu."
+      },
+      "twofa": {
+        "t": "Authentification à deux facteurs",
+        "d": "Codes d'application d'authentification et codes de secours à usage unique, avec vérification renforcée à la connexion."
+      },
+      "walletLock": {
+        "t": "Protection de l'adresse de versement",
+        "d": "Tout changement d'adresse exige un code par e-mail ; chaque changement est journalisé et réversible depuis l'e-mail d'alerte."
+      },
+      "sessions": {
+        "t": "Contrôle des appareils et sessions",
+        "d": "Voyez chaque appareil connecté, déconnectez-vous partout en un geste et soyez alerté des connexions depuis un nouvel appareil."
+      },
+      "webhooks": {
+        "t": "Webhooks signés",
+        "d": "Événements signés HMAC, nouvelles tentatives automatiques et file des messages en échec."
+      },
+      "kyc": {
+        "t": "KYC / AML",
+        "d": "Les vérifications d'identité s'appliquent à mesure que votre volume augmente ; traitement des données conforme au RGPD."
+      },
+      "status": {
+        "t": "Page de statut publique",
+        "d": "Disponibilité en direct des paiements, cours, webhooks et API, avec un historique de 90 jours."
+      }
+    },
+    "dev": {
+      "eyebrow": "Développeurs",
+      "headline": "Une requête. Une vraie réponse.",
+      "body": "Une API REST simple, appelable depuis n'importe où. Créez un paiement, redirigez l'acheteur, écoutez le webhook.",
+      "b1": "Webhooks signés pour chaque événement de paiement",
+      "b2": "Clés de bac à sable pour tester sans déplacer de fonds",
+      "b3": "Aucun SDK requis : juste du HTTP",
+      "worksWith": "Fonctionne avec tout langage ou framework capable d'émettre une requête HTTP, plus un bouton d'achat à copier-coller pour les sites statiques.",
+      "ctaDocs": "Lire la documentation API",
+      "copy": "Copier",
+      "copied": "Copié",
+      "response": "Réponse",
+      "snippetNote": "Clé de bac à sable affichée. Les clés réelles se créent dans votre tableau de bord, section Développeurs ; la réponse a la même forme en production."
+    },
+    "coins": {
+      "eyebrow": "Cryptos et chaînes",
+      "headline": "{{coins}} cryptos et tokens, 9 chaînes.",
+      "body": "Tous les actifs avec lesquels vos acheteurs peuvent payer, la même liste que notre checkout. Stablecoins sur les réseaux les moins chers compris.",
+      "cta": "Voir les frais par réseau"
+    },
+    "faq": {
+      "eyebrow": "FAQ",
+      "headline": "Les questions que posent vraiment les marchands.",
+      "still": "Encore une question ?",
+      "ask": "Demandez-nous tout →",
+      "cost": {
+        "q": "Combien ça coûte ?",
+        "a": "1,5 % par paiement au départ, puis 1,0 %, 0,7 % et 0,5 % à mesure que votre volume réglé cumulé augmente. Votre premier paiement est exempt de frais de plateforme. Pas d'abonnement, pas de frais d'installation, pas de rétrofacturation. Les frais de réseau vont à la blockchain et vous choisissez qui les paie, vous ou l'acheteur."
+      },
+      "funds": {
+        "q": "Où va l'argent ?",
+        "a": "Directement à une adresse de wallet que vous contrôlez. Dynopay est sans garde : nous ne détenons jamais votre solde et chaque règlement est un vrai transfert on-chain."
+      },
+      "speed": {
+        "q": "En combien de temps suis-je payé ?",
+        "a": "Aussi vite que le réseau confirme. Solana et XRP : quelques secondes ; USDT sur Tron et Polygon : moins d'une minute ; Ethereum : quelques minutes ; Bitcoin : 10 à 60 minutes. Vous suivez le statut en direct et recevez un webhook et un e-mail au règlement."
+      },
+      "crypto": {
+        "q": "Dois-je connaître la crypto ?",
+        "a": "Non. Vous fixez un prix dans votre devise, l'acheteur choisit une crypto et nous lui affichons le montant exact. Activez la conversion automatique et vous recevez de l'USDC ou de l'USDT sans jamais toucher à une plateforme d'échange."
+      },
+      "wallet": {
+        "q": "Quel wallet me faut-il ?",
+        "a": "N'importe quel wallet que vous contrôlez : un wallet matériel ou mobile, ou une adresse de dépôt d'une plateforme d'échange. Ajoutez une adresse de versement par crypto acceptée ; notre guide vous accompagne."
+      },
+      "buyers": {
+        "q": "De quoi mes acheteurs ont-ils besoin ?",
+        "a": "D'un wallet contenant l'une des cryptos prises en charge. Ils scannent le QR ou copient l'adresse et le montant, sans compte ni inscription. Le checkout est disponible en six langues."
+      },
+      "donations": {
+        "q": "Puis-je collecter des fonds ou recevoir des pourboires ?",
+        "a": "Oui. Lancez une campagne de financement participatif avec barre d'objectif et paliers de récompense, ou une simple cagnotte à pourboires — vos soutiens paient en crypto depuis partout, sans compte, et les fonds arrivent directement dans un wallet que vous contrôlez."
+      },
+      "refunds": {
+        "q": "Puis-je rembourser un paiement ?",
+        "a": "Oui. Remboursez tout ou partie du montant dans la crypto d'origine depuis votre tableau de bord. L'acheteur reçoit par e-mail un reçu du remboursement."
+      },
+      "wrongAmount": {
+        "q": "Et si un acheteur envoie le mauvais montant ?",
+        "a": "Les paiements sont rapprochés du montant exact affiché au checkout. Les légers sous-paiements dans la tolérance que vous définissez sont acceptés automatiquement ; les écarts plus importants sont signalés dans votre tableau de bord pour que vous remboursiez ou régliez la situation avec l'acheteur. Les trop-perçus sont réglés en totalité."
+      },
+      "legal": {
+        "q": "Est-ce légal et conforme ?",
+        "a": "Accepter la crypto est légal dans la plupart des pays, et vous restez responsable des règles locales et des taxes. Dynopay applique des vérifications KYC/AML à mesure que votre volume augmente et traite les données conformément au RGPD."
+      },
+      "myCountry": {
+        "q": "Puis-je utiliser Dynopay depuis mon pays ?",
+        "a": "Presque certainement, oui. Il n'y a aucune liste de pays à laquelle candidater ni aucune banque ou réseau de cartes qui doive vous approuver : si vous pouvez détenir un wallet crypto, vous pouvez accepter des paiements et les recevoir directement dessus. Vous vous inscrivez avec une adresse e-mail, ajoutez un wallet de versement et pouvez démarrer le jour même. La seule exception concerne la poignée de juridictions sous sanctions internationales."
+      },
+      "countries": {
+        "q": "Quels pays prenez-vous en charge ?",
+        "a": "Les acheteurs peuvent payer de partout avec un wallet. Des marchands de plus de 30 pays sont inscrits aujourd'hui ; les juridictions sous sanctions sont exclues. Le checkout existe en anglais, allemand, espagnol, français, portugais et néerlandais."
+      },
+      "referral": {
+        "q": "Y a-t-il un programme de parrainage ?",
+        "a": "Oui. Partagez votre lien de parrainage et gagnez 25 % des frais Dynopay de chaque marchand parrainé pendant 12 mois, en crédit de frais ou versés en USDT. Votre filleul bénéficie de 50 % de réduction sur les frais pendant ses 30 premiers jours."
+      }
+    },
+    "final": {
+      "eyebrow": "Prêt quand vous l'êtes",
+      "headline1": "Acceptez la crypto",
+      "headline2": "en cinq minutes environ.",
+      "body": "Créez un compte gratuit, ajoutez un wallet de versement et partagez votre premier lien. Votre premier paiement est sans frais.",
+      "talk": "Parlez-nous"
+    },
+    "sticky": {
+      "start": "Commencer gratuitement",
+      "demo": "Démo en direct"
+    },
+    "eta": {
+      "BTC": "10–60 min",
+      "ERC20": "1–5 min",
+      "LTC": "5–15 min",
+      "DOGE": "2–10 min",
+      "BCH": "10–30 min",
+      "TRC20": "moins d'une minute",
+      "SOL": "quelques secondes",
+      "XRPL": "quelques secondes",
+      "POLYGON": "moins d'une minute"
+    },
+    "live": {
+      "title": "Settling right now",
+      "sub": "Live payments across the network — coin, chain and time only. No names, no amounts.",
+      "now": "just now",
+      "m": "{{n}}m ago",
+      "h": "{{n}}h ago",
+      "d": "{{n}}d ago"
+    },
+    "onchain": {
+      "eyebrow": "Verify on-chain",
+      "headline": "Real settlements, on public explorers.",
+      "body": "A few recent payments to our own Dynopay store. Each one is a real transaction — open it on a block explorer and confirm the money moved.",
+      "verify": "Verify",
+      "ownStore": "Dynopay store",
+      "settledOn": "{{symbol}} on {{network}}"
+    },
+    "wallets": {
+      "title": "Pay from any wallet",
+      "sub": "Buyers scan and send from whatever they already use — no account with us required."
+    },
+    "global": {
+      "eyebrow": "Mondial par défaut",
+      "headline": "Des paiements depuis plus de {{countries}} pays.",
+      "body": "Il n'y a aucune liste de pays à laquelle candidater ni aucun accord bancaire à attendre. Si vos clients peuvent détenir un wallet crypto, ils peuvent vous payer depuis n'importe où dans le monde, et chaque paiement est reversé directement sur un wallet que vous contrôlez.",
+      "langs": "6 langues",
+      "chainsLabel": "9 chaînes",
+      "walletLabel": "Non dépositaire"
+    }
+  },
+  "goToDashboard": "Aller au tableau de bord",
+  "signedInBar": {
+    "title": "Vous êtes connecté"
+  },
+  "saved": {
+    "pageTitle": "Marchands enregistrés",
+    "headerLink": "Marchands enregistrés",
+    "title": "Vos marchands enregistrés",
+    "subtitle": "Les marchands que vous avez enregistrés après un paiement. Stockés uniquement sur cet appareil — aucun compte requis.",
+    "visit": "Voir la page",
+    "remove": "Retirer",
+    "savedOn": "Enregistré le {{date}}",
+    "emptyTitle": "Rien d'enregistré pour l'instant",
+    "emptyBody": "Après avoir payé un marchand avec Dynopay, touchez « Enregistrer pour la prochaine fois » sur l'écran du reçu : il apparaîtra ici.",
+    "browse": "Retour à l'accueil"
+  }
+}

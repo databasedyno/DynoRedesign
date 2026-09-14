@@ -1,0 +1,55 @@
+{
+  "meta_title": "Krypto-Zahlungen für Online-Kurse & E-Learning · Dynopay",
+  "meta_description": "Akzeptieren Sie Krypto-Zahlungen für Ihre Online-Kurse und E-Learning mit Dynopay. Keine Rückbuchungen, Teilnehmer weltweit, 15+ Kryptowährungen. Gebühren ab 1,5%. Kostenlos starten.",
+  "h1": "Akzeptieren Sie Krypto-Zahlungen für Online-Kurse ohne Rückbuchungen",
+  "subheading": "Mit Dynopay können Kursersteller und E-Learning-Plattformen an Teilnehmer überall verkaufen, Erstattungsbetrug eliminieren und Bitcoin, Stablecoins und 15+ Kryptowährungen direkt in ein von ihnen kontrolliertes Wallet empfangen.",
+  "intro_paragraph": "Wissen online zu verkaufen bedeutet, Teilnehmer in Ländern zu erreichen, in denen Karten versagen, und Rückbuchungsbetrug schmälert Ihre Marge, nachdem die Inhalte bereits konsumiert wurden. Dynopay ist ein non-custodial Krypto-Zahlungs-Gateway, das Zahlungen direkt in Ihr Wallet einzahlt – kein Mittelsmann, der Ihre Gelder zurückhält. Verkaufen Sie einen Kurs per Zahlungslink, betten Sie das Checkout auf Ihrer Landingpage ein oder automatisieren Sie die Anmeldung über die REST API – über 15+ Kryptowährungen mit Gebühren ab 1,5%, die bei steigendem Volumen auf 0,5% sinken. Keine Rückbuchungen, keine monatlichen Gebühren, und Ihre erste Zahlung ist kostenlos.",
+  "features": [
+    {
+      "title": "Keine Rückbuchungen, nachdem der Kurs angesehen wurde",
+      "description": "Krypto-Zahlungen sind endgültig, sodass ein Teilnehmer nicht Ihren gesamten Kurs konsumieren und das Geld anschließend per Kartenanfechtung zurückholen kann. Was Sie verdienen, bleibt verdient."
+    },
+    {
+      "title": "Melden Sie Teilnehmer aus aller Welt an",
+      "description": "Nehmen Sie Zahlungen aus Regionen an, die von Kartennetzwerken schlecht bedient werden. Lernende in Schwellenländern können Sie in Stablecoins oder Bitcoin bezahlen – ohne lokale Karte oder Bank."
+    },
+    {
+      "title": "Automatisieren Sie den Zugang mit Webhooks",
+      "description": "Lösen Sie in dem Moment, in dem eine Zahlung bestätigt wird, einen Webhook aus, um eine Lektion freizuschalten, LMS-Zugang zu gewähren oder einen Download-Link zu senden – kein manueller Abgleich zwischen Zahlung und Anmeldung."
+    }
+  ],
+  "how_it_works": [
+    "Melden Sie sich an, verifizieren Sie Ihre E-Mail, erstellen Sie ein Unternehmensprofil und fügen Sie eine Auszahlungs-Wallet-Adresse für die Abwicklung hinzu.",
+    "Erstellen Sie einen Zahlungslink pro Kurs oder betten Sie das Checkout-Widget auf Ihrer Verkaufsseite oder Ihrem LMS ein.",
+    "Der Teilnehmer zahlt in seiner bevorzugten Kryptowährung, Ihr Webhook gewährt sofort Zugang, und die Gelder landen innerhalb von Minuten in Ihrem Wallet."
+  ],
+  "faqs": [
+    {
+      "question": "Kann ich den Kurszugang automatisch gewähren, wenn eine Krypto-Zahlung bestätigt ist?",
+      "answer": "Ja. Dynopay sendet einen Webhook, wenn eine Zahlung on-chain bestätigt wird, sodass Ihr LMS oder Mitglieder-Tool den Kurs freischalten, das Teilnehmerkonto erstellen oder automatisch einen Download-Link per E-Mail senden kann – ganz ohne manuellen Schritt."
+    },
+    {
+      "question": "Mit welchen Kryptowährungen können meine Teilnehmer zahlen?",
+      "answer": "Dynopay unterstützt 15+ Kryptowährungen, darunter Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, TRX, MATIC sowie Stablecoins wie USDT (ERC20, TRC20, Polygon), USDC (ERC20) und RLUSD – sodass Teilnehmer in der Coin zahlen können, die sie bereits besitzen."
+    },
+    {
+      "question": "Wie stoppt Krypto Erstattungsbetrug bei digitalen Kursen?",
+      "answer": "Kartenzahlungen können Wochen nach der Lieferung angefochten werden, aber Krypto-Transaktionen sind endgültig und unumkehrbar. Das beseitigt das Muster 'alles ansehen, dann zurückbuchen', das Kursverkäufer plagt, und schützt Einnahmen aus bereits konsumierten Inhalten."
+    },
+    {
+      "question": "Welche Gebühren fallen für den Verkauf von Kursen mit Dynopay an?",
+      "answer": "Die Gebühren beginnen bei 1,5% plus einem Dollar pro erfolgreicher Zahlung und sinken automatisch auf 0,5%, wenn Ihr abgewickeltes Volumen wächst. Es gibt keine Einrichtungsgebühren, keine monatlichen Gebühren, und Ihre allererste Zahlung ist völlig kostenlos."
+    },
+    {
+      "question": "Muss ich Krypto besitzen oder ein Händlerkonto führen?",
+      "answer": "Nein. Sie benötigen nur eine Wallet-Adresse für die Coins, die Sie empfangen möchten. Dynopay ist non-custodial, sodass Zahlungen direkt in Ihr MetaMask, Coinbase, Ledger oder jedes von Ihnen kontrollierte Wallet gehen – kein Händlerkonto erforderlich."
+    }
+  ],
+  "cta_headline": "Beginnen Sie in 10 Minuten, Ihren Kurs in Krypto zu verkaufen",
+  "cta_body": "Melden Sie sich jetzt an, und Ihre erste Transaktion ist gebührenfrei. Keine monatlichen Kosten, keine Einrichtungsgebühren, und die Gelder werden direkt in Ihr Wallet abgewickelt.",
+  "_generated_at": "2026-09-05T00:00:00.000Z",
+  "_model": "dynopay-editorial-2026-09",
+  "_kind": "vertical",
+  "_slug": "online-courses",
+  "_display_name": "Online Courses & E-Learning"
+}

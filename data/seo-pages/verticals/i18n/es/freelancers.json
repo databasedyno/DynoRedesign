@@ -1,0 +1,55 @@
+{
+  "meta_title": "Pagos en criptomonedas para freelancers y creadores · Dynopay",
+  "meta_description": "Acepta pagos en criptomonedas para freelancers y creadores con Dynopay. Sin contracargos, clientes globales, 15+ criptomonedas. Comienza a recibir pagos en 10 minutos.",
+  "h1": "Acepta pagos en criptomonedas para freelancers y creadores sin contracargos ni fronteras",
+  "subheading": "Recibe pagos en Bitcoin, Ethereum, USDT y 12+ otras criptomonedas. Los fondos llegan directamente a tu billetera—nunca bloqueados por una plataforma.",
+  "intro_paragraph": "Cuando vendes servicios digitales, plantillas o coaching a través de fronteras, PayPal puede retener tus fondos hasta 180 días y los clientes pueden revertir cargos meses después. Dynopay es una plataforma de comercio cripto no custodial diseñada para freelancers y creadores que desean pagos globales sin contracargos. Recibes fondos directamente en tu propia billetera, y las tarifas comienzan en 1.5% y luego bajan a 0.5% a gran escala. Sin tarifas mensuales, sin fondos congelados, sin fraude de reembolsos.",
+  "features": [
+    {
+      "title": "Tu billetera, tu custodia siempre",
+      "description": "Dynopay nunca retiene tus fondos. Cada pago llega directamente a la billetera que controlas, por lo que ninguna plataforma puede congelar tus ganancias o retrasar retiros."
+    },
+    {
+      "title": "Cero riesgo de contracargo en servicios",
+      "description": "Los pagos en criptomonedas son finales. Los clientes no pueden revertir un pago 90 días después de que entregaste un logo, sitio web o llamada de coaching—eliminando el abuso de reembolsos."
+    },
+    {
+      "title": "Propinas, productos y enlaces de pago",
+      "description": "Recoge propinas en dynopay.com/@tuusuario, vende productos digitales con pago hospedado, o comparte enlaces de pago para facturas. Una plataforma maneja las tres."
+    }
+  ],
+  "how_it_works": [
+    "Regístrate con tu correo electrónico, verifícalo y crea tu perfil de empresa en menos de tres minutos.",
+    "Agrega tu dirección de billetera de Bitcoin, Ethereum o stablecoin—solo un destino de pago para comenzar a recibir pagos.",
+    "Genera un enlace de pago, incrusta el pago en tu sitio, o comparte tu página personal de propinas y hazlo en vivo."
+  ],
+  "faqs": [
+    {
+      "question": "¿Necesito tener criptomonedas para aceptar pagos en criptomonedas como freelancer?",
+      "answer": "No. Solo necesitas una dirección de billetera donde lleguen los pagos. Puedes crear una billetera gratuita en minutos con Exodus, MetaMask o Coinbase Wallet, y luego convertir cripto a tu moneda local en un intercambio cuando lo desees."
+    },
+    {
+      "question": "¿Qué criptomonedas pueden aceptar los freelancers y creadores con Dynopay?",
+      "answer": "Dynopay admite 15+ criptomonedas incluyendo Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, MATIC, TRX y stablecoins como USDT (ERC20, TRC20, Polygon) y USDC. Tú eliges qué activos aceptar por producto o enlace."
+    },
+    {
+      "question": "¿Qué tarifas cobra Dynopay por pagos en criptomonedas?",
+      "answer": "Las tarifas comienzan en 1.5% más un dólar por pago exitoso y bajan automáticamente a 0.5% a medida que crece tu volumen liquidado. Tu primer pago es completamente gratis. Sin tarifas mensuales, costos de configuración o cargos ocultos."
+    },
+    {
+      "question": "¿Pueden los clientes disputar o revertir un pago en criptomonedas después de que entregue el trabajo?",
+      "answer": "No. Las transacciones de criptomonedas son finales e irreversibles. Una vez que un cliente paga, no puede presentar un contracargo o disputa de pago—protegiéndote del fraude de reembolsos común con tarjetas de crédito y PayPal."
+    },
+    {
+      "question": "¿Qué tan rápido puedo comenzar a aceptar pagos en criptomonedas como creador?",
+      "answer": "Puedes estar en vivo en menos de 10 minutos. Regístrate, verifica tu correo electrónico, agrega tu dirección de billetera y genera un enlace de pago o página personal de propinas. No se requiere una solicitud larga, verificaciones de crédito o documentación empresarial."
+    }
+  ],
+  "cta_headline": "Comienza a aceptar pagos en criptomonedas hoy",
+  "cta_body": "Tu primer pago es sin tarifas. Ve en vivo en 10 minutos sin costos mensuales y fondos enviados directamente a tu billetera.",
+  "_generated_at": "2026-08-29T14:53:34.729935Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "freelancers",
+  "_display_name": "Freelancers & Creators"
+}

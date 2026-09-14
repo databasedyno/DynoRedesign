@@ -1,0 +1,12 @@
+{
+  "common": {
+    "verifiedBadge.tooltip": {
+      "en": "Dynopay has checked this seller's identity (KYC). This is about the merchant you are paying — not about you.",
+      "de": "Dynopay hat die Identität dieses Verkäufers geprüft (KYC). Das betrifft den Händler, den du bezahlst — nicht dich.",
+      "es": "Dynopay ha comprobado la identidad de este vendedor (KYC). Se refiere al comercio al que pagas, no a ti.",
+      "fr": "Dynopay a vérifié l'identité de ce vendeur (KYC). Cela concerne le marchand que vous payez, pas vous.",
+      "nl": "Dynopay heeft de identiteit van deze verkoper gecontroleerd (KYC). Dit gaat over de verkoper die je betaalt — niet over jou.",
+      "pt": "A Dynopay verificou a identidade deste vendedor (KYC). Isto diz respeito ao comerciante que você está pagando — não a você."
+    }
+  }
+}

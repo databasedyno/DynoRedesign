@@ -1,0 +1,55 @@
+{
+  "meta_title": "Pagos en criptomonedas para mercados y plataformas en línea · Dynopay",
+  "meta_description": "Acepta pagos en criptomonedas en tu mercado o plataforma. No custodial, más de 15 criptomonedas, con tarifas desde 1.5%. Sin contracargos. Comienza en 10 minutos con Dynopay.",
+  "h1": "Pagos en criptomonedas para mercados y plataformas en línea que te mantienen en control",
+  "subheading": "Acepta Bitcoin, Ethereum, USDT y más de 15 criptomonedas directamente en tu billetera. Elimina contracargos, reduce la fricción en los pagos y paga a vendedores a nivel global.",
+  "intro_paragraph": "Los mercados y plataformas en línea enfrentan constantes disputas por contracargos, dolores de cabeza en pagos transfronterizos y restricciones de procesadores de pagos en bienes digitales. Dynopay es una plataforma de comercio en criptomonedas no custodial que envía fondos directamente a tu billetera, sin intermediarios que retengan tu dinero. Obtienes enlaces de pago, pago alojado, integración completa de API y escalado automático de tarifas desde 1.5% hasta 0.5% según el volumen. Tus vendedores y usuarios pueden recibir pagos en criptomonedas en minutos, en cualquier parte del mundo, con cero riesgo de contracargos.",
+  "features": [
+    {
+      "title": "Liquidaciones directas a la billetera, siempre",
+      "description": "Los fondos llegan a tu propia billetera por cada transacción. Dynopay nunca toma custodia, así que controlas la liquidez, el tiempo y el cumplimiento. Sin esperar pagos por lotes ni aprobaciones de intermediarios."
+    },
+    {
+      "title": "Cero exposición a contracargos",
+      "description": "Las transacciones en criptomonedas son finales. Elimina disputas por fraude, fraude amistoso y tarifas de contracargos que erosionan los márgenes en bienes digitales, suscripciones y ventas de alto valor en el mercado."
+    },
+    {
+      "title": "Paga a vendedores internacionales en minutos",
+      "description": "Distribuye ganancias a freelancers, proveedores y creadores en todo el mundo en criptomonedas. Sin retrasos en transferencias, sin tarifas bancarias de corresponsalía. Ellos eligen su billetera y activo preferido."
+    }
+  ],
+  "how_it_works": [
+    "Regístrate, verifica tu correo electrónico y crea el perfil de tu empresa en menos de tres minutos.",
+    "Agrega una dirección de billetera de pago para la criptomoneda que deseas recibir como liquidación.",
+    "Genera un enlace de pago, incrusta el widget de pago o integra a través de REST API y comienza a aceptar pagos."
+  ],
+  "faqs": [
+    {
+      "question": "¿Qué criptomonedas puede aceptar mi mercado con Dynopay?",
+      "answer": "Dynopay admite más de 15 criptomonedas, incluyendo Bitcoin, Ethereum, Litecoin, Dogecoin, USDT en Ethereum, Tron y Polygon, USDC, RLUSD, Solana, XRP, TRX, Bitcoin Cash y Polygon (MATIC). Todas las liquidaciones van directamente a tu billetera."
+    },
+    {
+      "question": "¿Cuáles son las tarifas de Dynopay por procesar pagos en criptomonedas en una plataforma?",
+      "answer": "Las tarifas comienzan en 1.5% más un dólar por pago exitoso y bajan automáticamente a 0.5% a medida que crece tu volumen liquidado. Sin tarifas mensuales, sin costos de configuración, sin cargos ocultos. Tu primer pago es completamente gratis."
+    },
+    {
+      "question": "¿Cómo pago a vendedores o creadores en mi mercado en criptomonedas?",
+      "answer": "Cada vendedor o creador proporciona su propia dirección de billetera. Puedes enviar criptomonedas directamente desde tu billetera de tesorería, o integrar la API de Dynopay para automatizar los pagos."
+    },
+    {
+      "question": "¿Dynopay retiene fondos en algún momento durante una transacción?",
+      "answer": "No. Dynopay es no custodial. Cada pago va directamente de la billetera del comprador a tu billetera de pago especificada. Mantienes la custodia y el control total sobre los fondos en todo momento, sin bloqueo de intermediarios."
+    },
+    {
+      "question": "¿Cuánto tiempo se tarda en comenzar a aceptar criptomonedas en mi plataforma?",
+      "answer": "La incorporación toma menos de 10 minutos. Regístrate, verifica tu correo electrónico, agrega los detalles de tu empresa, especifica una billetera de pago y genera un enlace de pago o integra el pago. Puedes estar en vivo el mismo día."
+    }
+  ],
+  "cta_headline": "Comienza a aceptar pagos en criptomonedas en 10 minutos",
+  "cta_body": "Tu primer pago es sin tarifas. Sin costo de configuración, sin tarifas mensuales y los fondos se liquidan directamente en tu billetera.",
+  "_generated_at": "2026-08-29T14:56:01.692406Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "marketplaces",
+  "_display_name": "Online Marketplaces & Platforms"
+}

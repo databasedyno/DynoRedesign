@@ -1,0 +1,22 @@
+{
+  "summary": "Verified Area 4 (Payer Checkout UX) across hosted checkout (CleanCheckoutV2) and creator inline tip checkout (InlineTipCheckout) on desktop 1440, mobile 390, and dark mode. All requirements PASS: (1) 3-step timeline transitions detected -> confirming -> paid using mocked verifyCryptoPayment (waiting -> pending -> confirmed); (2) In-place 'Refresh quote' on expired re-calls /api/pay/addPayment WITHOUT URL change or coin re-pick on BOTH hosted and inline; (3) AssetNetworkChip renders 'LTC · Litecoin' next to send-amount on both checkouts; (4) Desktop QR is 200px (SVG size 198x198 in-frame); (5) Overpayment note (excess credited to merchant) and Underpayment banner (send remaining X to same address) both wired to correct data-testids and show correct copy; (6) Mobile 390 shows sticky summary bar with merchant name + total, no horizontal overflow; (7) Dark mode: chip legible, QR panel remains white background, timeline+amounts legible.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "CleanCheckoutV2.tsx is 2276 lines — consider splitting phases (currency_select / awaiting / expired / confirmed) into sub-components; violates the >700-line file rule.",
+    "InlineTipCheckout.tsx is >1500 lines — same concern; extract the shared expired/refresh/timeline blocks (already partly in checkoutPrimitives.tsx) further."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "100%"},
+  "seed_data_creation": "None — used live read-only ref rNtQRX and mocked /api/pay/addPayment, /api/pay/verifyCryptoPayment, /api/pay/tip via page.route.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "For hosted checkout use /pay?d=rNtQRX; for inline tip mock /api/pay/tip to return {data:{d:'rNtQRX'}} then click support-widget-submit on /devhub. verifyCryptoPayment response MUST be wrapped as {message, data:{status,...}} — the top-level {status} form is rejected by checkoutApi (which returns json.data). Timeline confirmed dwell is ~4s min so allow up to 8s for detected->paid transition.",
+  "rca of the issue": "No bugs found."
+}

@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto-betalingen voor webhosting en domeinproviders · Dynopay",
+  "meta_description": "Accepteer Bitcoin, Ethereum, USDT en 15+ cryptocurrencies voor hosting en domeinen. Geen terugboekingen, wereldwijde dekking, fondsen direct naar uw wallet. Begin gratis.",
+  "h1": "Crypto-betalingen voor webhosting en domeinproviders, gebouwd voor terugkerende inkomsten",
+  "subheading": "Accepteer Bitcoin, Ethereum, stablecoins en 15+ cryptocurrencies voor hostingplannen en domeinregistraties—fondsen komen rechtstreeks in uw wallet met nul terugboekingsrisico.",
+  "intro_paragraph": "Webhosting- en domeinproviders verliezen inkomsten door frauduleuze terugboekingen, mislukte kaartvernieuwingen en betalingen die door betalingsverwerkers worden vastgehouden bij internationale transacties. Dynopay is een niet-bewaar crypto commerce platform dat elke betaling direct naar uw wallet stuurt—geen tussenpersoon, geen terugboekingsfraude, geen onvrijwillige churn door verlopen kaarten. Factureer vernieuwingen met API-gegenerate betalingslinks, neem eenmalige dome aankopen en deel betalingslinks voor handmatige facturen, allemaal met kosten die beginnen bij 1,5% en dalen naar 0,5% naarmate uw volume groeit.",
+  "features": [
+    {
+      "title": "Geen terugboekingen, ooit",
+      "description": "Crypto-transacties zijn definitief. Elimineer fraude door gestolen kaarten en vriendelijke fraude geschillen die hostingproviders duizenden per maand kosten aan vergoedingen, verloren servicetijd en administratieve overhead."
+    },
+    {
+      "title": "Stop met het verliezen van terugkerende inkomsten",
+      "description": "Kaartverval en bankafwijzingen veroorzaken onvrijwillige churn. Crypto-vernieuwingen falen nooit op een verlopen kaart—klanten betalen eenvoudig een nieuwe link elke cyclus, zodat u klanten behoudt die willen betalen maar dat niet kunnen met traditionele rails."
+    },
+    {
+      "title": "Dien klanten in elk land",
+      "description": "Accepteer betalingen wereldwijd zonder valutaconversiekosten. Klanten in markten die onderbediend zijn door kaartnetwerken kunnen u rechtstreeks betalen in stablecoins zoals USDT of USDC."
+    }
+  ],
+  "how_it_works": [
+    "Meld u aan, verifieer uw e-mail en maak uw bedrijfsprofiel in minder dan drie minuten aan.",
+    "Voeg één uitbetalingswalletadres toe voor Bitcoin, Ethereum of elke ondersteunde keten waar u fondsen naartoe wilt sturen.",
+    "Genereer betalingslinks voor facturen of embed de checkout-widget op uw factureringspagina—ga binnen tien minuten live."
+  ],
+  "faqs": [
+    {
+      "question": "Kan ik crypto accepteren voor maandelijkse hostingabonnementen of alleen voor eenmalige domeinaankopen?",
+      "answer": "Beide. Crypto heeft geen automatische kaartstijl, dus vernieuwingen werken als verse betalingen elke cyclus: genereer handmatig een betalingslink of automatiseer het met de REST API en webhooks. Eenmalige domeinaankopen gebruiken dezelfde links of checkout-widget, met fondsen die elke keer rechtstreeks naar uw wallet worden gestuurd."
+    },
+    {
+      "question": "Wat gebeurt er als een klant in Bitcoin betaalt maar ik wil stablecoins ontvangen?",
+      "answer": "Standaard ontvangt u precies wat de klant verstuurt, rechtstreeks naar uw uitbetalingswallet. Als u een stabiele waarde verkiest, schakelt u optionele automatische conversie in en worden volatiele activa zoals Bitcoin omgezet naar USDT of USDC in uw wallet."
+    },
+    {
+      "question": "Hoe verhouden crypto-betalingskosten zich tot creditcardverwerkers voor hostingproviders?",
+      "answer": "Dynopay rekent vanaf 1,5% plus één dollar per transactie bij startvolume, dalend naar 0,5% bij schaal op basis van verwerkte volume. Er zijn geen maandelijkse kosten, opstartkosten, terugboekingskosten of internationale transactiekosten. Uw eerste betaling is volledig kosteloos."
+    },
+    {
+      "question": "Moet ik crypto vasthouden of blockchain begrijpen om crypto-betalingen te accepteren?",
+      "answer": "Geen blockchain-expertise vereist. U geeft één walletadres op tijdens de setup—u kunt er een maken met elke standaard wallet-app. Betalingen komen automatisch binnen, en u bepaalt wanneer u naar fiat converteert via uw voorkeur exchange of de crypto langetermijn vasthoudt."
+    },
+    {
+      "question": "Kunnen klanten in landen waar mijn huidige betalingsverwerker niet werkt, betalen voor hosting met crypto?",
+      "answer": "Ja. Dynopay heeft geen landbeperkingen voor het ontvangen van crypto-betalingen. Klanten in regio's die onderbediend zijn door kaartnetwerken of PayPal kunnen u rechtstreeks betalen in Bitcoin, Ethereum of stablecoins, waardoor uw adresserbare markt wordt vergroot."
+    }
+  ],
+  "cta_headline": "Begin met het accepteren van crypto-betalingen in tien minuten",
+  "cta_body": "Uw eerste transactie is kosteloos. Geen maandelijkse kosten, geen opstartkosten, en fondsen gaan rechtstreeks naar uw wallet met nul terugboekingsrisico.",
+  "_generated_at": "2026-08-29T14:55:14.132117Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "hosting",
+  "_display_name": "Web Hosting & Domain Providers"
+}

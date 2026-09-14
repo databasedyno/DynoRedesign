@@ -1,0 +1,61 @@
+{
+ "/dashboard": {
+  "nonFocusableClickables": [],
+  "positiveTabindex": [],
+  "inputsWithoutLabel": [],
+  "iconButtonsWithoutName": [],
+  "tabStops": 39,
+  "noRing": [],
+  "hiddenFocus": [
+   "a[skip-to-content] \"Skip to main content\" (offscreen top=-69)"
+  ]
+ },
+ "/transactions": {
+  "nonFocusableClickables": [],
+  "positiveTabindex": [],
+  "inputsWithoutLabel": [],
+  "iconButtonsWithoutName": [],
+  "tabStops": 31,
+  "noRing": [],
+  "hiddenFocus": [
+   "a[skip-to-content] \"Skip to main content\" (offscreen top=-69)"
+  ]
+ },
+ "/pay-links": {
+  "nonFocusableClickables": [],
+  "positiveTabindex": [],
+  "inputsWithoutLabel": [],
+  "iconButtonsWithoutName": [
+   "button."
+  ],
+  "tabStops": 59,
+  "noRing": [],
+  "hiddenFocus": [
+   "a[skip-to-content] \"Skip to main content\" (offscreen top=-69)"
+  ]
+ },
+ "/referrals": {
+  "nonFocusableClickables": [],
+  "positiveTabindex": [],
+  "inputsWithoutLabel": [],
+  "iconButtonsWithoutName": [],
+  "tabStops": 25,
+  "noRing": [],
+  "hiddenFocus": [
+   "a[skip-to-content] \"Skip to main content\" (offscreen top=-69)"
+  ]
+ },
+ "/help-support": {
+  "nonFocusableClickables": [],
+  "positiveTabindex": [],
+  "inputsWithoutLabel": [],
+  "iconButtonsWithoutName": [
+   "button[^help-chat-cta]."
+  ],
+  "tabStops": 28,
+  "noRing": [],
+  "hiddenFocus": [
+   "a[skip-to-content] \"Skip to main content\" (offscreen top=-69)"
+  ]
+ }
+}

@@ -1,0 +1,22 @@
+{
+  "dashboardLayout": {
+    "gateway.title": { "en": "Gateway health", "de": "Gateway-Status", "es": "Estado de la pasarela", "fr": "État de la passerelle", "nl": "Gateway-status", "pt": "Estado do gateway" },
+    "gateway.allGood": { "en": "All systems normal", "de": "Alle Systeme laufen normal", "es": "Todos los sistemas funcionan", "fr": "Tous les systèmes fonctionnent", "nl": "Alle systemen werken normaal", "pt": "Todos os sistemas normais" },
+    "gateway.someDegraded": { "en": "Some services are slow", "de": "Einige Dienste sind langsam", "es": "Algunos servicios van lentos", "fr": "Certains services sont lents", "nl": "Sommige diensten zijn traag", "pt": "Alguns serviços estão lentos" },
+    "gateway.disruption": { "en": "Service disruption", "de": "Dienststörung", "es": "Interrupción del servicio", "fr": "Interruption de service", "nl": "Storing in de dienst", "pt": "Interrupção do serviço" },
+    "gateway.checking": { "en": "Checking status", "de": "Status wird geprüft", "es": "Comprobando estado", "fr": "Vérification en cours", "nl": "Status wordt gecontroleerd", "pt": "A verificar estado" },
+    "gateway.payments": { "en": "Payments", "de": "Zahlungen", "es": "Pagos", "fr": "Paiements", "nl": "Betalingen", "pt": "Pagamentos" },
+    "gateway.rates": { "en": "Rates", "de": "Kurse", "es": "Tipos de cambio", "fr": "Taux", "nl": "Koersen", "pt": "Taxas de câmbio" },
+    "gateway.webhooks": { "en": "Webhooks", "de": "Webhooks", "es": "Webhooks", "fr": "Webhooks", "nl": "Webhooks", "pt": "Webhooks" },
+    "gateway.api": { "en": "API", "de": "API", "es": "API", "fr": "API", "nl": "API", "pt": "API" },
+    "gateway.operational": { "en": "Normal", "de": "Normal", "es": "Normal", "fr": "Normal", "nl": "Normaal", "pt": "Normal" },
+    "gateway.degraded": { "en": "Slow", "de": "Langsam", "es": "Lento", "fr": "Lent", "nl": "Traag", "pt": "Lento" },
+    "gateway.outage": { "en": "Down", "de": "Ausgefallen", "es": "Caído", "fr": "Hors service", "nl": "Uitgevallen", "pt": "Indisponível" },
+    "gateway.unknown": { "en": "Checking", "de": "Prüfung", "es": "Comprobando", "fr": "Vérification", "nl": "Controleren", "pt": "A verificar" },
+    "gateway.statusPage": { "en": "Status page", "de": "Statusseite", "es": "Página de estado", "fr": "Page d'état", "nl": "Statuspagina", "pt": "Página de estado" },
+    "gateway.justNow": { "en": "just now", "de": "gerade eben", "es": "ahora mismo", "fr": "à l'instant", "nl": "zojuist", "pt": "agora mesmo" },
+    "gateway.minutesAgo": { "en": "{{count}}m ago", "de": "vor {{count}} Min.", "es": "hace {{count}} min", "fr": "il y a {{count}} min", "nl": "{{count}} min geleden", "pt": "há {{count}} min" },
+    "gateway.hoursAgo": { "en": "{{count}}h ago", "de": "vor {{count}} Std.", "es": "hace {{count}} h", "fr": "il y a {{count}} h", "nl": "{{count}} u geleden", "pt": "há {{count}} h" },
+    "gs.sidebarTitle": { "en": "Getting started", "de": "Erste Schritte", "es": "Primeros pasos", "fr": "Premiers pas", "nl": "Aan de slag", "pt": "Primeiros passos" }
+  }
+}

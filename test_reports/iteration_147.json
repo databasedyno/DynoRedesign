@@ -1,0 +1,21 @@
+{
+  "summary": "Read-only frontend smoke pass of the new v5 landing page. All 10 sections render with expected testids; no raw i18n keys anywhere; no horizontal overflow at 1920/768/390; hero interactive checkout demo walks idle->waiting->confirming->confirmed and resets; product tabs load real webp images (naturalWidth=1280) for links/checkout/storefront/invoices/embeds/api; pricing tier ladder shows 1.5% / 1% / 0.7% / 0.5%; calculator default $225.00 / $327.50 / 'save about $103'; MUI slider (ArrowRight x5) moves volume to $12,500 and recalculates ($281.00 / $409.30); who-pays customer $102.50/$100.00 and merchant $100.00/$97.50; compare table has all 6 rows; developer code tabs contain correct needles; code-copy toggles data-copied=true/'Copied' and reverts; FAQ default open on faq-cost (aria-expanded=true), clicking faq-funds closes cost and opens funds; FAQPage JSON-LD present with 11 questions; chip bar shows translated labels (no V3.NAV.*); FR menu switch produces 'Acceptez les paiements crypto.'; mobile sticky-mobile-cta data-visible flips false->true after scrolling past hero and sits at bottom:0 (language onboarding bar not shown for this session); regression pages /fees, /how-to, /referral-program, /pay/demo all return 200 with rendered content; zero console errors and zero pageerrors observed across the whole run.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Language onboarding bar was not shown during the mobile visit (probably suppressed by session/localStorage state carried in preview). Could not directly assert cta.bottom <= bar.top; positional logic should be re-verified on a truly fresh first visit before shipping.",
+    "The 'Deutsch' menu item was not found by innerText search when opening the header globe menu on desktop (French switch worked via a generic fallback). Recommend adding stable data-testids on the language menu items (e.g. language-menu-item-de) to make this deterministic for future tests."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped)", "frontend": "100% of requested checks passed"},
+  "seed_data_creation": "None (SAFE MODE, read-only)",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "v5 landing page fully verified. Notable stable testids: hero-v5, hero-checkout-demo (data-phase/data-coin), hero-demo-coin-<SYM>, hero-demo-pay/reset/confirmed/crypto-amount, proof-strip (data-loaded), proof-band, how-it-works, products, product-tab-{links,checkout,storefront,invoices,embeds,api}, product-panel-<id>, product-shot-<id>, pricing, tier-{starter,growth,scale,enterprise}, fee-calculator, calc-volume-slider (MUI - use 'input' child), calc-avg-slider, calc-dyno, calc-cards, calc-volume, calc-result, whopays-tab-{customer,merchant}, whopays-customer-pays, whopays-you-receive, compare-table + compare-row-{custody,volatility,chargebacks,payout,fees,monthly}, security, developers, code-tab-{curl,node,python}, code-block, code-copy (data-copied), coins, faq, faq-{cost,funds,...}, final-cta, sticky-mobile-cta (data-visible), sticky-start, sticky-demo, language-onboarding-bar, language-onboarding-close, header-language-globe, language-trigger. Regression pages that still use v3/FinalCTAAurora are working."
+}

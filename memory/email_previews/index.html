@@ -1,0 +1,374 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Dynopay Email Audit — Before/After</title>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;margin:0;background:#f5f5f4;color:#0a0a0a}
+  header{background:#050505;color:#fff;padding:22px 28px}
+  header h1{margin:0;font-size:20px}header p{margin:6px 0 0;color:#a1a1aa;font-size:13px}
+  main{padding:24px 28px;max-width:1400px;margin:0 auto}
+  section{background:#fff;border:1px solid #e7e5e4;border-radius:14px;padding:18px 20px;margin:0 0 26px}
+  h2{font-size:16px;margin:0 0 4px}.note{color:#6b7280;font-size:13px;margin:0 0 14px}
+  .pair,.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .grid3{grid-template-columns:1fr 1fr 1fr}
+  .col{display:flex;flex-direction:column}
+  .meta{margin-bottom:8px}
+  .tag{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.5px;padding:2px 8px;border-radius:6px;background:#eef2ff;color:#4338CA}
+  .tag.de{background:#052e16;color:#86efac}
+  .subj,.pre{font-size:12px;color:#374151;margin-top:6px;line-height:1.4}
+  iframe{width:100%;height:640px;border:1px solid #e5e7eb;border-radius:10px;background:#fff}
+</style></head><body>
+<header><h1>Dynopay Email Content Audit — Before / After (Part 1)</h1>
+<p>Top 15 by impact × frequency · rendered with the real shared template. Analysis only — no source changed, no email sent.</p></header>
+<main>
+  <section>
+    <h2>1. Customer payment confirmation (receipt)</h2>
+    <p class="note">Add preheader; tighten intro; keep fiat + crypto anchor; sentence-case.</p>
+    <div class="pair">
+      
+  <div class="col">
+    <div class="meta"><span class="tag">BEFORE</span>
+      <div class="subj"><b>Subject:</b> Payment successful - Receipt from Acme Store</div>
+      <div class="pre"><b>Preheader:</b> <i style="color:#dc2626">— none (leaks first body line) —</i></div>
+    </div>
+    <iframe src="01_customer_receipt.before.html"></iframe>
+  </div>
+      
+  <div class="col">
+    <div class="meta"><span class="tag">AFTER</span>
+      <div class="subj"><b>Subject:</b> Your payment to Acme Store is confirmed</div>
+      <div class="pre"><b>Preheader:</b> Receipt attached · 0.0042 BTC (≈ $261.37) paid to Acme Store</div>
+    </div>
+    <iframe src="01_customer_receipt.after.html"></iframe>
+  </div>
+    </div>
+  </section>
+  <section>
+    <h2>2. Payment received — merchant</h2>
+    <p class="note">Show fiat value + net-after-fee stat cards + network row.</p>
+    <div class="pair">
+      
+  <div class="col">
+    <div class="meta"><span class="tag">BEFORE</span>
+      <div class="subj"><b>Subject:</b> Payment received - 0.0042 BTC</div>
+      <div class="pre"><b>Preheader:</b> <i style="color:#dc2626">— none (leaks first body line) —</i></div>
+    </div>
+    <iframe src="02_payment_received.before.html"></iframe>
+  </div>
+      
+  <div class="col">
+    <div class="meta"><span class="tag">AFTER</span>
+      <div class="subj"><b>Subject:</b> You've been paid 0.0042 BTC</div>
+      <div class="pre"><b>Preheader:</b> Acme Store · settled to your wallet — net $257.45 after fees</div>
+    </div>
+    <iframe src="02_payment_received.after.html"></iframe>
+  </div>
+    </div>
+  </section>
+  <section>
+    <h2>3. Login OTP</h2>
+    <p class="note">Add preheader; add 'Dynopay will never ask for this code'.</p>
+    <div class="pair">
+      
+  <div class="col">
+    <div class="meta"><span class="tag">BEFORE</span>
+      <div class="subj"><b>Subject:</b> Your login code</div>
+      <div class="pre"><b>Preheader:</b> <i style="color:#dc2626">— none (leaks first body line) —</i></div>
+    </div>
+    <iframe src="03_login_otp.before.html"></iframe>
+  </div>
+      
+  <div class="col">
+    <div class="meta"><span class="tag">AFTER</span>
+      <div class="subj"><b>Subject:</b> Your login code (expires in 5 min)</div>
+      <div class="pre"><b>Preheader:</b> Never share this code — Dynopay staff will never ask for it.</div>
+    </div>
+    <iframe src="03_login_otp.after.html"></iframe>
+  </div>
+    </div>
+  </section>
+  <section>
+    <h2>4. Payment pending (confirming)</h2>
+    <p class="note">Show ONLY the paid coin's ETA (not a 5-coin table); add fiat.</p>
+    <div class="pair">
+      
+  <div class="col">
+    <div class="meta"><span class="tag">BEFORE</span>
+      <div class="subj"><b>Subject:</b> Your payment is pending confirmation</div>
+      <div class="pre"><b>Preheader:</b> <i style="color:#dc2626">— none (leaks first body line) —</i></div>
+    </div>
+    <iframe src="04_payment_pending.before.html"></iframe>
+  </div>
+      
+  <div class="col">
+    <div class="meta"><span class="tag">AFTER</span>
+      <div class="subj"><b>Subject:</b> Payment detected — confirming on-chain</div>
+      <div class="pre"><b>Preheader:</b> 0.0042 BTC (≈ $261.37) from Acme Store — usually 10–60 min</div>
+    </div>
+    <iframe src="04_payment_pending.after.html"></iframe>
+  </div>
+    </div>
+  </section>
+  <section>
+    <h2>5. Welcome</h2>
+    <p class="note">Add preheader; tighten copy; verify promo wording vs landing/fees.</p>
+    <div class="pair">
+      
+  <div class="col">
+    <div class="meta"><span class="tag">BEFORE</span>
+      <div class="subj"><b>Subject:</b> Welcome to Dynopay - Let's get you paid</div>
+      <div class="pre"><b>Preheader:</b> <i style="color:#dc2626">— none (leaks first body line) —</i></div>
+    </div>
+    <iframe src="05_welcome.before.html"></iframe>
+  </div>
+      
+  <div class="col">
+    <div class="meta"><span class="tag">AFTER</span>
+      <div class="subj"><b>Subject:</b> Welcome to Dynopay — let's get you paid</div>
+      <div class="pre"><b>Preheader:</b> Your first settled payment is fee-free. 3 quick steps to get paid.</div>
+    </div>
+    <iframe src="05_welcome.after.html"></iframe>
+  </div>
+    </div>
+  </section>
+  <section>
+    <h2>6. Order receipt — buyer</h2>
+    <p class="note">Add preheader; unify greeting (uses inline 'Hi').</p>
+    <div class="pair">
+      
+  <div class="col">
+    <div class="meta"><span class="tag">BEFORE</span>
+      <div class="subj"><b>Subject:</b> Your order 1A2B3C4D is confirmed — Dynopay</div>
+      <div class="pre"><b>Preheader:</b> <i style="color:#dc2626">— none (leaks first body line) —</i></div>
+    </div>
+    <iframe src="06_order_receipt.before.html"></iframe>
+  </div>
+      
+  <div class="col">
+    <div class="meta"><span class="tag">AFTER</span>
+      <div class="subj"><b>Subject:</b> Order 1A2B3C4D confirmed</div>
+      <div class="pre"><b>Preheader:</b> Thanks! Your order from Acme Store is confirmed · total $261.37</div>
+    </div>
+    <iframe src="06_order_receipt.after.html"></iframe>
+  </div>
+    </div>
+  </section>
+  <section>
+    <h2>7. KYC required (threshold fix)</h2>
+    <p class="note">Fix $5,000 → $10,000 (matches enforcement); fix non-USD phrasing; add grace context.</p>
+    <div class="pair">
+      
+  <div class="col">
+    <div class="meta"><span class="tag">BEFORE</span>
+      <div class="subj"><b>Subject:</b> Verification required - $5,000 volume reached</div>
+      <div class="pre"><b>Preheader:</b> <i style="color:#dc2626">— none (leaks first body line) —</i></div>
+    </div>
+    <iframe src="07_kyc_required.before.html"></iframe>
+  </div>
+      
+  <div class="col">
+    <div class="meta"><span class="tag">AFTER</span>
+      <div class="subj"><b>Subject:</b> Verification required at $10,000 volume</div>
+      <div class="pre"><b>Preheader:</b> You've crossed $10,000 — a quick identity check keeps payments flowing.</div>
+    </div>
+    <iframe src="07_kyc_required.after.html"></iframe>
+  </div>
+    </div>
+  </section>
+  <section>
+    <h2>8. Withdrawal OTP</h2>
+    <p class="note">Add preheader; add 'never share' line.</p>
+    <div class="pair">
+      
+  <div class="col">
+    <div class="meta"><span class="tag">BEFORE</span>
+      <div class="subj"><b>Subject:</b> Confirm your withdrawal</div>
+      <div class="pre"><b>Preheader:</b> <i style="color:#dc2626">— none (leaks first body line) —</i></div>
+    </div>
+    <iframe src="08_withdrawal_otp.before.html"></iframe>
+  </div>
+      
+  <div class="col">
+    <div class="meta"><span class="tag">AFTER</span>
+      <div class="subj"><b>Subject:</b> Confirm your 500 USDT withdrawal</div>
+      <div class="pre"><b>Preheader:</b> Code expires in 5 min · Dynopay will never ask for it.</div>
+    </div>
+    <iframe src="08_withdrawal_otp.after.html"></iframe>
+  </div>
+    </div>
+  </section>
+  <section>
+    <h2>9. Wallet change alert</h2>
+    <p class="note">Add preheader; switch inline 'Hi' → 'Hey'.</p>
+    <div class="pair">
+      
+  <div class="col">
+    <div class="meta"><span class="tag">BEFORE</span>
+      <div class="subj"><b>Subject:</b> Your Bitcoin wallet was changed</div>
+      <div class="pre"><b>Preheader:</b> <i style="color:#dc2626">— none (leaks first body line) —</i></div>
+    </div>
+    <iframe src="09_wallet_change.before.html"></iframe>
+  </div>
+      
+  <div class="col">
+    <div class="meta"><span class="tag">AFTER</span>
+      <div class="subj"><b>Subject:</b> Your Bitcoin payout wallet was changed</div>
+      <div class="pre"><b>Preheader:</b> If this wasn't you, undo it in one tap and lock wallet changes.</div>
+    </div>
+    <iframe src="09_wallet_change.after.html"></iframe>
+  </div>
+    </div>
+  </section>
+  <section>
+    <h2>10. Subscription payment failed (crypto fix)</h2>
+    <p class="note">Remove card/bank language → crypto steps; CTA 'Complete payment'.</p>
+    <div class="pair">
+      
+  <div class="col">
+    <div class="meta"><span class="tag">BEFORE</span>
+      <div class="subj"><b>Subject:</b> Payment failed for Pro Plan</div>
+      <div class="pre"><b>Preheader:</b> <i style="color:#dc2626">— none (leaks first body line) —</i></div>
+    </div>
+    <iframe src="10_sub_payment_failed.before.html"></iframe>
+  </div>
+      
+  <div class="col">
+    <div class="meta"><span class="tag">AFTER</span>
+      <div class="subj"><b>Subject:</b> Action needed — renew your Pro Plan</div>
+      <div class="pre"><b>Preheader:</b> Pay in crypto to keep your Pro Plan with Acme Store active.</div>
+    </div>
+    <iframe src="10_sub_payment_failed.after.html"></iframe>
+  </div>
+    </div>
+  </section>
+  <section>
+    <h2>11. Auto-conversion payout</h2>
+    <p class="note">Add preheader.</p>
+    <div class="pair">
+      
+  <div class="col">
+    <div class="meta"><span class="tag">BEFORE</span>
+      <div class="subj"><b>Subject:</b> Payout Complete — 257.45 USDC from 0.0042 BTC</div>
+      <div class="pre"><b>Preheader:</b> <i style="color:#dc2626">— none (leaks first body line) —</i></div>
+    </div>
+    <iframe src="11_auto_conversion.before.html"></iframe>
+  </div>
+      
+  <div class="col">
+    <div class="meta"><span class="tag">AFTER</span>
+      <div class="subj"><b>Subject:</b> Payout complete — 257.45 USDC</div>
+      <div class="pre"><b>Preheader:</b> Converted from 0.0042 BTC and sent to your wallet.</div>
+    </div>
+    <iframe src="11_auto_conversion.after.html"></iframe>
+  </div>
+    </div>
+  </section>
+  <section>
+    <h2>12. Payment failed / underpaid</h2>
+    <p class="note">Add preheader; single clear next step.</p>
+    <div class="pair">
+      
+  <div class="col">
+    <div class="meta"><span class="tag">BEFORE</span>
+      <div class="subj"><b>Subject:</b> Underpayment detected - 200.00 of 261.37 USD received</div>
+      <div class="pre"><b>Preheader:</b> <i style="color:#dc2626">— none (leaks first body line) —</i></div>
+    </div>
+    <iframe src="12_payment_failed.before.html"></iframe>
+  </div>
+      
+  <div class="col">
+    <div class="meta"><span class="tag">AFTER</span>
+      <div class="subj"><b>Subject:</b> Payment to Acme Store not completed</div>
+      <div class="pre"><b>Preheader:</b> We received $200 of $261.37 — here's how to finish or get a refund.</div>
+    </div>
+    <iframe src="12_payment_failed.after.html"></iframe>
+  </div>
+    </div>
+  </section>
+  <section>
+    <h2>13. Weekly payout digest</h2>
+    <p class="note">Add preheader; already strong.</p>
+    <div class="pair">
+      
+  <div class="col">
+    <div class="meta"><span class="tag">BEFORE</span>
+      <div class="subj"><b>Subject:</b> Weekly payout digest — $1,240.00</div>
+      <div class="pre"><b>Preheader:</b> <i style="color:#dc2626">— none (leaks first body line) —</i></div>
+    </div>
+    <iframe src="13_payout_digest.before.html"></iframe>
+  </div>
+      
+  <div class="col">
+    <div class="meta"><span class="tag">AFTER</span>
+      <div class="subj"><b>Subject:</b> Weekly payout digest — $1,240.00</div>
+      <div class="pre"><b>Preheader:</b> 8 payments settled this week · up 12% vs last week</div>
+    </div>
+    <iframe src="13_payout_digest.after.html"></iframe>
+  </div>
+    </div>
+  </section>
+  <section>
+    <h2>14. Password reset OTP</h2>
+    <p class="note">Add preheader; 'never share'; sentence-case.</p>
+    <div class="pair">
+      
+  <div class="col">
+    <div class="meta"><span class="tag">BEFORE</span>
+      <div class="subj"><b>Subject:</b> Password reset code</div>
+      <div class="pre"><b>Preheader:</b> <i style="color:#dc2626">— none (leaks first body line) —</i></div>
+    </div>
+    <iframe src="14_password_reset.before.html"></iframe>
+  </div>
+      
+  <div class="col">
+    <div class="meta"><span class="tag">AFTER</span>
+      <div class="subj"><b>Subject:</b> Your password reset code</div>
+      <div class="pre"><b>Preheader:</b> Expires in 10 min · Dynopay will never ask you for this code.</div>
+    </div>
+    <iframe src="14_password_reset.after.html"></iframe>
+  </div>
+    </div>
+  </section>
+  <section>
+    <h2>15. Payment link created</h2>
+    <p class="note">Add preheader; unify subject style.</p>
+    <div class="pair">
+      
+  <div class="col">
+    <div class="meta"><span class="tag">BEFORE</span>
+      <div class="subj"><b>Subject:</b> Payment link ready — 100.00 USD</div>
+      <div class="pre"><b>Preheader:</b> <i style="color:#dc2626">— none (leaks first body line) —</i></div>
+    </div>
+    <iframe src="15_payment_link_created.before.html"></iframe>
+  </div>
+      
+  <div class="col">
+    <div class="meta"><span class="tag">AFTER</span>
+      <div class="subj"><b>Subject:</b> Your $100 payment link is ready</div>
+      <div class="pre"><b>Preheader:</b> Share it anywhere to get paid in crypto — no expiry set.</div>
+    </div>
+    <iframe src="15_payment_link_created.after.html"></iframe>
+  </div>
+    </div>
+  </section>
+  <section>
+    <h2>i18n chrome sanity check — German (current state)</h2>
+    <p class="note">Confirms the shared chrome localizes (greeting "Hallo/Hey", "Beste Grüße,", "Das Dynopay-Team", footer). Preheader shown is a placeholder to prove the slot renders.</p>
+    <div class="grid grid3">
+  <div class="col">
+    <div class="meta"><span class="tag de">DE — Zahlung erhalten (chrome check)</span>
+      <div class="subj"><b>Subject:</b> Zahlung erhalten - 0.0042 BTC</div>
+    </div>
+    <iframe src="de_02_payment_received.html"></iframe>
+  </div>
+  <div class="col">
+    <div class="meta"><span class="tag de">DE — Login-Code (chrome check)</span>
+      <div class="subj"><b>Subject:</b> Ihr Anmeldecode</div>
+    </div>
+    <iframe src="de_03_login_otp.html"></iframe>
+  </div>
+  <div class="col">
+    <div class="meta"><span class="tag de">DE — Zahlungsbestätigung (chrome check)</span>
+      <div class="subj"><b>Subject:</b> Zahlung erfolgreich - Beleg von Acme Store</div>
+    </div>
+    <iframe src="de_01_customer_receipt.html"></iframe>
+  </div></div>
+  </section>
+</main></body></html>

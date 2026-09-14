@@ -1,0 +1,571 @@
+[
+  {
+    "name": "blog[how-to-accept-crypto-payments-on-your-website] no-h-overflow @390",
+    "ok": true,
+    "details": {
+      "sw": 390,
+      "iw": 390
+    }
+  },
+  {
+    "name": "blog[how-to-accept-crypto-payments-on-your-website] code blocks scroll internally",
+    "ok": true,
+    "details": {
+      "codeInfo": [
+        {
+          "sw": 635,
+          "cw": 356,
+          "overflowX": "auto"
+        },
+        {
+          "sw": 456,
+          "cw": 356,
+          "overflowX": "auto"
+        }
+      ]
+    }
+  },
+  {
+    "name": "blog[userless-payment-api-simplest-crypto-integration] no-h-overflow @390",
+    "ok": true,
+    "details": {
+      "sw": 390,
+      "iw": 390
+    }
+  },
+  {
+    "name": "blog[userless-payment-api-simplest-crypto-integration] code blocks scroll internally",
+    "ok": true,
+    "details": {
+      "codeInfo": [
+        {
+          "sw": 570,
+          "cw": 356,
+          "overflowX": "auto"
+        },
+        {
+          "sw": 635,
+          "cw": 356,
+          "overflowX": "auto"
+        },
+        {
+          "sw": 635,
+          "cw": 356,
+          "overflowX": "auto"
+        }
+      ]
+    }
+  },
+  {
+    "name": "public /pay stores checkout_session_token only",
+    "ok": true,
+    "details": {
+      "keys": [
+        "checkout_pref_currency",
+        "lang",
+        "checkout_session_token",
+        "checkout_pref_network",
+        "dp_first_touch",
+        "dynopay_cart_v1"
+      ],
+      "hasCheckout": true,
+      "hasToken": false
+    }
+  },
+  {
+    "name": "public /devhub after /pay stays on /devhub",
+    "ok": true,
+    "details": {
+      "url": "https://speedup-check.preview.emergentagent.com/devhub",
+      "timedOut": false
+    }
+  },
+  {
+    "name": "public / lands on landing (no auth redirect)",
+    "ok": true,
+    "details": {
+      "url": "https://speedup-check.preview.emergentagent.com/"
+    }
+  },
+  {
+    "name": "owner login sets token",
+    "ok": true,
+    "details": {
+      "len": 2915
+    }
+  },
+  {
+    "name": "merchant token unchanged after visiting /pay",
+    "ok": true,
+    "details": {
+      "equal": true,
+      "hasCheckout": true
+    }
+  },
+  {
+    "name": "merchant /dashboard renders after /pay round-trip",
+    "ok": true,
+    "details": {
+      "url": "https://speedup-check.preview.emergentagent.com/dashboard",
+      "tokenEqual": true
+    }
+  },
+  {
+    "name": "checkout /pay no h-overflow @390",
+    "ok": true,
+    "details": {
+      "sw": 390,
+      "iw": 390
+    }
+  },
+  {
+    "name": "getCurrencyRates 200 + Bearer auth",
+    "ok": true,
+    "details": {
+      "reqAuth": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6bnVsbCwicmVmIjoick50UVJYIiwicGF0aFR5cGUiOiJjcmVhdGVMaW5rIiwidHJhbnNhY3Rpb25faWQiOiJhODM0NTlmMS04OTc3LTQ2YWEtYTMwNi0yMzg4Mzc1ZGYxMmUiLCJpYXQiOjE3ODkxMTY2MTZ9.is-tdLjO4H0Lxj3Vs5-6WoBDP7pF8AbvnFWbKU2SzrI",
+      "url": "https://speedup-check.preview.emergentagent.com/api/pay/getCurrencyRates",
+      "status": 200
+    }
+  },
+  {
+    "name": "waiting-for-payment state shows mocked address",
+    "ok": true,
+    "details": {
+      "waitingSeen": true,
+      "addrSeen": true
+    }
+  },
+  {
+    "name": "checkout sticky bar above language bar",
+    "ok": true,
+    "details": {
+      "sticky": {
+        "x": 0,
+        "y": 699,
+        "width": 390,
+        "height": 69,
+        "top": 699,
+        "right": 390,
+        "bottom": 768,
+        "left": 0
+      },
+      "lang": {
+        "x": 0,
+        "y": 787,
+        "width": 390,
+        "height": 57,
+        "top": 787,
+        "right": 390,
+        "bottom": 844,
+        "left": 0
+      }
+    }
+  },
+  {
+    "name": "checkout no h-overflow @1920",
+    "ok": true,
+    "details": {
+      "sw": 1920,
+      "iw": 1920
+    }
+  },
+  {
+    "name": "creator /astrix no h-overflow @390",
+    "ok": true,
+    "details": {
+      "sw": 390,
+      "iw": 390
+    }
+  },
+  {
+    "name": "creator sticky CTA above language bar",
+    "ok": true,
+    "details": {
+      "cta": {
+        "x": 0,
+        "y": 695,
+        "width": 390,
+        "height": 73,
+        "top": 695,
+        "right": 390,
+        "bottom": 768,
+        "left": 0
+      },
+      "lang": {
+        "x": 0,
+        "y": 787,
+        "width": 390,
+        "height": 57,
+        "top": 787,
+        "right": 390,
+        "bottom": 844,
+        "left": 0
+      },
+      "fab": {
+        "x": 318,
+        "y": 612,
+        "width": 56,
+        "height": 56,
+        "top": 612,
+        "right": 374,
+        "bottom": 668,
+        "left": 318
+      }
+    }
+  },
+  {
+    "name": "creator support FAB above sticky CTA",
+    "ok": true,
+    "details": {
+      "fab": {
+        "x": 318,
+        "y": 612,
+        "width": 56,
+        "height": 56,
+        "top": 612,
+        "right": 374,
+        "bottom": 668,
+        "left": 318
+      },
+      "cta": {
+        "x": 0,
+        "y": 695,
+        "width": 390,
+        "height": 73,
+        "top": 695,
+        "right": 390,
+        "bottom": 768,
+        "left": 0
+      }
+    }
+  },
+  {
+    "name": "after lang dismiss, CTA drops to viewport bottom",
+    "ok": true,
+    "details": {
+      "bottom": 844,
+      "ih": 844
+    }
+  },
+  {
+    "name": "/wallet no h-overflow @390",
+    "ok": true,
+    "details": {
+      "sw": 390,
+      "iw": 390
+    }
+  },
+  {
+    "name": "/wallet header actions non-overlapping @390",
+    "ok": true,
+    "details": {
+      "sec": {
+        "x": 16,
+        "y": 133.34375,
+        "width": 175,
+        "height": 44,
+        "top": 133.34375,
+        "right": 191,
+        "bottom": 177.34375,
+        "left": 16
+      },
+      "mng": {
+        "x": 199,
+        "y": 133.34375,
+        "width": 175,
+        "height": 44,
+        "top": 133.34375,
+        "right": 374,
+        "bottom": 177.34375,
+        "left": 199
+      },
+      "add": {
+        "x": 16,
+        "y": 185.34375,
+        "width": 358,
+        "height": 44,
+        "top": 185.34375,
+        "right": 374,
+        "bottom": 229.34375,
+        "left": 16
+      },
+      "iw": 390
+    }
+  },
+  {
+    "name": "/wallet Add wallet full-width row @390",
+    "ok": true,
+    "details": {
+      "add": {
+        "x": 16,
+        "y": 185.34375,
+        "width": 358,
+        "height": 44,
+        "top": 185.34375,
+        "right": 374,
+        "bottom": 229.34375,
+        "left": 16
+      },
+      "iw": 390
+    }
+  },
+  {
+    "name": "/developer-keys no h-overflow @390",
+    "ok": true,
+    "details": {
+      "sw": 390,
+      "iw": 390
+    }
+  },
+  {
+    "name": "/developer-keys badges do not overlap title @390",
+    "ok": false,
+    "details": {
+      "found": true,
+      "titleRect": null,
+      "sbRect": {
+        "x": 33,
+        "y": 732.90625,
+        "width": 208,
+        "height": 20.015625,
+        "top": 732.90625,
+        "right": 241,
+        "bottom": 752.921875,
+        "left": 33
+      },
+      "badgeInfo": [],
+      "badgesOverlapTitle": null
+    }
+  },
+  {
+    "name": "/storefront no h-overflow @390",
+    "ok": true,
+    "details": {
+      "sw": 390,
+      "iw": 390
+    }
+  },
+  {
+    "name": "/storefront View my page below subtitle @390",
+    "ok": true,
+    "details": {
+      "openR": {
+        "x": 16,
+        "y": 152.9375,
+        "width": 189,
+        "height": 40,
+        "top": 152.9375,
+        "right": 205,
+        "bottom": 192.9375,
+        "left": 16
+      },
+      "subR": {
+        "x": 16,
+        "y": 105.75,
+        "width": 358,
+        "height": 31.1875,
+        "top": 105.75,
+        "right": 374,
+        "bottom": 136.9375,
+        "left": 16
+      }
+    }
+  },
+  {
+    "name": "/storefront 3 stat tiles fully inside viewport @390",
+    "ok": true,
+    "details": {
+      "tiles": [
+        {
+          "id": "creator-stat-mdieyeoutline",
+          "r": {
+            "x": 32,
+            "y": 588.796875,
+            "width": 103.328125,
+            "height": 85.59375,
+            "top": 588.796875,
+            "right": 135.328125,
+            "bottom": 674.390625,
+            "left": 32
+          }
+        },
+        {
+          "id": "creator-stat-mdichartline",
+          "r": {
+            "x": 143.328125,
+            "y": 588.796875,
+            "width": 103.328125,
+            "height": 85.59375,
+            "top": 588.796875,
+            "right": 246.65625,
+            "bottom": 674.390625,
+            "left": 143.328125
+          }
+        },
+        {
+          "id": "creator-stat-mdiheartoutline",
+          "r": {
+            "x": 254.65625,
+            "y": 588.796875,
+            "width": 103.34375,
+            "height": 85.59375,
+            "top": 588.796875,
+            "right": 358,
+            "bottom": 674.390625,
+            "left": 254.65625
+          }
+        }
+      ],
+      "iw": 390
+    }
+  },
+  {
+    "name": "/storefront View tip transactions fully visible @390",
+    "ok": true,
+    "details": {
+      "x": 180,
+      "y": 684.390625,
+      "width": 178,
+      "height": 20.796875,
+      "top": 684.390625,
+      "right": 358,
+      "bottom": 705.1875,
+      "left": 180
+    }
+  },
+  {
+    "name": "/pay-links no h-overflow @1920",
+    "ok": true,
+    "details": {
+      "sw": 1920,
+      "iw": 1920
+    }
+  },
+  {
+    "name": "/pay-links table fits container @1920",
+    "ok": true,
+    "details": {
+      "tw": 1490,
+      "ccw": 1490,
+      "csw": 1490
+    }
+  },
+  {
+    "name": "/pay-links Payments & Actions headers fully visible @1920",
+    "ok": true,
+    "details": {
+      "last2": [
+        {
+          "txt": "Zahlungen erhalten",
+          "r": {
+            "x": 1477.90625,
+            "y": 321.390625,
+            "width": 209.5625,
+            "height": 33.6875,
+            "top": 321.390625,
+            "right": 1687.46875,
+            "bottom": 355.078125,
+            "left": 1477.90625
+          }
+        },
+        {
+          "txt": "Aktionen",
+          "r": {
+            "x": 1687.46875,
+            "y": 321.390625,
+            "width": 191.53125,
+            "height": 33.6875,
+            "top": 321.390625,
+            "right": 1879,
+            "bottom": 355.078125,
+            "left": 1687.46875
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "/pay-links has truncated description cells @1920",
+    "ok": true,
+    "details": {
+      "truncatedRows": 1
+    }
+  },
+  {
+    "name": "/pay-links row click opens detail panel",
+    "ok": true,
+    "details": {}
+  },
+  {
+    "name": "smoke /dashboard @1920 no h-overflow",
+    "ok": true,
+    "details": {
+      "sw": 1920,
+      "iw": 1920
+    }
+  },
+  {
+    "name": "smoke /dashboard @390 no h-overflow",
+    "ok": true,
+    "details": {
+      "sw": 390,
+      "iw": 390
+    }
+  },
+  {
+    "name": "smoke /transactions @1920 no h-overflow",
+    "ok": true,
+    "details": {
+      "sw": 1920,
+      "iw": 1920
+    }
+  },
+  {
+    "name": "smoke /transactions @390 no h-overflow",
+    "ok": true,
+    "details": {
+      "sw": 390,
+      "iw": 390
+    }
+  },
+  {
+    "name": "smoke /customers @1920 no h-overflow",
+    "ok": true,
+    "details": {
+      "sw": 1920,
+      "iw": 1920
+    }
+  },
+  {
+    "name": "smoke /customers @390 no h-overflow",
+    "ok": true,
+    "details": {
+      "sw": 390,
+      "iw": 390
+    }
+  },
+  {
+    "name": "smoke /settings @1920 no h-overflow",
+    "ok": true,
+    "details": {
+      "sw": 1920,
+      "iw": 1920
+    }
+  },
+  {
+    "name": "smoke /settings @390 no h-overflow",
+    "ok": true,
+    "details": {
+      "sw": 390,
+      "iw": 390
+    }
+  },
+  {
+    "name": "smoke no console hydration/JS errors",
+    "ok": true,
+    "details": {
+      "console": [],
+      "pageerror": []
+    }
+  }
+]

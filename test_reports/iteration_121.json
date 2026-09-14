@@ -1,0 +1,31 @@
+{
+  "summary": "Backend-only API/unit verification for the 'Checkout Breakdown' feature (iteration_121). All 13 tasks in the review request PASS. Static gates: jest checkoutMath+money (19/19), backend tsc, root tsc, and check-file-size.mjs all exit 0; customerReceiptEmail.ts is 118 lines (well under 500). computeInclusiveSplit reproduces the main-agent E2E numbers exactly (crypto 0.00008047 -> merchant 0.00006762 + fee 0.00001285 for customer-pays; network buffer ignored for company-pays; zero-fee -> merchant gets everything; all outputs finite, <=8dp). POST /api/pay/getData for link DajpGi returns fee_payer='customer' with the NEW fee_info.estimated_platform_fee=1.11 (unconditional at 3 sites L752/828/879 of cryptoCheckout.ts) and fees_pending_crypto_selection=true; JWT customer token issued. POST /api/pay/getCurrencyRates (customer, BTC and ETH) returns the NEW platform_fee/platform_fee_usd/network_fee/network_fee_usd fields; platform_fee+network_fee===processing_fee to the cent (BTC: 1.07+0.53=1.60; ETH: 1.07+0.01=1.08); total_amount_source===7+processing_fee; total_amount has <=8 significant decimals when toFixed(8) is applied. Company-pays quote path returns a plain rate row with NO fee_error. Redis cache keys `quote-DajpGi-BTC` and `quote-DajpGi-ETH` are present with base_amount_usd, tax_amount_usd, platform_fee_usd, network_fee_usd, total_amount_usd, quoted_at, and platform_fee_usd+network_fee_usd matches processing_fee_usd from the API. Public tickers /api/public/tickers returns 200 with finite BTC (~$81,621) and ETH (~$2,513.84) prices. Login regression: merchant POST /api/user/login -> 200 with accessToken; authenticated GET /api/pay/getPaymentLinks?company_id=1&limit=5 -> 200. PDF receipt (generatePaymentReceipt) renders the breakdown block for feePayer='customer' ('Payment breakdown', 'Merchant receives', 'Dynopay fee', '0.00006762 BTC', '0.00001285 BTC', 'added to your total'), for feePayer='company' ('paid by the merchant'), for lang='de' ('Zahlungsaufschlüsselung', 'Händler erhält'), and stays backwards compatible when breakdown is omitted; buffers 4479-4662 bytes (all > 3KB). settledBreakdown helper: (a) settled_* -> exact fields, (b) planned fallback works, (c) settled_*=0 falls back to planned, (d) null/garbage -> null, formatBreakdown(null) -> undefined. Email locales BE (en/es/pt/fr/de/nl) all contain labels.merchantReceives|platformFee|feePaidByMerchant|feePaidByCustomer and receipt.breakdown|youPaid|merchantReceives|platformFee|feePaidByMerchant|feePaidByCustomer. Frontend landing.json locales (en/es/pt/fr/de/nl) all contain checkout.breakdownTitle|youPay|youPaid|merchantReceives|dynopayFee|feePaidByMerchant|feePaidByCustomer|plusNetworkCover|inclNetworkCover. customerReceiptEmail.ts sendCustomerPaymentConfirmationEmail accepts the 9th `breakdown` param and renders labels.merchantReceives/labels.platformFee rows only when breakdown is provided (verified by static read). Backend logs post-run: no stack traces or unhandled errors from getData/getCurrencyRates/quote cache — only the pre-existing pod-wide 'BinanceWS 451' geo-block message (SAFE MODE, unrelated). No live addresses reserved, no /pay/addPayment calls, no emails sent, no code modified.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/__tests__/checkoutMath.test.ts",
+    "/app/backend/__tests__/money.test.ts"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "cryptoCheckout.ts already places estimated_platform_fee unconditionally at all 3 fee_info sites (L752/L828/L879) — good, matches spec.",
+    "computeInclusiveSplit rounds merchant DOWN and lets fee absorb the residue, so the exact-crypto invariant (merchant + fee === cryptoAmount at 8dp) holds even for weird fractions — matches the E2E main-agent numbers to the satoshi.",
+    "customerReceiptEmail.ts is a clean 118-line extraction from paymentEmails.ts (under the 500-line gate); the breakdown block is guarded by `split ? ... : ''` so backwards-compat emails without a breakdown still render.",
+    "Redis quote cache key `quote-<ref>-<CURRENCY>` (30-min TTL) is written on every getCurrencyRates call and carries all 5 fiat fields needed for later reconciliation."
+  ],
+  "updated_files": [],
+  "success_rate": { "backend": "100%", "frontend": "not-tested (out of scope)" },
+  "test_credentials": "Merchant: onarrival21@gmail.com / Katiekendra123@ (from /app/memory/test_credentials.md). Throwaway customer-pays link: DajpGi ($7 USD, link_id 320, company_id=1). Main agent will delete DajpGi after run.",
+  "seed_data_creation": "None. Read-only. Redis quote cache keys `quote-DajpGi-BTC` and `quote-DajpGi-ETH` were populated by the getCurrencyRates calls (30-min TTL, will expire on their own). No wallet addresses reserved, no /pay/addPayment invoked, no emails sent, no DB writes.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "iteration_121 verified the Checkout Breakdown feature end-to-end at the API/unit layer against link DajpGi. If DajpGi has been deleted (main agent said it would), regenerate a fresh throwaway link before repeating getData/getCurrencyRates. computeInclusiveSplit signature uses `baseAmount` and `taxAmount` (NOT baseFiat/taxFiat), and returns `feesAmount` (NOT feeAmount). Frontend was NOT retested this iteration (already E2E-verified by main agent). Static gates (jest, root+backend tsc, check-file-size.mjs) remain the fastest smoke test.",
+  "rca of the issue": "No issues found — feature ships clean."
+}

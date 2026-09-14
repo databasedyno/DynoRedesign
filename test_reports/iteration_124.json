@@ -1,0 +1,22 @@
+{
+  "summary": "Frontend-only, strictly read-only verification of the polished checkout price-breakdown trust cue on the public hosted checkout https://speedup-check.preview.emergentagent.com/pay?d=t4jBc2 (The Dev Store, $100). No crypto selection, no pay/continue click, no form submission. Verified: page renders (clean-checkout-h1 = 'Pay The Dev Store'), the framed breakdown card, all 4 rows + testids, the trust note line with shield icon under a dashed hairline, zero console/page errors, and clean layout at 1440px and 390px.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "PriceBreakdown is invoked from CleanCheckoutV2 without the `testId` prop, so the framed card element itself carries no data-testid; the outer wrapper Box (clean-checkout-fee-breakdown) has no border/background, meaning any future automated assertion of the framed styling must inspect the first child div. Consider passing testId to PriceBreakdown (or moving data-testid onto the framed card) for cleaner testability. Non-blocking.",
+    "Observation (not a defect from this change): on plain page load with default Bitcoin/BTC pre-selected, the checkout immediately shows 'Preparing payment address…', i.e. address reservation appears to kick off without any user click. On a LIVE-DB preview this means merely opening /pay may create production reservation rows — main agent may want to confirm this is intended (or gate reservation behind explicit user action)."
+  ],
+  "updated_files": [],
+  "success_rate": { "backend": "not tested (skipped per request)", "frontend": "100%" },
+  "seed_data_creation": "none",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Checkout trust-cue verification details: data-testid=clean-checkout-fee-breakdown is an unstyled wrapper; its single child DIV is the framed card (computed: border 1px solid rgb(228,228,231), border-radius 14px, background rgb(246,246,247), padding 14px). Breakdown inner text = 'Amount $100.00 / Total you pay $100.00 / Merchant receives (est.) $97.50 / Dynopay fee (est.) · paid by the merchant $2.50' followed by the trust note 'These amounts tie out exactly — your payment is split transparently between the merchant and the Dynopay fee.' Row testids present and correct: clean-checkout-breakdown-base=$100.00, clean-checkout-amount=$100.00 (emphasised 18px/700), clean-checkout-breakdown-merchant=$97.50, clean-checkout-breakdown-fee=$2.50. Exactly 1 dashed border-top element (the hairline). The shield-check icon renders visually (confirmed in screenshot) but is NOT an <svg>/.iconify node in the DOM, so do not assert on svg counts. Amount is formatted as '$100.00' — the literal string 'USD' does not appear on the page, so assert on '$100.00' instead. Geometry: desktop card 374px wide, 198px tall, scrollH==clientH (no clipping); mobile 390px viewport: 316px wide, 213px tall, no horizontal document overflow. 0 console errors, 0 page errors on both viewports. Route warms on first load within 60s using selector wait (never use networkidle on this Next.js dev server). LIVE-DB SAFE MODE: never select a coin or click pay.",
+  "rca_of_the_issue": "N/A — all requested behaviours verified as working."
+}

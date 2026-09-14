@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto payments API for developers · Dynopay",
+  "meta_description": "Integrate Bitcoin, Ethereum, Solana, and 15+ cryptocurrencies with one REST API. Non-custodial, webhook-driven, live in 10 minutes. Start building now.",
+  "h1": "Crypto Payments API: One Endpoint, 15+ Chains, Zero Custody Risk",
+  "subheading": "Build checkout flows, payment links, or crowdfunding into your app with a REST API, webhooks, and SDKs—funds settle directly to your wallet.",
+  "intro_paragraph": "Most crypto payment integrations force you to write smart contracts, manage multiple chain clients, or trust a third party with custody. Dynopay gives developers a single REST API that covers Bitcoin, Ethereum, Solana, Tron, Polygon, and XRP Ledger—15+ assets total—while every payment settles non-custodially to the wallet you control. No monthly fees, no setup costs, and your first transaction is completely free.",
+  "features": [
+    {
+      "title": "One API, 15+ Cryptocurrencies",
+      "description": "Accept Bitcoin, ETH, USDT (three networks), USDC, SOL, XRP, RLUSD, and more through a single REST interface. No need to run nodes or write chain-specific logic."
+    },
+    {
+      "title": "Non-Custodial by Design",
+      "description": "Payments flow directly to the wallet address you provide during setup. Dynopay never holds, freezes, or controls your funds—you retain custody from checkout to settlement."
+    },
+    {
+      "title": "Webhooks and Real-Time Events",
+      "description": "Listen for payment confirmations, refunds, and status changes via HTTP callbacks. Build dynamic order fulfillment, subscription logic, or conditional workflows without polling."
+    }
+  ],
+  "how_it_works": [
+    "Sign up, verify your email, create a company profile, and register one payout wallet address.",
+    "Grab your API key from the dashboard and call the payments endpoint or drop the checkout widget into your frontend.",
+    "Receive webhook events as payments confirm on-chain; funds appear in your wallet within minutes."
+  ],
+  "faqs": [
+    {
+      "question": "What cryptocurrencies does the Dynopay API support?",
+      "answer": "Dynopay supports Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum (including USDT, USDC, and RLUSD on ERC-20), Polygon (MATIC and USDT), Tron (TRX and USDT-TRC20), Solana, and XRP Ledger (XRP and RLUSD)—15+ assets in total behind one REST API."
+    },
+    {
+      "question": "How much does Dynopay charge per transaction?",
+      "answer": "Dynopay charges a volume-tiered platform fee that starts at 1.5 percent plus one dollar per successful payment and drops automatically to 0.5 percent at scale based on settled volume. Your first payment is completely free, and there are no monthly or setup fees."
+    },
+    {
+      "question": "Do I need to deploy smart contracts to accept payments?",
+      "answer": "No. Dynopay handles chain interaction, address generation, and confirmation monitoring for you. You call a REST endpoint, receive a payment address, and listen for webhook events—no Solidity, no audits, no gas management."
+    },
+    {
+      "question": "Is Dynopay custodial or do I control the funds?",
+      "answer": "Dynopay is entirely non-custodial. Every payment settles directly to the wallet address you specify during onboarding. Dynopay never holds, moves, or controls your cryptocurrency at any point in the transaction lifecycle."
+    },
+    {
+      "question": "Can I test the API before going live?",
+      "answer": "Yes. Dynopay provides a sandbox environment with test API keys so you can simulate payments, trigger webhooks, and validate your integration logic before processing real transactions on mainnet."
+    }
+  ],
+  "cta_headline": "Start Building with Dynopay Today",
+  "cta_body": "Your first payment is free and you can go live in under 10 minutes. No monthly fees, no custody risk.",
+  "_generated_at": "2026-08-29T14:58:16.495546Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "developers",
+  "_display_name": "Developers & Builders"
+}

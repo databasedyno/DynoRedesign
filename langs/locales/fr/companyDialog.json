@@ -1,0 +1,156 @@
+{
+  "mode": {
+    "add": {
+      "title": "Ajouter une nouvelle marque",
+      "subtitle": "Créez une nouvelle marque pour gérer les paiements en crypto",
+      "primaryButton": "Démarrer une marque"
+    },
+    "edit": {
+      "title": "Modifier la marque",
+      "subtitle": "Mettre à jour les informations de la marque",
+      "primaryButton": "Mettre à jour"
+    }
+  },
+  "fields": {
+    "companyName": {
+      "label": "Nom de la marque*",
+      "placeholder": "Saisissez le nom de la marque"
+    },
+    "website": {
+      "label": "Site web (optionnel)",
+      "placeholder": "https://exemple.com"
+    },
+    "email": {
+      "label": "E-mail*",
+      "placeholder": "contact@exemple.com"
+    },
+    "mobile": {
+      "label": "Mobile*",
+      "placeholder": "Entrez votre numéro de mobile"
+    },
+    "brandLogo": {
+      "label": "Logo de marque",
+      "uploadCta": "Cliquez pour télécharger ou glissez-déposez",
+      "uploadHint": "SVG, PNG, JPG (max. 2 Mo)",
+      "saving": "Enregistrement…",
+      "autoSaveHint": "Enregistré automatiquement lorsque vous choisissez un fichier",
+      "pendingSaveHint": "Nouveau logo sélectionné — cliquez sur Enregistrer les modifications pour appliquer.",
+      "saveHint": "Choisissez un fichier, puis cliquez sur Enregistrer les modifications pour mettre à jour votre logo."
+    },
+    "country": {
+      "label": "Pays*",
+      "placeholder": "Sélectionnez le pays"
+    },
+    "state": {
+      "label": "État/Région",
+      "placeholder": "Sélectionnez l'état/la région"
+    },
+    "city": {
+      "label": "Ville",
+      "placeholder": "Sélectionnez la ville"
+    },
+    "addressLine1": {
+      "label": "Adresse, ligne 1",
+      "placeholder": "Entrez l'adresse ligne 1"
+    },
+    "addressLine2": {
+      "label": "Adresse, Ligne 2 (optionnel)",
+      "placeholder": "Entrez l'adresse ligne 2"
+    },
+    "zipCode": {
+      "label": "Code postal",
+      "placeholder": "Entrez le code postal"
+    },
+    "vatNumber": {
+      "label": "Numéro de TVA (optionnel)",
+      "placeholder": "Entrez le numéro de TVA"
+    }
+  },
+  "actions": {
+    "cancel": "Annuler"
+  },
+  "validation": {
+    "companyNameRequired": "Le nom de la marque est requis",
+    "emailInvalid": "Veuillez entrer un e-mail valide",
+    "emailRequired": "L'e-mail est obligatoire",
+    "mobileRequired": "Le numéro de mobile est obligatoire",
+    "mobileMin": "Minimum 10 chiffres requis",
+    "mobileMax": "Maximum 14 chiffres autorisés",
+    "countryRequired": "Le pays est obligatoire",
+    "stateRequired": "L'état/la région est obligatoire",
+    "cityRequired": "La ville est obligatoire",
+    "addressLine1Required": "L'adresse ligne 1 est obligatoire",
+    "zipCodeRequired": "Le code postal est obligatoire"
+  },
+  "mobilePlaceholder": "Entrez votre numéro de mobile",
+  "vatNumber": "Numéro de TVA (optionnel)",
+  "vatVerify": "Numéro de TVA vérifié",
+  "createModal": {
+    "title": "Créez votre marque",
+    "subtitle": "Configurez votre marque pour commencer à accepter des paiements",
+    "closeLater": "Je le ferai plus tard",
+    "sectionYourName": "Votre nom",
+    "sectionCompanyDetails": "Détails de la marque",
+    "firstNameLabel": "Prénom *",
+    "firstNamePlaceholder": "Prénom",
+    "lastNameLabel": "Nom *",
+    "lastNamePlaceholder": "Nom",
+    "companyNameLabel": "Nom de la marque *",
+    "companyNamePlaceholder": "Saisissez le nom de votre marque",
+    "businessEmailLabel": "E-mail professionnel *",
+    "businessEmailPlaceholder": "Saisissez votre e-mail professionnel",
+    "mobileLabel": "Numéro de mobile (facultatif)",
+    "mobilePlaceholder": "Saisissez le numéro de mobile",
+    "websiteLabel": "Site web (facultatif)",
+    "countryLabel": "Pays *",
+    "countryPlaceholder": "Commencez à saisir votre pays…",
+    "currencyLabel": "Devise par défaut *",
+    "currencyPlaceholder": "Sélectionnez une devise",
+    "brandLogoLabel": "Logo de la marque (facultatif)",
+    "uploadChange": "Modifier",
+    "uploadUpload": "Téléverser",
+    "submit": "Créer la marque",
+    "progressTitle": "Configuration de votre marque…",
+    "progressStep1": "Création de votre marque…",
+    "progressStep2": "Configuration des préférences de facturation…",
+    "progressStep3": "Envoi des e-mails de bienvenue…",
+    "progressStep4": "Provisionnement de votre compte marchand…",
+    "progressStep5": "Presque terminé — préparation de votre tableau de bord…",
+    "fileTypeError": "Seuls les fichiers image sont autorisés (JPEG, PNG, GIF, WebP, SVG)",
+    "fileSizeError": "La taille du fichier doit être inférieure à 5 Mo",
+    "validation": {
+      "firstNameRequired": "Le prénom est requis",
+      "lastNameRequired": "Le nom est requis",
+      "companyNameRequired": "Le nom de la marque est requis",
+      "emailRequired": "L'e-mail est requis",
+      "emailInvalid": "Veuillez saisir un e-mail valide",
+      "mobileInvalid": "Veuillez saisir un numéro de mobile valide",
+      "websiteInvalid": "Veuillez saisir une URL valide (ex. : https://votreentreprise.com)",
+      "countryRequired": "Veuillez sélectionner votre pays",
+      "currencyRequired": "Veuillez sélectionner une devise"
+    },
+    "addTitle": "Ajouter une nouvelle marque",
+    "addSubtitle": "Configurez une autre marque dans votre compte",
+    "payLinkSubtitle": "Utilisé sur les factures et les reçus. Prend environ 30 secondes.",
+    "cancel": "Annuler",
+    "emailLabelOptional": "E-mail (facultatif)",
+    "stepBrand": "Marque",
+    "stepWallet": "Portefeuille",
+    "nameLockedNotice": "Votre nom est vérifié et ne peut pas être modifié ici. Contactez le support pour le mettre à jour.",
+    "logoAdded": "Logo ajouté"
+  },
+  "addCompanyBtn": "Ajouter une marque",
+  "noCompaniesYet": "Aucune marque pour l'instant",
+  "createFirstCompanyBody": "Créez votre première marque pour commencer à accepter des paiements et tout gérer au même endroit.",
+  "noResultsFound": "Aucun résultat trouvé",
+  "optional": "optionnel",
+  "validateTax": "Valider le numéro de taxe",
+  "accountType": {
+    "label": "Type de compte",
+    "individualTitle": "Particulier / créateur",
+    "individualDesc": "Paiements personnels, pourboires et une page publique.",
+    "businessTitle": "Entreprise enregistrée",
+    "businessDesc": "Factures, TVA/taxes, adresse et accès de l'équipe.",
+    "switchHelper": "Ajoutez le nom et le pays de votre entreprise ci-dessous, puis enregistrez pour passer à un compte entreprise. Vos portefeuilles, clés et historique restent inchangés."
+  }
+}

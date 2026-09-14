@@ -1,0 +1,26 @@
+{
+  "summary": "Focused re-test of the two open items from iteration_18. BOTH PASS. (1) /auth/register Email/Mobile segmented toggle now localizes: DE='E-Mail'/'Mobilnummer', NL='E-mail'/'Mobiel Nummer', EN='E-mail'/'Mobile Number' — no hardcoded English in DE/NL, no raw 'email'/'phone' keys. (2) /create-pay-link with hostbay@moxx.co JWT reaches the Payment Settings form (onboarding gate bypassed). All three helper microcopy strings render localized in both EN and DE: Value helper — EN 'The amount your customer will pay.' / DE 'Der Betrag, den Ihr Kunde bezahlen wird.'; Client name helper — EN 'Shown on the invoice and receipt.' / DE 'Wird auf Rechnung und Beleg angezeigt.'; Expire=No recommendation — EN 'For security, we recommend setting an expiry date so the link can't be used indefinitely.' / DE 'Aus Sicherheitsgründen empfehlen wir, ein Ablaufdatum festzulegen, damit der Link nicht unbegrenzt verwendet werden kann.'. No raw keys ('valueHelper', 'clientNameHelper', 'expiryRecommendation') leaked in either language. No form submitted (live prod DB).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/create-pay-link sidebar (DE)", "issues": ["Out-of-scope but still visible: sidebar labels 'Customers', 'API', 'Referrals', 'Settings' remain English in DE. Also header account switcher shows 'hostbay' lowercase. Same backlog flagged in iteration_18 — not part of THIS microcopy pass."]}
+    ]
+  },
+  "test_report_links": ["/app/test_reports/iteration_19.json"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Fix confirmed: register.tsx segmented toggle now uses t('email')/t('phone') (auth ns). Renders correctly in EN/DE/NL.",
+    "Fix confirmed: PaymentSettingsBasic helperText for value/clientName + ExpireSelector recommendation render localized in EN and DE. Recommendation shows when Expire=No (default), which is the correct UX signal.",
+    "No regressions detected in the two scoped surfaces."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped per request)", "frontend": "2/2 scoped items PASS"},
+  "test_credentials": "hostbay@moxx.co JWT minted via `node /app/scripts/mint_ux_tokens.js`, injected via localStorage.token. Language via localStorage 'lang' + 'lang_manual'='true' + reload.",
+  "seed_data_creation": "None. No forms submitted; only inspected rendered copy on live production DB.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Both previously-open items are now verified PASS. Screenshots: /app/.screenshots/register_de_toggle.png, register_nl_toggle.png, paylink_hostbay_en.png, paylink_hostbay_de.png. Broader DE i18n backlog (sidebar Customers/API/Referrals/Settings, onboarding gate copy on empty accounts, profile block, mobile dashboard KPIs, CreateCompany modal) still remains from iteration_18 — not in scope here.",
+  "rca_of_the_issue": "N/A — verification-only run confirming both fixes."
+}

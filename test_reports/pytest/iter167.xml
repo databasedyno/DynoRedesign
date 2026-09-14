@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="6" failures="4" skipped="0" tests="12" time="7.466" timestamp="2026-09-13T18:15:54.253839+00:00" hostname="agent-env-b70891c3-6de6-4ecd-bca1-e83e3aa6d52d"><testcase classname="backend.tests.test_api_key_hash" name="test_1_regenerate_returns_opaque_token" time="2.716"><error message="failed on setup with &quot;AssertionError: {&quot;error&quot;: &quot;Backend starting, please retry&quot;}&#10;assert 503 == 200&#10; +  where 503 = &lt;Response [503]&gt;.status_code&quot;">backend/tests/test_api_key_hash.py:29: in owner_headers
+    assert r.status_code == 200, r.text
+E   AssertionError: {"error": "Backend starting, please retry"}
+E   assert 503 == 200
+E    +  where 503 = &lt;Response [503]&gt;.status_code</error></testcase><testcase classname="backend.tests.test_api_key_hash" name="test_2_new_key_auth_supported_currency" time="0.113"><failure message="AssertionError: {&quot;error&quot;: &quot;Backend starting, please retry&quot;}&#10;assert 503 == 200&#10; +  where 503 = &lt;Response [503]&gt;.status_code">backend/tests/test_api_key_hash.py:66: in test_2_new_key_auth_supported_currency
+    assert r.status_code == 200, r.text
+E   AssertionError: {"error": "Backend starting, please retry"}
+E   assert 503 == 200
+E    +  where 503 = &lt;Response [503]&gt;.status_code</failure></testcase><testcase classname="backend.tests.test_api_key_hash" name="test_3_create_payment_sandbox_restriction" time="0.083"><failure message="AssertionError: {&quot;error&quot;: &quot;Backend starting, please retry&quot;}&#10;assert 503 == 400&#10; +  where 503 = &lt;Response [503]&gt;.status_code">backend/tests/test_api_key_hash.py:73: in test_3_create_payment_sandbox_restriction
+    assert r.status_code == 400, r.text
+E   AssertionError: {"error": "Backend starting, please retry"}
+E   assert 503 == 400
+E    +  where 503 = &lt;Response [503]&gt;.status_code</failure></testcase><testcase classname="backend.tests.test_api_key_hash" name="test_4_rotation_invalidates_old" time="0.000"><error message="failed on setup with &quot;AssertionError: {&quot;error&quot;: &quot;Backend starting, please retry&quot;}&#10;assert 503 == 200&#10; +  where 503 = &lt;Response [503]&gt;.status_code&quot;">backend/tests/test_api_key_hash.py:29: in owner_headers
+    assert r.status_code == 200, r.text
+E   AssertionError: {"error": "Backend starting, please retry"}
+E   assert 503 == 200
+E    +  where 503 = &lt;Response [503]&gt;.status_code</error></testcase><testcase classname="backend.tests.test_api_key_hash" name="test_5_bogus_key" time="0.091"><failure message="assert 503 == 401&#10; +  where 503 = &lt;Response [503]&gt;.status_code">backend/tests/test_api_key_hash.py:101: in test_5_bogus_key
+    assert r.status_code == 401
+E   assert 503 == 401
+E    +  where 503 = &lt;Response [503]&gt;.status_code</failure></testcase><testcase classname="backend.tests.test_api_key_hash" name="test_6_missing_key" time="0.081"><failure message="assert 503 == 401&#10; +  where 503 = &lt;Response [503]&gt;.status_code">backend/tests/test_api_key_hash.py:109: in test_6_missing_key
+    assert r.status_code == 401
+E   assert 503 == 401
+E    +  where 503 = &lt;Response [503]&gt;.status_code</failure></testcase><testcase classname="backend.tests.test_api_key_hash" name="test_7_getApi_list_no_leak" time="0.000"><error message="failed on setup with &quot;AssertionError: {&quot;error&quot;: &quot;Backend starting, please retry&quot;}&#10;assert 503 == 200&#10; +  where 503 = &lt;Response [503]&gt;.status_code&quot;">backend/tests/test_api_key_hash.py:29: in owner_headers
+    assert r.status_code == 200, r.text
+E   AssertionError: {"error": "Backend starting, please retry"}
+E   assert 503 == 200
+E    +  where 503 = &lt;Response [503]&gt;.status_code</error></testcase><testcase classname="backend.tests.test_api_key_hash" name="test_8_getApi_by_id_no_leak" time="0.000"><error message="failed on setup with &quot;AssertionError: {&quot;error&quot;: &quot;Backend starting, please retry&quot;}&#10;assert 503 == 200&#10; +  where 503 = &lt;Response [503]&gt;.status_code&quot;">backend/tests/test_api_key_hash.py:29: in owner_headers
+    assert r.status_code == 200, r.text
+E   AssertionError: {"error": "Backend starting, please retry"}
+E   assert 503 == 200
+E    +  where 503 = &lt;Response [503]&gt;.status_code</error></testcase><testcase classname="backend.tests.test_api_key_hash" name="test_9_delete_and_recreate" time="0.000"><error message="failed on setup with &quot;AssertionError: {&quot;error&quot;: &quot;Backend starting, please retry&quot;}&#10;assert 503 == 200&#10; +  where 503 = &lt;Response [503]&gt;.status_code&quot;">backend/tests/test_api_key_hash.py:29: in owner_headers
+    assert r.status_code == 200, r.text
+E   AssertionError: {"error": "Backend starting, please retry"}
+E   assert 503 == 200
+E    +  where 503 = &lt;Response [503]&gt;.status_code</error></testcase><testcase classname="backend.tests.test_api_key_hash" name="test_10_production_requires_wallet" time="0.000"><error message="failed on setup with &quot;AssertionError: {&quot;error&quot;: &quot;Backend starting, please retry&quot;}&#10;assert 503 == 200&#10; +  where 503 = &lt;Response [503]&gt;.status_code&quot;">backend/tests/test_api_key_hash.py:29: in owner_headers
+    assert r.status_code == 200, r.text
+E   AssertionError: {"error": "Backend starting, please retry"}
+E   assert 503 == 200
+E    +  where 503 = &lt;Response [503]&gt;.status_code</error></testcase><testcase classname="backend.tests.test_api_key_hash" name="test_11_db_state" time="2.021" /><testcase classname="backend.tests.test_api_key_hash" name="test_12_no_missing_hash" time="2.163" /></testsuite></testsuites>

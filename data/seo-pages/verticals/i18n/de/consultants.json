@@ -1,0 +1,55 @@
+{
+  "meta_title": "Krypto-Zahlungen für Berater & Coaches · Dynopay",
+  "meta_description": "Lassen Sie sich für Beratung und Coaching in Krypto bezahlen – mit Dynopay. Stellen Sie Kunden weltweit Rechnungen, keine Rückbuchungen, 15+ Kryptowährungen, Gebühren ab 1,5%. Kostenlos starten.",
+  "h1": "Akzeptieren Sie Krypto-Zahlungen für Beratung und Coaching von jedem Kunden weltweit",
+  "subheading": "Mit Dynopay können Berater, Coaches und Advisor Kunden in Bitcoin, Stablecoins und 15+ Kryptowährungen direkt in ein von ihnen kontrolliertes Wallet abrechnen – mit sofortiger Abwicklung und ohne Rückbuchungen.",
+  "intro_paragraph": "Berater und Coaches rechnen oft mit internationalen Kunden ab, bei denen Überweisungen langsam und teuer sind und Kartenrückbuchungen einer bereits erbrachten Leistung folgen können. Dynopay ist ein non-custodial Krypto-Zahlungs-Gateway, das direkt in Ihr Wallet abwickelt. Senden Sie einen gebrandeten Zahlungslink für einen Retainer, ein Paket oder eine einzelne Session, nehmen Sie Zahlungen über Hosted Checkout entgegen oder automatisieren Sie die Rechnungsstellung über die REST API – über 15+ Kryptowährungen. Die Gebühren beginnen bei 1,5% und sinken bei steigendem Volumen auf 0,5%, ohne Rückbuchungen, ohne monatliche Gebühren und mit einer kostenlosen ersten Zahlung.",
+  "features": [
+    {
+      "title": "Rechnen Sie globale Kunden in Sekunden ab",
+      "description": "Senden Sie einen Zahlungslink per E-Mail oder Chat und werden Sie innerhalb von Minuten bezahlt – keine internationale Überweisung, keine tagelange Wartezeit und keine Korrespondenzbankgebühren, die Ihre Rechnung schmälern."
+    },
+    {
+      "title": "Keine Rückbuchungen nach erbrachter Leistung",
+      "description": "Krypto-Zahlungen sind endgültig, sodass ein Kunde Ihr Honorar nicht über einen Kartenaussteller anfechten kann, sobald die Sessions oder Leistungen erbracht sind."
+    },
+    {
+      "title": "Halten Sie ein stabiles Guthaben",
+      "description": "Nehmen Sie USDT oder USDC an, um ein an den Dollar gekoppeltes Guthaben zu halten und Volatilität zu vermeiden, und wandeln Sie es in Ihre Landeswährung um, wann immer Sie möchten."
+    }
+  ],
+  "how_it_works": [
+    "Melden Sie sich an, verifizieren Sie Ihre E-Mail, erstellen Sie ein Unternehmensprofil und fügen Sie eine Auszahlungs-Wallet-Adresse für die Abwicklung hinzu.",
+    "Erstellen Sie einen Zahlungslink für jeden Kunden, Retainer oder jedes Paket – oder betten Sie das Checkout auf Ihrer Buchungsseite ein.",
+    "Der Kunde zahlt in seiner bevorzugten Kryptowährung und die Gelder landen innerhalb von Minuten in Ihrem Wallet."
+  ],
+  "faqs": [
+    {
+      "question": "Wie werden Berater und Coaches mit Dynopay bezahlt?",
+      "answer": "Erstellen Sie einen Zahlungslink für eine Session, ein Paket oder einen Retainer und senden Sie ihn an den Kunden, oder betten Sie das Checkout auf Ihrer Buchungsseite ein. Wenn er in Krypto zahlt, wird das Geld innerhalb von Minuten in Ihr Wallet abgewickelt – ohne Verzögerungen durch internationale Überweisungen."
+    },
+    {
+      "question": "Kann ich einen monatlichen Retainer in Krypto abrechnen?",
+      "answer": "Ja, pro Abrechnungszyklus. Krypto kennt keine automatische Kartenbelastung, daher ist jede Verlängerung eine neue Zahlung – nutzen Sie die REST API und Webhooks, um in jedem Abrechnungszyklus automatisch einen Zahlungslink zu senden."
+    },
+    {
+      "question": "Mit welchen Kryptowährungen können Kunden zahlen?",
+      "answer": "Dynopay unterstützt 15+ Kryptowährungen, darunter Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, TRX, MATIC sowie Stablecoins wie USDT (ERC20, TRC20, Polygon), USDC (ERC20) und RLUSD."
+    },
+    {
+      "question": "Welche Gebühren fallen für Beratungszahlungen an?",
+      "answer": "Die Gebühren beginnen bei 1,5% plus einem Dollar pro erfolgreicher Zahlung und sinken auf 0,5%, wenn Ihr abgewickeltes Volumen wächst. Keine Einrichtungsgebühren, keine monatlichen Gebühren, und Ihre erste Zahlung ist kostenlos."
+    },
+    {
+      "question": "Hält Dynopay mein Geld?",
+      "answer": "Nein. Dynopay ist non-custodial, sodass Zahlungen direkt in ein von Ihnen kontrolliertes Wallet abgewickelt werden – MetaMask, Coinbase, Ledger oder jede Adresse, die Ihnen gehört."
+    }
+  ],
+  "cta_headline": "Beginnen Sie in 10 Minuten, Kunden in Krypto abzurechnen",
+  "cta_body": "Melden Sie sich jetzt an, und Ihre erste Transaktion ist gebührenfrei. Keine monatlichen Kosten, und die Gelder werden direkt in ein von Ihnen kontrolliertes Wallet abgewickelt.",
+  "_generated_at": "2026-09-05T00:00:00.000Z",
+  "_model": "dynopay-editorial-2026-09",
+  "_kind": "vertical",
+  "_slug": "consultants",
+  "_display_name": "Consultants & Coaches"
+}

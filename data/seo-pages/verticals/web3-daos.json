@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto payments for Web3 projects & DAOs · Dynopay",
+  "meta_description": "Accept crypto payments for your Web3 project or DAO with Dynopay. Non-custodial, 15+ cryptocurrencies, hosted checkout & API, fees from 1.5%. Start free.",
+  "h1": "Accept crypto payments for your Web3 project or DAO",
+  "subheading": "Dynopay gives Web3 teams and DAOs a non-custodial way to collect contributions, sell access, and receive Bitcoin, stablecoins, and 15+ cryptocurrencies directly to a wallet or treasury they control.",
+  "intro_paragraph": "Web3 projects and DAOs live on-chain but still need a clean, compliant way to collect fiat-priced payments for memberships, mints, services, and contributions without handing custody to a processor. Dynopay is a non-custodial crypto payment gateway that settles straight to your wallet or multisig treasury. Take payments with a hosted checkout, a payment link, or the REST API across 15+ cryptocurrencies, price in USD while settling in the coin you choose, with fees from 1.5% down to 0.5% at scale, no chargebacks, and a free first payment.",
+  "features": [
+    {
+      "title": "Settle to your own wallet or treasury",
+      "description": "Non-custodial by design: payments land directly in the wallet or multisig you control, so the DAO treasury never depends on a processor holding funds."
+    },
+    {
+      "title": "USD pricing, crypto settlement",
+      "description": "Price memberships or services in dollars for clarity, and receive the exact cryptocurrency you want — including stablecoins for a treasury that isn't exposed to volatility."
+    },
+    {
+      "title": "Automate access with webhooks and API",
+      "description": "Confirm a contribution on-chain and trigger a webhook to grant Discord roles, gated content, or allowlist spots — wired through a clean REST API."
+    }
+  ],
+  "how_it_works": [
+    "Sign up, verify your email, create a project profile, and add one payout wallet address (or treasury multisig) for settlement.",
+    "Generate a payment link or embed hosted checkout for memberships, mints, services, or contributions.",
+    "Contributors pay in their preferred cryptocurrency, your webhook grants access, and funds settle to your wallet within minutes."
+  ],
+  "faqs": [
+    {
+      "question": "Is Dynopay custodial? Where do DAO funds settle?",
+      "answer": "Dynopay is non-custodial. Payments settle directly to the wallet or multisig treasury you control, so your project never depends on a third party holding its funds."
+    },
+    {
+      "question": "Can I price in USD but receive stablecoins?",
+      "answer": "Yes. Price memberships or services in dollars and choose to receive stablecoins like USDT or USDC — keeping a dollar-pegged treasury balance — or any of the other supported coins."
+    },
+    {
+      "question": "Which cryptocurrencies are supported?",
+      "answer": "Dynopay supports 15+ cryptocurrencies including Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, TRX, MATIC, and stablecoins such as USDT (ERC20, TRC20, Polygon), USDC (ERC20), and RLUSD."
+    },
+    {
+      "question": "Can I automate access or roles when a contribution confirms?",
+      "answer": "Yes. Dynopay fires a webhook when a payment confirms on-chain, so you can grant Discord roles, unlock gated content, or update an allowlist automatically through the REST API."
+    },
+    {
+      "question": "What does Dynopay charge?",
+      "answer": "Fees start at 1.5% plus one dollar per successful payment and drop to 0.5% as settled volume grows. No setup fees, no monthly fees, and your first payment is free."
+    }
+  ],
+  "cta_headline": "Start collecting payments for your Web3 project in 10 minutes",
+  "cta_body": "Sign up now and your first transaction is fee-free. Non-custodial settlement straight to the wallet or treasury you control.",
+  "_generated_at": "2026-09-05T00:00:00.000Z",
+  "_model": "dynopay-editorial-2026-09",
+  "_kind": "vertical",
+  "_slug": "web3-daos",
+  "_display_name": "Web3 Projects & DAOs"
+}

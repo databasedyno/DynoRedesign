@@ -1,0 +1,34 @@
+{
+  "summary": "Iteration 164 regression covered 4 approved features. Backend: 3/4 pass — /api/user/getSupportedCurrency returns 401 with full new error envelope (type=authentication_error, code=api_key_missing, doc_url, request_id) and Request-Id response header matching request_id. OG image endpoint: demo=1 returns valid 1200x630 PNG (>50KB, correct PNG magic); no-params 302-redirects to /og/dynopay-og.png. Gap: /api/user/getSingleTransaction/:id (which uses legacyApiAuthMiddleware) still returns the OLD 401 body {success:false,message:...} WITHOUT the additive error{} object and WITHOUT a Request-Id response header (only lowercased x-request-id is present). Frontend: all 4 UI features pass — landing has data-testid=products-donations-link with text 'Fundraising & tips →' -> /pay/donation-demo; hero contains 'donations and API'; FAQ faq-donations expands to reveal faq-donations-demo link to /pay/donation-demo; donation-demo page has og:image ending /api/pay/og-image?demo=1 and twitter:card=summary_large_image; countdown pill shows 'Ends in 5d 2h' with data-severity='notice' on Crowdfunding, still visible on Tip jar scenario, and correctly hidden (0 in DOM) on Goal reached scenario; NO 'Invalid prop children supplied to ForwardRef(Box)' console warnings observed on any scenario.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "GET /api/user/getSingleTransaction/:id (missing x-api-key)", "issue": "Returns legacy 401 body {success:false,message:'API key is required in x-api-key header'} but is missing the additive `error` envelope (type/code/doc_url/request_id) and the canonical `Request-Id` response header. Route uses legacyApiAuthMiddleware in backend/routes/merchantApiRouter.ts:996 instead of apiKeyOnlyMiddleware. The review request states 'every merchant-API error now carries error.{type,code,doc_url,request_id}', so legacyApiAuthMiddleware should be updated (or the route switched) to emit the new envelope for consistency."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter164_error_envelope_and_og.py",
+    "/app/test_reports/pytest/iter164.xml"
+  ],
+  "action_items": [
+    "Update legacyApiAuthMiddleware in backend/routes/merchantApiRouter.ts (or switch getSingleTransaction to apiKeyOnlyMiddleware) so it emits the same additive error envelope (type=authentication_error, code=api_key_missing/api_key_invalid, doc_url, request_id) and sets the Request-Id response header — currently only routes protected by apiKeyOnlyMiddleware carry the new envelope."
+  ],
+  "critical_code_review_comments": [
+    "Two auth middlewares (legacyApiAuthMiddleware and apiKeyOnlyMiddleware) diverge in error semantics — consolidate to a single implementation to prevent future drift.",
+    "Response uses both `Request-Id` (new, mixed-case) and `x-request-id` (helmet/proxy) headers; docs should call out which one clients should log."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter164_error_envelope_and_og.py"
+  ],
+  "success_rate": {"backend": "75%", "frontend": "100%"},
+  "seed_data_creation": "None (read-only prod DB, SAFE MODE respected — no payment links created).",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "iter164 verified: error envelope + Request-Id on apiKeyOnlyMiddleware routes, og-image demo PNG (1200x630, ~PNG magic verified) and fallback 302, donation discovery link, donation-demo head tags, countdown pill across 3 scenarios, and console-clean of Box children warning. Only outstanding gap is envelope parity on legacyApiAuthMiddleware routes (e.g. getSingleTransaction). Note: on cold start the backend may return 503 'Backend starting, please retry' for ~15-20s — retry after a short sleep.",
+  "rca of the issue": "getSingleTransaction/:id is wired to `legacyApiAuthMiddleware` (line 996 of merchantApiRouter.ts) whereas the newly-refactored envelope logic lives in `apiKeyOnlyMiddleware` (used by getSupportedCurrency at line 1287). Only endpoints migrated to the new middleware inherit the error{type,code,doc_url,request_id} shape and the Request-Id response header. Fix: (a) migrate all merchant routes to apiKeyOnlyMiddleware, or (b) port the envelope logic into legacyApiAuthMiddleware. Reproduction: `curl -A 'Mozilla/5.0' -i https://<base>/api/user/getSingleTransaction/does-not-exist` → 401 with body missing `error` object and no `Request-Id` header."
+}

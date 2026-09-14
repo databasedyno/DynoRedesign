@@ -1,0 +1,55 @@
+{
+  "meta_title": "Pagamentos em criptomoeda para agências e consultores · Dynopay",
+  "meta_description": "Aceite pagamentos em criptomoeda para agências e consultores com a Dynopay. Não custodial, 15+ criptomoedas, taxas a partir de 1,5%. Pague contratantes globais. Comece agora.",
+  "h1": "Aceite pagamentos em criptomoeda para agências e consultores sem chargebacks",
+  "subheading": "Fature clientes em 15+ criptomoedas, pague contratantes internacionais em minutos e elimine taxas de transação transfronteiriças—os fundos chegam diretamente à sua carteira.",
+  "intro_paragraph": "Agências e consultores podem perder receita devido a chargebacks de cartões de crédito, esperar dias por transferências internacionais e pagar 3-7% em taxas de câmbio ao trabalhar com clientes globais. A Dynopay é uma plataforma não custodial que permite faturar clientes e pagar contratantes em Bitcoin, Ethereum, USDT, USDC e mais 11 criptomoedas. Você controla os fundos desde o pagamento até o recebimento—Dynopay nunca retém seu dinheiro.",
+  "features": [
+    {
+      "title": "Pague contratantes em cripto",
+      "description": "Envie pagamentos em criptomoeda para freelancers e parceiros em todo o mundo sem taxas de transferência, conversão de moeda ou retenções de 3 dias. Eles recebem os fundos em minutos, e você evita taxas bancárias intermediárias que consomem o orçamento do projeto."
+    },
+    {
+      "title": "Elimine fraudes de chargeback em retenções",
+      "description": "Transações em cripto são finais. Clientes que contestam trabalhos concluídos não podem reverter pagamentos meses depois. Você mantém o que ganha, e seu fluxo de caixa permanece previsível sem retenções ou responsabilidades em aberto."
+    },
+    {
+      "title": "Fature clientes em stablecoins ou Bitcoin",
+      "description": "Gere links de pagamento para projetos pontuais ou retenções recorrentes. Clientes pagam em USDT, USDC, BTC, ETH ou 11 outros ativos. Os fundos chegam à sua carteira em minutos, e você escolhe quando converter ou manter."
+    }
+  ],
+  "how_it_works": [
+    "Inscreva-se, verifique seu e-mail e adicione o endereço da carteira onde deseja receber pagamentos.",
+    "Crie um link de pagamento para sua fatura ou incorpore o widget de checkout no seu portal de clientes.",
+    "O cliente paga em cripto; os fundos chegam diretamente à sua carteira em minutos. O primeiro pagamento é sem taxas."
+  ],
+  "faqs": [
+    {
+      "question": "Quais criptomoedas podem as agências aceitar com a Dynopay?",
+      "answer": "A Dynopay suporta 15+ criptomoedas, incluindo Bitcoin, Ethereum, USDT (ERC20, TRC20, Polygon), USDC, RLUSD, Litecoin, Dogecoin, Solana, XRP, Polygon, Tron e Bitcoin Cash. Os clientes podem pagar em qualquer ativo suportado, e você recebe os fundos diretamente na sua carteira."
+    },
+    {
+      "question": "Quanto a Dynopay cobra das agências por pagamentos em cripto?",
+      "answer": "As taxas começam em 1,5% mais um dólar por pagamento bem-sucedido e caem automaticamente para 0,5% à medida que seu volume de pagamentos cresce. Seu primeiro pagamento é completamente isento de taxas. Não há taxas mensais, custos de configuração ou cobranças ocultas."
+    },
+    {
+      "question": "Posso pagar contratantes internacionais com a Dynopay?",
+      "answer": "Sim. Você pode enviar cripto para contratantes globalmente sem taxas de transferência ou atrasos de liquidação de vários dias. A Dynopay não tem restrições de país para receber cripto. Os contratantes recebem os fundos em minutos, e você evita taxas bancárias intermediárias que podem custar 3-7% por transação."
+    },
+    {
+      "question": "A Dynopay retém meus fundos como um processador de pagamentos?",
+      "answer": "Não. A Dynopay é não custodial. Os pagamentos vão diretamente do seu cliente para o endereço da carteira que você controla. A Dynopay nunca retém, congela ou controla seus fundos. Você mantém a custódia total em todos os momentos, eliminando o risco de contraparte e retenções."
+    },
+    {
+      "question": "Quanto tempo leva para começar a aceitar pagamentos em cripto?",
+      "answer": "A maioria das agências está ativa em menos de 10 minutos. Inscreva-se, verifique seu e-mail, crie seu perfil de empresa, adicione um endereço de carteira para pagamento, e então gere um link de pagamento ou incorpore o widget de checkout. Você pode enviar sua primeira fatura imediatamente."
+    }
+  ],
+  "cta_headline": "Comece a aceitar pagamentos em cripto em 10 minutos",
+  "cta_body": "Seu primeiro pagamento é sem taxas. Sem custos de configuração, sem taxas mensais, e os fundos chegam diretamente à sua carteira.",
+  "_generated_at": "2026-08-29T14:56:26.929627Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "agencies",
+  "_display_name": "Agencies & Consultants"
+}

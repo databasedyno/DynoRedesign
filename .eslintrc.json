@@ -1,0 +1,17 @@
+{
+  "root": true,
+  "plugins": ["@typescript-eslint"],
+  "extends": ["next/core-web-vitals"],
+  "ignorePatterns": [
+    "node_modules/",
+    "**/node_modules/",
+    ".next/",
+    "out/",
+    "build/",
+    "dist/",
+    "coverage/",
+    "public/",
+    "next-env.d.ts",
+    "*.min.js"
+  ]
+}

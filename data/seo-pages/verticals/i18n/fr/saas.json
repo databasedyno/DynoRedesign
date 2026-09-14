@@ -1,0 +1,55 @@
+{
+  "meta_title": "Paiements crypto pour les produits SaaS et d'abonnement · Dynopay",
+  "meta_description": "Acceptez les paiements crypto pour les produits SaaS et d'abonnement avec Dynopay. Pas de rétrofacturations, portée mondiale, 15+ cryptomonnaies. Frais à partir de 1,5 %. Commencez dès aujourd'hui.",
+  "h1": "Acceptez les paiements crypto pour les produits SaaS et d'abonnement sans rétrofacturations",
+  "subheading": "Dynopay aide les entreprises d'abonnement à éliminer le churn involontaire, à s'étendre sur des marchés restreints et à recevoir des Bitcoin, des stablecoins et 15+ cryptomonnaies directement dans votre portefeuille.",
+  "intro_paragraph": "Les entreprises d'abonnement perdent régulièrement des revenus à cause des paiements par carte échoués et du churn involontaire. Les clients internationaux font face à des frais de conversion de devises et à des restrictions de méthodes de paiement. Dynopay est une plateforme non-custodiale qui dépose les paiements crypto directement dans votre portefeuille—pas d'intermédiaire détenant vos fonds. Vous obtenez des liens de paiement, un paiement hébergé et une API REST pour facturer les abonnés en 15+ cryptomonnaies avec des frais commençant à 1,5 % et tombant à 0,5 % à grande échelle. Pas de rétrofacturations. Pas de frais mensuels. Le premier paiement est gratuit.",
+  "features": [
+    {
+      "title": "Règlement non-custodial vers votre portefeuille",
+      "description": "Les fonds vont directement dans votre portefeuille Ethereum, Bitcoin ou Solana. Dynopay ne conserve jamais votre argent, vous gardez donc la pleine propriété et pouvez convertir en fiat selon votre propre calendrier."
+    },
+    {
+      "title": "Zéro churn involontaire des abonnés crypto",
+      "description": "Les paiements crypto n'expirent pas et ne sont pas refusés. Les clients qui préfèrent les stablecoins ou le Bitcoin restent abonnés plus longtemps car il n'y a pas de transactions par carte échouées ou de détails de facturation obsolètes."
+    },
+    {
+      "title": "Atteignez des clients dans des marchés mal desservis",
+      "description": "Acceptez des paiements de régions mal desservies par les réseaux de cartes. La crypto permet aux clients de vous payer de n'importe où, vous pouvez donc servir chaque marché dans lequel vous choisissez d'opérer."
+    }
+  ],
+  "how_it_works": [
+    "Inscrivez-vous, vérifiez votre e-mail, créez un profil d'entreprise et ajoutez une adresse de portefeuille de paiement pour le règlement.",
+    "Générez un lien de paiement ou intégrez le widget de paiement sur votre page d'inscription ou de compte SaaS.",
+    "Le client paie dans sa cryptomonnaie préférée. Les fonds arrivent dans votre portefeuille en quelques minutes, et vous êtes en ligne."
+  ],
+  "faqs": [
+    {
+      "question": "Comment les paiements crypto réduisent-ils le churn involontaire pour les entreprises d'abonnement ?",
+      "answer": "Les portefeuilles crypto n'expirent pas et les transactions ne échouent pas en raison de fonds insuffisants de la même manière que les cartes. Les abonnés qui détiennent des stablecoins ou du Bitcoin peuvent payer de manière fiable sans les problèmes de refus de carte qui sont une cause majeure de churn involontaire dans la facturation SaaS traditionnelle."
+    },
+    {
+      "question": "Quelles cryptomonnaies mes clients SaaS peuvent-ils utiliser pour payer ?",
+      "answer": "Dynopay prend en charge 15+ cryptomonnaies : Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, MATIC, TRX, et des stablecoins incluant USDT (ERC20, TRC20, Polygon), USDC (ERC20), et RLUSD sur Ethereum et XRP Ledger."
+    },
+    {
+      "question": "Quels sont les frais de Dynopay pour les paiements d'abonnement ?",
+      "answer": "Les frais commencent à 1,5 % plus un dollar par paiement réussi et tombent automatiquement à 0,5 % à mesure que votre volume réglé augmente. Pas de frais d'installation, pas de frais mensuels, pas de coûts cachés, et votre premier paiement est complètement gratuit."
+    },
+    {
+      "question": "Dois-je détenir de la crypto ou créer un compte marchand ?",
+      "answer": "Vous avez seulement besoin d'une adresse de portefeuille pour la cryptomonnaie que vous souhaitez recevoir. Dynopay est non-custodial, donc les paiements vont directement dans votre Coinbase, Ledger, MetaMask, ou tout portefeuille que vous contrôlez. Aucun compte marchand requis."
+    },
+    {
+      "question": "Puis-je facturer des abonnements récurrents en cryptomonnaie avec Dynopay ?",
+      "answer": "Oui, sur une base par cycle. La crypto n'a pas de prélèvement automatique de style carte, donc chaque renouvellement est un nouveau paiement : utilisez l'API REST et les webhooks pour générer un lien de paiement par cycle de facturation et l'envoyer automatiquement. Les renouvellements échouent jamais à cause de cartes expirées ou de refus d'émetteur."
+    }
+  ],
+  "cta_headline": "Commencez à accepter les paiements crypto en 10 minutes",
+  "cta_body": "Inscrivez-vous maintenant et votre première transaction est sans frais. Pas de coûts mensuels, pas de frais d'installation, et les fonds vont directement dans votre portefeuille.",
+  "_generated_at": "2026-08-29T14:53:11.839432Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "saas",
+  "_display_name": "SaaS & Subscription Products"
+}

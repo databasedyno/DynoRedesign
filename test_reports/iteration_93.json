@@ -1,0 +1,18 @@
+{
+  "summary": "Backend-only perf validation of the wallet_services status probe fix (single combined SELECT instead of 3 sequential SELECTs). CSRF double-submit flow (GET /api/csrf-token -> POST /api/status/check with x-csrf-token + cookie) worked end-to-end and returned 200. Ran 3 trigger+read cycles against LIVE prod DB via preview URL. wallet_services latency_ms observed: [41, 42, 41] — WELL under the 300ms target (previously 456–600ms). payment_processing: [41, 43, 42]. dashboard: [42, 44, 43]. All 5 required services (api_gateway, payment_processing, wallet_services, webhook_delivery, dashboard) present, status=operational, latency_ms>0. Regression clean.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": ["/app/backend/tests/test_status_perf.py", "/app/test_reports/pytest/status_perf.xml"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Fix in monitoringService.ts collapses 3 round-trips into 1 scalar-subquery SELECT — correct pattern; single Sequelize.query call so latency is dominated by 1 SOCKS round-trip (~40ms) instead of 3.",
+    "webhook_delivery still ~81ms (roughly 2x others) — likely still a multi-query probe. Not a regression, but same combined-subquery pattern could bring it to ~40ms if desired."
+  ],
+  "updated_files": ["/app/backend/tests/test_status_perf.py"],
+  "success_rate": {"backend": "100%", "frontend": "N/A (skipped per request)"},
+  "seed_data_creation": "None. POST /api/status/check writes benign health-sample rows per service as expected.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "test_status_perf.py can be re-run any time; it does CSRF handshake and 3 cycles. If backend just restarted, /api/csrf-token may return 503 'Backend starting' briefly — retry after ~5s.",
+  "rca of the issue": "Original wallet_services.check ran 3 sequential `SELECT 1 FROM <table> LIMIT 1` queries over a SOCKS tunnel to prod Postgres. Each round-trip ~150–200ms => 450–600ms total. Fix combines into one query using scalar subqueries: `SELECT (SELECT 1 FROM tbl_user_wallet LIMIT 1) AS uw, (SELECT 1 FROM tbl_user_addresses LIMIT 1) AS ua, (SELECT 1 FROM tbl_admin_wallet LIMIT 1) AS aw` — single round-trip ~40ms. Same fix applied to payment_processing and dashboard. Verified reproducibly across 3 cycles."
+}

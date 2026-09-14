@@ -1,0 +1,26 @@
+{
+  "summary": "Frontend-only verification of the CompanySelector header dropdown fix (absolute div -> portaled MUI Popover). Logged in as hostbay@moxx.co via 2-step /auth/login and tested on /dashboard at 390x844, 768x1024 and 1440x900 in both dark and light in-app themes. RESULT: PASS on all viewports/themes. [data-testid='company-selector-trigger'] click now opens [data-testid='company-selector-dropdown'] (rendered under document.body, no longer clipped). Rects fully inside viewport: mobile x=74 w=300 (right edge 374 < 390), tablet x=120 w=300, desktop x=320 w=300; all y>=44. Dropdown shows company list (1 option: 'hostbay BUSINESS'), edit control [company-edit-1] and 'Add New Company' button. Add-Company modal opened on mobile (Create Your Company dialog with step indicator 1 Company / 2 Wallet, name/email/country fields) and was CLOSED with Esc WITHOUT submitting - no company created, no data mutated. Outside-click close verified on mobile; Esc close verified on tablet/desktop. Zero browser console errors captured across all runs.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Header company selector (390px)", "issues": ["Popover anchors at x=74 leaving the dropdown visually detached from the compact mobile trigger (cosmetic only; fully visible and readable)"]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Components/UI/CompanySelector/index.tsx:90 uses useState(window.innerWidth) directly in render - will throw during SSR/prerender if this component is ever rendered server-side; initialize to 0 and set inside useEffect.",
+    "The wrapper Box still has overflow:hidden (line ~191); harmless now that the dropdown is portaled, but keep in mind if any non-portaled child is added.",
+    "Two useEffects list `dispatch` in deps while actually depending on companyState.selectCompany - stale-closure risk (lint exhaustive-deps)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not tested (frontend-only request)", "frontend": "100%"},
+  "seed_data_creation": "None. Read-only session on live prod DB; Add-Company form opened and dismissed without submit.",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": false,
+  "test_credentials": "hostbay@moxx.co / Katiekendra123@ (login path is /auth/login, NOT /login - /login renders the 'page isn't available' handle page)",
+  "context_for_next_testing_agent": "Login URL is https://<preview>/auth/login (2-step: textbox.first -> Continue exact=True -> wait 6-7s -> input[type=password]:visible -> 'Sign in'). Account has exactly ONE company (hostbay, company_id 1), so company-switching/toast path could NOT be exercised - needs a multi-company account to verify handleCompanySwitch + 'switched to' snackbar. Dark theme is the default for this account; light was forced via localStorage 'theme-mode-inapp'='light'.",
+  "rca_of_the_issue": "Original bug: dropdown was an absolutely-positioned child inside the header/app-shell chain that has overflow:hidden (Containers/Client/index.tsx ~122 and the selector wrapper itself), so it was clipped to zero visible area, especially on mobile. Fix (portaled MUI Popover attached to document.body) is verified effective on all tested viewports and themes."
+}

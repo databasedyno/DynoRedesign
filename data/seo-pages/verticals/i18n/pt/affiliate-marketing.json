@@ -1,0 +1,55 @@
+{
+  "meta_title": "Pagamentos e recebimentos em cripto para afiliados de marketing · Dynopay",
+  "meta_description": "Receba em cripto e seja pago globalmente como afiliado de marketing com a Dynopay. Mais de 15 criptomoedas, sem estornos, comissões desde 1,5%. Comece grátis hoje.",
+  "h1": "Aceite pagamentos em cripto como afiliado de marketing, em qualquer parte do mundo",
+  "subheading": "A Dynopay permite que afiliados de marketing e compradores de media recebam em Bitcoin, stablecoins e mais de 15 criptomoedas diretamente numa wallet que controlam — sem fronteiras, sem estornos e sem saldos congelados.",
+  "intro_paragraph": "Os rendimentos de afiliação atravessam fronteiras constantemente, e os meios tradicionais acrescentam comissões de conversão de moeda, transferências bancárias lentas e o risco de uma conta congelada quando o volume dispara. A Dynopay é uma gateway de pagamentos em cripto não custodial que liquida diretamente na sua wallet — receba pagamentos por promoções, media ou as suas próprias ofertas com um link de pagamento, um checkout alojado ou a API REST em mais de 15 criptomoedas. As comissões começam em 1,5% e descem até 0,5% à escala, sem estornos, sem mensalidades e com o primeiro pagamento grátis.",
+  "features": [
+    {
+      "title": "Seja pago além-fronteiras, instantaneamente",
+      "description": "A cripto liquida em minutos numa wallet que controla, poupando-lhe transferências bancárias internacionais de vários dias e o spread cambial que corrói os rendimentos de afiliação transfronteiriços."
+    },
+    {
+      "title": "Sem contas congeladas quando o volume dispara",
+      "description": "Uma campanha viral não aciona o modelo antifraude de um processador nem congela o seu saldo — a liquidação não custodial significa que os fundos já são seus."
+    },
+    {
+      "title": "Stablecoins para contornar a volatilidade",
+      "description": "Receba em USDT ou USDC para manter um saldo indexado ao dólar e converta para a sua moeda local sempre que a taxa lhe convier."
+    }
+  ],
+  "how_it_works": [
+    "Registe-se, verifique o seu e-mail, crie um perfil de empresa e adicione um endereço de wallet de recebimento para a liquidação.",
+    "Partilhe um link de pagamento, integre o checkout ou ligue a API REST para faturar parceiros e compradores.",
+    "Pagam na criptomoeda que preferirem e os fundos chegam à sua wallet em minutos."
+  ],
+  "faqs": [
+    {
+      "question": "Como beneficiam os afiliados de marketing ao aceitar cripto?",
+      "answer": "Os rendimentos de afiliação são globais e irregulares. A cripto liquida em minutos numa wallet que controla, evita os atrasos da banca internacional e os spreads cambiais, e não pode ser congelada por um processador quando uma campanha escala de repente."
+    },
+    {
+      "question": "Posso manter os meus ganhos numa moeda estável indexada ao dólar?",
+      "answer": "Sim. Aceite pagamentos em stablecoins como USDT ou USDC para manter um saldo com valor em dólares e evitar a volatilidade da cripto, e depois converta para moeda fiduciária ao seu próprio ritmo."
+    },
+    {
+      "question": "Que criptomoedas são suportadas?",
+      "answer": "A Dynopay suporta mais de 15 criptomoedas, incluindo Bitcoin, Ethereum, Litecoin, Dogecoin, Solana, XRP, TRX, MATIC e stablecoins como USDT (ERC20, TRC20, Polygon), USDC (ERC20) e RLUSD."
+    },
+    {
+      "question": "Quanto cobra a Dynopay?",
+      "answer": "As comissões começam em 1,5% mais um dólar por pagamento bem-sucedido e descem até 0,5% à medida que o seu volume liquidado cresce. Sem custos de adesão, sem mensalidades, e o seu primeiro pagamento é grátis."
+    },
+    {
+      "question": "A Dynopay é custodial? Para onde vão os meus fundos?",
+      "answer": "A Dynopay é não custodial. Os pagamentos liquidam diretamente na sua própria wallet — MetaMask, Coinbase, Ledger ou qualquer endereço que controle — pelo que a Dynopay nunca detém o seu dinheiro."
+    }
+  ],
+  "cta_headline": "Comece a receber pagamentos em cripto em 10 minutos",
+  "cta_body": "Registe-se agora e a sua primeira transação é sem comissões. Sem custos mensais e os fundos liquidam diretamente numa wallet que controla.",
+  "_generated_at": "2026-09-05T00:00:00.000Z",
+  "_model": "dynopay-editorial-2026-09",
+  "_kind": "vertical",
+  "_slug": "affiliate-marketing",
+  "_display_name": "Affiliate Marketers"
+}

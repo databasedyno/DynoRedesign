@@ -1,0 +1,28 @@
+{
+  "summary": "Frontend-only retest of CleanCheckoutV2 (/pay) UNDERPAID amount surfaces with fully mocked /api/pay/* routes (zero live data touched). Desktop 1920x900 + mobile 390x844 underpaid scenario and a desktop 'waiting' regression scenario. ALL 8 acceptance checks PASS and the regression PASSES: during underpayment every actionable amount surface now shows the REMAINING 0.0006 BTC and no surface shows 0.001 BTC.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/pay checkout (all states)", "issues": ["Pre-existing LOW React console warning: 'Invalid prop `children` supplied to ForwardRef(Box)' originating at PanelShell in CleanCheckoutV2.tsx - cosmetic only, unrelated to this fix", "Unrelated 401 on /api/company/getCompany fires on the public /pay page (anonymous visitor) - noisy console error, consider skipping the call when unauthenticated"]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Optional: silence the PanelShell 'Invalid prop children supplied to ForwardRef(Box)' React warning.",
+    "Optional: avoid the unauthenticated 401 /api/company/getCompany request on the public /pay page."
+  ],
+  "critical_code_review_comments": [
+    "amountToSend (line 479) and paymentUri useMemo (lines 469-474) correctly derive from partial.remainingAmount when phase==='underpaid'; single source of truth is used by instruction, AMOUNT row, copy-amount, deep link, QR and mobile sticky bar - good.",
+    "stripState returns null for 'underpaid' so the misleading CONFIRMING/Broadcasting strip is gone; the amber banner + stepper carry the state.",
+    "CleanCheckoutV2.tsx is 1810 lines - exceeds the 700-line guideline; consider splitting (QR panel, underpaid banner, sticky bar) into sub-components."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not tested (skipped per request)", "frontend": "100% (9/9 checks)"},
+  "seed_data_creation": "None - all /api/pay/* responses were route-intercepted mocks; no live Postgres/Redis data touched.",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Verified (mocked, safe): UNDERPAID desktop -> AMOUNT row '0.0006 BTC', copy-amount click shows 'Copied', instruction 'Pay 0.0006 BTC on Bitcoin', banner 'We received 0.0004 BTC. Send 0.0006 BTC (~ $60.00 USD) more to the same address below', clean-checkout-underpaid-timer 'Time left to complete: 25:00' counting down 24:59->24:56, open-wallet href 'bitcoin:bc1qmock...?amount=0.0006', clean-checkout-qr-svg rendered from the same URI (QR image visibly differs from the waiting-state QR), pay-status-strip ABSENT (count 0), qr-panel + address bc1qmock... still visible. MOBILE 390px -> checkout-sticky-open-wallet href amount=0.0006 and sticky 'SEND EXACTLY 0.0006 BTC'. REGRESSION waiting state -> instruction/AMOUNT/href all 0.001 BTC, pay-status-strip present ('WAITING / Waiting for your payment'), underpaid banner absent. Underpaid phase is reached within ~5-15s of goto. InlineTipCheckout underpaid path still not runtime-tested (code-review only).",
+  "rca_of_the_issue": "Previously the AMOUNT row/copy/QR/deep-link read cryptoInfo.expected_amount directly; the fix introduces a single `amountToSend` value and makes paymentUri depend on phase+partial, so all machine- and human-readable amounts agree with the outstanding remainder. Confirmed fixed by runtime test."
+}

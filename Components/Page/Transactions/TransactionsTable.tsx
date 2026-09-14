@@ -1,0 +1,938 @@
+import BitcoinIcon from "@/assets/cryptocurrency/Bitcoin-icon.svg";
+import { rowKeyProps } from "@/helpers/a11y";
+import { formatWithSeparators } from "@/utils/currencyFormat";
+import BitcoinCashIcon from "@/assets/cryptocurrency/BitcoinCash-icon.svg";
+import DogecoinIcon from "@/assets/cryptocurrency/Dogecoin-icon.svg";
+import EthereumIcon from "@/assets/cryptocurrency/Ethereum-icon.svg";
+import LitecoinIcon from "@/assets/cryptocurrency/Litecoin-icon.svg";
+import TronIcon from "@/assets/cryptocurrency/Tron-icon.svg";
+import USDTIcon from "@/assets/cryptocurrency/USDT-icon.svg";
+import USDCIcon from "@/assets/cryptocurrency/USDC-icon.svg";
+import SolanaIcon from "@/assets/cryptocurrency/Solana-icon.svg";
+import XRPIcon from "@/assets/cryptocurrency/XRP-icon.svg";
+import PolygonIcon from "@/assets/cryptocurrency/Polygon-icon.svg";
+import RLUSDIcon from "@/assets/cryptocurrency/RLUSD-icon.svg";
+import { Icon, MONO } from "@/styles/uiKit";
+import TransactionStatusBadge from "@/Components/UI/TransactionStatusBadge";
+import { getAssetColor } from "@/helpers/assetColor";
+import TransactionSourceBadge from "@/Components/UI/TransactionSourceBadge";
+import { Box, Typography, useTheme } from "@mui/material";
+import Image from "next/image";
+import { useRouter } from "next/router";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+
+import CryptoIcon from "@/assets/Icons/crypto-icon.svg";
+import CurrencyIcon from "@/assets/Icons/dollar-sign-icon.svg";
+import HexagonIcon from "@/assets/Icons/hexagon-icon.svg";
+import SwapHorizIcon from "@/assets/Icons/swap-round-icon.svg";
+import RoundedStackIcon from "@/assets/Icons/roundedStck-icon.svg";
+import TimeIcon from "@/assets/Icons/time-icon.svg";
+import TransactionIcon from "@/assets/Icons/transaction-icon.svg";
+
+import KeyboardArrowLeftRoundedIcon from "@mui/icons-material/KeyboardArrowLeftRounded";
+import KeyboardArrowRightRoundedIcon from "@mui/icons-material/KeyboardArrowRightRounded";
+import ArrowUpwardRoundedIcon from "@mui/icons-material/ArrowUpwardRounded";
+import ArrowDownwardRoundedIcon from "@mui/icons-material/ArrowDownwardRounded";
+import UnfoldMoreRoundedIcon from "@mui/icons-material/UnfoldMoreRounded";
+
+import CustomButton from "@/Components/UI/Buttons";
+import RowsPerPageSelector from "@/Components/UI/RowsPerPageSelector";
+import useTableCardView from "@/hooks/useTableCardView";
+import { useDisplayFx } from "@/hooks/useDisplayFx";
+import {
+  ExtendedTransaction,
+  TransactionsTableProps,
+  TxSortDir,
+  TxSortKey,
+} from "@/utils/types/transaction";
+import { TransactionAction } from "@/Redux/Actions";
+import { TRANSACTION_DETAIL_FETCH } from "@/Redux/Actions/TransactionAction";
+import { useDispatch } from "react-redux";
+import { Text } from "../CreatePaymentLink/styled";
+import {
+  CryptoIconChip,
+  MobileNavigationButtons,
+  TransactionsTableBody,
+  TransactionsTableCell,
+  TransactionsTableFooter,
+  TransactionsTableFooterText,
+  TransactionsTableHeader,
+  TransactionsTableHeaderItem,
+  TransactionsTableRow,
+  CARD_RADIUS,
+} from "./styled";
+import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
+import TransactionDetailsModal from "./TransactionDetailsModal";
+import { toFixedStr } from "@/utils/money";
+
+const TransactionsTable: React.FC<TransactionsTableProps> = ({
+  transactions,
+  rowsPerPage: initialRowsPerPage = 10,
+  toolbar,
+}) => {
+  const theme = useTheme();
+  const dispatch = useDispatch();
+  const router = useRouter();
+  const { t } = useTranslation("transactions");
+  const tTransactions = useCallback(
+    (key: string, options?: any): string => {
+      const result = t(key, { ns: "transactions", ...options });
+      return typeof result === "string" ? result : String(result);
+    },
+    [t],
+  );
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(initialRowsPerPage);
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<ExtendedTransaction | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+
+  // Frozen-column support: the desktop/tablet table is a single scroll
+  // container so the first column (Transaction ID) can be pinned with
+  // position: sticky; left: 0. We only paint the freeze shadow once the user
+  // actually scrolls sideways (scrolledX) so wide screens stay flat/clean.
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const [scrolledX, setScrolledX] = useState(false);
+  const handleTableScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    const isScrolled = e.currentTarget.scrollLeft > 0;
+    setScrolledX((prev) => (prev === isScrolled ? prev : isScrolled));
+  }, []);
+
+  const isMobile = useTableCardView();
+  const fx = useDisplayFx();
+
+  /** Fiat value in the merchant's display currency (falls back to the raw
+   *  USD string until the FX rate resolves / if it's USD anyway). */
+  const displayValue = useCallback(
+    (tx: ExtendedTransaction): string => {
+      // No stored USD value (pending / unvalued) → show "—", never a converted
+      // crypto amount masquerading as dollars.
+      if (!tx.usdValueRaw || tx.usdValueRaw <= 0) return "—";
+      return fx.formatFromUsd(tx.usdValueRaw) ?? tx.usdValue;
+    },
+    [fx],
+  );
+
+  const totalPages = Math.ceil(transactions.length / rowsPerPage);
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const endIndex = startIndex + rowsPerPage;
+
+  // Column sorting (desktop headers). Default mirrors the backend order —
+  // newest first. Stable sort, so equal keys keep their incoming order.
+  const [sort, setSort] = useState<{ key: TxSortKey; dir: TxSortDir }>({
+    key: "dateTime",
+    dir: "desc",
+  });
+  const sortedTransactions = useMemo(() => {
+    const value = (tx: ExtendedTransaction): number =>
+      sort.key === "amount"
+        ? tx.cryptoAmountRaw
+        : sort.key === "usdValue"
+          ? tx.usdValueRaw
+          : tx.createdAtTs;
+    const sign = sort.dir === "asc" ? 1 : -1;
+    return [...transactions].sort((a, b) => sign * (value(a) - value(b)));
+  }, [transactions, sort]);
+  const handleSort = (key: TxSortKey) => {
+    setSort((prev) =>
+      prev.key === key
+        ? { key, dir: prev.dir === "asc" ? "desc" : "asc" }
+        // Fresh column: dates newest-first, money largest-first.
+        : { key, dir: "desc" },
+    );
+    setCurrentPage(1);
+  };
+
+  const currentTransactions = sortedTransactions.slice(startIndex, endIndex);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [transactions]);
+
+  const getCryptoIcon = (crypto: string) => {
+    const normalized = crypto?.toUpperCase() || "";
+    if (normalized === "BTC") return BitcoinIcon;
+    if (normalized === "ETH") return EthereumIcon;
+    if (normalized === "LTC") return LitecoinIcon;
+    if (normalized === "DOGE") return DogecoinIcon;
+    if (normalized === "BCH") return BitcoinCashIcon;
+    if (normalized === "TRX") return TronIcon;
+    if (normalized.includes("USDT")) return USDTIcon;
+    if (normalized.includes("USDC")) return USDCIcon;
+    if (normalized === "SOL") return SolanaIcon;
+    if (normalized === "XRP") return XRPIcon;
+    if (normalized.includes("POLYGON")) return PolygonIcon;
+    if (normalized.includes("RLUSD")) return RLUSDIcon;
+    return BitcoinIcon;
+  };
+
+  /** Session 55: unified source badge — delegates to the single shared
+   *  <TransactionSourceBadge> so the transactions table, dashboard "Recent
+   *  transactions", the details modal and the payment-links table all render
+   *  the exact same icon + label for every canonical source type
+   *  (payment_link / api / tip / product / contribution / direct). */
+  const renderSourceBadge = (
+    source?: ExtendedTransaction["source"],
+    opts?: { compact?: boolean; withTitle?: boolean },
+  ) => (
+    <TransactionSourceBadge
+      source={source}
+      compact={opts?.compact}
+      withTitle={opts?.withTitle}
+    />
+  );
+
+  const handleRowsPerPageChange = (value: number) => {
+    setRowsPerPage(value);
+    setCurrentPage(1);
+  };
+
+  const handleRowClick = (transaction: ExtendedTransaction) => {
+    setSelectedTransaction(transaction);
+    setModalOpen(true);
+    // Fetch full transaction detail from API
+    if (transaction.id) {
+      dispatch(TransactionAction(TRANSACTION_DETAIL_FETCH, { id: transaction.id }));
+    }
+  };
+
+  // Session 54 fix (Bug A): deep-link support. When the dashboard "recent
+  // transactions" widget (or any feature page) links to
+  // /transactions?tx=<id>, auto-open the details modal for that transaction
+  // instead of just dumping the user on the list. `handledTxParam` guards
+  // against reopening after the user closes it.
+  const [handledTxParam, setHandledTxParam] = useState<string | null>(null);
+  useEffect(() => {
+    if (!router.isReady) return;
+    const txId = router.query.tx ? String(router.query.tx) : null;
+    if (!txId) {
+      if (handledTxParam !== null) setHandledTxParam(null);
+      return;
+    }
+    if (txId === handledTxParam) return;
+    const match = transactions.find((tx) => String(tx.id) === txId);
+    if (match) {
+      setSelectedTransaction(match);
+      setModalOpen(true);
+      setHandledTxParam(txId);
+      if (match.id) {
+        dispatch(TransactionAction(TRANSACTION_DETAIL_FETCH, { id: match.id }));
+      }
+    }
+  }, [router.isReady, router.query.tx, transactions, handledTxParam, dispatch]);
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setSelectedTransaction(null);
+    // Strip the ?tx= param on close so the URL is clean and the effect above
+    // won't reopen the modal.
+    if (router.query.tx) {
+      const nextQuery = { ...router.query };
+      delete nextQuery.tx;
+      router.replace({ pathname: router.pathname, query: nextQuery }, undefined, {
+        shallow: true,
+      });
+    }
+  };
+
+  const MONETARY_KEYS = new Set(["amount", "usdValue", "vat"]);
+  const SORTABLE_KEYS = new Set<string>(["amount", "usdValue", "dateTime"]);
+
+  const HeaderData = [
+    {
+      label: isMobile ? tTransactions("id") : tTransactions("transactionId"),
+      key: "id",
+      icon: TransactionIcon,
+    },
+    {
+      label: tTransactions("crypto"),
+      key: "crypto",
+      icon: CryptoIcon,
+    },
+    {
+      label: tTransactions("amount"),
+      key: "amount",
+      icon: RoundedStackIcon,
+    },
+    {
+      label:
+        fx.currency && fx.currency !== "USD"
+          ? `${tTransactions("value", { defaultValue: "Value" })} (${fx.currency})`
+          : tTransactions("usdValue"),
+      key: "usdValue",
+      icon: CurrencyIcon,
+    },
+    {
+      label: tTransactions("vat", { defaultValue: "VAT / Tax" }),
+      key: "vat",
+      icon: CurrencyIcon,
+    },
+    {
+      label: tTransactions("dateTime"),
+      key: "dateTime",
+      icon: TimeIcon,
+    },
+    {
+      label: tTransactions("status"),
+      key: "status",
+      icon: HexagonIcon,
+    },
+  ];
+
+  const navButtonStyle = {
+    width: "fit-content",
+    height: "36px",
+    padding: "0px 12px",
+    "&:disabled": {
+      backgroundColor: theme.palette.background.paper,
+      color: theme.palette.text.primary,
+      border: `1px solid ${theme.palette.border.main}`,
+      cursor: "not-allowed",
+      opacity: 0.5,
+    },
+    ".custom-button-label": {
+      fontSize: "13px !important",
+      fontFamily: "var(--font-sans)",
+      lineHeight: "16px",
+      fontWeight: 500,
+    },
+    [theme.breakpoints.down("md")]: {
+      display: "none",
+    },
+  };
+
+  /** Smart format for crypto amounts — trim trailing zeros, sensible precision */
+  const formatAmount = (amount: any) => {
+    const parts = String(amount).split(" ");
+    const value = Number(parts[0]);
+    const unit = parts.slice(1).join(" ") || "";
+    const upperUnit = unit.toUpperCase();
+
+    // Stablecoins: 2 decimals
+    if (upperUnit.includes("USDT") || upperUnit.includes("USDC") || upperUnit === "USD" || upperUnit.includes("BUSD") || upperUnit.includes("DAI")) {
+      return `${toFixedStr(value, 2)} ${unit}`;
+    }
+
+    // Crypto: up to 8 decimals for BTC, 6 for others, trim trailing zeros
+    const maxDecimals = upperUnit === "BTC" ? 8 : 6;
+    const formatted = toFixedStr(value, maxDecimals).replace(/\.?0+$/, "");
+    // Ensure at least 2 decimals for readability
+    const dotIndex = formatted.indexOf(".");
+    const currentDecimals = dotIndex >= 0 ? formatted.length - dotIndex - 1 : 0;
+    const result = currentDecimals < 2 && dotIndex >= 0
+      ? toFixedStr(value, 2)
+      : currentDecimals === 0
+        ? toFixedStr(value, 2)
+        : formatted;
+    return `${result} ${unit}`;
+  };
+
+  // Underpaid rows: a compact "Received 0.6 / 1.0 ETH · 0.4 left" line so staff
+  // can spot and chase shortfalls straight from the list.
+  const renderUnderpaidSplit = (transaction: any) => {
+    if (transaction.status !== "underpaid") return null;
+    const received = Number(transaction.receivedAmountRaw);
+    const expected = Number(transaction.cryptoAmountRaw) || 0;
+    if (!Number.isFinite(received)) return null;
+    const remaining =
+      transaction.remainingAmountRaw != null && Number.isFinite(Number(transaction.remainingAmountRaw))
+        ? Number(transaction.remainingAmountRaw)
+        : Math.max(0, expected - received);
+    const fmt = (n: number) => toFixedStr(n, 8).replace(/\.?0+$/, "") || "0";
+    const coin = transaction.crypto || "";
+    return (
+      <Typography
+        component="div"
+        data-testid="tx-underpaid-split"
+        sx={{
+          mt: 0.25,
+          fontSize: "11.5px",
+          fontFamily: MONO,
+          fontVariantNumeric: "tabular-nums",
+          fontWeight: 600,
+          color: "#C2410C",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {`${fmt(received)} / ${fmt(expected)} ${coin} · ${fmt(remaining)} ${coin} ${tTransactions("left", { defaultValue: "left" })}`}
+      </Typography>
+    );
+  };
+
+
+  const isDataEmpty = currentTransactions.length === 0;
+
+  // Mobile card layout for transactions
+  const renderMobileCards = () => (
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 1, px: 2 }}>
+      {isDataEmpty ? (
+        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", py: 4 }}>
+          <Typography sx={{ fontSize: "14px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
+            {t("transactionsNotAvailable", { ns: "common" })}
+          </Typography>
+        </Box>
+      ) : (
+        <>
+          {currentTransactions.map((transaction) => {
+            const isDark = theme.palette.mode === "dark";
+            const accent = getAssetColor(transaction.crypto);
+            return (
+              <Box
+                key={transaction.id}
+                onClick={() => handleRowClick(transaction)}
+                {...rowKeyProps(() => handleRowClick(transaction))}
+                data-testid="tx-card"
+                sx={{
+                  // Flat card — dashboard parity: 16px radius, hairline border,
+                  // no accent stripe, no shadow. Coin colour lives only in the
+                  // soft icon tile, exactly like the dashboard's recent list.
+                  p: 1.75,
+                  borderRadius: `${CARD_RADIUS}px`,
+                  border: `1px solid ${isDark ? CB_TOKENS.border.dark : CB_TOKENS.border.light}`,
+                  bgcolor: isDark ? CB_TOKENS.surface.dark : CB_TOKENS.surface.light,
+                  cursor: "pointer",
+                  transition: "border-color 150ms ease, background-color 150ms ease",
+                  "&:active": { bgcolor: isDark ? "rgba(255,255,255,0.04)" : "#FAFBFD" },
+                }}
+              >
+                {/* Row 1: coin tile · amount (mono) + ticker · status dot + time */}
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                  <Box
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: "12px",
+                      flexShrink: 0,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: `${accent}${isDark ? "26" : "14"}`,
+                    }}
+                  >
+                    <Image
+                      src={getCryptoIcon(transaction.crypto)}
+                      alt={transaction.crypto}
+                      width={22}
+                      height={22}
+                      draggable={false}
+                    />
+                  </Box>
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography
+                      sx={{
+                        fontSize: "16px",
+                        fontFamily: MONO,
+                        fontVariantNumeric: "tabular-nums",
+                        fontWeight: 700,
+                        letterSpacing: "-0.01em",
+                        color: theme.palette.text.primary,
+                        lineHeight: 1.2,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {formatAmount(transaction.amount)}
+                    </Typography>
+                    <Typography
+                      data-testid="tx-fiat-value"
+                      sx={{
+                        mt: 0.25,
+                        fontSize: "13px",
+                        fontFamily: MONO,
+                        fontVariantNumeric: "tabular-nums",
+                        fontWeight: 500,
+                        color: theme.palette.text.secondary,
+                      }}
+                    >
+                      {displayValue(transaction)}
+                    </Typography>
+                    {renderUnderpaidSplit(transaction)}
+                  </Box>
+                  <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-end", flexShrink: 0 }}>
+                    <TransactionStatusBadge
+                      status={transaction.status}
+                      autoConverted={transaction.autoConverted}
+                      data-testid="tx-card-status"
+                    />
+                    <Typography sx={{ mt: 0.5, fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, whiteSpace: "nowrap" }}>
+                      {transaction.dateTime}
+                    </Typography>
+                  </Box>
+                </Box>
+
+                {/* Row 2: source · id (mono) · tax note */}
+                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, mt: 1.25, minWidth: 0 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, minWidth: 0 }}>
+                    {transaction.source && renderSourceBadge(transaction.source, { withTitle: true, compact: true })}
+                    <Typography
+                      sx={{
+                        fontSize: "11.5px",
+                        fontFamily: MONO,
+                        fontVariantNumeric: "tabular-nums",
+                        color: theme.palette.text.secondary,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      #{transaction.id}
+                    </Typography>
+                  </Box>
+                  {(transaction.reverseCharge || Number(transaction.taxAmount) > 0) && (
+                    <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, whiteSpace: "nowrap" }}>
+                      {transaction.reverseCharge
+                        ? tTransactions("reverseCharge", { defaultValue: "Reverse-charge" })
+                        : `${tTransactions("vatShort", { defaultValue: "incl. VAT" })} ${formatWithSeparators(Number(transaction.taxAmount), undefined, 2)}${transaction.taxRate != null ? ` (${Number(transaction.taxRate)}%)` : ""}`}
+                    </Typography>
+                  )}
+                </Box>
+              </Box>
+            );
+          })}
+        </>
+      )}
+    </Box>
+  );
+
+  // Desktop / tablet table layout — ONE scroll container (both axes) so the
+  // first column (Transaction ID) can be frozen with position: sticky; left: 0
+  // while the remaining columns scroll sideways on tablets. The header stays
+  // pinned via position: sticky; top: 0. A soft edge shadow on the frozen
+  // column only appears once the user actually scrolls right (scrolledX).
+  const renderDesktopTable = () => {
+    const frozenEdgeShadow = scrolledX
+      ? theme.palette.mode === "dark"
+        ? "8px 0 12px -8px rgba(0,0,0,0.6)"
+        : "8px 0 12px -8px rgba(15,15,20,0.22)"
+      : "none";
+    const stickyFirstHeaderSx = {
+      position: "sticky" as const,
+      left: 0,
+      zIndex: 4,
+      backgroundColor: theme.palette.background.paper,
+      boxShadow: frozenEdgeShadow,
+      transition: "box-shadow 160ms ease",
+    };
+    const stickyFirstCellSx = {
+      position: "sticky" as const,
+      left: 0,
+      zIndex: 1,
+      backgroundColor: theme.palette.background.paper,
+      boxShadow: frozenEdgeShadow,
+      transition: "box-shadow 160ms ease",
+    };
+
+    return (
+      <Box
+        ref={scrollRef}
+        onScroll={handleTableScroll}
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          overflow: "auto",
+          backgroundColor: theme.palette.background.paper,
+          // Thin visible scrollbar so it's obvious the table scrolls sideways.
+          scrollbarWidth: "thin",
+          scrollbarColor:
+            theme.palette.mode === "dark"
+              ? "rgba(255,255,255,0.28) transparent"
+              : "rgba(15,15,20,0.28) transparent",
+          "&::-webkit-scrollbar": { height: 8, width: 8 },
+          "&::-webkit-scrollbar-track": { background: "transparent" },
+          "&::-webkit-scrollbar-thumb": {
+            borderRadius: 8,
+            backgroundColor:
+              theme.palette.mode === "dark"
+                ? "rgba(255,255,255,0.22)"
+                : "rgba(15,15,20,0.22)",
+          },
+        }}
+      >
+        <Box sx={{ minWidth: "max-content" }}>
+          {/* Header Section — sticky top (stays on vertical scroll); the first
+              item is also sticky left so it freezes with the ID column. */}
+          <TransactionsTableHeader
+            sx={{
+              position: "sticky",
+              top: 0,
+              zIndex: 3,
+              // Flat header (dashboard parity): solid paper surface so scrolled
+              // rows never bleed through; the rule below it does the separating.
+              backgroundColor: theme.palette.background.paper,
+              ...(toolbar ? { borderRadius: 0 } : {}),
+            }}
+          >
+            {HeaderData.map((item, idx) => {
+              const sortable = SORTABLE_KEYS.has(item.key);
+              const active = sortable && sort.key === item.key;
+              const SortIcon = !sortable
+                ? null
+                : !active
+                  ? UnfoldMoreRoundedIcon
+                  : sort.dir === "asc"
+                    ? ArrowUpwardRoundedIcon
+                    : ArrowDownwardRoundedIcon;
+              return (
+                <TransactionsTableHeaderItem
+                  key={item.key}
+                  {...(sortable
+                    ? {
+                        role: "button",
+                        tabIndex: 0,
+                        "aria-sort": active ? (sort.dir === "asc" ? "ascending" : "descending") : "none",
+                        "data-testid": `tx-sort-${item.key}`,
+                        "data-sort-dir": active ? sort.dir : undefined,
+                        onClick: () => handleSort(item.key as TxSortKey),
+                        onKeyDown: (e: React.KeyboardEvent) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            handleSort(item.key as TxSortKey);
+                          }
+                        },
+                      }
+                    : {})}
+                  sx={{
+                    ...(idx === 0 ? stickyFirstHeaderSx : {}),
+                    ...(MONETARY_KEYS.has(item.key)
+                      ? { justifyContent: "flex-end" }
+                      : {}),
+                    ...(sortable
+                      ? {
+                          cursor: "pointer",
+                          userSelect: "none",
+                          borderRadius: "6px",
+                          transition: "color 120ms ease",
+                          "& .sort-icon": {
+                            fontSize: 16,
+                            flexShrink: 0,
+                            color: active ? theme.palette.text.primary : theme.palette.text.disabled,
+                            opacity: active ? 1 : 0.55,
+                            transition: "opacity 120ms ease, color 120ms ease",
+                          },
+                          "&:hover .sort-icon": { opacity: 1, color: theme.palette.text.primary },
+                          "&:focus-visible": {
+                            outline: `2px solid ${theme.palette.primary.main}`,
+                            outlineOffset: 2,
+                          },
+                        }
+                      : {}),
+                  }}
+                >
+                  <span>{item.label}</span>
+                  {SortIcon && <SortIcon className="sort-icon" aria-hidden />}
+                </TransactionsTableHeaderItem>
+              );
+            })}
+          </TransactionsTableHeader>
+
+          {/* Body Section — no inner scroll; the single outer container scrolls
+              both axes so the frozen first column resolves correctly. */}
+          <TransactionsTableBody sx={{ overflow: "visible", flex: "0 0 auto", minHeight: 0 }}>
+            {isDataEmpty ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  py: 6,
+                }}
+              >
+                {t("transactionsNotAvailable", { ns: "common" })}
+              </Box>
+            ) : (
+              currentTransactions.map((transaction) => (
+                <TransactionsTableRow
+                  key={transaction.id}
+                  data-testid={`tx-row-${transaction.id}`}
+                  onClick={() => handleRowClick(transaction)}
+                  {...rowKeyProps(() => handleRowClick(transaction))}
+                  sx={{
+                    paddingY: "10px !important",
+                    cursor: "pointer",
+                  }}
+                >
+                  <TransactionsTableCell sx={stickyFirstCellSx}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "6px",
+                        minWidth: 0,
+                      }}
+                    >
+                      {renderSourceBadge(transaction.source, { withTitle: true })}
+                      <Typography
+                        component="span"
+                        sx={{
+                          fontFamily: MONO,
+                          fontVariantNumeric: "tabular-nums",
+                          fontSize: "12.5px",
+                          color: theme.palette.text.secondary,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          maxWidth: "22ch",
+                        }}
+                      >
+                        {transaction.id}
+                      </Typography>
+                    </Box>
+                  </TransactionsTableCell>
+
+                  <TransactionsTableCell>
+                    <CryptoIconChip accent={getAssetColor(transaction.crypto)} sx={{ width: "fit-content" }}>
+                      <Image
+                        src={getCryptoIcon(transaction.crypto)}
+                        alt={transaction.crypto}
+                        draggable={false}
+                      />
+                      <Typography component="span">
+                        {transaction.crypto}
+                      </Typography>
+                    </CryptoIconChip>
+                    {transaction.autoConverted && (
+                      <Box
+                        sx={{
+                          display: "flex",
+                          gap: "3px",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Image
+                          src={SwapHorizIcon}
+                          alt="swap horiz"
+                          width={15}
+                          height={15}
+                          draggable={false}
+                          className="themed-icon"
+                        />
+                        <Icon
+                          name="arrow-up-right"
+                          size={16}
+                          color={theme.palette.text.secondary}
+                        />
+                        <Text
+                          sx={{
+                            fontSize: "13px",
+                            color: theme.palette.text.secondary,
+                          }}
+                        >
+                          {transaction.autoConvertTarget || "USDT"}
+                        </Text>
+                      </Box>
+                    )}
+                  </TransactionsTableCell>
+
+                  <TransactionsTableCell sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", justifyContent: "flex-end" }}>
+                    {transaction.status === "underpaid" ? (
+                      <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-end", minWidth: 0 }}>
+                        <Box component="span">{formatAmount(transaction.amount)}</Box>
+                        {renderUnderpaidSplit(transaction)}
+                      </Box>
+                    ) : (
+                      formatAmount(transaction.amount)
+                    )}
+                  </TransactionsTableCell>
+
+                  <TransactionsTableCell data-testid="tx-fiat-value" sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", justifyContent: "flex-end" }}>
+                    {displayValue(transaction)}
+                  </TransactionsTableCell>
+
+                  <TransactionsTableCell sx={{ justifyContent: "flex-end", fontVariantNumeric: "tabular-nums" }}>
+                    {transaction.reverseCharge ? (
+                      <Typography
+                        component="span"
+                        sx={{
+                          fontFamily: "var(--font-sans)",
+                          fontSize: "12px",
+                          fontWeight: 600,
+                          color: theme.palette.text.secondary,
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {tTransactions("reverseCharge", { defaultValue: "Reverse-charge" })}
+                      </Typography>
+                    ) : Number(transaction.taxAmount) > 0 ? (
+                      <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-end", minWidth: 0 }}>
+                        <Typography
+                          component="span"
+                          sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontSize: "13px", fontWeight: 600, color: theme.palette.text.primary }}
+                        >
+                          {formatWithSeparators(Number(transaction.taxAmount), undefined, 2)}
+                        </Typography>
+                        <Typography
+                          component="span"
+                          sx={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: theme.palette.text.secondary }}
+                        >
+                          {(transaction.taxLabel || "VAT")}
+                          {transaction.taxRate != null ? ` ${Number(transaction.taxRate)}%` : ""}
+                        </Typography>
+                      </Box>
+                    ) : (
+                      <Typography component="span" sx={{ color: theme.palette.text.disabled }}>—</Typography>
+                    )}
+                  </TransactionsTableCell>
+
+                  <TransactionsTableCell sx={{ fontSize: "13.5px", color: theme.palette.text.secondary }}>
+                    {transaction.dateTime}
+                  </TransactionsTableCell>
+
+                  <TransactionsTableCell>
+                    <TransactionStatusBadge
+                      status={transaction.status}
+                      autoConverted={transaction.autoConverted}
+                      data-testid="tx-row-status"
+                    />
+                  </TransactionsTableCell>
+                </TransactionsTableRow>
+              ))
+            )}
+          </TransactionsTableBody>
+        </Box>
+      </Box>
+    );
+  };
+
+  return (
+    <Box
+      data-testid="transactions-table-card"
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        minHeight: 0,
+        p: 0,
+        // Desktop: the card shrinks to the space left under the top bar (never
+        // taller than the viewport) so the inner scroll box scrolls vertically
+        // and the column header genuinely sticks. Mobile keeps content flow —
+        // the cards scroll with the page.
+        flex: isMobile ? 1 : "0 1 auto",
+        maxHeight: isMobile ? "fit-content" : undefined,
+        backgroundColor: isMobile ? "transparent" : theme.palette.background.paper,
+        // Flat card (dashboard parity): 16px radius + hairline, no shadow.
+        borderRadius: `${CARD_RADIUS}px`,
+        border: isMobile
+          ? "none"
+          : `1px solid ${theme.palette.mode === "dark" ? CB_TOKENS.border.dark : CB_TOKENS.border.light}`,
+        overflow: isMobile ? "visible" : "hidden",
+      }}
+    >
+      {toolbar}
+      {isMobile ? renderMobileCards() : renderDesktopTable()}
+
+      {/* Footer Section */}
+      <Box
+        sx={{
+          backgroundColor: theme.palette.background.paper,
+          borderEndStartRadius: `${CARD_RADIUS}px`,
+          borderEndEndRadius: `${CARD_RADIUS}px`,
+          ...(isMobile
+            ? {
+                borderRadius: `${CARD_RADIUS}px`,
+                border: `1px solid ${theme.palette.mode === "dark" ? CB_TOKENS.border.dark : CB_TOKENS.border.light}`,
+                mx: 2,
+              }
+            : {}),
+          // Small separation from the last card on mobile (the big FAB/nav
+          // clearance now lives in the spacer AFTER this footer — see below).
+          mt: { xs: 1, md: 0 },
+        }}
+      >
+        <TransactionsTableFooter>
+          <RowsPerPageSelector
+            value={rowsPerPage}
+            onChange={handleRowsPerPageChange}
+            menuItems={[5, 10, 15, 20].map((v) => ({ value: v, label: v }))}
+          />
+
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <TransactionsTableFooterText>
+              {/* Session 75 fix — the counter used `currentTransactions.length`
+                  which is ALWAYS `rowsPerPage` (10) on non-last pages, so
+                  clicking "Next" changed the table but the "Showing 10 of 458"
+                  label stayed stuck at 10. Switch to an explicit range
+                  ({{start}}-{{end}}) so the numbers actually move as the user
+                  paginates. */}
+              {tTransactions("showingTransactions", {
+                start: transactions.length === 0 ? 0 : (currentPage - 1) * rowsPerPage + 1,
+                end: Math.min(currentPage * rowsPerPage, transactions.length),
+                total: transactions.length,
+                // Legacy interpolation values kept in case any locale still
+                // references {{count}} — safe no-op if unused.
+                count: currentTransactions.length,
+              })}
+            </TransactionsTableFooterText>
+
+            <CustomButton
+              label={tTransactions("previous")}
+              variant="outlined"
+              sx={navButtonStyle}
+              startIcon={
+                <KeyboardArrowLeftRoundedIcon
+                  sx={{ height: "20px", width: "20px" }}
+                />
+              }
+              disabled={currentPage === 1 || isDataEmpty}
+              onClick={() => setCurrentPage((prev) => prev - 1)}
+            />
+
+            <CustomButton
+              label={tTransactions("next")}
+              variant="outlined"
+              sx={navButtonStyle}
+              endIcon={
+                <KeyboardArrowRightRoundedIcon
+                  sx={{ height: "20px", width: "20px" }}
+                />
+              }
+              disabled={currentPage === totalPages || isDataEmpty}
+              onClick={() => setCurrentPage((prev) => prev + 1)}
+            />
+
+            {/* Mobile Nav */}
+            <MobileNavigationButtons
+              onClick={() => setCurrentPage((prev) => prev - 1)}
+              aria-label={t("previousPage", { ns: "common", defaultValue: "Previous page" })}
+              data-testid="pagination-prev"
+              disabled={currentPage === 1 || isDataEmpty}
+            >
+              <KeyboardArrowLeftRoundedIcon
+                sx={{ height: "16px", width: "16px", color: "inherit" }}
+              />
+            </MobileNavigationButtons>
+
+            <MobileNavigationButtons
+              onClick={() => setCurrentPage((prev) => prev + 1)}
+              aria-label={t("nextPage", { ns: "common", defaultValue: "Next page" })}
+              data-testid="pagination-next"
+              disabled={currentPage === totalPages || isDataEmpty}
+            >
+              <KeyboardArrowRightRoundedIcon
+                sx={{ height: "16px", width: "16px", color: "inherit" }}
+              />
+            </MobileNavigationButtons>
+          </Box>
+        </TransactionsTableFooter>
+      </Box>
+
+      {/* Mobile-only bottom clearance (session 72 fix).
+          Placed AFTER the footer so the PAGINATION CONTROLS themselves clear
+          the fixed "Emily" support-chat FAB (top edge ~164px above viewport
+          bottom) + the bottom nav pill. On mobile the footer is the bottom-most
+          interactive row and, because this table uses maxHeight:"fit-content",
+          the layout's own container padding does NOT lift it (see session 71) —
+          an in-component spacer is required. 180px = FAB top (164px) + breathing.
+          This also clears the last card (which now sits above the footer). */}
+      {isMobile && <Box sx={{ height: "180px", flexShrink: 0 }} />}
+
+      <TransactionDetailsModal
+        open={modalOpen}
+        onClose={handleCloseModal}
+        transaction={selectedTransaction}
+      />
+    </Box>
+  );
+};
+
+export default TransactionsTable;

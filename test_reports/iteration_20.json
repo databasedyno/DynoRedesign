@@ -1,0 +1,34 @@
+{
+  "summary": "i18n Batch A verification (Referrals, Invoices & Tax, Customers, Profile) across EN/DE/NL — ALL PASS. Logged in via hostbay@moxx.co JWT injection (no OTP mutations). Set localStorage lang=de/nl + lang_manual=true, reloaded, and scanned rendered text for raw key leaks (patterns: referrals.*, invoices.*, customers.*, profile.*, common.*) and untranslated English on non-EN locales. No raw dotted keys leaked on ANY of the 4 pages in ANY of the 3 locales tested. /referrals loads without the previous 'errals is not defined' crash. All merchant-facing labels render in the selected language on all 4 pages, plus Tax Report tab content, and Customer Detail dialog (with Transactions inner tab) — no data-mutating actions taken.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/invoices Tax Report — Tax by Jurisdiction table (DE + NL)", "issues": ["Country cell displays literal 'Unknown' (not localized). Likely comes from backend data payload — recommend either localizing 'Unknown' on the client or resolving jurisdiction on server. Non-blocking."]},
+      {"screen": "/invoices Tax Report — period dropdowns", "issues": ["Verified only the visible trigger labels 'Gesamter Zeitraum'/'Alle tijden' and 'Nach Monat'/'Per maand'. Did not open the dropdown popovers to enumerate all options (All Time / This Month / This Quarter / This Year / By Month / By Quarter / By Year). Recommend E1 double-check those popover items are keyed if not already."]}
+    ]
+  },
+  "test_report_links": ["/app/test_reports/iteration_20.json"],
+  "action_items": [
+    "OPTIONAL: Localize the 'Unknown' jurisdiction label in Tax by Jurisdiction table (currently hardcoded English string surfacing in DE/NL).",
+    "OPTIONAL: Verify period-dropdown popover options (All Time / This Month / This Quarter / This Year, By Month / By Quarter / By Year) are localized — trigger buttons are, popover items not verified in this pass."
+  ],
+  "critical_code_review_comments": [
+    "PASS: /referrals no longer throws 'errals is not defined' — page renders end-to-end in EN, DE, NL with all sections (Referral Code, Copy/Share Link, How It Works 3-steps, You Get/They Get reward cards, Fee Discount panel, Earnings stat cards, Earnings Breakdown, My Referrals, Leaderboard).",
+    "PASS: /invoices Invoices tab — table headers (Invoice #/Datum/Kunde/MwSt./Gesamt/PDF in DE; Factuurnr./Datum/Klant/Btw/Totaal/PDF in NL) fully localized. Tab labels Rechnungen/Steuerbericht and Facturen/Belastingrapport localized.",
+    "PASS: /invoices Tax Report tab — 3 stat cards (Gesamtumsatz/Erhobene Steuern/Rechnungen gesamt in DE; Totale omzet/Geïnde belasting/Totaal facturen in NL), section titles Steuern nach Zeitraum/Land and Belasting per periode/rechtsgebied, table headers, and action buttons CSV exportieren/Drucken and CSV exporteren/Afdrukken all localized.",
+    "PASS: /customers — stat cards (Total Customers/Wallet Balance/Base Currency), search placeholder, table headers (Customer/Email/Wallet Balance/Transactions/Created/Actions), and '270 Transaktionen'/'270 transacties' count all localized.",
+    "PASS: /customers detail dialog — Kundendetails/Klantgegevens, Name/Email/Mobile/Wallet Balance/Company/Created labels, Wallet Credit/Debit action buttons, Transactions inner tab, and inner table headers (Type/Amount/Status/Date) all localized. NO submit performed.",
+    "PASS: /profile — Account Setting/Kontoeinstellungen/Accountinstellingen, Upload new photo/Remove, First name/Surname, Change (email), Add Phone, Communication language, Update Password heading + description + button, Add Phone Number panel, Login Activity/Anmeldeaktivität/Inlogactiviteit all localized. NO OTP/password submit performed.",
+    "MINOR: 'Unknown' string in Tax-by-Jurisdiction table appears identical across DE and NL — likely backend-supplied and not client-translated. Consider client-side i18n fallback."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped per request)", "frontend": "4/4 pages PASS in EN, DE, NL (12/12 page-locale combos, plus Tax Report subtab + Customer detail dialog verified in DE and NL)"},
+  "test_credentials": "hostbay@moxx.co (user_id=1) — 30-day JWT minted via `node /app/scripts/mint_ux_tokens.js`, injected into localStorage.token on preview origin. Language via localStorage.lang + lang_manual='true' + reload.",
+  "seed_data_creation": "None. Read-only navigation. No forms submitted, no OTP triggered, no wallet ops, no password changes — production DB untouched.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Screenshots saved: /app/.screenshots/i18n_en_profile.png, i18n_de_{referrals,invoices,customers,profile,taxreport_v2,customer_detail}.png, i18n_nl_{referrals,invoices,customers,profile,taxreport,customer_detail}.png. Batch A i18n is production-ready. Not scoped/checked in this pass: FR/ES/PT locales for Batch A pages (only DE and NL tested per request), Tax Report period-dropdown popover options, Referrals leaderboard populated state (empty in test account), and Invoice pagination Previous/Next labels (only 2 invoices exist so pagination hidden).",
+  "rca_of_the_issue": "N/A — verification pass. Prior 'errals is not defined' crash on /referrals is CONFIRMED FIXED (page loads and renders fully across all three tested locales)."
+}

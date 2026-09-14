@@ -1,0 +1,55 @@
+{
+  "meta_title": "Crypto crowdfunding & donations platform · Dynopay",
+  "meta_description": "Run crowdfunding campaigns and collect donations in 15+ cryptocurrencies. Set goals, offer rewards, update supporters. Funds to your wallet. Start free.",
+  "h1": "Crypto crowdfunding and donations for nonprofits and fundraisers",
+  "subheading": "Launch campaigns with funding goals, reward tiers, and supporter updates—then receive Bitcoin, Ethereum, stablecoins, and more directly to your wallet.",
+  "intro_paragraph": "Dynopay gives nonprofits and organizers a complete campaign page to raise funds in crypto from supporters worldwide. Set a funding goal, create reward tiers, post updates that notify backers by email, and watch donations arrive in your own wallet—not held by a third party. Accept 15+ cryptocurrencies across Bitcoin, Ethereum, Polygon, Solana, Tron, and XRP Ledger. Pricing starts at 1.5% per transaction and drops to 0.5% as your volume grows, with your first payment completely free.",
+  "features": [
+    {
+      "title": "Campaign Pages with Reward Tiers",
+      "description": "Build a branded campaign page with your funding goal, progress bar, and multiple reward tiers. Supporters choose their contribution level and you keep full custody of every donation in your wallet."
+    },
+    {
+      "title": "Supporter Updates via Email",
+      "description": "Post campaign updates that automatically notify all your backers by email. Keep your community engaged, share milestones, and build trust without managing separate mailing lists or third-party tools."
+    },
+    {
+      "title": "Accept 15+ Cryptocurrencies Globally",
+      "description": "Receive Bitcoin, Ethereum, USDT, USDC, RLUSD, Solana, XRP, Dogecoin, and more. No geographic restrictions on who can donate, so you can raise funds from supporters anywhere in the world."
+    }
+  ],
+  "how_it_works": [
+    "Sign up, verify your email, and create your organization profile in under five minutes.",
+    "Add your wallet address, set your funding goal, create reward tiers, and publish your campaign page.",
+    "Share your campaign link and receive donations directly to your wallet as supporters contribute."
+  ],
+  "faqs": [
+    {
+      "question": "How much does it cost to run a crypto crowdfunding campaign?",
+      "answer": "Pricing starts at 1.5% plus one dollar per successful donation and drops automatically to 0.5% as your volume increases. Your first payment is completely free. No monthly fees, no setup costs, and no hidden charges."
+    },
+    {
+      "question": "Do I need to give Dynopay access to my wallet?",
+      "answer": "No. Dynopay is non-custodial, meaning you provide a wallet address where donations are sent directly. You maintain full control and custody of your funds at all times. Dynopay never holds or touches your donations."
+    },
+    {
+      "question": "Which cryptocurrencies can donors use?",
+      "answer": "Supporters can donate using Bitcoin, Litecoin, Bitcoin Cash, Dogecoin, Ethereum, USDT, USDC, RLUSD, MATIC, Tron, Solana, and XRP. That's 15+ cryptocurrencies across nine blockchains, giving donors flexibility in how they contribute."
+    },
+    {
+      "question": "Can I offer rewards to donors at different levels?",
+      "answer": "Yes. You can create multiple reward tiers with different contribution amounts and benefits. Supporters select their tier when donating, and you can manage fulfillment based on what each backer chose during your campaign."
+    },
+    {
+      "question": "Are there any country restrictions on collecting donations?",
+      "answer": "No geographic restrictions apply to receiving crypto donations—supporters from any country can contribute to your campaign. Identity verification (KYC) applies to your Dynopay account once settled volume passes a threshold, and fiat off-ramps run their own KYC if you convert to local currency."
+    }
+  ],
+  "cta_headline": "Launch your crypto fundraising campaign today",
+  "cta_body": "Your first donation is fee-free and you can go live in under 10 minutes with your own campaign page and wallet.",
+  "_generated_at": "2026-08-29T14:57:54.590424Z",
+  "_model": "anthropic/claude-sonnet-4-5-20250929",
+  "_kind": "vertical",
+  "_slug": "fundraisers",
+  "_display_name": "Fundraisers & Nonprofits"
+}

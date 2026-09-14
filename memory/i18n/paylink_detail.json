@@ -1,0 +1,212 @@
+{
+  "paymentLinks": {
+    "detail.eyebrow": {
+      "en": "Payment link",
+      "de": "Zahlungslink",
+      "es": "Enlace de pago",
+      "fr": "Lien de paiement",
+      "nl": "Betaallink",
+      "pt": "Link de pagamento"
+    },
+    "detail.eyebrowCampaign": {
+      "en": "Donation campaign",
+      "de": "Spendenkampagne",
+      "es": "Campaña de donación",
+      "fr": "Campagne de dons",
+      "nl": "Donatiecampagne",
+      "pt": "Campanha de donativos"
+    },
+    "detail.close": {
+      "en": "Close",
+      "de": "Schließen",
+      "es": "Cerrar",
+      "fr": "Fermer",
+      "nl": "Sluiten",
+      "pt": "Fechar"
+    },
+    "detail.goal": {
+      "en": "Goal {{goal}}",
+      "de": "Ziel {{goal}}",
+      "es": "Meta {{goal}}",
+      "fr": "Objectif {{goal}}",
+      "nl": "Doel {{goal}}",
+      "pt": "Meta {{goal}}"
+    },
+    "detail.supporters": {
+      "en": "{{count}} supporters",
+      "de": "{{count}} Unterstützer",
+      "es": "{{count}} colaboradores",
+      "fr": "{{count}} contributeurs",
+      "nl": "{{count}} supporters",
+      "pt": "{{count}} apoiantes"
+    },
+    "detail.never": {
+      "en": "Never",
+      "de": "Nie",
+      "es": "Nunca",
+      "fr": "Jamais",
+      "nl": "Nooit",
+      "pt": "Nunca"
+    },
+    "detail.copyId": {
+      "en": "Copy ID",
+      "de": "ID kopieren",
+      "es": "Copiar ID",
+      "fr": "Copier l'ID",
+      "nl": "ID kopiëren",
+      "pt": "Copiar ID"
+    },
+    "detail.reference": {
+      "en": "Reference",
+      "de": "Referenz",
+      "es": "Referencia",
+      "fr": "Référence",
+      "nl": "Referentie",
+      "pt": "Referência"
+    },
+    "detail.shareTitle": {
+      "en": "Share",
+      "de": "Teilen",
+      "es": "Compartir",
+      "fr": "Partager",
+      "nl": "Delen",
+      "pt": "Partilhar"
+    },
+    "detail.copied": {
+      "en": "Copied ✓",
+      "de": "Kopiert ✓",
+      "es": "Copiado ✓",
+      "fr": "Copié ✓",
+      "nl": "Gekopieerd ✓",
+      "pt": "Copiado ✓"
+    },
+    "detail.share": {
+      "en": "Share",
+      "de": "Teilen",
+      "es": "Compartir",
+      "fr": "Partager",
+      "nl": "Delen",
+      "pt": "Partilhar"
+    },
+    "detail.open": {
+      "en": "Open link",
+      "de": "Link öffnen",
+      "es": "Abrir enlace",
+      "fr": "Ouvrir le lien",
+      "nl": "Link openen",
+      "pt": "Abrir link"
+    },
+    "detail.downloadQr": {
+      "en": "Download QR",
+      "de": "QR herunterladen",
+      "es": "Descargar QR",
+      "fr": "Télécharger le QR",
+      "nl": "QR downloaden",
+      "pt": "Transferir QR"
+    },
+    "detail.embedTitle": {
+      "en": "Embed on your site",
+      "de": "Auf deiner Website einbetten",
+      "es": "Insertar en tu sitio",
+      "fr": "Intégrer sur votre site",
+      "nl": "Insluiten op je site",
+      "pt": "Incorporar no teu site"
+    },
+    "detail.embedHelp": {
+      "en": "Paste this anywhere HTML is allowed — your site, a newsletter, a Notion page.",
+      "de": "Füge das überall ein, wo HTML erlaubt ist — deine Website, ein Newsletter, eine Notion-Seite.",
+      "es": "Pégalo donde se permita HTML: tu sitio, un boletín, una página de Notion.",
+      "fr": "Collez ceci partout où le HTML est accepté — votre site, une newsletter, une page Notion.",
+      "nl": "Plak dit overal waar HTML mag — je site, een nieuwsbrief, een Notion-pagina.",
+      "pt": "Cola isto onde o HTML for permitido — o teu site, uma newsletter, uma página do Notion."
+    },
+    "detail.embedButtonLabel": {
+      "en": "Pay with crypto",
+      "de": "Mit Krypto bezahlen",
+      "es": "Pagar con cripto",
+      "fr": "Payer en crypto",
+      "nl": "Betalen met crypto",
+      "pt": "Pagar com cripto"
+    },
+    "detail.copySnippet": {
+      "en": "Copy snippet",
+      "de": "Snippet kopieren",
+      "es": "Copiar fragmento",
+      "fr": "Copier l'extrait",
+      "nl": "Snippet kopiëren",
+      "pt": "Copiar snippet"
+    },
+    "detail.statPayments": {
+      "en": "Payments received",
+      "de": "Zahlungen erhalten",
+      "es": "Pagos recibidos",
+      "fr": "Paiements reçus",
+      "nl": "Betalingen ontvangen",
+      "pt": "Pagamentos recebidos"
+    },
+    "detail.statCollected": {
+      "en": "Collected",
+      "de": "Eingenommen",
+      "es": "Recaudado",
+      "fr": "Encaissé",
+      "nl": "Ontvangen",
+      "pt": "Recebido"
+    },
+    "detail.statLast": {
+      "en": "Last payment",
+      "de": "Letzte Zahlung",
+      "es": "Último pago",
+      "fr": "Dernier paiement",
+      "nl": "Laatste betaling",
+      "pt": "Último pagamento"
+    },
+    "detail.recentPayments": {
+      "en": "Recent payments",
+      "de": "Letzte Zahlungen",
+      "es": "Pagos recientes",
+      "fr": "Paiements récents",
+      "nl": "Recente betalingen",
+      "pt": "Pagamentos recentes"
+    },
+    "detail.viewInTransactions": {
+      "en": "View in transactions",
+      "de": "In Transaktionen ansehen",
+      "es": "Ver en transacciones",
+      "fr": "Voir dans les transactions",
+      "nl": "Bekijk in transacties",
+      "pt": "Ver nas transações"
+    },
+    "detail.noPaymentsYet": {
+      "en": "No payments yet — share the link to get paid.",
+      "de": "Noch keine Zahlungen — teile den Link, um bezahlt zu werden.",
+      "es": "Aún no hay pagos: comparte el enlace para cobrar.",
+      "fr": "Aucun paiement pour l'instant — partagez le lien pour être payé.",
+      "nl": "Nog geen betalingen — deel de link om betaald te worden.",
+      "pt": "Ainda sem pagamentos — partilha o link para receber."
+    },
+    "detail.noPaymentsMatched": {
+      "en": "Payments for this link are in your transactions.",
+      "de": "Zahlungen zu diesem Link findest du in deinen Transaktionen.",
+      "es": "Los pagos de este enlace están en tus transacciones.",
+      "fr": "Les paiements de ce lien se trouvent dans vos transactions.",
+      "nl": "Betalingen voor deze link staan in je transacties.",
+      "pt": "Os pagamentos deste link estão nas tuas transações."
+    },
+    "detail.refundStatus": {
+      "en": "Refund: {{status}}",
+      "de": "Rückerstattung: {{status}}",
+      "es": "Reembolso: {{status}}",
+      "fr": "Remboursement : {{status}}",
+      "nl": "Terugbetaling: {{status}}",
+      "pt": "Reembolso: {{status}}"
+    },
+    "detail.copyReference": {
+      "en": "Copy reference",
+      "de": "Referenz kopieren",
+      "es": "Copiar referencia",
+      "fr": "Copier la référence",
+      "nl": "Referentie kopiëren",
+      "pt": "Copiar referência"
+    }
+  }
+}

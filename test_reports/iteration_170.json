@@ -1,0 +1,22 @@
+{
+  "summary": "Verified SEO/SSR behavior for Dynopay: help center article bodies (7 slugs), JSON-LD schemas on /fees and /for/* (including the newly-added SoftwareApplication+Offer), multilingual ?lang= SSR (fr/de/es/nl/pt), and English self-canonical. Created /app/tests/seo_ssr_test.py with 26 pytest cases inspecting RAW curl SSR HTML (before JS hydration). All 26 tests pass.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/tests/seo_ssr_test.py", "/app/test_reports/pytest/seo_ssr.xml"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Minor schema.org nit: /fees Service JSON-LD nests the OfferCatalog under `offers` instead of the canonical `hasOfferCatalog` property. Google still parses it, but `hasOfferCatalog` is the schema.org-recommended property for Service->OfferCatalog. Non-blocking.",
+    "hreflang attribute is emitted as `hrefLang` (camelCase) — this is valid because React/Next serializes it and browsers/crawlers are case-insensitive on HTML attributes, but human inspection of view-source may look inconsistent."
+  ],
+  "updated_files": ["/app/tests/seo_ssr_test.py"],
+  "success_rate": {"backend": "n/a", "frontend": "100% (26/26 SSR assertions)"},
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "SSR regression suite lives at /app/tests/seo_ssr_test.py. It curls the public preview URL (no browser) and validates: (a) 6 pages return 200, (b) /help-support lists >=6 of 7 known slugs, (c) each of 7 help articles has <h1>, >=2 <h2>, >=3 <p> in raw SSR, (d) /fees has valid FAQPage + Service(OfferCatalog) JSON-LD, (e) /for/{creators,merchants,developers} has FAQPage+WebPage+BreadcrumbList+SoftwareApplication(Offer price 0 USD), (f) ?lang=fr/de/es sets <html lang>, canonical with lang param, and full hreflang set (en,pt,fr,es,de,nl,x-default), (g) English default has <html lang=en> and self-canonical without lang param. Note: hreflang is emitted as `hrefLang` so regex needs re.I. Run: pytest tests/seo_ssr_test.py -v",
+  "rca of the issue": "n/a — no defects found. The newly-added SoftwareApplication+Offer JSON-LD is present, valid JSON, and appears in raw SSR HTML for all three /for/* verticals with price=0 and priceCurrency=USD as expected."
+}

@@ -1,0 +1,48 @@
+{
+  "summary": "Frontend-only, read-only UX regression across DynoPay merchant app on The Dev Store brand. Verified login (2-step), brand switch (QA -> Dev), all first-visit tips (5 new secondary pages + 7 core pages, presence + dismiss/persist for 2), unified status contract on /transactions and drawer, /dashboard recent-txn widget, /customers detail payment history, /developer-keys api-key-copy + pk-copy-<id>, /storefront?tab=share inline copy, /pay-links label change (Paid instead of Completed) on desktop & 390px, /notifications regression (payment notif -> details drawer with correct settled chip), /invoices Paid pills. Overall: functionally passing with 3 concrete findings for main agent (see below).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "MobileReferralBanner", "issue": "Component exists at /app/Components/UI/MobileReferralBanner/index.tsx with testids mobile-referral-copy / mobile-referral-share, but is NOT imported/mounted anywhere in the codebase. No page renders it (verified via grep across /app/Components and /app/pages and by DOM inspection on mobile 390px at /dashboard, /referrals, and after tapping mobile-navigation-bar). Copy tick rollout for the mobile referral banner therefore cannot be exercised by users.", "selector": "[data-testid=mobile-referral-copy], [data-testid=mobile-referral-share]", "priority": "HIGH"},
+      {"component": "Storefront ShareTab", "issue": "Old 'Copy link' button is still present on /storefront?tab=share alongside the new inline copy icon (data-testid=storefront-share-copy). Task spec says 'the old Copy link button is gone'. Selector 'button:has-text(\"Copy link\")' matched 1 element on the page.", "selector": "button:has-text('Copy link')", "priority": "MEDIUM"},
+      {"component": "StatusChip on /transactions & drawer", "issue": "Spec asked for data-testid=tx-status-<bucket> on every transactions-table row status and on the drawer status pill. Reality: table rows use data-testid=tx-row-status (with correct data-status=<bucket>) and the drawer uses data-testid=tx-modal-status (with correct data-status=<bucket>). Data-status + label vocabulary + tooltip + toolbar filtering all work correctly, so this is a testid-naming contract deviation rather than a functional break, but any automation relying on tx-status-<bucket> on these two surfaces will fail. Note: /customers detail (payment history) DOES use tx-status-<bucket> correctly (found tx-status-settled x42, tx-status-unpaid x8 on the API-payments customer).", "selector": "[data-testid^=tx-status-] vs [data-testid=tx-row-status], [data-testid=tx-modal-status]", "priority": "MEDIUM"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "passed_checks": [
+    "Login (2-step) via login-email-input -> Continue -> password-input -> signin-submit-btn, landed on /dashboard.",
+    "Brand switch: The QA Store -> The Dev Store via company-selector-trigger + dropdown. Left on The Dev Store (see context note).",
+    "PageTip presence on all 12 routes: storefront, settings, developers, notifications, helpSupport (title text matches spec for all 5), plus payLinks, transactions, payouts, wallet, invoices, customers, referrals.",
+    "PageTip dismiss+persist: /storefront and /settings — page-tip-dismiss-<key> hides the tip, localStorage['dynopay.pagetip.v1.<key>'] = '1', tip stays hidden after reload.",
+    "/transactions unified: data-status buckets confirmed for 'unpaid' (visible rows) and 'settled' (after clicking transactions-status-chip-settled). Tooltip on chip works ('Confirmed and credited to your balance.'). Toolbar filter chips still filter the table.",
+    "/transactions drawer opens on row click; tx-modal-status shows correct bucket; tx-copy-incoming-hash / tx-copy-outgoing-hash / tx-copy-settlement-address / tx-copy-callback-url all set data-copied='true' immediately on click and revert to 'false' after ~1.5–1.8s; clipboard contains the actual hash/URL text. No success toast appears (verified via [role=status]/[class*=toast] returning empty).",
+    "/dashboard RecentTransactionsWidget: 5 rows show data-testid=recent-txn-status with data-status attribute; label vocabulary matches /transactions (raw bucket text; capitalize CSS makes it read as 'Unpaid').",
+    "/customers detail: opened API-payments customer (447 payments) — payment history rows use data-testid=tx-status-settled (42) and tx-status-unpaid (8). No crash, no error class elements.",
+    "/developer-keys: api-key-copy (2 instances) and pk-copy-6, pk-copy-5, try-first-payment-copy present. Clicking api-key-copy sets data-copied='true', copies 192 chars to clipboard, reverts to 'false' after 1.8s. Layout intact.",
+    "/storefront?tab=share: storefront-share-url + storefront-share-copy + storefront-share-open all present; clicking storefront-share-copy sets data-copied='true' and copies the correct storefront URL.",
+    "/pay-links desktop: Paid + Active labels present, no 'Completed'.",
+    "/pay-links mobile 390px card list: hasPaid=True, hasCompleted=False, hasActive=True.",
+    "/notifications: loads with 22 notification-item-* rows; clicking the first item opens the transaction drawer with tx-modal-status text='settled', data-status='settled' (regression pass — not 'awaiting_payment' for a settled one).",
+    "/invoices: page renders with 13 rows, hasPaid=True, hasCompleted=False.",
+    "No JS console errors captured across dashboard/transactions/customers/settings/developer-keys/storefront/notifications/help-support during the flows exercised."
+  ],
+  "test_report_links": [],
+  "action_items": [
+    "Mount MobileReferralBanner somewhere reachable on phone (dashboard, mobile drawer, or /referrals mobile view). It currently has zero import sites and the new CopyInline testids are unreachable.",
+    "Remove the legacy 'Copy link' button from /storefront?tab=share now that the inline storefront-share-copy icon exists (spec says the old button should be gone).",
+    "Either add data-testid=tx-status-<bucket> to the /transactions table row chips and drawer pill, or update the UX spec/documentation to describe tx-row-status and tx-modal-status as the canonical selectors (both already expose data-status=<bucket> so functional filtering works)."
+  ],
+  "critical_code_review_comments": [
+    "Components/UI/MobileReferralBanner/index.tsx is a dead component (0 imports) — either mount it or delete it; shipping unreachable UI is a maintenance hazard.",
+    "StatusChip.tsx defaults to data-testid=`tx-status-${bucket}` but two call sites (transactions table row, transaction drawer) override with generic testIds (tx-row-status, tx-modal-status). Consider keeping the bucketed testid AND adding a stable surface-specific one, e.g. tx-row-status + tx-status-<bucket> composite, so both automation contracts hold."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "~90% (12/12 tips, 4/4 drawer copies, 3/4 copy tick surfaces working; mobile referral surface unreachable; storefront old button lingering; testid contract deviation on 2 surfaces)"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (The Dev Store brand — left on The Dev Store; original was The QA Store, review request explicitly said switching brand is allowed and OK to leave).",
+  "seed_data_creation": "None — read-only run. Only clipboard writes and localStorage writes for dynopay.pagetip.v1.storefront/settings during dismiss testing (persisted).",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Left brand set to The Dev Store. Dismissed page tips for /storefront and /settings on the merchant account — these keys are in localStorage in the browser context only, not persisted server-side, so a fresh browser will still see them. Copy-tick verified for: tx-copy-incoming-hash, tx-copy-outgoing-hash, tx-copy-settlement-address, tx-copy-callback-url (transactions drawer), api-key-copy, pk-copy-<id>, storefront-share-copy. Not verifiable in-app: mobile-referral-copy/share (component not mounted).",
+  "rca of the issue": "MobileReferralBanner: file was created/updated with correct testids and CopyInline usage but never wired into any parent (verified via grep -rn 'MobileReferralBanner' /app returns only its own definition file). Fix = import + render it in the phone-only branch of the referrals page or the mobile hamburger drawer near the referral CTA. Storefront legacy 'Copy link' button: ShareTab.tsx likely still ships the old button next to the new inline icon — remove the old button JSX/branch."
+}

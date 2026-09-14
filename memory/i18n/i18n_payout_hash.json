@@ -1,0 +1,76 @@
+{
+  "transactions": {
+    "payoutTransactionId": {
+      "en": "Payout Transaction ID ({{chain}})",
+      "de": "Auszahlungs-Transaktions-ID ({{chain}})",
+      "es": "ID de transacción del pago ({{chain}})",
+      "fr": "ID de transaction du versement ({{chain}})",
+      "nl": "Uitbetalingstransactie-ID ({{chain}})",
+      "pt": "ID da transação de pagamento ({{chain}})"
+    },
+    "payoutHashHint": {
+      "en": "Sent from our exchange account to your {{chain}} payout wallet after converting {{from}}.",
+      "de": "Nach der Umwandlung von {{from}} von unserem Börsenkonto an Ihre {{chain}}-Auszahlungswallet gesendet.",
+      "es": "Enviado desde nuestra cuenta de exchange a tu billetera de pago {{chain}} tras convertir {{from}}.",
+      "fr": "Envoyé depuis notre compte d'échange vers votre portefeuille de versement {{chain}} après conversion de {{from}}.",
+      "nl": "Na het omzetten van {{from}} vanaf onze exchange-rekening naar je {{chain}}-uitbetalingswallet gestuurd.",
+      "pt": "Enviado da nossa conta na exchange para a sua carteira de pagamento {{chain}} após converter {{from}}."
+    },
+    "payoutOffchain": {
+      "en": "Payout reference ({{chain}}, exchange-internal transfer)",
+      "de": "Auszahlungsreferenz ({{chain}}, börseninterne Übertragung)",
+      "es": "Referencia del pago ({{chain}}, transferencia interna del exchange)",
+      "fr": "Référence du versement ({{chain}}, transfert interne à l'échange)",
+      "nl": "Uitbetalingsreferentie ({{chain}}, interne overboeking bij de exchange)",
+      "pt": "Referência do pagamento ({{chain}}, transferência interna da exchange)"
+    },
+    "payoutOffchainHint": {
+      "en": "Your {{chain}} payout address is hosted by the same exchange we convert on, so the {{currency}} was credited instantly as an internal transfer — no blockchain transaction exists for this leg.",
+      "de": "Ihre {{chain}}-Auszahlungsadresse liegt bei derselben Börse, über die wir umwandeln. Die {{currency}} wurden daher sofort als interne Übertragung gutgeschrieben – für diesen Schritt existiert keine Blockchain-Transaktion.",
+      "es": "Tu dirección de pago {{chain}} está alojada en el mismo exchange donde convertimos, por lo que los {{currency}} se acreditaron al instante como transferencia interna: no existe una transacción en blockchain para este tramo.",
+      "fr": "Votre adresse de versement {{chain}} est hébergée par la même plateforme d'échange que celle où nous convertissons ; les {{currency}} ont donc été crédités instantanément par transfert interne — aucune transaction blockchain n'existe pour cette étape.",
+      "nl": "Je {{chain}}-uitbetalingsadres staat bij dezelfde exchange waar wij omzetten, dus de {{currency}} is direct als interne overboeking bijgeschreven — voor deze stap bestaat geen blockchaintransactie.",
+      "pt": "O seu endereço de pagamento {{chain}} está alojado na mesma exchange onde convertemos, por isso os {{currency}} foram creditados instantaneamente como transferência interna — não existe transação em blockchain para esta etapa."
+    },
+    "payoutPending": {
+      "en": "Payout in progress — converting {{from}} to {{to}}. The payout hash appears here once the transfer to your wallet is sent.",
+      "de": "Auszahlung läuft – {{from}} wird in {{to}} umgewandelt. Der Auszahlungs-Hash erscheint hier, sobald die Übertragung an Ihre Wallet gesendet wurde.",
+      "es": "Pago en curso: convirtiendo {{from}} a {{to}}. El hash del pago aparecerá aquí cuando se envíe la transferencia a tu billetera.",
+      "fr": "Versement en cours — conversion de {{from}} en {{to}}. Le hash du versement apparaîtra ici dès que le transfert vers votre portefeuille sera envoyé.",
+      "nl": "Uitbetaling bezig — {{from}} wordt omgezet naar {{to}}. De uitbetalingshash verschijnt hier zodra de overboeking naar je wallet is verzonden.",
+      "pt": "Pagamento em curso — a converter {{from}} em {{to}}. O hash do pagamento aparece aqui assim que a transferência para a sua carteira for enviada."
+    },
+    "payoutFailed": {
+      "en": "Conversion to {{to}} could not be completed — our team has been alerted and will settle this payment manually.",
+      "de": "Die Umwandlung in {{to}} konnte nicht abgeschlossen werden – unser Team wurde benachrichtigt und wird diese Zahlung manuell abrechnen.",
+      "es": "No se pudo completar la conversión a {{to}}; nuestro equipo ha sido avisado y liquidará este pago manualmente.",
+      "fr": "La conversion en {{to}} n'a pas pu être finalisée — notre équipe a été alertée et réglera ce paiement manuellement.",
+      "nl": "De omzetting naar {{to}} kon niet worden voltooid — ons team is gewaarschuwd en zal deze betaling handmatig afwikkelen.",
+      "pt": "Não foi possível concluir a conversão para {{to}} — a nossa equipa foi alertada e irá liquidar este pagamento manualmente."
+    },
+    "paidOutAs": {
+      "en": "Paid out as",
+      "de": "Ausgezahlt als",
+      "es": "Pagado como",
+      "fr": "Versé en",
+      "nl": "Uitbetaald als",
+      "pt": "Pago como"
+    },
+    "payoutPendingShort": {
+      "en": "Converting to {{to}}…",
+      "de": "Umwandlung in {{to}}…",
+      "es": "Convirtiendo a {{to}}…",
+      "fr": "Conversion en {{to}}…",
+      "nl": "Omzetten naar {{to}}…",
+      "pt": "A converter para {{to}}…"
+    },
+    "payoutFailedShort": {
+      "en": "Conversion failed — manual settlement",
+      "de": "Umwandlung fehlgeschlagen – manuelle Abrechnung",
+      "es": "Conversión fallida: liquidación manual",
+      "fr": "Conversion échouée — règlement manuel",
+      "nl": "Omzetting mislukt — handmatige afwikkeling",
+      "pt": "Conversão falhou — liquidação manual"
+    }
+  }
+}
