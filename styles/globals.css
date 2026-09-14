@@ -446,6 +446,48 @@ html[data-theme="light"] {
   --text-tertiary: #A1A1AA;
 }
 
+/* ── Phase 3: canonical radius + elevation scale (2026-09) ───────────────────
+   One geometry + depth system for the non-MUI app surfaces (checkout, receipt,
+   dashboard styled cards) so they match the "Quiet Money" 12px cards / 8px
+   controls. MUI surfaces read these from constants/theme.ts RADIUS; these vars
+   cover the plain-CSS / styled surfaces. */
+:root {
+  --radius-control: 8px;
+  --radius-card: 12px;
+  --radius-chip: 100px;
+  --radius-pill: 9999px;
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-card-hover: 0 6px 20px rgba(15, 23, 42, 0.1);
+  --shadow-pop: 0 10px 30px rgba(15, 23, 42, 0.12);
+}
+html[data-theme="dark"] {
+  --shadow-card: 0 8px 32px rgba(3, 6, 15, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  --shadow-card-hover: 0 12px 40px rgba(3, 6, 15, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.1),
+    0 0 48px rgba(99, 102, 241, 0.14);
+  --shadow-pop: 0 16px 48px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+/* ── Phase 3: dark-tuned loading skeletons ───────────────────────────────────
+   MUI's default skeleton tint is nearly invisible on the deep Aurora canvas.
+   Lift the base to a visible "raised" tone and give the wave a brighter sheen
+   so loading lists read as shaped placeholders, not empty gaps. Cascades to
+   every <Skeleton> across all surfaces. */
+html[data-theme="dark"] .MuiSkeleton-root {
+  background-color: rgba(255, 255, 255, 0.07);
+}
+html[data-theme="dark"] .MuiSkeleton-root::after {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.09),
+    transparent
+  );
+}
+html[data-theme="light"] .MuiSkeleton-root {
+  background-color: rgba(15, 23, 42, 0.06);
+}
+
+
 /* ============================================================
    HERO TILE PULSE — "new payment landed" attention flash.
    Triggered from HeroMetrics.tsx when Today's Revenue increments.

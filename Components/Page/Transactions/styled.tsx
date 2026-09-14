@@ -22,7 +22,7 @@ const rowHover = (theme: { palette: { mode: string } }) =>
   theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "#FAFBFD";
 const inkSecondary = (theme: { palette: { mode: string } }) =>
   theme.palette.mode === "dark" ? CB_TOKENS.ink.secondaryDark : CB_TOKENS.ink.secondaryLight;
-export const CARD_RADIUS = 16;
+export const CARD_RADIUS = CB_TOKENS.radius.card;
 /** Uppercase tech-font eyebrow — identical to the dashboard's card labels. */
 export const EYEBROW_SX = {
   fontFamily: "var(--font-tech), monospace",

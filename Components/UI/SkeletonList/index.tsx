@@ -27,7 +27,7 @@ export const SkeletonList: React.FC<SkeletonListProps> = ({
     sx={{ display: "flex", flexDirection: "column", gap: `${gap}px`, width: "100%" }}
   >
     {Array.from({ length: rows }).map((_, i) => (
-      <Skeleton key={i} variant="rounded" height={rowHeight} sx={{ borderRadius: "10px" }} />
+      <Skeleton key={i} variant="rounded" animation="wave" height={rowHeight} sx={{ borderRadius: "12px" }} />
     ))}
   </Box>
 );

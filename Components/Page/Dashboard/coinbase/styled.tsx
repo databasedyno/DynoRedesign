@@ -1,5 +1,5 @@
 import { Box, Button, styled } from "@mui/material";
-import { BRAND_ACCENT, DARK } from "@/constants/theme";
+import { BRAND_ACCENT, DARK, RADIUS } from "@/constants/theme";
 
 /**
  * Coinbase-style dashboard tokens (theme-aware).
@@ -10,6 +10,8 @@ import { BRAND_ACCENT, DARK } from "@/constants/theme";
  * we keep DynoPay indigo which is functionally identical at these alpha levels.
  */
 export const CB_TOKENS = {
+  /** Canonical radius scale (Phase 3) — one geometry across the dashboard. */
+  radius: RADIUS,
   bg: {
     dark: DARK.canvas,
     light: "#F8FAFC",
@@ -63,7 +65,7 @@ export const CB_TOKENS = {
  */
 export const SurfaceCard = styled(Box)(({ theme }) => ({
   position: "relative",
-  borderRadius: 16,
+  borderRadius: RADIUS.card,
   padding: theme.spacing(3),
   backgroundColor:
     theme.palette.mode === "dark" ? CB_TOKENS.surface.dark : CB_TOKENS.surface.light,
@@ -77,7 +79,7 @@ export const SurfaceCard = styled(Box)(({ theme }) => ({
     : {}),
   [theme.breakpoints.down("sm")]: {
     padding: theme.spacing(2.25),
-    borderRadius: 14,
+    borderRadius: RADIUS.card,
   },
 }));
 

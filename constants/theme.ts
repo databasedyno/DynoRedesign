@@ -121,4 +121,31 @@ export const LIGHT = {
   warning: "#B45309",
   error: "#B91C1C",
   info: "#1D4ED8",
+  /** Hairline slate borders (light parity with DARK hairline tokens). */
+  hairline: "rgba(15,23,42,0.06)",
+  hairlineStrong: "rgba(15,23,42,0.12)",
+  /** Elevation shadows — light parity with the DARK scale. */
+  shadowSoft: "0 1px 2px rgba(15,23,42,0.05)",
+  shadow: "0 4px 16px rgba(15,23,42,0.10)",
+  cardShadow: "0 1px 2px rgba(15,23,42,0.05)",
+  cardShadowHover: "0 6px 20px rgba(15,23,42,0.10)",
+  focusRing: "0 0 0 3px rgba(67,56,202,0.25)",
 } as const;
+
+/**
+ * Canonical radius scale — Phase 3 standardization (2026-09).
+ * Single source of truth so every app/dashboard surface shares one geometry:
+ *   control = buttons / inputs / menus / small toggles (8px)
+ *   card    = content cards, panels, tables, modals (12px)
+ *   chip    = status badges / count chips (100px = fully rounded)
+ *   pill    = timeframe pills / segmented toggles (9999px)
+ * NOTE: the marketing/auth themes keep their deliberate 20px/50px brand
+ * geometry — this scale governs the dashboard/app "Quiet Money" system.
+ */
+export const RADIUS = { control: 8, card: 12, chip: 100, pill: 9999 } as const;
+
+/**
+ * Canonical elevation scale (theme-aware helper). Returns the right shadow
+ * string for the current mode so cards/menus/popovers share one depth system.
+ */
+export const elevation = (isDark: boolean) => (isDark ? DARK : LIGHT);

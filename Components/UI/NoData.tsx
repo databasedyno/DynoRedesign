@@ -1,6 +1,6 @@
 import React from "react";
 import NoDataImage from "@/assets/Images/noData.png";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, useTheme } from "@mui/material";
 const NoData = ({
   customText,
   subText,
@@ -10,6 +10,8 @@ const NoData = ({
   subText?: string;
   maxHeight?: boolean;
 }) => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
   return (
     <Box
       sx={{
@@ -23,6 +25,10 @@ const NoData = ({
         "& img": {
           width: "250px",
           height: "auto",
+          // Phase 3: soften the bright illustration so it blends into the deep
+          // Aurora canvas instead of glaring in dark mode.
+          opacity: isDark ? 0.82 : 1,
+          filter: isDark ? "saturate(0.9)" : "none",
         },
       }}
     >

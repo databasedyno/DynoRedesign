@@ -58,10 +58,29 @@ Implemented + screenshot-verified (dashboard dark, transactions dark):
 Preflight (`yarn preflight`): Backend TS OK + Frontend TS OK → "safe to push" (also cleared a
 pre-existing TS error in `Components/Page/Payouts/RecentSettlementsCard.tsx:69`).
 
-### Phase 3 — Polish (P2)
-9. Standardize radii (12px cards / 8px controls), shadow scale, spacing.
-10. Micro-interactions (hover lift, focus rings), skeletons, empty states.
-11. Responsive (390/768) + WCAG AA contrast recheck; add icons to color-only badges.
+### Phase 3 — Polish (P2)  [DONE ✅ implemented 2026-09-14; token-driven, all surfaces]
+9. Radii standardized to the "Quiet Money" system: **12px cards / 8px controls**.
+   - New canonical scale `RADIUS = {control:8, card:12, chip:100, pill:9999}` in
+     `constants/theme.ts` (single source of truth) + `elevation()` helper + LIGHT
+     shadow/hairline parity tokens (cardShadow/cardShadowHover/focusRing).
+   - `styles/appTheme.ts` MuiCard 14→`RADIUS.card` (12).
+   - `coinbase/styled.tsx` `SurfaceCard` 16→12 (sm 14→12); `CB_TOKENS.radius = RADIUS`.
+   - `Transactions/styled.tsx` `CARD_RADIUS` = `CB_TOKENS.radius.card` (16→12).
+   - `styles/globals.css` adds CSS-var scale for non-MUI surfaces:
+     `--radius-control/card/chip/pill` + `--shadow-card/-hover/-pop` (light+dark).
+   - DELIBERATELY UNCHANGED: marketing/auth theme (`styles/theme.ts`) keeps its
+     20px/50px brand pill geometry (guardrail: don't regress marketing identity).
+10. Micro-interactions / skeletons / empty states:
+    - Focus rings + card hover-lift already global (Phase 1/globals.css) — verified.
+    - Skeletons: global dark-tuned tint + brighter wave sheen in `globals.css`
+      (cascades to every `<Skeleton>`); `SkeletonList` now `animation="wave"` +
+      12px radius to match cards.
+    - Empty states: `NoData.tsx` softens the illustration in dark (opacity .82 +
+      desaturate) so it blends into the Aurora canvas instead of glaring.
+11. A11y + responsive:
+    - Color-only badges: AUDITED — `StatusDot` (dot+text), Transactions `StatusBadge`
+      (icon+text), `CryptoIconChip` (icon+text) are already NOT colour-only → compliant.
+    - Responsive 390/768 + WCAG AA contrast recheck → verified by frontend testing agent.
 
 ## Surfaces to re-verify after each phase (dark + light)
 Landing `/`, Fees `/fees`, Login `/auth/login`, Checkout `/pay?d=rNtQRX` (+QR via mock),

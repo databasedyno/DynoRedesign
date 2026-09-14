@@ -1,6 +1,6 @@
 import { createTheme } from "@mui/material";
 import { theme, themeDark } from "./theme";
-import { DARK } from "@/constants/theme";
+import { DARK, RADIUS } from "@/constants/theme";
 
 /**
  * App / dashboard theme — "Quiet Money" (UI Redesign Blueprint 2026-08, Phase 1).
@@ -166,7 +166,7 @@ const sharedComponents = (isDark: boolean) => ({
         backgroundImage: "none",
         border: `1px solid ${isDark ? DARK.hairline : "#E2E8F0"}`,
         boxShadow: isDark ? DARK.cardShadow : "0 1px 2px rgba(15,23,42,0.05)",
-        borderRadius: 14,
+        borderRadius: RADIUS.card,
         transition: "box-shadow .2s ease, border-color .2s ease",
         ...(isDark
           ? { "&:hover": { boxShadow: DARK.cardShadowHover, borderColor: DARK.hairlineStrong } }
