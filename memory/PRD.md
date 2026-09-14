@@ -2635,3 +2635,9 @@ Follow-up pass; user selected all four next-action items. All verified via `test
 
 `tsc --noEmit` clean, ESLint 0 errors (pre-existing hook warnings only), contrast guardrail green. QA shots: `/app/.screenshots/{login,register,landing}_*.png`. Preview-only until **Save to GitHub**.
 
+---
+
+## Tax System Assessment (analysis only) — 2026-09-14
+
+Produced `/app/memory/TAX_SYSTEM_ASSESSMENT.md` — a written, code-grounded evaluation of DynoPay's tax handling vs 2026 industry standards (calc-engine vs merchant-of-record; EU VAT/OSS, UK, US sales tax/nexus, GST). No tax logic/UI/checkout changed; SAFE MODE untouched. Headline gaps: no US sales tax (US=0), regex-only reverse-charge (no live VIES in checkout), no nexus/threshold monitoring, reduced rates ignored (`reduced_rates` stored but unread), single location signal (no 2-evidence/10-yr retention), no OSS/filing exports, and no crypto cost-basis/1099-DA/DAC8/CARF posture (note: 2026 US final regs name "digital-asset payment processors" as brokers — possible DynoPay-level obligation). Recommended hybrid path: extend in-house VAT/GST (VIES, reduced rates, OSS reports, crypto tax pack) + buy a tax engine for US sales tax; treat 1099-DA/DAC8/CARF as legal-first. Verified facts via web search (1099-DA 2025 proceeds / 2026 basis; DAC8 from 2026; CARF waves 2027/28/29).
+

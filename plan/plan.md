@@ -1,103 +1,77 @@
-# Applying Emergent's Landing Design to DynoPay
+# Tax System — Industry-Standard Analysis
 
-Goal: take the things that make the Emergent landing feel clean and premium and
-decide how far to carry them across DynoPay — end to end.
+## Objective
+Produce a written assessment of DynoPay's existing tax handling, measured against
+2026 industry standards for online-payment tax compliance, and a prioritized list
+of gaps with recommended fixes. This pass produces the **assessment** (a document).
+It does not change how tax is calculated, configured, or collected.
 
-This builds on the change already in progress: Inter is now DynoPay's body/UI
-font and the dark‑mode greys have been neutralised (less blue, cleaner).
+## What you'll get (the deliverable)
+A single analysis report containing:
+1. **Current-state inventory** — a plain-language summary of what the tax system
+   does today.
+2. **Benchmark** — how it compares to the two recognised industry tiers
+   (a *calculation engine* like Stripe Tax / Quaderno, vs a *merchant-of-record*
+   like Paddle) and to the statutory rules that matter (EU VAT & OSS, UK VAT,
+   US sales tax & economic nexus, and the main GST regimes).
+3. **Gap list** — every gap rated Critical / High / Medium / Low, with the concrete
+   compliance risk each one creates.
+4. **Crypto-specific section** — merchant income, cost-basis and capital-gains
+   record-keeping, plus the new 1099-DA / DAC8 / CARF reporting climate. This is a
+   gap area unique to a crypto payment processor and a potential differentiator.
+5. **Prioritized recommendations** — what to do to close each gap, each with a
+   short *build-vs-buy* note (extend the in-house logic vs integrate a tax engine).
 
----
+## Preview of the main findings (so you can steer priorities)
+**Already strong today:** destination-based VAT/GST rates for ~45 countries (live
+API with a hard-coded fallback), tax-inclusive and tax-exclusive pricing,
+per-product tax categories, EU B2B reverse-charge, per-company and per-payment-link
+tax settings, tax shown on receipts, and tax figures stored on every order for an
+audit trail.
 
-## What the Emergent landing actually does (observations)
+**Biggest gaps vs the standard:**
+- **No US sales tax** — US is currently treated as 0%. Real support needs
+  state + local rates, sourcing rules, product taxability, and marketplace rules.
+- **EU reverse-charge is format-check only**, not live VIES verification — which
+  auditors treat as insufficient evidence for a 0% B2B sale.
+- **No economic-nexus / threshold monitoring or alerts** (US *Wayfair* state
+  thresholds, EU €10,000 cross-border threshold).
+- **Only standard rates are applied** — reduced/zero rates and per-jurisdiction
+  product taxability are not used (a `reduced_rates` field exists but is ignored).
+- **Single location signal** (IP or shipping) rather than the two non-contradictory
+  pieces of evidence (with ~10-year retention) required for EU B2C digital sales.
+- **No tax reporting / exports** for filing, and no OSS-return-ready summaries.
+- **No crypto cost-basis / capital-gains records** for merchants who hold rather
+  than auto-convert.
 
-Typography
-- Two typefaces: a **display font ("Brockmann")** for headlines and **Inter**
-  for everything else (buttons, body, legal, labels).
-- Big text uses **tight negative letter‑spacing** (roughly ‑1px to ‑1.6px) and a
-  **medium/semibold** weight — not bold‑heavy.
-- Headlines carry a **soft glow** (a faint text‑shadow) so they feel "lit" on
-  the dark panel.
+## Scope & positioning (proposed — confirm or change)
+- **Benchmark bar = "tax calculation & collection engine"** (DynoPay computes and
+  collects; the merchant remits). This matches how the product already describes
+  itself. Becoming a full **Merchant of Record** (DynoPay becomes the legal seller
+  and files/remits returns) is a much larger strategic and legal change; it will be
+  noted as an option but treated as out of scope for the assessment.
+- **Jurisdictions benchmarked:** EU (plus UK), US sales tax, and the main GST
+  countries already in the rate table (AU, CA, NZ, SG, IN, and similar).
+- **Crypto-specific tax section:** included.
 
-Colour
-- A **semantic colour system** (foreground / background / muted / primary /
-  ring) used consistently, with light **opacity tints** for subtle surfaces
-  (e.g. a 5–10% foreground fill for secondary buttons).
-- Greys are **clean neutral grey** (#808080 / #8a8a8a) — no blue/colour tint.
-
-Buttons & inputs
-- **Fully rounded ("pill") buttons**, generously tall (48–56px).
-- Hover = **soft outer glow + a small lift** (moves up a few px), ~300ms ease.
-- Inputs are also pill‑shaped with a clear focus ring.
-
-Hero & layout
-- **Split screen**: sign‑in on the left, an **animated gradient panel** on the
-  right with **device mock‑ups** (phone + browser frames), a **glass "YC S24"
-  badge**, a **"10M+ users"** social‑proof stat, dashed dividers, and **pill
-  progress dots** for the carousel.
-- Overall: the marketing/auth surface is **expressive and glowing**; the content
-  is otherwise restrained and legible.
-
----
-
-## Proposed adoption for DynoPay
-
-The ideas are grouped by where they should apply, because DynoPay's dashboard is
-deliberately calm ("Quiet Money") and data‑dense — some of Emergent's expressive
-choices belong only on marketing/auth/checkout, not on the working dashboard.
-
-### A. Universal — apply everywhere, including the dashboard
-- **Inter** as the body/UI font (already in progress) — validated by Emergent.
-- **Tighter letter‑spacing on large headings** for the premium look.
-- **One clean neutral grey scale** (remove the blue tint) used consistently in
-  both themes, still meeting accessibility contrast.
-- **Consistent hover feel** on cards/buttons: subtle lift + soft shadow, smooth
-  ~200–300ms transitions.
-- Crisper text rendering (already in progress).
-
-### B. Expressive — marketing landing, auth pages, and public checkout/receipt
-- **Hero headlines**: larger, tighter tracking, a subtle glow, on the display
-  font.
-- **Primary hero/auth call‑to‑action buttons**: larger and more rounded (pill),
-  with the glow + lift hover.
-- **Animated gradient hero** on the marketing landing (an indigo→violet
-  "aurora"), a **device / screenshot showcase**, **glassmorphism badges** for
-  social proof, dashed dividers, and pill progress dots.
-- Keep gradients and glows to these hero/primary areas only.
-
-### C. Intentionally NOT copying (unless you say otherwise)
-- **Not** turning the whole dashboard into pill buttons and heavy glows — that
-  would undo the recent, deliberate "clean/calm dashboard" direction and hurt
-  readability of dense data.
-- **Not** licensing Emergent's exact display font ("Brockmann") — it is a paid
-  commercial font. DynoPay's existing **Manrope** (free, already loaded) plays
-  the same display role.
-
----
+## Out of scope for this pass
+- Any change to tax calculation, settings UI, or checkout behaviour (analysis only).
+- Becoming a Merchant of Record, or actually filing/remitting tax anywhere.
+- Legal or accounting sign-off. The report is a product/engineering assessment and
+  reflects public 2026 guidance; it is not tax advice.
 
 ## Decisions to confirm
+1. **Deliverable depth:**
+   a. Analysis report only. *(default)*
+   b. Analysis report, then start building the Critical/High fixes straight after.
+2. **If fixes are built later, preferred direction:**
+   a. Extend the in-house rate table and calculation logic.
+   b. Integrate a third-party tax engine (e.g. Stripe Tax API, Quaderno, or
+      TaxJar/Avalara) for rates, nexus tracking, and VIES validation.
+   c. Let the report recommend the best route per gap. *(default)*
+3. **Crypto cost-basis / capital-gains + 1099-DA / DAC8 / CARF** merchant
+   record-keeping analysis — include it? *(default: yes)*
 
-1. **Scope of the expressive treatment.** Marketing + auth + public checkout
-   only (recommended), or push the glowing/pill/gradient style into the
-   dashboard too?
-2. **Display font.** Keep **Manrope** for headlines (free, recommended), or
-   budget to license a Brockmann‑style commercial font to match Emergent exactly?
-3. **Button shape.** Keep DynoPay's current squared 8px buttons on the dashboard
-   and use **pill CTAs only on hero/auth** (recommended), or move everything to
-   pills?
-4. **Intensity of gradients/glows.** Subtle and reserved (recommended), or bold
-   and prominent like Emergent's animated hero?
-5. **How much to build now.** Start with the safe universal refinements
-   (typography tightening, neutral greys, hover polish) — or also build the full
-   animated‑gradient hero + device‑mockup showcase on the landing in this pass?
-
----
-
-## Assumed defaults (used unless you push back)
-- Keep **Manrope** for display; no paid font.
-- Expressive treatment on **marketing + auth + public checkout**; the dashboard
-  gets only the **universal** refinements.
-- **Pill CTAs on hero/auth only**; dashboard controls stay 8px.
-- Gradients/glows stay **subtle and reserved**.
-- This pass delivers the **universal refinements + an upgraded marketing/auth
-  hero** (glow headings, pill CTAs, gradient hero panel, social‑proof badges);
-  the full device‑mockup carousel is optional and can follow.
+## Assumptions
+- The report is delivered as a markdown document kept in the repo for the team.
+- No production data is touched; SAFE MODE is unchanged.
