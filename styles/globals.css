@@ -32,7 +32,7 @@
 
 /* ── Instant theme background (set by blocking script in _document, before React) ── */
 html[data-theme="dark"] {
-  background-color: #0B0D17;
+  background-color: #07090F;
   color-scheme: dark;
 }
 html[data-theme="light"] {
@@ -66,8 +66,8 @@ html[data-theme="dark"] input:-webkit-autofill:hover,
 html[data-theme="dark"] input:-webkit-autofill:focus,
 html[data-theme="dark"] input:-webkit-autofill:active {
   -webkit-text-fill-color: #FAFAFA !important;
-  -webkit-box-shadow: 0 0 0 1000px #141625 inset !important;
-  box-shadow: 0 0 0 1000px #141625 inset !important;
+  -webkit-box-shadow: 0 0 0 1000px #171C2C inset !important;
+  box-shadow: 0 0 0 1000px #171C2C inset !important;
   caret-color: #FAFAFA;
   transition: background-color 9999s ease-in-out 0s;
 }
@@ -437,8 +437,8 @@ code {
 /* Improved dark-mode text contrast baseline (WCAG AAA on #09090B). */
 html[data-theme="dark"] {
   --text-primary: #FAFAFA;
-  --text-secondary: #A1A1AA;
-  --text-tertiary: #52525B;
+  --text-secondary: #A6B0C3;
+  --text-tertiary: #71717A;
 }
 html[data-theme="light"] {
   --text-primary: #18181B;
@@ -489,8 +489,8 @@ html[data-theme="light"] {
    focus (`:focus-visible`) so mouse clicks stay clean. Applies to all
    interactive elements everywhere. */
 :root {
-  --dyno-focus-ring: #4F46E5;
-  --dyno-focus-ring-shadow: 0 0 0 2px rgba(79, 70, 229, 0.35);
+  --dyno-focus-ring: #6366F1;
+  --dyno-focus-ring-shadow: 0 0 0 3px rgba(99, 102, 241, 0.40);
 }
 html[data-theme="light"] {
   --dyno-focus-ring: #0A0A0A;

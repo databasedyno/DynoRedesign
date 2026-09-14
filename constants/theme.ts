@@ -55,31 +55,52 @@ export const WARNING_AMBER_DARK = "#B45309";
 export const WARNING_AMBER_LIGHT = "#FBBF24";
 
 /**
- * Dark-mode surface system (design_guidelines.json, 2026-06 rework).
- * SOLID deep-navy steps — canvas → surface → raised → active — with hairline
- * borders instead of shadows or gradients. All text tokens are WCAG AA on the
- * surface they sit on (textMuted ≥ 4.6:1 even on `raised`).
+ * Dark-mode surface system — "Aurora Dark" (2026-09 redesign).
+ * A layered near-black canvas with real elevation, hairline light borders, and
+ * soft accent glow instead of the previous flat navy steps. Each level is a
+ * distinct depth: canvas (page) → surface (cards) → raised (nested/inputs) →
+ * active (hover/selected). Shadow + glow tokens give cards/CTAs premium depth;
+ * gradient tokens are reserved for hero/primary surfaces only (80/20 rule).
+ * Text tokens stay WCAG AA on every surface they sit on.
  */
 export const DARK = {
-  canvas: "#0B0F19",
-  surface: "#111827",
-  raised: "#1F293D",
-  active: "#2D3A54",
-  border: "#1F2D47",
-  borderStrong: "#334155",
+  canvas: "#07090F",
+  surface: "#0F1320",
+  raised: "#171C2C",
+  active: "#212A42",
+  border: "#262E45",
+  borderStrong: "#3A4568",
   text: "#F8FAFC",
-  textSecondary: "#94A3B8",
-  textMuted: "#8592A6",
+  textSecondary: "#A6B0C3",
+  textMuted: "#8B97AC",
   /** Solid fills (buttons, active nav) — pairs with white text. */
   accent: "#6366F1",
   accentHover: "#818CF8",
   /** Brand-tinted TEXT / icons on dark surfaces (≥ 5.9:1). */
   accentText: "#818CF8",
-  accentSoft: "rgba(99,102,241,0.15)",
+  accentSoft: "rgba(99,102,241,0.16)",
   success: "#4ADE80",
   warning: "#FBBF24",
   error: "#F87171",
   info: "#60A5FA",
+  /** Hairline light-tint borders (premium depth vs. flat navy lines). */
+  hairline: "rgba(255,255,255,0.08)",
+  hairlineStrong: "rgba(255,255,255,0.14)",
+  /** Elevation shadows for layered surfaces. */
+  shadowSoft: "0 2px 12px rgba(0,0,0,0.35)",
+  shadow: "0 6px 28px rgba(0,0,0,0.48)",
+  /** Card = layered shadow + hairline ring + faint accent bloom. */
+  cardShadow: "0 8px 32px rgba(3,6,15,0.55), 0 0 0 1px rgba(255,255,255,0.06)",
+  cardShadowHover: "0 12px 40px rgba(3,6,15,0.65), 0 0 0 1px rgba(255,255,255,0.10), 0 0 48px rgba(99,102,241,0.14)",
+  /** Accent glow for focused inputs / primary CTAs / active elements. */
+  glowAccent: "0 0 40px rgba(99,102,241,0.14)",
+  glowAccentStrong: "0 0 24px rgba(99,102,241,0.42)",
+  glowSuccess: "0 0 16px rgba(74,222,128,0.32)",
+  focusRing: "0 0 0 3px rgba(99,102,241,0.35)",
+  /** Gradients — hero / primary surfaces only. */
+  gradient: "linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)",
+  gradientHover: "linear-gradient(135deg, #6D70F5 0%, #9B6BFF 100%)",
+  gradientWarm: "linear-gradient(135deg, #F59E0B 0%, #F43F5E 100%)",
 } as const;
 
 /** Light-mode counterparts (unchanged brand, slate hairlines). */

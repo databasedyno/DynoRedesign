@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { Box, Skeleton, useTheme } from "@mui/material";
-import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { CB_TOKENS } from "./styled";
 import { toFixedStr } from "@/utils/money";
 
@@ -140,10 +140,15 @@ const Sparkline: React.FC<SparklineProps> = ({
         <AreaChart data={chartData} margin={{ top: 8, right: 4, bottom: 4, left: 4 }}>
           <defs>
             <linearGradient id="cb-spark-fill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={stroke} stopOpacity={isDark ? 0.28 : 0.18} />
+              <stop offset="0%" stopColor={stroke} stopOpacity={isDark ? 0.38 : 0.20} />
               <stop offset="100%" stopColor={stroke} stopOpacity={0} />
             </linearGradient>
           </defs>
+          <CartesianGrid
+            vertical={false}
+            strokeDasharray="3 3"
+            stroke={isDark ? "rgba(255,255,255,0.06)" : "rgba(10,10,15,0.05)"}
+          />
           <XAxis dataKey="date" hide />
           <YAxis hide domain={["auto", "auto"]} />
           <Tooltip
@@ -160,6 +165,7 @@ const Sparkline: React.FC<SparklineProps> = ({
             stroke={stroke}
             strokeWidth={2.5}
             fill="url(#cb-spark-fill)"
+            style={isDark ? { filter: `drop-shadow(0 2px 8px ${stroke}66)` } : undefined}
             activeDot={{
               r: 4,
               fill: stroke,

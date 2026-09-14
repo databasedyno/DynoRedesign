@@ -285,6 +285,12 @@ export const StatusBadge = styled(Box)<{
     // red=failed) — soft translucent glow works on both light + dark surfaces.
     backgroundColor: isDark ? s.glowDark : s.glowLight,
     border: `1px solid ${main}${isDark ? "38" : "29"}`,
+    // Aurora Dark (Phase 2): settled/confirmed get a soft outer bloom in dark
+    // so a paid transaction reads as a positive, glowing state at a glance.
+    boxShadow:
+      isDark && (status === "settled" || status === "confirmed")
+        ? `0 0 14px ${main}33`
+        : "none",
     fontSize: "13px",
     fontWeight: 500,
     fontFamily: "var(--font-sans)",
@@ -346,10 +352,11 @@ export const StatusText = styled(Typography)<{
 
 export const CryptoIconChip = styled(Box, {
   shouldForwardProp: (prop) => prop !== "accent",
-})<{ accent?: string }>(({ theme }) => {
-  // Quiet Money (Blueprint §3) + dashboard parity: the coin ICON carries the
-  // only colour; the label is a plain icon + ticker (like the Assets card), not
-  // a bordered chip — flatter row, less visual noise.
+})<{ accent?: string }>(({ theme, accent }) => {
+  const isDark = theme.palette.mode === "dark";
+  // Aurora Dark: the coin ICON carries the colour; in dark mode it gets a
+  // subtle brand-coloured bloom so BTC/ETH/USDT read vividly against the deep
+  // canvas (Phase 2). Light mode stays clean and flat.
   return {
     display: "flex",
     alignItems: "center",
@@ -393,9 +400,12 @@ export const CryptoIconChip = styled(Box, {
       objectPosition: "center",
       flexShrink: 0,
       borderRadius: "50%",
-      // Quiet: the coin logo sits on a plain surface — no coin-coloured ring.
       padding: 0,
       background: "transparent",
+      // Subtle brand-coloured bloom around the coin logo in dark mode only.
+      ...(isDark && accent
+        ? { filter: `drop-shadow(0 0 5px ${accent}66)` }
+        : {}),
       [theme.breakpoints.down("md")]: {
         width: "14px",
         height: "14px",

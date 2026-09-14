@@ -66,7 +66,7 @@ const RecentSettlementsCard: React.FC<Props> = ({ companyId, cardSx, sym, loadin
         { date_from: dateFrom, date_to: dateTo, company_id: String(companyId), settled_only: settledOnly },
         { responseType: "blob" },
       );
-      const blob = new Blob([res.data], { type: res.headers?.["content-type"] || "text/csv" });
+      const blob = new Blob([res.data], { type: (res.headers?.["content-type"] as string | undefined) || "text/csv" });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;

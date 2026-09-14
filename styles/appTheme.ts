@@ -48,7 +48,7 @@ const headingTypography = {
  * standard CTAs). Full style is included (not just color) so it's correct
  * whether MUI replaces or concatenates the `variants` array.
  */
-const buttonVariants = (fillBg: string, fillText: string, fillHoverBg: string) => [
+const buttonVariants = (fillBg: string, fillText: string, fillHoverBg: string, glow?: string) => [
   {
     props: { variant: "rounded" as const },
     style: {
@@ -60,8 +60,9 @@ const buttonVariants = (fillBg: string, fillText: string, fillHoverBg: string) =
       borderRadius: "8px",
       textTransform: "none" as const,
       cursor: "pointer",
-      boxShadow: "none",
-      "&:hover": { color: fillText, background: fillHoverBg, boxShadow: "none" },
+      boxShadow: glow || "none",
+      transition: "background .18s ease, box-shadow .18s ease, transform .12s ease",
+      "&:hover": { color: fillText, background: fillHoverBg, boxShadow: glow || "none", transform: glow ? "translateY(-1px)" : "none" },
       "&.Mui-disabled": {
         background: fillBg,
         color: fillText,
@@ -117,8 +118,9 @@ const buttonVariants = (fillBg: string, fillText: string, fillHoverBg: string) =
       borderRadius: "8px",
       fontSize: "15px",
       textTransform: "none" as const,
-      boxShadow: "none",
-      "&:hover": { color: fillText, background: fillHoverBg },
+      boxShadow: glow || "none",
+      transition: "background .18s ease, box-shadow .18s ease, transform .12s ease",
+      "&:hover": { color: fillText, background: fillHoverBg, boxShadow: glow || "none", transform: glow ? "translateY(-1px)" : "none" },
       "&.Mui-disabled": { background: fillBg, color: fillText, opacity: 0.45 },
     },
   },
@@ -153,31 +155,40 @@ const sharedComponents = (isDark: boolean) => ({
         : {}),
     },
     variants: isDark
-      ? buttonVariants(INDIGO_DARK, "#FFFFFF", INDIGO_DARK_HOVER)
-      : buttonVariants(INDIGO_LIGHT, "#FFFFFF", INDIGO_LIGHT_HOVER),
+      ? buttonVariants(INDIGO_DARK, "#FFFFFF", INDIGO_DARK_HOVER, DARK.glowAccentStrong)
+      : buttonVariants(INDIGO_LIGHT, "#FFFFFF", INDIGO_LIGHT_HOVER, "0 4px 14px rgba(67,56,202,0.22)"),
   },
-  // Cards: flat solid surface + 1px hairline, no drop shadow at rest (§1.4).
+  // Cards: solid raised surface + hairline; layered shadow + accent bloom in
+  // dark for real depth (§ Aurora Dark). Light keeps a whisper-soft shadow.
   MuiCard: {
     styleOverrides: {
       root: {
         backgroundImage: "none",
-        border: `1px solid ${isDark ? DARK.border : "#E2E8F0"}`,
-        boxShadow: "none",
-        borderRadius: 12,
+        border: `1px solid ${isDark ? DARK.hairline : "#E2E8F0"}`,
+        boxShadow: isDark ? DARK.cardShadow : "0 1px 2px rgba(15,23,42,0.05)",
+        borderRadius: 14,
+        transition: "box-shadow .2s ease, border-color .2s ease",
+        ...(isDark
+          ? { "&:hover": { boxShadow: DARK.cardShadowHover, borderColor: DARK.hairlineStrong } }
+          : {}),
       },
     },
   },
-  // Inputs: 1px border, 8px radius, indigo focus ring (§3).
+  // Inputs: 1px border, 8px radius, indigo focus ring + glow (§3).
   MuiOutlinedInput: {
     styleOverrides: {
       root: {
         borderRadius: 8,
-        ...(isDark ? { backgroundColor: DARK.canvas } : {}),
+        ...(isDark ? { backgroundColor: DARK.raised } : {}),
+        transition: "box-shadow .18s ease, border-color .18s ease",
         "& .MuiOutlinedInput-notchedOutline": {
-          borderColor: isDark ? DARK.border : "#E2E8F0",
+          borderColor: isDark ? DARK.hairlineStrong : "#E2E8F0",
         },
         "&:hover .MuiOutlinedInput-notchedOutline": {
           borderColor: isDark ? DARK.borderStrong : "#CBD5E1",
+        },
+        "&.Mui-focused": {
+          boxShadow: isDark ? DARK.focusRing : "none",
         },
         "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
           borderColor: isDark ? INDIGO_DARK : INDIGO_LIGHT,

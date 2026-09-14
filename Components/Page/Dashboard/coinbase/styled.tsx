@@ -68,10 +68,13 @@ export const SurfaceCard = styled(Box)(({ theme }) => ({
   backgroundColor:
     theme.palette.mode === "dark" ? CB_TOKENS.surface.dark : CB_TOKENS.surface.light,
   border: `1px solid ${
-    theme.palette.mode === "dark" ? CB_TOKENS.border.dark : CB_TOKENS.border.light
+    theme.palette.mode === "dark" ? DARK.hairline : CB_TOKENS.border.light
   }`,
-  boxShadow: "none",
+  boxShadow: theme.palette.mode === "dark" ? DARK.cardShadow : "0 1px 2px rgba(15,23,42,0.05)",
   transition: "border-color 200ms ease, box-shadow 200ms ease",
+  ...(theme.palette.mode === "dark"
+    ? { "&:hover": { boxShadow: DARK.cardShadowHover, borderColor: DARK.hairlineStrong } }
+    : {}),
   [theme.breakpoints.down("sm")]: {
     padding: theme.spacing(2.25),
     borderRadius: 14,
@@ -247,12 +250,12 @@ export const PrimaryCTA = styled(Button)(({ theme }) => ({
   color: "#FFFFFF",
   backgroundColor:
     theme.palette.mode === "dark" ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light,
-  boxShadow: "none",
-  transition: "transform 150ms ease, opacity 150ms ease",
+  boxShadow: theme.palette.mode === "dark" ? DARK.glowAccentStrong : "0 4px 14px rgba(67,56,202,0.22)",
+  transition: "transform 150ms ease, opacity 150ms ease, box-shadow 150ms ease",
   "&:hover": {
     backgroundColor:
       theme.palette.mode === "dark" ? "#6D74E8" : "#4338CA",
-    boxShadow: "none",
+    boxShadow: theme.palette.mode === "dark" ? DARK.glowAccentStrong : "0 6px 18px rgba(67,56,202,0.30)",
     transform: "translateY(-1px)",
   },
   "&:disabled": {

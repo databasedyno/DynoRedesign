@@ -100,6 +100,9 @@ export const StatusDot: React.FC<StatusDotProps> = ({
             backgroundColor: t.hollow ? "transparent" : t.dot,
             border: t.hollow ? `1.5px solid ${t.dot}` : "none",
             boxSizing: "border-box",
+            // Aurora Dark (Phase 2): filled status dots get a soft bloom in dark
+            // so a live/settled state glows subtly against the deep canvas.
+            ...(isDark && !t.hollow ? { boxShadow: `0 0 8px ${t.dot}80` } : {}),
           }}
         />
       )}
