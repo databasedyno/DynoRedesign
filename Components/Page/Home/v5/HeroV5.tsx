@@ -56,7 +56,7 @@ const HeroV5: React.FC = () => {
               <LiveDot data-testid="hero-live-dot" />
               {t("v5.hero.eyebrow")}
             </Eyebrow>
-            <HeadlineXL component="h1" sx={{ color: s.ink, mb: 3, fontSize: "clamp(38px, 5.6vw, 76px)", ...enter(0.08) }}>
+            <HeadlineXL component="h1" sx={{ color: s.ink, mb: 3, fontSize: "clamp(38px, 5.6vw, 76px)", textShadow: s.dark ? "0 0 50px rgba(129,140,248,0.30)" : "none", ...enter(0.08) }}>
               {t("v5.hero.h1a")}
               <br />
               {t("v5.hero.h1b")}<GradientInk>{t("v5.hero.h1Accent")}</GradientInk>{t("v5.hero.h1c")}

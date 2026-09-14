@@ -872,12 +872,13 @@ const Register = () => {
                   {/* Continue Button */}
                   <CustomButton
                     variant="primary"
+                    pill
                     size="medium"
                     label={t("continue")}
                     onClick={handleContinue}
                     disabled={loading || phoneTypeChecking}
                     fullWidth
-                    sx={{ fontWeight: 700, padding: "13px 24px", borderRadius: "12px", fontSize: "15px" }}
+                    sx={{ fontWeight: 700, fontSize: "15px" }}
                     endIcon={loading ? <LoadingSpinner size={18} /> : undefined}
                     hideLabelWhenLoading={true}
                   />

@@ -1255,6 +1255,7 @@ export default function Login() {
               <CustomButton
                 label={t("continue")}
                 variant="primary"
+                pill
                 size="medium"
                 fullWidth
                 disabled={phoneCheckLoading}
@@ -1449,6 +1450,7 @@ export default function Login() {
               <CustomButton
                 label={t("continue")}
                 variant="primary"
+                pill
                 size="medium"
                 fullWidth
                 disabled={emailCheckLoading}
@@ -1870,6 +1872,7 @@ export default function Login() {
                 <CustomButton
                   label={t("signIn")}
                   variant="primary"
+                  pill
                   size="medium"
                   fullWidth
                   disabled={userState.loading}

@@ -1,0 +1,26 @@
+{
+  "summary": "Frontend-only regression + visual verification of the 4 UI enhancements against production (SAFE MODE / READ-ONLY). All 5 requested checks passed: (a) 2-step login still reaches /dashboard; (b) Auth CTAs 'Continue' (login step-1), 'Sign in' (signin-submit-btn), and Register step-2 'Continue' are large pills (borderRadius=9999px, ~358x54px) with the accent indigo glow boxShadow rgba(67,56,202,0.5) 0 12px 28px -10px; (c) auth-brand-carousel visible on desktop, auto-advances (content changed after ~4s), the 3 pill-dot indicators (aria-label 'Show checkout/dashboard/link') switch slides on click and the clicked dot becomes the wide/active one (22px vs 6px); brand panel is HIDDEN on 390px mobile; (d) landing hero H1 has textShadow 'rgba(129,140,248,0.3) 0px 0px 50px' in dark mode and 'none' in light mode; hero renders with no console/page errors; (e) dashboard renders in light+dark with dashboard buttons at 8px radius (not pills) and secondary text using zinc greys (rgb(82,82,91) / rgb(161,161,170)). Login toast 'Login Successful!' shown; no page errors captured.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Dashboard (light)", "issues": ["Sampled text colors still include a few slate values (rgb(71,85,105) slate-600 and rgb(100,116,139) slate-500) alongside the new zinc greys. Most primary/secondary text uses zinc correctly (rgb(24,24,27), rgb(82,82,91), rgb(161,161,170)); the residual slate values likely come from inline sx or component-local overrides that were not migrated in theme change. Non-blocking, low priority."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Optional: sweep dashboard components for any inline slate-500/slate-600 usages (rgb(71,85,105), rgb(100,116,139)) and migrate to zinc-500/600 to fully complete the neutralization."
+  ],
+  "critical_code_review_comments": [
+    "AuthBrandPanel dot buttons have aria-labels but no data-testid; adding data-testid='auth-brand-dot-<idx>' would harden future automation.",
+    "Register 'Continue' CTA appears only on Step 2 after selecting a use-case tile on Step 1 — that's expected UX, but tests must know about the wizard gate."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "100% (5/5 requested checks)"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (from /app/memory/test_credentials.md)",
+  "seed_data_creation": "None — READ-ONLY per instructions.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "All 4 UI enhancements verified live at https://cred-manager-29.preview.emergentagent.com. Selectors: login-email-input, password-input, signin-submit-btn, auth-brand-panel, auth-brand-carousel. Carousel dots are within auth-brand-panel: 3 buttons with aria-label 'Show checkout|dashboard|link', width 22 (active) vs 6 (inactive). Register Continue appears at Step 2 after clicking a use-case tile (e.g., 'Sell products'). Landing hero: [data-testid='hero-v5'] H1; textShadow present in dark, 'none' in light. Mobile 390px: auth-brand-panel is display:none / not visible."
+}

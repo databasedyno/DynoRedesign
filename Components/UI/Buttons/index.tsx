@@ -19,6 +19,13 @@ export interface CustomButtonProps {
    */
   loading?: boolean;
   fullWidth?: boolean;
+  /**
+   * When true, renders the button as a large, fully-rounded PILL with a soft
+   * accent glow + a gentle hover lift. Used for the primary auth CTAs
+   * (sign-in / continue / create account) to echo the auth hero panel.
+   * Dashboard buttons omit this and keep the square 8px "Quiet Money" look.
+   */
+  pill?: boolean;
   startIcon?: React.ReactNode | StaticImageData;
   endIcon?: React.ReactNode | StaticImageData;
   iconSize?: number;
@@ -41,6 +48,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   disabled = false,
   loading = false,
   fullWidth = false,
+  pill = false,
   startIcon,
   endIcon,
   iconSize,
@@ -201,6 +209,30 @@ const CustomButton: React.FC<CustomButtonProps> = ({
               color: (theme.palette.primary as any).contrastText || theme.palette.common.white,
             },
           }),
+        // Large pill CTA (auth): fully-rounded, taller, soft accent glow +
+        // hover lift. Overrides the base radius/height when `pill` is set.
+        ...(pill && {
+          borderRadius: "9999px",
+          height: isMobile ? "52px" : "54px",
+          minHeight: isMobile ? "52px" : "54px",
+          padding: "0 30px",
+          fontWeight: 700,
+          ...(variant === "primary" && !isBlockedForClicks && {
+            boxShadow:
+              theme.palette.mode === "dark"
+                ? "0 8px 26px -8px rgba(99,102,241,0.6), 0 0 0 1px rgba(129,140,248,0.22)"
+                : "0 12px 28px -10px rgba(67,56,202,0.5)",
+            "&:hover": {
+              backgroundColor: (theme.palette.primary as any).hover || `${BRAND_ACCENT}99`,
+              color: (theme.palette.primary as any).contrastText || theme.palette.common.white,
+              transform: "translateY(-1px)",
+              boxShadow:
+                theme.palette.mode === "dark"
+                  ? "0 12px 34px -6px rgba(99,102,241,0.8), 0 0 0 1px rgba(129,140,248,0.4), 0 0 40px rgba(99,102,241,0.34)"
+                  : "0 16px 34px -10px rgba(67,56,202,0.6)",
+            },
+          }),
+        }),
         // When loading (but not user-disabled), KEEP the variant color so
         // the button reads as "active / processing" instead of "disabled".
         ...(loading && !disabled && {

@@ -6,10 +6,12 @@ const EXEC = process.env.PLAYWRIGHT_CHROME_EXECUTABLE_PATH;
 
 const only = process.env.ONLY;
 let shots = [
-  { name: "login_dark_desktop", url: "/auth/login", w: 1440, h: 900, mode: "dark" },
-  { name: "login_light_desktop", url: "/auth/login", w: 1440, h: 900, mode: "light" },
-  { name: "register_dark_desktop", url: "/auth/register", w: 1440, h: 950, mode: "dark" },
+  { name: "login_dark_desktop", url: "/auth/login", w: 1440, h: 980, mode: "dark" },
+  { name: "login_light_desktop", url: "/auth/login", w: 1440, h: 980, mode: "light" },
+  { name: "register_dark_desktop", url: "/auth/register", w: 1440, h: 980, mode: "dark" },
   { name: "login_dark_mobile", url: "/auth/login", w: 390, h: 844, mode: "dark" },
+  { name: "landing_dark_hero", url: "/", w: 1440, h: 900, mode: "dark" },
+  { name: "landing_light_hero", url: "/", w: 1440, h: 900, mode: "light" },
 ];
 if (only) shots = shots.filter((s) => s.name.includes(only));
 
@@ -25,13 +27,13 @@ const run = async () => {
       localStorage.setItem("theme-mode-public", m);
       localStorage.setItem("theme-mode-inapp", m);
     }, s.mode);
-    await page.goto(BASE + s.url, { waitUntil: "networkidle" });
+    await page.goto(BASE + s.url, { waitUntil: "domcontentloaded" });
     try {
-      await page.waitForSelector("[data-testid='auth-brand-panel']", { timeout: 25000 });
+      await page.waitForSelector("[data-testid='auth-brand-panel'], [data-testid='hero-v5']", { timeout: 30000 });
     } catch {
       await page.waitForSelector("input", { timeout: 25000 });
     }
-    await page.waitForTimeout(2500);
+    await page.waitForTimeout(2800);
     await page.screenshot({ path: `${OUT}/${s.name}.png`, fullPage: false });
     console.log("saved", s.name);
   }

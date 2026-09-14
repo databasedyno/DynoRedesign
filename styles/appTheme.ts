@@ -274,10 +274,10 @@ export const appThemeLight = createTheme(theme, {
       main: "#F1F5F9",
       dark: "#E2E8F0",
       light: "#F8FAFC",
-      contrastText: "#475569",
+      contrastText: "#52525B",
     },
     background: { default: "#FAFAFC", paper: "#FFFFFF" },
-    text: { primary: "#0F172A", secondary: "#475569", disabled: "#94A3B8" },
+    text: { primary: "#18181B", secondary: "#52525B", disabled: "#A1A1AA" },
     divider: "#E2E8F0",
     border: {
       main: "#E2E8F0",

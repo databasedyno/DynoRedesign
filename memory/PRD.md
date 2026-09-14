@@ -2622,3 +2622,16 @@ Completed the 3 handed-off tasks from `EMERGENT_LANDING_ADOPTION_PLAN.md` plus t
 
 Verification: `testing_agent` iteration_171 → **100% frontend** (login+register split hero visible on desktop light+dark, hidden on 390px mobile; 2-step login → /dashboard; dark brand text = #818CF8; Inter body + tight Manrope headings; no console errors). Fixed the one flagged nit (dimmer middle "FEE" bento tile now has a matching dark-mode glow). QA shots: `/app/.screenshots/{login,register}_*_desktop.png`, `login_dark_mobile.png`. Preview-only until **Save to GitHub**.
 
+---
+
+## Auth/Landing Polish — Hero Glow · Pill CTAs · Device Carousel · Zinc Greys — 2026-09-14
+
+Follow-up pass; user selected all four next-action items. All verified via `testing_agent` iteration_172 → **100% frontend (5/5)**, 0 blocking issues.
+
+1. **Landing Hero Glow — DONE ✅** `Components/Page/Home/v5/HeroV5.tsx` — `HeadlineXL` now carries a dark-mode `textShadow` glow (`0 0 50px rgba(129,140,248,0.30)`, `none` in light). Tracking was already tight (`-0.035em`); gradient accent word already present.
+2. **Pill Auth CTAs — DONE ✅** `Components/UI/Buttons/index.tsx` — added an optional `pill` prop to `CustomButton` (default `false`, so dashboard buttons keep the square 8px look). Pill = fully-rounded, taller (54px), accent glow + hover lift. Applied to login `Continue`/`Sign in` (`pages/auth/login.tsx`) and register `Continue` (`pages/auth/register.tsx`, removed conflicting sx radius/padding).
+3. **Device Mockup Carousel — DONE ✅** `Components/UI/AuthLayout/AuthBrandPanel.tsx` rewritten — the brand panel now shows a browser-framed, CSS-drawn product carousel cycling **Hosted checkout → settlement dashboard → payment link** (auto-advance ~3.6s, respects reduced-motion, single-slide keyed fade so no ghosting). Pill dots double as clickable indicators (`data-testid='auth-brand-dot-<i>'`, container `auth-brand-carousel`). Added a compact stat row + kept the coin marquee. New copy keys in `langs/locales/en/auth.json` (defaultValue fallbacks for other locales).
+4. **Neutralize Light Greys — DONE ✅** `styles/appTheme.ts` light palette: text.primary `#0F172A→#18181B`, secondary `#475569→#52525B`, disabled `#94A3B8→#A1A1AA`, secondary.contrastText `→#52525B`. `constants/theme.ts` LIGHT: textSecondary `#475569→#52525B`, textMuted `#64748B→#71717A` (zinc). Auth theme was already neutral. (Low-pri residual: a couple of component-local slate values remain — documented, non-blocking.)
+
+`tsc --noEmit` clean, ESLint 0 errors (pre-existing hook warnings only), contrast guardrail green. QA shots: `/app/.screenshots/{login,register,landing}_*.png`. Preview-only until **Save to GitHub**.
+
