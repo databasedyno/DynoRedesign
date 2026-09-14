@@ -3,7 +3,7 @@
 const { chromium } = require("playwright");
 const sharp = require("sharp");
 
-const BASE = process.env.BASE || "https://speedup-check.preview.emergentagent.com";
+const BASE = process.env.BASE || "https://cred-manager-29.preview.emergentagent.com";
 const OUT = "/app/public/landing/products";
 
 (async () => {

@@ -331,7 +331,7 @@
 # ============================================================================
 # CURRENT SESSION — 2026-09-13 (pod d8a825c4): 3 MORE CHANGES (brand-in-email, buyer language, network labels)
 #   Env: LIVE PROD DB + REDIS, SAFE MODE (bg jobs OFF, outbound email OFF -> dumped
-#   to /app/memory/email_outbox). Preview: https://speedup-check.preview.emergentagent.com
+#   to /app/memory/email_outbox). Preview: https://cred-manager-29.preview.emergentagent.com
 #
 #   TASK 2 (BACKEND) — merchant "payment link created" email omitted which BRAND.
 #     * sendPaymentLinkCreatedEmail + sendCrowdfundingCampaignCreatedEmail now take
@@ -373,7 +373,7 @@
 # CURRENT SESSION — 2026-09-13 (pod d8a825c4): RECEIPT EMAIL RELIABILITY FIX (BACKEND)
 #   Env: LIVE PROD DB + PROD REDIS, SAFE MODE (bg jobs OFF, outbound email OFF —
 #   "sent" == dumped to /app/memory/email_outbox). Preview origin THIS pod:
-#   https://speedup-check.preview.emergentagent.com
+#   https://cred-manager-29.preview.emergentagent.com
 #
 #   USER BUG: On production, buyer paid (ETH, confirmed) then entered their email
 #   on the success screen to get a receipt — no receipt arrived.
@@ -524,7 +524,7 @@
 # HANDOFF — 2026-09-13 (pod b46f1f75): TWO FIXES AWAITING TESTING_AGENT VERIFICATION
 #   Status: CODE COMPLETE, NOT YET VERIFIED. User deferred testing to next agent.
 #   Env: LIVE PROD DB, SAFE MODE (bg jobs OFF, outbound email OFF). Test via
-#   EXTERNAL preview origin: https://speedup-check.preview.emergentagent.com
+#   EXTERNAL preview origin: https://cred-manager-29.preview.emergentagent.com
 #   Login (2-step): /auth/login -> login-email-input onarrival21@gmail.com ->
 #   button "Continue" -> password-input Katiekendra123@ -> signin-submit-btn
 #
@@ -600,7 +600,7 @@
 # CURRENT SESSION — 2026-09-13 (pod b46f1f75): CREATE-PAY-LINK CRYPTO PICKER — DUPLICATE NAME FIX
 #
 #   Wired to LIVE PROD DB in SAFE MODE. Test via EXTERNAL preview origin.
-#   Preview origin: https://speedup-check.preview.emergentagent.com
+#   Preview origin: https://cred-manager-29.preview.emergentagent.com
 #
 #   BUG (reported by user, with screenshot): In the Create Payment Link crypto
 #   picker each coin row rendered BOTH item.name AND item.label. For coins where
@@ -625,7 +625,7 @@
 #
 #   ✅✅✅ CRYPTO PICKER DUPLICATE NAME FIX — ALL TESTS PASSED ✅✅✅
 #      
-#      Test URL: https://speedup-check.preview.emergentagent.com
+#      Test URL: https://cred-manager-29.preview.emergentagent.com
 #      Login: onarrival21@gmail.com / Katiekendra123@ (2-step)
 #      Test page: /create-pay-link -> Accepted cryptocurrencies section
 #      
@@ -708,7 +708,7 @@
 #
 #   Wired to LIVE PROD DB in SAFE MODE (outbound email OFF, background jobs OFF).
 #   Test via the EXTERNAL preview origin (client uses a RELATIVE /api base).
-#   Preview origin: https://speedup-check.preview.emergentagent.com
+#   Preview origin: https://cred-manager-29.preview.emergentagent.com
 #
 #   FEATURE UNDER TEST: Buyer email capture on createPayment
 #     When a merchant passes `customer_email` (+ optional `customer_name`) to
@@ -863,7 +863,7 @@
 #         - Fix confirmed: duplicate removed, kept ../models import
 #      
 #      RUNTIME VERIFICATION (via EXTERNAL preview origin):
-#      URL: https://speedup-check.preview.emergentagent.com
+#      URL: https://cred-manager-29.preview.emergentagent.com
 #      
 #      ✅ TEST 1: Admin Login (POST /api/admin/login)
 #         - Status: HTTP 200
@@ -957,7 +957,7 @@
 #   ============================================================================
 #
 #   ✅✅✅ FIX 2: AUTH PAGE LANGUAGE FLAGS — PASS ✅✅✅
-#      URL: https://speedup-check.preview.emergentagent.com/auth/login
+#      URL: https://cred-manager-29.preview.emergentagent.com/auth/login
 #      
 #      Flag Verification (6/6 PASS):
 #      ✅ English (en): Flag image present
@@ -975,7 +975,7 @@
 #      Screenshot: .screenshots/fix2-language-flags.png
 #
 #   ✅✅✅ FIX 1: BRAND SWITCHING DASHBOARD REFRESH — PASS ✅✅✅
-#      URL: https://speedup-check.preview.emergentagent.com/dashboard
+#      URL: https://cred-manager-29.preview.emergentagent.com/dashboard
 #      Login: onarrival21@gmail.com / Katiekendra123@ (2-step)
 #      
 #      Initial State:
@@ -1146,7 +1146,7 @@
 #   ============================================================================
 #
 #   ✅ TEST 1: LANDING PAGE HEADER LOGO — PASS
-#      URL: https://speedup-check.preview.emergentagent.com/
+#      URL: https://cred-manager-29.preview.emergentagent.com/
 #      Status: HTTP 200
 #      Logo src: /_next/static/media/dynopay-blackLogo.ae235c0d.svg
 #      ✓ NEW logo confirmed: dynopay wordmark with indigo "o" coin mark (dyn⊙pay)
@@ -1154,14 +1154,14 @@
 #      Screenshot: .screenshots/landing-header-logo.png
 #
 #   ✅ TEST 2: LANDING PAGE FOOTER LOGO — PASS
-#      URL: https://speedup-check.preview.emergentagent.com/ (footer)
+#      URL: https://cred-manager-29.preview.emergentagent.com/ (footer)
 #      Logo src: /_next/static/media/dynopay-blackLogo.ae235c0d.svg
 #      ✓ NEW logo confirmed in footer (same as header)
 #      ✓ Logo visible and renders correctly
 #      Screenshot: .screenshots/landing-footer-logo.png
 #
 #   ✅ TEST 3: AUTH PAGE LOGO — PASS
-#      URL: https://speedup-check.preview.emergentagent.com/auth/login
+#      URL: https://cred-manager-29.preview.emergentagent.com/auth/login
 #      Status: HTTP 200
 #      Logo src: /_next/static/media/dynopay-blackLogo.ae235c0d.svg
 #      Logo alt: "logo"
@@ -1965,7 +1965,7 @@
 
 # ============================================================================
 # CURRENT SESSION — 2026-09-06 (pod 0e2b393a): WEBHOOK REDIRECT FIX + last_login_ip + SIGNUP GEO CAPTURE
-#   Preview: https://speedup-check.preview.emergentagent.com
+#   Preview: https://cred-manager-29.preview.emergentagent.com
 #   Merchant login: onarrival21@gmail.com / Katiekendra123@ (2-step). ⚠ Preview wired to LIVE prod DB — SAFE MODE.
 #   Pod set up via `bash scripts/pod-bootstrap.sh --pass '<vault pass>'`. Backgroud jobs OFF, outbound email OFF.
 #
@@ -2034,7 +2034,7 @@
 #   `sh .husky/pre-commit` exit 0 (contrast check is warn-only, pre-existing files); backend tsc clean.
 # ============================================================================
 # CURRENT SESSION (part 2) — 2026-09-06 (pod 1a75b74d): RECEIPT COIN LOGO + SHAREABLE RECEIPT LINK + DE/NL REGISTER SWEEP
-#   Preview: https://speedup-check.preview.emergentagent.com   ⚠ LIVE prod DB — READ-ONLY checks.
+#   Preview: https://cred-manager-29.preview.emergentagent.com   ⚠ LIVE prod DB — READ-ONLY checks.
 #   1) REGISTER SWEEP (backend/scripts/apply_register_sweep.py): 18 DE + 83 NL email strings rewritten to the formal
 #      register (Sie / u·uw); built-in lint asserts 0 informal markers remain. Key sets identical across 6 langs.
 #   2) RECEIPT COIN LOGO: backend/utils/networkLabels.ts (NEW: coin symbol / network display names, mirrors frontend
@@ -2070,7 +2070,7 @@
 #     without customer token -> 401/403; the verify scripts; no new backend errors. Do NOT create payments.
 # ============================================================================
 # CURRENT SESSION — 2026-09-06 (pod 1a75b74d): EMAIL FOOTER LOCALIZATION + COPY DE-DUPE + PDF RECEIPT/INVOICE AUDIT
-#   Preview: https://speedup-check.preview.emergentagent.com
+#   Preview: https://cred-manager-29.preview.emergentagent.com
 #   Merchant login: onarrival21@gmail.com / Katiekendra123@ (2-step). ⚠ Preview wired to LIVE prod DB — READ-ONLY checks.
 #   Pod set up via `bash scripts/pod-bootstrap.sh --pass '<vault pass>'` (74s). SAFE MODE on (bg jobs OFF, email OFF).
 #   User's 7-item list: Transactions polish / Payment-links polish / Checkout copy pulse / Confirmed check-mark were
@@ -2118,7 +2118,7 @@
 
 # ============================================================================
 # CURRENT SESSION — 2026-09-06 (pod 4afb1c97): 4 MERCHANT UX FIXES + CHECKOUT REAL-TIME STATUS
-#   Preview: https://speedup-check.preview.emergentagent.com
+#   Preview: https://cred-manager-29.preview.emergentagent.com
 #   Merchant login: onarrival21@gmail.com / Katiekendra123@ (2-step: email -> Continue -> password)
 #   ⚠ Preview is wired to the LIVE prod DB — READ-ONLY checks preferred; do not create/save records
 #     unless explicitly asked. Do NOT touch Binance/conversion code (out of scope this session).
@@ -2244,7 +2244,7 @@
 # ============================================================================
 #   Tested by: testing_agent (Playwright browser automation)
 #   Test date: 2026-09-05
-#   Preview URL: https://speedup-check.preview.emergentagent.com
+#   Preview URL: https://cred-manager-29.preview.emergentagent.com
 #
 #   CONTEXT: Verified the Open Graph (OG) image fix for Dynopay. The old black 
 #   blob logo was replaced with the NEW indigo/purple circular conversion-coin 
@@ -2556,7 +2556,7 @@
 #   show their real date (e.g. /for/saas 2026-08-29); lastmod URL count 10 -> 31. eslint clean.
 #
 #   BACKEND/HTTP TEST FOCUS (READ-ONLY curl; no data writes):
-#     Preview base: https://speedup-check.preview.emergentagent.com
+#     Preview base: https://cred-manager-29.preview.emergentagent.com
 #     1) GET /sitemap.xml -> HTTP 200, valid XML (<urlset>), not an error page.
 #     2) Each of the 6 new verticals has a <url> block with <lastmod>2026-09-05</lastmod>:
 #        /for/online-courses, /for/dropshipping, /for/affiliate-marketing, /for/forex-trading,
@@ -2570,7 +2570,7 @@
 # ============================================================================
 #   Tested by: testing_agent (READ-ONLY curl verification on preview)
 #   Test date: 2026-09-05
-#   Preview URL: https://speedup-check.preview.emergentagent.com
+#   Preview URL: https://cred-manager-29.preview.emergentagent.com
 #
 #   TEST RESULTS SUMMARY:
 #   ✓ 1) GET /sitemap.xml — PASS
@@ -2618,7 +2618,7 @@
 
 # ============================================================================
 # CURRENT SESSION — 2026-09-05 (pod 4c5482a5): ANOMALY FIXES + 3 FEATURES
-#   LIVE prod DB, SAFE MODE. Preview: https://speedup-check.preview.emergentagent.com
+#   LIVE prod DB, SAFE MODE. Preview: https://cred-manager-29.preview.emergentagent.com
 #   Owner login (READ-ONLY testing only): onarrival21@gmail.com / Katiekendra123@ (user_id=1).
 #   tsc --noEmit = 0 errors; eslint clean on all touched files.
 #
@@ -2664,7 +2664,7 @@
 # ============================================================================
 #   Tested by: testing_agent (READ-ONLY verification on LIVE prod DB, SAFE MODE)
 #   Test date: 2026-09-05
-#   Preview URL: https://speedup-check.preview.emergentagent.com
+#   Preview URL: https://cred-manager-29.preview.emergentagent.com
 #   Login: onarrival21@gmail.com / Katiekendra123@ (user_id=1)
 #
 #   TEST RESULTS SUMMARY:
@@ -2689,7 +2689,7 @@
 #   ✓ 4) ATTRIBUTION BEACON — PASS (PRIMARY FIX VERIFIED)
 #        - Login flow successful: 2-step email → Continue → password → Sign in
 #        - POST request to /api/track/attribution CAPTURED immediately after auth token storage
-#        - Request URL: https://speedup-check.preview.emergentagent.com/api/track/attribution
+#        - Request URL: https://cred-manager-29.preview.emergentagent.com/api/track/attribution
 #        - Timing: Fired during navigation to /dashboard (within 3 seconds of login)
 #        - This confirms the Redux userReducer.ts fix is working (syncAttribution fires on USER_LOGIN)
 #
@@ -2716,7 +2716,7 @@
 # ============================================================================
 # CURRENT SESSION — 2026-09-05 (pod 4c5482a5): SETUP + EMAIL LOGO FIX + OPS ANALYSIS
 #   Restored env from vault (Katiekendra123@) -> pod-bootstrap. LIVE prod DB, SAFE MODE.
-#   Preview: https://speedup-check.preview.emergentagent.com
+#   Preview: https://cred-manager-29.preview.emergentagent.com
 #   Owner login: onarrival21@gmail.com / Katiekendra123@ (user_id=1).
 #
 #   BUG FIX (committed 11ba6405b, already DEPLOYED to prod dynopay.com): admin + merchant
@@ -2761,7 +2761,7 @@
 # CURRENT SESSION — 2026-09-02 (pod 054d2272): SETUP + TEST LAST COMMIT + FEATURE + BUG
 #   Restored env from encrypted vault (passphrase Katiekendra123@) -> pod-bootstrap --skip-env.
 #   LIVE prod DB, SAFE MODE (bg jobs off, email off, Redis /1, Binance/SSH tunnel blanked).
-#   Preview: https://speedup-check.preview.emergentagent.com
+#   Preview: https://cred-manager-29.preview.emergentagent.com
 #   Owner login: onarrival21@gmail.com / Katiekendra123@ (user_id=1, company_id=1 "Hostbay").
 #
 #   PLAN (user-approved):
@@ -2843,7 +2843,7 @@
 
 # ============================================================================
 # CURRENT SESSION — 2026-09-01 (fork, pod d4fef0d9): FLICKER FIX + DOCS + LANDING BRANDS
-#   LIVE prod DB, SAFE MODE. Preview: https://speedup-check.preview.emergentagent.com
+#   LIVE prod DB, SAFE MODE. Preview: https://cred-manager-29.preview.emergentagent.com
 #   Respond in English. Owner: onarrival21@gmail.com / Katiekendra123@ (user_id=1).
 #
 #   (P0) ISSUE #4 — payment-link "double-load / flicker" — FIXED + VERIFIED.
@@ -3061,7 +3061,7 @@
 # ============================================================================
 #   Tested by: testing_agent (Playwright browser automation)
 #   Test date: 2026-09-05
-#   Preview URL: https://speedup-check.preview.emergentagent.com
+#   Preview URL: https://cred-manager-29.preview.emergentagent.com
 #
 #   CONTEXT: Verified the favicon fix for Dynopay (Next.js app). Google search was 
 #   showing an old/wrong black icon. The fix ensures the site exposes a correct, 
@@ -3342,7 +3342,7 @@
 #   backend directly on port 3300 where SSE works correctly.
 #
 #   PRODUCTION IMPACT: The preview environment uses the Python proxy, so SSE will NOT
-#   work on https://speedup-check.preview.emergentagent.com/api/pay/stream.
+#   work on https://cred-manager-29.preview.emergentagent.com/api/pay/stream.
 #   However, production (dynopay.com) uses nginx directly to the Node backend, so SSE
 #   will work correctly in production. The proxy is only used in the preview environment.
 #
@@ -3363,7 +3363,7 @@
 #   Tested by: testing_agent
 #   Test date: 2026-09-06
 #   Base URL: http://localhost:8001
-#   Preview: https://speedup-check.preview.emergentagent.com
+#   Preview: https://cred-manager-29.preview.emergentagent.com
 #
 #   CONTEXT: Backend-only verification for DynoPay email footer localization (7th lang param),
 #   locale key de-duplication, and PDF receipt/invoice 1-page audit. LIVE PRODUCTION Postgres DB
@@ -3555,7 +3555,7 @@
 # ============================================================================
 #   Tested by: testing_agent (READ-ONLY verification on LIVE prod DB, SAFE MODE)
 #   Test date: 2026-09-06
-#   Preview URL: https://speedup-check.preview.emergentagent.com
+#   Preview URL: https://cred-manager-29.preview.emergentagent.com
 #   Backend: Node/Express behind Python proxy on :8001
 #   Test receipt token: GwVgV4tgx8YUD5BySU7QtY (seeded, DO NOT DELETE)
 #
@@ -3600,7 +3600,7 @@
 #        - X-Robots-Tag: noindex ✓
 #
 #   ✓ 3) GET VIA EXTERNAL URL — PASS
-#        Command: curl https://speedup-check.preview.emergentagent.com/api/pay/receipt/GwVgV4tgx8YUD5BySU7QtY
+#        Command: curl https://cred-manager-29.preview.emergentagent.com/api/pay/receipt/GwVgV4tgx8YUD5BySU7QtY
 #        Result: HTTP 200, same data as localhost test
 #        - token: "GwVgV4tgx8YUD5BySU7QtY" ✓
 #        - network: "Bitcoin" ✓
@@ -3893,7 +3893,7 @@
 # ============================================================================
 #   Tested by: testing_agent
 #   Test date: 2026-09-06
-#   Preview URL: https://speedup-check.preview.emergentagent.com
+#   Preview URL: https://cred-manager-29.preview.emergentagent.com
 #   Backend URL: http://localhost:8001
 #
 #   CONTEXT: Verified three backend bug fixes for DynoPay:
@@ -4314,7 +4314,7 @@
 # ============================================================================
 #   Tested by: testing_agent
 #   Test date: 2026-09-07
-#   Preview URL: https://speedup-check.preview.emergentagent.com
+#   Preview URL: https://cred-manager-29.preview.emergentagent.com
 #
 #   CONTEXT: Verified the frontend UI changes for "Split Name Fields" feature.
 #   Two tests requested:
@@ -4492,7 +4492,7 @@
 # ============================================================================
 #   Tested by: testing_agent
 #   Test date: 2026-09-08T08:06:08Z
-#   Backend base: https://speedup-check.preview.emergentagent.com/api
+#   Backend base: https://cred-manager-29.preview.emergentagent.com/api
 #   Test session: qa-inbox-1788854802
 #
 #   CONTEXT: Verified the NEW Admin Support Inbox backend for Dynopay app.
@@ -4669,7 +4669,7 @@
 - Payload: company_id=71, amount=10, currency='USD', 
   accepted_currencies=['BTC','ETH','USDT-TRC20']
 - Result: HTTP 200, payment_link created
-- Link: https://speedup-check.preview.emergentagent.com/pay?d=a6RCzt
+- Link: https://cred-manager-29.preview.emergentagent.com/pay?d=a6RCzt
 - ✓ Endpoint accepts accepted_currencies array
 - ✓ Link created successfully with specified currencies
 
@@ -4677,7 +4677,7 @@
 - Endpoint: POST /api/pay/createPaymentLink
 - Payload: company_id=71, amount=10, currency='USD', accepted_currencies=[]
 - Result: HTTP 200, payment_link created
-- Link: https://speedup-check.preview.emergentagent.com/pay?d=3Sn3AH
+- Link: https://cred-manager-29.preview.emergentagent.com/pay?d=3Sn3AH
 - ✓ Empty array accepted (treated as "all configured currencies")
 - ✓ No validation error for empty array
 
@@ -4685,7 +4685,7 @@
 - Endpoint: POST /api/pay/createPaymentLink
 - Payload: company_id=1, amount=10, currency='USD', accepted_currencies=[]
 - Result: HTTP 200, payment_link created
-- Link: https://speedup-check.preview.emergentagent.com/pay?d=CSQwKs
+- Link: https://cred-manager-29.preview.emergentagent.com/pay?d=CSQwKs
 - ✓ Works for company_id=1 (owner's main brand)
 
 **TEST B VERDICT**: ✅✅✅ ALL PASS
@@ -4820,7 +4820,7 @@ Test Data Cleaned: Attempted (deletion blocked by OTP requirement)
 # TESTING_AGENT VERIFICATION — 2026-09-13 (pod d8a825c4): TASK 4 FRONTEND NETWORK LABELS
 # ============================================================================
 #   Test date: 2026-09-13
-#   Test URL: https://speedup-check.preview.emergentagent.com/pay?d=rNtQRX
+#   Test URL: https://cred-manager-29.preview.emergentagent.com/pay?d=rNtQRX
 #   Payment link: The Dev Store, $15 USD
 #   
 #   CONTEXT: Verified the frontend enhancement for clearer crypto network labels in the
@@ -4975,7 +4975,7 @@ Test Data Cleaned: Attempted (deletion blocked by OTP requirement)
 #   Tested by: testing_agent
 #   Test date: 2026-09-13T19:13:00Z
 #   Backend base: http://localhost:8001
-#   External URL: https://speedup-check.preview.emergentagent.com
+#   External URL: https://cred-manager-29.preview.emergentagent.com
 #
 #   CONTEXT: Verified the NEW "Smart Checkout Minimums (Phase 1a)" backend feature
 #   for DynoPay. This feature prevents the silent "all funds to admin" case by
@@ -5181,7 +5181,7 @@ Test Data Cleaned: Attempted (deletion blocked by OTP requirement)
 #   Tested by: testing_agent
 #   Test date: 2026-09-13T19:50:00Z
 #   Backend base: http://localhost:8001
-#   External URL: https://speedup-check.preview.emergentagent.com
+#   External URL: https://cred-manager-29.preview.emergentagent.com
 #
 #   CONTEXT: Re-verified the DynoPay "coin minimums" backend after it changed from
 #   a flat $3 model to a LIVE per-chain network-fee model. The new implementation

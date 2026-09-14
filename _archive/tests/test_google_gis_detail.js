@@ -5,7 +5,7 @@
 
 const { chromium } = require('playwright');
 
-const PREVIEW_URL = 'https://speedup-check.preview.emergentagent.com';
+const PREVIEW_URL = 'https://cred-manager-29.preview.emergentagent.com';
 
 async function testGISIntegration() {
   console.log('='.repeat(80));

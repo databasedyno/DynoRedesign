@@ -1,6 +1,6 @@
 # Test credentials (current pod)
 
-Preview URL (THIS pod): https://speedup-check.preview.emergentagent.com
+Preview URL (THIS pod): https://cred-manager-29.preview.emergentagent.com
 
 ## Brands on the owner account (company selector: data-testid=company-option-<id>)
 - 1 The Dev Store — populated (458 payments) → normal dashboard

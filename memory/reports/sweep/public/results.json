@@ -239,7 +239,7 @@
   "theme": "light",
   "w": 390,
   "p": "/creator",
-  "error": "page.goto: net::ERR_ABORTED at https://speedup-check.preview.emergentagent.com/creator\nCall log:\n  - navigating to \"https://speedup-check.preview.emergentagent.com/creator\", waiting un"
+  "error": "page.goto: net::ERR_ABORTED at https://cred-manager-29.preview.emergentagent.com/creator\nCall log:\n  - navigating to \"https://cred-manager-29.preview.emergentagent.com/creator\", waiting un"
  },
  {
   "theme": "light",

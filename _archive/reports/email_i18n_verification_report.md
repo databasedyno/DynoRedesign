@@ -2,7 +2,7 @@
 ## DynoPay Backend - 2026-09-02
 
 ### Test Environment
-- **Base URL**: https://speedup-check.preview.emergentagent.com
+- **Base URL**: https://cred-manager-29.preview.emergentagent.com
 - **Mode**: LIVE prod DB, SAFE MODE (email disabled)
 - **Backend**: Node.js/TypeScript on port 3300 (via Python proxy on 8001)
 - **Test Type**: READ-ONLY regression + boot verification

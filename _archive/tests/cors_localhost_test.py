@@ -41,7 +41,7 @@ TESTS = [
     },
     {
         "id": 5,
-        "origin": "https://speedup-check.preview.emergentagent.com",
+        "origin": "https://cred-manager-29.preview.emergentagent.com",
         "expected": "ALLOWED",
         "description": "Preview pattern"
     },

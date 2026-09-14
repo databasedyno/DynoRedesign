@@ -4,7 +4,7 @@ import json
 import pytest
 import requests
 
-BASE = "https://50ef14bb-0f38-4cdd-b053-5f782bcefcf9.preview.emergentagent.com"
+BASE = "https://cred-manager-29.preview.emergentagent.com"
 
 HELP_SLUGS = [
     "supported-cryptocurrencies-and-networks",

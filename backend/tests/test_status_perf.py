@@ -4,7 +4,7 @@ import time
 import requests
 import pytest
 
-BASE_URL = "https://speedup-check.preview.emergentagent.com"
+BASE_URL = "https://cred-manager-29.preview.emergentagent.com"
 
 
 def _csrf_session():

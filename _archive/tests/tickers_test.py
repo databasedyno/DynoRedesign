@@ -11,7 +11,7 @@ from datetime import datetime
 import sys
 
 # Configuration - using the external preview URL as specified
-BASE_URL = "https://speedup-check.preview.emergentagent.com"
+BASE_URL = "https://cred-manager-29.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test results

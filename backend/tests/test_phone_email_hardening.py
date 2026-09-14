@@ -10,7 +10,7 @@ import subprocess
 import pytest
 import requests
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://speedup-check.preview.emergentagent.com").rstrip("/")
+BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://cred-manager-29.preview.emergentagent.com").rstrip("/")
 MERCHANT_EMAIL = "onarrival21@gmail.com"
 MERCHANT_PASSWORD = "Katiekendra123@"
 

@@ -54,7 +54,7 @@
     "/app/backend/tests/test_brand_delete_otp_flow.py"
   ],
   "success_rate": {"backend": "100% (8/8)", "frontend": "80% (4/5 verified — 1 high-severity bug + 1 minor title mismatch)"},
-  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (merchant, user_id=1). Preview: https://speedup-check.preview.emergentagent.com",
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (merchant, user_id=1). Preview: https://cred-manager-29.preview.emergentagent.com",
   "seed_data_creation": "Created one QA brand via addCompany (name 'QA Agent Brand <ts>') for pytest lifecycle and deleted it via OTP flow in the same run. Also cleaned up 'QA Throwaway Brand' (id 175) via API after UI test was aborted to avoid deleting 'The Dev Store'. Account now has 4 brands (The Dev Store, SMADAV, Nameword, The QA Store).",
   "retest_needed": true,
   "should_main_agent_self_test": true,

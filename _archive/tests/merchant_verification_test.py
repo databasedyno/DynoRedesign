@@ -15,7 +15,7 @@ from typing import Dict, Any, Optional
 from urllib.parse import quote
 
 # Configuration
-BASE_URL = "https://speedup-check.preview.emergentagent.com"
+BASE_URL = "https://cred-manager-29.preview.emergentagent.com"
 OWNER_EMAIL = "onarrival21@gmail.com"
 OWNER_PASSWORD = "Katiekendra123@"
 

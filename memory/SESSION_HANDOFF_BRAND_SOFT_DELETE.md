@@ -6,7 +6,7 @@
 
 # SESSION HANDOFF — Brand 7-Day Soft Delete + 3 fixes (2026-06, pod 7f90e7ef)
 
-Preview URL (THIS pod): https://speedup-check.preview.emergentagent.com
+Preview URL (THIS pod): https://cred-manager-29.preview.emergentagent.com
 Mode: SAFE MODE, wired to PRODUCTION Railway Postgres. Outbound email OFF (DISABLE_OUTBOUND_EMAIL=true,
 emails dumped to EMAIL_DUMP_DIR). Background jobs OFF (cron won't run here — runs in prod only).
 User approved running the schema migration against production (already applied — see below).

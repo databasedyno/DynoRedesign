@@ -4,7 +4,7 @@
 # Tests: Email button render, CTA routes, sweep module, core API, checkout data
 # SAFETY: READ-ONLY tests only. No mutations, no emails, no sweeps.
 
-API_BASE="https://speedup-check.preview.emergentagent.com/api"
+API_BASE="https://cred-manager-29.preview.emergentagent.com/api"
 
 echo "╔════════════════════════════════════════════════════════════╗"
 echo "║  Backend Test Suite - 4-Issue Fix Batch (session 10b)     ║"

@@ -6,7 +6,7 @@ import os
 import pytest
 import requests
 
-BASE = "https://speedup-check.preview.emergentagent.com"
+BASE = "https://cred-manager-29.preview.emergentagent.com"
 EMAIL = "hostbay@moxx.co"
 PASSWORD = "Katiekendra123@"
 

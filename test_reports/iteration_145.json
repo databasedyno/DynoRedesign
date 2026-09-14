@@ -37,6 +37,6 @@
   "seed_data_creation": "None. READ-ONLY as instructed. Added items to localStorage cart on /csvcleanroom (client-side, no backend records).",
   "retest_needed": false,
   "should_main_agent_self_test": true,
-  "context_for_next_testing_agent": "Preview URL: https://speedup-check.preview.emergentagent.com. Fee-split UI lives at /settings?section=payments -> click 'Payment tolerance' accordion; testids fee-split-visibility + fee-split-option-{auto|always|never}. Payments settings-rail testid = settings-rail-payments. csvcleanroom has 5 products: local-ops-toolkit ($19), pii-shield ($9), utm-lab, invoiceforge, csv-cleanroom. Backend health lives at /api/status (NOT /api/health).",
+  "context_for_next_testing_agent": "Preview URL: https://cred-manager-29.preview.emergentagent.com. Fee-split UI lives at /settings?section=payments -> click 'Payment tolerance' accordion; testids fee-split-visibility + fee-split-option-{auto|always|never}. Payments settings-rail testid = settings-rail-payments. csvcleanroom has 5 products: local-ops-toolkit ($19), pii-shield ($9), utm-lab, invoiceforge, csv-cleanroom. Backend health lives at /api/status (NOT /api/health).",
   "rca of the issue": "N/A \u2014 two soft findings: (1) A4 WalletHelp testids invisible because merchant has 13 wallets \u2014 WalletHelp likely conditional on wallets.length===0. (2) /health returns 404 because no such route exists in /app/backend/routes/index.ts; only /api/status is exposed."
 }

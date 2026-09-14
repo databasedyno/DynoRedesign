@@ -20,7 +20,7 @@
   "seed_data_creation": "none",
   "retest_needed": false,
   "should_main_agent_self_test": true,
-  "context_for_next_testing_agent": "Swagger op ids contain emoji (📡). Use page.locator('[id=\"operations-📡_Webhooks-get_api_webhooks\"]'). Injected copy pill is an anchor button with data-testid=swagger-copy-btn inside a sibling div.dp-copy-wrap (not inside <pre>). Grant clipboard-read/write to https://speedup-check.preview.emergentagent.com origin. curl -sL localhost:8001/api/docs/ | grep -c dp-copy-btn == 4 confirms script served.",
+  "context_for_next_testing_agent": "Swagger op ids contain emoji (📡). Use page.locator('[id=\"operations-📡_Webhooks-get_api_webhooks\"]'). Injected copy pill is an anchor button with data-testid=swagger-copy-btn inside a sibling div.dp-copy-wrap (not inside <pre>). Grant clipboard-read/write to https://cred-manager-29.preview.emergentagent.com origin. curl -sL localhost:8001/api/docs/ | grep -c dp-copy-btn == 4 confirms script served.",
   "verified": {
     "swagger_desktop_1920": "GET /api/webhooks: 7 pres / 7 buttons; first button rect inside its pre rect; style bg rgb(59,65,81) white text; click -> label 'Copied', data-copied=true, clipboard equals code and starts with '// This will fail'; reverts to 'Copy' after 1.5s.",
     "swagger_integration_guide": "6 pres / 6 buttons; total 13 after both ops expanded; collapse+re-expand of first op still yields 7 (no duplicate stacking).",

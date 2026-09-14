@@ -4,7 +4,7 @@
 - **Email**: nomadly@moxx.co
 - **Password**: Katiekendra123@
 - **Company**: Nomadly1
-- **Pod URL**: https://speedup-check.preview.emergentagent.com
+- **Pod URL**: https://cred-manager-29.preview.emergentagent.com
 
 ---
 

@@ -3,7 +3,7 @@
  * Tests B, C, D: API endpoint testing with authentication
  */
 
-const BASE_URL = 'https://speedup-check.preview.emergentagent.com/api';
+const BASE_URL = 'https://cred-manager-29.preview.emergentagent.com/api';
 const TEST_EMAIL = 'hostbay@moxx.co';
 const TEST_PASSWORD = 'Katiekendra123@';
 

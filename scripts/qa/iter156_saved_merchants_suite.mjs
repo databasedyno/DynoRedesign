@@ -2,7 +2,7 @@
 // save merchant toggle, receipt buttons, inline tip checkout, /saved page, i18n, regression.
 import { chromium } from "playwright";
 
-const BASE = "https://speedup-check.preview.emergentagent.com";
+const BASE = "https://cred-manager-29.preview.emergentagent.com";
 const EXE = process.env.PLAYWRIGHT_CHROME_EXECUTABLE_PATH || "/pw-browsers/chromium_headless_shell-1208/chrome-linux/headless_shell";
 
 const results = [];

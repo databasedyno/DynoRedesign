@@ -33,7 +33,7 @@ import os
 from typing import Dict, Any, Optional
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://speedup-check.preview.emergentagent.com"
+BACKEND_URL = "https://cred-manager-29.preview.emergentagent.com"
 
 class TaxInvoiceBackendTester:
     def __init__(self):

@@ -1,7 +1,7 @@
 // Visual check of the link-based auth screens in their "valid" states using mocked API responses (no prod writes).
 import { chromium } from "playwright";
 import fs from "node:fs";
-const BASE = process.env.SWEEP_BASE_URL || "https://speedup-check.preview.emergentagent.com";
+const BASE = process.env.SWEEP_BASE_URL || "https://cred-manager-29.preview.emergentagent.com";
 const OUT = "/tmp/auth_mock"; fs.mkdirSync(OUT, { recursive: true });
 const browser = await chromium.launch({ executablePath: process.env.PLAYWRIGHT_CHROME_EXECUTABLE_PATH || "/pw-browsers/chromium_headless_shell-1208/chrome-linux/headless_shell" });
 const CASES = [

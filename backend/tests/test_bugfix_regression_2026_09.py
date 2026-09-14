@@ -15,7 +15,7 @@ import uuid
 import pytest
 import requests
 
-BASE = "https://speedup-check.preview.emergentagent.com"
+BASE = "https://cred-manager-29.preview.emergentagent.com"
 INTERNAL = "http://localhost:8001"  # for /health (not routed via /api ingress)
 
 EMAIL = "onarrival21@gmail.com"

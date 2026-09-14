@@ -8,7 +8,7 @@ import requests
 import json
 import sys
 
-BACKEND_URL = "https://speedup-check.preview.emergentagent.com"
+BACKEND_URL = "https://cred-manager-29.preview.emergentagent.com"
 
 def final_validation_tests():
     """Final validation of all review request requirements"""

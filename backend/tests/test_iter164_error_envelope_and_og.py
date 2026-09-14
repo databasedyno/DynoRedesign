@@ -8,7 +8,7 @@ import io
 import struct
 import requests
 
-BASE = "https://speedup-check.preview.emergentagent.com"
+BASE = "https://cred-manager-29.preview.emergentagent.com"
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
 HDRS = {"User-Agent": UA, "Accept": "*/*"}
 

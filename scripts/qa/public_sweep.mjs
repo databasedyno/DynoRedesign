@@ -2,7 +2,7 @@
 import { chromium } from "playwright";
 import fs from "node:fs";
 
-const BASE = process.env.SWEEP_BASE_URL || "https://speedup-check.preview.emergentagent.com";
+const BASE = process.env.SWEEP_BASE_URL || "https://cred-manager-29.preview.emergentagent.com";
 const args = Object.fromEntries(process.argv.slice(2).map((a) => { const k = a.replace(/^--/, ""); const i = k.indexOf("="); return i < 0 ? [k, ""] : [k.slice(0, i), k.slice(i + 1)]; }));
 const SHOTS = "shots" in args;
 const OUT = args.out || "/tmp/public_sweep";
