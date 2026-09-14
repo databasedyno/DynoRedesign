@@ -34,6 +34,12 @@ const openSupportChat = () => {
     }
 };
 
+// Accent- and case-insensitive folding so "sécurité" / "segurança" / "gebühren"
+// match what the visitor types regardless of diacritics — essential for the
+// localized (fr/es/pt/de/nl) help search to feel natural.
+const norm = (s: string) =>
+    (s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
 const HelpAndSupport = () => {
     const theme = useTheme();
     const isMobile = useIsMobile("md");
@@ -56,6 +62,46 @@ const HelpAndSupport = () => {
     const [articles, setArticles] = useState<KBArticle[]>(buildStatic);
     const [loading, setLoading] = useState(false);
     const [searching, setSearching] = useState(false);
+
+    // Full localized search text for one article: title + description + intro +
+    // every section heading / body / bullet, pulled from the ACTIVE-language
+    // i18n bundle (so a ?lang=fr visitor searches the French body, etc.).
+    const searchHaystack = useCallback(
+        (slug: string, fallbackTitle: string, fallbackDesc: string): string => {
+            const parts: string[] = [
+                t(`articles.${slug}.title`, { defaultValue: fallbackTitle }),
+                t(`articles.${slug}.description`, { defaultValue: fallbackDesc }),
+                t(`articles.${slug}.intro`, { defaultValue: "" }),
+            ];
+            const sections = t(`articles.${slug}.sections`, { returnObjects: true, defaultValue: [] }) as
+                | Array<{ heading?: string; body?: string; bullets?: string[] }>
+                | string;
+            if (Array.isArray(sections)) {
+                for (const sec of sections) {
+                    if (sec?.heading) parts.push(sec.heading);
+                    if (sec?.body) parts.push(sec.body);
+                    if (Array.isArray(sec?.bullets)) parts.push(...sec.bullets);
+                }
+            }
+            return norm(parts.join(" \n "));
+        },
+        [t],
+    );
+
+    // Client-side search across the full localized bodies. Multi-word queries
+    // match only when EVERY term is present (AND), which keeps results relevant.
+    const localFilter = useCallback(
+        (query: string): KBArticle[] => {
+            const q = norm(query.trim());
+            if (!q) return buildStatic();
+            const terms = q.split(/\s+/).filter(Boolean);
+            return buildStatic().filter((a) => {
+                const hay = searchHaystack(a.slug, a.title, a.description || "");
+                return terms.every((term) => hay.includes(term));
+            });
+        },
+        [buildStatic, searchHaystack],
+    );
 
     // Fetch articles from KB API, fallback to hardcoded data
     useEffect(() => {
@@ -119,18 +165,18 @@ const HelpAndSupport = () => {
                     description: a.excerpt || a.description || "",
                 })));
             } else {
-                // Fallback to client-side filter when search API returns empty
-                const q = searchTerm.toLowerCase();
-                setArticles(buildStatic().filter((a) => a.title.toLowerCase().includes(q) || (a.description || "").toLowerCase().includes(q)));
+                // No DB match — search the FULL localized article bodies (title,
+                // description, intro, and every section heading/body/bullet) in the
+                // visitor's current language so the translated article sets are used.
+                setArticles(localFilter(searchTerm));
             }
         } catch {
-            // Fallback to client-side filter
-            const q = searchTerm.toLowerCase();
-            setArticles(buildStatic().filter((a) => a.title.toLowerCase().includes(q)));
+            // Backend unavailable — same full localized client-side search.
+            setArticles(localFilter(searchTerm));
         } finally {
             setSearching(false);
         }
-    }, [searchTerm, buildStatic]);
+    }, [searchTerm, buildStatic, localFilter]);
 
     useEffect(() => {
         const handler = (e: KeyboardEvent) => {
