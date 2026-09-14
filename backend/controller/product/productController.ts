@@ -25,6 +25,7 @@ import {
 } from "../../helper";
 import { apiLogger } from "../../utils/loggers";
 import { resolveMembership, membershipCan } from "../../utils/permissions";
+import { REDUCED_CATEGORY_KEYS } from "../../utils/reducedRates";
 import { UPLOAD_ROOT } from "../../middleware/uploadProductAsset";
 import { isSpacesEnabled, uploadPrivateFileToSpaces } from "../../services/objectStorage";
 import {
@@ -341,6 +342,18 @@ function pickProductPayload(body: any) {
     out.apply_tax_override = body.apply_tax_override;
   } else if (body.apply_tax_override === null) {
     out.apply_tax_override = null;
+  }
+
+  // Reduced/zero VAT treatment (backlog #5).
+  const VALID_TAX_TREATMENTS = new Set(["standard", "reduced", "zero"]);
+  if (typeof body.tax_treatment === "string" && VALID_TAX_TREATMENTS.has(body.tax_treatment)) {
+    out.tax_treatment = body.tax_treatment;
+    if (body.tax_treatment !== "reduced") out.reduced_category = null;
+  }
+  if (body.reduced_category === null) {
+    out.reduced_category = null;
+  } else if (typeof body.reduced_category === "string" && REDUCED_CATEGORY_KEYS.has(body.reduced_category)) {
+    out.reduced_category = body.reduced_category;
   }
 
   if (typeof body.hide_quantity === "boolean") out.hide_quantity = body.hide_quantity;

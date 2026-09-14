@@ -1,0 +1,20 @@
+{
+  "summary": "Frontend-only verification of two new tax features on DynoPay (SAFE MODE — no saves). Verified: (A) ProductEditor VAT rate select (Standard/Reduced/Zero) with correct testids and options, Reduced reveals reduced-category select (ebooks/foodstuffs/general), switching to Standard or Zero hides it, 'Auto-detect with AI' populates VAT=Reduced + category=E-books and shows rationale within ~5s, and setting Tax category=Tax exempt hides both VAT rate and reduced-category selects. (B) On /invoices?tab=collected the 'Registration thresholds' panel (nexus-thresholds) renders 5 rows (eu_oss, uk, au, nz, sg) each with a status pill reading 'OK'. Regression: collected-tax-total card and by-destination table still render without errors. All tests passed.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "100%"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (owner, The Dev Store, company_id=1)",
+  "seed_data_creation": "None — SAFE MODE, no products created/saved",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "AI suggest returned reason 'AI: Digital e-book/PDF download of a book' and set VAT=Reduced, reduced-category=E-books & digital publications for the eBook title. Success toast 'AI suggested a VAT treatment — review before saving.' appears. Nexus panel currently shows all 5 rows OK (0 of threshold) for The Dev Store — thresholds panel is functional and reads from GET /api/tax/nexus-status.",
+  "rca of the issue": "N/A — no issues found."
+}

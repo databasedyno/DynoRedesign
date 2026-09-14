@@ -1,3 +1,61 @@
+# === 2026-09-14 SHIPPED — TAX: Reduced/Zero VAT (+AI auto-detect) & Nexus threshold alerts ===
+# STATUS: DONE & VERIFIED (backend scripts+curl; testing_agent iteration_174 = 100% frontend).
+# Full tax backlog: /app/memory/TAX_IMPLEMENTATION_BACKLOG.md
+#
+# BACKLOG #5 — Reduced / zero VAT per product (+ multi-band + AI):
+#   * Product gains tax_treatment ('standard'|'reduced'|'zero') + reduced_category (migration 0029).
+#     Merchant sets it explicitly (Product Editor → Tax & VAT → "VAT rate" + "Reduced-rate category").
+#   * calculateTax applies the DESTINATION country's band from a curated multi-band matrix
+#     (backend/utils/reducedRates.ts). Reduced falls back to standard when a country has no band
+#     (never under-collect); zero → 0% zero-rated. Cart derives a conservative cart-level treatment.
+#   * AI AUTO-DETECT (answers user's "can AI solve this at the point of request?"):
+#     POST /api/tax/suggest-treatment → uses the merchant's existing OPENAI_API_KEY via the native
+#     openai Node SDK (gpt-5.4-mini, same pattern as supportChatController) to suggest
+#     treatment+category from title/description; merchant reviews before saving.
+#
+# BACKLOG #4 — Nexus / registration-threshold monitor (in-app + email):
+#   * GET /api/tax/nexus-status sums current-year PAID orders per threshold (FX-converted):
+#     EU €10k pan-EU B2C (OSS), UK £90k, AU A$75k, NZ NZ$60k, SG S$1M → ok/approaching(≥80%)/crossed.
+#   * One-off escalation EMAIL per (threshold, level), deduped in tbl_nexus_alert (migration 0030),
+#     suppressed on this pod (DISABLE_OUTBOUND_EMAIL). In-app "Registration thresholds" panel on the
+#     Invoices → Collected tax tab. Files: utils/nexusThresholds.ts, services/nexusService.ts.
+#
+# NOTE: reducedRates matrix + nexus thresholds are INDICATIVE (≈2024/25) — labelled "not tax advice".
+# Regression tests: scripts/test_reduced_rates.ts, scripts/test_vies_tax.ts.
+# ============================================================================================
+
+
+# === 2026-09-14 SHIPPED — TAX COMPLIANCE: Live VIES + Buyer-side/OSS collected-tax report ===
+# STATUS: DONE & VERIFIED (backend curl + testing_agent iteration_173 = 100% frontend).
+# See /app/memory/TAX_IMPLEMENTATION_BACKLOG.md for the full P0/P1/P2 tax backlog.
+#
+# 1) Live VIES (backlog #1): checkout EU B2B reverse-charge now verifies the buyer's VAT
+#    number against the EU's OFFICIAL VIES REST API (free, authoritative). 0% reverse-charge
+#    granted ONLY on a positive live/cached result (cache: tbl_vat_validation, 90d TTL);
+#    unverifiable → charge VAT (audit-safe default, user-confirmed). Proof persisted on the
+#    order: vies_valid / vies_checked_at / vies_source. Files: backend/controller/payment/
+#    taxService.ts (verifyVatId → VIES REST), controller/product/cartController.ts, models/
+#    vatValidationModel.ts, migration 0028. NOTE: replaced the old APILayer /validate path,
+#    which returned valid:false even for genuinely-valid numbers (feature was inert).
+#
+# 2) Buyer-side / OSS collected-tax report (backlog #6): NEW read-only endpoints
+#    GET /api/tax/collected-report(+/csv) aggregate tax COLLECTED FROM BUYERS off
+#    tbl_product_order (paid), grouped by destination country + currency, with EU OSS return
+#    lines and a converted grand-total in the merchant's DISPLAY currency (per user request).
+#    NEW dashboard tab Invoices → "Collected tax" (index 2, deep-link ?tab=collected).
+#    Files: backend/controller/taxReportController.ts, routes/taxRouter.ts, api/endpoints.ts,
+#    pages/invoices.tsx, Components/Page/Invoices/CollectedTaxReport.tsx.
+#
+# BUG FIXED in passing: calculateTax assigned APILayer's standard_rate OBJECT to tax_rate →
+#    0% tax (under-collection) for any country not yet cached in tbl_tax_rate. Now coerced to
+#    a number w/ fractional expansion + static fallback (mirrors taxController).
+#
+# ENV/OPS: pod is on the PRODUCTION DB in SAFE MODE (read-only preferred); no data mutated.
+#    Backend runs via ts-node on internal port 3300 (Next proxies /api). Restart with
+#    `sudo supervisorctl restart backend` to pick up backend TS changes (no file watcher).
+# =====================================================================================
+
+
 # === 2026-06 (fork) OPEN ISSUE DOCUMENTED FOR NEXT AGENT — ADMIN TXNS SHOW "$0.00" FOR PENDING (P0) ===
 # STATUS: NOT STARTED (analysis only, per user "document for next agent to fix and end the session").
 #

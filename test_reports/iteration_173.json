@@ -1,0 +1,23 @@
+{
+  "summary": "Frontend-only verification of new 'Collected tax' tab on /invoices. Login (2-step), tab presence, deep-link ?tab=collected, range filter (this_year/last_year/this_quarter/all), CSV export, and Tax Report regression all pass. No writes performed (SAFE MODE respected).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Range options rendered in MUI portal — data-testid=collected-tax-range-<value> only exist after opening the Select; acceptable but note for future automation.",
+    "OSS section (data-testid=collected-tax-oss) does not render for the current dataset (country=UNKNOWN); could not verify OSS lines UI in this environment."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "100%"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (owner, company_id=1)",
+  "seed_data_creation": "None (SAFE MODE, read-only)",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Collected tax tab verified end-to-end. Total card shows $0.00 on $10.00 taxable, 1 country row (UNKNOWN, 2 orders). CSV downloads as collected-tax-2026-09-14.csv. All 4 range options work with no errors. Deep link /invoices?tab=collected opens tab index 2 correctly. Regression on Tax Report tab OK (Total Revenue $19.81, 9 invoices, by-period + by-jurisdiction tables render).",
+  "rca of the issue": "N/A - no issues found"
+}

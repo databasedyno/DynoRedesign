@@ -174,6 +174,22 @@ const productModel = sequelize.define(
       allowNull: true,
     },
     /**
+     * VAT rate treatment (backlog #5): 'standard' | 'reduced' | 'zero'. When
+     * 'reduced', `reduced_category` selects the jurisdiction band at checkout.
+     * ('exempt' is expressed via tax_category above → always 0%.)
+     */
+    tax_treatment: {
+      type: DataTypes.STRING(16),
+      allowNull: false,
+      defaultValue: "standard",
+      comment: "standard | reduced | zero",
+    },
+    reduced_category: {
+      type: DataTypes.STRING(32),
+      allowNull: true,
+      comment: "ebooks | books | foodstuffs | medical | children | passenger_transport | accommodation | general",
+    },
+    /**
      * When TRUE the buyer can't pick a quantity — the product is a one-off
      * service (e.g. "Talk to a Developer"). Product page hides the qty
      * stepper and cart/checkout treat it as quantity = 1.

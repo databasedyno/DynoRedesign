@@ -34,6 +34,7 @@ import { useApiSWR } from "@/hooks/useApiSWR";
 import { prefetchInvoicePdf } from "@/helpers/invoicePdfCache";
 import CustomButton from "@/Components/UI/Buttons";
 import PanelCard from "@/Components/UI/PanelCard";
+import CollectedTaxReport from "@/Components/Page/Invoices/CollectedTaxReport";
 import InvoicePreviewDrawer, { InvoicePreviewInvoice } from "@/Components/Page/Invoices/InvoicePreviewDrawer";
 import { StatusPill } from "@/Components/UI/_shared";
 import { Icon, MONO } from "@/styles/uiKit";
@@ -112,12 +113,15 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
   // Deep-linkable tabs: /invoices?tab=tax opens the Tax report.
   useEffect(() => {
     if (!router.isReady) return;
-    setActiveTabState(router.query.tab === "tax" ? 1 : 0);
+    const tq = router.query.tab;
+    setActiveTabState(tq === "tax" ? 1 : tq === "collected" ? 2 : 0);
   }, [router.isReady, router.query.tab]);
   const setActiveTab = (v: number) => {
     setActiveTabState(v);
     const q = { ...router.query };
-    if (v === 1) q.tab = "tax"; else delete q.tab;
+    if (v === 1) q.tab = "tax";
+    else if (v === 2) q.tab = "collected";
+    else delete q.tab;
     router.replace({ pathname: router.pathname, query: q }, undefined, { shallow: true });
   };
   const [page, setPage] = useState(1);
@@ -389,6 +393,12 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
               icon={<Icon name="bar-chart-3" size={18} />}
               iconPosition="start"
               label={t("invoices.tabTaxReport")}
+            />
+            <Tab
+              data-testid="invoices-tab-collected"
+              icon={<Icon name="globe" size={18} />}
+              iconPosition="start"
+              label="Collected tax"
             />
           </Tabs>
         </Box>
@@ -1343,6 +1353,8 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
             </PanelCard>
           </Box>
         )}
+
+        {activeTab === 2 && <CollectedTaxReport />}
       </Box>
 
       {/* Live PDF preview drawer — mounts once, controlled by previewInvoice */}

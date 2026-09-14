@@ -176,6 +176,19 @@ const userTransactionModel = sequelize.define(
       allowNull: false,
       defaultValue: false,
     },
+    // VIES verification proof for a reverse-charge grant (backlog #1).
+    vies_checked_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    vies_valid: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+    },
+    vies_source: {
+      type: DataTypes.STRING(24),
+      allowNull: true,
+    },
     // ── Referral fee-credit (Option 1.a) ──
     // USD amount of THIS payment's platform fee that was covered by the
     // merchant's own referral revenue-share balance (0 when none applied).

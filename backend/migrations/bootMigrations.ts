@@ -94,6 +94,7 @@ export async function getBootModels(): Promise<unknown[]> {
   const { teamActivityModel } = await import("../models"); // Team Activity Log (0016)
   const { signupAttributionModel } = await import("../models"); // Signup Attribution (0019)
   const { paymentReceiptModel } = await import("../models"); // Shareable receipts (0021)
+  const { vatValidationModel } = await import("../models"); // VAT validation cache (0028)
   return [
     ...v1,
     ...extra,
@@ -106,6 +107,7 @@ export async function getBootModels(): Promise<unknown[]> {
     teamActivityModel,
     signupAttributionModel,
     paymentReceiptModel,
+    vatValidationModel,
   ];
 }
 
@@ -460,8 +462,57 @@ const addApiKeyHash = async (): Promise<void> => {
  * keep this file under the 500-line R2 budget). Imported into the registry below.
  */
 
-export async function buildBootMigrations(): Promise<Migration[]> {
-  const { v1, extra } = await loadBootModelGroups();
+/**
+ * 0028 — Backlog #1 (VIES): create tbl_vat_validation (VAT-number verification
+ * cache + proof) and add vies_checked_at / vies_valid / vies_source to
+ * tbl_product_order + tbl_user_transaction. Additive, idempotent, safe on prod.
+ */
+const addViesValidationSupport = async (): Promise<void> => {
+  const { vatValidationModel } = await import("../models");
+  if (isSyncable(vatValidationModel)) await vatValidationModel.sync();
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `ALTER TABLE "tbl_product_order"
+       ADD COLUMN IF NOT EXISTS "vies_checked_at" TIMESTAMPTZ,
+       ADD COLUMN IF NOT EXISTS "vies_valid" BOOLEAN,
+       ADD COLUMN IF NOT EXISTS "vies_source" VARCHAR(24)`
+  );
+  await sequelize.query(
+    `ALTER TABLE "tbl_user_transaction"
+       ADD COLUMN IF NOT EXISTS "vies_checked_at" TIMESTAMPTZ,
+       ADD COLUMN IF NOT EXISTS "vies_valid" BOOLEAN,
+       ADD COLUMN IF NOT EXISTS "vies_source" VARCHAR(24)`
+  );
+};
+
+/**
+ * 0029 — Backlog #5 (reduced/zero VAT): add tax_treatment + reduced_category to
+ * tbl_product. Additive, idempotent, safe on prod. Also cleans stale tbl_tax_rate
+ * cache rows whose standard_rate is NULL/NaN (from a prior API-shape bug) so they
+ * get re-resolved correctly — regenerable reference cache, safe to delete.
+ */
+const addProductTaxTreatment = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `ALTER TABLE "tbl_product"
+       ADD COLUMN IF NOT EXISTS "tax_treatment" VARCHAR(16) NOT NULL DEFAULT 'standard',
+       ADD COLUMN IF NOT EXISTS "reduced_category" VARCHAR(32)`
+  );
+  await sequelize.query(
+    `DELETE FROM "tbl_tax_rate" WHERE standard_rate IS NULL OR standard_rate::text = 'NaN'`
+  );
+};
+
+/**
+ * 0030 — Backlog #4 (nexus alerts): create tbl_nexus_alert (dedupe store for
+ * registration-threshold email escalations). Create-only sync — safe on prod.
+ */
+const createNexusAlertTable = async (): Promise<void> => {
+  const { nexusAlertModel } = await import("../models");
+  if (isSyncable(nexusAlertModel)) await nexusAlertModel.sync();
+};
+
+export async function buildBootMigrations(): Promise<Migration[]> {  const { v1, extra } = await loadBootModelGroups();
   return [
     { version: "0001_boot_model_tables", up: syncGroup(v1) },
     { version: "0002_boot_model_tables_extra", up: syncGroup(extra) },
@@ -486,6 +537,9 @@ export async function buildBootMigrations(): Promise<Migration[]> {
     { version: "0025_api_key_hash", up: addApiKeyHash },
     { version: "0026_company_min_order_usd", up: addCompanyMinOrderUsd },
     { version: "0027_company_webhook_secret_rotation", up: addCompanyWebhookSecretRotation },
+    { version: "0028_vies_vat_validation", up: addViesValidationSupport },
+    { version: "0029_product_tax_treatment", up: addProductTaxTreatment },
+    { version: "0030_nexus_alert", up: createNexusAlertTable },
     ...perfMigrations,
   ];
 }

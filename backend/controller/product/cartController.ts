@@ -190,6 +190,8 @@ async function validateCart(
       // taxable base (exempt items don't contribute to the taxable subtotal).
       tax_category: product.tax_category || "digital",
       apply_tax_override: product.apply_tax_override == null ? null : Boolean(product.apply_tax_override),
+      tax_treatment: product.tax_treatment || "standard",
+      reduced_category: product.reduced_category || null,
       product_snapshot: {
         title: product.title,
         slug: product.slug,
@@ -219,6 +221,33 @@ async function validateCart(
     hasError: normalized.length === 0,
   };
 }
+
+/**
+ * Derive a single cart-level VAT treatment from the taxable items (backlog #5).
+ * Order-level tax carries ONE treatment, so we stay conservative: any
+ * standard-rated taxable item → 'standard' (never under-collect); all-zero →
+ * 'zero'; otherwise 'reduced' (unanimous category, else 'general').
+ */
+function deriveCartTaxTreatment(
+  items: Array<Record<string, unknown>>
+): { treatment: "standard" | "reduced" | "zero"; reducedCategory: string | null } {
+  const taxable = items.filter(
+    (it) => it.tax_category !== "exempt" && it.apply_tax_override !== false
+  );
+  if (taxable.length === 0) return { treatment: "standard", reducedCategory: null };
+  const treatments = taxable.map((it) => String(it.tax_treatment || "standard"));
+  if (treatments.some((t) => t === "standard")) return { treatment: "standard", reducedCategory: null };
+  if (treatments.every((t) => t === "zero")) return { treatment: "zero", reducedCategory: null };
+  const cats = Array.from(
+    new Set(
+      taxable
+        .filter((it) => String(it.tax_treatment || "standard") === "reduced")
+        .map((it) => String(it.reduced_category || "general"))
+    )
+  );
+  return { treatment: "reduced", reducedCategory: cats.length === 1 ? cats[0] : "general" };
+}
+
 
 /**
  * POST /api/cart
@@ -513,6 +542,9 @@ export const startCheckout = async (
     let taxRateApplied: number | null = null;
     let taxLabelApplied: string | null = null;
     let reverseCharge = false;
+    let viesValid: boolean | null = null;
+    let viesCheckedAt: Date | null = null;
+    let viesSource: string | null = null;
     const customerVatId: string = body.customer_vat_id ? String(body.customer_vat_id).trim().slice(0, 32) : "";
     const taxInclusive: boolean = merchantDefaultTaxInclusive; // merchant-level; cart doesn't have a per-link toggle yet
 
@@ -520,6 +552,7 @@ export const startCheckout = async (
       const taxCategoryForCalc: "digital" | "physical" | "service" | "exempt" = validated.hasPhysical
         ? "physical"
         : "digital";
+      const cartTreatment = deriveCartTaxTreatment(validated.normalized);
       const calc = await calculateTax({
         countryCode: taxCountryCode,
         amount: taxableSubtotalCents / 100,
@@ -528,12 +561,17 @@ export const startCheckout = async (
         taxCategory: taxCategoryForCalc,
         merchantCountry: merchantCountry || undefined,
         customerVatId: customerVatId || undefined,
+        taxTreatment: cartTreatment.treatment,
+        reducedCategory: cartTreatment.reducedCategory,
       });
       if (calc) {
         taxCents = Math.round(calc.tax_amount * 100);
         taxRateApplied = calc.tax_rate;
         taxLabelApplied = calc.tax_acronym;
         reverseCharge = !!calc.reverse_charge;
+        viesValid = calc.vies_valid ?? null;
+        viesCheckedAt = calc.vies_checked_at ? new Date(calc.vies_checked_at) : null;
+        viesSource = calc.vies_source ?? null;
         apiLogger.info(
           `[cartCheckout] Tax ${effectiveApplyTax ? "ON" : "OFF"}: country=${taxCountryCode}(${taxCountrySource}) rate=${taxRateApplied}% cents=${taxCents} reverse_charge=${reverseCharge} inclusive=${taxInclusive} category=${taxCategoryForCalc}`
         );
@@ -612,6 +650,9 @@ export const startCheckout = async (
           customer_vat_id: customerVatId || null,
           reverse_charge: reverseCharge,
           tax_inclusive: taxInclusive,
+          vies_valid: viesValid,
+          vies_checked_at: viesCheckedAt,
+          vies_source: viesSource,
           total_cents: totalCents,
           currency,
           payment_status: "pending",
@@ -890,6 +931,7 @@ export const quoteTax = async (
       const taxCategoryForCalc: "digital" | "physical" | "service" | "exempt" = validated.hasPhysical
         ? "physical"
         : "digital";
+      const cartTreatment = deriveCartTaxTreatment(validated.normalized);
       const calc = await calculateTax({
         countryCode: taxCountryCode,
         amount: taxableSubtotalCents / 100,
@@ -898,6 +940,8 @@ export const quoteTax = async (
         taxCategory: taxCategoryForCalc,
         merchantCountry: merchantCountry || undefined,
         customerVatId: customerVatId || undefined,
+        taxTreatment: cartTreatment.treatment,
+        reducedCategory: cartTreatment.reducedCategory,
       });
       if (calc) {
         const taxCents = Math.round(calc.tax_amount * 100);
@@ -909,6 +953,8 @@ export const quoteTax = async (
           reverse_charge: !!calc.reverse_charge,
           customer_vat_id_valid: !!calc.customer_vat_id_valid,
           exempt_reason: calc.exempt_reason || null,
+          tax_treatment: calc.tax_treatment || "standard",
+          reduced_category: calc.reduced_category || null,
           total_cents: taxInclusive ? subtotalCents : subtotalCents + taxCents,
         };
       }

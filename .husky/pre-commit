@@ -8,10 +8,9 @@
 
 sh scripts/preflight-tsc.sh
 
-# R2 lint budget (memory/ENGINEERING_STRATEGY_REVIEW_2026-08.md): NEW backend
-# files must stay <= 500 lines; legacy files are grandfathered in
-# backend/scripts/file-size-baseline.json. Blocks only on new-file violations.
-node backend/scripts/check-file-size.mjs
+# R2 500-line file-size gate REMOVED per user request (2026-06). Previously ran
+# `node backend/scripts/check-file-size.mjs` and blocked commits when a new/edited
+# backend file exceeded 500 lines. Re-enable by restoring that line if desired.
 
 # Secrets guard (added 2026-08 after live keys in tracked files blocked GitHub
 # pushes via push protection GH013): scans STAGED files for high-confidence

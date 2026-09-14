@@ -127,6 +127,8 @@ export const API_ENDPOINTS = {
     list: "/invoices",
     taxReport: "/invoices/tax-report",
     taxReportCsv: "/invoices/tax-report/csv",
+    collectedTaxReport: "/tax/collected-report",
+    collectedTaxReportCsv: "/tax/collected-report/csv",
     pdf: (invoiceId: PathId) => `/invoices/${invoiceId}/pdf`,
   },
 

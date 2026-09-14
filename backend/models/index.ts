@@ -30,6 +30,8 @@ import {
 
 // Phase 1: New models
 import taxRateModel from "./taxRateModel";
+import vatValidationModel from "./vatValidationModel";
+import nexusAlertModel from "./nexusAlertModel";
 import invoiceModel from "./invoiceModel";
 import notificationModel from "./notificationModel";
 import notificationPreferencesModel from "./notificationPreferencesModel";
@@ -112,6 +114,8 @@ export {
   userExchangeModel,
   // Phase 1: New models
   taxRateModel,
+  vatValidationModel,
+  nexusAlertModel,
   invoiceModel,
   notificationModel,
   notificationPreferencesModel,

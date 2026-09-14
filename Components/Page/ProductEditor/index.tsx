@@ -31,6 +31,18 @@ import { brandFg } from "@/constants/theme";
 
 const CURRENCY_OPTS = PRICING_CURRENCIES;
 
+// Canonical reduced-rate categories (mirror backend utils/reducedRates.ts).
+const REDUCED_CATEGORIES: Array<{ key: string; label: string }> = [
+  { key: "ebooks", label: "E-books & digital publications" },
+  { key: "books", label: "Printed books, news & periodicals" },
+  { key: "foodstuffs", label: "Foodstuffs & groceries" },
+  { key: "medical", label: "Pharmaceuticals & medical" },
+  { key: "children", label: "Children's goods (clothing, nappies)" },
+  { key: "passenger_transport", label: "Passenger transport" },
+  { key: "accommodation", label: "Hotel & accommodation" },
+  { key: "general", label: "Other reduced-rate goods / services" },
+];
+
 interface Variant {
   variant_id?: number;
   title: string;
@@ -64,6 +76,8 @@ interface ProductRow {
   digital_delivery_payload?: any;
   tax_category?: "digital" | "physical" | "service" | "exempt";
   apply_tax_override?: boolean | null;
+  tax_treatment?: "standard" | "reduced" | "zero";
+  reduced_category?: string | null;
 }
 
 // Backend cap = 10 items (see sanitizeGallery in productController.ts)
@@ -140,6 +154,10 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
   const [baseStock, setBaseStock] = useState<string>("");
   const [taxCategory, setTaxCategory] = useState<"digital" | "physical" | "service" | "exempt">("digital");
   const [applyTaxOverride, setApplyTaxOverride] = useState<"inherit" | "on" | "off">("inherit");
+  const [taxTreatment, setTaxTreatment] = useState<"standard" | "reduced" | "zero">("standard");
+  const [reducedCategory, setReducedCategory] = useState<string>("general");
+  const [aiSuggesting, setAiSuggesting] = useState(false);
+  const [aiReason, setAiReason] = useState<string>("");
   const [hideQuantity, setHideQuantity] = useState<boolean>(false);
 
   // Merchant-level tax default (Settings → Tax) — surfaced here so the
@@ -212,6 +230,8 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
             ? "off"
             : "inherit"
         );
+        setTaxTreatment((p.tax_treatment as any) || "standard");
+        setReducedCategory((p.reduced_category as string) || "general");
         if (Array.isArray(p.digital_delivery_payload?.keys)) {
           setLicenseKeysText(p.digital_delivery_payload.keys.join("\n"));
         }
@@ -227,6 +247,34 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
     const n = Number(priceDollars);
     return Number.isFinite(n) && n >= 0 ? Math.round(n * 100) : 0;
   }, [priceDollars]);
+
+  const runAiSuggest = async () => {
+    if (!title.trim()) {
+      setToast({ text: t("productEditor.aiNeedTitle", { defaultValue: "Add a product title first." }), kind: "err" });
+      return;
+    }
+    setAiSuggesting(true);
+    setAiReason("");
+    try {
+      const res = await axiosBaseApi.post("tax/suggest-treatment", {
+        title: title.trim(),
+        description: description || "",
+      });
+      const d = res?.data?.data || res?.data || {};
+      if (d.error || !d.treatment) {
+        setToast({ text: t("productEditor.aiFailed", { defaultValue: "Could not auto-detect — please pick manually." }), kind: "err" });
+        return;
+      }
+      setTaxTreatment(d.treatment);
+      if (d.treatment === "reduced" && d.reduced_category) setReducedCategory(d.reduced_category);
+      setAiReason(d.reason || "");
+      setToast({ text: t("productEditor.aiApplied", { defaultValue: "AI suggested a VAT treatment — review before saving." }), kind: "ok" });
+    } catch {
+      setToast({ text: t("productEditor.aiFailed", { defaultValue: "Could not auto-detect — please pick manually." }), kind: "err" });
+    } finally {
+      setAiSuggesting(false);
+    }
+  };
 
   const buildPayload = () => {
     const cleanGallery = gallery
@@ -255,6 +303,8 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
       tax_category: taxCategory,
       apply_tax_override:
         applyTaxOverride === "on" ? true : applyTaxOverride === "off" ? false : null,
+      tax_treatment: taxCategory === "exempt" ? "standard" : taxTreatment,
+      reduced_category: taxTreatment === "reduced" ? reducedCategory : null,
       hide_quantity: hideQuantity,
     };
     if (deliveryType === "url") {
@@ -1129,6 +1179,75 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
                 : t("productEditor.categoryDigitalHint", { defaultValue: "Digital goods / services use the buyer's detected location for the tax jurisdiction." })}
             </Typography>
           </FormControl>
+
+          {/* VAT rate treatment (backlog #5) — reduced/zero for e-books, food,
+              children's goods, etc. Hidden for tax-exempt products. */}
+          {taxCategory !== "exempt" && (
+            <FormControl fullWidth>
+              <InputLabel id="tax-treatment-label">{t("productEditor.vatRate", { defaultValue: "VAT rate" })}</InputLabel>
+              <Select
+                labelId="tax-treatment-label"
+                label={t("productEditor.vatRate", { defaultValue: "VAT rate" })}
+                value={taxTreatment}
+                onChange={(e) => setTaxTreatment(String(e.target.value) as any)}
+                inputProps={{ "data-testid": "product-tax-treatment-select" }}
+              >
+                <MenuItem value="standard" data-testid="product-tax-treatment-opt-standard">{t("productEditor.vatStandard", { defaultValue: "Standard rate" })}</MenuItem>
+                <MenuItem value="reduced" data-testid="product-tax-treatment-opt-reduced">{t("productEditor.vatReduced", { defaultValue: "Reduced rate" })}</MenuItem>
+                <MenuItem value="zero" data-testid="product-tax-treatment-opt-zero">{t("productEditor.vatZero", { defaultValue: "Zero-rated (0%)" })}</MenuItem>
+              </Select>
+              <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
+                {taxTreatment === "reduced"
+                  ? t("productEditor.vatReducedHint", { defaultValue: "Applies each destination country's reduced band for the category below (falls back to the standard rate where a country has none)." })
+                  : taxTreatment === "zero"
+                  ? t("productEditor.vatZeroHint", { defaultValue: "Buyers are charged 0% VAT (zero-rated, still an in-scope taxable supply)." })
+                  : t("productEditor.vatStandardHint", { defaultValue: "Buyers are charged the destination country's standard VAT/GST rate." })}
+              </Typography>
+            </FormControl>
+          )}
+
+          {/* AI auto-detect (backlog #5 assist) */}
+          {taxCategory !== "exempt" && (
+            <Box>
+              <CustomButton
+                label={aiSuggesting ? t("productEditor.aiDetecting", { defaultValue: "Detecting…" }) : t("productEditor.aiDetect", { defaultValue: "Auto-detect with AI" })}
+                variant="outlined"
+                size="small"
+                startIcon={<ReceiptLongRounded sx={{ fontSize: 16 }} />}
+                onClick={runAiSuggest}
+                disabled={aiSuggesting || !title.trim()}
+                data-testid="product-ai-tax-detect-btn"
+              />
+              {aiReason && (
+                <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.75 }} data-testid="product-ai-tax-reason">
+                  {t("productEditor.aiReasonPrefix", { defaultValue: "AI:" })} {aiReason}
+                </Typography>
+              )}
+            </Box>
+          )}
+
+          {/* Reduced-rate category — only when treatment = reduced */}
+          {taxCategory !== "exempt" && taxTreatment === "reduced" && (
+            <FormControl fullWidth>
+              <InputLabel id="reduced-category-label">{t("productEditor.reducedCategory", { defaultValue: "Reduced-rate category" })}</InputLabel>
+              <Select
+                labelId="reduced-category-label"
+                label={t("productEditor.reducedCategory", { defaultValue: "Reduced-rate category" })}
+                value={reducedCategory}
+                onChange={(e) => setReducedCategory(String(e.target.value))}
+                inputProps={{ "data-testid": "product-reduced-category-select" }}
+              >
+                {REDUCED_CATEGORIES.map((c) => (
+                  <MenuItem key={c.key} value={c.key} data-testid={`product-reduced-category-opt-${c.key}`}>
+                    {c.label}
+                  </MenuItem>
+                ))}
+              </Select>
+              <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
+                {t("productEditor.reducedCategoryHint", { defaultValue: "Rates are indicative and vary by country — confirm eligibility with your tax adviser." })}
+              </Typography>
+            </FormControl>
+          )}
 
           {/* Effective preview — what the buyer actually sees at checkout */}
           <Box
