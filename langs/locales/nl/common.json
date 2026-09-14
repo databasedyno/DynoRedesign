@@ -1543,5 +1543,36 @@
     "drop": "Laat de afbeelding los om te uploaden",
     "notFile": "Sleep een afbeeldingsbestand vanaf je computer — afbeeldingen die je van andere websites sleept komen als link binnen en kunnen niet worden geüpload.",
     "notImage": "Hier kun je alleen afbeeldingsbestanden neerzetten (JPG, PNG, GIF, WebP of SVG)."
-  }
+  },
+  "stepUp": {
+    "title": "Bevestig dat jij het bent",
+    "body": "Om {{action}}, bevestig dat het echt jij bent. Dit ontgrendelt de actie voor 10 minuten — tot dan geen codes meer.",
+    "cancel": "Annuleren",
+    "verify": "Verifiëren",
+    "sending": "Je code wordt verzonden…",
+    "sentEmail": "We hebben een 6-cijferige code gemaild naar {{contact}}.",
+    "sentSms": "We hebben een 6-cijferige code ge-sms't naar {{contact}}.",
+    "yourEmail": "je e-mail",
+    "yourPhone": "je telefoon",
+    "methodTotp": "Authenticator",
+    "methodEmail": "E-mailcode",
+    "methodSms": "Sms",
+    "methodBackup": "Back-upcode",
+    "totpLabel": "Code uit je authenticator-app",
+    "backupLabel": "Back-upcode",
+    "sendFailed": "We konden de code niet verzenden. Probeer het opnieuw.",
+    "statusFailed": "Verificatie kon niet worden gestart. Probeer het opnieuw.",
+    "invalidCode": "Ongeldige code. Probeer het opnieuw.",
+    "noMethods": "Voeg eerst een e-mailadres toe aan je account — we hebben een plek nodig om je verificatiecode naartoe te sturen.",
+    "scope": {
+      "apikey": "API-sleutels te beheren",
+      "wallet": "uitbetalingswallets te wijzigen",
+      "brand_delete": "een merk te verwijderen",
+      "security": "je beveiligingsinstellingen te wijzigen",
+      "payout": "je uitbetalingsinstellingen te wijzigen",
+      "team": "teamtoegang te wijzigen",
+      "settlement": "je afwikkelingsvaluta te wijzigen"
+    }
+  },
+  "deleteWalletBody": "Je staat op het punt de {{type}}-wallet{{address}} te verwijderen. Deze actie is permanent en kan niet ongedaan worden gemaakt. We vragen je eerst om te bevestigen dat jij het bent."
 }

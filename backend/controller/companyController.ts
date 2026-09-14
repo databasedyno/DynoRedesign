@@ -20,7 +20,8 @@ import sequelize from "../utils/dbInstance";
 import { QueryTypes, Op } from "sequelize";
 import { sendCompanyProfileCreatedEmail, sendCompanyContactWelcomeEmail, sendCompanyProfileUpdatedEmail, sendCompanyDeletedEmail, sendBrandSoftDeletedEmail, sendBrandDeletedAdminEmail } from "../services/emailService";
 import { BRAND_DELETE_GRACE_DAYS } from "../services/brandPurgeService";
-import { verifyDeleteCompanyOtp, ONLY_BRAND_MESSAGE } from "./company/deleteCompanyOtp";
+export const ONLY_BRAND_MESSAGE =
+  "Cannot delete your only brand. Add another brand first, then delete this one.";
 import { diffCompanyFields } from "./company/profileDiff";
 import { finalizeUploadedImage } from "../services/objectStorage";
 import { deleteRedisItem, getRedisItem, setRedisItem, setRedisTTL } from "../utils/redisInstance";
@@ -860,12 +861,8 @@ const deleteCompany = async (req: express.Request, res: express.Response) => {
       return errorResponseHelper(res, 400, ONLY_BRAND_MESSAGE);
     }
 
-    // Second factor: the one-time code emailed by POST /deleteCompany/:id/send-otp
-    const otpCheck = await verifyDeleteCompanyOtp(userData.user_id, company_id, req.body?.otp ?? req.query?.otp);
-    if (!otpCheck.ok) {
-      return errorResponseHelper(res, otpCheck.status || 400, otpCheck.message || "Invalid verification code.");
-    }
-    
+    // Second factor: an active `brand_delete` step-up session (requireStepUp at the router).
+
     // ── SOFT DELETE (7-day grace period) ───────────────────────────────────
     // Brand deletion is now REVERSIBLE for 7 days. We only mark the brand
     // deleted here (deleted_at set -> paranoid hides it from every merchant

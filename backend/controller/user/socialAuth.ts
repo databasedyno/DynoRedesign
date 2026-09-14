@@ -126,7 +126,7 @@ export const googleSignIn = async (req: express.Request, res: express.Response) 
       });
 
       // Create session with refresh token (same as OTP login)
-      if (await requires2FAChallenge(res, user.dataValues.user_id)) return;
+      if (await requires2FAChallenge(res, user.dataValues.user_id, req)) return;
       const sessionData = await createSession(user.dataValues, req as any);
       const { password: _pw, telegram_id: _tid, ...userDataClean } = user.dataValues;
       const resData = {
@@ -319,7 +319,7 @@ export const githubSignIn = async (req: express.Request, res: express.Response) 
         { where: { user_id: user.dataValues.user_id } }
       );
 
-      if (await requires2FAChallenge(res, user.dataValues.user_id)) return;
+      if (await requires2FAChallenge(res, user.dataValues.user_id, req)) return;
       const sessionData = await createSession(user.dataValues, req as any);
       const { password: _pw, telegram_id: _tid, ...userDataClean } = user.dataValues;
       const resData = {

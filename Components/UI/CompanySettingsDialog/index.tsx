@@ -140,9 +140,9 @@ export default function CompanySettingsDialog({
 
   const companyName = company?.company_name ?? "";
 
-  const handleDeleteCompany = async (otp: string) => {
+  const handleDeleteCompany = async () => {
     if (!company?.company_id) return;
-    await companyState.deleteCompany(company.company_id, otp);
+    await companyState.deleteCompany(company.company_id);
     onClose();
   };
 

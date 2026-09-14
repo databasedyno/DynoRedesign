@@ -45,30 +45,6 @@ export const sendWalletUpdateOTPEmail = async (
 };
 
 /**
- * Wallet management "sudo" unlock OTP — one code unlocks 10 minutes of
- * add/edit/delete. Same branded template + otpBlock as the other wallet OTPs.
- */
-export const sendWalletSudoOTPEmail = async (
-  email: string,
-  name: string,
-  otpCode: string,
-  _lang?: string
-) => {
-  try {
-    const subject = "Your wallet management code";
-    const content = `${p(name ? `Hey ${escapeHtml(firstNameOnly(name))},` : "Hey there,")}
-    ${p("Use this one-time code to unlock wallet management for 10 minutes. During that window you can add, edit and remove payout wallets without requesting a new code for each network.")}
-    ${otpBlock(otpCode)}
-    ${warnText("This code expires in 5 minutes. If you didn't request it, you can ignore this email — your wallets stay unchanged.")}`;
-    const html = dynoPayEmailTemplate("Unlock wallet management", content, false, "", "", "Unlocks wallet edits for 10 min · Dynopay will never ask for this code.", undefined, 'lock');
-    await mailTransporter({ to: email, name, subject, body: html });
-    apiLogger.info(`Wallet sudo OTP email sent to ${email}`);
-  } catch (e) {
-    apiLogger.error("Wallet sudo OTP email error:", e);
-  }
-};
-
-/**
  * Summary receipt after a bulk wallet change (add/edit/delete in one session).
  */
 export const sendWalletBatchSummaryEmail = async (

@@ -1,5 +1,5 @@
 import { Box, Typography, useTheme, Skeleton, TextField, CircularProgress } from "@mui/material";
-import { OtpField, PayoutHistoryItem, PayoutOverview, makePillBtn } from "./payoutShared";
+import { PayoutHistoryItem, PayoutOverview, makePillBtn } from "./payoutShared";
 import { PayoutCreditStats, PayoutHistory } from "./PayoutSections";
 import { PayoutAutoSection } from "./PayoutAutoSection";
 import { useState, useCallback } from "react";
@@ -17,6 +17,11 @@ type Props = {
   onToast: (message: string, severity: "success" | "error") => void;
 };
 
+/**
+ * Referral cash-out card. Every payout-method mutation is step-up gated on the
+ * backend (`payout` scope); the shared "Verify it's you" dialog is raised by
+ * the axios interceptor, so there are no inline OTP fields here anymore.
+ */
 export const PayoutCard = ({ isMobile, onToast }: Props) => {
   const theme = useTheme();
   const { t } = useTranslation("referrals");
@@ -33,14 +38,9 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
   const [busy, setBusy] = useState<string | null>(null); // action id currently in-flight
   const [showAddNew, setShowAddNew] = useState(false);
   const [newAddr, setNewAddr] = useState("");
-  const [newOtpSent, setNewOtpSent] = useState(false);
-  const [newOtp, setNewOtp] = useState("");
   const [showWithdraw, setShowWithdraw] = useState(false);
-  const [withdrawOtp, setWithdrawOtp] = useState("");
   const [showAutoSetup, setShowAutoSetup] = useState(false);
   const [autoMin, setAutoMin] = useState("");
-  const [autoOtpSent, setAutoOtpSent] = useState(false);
-  const [autoOtp, setAutoOtp] = useState("");
 
   const post = useCallback(async (url: string, body: Record<string, unknown>) => {
     try {
@@ -49,22 +49,22 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
     } catch (e: any) {
       return {
         ok: false as const,
+        cancelled: !!e?.stepUpCancelled,
         message: e?.response?.data?.message || t("payoutErrorGeneric", { defaultValue: "Something went wrong. Please try again." }),
       };
     }
   }, [t]);
 
+  const fail = useCallback((r: { cancelled?: boolean; message: string }) => {
+    if (!r.cancelled) onToast(r.message, "error");
+  }, [onToast]);
+
   const resetForms = () => {
     setShowAddNew(false);
     setNewAddr("");
-    setNewOtpSent(false);
-    setNewOtp("");
     setShowWithdraw(false);
-    setWithdrawOtp("");
     setShowAutoSetup(false);
     setAutoMin("");
-    setAutoOtpSent(false);
-    setAutoOtp("");
   };
 
   // ── Actions ───────────────────────────────────────────────────────────
@@ -73,50 +73,34 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
     const r = await post(API_ENDPOINTS.referral.payoutOptIn, { mode: "cash", address });
     setBusy(null);
     if (r.ok) { onToast(r.data?.message || t("payoutEnabledCash", { defaultValue: "Cash-out enabled" }), "success"); resetForms(); mutate(); }
-    else onToast(r.message, "error");
-  }, [post, onToast, t, mutate]);
+    else fail(r);
+  }, [post, onToast, t, mutate, fail]);
 
-  const sendNewAddrOtp = useCallback(async () => {
+  const enableNewAddr = useCallback(async () => {
     if (!newAddr.trim()) return;
-    setBusy("send-new-otp");
-    const r = await post(API_ENDPOINTS.referral.payoutOtp, { address: newAddr.trim() });
-    setBusy(null);
-    if (r.ok) { setNewOtpSent(true); onToast(r.data?.message || t("payoutCodeSent", { defaultValue: "Code sent", email: "" }), "success"); }
-    else onToast(r.message, "error");
-  }, [newAddr, post, onToast, t]);
-
-  const verifyNewAddr = useCallback(async () => {
     setBusy("verify-new");
-    const r = await post(API_ENDPOINTS.referral.payoutOptIn, { mode: "cash", address: newAddr.trim(), otp: newOtp.trim() });
+    const r = await post(API_ENDPOINTS.referral.payoutOptIn, { mode: "cash", address: newAddr.trim() });
     setBusy(null);
     if (r.ok) { onToast(r.data?.message || t("payoutEnabledCash", { defaultValue: "Cash-out enabled" }), "success"); resetForms(); mutate(); }
-    else onToast(r.message, "error");
-  }, [newAddr, newOtp, post, onToast, t, mutate]);
+    else fail(r);
+  }, [newAddr, post, onToast, t, mutate, fail]);
 
   const switchToCredit = useCallback(async () => {
     setBusy("credit");
     const r = await post(API_ENDPOINTS.referral.payoutOptIn, { mode: "credit" });
     setBusy(null);
     if (r.ok) { onToast(r.data?.message || t("payoutEnabledCredit", { defaultValue: "Switched to fee credit" }), "success"); resetForms(); mutate(); }
-    else onToast(r.message, "error");
-  }, [post, onToast, t, mutate]);
-
-  const startWithdraw = useCallback(async () => {
-    setBusy("start-withdraw");
-    const r = await post(API_ENDPOINTS.referral.payoutOtp, {});
-    setBusy(null);
-    if (r.ok) { setShowWithdraw(true); onToast(r.data?.message || t("payoutCodeSent", { defaultValue: "Code sent", email: "" }), "success"); }
-    else onToast(r.message, "error");
-  }, [post, onToast, t]);
+    else fail(r);
+  }, [post, onToast, t, mutate, fail]);
 
   const confirmWithdraw = useCallback(async () => {
     setBusy("confirm-withdraw");
     const idem = (typeof crypto !== "undefined" && "randomUUID" in crypto) ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
-    const r = await post(API_ENDPOINTS.referral.payoutRequest, { otp: withdrawOtp.trim(), idempotency_key: idem });
+    const r = await post(API_ENDPOINTS.referral.payoutRequest, { idempotency_key: idem });
     setBusy(null);
     if (r.ok) { onToast(r.data?.message || t("payoutRequested", { defaultValue: "Payout requested" }), "success"); resetForms(); mutate(); mutateHistory(); }
-    else onToast(r.message, "error");
-  }, [withdrawOtp, post, onToast, t, mutate, mutateHistory]);
+    else fail(r);
+  }, [post, onToast, t, mutate, mutateHistory, fail]);
 
   const downloadCsv = useCallback(async () => {
     try {
@@ -134,32 +118,23 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
     }
   }, [onToast, t]);
 
-  const sendAutoOtp = useCallback(async () => {
-    setBusy("auto-otp");
-    const r = await post(API_ENDPOINTS.referral.payoutOtp, {});
-    setBusy(null);
-    if (r.ok) { setAutoOtpSent(true); onToast(r.data?.message || t("payoutCodeSent", { defaultValue: "Code sent", email: "" }), "success"); }
-    else onToast(r.message, "error");
-  }, [post, onToast, t]);
-
   const enableAuto = useCallback(async () => {
     setBusy("enable-auto");
     const amt = parseFloat(autoMin) || (data?.min_payout_usd ?? 25);
-    const r = await post(API_ENDPOINTS.referral.payoutAuto, { enabled: true, auto_min_usd: amt, otp: autoOtp.trim() });
+    const r = await post(API_ENDPOINTS.referral.payoutAuto, { enabled: true, auto_min_usd: amt });
     setBusy(null);
     if (r.ok) { onToast(r.data?.message || t("payoutAutoEnabled", { defaultValue: "Auto cash-out on" }), "success"); resetForms(); mutate(); }
-    else onToast(r.message, "error");
-  }, [autoMin, autoOtp, data, post, onToast, t, mutate]);
+    else fail(r);
+  }, [autoMin, data, post, onToast, t, mutate, fail]);
 
   const disableAuto = useCallback(async () => {
     setBusy("disable-auto");
     const r = await post(API_ENDPOINTS.referral.payoutAuto, { enabled: false });
     setBusy(null);
     if (r.ok) { onToast(r.data?.message || t("payoutAutoDisabled", { defaultValue: "Auto cash-out off" }), "success"); resetForms(); mutate(); }
-    else onToast(r.message, "error");
-  }, [post, onToast, t, mutate]);
+    else fail(r);
+  }, [post, onToast, t, mutate, fail]);
   const pillBtn = makePillBtn(theme, busy);
-  const otpField = (value: string, setValue: (v: string) => void, testid: string) => <OtpField value={value} onChange={setValue} testId={testid} />;
 
   const min = data?.min_payout_usd ?? 25;
   const balance = data?.unpaid_balance_usd ?? 0;
@@ -261,8 +236,8 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
                   </Typography>
                 </Box>
                 {data.can_withdraw && !showWithdraw ? (
-                  <Box component="button" type="button" data-testid="payout-withdraw-btn" onClick={startWithdraw} sx={pillBtn("primary")}>
-                    {busy === "start-withdraw" ? <CircularProgress size={16} sx={{ color: "#fff" }} /> : <Icon name="arrow-up-right" size={16} />}
+                  <Box component="button" type="button" data-testid="payout-withdraw-btn" onClick={() => setShowWithdraw(true)} sx={pillBtn("primary")}>
+                    <Icon name="arrow-up-right" size={16} />
                     {t("payoutWithdraw", { defaultValue: "Cash out {{amount}}", amount: `$${toFixedStr(balance, 2)}` })}
                   </Box>
                 ) : !data.can_withdraw && !showWithdraw ? (
@@ -272,18 +247,17 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
                 ) : null}
               </Box>
 
-              {/* Withdraw OTP confirm */}
+              {/* Withdraw confirm (identity check = shared step-up dialog) */}
               {showWithdraw && (
-                <Box sx={{ mt: 2, p: 1.75, borderRadius: "10px", border: `1px solid ${theme.palette.border.main}` }}>
+                <Box data-testid="payout-withdraw-confirm" sx={{ mt: 2, p: 1.75, borderRadius: "10px", border: `1px solid ${theme.palette.border.main}` }}>
                   <Typography sx={{ fontSize: "13px", fontFamily: "var(--font-sans)", fontWeight: 600, color: theme.palette.text.primary, mb: 0.5 }}>
                     {t("payoutWithdrawConfirm", { defaultValue: "Confirm cash-out" })}
                   </Typography>
                   <Typography sx={{ fontSize: "12px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, mb: 1.5 }}>
-                    {t("payoutOtpIntro", { defaultValue: "Enter the 6-digit code we emailed you." })}
+                    {t("payoutWithdrawIntro", { defaultValue: "We'll send {{amount}} in USDT (TRC-20) to {{address}}. You'll be asked to verify it's you.", amount: `$${toFixedStr(balance, 2)}`, address: data.trc20_address_masked })}
                   </Typography>
                   <Box sx={{ display: "flex", gap: 1, alignItems: "center", flexWrap: "wrap" }}>
-                    {otpField(withdrawOtp, setWithdrawOtp, "payout-withdraw-otp-input")}
-                    <Box component="button" type="button" data-testid="payout-confirm-withdraw-btn" onClick={() => withdrawOtp.length === 6 && confirmWithdraw()} sx={{ ...pillBtn("primary"), opacity: withdrawOtp.length === 6 && !busy ? 1 : 0.6, pointerEvents: withdrawOtp.length === 6 && !busy ? "auto" : "none" }}>
+                    <Box component="button" type="button" data-testid="payout-confirm-withdraw-btn" onClick={confirmWithdraw} sx={pillBtn("primary")}>
                       {busy === "confirm-withdraw" ? <CircularProgress size={16} sx={{ color: "#fff" }} /> : null}
                       {t("payoutConfirmWithdraw", { defaultValue: "Confirm & send" })}
                     </Box>
@@ -302,10 +276,6 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
                 openSetup={() => { setShowAutoSetup(true); setAutoMin(String(min)); }}
                 autoMin={autoMin}
                 setAutoMin={setAutoMin}
-                otpSent={autoOtpSent}
-                otp={autoOtp}
-                setOtp={setAutoOtp}
-                onSendOtp={() => sendAutoOtp()}
                 onEnable={() => enableAuto()}
                 onDisable={disableAuto}
                 onCancel={resetForms}
@@ -370,27 +340,15 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
                       onChange={(e) => setNewAddr(e.target.value.trim())}
                       placeholder={t("payoutNewAddressPlaceholder", { defaultValue: "Enter USDT (TRC-20) address (starts with T)" })}
                       size="small"
-                      disabled={newOtpSent}
+                      data-testid="payout-new-address-field"
                       inputProps={{ "data-testid": "payout-new-address-input", style: { fontFamily: MONO, fontSize: "13px" } }}
                       sx={{ flex: 1, minWidth: 240 }}
                     />
-                    {!newOtpSent && (
-                      <Box component="button" type="button" data-testid="payout-send-otp-btn" onClick={() => newAddr && sendNewAddrOtp()} sx={{ ...pillBtn("primary"), opacity: newAddr && !busy ? 1 : 0.6, pointerEvents: newAddr && !busy ? "auto" : "none" }}>
-                        {busy === "send-new-otp" ? <CircularProgress size={16} sx={{ color: "#fff" }} /> : null}
-                        {t("payoutSendCode", { defaultValue: "Send code" })}
-                      </Box>
-                    )}
-                  </Box>
-
-                  {newOtpSent && (
-                    <Box sx={{ mt: 1.5, display: "flex", gap: 1, alignItems: "center", flexWrap: "wrap" }}>
-                      {otpField(newOtp, setNewOtp, "payout-new-otp-input")}
-                      <Box component="button" type="button" data-testid="payout-verify-btn" onClick={() => newOtp.length === 6 && verifyNewAddr()} sx={{ ...pillBtn("primary"), opacity: newOtp.length === 6 && !busy ? 1 : 0.6, pointerEvents: newOtp.length === 6 && !busy ? "auto" : "none" }}>
-                        {busy === "verify-new" ? <CircularProgress size={16} sx={{ color: "#fff" }} /> : null}
-                        {t("payoutVerifyEnable", { defaultValue: "Verify & enable" })}
-                      </Box>
+                    <Box component="button" type="button" data-testid="payout-verify-btn" onClick={() => newAddr && enableNewAddr()} sx={{ ...pillBtn("primary"), opacity: newAddr && !busy ? 1 : 0.6, pointerEvents: newAddr && !busy ? "auto" : "none" }}>
+                      {busy === "verify-new" ? <CircularProgress size={16} sx={{ color: "#fff" }} /> : null}
+                      {t("payoutVerifyEnable", { defaultValue: "Verify & enable" })}
                     </Box>
-                  )}
+                  </Box>
 
                   <Typography sx={{ mt: 1.5, fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.disabled }}>
                     {t("payoutTronWarning", { defaultValue: "Sent on Tron (TRC-20). Double-check it — crypto sent to a wrong address can't be recovered." })}

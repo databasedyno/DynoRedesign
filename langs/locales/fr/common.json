@@ -1543,5 +1543,36 @@
     "drop": "Déposez l’image pour l’envoyer",
     "notFile": "Déposez un fichier image depuis votre ordinateur — les images glissées depuis d’autres sites arrivent sous forme de liens et ne peuvent pas être envoyées.",
     "notImage": "Seuls des fichiers image peuvent être déposés ici (JPG, PNG, GIF, WebP ou SVG)."
-  }
+  },
+  "stepUp": {
+    "title": "Vérifiez que c'est bien vous",
+    "body": "Pour {{action}}, confirmez que c'est bien vous. Cela déverrouille l'action pendant 10 minutes — plus de codes d'ici là.",
+    "cancel": "Annuler",
+    "verify": "Vérifier",
+    "sending": "Envoi de votre code…",
+    "sentEmail": "Nous avons envoyé un code à 6 chiffres par e-mail à {{contact}}.",
+    "sentSms": "Nous avons envoyé un code à 6 chiffres par SMS à {{contact}}.",
+    "yourEmail": "votre e-mail",
+    "yourPhone": "votre téléphone",
+    "methodTotp": "Authentificateur",
+    "methodEmail": "Code par e-mail",
+    "methodSms": "SMS",
+    "methodBackup": "Code de secours",
+    "totpLabel": "Code de votre application d'authentification",
+    "backupLabel": "Code de secours",
+    "sendFailed": "Impossible d'envoyer le code. Veuillez réessayer.",
+    "statusFailed": "Impossible de démarrer la vérification. Veuillez réessayer.",
+    "invalidCode": "Code invalide. Veuillez réessayer.",
+    "noMethods": "Ajoutez d'abord une adresse e-mail à votre compte — nous devons pouvoir vous envoyer votre code de vérification.",
+    "scope": {
+      "apikey": "gérer les clés API",
+      "wallet": "modifier les portefeuilles de paiement",
+      "brand_delete": "supprimer une marque",
+      "security": "modifier vos paramètres de sécurité",
+      "payout": "modifier vos paramètres de versement",
+      "team": "modifier l'accès de l'équipe",
+      "settlement": "modifier votre devise de règlement"
+    }
+  },
+  "deleteWalletBody": "Vous êtes sur le point de supprimer le portefeuille {{type}}{{address}}. Cette action est définitive et irréversible. Nous vous demanderons d'abord de vérifier votre identité."
 }

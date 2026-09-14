@@ -1,12 +1,16 @@
 import express from "express";
 import { walletController } from "../controller";
 import { requireCompanyOwnerBy } from "../middleware/teamPermissionMiddleware";
+import { requireStepUp } from "../middleware/requireStepUp";
 import { auditMutations } from "../utils/activityLog";
 import { userWalletModel } from "../models";
-import { requireWalletSudo } from "../controller/wallet/walletSudo";
 import { checkAddressSanity, getWalletSecurityStatus } from "../controller/wallet/walletSecurity";
 
 const walletRouter = express.Router();
+
+// Every payout-wallet mutation requires an active step-up session for the
+// `wallet` scope (unified /api/stepup engine; 10-min, scope-isolated).
+const stepUp = requireStepUp("wallet");
 
 // OWNER-ONLY guard resolver for payout-wallet mutations. Prefer an explicit
 // company_id in the body; otherwise resolve it from the target wallet_id
@@ -29,10 +33,10 @@ const auditWallet = auditMutations("wallet", { resolveCompany: resolveWalletComp
 
 // ============================================
 // WALLET ADDRESS CRUD OPERATIONS (Merchant-facing)
-// All CUD operations require OTP verification
+// All CUD operations require an active `wallet` step-up session (stepUp).
 // ============================================
 
-// READ - Get wallet addresses (No OTP required)
+// READ - Get wallet addresses (no step-up required)
 walletRouter.get("/getWallet", walletController.getWallet);
 walletRouter.get("/getWalletAddresses", walletController.getWalletAddresses);
 // Reuse wallets across companies (new-company onboarding + Wallets page)
@@ -44,46 +48,30 @@ walletRouter.post("/address-sanity", checkAddressSanity);
 // Read-only: wallet-change freeze state (plan 3.4 Wallet security page).
 walletRouter.get("/security/status", getWalletSecurityStatus);
 
-// CREATE - Add wallet address (2-step OTP flow)
-// Step 1: Validate address and send OTP
-walletRouter.post("/validateWalletAddress", walletController.validateWallet);
-// Step 2: Verify OTP and complete creation
-walletRouter.post("/verifyOtp", walletController.verifyOtp);
+// CREATE - Add wallet address (2-step: validate on-chain, then save)
+walletRouter.post("/validateWalletAddress", stepUp, walletController.validateWallet);
+walletRouter.post("/verifyOtp", stepUp, walletController.verifyOtp);
 // ALIAS: Frontend compatibility - /wallet/verifyCode -> /wallet/verifyOtp
-walletRouter.post("/verifyCode", walletController.verifyOtp);
-// Alternative: Direct add (for merchants, no OTP)
-walletRouter.post("/addWalletAddress", requireCompanyOwnerBy(resolveWalletCompany), auditWallet, walletController.addWalletAddress);
+walletRouter.post("/verifyCode", stepUp, walletController.verifyOtp);
+// Alternative: Direct add (for merchants)
+walletRouter.post("/addWalletAddress", requireCompanyOwnerBy(resolveWalletCompany), stepUp, auditWallet, walletController.addWalletAddress);
 
-// UPDATE - Edit wallet address (OTP is issued by /validateWalletAddress and
-// verified inline in editWalletAddress; the old /address/send-otp step is unused).
-walletRouter.put("/address/:id", requireCompanyOwnerBy(resolveWalletCompany), auditWallet, walletController.editWalletAddress);
+// UPDATE - Edit wallet address / name
+walletRouter.put("/address/:id", requireCompanyOwnerBy(resolveWalletCompany), stepUp, auditWallet, walletController.editWalletAddress);
 // ALIAS: Frontend compatibility - PUT /wallet/updateWallet/:id -> PUT /wallet/address/:id
-walletRouter.put("/updateWallet/:id", requireCompanyOwnerBy(resolveWalletCompany), auditWallet, walletController.editWalletAddress);
+walletRouter.put("/updateWallet/:id", requireCompanyOwnerBy(resolveWalletCompany), stepUp, auditWallet, walletController.editWalletAddress);
 
-// DELETE - the merchant delete flow lives on /wallet/delete/* (see below).
+// UPDATE - Update wallet in main payment system (address / name / tag)
+walletRouter.post("/wallet/update", requireCompanyOwnerBy(resolveWalletCompany), stepUp, auditWallet, walletController.updateWalletWithOTP);
 
-// UPDATE - Update wallet in main payment system (2-step OTP flow)
-walletRouter.post("/wallet/update/send-otp", walletController.sendUpdateWalletOTP);
-walletRouter.post("/wallet/update", requireCompanyOwnerBy(resolveWalletCompany), auditWallet, walletController.updateWalletWithOTP);
+// DELETE - Delete wallet from main payment system
+walletRouter.post("/wallet/delete/verify", requireCompanyOwnerBy(resolveWalletCompany), stepUp, auditWallet, walletController.deletePaymentWalletWithOTP);
 
-// DELETE WITH OTP - Delete wallet from main payment system (2-step OTP flow)
-walletRouter.post("/wallet/delete/send-otp", walletController.sendDeletePaymentWalletOTP);
-walletRouter.post("/wallet/delete/verify", requireCompanyOwnerBy(resolveWalletCompany), auditWallet, walletController.deletePaymentWalletWithOTP);
-
-// ============================================
-// FULL PACKAGE — 10-minute security session (sudo) + bulk wallet management.
-// One OTP unlocks a 10-min window authorising many add/edit/delete ops.
-// ADDITIVE: the single-action OTP routes above are unchanged.
-// ============================================
-walletRouter.get("/sudo/status", walletController.getWalletSudoStatus);
-walletRouter.post("/sudo/request-otp", walletController.requestWalletSudoOtp);
-walletRouter.post("/sudo/verify-otp", walletController.verifyWalletSudoOtp);
-walletRouter.post("/sudo/revoke", walletController.revokeWalletSudo);
-// Bulk mutate — owner-only + requires an active sudo session.
+// Bulk mutate (WalletManagerModal) — owner-only + active step-up session.
 walletRouter.post(
   "/batch",
   requireCompanyOwnerBy(resolveWalletCompany),
-  requireWalletSudo,
+  stepUp,
   auditWallet,
   walletController.batchWalletMutate,
 );
@@ -107,7 +95,7 @@ walletRouter.post("/estimateFees", walletController.estimateFees);
 walletRouter.get("/network-fees", walletController.getNetworkFees);
 walletRouter.post("/calculate-payment", walletController.calculatePaymentAmount);
 walletRouter.post("/sendConfirmationOTP", walletController.sendConfirmationOTP);
-walletRouter.post("/withdrawAssets", walletController.withdrawAssets);
+walletRouter.post("/withdrawAssets", requireStepUp("payout"), walletController.withdrawAssets);
 walletRouter.post("/exchangeCreate", walletController.exchangeCreate);
 walletRouter.post("/confirmExchange", walletController.confirmExchange);
 walletRouter.post("/getUserAnalytics", walletController.getUserAnalytics);

@@ -1,7 +1,4 @@
-import React from "react";
-import { TextField, type Theme } from "@mui/material";
-import { useTranslation } from "react-i18next";
-import { MONO } from "@/styles/uiKit";
+import { type Theme } from "@mui/material";
 
 export type PayoutWallet = {
   wallet_id: number;
@@ -58,23 +55,4 @@ export const makePillBtn = (theme: Theme, busy: string | null): PillBtn => (vari
   opacity: busy ? 0.7 : 1, pointerEvents: busy ? ("none" as const) : ("auto" as const),
 });
 
-/** Primary pill that is only enabled once the 6-digit OTP is filled and nothing is in flight. */
-export const otpGatedSx = (pillBtn: PillBtn, otp: string, busy: string | null) => ({
-  ...pillBtn("primary"),
-  opacity: otp.length === 6 && !busy ? 1 : 0.6,
-  pointerEvents: otp.length === 6 && !busy ? "auto" : "none",
-});
 
-export const OtpField: React.FC<{ value: string; onChange: (v: string) => void; testId: string }> = ({ value, onChange, testId }) => {
-  const { t } = useTranslation("referrals");
-  return (
-    <TextField
-      value={value}
-      onChange={(e) => onChange(e.target.value.replace(/\D/g, "").slice(0, 6))}
-      placeholder={t("payoutOtpPlaceholder", { defaultValue: "6-digit code" })}
-      size="small"
-      inputProps={{ "data-testid": testId, inputMode: "numeric", style: { fontFamily: MONO, letterSpacing: "3px" } }}
-      sx={{ width: 160 }}
-    />
-  );
-};

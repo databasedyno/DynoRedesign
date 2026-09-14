@@ -1,6 +1,7 @@
 import express from "express";
 import authMiddleware from "../middleware/authMiddleware";
 import { requirePermission } from "../middleware/teamPermissionMiddleware";
+import { requireStepUp } from "../middleware/requireStepUp";
 import { auditMutations } from "../utils/activityLog";
 import { teamMemberModel } from "../models";
 import {
@@ -45,9 +46,10 @@ router.get("/invite/:token", getInvite);
 router.post("/accept", acceptInvite);
 
 // ── Authenticated team management (mutations are audited to the activity log) ──
-router.post("/invite", authMiddleware, auditTeam, inviteMembers);
+// Granting access (invite) and changing permissions are step-up gated (scope `team`).
+router.post("/invite", authMiddleware, requireStepUp("team"), auditTeam, inviteMembers);
 router.get("/members", authMiddleware, listMembers);
-router.patch("/members/:id", authMiddleware, auditTeam, updateMember);
+router.patch("/members/:id", authMiddleware, requireStepUp("team"), auditTeam, updateMember);
 router.delete("/members/:id", authMiddleware, auditTeam, revokeMember);
 router.get("/permissions/catalogue", authMiddleware, permissionCatalogue);
 

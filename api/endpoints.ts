@@ -44,14 +44,11 @@ export const API_ENDPOINTS = {
     verifyCryptoPayment: "/wallet/verifyCryptoPayment",
     verifyPayment: "/wallet/verifyPayment",
     updateWallet: (walletId: PathId) => `/wallet/updateWallet/${walletId}`,
-    updateWalletSendOtp: "/wallet/wallet/update/send-otp",
+    // Step 2 of the add flow (validate -> save). Both steps are gated by the `wallet` step-up scope.
+    saveValidatedWallet: "/wallet/verifyOtp",
     updateWalletWithOtp: "/wallet/wallet/update",
-    // Full Package: 10-min security session (sudo) + bulk management
-    sudoStatus: "/wallet/sudo/status",
+    deleteWallet: "/wallet/wallet/delete/verify",
     securityStatus: "/wallet/security/status",
-    sudoRequestOtp: "/wallet/sudo/request-otp",
-    sudoVerifyOtp: "/wallet/sudo/verify-otp",
-    sudoRevoke: "/wallet/sudo/revoke",
     batch: "/wallet/batch",
     // Pre-save address sanity (network-mismatch + never-received warning)
     addressSanity: "/wallet/address-sanity",
@@ -100,14 +97,30 @@ export const API_ENDPOINTS = {
     twoFaDisable: "/user/2fa/disable",
     twoFaRegenerateBackupCodes: "/user/2fa/regenerate-backup-codes",
     twoFaValidate: "/user/2fa/validate",
+    twoFaResend: "/user/2fa/resend",
+    twoFaEnforcement: "/user/2fa/enforcement",
+    twoFaEmailStart: "/user/2fa/email/start",
+    twoFaEmailVerify: "/user/2fa/email/verify",
+    twoFaResetRequest: "/user/2fa/reset/request",
+    twoFaResetConfirm: "/user/2fa/reset/confirm",
+    trustedDevices: "/user/trusted-devices",
+    trustedDevice: (id: PathId) => `/user/trusted-devices/${id}`,
     verifyAddEmail: "/user/verifyAddEmail",
     verifyAddPhone: "/user/verifyAddPhone",
     deleteAccountSendOtp: "/user/account/send-otp",
     deleteAccount: "/user/account",
   },
 
+  // Unified step-up (sudo mode): one verified factor unlocks a 10-min, scope-isolated session.
+  stepUp: {
+    status: (scope: string) => `/stepup/${scope}/status`,
+    requestCode: (scope: string) => `/stepup/${scope}/request-code`,
+    verify: (scope: string) => `/stepup/${scope}/verify`,
+    revoke: (scope: string) => `/stepup/${scope}/revoke`,
+  },
+
   company: {
-    deleteSendOtp: (companyId: PathId) => `/company/deleteCompany/${companyId}/send-otp`,
+    deleteCompany: (companyId: PathId) => `/company/deleteCompany/${companyId}`,
     autoConvert: (companyId: PathId) => `/company/auto-convert/${companyId}`,
     upgradeToBusiness: (companyId: PathId) => `/company/upgrade-to-business/${companyId}`,
     webhookHistory: (companyId: PathId, q: string = "") =>
@@ -140,7 +153,6 @@ export const API_ENDPOINTS = {
     list: "/referral/list",
     myCode: "/referral/my-code",
     payoutOverview: "/referral/payout/overview",
-    payoutOtp: "/referral/payout/otp",
     payoutOptIn: "/referral/payout/opt-in",
     payoutRequest: "/referral/payout/request",
     payoutAuto: "/referral/payout/auto",

@@ -185,5 +185,6 @@
   "payoutAvailableCreditDesc": "Réduit automatiquement vos frais Dynopay sur vos prochains paiements.",
   "payoutCreditedToDate": "Crédité à ce jour",
   "payoutCreditedToDateDesc": "Total des frais déjà couverts par vos récompenses de parrainage.",
-  "payoutMethod": "Mode de versement"
+  "payoutMethod": "Mode de versement",
+  "payoutWithdrawIntro": "Nous enverrons {{amount}} en USDT (TRC-20) à {{address}}. Il vous sera demandé de vérifier votre identité."
 }

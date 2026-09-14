@@ -225,3 +225,53 @@ export const sendAccountRestoredEmail = async (email: string, name: string) => {
     apiLogger.error("Account restored email error:", e);
   }
 };
+
+/** Step-up (sudo mode) verification code — one email for every sensitive-action scope. */
+export const sendStepUpCodeEmail = async (email: string, name: string, code: string, scope: string, lang?: string | null) => {
+  try {
+    const L = await resolveEmailLang(lang, email);
+    const action = t(`security.stepUpActions.${scope}`, L);
+    const content = `${greeting(name, L)}
+    ${p(t("security.stepUp.intro", L, { action: `<strong>${escapeHtml(action)}</strong>` }))}
+    ${otpBlock(code)}
+    ${p(t("security.stepUp.expiry", L), "font-size: 14px; color: #6b7280; text-align: center; margin: 0;")}
+    ${warnText(t("security.stepUp.ignore", L))}`;
+    const html = dynoPayEmailTemplate(t("security.stepUp.heading", L), content, false, "", "", t("security.stepUp.preheader", L), L, "key");
+    await send(email, name, t("security.stepUp.subject", L), html, `Step-up code (${scope})`);
+  } catch (e) {
+    apiLogger.error("Step-up code email error:", e);
+  }
+};
+
+/** 2FA reset — signed link (30 min) that drops the authenticator and falls back to email codes. */
+export const send2FAResetLinkEmail = async (email: string, name: string, link: string, lang?: string | null) => {
+  try {
+    const L = await resolveEmailLang(lang, email);
+    const content = `${greeting(name, L)}
+    ${p(t("security.twoFaReset.intro", L))}
+    ${alertBox(t("security.twoFaReset.consequences", L))}
+    ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${whenRow(L)}</table>`, "#F79009")}
+    ${warnText(t("security.twoFaReset.ignore", L))}`;
+    const html = dynoPayEmailTemplate(t("security.twoFaReset.heading", L), content, true, t("security.twoFaReset.cta", L), link, t("security.twoFaReset.preheader", L), L, "shield-red");
+    await send(email, name, t("security.twoFaReset.subject", L), html, "2FA reset link");
+  } catch (e) {
+    apiLogger.error("2FA reset link email error:", e);
+  }
+};
+
+/** 2FA reset — completed notice (sessions revoked, wallet changes frozen 24h). */
+export const send2FAResetDoneEmail = async (email: string, name: string, freezeUntil: Date, lang?: string | null) => {
+  try {
+    const L = await resolveEmailLang(lang, email);
+    const until = freezeUntil.toLocaleString(normalizeLang(L), { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" }) + " UTC";
+    const content = `${greeting(name, L)}
+    ${p(t("security.twoFaResetDone.intro", L))}
+    ${alertBox(t("security.twoFaResetDone.freeze", L, { until }))}
+    ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${whenRow(L)}</table>`, "#F79009")}
+    ${warnText(t("security.didntDoThis", L))}`;
+    const html = dynoPayEmailTemplate(t("security.twoFaResetDone.heading", L), content, true, t("security.reviewCta", L), SECURITY_URL, t("security.twoFaResetDone.preheader", L), L, "shield-red");
+    await send(email, name, t("security.twoFaResetDone.subject", L), html, "2FA reset done");
+  } catch (e) {
+    apiLogger.error("2FA reset done email error:", e);
+  }
+};

@@ -6,18 +6,16 @@ import sequelize from "../utils/dbInstance";
 import User from "../models/userModels/userModel";
 import ReferralPayout from "../models/referralModels/referralPayoutModel";
 import { tatumClient } from "../integrations/tatum/TatumClient";
-import { redis } from "../utils/redisInstance";
-import { sendWithdrawalOTPEmail, sendReferralPayoutRequestedEmail, sendReferralAutoPayEnabledEmail } from "./emailService";
+import { sendReferralPayoutRequestedEmail, sendReferralAutoPayEnabledEmail } from "./emailService";
 import { getReferrerCommissionSummary } from "./referralService";
-import { generateOtpCode } from "../helper/otpGuard";
 import { toFixedStr, toNumber } from "../utils/money";
 
 /**
  * Referral revenue-share CASH-OUT (Phase 2). Reward accrues at the ACCOUNT level
  * (tbl_user) but wallets live at the COMPANY level (tbl_user_wallet): aggregate
  * every TRON address across all the account's companies for reuse, opt into cash
- * (saved address = no OTP; new = emailed OTP), OTP-gated payout REQUEST (no funds
- * move — API only writes a row), and execute via Binance USDT-TRC20 on the
+ * (every payout-method change is gated by the `payout` step-up session at the
+ * router), payout REQUEST (no funds move — API only writes a row), and execute via Binance USDT-TRC20 on the
  * LEADER/PROD cron only (submitWithdrawal is NEVER called from an API request).
  */
 
@@ -25,9 +23,6 @@ export const MIN_PAYOUT_USDT: number = (() => {
   const v = Number(envRaw("REFERRAL_MIN_PAYOUT_USDT"));
   return Number.isFinite(v) && v > 0 ? v : 25;
 })();
-
-const OTP_TTL_SECONDS = 300;
-const OTP_KEY = (userId: number) => `referral-payout-otp:${userId}`;
 
 const isValidTronAddress = (address: string): boolean => {
   if (!address || typeof address !== "string") return false;
@@ -156,67 +151,15 @@ export const getPayoutOverview = async (userId: number) => {
   };
 };
 
-// OTP (reuses the merchant withdrawal-OTP email)
+// Identity for every payout-method change is proven by the `payout` step-up session
+// (requireStepUp at the router) — no per-action OTP here.
 
-export const sendPayoutOtp = async (
-  userId: number,
-  address?: string
-): Promise<{ success: boolean; message: string; email_masked?: string }> => {
-  const user = await User.findByPk(userId, { attributes: ["user_id", "email", "name", "language"] });
-  if (!user) return { success: false, message: "User not found" };
-  const u = user as unknown as Record<string, string>;
-
-  const addr = (address || "").trim();
-  if (addr && !isValidTronAddress(addr)) {
-    return { success: false, message: "Enter a valid USDT (TRC-20) address" };
-  }
-
-  const code = String(generateOtpCode());
-  await redis.set(OTP_KEY(userId), JSON.stringify({ code, address: addr || null }), { EX: OTP_TTL_SECONDS });
-
-  await sendWithdrawalOTPEmail(
-    u.email,
-    u.name || "there",
-    code,
-    "your referral earnings",
-    "USDT (TRC-20)",
-    addr ? maskAddress(addr) : u.email || "",
-    u.language
-  );
-
-  const masked = (u.email || "").replace(/(.{2})(.*)(@.*)/, "$1***$3");
-  apiLogger.info(`[ReferralPayout] OTP sent to ${masked} (user ${userId})`);
-  return { success: true, message: `Code sent to ${masked}`, email_masked: masked };
-};
-
-const consumeOtp = async (
-  userId: number,
-  otp: string,
-  requireAddress?: string
-): Promise<{ ok: boolean; message?: string }> => {
-  const raw = await redis.get(OTP_KEY(userId));
-  if (!raw) return { ok: false, message: "Code expired — request a new one" };
-  let stored: { code: string; address: string | null };
-  try {
-    stored = JSON.parse(raw);
-  } catch {
-    return { ok: false, message: "Code invalid — request a new one" };
-  }
-  if (String(otp).trim() !== stored.code) return { ok: false, message: "Incorrect code" };
-  if (requireAddress && stored.address && stored.address !== requireAddress) {
-    return { ok: false, message: "Code was issued for a different address" };
-  }
-  await redis.del(OTP_KEY(userId));
-  return { ok: true };
-};
-
-// Opt-in (select saved address = no OTP; new = OTP)
+// Opt-in (credit, or cash with a saved / new TRC-20 address)
 
 export const optInPayout = async (params: {
   userId: number;
   mode: "credit" | "cash";
   address?: string;
-  otp?: string;
 }): Promise<{
   success: boolean;
   statusCode?: number;
@@ -248,23 +191,8 @@ export const optInPayout = async (params: {
 
   const saved = await getReusableTrc20Wallets(userId);
   const isSaved = saved.some((w) => w.address === address);
-  // Re-enabling the exact address already verified on file (after an opt-out) needs no new OTP.
   const isVerifiedOnFile =
     address === (u.referral_payout_trc20_address as string) && !!u.referral_payout_address_verified_at;
-
-  if (!isSaved && !isVerifiedOnFile) {
-    // Brand-new address → require a fresh OTP.
-    if (!params.otp) {
-      return {
-        success: false,
-        statusCode: 400,
-        code: "OTP_REQUIRED",
-        message: "Verify this new address with the code we email you.",
-      };
-    }
-    const v = await consumeOtp(userId, params.otp, address);
-    if (!v.ok) return { success: false, statusCode: 400, message: v.message || "Invalid code" };
-  }
 
   await User.update(
     {
@@ -276,7 +204,7 @@ export const optInPayout = async (params: {
   );
 
   apiLogger.info(
-    `[ReferralPayout] user ${userId} opted into CASH → ${maskAddress(address)} (${isSaved ? "saved wallet" : isVerifiedOnFile ? "re-enable on-file" : "new+OTP"})`
+    `[ReferralPayout] user ${userId} opted into CASH → ${maskAddress(address)} (${isSaved ? "saved wallet" : isVerifiedOnFile ? "re-enable on-file" : "new address"})`
   );
 
   return {
@@ -292,11 +220,10 @@ export const optInPayout = async (params: {
   };
 };
 
-// Payout REQUEST (OTP-gated; NO funds move here)
+// Payout REQUEST (step-up gated; NO funds move here)
 
 export const requestPayout = async (params: {
   userId: number;
-  otp?: string;
   idempotencyKey?: string;
 }): Promise<{
   success: boolean;
@@ -320,17 +247,6 @@ export const requestPayout = async (params: {
   if (!isValidTronAddress(address)) {
     return { success: false, statusCode: 400, message: "Saved payout address is invalid — please re-add it." };
   }
-
-  if (!params.otp) {
-    return {
-      success: false,
-      statusCode: 400,
-      code: "OTP_REQUIRED",
-      message: "Confirm this payout with the code we email you.",
-    };
-  }
-  const v = await consumeOtp(userId, params.otp);
-  if (!v.ok) return { success: false, statusCode: 400, message: v.message || "Invalid code" };
 
   const existing = await ReferralPayout.findOne({
     where: { user_id: userId, status: { [Op.in]: ["pending", "processing"] } },
@@ -391,7 +307,6 @@ export const setAutoPayout = async (params: {
   userId: number;
   enabled: boolean;
   autoMinUsd?: number;
-  otp?: string;
 }): Promise<{ success: boolean; statusCode?: number; code?: string; message: string; auto?: boolean; auto_min_usd?: number }> => {
   const { userId, enabled } = params;
   const user = await User.findByPk(userId);
@@ -410,17 +325,6 @@ export const setAutoPayout = async (params: {
   ) {
     return { success: false, statusCode: 400, message: "Set up USDT (TRC-20) cash-out first, then enable auto." };
   }
-  if (!params.otp) {
-    return {
-      success: false,
-      statusCode: 400,
-      code: "OTP_REQUIRED",
-      message: "Confirm with the code we email you to turn on auto cash-out.",
-    };
-  }
-  const v = await consumeOtp(userId, params.otp);
-  if (!v.ok) return { success: false, statusCode: 400, message: v.message || "Invalid code" };
-
   const requested = Number(params.autoMinUsd);
   const min = Number.isFinite(requested) && requested > MIN_PAYOUT_USDT ? round2(requested) : MIN_PAYOUT_USDT;
   await User.update(
@@ -453,7 +357,6 @@ export default {
   MIN_PAYOUT_USDT,
   getReusableTrc20Wallets,
   getPayoutOverview,
-  sendPayoutOtp,
   optInPayout,
   requestPayout,
   setAutoPayout,

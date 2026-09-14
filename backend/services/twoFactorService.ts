@@ -44,7 +44,8 @@ const hashBackupCodes = (codes: string[]): string[] => {
 /**
  * Verify a TOTP token against a secret with window tolerance
  */
-const verifyTOTP = (token: string, secret: string): boolean => {
+const verifyTOTP = (token: string, secret: string | null | undefined): boolean => {
+  if (!secret) return false;
   try {
     const result = verifySync({ token, secret, strategy: "totp", epochTolerance: 30 });
     return result?.valid === true;
@@ -62,7 +63,9 @@ export const setup2FA = async (
   email: string
 ): Promise<{ secret: string; qr_code: string; backup_codes: string[] }> => {
   const existing = await User2FA.findOne({ where: { user_id: userId } });
-  if (existing && existing.is_enabled) {
+  // An enrolled AUTHENTICATOR must be switched off first; an email-code
+  // baseline may be upgraded in place (the pending secret is unused until verified).
+  if (existing && existing.is_enabled && existing.method === "totp") {
     throw new Error("2FA is already enabled. Disable it first to reconfigure.");
   }
 
@@ -80,10 +83,12 @@ export const setup2FA = async (
   const hashedBackupCodes = hashBackupCodes(plainBackupCodes);
 
   if (existing) {
+    const keepEmailBaseline = existing.is_enabled && existing.method === "email";
     await existing.update({
       secret,
       backup_codes: hashedBackupCodes,
-      is_enabled: false,
+      is_enabled: keepEmailBaseline,
+      method: keepEmailBaseline ? "email" : "totp",
       failed_attempts: 0,
       locked_until: null,
     });
@@ -113,7 +118,7 @@ export const setup2FA = async (
 export const verify2FASetup = async (userId: number, token: string): Promise<boolean> => {
   const record = await User2FA.findOne({ where: { user_id: userId } });
   if (!record) throw new Error("2FA setup not found. Please initiate setup first.");
-  if (record.is_enabled) throw new Error("2FA is already enabled.");
+  if (record.is_enabled && record.method === "totp") throw new Error("2FA is already enabled.");
 
   const isValid = verifyTOTP(token, record.secret);
 
@@ -123,6 +128,7 @@ export const verify2FASetup = async (userId: number, token: string): Promise<boo
 
   await record.update({
     is_enabled: true,
+    method: "totp",
     enabled_at: new Date(),
     failed_attempts: 0,
   });
@@ -148,8 +154,8 @@ export const validate2FAToken = async (
     throw new Error(`2FA verification locked. Try again in ${remaining} minutes.`);
   }
 
-  // Try TOTP first
-  const isTOTPValid = verifyTOTP(token, record.secret);
+  // Try TOTP first (only meaningful for authenticator enrolments)
+  const isTOTPValid = record.method === "totp" && verifyTOTP(token, record.secret);
 
   if (isTOTPValid) {
     await record.update({
@@ -192,22 +198,48 @@ export const validate2FAToken = async (
 };
 
 /**
- * Disable 2FA for a user
+ * Turn the authenticator off. A second factor is mandatory, so the account
+ * falls back to the EMAIL-CODE baseline instead of having no factor at all.
  */
 export const disable2FA = async (userId: number): Promise<boolean> => {
   const record = await User2FA.findOne({ where: { user_id: userId } });
-  if (!record || !record.is_enabled) {
+  if (!record || !record.is_enabled || record.method !== "totp") {
     throw new Error("2FA is not currently enabled.");
   }
-
-  await record.update({
-    is_enabled: false,
-    failed_attempts: 0,
-    locked_until: null,
-  });
-
-  userLogger.info(`[2FA] Disabled for user ${userId}`);
+  await record.update({ method: "email", secret: null, failed_attempts: 0, locked_until: null });
+  userLogger.info(`[2FA] Authenticator disabled for user ${userId} — email codes remain the baseline`);
   return true;
+};
+
+/** Enrol the EMAIL-CODE baseline (caller has already verified a code sent to the account email). */
+export const enableEmail2FA = async (userId: number): Promise<string[]> => {
+  const plain = generateBackupCodes();
+  const hashed = hashBackupCodes(plain);
+  const existing = await User2FA.findOne({ where: { user_id: userId } });
+  if (existing?.is_enabled && existing.method === "totp") {
+    throw new Error("An authenticator app is already enabled.");
+  }
+  const fields = { method: "email" as const, secret: null, is_enabled: true, enabled_at: new Date(), backup_codes: hashed, failed_attempts: 0, locked_until: null };
+  if (existing) await existing.update(fields);
+  else await User2FA.create({ user_id: userId, ...fields });
+  userLogger.info(`[2FA] Email-code baseline enabled for user ${userId}`);
+  return plain;
+};
+
+/** Lost-authenticator recovery: drop TOTP, keep the mandatory email baseline, burn old backup codes. */
+export const resetToEmailFactor = async (userId: number): Promise<void> => {
+  const existing = await User2FA.findOne({ where: { user_id: userId } });
+  const fields = { method: "email" as const, secret: null, is_enabled: true, enabled_at: new Date(), backup_codes: hashBackupCodes(generateBackupCodes()), failed_attempts: 0, locked_until: null };
+  if (existing) await existing.update(fields);
+  else await User2FA.create({ user_id: userId, ...fields });
+  userLogger.warn(`[2FA] Reset to email baseline for user ${userId}`);
+};
+
+/** The second factor that a sign-in must satisfy, or null when the account is not enrolled yet. */
+export const getLoginFactor = async (userId: number): Promise<"totp" | "email" | null> => {
+  const record = await User2FA.findOne({ where: { user_id: userId, is_enabled: true }, attributes: ["method"] });
+  if (!record) return null;
+  return record.method === "totp" ? "totp" : "email";
 };
 
 /**
@@ -269,6 +301,9 @@ export default {
   verify2FASetup,
   validate2FAToken,
   disable2FA,
+  enableEmail2FA,
+  resetToEmailFactor,
+  getLoginFactor,
   regenerateBackupCodes,
   get2FAStatus,
   is2FARequired,

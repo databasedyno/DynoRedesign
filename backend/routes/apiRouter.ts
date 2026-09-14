@@ -6,6 +6,7 @@ import { apiMiddleware, authMiddleware } from "../middleware";
 import { requireCompanyOwnerBy } from "../middleware/teamPermissionMiddleware";
 import { auditMutations } from "../utils/activityLog";
 import { apiModel } from "../models";
+import { requireStepUp } from "../middleware/requireStepUp";
 
 const apiRouter = express.Router();
 
@@ -39,17 +40,21 @@ const resolveApiKeyCompanyFromBody = async (req: express.Request): Promise<numbe
   return Number.isNaN(b) ? null : b;
 };
 
+// Security step-up: rotate/revoke/delete require a fresh second factor via the
+// unified /api/stepup/apikey session (10-min, scope-isolated). See requireStepUp.
+const stepUp = requireStepUp("apikey");
+
 // API Key Management (mutations audited to the Team Activity Log)
 apiRouter.post("/addApi", authMiddleware, requireCompanyOwnerBy(resolveApiKeyCompanyFromBody), auditKey, apiMiddleware, apiController.addApi);
 apiRouter.get("/getApi", authMiddleware, apiController.getApi);
 apiRouter.get("/getApi/:id", authMiddleware, apiController.getApiById);
 apiRouter.put("/updateApi/:id", authMiddleware, auditKey, apiController.updateApi);
-apiRouter.post("/regenerateKey/:id", authMiddleware, requireCompanyOwnerBy(resolveApiKeyCompany), auditKey, apiController.regenerateApiKey);
+apiRouter.post("/regenerateKey/:id", authMiddleware, requireCompanyOwnerBy(resolveApiKeyCompany), stepUp, auditKey, apiController.regenerateApiKey);
 // ALIAS: Frontend compatibility - POST /userApi/regenerateApi/:id -> POST /userApi/regenerateKey/:id
-apiRouter.post("/regenerateApi/:id", authMiddleware, requireCompanyOwnerBy(resolveApiKeyCompany), auditKey, apiController.regenerateApiKey);
+apiRouter.post("/regenerateApi/:id", authMiddleware, requireCompanyOwnerBy(resolveApiKeyCompany), stepUp, auditKey, apiController.regenerateApiKey);
 apiRouter.put("/toggleStatus/:id", authMiddleware, auditKey, apiController.toggleApiStatus);
-apiRouter.post("/revoke/:id", authMiddleware, requireCompanyOwnerBy(resolveApiKeyCompany), auditKey, apiController.revokeApi);
-apiRouter.delete("/deleteApi/:id", authMiddleware, requireCompanyOwnerBy(resolveApiKeyCompany), auditKey, apiController.deleteApi);
+apiRouter.post("/revoke/:id", authMiddleware, requireCompanyOwnerBy(resolveApiKeyCompany), stepUp, auditKey, apiController.revokeApi);
+apiRouter.delete("/deleteApi/:id", authMiddleware, requireCompanyOwnerBy(resolveApiKeyCompany), stepUp, auditKey, apiController.deleteApi);
 
 // Currency Configuration
 apiRouter.get("/availableCurrencies/:company_id", authMiddleware, apiController.getAvailableCurrencies);

@@ -158,5 +158,12 @@
   "sharedAddressTapHint": "Antippen, um alle Wallets mit dieser Adresse hervorzuheben",
   "sharedAddressClearHint": "Antippen, um die Hervorhebung aufzuheben",
   "sharedHighlightTitle": "{{n}} Wallets teilen",
-  "sharedHighlightClear": "Hervorhebung aufheben"
+  "sharedHighlightClear": "Hervorhebung aufheben",
+  "editVerifyNotice": "Das Ändern der Adresse erfordert eine kurze Identitätsprüfung.",
+  "addVerifyNotice": "Wir bitten dich, deine Identität zu bestätigen, bevor diese Wallet gespeichert wird.",
+  "stepUpAwaiting": "Bestätige deine Identität, um Auszahlungs-Wallets zu verwalten.",
+  "stepUpVerifyNow": "Jetzt bestätigen",
+  "stepUpCancelled": "Bestätigung abgebrochen – deine Änderungen wurden nicht gespeichert.",
+  "sudoEndedBanner": "Bestätigung abgelaufen",
+  "sudoEndedHint": "Beim Speichern bitten wir dich erneut um eine Bestätigung."
 }

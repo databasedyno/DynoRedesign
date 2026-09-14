@@ -158,5 +158,12 @@
   "sharedAddressTapHint": "Toque para destacar todas as carteiras que usam este endereço",
   "sharedAddressClearHint": "Toque para limpar o destaque",
   "sharedHighlightTitle": "{{n}} carteiras partilham",
-  "sharedHighlightClear": "Limpar destaque"
+  "sharedHighlightClear": "Limpar destaque",
+  "editVerifyNotice": "Alterar o endereço requer uma verificação rápida de identidade.",
+  "addVerifyNotice": "Vamos pedir-te para confirmares que és tu antes de guardar esta carteira.",
+  "stepUpAwaiting": "Confirma que és tu para gerir as carteiras de pagamento.",
+  "stepUpVerifyNow": "Verificar agora",
+  "stepUpCancelled": "Verificação cancelada — as tuas alterações não foram guardadas.",
+  "sudoEndedBanner": "Verificação terminada",
+  "sudoEndedHint": "Vamos pedir-te para verificares novamente ao guardar."
 }

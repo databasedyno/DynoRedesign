@@ -1543,5 +1543,36 @@
     "drop": "Drop image to upload",
     "notFile": "Drop an image file from your computer — images dragged from other websites arrive as links and can't be uploaded.",
     "notImage": "Only image files can be dropped here (JPG, PNG, GIF, WebP or SVG)."
-  }
+  },
+  "stepUp": {
+    "title": "Verify it's you",
+    "body": "To {{action}}, confirm it's really you. This unlocks the action for 10 minutes — no more codes until then.",
+    "cancel": "Cancel",
+    "verify": "Verify",
+    "sending": "Sending your code…",
+    "sentEmail": "We emailed a 6-digit code to {{contact}}.",
+    "sentSms": "We texted a 6-digit code to {{contact}}.",
+    "yourEmail": "your email",
+    "yourPhone": "your phone",
+    "methodTotp": "Authenticator",
+    "methodEmail": "Email code",
+    "methodSms": "Text message",
+    "methodBackup": "Backup code",
+    "totpLabel": "Code from your authenticator app",
+    "backupLabel": "Backup code",
+    "sendFailed": "We couldn't send the code. Please try again.",
+    "statusFailed": "Couldn't start verification. Please try again.",
+    "invalidCode": "Invalid code. Please try again.",
+    "noMethods": "Add an email address to your account first — we need somewhere to send your verification code.",
+    "scope": {
+      "apikey": "manage API keys",
+      "wallet": "change payout wallets",
+      "brand_delete": "delete a brand",
+      "security": "change your security settings",
+      "payout": "change your payout settings",
+      "team": "change team access",
+      "settlement": "change your settlement currency"
+    }
+  },
+  "deleteWalletBody": "You're about to remove the {{type}} wallet{{address}}. This action is permanent and cannot be undone. We'll ask you to verify it's you first."
 }

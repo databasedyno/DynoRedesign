@@ -1068,7 +1068,24 @@
     "reviewCta": "Beveiliging controleren",
     "supportCta": "Contact met support",
     "profileCta": "Profiel bekijken",
-    "dashboardCta": "Naar het dashboard"
+    "dashboardCta": "Naar het dashboard",
+    "stepUp": {
+      "subject": "Uw Dynopay-verificatiecode",
+      "heading": "Bevestig dat u het bent",
+      "intro": "Gebruik deze code om een gevoelige wijziging in uw Dynopay-account te bevestigen: {{action}}.",
+      "expiry": "Deze code verloopt over 5 minuten en ontgrendelt de actie voor 10 minuten.",
+      "ignore": "Als u dit niet hebt aangevraagd, deel de code dan NIET — iemand probeert mogelijk uw account te wijzigen. Uw instellingen blijven ongewijzigd totdat er een code wordt ingevoerd.",
+      "preheader": "Eenmalige code voor een gevoelige accountwijziging · Dynopay vraagt u nooit om deze code."
+    },
+    "stepUpActions": {
+      "apikey": "beheer van API-sleutels",
+      "wallet": "wijzigen van uitbetalingswallets",
+      "brand_delete": "verwijderen van een merk",
+      "security": "beveiligingsinstellingen van het account",
+      "payout": "uitbetalingsinstellingen",
+      "team": "teamtoegang",
+      "settlement": "afrekenvaluta"
+    }
   },
   "paymentRequest": {
     "subject": "{{companyName}} vraagt {{amount}} {{currency}}",

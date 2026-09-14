@@ -64,6 +64,7 @@
     "sendCode": "Code senden",
     "body": "Dies entfernt {{name}} dauerhaft zusammen mit seinen Zahlungslinks, API-Schlüsseln und Einstellungen. Dies kann nicht rückgängig gemacht werden. Wir senden Ihnen einen 6-stelligen Code per E-Mail zur Bestätigung.",
     "typeToConfirm": "Geben Sie {{name}} ein, um fortzufahren:",
-    "otpBody": "Wir haben einen 6-stelligen Code an {{email}} gesendet. Geben Sie ihn unten ein, um {{name}} zu löschen."
+    "otpBody": "Wir haben einen 6-stelligen Code an {{email}} gesendet. Geben Sie ihn unten ein, um {{name}} zu löschen.",
+    "bodyStepUp": "Dadurch wird {{name}} zusammen mit allen Zahlungslinks, API-Schlüsseln und Einstellungen dauerhaft entfernt. Dies kann nicht rückgängig gemacht werden. Wir bitten dich zuerst, deine Identität zu bestätigen."
   }
 }

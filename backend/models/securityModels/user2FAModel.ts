@@ -4,7 +4,7 @@ import sequelize from '../../utils/dbInstance';
 interface User2FAAttributes {
   id: number;
   user_id: number;
-  secret: string;
+  secret: string | null;
   is_enabled: boolean;
   backup_codes?: string[];
   method: 'totp' | 'sms' | 'email';
@@ -17,12 +17,12 @@ interface User2FAAttributes {
   updatedAt?: Date;
 }
 
-interface User2FACreationAttributes extends Optional<User2FAAttributes, 'id' | 'is_enabled' | 'method' | 'failed_attempts' | 'createdAt' | 'updatedAt'> {}
+interface User2FACreationAttributes extends Optional<User2FAAttributes, 'id' | 'is_enabled' | 'method' | 'failed_attempts' | 'createdAt' | 'updatedAt' | 'secret'> {}
 
 class User2FA extends Model<User2FAAttributes, User2FACreationAttributes> implements User2FAAttributes {
   public id!: number;
   public user_id!: number;
-  public secret!: string;
+  public secret!: string | null;
   public is_enabled!: boolean;
   public backup_codes?: string[];
   public method!: 'totp' | 'sms' | 'email';
@@ -53,7 +53,7 @@ User2FA.init(
     },
     secret: {
       type: DataTypes.TEXT,
-      allowNull: false,
+      allowNull: true,
     },
     is_enabled: {
       type: DataTypes.BOOLEAN,

@@ -411,7 +411,7 @@
     "stepDone": "Done",
     "stepPending": "Waiting for your first payment",
     "wizardTitle": "Set up Dynopay",
-    "wizardSubtitle": "Four short steps. Leave anytime — you'll pick up right where you left off.",
+    "wizardSubtitle": "Five short steps. Leave anytime — you'll pick up right where you left off.",
     "doLater": "Do this later",
     "railHint": "Progress is saved as you go",
     "stepOf": "Step {{n}} of {{total}}",
@@ -498,7 +498,14 @@
     "next3": "You get notified and your dashboard fills in.",
     "goDashboard": "Go to dashboard",
     "createAnother": "Create another link",
-    "sidebarTitle": "Getting started"
+    "sidebarTitle": "Getting started",
+    "stepSecure": "Secure your account",
+    "stepSecureDesc": "Authenticator app or email codes",
+    "secureTitle": "First, secure your account",
+    "secureSubtitle": "Dynopay forwards real money to your wallets, so every account uses two-step verification. Pick a method — you'll only be asked for a code on a new browser.",
+    "secureDoneTitle": "Two-step verification is on",
+    "secureDoneBody": "This browser is trusted for 90 days. You can manage methods and trusted devices anytime in Settings → Security.",
+    "secureSavedContinue": "I've saved my codes — continue"
   },
   "kycPage": {
     "pageTitle": "Identity verification",

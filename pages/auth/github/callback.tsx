@@ -72,7 +72,7 @@ const GithubCallback = () => {
 
         if (data?.requires_2fa) {
           // Account has TOTP enabled — the login page hosts the 2FA prompt.
-          dispatch({ type: USER_LOGIN_2FA_REQUIRED, payload: { challenge_token: data.challenge_token } });
+          dispatch({ type: USER_LOGIN_2FA_REQUIRED, payload: { challenge_token: data.challenge_token, method: data.method, masked_email: data.masked_email } });
           router.replace("/auth/login");
           return;
         }

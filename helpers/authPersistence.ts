@@ -1,8 +1,13 @@
 /**
- * Login persistence — "Remember me" / "Keep me signed in".
+ * Login persistence.
  *
- * The backend always issues a 7-day token. This helper controls how long the token
- * survives on THIS browser:
+ * Sessions are ALWAYS persistent now (30-day tokens, Binance-style; the second
+ * factor is only asked on a new browser). The "session-only" mode below is kept
+ * dormant so the heartbeat plumbing and the landing-page redirect keep working,
+ * but `isSessionOnly()` never returns true — a stale "0" from an old login is
+ * treated as persistent and overwritten on the next sign-in.
+ *
+ * Legacy behaviour this helper used to control on THIS browser:
  *
  *  - remember = true  → persistent. Token stays in localStorage and survives browser
  *    restarts for the full 7-day lifetime.
@@ -35,13 +40,7 @@ export const AUTH_PERSISTENCE = { PERSIST_KEY, HEARTBEAT_KEY, GRACE_MS } as cons
 
 let heartbeatTimer: ReturnType<typeof setInterval> | null = null;
 
-const isSessionOnly = (): boolean => {
-  try {
-    return localStorage.getItem(PERSIST_KEY) === "0";
-  } catch {
-    return false;
-  }
-};
+const isSessionOnly = (): boolean => false;
 
 const touchHeartbeat = () => {
   try {

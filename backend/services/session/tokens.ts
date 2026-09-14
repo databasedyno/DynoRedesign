@@ -10,15 +10,17 @@ import sequelize from "../../utils/dbInstance";
 import UserSession from "../../models/securityModels/userSessionModel";
 import { IUserType } from "../../utils/types";
 
-// Login persistence = 7 days. The access token itself lasts 7 days so a user
-// stays logged in for a full week even without a refresh round-trip; the refresh
-// token window matches, so the session is a clean, predictable 7-day lifetime.
+// Login persistence = 30 days (Binance-style long-lived sessions). The access
+// token itself lasts 30 days so a user stays signed in without a refresh
+// round-trip; the refresh window matches. Revocation is enforced server-side
+// (session markers + account-wide cutoff), not by short expiry.
 // Both are env-overridable (ACCESS_TOKEN_EXPIRY_SECONDS / REFRESH_TOKEN_EXPIRY_DAYS).
+export const SESSION_DAYS = 30;
 export const ACCESS_TOKEN_EXPIRY_SECONDS = parseInt(
-  envRaw("ACCESS_TOKEN_EXPIRY_SECONDS") || String(7 * 24 * 60 * 60),
+  envRaw("ACCESS_TOKEN_EXPIRY_SECONDS") || String(SESSION_DAYS * 24 * 60 * 60),
   10
 );
-export const REFRESH_TOKEN_EXPIRY_DAYS = parseInt(envRaw("REFRESH_TOKEN_EXPIRY_DAYS") || "7", 10);
+export const REFRESH_TOKEN_EXPIRY_DAYS = parseInt(envRaw("REFRESH_TOKEN_EXPIRY_DAYS") || String(SESSION_DAYS), 10);
 export const MAX_CONCURRENT_SESSIONS = parseInt(envRaw("MAX_CONCURRENT_SESSIONS") || "10", 10);
 
 export type RequestInfo = { ip?: string; headers: Record<string, string | string[] | undefined> };

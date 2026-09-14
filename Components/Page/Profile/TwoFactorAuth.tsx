@@ -2,17 +2,18 @@ import React, { useState } from "react";
 import { Box, Button, Chip, CircularProgress, Skeleton, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useTranslation } from "react-i18next";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import useSWR from "swr";
 import PanelCard from "@/Components/UI/PanelCard";
 import useIsMobile from "@/hooks/useIsMobile";
 import axiosBaseApi from "@/axiosConfig";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
-import { rootReducer } from "@/utils/types";
 import { Icon } from "@/styles/uiKit";
 import { formatDateI18n } from "@/utils/formatDate";
 import TwoFactorSetupDialog from "./twoFactor/TwoFactorSetupDialog";
+import EnrollDialog from "@/Components/UI/TwoFactorEnroll/EnrollDialog";
+import { useMfaEnforcement } from "@/Components/UI/MfaGate/useMfaEnforcement";
 import ReauthDialog, { ReauthIntent } from "./twoFactor/ReauthDialog";
 
 interface TwoFAStatus {
@@ -28,38 +29,42 @@ const statusFetcher = async (url: string): Promise<TwoFAStatus> => {
   return res.data?.data as TwoFAStatus;
 };
 
-/** Settings › Profile & Security — authenticator-app (TOTP) two-factor authentication. */
+/** Settings › Profile & Security — mandatory second step: authenticator app (TOTP) or email codes. */
 const TwoFactorAuth = () => {
   const theme = useTheme();
   const isMobile = useIsMobile("md");
   const { t } = useTranslation("profile");
   const dispatch = useDispatch();
-  const profile = useSelector((state: rootReducer) => state.userReducer.profile);
-  const hasPassword = !!profile?.has_password;
 
   const { data, isLoading, mutate } = useSWR<TwoFAStatus>(API_ENDPOINTS.user.twoFaStatus, statusFetcher);
   const loading = isLoading && data === undefined;
   const enabled = !!data?.enabled;
+  const isTotp = enabled && data?.method === "totp";
+  const isEmail = enabled && data?.method === "email";
 
   const [setupOpen, setSetupOpen] = useState(false);
+  const [enrollOpen, setEnrollOpen] = useState(false);
   const [reauth, setReauth] = useState<ReauthIntent | null>(null);
 
   const toast = (message: string, severity: "success" | "error" = "success") =>
     dispatch({ type: TOAST_SHOW, payload: { message, severity } });
 
+  const { refresh: refreshEnforcement } = useMfaEnforcement();
+
   const handleEnabled = async () => {
     await mutate();
+    void refreshEnforcement();
     toast(t("twoFactor.toastEnabled", { defaultValue: "Two-factor authentication is now on." }));
   };
 
-  const handleReauthConfirm = async (credential: { password?: string; token?: string }) => {
+  const handleReauthConfirm = async () => {
     if (reauth === "disable") {
-      await axiosBaseApi.post(API_ENDPOINTS.user.twoFaDisable, credential);
+      await axiosBaseApi.post(API_ENDPOINTS.user.twoFaDisable, {});
       await mutate();
-      toast(t("twoFactor.toastDisabled", { defaultValue: "Two-factor authentication has been turned off." }));
+      toast(t("twoFactor.toastDisabled", { defaultValue: "Authenticator app turned off — you'll get email codes at sign-in instead." }));
       return;
     }
-    const res = await axiosBaseApi.post(API_ENDPOINTS.user.twoFaRegenerateBackupCodes, credential);
+    const res = await axiosBaseApi.post(API_ENDPOINTS.user.twoFaRegenerateBackupCodes, {});
     await mutate();
     return (res.data?.data?.backup_codes || []) as string[];
   };
@@ -74,7 +79,7 @@ const TwoFactorAuth = () => {
       <PanelCard
         bodyPadding={isMobile ? `${theme.spacing(1.5, 2, 2, 2)}` : `${theme.spacing(2, 2.5, 2.5, 2.5)}`}
         title={t("twoFactor.cardTitle", { defaultValue: "Two-factor authentication" })}
-        subTitle={t("twoFactor.cardSubtitle", { defaultValue: "Add a second step at sign-in with a code from an authenticator app." })}
+        subTitle={t("twoFactor.cardSubtitle", { defaultValue: "A second step is required on every new browser — an authenticator app or a code we email you." })}
         showHeaderBorder={false}
         headerAction={
           <Box aria-hidden sx={{ width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -101,13 +106,15 @@ const TwoFactorAuth = () => {
             }}
           >
             <Box sx={{ flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, borderRadius: "8px", backgroundColor: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)" }}>
-              <Icon name={enabled ? "lucide:shield-check" : "lucide:shield-off"} size={18} color={enabled ? (isDark ? "#4ade80" : "#16a34a") : theme.palette.text.secondary} />
+              <Icon name={isTotp ? "lucide:shield-check" : isEmail ? "lucide:mail-check" : "lucide:shield-off"} size={18} color={enabled ? (isDark ? "#4ade80" : "#16a34a") : theme.palette.text.secondary} />
             </Box>
 
             <Box sx={{ flex: 1, minWidth: 0 }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
-                <Typography sx={{ fontSize: "14px", fontWeight: 600, fontFamily: "var(--font-sans)", color: theme.palette.text.primary }}>
-                  {t("twoFactor.methodApp", { defaultValue: "Authenticator app" })}
+                <Typography sx={{ fontSize: "14px", fontWeight: 600, fontFamily: "var(--font-sans)", color: theme.palette.text.primary }} data-testid="twofa-method-label">
+                  {isEmail
+                    ? t("twoFactor.methodEmail", { defaultValue: "Email codes" })
+                    : t("twoFactor.methodApp", { defaultValue: "Authenticator app" })}
                 </Typography>
                 <Chip
                   data-testid="twofa-status-chip"
@@ -125,7 +132,7 @@ const TwoFactorAuth = () => {
                       count: data?.backup_codes_remaining ?? 0,
                       defaultValue: `On since {{date}} · {{count}} backup codes left`,
                     })
-                  : t("twoFactor.offHint", { defaultValue: "Recommended — protects your funds even if your password leaks." })}
+                  : t("twoFactor.offHint", { defaultValue: "Required — protects your funds even if your password leaks." })}
               </Typography>
               {lowCodes && (
                 <Typography data-testid="twofa-low-codes" sx={{ fontSize: "12px", color: isDark ? "#FBBF24" : "#B45309", fontFamily: "var(--font-sans)", mt: "4px", fontWeight: 600 }}>
@@ -137,6 +144,18 @@ const TwoFactorAuth = () => {
             <Box sx={{ display: "flex", gap: "8px", flexShrink: 0, width: isMobile ? "100%" : "auto", flexWrap: "wrap" }}>
               {enabled ? (
                 <>
+                  {isEmail && (
+                    <Button
+                      size="small"
+                      variant="contained"
+                      disableElevation
+                      onClick={() => setSetupOpen(true)}
+                      data-testid="twofa-upgrade-btn"
+                      sx={{ textTransform: "none", fontSize: "12.5px", fontFamily: "var(--font-sans)", borderRadius: "8px", backgroundColor: "#4F46E5", "&:hover": { backgroundColor: "#4338CA" }, flex: isMobile ? 1 : "none" }}
+                    >
+                      {t("twoFactor.upgradeToApp", { defaultValue: "Use an authenticator app" })}
+                    </Button>
+                  )}
                   <Button
                     size="small"
                     variant="outlined"
@@ -146,23 +165,25 @@ const TwoFactorAuth = () => {
                   >
                     {t("twoFactor.newCodes", { defaultValue: "New backup codes" })}
                   </Button>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    color="error"
-                    onClick={() => setReauth("disable")}
-                    data-testid="twofa-disable-btn"
-                    sx={{ textTransform: "none", fontSize: "12.5px", fontFamily: "var(--font-sans)", borderRadius: "8px", flex: isMobile ? 1 : "none" }}
-                  >
-                    {t("twoFactor.turnOff", { defaultValue: "Turn off" })}
-                  </Button>
+                  {isTotp && (
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      color="error"
+                      onClick={() => setReauth("disable")}
+                      data-testid="twofa-disable-btn"
+                      sx={{ textTransform: "none", fontSize: "12.5px", fontFamily: "var(--font-sans)", borderRadius: "8px", flex: isMobile ? 1 : "none" }}
+                    >
+                      {t("twoFactor.switchToEmail", { defaultValue: "Switch to email codes" })}
+                    </Button>
+                  )}
                 </>
               ) : (
                 <Button
                   size="small"
                   variant="contained"
                   disableElevation
-                  onClick={() => setSetupOpen(true)}
+                  onClick={() => setEnrollOpen(true)}
                   data-testid="twofa-enable-btn"
                   startIcon={isLoading ? <CircularProgress size={13} color="inherit" /> : undefined}
                   sx={{ textTransform: "none", fontSize: "12.5px", fontFamily: "var(--font-sans)", borderRadius: "8px", backgroundColor: "#4F46E5", "&:hover": { backgroundColor: "#4338CA" }, width: isMobile ? "100%" : "auto" }}
@@ -176,10 +197,10 @@ const TwoFactorAuth = () => {
       </PanelCard>
 
       <TwoFactorSetupDialog open={setupOpen} onClose={() => setSetupOpen(false)} onEnabled={handleEnabled} />
+      <EnrollDialog open={enrollOpen} onClose={() => setEnrollOpen(false)} onEnrolled={() => { void handleEnabled(); }} onDone={() => setEnrollOpen(false)} />
       <ReauthDialog
         open={reauth !== null}
         intent={reauth || "disable"}
-        hasPassword={hasPassword}
         onClose={() => setReauth(null)}
         onConfirm={handleReauthConfirm}
       />

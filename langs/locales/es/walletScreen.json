@@ -158,5 +158,12 @@
   "sharedAddressTapHint": "Toca para resaltar todas las carteras que usan esta dirección",
   "sharedAddressClearHint": "Toca para quitar el resaltado",
   "sharedHighlightTitle": "{{n}} carteras comparten",
-  "sharedHighlightClear": "Quitar resaltado"
+  "sharedHighlightClear": "Quitar resaltado",
+  "editVerifyNotice": "Cambiar la dirección requiere una comprobación rápida de identidad.",
+  "addVerifyNotice": "Te pediremos que verifiques que eres tú antes de guardar esta cartera.",
+  "stepUpAwaiting": "Verifica que eres tú para gestionar las carteras de pago.",
+  "stepUpVerifyNow": "Verificar ahora",
+  "stepUpCancelled": "Verificación cancelada: tus cambios no se guardaron.",
+  "sudoEndedBanner": "Verificación finalizada",
+  "sudoEndedHint": "Te pediremos verificar de nuevo al guardar."
 }

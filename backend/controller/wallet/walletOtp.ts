@@ -27,51 +27,6 @@ import { t, resolveEmailLang } from "../../utils/emailI18n";
 import { notifyWalletChanges, assertWalletNotFrozen } from "../../services/wallet/walletChangeAlert";
 import { generateOtpCode } from "../../helper/otpGuard";
 
-export async function updateOtp(userData, wallet_address, currency) {
-  const randomNumberOTP = generateOtpCode();
-  const lang = await resolveEmailLang(userData.language, userData.email);
-
-  // Use branded email template for OTP (localized to the merchant's language)
-  const { dynoPayEmailTemplate } = await import("../../services/emailService");
-  const { p, infoBox, dataRow, mono, otpBlock } = await import("../../utils/emailTemplate");
-  const otpContent = `
-    ${p(t("walletOtp.intro", lang, { currency: `<strong>${currency}</strong>` }))}
-    ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-      ${dataRow(t("walletOtp.walletAddress", lang), mono(wallet_address))}
-      ${dataRow(t("walletOtp.currency", lang), `<strong>${currency}</strong>`, true)}
-    </table>`)}
-    ${otpBlock(String(randomNumberOTP))}
-    ${p(t("walletOtp.expiry", lang, { minutes: "<strong>5</strong>" }), "font-size: 14px; color: #6b7280; text-align: center; margin: 0;")}`;
-
-  const htmlBody = dynoPayEmailTemplate(
-    t("walletOtp.heading", lang),
-    otpContent,
-    false, "", "", "", lang, "key"
-  );
-
-  await mailTransporter({
-    to: userData.email,
-    name: userData.name,
-    subject: t("walletOtp.subject", lang),
-    body: htmlBody,
-  });
-
-  // Update OTP in DB with currency context
-  await userModel.update(
-    {
-      verified_otp: randomNumberOTP.toString(),
-      otp_expired: new Date(Date.now() + 5 * 60 * 1000), // 5 minutes from now
-      otp_currency: currency, // Store which currency was validated
-    },
-    {
-      where: { user_id: userData.user_id },
-    }
-  );
-
-  return true;
-}
-
-
 export const validateWallet = async (
   req: express.Request,
   res: express.Response
@@ -143,13 +98,11 @@ export const validateWallet = async (
       }
       walletLogger.info(balance);
 
-      await updateOtp(userData, wallet_address, currency);
-
-      // Success response - consistent with update/edit/delete wallet OTP responses
+      // Identity is proven by the `wallet` step-up session (router). Step 2 = POST /verifyOtp saves it.
       return successResponseHelper(
         res,
         200,
-        "Address validated! OTP sent to your email",
+        "Address validated",
         {
           wallet_address,
           wallet_type: currency,
@@ -256,12 +209,12 @@ export async function ensureLiveApiKey(
 export const verifyOtp = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
   try {
-    const { otp, wallet_address, currency, currency_type, wallet_name, company_id, destination_tag } = req.body;
+    const { wallet_address, currency, wallet_name, company_id, destination_tag } = req.body;
 
-    if (!otp) {
-      return errorResponseHelper(res, 400, "OTP is required!");
+    if (!wallet_address || !currency) {
+      return errorResponseHelper(res, 400, "wallet_address and currency are required!");
     }
-    
+
     if (!company_id) {
       return errorResponseHelper(res, 400, "Company ID is required!");
     }
@@ -282,55 +235,10 @@ export const verifyOtp = async (req: express.Request, res: express.Response) => 
       return errorResponseHelper(res, 403, "You don't have access to this company!");
     }
 
-    // Find the wallet with OTP - ensure string comparison
-    const otpString = String(otp).trim();
-    
-    const walletWithOtp = await userModel.findOne({
-      where: {
-        user_id: user_id,
-        verified_otp: otpString,
-      },
-    });
-
-    if (!walletWithOtp) {
-      walletLogger.warn(`Invalid OTP attempt`, { user_id, otp_provided: otpString });
-      return errorResponseHelper(
-        res,
-        400,
-        "Please enter a valid OTP!"
-      );
-    }
-
-    // Check if OTP is expired
-    if (new Date() > walletWithOtp.dataValues.otp_expired) {
-      return errorResponseHelper(
-        res,
-        400,
-        "OTP has expired! Please request a new one."
-      );
-    }
-
-    // CRITICAL SECURITY CHECK: Validate currency matches what was validated
-    if (walletWithOtp.dataValues.otp_currency && walletWithOtp.dataValues.otp_currency !== currency) {
-      return errorResponseHelper(
-        res,
-        400,
-        `Security validation failed! OTP was issued for ${walletWithOtp.dataValues.otp_currency} wallet, but you're trying to verify ${currency} wallet. Please request a new OTP for ${currency}.`
-      );
-    }
-
-    // If OTP is valid, clear it and mark as verified
+    // Legacy per-wallet OTP columns are cleared defensively (the step-up session replaced them).
     await userModel.update(
-      {
-        verified_otp: null,
-        otp_expired: null,
-        otp_currency: null, // Clear currency context
-      },
-      {
-        where: {
-          user_id: user_id,
-        },
-      }
+      { verified_otp: null, otp_expired: null, otp_currency: null },
+      { where: { user_id: user_id } }
     );
 
     // Update wallet with address, name, and company_id
@@ -427,7 +335,7 @@ export const verifyOtp = async (req: express.Request, res: express.Response) => 
       companyData?.dataValues.email,
     );
 
-    successResponseHelper(res, 200, "OTP verified successfully!", {
+    successResponseHelper(res, 200, "Wallet added successfully!", {
       verified: true,
       wallet_name,
       company_id,

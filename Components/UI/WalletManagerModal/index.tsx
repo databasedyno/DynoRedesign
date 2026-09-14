@@ -1,7 +1,7 @@
 import axiosBaseApi from "@/axiosConfig";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import CustomButton from "@/Components/UI/Buttons";
-import OtpDialog from "@/Components/UI/OtpDialog";
+import { useStepUpSession } from "@/Components/UI/StepUp/useStepUpSession";
 import useIsMobile from "@/hooks/useIsMobile";
 import type { ReusableCompany } from "@/hooks/useReusableWallets";
 import { useWalletData } from "@/hooks/useWalletData";
@@ -20,9 +20,7 @@ import { MissingNetworks } from "./MissingNetworks";
 import { ReuseSection } from "./ReuseSection";
 import { SectionLabel } from "./SectionLabel";
 import { SessionStrip } from "./SessionStrip";
-import { UnlockGate } from "./UnlockGate";
 import { AddRow, OpResult, tone } from "./types";
-import { useSudoSession } from "./useSudoSession";
 import { useWalletStaging } from "./useWalletStaging";
 import { SanityReviewDialog, SanityWarning } from "./SanityReviewDialog";
 import { buildSharedAddressMap, sharedNetworksFor } from "@/utils/sharedAddresses";
@@ -68,7 +66,6 @@ const WalletManagerModal: React.FC<Props> = ({ open, onClose, companyId, onSaved
   const { walletData, cryptocurrencies } = useWalletData();
   const sharedMap = useMemo(() => buildSharedAddressMap(walletData), [walletData]);
   const walletStore = useWalletStore();
-  const sudo = useSudoSession(open, tw, toast);
   const st = useWalletStaging(walletData, cryptocurrencies, toast, tw);
 
   const [saving, setSaving] = useState(false);
@@ -88,6 +85,18 @@ const WalletManagerModal: React.FC<Props> = ({ open, onClose, companyId, onSaved
   // state instead of a confusing "nothing to save".
   const [justCopied, setJustCopied] = useState(0);
 
+  // Unified step-up: the shared "Verify it's you" dialog opens the moment the
+  // manager opens (unless the `wallet` scope is already unlocked). Dismissing it
+  // closes the manager. Once unlocked, the body stays available even after the
+  // 10-min window lapses — the next save simply re-prompts via the interceptor.
+  const [unlocked, setUnlocked] = useState(false);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+  const session = useStepUpSession("wallet", open, () => onCloseRef.current());
+  useEffect(() => {
+    if (session.active) setUnlocked(true);
+  }, [session.active]);
+
   const fetchReuse = useCallback(async () => {
     if (!companyId) return;
     try {
@@ -105,6 +114,7 @@ const WalletManagerModal: React.FC<Props> = ({ open, onClose, companyId, onSaved
   useEffect(() => {
     if (!open) {
       seededRef.current = false;
+      setUnlocked(false);
       return;
     }
     setOpResults(null);
@@ -114,15 +124,15 @@ const WalletManagerModal: React.FC<Props> = ({ open, onClose, companyId, onSaved
   }, [open]);
 
   useEffect(() => {
-    if (open && sudo.active && !seededRef.current) {
+    if (open && unlocked && !seededRef.current) {
       st.seedEdits(walletData);
       seededRef.current = true;
     }
-  }, [open, sudo.active, walletData, st.seedEdits]);
+  }, [open, unlocked, walletData, st.seedEdits]);
 
   useEffect(() => {
-    if (open && sudo.active) fetchReuse();
-  }, [open, sudo.active, fetchReuse]);
+    if (open && unlocked) fetchReuse();
+  }, [open, unlocked, fetchReuse]);
 
   // ---- save ----
   const runSanity = useCallback(
@@ -190,10 +200,8 @@ const WalletManagerModal: React.FC<Props> = ({ open, onClose, companyId, onSaved
         toast(res?.data?.message || tw("savedPartial", "Some changes couldn't be saved"), "warning");
       }
     } catch (e: any) {
-      const code = e?.response?.data?.code;
-      if (e?.response?.status === 403 && (code === "SUDO_REQUIRED" || code === "SUDO_EXPIRED")) {
-        sudo.markExpired();
-        toast(tw("sudoExpired", "Your session expired. Please verify again."), "warning");
+      if (e?.stepUpCancelled) {
+        toast(tw("stepUpCancelled", "Verification cancelled — your changes weren't saved."), "warning");
       } else {
         toast(e?.response?.data?.message || tw("saveFailed", "Couldn't save changes"), "error");
       }
@@ -268,7 +276,7 @@ const WalletManagerModal: React.FC<Props> = ({ open, onClose, companyId, onSaved
   return (
     <>
       <Dialog
-        open={open && !sudo.otpOpen}
+        open={open}
         onClose={(_e, reason) => {
           if (reason === "backdropClick" || reason === "escapeKeyDown") requestClose();
         }}
@@ -296,7 +304,7 @@ const WalletManagerModal: React.FC<Props> = ({ open, onClose, companyId, onSaved
       >
         <Box data-testid="wallet-manager-modal" sx={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}>
           {/* Header */}
-          <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 2, px: { xs: 2, sm: 3 }, pt: { xs: 2, sm: 2.5 }, pb: 2, borderBottom: sudo.active ? "none" : `1px solid ${border}` }}>
+          <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 2, px: { xs: 2, sm: 3 }, pt: { xs: 2, sm: 2.5 }, pb: 2, borderBottom: unlocked ? "none" : `1px solid ${border}` }}>
             <Box>
               {headerExtra && <Box sx={{ mb: 1.25 }}>{headerExtra}</Box>}
               <Typography component="h2" sx={{ fontSize: { xs: 18, sm: 20 }, fontWeight: 700, fontFamily: "var(--font-display)", letterSpacing: -0.3, lineHeight: 1.2 }}>
@@ -311,15 +319,25 @@ const WalletManagerModal: React.FC<Props> = ({ open, onClose, companyId, onSaved
             </IconButton>
           </Box>
 
-          {sudo.checkingStatus ? (
-            <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
-              <CircularProgress size={26} />
+          {!unlocked ? (
+            <Box data-testid="wallet-manager-awaiting-stepup" sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1.5, py: 8, px: 3, textAlign: "center" }}>
+              {session.checking ? (
+                <CircularProgress size={26} />
+              ) : (
+                <>
+                  <Box sx={{ width: 44, height: 44, borderRadius: "12px", display: "grid", placeItems: "center", backgroundColor: c.indigoSoft, color: c.indigo }}>
+                    <Icon name="lock" size={20} color={c.indigo} />
+                  </Box>
+                  <Typography sx={{ fontSize: 14, color: theme.palette.text.secondary, fontFamily: "var(--font-sans)", maxWidth: 360 }}>
+                    {tw("stepUpAwaiting", "Verify it's you to manage payout wallets.")}
+                  </Typography>
+                  <CustomButton label={tw("stepUpVerifyNow", "Verify now")} variant="primary" size="small" onClick={() => session.unlock()} data-testid="wallet-manager-verify-btn" sx={{ height: 36, px: 2.5 }} />
+                </>
+              )}
             </Box>
-          ) : !sudo.active ? (
-            <UnlockGate requesting={sudo.requesting} onRequest={sudo.requestOtp} onCancel={requestClose} walletCount={walletData.length} tw={tw} />
           ) : (
             <>
-              <SessionStrip remaining={sudo.remaining} totalSecs={sudo.totalSecs} lowTime={sudo.lowTime} onLock={sudo.lockNow} tw={tw} />
+              <SessionStrip remaining={session.remaining} totalSecs={session.totalSecs} lowTime={session.lowTime} onLock={session.lockNow} onUnlock={session.unlock} tw={tw} />
 
               {/* Scroll body */}
               <Box data-testid="wallet-manager-body" sx={{ flex: 1, minHeight: 0, overflowY: "auto", px: { xs: 2, sm: 3 }, py: 2.5, display: "flex", flexDirection: "column", gap: 3.5 }}>
@@ -436,22 +454,7 @@ const WalletManagerModal: React.FC<Props> = ({ open, onClose, companyId, onSaved
         }}
         tw={tw}
       />
-
-      <OtpDialog
-        open={sudo.otpOpen}
-        onClose={sudo.closeOtp}
-        title={tw("emailVerification", "Email verification")}
-        subtitle={tw("sudoOtpSubtitle", "Enter the code we emailed you to unlock wallet management.")}
-        otpLength={6}
-        onVerify={sudo.verifyOtp}
-        onResendCode={sudo.requestOtp}
-        loading={sudo.otpLoading}
-        error={sudo.otpError}
-        onClearError={sudo.clearOtpError}
-        countdown={sudo.otpCountdown}
-        preventClose={sudo.otpLoading}
-      />
-      {/* icon-bundle literals: <Icon name="x" /> <Icon name="plus" /> <Icon name="circle-check" /> <Icon name="circle-alert" /> */}
+      {/* icon-bundle literals: <Icon name="x" /> <Icon name="plus" /> <Icon name="circle-check" /> <Icon name="circle-alert" /> <Icon name="lock" /> */}
     </>
   );
 };

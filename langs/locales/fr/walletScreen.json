@@ -158,5 +158,12 @@
   "sharedAddressTapHint": "Touchez pour mettre en évidence tous les portefeuilles utilisant cette adresse",
   "sharedAddressClearHint": "Touchez pour retirer la mise en évidence",
   "sharedHighlightTitle": "{{n}} portefeuilles partagent",
-  "sharedHighlightClear": "Retirer la mise en évidence"
+  "sharedHighlightClear": "Retirer la mise en évidence",
+  "editVerifyNotice": "Modifier l'adresse nécessite une vérification rapide de votre identité.",
+  "addVerifyNotice": "Nous vous demanderons de vérifier votre identité avant d'enregistrer ce portefeuille.",
+  "stepUpAwaiting": "Vérifiez votre identité pour gérer les portefeuilles de paiement.",
+  "stepUpVerifyNow": "Vérifier maintenant",
+  "stepUpCancelled": "Vérification annulée — vos modifications n'ont pas été enregistrées.",
+  "sudoEndedBanner": "Vérification expirée",
+  "sudoEndedHint": "Nous vous demanderons de vérifier à nouveau lors de l'enregistrement."
 }

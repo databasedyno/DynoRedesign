@@ -5,8 +5,8 @@
  * - POST /2fa/setup — Initiate 2FA setup (returns QR + backup codes)
  * - POST /2fa/verify-setup — Verify and enable 2FA
  * - POST /2fa/validate — Validate 2FA token during login
- * - POST /2fa/disable — Disable 2FA
- * - POST /2fa/regenerate-backup-codes — Get new backup codes
+ * - POST /2fa/disable — Turn the authenticator off → email-code baseline (step-up gated)
+ * - POST /2fa/regenerate-backup-codes — Get new backup codes (step-up gated)
  * - GET /2fa/status — Get 2FA status
  */
 import express from "express";
@@ -16,18 +16,16 @@ import { userLogger } from "../utils/loggers";
 import {
   setup2FA,
   verify2FASetup,
-  validate2FAToken,
   disable2FA,
   regenerateBackupCodes,
   get2FAStatus,
-  twoFAChallengeKey,
 } from "../services/twoFactorService";
-import { verifyPassword } from "../helper/passwordHelper";
+import { ChallengeError, verifyLoginChallenge } from "../services/twoFactorChallenge";
+import { trustDevice } from "../services/session/trustedDevices";
 import { userModel } from "../models";
 import { IUserType } from "../utils/types";
 import { createSession } from "../services/sessionService";
 import { send2FAEnabledEmail, send2FADisabledEmail, send2FABackupCodesRegeneratedEmail } from "../services/email/securityEmails";
-import { getRedisItem, deleteRedisItem } from "../utils/redisInstance";
 
 const notify = (userData: IUserType, fn: (email: string, name: string, lang?: string | null) => Promise<void>) => {
   if (userData?.email) void fn(userData.email, userData.name || "", (userData as any).language);
@@ -70,9 +68,12 @@ const verifySetupEndpoint = async (req: express.Request, res: express.Response) 
 
     await verify2FASetup(userData.user_id, token);
     notify(userData, send2FAEnabledEmail);
+    // The browser that just enrolled has proven the factor — trust it.
+    await trustDevice(userData.user_id, req, res).catch((e) => userLogger.warn("[2FA] trustDevice after setup failed", e));
 
     successResponseHelper(res, 200, "2FA has been enabled successfully.", {
       enabled: true,
+      method: "totp",
     });
   } catch (e) {
     if ((e as Error).message.includes("Invalid verification")) {
@@ -85,9 +86,11 @@ const verifySetupEndpoint = async (req: express.Request, res: express.Response) 
 /**
  * POST /api/user/2fa/validate
  * Body: { challenge_token: "<hex>", token: "123456" | "XXXX-XXXX" }
- * Used during login when 2FA is required. The challenge token is minted by the
- * first factor (password / email code / SMS / social) and is single-use.
- * On success, creates a session and returns JWT + refresh token (same as login).
+ * Used during login when a second factor is required. The challenge token is
+ * minted by the first factor (password / email code / SMS / social), is
+ * single-use and method-aware (authenticator/backup code OR emailed code).
+ * On success, creates a session, TRUSTS this browser (90 days) and returns the
+ * same JWT + refresh token payload as login.
  */
 const validateEndpoint = async (req: express.Request, res: express.Response) => {
   try {
@@ -97,34 +100,18 @@ const validateEndpoint = async (req: express.Request, res: express.Response) => 
       return errorResponseHelper(res, 400, "challenge_token and token are required");
     }
 
-    const challengeKey = twoFAChallengeKey(String(challenge_token));
-    const challenge = await getRedisItem(challengeKey);
-    const userId = Number(challenge && typeof challenge === "object" ? (challenge as { user_id?: number }).user_id : 0);
-    if (!userId) {
-      return errorResponseHelper(res, 400, "Your sign-in session expired. Please log in again.");
-    }
+    const result = await verifyLoginChallenge(String(challenge_token), String(token));
 
-    const result = await validate2FAToken(userId, String(token).trim());
-
-    // A challenge only exists for accounts with TOTP enabled — never let a
-    // "not enabled" record turn into a free session.
-    if (!result.valid || result.method === "none") {
-      return errorResponseHelper(res, 401, "Invalid 2FA code. Please try again.");
-    }
-
-    await deleteRedisItem(challengeKey);
-
-    // Fetch user to create a full session (same as login flow)
-    const user = await userModel.findOne({ where: { user_id: userId } });
+    const user = await userModel.findOne({ where: { user_id: result.user_id } });
     if (!user) {
       return errorResponseHelper(res, 404, "User not found");
     }
 
-    // Create session with JWT + refresh token
     const sessionData = await createSession(user.dataValues, req as any);
+    await trustDevice(result.user_id, req, res).catch((e) => userLogger.warn("[2FA] trustDevice after login failed", e));
 
     const { password: _pw, telegram_id: _tid, ...userDataClean } = user.dataValues;
-    userLogger.info(`[2FA] Login completed via ${result.method} for user ${userId}`);
+    userLogger.info(`[2FA] Login completed via ${result.method} for user ${result.user_id}`);
 
     successResponseHelper(res, 200, "2FA verification successful. Login complete.", {
       valid: true,
@@ -137,6 +124,7 @@ const validateEndpoint = async (req: express.Request, res: express.Response) => 
       token_type: "Bearer",
     });
   } catch (e) {
+    if (e instanceof ChallengeError) return errorResponseHelper(res, e.status, e.message);
     if ((e as Error).message.includes("locked")) {
       return errorResponseHelper(res, 429, (e as Error).message);
     }
@@ -145,59 +133,30 @@ const validateEndpoint = async (req: express.Request, res: express.Response) => 
 };
 
 /**
- * Re-authentication for sensitive 2FA changes: the current password, or — for
- * accounts without a password (social / passwordless) — a current TOTP/backup code.
- * Returns the user row on success, or null after responding with the error.
+ * Sensitive 2FA changes (disable / regenerate backup codes) are protected by the
+ * `security` step-up session (requireStepUp at the router) — the fresh factor is
+ * verified there, so these handlers only need the authenticated user row.
  */
-const reauthenticate = async (req: express.Request, res: express.Response) => {
+const loadUser = async (res: express.Response) => {
   const userData = res.locals.user as IUserType;
-  const { password, token } = req.body;
-
   const user = await userModel.findOne({ where: { user_id: userData.user_id } });
-  if (!user) {
-    errorResponseHelper(res, 404, "User not found");
-    return null;
-  }
-
-  if (password) {
-    if (!user.dataValues.password) {
-      errorResponseHelper(res, 400, "This account has no password. Confirm with a code from your authenticator app instead.");
-      return null;
-    }
-    const isValid = await verifyPassword(password, user.dataValues.password, userData.user_id);
-    if (!isValid) {
-      errorResponseHelper(res, 401, "Invalid password");
-      return null;
-    }
-    return user;
-  }
-
-  if (token) {
-    const result = await validate2FAToken(userData.user_id, String(token).trim());
-    if (!result.valid || result.method === "none") {
-      errorResponseHelper(res, 401, "Invalid 2FA code. Please try again.");
-      return null;
-    }
-    return user;
-  }
-
-  errorResponseHelper(res, 400, "Your password (or a current authenticator code) is required");
-  return null;
+  if (!user) errorResponseHelper(res, 404, "User not found");
+  return user;
 };
 
 /**
- * POST /api/user/2fa/disable
- * Body: { password: "current_password" } | { token: "123456" }
+ * POST /api/user/2fa/disable  (step-up gated)
  */
 const disableEndpoint = async (req: express.Request, res: express.Response) => {
   try {
-    const user = await reauthenticate(req, res);
+    const user = await loadUser(res);
     if (!user) return;
 
     await disable2FA(user.dataValues.user_id);
     notify(user.dataValues as IUserType, send2FADisabledEmail);
 
-    successResponseHelper(res, 200, "2FA has been disabled.", { enabled: false });
+    // A second factor is mandatory: the account now uses email codes at sign-in.
+    successResponseHelper(res, 200, "Authenticator app turned off. You'll receive email codes at sign-in instead.", { enabled: true, method: "email" });
   } catch (e) {
     if ((e as Error).message.includes("not currently enabled")) {
       return errorResponseHelper(res, 400, (e as Error).message);
@@ -210,12 +169,11 @@ const disableEndpoint = async (req: express.Request, res: express.Response) => {
 };
 
 /**
- * POST /api/user/2fa/regenerate-backup-codes
- * Body: { password: "current_password" } | { token: "123456" }
+ * POST /api/user/2fa/regenerate-backup-codes  (step-up gated)
  */
 const regenerateBackupCodesEndpoint = async (req: express.Request, res: express.Response) => {
   try {
-    const user = await reauthenticate(req, res);
+    const user = await loadUser(res);
     if (!user) return;
 
     const codes = await regenerateBackupCodes(user.dataValues.user_id);

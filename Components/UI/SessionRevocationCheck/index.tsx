@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import axiosBaseApi from "@/axiosConfig";
-import { isPublicPath } from "@/Components/UI/IdleTimeoutManager";
+import { isPublicPath } from "@/helpers/publicPaths";
 
 /**
  * Cross-device sign-out: when this tab is opened or comes back to the

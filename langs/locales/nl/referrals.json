@@ -185,5 +185,6 @@
   "payoutAvailableCreditDesc": "Verlaagt automatisch je Dynopay-fee bij je volgende betalingen.",
   "payoutCreditedToDate": "Tot nu toe gecrediteerd",
   "payoutCreditedToDateDesc": "Totaal aan fees al gedekt door je referral rewards.",
-  "payoutMethod": "Uitbetalingsmethode"
+  "payoutMethod": "Uitbetalingsmethode",
+  "payoutWithdrawIntro": "We sturen {{amount}} in USDT (TRC-20) naar {{address}}. Je wordt gevraagd te bevestigen dat jij het bent."
 }

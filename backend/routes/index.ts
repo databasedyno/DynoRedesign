@@ -44,6 +44,7 @@ import adminLogsRouter from "./adminLogsRouter";
 import publicSandboxRouter from "./publicSandboxRouter";
 import teamRouter from "./teamRouter"; // Team Members / RBAC
 import walletSecurityRouter from "./walletSecurityRouter"; // PUBLIC "this wasn't me" revert
+import stepUpRouter from "./stepUpRouter"; // Unified step-up (sudo mode) for sensitive actions
 import { logWebhookValidationFailure } from "../utils/securityLogger";
 import { verifyTatumSignature } from "../utils/webhookSignature";
 import { toNumber } from "../utils/money";
@@ -402,6 +403,7 @@ router.use("/company", authMiddleware, emailVerifiedMiddleware, companyRouter);
 router.use("/userApi", apiRouter);
 router.use("/wallet", authMiddleware, walletMiddleware, emailVerifiedMiddleware, walletRouter);
 router.use("/wallet-security", walletSecurityRouter); // PUBLIC — token-authed revert link
+router.use("/stepup", stepUpRouter); // Step-up (sudo) sessions: status / request-code / verify / revoke per scope
 router.use("/__paytest", paymentTestHookRouter); // GUARDED test hook (off unless PAYMENT_TEST_HOOK_SECRET set)
 router.use("/pay", paymentRouter);
 router.use("/tax", taxRouter);

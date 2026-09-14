@@ -1,6 +1,7 @@
 import unAuthorizedHelper from "@/helpers/unAutorizedHelper";
 import { setAuthNotice } from "@/helpers/authNotice";
 import { getCheckoutToken, isCheckoutSurface } from "@/helpers/checkoutSession";
+import { isStepUpChallenge, requestStepUp } from "@/Components/UI/StepUp/stepUpBus";
 import axios from "axios";
 
 const apiBaseUrl = (process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/+$/, "");
@@ -216,6 +217,21 @@ axiosBaseApi.interceptors.response.use(
     // Business-logic 403 (e.g. "no companies", "not your company") should NOT
     // redirect to login or remove the token.
     if (error.response?.status === 403) {
+      // Unified step-up (sudo mode): the backend answers 403 STEPUP_REQUIRED for
+      // sensitive actions without an active scoped session. Raise the shared
+      // "Verify it's you" dialog and transparently retry the ORIGINAL request
+      // once the user verified; a dismissed dialog rejects with stepUpCancelled.
+      const challenge = isStepUpChallenge(error);
+      if (challenge && originalRequest && !originalRequest._stepUpRetried && !isCheckoutPage) {
+        const verified = await requestStepUp(challenge.scope);
+        if (verified) {
+          originalRequest._stepUpRetried = true;
+          return axiosBaseApi(originalRequest);
+        }
+        error.stepUpCancelled = true;
+        return Promise.reject(error);
+      }
+
       const responseMsg = (
         error.response?.data?.message ||
         error.response?.data?.error ||

@@ -70,6 +70,8 @@ export interface OtpInputPanelProps {
   actionsLayout?: "row" | "stacked";
   /** Reset the boxes when this key changes (e.g. on resend). */
   resetKey?: string | number;
+  /** When set, exposes `${prefix}-error`, `${prefix}-verify-btn`, `${prefix}-resend-btn`, `${prefix}-otp-input-<n>` testids. */
+  testIdPrefix?: string;
 }
 
 type OtpFieldName = `otp${number}`;
@@ -102,8 +104,10 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
   showActions = true,
   actionsLayout = "row",
   resetKey,
+  testIdPrefix,
 }) => {
   const { t } = useTranslation("auth");
+  const tid = (suffix: string) => (testIdPrefix ? `${testIdPrefix}-${suffix}` : undefined);
   const theme = useTheme();
   const isMobile = useIsMobile("sm");
 
@@ -728,6 +732,7 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
                         // clamped to a single digit in handleOtpChange instead.
                         inputMode="numeric"
                         inputHeight={inputSize}
+                        data-testid={tid(`otp-input-${index + 1}`)}
                         inputRef={(el: HTMLInputElement | null) => {
                           inputRefs.current[index] = el;
                         }}
@@ -775,6 +780,7 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
               {error && (
                 <Typography
                   role="alert"
+                  data-testid={tid("error")}
                   sx={{
                     fontSize: "12px",
                     color: theme.palette.error.main,
@@ -798,6 +804,7 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
                 <CustomButton
                   variant="secondary"
                   size={isMobile ? "small" : "medium"}
+                  data-testid={tid("resend-btn")}
                   label={countdown > 0 ? labelCountdown(countdown) : labelResend}
                   onClick={() => {
                     if (onResendCode) onResendCode();
@@ -821,6 +828,7 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
                 <CustomButton
                   variant="primary"
                   size={isMobile ? "small" : "medium"}
+                  data-testid={tid("verify-btn")}
                   label={loading ? (t("verifying")) : labelPrimary}
                   type="submit"
                   loading={loading}
@@ -848,6 +856,7 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
                 <CustomButton
                   variant="primary"
                   size="medium"
+                  data-testid={tid("verify-btn")}
                   label={loading ? (t("verifying")) : labelPrimary}
                   type="submit"
                   loading={loading}
@@ -895,6 +904,7 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
                     <Typography
                       component="button"
                       type="button"
+                      data-testid={tid("resend-btn")}
                       onClick={() => {
                         if (onResendCode) onResendCode();
                       }}

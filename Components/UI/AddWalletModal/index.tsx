@@ -14,10 +14,9 @@ import useIsMobile from "@/hooks/useIsMobile";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { UserAction } from "@/Redux/Actions";
 import { USER_LOGIN, USER_PROFILE_FETCH } from "@/Redux/Actions/UserAction";
-import { verifyOtp } from "@/utils/walletOtp";
 import { detectAddressKind, addrKindLabel, EVM_CURRENCIES, TRON_CURRENCIES } from "@/utils/walletAddressType";
 import { rootReducer } from "@/utils/types";
-import { Address, AddWalletModalProps } from "@/utils/types/wallet";
+import { AddWalletModalProps } from "@/utils/types/wallet";
 import { Box, CircularProgress, Typography, useTheme } from "@mui/material";
 import { Icon } from "@/styles/uiKit";
 import Image from "next/image";
@@ -36,8 +35,6 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
   open,
   onClose,
   currentCryptocurrency = "",
-  fiatData = [],
-  cryptoData = [],
   onWalletAdded,
   headerExtra,
   companyId: propCompanyId,
@@ -74,10 +71,6 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
     xrpTag?: string;
   }>({});
   const [popupLoading, setPopupLoading] = useState(false);
-  const [otpModalOpen, setOtpModalOpen] = useState(false);
-  const [otpLoading, setOtpLoading] = useState(false);
-  const [address, setAddress] = useState<Address | null>(null);
-  const [otpError, setOtpError] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [closeCryptoDropdown, setCloseCryptoDropdown] = useState(false);
   const [walletsAdded, setWalletsAdded] = useState(0); // Track how many wallets added in this session
@@ -213,8 +206,9 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
 
   const isEditAddressChanged = editMode && walletAddress.trim() !== editWalletAddressProp;
   const isEditTagChanged = editMode && xrpTag.trim() !== (editDestinationTagProp || "");
-  // Address (or destination-tag) changes are security-sensitive -> email OTP.
-  const editNeedsOtp = isEditAddressChanged || isEditTagChanged;
+  // Address (or destination-tag) changes are security-sensitive -> unified step-up
+  // ("Verify it's you") is raised by the axios interceptor when the session is locked.
+  const editNeedsVerify = isEditAddressChanged || isEditTagChanged;
 
   const finishSuccess = (message: string) => {
     walletState.refetchWallets();
@@ -236,11 +230,15 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  useEffect(() => {
-    if (!otpModalOpen) {
-      setOtpError("");
-    }
-  }, [otpModalOpen]);
+  const toastError = (message: string) => dispatch({ type: TOAST_SHOW, payload: { message, severity: "error" } });
+
+  const resetForm = () => {
+    setWalletName("");
+    setCryptocurrency("");
+    setWalletAddress("");
+    setXrpTag("");
+    setErrors({});
+  };
 
   const handleSubmit = async () => {
     if (!validate()) {
@@ -252,37 +250,24 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
       setPopupLoading(true);
 
       if (editMode && editWalletId) {
-        if (editNeedsOtp) {
-          // Address / tag change -> dedicated edit flow: OTP is issued against
-          // THIS wallet_id (the add-flow validator would reject the currency as
-          // "already exists" because the wallet being edited is that wallet).
-          const response: any = await axiosBaseApi.post(
-            API_ENDPOINTS.wallet.updateWalletSendOtp,
-            { wallet_id: editWalletId, company_id: companyId },
-          );
-          if (response.status !== 200 || response.error) {
-            dispatch({
-              type: TOAST_SHOW,
-              payload: {
-                message: response?.data?.message ?? "Failed to send verification code",
-                severity: "error",
-              },
-            });
-            setPopupLoading(false);
-            setIsSubmitting(false);
-            return;
-          }
-          setAddress({
-            wallet_address: walletAddress.trim(),
-            currency: cryptocurrency,
+        if (editNeedsVerify) {
+          // Address / tag change -> dedicated edit endpoint (step-up gated at the router).
+          const payload: Record<string, unknown> = {
+            wallet_id: editWalletId,
             company_id: companyId,
             wallet_name: effectiveWalletName,
-          });
-          setPopupLoading(false);
-          setIsSubmitting(false);
-          setOtpModalOpen(true);
+          };
+          if (isEditAddressChanged) payload.wallet_address = walletAddress.trim();
+          if (TAG_BASED_CHAINS.includes(cryptocurrency)) payload.destination_tag = xrpTag.trim() || null;
+          const response: any = await axiosBaseApi.post(API_ENDPOINTS.wallet.updateWalletWithOtp, payload);
+          if (response.status === 200 && !response.error) {
+            finishSuccess(response?.data?.message || tWallet("walletUpdated", { defaultValue: "Wallet updated successfully" }));
+            handleClose();
+          } else {
+            toastError(response?.data?.message ?? "Failed to update wallet");
+          }
         } else {
-          // Name-only change — call edit endpoint directly (no OTP required)
+          // Name-only change — plain edit endpoint.
           const response: any = await axiosBaseApi.put(
             API_ENDPOINTS.wallet.updateWallet(editWalletId),
             { wallet_name: effectiveWalletName },
@@ -291,21 +276,16 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
             finishSuccess(tWallet("walletUpdated", { defaultValue: "Wallet updated successfully" }));
             handleClose();
           } else {
-            dispatch({
-              type: TOAST_SHOW,
-              payload: {
-                message: response?.data?.message ?? "Failed to update wallet",
-                severity: "error",
-              },
-            });
+            toastError(response?.data?.message ?? "Failed to update wallet");
           }
-          setPopupLoading(false);
-          setIsSubmitting(false);
         }
+        setPopupLoading(false);
+        setIsSubmitting(false);
         return;
       }
 
-      // Add mode (original flow)
+      // Add mode: validate on-chain, then save. Both calls sit behind the `wallet`
+      // step-up scope — the first one raises the shared dialog if needed.
       const values: any = {
         wallet_address: walletAddress.trim(),
         currency: cryptocurrency,
@@ -317,186 +297,43 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
         values.destination_tag = xrpTag.trim();
       }
 
-      const response: any = await axiosBaseApi.post(
-        API_ENDPOINTS.wallet.validateWalletAddress,
-        values,
-      );
-
-      if (response.status !== 200 || response.error) {
-        dispatch({
-          type: TOAST_SHOW,
-          payload: {
-            message: response?.data?.message ?? "Failed to add wallet address",
-            severity: "error",
-          },
-        });
+      const validated: any = await axiosBaseApi.post(API_ENDPOINTS.wallet.validateWalletAddress, values);
+      if (validated.status !== 200 || validated.error) {
+        toastError(validated?.data?.message ?? "Failed to add wallet address");
         setPopupLoading(false);
         setIsSubmitting(false);
         return;
       }
 
-      setAddress({ ...values, wallet_name: effectiveWalletName });
+      const saved: any = await axiosBaseApi.post(API_ENDPOINTS.wallet.saveValidatedWallet, values);
+      if (saved.status !== 200 || saved.error) {
+        toastError(saved?.data?.message ?? "Failed to add wallet address");
+        setPopupLoading(false);
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Reset form state without calling onClose() (which unmounts the component in OnboardingFlow)
+      resetForm();
       setPopupLoading(false);
       setIsSubmitting(false);
-
-      // Don't call onClose() here — it would unmount the component
-      // (OnboardingFlow sets phase="done" on close, removing the OTP dialog).
-      // Instead, just open the OTP dialog on top of the wallet modal.
-      setOtpModalOpen(true);
+      setWalletsAdded((prev) => prev + 1);
+      finishSuccess(saved?.data?.message || tWallet("walletAddedSuccess"));
+      // Success choice: Add another / Done (Wallets page + onboarding alike)
+      setShowSuccessChoice(true);
     } catch (error: any) {
-      console.error("Error adding wallet address:", error);
       if (error?.response?.data?.code === "EMAIL_VERIFICATION_REQUIRED") {
         setNeedsEmail(true);
         setPopupLoading(false);
         setIsSubmitting(false);
         return;
       }
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
-          message:
-            error?.response?.data?.message ??
-            error.message ??
-            "Something went wrong",
-          severity: "error",
-        },
-      });
+      if (!error?.stepUpCancelled) {
+        console.error("Error saving wallet address:", error);
+        toastError(error?.response?.data?.message ?? error.message ?? "Something went wrong");
+      }
       setPopupLoading(false);
       setIsSubmitting(false);
-    }
-  };
-
-  const handleEditOtpVerify = async (otp: string) => {
-    setOtpLoading(true);
-    setOtpError("");
-    try {
-      const payload: Record<string, unknown> = {
-        wallet_id: editWalletId,
-        company_id: companyId,
-        otp,
-        wallet_name: effectiveWalletName,
-      };
-      if (isEditAddressChanged) payload.wallet_address = walletAddress.trim();
-      if (TAG_BASED_CHAINS.includes(cryptocurrency)) payload.destination_tag = xrpTag.trim() || null;
-      const response: any = await axiosBaseApi.post(API_ENDPOINTS.wallet.updateWalletWithOtp, payload);
-      if (response.status === 200 && !response.error) {
-        setOtpModalOpen(false);
-        finishSuccess(response?.data?.message || tWallet("walletUpdated", { defaultValue: "Wallet updated successfully" }));
-        handleClose();
-      } else {
-        setOtpError(response?.data?.message || "Invalid OTP. Please try again.");
-      }
-    } catch (error: any) {
-      setOtpError(error?.response?.data?.message || "OTP verification failed");
-    } finally {
-      setOtpLoading(false);
-    }
-  };
-
-  const handleOtpVerify = async (otp: string) => {
-    if (editMode) return handleEditOtpVerify(otp);
-    setOtpLoading(true);
-    setOtpError("");
-
-    let currencyType: "FIAT" | "CRYPTO" | null = null;
-
-    if (fiatData.some((item) => item.wallet_type === address?.currency)) {
-      currencyType = "FIAT";
-    } else if (
-      cryptoData.some((item) => item.wallet_type === address?.currency)
-    ) {
-      currencyType = "CRYPTO";
-    }
-
-    try {
-      const response = await verifyOtp({
-        otp: otp,
-        wallet_address: address?.wallet_address,
-        currency: address?.currency,
-        currency_type: currencyType,
-        company_id: companyId,
-        wallet_name: effectiveWalletName || address?.wallet_name,
-      });
-
-      if (response.status) {
-        setOtpModalOpen(false);
-        setAddress(null);
-        // Reset form state without calling onClose() (which unmounts the component in OnboardingFlow)
-        setWalletName("");
-        setCryptocurrency("");
-        setWalletAddress("");
-        setXrpTag("");
-        setErrors({});
-        setPopupLoading(false);
-        setIsSubmitting(false);
-        setWalletsAdded((prev) => prev + 1);
-        finishSuccess(response?.message);
-        // Success choice: Add another / Done (Wallets page + onboarding alike)
-        setShowSuccessChoice(true);
-      } else {
-        setOtpError(response?.message || "Invalid OTP. Please try again.");
-        dispatch({
-          type: TOAST_SHOW,
-          payload: {
-            message: response?.message || "OTP verification failed",
-            severity: "error",
-          },
-        });
-      }
-    } catch (error: any) {
-      const errorMessage =
-        error?.response?.data?.message || "OTP verification failed";
-      setOtpError(errorMessage);
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
-          message: errorMessage,
-          severity: "error",
-        },
-      });
-      console.error("OTP verification failed:", error);
-    } finally {
-      setOtpLoading(false);
-    }
-  };
-
-  const handleResendCode = async () => {
-    if (!address) return;
-
-    try {
-      setOtpError("");
-      const response: any = editMode
-        ? await axiosBaseApi.post(API_ENDPOINTS.wallet.updateWalletSendOtp, {
-            wallet_id: editWalletId,
-            company_id: companyId,
-          })
-        : await axiosBaseApi.post(API_ENDPOINTS.wallet.validateWalletAddress, address);
-
-      if (response.status === 200 && !response.error) {
-        dispatch({
-          type: TOAST_SHOW,
-          payload: {
-            message: "OTP has been resent to your email",
-            severity: "success",
-          },
-        });
-      } else {
-        dispatch({
-          type: TOAST_SHOW,
-          payload: {
-            message: response?.data?.message ?? "Failed to resend OTP",
-            severity: "error",
-          },
-        });
-      }
-    } catch (error: any) {
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
-          message: error?.response?.data?.message ?? "Failed to resend OTP",
-          severity: "error",
-        },
-      });
     }
   };
 
@@ -504,14 +341,8 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
     if (isSubmitting) return;
 
     setCloseCryptoDropdown(true);
-    setWalletName("");
-    setCryptocurrency("");
-    setWalletAddress("");
-    setXrpTag("");
-    setErrors({});
+    resetForm();
     setPopupLoading(false);
-    setOtpModalOpen(false);
-    setAddress(null);
     setIsSubmitting(false);
     setShowSuccessChoice(false);
     setWalletsAdded(0);
@@ -521,7 +352,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
   return (
     <>
     <PopupModal
-      open={open && !otpModalOpen && !gateOtpOpen}
+      open={open && !gateOtpOpen}
       handleClose={handleClose}
       showHeader={false}
       hasFooter={false}
@@ -775,8 +606,8 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
             error={!!errors.walletAddress}
             helperText={
               errors.walletAddress ||
-              (editNeedsOtp
-                ? tWallet("editOtpNotice", { defaultValue: "Changing the address requires a one-time code sent to your email." })
+              (editNeedsVerify
+                ? tWallet("editVerifyNotice", { defaultValue: "Changing the address requires a quick identity check." })
                 : tWallet("walletAddressHelper"))
             }
             data-testid="wallet-address-input"
@@ -859,9 +690,9 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
             </>
           )}
         </Box>
-        {/* Plan 3.3 — OTP-marked sensitive change: tell the merchant up front
-            that saving a NEW wallet address is confirmed by an emailed code
-            (edit mode already says so in the address helper + button). */}
+        {/* Step-up-marked sensitive change: tell the merchant up front that saving
+            a NEW wallet address asks them to verify it's them first (edit mode
+            already says so in the address helper + button). */}
         {!editMode && (
           <Typography
             data-testid="wallet-otp-notice"
@@ -877,7 +708,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
             }}
           >
             <Icon name="lock" size={14} />
-            {tWallet("addOtpNotice", { defaultValue: "We'll email you a 6-digit code to confirm this wallet before it's saved." })}
+            {tWallet("addVerifyNotice", { defaultValue: "We'll ask you to verify it's you before this wallet is saved." })}
           </Typography>
         )}
         <Box
@@ -899,7 +730,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
           <CustomButton
             label={
               editMode
-                ? editNeedsOtp
+                ? editNeedsVerify
                   ? tWallet("verifyAndSave", { defaultValue: "Verify & save" })
                   : tWallet("saveChanges")
                 : tWallet("continue")
@@ -924,40 +755,6 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
       </Box>
       )}
     </PopupModal>
-
-    <OtpDialog
-      open={otpModalOpen}
-      onClose={() => {
-        setOtpModalOpen(false);
-        setOtpError("");
-      }}
-      title={tWallet("emailVerification")}
-      subtitle={tWallet("emailVerificationSubtitle")}
-      contactInfo={userState.email}
-      contactType="email"
-      otpLength={6}
-      onVerify={handleOtpVerify}
-      onResendCode={handleResendCode}
-      loading={otpLoading}
-      error={otpError}
-      onClearError={() => setOtpError("")}
-      countdown={0}
-      preventClose={otpLoading}
-      loadingTitle={editMode ? tWallet("updatingWallet", { defaultValue: "Updating your wallet…" }) : "Setting up your wallet…"}
-      loadingSteps={editMode ? [
-        "Verifying your code…",
-        "Validating the new address on-chain…",
-        "Saving your changes…",
-      ] : [
-        "Verifying your OTP…",
-        "Registering your wallet address…",
-        "Creating your on-chain deposit address…",
-        "Configuring webhook notifications…",
-        "Generating your API key…",
-        "Almost there — final touches…",
-      ]}
-      loadingStepIntervalMs={2000}
-    />
 
     <OtpDialog
       open={gateOtpOpen}

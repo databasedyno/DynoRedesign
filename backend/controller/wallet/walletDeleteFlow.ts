@@ -74,9 +74,11 @@ import {
   calculateCustomerPaymentAmount
 } from "../../services/blockchainFeeService";
 import { escapeHtml, buildTransactionFilters, invalidateWalletCache } from "./walletShared";
-import { generateOtpCode } from "../../helper/otpGuard";
 
-export const sendDeletePaymentWalletOTP = async (
+// ============================================
+// DELETE WALLET (payment forwarding wallets) — step-up gated at the router
+// ============================================
+export const deletePaymentWalletWithOTP = async (
   req: express.Request,
   res: express.Response
 ) => {
@@ -89,105 +91,6 @@ export const sendDeletePaymentWalletOTP = async (
     }
 
     const user_id = userData.user_id;
-
-    // Build where clause with multi-tenant security
-    const whereClause: Record<string, unknown> = {
-      user_id,
-      wallet_id: parseInt(wallet_id),
-    };
-
-    if (company_id) {
-      whereClause.company_id = company_id;
-    }
-
-    // Verify wallet exists and belongs to user
-    const wallet = await userWalletModel.findOne({
-      where: whereClause,
-    });
-
-    if (!wallet || !wallet.dataValues.wallet_address) {
-      return errorResponseHelper(
-        res,
-        404,
-        "Wallet address not found or you don't have permission to delete it"
-      );
-    }
-
-    // Generate and send OTP
-    const randomNumberOTP = generateOtpCode();
-    
-    await userModel.update(
-      {
-        verified_otp: randomNumberOTP.toString(),
-        otp_expired: new Date(Date.now() + 5 * 60 * 1000), // 5 minutes
-        otp_currency: wallet.dataValues.wallet_type, // Store currency for validation
-      },
-      {
-        where: { user_id },
-      }
-    );
-
-    // Send OTP email
-    const maskDelAddr = (a: string) => a ? `${a.substring(0, 8)}...${a.substring(a.length - 6)}` : 'N/A';
-    await sendWalletDeleteOTPEmail(
-      userData.email,
-      userData.name,
-      String(randomNumberOTP),
-      maskDelAddr(wallet.dataValues.wallet_address),
-      wallet.dataValues.wallet_type
-    );
-
-    walletLogger.info(
-      `Delete wallet OTP sent`,
-      { user_id, wallet_id, email: userData.email }
-    );
-
-    return successResponseHelper(res, 200, "OTP sent to your email", {
-      wallet_id: wallet.dataValues.wallet_id,
-      wallet_type: wallet.dataValues.wallet_type,
-      wallet_address: wallet.dataValues.wallet_address,
-      email: userData.email.replace(/(.{2})(.*)(@.*)/, "$1***$3"),
-      warning: "This action is permanent and cannot be undone",
-    });
-  } catch (e) {
-
-      return handleControllerErrorReturn(res, e, walletLogger, { user_id: userData.user_id, email: userData.email });
-  }
-};
-
-// ============================================
-// DELETE WALLET WITH OTP - Step 2: Verify and Delete (For Payment Forwarding Wallets)
-// ============================================
-export const deletePaymentWalletWithOTP = async (
-  req: express.Request,
-  res: express.Response
-) => {
-  const userData = jwt.decode(res.locals.token) as IUserType;
-  try {
-    const { wallet_id, company_id, otp } = req.body;
-
-    if (!wallet_id || !otp) {
-      return errorResponseHelper(res, 400, "wallet_id and otp are required!");
-    }
-
-    const user_id = userData.user_id;
-
-    // Verify OTP - ensure string comparison
-    const otpString = String(otp).trim();
-    
-    const user = await userModel.findOne({
-      where: { user_id, verified_otp: otpString },
-    });
-
-    if (!user) {
-      walletLogger.warn(`Invalid OTP attempt`, { user_id, otp_provided: otpString });
-      return errorResponseHelper(res, 400, "Invalid OTP!");
-    }
-
-    // Check OTP expiry
-    if (new Date() > user.dataValues.otp_expired) {
-      return errorResponseHelper(res, 400, "OTP has expired! Please request a new one.");
-    }
 
     // Build where clause
     const whereClause: Record<string, unknown> = {
@@ -212,15 +115,6 @@ export const deletePaymentWalletWithOTP = async (
       );
     }
 
-    // Validate OTP currency matches
-    if (user.dataValues.otp_currency && user.dataValues.otp_currency !== wallet.dataValues.wallet_type) {
-      return errorResponseHelper(
-        res,
-        400,
-        `OTP was issued for ${user.dataValues.otp_currency} wallet, but you're trying to delete ${wallet.dataValues.wallet_type} wallet!`
-      );
-    }
-
     // Soft delete: Clear wallet address
     await userWalletModel.update(
       {
@@ -230,18 +124,6 @@ export const deletePaymentWalletWithOTP = async (
       },
       {
         where: whereClause,
-      }
-    );
-
-    // Clear OTP
-    await userModel.update(
-      {
-        verified_otp: null,
-        otp_expired: null,
-        otp_currency: null,
-      },
-      {
-        where: { user_id },
       }
     );
 
@@ -283,14 +165,14 @@ export const deletePaymentWalletWithOTP = async (
 };
 
 /**
- * Edit wallet address with OTP verification
+ * Edit wallet address / name (step-up gated at the router)
  * PUT /api/wallet/address/:id
  */
 export const editWalletAddress = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
   try {
     const { id } = req.params;
-    const { wallet_address, wallet_name, otp } = req.body;
+    const { wallet_address, wallet_name } = req.body;
     const user_id = userData.user_id;
 
     // BUG FIX (2026-08-27): the `:id` sent by the frontend (wallet list `id`) is a
@@ -322,38 +204,10 @@ export const editWalletAddress = async (req: express.Request, res: express.Respo
     const currency = existingWallet.dataValues.wallet_type;
     const oldAddress = existingWallet.dataValues.wallet_address;
 
-    // Only an actual address CHANGE requires OTP + on-chain validation.
-    // A name-only update (or a no-op save) needs neither.
+    // Only an actual address CHANGE needs on-chain validation (name-only edits don't).
     const isAddressChange = !!wallet_address && wallet_address !== oldAddress;
 
     if (isAddressChange) {
-      if (!otp) {
-        return errorResponseHelper(res, 400, "OTP is required to update wallet address. Request OTP first.");
-      }
-
-      // Verify OTP from Redis
-      const storedOTPData = await getRedisItem(`wallet_edit_otp_${id}`);
-
-      if (!storedOTPData || Object.keys(storedOTPData).length === 0) {
-        return errorResponseHelper(res, 400, "OTP expired or not found. Please request a new one.");
-      }
-
-      const otpData = storedOTPData as { otp: string; user_id: string; expiry: string };
-
-      if (otpData.otp !== otp) {
-        return errorResponseHelper(res, 400, "Invalid OTP");
-      }
-
-      if (otpData.user_id !== user_id.toString()) {
-        return errorResponseHelper(res, 403, "Unauthorized");
-      }
-
-      if (new Date(otpData.expiry) < new Date()) {
-        await deleteRedisItem(`wallet_edit_otp_${id}`);
-        return errorResponseHelper(res, 400, "OTP expired. Please request a new one.");
-      }
-
-      // Validate the new address on-chain
       try {
         if (currency === "TRX" || currency === "USDT-TRC20") {
           await tatumClient.validateTronAddress(wallet_address);
@@ -363,9 +217,6 @@ export const editWalletAddress = async (req: express.Request, res: express.Respo
       } catch (e) {
         return errorResponseHelper(res, 400, `Invalid ${currency} address`);
       }
-
-      // Delete OTP from Redis after successful validation
-      await deleteRedisItem(`wallet_edit_otp_${id}`);
     }
 
     // Build update data

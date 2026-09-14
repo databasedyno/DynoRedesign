@@ -51,9 +51,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import {
   Box,
-  Checkbox,
   Divider,
-  FormControlLabel,
   RadioGroup,
   Typography,
   useTheme,
@@ -197,7 +195,8 @@ export default function Login() {
   const [phoneLoginOtpTouched, setPhoneLoginOtpTouched] = useState(false);
 
   // Remember-me: keep signed in for 7 days (default) vs. session-only (until browser closes)
-  const [rememberMe, setRememberMe] = useState(true);
+  // Sessions are always persistent (30 days, Binance-style); the browser is trusted after 2FA.
+  const rememberMe = true;
 
   // Forgot password state
   const [forgotPasswordDialogOpen, setForgotPasswordDialogOpen] =
@@ -960,7 +959,7 @@ export default function Login() {
             });
             const { data, message } = res?.data || {};
             if (data?.requires_2fa) {
-              dispatch({ type: USER_LOGIN_2FA_REQUIRED, payload: { challenge_token: data.challenge_token, remember: rememberMe } });
+              dispatch({ type: USER_LOGIN_2FA_REQUIRED, payload: { challenge_token: data.challenge_token, method: data.method, masked_email: data.masked_email, remember: rememberMe } });
             } else if (data?.userData && data?.accessToken) {
               dispatch({ type: TOAST_SHOW, payload: { message: message || "Login successful" } });
               dispatch({ type: USER_LOGIN, payload: { ...data.userData, accessToken: data.accessToken, refreshToken: data.refreshToken } });
@@ -1595,37 +1594,17 @@ export default function Login() {
                   />
                 </Box>
 
-                {/* Keep me signed in + Forgot Password */}
+                {/* Forgot Password */}
                 <Box
                   sx={{
                     mt: 1.5,
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "space-between",
+                    justifyContent: "flex-end",
                     gap: 1,
                     flexWrap: "wrap",
                   }}
                 >
-                  <FormControlLabel
-                    data-testid="remember-me-toggle"
-                    control={
-                      <Checkbox
-                        size="small"
-                        checked={rememberMe}
-                        onChange={(e) => setRememberMe(e.target.checked)}
-                        sx={{ py: 0, color: theme.palette.text.secondary }}
-                      />
-                    }
-                    label={t("keepMeSignedIn")}
-                    sx={{
-                      m: 0,
-                      "& .MuiFormControlLabel-label": {
-                        fontSize: "13px",
-                        color: theme.palette.text.secondary,
-                        fontFamily: "var(--font-sans)",
-                      },
-                    }}
-                  />
                   <Typography
                     component="span"
                     sx={{
@@ -1746,31 +1725,6 @@ export default function Login() {
                     </Box>
                   </Box>
                 )}
-
-                {/* Keep me signed in — code login honours this too, so the
-                    choice controls tab/session persistence on every path. */}
-                <Box sx={{ marginTop: isMobile ? "12px" : "16px", display: "flex", justifyContent: "flex-start" }}>
-                  <FormControlLabel
-                    data-testid="remember-me-toggle-code"
-                    control={
-                      <Checkbox
-                        size="small"
-                        checked={rememberMe}
-                        onChange={(e) => setRememberMe(e.target.checked)}
-                        sx={{ py: 0, color: theme.palette.text.secondary }}
-                      />
-                    }
-                    label={t("keepMeSignedIn")}
-                    sx={{
-                      m: 0,
-                      "& .MuiFormControlLabel-label": {
-                        fontSize: "13px",
-                        color: theme.palette.text.secondary,
-                        fontFamily: "var(--font-sans)",
-                      },
-                    }}
-                  />
-                </Box>
 
                 {/* Inline OTP block — auto-sends on entering code mode
                     (see handleUseCodeInstead), auto-verifies on 6 digits. */}
@@ -2036,6 +1990,9 @@ export default function Login() {
       <TwoFactorLoginDialog
         open={!!userState.login2faRequired}
         loading={!!userState.login2faLoading}
+        method={userState.login2faMethod === "email" ? "email" : "totp"}
+        maskedEmail={userState.login2faEmail || ""}
+        challengeToken={userState.login2faChallenge || ""}
         error={
           userState.error && userState.error.actionType === USER_VERIFY_2FA
             ? userState.error.message

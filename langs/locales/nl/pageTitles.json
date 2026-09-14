@@ -108,5 +108,7 @@
   "walletSecurity_title": "Walletbeveiliging · Dynopay",
   "walletSecurity_desc": "Hoe je uitbetalingswallets beschermd zijn, elke wijziging eraan en je ingelogde apparaten.",
   "kyc_title": "Identiteitsverificatie · Dynopay",
-  "kyc_desc": "Je verificatiestatus, wat je nodig hebt en hoelang het duurt."
+  "kyc_desc": "Je verificatiestatus, wat je nodig hebt en hoelang het duurt.",
+  "authReset2fa_title": "Tweestapsverificatie resetten · Dynopay",
+  "authReset2fa_desc": "Bevestig het verwijderen van je authenticator-app en schakel over naar e-mailcodes."
 }

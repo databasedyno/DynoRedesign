@@ -23,6 +23,7 @@ export const getWalletSecurityStatus = async (req: express.Request, res: express
     return successResponseHelper(res, 200, "OK", {
       frozen: !!freeze.frozen,
       since: freeze.since ?? null,
+      until: freeze.until ?? null,
       reason: freeze.reason ?? null,
     });
   } catch (e) {

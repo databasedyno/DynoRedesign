@@ -108,5 +108,7 @@
   "walletSecurity_title": "Wallet-Sicherheit · Dynopay",
   "walletSecurity_desc": "Wie Ihre Auszahlungs-Wallets geschützt sind, jede Änderung an ihnen und Ihre angemeldeten Geräte.",
   "kyc_title": "Identitätsprüfung · Dynopay",
-  "kyc_desc": "Ihr Verifizierungsstatus, was Sie benötigen und wie lange es dauert."
+  "kyc_desc": "Ihr Verifizierungsstatus, was Sie benötigen und wie lange es dauert.",
+  "authReset2fa_title": "Zwei-Schritt-Verifizierung zurücksetzen · Dynopay",
+  "authReset2fa_desc": "Bestätige das Entfernen deiner Authenticator-App und wechsle zu E-Mail-Codes."
 }

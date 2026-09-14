@@ -64,6 +64,7 @@
     "sendCode": "Send code",
     "body": "This permanently removes {{name}} together with its payment links, API keys and settings. This cannot be undone. We'll email you a 6-digit code to confirm.",
     "typeToConfirm": "Type {{name}} to continue:",
-    "otpBody": "We sent a 6-digit code to {{email}}. Enter it below to delete {{name}}."
+    "otpBody": "We sent a 6-digit code to {{email}}. Enter it below to delete {{name}}.",
+    "bodyStepUp": "This permanently removes {{name}} together with its payment links, API keys and settings. This cannot be undone. We'll ask you to verify it's you first."
   }
 }

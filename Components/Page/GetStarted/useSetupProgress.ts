@@ -5,9 +5,10 @@ import { useWalletStore } from "@/contexts/WalletDataContext";
 import useAccountProfile from "@/hooks/useAccountProfile";
 import { PaymentLinkAction, PAYLINK_FETCH } from "@/Redux/Actions/PaymentLinkAction";
 import { rootReducer } from "@/utils/types";
+import { useMfaEnforcement } from "@/Components/UI/MfaGate/useMfaEnforcement";
 
-export type SetupStepKey = "about" | "payouts" | "link" | "share";
-export const SETUP_STEPS: SetupStepKey[] = ["about", "payouts", "link", "share"];
+export type SetupStepKey = "secure" | "about" | "payouts" | "link" | "share";
+export const SETUP_STEPS: SetupStepKey[] = ["secure", "about", "payouts", "link", "share"];
 
 /** Session guards shared by the dashboard redirect and the wizard's "Do this later". */
 export const GS_AUTO_OPEN_KEY = "gs_autoopen_seen";
@@ -55,6 +56,8 @@ export const useSetupProgress = () => {
   const { account, hasAccount, profileComplete, isIndividual } = useAccountProfile();
   const payLinkState = useSelector((s: rootReducer) => s.paymentLinkReducer);
   const dashboardState = useSelector((s: rootReducer) => s.dashboardReducer);
+  const { enforcement, settled: mfaSettled, refresh: refreshMfa } = useMfaEnforcement();
+  const twoFaEnrolled = !!enforcement?.enrolled;
 
   const companyList = companyState.companyList ?? [];
   const companyId: number | undefined =
@@ -107,18 +110,19 @@ export const useSetupProgress = () => {
 
   const steps: SetupStep[] = useMemo(
     () => [
+      { key: "secure", done: twoFaEnrolled },
       { key: "about", done: profileComplete },
       { key: "payouts", done: hasWallet },
       { key: "link", done: hasLink },
       { key: "share", done: hasPayment || (hasLink && hasShared) },
     ],
-    [profileComplete, hasWallet, hasLink, hasPayment, hasShared],
+    [twoFaEnrolled, profileComplete, hasWallet, hasLink, hasPayment, hasShared],
   );
 
   const doneCount = steps.filter((s) => s.done).length;
   const firstIncomplete: SetupStepKey = steps.find((s) => !s.done)?.key ?? "share";
 
-  const coreReady = Boolean(companyState.fetched && walletState.fetched);
+  const coreReady = Boolean(companyState.fetched && walletState.fetched && mfaSettled);
   const linksSettled = Boolean(payLinkState.fetched) || (!hasAccount && coreReady);
 
   return {
@@ -128,6 +132,8 @@ export const useSetupProgress = () => {
     hasAccount,
     isIndividual,
     profileComplete,
+    twoFaEnrolled,
+    refreshMfa,
     hasWallet,
     configuredWallets,
     hasLink,

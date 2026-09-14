@@ -108,5 +108,7 @@
   "walletSecurity_title": "Wallet security · Dynopay",
   "walletSecurity_desc": "How your payout wallets are protected, every change made to them, and your signed-in devices.",
   "kyc_title": "Identity verification · Dynopay",
-  "kyc_desc": "Your verification status, what you'll need and how long it takes."
+  "kyc_desc": "Your verification status, what you'll need and how long it takes.",
+  "authReset2fa_title": "Reset two-step verification · Dynopay",
+  "authReset2fa_desc": "Confirm the removal of your authenticator app and switch to email codes."
 }

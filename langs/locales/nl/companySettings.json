@@ -64,6 +64,7 @@
     "sendCode": "Code verzenden",
     "body": "Dit verwijdert permanent {{name}} samen met de betalingslinks, API-sleutels en instellingen. Dit kan niet ongedaan gemaakt worden. We sturen je een 6-cijferige code per e-mail ter bevestiging.",
     "typeToConfirm": "Typ {{name}} om door te gaan:",
-    "otpBody": "We hebben een 6-cijferige code naar {{email}} gestuurd. Voer deze hieronder in om {{name}} te verwijderen."
+    "otpBody": "We hebben een 6-cijferige code naar {{email}} gestuurd. Voer deze hieronder in om {{name}} te verwijderen.",
+    "bodyStepUp": "Hiermee wordt {{name}} permanent verwijderd, inclusief betaallinks, API-sleutels en instellingen. Dit kan niet ongedaan worden gemaakt. We vragen je eerst om te bevestigen dat jij het bent."
   }
 }

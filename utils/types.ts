@@ -35,6 +35,8 @@ export interface userReducer {
   // TOTP 2FA step-up after the first factor.
   login2faRequired?: boolean;
   login2faChallenge?: string;
+  login2faMethod?: "totp" | "email";
+  login2faEmail?: string;
   login2faRemember?: boolean;
   login2faLoading?: boolean;
   // Email-verification banner state (populated after profile fetch).

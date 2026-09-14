@@ -185,5 +185,6 @@
   "payoutAvailableCreditDesc": "Automatically lowers your Dynopay fee on your next payments.",
   "payoutCreditedToDate": "Credited to date",
   "payoutCreditedToDateDesc": "Total fees already covered by your referral rewards.",
-  "payoutMethod": "Payout method"
+  "payoutMethod": "Payout method",
+  "payoutWithdrawIntro": "We'll send {{amount}} in USDT (TRC-20) to {{address}}. You'll be asked to verify it's you."
 }

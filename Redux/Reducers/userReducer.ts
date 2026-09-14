@@ -57,6 +57,8 @@ const userInitialState = {
   // TOTP 2FA step-up state
   login2faRequired: false,
   login2faChallenge: "",
+  login2faMethod: "totp",
+  login2faEmail: "",
   login2faRemember: false,
   login2faLoading: false,
 };
@@ -210,6 +212,8 @@ const userReducer = (state = userInitialState, action: ReducerAction) => {
         loginOtpLoading: false,
         login2faRequired: true,
         login2faChallenge: payload.challenge_token,
+        login2faMethod: payload.method === "email" ? "email" : "totp",
+        login2faEmail: payload.masked_email || "",
         login2faRemember: !!payload.remember,
         login2faLoading: false,
         error: null,
@@ -220,6 +224,8 @@ const userReducer = (state = userInitialState, action: ReducerAction) => {
         ...state,
         login2faRequired: false,
         login2faChallenge: "",
+        login2faMethod: "totp",
+        login2faEmail: "",
         login2faRemember: false,
         login2faLoading: false,
       };

@@ -64,6 +64,7 @@
     "sendCode": "Enviar código",
     "body": "Isto remove permanentemente {{name}} juntamente com os seus links de pagamento, chaves de API e definições. Isto não pode ser desfeito. Enviaremos um código de 6 dígitos por e-mail para confirmar.",
     "typeToConfirm": "Escreva {{name}} para continuar:",
-    "otpBody": "Enviámos um código de 6 dígitos para {{email}}. Introduza-o abaixo para eliminar {{name}}."
+    "otpBody": "Enviámos um código de 6 dígitos para {{email}}. Introduza-o abaixo para eliminar {{name}}.",
+    "bodyStepUp": "Isto remove permanentemente {{name}} juntamente com os seus links de pagamento, chaves de API e definições. Não pode ser anulado. Primeiro vamos pedir-te para confirmares que és tu."
   }
 }

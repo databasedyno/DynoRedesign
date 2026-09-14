@@ -30,11 +30,11 @@ interface IUserAction {
   payload: any;
 }
 
-/** Login response for an account with TOTP enabled: hand the challenge to the 2FA dialog. */
+/** Login response for an enrolled account on a new browser: hand the challenge (authenticator or emailed code) to the 2FA dialog. */
 function* handle2FAChallenge(data: any, remember?: boolean): unknown {
   yield put({
     type: USER_LOGIN_2FA_REQUIRED,
-    payload: { challenge_token: data.challenge_token, remember: !!remember },
+    payload: { challenge_token: data.challenge_token, method: data.method, masked_email: data.masked_email, remember: !!remember },
   });
 }
 

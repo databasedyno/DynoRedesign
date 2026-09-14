@@ -64,6 +64,7 @@
     "sendCode": "Envoyer le code",
     "body": "Cela supprime définitivement {{name}} ainsi que ses liens de paiement, clés API et paramètres. Cela ne peut pas être annulé. Nous vous enverrons un code à 6 chiffres par e-mail pour confirmer.",
     "typeToConfirm": "Tapez {{name}} pour continuer :",
-    "otpBody": "Nous avons envoyé un code à 6 chiffres à {{email}}. Entrez-le ci-dessous pour supprimer {{name}}."
+    "otpBody": "Nous avons envoyé un code à 6 chiffres à {{email}}. Entrez-le ci-dessous pour supprimer {{name}}.",
+    "bodyStepUp": "Cela supprime définitivement {{name}} ainsi que ses liens de paiement, clés API et paramètres. Cette action est irréversible. Nous vous demanderons d'abord de vérifier votre identité."
   }
 }

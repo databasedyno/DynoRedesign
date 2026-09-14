@@ -77,7 +77,7 @@ export interface CompanyStore {
   refetchCompanies: () => Promise<any>;
   addCompany: (formData: any) => Promise<any>;
   updateCompany: (args: { id: number | string; formData: any }) => Promise<any>;
-  deleteCompany: (id: number | string, otp: string) => Promise<any>;
+  deleteCompany: (id: number | string) => Promise<any>;
   validateTax: (args: {
     companyId: number | string;
     taxId: string;
@@ -253,11 +253,11 @@ export function CompanyDataProvider({ children }: { children: React.ReactNode })
   );
 
   const deleteCompany = useCallback(
-    async (id: number | string, otp: string) => {
+    async (id: number | string) => {
       try {
         const {
           data: { data: d, message },
-        } = await axios.delete("company/deleteCompany/" + id, { data: { otp } });
+        } = await axios.delete(API_ENDPOINTS.company.deleteCompany(id));
         // Backend soft-deletes the brand (7-day recoverable) and returns the
         // "you have 7 days to restore it" message — surface it verbatim.
         dispatch({

@@ -38,6 +38,7 @@ import { useDispatch } from "react-redux";
 import adminBaseApi from "@/axiosAdmin";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { StatCard, SectionCard, formatUSD, formatNumber, formatCrypto } from "../adminUi";
+import SecurityEventsPanel from "./SecurityEventsPanel";
 
 interface RevenueRow {
   base_currency: string;
@@ -434,6 +435,9 @@ const AdminOverview: React.FC = () => {
               ))
             )}
           </SectionCard>
+        </Grid>
+        <Grid item xs={12}>
+          <SecurityEventsPanel />
         </Grid>
       </Grid>
     </Box>

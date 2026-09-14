@@ -1068,7 +1068,24 @@
     "reviewCta": "Vérifier la sécurité",
     "supportCta": "Contacter le support",
     "profileCta": "Voir le profil",
-    "dashboardCta": "Accéder au tableau de bord"
+    "dashboardCta": "Accéder au tableau de bord",
+    "stepUp": {
+      "subject": "Votre code de vérification Dynopay",
+      "heading": "Confirmez que c'est bien vous",
+      "intro": "Utilisez ce code pour confirmer une modification sensible de votre compte Dynopay : {{action}}.",
+      "expiry": "Ce code expire dans 5 minutes et déverrouille l'action pendant 10 minutes.",
+      "ignore": "Si vous n'êtes pas à l'origine de cette demande, NE partagez PAS ce code : quelqu'un essaie peut-être de modifier votre compte. Vos paramètres restent inchangés tant qu'aucun code n'est saisi.",
+      "preheader": "Code à usage unique pour une modification sensible du compte · Dynopay ne vous demandera jamais ce code."
+    },
+    "stepUpActions": {
+      "apikey": "la gestion des clés API",
+      "wallet": "la modification des portefeuilles de paiement",
+      "brand_delete": "la suppression d'une marque",
+      "security": "les paramètres de sécurité du compte",
+      "payout": "les paramètres de retrait",
+      "team": "l'accès de l'équipe",
+      "settlement": "la devise de règlement"
+    }
   },
   "paymentRequest": {
     "subject": "{{companyName}} demande {{amount}} {{currency}}",

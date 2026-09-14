@@ -185,5 +185,6 @@
   "payoutAvailableCreditDesc": "Senkt automatisch Ihre Dynopay-Gebühren bei Ihren nächsten Zahlungen.",
   "payoutCreditedToDate": "Bisher gutgeschrieben",
   "payoutCreditedToDateDesc": "Gesamte Gebühren, die bereits durch Ihre Empfehlungsprämien gedeckt sind.",
-  "payoutMethod": "Auszahlungsmethode"
+  "payoutMethod": "Auszahlungsmethode",
+  "payoutWithdrawIntro": "Wir senden {{amount}} in USDT (TRC-20) an {{address}}. Du wirst gebeten, deine Identität zu bestätigen."
 }

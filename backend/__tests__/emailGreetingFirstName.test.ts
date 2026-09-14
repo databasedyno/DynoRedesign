@@ -15,10 +15,8 @@ jest.mock("../utils/mailTransporter", () => ({
   }),
 }));
 
-import {
-  sendWalletSudoOTPEmail,
-  sendWalletBatchSummaryEmail,
-} from "../services/email/walletEmails";
+import { sendWalletBatchSummaryEmail } from "../services/email/walletEmails";
+import { sendStepUpCodeEmail } from "../services/email/securityEmails";
 import {
   sendWalletChangeAlertEmail,
   sendWalletSecuredEmail,
@@ -31,8 +29,8 @@ beforeEach(() => {
 });
 
 describe("Warmer email greetings use the first name only", () => {
-  it("sendWalletSudoOTPEmail greets by first name", async () => {
-    await sendWalletSudoOTPEmail("merchant@example.com", "John Davis", "123456");
+  it("sendStepUpCodeEmail greets by first name", async () => {
+    await sendStepUpCodeEmail("merchant@example.com", "John Davis", "123456", "wallet", "en");
     expect(lastBody()).toContain("Hey John,");
     expect(lastBody()).not.toContain("Hey John Davis,");
   });
@@ -70,7 +68,7 @@ describe("Warmer email greetings use the first name only", () => {
   });
 
   it("still falls back to a friendly generic greeting when no name is known", async () => {
-    await sendWalletSudoOTPEmail("merchant@example.com", "", "123456");
+    await sendStepUpCodeEmail("merchant@example.com", "", "123456", "wallet", "en");
     expect(lastBody()).toContain("Hey there,");
   });
 });

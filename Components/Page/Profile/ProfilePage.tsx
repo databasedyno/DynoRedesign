@@ -6,6 +6,7 @@ import UpdatePassword from "./UpdatePassword";
 import AddContactInfo from "./AddContactInfo";
 import LoginActivity from "./LoginActivity";
 import ActiveSessions from "./ActiveSessions";
+import TrustedDevices from "./TrustedDevices";
 import TwoFactorAuth from "./TwoFactorAuth";
 import WalletSecurityLink from "./WalletSecurityLink";
 
@@ -29,6 +30,9 @@ const ProfilePage = ({ tokenData }: { tokenData: TokenData }) => {
       </Grid>
       <Grid item xs={12}>
         <ActiveSessions />
+      </Grid>
+      <Grid item xs={12}>
+        <TrustedDevices />
       </Grid>
       <Grid item xs={12}>
         <LoginActivity />

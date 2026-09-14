@@ -8,7 +8,7 @@ export type OnboardingEventType =
   | "collapsed"
   | "expanded";
 
-export type OnboardingStepKey = "company" | "wallet" | "link" | "payment";
+export type OnboardingStepKey = "security" | "company" | "wallet" | "link" | "payment";
 
 export interface OnboardingEventPayload {
   event_type: OnboardingEventType;

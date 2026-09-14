@@ -411,7 +411,7 @@
     "stepDone": "Hecho",
     "stepPending": "Esperando tu primer pago",
     "wizardTitle": "Configura Dynopay",
-    "wizardSubtitle": "Cuatro pasos breves. Sal cuando quieras: retomarás justo donde lo dejaste.",
+    "wizardSubtitle": "Cinco pasos breves. Sal cuando quieras: retomarás justo donde lo dejaste.",
     "doLater": "Hacerlo más tarde",
     "railHint": "El progreso se guarda automáticamente",
     "stepOf": "Paso {{n}} de {{total}}",
@@ -498,7 +498,14 @@
     "next3": "Recibes una notificación y tu panel se completa.",
     "goDashboard": "Ir al panel",
     "createAnother": "Crear otro enlace",
-    "sidebarTitle": "Primeros pasos"
+    "sidebarTitle": "Primeros pasos",
+    "stepSecure": "Protege tu cuenta",
+    "stepSecureDesc": "App de autenticación o códigos por correo",
+    "secureTitle": "Primero, protege tu cuenta",
+    "secureSubtitle": "Dynopay envía dinero real a tus wallets, así que todas las cuentas usan verificación en dos pasos. Elige un método: solo te pediremos un código en un navegador nuevo.",
+    "secureDoneTitle": "La verificación en dos pasos está activa",
+    "secureDoneBody": "Este navegador es de confianza durante 90 días. Gestiona métodos y dispositivos de confianza en Ajustes → Seguridad.",
+    "secureSavedContinue": "He guardado mis códigos — continuar"
   },
   "kycPage": {
     "pageTitle": "Verificación de identidad",

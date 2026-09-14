@@ -5,6 +5,7 @@ import NewSidebar from "@/Components/Layout/NewSidebar";
 import withAuth from "@/Components/Page/Common/HOC/withAuth";
 import { CompanySettingsDialogProvider } from "@/Components/UI/CompanySettingsDialog/context";
 import EmailVerificationBanner from "@/Components/UI/EmailVerificationBanner";
+import MfaGate from "@/Components/UI/MfaGate";
 import FeeFreeWelcomeModal from "@/Components/Modals/FeeFreeWelcomeModal";
 import NameGate from "@/Components/UI/NameGate";
 import FeeFreeBanner from "@/Components/UI/FeeFreeBanner";
@@ -174,6 +175,8 @@ const ClientLayout = ({
 
           {/* ================= EMAIL VERIFICATION BANNER ================= */}
           <EmailVerificationBanner />
+          {/* ================= MANDATORY 2FA (soft banner / hard wall) ================= */}
+          <MfaGate />
           {/* ================= FEE-FREE PROGRESS BANNER ================= */}
           <FeeFreeBanner />
 

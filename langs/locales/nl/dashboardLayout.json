@@ -411,7 +411,7 @@
     "stepDone": "Klaar",
     "stepPending": "Wachten op je eerste betaling",
     "wizardTitle": "Dynopay instellen",
-    "wizardSubtitle": "Vier korte stappen. Stop wanneer je wilt — je gaat precies verder waar je gebleven was.",
+    "wizardSubtitle": "Vijf korte stappen. Stop wanneer je wilt — je gaat precies verder waar je gebleven was.",
     "doLater": "Later doen",
     "railHint": "Je voortgang wordt automatisch opgeslagen",
     "stepOf": "Stap {{n}} van {{total}}",
@@ -498,7 +498,14 @@
     "next3": "Je krijgt een melding en je dashboard vult zich.",
     "goDashboard": "Naar dashboard",
     "createAnother": "Nog een link maken",
-    "sidebarTitle": "Aan de slag"
+    "sidebarTitle": "Aan de slag",
+    "stepSecure": "Beveilig je account",
+    "stepSecureDesc": "Authenticator-app of e-mailcodes",
+    "secureTitle": "Beveilig eerst je account",
+    "secureSubtitle": "Dynopay stuurt echt geld naar je wallets, dus elk account gebruikt tweestapsverificatie. Kies een methode — je wordt alleen in een nieuwe browser om een code gevraagd.",
+    "secureDoneTitle": "Tweestapsverificatie staat aan",
+    "secureDoneBody": "Deze browser is 90 dagen vertrouwd. Beheer methoden en vertrouwde apparaten via Instellingen → Beveiliging.",
+    "secureSavedContinue": "Codes opgeslagen — verder"
   },
   "kycPage": {
     "pageTitle": "Identiteitsverificatie",

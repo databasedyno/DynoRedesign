@@ -15,7 +15,7 @@
  *   socialAuth        — googleSignIn, githubSignIn
  *   socialConnect     — connectSocial, facebookSignIn
  *   passwordReset     — forgot-password flows + resetPassword
- *   profileSecurity   — changePassword, set-password OTP, login activity, flagLogin
+ *   profileSecurity   — changePassword, setPassword (step-up gated), login activity, flagLogin
  *   profile           — getProfile/updateProfile/updateUser, quick actions, last company
  *   contactEmail      — change/remove/add/verify email
  *   contactPhone      — change/remove/add/verify phone
@@ -50,7 +50,7 @@ import { login, verifyLoginOTP, resendLoginOTP, checkEmail, generateOTP, confirm
 import { connectSocial, facebookSignIn } from "./user/socialConnect";
 import { googleSignIn, githubSignIn } from "./user/socialAuth";
 import { forgotPassword, forgotPasswordPhone, forgotPasswordVerifyOtp, forgotPasswordPhoneVerifyOtp, resetPassword } from "./user/passwordReset";
-import { changePassword, requestPasswordOtp, setPasswordWithOtp, getLoginActivity, flagLogin } from "./user/profileSecurity";
+import { changePassword, setPassword, getLoginActivity, flagLogin } from "./user/profileSecurity";
 import { signOutEverywhereConfirmPage, signOutEverywhereAction } from "./user/signoutEverywhere";
 import { updateUser, getProfile, updateProfile, updateDashboardQuickActions, updateLastCompany } from "./user/profile";
 import { changeEmail, removeEmail, addEmail, verifyAddEmail } from "./user/contactEmail";
@@ -108,8 +108,7 @@ export default {
   verifyAddEmail,
   addPhone,
   verifyAddPhone,
-  requestPasswordOtp,
-  setPasswordWithOtp,
+  setPassword,
   getLoginActivity,
   flagLogin,
   signOutEverywhereConfirmPage,

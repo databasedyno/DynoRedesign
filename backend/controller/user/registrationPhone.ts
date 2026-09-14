@@ -230,7 +230,7 @@ export const registerPhoneStep2 = async (req: express.Request, res: express.Resp
     // issue tokens and sign the user in (proceed as usual).
     const mobileExists = await userModel.findOne({ where: { mobile } });
     if (mobileExists) {
-      if (await requires2FAChallenge(res, mobileExists.dataValues.user_id)) return;
+      if (await requires2FAChallenge(res, mobileExists.dataValues.user_id, req)) return;
       const loginData = await getAccessToken(mobileExists.dataValues.user_id);
       const existingAttr = _formatAttribution(req.body?.attribution);
       userLogger.info(`[RegisterPhone] Existing account logged in via OTP: ${mobile}${existingAttr}`);

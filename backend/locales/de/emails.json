@@ -1068,7 +1068,24 @@
     "reviewCta": "Sicherheitseinstellungen prüfen",
     "supportCta": "Support kontaktieren",
     "profileCta": "Profil anzeigen",
-    "dashboardCta": "Zum Dashboard"
+    "dashboardCta": "Zum Dashboard",
+    "stepUp": {
+      "subject": "Ihr Dynopay-Bestätigungscode",
+      "heading": "Bestätigen Sie, dass es Sie sind",
+      "intro": "Verwenden Sie diesen Code, um eine sicherheitsrelevante Änderung an Ihrem Dynopay-Konto zu bestätigen: {{action}}.",
+      "expiry": "Dieser Code läuft in 5 Minuten ab und gibt die Aktion für 10 Minuten frei.",
+      "ignore": "Falls Sie dies nicht angefordert haben, geben Sie den Code NICHT weiter – möglicherweise versucht jemand, Ihr Konto zu ändern. Ihre Einstellungen bleiben unverändert, bis ein Code eingegeben wird.",
+      "preheader": "Einmalcode für eine sicherheitsrelevante Kontoänderung · Dynopay fragt Sie niemals nach diesem Code."
+    },
+    "stepUpActions": {
+      "apikey": "Verwaltung von API-Schlüsseln",
+      "wallet": "Änderung von Auszahlungs-Wallets",
+      "brand_delete": "Löschen einer Marke",
+      "security": "Sicherheitseinstellungen des Kontos",
+      "payout": "Auszahlungseinstellungen",
+      "team": "Teamzugriff",
+      "settlement": "Abrechnungswährung"
+    }
   },
   "paymentRequest": {
     "subject": "{{companyName}} fordert {{amount}} {{currency}} an",

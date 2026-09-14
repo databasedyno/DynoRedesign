@@ -1068,7 +1068,40 @@
     "reviewCta": "Review security settings",
     "supportCta": "Contact support",
     "profileCta": "View profile",
-    "dashboardCta": "Go to dashboard"
+    "dashboardCta": "Go to dashboard",
+    "stepUp": {
+      "subject": "Your Dynopay verification code",
+      "heading": "Verify it's you",
+      "intro": "Use this code to confirm a sensitive change on your Dynopay account: {{action}}.",
+      "expiry": "This code expires in 5 minutes and unlocks the action for 10 minutes.",
+      "ignore": "If you didn't request this, do NOT share the code — someone may be trying to change your account. Your settings stay unchanged until a code is entered.",
+      "preheader": "One-time code for a sensitive account change · Dynopay will never ask for this code."
+    },
+    "stepUpActions": {
+      "apikey": "managing API keys",
+      "wallet": "changing payout wallets",
+      "brand_delete": "deleting a brand",
+      "security": "account security settings",
+      "payout": "payout settings",
+      "team": "team access",
+      "settlement": "settlement currency"
+    },
+    "twoFaReset": {
+      "subject": "Reset your two-step verification",
+      "preheader": "Confirm to remove your authenticator app and switch to email codes.",
+      "heading": "Reset two-step verification?",
+      "intro": "Someone (hopefully you) asked to reset the authenticator app on your account after entering the correct password. Click below to confirm. The link expires in 30 minutes and works once.",
+      "consequences": "Confirming will sign you out of every device, forget all trusted browsers, switch your second step to email codes and lock payout-wallet changes for 24 hours as a safety measure.",
+      "cta": "Reset two-step verification",
+      "ignore": "If you didn't request this, you can ignore this email — nothing changes. Consider changing your password if you don't recognise this activity."
+    },
+    "twoFaResetDone": {
+      "subject": "Your two-step verification was reset",
+      "preheader": "Authenticator removed, sessions signed out, wallet changes locked for 24 hours.",
+      "heading": "Two-step verification reset",
+      "intro": "Your authenticator app was removed and email codes are now your second step at sign-in. All sessions and trusted devices were signed out.",
+      "freeze": "Payout-wallet changes are locked until {{until}}. Our team has been notified and can lift the lock sooner if you contact support."
+    }
   },
   "paymentRequest": {
     "subject": "{{companyName}} requests {{amount}} {{currency}}",

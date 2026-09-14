@@ -52,7 +52,7 @@ const StepPayouts: React.FC<Props> = ({ progress, onBack, onNext }) => {
   return (
     <Box data-testid="gs-step-payouts">
       <StepHeader
-        eyebrow={t("gs.stepOf", { n: 2, total: 4, defaultValue: "Step {{n}} of {{total}}" })}
+        eyebrow={t("gs.stepOf", { n: 3, total: 5, defaultValue: "Step {{n}} of {{total}}" })}
         title={t("gs.payoutsTitle", { defaultValue: "Where should your money go?" })}
         subtitle={t("gs.payoutsSubtitle", {
           defaultValue: "Payments are forwarded straight to a wallet you control. Add at least one address so your links can go live.",

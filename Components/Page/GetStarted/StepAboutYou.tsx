@@ -21,13 +21,14 @@ import type { SetupProgress } from "./useSetupProgress";
 
 interface Props {
   progress: SetupProgress;
+  onBack?: () => void;
   onNext: () => void;
 }
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"];
 
 /** Step 1 — About you: name, brand, country (+ optional logo). Updates the auto-provisioned account. */
-const StepAboutYou: React.FC<Props> = ({ progress, onNext }) => {
+const StepAboutYou: React.FC<Props> = ({ progress, onBack, onNext }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const { t } = useTranslation("dashboardLayout");
@@ -173,7 +174,7 @@ const StepAboutYou: React.FC<Props> = ({ progress, onNext }) => {
   return (
     <Box data-testid="gs-step-about">
       <StepHeader
-        eyebrow={t("gs.stepOf", { n: 1, total: 4, defaultValue: "Step {{n}} of {{total}}" })}
+        eyebrow={t("gs.stepOf", { n: 2, total: 5, defaultValue: "Step {{n}} of {{total}}" })}
         title={t("gs.aboutTitle", { defaultValue: "Tell us about you" })}
         subtitle={t("gs.aboutSubtitle", {
           defaultValue: "This appears on your checkout and receipts. You can change it anytime in Settings.",
@@ -397,6 +398,7 @@ const StepAboutYou: React.FC<Props> = ({ progress, onNext }) => {
       </Box>
 
       <StepFooter
+        onBack={onBack}
         primaryLabel={submitting ? t("gs.saving", { defaultValue: "Saving…" }) : t("gs.saveContinue", { defaultValue: "Save and continue" })}
         onPrimary={handleSave}
         primaryLoading={submitting}

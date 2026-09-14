@@ -1,3 +1,38 @@
+# === 2026-09-14 SHIPPED — MANDATORY 2FA + TRUSTED DEVICES + 30-DAY SESSIONS + 2FA RESET ===
+# STATUS: DONE & VERIFIED (testing_agent iteration_177 = 15/15 backend, 100% frontend; hard-wall +
+# wizard enrolment + reset page also self-tested). User decisions (ask_human): 90-day rolling trust,
+# hard wall enforced UI + backend, 24h freeze = payout-wallet ADDRESS changes only, 14-day clock
+# starts on each user's first login after ship, "Remember me" removed (always persistent).
+#
+# SESSIONS: ACCESS/REFRESH = 30 days (services/session/tokens.ts SESSION_DAYS). IdleTimeoutManager
+#   (15-min idle sign-out) DELETED; isPublicPath moved to helpers/publicPaths.ts. Login checkboxes gone;
+#   helpers/authPersistence isSessionOnly() → always false.
+# TRUSTED DEVICES: tbl_trusted_device + HttpOnly cookie dp_device (Path=/api/user, 90d rolling, sha256
+#   hash stored). Set after /2fa/validate, /2fa/verify-setup, /2fa/email/verify. requires2FAChallenge()
+#   skips the challenge when the cookie matches. Endpoints GET/DELETE /api/user/trusted-devices[/:id];
+#   Settings → Profile & Security "Trusted devices" card (Components/Page/Profile/TrustedDevices.tsx).
+# BASELINE FACTOR: User2FA.method 'totp' | 'email' (secret nullable, migration 0031 in
+#   migrations/securityMigrations.ts). Login challenge is method-aware (services/twoFactorChallenge.ts):
+#   email → 6-digit code auto-emailed (preview_otp in pod), TOTP → app/backup code. /2fa/resend (30s).
+#   "Turn off" authenticator = fall back to email codes (disable2FA); enableEmail2FA / resetToEmailFactor.
+# ENFORCEMENT (services/mfaEnforcement.ts): tbl_user.mfa_deadline_at set (now+14d) on first login of an
+#   un-enrolled account (finalizeLogin deferred). GET /api/user/2fa/enforcement. Soft wall = MfaGate
+#   banner + once-per-session interstitial (Containers/Client). Hard wall = non-dismissable EnrollDialog
+#   + requireStepUp answers 403 MFA_ENROLLMENT_REQUIRED (wallets, payouts, API keys, team, brand delete…).
+# ONBOARDING: /get-started has 5 steps; step 1 "secure" (StepSecure.tsx, EnrollPanel). Payouts+ unreachable
+#   until enrolled (WizardShell.isReachable + index.tsx guard). useSetupProgress waits for enforcement.
+# RESET (lost authenticator): TwoFactorLoginDialog → "Lost your authenticator?" → ResetViaEmailPanel →
+#   POST /2fa/reset/request {challenge_token} → email link /auth/reset-2fa?token → POST /2fa/reset/confirm:
+#   method→email + new hashed backup codes, revokeAllUserSessions, revokeAllTrustedDevices,
+#   freezeWalletChanges(24h TTL, `until`), tbl_security_event row, user + ADMIN_EMAIL emails.
+#   Admin Overview "Security events" panel (SecurityEventsPanel.tsx) + POST /admin/security/users/:id/unfreeze.
+# SHARED UI: Components/UI/TwoFactorEnroll/{EnrollPanel,EnrollDialog,AuthenticatorEnroll,EmailCodeEnroll}
+#   (TwoFactorSetupDialog now wraps AuthenticatorEnroll). i18n: en/de/es/fr/nl/pt updated for changed keys.
+# GOTCHA: app uses a custom SWR cache provider → use the BOUND mutate from useSWR (global mutate misses).
+# Regression: backend/tests/test_2fa_mandatory_iter177.py. QA recipe: memory/test_credentials.md §Mandatory 2FA.
+# ============================================================================================
+
+
 # === 2026-09-14 SHIPPED — TAX: Reduced/Zero VAT (+AI auto-detect) & Nexus threshold alerts ===
 # STATUS: DONE & VERIFIED (backend scripts+curl; testing_agent iteration_174 = 100% frontend).
 # Full tax backlog: /app/memory/TAX_IMPLEMENTATION_BACKLOG.md

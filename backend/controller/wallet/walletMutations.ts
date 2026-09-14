@@ -75,7 +75,6 @@ import {
 } from "../../services/blockchainFeeService";
 import { escapeHtml, buildTransactionFilters, invalidateWalletCache } from "./walletShared";
 import { notifyWalletChanges, assertWalletNotFrozen } from "../../services/wallet/walletChangeAlert";
-import { generateOtpCode } from "../../helper/otpGuard";
 
 export const deleteWalletAddress = async (
   req: express.Request,
@@ -188,91 +187,7 @@ export const deleteWalletAddress = async (
 };
 
 // ============================================
-// UPDATE WALLET WITH OTP - Step 1: Send OTP
-// ============================================
-export const sendUpdateWalletOTP = async (
-  req: express.Request,
-  res: express.Response
-) => {
-  const userData = jwt.decode(res.locals.token) as IUserType;
-  try {
-    const { wallet_id, company_id } = req.body;
-
-    if (!wallet_id) {
-      return errorResponseHelper(res, 400, "wallet_id is required!");
-    }
-
-    const user_id = userData.user_id;
-
-    if (await assertWalletNotFrozen(res, user_id)) return;
-
-    // Build where clause with multi-tenant security
-    const whereClause: Record<string, unknown> = {
-      user_id,
-      wallet_id: parseInt(wallet_id),
-    };
-
-    if (company_id) {
-      whereClause.company_id = company_id;
-    }
-
-    // Verify wallet exists and belongs to user
-    const wallet = await userWalletModel.findOne({
-      where: whereClause,
-    });
-
-    if (!wallet || !wallet.dataValues.wallet_address) {
-      return errorResponseHelper(
-        res,
-        404,
-        "Wallet address not found or you don't have permission to update it"
-      );
-    }
-
-    // Generate and send OTP
-    const randomNumberOTP = generateOtpCode();
-    
-    await userModel.update(
-      {
-        verified_otp: randomNumberOTP.toString(),
-        otp_expired: new Date(Date.now() + 5 * 60 * 1000), // 5 minutes
-        otp_currency: wallet.dataValues.wallet_type, // Store currency for validation
-      },
-      {
-        where: { user_id },
-      }
-    );
-
-    // Send OTP email
-    const maskWalletAddr = (a: string) => a ? `${a.substring(0, 8)}...${a.substring(a.length - 6)}` : 'N/A';
-    await sendWalletUpdateOTPEmail(
-      userData.email,
-      userData.name,
-      String(randomNumberOTP),
-      maskWalletAddr(wallet.dataValues.wallet_address),
-      "Pending update",
-      wallet.dataValues.wallet_type
-    );
-
-    walletLogger.info(
-      `Update wallet OTP sent`,
-      { user_id, wallet_id, email: userData.email }
-    );
-
-    return successResponseHelper(res, 200, "OTP sent to your email", {
-      wallet_id: wallet.dataValues.wallet_id,
-      wallet_type: wallet.dataValues.wallet_type,
-      current_address: wallet.dataValues.wallet_address,
-      email: userData.email.replace(/(.{2})(.*)(@.*)/, "$1***$3"),
-    });
-  } catch (e) {
-
-      return handleControllerErrorReturn(res, e, walletLogger, { user_id: userData.user_id, email: userData.email });
-  }
-};
-
-// ============================================
-// UPDATE WALLET WITH OTP - Step 2: Verify and Update
+// UPDATE WALLET (address / name / tag) — step-up gated at the router
 // ============================================
 export const updateWalletWithOTP = async (
   req: express.Request,
@@ -280,10 +195,10 @@ export const updateWalletWithOTP = async (
 ) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
   try {
-    const { wallet_id, company_id, otp, wallet_address, wallet_name, currency, destination_tag } = req.body;
+    const { wallet_id, company_id, wallet_address, wallet_name, currency, destination_tag } = req.body;
 
-    if (!wallet_id || !otp) {
-      return errorResponseHelper(res, 400, "wallet_id and otp are required!");
+    if (!wallet_id) {
+      return errorResponseHelper(res, 400, "wallet_id is required!");
     }
 
     if (!wallet_address && !wallet_name) {
@@ -293,23 +208,6 @@ export const updateWalletWithOTP = async (
     const user_id = userData.user_id;
 
     if (await assertWalletNotFrozen(res, user_id)) return;
-
-    // Verify OTP - ensure string comparison
-    const otpString = String(otp).trim();
-    
-    const user = await userModel.findOne({
-      where: { user_id, verified_otp: otpString },
-    });
-
-    if (!user) {
-      walletLogger.warn(`Invalid OTP attempt`, { user_id, otp_provided: otpString });
-      return errorResponseHelper(res, 400, "Invalid OTP!");
-    }
-
-    // Check OTP expiry
-    if (new Date() > user.dataValues.otp_expired) {
-      return errorResponseHelper(res, 400, "OTP has expired! Please request a new one.");
-    }
 
     // Build where clause
     const whereClause: Record<string, unknown> = {
@@ -345,15 +243,6 @@ export const updateWalletWithOTP = async (
     if (wallet_address) {
       const currencyToValidate = currency || existingWallet.dataValues.wallet_type;
 
-      // Validate OTP currency matches if changing address
-      if (user.dataValues.otp_currency && user.dataValues.otp_currency !== currencyToValidate) {
-        return errorResponseHelper(
-          res,
-          400,
-          `OTP was issued for ${user.dataValues.otp_currency} wallet, but you're trying to update ${currencyToValidate} wallet!`
-        );
-      }
-
       // Validate address format
       let balance;
       if (currencyToValidate === "TRX" || currencyToValidate === "USDT-TRC20") {
@@ -381,18 +270,6 @@ export const updateWalletWithOTP = async (
     await userWalletModel.update(updateData, {
       where: whereClause,
     });
-
-    // Clear OTP
-    await userModel.update(
-      {
-        verified_otp: null,
-        otp_expired: null,
-        otp_currency: null,
-      },
-      {
-        where: { user_id },
-      }
-    );
 
     walletLogger.info(
       `Wallet updated successfully`,
@@ -464,8 +341,4 @@ export const updateWalletWithOTP = async (
       return handleControllerErrorReturn(res, e, walletLogger, { user_id: userData.user_id, email: userData.email });
   }
 };
-
-// ============================================
-// DELETE WALLET WITH OTP - Step 1: Send OTP (For Payment Forwarding Wallets)
-// ============================================
 

@@ -96,7 +96,7 @@ const StepShare: React.FC<Props> = ({ link, companyId, justCreated, onBack, onDo
   return (
     <Box data-testid="gs-step-share">
       <StepHeader
-        eyebrow={t("gs.stepOf", { n: 4, total: 4, defaultValue: "Step {{n}} of {{total}}" })}
+        eyebrow={t("gs.stepOf", { n: 5, total: 5, defaultValue: "Step {{n}} of {{total}}" })}
         title={t("gs.shareTitle", { defaultValue: "Your link is live" })}
         subtitle={t("gs.shareSubtitle", { defaultValue: "Send it to a customer — the payment lands in your wallet and shows up on your dashboard." })}
       />

@@ -1,19 +1,6 @@
 import React, { useEffect, useState } from "react";
-import {
-  Alert,
-  Box,
-  Button,
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  IconButton,
-  InputAdornment,
-  TextField,
-  Typography,
-  useTheme,
-} from "@mui/material";
-import { LockOutlined, Visibility, VisibilityOff } from "@mui/icons-material";
+import { Alert, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, Typography, useTheme } from "@mui/material";
+import { LockOutlined } from "@mui/icons-material";
 import { useTranslation } from "react-i18next";
 import BackupCodesList from "./BackupCodesList";
 import { brandFg } from "@/constants/theme";
@@ -23,11 +10,9 @@ export type ReauthIntent = "disable" | "regenerate";
 interface ReauthDialogProps {
   open: boolean;
   intent: ReauthIntent;
-  /** Accounts without a password confirm with an authenticator / backup code instead. */
-  hasPassword: boolean;
   onClose: () => void;
   /** Performs the action. Resolve with new backup codes (regenerate) or nothing (disable). Throw on failure. */
-  onConfirm: (credential: { password?: string; token?: string }) => Promise<string[] | void>;
+  onConfirm: () => Promise<string[] | void>;
 }
 
 const errMsg = (e: unknown, fallback: string) => {
@@ -35,20 +20,20 @@ const errMsg = (e: unknown, fallback: string) => {
   return err?.response?.data?.message || err?.message || fallback;
 };
 
-/** Password (or current 2FA code) confirmation before disabling 2FA / rotating backup codes. */
-const ReauthDialog: React.FC<ReauthDialogProps> = ({ open, intent, hasPassword, onClose, onConfirm }) => {
+/**
+ * Confirmation before disabling 2FA / rotating backup codes. The identity check
+ * itself is the unified step-up dialog (raised by the axios interceptor on the
+ * backend's 403 STEPUP_REQUIRED) — no password field here anymore.
+ */
+const ReauthDialog: React.FC<ReauthDialogProps> = ({ open, intent, onClose, onConfirm }) => {
   const { t } = useTranslation("profile");
   const theme = useTheme();
-  const [value, setValue] = useState("");
-  const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [newCodes, setNewCodes] = useState<string[] | null>(null);
 
   useEffect(() => {
     if (!open) return;
-    setValue("");
-    setShow(false);
     setError("");
     setNewCodes(null);
     setLoading(false);
@@ -56,28 +41,26 @@ const ReauthDialog: React.FC<ReauthDialogProps> = ({ open, intent, hasPassword, 
 
   const isDisable = intent === "disable";
   const title = isDisable
-    ? t("twoFactor.disableTitle", { defaultValue: "Turn off two-factor authentication?" })
+    ? t("twoFactor.disableTitle", { defaultValue: "Switch to email codes?" })
     : t("twoFactor.regenerateTitle", { defaultValue: "Generate new backup codes" });
   const body = isDisable
-    ? t("twoFactor.disableBody", { defaultValue: "Your account will only be protected by your password. Confirm it's you to continue." })
-    : t("twoFactor.regenerateBody", { defaultValue: "Your current backup codes stop working the moment new ones are created. Confirm it's you to continue." });
-  const fieldLabel = hasPassword
-    ? t("twoFactor.currentPassword", { defaultValue: "Current password" })
-    : t("twoFactor.currentCode", { defaultValue: "Code from your authenticator app" });
+    ? t("twoFactor.disableBodyStepUp", { defaultValue: "Your authenticator app will be removed. A second step stays mandatory, so we'll email you a code when you sign in on a new browser instead. We'll ask you to verify it's you first." })
+    : t("twoFactor.regenerateBodyStepUp", { defaultValue: "Your current backup codes stop working the moment new ones are created. We'll ask you to verify it's you first." });
 
   const submit = async () => {
-    if (!value.trim()) return;
     setLoading(true);
     setError("");
     try {
-      const result = await onConfirm(hasPassword ? { password: value } : { token: value.trim() });
+      const result = await onConfirm();
       if (Array.isArray(result) && result.length) {
         setNewCodes(result);
       } else {
         onClose();
       }
     } catch (e) {
-      setError(errMsg(e, t("twoFactor.reauthFailed", { defaultValue: "We couldn't confirm your identity. Please try again." })));
+      if (!(e as { stepUpCancelled?: boolean })?.stepUpCancelled) {
+        setError(errMsg(e, t("twoFactor.reauthFailed", { defaultValue: "We couldn't confirm your identity. Please try again." })));
+      }
     } finally {
       setLoading(false);
     }
@@ -102,30 +85,7 @@ const ReauthDialog: React.FC<ReauthDialogProps> = ({ open, intent, hasPassword, 
           </>
         ) : (
           <>
-            <Typography sx={{ fontSize: "14px", lineHeight: 1.6, color: theme.palette.text.secondary, mb: 2 }}>{body}</Typography>
-            <TextField
-              fullWidth
-              size="small"
-              autoFocus
-              label={fieldLabel}
-              type={hasPassword && !show ? "password" : "text"}
-              autoComplete={hasPassword ? "current-password" : "one-time-code"}
-              value={value}
-              disabled={loading}
-              onChange={(e) => setValue(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") submit(); }}
-              inputProps={{ "data-testid": "twofa-reauth-input" }}
-              InputProps={hasPassword ? {
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton size="small" onClick={() => setShow((s) => !s)} aria-label="toggle password visibility" edge="end">
-                      {show ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              } : undefined}
-              sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
-            />
+            <Typography data-testid="twofa-reauth-body" sx={{ fontSize: "14px", lineHeight: 1.6, color: theme.palette.text.secondary }}>{body}</Typography>
             {error && (
               <Alert severity="error" data-testid="twofa-reauth-error" sx={{ mt: 1.5, fontSize: "13px" }}>
                 {error}
@@ -159,7 +119,7 @@ const ReauthDialog: React.FC<ReauthDialogProps> = ({ open, intent, hasPassword, 
             <Button
               fullWidth
               onClick={submit}
-              disabled={loading || !value.trim()}
+              disabled={loading}
               data-testid="twofa-reauth-confirm"
               sx={{
                 fontWeight: 600, fontSize: "14px", color: "#FFFFFF", py: "10px", borderRadius: "8px", textTransform: "none",

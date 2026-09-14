@@ -15,8 +15,6 @@ const TAG_CHAINS = ["XRP", "RLUSD"];
 export const isTagChain = (c: string) => TAG_CHAINS.includes(c);
 export const uid = () => `${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
 
-export const SUDO_DEFAULT_TTL = 600;
-
 export const tone = (dark: boolean) => ({
   surface: dark ? "rgba(255,255,255,0.03)" : "#FAFAFC",
   surfaceHover: dark ? "rgba(255,255,255,0.05)" : "#F1F5F9",

@@ -1543,5 +1543,36 @@
     "drop": "Suelta la imagen para subirla",
     "notFile": "Suelta un archivo de imagen de tu ordenador: las imágenes arrastradas desde otros sitios web llegan como enlaces y no se pueden subir.",
     "notImage": "Aquí solo se pueden soltar archivos de imagen (JPG, PNG, GIF, WebP o SVG)."
-  }
+  },
+  "stepUp": {
+    "title": "Verifica que eres tú",
+    "body": "Para {{action}}, confirma que realmente eres tú. Esto desbloquea la acción durante 10 minutos: sin más códigos hasta entonces.",
+    "cancel": "Cancelar",
+    "verify": "Verificar",
+    "sending": "Enviando tu código…",
+    "sentEmail": "Enviamos un código de 6 dígitos por correo a {{contact}}.",
+    "sentSms": "Enviamos un código de 6 dígitos por SMS a {{contact}}.",
+    "yourEmail": "tu correo",
+    "yourPhone": "tu teléfono",
+    "methodTotp": "Autenticador",
+    "methodEmail": "Código por correo",
+    "methodSms": "Mensaje de texto",
+    "methodBackup": "Código de respaldo",
+    "totpLabel": "Código de tu app de autenticación",
+    "backupLabel": "Código de respaldo",
+    "sendFailed": "No pudimos enviar el código. Inténtalo de nuevo.",
+    "statusFailed": "No se pudo iniciar la verificación. Inténtalo de nuevo.",
+    "invalidCode": "Código no válido. Inténtalo de nuevo.",
+    "noMethods": "Añade primero una dirección de correo a tu cuenta: necesitamos dónde enviarte el código de verificación.",
+    "scope": {
+      "apikey": "gestionar las claves API",
+      "wallet": "cambiar las carteras de pago",
+      "brand_delete": "eliminar una marca",
+      "security": "cambiar tu configuración de seguridad",
+      "payout": "cambiar tu configuración de pagos",
+      "team": "cambiar el acceso del equipo",
+      "settlement": "cambiar tu moneda de liquidación"
+    }
+  },
+  "deleteWalletBody": "Estás a punto de eliminar la cartera {{type}}{{address}}. Esta acción es permanente y no se puede deshacer. Primero te pediremos que verifiques que eres tú."
 }

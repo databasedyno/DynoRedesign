@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
 import { trackOnboarding } from "@/utils/trackOnboarding";
 import WizardShell from "./WizardShell";
+import StepSecure from "./StepSecure";
 import StepAboutYou from "./StepAboutYou";
 import StepPayouts from "./StepPayouts";
 import StepFirstLink, { CreatedLink, linkFromRecord } from "./StepFirstLink";
@@ -14,7 +15,7 @@ import { GS_AUTO_OPEN_KEY, SETUP_STEPS, SetupStepKey, useSetupProgress } from ".
 const isStep = (v: unknown): v is SetupStepKey => typeof v === "string" && (SETUP_STEPS as string[]).includes(v);
 
 /**
- * GetStartedWizard — the guided first run (plan 1.18). Four steps driven by
+ * GetStartedWizard — the guided first run (plan 1.18). Five steps driven by
  * the URL (?step=) and resumed from REAL account data; every step can be left
  * with "Do this later" and picked up again from the dashboard hero.
  */
@@ -22,7 +23,7 @@ const GetStartedWizard: React.FC = () => {
   const router = useRouter();
   const { t } = useTranslation("dashboardLayout");
   const progress = useSetupProgress();
-  const { ready, firstIncomplete, hasLink, newestLink, hasWallet } = progress;
+  const { ready, firstIncomplete, hasLink, newestLink, hasWallet, twoFaEnrolled } = progress;
   const [created, setCreated] = useState<CreatedLink | null>(null);
   const [justCreated, setJustCreated] = useState(false);
   const [forceLinkForm, setForceLinkForm] = useState(false);
@@ -53,11 +54,12 @@ const GetStartedWizard: React.FC = () => {
   const current: SetupStepKey = queryStep ?? firstIncomplete;
   const shareLink = useMemo(() => created ?? linkFromRecord(newestLink), [created, newestLink]);
 
-  // Guard: "share" needs a link; "link" needs the wallet gate handled inside the step.
+  // Guards: the money steps (payouts → share) need a second factor first; "share" needs a link.
   useEffect(() => {
     if (!ready || !router.isReady) return;
+    if (!twoFaEnrolled && SETUP_STEPS.indexOf(current) >= SETUP_STEPS.indexOf("payouts")) return void setStep("secure", true);
     if (current === "share" && !shareLink) setStep("link", true);
-  }, [current, shareLink, ready, router.isReady, setStep]);
+  }, [current, shareLink, ready, router.isReady, setStep, twoFaEnrolled]);
 
   const goLater = () => {
     if (typeof window !== "undefined") window.sessionStorage.setItem(GS_AUTO_OPEN_KEY, "1");
@@ -92,7 +94,8 @@ const GetStartedWizard: React.FC = () => {
 
   return (
     <WizardShell progress={progress} current={current} onSelect={(s) => setStep(s)} onLater={goLater}>
-      {current === "about" && <StepAboutYou progress={progress} onNext={goNext} />}
+      {current === "secure" && <StepSecure progress={progress} onNext={goNext} />}
+      {current === "about" && <StepAboutYou progress={progress} onBack={goBack} onNext={goNext} />}
       {current === "payouts" && <StepPayouts progress={progress} onBack={goBack} onNext={goNext} />}
       {current === "link" && (
         <StepFirstLink

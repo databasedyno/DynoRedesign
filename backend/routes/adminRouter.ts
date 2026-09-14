@@ -1,6 +1,7 @@
 import express from "express";
 import adminController from "../controller/adminController";
 import supportInboxController from "../controller/supportInboxController";
+import adminSecurityController from "../controller/adminSecurityController";
 import { adminAuthMiddleware } from "../middleware";
 import adminOrApiKeyMiddleware from "../middleware/adminOrApiKeyMiddleware";
 import { loginRateLimiter } from "../middleware/rateLimitMiddleware";
@@ -99,6 +100,10 @@ adminRouter.post(
   adminAuthMiddleware,
   adminController.unlockUser
 );
+
+// ── Security events (2FA resets, wallet freezes) ─────────────────────────
+adminRouter.get("/security/events", adminAuthMiddleware, adminSecurityController.events);
+adminRouter.post("/security/users/:userId/unfreeze", adminAuthMiddleware, adminSecurityController.unfreeze);
 
 // ── Deleted Brands (7-day soft-delete grace window) ─────────────────────────
 adminRouter.get(

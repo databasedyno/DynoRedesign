@@ -282,7 +282,7 @@ export const registerEmailVerifyOtp = async (req: express.Request, res: express.
     // issue tokens and sign the user in (proceed as usual).
     const existing = await userModel.findOne({ where: { email: emailLower } });
     if (existing) {
-      if (await requires2FAChallenge(res, existing.dataValues.user_id)) return;
+      if (await requires2FAChallenge(res, existing.dataValues.user_id, req)) return;
       const loginData = await getAccessToken(existing.dataValues.user_id);
       const existingAttr = _formatAttribution(req.body?.attribution);
       userLogger.info(`[RegisterEmail] Existing account logged in via OTP: ${emailLower}${existingAttr}`);

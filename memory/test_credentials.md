@@ -62,3 +62,17 @@ Preview URL (THIS pod): https://cred-manager-29.preview.emergentagent.com
 - Render real senders to HTML (nothing sent): cd backend && EMAIL_DUMP_DIR=/tmp/email_dark/html DISABLE_OUTBOUND_EMAIL=true node_modules/.bin/ts-node --transpile-only scripts/render_dark_mode_fixes.ts
 - Screenshot light/dark/gmail-inversion: PLAYWRIGHT_CHROME_EXECUTABLE_PATH=/pw-browsers/chromium_headless_shell-1208/chrome-linux/headless_shell node scripts/qa/email_dark_shots.mjs --in=/tmp/email_dark/html --out=/tmp/email_dark/shots [--assets=http://localhost:8001]
 - Real historical dumps of every template: /app/memory/email_outbox/*.html (EMAIL_DUMP_DIR)
+
+
+## Mandatory 2FA + trusted devices + 30-day sessions (2026-09)
+- Sessions: access/refresh tokens = 30 days; the 15-min idle sign-out and the "Keep me signed in" checkbox are GONE.
+- Login 2nd factor is only asked on a browser WITHOUT the HttpOnly `dp_device` cookie (Path=/api/user, 90 rolling days). Enrolling (any method) or passing /2fa/validate sets the cookie.
+- Login challenge payload: `data.requires_2fa=true, method:'totp'|'email', challenge_token, masked_email?, preview_otp?` (preview_otp only for method=email while DISABLE_OUTBOUND_EMAIL=true). Finish with POST /api/user/2fa/validate {challenge_token, token}. Resend: POST /api/user/2fa/resend {challenge_token} (30s cooldown).
+- Enrolment (authed): TOTP = POST /2fa/setup → /2fa/verify-setup {token}; EMAIL = POST /api/user/2fa/email/start (returns data.preview_otp) → POST /api/user/2fa/email/verify {code} (returns backup_codes).
+- Enforcement: GET /api/user/2fa/enforcement → {enrolled, method, deadline_at, days_left, hard_wall}. Deadline (now+14d) is set on the first login of an un-enrolled user. Hard wall ⇒ every requireStepUp route answers 403 MFA_ENROLLMENT_REQUIRED and the app shows data-testid=mfa-hard-wall. Soft wall UI: data-testid=mfa-soft-banner (+ once-per-session data-testid=mfa-interstitial, sessionStorage key mfa_interstitial_seen).
+- Force a hard wall for QA: `cd /app/backend && node scripts/_pgq.js "update tbl_user_2fa set is_enabled=false where user_id=221; update tbl_user set mfa_deadline_at=now()-interval '1 day' where user_id=221"` (write helper — QA users only!). Restore by enrolling again.
+- Reset flow (public): POST /api/user/2fa/reset/request {challenge_token} → data.preview_token (email off) → page /auth/reset-2fa?token=… → POST /api/user/2fa/reset/confirm {token}. Effects: method→email, all sessions + trusted devices revoked, wallet changes frozen 24h (GET /api/wallet/security/status → frozen/until), tbl_security_event row, ADMIN_EMAIL notified.
+- Admin: GET /api/admin/security/events, POST /api/admin/security/users/:userId/unfreeze; UI panel on /admin (Overview) data-testid=admin-security-events, unfreeze button admin-security-unfreeze-<eventId>.
+- Trusted devices: GET/DELETE /api/user/trusted-devices[/:id]; UI card on Settings → Profile & Security (data-testid=trusted-devices-list, trusted-device-forget-<id>, trusted-devices-forget-all).
+- Wizard /get-started now has 5 steps; step 1 = "secure" (data-testid=gs-step-secure, twofa-method-totp / twofa-method-email). Payouts+ are unreachable until enrolled.
+- Current states: user 221 (qa_minorder_p1b) = enrolled, method=email (login on a fresh browser ⇒ email challenge). user 1 (onarrival21) = NOT enrolled, deadline set 2026-09-28 ⇒ soft banner + wizard step 1.

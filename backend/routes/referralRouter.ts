@@ -2,6 +2,7 @@ import express from 'express';
 import referralController from '../controller/referralController';
 import referralPayoutController from '../controller/referralPayoutController';
 import { authMiddleware } from '../middleware';
+import { requireStepUp } from '../middleware/requireStepUp';
 
 const referralRouter = express.Router();
 
@@ -23,10 +24,11 @@ referralRouter.get('/discount-status', authMiddleware, referralController.getDis
 
 // Revenue-share CASH-OUT (Phase 2 — opt-in USDT-TRC20 via Binance)
 referralRouter.get('/payout/overview', authMiddleware, referralPayoutController.payoutOverview);
-referralRouter.post('/payout/otp', authMiddleware, referralPayoutController.payoutOtp);
-referralRouter.post('/payout/opt-in', authMiddleware, referralPayoutController.payoutOptIn);
-referralRouter.post('/payout/request', authMiddleware, referralPayoutController.payoutRequest);
-referralRouter.post('/payout/auto', authMiddleware, referralPayoutController.payoutAuto);
+// Every payout-method change (mode, address, cash-out request, auto on/off) is
+// step-up gated (scope `payout`) via the unified /api/stepup engine.
+referralRouter.post('/payout/opt-in', authMiddleware, requireStepUp('payout'), referralPayoutController.payoutOptIn);
+referralRouter.post('/payout/request', authMiddleware, requireStepUp('payout'), referralPayoutController.payoutRequest);
+referralRouter.post('/payout/auto', authMiddleware, requireStepUp('payout'), referralPayoutController.payoutAuto);
 referralRouter.get('/payout/history', authMiddleware, referralPayoutController.payoutHistory);
 referralRouter.get('/payout/history/export', authMiddleware, referralPayoutController.payoutHistoryExport);
 

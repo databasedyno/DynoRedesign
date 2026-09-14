@@ -158,5 +158,12 @@
   "sharedAddressTapHint": "Tik om alle wallets met dit adres te markeren",
   "sharedAddressClearHint": "Tik om de markering te wissen",
   "sharedHighlightTitle": "{{n}} wallets delen",
-  "sharedHighlightClear": "Markering wissen"
+  "sharedHighlightClear": "Markering wissen",
+  "editVerifyNotice": "Het wijzigen van het adres vereist een snelle identiteitscontrole.",
+  "addVerifyNotice": "We vragen je te bevestigen dat jij het bent voordat deze wallet wordt opgeslagen.",
+  "stepUpAwaiting": "Bevestig dat jij het bent om uitbetalingswallets te beheren.",
+  "stepUpVerifyNow": "Nu verifiëren",
+  "stepUpCancelled": "Verificatie geannuleerd — je wijzigingen zijn niet opgeslagen.",
+  "sudoEndedBanner": "Verificatie verlopen",
+  "sudoEndedHint": "Bij het opslaan vragen we je opnieuw om te verifiëren."
 }

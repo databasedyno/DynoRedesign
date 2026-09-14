@@ -28,7 +28,11 @@ import { getRedisItem, setRedisItem, setRedisTTL, deleteRedisItem, setRedisItemW
 import { isAccountLocked, recordFailedAttempt, clearFailedAttempts } from "../../services/accountLockoutService";
 import { createSession } from "../../services/sessionService";
 import { finalizeUploadedImage } from "../../services/objectStorage";
-import { is2FARequired, TWO_FA_CHALLENGE_TTL, twoFAChallengeKey } from "../../services/twoFactorService";
+import { getLoginFactor } from "../../services/twoFactorService";
+import { issueLoginChallenge } from "../../services/twoFactorChallenge";
+import { isTrustedDevice } from "../../services/session/trustedDevices";
+import { ensureMfaDeadline } from "../../services/mfaEnforcement";
+import { ACCESS_TOKEN_EXPIRY_SECONDS } from "../../services/session/tokens";
 import { normalizeLang } from "../../utils/emailI18n";
 import { generateOtpCode } from "../../helper/otpGuard";
 import { isUserSoftDeleted, ACCOUNT_DELETED_LOGIN_MESSAGE } from "../../helper/accountDeletion";
@@ -127,26 +131,26 @@ export const generateReferralCode = () => {
  * Only requires email — no password, no name
  */
 
-// ── TOTP 2FA step-up ──────────────────────────────────────────────────────
+// ── Second-factor step-up at sign-in ─────────────────────────────────────
 // After the FIRST factor succeeds (password / email code / SMS / social), an
-// account with TOTP enabled gets a short-lived, single-use challenge token
-// instead of a session. POST /user/2fa/validate consumes it. The raw user_id is
-// never accepted by the validate endpoint (it used to be — see twoFactorController).
-export const issue2FAChallenge = async (res: express.Response, userId: number) => {
-  const challenge = crypto.randomBytes(32).toString("hex");
-  await setRedisItemWithTTL(twoFAChallengeKey(challenge), { user_id: userId, issued_at: Date.now() }, TWO_FA_CHALLENGE_TTL);
-  return successResponseHelper(res, 200, "2FA verification required", {
-    requires_2fa: true,
-    challenge_token: challenge,
-    expires_in: TWO_FA_CHALLENGE_TTL,
-    message: "Enter the 6-digit code from your authenticator app to finish signing in.",
-  });
+// enrolled account gets a short-lived, single-use challenge instead of a
+// session — UNLESS the browser carries a live trusted-device cookie (it passed
+// the second factor within the last 90 days). POST /user/2fa/validate consumes
+// the challenge and, on success, trusts the browser.
+export const issue2FAChallenge = async (res: express.Response, userId: number, method: "totp" | "email") => {
+  const body = await issueLoginChallenge(userId, method);
+  return successResponseHelper(res, 200, "2FA verification required", body);
 };
 
-/** Responds with a 2FA challenge when the account has TOTP enabled. Returns true if it did (caller must return). */
-export const requires2FAChallenge = async (res: express.Response, userId: number): Promise<boolean> => {
-  if (!(await is2FARequired(userId))) return false;
-  await issue2FAChallenge(res, userId);
+/** Responds with a 2FA challenge when needed. Returns true if it did (caller must return). */
+export const requires2FAChallenge = async (res: express.Response, userId: number, req?: express.Request): Promise<boolean> => {
+  const method = await getLoginFactor(userId);
+  if (!method) return false;
+  if (req && (await isTrustedDevice(userId, req))) {
+    userLogger.info(`[2FA] trusted device — challenge skipped for user ${userId}`);
+    return false;
+  }
+  await issue2FAChallenge(res, userId, method);
   return true;
 };
 
@@ -163,8 +167,8 @@ export const finalizeLogin = async (
     return errorResponseHelper(res, 403, ACCOUNT_DELETED_LOGIN_MESSAGE);
   }
 
-  // Check if 2FA is required (TOTP)
-  if (await requires2FAChallenge(res, userData.dataValues.user_id)) return;
+  // Second factor (authenticator or email code) — skipped on a trusted browser.
+  if (await requires2FAChallenge(res, userData.dataValues.user_id, req)) return;
 
   // Parse request context (sync, cheap) — needed for the deferred bookkeeping below.
   const rawIp = req.headers['x-forwarded-for'] as string || req.ip || 'Unknown';
@@ -197,6 +201,9 @@ export const finalizeLogin = async (
   // ── Deferred post-login bookkeeping (runs after the response is flushed) ──
   setImmediate(async () => {
     try {
+      // Mandatory-2FA rollout: start the 14-day grace clock on the first sign-in of an un-enrolled account.
+      await ensureMfaDeadline(userData.dataValues.user_id).catch((e) =>
+        userLogger.error(`${logPrefix} mfa deadline bookkeeping failed: ${(e as Error).message}`));
       // Geo-locate the IP (best-effort, non-blocking)
       let location: string | null = null;
       try {
@@ -351,7 +358,7 @@ export const getAccessToken = async (id: number) => {
 
   if (tokenSecret) {
     const accessToken = jwt.sign(userData, tokenSecret, {
-      expiresIn: "7d", // align auto-login (register / mobile-verify) with 7-day login persistence
+      expiresIn: ACCESS_TOKEN_EXPIRY_SECONDS, // same 30-day persistence as a full login session
     });
     const resData = { userData, accessToken };
     return resData;

@@ -108,5 +108,7 @@
   "walletSecurity_title": "Sécurité des wallets · Dynopay",
   "walletSecurity_desc": "Comment vos wallets de paiement sont protégés, chaque modification apportée et vos appareils connectés.",
   "kyc_title": "Vérification d'identité · Dynopay",
-  "kyc_desc": "Votre statut de vérification, ce dont vous aurez besoin et la durée."
+  "kyc_desc": "Votre statut de vérification, ce dont vous aurez besoin et la durée.",
+  "authReset2fa_title": "Réinitialiser la vérification en deux étapes · Dynopay",
+  "authReset2fa_desc": "Confirmez la suppression de votre application d'authentification et passez aux codes par e-mail."
 }

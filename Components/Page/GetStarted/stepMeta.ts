@@ -3,14 +3,16 @@ import type { SetupStepKey } from "./useSetupProgress";
 type TFunction = (key: string, options?: Record<string, unknown>) => string;
 
 export const STEP_ICON: Record<SetupStepKey, string> = {
+  secure: "shield-check",
   about: "user-round",
   payouts: "wallet",
   link: "link",
   share: "send",
 };
 
-/** Legacy analytics step keys (backend allow-list) for the 4 wizard steps. */
-export const STEP_TRACK_KEY: Record<SetupStepKey, "company" | "wallet" | "link" | "payment"> = {
+/** Analytics step keys for the 5 wizard steps. */
+export const STEP_TRACK_KEY: Record<SetupStepKey, "security" | "company" | "wallet" | "link" | "payment"> = {
+  secure: "security",
   about: "company",
   payouts: "wallet",
   link: "link",
@@ -19,6 +21,8 @@ export const STEP_TRACK_KEY: Record<SetupStepKey, "company" | "wallet" | "link" 
 
 export const stepLabel = (t: TFunction, key: SetupStepKey): string => {
   switch (key) {
+    case "secure":
+      return t("gs.stepSecure", { defaultValue: "Secure your account" });
     case "about":
       return t("gs.stepAbout", { defaultValue: "About you" });
     case "payouts":
@@ -32,6 +36,8 @@ export const stepLabel = (t: TFunction, key: SetupStepKey): string => {
 
 export const stepDesc = (t: TFunction, key: SetupStepKey): string => {
   switch (key) {
+    case "secure":
+      return t("gs.stepSecureDesc", { defaultValue: "Authenticator app or email codes" });
     case "about":
       return t("gs.stepAboutDesc", { defaultValue: "Your name, brand and country" });
     case "payouts":

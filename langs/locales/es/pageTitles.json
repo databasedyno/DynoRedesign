@@ -108,5 +108,7 @@
   "walletSecurity_title": "Seguridad de wallets · Dynopay",
   "walletSecurity_desc": "Cómo se protegen tus wallets de cobro, cada cambio realizado y tus dispositivos conectados.",
   "kyc_title": "Verificación de identidad · Dynopay",
-  "kyc_desc": "Tu estado de verificación, qué necesitas y cuánto tarda."
+  "kyc_desc": "Tu estado de verificación, qué necesitas y cuánto tarda.",
+  "authReset2fa_title": "Restablecer la verificación en dos pasos · Dynopay",
+  "authReset2fa_desc": "Confirma la eliminación de tu app de autenticación y cambia a códigos por correo."
 }

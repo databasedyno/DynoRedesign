@@ -94,82 +94,19 @@ export const changePassword = async (req: express.Request, res: express.Response
 };
 
 
-export const requestPasswordOtp = async (req: express.Request, res: express.Response) => {
-  const userData = jwt.decode(res.locals.token) as IUserType;
-  try {
-    const { channel } = req.body || {};
-    const user = await userModel.findOne({ where: { user_id: userData.user_id } });
-    if (!user) {
-      return errorResponseHelper(res, 404, "User not found");
-    }
-
-    const userEmail = user.dataValues.email;
-    const userPhone = user.dataValues.mobile;
-    const userName = user.dataValues.name || "User";
-
-    if (!userEmail && !userPhone) {
-      return errorResponseHelper(res, 400, "No email or phone on account. Please add one first.");
-    }
-
-    // Use requested channel if provided and available, otherwise prefer email → phone
-    let sentVia = "";
-    if (channel === "phone" && userPhone) {
-      const sent = await sendTelnyxSMS(userPhone);
-      if (!sent) {
-        return errorResponseHelper(res, 503, "Failed to send OTP. Please try again.");
-      }
-      sentVia = "phone";
-    } else if (channel === "email" && userEmail) {
-      const sent = await sendEmailOTP(userEmail, userName, { purpose: 'setPassword' });
-      if (!sent) {
-        return errorResponseHelper(res, 503, "Failed to send OTP. Please try again.");
-      }
-      sentVia = "email";
-    } else if (userEmail) {
-      const sent = await sendEmailOTP(userEmail, userName, { purpose: 'setPassword' });
-      if (!sent) {
-        return errorResponseHelper(res, 503, "Failed to send OTP. Please try again.");
-      }
-      sentVia = "email";
-    } else if (userPhone) {
-      const sent = await sendTelnyxSMS(userPhone);
-      if (!sent) {
-        return errorResponseHelper(res, 503, "Failed to send OTP. Please try again.");
-      }
-      sentVia = "phone";
-    }
-
-    // Store a session marker in Redis so setPasswordWithOtp knows OTP was requested
-    const sessionKey = `password_otp_session:${userData.user_id}`;
-    await setRedisItemWithTTL(sessionKey, { requested: true, via: sentVia }, 600);
-
-    const maskedContact = sentVia === "email"
-      ? userEmail!.replace(/(.{2})(.*)(@.*)/, "$1***$3")
-      : `****${userPhone!.slice(-4)}`;
-
-    return successResponseHelper(res, 200, `Verification code sent to your ${sentVia}`, {
-      sent_via: sentVia,
-      masked_contact: maskedContact,
-    });
-  } catch (e) {
-    handleControllerError(res, e, userLogger);
-  }
-};
-
 /**
- * Set or update password after OTP verification
- * POST /api/user/profile/set-password
- * Verifies OTP and sets the new password
+ * Set or update the account password.
+ * POST /api/user/profile/set-password  { newPassword }
+ * Identity is proven by the `security` step-up session (requireStepUp at the router).
  */
-export const setPasswordWithOtp = async (req: express.Request, res: express.Response) => {
+export const setPassword = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
   try {
-    const { otp, newPassword } = req.body;
-    if (!otp || !newPassword) {
-      return errorResponseHelper(res, 400, "OTP and new password are required");
+    const { newPassword } = req.body;
+    if (!newPassword) {
+      return errorResponseHelper(res, 400, "New password is required");
     }
 
-    // Validate password strength
     const passwordError = validatePasswordStrength(newPassword);
     if (passwordError) {
       return errorResponseHelper(res, 400, passwordError);
@@ -180,97 +117,25 @@ export const setPasswordWithOtp = async (req: express.Request, res: express.Resp
       return errorResponseHelper(res, 404, "User not found");
     }
 
-    // Check the session marker
-    const sessionKey = `password_otp_session:${userData.user_id}`;
-    const session = await getRedisItem(sessionKey);
-    if (!session || !session.requested) {
-      return errorResponseHelper(res, 400, "Please request a verification code first");
-    }
-
-    const sentVia = session.via;
-    let otpValid = false;
-
-    if (sentVia === "email") {
-      const userEmail = user.dataValues.email;
-      const otpKey = `otp:${userEmail}`;
-      const item = await getRedisItem(otpKey);
-      if (!item || !item.otp) {
-        return errorResponseHelper(res, 400, "OTP expired or not found. Please request a new one.");
-      }
-      const createdTime = new Date(item.createdAt);
-      const diff = getMinutesBetweenDates(new Date(), createdTime);
-      if (diff >= 10) {
-        await deleteRedisItem(otpKey);
-        return errorResponseHelper(res, 400, "OTP expired. Please request a new one.");
-      }
-      if (otp !== item.otp) {
-        const locked = await recordOtpFailure(otpKey, item, undefined, { email: user.dataValues.email, ip: clientIp(req), channel: "password_change" });
-        return errorResponseHelper(res, 400, locked ? otpLockedMessage : "Invalid OTP");
-      }
-      await deleteRedisItem(otpKey);
-      otpValid = true;
-    } else if (sentVia === "phone") {
-      const userPhone = user.dataValues.mobile;
-      try {
-        const verifyResponse = await axios.post(
-          `https://api.telnyx.com/v2/verifications/by_phone_number/+${userPhone}/actions/verify`,
-          {
-            code: otp,
-            verify_profile_id: envRaw("TELNYX_VERIFY_PROFILE_ID") || envRaw("PROFILE_ID"),
-          },
-          {
-            headers: {
-              Authorization: "Bearer " + (envRaw("TELNYX_API_KEY") || envRaw("ACCESS_TOKEN")),
-            },
-          }
-        );
-        if (verifyResponse.data?.data?.response_code === "accepted") {
-          otpValid = true;
-        }
-      } catch (otpError) {
-        userLogger.error("Phone OTP verification failed for password set", otpError);
-        return errorResponseHelper(res, 400, "Invalid or expired OTP");
-      }
-    }
-
-    if (!otpValid) {
-      return errorResponseHelper(res, 400, "Invalid or expired OTP");
-    }
-
-    // Set the password
-    const hashedPassword = hashPassword(newPassword);
-    await userModel.update(
-      { password: hashedPassword },
-      { where: { user_id: userData.user_id } }
-    );
-
-    // Clean up session
-    await deleteRedisItem(sessionKey);
+    await userModel.update({ password: hashPassword(newPassword) }, { where: { user_id: userData.user_id } });
 
     // Invalidate profile cache so has_password updates
     await deleteRedisItem(`profile:${userData.user_id}`);
 
-    // Send notification email
     try {
       if (user.dataValues.email) {
         const now = new Date();
         const date = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
         const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-        await emailService.sendPasswordChangedEmail(
-          user.dataValues.email,
-          user.dataValues.name || 'User',
-          date,
-          time
-        );
+        await emailService.sendPasswordChangedEmail(user.dataValues.email, user.dataValues.name || 'User', date, time);
       }
     } catch (emailError) {
-      userLogger.error("[setPasswordWithOtp] Failed to send notification email:", emailError);
+      userLogger.error("[setPassword] Failed to send notification email:", emailError);
     }
 
     const hadPassword = !!user.dataValues.password;
-    const message = hadPassword ? "Password updated successfully!" : "Password set successfully!";
-    userLogger.info(`[setPasswordWithOtp] Password ${hadPassword ? 'updated' : 'set'} for user ${userData.user_id}`);
-    return successResponseHelper(res, 200, message);
+    userLogger.info(`[setPassword] Password ${hadPassword ? 'updated' : 'set'} for user ${userData.user_id}`);
+    return successResponseHelper(res, 200, hadPassword ? "Password updated successfully!" : "Password set successfully!");
   } catch (e) {
     handleControllerError(res, e, userLogger);
   }

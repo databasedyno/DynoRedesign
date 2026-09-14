@@ -411,7 +411,7 @@
     "stepDone": "Erledigt",
     "stepPending": "Warten auf deine erste Zahlung",
     "wizardTitle": "Dynopay einrichten",
-    "wizardSubtitle": "Vier kurze Schritte. Du kannst jederzeit unterbrechen und genau dort weitermachen.",
+    "wizardSubtitle": "Fünf kurze Schritte. Du kannst jederzeit unterbrechen und genau dort weitermachen.",
     "doLater": "Später erledigen",
     "railHint": "Dein Fortschritt wird automatisch gespeichert",
     "stepOf": "Schritt {{n}} von {{total}}",
@@ -498,7 +498,14 @@
     "next3": "Du wirst benachrichtigt und dein Dashboard füllt sich.",
     "goDashboard": "Zum Dashboard",
     "createAnother": "Weiteren Link erstellen",
-    "sidebarTitle": "Erste Schritte"
+    "sidebarTitle": "Erste Schritte",
+    "stepSecure": "Konto absichern",
+    "stepSecureDesc": "Authenticator-App oder E-Mail-Codes",
+    "secureTitle": "Zuerst dein Konto absichern",
+    "secureSubtitle": "Dynopay leitet echtes Geld an deine Wallets weiter, deshalb nutzt jedes Konto die Zwei-Schritt-Verifizierung. Wähle eine Methode — nach einem Code wirst du nur in einem neuen Browser gefragt.",
+    "secureDoneTitle": "Zwei-Schritt-Verifizierung ist aktiv",
+    "secureDoneBody": "Dieser Browser ist 90 Tage vertrauenswürdig. Methoden und vertrauenswürdige Geräte verwaltest du jederzeit unter Einstellungen → Sicherheit.",
+    "secureSavedContinue": "Codes gespeichert — weiter"
   },
   "kycPage": {
     "pageTitle": "Identitätsprüfung",

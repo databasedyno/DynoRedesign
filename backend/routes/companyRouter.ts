@@ -1,9 +1,9 @@
 import express, { RequestHandler } from "express";
 import { companyController } from "../controller";
-import { sendDeleteCompanyOtp } from "../controller/company/deleteCompanyOtp";
 import { companyMiddleware, uploadImage, authMiddleware } from "../middleware";
 import { companyOwnershipMiddleware } from "../middleware/authMiddleware";
 import { requirePermission, requireCompanyOwner } from "../middleware/teamPermissionMiddleware";
+import { requireStepUp } from "../middleware/requireStepUp";
 import { auditMutations } from "../utils/activityLog";
 const companyRouter = express.Router();
 
@@ -44,9 +44,9 @@ companyRouter.put(
 companyRouter.get("/getCompany", authMiddleware, companyController.getCompany);
 companyRouter.get("/getCompany/:id", authMiddleware, companyOwnershipMiddleware, requirePermission("view_dashboard"), companyController.getCompanyById);
 companyRouter.get("/getTransactions/:id", authMiddleware, companyOwnershipMiddleware, requirePermission("view_transactions"), companyController.getTransactions);
-companyRouter.delete("/deleteCompany/:id", authMiddleware, companyOwnershipMiddleware, requireCompanyOwner, companyController.deleteCompany);
-// Brand deletion is OTP-gated: request the emailed code here, then send it as `otp` on the DELETE.
-companyRouter.post("/deleteCompany/:id/send-otp", authMiddleware, companyOwnershipMiddleware, requireCompanyOwner, sendDeleteCompanyOtp);
+// Brand deletion is step-up gated (scope `brand_delete`): the frontend verifies via
+// /api/stepup/brand_delete/* and then issues the DELETE.
+companyRouter.delete("/deleteCompany/:id", authMiddleware, companyOwnershipMiddleware, requireCompanyOwner, requireStepUp("brand_delete"), companyController.deleteCompany);
 
 // TAX ID Validation endpoint
 companyRouter.post("/validateTaxId", authMiddleware, companyController.validateTaxId);
@@ -64,9 +64,9 @@ companyRouter.get("/webhook-history/:id/detail/:logId", authMiddleware, companyO
 companyRouter.post("/webhook-history/:id/resend/:logId", authMiddleware, companyOwnershipMiddleware, requirePermission("manage_company_settings"), companyController.resendWebhookDelivery);
 companyRouter.get("/webhook-stats/:id", authMiddleware, companyOwnershipMiddleware, requirePermission("manage_company_settings"), companyController.getWebhookStats);
 
-// Auto-Stablecoin Conversion settings
+// Auto-Stablecoin Conversion settings (changing the settlement currency is step-up gated)
 companyRouter.get("/auto-convert/:id", authMiddleware, companyOwnershipMiddleware, requirePermission("view_dashboard"), companyController.getAutoConvertSettings);
-companyRouter.put("/auto-convert/:id", authMiddleware, companyOwnershipMiddleware, requirePermission("manage_company_settings"), companyController.updateAutoConvertSettings);
+companyRouter.put("/auto-convert/:id", authMiddleware, companyOwnershipMiddleware, requirePermission("manage_company_settings"), requireStepUp("settlement"), companyController.updateAutoConvertSettings);
 companyRouter.get("/conversion-history/:id", authMiddleware, companyOwnershipMiddleware, requirePermission("view_transactions"), companyController.getConversionHistory);
 companyRouter.get("/conversion-savings/:id", authMiddleware, companyOwnershipMiddleware, requirePermission("view_dashboard"), companyController.getConversionSavings);
 

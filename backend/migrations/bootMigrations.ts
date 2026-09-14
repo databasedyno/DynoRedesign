@@ -1,5 +1,6 @@
 import type { Migration } from "../utils/migrationRunner";
 import { perfMigrations } from "./perfMigrations";
+import { securityMigrations } from "./securityMigrations";
 import { referralMigrations } from "./referralMigrations";
 import { addCompanyMinOrderUsd, addCompanyWebhookSecretRotation } from "./companyColumnMigrations";
 
@@ -541,5 +542,6 @@ export async function buildBootMigrations(): Promise<Migration[]> {  const { v1,
     { version: "0029_product_tax_treatment", up: addProductTaxTreatment },
     { version: "0030_nexus_alert", up: createNexusAlertTable },
     ...perfMigrations,
+    ...securityMigrations,
   ];
 }

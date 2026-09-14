@@ -23,11 +23,10 @@ jest.mock("../models/referralModels/referralPayoutModel", () => ({ __esModule: t
 jest.mock("../integrations/tatum/TatumClient", () => ({ tatumClient: { validateTronAddress: (a: string) => mockValidateTron(a) } }));
 jest.mock("../services/emailService", () => mockEmails);
 jest.mock("../services/referralService", () => ({ getReferrerCommissionSummary: (id: number) => mockSummary(id) }));
-jest.mock("../helper/otpGuard", () => ({ generateOtpCode: () => "123456" }));
 
 import sequelize from "../utils/dbInstance";
 import { redis } from "../utils/redisInstance";
-import { MIN_PAYOUT_USDT, getPayoutOverview, optInPayout, requestPayout, sendPayoutOtp, setAutoPayout } from "../services/referralPayoutService";
+import { MIN_PAYOUT_USDT, getPayoutOverview, optInPayout, requestPayout, setAutoPayout } from "../services/referralPayoutService";
 
 const SAVED = "TTve8v6Y48ChsCTEiCjMRFSbjNtz4mAkxR";
 const NEW_ADDR = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
@@ -105,7 +104,7 @@ describe("optInPayout", () => {
     expect(mockUser.update).not.toHaveBeenCalled();
   });
 
-  it("a wallet already saved on one of the account's brands needs no OTP", async () => {
+  it("a wallet already saved on one of the account's brands is accepted", async () => {
     mockUser.findByPk.mockResolvedValue(user());
     const r = await optInPayout({ userId: 1, mode: "cash", address: SAVED });
     expect(r).toMatchObject({ success: true, mode: "cash", trc20_address: SAVED });
@@ -115,7 +114,7 @@ describe("optInPayout", () => {
     );
   });
 
-  it("re-enabling the address already verified on file needs no OTP", async () => {
+  it("re-enabling the address already verified on file is accepted", async () => {
     (sequelize.query as jest.Mock).mockResolvedValue([]);
     mockUser.findByPk.mockResolvedValue(user({ referral_payout_trc20_address: NEW_ADDR, referral_payout_address_verified_at: new Date() }));
     const r = await optInPayout({ userId: 1, mode: "cash", address: NEW_ADDR });
@@ -123,26 +122,17 @@ describe("optInPayout", () => {
     expect(r.message).toMatch(/re-enabled/i);
   });
 
-  it("a brand-new address requires the e-mailed OTP, bound to that address", async () => {
+  it("a brand-new address is verified + saved (identity comes from the payout step-up session)", async () => {
     (sequelize.query as jest.Mock).mockResolvedValue([]);
     mockUser.findByPk.mockResolvedValue(user());
 
-    const noOtp = await optInPayout({ userId: 1, mode: "cash", address: NEW_ADDR });
-    expect(noOtp).toMatchObject({ success: false, code: "OTP_REQUIRED" });
-    expect(mockUser.update).not.toHaveBeenCalled();
-
-    const sent = await sendPayoutOtp(1, NEW_ADDR);
-    expect(sent.success).toBe(true);
-    expect(mockEmails.sendWithdrawalOTPEmail).toHaveBeenCalled();
-
-    const wrong = await optInPayout({ userId: 1, mode: "cash", address: NEW_ADDR, otp: "000000" });
-    expect(wrong).toMatchObject({ success: false, message: "Incorrect code" });
-
-    const ok = await optInPayout({ userId: 1, mode: "cash", address: NEW_ADDR, otp: "123456" });
+    const ok = await optInPayout({ userId: 1, mode: "cash", address: NEW_ADDR });
     expect(ok).toMatchObject({ success: true, mode: "cash", trc20_address: NEW_ADDR });
-
-    const replay = await optInPayout({ userId: 1, mode: "cash", address: NEW_ADDR, otp: "123456" });
-    expect(replay).toMatchObject({ success: false }); // single-use
+    expect(ok.message).toMatch(/verified/i);
+    expect(mockUser.update).toHaveBeenCalledWith(
+      expect.objectContaining({ referral_payout_mode: "cash", referral_payout_trc20_address: NEW_ADDR }),
+      { where: { user_id: 1 } }
+    );
   });
 });
 
@@ -156,28 +146,23 @@ describe("requestPayout", () => {
     expect(await requestPayout({ userId: 1 })).toMatchObject({ success: false, statusCode: 400, message: /verify a USDT/i });
   });
 
-  it("is OTP-gated and enforces the minimum + one payout in flight", async () => {
+  it("enforces the minimum + one payout in flight", async () => {
     mockUser.findByPk.mockResolvedValue(cashUser());
-    expect(await requestPayout({ userId: 1 })).toMatchObject({ success: false, code: "OTP_REQUIRED" });
-
-    await sendPayoutOtp(1);
     mockSummary.mockResolvedValue({ unpaid_balance_usd: 10, total_credited_usd: 0 });
-    expect(await requestPayout({ userId: 1, otp: "123456" })).toMatchObject({ success: false, message: /at least \$25\.00/ });
+    expect(await requestPayout({ userId: 1 })).toMatchObject({ success: false, message: /at least \$25\.00/ });
     expect(mockPayout.create).not.toHaveBeenCalled();
 
-    await sendPayoutOtp(1);
     mockSummary.mockResolvedValue({ unpaid_balance_usd: 30, total_credited_usd: 0 });
     mockPayout.findOne.mockResolvedValue({ payout_id: 5, status: "pending" });
-    expect(await requestPayout({ userId: 1, otp: "123456" })).toMatchObject({ success: false, statusCode: 409 });
+    expect(await requestPayout({ userId: 1 })).toMatchObject({ success: false, statusCode: 409 });
   });
 
   it("creates ONE pending payout row for the full unpaid balance (no funds move here)", async () => {
     mockUser.findByPk.mockResolvedValue(cashUser());
     mockSummary.mockResolvedValue({ unpaid_balance_usd: 42.5, total_credited_usd: 0 });
     mockPayout.create.mockResolvedValue({ payout_id: 77, requested_at: new Date() });
-    await sendPayoutOtp(1);
 
-    const r = await requestPayout({ userId: 1, otp: "123456", idempotencyKey: "idem-1" });
+    const r = await requestPayout({ userId: 1, idempotencyKey: "idem-1" });
 
     expect(r.success).toBe(true);
     expect(mockPayout.create).toHaveBeenCalledWith(
@@ -188,15 +173,12 @@ describe("requestPayout", () => {
 });
 
 describe("setAutoPayout", () => {
-  it("requires cash mode + verified address, then an OTP; disable never needs one", async () => {
+  it("requires cash mode + verified address; enabling stores the threshold", async () => {
     mockUser.findByPk.mockResolvedValue(user());
     expect(await setAutoPayout({ userId: 1, enabled: true })).toMatchObject({ success: false, statusCode: 400 });
 
     mockUser.findByPk.mockResolvedValue(user({ referral_payout_mode: "cash", referral_payout_trc20_address: SAVED, referral_payout_address_verified_at: new Date() }));
-    expect(await setAutoPayout({ userId: 1, enabled: true })).toMatchObject({ success: false, code: "OTP_REQUIRED" });
-
-    await sendPayoutOtp(1);
-    const on = await setAutoPayout({ userId: 1, enabled: true, autoMinUsd: 60, otp: "123456" });
+    const on = await setAutoPayout({ userId: 1, enabled: true, autoMinUsd: 60 });
     expect(on).toMatchObject({ success: true, auto: true, auto_min_usd: 60 });
 
     const off = await setAutoPayout({ userId: 1, enabled: false });

@@ -185,5 +185,6 @@
   "payoutAvailableCreditDesc": "Reduce automáticamente tu tarifa de Dynopay en tus próximos pagos.",
   "payoutCreditedToDate": "Acreditado hasta la fecha",
   "payoutCreditedToDateDesc": "Total de tarifas ya cubiertas por tus recompensas de referencia.",
-  "payoutMethod": "Método de pago"
+  "payoutMethod": "Método de pago",
+  "payoutWithdrawIntro": "Enviaremos {{amount}} en USDT (TRC-20) a {{address}}. Te pediremos que verifiques que eres tú."
 }

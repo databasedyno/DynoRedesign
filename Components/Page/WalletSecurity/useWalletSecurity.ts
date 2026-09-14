@@ -34,7 +34,7 @@ export const useWalletSecurity = () => {
   const { selectedCompanyId } = useCompanyStore();
   const twoFa = useSWR(API_ENDPOINTS.user.twoFaStatus, () => get<{ enabled: boolean; enabled_at: string | null }>(API_ENDPOINTS.user.twoFaStatus));
   const freeze = useSWR(API_ENDPOINTS.wallet.securityStatus, () => get<{ frozen: boolean; since: string | null; reason: string | null }>(API_ENDPOINTS.wallet.securityStatus));
-  const sudo = useSWR(API_ENDPOINTS.wallet.sudoStatus, () => get<{ active: boolean; expires_at: number | null }>(API_ENDPOINTS.wallet.sudoStatus));
+  const sudo = useSWR(API_ENDPOINTS.stepUp.status("wallet"), () => get<{ active: boolean; expires_at: number | null }>(API_ENDPOINTS.stepUp.status("wallet")));
   const sessions = useSWR("user/sessions", async () => (await get<{ sessions: SessionEntry[] }>("user/sessions"))?.sessions || []);
   const activity = useSWR<WalletActivity[] | "forbidden">(
     selectedCompanyId ? ["team/activity", selectedCompanyId] : null,

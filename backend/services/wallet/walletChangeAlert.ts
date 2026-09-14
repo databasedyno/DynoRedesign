@@ -53,11 +53,11 @@ const genToken = () => crypto.randomBytes(24).toString("hex");
 // ── Freeze state ─────────────────────────────────────────────
 export async function isWalletFrozen(
   user_id: number,
-): Promise<{ frozen: boolean; reason?: string; since?: string }> {
+): Promise<{ frozen: boolean; reason?: string; since?: string; until?: string | null }> {
   try {
     const s = await getRedisItem(freezeKey(user_id));
     if (s && String(s.frozen) === "true") {
-      return { frozen: true, reason: s.reason, since: s.since };
+      return { frozen: true, reason: s.reason, since: s.since, until: s.until ?? null };
     }
   } catch (e) {
     walletLogger.warn(`[walletFreeze] read failed for ${user_id}: ${(e as Error).message}`);
@@ -69,23 +69,27 @@ export async function isWalletFrozen(
 export async function assertWalletNotFrozen(res: Response, user_id: number): Promise<boolean> {
   const s = await isWalletFrozen(user_id);
   if (s.frozen) {
+    const until = s.until ? new Date(s.until) : null;
     res.status(403).json({
       success: false,
       statusCode: 403,
       code: "WALLET_FROZEN",
-      message: "Wallet changes are locked for your security. Please contact support to unlock.",
+      until: s.until ?? null,
+      message: until
+        ? `Wallet changes are locked until ${until.toUTCString()} following a two-step verification reset. Contact support to unlock sooner.`
+        : "Wallet changes are locked for your security. Please contact support to unlock.",
     });
     return true;
   }
   return false;
 }
 
-export async function freezeWalletChanges(user_id: number, reason: string): Promise<void> {
-  await setRedisItem(freezeKey(user_id), {
-    frozen: true,
-    reason,
-    since: new Date().toISOString(),
-  });
+/** Freeze payout-wallet edits. With `ttlSeconds` the lock auto-lifts (e.g. 24h after a 2FA reset). */
+export async function freezeWalletChanges(user_id: number, reason: string, ttlSeconds?: number): Promise<void> {
+  const until = ttlSeconds ? new Date(Date.now() + ttlSeconds * 1000).toISOString() : null;
+  const state = { frozen: true, reason, since: new Date().toISOString(), until };
+  if (ttlSeconds) await setRedisItemWithTTL(freezeKey(user_id), state, ttlSeconds);
+  else await setRedisItem(freezeKey(user_id), state);
   // Kill any active elevated session so an attacker can't keep editing.
   await deleteRedisItem(sudoSessionKey(user_id)).catch(() => undefined);
   walletLogger.warn(`[walletFreeze] wallet changes FROZEN for user ${user_id}: ${reason}`);

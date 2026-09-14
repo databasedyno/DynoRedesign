@@ -182,7 +182,7 @@ const StepFirstLink: React.FC<Props> = ({ progress, onBack, onCreated, onUseExis
   return (
     <Box data-testid="gs-step-link" data-gated={hasWallet ? "false" : "true"}>
       <StepHeader
-        eyebrow={t("gs.stepOf", { n: 3, total: 4, defaultValue: "Step {{n}} of {{total}}" })}
+        eyebrow={t("gs.stepOf", { n: 4, total: 5, defaultValue: "Step {{n}} of {{total}}" })}
         title={t("gs.linkTitle", { defaultValue: "Create your first payment link" })}
         subtitle={t("gs.linkSubtitle", { defaultValue: "Set an amount and say what it's for. The preview shows exactly what your customer will see." })}
       />

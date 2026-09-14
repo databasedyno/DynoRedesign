@@ -158,5 +158,12 @@
   "sharedAddressTapHint": "Tap to highlight every wallet using this address",
   "sharedAddressClearHint": "Tap to clear the highlight",
   "sharedHighlightTitle": "{{n}} wallets share",
-  "sharedHighlightClear": "Clear highlight"
+  "sharedHighlightClear": "Clear highlight",
+  "editVerifyNotice": "Changing the address requires a quick identity check.",
+  "addVerifyNotice": "We'll ask you to verify it's you before this wallet is saved.",
+  "stepUpAwaiting": "Verify it's you to manage payout wallets.",
+  "stepUpVerifyNow": "Verify now",
+  "stepUpCancelled": "Verification cancelled — your changes weren't saved.",
+  "sudoEndedBanner": "Verification ended",
+  "sudoEndedHint": "We'll ask you to verify again when you save."
 }

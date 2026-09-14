@@ -21,9 +21,9 @@
  *   exchange           — exchangeCreate, getExchange
  *   exchangeConfirm    — confirmExchange
  *   analytics          — getUserAnalytics
- *   walletOtp          — updateOtp, validateWallet, ensureLiveApiKey, verifyOtp
- *   walletMutations    — deleteWalletAddress, sendUpdateWalletOTP, updateWalletWithOTP
- *   walletDeleteFlow   — sendDeletePaymentWalletOTP, deletePaymentWalletWithOTP, editWalletAddress
+ *   walletOtp          — validateWallet, ensureLiveApiKey, verifyOtp (step-up gated at router)
+ *   walletMutations    — deleteWalletAddress, updateWalletWithOTP
+ *   walletDeleteFlow   — deletePaymentWalletWithOTP, editWalletAddress
  *   reusableWallets    — getReusableWallets, copyWalletAddresses
  */
 
@@ -45,7 +45,6 @@ export * from "./wallet/walletOtp";
 export * from "./wallet/walletMutations";
 export * from "./wallet/walletDeleteFlow";
 export * from "./wallet/reusableWallets";
-export * from "./wallet/walletSudo";
 
 import { getWallet, getWalletTransactions } from "./wallet/walletRead";
 import { estimateFees, getConfiguredCurrencies, getNetworkFees, calculatePaymentAmount, encryptPayload } from "./wallet/feesEstimates";
@@ -61,16 +60,10 @@ import { exchangeCreate, getExchange } from "./wallet/exchange";
 import { confirmExchange } from "./wallet/exchangeConfirm";
 import { getUserAnalytics } from "./wallet/analytics";
 import { validateWallet, verifyOtp } from "./wallet/walletOtp";
-import { deleteWalletAddress, sendUpdateWalletOTP, updateWalletWithOTP } from "./wallet/walletMutations";
-import { sendDeletePaymentWalletOTP, deletePaymentWalletWithOTP, editWalletAddress } from "./wallet/walletDeleteFlow";
+import { deleteWalletAddress, updateWalletWithOTP } from "./wallet/walletMutations";
+import { deletePaymentWalletWithOTP, editWalletAddress } from "./wallet/walletDeleteFlow";
 import { getReusableWallets, copyWalletAddresses } from "./wallet/reusableWallets";
-import {
-  getWalletSudoStatus,
-  requestWalletSudoOtp,
-  verifyWalletSudoOtp,
-  revokeWalletSudo,
-  batchWalletMutate,
-} from "./wallet/walletSudo";
+import { batchWalletMutate } from "./wallet/walletBatch";
 
 export default {
   getWallet,
@@ -100,20 +93,13 @@ export default {
   getConfiguredCurrencies,
   getNetworkFees,
   calculatePaymentAmount,
-  // New: UPDATE with OTP
-  sendUpdateWalletOTP,
+  // Single-wallet update / delete (step-up gated at the router)
   updateWalletWithOTP,
-  // New: DELETE with OTP (for main table) - using unique names
-  sendDeletePaymentWalletOTP,
   deletePaymentWalletWithOTP,
   encryptPayload,
   // New: reuse wallets across companies
   getReusableWallets,
   copyWalletAddresses,
-  // Full Package: 10-min security session + bulk wallet management
-  getWalletSudoStatus,
-  requestWalletSudoOtp,
-  verifyWalletSudoOtp,
-  revokeWalletSudo,
+  // Bulk wallet management (WalletManagerModal)
   batchWalletMutate,
 };

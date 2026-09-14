@@ -1,6 +1,6 @@
 /**
  * Wallet "Full Package" — bulk add / edit / delete (POST /wallet/batch).
- * Gated by requireWalletSudo (see walletSudo.ts) + company ownership.
+ * Gated by requireStepUp("wallet") (middleware/requireStepUp.ts) + company ownership.
  */
 import express from "express";
 import jwt from "jsonwebtoken";

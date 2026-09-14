@@ -1543,5 +1543,36 @@
     "drop": "Bild hier ablegen zum Hochladen",
     "notFile": "Legen Sie eine Bilddatei von Ihrem Computer ab — aus anderen Websites gezogene Bilder kommen als Links an und können nicht hochgeladen werden.",
     "notImage": "Hier können nur Bilddateien abgelegt werden (JPG, PNG, GIF, WebP oder SVG)."
-  }
+  },
+  "stepUp": {
+    "title": "Bestätige, dass es du bist",
+    "body": "Um {{action}}, bestätige bitte deine Identität. Damit ist die Aktion 10 Minuten lang freigeschaltet – bis dahin keine weiteren Codes.",
+    "cancel": "Abbrechen",
+    "verify": "Bestätigen",
+    "sending": "Code wird gesendet…",
+    "sentEmail": "Wir haben einen 6-stelligen Code an {{contact}} gemailt.",
+    "sentSms": "Wir haben einen 6-stelligen Code per SMS an {{contact}} gesendet.",
+    "yourEmail": "deine E-Mail",
+    "yourPhone": "dein Telefon",
+    "methodTotp": "Authenticator",
+    "methodEmail": "E-Mail-Code",
+    "methodSms": "SMS",
+    "methodBackup": "Backup-Code",
+    "totpLabel": "Code aus deiner Authenticator-App",
+    "backupLabel": "Backup-Code",
+    "sendFailed": "Der Code konnte nicht gesendet werden. Bitte versuche es erneut.",
+    "statusFailed": "Die Verifizierung konnte nicht gestartet werden. Bitte versuche es erneut.",
+    "invalidCode": "Ungültiger Code. Bitte versuche es erneut.",
+    "noMethods": "Füge zuerst eine E-Mail-Adresse zu deinem Konto hinzu – wir brauchen einen Ort, an den wir deinen Bestätigungscode senden können.",
+    "scope": {
+      "apikey": "API-Schlüssel zu verwalten",
+      "wallet": "Auszahlungs-Wallets zu ändern",
+      "brand_delete": "eine Marke zu löschen",
+      "security": "deine Sicherheitseinstellungen zu ändern",
+      "payout": "deine Auszahlungseinstellungen zu ändern",
+      "team": "den Teamzugriff zu ändern",
+      "settlement": "deine Abrechnungswährung zu ändern"
+    }
+  },
+  "deleteWalletBody": "Du bist dabei, die {{type}}-Wallet{{address}} zu entfernen. Diese Aktion ist endgültig und kann nicht rückgängig gemacht werden. Wir bitten dich zuerst, deine Identität zu bestätigen."
 }

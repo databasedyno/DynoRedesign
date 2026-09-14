@@ -32,7 +32,10 @@ const WizardShell: React.FC<Props> = ({ progress, current, onSelect, onLater, ch
 
   const currentIndex = SETUP_STEPS.indexOf(current);
   const firstIncompleteIndex = SETUP_STEPS.indexOf(firstIncomplete);
-  const isReachable = (i: number) => steps[i].done || i <= firstIncompleteIndex || i <= currentIndex;
+  // "Secure your account" gates the money steps: payouts and beyond stay locked until a second factor is enrolled.
+  const secureDone = steps[0]?.done ?? false;
+  const isReachable = (i: number) =>
+    (i < 2 || secureDone) && (steps[i].done || i <= firstIncompleteIndex || i <= currentIndex);
 
   return (
     <Box
@@ -71,7 +74,7 @@ const WizardShell: React.FC<Props> = ({ progress, current, onSelect, onLater, ch
             {t("gs.wizardTitle", { defaultValue: "Set up Dynopay" })}
           </Box>
           <Box sx={{ mt: 0.75, fontFamily: "var(--font-sans)", fontSize: { xs: 13.5, md: 15 }, color: secondary, lineHeight: 1.5 }}>
-            {t("gs.wizardSubtitle", { defaultValue: "Four short steps. Leave anytime — you'll pick up right where you left off." })}
+            {t("gs.wizardSubtitle", { defaultValue: "Five short steps. Leave anytime — you'll pick up right where you left off." })}
           </Box>
         </Box>
         <Box

@@ -284,7 +284,7 @@ const Register = () => {
             });
             const { data, message } = res?.data || {};
             if (data?.requires_2fa) {
-              dispatch({ type: USER_LOGIN_2FA_REQUIRED, payload: { challenge_token: data.challenge_token } });
+              dispatch({ type: USER_LOGIN_2FA_REQUIRED, payload: { challenge_token: data.challenge_token, method: data.method, masked_email: data.masked_email } });
               router.push("/auth/login");
               return;
             }
@@ -483,7 +483,7 @@ const Register = () => {
       const data = response?.data?.data;
       if (data?.requires_2fa) {
         // Existing account with TOTP enabled — finish on the login page's 2FA prompt.
-        dispatch({ type: USER_LOGIN_2FA_REQUIRED, payload: { challenge_token: data.challenge_token } });
+        dispatch({ type: USER_LOGIN_2FA_REQUIRED, payload: { challenge_token: data.challenge_token, method: data.method, masked_email: data.masked_email } });
         router.push("/auth/login");
         return;
       }

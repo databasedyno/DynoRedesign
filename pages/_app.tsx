@@ -107,7 +107,6 @@ import { SWRConfig } from "swr";
 import { localStorageProvider } from "@/utils/swrLocalCache";
 import { CompanyDataProvider } from "@/contexts/CompanyDataContext";
 import { WalletDataProvider } from "@/contexts/WalletDataContext";
-import IdleTimeoutManager from "@/Components/UI/IdleTimeoutManager";
 import SessionRevocationCheck from "@/Components/UI/SessionRevocationCheck";
 import RouteTransitionLoader from "@/Components/Common/RouteTransitionLoader";
 import { createEmotionCache } from "@/utils/createEmotionCache";
@@ -160,6 +159,13 @@ const SupportChatWidget = dynamic(
   () => import("@/Components/Common/SupportChatWidget"),
   { ssr: false, loading: () => null }
 );
+
+// Unified step-up ("Verify it's you") dialog host — serves the axios
+// interceptor + explicit callers for every sensitive action. Client-only.
+const StepUpHost = dynamic(() => import("@/Components/UI/StepUp/StepUpHost"), {
+  ssr: false,
+  loading: () => null,
+});
 
 // -----------------------------
 // Types
@@ -414,6 +420,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
       "/auth/register":            "authRegister",
       "/auth/validateSocialLogin": "authValidateSocialLogin",
       "/auth/secure-account":      "authSecureAccount",
+      "/auth/reset-2fa":           "authReset2fa",
       "/auth/github/callback":     "authGithubCallback",
       "/reset-password":           "resetPassword",
 
@@ -699,9 +706,9 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
           />
         )}
       </Head>
-      <IdleTimeoutManager />
       <SessionRevocationCheck />
       <RouteTransitionLoader />
+      {(resolvedLayout === "client" || resolvedLayout === "none") && <StepUpHost />}
       {renderWithLayout()}
       {(resolvedLayout === "home" || resolvedLayout === "client") && (
         <SupportChatWidget layout={resolvedLayout} />
