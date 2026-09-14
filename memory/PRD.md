@@ -1,3 +1,50 @@
+# === 2026-06 (fork) OPEN ISSUE DOCUMENTED FOR NEXT AGENT — ADMIN TXNS SHOW "$0.00" FOR PENDING (P0) ===
+# STATUS: NOT STARTED (analysis only, per user "document for next agent to fix and end the session").
+#
+# USER BUG: In the Super-Admin panel → Transactions → "Customer payments" tab, the "USD value"
+#   column reads "$0.00" for PENDING rows. Admins read that as "a $0 payment was made", which is
+#   confusing/misleading.
+#
+# ROOT CAUSE (confirmed, NOT a bug in data): usd_value on tbl_user_transaction is only LOCKED at
+#   settlement (fiat rate is captured when the payment settles). For pending/awaiting rows it is
+#   legitimately 0 or NULL. So the DB value is correct — the problem is purely the FRONTEND RENDER:
+#   formatUSD(0) → "$0.00".
+#   ⚠️ DO NOT write a DB backfill to "fix" this. Solve it ONLY on the frontend render layer.
+#
+# EXACT LOCATION: /app/Components/Page/Admin/Transactions/index.tsx line 247-249
+#     <TableCell align="right" ...>{formatUSD(t.usd_value)}</TableCell>
+#   (formatUSD lives in /app/Components/Page/Admin/adminUi.tsx:5 — Number(n)||0, so null/0 → "$0.00".)
+#   The CustomerTx row model (same file, ~line 27) already carries: status, usd_value, base_amount,
+#   base_currency, crypto_amount, crypto_currency. No backend/API change needed — everything required
+#   is already on the row.
+#   NOTE: the "Platform transactions" (self) tab has NO USD value column, so it is NOT affected.
+#
+# RECOMMENDED FIX (option "c" — richest; awaiting user confirm but this is the intended approach):
+#   Add a helper renderUsdValue(t) in Transactions/index.tsx and use it in the USD value cell:
+#     - If the row is a paid/settled state (successful/success/settled/completed/confirmed) → keep
+#       formatUSD(t.usd_value) as today.
+#     - If pending/awaiting/processing AND (!usd_value || usd_value === 0):
+#         * If crypto_currency is a USD-pegged stablecoin (USDT, USDC, DAI, BUSD, TUSD, USDP, GUSD,
+#           PYUSD, FDUSD, RLUSD) → show "≈ {formatUSD(crypto_amount || base_amount)}" (roughly 1:1 USD).
+#         * Else if base_currency === "USD" → show "≈ {formatUSD(base_amount)} (expected)" (order was
+#           priced in USD, so base_amount IS the expected USD).
+#         * Else (volatile coin, no USD priced yet) → show a muted "Pending" chip/text (NOT "$0.00").
+#     - Style the estimate/"Pending" text with color:text.secondary so it's visually distinct from a
+#       locked value.
+#   (Option "d" is identical but falls back to "—" instead of "Pending" — pick per user's answer.)
+#
+# TESTING AFTER FIX: Frontend only (Admin UI). Super-admin login moxxcompany@gmail.com /
+#   Katiekendra123@ at /admin/login → /admin/transactions → "Customer payments" tab, filter chip
+#   "Pending" (data-testid=transactions-filter-pending). Verify no pending row shows "$0.00";
+#   stablecoin/USD-priced rows show "≈ $X", volatile ones show "Pending"/"—". Settled rows unchanged.
+#   NOTE (pod artifact): the screenshot tool often renders these MUI admin pages blank due to
+#   hydration timing — trust a manual Playwright script to stdout or use testing_agent for the
+#   Admin Transactions frontend flow. Set ONLY admin_token in localStorage (NOT the merchant `token`)
+#   or the global CompanyDataProvider fires a merchant call that 401s → redirect to /auth/login.
+# ============================================================================
+
+
+
 # === 2026-06 (fork) PHASE 3 — ADMIN LIVE CONSOLE (P2) SHIPPED & VERIFIED ===
 # Real-time SSE log viewer for admins with severity colours, filters and a health pulse.
 # BACKEND (all lint-clean under the vendored oxlint emergent rules):
