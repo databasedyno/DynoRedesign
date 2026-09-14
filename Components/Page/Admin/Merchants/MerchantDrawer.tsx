@@ -28,6 +28,7 @@ import { useRouter } from "next/router";
 import adminBaseApi from "@/axiosAdmin";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { AdminStatusChip, formatDate, formatUSD, formatCrypto } from "../adminUi";
+import { brandFg } from "@/constants/theme";
 
 export interface Merchant {
   user_id: number;
@@ -294,7 +295,7 @@ const MerchantDrawer: React.FC<{
                     }}
                   >
                     <Box sx={{ minWidth: 0 }}>
-                      <Typography sx={{ fontSize: 13, fontWeight: 600, color: "primary.main" }} noWrap>
+                      <Typography sx={{ fontSize: 13, fontWeight: 600, color: brandFg(theme.palette.mode === "dark") }} noWrap>
                         {co.company_name}
                       </Typography>
                       <Typography sx={{ fontSize: 11.5, color: "text.secondary" }}>

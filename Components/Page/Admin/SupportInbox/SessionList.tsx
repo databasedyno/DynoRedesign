@@ -14,6 +14,7 @@ import {
   SupportAgentRounded,
   PriorityHighRounded,
 } from "@mui/icons-material";
+import { brandFg } from "@/constants/theme";
 
 export interface SupportSession {
   session_id: string;
@@ -168,7 +169,7 @@ const SessionList: React.FC<Props> = ({
                 {isHuman ? (
                   <SupportAgentRounded sx={{ fontSize: 16, color: theme.palette.success.main }} />
                 ) : (
-                  <SmartToyRounded sx={{ fontSize: 16, color: theme.palette.primary.main }} />
+                  <SmartToyRounded sx={{ fontSize: 16, color: brandFg(theme.palette.mode === "dark") }} />
                 )}
                 <Typography
                   sx={{

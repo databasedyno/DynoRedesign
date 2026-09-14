@@ -3,12 +3,13 @@ import WhiteLogo from "@/assets/Icons/home/dynopay-whiteLogo.svg";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
 import TitleDescription from "@/Components/UI/AuthLayout/TitleDescription";
 import TrustStrip from "@/Components/UI/AuthLayout/TrustStrip";
+import AuthBrandPanel from "@/Components/UI/AuthLayout/AuthBrandPanel";
 import PurposePicker from "@/Components/UI/AuthLayout/PurposePicker";
 import type { Vertical } from "@/Components/UI/_shared";
 import { verticalToOnboarding } from "@/helpers/verticalOnboarding";
 import CustomButton from "@/Components/UI/Buttons";
 import { AuthHeaderControls } from "@/Components/UI/AuthLayout/AuthShell";
-import { AuthPageBackground, SplitLayoutWrapper, FormPanel } from "@/Containers/Login/styled";
+import { AuthPageBackground, SplitScreenWrapper, SplitFormColumn, FormPanel } from "@/Containers/Login/styled";
 import useIsMobile from "@/hooks/useIsMobile";
 import CountryPhoneInput from "@/Components/UI/CountryPhoneInput";
 import SocialAuthButtons from "@/Components/Common/SocialAuthButtons";
@@ -562,8 +563,9 @@ const Register = () => {
           so marketing pages don't pay for it). Handler polls for readiness. */}
       <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" />
       <AuthPageBackground>
-        <SplitLayoutWrapper>
-          {/* Form Panel (centered — brand panel dropped in 2025-07 pass) */}
+        <SplitScreenWrapper>
+          <SplitFormColumn>
+          {/* Form Panel */}
           <FormPanel>
             <Box
               sx={{
@@ -1131,10 +1133,14 @@ const Register = () => {
               )}
             </Box>
           </FormPanel>
-          {/* Slim social-proof strip below the card (Coinbase-clean substitute
-              for the removed side marketing panel). */}
-          <TrustStrip />
-        </SplitLayoutWrapper>
+          {/* Trust strip shows below the card on mobile/tablet; on desktop the
+              brand panel to the right carries the social proof instead. */}
+          <Box sx={{ display: { xs: "block", lg: "none" }, width: "100%" }}>
+            <TrustStrip />
+          </Box>
+          </SplitFormColumn>
+          <AuthBrandPanel />
+        </SplitScreenWrapper>
       </AuthPageBackground>
     </>
   );

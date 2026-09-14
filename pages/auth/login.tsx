@@ -11,6 +11,7 @@ import InputField from "@/Components/UI/AuthLayout/InputFields";
 import SocialAuthButtons from "@/Components/Common/SocialAuthButtons";
 import TitleDescription from "@/Components/UI/AuthLayout/TitleDescription";
 import TrustStrip from "@/Components/UI/AuthLayout/TrustStrip";
+import AuthBrandPanel from "@/Components/UI/AuthLayout/AuthBrandPanel";
 import CustomButton from "@/Components/UI/Buttons";
 import CountryPhoneInput from "@/Components/UI/CountryPhoneInput";
 import ForgotPasswordDialog from "@/Components/UI/ForgotPasswordDialog";
@@ -22,7 +23,8 @@ import CustomRadio from "@/Components/UI/RadioGroup";
 import {
   AuthContainer,
   AuthPageBackground,
-  SplitLayoutWrapper,
+  SplitScreenWrapper,
+  SplitFormColumn,
   FormPanel,
   CardWrapper,
 } from "@/Containers/Login/styled";
@@ -1121,8 +1123,9 @@ export default function Login() {
     {/* Google Identity Services — loaded only on this auth page (moved off _document
         so marketing pages don't pay for it). Handlers below poll for readiness. */}
     <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" />
-    <SplitLayoutWrapper>
-      {/* Form Panel (centered) */}
+    <SplitScreenWrapper>
+      <SplitFormColumn>
+      {/* Form Panel */}
       <FormPanel>
       <Box sx={{ width: "100%", maxWidth: 420 }}>
         {/* Top row: Dynopay logo (all breakpoints) + lang/theme controls */}
@@ -1988,10 +1991,14 @@ export default function Login() {
 
       </Box>
       </FormPanel>
-      {/* Slim social-proof strip below the card (Coinbase-clean substitute
-          for the removed side marketing panel). */}
-      <TrustStrip />
-    </SplitLayoutWrapper>
+      {/* Trust strip shows below the card on mobile/tablet; on desktop the
+          brand panel to the right carries the social proof instead. */}
+      <Box sx={{ display: { xs: "block", lg: "none" }, width: "100%" }}>
+        <TrustStrip />
+      </Box>
+      </SplitFormColumn>
+      <AuthBrandPanel />
+    </SplitScreenWrapper>
 
       {/* NOTE (Session 82): Email + SMS OTP modal dialogs removed from the
           initial sign-in flow. Inline OtpInputPanel above replaces both.

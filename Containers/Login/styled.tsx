@@ -54,6 +54,42 @@ export const SplitLayoutWrapper = styled(Box)(({ theme }) => ({
   },
 }));
 
+/** Split-screen wrapper (login + register only): form left, brand panel right on lg+. */
+export const SplitScreenWrapper = styled(Box)(({ theme }) => ({
+  position: "relative",
+  width: "100%",
+  maxWidth: 440,
+  margin: "0 auto",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 0,
+  [theme.breakpoints.up("lg")]: {
+    maxWidth: 1120,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: "72px",
+  },
+  [theme.breakpoints.down("sm")]: {
+    maxWidth: "100%",
+  },
+}));
+
+/** Left column: holds the form card (+ mobile trust strip) in the split view. */
+export const SplitFormColumn = styled(Box)(({ theme }) => ({
+  width: "100%",
+  maxWidth: 440,
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  flexShrink: 0,
+  [theme.breakpoints.up("lg")]: {
+    alignItems: "stretch",
+  },
+}));
+
 /** Clean form card — subtle border in light, subtle raised in dark. */
 export const FormPanel = styled(Box)(({ theme }) => {
   const dark = theme.palette.mode === "dark";

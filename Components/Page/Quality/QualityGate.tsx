@@ -2,6 +2,7 @@ import React from "react";
 import Head from "next/head";
 import { Box, Button, CircularProgress, TextField, Typography } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import { brandFg } from "@/constants/theme";
 
 export const QualityHead = () => (
   <Head>
@@ -39,7 +40,7 @@ export const QualityGate: React.FC<GateProps> = ({ booting, isDark, cardBg, bord
       <QualityHead />
       <Box sx={{ minHeight: "100vh", display: "grid", placeItems: "center", bgcolor: isDark ? "#0B0E11" : "#F8FAFC", p: 2 }}>
         <Box sx={{ width: "100%", maxWidth: 420, p: 4, borderRadius: 3, bgcolor: cardBg, border, textAlign: "center" }}>
-          <LockOutlinedIcon sx={{ fontSize: 40, color: "primary.main", mb: 1 }} />
+          <LockOutlinedIcon sx={{ fontSize: 40, color: brandFg(isDark), mb: 1 }} />
           <Typography sx={{ fontSize: 24, fontWeight: 700, mb: 0.5 }}>Dynopay Quality Center</Typography>
           <Typography sx={{ fontSize: 14, color: "text.secondary", mb: 3 }}>
             Enter the QA passcode to access the end-to-end test plan.

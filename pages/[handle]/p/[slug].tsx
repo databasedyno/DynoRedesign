@@ -18,7 +18,7 @@ import { getCreatorBaseUrl } from "@/helpers/creatorUrl";
 import { resolveMetaLang, shopSeoStrings } from "@/helpers/shopSeoMeta";
 import {
   Box, Container, Typography, Stack, Chip, TextField, IconButton, Divider,
-  MenuItem, Select, FormControl, InputLabel, Button, Alert,
+  MenuItem, Select, FormControl, InputLabel, Button, Alert, useTheme,
 } from "@mui/material";
 import AddRounded from "@mui/icons-material/AddRounded";
 import RemoveRounded from "@mui/icons-material/RemoveRounded";
@@ -28,6 +28,7 @@ import { NextPageWithLayout } from "@/pages/_app";
 import { useCart } from "@/contexts/CartContext";
 import MiniCart, { OPEN_MINICART_EVENT } from "@/Components/Page/Shop/MiniCart";
 import { toFixedStr } from "@/utils/money";
+import { brandFg } from "@/constants/theme";
 
 interface Merchant { handle: string; name: string; avatar?: string | null; accent?: string | null }
 interface Product {
@@ -54,6 +55,7 @@ function formatPrice(cents: number, ccy: string, locale?: string): string {
 const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, variants, siteUrl, metaLang, verified }) => {
   const cart = useCart();
   const router = useRouter();
+  const theme = useTheme();
   const { t, i18n } = useTranslation("landing");
   const locale = i18n.language;
   const fmt = (cents: number) => formatPrice(cents, product.currency, locale);
@@ -303,7 +305,7 @@ const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, var
                     "& ul, & ol": { pl: 2.5, mb: 1.25 }, "& li": { mb: 0.5 },
                     "& h3, & h4, & h5, & h6": { fontWeight: 700, mt: 2, mb: 0.75, lineHeight: 1.3 },
                     "& h3": { fontSize: "1.15rem" }, "& h4": { fontSize: "1.05rem" },
-                    "& a": { color: "primary.main", textDecoration: "underline" },
+                    "& a": { color: brandFg(theme.palette.mode === "dark"), textDecoration: "underline" },
                     "& code": { fontFamily: "var(--font-tech), monospace", fontSize: "0.9em", px: 0.5, py: 0.1, borderRadius: 0.5, bgcolor: "action.hover" },
                     "& blockquote": { m: 0, mb: 1.25, pl: 2, borderLeft: "3px solid", borderColor: "divider", color: "text.secondary" },
                     "& hr": { border: 0, borderTop: "1px solid", borderColor: "divider", my: 2 },

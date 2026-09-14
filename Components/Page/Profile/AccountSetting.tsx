@@ -11,6 +11,7 @@ import { UserAction } from "@/Redux/Actions";
 import { USER_LOGIN, USER_PROFILE_FETCH } from "@/Redux/Actions/UserAction";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { TokenData } from "@/utils/types";
+import { brandFg } from "@/constants/theme";
 import { Icon } from "@/styles/uiKit";
 import { Box, Grid, MenuItem, Select, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
@@ -300,7 +301,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
           <Link
             href="/settings?section=company"
             data-testid="profile-brand-logo-link"
-            style={{ color: theme.palette.primary.main, fontWeight: 600, textDecoration: "none" }}
+            style={{ color: brandFg(theme.palette.mode === "dark"), fontWeight: 600, textDecoration: "none" }}
           >
             {t("brandLogoLink", { ns: "profile", defaultValue: "manage brand logos" })}
           </Link>

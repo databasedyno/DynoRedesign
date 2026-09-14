@@ -6,6 +6,7 @@ import useIsMobile from "@/hooks/useIsMobile";
 import useIdentityVerified from "@/hooks/useIdentityVerified";
 import useTokenData from "@/hooks/useTokenData";
 import { rootReducer } from "@/utils/types";
+import { brandFg } from "@/constants/theme";
 import { fetchGeoDefaults, currencyForCountry } from "@/utils/geoDefaults";
 import {
   CloudUploadRounded,
@@ -478,7 +479,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
                       : "transparent",
                   }}
                 >
-                  <Box sx={{ mt: "1px", color: selected ? "#4F46E5" : theme.palette.text.secondary, flexShrink: 0 }}>
+                  <Box sx={{ mt: "1px", color: selected ? brandFg(theme.palette.mode === "dark") : theme.palette.text.secondary, flexShrink: 0 }}>
                     {opt.icon}
                   </Box>
                   <Box sx={{ minWidth: 0 }}>
@@ -489,7 +490,7 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
                       }}
                     >
                       {opt.title}
-                      {selected && <CheckRounded sx={{ fontSize: 15, color: "#4F46E5" }} />}
+                      {selected && <CheckRounded sx={{ fontSize: 15, color: brandFg(theme.palette.mode === "dark") }} />}
                     </Typography>
                     <Typography
                       sx={{

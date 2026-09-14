@@ -2610,3 +2610,15 @@ Fresh-pod setup completed (env restored from `env.vault.enc`, SAFE MODE vs live 
 
 Verification: `testing_agent` iteration_170 → 100% (26/26 SSR assertions), 0 issues. Tests at `/app/tests/seo_ssr_test.py`. Preview-only until Save to GitHub.
 
+---
+
+## UI Polish Pass — Contrast + Auth Hero + Typography — 2026-09-14
+
+Completed the 3 handed-off tasks from `EMERGENT_LANDING_ADOPTION_PLAN.md` plus the P1 universal refinements (user chose: 3 tasks + P1; login+register hero only; uniform `brandFg`).
+
+1. **Contrast Cleanup (P0) — DONE ✅** Replaced every remaining raw brand FOREGROUND colour (`theme.palette.primary.main` / `"primary.main"` / `#4F46E5` / dark-aware `#A5B4FC` ternaries) with the theme-aware `brandFg(isDark)` helper across ~15 files (auth, admin support inbox/merchant drawer, product editor, profile 2FA, team settings, company/onboarding modals, user menu, docs, storefront product page). `node scripts/check-contrast.mjs` now reports **0 new/grandfathered findings**; `tsc --noEmit` clean; ESLint clean (only pre-existing hook warnings).
+2. **Auth Hero Panel (P1) — DONE ✅** Split-screen sign-in on **login + register only**. New `SplitScreenWrapper` + `SplitFormColumn` styled wrappers (`Containers/Login/styled.tsx`); `Components/UI/AuthLayout/AuthBrandPanel.tsx` rewritten as an indigo→violet aurora gradient panel (animated blobs, glass "Non-custodial…" social-proof badge, glowing headline, bento stat tiles 9/1.5%→0.5%/24/7, coin marquee, pill progress dots). Hidden below the `lg` breakpoint; TrustStrip renders under the form on mobile. Added `brandTrustBadge` key to `langs/locales/en/auth.json` (defaultValue fallback covers other locales). AuthShell (reset-password/secure-account/accept-invite) left as the plain centered card.
+3. **Typography (P1) — VERIFIED ✅** `styles/appTheme.ts` `headingTypography`: h1 `-0.03em`, h2 `-0.025em`. Body = Inter, headings = Manrope. Card/button hover: MuiCard subtle `translateY(-1px)` + shadow in both themes; MuiButton lift scoped to contained/outlined (inline text links stay flat).
+
+Verification: `testing_agent` iteration_171 → **100% frontend** (login+register split hero visible on desktop light+dark, hidden on 390px mobile; 2-step login → /dashboard; dark brand text = #818CF8; Inter body + tight Manrope headings; no console errors). Fixed the one flagged nit (dimmer middle "FEE" bento tile now has a matching dark-mode glow). QA shots: `/app/.screenshots/{login,register}_*_desktop.png`, `login_dark_mobile.png`. Preview-only until **Save to GitHub**.
+

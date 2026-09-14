@@ -40,6 +40,7 @@ import { toShortPayLink, extractPayRef } from "@/helpers/payLinkUrl";
 import { downloadQrPng } from "@/helpers/downloadQrPng";
 import { MONO } from "@/styles/uiKit";
 import { toFixedStr } from "@/utils/money";
+import { brandFg } from "@/constants/theme";
 import LinkCoinsBadge from "./LinkCoinsBadge";
 
 const FIAT_OPTIONS = ["USD", "EUR", "GBP"] as const;
@@ -429,7 +430,7 @@ const QuickCreateLinkPanel = ({
                   fontFamily: "var(--font-sans)",
                   fontSize: 12.5,
                   fontWeight: 700,
-                  color: isDark ? "#A5B4FC" : "#4F46E5",
+                  color: brandFg(isDark),
                   textDecoration: "underline",
                 }}
               >

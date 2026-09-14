@@ -8,6 +8,7 @@ import useSWR from "swr";
 import { Box, Chip, Stack, Typography } from "@mui/material";
 import axiosBaseApi from "@/axiosConfig";
 import { getRuntimeFlags } from "@/helpers/runtimeFlags";
+import { brandFg } from "@/constants/theme";
 
 export const REFUND_STATUS_COLORS: Record<string, { bg: string; fg: string }> = {
   created: { bg: "#E5E7EB", fg: "#4B5563" },
@@ -107,7 +108,7 @@ export const RefundStatusTimeline: React.FC<{ status: string }> = ({ status }) =
                   lineHeight: 1.2,
                   textAlign: "center",
                   fontWeight: active ? 700 : 500,
-                  color: done ? "success.main" : active ? "primary.main" : "text.secondary",
+                  color: (th) => (done ? th.palette.success.main : active ? brandFg(th.palette.mode === "dark") : th.palette.text.secondary),
                 }}
               >
                 {s.label}

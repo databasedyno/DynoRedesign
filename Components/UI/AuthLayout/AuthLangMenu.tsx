@@ -5,6 +5,7 @@ import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import Image, { StaticImageData } from "next/image";
 import { useTranslation } from "react-i18next";
 import { SUPPORTED_LANGUAGES } from "@/helpers/setAppLanguage";
+import { brandFg } from "@/constants/theme";
 
 import unitedStatesFlag from "@/assets/Images/Icons/flags/united-states-flag.png";
 import portugalFlag from "@/assets/Images/Icons/flags/portugal-flag.png";
@@ -82,7 +83,7 @@ const AuthLangMenu: React.FC = () => {
             </Box>
             <Box component="span" sx={{ flex: 1 }}>{LABELS[code]}</Box>
             {code === current && (
-              <ListItemIcon sx={{ minWidth: 0, color: theme.palette.primary.main }}>
+              <ListItemIcon sx={{ minWidth: 0, color: brandFg(theme.palette.mode === "dark") }}>
                 <CheckRoundedIcon fontSize="small" />
               </ListItemIcon>
             )}

@@ -71,8 +71,8 @@ export const DARK = {
   border: "#262E45",
   borderStrong: "#3A4568",
   text: "#F8FAFC",
-  textSecondary: "#A6B0C3",
-  textMuted: "#8B97AC",
+  textSecondary: "#C2C8D2",
+  textMuted: "#9BA1AD",
   /** Solid fills (buttons, active nav) — pairs with white text. */
   accent: "#6366F1",
   accentHover: "#818CF8",

@@ -63,6 +63,21 @@ const PlexMono = localFont({
   fallback: ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "monospace"],
 });
 
+// Inter (self-hosted, latin subset, weights 400/500/600) — the primary UI/body
+// face as of 2026-09-14. Chosen for a cleaner, higher-clarity read on the dark
+// canvas (replaces IBM Plex Sans for body/UI text; Plex Mono stays for money
+// figures, Manrope stays for display headings). Same next/font/local pattern as
+// the others so builds stay network-free.
+const Inter = localFont({
+  src: [
+    { path: "../fonts/Inter-400.woff2", weight: "400", style: "normal" },
+    { path: "../fonts/Inter-500.woff2", weight: "500", style: "normal" },
+    { path: "../fonts/Inter-600.woff2", weight: "600", style: "normal" },
+  ],
+  display: "swap",
+  fallback: ["-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica", "Arial", "sans-serif"],
+});
+
 import type { NextPage } from "next";
 import NextApp, { type AppProps, type AppContext } from "next/app";
 import { useRouter } from "next/router";
@@ -602,9 +617,10 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
     <MuiThemeProvider theme={activeTheme}>
       <CssBaseline />
       <Head>
-        {/* ─── Font CSS variables — Blueprint §1.3: consolidated to Manrope (display),
-             IBM Plex Sans (body/UI), IBM Plex Mono (money/figures). Legacy vars are
-             repointed at the new families so ~1000 existing references update for free. ─── */}
+        {/* ─── Font CSS variables — 2026-09-14: Inter is now the body/UI face
+             (cleaner, higher-clarity read, esp. on the dark canvas). Manrope stays
+             for display headings; IBM Plex Mono stays for money/figures. Plex Sans
+             is retained as a graceful fallback. Legacy vars repoint for free. ─── */}
         {/* MUST be dangerouslySetInnerHTML: a string child of <style> gets HTML-escaped
              by React SSR (" -> &quot;, ' -> &#x27;) and browsers do NOT decode entities
              inside <style>, so every var(--font-*) was invalid until hydration rewrote
@@ -615,13 +631,13 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
           dangerouslySetInnerHTML={{
             __html: `
           :root {
-            --font-sans: ${PlexSans.style.fontFamily}, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-sans: ${Inter.style.fontFamily}, ${PlexSans.style.fontFamily}, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             --font-mono: ${PlexMono.style.fontFamily}, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-            --font-display: "Manrope", "Manrope Fallback", ${PlexSans.style.fontFamily}, -apple-system, sans-serif;
-            --font-hero: "Manrope", "Manrope Fallback", ${PlexSans.style.fontFamily}, -apple-system, sans-serif;
-            --font-body: ${PlexSans.style.fontFamily}, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-display: "Manrope", "Manrope Fallback", ${Inter.style.fontFamily}, ${PlexSans.style.fontFamily}, -apple-system, sans-serif;
+            --font-hero: "Manrope", "Manrope Fallback", ${Inter.style.fontFamily}, ${PlexSans.style.fontFamily}, -apple-system, sans-serif;
+            --font-body: ${Inter.style.fontFamily}, ${PlexSans.style.fontFamily}, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             --font-tech: ${PlexMono.style.fontFamily}, ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
-            --font-inter: ${PlexSans.style.fontFamily}, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-inter: ${Inter.style.fontFamily}, ${PlexSans.style.fontFamily}, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             --font-roboto-mono: ${PlexMono.style.fontFamily}, ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
           }
         `,

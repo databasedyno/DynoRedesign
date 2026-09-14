@@ -1,5 +1,6 @@
 import React from "react";
 import { Box, Chip, Paper, Typography, useTheme } from "@mui/material";
+import { brandFg } from "@/constants/theme";
 
 // ── Formatting helpers (shared across admin monitoring screens) ──────────────
 export const formatUSD = (n: unknown): string => {
@@ -101,7 +102,7 @@ export const StatCard: React.FC<StatCardProps> = ({
   testid,
 }) => {
   const theme = useTheme();
-  const color = accent || theme.palette.primary.main;
+  const color = accent || brandFg(theme.palette.mode === "dark");
   return (
     <Paper
       variant="outlined"

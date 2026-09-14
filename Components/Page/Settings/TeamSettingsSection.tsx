@@ -14,6 +14,7 @@ import { Catalogue, Member, Toast, apiErrorMessage } from "./teamTypes";
 import TeamMemberRow from "./TeamMemberRow";
 import TeamMemberDialog, { useTeamMemberDialog } from "./TeamMemberDialog";
 import { TeamResendDialog, TeamRevokeDialog } from "./TeamSmallDialogs";
+import { brandFg } from "@/constants/theme";
 
 /**
  * Team Members / RBAC — owner-facing management panel (Settings -> Team).
@@ -150,7 +151,7 @@ const TeamSettingsSection: React.FC = () => {
       <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2, flexWrap: "wrap", gap: 1.5 }}>
         <Box>
           <Stack direction="row" alignItems="center" gap={1}>
-            <GroupAddRounded sx={{ fontSize: 22, color: theme.palette.primary.main }} />
+            <GroupAddRounded sx={{ fontSize: 22, color: brandFg(theme.palette.mode === "dark") }} />
             <Typography variant="h6" fontWeight={700}>{t("team.title", { defaultValue: "Team" })}</Typography>
           </Stack>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, maxWidth: 560 }}>

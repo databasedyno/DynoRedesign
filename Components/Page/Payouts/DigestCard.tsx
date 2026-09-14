@@ -7,6 +7,7 @@ import axiosBaseApi from "@/axiosConfig";
 import useApiSWR from "@/hooks/useApiSWR";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { CardSx } from "./payoutsHelpers";
+import { brandFg } from "@/constants/theme";
 
 interface Props {
   cardSx: CardSx;
@@ -68,7 +69,7 @@ const DigestCard: React.FC<Props> = ({ cardSx }) => {
       data-testid="payouts-digest-card"
     >
       <Stack direction="row" alignItems="center" gap={1.25} sx={{ minWidth: 0 }}>
-        <Box sx={{ width: 40, height: 40, borderRadius: 2, display: "grid", placeItems: "center", bgcolor: `${theme.palette.primary.main}1A`, color: theme.palette.primary.main, flexShrink: 0 }}>
+        <Box sx={{ width: 40, height: 40, borderRadius: 2, display: "grid", placeItems: "center", bgcolor: `${theme.palette.primary.main}1A`, color: brandFg(theme.palette.mode === "dark"), flexShrink: 0 }}>
           <MailRounded fontSize="small" />
         </Box>
         <Box sx={{ minWidth: 0 }}>

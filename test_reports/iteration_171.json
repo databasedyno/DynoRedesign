@@ -1,0 +1,26 @@
+{
+  "summary": "Frontend-only visual/layout verification for DynoPay auth split-screen + universal typography/contrast polish. Tested Login (/auth/login) and Register (/auth/register) in light+dark on desktop (1440) and mobile (390), plus 2-step login flow reaching /dashboard. All acceptance criteria pass.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "AuthBrandPanel — desktop dark (login+register)", "issues": ["The '1.5% → 0.5%' fee bento tile and its 'FEE' label look noticeably lower-contrast than the neighbouring '9 / BLOCKCHAINS' and '24/7 / SETTLEMENT' tiles — the middle tile's text nearly fades into the glass background. Verify the tile's foreground token (looks like it's using a very-alpha surface variant while the others are opaque). Minor polish, not a blocker."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Optional: bump text opacity/foreground on the middle bento tile (1.5% → 0.5% FEE) in AuthBrandPanel so it matches the contrast of the other two tiles in dark mode."
+  ],
+  "critical_code_review_comments": [
+    "body font-family stack is polluted with the fallback stack repeated 4x (Inter -> IBM Plex Sans -> system) — likely from stacked emotion/MUI theme merges. It still resolves to Inter first, but consider cleaning up theme typography.fontFamily to a single canonical stack for maintainability."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "100%"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (2-step) — verified working",
+  "seed_data_creation": "None (SAFE MODE, read-only).",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Verified: (a) auth-brand-panel VISIBLE on desktop 1440 for login+register in BOTH light and dark modes; (b) auth-brand-panel HIDDEN on mobile 390 for login+register; (c) mobile login shows the TrustStrip below the form (testid is 'auth-trust-strip', not 'trust-strip'); (d) 2-step login flow works: login-email-input -> 'Continue' -> password-input -> signin-submit-btn -> reaches /dashboard; (e) brand-tinted text in dark mode uses rgb(129,140,248) = #818CF8 exactly as spec (verified on dashboard 'Dashboard', 'Status page', and company name); (f) body font-family resolves to Inter, headings use Manrope with tight negative letter-spacing (h1 = -0.19px at rendered size, matches -0.03em spec); (g) no console errors observed on login/register/dashboard. Only visual nit: middle 'FEE' tile in the AuthBrandPanel bento reads slightly dimmer than the other two tiles in dark mode.",
+  "rca of the issue": "n/a"
+}

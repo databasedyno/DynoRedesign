@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import PopupModal from "@/Components/UI/PopupModal";
 import CustomButton from "@/Components/UI/Buttons";
+import { brandFg } from "@/constants/theme";
 
 /**
  * FirstPaymentCelebrationModal — a one-time, per-brand celebration shown on the
@@ -114,7 +115,7 @@ const FirstPaymentCelebrationModal: React.FC<Props> = ({
             fontWeight: 700,
             letterSpacing: "1.5px",
             textTransform: "uppercase",
-            color: theme.palette.primary.main,
+            color: brandFg(dark),
             mb: 1,
             fontFamily: "var(--font-sans), Urbanist, sans-serif",
           }}

@@ -16,6 +16,7 @@ import OtpInputPanel from "@/Components/UI/OtpInputPanel";
 import axiosBaseApi from "@/axiosConfig";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import BackupCodesList from "./BackupCodesList";
+import { brandFg } from "@/constants/theme";
 
 interface TwoFactorSetupDialogProps {
   open: boolean;
@@ -113,7 +114,7 @@ const TwoFactorSetupDialog: React.FC<TwoFactorSetupDialogProps> = ({ open, onClo
       <DialogContent sx={{ px: "28px", pt: "28px", pb: "12px" }}>
         {step === "scan" ? (
           <>
-            {header(<QrCode2Rounded sx={{ color: "#4F46E5", fontSize: 22 }} />, t("twoFactor.setupTitle", { defaultValue: "Set up two-factor authentication" }))}
+            {header(<QrCode2Rounded sx={{ color: brandFg(theme.palette.mode === "dark"), fontSize: 22 }} />, t("twoFactor.setupTitle", { defaultValue: "Set up two-factor authentication" }))}
             <Typography sx={{ fontSize: "14px", lineHeight: 1.6, color: theme.palette.text.secondary, mb: 2 }}>
               {t("twoFactor.setupBody", { defaultValue: "Scan this QR code with Google Authenticator, 1Password, Authy or any TOTP app, then enter the 6-digit code it shows." })}
             </Typography>

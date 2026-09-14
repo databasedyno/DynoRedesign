@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import axiosBaseApi from "@/axiosConfig";
 import { useSelectedCompanyId } from "@/contexts/CompanyDataContext";
 import useRelativeTime from "@/hooks/useRelativeTime";
+import { brandFg } from "@/constants/theme";
 
 interface Activity {
   id: number;
@@ -60,7 +61,7 @@ const TeamActivityPanel: React.FC = () => {
   return (
     <Box data-testid="team-activity-panel" sx={{ mt: 4 }}>
       <Stack direction="row" alignItems="center" gap={1} sx={{ mb: 1.5 }}>
-        <HistoryRounded sx={{ fontSize: 20, color: theme.palette.primary.main }} />
+        <HistoryRounded sx={{ fontSize: 20, color: brandFg(theme.palette.mode === "dark") }} />
         <Typography variant="h6" fontWeight={700}>
           {t("team.activityTitle", { defaultValue: "Activity" })}
         </Typography>

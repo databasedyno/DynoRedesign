@@ -28,6 +28,7 @@ import {
   BookmarkAddRounded,
 } from "@mui/icons-material";
 import { CANNED_REPLIES } from "./cannedReplies";
+import { brandFg } from "@/constants/theme";
 import {
   EmailTemplate,
   loadEmailTemplates,
@@ -328,7 +329,7 @@ const ConversationPanel: React.FC<Props> = ({
                 {m.content}
                 {m.attachment_url && (
                   <Box sx={{ mt: 0.5 }}>
-                    <a href={m.attachment_url} target="_blank" rel="noreferrer" style={{ color: m.role === "user" ? theme.palette.primary.main : "#fff", fontSize: 12 }}>
+                    <a href={m.attachment_url} target="_blank" rel="noreferrer" style={{ color: m.role === "user" ? brandFg(theme.palette.mode === "dark") : "#fff", fontSize: 12 }}>
                       {m.attachment_name || "attachment"}
                     </a>
                   </Box>

@@ -36,6 +36,7 @@ import {
 import SettingsAccordion from "@/Components/UI/SettingsAccordion";
 import ImageDropTarget from "@/Components/UI/ImageDropTarget";
 import { rootReducer } from "@/utils/types";
+import { brandFg } from "@/constants/theme";
 
 const useLocationData = (
   formValues: { country?: string; state?: string },
@@ -349,7 +350,7 @@ export default function CompanyDetailsSection({
                       <Box
                         sx={{
                           mt: "1px",
-                          color: selected ? "#4F46E5" : theme.palette.text.secondary,
+                          color: selected ? brandFg(theme.palette.mode === "dark") : theme.palette.text.secondary,
                           flexShrink: 0,
                         }}
                       >
@@ -369,7 +370,7 @@ export default function CompanyDetailsSection({
                         >
                           {opt.title}
                           {selected && (
-                            <CheckIcon sx={{ fontSize: 15, color: "#4F46E5" }} />
+                            <CheckIcon sx={{ fontSize: 15, color: brandFg(theme.palette.mode === "dark") }} />
                           )}
                         </Typography>
                         <Typography
@@ -427,7 +428,7 @@ export default function CompanyDetailsSection({
                     : "rgba(79,70,229,0.04)",
               }}
             >
-              <StorefrontRounded sx={{ fontSize: 18, color: "#4F46E5" }} />
+              <StorefrontRounded sx={{ fontSize: 18, color: brandFg(theme.palette.mode === "dark") }} />
               <Typography
                 sx={{
                   fontSize: "13px",
@@ -1375,7 +1376,7 @@ export default function CompanyDetailsSection({
             </ImageDropTarget>
             <Typography
               data-testid="logo-autosave-hint"
-              sx={{ mt: 0.75, fontSize: isMobile ? 9 : 12, color: logoPending ? theme.palette.primary.main : theme.palette.text.secondary, fontWeight: logoPending ? 600 : 400 }}
+              sx={{ mt: 0.75, fontSize: isMobile ? 9 : 12, color: logoPending ? brandFg(theme.palette.mode === "dark") : theme.palette.text.secondary, fontWeight: logoPending ? 600 : 400 }}
             >
               {uploadingLogo
                 ? t("fields.brandLogo.saving", { defaultValue: "Saving…" })

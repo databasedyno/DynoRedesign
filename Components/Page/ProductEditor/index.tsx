@@ -27,6 +27,7 @@ import axiosBaseApi from "@/axiosConfig";
 import { PRICING_CURRENCIES } from "@/utils/pricingCurrencies";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import { toFixedStr } from "@/utils/money";
+import { brandFg } from "@/constants/theme";
 
 const CURRENCY_OPTS = PRICING_CURRENCIES;
 
@@ -1171,7 +1172,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
             data-testid="product-tax-settings-link"
             onClick={() => router.push("/settings?section=tax")}
             sx={{
-              color: "primary.main",
+              color: brandFg(theme.palette.mode === "dark"),
               fontWeight: 600,
               cursor: "pointer",
               width: "fit-content",

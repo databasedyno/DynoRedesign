@@ -1,4 +1,41 @@
 # ============================================================================
+# CURRENT SESSION — 2026-09-14 (b): TYPOGRAPHY CLARITY FIX — INTER + DARK GREYS
+#   User feedback: "text not clean/clear; grey texts appear poor" (dark mode).
+#   Root cause: body/UI font was IBM Plex Sans (reads technical); dark secondary
+#   greys were blue-tinted/muddy (#A6B0C3 / #8B97AC). Frontend-only fix.
+#
+#   WHAT CHANGED (frontend/styling only — NO backend, NO API, NO data):
+#   * NEW self-hosted Inter woff2 (400/500/600) in /app/fonts/Inter-*.woff2.
+#   * pages/_app.tsx — added Inter localFont; repointed --font-sans / --font-body /
+#     --font-inter to Inter (Plex Sans kept as fallback). Manrope still display
+#     headings; IBM Plex Mono still money/figures (unchanged, intentional).
+#   * styles/globals.css — font-feature-settings -> normal (canonical Inter
+#     letterforms) + text-rendering: optimizeLegibility; refreshed stale "Geist"
+#     comment. Dark CSS vars: --text-secondary #A6B0C3->#C2C8D2, --text-tertiary
+#     #71717A->#8C9199 (cleaner/brighter neutral greys).
+#   * constants/theme.ts DARK — textSecondary #A6B0C3->#C2C8D2, textMuted
+#     #8B97AC->#9BA1AD (cascades to MUI dashboard theme + CB_TOKENS greys).
+#   Verified: body font now resolves to __Inter_* (400/500/600 loaded); frontend
+#   compiles clean; login page reads crisper.
+#
+#   TESTING_AGENT — FRONTEND (visual/legibility, SAFE / read-only; do NOT create
+#   or move money, do NOT submit payments). Owner: onarrival21@gmail.com /
+#   Katiekendra123@ (2-step: /auth/login -> login-email-input -> "Continue" ->
+#   input[type=password] -> signin-submit-btn). Force DARK via localStorage
+#   'theme-mode-inapp'='dark' + 'theme-mode-public'='dark' (or the sun/moon toggle).
+#   VERIFY (dark + light, desktop):
+#     1) Body/UI text renders in Inter and is crisp/legible (login, dashboard,
+#        transactions, the top-right AVATAR user/account menu — the surface the
+#        user complained about).
+#     2) Secondary/grey text in dark mode looks clean & readable (not muddy/blue),
+#        good contrast, hierarchy vs white primary preserved.
+#     3) Money/figures still render in monospace (IBM Plex Mono) — unchanged.
+#     4) No console errors; no layout breakage; both themes fine.
+#   Report pass/fail per surface + note any unreadable/low-contrast text.
+# ============================================================================
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-09-14: DARK MODE REDESIGN — PHASE 3 (POLISH / P2)
 #   Frontend-only, token-driven. Env: LIVE PROD DB + REDIS, SAFE MODE. Ref plan:
 #   /app/memory/DARK_MODE_REDESIGN_PLAN.md (Phase 3 now marked DONE).

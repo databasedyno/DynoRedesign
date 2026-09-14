@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { Box, Typography, useTheme } from "@mui/material";
+import { brandFg } from "@/constants/theme";
 import ErrorOutlineRounded from "@mui/icons-material/ErrorOutlineRounded";
 import GroupAddRounded from "@mui/icons-material/GroupAddRounded";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -162,7 +163,7 @@ const AcceptInvitePage = () => {
         />
       ) : info ? (
         <Box data-testid="accept-invite-form" sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          <Box aria-hidden sx={{ width: 48, height: 48, borderRadius: "14px", display: "flex", alignItems: "center", justifyContent: "center", color: theme.palette.primary.main, backgroundColor: theme.palette.mode === "dark" ? "rgba(129,140,248,0.16)" : "rgba(79,70,229,0.08)" }}>
+          <Box aria-hidden sx={{ width: 48, height: 48, borderRadius: "14px", display: "flex", alignItems: "center", justifyContent: "center", color: brandFg(theme.palette.mode === "dark"), backgroundColor: theme.palette.mode === "dark" ? "rgba(129,140,248,0.16)" : "rgba(79,70,229,0.08)" }}>
             <GroupAddRounded fontSize="medium" />
           </Box>
           <TitleDescription
@@ -207,7 +208,7 @@ const AcceptInvitePage = () => {
                   type="button"
                   onClick={() => router.push("/auth/login")}
                   data-testid="accept-invite-forgot-password"
-                  sx={{ border: 0, p: 0, background: "none", cursor: "pointer", font: "inherit", fontWeight: 600, color: theme.palette.primary.main, textDecoration: "underline", textUnderlineOffset: 3 }}
+                  sx={{ border: 0, p: 0, background: "none", cursor: "pointer", font: "inherit", fontWeight: 600, color: brandFg(theme.palette.mode === "dark"), textDecoration: "underline", textUnderlineOffset: 3 }}
                 >
                   {t("acceptInvite.forgotLink", { defaultValue: "Reset it on the login page" })}
                 </Box>

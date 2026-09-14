@@ -34,8 +34,8 @@ const HEADING_FONT = "'Manrope', 'Manrope Fallback', var(--font-hero), var(--fon
 const BODY_FONT = "var(--font-body), 'IBM Plex Sans', var(--font-sans), system-ui, sans-serif";
 const headingTypography = {
   fontFamily: BODY_FONT,
-  h1: { fontFamily: HEADING_FONT, letterSpacing: "-0.02em" },
-  h2: { fontFamily: HEADING_FONT, letterSpacing: "-0.02em" },
+  h1: { fontFamily: HEADING_FONT, letterSpacing: "-0.03em" },
+  h2: { fontFamily: HEADING_FONT, letterSpacing: "-0.025em" },
   h3: { fontFamily: HEADING_FONT, letterSpacing: "-0.015em" },
   h4: { fontFamily: HEADING_FONT, letterSpacing: "-0.01em" },
   h5: { fontFamily: HEADING_FONT },
@@ -135,7 +135,12 @@ const sharedComponents = (isDark: boolean) => ({
         borderRadius: 8,
         fontWeight: 500,
         boxShadow: "none",
+        transition: "background-color .18s ease, box-shadow .2s ease, transform .18s ease, border-color .18s ease",
         "&:hover": { boxShadow: "none" },
+        // Consistent, gentle lift on real (contained/outlined) buttons — inline
+        // text buttons stay flat so they read as links (Adoption Plan Phase 1).
+        "&.MuiButton-contained:hover, &.MuiButton-outlined:hover": { transform: "translateY(-1px)" },
+        "&.Mui-disabled:hover": { transform: "none" },
       },
       ...(isDark
         ? {
@@ -167,10 +172,12 @@ const sharedComponents = (isDark: boolean) => ({
         border: `1px solid ${isDark ? DARK.hairline : "#E2E8F0"}`,
         boxShadow: isDark ? DARK.cardShadow : "0 1px 2px rgba(15,23,42,0.05)",
         borderRadius: RADIUS.card,
-        transition: "box-shadow .2s ease, border-color .2s ease",
-        ...(isDark
-          ? { "&:hover": { boxShadow: DARK.cardShadowHover, borderColor: DARK.hairlineStrong } }
-          : {}),
+        transition: "box-shadow .25s ease, border-color .25s ease, transform .25s ease",
+        // Match the dark hover lift in light too: soft shadow + hairline + a
+        // 1px rise (Adoption Plan Phase 1 — consistent, subtle hover feel).
+        "&:hover": isDark
+          ? { boxShadow: DARK.cardShadowHover, borderColor: DARK.hairlineStrong, transform: "translateY(-1px)" }
+          : { boxShadow: "0 6px 20px rgba(15,23,42,0.10)", borderColor: "#CBD5E1", transform: "translateY(-1px)" },
       },
     },
   },

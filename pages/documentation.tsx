@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useMemo, useEffect, memo } from "react";
 import { Box, Typography, useTheme, useMediaQuery, Grid, Divider, Autocomplete, TextField, InputBase, Fab, Fade } from "@mui/material";
+import { brandFg } from "@/constants/theme";
 import { styled, alpha } from "@mui/material/styles";
 import { useRouter } from "next/router";
 import PublicPageHero from "@/Components/Page/Home/v5/PublicPageHero";
@@ -2220,7 +2221,7 @@ app.post('/webhooks/dynopay', (req, res) => {
                       ].map(([code, http, desc], i, arr) => (
                         <tr key={code} style={{ borderBottom: i < arr.length - 1 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
                           <td style={{ padding: "10px 16px" }}>
-                            <code style={{ fontWeight: 700, color: dk ? "#A5B4FC" : "#4F46E5", fontFamily: "var(--font-tech), monospace" }}>{code}</code>
+                            <code style={{ fontWeight: 700, color: brandFg(dk), fontFamily: "var(--font-tech), monospace" }}>{code}</code>
                           </td>
                           <td style={{ padding: "10px 16px" }}>
                             <code style={{ fontWeight: 700, color: Number(http) >= 500 ? "#EF4444" : "#F59E0B", fontFamily: "var(--font-tech), monospace" }}>{http}</code>

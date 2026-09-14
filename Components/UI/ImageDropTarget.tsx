@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { Icon } from "@iconify/react";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { useImageDrop, DropRejectReason } from "@/hooks/useImageDrop";
+import { brandFg } from "@/constants/theme";
 
 interface Props {
   onFile: (file: File) => void;
@@ -74,7 +75,7 @@ const ImageDropTarget: React.FC<Props> = ({ onFile, disabled, radius = 12, testI
             fontFamily: "var(--font-sans)",
             fontSize: 13.5,
             fontWeight: 700,
-            color: theme.palette.primary.main,
+            color: brandFg(isDark),
             animation: "dpDropIn 140ms ease-out",
             "@keyframes dpDropIn": { from: { opacity: 0, transform: "scale(0.985)" }, to: { opacity: 1, transform: "none" } },
             "@media (prefers-reduced-motion: reduce)": { animation: "none" },

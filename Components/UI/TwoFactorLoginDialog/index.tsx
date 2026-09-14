@@ -15,6 +15,7 @@ import { ShieldOutlined } from "@mui/icons-material";
 import { useTranslation } from "react-i18next";
 import OtpInputPanel from "@/Components/UI/OtpInputPanel";
 import CustomButton from "@/Components/UI/Buttons";
+import { brandFg } from "@/constants/theme";
 
 interface TwoFactorLoginDialogProps {
   open: boolean;
@@ -52,7 +53,7 @@ const TwoFactorLoginDialog: React.FC<TwoFactorLoginDialogProps> = ({ open, loadi
       <DialogContent sx={{ px: "28px", pt: "28px", pb: "12px" }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: "10px", mb: 2 }}>
           <Box sx={{ width: 40, height: 40, borderRadius: "10px", backgroundColor: theme.palette.mode === "dark" ? "rgba(99,102,241,0.18)" : "#EEF2FF", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <ShieldOutlined sx={{ color: "#4F46E5", fontSize: 22 }} />
+            <ShieldOutlined sx={{ color: brandFg(theme.palette.mode === "dark"), fontSize: 22 }} />
           </Box>
           <Typography sx={{ fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: "18px", lineHeight: "100%" }}>
             {t("twoFactor.title", { defaultValue: "Two-factor authentication" })}
@@ -127,7 +128,7 @@ const TwoFactorLoginDialog: React.FC<TwoFactorLoginDialogProps> = ({ open, loadi
           onClick={() => { setMode(mode === "totp" ? "backup" : "totp"); setBackupCode(""); }}
           disabled={loading}
           data-testid="login-2fa-toggle-mode"
-          sx={{ fontSize: "13px", color: "#4F46E5", textTransform: "none", fontWeight: 600 }}
+          sx={{ fontSize: "13px", color: brandFg(theme.palette.mode === "dark"), textTransform: "none", fontWeight: 600 }}
         >
           {mode === "totp"
             ? t("twoFactor.useBackup", { defaultValue: "Use a backup code" })
