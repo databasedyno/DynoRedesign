@@ -16,7 +16,7 @@ Measured against the 2026 standard for a calculation engine (Stripe Tax / Quader
 - **No economic-nexus / registration-threshold monitoring** (US *Wayfair* state thresholds, EU €10,000 pan-EU threshold, national GST thresholds). *(High)*
 - **Only standard rates are applied** — reduced/zero rates and per-jurisdiction product taxability are ignored (a `reduced_rates` column is stored but never read). *(High)*
 - **Single location signal** (IP, or shipping for goods) rather than the **two non-contradictory pieces of evidence with ~10-year retention** the EU requires for B2C digital sales. *(High)*
-- **No filing-ready reporting/exports** (no OSS-return summaries, no per-jurisdiction liability report). *(High)*
+- **No buyer-side VAT/OSS reporting.** An invoice tax-report + CSV *does* exist, but it reports VAT on DynoPay's own **fee invoices** grouped by the **merchant's** country — not the destination VAT/GST the merchant **collected from buyers** (the figures an OSS/VAT return actually needs). *(High)*
 - **No crypto cost-basis / capital-gains records** for merchants who hold rather than auto-convert, and **no 1099-DA / DAC8 / CARF posture** — even though 2026 US final regs explicitly name *digital-asset payment processors (PDAPs)* as brokers. *(Crypto-specific; part Critical for US)*
 
 **Recommended posture:** stay a Tier-1 **calculation & collection engine** (DynoPay computes and collects, the merchant remits). Becoming a **Merchant of Record** (Paddle-style: DynoPay is the legal seller and files/remits) is a much larger legal/strategic move — noted as an option, out of scope here.
@@ -73,9 +73,10 @@ Measured against the 2026 standard for a calculation engine (Stripe Tax / Quader
 
 ### 2.7 Tax API surface
 `GET /api/tax/rate/:countryCode` · `POST /api/tax/validate` · `GET /api/tax/acronyms` · `GET /api/tax/lookup?country=` (`routes/taxRouter.ts`, `controller/taxController.ts`).
+There is **also** an invoice tax-report: `GET /api/invoices/tax-report` (+ `/csv`) in `controller/invoiceController.ts`. **Important:** it aggregates VAT on **DynoPay's own service-fee invoices** (`tbl_invoice`: `total_usd`, `vat_amount`, `vat_rate`) grouped **by the merchant's own country** — it does **not** report the destination VAT/GST the merchant **collected from buyers** at checkout. So it is a fee-invoice report, not a merchant VAT-return / OSS report (see G6).
 
 ### 2.8 What is NOT present today
-No US sales tax, no reduced/zero-rate application, no live VIES in checkout, no nexus/threshold tracking, no filing/OSS reports or exports, no address validation/rooftop sourcing, no marketplace-facilitator handling, and no crypto cost-basis / capital-gains / broker-reporting artefacts.
+No US sales tax, no reduced/zero-rate application, no live VIES in checkout, no nexus/threshold tracking, **no buyer-side (destination) collected-tax report for the merchant's VAT/OSS return** (only the fee-invoice tax-report of §2.7 exists), no address validation/rooftop sourcing, no marketplace-facilitator handling, and no crypto cost-basis / capital-gains / broker-reporting artefacts.
 
 ---
 
@@ -123,7 +124,7 @@ No US sales tax, no reduced/zero-rate application, no live VIES in checkout, no 
 - **G3 — No economic-nexus / threshold monitoring or alerts.** Merchants blow past EU €10k, US *Wayfair*, UK nil-threshold, AU A$75k, etc. with no warning → late registration, back-tax, penalties. *(No tracker exists; the `$10,000` KYC threshold in `helper/kycEnforcement.ts` is AML, not tax.)*
 - **G4 — Only standard rates; reduced/zero rates & product taxability ignored.** `reduced_rates` is fetched and stored (`taxController`, `taxRateModel`) but **never read** by `calculateTax`. E-books, food, kids' items, some services are **over-taxed**; some jurisdictions expect 0%. Category exists but only `exempt` alters the rate.
 - **G5 — Single location signal, no 2-evidence capture/retention.** Fails the EU B2C digital-services evidence standard (two non-contradictory items, 10-year retention). Weakens defensibility of every EU B2C sale.
-- **G6 — No tax reporting / exports.** Merchants must hand-reconcile from raw orders; no OSS-return lines, no per-country/per-state summaries, no CSV. High friction and error-prone — and a missed, low-effort win because the underlying data is **already stored** (§2.6).
+- **G6 — Reporting covers the wrong dataset for VAT returns.** An invoice tax-report + CSV exists (`invoiceController.getTaxReport` / `exportTaxReportCSV`), but it aggregates VAT on **DynoPay's fee invoices** grouped by the **merchant's own country** — not the destination VAT/GST the merchant **collected from buyers** at checkout (stored on `tbl_product_order` / `tbl_user_transaction`). So there is still **no OSS-return-ready, per-destination summary** of collected tax. Low-effort win: the buyer-side data is already stored (§2.6).
 
 ### Medium
 - **G7 — B2B VAT-invoice completeness unverified.** Confirm issued documents meet full VAT-invoice requirements (sequential invoice number, both parties' VAT IDs, tax broken out per rate, reverse-charge legend). Receipts exist; formal VAT-invoice compliance should be validated.
@@ -177,7 +178,7 @@ Priority order = compliance risk × merchant blast-radius.
 | **P0** | C1 1099-DA/PDAP | Commission a **legal determination** of DynoPay's US broker/PDAP status; if in scope, design the 1099-DA data pipeline from the settlement data you already keep. | **Build** the data pipeline; **buy** the legal opinion. |
 | **P1** | G3 Nexus alerts | Add **threshold monitoring**: per-merchant rolling counters for EU €10k, each US state's Wayfair test, UK/AU/etc., with "you're approaching / you've crossed — you may need to register" alerts. A bought tax engine includes this for US; EU/GST can be a light in-house tracker over data you already store. | **Buy** (US, via engine) **+ Build** (EU/GST tracker). |
 | **P1** | G4 Reduced rates / taxability | **Consume `reduced_rates`** (already stored) and add a category→rate map so `digital/physical/service` resolve to the right reduced/zero rate per jurisdiction. For breadth beyond EU, defer to the tax engine. | **Build** (EU/simple) **+ Buy** (long tail). |
-| **P1** | G6 Reporting/OSS | Ship **filing-ready reports** off the persisted tax fields: OSS return lines, per-country VAT summary, per-US-state liability, CSV/PDF export. Low effort, high merchant love. | **Build** — data already exists. |
+| **P1** | G6 Reporting/OSS | **Extend the existing tax-report to the buyer-side collected tax** (group by **destination**, not merchant country): OSS return lines, per-country VAT summary, per-US-state liability, CSV/PDF. The buyer-side data is already persisted. | **Build** — data already exists. |
 | **P1** | C3 Crypto Tax Pack | Ship the merchant income + realised-gain/cost-basis export (§5.5). Differentiator. | **Build**. |
 | **P2** | G5 Evidence | Capture a **second** location signal (e.g. IP country + declared/billing country or payment-network hint), flag contradictions, and **retain 10 years**. | **Build**. |
 | **P2** | G9 Sub-national | Model CA (GST+PST/QST) and IN slabs — or let the tax engine own these countries. | **Buy** preferred. |
