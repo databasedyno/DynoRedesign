@@ -882,6 +882,11 @@
     }
   },
   "order": {
+    "progress": {
+      "placed": "Aufgegeben",
+      "paid": "Bezahlt",
+      "delivered": "Geliefert"
+    },
     "notFound": "Bestellung nicht gefunden.",
     "label": "Bestellung",
     "soldBy": "Verkauft von",

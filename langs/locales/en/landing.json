@@ -882,6 +882,11 @@
     }
   },
   "order": {
+    "progress": {
+      "placed": "Placed",
+      "paid": "Paid",
+      "delivered": "Delivered"
+    },
     "notFound": "Order not found.",
     "label": "Order",
     "soldBy": "Sold by",

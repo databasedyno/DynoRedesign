@@ -882,6 +882,11 @@
     }
   },
   "order": {
+    "progress": {
+      "placed": "Geplaatst",
+      "paid": "Betaald",
+      "delivered": "Geleverd"
+    },
     "notFound": "Bestelling niet gevonden.",
     "label": "Bestelling",
     "soldBy": "Verkocht door",

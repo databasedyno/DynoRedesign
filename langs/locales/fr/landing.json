@@ -882,6 +882,11 @@
     }
   },
   "order": {
+    "progress": {
+      "placed": "Passée",
+      "paid": "Payée",
+      "delivered": "Livrée"
+    },
     "notFound": "Commande introuvable.",
     "label": "Commande",
     "soldBy": "Vendu par",

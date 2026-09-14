@@ -17,8 +17,9 @@ import MerchantTrustRow from "@/Components/UI/MerchantTrustRow";
 import { formatDateTimeI18n } from "@/utils/formatDate";
 import { GetServerSideProps } from "next";
 import {
-  Box, Container, Typography, Stack, Chip, Divider, Alert, Button, LinearProgress,
+  Box, Container, Typography, Stack, Chip, Divider, Alert, Button, LinearProgress, useTheme,
 } from "@mui/material";
+import { Icon } from "@iconify/react";
 import LaunchRounded from "@mui/icons-material/LaunchRounded";
 import ContentCopyRounded from "@mui/icons-material/ContentCopyRounded";
 import DownloadRounded from "@mui/icons-material/DownloadRounded";
@@ -84,6 +85,76 @@ const STATUS_COLORS: Record<string, { bg: string; fg: string }> = {
   underpaid:{ bg: "#FDE68A", fg: "#78350F" },
   refunded: { bg: "#FEE2E2", fg: "#991B1B" },
   refund_requested: { bg: "#FEE2E2", fg: "#991B1B" },
+};
+
+/**
+ * Order lifecycle progress — Placed → Paid → Delivered. Mirrors the checkout's
+ * step timeline so a buyer landing on /order/<ref> sees the same clear visual
+ * progression instead of only a status chip. Rendered on the happy path
+ * (pending / paid); terminal-negative states keep the chip + human line.
+ * Localized via `order.progress.*` (all 6 locales).
+ */
+const OrderProgress: React.FC<{
+  paid: boolean;
+  delivered: boolean;
+  t: (k: string, o?: Record<string, unknown>) => string;
+}> = ({ paid, delivered, t }) => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+  const done = "#16A34A";
+  const active = "#F59E0B";
+  const muted = isDark ? "#64748B" : "#94A3B8";
+  const line = isDark ? "rgba(255,255,255,0.12)" : "#E2E8F0";
+  type StepState = "done" | "active" | "upcoming";
+  const steps: Array<{ label: string; state: StepState }> = [
+    { label: t("order.progress.placed", { defaultValue: "Placed" }), state: "done" },
+    { label: t("order.progress.paid", { defaultValue: "Paid" }), state: paid ? "done" : "active" },
+    {
+      label: t("order.progress.delivered", { defaultValue: "Delivered" }),
+      state: delivered ? "done" : paid ? "active" : "upcoming",
+    },
+  ];
+  const colorFor = (s: StepState) => (s === "done" ? done : s === "active" ? active : muted);
+  return (
+    <Box
+      data-testid="order-progress-timeline"
+      sx={{ display: "flex", alignItems: "center", mb: 2.5, maxWidth: 460 }}
+    >
+      {steps.map((step, i) => {
+        const c = colorFor(step.state);
+        return (
+          <React.Fragment key={i}>
+            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0.5, minWidth: 64 }}>
+              <Box
+                sx={{
+                  width: 22, height: 22, borderRadius: "50%",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  border: `2px solid ${c}`,
+                  backgroundColor: step.state === "done" ? done : "transparent",
+                  ...(step.state === "active"
+                    ? {
+                        animation: "orderPulse 1.5s ease-in-out infinite",
+                        "@keyframes orderPulse": { "0%,100%": { opacity: 1 }, "50%": { opacity: 0.5 } },
+                      }
+                    : {}),
+                }}
+              >
+                {step.state === "done"
+                  ? <Icon icon="mdi:check" width={14} color="#FFFFFF" />
+                  : <Box sx={{ width: 7, height: 7, borderRadius: "50%", backgroundColor: c }} />}
+              </Box>
+              <Typography sx={{ fontSize: 11, fontWeight: step.state === "upcoming" ? 500 : 700, color: step.state === "upcoming" ? muted : theme.palette.text.primary }}>
+                {step.label}
+              </Typography>
+            </Box>
+            {i < steps.length - 1 && (
+              <Box sx={{ flex: 1, height: 2, mx: 0.5, mb: 2.25, borderRadius: 1, backgroundColor: steps[i].state === "done" ? done : line }} />
+            )}
+          </React.Fragment>
+        );
+      })}
+    </Box>
+  );
 };
 
 const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrder, siteUrl }) => {
@@ -391,6 +462,15 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
             }),
           })}
         </Typography>
+
+        {/* Order lifecycle timeline (Placed → Paid → Delivered) — happy path only. */}
+        {(order.payment_status === "pending" || order.payment_status === "paid") && (
+          <OrderProgress
+            paid={order.payment_status === "paid"}
+            delivered={order.fulfillment_status === "fulfilled" || order.fulfillment_status === "delivered"}
+            t={t}
+          />
+        )}
 
         {polling && (
           <Alert severity="info" sx={{ mb: 2 }} data-testid="order-polling">
