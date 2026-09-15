@@ -1,0 +1,60 @@
+{
+  "route": "/auth/signup",
+  "violations": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "nodes": [
+        {
+          "target": ".mui-174xrq4-MuiTypography-root",
+          "html": "<span class=\"MuiTypography-root MuiTypography-body1 mui-174xrq4-MuiTypography-root\">Powered by<!-- --> <span class=\"MuiTypography-root MuiTypography-body1 mui-1",
+          "msg": "Element has insufficient color contrast of 2.87 (foreground color: #959596, background color: #fafafc, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+        }
+      ],
+      "count": 1
+    },
+    {
+      "id": "landmark-one-main",
+      "impact": "moderate",
+      "help": "Document should have one main landmark",
+      "nodes": [
+        {
+          "target": "html",
+          "html": "<html lang=\"en\" data-theme=\"light\" style=\"color-scheme: light; --dp-lang-bar: 0px;\">",
+          "msg": "Document does not have a main landmark"
+        }
+      ],
+      "count": 1
+    },
+    {
+      "id": "region",
+      "impact": "moderate",
+      "help": "All page content should be contained by landmarks",
+      "nodes": [
+        {
+          "target": ".mui-1e6te3t",
+          "html": "<a class=\"MuiBox-root mui-1e6te3t\" href=\"https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com\" aria-label=\"Dynopay home\">",
+          "msg": "Some page content is not contained by landmarks"
+        },
+        {
+          "target": "h1",
+          "html": "<h1 class=\"MuiTypography-root MuiTypography-body1 mui-18qs77l-MuiTypography-root\">This page isn't available</h1>",
+          "msg": "Some page content is not contained by landmarks"
+        },
+        {
+          "target": ".mui-185uuh1-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-185uuh1-MuiTypography-root\">The page you're looking for may have been moved, unpublished, or no longer exis",
+          "msg": "Some page content is not contained by landmarks"
+        },
+        {
+          "target": ".mui-174xrq4-MuiTypography-root",
+          "html": "<span class=\"MuiTypography-root MuiTypography-body1 mui-174xrq4-MuiTypography-root\">Powered by<!-- --> <span class=\"MuiTypography-root MuiTypography-body1 mui-1",
+          "msg": "Some page content is not contained by landmarks"
+        }
+      ],
+      "count": 4
+    }
+  ],
+  "focus": []
+}

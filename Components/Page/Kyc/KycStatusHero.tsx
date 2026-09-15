@@ -56,7 +56,7 @@ const KycStatusHero: React.FC<Props> = ({ view, loading, data, daysRemaining, bl
   const c = copy[view];
 
   return (
-    <PanelCard showHeaderBorder={false}>
+    <PanelCard showHeaderBorder={false} bodySx={{ p: { xs: 2, md: 2.5 } }}>
       <Box data-testid="kyc-status-hero" data-view={view} sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "auto 1fr auto" }, gap: { xs: 2, md: 3 }, alignItems: "center" }}>
         <Box sx={{ width: 64, height: 64, borderRadius: "18px", display: "flex", alignItems: "center", justifyContent: "center", color: accent, backgroundColor: `${accent}1A`, border: `1px solid ${accent}44`, flexShrink: 0 }}>
           {loading ? <Skeleton variant="circular" width={32} height={32} /> : <Icon name={c.icon} size={30} />}

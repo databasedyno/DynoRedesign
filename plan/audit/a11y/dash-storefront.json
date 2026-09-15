@@ -1,0 +1,98 @@
+{
+  "route": "/storefront",
+  "violations": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "nodes": [
+        {
+          "target": ".mui-15byu8o > .mui-y3yme5.MuiBox-root[data-testid=\"creator-live-preview\"] > .mui-1vltm2l.MuiBox-root > .mui-6c9avl-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-6c9avl-MuiTypography-root\">@devhub</p>",
+          "msg": "Element has insufficient color contrast of 1.53 (foreground color: #00e5ff, background color: #ffffff, font size: 9.4pt (12.5px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": ".mui-11rq7qz-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-11rq7qz-MuiTypography-root\">Live</p>",
+          "msg": "Element has insufficient color contrast of 1.95 (foreground color: #22c55e, background color: #e0f1ed, font size: 7.1pt (9.5px), font weight: bold). Expected contrast ratio of 4.5:1"
+        }
+      ],
+      "count": 2
+    },
+    {
+      "id": "label",
+      "impact": "critical",
+      "help": "Form elements must have labels",
+      "nodes": [
+        {
+          "target": "span[data-testid=\"support-widget-enabled-switch\"] > .PrivateSwitchBase-input.MuiSwitch-input.mui-1p3z7et-MuiSwitchBase-root",
+          "html": "<input class=\"PrivateSwitchBase-input MuiSwitch-input mui-1p3z7et-MuiSwitchBase-root\" type=\"checkbox\">",
+          "msg": "Element does not have an implicit (wrapped) <label>   Element does not have an explicit <label>"
+        },
+        {
+          "target": "span[data-testid=\"support-widget-allow-message\"] > .PrivateSwitchBase-input.MuiSwitch-input.mui-1p3z7et-MuiSwitchBase-root",
+          "html": "<input class=\"PrivateSwitchBase-input MuiSwitch-input mui-1p3z7et-MuiSwitchBase-root\" type=\"checkbox\" checked=\"\">",
+          "msg": "Element does not have an implicit (wrapped) <label>   Element does not have an explicit <label>"
+        },
+        {
+          "target": "span[data-testid=\"support-widget-show-supporters\"] > .PrivateSwitchBase-input.MuiSwitch-input.mui-1p3z7et-MuiSwitchBase-root",
+          "html": "<input class=\"PrivateSwitchBase-input MuiSwitch-input mui-1p3z7et-MuiSwitchBase-root\" type=\"checkbox\" checked=\"\">",
+          "msg": "Element does not have an implicit (wrapped) <label>   Element does not have an explicit <label>"
+        },
+        {
+          "target": "span[data-testid=\"support-widget-show-wall\"] > .PrivateSwitchBase-input.MuiSwitch-input.mui-1p3z7et-MuiSwitchBase-root",
+          "html": "<input class=\"PrivateSwitchBase-input MuiSwitch-input mui-1p3z7et-MuiSwitchBase-root\" type=\"checkbox\">",
+          "msg": "Element does not have an implicit (wrapped) <label>   Element does not have an explicit <label>"
+        },
+        {
+          "target": "span[data-testid=\"public-analytics-switch\"] > .PrivateSwitchBase-input.MuiSwitch-input.mui-1p3z7et-MuiSwitchBase-root",
+          "html": "<input class=\"PrivateSwitchBase-input MuiSwitch-input mui-1p3z7et-MuiSwitchBase-root\" type=\"checkbox\" checked=\"\">",
+          "msg": "Element does not have an implicit (wrapped) <label>   Element does not have an explicit <label>"
+        },
+        {
+          "target": "span[data-testid=\"store-enabled-switch\"] > .PrivateSwitchBase-input.MuiSwitch-input.mui-1p3z7et-MuiSwitchBase-root",
+          "html": "<input class=\"PrivateSwitchBase-input MuiSwitch-input mui-1p3z7et-MuiSwitchBase-root\" type=\"checkbox\" checked=\"\">",
+          "msg": "Element does not have an implicit (wrapped) <label>   Element does not have an explicit <label>"
+        },
+        {
+          "target": "span[data-testid=\"show-products-switch\"] > .PrivateSwitchBase-input.MuiSwitch-input.mui-1p3z7et-MuiSwitchBase-root",
+          "html": "<input class=\"PrivateSwitchBase-input MuiSwitch-input mui-1p3z7et-MuiSwitchBase-root\" type=\"checkbox\" checked=\"\">",
+          "msg": "Element does not have an implicit (wrapped) <label>   Element does not have an explicit <label>"
+        },
+        {
+          "target": "span[data-testid=\"creator-enabled-switch\"] > .PrivateSwitchBase-input.MuiSwitch-input.mui-1p3z7et-MuiSwitchBase-root",
+          "html": "<input class=\"PrivateSwitchBase-input MuiSwitch-input mui-1p3z7et-MuiSwitchBase-root\" type=\"checkbox\">",
+          "msg": "Element does not have an implicit (wrapped) <label>   Element does not have an explicit <label>"
+        }
+      ],
+      "count": 8
+    },
+    {
+      "id": "region",
+      "impact": "moderate",
+      "help": "All page content should be contained by landmarks",
+      "nodes": [
+        {
+          "target": ".mui-mwmxi-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-mwmxi-MuiTypography-root\" data-testid=\"mfa-soft-banner-text\">Two-step verification becomes required on Sep ",
+          "msg": "Some page content is not contained by landmarks"
+        }
+      ],
+      "count": 1
+    },
+    {
+      "id": "select-name",
+      "impact": "critical",
+      "help": "Select element must have an accessible name",
+      "nodes": [
+        {
+          "target": "select",
+          "html": "<select class=\"MuiBox-root mui-cz5o1c\" data-testid=\"support-widget-currency\">",
+          "msg": "Element does not have an implicit (wrapped) <label>   Element does not have an explicit <label>"
+        }
+      ],
+      "count": 1
+    }
+  ],
+  "focus": []
+}

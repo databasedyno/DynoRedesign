@@ -1,0 +1,55 @@
+{
+  "route": "/pay-links/products/new",
+  "violations": [
+    {
+      "id": "button-name",
+      "impact": "critical",
+      "help": "Buttons must have discernible text",
+      "nodes": [
+        {
+          "target": ".mui-1jcahcf-MuiButtonBase-root-MuiIconButton-root",
+          "html": "<button class=\"MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium mui-1jcahcf-MuiButtonBase-root-MuiIconButton-root\" tabindex=\"0\" type=\"button\" data",
+          "msg": "Element does not have inner text that is visible to screen readers   aria-label attribute does not exist or is empty"
+        }
+      ],
+      "count": 1
+    },
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "nodes": [
+        {
+          "target": ".MuiTypography-noWrap",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 MuiTypography-noWrap mui-vni1ji-MuiTypography-root\">The Dev Store · Shop</p>",
+          "msg": "Element has insufficient color contrast of 2.56 (foreground color: #a1a1aa, background color: #ffffff, font size: 7.9pt (10.5px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": ".mui-owc1ds-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-owc1ds-MuiTypography-root\" data-testid=\"product-live-preview-title\">Your product title</p>",
+          "msg": "Element has insufficient color contrast of 2.56 (foreground color: #a1a1aa, background color: #ffffff, font size: 12.8pt (17px), font weight: bold). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": ".mui-1qipn7o-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-1qipn7o-MuiTypography-root\">",
+          "msg": "Element has insufficient color contrast of 2.56 (foreground color: #a1a1aa, background color: #ffffff, font size: 7.9pt (10.5px), font weight: normal). Expected contrast ratio of 4.5:1"
+        }
+      ],
+      "count": 3
+    },
+    {
+      "id": "region",
+      "impact": "moderate",
+      "help": "All page content should be contained by landmarks",
+      "nodes": [
+        {
+          "target": ".mui-mwmxi-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-mwmxi-MuiTypography-root\" data-testid=\"mfa-soft-banner-text\">Two-step verification becomes required on Sep ",
+          "msg": "Some page content is not contained by landmarks"
+        }
+      ],
+      "count": 1
+    }
+  ],
+  "focus": []
+}

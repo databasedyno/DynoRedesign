@@ -205,6 +205,8 @@ const AuthBrandPanel = () => {
 
   return (
     <Box
+      component="aside"
+      aria-label="Dynopay"
       data-testid="auth-brand-panel"
       sx={{
         position: "relative",

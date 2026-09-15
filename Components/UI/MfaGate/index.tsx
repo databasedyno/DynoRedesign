@@ -69,6 +69,8 @@ const MfaGate: React.FC = () => {
     <>
       {!bannerHidden && (
       <Box
+        component="aside"
+        aria-label="Two-step verification notice"
         data-testid="mfa-soft-banner"
         sx={{
           display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2, flexWrap: "wrap",

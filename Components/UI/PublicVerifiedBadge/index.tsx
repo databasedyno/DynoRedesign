@@ -59,7 +59,7 @@ const PublicVerifiedBadge: React.FC<PublicVerifiedBadgeProps> = ({
           lineHeight: showLabel ? 1.2 : 0,
           flexShrink: 0,
           ...(showLabel && {
-            color: "#12B76A",
+            color: "var(--dp-verified-fg, #027A48)",
             fontSize: 13,
             fontWeight: 600,
             fontFamily: "var(--font-sans)",

@@ -56,7 +56,7 @@ const AuthShell: React.FC<AuthShellProps> = ({ title, trustStrip = true, brand =
   );
 
   const formCard = (
-    <FormPanel>
+    <FormPanel component="main">
       <Box sx={{ width: "100%", maxWidth: 420 }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
           <Image

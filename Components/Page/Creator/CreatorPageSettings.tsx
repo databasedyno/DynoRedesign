@@ -856,6 +856,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
             checked={swEnabled}
             onChange={(e) => setSwEnabled(e.target.checked)}
             data-testid="support-widget-enabled-switch"
+                inputProps={{ "aria-label": "Enable tips widget" }}
             sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
           />
         </Box>
@@ -999,6 +1000,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
                 <Typography sx={labelSx}>{t("storefront.form.currency", { defaultValue: "Currency" })}</Typography>
                 <Box
                   component="select"
+                  aria-label={t("storefront.form.currency", { defaultValue: "Currency" })}
                   data-testid="support-widget-currency"
                   value={swCurrency}
                   onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSwCurrency(e.target.value)}
@@ -1069,6 +1071,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
                 checked={swAllowMessage}
                 onChange={(e) => setSwAllowMessage(e.target.checked)}
                 data-testid="support-widget-allow-message"
+                inputProps={{ "aria-label": "Allow supporter message" }}
                 sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
               />
             </Box>
@@ -1078,6 +1081,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
                 checked={swShowSupporters}
                 onChange={(e) => setSwShowSupporters(e.target.checked)}
                 data-testid="support-widget-show-supporters"
+                inputProps={{ "aria-label": "Show supporter count" }}
                 sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
               />
             </Box>
@@ -1090,6 +1094,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
                 checked={swShowWall}
                 onChange={(e) => setSwShowWall(e.target.checked)}
                 data-testid="support-widget-show-wall"
+                inputProps={{ "aria-label": "Supporter wall" }}
                 sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
               />
             </Box>
@@ -1114,6 +1119,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
             checked={publicAnalyticsEnabled}
             onChange={(e) => setPublicAnalyticsEnabled(e.target.checked)}
             data-testid="public-analytics-switch"
+                inputProps={{ "aria-label": "Public analytics" }}
             sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
           />
         </Box>
@@ -1145,6 +1151,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
             checked={storeEnabled}
             onChange={(e) => setStoreEnabled(e.target.checked)}
             data-testid="store-enabled-switch"
+                inputProps={{ "aria-label": "Enable store" }}
             sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
           />
         </Box>
@@ -1162,6 +1169,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
             disabled={!storeEnabled}
             onChange={(e) => setShowProductsOnPage(e.target.checked)}
             data-testid="show-products-switch"
+            inputProps={{ "aria-label": t("storefront.form.showProductsTitle", { defaultValue: "Show my shop on this page" }) as string }}
             sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
           />
         </Box>
@@ -1206,7 +1214,8 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
           <Typography fontSize={14} fontWeight={600} color={theme.palette.text.primary}>{t("storefront.form.publishPage", { defaultValue: "Publish my creator page" })}</Typography>
           <Typography fontSize={12.5} color={theme.palette.text.secondary} mt={0.25}>{t("storefront.form.publishDesc", { defaultValue: "When on, anyone with your link can view your page and support you." })}</Typography>
         </Box>
-        <Switch checked={enabled} onChange={(e) => setEnabled(e.target.checked)} data-testid="creator-enabled-switch" sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }} />
+        <Switch checked={enabled} onChange={(e) => setEnabled(e.target.checked)} data-testid="creator-enabled-switch"
+                inputProps={{ "aria-label": "Creator page enabled" }} sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }} />
       </Box>
 
       <Box>

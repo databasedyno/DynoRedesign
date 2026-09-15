@@ -1,0 +1,42 @@
+{
+  "route": "/transactions",
+  "violations": [
+    {
+      "id": "aria-allowed-attr",
+      "impact": "critical",
+      "help": "Elements must only use supported ARIA attributes",
+      "nodes": [
+        {
+          "target": "div[data-testid=\"tx-sort-amount\"]",
+          "html": "<div class=\"MuiBox-root mui-15u35vi\" role=\"button\" tabindex=\"0\" aria-sort=\"none\" data-testid=\"tx-sort-amount\">",
+          "msg": "ARIA attribute is not allowed: aria-sort=\"none\""
+        },
+        {
+          "target": "div[data-testid=\"tx-sort-usdValue\"]",
+          "html": "<div class=\"MuiBox-root mui-15u35vi\" role=\"button\" tabindex=\"0\" aria-sort=\"none\" data-testid=\"tx-sort-usdValue\">",
+          "msg": "ARIA attribute is not allowed: aria-sort=\"none\""
+        },
+        {
+          "target": ".mui-1r44dta",
+          "html": "<div class=\"MuiBox-root mui-1r44dta\" role=\"button\" tabindex=\"0\" aria-sort=\"descending\" data-testid=\"tx-sort-dateTime\" data-sort-dir=\"desc\">",
+          "msg": "ARIA attribute is not allowed: aria-sort=\"descending\""
+        }
+      ],
+      "count": 3
+    },
+    {
+      "id": "region",
+      "impact": "moderate",
+      "help": "All page content should be contained by landmarks",
+      "nodes": [
+        {
+          "target": ".mui-mwmxi-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-mwmxi-MuiTypography-root\" data-testid=\"mfa-soft-banner-text\">Two-step verification becomes required on Sep ",
+          "msg": "Some page content is not contained by landmarks"
+        }
+      ],
+      "count": 1
+    }
+  ],
+  "focus": []
+}

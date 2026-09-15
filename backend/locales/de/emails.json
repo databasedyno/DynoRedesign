@@ -1246,5 +1246,27 @@
       "intro": "{{companyName}} hat {{amount}} von einem Käufer erhalten, die automatische Auszahlung ist jedoch nicht durchgegangen.",
       "next": "Unser Betriebsteam wurde benachrichtigt und wickelt diese Auszahlung manuell ab. Erwarten Sie innerhalb eines Werktags eine Bestätigungs-E-Mail; antworten Sie auf diese E-Mail, wenn Sie sie früher benötigen."
     }
+  },
+  "tipGoal": {
+    "cta": "Ihre Seite ansehen",
+    "ofGoal": "Ihres Monatsziels von {{goal}}",
+    "percentFunded": "{{pct}}% erreicht",
+    "supportersOne": "Das ist 1 Unterstützer in diesem Monat.",
+    "supportersOther": "Das sind {{count}} Unterstützer in diesem Monat.",
+    "footnote": "Ihr Ziel wird am 1. jedes Monats zurückgesetzt. Sie können es jederzeit unter Ihre Seite → Trinkgeld-Einstellungen ändern oder entfernen. Jedes Trinkgeld geht direkt an Ihre Auszahlungsadresse — Dynopay verwahrt Ihre Gelder nie.",
+    "halfway": {
+      "subject": "Sie haben die Hälfte Ihres monatlichen Trinkgeld-Ziels erreicht",
+      "preheader": "{{raised}} von {{goal}} gesammelt — die Hälfte ist geschafft.",
+      "heading": "Die Hälfte ist geschafft!",
+      "intro": "Unterstützer von {{brand}} haben im {{month}} bereits {{raised}} beigetragen — mehr als die Hälfte Ihres Ziels von {{goal}}.",
+      "next": "Bleiben Sie dran: Teilen Sie Ihre Seite oder bedanken Sie sich bei Ihren letzten Unterstützern auf der Wall."
+    },
+    "reached": {
+      "subject": "Sie haben Ihr monatliches Trinkgeld-Ziel erreicht 🎉",
+      "preheader": "{{raised}} gesammelt — Ihr Ziel von {{goal}} ist erreicht.",
+      "heading": "Ziel erreicht!",
+      "intro": "Unterstützer von {{brand}} haben im {{month}} {{raised}} Trinkgeld gegeben — Ihr Ziel von {{goal}} ist damit erreicht. Glückwunsch!",
+      "next": "Alles Weitere ist ein Bonus — der Balken auf Ihrer Seite zeigt das Ziel jetzt als erreicht an."
+    }
   }
 }

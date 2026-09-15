@@ -4,6 +4,7 @@ import useKycPage from "./useKycPage";
 import KycStatusHero from "./KycStatusHero";
 import KycRequirements from "./KycRequirements";
 import KycHistory from "./KycHistory";
+import KycTimeline from "./KycTimeline";
 
 /** /kyc — plan 3.10: status, what's needed, why, how long; a single Continue. */
 const KycPage = () => {
@@ -23,6 +24,7 @@ const KycPage = () => {
         estimatedTime={kyc.requirements?.estimated_time}
         onContinue={onContinue}
       />
+      {!kyc.loading && <KycTimeline view={kyc.view} status={kyc.status} latest={kyc.data?.kyc_record ?? kyc.history?.[0] ?? null} />}
       {kyc.view !== "verified" && <KycRequirements requirements={kyc.requirements} />}
       <KycHistory records={kyc.history} loading={kyc.historyLoading} />
     </Box>

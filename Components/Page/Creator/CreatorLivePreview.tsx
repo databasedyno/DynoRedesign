@@ -183,7 +183,7 @@ const CreatorLivePreview: React.FC<Props> = ({ state }) => {
         <Typography fontWeight={800} fontSize={19} mt={1.25} color={theme.palette.text.primary} sx={{ letterSpacing: "-0.02em" }}>
           {name}
         </Typography>
-        <Typography sx={{ fontFamily: MONO, fontSize: 12.5, fontWeight: 600, color: accent, mt: 0.25 }}>
+        <Typography sx={{ fontFamily: MONO, fontSize: 12.5, fontWeight: 600, color: theme.palette.text.secondary, mt: 0.25 }}>
           @{handle}
         </Typography>
 

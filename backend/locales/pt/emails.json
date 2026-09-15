@@ -1246,5 +1246,27 @@
       "intro": "{{companyName}} recebeu {{amount}} de um comprador, mas o pagamento automático não foi concluído.",
       "next": "A nossa equipa de operações foi alertada e está a liquidar este pagamento manualmente. Espere um e-mail de confirmação dentro de um dia útil; responda a este e-mail se precisar antes."
     }
+  },
+  "tipGoal": {
+    "cta": "Ver a tua página",
+    "ofGoal": "da tua meta mensal de {{goal}}",
+    "percentFunded": "{{pct}}% alcançado",
+    "supportersOne": "Isso é 1 apoiante este mês.",
+    "supportersOther": "Isso são {{count}} apoiantes este mês.",
+    "footnote": "A tua meta é reposta no dia 1 de cada mês. Podes alterá-la ou removê-la a qualquer momento em A tua página → Definições de gorjetas. Cada gorjeta é paga diretamente para o teu endereço de pagamento — a Dynopay nunca retém os teus fundos.",
+    "halfway": {
+      "subject": "Estás a meio da tua meta mensal de gorjetas",
+      "preheader": "{{raised}} de {{goal}} angariados — já estás a meio.",
+      "heading": "Já estás a meio!",
+      "intro": "Os apoiantes de {{brand}} já contribuíram com {{raised}} em {{month}} — mais de metade da tua meta de {{goal}}.",
+      "next": "Mantém o ritmo: partilha a tua página ou agradece aos teus apoiantes recentes no mural."
+    },
+    "reached": {
+      "subject": "Atingiste a tua meta mensal de gorjetas 🎉",
+      "preheader": "{{raised}} angariados — a tua meta de {{goal}} está completa.",
+      "heading": "Meta alcançada!",
+      "intro": "Os apoiantes de {{brand}} deram {{raised}} em gorjetas em {{month}}, por isso a tua meta de {{goal}} está completa. Parabéns!",
+      "next": "Tudo o que chegar a partir de agora é um bónus — a barra na tua página mostra agora a meta como alcançada."
+    }
   }
 }

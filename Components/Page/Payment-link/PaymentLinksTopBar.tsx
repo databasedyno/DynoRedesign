@@ -191,6 +191,7 @@ const PaymentLinksTopBar = ({
         size="small"
         displayEmpty
         data-testid="paylinks-status-filter"
+        inputProps={{ "aria-label": t("statusFilterLabel", { defaultValue: "Filter by status" }) }}
         sx={{ ...selectSx, minWidth: isMobile ? "100%" : "170px" }}
       >
         <MenuItem value="all" data-testid="paylinks-status-all">{t("allStatuses")}</MenuItem>

@@ -1,0 +1,136 @@
+{
+  "route": "/receipt/oN7U2knyNnaQ3NBrfNXL3F",
+  "violations": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "nodes": [
+        {
+          "target": ".mui-1ul8aca-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-1ul8aca-MuiTypography-root\">Identity-verified merchant</p>",
+          "msg": "Element has insufficient color contrast of 2.62 (foreground color: #12b76a, background color: #ffffff, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": ".mui-1kujj2s-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-1kujj2s-MuiTypography-root\">© Dynopay 2026. All Rights reserved.<!-- --> · <!-- -->This receipt was generat",
+          "msg": "Element has insufficient color contrast of 4.45 (foreground color: #74747b, background color: #fafafc, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1"
+        }
+      ],
+      "count": 2
+    },
+    {
+      "id": "landmark-one-main",
+      "impact": "moderate",
+      "help": "Document should have one main landmark",
+      "nodes": [
+        {
+          "target": "html",
+          "html": "<html lang=\"en\" data-theme=\"light\" style=\"color-scheme: light; --dp-lang-bar: 0px;\">",
+          "msg": "Document does not have a main landmark"
+        }
+      ],
+      "count": 1
+    },
+    {
+      "id": "link-in-text-block",
+      "impact": "serious",
+      "help": "Links must be distinguishable without relying on color",
+      "nodes": [
+        {
+          "target": "a[href$=\"dynopay.com\"]",
+          "html": "<a class=\"MuiBox-root mui-1ezxe5\" href=\"https://dynopay.com\" target=\"_blank\" rel=\"noopener noreferrer\">dynopay.com</a>",
+          "msg": "The link has insufficient color contrast of 1.02:1 with the surrounding text. (Minimum contrast is 3:1, link text: #4338ca, surrounding text: #52525b)   The link has no styling (such as underline) to distinguish it from the surrounding text"
+        },
+        {
+          "target": ".mui-1ezxe5[target=\"_blank\"][rel=\"noopener noreferrer\"]:nth-child(2)",
+          "html": "<a class=\"MuiBox-root mui-1ezxe5\" href=\"https://dynopay.com/help-support\" target=\"_blank\" rel=\"noopener noreferrer\">Support</a>",
+          "msg": "The link has insufficient color contrast of 1.02:1 with the surrounding text. (Minimum contrast is 3:1, link text: #4338ca, surrounding text: #52525b)   The link has no styling (such as underline) to distinguish it from the surrounding text"
+        }
+      ],
+      "count": 2
+    },
+    {
+      "id": "page-has-heading-one",
+      "impact": "moderate",
+      "help": "Page should contain a level-one heading",
+      "nodes": [
+        {
+          "target": "html",
+          "html": "<html lang=\"en\" data-theme=\"light\" style=\"color-scheme: light; --dp-lang-bar: 0px;\">",
+          "msg": "Page must have a level-one heading"
+        }
+      ],
+      "count": 1
+    },
+    {
+      "id": "region",
+      "impact": "moderate",
+      "help": "All page content should be contained by landmarks",
+      "nodes": [
+        {
+          "target": ".mui-hcth03-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-hcth03-MuiTypography-root\">DYNOPAY</p>",
+          "msg": "Some page content is not contained by landmarks"
+        },
+        {
+          "target": ".mui-4nkx4e-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-4nkx4e-MuiTypography-root\" data-testid=\"public-receipt-number\">Receipt #591B67D4</p>",
+          "msg": "Some page content is not contained by landmarks"
+        },
+        {
+          "target": ".mui-s6s7cx",
+          "html": "<div class=\"MuiBox-root mui-s6s7cx\">",
+          "msg": "Some page content is not contained by landmarks"
+        },
+        {
+          "target": ".mui-13t9ifb-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-13t9ifb-MuiTypography-root\">Amount Paid</p>",
+          "msg": "Some page content is not contained by landmarks"
+        },
+        {
+          "target": ".mui-8uw7ii-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-8uw7ii-MuiTypography-root\" data-testid=\"public-receipt-amount\">20<!-- --> <span class=\"MuiBox-root mui-1htt",
+          "msg": "Some page content is not contained by landmarks"
+        },
+        {
+          "target": ".mui-ctk19e-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-ctk19e-MuiTypography-root\">0.00893<!-- --> <!-- -->ETH</p>",
+          "msg": "Some page content is not contained by landmarks"
+        },
+        {
+          "target": ".mui-1xebvy6-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-1xebvy6-MuiTypography-root\">· <!-- -->Ethereum</p>",
+          "msg": "Some page content is not contained by landmarks"
+        },
+        {
+          "target": ".mui-0.MuiBox-root:nth-child(1) > .mui-1de08dv-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-1de08dv-MuiTypography-root\">Paid To</p>",
+          "msg": "Some page content is not contained by landmarks"
+        },
+        {
+          "target": "p[data-testid=\"public-receipt-merchant\"]",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 MuiTypography-noWrap mui-1unro58-MuiTypography-root\" data-testid=\"public-receipt-merchant\">The Dev Store</p>",
+          "msg": "Some page content is not contained by landmarks"
+        },
+        {
+          "target": ".mui-1ul8aca-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-1ul8aca-MuiTypography-root\">Identity-verified merchant</p>",
+          "msg": "Some page content is not contained by landmarks"
+        },
+        {
+          "target": ".mui-0.MuiBox-root:nth-child(2)",
+          "html": "<div class=\"MuiBox-root mui-0\">",
+          "msg": "Some page content is not contained by landmarks"
+        },
+        {
+          "target": ".mui-18etmrm.MuiBox-root:nth-child(4)",
+          "html": "<div class=\"MuiBox-root mui-18etmrm\">",
+          "msg": "Some page content is not contained by landmarks"
+        }
+      ],
+      "count": 15
+    }
+  ],
+  "focus": []
+}

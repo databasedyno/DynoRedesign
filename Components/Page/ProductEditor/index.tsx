@@ -1126,7 +1126,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId, onDraftC
                     <Typography variant="caption" color="text.secondary">
                       {toFixedStr((a.size_bytes / 1024), 1)} KB
                     </Typography>
-                    <IconButton size="small" onClick={() => removeAsset(a.asset_id)} data-testid={`product-asset-remove-${a.asset_id}`}>
+                    <IconButton size="small" onClick={() => removeAsset(a.asset_id)} data-testid={`product-asset-remove-${a.asset_id}`} aria-label={t("productEditor.removeAsset", { defaultValue: "Remove file" })}>
                       <DeleteOutlineRounded fontSize="small" />
                     </IconButton>
                   </Stack>

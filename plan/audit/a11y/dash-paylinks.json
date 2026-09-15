@@ -1,0 +1,90 @@
+{
+  "route": "/pay-links",
+  "violations": [
+    {
+      "id": "aria-input-field-name",
+      "impact": "serious",
+      "help": "ARIA input fields must have an accessible name",
+      "nodes": [
+        {
+          "target": ".MuiSelect-select",
+          "html": "<div tabindex=\"0\" role=\"combobox\" aria-controls=\":r9:\" aria-expanded=\"false\" aria-haspopup=\"listbox\" class=\"MuiSelect-select MuiSelect-outlined MuiInputBase-inp",
+          "msg": "aria-label attribute does not exist or is empty   aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty"
+        }
+      ],
+      "count": 1
+    },
+    {
+      "id": "nested-interactive",
+      "impact": "serious",
+      "help": "Interactive controls must not be nested",
+      "nodes": [
+        {
+          "target": ".mui-t79hmw-MuiTableRow-root",
+          "html": "<tr class=\"MuiTableRow-root mui-t79hmw-MuiTableRow-root\" role=\"button\" data-testid=\"paylink-row\" data-link-id=\"461\" tabindex=\"0\">",
+          "msg": "Element has focusable descendants"
+        },
+        {
+          "target": "tr[data-link-id=\"459\"]",
+          "html": "<tr class=\"MuiTableRow-root mui-mti8jl-MuiTableRow-root\" role=\"button\" data-testid=\"paylink-row\" data-link-id=\"459\" tabindex=\"0\">",
+          "msg": "Element has focusable descendants"
+        },
+        {
+          "target": "tr[data-link-id=\"458\"]",
+          "html": "<tr class=\"MuiTableRow-root mui-mti8jl-MuiTableRow-root\" role=\"button\" data-testid=\"paylink-row\" data-link-id=\"458\" tabindex=\"0\">",
+          "msg": "Element has focusable descendants"
+        },
+        {
+          "target": "tr[data-link-id=\"457\"]",
+          "html": "<tr class=\"MuiTableRow-root mui-mti8jl-MuiTableRow-root\" role=\"button\" data-testid=\"paylink-row\" data-link-id=\"457\" tabindex=\"0\">",
+          "msg": "Element has focusable descendants"
+        },
+        {
+          "target": "tr[data-link-id=\"456\"]",
+          "html": "<tr class=\"MuiTableRow-root mui-mti8jl-MuiTableRow-root\" role=\"button\" data-testid=\"paylink-row\" data-link-id=\"456\" tabindex=\"0\">",
+          "msg": "Element has focusable descendants"
+        },
+        {
+          "target": "tr[data-link-id=\"455\"]",
+          "html": "<tr class=\"MuiTableRow-root mui-mti8jl-MuiTableRow-root\" role=\"button\" data-testid=\"paylink-row\" data-link-id=\"455\" tabindex=\"0\">",
+          "msg": "Element has focusable descendants"
+        },
+        {
+          "target": "tr[data-link-id=\"454\"]",
+          "html": "<tr class=\"MuiTableRow-root mui-mti8jl-MuiTableRow-root\" role=\"button\" data-testid=\"paylink-row\" data-link-id=\"454\" tabindex=\"0\">",
+          "msg": "Element has focusable descendants"
+        },
+        {
+          "target": "tr[data-link-id=\"450\"]",
+          "html": "<tr class=\"MuiTableRow-root mui-mti8jl-MuiTableRow-root\" role=\"button\" data-testid=\"paylink-row\" data-link-id=\"450\" tabindex=\"0\">",
+          "msg": "Element has focusable descendants"
+        },
+        {
+          "target": "tr[data-link-id=\"449\"]",
+          "html": "<tr class=\"MuiTableRow-root mui-mti8jl-MuiTableRow-root\" role=\"button\" data-testid=\"paylink-row\" data-link-id=\"449\" tabindex=\"0\">",
+          "msg": "Element has focusable descendants"
+        },
+        {
+          "target": "tr[data-link-id=\"448\"]",
+          "html": "<tr class=\"MuiTableRow-root mui-mti8jl-MuiTableRow-root\" role=\"button\" data-testid=\"paylink-row\" data-link-id=\"448\" tabindex=\"0\">",
+          "msg": "Element has focusable descendants"
+        }
+      ],
+      "count": 10
+    },
+    {
+      "id": "region",
+      "impact": "moderate",
+      "help": "All page content should be contained by landmarks",
+      "nodes": [
+        {
+          "target": ".mui-mwmxi-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-mwmxi-MuiTypography-root\" data-testid=\"mfa-soft-banner-text\">Two-step verification becomes required on Sep ",
+          "msg": "Some page content is not contained by landmarks"
+        }
+      ],
+      "count": 1
+    }
+  ],
+  "focus": []
+}

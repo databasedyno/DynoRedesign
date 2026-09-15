@@ -513,6 +513,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
               </Typography>
               <Select
                 data-testid="communication-language-select"
+                SelectDisplayProps={{ "aria-label": t("communicationLanguage", { ns: "profile" }) } as React.HTMLAttributes<HTMLDivElement>}
                 value={selectedLanguage}
                 onChange={(e) => handleLanguageChange(e.target.value as string)}
                 size="small"

@@ -118,7 +118,7 @@ const NotificationInbox: React.FC<Props> = ({ notifications, loading, unreadCoun
   const attentionBlock = attentionRows.length > 0 && (
     <Box data-testid="notifications-attention" data-count={attentionRows.length}>
       <Box sx={{ display: "flex", alignItems: "baseline", gap: 1, mb: 1, px: 0.5 }}>
-        <Typography component="h3" sx={{ m: 0, fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: muted }}>
+        <Typography component="h2" sx={{ m: 0, fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: muted }}>
           {t("attention.title", { defaultValue: "Needs attention" })}
         </Typography>
         <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 12, color: muted }}>
@@ -203,7 +203,7 @@ const NotificationInbox: React.FC<Props> = ({ notifications, loading, unreadCoun
         <Box key={g.bucket} data-testid={`notifications-group-${g.bucket}`}>
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, mb: 1, px: 0.5 }}>
             <Box sx={{ display: "flex", alignItems: "baseline", gap: 1 }}>
-              <Typography component="h3" sx={{ m: 0, fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: muted }}>
+              <Typography component="h2" sx={{ m: 0, fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: muted }}>
                 {bucketLabel[g.bucket]}
               </Typography>
               {g.unread > 0 && (

@@ -17,7 +17,7 @@ interface MerchantTrustRowProps extends MerchantVerifiedParams {
   sx?: Record<string, unknown>;
 }
 
-const MerchantTrustRow: React.FC<MerchantTrustRowProps> = ({ color = "#98A2B3", justify = "center", sx = {} }) => {
+const MerchantTrustRow: React.FC<MerchantTrustRowProps> = ({ color = "#5D6B82", justify = "center", sx = {} }) => {
   const { t } = useTranslation("common");
   const securedBy = t("verifiedBadge.securedBy", { defaultValue: "Payments secured by Dynopay" });
 

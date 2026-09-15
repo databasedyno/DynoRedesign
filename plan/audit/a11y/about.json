@@ -1,0 +1,54 @@
+{
+  "route": "/about",
+  "violations": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "nodes": [
+        {
+          "target": "div:nth-child(1) > .mui-1kgxnp4 > .mui-1tgfe8h-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-1tgfe8h-MuiTypography-root\">Base fee — no monthly cost</p>",
+          "msg": "Element has insufficient color contrast of 4.22 (foreground color: #71717a, background color: #f3efea, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": "div:nth-child(2) > .mui-1kgxnp4 > .mui-1tgfe8h-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-1tgfe8h-MuiTypography-root\">Blockchains supported</p>",
+          "msg": "Element has insufficient color contrast of 4.22 (foreground color: #71717a, background color: #f3efea, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": "div:nth-child(3) > .mui-1kgxnp4 > .mui-1tgfe8h-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-1tgfe8h-MuiTypography-root\">Non-custodial payouts</p>",
+          "msg": "Element has insufficient color contrast of 4.22 (foreground color: #71717a, background color: #f3efea, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": "div:nth-child(4) > .mui-1kgxnp4 > .mui-1tgfe8h-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-1tgfe8h-MuiTypography-root\">Building since</p>",
+          "msg": "Element has insufficient color contrast of 4.22 (foreground color: #71717a, background color: #f3efea, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": "nav[aria-label=\"Product\"] > h3",
+          "html": "<h3 class=\"MuiTypography-root MuiTypography-body1 mui-1uw4e34-MuiTypography-root\">Product</h3>",
+          "msg": "Element has insufficient color contrast of 3.16 (foreground color: #8a8a94, background color: #f6f6f8, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": "nav[aria-label=\"Solutions\"] > h3",
+          "html": "<h3 class=\"MuiTypography-root MuiTypography-body1 mui-1uw4e34-MuiTypography-root\">Solutions</h3>",
+          "msg": "Element has insufficient color contrast of 3.16 (foreground color: #8a8a94, background color: #f6f6f8, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": "nav[aria-label=\"Company\"] > h3",
+          "html": "<h3 class=\"MuiTypography-root MuiTypography-body1 mui-1uw4e34-MuiTypography-root\">Company</h3>",
+          "msg": "Element has insufficient color contrast of 3.16 (foreground color: #8a8a94, background color: #f6f6f8, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": ".mui-1lg522z-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-1lg522z-MuiTypography-root\">© Dynopay 2026. All Rights reserved.</p>",
+          "msg": "Element has insufficient color contrast of 4.47 (foreground color: #71717a, background color: #f6f6f8, font size: 10.1pt (13.5px), font weight: normal). Expected contrast ratio of 4.5:1"
+        }
+      ],
+      "count": 8
+    }
+  ],
+  "focus": []
+}

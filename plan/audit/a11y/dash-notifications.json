@@ -1,0 +1,65 @@
+{
+  "route": "/notifications",
+  "violations": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "nodes": [
+        {
+          "target": ".mui-1vt4bon > h3",
+          "html": "<h3 class=\"MuiTypography-root MuiTypography-body1 mui-1utosbo-MuiTypography-root\">Needs attention</h3>",
+          "msg": "Element has insufficient color contrast of 4.34 (foreground color: #64748b, background color: #f1f5f9, font size: 9.0pt (12px), font weight: bold). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": ".mui-5pdgrw-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-5pdgrw-MuiTypography-root\">Mirrored from your dashboard — nothing is lost when you hide a row there.</p>",
+          "msg": "Element has insufficient color contrast of 4.34 (foreground color: #64748b, background color: #f1f5f9, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": "div[data-testid=\"notifications-group-today\"] > .mui-2wh1c1.MuiBox-root > .mui-afwkhs.MuiBox-root > h3",
+          "html": "<h3 class=\"MuiTypography-root MuiTypography-body1 mui-1utosbo-MuiTypography-root\">Today</h3>",
+          "msg": "Element has insufficient color contrast of 4.34 (foreground color: #64748b, background color: #f1f5f9, font size: 9.0pt (12px), font weight: bold). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": "div[data-testid=\"notification-item-1133\"] > .mui-1fjtzvx.MuiBox-root > .mui-1jfy8zo.MuiBox-root > .mui-15dfvne-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-15dfvne-MuiTypography-root\">1h ago</p>",
+          "msg": "Element has insufficient color contrast of 4.13 (foreground color: #64748b, background color: #ebeff8, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": "div[data-testid=\"notification-item-1132\"] > .mui-1fjtzvx.MuiBox-root > .mui-1jfy8zo.MuiBox-root > .mui-15dfvne-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-15dfvne-MuiTypography-root\">1h ago</p>",
+          "msg": "Element has insufficient color contrast of 4.13 (foreground color: #64748b, background color: #ebeff8, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+        }
+      ],
+      "count": 5
+    },
+    {
+      "id": "heading-order",
+      "impact": "moderate",
+      "help": "Heading levels should only increase by one",
+      "nodes": [
+        {
+          "target": ".mui-1vt4bon > h3",
+          "html": "<h3 class=\"MuiTypography-root MuiTypography-body1 mui-1utosbo-MuiTypography-root\">Needs attention</h3>",
+          "msg": "Heading order invalid"
+        }
+      ],
+      "count": 1
+    },
+    {
+      "id": "region",
+      "impact": "moderate",
+      "help": "All page content should be contained by landmarks",
+      "nodes": [
+        {
+          "target": ".mui-mwmxi-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-mwmxi-MuiTypography-root\" data-testid=\"mfa-soft-banner-text\">Two-step verification becomes required on Sep ",
+          "msg": "Some page content is not contained by landmarks"
+        }
+      ],
+      "count": 1
+    }
+  ],
+  "focus": []
+}

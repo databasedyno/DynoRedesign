@@ -40,7 +40,7 @@ const ProductLivePreview = ({ draft, brandName }: { draft: ProductDraft; brandNa
           <Box sx={{ width: 64, height: 5, borderRadius: 3, bgcolor: dark ? "#2A3040" : "#E5E7EB" }} />
         </Box>
         <Box sx={{ px: 1.75, pb: 2 }}>
-          <Typography sx={{ fontSize: 10.5, color: theme.palette.text.disabled, mb: 1 }} noWrap>
+          <Typography sx={{ fontSize: 10.5, color: theme.palette.text.secondary, mb: 1 }} noWrap>
             {brandName || "Your brand"} · {t("productEditor.preview.crumb", { defaultValue: "Shop" })}
           </Typography>
           <Box data-testid="product-live-preview-cover" sx={{ aspectRatio: "4 / 3", borderRadius: "14px", overflow: "hidden", border: `1px solid ${border}`, bgcolor: dark ? "rgba(255,255,255,0.04)" : "#F3F4F6", display: "grid", placeItems: "center" }}>
@@ -61,7 +61,7 @@ const ProductLivePreview = ({ draft, brandName }: { draft: ProductDraft; brandNa
               </Box>
             )}
           </Box>
-          <Typography data-testid="product-live-preview-title" sx={{ fontWeight: 800, fontSize: 17, lineHeight: 1.25, mt: 0.9, color: draft.title.trim() ? theme.palette.text.primary : theme.palette.text.disabled, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+          <Typography data-testid="product-live-preview-title" sx={{ fontWeight: 800, fontSize: 17, lineHeight: 1.25, mt: 0.9, color: draft.title.trim() ? theme.palette.text.primary : theme.palette.text.secondary, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
             {title}
           </Typography>
           {draft.subtitle.trim() && (
@@ -84,7 +84,7 @@ const ProductLivePreview = ({ draft, brandName }: { draft: ProductDraft; brandNa
               {t("productEditor.preview.buyNow", { defaultValue: "Buy now" })}
             </Box>
           </Box>
-          <Typography sx={{ fontSize: 10.5, color: theme.palette.text.disabled, textAlign: "center", mt: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5 }}>
+          <Typography sx={{ fontSize: 10.5, color: theme.palette.text.secondary, textAlign: "center", mt: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5 }}>
             <Icon icon="mdi:lock-outline" width={11} />
             {t("productEditor.preview.secured", { defaultValue: "Secured by Dynopay · pay with crypto" })}
           </Typography>

@@ -513,6 +513,12 @@ const createNexusAlertTable = async (): Promise<void> => {
   if (isSyncable(nexusAlertModel)) await nexusAlertModel.sync();
 };
 
+/** 0032 — creator monthly tip goal: tbl_tip_goal_milestone (dedupe store for the 50%/100% emails). Create-only. */
+const createTipGoalMilestoneTable = async (): Promise<void> => {
+  const { tipGoalMilestoneModel } = await import("../models");
+  if (isSyncable(tipGoalMilestoneModel)) await tipGoalMilestoneModel.sync();
+};
+
 export async function buildBootMigrations(): Promise<Migration[]> {  const { v1, extra } = await loadBootModelGroups();
   return [
     { version: "0001_boot_model_tables", up: syncGroup(v1) },
@@ -543,6 +549,7 @@ export async function buildBootMigrations(): Promise<Migration[]> {  const { v1,
     { version: "0028_vies_vat_validation", up: addViesValidationSupport },
     { version: "0029_product_tax_treatment", up: addProductTaxTreatment },
     { version: "0030_nexus_alert", up: createNexusAlertTable },
+    { version: "0032_tip_goal_milestone", up: createTipGoalMilestoneTable },
     ...perfMigrations,
     ...securityMigrations,
   ];

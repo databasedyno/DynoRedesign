@@ -160,6 +160,7 @@ export default function ShopHero({ merchant, products, shopUrl }: Props) {
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
             <Typography
               variant="h3"
+              component="h1"
               sx={{
                 fontWeight: 800,
                 fontSize: { xs: "1.75rem", md: "2.5rem" },

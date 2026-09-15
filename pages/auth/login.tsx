@@ -1125,7 +1125,7 @@ export default function Login() {
     <SplitScreenWrapper>
       <SplitFormColumn>
       {/* Form Panel */}
-      <FormPanel>
+      <FormPanel component="main">
       <Box sx={{ width: "100%", maxWidth: 420 }}>
         {/* Top row: Dynopay logo (all breakpoints) + lang/theme controls */}
         <Box

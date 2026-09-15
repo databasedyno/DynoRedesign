@@ -1,0 +1,99 @@
+{
+  "route": "/pay?d=rNtQRX",
+  "violations": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "nodes": [
+        {
+          "target": "div:nth-child(2) > a",
+          "html": "<a href=\"https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&amp;utm_campaign=ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.cluster-12.preview.emergent",
+          "msg": "Element has insufficient color contrast of 4.46 (foreground color: #2f7bbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": "#brand_link",
+          "html": "<a rel=\"noopener noreferrer\" href=\"https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&amp;utm_campaign=ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.c",
+          "msg": "Element has insufficient color contrast of 4.46 (foreground color: #2f7bbf, background color: #ffffff, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+        }
+      ],
+      "count": 2
+    },
+    {
+      "id": "heading-order",
+      "impact": "moderate",
+      "help": "Heading levels should only increase by one",
+      "nodes": [
+        {
+          "target": "#cf-browser-status > h3",
+          "html": "<h3 class=\"md:inline-block mt-3 md:mt-0 text-2xl text-gray-600 font-light leading-1.3\">\n  \n    Browser\n  \n  </h3>",
+          "msg": "Heading order invalid"
+        }
+      ],
+      "count": 1
+    },
+    {
+      "id": "landmark-one-main",
+      "impact": "moderate",
+      "help": "Document should have one main landmark",
+      "nodes": [
+        {
+          "target": "html",
+          "html": "<html class=\"no-js\" lang=\"en-US\">",
+          "msg": "Document does not have a main landmark"
+        }
+      ],
+      "count": 1
+    },
+    {
+      "id": "link-in-text-block",
+      "impact": "serious",
+      "help": "Links must be distinguishable without relying on color",
+      "nodes": [
+        {
+          "target": "div:nth-child(2) > a",
+          "html": "<a href=\"https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&amp;utm_campaign=ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.cluster-12.preview.emergent",
+          "msg": "The link has insufficient color contrast of 2.32:1 with the surrounding text. (Minimum contrast is 3:1, link text: #2f7bbf, surrounding text: #404040)   The link has no styling (such as underline) to distinguish it from the surrounding text"
+        }
+      ],
+      "count": 1
+    },
+    {
+      "id": "link-name",
+      "impact": "serious",
+      "help": "Links must have discernible text",
+      "nodes": [
+        {
+          "target": ".mb-10.md\\:m-0.relative > a",
+          "html": "<a href=\"https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&utm_campaign=ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.cluster-12.preview.emergentcf.c",
+          "msg": "Element is in tab order and does not have accessible text"
+        }
+      ],
+      "count": 1
+    },
+    {
+      "id": "region",
+      "impact": "moderate",
+      "help": "All page content should be contained by landmarks",
+      "nodes": [
+        {
+          "target": ".my-8",
+          "html": "<div class=\"my-8 bg-gradient-gray\">",
+          "msg": "Some page content is not contained by landmarks"
+        },
+        {
+          "target": ".mb-8.lg\\:px-8.w-240:nth-child(3)",
+          "html": "<div class=\"w-240 lg:w-full mx-auto mb-8 lg:px-8\">",
+          "msg": "Some page content is not contained by landmarks"
+        },
+        {
+          "target": ".text-13",
+          "html": "<p class=\"text-13\">",
+          "msg": "Some page content is not contained by landmarks"
+        }
+      ],
+      "count": 3
+    }
+  ],
+  "focus": []
+}

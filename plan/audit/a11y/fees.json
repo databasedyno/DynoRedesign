@@ -1,0 +1,57 @@
+{
+  "route": "/fees",
+  "violations": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "nodes": [
+        {
+          "target": ".mui-72dfyc-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-72dfyc-MuiTypography-root\">Worked example</p>",
+          "msg": "Element has insufficient color contrast of 4.46 (foreground color: #6366f1, background color: #ffffff, font size: 8.6pt (11.5px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": ".mui-11ict9o",
+          "html": "<button class=\"MuiBox-root mui-11ict9o\" type=\"button\" data-testid=\"fees-worked-tier-starter\" aria-pressed=\"true\">Starter<!-- --> · <!-- -->1.5<!-- -->%</button>",
+          "msg": "Element has insufficient color contrast of 4.46 (foreground color: #ffffff, background color: #6366f1, font size: 9.0pt (12px), font weight: bold). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": "nav[aria-label=\"Product\"] > h3",
+          "html": "<h3 class=\"MuiTypography-root MuiTypography-body1 mui-1uw4e34-MuiTypography-root\">Product</h3>",
+          "msg": "Element has insufficient color contrast of 3.16 (foreground color: #8a8a94, background color: #f6f6f8, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": "nav[aria-label=\"Solutions\"] > h3",
+          "html": "<h3 class=\"MuiTypography-root MuiTypography-body1 mui-1uw4e34-MuiTypography-root\">Solutions</h3>",
+          "msg": "Element has insufficient color contrast of 3.16 (foreground color: #8a8a94, background color: #f6f6f8, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": "nav[aria-label=\"Company\"] > h3",
+          "html": "<h3 class=\"MuiTypography-root MuiTypography-body1 mui-1uw4e34-MuiTypography-root\">Company</h3>",
+          "msg": "Element has insufficient color contrast of 3.16 (foreground color: #8a8a94, background color: #f6f6f8, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": ".mui-1lg522z-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-1lg522z-MuiTypography-root\">© Dynopay 2026. All Rights reserved.</p>",
+          "msg": "Element has insufficient color contrast of 4.47 (foreground color: #71717a, background color: #f6f6f8, font size: 10.1pt (13.5px), font weight: normal). Expected contrast ratio of 4.5:1"
+        }
+      ],
+      "count": 6
+    },
+    {
+      "id": "label",
+      "impact": "critical",
+      "help": "Form elements must have labels",
+      "nodes": [
+        {
+          "target": "input[aria-valuemax=\"1000000\"]",
+          "html": "<input data-index=\"0\" aria-valuenow=\"5000\" aria-orientation=\"horizontal\" aria-valuemax=\"1000000\" aria-valuemin=\"500\" type=\"range\" min=\"500\" max=\"1000000\" step=\"",
+          "msg": "Element does not have an implicit (wrapped) <label>   Element does not have an explicit <label>"
+        }
+      ],
+      "count": 1
+    }
+  ],
+  "focus": []
+}

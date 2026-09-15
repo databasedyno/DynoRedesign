@@ -34,7 +34,7 @@ const FeesWorkedExample = ({ tiers, currentTierName, currencies, feeFor, live }:
   const row = (label: string, value: string, testId: string, strong = false) => (
     <Box data-testid={testId} sx={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 2, py: 1.1, borderBottom: strong ? "none" : `1px dashed ${s.line}` }}>
       <Typography sx={{ fontFamily: FONT_BODY, fontSize: strong ? 16 : 14.5, color: strong ? s.ink : s.ink3, fontWeight: strong ? 700 : 400 }}>{label}</Typography>
-      <Typography sx={{ fontFamily: FONT_TECH, fontSize: strong ? 26 : 15, fontWeight: 700, color: strong ? tier.accent : s.ink, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{value}</Typography>
+      <Typography sx={{ fontFamily: FONT_TECH, fontSize: strong ? 26 : 15, fontWeight: 700, color: s.ink, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{value}</Typography>
     </Box>
   );
 
@@ -42,7 +42,7 @@ const FeesWorkedExample = ({ tiers, currentTierName, currencies, feeFor, live }:
     <Box data-testid="fees-worked-example" sx={{ ...cardSx(s, { hover: false, radius: 24 }), border: `1px solid ${s.lineStrong}`, p: { xs: 3, md: 4 }, maxWidth: 860, mx: "auto" }}>
       <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 2, mb: 2.5 }}>
         <Box>
-          <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11.5, letterSpacing: "0.22em", textTransform: "uppercase", color: tier.accent, fontWeight: 600 }}>
+          <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11.5, letterSpacing: "0.22em", textTransform: "uppercase", color: s.ink3, fontWeight: 600 }}>
             {t("worked.eyebrow", { defaultValue: "Worked example" })}
           </Typography>
           <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: { xs: 24, md: 30 }, letterSpacing: "-0.02em", color: s.ink, mt: 0.5 }} data-testid="fees-worked-headline">
@@ -60,7 +60,7 @@ const FeesWorkedExample = ({ tiers, currentTierName, currencies, feeFor, live }:
                 onClick={() => setTierName(tr.name)}
                 data-testid={`fees-worked-tier-${tr.name.toLowerCase()}`}
                 aria-pressed={on}
-                sx={{ cursor: "pointer", border: `1px solid ${on ? tr.accent : s.line}`, background: on ? tr.accent : "transparent", color: on ? "#fff" : s.ink3, borderRadius: "999px", px: 1.5, py: 0.55, fontFamily: FONT_TECH, fontSize: 12, fontWeight: 700, letterSpacing: "0.04em", transition: "background-color .15s, color .15s, border-color .15s" }}
+                sx={{ cursor: "pointer", border: `1px solid ${on ? s.ink : s.line}`, background: on ? s.ink : "transparent", color: on ? (s.dark ? "#0B0B0F" : "#fff") : s.ink3, borderRadius: "999px", px: 1.5, py: 0.55, fontFamily: FONT_TECH, fontSize: 12, fontWeight: 700, letterSpacing: "0.04em", transition: "background-color .15s, color .15s, border-color .15s" }}
               >
                 {tr.name} · {tr.pct}%
               </Box>

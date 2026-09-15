@@ -43,7 +43,7 @@ export const CB_TOKENS = {
     secondaryDark: DARK.textSecondary,
     secondaryLight: "#475569",
     mutedDark: DARK.textMuted,
-    mutedLight: "#64748B",
+    mutedLight: "#5B6779", // AA on #F1F5F9 surfaces (was #64748B ≈ 4.3:1)
   },
   /**
    * Semantic accents — used sparingly, "colour in the right places":

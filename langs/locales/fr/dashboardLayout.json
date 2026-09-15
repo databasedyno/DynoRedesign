@@ -688,5 +688,30 @@
     "planLineTop": "Palier {{tier}} · {{pct}} % par paiement",
     "planDetails": "Offre et frais",
     "hidePlan": "Masquer"
+  },
+  "kycTimeline": {
+    "title": "Comment fonctionne la vérification",
+    "nextUp": "Étape suivante — utilisez le bouton ci-dessus pour continuer.",
+    "prepare": {
+      "title": "Préparez vos documents",
+      "body": "Une pièce d'identité officielle avec photo (passeport, carte d'identité ou permis de conduire) et un appareil avec caméra pour un selfie rapide.",
+      "wait": "2 minutes"
+    },
+    "submit": {
+      "title": "Soumettez votre vérification",
+      "body": "Suivez le parcours sécurisé Veriff : photographiez votre pièce d'identité, prenez un selfie, c'est terminé.",
+      "retryBody": "Votre dernière tentative n'a pas abouti — recommencez avec une photo nette et bien éclairée du document entier.",
+      "wait": "5–10 minutes"
+    },
+    "review": {
+      "title": "Nous vérifions",
+      "body": "La plupart des contrôles sont validés automatiquement en quelques minutes. Si un examen manuel est nécessaire, vous recevrez un e-mail dans tous les cas — rien d'autre à faire.",
+      "wait": "Minutes · jusqu'à 48 h"
+    },
+    "verified": {
+      "title": "Vérifié — versements débloqués",
+      "body": "Limites complètes, liens de paiement actifs et règlements vers vos adresses de versement.",
+      "wait": "Terminé"
+    }
   }
 }

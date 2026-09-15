@@ -32,6 +32,7 @@ import {
 import taxRateModel from "./taxRateModel";
 import vatValidationModel from "./vatValidationModel";
 import nexusAlertModel from "./nexusAlertModel";
+import tipGoalMilestoneModel from "./tipGoalMilestoneModel";
 import invoiceModel from "./invoiceModel";
 import notificationModel from "./notificationModel";
 import notificationPreferencesModel from "./notificationPreferencesModel";
@@ -116,6 +117,7 @@ export {
   taxRateModel,
   vatValidationModel,
   nexusAlertModel,
+  tipGoalMilestoneModel,
   invoiceModel,
   notificationModel,
   notificationPreferencesModel,

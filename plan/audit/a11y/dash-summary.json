@@ -1,0 +1,130 @@
+[
+  {
+    "name": "dashboard",
+    "route": "/dashboard",
+    "violations": 1,
+    "contrast": 1,
+    "focus": 0,
+    "ids": "color-contrast(1)"
+  },
+  {
+    "name": "transactions",
+    "route": "/transactions",
+    "violations": 2,
+    "contrast": 0,
+    "focus": 0,
+    "ids": "aria-allowed-attr(3) region(1)"
+  },
+  {
+    "name": "payouts",
+    "route": "/payouts",
+    "violations": 5,
+    "contrast": 1,
+    "focus": 0,
+    "ids": "aria-input-field-name(1) color-contrast(1) heading-order(1) label(1) region(1)"
+  },
+  {
+    "name": "wallet",
+    "route": "/wallet",
+    "violations": 1,
+    "contrast": 0,
+    "focus": 0,
+    "ids": "region(1)"
+  },
+  {
+    "name": "paylinks",
+    "route": "/pay-links",
+    "violations": 3,
+    "contrast": 0,
+    "focus": 0,
+    "ids": "aria-input-field-name(1) nested-interactive(10) region(1)"
+  },
+  {
+    "name": "create-pay-link",
+    "route": "/create-pay-link",
+    "violations": 2,
+    "contrast": 2,
+    "focus": 0,
+    "ids": "color-contrast(2) region(1)"
+  },
+  {
+    "name": "storefront",
+    "route": "/storefront",
+    "violations": 4,
+    "contrast": 2,
+    "focus": 0,
+    "ids": "color-contrast(2) label(8) region(1) select-name(1)"
+  },
+  {
+    "name": "products-new",
+    "route": "/pay-links/products/new",
+    "violations": 3,
+    "contrast": 3,
+    "focus": 0,
+    "ids": "button-name(1) color-contrast(3) region(1)"
+  },
+  {
+    "name": "invoices",
+    "route": "/invoices",
+    "violations": 3,
+    "contrast": 1,
+    "focus": 0,
+    "ids": "color-contrast(1) nested-interactive(9) region(1)"
+  },
+  {
+    "name": "customers",
+    "route": "/customers",
+    "violations": 2,
+    "contrast": 0,
+    "focus": 0,
+    "ids": "aria-input-field-name(1) region(1)"
+  },
+  {
+    "name": "settings",
+    "route": "/settings",
+    "violations": 3,
+    "contrast": 3,
+    "focus": 0,
+    "ids": "aria-input-field-name(1) color-contrast(3) region(1)"
+  },
+  {
+    "name": "settings-security",
+    "route": "/settings?section=security",
+    "violations": 2,
+    "contrast": 3,
+    "focus": 0,
+    "ids": "color-contrast(3) region(1)"
+  },
+  {
+    "name": "notifications",
+    "route": "/notifications",
+    "violations": 3,
+    "contrast": 5,
+    "focus": 0,
+    "ids": "color-contrast(5) heading-order(1) region(1)"
+  },
+  {
+    "name": "developer-keys",
+    "route": "/developer-keys",
+    "violations": 1,
+    "contrast": 0,
+    "focus": 0,
+    "ids": "region(1)"
+  },
+  {
+    "name": "kyc",
+    "route": "/kyc",
+    "violations": 1,
+    "contrast": 0,
+    "focus": 0,
+    "ids": "region(1)"
+  },
+  {
+    "name": "referrals",
+    "route": "/referrals",
+    "violations": 1,
+    "contrast": 0,
+    "focus": 0,
+    "ids": "region(1)"
+  }
+]

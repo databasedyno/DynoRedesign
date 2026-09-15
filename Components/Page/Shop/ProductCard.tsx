@@ -267,7 +267,7 @@ export default function ProductCard({
           }}
         >
           <Typography
-            component="h3"
+            component="h2"
             sx={{
               fontWeight: 700,
               fontSize: isFeatured ? { xs: "1.15rem", md: "1.35rem" } : "1rem",

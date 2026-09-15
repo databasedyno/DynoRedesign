@@ -688,5 +688,30 @@
     "planLineTop": "Stufe {{tier}} · {{pct}} % pro Zahlung",
     "planDetails": "Tarif & Gebühren",
     "hidePlan": "Ausblenden"
+  },
+  "kycTimeline": {
+    "title": "So funktioniert die Verifizierung",
+    "nextUp": "Als Nächstes — nutzen Sie den Button oben, um fortzufahren.",
+    "prepare": {
+      "title": "Dokumente bereitlegen",
+      "body": "Ein amtlicher Lichtbildausweis (Reisepass, Personalausweis oder Führerschein) und ein Gerät mit Kamera für ein kurzes Selfie.",
+      "wait": "2 Minuten"
+    },
+    "submit": {
+      "title": "Verifizierung einreichen",
+      "body": "Folgen Sie dem sicheren Veriff-Ablauf: Ausweis fotografieren, Selfie aufnehmen, fertig.",
+      "retryBody": "Ihr letzter Versuch ist nicht durchgegangen — starten Sie erneut mit einem klaren, gut ausgeleuchteten Foto des gesamten Dokuments.",
+      "wait": "5–10 Minuten"
+    },
+    "review": {
+      "title": "Wir prüfen",
+      "body": "Die meisten Prüfungen werden innerhalb von Minuten automatisch abgeschlossen. Falls eine manuelle Prüfung nötig ist, erhalten Sie in jedem Fall eine E-Mail — sonst nichts zu tun.",
+      "wait": "Minuten · bis zu 48 Std."
+    },
+    "verified": {
+      "title": "Verifiziert — Auszahlungen freigeschaltet",
+      "body": "Volle Limits, aktive Zahlungslinks und Abrechnungen an Ihre Auszahlungsadressen.",
+      "wait": "Erledigt"
+    }
   }
 }

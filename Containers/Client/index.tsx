@@ -101,6 +101,25 @@ const ClientLayout = ({
     router.pathname === "/pay-links" ||
     router.pathname === "/transactions";
   const hasPageHeader = !!(pageName || pageDescription);
+  const pageHeaderRef = useRef<HTMLDivElement | null>(null);
+
+  // Sticky page header: publish its height as scroll-padding on the scroll
+  // container so scrollIntoView()/focus() never park a control underneath it
+  // (dropdown triggers were getting their clicks eaten by the header).
+  useEffect(() => {
+    const main = mainScrollRef.current;
+    const header = pageHeaderRef.current;
+    if (!main) return;
+    const apply = () => {
+      const h = header ? Math.ceil(header.getBoundingClientRect().height) : 0;
+      main.style.scrollPaddingTop = h ? `${h + 8}px` : "";
+    };
+    apply();
+    if (!header || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(apply);
+    ro.observe(header);
+    return () => ro.disconnect();
+  }, [router.pathname, hasPageHeader]);
   return (
     <>
       <CompanySettingsDialogProvider>
@@ -257,6 +276,7 @@ const ClientLayout = ({
               >
                 {hasPageHeader && (
                   <MainPageHeader
+                    ref={pageHeaderRef}
                     data-testid="main-page-header"
                     sx={{
                       px: { xs: isDashboard ? 2 : 0, md: 0 },

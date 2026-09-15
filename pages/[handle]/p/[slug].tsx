@@ -136,7 +136,7 @@ const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, var
         <meta key="twitter:description" name="twitter:description" content={socialDescription} />
         {cover && <meta name="twitter:image" content={cover} />}
       </Head>
-      <Container maxWidth="lg" sx={{ pt: { xs: "88px", md: "112px" }, pb: { xs: 14, md: 5 } }} data-testid="product-detail">
+      <Container component="main" maxWidth="lg" sx={{ pt: { xs: "88px", md: "112px" }, pb: { xs: 14, md: 5 } }} data-testid="product-detail">
         <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, mb: 2, flexWrap: "wrap" }}>
           <Typography variant="body2">
             <Link href={`/${merchant.handle}/shop`} style={{ color: "inherit" }}>
@@ -179,7 +179,7 @@ const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, var
           </Box>
 
           <Stack spacing={2}>
-            <Typography variant="h4" sx={{ fontWeight: 700 }} data-testid="product-detail-title">
+            <Typography variant="h4" component="h1" sx={{ fontWeight: 700 }} data-testid="product-detail-title">
               {product.title}
             </Typography>
             {product.subtitle && (

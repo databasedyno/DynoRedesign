@@ -626,6 +626,7 @@ const CustomersPage: React.FC = () => {
           value={sort}
           size="small"
           data-testid="customers-sort-select"
+          inputProps={{ "aria-label": t("customers.sortLabel", { defaultValue: "Sort customers" }) }}
           onChange={(e) => {
             setSort(e.target.value);
             setPage(1);

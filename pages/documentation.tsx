@@ -220,7 +220,7 @@ const MethodBadgeStyled = styled("span", {
   letterSpacing: "0.5px",
   fontFamily: "var(--font-tech), monospace",
   color: "#FFFFFF",
-  background: isGet ? "#22C55E" : "#5865F2",
+  background: isGet ? "#15803D" : "#4F46E5", // AA white-on-colour (was #22C55E ≈ 2.3:1)
   minWidth: 44,
 }));
 
@@ -243,7 +243,7 @@ const AuthBadge = styled("span", {
       : (isApiOnly || isOptionalBearer)
         ? dk ? "rgba(29,78,216,0.15)" : "#DBEAFE"
         : dk ? "rgba(109,40,217,0.15)" : "#EDE9FE",
-    color: isPublishable ? (dk ? "#FBBF24" : "#B45309") : (isApiOnly || isOptionalBearer) ? "#60A5FA" : "#A78BFA",
+    color: isPublishable ? (dk ? "#FBBF24" : "#B45309") : (isApiOnly || isOptionalBearer) ? (dk ? "#93C5FD" : "#1D4ED8") : (dk ? "#C4B5FD" : "#6D28D9"),
   };
 });
 
@@ -1185,8 +1185,8 @@ CopyButton.displayName = "CopyButton";
 const CodeBlock = memo(({ code, lang }: { code: string; lang?: string }) => (
   <CodeBlockWrapper>
     <CopyButton text={code} />
-    <Pre>
-      {lang && <span style={{ color: "#6C7086", fontSize: 11, display: "block", marginBottom: 8 }}>{lang}</span>}
+    <Pre tabIndex={0} aria-label={lang ? `${lang} code sample` : "code sample"}>
+      {lang && <span style={{ color: "#9399B2", fontSize: 11, display: "block", marginBottom: 8 }}>{lang}</span>}
       <code>{code}</code>
     </Pre>
   </CodeBlockWrapper>
@@ -1215,9 +1215,9 @@ const ParamTable = memo(({ title, params }: { title: string; params: { name: str
               <tr key={p.name} style={{ borderBottom: i < params.length - 1 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
                 <td style={{ padding: "10px 16px" }}>
                   <code style={{ color: dk ? "#818CF8" : BRAND_ACCENT, fontWeight: 600, fontSize: 13, fontFamily: "var(--font-tech), monospace" }}>{p.name}</code>
-                  {"required" in p && p.required && <span style={{ color: "#EF4444", fontSize: 11, marginLeft: 6, fontFamily: "var(--font-sans)" }}>required</span>}
+                  {"required" in p && p.required && <span style={{ color: dk ? "#F87171" : "#B91C1C", fontSize: 11, marginLeft: 6, fontFamily: "var(--font-sans)" }}>required</span>}
                 </td>
-                <td style={{ padding: "10px 16px" }}><code style={{ fontSize: 12, color: dk ? "#8B8FA0" : "#6B7280" }}>{p.type}</code></td>
+                <td style={{ padding: "10px 16px" }}><code style={{ fontSize: 12, color: dk ? "#8B8FA0" : "#4B5563" }}>{p.type}</code></td>
                 <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)", fontSize: 13 }}>{p.description}</td>
               </tr>
             ))}
@@ -1755,7 +1755,7 @@ const DocumentationPage = () => {
                 <Grid container spacing={2.5} sx={{ mb: 3 }}>
                   <Grid item xs={12} md={4}>
                     <AuthCard variant="blue">
-                      <Typography sx={{ fontWeight: 500, fontFamily: "var(--font-sans)", fontSize: 15, color: "#60A5FA", mb: 1 }}>API Key — all you need</Typography>
+                      <Typography sx={{ fontWeight: 500, fontFamily: "var(--font-sans)", fontSize: 15, color: dk ? "#60A5FA" : "#1D4ED8", mb: 1 }}>API Key — all you need</Typography>
                       <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mb: 2 }}>
                         Send your secret <code style={{ background: dk ? "#1E2030" : "#E5E7EB", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>x-api-key</code> header with every request. It powers everything — payments, checkout, wallets and transactions. Keep it server-side; never expose it in a browser.
                       </Typography>
@@ -1767,7 +1767,7 @@ const DocumentationPage = () => {
                   </Grid>
                   <Grid item xs={12} md={4}>
                     <AuthCard variant="purple">
-                      <Typography sx={{ fontWeight: 500, fontFamily: "var(--font-sans)", fontSize: 15, color: "#A78BFA", mb: 1 }}>Publishable Key (browser)</Typography>
+                      <Typography sx={{ fontWeight: 500, fontFamily: "var(--font-sans)", fontSize: 15, color: dk ? "#A78BFA" : "#6D28D9", mb: 1 }}>Publishable Key (browser)</Typography>
                       <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mb: 2 }}>
                         Only for Embedded Checkout and Elements, which run in your customer&apos;s browser. Use your domain-restricted publishable key (<code style={{ background: dk ? "#1E2030" : "#E5E7EB", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>pk_live_…</code>) there — never your secret API key.
                       </Typography>
@@ -1776,7 +1776,7 @@ const DocumentationPage = () => {
                   </Grid>
                   <Grid item xs={12} md={4}>
                     <AuthCard variant="green">
-                      <Typography sx={{ fontWeight: 500, fontFamily: "var(--font-sans)", fontSize: 15, color: "#10B981", mb: 1 }}>Customer Token (optional)</Typography>
+                      <Typography sx={{ fontWeight: 500, fontFamily: "var(--font-sans)", fontSize: 15, color: dk ? "#10B981" : "#047857", mb: 1 }}>Customer Token (optional)</Typography>
                       <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mb: 2 }}>
                         Advanced and rarely needed. A few endpoints accept an optional customer Bearer token to scope wallet balances and history to one customer. You obtain it from <code style={{ background: dk ? "#1E2030" : "#E5E7EB", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>POST /createUser</code>. Omit it and the API runs in userless mode.
                       </Typography>
@@ -1834,10 +1834,10 @@ const DocumentationPage = () => {
                       ].map((row, i, arr) => {
                         const [status, inWallet, terminal, meaning] = row;
                         const clr =
-                          status === "settled" ? "#22C55E"
-                            : (status === "failed" || status === "expired") ? "#EF4444"
-                              : status === "underpaid" ? "#F59E0B"
-                                : status === "refunded" ? (dk ? "#C8CAD5" : "#6B7280")
+                          status === "settled" ? (dk ? "#22C55E" : "#166534")
+                            : (status === "failed" || status === "expired") ? (dk ? "#EF4444" : "#B91C1C")
+                              : status === "underpaid" ? (dk ? "#F59E0B" : "#92400E")
+                                : status === "refunded" ? (dk ? "#C8CAD5" : "#4B5563")
                                   : (dk ? "#818CF8" : BRAND_ACCENT);
                         return (
                           <tr key={status} style={{ borderBottom: i < arr.length - 1 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
@@ -2184,7 +2184,7 @@ app.post('/webhooks/dynopay', (req, res) => {
                       ].map(([pri, src, use], i) => (
                         <tr key={pri} style={{ borderBottom: i < 2 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
                           <td style={{ padding: "10px 16px" }}>
-                            <code style={{ fontWeight: 700, color: "#F59E0B", fontFamily: "var(--font-tech), monospace" }}>{pri}</code>
+                            <code style={{ fontWeight: 700, color: dk ? "#F59E0B" : "#92400E", fontFamily: "var(--font-tech), monospace" }}>{pri}</code>
                           </td>
                           <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)" }}>{src}</td>
                           <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)", fontSize: 13 }}>{use}</td>
@@ -2284,7 +2284,7 @@ app.post('/webhooks/dynopay', (req, res) => {
                       ].map(([code, desc], i) => (
                         <tr key={code} style={{ borderBottom: i < 5 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
                           <td style={{ padding: "10px 16px" }}>
-                            <code style={{ fontWeight: 700, color: Number(code) >= 500 ? "#EF4444" : "#F59E0B", fontFamily: "var(--font-tech), monospace" }}>{code}</code>
+                            <code style={{ fontWeight: 700, color: Number(code) >= 500 ? (dk ? "#EF4444" : "#B91C1C") : (dk ? "#F59E0B" : "#92400E"), fontFamily: "var(--font-tech), monospace" }}>{code}</code>
                           </td>
                           <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)" }}>{desc}</td>
                         </tr>
@@ -2329,7 +2329,7 @@ app.post('/webhooks/dynopay', (req, res) => {
                             <code style={{ fontWeight: 700, color: brandFg(dk), fontFamily: "var(--font-tech), monospace" }}>{code}</code>
                           </td>
                           <td style={{ padding: "10px 16px" }}>
-                            <code style={{ fontWeight: 700, color: Number(http) >= 500 ? "#EF4444" : "#F59E0B", fontFamily: "var(--font-tech), monospace" }}>{http}</code>
+                            <code style={{ fontWeight: 700, color: Number(http) >= 500 ? (dk ? "#EF4444" : "#B91C1C") : (dk ? "#F59E0B" : "#92400E"), fontFamily: "var(--font-tech), monospace" }}>{http}</code>
                           </td>
                           <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)" }}>{desc}</td>
                         </tr>

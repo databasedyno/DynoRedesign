@@ -52,6 +52,7 @@ const SettlementCard: React.FC<Props> = ({ ac, cardSx, hideToggle }) => {
               onChange={handleToggle}
               disabled={toggleDisabled}
               data-testid="payouts-autoconvert-toggle"
+              inputProps={{ "aria-label": t("payouts.autoConvert", { defaultValue: "Auto-convert" }) }}
               sx={{
                 "& .MuiSwitch-switchBase.Mui-checked": { color: SUCCESS_GREEN },
                 "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": { backgroundColor: SUCCESS_GREEN },
@@ -73,6 +74,7 @@ const SettlementCard: React.FC<Props> = ({ ac, cardSx, hideToggle }) => {
               onChange={(e) => handleCoinChange(e.target.value as string)}
               displayEmpty
               data-testid="payouts-settlement-coin-select"
+              inputProps={{ "aria-label": t("payouts.settlementCoinLabel", { defaultValue: "Settlement coin" }) }}
               sx={{ borderRadius: 2, fontWeight: 600 }}
             >
               <MenuItem value="" disabled>
@@ -93,7 +95,7 @@ const SettlementCard: React.FC<Props> = ({ ac, cardSx, hideToggle }) => {
 
       <Divider sx={{ my: 2 }} />
 
-      <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
+      <Typography variant="subtitle2" component="h2" sx={{ fontWeight: 700, mb: 1 }}>
         {t("payouts.settlementWallets", { defaultValue: "Settlement addresses" })}
       </Typography>
       {settlementLoading ? (

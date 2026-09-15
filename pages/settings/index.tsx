@@ -273,6 +273,8 @@ const CompanyConfigSection = ({
             value={selectedId ?? ""}
             size="small"
             data-testid="settings-company-picker"
+            inputProps={{ "aria-label": "Brand" }}
+            SelectDisplayProps={{ "aria-label": "Brand" } as React.HTMLAttributes<HTMLDivElement>}
             onChange={(e) => {
               const id = Number(e.target.value);
               setSelectedId(id);
@@ -661,7 +663,7 @@ const SettingsPageInner = ({
                   fontWeight: 700,
                   letterSpacing: "0.08em",
                   textTransform: "uppercase",
-                  color: theme.palette.text.disabled,
+                  color: theme.palette.text.secondary,
                   fontFamily: "var(--font-sans)",
                   px: "14px",
                   pt: 1.25,

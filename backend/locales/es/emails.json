@@ -1246,5 +1246,27 @@
       "intro": "{{companyName}} recibió {{amount}} de un comprador, pero el pago automático no se completó.",
       "next": "Nuestro equipo de operaciones ha sido alertado y está liquidando este pago manualmente. Recibirá un correo de confirmación en un día hábil; responda a este correo si lo necesita antes."
     }
+  },
+  "tipGoal": {
+    "cta": "Ver tu página",
+    "ofGoal": "de tu objetivo mensual de {{goal}}",
+    "percentFunded": "{{pct}}% alcanzado",
+    "supportersOne": "Eso es 1 seguidor este mes.",
+    "supportersOther": "Eso son {{count}} seguidores este mes.",
+    "footnote": "Tu objetivo se reinicia el día 1 de cada mes. Puedes cambiarlo o quitarlo en cualquier momento en Tu página → Ajustes de propinas. Cada propina se paga directamente a tu dirección de cobro — Dynopay nunca retiene tus fondos.",
+    "halfway": {
+      "subject": "Vas por la mitad de tu objetivo mensual de propinas",
+      "preheader": "{{raised}} de {{goal}} recaudados — ya vas por la mitad.",
+      "heading": "¡Ya vas por la mitad!",
+      "intro": "Los seguidores de {{brand}} han aportado {{raised}} hasta ahora en {{month}} — más de la mitad de tu objetivo de {{goal}}.",
+      "next": "Mantén el impulso: comparte tu página o agradece a tus seguidores recientes en el muro."
+    },
+    "reached": {
+      "subject": "Has alcanzado tu objetivo mensual de propinas 🎉",
+      "preheader": "{{raised}} recaudados — tu objetivo de {{goal}} está completo.",
+      "heading": "¡Objetivo alcanzado!",
+      "intro": "Los seguidores de {{brand}} han dado {{raised}} en propinas en {{month}}, así que tu objetivo de {{goal}} está completo. ¡Enhorabuena!",
+      "next": "Todo lo que llegue a partir de ahora es un extra — la barra de tu página ya muestra el objetivo como alcanzado."
+    }
   }
 }

@@ -1,0 +1,37 @@
+{
+  "route": "/create-pay-link",
+  "violations": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "nodes": [
+        {
+          "target": ".mui-1ui6a0h",
+          "html": "<div class=\"MuiBox-root mui-1ui6a0h\"><div class=\"MuiBox-root mui-p8g1yf\"></div>Live preview</div>",
+          "msg": "Element has insufficient color contrast of 4.34 (foreground color: #64748b, background color: #f1f5f9, font size: 8.3pt (11px), font weight: bold). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": ".mui-1qghur7-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-1qghur7-MuiTypography-root\">What your customer will see when they open your link.</p>",
+          "msg": "Element has insufficient color contrast of 4.34 (foreground color: #64748b, background color: #f1f5f9, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+        }
+      ],
+      "count": 2
+    },
+    {
+      "id": "region",
+      "impact": "moderate",
+      "help": "All page content should be contained by landmarks",
+      "nodes": [
+        {
+          "target": ".mui-mwmxi-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-mwmxi-MuiTypography-root\" data-testid=\"mfa-soft-banner-text\">Two-step verification becomes required on Sep ",
+          "msg": "Some page content is not contained by landmarks"
+        }
+      ],
+      "count": 1
+    }
+  ],
+  "focus": []
+}

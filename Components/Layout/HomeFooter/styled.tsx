@@ -111,7 +111,7 @@ export const BottomSection = styled(Box)(({ theme }) => {
 });
 
 export const CopyrightText = styled(Typography)(({ theme }) => ({
-  color: theme.palette.mode === "dark" ? "rgba(255,255,255,0.5)" : "#71717A",
+  color: theme.palette.mode === "dark" ? "rgba(255,255,255,0.62)" : "#6B6B74",
   fontSize: 13.5,
   fontFamily: "var(--font-body)",
 }));

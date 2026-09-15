@@ -1,8 +1,8 @@
 import type { KeyboardEvent } from "react";
 
-/** Makes a clickable row/card keyboard-operable: focusable, announced as a button, Enter/Space activate. */
+/** Makes a clickable row/card keyboard-operable: focusable, Enter/Space activate.
+ *  No role="button": rows usually contain their own buttons/links (WCAG nested-interactive). */
 export const rowKeyProps = (onActivate: () => void, label?: string) => ({
-  role: "button" as const,
   tabIndex: 0,
   "aria-label": label,
   onKeyDown: (e: KeyboardEvent<HTMLElement>) => {

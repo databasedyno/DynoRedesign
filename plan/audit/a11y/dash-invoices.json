@@ -1,0 +1,85 @@
+{
+  "route": "/invoices",
+  "violations": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "nodes": [
+        {
+          "target": ".mui-77qbke",
+          "html": "<div class=\"MuiBox-root mui-77qbke\">Showing</div>",
+          "msg": "Element has insufficient color contrast of 4.34 (foreground color: #64748b, background color: #f1f5f9, font size: 9.4pt (12.5px), font weight: normal). Expected contrast ratio of 4.5:1"
+        }
+      ],
+      "count": 1
+    },
+    {
+      "id": "nested-interactive",
+      "impact": "serious",
+      "help": "Interactive controls must not be nested",
+      "nodes": [
+        {
+          "target": "tr[data-testid=\"invoice-row-9\"]",
+          "html": "<tr class=\"MuiTableRow-root MuiTableRow-hover mui-1ikz308-MuiTableRow-root\" role=\"button\" data-testid=\"invoice-row-9\" tabindex=\"0\" aria-label=\"INV-20260905-0000",
+          "msg": "Element has focusable descendants"
+        },
+        {
+          "target": "tr[data-testid=\"invoice-row-8\"]",
+          "html": "<tr class=\"MuiTableRow-root MuiTableRow-hover mui-1ikz308-MuiTableRow-root\" role=\"button\" data-testid=\"invoice-row-8\" tabindex=\"0\" aria-label=\"INV-20260824-0000",
+          "msg": "Element has focusable descendants"
+        },
+        {
+          "target": "tr[data-testid=\"invoice-row-7\"]",
+          "html": "<tr class=\"MuiTableRow-root MuiTableRow-hover mui-1ikz308-MuiTableRow-root\" role=\"button\" data-testid=\"invoice-row-7\" tabindex=\"0\" aria-label=\"INV-20260814-0000",
+          "msg": "Element has focusable descendants"
+        },
+        {
+          "target": "tr[data-testid=\"invoice-row-6\"]",
+          "html": "<tr class=\"MuiTableRow-root MuiTableRow-hover mui-1ikz308-MuiTableRow-root\" role=\"button\" data-testid=\"invoice-row-6\" tabindex=\"0\" aria-label=\"INV-20260712-0000",
+          "msg": "Element has focusable descendants"
+        },
+        {
+          "target": "tr[data-testid=\"invoice-row-5\"]",
+          "html": "<tr class=\"MuiTableRow-root MuiTableRow-hover mui-1ikz308-MuiTableRow-root\" role=\"button\" data-testid=\"invoice-row-5\" tabindex=\"0\" aria-label=\"INV-20260712-0000",
+          "msg": "Element has focusable descendants"
+        },
+        {
+          "target": "tr[data-testid=\"invoice-row-4\"]",
+          "html": "<tr class=\"MuiTableRow-root MuiTableRow-hover mui-1ikz308-MuiTableRow-root\" role=\"button\" data-testid=\"invoice-row-4\" tabindex=\"0\" aria-label=\"INV-20260712-0000",
+          "msg": "Element has focusable descendants"
+        },
+        {
+          "target": "tr[data-testid=\"invoice-row-3\"]",
+          "html": "<tr class=\"MuiTableRow-root MuiTableRow-hover mui-1ikz308-MuiTableRow-root\" role=\"button\" data-testid=\"invoice-row-3\" tabindex=\"0\" aria-label=\"INV-20260712-0000",
+          "msg": "Element has focusable descendants"
+        },
+        {
+          "target": "tr[data-testid=\"invoice-row-2\"]",
+          "html": "<tr class=\"MuiTableRow-root MuiTableRow-hover mui-1ikz308-MuiTableRow-root\" role=\"button\" data-testid=\"invoice-row-2\" tabindex=\"0\" aria-label=\"INV-20260630-0000",
+          "msg": "Element has focusable descendants"
+        },
+        {
+          "target": "tr[data-testid=\"invoice-row-1\"]",
+          "html": "<tr class=\"MuiTableRow-root MuiTableRow-hover mui-1ikz308-MuiTableRow-root\" role=\"button\" data-testid=\"invoice-row-1\" tabindex=\"0\" aria-label=\"INV-20260630-0000",
+          "msg": "Element has focusable descendants"
+        }
+      ],
+      "count": 9
+    },
+    {
+      "id": "region",
+      "impact": "moderate",
+      "help": "All page content should be contained by landmarks",
+      "nodes": [
+        {
+          "target": ".mui-mwmxi-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-mwmxi-MuiTypography-root\" data-testid=\"mfa-soft-banner-text\">Two-step verification becomes required on Sep ",
+          "msg": "Some page content is not contained by landmarks"
+        }
+      ],
+      "count": 1
+    }
+  ],
+  "focus": []
+}

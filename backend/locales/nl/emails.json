@@ -1246,5 +1246,27 @@
       "intro": "{{companyName}} heeft {{amount}} van een koper ontvangen, maar de automatische uitbetaling is niet gelukt.",
       "next": "Ons operationele team is gewaarschuwd en wikkelt deze uitbetaling handmatig af. Verwacht binnen één werkdag een bevestigingsmail; antwoord op deze e-mail als u het eerder nodig heeft."
     }
+  },
+  "tipGoal": {
+    "cta": "Bekijk je pagina",
+    "ofGoal": "van je maanddoel van {{goal}}",
+    "percentFunded": "{{pct}}% behaald",
+    "supportersOne": "Dat is 1 supporter deze maand.",
+    "supportersOther": "Dat zijn {{count}} supporters deze maand.",
+    "footnote": "Je doel wordt op de 1e van elke maand gereset. Pas het aan of verwijder het wanneer je wilt via Jouw pagina → Fooi-instellingen. Elke fooi gaat rechtstreeks naar je uitbetalingsadres — Dynopay houdt je geld nooit vast.",
+    "halfway": {
+      "subject": "Je bent halverwege je maandelijkse fooidoel",
+      "preheader": "{{raised}} van {{goal}} opgehaald — je bent halverwege.",
+      "heading": "Halverwege!",
+      "intro": "Supporters van {{brand}} hebben in {{month}} al {{raised}} bijgedragen — meer dan de helft van je doel van {{goal}}.",
+      "next": "Houd het momentum vast: deel je pagina of bedank je recente supporters op de wall."
+    },
+    "reached": {
+      "subject": "Je hebt je maandelijkse fooidoel bereikt 🎉",
+      "preheader": "{{raised}} opgehaald — je doel van {{goal}} is behaald.",
+      "heading": "Doel bereikt!",
+      "intro": "Supporters van {{brand}} hebben in {{month}} {{raised}} aan fooien gegeven, dus je doel van {{goal}} is behaald. Goed gedaan!",
+      "next": "Alles wat er nu nog bijkomt is een bonus — de balk op je pagina toont het doel nu als behaald."
+    }
   }
 }

@@ -688,5 +688,30 @@
     "planLineTop": "{{tier}} tier · {{pct}}% per payment",
     "planDetails": "Plan & fees",
     "hidePlan": "Hide"
+  },
+  "kycTimeline": {
+    "title": "How verification works",
+    "nextUp": "Next up — use the button above to continue.",
+    "prepare": {
+      "title": "Get your documents ready",
+      "body": "A government photo ID (passport, ID card or driving licence) and a device with a camera for a quick selfie.",
+      "wait": "2 minutes"
+    },
+    "submit": {
+      "title": "Submit your verification",
+      "body": "Follow the secure Veriff flow: photograph your ID, take a selfie, done.",
+      "retryBody": "Your last attempt didn't go through — start again with a clear, well-lit photo of the full document.",
+      "wait": "5–10 minutes"
+    },
+    "review": {
+      "title": "We review it",
+      "body": "Most checks clear automatically within minutes. If a manual look is needed you'll get an email either way — nothing else to do.",
+      "wait": "Minutes · up to 48 h"
+    },
+    "verified": {
+      "title": "Verified — payouts unlocked",
+      "body": "Full limits, live payment links and settlements to your payout addresses.",
+      "wait": "Done"
+    }
   }
 }

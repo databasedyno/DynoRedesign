@@ -420,7 +420,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
             </Box>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.75, mt: 2, flexWrap: 'wrap' }}>
-            <Typography data-testid='creator-name' fontWeight={800} fontSize={{ xs: 26, sm: 30 }} letterSpacing='-0.03em' color={theme.palette.text.primary} sx={{ fontFamily: 'var(--font-hero), var(--font-sans)' }}>
+            <Typography component='h1' data-testid='creator-name' fontWeight={800} fontSize={{ xs: 26, sm: 30 }} letterSpacing='-0.03em' color={theme.palette.text.primary} sx={{ fontFamily: 'var(--font-hero), var(--font-sans)' }}>
               {creator.name}
             </Typography>
             <PublicVerifiedBadge handle={creator.handle} size={20} ml={0} />

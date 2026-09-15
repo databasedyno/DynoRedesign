@@ -121,7 +121,7 @@ const PageTab = () => {
                     boxShadow: "0 0 0 2px rgba(34,197,94,0.20)",
                   }}
                 />
-                <Typography sx={{ fontSize: 9.5, fontWeight: 800, letterSpacing: 0.5, color: "#22c55e", textTransform: "uppercase" }}>
+                <Typography sx={{ fontSize: 9.5, fontWeight: 800, letterSpacing: 0.5, color: theme.palette.mode === "dark" ? "#4ADE80" : "#14532D", textTransform: "uppercase" }}>
                   Live
                 </Typography>
               </Box>

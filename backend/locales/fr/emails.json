@@ -1246,5 +1246,27 @@
       "intro": "{{companyName}} a reçu {{amount}} d'un acheteur, mais le versement automatique n'a pas abouti.",
       "next": "Notre équipe opérations a été alertée et règle ce versement manuellement. Attendez-vous à un e-mail de confirmation sous un jour ouvré ; répondez à cet e-mail si vous en avez besoin plus tôt."
     }
+  },
+  "tipGoal": {
+    "cta": "Voir votre page",
+    "ofGoal": "de votre objectif mensuel de {{goal}}",
+    "percentFunded": "{{pct}}% atteint",
+    "supportersOne": "Soit 1 soutien ce mois-ci.",
+    "supportersOther": "Soit {{count}} soutiens ce mois-ci.",
+    "footnote": "Votre objectif est remis à zéro le 1er de chaque mois. Modifiez-le ou supprimez-le à tout moment dans Votre page → Paramètres des pourboires. Chaque pourboire est versé directement à votre adresse de versement — Dynopay ne détient jamais vos fonds.",
+    "halfway": {
+      "subject": "Vous êtes à mi-chemin de votre objectif mensuel de pourboires",
+      "preheader": "{{raised}} sur {{goal}} collectés — la moitié est faite.",
+      "heading": "À mi-chemin !",
+      "intro": "Les soutiens de {{brand}} ont déjà versé {{raised}} en {{month}} — plus de la moitié de votre objectif de {{goal}}.",
+      "next": "Gardez le rythme : partagez votre page ou remerciez vos derniers soutiens sur le mur."
+    },
+    "reached": {
+      "subject": "Vous avez atteint votre objectif mensuel de pourboires 🎉",
+      "preheader": "{{raised}} collectés — votre objectif de {{goal}} est atteint.",
+      "heading": "Objectif atteint !",
+      "intro": "Les soutiens de {{brand}} ont versé {{raised}} de pourboires en {{month}} : votre objectif de {{goal}} est atteint. Bravo !",
+      "next": "Tout ce qui arrive désormais est un bonus — la barre de votre page indique maintenant l'objectif comme atteint."
+    }
   }
 }

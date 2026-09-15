@@ -1262,5 +1262,27 @@
       "intro": "{{companyName}} received {{amount}} from a buyer, but the automatic payout did not go through.",
       "next": "Our operations team has been alerted and is settling this payout manually. Expect a confirmation email within one business day; reply to this email if you need it sooner."
     }
+  },
+  "tipGoal": {
+    "cta": "View your page",
+    "ofGoal": "of your {{goal}} monthly goal",
+    "percentFunded": "{{pct}}% funded",
+    "supportersOne": "That's 1 supporter this month.",
+    "supportersOther": "That's {{count}} supporters this month.",
+    "footnote": "Your goal resets on the 1st of every month. Change or remove it any time under Your page → Tips settings. Every tip is paid straight to your payout address — Dynopay never holds your funds.",
+    "halfway": {
+      "subject": "You're halfway to your monthly tip goal",
+      "preheader": "{{raised}} of {{goal}} raised — halfway there.",
+      "heading": "Halfway there!",
+      "intro": "Supporters of {{brand}} have chipped in {{raised}} so far in {{month}} — that's over half of your {{goal}} goal.",
+      "next": "Keep the momentum: share your page or thank your recent supporters on the wall."
+    },
+    "reached": {
+      "subject": "You hit your monthly tip goal 🎉",
+      "preheader": "{{raised}} raised — your {{goal}} goal is complete.",
+      "heading": "Goal reached!",
+      "intro": "Supporters of {{brand}} have tipped {{raised}} in {{month}}, so your {{goal}} goal is complete. Well done!",
+      "next": "Anything from here on is a bonus — the bar on your page now shows the goal as reached."
+    }
   }
 }

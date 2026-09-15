@@ -82,6 +82,7 @@ import { calculateDynamicTRC20Fee } from "../../../services/tronEnergyService";
 import { getAvailableCreditForFees, consumeReferralCreditForTransaction } from "../../../services/referralCreditService";
 import { dispatchCompanyEmail } from "../../../services/email/companyDispatch";
 import { buildBuyAgainLink } from "../../../services/email/buyAgainLink";
+import { checkTipGoalMilestone } from "../../../services/tipGoalMilestoneService";
 
 import { settleCryptoTransaction } from "./settleTransaction";
 import { D, add, div, mul, roundTo, sub, toFixedStr, toNumber } from "../../../utils/money";
@@ -1828,6 +1829,11 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
               moneyPath                // Full money path → "Payment settled" layout
             )
           );
+        }
+
+        // Creator monthly tip goal: a settled tip may push this month past 50% / 100%.
+        if ((customerData?.link_type || tempData?.link_type) === "contribution") {
+          void checkTipGoalMilestone(customerData?.parent_link_id || tempData?.parent_link_id);
         }
 
         // Get company name for notifications (used below) — buyer-facing, so

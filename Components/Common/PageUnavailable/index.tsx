@@ -38,7 +38,7 @@ const PageUnavailable = ({
   // Theme-aware tokens (work across the app's home/auth/app palettes).
   const ink = isDark ? "#F5F5F5" : "#0A0A0A";
   const muted = isDark ? "rgba(245,245,245,0.62)" : "rgba(10,10,10,0.58)";
-  const faint = isDark ? "rgba(245,245,245,0.42)" : "rgba(10,10,10,0.42)";
+  const faint = isDark ? "rgba(245,245,245,0.62)" : "rgba(10,10,10,0.6)"; // AA (was 0.42 ≈ 2.9:1)
   const surface = isDark ? "rgba(255,255,255,0.04)" : "rgba(10,10,10,0.03)";
   const border = isDark ? "rgba(255,255,255,0.10)" : "rgba(10,10,10,0.10)";
   const accent = theme.palette.primary?.main || "#5A6BEF";
@@ -46,6 +46,7 @@ const PageUnavailable = ({
 
   return (
     <Box
+      component="main"
       data-testid="page-unavailable"
       sx={{
         position: "relative",

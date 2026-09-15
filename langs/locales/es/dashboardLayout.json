@@ -688,5 +688,30 @@
     "planLineTop": "Nivel {{tier}} · {{pct}} % por pago",
     "planDetails": "Plan y comisiones",
     "hidePlan": "Ocultar"
+  },
+  "kycTimeline": {
+    "title": "Cómo funciona la verificación",
+    "nextUp": "Siguiente paso — usa el botón de arriba para continuar.",
+    "prepare": {
+      "title": "Prepara tus documentos",
+      "body": "Un documento de identidad oficial con foto (pasaporte, DNI o carnet de conducir) y un dispositivo con cámara para una selfie rápida.",
+      "wait": "2 minutos"
+    },
+    "submit": {
+      "title": "Envía tu verificación",
+      "body": "Sigue el flujo seguro de Veriff: fotografía tu documento, hazte una selfie y listo.",
+      "retryBody": "Tu último intento no se completó — vuelve a empezar con una foto nítida y bien iluminada del documento completo.",
+      "wait": "5–10 minutos"
+    },
+    "review": {
+      "title": "Lo revisamos",
+      "body": "La mayoría de las comprobaciones se aprueban automáticamente en minutos. Si hace falta una revisión manual, recibirás un correo en cualquier caso — no tienes que hacer nada más.",
+      "wait": "Minutos · hasta 48 h"
+    },
+    "verified": {
+      "title": "Verificado — pagos desbloqueados",
+      "body": "Límites completos, enlaces de pago activos y liquidaciones a tus direcciones de cobro.",
+      "wait": "Hecho"
+    }
   }
 }

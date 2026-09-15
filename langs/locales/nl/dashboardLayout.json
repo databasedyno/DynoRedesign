@@ -688,5 +688,30 @@
     "planLineTop": "{{tier}}-niveau · {{pct}}% per betaling",
     "planDetails": "Plan & kosten",
     "hidePlan": "Verbergen"
+  },
+  "kycTimeline": {
+    "title": "Zo werkt de verificatie",
+    "nextUp": "Volgende stap — gebruik de knop hierboven om verder te gaan.",
+    "prepare": {
+      "title": "Leg je documenten klaar",
+      "body": "Een officieel identiteitsbewijs met foto (paspoort, ID-kaart of rijbewijs) en een apparaat met camera voor een snelle selfie.",
+      "wait": "2 minuten"
+    },
+    "submit": {
+      "title": "Dien je verificatie in",
+      "body": "Volg de beveiligde Veriff-flow: fotografeer je ID, maak een selfie, klaar.",
+      "retryBody": "Je laatste poging is niet gelukt — begin opnieuw met een scherpe, goed belichte foto van het volledige document.",
+      "wait": "5–10 minuten"
+    },
+    "review": {
+      "title": "Wij beoordelen",
+      "body": "De meeste controles worden binnen enkele minuten automatisch goedgekeurd. Als een handmatige controle nodig is, krijg je in elk geval een e-mail — verder hoef je niets te doen.",
+      "wait": "Minuten · tot 48 uur"
+    },
+    "verified": {
+      "title": "Geverifieerd — uitbetalingen ontgrendeld",
+      "body": "Volledige limieten, actieve betaallinks en afwikkelingen naar je uitbetalingsadressen.",
+      "wait": "Klaar"
+    }
   }
 }

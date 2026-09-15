@@ -218,7 +218,7 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
 
   if (!order) {
     return (
-      <Container maxWidth="sm" sx={{ pt: { xs: "120px", md: "136px" }, pb: 8 }}>
+      <Container component="main" maxWidth="sm" sx={{ pt: { xs: "120px", md: "136px" }, pb: 8 }}>
         <Alert severity="error" data-testid="order-not-found">{t("order.notFound")}</Alert>
       </Container>
     );
@@ -414,11 +414,11 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
         <title>{`Order ${order.public_ref.slice(0, 8).toUpperCase()} · Dynopay`}</title>
         <meta name="robots" content="noindex" />
       </Head>
-      <Container maxWidth="md" sx={{ pt: { xs: "88px", md: "112px" }, pb: { xs: 3, md: 5 } }} data-testid="order-page">
+      <Container component="main" maxWidth="md" sx={{ pt: { xs: "88px", md: "112px" }, pb: { xs: 3, md: 5 } }} data-testid="order-page">
         <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 3 }}>
           <Box sx={{ flex: 1 }}>
             <Typography variant="body2" color="text.secondary">{t("order.label")}</Typography>
-            <Typography variant="h5" sx={{ fontWeight: 700, fontFamily: "var(--font-mono)" }} data-testid="order-ref">
+            <Typography variant="h5" component="h1" sx={{ fontWeight: 700, fontFamily: "var(--font-mono)" }} data-testid="order-ref">
               #{order.public_ref.slice(0, 8).toUpperCase()}
             </Typography>
           </Box>

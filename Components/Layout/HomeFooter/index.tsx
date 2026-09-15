@@ -67,7 +67,7 @@ const HomeFooter: FC = () => {
 
   const linkColor = dark ? "rgba(255,255,255,0.66)" : "#3F3F46";
   const linkHover = dark ? "#A5B4FC" : BRAND_ACCENT;
-  const headingColor = dark ? "rgba(255,255,255,0.5)" : "#8A8A94";
+  const headingColor = dark ? "rgba(255,255,255,0.62)" : "#66666F";
   const descColor = dark ? "rgba(255,255,255,0.58)" : "#52525B";
   const trustBorder = dark ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)";
   const trustBg = dark ? "rgba(255,255,255,0.03)" : "rgba(10,10,10,0.02)";
@@ -181,7 +181,7 @@ const HomeFooter: FC = () => {
           {/* Link columns */}
           {columns.map((col) => (
             <Box key={col.heading} component="nav" aria-label={col.heading}>
-              <Typography component="h3" sx={headingSx}>
+              <Typography component="h2" sx={headingSx}>
                 {col.heading}
               </Typography>
               <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>

@@ -590,7 +590,8 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                     ? {
                         role: "button",
                         tabIndex: 0,
-                        "aria-sort": active ? (sort.dir === "asc" ? "ascending" : "descending") : "none",
+                        "aria-label": active ? `${item.label}, ${sort.dir === "asc" ? "ascending" : "descending"}` : String(item.label),
+                        "aria-pressed": active,
                         "data-testid": `tx-sort-${item.key}`,
                         "data-sort-dir": active ? sort.dir : undefined,
                         onClick: () => handleSort(item.key as TxSortKey),
@@ -655,6 +656,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                 <TransactionsTableRow
                   key={transaction.id}
                   data-testid={`tx-row-${transaction.id}`}
+                  role="button"
                   onClick={() => handleRowClick(transaction)}
                   {...rowKeyProps(() => handleRowClick(transaction))}
                   sx={{

@@ -97,6 +97,7 @@ const DigestCard: React.FC<Props> = ({ cardSx }) => {
           onChange={(e) => toggleDigest(e.target.checked)}
           disabled={saving}
           data-testid="payouts-digest-toggle"
+          inputProps={{ "aria-label": t("payouts.weeklyDigest", { defaultValue: "Weekly payout digest" }) as string }}
         />
       </Stack>
     </Box>

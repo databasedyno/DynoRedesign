@@ -33,7 +33,7 @@ const KycHistory: React.FC<{ records?: KycRecord[]; loading: boolean }> = ({ rec
     });
 
   return (
-    <PanelCard title={t("kycPage.historyTitle", { defaultValue: "Verification history" })} showHeaderBorder={false}>
+    <PanelCard title={t("kycPage.historyTitle", { defaultValue: "Verification history" })} showHeaderBorder={false} bodySx={{ px: { xs: 2, md: 2.5 }, pt: { xs: 0.5, md: 1 }, pb: { xs: 1, md: 1.5 } }}>
       {loading ? (
         <Skeleton variant="rounded" height={48} />
       ) : (

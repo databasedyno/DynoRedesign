@@ -130,6 +130,7 @@ const ShopPage: NextPageWithLayout<ShopPageProps> = ({ merchant, products, siteU
       </Head>
 
       <Container
+        component="main"
         maxWidth="lg"
         sx={{ pt: { xs: "80px", md: "96px" }, pb: { xs: 6, md: 8 } }}
         data-testid="shop-page"

@@ -1,0 +1,19 @@
+{
+  "route": "/dashboard",
+  "violations": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "nodes": [
+        {
+          "target": ".mui-1nwlrgf",
+          "html": "<span class=\"MuiBox-root mui-1nwlrgf\"> · last paid 1 h ago</span>",
+          "msg": "Element has insufficient color contrast of 4.15 (foreground color: #64748b, background color: #ecf0f4, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+        }
+      ],
+      "count": 1
+    }
+  ],
+  "focus": []
+}

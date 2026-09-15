@@ -63,7 +63,7 @@ export const useAurora = (): AuroraTokens => {
     surfaceElev: dark ? "#1D1D24" : "#FFFFFF",
     ink: dark ? "#F5F5F5" : INK,
     ink2: dark ? "#C9C9D1" : "#3F3F46",
-    ink3: dark ? "rgba(255,255,255,0.55)" : "#71717A",
+    ink3: dark ? "rgba(255,255,255,0.6)" : "#66666F", // ≥4.9:1 on paper/alt surfaces
     line: dark ? "rgba(255,255,255,0.08)" : "rgba(10,10,10,0.08)",
     lineStrong: dark ? "rgba(255,255,255,0.18)" : "rgba(10,10,10,0.16)",
     indigo: INDIGO,

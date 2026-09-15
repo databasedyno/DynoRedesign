@@ -1444,7 +1444,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
       {meta_?.merchant?.company_logo ? (
         <Box data-testid="clean-checkout-brand-row" data-variant="merchant" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, mb: 3 }}>
           <Box component="img" src={meta_.merchant.company_logo} alt={merchantName || ''} data-testid="clean-checkout-merchant-logo" sx={{ height: 28, maxWidth: 160, objectFit: 'contain', objectPosition: 'left' }} />
-          <Box data-testid="clean-checkout-psp-mark" sx={{ display: 'flex', alignItems: 'center', gap: 0.6, opacity: 0.75, flexShrink: 0 }}>
+          <Box data-testid="clean-checkout-psp-mark" sx={{ display: 'flex', alignItems: 'center', gap: 0.6, flexShrink: 0 }}>
             <Typography sx={{ fontFamily: MONO, fontSize: 10, letterSpacing: '0.02em', color: muted }}>
               {t('checkout.poweredBy', { defaultValue: 'Powered by' })}
             </Typography>
@@ -1610,6 +1610,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
           fullWidth
           size="small"
           data-testid="clean-checkout-currency-select"
+          SelectDisplayProps={{ 'aria-label': t('checkout.payWithLabel', { defaultValue: 'PAY WITH' }) } as React.HTMLAttributes<HTMLDivElement>}
           value={selectedSymbol || ''}
           renderValue={(val) => {
             const sym = String(val)
@@ -1721,7 +1722,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
                       · {fee ? `${fee} · ` : ''}{networkEta(code)}
                     </Box>
                     {cheapest && (
-                      <Box component="span" data-testid="clean-checkout-network-cheapest" sx={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase', px: 0.75, py: 0.1, borderRadius: '999px', backgroundColor: isDark ? 'rgba(34,197,94,0.18)' : 'rgba(22,163,74,0.10)', color: isDark ? '#4ade80' : '#15803d' }}>
+                      <Box component="span" data-testid="clean-checkout-network-cheapest" sx={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase', px: 0.75, py: 0.1, borderRadius: '999px', backgroundColor: isDark ? 'rgba(34,197,94,0.18)' : 'rgba(22,163,74,0.10)', color: isDark ? '#4ade80' : '#14532d' }}>
                         {t('checkout.cheapest', { defaultValue: 'Cheapest' })}
                       </Box>
                     )}

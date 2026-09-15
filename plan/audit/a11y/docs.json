@@ -1,0 +1,87 @@
+{
+  "route": "/documentation",
+  "violations": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "nodes": [
+        {
+          "target": "#overview > .mui-c493s > pre > span",
+          "html": "<span style=\"color:#6C7086;font-size:11px;display:block;margin-bottom:8px\">bash</span>",
+          "msg": "Element has insufficient color contrast of 3.35 (foreground color: #6c7086, background color: #1e1e2e, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": "#getting-started > .mui-c493s > pre > span",
+          "html": "<span style=\"color:#6C7086;font-size:11px;display:block;margin-bottom:8px\">bash</span>",
+          "msg": "Element has insufficient color contrast of 3.35 (foreground color: #6c7086, background color: #1e1e2e, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": ".mui-c493s:nth-child(4) > pre > span",
+          "html": "<span style=\"color:#6C7086;font-size:11px;display:block;margin-bottom:8px\">bash</span>",
+          "msg": "Element has insufficient color contrast of 3.35 (foreground color: #6c7086, background color: #1e1e2e, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": "#try-it > .mui-c493s:nth-child(6) > pre > span",
+          "html": "<span style=\"color:#6C7086;font-size:11px;display:block;margin-bottom:8px\">json</span>",
+          "msg": "Element has insufficient color contrast of 3.35 (foreground color: #6c7086, background color: #1e1e2e, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": ".mui-1f7ntp6-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-1f7ntp6-MuiTypography-root\">API Key — all you need</p>",
+          "msg": "Element has insufficient color contrast of 2.33 (foreground color: #60a5fa, background color: #eff6ff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": ".mui-1a09sba-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-1a09sba-MuiTypography-root\">Publishable Key (browser)</p>",
+          "msg": "Element has insufficient color contrast of 2.48 (foreground color: #a78bfa, background color: #f5f3ff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": ".mui-1wtc759-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-1wtc759-MuiTypography-root\">Customer Token (optional)</p>",
+          "msg": "Element has insufficient color contrast of 2.4 (foreground color: #10b981, background color: #ecfdf5, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": "#create-user > .mui-vek7xx > .mui-1ss8d7z",
+          "html": "<span class=\"mui-1ss8d7z\">API Key</span>",
+          "msg": "Element has insufficient color contrast of 2.08 (foreground color: #60a5fa, background color: #dbeafe, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": "#create-payment > .mui-vek7xx > .mui-1ss8d7z",
+          "html": "<span class=\"mui-1ss8d7z\">API Key</span>",
+          "msg": "Element has insufficient color contrast of 2.08 (foreground color: #60a5fa, background color: #dbeafe, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": "#crypto-payment > .mui-vek7xx > .mui-1ss8d7z",
+          "html": "<span class=\"mui-1ss8d7z\">API Key</span>",
+          "msg": "Element has insufficient color contrast of 2.08 (foreground color: #60a5fa, background color: #dbeafe, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": "#embed-session > .mui-vek7xx > .mui-1ss8d7z",
+          "html": "<span class=\"mui-1ss8d7z\">API Key</span>",
+          "msg": "Element has insufficient color contrast of 2.08 (foreground color: #60a5fa, background color: #dbeafe, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1"
+        },
+        {
+          "target": "#elements-status > .mui-vek7xx > .mui-1rparl6",
+          "html": "<span class=\"mui-1rparl6\">GET</span>",
+          "msg": "Element has insufficient color contrast of 2.27 (foreground color: #ffffff, background color: #22c55e, font size: 8.3pt (11px), font weight: bold). Expected contrast ratio of 4.5:1"
+        }
+      ],
+      "count": 68
+    },
+    {
+      "id": "scrollable-region-focusable",
+      "impact": "serious",
+      "help": "Scrollable region must have keyboard access",
+      "nodes": [
+        {
+          "target": ".mui-16tpk4p > .mui-c493s > pre",
+          "html": "<pre class=\"mui-1uhzcgc\"><code>x-api-key: your_api_key\n# Optional (advanced):\nAuthorization: Bearer {token_from_createUser}</code></pre>",
+          "msg": "Element should have focusable content   Element should be focusable"
+        }
+      ],
+      "count": 1
+    }
+  ],
+  "focus": []
+}

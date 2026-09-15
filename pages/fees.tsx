@@ -329,6 +329,7 @@ const FeesPage = () => {
                 </Typography>
                 <Slider
                   value={volume}
+                  aria-label={t("v3.volumeSliderLabel", { defaultValue: "Monthly volume" })}
                   min={500}
                   max={1000000}
                   step={500}

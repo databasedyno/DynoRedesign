@@ -1,0 +1,87 @@
+{
+  "route": "/auth/login",
+  "violations": [
+    {
+      "id": "landmark-one-main",
+      "impact": "moderate",
+      "help": "Document should have one main landmark",
+      "nodes": [
+        {
+          "target": "html",
+          "html": "<html lang=\"en\" data-theme=\"light\" style=\"color-scheme: light; --dp-lang-bar: 0px;\">",
+          "msg": "Document does not have a main landmark"
+        }
+      ],
+      "count": 1
+    },
+    {
+      "id": "region",
+      "impact": "moderate",
+      "help": "All page content should be contained by landmarks",
+      "nodes": [
+        {
+          "target": "img[alt=\"logo\"]",
+          "html": "<img alt=\"logo\" draggable=\"false\" data-testid=\"auth-shell-logo\" fetchpriority=\"high\" loading=\"eager\" width=\"130\" height=\"44\" decoding=\"async\" data-nimg=\"1\" styl",
+          "msg": "Some page content is not contained by landmarks"
+        },
+        {
+          "target": ".mui-1r0hlcj",
+          "html": "<div class=\"MuiBox-root mui-1r0hlcj\"><h1 class=\"MuiTypography-root MuiTypography-body1 mui-41mt7f-MuiTypography-root\">Log in</h1><p class=\"MuiTypography-root Mu",
+          "msg": "Some page content is not contained by landmarks"
+        },
+        {
+          "target": "label[for=\"field-:R8nad6jlbacm:\"]",
+          "html": "<label class=\"MuiTypography-root MuiTypography-body2 label mui-1vbdhrw-MuiTypography-root\" for=\"field-:R8nad6jlbacm:\"><span>Email</span></label>",
+          "msg": "Some page content is not contained by landmarks"
+        },
+        {
+          "target": "#field-\\:R8nad6jlbacm\\:",
+          "html": "<input autocomplete=\"off\" id=\"field-:R8nad6jlbacm:\" placeholder=\"Enter your email\" type=\"email\" form=\":R8nad6jlbacm:\" data-testid=\"login-email-input\" aria-label",
+          "msg": "Some page content is not contained by landmarks"
+        },
+        {
+          "target": ".mui-1kthjr2",
+          "html": "<div class=\"MuiBox-root mui-1kthjr2\"><p class=\"MuiTypography-root MuiTypography-body1 mui-8v4p9k-MuiTypography-root\">Don't have an account?</p><p class=\"MuiTypo",
+          "msg": "Some page content is not contained by landmarks"
+        },
+        {
+          "target": ".mui-58kkol > .mui-kl1xo3.MuiBox-root",
+          "html": "<div class=\"MuiBox-root mui-kl1xo3\"><p class=\"MuiTypography-root MuiTypography-body1 mui-1widjue-MuiTypography-root\" data-testid=\"switch-to-phone-login\">Use pho",
+          "msg": "Some page content is not contained by landmarks"
+        },
+        {
+          "target": ".mui-178yklu.MuiBox-root:nth-child(7)",
+          "html": "<div class=\"MuiBox-root mui-178yklu\">",
+          "msg": "Some page content is not contained by landmarks"
+        },
+        {
+          "target": ".mui-1vlzzmz",
+          "html": "<div class=\"MuiBox-root mui-1vlzzmz\"><div class=\"MuiBox-root mui-1ninrpv\"></div><p class=\"MuiTypography-root MuiTypography-body1 mui-18en8qp-MuiTypography-root\"",
+          "msg": "Some page content is not contained by landmarks"
+        },
+        {
+          "target": ".mui-1b3g3ra > .mui-0.MuiBox-root",
+          "html": "<div class=\"MuiBox-root mui-0\"><p class=\"MuiTypography-root MuiTypography-body1 mui-ul5rjg-MuiTypography-root\">Accept crypto.<!-- --> <span class=\"MuiBox-root m",
+          "msg": "Some page content is not contained by landmarks"
+        },
+        {
+          "target": ".mui-1fa0unf-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-1fa0unf-MuiTypography-root\">pay.dynopay.io/nova-store</p>",
+          "msg": "Some page content is not contained by landmarks"
+        },
+        {
+          "target": ".mui-1jlnwea",
+          "html": "<div class=\"MuiBox-root mui-1jlnwea\">",
+          "msg": "Some page content is not contained by landmarks"
+        },
+        {
+          "target": ".mui-7d6h3d-MuiTypography-root",
+          "html": "<p class=\"MuiTypography-root MuiTypography-body1 mui-7d6h3d-MuiTypography-root\">Hosted crypto checkout</p>",
+          "msg": "Some page content is not contained by landmarks"
+        }
+      ],
+      "count": 14
+    }
+  ],
+  "focus": []
+}

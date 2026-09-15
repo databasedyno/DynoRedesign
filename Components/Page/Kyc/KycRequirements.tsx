@@ -31,7 +31,7 @@ const KycRequirements: React.FC<{ requirements?: Req }> = ({ requirements }) => 
 
   return (
     <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "minmax(0, 1.2fr) minmax(0, 1fr)" }, gap: { xs: 2, md: 2.5 }, alignItems: "start" }}>
-      <PanelCard title={t("kycPage.needTitle", { defaultValue: "What you'll need" })} subTitle={t("kycPage.needSubtitle", { defaultValue: "Have these ready and the whole thing takes a few minutes." })} showHeaderBorder={false}>
+      <PanelCard title={t("kycPage.needTitle", { defaultValue: "What you'll need" })} subTitle={t("kycPage.needSubtitle", { defaultValue: "Have these ready and the whole thing takes a few minutes." })} showHeaderBorder={false} bodySx={{ px: { xs: 2, md: 2.5 }, pt: { xs: 1.5, md: 2 }, pb: { xs: 2, md: 2.5 } }}>
         <Box data-testid="kyc-requirements" sx={{ display: "grid", gap: 1.25 }}>
           {!requirements
             ? [0, 1, 2].map((i) => <Skeleton key={i} variant="rounded" height={64} />)
@@ -49,7 +49,7 @@ const KycRequirements: React.FC<{ requirements?: Req }> = ({ requirements }) => 
         </Box>
       </PanelCard>
 
-      <PanelCard title={t("kycPage.howTitle", { defaultValue: "How it works" })} showHeaderBorder={false}>
+      <PanelCard title={t("kycPage.howTitle", { defaultValue: "How it works" })} showHeaderBorder={false} bodySx={{ px: { xs: 2, md: 2.5 }, pt: { xs: 1.5, md: 2 }, pb: { xs: 2, md: 2.5 } }}>
         <Box component="ol" data-testid="kyc-how" sx={{ listStyle: "none", m: 0, p: 0, display: "grid", gap: 1.5 }}>
           {steps.map((s, i) => (
             <Box component="li" key={i} sx={{ display: "flex", gap: 1.5, alignItems: "flex-start" }}>
