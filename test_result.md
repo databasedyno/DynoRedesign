@@ -1,4 +1,141 @@
 # ============================================================================
+# CURRENT SESSION — 2026-06 (fork d): WEBHOOK PLACEHOLDER LEAK FIX + CONVERSION FEED
+#   VERIFY + EMAIL "UNMONITORED MAILBOX" FOOTER + hi@dynopay.com REMOVED FROM PUBLIC UI.
+#   Env: LIVE PROD DB + REDIS, SAFE MODE (read-only preferred). Outbound email OFF.
+#
+#   ROOT CAUSE (webhook 403s): Components/UI/CompanySettingsDialog/index.tsx seeded the
+#   form with a hardcoded placeholder webhook_notification_url
+#   "https://mystore.com/dynopay-webhook" and the save handler PUT it to
+#   /api/company/webhook-settings/:id on EVERY save (even from Settings views that
+#   don't show the webhook section). 34 prod brands ended up with that bogus URL.
+#
+#   FIX (frontend, this session):
+#     * initialFormValues.webhook_notification_url / webhook_secret_key = "" (no placeholder).
+#     * Form values for the webhook fields hydrate ONLY from GET webhook-settings
+#       (webhook_url, webhook_secret_preview "***xxxxxxxx"); webhookData added to the
+#       initialValues memo so FormManager re-initialises when it arrives.
+#     * Save handler: PUT webhook_url ONLY when sections includes "webhook" AND the
+#       trimmed field differs from the saved URL. Empty field => PUT webhook_url:"" which
+#       the backend stores as NULL (clears the endpoint). PUT errors (e.g. SSRF/format 400)
+#       now surface as an error toast instead of failing silently.
+#     * Secret input is read-only (display preview / regenerate only).
+#     * WebhookNotificationsSection: placeholder -> "https://example.com/webhooks/dynopay",
+#       secret placeholder -> "whsec_…"; URL input data-testid=settings-webhook-url-input.
+#   DATA: tbl_company.webhook_url set to NULL for company_id=1 (The Dev Store) — user
+#   approved. The other 33 brands are NOT touched yet (awaiting user decision).
+#
+#   ALSO (backend/email): utils/emailTemplate.ts footer gains a "sent from an unmonitored
+#   mailbox — replies are not read · Need help? Visit the Help centre" line
+#   (chrome.noReply / chrome.noReplyHelp, 6 locales via scripts/inject_noreply_footer_i18n.py).
+#   Landing "Talk to us" CTAs (FinalCTAV5 / PublicFinalCta) now link to /help-support
+#   instead of mailto:hi@dynopay.com; privacy/terms locales say support@dynopay.com.
+#   Brevo sender domain dynopay.com: 3 DNS TXT records (brevo-code, DKIM, DMARC) added
+#   on DigitalOcean DNS — infra, not testable here.
+#
+#   TESTING_AGENT — FRONTEND (Settings form) + BACKEND (payouts feed). SAFE MODE:
+#   the ONLY allowed prod write is saving the webhook URL for company_id=1 (The Dev
+#   Store, owner onarrival21@gmail.com) — and it MUST be left EMPTY/NULL at the end.
+#   Login 2-step: /auth/login -> data-testid=login-email-input -> button "Continue"
+#   (exact) -> input[type=password] -> data-testid=signin-submit-btn
+#   (sessionStorage.mfa_interstitial_seen='1' skips the MFA interstitial).
+#   Settings page: /settings (brand = The Dev Store, company_id=1) renders the SAME form
+#   inline with visibleSections ["company"] and ["crypto","payment"] — i.e. WITHOUT the
+#   webhook section; saving there used to leak the placeholder URL and now must not touch it.
+#   The form WITH the webhook section is the brand-settings MODAL: open the company
+#   selector (data-testid=company-option-1 area) and click the edit/gear icon
+#   data-testid=company-edit-1 -> modal with accordions Company / Crypto conversion /
+#   "Webhook notifications" (expand it) -> input data-testid=settings-webhook-url-input;
+#   Save = data-testid=settings-save-changes-btn (there may be two on the page when the
+#   modal is open — use the one inside the MUI Dialog).
+#   NOTE: /developer-keys?tab=webhooks (WebhookConsoleSection, data-testid=webhook-url-input)
+#   is a DIFFERENT, already-correct component — untouched this session.
+#   ⚠️ BRAND CHOICE: The Dev Store (company_id=1) has NO brand email, so the MODAL's yup
+#   schema (company section visible → email required) keeps "Save Changes" DISABLED for it
+#   (pre-existing, not part of this fix). For the MODAL flow use brand 165 "Nameword"
+#   (data-testid=company-edit-165; same owner; currently saved webhook_url =
+#   https://mystore.com/dynopay-webhook — the leaked placeholder). It MUST end NULL.
+#   For company_id=1 only do the READ checks + the /settings Payments-section save (step 4).
+#   VERIFY:
+#     1) Company 1: GET /api/company/webhook-settings/1 -> data.webhook_url === null.
+#        Brand 165 modal: on load the input shows the SAVED value
+#        "https://mystore.com/dynopay-webhook" (hydrated from the API, not a placeholder).
+#     2) Brand 165 modal: click Save WITHOUT touching the webhook field -> NO PUT
+#        /api/company/webhook-settings/165 request fires (network log) and GET still
+#        returns the same saved URL.
+#     3) Brand 165 modal: type https://example.org/dynopay-hook -> Save -> GET shows that
+#        URL. Re-open the modal, CLEAR the field -> Save -> GET shows webhook_url === null
+#        (MUST end NULL). Input placeholder is "https://example.com/webhooks/dynopay".
+#     4) Company 1: /settings -> Payments area (min-order / tolerance section, Save =
+#        settings-save-changes-btn) -> Save -> GET webhook-settings/1 still null and no PUT
+#        webhook-settings request fired.
+#     5) Backend regression: GET /api/dashboard/payouts?company_id=1&period=30d and 1y ->
+#        200, data.attention.failed_conversions is [] (prod DB has 3 FAILED conversions
+#        for company 1 — they must NOT appear); rest of payload intact.
+#     6) Landing /: the "Talk to us" button (data-testid=final-talk) href is /help-support
+#        (no mailto:hi@dynopay.com anywhere on / , /privacy-policy, /terms-conditions).
+# ============================================================================
+
+
+
+# ============================================================================
+# CURRENT SESSION — 2026-09-15 (c): STALE "FAILED CONVERSION" NOTIFICATION FIX
+#   + WEBHOOK 403 ROOT-CAUSE (investigation only, no code change for webhooks).
+#   Env: LIVE PROD DB + REDIS, SAFE MODE (read-only preferred; do NOT create/move
+#   money, do NOT confirm payments, no git commands, no source modifications).
+#
+#   USER REPORT:
+#     (1) The Dev Store (company_id=1) Payouts → "Needs attention" shows 3 stale
+#         "0.00059875 BTC (≈ $46.72) could not be converted to USDT · Exceeded
+#         maximum retries (30)" items with Retry/Contact-support. Policy changed
+#         so a conversion failure alerts ADMIN ONLY (ops settles by hand) — these
+#         should no longer be shown to the merchant. Clear them.
+#     (2) Home dashboard "5 webhook deliveries failed in the last 24 hours" —
+#         investigate root cause.
+#
+#   FIX (1) — BACKEND ONLY (the bug to verify):
+#     * backend/services/payouts/payoutQueries.ts — conversionsNeedingAttention()
+#       WHERE now excludes FAILED: "UPPER(sc.status::text) NOT IN
+#       ('COMPLETED','FAILED')" (was "<> 'COMPLETED'"; ORDER BY simplified).
+#       => the merchant Payouts feed no longer surfaces FAILED conversions
+#       (in-progress conversions are still shown). Feed is live-computed from the
+#       DB, so this clears the 3 stale items with NO data mutation.
+#     * backend/controller/payoutsController.ts — response cache key bumped
+#       :v2 -> :v3 (busts the 30s Redis payouts cache); attention.failed_conversions
+#       kept in the response shape (now always []) so the frontend never reads undefined.
+#     Backend restarted (ts-node, no watcher) — boots healthy, no errors.
+#
+#   ROOT CAUSE (2) — NO CODE FIX (merchant config, documented for user):
+#     tbl_company.webhook_url for company_id=1 = https://mystore.com/dynopay-webhook
+#     (a placeholder domain). All 5 failed rows in tbl_webhook_delivery_log (last
+#     24h) = HTTP 403 in 38–66ms (2 webhook.test clicks + payment.pending/settled/
+#     confirmed for the real 11:09 payment). Endpoint returns non-2xx (403 to prod
+#     / 404 from this pod) — it is not a working receiver. DynoPay delivery + the
+#     dashboard "Inspect" surfacing are behaving correctly. Resolution = merchant
+#     must point the webhook at a real endpoint that returns 2xx.
+#
+#   TESTING_AGENT — BACKEND (READ-ONLY, SAFE MODE). Owner acct login (2-step):
+#     onarrival21@gmail.com / Katiekendra123@
+#     (/auth/login -> data-testid=login-email-input -> button "Continue" (exact) ->
+#      input[type=password] -> data-testid=signin-submit-btn; skip MFA interstitial
+#      with sessionStorage.mfa_interstitial_seen='1' if it blocks token issuance).
+#   VERIFY (endpoint GET /api/dashboard/payouts?company_id=1&period=30d, and also
+#   period=all to be safe — auth Bearer token required):
+#     1) HTTP 200, standard success envelope; response.data.attention.failed_conversions
+#        is an EMPTY array (the 3 "could not be converted to USDT" items are GONE).
+#        [Context: the prod DB DOES contain historical FAILED tbl_stablecoin_conversion
+#         rows for company_id=1 — before this fix the API returned 3 of them here.]
+#     2) The rest of the payload is intact & unchanged: totals (forwarded/awaiting),
+#        by_asset, wallets, recent forwards, coverage.missing_coins, and
+#        attention.stuck_forwards / attention.in_progress_conversions still present
+#        (in_progress may legitimately be [] for this brand).
+#     3) No regression / no 500s; endpoint still respects company ownership
+#        (a company_id the owner doesn't own → 4xx, not a leak).
+#   Report pass/fail with the observed failed_conversions length.
+# ============================================================================
+
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-09-14 (b): TYPOGRAPHY CLARITY FIX — INTER + DARK GREYS
 #   User feedback: "text not clean/clear; grey texts appear poor" (dark mode).
 #   Root cause: body/UI font was IBM Plex Sans (reads technical); dark secondary
@@ -81,7 +218,7 @@
 #   Tested by: testing_agent
 #   Test date: 2026-09-14
 #   Test method: Playwright browser automation (3 comprehensive test runs)
-#   Test URL: https://cred-manager-29.preview.emergentagent.com
+#   Test URL: https://passphrase-init.preview.emergentagent.com
 #   Login: onarrival21@gmail.com / Katiekendra123@ (2-step authentication)
 #
 #   CONTEXT: Verified the Dark Mode Redesign Phase 3 (Polish) frontend-only changes.
@@ -597,7 +734,7 @@
 # ============================================================================
 # CURRENT SESSION — 2026-09-13 (pod d8a825c4): 3 MORE CHANGES (brand-in-email, buyer language, network labels)
 #   Env: LIVE PROD DB + REDIS, SAFE MODE (bg jobs OFF, outbound email OFF -> dumped
-#   to /app/memory/email_outbox). Preview: https://cred-manager-29.preview.emergentagent.com
+#   to /app/memory/email_outbox). Preview: https://passphrase-init.preview.emergentagent.com
 #
 #   TASK 2 (BACKEND) — merchant "payment link created" email omitted which BRAND.
 #     * sendPaymentLinkCreatedEmail + sendCrowdfundingCampaignCreatedEmail now take
@@ -639,7 +776,7 @@
 # CURRENT SESSION — 2026-09-13 (pod d8a825c4): RECEIPT EMAIL RELIABILITY FIX (BACKEND)
 #   Env: LIVE PROD DB + PROD REDIS, SAFE MODE (bg jobs OFF, outbound email OFF —
 #   "sent" == dumped to /app/memory/email_outbox). Preview origin THIS pod:
-#   https://cred-manager-29.preview.emergentagent.com
+#   https://passphrase-init.preview.emergentagent.com
 #
 #   USER BUG: On production, buyer paid (ETH, confirmed) then entered their email
 #   on the success screen to get a receipt — no receipt arrived.
@@ -790,7 +927,7 @@
 # HANDOFF — 2026-09-13 (pod b46f1f75): TWO FIXES AWAITING TESTING_AGENT VERIFICATION
 #   Status: CODE COMPLETE, NOT YET VERIFIED. User deferred testing to next agent.
 #   Env: LIVE PROD DB, SAFE MODE (bg jobs OFF, outbound email OFF). Test via
-#   EXTERNAL preview origin: https://cred-manager-29.preview.emergentagent.com
+#   EXTERNAL preview origin: https://passphrase-init.preview.emergentagent.com
 #   Login (2-step): /auth/login -> login-email-input onarrival21@gmail.com ->
 #   button "Continue" -> password-input Katiekendra123@ -> signin-submit-btn
 #
@@ -866,7 +1003,7 @@
 # CURRENT SESSION — 2026-09-13 (pod b46f1f75): CREATE-PAY-LINK CRYPTO PICKER — DUPLICATE NAME FIX
 #
 #   Wired to LIVE PROD DB in SAFE MODE. Test via EXTERNAL preview origin.
-#   Preview origin: https://cred-manager-29.preview.emergentagent.com
+#   Preview origin: https://passphrase-init.preview.emergentagent.com
 #
 #   BUG (reported by user, with screenshot): In the Create Payment Link crypto
 #   picker each coin row rendered BOTH item.name AND item.label. For coins where
@@ -891,7 +1028,7 @@
 #
 #   ✅✅✅ CRYPTO PICKER DUPLICATE NAME FIX — ALL TESTS PASSED ✅✅✅
 #      
-#      Test URL: https://cred-manager-29.preview.emergentagent.com
+#      Test URL: https://passphrase-init.preview.emergentagent.com
 #      Login: onarrival21@gmail.com / Katiekendra123@ (2-step)
 #      Test page: /create-pay-link -> Accepted cryptocurrencies section
 #      
@@ -974,7 +1111,7 @@
 #
 #   Wired to LIVE PROD DB in SAFE MODE (outbound email OFF, background jobs OFF).
 #   Test via the EXTERNAL preview origin (client uses a RELATIVE /api base).
-#   Preview origin: https://cred-manager-29.preview.emergentagent.com
+#   Preview origin: https://passphrase-init.preview.emergentagent.com
 #
 #   FEATURE UNDER TEST: Buyer email capture on createPayment
 #     When a merchant passes `customer_email` (+ optional `customer_name`) to
@@ -1129,7 +1266,7 @@
 #         - Fix confirmed: duplicate removed, kept ../models import
 #      
 #      RUNTIME VERIFICATION (via EXTERNAL preview origin):
-#      URL: https://cred-manager-29.preview.emergentagent.com
+#      URL: https://passphrase-init.preview.emergentagent.com
 #      
 #      ✅ TEST 1: Admin Login (POST /api/admin/login)
 #         - Status: HTTP 200
@@ -1223,7 +1360,7 @@
 #   ============================================================================
 #
 #   ✅✅✅ FIX 2: AUTH PAGE LANGUAGE FLAGS — PASS ✅✅✅
-#      URL: https://cred-manager-29.preview.emergentagent.com/auth/login
+#      URL: https://passphrase-init.preview.emergentagent.com/auth/login
 #      
 #      Flag Verification (6/6 PASS):
 #      ✅ English (en): Flag image present
@@ -1241,7 +1378,7 @@
 #      Screenshot: .screenshots/fix2-language-flags.png
 #
 #   ✅✅✅ FIX 1: BRAND SWITCHING DASHBOARD REFRESH — PASS ✅✅✅
-#      URL: https://cred-manager-29.preview.emergentagent.com/dashboard
+#      URL: https://passphrase-init.preview.emergentagent.com/dashboard
 #      Login: onarrival21@gmail.com / Katiekendra123@ (2-step)
 #      
 #      Initial State:
@@ -1412,7 +1549,7 @@
 #   ============================================================================
 #
 #   ✅ TEST 1: LANDING PAGE HEADER LOGO — PASS
-#      URL: https://cred-manager-29.preview.emergentagent.com/
+#      URL: https://passphrase-init.preview.emergentagent.com/
 #      Status: HTTP 200
 #      Logo src: /_next/static/media/dynopay-blackLogo.ae235c0d.svg
 #      ✓ NEW logo confirmed: dynopay wordmark with indigo "o" coin mark (dyn⊙pay)
@@ -1420,14 +1557,14 @@
 #      Screenshot: .screenshots/landing-header-logo.png
 #
 #   ✅ TEST 2: LANDING PAGE FOOTER LOGO — PASS
-#      URL: https://cred-manager-29.preview.emergentagent.com/ (footer)
+#      URL: https://passphrase-init.preview.emergentagent.com/ (footer)
 #      Logo src: /_next/static/media/dynopay-blackLogo.ae235c0d.svg
 #      ✓ NEW logo confirmed in footer (same as header)
 #      ✓ Logo visible and renders correctly
 #      Screenshot: .screenshots/landing-footer-logo.png
 #
 #   ✅ TEST 3: AUTH PAGE LOGO — PASS
-#      URL: https://cred-manager-29.preview.emergentagent.com/auth/login
+#      URL: https://passphrase-init.preview.emergentagent.com/auth/login
 #      Status: HTTP 200
 #      Logo src: /_next/static/media/dynopay-blackLogo.ae235c0d.svg
 #      Logo alt: "logo"
@@ -2231,7 +2368,7 @@
 
 # ============================================================================
 # CURRENT SESSION — 2026-09-06 (pod 0e2b393a): WEBHOOK REDIRECT FIX + last_login_ip + SIGNUP GEO CAPTURE
-#   Preview: https://cred-manager-29.preview.emergentagent.com
+#   Preview: https://passphrase-init.preview.emergentagent.com
 #   Merchant login: onarrival21@gmail.com / Katiekendra123@ (2-step). ⚠ Preview wired to LIVE prod DB — SAFE MODE.
 #   Pod set up via `bash scripts/pod-bootstrap.sh --pass '<vault pass>'`. Backgroud jobs OFF, outbound email OFF.
 #
@@ -2300,7 +2437,7 @@
 #   `sh .husky/pre-commit` exit 0 (contrast check is warn-only, pre-existing files); backend tsc clean.
 # ============================================================================
 # CURRENT SESSION (part 2) — 2026-09-06 (pod 1a75b74d): RECEIPT COIN LOGO + SHAREABLE RECEIPT LINK + DE/NL REGISTER SWEEP
-#   Preview: https://cred-manager-29.preview.emergentagent.com   ⚠ LIVE prod DB — READ-ONLY checks.
+#   Preview: https://passphrase-init.preview.emergentagent.com   ⚠ LIVE prod DB — READ-ONLY checks.
 #   1) REGISTER SWEEP (backend/scripts/apply_register_sweep.py): 18 DE + 83 NL email strings rewritten to the formal
 #      register (Sie / u·uw); built-in lint asserts 0 informal markers remain. Key sets identical across 6 langs.
 #   2) RECEIPT COIN LOGO: backend/utils/networkLabels.ts (NEW: coin symbol / network display names, mirrors frontend
@@ -2336,7 +2473,7 @@
 #     without customer token -> 401/403; the verify scripts; no new backend errors. Do NOT create payments.
 # ============================================================================
 # CURRENT SESSION — 2026-09-06 (pod 1a75b74d): EMAIL FOOTER LOCALIZATION + COPY DE-DUPE + PDF RECEIPT/INVOICE AUDIT
-#   Preview: https://cred-manager-29.preview.emergentagent.com
+#   Preview: https://passphrase-init.preview.emergentagent.com
 #   Merchant login: onarrival21@gmail.com / Katiekendra123@ (2-step). ⚠ Preview wired to LIVE prod DB — READ-ONLY checks.
 #   Pod set up via `bash scripts/pod-bootstrap.sh --pass '<vault pass>'` (74s). SAFE MODE on (bg jobs OFF, email OFF).
 #   User's 7-item list: Transactions polish / Payment-links polish / Checkout copy pulse / Confirmed check-mark were
@@ -2384,7 +2521,7 @@
 
 # ============================================================================
 # CURRENT SESSION — 2026-09-06 (pod 4afb1c97): 4 MERCHANT UX FIXES + CHECKOUT REAL-TIME STATUS
-#   Preview: https://cred-manager-29.preview.emergentagent.com
+#   Preview: https://passphrase-init.preview.emergentagent.com
 #   Merchant login: onarrival21@gmail.com / Katiekendra123@ (2-step: email -> Continue -> password)
 #   ⚠ Preview is wired to the LIVE prod DB — READ-ONLY checks preferred; do not create/save records
 #     unless explicitly asked. Do NOT touch Binance/conversion code (out of scope this session).
@@ -2510,7 +2647,7 @@
 # ============================================================================
 #   Tested by: testing_agent (Playwright browser automation)
 #   Test date: 2026-09-05
-#   Preview URL: https://cred-manager-29.preview.emergentagent.com
+#   Preview URL: https://passphrase-init.preview.emergentagent.com
 #
 #   CONTEXT: Verified the Open Graph (OG) image fix for Dynopay. The old black 
 #   blob logo was replaced with the NEW indigo/purple circular conversion-coin 
@@ -2822,7 +2959,7 @@
 #   show their real date (e.g. /for/saas 2026-08-29); lastmod URL count 10 -> 31. eslint clean.
 #
 #   BACKEND/HTTP TEST FOCUS (READ-ONLY curl; no data writes):
-#     Preview base: https://cred-manager-29.preview.emergentagent.com
+#     Preview base: https://passphrase-init.preview.emergentagent.com
 #     1) GET /sitemap.xml -> HTTP 200, valid XML (<urlset>), not an error page.
 #     2) Each of the 6 new verticals has a <url> block with <lastmod>2026-09-05</lastmod>:
 #        /for/online-courses, /for/dropshipping, /for/affiliate-marketing, /for/forex-trading,
@@ -2836,7 +2973,7 @@
 # ============================================================================
 #   Tested by: testing_agent (READ-ONLY curl verification on preview)
 #   Test date: 2026-09-05
-#   Preview URL: https://cred-manager-29.preview.emergentagent.com
+#   Preview URL: https://passphrase-init.preview.emergentagent.com
 #
 #   TEST RESULTS SUMMARY:
 #   ✓ 1) GET /sitemap.xml — PASS
@@ -2884,7 +3021,7 @@
 
 # ============================================================================
 # CURRENT SESSION — 2026-09-05 (pod 4c5482a5): ANOMALY FIXES + 3 FEATURES
-#   LIVE prod DB, SAFE MODE. Preview: https://cred-manager-29.preview.emergentagent.com
+#   LIVE prod DB, SAFE MODE. Preview: https://passphrase-init.preview.emergentagent.com
 #   Owner login (READ-ONLY testing only): onarrival21@gmail.com / Katiekendra123@ (user_id=1).
 #   tsc --noEmit = 0 errors; eslint clean on all touched files.
 #
@@ -2930,7 +3067,7 @@
 # ============================================================================
 #   Tested by: testing_agent (READ-ONLY verification on LIVE prod DB, SAFE MODE)
 #   Test date: 2026-09-05
-#   Preview URL: https://cred-manager-29.preview.emergentagent.com
+#   Preview URL: https://passphrase-init.preview.emergentagent.com
 #   Login: onarrival21@gmail.com / Katiekendra123@ (user_id=1)
 #
 #   TEST RESULTS SUMMARY:
@@ -2955,7 +3092,7 @@
 #   ✓ 4) ATTRIBUTION BEACON — PASS (PRIMARY FIX VERIFIED)
 #        - Login flow successful: 2-step email → Continue → password → Sign in
 #        - POST request to /api/track/attribution CAPTURED immediately after auth token storage
-#        - Request URL: https://cred-manager-29.preview.emergentagent.com/api/track/attribution
+#        - Request URL: https://passphrase-init.preview.emergentagent.com/api/track/attribution
 #        - Timing: Fired during navigation to /dashboard (within 3 seconds of login)
 #        - This confirms the Redux userReducer.ts fix is working (syncAttribution fires on USER_LOGIN)
 #
@@ -2982,7 +3119,7 @@
 # ============================================================================
 # CURRENT SESSION — 2026-09-05 (pod 4c5482a5): SETUP + EMAIL LOGO FIX + OPS ANALYSIS
 #   Restored env from vault (Katiekendra123@) -> pod-bootstrap. LIVE prod DB, SAFE MODE.
-#   Preview: https://cred-manager-29.preview.emergentagent.com
+#   Preview: https://passphrase-init.preview.emergentagent.com
 #   Owner login: onarrival21@gmail.com / Katiekendra123@ (user_id=1).
 #
 #   BUG FIX (committed 11ba6405b, already DEPLOYED to prod dynopay.com): admin + merchant
@@ -3027,7 +3164,7 @@
 # CURRENT SESSION — 2026-09-02 (pod 054d2272): SETUP + TEST LAST COMMIT + FEATURE + BUG
 #   Restored env from encrypted vault (passphrase Katiekendra123@) -> pod-bootstrap --skip-env.
 #   LIVE prod DB, SAFE MODE (bg jobs off, email off, Redis /1, Binance/SSH tunnel blanked).
-#   Preview: https://cred-manager-29.preview.emergentagent.com
+#   Preview: https://passphrase-init.preview.emergentagent.com
 #   Owner login: onarrival21@gmail.com / Katiekendra123@ (user_id=1, company_id=1 "Hostbay").
 #
 #   PLAN (user-approved):
@@ -3109,7 +3246,7 @@
 
 # ============================================================================
 # CURRENT SESSION — 2026-09-01 (fork, pod d4fef0d9): FLICKER FIX + DOCS + LANDING BRANDS
-#   LIVE prod DB, SAFE MODE. Preview: https://cred-manager-29.preview.emergentagent.com
+#   LIVE prod DB, SAFE MODE. Preview: https://passphrase-init.preview.emergentagent.com
 #   Respond in English. Owner: onarrival21@gmail.com / Katiekendra123@ (user_id=1).
 #
 #   (P0) ISSUE #4 — payment-link "double-load / flicker" — FIXED + VERIFIED.
@@ -3327,7 +3464,7 @@
 # ============================================================================
 #   Tested by: testing_agent (Playwright browser automation)
 #   Test date: 2026-09-05
-#   Preview URL: https://cred-manager-29.preview.emergentagent.com
+#   Preview URL: https://passphrase-init.preview.emergentagent.com
 #
 #   CONTEXT: Verified the favicon fix for Dynopay (Next.js app). Google search was 
 #   showing an old/wrong black icon. The fix ensures the site exposes a correct, 
@@ -3608,7 +3745,7 @@
 #   backend directly on port 3300 where SSE works correctly.
 #
 #   PRODUCTION IMPACT: The preview environment uses the Python proxy, so SSE will NOT
-#   work on https://cred-manager-29.preview.emergentagent.com/api/pay/stream.
+#   work on https://passphrase-init.preview.emergentagent.com/api/pay/stream.
 #   However, production (dynopay.com) uses nginx directly to the Node backend, so SSE
 #   will work correctly in production. The proxy is only used in the preview environment.
 #
@@ -3629,7 +3766,7 @@
 #   Tested by: testing_agent
 #   Test date: 2026-09-06
 #   Base URL: http://localhost:8001
-#   Preview: https://cred-manager-29.preview.emergentagent.com
+#   Preview: https://passphrase-init.preview.emergentagent.com
 #
 #   CONTEXT: Backend-only verification for DynoPay email footer localization (7th lang param),
 #   locale key de-duplication, and PDF receipt/invoice 1-page audit. LIVE PRODUCTION Postgres DB
@@ -3821,7 +3958,7 @@
 # ============================================================================
 #   Tested by: testing_agent (READ-ONLY verification on LIVE prod DB, SAFE MODE)
 #   Test date: 2026-09-06
-#   Preview URL: https://cred-manager-29.preview.emergentagent.com
+#   Preview URL: https://passphrase-init.preview.emergentagent.com
 #   Backend: Node/Express behind Python proxy on :8001
 #   Test receipt token: GwVgV4tgx8YUD5BySU7QtY (seeded, DO NOT DELETE)
 #
@@ -3866,7 +4003,7 @@
 #        - X-Robots-Tag: noindex ✓
 #
 #   ✓ 3) GET VIA EXTERNAL URL — PASS
-#        Command: curl https://cred-manager-29.preview.emergentagent.com/api/pay/receipt/GwVgV4tgx8YUD5BySU7QtY
+#        Command: curl https://passphrase-init.preview.emergentagent.com/api/pay/receipt/GwVgV4tgx8YUD5BySU7QtY
 #        Result: HTTP 200, same data as localhost test
 #        - token: "GwVgV4tgx8YUD5BySU7QtY" ✓
 #        - network: "Bitcoin" ✓
@@ -4159,7 +4296,7 @@
 # ============================================================================
 #   Tested by: testing_agent
 #   Test date: 2026-09-06
-#   Preview URL: https://cred-manager-29.preview.emergentagent.com
+#   Preview URL: https://passphrase-init.preview.emergentagent.com
 #   Backend URL: http://localhost:8001
 #
 #   CONTEXT: Verified three backend bug fixes for DynoPay:
@@ -4580,7 +4717,7 @@
 # ============================================================================
 #   Tested by: testing_agent
 #   Test date: 2026-09-07
-#   Preview URL: https://cred-manager-29.preview.emergentagent.com
+#   Preview URL: https://passphrase-init.preview.emergentagent.com
 #
 #   CONTEXT: Verified the frontend UI changes for "Split Name Fields" feature.
 #   Two tests requested:
@@ -4758,7 +4895,7 @@
 # ============================================================================
 #   Tested by: testing_agent
 #   Test date: 2026-09-08T08:06:08Z
-#   Backend base: https://cred-manager-29.preview.emergentagent.com/api
+#   Backend base: https://passphrase-init.preview.emergentagent.com/api
 #   Test session: qa-inbox-1788854802
 #
 #   CONTEXT: Verified the NEW Admin Support Inbox backend for Dynopay app.
@@ -4935,7 +5072,7 @@
 - Payload: company_id=71, amount=10, currency='USD', 
   accepted_currencies=['BTC','ETH','USDT-TRC20']
 - Result: HTTP 200, payment_link created
-- Link: https://cred-manager-29.preview.emergentagent.com/pay?d=a6RCzt
+- Link: https://passphrase-init.preview.emergentagent.com/pay?d=a6RCzt
 - ✓ Endpoint accepts accepted_currencies array
 - ✓ Link created successfully with specified currencies
 
@@ -4943,7 +5080,7 @@
 - Endpoint: POST /api/pay/createPaymentLink
 - Payload: company_id=71, amount=10, currency='USD', accepted_currencies=[]
 - Result: HTTP 200, payment_link created
-- Link: https://cred-manager-29.preview.emergentagent.com/pay?d=3Sn3AH
+- Link: https://passphrase-init.preview.emergentagent.com/pay?d=3Sn3AH
 - ✓ Empty array accepted (treated as "all configured currencies")
 - ✓ No validation error for empty array
 
@@ -4951,7 +5088,7 @@
 - Endpoint: POST /api/pay/createPaymentLink
 - Payload: company_id=1, amount=10, currency='USD', accepted_currencies=[]
 - Result: HTTP 200, payment_link created
-- Link: https://cred-manager-29.preview.emergentagent.com/pay?d=CSQwKs
+- Link: https://passphrase-init.preview.emergentagent.com/pay?d=CSQwKs
 - ✓ Works for company_id=1 (owner's main brand)
 
 **TEST B VERDICT**: ✅✅✅ ALL PASS
@@ -5086,7 +5223,7 @@ Test Data Cleaned: Attempted (deletion blocked by OTP requirement)
 # TESTING_AGENT VERIFICATION — 2026-09-13 (pod d8a825c4): TASK 4 FRONTEND NETWORK LABELS
 # ============================================================================
 #   Test date: 2026-09-13
-#   Test URL: https://cred-manager-29.preview.emergentagent.com/pay?d=rNtQRX
+#   Test URL: https://passphrase-init.preview.emergentagent.com/pay?d=rNtQRX
 #   Payment link: The Dev Store, $15 USD
 #   
 #   CONTEXT: Verified the frontend enhancement for clearer crypto network labels in the
@@ -5241,7 +5378,7 @@ Test Data Cleaned: Attempted (deletion blocked by OTP requirement)
 #   Tested by: testing_agent
 #   Test date: 2026-09-13T19:13:00Z
 #   Backend base: http://localhost:8001
-#   External URL: https://cred-manager-29.preview.emergentagent.com
+#   External URL: https://passphrase-init.preview.emergentagent.com
 #
 #   CONTEXT: Verified the NEW "Smart Checkout Minimums (Phase 1a)" backend feature
 #   for DynoPay. This feature prevents the silent "all funds to admin" case by
@@ -5447,7 +5584,7 @@ Test Data Cleaned: Attempted (deletion blocked by OTP requirement)
 #   Tested by: testing_agent
 #   Test date: 2026-09-13T19:50:00Z
 #   Backend base: http://localhost:8001
-#   External URL: https://cred-manager-29.preview.emergentagent.com
+#   External URL: https://passphrase-init.preview.emergentagent.com
 #
 #   CONTEXT: Re-verified the DynoPay "coin minimums" backend after it changed from
 #   a flat $3 model to a LIVE per-chain network-fee model. The new implementation

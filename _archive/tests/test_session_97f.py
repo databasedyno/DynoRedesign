@@ -8,7 +8,7 @@ import requests
 import json
 import sys
 
-BASE_URL = "https://cred-manager-29.preview.emergentagent.com"
+BASE_URL = "https://passphrase-init.preview.emergentagent.com"
 
 def test_3a_csrf_token():
     """Test 3a: GET /api/csrf-token"""

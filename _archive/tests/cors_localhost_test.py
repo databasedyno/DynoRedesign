@@ -41,7 +41,7 @@ TESTS = [
     },
     {
         "id": 5,
-        "origin": "https://cred-manager-29.preview.emergentagent.com",
+        "origin": "https://passphrase-init.preview.emergentagent.com",
         "expected": "ALLOWED",
         "description": "Preview pattern"
     },

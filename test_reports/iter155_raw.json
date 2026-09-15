@@ -76,7 +76,7 @@
     "name": "public /devhub after /pay stays on /devhub",
     "ok": true,
     "details": {
-      "url": "https://cred-manager-29.preview.emergentagent.com/devhub",
+      "url": "https://passphrase-init.preview.emergentagent.com/devhub",
       "timedOut": false
     }
   },
@@ -84,7 +84,7 @@
     "name": "public / lands on landing (no auth redirect)",
     "ok": true,
     "details": {
-      "url": "https://cred-manager-29.preview.emergentagent.com/"
+      "url": "https://passphrase-init.preview.emergentagent.com/"
     }
   },
   {
@@ -106,7 +106,7 @@
     "name": "merchant /dashboard renders after /pay round-trip",
     "ok": true,
     "details": {
-      "url": "https://cred-manager-29.preview.emergentagent.com/dashboard",
+      "url": "https://passphrase-init.preview.emergentagent.com/dashboard",
       "tokenEqual": true
     }
   },
@@ -123,7 +123,7 @@
     "ok": true,
     "details": {
       "reqAuth": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6bnVsbCwicmVmIjoick50UVJYIiwicGF0aFR5cGUiOiJjcmVhdGVMaW5rIiwidHJhbnNhY3Rpb25faWQiOiJhODM0NTlmMS04OTc3LTQ2YWEtYTMwNi0yMzg4Mzc1ZGYxMmUiLCJpYXQiOjE3ODkxMTY2MTZ9.is-tdLjO4H0Lxj3Vs5-6WoBDP7pF8AbvnFWbKU2SzrI",
-      "url": "https://cred-manager-29.preview.emergentagent.com/api/pay/getCurrencyRates",
+      "url": "https://passphrase-init.preview.emergentagent.com/api/pay/getCurrencyRates",
       "status": 200
     }
   },

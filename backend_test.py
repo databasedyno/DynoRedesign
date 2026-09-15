@@ -10,7 +10,7 @@ import json
 import sys
 
 # EXTERNAL preview origin (client uses relative /api base)
-BASE_URL = "https://cred-manager-29.preview.emergentagent.com"
+BASE_URL = "https://passphrase-init.preview.emergentagent.com"
 
 # Test brand credentials
 MERCHANT_EMAIL = "onarrival21@gmail.com"

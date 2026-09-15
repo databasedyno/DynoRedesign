@@ -40,7 +40,7 @@ const FinalCTAV5: React.FC = () => {
             <Box sx={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: 1.5 }}>
               <PrimaryBtn data-testid="final-start" onClick={() => goStart(router, "final_cta")} endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}>{t("v5.hero.primary")}</PrimaryBtn>
               <SecondaryBtn onDark data-testid="final-demo" href="/pay/demo">{t("v5.hero.secondary")}</SecondaryBtn>
-              <SecondaryBtn onDark data-testid="final-talk" href="mailto:hi@dynopay.com?subject=Dynopay%20enquiry">{t("v5.final.talk")}</SecondaryBtn>
+              <SecondaryBtn onDark data-testid="final-talk" href="/help-support">{t("v5.final.talk")}</SecondaryBtn>
             </Box>
             </StaggerItem>
           </Box>

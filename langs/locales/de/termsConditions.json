@@ -179,7 +179,7 @@
   "section18Footer": "Wenn ein Kunde weniger als den für die gewählte Münze und das gewählte Netzwerk angezeigten Mindestbetrag sendet, ist der Betrag zu gering, um wirtschaftlich On-Chain weitergeleitet zu werden. Solche Überweisungen unter dem Mindestbetrag sind NICHT ERSTATTUNGSFÄHIG — sie werden dem Händler nicht gutgeschrieben, können nicht zurückerstattet werden und werden von Dynopay einbehalten, um Netzwerk- und Verarbeitungskosten zu decken. Bitte stellen Sie sicher, dass Kunden immer mindestens den beim Checkout angezeigten Mindestbetrag zahlen.",
   "section19Title": "19. Kontaktinformationen",
   "section19Desc1": "Bei Fragen oder Anliegen kontaktieren Sie uns unter:",
-  "section19Desc2": "hi@dynopay.com",
+  "section19Desc2": "support@dynopay.com",
   "section19Bullets": [],
   "section19Footer": ""
 }

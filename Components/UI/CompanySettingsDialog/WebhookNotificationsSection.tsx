@@ -118,13 +118,14 @@ export default function WebhookNotificationsSection({
         <InputField
           fullWidth
           label={tSettings("webhookNotificationUrl")}
-          placeholder="https://mystore.com/dynopay-webhook"
+          placeholder="https://example.com/webhooks/dynopay"
           name="webhook_notification_url"
           value={notificationUrl}
           onChange={(e) => onNotificationUrlChange?.(e.target.value)}
           onBlur={() => {}}
           helperText={tSettings("webhookNotificationUrlHelper")}
           inputHeight={isMobile ? "32px" : "38px"}
+          data-testid="settings-webhook-url-input"
           sideButton
           onSideButtonClick={handleCopyUrl}
           sideButtonIcon={
@@ -166,7 +167,7 @@ export default function WebhookNotificationsSection({
         >
           <InputField
             fullWidth
-            placeholder="wh_sec_....................xyz123"
+            placeholder="whsec_…  (generate one with the refresh button)"
             name="webhook_secret_key"
             type={showSecret ? "text" : "password"}
             value={secretKey}

@@ -8,12 +8,12 @@
       "nodes": [
         {
           "target": "div:nth-child(2) > a",
-          "html": "<a href=\"https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&amp;utm_campaign=ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.cluster-12.preview.emergent",
+          "html": "<a href=\"https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&amp;utm_campaign=passphrase-init.cluster-12.preview.emergent",
           "msg": "Element has insufficient color contrast of 4.46 (foreground color: #2f7bbf, background color: #ffffff, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
         },
         {
           "target": "#brand_link",
-          "html": "<a rel=\"noopener noreferrer\" href=\"https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&amp;utm_campaign=ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.c",
+          "html": "<a rel=\"noopener noreferrer\" href=\"https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&amp;utm_campaign=passphrase-init.c",
           "msg": "Element has insufficient color contrast of 4.46 (foreground color: #2f7bbf, background color: #ffffff, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
         }
       ],
@@ -52,7 +52,7 @@
       "nodes": [
         {
           "target": "div:nth-child(2) > a",
-          "html": "<a href=\"https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&amp;utm_campaign=ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.cluster-12.preview.emergent",
+          "html": "<a href=\"https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&amp;utm_campaign=passphrase-init.cluster-12.preview.emergent",
           "msg": "The link has insufficient color contrast of 2.32:1 with the surrounding text. (Minimum contrast is 3:1, link text: #2f7bbf, surrounding text: #404040)   The link has no styling (such as underline) to distinguish it from the surrounding text"
         }
       ],
@@ -65,7 +65,7 @@
       "nodes": [
         {
           "target": ".mb-10.md\\:m-0.relative > a",
-          "html": "<a href=\"https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&utm_campaign=ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.cluster-12.preview.emergentcf.c",
+          "html": "<a href=\"https://www.cloudflare.com/5xx-error-landing?utm_source=errorcode_502&utm_campaign=passphrase-init.cluster-12.preview.emergentcf.c",
           "msg": "Element is in tab order and does not have accessible text"
         }
       ],

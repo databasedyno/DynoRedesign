@@ -18,7 +18,7 @@ import time
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://cred-manager-29.preview.emergentagent.com/api"
+BASE_URL = "https://passphrase-init.preview.emergentagent.com/api"
 ADMIN_EMAIL = "moxxcompany@gmail.com"
 ADMIN_PASSWORD = "Katiekendra123@"
 

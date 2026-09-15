@@ -22,5 +22,5 @@
   "seed_data_creation": "None — READ-ONLY per instructions.",
   "retest_needed": false,
   "should_main_agent_self_test": true,
-  "context_for_next_testing_agent": "All 4 UI enhancements verified live at https://cred-manager-29.preview.emergentagent.com. Selectors: login-email-input, password-input, signin-submit-btn, auth-brand-panel, auth-brand-carousel. Carousel dots are within auth-brand-panel: 3 buttons with aria-label 'Show checkout|dashboard|link', width 22 (active) vs 6 (inactive). Register Continue appears at Step 2 after clicking a use-case tile (e.g., 'Sell products'). Landing hero: [data-testid='hero-v5'] H1; textShadow present in dark, 'none' in light. Mobile 390px: auth-brand-panel is display:none / not visible."
+  "context_for_next_testing_agent": "All 4 UI enhancements verified live at https://passphrase-init.preview.emergentagent.com. Selectors: login-email-input, password-input, signin-submit-btn, auth-brand-panel, auth-brand-carousel. Carousel dots are within auth-brand-panel: 3 buttons with aria-label 'Show checkout|dashboard|link', width 22 (active) vs 6 (inactive). Register Continue appears at Step 2 after clicking a use-case tile (e.g., 'Sell products'). Landing hero: [data-testid='hero-v5'] H1; textShadow present in dark, 'none' in light. Mobile 390px: auth-brand-panel is display:none / not visible."
 }

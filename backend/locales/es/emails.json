@@ -998,7 +998,9 @@
     "whyMerchant": "Recibe este correo porque tiene una cuenta de Dynopay ({{email}}).",
     "managePrefs": "Gestionar preferencias de correo",
     "whyBuyer": "Recibe este correo porque realizó un pago a través de Dynopay. Dynopay no tiene custodia: los fondos van directamente a la wallet del comercio.",
-    "whyAdmin": "Notificación interna de operaciones de Dynopay."
+    "whyAdmin": "Notificación interna de operaciones de Dynopay.",
+    "noReply": "Este correo se envió desde un buzón no supervisado: las respuestas no se leen.",
+    "noReplyHelp": "¿Necesitas ayuda? Visita el Centro de ayuda"
   },
   "orderReceipt": {
     "subject": "Tu pedido {{ref}} está confirmado",

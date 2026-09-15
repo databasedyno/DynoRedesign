@@ -25,7 +25,7 @@
     {
       "url": "/",
       "lang": "fr",
-      "error": "Page.goto: Timeout 40000ms exceeded.\nCall log:\n  - navigating to \"https://cred-manager-29.preview.emergentagent.com/\", waiting until \"networkidle\"\n",
+      "error": "Page.goto: Timeout 40000ms exceeded.\nCall log:\n  - navigating to \"https://passphrase-init.preview.emergentagent.com/\", waiting until \"networkidle\"\n",
       "pass": false
     },
     {

@@ -84,8 +84,8 @@ const initialFormValues: CompanySettingsFormValues = {
   address_line_2: "",
   zip_code: "",
   VAT_number: "",
-  webhook_notification_url: "https://mystore.com/dynopay-webhook",
-  webhook_secret_key: "wh_sec_....................xyz123",
+  webhook_notification_url: "",
+  webhook_secret_key: "",
   min_order_usd: "",
   underpayment_threshold_usd: "1.00",
   grace_period_minutes: "30",
@@ -134,7 +134,7 @@ export default function CompanySettingsDialog({
   } | null>(null);
   const [webhookData, setWebhookData] = useState<{
     webhook_url: string;
-    webhook_secret: string;
+    webhook_secret_preview: string;
   } | null>(null);
   const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
 
@@ -176,12 +176,10 @@ export default function CompanySettingsDialog({
         address_line_2: company.address_line_2 ?? "",
         zip_code: company.zip_code ?? "",
         VAT_number: company.VAT_number ?? "",
-        webhook_notification_url:
-          (companyAny.webhook_notification_url as string | undefined) ??
-          initialFormValues.webhook_notification_url,
-        webhook_secret_key:
-          (companyAny.webhook_secret_key as string | undefined) ??
-          initialFormValues.webhook_secret_key,
+        // Webhook fields come ONLY from the saved settings (never a placeholder):
+        // an untouched form must save back exactly what is stored, or nothing.
+        webhook_notification_url: webhookData?.webhook_url ?? "",
+        webhook_secret_key: webhookData?.webhook_secret_preview ?? "",
         auto_convert_volatile_crypto:
           autoConvertData?.auto_convert_volatile_crypto ??
           (companyAny.auto_convert_volatile_crypto as string | undefined) ??
@@ -211,7 +209,7 @@ export default function CompanySettingsDialog({
       };
     }
     return { ...initialFormValues };
-  }, [company, autoConvertData]);
+  }, [company, autoConvertData, webhookData]);
 
   const schema = useMemo(
     () => {
@@ -310,7 +308,7 @@ export default function CompanySettingsDialog({
           if (data) {
             setWebhookData({
               webhook_url: data.webhook_url ?? "",
-              webhook_secret: data.webhook_secret ?? "",
+              webhook_secret_preview: data.webhook_secret_preview ?? "",
             });
           }
         })
@@ -456,23 +454,41 @@ export default function CompanySettingsDialog({
       }
     }
 
-    // Save webhook settings via dedicated endpoint
-    const webhookUrl = values.webhook_notification_url || webhookData?.webhook_url;
-    if (webhookUrl) {
-      axiosBaseApi
-        .put(API_ENDPOINTS.company.webhookSettings(company.company_id), {
-          webhook_url: webhookUrl,
-        })
-        .catch(() => {
-          // Silently fail — company update is the primary action
-        });
+    // Save the webhook URL ONLY when the merchant actually changed it and the
+    // webhook section is on screen — a save from another Settings view must
+    // never write a URL they didn't type. An emptied field clears the endpoint.
+    if (sections.includes("webhook")) {
+      const savedUrl = webhookData?.webhook_url ?? "";
+      const nextUrl = String(values.webhook_notification_url ?? "").trim();
+      if (nextUrl !== savedUrl) {
+        try {
+          await axiosBaseApi.put(API_ENDPOINTS.company.webhookSettings(company.company_id), {
+            webhook_url: nextUrl,
+          });
+          setWebhookData((prev) => ({
+            webhook_url: nextUrl,
+            webhook_secret_preview: prev?.webhook_secret_preview ?? "",
+          }));
+        } catch (e: unknown) {
+          const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message;
+          showToast(msg || "Could not save the webhook URL. Please check it and try again.", "error");
+          return;
+        }
+      }
     }
 
-    // Save auto-convert settings via dedicated endpoint (awaited: a failure here
-    // must be visible — otherwise payments silently keep settling in the raw coin).
+    // Save auto-convert settings via dedicated endpoint — ONLY when the crypto
+    // section is on screen and the merchant actually changed it (the endpoint is
+    // step-up protected, so an unconditional PUT forced a 2FA prompt on every
+    // save). Awaited: a failure here must be visible — otherwise payments
+    // silently keep settling in the raw coin.
     const enableAutoConvert = values.auto_convert_volatile_crypto === "yes";
     const [settlementCurrency, settlementChain] =
       STABLECOIN_OPTIONS[String(values.convert_to_stablecoin)] ?? STABLECOIN_OPTIONS.usdt_trc20;
+    const autoConvertChanged =
+      values.auto_convert_volatile_crypto !== initialValues.auto_convert_volatile_crypto ||
+      (enableAutoConvert && values.convert_to_stablecoin !== initialValues.convert_to_stablecoin);
+    if (sections.includes("crypto") && autoConvertChanged) {
     try {
       const res = await axiosBaseApi.put(
         API_ENDPOINTS.company.autoConvert(company.company_id),
@@ -498,6 +514,7 @@ export default function CompanySettingsDialog({
       const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message;
       showToast(msg || tSettings("cryptoConversionSaveFailed"), "error");
       return;
+    }
     }
 
     handleClose();
@@ -588,23 +605,10 @@ export default function CompanySettingsDialog({
 
                   {sections.includes("webhook") && (
                   <WebhookNotificationsSection
-                    notificationUrl={
-                      webhookData?.webhook_url ??
-                      values.webhook_notification_url ??
-                      initialFormValues.webhook_notification_url
-                    }
-                    secretKey={
-                      webhookData?.webhook_secret ??
-                      values.webhook_secret_key ??
-                      initialFormValues.webhook_secret_key
-                    }
+                    notificationUrl={values.webhook_notification_url ?? ""}
+                    secretKey={values.webhook_secret_key ?? ""}
                     onNotificationUrlChange={(value) => {
                       handleFieldsChange({ webhook_notification_url: value });
-                      setWebhookData((prev) => prev ? { ...prev, webhook_url: value } : { webhook_url: value, webhook_secret: "" });
-                    }}
-                    onSecretKeyChange={(value) => {
-                      handleFieldsChange({ webhook_secret_key: value });
-                      setWebhookData((prev) => prev ? { ...prev, webhook_secret: value } : { webhook_url: "", webhook_secret: value });
                     }}
                     onRegenerateSecret={async () => {
                       if (!company?.company_id) return;
@@ -615,10 +619,8 @@ export default function CompanySettingsDialog({
                         );
                         const data = res?.data?.data;
                         if (data?.webhook_secret) {
-                          setWebhookData((prev) => prev
-                            ? { ...prev, webhook_secret: data.webhook_secret }
-                            : { webhook_url: "", webhook_secret: data.webhook_secret }
-                          );
+                          // Show the full secret once; the saved-settings snapshot
+                          // is left alone so unsaved edits elsewhere survive.
                           handleFieldsChange({ webhook_secret_key: data.webhook_secret });
                           showToast("Webhook secret regenerated successfully!");
                         }

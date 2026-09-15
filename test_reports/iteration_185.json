@@ -1,0 +1,54 @@
+{
+  "summary": "Verified fork-d webhook placeholder leak fix + payouts feed FAILED-conversion filter + landing /help-support CTA. Backend & landing 100% pass. Frontend modal round-trip verified in DB (brand 165 hydrated leaked URL, cleared to null; company 1 stayed null). Untouched-save on modal fires no PUT to webhook-settings/165 (fix works). Static code review confirms /settings Payments save cannot touch webhook (visibleSections omits 'webhook'). One notable regression-adjacent issue: every Save from the brand-settings MODAL triggers an unconditional step-up MFA dialog ('To change your settlement currency, confirm it is really you') even when only the webhook URL changed - because handleSubmit unconditionally PUTs /api/company/auto-convert regardless of dirty state.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "CompanySettingsDialog handleSubmit (~line 485)",
+        "issue": "Every Save from the brand-settings modal triggers a step-up MFA prompt ('To change your settlement currency, confirm it is really you') even when the settlement currency was NOT changed and only the webhook URL was edited. Root cause: handleSubmit unconditionally awaits axiosBaseApi.put(API_ENDPOINTS.company.autoConvert(...)) with no dirty-check. Gate the auto-convert PUT behind an actual diff against the loaded values.",
+        "selector": "[role=dialog] [data-testid=settings-save-changes-btn]",
+        "priority": "HIGH"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Fix CompanySettingsDialog.handleSubmit: gate the auto-convert PUT with an actual diff (settlement_currency/chain/enabled) so a webhook-only save never triggers the 'change your settlement currency' step-up.",
+    "Consider clearing the leaked webhook_url on the remaining 33 brands (only company_id=1 and 165 are cleared this session)."
+  ],
+  "critical_code_review_comments": [
+    "CompanySettingsDialog/index.tsx handleSubmit: webhook PUT is correctly gated (sections.includes('webhook') && changed) - fix confirmed. Auto-convert PUT (~line 485) is unconditional; add a similar dirty guard to avoid needless step-ups and writes.",
+    "pages/settings/index.tsx: visibleSections=['company'] and ['crypto','payment'] - never includes 'webhook', so /settings cannot touch webhook_url. Design is sound."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "83%"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (owner). API login: POST /api/user/login -> data.accessToken.",
+  "seed_data_creation": "Allowed prod writes made: (a) PUT /api/company/webhook-settings/165 {webhook_url: 'https://example.org/dynopay-hook'} then PUT {webhook_url: ''} - brand 165 ends webhook_url = NULL as required. (b) No write to company_id=1. Final DB state verified via GET: webhook-settings/1.webhook_url=null, webhook-settings/165.webhook_url=null.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Fork-d verifications complete. Both company 1 and brand 165 have webhook_url=NULL. Payouts feed filters FAILED conversions (verified 30d & 1y periods, 3 FAILED tbl_stablecoin_conversion rows in DB do not surface). Landing CTAs: data-testid=final-talk href='/help-support', no hi@dynopay.com anywhere on /, /privacy-policy, /terms-conditions (support@dynopay.com appears on privacy/terms). Modal step-up-on-every-save bug is pre-existing behaviour tripped by the fix's new flow; see action item.",
+  "detailed_results": {
+    "backend_payouts_30d_failed_conversions_len": 0,
+    "backend_payouts_1y_failed_conversions_len": 0,
+    "backend_payouts_totals_by_asset_wallets_coverage_present": true,
+    "backend_unauthorized_company_999": "HTTP 403 - You dont have access to this company",
+    "landing_final_talk_href": "/help-support",
+    "landing_hi_at_dynopay_count": {"/":0,"/privacy-policy":0,"/terms-conditions":0},
+    "landing_support_at_dynopay_count": {"/":0,"/privacy-policy":2,"/terms-conditions":1},
+    "step1_modal_hydrated_value": "https://mystore.com/dynopay-webhook",
+    "step1_placeholder": "https://example.com/webhooks/dynopay",
+    "step2_untouched_save_put_count_to_165": 0,
+    "step2_note": "Step-up MFA dialog for settlement currency popped up on untouched save (see UI bug).",
+    "step3a_final_webhook_url": "https://example.org/dynopay-hook (verified via API GET after PUT)",
+    "step3a_put_count": 1,
+    "step3b_final_webhook_url_null": true,
+    "step3b_put_count": 1,
+    "step4_final_webhook_settings_1_url": null,
+    "step4_ui_save_click": "Not executed cleanly (session bounced + accordion collapsed w/ empty min_order); code review confirms /settings visibleSections excludes 'webhook' so no PUT to webhook-settings/1 is possible from that view. Company 1 webhook_url verified null throughout."
+  }
+}

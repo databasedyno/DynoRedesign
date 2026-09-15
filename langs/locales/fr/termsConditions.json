@@ -161,7 +161,7 @@
   "section18Footer": "Si un client envoie moins que le minimum affiché pour la monnaie et le réseau sélectionnés, le montant est trop faible pour être transféré on-chain de manière économique. De tels transferts inférieurs au minimum sont NON RÉCUPÉRABLES : ils ne seront pas crédités au commerçant, ne peuvent pas être remboursés et sont conservés par Dynopay pour couvrir les frais de réseau et de traitement. Veuillez vous assurer que les clients paient toujours au moins le minimum affiché au paiement.",
   "section19Title": "19. Informations de Contact",
   "section19Desc1": "Pour toute question ou préoccupation, contactez-nous à :",
-  "section19Desc2": "hi@dynopay.com",
+  "section19Desc2": "support@dynopay.com",
   "section19Bullets": [],
   "section19Footer": ""
 }

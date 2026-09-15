@@ -3,7 +3,7 @@
 import { chromium } from "playwright";
 import fs from "node:fs";
 
-const BASE = process.env.SWEEP_BASE_URL || "https://cred-manager-29.preview.emergentagent.com";
+const BASE = process.env.SWEEP_BASE_URL || "https://passphrase-init.preview.emergentagent.com";
 const EMAIL = process.env.SWEEP_EMAIL || "onarrival21@gmail.com";
 const PASS = process.env.SWEEP_PASS || "Katiekendra123@";
 const args = Object.fromEntries(process.argv.slice(2).map((a) => { const k = a.replace(/^--/, ""); const i = k.indexOf("="); return i < 0 ? [k, ""] : [k.slice(0, i), k.slice(i + 1)]; }));

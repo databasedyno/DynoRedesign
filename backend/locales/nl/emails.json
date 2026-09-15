@@ -998,7 +998,9 @@
     "whyMerchant": "U ontvangt deze e-mail omdat u een Dynopay-account heeft ({{email}}).",
     "managePrefs": "E-mailvoorkeuren beheren",
     "whyBuyer": "U ontvangt deze e-mail omdat u een betaling via Dynopay heeft gedaan. Dynopay is non-custodial — het geld gaat rechtstreeks naar de eigen wallet van de verkoper.",
-    "whyAdmin": "Interne Dynopay-operationele melding."
+    "whyAdmin": "Interne Dynopay-operationele melding.",
+    "noReply": "Deze e-mail is verzonden vanaf een niet-gemonitorde mailbox – antwoorden worden niet gelezen.",
+    "noReplyHelp": "Hulp nodig? Ga naar het Helpcentrum"
   },
   "orderReceipt": {
     "subject": "Uw bestelling {{ref}} is bevestigd",

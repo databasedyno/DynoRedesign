@@ -16,7 +16,7 @@ import time
 import pytest
 import requests
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://cred-manager-29.preview.emergentagent.com").rstrip("/")
+BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://passphrase-init.preview.emergentagent.com").rstrip("/")
 API = f"{BASE_URL}/api"
 
 USER_B_EMAIL = "qa_minorder_p1b@example.com"

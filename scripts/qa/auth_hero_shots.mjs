@@ -1,6 +1,6 @@
 import { chromium } from "playwright";
 
-const BASE = process.env.BASE || "https://cred-manager-29.preview.emergentagent.com";
+const BASE = process.env.BASE || "https://passphrase-init.preview.emergentagent.com";
 const OUT = process.env.OUT || "/app/.screenshots";
 const EXEC = process.env.PLAYWRIGHT_CHROME_EXECUTABLE_PATH;
 

@@ -1,6 +1,6 @@
 import { chromium } from "playwright";
 const EXE = "/pw-browsers/chromium_headless_shell-1208/chrome-linux/headless_shell";
-const BASE = "https://cred-manager-29.preview.emergentagent.com";
+const BASE = "https://passphrase-init.preview.emergentagent.com";
 const browser = await chromium.launch({ executablePath: EXE });
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
 const page = await ctx.newPage();

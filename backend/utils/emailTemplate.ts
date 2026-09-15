@@ -127,11 +127,19 @@ export const baseEmailTemplate = (
         ? tr('chrome.whyAdmin', lang)
         : tr('chrome.whyMerchant', lang, { email: TO_EMAIL_TOKEN }),
     managePrefs: tr('chrome.managePrefs', lang),
+    noReply: tr('chrome.noReply', lang),
+    noReplyHelp: tr('chrome.noReplyHelp', lang),
   };
   const ftrFont = "font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;";
   const whyBlock = `<tr>
                   <td align="center" class="ftr-text" style="color: #a1a1aa; font-size: 11px; line-height: 1.6; ${ftrFont} padding: 0 8px 12px;">
                     ${chrome.why}${audience === 'merchant' ? ` <a class="ftr-link" href="${frontendUrl}/settings?section=notifications" style="color: #d4d4d8; text-decoration: underline; font-size: 11px;">${chrome.managePrefs}</a>` : ''}
+                  </td>
+                </tr>`;
+  // The From mailbox is send-only (no inbox) — say so, and point at the help centre instead.
+  const noReplyBlock = `<tr>
+                  <td align="center" class="ftr-text" style="color: #a1a1aa; font-size: 11px; line-height: 1.6; ${ftrFont} padding: 0 8px 12px;">
+                    ${chrome.noReply} <a class="ftr-link" href="${frontendUrl}/help-support" style="color: #d4d4d8; text-decoration: underline; font-size: 11px;">${chrome.noReplyHelp}</a>
                   </td>
                 </tr>`;
   const legalBlock = `<tr>
@@ -338,6 +346,7 @@ export const baseEmailTemplate = (
                 </tr>
                 ${socialIconsBlock}
                 ${whyBlock}
+                ${noReplyBlock}
                 ${legalBlock}
                 <tr>
                   <td align="center">

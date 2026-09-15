@@ -161,7 +161,7 @@
   "section18Footer": "If a customer sends less than the minimum shown for the selected coin and network, the amount is too small to be forwarded on-chain economically. Such below-minimum transfers are NON-RECOVERABLE — they will not be credited to the merchant, cannot be refunded, and are retained by Dynopay to cover network and processing costs. Please ensure customers always pay at or above the minimum displayed at checkout.",
   "section19Title": "19. Contact Information",
   "section19Desc1": "For questions or concerns, contact us at:",
-  "section19Desc2": "hi@dynopay.com",
+  "section19Desc2": "support@dynopay.com",
   "section19Bullets": [],
   "section19Footer": ""
 }

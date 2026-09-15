@@ -9,7 +9,7 @@ import json
 from typing import Dict, Any, Tuple
 
 # Base URL
-BASE_URL = "https://cred-manager-29.preview.emergentagent.com"
+BASE_URL = "https://passphrase-init.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials

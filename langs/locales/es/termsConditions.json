@@ -161,7 +161,7 @@
   "section18Footer": "Si un cliente envía menos del mínimo mostrado para la moneda y red seleccionadas, el monto es demasiado pequeño para reenviarse económicamente on-chain. Dichas transferencias por debajo del mínimo son NO RECUPERABLES: no se acreditarán al comercio, no pueden reembolsarse y Dynopay las retiene para cubrir los costos de red y procesamiento. Asegúrese de que los clientes siempre paguen igual o por encima del mínimo mostrado en el pago.",
   "section19Title": "19. Información de Contacto",
   "section19Desc1": "Para preguntas o inquietudes, contáctanos en:",
-  "section19Desc2": "hi@dynopay.com",
+  "section19Desc2": "support@dynopay.com",
   "section19Bullets": [],
   "section19Footer": ""
 }

@@ -39,7 +39,7 @@
   "section7Desc": "Selon votre région, vous pouvez demander :",
   "section7Info": [],
   "section7Items": ["L'accès à vos données", "La correction ou la suppression", "L'exportation de vos données", "La restriction du traitement"],
-  "section7Footer": "Contactez-nous à hi@dynopay.com pour toute demande.",
+  "section7Footer": "Contactez-nous à support@dynopay.com pour toute demande.",
   "section8Title": "8. Liens Tiers",
   "section8Desc": "Notre Service peut contenir des liens ou des intégrations avec des outils tiers.",
   "section8Info": [],
@@ -54,5 +54,5 @@
   "section10Desc": "Si vous avez des questions, contactez-nous à :",
   "section10Info": [],
   "section10Items": [],
-  "section10Footer": "hi@dynopay.com"
+  "section10Footer": "support@dynopay.com"
 }

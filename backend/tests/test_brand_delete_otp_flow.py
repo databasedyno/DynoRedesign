@@ -12,7 +12,7 @@ import re
 import pytest
 import requests
 
-BASE = "https://cred-manager-29.preview.emergentagent.com"
+BASE = "https://passphrase-init.preview.emergentagent.com"
 EMAIL = "onarrival21@gmail.com"
 PASSWORD = "Katiekendra123@"
 

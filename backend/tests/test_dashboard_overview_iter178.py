@@ -7,7 +7,7 @@ import time
 import pytest
 import requests
 
-BASE_URL = "https://344a40b3-ff42-4c97-9de3-1b749ec105fa.preview.emergentagent.com"
+BASE_URL = "https://passphrase-init.preview.emergentagent.com"
 EMAIL = "onarrival21@gmail.com"
 PASSWORD = "Katiekendra123@"
 

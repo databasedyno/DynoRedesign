@@ -24,7 +24,7 @@ const s = new Sequelize(process.env.DB_NAME, process.env.USER_NAME, process.env.
     "",
     "> Every contribution helps us keep this free and open for everyone. Thank you.",
     "",
-    "If you'd rather send us a message than contribute, reach out at hi@dynopay.com.",
+    "If you'd rather send us a message than contribute, reach out at support@dynopay.com.",
   ].join("\n").replace(/\\\$/g, "$"); // unescape shell-safe dollars
 
   await s.query(

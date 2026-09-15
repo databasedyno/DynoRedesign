@@ -45,7 +45,7 @@ const PublicFinalCta: React.FC<Props> = ({ attributionRef, title, body, actions,
             <SecondaryBtn onDark data-testid="public-cta-demo" href="/pay/demo">
               {t("v5.hero.secondary")}
             </SecondaryBtn>
-            <SecondaryBtn onDark data-testid="public-cta-talk" href="mailto:hi@dynopay.com?subject=Dynopay%20enquiry">
+            <SecondaryBtn onDark data-testid="public-cta-talk" href="/help-support">
               {t("v5.final.talk")}
             </SecondaryBtn>
           </>

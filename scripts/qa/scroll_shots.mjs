@@ -3,7 +3,7 @@
 import { chromium } from "playwright";
 import fs from "node:fs";
 
-const BASE = process.env.SWEEP_BASE_URL || "https://cred-manager-29.preview.emergentagent.com";
+const BASE = process.env.SWEEP_BASE_URL || "https://passphrase-init.preview.emergentagent.com";
 const args = Object.fromEntries(process.argv.slice(2).map((a) => a.replace(/^--/, "").split("=")));
 const OUT = args.out || "/tmp/scroll";
 fs.mkdirSync(OUT, { recursive: true });

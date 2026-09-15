@@ -112,7 +112,14 @@ export const stuckForwards = (s: OverviewScope) =>
     s,
   );
 
-/** Auto-convert pipeline rows that need eyes: FAILED (retryable) and anything still in progress. */
+/**
+ * Auto-convert pipeline rows the MERCHANT should see: only conversions still in
+ * progress. FAILED conversions are deliberately excluded — policy is that a failed
+ * conversion alerts admin/ops only (they settle by hand, see
+ * conversionService.notifyConversionFailed); the merchant is not shown a technical
+ * "could not be converted · retry" alert here. Excluding FAILED also clears stale
+ * historical failures from the merchant "Needs attention" feed.
+ */
 export const conversionsNeedingAttention = (s: OverviewScope) =>
   many(
     `SELECT sc.conversion_id, sc.transaction_id, sc.status, sc.source_currency, sc.source_amount,
@@ -121,8 +128,8 @@ export const conversionsNeedingAttention = (s: OverviewScope) =>
      FROM tbl_stablecoin_conversion sc
      LEFT JOIN tbl_user_transaction ut ON ut.transaction_id = sc.transaction_id
      WHERE ${companyScopeSql(s, "sc.company_id")}
-       AND UPPER(sc.status::text) <> 'COMPLETED'
-     ORDER BY (UPPER(sc.status::text) = 'FAILED') DESC, sc."updatedAt" DESC
+       AND UPPER(sc.status::text) NOT IN ('COMPLETED', 'FAILED')
+     ORDER BY sc."updatedAt" DESC
      LIMIT 20`,
     s,
   );

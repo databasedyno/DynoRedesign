@@ -3,7 +3,7 @@ import os
 import pytest
 import requests
 
-BASE = "https://cred-manager-29.preview.emergentagent.com"
+BASE = "https://passphrase-init.preview.emergentagent.com"
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36"
 EMAIL = "onarrival21@gmail.com"
 PASSWORD = "Katiekendra123@"

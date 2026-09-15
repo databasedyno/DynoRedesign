@@ -50,7 +50,7 @@ const getPayouts = async (req: express.Request, res: express.Response) => {
     const rangeKey = range.period === "custom"
       ? `${range.start.toISOString().slice(0, 10)}_${range.end.toISOString().slice(0, 10)}`
       : range.period;
-    const cacheKey = `dashboard:payouts:${userId}:${company_id || "all"}:${rangeKey}:${currency}:v2`;
+    const cacheKey = `dashboard:payouts:${userId}:${company_id || "all"}:${rangeKey}:${currency}:v3`;
     const cached = await getRedisItem(cacheKey);
     if (cached && Object.keys(cached).length > 0) {
       return successResponseHelper(res, 200, "Payouts retrieved", cached);
@@ -130,6 +130,9 @@ const getPayouts = async (req: express.Request, res: express.Response) => {
         target_currency: r.target_currency ? String(r.target_currency).toUpperCase() : null,
       })),
       attention: {
+        // Failed conversions are admin-only now (ops settles by hand) — the query
+        // excludes FAILED, so this stays empty. Kept in the response shape so the
+        // frontend (PayoutAttention) never reads undefined.
         failed_conversions: conversions
           .filter((c) => String(c.status).toUpperCase() === "FAILED")
           .map((c) => ({
