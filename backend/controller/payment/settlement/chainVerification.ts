@@ -51,6 +51,7 @@ import {
   sendCustomerPaymentConfirmationEmail,
 } from "../../../services/emailService";
 import { generatePaymentReceipt, getReceiptFilename } from "../../../services/pdfReceiptService";
+import { explorerTxUrl } from "../../../services/receiptLinkService";
 import crypto from "crypto";
 import { safeDeleteSubscription } from "../../../helper/subscriptionHelpers";
 import { incrementAdminFee, incrementUserWallet, incrementCustomerWallet } from "../../../helper/walletHelpers";
@@ -1775,6 +1776,31 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
           const mrCryptoAmount = mrDisplay.cryptoAmount;
           const mrCryptoCurrency = mrDisplay.cryptoCurrency;
 
+          // Full money path for the "Payment settled" email (gross → fee → gas → net → destination).
+          const mpGas = Math.max(0, Number(userAmountToSend) - Number(actualMerchantAmount));
+          const mpForwardHash = autoConvertEnabled ? null : outgoingMerchantTxHash;
+          const moneyPath = {
+            grossCrypto: toFixedStr(totalAmountReceived, 8),
+            asset: tempCurrency,
+            fiatAtDetection: Number(mrPrimaryAmount) > 0 ? { amount: mrPrimaryAmount, currency: mrPrimaryCurrency } : null,
+            feePercent: feePercentage * 100,
+            feeCrypto: toFixedStr(adminAmountToSend, 8),
+            feePayer: fee_payer,
+            belowMinimum: Number(userAmountToSend) <= 0,
+            networkFeeCrypto: mpGas > 0 ? toFixedStr(mpGas, 8) : null,
+            netCrypto: autoConvertEnabled ? toFixedStr(originalUserAmount, 8) : toFixedStr(actualMerchantAmount, 8),
+            destinationAddress: autoConvertEnabled ? null : (walletData?.dataValues?.wallet_address ?? null),
+            destinationTag: autoConvertEnabled ? null : (walletData?.dataValues?.destination_tag ?? null),
+            forwardTxHash: mpForwardHash,
+            explorerUrl: explorerTxUrl(tempCurrency, mpForwardHash),
+            autoConvertTarget: autoConvertEnabled ? autoConvertTargetCurrency : null,
+            paidFor: campaignName || customerData?.description || tempData?.description || null,
+            customerEmail: customerData?.email || tempData?.email || null,
+            reference: (tempData as any)?.ref || null,
+            txRowId: tempData?.user_tx_id || tempData?.unique_tx_id || tempData?.payment_id || null,
+            detectedAt: paymentDateTime,
+          };
+
           await dispatchCompanyEmail(
             company_data?.company_id,
             "payments",
@@ -1793,7 +1819,8 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
               mrCryptoCurrency,        // crypto currency (secondary, e.g. "ETH → USDT")
               campaignName,            // Phase 3.3 P1: when set, sends contribution-flavored copy
               referralCreditAppliedUsd, // Referral fee-credit (Option 1.a): >0 adds the "credit covered $X" line
-              paymentSourceKey         // How the payment was made (API / link / order / donation / tip)
+              paymentSourceKey,        // How the payment was made (API / link / order / donation / tip)
+              moneyPath                // Full money path → "Payment settled" layout
             )
           );
         }

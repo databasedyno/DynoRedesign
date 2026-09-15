@@ -76,7 +76,6 @@ export const sendWebhookDisabledEmail = async (
     const displayUrl = String(webhookUrl || '').length > 80 ? String(webhookUrl).substring(0, 77) + '…' : String(webhookUrl || '(none)');
 
     const message = `
-      ${p(name ? `Hey ${escapeHtml(firstNameOnly(name))},` : `Hey there,`)}
       ${p(`We had to temporarily <strong>disable webhook delivery</strong> for <strong>${escapeHtml(companyName || 'your company')}</strong> because your endpoint has failed <strong>${failureCount} consecutive delivery attempts</strong> in the past 24 hours.`)}
       ${infoBox(`
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
@@ -127,7 +126,6 @@ export const sendWebhookRedirectEmail = async (
     const toUrl = clip(finalUrl);
 
     const message = `
-      ${p(name ? `Hey ${escapeHtml(firstNameOnly(name))},` : `Hey there,`)}
       ${p(`Your webhook endpoint for <strong>${escapeHtml(companyName || 'your company')}</strong> is responding with an <strong>HTTP ${status} redirect</strong>. Good news — we automatically follow it (after a security re-check), so <strong>your webhooks are being delivered</strong>. But the extra redirect hop adds latency and can break if the redirect ever changes.`)}
       ${infoBox(`
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">

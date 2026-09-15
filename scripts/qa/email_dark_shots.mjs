@@ -3,7 +3,7 @@
 //   dark   — prefers-color-scheme: dark (Apple Mail / Outlook / Gmail web honouring the media query)
 //   gmail  — Gmail-app style FORCED inversion: light backgrounds darkened, dark text lightened,
 //            gradients / images left untouched (this is what broke the "welcome gift" email)
-// Usage: PLAYWRIGHT_CHROME_EXECUTABLE_PATH=... node scripts/qa/email_dark_shots.mjs --in=/tmp/email_dark/html --out=/tmp/email_dark/shots
+// Usage: PLAYWRIGHT_CHROME_EXECUTABLE_PATH=... node scripts/qa/email_dark_shots.mjs --in=/tmp/email_dark/html --out=/tmp/email_dark/shots [--width=600] [--modes=light,dark,gmail] [--full-slug] [--assets=http://localhost:8001]
 import { chromium } from "playwright";
 import fs from "node:fs";
 import path from "node:path";
@@ -11,6 +11,9 @@ import path from "node:path";
 const arg = (k, d) => (process.argv.find((a) => a.startsWith(`--${k}=`)) || "").split("=").slice(1).join("=") || d;
 const IN = arg("in", "/tmp/email_dark/html");
 const OUT = arg("out", "/tmp/email_dark/shots");
+const WIDTH = Number(arg("width", "700"));
+const FULL_SLUG = process.argv.includes("--full-slug");
+const MODES = arg("modes", "light,dark,gmail").split(",");
 fs.mkdirSync(OUT, { recursive: true });
 
 // Approximation of Gmail's dark-mode colour transform.
@@ -32,17 +35,17 @@ const GMAIL_INVERT = `
 const browser = await chromium.launch({ executablePath: process.env.PLAYWRIGHT_CHROME_EXECUTABLE_PATH });
 const files = fs.readdirSync(IN).filter((f) => f.endsWith(".html")).sort();
 for (const f of files) {
-  const slug = f.replace(/^\d+_/, "").replace(/\.html$/, "");
+  const slug = (FULL_SLUG ? f : f.replace(/^\d+_/, "")).replace(/\.html$/, "");
   // Point asset URLs at the local backend so hero/logo PNGs render in the shots.
   const html = fs.readFileSync(path.join(IN, f), "utf8").replace(/https:\/\/dynopay\.com\/api\/static\//g, (arg("assets", "http://localhost:8001") + "/api/static/"));
-  for (const mode of ["light", "dark", "gmail"]) {
-    const ctx = await browser.newContext({ viewport: { width: 700, height: 900 }, colorScheme: mode === "dark" ? "dark" : "light" });
+  for (const mode of MODES) {
+    const ctx = await browser.newContext({ viewport: { width: WIDTH, height: 900 }, colorScheme: mode === "dark" ? "dark" : "light" });
     const page = await ctx.newPage();
     await page.setContent(html, { waitUntil: "load" });
     await page.evaluate(() => Promise.all([...document.images].map((im) => im.complete ? null : new Promise((r) => { im.onload = im.onerror = r; }))));
     await page.waitForTimeout(200);
     if (mode === "gmail") { await page.evaluate(GMAIL_INVERT); await page.waitForTimeout(100); }
-    await page.screenshot({ path: path.join(OUT, `${slug}__${mode}.png`), fullPage: true, type: "png" });
+    await page.screenshot({ path: path.join(OUT, `${slug}__${WIDTH}__${mode}.png`), fullPage: true, type: "png" });
     await ctx.close();
   }
   console.log("shot", slug);

@@ -1117,6 +1117,32 @@ export const sweepPoolAddress = async (tempAddressId: number, options: SweepPool
                 const mrpCryptoAmount = mrpDisplay.cryptoAmount;
                 const mrpCryptoCurrency = mrpDisplay.cryptoCurrency;
 
+                // Money path from the pool-transaction row (sweep-recovery has no live settlement vars).
+                const ptx = latestPoolTx.dataValues;
+                const { userWalletModel } = await import("../../models");
+                const { explorerTxUrl } = await import("../receiptLinkService");
+                const destWallet = (await userWalletModel.findOne({
+                  where: { user_id: ownerUserId, wallet_type: walletType, ...(ptx.company_id ? { company_id: ptx.company_id } : {}) },
+                  attributes: ["wallet_address", "destination_tag"],
+                }))?.dataValues;
+                const grossAmt = Number(ptx.payment_amount) || paymentAmount;
+                const feeAmt = Number(ptx.admin_fee_amount) || 0;
+                const moneyPath = {
+                  grossCrypto: toFixedStr(grossAmt, 8),
+                  asset: walletType,
+                  fiatAtDetection: Number(mrpAmount) > 0 ? { amount: mrpAmount, currency: mrpCurrency } : null,
+                  feePercent: grossAmt > 0 ? (feeAmt / grossAmt) * 100 : null,
+                  feeCrypto: toFixedStr(feeAmt, 8),
+                  netCrypto: toFixedStr(merchantAmount, 8),
+                  networkFeeCrypto: Number(ptx.gas_used) > 0 && grossAmt - feeAmt - merchantAmount > 0 ? toFixedStr(grossAmt - feeAmt - merchantAmount, 8) : null,
+                  destinationAddress: destWallet?.wallet_address ?? null,
+                  destinationTag: destWallet?.destination_tag ?? null,
+                  forwardTxHash: ptx.merchant_tx_id || null,
+                  explorerUrl: explorerTxUrl(walletType, ptx.merchant_tx_id || null),
+                  reference: ptx.payment_reference || null,
+                  detectedAt: txCreatedAt,
+                };
+
                 await dispatchCompanyEmail(
                   companyData?.company_id,
                   "payments",
@@ -1132,7 +1158,11 @@ export const sweepPoolAddress = async (tempAddressId: number, options: SweepPool
                     timeStr,
                     normalizeLang((userData as { language?: string })?.language),
                     mrpCryptoAmount,
-                    mrpCryptoCurrency
+                    mrpCryptoCurrency,
+                    undefined,
+                    0,
+                    undefined,
+                    moneyPath
                   )
                 );
 

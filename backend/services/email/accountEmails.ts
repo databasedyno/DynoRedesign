@@ -118,7 +118,7 @@ export const sendEmailVerificationOTPEmail = async (
 ) => {
   try {
     const L = await resolveEmailLang(lang, email);
-    const subject = t('merchant.emailVerifyOtp.subject', L);
+    const subject = t('merchant.emailVerifyOtp.subject', L, { code: otpCode });
     const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
     ${p(t('merchant.emailVerifyOtp.intro', L))}
     ${otpBlock(otpCode)}
@@ -143,7 +143,7 @@ export const sendLoginOTPEmail = async (
 ) => {
   try {
     const L = await resolveEmailLang(lang, email);
-    const subject = t('merchant.loginOtp.subject', L);
+    const subject = t('merchant.loginOtp.subject', L, { code: otpCode });
     const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
     ${p(t('merchant.loginOtp.intro', L))}
     ${otpBlock(otpCode)}

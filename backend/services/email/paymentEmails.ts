@@ -8,10 +8,15 @@ import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p,
 import { EMAIL_TOKENS } from "../../utils/brandTokens";
 import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, dynoPayGreetingTemplate, formatAmountWithCurrency, sendEmail } from "./emailShared";
 import { toFixedStr } from "../../utils/money";
+import { PaymentMoneyPath, renderMoneyPath } from "./paymentSettled";
+import { getCoinSymbol } from "../../utils/networkLabels";
+export type { PaymentMoneyPath } from "./paymentSettled";
 
 /**
- * Template 6: Payment Received
- * Unified version - date/time optional for backwards compatibility
+ * Template 6: Payment Received / Payment settled
+ * Unified version - date/time optional for backwards compatibility.
+ * When `moneyPath` is given the email becomes "Payment settled" and shows the
+ * full money path (gross → fee → network fee → net forwarded → destination).
  */
 export const sendPaymentReceivedEmail = async (
   email: string,
@@ -27,23 +32,24 @@ export const sendPaymentReceivedEmail = async (
   cryptoCurrency?: string,
   campaignName?: string,
   referralCreditAppliedUsd: number = 0,
-  paymentSourceKey?: string
+  paymentSourceKey?: string,
+  moneyPath?: PaymentMoneyPath | null
 ) => {
   try {
     const L = normalizeLang(lang);
     const isContribution = !!(campaignName && campaignName.trim());
-    const subject = isContribution
-      ? t('contributionReceived.subject', L, { amount, currency, campaignName })
-      : t('paymentReceived.subject', L, { amount, currency });
+    const settled = !!moneyPath;
+    const subject = settled
+      ? t('paymentSettled.subject', L, { amount, currency, companyName })
+      : isContribution
+        ? t('contributionReceived.subject', L, { amount, currency, campaignName })
+        : t('paymentReceived.subject', L, { amount, currency });
     const dateTimeStr = date && time ? `${date} at ${time}` : new Date().toLocaleString(L === 'en' ? 'en-GB' : L);
+    const txLink = settled && moneyPath?.txRowId
+      ? `${FRONTEND_BASE_URL}/transactions?tx=${encodeURIComponent(String(moneyPath.txRowId))}`
+      : `${FRONTEND_BASE_URL}/transactions`;
 
-    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
-    ${p(
-      isContribution
-        ? t('contributionReceived.intro', L, { campaignName })
-        : t('paymentReceived.intro', L, { companyName })
-    )}
-    ${infoBox(`
+    const legacyBox = infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${dataRow(t('labels.amount', L), `<strong>${amount} ${currency}</strong>`)}
         ${cryptoAmount && cryptoCurrency ? dataRow(t('labels.cryptoAmount', L), `${formatCryptoAmount(cryptoAmount, cryptoCurrency)} ${cryptoCurrency}`) : ''}
@@ -52,19 +58,36 @@ export const sendPaymentReceivedEmail = async (
         ${dataRow(t('labels.date', L), dateTimeStr)}
         ${dataRow(t('labels.transactionId', L), `<span style="font-size: 12px; font-family: monospace;">${transactionId}</span>`, true)}
       </table>
-    `, '#12B76A')}
+    `, '#12B76A');
+
+    const intro = settled
+      ? t(moneyPath?.belowMinimum ? 'paymentSettled.introBelowMinimum' : (moneyPath?.forwardTxHash || moneyPath?.autoConvertTarget) ? 'paymentSettled.intro' : 'paymentSettled.introForwarding', L, { companyName: escapeHtml(companyName) })
+      : isContribution
+        ? t('contributionReceived.intro', L, { campaignName })
+        : t('paymentReceived.intro', L, { companyName });
+    const outro = settled
+      ? t('paymentSettled.nothingToDo', L)
+      : isContribution ? t('contributionReceived.outro', L) : t('paymentReceived.outro', L);
+
+    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    ${p(intro)}
+    ${settled && isContribution ? p(t('contributionReceived.intro', L, { campaignName })) : ''}
+    ${settled && moneyPath ? renderMoneyPath(L, { ...moneyPath, paidFor: moneyPath.paidFor ?? campaignName ?? null }) : legacyBox}
     ${Number(referralCreditAppliedUsd) > 0
         ? p(t('paymentReceived.referralCredit', L, { amount: `$${toFixedStr(referralCreditAppliedUsd, 2)}` }))
         : ''}
-    ${p(
-      isContribution
-        ? t('contributionReceived.outro', L)
-        : t('paymentReceived.outro', L)
-    )}`;
+    ${p(outro)}`;
 
-    const html = dynoPayEmailTemplate(isContribution ? t('contributionReceived.heading', L) : t('paymentReceived.heading', L), content, true, isContribution ? t('contributionReceived.cta', L) : t('paymentReceived.cta', L), `${FRONTEND_BASE_URL}/transactions`, isContribution ? t('contributionReceived.preheader', L) : t('paymentReceived.preheader', L), L, 'check');
+    const heading = settled ? t('paymentSettled.heading', L) : isContribution ? t('contributionReceived.heading', L) : t('paymentReceived.heading', L);
+    const cta = settled ? t('paymentSettled.cta', L) : isContribution ? t('contributionReceived.cta', L) : t('paymentReceived.cta', L);
+    const preheader = settled
+      ? moneyPath?.belowMinimum
+        ? t('paymentSettled.preheaderBelowMinimum', L, { amount, currency })
+        : t('paymentSettled.preheader', L, { net: moneyPath?.netCrypto ?? cryptoAmount ?? amount, asset: getCoinSymbol(moneyPath?.autoConvertTarget ?? moneyPath?.asset ?? currency) })
+      : isContribution ? t('contributionReceived.preheader', L) : t('paymentReceived.preheader', L);
+    const html = dynoPayEmailTemplate(heading, content, true, cta, txLink, preheader, L, 'check');
     await mailTransporter({ to: email, name, subject, body: html });
-    apiLogger.info(`${isContribution ? 'Contribution' : 'Payment'} received email sent to ${email}`);
+    apiLogger.info(`${settled ? 'Payment settled' : isContribution ? 'Contribution' : 'Payment'} received email sent to ${email}`);
   } catch (e) {
     captureError(e, 'email', { extraContext: 'sendPaymentReceivedEmail' });
   }

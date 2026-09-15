@@ -700,12 +700,25 @@ testRouter.post("/send-payment-received-email", authMiddleware, async (req, res)
     await sendPaymentReceivedEmail(
       email,
       recipientName,
-      "0.00325000",
-      "BTC",
+      "261.37",
+      "USD",
       "Dynopay Test Merchant",
       "tx_abc123def456_test_payment_received",
       new Date().toLocaleDateString(),
-      new Date().toLocaleTimeString()
+      new Date().toLocaleTimeString(),
+      "en",
+      "0.0042",
+      "BTC",
+      undefined,
+      0,
+      "payment_link",
+      {
+        grossCrypto: "0.0042", asset: "BTC", fiatAtDetection: { amount: "261.37", currency: "USD" },
+        feePercent: 1.5, feeCrypto: "0.000063", feePayer: "company", netCrypto: "0.004137",
+        destinationAddress: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh", forwardTxHash: "4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b",
+        explorerUrl: "https://mempool.space/tx/4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b",
+        paidFor: "Test payment", customerEmail: "buyer@example.com", reference: "TEST01", detectedAt: new Date(),
+      }
     );
     
     successResponseHelper(res, 200, "Test payment received email sent", { sent_to: email });

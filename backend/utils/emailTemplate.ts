@@ -479,9 +479,9 @@ export const feeTotalRow = (label: string, value: string): string => {
 /**
  * Fee breakdown table wrapper
  */
-export const feeTable = (rows: string): string => {
+export const feeTable = (rows: string, title: string = "Fee Breakdown"): string => {
   return alertBox(`
-    <p style="font-size: 13px; font-weight: 600; color: #78716c; margin: 0 0 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">Fee Breakdown</p>
+    <p style="font-size: 13px; font-weight: 600; color: #78716c; margin: 0 0 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">${title}</p>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows}</table>
   `);
 };

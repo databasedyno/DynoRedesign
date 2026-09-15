@@ -2791,3 +2791,12 @@ Follow-up pass; user selected all four next-action items. All verified via `test
 
 Produced `/app/memory/TAX_SYSTEM_ASSESSMENT.md` — a written, code-grounded evaluation of DynoPay's tax handling vs 2026 industry standards (calc-engine vs merchant-of-record; EU VAT/OSS, UK, US sales tax/nexus, GST). No tax logic/UI/checkout changed; SAFE MODE untouched. Headline gaps: no US sales tax (US=0), regex-only reverse-charge (no live VIES in checkout), no nexus/threshold monitoring, reduced rates ignored (`reduced_rates` stored but unread), single location signal (no 2-evidence/10-yr retention), no OSS/filing exports, and no crypto cost-basis/1099-DA/DAC8/CARF posture (note: 2026 US final regs name "digital-asset payment processors" as brokers — possible DynoPay-level obligation). Recommended hybrid path: extend in-house VAT/GST (VIES, reduced rates, OSS reports, crypto tax pack) + buy a tax engine for US sales tax; treat 1099-DA/DAC8/CARF as legal-first. Verified facts via web search (1099-DA 2025 proceeds / 2026 basis; DAC8 from 2026; CARF waves 2027/28/29).
 
+
+# PHASE 1 AUDIT — EMAILS + PUBLIC/CHECKOUT/CREATOR/IN-APP PAGES (2026-06 fork, pod vault-setup-6) — DONE + 3 BLOCKERS FIXED
+Plan: /app/plan/emails_pages_audit_plan.md (§7 order). Report: /app/plan/audit_phase1.md. Gallery: <preview>/audit/index.html (public/audit git-ignored).
+- Email harness `backend/scripts/audit_render_all_emails.ts` renders ALL 110 senders (138 variants) → plan/audit/emails/html + manifest; shots 600/390 × light/dark/gmail → public/audit/emails.
+- Page sweep `scripts/qa/audit_page_shots.mjs` (65 routes × 4 widths × 2 themes, overflow/clipped/raw-key/JS/502 audit, checkout awaiting mock, cart recipe, in-app login) → public/audit/pages + results_*.json.
+- Verdicts in plan/audit/findings.json → `build_audit_report.py` + `build_audit_gallery.py`.
+- BLOCKER FIXES: (1) "Payment settled" merchant email with full money path (services/email/paymentSettled.ts, sendPaymentReceivedEmail(...moneyPath), paymentSettled.* ×6 langs, wired chainVerification + merchantPoolSweep + testRouter); (2) login/emailVerify OTP subjects had literal `{{code}}`; (3) webhook emails double greeting.
+- Verified: tsc 0, dark-mode guard OK, 138/138 renders, 0 raw keys; no horizontal overflow on any route/width. Not live-sent (SAFE MODE).
+- Next (Phase 2, per report §8): Wave 4 email template/footer/deep-links + new Payout-delayed/Overpaid emails; Wave 5 /payment/success|failed|verify dead-ends + coin picker fee/time; Wave 7 /about legitimacy; parked Wave 2–3 testing sweep.
