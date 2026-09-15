@@ -63,9 +63,12 @@ NOW:   Wave 3 CODED (3a–3g, smoke-tested). The Wave 2+3 testing_agent sweep is
        rules 4-col/>8 cats/>20 search, phone sticky buy bar). Waves 2–3 regression sweep DONE (iter 181) → SHIPPED.
        Wave 7 (partial, iter 182): /about legitimacy block + /fees worked example DONE; Wave 8 (partial): create-pay-link
        single form DONE; bonus: tip thank-you card (canvas PNG, download/share) DONE. Wave 7 COMPLETE (iter 183: landing
-       trust strip + docs phone nav); Wave 8: product editor live preview DONE (iter 183), KYC status timeline pending;
-       bonus: monthly tip goal bar (migration 0029). NEXT: KYC status timeline → Part F cross-wave checks (WCAG AA,
-       CWV, non-English samples).
+       trust strip + docs phone nav); Wave 8 COMPLETE (iter 183 product editor live preview; iter 184 KYC status timeline
+       Components/Page/Kyc/KycTimeline.tsx); bonus: monthly tip goal bar (migration 0029) + goal milestone emails
+       50%/100% (services/tipGoalMilestoneService.ts, tbl_tip_goal_milestone migration 0032, iter 184).
+       Part F DONE (iter 184): WCAG AA axe sweep tests/a11y-sweep.mjs → 0 contrast / 0 serious on 11 public + 15
+       dashboard pages; sticky header fix = scroll-padding-top on the main scroll container (Containers/Client/index.tsx,
+       probe scripts/qa/sticky_header_probe.mjs). Still open from Part F: CWV pass, non-English page samples.
        P0 backlog after that: US sales-tax engine, 1099-DA broker determination.
 
 State at fork: Wave 1 (Command Centre) fully coded (backend `GET /api/dashboard/overview`,

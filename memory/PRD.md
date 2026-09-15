@@ -1,4 +1,38 @@
-# === 2026-06 (fork) NEW EPIC APPROVED — EMAILS · PUBLIC PAGES · CHECKOUT · CREATOR PAGES AUDIT + FIX WAVES 4–8 ===
+# === 2026-06 (fork) SHIPPED — WAVE 8 CLOSED (KYC TIMELINE) · PART F (A11Y + STICKY HEADER) · GOAL MILESTONE EMAILS ===
+# STATUS: DONE & VERIFIED (testing_agent iteration_184 = backend 100%, frontend 100%, 0 issues). English only.
+# KYC STATUS TIMELINE (Wave 8 last item): Components/Page/Kyc/KycTimeline.tsx rendered between the hero and
+#   requirements on /kyc. 4 steps prepare→submit→review→verified, data-state done|current|upcoming|failed derived from
+#   useKycPage view/status (retry → submit step "failed"), wait chips (kyc-step-wait-<id>), submitted/reviewed stamps,
+#   "Next up" hint on the current step. i18n dashboardLayout.kycTimeline.* ×6 (scripts/i18n_kyc_timeline.py). Also fixed
+#   the KYC cards (hero/timeline/requirements/history) rendering flush to the card edge — PanelCard has NO default body
+#   padding, callers must pass bodyPadding/bodySx.
+# STICKY HEADER (Part F): root cause of "header eats clicks on MUI selects" = scrollIntoView/focus parking controls under
+#   the position:sticky MainPageHeader. Fix = Containers/Client/index.tsx publishes the header height as inline
+#   scroll-padding-top on the main scroll container (ResizeObserver). NOT pointer-events. Probe:
+#   node scripts/qa/sticky_header_probe.mjs → ALL CHECKS PASSED (focus() + plain click open the listbox).
+# A11Y SWEEP (Part F): tests/a11y-sweep.mjs (Playwright + axe-core, system chrome) [--auth] [--only a,b] [--out dir] →
+#   0 color-contrast / 0 critical-serious on 11 public + 15 dashboard pages. Fixes this slice: footer copyright #6B6B74,
+#   receipt footer links underlined + no opacity, checkout psp mark opacity removed / Verified merchant #027A48 /
+#   CHEAPEST chip #14532d / currency Select SelectDisplayProps aria-label, docs status-code + auth-card colours darkened
+#   in light mode, transactions sort headers role=button + aria-label/aria-pressed (aria-sort removed — not allowed on
+#   button) + rows role=button, Switch inputProps aria-label (show-products, payouts digest), Select aria-labels
+#   (settings brand picker, communication language), login FormPanel <main> + AuthBrandPanel <aside>, creator name h1,
+#   footer/shop-card headings h2, storefront "Live" chip #14532D. Transient Cloudflare 502 pages show up as
+#   #cf-browser-status violations — retry, not an app bug.
+# GOAL MILESTONE EMAILS (P1): services/tipGoalMilestoneService.ts checkTipGoalMilestone(parentLinkId,{now,send})
+#   fired fire-and-forget from chainVerification.ts after the merchant "payment settled" email when link_type ===
+#   'contribution'. Verifies the parent is the tip jar (is_tip_jar, parent_link_id null), resolves the owner via
+#   STOREFRONT_PER_COMPANY (tbl_company vs tbl_user), month total = getDonationAggregatesSince(month start), milestones
+#   50/100 deduped in NEW tbl_tip_goal_milestone (migration 0032, unique scope+month_key+milestone, scope
+#   "company:<id>"|"user:<id>"); a single tip jumping past 100% records both rows but emails ONLY the 100%.
+#   Email services/email/tipGoalEmails.ts (hero chart/trophy, table progress bar, CTA → creator page), category
+#   "payments" via dispatchCompanyEmail, i18n emails.json tipGoal.* ×6 (scripts/inject_tip_goal_i18n.py).
+#   Harness: scripts/render_tip_goal_email.ts (12 renders, raw-key + maths checks); e2e: scripts/test_tip_goal_milestone.ts
+#   (real jar link 59 / company 1 — temporarily sets the goal, restores NULL + deletes rows in finally).
+# ============================================================================================
+
+
+# === 2026-06 (fork) EPIC — EMAILS · PUBLIC PAGES · CHECKOUT · CREATOR PAGES AUDIT + FIX WAVES 4–8 (superseded: Waves 4–8 + Part F now SHIPPED, see block above) ===
 # STATUS: PHASE 1 (AUDIT) NOT STARTED — context gathered + harness designed only; session ended by user
 #   ("ensure the next agent can continue… end the session after updating document"). NO code changed.
 # FULL PLAN + EXECUTION HANDOFF: /app/plan/emails_pages_audit_plan.md (Parts A–H = approved proposal; §2–§7 = what
