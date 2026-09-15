@@ -39,6 +39,7 @@ export interface CreatorFormState {
   swAllowMessage: boolean;
   swThanks: string;
   swShowSupporters: boolean;
+  swShowWall?: boolean;
   // Store visibility (Session 2026-08-26)
   storeEnabled: boolean;
   showProductsOnPage: boolean;
@@ -120,6 +121,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
   const [swAllowMessage, setSwAllowMessage] = useState(true);
   const [swThanks, setSwThanks] = useState("");
   const [swShowSupporters, setSwShowSupporters] = useState(true);
+  const [swShowWall, setSwShowWall] = useState(false);
   // ── Public Analytics widget (Session 2026-08-05) ──
   // Controls whether the 30-day tips chart + top supporters is publicly
   // visible on the creator's /:handle page. Merchant always sees their own
@@ -174,13 +176,14 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
       setSwPresets(
         Array.isArray(p.support_widget_preset_amounts) && p.support_widget_preset_amounts.length
           ? p.support_widget_preset_amounts.map((n: unknown) => Number(n)).filter((n: number) => Number.isFinite(n) && n > 0)
-          : [10, 25, 50, 100],
+          : [10, 25, 50],
       );
       setSwCurrency(p.support_widget_currency || "USD");
       setSwMinAmount(Math.max(10, Number(p.support_widget_min_amount) || 0));
       setSwAllowMessage(p.support_widget_allow_message !== false);
       setSwThanks(p.support_widget_thanks_message || "");
       setSwShowSupporters(p.support_widget_show_supporters !== false);
+      setSwShowWall(p.support_widget_show_wall === true);
       setPublicAnalyticsEnabled(p.public_analytics_enabled !== false);
       setStoreEnabled(p.store_enabled !== false);
       setShowProductsOnPage(p.creator_page_show_products !== false);
@@ -196,13 +199,13 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
   useEffect(() => {
     onChange?.({
       handle, bio, enabled, coverImage, socialLinks,
-      swEnabled, swStyle, swLabel, swPresets, swCurrency, swMinAmount, swAllowMessage, swThanks, swShowSupporters,
+      swEnabled, swStyle, swLabel, swPresets, swCurrency, swMinAmount, swAllowMessage, swThanks, swShowSupporters, swShowWall,
       storeEnabled, showProductsOnPage,
       name,
       // Theme (Session 60) — so the live preview matches the published page.
       accentColor: themeAccent, coverStyle: themeCoverStyle, coverGradient: themeCoverGradient,
     } as any);
-  }, [handle, name, bio, enabled, coverImage, socialLinks, swEnabled, swStyle, swLabel, swPresets, swCurrency, swMinAmount, swAllowMessage, swThanks, swShowSupporters, storeEnabled, showProductsOnPage, themeAccent, themeCoverStyle, themeCoverGradient, onChange]);
+  }, [handle, name, bio, enabled, coverImage, socialLinks, swEnabled, swStyle, swLabel, swPresets, swCurrency, swMinAmount, swAllowMessage, swThanks, swShowSupporters, swShowWall, storeEnabled, showProductsOnPage, themeAccent, themeCoverStyle, themeCoverGradient, onChange]);
 
   // Open + reveal the tip box (Support Widget) when the dashboard "Set up tips" CTA fires.
   useEffect(() => {
@@ -292,7 +295,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
 
   const savedPresets = useMemo(() => {
     const p = profile?.support_widget_preset_amounts;
-    return Array.isArray(p) && p.length ? p.map((n: unknown) => Number(n)) : [10, 25, 50, 100];
+    return Array.isArray(p) && p.length ? p.map((n: unknown) => Number(n)) : [10, 25, 50];
   }, [profile?.support_widget_preset_amounts]);
 
   const supportWidgetChanged = useMemo(() => (
@@ -304,8 +307,9 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
     Number(swMinAmount) !== Math.max(10, Number(profile?.support_widget_min_amount) || 0) ||
     swAllowMessage !== (profile?.support_widget_allow_message !== false) ||
     swThanks !== (profile?.support_widget_thanks_message || "") ||
-    swShowSupporters !== (profile?.support_widget_show_supporters !== false)
-  ), [swEnabled, swStyle, swLabel, swPresets, swCurrency, swMinAmount, swAllowMessage, swThanks, swShowSupporters, savedPresets, profile]);
+    swShowSupporters !== (profile?.support_widget_show_supporters !== false) ||
+    swShowWall !== (profile?.support_widget_show_wall === true)
+  ), [swEnabled, swStyle, swLabel, swPresets, swCurrency, swMinAmount, swAllowMessage, swThanks, swShowSupporters, swShowWall, savedPresets, profile]);
 
   const themeChanged = useMemo(() => (
     (themeAccent || null) !== (profile?.theme_accent_color || null) ||
@@ -368,6 +372,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
         support_widget_allow_message: swAllowMessage,
         support_widget_thanks_message: swThanks.trim() || null,
         support_widget_show_supporters: swShowSupporters,
+        support_widget_show_wall: swShowWall,
         theme_accent_color: themeAccent,
         theme_cover_style: themeCoverStyle,
         theme_cover_gradient: themeCoverGradient,
@@ -1047,6 +1052,18 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
                 checked={swShowSupporters}
                 onChange={(e) => setSwShowSupporters(e.target.checked)}
                 data-testid="support-widget-show-supporters"
+                sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
+              />
+            </Box>
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
+              <Box>
+                <Typography fontSize={13.5} color={theme.palette.text.primary}>{t("storefront.form.showWall", { defaultValue: "Supporter wall — show recent public tips" })}</Typography>
+                <Typography fontSize={11.5} color={theme.palette.text.disabled}>{t("storefront.form.showWallHint", { defaultValue: "First name, amount and message of your last 8 supporters. Anonymous tips show as \"Someone\". Off by default." })}</Typography>
+              </Box>
+              <Switch
+                checked={swShowWall}
+                onChange={(e) => setSwShowWall(e.target.checked)}
+                data-testid="support-widget-show-wall"
                 sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
               />
             </Box>

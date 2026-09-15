@@ -879,7 +879,15 @@
       "label_other": "Boutique · {{count}} articles",
       "viewAll": "Tout voir →",
       "buy": "Acheter →"
-    }
+    },
+    "wall": {
+      "title": "Soutiens récents",
+      "anonymous": "Quelqu'un",
+      "today": "aujourd'hui",
+      "daysAgo": "il y a {{count}} j",
+      "monthsAgo": "il y a {{count}} mois"
+    },
+    "nonCustodial": "Versé directement à {{name}} — Dynopay ne détient jamais vos fonds."
   },
   "order": {
     "progress": {
@@ -1049,7 +1057,8 @@
     "emptyVisitorTitleV2": "{{name}} n'a encore rien mis en vente",
     "galleryImage": "Image",
     "minOrderHint": "Commande min. {{min}} — à combiner avec d'autres articles",
-    "minOrderNotice": "Commande minimum : {{min}} — ajoutez cet article au panier et combinez-le avec d'autres pour passer au paiement."
+    "minOrderNotice": "Commande minimum : {{min}} — ajoutez cet article au panier et combinez-le avec d'autres pour passer au paiement.",
+    "searchPlaceholder": "Rechercher des produits"
   },
   "exitIntentEyebrow": "Attendez — une seconde",
   "exitIntentBody": "Récupérez la clé sandbox ci-dessous et appelez notre API depuis votre terminal. Sans inscription. Sans carte. Réponse réelle — le même format JSON qu'en production.",

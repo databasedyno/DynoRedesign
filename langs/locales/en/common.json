@@ -942,7 +942,9 @@
       "minFloorNote": "min $10",
       "supportStyle_coffee": "Buy me a coffee",
       "supportStyle_tip": "Send a tip",
-      "supportStyle_support": "Support me"
+      "supportStyle_support": "Support me",
+      "showWall": "Supporter wall — show recent public tips",
+      "showWallHint": "First name, amount and message of your last 8 supporters. Anonymous tips show as \"Someone\". Off by default."
     },
     "compare": {
       "title": "Compare storefronts",
@@ -981,7 +983,8 @@
     "orderCount_other": "{{count}} orders",
     "preview": {
       "firstDonationTitle": "Your first donation link will appear here",
-      "firstDonationBody": "Create a donation link and it will feature at the top of your page."
+      "firstDonationBody": "Create a donation link and it will feature at the top of your page.",
+      "wallTitle": "Recent supporters"
     },
     "share": {
       "textNamed": "Pay {{name}} in crypto — no signup needed.",

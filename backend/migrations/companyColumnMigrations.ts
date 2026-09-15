@@ -37,3 +37,18 @@ export const addCompanyWebhookSecretRotation = async (): Promise<void> => {
        ADD COLUMN IF NOT EXISTS "webhook_secret_previous_expires_at" TIMESTAMPTZ DEFAULT NULL`
   );
 };
+
+/**
+ * 0028 — creator supporter wall (opt-in, off by default). Adds the additive,
+ * nullable `support_widget_show_wall` BOOLEAN to tbl_company + tbl_user
+ * (NULL = off). Metadata-only, safe on live prod.
+ */
+export const addSupportWidgetShowWall = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  for (const table of ["tbl_company", "tbl_user"]) {
+    await sequelize.query(
+      `ALTER TABLE "${table}"
+         ADD COLUMN IF NOT EXISTS "support_widget_show_wall" BOOLEAN DEFAULT NULL`
+    );
+  }
+};

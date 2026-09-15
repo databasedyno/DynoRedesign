@@ -942,7 +942,9 @@
       "minFloorNote": "mín $10",
       "supportStyle_coffee": "Invítame a un café",
       "supportStyle_tip": "Enviar una propina",
-      "supportStyle_support": "Apóyame"
+      "supportStyle_support": "Apóyame",
+      "showWall": "Muro de apoyos — mostrar las propinas públicas recientes",
+      "showWallHint": "Nombre, importe y mensaje de tus últimos 8 apoyos. Las propinas anónimas aparecen como \"Alguien\". Desactivado por defecto."
     },
     "compare": {
       "title": "Comparar tiendas",
@@ -981,7 +983,8 @@
     "orderCount_other": "{{count}} pedidos",
     "preview": {
       "firstDonationTitle": "Tu primer enlace de donación aparecerá aquí",
-      "firstDonationBody": "Crea un enlace de donación y aparecerá en la parte superior de tu página."
+      "firstDonationBody": "Crea un enlace de donación y aparecerá en la parte superior de tu página.",
+      "wallTitle": "Apoyos recientes"
     },
     "share": {
       "textNamed": "Paga a {{name}} en criptomonedas — no se necesita registro.",

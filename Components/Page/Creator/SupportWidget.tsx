@@ -5,6 +5,7 @@ import { Box, Button, CircularProgress, Typography, useTheme } from '@mui/materi
 import { Icon } from '@iconify/react'
 import { formatWithSeparators, getCurrencySymbolFromFormat } from '@/utils/currencyFormat'
 import InlineTipCheckout from './InlineTipCheckout'
+import SupporterWall, { RecentSupporter } from './SupporterWall'
 import { getRuntimeFlags } from '@/helpers/runtimeFlags'
 
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace'
@@ -27,6 +28,8 @@ export interface SupportWidgetData {
   show_supporters: boolean
   supporters_count: number
   raised_amount: number
+  show_wall?: boolean
+  recent_supporters?: RecentSupporter[]
 }
 
 export const STYLE_META: Record<string, { title: string; icon: string; cta: string }> = {
@@ -65,7 +68,7 @@ const SupportWidget = ({
   const presets = (
     Array.isArray(widget.preset_amounts) && widget.preset_amounts.length
       ? widget.preset_amounts
-      : [10, 25, 50, 100]
+      : [10, 25, 50]
   ).filter((p) => Number(p) >= MIN_FLOOR)
   const currency = widget.currency || 'USD'
   const sym = getCurrencySymbolFromFormat(currency)
@@ -506,6 +509,11 @@ const SupportWidget = ({
         <Icon icon="mdi:lock-outline" width={12} />
         {t("creator.support.trustLine")}
       </Typography>
+
+      {/* Opt-in supporter wall — recent public tips (name · amount · message) */}
+      {widget.show_wall && Array.isArray(widget.recent_supporters) && widget.recent_supporters.length > 0 && (
+        <SupporterWall supporters={widget.recent_supporters} accent={LIME} />
+      )}
       </>
       )}
     </Box>

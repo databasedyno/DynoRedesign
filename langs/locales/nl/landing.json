@@ -879,7 +879,15 @@
       "label_other": "Winkel · {{count}} items",
       "viewAll": "Alles bekijken →",
       "buy": "Kopen →"
-    }
+    },
+    "wall": {
+      "title": "Recente supporters",
+      "anonymous": "Iemand",
+      "today": "vandaag",
+      "daysAgo": "{{count}}d geleden",
+      "monthsAgo": "{{count}}mnd geleden"
+    },
+    "nonCustodial": "Gaat rechtstreeks naar {{name}} — Dynopay bewaart je geld nooit."
   },
   "order": {
     "progress": {
@@ -1049,7 +1057,8 @@
     "emptyVisitorTitleV2": "{{name}} heeft nog niets aangeboden",
     "galleryImage": "Afbeelding",
     "minOrderHint": "Min. bestelling {{min}} — combineer met andere items",
-    "minOrderNotice": "Minimale bestelling is {{min}} — voeg dit toe aan je winkelwagen en combineer het met andere items om af te rekenen."
+    "minOrderNotice": "Minimale bestelling is {{min}} — voeg dit toe aan je winkelwagen en combineer het met andere items om af te rekenen.",
+    "searchPlaceholder": "Producten zoeken"
   },
   "exitIntentEyebrow": "Wacht — één seconde",
   "exitIntentBody": "Pak de sandbox-sleutel hieronder en roep onze API aan vanuit uw terminal. Geen registratie. Geen kaart. Echte respons — hetzelfde JSON-formaat als in productie.",

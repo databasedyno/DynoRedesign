@@ -317,8 +317,8 @@ const userModel = sequelize.define(
     support_widget_preset_amounts: {
       type: DataTypes.JSONB,
       allowNull: true,
-      defaultValue: [3, 5, 10, 25],
-      comment: "Suggested amount chips (max 5)",
+      defaultValue: [10, 25, 50],
+      comment: "Suggested amount chips (max 5, $10 platform floor)",
     },
     support_widget_currency: {
       type: DataTypes.STRING(10),
@@ -348,6 +348,12 @@ const userModel = sequelize.define(
       defaultValue: true,
       allowNull: true,
       comment: "Show lifetime supporters count on the widget",
+    },
+    support_widget_show_wall: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: false,
+      comment: "Opt-in supporter wall (recent public tips) on the creator page",
     },
     // ── Creator Page Analytics (Session 2026-08-05) ──
     store_enabled: {

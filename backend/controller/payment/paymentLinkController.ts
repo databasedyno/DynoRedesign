@@ -2882,23 +2882,34 @@ export const getCreatorProfile = async (req: express.Request, res: express.Respo
           presets = String(rawPresets).split(",").map((s) => Number(s.trim())).filter((n) => Number.isFinite(n) && n > 0);
         }
       }
-      if (presets.length === 0) presets = [3, 5, 10, 25];
+      if (presets.length === 0) presets = [10, 25, 50];
 
       const showSupporters = c.support_widget_show_supporters !== false;
+      const showWall = c.support_widget_show_wall === true;
       let supportersCount: number | null = null;
       let raisedAmount: number | null = null;
-      if (showSupporters) {
+      let recentSupporters: Array<{ name: string | null; message: string | null; amount: number; currency: string; at: string }> = [];
+      if (showSupporters || showWall) {
         const jar = await paymentLinkModel.findOne({
           where: { user_id: c.user_id, ...linkCompanyWhere, is_tip_jar: true, parent_link_id: null },
           attributes: ["link_id"],
         });
-        if (jar) {
+        if (jar && showSupporters) {
           const agg = await getDonationAggregates(jar.dataValues.link_id);
           supportersCount = agg.supporters_count;
           raisedAmount = agg.raised_amount;
-        } else {
+        } else if (showSupporters) {
           supportersCount = 0;
           raisedAmount = 0;
+        }
+        if (jar && showWall) {
+          recentSupporters = (await getRecentSupporters(jar.dataValues.link_id, 8)).map((r) => ({
+            name: r.name ? String(r.name).trim().split(/\s+/)[0].slice(0, 24) : null,
+            message: r.message ? String(r.message).trim().slice(0, 280) : null,
+            amount: r.amount,
+            currency: r.currency,
+            at: r.at,
+          }));
         }
       }
 
@@ -2914,6 +2925,8 @@ export const getCreatorProfile = async (req: express.Request, res: express.Respo
         show_supporters: showSupporters,
         supporters_count: supportersCount,
         raised_amount: raisedAmount,
+        show_wall: showWall,
+        recent_supporters: recentSupporters,
       };
     }
 

@@ -97,7 +97,7 @@ const CreatorLivePreview: React.FC<Props> = ({ state }) => {
   const swEnabled = Boolean(state.swEnabled);
   const swMeta = SW_STYLE_META[state.swStyle || "coffee"] || SW_STYLE_META.coffee;
   const swTitle = (state.swLabel && state.swLabel.trim()) || swMeta.title;
-  const swPresets = Array.isArray(state.swPresets) && state.swPresets.length ? state.swPresets : [3, 5, 10, 25];
+  const swPresets = Array.isArray(state.swPresets) && state.swPresets.length ? state.swPresets : [10, 25, 50];
   const swSym = (state.swCurrency || "USD") === "EUR" ? "€" : (state.swCurrency || "USD") === "GBP" ? "£" : "$";
 
   return (
@@ -246,6 +246,22 @@ const CreatorLivePreview: React.FC<Props> = ({ state }) => {
                 {swTitle}
               </Typography>
             </Box>
+            {state.swShowWall && (
+              <Box data-testid="preview-supporter-wall" sx={{ mt: 1.25, pt: 1, borderTop: `1px solid ${border}` }}>
+                <Typography sx={{ fontFamily: MONO, fontSize: 9.5, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: theme.palette.text.secondary }}>
+                  {t("storefront.preview.wallTitle", { defaultValue: "Recent supporters" })}
+                </Typography>
+                {[["A", "Alex", `${swSym}${swPresets[0]}`], ["", "Someone", `${swSym}${swPresets[1] ?? swPresets[0]}`]].map(([ini, nm, amt]) => (
+                  <Box key={nm} sx={{ display: "flex", alignItems: "center", gap: 0.75, mt: 0.75 }}>
+                    <Box sx={{ width: 20, height: 20, borderRadius: "6px", backgroundColor: surface, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 800, color: theme.palette.text.primary }}>
+                      {ini || <Icon icon="mdi:heart" width={11} />}
+                    </Box>
+                    <Typography fontSize={11.5} fontWeight={700} color={theme.palette.text.primary}>{nm}</Typography>
+                    <Typography sx={{ fontFamily: MONO, fontSize: 11, fontWeight: 700, color: theme.palette.text.secondary }}>{amt}</Typography>
+                  </Box>
+                ))}
+              </Box>
+            )}
           </Box>
         )}
 

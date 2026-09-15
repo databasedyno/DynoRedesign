@@ -767,12 +767,15 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
         {/* Trust row — "Payments secured by Dynopay · Verified merchant". */}
         <MerchantTrustRow handle={creator.handle} sx={{ mt: 3 }} />
 
-        {/* ── Powered by ── */}
+        {/* ── Powered by + non-custodial note ── */}
         <Box display='flex' alignItems='center' justifyContent='center' gap={0.75} mt={2} sx={{ opacity: 0.7 }}>
           <Typography fontSize={12} color={theme.palette.text.secondary}>{t('creator.poweredBy', { defaultValue: 'Powered by' })}</Typography>
           <Logo width={15} height={18} />
           <Typography fontSize={12} fontWeight={700} color={theme.palette.text.primary}>Dynopay</Typography>
         </Box>
+        <Typography fontSize={11.5} color={theme.palette.text.secondary} textAlign='center' mt={0.75} data-testid='creator-noncustodial-note' sx={{ opacity: 0.8 }}>
+          {t('creator.nonCustodial', { name: creator.name.split(' ')[0], defaultValue: 'Paid straight to {{name}} — Dynopay never holds your funds.' })}
+        </Typography>
         </Box>
       </Box>
 

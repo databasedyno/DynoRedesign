@@ -942,7 +942,9 @@
       "minFloorNote": "min 10 $",
       "supportStyle_coffee": "Spendier mir einen Kaffee",
       "supportStyle_tip": "Trinkgeld senden",
-      "supportStyle_support": "Unterstütze mich"
+      "supportStyle_support": "Unterstütze mich",
+      "showWall": "Unterstützer-Wand — neueste öffentliche Trinkgelder anzeigen",
+      "showWallHint": "Vorname, Betrag und Nachricht Ihrer letzten 8 Unterstützer. Anonyme Trinkgelder erscheinen als „Jemand“. Standardmäßig aus."
     },
     "compare": {
       "title": "Schaufenster vergleichen",
@@ -981,7 +983,8 @@
     "orderCount_other": "{{count}} Bestellungen",
     "preview": {
       "firstDonationTitle": "Ihr erster Spendenlink wird hier angezeigt",
-      "firstDonationBody": "Erstellen Sie einen Spendenlink, und er wird oben auf Ihrer Seite angezeigt."
+      "firstDonationBody": "Erstellen Sie einen Spendenlink, und er wird oben auf Ihrer Seite angezeigt.",
+      "wallTitle": "Neueste Unterstützer"
     },
     "share": {
       "textNamed": "Zahlen Sie {{name}} in Krypto — keine Anmeldung erforderlich.",

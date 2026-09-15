@@ -2,7 +2,7 @@ import type { Migration } from "../utils/migrationRunner";
 import { perfMigrations } from "./perfMigrations";
 import { securityMigrations } from "./securityMigrations";
 import { referralMigrations } from "./referralMigrations";
-import { addCompanyMinOrderUsd, addCompanyWebhookSecretRotation } from "./companyColumnMigrations";
+import { addCompanyMinOrderUsd, addCompanyWebhookSecretRotation, addSupportWidgetShowWall } from "./companyColumnMigrations";
 
 /**
  * Refactor Item #1 — the tables historically created by ad-hoc `model.sync()`
@@ -538,6 +538,7 @@ export async function buildBootMigrations(): Promise<Migration[]> {  const { v1,
     { version: "0025_api_key_hash", up: addApiKeyHash },
     { version: "0026_company_min_order_usd", up: addCompanyMinOrderUsd },
     { version: "0027_company_webhook_secret_rotation", up: addCompanyWebhookSecretRotation },
+    { version: "0028_support_widget_show_wall", up: addSupportWidgetShowWall },
     { version: "0028_vies_vat_validation", up: addViesValidationSupport },
     { version: "0029_product_tax_treatment", up: addProductTaxTreatment },
     { version: "0030_nexus_alert", up: createNexusAlertTable },

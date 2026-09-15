@@ -942,7 +942,9 @@
       "minFloorNote": "min €10",
       "supportStyle_coffee": "Trakteer me op een koffie",
       "supportStyle_tip": "Stuur een fooi",
-      "supportStyle_support": "Steun mij"
+      "supportStyle_support": "Steun mij",
+      "showWall": "Supporterswall — recente openbare tips tonen",
+      "showWallHint": "Voornaam, bedrag en bericht van je laatste 8 supporters. Anonieme tips verschijnen als \"Iemand\". Standaard uit."
     },
     "compare": {
       "title": "Etalages vergelijken",
@@ -981,7 +983,8 @@
     "orderCount_other": "{{count}} bestellingen",
     "preview": {
       "firstDonationTitle": "Je eerste donatielink verschijnt hier",
-      "firstDonationBody": "Maak een donatielink en deze verschijnt bovenaan je pagina."
+      "firstDonationBody": "Maak een donatielink en deze verschijnt bovenaan je pagina.",
+      "wallTitle": "Recente supporters"
     },
     "share": {
       "textNamed": "Betaal {{name}} in crypto — geen aanmelding nodig.",

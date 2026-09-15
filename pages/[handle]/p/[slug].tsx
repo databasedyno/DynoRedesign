@@ -136,7 +136,7 @@ const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, var
         <meta key="twitter:description" name="twitter:description" content={socialDescription} />
         {cover && <meta name="twitter:image" content={cover} />}
       </Head>
-      <Container maxWidth="lg" sx={{ pt: { xs: "88px", md: "112px" }, pb: { xs: 3, md: 5 } }} data-testid="product-detail">
+      <Container maxWidth="lg" sx={{ pt: { xs: "88px", md: "112px" }, pb: { xs: 14, md: 5 } }} data-testid="product-detail">
         <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, mb: 2, flexWrap: "wrap" }}>
           <Typography variant="body2">
             <Link href={`/${merchant.handle}/shop`} style={{ color: "inherit" }}>
@@ -317,6 +317,40 @@ const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, var
           </Stack>
         </Box>
       </Container>
+
+      {/* Phone sticky buy bar — price + Buy now pinned above the fold on small screens (Wave 6 D2). */}
+      {canAdd && (
+        <Box
+          data-testid="product-sticky-buy-bar"
+          sx={{
+            position: "fixed", left: 0, right: 0, bottom: "var(--dp-lang-bar, 0px)", zIndex: 1250,
+            display: { xs: "flex", md: "none" }, alignItems: "center", gap: 1.5,
+            px: 2, pt: 1.25, pb: "calc(env(safe-area-inset-bottom, 0px) + 10px)",
+            bgcolor: theme.palette.mode === "dark" ? "rgba(12,12,14,0.94)" : "rgba(255,255,255,0.96)",
+            backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
+            borderTop: `1px solid ${theme.palette.divider}`, boxShadow: "0 -8px 24px rgba(0,0,0,0.12)",
+          }}
+        >
+          <Box sx={{ minWidth: 0, flex: 1 }}>
+            <Typography sx={{ fontSize: 11.5, color: "text.secondary", lineHeight: 1.2 }} noWrap>{product.title}</Typography>
+            <Typography sx={{ fontWeight: 800, fontSize: 18, fontVariantNumeric: "tabular-nums", lineHeight: 1.2 }} data-testid="product-sticky-price">
+              {fmt(unitPriceCents * (product.hide_quantity ? 1 : quantity))}
+            </Typography>
+          </Box>
+          <IconButton onClick={addToCart} aria-label={t("shop.addToCart", { defaultValue: "Add to cart" })} data-testid="product-sticky-add-to-cart" sx={{ width: 46, height: 46, border: `1px solid ${theme.palette.divider}`, borderRadius: "12px" }}>
+            <ShoppingCartRounded fontSize="small" />
+          </IconButton>
+          <Button
+            variant="contained"
+            onClick={buyNow}
+            disabled={belowMin}
+            data-testid="product-sticky-buy-now"
+            sx={{ textTransform: "none", minHeight: 46, px: 2.5, borderRadius: "12px", fontWeight: 800, whiteSpace: "nowrap" }}
+          >
+            {t("shop.buyNow", { defaultValue: "Buy now" })}
+          </Button>
+        </Box>
+      )}
       <MiniCart handle={merchant.handle} />
     </>
   );

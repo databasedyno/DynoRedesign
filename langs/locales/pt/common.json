@@ -942,7 +942,9 @@
       "minFloorNote": "mín $10",
       "supportStyle_coffee": "Pague-me um café",
       "supportStyle_tip": "Enviar uma gorjeta",
-      "supportStyle_support": "Apoie-me"
+      "supportStyle_support": "Apoie-me",
+      "showWall": "Mural de apoiantes — mostrar gorjetas públicas recentes",
+      "showWallHint": "Primeiro nome, valor e mensagem dos seus últimos 8 apoiantes. Gorjetas anónimas aparecem como \"Alguém\". Desligado por defeito."
     },
     "compare": {
       "title": "Comparar vitrines",
@@ -981,7 +983,8 @@
     "orderCount_other": "{{count}} pedidos",
     "preview": {
       "firstDonationTitle": "O seu primeiro link de doação aparecerá aqui",
-      "firstDonationBody": "Crie um link de doação e ele aparecerá no topo da sua página."
+      "firstDonationBody": "Crie um link de doação e ele aparecerá no topo da sua página.",
+      "wallTitle": "Apoios recentes"
     },
     "share": {
       "textNamed": "Pague {{name}} em cripto — sem necessidade de registo.",

@@ -36,16 +36,19 @@ export default function ShopClient({ merchant, products, shopUrl, isOwner }: Pro
   const [type, setType] = useState<string>("all");
   const [category, setCategory] = useState<string | null>(null);
   const [sort, setSort] = useState<SortKey>("featured");
+  const [query, setQuery] = useState("");
 
   // Filter first, sort after.
   const filtered: ShopProduct[] = useMemo(() => {
+    const q = query.trim().toLowerCase();
     return products.filter((p) => {
       const pt = String(p.product_type || "").toLowerCase();
       const typeOK = type === "all" || pt === type;
       const catOK = !category || (p.category && String(p.category).trim() === category);
-      return typeOK && catOK;
+      const qOK = !q || `${p.title || ""} ${p.subtitle || ""} ${p.category || ""}`.toLowerCase().includes(q);
+      return typeOK && catOK && qOK;
     });
-  }, [products, type, category]);
+  }, [products, type, category, query]);
 
   const sorted: ShopProduct[] = useMemo(() => {
     const arr = [...filtered];
@@ -102,6 +105,8 @@ export default function ShopClient({ merchant, products, shopUrl, isOwner }: Pro
             sort={sort}
             onSortChange={setSort}
             visibleCount={sorted.length}
+            query={query}
+            onQueryChange={setQuery}
           />
 
           {sorted.length === 0 ? (
@@ -154,7 +159,7 @@ export default function ShopClient({ merchant, products, shopUrl, isOwner }: Pro
               {/* All remaining products flow as a standard grid. When we have
                   a featured card we've already surfaced rest[0], so start from index 1. */}
               {(featured ? rest.slice(1) : rest).map((p) => (
-                <Grid key={p.product_id} item xs={12} sm={6} md={4}>
+                <Grid key={p.product_id} item xs={12} sm={6} md={4} lg={featured ? 4 : 3}>
                   <ProductCard
                     product={p}
                     merchantHandle={merchant.handle}

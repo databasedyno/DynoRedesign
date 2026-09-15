@@ -942,7 +942,9 @@
       "minFloorNote": "min 10 $",
       "supportStyle_coffee": "Offrez-moi un café",
       "supportStyle_tip": "Envoyer un pourboire",
-      "supportStyle_support": "Soutenez-moi"
+      "supportStyle_support": "Soutenez-moi",
+      "showWall": "Mur des soutiens — afficher les pourboires publics récents",
+      "showWallHint": "Prénom, montant et message de vos 8 derniers soutiens. Les pourboires anonymes apparaissent comme « Quelqu'un ». Désactivé par défaut."
     },
     "compare": {
       "title": "Comparer les vitrines",
@@ -981,7 +983,8 @@
     "orderCount_other": "{{count}} commandes",
     "preview": {
       "firstDonationTitle": "Votre premier lien de don apparaîtra ici",
-      "firstDonationBody": "Créez un lien de don et il apparaîtra en haut de votre page."
+      "firstDonationBody": "Créez un lien de don et il apparaîtra en haut de votre page.",
+      "wallTitle": "Soutiens récents"
     },
     "share": {
       "textNamed": "Payez {{name}} en crypto — aucune inscription requise.",

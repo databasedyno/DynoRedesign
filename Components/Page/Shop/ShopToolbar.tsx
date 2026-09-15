@@ -22,8 +22,15 @@ import {
   Select,
   MenuItem,
   FormControl,
+  InputAdornment,
+  TextField,
   useTheme,
 } from "@mui/material";
+import { Icon } from "@iconify/react";
+
+/** Grid rules (Wave 6 D3): categories only earn their space past 8 products, search past 20. */
+const CATEGORY_FILTER_MIN_PRODUCTS = 8;
+const SEARCH_MIN_PRODUCTS = 20;
 import type { SortKey, ShopProduct } from "./types";
 import { SORT_LABELS, PRODUCT_TYPE_LABELS } from "./types";
 
@@ -44,6 +51,8 @@ interface Props {
   sort: SortKey;
   onSortChange: (s: SortKey) => void;
   visibleCount: number;
+  query?: string;
+  onQueryChange?: (q: string) => void;
 }
 
 export default function ShopToolbar({
@@ -55,6 +64,8 @@ export default function ShopToolbar({
   sort,
   onSortChange,
   visibleCount,
+  query = "",
+  onQueryChange,
 }: Props) {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
@@ -152,8 +163,8 @@ export default function ShopToolbar({
           ))}
         </Stack>
 
-        {/* D8: category chips only add signal when there is more than one category */}
-        {categories.length > 1 && (
+        {/* D8: category chips only add signal with >1 category AND a grid big enough to need filtering */}
+        {categories.length > 1 && products.length > CATEGORY_FILTER_MIN_PRODUCTS && (
           <Stack
             direction="row"
             spacing={1}
@@ -181,12 +192,29 @@ export default function ShopToolbar({
         )}
       </Box>
 
-      {/* RIGHT: result count + sort */}
+      {/* RIGHT: search (large catalogues) + result count + sort */}
       <Stack
         direction="row"
         spacing={2}
-        sx={{ alignItems: "center", flexShrink: 0 }}
+        sx={{ alignItems: "center", flexShrink: 0, flexWrap: "wrap", gap: 1.5 }}
       >
+        {products.length > SEARCH_MIN_PRODUCTS && onQueryChange && (
+          <TextField
+            size="small"
+            value={query}
+            onChange={(e) => onQueryChange(e.target.value)}
+            placeholder={t("shop.searchPlaceholder", { defaultValue: "Search products" })}
+            inputProps={{ "data-testid": "shop-search-input", "aria-label": t("shop.searchPlaceholder", { defaultValue: "Search products" }) }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Icon icon="mdi:magnify" width={18} />
+                </InputAdornment>
+              ),
+            }}
+            sx={{ minWidth: { xs: "100%", md: 220 }, "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
+          />
+        )}
         <Typography
           variant="body2"
           sx={{

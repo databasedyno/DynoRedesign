@@ -879,7 +879,15 @@
       "label_other": "Shop · {{count}} items",
       "viewAll": "View all →",
       "buy": "Buy →"
-    }
+    },
+    "wall": {
+      "title": "Recent supporters",
+      "anonymous": "Someone",
+      "today": "today",
+      "daysAgo": "{{count}}d ago",
+      "monthsAgo": "{{count}}mo ago"
+    },
+    "nonCustodial": "Paid straight to {{name}} — Dynopay never holds your funds."
   },
   "order": {
     "progress": {
@@ -1049,7 +1057,8 @@
     "emptyVisitorTitleV2": "{{name}} hasn't listed anything yet",
     "galleryImage": "Image",
     "minOrderHint": "Min. order {{min}} — combine with other items",
-    "minOrderNotice": "Minimum order is {{min}} — add this to your cart and combine it with other items to check out."
+    "minOrderNotice": "Minimum order is {{min}} — add this to your cart and combine it with other items to check out.",
+    "searchPlaceholder": "Search products"
   },
   "exitIntentEyebrow": "Wait — one second",
   "exitIntentBody": "Grab the sandbox key below and hit our API from your terminal. No signup. No card. Real response — same JSON shape as production.",

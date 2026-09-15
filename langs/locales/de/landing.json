@@ -879,7 +879,15 @@
       "label_other": "Shop · {{count}} Artikel",
       "viewAll": "Alle ansehen →",
       "buy": "Kaufen →"
-    }
+    },
+    "wall": {
+      "title": "Neueste Unterstützer",
+      "anonymous": "Jemand",
+      "today": "heute",
+      "daysAgo": "vor {{count}} T.",
+      "monthsAgo": "vor {{count}} Mon."
+    },
+    "nonCustodial": "Geht direkt an {{name}} — Dynopay hält Ihre Gelder nie."
   },
   "order": {
     "progress": {
@@ -1049,7 +1057,8 @@
     "emptyVisitorTitleV2": "{{name}} hat noch nichts eingestellt",
     "galleryImage": "Bild",
     "minOrderHint": "Mindestbestellwert {{min}} – mit anderen Artikeln kombinieren",
-    "minOrderNotice": "Mindestbestellwert {{min}} – lege den Artikel in den Warenkorb und kombiniere ihn mit anderen, um zur Kasse zu gehen."
+    "minOrderNotice": "Mindestbestellwert {{min}} – lege den Artikel in den Warenkorb und kombiniere ihn mit anderen, um zur Kasse zu gehen.",
+    "searchPlaceholder": "Produkte suchen"
   },
   "exitIntentEyebrow": "Moment — eine Sekunde",
   "exitIntentBody": "Nehmen Sie den Sandbox-Key unten und rufen Sie unsere API direkt aus Ihrem Terminal auf. Keine Registrierung. Keine Karte. Echte Antwort — dasselbe JSON-Format wie in der Produktion.",

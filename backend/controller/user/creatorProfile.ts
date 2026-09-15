@@ -43,6 +43,7 @@ export const updateCreatorProfile = async (req: express.Request, res: express.Re
       support_widget_enabled, support_widget_style, support_widget_label,
       support_widget_preset_amounts, support_widget_currency, support_widget_min_amount,
       support_widget_allow_message, support_widget_thanks_message, support_widget_show_supporters,
+      support_widget_show_wall,
       theme_accent_color, theme_cover_style, theme_cover_gradient,
       public_analytics_enabled,
       store_enabled, creator_page_show_products,
@@ -62,6 +63,7 @@ export const updateCreatorProfile = async (req: express.Request, res: express.Re
       support_widget_allow_message?: boolean;
       support_widget_thanks_message?: string | null;
       support_widget_show_supporters?: boolean;
+      support_widget_show_wall?: boolean;
       theme_accent_color?: string | null;
       theme_cover_style?: string | null;
       theme_cover_gradient?: string | null;
@@ -261,6 +263,9 @@ export const updateCreatorProfile = async (req: express.Request, res: express.Re
     if (support_widget_show_supporters !== undefined) {
       updates.support_widget_show_supporters = Boolean(support_widget_show_supporters);
     }
+    if (support_widget_show_wall !== undefined) {
+      updates.support_widget_show_wall = Boolean(support_widget_show_wall);
+    }
 
     // ── Custom Creator Theme (Session 60) ──
     // Accent color: 3, 4, 6, or 8-char hex (#RGB / #RGBA / #RRGGBB / #RRGGBBAA), null clears
@@ -395,6 +400,7 @@ export const updateCreatorProfile = async (req: express.Request, res: express.Re
         "support_widget_enabled", "support_widget_style", "support_widget_label",
         "support_widget_preset_amounts", "support_widget_currency", "support_widget_min_amount",
         "support_widget_allow_message", "support_widget_thanks_message", "support_widget_show_supporters",
+        "support_widget_show_wall",
         "theme_accent_color", "theme_cover_style", "theme_cover_gradient",
         "public_analytics_enabled",
         "store_enabled", "creator_page_show_products",
