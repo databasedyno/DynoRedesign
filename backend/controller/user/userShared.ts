@@ -33,7 +33,7 @@ import { issueLoginChallenge } from "../../services/twoFactorChallenge";
 import { isTrustedDevice } from "../../services/session/trustedDevices";
 import { ensureMfaDeadline } from "../../services/mfaEnforcement";
 import { ACCESS_TOKEN_EXPIRY_SECONDS } from "../../services/session/tokens";
-import { normalizeLang } from "../../utils/emailI18n";
+import { emailDateParts, normalizeLang } from "../../utils/emailI18n";
 import { generateOtpCode } from "../../helper/otpGuard";
 import { isUserSoftDeleted, ACCOUNT_DELETED_LOGIN_MESSAGE } from "../../helper/accountDeletion";
 import { sendPurposeOTPEmail, type OtpPurpose } from "../../services/email/otpEmails";
@@ -267,8 +267,7 @@ export const finalizeLogin = async (
             const seenKey = `login-notif-seen:${userData.dataValues.user_id}:${fpHash}`;
             const alreadySeen = await getRedisItem(seenKey);
             const now = new Date();
-            const date = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
-            const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+            const { date, time } = emailDateParts(now);
 
             if (!alreadySeen) {
               // ── Brand-new device ──────────────────────────────────────────
@@ -286,41 +285,9 @@ export const finalizeLogin = async (
               ).catch(err => userLogger.error(`${logPrefix} New-device alert email failed:`, err));
               userLogger.info(`${logPrefix} New-device alert email queued (fp=${fpHash})`);
             } else {
-              // ── Known device ──────────────────────────────────────────────
-              // Existing throttled login notification. Respects the optional
-              // notify_new_device_only preference (which now means: alert on new
-              // devices only — handled by the branch above).
-              const throttled = await getRedisItem(throttleKey);
-              let shouldSend = !throttled;
-              try {
-                const prefs = await notificationPreferencesModel.findOne({ where: { user_id: userData.dataValues.user_id } });
-                const prefsData = (prefs?.dataValues || {}) as { notify_new_device_only?: boolean };
-                if (prefsData.notify_new_device_only === true) shouldSend = false;
-              } catch (_prefErr) {
-                // Prefs lookup failure is non-fatal — fall through to default throttle.
-              }
-
-              if (!shouldSend) {
-                userLogger.info(`${logPrefix} Skipping login-notification email — throttled (fp=${fpHash}) or new-device-only pref`);
-              } else {
-                // Record throttle marker (15 min TTL)
-                await setRedisItemWithTTL(throttleKey, { at: now.toISOString() }, 15 * 60);
-
-                const { sendLoginNotificationEmail } = await import("../../services/emailService");
-                // Fire and forget — don't block the login response
-                sendLoginNotificationEmail(
-                  userData.dataValues.email,
-                  userData.dataValues.name || '',
-                  ipAddress,
-                  device,
-                  browser,
-                  os,
-                  location,
-                  date,
-                  time,
-                  securityToken
-                ).catch(err => userLogger.error(`${logPrefix} Login notification email failed:`, err));
-              }
+              // Known device → no email (the per-login notification was retired in
+              // favour of the new-device alert; sessions stay visible in Security).
+              userLogger.info(`${logPrefix} Known device (fp=${fpHash}) — no login email`);
             }
           }
         }

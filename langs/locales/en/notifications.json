@@ -35,7 +35,7 @@
   "teamFanoutTitle": "Also notify team members",
   "teamFanoutDescription": "Copy team members based on their role and permissions.",
   "categoriesLabel": "Email categories",
-  "categoriesHelper": "Choose which kinds of brand emails are sent. All on by default.",
+  "categoriesHelper": "Choose which kinds of brand emails are sent. All on by default except Confirmation progress. Security and payout-exception emails are always sent.",
   "category_payments_title": "Payments",
   "category_payments_desc": "Payment received, confirming, partial or failed alerts",
   "category_payouts_title": "Payouts & settlements",
@@ -77,5 +77,7 @@
     "hint": "Mirrored from your dashboard — nothing is lost when you hide a row there.",
     "hiddenOnDashboard": "Hidden on the dashboard",
     "restore": "Show on dashboard"
-  }
+  },
+  "category_confirming_title": "Confirmation progress",
+  "category_confirming_desc": "One email per block confirmation (“1 of 3…”). Off by default — you always get Pending and Settled."
 }

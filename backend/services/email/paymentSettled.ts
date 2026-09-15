@@ -2,7 +2,7 @@ import { t } from "../../utils/emailI18n";
 import { formatCryptoAmount } from "../../utils/currencyUtils";
 import { infoBox, dataRow, feeRow, feeTotalRow, feeTable, mono, p } from "../../utils/emailTemplate";
 import { escapeHtml } from "./emailShared";
-import { getCoinSymbol, getNetworkDisplayName } from "../../utils/networkLabels";
+import { getCoinSymbol, assetNetworkLabel } from "../../utils/networkLabels";
 import { formatEmailDateTime } from "../../utils/emailI18n";
 
 /** Full money path of one settled payment — rendered in the merchant "Payment settled" email. */
@@ -26,6 +26,8 @@ export interface PaymentMoneyPath {
   reference?: string | null;
   txRowId?: string | number | null;
   detectedAt?: Date | null;
+  /** ≥ $1,000 equivalent — shown as a badge (replaces the old separate alert email). */
+  largePayment?: boolean;
 }
 
 export const maskAddress = (a?: string | null): string =>
@@ -41,21 +43,17 @@ export const maskEmailAddr = (e?: string | null): string => {
 const num = (v?: string | number | null): number => (v == null ? 0 : Number(v)) || 0;
 const fmt = (v: string | number | null | undefined, asset: string) => `${formatCryptoAmount(String(v ?? "0"), getCoinSymbol(asset))} ${getCoinSymbol(asset)}`;
 
-/** "USDT · Tron (TRC-20)" or "BTC · Bitcoin". */
-export const assetNetworkLabel = (asset: string): string => {
-  const sym = getCoinSymbol(asset);
-  const net = getNetworkDisplayName(asset);
-  return net && net !== sym ? `${sym} · ${net}` : sym;
-};
 
 export const renderMoneyPath = (L: string, mp: PaymentMoneyPath): string => {
   const fee = num(mp.feeCrypto);
   const gas = num(mp.networkFeeCrypto);
   const net = mp.netCrypto != null ? num(mp.netCrypto) : Math.max(0, num(mp.grossCrypto) - fee - gas);
-  const pct = mp.feePercent != null && isFinite(Number(mp.feePercent)) ? Number(mp.feePercent).toFixed(2).replace(/\.?0+$/, "") : null;
+  const gross = num(mp.grossCrypto);
+  const pctNum = mp.feePercent != null && isFinite(Number(mp.feePercent)) ? Number(mp.feePercent) : gross > 0 && fee > 0 ? (fee / gross) * 100 : null;
+  const pct = pctNum != null ? pctNum.toFixed(2).replace(/\.?0+$/, "") : null;
   const feeLabel = mp.belowMinimum
     ? t("paymentSettled.belowMinimum", L)
-    : `${t("paymentSettled.dynopayFee", L, { percent: pct ?? "—" })}${mp.feePayer === "customer" ? ` <span style="color:#6b7280;font-weight:400;">· ${t("paymentSettled.feePaidByCustomer", L)}</span>` : ""}`;
+    : `${pct ? t("paymentSettled.dynopayFee", L, { percent: pct }) : t("paymentSettled.dynopayFeeNoPct", L)}${mp.feePayer === "customer" ? ` <span style="color:#6b7280;font-weight:400;">· ${t("paymentSettled.feePaidByCustomer", L)}</span>` : ""}`;
   const fiat = mp.fiatAtDetection && num(mp.fiatAtDetection.amount) > 0
     ? `<span style="color:#6b7280;font-weight:400;"> ≈ ${escapeHtml(mp.fiatAtDetection.amount)} ${escapeHtml(mp.fiatAtDetection.currency)}</span>`
     : "";

@@ -29,7 +29,7 @@ import { isAccountLocked, recordFailedAttempt, clearFailedAttempts } from "../..
 import { createSession } from "../../services/sessionService";
 import { finalizeUploadedImage } from "../../services/objectStorage";
 import { is2FARequired } from "../../services/twoFactorService";
-import { normalizeLang } from "../../utils/emailI18n";
+import { emailDateParts, normalizeLang } from "../../utils/emailI18n";
 import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, requires2FAChallenge, getAccessToken, sendEmailOTP, sendTelnyxSMS } from "./userShared";
 import { isUserSoftDeleted, ACCOUNT_DELETED_LOGIN_MESSAGE } from "../../helper/accountDeletion";
 import { generateOtpCode, recordOtpFailure, otpLockedMessage } from "../../helper/otpGuard";
@@ -101,8 +101,7 @@ export const login = async (req: express.Request, res: express.Response) => {
           if (existingUser) {
             const { sendFailedLoginAttemptsEmail } = await import("../../services/emailService");
             const now = new Date();
-            const date = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
-            const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+            const { date, time } = emailDateParts(now);
             await sendFailedLoginAttemptsEmail(
               existingUser.dataValues.email,
               existingUser.dataValues.name || 'User',

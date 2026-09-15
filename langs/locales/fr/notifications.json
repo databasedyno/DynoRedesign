@@ -35,7 +35,7 @@
   "teamFanoutTitle": "Notifier aussi les membres de l'équipe",
   "teamFanoutDescription": "Mettre en copie les membres de l'équipe selon leur rôle et leurs permissions.",
   "categoriesLabel": "Catégories d'e-mails",
-  "categoriesHelper": "Choisissez quels types d'e-mails de la marque sont envoyés. Tous activés par défaut.",
+  "categoriesHelper": "Choisissez quels types d'e-mails de la marque sont envoyés. Tous activés par défaut sauf Progression des confirmations. Les e-mails de sécurité et d'exception de versement sont toujours envoyés.",
   "category_payments_title": "Paiements",
   "category_payments_desc": "Alertes de paiement reçu, en confirmation, partiel ou échoué",
   "category_payouts_title": "Versements et règlements",
@@ -77,5 +77,7 @@
     "hint": "Reflet de votre tableau de bord — rien n'est perdu quand vous y masquez une ligne.",
     "hiddenOnDashboard": "Masqué sur le tableau de bord",
     "restore": "Afficher sur le tableau de bord"
-  }
+  },
+  "category_confirming_title": "Progression des confirmations",
+  "category_confirming_desc": "Un e-mail par confirmation de bloc (« 1 sur 3… »). Désactivé par défaut — vous recevez toujours En attente et Réglé."
 }

@@ -53,7 +53,7 @@ Shots: `/audit/index.html#emails` (600 + 390 px · light / dark / Gmail-inversio
 |---|---|---|---|---|---|---|---|
 | 1 | `welcome` [shot](/audit/index.html#001_account_welcome) | merchant | Welcome to Dynopay — your first payment is fee-free (51) | keep | polish | CTA opens a list page, not the object | Good. CTA → /dashboard (list). Footer lacks notification-settings link + legal address (cross-cutting). |
 | 2 | `welcome` · de [shot](/audit/index.html#002_account_welcome_de) | merchant | Willkommen bei Dynopay — deine erste Zahlung ist gebührenfrei (61) | keep | polish | subject > 60 chars; CTA opens a list page, not the object | Good. CTA → /dashboard (list). Footer lacks notification-settings link + legal address (cross-cutting). |
-| 3 | `volumeTierUpgrade` [shot](/audit/index.html#003_account_volumeTierUpgrade) | merchant | Your Dynopay fee is now 1.2% (Growth tier) (42) | keep | polish | CTA opens a list page, not the object | Clear; CTA could open Settings → Plan & fees instead of /dashboard. |
+| 3 | `volumeTierUpgrade` [shot](/audit/index.html#003_account_volumeTierUpgrade) | merchant | Your Dynopay fee is now 1.2% (Growth tier) (42) | keep | polish | — | Clear; CTA could open Settings → Plan & fees instead of /dashboard. |
 | 4 | `emailVerificationOtp` [shot](/audit/index.html#004_account_emailVerificationOtp) | merchant | 482913 is your Dynopay verification code (40) | fix | blocker | — | FIXED in Phase 1: subject shipped as literal '{{code}} is your Dynopay verification code' (live callers onboarding.ts / registrationEmail.ts). Consider retiring in favour of sendPurposeOTPEmail('emailVerify'). |
 | 5 | `loginOtp` [shot](/audit/index.html#005_account_loginOtp) | merchant | 482913 is your Dynopay login code (33) | fix | blocker | — | FIXED in Phase 1: subject shipped as literal '{{code}} is your Dynopay login code' (authLogin.ts resend path). Duplicate of sendPurposeOTPEmail('login') → merge. |
 | 6 | `passwordChanged` [shot](/audit/index.html#006_account_passwordChanged) | merchant | Your Dynopay password was changed (33) | keep | polish | — | Date has UTC; fine. |
@@ -69,24 +69,24 @@ Shots: `/audit/index.html#emails` (600 + 390 px · light / dark / Gmail-inversio
 
 | # | Sender · variant | Audience | Subject (chars) | Verdict | Severity | Auto-flags | Notes / fields to add or remove |
 |---|---|---|---|---|---|---|---|
-| 14 | `drip` · d1_madeLink [shot](/audit/index.html#014_activation_drip_d1_madeLink) | merchant | You're set up — here's how to get your first payment (52) | fix | polish | no preheader | No preheader (uses raw dynoPayEmailTemplate with empty preheader); two links before the CTA (video + unsubscribe) compete with the primary button. |
-| 15 | `drip` · d3_madeLink [shot](/audit/index.html#015_activation_drip_d3_madeLink) | merchant | Still here to help you get paid (31) | fix | polish | no preheader | No preheader (uses raw dynoPayEmailTemplate with empty preheader); two links before the CTA (video + unsubscribe) compete with the primary button. |
-| 16 | `drip` · d7_madeLink [shot](/audit/index.html#016_activation_drip_d7_madeLink) | merchant | Your Dynopay account is ready when you are (42) | fix | polish | no preheader | No preheader (uses raw dynoPayEmailTemplate with empty preheader); two links before the CTA (video + unsubscribe) compete with the primary button. |
-| 17 | `drip` · d1_noLink [shot](/audit/index.html#017_activation_drip_d1_noLink) | merchant | You're set up — here's how to get your first payment (52) | fix | polish | no preheader | No preheader (uses raw dynoPayEmailTemplate with empty preheader); two links before the CTA (video + unsubscribe) compete with the primary button. |
-| 18 | `drip` · d3_fundraiser_de [shot](/audit/index.html#018_activation_drip_d3_fundraiser_de) | merchant | Wir helfen Ihnen weiterhin, bezahlt zu werden (45) | fix | polish | no preheader | No preheader (uses raw dynoPayEmailTemplate with empty preheader); two links before the CTA (video + unsubscribe) compete with the primary button. |
-| 19 | `gate` · brand [shot](/audit/index.html#019_activation_gate_brand) | merchant | Finish setting up to get paid (29) | fix | polish | no preheader | Same as drip: no preheader; CTA targets /create-pay-link for every gate (wallet gate should deep-link to /wallet, KYC to /kyc). |
-| 20 | `gate` · wallet [shot](/audit/index.html#020_activation_gate_wallet) | merchant | Finish setting up to get paid (29) | fix | polish | no preheader | Same as drip: no preheader; CTA targets /create-pay-link for every gate (wallet gate should deep-link to /wallet, KYC to /kyc). |
-| 21 | `gate` · kyc [shot](/audit/index.html#021_activation_gate_kyc) | merchant | Finish setting up to get paid (29) | fix | polish | no preheader | Same as drip: no preheader; CTA targets /create-pay-link for every gate (wallet gate should deep-link to /wallet, KYC to /kyc). |
+| 14 | `drip` · d1_madeLink [shot](/audit/index.html#014_activation_drip_d1_madeLink) | merchant | You're set up — here's how to get your first payment (52) | fix | polish | — | No preheader (uses raw dynoPayEmailTemplate with empty preheader); two links before the CTA (video + unsubscribe) compete with the primary button. |
+| 15 | `drip` · d3_madeLink [shot](/audit/index.html#015_activation_drip_d3_madeLink) | merchant | Still here to help you get paid (31) | fix | polish | — | No preheader (uses raw dynoPayEmailTemplate with empty preheader); two links before the CTA (video + unsubscribe) compete with the primary button. |
+| 16 | `drip` · d7_madeLink [shot](/audit/index.html#016_activation_drip_d7_madeLink) | merchant | Your Dynopay account is ready when you are (42) | fix | polish | — | No preheader (uses raw dynoPayEmailTemplate with empty preheader); two links before the CTA (video + unsubscribe) compete with the primary button. |
+| 17 | `drip` · d1_noLink [shot](/audit/index.html#017_activation_drip_d1_noLink) | merchant | You're set up — here's how to get your first payment (52) | fix | polish | — | No preheader (uses raw dynoPayEmailTemplate with empty preheader); two links before the CTA (video + unsubscribe) compete with the primary button. |
+| 18 | `drip` · d3_fundraiser_de [shot](/audit/index.html#018_activation_drip_d3_fundraiser_de) | merchant | Wir helfen Ihnen weiterhin, bezahlt zu werden (45) | fix | polish | — | No preheader (uses raw dynoPayEmailTemplate with empty preheader); two links before the CTA (video + unsubscribe) compete with the primary button. |
+| 19 | `gate` · brand [shot](/audit/index.html#019_activation_gate_brand) | merchant | Finish setting up to get paid (29) | fix | polish | — | Same as drip: no preheader; CTA targets /create-pay-link for every gate (wallet gate should deep-link to /wallet, KYC to /kyc). |
+| 20 | `gate` · wallet [shot](/audit/index.html#020_activation_gate_wallet) | merchant | Finish setting up to get paid (29) | fix | polish | — | Same as drip: no preheader; CTA targets /create-pay-link for every gate (wallet gate should deep-link to /wallet, KYC to /kyc). |
+| 21 | `gate` · kyc [shot](/audit/index.html#021_activation_gate_kyc) | merchant | Finish setting up to get paid (29) | fix | polish | — | Same as drip: no preheader; CTA targets /create-pay-link for every gate (wallet gate should deep-link to /wallet, KYC to /kyc). |
 
 ### adminNotif
 
 | # | Sender · variant | Audience | Subject (chars) | Verdict | Severity | Auto-flags | Notes / fields to add or remove |
 |---|---|---|---|---|---|---|---|
-| 22 | `newUser` [shot](/audit/index.html#022_adminNotif_newUser) | admin/ops | New Merchant Registration — Alex Rivera · DE · email (52) | keep | keep | no preheader | Admin/ops — fine. |
-| 23 | `onboardingStuck` [shot](/audit/index.html#023_adminNotif_onboardingStuck) | admin/ops | 🔴 Critical Onboarding Stuck — Alex Rivera at "wallet" (49h) (59) | keep | keep | no preheader | Admin/ops — fine; emoji in subject. |
-| 24 | `onboardingCompleted` [shot](/audit/index.html#024_adminNotif_onboardingCompleted) | admin/ops | Onboarded: Alex Rivera (ready to accept payments) (49) | keep | keep | no preheader |  |
-| 25 | `firstPayment` [shot](/audit/index.html#025_adminNotif_firstPayment) | admin/ops | First payment: Alex Rivera · 0.0042 BTC (39) | keep | keep | no preheader | Admin/ops; shows raw source key 'payment_link'. |
-| 26 | `newVisitor` [shot](/audit/index.html#026_adminNotif_newVisitor) | admin/ops | New Visitor — DE via google.com (31) | retire | polish | no preheader | Admin/ops noise — one email per unique visitor. Recommend retire or daily digest. |
+| 22 | `newUser` [shot](/audit/index.html#022_adminNotif_newUser) | admin/ops | New Merchant Registration — Alex Rivera · DE · email (52) | keep | keep | — | Admin/ops — fine. |
+| 23 | `onboardingStuck` [shot](/audit/index.html#023_adminNotif_onboardingStuck) | admin/ops | 🔴 Critical Onboarding Stuck — Alex Rivera at "wallet" (49h) (59) | keep | keep | — | Admin/ops — fine; emoji in subject. |
+| 24 | `onboardingCompleted` [shot](/audit/index.html#024_adminNotif_onboardingCompleted) | admin/ops | Onboarded: Alex Rivera (ready to accept payments) (49) | keep | keep | — |  |
+| 25 | `firstPayment` [shot](/audit/index.html#025_adminNotif_firstPayment) | admin/ops | First payment: Alex Rivera · 0.0042 BTC (39) | keep | keep | — | Admin/ops; shows raw source key 'payment_link'. |
+| 26 | `newVisitor` [shot](/audit/index.html#026_adminNotif_newVisitor) | admin/ops | New Visitor — DE via google.com (31) | retire | polish | — | Admin/ops noise — one email per unique visitor. Recommend retire or daily digest. |
 | 27 | `brandDeleted` [shot](/audit/index.html#027_adminNotif_brandDeleted) | admin/ops | Brand deleted — "Acme Store" — restore by 05 July 2026 (54) | keep | keep | — |  |
 | 28 | `accountDeleted` [shot](/audit/index.html#028_adminNotif_accountDeleted) | admin/ops | Account deleted — onarrival21@example.com — restore by 05 July 2026 (67) | keep | keep | subject > 60 chars |  |
 
@@ -94,13 +94,13 @@ Shots: `/audit/index.html#emails` (600 + 390 px · light / dark / Gmail-inversio
 
 | # | Sender · variant | Audience | Subject (chars) | Verdict | Severity | Auto-flags | Notes / fields to add or remove |
 |---|---|---|---|---|---|---|---|
-| 29 | `largeTransaction` [shot](/audit/index.html#029_adminOps_largeTransaction) | merchant | Large payment: 5,200.00 USD (27) | merge | should fix | no preheader; CTA opens a list page, not the object; money: no fee; money: no net; money: no network | Duplicates 'Payment settled' for the same payment with less information (no fee/net/network/hash) and a list-page CTA. Fold into settled email as a 'Large payment' badge, or send with the same money path. |
+| 29 | `largeTransaction` [shot](/audit/index.html#029_adminOps_largeTransaction) | merchant | Large payment: 5,200.00 USD (27) | merge | should fix | CTA opens a list page, not the object; money: no fee; money: no net; money: no network | Duplicates 'Payment settled' for the same payment with less information (no fee/net/network/hash) and a list-page CTA. Fold into settled email as a 'Large payment' badge, or send with the same money path. |
 | 30 | `webhookDisabled` [shot](/audit/index.html#030_adminOps_webhookDisabled) | merchant | Action needed – webhook delivery paused for Acme Store (54) | fix | should fix | — | FIXED in Phase 1: greeting rendered twice ('Hey Alex, Hey Alex,'). Remaining: CTA link /settings/webhooks — verify route exists (developer-keys?). |
 | 31 | `webhookRedirect` [shot](/audit/index.html#031_adminOps_webhookRedirect) | merchant | Heads up – your webhook URL redirects (Acme Store) (50) | fix | should fix | — | FIXED in Phase 1: duplicate greeting. Same CTA route check as webhookDisabled. |
-| 32 | `adminFeeReceived` [shot](/audit/index.html#032_adminOps_adminFeeReceived) | admin/ops | Platform fee received – 0.000063 BTC (36) | keep | keep | no preheader | Admin/ops; no preheader. |
-| 33 | `adminFeeSweep` [shot](/audit/index.html#033_adminOps_adminFeeSweep) | admin/ops | Admin Fee Swept — 0.0412 ETH (28) | keep | keep | no preheader |  |
-| 34 | `treasuryLow` [shot](/audit/index.html#034_adminOps_treasuryLow) | admin/ops | Low MATIC treasury — top up Binance (35) | keep | keep | no preheader |  |
-| 35 | `conversionFailed` [shot](/audit/index.html#035_adminOps_conversionFailed) | admin/ops | Auto-convert failed — 0.0042 BTC (~$261.37) held for Acme Store (63) | keep | keep | subject > 60 chars; no preheader | Good ops email. NOTE: 'The merchant has not been notified' — Wave 4 'Payout delayed' email covers this gap. |
+| 32 | `adminFeeReceived` [shot](/audit/index.html#032_adminOps_adminFeeReceived) | admin/ops | Platform fee received – 0.000063 BTC (36) | keep | keep | — | Admin/ops; no preheader. |
+| 33 | `adminFeeSweep` [shot](/audit/index.html#033_adminOps_adminFeeSweep) | admin/ops | Admin Fee Swept — 0.0412 ETH (28) | keep | keep | — |  |
+| 34 | `treasuryLow` [shot](/audit/index.html#034_adminOps_treasuryLow) | admin/ops | Low MATIC treasury — top up Binance (35) | keep | keep | — |  |
+| 35 | `conversionFailed` [shot](/audit/index.html#035_adminOps_conversionFailed) | admin/ops | Auto-convert failed — 0.0042 BTC (~$261.37) held for Acme Store (63) | keep | keep | subject > 60 chars | Good ops email. NOTE: 'The merchant has not been notified' — Wave 4 'Payout delayed' email covers this gap. |
 
 ### billing
 
@@ -142,20 +142,20 @@ Shots: `/audit/index.html#emails` (600 + 390 px · light / dark / Gmail-inversio
 
 | # | Sender · variant | Audience | Subject (chars) | Verdict | Severity | Auto-flags | Notes / fields to add or remove |
 |---|---|---|---|---|---|---|---|
-| 57 | `customerConfirmation` [shot](/audit/index.html#057_receipt_customerConfirmation) | buyer | Your payment to Acme Store is confirmed (39) | fix | should fix | buyer: no network | Buyer receipt lacks network and explorer link; 'PDF attached' fine. Real send adds /receipt/<token> link (harness passed company=null). Fee shown only when buyer pays it — correct. |
-| 58 | `customerConfirmation` · customerPaysFee_de [shot](/audit/index.html#058_receipt_customerConfirmation_customerPaysFee_de) | buyer | Ihre Zahlung an Acme Store ist bestätigt (40) | fix | should fix | buyer: no network | Buyer receipt lacks network and explorer link; 'PDF attached' fine. Real send adds /receipt/<token> link (harness passed company=null). Fee shown only when buyer pays it — correct. |
-| 59 | `customerConfirmation` · contribution [shot](/audit/index.html#059_receipt_customerConfirmation_contribution) | buyer | Thanks for supporting Riverside library roof (44) | fix | should fix | buyer: no network | Buyer receipt lacks network and explorer link; 'PDF attached' fine. Real send adds /receipt/<token> link (harness passed company=null). Fee shown only when buyer pays it — correct. |
+| 57 | `customerConfirmation` [shot](/audit/index.html#057_receipt_customerConfirmation) | buyer | Your payment to Acme Store is confirmed (39) | fix | should fix | — | Buyer receipt lacks network and explorer link; 'PDF attached' fine. Real send adds /receipt/<token> link (harness passed company=null). Fee shown only when buyer pays it — correct. |
+| 58 | `customerConfirmation` · customerPaysFee_de [shot](/audit/index.html#058_receipt_customerConfirmation_customerPaysFee_de) | buyer | Ihre Zahlung an Acme Store ist bestätigt (40) | fix | should fix | — | Buyer receipt lacks network and explorer link; 'PDF attached' fine. Real send adds /receipt/<token> link (harness passed company=null). Fee shown only when buyer pays it — correct. |
+| 59 | `customerConfirmation` · contribution [shot](/audit/index.html#059_receipt_customerConfirmation_contribution) | buyer | Thanks for supporting Riverside library roof (44) | fix | should fix | — | Buyer receipt lacks network and explorer link; 'PDF attached' fine. Real send adds /receipt/<token> link (harness passed company=null). Fee shown only when buyer pays it — correct. |
 | 60 | `buyerPaymentExpired` [shot](/audit/index.html#060_receipt_buyerPaymentExpired) | buyer | Your payment to Acme Store didn't complete (42) | keep | polish | — | No CTA; add 'contact merchant' mailto or checkout link. |
 
 ### kyc
 
 | # | Sender · variant | Audience | Subject (chars) | Verdict | Severity | Auto-flags | Notes / fields to add or remove |
 |---|---|---|---|---|---|---|---|
-| 61 | `required` [shot](/audit/index.html#061_kyc_required) | merchant | Verify your identity to keep accepting payments (47) | fix | polish | CTA opens a list page, not the object | CTA → /dashboard instead of /kyc. |
-| 62 | `approved` [shot](/audit/index.html#062_kyc_approved) | merchant | You're verified — no limits on payments (39) | keep | keep | CTA opens a list page, not the object |  |
-| 63 | `rejected` [shot](/audit/index.html#063_kyc_rejected) | merchant | We couldn't verify your ID (26) | fix | polish | CTA opens a list page, not the object | CTA → /dashboard instead of /kyc. |
+| 61 | `required` [shot](/audit/index.html#061_kyc_required) | merchant | Verify your identity to keep accepting payments (47) | fix | polish | — | CTA → /dashboard instead of /kyc. |
+| 62 | `approved` [shot](/audit/index.html#062_kyc_approved) | merchant | You're verified — no limits on payments (39) | keep | keep | — |  |
+| 63 | `rejected` [shot](/audit/index.html#063_kyc_rejected) | merchant | We couldn't verify your ID (26) | fix | polish | — | CTA → /dashboard instead of /kyc. |
 | 64 | `started` [shot](/audit/index.html#064_kyc_started) | merchant | Complete your identity verification (35) | keep | keep | — |  |
-| 65 | `resubmissionRequired` [shot](/audit/index.html#065_kyc_resubmissionRequired) | merchant | One more thing for your ID check (32) | fix | polish | CTA opens a list page, not the object | CTA → /dashboard instead of /kyc. |
+| 65 | `resubmissionRequired` [shot](/audit/index.html#065_kyc_resubmissionRequired) | merchant | One more thing for your ID check (32) | fix | polish | — | CTA → /dashboard instead of /kyc. |
 
 ### links
 
@@ -164,8 +164,8 @@ Shots: `/audit/index.html#emails` (600 + 390 px · light / dark / Gmail-inversio
 | 66 | `paymentLinkCreated` [shot](/audit/index.html#066_links_paymentLinkCreated) | merchant | Link ready: 100.00 USD (22) | keep | polish | — | Link shown twice (row + CTA); 'No description provided' placeholder from caller. |
 | 67 | `crowdfundingCampaignCreated` [shot](/audit/index.html#067_links_crowdfundingCampaignCreated) | merchant | Riverside library roof is live — share it (41) | keep | keep | — |  |
 | 68 | `crowdfundingUpdate` [shot](/audit/index.html#068_links_crowdfundingUpdate) | buyer | We're 60% there! — update from Riverside library roof (53) | keep | polish | — | Markdown update body rendered as plain text (**bold** markers visible?) — verify renderer. |
-| 69 | `refereeInvite` [shot](/audit/index.html#069_links_refereeInvite) | merchant | Get paid in crypto too — 50% off Dynopay fees (45) | keep | polish | no preheader | No preheader. |
-| 70 | `refereeCodeReminder` · week2 [shot](/audit/index.html#070_links_refereeCodeReminder_week2) | merchant | 50% off Dynopay fees — claim it (31) | keep | polish | no preheader | No preheader. |
+| 69 | `refereeInvite` [shot](/audit/index.html#069_links_refereeInvite) | merchant | Get paid in crypto too — 50% off Dynopay fees (45) | keep | polish | — | No preheader. |
+| 70 | `refereeCodeReminder` · week2 [shot](/audit/index.html#070_links_refereeCodeReminder_week2) | merchant | 50% off Dynopay fees — claim it (31) | keep | polish | — | No preheader. |
 | 71 | `paymentLinkReminder` · reminder1 [shot](/audit/index.html#071_links_paymentLinkReminder_reminder1) | buyer | Complete your payment to Acme Store (35) | keep | keep | — | Good; localized. |
 | 72 | `paymentLinkReminder` · final_de [shot](/audit/index.html#072_links_paymentLinkReminder_final_de) | buyer | Zahlung läuft bald ab — Acme Store (34) | keep | keep | — | Good; localized. |
 
@@ -204,81 +204,82 @@ Shots: `/audit/index.html#emails` (600 + 390 px · light / dark / Gmail-inversio
 | 91 | `paymentReceived` · legacy [shot](/audit/index.html#091_payments_paymentReceived_legacy) | merchant | 261.37 USD received (19) | retire | should fix | CTA opens a list page, not the object; money: no fee; money: no net; money: no network | Legacy layout still used when no moneyPath is passed (verify_footer_lang script only). Remove once all callers pass the money path. |
 | 92 | `paymentReceived` · campaign_referralCredit [shot](/audit/index.html#092_payments_paymentReceived_campaign_referralCredit) | merchant | 25.00 USD contribution to Riverside library roof (48) | retire | should fix | CTA opens a list page, not the object; money: no net | Legacy layout still used when no moneyPath is passed (verify_footer_lang script only). Remove once all callers pass the money path. |
 | 93 | `paymentReceived` · de [shot](/audit/index.html#093_payments_paymentReceived_de) | merchant | 261.37 EUR erhalten (19) | retire | should fix | CTA opens a list page, not the object; money: no fee; money: no net; money: no network; money: no tx hash | Legacy layout still used when no moneyPath is passed (verify_footer_lang script only). Remove once all callers pass the money path. |
-| 94 | `paymentPending` [shot](/audit/index.html#094_payments_paymentPending) | merchant | 261.37 USD incoming for Acme Store — confirming (47) | fix | should fix | CTA opens a list page, not the object; money: no fee; money: no net; money: no network | No network, confirmations required or typical wait; CTA → list. Wave 4. |
-| 95 | `paymentConfirming` · 1of3 [shot](/audit/index.html#095_payments_paymentConfirming_1of3) | merchant | 1/3 confirmations (17) | fix | should fix | CTA opens a list page, not the object; money: no fee; money: no net | Sent per confirmation → inbox noise. Make opt-in (Settings → Notifications). Hand-rolled progress bar. |
-| 96 | `paymentPartial` [shot](/audit/index.html#096_payments_paymentPartial) | merchant | Short payment: 0.0030 of 0.0042 BTC (35) | fix | polish | CTA opens a list page, not the object; money: no net; money: no network | Add fiat equivalent + network. Wave 4. |
-| 97 | `buyerUnderpaidNudge` [shot](/audit/index.html#097_payments_buyerUnderpaidNudge) | buyer | You're almost there — send 0.0012 BTC to finish (47) | keep | polish | buyer: no network | Add network + fiat equivalent. |
-| 98 | `paymentPartialExpired` · completed_partial [shot](/audit/index.html#098_payments_paymentPartialExpired_completed_partial) | merchant | Partial payment processed (25) | fix | should fix | CTA opens a list page, not the object; money: no fee; money: no net; money: no network | completed_partial says 'adjusted fees and forwarded' but shows no fee / net / wallet / hash → reuse money path. |
-| 99 | `paymentPartialExpired` · incomplete_expired [shot](/audit/index.html#099_payments_paymentPartialExpired_incomplete_expired) | merchant | Partial payment expired (23) | fix | should fix | CTA opens a list page, not the object; money: no fee; money: no net | completed_partial says 'adjusted fees and forwarded' but shows no fee / net / wallet / hash → reuse money path. |
-| 100 | `merchantUnderpaidDigest` [shot](/audit/index.html#100_payments_merchantUnderpaidDigest) | merchant | 2 underpaid payment(s) need attention (37) | keep | keep | CTA opens a list page, not the object; money: no fee; money: no net; money: no network; money: no tx hash | Good; deep-links to ?status=underpaid. |
+| 94 | `paymentPending` [shot](/audit/index.html#094_payments_paymentPending) | merchant | 261.37 USD incoming for Acme Store — confirming (47) | fix | should fix | money: no fee; money: no net | No network, confirmations required or typical wait; CTA → list. Wave 4. |
+| 95 | `paymentPending` · usdt_trc20_de [shot](/audit/index.html#095_payments_paymentPending_usdt_trc20_de) | merchant | 49.00 EUR für Acme Store — wird bestätigt (41) | fix | should fix | money: no fee; money: no net; money: no tx hash | No network, confirmations required or typical wait; CTA → list. Wave 4. |
+| 96 | `paymentConfirming` · 1of3 [shot](/audit/index.html#096_payments_paymentConfirming_1of3) | merchant | 1/3 confirmations (17) | fix | should fix | money: no fee; money: no net | Sent per confirmation → inbox noise. Make opt-in (Settings → Notifications). Hand-rolled progress bar. |
+| 97 | `paymentPartial` [shot](/audit/index.html#097_payments_paymentPartial) | merchant | Short payment: 0.0030 of 0.0042 BTC (35) | fix | polish | money: no net | Add fiat equivalent + network. Wave 4. |
+| 98 | `buyerUnderpaidNudge` [shot](/audit/index.html#098_payments_buyerUnderpaidNudge) | buyer | You're almost there — send 0.0012 BTC to finish (47) | keep | polish | — | Add network + fiat equivalent. |
+| 99 | `paymentPartialExpired` · completed_partial [shot](/audit/index.html#099_payments_paymentPartialExpired_completed_partial) | merchant | Partial payment processed (25) | fix | should fix | — | completed_partial says 'adjusted fees and forwarded' but shows no fee / net / wallet / hash → reuse money path. |
+| 100 | `paymentPartialExpired` · incomplete_expired [shot](/audit/index.html#100_payments_paymentPartialExpired_incomplete_expired) | merchant | Partial payment expired (23) | fix | should fix | money: no fee; money: no net | completed_partial says 'adjusted fees and forwarded' but shows no fee / net / wallet / hash → reuse money path. |
+| 101 | `merchantUnderpaidDigest` [shot](/audit/index.html#101_payments_merchantUnderpaidDigest) | merchant | 2 underpaid payment(s) need attention (37) | keep | keep | money: no fee; money: no net; money: no network; money: no tx hash | Good; deep-links to ?status=underpaid. |
 
 ### referral
 
 | # | Sender · variant | Audience | Subject (chars) | Verdict | Severity | Auto-flags | Notes / fields to add or remove |
 |---|---|---|---|---|---|---|---|
-| 101 | `payoutReady` [shot](/audit/index.html#101_referral_payoutReady) | merchant | $125.50 in referral rewards ready to cash out (45) | keep | keep | — |  |
-| 102 | `autoPayEnabled` [shot](/audit/index.html#102_referral_autoPayEnabled) | merchant | Auto cash-out is on for your referral rewards (45) | keep | keep | — |  |
-| 103 | `payoutRequested` [shot](/audit/index.html#103_referral_payoutRequested) | merchant | Your $125.50 referral cash-out is on the way (44) | keep | keep | — |  |
-| 104 | `payoutFailed` [shot](/audit/index.html#104_referral_payoutFailed) | merchant | Your $125.50 referral cash-out couldn't be sent (47) | keep | keep | — |  |
-| 105 | `accrual` [shot](/audit/index.html#105_referral_accrual) | merchant | +$3.92 from Nameword — referral rewards (39) | keep | keep | — |  |
-| 106 | `activated` [shot](/audit/index.html#106_referral_activated) | merchant | Nameword took their first payment — you earn 25% of their fees (62) | keep | polish | subject > 60 chars | Subject 62 chars. |
-| 107 | `monthlyDigest` [shot](/audit/index.html#107_referral_monthlyDigest) | merchant | May 2026 referrals: $48.20 earned (33) | keep | keep | — |  |
-| 108 | `shareNudge` [shot](/audit/index.html#108_referral_shareNudge) | merchant | Earn 25% of every referred merchant's fees for 12 months (56) | keep | keep | — |  |
+| 102 | `payoutReady` [shot](/audit/index.html#102_referral_payoutReady) | merchant | $125.50 in referral rewards ready to cash out (45) | keep | keep | — |  |
+| 103 | `autoPayEnabled` [shot](/audit/index.html#103_referral_autoPayEnabled) | merchant | Auto cash-out is on for your referral rewards (45) | keep | keep | — |  |
+| 104 | `payoutRequested` [shot](/audit/index.html#104_referral_payoutRequested) | merchant | Your $125.50 referral cash-out is on the way (44) | keep | keep | — |  |
+| 105 | `payoutFailed` [shot](/audit/index.html#105_referral_payoutFailed) | merchant | Your $125.50 referral cash-out couldn't be sent (47) | keep | keep | — |  |
+| 106 | `accrual` [shot](/audit/index.html#106_referral_accrual) | merchant | +$3.92 from Nameword — referral rewards (39) | keep | keep | — |  |
+| 107 | `activated` [shot](/audit/index.html#107_referral_activated) | merchant | Nameword took their first payment — you earn 25% of their fees (62) | keep | polish | subject > 60 chars | Subject 62 chars. |
+| 108 | `monthlyDigest` [shot](/audit/index.html#108_referral_monthlyDigest) | merchant | May 2026 referrals: $48.20 earned (33) | keep | keep | — |  |
+| 109 | `shareNudge` [shot](/audit/index.html#109_referral_shareNudge) | merchant | Earn 25% of every referred merchant's fees for 12 months (56) | keep | keep | — |  |
 
 ### security
 
 | # | Sender · variant | Audience | Subject (chars) | Verdict | Severity | Auto-flags | Notes / fields to add or remove |
 |---|---|---|---|---|---|---|---|
-| 109 | `twoFaEnabled` [shot](/audit/index.html#109_security_twoFaEnabled) | merchant | 2FA is on for your account (26) | keep | polish | — | Date 'at 03:01 AM' without TZ (security family) — unify. |
-| 110 | `twoFaDisabled` [shot](/audit/index.html#110_security_twoFaDisabled) | merchant | 2FA was turned off — was that you? (34) | keep | keep | — |  |
-| 111 | `backupCodesRegenerated` [shot](/audit/index.html#111_security_backupCodesRegenerated) | merchant | Your 2FA backup codes were replaced (35) | keep | keep | — |  |
-| 112 | `phoneChanged` [shot](/audit/index.html#112_security_phoneChanged) | merchant | Phone number updated on your account (36) | fix | polish | — | Phone mask garbles already-masked input ('+491 •••• 4567'). |
-| 113 | `accountDeleted` [shot](/audit/index.html#113_security_accountDeleted) | merchant | Your Dynopay account has been deleted (37) | keep | keep | — |  |
-| 114 | `accountStatus` · suspended [shot](/audit/index.html#114_security_accountStatus_suspended) | merchant | Your Dynopay account has been suspended (39) | keep | keep | — |  |
-| 115 | `paymentRequest` [shot](/audit/index.html#115_security_paymentRequest) | buyer | Acme Store requests 49.00 USD (29) | keep | keep | — | Buyer pay request — good. |
-| 116 | `accountDeleteOtp` [shot](/audit/index.html#116_security_accountDeleteOtp) | merchant | Confirm account deletion – Dynopay (34) | keep | keep | — |  |
-| 117 | `accountSoftDeleted` [shot](/audit/index.html#117_security_accountSoftDeleted) | merchant | Your Dynopay account is scheduled for deletion (46) | keep | keep | — |  |
-| 118 | `accountRestored` [shot](/audit/index.html#118_security_accountRestored) | merchant | Your Dynopay account has been restored (38) | keep | keep | — |  |
-| 119 | `stepUpCode` [shot](/audit/index.html#119_security_stepUpCode) | merchant | Your Dynopay verification code (30) | keep | keep | — |  |
-| 120 | `twoFaResetLink` [shot](/audit/index.html#120_security_twoFaResetLink) | merchant | Reset your two-step verification (32) | keep | keep | — |  |
-| 121 | `twoFaResetDone` [shot](/audit/index.html#121_security_twoFaResetDone) | merchant | Your two-step verification was reset (36) | keep | polish | — | Freeze time in en-US format 'Jun 6, 2026, 2:02 PM UTC' — use formatEmailDateTime. |
+| 110 | `twoFaEnabled` [shot](/audit/index.html#110_security_twoFaEnabled) | merchant | 2FA is on for your account (26) | keep | polish | — | Date 'at 03:01 AM' without TZ (security family) — unify. |
+| 111 | `twoFaDisabled` [shot](/audit/index.html#111_security_twoFaDisabled) | merchant | 2FA was turned off — was that you? (34) | keep | keep | — |  |
+| 112 | `backupCodesRegenerated` [shot](/audit/index.html#112_security_backupCodesRegenerated) | merchant | Your 2FA backup codes were replaced (35) | keep | keep | — |  |
+| 113 | `phoneChanged` [shot](/audit/index.html#113_security_phoneChanged) | merchant | Phone number updated on your account (36) | fix | polish | — | Phone mask garbles already-masked input ('+491 •••• 4567'). |
+| 114 | `accountDeleted` [shot](/audit/index.html#114_security_accountDeleted) | merchant | Your Dynopay account has been deleted (37) | keep | keep | — |  |
+| 115 | `accountStatus` · suspended [shot](/audit/index.html#115_security_accountStatus_suspended) | merchant | Your Dynopay account has been suspended (39) | keep | keep | — |  |
+| 116 | `paymentRequest` [shot](/audit/index.html#116_security_paymentRequest) | buyer | Acme Store requests 49.00 USD (29) | keep | keep | — | Buyer pay request — good. |
+| 117 | `accountDeleteOtp` [shot](/audit/index.html#117_security_accountDeleteOtp) | merchant | Confirm account deletion – Dynopay (34) | keep | keep | — |  |
+| 118 | `accountSoftDeleted` [shot](/audit/index.html#118_security_accountSoftDeleted) | merchant | Your Dynopay account is scheduled for deletion (46) | keep | keep | — |  |
+| 119 | `accountRestored` [shot](/audit/index.html#119_security_accountRestored) | merchant | Your Dynopay account has been restored (38) | keep | keep | — |  |
+| 120 | `stepUpCode` [shot](/audit/index.html#120_security_stepUpCode) | merchant | Your Dynopay verification code (30) | keep | keep | — |  |
+| 121 | `twoFaResetLink` [shot](/audit/index.html#121_security_twoFaResetLink) | merchant | Reset your two-step verification (32) | keep | keep | — |  |
+| 122 | `twoFaResetDone` [shot](/audit/index.html#122_security_twoFaResetDone) | merchant | Your two-step verification was reset (36) | keep | polish | — | Freeze time in en-US format 'Jun 6, 2026, 2:02 PM UTC' — use formatEmailDateTime. |
 
 ### wallet
 
 | # | Sender · variant | Audience | Subject (chars) | Verdict | Severity | Auto-flags | Notes / fields to add or remove |
 |---|---|---|---|---|---|---|---|
-| 122 | `walletUpdateOtp` [shot](/audit/index.html#122_wallet_walletUpdateOtp) | merchant | Confirm wallet update (21) | merge | polish | no preheader | Three wallet OTP variants (walletUpdateOtp, walletOtp controller, walletDeleteOtp) + stepUpCode — consolidate on stepUpCode/purposeOtp. No preheader. |
-| 123 | `walletBatchSummary` [shot](/audit/index.html#123_wallet_walletBatchSummary) | merchant | Acme Store · Your payout wallets were updated (45) | keep | keep | — |  |
-| 124 | `walletDeleted` [shot](/audit/index.html#124_wallet_walletDeleted) | merchant | Wallet removed from your account (32) | keep | polish | no preheader | No preheader; 'Network BTC' shows coin not network. |
-| 125 | `addWalletReminder` [shot](/audit/index.html#125_wallet_addWalletReminder) | merchant | Acme Store · You're almost ready to accept payments (51) | merge | polish | no preheader | Overlaps activation gate/wallet + profileCreated. No preheader. |
-| 126 | `walletAdded` [shot](/audit/index.html#126_wallet_walletAdded) | merchant | Acme Store · Wallet added – BTC (31) | keep | polish | no preheader | No preheader; label 'Blockchain BTC' — use assetNetworkLabel. |
-| 127 | `walletUpdated` [shot](/audit/index.html#127_wallet_walletUpdated) | merchant | Acme Store · Wallet updated – BTC (33) | keep | polish | no preheader | As walletAdded; date without TZ. |
-| 128 | `withdrawalOtp` [shot](/audit/index.html#128_wallet_withdrawalOtp) | merchant | Confirm your withdrawal (23) | keep | polish | no preheader | No preheader. |
-| 129 | `withdrawalSuccess` [shot](/audit/index.html#129_wallet_withdrawalSuccess) | merchant | Withdrawal submitted – 500.00 USDT (34) | fix | should fix | no preheader; CTA opens a list page, not the object; money: no fee; money: no net; money: no tx hash | Money email without tx hash / explorer link or network fee; CTA → transactions list. |
-| 130 | `exchangeOtp` [shot](/audit/index.html#130_wallet_exchangeOtp) | merchant | Confirm your exchange (21) | keep | polish | no preheader | No preheader. |
-| 131 | `walletDeleteOtp` [shot](/audit/index.html#131_wallet_walletDeleteOtp) | merchant | Confirm wallet deletion (23) | merge | polish | no preheader |  |
-| 132 | `walletOtp` · controller [shot](/audit/index.html#132_wallet_walletOtp_controller) | merchant | Confirm your wallet address (27) | merge | polish | no preheader | No greeting, no preheader; full address in mono OK. |
+| 123 | `walletUpdateOtp` [shot](/audit/index.html#123_wallet_walletUpdateOtp) | merchant | Confirm wallet update (21) | merge | polish | — | Three wallet OTP variants (walletUpdateOtp, walletOtp controller, walletDeleteOtp) + stepUpCode — consolidate on stepUpCode/purposeOtp. No preheader. |
+| 124 | `walletBatchSummary` [shot](/audit/index.html#124_wallet_walletBatchSummary) | merchant | Acme Store · Your payout wallets were updated (45) | keep | keep | — |  |
+| 125 | `walletDeleted` [shot](/audit/index.html#125_wallet_walletDeleted) | merchant | Wallet removed from your account (32) | keep | polish | — | No preheader; 'Network BTC' shows coin not network. |
+| 126 | `addWalletReminder` [shot](/audit/index.html#126_wallet_addWalletReminder) | merchant | Acme Store · You're almost ready to accept payments (51) | merge | polish | — | Overlaps activation gate/wallet + profileCreated. No preheader. |
+| 127 | `walletAdded` [shot](/audit/index.html#127_wallet_walletAdded) | merchant | Acme Store · Wallet added – BTC (31) | keep | polish | — | No preheader; label 'Blockchain BTC' — use assetNetworkLabel. |
+| 128 | `walletUpdated` [shot](/audit/index.html#128_wallet_walletUpdated) | merchant | Acme Store · Wallet updated – BTC (33) | keep | polish | — | As walletAdded; date without TZ. |
+| 129 | `withdrawalOtp` [shot](/audit/index.html#129_wallet_withdrawalOtp) | merchant | Confirm your withdrawal (23) | keep | polish | — | No preheader. |
+| 130 | `withdrawalSuccess` [shot](/audit/index.html#130_wallet_withdrawalSuccess) | merchant | Withdrawal submitted – 500.00 USDT-TRC20 (40) | fix | should fix | CTA opens a list page, not the object; money: no fee; money: no net; money: no tx hash | Money email without tx hash / explorer link or network fee; CTA → transactions list. |
+| 131 | `exchangeOtp` [shot](/audit/index.html#131_wallet_exchangeOtp) | merchant | Confirm your exchange (21) | keep | polish | — | No preheader. |
+| 132 | `walletDeleteOtp` [shot](/audit/index.html#132_wallet_walletDeleteOtp) | merchant | Confirm wallet deletion (23) | merge | polish | — |  |
+| 133 | `walletOtp` · controller [shot](/audit/index.html#133_wallet_walletOtp_controller) | merchant | Confirm your wallet address (27) | merge | polish | — | No greeting, no preheader; full address in mono OK. |
 
 ### walletSecurity
 
 | # | Sender · variant | Audience | Subject (chars) | Verdict | Severity | Auto-flags | Notes / fields to add or remove |
 |---|---|---|---|---|---|---|---|
-| 133 | `walletChangeAlert` [shot](/audit/index.html#133_walletSecurity_walletChangeAlert) | merchant | Your payout wallets were changed (32) | keep | keep | — | Model security email with one-tap undo. |
-| 134 | `walletSecured` [shot](/audit/index.html#134_walletSecurity_walletSecured) | merchant | We've secured your account (26) | keep | keep | — |  |
+| 134 | `walletChangeAlert` [shot](/audit/index.html#134_walletSecurity_walletChangeAlert) | merchant | Your payout wallets were changed (32) | keep | keep | — | Model security email with one-tap undo. |
+| 135 | `walletSecured` [shot](/audit/index.html#135_walletSecurity_walletSecured) | merchant | We've secured your account (26) | keep | keep | — |  |
 
 ### refund
 
 | # | Sender · variant | Audience | Subject (chars) | Verdict | Severity | Auto-flags | Notes / fields to add or remove |
 |---|---|---|---|---|---|---|---|
-| 135 | `buyerRefund` · forwarding [shot](/audit/index.html#135_refund_buyerRefund_forwarding) | buyer | Your Dynopay refund of 0.0012 BTC is on its way (47) | fix | polish | — | Raw explorer URL printed under the button; network shown as code 'USDT-TRC20' → 'USDT · Tron (TRC-20)'; no original payment reference. |
-| 136 | `buyerRefund` · completed [shot](/audit/index.html#136_refund_buyerRefund_completed) | buyer | Your Dynopay refund of 49 USDT is complete (42) | fix | polish | — | Raw explorer URL printed under the button; network shown as code 'USDT-TRC20' → 'USDT · Tron (TRC-20)'; no original payment reference. |
-| 137 | `merchantRefund` · completed [shot](/audit/index.html#137_refund_merchantRefund_completed) | merchant | Refund of 49 USDT to jamie.chen@example.com is complete (55) | fix | polish | money: no fee; money: no net; money: no tx hash | Same as buyerRefund; add original payment reference + network fee. |
+| 136 | `buyerRefund` · forwarding [shot](/audit/index.html#136_refund_buyerRefund_forwarding) | buyer | Your Dynopay refund of 0.0012 BTC is on its way (47) | fix | polish | — | Raw explorer URL printed under the button; network shown as code 'USDT-TRC20' → 'USDT · Tron (TRC-20)'; no original payment reference. |
+| 137 | `buyerRefund` · completed [shot](/audit/index.html#137_refund_buyerRefund_completed) | buyer | Your Dynopay refund of 49 USDT is complete (42) | fix | polish | — | Raw explorer URL printed under the button; network shown as code 'USDT-TRC20' → 'USDT · Tron (TRC-20)'; no original payment reference. |
+| 138 | `merchantRefund` · completed [shot](/audit/index.html#138_refund_merchantRefund_completed) | merchant | Refund of 49 USDT to jamie.chen@example.com is complete (55) | fix | polish | money: no net | Same as buyerRefund; add original payment reference + network fee. |
 
 ### shared
 
 | # | Sender · variant | Audience | Subject (chars) | Verdict | Severity | Auto-flags | Notes / fields to add or remove |
 |---|---|---|---|---|---|---|---|
-| 138 | `sendEmail` · generic [shot](/audit/index.html#138_shared_sendEmail_generic) | merchant | A note from Dynopay (19) | keep | keep | no preheader | Generic wrapper; no preheader. |
+| 139 | `sendEmail` · generic [shot](/audit/index.html#139_shared_sendEmail_generic) | merchant | A note from Dynopay (19) | keep | keep | — | Generic wrapper; no preheader. |
 
 ## 4. Public marketing & auth pages
 

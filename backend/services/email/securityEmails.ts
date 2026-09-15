@@ -1,6 +1,6 @@
 import mailTransporter from "../../utils/mailTransporter";
 import { apiLogger } from "../../utils/loggers";
-import { t, resolveEmailLang, normalizeLang } from "../../utils/emailI18n";
+import { emailDateParts, formatEmailDate, formatEmailDateTime, t, resolveEmailLang, normalizeLang } from "../../utils/emailI18n";
 import { infoBox, dataRow, p, warnText, alertBox, successBox, otpBlock, statusBadge } from "../../utils/emailTemplate";
 import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate } from "./emailShared";
 
@@ -14,9 +14,8 @@ const greeting = (name: string, L: string) =>
 
 const whenRow = (L: string) => {
   const now = new Date();
-  const date = now.toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" });
-  const time = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
-  return dataRow(t("labels.date", L), `${date} at ${time}`, true);
+  const { date, time } = emailDateParts(now);
+  return dataRow(t("labels.date", L), `${date} · ${time}`, true);
 };
 
 const SECURITY_URL = `${FRONTEND_BASE_URL}/settings?section=profile`;
@@ -157,13 +156,13 @@ export const sendPaymentRequestEmail = async (
     const rows = [
       dataRow(t("labels.amount", L), `<strong>${vars.amount} ${vars.currency}</strong>`),
       data.description ? dataRow(t("labels.description", L), escapeHtml(data.description)) : "",
-      expires && !isNaN(expires.getTime()) ? dataRow(t("paymentRequest.expires", L), expires.toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" }), true) : "",
+      expires && !isNaN(expires.getTime()) ? dataRow(t("paymentRequest.expires", L), formatEmailDate(expires, L), true) : "",
     ].join("");
     const content = `${p(t("common.greetingDefault", L))}
     ${p(t("paymentRequest.intro", L, vars))}
     ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows}</table>`, "#4338CA")}
     ${p(t("paymentRequest.outro", L))}`;
-    const html = dynoPayEmailTemplate(t("paymentRequest.heading", L, vars), content, true, t("paymentRequest.cta", L), data.payUrl, t("paymentRequest.preheader", L, vars), L, "link");
+    const html = dynoPayEmailTemplate(t("paymentRequest.heading", L, vars), content, true, t("paymentRequest.cta", L), data.payUrl, t("paymentRequest.preheader", L, vars), L, "link", "buyer");
     await send(email, email.split("@")[0] || "Customer", t("paymentRequest.subject", L, vars), html, "Payment request");
   } catch (e) {
     apiLogger.error("Payment request email error:", e);
@@ -263,7 +262,7 @@ export const send2FAResetLinkEmail = async (email: string, name: string, link: s
 export const send2FAResetDoneEmail = async (email: string, name: string, freezeUntil: Date, lang?: string | null) => {
   try {
     const L = await resolveEmailLang(lang, email);
-    const until = freezeUntil.toLocaleString(normalizeLang(L), { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" }) + " UTC";
+    const until = formatEmailDateTime(freezeUntil, L);
     const content = `${greeting(name, L)}
     ${p(t("security.twoFaResetDone.intro", L))}
     ${alertBox(t("security.twoFaResetDone.freeze", L, { until }))}

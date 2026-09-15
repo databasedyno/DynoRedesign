@@ -3,7 +3,7 @@ import config from "../../utils/config";
 import { apiLogger } from "../../utils/loggers";
 import { captureError } from "../errorMonitoringService";
 import { generatePaymentReceipt, getReceiptFilename } from "../pdfReceiptService";
-import { t, normalizeLang, resolveEmailLang, firstNameOnly } from "../../utils/emailI18n";
+import { emailDateParts, t, normalizeLang, resolveEmailLang, firstNameOnly } from "../../utils/emailI18n";
 import { formatCryptoAmount } from "../../utils/currencyUtils";
 import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../../utils/emailTemplate";
 import { EMAIL_TOKENS } from "../../utils/brandTokens";
@@ -11,55 +11,6 @@ import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, dynoPayGreetingTem
 import { toFixedStr } from "../../utils/money";
 import { isPlaceholderBuyerEmail } from "../../utils/transactionSource";
 
-/**
- * Template 28: Large Transaction Alert
- */
-export const sendLargeTransactionAlertEmail = async (
-  email: string,
-  name: string,
-  amount: string,
-  currency: string,
-  cryptoAmount: string,
-  cryptoCurrency: string,
-  customerEmail: string | null,
-  transactionId: string,
-  companyName: string,
-  lang?: string
-) => {
-  try {
-    const L = await resolveEmailLang(lang, email);
-    const subject = t('merchant.largeTransaction.subject', L, { amount, currency });
-
-    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
-    ${p(t('merchant.largeTransaction.intro', L, { companyName }))}
-    ${infoBox(`
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow(t('labels.amount', L), `<strong>${amount} ${currency}</strong>`)}
-        ${dataRow(t('merchant.labels.crypto', L), `${formatCryptoAmount(cryptoAmount, cryptoCurrency)} ${cryptoCurrency}`)}
-        ${dataRow(t('labels.customer', L), isPlaceholderBuyerEmail(customerEmail) ? 'No email provided' : escapeHtml(String(customerEmail)))}
-        ${dataRow(t('labels.transactionId', L), `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`, true)}
-      </table>
-    `, '#12B76A')}
-    ${p(t('merchant.largeTransaction.outro1', L))}
-    ${p(t('merchant.largeTransaction.outro2', L))}`;
-
-    const html = dynoPayEmailTemplate(t('merchant.largeTransaction.heading', L), content, true, t('merchant.largeTransaction.cta', L), `${FRONTEND_BASE_URL}/transactions`, "", L, 'alert');
-    await mailTransporter({ to: email, name, subject, body: html });
-    apiLogger.info(`[Email] Large transaction alert sent to ${email} - ${amount} ${currency}`);
-  } catch (e) {
-    apiLogger.error("Large transaction alert email error:", e);
-  }
-};
-
-/**
- * Webhook Auto-Disabled Alert (session 49)
- *
- * Fired when the circuit-breaker in utils/webhookRetry.ts trips after N
- * consecutive DLQ hits on the same (company, webhook_url) inside a 24h
- * rolling window. Tells the merchant their endpoint is broken, quotes the
- * last error, and links to the webhook settings so they can fix and
- * re-enable it.
- */
 export const sendWebhookDisabledEmail = async (
   email: string,
   name: string,
@@ -86,8 +37,8 @@ export const sendWebhookDisabledEmail = async (
         </table>
       `, '#f59e0b')}
       ${p(`<strong>What you need to do:</strong>`)}
-      ${p(`1. Verify the URL is correct and reachable from the public internet.<br>2. Confirm your endpoint returns HTTP 2xx within 10 seconds.<br>3. Re-enable delivery from the <a href="${escapeHtml(FRONTEND_BASE_URL)}/settings/webhooks" style="color:#05936A;font-weight:600;">webhook settings page</a>.`)}
-      ${p(`No payments were lost — every attempt was captured in your <a href="${escapeHtml(FRONTEND_BASE_URL)}/settings/webhooks" style="color:#05936A;">webhook delivery log</a> and can be re-fired once your endpoint is healthy again.`)}
+      ${p(`1. Verify the URL is correct and reachable from the public internet.<br>2. Confirm your endpoint returns HTTP 2xx within 10 seconds.<br>3. Re-enable delivery from the <a href="${escapeHtml(FRONTEND_BASE_URL)}/developer-keys?tab=webhooks" style="color:#05936A;font-weight:600;">webhook settings page</a>.`)}
+      ${p(`No payments were lost — every attempt was captured in your <a href="${escapeHtml(FRONTEND_BASE_URL)}/developer-keys?tab=webhooks" style="color:#05936A;">webhook delivery log</a> and can be re-fired once your endpoint is healthy again.`)}
       ${p(`If you don't recognize this endpoint or believe this is a mistake, please reply to this email and we'll investigate immediately.`)}
     `;
 
@@ -134,7 +85,7 @@ export const sendWebhookRedirectEmail = async (
           ${dataRow('Redirect status', `HTTP ${status}`, true)}
         </table>
       `, '#f59e0b')}
-      ${p(`<strong>Recommended:</strong> update your webhook URL to the final address above so delivery is direct and reliable. You can change it on the <a href="${escapeHtml(FRONTEND_BASE_URL)}/settings/webhooks" style="color:#05936A;font-weight:600;">webhook settings page</a>.`)}
+      ${p(`<strong>Recommended:</strong> update your webhook URL to the final address above so delivery is direct and reliable. You can change it on the <a href="${escapeHtml(FRONTEND_BASE_URL)}/developer-keys?tab=webhooks" style="color:#05936A;font-weight:600;">webhook settings page</a>.`)}
       ${p(`Nothing is broken and no action is strictly required — this is just a recommendation to keep your integration fast and resilient.`)}
     `;
 
@@ -174,8 +125,7 @@ export const sendAdminFeeReceivedEmail = async (
 
     const subject = `Platform fee received – ${feeFmt} ${currency}`;
     const now = new Date();
-    const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    const { date: dateStr, time: timeStr } = emailDateParts(now);
 
     const merchantAmountNum = parseFloat(merchantAmount);
     const feeAmountNum = parseFloat(feeAmount);
@@ -192,7 +142,7 @@ export const sendAdminFeeReceivedEmail = async (
           ${dataRow('Status', statusBadge('Under Threshold', 'pending'))}
           ${dataRow('Merchant Received', `${merchantFmt} ${currency}`)}
           ${dataRow('Platform Received', `<strong>${feeFmt} ${currency} (100%)</strong>`)}
-          ${dataRow('Date', `${dateStr} at ${timeStr}`)}
+          ${dataRow('Date', `${dateStr} · ${timeStr}`)}
           ${dataRow('Company', companyName)}
           ${dataRow('Transaction ID', `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`, true)}
         </table>`;
@@ -206,7 +156,7 @@ export const sendAdminFeeReceivedEmail = async (
           ${dataRow('Status', statusBadge('Processed', 'success'))}
           ${dataRow('Merchant Net', `${merchantFmt} ${currency}`)}
           ${dataRow('Total Processed', `${totalFmt} ${currency}`)}
-          ${dataRow('Date', `${dateStr} at ${timeStr}`)}
+          ${dataRow('Date', `${dateStr} · ${timeStr}`)}
           ${dataRow('Company', companyName)}
           ${dataRow('Transaction ID', `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`, true)}
         </table>`;
@@ -218,7 +168,7 @@ export const sendAdminFeeReceivedEmail = async (
       ${noticeBlock}
       ${p(`The fee has been credited to the admin ${currency} wallet.`)}`;
 
-    const htmlBody = dynoPayEmailTemplate("Platform Fee Received", `${p(`Hey ${firstNameOnly(name)},`)}\n${htmlContent}`, false, "", "", "", undefined, 'check');
+    const htmlBody = dynoPayEmailTemplate("Platform Fee Received", `${p(`Hey ${firstNameOnly(name)},`)}\n${htmlContent}`, false, "", "", "", undefined, 'check', 'admin');
     const info = await mailTransporter({ to: recipientEmail, name, subject, body: htmlBody });
     return info;
   } catch (e) {
@@ -243,8 +193,7 @@ export const sendAdminFeeSweepEmail = async (
     const sweptFmt = formatMoneyForEmail(amountSwept, currency);
     const subject = `Admin Fee Swept — ${sweptFmt} ${currency}`;
     const now = new Date();
-    const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    const { date: dateStr, time: timeStr } = emailDateParts(now);
 
     const sweepModeDisplay = sweepMode === 'threshold' ? 'USD Threshold' : sweepMode.startsWith('auto-convert') ? 'Auto-Convert (Direct Transfer)' : 'Time-Based';
 
@@ -258,13 +207,13 @@ export const sendAdminFeeSweepEmail = async (
           ${dataRow('Gas Used', gasUsed)}
           ${dataRow('From Address', `<span style="font-family: monospace; font-size: 12px; word-break: break-all;">${fromAddress}</span>`)}
           ${dataRow('To Admin Wallet', `<span style="font-family: monospace; font-size: 12px; word-break: break-all;">${toAddress}</span>`)}
-          ${dataRow('Date', `${dateStr} at ${timeStr}`)}
+          ${dataRow('Date', `${dateStr} · ${timeStr}`)}
           ${dataRow('Sweep TX ID', `<span style="font-family: monospace; font-size: 12px; word-break: break-all;">${sweepTxId}</span>`, true)}
         </table>
       `, EMAIL_TOKENS.brand)}
       ${p(`The admin fees have been transferred to the admin ${currency} wallet. You can verify the transaction on the blockchain explorer.`)}`;
 
-    const htmlBody = dynoPayEmailTemplate("Admin Fee Sweep Completed", `${p(`Hey Dynopay Admin,`)}\n${htmlContent}`, false, "", "", "", undefined, 'payout');
+    const htmlBody = dynoPayEmailTemplate("Admin Fee Sweep Completed", `${p(`Hey Dynopay Admin,`)}\n${htmlContent}`, false, "", "", "", undefined, 'payout', 'admin');
     const info = await mailTransporter({
       to: recipientEmail,
       name: "Dynopay Admin",
@@ -306,7 +255,7 @@ export const sendTreasuryLowAlertEmail = async (
       ${p(`The affected payout is <strong>safely waiting</strong> and will retry automatically once the Binance ${escapeHtml(asset)} balance is topped up. No funds were lost and nothing was marked failed.`)}
       ${p(`<strong>Action:</strong> top up the Binance ${escapeHtml(asset)} balance to at least ${toFixedStr(need, 2)} ${escapeHtml(asset)}.`)}`;
 
-    const html = dynoPayEmailTemplate(`Low ${asset} treasury`, `${p(`Hey Dynopay Admin,`)}\n${content}`, false, "", "", "", undefined, 'danger');
+    const html = dynoPayEmailTemplate(`Low ${asset} treasury`, `${p(`Hey Dynopay Admin,`)}\n${content}`, false, "", "", "", undefined, 'danger', 'admin');
     await mailTransporter({ to: recipientEmail, name: "Dynopay Admin", subject, body: html });
     apiLogger.info(`[Email] Treasury-low alert sent to ${recipientEmail} (${asset}: have ${have}, need ${need}, ${context})`);
   } catch (e) {
@@ -362,7 +311,7 @@ export const sendConversionFailedAdminEmail = async (recipientEmail: string, d: 
       `, '#f59e0b')}
       ${p(`<strong>Action:</strong> check the Binance deposit for this coin, then either re-run the conversion (<code>POST /api/company/conversion/${escapeHtml(d.conversionId)}/retry</code>) or send the ${escapeHtml(d.sourceCurrency)} to the merchant in the original coin and mark the row COMPLETED.`)}`;
 
-    const html = dynoPayEmailTemplate(`Auto-convert failed — #${d.conversionId}`, `${p(`Hey Dynopay Admin,`)}\n${content}`, false, "", "", "", undefined, 'danger');
+    const html = dynoPayEmailTemplate(`Auto-convert failed — #${d.conversionId}`, `${p(`Hey Dynopay Admin,`)}\n${content}`, false, "", "", "", undefined, 'danger', 'admin');
     await mailTransporter({ to: recipientEmail, name: "Dynopay Admin", subject, body: html });
     apiLogger.info(`[Email] Conversion-failed admin alert sent to ${recipientEmail} (conversion #${d.conversionId}, ${amountLine})`);
   } catch (e) {

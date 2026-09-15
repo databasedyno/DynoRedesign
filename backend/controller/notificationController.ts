@@ -200,7 +200,7 @@ const updatePreferences = async (req: express.Request, res: express.Response) =>
         if (typeof raw.team_fanout === "boolean") clean.team_fanout = raw.team_fanout;
         if (raw.categories && typeof raw.categories === "object") {
           const cats: Record<string, boolean> = {};
-          for (const k of ["payments", "payouts", "orders", "config", "digests"]) {
+          for (const k of ["payments", "payouts", "orders", "config", "digests", "confirming"]) {
             const v = (raw.categories as Record<string, unknown>)[k];
             if (typeof v === "boolean") cats[k] = v;
           }

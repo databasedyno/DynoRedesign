@@ -3,7 +3,7 @@ import config from "../../utils/config";
 import { apiLogger } from "../../utils/loggers";
 import { captureError } from "../errorMonitoringService";
 import { generatePaymentReceipt, getReceiptFilename } from "../pdfReceiptService";
-import { t, normalizeLang, resolveEmailLang, firstNameOnly, formatEmailDateTime } from "../../utils/emailI18n";
+import { emailDateParts, t, normalizeLang, resolveEmailLang, firstNameOnly, formatEmailDateTime } from "../../utils/emailI18n";
 import { formatCryptoAmount } from "../../utils/currencyUtils";
 import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../../utils/emailTemplate";
 import { EMAIL_TOKENS } from "../../utils/brandTokens";
@@ -99,7 +99,7 @@ export const sendVolumeTierUpgradeEmail = async (
     ${p(t('merchant.volumeTierUpgrade.applied', L))}
     ${p(t('merchant.volumeTierUpgrade.thanks', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.volumeTierUpgrade.heading', L, { newTier, newPercent }), content, true, t('merchant.volumeTierUpgrade.cta', L), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.volumeTierUpgrade.preheader', L, { newPercent }), L, 'trophy');
+    const html = dynoPayEmailTemplate(t('merchant.volumeTierUpgrade.heading', L, { newTier, newPercent }), content, true, t('merchant.volumeTierUpgrade.cta', L), `${FRONTEND_BASE_URL}/settings?section=plan`, t('merchant.volumeTierUpgrade.preheader', L, { newPercent }), L, 'trophy');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Volume-tier upgrade email sent to ${email} (${previousTier}→${newTier})`);
   } catch (e) {
@@ -180,7 +180,7 @@ export const sendPasswordChangedEmail = async (
     ${p(t('merchant.passwordChanged.intro', L))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow(t('labels.date', L), `${date} at ${time}`, true)}
+        ${dataRow(t('labels.date', L), `${date} · ${time}`, true)}
       </table>
     `, '#12B76A')}
     ${warnText(t('merchant.passwordChanged.securityNotice', L))}`;
@@ -207,8 +207,7 @@ export const sendUserProfileUpdatedEmail = async (
     const L = await resolveEmailLang(lang, email);
     const subject = t('merchant.profileUpdated.subject', L);
     const now = new Date();
-    const date = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
-    const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    const { date, time } = emailDateParts(now);
 
     const fieldsList = updatedFields.length > 0
       ? updatedFields.map(field => dataRow(field, statusBadge(t('merchant.badges.updated', L), 'info'))).join('')
@@ -219,7 +218,7 @@ export const sendUserProfileUpdatedEmail = async (
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${fieldsList}
-        ${dataRow(t('labels.date', L), `${date} at ${time}`, true)}
+        ${dataRow(t('labels.date', L), `${date} · ${time}`, true)}
       </table>
     `, '#12B76A')}
     ${warnText(t('merchant.profileUpdated.securityNotice', L))}`;
@@ -234,7 +233,7 @@ export const sendUserProfileUpdatedEmail = async (
         <p style="margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: #991b1b; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.profileUpdated.emailChangedImportantTitle', L)}</p>
         <p style="margin: 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.profileUpdated.emailChangedImportantText', L)}</p>
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top: 12px;">
-          ${dataRow(t('labels.date', L), `${date} at ${time}`, true)}
+          ${dataRow(t('labels.date', L), `${date} · ${time}`, true)}
         </table>
       `, '#ef4444')}`;
 
@@ -264,8 +263,7 @@ export const sendCreatorHandleUpdatedEmail = async (
   try {
     const pageUrl = `${FRONTEND_BASE_URL}/${handle}`;
     const now = new Date();
-    const date = now.toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" });
-    const time = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
+    const { date, time } = emailDateParts(now);
     const heading = isNew ? "Your creator handle is live" : "Your creator handle was updated";
     const subject = isNew ? `Your handle @${handle} is reserved` : `Your handle is now @${handle}`;
     const content = `${p(name ? `Hey ${escapeHtml(firstNameOnly(name))},` : "Hey there,")}
@@ -276,7 +274,7 @@ export const sendCreatorHandleUpdatedEmail = async (
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${dataRow("Handle", `@${escapeHtml(handle)}`)}
         ${dataRow("Page URL", escapeHtml(pageUrl))}
-        ${dataRow("Date", `${date} at ${time}`, true)}
+        ${dataRow("Date", `${date} · ${time}`, true)}
       </table>
     `, "#12B76A")}`;
     const html = dynoPayEmailTemplate(heading, content, true, "View my page", pageUrl, "Your public page and storefront are ready to share.", undefined, 'person');
@@ -303,8 +301,9 @@ export const sendSecurityAlertEmail = async (
     const L = await resolveEmailLang(lang, email);
     const subject = t('merchant.securityAlert.subject', L);
     const now = new Date();
-    const dateStr = date || now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
-    const timeStr = time || now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    const nowParts = emailDateParts(now);
+    const dateStr = date || nowParts.date;
+    const timeStr = time || nowParts.time;
 
     const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
     ${p(t('merchant.securityAlert.intro', L))}
@@ -312,7 +311,7 @@ export const sendSecurityAlertEmail = async (
       <p style="margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: #991b1b; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.securityAlert.detailsTitle', L)}</p>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${dataRow(t('merchant.labels.type', L), alertType)}
-        ${dataRow(t('labels.date', L), `${dateStr} at ${timeStr}`)}
+        ${dataRow(t('labels.date', L), `${dateStr} · ${timeStr}`)}
         ${dataRow(t('merchant.labels.details', L), details, true)}
       </table>
     `, '#ef4444')}
@@ -327,54 +326,6 @@ export const sendSecurityAlertEmail = async (
   }
 };
 
-/**
- * Template 23b: Login Activity Notification (sent on EVERY login)
- * Includes a "Not you?" security link
- */
-export const sendLoginNotificationEmail = async (
-  email: string,
-  name: string,
-  ipAddress: string,
-  device: string,
-  browser: string,
-  os: string,
-  location: string | null,
-  date: string,
-  time: string,
-  securityToken: string,
-  lang?: string
-) => {
-  try {
-    const L = await resolveEmailLang(lang, email);
-    const subject = t('merchant.loginNotification.subject', L);
-    const locationDisplay = location || t('merchant.loginNotification.unknownLocation', L);
-    const deviceDisplay = `${device}${browser ? ` · ${browser}` : ''}${os ? ` · ${os}` : ''}`;
-    const secureAccountUrl = `${FRONTEND_BASE_URL}/auth/secure-account?token=${securityToken}`;
-
-    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
-    ${p(t('merchant.loginNotification.intro', L))}
-    ${infoBox(`
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow(t('merchant.labels.device', L), deviceDisplay)}
-        ${dataRow(t('merchant.labels.location', L), locationDisplay)}
-        ${dataRow(t('merchant.labels.ipAddress', L), `<span style="font-family: monospace; font-size: 13px;">${ipAddress}</span>`)}
-        ${dataRow(t('merchant.labels.time', L), `${date} at ${time}`, true)}
-      </table>
-    `)}
-    ${p(t('merchant.loginNotification.wasThisYou', L))}
-    ${p(t('merchant.loginNotification.notYou', L))}`;
-
-    const html = dynoPayEmailTemplate(t('merchant.loginNotification.heading', L), content, true, t('merchant.loginNotification.cta', L), secureAccountUrl, t('merchant.loginNotification.preheader', L), L, 'device');
-    await mailTransporter({ to: email, name, subject, body: html });
-    apiLogger.info(`[Email] Login notification sent to ${email} (${deviceDisplay}, ${locationDisplay})`);
-  } catch (e) {
-    apiLogger.error("Login notification email error:", e);
-  }
-};
-
-/**
- * Template 24: Failed Login Attempts Alert
- */
 export const sendFailedLoginAttemptsEmail = async (
   email: string,
   name: string,
@@ -393,7 +344,7 @@ export const sendFailedLoginAttemptsEmail = async (
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${dataRow(t('merchant.labels.failedAttempts', L), `<strong>${attemptCount}</strong>`)}
-        ${dataRow(t('labels.date', L), `${date} at ${time}`)}
+        ${dataRow(t('labels.date', L), `${date} · ${time}`)}
         ${dataRow(t('merchant.labels.ipAddress', L), `<span style="font-family: monospace; font-size: 13px;">${ipAddress}</span>`, true)}
       </table>
     `, '#ef4444')}

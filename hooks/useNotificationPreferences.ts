@@ -28,7 +28,8 @@ export type NotificationCategoryKey =
   | "payouts"
   | "orders"
   | "config"
-  | "digests";
+  | "digests"
+  | "confirming";
 
 export interface CompanyRouting {
   notificationEmail: string;
@@ -45,6 +46,7 @@ const defaultRouting: CompanyRouting = {
     orders: true,
     config: true,
     digests: true,
+    confirming: false,
   },
 };
 
@@ -96,6 +98,8 @@ const routingFromBackend = (b: BackendPreferences | undefined | null): CompanyRo
       orders: cats.orders !== false,
       config: cats.config !== false,
       digests: cats.digests !== false,
+      // Opt-IN: per-confirmation progress emails are off unless explicitly enabled.
+      confirming: cats.confirming === true,
     },
   };
 };

@@ -30,6 +30,7 @@ import crypto from "crypto";
 import sequelize from "../utils/dbInstance";
 import { Op, QueryTypes } from "sequelize";
 import flw from "../apis/flutterwaveApi";
+import { emailDateParts } from "../utils/emailI18n";
 
 const addApi = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
@@ -474,8 +475,8 @@ const deleteApi = async (req: express.Request, res: express.Response) => {
           keyType,
           company?.dataValues.company_name || "your brand",
           String(existing.dataValues.key_hint || ""),
-          now.toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" }),
-          now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true })
+          emailDateParts(now).date,
+          emailDateParts(now).time
         );
       } catch (emailError) {
         apiLogger.error("[ApiKey] Failed to send revoke notification:", emailError);
@@ -782,8 +783,7 @@ const regenerateApiKey = async (req: express.Request, res: express.Response) => 
     try {
       const { sendApiKeyCreatedEmail } = await import("../services/emailService");
       const now = new Date();
-      const date = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
-      const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+      const { date, time } = emailDateParts(now);
       // Use environment (production/development), NOT status (active/revoked).
       const keyType = environment === "production" ? "production" : "development";
       await sendApiKeyCreatedEmail(

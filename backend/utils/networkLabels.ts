@@ -60,3 +60,10 @@ export const getNetworkDisplayName = (cryptoCode?: string | null): string => {
 /** "USDT-TRC20" -> "Tether"; "BTC" -> "Bitcoin". */
 export const getCoinDisplayName = (cryptoCode?: string | null): string =>
   COIN_DISPLAY_NAMES[getCoinSymbol(cryptoCode)] || getCoinSymbol(cryptoCode);
+
+/** "USDT · Tron (TRC-20)" or plain "BTC" when the network name adds nothing. */
+export const assetNetworkLabel = (code: string): string => {
+  const sym = getCoinSymbol(code);
+  const net = getNetworkDisplayName(code);
+  return net && net !== sym ? `${sym} · ${net}` : sym;
+};

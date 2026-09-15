@@ -409,7 +409,7 @@ async function sendDLQAlert(jobData: WebhookJobData, jobId: string, attempts: nu
     </p>`;
 
   const subject = `DLQ Alert: Webhook failed for tx ${payload.txId.substring(0, 16)}... (${payload.asset || 'crypto'})`;
-  const htmlBody = baseEmailTemplate("Webhook Moved to DLQ", content);
+  const htmlBody = baseEmailTemplate("Webhook Moved to DLQ", content, { audience: "admin" });
 
   try {
     const transporter = await getMailTransporter();

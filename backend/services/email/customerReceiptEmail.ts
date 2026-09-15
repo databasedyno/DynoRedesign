@@ -6,6 +6,7 @@ import { isMerchantIdentityVerified } from "../../helper/merchantVerification";
 import { t, normalizeLang } from "../../utils/emailI18n";
 import { formatMoneyForEmail, dynoPayEmailTemplate, greetingLine } from "./emailShared";
 import { infoBox, dataRow, statusBadge, p } from "../../utils/emailTemplate";
+import { assetNetworkLabel } from "../../utils/networkLabels";
 
 /**
  * Template 19: Customer Payment Confirmation with PDF Receipt
@@ -111,14 +112,14 @@ export const sendCustomerPaymentConfirmationEmail = async (
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${dataRow(t('labels.status', L), statusBadge(t('statusLabels.complete', L), 'success'))}
         ${dataRow(t('labels.amountPaid', L), `<strong>${amount} ${currency}</strong>`)}
-        ${cryptoAmount && cryptoCurrency ? dataRow(t('labels.cryptoAmount', L), `${formatMoneyForEmail(cryptoAmount, cryptoCurrency)} ${cryptoCurrency}`) : ''}
+        ${cryptoAmount && cryptoCurrency ? dataRow(t('labels.cryptoAmount', L), `${formatMoneyForEmail(cryptoAmount, cryptoCurrency)} ${assetNetworkLabel(cryptoCurrency)}`) : ''}
         ${paymentSourceKey ? dataRow(t('labels.paymentMethod', L), t('paymentSource.' + paymentSourceKey, L)) : ''}
         ${description ? dataRow(t('labels.description', L), description) : ''}
         ${dataRow(t('labels.transactionId', L), `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`)}
         ${transactionReference ? dataRow(t('labels.reference', L), explorerUrl
           ? `<a href="${explorerUrl}" style="font-family: monospace; font-size: 12px; color: #4F46E5; word-break: break-all; text-decoration: underline;" target="_blank" rel="noopener">${transactionReference}</a> <span style="font-size:12px;color:#6b7280;">&nbsp;${t('customerPaymentConfirmation.viewOnExplorer', L)} &#8599;</span>`
           : `<span style="font-family: monospace; font-size: 12px; word-break: break-all;">${transactionReference}</span>`) : ''}
-        ${dataRow(t('labels.date', L), `${date} at ${time}`, true)}
+        ${dataRow(t('labels.date', L), `${date} · ${time}`, true)}
       </table>
     `, '#12B76A')}
     ${buyAgain ? `<table role="presentation" class="hl-box" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f5f3ff;border:1px solid #e0e7ff;border-radius:12px;margin:20px 0;">
@@ -139,7 +140,7 @@ export const sendCustomerPaymentConfirmationEmail = async (
 
     const html = dynoPayEmailTemplate(isContribution
         ? t('contributionThankYou.heading', L, { campaignName })
-        : t('customerPaymentConfirmation.heading', L), content, !!receiptUrl, receiptUrl ? t('customerPaymentConfirmation.viewOnlineCta', L) : "", receiptUrl || "", isContribution ? t('contributionThankYou.preheader', L) : t('customerPaymentConfirmation.preheader', L), L, 'check');
+        : t('customerPaymentConfirmation.heading', L), content, !!receiptUrl, receiptUrl ? t('customerPaymentConfirmation.viewOnlineCta', L) : "", receiptUrl || "", isContribution ? t('contributionThankYou.preheader', L) : t('customerPaymentConfirmation.preheader', L), L, 'check', 'buyer');
     await mailTransporter({ to: customerEmail, name: displayName, subject, body: html, attachments: pdfAttachment ? [pdfAttachment] : undefined });
     apiLogger.info(`[Email] Customer payment confirmation sent to ${customerEmail} for ${amount} ${currency}${pdfAttachment ? ' with PDF receipt' : ''}`);
   } catch (e) {
@@ -175,7 +176,7 @@ export const sendBuyerPaymentExpiredEmail = async (
     `, '#F79009')}
     ${p(t('buyerPaymentExpired.whatNext', L, { companyName }))}
     ${p(`<span style="font-size: 13px; color: #6b7280;">${t('common.securedBy', L)}</span>`)}`;
-    const html = dynoPayEmailTemplate(t('buyerPaymentExpired.heading', L), content, false, "", "", t('buyerPaymentExpired.preheader', L), L, 'alert');
+    const html = dynoPayEmailTemplate(t('buyerPaymentExpired.heading', L), content, false, "", "", t('buyerPaymentExpired.preheader', L), L, 'alert', 'buyer');
     await mailTransporter({ to: customerEmail, name: displayName, subject: t('buyerPaymentExpired.subject', L, { companyName }), body: html });
     apiLogger.info(`[Email] Buyer payment-expired notice sent to ${customerEmail} (ref ${reference})`);
   } catch (e) {

@@ -24,7 +24,10 @@
     "platformFee": "Dynopay-kosten",
     "feePaidByMerchant": "betaald door de verkoper",
     "feePaidByCustomer": "opgeteld bij uw totaal",
-    "paymentMethod": "Betaalmethode"
+    "paymentMethod": "Betaalmethode",
+    "network": "Netwerk",
+    "confirmationsNeeded": "Benodigde bevestigingen",
+    "typicalWait": "meestal {{wait}}"
   },
   "statusLabels": {
     "received": "Ontvangen",
@@ -838,7 +841,19 @@
     "overpaidBy": "Te veel betaald",
     "statusOverpaid": "Te veel betaald",
     "merchantBody": "Uw uitbetaling bevat het volledige verschuldigde bedrag PLUS het overschot van {{excess}} (≈ {{excessFiat}}) — Dynopay houdt nooit een te hoge betaling in. Als de koper erom vraagt, kunt u het verschil terugbetalen via de transactiedetails.",
-    "viewTransactions": "Transacties bekijken"
+    "viewTransactions": "Transacties bekijken",
+    "merchantPreheader": "Een koper heeft {{excess}} meer gestuurd dan verschuldigd — het zit in uw uitbetaling.",
+    "refundCta": "Betaling bekijken · overschot terugbetalen",
+    "merchantKeep": "Niets te doen als u het houdt — de koper is geïnformeerd dat het extra bedrag bij u is aangekomen en hoe hij het kan terugvragen.",
+    "customer": "Klant",
+    "buyerSubject": "U heeft iets meer dan nodig naar {{company}} gestuurd",
+    "buyerHeading": "U heeft te veel betaald — dit gebeurt er nu",
+    "buyerPreheader": "{{excess}} extra is bij {{company}} aangekomen. Vraag hen om terugbetaling van het verschil.",
+    "buyerIntro": "Uw betaling aan {{company}} is gelukt — bedankt. Uw wallet heeft <strong>{{excess}}</strong> (≈ {{excessFiat}}) meer gestuurd dan het verschuldigde bedrag.",
+    "buyerBody": "Dynopay is non-custodial, dus het volledige bedrag inclusief het extra ging rechtstreeks naar {{company}}. Neem contact op met de verkoper{{contact}} en vermeld de referentie hierboven om het verschil terug te krijgen — zij kunnen het met één klik terugbetalen vanuit hun dashboard.",
+    "amountDue": "Verschuldigd bedrag",
+    "amountSent": "Verzonden bedrag",
+    "buyerCta": "Contact opnemen met {{company}}"
   },
   "payoutDigest": {
     "subjectActive": "Jouw week op Dynopay: {{amount}} uitbetaald",
@@ -864,7 +879,12 @@
     "openDashboardBody": "Open uw dashboard om transacties te bekijken, wallets aan te passen of een nieuwe betaallink te delen.",
     "openDashboard": "Dashboard openen",
     "preheaderActive": "Een overzicht van uw uitbetalingen van afgelopen week.",
-    "preheaderQuiet": "Een korte update over uw account deze week."
+    "preheaderQuiet": "Een korte update over uw account deze week.",
+    "grossSettled": "Bruto afgewikkeld",
+    "feesPaidRow": "Dynopay-kosten",
+    "netReceived": "Netto ontvangen in uw wallets",
+    "downloadStatement": "Bonnen & belasting → download het CSV-overzicht",
+    "statementBody": "Nodig voor uw boekhouding? Bruto, kosten en netto van elke betaling staan in {{link}}."
   },
   "referral": {
     "whyTitle": "Waarom Dynopay?",
@@ -965,7 +985,12 @@
     "rights": "© Dynopay {{year}}. Alle rechten voorbehouden.",
     "privacy": "Privacy",
     "terms": "Voorwaarden",
-    "support": "Support"
+    "support": "Support",
+    "legal": "© {{year}} {{legalName}} · Alle rechten voorbehouden.",
+    "whyMerchant": "U ontvangt deze e-mail omdat u een Dynopay-account heeft ({{email}}).",
+    "managePrefs": "E-mailvoorkeuren beheren",
+    "whyBuyer": "U ontvangt deze e-mail omdat u een betaling via Dynopay heeft gedaan. Dynopay is non-custodial — het geld gaat rechtstreeks naar de eigen wallet van de verkoper.",
+    "whyAdmin": "Interne Dynopay-operationele melding."
   },
   "orderReceipt": {
     "subject": "Uw bestelling {{ref}} is bevestigd",
@@ -976,7 +1001,8 @@
     "digitalNote": "De downloadlinks hierboven zijn 24 uur geldig. Heeft u een nieuwe link nodig?",
     "openOrderPage": "Open uw bestelpagina",
     "physicalNote": "De verkoper mailt u een trackingnummer zodra uw artikelen worden verzonden.",
-    "viewOrderDetails": "Bestelgegevens bekijken →"
+    "viewOrderDetails": "Bestelgegevens bekijken →",
+    "paidWith": "Betaald met"
   },
   "orderTable": {
     "product": "Product",
@@ -1084,7 +1110,9 @@
       "security": "beveiligingsinstellingen van het account",
       "payout": "uitbetalingsinstellingen",
       "team": "teamtoegang",
-      "settlement": "afrekenvaluta"
+      "settlement": "afrekenvaluta",
+      "withdrawal": "geld opnemen",
+      "exchange": "geld omwisselen"
     }
   },
   "paymentRequest": {
@@ -1175,6 +1203,40 @@
     "cta": "Bekijk deze betaling",
     "introBelowMinimum": "<strong>{{companyName}}</strong> heeft een kleine betaling ontvangen onder het doorstuurminimum van het netwerk, dus er is niets naar uw wallet doorgestuurd — dit is wat ermee gebeurde.",
     "preheaderBelowMinimum": "{{amount}} {{currency}} ontvangen — onder het doorstuurminimum, niets doorgestuurd.",
-    "moneyPath": "Waar het geld naartoe ging"
+    "moneyPath": "Waar het geld naartoe ging",
+    "dynopayFeeNoPct": "Dynopay-kosten",
+    "subjectLarge": "Grote betaling afgewikkeld · {{amount}} {{currency}} · {{companyName}}",
+    "largeBadge": "Grote betaling"
+  },
+  "payoutDelayed": {
+    "amountWaiting": "Wacht op uitbetaling",
+    "payoutAs": "Uitbetaald als",
+    "since": "Betaling ontvangen",
+    "conversionId": "Conversie-ID",
+    "statusDelayed": "Vertraagd",
+    "statusManual": "Wordt door ons team afgehandeld",
+    "whyLabel": "Waarom:",
+    "cta": "Uitbetalingen bekijken",
+    "nothingToDo": "U hoeft niets te doen. Beveiligings- en uitbetalingsuitzonderingsmails zoals deze worden altijd verzonden.",
+    "reason": {
+      "network": "het blockchainnetwerk is overbelast, waardoor de bevestiging van de overboeking langer duurt dan normaal.",
+      "exchange": "de exchange-stap van uw automatische omzetting wordt langzamer verwerkt dan normaal.",
+      "review": "de uitbetaling wordt door ons team gecontroleerd voordat deze wordt vrijgegeven.",
+      "unknown": "de uitbetaling duurt langer dan ons normale venster."
+    },
+    "delayed": {
+      "subject": "Uitbetaling van {{amount}} is vertraagd",
+      "heading": "Uw uitbetaling loopt vertraging op",
+      "preheader": "{{amount}} duurt langer dan normaal — geen actie nodig.",
+      "intro": "{{companyName}} heeft {{amount}} van een koper ontvangen, maar de uitbetaling naar uw wallet is nog niet voltooid.",
+      "next": "We houden het in de gaten. U ontvangt een e-mail \"Betaling afgewikkeld\" of \"Uitbetaling voltooid\" zodra het binnen is — als het niet binnen 24 uur is voltooid, grijpt ons team in en houden we u op de hoogte."
+    },
+    "failed": {
+      "subject": "Uitbetaling van {{amount}} heeft een handmatige stap nodig",
+      "heading": "Ons team rondt uw uitbetaling af",
+      "preheader": "{{amount}} kon niet automatisch worden uitbetaald — we wikkelen het handmatig af.",
+      "intro": "{{companyName}} heeft {{amount}} van een koper ontvangen, maar de automatische uitbetaling is niet gelukt.",
+      "next": "Ons operationele team is gewaarschuwd en wikkelt deze uitbetaling handmatig af. Verwacht binnen één werkdag een bevestigingsmail; antwoord op deze e-mail als u het eerder nodig heeft."
+    }
   }
 }

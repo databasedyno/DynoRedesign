@@ -35,7 +35,7 @@
   "teamFanoutTitle": "Ook teamleden informeren",
   "teamFanoutDescription": "Teamleden in cc op basis van hun rol en rechten.",
   "categoriesLabel": "E-mailcategorieën",
-  "categoriesHelper": "Kies welke soorten merk-e-mails worden verzonden. Standaard allemaal aan.",
+  "categoriesHelper": "Kies welke soorten merk-e-mails worden verzonden. Standaard allemaal aan behalve Bevestigingsvoortgang. Beveiligings- en uitbetalingsuitzonderingsmails worden altijd verzonden.",
   "category_payments_title": "Betalingen",
   "category_payments_desc": "Meldingen over ontvangen, bevestigende, gedeeltelijke of mislukte betalingen",
   "category_payouts_title": "Uitbetalingen & afwikkelingen",
@@ -77,5 +77,7 @@
     "hint": "Gespiegeld vanaf je dashboard — er gaat niets verloren als je daar een rij verbergt.",
     "hiddenOnDashboard": "Verborgen op het dashboard",
     "restore": "Tonen op dashboard"
-  }
+  },
+  "category_confirming_title": "Bevestigingsvoortgang",
+  "category_confirming_desc": "Eén e-mail per blokbevestiging (“1 van 3…”). Standaard uit — In afwachting en Afgewikkeld krijg je altijd."
 }

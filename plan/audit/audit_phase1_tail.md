@@ -1,6 +1,6 @@
 
 ## 8. Severity roll-up → Phase 2 waves
-**Blockers (3) — all fixed in Phase 1** (see §2). Nothing else met the blocker bar (wrong/missing money info, dead-end money state,
+**Blockers (3) — all fixed in Phase 1**; **Wave 4 (a–d) delivered June 2026 — see PRD.md** (see §2). Nothing else met the blocker bar (wrong/missing money info, dead-end money state,
 unusable on phone): no horizontal overflow on any route at any width; no raw i18n keys on pages or emails.
 
 **Should fix (Wave 4 — emails):** paymentPending (network + confirmations + wait), paymentConfirming (opt-in), paymentPartialExpired

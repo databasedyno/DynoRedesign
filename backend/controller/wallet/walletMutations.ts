@@ -75,6 +75,7 @@ import {
 } from "../../services/blockchainFeeService";
 import { escapeHtml, buildTransactionFilters, invalidateWalletCache } from "./walletShared";
 import { notifyWalletChanges, assertWalletNotFrozen } from "../../services/wallet/walletChangeAlert";
+import { emailDateParts } from "../../utils/emailI18n";
 
 export const deleteWalletAddress = async (
   req: express.Request,
@@ -154,8 +155,7 @@ export const deleteWalletAddress = async (
       try {
         const { sendWalletDeletedEmail } = await import("../../services/emailService");
         const now = new Date();
-        const date = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
-        const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+        const { date, time } = emailDateParts(now);
         const maskedAddress = deletedWalletAddress.substring(0, 8) + '...' + deletedWalletAddress.slice(-6);
         await sendWalletDeletedEmail(
           userData.email,

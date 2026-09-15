@@ -74,6 +74,7 @@ import {
   calculateCustomerPaymentAmount
 } from "../../services/blockchainFeeService";
 import { escapeHtml, buildTransactionFilters, invalidateWalletCache } from "./walletShared";
+import { emailDateParts } from "../../utils/emailI18n";
 
 // ============================================
 // DELETE WALLET (payment forwarding wallets) — step-up gated at the router
@@ -148,8 +149,8 @@ export const deletePaymentWalletWithOTP = async (
       userData.name,
       maskAddress(wallet.dataValues.wallet_address),
       wallet.dataValues.wallet_type,
-      new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }),
-      new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
+      emailDateParts().date,
+      emailDateParts().time
     );
 
     return successResponseHelper(res, 200, "Wallet address removed successfully!", {

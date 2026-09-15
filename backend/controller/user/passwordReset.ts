@@ -29,7 +29,7 @@ import { isAccountLocked, recordFailedAttempt, clearFailedAttempts } from "../..
 import { createSession } from "../../services/sessionService";
 import { finalizeUploadedImage } from "../../services/objectStorage";
 import { is2FARequired } from "../../services/twoFactorService";
-import { normalizeLang } from "../../utils/emailI18n";
+import { emailDateParts, normalizeLang } from "../../utils/emailI18n";
 import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, getAccessToken, sendEmailOTP, sendTelnyxSMS } from "./userShared";
 import { recordOtpFailure, otpLockedMessage } from "../../helper/otpGuard";
 import { clientIp } from "../../middleware/rateLimitMiddleware";
@@ -294,8 +294,7 @@ export const resetPassword = async (req: express.Request, res: express.Response)
       // Send confirmation email
       try {
         const now = new Date();
-        const date = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
-        const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+        const { date, time } = emailDateParts(now);
         const userEmail2 = user.dataValues.email;
         if (userEmail2) {
           await emailService.sendPasswordChangedEmail(userEmail2, user.dataValues.name || "", date, time, user.dataValues.language);
@@ -338,8 +337,7 @@ export const resetPassword = async (req: express.Request, res: express.Response)
 
     try {
       const now = new Date();
-      const date = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
-      const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+      const { date, time } = emailDateParts(now);
       await emailService.sendPasswordChangedEmail(email.toLowerCase(), user.dataValues.name || "", date, time, user.dataValues.language);
     } catch (emailErr) {
       userLogger.warn("[resetPassword] Confirmation email failed", { error: (emailErr as Error).message });

@@ -24,7 +24,10 @@
     "platformFee": "Dynopay-Gebühr",
     "feePaidByMerchant": "vom Händler bezahlt",
     "feePaidByCustomer": "zu Ihrem Gesamtbetrag addiert",
-    "paymentMethod": "Zahlungsart"
+    "paymentMethod": "Zahlungsart",
+    "network": "Netzwerk",
+    "confirmationsNeeded": "Benötigte Bestätigungen",
+    "typicalWait": "normalerweise {{wait}}"
   },
   "statusLabels": {
     "received": "Erhalten",
@@ -838,7 +841,19 @@
     "overpaidBy": "Zu viel gezahlt",
     "statusOverpaid": "Überzahlt",
     "merchantBody": "Ihre Auszahlung enthält den vollen fälligen Betrag PLUS den Überschuss von {{excess}} (≈ {{excessFiat}}) – Dynopay behält Überzahlungen nie ein. Auf Wunsch des Käufers können Sie die Differenz aus den Transaktionsdetails erstatten.",
-    "viewTransactions": "Transaktionen ansehen"
+    "viewTransactions": "Transaktionen ansehen",
+    "merchantPreheader": "Ein Käufer hat {{excess}} mehr als fällig gesendet — es ist in Ihrer Auszahlung.",
+    "refundCta": "Zahlung prüfen · Überschuss erstatten",
+    "merchantKeep": "Nichts zu tun, wenn Sie ihn behalten — der Käufer wurde informiert, dass der Überschuss bei Ihnen eingegangen ist und wie er ihn zurückfordern kann.",
+    "customer": "Kunde",
+    "buyerSubject": "Sie haben etwas mehr als nötig an {{company}} gesendet",
+    "buyerHeading": "Sie haben zu viel bezahlt — so geht es weiter",
+    "buyerPreheader": "{{excess}} zusätzlich sind bei {{company}} eingegangen. Bitten Sie um Erstattung der Differenz.",
+    "buyerIntro": "Ihre Zahlung an {{company}} ist eingegangen — vielen Dank. Ihre Wallet hat <strong>{{excess}}</strong> (≈ {{excessFiat}}) mehr als den fälligen Betrag gesendet.",
+    "buyerBody": "Dynopay ist nicht verwahrend, daher ging der gesamte Betrag einschließlich des Überschusses direkt an {{company}}. Um die Differenz zurückzuerhalten, kontaktieren Sie den Händler{{contact}} und nennen Sie die Referenz oben — er kann sie mit einem Klick aus seinem Dashboard erstatten.",
+    "amountDue": "Fälliger Betrag",
+    "amountSent": "Gesendeter Betrag",
+    "buyerCta": "{{company}} kontaktieren"
   },
   "payoutDigest": {
     "subjectActive": "Deine Woche bei Dynopay: {{amount}} ausgezahlt",
@@ -864,7 +879,12 @@
     "openDashboardBody": "Öffnen Sie Ihr Dashboard, um Transaktionen zu erkunden, Wallets anzupassen oder einen neuen Zahlungslink zu teilen.",
     "openDashboard": "Dashboard öffnen",
     "preheaderActive": "Ihre Auszahlungen der vergangenen Woche im Überblick.",
-    "preheaderQuiet": "Ein kurzer Blick auf Ihr Konto in dieser Woche."
+    "preheaderQuiet": "Ein kurzer Blick auf Ihr Konto in dieser Woche.",
+    "grossSettled": "Brutto abgewickelt",
+    "feesPaidRow": "Dynopay-Gebühren",
+    "netReceived": "Netto in Ihren Wallets erhalten",
+    "downloadStatement": "Belege & Steuern → CSV-Aufstellung herunterladen",
+    "statementBody": "Für die Buchhaltung? Brutto, Gebühr und Netto jeder Zahlung finden Sie unter {{link}}."
   },
   "referral": {
     "whyTitle": "Warum Dynopay?",
@@ -965,7 +985,12 @@
     "rights": "© Dynopay {{year}}. Alle Rechte vorbehalten.",
     "privacy": "Datenschutz",
     "terms": "AGB",
-    "support": "Support"
+    "support": "Support",
+    "legal": "© {{year}} {{legalName}} · Alle Rechte vorbehalten.",
+    "whyMerchant": "Sie erhalten diese E-Mail, weil Sie ein Dynopay-Konto haben ({{email}}).",
+    "managePrefs": "E-Mail-Einstellungen verwalten",
+    "whyBuyer": "Sie erhalten diese E-Mail, weil Sie eine Zahlung über Dynopay getätigt haben. Dynopay ist nicht verwahrend — die Gelder gehen direkt in die eigene Wallet des Händlers.",
+    "whyAdmin": "Interne Dynopay-Betriebsbenachrichtigung."
   },
   "orderReceipt": {
     "subject": "Ihre Bestellung {{ref}} ist bestätigt",
@@ -976,7 +1001,8 @@
     "digitalNote": "Die obigen Download-Links sind 24 Stunden gültig. Brauchen Sie einen neuen Link?",
     "openOrderPage": "Bestellseite öffnen",
     "physicalNote": "Der Händler sendet Ihnen per E-Mail eine Sendungsnummer, sobald Ihre Artikel versandt werden.",
-    "viewOrderDetails": "Bestelldetails ansehen →"
+    "viewOrderDetails": "Bestelldetails ansehen →",
+    "paidWith": "Bezahlt mit"
   },
   "orderTable": {
     "product": "Produkt",
@@ -1084,7 +1110,9 @@
       "security": "Sicherheitseinstellungen des Kontos",
       "payout": "Auszahlungseinstellungen",
       "team": "Teamzugriff",
-      "settlement": "Abrechnungswährung"
+      "settlement": "Abrechnungswährung",
+      "withdrawal": "Auszahlung von Guthaben",
+      "exchange": "Tausch von Guthaben"
     }
   },
   "paymentRequest": {
@@ -1175,6 +1203,40 @@
     "cta": "Diese Zahlung ansehen",
     "introBelowMinimum": "<strong>{{companyName}}</strong> hat eine kleine Zahlung unter dem Weiterleitungsminimum des Netzwerks erhalten, daher wurde nichts an Ihre Wallet weitergeleitet — so wurde sie verwendet.",
     "preheaderBelowMinimum": "{{amount}} {{currency}} erhalten — unter dem Weiterleitungsminimum, nichts weitergeleitet.",
-    "moneyPath": "Wohin das Geld ging"
+    "moneyPath": "Wohin das Geld ging",
+    "dynopayFeeNoPct": "Dynopay-Gebühr",
+    "subjectLarge": "Große Zahlung abgewickelt · {{amount}} {{currency}} · {{companyName}}",
+    "largeBadge": "Große Zahlung"
+  },
+  "payoutDelayed": {
+    "amountWaiting": "Wartet auf Auszahlung",
+    "payoutAs": "Ausgezahlt als",
+    "since": "Zahlung erhalten",
+    "conversionId": "Umwandlungs-ID",
+    "statusDelayed": "Verzögert",
+    "statusManual": "Wird von unserem Team bearbeitet",
+    "whyLabel": "Warum:",
+    "cta": "Auszahlungen ansehen",
+    "nothingToDo": "Sie müssen nichts tun. Sicherheits- und Auszahlungsausnahme-E-Mails wie diese werden immer gesendet.",
+    "reason": {
+      "network": "das Blockchain-Netzwerk ist überlastet, daher dauert die Bestätigung der Überweisung länger als gewöhnlich.",
+      "exchange": "der Börsenschritt Ihrer automatischen Umwandlung wird langsamer als gewöhnlich verarbeitet.",
+      "review": "die Auszahlung wird von unserem Team vor der Freigabe noch einmal geprüft.",
+      "unknown": "die Auszahlung dauert länger als unser normales Zeitfenster."
+    },
+    "delayed": {
+      "subject": "Auszahlung von {{amount}} verzögert",
+      "heading": "Ihre Auszahlung verspätet sich",
+      "preheader": "{{amount}} dauert länger als gewöhnlich — keine Aktion erforderlich.",
+      "intro": "{{companyName}} hat {{amount}} von einem Käufer erhalten, die Auszahlung an Ihre Wallet ist jedoch noch nicht abgeschlossen.",
+      "next": "Wir behalten es im Blick. Sie erhalten eine E-Mail „Zahlung abgewickelt“ oder „Auszahlung abgeschlossen“, sobald sie eingeht — falls sie nicht innerhalb von 24 Stunden durch ist, greift unser Team ein und wir informieren Sie."
+    },
+    "failed": {
+      "subject": "Auszahlung von {{amount}} benötigt einen manuellen Schritt",
+      "heading": "Unser Team schließt Ihre Auszahlung ab",
+      "preheader": "{{amount}} konnte nicht automatisch ausgezahlt werden — wir wickeln es manuell ab.",
+      "intro": "{{companyName}} hat {{amount}} von einem Käufer erhalten, die automatische Auszahlung ist jedoch nicht durchgegangen.",
+      "next": "Unser Betriebsteam wurde benachrichtigt und wickelt diese Auszahlung manuell ab. Erwarten Sie innerhalb eines Werktags eine Bestätigungs-E-Mail; antworten Sie auf diese E-Mail, wenn Sie sie früher benötigen."
+    }
   }
 }

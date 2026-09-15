@@ -24,6 +24,7 @@ const CATEGORIES: { key: NotificationCategoryKey; title: string; desc: string }[
   { key: "orders", title: "Orders & invoices", desc: "Order receipts, downloads and invoice emails" },
   { key: "config", title: "Account & config", desc: "Webhook, API key, wallet and profile changes" },
   { key: "digests", title: "Digests & summaries", desc: "Weekly summaries and payout digests" },
+  { key: "confirming", title: "Confirmation progress", desc: "One email per block confirmation (“1 of 3…”). Off by default — you always get Pending and Settled." },
 ];
 
 const Row: React.FC<{
@@ -206,7 +207,7 @@ const CompanyEmailRoutingCard: React.FC<Props> = ({
                   mt: 0.5,
                 }}
               >
-                {t("categoriesHelper", { defaultValue: "Choose which kinds of brand emails are sent. All on by default." })}
+                {t("categoriesHelper", { defaultValue: "Choose which kinds of brand emails are sent. All on by default except Confirmation progress. Security and payout-exception emails are always sent." })}
               </Typography>
             </Box>
             <ExpandMoreRounded

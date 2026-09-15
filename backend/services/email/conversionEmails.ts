@@ -3,12 +3,14 @@ import config from "../../utils/config";
 import { apiLogger } from "../../utils/loggers";
 import { captureError } from "../errorMonitoringService";
 import { generatePaymentReceipt, getReceiptFilename } from "../pdfReceiptService";
-import { t, normalizeLang, resolveEmailLang } from "../../utils/emailI18n";
+import { emailDateParts, t, normalizeLang, resolveEmailLang } from "../../utils/emailI18n";
 import { formatCryptoAmount } from "../../utils/currencyUtils";
 import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../../utils/emailTemplate";
 import { EMAIL_TOKENS } from "../../utils/brandTokens";
 import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, dynoPayGreetingTemplate, formatAmountWithCurrency, formatMoneyForEmail, sendEmail, brandSubject } from "./emailShared";
 import { toFixedStr } from "../../utils/money";
+import { explorerTxUrl } from "../receiptLinkService";
+import { assetNetworkLabel } from "../../utils/networkLabels";
 
 /**
  * Auto-conversion payout email (complex layout with volatility, savings, fee breakdown)
@@ -32,6 +34,8 @@ export const sendAutoConversionPayoutEmail = async (
     transactionId: string;
     conversionId: string;
     withdrawalTxHash?: string;
+    settlementChain?: string;
+    settlementWallet?: string;
     platformFeeUsd?: number;
     sweepGasFeeUsd?: number;
     tradeFeeUsd?: number;
@@ -48,7 +52,7 @@ export const sendAutoConversionPayoutEmail = async (
       targetCurrency, payoutAmount, conversionRate,
       priceAtConversion, currentPrice, priceMovementPct,
       marketState, feeTierUsed, transactionId, conversionId,
-      withdrawalTxHash,
+      withdrawalTxHash, settlementChain, settlementWallet,
       platformFeeUsd = 0, sweepGasFeeUsd = 0, tradeFeeUsd = 0,
       binanceWithdrawalFeeUsd = 0, grossSaleUsd = 0, totalReceivedUsd = 0,
     } = data;
@@ -68,8 +72,7 @@ export const sendAutoConversionPayoutEmail = async (
     const subject = brandSubject(companyName, t('merchant.autoConversion.subject', L, { payoutAmount: payoutFmt, targetCurrency, sourceAmount: sourceFmt, sourceCurrency }));
 
     const now = new Date();
-    const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    const { date: dateStr, time: timeStr } = emailDateParts(now);
 
     const volatilityVisual = isVolatile ? errorBox(`
       <p class="warn-text" style="margin: 0 0 10px; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">Market Volatility at Time of Conversion</p>
@@ -136,14 +139,15 @@ export const sendAutoConversionPayoutEmail = async (
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
           ${dataRow('Conversion Rate', `<strong>1 ${sourceCurrency} = ${parseFloat(conversionRate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${targetCurrency}</strong>`)}
           ${dataRow('Market State', statusBadge(marketState, isVolatile ? 'pending' : 'success'))}
-          ${dataRow('Date', `${dateStr} at ${timeStr}`)}
-          ${withdrawalTxHash ? dataRow('Withdrawal TX', mono(withdrawalTxHash)) : ''}
+          ${dataRow('Date', `${dateStr} · ${timeStr}`)}
+          ${settlementWallet ? dataRow('Sent to', `${mono(settlementWallet.length > 12 ? `${settlementWallet.slice(0, 6)}…${settlementWallet.slice(-4)}` : settlementWallet)}${settlementChain ? ` <span style="color:#6b7280;font-size:12px;">· ${assetNetworkLabel(`${targetCurrency}-${settlementChain}`)}</span>` : ''}`) : ''}
+          ${withdrawalTxHash ? dataRow('Withdrawal TX', (() => { const x = explorerTxUrl(`${targetCurrency}-${settlementChain || ''}`, withdrawalTxHash); return x ? `<a href="${x}" style="font-family: monospace; font-size: 12px; color: #4F46E5; word-break: break-all; text-decoration: underline;" target="_blank" rel="noopener">${withdrawalTxHash.slice(0, 10)}…${withdrawalTxHash.slice(-6)}</a> <span style="font-size:12px;color:#6b7280;">View on explorer &#8599;</span>` : mono(withdrawalTxHash); })()) : dataRow('Withdrawal TX', '<span style="color:#b45309;">Broadcasting — appears in Payouts shortly</span>')}
           ${dataRow('Conversion ID', mono(`#${conversionId}`), true)}
         </table>
       `)}
       ${p(t('merchant.autoConversion.outro', L))}`;
 
-    const htmlBody = dynoPayEmailTemplate(t('merchant.autoConversion.heading', L), `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}\n${htmlContent}`, true, t('merchant.autoConversion.cta', L), `${FRONTEND_BASE_URL}/transactions`, t('merchant.autoConversion.preheader', L), L, 'swap');
+    const htmlBody = dynoPayEmailTemplate(t('merchant.autoConversion.heading', L), `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}\n${htmlContent}`, true, t('merchant.autoConversion.cta', L), `${FRONTEND_BASE_URL}/payouts`, t('merchant.autoConversion.preheader', L), L, 'swap');
     const info = await mailTransporter({
       to: recipientEmail,
       name,
@@ -285,7 +289,7 @@ export const sendWeeklyConversionSummaryEmail = async (
 
       ${p(`<span style="font-size: 13px; color: #9ca3af;">Report period: ${periodStart} to ${periodEnd}. Auto-conversion protects your revenue from crypto price volatility by automatically converting to stablecoins.</span>`)}`;
 
-    const htmlBody = dynoPayEmailTemplate(t('merchant.weeklyConversion.heading', L), `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}\n${htmlContent}`, true, t('merchant.weeklySummary.cta', L), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.weeklyConversion.preheader', L), L, 'chart');
+    const htmlBody = dynoPayEmailTemplate(t('merchant.weeklyConversion.heading', L), `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}\n${htmlContent}`, true, t('merchant.weeklySummary.cta', L), `${FRONTEND_BASE_URL}/payouts`, t('merchant.weeklyConversion.preheader', L), L, 'chart');
     const info = await mailTransporter({
       to: recipientEmail,
       name,

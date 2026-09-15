@@ -16,27 +16,27 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/dashboard"
+    "https://dynopay.com/dashboard",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": true,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": true,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1138,
    "shot_h_390": 1228,
-   "text_len": 734
+   "text_len": 858
   },
   "flags": [
    "CTA opens a list page, not the object",
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -56,28 +56,28 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/dashboard"
+    "https://dynopay.com/dashboard",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": true,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": true,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1154,
    "shot_h_390": 1244,
-   "text_len": 843
+   "text_len": 976
   },
   "flags": [
    "subject > 60 chars",
    "CTA opens a list page, not the object",
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -97,27 +97,26 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/dashboard"
+    "https://dynopay.com/settings?section=plan",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
-   "cta_to_list_page": true,
-   "small_font_hits": 8,
+   "cta_to_list_page": false,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": true,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1044,
    "shot_h_390": 1174,
-   "text_len": 669
+   "text_len": 793
   },
   "flags": [
-   "CTA opens a list page, not the object",
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -136,25 +135,26 @@
    "subject_placeholder": false,
    "preheader": true,
    "cta_count": 0,
-   "cta_targets": [],
+   "cta_targets": [
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
+   "footer_settings_link": true,
    "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 900,
    "shot_h_390": 900,
-   "text_len": 362
+   "text_len": 486
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -173,25 +173,26 @@
    "subject_placeholder": false,
    "preheader": true,
    "cta_count": 0,
-   "cta_targets": [],
+   "cta_targets": [
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
+   "footer_settings_link": true,
    "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 900,
    "shot_h_390": 900,
-   "text_len": 342
+   "text_len": 466
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -211,26 +212,26 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/settings"
+    "https://dynopay.com/settings",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 950,
    "shot_h_390": 998,
-   "text_len": 483
+   "text_len": 606
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -250,26 +251,26 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/profile"
+    "https://dynopay.com/profile",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1032,
    "shot_h_390": 1080,
-   "text_len": 509
+   "text_len": 633
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -288,25 +289,26 @@
    "subject_placeholder": false,
    "preheader": true,
    "cta_count": 1,
-   "cta_targets": [],
+   "cta_targets": [
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 980,
    "shot_h_390": 1021,
-   "text_len": 523
+   "text_len": 639
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -326,26 +328,26 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/acmestore"
+    "https://dynopay.com/acmestore",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 988,
    "shot_h_390": 1013,
-   "text_len": 497
+   "text_len": 621
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -365,26 +367,26 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/settings"
+    "https://dynopay.com/settings",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1203,
    "shot_h_390": 1268,
-   "text_len": 731
+   "text_len": 854
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -404,26 +406,26 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/auth/secure-account?token=sec-token-123"
+    "https://dynopay.com/auth/secure-account?token=sec-token-123",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1179,
    "shot_h_390": 1300,
-   "text_len": 718
+   "text_len": 841
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -443,26 +445,26 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/auth/login"
+    "https://dynopay.com/auth/login",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1142,
    "shot_h_390": 1216,
-   "text_len": 670
+   "text_len": 793
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -482,26 +484,26 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/api/user/security/signout-everywhere?token=sec-token-123"
+    "https://dynopay.com/api/user/security/signout-everywhere?token=sec-token-123",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1088,
    "shot_h_390": 1152,
-   "text_len": 652
+   "text_len": 776
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -518,7 +520,7 @@
   "checks": {
    "subject_len": 52,
    "subject_placeholder": false,
-   "preheader": false,
+   "preheader": true,
    "cta_count": 1,
    "cta_targets": [
     "https://dynopay.com/how-to",
@@ -526,7 +528,7 @@
     "https://dynopay.com/wallet"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 7,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
@@ -534,15 +536,14 @@
    "mentions_network": false,
    "mentions_hash_or_tx": false,
    "footer_settings_link": true,
-   "footer_legal_address": false,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 966,
    "shot_h_390": 1015,
-   "text_len": 588
+   "text_len": 731
   },
   "flags": [
-   "no preheader",
-   "7 text runs < 12px"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -559,7 +560,7 @@
   "checks": {
    "subject_len": 31,
    "subject_placeholder": false,
-   "preheader": false,
+   "preheader": true,
    "cta_count": 1,
    "cta_targets": [
     "https://dynopay.com/how-to",
@@ -567,7 +568,7 @@
     "https://dynopay.com/wallet"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 7,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
@@ -575,15 +576,14 @@
    "mentions_network": false,
    "mentions_hash_or_tx": false,
    "footer_settings_link": true,
-   "footer_legal_address": false,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 966,
    "shot_h_390": 1047,
-   "text_len": 586
+   "text_len": 743
   },
   "flags": [
-   "no preheader",
-   "7 text runs < 12px"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -600,7 +600,7 @@
   "checks": {
    "subject_len": 42,
    "subject_placeholder": false,
-   "preheader": false,
+   "preheader": true,
    "cta_count": 1,
    "cta_targets": [
     "https://dynopay.com/how-to",
@@ -608,7 +608,7 @@
     "https://dynopay.com/wallet"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 7,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
@@ -616,15 +616,14 @@
    "mentions_network": false,
    "mentions_hash_or_tx": false,
    "footer_settings_link": true,
-   "footer_legal_address": false,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 966,
    "shot_h_390": 1015,
-   "text_len": 575
+   "text_len": 726
   },
   "flags": [
-   "no preheader",
-   "7 text runs < 12px"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -641,7 +640,7 @@
   "checks": {
    "subject_len": 52,
    "subject_placeholder": false,
-   "preheader": false,
+   "preheader": true,
    "cta_count": 1,
    "cta_targets": [
     "https://dynopay.com/how-to",
@@ -649,7 +648,7 @@
     "https://dynopay.com/create-pay-link"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 7,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
@@ -657,15 +656,14 @@
    "mentions_network": true,
    "mentions_hash_or_tx": false,
    "footer_settings_link": true,
-   "footer_legal_address": false,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 966,
    "shot_h_390": 1015,
-   "text_len": 573
+   "text_len": 716
   },
   "flags": [
-   "no preheader",
-   "7 text runs < 12px"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -682,7 +680,7 @@
   "checks": {
    "subject_len": 45,
    "subject_placeholder": false,
-   "preheader": false,
+   "preheader": true,
    "cta_count": 1,
    "cta_targets": [
     "https://dynopay.com/how-to",
@@ -690,7 +688,7 @@
     "https://dynopay.com/create-pay-link"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 7,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
@@ -698,15 +696,14 @@
    "mentions_network": false,
    "mentions_hash_or_tx": false,
    "footer_settings_link": true,
-   "footer_legal_address": false,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 997,
    "shot_h_390": 1063,
-   "text_len": 623
+   "text_len": 808
   },
   "flags": [
-   "no preheader",
-   "7 text runs < 12px"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -723,14 +720,15 @@
   "checks": {
    "subject_len": 29,
    "subject_placeholder": false,
-   "preheader": false,
+   "preheader": true,
    "cta_count": 1,
    "cta_targets": [
     "https://dynopay.com/how-to",
-    "https://dynopay.com/create-pay-link"
+    "https://dynopay.com/create-pay-link",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 7,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
@@ -738,15 +736,14 @@
    "mentions_network": false,
    "mentions_hash_or_tx": false,
    "footer_settings_link": true,
-   "footer_legal_address": false,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 966,
    "shot_h_390": 1047,
-   "text_len": 578
+   "text_len": 725
   },
   "flags": [
-   "no preheader",
-   "7 text runs < 12px"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -763,14 +760,15 @@
   "checks": {
    "subject_len": 29,
    "subject_placeholder": false,
-   "preheader": false,
+   "preheader": true,
    "cta_count": 1,
    "cta_targets": [
     "https://dynopay.com/how-to",
-    "https://dynopay.com/create-pay-link"
+    "https://dynopay.com/create-pay-link",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 7,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
@@ -778,15 +776,14 @@
    "mentions_network": false,
    "mentions_hash_or_tx": false,
    "footer_settings_link": true,
-   "footer_legal_address": false,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 966,
    "shot_h_390": 1071,
-   "text_len": 590
+   "text_len": 737
   },
   "flags": [
-   "no preheader",
-   "7 text runs < 12px"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -803,13 +800,14 @@
   "checks": {
    "subject_len": 29,
    "subject_placeholder": false,
-   "preheader": false,
+   "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/create-pay-link"
+    "https://dynopay.com/create-pay-link",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 7,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
@@ -817,15 +815,14 @@
    "mentions_network": true,
    "mentions_hash_or_tx": false,
    "footer_settings_link": true,
-   "footer_legal_address": false,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 908,
    "shot_h_390": 1013,
-   "text_len": 556
+   "text_len": 703
   },
   "flags": [
-   "no preheader",
-   "7 text runs < 12px"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -842,27 +839,26 @@
   "checks": {
    "subject_len": 52,
    "subject_placeholder": false,
-   "preheader": false,
+   "preheader": true,
    "cta_count": 0,
    "cta_targets": [],
    "cta_to_list_page": false,
-   "small_font_hits": 7,
+   "small_font_hits": 9,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": true,
    "mentions_net": false,
    "mentions_network": true,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1096,
    "shot_h_390": 1153,
-   "text_len": 678
+   "text_len": 761
   },
   "flags": [
-   "no preheader",
-   "7 text runs < 12px"
+   "9 text runs < 12px"
   ]
  },
  {
@@ -879,27 +875,26 @@
   "checks": {
    "subject_len": 59,
    "subject_placeholder": false,
-   "preheader": false,
+   "preheader": true,
    "cta_count": 0,
    "cta_targets": [],
    "cta_to_list_page": false,
-   "small_font_hits": 7,
+   "small_font_hits": 9,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": true,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1063,
    "shot_h_390": 1125,
-   "text_len": 554
+   "text_len": 634
   },
   "flags": [
-   "no preheader",
-   "7 text runs < 12px"
+   "9 text runs < 12px"
   ]
  },
  {
@@ -916,27 +911,26 @@
   "checks": {
    "subject_len": 49,
    "subject_placeholder": false,
-   "preheader": false,
+   "preheader": true,
    "cta_count": 0,
    "cta_targets": [],
    "cta_to_list_page": false,
-   "small_font_hits": 7,
+   "small_font_hits": 9,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": true,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1012,
    "shot_h_390": 1065,
-   "text_len": 594
+   "text_len": 671
   },
   "flags": [
-   "no preheader",
-   "7 text runs < 12px"
+   "9 text runs < 12px"
   ]
  },
  {
@@ -953,27 +947,26 @@
   "checks": {
    "subject_len": 39,
    "subject_placeholder": false,
-   "preheader": false,
+   "preheader": true,
    "cta_count": 0,
    "cta_targets": [],
    "cta_to_list_page": false,
-   "small_font_hits": 7,
+   "small_font_hits": 9,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": true,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1036,
    "shot_h_390": 1155,
-   "text_len": 683
+   "text_len": 764
   },
   "flags": [
-   "no preheader",
-   "7 text runs < 12px"
+   "9 text runs < 12px"
   ]
  },
  {
@@ -990,27 +983,26 @@
   "checks": {
    "subject_len": 31,
    "subject_placeholder": false,
-   "preheader": false,
+   "preheader": true,
    "cta_count": 0,
    "cta_targets": [],
    "cta_to_list_page": false,
-   "small_font_hits": 7,
+   "small_font_hits": 9,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 900,
    "shot_h_390": 909,
-   "text_len": 454
+   "text_len": 531
   },
   "flags": [
-   "no preheader",
-   "7 text runs < 12px"
+   "9 text runs < 12px"
   ]
  },
  {
@@ -1033,22 +1025,22 @@
     "https://dynopay.com/admin/merchants"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 9,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": true,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
+   "footer_settings_link": true,
    "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1163,
    "shot_h_390": 1212,
-   "text_len": 688
+   "text_len": 745
   },
   "flags": [
-   "8 text runs < 12px"
+   "9 text runs < 12px"
   ]
  },
  {
@@ -1071,23 +1063,23 @@
     "https://dynopay.com/admin/merchants"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 9,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": true,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
+   "footer_settings_link": true,
    "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1151,
    "shot_h_390": 1250,
-   "text_len": 795
+   "text_len": 852
   },
   "flags": [
    "subject > 60 chars",
-   "8 text runs < 12px"
+   "9 text runs < 12px"
   ]
  },
  {
@@ -1104,34 +1096,33 @@
   "checks": {
    "subject_len": 27,
    "subject_placeholder": false,
-   "preheader": false,
+   "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/transactions"
+    "https://dynopay.com/transactions",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": true,
-   "small_font_hits": 7,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": true,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1105,
    "shot_h_390": 1172,
-   "text_len": 596
+   "text_len": 743
   },
   "flags": [
-   "no preheader",
    "CTA opens a list page, not the object",
-   "7 text runs < 12px",
+   "10 text runs < 12px",
    "money: no fee",
    "money: no net",
-   "money: no network",
-   "footer: no notification-settings link"
+   "money: no network"
   ]
  },
  {
@@ -1151,27 +1142,27 @@
    "preheader": true,
    "cta_count": 0,
    "cta_targets": [
-    "https://dynopay.com/settings/webhooks",
-    "https://dynopay.com/settings/webhooks"
+    "https://dynopay.com/developer-keys?tab=webhooks",
+    "https://dynopay.com/developer-keys?tab=webhooks",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": true,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1238,
    "shot_h_390": 1408,
-   "text_len": 1048
+   "text_len": 1172
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -1191,26 +1182,26 @@
    "preheader": true,
    "cta_count": 0,
    "cta_targets": [
-    "https://dynopay.com/settings/webhooks"
+    "https://dynopay.com/developer-keys?tab=webhooks",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": true,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1116,
    "shot_h_390": 1317,
-   "text_len": 962
+   "text_len": 1086
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -1227,27 +1218,26 @@
   "checks": {
    "subject_len": 36,
    "subject_placeholder": false,
-   "preheader": false,
+   "preheader": true,
    "cta_count": 0,
    "cta_targets": [],
    "cta_to_list_page": false,
-   "small_font_hits": 7,
+   "small_font_hits": 9,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": true,
    "mentions_net": true,
    "mentions_network": false,
    "mentions_hash_or_tx": true,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1061,
    "shot_h_390": 1136,
-   "text_len": 504
+   "text_len": 582
   },
   "flags": [
-   "no preheader",
-   "7 text runs < 12px"
+   "9 text runs < 12px"
   ]
  },
  {
@@ -1264,27 +1254,26 @@
   "checks": {
    "subject_len": 28,
    "subject_placeholder": false,
-   "preheader": false,
+   "preheader": true,
    "cta_count": 0,
    "cta_targets": [],
    "cta_to_list_page": false,
-   "small_font_hits": 7,
+   "small_font_hits": 9,
    "greeting_local_part": false,
    "has_explorer_link": true,
    "mentions_fee": true,
    "mentions_net": false,
    "mentions_network": true,
    "mentions_hash_or_tx": true,
-   "footer_settings_link": false,
+   "footer_settings_link": true,
    "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1124,
    "shot_h_390": 1236,
-   "text_len": 605
+   "text_len": 687
   },
   "flags": [
-   "no preheader",
-   "7 text runs < 12px"
+   "9 text runs < 12px"
   ]
  },
  {
@@ -1301,27 +1290,26 @@
   "checks": {
    "subject_len": 35,
    "subject_placeholder": false,
-   "preheader": false,
+   "preheader": true,
    "cta_count": 0,
    "cta_targets": [],
    "cta_to_list_page": false,
-   "small_font_hits": 7,
+   "small_font_hits": 9,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": true,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1094,
    "shot_h_390": 1160,
-   "text_len": 648
+   "text_len": 724
   },
   "flags": [
-   "no preheader",
-   "7 text runs < 12px"
+   "9 text runs < 12px"
   ]
  },
  {
@@ -1338,28 +1326,27 @@
   "checks": {
    "subject_len": 63,
    "subject_placeholder": false,
-   "preheader": false,
+   "preheader": true,
    "cta_count": 0,
    "cta_targets": [],
    "cta_to_list_page": false,
-   "small_font_hits": 7,
+   "small_font_hits": 9,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": true,
    "mentions_hash_or_tx": true,
-   "footer_settings_link": false,
+   "footer_settings_link": true,
    "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1273,
    "shot_h_390": 1468,
-   "text_len": 913
+   "text_len": 1001
   },
   "flags": [
    "subject > 60 chars",
-   "no preheader",
-   "7 text runs < 12px"
+   "9 text runs < 12px"
   ]
  },
  {
@@ -1379,27 +1366,27 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/invoices"
+    "https://dynopay.com/invoices",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": true,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": true,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": true,
-   "footer_settings_link": false,
+   "footer_settings_link": true,
    "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1041,
    "shot_h_390": 1091,
-   "text_len": 501
+   "text_len": 624
   },
   "flags": [
    "CTA opens a list page, not the object",
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -1419,26 +1406,26 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/developer-keys"
+    "https://dynopay.com/developer-keys",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1070,
    "shot_h_390": 1118,
-   "text_len": 569
+   "text_len": 692
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -1458,26 +1445,26 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/developer-keys"
+    "https://dynopay.com/developer-keys",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": true,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1188,
    "shot_h_390": 1351,
-   "text_len": 1053
+   "text_len": 1177
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -1497,26 +1484,26 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/developer-keys"
+    "https://dynopay.com/developer-keys",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1244,
    "shot_h_390": 1300,
-   "text_len": 745
+   "text_len": 868
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -1536,26 +1523,27 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/dashboard"
+    "https://dynopay.com/pay-links",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": true,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1001,
    "shot_h_390": 1001,
-   "text_len": 405
+   "text_len": 529
   },
   "flags": [
    "CTA opens a list page, not the object",
-   "8 text runs < 12px"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -1576,7 +1564,7 @@
    "cta_count": 0,
    "cta_targets": [],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 9,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
@@ -1588,10 +1576,10 @@
    "raw_i18n_key": false,
    "shot_h_600": 907,
    "shot_h_390": 957,
-   "text_len": 437
+   "text_len": 593
   },
   "flags": [
-   "8 text runs < 12px"
+   "9 text runs < 12px"
   ]
  },
  {
@@ -1612,7 +1600,7 @@
    "cta_count": 0,
    "cta_targets": [],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 9,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
@@ -1624,10 +1612,10 @@
    "raw_i18n_key": false,
    "shot_h_600": 1001,
    "shot_h_390": 1001,
-   "text_len": 522
+   "text_len": 678
   },
   "flags": [
-   "8 text runs < 12px"
+   "9 text runs < 12px"
   ]
  },
  {
@@ -1647,26 +1635,27 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/dashboard"
+    "https://dynopay.com/pay-links",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": true,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
+   "footer_settings_link": true,
    "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 971,
    "shot_h_390": 1045,
-   "text_len": 418
+   "text_len": 542
   },
   "flags": [
    "CTA opens a list page, not the object",
-   "8 text runs < 12px"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -1686,26 +1675,26 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/wallet"
+    "https://dynopay.com/wallet",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 971,
    "shot_h_390": 1037,
-   "text_len": 552
+   "text_len": 676
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -1725,10 +1714,11 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/dashboard"
+    "https://dynopay.com/dashboard",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": true,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
@@ -1736,15 +1726,15 @@
    "mentions_network": true,
    "mentions_hash_or_tx": false,
    "footer_settings_link": true,
-   "footer_legal_address": false,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1077,
    "shot_h_390": 1208,
-   "text_len": 746
+   "text_len": 869
   },
   "flags": [
    "CTA opens a list page, not the object",
-   "8 text runs < 12px"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -1764,26 +1754,26 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/company"
+    "https://dynopay.com/company",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 999,
    "shot_h_390": 1024,
-   "text_len": 446
+   "text_len": 570
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -1803,26 +1793,26 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/settings?section=team"
+    "https://dynopay.com/settings?section=team",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 990,
    "shot_h_390": 1040,
-   "text_len": 501
+   "text_len": 625
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -1841,25 +1831,26 @@
    "subject_placeholder": false,
    "preheader": true,
    "cta_count": 0,
-   "cta_targets": [],
+   "cta_targets": [
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
+   "footer_settings_link": true,
    "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1024,
    "shot_h_390": 1096,
-   "text_len": 579
+   "text_len": 703
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -1879,27 +1870,27 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/dashboard"
+    "https://dynopay.com/dashboard",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": true,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1126,
    "shot_h_390": 1167,
-   "text_len": 745
+   "text_len": 869
   },
   "flags": [
    "CTA opens a list page, not the object",
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -1918,26 +1909,27 @@
    "subject_placeholder": false,
    "preheader": true,
    "cta_count": 1,
-   "cta_targets": [],
+   "cta_targets": [
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": true,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
+   "footer_settings_link": true,
    "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1229,
    "shot_h_390": 1326,
-   "text_len": 952
+   "text_len": 1076
   },
   "flags": [
    "subject > 60 chars",
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -1957,27 +1949,27 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/dashboard"
+    "https://dynopay.com/dashboard",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": true,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1082,
    "shot_h_390": 1157,
-   "text_len": 671
+   "text_len": 795
   },
   "flags": [
    "CTA opens a list page, not the object",
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -1997,27 +1989,27 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/dashboard"
+    "https://dynopay.com/dashboard",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": true,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": true,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 994,
    "shot_h_390": 1068,
-   "text_len": 543
+   "text_len": 667
   },
   "flags": [
    "CTA opens a list page, not the object",
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -2036,25 +2028,26 @@
    "subject_placeholder": false,
    "preheader": true,
    "cta_count": 1,
-   "cta_targets": [],
+   "cta_targets": [
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": true,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
+   "footer_settings_link": true,
    "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1105,
    "shot_h_390": 1211,
-   "text_len": 763
+   "text_len": 887
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -2073,25 +2066,26 @@
    "subject_placeholder": false,
    "preheader": true,
    "cta_count": 1,
-   "cta_targets": [],
+   "cta_targets": [
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
+   "footer_settings_link": true,
    "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1155,
    "shot_h_390": 1260,
-   "text_len": 896
+   "text_len": 1029
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -2111,27 +2105,27 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/transactions"
+    "https://dynopay.com/payouts",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": true,
-   "small_font_hits": 10,
+   "small_font_hits": 12,
    "greeting_local_part": false,
-   "has_explorer_link": false,
+   "has_explorer_link": true,
    "mentions_fee": true,
    "mentions_net": true,
    "mentions_network": true,
    "mentions_hash_or_tx": true,
-   "footer_settings_link": false,
+   "footer_settings_link": true,
    "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1630,
    "shot_h_390": 1713,
-   "text_len": 982
+   "text_len": 1172
   },
   "flags": [
    "CTA opens a list page, not the object",
-   "10 text runs < 12px",
-   "footer: no notification-settings link"
+   "12 text runs < 12px"
   ]
  },
  {
@@ -2151,27 +2145,27 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/dashboard"
+    "https://dynopay.com/payouts",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": true,
-   "small_font_hits": 15,
+   "small_font_hits": 17,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": true,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
+   "footer_settings_link": true,
    "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1584,
    "shot_h_390": 1661,
-   "text_len": 962
+   "text_len": 1086
   },
   "flags": [
    "CTA opens a list page, not the object",
-   "15 text runs < 12px",
-   "footer: no notification-settings link"
+   "17 text runs < 12px"
   ]
  },
  {
@@ -2194,23 +2188,22 @@
     "https://dynopay.com/pay?d=rNtQRX"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 9,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
-   "mentions_network": false,
+   "mentions_network": true,
    "mentions_hash_or_tx": true,
    "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1422,
    "shot_h_390": 1503,
-   "text_len": 946
+   "text_len": 1111
   },
   "flags": [
-   "8 text runs < 12px",
-   "buyer: no network"
+   "9 text runs < 12px"
   ]
  },
  {
@@ -2231,23 +2224,22 @@
    "cta_count": 0,
    "cta_targets": [],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 9,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
-   "mentions_network": false,
+   "mentions_network": true,
    "mentions_hash_or_tx": false,
    "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1220,
    "shot_h_390": 1325,
-   "text_len": 825
+   "text_len": 1017
   },
   "flags": [
-   "8 text runs < 12px",
-   "buyer: no network"
+   "9 text runs < 12px"
   ]
  },
  {
@@ -2270,23 +2262,22 @@
     "https://dynopay.com/pay?d=rNtQRX"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 9,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
-   "mentions_network": false,
+   "mentions_network": true,
    "mentions_hash_or_tx": true,
    "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1449,
    "shot_h_390": 1588,
-   "text_len": 1055
+   "text_len": 1220
   },
   "flags": [
-   "8 text runs < 12px",
-   "buyer: no network"
+   "9 text runs < 12px"
   ]
  },
  {
@@ -2307,7 +2298,7 @@
    "cta_count": 0,
    "cta_targets": [],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 9,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
@@ -2315,14 +2306,14 @@
    "mentions_network": true,
    "mentions_hash_or_tx": false,
    "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1081,
    "shot_h_390": 1155,
-   "text_len": 717
+   "text_len": 873
   },
   "flags": [
-   "8 text runs < 12px"
+   "9 text runs < 12px"
   ]
  },
  {
@@ -2342,27 +2333,26 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/dashboard"
+    "https://dynopay.com/kyc",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
-   "cta_to_list_page": true,
-   "small_font_hits": 8,
+   "cta_to_list_page": false,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": true,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1077,
    "shot_h_390": 1151,
-   "text_len": 695
+   "text_len": 819
   },
   "flags": [
-   "CTA opens a list page, not the object",
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -2382,27 +2372,26 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/dashboard"
+    "https://dynopay.com/kyc",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
-   "cta_to_list_page": true,
-   "small_font_hits": 8,
+   "cta_to_list_page": false,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 932,
    "shot_h_390": 957,
-   "text_len": 427
+   "text_len": 551
   },
   "flags": [
-   "CTA opens a list page, not the object",
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -2422,27 +2411,26 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/dashboard"
+    "https://dynopay.com/kyc",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
-   "cta_to_list_page": true,
-   "small_font_hits": 8,
+   "cta_to_list_page": false,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": true,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1057,
    "shot_h_390": 1148,
-   "text_len": 649
+   "text_len": 773
   },
   "flags": [
-   "CTA opens a list page, not the object",
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -2462,26 +2450,26 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/kyc"
+    "https://dynopay.com/kyc",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1038,
    "shot_h_390": 1063,
-   "text_len": 624
+   "text_len": 748
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -2501,27 +2489,26 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/dashboard"
+    "https://dynopay.com/kyc",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
-   "cta_to_list_page": true,
-   "small_font_hits": 8,
+   "cta_to_list_page": false,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": true,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1019,
    "shot_h_390": 1093,
-   "text_len": 607
+   "text_len": 731
   },
   "flags": [
-   "CTA opens a list page, not the object",
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -2542,26 +2529,26 @@
    "cta_count": 1,
    "cta_targets": [
     "https://dynopay.com/pay?d=rNtQRX",
-    "https://dynopay.com/pay?d=rNtQRX"
+    "https://dynopay.com/pay?d=rNtQRX",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1076,
    "shot_h_390": 1142,
-   "text_len": 520
+   "text_len": 644
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -2582,26 +2569,26 @@
    "cta_count": 1,
    "cta_targets": [
     "https://dynopay.com/pay?d=rNtQRX",
-    "https://dynopay.com/pay?d=rNtQRX"
+    "https://dynopay.com/pay?d=rNtQRX",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1101,
    "shot_h_390": 1214,
-   "text_len": 642
+   "text_len": 766
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -2624,7 +2611,7 @@
     "https://dynopay.com/pay?d=rNtQRX"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 9,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
@@ -2632,14 +2619,14 @@
    "mentions_network": false,
    "mentions_hash_or_tx": false,
    "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1018,
    "shot_h_390": 1125,
-   "text_len": 554
+   "text_len": 710
   },
   "flags": [
-   "8 text runs < 12px"
+   "9 text runs < 12px"
   ]
  },
  {
@@ -2656,14 +2643,15 @@
   "checks": {
    "subject_len": 45,
    "subject_placeholder": false,
-   "preheader": false,
+   "preheader": true,
    "cta_count": 1,
    "cta_targets": [
     "https://dynopay.com/signup?ref=REF-4B9444E9",
-    "https://dynopay.com/unsubscribe?token=unsub"
+    "https://dynopay.com/unsubscribe?token=unsub",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 7,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
@@ -2671,15 +2659,14 @@
    "mentions_network": true,
    "mentions_hash_or_tx": false,
    "footer_settings_link": true,
-   "footer_legal_address": false,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1173,
    "shot_h_390": 1325,
-   "text_len": 720
+   "text_len": 875
   },
   "flags": [
-   "no preheader",
-   "7 text runs < 12px"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -2696,14 +2683,15 @@
   "checks": {
    "subject_len": 31,
    "subject_placeholder": false,
-   "preheader": false,
+   "preheader": true,
    "cta_count": 1,
    "cta_targets": [
     "https://dynopay.com/signup?ref=REF-4B9444E9",
-    "https://dynopay.com/unsubscribe?token=unsub"
+    "https://dynopay.com/unsubscribe?token=unsub",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 7,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
@@ -2711,15 +2699,14 @@
    "mentions_network": true,
    "mentions_hash_or_tx": false,
    "footer_settings_link": true,
-   "footer_legal_address": false,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1193,
    "shot_h_390": 1338,
-   "text_len": 752
+   "text_len": 901
   },
   "flags": [
-   "no preheader",
-   "7 text runs < 12px"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -2743,7 +2730,7 @@
     "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/api/user/unsubscribe-payment-reminders?token=tok"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 9,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
@@ -2751,14 +2738,14 @@
    "mentions_network": false,
    "mentions_hash_or_tx": false,
    "footer_settings_link": true,
-   "footer_legal_address": false,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1081,
    "shot_h_390": 1176,
-   "text_len": 652
+   "text_len": 808
   },
   "flags": [
-   "8 text runs < 12px"
+   "9 text runs < 12px"
   ]
  },
  {
@@ -2782,7 +2769,7 @@
     "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/api/user/unsubscribe-payment-reminders?token=tok"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 9,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
@@ -2790,14 +2777,14 @@
    "mentions_network": false,
    "mentions_hash_or_tx": false,
    "footer_settings_link": true,
-   "footer_legal_address": false,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1105,
    "shot_h_390": 1226,
-   "text_len": 762
+   "text_len": 945
   },
   "flags": [
-   "8 text runs < 12px"
+   "9 text runs < 12px"
   ]
  },
  {
@@ -2822,7 +2809,7 @@
     "https://dynopay.com/order/K7M2QX"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 9,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
@@ -2834,10 +2821,10 @@
    "raw_i18n_key": false,
    "shot_h_600": 1349,
    "shot_h_390": 1448,
-   "text_len": 781
+   "text_len": 937
   },
   "flags": [
-   "9 text runs < 12px",
+   "10 text runs < 12px",
    "buyer: no network"
   ]
  },
@@ -2863,7 +2850,7 @@
     "https://dynopay.com/order/K7M2QX"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 9,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
@@ -2875,10 +2862,10 @@
    "raw_i18n_key": false,
    "shot_h_600": 1374,
    "shot_h_390": 1498,
-   "text_len": 870
+   "text_len": 1053
   },
   "flags": [
-   "9 text runs < 12px",
+   "10 text runs < 12px",
    "buyer: no network"
   ]
  },
@@ -2897,32 +2884,32 @@
    "subject_len": 34,
    "subject_placeholder": false,
    "preheader": true,
-   "cta_count": 0,
+   "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/order/K7M2QX"
+    "https://dynopay.com/order/K7M2QX",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 9,
+   "small_font_hits": 11,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
+   "footer_settings_link": true,
    "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1419,
    "shot_h_390": 1493,
-   "text_len": 705
+   "text_len": 804
   },
   "flags": [
-   "9 text runs < 12px",
+   "11 text runs < 12px",
    "money: no fee",
    "money: no net",
    "money: no network",
-   "money: no tx hash",
-   "footer: no notification-settings link"
+   "money: no tx hash"
   ]
  },
  {
@@ -2945,7 +2932,7 @@
     "https://dynopay.com/devhub/shop"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 9,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
@@ -2953,14 +2940,14 @@
    "mentions_network": false,
    "mentions_hash_or_tx": false,
    "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1245,
    "shot_h_390": 1344,
-   "text_len": 747
+   "text_len": 903
   },
   "flags": [
-   "8 text runs < 12px"
+   "9 text runs < 12px"
   ]
  },
  {
@@ -2983,7 +2970,7 @@
     "https://dynopay.com/order/K7M2QX"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 9,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
@@ -2991,14 +2978,14 @@
    "mentions_network": true,
    "mentions_hash_or_tx": false,
    "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1260,
    "shot_h_390": 1359,
-   "text_len": 667
+   "text_len": 823
   },
   "flags": [
-   "8 text runs < 12px"
+   "9 text runs < 12px"
   ]
  },
  {
@@ -3021,7 +3008,7 @@
     "https://dynopay.com/order/K7M2QX"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 9,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
@@ -3033,10 +3020,10 @@
    "raw_i18n_key": false,
    "shot_h_600": 975,
    "shot_h_390": 975,
-   "text_len": 417
+   "text_len": 573
   },
   "flags": [
-   "8 text runs < 12px"
+   "9 text runs < 12px"
   ]
  },
  {
@@ -3059,7 +3046,7 @@
     "https://dynopay.com/order/K7M2QX"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 9,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
@@ -3067,14 +3054,14 @@
    "mentions_network": false,
    "mentions_hash_or_tx": false,
    "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1162,
    "shot_h_390": 1292,
-   "text_len": 713
+   "text_len": 869
   },
   "flags": [
-   "8 text runs < 12px"
+   "9 text runs < 12px"
   ]
  },
  {
@@ -3093,25 +3080,26 @@
    "subject_placeholder": false,
    "preheader": true,
    "cta_count": 0,
-   "cta_targets": [],
+   "cta_targets": [
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
+   "footer_settings_link": true,
    "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 900,
    "shot_h_390": 900,
-   "text_len": 342
+   "text_len": 466
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -3130,25 +3118,26 @@
    "subject_placeholder": false,
    "preheader": true,
    "cta_count": 0,
-   "cta_targets": [],
+   "cta_targets": [
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
+   "footer_settings_link": true,
    "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 900,
    "shot_h_390": 900,
-   "text_len": 371
+   "text_len": 495
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -3167,25 +3156,26 @@
    "subject_placeholder": false,
    "preheader": true,
    "cta_count": 0,
-   "cta_targets": [],
+   "cta_targets": [
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
+   "footer_settings_link": true,
    "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 900,
    "shot_h_390": 900,
-   "text_len": 362
+   "text_len": 486
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -3204,25 +3194,26 @@
    "subject_placeholder": false,
    "preheader": true,
    "cta_count": 0,
-   "cta_targets": [],
+   "cta_targets": [
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
+   "footer_settings_link": true,
    "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 900,
    "shot_h_390": 900,
-   "text_len": 380
+   "text_len": 504
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -3241,25 +3232,26 @@
    "subject_placeholder": false,
    "preheader": true,
    "cta_count": 0,
-   "cta_targets": [],
+   "cta_targets": [
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
+   "footer_settings_link": true,
    "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 900,
    "shot_h_390": 900,
-   "text_len": 372
+   "text_len": 496
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -3278,25 +3270,26 @@
    "subject_placeholder": false,
    "preheader": true,
    "cta_count": 0,
-   "cta_targets": [],
+   "cta_targets": [
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
+   "footer_settings_link": true,
    "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 900,
    "shot_h_390": 900,
-   "text_len": 361
+   "text_len": 485
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -3315,25 +3308,26 @@
    "subject_placeholder": false,
    "preheader": true,
    "cta_count": 0,
-   "cta_targets": [],
+   "cta_targets": [
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 900,
    "shot_h_390": 900,
-   "text_len": 373
+   "text_len": 506
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
@@ -3353,27 +3347,27 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/transactions?tx=944"
+    "https://dynopay.com/transactions?tx=944",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": true,
    "mentions_fee": true,
    "mentions_net": true,
    "mentions_network": true,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1427,
    "shot_h_390": 1474,
-   "text_len": 905
+   "text_len": 1029
   },
   "flags": [
-   "8 text runs < 12px",
-   "money: no tx hash",
-   "footer: no notification-settings link"
+   "10 text runs < 12px",
+   "money: no tx hash"
   ]
  },
  {
@@ -3393,27 +3387,27 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/transactions?tx=944"
+    "https://dynopay.com/transactions?tx=944",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": true,
    "mentions_net": true,
    "mentions_network": true,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1425,
    "shot_h_390": 1527,
-   "text_len": 991
+   "text_len": 1115
   },
   "flags": [
-   "8 text runs < 12px",
-   "money: no tx hash",
-   "footer: no notification-settings link"
+   "10 text runs < 12px",
+   "money: no tx hash"
   ]
  },
  {
@@ -3433,27 +3427,27 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/transactions?tx=944"
+    "https://dynopay.com/transactions?tx=944",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": true,
    "mentions_net": true,
    "mentions_network": true,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1459,
    "shot_h_390": 1649,
-   "text_len": 1115
+   "text_len": 1248
   },
   "flags": [
-   "8 text runs < 12px",
-   "money: no tx hash",
-   "footer: no notification-settings link"
+   "10 text runs < 12px",
+   "money: no tx hash"
   ]
  },
  {
@@ -3473,27 +3467,27 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/transactions?tx=944"
+    "https://dynopay.com/transactions?tx=944",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": true,
    "mentions_net": true,
    "mentions_network": true,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1464,
    "shot_h_390": 1615,
-   "text_len": 1075
+   "text_len": 1199
   },
   "flags": [
-   "8 text runs < 12px",
-   "money: no tx hash",
-   "footer: no notification-settings link"
+   "10 text runs < 12px",
+   "money: no tx hash"
   ]
  },
  {
@@ -3513,30 +3507,30 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/transactions"
+    "https://dynopay.com/transactions",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": true,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": true,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1118,
    "shot_h_390": 1201,
-   "text_len": 561
+   "text_len": 684
   },
   "flags": [
    "CTA opens a list page, not the object",
-   "8 text runs < 12px",
+   "10 text runs < 12px",
    "money: no fee",
    "money: no net",
-   "money: no network",
-   "footer: no notification-settings link"
+   "money: no network"
   ]
  },
  {
@@ -3556,28 +3550,28 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/transactions"
+    "https://dynopay.com/transactions",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": true,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": true,
    "mentions_net": false,
    "mentions_network": true,
    "mentions_hash_or_tx": true,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1182,
    "shot_h_390": 1289,
-   "text_len": 695
+   "text_len": 818
   },
   "flags": [
    "CTA opens a list page, not the object",
-   "8 text runs < 12px",
-   "money: no net",
-   "footer: no notification-settings link"
+   "10 text runs < 12px",
+   "money: no net"
   ]
  },
  {
@@ -3597,31 +3591,31 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/transactions"
+    "https://dynopay.com/transactions",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": true,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1081,
    "shot_h_390": 1148,
-   "text_len": 577
+   "text_len": 709
   },
   "flags": [
    "CTA opens a list page, not the object",
-   "8 text runs < 12px",
+   "10 text runs < 12px",
    "money: no fee",
    "money: no net",
    "money: no network",
-   "money: no tx hash",
-   "footer: no notification-settings link"
+   "money: no tx hash"
   ]
  },
  {
@@ -3641,42 +3635,82 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/transactions"
+    "https://dynopay.com/transactions?search=9f2c1e7a-55d1-4b2e-8c3a-7d1f0b2e9a44",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
-   "cta_to_list_page": true,
-   "small_font_hits": 8,
+   "cta_to_list_page": false,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
-   "mentions_network": false,
+   "mentions_network": true,
    "mentions_hash_or_tx": true,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
    "shot_h_600": 1045,
    "shot_h_390": 1129,
-   "text_len": 531
+   "text_len": 720
   },
   "flags": [
-   "CTA opens a list page, not the object",
-   "8 text runs < 12px",
+   "10 text runs < 12px",
    "money: no fee",
-   "money: no net",
-   "money: no network",
-   "footer: no notification-settings link"
+   "money: no net"
   ]
  },
  {
   "n": 95,
-  "slug": "095_payments_paymentConfirming_1of3",
+  "slug": "095_payments_paymentPending_usdt_trc20_de",
+  "family": "payments",
+  "sender": "paymentPending",
+  "variant": "usdt_trc20_de",
+  "audience": "M",
+  "to": "onarrival21@example.com",
+  "subject": "49.00 EUR für Acme Store — wird bestätigt",
+  "file": "095_payments_paymentPending_usdt_trc20_de.html",
+  "status": "ok",
+  "checks": {
+   "subject_len": 41,
+   "subject_placeholder": false,
+   "preheader": true,
+   "cta_count": 1,
+   "cta_targets": [
+    "https://dynopay.com/transactions?search=9f2c1e7a-55d1-4b2e-8c3a-7d1f0b2e9a44",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
+   "cta_to_list_page": false,
+   "small_font_hits": 10,
+   "greeting_local_part": false,
+   "has_explorer_link": false,
+   "mentions_fee": false,
+   "mentions_net": false,
+   "mentions_network": true,
+   "mentions_hash_or_tx": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
+   "raw_i18n_key": false,
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 797
+  },
+  "flags": [
+   "10 text runs < 12px",
+   "money: no fee",
+   "money: no net",
+   "money: no tx hash"
+  ]
+ },
+ {
+  "n": 96,
+  "slug": "096_payments_paymentConfirming_1of3",
   "family": "payments",
   "sender": "paymentConfirming",
   "variant": "1of3",
   "audience": "M",
   "to": "onarrival21@example.com",
   "subject": "1/3 confirmations",
-  "file": "095_payments_paymentConfirming_1of3.html",
+  "file": "096_payments_paymentConfirming_1of3.html",
   "status": "ok",
   "checks": {
    "subject_len": 17,
@@ -3684,41 +3718,40 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/transactions"
+    "https://dynopay.com/transactions?search=9f2c1e7a-55d1-4b2e-8c3a-7d1f0b2e9a44",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
-   "cta_to_list_page": true,
-   "small_font_hits": 8,
+   "cta_to_list_page": false,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": true,
    "mentions_hash_or_tx": true,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
-   "shot_h_600": 1100,
-   "shot_h_390": 1184,
-   "text_len": 592
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 716
   },
   "flags": [
-   "CTA opens a list page, not the object",
-   "8 text runs < 12px",
+   "10 text runs < 12px",
    "money: no fee",
-   "money: no net",
-   "footer: no notification-settings link"
+   "money: no net"
   ]
  },
  {
-  "n": 96,
-  "slug": "096_payments_paymentPartial",
+  "n": 97,
+  "slug": "097_payments_paymentPartial",
   "family": "payments",
   "sender": "paymentPartial",
   "variant": "",
   "audience": "M",
   "to": "onarrival21@example.com",
   "subject": "Short payment: 0.0030 of 0.0042 BTC",
-  "file": "096_payments_paymentPartial.html",
+  "file": "097_payments_paymentPartial.html",
   "status": "ok",
   "checks": {
    "subject_len": 35,
@@ -3726,41 +3759,39 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/transactions"
+    "https://dynopay.com/transactions?search=9f2c1e7a-55d1-4b2e-8c3a-7d1f0b2e9a44",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
-   "cta_to_list_page": true,
-   "small_font_hits": 8,
+   "cta_to_list_page": false,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": true,
    "mentions_net": false,
-   "mentions_network": false,
+   "mentions_network": true,
    "mentions_hash_or_tx": true,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
-   "shot_h_600": 1066,
-   "shot_h_390": 1150,
-   "text_len": 600
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 759
   },
   "flags": [
-   "CTA opens a list page, not the object",
-   "8 text runs < 12px",
-   "money: no net",
-   "money: no network",
-   "footer: no notification-settings link"
+   "10 text runs < 12px",
+   "money: no net"
   ]
  },
  {
-  "n": 97,
-  "slug": "097_payments_buyerUnderpaidNudge",
+  "n": 98,
+  "slug": "098_payments_buyerUnderpaidNudge",
   "family": "payments",
   "sender": "buyerUnderpaidNudge",
   "variant": "",
   "audience": "B",
   "to": "jamie.chen@example.com",
   "subject": "You're almost there — send 0.0012 BTC to finish",
-  "file": "097_payments_buyerUnderpaidNudge.html",
+  "file": "098_payments_buyerUnderpaidNudge.html",
   "status": "ok",
   "checks": {
    "subject_len": 47,
@@ -3771,410 +3802,7 @@
     "https://dynopay.com/pay?d=rNtQRX"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
-   "greeting_local_part": false,
-   "has_explorer_link": false,
-   "mentions_fee": false,
-   "mentions_net": false,
-   "mentions_network": false,
-   "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
-   "raw_i18n_key": false,
-   "shot_h_600": 1077,
-   "shot_h_390": 1182,
-   "text_len": 655
-  },
-  "flags": [
-   "8 text runs < 12px",
-   "buyer: no network"
-  ]
- },
- {
-  "n": 98,
-  "slug": "098_payments_paymentPartialExpired_completed_partial",
-  "family": "payments",
-  "sender": "paymentPartialExpired",
-  "variant": "completed_partial",
-  "audience": "M",
-  "to": "onarrival21@example.com",
-  "subject": "Partial payment processed",
-  "file": "098_payments_paymentPartialExpired_completed_partial.html",
-  "status": "ok",
-  "checks": {
-   "subject_len": 25,
-   "subject_placeholder": false,
-   "preheader": true,
-   "cta_count": 1,
-   "cta_targets": [
-    "https://dynopay.com/transactions"
-   ],
-   "cta_to_list_page": true,
-   "small_font_hits": 8,
-   "greeting_local_part": false,
-   "has_explorer_link": false,
-   "mentions_fee": false,
-   "mentions_net": false,
-   "mentions_network": false,
-   "mentions_hash_or_tx": true,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
-   "raw_i18n_key": false,
-   "shot_h_600": 1109,
-   "shot_h_390": 1208,
-   "text_len": 632
-  },
-  "flags": [
-   "CTA opens a list page, not the object",
-   "8 text runs < 12px",
-   "money: no fee",
-   "money: no net",
-   "money: no network",
-   "footer: no notification-settings link"
-  ]
- },
- {
-  "n": 99,
-  "slug": "099_payments_paymentPartialExpired_incomplete_expired",
-  "family": "payments",
-  "sender": "paymentPartialExpired",
-  "variant": "incomplete_expired",
-  "audience": "M",
-  "to": "onarrival21@example.com",
-  "subject": "Partial payment expired",
-  "file": "099_payments_paymentPartialExpired_incomplete_expired.html",
-  "status": "ok",
-  "checks": {
-   "subject_len": 23,
-   "subject_placeholder": false,
-   "preheader": true,
-   "cta_count": 1,
-   "cta_targets": [
-    "https://dynopay.com/transactions"
-   ],
-   "cta_to_list_page": true,
-   "small_font_hits": 8,
-   "greeting_local_part": false,
-   "has_explorer_link": false,
-   "mentions_fee": false,
-   "mentions_net": false,
-   "mentions_network": true,
-   "mentions_hash_or_tx": true,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
-   "raw_i18n_key": false,
-   "shot_h_600": 1158,
-   "shot_h_390": 1289,
-   "text_len": 725
-  },
-  "flags": [
-   "CTA opens a list page, not the object",
-   "8 text runs < 12px",
-   "money: no fee",
-   "money: no net",
-   "footer: no notification-settings link"
-  ]
- },
- {
-  "n": 100,
-  "slug": "100_payments_merchantUnderpaidDigest",
-  "family": "payments",
-  "sender": "merchantUnderpaidDigest",
-  "variant": "",
-  "audience": "M",
-  "to": "onarrival21@example.com",
-  "subject": "2 underpaid payment(s) need attention",
-  "file": "100_payments_merchantUnderpaidDigest.html",
-  "status": "ok",
-  "checks": {
-   "subject_len": 37,
-   "subject_placeholder": false,
-   "preheader": true,
-   "cta_count": 1,
-   "cta_targets": [
-    "https://dynopay.com/transactions?status=underpaid"
-   ],
-   "cta_to_list_page": true,
-   "small_font_hits": 10,
-   "greeting_local_part": false,
-   "has_explorer_link": false,
-   "mentions_fee": false,
-   "mentions_net": false,
-   "mentions_network": false,
-   "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
-   "raw_i18n_key": false,
-   "shot_h_600": 1040,
-   "shot_h_390": 1133,
-   "text_len": 594
-  },
-  "flags": [
-   "CTA opens a list page, not the object",
-   "10 text runs < 12px",
-   "money: no fee",
-   "money: no net",
-   "money: no network",
-   "money: no tx hash",
-   "footer: no notification-settings link"
-  ]
- },
- {
-  "n": 101,
-  "slug": "101_referral_payoutReady",
-  "family": "referral",
-  "sender": "payoutReady",
-  "variant": "",
-  "audience": "M",
-  "to": "onarrival21@example.com",
-  "subject": "$125.50 in referral rewards ready to cash out",
-  "file": "101_referral_payoutReady.html",
-  "status": "ok",
-  "checks": {
-   "subject_len": 45,
-   "subject_placeholder": false,
-   "preheader": true,
-   "cta_count": 1,
-   "cta_targets": [
-    "https://dynopay.com/referrals"
-   ],
-   "cta_to_list_page": false,
-   "small_font_hits": 8,
-   "greeting_local_part": false,
-   "has_explorer_link": false,
-   "mentions_fee": false,
-   "mentions_net": false,
-   "mentions_network": true,
-   "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
-   "raw_i18n_key": false,
-   "shot_h_600": 1003,
-   "shot_h_390": 1052,
-   "text_len": 584
-  },
-  "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
-  ]
- },
- {
-  "n": 102,
-  "slug": "102_referral_autoPayEnabled",
-  "family": "referral",
-  "sender": "autoPayEnabled",
-  "variant": "",
-  "audience": "M",
-  "to": "onarrival21@example.com",
-  "subject": "Auto cash-out is on for your referral rewards",
-  "file": "102_referral_autoPayEnabled.html",
-  "status": "ok",
-  "checks": {
-   "subject_len": 45,
-   "subject_placeholder": false,
-   "preheader": true,
-   "cta_count": 1,
-   "cta_targets": [
-    "https://dynopay.com/referrals"
-   ],
-   "cta_to_list_page": false,
-   "small_font_hits": 8,
-   "greeting_local_part": false,
-   "has_explorer_link": false,
-   "mentions_fee": false,
-   "mentions_net": false,
-   "mentions_network": true,
-   "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
-   "raw_i18n_key": false,
-   "shot_h_600": 1017,
-   "shot_h_390": 1066,
-   "text_len": 575
-  },
-  "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
-  ]
- },
- {
-  "n": 103,
-  "slug": "103_referral_payoutRequested",
-  "family": "referral",
-  "sender": "payoutRequested",
-  "variant": "",
-  "audience": "M",
-  "to": "onarrival21@example.com",
-  "subject": "Your $125.50 referral cash-out is on the way",
-  "file": "103_referral_payoutRequested.html",
-  "status": "ok",
-  "checks": {
-   "subject_len": 44,
-   "subject_placeholder": false,
-   "preheader": true,
-   "cta_count": 1,
-   "cta_targets": [
-    "https://dynopay.com/referrals"
-   ],
-   "cta_to_list_page": false,
-   "small_font_hits": 8,
-   "greeting_local_part": false,
-   "has_explorer_link": false,
-   "mentions_fee": false,
-   "mentions_net": false,
-   "mentions_network": true,
-   "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
-   "raw_i18n_key": false,
-   "shot_h_600": 992,
-   "shot_h_390": 1042,
-   "text_len": 505
-  },
-  "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
-  ]
- },
- {
-  "n": 104,
-  "slug": "104_referral_payoutFailed",
-  "family": "referral",
-  "sender": "payoutFailed",
-  "variant": "",
-  "audience": "M",
-  "to": "onarrival21@example.com",
-  "subject": "Your $125.50 referral cash-out couldn't be sent",
-  "file": "104_referral_payoutFailed.html",
-  "status": "ok",
-  "checks": {
-   "subject_len": 47,
-   "subject_placeholder": false,
-   "preheader": true,
-   "cta_count": 1,
-   "cta_targets": [
-    "https://dynopay.com/referrals"
-   ],
-   "cta_to_list_page": false,
-   "small_font_hits": 8,
-   "greeting_local_part": false,
-   "has_explorer_link": false,
-   "mentions_fee": false,
-   "mentions_net": false,
-   "mentions_network": true,
-   "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
-   "raw_i18n_key": false,
-   "shot_h_600": 1080,
-   "shot_h_390": 1146,
-   "text_len": 676
-  },
-  "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
-  ]
- },
- {
-  "n": 105,
-  "slug": "105_referral_accrual",
-  "family": "referral",
-  "sender": "accrual",
-  "variant": "",
-  "audience": "M",
-  "to": "onarrival21@example.com",
-  "subject": "+$3.92 from Nameword — referral rewards",
-  "file": "105_referral_accrual.html",
-  "status": "ok",
-  "checks": {
-   "subject_len": 39,
-   "subject_placeholder": false,
-   "preheader": true,
-   "cta_count": 1,
-   "cta_targets": [
-    "https://dynopay.com/referrals"
-   ],
-   "cta_to_list_page": false,
-   "small_font_hits": 8,
-   "greeting_local_part": false,
-   "has_explorer_link": false,
-   "mentions_fee": true,
-   "mentions_net": false,
-   "mentions_network": true,
-   "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
-   "raw_i18n_key": false,
-   "shot_h_600": 1077,
-   "shot_h_390": 1126,
-   "text_len": 625
-  },
-  "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
-  ]
- },
- {
-  "n": 106,
-  "slug": "106_referral_activated",
-  "family": "referral",
-  "sender": "activated",
-  "variant": "",
-  "audience": "M",
-  "to": "onarrival21@example.com",
-  "subject": "Nameword took their first payment — you earn 25% of their fees",
-  "file": "106_referral_activated.html",
-  "status": "ok",
-  "checks": {
-   "subject_len": 62,
-   "subject_placeholder": false,
-   "preheader": true,
-   "cta_count": 1,
-   "cta_targets": [
-    "https://dynopay.com/referrals"
-   ],
-   "cta_to_list_page": false,
-   "small_font_hits": 8,
-   "greeting_local_part": false,
-   "has_explorer_link": false,
-   "mentions_fee": false,
-   "mentions_net": false,
-   "mentions_network": true,
-   "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
-   "raw_i18n_key": false,
-   "shot_h_600": 1015,
-   "shot_h_390": 1096,
-   "text_len": 629
-  },
-  "flags": [
-   "subject > 60 chars",
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
-  ]
- },
- {
-  "n": 107,
-  "slug": "107_referral_monthlyDigest",
-  "family": "referral",
-  "sender": "monthlyDigest",
-  "variant": "",
-  "audience": "M",
-  "to": "onarrival21@example.com",
-  "subject": "May 2026 referrals: $48.20 earned",
-  "file": "107_referral_monthlyDigest.html",
-  "status": "ok",
-  "checks": {
-   "subject_len": 33,
-   "subject_placeholder": false,
-   "preheader": true,
-   "cta_count": 1,
-   "cta_targets": [
-    "https://dynopay.com/referrals"
-   ],
-   "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 9,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
@@ -4184,25 +3812,421 @@
    "footer_settings_link": false,
    "footer_legal_address": true,
    "raw_i18n_key": false,
-   "shot_h_600": 1188,
-   "shot_h_390": 1294,
-   "text_len": 675
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 833
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "9 text runs < 12px"
+  ]
+ },
+ {
+  "n": 99,
+  "slug": "099_payments_paymentPartialExpired_completed_partial",
+  "family": "payments",
+  "sender": "paymentPartialExpired",
+  "variant": "completed_partial",
+  "audience": "M",
+  "to": "onarrival21@example.com",
+  "subject": "Partial payment processed",
+  "file": "099_payments_paymentPartialExpired_completed_partial.html",
+  "status": "ok",
+  "checks": {
+   "subject_len": 25,
+   "subject_placeholder": false,
+   "preheader": true,
+   "cta_count": 1,
+   "cta_targets": [
+    "https://dynopay.com/transactions?search=9f2c1e7a-55d1-4b2e-8c3a-7d1f0b2e9a44",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
+   "cta_to_list_page": false,
+   "small_font_hits": 10,
+   "greeting_local_part": false,
+   "has_explorer_link": true,
+   "mentions_fee": true,
+   "mentions_net": true,
+   "mentions_network": true,
+   "mentions_hash_or_tx": true,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
+   "raw_i18n_key": false,
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 1104
+  },
+  "flags": [
+   "10 text runs < 12px"
+  ]
+ },
+ {
+  "n": 100,
+  "slug": "100_payments_paymentPartialExpired_incomplete_expired",
+  "family": "payments",
+  "sender": "paymentPartialExpired",
+  "variant": "incomplete_expired",
+  "audience": "M",
+  "to": "onarrival21@example.com",
+  "subject": "Partial payment expired",
+  "file": "100_payments_paymentPartialExpired_incomplete_expired.html",
+  "status": "ok",
+  "checks": {
+   "subject_len": 23,
+   "subject_placeholder": false,
+   "preheader": true,
+   "cta_count": 1,
+   "cta_targets": [
+    "https://dynopay.com/transactions?search=9f2c1e7a-55d1-4b2e-8c3a-7d1f0b2e9a44",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
+   "cta_to_list_page": false,
+   "small_font_hits": 10,
+   "greeting_local_part": false,
+   "has_explorer_link": false,
+   "mentions_fee": false,
+   "mentions_net": false,
+   "mentions_network": true,
+   "mentions_hash_or_tx": true,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
+   "raw_i18n_key": false,
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 871
+  },
+  "flags": [
+   "10 text runs < 12px",
+   "money: no fee",
+   "money: no net"
+  ]
+ },
+ {
+  "n": 101,
+  "slug": "101_payments_merchantUnderpaidDigest",
+  "family": "payments",
+  "sender": "merchantUnderpaidDigest",
+  "variant": "",
+  "audience": "M",
+  "to": "onarrival21@example.com",
+  "subject": "2 underpaid payment(s) need attention",
+  "file": "101_payments_merchantUnderpaidDigest.html",
+  "status": "ok",
+  "checks": {
+   "subject_len": 37,
+   "subject_placeholder": false,
+   "preheader": true,
+   "cta_count": 1,
+   "cta_targets": [
+    "https://dynopay.com/transactions?status=underpaid",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
+   "cta_to_list_page": false,
+   "small_font_hits": 12,
+   "greeting_local_part": false,
+   "has_explorer_link": false,
+   "mentions_fee": false,
+   "mentions_net": false,
+   "mentions_network": false,
+   "mentions_hash_or_tx": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
+   "raw_i18n_key": false,
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 718
+  },
+  "flags": [
+   "12 text runs < 12px",
+   "money: no fee",
+   "money: no net",
+   "money: no network",
+   "money: no tx hash"
+  ]
+ },
+ {
+  "n": 102,
+  "slug": "102_referral_payoutReady",
+  "family": "referral",
+  "sender": "payoutReady",
+  "variant": "",
+  "audience": "M",
+  "to": "onarrival21@example.com",
+  "subject": "$125.50 in referral rewards ready to cash out",
+  "file": "102_referral_payoutReady.html",
+  "status": "ok",
+  "checks": {
+   "subject_len": 45,
+   "subject_placeholder": false,
+   "preheader": true,
+   "cta_count": 1,
+   "cta_targets": [
+    "https://dynopay.com/referrals",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
+   "cta_to_list_page": false,
+   "small_font_hits": 10,
+   "greeting_local_part": false,
+   "has_explorer_link": false,
+   "mentions_fee": false,
+   "mentions_net": false,
+   "mentions_network": true,
+   "mentions_hash_or_tx": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
+   "raw_i18n_key": false,
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 708
+  },
+  "flags": [
+   "10 text runs < 12px"
+  ]
+ },
+ {
+  "n": 103,
+  "slug": "103_referral_autoPayEnabled",
+  "family": "referral",
+  "sender": "autoPayEnabled",
+  "variant": "",
+  "audience": "M",
+  "to": "onarrival21@example.com",
+  "subject": "Auto cash-out is on for your referral rewards",
+  "file": "103_referral_autoPayEnabled.html",
+  "status": "ok",
+  "checks": {
+   "subject_len": 45,
+   "subject_placeholder": false,
+   "preheader": true,
+   "cta_count": 1,
+   "cta_targets": [
+    "https://dynopay.com/referrals",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
+   "cta_to_list_page": false,
+   "small_font_hits": 10,
+   "greeting_local_part": false,
+   "has_explorer_link": false,
+   "mentions_fee": false,
+   "mentions_net": false,
+   "mentions_network": true,
+   "mentions_hash_or_tx": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
+   "raw_i18n_key": false,
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 699
+  },
+  "flags": [
+   "10 text runs < 12px"
+  ]
+ },
+ {
+  "n": 104,
+  "slug": "104_referral_payoutRequested",
+  "family": "referral",
+  "sender": "payoutRequested",
+  "variant": "",
+  "audience": "M",
+  "to": "onarrival21@example.com",
+  "subject": "Your $125.50 referral cash-out is on the way",
+  "file": "104_referral_payoutRequested.html",
+  "status": "ok",
+  "checks": {
+   "subject_len": 44,
+   "subject_placeholder": false,
+   "preheader": true,
+   "cta_count": 1,
+   "cta_targets": [
+    "https://dynopay.com/referrals",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
+   "cta_to_list_page": false,
+   "small_font_hits": 10,
+   "greeting_local_part": false,
+   "has_explorer_link": false,
+   "mentions_fee": false,
+   "mentions_net": false,
+   "mentions_network": true,
+   "mentions_hash_or_tx": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
+   "raw_i18n_key": false,
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 629
+  },
+  "flags": [
+   "10 text runs < 12px"
+  ]
+ },
+ {
+  "n": 105,
+  "slug": "105_referral_payoutFailed",
+  "family": "referral",
+  "sender": "payoutFailed",
+  "variant": "",
+  "audience": "M",
+  "to": "onarrival21@example.com",
+  "subject": "Your $125.50 referral cash-out couldn't be sent",
+  "file": "105_referral_payoutFailed.html",
+  "status": "ok",
+  "checks": {
+   "subject_len": 47,
+   "subject_placeholder": false,
+   "preheader": true,
+   "cta_count": 1,
+   "cta_targets": [
+    "https://dynopay.com/referrals",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
+   "cta_to_list_page": false,
+   "small_font_hits": 10,
+   "greeting_local_part": false,
+   "has_explorer_link": false,
+   "mentions_fee": false,
+   "mentions_net": false,
+   "mentions_network": true,
+   "mentions_hash_or_tx": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
+   "raw_i18n_key": false,
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 800
+  },
+  "flags": [
+   "10 text runs < 12px"
+  ]
+ },
+ {
+  "n": 106,
+  "slug": "106_referral_accrual",
+  "family": "referral",
+  "sender": "accrual",
+  "variant": "",
+  "audience": "M",
+  "to": "onarrival21@example.com",
+  "subject": "+$3.92 from Nameword — referral rewards",
+  "file": "106_referral_accrual.html",
+  "status": "ok",
+  "checks": {
+   "subject_len": 39,
+   "subject_placeholder": false,
+   "preheader": true,
+   "cta_count": 1,
+   "cta_targets": [
+    "https://dynopay.com/referrals",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
+   "cta_to_list_page": false,
+   "small_font_hits": 10,
+   "greeting_local_part": false,
+   "has_explorer_link": false,
+   "mentions_fee": true,
+   "mentions_net": false,
+   "mentions_network": true,
+   "mentions_hash_or_tx": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
+   "raw_i18n_key": false,
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 749
+  },
+  "flags": [
+   "10 text runs < 12px"
+  ]
+ },
+ {
+  "n": 107,
+  "slug": "107_referral_activated",
+  "family": "referral",
+  "sender": "activated",
+  "variant": "",
+  "audience": "M",
+  "to": "onarrival21@example.com",
+  "subject": "Nameword took their first payment — you earn 25% of their fees",
+  "file": "107_referral_activated.html",
+  "status": "ok",
+  "checks": {
+   "subject_len": 62,
+   "subject_placeholder": false,
+   "preheader": true,
+   "cta_count": 1,
+   "cta_targets": [
+    "https://dynopay.com/referrals",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
+   "cta_to_list_page": false,
+   "small_font_hits": 10,
+   "greeting_local_part": false,
+   "has_explorer_link": false,
+   "mentions_fee": false,
+   "mentions_net": false,
+   "mentions_network": true,
+   "mentions_hash_or_tx": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
+   "raw_i18n_key": false,
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 753
+  },
+  "flags": [
+   "subject > 60 chars",
+   "10 text runs < 12px"
   ]
  },
  {
   "n": 108,
-  "slug": "108_referral_shareNudge",
+  "slug": "108_referral_monthlyDigest",
+  "family": "referral",
+  "sender": "monthlyDigest",
+  "variant": "",
+  "audience": "M",
+  "to": "onarrival21@example.com",
+  "subject": "May 2026 referrals: $48.20 earned",
+  "file": "108_referral_monthlyDigest.html",
+  "status": "ok",
+  "checks": {
+   "subject_len": 33,
+   "subject_placeholder": false,
+   "preheader": true,
+   "cta_count": 1,
+   "cta_targets": [
+    "https://dynopay.com/referrals",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
+   "cta_to_list_page": false,
+   "small_font_hits": 10,
+   "greeting_local_part": false,
+   "has_explorer_link": false,
+   "mentions_fee": false,
+   "mentions_net": false,
+   "mentions_network": true,
+   "mentions_hash_or_tx": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
+   "raw_i18n_key": false,
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 799
+  },
+  "flags": [
+   "10 text runs < 12px"
+  ]
+ },
+ {
+  "n": 109,
+  "slug": "109_referral_shareNudge",
   "family": "referral",
   "sender": "shareNudge",
   "variant": "",
   "audience": "M",
   "to": "onarrival21@example.com",
   "subject": "Earn 25% of every referred merchant's fees for 12 months",
-  "file": "108_referral_shareNudge.html",
+  "file": "109_referral_shareNudge.html",
   "status": "ok",
   "checks": {
    "subject_len": 56,
@@ -4211,38 +4235,38 @@
    "cta_count": 1,
    "cta_targets": [
     "https://dynopay.com/signup?ref=REF-4B9444E9",
-    "https://dynopay.com/referrals"
+    "https://dynopay.com/referrals",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": true,
    "mentions_net": false,
    "mentions_network": true,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
-   "shot_h_600": 1080,
-   "shot_h_390": 1209,
-   "text_len": 828
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 952
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
-  "n": 109,
-  "slug": "109_security_twoFaEnabled",
+  "n": 110,
+  "slug": "110_security_twoFaEnabled",
   "family": "security",
   "sender": "twoFaEnabled",
   "variant": "",
   "audience": "M",
   "to": "onarrival21@example.com",
   "subject": "2FA is on for your account",
-  "file": "109_security_twoFaEnabled.html",
+  "file": "110_security_twoFaEnabled.html",
   "status": "ok",
   "checks": {
    "subject_len": 26,
@@ -4250,38 +4274,38 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/settings?section=profile"
+    "https://dynopay.com/settings?section=profile",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
-   "shot_h_600": 1063,
-   "shot_h_390": 1184,
-   "text_len": 745
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 869
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
-  "n": 110,
-  "slug": "110_security_twoFaDisabled",
+  "n": 111,
+  "slug": "111_security_twoFaDisabled",
   "family": "security",
   "sender": "twoFaDisabled",
   "variant": "",
   "audience": "M",
   "to": "onarrival21@example.com",
   "subject": "2FA was turned off — was that you?",
-  "file": "110_security_twoFaDisabled.html",
+  "file": "111_security_twoFaDisabled.html",
   "status": "ok",
   "checks": {
    "subject_len": 34,
@@ -4289,38 +4313,38 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/settings?section=profile"
+    "https://dynopay.com/settings?section=profile",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
-   "shot_h_600": 1002,
-   "shot_h_390": 1094,
-   "text_len": 588
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 712
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
-  "n": 111,
-  "slug": "111_security_backupCodesRegenerated",
+  "n": 112,
+  "slug": "112_security_backupCodesRegenerated",
   "family": "security",
   "sender": "backupCodesRegenerated",
   "variant": "",
   "audience": "M",
   "to": "onarrival21@example.com",
   "subject": "Your 2FA backup codes were replaced",
-  "file": "111_security_backupCodesRegenerated.html",
+  "file": "112_security_backupCodesRegenerated.html",
   "status": "ok",
   "checks": {
    "subject_len": 35,
@@ -4328,38 +4352,38 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/settings?section=profile"
+    "https://dynopay.com/settings?section=profile",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
-   "shot_h_600": 1063,
-   "shot_h_390": 1110,
-   "text_len": 639
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 763
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
-  "n": 112,
-  "slug": "112_security_phoneChanged",
+  "n": 113,
+  "slug": "113_security_phoneChanged",
   "family": "security",
   "sender": "phoneChanged",
   "variant": "",
   "audience": "M",
   "to": "onarrival21@example.com",
   "subject": "Phone number updated on your account",
-  "file": "112_security_phoneChanged.html",
+  "file": "113_security_phoneChanged.html",
   "status": "ok",
   "checks": {
    "subject_len": 36,
@@ -4367,112 +4391,114 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/settings?section=profile"
+    "https://dynopay.com/settings?section=profile",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
+   "footer_settings_link": true,
    "footer_legal_address": true,
    "raw_i18n_key": false,
-   "shot_h_600": 1012,
-   "shot_h_390": 1091,
-   "text_len": 597
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 721
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
-  "n": 113,
-  "slug": "113_security_accountDeleted",
+  "n": 114,
+  "slug": "114_security_accountDeleted",
   "family": "security",
   "sender": "accountDeleted",
   "variant": "",
   "audience": "M",
   "to": "onarrival21@example.com",
   "subject": "Your Dynopay account has been deleted",
-  "file": "113_security_accountDeleted.html",
+  "file": "114_security_accountDeleted.html",
   "status": "ok",
   "checks": {
    "subject_len": 37,
    "subject_placeholder": false,
    "preheader": true,
    "cta_count": 1,
-   "cta_targets": [],
+   "cta_targets": [
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
-   "shot_h_600": 990,
-   "shot_h_390": 1088,
-   "text_len": 603
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 727
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
-  "n": 114,
-  "slug": "114_security_accountStatus_suspended",
+  "n": 115,
+  "slug": "115_security_accountStatus_suspended",
   "family": "security",
   "sender": "accountStatus",
   "variant": "suspended",
   "audience": "M",
   "to": "onarrival21@example.com",
   "subject": "Your Dynopay account has been suspended",
-  "file": "114_security_accountStatus_suspended.html",
+  "file": "115_security_accountStatus_suspended.html",
   "status": "ok",
   "checks": {
    "subject_len": 39,
    "subject_placeholder": false,
    "preheader": true,
    "cta_count": 1,
-   "cta_targets": [],
+   "cta_targets": [
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
-   "shot_h_600": 1015,
-   "shot_h_390": 1080,
-   "text_len": 614
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 738
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
-  "n": 115,
-  "slug": "115_security_paymentRequest",
+  "n": 116,
+  "slug": "116_security_paymentRequest",
   "family": "security",
   "sender": "paymentRequest",
   "variant": "",
   "audience": "B",
   "to": "jamie.chen@example.com",
   "subject": "Acme Store requests 49.00 USD",
-  "file": "115_security_paymentRequest.html",
+  "file": "116_security_paymentRequest.html",
   "status": "ok",
   "checks": {
    "subject_len": 29,
@@ -4483,7 +4509,7 @@
     "https://dynopay.com/pay?d=rNtQRX"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 9,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
@@ -4493,98 +4519,100 @@
    "footer_settings_link": false,
    "footer_legal_address": true,
    "raw_i18n_key": false,
-   "shot_h_600": 1027,
-   "shot_h_390": 1108,
-   "text_len": 545
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 700
   },
   "flags": [
-   "8 text runs < 12px"
+   "9 text runs < 12px"
   ]
  },
  {
-  "n": 116,
-  "slug": "116_security_accountDeleteOtp",
+  "n": 117,
+  "slug": "117_security_accountDeleteOtp",
   "family": "security",
   "sender": "accountDeleteOtp",
   "variant": "",
   "audience": "M",
   "to": "onarrival21@example.com",
   "subject": "Confirm account deletion – Dynopay",
-  "file": "116_security_accountDeleteOtp.html",
+  "file": "117_security_accountDeleteOtp.html",
   "status": "ok",
   "checks": {
    "subject_len": 34,
    "subject_placeholder": false,
    "preheader": true,
    "cta_count": 0,
-   "cta_targets": [],
+   "cta_targets": [
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
+   "footer_settings_link": true,
    "footer_legal_address": true,
    "raw_i18n_key": false,
-   "shot_h_600": 900,
-   "shot_h_390": 940,
-   "text_len": 466
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 590
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
-  "n": 117,
-  "slug": "117_security_accountSoftDeleted",
+  "n": 118,
+  "slug": "118_security_accountSoftDeleted",
   "family": "security",
   "sender": "accountSoftDeleted",
   "variant": "",
   "audience": "M",
   "to": "onarrival21@example.com",
   "subject": "Your Dynopay account is scheduled for deletion",
-  "file": "117_security_accountSoftDeleted.html",
+  "file": "118_security_accountSoftDeleted.html",
   "status": "ok",
   "checks": {
    "subject_len": 46,
    "subject_placeholder": false,
    "preheader": true,
    "cta_count": 1,
-   "cta_targets": [],
+   "cta_targets": [
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": true,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
+   "footer_settings_link": true,
    "footer_legal_address": true,
    "raw_i18n_key": false,
-   "shot_h_600": 1192,
-   "shot_h_390": 1298,
-   "text_len": 937
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 1061
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
-  "n": 118,
-  "slug": "118_security_accountRestored",
+  "n": 119,
+  "slug": "119_security_accountRestored",
   "family": "security",
   "sender": "accountRestored",
   "variant": "",
   "audience": "M",
   "to": "onarrival21@example.com",
   "subject": "Your Dynopay account has been restored",
-  "file": "118_security_accountRestored.html",
+  "file": "119_security_accountRestored.html",
   "status": "ok",
   "checks": {
    "subject_len": 38,
@@ -4592,75 +4620,76 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/auth/login"
+    "https://dynopay.com/auth/login",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": true,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
-   "shot_h_600": 957,
-   "shot_h_390": 982,
-   "text_len": 475
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 599
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
-  "n": 119,
-  "slug": "119_security_stepUpCode",
+  "n": 120,
+  "slug": "120_security_stepUpCode",
   "family": "security",
   "sender": "stepUpCode",
   "variant": "",
   "audience": "M",
   "to": "onarrival21@example.com",
   "subject": "Your Dynopay verification code",
-  "file": "119_security_stepUpCode.html",
+  "file": "120_security_stepUpCode.html",
   "status": "ok",
   "checks": {
    "subject_len": 30,
    "subject_placeholder": false,
    "preheader": true,
    "cta_count": 0,
-   "cta_targets": [],
+   "cta_targets": [
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": true,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
+   "footer_settings_link": true,
    "footer_legal_address": true,
    "raw_i18n_key": false,
-   "shot_h_600": 916,
-   "shot_h_390": 1010,
-   "text_len": 614
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 738
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
-  "n": 120,
-  "slug": "120_security_twoFaResetLink",
+  "n": 121,
+  "slug": "121_security_twoFaResetLink",
   "family": "security",
   "sender": "twoFaResetLink",
   "variant": "",
   "audience": "M",
   "to": "onarrival21@example.com",
   "subject": "Reset your two-step verification",
-  "file": "120_security_twoFaResetLink.html",
+  "file": "121_security_twoFaResetLink.html",
   "status": "ok",
   "checks": {
    "subject_len": 32,
@@ -4668,38 +4697,38 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/auth/reset-2fa?token=abc"
+    "https://dynopay.com/auth/reset-2fa?token=abc",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
-   "shot_h_600": 1105,
-   "shot_h_390": 1214,
-   "text_len": 870
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 994
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
-  "n": 121,
-  "slug": "121_security_twoFaResetDone",
+  "n": 122,
+  "slug": "122_security_twoFaResetDone",
   "family": "security",
   "sender": "twoFaResetDone",
   "variant": "",
   "audience": "M",
   "to": "onarrival21@example.com",
   "subject": "Your two-step verification was reset",
-  "file": "121_security_twoFaResetDone.html",
+  "file": "122_security_twoFaResetDone.html",
   "status": "ok",
   "checks": {
    "subject_len": 36,
@@ -4707,76 +4736,76 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/settings?section=profile"
+    "https://dynopay.com/settings?section=profile",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
-   "shot_h_600": 1081,
-   "shot_h_390": 1146,
-   "text_len": 778
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 902
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
-  "n": 122,
-  "slug": "122_wallet_walletUpdateOtp",
+  "n": 123,
+  "slug": "123_wallet_walletUpdateOtp",
   "family": "wallet",
   "sender": "walletUpdateOtp",
   "variant": "",
   "audience": "M",
   "to": "onarrival21@example.com",
   "subject": "Confirm wallet update",
-  "file": "122_wallet_walletUpdateOtp.html",
+  "file": "123_wallet_walletUpdateOtp.html",
   "status": "ok",
   "checks": {
    "subject_len": 21,
    "subject_placeholder": false,
-   "preheader": false,
+   "preheader": true,
    "cta_count": 0,
-   "cta_targets": [],
+   "cta_targets": [
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
    "cta_to_list_page": false,
-   "small_font_hits": 7,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": true,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
+   "footer_settings_link": true,
    "footer_legal_address": true,
    "raw_i18n_key": false,
-   "shot_h_600": 1057,
-   "shot_h_390": 1080,
-   "text_len": 453
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 609
   },
   "flags": [
-   "no preheader",
-   "7 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
-  "n": 123,
-  "slug": "123_wallet_walletBatchSummary",
+  "n": 124,
+  "slug": "124_wallet_walletBatchSummary",
   "family": "wallet",
   "sender": "walletBatchSummary",
   "variant": "",
   "audience": "M",
   "to": "onarrival21@example.com",
   "subject": "Acme Store · Your payout wallets were updated",
-  "file": "123_wallet_walletBatchSummary.html",
+  "file": "124_wallet_walletBatchSummary.html",
   "status": "ok",
   "checks": {
    "subject_len": 45,
@@ -4784,394 +4813,389 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/wallet"
+    "https://dynopay.com/wallet",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": true,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
-   "shot_h_600": 1001,
-   "shot_h_390": 1080,
-   "text_len": 489
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 613
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
-  "n": 124,
-  "slug": "124_wallet_walletDeleted",
+  "n": 125,
+  "slug": "125_wallet_walletDeleted",
   "family": "wallet",
   "sender": "walletDeleted",
   "variant": "",
   "audience": "M",
   "to": "onarrival21@example.com",
   "subject": "Wallet removed from your account",
-  "file": "124_wallet_walletDeleted.html",
+  "file": "125_wallet_walletDeleted.html",
   "status": "ok",
   "checks": {
    "subject_len": 32,
    "subject_placeholder": false,
-   "preheader": false,
+   "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/wallet"
+    "https://dynopay.com/wallet",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 7,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": true,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
-   "shot_h_600": 1091,
-   "shot_h_390": 1140,
-   "text_len": 511
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 659
   },
   "flags": [
-   "no preheader",
-   "7 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
-  "n": 125,
-  "slug": "125_wallet_addWalletReminder",
+  "n": 126,
+  "slug": "126_wallet_addWalletReminder",
   "family": "wallet",
   "sender": "addWalletReminder",
   "variant": "",
   "audience": "M",
   "to": "onarrival21@example.com",
   "subject": "Acme Store · You're almost ready to accept payments",
-  "file": "125_wallet_addWalletReminder.html",
+  "file": "126_wallet_addWalletReminder.html",
   "status": "ok",
   "checks": {
    "subject_len": 51,
    "subject_placeholder": false,
-   "preheader": false,
+   "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/wallet"
+    "https://dynopay.com/wallet",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 7,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
-   "shot_h_600": 971,
-   "shot_h_390": 1012,
-   "text_len": 496
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 636
   },
   "flags": [
-   "no preheader",
-   "7 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
-  "n": 126,
-  "slug": "126_wallet_walletAdded",
+  "n": 127,
+  "slug": "127_wallet_walletAdded",
   "family": "wallet",
   "sender": "walletAdded",
   "variant": "",
   "audience": "M",
   "to": "onarrival21@example.com",
   "subject": "Acme Store · Wallet added – BTC",
-  "file": "126_wallet_walletAdded.html",
+  "file": "127_wallet_walletAdded.html",
   "status": "ok",
   "checks": {
    "subject_len": 31,
    "subject_placeholder": false,
-   "preheader": false,
+   "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/wallet"
+    "https://dynopay.com/wallet",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 7,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
-   "mentions_network": false,
+   "mentions_network": true,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
-   "shot_h_600": 1130,
-   "shot_h_390": 1203,
-   "text_len": 559
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 703
   },
   "flags": [
-   "no preheader",
-   "7 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
-  "n": 127,
-  "slug": "127_wallet_walletUpdated",
+  "n": 128,
+  "slug": "128_wallet_walletUpdated",
   "family": "wallet",
   "sender": "walletUpdated",
   "variant": "",
   "audience": "M",
   "to": "onarrival21@example.com",
   "subject": "Acme Store · Wallet updated – BTC",
-  "file": "127_wallet_walletUpdated.html",
+  "file": "128_wallet_walletUpdated.html",
   "status": "ok",
   "checks": {
    "subject_len": 33,
    "subject_placeholder": false,
-   "preheader": false,
+   "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/wallet"
+    "https://dynopay.com/wallet",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 7,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
-   "mentions_network": false,
+   "mentions_network": true,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
-   "shot_h_600": 1125,
-   "shot_h_390": 1204,
-   "text_len": 550
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 696
   },
   "flags": [
-   "no preheader",
-   "7 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
-  "n": 128,
-  "slug": "128_wallet_withdrawalOtp",
+  "n": 129,
+  "slug": "129_wallet_withdrawalOtp",
   "family": "wallet",
   "sender": "withdrawalOtp",
   "variant": "",
   "audience": "M",
   "to": "onarrival21@example.com",
   "subject": "Confirm your withdrawal",
-  "file": "128_wallet_withdrawalOtp.html",
+  "file": "129_wallet_withdrawalOtp.html",
   "status": "ok",
   "checks": {
    "subject_len": 23,
    "subject_placeholder": false,
-   "preheader": false,
+   "preheader": true,
    "cta_count": 0,
-   "cta_targets": [],
+   "cta_targets": [
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
    "cta_to_list_page": false,
-   "small_font_hits": 7,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
+   "footer_settings_link": true,
    "footer_legal_address": true,
    "raw_i18n_key": false,
-   "shot_h_600": 1022,
-   "shot_h_390": 1045,
-   "text_len": 462
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 605
   },
   "flags": [
-   "no preheader",
-   "7 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
-  "n": 129,
-  "slug": "129_wallet_withdrawalSuccess",
+  "n": 130,
+  "slug": "130_wallet_withdrawalSuccess",
   "family": "wallet",
   "sender": "withdrawalSuccess",
   "variant": "",
   "audience": "M",
   "to": "onarrival21@example.com",
-  "subject": "Withdrawal submitted – 500.00 USDT",
-  "file": "129_wallet_withdrawalSuccess.html",
+  "subject": "Withdrawal submitted – 500.00 USDT-TRC20",
+  "file": "130_wallet_withdrawalSuccess.html",
   "status": "ok",
   "checks": {
-   "subject_len": 34,
+   "subject_len": 40,
    "subject_placeholder": false,
-   "preheader": false,
+   "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/transactions"
+    "https://dynopay.com/payouts",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": true,
-   "small_font_hits": 7,
+   "small_font_hits": 10,
    "greeting_local_part": false,
-   "has_explorer_link": false,
+   "has_explorer_link": true,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": true,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
-   "shot_h_600": 1148,
-   "shot_h_390": 1254,
-   "text_len": 633
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 873
   },
   "flags": [
-   "no preheader",
    "CTA opens a list page, not the object",
-   "7 text runs < 12px",
+   "10 text runs < 12px",
    "money: no fee",
    "money: no net",
-   "money: no tx hash",
-   "footer: no notification-settings link"
+   "money: no tx hash"
   ]
  },
  {
-  "n": 130,
-  "slug": "130_wallet_exchangeOtp",
+  "n": 131,
+  "slug": "131_wallet_exchangeOtp",
   "family": "wallet",
   "sender": "exchangeOtp",
   "variant": "",
   "audience": "M",
   "to": "onarrival21@example.com",
   "subject": "Confirm your exchange",
-  "file": "130_wallet_exchangeOtp.html",
+  "file": "131_wallet_exchangeOtp.html",
   "status": "ok",
   "checks": {
    "subject_len": 21,
    "subject_placeholder": false,
-   "preheader": false,
+   "preheader": true,
    "cta_count": 0,
-   "cta_targets": [],
+   "cta_targets": [
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
    "cta_to_list_page": false,
-   "small_font_hits": 7,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
+   "footer_settings_link": true,
    "footer_legal_address": true,
    "raw_i18n_key": false,
-   "shot_h_600": 1097,
-   "shot_h_390": 1122,
-   "text_len": 454
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 595
   },
   "flags": [
-   "no preheader",
-   "7 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
-  "n": 131,
-  "slug": "131_wallet_walletDeleteOtp",
+  "n": 132,
+  "slug": "132_wallet_walletDeleteOtp",
   "family": "wallet",
   "sender": "walletDeleteOtp",
   "variant": "",
   "audience": "M",
   "to": "onarrival21@example.com",
   "subject": "Confirm wallet deletion",
-  "file": "131_wallet_walletDeleteOtp.html",
+  "file": "132_wallet_walletDeleteOtp.html",
   "status": "ok",
   "checks": {
    "subject_len": 23,
    "subject_placeholder": false,
-   "preheader": false,
+   "preheader": true,
    "cta_count": 0,
-   "cta_targets": [],
+   "cta_targets": [
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
    "cta_to_list_page": false,
-   "small_font_hits": 7,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": true,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
+   "footer_settings_link": true,
    "footer_legal_address": true,
    "raw_i18n_key": false,
-   "shot_h_600": 1063,
-   "shot_h_390": 1086,
-   "text_len": 477
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 635
   },
   "flags": [
-   "no preheader",
-   "7 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
-  "n": 132,
-  "slug": "132_wallet_walletOtp_controller",
+  "n": 133,
+  "slug": "133_wallet_walletOtp_controller",
   "family": "wallet",
   "sender": "walletOtp",
   "variant": "controller",
   "audience": "M",
   "to": "onarrival21@example.com",
   "subject": "Confirm your wallet address",
-  "file": "132_wallet_walletOtp_controller.html",
+  "file": "133_wallet_walletOtp_controller.html",
   "status": "ok",
   "checks": {
    "subject_len": 27,
    "subject_placeholder": false,
-   "preheader": false,
+   "preheader": true,
    "cta_count": 0,
-   "cta_targets": [],
+   "cta_targets": [
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
    "cta_to_list_page": false,
-   "small_font_hits": 7,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
+   "footer_settings_link": true,
    "footer_legal_address": true,
    "raw_i18n_key": false,
-   "shot_h_600": 935,
-   "shot_h_390": 978,
-   "text_len": 368
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 506
   },
   "flags": [
-   "no preheader",
-   "7 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
-  "n": 133,
-  "slug": "133_walletSecurity_walletChangeAlert",
+  "n": 134,
+  "slug": "134_walletSecurity_walletChangeAlert",
   "family": "walletSecurity",
   "sender": "walletChangeAlert",
   "variant": "",
   "audience": "M",
   "to": "onarrival21@example.com",
   "subject": "Your payout wallets were changed",
-  "file": "133_walletSecurity_walletChangeAlert.html",
+  "file": "134_walletSecurity_walletChangeAlert.html",
   "status": "ok",
   "checks": {
    "subject_len": 32,
@@ -5179,75 +5203,76 @@
    "preheader": true,
    "cta_count": 1,
    "cta_targets": [
-    "https://dynopay.com/wallet-security?token=abc"
+    "https://dynopay.com/wallet-security?token=abc",
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
    ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": true,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
-   "shot_h_600": 1063,
-   "shot_h_390": 1131,
-   "text_len": 622
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 746
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
-  "n": 134,
-  "slug": "134_walletSecurity_walletSecured",
+  "n": 135,
+  "slug": "135_walletSecurity_walletSecured",
   "family": "walletSecurity",
   "sender": "walletSecured",
   "variant": "",
   "audience": "M",
   "to": "onarrival21@example.com",
   "subject": "We've secured your account",
-  "file": "134_walletSecurity_walletSecured.html",
+  "file": "135_walletSecurity_walletSecured.html",
   "status": "ok",
   "checks": {
    "subject_len": 26,
    "subject_placeholder": false,
    "preheader": true,
    "cta_count": 1,
-   "cta_targets": [],
+   "cta_targets": [
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": true,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
-   "shot_h_600": 1038,
-   "shot_h_390": 1086,
-   "text_len": 675
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 799
   },
   "flags": [
-   "8 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  },
  {
-  "n": 135,
-  "slug": "135_refund_buyerRefund_forwarding",
+  "n": 136,
+  "slug": "136_refund_buyerRefund_forwarding",
   "family": "refund",
   "sender": "buyerRefund",
   "variant": "forwarding",
   "audience": "B",
   "to": "jamie.chen@example.com",
   "subject": "Your Dynopay refund of 0.0012 BTC is on its way",
-  "file": "135_refund_buyerRefund_forwarding.html",
+  "file": "136_refund_buyerRefund_forwarding.html",
   "status": "ok",
   "checks": {
    "subject_len": 47,
@@ -5256,7 +5281,7 @@
    "cta_count": 0,
    "cta_targets": [],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 9,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
@@ -5264,26 +5289,26 @@
    "mentions_network": true,
    "mentions_hash_or_tx": false,
    "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
-   "shot_h_600": 1019,
-   "shot_h_390": 1090,
-   "text_len": 568
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 744
   },
   "flags": [
-   "8 text runs < 12px"
+   "9 text runs < 12px"
   ]
  },
  {
-  "n": 136,
-  "slug": "136_refund_buyerRefund_completed",
+  "n": 137,
+  "slug": "137_refund_buyerRefund_completed",
   "family": "refund",
   "sender": "buyerRefund",
   "variant": "completed",
   "audience": "B",
   "to": "jamie.chen@example.com",
   "subject": "Your Dynopay refund of 49 USDT is complete",
-  "file": "136_refund_buyerRefund_completed.html",
+  "file": "137_refund_buyerRefund_completed.html",
   "status": "ok",
   "checks": {
    "subject_len": 42,
@@ -5292,100 +5317,99 @@
    "cta_count": 1,
    "cta_targets": [],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 9,
    "greeting_local_part": false,
    "has_explorer_link": true,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": true,
-   "mentions_hash_or_tx": false,
+   "mentions_hash_or_tx": true,
    "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
-   "shot_h_600": 1110,
-   "shot_h_390": 1157,
-   "text_len": 643
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 835
   },
   "flags": [
-   "8 text runs < 12px"
+   "9 text runs < 12px"
   ]
  },
  {
-  "n": 137,
-  "slug": "137_refund_merchantRefund_completed",
+  "n": 138,
+  "slug": "138_refund_merchantRefund_completed",
   "family": "refund",
   "sender": "merchantRefund",
   "variant": "completed",
   "audience": "M",
   "to": "onarrival21@example.com",
   "subject": "Refund of 49 USDT to jamie.chen@example.com is complete",
-  "file": "137_refund_merchantRefund_completed.html",
+  "file": "138_refund_merchantRefund_completed.html",
   "status": "ok",
   "checks": {
    "subject_len": 55,
    "subject_placeholder": false,
    "preheader": true,
    "cta_count": 1,
-   "cta_targets": [],
+   "cta_targets": [
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
    "cta_to_list_page": false,
-   "small_font_hits": 8,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": true,
-   "mentions_fee": false,
+   "mentions_fee": true,
    "mentions_net": false,
    "mentions_network": true,
-   "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "mentions_hash_or_tx": true,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
-   "shot_h_600": 1149,
-   "shot_h_390": 1196,
-   "text_len": 661
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 858
   },
   "flags": [
-   "8 text runs < 12px",
-   "money: no fee",
-   "money: no net",
-   "money: no tx hash",
-   "footer: no notification-settings link"
+   "10 text runs < 12px",
+   "money: no net"
   ]
  },
  {
-  "n": 138,
-  "slug": "138_shared_sendEmail_generic",
+  "n": 139,
+  "slug": "139_shared_sendEmail_generic",
   "family": "shared",
   "sender": "sendEmail",
   "variant": "generic",
   "audience": "M",
   "to": "onarrival21@example.com",
   "subject": "A note from Dynopay",
-  "file": "138_shared_sendEmail_generic.html",
+  "file": "139_shared_sendEmail_generic.html",
   "status": "ok",
   "checks": {
    "subject_len": 19,
    "subject_placeholder": false,
-   "preheader": false,
+   "preheader": true,
    "cta_count": 0,
-   "cta_targets": [],
+   "cta_targets": [
+    "https://ddc6a6bd-5e3f-420c-ba6c-ead6ec68a785.preview.emergentagent.com/settings?section=notifications"
+   ],
    "cta_to_list_page": false,
-   "small_font_hits": 7,
+   "small_font_hits": 10,
    "greeting_local_part": false,
    "has_explorer_link": false,
    "mentions_fee": false,
    "mentions_net": false,
    "mentions_network": false,
    "mentions_hash_or_tx": false,
-   "footer_settings_link": false,
-   "footer_legal_address": false,
+   "footer_settings_link": true,
+   "footer_legal_address": true,
    "raw_i18n_key": false,
-   "shot_h_600": 900,
-   "shot_h_390": 900,
-   "text_len": 275
+   "shot_h_600": null,
+   "shot_h_390": null,
+   "text_len": 419
   },
   "flags": [
-   "no preheader",
-   "7 text runs < 12px",
-   "footer: no notification-settings link"
+   "10 text runs < 12px"
   ]
  }
 ]

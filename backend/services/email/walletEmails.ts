@@ -3,50 +3,15 @@ import config from "../../utils/config";
 import { apiLogger } from "../../utils/loggers";
 import { captureError } from "../errorMonitoringService";
 import { generatePaymentReceipt, getReceiptFilename } from "../pdfReceiptService";
-import { t, normalizeLang, resolveEmailLang, firstNameOnly } from "../../utils/emailI18n";
+import { emailDateParts, t, normalizeLang, resolveEmailLang, firstNameOnly } from "../../utils/emailI18n";
 import { formatCryptoAmount } from "../../utils/currencyUtils";
 import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../../utils/emailTemplate";
 import { EMAIL_TOKENS } from "../../utils/brandTokens";
 import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, dynoPayGreetingTemplate, formatAmountWithCurrency, formatMoneyForEmail, sendEmail, brandSubject } from "./emailShared";
+import { assetNetworkLabel } from "../../utils/networkLabels";
+import { explorerTxUrl } from "../receiptLinkService";
+import { sendStepUpCodeEmail } from "./securityEmails";
 
-/**
- * Template 5: Wallet Update OTP
- */
-export const sendWalletUpdateOTPEmail = async (
-  email: string,
-  name: string,
-  otpCode: string,
-  oldWalletMasked: string,
-  newWalletMasked: string,
-  network: string,
-  lang?: string
-) => {
-  try {
-    const L = await resolveEmailLang(lang, email);
-    const subject = t('merchant.walletUpdateOtp.subject', L);
-    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
-    ${p(t('merchant.walletUpdateOtp.intro', L))}
-    ${otpBlock(otpCode)}
-    ${infoBox(`
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow(t('merchant.labels.current', L), oldWalletMasked)}
-        ${dataRow(t('merchant.labels.new', L), newWalletMasked)}
-        ${dataRow(t('merchant.labels.network', L), network, true)}
-      </table>
-    `)}
-    ${warnText(t('merchant.walletUpdateOtp.expiry', L))}`;
-
-    const html = dynoPayEmailTemplate(t('merchant.walletUpdateOtp.heading', L), content, false, "", "", "", L, 'lock');
-    await mailTransporter({ to: email, name, subject, body: html });
-    apiLogger.info(`Wallet update OTP email sent to ${email}`);
-  } catch (e) {
-    apiLogger.error("Wallet update OTP email error:", e);
-  }
-};
-
-/**
- * Summary receipt after a bulk wallet change (add/edit/delete in one session).
- */
 export const sendWalletBatchSummaryEmail = async (
   email: string,
   name: string,
@@ -94,8 +59,8 @@ export const sendWalletDeletedEmail = async (
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${dataRow(t('merchant.labels.address', L), walletAddressMasked)}
-        ${dataRow(t('merchant.labels.network', L), network)}
-        ${dataRow(t('merchant.labels.removed', L), `${date} at ${time}`, true)}
+        ${dataRow(t('merchant.labels.network', L), assetNetworkLabel(network))}
+        ${dataRow(t('merchant.labels.removed', L), `${date} · ${time}`, true)}
       </table>
     `, '#ef4444')}
     ${p(t('merchant.walletDeleted.outro', L))}
@@ -158,7 +123,7 @@ export const sendWalletAddedEmail = async (
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${dataRow(t('merchant.labels.address', L), `<span style="font-family: monospace; font-size: 13px;">${walletAddressMasked}</span>`)}
-        ${dataRow(t('merchant.labels.blockchain', L), network)}
+        ${dataRow(t('merchant.labels.network', L), assetNetworkLabel(network))}
         ${walletName ? dataRow(t('merchant.labels.walletName', L), walletName) : ''}
         ${dataRow(t('labels.status', L), statusBadge(t('merchant.badges.active', L), 'success'), true)}
       </table>
@@ -191,17 +156,16 @@ export const sendWalletUpdatedEmail = async (
     const L = await resolveEmailLang(lang, email);
     const subject = brandSubject(companyName, t('merchant.walletUpdated.subject', L, { network }));
     const now = new Date();
-    const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
-    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    const { date: dateStr, time: timeStr } = emailDateParts(now);
 
     const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
     ${p(t('merchant.walletUpdated.intro', L, { companyName }))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${dataRow(t('merchant.labels.newAddress', L), `<span style="font-family: monospace; font-size: 13px;">${walletAddressMasked}</span>`)}
-        ${dataRow(t('merchant.labels.blockchain', L), network)}
+        ${dataRow(t('merchant.labels.network', L), assetNetworkLabel(network))}
         ${walletName ? dataRow(t('merchant.labels.walletName', L), walletName) : ''}
-        ${dataRow(t('merchant.labels.updated', L), `${dateStr} at ${timeStr}`, true)}
+        ${dataRow(t('merchant.labels.updated', L), `${dateStr} · ${timeStr}`, true)}
       </table>
     `, '#f59e0b')}
     ${p(t('merchant.walletUpdated.outro', L, { network }))}
@@ -215,45 +179,6 @@ export const sendWalletUpdatedEmail = async (
   }
 };
 
-/**
- * Withdrawal OTP Email
- * Sent when user requests a crypto withdrawal
- */
-export const sendWithdrawalOTPEmail = async (
-  email: string,
-  name: string,
-  otpCode: string,
-  amount: string,
-  currency: string,
-  destinationAddress: string,
-  lang?: string
-) => {
-  try {
-    const L = await resolveEmailLang(lang, email);
-    const subject = t('merchant.withdrawalOtp.subject', L);
-    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
-    ${p(t('merchant.withdrawalOtp.intro', L, { amount, currency }))}
-    ${otpBlock(otpCode)}
-    ${infoBox(`
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow(t('labels.amount', L), `<strong>${formatMoneyForEmail(amount, currency)} ${currency}</strong>`)}
-        ${dataRow(t('merchant.labels.toAddress', L), `<span style="font-family: monospace; font-size: 13px;">${destinationAddress}</span>`, true)}
-      </table>
-    `, '#f59e0b')}
-    ${warnText(t('merchant.withdrawalOtp.expiry', L))}`;
-
-    const html = dynoPayEmailTemplate(t('merchant.withdrawalOtp.heading', L), content, false, "", "", "", L, 'lock');
-    await mailTransporter({ to: email, name, subject, body: html });
-    apiLogger.info(`Withdrawal OTP email sent to ${email}`);
-  } catch (e) {
-    apiLogger.error("Withdrawal OTP email error:", e);
-  }
-};
-
-/**
- * Withdrawal Success Email
- * Sent when a crypto withdrawal is submitted to the blockchain
- */
 export const sendWithdrawalSuccessEmail = async (
   email: string,
   name: string,
@@ -267,8 +192,7 @@ export const sendWithdrawalSuccessEmail = async (
     const L = await resolveEmailLang(lang, email);
     const subject = t('merchant.withdrawalSuccess.subject', L, { amount, currency });
     const now = new Date();
-    const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
-    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    const { date: dateStr, time: timeStr } = emailDateParts(now);
 
     const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
     ${p(t('merchant.withdrawalSuccess.intro', L, { amount, currency }))}
@@ -277,14 +201,15 @@ export const sendWithdrawalSuccessEmail = async (
         ${dataRow(t('labels.amount', L), `<strong>${formatMoneyForEmail(amount, currency)} ${currency}</strong>`)}
         ${dataRow(t('labels.status', L), statusBadge(t('merchant.badges.inProgress', L), 'pending'))}
         ${dataRow(t('merchant.labels.toAddress', L), `<span style="font-family: monospace; font-size: 13px;">${destinationAddress}</span>`)}
-        ${dataRow(t('labels.reference', L), `<span style="font-family: monospace; font-size: 13px;">${transactionReference}</span>`)}
-        ${dataRow(t('labels.date', L), `${dateStr} at ${timeStr}`, true)}
+        ${dataRow(t('labels.reference', L), (() => { const x = explorerTxUrl(currency, transactionReference); return x ? `<a href="${x}" style="font-family: monospace; font-size: 12px; color: #4F46E5; word-break: break-all; text-decoration: underline;" target="_blank" rel="noopener">${transactionReference}</a>` : `<span style="font-family: monospace; font-size: 13px; word-break: break-all;">${transactionReference}</span>`; })())}
+        ${dataRow(t('labels.network', L), assetNetworkLabel(currency))}
+        ${dataRow(t('labels.date', L), `${dateStr} · ${timeStr}`, true)}
       </table>
     `, EMAIL_TOKENS.brand)}
     ${p(t('merchant.withdrawalSuccess.outro1', L))}
     ${p(t('merchant.withdrawalSuccess.outro2', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.withdrawalSuccess.heading', L), content, true, t('merchant.withdrawalSuccess.cta', L), `${FRONTEND_BASE_URL}/transactions`, "", L, 'payout');
+    const html = dynoPayEmailTemplate(t('merchant.withdrawalSuccess.heading', L), content, true, t('merchant.withdrawalSuccess.cta', L), `${FRONTEND_BASE_URL}/payouts`, "", L, 'payout');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Withdrawal success email sent to ${email}`);
   } catch (e) {
@@ -292,80 +217,14 @@ export const sendWithdrawalSuccessEmail = async (
   }
 };
 
-/**
- * Exchange OTP Email
- * Sent when user initiates a currency exchange with another user
- */
-export const sendExchangeOTPEmail = async (
-  email: string,
-  name: string,
-  otpCode: string,
-  amountUsd: string,
-  fromCurrency: string,
-  toCurrency: string,
-  otherPartyName: string,
-  lang?: string
-) => {
-  try {
-    const L = await resolveEmailLang(lang, email);
-    const subject = t('merchant.exchangeOtp.subject', L);
-    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
-    ${p(t('merchant.exchangeOtp.intro', L, { otherParty: otherPartyName }))}
-    ${otpBlock(otpCode)}
-    ${infoBox(`
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow(t('labels.amount', L), `<strong>$${amountUsd}</strong>`)}
-        ${dataRow(t('merchant.labels.from', L), fromCurrency)}
-        ${dataRow(t('merchant.labels.to', L), toCurrency)}
-        ${dataRow(t('merchant.labels.with', L), otherPartyName, true)}
-      </table>
-    `, EMAIL_TOKENS.brand)}
-    ${p(t('merchant.exchangeOtp.expiry', L))}`;
-
-    const html = dynoPayEmailTemplate(t('merchant.exchangeOtp.heading', L), content, false, "", "", "", L, 'lock');
-    await mailTransporter({ to: email, name, subject, body: html });
-    apiLogger.info(`Exchange OTP email sent to ${email}`);
-  } catch (e) {
-    apiLogger.error("Exchange OTP email error:", e);
-  }
-};
-
-/**
- * Wallet Delete OTP Email (new wallet system)
- * Sent when user requests to delete a wallet address permanently
- */
-export const sendWalletDeleteOTPEmail = async (
-  email: string,
-  name: string,
-  otpCode: string,
-  walletAddressMasked: string,
-  network: string,
-  lang?: string
-) => {
-  try {
-    const L = await resolveEmailLang(lang, email);
-    const subject = t('merchant.walletDeleteOtp.subject', L);
-    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
-    ${p(t('merchant.walletDeleteOtp.intro', L))}
-    ${otpBlock(otpCode)}
-    ${infoBox(`
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow(t('merchant.labels.wallet', L), `<span style="font-family: monospace; font-size: 13px;">${walletAddressMasked}</span>`)}
-        ${dataRow(t('merchant.labels.network', L), network)}
-        ${dataRow(t('merchant.labels.action', L), statusBadge(t('merchant.badges.permanentDeletion', L), 'error'), true)}
-      </table>
-    `, '#ef4444')}
-    ${warnText(t('merchant.walletDeleteOtp.expiry', L))}`;
-
-    const html = dynoPayEmailTemplate(t('merchant.walletDeleteOtp.heading', L), content, false, "", "", "", L, 'lock-red');
-    await mailTransporter({ to: email, name, subject, body: html });
-    apiLogger.info(`Wallet delete OTP email sent to ${email}`);
-  } catch (e) {
-    apiLogger.error("Wallet delete OTP email error:", e);
-  }
-};
-
-// ============================================================
-// SECTION 6: PAYMENT LIFECYCLE EMAILS
-// ============================================================
-
+// ── Wallet OTP family → ONE template (Wave 4d): the step-up security code email.
+// Thin wrappers keep the historical call sites; the address/amount context now
+// lives in the UI that asked for the code, not in the email.
+export const sendWalletUpdateOTPEmail = (email: string, name: string, otpCode: string, _oldMasked?: string, _newMasked?: string, _network?: string, lang?: string) =>
+  sendStepUpCodeEmail(email, name, otpCode, "wallet", lang);
+export const sendWalletDeleteOTPEmail = (email: string, name: string, otpCode: string, _masked?: string, _network?: string, lang?: string) =>
+  sendStepUpCodeEmail(email, name, otpCode, "wallet", lang);
+export const sendWithdrawalOTPEmail = (email: string, name: string, otpCode: string, _amount?: string, _currency?: string, _address?: string, lang?: string) =>
+  sendStepUpCodeEmail(email, name, otpCode, "withdrawal", lang);
+export const sendExchangeOTPEmail = (email: string, name: string, otpCode: string, _amount?: string, _from?: string, _to?: string, _counterparty?: string, lang?: string) =>
+  sendStepUpCodeEmail(email, name, otpCode, "exchange", lang);

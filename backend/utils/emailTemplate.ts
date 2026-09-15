@@ -74,6 +74,18 @@ export const getEmailHeroUrl = (icon: string): string => {
  * Professional base email template
  * Renders the outer shell: header, content area, footer
  */
+/** Who the email is for — drives the footer "why you received this" line. */
+export type EmailAudience = 'merchant' | 'buyer' | 'admin';
+
+/** Placeholder the transport layer swaps for the real recipient address (see mailTransporter). */
+export const TO_EMAIL_TOKEN = '%%TO_EMAIL%%';
+
+/** Legal footer line: entity from env (address optional, omitted when unset). */
+export const legalEntity = (): { name: string; address: string } => ({
+  name: (process.env.EMAIL_LEGAL_NAME || 'Dynopay Payments Ltd.').trim(),
+  address: (process.env.EMAIL_LEGAL_ADDRESS || '').trim(),
+});
+
 export const baseEmailTemplate = (
   heading: string,
   bodyContent: string,
@@ -86,11 +98,17 @@ export const baseEmailTemplate = (
     lang?: string;
     /** Optional per-action hero icon above the heading. */
     hero?: EmailHero;
+    /** Footer "why you received this" variant. Defaults to merchant. */
+    audience?: EmailAudience;
   }
 ): string => {
   const LOGO_URL = getDynopayLogoUrl();
   const year = new Date().getFullYear();
-  const { showButton = false, buttonText = '', buttonLink = '', preheader = '', lang, hero } = options || {};
+  const { showButton = false, buttonText = '', buttonLink = '', lang, hero, audience = 'merchant' } = options || {};
+  // Preheader: never let the client fall back to "Hey Alex," — use the heading when none given.
+  const preheader = (options?.preheader || '').trim() || heading.replace(/<[^>]+>/g, '').trim();
+  const legal = legalEntity();
+  const frontendUrl = (process.env.FRONTEND_URL || DYNOPAY_PROD_BASE).replace(/\/$/, '');
   // <html lang> follows the recipient language (screen readers / client hyphenation).
   const htmlLang = normalizeLang(lang);
   // Localized chrome strings (English when no lang passed → unchanged for all
@@ -99,11 +117,28 @@ export const baseEmailTemplate = (
     bestRegards: tr('chrome.bestRegards', lang),
     team: tr('chrome.teamSignature', lang),
     tagline: tr('chrome.tagline', lang),
-    rights: tr('chrome.rights', lang, { year }),
+    rights: tr('chrome.legal', lang, { year, legalName: legal.name }),
     privacy: tr('chrome.privacy', lang),
     terms: tr('chrome.terms', lang),
     support: tr('chrome.support', lang),
+    why: audience === 'buyer'
+      ? tr('chrome.whyBuyer', lang)
+      : audience === 'admin'
+        ? tr('chrome.whyAdmin', lang)
+        : tr('chrome.whyMerchant', lang, { email: TO_EMAIL_TOKEN }),
+    managePrefs: tr('chrome.managePrefs', lang),
   };
+  const ftrFont = "font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;";
+  const whyBlock = `<tr>
+                  <td align="center" class="ftr-text" style="color: #a1a1aa; font-size: 11px; line-height: 1.6; ${ftrFont} padding: 0 8px 12px;">
+                    ${chrome.why}${audience === 'merchant' ? ` <a class="ftr-link" href="${frontendUrl}/settings?section=notifications" style="color: #d4d4d8; text-decoration: underline; font-size: 11px;">${chrome.managePrefs}</a>` : ''}
+                  </td>
+                </tr>`;
+  const legalBlock = `<tr>
+                  <td align="center" class="ftr-text" style="color: #a1a1aa; font-size: 11px; ${ftrFont} padding-bottom: 12px; line-height: 1.6;">
+                    ${chrome.rights}${legal.address ? `<br />${legal.address}` : ''}
+                  </td>
+                </tr>`;
 
   const buttonBlock = showButton && buttonText && buttonLink
     ? ctaButton(buttonText, buttonLink, { padding: '28px 0 8px 0' })
@@ -302,20 +337,17 @@ export const baseEmailTemplate = (
                   </td>
                 </tr>
                 ${socialIconsBlock}
-                <tr>
-                  <td align="center" class="ftr-text" style="color: #a1a1aa; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding-bottom: 12px;">
-                    ${chrome.rights}
-                  </td>
-                </tr>
+                ${whyBlock}
+                ${legalBlock}
                 <tr>
                   <td align="center">
                     <table role="presentation" cellpadding="0" cellspacing="0">
                       <tr>
-                        <td style="padding: 0 10px;"><a class="ftr-link" href="https://dynopay.com/privacy-policy" style="color: #d4d4d8; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${chrome.privacy}</a></td>
+                        <td style="padding: 0 10px;"><a class="ftr-link" href="${frontendUrl}/privacy-policy" style="color: #d4d4d8; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${chrome.privacy}</a></td>
                         <td class="ftr-text" style="color: #71717a; font-size: 11px;">|</td>
-                        <td style="padding: 0 10px;"><a class="ftr-link" href="https://dynopay.com/terms-conditions" style="color: #d4d4d8; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${chrome.terms}</a></td>
+                        <td style="padding: 0 10px;"><a class="ftr-link" href="${frontendUrl}/terms-conditions" style="color: #d4d4d8; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${chrome.terms}</a></td>
                         <td class="ftr-text" style="color: #71717a; font-size: 11px;">|</td>
-                        <td style="padding: 0 10px;"><a class="ftr-link" href="https://dynopay.com/help-support" style="color: #d4d4d8; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${chrome.support}</a></td>
+                        <td style="padding: 0 10px;"><a class="ftr-link" href="${frontendUrl}/help-support" style="color: #d4d4d8; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${chrome.support}</a></td>
                       </tr>
                     </table>
                   </td>

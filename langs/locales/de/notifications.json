@@ -35,7 +35,7 @@
   "teamFanoutTitle": "Auch Teammitglieder benachrichtigen",
   "teamFanoutDescription": "Teammitglieder je nach Rolle und Berechtigungen in Kopie setzen.",
   "categoriesLabel": "E-Mail-Kategorien",
-  "categoriesHelper": "Wähle, welche Marken-E-Mails gesendet werden. Standardmäßig alle aktiviert.",
+  "categoriesHelper": "Wähle, welche Marken-E-Mails gesendet werden. Standardmäßig alle aktiviert außer Bestätigungsfortschritt. Sicherheits- und Auszahlungsausnahme-E-Mails werden immer gesendet.",
   "category_payments_title": "Zahlungen",
   "category_payments_desc": "Hinweise zu erhaltenen, bestätigenden, teilweisen oder fehlgeschlagenen Zahlungen",
   "category_payouts_title": "Auszahlungen & Abrechnungen",
@@ -77,5 +77,7 @@
     "hint": "Vom Dashboard gespiegelt — nichts geht verloren, wenn Sie dort eine Zeile ausblenden.",
     "hiddenOnDashboard": "Im Dashboard ausgeblendet",
     "restore": "Im Dashboard anzeigen"
-  }
+  },
+  "category_confirming_title": "Bestätigungsfortschritt",
+  "category_confirming_desc": "Eine E-Mail pro Block-Bestätigung („1 von 3…“). Standardmäßig aus — „Ausstehend“ und „Abgewickelt“ erhältst du immer."
 }

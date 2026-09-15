@@ -407,6 +407,9 @@ export async function sendPayoutDigestEmail(
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${dataRow(t("payoutDigest.period", lang), periodLabel)}
         ${dataRow(t("payoutDigest.paymentsSettled", lang), `<strong>${d.settledCount}</strong>`)}
+        ${dataRow(t("payoutDigest.grossSettled", lang), fmtMoney(d.settledVolume, d.currencySymbol, d.displayCurrency))}
+        ${dataRow(t("payoutDigest.feesPaidRow", lang), `−${fmtMoney(d.feesPaid, d.currencySymbol, d.displayCurrency)}`)}
+        ${dataRow(t("payoutDigest.netReceived", lang), `<strong>${fmtMoney(Math.max(0, d.settledVolume - d.feesPaid), d.currencySymbol, d.displayCurrency)}</strong>`)}
         ${dataRow(
           t("payoutDigest.changeVsPrior", lang),
           d.hasPriorActivity ? deltaChip : t("payoutDigest.newThisWeek", lang),
@@ -415,6 +418,7 @@ export async function sendPayoutDigestEmail(
       </table>
     `,
     );
+    const statementLink = `<a href="${FRONTEND_BASE_URL}/invoices" style="color:${EMAIL_TOKENS.brand};font-weight:600;">${t("payoutDigest.downloadStatement", lang)}</a>`;
 
     const heading = d.hasActivity
       ? t("payoutDigest.headingActive", lang)
@@ -427,6 +431,7 @@ export async function sendPayoutDigestEmail(
       ${heroInfo}
       ${topCoinsSection}
       ${compareRow}
+      ${d.hasActivity ? p(t("payoutDigest.statementBody", lang, { link: statementLink }), "font-size:13px;color:#6b7280;") : ""}
       ${p(t("payoutDigest.openDashboardBody", lang))}
     `;
 
@@ -437,7 +442,7 @@ export async function sendPayoutDigestEmail(
         : t("payoutDigest.preheaderQuiet", lang),
       showButton: true,
       buttonText: t("payoutDigest.openDashboard", lang),
-      buttonLink: `${FRONTEND_BASE_URL}/dashboard`,
+      buttonLink: `${FRONTEND_BASE_URL}/transactions?range=7d`,
     });
 
     // Cron path fans the company digest out to team members (deduped + RBAC via

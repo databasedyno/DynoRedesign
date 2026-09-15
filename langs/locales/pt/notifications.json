@@ -35,7 +35,7 @@
   "teamFanoutTitle": "Notificar também os membros da equipa",
   "teamFanoutDescription": "Enviar cópia aos membros da equipa conforme a função e permissões.",
   "categoriesLabel": "Categorias de e-mail",
-  "categoriesHelper": "Escolha que tipos de e-mails da marca são enviados. Todos ativos por predefinição.",
+  "categoriesHelper": "Escolha que tipos de e-mails da marca são enviados. Todos ativos por predefinição exceto Progresso de confirmação. E-mails de segurança e de exceções de pagamento são sempre enviados.",
   "category_payments_title": "Pagamentos",
   "category_payments_desc": "Alertas de pagamento recebido, em confirmação, parcial ou falhado",
   "category_payouts_title": "Pagamentos e liquidações",
@@ -77,5 +77,7 @@
     "hint": "Espelhado do seu painel — nada se perde quando oculta uma linha lá.",
     "hiddenOnDashboard": "Oculto no painel",
     "restore": "Mostrar no painel"
-  }
+  },
+  "category_confirming_title": "Progresso de confirmação",
+  "category_confirming_desc": "Um e-mail por confirmação de bloco («1 de 3…»). Desativado por predefinição — recebe sempre Pendente e Liquidado."
 }

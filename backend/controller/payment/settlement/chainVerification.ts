@@ -27,7 +27,7 @@ import jwt from "jsonwebtoken";
 // Product Catalog (Phase 1) — cart-order settlement fan-out
 import { handleCartPaymentSettled } from "../../../services/orderFulfillmentService";
 import { productOrderModel } from "../../../models";
-import { normalizeLang, resolveCustomerLanguage } from "../../../utils/emailI18n";
+import { emailDateParts, normalizeLang, resolveCustomerLanguage } from "../../../utils/emailI18n";
 import {
   adminFeeModel,
   companyModel,
@@ -1476,6 +1476,9 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
             excessAmountUsd: excessBase,
             baseCurrency: customerData?.base_currency || "USD",
             linkId: customerData?.link_id || tempData?.link_id || null,
+            customerEmail: customerData?.email || tempData?.email || null,
+            customerName: customerData?.customer_name || customerData?.name || null,
+            customerLang: customerData?.language || tempData?.language || null,
           }).catch(() => { /* notifier never throws; guard for safety */ });
         }
 
@@ -1741,8 +1744,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
           } catch (tsErr) {
             cronLogger.warn(`[cryptoVerification] Failed to resolve payment timestamp for tx=${transactionId}: ${(tsErr as Error)?.message} — falling back to current time`);
           }
-          const paymentDateStr = paymentDateTime.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-          const paymentTimeStr = paymentDateTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+          const { date: paymentDateStr, time: paymentTimeStr } = emailDateParts(paymentDateTime);
           
           // When auto-convert is ON, show the original merchant amount (before redirect to admin)
           // Merchant will receive USDT equivalent, not 0 ETH
@@ -1777,6 +1779,8 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
           const mrCryptoCurrency = mrDisplay.cryptoCurrency;
 
           // Full money path for the "Payment settled" email (gross → fee → gas → net → destination).
+          // Payments ≥ $1,000 get a "Large payment" badge instead of a second, thinner alert email.
+          const mpLarge = parseFloat(customerData?.base_amount || tempData?.base_amount || 0) >= 1000;
           const mpGas = Math.max(0, Number(userAmountToSend) - Number(actualMerchantAmount));
           const mpForwardHash = autoConvertEnabled ? null : outgoingMerchantTxHash;
           const moneyPath = {
@@ -1799,6 +1803,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
             reference: (tempData as any)?.ref || null,
             txRowId: tempData?.user_tx_id || tempData?.unique_tx_id || tempData?.payment_id || null,
             detectedAt: paymentDateTime,
+            largePayment: mpLarge,
           };
 
           await dispatchCompanyEmail(
@@ -1828,35 +1833,6 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
         // Get company name for notifications (used below) — buyer-facing, so
         // never a generated placeholder (A1).
         const companyName = (await resolvePublicCompanyName(company_data)) ?? (company_data?.company_name ?? "");
-
-        // Send large transaction alert if amount > $1000 USD equivalent
-        const baseAmount = customerData?.base_amount || tempData?.base_amount || 0;
-        const LARGE_TRANSACTION_THRESHOLD = 1000;
-        if (parseFloat(baseAmount) >= LARGE_TRANSACTION_THRESHOLD) {
-          try {
-            const { sendLargeTransactionAlertEmail } = await import("../../../services/emailService");
-            const customerEmail = customerData?.email || tempData?.email || null;
-            await dispatchCompanyEmail(
-              company_data?.company_id,
-              "payments",
-              { email: userData?.email, name: userData?.name || 'Merchant' },
-              (email, name) => sendLargeTransactionAlertEmail(
-                email,
-                name,
-                `${baseAmount}`,
-                customerData?.base_currency || 'USD',
-                totalAmountReceived.toString(),
-                tempCurrency,
-                customerEmail,
-                transactionId,
-                companyName
-              )
-            );
-            cronLogger.info(`[cryptoVerification] Large transaction alert sent to ${userData?.email} for $${baseAmount}`);
-          } catch (largeAlertError) {
-            cronLogger.error("[cryptoVerification] Failed to send large transaction alert:", largeAlertError);
-          }
-        }
 
         // Create in-app notification for payment received.
         // When auto-convert is ON the merchant receives the settlement stablecoin
@@ -1936,8 +1912,8 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
                 baseCurrency,
                 customerPayload.id || transactionId,
                 description,
-                paymentDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-                paymentDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+                emailDateParts(paymentDate).date,
+                emailDateParts(paymentDate).time,
                 totalAmountReceived.toString(), // Crypto amount
                 tempCurrency, // Crypto currency
                 transactionId, // Blockchain transaction reference

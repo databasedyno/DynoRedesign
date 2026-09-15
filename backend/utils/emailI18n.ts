@@ -131,6 +131,14 @@ export const formatEmailDateTime = (date: Date, lang?: string | null): string =>
   return `${s} UTC`;
 };
 
+/** "14:02 UTC" — time only, always UTC (emails never guess the reader's zone). */
+export const formatEmailTime = (date: Date, lang?: string | null): string =>
+  `${new Intl.DateTimeFormat(intlLocaleFor(lang), { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "UTC" }).format(date)} UTC`;
+
+/** { date: "5 June 2026", time: "14:02 UTC" } — the one way callers build date/time pairs for emails. */
+export const emailDateParts = (date: Date = new Date(), lang?: string | null): { date: string; time: string } =>
+  ({ date: formatEmailDate(date, lang), time: formatEmailTime(date, lang) });
+
 /** "19 September 2026" (date only, UTC) in the recipient's language. */
 export const formatEmailDate = (date: Date, lang?: string | null): string =>
   new Intl.DateTimeFormat(intlLocaleFor(lang), { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(date);

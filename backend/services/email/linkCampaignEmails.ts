@@ -212,7 +212,7 @@ export const sendCrowdfundingUpdateEmail = async (
     `)}
     ${p(t('contributor.crowdfundingUpdate.outro', L))}`;
 
-    const html = dynoPayEmailTemplate(t('contributor.crowdfundingUpdate.heading', L, { campaign: safeCampaign }), content, true, t('contributor.crowdfundingUpdate.cta', L), campaignLink, t('contributor.crowdfundingUpdate.preheader', L, { campaign: safeCampaign }), L, 'campaign');
+    const html = dynoPayEmailTemplate(t('contributor.crowdfundingUpdate.heading', L, { campaign: safeCampaign }), content, true, t('contributor.crowdfundingUpdate.cta', L), campaignLink, t('contributor.crowdfundingUpdate.preheader', L, { campaign: safeCampaign }), L, 'campaign', 'buyer');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Crowdfunding update email sent to ${email}`);
   } catch (e) {
@@ -393,7 +393,7 @@ ${footnote(`<a href="${unsubscribeUrl}" style="color: #6b7280;">${t(`${K}.unsubs
 
     // Only the buyer's e-mail is known → generic localized greeting.
     const recipientName = recipientEmail.split('@')[0] || "there";
-    const htmlBody = dynoPayEmailTemplate(variant.heading, `${greetingLine(L)}\n${message}`, false, "", "", t(`${K}.preheader`, L, v), L, 'link');
+    const htmlBody = dynoPayEmailTemplate(variant.heading, `${greetingLine(L)}\n${message}`, false, "", "", t(`${K}.preheader`, L, v), L, 'link', 'buyer');
 
     const info = await mailTransporter({
       to: recipientEmail,

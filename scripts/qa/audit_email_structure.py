@@ -38,7 +38,7 @@ for r in m:
         "preheader": 'max-height:0;max-width:0;opacity:0' in body,
         "cta_count": len(ctas),
         "cta_targets": app_links[:3],
-        "cta_to_list_page": any(re.search(r"/(transactions|payouts|dashboard|invoices|pay-links)(\?|$|\")", h) and "tx=" not in h and "open=" not in h for h in app_links),
+        "cta_to_list_page": any(re.search(r"/(transactions|payouts|dashboard|invoices|pay-links)(\?|$|\")", h) and not re.search(r"tx=|open=|search=|status=", h) for h in app_links),
         "small_font_hits": small_ct,
         "greeting_local_part": greeting_local,
         "has_explorer_link": bool(re.search(r"mempool|etherscan|tronscan|blockchair|polygonscan|solscan|xrpscan|explorer", body, re.I)),

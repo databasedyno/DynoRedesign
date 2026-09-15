@@ -3,7 +3,7 @@ import config from "../../utils/config";
 import { apiLogger } from "../../utils/loggers";
 import { captureError } from "../errorMonitoringService";
 import { generatePaymentReceipt, getReceiptFilename } from "../pdfReceiptService";
-import { t, normalizeLang, resolveEmailLang } from "../../utils/emailI18n";
+import { formatEmailDate, t, normalizeLang, resolveEmailLang } from "../../utils/emailI18n";
 import { formatCryptoAmount } from "../../utils/currencyUtils";
 import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../../utils/emailTemplate";
 import { EMAIL_TOKENS } from "../../utils/brandTokens";
@@ -42,7 +42,7 @@ export const sendInvoiceGeneratedEmail = async (
         ${dataRow(t('merchant.labels.invoiceNumber', L), invoiceData.invoice_number)}
         ${dataRow(t('labels.transactionId', L), `<span style="font-family: monospace; font-size: 13px;">${invoiceData.transaction_id}</span>`)}
         ${dataRow(t('merchant.labels.totalAmount', L), `<strong>${currencySymbol}${toFixedStr(amount, 2)} ${currency}</strong>`)}
-        ${dataRow(t('merchant.labels.invoiceDate', L), new Date(invoiceData.invoice_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }), true)}
+        ${dataRow(t('merchant.labels.invoiceDate', L), formatEmailDate(new Date(invoiceData.invoice_date), L), true)}
       </table>
     `)}
     ${p(t('merchant.invoice.outro', L))}`;
@@ -79,7 +79,7 @@ export const sendApiKeyCreatedEmail = async (
         ${dataRow(t('merchant.labels.environment', L), keyType === 'production' ? statusBadge(t('merchant.badges.production', L), 'error') : statusBadge(t('merchant.badges.development', L), 'pending'))}
         ${dataRow(t('merchant.labels.keyPreview', L), `<span style="font-family: monospace; font-size: 13px;">${keyPreview}</span>`)}
         ${action === 'regenerated' ? dataRow(t('merchant.labels.note', L), t('merchant.apiKey.oldInvalid', L)) : ''}
-        ${dataRow(t('labels.date', L), `${date} at ${time}`, true)}
+        ${dataRow(t('labels.date', L), `${date} · ${time}`, true)}
       </table>
     `)}
     ${keyType === 'production' ? warnText(t('merchant.apiKey.productionWarn', L)) : ''}
@@ -145,7 +145,7 @@ export const sendApiKeyRevokedEmail = async (
         ${dataRow(t('merchant.labels.brand', L), `<strong>${brand}</strong>`)}
         ${dataRow(t('merchant.labels.environment', L), keyType === 'production' ? statusBadge(t('merchant.badges.production', L), 'error') : statusBadge(t('merchant.badges.development', L), 'pending'))}
         ${keyPreview ? dataRow(t('merchant.labels.keyPreview', L), `<span style="font-family: monospace; font-size: 13px;">${escapeHtml(keyPreview)}...</span>`) : ''}
-        ${dataRow(t('labels.date', L), `${date} at ${time}`, true)}
+        ${dataRow(t('labels.date', L), `${date} · ${time}`, true)}
       </table>
     `, '#ef4444')}
     ${alertBox(`
@@ -186,7 +186,7 @@ export const sendSubscriptionCreatedEmail = async (
     `, '#12B76A')}
     ${p(t('merchant.subscriptionCreated.custOutro', CL))}`;
 
-    const customerHtml = dynoPayEmailTemplate(t('merchant.subscriptionCreated.custHeading', CL), customerContent, false, "", "", t('merchant.subscriptionCreated.custPreheader', CL), CL, 'receipt');
+    const customerHtml = dynoPayEmailTemplate(t('merchant.subscriptionCreated.custHeading', CL), customerContent, false, "", "", t('merchant.subscriptionCreated.custPreheader', CL), CL, 'receipt', 'buyer');
     await mailTransporter({ to: customerEmail, name: displayName, subject: customerSubject, body: customerHtml });
 
     const merchantSubject = t('merchant.subscriptionCreated.merchSubject', ML, { planName });
@@ -201,7 +201,7 @@ export const sendSubscriptionCreatedEmail = async (
       </table>
     `, '#12B76A')}`;
 
-    const merchantHtml = dynoPayEmailTemplate(t('merchant.subscriptionCreated.merchHeading', ML), merchantContent, true, t('merchant.subscriptionCreated.cta', ML), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.subscriptionCreated.merchPreheader', ML), ML, 'receipt');
+    const merchantHtml = dynoPayEmailTemplate(t('merchant.subscriptionCreated.merchHeading', ML), merchantContent, true, t('merchant.subscriptionCreated.cta', ML), `${FRONTEND_BASE_URL}/pay-links`, t('merchant.subscriptionCreated.merchPreheader', ML), ML, 'receipt');
     await mailTransporter({ to: merchantEmail, name: merchantName, subject: merchantSubject, body: merchantHtml });
     apiLogger.info(`[Email] Subscription created notifications sent for ${planName}`);
   } catch (e) {
@@ -231,7 +231,7 @@ export const sendSubscriptionCancelledEmail = async (
     ${p(t('merchant.subscriptionCancelled.custOutro1', CL, { effectiveDate }))}
     ${p(t('merchant.subscriptionCancelled.custOutro2', CL))}`;
 
-    const customerHtml = dynoPayEmailTemplate(t('merchant.subscriptionCancelled.heading', CL), customerContent, false, "", "", t('merchant.subscriptionCancelled.custPreheader', CL), CL, 'expired');
+    const customerHtml = dynoPayEmailTemplate(t('merchant.subscriptionCancelled.heading', CL), customerContent, false, "", "", t('merchant.subscriptionCancelled.custPreheader', CL), CL, 'expired', 'buyer');
     await mailTransporter({ to: customerEmail, name: displayName, subject: customerSubject, body: customerHtml });
 
     const merchantSubject = t('merchant.subscriptionCancelled.merchSubject', ML, { name: displayName });
@@ -246,7 +246,7 @@ export const sendSubscriptionCancelledEmail = async (
       </table>
     `, '#f59e0b')}`;
 
-    const merchantHtml = dynoPayEmailTemplate(t('merchant.subscriptionCancelled.heading', ML), merchantContent, true, t('merchant.subscriptionCancelled.cta', ML), `${FRONTEND_BASE_URL}/dashboard`, t('merchant.subscriptionCancelled.merchPreheader', ML), ML, 'expired');
+    const merchantHtml = dynoPayEmailTemplate(t('merchant.subscriptionCancelled.heading', ML), merchantContent, true, t('merchant.subscriptionCancelled.cta', ML), `${FRONTEND_BASE_URL}/pay-links`, t('merchant.subscriptionCancelled.merchPreheader', ML), ML, 'expired');
     await mailTransporter({ to: merchantEmail, name: merchantName, subject: merchantSubject, body: merchantHtml });
     apiLogger.info(`[Email] Subscription cancelled notifications sent for ${planName}`);
   } catch (e) {

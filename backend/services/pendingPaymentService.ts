@@ -25,6 +25,8 @@ const NOTIF_MARKER_TTL_SECONDS = 30 * 24 * 60 * 60;
 import { getCompanyBaseCurrency, convertToUSD, convertToFiat, formatCryptoAmount } from "../utils/currencyUtils";
 import { dispatchCompanyEmail } from "./email/companyDispatch";
 import { toFixedStr } from "../utils/money";
+import type { PaymentMoneyPath } from "./email/paymentSettled";
+import { isConfirmingEmailOptedIn } from "../utils/notificationRecipients";
 
 /**
  * Convert a received crypto amount into the merchant's fiat display currency
@@ -177,7 +179,8 @@ export const sendPendingPaymentNotification = async (
         confirmationsRequired,
         normalizeLang(user.language),
         pendingFiat.cryptoAmount,
-        pendingFiat.cryptoCurrency
+        pendingFiat.cryptoCurrency || currency,
+        (ESTIMATED_CONFIRMATION_TIMES[currency] || "").replace("minutes", "min").replace("-", "–") || null
       )
     );
 
@@ -274,7 +277,10 @@ export const sendConfirmationProgressNotification = async (
         currency,
         Number(customerData.amount || 0),
       );
-      await dispatchCompanyEmail(
+      // Per-confirmation progress emails are opt-in (Settings → Notifications → Email categories).
+      if (!(await isConfirmingEmailOptedIn(customerData.company_id ?? user.company_id))) {
+        cronLogger.info(`Confirming email skipped (opt-in off) for tx ${txId}`);
+      } else await dispatchCompanyEmail(
         customerData.company_id ?? user.company_id,
         "payments",
         { email: user.email, name: user.name },
@@ -427,7 +433,8 @@ export const sendPartialPaymentNotification = async (
       customerData.company_id
     );
 
-    // Send email notification
+    // Send email notification (crypto amounts + fiat value of what arrived so far)
+    const partialFiat = await computeFiatForEmail(customerData.company_id ?? user.company_id, currency, Number(receivedAmount)).catch(() => null);
     await dispatchCompanyEmail(
       customerData.company_id ?? user.company_id,
       "payments",
@@ -443,7 +450,8 @@ export const sendPartialPaymentNotification = async (
         txId,
         address,
         gracePeriodMinutes,
-        normalizeLang(user.language)
+        normalizeLang(user.language),
+        partialFiat && Number(partialFiat.fiatAmount) > 0 ? { amount: partialFiat.fiatAmount, currency: partialFiat.fiatCurrency } : null
       )
     );
 
@@ -558,7 +566,8 @@ export const sendPartialPaymentExpiredNotification = async (
   currency: string,
   userId: number,
   companyId: number,
-  status: "completed_partial" | "incomplete_expired"
+  status: "completed_partial" | "incomplete_expired",
+  moneyPath?: PaymentMoneyPath | null
 ): Promise<boolean> => {
   try {
     // Get user and company details — filter by companyId for multi-company users
@@ -619,7 +628,8 @@ export const sendPartialPaymentExpiredNotification = async (
         currency,
         txId,
         status,
-        normalizeLang(user.language)
+        normalizeLang(user.language),
+        moneyPath
       )
     );
 

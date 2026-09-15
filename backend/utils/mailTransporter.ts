@@ -2,6 +2,7 @@ import { raw as envRaw } from "./config";
 import axios from "axios";
 import { captureError } from "../services/errorMonitoringService";
 import { log } from "../utils/loggers";
+import { TO_EMAIL_TOKEN } from "./emailTemplate";
 
 interface Attachment {
   name: string;
@@ -56,7 +57,12 @@ const dumpForReview = (to: string, subject: string, body: string) => {
   }
 };
 
-const mailTransporter = async ({ to, subject, body, name, attachments }: mailOptions) => {
+const mailTransporter = async ({ to, subject, body: rawBody, name, attachments }: mailOptions) => {
+  // Footer "you're receiving this because … (email)" — resolved here so every
+  // template gets the real recipient without threading it through 110 senders.
+  const body = String(rawBody || "").split(TO_EMAIL_TOKEN).join(
+    String(to || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"),
+  );
   // --- PREVIEW/SANDBOX SAFETY: never send real email from a non-prod pod ---
   // When DISABLE_OUTBOUND_EMAIL=true (the Emergent preview is wired to the LIVE
   // production DB), skip the Brevo API entirely so no real merchant / customer /

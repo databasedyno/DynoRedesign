@@ -2,14 +2,14 @@ import mailTransporter from "../../utils/mailTransporter";
 import config from "../../utils/config";
 import { apiLogger } from "../../utils/loggers";
 import { captureError } from "../errorMonitoringService";
-import { t, normalizeLang, resolveEmailLang } from "../../utils/emailI18n";
+import { formatEmailDateTime, t, normalizeLang, resolveEmailLang } from "../../utils/emailI18n";
 import { formatCryptoAmount } from "../../utils/currencyUtils";
 import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../../utils/emailTemplate";
 import { EMAIL_TOKENS } from "../../utils/brandTokens";
 import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, dynoPayGreetingTemplate, formatAmountWithCurrency, sendEmail } from "./emailShared";
 import { toFixedStr } from "../../utils/money";
 import { PaymentMoneyPath, renderMoneyPath } from "./paymentSettled";
-import { getCoinSymbol } from "../../utils/networkLabels";
+import { getCoinSymbol, assetNetworkLabel } from "../../utils/networkLabels";
 export type { PaymentMoneyPath } from "./paymentSettled";
 
 /**
@@ -40,11 +40,11 @@ export const sendPaymentReceivedEmail = async (
     const isContribution = !!(campaignName && campaignName.trim());
     const settled = !!moneyPath;
     const subject = settled
-      ? t('paymentSettled.subject', L, { amount, currency, companyName })
+      ? t(moneyPath?.largePayment ? 'paymentSettled.subjectLarge' : 'paymentSettled.subject', L, { amount, currency, companyName })
       : isContribution
         ? t('contributionReceived.subject', L, { amount, currency, campaignName })
         : t('paymentReceived.subject', L, { amount, currency });
-    const dateTimeStr = date && time ? `${date} at ${time}` : new Date().toLocaleString(L === 'en' ? 'en-GB' : L);
+    const dateTimeStr = date && time ? `${date} · ${time}` : formatEmailDateTime(new Date(), L);
     const txLink = settled && moneyPath?.txRowId
       ? `${FRONTEND_BASE_URL}/transactions?tx=${encodeURIComponent(String(moneyPath.txRowId))}`
       : `${FRONTEND_BASE_URL}/transactions`;
@@ -69,7 +69,8 @@ export const sendPaymentReceivedEmail = async (
       ? t('paymentSettled.nothingToDo', L)
       : isContribution ? t('contributionReceived.outro', L) : t('paymentReceived.outro', L);
 
-    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    const content = `${settled && moneyPath?.largePayment ? `<p style="margin:0 0 12px;">${statusBadge(t('paymentSettled.largeBadge', L), 'success')}</p>` : ''}
+    ${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
     ${p(intro)}
     ${settled && isContribution ? p(t('contributionReceived.intro', L, { campaignName })) : ''}
     ${settled && moneyPath ? renderMoneyPath(L, { ...moneyPath, paidFor: moneyPath.paidFor ?? campaignName ?? null }) : legacyBox}
@@ -106,25 +107,30 @@ export const sendPaymentPendingEmail = async (
   confirmationsRequired: number = 1,
   lang: string = 'en',
   cryptoAmount?: string,
-  cryptoCurrency?: string
+  cryptoCurrency?: string,
+  /** Typical wait for `confirmationsRequired` on this network, e.g. "10–60 min". */
+  estimatedWait?: string | null
 ) => {
   try {
     const L = normalizeLang(lang);
     const subject = t('paymentPending.subject', L, { amount, currency, companyName });
+    const network = cryptoCurrency ? assetNetworkLabel(cryptoCurrency) : '';
 
     const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
     ${p(t('paymentPending.intro', L, { amount, currency, companyName }))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${dataRow(t('labels.amount', L), `<strong>${amount} ${currency}</strong>`)}
-        ${cryptoAmount && cryptoCurrency ? dataRow(t('labels.cryptoAmount', L), `${formatCryptoAmount(cryptoAmount, cryptoCurrency)} ${cryptoCurrency}`) : ''}
+        ${cryptoAmount && cryptoCurrency ? dataRow(t('labels.cryptoAmount', L), `${formatCryptoAmount(cryptoAmount, cryptoCurrency)} ${getCoinSymbol(cryptoCurrency)}`) : ''}
+        ${network ? dataRow(t('labels.network', L), network) : ''}
+        ${dataRow(t('labels.confirmationsNeeded', L), `<strong>${confirmationsRequired}</strong>${estimatedWait ? ` <span style="color:#6b7280;">· ${t('labels.typicalWait', L, { wait: estimatedWait })}</span>` : ''}`)}
         ${dataRow(t('labels.status', L), statusBadge(t('statusLabels.awaitingConfirmation', L), 'pending'))}
         ${dataRow(t('labels.transactionId', L), `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`, true)}
       </table>
     `, '#f59e0b')}
     ${p(t('paymentPending.outro', L))}`;
 
-    const html = dynoPayEmailTemplate(t('paymentPending.heading', L), content, true, t('paymentReceived.cta', L), `${FRONTEND_BASE_URL}/transactions`, t('paymentPending.preheader', L), L, 'hourglass');
+    const html = dynoPayEmailTemplate(t('paymentPending.heading', L), content, true, t('paymentReceived.cta', L), `${FRONTEND_BASE_URL}/transactions?search=${encodeURIComponent(transactionId)}`, t('paymentPending.preheader', L), L, 'hourglass');
     const info = await mailTransporter({ to: recipientEmail, name, subject, body: html });
     return info;
   } catch (e) {
@@ -177,7 +183,7 @@ export const sendPaymentConfirmingEmail = async (
         ? t('paymentConfirming.completeMsg', L)
         : t('paymentConfirming.pendingMsg', L, { remaining }))}`;
 
-    const html = dynoPayEmailTemplate(t('paymentConfirming.heading', L), htmlContent, true, t('paymentReceived.cta', L), `${FRONTEND_BASE_URL}/transactions`, t('paymentConfirming.preheader', L), L, 'hourglass');
+    const html = dynoPayEmailTemplate(t('paymentConfirming.heading', L), htmlContent, true, t('paymentReceived.cta', L), `${FRONTEND_BASE_URL}/transactions?search=${encodeURIComponent(transactionId)}`, t('paymentConfirming.preheader', L), L, 'hourglass');
     const info = await mailTransporter({ to: recipientEmail, name, subject, body: html });
     return info;
   } catch (e) {
@@ -200,25 +206,29 @@ export const sendPaymentPartialEmail = async (
   transactionId: string,
   walletAddress: string,
   gracePeriodMinutes: number = 30,
-  lang: string = 'en'
+  lang: string = 'en',
+  /** Fiat value of the amount received so far, in the merchant's currency. */
+  receivedFiat?: { amount: string; currency: string } | null
 ) => {
   try {
     const L = normalizeLang(lang);
     const subject = t('paymentPartial.subject', L, { received: receivedAmount, expected: expectedAmount, currency });
+    const sym = getCoinSymbol(currency);
 
     const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
     ${p(t('paymentPartial.intro', L, { received: receivedAmount, expected: expectedAmount, currency, companyName }))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow(t('labels.expectedAmount', L), `${expectedAmount} ${currency}`)}
-        ${dataRow(t('labels.received', L), `<strong style="color: #166534;">${receivedAmount} ${currency}</strong>`)}
-        ${dataRow(t('labels.remaining', L), `<strong style="color: #dc2626;">${remainingAmount} ${currency}</strong>`)}
+        ${dataRow(t('labels.expectedAmount', L), `${expectedAmount} ${sym}`)}
+        ${dataRow(t('labels.received', L), `<strong style="color: #166534;">${receivedAmount} ${sym}</strong>${receivedFiat && Number(receivedFiat.amount) > 0 ? ` <span style="color:#6b7280;">≈ ${receivedFiat.amount} ${receivedFiat.currency}</span>` : ''}`)}
+        ${dataRow(t('labels.remaining', L), `<strong style="color: #dc2626;">${remainingAmount} ${sym}</strong>`)}
+        ${dataRow(t('labels.network', L), assetNetworkLabel(currency))}
         ${dataRow(t('labels.transactionId', L), `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`, true)}
       </table>
     `, '#f59e0b')}
-    ${p(t('paymentPartial.windowNote', L, { minutes: gracePeriodMinutes, remaining: remainingAmount, currency }))}`;
+    ${p(t('paymentPartial.windowNote', L, { minutes: gracePeriodMinutes, remaining: remainingAmount, currency: sym }))}`;
 
-    const html = dynoPayEmailTemplate(t('paymentPartial.heading', L), content, true, t('paymentReceived.cta', L), `${FRONTEND_BASE_URL}/transactions`, t('paymentPartial.preheader', L), L, 'alert');
+    const html = dynoPayEmailTemplate(t('paymentPartial.heading', L), content, true, t('paymentReceived.cta', L), `${FRONTEND_BASE_URL}/transactions?search=${encodeURIComponent(transactionId)}`, t('paymentPartial.preheader', L), L, 'alert');
     const info = await mailTransporter({ to: recipientEmail, name, subject, body: html });
     return info;
   } catch (e) {
@@ -251,15 +261,16 @@ export const sendBuyerUnderpaidNudgeEmail = async (
     ${p(t('buyerUnderpaid.intro', L, { received: receivedAmount, expected: expectedAmount, currency, companyName }))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow(t('labels.expectedAmount', L), `${expectedAmount} ${currency}`)}
-        ${dataRow(t('labels.received', L), `<strong style="color: #166534;">${receivedAmount} ${currency}</strong>`)}
-        ${dataRow(t('labels.remaining', L), `<strong style="color: #dc2626;">${remainingAmount} ${currency}</strong>`, true)}
+        ${dataRow(t('labels.expectedAmount', L), `${expectedAmount} ${getCoinSymbol(currency)}`)}
+        ${dataRow(t('labels.received', L), `<strong style="color: #166534;">${receivedAmount} ${getCoinSymbol(currency)}</strong>`)}
+        ${dataRow(t('labels.remaining', L), `<strong style="color: #dc2626;">${remainingAmount} ${getCoinSymbol(currency)}</strong>`)}
+        ${dataRow(t('labels.network', L), assetNetworkLabel(currency), true)}
       </table>
     `, '#f97316')}
     ${p(t('buyerUnderpaid.windowNote', L, { minutes: gracePeriodMinutes, remaining: remainingAmount, currency }))}`;
 
     const ctaUrl = checkoutUrl && /^https?:\/\//i.test(checkoutUrl) ? checkoutUrl : `${FRONTEND_BASE_URL}`;
-    const html = dynoPayEmailTemplate(t('buyerUnderpaid.heading', L), content, true, t('buyerUnderpaid.cta', L), ctaUrl, t('buyerUnderpaid.preheader', L), L, 'alert');
+    const html = dynoPayEmailTemplate(t('buyerUnderpaid.heading', L), content, true, t('buyerUnderpaid.cta', L), ctaUrl, t('buyerUnderpaid.preheader', L), L, 'alert', 'buyer');
     const info = await mailTransporter({ to: recipientEmail, name, subject, body: html });
     return info;
   } catch (e) {
@@ -280,11 +291,14 @@ export const sendPaymentPartialExpiredEmail = async (
   currency: string,
   transactionId: string,
   status: "completed_partial" | "incomplete_expired",
-  lang: string = 'en'
+  lang: string = 'en',
+  /** Where the (partial) money went — rendered like the "Payment settled" email when given. */
+  moneyPath?: PaymentMoneyPath | null
 ) => {
   try {
     const L = normalizeLang(lang);
     const isCompleted = status === "completed_partial";
+    const sym = getCoinSymbol(currency);
     const subject = isCompleted
       ? t('paymentPartialExpired.subjectCompleted', L)
       : t('paymentPartialExpired.subjectExpired', L);
@@ -299,18 +313,20 @@ export const sendPaymentPartialExpiredEmail = async (
       : t('paymentPartialExpired.introExpired', L, { companyName }))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow(t('labels.expectedAmount', L), `${expectedAmount} ${currency}`)}
-        ${dataRow(t('labels.receivedAmount', L), `<strong>${receivedAmount} ${currency}</strong>`)}
+        ${dataRow(t('labels.expectedAmount', L), `${expectedAmount} ${sym}`)}
+        ${dataRow(t('labels.receivedAmount', L), `<strong>${receivedAmount} ${sym}</strong>`)}
+        ${dataRow(t('labels.network', L), assetNetworkLabel(currency))}
         ${dataRow(t('labels.status', L), statusBadge(statusLabel, badgeType))}
         ${dataRow(t('labels.transactionId', L), `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`, true)}
       </table>
     `, borderColor)}
+    ${moneyPath ? renderMoneyPath(L, moneyPath) : ''}
     ${p(isCompleted
       ? t('paymentPartialExpired.outroCompleted', L)
       : t('paymentPartialExpired.outroExpired', L)
     )} ${p(t('paymentPartialExpired.viewDetails', L))}`;
 
-    const html = dynoPayEmailTemplate(heading, content, true, t('paymentReceived.cta', L), `${FRONTEND_BASE_URL}/transactions`, isCompleted ? t('paymentPartialExpired.preheaderCompleted', L) : t('paymentPartialExpired.preheaderExpired', L), L, 'expired');
+    const html = dynoPayEmailTemplate(heading, content, true, t('paymentReceived.cta', L), `${FRONTEND_BASE_URL}/transactions?search=${encodeURIComponent(transactionId)}`, isCompleted ? t('paymentPartialExpired.preheaderCompleted', L) : t('paymentPartialExpired.preheaderExpired', L), L, 'expired');
     const info = await mailTransporter({ to: recipientEmail, name, subject, body: html });
     return info;
   } catch (e) {

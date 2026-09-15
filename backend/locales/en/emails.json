@@ -24,7 +24,10 @@
     "platformFee": "Dynopay fee",
     "feePaidByMerchant": "paid by the merchant",
     "feePaidByCustomer": "added to your total",
-    "paymentMethod": "Payment method"
+    "paymentMethod": "Payment method",
+    "network": "Network",
+    "confirmationsNeeded": "Confirmations needed",
+    "typicalWait": "usually {{wait}}"
   },
   "statusLabels": {
     "received": "Received",
@@ -838,7 +841,19 @@
     "overpaidBy": "Overpaid by",
     "statusOverpaid": "Overpaid",
     "merchantBody": "Your payout includes the full amount due PLUS the extra {{excess}} (≈ {{excessFiat}}) — Dynopay never keeps an overpayment. If the buyer asks, you can refund the difference from the transaction details.",
-    "viewTransactions": "View transactions"
+    "viewTransactions": "View transactions",
+    "merchantPreheader": "A buyer sent {{excess}} more than due — it's in your payout.",
+    "refundCta": "Review payment · refund the excess",
+    "merchantKeep": "Nothing to do if you keep it — the buyer has been told the extra reached you and how to ask for it back.",
+    "customer": "Customer",
+    "buyerSubject": "You sent a little more than needed to {{company}}",
+    "buyerHeading": "You overpaid — here's what happens next",
+    "buyerPreheader": "{{excess}} extra reached {{company}}. Ask them for a refund of the difference.",
+    "buyerIntro": "Your payment to {{company}} went through — thank you. Your wallet sent <strong>{{excess}}</strong> (≈ {{excessFiat}}) more than the amount due.",
+    "buyerBody": "Dynopay is non-custodial, so the full amount including the extra went straight to {{company}}. To get the difference back, contact the merchant{{contact}} and quote the reference above — they can refund it in one click from their dashboard.",
+    "amountDue": "Amount due",
+    "amountSent": "Amount sent",
+    "buyerCta": "Contact {{company}}"
   },
   "payoutDigest": {
     "subjectActive": "Your week on Dynopay: {{amount}} settled",
@@ -864,7 +879,12 @@
     "openDashboardBody": "Open your dashboard to explore transactions, adjust wallets, or share a new payment link.",
     "openDashboard": "Open dashboard",
     "preheaderActive": "Your payouts from the past week, summarized.",
-    "preheaderQuiet": "A quick check-in on your account this week."
+    "preheaderQuiet": "A quick check-in on your account this week.",
+    "grossSettled": "Gross settled",
+    "feesPaidRow": "Dynopay fees",
+    "netReceived": "Net received in your wallets",
+    "downloadStatement": "Receipts & Tax → download the CSV statement",
+    "statementBody": "Need this for your books? Every payment's gross, fee and net is in {{link}}."
   },
   "referral": {
     "whyTitle": "Why Dynopay?",
@@ -965,7 +985,12 @@
     "rights": "© Dynopay {{year}}. All Rights reserved.",
     "privacy": "Privacy",
     "terms": "Terms",
-    "support": "Support"
+    "support": "Support",
+    "legal": "© {{year}} {{legalName}} · All rights reserved.",
+    "whyMerchant": "You're receiving this because you have a Dynopay account ({{email}}).",
+    "managePrefs": "Manage email preferences",
+    "whyBuyer": "You're receiving this because you made a payment through Dynopay. Dynopay is non-custodial — funds go straight to the merchant's own wallet.",
+    "whyAdmin": "Internal Dynopay operations notification."
   },
   "orderReceipt": {
     "subject": "Your order {{ref}} is confirmed",
@@ -976,7 +1001,8 @@
     "digitalNote": "Download links above are valid for 24 hours. Need a fresh link?",
     "openOrderPage": "Open your order page",
     "physicalNote": "Your merchant will email a tracking number once your items ship.",
-    "viewOrderDetails": "View order details →"
+    "viewOrderDetails": "View order details →",
+    "paidWith": "Paid with"
   },
   "orderTable": {
     "product": "Product",
@@ -1084,7 +1110,9 @@
       "security": "account security settings",
       "payout": "payout settings",
       "team": "team access",
-      "settlement": "settlement currency"
+      "settlement": "settlement currency",
+      "withdrawal": "withdrawing funds",
+      "exchange": "exchanging funds"
     },
     "twoFaReset": {
       "subject": "Reset your two-step verification",
@@ -1191,6 +1219,40 @@
     "cta": "View this payment",
     "introBelowMinimum": "<strong>{{companyName}}</strong> received a small payment that is below the network forwarding minimum, so nothing was forwarded to your wallet — here is where it went.",
     "preheaderBelowMinimum": "{{amount}} {{currency}} received — below the forwarding minimum, nothing was forwarded.",
-    "moneyPath": "Where the money went"
+    "moneyPath": "Where the money went",
+    "dynopayFeeNoPct": "Dynopay fee",
+    "subjectLarge": "Large payment settled · {{amount}} {{currency}} · {{companyName}}",
+    "largeBadge": "Large payment"
+  },
+  "payoutDelayed": {
+    "amountWaiting": "Waiting to be paid out",
+    "payoutAs": "Paid out as",
+    "since": "Payment received",
+    "conversionId": "Conversion ID",
+    "statusDelayed": "Delayed",
+    "statusManual": "Being handled by our team",
+    "whyLabel": "Why:",
+    "cta": "View payouts",
+    "nothingToDo": "You don't need to do anything. Security and payout-exception emails like this one are always sent.",
+    "reason": {
+      "network": "the blockchain network is congested, so the transfer is taking longer than usual to confirm.",
+      "exchange": "the exchange leg of your auto-conversion is processing slower than usual.",
+      "review": "the payout is being double-checked by our team before it is released.",
+      "unknown": "the payout is taking longer than our normal window."
+    },
+    "delayed": {
+      "subject": "Payout of {{amount}} is delayed",
+      "heading": "Your payout is running late",
+      "preheader": "{{amount}} is taking longer than usual — no action needed.",
+      "intro": "{{companyName}} received {{amount}} from a buyer, but the payout to your wallet has not completed yet.",
+      "next": "We're watching it. You'll get a \"Payment settled\" or \"Payout complete\" email the moment it lands — if it isn't through in 24 hours, our team steps in and we'll update you."
+    },
+    "failed": {
+      "subject": "Payout of {{amount}} needs a manual step",
+      "heading": "Our team is finishing your payout",
+      "preheader": "{{amount}} could not be paid out automatically — we're settling it by hand.",
+      "intro": "{{companyName}} received {{amount}} from a buyer, but the automatic payout did not go through.",
+      "next": "Our operations team has been alerted and is settling this payout manually. Expect a confirmation email within one business day; reply to this email if you need it sooner."
+    }
   }
 }

@@ -7,6 +7,9 @@ ROOT = Path(__file__).resolve().parents[1] / "locales"
 
 NEW = {
     "en": {
+        "subjectLarge": "Large payment settled · {{amount}} {{currency}} · {{companyName}}",
+        "largeBadge": "Large payment",
+        "dynopayFeeNoPct": "Dynopay fee",
         "moneyPath": "Where the money went",
         "introBelowMinimum": "<strong>{{companyName}}</strong> received a small payment that is below the network forwarding minimum, so nothing was forwarded to your wallet — here is where it went.",
         "preheaderBelowMinimum": "{{amount}} {{currency}} received — below the forwarding minimum, nothing was forwarded.",
@@ -39,6 +42,9 @@ NEW = {
         "cta": "View this payment"
     },
     "de": {
+        "subjectLarge": "Große Zahlung abgewickelt · {{amount}} {{currency}} · {{companyName}}",
+        "largeBadge": "Große Zahlung",
+        "dynopayFeeNoPct": "Dynopay-Gebühr",
         "moneyPath": "Wohin das Geld ging",
         "introBelowMinimum": "<strong>{{companyName}}</strong> hat eine kleine Zahlung unter dem Weiterleitungsminimum des Netzwerks erhalten, daher wurde nichts an Ihre Wallet weitergeleitet — so wurde sie verwendet.",
         "preheaderBelowMinimum": "{{amount}} {{currency}} erhalten — unter dem Weiterleitungsminimum, nichts weitergeleitet.",
@@ -71,6 +77,9 @@ NEW = {
         "cta": "Diese Zahlung ansehen"
     },
     "es": {
+        "subjectLarge": "Pago grande liquidado · {{amount}} {{currency}} · {{companyName}}",
+        "largeBadge": "Pago grande",
+        "dynopayFeeNoPct": "Comisión de Dynopay",
         "moneyPath": "Adónde fue el dinero",
         "introBelowMinimum": "<strong>{{companyName}}</strong> recibió un pago pequeño, por debajo del mínimo de reenvío de la red, así que no se reenvió nada a su wallet — así se distribuyó.",
         "preheaderBelowMinimum": "{{amount}} {{currency}} recibidos — por debajo del mínimo de reenvío, no se reenvió nada.",
@@ -103,6 +112,9 @@ NEW = {
         "cta": "Ver este pago"
     },
     "fr": {
+        "subjectLarge": "Paiement important réglé · {{amount}} {{currency}} · {{companyName}}",
+        "largeBadge": "Paiement important",
+        "dynopayFeeNoPct": "Frais Dynopay",
         "moneyPath": "Où est allé l'argent",
         "introBelowMinimum": "<strong>{{companyName}}</strong> a reçu un petit paiement inférieur au minimum de transfert du réseau ; rien n'a donc été transféré vers votre wallet — voici le détail.",
         "preheaderBelowMinimum": "{{amount}} {{currency}} reçus — sous le minimum de transfert, rien n'a été transféré.",
@@ -135,6 +147,9 @@ NEW = {
         "cta": "Voir ce paiement"
     },
     "pt": {
+        "subjectLarge": "Pagamento grande liquidado · {{amount}} {{currency}} · {{companyName}}",
+        "largeBadge": "Pagamento grande",
+        "dynopayFeeNoPct": "Taxa Dynopay",
         "moneyPath": "Para onde foi o dinheiro",
         "introBelowMinimum": "<strong>{{companyName}}</strong> recebeu um pagamento pequeno, abaixo do mínimo de encaminhamento da rede, por isso nada foi encaminhado para a sua wallet — veja o detalhe.",
         "preheaderBelowMinimum": "{{amount}} {{currency}} recebidos — abaixo do mínimo de encaminhamento, nada foi encaminhado.",
@@ -167,6 +182,9 @@ NEW = {
         "cta": "Ver este pagamento"
     },
     "nl": {
+        "subjectLarge": "Grote betaling afgewikkeld · {{amount}} {{currency}} · {{companyName}}",
+        "largeBadge": "Grote betaling",
+        "dynopayFeeNoPct": "Dynopay-kosten",
         "moneyPath": "Waar het geld naartoe ging",
         "introBelowMinimum": "<strong>{{companyName}}</strong> heeft een kleine betaling ontvangen onder het doorstuurminimum van het netwerk, dus er is niets naar uw wallet doorgestuurd — dit is wat ermee gebeurde.",
         "preheaderBelowMinimum": "{{amount}} {{currency}} ontvangen — onder het doorstuurminimum, niets doorgestuurd.",

@@ -9,6 +9,7 @@
 import { getChainMeta, explorerTxUrl } from "./refundChains";
 import { baseEmailTemplate, p, infoBox, dataRow, mono, ctaButton, statusBadge } from "../../utils/emailTemplate";
 import { escapeHtml } from "../email/emailShared";
+import { assetNetworkLabel } from "../../utils/networkLabels";
 
 export type RefundEmailKind = "forwarding" | "completed";
 
@@ -19,6 +20,11 @@ export interface RefundEmailInput {
   forward_txid?: string | null;
   /** Merchant/brand display name so the customer knows WHO refunded them. */
   brand_name?: string | null;
+  /** Reference of the original payment being refunded (hash or payment id). */
+  original_transaction_ref?: string | null;
+  /** Native gas the merchant funded for the refund (merchant copy only). */
+  gas_buffer_native?: number | string | null;
+  gas_buffer_symbol?: string | null;
 }
 
 /** Extra fields available on the merchant record-copy email. */
@@ -30,7 +36,7 @@ export interface MerchantRefundEmailInput extends RefundEmailInput {
 const amountLabel = (r: RefundEmailInput) => `${Number(r.refund_amount)} ${r.asset}`;
 const networkLabel = (r: RefundEmailInput) => {
   const meta = getChainMeta(r.chain);
-  return meta ? meta.walletType : r.chain;
+  return assetNetworkLabel(meta ? meta.walletType : r.chain);
 };
 
 /** Explorer CTA + full URL (or a plain tx id when no explorer is known). */
@@ -39,7 +45,7 @@ const txBlock = (r: RefundEmailInput): string => {
   const url = meta ? explorerTxUrl(meta, r.forward_txid) : null;
   if (url) {
     return `${ctaButton("View transaction on-chain", url)}
-      ${p(`<a href="${url}" style="color: #6b7280; word-break: break-all;">${url}</a>`, "font-size: 12px; color: #6b7280; text-align: center;")}`;
+      ${p(`Transaction ID: ${mono(r.forward_txid || "")}`, "font-size: 12px; color: #6b7280; text-align: center; word-break: break-all;")}`;
   }
   if (r.forward_txid) {
     return p(`Transaction ID: ${mono(r.forward_txid)}`, "font-size: 13px; color: #6b7280;");
@@ -60,6 +66,8 @@ export const buildRefundEmail = (
   const brand = escapeHtml(String(refund.brand_name || "").trim());
   const fromBrand = brand ? ` from <strong>${brand}</strong>` : "";
   const merchantRow = brand ? dataRow("Merchant", `<strong>${brand}</strong>`) : "";
+  const origRef = String(refund.original_transaction_ref || "").trim();
+  const origRow = origRef ? dataRow("Original payment", mono(origRef.length > 20 ? `${origRef.slice(0, 10)}…${origRef.slice(-6)}` : origRef)) : "";
   const footer = "This is an automated message from Dynopay about your refund.";
 
   if (kind === "forwarding") {
@@ -69,13 +77,14 @@ export const buildRefundEmail = (
         ${merchantRow}
         ${dataRow("Status", statusBadge("On its way", "pending"))}
         ${dataRow("Refund", `<strong>${amountStr}</strong>`)}
+        ${origRow}
         ${dataRow("Network", network, true)}
       </table>`)}
       ${p("We'll email you the on-chain transaction link as soon as it's confirmed.")}
       ${footnote(footer)}`;
     return {
       subject: `Your Dynopay refund of ${amountStr} is on its way`,
-      html: baseEmailTemplate("Your refund is on its way", body, { hero: "refund", preheader: `${amountStr} is heading back to your wallet` }),
+      html: baseEmailTemplate("Your refund is on its way", body, { hero: "refund", preheader: `${amountStr} is heading back to your wallet`, audience: "buyer" }),
     };
   }
 
@@ -85,13 +94,14 @@ export const buildRefundEmail = (
       ${merchantRow}
       ${dataRow("Status", statusBadge("Complete", "success"))}
       ${dataRow("Refund", `<strong>${amountStr}</strong>`)}
+      ${origRow}
       ${dataRow("Network", network, true)}
     </table>`, "#12B76A")}
     ${txBlock(refund)}
     ${footnote(footer)}`;
   return {
     subject: `Your Dynopay refund of ${amountStr} is complete`,
-    html: baseEmailTemplate("Your refund is complete", body, { hero: "refund", preheader: `${amountStr} was sent back to your wallet` }),
+    html: baseEmailTemplate("Your refund is complete", body, { hero: "refund", preheader: `${amountStr} was sent back to your wallet`, audience: "buyer" }),
   };
 };
 
@@ -111,7 +121,9 @@ export const buildMerchantRefundEmail = (
     ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
       ${dataRow("Status", statusBadge("Complete", "success"))}
       ${dataRow("Amount", `<strong>${amountStr}</strong>`)}
-      ${dataRow("Network", network, !customer && !refund.refund_id)}
+      ${Number(refund.gas_buffer_native) > 0 ? dataRow("Network fee (you funded)", `${String(refund.gas_buffer_native)} ${escapeHtml(String(refund.gas_buffer_symbol || ""))}`) : ""}
+      ${dataRow("Network", network)}
+      ${String(refund.original_transaction_ref || "").trim() ? dataRow("Original payment", mono(String(refund.original_transaction_ref))) : ""}
       ${customer ? dataRow("Customer", customer, !refund.refund_id) : ""}
       ${refund.refund_id ? dataRow("Refund ID", mono(String(refund.refund_id)), true) : ""}
     </table>`, "#12B76A")}

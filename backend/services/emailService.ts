@@ -53,7 +53,6 @@ import {
   sendUserProfileUpdatedEmail,
   sendCreatorHandleUpdatedEmail,
   sendSecurityAlertEmail,
-  sendLoginNotificationEmail,
   sendFailedLoginAttemptsEmail,
 } from "./email/accountEmails";
 import {
@@ -81,7 +80,6 @@ import {
   sendCustomerPaymentConfirmationEmail,
 } from "./email/paymentEmails";
 import {
-  sendLargeTransactionAlertEmail,
   sendWebhookDisabledEmail,
   sendWebhookRedirectEmail,
   sendAdminFeeReceivedEmail,
@@ -116,7 +114,6 @@ import {
   sendOnboardingStuckAdminEmail,
   sendOnboardingCompletedAdminEmail,
   sendFirstPaymentAdminEmail,
-  sendNewVisitorAdminEmail,
 } from "./email/adminNotificationEmails";
 import {
   sendOrderReceiptEmail,
@@ -146,7 +143,6 @@ export default {
   sendUserProfileUpdatedEmail,
   sendCreatorHandleUpdatedEmail,
   sendSecurityAlertEmail,
-  sendLoginNotificationEmail,
   sendFailedLoginAttemptsEmail,
   // Company
   sendCompanyProfileCreatedEmail,
@@ -169,7 +165,6 @@ export default {
   sendPaymentPartialEmail,
   sendPaymentPartialExpiredEmail,
   sendCustomerPaymentConfirmationEmail,
-  sendLargeTransactionAlertEmail,
   sendWebhookDisabledEmail,
   sendWebhookRedirectEmail,
   // Admin
@@ -201,7 +196,6 @@ export default {
   sendOnboardingStuckAdminEmail,
   sendOnboardingCompletedAdminEmail,
   sendFirstPaymentAdminEmail,
-  sendNewVisitorAdminEmail,
   // Volume-based fee tier
   sendVolumeTierUpgradeEmail,
   // Product Catalog (Phase 1)

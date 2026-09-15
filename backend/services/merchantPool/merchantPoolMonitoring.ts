@@ -561,10 +561,20 @@ const processAddress = async (addr: any, result: {
                 result.processed++;
               } else {
                 // Mark as failed again so next cron cycle can retry
-                const failedData = { ...recoveryData, status: 'failed', failedAt: new Date().toISOString(), lastError: err?.message || 'cryptoVerification failed on retry' };
+                const firstFailedAt = redisData.firstFailedAt || redisData.failedAt || redisData.permanentlyFailedAt || new Date().toISOString();
+                const failedData = { ...recoveryData, status: 'failed', failedAt: new Date().toISOString(), firstFailedAt, lastError: err?.message || 'cryptoVerification failed on retry' };
                 await setRedisItem(cryptoRedisKey, failedData);
                 cronLogger.error(`[MerchantPool] ❌ Recovery failed for ${walletAddress}: ${err?.message || verifyError}`);
                 result.errors.push(`Recovery failed for ${walletAddress}: ${err?.message}`);
+                // Settlement stuck for > 2h → tell the merchant once, in plain words (no action needed).
+                if (Date.now() - new Date(firstFailedAt).getTime() > 2 * 60 * 60 * 1000) {
+                  try {
+                    const { notifyMerchantSettlementDelayed } = await import("../email/payoutEmails");
+                    await notifyMerchantSettlementDelayed({ address: walletAddress, companyId, txId: savedTxId, amount: savedReceivedAmount, asset: walletType, since: new Date(firstFailedAt) });
+                  } catch (delayErr: unknown) {
+                    cronLogger.warn(`[MerchantPool] ⚠️ settlement-delayed email failed (non-critical): ${(delayErr as { message?: string })?.message}`);
+                  }
+                }
               }
             }
             return;

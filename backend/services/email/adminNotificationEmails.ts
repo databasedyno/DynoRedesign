@@ -75,7 +75,7 @@ export const sendNewUserAdminNotification = async (userData: {
     ${p(`The account is now <strong>active</strong>. The merchant can begin setting up their payment integration immediately.`)}
     ${p(`You can review this account in the admin dashboard.`, `color: #6b7280; font-size: 13px;`)}`;
 
-    const html = baseEmailTemplate("New Merchant Registration", content);
+    const html = baseEmailTemplate("New Merchant Registration", content, { audience: "admin" });
     await mailTransporter({ to: adminEmail, name: "Dynopay Admin", subject, body: html });
     apiLogger.info(`[Email] New user admin notification sent for ${contactInfo} (${registrationMethod}, ${countryLabel})`);
   } catch (e) {
@@ -134,7 +134,7 @@ export const sendOnboardingStuckAdminEmail = async (userData: {
     ${p(`<strong>Pending Steps:</strong><br/>${pendingList}`)}
     ${p(`Consider reaching out to help this merchant complete their setup.`, `color: #6b7280; font-size: 13px;`)}`;
 
-    const html = baseEmailTemplate("Onboarding Stuck Alert", content);
+    const html = baseEmailTemplate("Onboarding Stuck Alert", content, { audience: "admin" });
     await mailTransporter({ to: adminEmail, name: "Dynopay Admin", subject, body: html });
     apiLogger.info(`[Email] Onboarding stuck notification sent for user ${userData.user_id} (stuck at: ${stuckLabel}, ${hours}h)`);
   } catch (e) {
@@ -185,7 +185,7 @@ export const sendOnboardingCompletedAdminEmail = async (userData: {
     ${p(`All onboarding steps completed: email verified, company created, wallet address configured.`)}
     ${p(`This merchant is now live and can receive their first payment.`, `color: #6b7280; font-size: 13px;`)}`;
 
-    const html = baseEmailTemplate("Onboarding Complete", content);
+    const html = baseEmailTemplate("Onboarding Complete", content, { audience: "admin" });
     await mailTransporter({ to: adminEmail, name: "Dynopay Admin", subject, body: html });
     apiLogger.info(`[Email] Onboarding complete notification sent for user ${userData.user_id}`);
   } catch (e) {
@@ -243,7 +243,7 @@ export const sendFirstPaymentAdminEmail = async (data: {
     ${p(`This is a key milestone — the merchant is now actively processing payments.`)}
     ${p(`You can view the full transaction details in the admin dashboard.`, `color: #6b7280; font-size: 13px;`)}`;
 
-    const html = baseEmailTemplate("First Payment Milestone", content);
+    const html = baseEmailTemplate("First Payment Milestone", content, { audience: "admin" });
     await mailTransporter({ to: adminEmail, name: "Dynopay Admin", subject, body: html });
     apiLogger.info(`[Email] First payment notification sent for user ${data.user_id} — ${data.amount} ${data.currency}`);
   } catch (e) {
@@ -255,82 +255,6 @@ export const sendFirstPaymentAdminEmail = async (data: {
 // SECTION 12F: ADMIN — NEW WEBSITE VISITOR NOTIFICATION
 // ============================================================
 
-/**
- * Send notification to admin when a new unique visitor arrives at the website.
- */
-export const sendNewVisitorAdminEmail = async (visitorData: {
-  ip: string;
-  country?: string | null;
-  city?: string | null;
-  referrer?: string | null;
-  page: string;
-  user_agent?: string | null;
-  timestamp: string;
-}) => {
-  try {
-    const adminEmail = config.raw("ADMIN_EMAIL");
-    if (!adminEmail) return;
-
-    const country = visitorData.country || "Unknown";
-    const referrer = visitorData.referrer || "Direct";
-    const page = visitorData.page || "/";
-
-    // Mask IP for privacy (show first 2 octets only)
-    const ipParts = visitorData.ip.split('.');
-    const maskedIp = ipParts.length === 4
-      ? `${ipParts[0]}.${ipParts[1]}.*.*`
-      : visitorData.ip.substring(0, Math.min(visitorData.ip.length, 12)) + '...';
-
-    // Parse user agent for readable browser/OS
-    const ua = visitorData.user_agent || "Unknown";
-    let browser = "Unknown";
-    if (ua.includes("Chrome") && !ua.includes("Edg")) browser = "Chrome";
-    else if (ua.includes("Firefox")) browser = "Firefox";
-    else if (ua.includes("Safari") && !ua.includes("Chrome")) browser = "Safari";
-    else if (ua.includes("Edg")) browser = "Edge";
-    else if (ua.includes("bot") || ua.includes("Bot") || ua.includes("crawl")) browser = "Bot/Crawler";
-
-    const subject = `New Visitor — ${country} via ${(() => {
-      if (referrer === "Direct") return "Direct";
-      try {
-        return new URL(referrer).hostname;
-      } catch {
-        // Referrer headers aren't always valid URLs (e.g. app schemes) — never
-        // let a bad value crash the whole notification.
-        return String(referrer).slice(0, 40);
-      }
-    })()}`;
-
-    const content = `${p(`A new unique visitor has arrived at Dynopay.`)}
-    ${infoBox(`
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow('Location', `${visitorData.city ? visitorData.city + ', ' : ''}${country}`)}
-        ${dataRow('IP (masked)', maskedIp)}
-        ${dataRow('Page', page)}
-        ${dataRow('Referrer', referrer === "Direct" ? "Direct visit (no referrer)" : referrer)}
-        ${dataRow('Browser', browser)}
-        ${dataRow('Time', visitorData.timestamp)}
-      </table>
-    `, EMAIL_TOKENS.brand)}
-    ${p(`This visitor may become a potential merchant. Monitor sign-ups in the admin dashboard.`, `color: #6b7280; font-size: 13px;`)}`;
-
-    const html = baseEmailTemplate("New Website Visitor", content);
-    await mailTransporter({ to: adminEmail, name: "Dynopay Admin", subject, body: html });
-    apiLogger.info(`[Email] New visitor notification sent — ${country}, page: ${page}`);
-  } catch (e) {
-    apiLogger.error("[Email] New visitor notification error:", e);
-  }
-};
-
-// ============================================================
-// SECTION 12D: ADMIN — BRAND DELETED (7-day restore window)
-// ============================================================
-
-/**
- * Notify ops when a merchant soft-deletes a brand. The brand is retained for
- * 7 days and can be restored with one click from Admin -> Merchants -> Deleted
- * brands until `purgeDateStr`.
- */
 export const sendBrandDeletedAdminEmail = async (info: {
   companyId: number | string;
   companyName: string;
@@ -363,7 +287,7 @@ export const sendBrandDeletedAdminEmail = async (info: {
     `, '#f59e0b')}
     ${p(`To bring it back, open <strong>Admin → Merchants → Deleted brands</strong> and hit Restore — one click reinstates the brand and all of its data.`)}`;
 
-    const html = dynoPayEmailTemplate("Brand deleted", `${p(`Hey Dynopay Admin,`)}\n${content}`, true, "Open admin panel", `${FRONTEND_BASE_URL}/admin/merchants`, `${brand} was deleted — restorable until ${escapeHtml(info.purgeDateStr)}.`, undefined, 'trash');
+    const html = dynoPayEmailTemplate("Brand deleted", `${p(`Hey Dynopay Admin,`)}\n${content}`, true, "Open admin panel", `${FRONTEND_BASE_URL}/admin/merchants`, `${brand} was deleted — restorable until ${escapeHtml(info.purgeDateStr)}.`, undefined, 'trash', 'admin');
     await mailTransporter({ to: adminEmail, name: "Dynopay Admin", subject, body: html });
     apiLogger.info(`[Email] Brand-deleted admin notification sent for ${info.companyName} (#${info.companyId})`);
   } catch (e) {
@@ -408,7 +332,7 @@ export const sendAccountDeletedAdminEmail = async (info: {
     `, '#f59e0b')}
     ${p(`To bring it back, open <strong>Admin → Merchants → Deleted accounts</strong> and hit Restore — one click reinstates the account and all of its brands and data.`)}`;
 
-    const html = dynoPayEmailTemplate("Account deleted", `${p(`Hey Dynopay Admin,`)}\n${content}`, true, "Open admin panel", `${FRONTEND_BASE_URL}/admin/merchants`, `${ownerEmail} deleted their account — restorable until ${escapeHtml(info.purgeDateStr)}.`, undefined, 'person-off');
+    const html = dynoPayEmailTemplate("Account deleted", `${p(`Hey Dynopay Admin,`)}\n${content}`, true, "Open admin panel", `${FRONTEND_BASE_URL}/admin/merchants`, `${ownerEmail} deleted their account — restorable until ${escapeHtml(info.purgeDateStr)}.`, undefined, 'person-off', 'admin');
     await mailTransporter({ to: adminEmail, name: "Dynopay Admin", subject, body: html });
     apiLogger.info(`[Email] Account-deleted admin notification sent for user #${info.userId}`);
   } catch (e) {

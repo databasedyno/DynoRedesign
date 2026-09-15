@@ -24,7 +24,10 @@
     "platformFee": "Comisión de Dynopay",
     "feePaidByMerchant": "pagada por el comercio",
     "feePaidByCustomer": "añadida a tu total",
-    "paymentMethod": "Método de pago"
+    "paymentMethod": "Método de pago",
+    "network": "Red",
+    "confirmationsNeeded": "Confirmaciones necesarias",
+    "typicalWait": "normalmente {{wait}}"
   },
   "statusLabels": {
     "received": "Recibido",
@@ -838,7 +841,19 @@
     "overpaidBy": "Pagado de más",
     "statusOverpaid": "Sobrepago",
     "merchantBody": "Tu pago incluye el importe total adeudado MÁS el excedente de {{excess}} (≈ {{excessFiat}}); Dynopay nunca se queda con un sobrepago. Si el comprador lo pide, puedes reembolsar la diferencia desde los detalles de la transacción.",
-    "viewTransactions": "Ver transacciones"
+    "viewTransactions": "Ver transacciones",
+    "merchantPreheader": "Un comprador envió {{excess}} más de lo debido — está en su pago.",
+    "refundCta": "Revisar pago · reembolsar el exceso",
+    "merchantKeep": "No hay nada que hacer si lo conserva — el comprador ya sabe que el exceso le llegó a usted y cómo pedirlo de vuelta.",
+    "customer": "Cliente",
+    "buyerSubject": "Envió un poco más de lo necesario a {{company}}",
+    "buyerHeading": "Pagó de más — esto es lo que pasa ahora",
+    "buyerPreheader": "{{excess}} adicionales llegaron a {{company}}. Pídales el reembolso de la diferencia.",
+    "buyerIntro": "Su pago a {{company}} se completó — gracias. Su wallet envió <strong>{{excess}}</strong> (≈ {{excessFiat}}) más del importe debido.",
+    "buyerBody": "Dynopay no tiene custodia, así que el importe completo, incluido el exceso, fue directamente a {{company}}. Para recuperar la diferencia, contacte con el comercio{{contact}} e indique la referencia de arriba — puede reembolsarla con un clic desde su panel.",
+    "amountDue": "Importe debido",
+    "amountSent": "Importe enviado",
+    "buyerCta": "Contactar con {{company}}"
   },
   "payoutDigest": {
     "subjectActive": "Tu semana en Dynopay: {{amount}} liquidados",
@@ -864,7 +879,12 @@
     "openDashboardBody": "Abre tu panel para explorar transacciones, ajustar billeteras o compartir un nuevo enlace de pago.",
     "openDashboard": "Abrir panel",
     "preheaderActive": "Un resumen de tus cobros de la última semana.",
-    "preheaderQuiet": "Un vistazo rápido a tu cuenta esta semana."
+    "preheaderQuiet": "Un vistazo rápido a tu cuenta esta semana.",
+    "grossSettled": "Bruto liquidado",
+    "feesPaidRow": "Comisiones de Dynopay",
+    "netReceived": "Neto recibido en sus wallets",
+    "downloadStatement": "Recibos e impuestos → descargar el extracto CSV",
+    "statementBody": "¿Lo necesita para su contabilidad? El bruto, la comisión y el neto de cada pago están en {{link}}."
   },
   "referral": {
     "whyTitle": "¿Por qué Dynopay?",
@@ -965,7 +985,12 @@
     "rights": "© Dynopay {{year}}. Todos los derechos reservados.",
     "privacy": "Privacidad",
     "terms": "Términos",
-    "support": "Soporte"
+    "support": "Soporte",
+    "legal": "© {{year}} {{legalName}} · Todos los derechos reservados.",
+    "whyMerchant": "Recibe este correo porque tiene una cuenta de Dynopay ({{email}}).",
+    "managePrefs": "Gestionar preferencias de correo",
+    "whyBuyer": "Recibe este correo porque realizó un pago a través de Dynopay. Dynopay no tiene custodia: los fondos van directamente a la wallet del comercio.",
+    "whyAdmin": "Notificación interna de operaciones de Dynopay."
   },
   "orderReceipt": {
     "subject": "Tu pedido {{ref}} está confirmado",
@@ -976,7 +1001,8 @@
     "digitalNote": "Los enlaces de descarga anteriores son válidos durante 24 horas. ¿Necesitas un enlace nuevo?",
     "openOrderPage": "Abre la página de tu pedido",
     "physicalNote": "El comercio te enviará un número de seguimiento por correo cuando se envíen tus artículos.",
-    "viewOrderDetails": "Ver detalles del pedido →"
+    "viewOrderDetails": "Ver detalles del pedido →",
+    "paidWith": "Pagado con"
   },
   "orderTable": {
     "product": "Producto",
@@ -1084,7 +1110,9 @@
       "security": "ajustes de seguridad de la cuenta",
       "payout": "ajustes de retiro",
       "team": "acceso del equipo",
-      "settlement": "moneda de liquidación"
+      "settlement": "moneda de liquidación",
+      "withdrawal": "retirar fondos",
+      "exchange": "intercambiar fondos"
     }
   },
   "paymentRequest": {
@@ -1175,6 +1203,40 @@
     "cta": "Ver este pago",
     "introBelowMinimum": "<strong>{{companyName}}</strong> recibió un pago pequeño, por debajo del mínimo de reenvío de la red, así que no se reenvió nada a su wallet — así se distribuyó.",
     "preheaderBelowMinimum": "{{amount}} {{currency}} recibidos — por debajo del mínimo de reenvío, no se reenvió nada.",
-    "moneyPath": "Adónde fue el dinero"
+    "moneyPath": "Adónde fue el dinero",
+    "dynopayFeeNoPct": "Comisión de Dynopay",
+    "subjectLarge": "Pago grande liquidado · {{amount}} {{currency}} · {{companyName}}",
+    "largeBadge": "Pago grande"
+  },
+  "payoutDelayed": {
+    "amountWaiting": "Pendiente de pago",
+    "payoutAs": "Pagado como",
+    "since": "Pago recibido",
+    "conversionId": "ID de conversión",
+    "statusDelayed": "Retrasado",
+    "statusManual": "Gestionado por nuestro equipo",
+    "whyLabel": "Motivo:",
+    "cta": "Ver pagos",
+    "nothingToDo": "No necesita hacer nada. Los correos de seguridad y de excepciones de pago como este siempre se envían.",
+    "reason": {
+      "network": "la red blockchain está congestionada, por lo que la transferencia tarda más de lo habitual en confirmarse.",
+      "exchange": "la etapa de exchange de su conversión automática se está procesando más lento de lo habitual.",
+      "review": "nuestro equipo está revisando el pago antes de liberarlo.",
+      "unknown": "el pago está tardando más que nuestro plazo normal."
+    },
+    "delayed": {
+      "subject": "El pago de {{amount}} se ha retrasado",
+      "heading": "Su pago va con retraso",
+      "preheader": "{{amount}} está tardando más de lo habitual — no se requiere ninguna acción.",
+      "intro": "{{companyName}} recibió {{amount}} de un comprador, pero el pago a su wallet aún no se ha completado.",
+      "next": "Lo estamos vigilando. Recibirá un correo de \"Pago liquidado\" o \"Pago completado\" en cuanto llegue; si no se completa en 24 horas, nuestro equipo intervendrá y le informaremos."
+    },
+    "failed": {
+      "subject": "El pago de {{amount}} necesita un paso manual",
+      "heading": "Nuestro equipo está finalizando su pago",
+      "preheader": "{{amount}} no pudo pagarse automáticamente — lo estamos liquidando a mano.",
+      "intro": "{{companyName}} recibió {{amount}} de un comprador, pero el pago automático no se completó.",
+      "next": "Nuestro equipo de operaciones ha sido alertado y está liquidando este pago manualmente. Recibirá un correo de confirmación en un día hábil; responda a este correo si lo necesita antes."
+    }
   }
 }

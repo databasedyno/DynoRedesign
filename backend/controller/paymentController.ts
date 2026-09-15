@@ -116,6 +116,7 @@ import { trackCreatorVisit } from "./payment/creatorVisitTracking";
 import { getLinkAccessToken, getAccessToken } from "./payment/paymentTokens";
 import { toFixedStr, toNumber, D, div } from "../utils/money";
 import { computeInclusiveSplit, computeFallbackSplit } from "./payment/checkoutMath";
+import { explorerTxUrl } from "../services/receiptLinkService";
 
 // Checkout currency aliases → internal wallet types (shared by quote cache + addPayment)
 const CHECKOUT_CRYPTO_ALIASES: Record<string, string> = {
@@ -1932,7 +1933,7 @@ const processIncompletePayments = async () => {
 
             await safeDeleteSubscription(tempTx.subscription_id, 'partial payment completed');
 
-            // Send partial payment completed notification
+            // Send partial payment completed notification (with the full money path)
             await sendPartialPaymentExpiredNotification(
               tempTx.wallet_address,
               tempTx.txId,
@@ -1941,7 +1942,22 @@ const processIncompletePayments = async () => {
               tempTx.wallet_type,
               tempTx.user_id,
               tempTx.company_id,
-              "completed_partial"
+              "completed_partial",
+              {
+                grossCrypto: toFixedStr(totalReceived, 8),
+                asset: tempTx.wallet_type,
+                feePercent: null,
+                feeCrypto: toFixedStr(adminAmountToSend, 8),
+                feePayer: fee_payer,
+                belowMinimum: Number(userAmountToSend) <= 0,
+                netCrypto: toFixedStr(userAmountToSend, 8),
+                destinationAddress: merchantWallet.dataValues.wallet_address,
+                destinationTag: merchantWallet.dataValues.destination_tag || null,
+                forwardTxHash: result.transactionDetails?.txId || null,
+                explorerUrl: explorerTxUrl(tempTx.wallet_type, result.transactionDetails?.txId || null),
+                reference: tempTx.txId || null,
+                detectedAt: new Date(),
+              }
             );
 
             cronLogger.info(`Incomplete payment processed successfully for ${tempTx.wallet_address}`);
@@ -2108,7 +2124,7 @@ const processIncompletePayments = async () => {
 
             await safeDeleteSubscription(tempTx.subscription_id, 'partial payment expired');
 
-            // Send partial payment expired notification
+            // Send partial payment expired notification (with the money path of what was forwarded)
             await sendPartialPaymentExpiredNotification(
               tempTx.wallet_address,
               tempTx.txId,
@@ -2117,7 +2133,22 @@ const processIncompletePayments = async () => {
               tempTx.wallet_type,
               tempTx.user_id,
               tempTx.company_id,
-              "incomplete_expired"
+              "incomplete_expired",
+              {
+                grossCrypto: toFixedStr(tempTx.amount, 8),
+                asset: tempTx.wallet_type,
+                feePercent: null,
+                feeCrypto: toFixedStr(adminAmountToSend, 8),
+                feePayer: fee_payer,
+                belowMinimum: Number(userAmountToSend) <= 0,
+                netCrypto: toFixedStr(userAmountToSend, 8),
+                destinationAddress: merchantWallet.dataValues.wallet_address,
+                destinationTag: merchantWallet.dataValues.destination_tag || null,
+                forwardTxHash: result.transactionDetails?.txId || null,
+                explorerUrl: explorerTxUrl(tempTx.wallet_type, result.transactionDetails?.txId || null),
+                reference: tempTx.txId || null,
+                detectedAt: new Date(),
+              }
             );
 
             // F3: tell the buyer too, if they left an email on the checkout session.

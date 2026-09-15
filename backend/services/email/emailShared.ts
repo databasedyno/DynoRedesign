@@ -1,7 +1,7 @@
 import mailTransporter from "../../utils/mailTransporter";
 import config from "../../utils/config";
 import { captureError } from "../errorMonitoringService";
-import { baseEmailTemplate, getCurrencySymbol, p, type EmailHero } from "../../utils/emailTemplate";
+import { baseEmailTemplate, getCurrencySymbol, p, type EmailHero, type EmailAudience } from "../../utils/emailTemplate";
 import { t as tr, firstNameOnly } from "../../utils/emailI18n";
 import { toFixedStr } from "../../utils/money";
 
@@ -46,9 +46,11 @@ export const dynoPayEmailTemplate = (
   /** Recipient language — localizes the shared sign-off/footer chrome. Omit for English. */
   lang?: string | null,
   /** Per-action hero icon above the heading (see utils/emailTemplate EmailHero). */
-  hero?: EmailHero
+  hero?: EmailHero,
+  /** Footer "why you received this" variant — 'buyer' for customer-facing emails. */
+  audience?: EmailAudience
 ) => {
-  return baseEmailTemplate(heading, content, { showButton, buttonText, buttonLink, preheader, lang: lang || undefined, hero });
+  return baseEmailTemplate(heading, content, { showButton, buttonText, buttonLink, preheader, lang: lang || undefined, hero, audience });
 };
 
 /**
@@ -64,7 +66,8 @@ export const dynoPayGreetingTemplate = (
   lang?: string,
   preheader?: string,
   hero?: EmailHero,
-  cta?: { text: string; link: string }
+  cta?: { text: string; link: string },
+  audience?: EmailAudience
 ) => {
   const cleanName = (name || '').trim();
   // Never greet someone by their raw email address: if we only know the email
@@ -84,6 +87,7 @@ export const dynoPayGreetingTemplate = (
     showButton: !!cta,
     buttonText: cta?.text,
     buttonLink: cta?.link,
+    audience,
   });
 };
 
@@ -150,7 +154,7 @@ export const sendEmail = async (
   showImage = false
 ) => {
   try {
-    const htmlBody = dynoPayEmailTemplate(subject, `${p(`Hey ${firstNameOnly(name)},`)}\n${message}`);
+    const htmlBody = dynoPayEmailTemplate(subject, `${greetingLine(undefined, firstNameOnly(name))}\n${message}`);
     const info = await mailTransporter({
       to: recipientEmail,
       name,

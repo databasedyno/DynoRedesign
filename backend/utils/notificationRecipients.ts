@@ -199,3 +199,19 @@ export default {
   dedupeEmails,
   CATEGORY_PERMISSION,
 };
+
+/**
+ * Opt-IN sub-category: per-confirmation progress emails are noisy, so they are
+ * OFF unless notification_prefs.categories.confirming === true. Pending and
+ * Settled emails are unaffected.
+ */
+export async function isConfirmingEmailOptedIn(companyId: number | string | null | undefined): Promise<boolean> {
+  if (!companyId) return false;
+  const c = await companyModel.findOne({ where: { company_id: companyId }, attributes: ["notification_prefs"] });
+  if (!c) return false;
+  const cd = c.get({ plain: true }) as { notification_prefs?: Record<string, unknown> | null };
+  const prefs = (cd.notification_prefs && typeof cd.notification_prefs === "object")
+    ? cd.notification_prefs as { categories?: Record<string, boolean> }
+    : {};
+  return prefs.categories?.confirming === true;
+}

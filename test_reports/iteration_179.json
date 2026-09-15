@@ -1,0 +1,38 @@
+{
+  "summary": "Wave 4 email + notification-preferences + checkout regression tested end-to-end (SAFE MODE, live prod DB). Backend pytest 4/4 pass: (1) POST /api/track/visitor {page:'/'} returns 200 {ok:true} (no-op retained), (2) POST /api/user/login with onarrival21@gmail.com returns 200 with accessToken (no 500 after removing known-device email branch in userShared.ts), (3) authenticated GET /api/user/profile returns 200, (4) round-trip: GET /api/notifications/preferences?company_id=1 -> PUT with categories.confirming=true -> GET confirms confirming===true persisted -> PUT restore to original false -> GET confirms restore (state clean; no other pref values touched). Static: `npx tsc --noEmit` = 0 errors. `node scripts/check-email-dark-mode.mjs` = OK (32 sources clean). Email render harness `audit_render_all_emails.ts` rendered 141/141 with no 'no-output'/'error:' lines. Grep of /app/plan/audit/emails/html: no un-interpolated `{{` handlebars, © 2026 Dynopay Payments Ltd. present in all 141 HTMLs, 12 DE-locale files miss the exact English footer string 'You're receiving this' because their footer is translated to German ('...erhalten...') — not a bug, spec check is EN-only. 5 files still contain the un-swapped %%TO_EMAIL%% token (018_activation_gate_brand, 019_activation_gate_wallet, 020_activation_gate_kyc, 102_payments_overpaid_merchant, 140_refund_merchantRefund_completed): these are written via `writeBuilt()` which bypasses `mailTransporter.sendEmail`'s token-swap; at actual send time the token IS replaced, so this is a harness-render artifact rather than a live-email defect, but flagging per spec strictness. Frontend: /auth/login 2-step login works (login-email-input -> Continue -> password-input -> signin-submit-btn -> /dashboard). /settings?section=notifications: company-categories-toggle click reveals company-category-confirming-switch (aria-checked absent -> UI toggle uses a checked class; visually OFF by default, screenshot captured; not toggled per instructions), title 'Confirmation progress' present, description contains 'Off by default'. /pay?d=rNtQRX renders clean-checkout-currency-select with all coin-cost hints (COIN-USDT verified), network chips clean-checkout-network-POLYGON + clean-checkout-network-TRC20 (as Tron), clean-checkout-network-cheapest badge on Polygon ('CHEAPEST'), clean-checkout-continue-hint contains 'network fee'. Continue button NOT clicked (would reserve live address).",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "audit_render_all_emails.ts", "issue": "5 rendered HTML files contain un-swapped %%TO_EMAIL%% token (018/019/020 activation-gate, 102 payments_overpaid_merchant, 140 refund_merchantRefund_completed). These templates are captured via writeBuilt() which does not run the mailTransporter token-swap (which replaces %%TO_EMAIL%% with the recipient). In production the swap DOES happen at send-time so live emails are correct; this is a harness completeness gap. Consider making writeBuilt run the raw HTML through the same swap that mailTransporter does before writing, OR asserting in a follow-up test."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_wave4_emails_iter179.py",
+    "/app/test_reports/pytest/iter179.xml"
+  ],
+  "action_items": [
+    "Optional (non-blocking): in scripts/audit_render_all_emails.ts, replace %%TO_EMAIL%% with the recipient before fs.writeFileSync inside writeBuilt() so the spec check 'no file contains %%TO_EMAIL%%' passes without ambiguity (5 files affected: 018_activation_gate_brand, 019_activation_gate_wallet, 020_activation_gate_kyc, 102_payments_overpaid_merchant, 140_refund_merchantRefund_completed).",
+    "Optional: audit spec grep for footer why-line currently only accepts English 'You're receiving this' — 12 DE locale files use the German translation 'erhalten'. Either update the grep to accept the i18n variant or skip DE files. No functional defect."
+  ],
+  "critical_code_review_comments": [
+    "notificationController.ts L201-208: categories whitelist correctly includes 'confirming'. Round-trip persists via companyModel.notification_prefs JSON field; verified end-to-end.",
+    "trackRouter visitor endpoint is a stable 200 no-op — good.",
+    "userShared.ts known-device branch removed cleanly — login returns 200 in <500ms; no 500s observed.",
+    "audit harness writeBuilt() bypasses the mailTransporter TO_EMAIL_TOKEN swap; consider unifying so both capture() and writeBuilt() paths produce identical send-ready HTML."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_wave4_emails_iter179.py (new)"
+  ],
+  "success_rate": {"backend": "100% (4/4 pytest + tsc + dark-mode + render 141/141)", "frontend": "100% (login + confirming switch present with correct title/copy + checkout coin picker/network chips/cheapest badge/hint all present)"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (company_id=1) per /app/memory/test_credentials.md",
+  "seed_data_creation": "None — round-trip left company_notification_prefs.categories.confirming restored to its original value (false).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Preview URL for THIS iteration is https://vault-setup-6.preview.emergentagent.com (differs from what's in /app/.env NEXT_PUBLIC_SERVER_URL which is a stale ddc6a6bd-... URL). Backend occasionally returns 503 'Backend starting, please retry' for ~20s after code changes — retry once with sleep 25 and it recovers. Notification prefs PUT payload shape uses top-level company_id + company_notification_prefs:{ team_fanout, categories:{payments,payouts,orders,config,digests,confirming} }; only boolean values in categories are accepted. UI confirming-switch has data-testid='company-category-confirming-switch' but does not expose aria-checked; use the [data-state=checked] attribute or class-based check if switching is required.",
+  "rca of the issue": "No functional issues. Only harness/spec-check nits: (a) 5 templates rendered via writeBuilt() still contain %%TO_EMAIL%% because that write path skips the mailTransporter swap — production sends replace the token correctly; (b) EN-only footer grep flags 12 legitimately-translated DE files."
+}

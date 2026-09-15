@@ -57,12 +57,12 @@ async function capture(family: string, sender: string, variant: string, audience
 function writeBuilt(family: string, sender: string, variant: string, audience: Audience, to: string, subject: string, html: string) {
   n++;
   const slug = `${String(n).padStart(3, "0")}_${family}_${sender}${variant ? "_" + variant : ""}`;
-  fs.writeFileSync(path.join(OUT, `${slug}.html`), `<!-- to: ${to} | subject: ${subject} -->\n${html}`);
+  fs.writeFileSync(path.join(OUT, `${slug}.html`), `<!-- to: ${to} | subject: ${subject} -->\n${html.split("%%TO_EMAIL%%").join(to)}`);
   manifest.push({ n, slug, family, sender, variant, audience, to, subject, file: `${slug}.html`, status: "ok" });
 }
 
 const sampleOrder = (over: Record<string, unknown> = {}) => ({
-  public_ref: "K7M2QX", order_id: 4821, currency: "USD", locale: "en", subtotal_cents: 6400, shipping_cents: 900, tax_cents: 1216, tax_label: "VAT", tax_rate: 19, tax_inclusive: false, reverse_charge: false, total_cents: 8516,
+  public_ref: "K7M2QX", order_id: 4821, currency: "USD", locale: "en", crypto_amount: "0.00137", crypto_currency: "BTC", crypto_network: "BTC", subtotal_cents: 6400, shipping_cents: 900, tax_cents: 1216, tax_label: "VAT", tax_rate: 19, tax_inclusive: false, reverse_charge: false, total_cents: 8516,
   buyer_email: B, buyer_name: BUYER, buyer_phone: "+49 170 1234567",
   shipping_address: { name: BUYER, line1: "Torstraße 12", line2: "", city: "Berlin", postal_code: "10119", country: "DE" },
   merchant_user_id: 1, ...over,
@@ -105,7 +105,6 @@ const main = async () => {
   await capture("account", "profileUpdated", "", "M", () => acc.sendUserProfileUpdatedEmail(M, NAME, ["name", "email"], "old@example.com"));
   await capture("account", "creatorHandleUpdated", "new", "M", () => acc.sendCreatorHandleUpdatedEmail(M, NAME, "acmestore", true));
   await capture("account", "securityAlert", "", "M", () => acc.sendSecurityAlertEmail(M, NAME, "Password reset requested", "A password reset was requested from a new IP address (203.0.113.7, Berlin).", DATE, TIME));
-  await capture("account", "loginNotification", "", "M", () => acc.sendLoginNotificationEmail(M, NAME, "203.0.113.7", "Desktop", "Chrome 126", "macOS 14", "Berlin, Germany", DATE, TIME, "sec-token-123"));
   await capture("account", "failedLoginAttempts", "", "M", () => acc.sendFailedLoginAttemptsEmail(M, NAME, 5, "203.0.113.7", DATE, TIME));
   await capture("account", "newDeviceAlert", "", "M", () => acc.sendNewDeviceAlertEmail(M, NAME, { ipAddress: "203.0.113.7", device: "iPhone", browser: "Safari 17", os: "iOS 17", location: "Berlin, Germany", at: new Date("2026-06-05T14:02:00Z"), securityToken: "sec-token-123" }));
 
@@ -128,12 +127,10 @@ const main = async () => {
   await capture("adminNotif", "onboardingStuck", "", "A", () => admN.sendOnboardingStuckAdminEmail({ user_id: 512, name: NAME, email: M, registered_at: "2026-06-03 09:14 UTC", hours_since_registration: 49, stuck_step: "wallet", completed_steps: ["account", "brand"], pending_steps: ["wallet", "first link"] }));
   await capture("adminNotif", "onboardingCompleted", "", "A", () => admN.sendOnboardingCompletedAdminEmail({ user_id: 512, name: NAME, email: M, company_name: BRAND, wallet_count: 3, registered_at: "2026-06-03 09:14 UTC", hours_to_complete: 6.5 }));
   await capture("adminNotif", "firstPayment", "", "A", () => admN.sendFirstPaymentAdminEmail({ user_id: 512, merchant_name: NAME, merchant_email: M, company_name: BRAND, company_id: 77, amount: "0.0042", currency: "BTC", amount_usd: "261.37", payment_method: "payment_link", customer_email: B, transaction_id: TX, registered_at: "2026-06-03", days_since_registration: 2 }));
-  await capture("adminNotif", "newVisitor", "", "A", () => admN.sendNewVisitorAdminEmail({ ip: "203.0.113.7", country: "DE", city: "Berlin", referrer: "https://google.com", page: "/fees", user_agent: "Mozilla/5.0 (iPhone)", timestamp: "2026-06-05 14:02 UTC" }));
   await capture("adminNotif", "brandDeleted", "", "A", () => admN.sendBrandDeletedAdminEmail({ companyId: 77, companyName: BRAND, ownerName: NAME, ownerEmail: M, deletedAtStr: "05 June 2026", purgeDateStr: "05 July 2026" }));
   await capture("adminNotif", "accountDeleted", "", "A", () => admN.sendAccountDeletedAdminEmail({ userId: 512, ownerName: NAME, ownerEmail: M, deletedAtStr: "05 June 2026", purgeDateStr: "05 July 2026" }));
 
   // ── admin ops (M + A) ──
-  await capture("adminOps", "largeTransaction", "", "M", () => ops.sendLargeTransactionAlertEmail(M, NAME, "5,200.00", "USD", "0.0834", "BTC", B, TX, BRAND));
   await capture("adminOps", "webhookDisabled", "", "M", () => ops.sendWebhookDisabledEmail(M, NAME, BRAND, "https://acme.example.com/hooks/dynopay", "payment.confirmed", "HTTP 503 Service Unavailable", 25));
   await capture("adminOps", "webhookRedirect", "", "M", () => ops.sendWebhookRedirectEmail(M, NAME, BRAND, "http://acme.example.com/hooks", "https://acme.example.com/hooks", 301));
   await capture("adminOps", "adminFeeReceived", "", "A", () => ops.sendAdminFeeReceivedEmail(A, "Ops", "0.000063", "BTC", TX, BRAND, "0.004137", "0.0042"));
@@ -163,7 +160,7 @@ const main = async () => {
   await capture("company", "brandDeleteReminder", "de", "M", () => co.sendBrandDeleteReminderEmail(M, NAME, BRAND, new Date("2026-07-05T14:02:00Z"), 1, "de"));
 
   // ── auto-convert ──
-  await capture("conversion", "autoConversionPayout", "", "M", () => conv.sendAutoConversionPayoutEmail(M, NAME, BRAND, { sourceCurrency: "BTC", sourceAmount: "0.0042", sourceAmountUsd: "261.37", targetCurrency: "USDC", payoutAmount: "255.90", conversionRate: "62230.95", priceAtConversion: 62230.95, currentPrice: 61980.10, priceMovementPct: -0.4, marketState: "calm", feeTierUsed: "Starter 1.5%", transactionId: TX, conversionId: "cv_8812", withdrawalTxHash: "0xfeedface1234abcd", platformFeeUsd: 3.92, sweepGasFeeUsd: 0.85, tradeFeeUsd: 0.26, binanceWithdrawalFeeUsd: 0.44, grossSaleUsd: 261.37, totalReceivedUsd: 255.90 }));
+  await capture("conversion", "autoConversionPayout", "", "M", () => conv.sendAutoConversionPayoutEmail(M, NAME, BRAND, { sourceCurrency: "BTC", sourceAmount: "0.0042", sourceAmountUsd: "261.37", targetCurrency: "USDC", payoutAmount: "255.90", conversionRate: "62230.95", priceAtConversion: 62230.95, currentPrice: 61980.10, priceMovementPct: -0.4, marketState: "calm", feeTierUsed: "Starter 1.5%", transactionId: TX, conversionId: "cv_8812", withdrawalTxHash: "7c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d", settlementChain: "TRC20", settlementWallet: "TXk4h2vP9fA2mQ7rLw3sN8bZc1yD5eGjKf", platformFeeUsd: 3.92, sweepGasFeeUsd: 0.85, tradeFeeUsd: 0.26, binanceWithdrawalFeeUsd: 0.44, grossSaleUsd: 261.37, totalReceivedUsd: 255.90 }));
   await capture("conversion", "weeklyConversionSummary", "", "M", () => conv.sendWeeklyConversionSummaryEmail(M, NAME, BRAND, { periodStart: "2026-05-29", periodEnd: "2026-06-04", totalConversions: 6, totalSourceUsd: 1240.5, totalPayoutUsd: 1219.8, totalSavedUsd: 18.4, totalVolatileConversions: 2, avgPriceMovementPct: -0.6, cryptoBreakdown: [{ currency: "BTC", count: 3, totalAmount: "0.0126", totalPayoutUsd: 780.2, avgMovementPct: -0.8 }, { currency: "ETH", count: 3, totalAmount: "0.145", totalPayoutUsd: 439.6, avgMovementPct: -0.3 }], dailyVolume: [{ day: "2026-05-29", label: "Fri", payoutUsd: 210 }, { day: "2026-05-30", label: "Sat", payoutUsd: 0 }, { day: "2026-05-31", label: "Sun", payoutUsd: 120 }, { day: "2026-06-01", label: "Mon", payoutUsd: 380 }, { day: "2026-06-02", label: "Tue", payoutUsd: 260 }, { day: "2026-06-03", label: "Wed", payoutUsd: 0 }, { day: "2026-06-04", label: "Thu", payoutUsd: 249.8 }] } as never));
 
   // ── buyer receipt (company=null → no receipt-token write) ──
@@ -206,19 +203,34 @@ const main = async () => {
   // ── payments (merchant + buyer) ──
   const settledMp = { grossCrypto: "0.0042", asset: "BTC", fiatAtDetection: { amount: "261.37", currency: "USD" }, feePercent: 1.5, feeCrypto: "0.000063", feePayer: "company", netCrypto: "0.004137", destinationAddress: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh", forwardTxHash: "4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b", explorerUrl: "https://mempool.space/tx/4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b", paidFor: "Design retainer — June", customerEmail: B, reference: "rNtQRX", txRowId: 944, detectedAt: new Date("2026-06-05T14:02:00Z") };
   await capture("payments", "paymentSettled", "forwarded", "M", () => pay.sendPaymentReceivedEmail(M, NAME, "261.37", "USD", BRAND, TX, DATE, TIME, "en", "0.0042", "BTC", undefined, 0, "paymentLink", settledMp));
+  await capture("payments", "paymentSettled", "largePayment", "M", () => pay.sendPaymentReceivedEmail(M, NAME, "5,200.00", "USD", BRAND, TX, DATE, TIME, "en", "0.0834", "BTC", undefined, 0, "paymentLink", { ...settledMp, grossCrypto: "0.0834", feeCrypto: "0.001251", netCrypto: "0.082149", fiatAtDetection: { amount: "5,200.00", currency: "USD" }, largePayment: true }));
   await capture("payments", "paymentSettled", "forwarding_customerPaysFee_gas", "M", () => pay.sendPaymentReceivedEmail(M, NAME, "49.00", "USD", BRAND, TX, DATE, TIME, "en", "49.74", "USDT-TRC20", undefined, 0, "paymentLink", { ...settledMp, grossCrypto: "49.74", asset: "USDT-TRC20", fiatAtDetection: { amount: "49.74", currency: "USD" }, feeCrypto: "0.74", feePayer: "customer", networkFeeCrypto: "0.35", netCrypto: "48.65", destinationAddress: "TXk4h2vP9fA2mQ7rLw3sN8bZc1yD5eGjKf", forwardTxHash: null, explorerUrl: null }));
   await capture("payments", "paymentSettled", "autoConvert_de", "M", () => pay.sendPaymentReceivedEmail(M, NAME, "261.37", "EUR", BRAND, TX, DATE, TIME, "de", "0.0042", "BTC → USDC", undefined, 0.38, "donation", { ...settledMp, autoConvertTarget: "USDC", destinationAddress: null, forwardTxHash: null, explorerUrl: null, fiatAtDetection: { amount: "241.10", currency: "EUR" } }));
   await capture("payments", "paymentSettled", "contribution_belowMin", "M", () => pay.sendPaymentReceivedEmail(M, NAME, "2.10", "USD", BRAND, TX, DATE, TIME, "en", "0.00003", "BTC", "Riverside library roof", 0, "donation", { ...settledMp, grossCrypto: "0.00003", feeCrypto: "0.00003", netCrypto: "0", belowMinimum: true, forwardTxHash: null, explorerUrl: null, fiatAtDetection: { amount: "2.10", currency: "USD" }, paidFor: null }));
   await capture("payments", "paymentReceived", "legacy", "M", () => pay.sendPaymentReceivedEmail(M, NAME, "261.37", "USD", BRAND, TX, DATE, TIME, "en", "0.0042", "BTC", undefined, 0, "paymentLink"));
   await capture("payments", "paymentReceived", "campaign_referralCredit", "M", () => pay.sendPaymentReceivedEmail(M, NAME, "25.00", "USD", BRAND, TX, DATE, TIME, "en", "0.0004", "BTC", "Riverside library roof", 0.38, "donation"));
   await capture("payments", "paymentReceived", "de", "M", () => pay.sendPaymentReceivedEmail(M, NAME, "261.37", "EUR", BRAND, TX, DATE, TIME, "de", "0.0042", "BTC"));
-  await capture("payments", "paymentPending", "", "M", () => pay.sendPaymentPendingEmail(M, NAME, BRAND, "261.37", "USD", TX, 2, "en", "0.0042", "BTC"));
+  await capture("payments", "paymentPending", "", "M", () => pay.sendPaymentPendingEmail(M, NAME, BRAND, "261.37", "USD", TX, 1, "en", "0.0042", "BTC", "10–60 min"));
+  await capture("payments", "paymentPending", "usdt_trc20_de", "M", () => pay.sendPaymentPendingEmail(M, NAME, BRAND, "49.00", "EUR", TX, 20, "de", "49.74", "USDT-TRC20", "1–3 min"));
   await capture("payments", "paymentConfirming", "1of3", "M", () => pay.sendPaymentConfirmingEmail(M, NAME, BRAND, "261.37", "USD", TX, 1, 3, "en", "0.0042", "BTC"));
-  await capture("payments", "paymentPartial", "", "M", () => pay.sendPaymentPartialEmail(M, NAME, BRAND, "0.0030", "0.0042", "0.0012", "BTC", TX, "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh", 30));
+  await capture("payments", "paymentPartial", "", "M", () => pay.sendPaymentPartialEmail(M, NAME, BRAND, "0.0030", "0.0042", "0.0012", "BTC", TX, "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh", 30, "en", { amount: "186.69", currency: "USD" }));
   await capture("payments", "buyerUnderpaidNudge", "", "B", () => pay.sendBuyerUnderpaidNudgeEmail(B, BUYER, BRAND, "0.0030", "0.0042", "0.0012", "BTC", `${FE}/pay?d=rNtQRX`, 30));
-  await capture("payments", "paymentPartialExpired", "completed_partial", "M", () => pay.sendPaymentPartialExpiredEmail(M, NAME, BRAND, "0.0030", "0.0042", "BTC", TX, "completed_partial"));
+  await capture("payments", "paymentPartialExpired", "completed_partial", "M", () => pay.sendPaymentPartialExpiredEmail(M, NAME, BRAND, "0.0030", "0.0042", "BTC", TX, "completed_partial", "en", { grossCrypto: "0.0030", asset: "BTC", feePercent: null, feeCrypto: "0.000045", feePayer: "company", netCrypto: "0.002955", destinationAddress: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh", forwardTxHash: "4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b", explorerUrl: "https://mempool.space/tx/4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b", reference: TX, detectedAt: new Date("2026-06-05T14:02:00Z") }));
   await capture("payments", "paymentPartialExpired", "incomplete_expired", "M", () => pay.sendPaymentPartialExpiredEmail(M, NAME, BRAND, "0.0030", "0.0042", "BTC", TX, "incomplete_expired"));
   await capture("payments", "merchantUnderpaidDigest", "", "M", () => pay.sendMerchantUnderpaidDigestEmail(M, NAME, BRAND, [{ reference: "rNtQRX", received: "0.0030", expected: "0.0042", remaining: "0.0012", currency: "BTC", baseAmount: "261.37", baseCurrency: "USD" }, { reference: "aB12xY", received: "40.00", expected: "49.00", remaining: "9.00", currency: "USDT", baseAmount: "49.00", baseCurrency: "USD" }], 2, `${FE}/transactions?status=underpaid`));
+
+  // ── payouts (new in Wave 4c) ──
+  const payout = await import("../services/email/payoutEmails");
+  await capture("payouts", "payoutDelayed", "delayed", "M", () => payout.sendPayoutDelayedEmail(M, NAME, BRAND, { amount: "0.0042", asset: "BTC", fiat: { amount: "261.37", currency: "USD" }, targetLabel: "USDT · Tron (TRC-20)", stage: "delayed", reasonKey: "exchange", since: new Date("2026-06-05T12:02:00Z"), reference: TX, conversionId: 8812 }));
+  await capture("payouts", "payoutDelayed", "failed_de", "M", () => payout.sendPayoutDelayedEmail(M, NAME, BRAND, { amount: "49.74", asset: "USDT-TRC20", fiat: { amount: "49.74", currency: "USD" }, stage: "failed", reasonKey: "review", since: new Date("2026-06-05T09:02:00Z"), reference: TX }, "de"));
+  const over = await import("../services/overpaymentNotifier");
+  const overInfo = { paymentId: "pay_8f2c", txId: TX, companyId: 1, currency: "USDT-TRC20", amountExpected: 49, amountReceived: 54, excessAmount: 5, excessAmountUsd: 5, baseCurrency: "USD", customerEmail: B, customerName: BUYER, customerLang: "en", merchantContactEmail: "hello@acme.example.com" };
+  const om = over.buildOverpaidMerchantEmail(overInfo, { companyName: BRAND, merchantName: NAME, merchantLang: "en" });
+  writeBuilt("payments", "overpaid", "merchant", "M", M, om.subject, om.html);
+  const ob = over.buildOverpaidBuyerEmail(overInfo, { companyName: BRAND });
+  writeBuilt("payments", "overpaid", "buyer", "B", B, ob.subject, ob.html);
+  const obde = over.buildOverpaidBuyerEmail({ ...overInfo, customerLang: "de" }, { companyName: BRAND });
+  writeBuilt("payments", "overpaid", "buyer_de", "B", B, obde.subject, obde.html);
 
   // ── referral programme ──
   await capture("referral", "payoutReady", "", "M", () => ref.sendReferralPayoutReadyEmail(M, NAME, 125.5, "manual"));
@@ -253,26 +265,18 @@ const main = async () => {
   await capture("wallet", "walletAdded", "", "M", () => wal.sendWalletAddedEmail(M, NAME, "bc1q…9x2k", "BTC", BRAND, "Main BTC"));
   await capture("wallet", "walletUpdated", "", "M", () => wal.sendWalletUpdatedEmail(M, NAME, "bc1q…9x2k", "BTC", BRAND, "Main BTC"));
   await capture("wallet", "withdrawalOtp", "", "M", () => wal.sendWithdrawalOTPEmail(M, NAME, "482913", "500.00", "USDT", "TXk…9fA2"));
-  await capture("wallet", "withdrawalSuccess", "", "M", () => wal.sendWithdrawalSuccessEmail(M, NAME, "500.00", "USDT", "TXk…9fA2", TX));
+  await capture("wallet", "withdrawalSuccess", "", "M", () => wal.sendWithdrawalSuccessEmail(M, NAME, "500.00", "USDT-TRC20", "TXk4h2vP9fA2mQ7rLw3sN8bZc1yD5eGjKf", "7c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d"));
   await capture("wallet", "exchangeOtp", "", "M", () => wal.sendExchangeOTPEmail(M, NAME, "482913", "250.00", "BTC", "USDT", "Nameword"));
   await capture("wallet", "walletDeleteOtp", "", "M", () => wal.sendWalletDeleteOTPEmail(M, NAME, "482913", "bc1q…k4x7", "BTC"));
-  {
-    const L = "en";
-    const content = `${tpl.p(t("walletOtp.intro", L, { currency: "<strong>BTC</strong>" }))}
-      ${tpl.infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${tpl.dataRow(t("walletOtp.walletAddress", L), tpl.mono("bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"))}${tpl.dataRow(t("walletOtp.currency", L), "<strong>BTC</strong>", true)}</table>`)}
-      ${tpl.otpBlock("482913")}
-      ${tpl.p(t("walletOtp.expiry", L, { minutes: "<strong>5</strong>" }), "font-size: 14px; color: #6b7280; text-align: center; margin: 0;")}`;
-    writeBuilt("wallet", "walletOtp", "controller", "M", M, t("walletOtp.subject", L), shared.dynoPayEmailTemplate(t("walletOtp.heading", L), content, false, "", "", "", L, "key"));
-  }
   await capture("walletSecurity", "walletChangeAlert", "", "M", () => wsec.sendWalletChangeAlertEmail(M, NAME, { companyName: BRAND, rows: [{ network: "Bitcoin", address: "bc1q…9x2k", actionLabel: "updated" }, { network: "USDT · TRC-20", address: "TXk…9fA2", actionLabel: "added" }], revertUrl: `${FE}/wallet-security?token=abc` }));
   await capture("walletSecurity", "walletSecured", "", "M", () => wsec.sendWalletSecuredEmail(M, NAME, { companyName: BRAND, networks: ["Bitcoin", "USDT · TRC-20"] }));
 
   // ── refunds (builders — the sender reads companyModel) ──
   const r1 = rfd.buildRefundEmail({ refund_amount: 0.0012, asset: "BTC", chain: "BTC", brand_name: BRAND }, "forwarding");
   writeBuilt("refund", "buyerRefund", "forwarding", "B", B, r1.subject, r1.html);
-  const r2 = rfd.buildRefundEmail({ refund_amount: 49, asset: "USDT", chain: "USDT-TRC20", forward_txid: "7c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d", brand_name: BRAND }, "completed");
+  const r2 = rfd.buildRefundEmail({ refund_amount: 49, asset: "USDT", chain: "USDT-TRC20", original_transaction_ref: "9f2c1e7a55d14b2e8c3a7d1f0b2e9a44c0ffee0123456789abcdef0123456789", forward_txid: "7c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d", brand_name: BRAND }, "completed");
   writeBuilt("refund", "buyerRefund", "completed", "B", B, r2.subject, r2.html);
-  const r3 = rfd.buildMerchantRefundEmail({ refund_amount: 49, asset: "USDT", chain: "USDT-TRC20", forward_txid: "7c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d", refund_id: "rf_8f2c1e", customer_email: B, brand_name: BRAND } as never);
+  const r3 = rfd.buildMerchantRefundEmail({ refund_amount: 49, asset: "USDT", chain: "USDT-TRC20", original_transaction_ref: "9f2c1e7a55d14b2e8c3a7d1f0b2e9a44", gas_buffer_native: 1.2, gas_buffer_symbol: "TRX", forward_txid: "7c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d", refund_id: "rf_8f2c1e", customer_email: B, brand_name: BRAND } as never);
   writeBuilt("refund", "merchantRefund", "completed", "M", M, r3.subject, r3.html);
 
   // ── generic sendEmail ──

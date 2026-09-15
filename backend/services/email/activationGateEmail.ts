@@ -77,7 +77,7 @@ export async function sendActivationGateEmail(
     const heading = t("activation.gate.heading", L);
     const intro = t(`activation.gate.${gate}.intro`, L);
     const ctaLabel = t(`activation.gate.${gate}.cta`, L);
-    const ctaUrl = `${FRONTEND_BASE_URL}/create-pay-link`;
+    const ctaUrl = `${FRONTEND_BASE_URL}${gate === "wallet" ? "/wallet" : gate === "kyc" ? "/kyc" : "/settings?section=company"}`;
 
     const videoUrl = config.str("ONBOARDING_VIDEO_URL") || `${FRONTEND_BASE_URL}/how-to`;
     const videoBlock =

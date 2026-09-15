@@ -22,13 +22,17 @@ import userModel from "../models/userModels/userModel";
 import companyModel from "../models/companyModels/companyModel";
 import { sendAutoConversionPayoutEmail, sendWeeklyConversionSummaryEmail } from "../helper/sendEmail";
 import { sendConversionFailedAdminEmail } from "./email/adminOpsEmails";
+import { sendPayoutDelayedEmail } from "./email/payoutEmails";
 import { redis } from "../utils/redisInstance";
 import { formatCryptoAmount } from "../utils/currencyUtils";
 import { alertTreasuryLow } from "../utils/treasuryAlert";
 import { dispatchCompanyEmail } from "./email/companyDispatch";
+import { normalizeLang } from "../utils/emailI18n";
+import { assetNetworkLabel } from "../utils/networkLabels";
 import { add, mul, pct, sub, sum, toFixedStr, toNumber } from "../utils/money";
 import { createNotification, NOTIFICATION_TYPES } from "../controller/notificationController";
 
+const PAYOUT_STALL_HOURS = 2;   // merchant "running late" email after this many hours in flight
 const MAX_RETRIES = 30;           // ~30 checks after 30-min age gate ≈ hours of patience for slow chains (BTC)
 
 // Guard to prevent cascading fast-poll re-checks
@@ -138,6 +142,52 @@ const notifyConversionFailed = async (row: Record<string, any>, reason: string):
     createdAt: row.createdAt ? new Date(row.createdAt).toISOString() : "",
   });
   log(`📧 Admin alerted about FAILED conversion #${conversionId} (${reason})`);
+  await notifyMerchantPayoutDelayed(row, "failed").catch((e) => logError(`merchant payout-failed email for #${conversionId}`, e));
+};
+
+/** Plain-words merchant email — once per conversion per stage (delayed → failed). */
+const notifyMerchantPayoutDelayed = async (row: Record<string, any>, stage: "delayed" | "failed"): Promise<void> => {
+  const conversionId = Number(row.conversion_id);
+  const guard = `payout-${stage}-notified:${conversionId}`;
+  const first = await redis.set(guard, "1", { NX: true, EX: 60 * 60 * 24 * 30 }).catch(() => "OK");
+  if (!first) return;
+  const user: any = await userModel.findOne({ where: { user_id: row.user_id }, raw: true });
+  const company: any = await companyModel.findOne({ where: { company_id: row.company_id }, raw: true });
+  if (!user?.email) return;
+  const usd = Number(row.source_amount_usd || row.locked_merchant_usd || 0);
+  const err = String(row.error_message || "").toLowerCase();
+  const reasonKey = stage === "failed" ? "review" : /binance|exchange|withdraw|quote|order/.test(err) ? "exchange" : /deposit|confirm|network|chain|gas/.test(err) || row.status === "PENDING_DEPOSIT" ? "network" : "unknown";
+  await dispatchCompanyEmail(
+    row.company_id,
+    "payouts",
+    { email: user.email, name: user.name || "" },
+    (email, name) => sendPayoutDelayedEmail(email, name, company?.company_name || "Your brand", {
+      amount: String(row.source_amount || "0"),
+      asset: String(row.source_currency || ""),
+      fiat: usd > 0 ? { amount: toFixedStr(usd, 2), currency: "USD" } : null,
+      targetLabel: row.target_currency ? assetNetworkLabel(row.settlement_chain ? `${row.target_currency}-${row.settlement_chain}` : String(row.target_currency)) : null,
+      stage,
+      reasonKey,
+      since: row.createdAt ? new Date(row.createdAt) : null,
+      reference: row.transaction_id ? String(row.transaction_id) : null,
+      conversionId,
+    }, normalizeLang(user.language)),
+  );
+  log(`📧 Merchant told payout is ${stage} for conversion #${conversionId}`);
+};
+
+/** Conversions older than the stall threshold that are still in flight → one "running late" email. */
+const notifyStalledConversions = async (): Promise<number> => {
+  const threshold = new Date(Date.now() - PAYOUT_STALL_HOURS * 60 * 60 * 1000);
+  const stalled = (await stablecoinConversionModel.findAll({
+    where: { status: { [Op.notIn]: ["COMPLETED", "FAILED"] }, createdAt: { [Op.lt]: threshold } },
+    raw: true,
+    limit: 50,
+  })) as unknown as Array<Record<string, any>>;
+  for (const row of stalled) {
+    await notifyMerchantPayoutDelayed(row, "delayed").catch((e) => logError(`stalled payout email for #${row.conversion_id}`, e));
+  }
+  return stalled.length;
 };
 
 /**
@@ -659,6 +709,8 @@ const sendConversionPayoutNotification = async (data: any, withdrawalTxHash: str
         transactionId: String(data.transaction_id),
         conversionId: String(data.conversion_id),
         withdrawalTxHash,
+        settlementChain: data.settlement_chain || fullRecord?.settlement_chain || undefined,
+        settlementWallet: data.settlement_wallet_address || fullRecord?.settlement_wallet_address || undefined,
         // Fee breakdown
         platformFeeUsd,
         sweepGasFeeUsd,
@@ -862,6 +914,8 @@ export const processStablecoinConversions = async (): Promise<{
 
   // First, mark any records that exceeded retries as FAILED
   await markExhaustedAsFailed();
+  // Then tell merchants about payouts that are running late (once per conversion)
+  await notifyStalledConversions().catch((e) => logError("stalled-conversion sweep", e));
 
   // Recover FAILED records that were killed by transient Binance errors —
   // now that Binance is confirmed reachable, give them another chance

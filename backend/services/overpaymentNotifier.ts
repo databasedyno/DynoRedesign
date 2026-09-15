@@ -7,8 +7,9 @@ import { FRONTEND_BASE_URL, dynoPayEmailTemplate } from "./email/emailShared";
 import { claimEmitOnce } from "./webhookEvents";
 import { createNotification, NOTIFICATION_TYPES } from "../controller/notificationController";
 import { companyModel, userModel } from "../models";
-import { t, normalizeLang } from "../utils/emailI18n";
+import { emailDateParts, t, normalizeLang } from "../utils/emailI18n";
 import { toFixedStr } from "../utils/money";
+import { getCoinSymbol, assetNetworkLabel } from "../utils/networkLabels";
 
 export interface OverpaymentInfo {
   paymentId: string;
@@ -21,10 +22,85 @@ export interface OverpaymentInfo {
   excessAmountUsd: number; // excess in base currency
   baseCurrency: string;
   linkId?: number | string | null;
+  /** Buyer contact (when left on the checkout) → buyer copy with refund instructions. */
+  customerEmail?: string | null;
+  customerName?: string | null;
+  customerLang?: string | null;
+  /** Merchant contact address the buyer should write to for the refund. */
+  merchantContactEmail?: string | null;
 }
 
 const fmtCrypto = (n: number) => toFixedStr(n ?? 0, 8).replace(/\.?0+$/, "");
 const fmtFiat = (n: number) => toFixedStr(n ?? 0, 2);
+
+
+const overpayAmounts = (info: OverpaymentInfo) => {
+  const sym = getCoinSymbol(info.currency);
+  return {
+    sym,
+    excessCrypto: `${fmtCrypto(info.excessAmount)} ${sym}`,
+    excessFiat: `${fmtFiat(info.excessAmountUsd)} ${info.baseCurrency}`,
+    receivedCrypto: `${fmtCrypto(info.amountReceived)} ${sym}`,
+    expectedCrypto: `${fmtCrypto(info.amountExpected)} ${sym}`,
+    networkLabel: assetNetworkLabel(info.currency),
+    txSearch: `${FRONTEND_BASE_URL}/transactions?search=${encodeURIComponent(String(info.txId || info.paymentId))}`,
+  };
+};
+
+/** Merchant copy — "a buyer overpaid; the extra is in your payout; refund it in one click". */
+export const buildOverpaidMerchantEmail = (
+  info: OverpaymentInfo,
+  ctx: { companyName: string; merchantName?: string | null; merchantLang?: string | null },
+): { subject: string; html: string } => {
+  const L = normalizeLang(ctx.merchantLang);
+  const { excessCrypto, excessFiat, receivedCrypto, expectedCrypto, networkLabel, txSearch } = overpayAmounts(info);
+  const { date: dateStr, time: timeStr } = emailDateParts(new Date(), L);
+  const detail = `
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+      ${dataRow(t("labels.amountReceived", L), `<strong>${receivedCrypto}</strong>`)}
+      ${dataRow(t("labels.expectedAmount", L), expectedCrypto)}
+      ${dataRow(t("overpayment.overpaidBy", L), `<strong>${excessCrypto}</strong> (≈ ${excessFiat})`)}
+      ${dataRow(t("labels.network", L), networkLabel)}
+      ${info.customerEmail ? dataRow(t("overpayment.customer", L), String(info.customerEmail)) : ""}
+      ${dataRow(t("labels.status", L), statusBadge(t("overpayment.statusOverpaid", L), "success"))}
+      ${dataRow(t("labels.date", L), `${dateStr} · ${timeStr}`, !info.txId)}
+      ${info.txId ? dataRow(t("labels.transactionId", L), `<span style="font-family: monospace; font-size: 13px; word-break: break-all;">${info.txId}</span>`, true) : ""}
+    </table>`;
+  const content = `${p(ctx.merchantName ? t("common.greeting", L, { name: ctx.merchantName }) : t("common.greetingDefault", L))}
+    ${p(t("overpayment.merchantIntro", L, { company: `<strong>${ctx.companyName}</strong>` }))}
+    ${infoBox(detail, "#12B76A")}
+    ${p(t("overpayment.merchantBody", L, { excess: `<strong>${excessCrypto}</strong>`, excessFiat }))}
+    ${info.customerEmail ? p(t("overpayment.merchantKeep", L), "font-size:13px;color:#6b7280;") : ""}`;
+  const html = dynoPayEmailTemplate(t("overpayment.merchantHeading", L), content, true, t("overpayment.refundCta", L), txSearch,
+    t("overpayment.merchantPreheader", L, { excess: excessCrypto }), L, "alert");
+  return { subject: t("overpayment.merchantSubject", L, { excess: excessCrypto }), html };
+};
+
+/** Buyer copy — "you sent a little more than needed; here is how to get the difference back". */
+export const buildOverpaidBuyerEmail = (
+  info: OverpaymentInfo,
+  ctx: { companyName: string },
+): { subject: string; html: string } => {
+  const BL = normalizeLang(info.customerLang);
+  const { excessCrypto, excessFiat, receivedCrypto, expectedCrypto, networkLabel } = overpayAmounts(info);
+  const contact = info.merchantContactEmail ? ` (<a href="mailto:${info.merchantContactEmail}" style="color:#4338CA;">${info.merchantContactEmail}</a>)` : "";
+  const detail = `
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+      ${dataRow(t("overpayment.amountDue", BL), expectedCrypto)}
+      ${dataRow(t("overpayment.amountSent", BL), `<strong>${receivedCrypto}</strong>`)}
+      ${dataRow(t("overpayment.overpaidBy", BL), `<strong>${excessCrypto}</strong> (≈ ${excessFiat})`)}
+      ${dataRow(t("labels.network", BL), networkLabel, !info.txId)}
+      ${info.txId ? dataRow(t("labels.reference", BL), `<span style="font-family: monospace; font-size: 12px; word-break: break-all;">${info.txId}</span>`, true) : ""}
+    </table>`;
+  const content = `${p(info.customerName ? t("common.greeting", BL, { name: info.customerName }) : t("common.greetingDefault", BL))}
+    ${p(t("overpayment.buyerIntro", BL, { company: `<strong>${ctx.companyName}</strong>`, excess: excessCrypto, excessFiat }))}
+    ${infoBox(detail, "#f59e0b")}
+    ${p(t("overpayment.buyerBody", BL, { company: ctx.companyName, contact }))}`;
+  const html = dynoPayEmailTemplate(t("overpayment.buyerHeading", BL), content,
+    !!info.merchantContactEmail, t("overpayment.buyerCta", BL, { company: ctx.companyName }), info.merchantContactEmail ? `mailto:${info.merchantContactEmail}` : "",
+    t("overpayment.buyerPreheader", BL, { excess: excessCrypto, company: ctx.companyName }), BL, "alert", "buyer");
+  return { subject: t("overpayment.buyerSubject", BL, { company: ctx.companyName }), html };
+};
 
 /**
  * Notify the MERCHANT and the platform ADMIN that a customer OVERPAID a
@@ -56,6 +132,7 @@ export async function notifyOverpayment(info: OverpaymentInfo): Promise<void> {
         companyName = company.dataValues.company_name || companyName;
         merchantUserId = company.dataValues.user_id ?? null;
         merchantEmail = company.dataValues.email || null;
+        if (!info.merchantContactEmail && company.dataValues.email) info.merchantContactEmail = company.dataValues.email;
         if (merchantUserId) {
           const user = await userModel.findOne({
             where: { user_id: merchantUserId },
@@ -70,53 +147,27 @@ export async function notifyOverpayment(info: OverpaymentInfo): Promise<void> {
       }
     }
 
-    const excessCrypto = `${fmtCrypto(info.excessAmount)} ${info.currency}`;
-    const excessFiat = `${fmtFiat(info.excessAmountUsd)} ${info.baseCurrency}`;
-    const receivedCrypto = `${fmtCrypto(info.amountReceived)} ${info.currency}`;
-    const expectedCrypto = `${fmtCrypto(info.amountExpected)} ${info.currency}`;
-    const now = new Date();
-    const dateStr = now.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
-    const timeStr = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
+    const { excessCrypto, excessFiat, receivedCrypto, expectedCrypto } = overpayAmounts(info);
+    const { date: dateStr, time: timeStr } = emailDateParts(new Date());
     const txRow = info.txId
       ? dataRow("Transaction", `<span style="font-family: monospace; font-size: 13px;">${info.txId}</span>`, true)
       : "";
 
     // ── Merchant email (localized to the merchant's language) ────────
     if (merchantEmail) {
-      const mTxRow = info.txId
-        ? dataRow(t("labels.transactionId", merchantLang), `<span style="font-family: monospace; font-size: 13px;">${info.txId}</span>`, true)
-        : "";
-      const detail = `
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-          ${dataRow(t("labels.amountReceived", merchantLang), `<strong>${receivedCrypto}</strong>`)}
-          ${dataRow(t("labels.expectedAmount", merchantLang), expectedCrypto)}
-          ${dataRow(t("overpayment.overpaidBy", merchantLang), `<strong>${excessCrypto}</strong> (≈ ${excessFiat})`)}
-          ${dataRow(t("labels.status", merchantLang), statusBadge(t("overpayment.statusOverpaid", merchantLang), "success"))}
-          ${dataRow(t("labels.date", merchantLang), `${dateStr}, ${timeStr}`)}
-          ${mTxRow}
-        </table>`;
-      const content = `${p(merchantName ? t("common.greeting", merchantLang, { name: merchantName }) : t("common.greetingDefault", merchantLang))}
-        ${p(t("overpayment.merchantIntro", merchantLang, { company: `<strong>${companyName}</strong>` }))}
-        ${infoBox(detail, "#12B76A")}
-        ${p(t("overpayment.merchantBody", merchantLang, { excess: `<strong>${excessCrypto}</strong>`, excessFiat }))}`;
-      const html = dynoPayEmailTemplate(
-        t("overpayment.merchantHeading", merchantLang),
-        content,
-        true,
-        t("overpayment.viewTransactions", merchantLang),
-        `${FRONTEND_BASE_URL}/transactions`,
-        "",
-        merchantLang
-      );
-      await mailTransporter({
-        to: merchantEmail,
-        name: merchantName || companyName,
-        subject: t("overpayment.merchantSubject", merchantLang, { excess: excessCrypto }),
-        body: html,
-      });
+      const m = buildOverpaidMerchantEmail(info, { companyName, merchantName, merchantLang });
+      await mailTransporter({ to: merchantEmail, name: merchantName || companyName, subject: m.subject, body: m.html });
       apiLogger.info(`[Overpayment] merchant alert (${merchantLang}) sent to ${merchantEmail} (${excessCrypto} extra on ${companyName})`);
     } else {
       apiLogger.warn(`[Overpayment] No merchant email resolved for company ${info.companyId} — skipping merchant alert`);
+    }
+
+    // ── Buyer copy: what happened + how to get the difference back ───
+    const buyerEmail = String(info.customerEmail || "").trim();
+    if (buyerEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(buyerEmail)) {
+      const b = buildOverpaidBuyerEmail(info, { companyName });
+      await mailTransporter({ to: buyerEmail, name: info.customerName || buyerEmail, subject: b.subject, body: b.html });
+      apiLogger.info(`[Overpayment] buyer copy sent to ${buyerEmail}`);
     }
 
     // ── Admin email ─────────────────────────────────────────────────
@@ -134,7 +185,7 @@ export async function notifyOverpayment(info: OverpaymentInfo): Promise<void> {
       const content = `${p("Hey Dynopay Admin,")}
         ${p(`A customer overpaid a payment to <strong>${companyName}</strong>. The quoted fee was charged once; the excess was credited to the merchant's payout (nothing was retained).`)}
         ${infoBox(detail, "#12B76A")}`;
-      const html = dynoPayEmailTemplate("Overpayment credited to merchant", content);
+      const html = dynoPayEmailTemplate("Overpayment credited to merchant", content, false, "", "", "", undefined, "alert", "admin");
       await mailTransporter({
         to: adminEmail,
         name: "Dynopay Admin",

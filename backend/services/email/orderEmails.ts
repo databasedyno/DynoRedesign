@@ -10,6 +10,7 @@ import { EMAIL_TOKENS } from "../../utils/brandTokens";
 import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, dynoPayGreetingTemplate, formatAmountWithCurrency, sendEmail, brandSubject } from "./emailShared";
 import { isMerchantIdentityVerified } from "../../helper/merchantVerification";
 import { toFixedStr } from "../../utils/money";
+import { assetNetworkLabel } from "../../utils/networkLabels";
 
 /**
  * Format a cents integer to a currency-symbol prefixed string.
@@ -144,10 +145,13 @@ export const sendOrderReceiptEmail = async (
       ? p(`<span style="display:inline-flex;align-items:center;gap:6px;color:#12B76A;font-weight:600;">&#10003; ${tr('receipt.verifiedMerchant', L)}</span>`)
       : "";
 
+    const paidWith = order.crypto_amount && order.crypto_currency
+      ? `<br/>${tr('orderReceipt.paidWith', L)} <strong>${esc(String(order.crypto_amount))} ${esc(assetNetworkLabel(String(order.crypto_currency)))}</strong>`
+      : "";
     const message = `
       ${p(tr('orderReceipt.thanks', L))}
       ${verifiedLine}
-      ${infoBox(`${tr('orderReceipt.orderReference', L)} <strong style="font-family:monospace;">${esc(order.public_ref)}</strong>`)}
+      ${infoBox(`${tr('orderReceipt.orderReference', L)} <strong style="font-family:monospace;">${esc(order.public_ref)}</strong>${paidWith}`)}
       ${itemsTable}
       ${hasDigital ? p(`${tr('orderReceipt.digitalNote', L)} <a href="${esc(orderPublicUrl)}" style="color:#05936A;">${tr('orderReceipt.openOrderPage', L)}</a>.`) : ""}
       ${hasPhysical ? p(tr('orderReceipt.physicalNote', L)) : ""}
@@ -156,7 +160,7 @@ export const sendOrderReceiptEmail = async (
 
     // Address the buyer by their real name only — never by their raw email
     // (the greeting template gracefully falls back to a friendly generic).
-    const html = dynoPayGreetingTemplate(buyerName, message, tr('orderReceipt.heading', L), false, L, tr('orderReceipt.preheader', L, { ref: shortRef }), 'receipt');
+    const html = dynoPayGreetingTemplate(buyerName, message, tr('orderReceipt.heading', L), false, L, tr('orderReceipt.preheader', L, { ref: shortRef }), 'receipt', undefined, 'buyer');
     await mailTransporter({ to: buyerEmail, name: buyerName || buyerEmail, subject, body: html });
     apiLogger.info(`[email] sent order receipt to ${buyerEmail} for order ${order.order_id}`);
   } catch (e) {
@@ -195,19 +199,22 @@ export const sendOrderReceiptMerchantEmail = async (
         <strong>Shipping address</strong><br/>
         ${esc(order.shipping_address.line1 || "")}${order.shipping_address.line2 ? `<br/>${esc(order.shipping_address.line2)}` : ""}<br/>
         ${esc(order.shipping_address.city || "")}, ${esc(order.shipping_address.region || "")} ${esc(order.shipping_address.postal_code || "")}<br/>
-        ${esc(order.shipping_address.country_code || "")}
+        ${esc(order.shipping_address.country_code || order.shipping_address.country || "")}
       `)
       : "";
 
+    const paidWithBlock = order.crypto_amount && order.crypto_currency
+      ? infoBox(`<strong>Paid with</strong><br/>${esc(String(order.crypto_amount))} ${esc(assetNetworkLabel(String(order.crypto_currency)))}<br/><span style="color:#6b7280;font-size:13px;">Fee, net amount, payout wallet and the on-chain transaction are in your “Payment settled” email for this payment.</span>`)
+      : "";
     const message = `
-      ${p(`You just made a new sale${companyName ? ` on <strong>${esc(companyName)}</strong>` : ""}! Order <strong style="font-family:monospace;">${esc(shortRef)}</strong> has been paid in full and settled to your wallet.`)}
+      ${p(`You just made a new sale${companyName ? ` on <strong>${esc(companyName)}</strong>` : ""}! Order <strong style="font-family:monospace;">${esc(shortRef)}</strong> has been paid in full.`)}
       ${buyerBlock}
       ${shippingBlock}
       ${itemsTable}
-      ${p(`<a href="${esc(orderPublicUrl)}" style="color:#05936A;font-weight:600;">Open in dashboard →</a>`)}
+      ${paidWithBlock}
     `;
 
-    const html = dynoPayGreetingTemplate(name, message, `You just made a sale`, false, undefined, `New sale ${shortRef} · ${formatCents(order.total_cents, order.currency || "USD")} settled to your wallet.`, 'bag');
+    const html = dynoPayGreetingTemplate(name, message, `You just made a sale`, false, undefined, `New sale ${shortRef} · ${formatCents(order.total_cents, order.currency || "USD")} paid in full.`, 'bag', { text: 'Open the order', link: orderPublicUrl });
     await mailTransporter({ to: merchantEmail, name, subject, body: html });
     apiLogger.info(`[email] sent merchant sale notification to ${merchantEmail} for order ${order.order_id}`);
   } catch (e) {
@@ -243,7 +250,7 @@ export const sendOrderExpiredEmail = async (
       ${p(`<a href="${esc(shopUrl)}" style="color:#05936A;font-weight:600;">Return to the shop →</a>`)}
     `;
 
-    const html = dynoPayGreetingTemplate(name, message, `Order not completed`, false, undefined, `Your order ${shortRef} wasn't paid in time and has been released.`, 'expired');
+    const html = dynoPayGreetingTemplate(name, message, `Order not completed`, false, undefined, `Your order ${shortRef} wasn't paid in time and has been released.`, 'expired', undefined, 'buyer');
     await mailTransporter({ to: buyerEmail, name, subject, body: html });
     apiLogger.info(`[email] sent order expired to ${buyerEmail} for order ${order.order_id}`);
   } catch (e) {
@@ -281,7 +288,7 @@ export const sendOrderRefundedEmail = async (
       ${p(`<a href="${esc(orderPublicUrl)}" style="color:${EMAIL_TOKENS.brand};font-weight:600;">View order status →</a>`)}
     `;
 
-    const html = dynoPayGreetingTemplate(name, message, `Refund confirmed`, false, undefined, `Your refund for order ${shortRef} has been confirmed.`, 'refund');
+    const html = dynoPayGreetingTemplate(name, message, `Refund confirmed`, false, undefined, `Your refund for order ${shortRef} has been confirmed.`, 'refund', undefined, 'buyer');
     await mailTransporter({ to: buyerEmail, name, subject, body: html });
     apiLogger.info(`[email] sent refund confirmation to ${buyerEmail} for order ${order.order_id}`);
   } catch (e) {
@@ -322,7 +329,7 @@ export const sendOrderShippedEmail = async (
       ${p(`<a href="${esc(orderPublicUrl)}" style="color:#05936A;font-weight:600;">View order details →</a>`)}
     `;
 
-    const html = dynoPayGreetingTemplate(name, message, `Order shipped`, false, undefined, `Your order ${shortRef} is on its way.`, 'truck');
+    const html = dynoPayGreetingTemplate(name, message, `Order shipped`, false, undefined, `Your order ${shortRef} is on its way.`, 'truck', undefined, 'buyer');
     await mailTransporter({ to: buyerEmail, name, subject, body: html });
     apiLogger.info(`[email] sent order shipped to ${buyerEmail} for order ${order.order_id}`);
   } catch (e) {
@@ -357,7 +364,7 @@ export const sendDigitalDownloadReminderEmail = async (
       ${p(`<a href="${esc(orderPublicUrl)}" style="color:#05936A;font-weight:600;">Refresh download links →</a>`)}
     `;
 
-    const html = dynoPayGreetingTemplate(name, message, `Your downloads expire soon`, false, undefined, `Refresh your download links for order ${shortRef} before they expire.`, 'download');
+    const html = dynoPayGreetingTemplate(name, message, `Your downloads expire soon`, false, undefined, `Refresh your download links for order ${shortRef} before they expire.`, 'download', undefined, 'buyer');
     await mailTransporter({ to: buyerEmail, name, subject, body: html });
     apiLogger.info(`[email] sent download reminder to ${buyerEmail} for order ${order.order_id}`);
   } catch (e) {
