@@ -86,6 +86,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
             fullWidth={true}
             onClick={handleCreatePaymentLink}
             disabled={primaryDisabled}
+            data-testid="pay-link-create-btn"
             sx={{
               [theme.breakpoints.down("md")]: {
                 height: "32px",

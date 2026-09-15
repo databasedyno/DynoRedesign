@@ -61,8 +61,9 @@ NOW:   Wave 3 CODED (3a–3g, smoke-tested). The Wave 2+3 testing_agent sweep is
        (scripts/i18n/rename_wallet_to_payout_address.py, 6 langs, UI + emails + API copy). Wave 6 creator pages DONE
        (iter 181: supporter wall opt-in + migration 0028, presets $10/$25/$50 default, non-custodial note, shop grid
        rules 4-col/>8 cats/>20 search, phone sticky buy bar). Waves 2–3 regression sweep DONE (iter 181) → SHIPPED.
-       NEXT: Wave 7 marketing pages → Wave 8 in-app pages (create-pay-link single form, product editor live
-       preview, KYC status timeline).
+       Wave 7 (partial, iter 182): /about legitimacy block + /fees worked example DONE; Wave 8 (partial): create-pay-link
+       single form DONE; bonus: tip thank-you card (canvas PNG, download/share) DONE. NEXT: Wave 7 landing trust strip +
+       docs phone nav; Wave 8 product editor live preview + KYC status timeline; Part F cross-wave checks.
        P0 backlog after that: US sales-tax engine, 1099-DA broker determination.
 
 State at fork: Wave 1 (Command Centre) fully coded (backend `GET /api/dashboard/overview`,

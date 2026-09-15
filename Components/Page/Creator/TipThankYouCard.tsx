@@ -140,7 +140,15 @@ const TipThankYouCard = ({ creatorName, handle, avatarUrl, accent, amountLabel, 
     return () => { cancelled = true }
   }, [creatorName, handle, avatarUrl, accent, amountLabel, message, prettyUrl, t])
 
-  const toBlob = useCallback(() => new Promise<Blob | null>((res) => canvasRef.current?.toBlob((b) => res(b), 'image/png') ?? res(null)), [])
+  const toBlob = useCallback(
+    () =>
+      new Promise<Blob | null>((res) => {
+        const c = canvasRef.current
+        if (!c) { res(null); return }
+        c.toBlob((b) => res(b), 'image/png')
+      }),
+    [],
+  )
   const fileName = `supported-${handle || 'creator'}.png`
 
   const download = useCallback(async () => {
@@ -148,7 +156,8 @@ const TipThankYouCard = ({ creatorName, handle, avatarUrl, accent, amountLabel, 
     const blob = await toBlob()
     if (blob) {
       const a = document.createElement('a')
-      a.href = URL.createObjectURL(blob); a.download = fileName; a.click()
+      a.href = URL.createObjectURL(blob); a.download = fileName
+      document.body.appendChild(a); a.click(); a.remove()
       setTimeout(() => URL.revokeObjectURL(a.href), 4000)
     }
     setBusy(null)
