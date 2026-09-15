@@ -53,9 +53,12 @@ REMAINING (in order):
       dashboard" + "Show on dashboard" restore) via useAttentionItems({includeDismissed}) + restore().
       i18n scripts/i18n_wave3_pages.py (3c–3g keys). Smoke OK.
 [ ] TEST  Wave 3 (all of the above) — run together with the Wave 2 sweep.
-NOW:   Wave 3 CODED (3a–3g, smoke-tested). The Wave 2+3 testing_agent sweep is PARKED until the user asks (may be
-       folded into Wave 4 testing). NEXT EPIC (approved June 2026): Emails / public pages / checkout / creator pages
-       audit + fix waves 4–8 → see /app/plan/emails_pages_audit_plan.md (Phase 1 audit not started; handoff §2–§7).
+NOW:   Wave 3 CODED (3a–3g, smoke-tested). The Wave 2+3 testing_agent sweep is PARKED until the user asks.
+       Emails/pages epic (/app/plan/emails_pages_audit_plan.md): Phase 1 audit DONE, Wave 4 emails DONE (iter 179),
+       Wave 5 hosted checkout + buyer pages DONE (iter 180: rate-lock tiers, /payment/* states, checkout trust cues,
+       receipt contact/refund/print, order contact + receipt link) + global "Wallet → Payout address" rename
+       (scripts/i18n/rename_wallet_to_payout_address.py, 6 langs, UI + emails + API copy). NEXT: Wave 6 creator pages
+       → Wave 7 marketing → Wave 8 in-app pages.
        P0 backlog after that: US sales-tax engine, 1099-DA broker determination.
 
 State at fork: Wave 1 (Command Centre) fully coded (backend `GET /api/dashboard/overview`,

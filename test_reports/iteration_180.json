@@ -1,0 +1,23 @@
+{
+  "summary": "Verified Wave 5 wallet→payout-address rename (EN + DE) and buyer public pages. Backend receipt/order/network-fees endpoints all pass. Frontend: sidebar, /wallet page (h1 'Payout addresses', all rename copy present, zero stray \\bWallets?\\b matches), Add-payout-address dialog (Address / Label labels, no 'Wallet address/name'), Settings → Security (Payout addresses + 'payout address protection'), Notifications 'Email categories' → config = 'Webhook, API key, payout address and profile changes', /payouts ('Settlement addresses' + 'By payout address'), command palette (Payout addresses + Add payout address), and DE i18n via Settings → Language flips /wallet to 'Auszahlungsadressen' + 'Auszahlungsadresse hinzufügen'. Public /receipt page: print btn calls window.print, refund-note starts with the exact required copy, merchant-contact block correctly ABSENT. Public /order page: help-line + merchant link → /hostbay, email/website/receipt links correctly ABSENT (brand has no contact). /pay?d=rNtQRX clean-checkout trust lines + non-custodial line present. SAFE MODE preserved (no writes / no OTP submissions).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/test_reports/iteration_180.json"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Reviewer's checklist references merchant page URL '/wallet-security', but /pages/wallet-security.tsx is actually the public 'undo change' link (shows 'This link has expired' without a token). The merchant Wallet-security UI has been merged into Settings → Security (per /pages/wallet/security.tsx comment) — labels 'Payout addresses' and 'payout address protection' are visible there, so the rename intent is satisfied. Consider updating internal QA docs so future reviewers point to Settings → Security instead of /wallet-security.",
+    "On /pay?d=rNtQRX the coin-cost hints (data-testid=clean-checkout-coin-cost-*) are not rendered because a coin/network is already pre-selected on first render; picker screen not shown. Trust lines + non-custodial line ARE present — regression bar met. If the hints were expected on this landing, revisit conditional render."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (2-step)",
+  "seed_data_creation": "",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "DE i18n does NOT switch by setting localStorage.i18nextLng='de' alone (window.i18next is undefined; app uses server-controlled preference). To switch language during testing, log in and click Settings → Language → Deutsch, then navigate. All Wave 5 rename + buyer-page acceptance criteria verified. /wallet-security is the public undo page (not a merchant screen).",
+  "rca of the issue": "N/A — no issues found."
+}
