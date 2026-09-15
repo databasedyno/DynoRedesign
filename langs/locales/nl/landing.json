@@ -891,7 +891,12 @@
       "daysAgo": "{{count}}d geleden",
       "monthsAgo": "{{count}}mnd geleden"
     },
-    "nonCustodial": "Gaat rechtstreeks naar {{name}} — Dynopay bewaart je geld nooit."
+    "nonCustodial": "Gaat rechtstreeks naar {{name}} — Dynopay bewaart je geld nooit.",
+    "goal": {
+      "progress": "{{raised}} van {{goal}} deze maand",
+      "reached": "Doel bereikt — bedankt! Elke extra tip gaat nog steeds rechtstreeks naar de creator.",
+      "resets": "Reset over {{count}} dagen"
+    }
   },
   "order": {
     "progress": {
@@ -1242,7 +1247,13 @@
       "primary": "Begin met betalingen ontvangen",
       "secondary": "Probeer een live checkout",
       "primaryHelper": "Gratis starten · Eerste betaling zonder kosten · Geen kaart nodig",
-      "demoNote": "De kaart hierboven is een sandbox — kies een munt en druk op Betalen om een betaling bevestigd te zien worden."
+      "demoNote": "De kaart hierboven is een sandbox — kies een munt en druk op Betalen om een betaling bevestigd te zien worden.",
+      "trust": {
+        "nonCustodial": "Niet-bewarend",
+        "coins": "15 coins",
+        "fees": "Kosten vanaf 0,5%",
+        "since": "Sinds 2024"
+      }
     },
     "demo": {
       "sandbox": "Sandbox · er wordt niets verstuurd",

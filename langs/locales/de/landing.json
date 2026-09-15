@@ -891,7 +891,12 @@
       "daysAgo": "vor {{count}} T.",
       "monthsAgo": "vor {{count}} Mon."
     },
-    "nonCustodial": "Geht direkt an {{name}} — Dynopay hält Ihre Gelder nie."
+    "nonCustodial": "Geht direkt an {{name}} — Dynopay hält Ihre Gelder nie.",
+    "goal": {
+      "progress": "{{raised}} von {{goal}} diesen Monat",
+      "reached": "Ziel erreicht — danke! Jedes weitere Trinkgeld geht weiterhin direkt an den Creator.",
+      "resets": "Zurücksetzung in {{count}} Tagen"
+    }
   },
   "order": {
     "progress": {
@@ -1242,7 +1247,13 @@
       "primary": "Jetzt Zahlungen annehmen",
       "secondary": "Live-Checkout testen",
       "primaryHelper": "Kostenlos starten · Erste Zahlung gebührenfrei · Keine Karte nötig",
-      "demoNote": "Die Karte oben ist eine Sandbox — wähle eine Coin und drücke Bezahlen, um eine Zahlung bestätigen zu sehen."
+      "demoNote": "Die Karte oben ist eine Sandbox — wähle eine Coin und drücke Bezahlen, um eine Zahlung bestätigen zu sehen.",
+      "trust": {
+        "nonCustodial": "Nicht verwahrend",
+        "coins": "15 Coins",
+        "fees": "Gebühren ab 0,5 %",
+        "since": "Seit 2024"
+      }
     },
     "demo": {
       "sandbox": "Sandbox · nichts wird gesendet",

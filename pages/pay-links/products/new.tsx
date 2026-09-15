@@ -6,7 +6,7 @@ import React, { useEffect } from "react";
 import { useRouter } from "next/router";
 import { Box, IconButton } from "@mui/material";
 import ArrowBackRounded from "@mui/icons-material/ArrowBackRounded";
-import ProductEditor from "@/Components/Page/ProductEditor";
+import ProductEditorWithPreview from "@/Components/Page/ProductEditor/ProductEditorWithPreview";
 import OnboardingBanner from "@/Components/UI/OnboardingBanner";
 import { pageProps } from "@/utils/types";
 
@@ -33,7 +33,7 @@ const NewProductPage = ({ setPageName, setPageDescription, setPageAction }: page
   return (
     <Box sx={{ display: "flex", flexDirection: "column", flex: 1, gap: 2 }}>
       <OnboardingBanner vertical="merchants" />
-      <ProductEditor mode="new" />
+      <ProductEditorWithPreview mode="new" />
     </Box>
   );
 };

@@ -13,6 +13,7 @@ import { PrimaryBtn, SecondaryBtn, goStart } from "./shared";
 import { GradientInk, LiveDot } from "../motion/accents";
 import HeroCheckoutDemo from "./HeroCheckoutDemo";
 import ProofStrip from "./ProofStrip";
+import HeroTrustStrip from "./HeroTrustStrip";
 import LiveSettlementFeed from "./LiveSettlementFeed";
 
 const copyIn = keyframes`from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}`;
@@ -86,6 +87,7 @@ const HeroV5: React.FC = () => {
             <Typography data-testid="hero-primary-helper" sx={{ fontFamily: FONT_TECH, fontSize: 12, letterSpacing: "0.08em", textTransform: "uppercase", color: s.ink3, mt: 2.25, ...enter(0.3) }}>
               {t("v5.hero.primaryHelper")}
             </Typography>
+            <HeroTrustStrip enter={enter(0.36)} />
           </Box>
 
           <Box sx={{ display: "flex", justifyContent: { xs: "center", md: "flex-end" }, animation: `${cardIn} 0.9s cubic-bezier(0.16,1,0.3,1) 0.12s both`, "@media (prefers-reduced-motion: reduce)": { animation: "none" } }}>

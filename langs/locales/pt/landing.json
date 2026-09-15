@@ -891,7 +891,12 @@
       "daysAgo": "há {{count}} d",
       "monthsAgo": "há {{count}} mês(es)"
     },
-    "nonCustodial": "Vai direto para {{name}} — a Dynopay nunca retém os seus fundos."
+    "nonCustodial": "Vai direto para {{name}} — a Dynopay nunca retém os seus fundos.",
+    "goal": {
+      "progress": "{{raised}} de {{goal}} este mês",
+      "reached": "Meta alcançada — obrigado! Cada gorjeta extra continua a ir diretamente para o criador.",
+      "resets": "Reinicia em {{count}} dias"
+    }
   },
   "order": {
     "progress": {
@@ -1242,7 +1247,13 @@
       "primary": "Comece a aceitar pagamentos",
       "secondary": "Teste um checkout ao vivo",
       "primaryHelper": "Grátis para começar · Primeiro pagamento sem taxa · Sem cartão",
-      "demoNote": "O cartão acima é um sandbox — escolha uma moeda e toque em Pagar para ver um pagamento ser confirmado."
+      "demoNote": "O cartão acima é um sandbox — escolha uma moeda e toque em Pagar para ver um pagamento ser confirmado.",
+      "trust": {
+        "nonCustodial": "Sem custódia",
+        "coins": "15 moedas",
+        "fees": "Taxas desde 0,5%",
+        "since": "Desde 2024"
+      }
     },
     "demo": {
       "sandbox": "Sandbox · nada é enviado",

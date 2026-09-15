@@ -40,6 +40,7 @@ export interface CreatorFormState {
   swThanks: string;
   swShowSupporters: boolean;
   swShowWall?: boolean;
+  swMonthlyGoal?: string;
   // Store visibility (Session 2026-08-26)
   storeEnabled: boolean;
   showProductsOnPage: boolean;
@@ -122,6 +123,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
   const [swThanks, setSwThanks] = useState("");
   const [swShowSupporters, setSwShowSupporters] = useState(true);
   const [swShowWall, setSwShowWall] = useState(false);
+  const [swMonthlyGoal, setSwMonthlyGoal] = useState<string>("");
   // ── Public Analytics widget (Session 2026-08-05) ──
   // Controls whether the 30-day tips chart + top supporters is publicly
   // visible on the creator's /:handle page. Merchant always sees their own
@@ -184,6 +186,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
       setSwThanks(p.support_widget_thanks_message || "");
       setSwShowSupporters(p.support_widget_show_supporters !== false);
       setSwShowWall(p.support_widget_show_wall === true);
+      setSwMonthlyGoal(p.support_widget_monthly_goal != null && Number(p.support_widget_monthly_goal) > 0 ? String(Number(p.support_widget_monthly_goal)) : "");
       setPublicAnalyticsEnabled(p.public_analytics_enabled !== false);
       setStoreEnabled(p.store_enabled !== false);
       setShowProductsOnPage(p.creator_page_show_products !== false);
@@ -199,13 +202,13 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
   useEffect(() => {
     onChange?.({
       handle, bio, enabled, coverImage, socialLinks,
-      swEnabled, swStyle, swLabel, swPresets, swCurrency, swMinAmount, swAllowMessage, swThanks, swShowSupporters, swShowWall,
+      swEnabled, swStyle, swLabel, swPresets, swCurrency, swMinAmount, swAllowMessage, swThanks, swShowSupporters, swShowWall, swMonthlyGoal,
       storeEnabled, showProductsOnPage,
       name,
       // Theme (Session 60) — so the live preview matches the published page.
       accentColor: themeAccent, coverStyle: themeCoverStyle, coverGradient: themeCoverGradient,
     } as any);
-  }, [handle, name, bio, enabled, coverImage, socialLinks, swEnabled, swStyle, swLabel, swPresets, swCurrency, swMinAmount, swAllowMessage, swThanks, swShowSupporters, swShowWall, storeEnabled, showProductsOnPage, themeAccent, themeCoverStyle, themeCoverGradient, onChange]);
+  }, [handle, name, bio, enabled, coverImage, socialLinks, swEnabled, swStyle, swLabel, swPresets, swCurrency, swMinAmount, swAllowMessage, swThanks, swShowSupporters, swShowWall, swMonthlyGoal, storeEnabled, showProductsOnPage, themeAccent, themeCoverStyle, themeCoverGradient, onChange]);
 
   // Open + reveal the tip box (Support Widget) when the dashboard "Set up tips" CTA fires.
   useEffect(() => {
@@ -308,8 +311,9 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
     swAllowMessage !== (profile?.support_widget_allow_message !== false) ||
     swThanks !== (profile?.support_widget_thanks_message || "") ||
     swShowSupporters !== (profile?.support_widget_show_supporters !== false) ||
-    swShowWall !== (profile?.support_widget_show_wall === true)
-  ), [swEnabled, swStyle, swLabel, swPresets, swCurrency, swMinAmount, swAllowMessage, swThanks, swShowSupporters, swShowWall, savedPresets, profile]);
+    swShowWall !== (profile?.support_widget_show_wall === true) ||
+    (swMonthlyGoal.trim() ? Number(swMonthlyGoal) : null) !== (profile?.support_widget_monthly_goal != null && Number(profile.support_widget_monthly_goal) > 0 ? Number(profile.support_widget_monthly_goal) : null)
+  ), [swEnabled, swStyle, swLabel, swPresets, swCurrency, swMinAmount, swAllowMessage, swThanks, swShowSupporters, swShowWall, swMonthlyGoal, savedPresets, profile]);
 
   const themeChanged = useMemo(() => (
     (themeAccent || null) !== (profile?.theme_accent_color || null) ||
@@ -373,6 +377,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
         support_widget_thanks_message: swThanks.trim() || null,
         support_widget_show_supporters: swShowSupporters,
         support_widget_show_wall: swShowWall,
+        support_widget_monthly_goal: swMonthlyGoal.trim() ? Number(swMonthlyGoal) : null,
         theme_accent_color: themeAccent,
         theme_cover_style: themeCoverStyle,
         theme_cover_gradient: themeCoverGradient,
@@ -1019,6 +1024,27 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
                   sx={inputSx}
                 />
               </Box>
+            </Box>
+
+            {/* Monthly tip goal (opt-in) */}
+            <Box>
+              <Typography sx={labelSx}>{t("storefront.form.monthlyGoal", { defaultValue: "Monthly tip goal" })} <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>{t("storefront.form.monthlyGoalNote", { defaultValue: "(optional — leave empty to hide the bar)" })}</Typography></Typography>
+              <Box
+                component="input"
+                type="number"
+                data-testid="support-widget-monthly-goal"
+                aria-label={t("storefront.form.monthlyGoal", { defaultValue: "Monthly tip goal" })}
+                value={swMonthlyGoal}
+                min={10}
+                step="any"
+                placeholder="e.g. 500"
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSwMonthlyGoal(e.target.value)}
+                onBlur={(e: React.FocusEvent<HTMLInputElement>) => { const v = Number(e.target.value); setSwMonthlyGoal(e.target.value.trim() && Number.isFinite(v) ? String(Math.max(10, v)) : ""); }}
+                sx={inputSx}
+              />
+              <Typography fontSize={11.5} color={theme.palette.text.disabled} mt={0.5}>
+                {t("storefront.form.monthlyGoalHint", { defaultValue: "Shows \"$X of $Y this month\" on your page. Counts confirmed tips and resets on the 1st." })}
+              </Typography>
             </Box>
 
             {/* Thanks message */}

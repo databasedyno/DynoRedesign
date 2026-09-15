@@ -944,7 +944,10 @@
       "supportStyle_tip": "Envoyer un pourboire",
       "supportStyle_support": "Soutenez-moi",
       "showWall": "Mur des soutiens — afficher les pourboires publics récents",
-      "showWallHint": "Prénom, montant et message de vos 8 derniers soutiens. Les pourboires anonymes apparaissent comme « Quelqu'un ». Désactivé par défaut."
+      "showWallHint": "Prénom, montant et message de vos 8 derniers soutiens. Les pourboires anonymes apparaissent comme « Quelqu'un ». Désactivé par défaut.",
+      "monthlyGoal": "Objectif mensuel de pourboires",
+      "monthlyGoalNote": "(facultatif — laissez vide pour masquer la barre)",
+      "monthlyGoalHint": "Affiche « X $ sur Y $ ce mois-ci » sur votre page. Compte les pourboires confirmés et repart de zéro le 1er."
     },
     "compare": {
       "title": "Comparer les vitrines",
@@ -984,7 +987,8 @@
     "preview": {
       "firstDonationTitle": "Votre premier lien de don apparaîtra ici",
       "firstDonationBody": "Créez un lien de don et il apparaîtra en haut de votre page.",
-      "wallTitle": "Soutiens récents"
+      "wallTitle": "Soutiens récents",
+      "goalProgress": "{{raised}} sur {{goal}} ce mois-ci"
     },
     "share": {
       "textNamed": "Payez {{name}} en crypto — aucune inscription requise.",
@@ -1462,7 +1466,19 @@
     "galleryImageAlt": "Image de la galerie {{n}}",
     "galleryMaxHint": "Max 10 Mo par image, jusqu'à {{max}} images au total.",
     "inheritStoreDefaultCurrent": "Hériter du défaut du magasin (actuellement : {{state}})",
-    "effectiveOn": "Les acheteurs sont facturés TVA/taxe en fonction de leur {{place}}."
+    "effectiveOn": "Les acheteurs sont facturés TVA/taxe en fonction de leur {{place}}.",
+    "preview": {
+      "label": "Aperçu en direct",
+      "titlePlaceholder": "Titre de votre produit",
+      "crumb": "Boutique",
+      "digital": "Numérique",
+      "draft": "Brouillon",
+      "fromVariants": "{{count}} options",
+      "buyNow": "Acheter",
+      "secured": "Sécurisé par Dynopay · payez en crypto",
+      "hide": "Masquer l'aperçu",
+      "show": "Aperçu"
+    }
   },
   "products": {
     "viewLabel": "Affichage",

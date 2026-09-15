@@ -355,6 +355,12 @@ const userModel = sequelize.define(
       defaultValue: false,
       comment: "Opt-in supporter wall (recent public tips) on the creator page",
     },
+    support_widget_monthly_goal: {
+      type: DataTypes.DECIMAL(12, 2),
+      allowNull: true,
+      defaultValue: null,
+      comment: "Optional monthly tip goal (widget currency); NULL = off",
+    },
     // ── Creator Page Analytics (Session 2026-08-05) ──
     store_enabled: {
       type: DataTypes.BOOLEAN,

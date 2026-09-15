@@ -891,7 +891,12 @@
       "daysAgo": "hace {{count}} d",
       "monthsAgo": "hace {{count}} mes(es)"
     },
-    "nonCustodial": "Va directo a {{name}} — Dynopay nunca retiene tus fondos."
+    "nonCustodial": "Va directo a {{name}} — Dynopay nunca retiene tus fondos.",
+    "goal": {
+      "progress": "{{raised}} de {{goal}} este mes",
+      "reached": "¡Meta alcanzada — gracias! Cada propina extra sigue yendo directamente al creador.",
+      "resets": "Se reinicia en {{count}} días"
+    }
   },
   "order": {
     "progress": {
@@ -1242,7 +1247,13 @@
       "primary": "Empieza a aceptar pagos",
       "secondary": "Prueba un checkout en vivo",
       "primaryHelper": "Gratis para empezar · Primer pago sin comisión · Sin tarjeta",
-      "demoNote": "La tarjeta de arriba es un sandbox: elige una moneda y pulsa Pagar para ver cómo se confirma un pago."
+      "demoNote": "La tarjeta de arriba es un sandbox: elige una moneda y pulsa Pagar para ver cómo se confirma un pago.",
+      "trust": {
+        "nonCustodial": "Sin custodia",
+        "coins": "15 monedas",
+        "fees": "Comisiones desde 0,5 %",
+        "since": "Desde 2024"
+      }
     },
     "demo": {
       "sandbox": "Sandbox · no se envía nada",

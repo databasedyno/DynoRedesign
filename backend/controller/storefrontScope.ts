@@ -30,7 +30,7 @@ export const STOREFRONT_COLUMNS = [
   "support_widget_enabled", "support_widget_style", "support_widget_label",
   "support_widget_preset_amounts", "support_widget_currency", "support_widget_min_amount",
   "support_widget_allow_message", "support_widget_thanks_message", "support_widget_show_supporters",
-  "support_widget_show_wall",
+  "support_widget_show_wall", "support_widget_monthly_goal",
   "theme_accent_color", "theme_cover_style", "theme_cover_gradient",
   "public_analytics_enabled",
   "store_enabled", "creator_page_show_products",
@@ -137,6 +137,7 @@ export interface StorefrontOwner {
   support_widget_thanks_message: string | null;
   support_widget_show_supporters: boolean | null;
   support_widget_show_wall: boolean | null;
+  support_widget_monthly_goal: number | string | null;
   theme_accent_color: string | null;
   theme_cover_style: string | null;
   theme_cover_gradient: string | null;
@@ -177,7 +178,7 @@ export async function resolveStorefrontByHandle(
               c.support_widget_enabled, c.support_widget_style, c.support_widget_label,
               c.support_widget_preset_amounts, c.support_widget_currency, c.support_widget_min_amount,
               c.support_widget_allow_message, c.support_widget_thanks_message, c.support_widget_show_supporters,
-              c.support_widget_show_wall,
+              c.support_widget_show_wall, c.support_widget_monthly_goal,
               c.theme_accent_color, c.theme_cover_style, c.theme_cover_gradient,
               c.public_analytics_enabled,
               c.store_enabled, c.creator_page_show_products
@@ -199,7 +200,7 @@ export async function resolveStorefrontByHandle(
             support_widget_enabled, support_widget_style, support_widget_label,
             support_widget_preset_amounts, support_widget_currency, support_widget_min_amount,
             support_widget_allow_message, support_widget_thanks_message, support_widget_show_supporters,
-            support_widget_show_wall,
+            support_widget_show_wall, support_widget_monthly_goal,
             theme_accent_color, theme_cover_style, theme_cover_gradient, public_analytics_enabled,
             store_enabled, creator_page_show_products
      FROM tbl_user

@@ -944,7 +944,10 @@
       "supportStyle_tip": "Trinkgeld senden",
       "supportStyle_support": "Unterstütze mich",
       "showWall": "Unterstützer-Wand — neueste öffentliche Trinkgelder anzeigen",
-      "showWallHint": "Vorname, Betrag und Nachricht Ihrer letzten 8 Unterstützer. Anonyme Trinkgelder erscheinen als „Jemand“. Standardmäßig aus."
+      "showWallHint": "Vorname, Betrag und Nachricht Ihrer letzten 8 Unterstützer. Anonyme Trinkgelder erscheinen als „Jemand“. Standardmäßig aus.",
+      "monthlyGoal": "Monatliches Trinkgeld-Ziel",
+      "monthlyGoalNote": "(optional — leer lassen, um den Balken auszublenden)",
+      "monthlyGoalHint": "Zeigt „X $ von Y $ diesen Monat“ auf Ihrer Seite. Zählt bestätigte Trinkgelder und startet am 1. neu."
     },
     "compare": {
       "title": "Schaufenster vergleichen",
@@ -984,7 +987,8 @@
     "preview": {
       "firstDonationTitle": "Ihr erster Spendenlink wird hier angezeigt",
       "firstDonationBody": "Erstellen Sie einen Spendenlink, und er wird oben auf Ihrer Seite angezeigt.",
-      "wallTitle": "Neueste Unterstützer"
+      "wallTitle": "Neueste Unterstützer",
+      "goalProgress": "{{raised}} von {{goal}} diesen Monat"
     },
     "share": {
       "textNamed": "Zahlen Sie {{name}} in Krypto — keine Anmeldung erforderlich.",
@@ -1462,7 +1466,19 @@
     "galleryImageAlt": "Galeriebild {{n}}",
     "galleryMaxHint": "Max 10 MB pro Bild, bis zu {{max}} Bilder insgesamt.",
     "inheritStoreDefaultCurrent": "Store-Standard übernehmen (derzeit: {{state}})",
-    "effectiveOn": "Käufer werden basierend auf ihrem {{place}} mit Mehrwertsteuer/Steuer belastet."
+    "effectiveOn": "Käufer werden basierend auf ihrem {{place}} mit Mehrwertsteuer/Steuer belastet.",
+    "preview": {
+      "label": "Live-Vorschau",
+      "titlePlaceholder": "Ihr Produkttitel",
+      "crumb": "Shop",
+      "digital": "Digital",
+      "draft": "Entwurf",
+      "fromVariants": "{{count}} Optionen",
+      "buyNow": "Jetzt kaufen",
+      "secured": "Gesichert durch Dynopay · mit Krypto bezahlen",
+      "hide": "Vorschau ausblenden",
+      "show": "Vorschau"
+    }
   },
   "products": {
     "viewLabel": "Ansicht",

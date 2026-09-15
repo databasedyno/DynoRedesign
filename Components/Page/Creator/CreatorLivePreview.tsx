@@ -228,6 +228,23 @@ const CreatorLivePreview: React.FC<Props> = ({ state }) => {
                 {swTitle}
               </Typography>
             </Box>
+            {Number(state.swMonthlyGoal) > 0 && (() => {
+              const goal = Number(state.swMonthlyGoal);
+              const sample = Math.round(goal * 0.42);
+              return (
+                <Box data-testid="preview-tip-goal" sx={{ mt: 1.25 }}>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.4 }}>
+                    <Typography sx={{ fontFamily: MONO, fontSize: 10.5, fontWeight: 700, color: theme.palette.text.primary }}>
+                      {t("storefront.preview.goalProgress", { raised: `${swSym}${sample.toLocaleString()}`, goal: `${swSym}${goal.toLocaleString()}`, defaultValue: "{{raised}} of {{goal}} this month" })}
+                    </Typography>
+                    <Typography sx={{ fontFamily: MONO, fontSize: 10.5, fontWeight: 700, color: accent }}>42%</Typography>
+                  </Box>
+                  <Box sx={{ height: 6, borderRadius: "999px", backgroundColor: border, overflow: "hidden" }}>
+                    <Box sx={{ width: "42%", height: "100%", background: accent, borderRadius: "999px" }} />
+                  </Box>
+                </Box>
+              );
+            })()}
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.6, mt: 1.25 }}>
               {swPresets.slice(0, 5).map((p) => (
                 <Box

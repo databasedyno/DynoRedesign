@@ -944,7 +944,10 @@
       "supportStyle_tip": "Send a tip",
       "supportStyle_support": "Support me",
       "showWall": "Supporter wall — show recent public tips",
-      "showWallHint": "First name, amount and message of your last 8 supporters. Anonymous tips show as \"Someone\". Off by default."
+      "showWallHint": "First name, amount and message of your last 8 supporters. Anonymous tips show as \"Someone\". Off by default.",
+      "monthlyGoal": "Monthly tip goal",
+      "monthlyGoalNote": "(optional — leave empty to hide the bar)",
+      "monthlyGoalHint": "Shows \"$X of $Y this month\" on your page. Counts confirmed tips and resets on the 1st."
     },
     "compare": {
       "title": "Compare storefronts",
@@ -984,7 +987,8 @@
     "preview": {
       "firstDonationTitle": "Your first donation link will appear here",
       "firstDonationBody": "Create a donation link and it will feature at the top of your page.",
-      "wallTitle": "Recent supporters"
+      "wallTitle": "Recent supporters",
+      "goalProgress": "{{raised}} of {{goal}} this month"
     },
     "share": {
       "textNamed": "Pay {{name}} in crypto — no signup needed.",
@@ -1462,7 +1466,19 @@
     "galleryImageAlt": "Gallery image {{n}}",
     "galleryMaxHint": "Max 10 MB per image, up to {{max}} images total.",
     "inheritStoreDefaultCurrent": "Inherit store default (currently: {{state}})",
-    "effectiveOn": "Buyers are charged VAT/tax based on their {{place}}."
+    "effectiveOn": "Buyers are charged VAT/tax based on their {{place}}.",
+    "preview": {
+      "label": "Live preview",
+      "titlePlaceholder": "Your product title",
+      "crumb": "Shop",
+      "digital": "Digital",
+      "draft": "Draft",
+      "fromVariants": "{{count}} options",
+      "buyNow": "Buy now",
+      "secured": "Secured by Dynopay · pay with crypto",
+      "hide": "Hide preview",
+      "show": "Preview"
+    }
   },
   "products": {
     "viewLabel": "View",

@@ -147,6 +147,26 @@ export const getDonationAggregates = async (
   };
 };
 
+/** Confirmed tips since `since` (used for the monthly goal bar). */
+export const getDonationAggregatesSince = async (
+  parentLinkId: number,
+  since: Date
+): Promise<{ raised_amount: number; supporters_count: number }> => {
+  const [row] = (await sequelize.query(
+    `SELECT COUNT(*)::int AS supporters_count, COALESCE(SUM(base_amount), 0)::float AS raised_amount
+     FROM tbl_payment_link
+     WHERE parent_link_id = :pid AND LOWER(status) IN (:statuses) AND "updatedAt" >= :since`,
+    {
+      replacements: { pid: parentLinkId, statuses: DONATION_COMPLETED_STATUSES, since },
+      type: QueryTypes.SELECT,
+    }
+  )) as Array<{ supporters_count: number; raised_amount: number }>;
+  return {
+    raised_amount: Number(row?.raised_amount || 0),
+    supporters_count: Number(row?.supporters_count || 0),
+  };
+};
+
 export const getRecentSupporters = async (
   parentLinkId: number,
   limit = 10
@@ -2886,10 +2906,12 @@ export const getCreatorProfile = async (req: express.Request, res: express.Respo
 
       const showSupporters = c.support_widget_show_supporters !== false;
       const showWall = c.support_widget_show_wall === true;
+      const monthlyGoal = c.support_widget_monthly_goal != null && Number(c.support_widget_monthly_goal) > 0 ? Number(c.support_widget_monthly_goal) : null;
       let supportersCount: number | null = null;
       let raisedAmount: number | null = null;
+      let monthRaised: number | null = null;
       let recentSupporters: Array<{ name: string | null; message: string | null; amount: number; currency: string; at: string }> = [];
-      if (showSupporters || showWall) {
+      if (showSupporters || showWall || monthlyGoal) {
         const jar = await paymentLinkModel.findOne({
           where: { user_id: c.user_id, ...linkCompanyWhere, is_tip_jar: true, parent_link_id: null },
           attributes: ["link_id"],
@@ -2901,6 +2923,11 @@ export const getCreatorProfile = async (req: express.Request, res: express.Respo
         } else if (showSupporters) {
           supportersCount = 0;
           raisedAmount = 0;
+        }
+        if (monthlyGoal) {
+          const now = new Date();
+          const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+          monthRaised = jar ? (await getDonationAggregatesSince(jar.dataValues.link_id, monthStart)).raised_amount : 0;
         }
         if (jar && showWall) {
           recentSupporters = (await getRecentSupporters(jar.dataValues.link_id, 8)).map((r) => ({
@@ -2927,6 +2954,8 @@ export const getCreatorProfile = async (req: express.Request, res: express.Respo
         raised_amount: raisedAmount,
         show_wall: showWall,
         recent_supporters: recentSupporters,
+        monthly_goal: monthlyGoal,
+        month_raised: monthRaised,
       };
     }
 

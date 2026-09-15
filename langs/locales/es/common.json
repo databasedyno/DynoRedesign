@@ -944,7 +944,10 @@
       "supportStyle_tip": "Enviar una propina",
       "supportStyle_support": "Apóyame",
       "showWall": "Muro de apoyos — mostrar las propinas públicas recientes",
-      "showWallHint": "Nombre, importe y mensaje de tus últimos 8 apoyos. Las propinas anónimas aparecen como \"Alguien\". Desactivado por defecto."
+      "showWallHint": "Nombre, importe y mensaje de tus últimos 8 apoyos. Las propinas anónimas aparecen como \"Alguien\". Desactivado por defecto.",
+      "monthlyGoal": "Meta mensual de propinas",
+      "monthlyGoalNote": "(opcional — déjalo vacío para ocultar la barra)",
+      "monthlyGoalHint": "Muestra «$X de $Y este mes» en tu página. Cuenta propinas confirmadas y se reinicia el día 1."
     },
     "compare": {
       "title": "Comparar tiendas",
@@ -984,7 +987,8 @@
     "preview": {
       "firstDonationTitle": "Tu primer enlace de donación aparecerá aquí",
       "firstDonationBody": "Crea un enlace de donación y aparecerá en la parte superior de tu página.",
-      "wallTitle": "Apoyos recientes"
+      "wallTitle": "Apoyos recientes",
+      "goalProgress": "{{raised}} de {{goal}} este mes"
     },
     "share": {
       "textNamed": "Paga a {{name}} en criptomonedas — no se necesita registro.",
@@ -1462,7 +1466,19 @@
     "galleryImageAlt": "Imagen de galería {{n}}",
     "galleryMaxHint": "Máx 10 MB por imagen, hasta {{max}} imágenes en total.",
     "inheritStoreDefaultCurrent": "Heredar predeterminado de la tienda (actualmente: {{state}})",
-    "effectiveOn": "A los compradores se les cobra IVA/impuesto basado en su {{place}}."
+    "effectiveOn": "A los compradores se les cobra IVA/impuesto basado en su {{place}}.",
+    "preview": {
+      "label": "Vista previa en vivo",
+      "titlePlaceholder": "Título de tu producto",
+      "crumb": "Tienda",
+      "digital": "Digital",
+      "draft": "Borrador",
+      "fromVariants": "{{count}} opciones",
+      "buyNow": "Comprar ahora",
+      "secured": "Protegido por Dynopay · paga con cripto",
+      "hide": "Ocultar vista previa",
+      "show": "Vista previa"
+    }
   },
   "products": {
     "viewLabel": "Vista",

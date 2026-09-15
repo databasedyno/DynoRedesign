@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo, useEffect, memo } from "react";
-import { Box, Typography, useTheme, useMediaQuery, Grid, Divider, Autocomplete, TextField, InputBase, Fab, Fade } from "@mui/material";
+import { Box, Typography, useTheme, useMediaQuery, Grid, Divider, Autocomplete, TextField, InputBase, Fab, Fade, Drawer, Button } from "@mui/material";
 import { brandFg } from "@/constants/theme";
 import { styled, alpha } from "@mui/material/styles";
 import { useRouter } from "next/router";
@@ -25,6 +25,9 @@ import CheckIcon from "@mui/icons-material/Check";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import SearchIcon from "@mui/icons-material/Search";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+import MenuBookOutlinedIcon from "@mui/icons-material/MenuBookOutlined";
 import { useTranslation } from "react-i18next";
 import copyToClipboard from "@/helpers/copyToClipboard";
 import { BRAND_ACCENT } from "@/constants/theme";
@@ -1313,6 +1316,30 @@ const DocumentationPage = () => {
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
 
+  // Phone nav (Wave 7): bottom-sheet section menu + prev/next pager at the end of every section.
+  const [navOpen, setNavOpen] = useState(false);
+  const activeMeta = SECTIONS.find((sec) => sec.id === activeSection) || SECTIONS[0];
+  const SectionPager = ({ current }: { current: string }) => {
+    if (!isMobile) return null;
+    const idx = SECTIONS.findIndex((sec) => sec.id === current);
+    const prev = idx > 0 ? SECTIONS[idx - 1] : null;
+    const next = idx >= 0 && idx < SECTIONS.length - 1 ? SECTIONS[idx + 1] : null;
+    return (
+      <Box data-testid={`docs-pager-${current}`} sx={{ display: "flex", justifyContent: "space-between", gap: 1, mt: 3, pt: 2, borderTop: `1px solid ${borderClr}` }}>
+        {prev ? (
+          <Button size="small" onClick={() => scrollTo(prev.id)} startIcon={<KeyboardArrowLeftIcon />} data-testid={`docs-pager-prev-${current}`} sx={{ textTransform: "none", fontFamily: "var(--font-sans)", fontWeight: 600, minWidth: 0, maxWidth: "48%", justifyContent: "flex-start", "& .MuiButton-startIcon": { mr: 0.25 } }}>
+            <Box component="span" sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{prev.title}</Box>
+          </Button>
+        ) : <span />}
+        {next ? (
+          <Button size="small" onClick={() => scrollTo(next.id)} endIcon={<KeyboardArrowRightIcon />} data-testid={`docs-pager-next-${current}`} sx={{ textTransform: "none", fontFamily: "var(--font-sans)", fontWeight: 600, minWidth: 0, maxWidth: "48%", justifyContent: "flex-end", "& .MuiButton-endIcon": { ml: 0.25 } }}>
+            <Box component="span" sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{next.title}</Box>
+          </Button>
+        ) : <span />}
+      </Box>
+    );
+  };
+
   // Track active section on scroll
   useEffect(() => {
     const handleScroll = () => {
@@ -1442,42 +1469,111 @@ const DocumentationPage = () => {
 
             {/* Main Content */}
             <Box sx={{ flex: 1, minWidth: 0 }}>
-              {/* Mobile: sticky search + jump-to-section (replaces the desktop sidebar) */}
+              {/* Mobile (Wave 7): sticky bar — current section + "Sections" sheet with every section & endpoint */}
               {isMobile && (
-                <Box
-                  sx={{
-                    position: "sticky",
-                    top: 64,
-                    zIndex: 20,
-                    mx: -2,
-                    px: 2,
-                    py: 1.25,
-                    mb: 3,
-                    backdropFilter: "blur(8px)",
-                    background: dk ? "rgba(13,15,26,0.92)" : "rgba(255,255,255,0.92)",
-                    borderBottom: `1px solid ${borderClr}`,
-                  }}
-                >
-                  <Autocomplete
-                    options={SECTIONS}
-                    value={SECTIONS.find((s) => s.id === activeSection) || null}
-                    onChange={(_, val) => { if (val) scrollTo(val.id); }}
-                    isOptionEqualToValue={(o, v) => o.id === v.id}
-                    getOptionLabel={(o) => o.title}
-                    blurOnSelect
-                    size="small"
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        placeholder="Search or jump to a section…"
-                        InputProps={{
-                          ...params.InputProps,
-                          startAdornment: <SearchIcon sx={{ fontSize: 18, color: "text.secondary", ml: 0.5, mr: 0.25 }} />,
-                        }}
+                <>
+                  <Box
+                    data-testid="docs-mobile-nav"
+                    sx={{
+                      position: "sticky",
+                      top: 64,
+                      zIndex: 20,
+                      mx: -2,
+                      px: 2,
+                      py: 1,
+                      mb: 3,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      backdropFilter: "blur(8px)",
+                      background: dk ? "rgba(13,15,26,0.92)" : "rgba(255,255,255,0.92)",
+                      borderBottom: `1px solid ${borderClr}`,
+                    }}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, minWidth: 0, flex: 1, color: "text.primary", "& svg": { fontSize: 18, color: "text.secondary" } }}>
+                      {activeMeta.icon}
+                      <Typography data-testid="docs-mobile-current" sx={{ fontSize: 14, fontWeight: 600, fontFamily: "var(--font-sans)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {activeMeta.title}
+                      </Typography>
+                    </Box>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      onClick={() => setNavOpen(true)}
+                      startIcon={<MenuBookOutlinedIcon sx={{ fontSize: 17 }} />}
+                      data-testid="docs-mobile-sections-btn"
+                      sx={{ textTransform: "none", fontFamily: "var(--font-sans)", fontWeight: 600, borderRadius: "999px", flexShrink: 0, borderColor: borderClr, color: "text.primary" }}
+                    >
+                      Sections
+                    </Button>
+                  </Box>
+                  <Drawer
+                    anchor="bottom"
+                    open={navOpen}
+                    onClose={() => setNavOpen(false)}
+                    PaperProps={{ sx: { borderTopLeftRadius: 18, borderTopRightRadius: 18, maxHeight: "82vh", background: dk ? "#0D0F1A" : "#fff" }, "data-testid": "docs-mobile-sheet" } as any}
+                  >
+                    <Box sx={{ width: 40, height: 4, borderRadius: 2, background: borderClr, mx: "auto", mt: 1.25, mb: 1 }} />
+                    <Box sx={{ px: 2, pb: "calc(env(safe-area-inset-bottom, 0px) + 16px)", overflowY: "auto" }}>
+                      <Autocomplete
+                        options={SECTIONS}
+                        onChange={(_, val) => { if (val) { scrollTo(val.id); setNavOpen(false); } }}
+                        isOptionEqualToValue={(o, v) => o.id === v.id}
+                        getOptionLabel={(o) => o.title}
+                        blurOnSelect
+                        size="small"
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            placeholder="Search sections…"
+                            inputProps={{ ...params.inputProps, "data-testid": "docs-mobile-search" }}
+                            InputProps={{
+                              ...params.InputProps,
+                              startAdornment: <SearchIcon sx={{ fontSize: 18, color: "text.secondary", ml: 0.5, mr: 0.25 }} />,
+                            }}
+                          />
+                        )}
+                        sx={{ mb: 1.5 }}
                       />
-                    )}
-                  />
-                </Box>
+                      {SECTIONS.map((sec) => {
+                        const on = sec.id === activeSection;
+                        return (
+                          <Box key={sec.id} sx={{ mb: 0.5 }}>
+                            <Box
+                              component="button"
+                              type="button"
+                              onClick={() => { scrollTo(sec.id); setNavOpen(false); }}
+                              data-testid={`docs-sheet-section-${sec.id}`}
+                              aria-current={on ? "true" : undefined}
+                              sx={{
+                                width: "100%", display: "flex", alignItems: "center", gap: 1.25, px: 1.25, py: 1.1, borderRadius: "10px", border: "none", cursor: "pointer", textAlign: "left",
+                                background: on ? (dk ? "rgba(129,140,248,0.16)" : "rgba(79,70,229,0.08)") : "transparent",
+                                color: on ? (dk ? "#A5B4FC" : "#4338CA") : theme.palette.text.primary,
+                                fontFamily: "var(--font-sans)", fontSize: 15, fontWeight: on ? 700 : 500,
+                                "& svg": { fontSize: 18, color: on ? "inherit" : theme.palette.text.secondary },
+                              }}
+                            >
+                              {sec.icon}
+                              {sec.title}
+                            </Box>
+                            {sec.endpoints?.map((epId) => (
+                              <Box
+                                key={epId}
+                                component="button"
+                                type="button"
+                                onClick={() => { scrollTo(epId); setNavOpen(false); }}
+                                data-testid={`docs-sheet-endpoint-${epId}`}
+                                sx={{ width: "100%", display: "block", textAlign: "left", px: 1.25, py: 0.7, pl: 5.25, border: "none", background: "transparent", cursor: "pointer", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)", fontSize: 13.5, borderRadius: "8px", "&:hover": { color: theme.palette.text.primary } }}
+                              >
+                                {endpointMap[epId]?.title}
+                              </Box>
+                            ))}
+                          </Box>
+                        );
+                      })}
+                    </Box>
+                  </Drawer>
+                </>
               )}
 
               {/* Overview */}
@@ -1559,6 +1655,7 @@ const DocumentationPage = () => {
                     Most integrations only need two API calls: <strong>Create Customer</strong> → <strong>Create Payment</strong>. The customer pays in crypto, and funds forward to your wallet once the payment confirms.
                   </Typography>
                 </InfoBox>
+                <SectionPager current="overview" />
               </Box>
 
               {/* Getting Started */}
@@ -1624,6 +1721,7 @@ const DocumentationPage = () => {
                   lang={gsLang === "curl" ? "bash" : gsLang === "node" ? "javascript" : "python"}
                   code={GS_EXAMPLES[gsLang]}
                 />
+                <SectionPager current="getting-started" />
               </Box>
 
               {/* Try It Live — sandbox playground (no account needed) */}
@@ -1643,6 +1741,7 @@ const DocumentationPage = () => {
                   <a href="/pay/demo" target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>open the live checkout demo</a>{" "}
                   to see what your customers experience.
                 </Typography>
+                <SectionPager current="try-it" />
               </Box>
 
               {/* Authentication */}
@@ -1685,6 +1784,7 @@ const DocumentationPage = () => {
                     </AuthCard>
                   </Grid>
                 </Grid>
+                <SectionPager current="authentication" />
               </Box>
 
               {/* Endpoint Sections */}
@@ -1697,6 +1797,7 @@ const DocumentationPage = () => {
                     const ep = endpointMap[epId];
                     return ep ? <EndpointCard key={ep.id} ep={ep} /> : null;
                   })}
+                  <SectionPager current={section.id} />
                 </Box>
               ))}
 
@@ -1808,6 +1909,7 @@ const DocumentationPage = () => {
                     <li><strong>Do not rely on the browser alone.</strong> The post-payment redirect / <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>onComplete</code> event is UX only — a customer can close the tab. Server-side webhooks (or a reconciliation poll) are the source of truth.</li>
                   </Box>
                 </InfoBox>
+                <SectionPager current="payment-statuses" />
               </Box>
 
               {/* ═══════════════════════════════════════════════════════
@@ -1877,6 +1979,7 @@ const DocumentationPage = () => {
                     The button is UX only. Always confirm the final payment via the <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>payment.confirmed</code> webhook (see below) before you deliver the product or mark the order paid.
                   </Typography>
                 </InfoBox>
+                <SectionPager current="buy-button" />
               </Box>
 
               {/* ═══════════════════════════════════════════════════════
@@ -2090,6 +2193,7 @@ app.post('/webhooks/dynopay', (req, res) => {
                     </tbody>
                   </table>
                 </TableWrapper>
+                <SectionPager current="webhooks" />
               </Box>
 
               {/* ═══════════════════════════════════════════════════════
@@ -2134,6 +2238,7 @@ app.post('/webhooks/dynopay', (req, res) => {
                     When rate limited, the API returns HTTP <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>429 Too Many Requests</code> with a <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>Retry-After</code> header indicating when you can retry.
                   </Typography>
                 </InfoBox>
+                <SectionPager current="rate-limits" />
               </Box>
 
               {/* Error Handling */}
@@ -2244,6 +2349,7 @@ app.post('/webhooks/dynopay', (req, res) => {
   -H "Idempotency-Key: 8f14e45f-ce2a-4b7d-9a1e-1b2c3d4e5f60" \\
   -H "Content-Type: application/json" \\
   -d '{"amount": 25, "redirect_uri": "https://your-site.com/thanks"}'`} />
+                <SectionPager current="errors" />
               </Box>
 
             </Box>

@@ -891,7 +891,12 @@
       "daysAgo": "il y a {{count}} j",
       "monthsAgo": "il y a {{count}} mois"
     },
-    "nonCustodial": "Versé directement à {{name}} — Dynopay ne détient jamais vos fonds."
+    "nonCustodial": "Versé directement à {{name}} — Dynopay ne détient jamais vos fonds.",
+    "goal": {
+      "progress": "{{raised}} sur {{goal}} ce mois-ci",
+      "reached": "Objectif atteint — merci ! Chaque pourboire supplémentaire va toujours directement au créateur.",
+      "resets": "Remise à zéro dans {{count}} jours"
+    }
   },
   "order": {
     "progress": {
@@ -1242,7 +1247,13 @@
       "primary": "Commencer à encaisser",
       "secondary": "Essayer un checkout en direct",
       "primaryHelper": "Gratuit pour démarrer · Premier paiement sans frais · Aucune carte requise",
-      "demoNote": "La carte ci-dessus est un bac à sable : choisissez une crypto et appuyez sur Payer pour voir un paiement se confirmer."
+      "demoNote": "La carte ci-dessus est un bac à sable : choisissez une crypto et appuyez sur Payer pour voir un paiement se confirmer.",
+      "trust": {
+        "nonCustodial": "Non dépositaire",
+        "coins": "15 cryptos",
+        "fees": "Frais dès 0,5 %",
+        "since": "Depuis 2024"
+      }
     },
     "demo": {
       "sandbox": "Bac à sable · rien n'est envoyé",

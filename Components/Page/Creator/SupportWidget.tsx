@@ -6,6 +6,7 @@ import { Icon } from '@iconify/react'
 import { formatWithSeparators, getCurrencySymbolFromFormat } from '@/utils/currencyFormat'
 import InlineTipCheckout from './InlineTipCheckout'
 import SupporterWall, { RecentSupporter } from './SupporterWall'
+import TipGoalBar from './TipGoalBar'
 import { getRuntimeFlags } from '@/helpers/runtimeFlags'
 
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace'
@@ -30,6 +31,8 @@ export interface SupportWidgetData {
   raised_amount: number
   show_wall?: boolean
   recent_supporters?: RecentSupporter[]
+  monthly_goal?: number | null
+  month_raised?: number | null
 }
 
 export const STYLE_META: Record<string, { title: string; icon: string; cta: string }> = {
@@ -254,6 +257,11 @@ const SupportWidget = ({
         <Typography fontSize={13.5} color={theme.palette.text.secondary} mt={0.75} lineHeight={1.5}>
           {widget.thanks_message.trim()}
         </Typography>
+      )}
+
+      {/* Monthly tip goal — opt-in; progress = this calendar month's confirmed tips */}
+      {typeof widget.monthly_goal === 'number' && widget.monthly_goal > 0 && (
+        <TipGoalBar goal={widget.monthly_goal} raised={Number(widget.month_raised || 0)} fmtMoney={fmtMoney} accent={accentColor || LIME} />
       )}
 
       {hasStats && (

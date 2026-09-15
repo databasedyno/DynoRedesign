@@ -6,7 +6,7 @@ import React, { useEffect } from "react";
 import { useRouter } from "next/router";
 import { Box, IconButton } from "@mui/material";
 import ArrowBackRounded from "@mui/icons-material/ArrowBackRounded";
-import ProductEditor from "@/Components/Page/ProductEditor";
+import ProductEditorWithPreview from "@/Components/Page/ProductEditor/ProductEditorWithPreview";
 import { pageProps } from "@/utils/types";
 
 const EditProductPage = ({ setPageName, setPageDescription, setPageAction }: pageProps) => {
@@ -34,7 +34,7 @@ const EditProductPage = ({ setPageName, setPageDescription, setPageAction }: pag
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", flex: 1, gap: 2 }}>
-      <ProductEditor mode="edit" productId={productId} />
+      <ProductEditorWithPreview mode="edit" productId={productId} />
     </Box>
   );
 };

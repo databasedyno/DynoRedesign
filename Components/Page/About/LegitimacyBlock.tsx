@@ -36,7 +36,7 @@ const AboutLegitimacyBlock = () => {
   ];
 
   return (
-    <Section alt testId="about-legitimacy" sx={{ py: { xs: 7, md: 10 } }}>
+    <Section id="about-legitimacy" alt testId="about-legitimacy" sx={{ py: { xs: 7, md: 10 } }}>
       <SectionHead
         eyebrow={t("about.legit.eyebrow", { defaultValue: "Who runs Dynopay" })}
         headline={t("about.legit.title", { defaultValue: "Verifiable, on the record." })}

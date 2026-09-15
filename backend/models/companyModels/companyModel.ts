@@ -86,6 +86,11 @@ const STOREFRONT_COMPANY_COLUMNS = STOREFRONT_PER_COMPANY
         allowNull: true,
         defaultValue: false,
       },
+      support_widget_monthly_goal: {
+        type: DataTypes.DECIMAL(12, 2),
+        allowNull: true,
+        defaultValue: null,
+      },
       store_enabled: {
         type: DataTypes.BOOLEAN,
         allowNull: true,

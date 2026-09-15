@@ -944,7 +944,10 @@
       "supportStyle_tip": "Enviar uma gorjeta",
       "supportStyle_support": "Apoie-me",
       "showWall": "Mural de apoiantes — mostrar gorjetas públicas recentes",
-      "showWallHint": "Primeiro nome, valor e mensagem dos seus últimos 8 apoiantes. Gorjetas anónimas aparecem como \"Alguém\". Desligado por defeito."
+      "showWallHint": "Primeiro nome, valor e mensagem dos seus últimos 8 apoiantes. Gorjetas anónimas aparecem como \"Alguém\". Desligado por defeito.",
+      "monthlyGoal": "Meta mensal de gorjetas",
+      "monthlyGoalNote": "(opcional — deixe vazio para ocultar a barra)",
+      "monthlyGoalHint": "Mostra «$X de $Y este mês» na sua página. Conta gorjetas confirmadas e reinicia no dia 1."
     },
     "compare": {
       "title": "Comparar vitrines",
@@ -984,7 +987,8 @@
     "preview": {
       "firstDonationTitle": "O seu primeiro link de doação aparecerá aqui",
       "firstDonationBody": "Crie um link de doação e ele aparecerá no topo da sua página.",
-      "wallTitle": "Apoios recentes"
+      "wallTitle": "Apoios recentes",
+      "goalProgress": "{{raised}} de {{goal}} este mês"
     },
     "share": {
       "textNamed": "Pague {{name}} em cripto — sem necessidade de registo.",
@@ -1462,7 +1466,19 @@
     "galleryImageAlt": "Imagem da galeria {{n}}",
     "galleryMaxHint": "Máx 10 MB por imagem, até {{max}} imagens no total.",
     "inheritStoreDefaultCurrent": "Herdar predefinição da loja (atualmente: {{state}})",
-    "effectiveOn": "Os compradores são cobrados IVA/imposto com base no seu {{place}}."
+    "effectiveOn": "Os compradores são cobrados IVA/imposto com base no seu {{place}}.",
+    "preview": {
+      "label": "Pré-visualização ao vivo",
+      "titlePlaceholder": "Título do seu produto",
+      "crumb": "Loja",
+      "digital": "Digital",
+      "draft": "Rascunho",
+      "fromVariants": "{{count}} opções",
+      "buyNow": "Comprar agora",
+      "secured": "Protegido pela Dynopay · pague com cripto",
+      "hide": "Ocultar pré-visualização",
+      "show": "Pré-visualizar"
+    }
   },
   "products": {
     "viewLabel": "Vista",

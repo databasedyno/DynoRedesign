@@ -891,7 +891,12 @@
       "daysAgo": "{{count}}d ago",
       "monthsAgo": "{{count}}mo ago"
     },
-    "nonCustodial": "Paid straight to {{name}} — Dynopay never holds your funds."
+    "nonCustodial": "Paid straight to {{name}} — Dynopay never holds your funds.",
+    "goal": {
+      "progress": "{{raised}} of {{goal}} this month",
+      "reached": "Goal reached — thank you! Every extra tip still goes straight to the creator.",
+      "resets": "Resets in {{count}} days"
+    }
   },
   "order": {
     "progress": {
@@ -1242,7 +1247,13 @@
       "primary": "Start accepting payments",
       "secondary": "Try a live checkout",
       "primaryHelper": "Free to start · First payment fee-free · No card needed",
-      "demoNote": "The card above is a sandbox — pick a coin and press Pay to watch a payment confirm."
+      "demoNote": "The card above is a sandbox — pick a coin and press Pay to watch a payment confirm.",
+      "trust": {
+        "nonCustodial": "Non-custodial",
+        "coins": "15 coins",
+        "fees": "Fees from 0.5%",
+        "since": "Since 2024"
+      }
     },
     "demo": {
       "sandbox": "Sandbox · nothing is sent",

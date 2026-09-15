@@ -17,6 +17,7 @@ import DeleteOutlineRounded from "@mui/icons-material/DeleteOutlineRounded";
 import CloudUploadRounded from "@mui/icons-material/CloudUploadRounded";
 import ReceiptLongRounded from "@mui/icons-material/ReceiptLongRounded";
 import { useRouter } from "next/router";
+import type { ProductDraft } from "./ProductLivePreview";
 import { useTranslation } from "react-i18next";
 import PanelCard from "@/Components/UI/PanelCard";
 import CustomButton from "@/Components/UI/Buttons";
@@ -95,9 +96,11 @@ interface Asset {
 export interface ProductEditorProps {
   mode: "new" | "edit";
   productId?: number;
+  /** Live-preview hook: fires with the current draft whenever a previewable field changes. */
+  onDraftChange?: (draft: ProductDraft) => void;
 }
 
-const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
+const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId, onDraftChange }) => {
   const router = useRouter();
   const theme = useTheme();
   const { t } = useTranslation("common");
@@ -159,6 +162,16 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId }) => {
   const [aiSuggesting, setAiSuggesting] = useState(false);
   const [aiReason, setAiReason] = useState<string>("");
   const [hideQuantity, setHideQuantity] = useState<boolean>(false);
+
+  // Live preview (Wave 8): mirror the previewable fields to the parent.
+  useEffect(() => {
+    onDraftChange?.({
+      title, subtitle, description, priceDollars, currency, coverUrl, hideQuantity,
+      isActive: (product?.status ?? "draft") === "live",
+      variantCount: variants.filter((v) => v.is_active !== false).length,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [title, subtitle, description, priceDollars, currency, coverUrl, hideQuantity, product?.status, variants]);
 
   // Merchant-level tax default (Settings → Tax) — surfaced here so the
   // "Inherit merchant default" option shows what buyers are actually charged,

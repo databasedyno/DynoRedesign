@@ -52,3 +52,17 @@ export const addSupportWidgetShowWall = async (): Promise<void> => {
     );
   }
 };
+
+/**
+ * 0029 — creator monthly tip goal (opt-in, NULL = off). Additive, nullable
+ * NUMERIC(12,2) on tbl_company + tbl_user. Metadata-only, safe on live prod.
+ */
+export const addSupportWidgetMonthlyGoal = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  for (const table of ["tbl_company", "tbl_user"]) {
+    await sequelize.query(
+      `ALTER TABLE "${table}"
+         ADD COLUMN IF NOT EXISTS "support_widget_monthly_goal" NUMERIC(12,2) DEFAULT NULL`
+    );
+  }
+};
