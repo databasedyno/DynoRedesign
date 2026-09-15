@@ -70,7 +70,9 @@ import { buildFiatRows, hasBreakdownRows } from './checkout/breakdownRows'
 import { toNumber } from '@/utils/money'
 import {
   MONO, LIME, INK, ON_BRAND, PREF_NET_KEY, PREF_CUR_KEY, CRYPTO_INFO, networkEta, coinGroups,
+  sortCoinGroups, cheapestCode, networkFeeUsd, fmtNetworkFee,
 } from './checkout/checkoutConstants'
+import { useNetworkFees } from './checkout/useNetworkFees'
 import {
   formatCryptoAmount, buildPaymentUri, copyToClipboard, readCheckoutPref, writeCheckoutPref,
 } from './checkout/checkoutHelpers'
@@ -378,12 +380,22 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
   // Buyers think "USDT" before "Tron": group the available display codes by
   // symbol; a network choice is only shown when a coin exists on >1 network.
   const meta_ = meta // shorthand (must be declared BEFORE the useMemo below to avoid TDZ)
-  const groups = useMemo(() => (meta_ ? coinGroups(meta_.available_currencies) : []), [meta_])
+  // C1: live per-network fees → cost hints, stablecoins-first order, cheapest network default.
+  const { fees: netFees, ready: netFeesReady } = useNetworkFees(!!meta_)
+  const groups = useMemo(() => (meta_ ? sortCoinGroups(coinGroups(meta_.available_currencies), netFees) : []), [meta_, netFees])
   const selectedSymbol = CRYPTO_INFO[selectedCurrency]?.symbol || ''
   const networkOptions = useMemo(
-    () => (groups.find((g) => g.symbol === selectedSymbol)?.codes || []),
-    [groups, selectedSymbol],
+    () => {
+      const codes = groups.find((g) => g.symbol === selectedSymbol)?.codes || []
+      return [...codes].sort((a, b) => (networkFeeUsd(a, netFees) ?? Infinity) - (networkFeeUsd(b, netFees) ?? Infinity))
+    },
+    [groups, selectedSymbol, netFees],
   )
+  // "≈ $0.42 · 10–60 min" for one code; "from ≈ $0.01 · under a minute" for a multi-network coin.
+  const costHint = (codes: string[]): { fee: string | null; eta: string; multi: boolean } => {
+    const best = cheapestCode(codes, netFees)
+    return { fee: fmtNetworkFee(networkFeeUsd(best, netFees)), eta: networkEta(best), multi: codes.length > 1 }
+  }
 
   // One-tap wallet deep-link + URI-QR value (null for token/EVM/TRON chains).
   // Uses the OUTSTANDING amount during an underpayment so the machine-readable
@@ -403,15 +415,15 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
   // Preselect (never reserve) when meta loads — prefer the customer's remembered
   // coin (per-device) so a returning visitor lands on their usual choice (B4).
   useEffect(() => {
-    if (!meta_ || selectedCurrency || groups.length === 0) return
+    if (!meta_ || selectedCurrency || groups.length === 0 || !netFeesReady) return
     const savedCode = readCheckoutPref(PREF_CUR_KEY)
     const savedNet = readCheckoutPref(PREF_NET_KEY)
     const all = groups.flatMap((g) => g.codes)
     if (savedCode && all.includes(savedCode)) { setSelectedCurrency(savedCode); return }
     const first = groups[0]
     const byNet = savedNet ? first.codes.find((c) => CRYPTO_INFO[c]?.network === savedNet) : undefined
-    setSelectedCurrency(byNet || first.codes[0])
-  }, [meta_, groups, selectedCurrency])
+    setSelectedCurrency(byNet || cheapestCode(first.codes, netFees))
+  }, [meta_, groups, selectedCurrency, netFeesReady, netFees])
 
   // Keep the network mirror + per-device preferences in sync with the coin.
   useEffect(() => {
@@ -423,12 +435,12 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
   }, [selectedCurrency])
 
   // Coin picked from the coin-first list → choose the code on the remembered
-  // network when that coin exists there, else the first network.
+  // network when that coin exists there, else the cheapest network (C1).
   const pickSymbol = (symbol: string) => {
     const g = groups.find((x) => x.symbol === symbol)
     if (!g) return
     const savedNet = readCheckoutPref(PREF_NET_KEY)
-    const preferred = g.codes.find((c) => CRYPTO_INFO[c]?.network === (selectedNetwork || savedNet)) || g.codes[0]
+    const preferred = g.codes.find((c) => CRYPTO_INFO[c]?.network === (selectedNetwork || savedNet)) || cheapestCode(g.codes, netFees)
     setCryptoInfo(null)
     setSplit(null)
     setFeeExact(null)
@@ -1645,17 +1657,28 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
                   const nl = CRYPTO_INFO[g.codes[0]]?.networkLabel || ''
                   return nl && nl !== g.symbol && nl !== info.label ? nl : ''
                 })()
+            const cost = costHint(g.codes)
+            const costText = cost.fee
+              ? (cost.multi
+                ? t('checkout.coinCostFrom', { defaultValue: 'from {{fee}} · {{eta}}', fee: cost.fee, eta: cost.eta })
+                : t('checkout.coinCost', { defaultValue: '{{fee}} · {{eta}}', fee: cost.fee, eta: cost.eta }))
+              : cost.eta
             return (
-              <MenuItem key={g.symbol} value={g.symbol} data-testid={`clean-checkout-coin-${g.symbol}`}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
+              <MenuItem key={g.symbol} value={g.symbol} data-testid={`clean-checkout-coin-${g.symbol}`} sx={{ py: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%', minWidth: 0 }}>
                   <Icon icon={info.icon} width={18} color={info.iconColor} />
                   <span style={{ fontWeight: 700 }}>{g.symbol}</span>
-                  <Box component="span" sx={{ color: muted, fontSize: 12.5, fontWeight: 500 }}>{info.label !== g.symbol ? info.label : ''}</Box>
-                  {netHint && (
-                    <Box component="span" sx={{ ml: 'auto', color: muted, fontSize: 11.5, fontWeight: 500, whiteSpace: 'nowrap' }} data-testid={`clean-checkout-coin-net-${g.symbol}`}>
-                      {netHint}
+                  <Box component="span" sx={{ color: muted, fontSize: 12.5, fontWeight: 500, display: { xs: 'none', sm: 'inline' } }}>{info.label !== g.symbol ? info.label : ''}</Box>
+                  <Box sx={{ ml: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', lineHeight: 1.25, minWidth: 0 }}>
+                    <Box component="span" sx={{ color: theme.palette.text.primary, fontSize: 11.5, fontWeight: 600, whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }} data-testid={`clean-checkout-coin-cost-${g.symbol}`}>
+                      {costText}
                     </Box>
-                  )}
+                    {netHint && (
+                      <Box component="span" sx={{ color: muted, fontSize: 11, fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 180 }} data-testid={`clean-checkout-coin-net-${g.symbol}`}>
+                        {netHint}
+                      </Box>
+                    )}
+                  </Box>
                 </Box>
               </MenuItem>
             )
@@ -1668,9 +1691,11 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
               {t('checkout.networkLabel', { defaultValue: 'NETWORK' })}
             </Typography>
             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-              {networkOptions.map((code) => {
+              {networkOptions.map((code, idx) => {
                 const info = CRYPTO_INFO[code]
                 const active = code === selectedCurrency
+                const fee = fmtNetworkFee(networkFeeUsd(code, netFees))
+                const cheapest = idx === 0 && !!fee
                 return (
                   <Box
                     key={code}
@@ -1692,7 +1717,14 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
                     }}
                   >
                     {info.networkLabel}
-                    <Box component="span" sx={{ color: muted, fontSize: 11.5, fontWeight: 500 }}>· {networkEta(code)}</Box>
+                    <Box component="span" sx={{ color: muted, fontSize: 11.5, fontWeight: 500, fontVariantNumeric: 'tabular-nums' }} data-testid={`clean-checkout-network-cost-${info.network}`}>
+                      · {fee ? `${fee} · ` : ''}{networkEta(code)}
+                    </Box>
+                    {cheapest && (
+                      <Box component="span" data-testid="clean-checkout-network-cheapest" sx={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase', px: 0.75, py: 0.1, borderRadius: '999px', backgroundColor: isDark ? 'rgba(34,197,94,0.18)' : 'rgba(22,163,74,0.10)', color: isDark ? '#4ade80' : '#15803d' }}>
+                        {t('checkout.cheapest', { defaultValue: 'Cheapest' })}
+                      </Box>
+                    )}
                   </Box>
                 )
               })}
@@ -1725,7 +1757,12 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
         )}
         {phase === 'currency_select' && selectedCurrency && (
           <Typography sx={{ mt: 1, fontSize: 11.5, color: muted, textAlign: 'center' }} data-testid="clean-checkout-continue-hint">
-            {t('checkout.continueHint', { defaultValue: "You'll get a payment address and 30 minutes to send." })}
+            {(() => {
+              const fee = fmtNetworkFee(networkFeeUsd(selectedCurrency, netFees))
+              return fee
+                ? t('checkout.continueHintCost', { defaultValue: '{{fee}} network fee · usually confirms in {{eta}} · 30 minutes to send.', fee, eta: networkEta(selectedCurrency) })
+                : t('checkout.continueHintEta', { defaultValue: 'Usually confirms in {{eta}} · 30 minutes to send.', eta: networkEta(selectedCurrency) })
+            })()}
           </Typography>
         )}
       </Box>

@@ -2800,3 +2800,8 @@ Plan: /app/plan/emails_pages_audit_plan.md (§7 order). Report: /app/plan/audit_
 - BLOCKER FIXES: (1) "Payment settled" merchant email with full money path (services/email/paymentSettled.ts, sendPaymentReceivedEmail(...moneyPath), paymentSettled.* ×6 langs, wired chainVerification + merchantPoolSweep + testRouter); (2) login/emailVerify OTP subjects had literal `{{code}}`; (3) webhook emails double greeting.
 - Verified: tsc 0, dark-mode guard OK, 138/138 renders, 0 raw keys; no horizontal overflow on any route/width. Not live-sent (SAFE MODE).
 - Next (Phase 2, per report §8): Wave 4 email template/footer/deep-links + new Payout-delayed/Overpaid emails; Wave 5 /payment/success|failed|verify dead-ends + coin picker fee/time; Wave 7 /about legitimacy; parked Wave 2–3 testing sweep.
+
+## Coin Picker Costs (Wave 5 / C1) — 2026-06 — DONE (self-tested 390 + 1366, tsc 0, eslint 0)
+- Hosted checkout coin picker now shows "≈ $0.42 · 10–60 min" (or "from under $0.01 · under a minute" for multi-network coins) per coin; network chips show fee + ETA, sorted cheapest-first with a CHEAPEST badge; cheapest network is the default (saved preference still wins); stablecoins (USDT/USDC/RLUSD) listed first; continue hint reads "{fee} network fee · usually confirms in {eta} · 30 minutes to send."
+- Data: public cached GET /api/pay/network-fees (existing) via new `Components/Page/Pay3Components/checkout/useNetworkFees.ts`; helpers in `checkoutConstants.ts` (sortCoinGroups, cheapestCode, networkFeeUsd, fmtNetworkFee). No backend change.
+- testids: clean-checkout-coin-cost-<SYMBOL>, clean-checkout-network-cost-<NET>, clean-checkout-network-cheapest.

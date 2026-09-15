@@ -77,3 +77,45 @@ export const coinGroups = (available: string[]): Array<{ symbol: string; codes: 
   }
   return out
 }
+
+// ── Network-cost hints (C1: approx fee + confirmation time next to each coin) ──
+export const STABLE_SYMBOLS = ['USDT', 'USDC', 'RLUSD']
+export const isStableSymbol = (symbol: string): boolean => STABLE_SYMBOLS.includes(symbol)
+
+/** Chain key used by GET /api/pay/network-fees ("USDT-TRC20" → "USDT_TRC20"). */
+export const feeChainKey = (code: string): string => code.replace('-', '_').toUpperCase()
+
+/** Live network fee (USD) for a display code, if the fee map has it. */
+export const networkFeeUsd = (code: string, fees: Record<string, number>): number | undefined => {
+  const v = fees[feeChainKey(code)]
+  return Number.isFinite(v) ? v : undefined
+}
+
+/** "≈ $0.42" / "under $0.01" — approximate on-chain fee for the buyer. */
+export const fmtNetworkFee = (usd: number | undefined): string | null => {
+  if (usd == null || !Number.isFinite(usd)) return null
+  if (usd < 0.01) return 'under $0.01'
+  return `≈ $${usd.toFixed(2)}`
+}
+
+/** Cheapest network for a coin by live fee; original order when fees are unknown. */
+export const cheapestCode = (codes: string[], fees: Record<string, number>): string =>
+  [...codes].sort((a, b) => (networkFeeUsd(a, fees) ?? Infinity) - (networkFeeUsd(b, fees) ?? Infinity))[0]
+
+const minFee = (codes: string[], fees: Record<string, number>): number =>
+  Math.min(...codes.map((c) => networkFeeUsd(c, fees) ?? Infinity))
+
+/**
+ * Stablecoins first (cheapest network first, USDT/USDC/RLUSD when fees are
+ * unknown), then the rest in catalogue order so the list never jumps around.
+ */
+export const sortCoinGroups = <G extends { symbol: string; codes: string[] }>(groups: G[], fees: Record<string, number>): G[] => {
+  const stables = groups.filter((g) => isStableSymbol(g.symbol))
+  const others = groups.filter((g) => !isStableSymbol(g.symbol))
+  stables.sort((a, b) => {
+    const fa = minFee(a.codes, fees), fb = minFee(b.codes, fees)
+    if (fa !== fb) return fa - fb
+    return STABLE_SYMBOLS.indexOf(a.symbol) - STABLE_SYMBOLS.indexOf(b.symbol)
+  })
+  return [...stables, ...others]
+}
