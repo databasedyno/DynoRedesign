@@ -40,10 +40,10 @@
     "subject": "{{amount}} {{currency}} erhalten",
     "heading": "Zahlung erhalten",
     "intro": "Gute Nachrichten! Ihre Marke <strong>{{companyName}}</strong> hat eine Zahlung erhalten.",
-    "outro": "Die Gelder sind auf dem Weg zu deiner Auszahlungs-Wallet.",
+    "outro": "Die Gelder sind auf dem Weg zu deiner Auszahlungsadresse.",
     "cta": "Transaktion ansehen",
     "referralCredit": "Empfehlungsguthaben hat {{amount}} Ihrer Dynopay-Plattformgebühr für diese Zahlung abgedeckt – Sie haben mehr davon behalten.",
-    "preheader": "Das Geld wird jetzt an Ihre Auszahlungs-Wallet überwiesen."
+    "preheader": "Das Geld wird jetzt an Ihre Auszahlungsadresse überwiesen."
   },
   "paymentPending": {
     "subject": "{{amount}} {{currency}} für {{companyName}} — wird bestätigt",
@@ -192,7 +192,15 @@
     "downloadPdf": "PDF herunterladen",
     "copyLink": "Link kopieren",
     "linkCopied": "Link kopiert",
-    "viewOnExplorer": "Im Block-Explorer ansehen"
+    "viewOnExplorer": "Im Block-Explorer ansehen",
+    "merchantContact": "Kontakt zum Händler",
+    "refundNote": "Rückerstattungen und Anpassungen übernimmt {{company}} — Dynopay ist nicht verwahrend und hält Ihre Gelder nie. Nennen Sie bei Kontakt die Belegnummer oben.",
+    "print": "Drucken",
+    "legalName": "Rechtlicher Name",
+    "emailLabel": "E-Mail",
+    "websiteLabel": "Website",
+    "phoneLabel": "Telefon",
+    "addressLabel": "Adresse"
   },
   "merchant": {
     "labels": {
@@ -202,8 +210,8 @@
       "time": "Zeit",
       "network": "Netzwerk",
       "blockchain": "Blockchain",
-      "walletName": "Wallet-Name",
-      "wallet": "Wallet",
+      "walletName": "Bezeichnung",
+      "wallet": "Auszahlungsadresse",
       "address": "Adresse",
       "newAddress": "Neue Adresse",
       "toAddress": "Zieladresse",
@@ -267,7 +275,7 @@
       "promo": "Ihre erste Zahlung geht auf uns — wir erlassen die gesamte Plattformgebühr auf Ihre erste abgewickelte Zahlung, unabhängig vom Betrag.",
       "nextTitle": "Das können Sie als Nächstes tun:",
       "next1": "1. Vervollständigen Sie Ihr Markenprofil",
-      "next2": "2. Fügen Sie Ihre Auszahlungs-Wallet hinzu",
+      "next2": "2. Fügen Sie Ihre Auszahlungsadresse hinzu",
       "next3": "3. Beginnen Sie, Zahlungen zu akzeptieren",
       "questions": "Bei Fragen ist unser Support-Team gerne für Sie da.",
       "cta": "Loslegen",
@@ -373,13 +381,13 @@
       "preheader": "Mehrere Anmeldeversuche bei Ihrem Konto sind fehlgeschlagen."
     },
     "companyCreated": {
-      "subject": "Ein Schritt fehlt — füge eine Auszahlungs-Wallet hinzu, um Geld zu erhalten",
+      "subject": "Ein Schritt fehlt — füge eine Auszahlungsadresse hinzu, um Geld zu erhalten",
       "heading": "Profil vollständig",
       "intro1": "Gut gemacht! Das Markenprofil für <strong>{{companyName}}</strong> ist jetzt vollständig.",
-      "intro2": "Sie sind fast bereit, Zahlungen zu akzeptieren. Der letzte Schritt ist, Ihre Auszahlungs-Wallet-Adresse hinzuzufügen.",
-      "whyTitle": "Warum eine Wallet hinzufügen?",
-      "whyText": "An Ihre Wallet senden wir die Krypto-Zahlungen, die Sie erhalten. Es ist schnell und sicher.",
-      "cta": "Wallet hinzufügen",
+      "intro2": "Sie sind fast bereit, Zahlungen zu akzeptieren. Der letzte Schritt ist, Ihre Auszahlungsadresse hinzuzufügen.",
+      "whyTitle": "Warum eine Auszahlungsadresse hinzufügen?",
+      "whyText": "An Ihre Auszahlungsadresse senden wir die Krypto-Zahlungen, die Sie erhalten. Es ist schnell und sicher.",
+      "cta": "Auszahlungsadresse hinzufügen",
       "preheader": "Nur noch ein kurzer Schritt, bis Sie Zahlungen annehmen können."
     },
     "companyContactWelcome": {
@@ -405,50 +413,50 @@
       "preheader": "Die Angaben Ihres Markenprofils wurden aktualisiert."
     },
     "walletVerified": {
-      "subject": "Auszahlungs-Wallet aktiv",
-      "heading": "Wallet aktiv",
-      "intro": "Ihre Auszahlungs-Wallet wurde verifiziert und ist jetzt aktiv.",
-      "outro": "Alle Zahlungen, die Sie erhalten, werden automatisch an diese Wallet weitergeleitet. Sie sind startklar, um Krypto-Zahlungen zu akzeptieren.",
+      "subject": "Auszahlungsadresse aktiv",
+      "heading": "Auszahlungsadresse aktiv",
+      "intro": "Ihre Auszahlungsadresse wurde verifiziert und ist jetzt aktiv.",
+      "outro": "Alle Zahlungen, die Sie erhalten, werden automatisch an diese Auszahlungsadresse weitergeleitet. Sie sind startklar, um Krypto-Zahlungen zu akzeptieren.",
       "cta": "Dashboard ansehen"
     },
     "walletUpdateOtp": {
-      "subject": "Wallet-Aktualisierung bestätigen",
-      "heading": "Wallet-Aktualisierung bestätigen",
-      "intro": "Sie aktualisieren Ihre Auszahlungs-Wallet. Bitte bestätigen Sie diese Änderung mit dem folgenden Code:",
+      "subject": "Aktualisierung der Auszahlungsadresse bestätigen",
+      "heading": "Aktualisierung der Auszahlungsadresse bestätigen",
+      "intro": "Sie aktualisieren Ihre Auszahlungsadresse. Bitte bestätigen Sie diese Änderung mit dem folgenden Code:",
       "expiry": "Dieser Code läuft in 10 Minuten ab. Wenn Sie diese Änderung nicht angefordert haben, sichern Sie Ihr Konto umgehend."
     },
     "walletDeleted": {
-      "subject": "Wallet aus Ihrem Konto entfernt",
-      "heading": "Wallet entfernt",
-      "intro": "Eine Wallet wurde aus Ihrem Dynopay-Konto entfernt.",
-      "outro": "Zahlungen werden nicht mehr an diese Wallet weitergeleitet.",
-      "didntDoThis": "<strong>Nicht Sie?</strong><br />Wenn Sie diese Wallet nicht entfernt haben, sichern Sie Ihr Konto umgehend und kontaktieren Sie den Support.",
-      "cta": "Wallets ansehen"
+      "subject": "Auszahlungsadresse aus Ihrem Konto entfernt",
+      "heading": "Auszahlungsadresse entfernt",
+      "intro": "Eine Auszahlungsadresse wurde aus Ihrem Dynopay-Konto entfernt.",
+      "outro": "Zahlungen werden nicht mehr an diese Auszahlungsadresse weitergeleitet.",
+      "didntDoThis": "<strong>Nicht Sie?</strong><br />Wenn Sie diese Auszahlungsadresse nicht entfernt haben, sichern Sie Ihr Konto umgehend und kontaktieren Sie den Support.",
+      "cta": "Auszahlungsadressen ansehen"
     },
     "addWalletReminder": {
       "subject": "Sie sind fast bereit, Zahlungen zu akzeptieren",
-      "heading": "Fügen Sie Ihre Wallet hinzu",
-      "intro": "Sie sind fast am Ziel! Das Profil von <strong>{{companyName}}</strong> ist eingerichtet, aber Sie haben noch keine Auszahlungs-Wallet hinzugefügt.",
-      "whyTitle": "Warum eine Wallet hinzufügen?",
-      "whyText": "Ohne Wallet können Sie keine Zahlungen erhalten. Die Einrichtung dauert weniger als 2 Minuten.",
-      "outro": "Fügen Sie jetzt Ihre Wallet hinzu und beginnen Sie noch heute, Krypto-Zahlungen zu akzeptieren.",
-      "cta": "Jetzt Wallet hinzufügen"
+      "heading": "Fügen Sie Ihre Auszahlungsadresse hinzu",
+      "intro": "Sie sind fast am Ziel! Das Profil von <strong>{{companyName}}</strong> ist eingerichtet, aber Sie haben noch keine Auszahlungsadresse hinzugefügt.",
+      "whyTitle": "Warum eine Auszahlungsadresse hinzufügen?",
+      "whyText": "Ohne Auszahlungsadresse können Sie keine Zahlungen erhalten. Die Einrichtung dauert weniger als 2 Minuten.",
+      "outro": "Fügen Sie jetzt Ihre Auszahlungsadresse hinzu und beginnen Sie noch heute, Krypto-Zahlungen zu akzeptieren.",
+      "cta": "Jetzt Auszahlungsadresse hinzufügen"
     },
     "walletAdded": {
-      "subject": "Wallet hinzugefügt – {{network}}",
-      "heading": "Wallet hinzugefügt",
-      "intro": "Ihrer Marke <strong>{{companyName}}</strong> wurde erfolgreich eine neue Auszahlungs-Wallet hinzugefügt.",
-      "outro": "Alle Zahlungen in {{network}} werden an diese Wallet weitergeleitet. Sie können Ihre Wallets im Dashboard verwalten.",
-      "didntDoThis": "<strong>Nicht Sie?</strong><br />Wenn Sie diese Wallet nicht hinzugefügt haben, sichern Sie Ihr Konto umgehend.",
-      "cta": "Wallets ansehen"
+      "subject": "Auszahlungsadresse hinzugefügt – {{network}}",
+      "heading": "Auszahlungsadresse hinzugefügt",
+      "intro": "Ihrer Marke <strong>{{companyName}}</strong> wurde erfolgreich eine neue Auszahlungsadresse hinzugefügt.",
+      "outro": "Alle Zahlungen in {{network}} werden an diese Auszahlungsadresse weitergeleitet. Sie können Ihre Auszahlungsadressen im Dashboard verwalten.",
+      "didntDoThis": "<strong>Nicht Sie?</strong><br />Wenn Sie diese Auszahlungsadresse nicht hinzugefügt haben, sichern Sie Ihr Konto umgehend.",
+      "cta": "Auszahlungsadressen ansehen"
     },
     "walletUpdated": {
-      "subject": "Wallet aktualisiert – {{network}}",
-      "heading": "Wallet aktualisiert",
-      "intro": "Ihre Auszahlungs-Wallet für <strong>{{companyName}}</strong> wurde aktualisiert.",
+      "subject": "Auszahlungsadresse aktualisiert – {{network}}",
+      "heading": "Auszahlungsadresse aktualisiert",
+      "intro": "Ihre Auszahlungsadresse für <strong>{{companyName}}</strong> wurde aktualisiert.",
       "outro": "Zukünftige Zahlungen in {{network}} werden an die neue Adresse weitergeleitet.",
-      "didntDoThis": "<strong>Nicht Sie?</strong><br />Wenn Sie diese Wallet nicht aktualisiert haben, sichern Sie Ihr Konto umgehend und kontaktieren Sie den Support.",
-      "cta": "Wallets ansehen"
+      "didntDoThis": "<strong>Nicht Sie?</strong><br />Wenn Sie diese Auszahlungsadresse nicht aktualisiert haben, sichern Sie Ihr Konto umgehend und kontaktieren Sie den Support.",
+      "cta": "Auszahlungsadressen ansehen"
     },
     "withdrawalOtp": {
       "subject": "Bestätigen Sie Ihre Auszahlung",
@@ -471,15 +479,15 @@
       "expiry": "Dieser Code läuft in <strong>5 Minuten</strong> ab. Wenn Sie diesen Tausch nicht angefordert haben, ignorieren Sie diese E-Mail."
     },
     "walletEditOtp": {
-      "subject": "Wallet-Bearbeitung bestätigen",
-      "heading": "Wallet-Bearbeitung bestätigen",
-      "intro": "Sie sind dabei, eine Wallet-Adresse zu bearbeiten. Bitte bestätigen Sie diese Aktion mit dem folgenden Code:",
+      "subject": "Bearbeitung der Auszahlungsadresse bestätigen",
+      "heading": "Bearbeitung der Auszahlungsadresse bestätigen",
+      "intro": "Sie sind dabei, eine Auszahlungsadresse zu bearbeiten. Bitte bestätigen Sie diese Aktion mit dem folgenden Code:",
       "expiry": "Dieser Code läuft in <strong>10 Minuten</strong> ab. Wenn Sie dies nicht angefordert haben, ignorieren Sie diese E-Mail oder kontaktieren Sie den Support."
     },
     "walletDeleteOtp": {
-      "subject": "Wallet-Löschung bestätigen",
-      "heading": "Wallet-Löschung bestätigen",
-      "intro": "Sie sind dabei, eine Wallet-Adresse <strong>endgültig zu löschen</strong>. Diese Aktion kann nicht rückgängig gemacht werden.",
+      "subject": "Entfernen der Auszahlungsadresse bestätigen",
+      "heading": "Entfernen der Auszahlungsadresse bestätigen",
+      "intro": "Sie sind dabei, eine Auszahlungsadresse <strong>endgültig zu löschen</strong>. Diese Aktion kann nicht rückgängig gemacht werden.",
       "expiry": "Dieser Code läuft in <strong>10 Minuten</strong> ab. Wenn Sie dies nicht angefordert haben, ignorieren Sie diese E-Mail oder kontaktieren Sie umgehend den Support."
     },
     "companyDeleteOtp": {
@@ -497,7 +505,7 @@
       "removed1": "Alle Zahlungslinks dieser Marke",
       "removed2": "API-Schlüssel ({{apiKeys}}) – sofort widerrufen",
       "removed3": "Markeneinstellungen, Webhooks und Auto-Umwandlungs-Einstellungen",
-      "note": "Ihr Transaktionsverlauf bleibt für Ihre Unterlagen erhalten. Auszahlungs-Wallets, die dieser Marke zugeordnet waren, sind nicht mehr mit ihr verknüpft.",
+      "note": "Ihr Transaktionsverlauf bleibt für Ihre Unterlagen erhalten. Auszahlungsadressen, die dieser Marke zugeordnet waren, sind nicht mehr mit ihr verknüpft.",
       "didntDoThis": "<strong>Waren Sie das nicht?</strong><br />Falls Sie diese Marke nicht gelöscht haben, sichern Sie bitte umgehend Ihr Konto und kontaktieren Sie den Support.",
       "cta": "Zum Dashboard",
       "preheader": "{{companyName}} wurde aus Ihrem Konto entfernt."
@@ -516,7 +524,7 @@
     "brandSoftDeleted": {
       "subject": "Ihre Marke „{{companyName}}“ wurde gelöscht – Sie haben 7 Tage, um sie wiederherzustellen",
       "heading": "Ihre Marke wurde gelöscht",
-      "intro": "Ihre Marke <strong>{{companyName}}</strong> wurde gerade auf Dynopay gelöscht. Keine Sorge – noch ist nichts verloren. Wir bewahren alles (Zahlungslinks, Wallets, Einstellungen und Verlauf) für die nächsten <strong>7 Tage</strong> sicher auf, falls dies ein Versehen war.",
+      "intro": "Ihre Marke <strong>{{companyName}}</strong> wurde gerade auf Dynopay gelöscht. Keine Sorge – noch ist nichts verloren. Wir bewahren alles (Zahlungslinks, Auszahlungsadressen, Einstellungen und Verlauf) für die nächsten <strong>7 Tage</strong> sicher auf, falls dies ein Versehen war.",
       "status": "Zur Löschung vorgemerkt",
       "restoreBefore": "Wiederherstellen bis",
       "changedMind": "<strong>Meinung geändert?</strong> Antworten Sie einfach auf diese E-Mail oder kontaktieren Sie unser Support-Team vor dem <strong>{{date}}</strong> – wir stellen die Marke mit einem Klick genau so wieder her, wie sie war.",
@@ -538,7 +546,7 @@
     "brandRestored": {
       "subject": "Gute Nachrichten – Ihre Marke „{{companyName}}“ ist zurück",
       "heading": "Ihre Marke ist zurück",
-      "intro": "Wir haben Ihre Marke <strong>{{companyName}}</strong> auf Dynopay wiederhergestellt. Alles – Zahlungslinks, Wallets, Einstellungen und Verlauf – ist genau so, wie Sie es hinterlassen haben.",
+      "intro": "Wir haben Ihre Marke <strong>{{companyName}}</strong> auf Dynopay wiederhergestellt. Alles – Zahlungslinks, Auszahlungsadressen, Einstellungen und Verlauf – ist genau so, wie Sie es hinterlassen haben.",
       "status": "Wiederhergestellt",
       "pickUp": "Über Ihr Dashboard können Sie genau dort weitermachen, wo Sie aufgehört haben.",
       "cta": "Zum Dashboard",
@@ -547,7 +555,7 @@
     "brandDeleteReminder": {
       "subject": "Nur noch {{daysLabel}}, um „{{companyName}}“ wiederherzustellen",
       "heading": "Ihre Marke wird bald gelöscht",
-      "intro": "Kurzer Hinweis: Ihre gelöschte Marke <strong>{{companyName}}</strong> wird am <strong>{{date}} dauerhaft gelöscht</strong> – das ist in etwa <strong>{{daysLabel}}</strong>. Danach können ihre Zahlungslinks, Wallets, Einstellungen und ihr Verlauf nicht mehr wiederhergestellt werden.",
+      "intro": "Kurzer Hinweis: Ihre gelöschte Marke <strong>{{companyName}}</strong> wird am <strong>{{date}} dauerhaft gelöscht</strong> – das ist in etwa <strong>{{daysLabel}}</strong>. Danach können ihre Zahlungslinks, Auszahlungsadressen, Einstellungen und ihr Verlauf nicht mehr wiederhergestellt werden.",
       "timeLeft": "Verbleibende Zeit",
       "timeLeftBadge": "Noch {{daysLabel}}",
       "deletesOn": "Wird gelöscht am",
@@ -827,10 +835,10 @@
     "preheader": "Vielen Dank — Ihr Beitragsbeleg ist angehängt."
   },
   "walletOtp": {
-    "subject": "Code zur Bestätigung der Wallet-Adresse",
-    "heading": "Wallet-Bestätigungscode",
-    "intro": "Sie bestätigen eine neue Wallet-Adresse für {{currency}}.",
-    "walletAddress": "Wallet-Adresse",
+    "subject": "Code zur Bestätigung der Auszahlungsadresse",
+    "heading": "Bestätigungscode für die Auszahlungsadresse",
+    "intro": "Sie bestätigen eine neue Auszahlungsadresse für {{currency}}.",
+    "walletAddress": "Auszahlungsadresse",
     "currency": "Währung",
     "expiry": "Dieser Code läuft in {{minutes}} Minuten ab."
   },
@@ -943,8 +951,8 @@
     },
     "seg": {
       "madeLink": {
-        "line": "Sie haben bereits einen Zahlungslink erstellt – super. Fügen Sie eine Auszahlungs-Wallet hinzu, damit wir, sobald jemand zahlt, direkt an eine Wallet auszahlen, die Sie kontrollieren.",
-        "cta": "Auszahlungs-Wallet hinzufügen"
+        "line": "Sie haben bereits einen Zahlungslink erstellt – super. Fügen Sie eine Auszahlungsadresse hinzu, damit wir, sobald jemand zahlt, direkt an eine Auszahlungsadresse auszahlen, die Sie kontrollieren.",
+        "cta": "Auszahlungsadresse hinzufügen"
       },
       "noLink": {
         "line": "Erstellen Sie Ihren ersten Zahlungslink – teilen Sie ihn überall und akzeptieren Sie Bitcoin, Ethereum oder Stablecoins, ohne Rückbuchungen.",
@@ -969,8 +977,8 @@
         "cta": "Marke hinzufügen"
       },
       "wallet": {
-        "intro": "Sie wollten einen Zahlungslink erstellen, aber in Ihrem Konto ist noch keine Auszahlungs-Wallet hinterlegt. Zahlungen gehen direkt in eine Wallet, die Sie kontrollieren — deshalb brauchen wir eine Adresse, bevor Sie bezahlt werden können.",
-        "cta": "Auszahlungs-Wallet hinzufügen"
+        "intro": "Sie wollten einen Zahlungslink erstellen, aber in Ihrem Konto ist noch keine Auszahlungsadresse hinterlegt. Zahlungen gehen direkt in eine Auszahlungsadresse, die Sie kontrollieren — deshalb brauchen wir eine Adresse, bevor Sie bezahlt werden können.",
+        "cta": "Auszahlungsadresse hinzufügen"
       },
       "kyc": {
         "intro": "Sie haben bereits über 10.000 $ an Zahlungen abgewickelt — stark. Deshalb ist jetzt eine kurze Identitätsprüfung nötig, bevor Sie neue Zahlungslinks erstellen können. Das dauert meist etwa 5 Minuten.",
@@ -1064,7 +1072,7 @@
     "accountDeleted": {
       "subject": "Ihr Dynopay-Konto wurde gelöscht",
       "heading": "Konto gelöscht",
-      "intro": "Wie gewünscht wurden Ihr Dynopay-Konto und alle zugehörigen Daten – Marken, Zahlungslinks, API-Schlüssel, Auszahlungs-Wallets und Einstellungen – dauerhaft gelöscht.",
+      "intro": "Wie gewünscht wurden Ihr Dynopay-Konto und alle zugehörigen Daten – Marken, Zahlungslinks, API-Schlüssel, Auszahlungsadressen und Einstellungen – dauerhaft gelöscht.",
       "outro": "Wenn du wieder Krypto annehmen möchtest, bist du jederzeit willkommen.",
       "notice": "<strong>Haben Sie das nicht beantragt?</strong> Kontaktieren Sie sofort unseren Support.",
       "preheader": "Ihr Konto und Ihre Daten wurden dauerhaft entfernt."
@@ -1105,7 +1113,7 @@
     },
     "stepUpActions": {
       "apikey": "Verwaltung von API-Schlüsseln",
-      "wallet": "Änderung von Auszahlungs-Wallets",
+      "wallet": "Änderung von Auszahlungsadressen",
       "brand_delete": "Löschen einer Marke",
       "security": "Sicherheitseinstellungen des Kontos",
       "payout": "Auszahlungseinstellungen",
@@ -1178,7 +1186,7 @@
     "heading": "Zahlung abgewickelt",
     "preheader": "Netto {{net}} {{asset}} an Ihre Wallet weitergeleitet — vollständige Aufschlüsselung im Inneren.",
     "intro": "<strong>{{companyName}}</strong> hat eine Zahlung erhalten, die nun abgewickelt ist. So wurde das Geld genau verteilt.",
-    "introForwarding": "<strong>{{companyName}}</strong> hat eine Zahlung erhalten, die nun abgewickelt ist. Der Nettobetrag wird gerade an Ihre Auszahlungs-Wallet weitergeleitet.",
+    "introForwarding": "<strong>{{companyName}}</strong> hat eine Zahlung erhalten, die nun abgewickelt ist. Der Nettobetrag wird gerade an Ihre Auszahlungsadresse weitergeleitet.",
     "received": "Erhalten (brutto)",
     "fiatNote": "Der ≈-Wert ist der Fiat-Wert zum Zeitpunkt der Erkennung der Zahlung — verwenden Sie ihn für Ihre Buchhaltung.",
     "dynopayFee": "Dynopay-Gebühr ({{percent}} %)",
@@ -1228,7 +1236,7 @@
       "subject": "Auszahlung von {{amount}} verzögert",
       "heading": "Ihre Auszahlung verspätet sich",
       "preheader": "{{amount}} dauert länger als gewöhnlich — keine Aktion erforderlich.",
-      "intro": "{{companyName}} hat {{amount}} von einem Käufer erhalten, die Auszahlung an Ihre Wallet ist jedoch noch nicht abgeschlossen.",
+      "intro": "{{companyName}} hat {{amount}} von einem Käufer erhalten, die Auszahlung an Ihre Auszahlungsadresse ist jedoch noch nicht abgeschlossen.",
       "next": "Wir behalten es im Blick. Sie erhalten eine E-Mail „Zahlung abgewickelt“ oder „Auszahlung abgeschlossen“, sobald sie eingeht — falls sie nicht innerhalb von 24 Stunden durch ist, greift unser Team ein und wir informieren Sie."
     },
     "failed": {

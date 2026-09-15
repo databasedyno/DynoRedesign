@@ -86,7 +86,7 @@
   "apiKeyTitleLive": "Clave API en vivo",
   "apiKeyTitleTest": "Clave API de prueba",
   "keys": {
-    "liveUnlockHint": "Tu clave en vivo se activa automáticamente cuando añades (o reutilizas) tu primera billetera en esta marca.",
+    "liveUnlockHint": "Tu clave en vivo se activa automáticamente cuando añades (o reutilizas) tu primera dirección de cobro en esta marca.",
     "testAutoCreatedBadge": "Creada automáticamente · Sandbox",
     "sandboxLimits": "Máx ${{max}} · {{currencies}} · modo sandbox",
     "tryFirstPaymentTitle": "Prueba tu primer pago",

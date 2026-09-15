@@ -135,7 +135,7 @@
     "cancel": "Abbrechen",
     "emailLabelOptional": "E-Mail (optional)",
     "stepBrand": "Marke",
-    "stepWallet": "Wallet",
+    "stepWallet": "Auszahlungsadresse",
     "nameLockedNotice": "Dein Name ist verifiziert und kann hier nicht geändert werden. Kontaktiere den Support, um ihn zu aktualisieren.",
     "logoAdded": "Logo hinzugefügt"
   },
@@ -151,6 +151,6 @@
     "individualDesc": "Persönliche Zahlungen, Trinkgelder und eine öffentliche Seite.",
     "businessTitle": "Registriertes Unternehmen",
     "businessDesc": "Rechnungen, MwSt./Steuer, Adresse und Teamzugriff.",
-    "switchHelper": "Füge unten deinen Firmennamen und dein Land hinzu und speichere, um zu einem Geschäftskonto zu wechseln. Deine Wallets, Schlüssel und dein Verlauf bleiben unverändert."
+    "switchHelper": "Füge unten deinen Firmennamen und dein Land hinzu und speichere, um zu einem Geschäftskonto zu wechseln. Deine Auszahlungsadressen, Schlüssel und dein Verlauf bleiben unverändert."
   }
 }

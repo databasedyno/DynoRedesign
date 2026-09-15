@@ -66,8 +66,9 @@ interface Order {
   // order (see SSR handler line 479+). Optional so unhydrated orders still
   // conform.
   merchant?: Merchant | null;
+  receipt_url?: string | null;
 }
-interface Merchant { handle?: string; name?: string; vat_id?: string | null }
+interface Merchant { handle?: string; name?: string; vat_id?: string | null; email?: string | null; website?: string | null; legal_name?: string | null }
 interface OrderPageProps { order: Order | null; siteUrl: string }
 
 function formatPrice(cents: number, ccy: string): string {
@@ -200,7 +201,7 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
           const j = await r.json();
           const raw = j?.data;
           const o: Order = raw && raw.order
-            ? { ...raw.order, items: raw.items || raw.order.items || [], merchant: raw.merchant || null }
+            ? { ...raw.order, items: raw.items || raw.order.items || [], merchant: raw.merchant || null, receipt_url: raw.receipt_url || null }
             : raw;
           if (o && !cancelled) {
             setOrder(o);
@@ -392,7 +393,7 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
             const jj = await rr.json();
             const raw = jj?.data;
             const o: Order = raw && raw.order
-              ? { ...raw.order, items: raw.items || raw.order.items || [], merchant: raw.merchant || null }
+              ? { ...raw.order, items: raw.items || raw.order.items || [], merchant: raw.merchant || null, receipt_url: raw.receipt_url || null }
               : raw;
             if (o) setOrder(o);
           }
@@ -632,9 +633,22 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
             merchant: order.merchant?.name || t("order.helpLineSeller", { defaultValue: "the seller" }),
             ref: order.public_ref.slice(0, 8).toUpperCase(),
           })}
-          {order.merchant?.handle && (
+          {order.merchant?.email && (
             <>
               {" "}
+              <Box
+                component="a"
+                href={`mailto:${order.merchant.email}?subject=${encodeURIComponent(`Order #${order.public_ref.slice(0, 8).toUpperCase()}`)}`}
+                sx={{ color: "inherit", fontWeight: 700, textDecoration: "underline" }}
+                data-testid="order-help-merchant-email"
+              >
+                {order.merchant.email}
+              </Box>
+            </>
+          )}
+          {order.merchant?.handle && (
+            <>
+              {" · "}
               <Box
                 component="a"
                 href={`/${order.merchant.handle}`}
@@ -645,7 +659,36 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
               </Box>
             </>
           )}
+          {order.merchant?.website && (
+            <>
+              {" · "}
+              <Box
+                component="a"
+                href={order.merchant.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{ color: "inherit", fontWeight: 700, textDecoration: "underline" }}
+                data-testid="order-help-merchant-website"
+              >
+                {t("order.helpLineWebsite", { defaultValue: "Website" })}
+              </Box>
+            </>
+          )}
         </Typography>
+
+        {order.receipt_url && (
+          <Button
+            component="a"
+            href={order.receipt_url}
+            variant="outlined"
+            size="small"
+            startIcon={<Icon icon="mdi:receipt-text-outline" width={16} />}
+            data-testid="order-payment-receipt-link"
+            sx={{ mt: 2, textTransform: "none", borderRadius: "999px", fontWeight: 700 }}
+          >
+            {t("order.viewPaymentReceipt", { defaultValue: "View payment receipt" })}
+          </Button>
+        )}
 
         {/* Trust row — same "secured by Dynopay · Verified merchant" reassurance
             buyers see at checkout, now on the post-purchase receipt too. */}
@@ -682,7 +725,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     // return a flat order. Support both so the receipt always renders.
     const normalized = raw
       ? raw.order
-        ? { ...raw.order, items: raw.items || raw.order.items || [], merchant: raw.merchant || null }
+        ? { ...raw.order, items: raw.items || raw.order.items || [], merchant: raw.merchant || null, receipt_url: raw.receipt_url || null }
         : raw
       : null;
     return { props: { order: normalized, siteUrl } };

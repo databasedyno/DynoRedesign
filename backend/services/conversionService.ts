@@ -5,7 +5,7 @@
  * 1. Picks up PENDING_DEPOSIT records
  * 2. Checks if deposit credited in Binance
  * 3. Gets convert quote + accepts it
- * 4. Initiates withdrawal to merchant's settlement wallet
+ * 4. Initiates withdrawal to merchant's settlement address
  * 5. Monitors withdrawal until complete
  * 
  * Runs as a cron job every N minutes.

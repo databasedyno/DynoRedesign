@@ -22,7 +22,7 @@ const CATEGORIES: { key: NotificationCategoryKey; title: string; desc: string }[
   { key: "payments", title: "Payments", desc: "Payment received, confirming, partial or failed alerts" },
   { key: "payouts", title: "Payouts & settlements", desc: "Auto-conversion payouts, settlements and refunds" },
   { key: "orders", title: "Orders & invoices", desc: "Order receipts, downloads and invoice emails" },
-  { key: "config", title: "Account & config", desc: "Webhook, API key, wallet and profile changes" },
+  { key: "config", title: "Account & config", desc: "Webhook, API key, payout address and profile changes" },
   { key: "digests", title: "Digests & summaries", desc: "Weekly summaries and payout digests" },
   { key: "confirming", title: "Confirmation progress", desc: "One email per block confirmation (“1 of 3…”). Off by default — you always get Pending and Settled." },
 ];

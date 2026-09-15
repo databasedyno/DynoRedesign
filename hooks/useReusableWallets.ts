@@ -5,7 +5,7 @@ import { nextSignal, isAbortError } from "@/utils/abortRegistry";
 
 /**
  * Shared reusable-wallets reader (GET /api/wallet/reusable-wallets). Backed by
- * SWR so the "reuse wallets from an existing company" data is cached + deduped
+ * SWR so the "reuse payout addresses from an existing company" data is cached + deduped
  * across mounts, and keyed by the target company so switching which company the
  * wallets are copied INTO refetches the correct exclusion list.
  *

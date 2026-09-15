@@ -47,7 +47,7 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
   const companyFetchError = (companyState as any).fetchError === true;
   const companyFetched = (companyState as any).fetched === true;
   // S50 UX-fix: also track wallet-fetched status so we don't flash the
-  // "Add a Payout Wallet" setup guard for ~1-3s while the wallet API is
+  // "Add a Payout Address" setup guard for ~1-3s while the wallet API is
   // still in-flight on a fresh page reload. Both flags must be true before
   // we can conclude "this merchant genuinely has no wallets".
   const walletFetched = (walletState as any).fetched === true;
@@ -265,7 +265,7 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
         </Box>
       ) : dataStillLoading ? (
         /* S50 UX-fix: hostbay + other data-rich merchants land on this page
-           and briefly saw the "Add a Payout Wallet" setup guard for ~1-3s
+           and briefly saw the "Add a Payout Address" setup guard for ~1-3s
            while the wallet API call was still in-flight. Show a soft loading
            state instead so the guard doesn't flash misleadingly. Once
            company + wallet fetches settle (either success OR error), we fall

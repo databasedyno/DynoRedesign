@@ -11,11 +11,11 @@
     },
     "payouts": {
       "title": "Como funcionam os pagamentos",
-      "body": "Mostra o que está liquidado e o que está pendente por moeda. A Dynopay encaminha os fundos diretamente para a sua carteira de pagamento — nunca os retemos."
+      "body": "Mostra o que está liquidado e o que está pendente por moeda. A Dynopay encaminha os fundos diretamente para o seu endereço de recebimento — nunca os retemos."
     },
     "wallet": {
       "title": "Para onde vai o seu dinheiro",
-      "body": "Adicione uma carteira por moeda. Cada pagamento é encaminhado para o seu próprio endereço — a Dynopay nunca fica com a custódia dos seus fundos."
+      "body": "Adicione um endereço de recebimento por moeda. Cada pagamento é encaminhado para o seu próprio endereço — a Dynopay nunca fica com a custódia dos seus fundos."
     },
     "invoices": {
       "title": "Recibos e impostos num só lugar",
@@ -50,8 +50,8 @@
       "body": "Pesquise primeiro nos guias — a maioria das respostas está aqui. Ainda com dúvida? Inicie um chat e uma pessoa da equipe assume."
     },
     "walletSecurity": {
-      "title": "Está sempre a um toque de anular uma alteração de wallet",
-      "body": "Cada alteração de uma wallet de pagamento exige um código único e envia-lhe um link «Não fui eu» que repõe o endereço anterior e bloqueia novas alterações."
+      "title": "Está sempre a um toque de anular uma alteração do endereço de recebimento",
+      "body": "Cada alteração de um endereço de recebimento exige um código único e envia-lhe um link «Não fui eu» que repõe o endereço anterior e bloqueia novas alterações."
     },
     "kyc": {
       "title": "A verificação é uma verificação única de poucos minutos",
@@ -91,9 +91,9 @@
   "EmptyTransactionTitle": "Não há transações",
   "EmptyTransactionDescription": "Comece a aceitar pagamentos para ver as transações",
   "createPaymentLink": "Criar link de pagamento",
-  "EmptyWalletTitle": "Não há carteiras",
+  "EmptyWalletTitle": "Não há endereços de recebimento",
   "EmptyWalletDescription": "Vamos adicionar a primeira",
-  "addWallet": "Adicionar carteira",
+  "addWallet": "Adicionar endereço de recebimento",
   "EmptyApiKeyTitle": "Não há chaves de API",
   "EmptyApiKeyDescription": "Vamos criar a primeira",
   "createNewKey": "Criar nova chave",
@@ -693,15 +693,15 @@
   "noDataToShow": "Ainda não há nada para mostrar aqui.",
   "poweredByDynopay": "Desenvolvido por Dynopay",
   "verifyEmailBanner": "Verifique o seu e-mail para desbloquear todas as funcionalidades.",
-  "deleteWalletTitle": "Excluir carteira?",
-  "deleteWalletAction": "Excluir carteira",
+  "deleteWalletTitle": "Excluir endereço de recebimento?",
+  "deleteWalletAction": "Excluir endereço de recebimento",
   "enterVerificationCode": "Digite o código de verificação",
   "completeYourSetup": "Conclua sua configuração",
   "saveChangesTitle": "Salvar alterações?",
   "saveChangeAction": "Salvar alteração",
   "feeFreePromotion": "Primeiro pagamento: 0% de taxa de plataforma",
   "youWillPay": "Você pagará",
-  "whatIsPayoutWallet": "O que é uma carteira de recebimento?",
+  "whatIsPayoutWallet": "O que é um endereço de recebimento?",
   "demoChooseHowToPay": "Escolha como pagar",
   "demoSendExactly": "Envie exatamente",
   "walletAddressLabel": "Endereço da carteira",
@@ -1059,7 +1059,7 @@
     "roleMember": "Membro — apenas o acesso que você escolher abaixo",
     "roleAdmin": "Administrador — acesso total (exceto ações exclusivas do proprietário)",
     "permissions": "Permissões",
-    "ownerOnlyNote": "Ações exclusivas do proprietário (alterar carteiras de pagamento, excluir chaves de API, faturamento) nunca são concedidas aos colegas.",
+    "ownerOnlyNote": "Ações exclusivas do proprietário (alterar endereços de recebimento, excluir chaves de API, faturamento) nunca são concedidas aos colegas.",
     "quickPresets": "Predefinição rápida:",
     "presetReadOnly": "Somente leitura (apenas visualizar)",
     "done": "Concluído",
@@ -1080,7 +1080,7 @@
     "activityTitle": "Atividade",
     "activitySubtitle": "Um registro das alterações feitas neste negócio — quem fez o quê e quando.",
     "activityEmptyTitle": "Ainda não há atividade",
-    "activityEmptyBody": "Alterações em configurações, chaves, carteiras e na equipe aparecerão aqui."
+    "activityEmptyBody": "Alterações em configurações, chaves, endereços de recebimento e na equipe aparecerão aqui."
   },
   "acceptInvite": {
     "headTitle": "Aceitar convite · Dynopay",
@@ -1140,10 +1140,10 @@
       "change": "Alterou uma chave de API"
     },
     "wallet": {
-      "add": "Adicionou uma carteira de pagamento",
-      "delete": "Removeu uma carteira de pagamento",
-      "update": "Atualizou a carteira de pagamento",
-      "change": "Alterou uma carteira de pagamento"
+      "add": "Adicionou um endereço de recebimento",
+      "delete": "Removeu um endereço de recebimento",
+      "update": "Atualizou o endereço de recebimento",
+      "change": "Alterou um endereço de recebimento"
     }
   },
   "verifiedBadge": {
@@ -1176,7 +1176,7 @@
   },
   "setupPrompt": {
     "createCompany": "Criar uma marca",
-    "addWallet": "Adicionar um endereço de carteira"
+    "addWallet": "Adicionar um endereço de recebimento"
   },
   "payouts": {
     "pageName": "Pagamentos e liquidações",
@@ -1203,11 +1203,11 @@
     "settlementAutoConvert": "Liquidação e conversão automática",
     "loading": "A carregar…",
     "autoConvertOffDesc": "A conversão automática está desativada — os pagamentos são liquidadas na moeda recebida",
-    "addWalletFirst": "Adicione primeiro uma carteira de liquidação em stablecoin",
+    "addWalletFirst": "Adicione primeiro um endereço de liquidação em stablecoin",
     "settleTo": "Liquidar para",
     "selectSettlementCoin": "Selecionar moeda de liquidação",
-    "settlementWallets": "Carteiras de liquidação",
-    "noSettlementWallet": "Ainda não há carteira de liquidação em stablecoin configurada. Adicione uma nas Configurações para converter automaticamente os pagamentos.",
+    "settlementWallets": "endereços de liquidação",
+    "noSettlementWallet": "Ainda não há endereço de liquidação em stablecoin configurado. Adicione um nas Configurações para converter automaticamente os pagamentos.",
     "onChain": "em",
     "active": "Ativo",
     "autoConvertProtection": "Proteção de conversão automática",
@@ -1225,7 +1225,7 @@
     "weeklyDigestDesc": "Receba um e-mail semanal a resumir os pagamentos liquidadas e tudo o que ainda está pendente",
     "sending": "A enviar…",
     "sendPreview": "Enviar pré-visualização",
-    "payoutWallets": "Carteiras de pagamento",
+    "payoutWallets": "Endereços de recebimento",
     "payoutWalletsDesc": "Onde os seus fundos liquidados são depositados",
     "manage": "Gerir",
     "taxCollected": "Imposto cobrado",
@@ -1283,9 +1283,9 @@
     "awaitingNone": "Tudo o que foi liquidado chegou às suas wallets.",
     "awaitingSome": "{{count}} pagamentos confirmados, a encaminhar para a sua wallet",
     "autoConvertOffShort": "Os pagamentos liquidam na moeda recebida. Ative para fixar numa stablecoin.",
-    "settlementSettings": "Moeda de liquidação e wallets ↓",
-    "byWallet": "Por wallet",
-    "noWallets": "Ainda sem wallets de pagamento — adicione uma para os pagamentos terem destino.",
+    "settlementSettings": "Moeda de liquidação e endereços de recebimento ↓",
+    "byWallet": "Por endereço de recebimento",
+    "noWallets": "Ainda sem endereços de recebimento — adicione um para os pagamentos terem destino.",
     "walletCount": "{{count}} pagamentos no período",
     "walletNoneRange": "nenhum no período",
     "walletIdle": "Ainda sem pagamentos",
@@ -1609,8 +1609,8 @@
     "successTitle": "A sua conta está segura",
     "expiredTitle": "Este link expirou",
     "errorTitle": "Algo correu mal",
-    "loadingBody": "A desfazer a alteração da carteira e a bloquear novas edições. Isto leva apenas um momento.",
-    "successBody": "Desfazemos as alterações recentes da carteira de pagamento{{networks}} e bloqueámos alterações na carteira da sua conta. Para fazer novas alterações na carteira, contacte o suporte para que possamos confirmar que é realmente você.",
+    "loadingBody": "A desfazer a alteração do endereço de recebimento e a bloquear novas edições. Isto leva apenas um momento.",
+    "successBody": "Desfazemos as alterações recentes do endereço de recebimento{{networks}} e bloqueámos alterações no endereço de recebimento da sua conta. Para fazer novas alterações no endereço de recebimento, contacte o suporte para que possamos confirmar que é realmente você.",
     "expiredBody": "Este link de segurança já foi utilizado ou expirou. Se ainda achar que algo está errado, contacte o suporte imediatamente.",
     "errorBody": "Não conseguimos completar esta ação. Por favor, tente novamente ou contacte o suporte se o problema persistir.",
     "pageTitle": "Segurança da conta",
@@ -1645,7 +1645,7 @@
     "noMethods": "Adiciona primeiro um endereço de e-mail à tua conta — precisamos de um sítio para enviar o teu código de verificação.",
     "scope": {
       "apikey": "gerir chaves de API",
-      "wallet": "alterar carteiras de pagamento",
+      "wallet": "alterar endereços de recebimento",
       "brand_delete": "eliminar uma marca",
       "security": "alterar as tuas definições de segurança",
       "payout": "alterar as tuas definições de pagamento",
@@ -1653,5 +1653,5 @@
       "settlement": "alterar a tua moeda de liquidação"
     }
   },
-  "deleteWalletBody": "Estás prestes a remover a carteira {{type}}{{address}}. Esta ação é permanente e não pode ser anulada. Primeiro vamos pedir-te para confirmares que és tu."
+  "deleteWalletBody": "Estás prestes a remover o endereço de recebimento {{type}}{{address}}. Esta ação é permanente e não pode ser anulada. Primeiro vamos pedir-te para confirmares que és tu."
 }

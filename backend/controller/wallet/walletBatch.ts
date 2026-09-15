@@ -133,7 +133,7 @@ export const batchWalletMutate = async (
             where: { wallet_address: { [Op.not]: null }, wallet_type: currency, user_id, company_id },
           });
           if (existing) {
-            results.push({ index: i, action, currency, status: "error", message: `A ${currency} wallet already exists for this brand.` });
+            results.push({ index: i, action, currency, status: "error", message: `A ${currency} payout address already exists for this brand.` });
             continue;
           }
           try {
@@ -208,7 +208,7 @@ export const batchWalletMutate = async (
           }
           const w = await userWalletModel.findOne({ where: { wallet_id, user_id, company_id } });
           if (!w) {
-            results.push({ index: i, action, wallet_id, status: "error", message: "Wallet not found." });
+            results.push({ index: i, action, wallet_id, status: "error", message: "Payout address not found." });
             continue;
           }
           const currency = w.dataValues.wallet_type;
@@ -258,7 +258,7 @@ export const batchWalletMutate = async (
           }
           const w = await userWalletModel.findOne({ where: { wallet_id, user_id, company_id } });
           if (!w) {
-            results.push({ index: i, action, wallet_id, status: "error", message: "Wallet not found." });
+            results.push({ index: i, action, wallet_id, status: "error", message: "Payout address not found." });
             continue;
           }
           const currency = w.dataValues.wallet_type;

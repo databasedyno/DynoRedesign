@@ -191,9 +191,9 @@ const StepFirstLink: React.FC<Props> = ({ progress, onBack, onCreated, onUseExis
         <Box data-testid="gs-link-wallet-note" sx={{ mb: 3, display: "flex", gap: 1.25, alignItems: "flex-start", p: 1.5, borderRadius: "12px", border: `1px solid ${border}`, backgroundColor: isDark ? "rgba(255,255,255,0.02)" : "rgba(10,10,15,0.015)" }}>
           <Box sx={{ color: indigo, display: "flex", mt: "1px" }}><Icon name="wallet" size={18} /></Box>
           <Box sx={{ flex: 1, minWidth: 0, fontFamily: "var(--font-sans)", fontSize: 13, lineHeight: 1.5, color: muted }}>
-            {t("gs.linkNoWalletNote", { defaultValue: "Design your link now — it goes live the moment you add the wallet the money should land in. We'll ask for it when you hit Create." })}{" "}
+            {t("gs.linkNoWalletNote", { defaultValue: "Design your link now — it goes live the moment you add the payout address the money should land in. We'll ask for it when you hit Create." })}{" "}
             <Box component="button" type="button" data-testid="gs-link-go-payouts" onClick={onGoPayouts} sx={{ border: 0, p: 0, background: "transparent", cursor: "pointer", font: "inherit", fontWeight: 700, color: indigo }}>
-              {t("gs.addWalletFirst", { defaultValue: "Add the wallet first" })}
+              {t("gs.addWalletFirst", { defaultValue: "Add the payout address first" })}
             </Box>
           </Box>
         </Box>
@@ -298,7 +298,7 @@ const StepFirstLink: React.FC<Props> = ({ progress, onBack, onCreated, onUseExis
             ? t("gs.creating", { defaultValue: "Creating…" })
             : hasWallet
               ? t("gs.createLink", { defaultValue: "Create link" })
-              : t("gs.addWalletAndCreate", { defaultValue: "Add payout wallet & create" })
+              : t("gs.addWalletAndCreate", { defaultValue: "Add payout address & create" })
           : t("gs.continue", { defaultValue: "Continue" })}
         onPrimary={showForm ? (hasWallet ? handleCreate : handleNeedWallet) : onUseExisting}
         primaryLoading={submitting}

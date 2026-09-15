@@ -127,7 +127,7 @@ export const addWalletAddress = async (
           success: false,
           statusCode: 403,
           code: "EMAIL_VERIFICATION_REQUIRED",
-          message: "Please add and verify an email address before adding a wallet.",
+          message: "Please add and verify an email address before adding a payout address.",
         });
       }
 

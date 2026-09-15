@@ -183,7 +183,7 @@ export const TeamMemberDialog: React.FC<DialogProps> = (p) => {
             <Box>
               <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>{t("team.permissions", { defaultValue: "Permissions" })}</Typography>
               <Typography variant="caption" color="text.secondary">
-                {t("team.ownerOnlyNote", { defaultValue: "Owner-only actions (changing payout wallets, deleting API keys, billing) are never granted to teammates." })}
+                {t("team.ownerOnlyNote", { defaultValue: "Owner-only actions (changing payout addresses, deleting API keys, billing) are never granted to teammates." })}
               </Typography>
               <Stack direction="row" alignItems="center" gap={1} sx={{ mt: 1, flexWrap: "wrap" }}>
                 <Typography variant="caption" color="text.secondary">{t("team.quickPresets", { defaultValue: "Quick preset:" })}</Typography>

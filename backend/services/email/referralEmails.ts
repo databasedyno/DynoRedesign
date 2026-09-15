@@ -64,7 +64,7 @@ export const sendReferralAutoPayEnabledEmail = async (
       ${infoBox(`
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
           ${dataRow('Auto-pay at', `<strong>${min}</strong>`)}
-          ${dataRow('Wallet', `<span style="font-family:monospace;font-size:13px;">${escapeHtml(addressMasked)}</span>`, true)}
+          ${dataRow('Payout address', `<span style="font-family:monospace;font-size:13px;">${escapeHtml(addressMasked)}</span>`, true)}
         </table>
       `, '#05936A')}
       ${p(`You can turn this off or change the amount anytime on your referrals page.`)}`;
@@ -96,7 +96,7 @@ export const sendReferralPayoutRequestedEmail = async (
       ${infoBox(`
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
           ${dataRow('Amount', `<strong>${amount}</strong>`)}
-          ${dataRow('Wallet', `<span style="font-family:monospace;font-size:13px;">${escapeHtml(addressMasked)}</span>`, true)}
+          ${dataRow('Payout address', `<span style="font-family:monospace;font-size:13px;">${escapeHtml(addressMasked)}</span>`, true)}
         </table>
       `, '#05936A')}
       ${p(`You'll get another email with the transaction link once it lands on-chain. This usually takes a few minutes.`)}`;
@@ -128,11 +128,11 @@ export const sendReferralPayoutFailedEmail = async (
       ${infoBox(`
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
           ${dataRow('Amount', `<strong>${amount}</strong>`)}
-          ${dataRow('Wallet', `<span style="font-family:monospace;font-size:13px;">${escapeHtml(addressMasked)}</span>`)}
+          ${dataRow('Payout address', `<span style="font-family:monospace;font-size:13px;">${escapeHtml(addressMasked)}</span>`)}
           ${dataRow('Reason', `<span style="font-family:monospace;font-size:12px;">${escapeHtml(reason)}</span>`, true)}
         </table>
       `, '#f59e0b')}
-      ${p(`Your rewards are safe and still in your balance. Please double-check your payout wallet on your referrals page and try again — if it keeps failing, just reply to this email and we'll help.`)}`;
+      ${p(`Your rewards are safe and still in your balance. Please double-check your payout address on your referrals page and try again — if it keeps failing, just reply to this email and we'll help.`)}`;
 
     const html = dynoPayEmailTemplate(`Cash-out failed`, content, true, `Review payout`, REFERRALS_URL, `Your ${amount} cash-out didn't go through — your rewards are safe.`, undefined, 'danger');
     await mailTransporter({ to: email, name, subject, body: html });

@@ -47,7 +47,7 @@ export interface OtpDialogProps {
    * Optional. When set, the dialog switches to a stepped progress screen
    * while `loading === true`. The messages rotate every `loadingStepIntervalMs`
    * (default 2000 ms). Example:
-   *   ["Verifying your OTP…", "Setting up your wallet…", "Almost done…"]
+   *   ["Verifying your OTP…", "Saving your payout address…", "Almost done…"]
    */
   loadingSteps?: string[];
   /** Interval (ms) between step rotations. Default 2000. */

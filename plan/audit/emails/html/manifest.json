@@ -487,7 +487,7 @@
   "variant": "",
   "audience": "M",
   "to": "onarrival21@example.com",
-  "subject": "Acme Store · One step left — add a payout wallet to get paid",
+  "subject": "Acme Store · One step left — add a payout address to get paid",
   "file": "041_company_profileCreated.html",
   "status": "ok"
  },
@@ -1519,7 +1519,7 @@
   "variant": "",
   "audience": "M",
   "to": "onarrival21@example.com",
-  "subject": "Acme Store · Your payout wallets were updated",
+  "subject": "Acme Store · Your payout addresses were updated",
   "file": "127_wallet_walletBatchSummary.html",
   "status": "ok"
  },
@@ -1531,7 +1531,7 @@
   "variant": "",
   "audience": "M",
   "to": "onarrival21@example.com",
-  "subject": "Wallet removed from your account",
+  "subject": "Payout address removed from your account",
   "file": "128_wallet_walletDeleted.html",
   "status": "ok"
  },
@@ -1555,7 +1555,7 @@
   "variant": "",
   "audience": "M",
   "to": "onarrival21@example.com",
-  "subject": "Acme Store · Wallet added – BTC",
+  "subject": "Acme Store · Payout address added – BTC",
   "file": "130_wallet_walletAdded.html",
   "status": "ok"
  },
@@ -1567,7 +1567,7 @@
   "variant": "",
   "audience": "M",
   "to": "onarrival21@example.com",
-  "subject": "Acme Store · Wallet updated – BTC",
+  "subject": "Acme Store · Payout address updated – BTC",
   "file": "131_wallet_walletUpdated.html",
   "status": "ok"
  },
@@ -1627,7 +1627,7 @@
   "variant": "",
   "audience": "M",
   "to": "onarrival21@example.com",
-  "subject": "Your payout wallets were changed",
+  "subject": "Your payout addresses were changed",
   "file": "136_walletSecurity_walletChangeAlert.html",
   "status": "ok"
  },

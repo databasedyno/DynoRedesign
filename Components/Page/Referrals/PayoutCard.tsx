@@ -154,7 +154,7 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
         </Typography>
       </Box>
       <Typography sx={{ fontSize: "12px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, mb: 2 }}>
-        {t("payoutAccountLevelNote", { defaultValue: "Referral earnings belong to your account, not a single business. Pick one USDT (TRC-20) wallet for all your referral payouts." })}
+        {t("payoutAccountLevelNote", { defaultValue: "Referral earnings belong to your account, not a single business. Pick one USDT (TRC-20) payout address for all your referral payouts." })}
       </Typography>
 
       {isLoading ? (
@@ -164,7 +164,7 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
           {/* Method toggle */}
           <Box role="radiogroup" aria-label={t("payoutMethod", { defaultValue: "Payout method" })} sx={{ display: "flex", gap: 1.5, mb: 2, flexWrap: "wrap" }}>
             {[
-              { key: "credit", label: t("payoutCredit", { defaultValue: "Fee credit" }), desc: t("payoutCreditDesc", { defaultValue: "Reduces your own Dynopay fees. No wallet needed." }) },
+              { key: "credit", label: t("payoutCredit", { defaultValue: "Fee credit" }), desc: t("payoutCreditDesc", { defaultValue: "Reduces your own Dynopay fees. No payout address needed." }) },
               { key: "cash", label: t("payoutCash", { defaultValue: "Cash out (USDT-TRC20)" }), desc: t("payoutCashDesc", { defaultValue: "Get paid in USDT on Tron to a wallet you choose." }) },
             ].map((m) => {
               const activeMode = data?.mode === m.key;
@@ -288,7 +288,7 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
                 <Box data-testid="payout-reenable-block" sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, p: 1.5, borderRadius: "10px", border: `1.5px solid ${theme.palette.primary.main}`, bgcolor: `${theme.palette.primary.main}0A`, mb: 1.5 }}>
                   <Box sx={{ minWidth: 0 }}>
                     <Typography sx={{ fontSize: "12px", fontFamily: "var(--font-sans)", fontWeight: 600, color: theme.palette.text.primary }}>
-                      {t("payoutSavedWallet", { defaultValue: "Your saved payout wallet" })}
+                      {t("payoutSavedWallet", { defaultValue: "Your saved payout address" })}
                     </Typography>
                     <Typography sx={{ fontSize: "13px", fontFamily: MONO, color: theme.palette.text.secondary }}>
                       {data.trc20_address_masked}
@@ -304,7 +304,7 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
               {(data?.wallets?.length ?? 0) > 0 && (
                 <Box sx={{ mb: 1.5 }}>
                   <Typography sx={{ fontSize: "12px", fontFamily: "var(--font-sans)", fontWeight: 600, color: theme.palette.text.secondary, mb: 1 }}>
-                    {t("payoutUseSaved", { defaultValue: "Use a wallet you've already saved" })}
+                    {t("payoutUseSaved", { defaultValue: "Use a payout address you've already saved" })}
                   </Typography>
                   <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
                     {(data?.wallets ?? []).map((w) => (

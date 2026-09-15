@@ -31,7 +31,7 @@ export const SharedAddressTag: React.FC<Props> = ({ networks, testId, size = "md
   });
   const hint = active
     ? t("sharedAddressClearHint", { defaultValue: "Tap to clear the highlight" })
-    : t("sharedAddressTapHint", { defaultValue: "Tap to highlight every wallet using this address" });
+    : t("sharedAddressTapHint", { defaultValue: "Tap to highlight every coin paid out to this address" });
 
   return (
     <Tooltip arrow placement="top" title={clickable ? `${base} — ${hint}` : base}>

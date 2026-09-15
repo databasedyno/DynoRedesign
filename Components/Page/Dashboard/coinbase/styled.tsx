@@ -38,7 +38,7 @@ export const CB_TOKENS = {
     primaryLight: "#0A0A0F",
     // Contrast-tuned for WCAG AA (>=4.5:1 for small text) on the CB surfaces.
     // Previous muted values (0.38 dark / 0.44 light) rendered labels like
-    // "Payments", "Active wallets", "Tax collected" and the "vs previous
+    // "Payments", "Active payout addresses", "Tax collected" and the "vs previous
     // period" caption nearly invisible in dark mode (~3.4:1).
     secondaryDark: DARK.textSecondary,
     secondaryLight: "#475569",

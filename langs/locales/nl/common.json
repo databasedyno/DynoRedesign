@@ -11,11 +11,11 @@
     },
     "payouts": {
       "title": "Zo werken uitbetalingen",
-      "body": "Toont per munt wat is afgerekend en wat in behandeling is. Dynopay stuurt het geld rechtstreeks naar je uitbetalingswallet — we houden het nooit vast."
+      "body": "Toont per munt wat is afgerekend en wat in behandeling is. Dynopay stuurt het geld rechtstreeks naar je uitbetalingsadres — we houden het nooit vast."
     },
     "wallet": {
       "title": "Waar je geld binnenkomt",
-      "body": "Voeg één wallet per munt toe. Elke betaling wordt doorgestuurd naar je eigen adres — Dynopay beheert je geld nooit."
+      "body": "Voeg één uitbetalingsadres per munt toe. Elke betaling wordt doorgestuurd naar je eigen adres — Dynopay beheert je geld nooit."
     },
     "invoices": {
       "title": "Bonnen en belasting op één plek",
@@ -50,8 +50,8 @@
       "body": "Zoek eerst in de handleidingen — de meeste antwoorden staan hier. Komt u er niet uit? Start een chat en een medewerker neemt het over."
     },
     "walletSecurity": {
-      "title": "Een walletwijziging is altijd met één tik ongedaan te maken",
-      "body": "Elke wijziging van een uitbetalingswallet vereist een eenmalige code en stuurt je een 'Dit was ik niet'-link die het oude adres herstelt en verdere wijzigingen vergrendelt."
+      "title": "Een wijziging van het uitbetalingsadres is altijd met één tik ongedaan te maken",
+      "body": "Elke wijziging van een uitbetalingsadres vereist een eenmalige code en stuurt je een 'Dit was ik niet'-link die het oude adres herstelt en verdere wijzigingen vergrendelt."
     },
     "kyc": {
       "title": "Verificatie is een eenmalige controle van een paar minuten",
@@ -439,9 +439,9 @@
   "EmptyTransactionTitle": "Nog geen transacties",
   "EmptyTransactionDescription": "Transacties verschijnen hier wanneer klanten betalen via je betaallinks of API. Maak een link om te beginnen.",
   "createPaymentLink": "Betaallink aanmaken",
-  "EmptyWalletTitle": "Nog geen uitbetalingswallets",
-  "EmptyWalletDescription": "Een uitbetalingswallet is waar klantbetalingen naartoe gaan. Voeg er ten minste één toe om crypto te ontvangen.",
-  "addWallet": "Wallet toevoegen",
+  "EmptyWalletTitle": "Nog geen uitbetalingsadressen",
+  "EmptyWalletDescription": "Een uitbetalingsadres is waar klantbetalingen naartoe gaan. Voeg er ten minste één toe om crypto te ontvangen.",
+  "addWallet": "Uitbetalingsadres toevoegen",
   "EmptyApiKeyTitle": "Nog geen API-sleutels",
   "EmptyApiKeyDescription": "Maak een sleutel om je server-naar-server-aanroepen naar de Dynopay-API te verifiëren.",
   "createNewKey": "Nieuwe sleutel aanmaken",
@@ -693,15 +693,15 @@
   "noDataToShow": "Hier is nog niets te zien.",
   "poweredByDynopay": "Mogelijk gemaakt door Dynopay",
   "verifyEmailBanner": "Verifieer je e-mail om alle functies te ontgrendelen.",
-  "deleteWalletTitle": "Wallet verwijderen?",
-  "deleteWalletAction": "Wallet verwijderen",
+  "deleteWalletTitle": "Uitbetalingsadres verwijderen?",
+  "deleteWalletAction": "Uitbetalingsadres verwijderen",
   "enterVerificationCode": "Voer verificatiecode in",
   "completeYourSetup": "Voltooi uw installatie",
   "saveChangesTitle": "Wijzigingen opslaan?",
   "saveChangeAction": "Opslaan",
   "feeFreePromotion": "Eerste betaling: 0% platformkosten",
   "youWillPay": "U betaalt",
-  "whatIsPayoutWallet": "Wat is een uitbetalingswallet?",
+  "whatIsPayoutWallet": "Wat is een uitbetalingsadres?",
   "demoChooseHowToPay": "Kies hoe u betaalt",
   "demoSendExactly": "Stuur precies",
   "walletAddressLabel": "Walletadres",
@@ -1059,7 +1059,7 @@
     "roleMember": "Lid — alleen de toegang die je hieronder kiest",
     "roleAdmin": "Beheerder — volledige toegang (behalve acties alleen voor de eigenaar)",
     "permissions": "Rechten",
-    "ownerOnlyNote": "Acties alleen voor de eigenaar (uitbetalings-wallets wijzigen, API-sleutels verwijderen, facturering) worden nooit aan teamgenoten verleend.",
+    "ownerOnlyNote": "Acties alleen voor de eigenaar (uitbetalingsadressen wijzigen, API-sleutels verwijderen, facturering) worden nooit aan teamgenoten verleend.",
     "quickPresets": "Snelle voorinstelling:",
     "presetReadOnly": "Alleen-lezen (alleen bekijken)",
     "done": "Klaar",
@@ -1080,7 +1080,7 @@
     "activityTitle": "Activiteit",
     "activitySubtitle": "Een overzicht van de wijzigingen aan dit bedrijf — wie wat heeft gedaan, en wanneer.",
     "activityEmptyTitle": "Nog geen activiteit",
-    "activityEmptyBody": "Wijzigingen aan instellingen, sleutels, wallets en het team verschijnen hier."
+    "activityEmptyBody": "Wijzigingen aan instellingen, sleutels, uitbetalingsadressen en het team verschijnen hier."
   },
   "acceptInvite": {
     "headTitle": "Uitnodiging accepteren · Dynopay",
@@ -1140,10 +1140,10 @@
       "change": "Heeft een API-sleutel gewijzigd"
     },
     "wallet": {
-      "add": "Heeft een uitbetalings-wallet toegevoegd",
-      "delete": "Heeft een uitbetalings-wallet verwijderd",
-      "update": "Heeft de uitbetalings-wallet bijgewerkt",
-      "change": "Heeft een uitbetalings-wallet gewijzigd"
+      "add": "Heeft een uitbetalingsadres toegevoegd",
+      "delete": "Heeft een uitbetalingsadres verwijderd",
+      "update": "Heeft het uitbetalingsadres bijgewerkt",
+      "change": "Heeft een uitbetalingsadres gewijzigd"
     }
   },
   "verifiedBadge": {
@@ -1176,7 +1176,7 @@
   },
   "setupPrompt": {
     "createCompany": "Merk aanmaken",
-    "addWallet": "Walletadres toevoegen"
+    "addWallet": "Uitbetalingsadres toevoegen"
   },
   "payouts": {
     "pageName": "Uitbetalingen & afwikkelingen",
@@ -1283,9 +1283,9 @@
     "awaitingNone": "Alles wat is afgewikkeld staat in je wallets.",
     "awaitingSome": "{{count}} betalingen bevestigd, worden doorgestuurd",
     "autoConvertOffShort": "Betalingen worden afgewikkeld in de ontvangen munt. Zet aan om vast te zetten in een stablecoin.",
-    "settlementSettings": "Afwikkelmunt & wallets ↓",
-    "byWallet": "Per wallet",
-    "noWallets": "Nog geen uitbetaalwallets — voeg er een toe zodat betalingen kunnen landen.",
+    "settlementSettings": "Afwikkelmunt & uitbetalingsadressen ↓",
+    "byWallet": "Per uitbetalingsadres",
+    "noWallets": "Nog geen uitbetalingsadressen — voeg er een toe zodat betalingen kunnen landen.",
     "walletCount": "{{count}} uitbetalingen in periode",
     "walletNoneRange": "geen in periode",
     "walletIdle": "Nog geen uitbetalingen",
@@ -1609,8 +1609,8 @@
     "successTitle": "Je account is beveiligd",
     "expiredTitle": "Deze link is verlopen",
     "errorTitle": "Er is iets misgegaan",
-    "loadingBody": "De wijziging van de wallet ongedaan maken en verdere bewerkingen vergrendelen. Dit duurt maar een moment.",
-    "successBody": "We hebben de recente uitbetalingswalletwijziging(en){{networks}} ongedaan gemaakt en walletwijzigingen op je account vergrendeld. Neem contact op met de ondersteuning om nieuwe walletwijzigingen aan te brengen, zodat we kunnen bevestigen dat jij het echt bent.",
+    "loadingBody": "De wijziging van het uitbetalingsadres ongedaan maken en verdere bewerkingen vergrendelen. Dit duurt maar een moment.",
+    "successBody": "We hebben de recente uitbetalingsadreswijziging(en){{networks}} ongedaan gemaakt en wijzigingen aan uitbetalingsadressen op je account vergrendeld. Neem contact op met de ondersteuning om nieuwe wijzigingen aan uitbetalingsadressen aan te brengen, zodat we kunnen bevestigen dat jij het echt bent.",
     "expiredBody": "Deze beveiligingslink is al gebruikt of is verlopen. Als je denkt dat er nog iets mis is, neem dan onmiddellijk contact op met de ondersteuning.",
     "errorBody": "We konden deze actie niet voltooien. Probeer het opnieuw, of neem contact op met de ondersteuning als het probleem aanhoudt.",
     "pageTitle": "Accountbeveiliging",
@@ -1645,7 +1645,7 @@
     "noMethods": "Voeg eerst een e-mailadres toe aan je account — we hebben een plek nodig om je verificatiecode naartoe te sturen.",
     "scope": {
       "apikey": "API-sleutels te beheren",
-      "wallet": "uitbetalingswallets te wijzigen",
+      "wallet": "uitbetalingsadressen te wijzigen",
       "brand_delete": "een merk te verwijderen",
       "security": "je beveiligingsinstellingen te wijzigen",
       "payout": "je uitbetalingsinstellingen te wijzigen",
@@ -1653,5 +1653,5 @@
       "settlement": "je afwikkelingsvaluta te wijzigen"
     }
   },
-  "deleteWalletBody": "Je staat op het punt de {{type}}-wallet{{address}} te verwijderen. Deze actie is permanent en kan niet ongedaan worden gemaakt. We vragen je eerst om te bevestigen dat jij het bent."
+  "deleteWalletBody": "Je staat op het punt de {{type}}-uitbetalingsadres{{address}} te verwijderen. Deze actie is permanent en kan niet ongedaan worden gemaakt. We vragen je eerst om te bevestigen dat jij het bent."
 }

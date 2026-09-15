@@ -1,0 +1,4451 @@
+# Wallet → Payout address rename report
+
+- **en** `walletScreen.json::walletsTitle`
+  - − Wallets
+  - + Payout addresses
+- **en** `walletScreen.json::walletsDescription`
+  - − Manage your cryptocurrency wallet addresses
+  - + Manage the addresses your payments are forwarded to
+- **en** `walletScreen.json::addWallet`
+  - − Add wallet
+  - + Add payout address
+- **en** `walletScreen.json::addWalletTitle`
+  - − Add Wallet
+  - + Add payout address
+- **en** `walletScreen.json::addWalletDescription`
+  - − Add a cryptocurrency wallet address to receive payments
+  - + Add the address your payments should be forwarded to
+- **en** `walletScreen.json::walletName`
+  - − Wallet Name
+  - + Label
+- **en** `walletScreen.json::walletAddress`
+  - − Wallet Address
+  - + Address
+- **en** `walletScreen.json::walletAddressPlaceholder`
+  - − Enter the wallet address
+  - + Paste the address from your wallet app
+- **en** `walletScreen.json::walletNameRequired`
+  - − Wallet name is required
+  - + A label is required
+- **en** `walletScreen.json::walletAddressRequired`
+  - − Wallet address is required
+  - + An address is required
+- **en** `walletScreen.json::warningMessage`
+  - − Please check the wallet address carefully. Transactions cannot be reversed
+  - + Please check the address carefully. Transactions cannot be reversed
+- **en** `walletScreen.json::walletWarnnigTitle`
+  - − wallet setup
+  - + payout address setup
+- **en** `walletScreen.json::walletSetUpWarnnigTitle`
+  - − Complete wallet setup
+  - + Add a payout address
+- **en** `walletScreen.json::walletSetUpWarnnigSubtitle`
+  - − Add at least one crypto wallet address to start receiving payments. You can create payment links using any wallet you've added.
+  - + Add at least one payout address to start receiving payments. You can create payment links using any wallet you've added.
+- **en** `walletScreen.json::walletSetUpWarnnigSubtitleBold`
+  - − at least one crypto wallet address
+  - + at least one payout address
+- **en** `walletScreen.json::emailRequiredDesc`
+  - − To add a wallet, we need a verified email so we can send you security codes for any wallet changes.
+  - + To add a payout address, we need a verified email so we can send you security codes for any payout address changes.
+- **en** `walletScreen.json::walletAddedSuccess`
+  - − Wallet added!
+  - + Payout address added!
+- **en** `walletScreen.json::walletsAddedCount`
+  - − {{count}} wallets added!
+  - + {{count}} payout addresses added!
+- **en** `walletScreen.json::editWalletTitle`
+  - − Edit wallet
+  - + Edit payout address
+- **en** `walletScreen.json::walletCompanyFirstBody`
+  - − You need to create a brand profile before adding wallet addresses. Tap here to get started.
+  - + You need to create a brand profile before adding payout addresses. Tap here to get started.
+- **en** `walletScreen.json::noActiveWalletsTitle`
+  - − You Don't Have Active Wallets
+  - + No active payout addresses
+- **en** `walletScreen.json::goToWallets`
+  - − Go to Wallets
+  - + Go to payout addresses
+- **en** `walletScreen.json::walletUpdated`
+  - − Wallet updated successfully
+  - + Payout address updated
+- **en** `walletScreen.json::updatingWallet`
+  - − Updating your wallet…
+  - + Updating your payout address…
+- **en** `walletScreen.json::manageWallets`
+  - − Manage wallets
+  - + Manage payout addresses
+- **en** `walletScreen.json::security.pageTitle`
+  - − Wallet security
+  - + Payout address security
+- **en** `walletScreen.json::security.pageDescription`
+  - − How your payout wallets are protected, and every change made to them.
+  - + How your payout addresses are protected, and every change made to them.
+- **en** `walletScreen.json::security.backToWallets`
+  - − Payout wallets
+  - + Payout addresses
+- **en** `walletScreen.json::security.goToWallets`
+  - − Payout wallets
+  - + Payout addresses
+- **en** `walletScreen.json::security.profileLinkBody`
+  - − See how your payout wallets are protected, every change made to them, and sign out of other devices.
+  - + See how your payout addresses are protected, every change made to them, and sign out of other devices.
+- **en** `walletScreen.json::security.frozenTitle`
+  - − Wallet changes are locked
+  - + Payout address changes are locked
+- **en** `walletScreen.json::security.frozenBody`
+  - − You (or someone with your email) reported a wallet change as not yours, so we restored the previous address and froze edits. Contact support to unlock.
+  - + You (or someone with your email) reported a payout address change as not yours, so we restored the previous address and froze edits. Contact support to unlock.
+- **en** `walletScreen.json::security.levelSubtitle`
+  - − How your payout wallets are protected right now.
+  - + How your payout addresses are protected right now.
+- **en** `walletScreen.json::security.levelLockedBody`
+  - − Wallet changes are frozen after a “this wasn't me” report. Contact support to unlock.
+  - + Payout address changes are frozen after a “this wasn't me” report. Contact support to unlock.
+- **en** `walletScreen.json::security.levelStrongBody`
+  - − Every wallet change needs a one-time code, emails you an undo link, and your sign-in has two-factor protection.
+  - + Every payout address change needs a one-time code, emails you an undo link, and your sign-in has two-factor protection.
+- **en** `walletScreen.json::security.levelStandardBody`
+  - − Every wallet change needs a one-time code and emails you an undo link. Turn on two-factor sign-in to reach Strong.
+  - + Every payout address change needs a one-time code and emails you an undo link. Turn on two-factor sign-in to reach Strong.
+- **en** `walletScreen.json::security.checkOtp`
+  - − A one-time code is required for every wallet change
+  - + A one-time code is required for every payout address change
+- **en** `walletScreen.json::security.step1Title`
+  - − You change a wallet
+  - + You change a payout address
+- **en** `walletScreen.json::security.step3Body`
+  - − If it wasn't you, that link restores the previous address and locks further wallet changes until support confirms it's really you.
+  - + If it wasn't you, that link restores the previous address and locks further payout address changes until support confirms it's really you.
+- **en** `walletScreen.json::security.historyTitle`
+  - − Wallet change history
+  - + Payout address change history
+- **en** `walletScreen.json::security.historyOwnerOnly`
+  - − Only the brand owner can see wallet change history.
+  - + Only the brand owner can see payout address change history.
+- **en** `walletScreen.json::security.historyEmpty`
+  - − No wallet changes yet. Every add, edit or removal will show up here with who did it and when.
+  - + No payout address changes yet. Every add, edit or removal will show up here with who did it and when.
+- **en** `walletScreen.json::security.historyAdd`
+  - − Added a payout wallet
+  - + Added a payout address
+- **en** `walletScreen.json::security.historyUpdate`
+  - − Updated a payout wallet
+  - + Updated a payout address
+- **en** `walletScreen.json::security.historyChange`
+  - − Changed a payout wallet address
+  - + Changed a payout address
+- **en** `walletScreen.json::security.historyDelete`
+  - − Removed a payout wallet
+  - + Removed a payout address
+- **en** `walletScreen.json::security.stripTitle`
+  - − Wallet protection
+  - + Payout address protection
+- **en** `walletScreen.json::security.stripLocked`
+  - − Wallet changes are frozen after a “this wasn't me” report.
+  - + Payout address changes are frozen after a “this wasn't me” report.
+- **en** `walletScreen.json::deleteWallet`
+  - − Delete wallet
+  - + Remove payout address
+- **en** `walletScreen.json::editWalletSubtitle`
+  - − Update your payout wallet details.
+  - + Update your payout address details.
+- **en** `walletScreen.json::reuse.copyFailed`
+  - − Could not copy wallets. Please try again.
+  - + Could not copy the payout addresses. Please try again.
+- **en** `walletScreen.json::reuse.title`
+  - − Reuse wallets from your other companies
+  - + Reuse payout addresses from your other companies
+- **en** `walletScreen.json::reuse.body`
+  - − Skip re-entering addresses — copy wallet addresses you've already set up in your other companies.
+  - + Skip re-entering addresses — copy payout addresses you've already set up in your other companies.
+- **en** `walletScreen.json::reuse.useThese`
+  - − Use these wallets
+  - + Use these addresses
+- **en** `walletScreen.json::reuse.copiedCount_one`
+  - − {{count}} wallet copied
+  - + {{count}} payout address copied
+- **en** `walletScreen.json::reuse.copiedCount_other`
+  - − {{count}} wallets copied
+  - + {{count}} payout addresses copied
+- **en** `walletScreen.json::reuse.useSelected_one`
+  - − Use {{count}} selected wallet
+  - + Use {{count}} selected address
+- **en** `walletScreen.json::reuse.useSelected_other`
+  - − Use {{count}} selected wallets
+  - + Use {{count}} selected addresses
+- **en** `walletScreen.json::reuseNudge.title`
+  - − Use the same wallets as {{company}}
+  - + Use the same payout addresses as {{company}}
+- **en** `walletScreen.json::reuseNudge.copiedTo_one`
+  - − {{count}} wallet copied to {{target}}
+  - + {{count}} payout address copied to {{target}}
+- **en** `walletScreen.json::reuseNudge.copiedTo_other`
+  - − {{count}} wallets copied to {{target}}
+  - + {{count}} payout addresses copied to {{target}}
+- **en** `walletScreen.json::reuseNudge.copyCta_one`
+  - − Copy {{count}} wallet
+  - + Copy {{count}} payout address
+- **en** `walletScreen.json::reuseNudge.copyCta_other`
+  - − Copy {{count}} wallets
+  - + Copy {{count}} payout addresses
+- **en** `walletScreen.json::addOtpNotice`
+  - − We'll email you a 6-digit code to confirm this wallet before it's saved.
+  - + We'll email you a 6-digit code to confirm this address before it's saved.
+- **en** `walletScreen.json::sharedAddressTapHint`
+  - − Tap to highlight every wallet using this address
+  - + Tap to highlight every coin paid out to this address
+- **en** `walletScreen.json::sharedHighlightTitle`
+  - − {{n}} wallets share
+  - + {{n}} payout addresses share
+- **en** `walletScreen.json::addVerifyNotice`
+  - − We'll ask you to verify it's you before this wallet is saved.
+  - + We'll ask you to verify it's you before this address is saved.
+- **en** `walletScreen.json::stepUpAwaiting`
+  - − Verify it's you to manage payout wallets.
+  - + Verify it's you to manage payout addresses.
+- **en** `walletScreen.json::coverageTitle`
+  - − {{count}} accepted coins have no payout wallet
+  - + {{count}} accepted coins have no payout address
+- **en** `walletScreen.json::coverageBody`
+  - − Your live payment links accept these coins, but payments in them have nowhere to land. Add a wallet to start receiving them.
+  - + Your live payment links accept these coins, but payments in them have nowhere to land. Add a payout address to start receiving them.
+- **en** `walletScreen.json::lastPayoutNone`
+  - − No payouts to this wallet yet
+  - + No payouts to this address yet
+- **de** `walletScreen.json::addOtpNotice`
+  - − Wir senden Ihnen per E-Mail einen 6-stelligen Code, um diese Wallet vor dem Speichern zu bestätigen.
+  - + Wir senden Ihnen per E-Mail einen 6-stelligen Code, um diese Auszahlungsadresse vor dem Speichern zu bestätigen.
+- **de** `walletScreen.json::addVerifyNotice`
+  - − Wir bitten dich, deine Identität zu bestätigen, bevor diese Wallet gespeichert wird.
+  - + Wir bitten dich, deine Identität zu bestätigen, bevor diese Auszahlungsadresse gespeichert wird.
+- **de** `walletScreen.json::addWallet`
+  - − Wallet hinzufügen
+  - + Auszahlungsadresse hinzufügen
+- **de** `walletScreen.json::addWalletDescription`
+  - − Fügen Sie eine Kryptowährungs-Wallet-Adresse hinzu, um Zahlungen zu empfangen
+  - + Fügen Sie eine Kryptowährungs-Auszahlungsadresse hinzu, um Zahlungen zu empfangen
+- **de** `walletScreen.json::addWalletTitle`
+  - − Wallet hinzufügen
+  - + Auszahlungsadresse hinzufügen
+- **de** `walletScreen.json::coverageBody`
+  - − Ihre aktiven Zahlungslinks akzeptieren diese Coins, aber Zahlungen darin haben kein Ziel. Fügen Sie eine Wallet hinzu, um sie zu empfangen.
+  - + Ihre aktiven Zahlungslinks akzeptieren diese Coins, aber Zahlungen darin haben kein Ziel. Fügen Sie eine Auszahlungsadresse hinzu, um sie zu empfangen.
+- **de** `walletScreen.json::coverageTitle`
+  - − {{count}} akzeptierte Coins haben keine Auszahlungs-Wallet
+  - + {{count}} akzeptierte Coins haben keine Auszahlungsadresse
+- **de** `walletScreen.json::deleteWallet`
+  - − Wallet löschen
+  - + Auszahlungsadresse löschen
+- **de** `walletScreen.json::editWalletSubtitle`
+  - − Aktualisieren Sie die Details Ihres Auszahlung-Wallets.
+  - + Aktualisieren Sie die Details Ihrer Auszahlungsadresse.
+- **de** `walletScreen.json::editWalletTitle`
+  - − Wallet bearbeiten
+  - + Auszahlungsadresse bearbeiten
+- **de** `walletScreen.json::emailRequiredDesc`
+  - − Um eine Wallet hinzuzufügen, benötigen wir eine bestätigte E-Mail, damit wir Ihnen Sicherheitscodes für alle Wallet-Änderungen senden können.
+  - + Um eine Auszahlungsadresse hinzuzufügen, benötigen wir eine bestätigte E-Mail, damit wir Ihnen Sicherheitscodes für alle Änderungen an Auszahlungsadressen senden können.
+- **de** `walletScreen.json::goToWallets`
+  - − Zu den Wallets
+  - + Zu den Auszahlungsadressen
+- **de** `walletScreen.json::lastPayoutNone`
+  - − Noch keine Auszahlungen an diese Wallet
+  - + Noch keine Auszahlungen an diese Auszahlungsadresse
+- **de** `walletScreen.json::manageWallets`
+  - − Wallets verwalten
+  - + Auszahlungsadressen verwalten
+- **de** `walletScreen.json::noActiveWalletsTitle`
+  - − Sie haben keine aktiven Wallets
+  - + Sie haben keine aktiven Auszahlungsadressen
+- **de** `walletScreen.json::reuse.body`
+  - − Geben Sie Adressen nicht erneut ein — kopieren Sie Wallet-Adressen, die Sie bereits in Ihren anderen Unternehmen eingerichtet haben.
+  - + Geben Sie Adressen nicht erneut ein — kopieren Sie Auszahlungsadressen, die Sie bereits in Ihren anderen Unternehmen eingerichtet haben.
+- **de** `walletScreen.json::reuse.copiedCount_one`
+  - − {{count}} Wallet kopiert
+  - + {{count}} Auszahlungsadresse kopiert
+- **de** `walletScreen.json::reuse.copiedCount_other`
+  - − {{count}} Wallets kopiert
+  - + {{count}} Auszahlungsadressen kopiert
+- **de** `walletScreen.json::reuse.copyFailed`
+  - − Konnte Wallets nicht kopieren. Bitte versuchen Sie es erneut.
+  - + Konnte Auszahlungsadressen nicht kopieren. Bitte versuchen Sie es erneut.
+- **de** `walletScreen.json::reuse.title`
+  - − Wallets von Ihren anderen Unternehmen wiederverwenden
+  - + Auszahlungsadressen von Ihren anderen Unternehmen wiederverwenden
+- **de** `walletScreen.json::reuse.useSelected_one`
+  - − Verwenden Sie {{count}} ausgewähltes Wallet
+  - + Verwenden Sie {{count}} ausgewählte Auszahlungsadresse
+- **de** `walletScreen.json::reuse.useSelected_other`
+  - − Verwenden Sie {{count}} ausgewählte Wallets
+  - + Verwenden Sie {{count}} ausgewählte Auszahlungsadressen
+- **de** `walletScreen.json::reuse.useThese`
+  - − Diese Wallets verwenden
+  - + Diese Auszahlungsadressen verwenden
+- **de** `walletScreen.json::reuseNudge.copiedTo_one`
+  - − {{count}} Wallet nach {{target}} kopiert
+  - + {{count}} Auszahlungsadresse nach {{target}} kopiert
+- **de** `walletScreen.json::reuseNudge.copiedTo_other`
+  - − {{count}} Wallets nach {{target}} kopiert
+  - + {{count}} Auszahlungsadressen nach {{target}} kopiert
+- **de** `walletScreen.json::reuseNudge.copyCta_one`
+  - − Kopiere {{count}} Wallet
+  - + Kopiere {{count}} Auszahlungsadresse
+- **de** `walletScreen.json::reuseNudge.copyCta_other`
+  - − Kopiere {{count}} Wallets
+  - + Kopiere {{count}} Auszahlungsadressen
+- **de** `walletScreen.json::reuseNudge.title`
+  - − Verwenden Sie die gleichen Wallets wie {{company}}
+  - + Verwenden Sie die gleichen Auszahlungsadressen wie {{company}}
+- **de** `walletScreen.json::security.backToWallets`
+  - − Auszahlungs-Wallets
+  - + Auszahlungsadressen
+- **de** `walletScreen.json::security.checkOtp`
+  - − Für jede Wallet-Änderung ist ein Einmalcode erforderlich
+  - + Für jede Änderung der Auszahlungsadresse ist ein Einmalcode erforderlich
+- **de** `walletScreen.json::security.frozenBody`
+  - − Sie (oder jemand mit Zugriff auf Ihre E-Mail) haben eine Wallet-Änderung als nicht von Ihnen gemeldet. Wir haben die vorherige Adresse wiederhergestellt und Änderungen eingefroren. Kontaktieren Sie den Support zum Entsperren.
+  - + Sie (oder jemand mit Zugriff auf Ihre E-Mail) haben eine Änderung der Auszahlungsadresse als nicht von Ihnen gemeldet. Wir haben die vorherige Adresse wiederhergestellt und Änderungen eingefroren. Kontaktieren Sie den Support zum Entsperren.
+- **de** `walletScreen.json::security.frozenTitle`
+  - − Wallet-Änderungen sind gesperrt
+  - + Änderungen an Auszahlungsadressen sind gesperrt
+- **de** `walletScreen.json::security.goToWallets`
+  - − Auszahlungs-Wallets
+  - + Auszahlungsadressen
+- **de** `walletScreen.json::security.historyAdd`
+  - − Auszahlungs-Wallet hinzugefügt
+  - + Auszahlungsadresse hinzugefügt
+- **de** `walletScreen.json::security.historyChange`
+  - − Adresse einer Auszahlungs-Wallet geändert
+  - + Auszahlungsadresse geändert
+- **de** `walletScreen.json::security.historyDelete`
+  - − Auszahlungs-Wallet entfernt
+  - + Auszahlungsadresse entfernt
+- **de** `walletScreen.json::security.historyEmpty`
+  - − Noch keine Wallet-Änderungen. Jedes Hinzufügen, Bearbeiten oder Entfernen erscheint hier mit Verursacher und Zeitpunkt.
+  - + Noch keine Änderungen an Auszahlungsadressen. Jedes Hinzufügen, Bearbeiten oder Entfernen erscheint hier mit Verursacher und Zeitpunkt.
+- **de** `walletScreen.json::security.historyOwnerOnly`
+  - − Nur der Markeninhaber kann den Verlauf der Wallet-Änderungen sehen.
+  - + Nur der Markeninhaber kann den Verlauf der Änderungen an Auszahlungsadressen sehen.
+- **de** `walletScreen.json::security.historyTitle`
+  - − Verlauf der Wallet-Änderungen
+  - + Verlauf der Änderungen an Auszahlungsadressen
+- **de** `walletScreen.json::security.historyUpdate`
+  - − Auszahlungs-Wallet aktualisiert
+  - + Auszahlungsadresse aktualisiert
+- **de** `walletScreen.json::security.levelLockedBody`
+  - − Wallet-Änderungen sind nach einer „Das war nicht ich“-Meldung eingefroren. Kontaktieren Sie den Support zum Entsperren.
+  - + Änderungen an Auszahlungsadressen sind nach einer „Das war nicht ich“-Meldung eingefroren. Kontaktieren Sie den Support zum Entsperren.
+- **de** `walletScreen.json::security.levelStandardBody`
+  - − Jede Wallet-Änderung erfordert einen Einmalcode und sendet Ihnen einen Rückgängig-Link. Aktivieren Sie die Zwei-Faktor-Anmeldung, um „Stark“ zu erreichen.
+  - + Jede Änderung der Auszahlungsadresse erfordert einen Einmalcode und sendet Ihnen einen Rückgängig-Link. Aktivieren Sie die Zwei-Faktor-Anmeldung, um „Stark“ zu erreichen.
+- **de** `walletScreen.json::security.levelStrongBody`
+  - − Jede Wallet-Änderung erfordert einen Einmalcode, sendet Ihnen einen Rückgängig-Link, und Ihre Anmeldung ist durch Zwei-Faktor geschützt.
+  - + Jede Änderung der Auszahlungsadresse erfordert einen Einmalcode, sendet Ihnen einen Rückgängig-Link, und Ihre Anmeldung ist durch Zwei-Faktor geschützt.
+- **de** `walletScreen.json::security.levelSubtitle`
+  - − So sind Ihre Auszahlungs-Wallets derzeit geschützt.
+  - + So sind Ihre Auszahlungsadressen derzeit geschützt.
+- **de** `walletScreen.json::security.pageDescription`
+  - − Wie Ihre Auszahlungs-Wallets geschützt sind und jede Änderung an ihnen.
+  - + Wie Ihre Auszahlungsadressen geschützt sind und jede Änderung an ihnen.
+- **de** `walletScreen.json::security.pageTitle`
+  - − Wallet-Sicherheit
+  - + Sicherheit der Auszahlungsadressen
+- **de** `walletScreen.json::security.profileLinkBody`
+  - − Sehen Sie, wie Ihre Auszahlungs-Wallets geschützt sind, jede Änderung an ihnen, und melden Sie andere Geräte ab.
+  - + Sehen Sie, wie Ihre Auszahlungsadressen geschützt sind, jede Änderung an ihnen, und melden Sie andere Geräte ab.
+- **de** `walletScreen.json::security.step1Title`
+  - − Sie ändern eine Wallet
+  - + Sie ändern eine Auszahlungsadresse
+- **de** `walletScreen.json::security.step3Body`
+  - − Waren Sie es nicht, stellt dieser Link die vorherige Adresse wieder her und sperrt weitere Wallet-Änderungen, bis der Support bestätigt, dass es wirklich Sie sind.
+  - + Waren Sie es nicht, stellt dieser Link die vorherige Adresse wieder her und sperrt weitere Änderungen an Auszahlungsadressen, bis der Support bestätigt, dass es wirklich Sie sind.
+- **de** `walletScreen.json::security.stripLocked`
+  - − Wallet-Änderungen sind nach einer „Das war ich nicht“-Meldung gesperrt.
+  - + Änderungen an Auszahlungsadressen sind nach einer „Das war ich nicht“-Meldung gesperrt.
+- **de** `walletScreen.json::security.stripTitle`
+  - − Wallet-Schutz
+  - + Schutz der Auszahlungsadressen
+- **de** `walletScreen.json::sharedAddressTapHint`
+  - − Antippen, um alle Wallets mit dieser Adresse hervorzuheben
+  - + Antippen, um alle Auszahlungsadressen mit dieser Adresse hervorzuheben
+- **de** `walletScreen.json::sharedHighlightTitle`
+  - − {{n}} Wallets teilen
+  - + {{n}} Auszahlungsadressen teilen
+- **de** `walletScreen.json::stepUpAwaiting`
+  - − Bestätige deine Identität, um Auszahlungs-Wallets zu verwalten.
+  - + Bestätige deine Identität, um Auszahlungsadressen zu verwalten.
+- **de** `walletScreen.json::updatingWallet`
+  - − Wallet wird aktualisiert…
+  - + Auszahlungsadresse wird aktualisiert…
+- **de** `walletScreen.json::walletAddedSuccess`
+  - − Wallet hinzugefügt!
+  - + Auszahlungsadresse hinzugefügt!
+- **de** `walletScreen.json::walletAddress`
+  - − Wallet-Adresse
+  - + Auszahlungsadresse
+- **de** `walletScreen.json::walletAddressPlaceholder`
+  - − Wallet-Adresse eingeben
+  - + Auszahlungsadresse eingeben
+- **de** `walletScreen.json::walletAddressRequired`
+  - − Wallet-Adresse ist erforderlich
+  - + Auszahlungsadresse ist erforderlich
+- **de** `walletScreen.json::walletCompanyFirstBody`
+  - − Sie müssen ein Markenprofil erstellen, bevor Sie Wallet-Adressen hinzufügen. Tippen Sie hier, um zu beginnen.
+  - + Sie müssen ein Markenprofil erstellen, bevor Sie Auszahlungsadressen hinzufügen. Tippen Sie hier, um zu beginnen.
+- **de** `walletScreen.json::walletName`
+  - − Wallet-Name
+  - + Bezeichnung
+- **de** `walletScreen.json::walletNameRequired`
+  - − Wallet-Name ist erforderlich
+  - + Bezeichnung ist erforderlich
+- **de** `walletScreen.json::walletSetUpWarnnigSubtitle`
+  - − Bitte fügen Sie alle acht Krypto-Wallet-Adressen hinzu. Einige Funktionen bleiben bis zur Einrichtung aller Wallets eingeschränkt.
+  - + Bitte fügen Sie alle acht Krypto-Auszahlungsadressen hinzu. Einige Funktionen bleiben bis zur Einrichtung aller Auszahlungsadressen eingeschränkt.
+- **de** `walletScreen.json::walletSetUpWarnnigSubtitleBold`
+  - − alle acht Krypto-Wallet-Adressen
+  - + alle acht Krypto-Auszahlungsadressen
+- **de** `walletScreen.json::walletSetUpWarnnigTitle`
+  - − Wallet-Einrichtung abschließen
+  - + Einrichtung der Auszahlungsadresse abschließen
+- **de** `walletScreen.json::walletUpdated`
+  - − Wallet erfolgreich aktualisiert
+  - + Auszahlungsadresse erfolgreich aktualisiert
+- **de** `walletScreen.json::walletWarnnigTitle`
+  - − Wallet-Einrichtung
+  - + Einrichtung der Auszahlungsadresse
+- **de** `walletScreen.json::walletsAddedCount`
+  - − {{count}} Wallets hinzugefügt!
+  - + {{count}} Auszahlungsadressen hinzugefügt!
+- **de** `walletScreen.json::walletsDescription`
+  - − Verwalten Sie Ihre Kryptowährungs-Wallet-Adressen
+  - + Verwalten Sie Ihre Kryptowährungs-Auszahlungsadressen
+- **de** `walletScreen.json::walletsTitle`
+  - − Wallets
+  - + Auszahlungsadressen
+- **de** `walletScreen.json::warningMessage`
+  - − Bitte überprüfen Sie die Wallet-Adresse sorgfältig. Transaktionen können nicht rückgängig gemacht werden
+  - + Bitte überprüfen Sie die Auszahlungsadresse sorgfältig. Transaktionen können nicht rückgängig gemacht werden
+- **nl** `walletScreen.json::addOtpNotice`
+  - − We e-mailen je een 6-cijferige code om deze wallet te bevestigen voordat hij wordt opgeslagen.
+  - + We e-mailen je een 6-cijferige code om dit uitbetalingsadres te bevestigen voordat hij wordt opgeslagen.
+- **nl** `walletScreen.json::addVerifyNotice`
+  - − We vragen je te bevestigen dat jij het bent voordat deze wallet wordt opgeslagen.
+  - + We vragen je te bevestigen dat jij het bent voordat dit uitbetalingsadres wordt opgeslagen.
+- **nl** `walletScreen.json::addWallet`
+  - − Wallet toevoegen
+  - + Uitbetalingsadres toevoegen
+- **nl** `walletScreen.json::addWalletDescription`
+  - − Voeg een cryptocurrency-walletadres toe om betalingen te ontvangen
+  - + Voeg een cryptocurrency-uitbetalingsadres toe om betalingen te ontvangen
+- **nl** `walletScreen.json::addWalletTitle`
+  - − Wallet toevoegen
+  - + Uitbetalingsadres toevoegen
+- **nl** `walletScreen.json::coverageBody`
+  - − Je actieve betaallinks accepteren deze coins, maar betalingen erin kunnen nergens landen. Voeg een wallet toe om ze te ontvangen.
+  - + Je actieve betaallinks accepteren deze coins, maar betalingen erin kunnen nergens landen. Voeg een uitbetalingsadres toe om ze te ontvangen.
+- **nl** `walletScreen.json::coverageTitle`
+  - − {{count}} geaccepteerde coins hebben geen uitbetalingswallet
+  - + {{count}} geaccepteerde coins hebben geen uitbetalingsadres
+- **nl** `walletScreen.json::deleteWallet`
+  - − Verwijder wallet
+  - + Verwijder uitbetalingsadres
+- **nl** `walletScreen.json::editWalletSubtitle`
+  - − Werk de gegevens van je uitbetalingswallet bij.
+  - + Werk de gegevens van je uitbetalingsadres bij.
+- **nl** `walletScreen.json::editWalletTitle`
+  - − Wallet bewerken
+  - + Uitbetalingsadres bewerken
+- **nl** `walletScreen.json::emailRequiredDesc`
+  - − Om een wallet toe te voegen, hebben we een geverifieerd e-mailadres nodig om u beveiligingscodes voor walletwijzigingen te sturen.
+  - + Om een uitbetalingsadres toe te voegen, hebben we een geverifieerd e-mailadres nodig om u beveiligingscodes voor wijzigingen aan uitbetalingsadressen te sturen.
+- **nl** `walletScreen.json::goToWallets`
+  - − Naar wallets
+  - + Naar uitbetalingsadressen
+- **nl** `walletScreen.json::lastPayoutNone`
+  - − Nog geen uitbetalingen naar deze wallet
+  - + Nog geen uitbetalingen naar dit uitbetalingsadres
+- **nl** `walletScreen.json::manageWallets`
+  - − Beheer portemonnees
+  - + Beheer uitbetalingsadressen
+- **nl** `walletScreen.json::noActiveWalletsTitle`
+  - − U heeft geen actieve wallets
+  - + U heeft geen actieve uitbetalingsadressen
+- **nl** `walletScreen.json::reuse.body`
+  - − Sla het opnieuw invoeren van adressen over — kopieer portemonnee-adressen die je al hebt ingesteld in je andere bedrijven.
+  - + Sla het opnieuw invoeren van adressen over — kopieer uitbetalingsadressen die je al hebt ingesteld in je andere bedrijven.
+- **nl** `walletScreen.json::reuse.copiedCount_one`
+  - − {{count}} portemonnee gekopieerd
+  - + {{count}} uitbetalingsadres gekopieerd
+- **nl** `walletScreen.json::reuse.copiedCount_other`
+  - − {{count}} portemonnees gekopieerd
+  - + {{count}} uitbetalingsadressen gekopieerd
+- **nl** `walletScreen.json::reuse.copyFailed`
+  - − Kon portemonnees niet kopiëren. Probeer het opnieuw.
+  - + Kon uitbetalingsadressen niet kopiëren. Probeer het opnieuw.
+- **nl** `walletScreen.json::reuse.title`
+  - − Herbruik portemonnees van je andere bedrijven
+  - + Herbruik uitbetalingsadressen van je andere bedrijven
+- **nl** `walletScreen.json::reuse.useSelected_one`
+  - − Gebruik {{count}} geselecteerde portemonnee
+  - + Gebruik {{count}} geselecteerd uitbetalingsadres
+- **nl** `walletScreen.json::reuse.useSelected_other`
+  - − Gebruik {{count}} geselecteerde portemonnees
+  - + Gebruik {{count}} geselecteerde uitbetalingsadressen
+- **nl** `walletScreen.json::reuse.useThese`
+  - − Gebruik deze portemonnees
+  - + Gebruik deze uitbetalingsadressen
+- **nl** `walletScreen.json::reuseNudge.copiedTo_one`
+  - − {{count}} portemonnee gekopieerd naar {{target}}
+  - + {{count}} uitbetalingsadres gekopieerd naar {{target}}
+- **nl** `walletScreen.json::reuseNudge.copiedTo_other`
+  - − {{count}} portemonnees gekopieerd naar {{target}}
+  - + {{count}} uitbetalingsadressen gekopieerd naar {{target}}
+- **nl** `walletScreen.json::reuseNudge.copyCta_one`
+  - − Kopieer {{count}} portemonnee
+  - + Kopieer {{count}} uitbetalingsadres
+- **nl** `walletScreen.json::reuseNudge.copyCta_other`
+  - − Kopieer {{count}} portemonnees
+  - + Kopieer {{count}} uitbetalingsadressen
+- **nl** `walletScreen.json::reuseNudge.title`
+  - − Gebruik dezelfde portemonnees als {{company}}
+  - + Gebruik dezelfde uitbetalingsadressen als {{company}}
+- **nl** `walletScreen.json::security.backToWallets`
+  - − Uitbetalingswallets
+  - + Uitbetalingsadressen
+- **nl** `walletScreen.json::security.checkOtp`
+  - − Voor elke walletwijziging is een eenmalige code vereist
+  - + Voor elke wijziging van het uitbetalingsadres is een eenmalige code vereist
+- **nl** `walletScreen.json::security.frozenBody`
+  - − Jij (of iemand met je e-mail) heeft een walletwijziging gemeld als niet van jou, dus hebben we het vorige adres hersteld en wijzigingen bevroren. Neem contact op met support om te ontgrendelen.
+  - + Jij (of iemand met je e-mail) heeft een wijziging van het uitbetalingsadres gemeld als niet van jou, dus hebben we het vorige adres hersteld en wijzigingen bevroren. Neem contact op met support om te ontgrendelen.
+- **nl** `walletScreen.json::security.frozenTitle`
+  - − Walletwijzigingen zijn vergrendeld
+  - + Wijzigingen aan uitbetalingsadressen zijn vergrendeld
+- **nl** `walletScreen.json::security.goToWallets`
+  - − Uitbetalingswallets
+  - + Uitbetalingsadressen
+- **nl** `walletScreen.json::security.historyAdd`
+  - − Uitbetalingswallet toegevoegd
+  - + Uitbetalingsadres toegevoegd
+- **nl** `walletScreen.json::security.historyChange`
+  - − Adres van een uitbetalingswallet gewijzigd
+  - + Uitbetalingsadres gewijzigd
+- **nl** `walletScreen.json::security.historyDelete`
+  - − Uitbetalingswallet verwijderd
+  - + Uitbetalingsadres verwijderd
+- **nl** `walletScreen.json::security.historyEmpty`
+  - − Nog geen walletwijzigingen. Elke toevoeging, bewerking of verwijdering verschijnt hier met wie en wanneer.
+  - + Nog geen wijzigingen aan uitbetalingsadressen. Elke toevoeging, bewerking of verwijdering verschijnt hier met wie en wanneer.
+- **nl** `walletScreen.json::security.historyOwnerOnly`
+  - − Alleen de merkeigenaar kan de geschiedenis van walletwijzigingen zien.
+  - + Alleen de merkeigenaar kan de geschiedenis van wijzigingen aan uitbetalingsadressen zien.
+- **nl** `walletScreen.json::security.historyTitle`
+  - − Geschiedenis van walletwijzigingen
+  - + Geschiedenis van wijzigingen aan uitbetalingsadressen
+- **nl** `walletScreen.json::security.historyUpdate`
+  - − Uitbetalingswallet bijgewerkt
+  - + Uitbetalingsadres bijgewerkt
+- **nl** `walletScreen.json::security.levelLockedBody`
+  - − Walletwijzigingen zijn bevroren na een 'dit was ik niet'-melding. Neem contact op met support om te ontgrendelen.
+  - + Wijzigingen aan uitbetalingsadressen zijn bevroren na een 'dit was ik niet'-melding. Neem contact op met support om te ontgrendelen.
+- **nl** `walletScreen.json::security.levelStandardBody`
+  - − Elke walletwijziging vereist een eenmalige code en stuurt je een ongedaan-maken-link. Zet tweefactor-aanmelding aan om Sterk te bereiken.
+  - + Elke wijziging van het uitbetalingsadres vereist een eenmalige code en stuurt je een ongedaan-maken-link. Zet tweefactor-aanmelding aan om Sterk te bereiken.
+- **nl** `walletScreen.json::security.levelStrongBody`
+  - − Elke walletwijziging vereist een eenmalige code, stuurt je een ongedaan-maken-link en je aanmelding heeft tweefactorbeveiliging.
+  - + Elke wijziging van het uitbetalingsadres vereist een eenmalige code, stuurt je een ongedaan-maken-link en je aanmelding heeft tweefactorbeveiliging.
+- **nl** `walletScreen.json::security.levelSubtitle`
+  - − Hoe je uitbetalingswallets op dit moment beschermd zijn.
+  - + Hoe je uitbetalingsadressen op dit moment beschermd zijn.
+- **nl** `walletScreen.json::security.pageDescription`
+  - − Hoe je uitbetalingswallets beschermd zijn en elke wijziging eraan.
+  - + Hoe je uitbetalingsadressen beschermd zijn en elke wijziging eraan.
+- **nl** `walletScreen.json::security.pageTitle`
+  - − Walletbeveiliging
+  - + Beveiliging van uitbetalingsadressen
+- **nl** `walletScreen.json::security.profileLinkBody`
+  - − Bekijk hoe je uitbetalingswallets beschermd zijn, elke wijziging eraan, en log uit op andere apparaten.
+  - + Bekijk hoe je uitbetalingsadressen beschermd zijn, elke wijziging eraan, en log uit op andere apparaten.
+- **nl** `walletScreen.json::security.step1Title`
+  - − Je wijzigt een wallet
+  - + Je wijzigt een uitbetalingsadres
+- **nl** `walletScreen.json::security.step3Body`
+  - − Als het jij niet was, herstelt die link het vorige adres en vergrendelt verdere walletwijzigingen totdat support bevestigt dat het echt jij bent.
+  - + Als het jij niet was, herstelt die link het vorige adres en vergrendelt verdere wijzigingen aan uitbetalingsadressen totdat support bevestigt dat het echt jij bent.
+- **nl** `walletScreen.json::security.stripLocked`
+  - − Walletwijzigingen zijn bevroren na een “dit was ik niet”-melding.
+  - + Wijzigingen aan uitbetalingsadressen zijn bevroren na een “dit was ik niet”-melding.
+- **nl** `walletScreen.json::security.stripTitle`
+  - − Walletbeveiliging
+  - + Beveiliging van uitbetalingsadressen
+- **nl** `walletScreen.json::sharedAddressTapHint`
+  - − Tik om alle wallets met dit adres te markeren
+  - + Tik om alle uitbetalingsadressen met dit adres te markeren
+- **nl** `walletScreen.json::sharedHighlightTitle`
+  - − {{n}} wallets delen
+  - + {{n}} uitbetalingsadressen delen
+- **nl** `walletScreen.json::stepUpAwaiting`
+  - − Bevestig dat jij het bent om uitbetalingswallets te beheren.
+  - + Bevestig dat jij het bent om uitbetalingsadressen te beheren.
+- **nl** `walletScreen.json::updatingWallet`
+  - − Je wallet wordt bijgewerkt…
+  - + Je uitbetalingsadres wordt bijgewerkt…
+- **nl** `walletScreen.json::walletAddedSuccess`
+  - − Wallet toegevoegd!
+  - + Uitbetalingsadres toegevoegd!
+- **nl** `walletScreen.json::walletAddress`
+  - − Walletadres
+  - + Uitbetalingsadres
+- **nl** `walletScreen.json::walletAddressPlaceholder`
+  - − Voer het walletadres in
+  - + Voer het uitbetalingsadres in
+- **nl** `walletScreen.json::walletAddressRequired`
+  - − Walletadres is verplicht
+  - + Uitbetalingsadres is verplicht
+- **nl** `walletScreen.json::walletCompanyFirstBody`
+  - − Je moet een merkprofiel aanmaken voordat je walletadressen toevoegt. Tik hier om te beginnen.
+  - + Je moet een merkprofiel aanmaken voordat je uitbetalingsadressen toevoegt. Tik hier om te beginnen.
+- **nl** `walletScreen.json::walletName`
+  - − Walletnaam
+  - + Naam
+- **nl** `walletScreen.json::walletNameRequired`
+  - − Walletnaam is verplicht
+  - + Naam is verplicht
+- **nl** `walletScreen.json::walletSetUpWarnnigSubtitle`
+  - − Voeg alle acht crypto-walletadressen toe. Sommige functies blijven beperkt totdat alle wallets zijn ingesteld.
+  - + Voeg alle acht crypto-uitbetalingsadressen toe. Sommige functies blijven beperkt totdat alle uitbetalingsadressen zijn ingesteld.
+- **nl** `walletScreen.json::walletSetUpWarnnigSubtitleBold`
+  - − alle acht crypto-walletadressen
+  - + alle acht crypto-uitbetalingsadressen
+- **nl** `walletScreen.json::walletSetUpWarnnigTitle`
+  - − Wallet-instelling voltooien
+  - + Uitbetalingsadres-instelling voltooien
+- **nl** `walletScreen.json::walletUpdated`
+  - − Wallet succesvol bijgewerkt
+  - + Uitbetalingsadres succesvol bijgewerkt
+- **nl** `walletScreen.json::walletWarnnigTitle`
+  - − Wallet-instelling
+  - + Uitbetalingsadres-instelling
+- **nl** `walletScreen.json::walletsAddedCount`
+  - − {{count}} wallets toegevoegd!
+  - + {{count}} uitbetalingsadressen toegevoegd!
+- **nl** `walletScreen.json::walletsDescription`
+  - − Beheer uw cryptocurrency-walletadressen
+  - + Beheer uw cryptocurrency-uitbetalingsadressen
+- **nl** `walletScreen.json::walletsTitle`
+  - − Wallets
+  - + Uitbetalingsadressen
+- **nl** `walletScreen.json::warningMessage`
+  - − Controleer het walletadres zorgvuldig. Transacties kunnen niet worden teruggedraaid
+  - + Controleer het uitbetalingsadres zorgvuldig. Transacties kunnen niet worden teruggedraaid
+- **es** `walletScreen.json::addOtpNotice`
+  - − Te enviaremos por correo un código de 6 dígitos para confirmar esta cartera antes de guardarla.
+  - + Te enviaremos por correo un código de 6 dígitos para confirmar esta dirección de cobro antes de guardarla.
+- **es** `walletScreen.json::addVerifyNotice`
+  - − Te pediremos que verifiques que eres tú antes de guardar esta cartera.
+  - + Te pediremos que verifiques que eres tú antes de guardar esta dirección de cobro.
+- **es** `walletScreen.json::addWallet`
+  - − Agregar billetera
+  - + Agregar dirección de cobro
+- **es** `walletScreen.json::addWalletDescription`
+  - − Agrega una dirección de billetera de criptomonedas para recibir pagos
+  - + Agrega una dirección de cobro de criptomonedas para recibir pagos
+- **es** `walletScreen.json::addWalletTitle`
+  - − Agregar Billetera
+  - + Agregar dirección de cobro
+- **es** `walletScreen.json::coverageBody`
+  - − Tus enlaces de pago activos aceptan estas monedas, pero los pagos en ellas no tienen destino. Añade una wallet para empezar a recibirlas.
+  - + Tus enlaces de pago activos aceptan estas monedas, pero los pagos en ellas no tienen destino. Añade una dirección de cobro para empezar a recibirlas.
+- **es** `walletScreen.json::coverageTitle`
+  - − {{count}} monedas aceptadas no tienen wallet de pago
+  - + {{count}} monedas aceptadas no tienen dirección de cobro
+- **es** `walletScreen.json::deleteWallet`
+  - − Eliminar billetera
+  - + Eliminar dirección de cobro
+- **es** `walletScreen.json::editWalletSubtitle`
+  - − Actualiza los detalles de tu billetera de pago.
+  - + Actualiza los detalles de tu dirección de cobro.
+- **es** `walletScreen.json::editWalletTitle`
+  - − Editar billetera
+  - + Editar dirección de cobro
+- **es** `walletScreen.json::emailRequiredDesc`
+  - − Para añadir una cartera, necesitamos un correo verificado para enviarte códigos de seguridad de cualquier cambio en la cartera.
+  - + Para añadir una dirección de cobro, necesitamos un correo verificado para enviarte códigos de seguridad de cualquier cambio en la dirección de cobro.
+- **es** `walletScreen.json::goToWallets`
+  - − Ir a billeteras
+  - + Ir a direcciones de cobro
+- **es** `walletScreen.json::lastPayoutNone`
+  - − Aún no hay pagos a esta wallet
+  - + Aún no hay pagos a esta dirección de cobro
+- **es** `walletScreen.json::manageWallets`
+  - − Gestionar billeteras
+  - + Gestionar direcciones de cobro
+- **es** `walletScreen.json::noActiveWalletsTitle`
+  - − No tienes billeteras activas
+  - + No tienes direcciones de cobro activas
+- **es** `walletScreen.json::reuse.body`
+  - − Salta la reintroducción de direcciones: copia las direcciones de billetera que ya has configurado en tus otras empresas.
+  - + Salta la reintroducción de direcciones: copia las direcciones de cobro que ya has configurado en tus otras empresas.
+- **es** `walletScreen.json::reuse.copiedCount_one`
+  - − {{count}} billetera copiada
+  - + {{count}} dirección de cobro copiada
+- **es** `walletScreen.json::reuse.copiedCount_other`
+  - − {{count}} billeteras copiadas
+  - + {{count}} direcciones de cobro copiadas
+- **es** `walletScreen.json::reuse.copyFailed`
+  - − No se pudieron copiar las billeteras. Por favor, inténtalo de nuevo.
+  - + No se pudieron copiar las direcciones de cobro. Por favor, inténtalo de nuevo.
+- **es** `walletScreen.json::reuse.title`
+  - − Reutiliza billeteras de tus otras empresas
+  - + Reutiliza direcciones de cobro de tus otras empresas
+- **es** `walletScreen.json::reuse.useSelected_one`
+  - − Usar {{count}} billetera seleccionada
+  - + Usar {{count}} dirección de cobro seleccionada
+- **es** `walletScreen.json::reuse.useSelected_other`
+  - − Usar {{count}} billeteras seleccionadas
+  - + Usar {{count}} direcciones de cobro seleccionadas
+- **es** `walletScreen.json::reuse.useThese`
+  - − Usar estas billeteras
+  - + Usar estas direcciones de cobro
+- **es** `walletScreen.json::reuseNudge.copiedTo_one`
+  - − {{count}} billetera copiada a {{target}}
+  - + {{count}} dirección de cobro copiada a {{target}}
+- **es** `walletScreen.json::reuseNudge.copiedTo_other`
+  - − {{count}} billeteras copiadas a {{target}}
+  - + {{count}} direcciones de cobro copiadas a {{target}}
+- **es** `walletScreen.json::reuseNudge.copyCta_one`
+  - − Copiar {{count}} billetera
+  - + Copiar {{count}} dirección de cobro
+- **es** `walletScreen.json::reuseNudge.copyCta_other`
+  - − Copiar {{count}} billeteras
+  - + Copiar {{count}} direcciones de cobro
+- **es** `walletScreen.json::reuseNudge.title`
+  - − Usa las mismas billeteras que {{company}}
+  - + Usa las mismas direcciones de cobro que {{company}}
+- **es** `walletScreen.json::security.backToWallets`
+  - − Wallets de cobro
+  - + Direcciones de cobro
+- **es** `walletScreen.json::security.checkOtp`
+  - − Se requiere un código de un solo uso para cada cambio de wallet
+  - + Se requiere un código de un solo uso para cada cambio de dirección de cobro
+- **es** `walletScreen.json::security.frozenBody`
+  - − Tú (o alguien con tu correo) informó de que un cambio de wallet no era tuyo, así que restauramos la dirección anterior y congelamos los cambios. Contacta con soporte para desbloquear.
+  - + Tú (o alguien con tu correo) informó de que un cambio de dirección de cobro no era tuyo, así que restauramos la dirección anterior y congelamos los cambios. Contacta con soporte para desbloquear.
+- **es** `walletScreen.json::security.frozenTitle`
+  - − Los cambios de wallet están bloqueados
+  - + Los cambios de dirección de cobro están bloqueados
+- **es** `walletScreen.json::security.goToWallets`
+  - − Wallets de cobro
+  - + Direcciones de cobro
+- **es** `walletScreen.json::security.historyAdd`
+  - − Se añadió una wallet de cobro
+  - + Se añadió una dirección de cobro
+- **es** `walletScreen.json::security.historyChange`
+  - − Se cambió la dirección de una wallet de cobro
+  - + Se cambió la dirección de cobro
+- **es** `walletScreen.json::security.historyDelete`
+  - − Se eliminó una wallet de cobro
+  - + Se eliminó una dirección de cobro
+- **es** `walletScreen.json::security.historyEmpty`
+  - − Aún no hay cambios de wallet. Cada alta, edición o eliminación aparecerá aquí con quién lo hizo y cuándo.
+  - + Aún no hay cambios de dirección de cobro. Cada alta, edición o eliminación aparecerá aquí con quién lo hizo y cuándo.
+- **es** `walletScreen.json::security.historyOwnerOnly`
+  - − Solo el propietario de la marca puede ver el historial de cambios de wallet.
+  - + Solo el propietario de la marca puede ver el historial de cambios de dirección de cobro.
+- **es** `walletScreen.json::security.historyTitle`
+  - − Historial de cambios de wallet
+  - + Historial de cambios de dirección de cobro
+- **es** `walletScreen.json::security.historyUpdate`
+  - − Se actualizó una wallet de cobro
+  - + Se actualizó una dirección de cobro
+- **es** `walletScreen.json::security.levelLockedBody`
+  - − Los cambios de wallet están congelados tras un aviso de «no fui yo». Contacta con soporte para desbloquear.
+  - + Los cambios de dirección de cobro están congelados tras un aviso de «no fui yo». Contacta con soporte para desbloquear.
+- **es** `walletScreen.json::security.levelStandardBody`
+  - − Cada cambio de wallet requiere un código de un solo uso y te envía un enlace para deshacer. Activa el inicio de sesión de dos factores para llegar a Fuerte.
+  - + Cada cambio de dirección de cobro requiere un código de un solo uso y te envía un enlace para deshacer. Activa el inicio de sesión de dos factores para llegar a Fuerte.
+- **es** `walletScreen.json::security.levelStrongBody`
+  - − Cada cambio de wallet requiere un código de un solo uso, te envía un enlace para deshacer y tu inicio de sesión tiene protección de dos factores.
+  - + Cada cambio de dirección de cobro requiere un código de un solo uso, te envía un enlace para deshacer y tu inicio de sesión tiene protección de dos factores.
+- **es** `walletScreen.json::security.levelSubtitle`
+  - − Cómo están protegidas tus wallets de cobro ahora mismo.
+  - + Cómo están protegidas tus direcciones de cobro ahora mismo.
+- **es** `walletScreen.json::security.pageDescription`
+  - − Cómo se protegen tus wallets de cobro y cada cambio realizado.
+  - + Cómo se protegen tus direcciones de cobro y cada cambio realizado.
+- **es** `walletScreen.json::security.pageTitle`
+  - − Seguridad de wallets
+  - + Seguridad de las direcciones de cobro
+- **es** `walletScreen.json::security.profileLinkBody`
+  - − Consulta cómo se protegen tus wallets de cobro, cada cambio realizado y cierra sesión en otros dispositivos.
+  - + Consulta cómo se protegen tus direcciones de cobro, cada cambio realizado y cierra sesión en otros dispositivos.
+- **es** `walletScreen.json::security.step1Title`
+  - − Cambias una wallet
+  - + Cambias una dirección de cobro
+- **es** `walletScreen.json::security.step3Body`
+  - − Si no fuiste tú, ese enlace restaura la dirección anterior y bloquea más cambios de wallet hasta que soporte confirme que eres tú.
+  - + Si no fuiste tú, ese enlace restaura la dirección anterior y bloquea más cambios de dirección de cobro hasta que soporte confirme que eres tú.
+- **es** `walletScreen.json::security.stripLocked`
+  - − Los cambios de wallet están congelados tras un aviso de “no fui yo”.
+  - + Los cambios de dirección de cobro están congelados tras un aviso de “no fui yo”.
+- **es** `walletScreen.json::security.stripTitle`
+  - − Protección de wallets
+  - + Protección de direcciones de cobro
+- **es** `walletScreen.json::sharedAddressTapHint`
+  - − Toca para resaltar todas las carteras que usan esta dirección
+  - + Toca para resaltar todas las direcciones de cobro que usan esta dirección
+- **es** `walletScreen.json::sharedHighlightTitle`
+  - − {{n}} carteras comparten
+  - + {{n}} direcciones de cobro comparten
+- **es** `walletScreen.json::stepUpAwaiting`
+  - − Verifica que eres tú para gestionar las carteras de pago.
+  - + Verifica que eres tú para gestionar las direcciones de cobro.
+- **es** `walletScreen.json::updatingWallet`
+  - − Actualizando tu cartera…
+  - + Actualizando tu dirección de cobro…
+- **es** `walletScreen.json::walletAddedSuccess`
+  - − ¡Billetera añadida!
+  - + ¡Dirección de cobro añadida!
+- **es** `walletScreen.json::walletAddress`
+  - − Dirección de la Billetera
+  - + Dirección
+- **es** `walletScreen.json::walletAddressPlaceholder`
+  - − Ingresa la dirección de la billetera
+  - + Ingresa la dirección de cobro
+- **es** `walletScreen.json::walletAddressRequired`
+  - − La dirección de la billetera es obligatoria
+  - + La dirección de cobro es obligatoria
+- **es** `walletScreen.json::walletName`
+  - − Nombre de la Billetera
+  - + Nombre
+- **es** `walletScreen.json::walletNameRequired`
+  - − El nombre de la billetera es obligatorio
+  - + El nombre es obligatorio
+- **es** `walletScreen.json::walletSetUpWarnnigSubtitle`
+  - − Por favor, agrega las ocho direcciones de billeteras crypto. Algunas funciones no estarán disponibles hasta que se agreguen todas las billeteras.
+  - + Por favor, agrega las ocho direcciones de cobro crypto. Algunas funciones no estarán disponibles hasta que se agreguen todas las direcciones de cobro.
+- **es** `walletScreen.json::walletSetUpWarnnigSubtitleBold`
+  - − las ocho direcciones de billeteras crypto
+  - + las ocho direcciones de cobro crypto
+- **es** `walletScreen.json::walletSetUpWarnnigTitle`
+  - − Completar configuración de billetera
+  - + Completar configuración de dirección de cobro
+- **es** `walletScreen.json::walletUpdated`
+  - − Cartera actualizada correctamente
+  - + Dirección de cobro actualizada correctamente
+- **es** `walletScreen.json::walletWarnnigTitle`
+  - − configuración de billetera
+  - + configuración de dirección de cobro
+- **es** `walletScreen.json::walletsAddedCount`
+  - − ¡{{count}} billeteras añadidas!
+  - + ¡{{count}} direcciones de cobro añadidas!
+- **es** `walletScreen.json::walletsDescription`
+  - − Administra tus direcciones de billeteras de criptomonedas
+  - + Administra tus direcciones de cobro de criptomonedas
+- **es** `walletScreen.json::walletsTitle`
+  - − Billeteras
+  - + Direcciones de cobro
+- **es** `walletScreen.json::warningMessage`
+  - − Por favor, verifica cuidadosamente la dirección de la billetera. Las transacciones no pueden revertirse
+  - + Por favor, verifica cuidadosamente la dirección de cobro. Las transacciones no pueden revertirse
+- **fr** `walletScreen.json::addOtpNotice`
+  - − Nous vous enverrons par e-mail un code à 6 chiffres pour confirmer ce portefeuille avant de l'enregistrer.
+  - + Nous vous enverrons par e-mail un code à 6 chiffres pour confirmer cette adresse de versement avant de l'enregistrer.
+- **fr** `walletScreen.json::addVerifyNotice`
+  - − Nous vous demanderons de vérifier votre identité avant d'enregistrer ce portefeuille.
+  - + Nous vous demanderons de vérifier votre identité avant d'enregistrer cette adresse de versement.
+- **fr** `walletScreen.json::addWallet`
+  - − Ajouter un portefeuille
+  - + Ajouter une adresse de versement
+- **fr** `walletScreen.json::addWalletDescription`
+  - − Ajoutez une adresse de portefeuille de cryptomonnaie pour recevoir des paiements
+  - + Ajoutez une adresse de versement de cryptomonnaie pour recevoir des paiements
+- **fr** `walletScreen.json::addWalletTitle`
+  - − Ajouter un Portefeuille
+  - + Ajouter une adresse de versement
+- **fr** `walletScreen.json::coverageBody`
+  - − Vos liens de paiement actifs acceptent ces cryptos, mais les paiements n'ont nulle part où arriver. Ajoutez un wallet pour les recevoir.
+  - + Vos liens de paiement actifs acceptent ces cryptos, mais les paiements n'ont nulle part où arriver. Ajoutez une adresse de versement pour les recevoir.
+- **fr** `walletScreen.json::coverageTitle`
+  - − {{count}} cryptos acceptées n'ont pas de wallet de versement
+  - + {{count}} cryptos acceptées n'ont pas d'adresse de versement
+- **fr** `walletScreen.json::deleteWallet`
+  - − Supprimer le portefeuille
+  - + Supprimer l'adresse de versement
+- **fr** `walletScreen.json::editWalletSubtitle`
+  - − Mettez à jour les détails de votre portefeuille de paiement.
+  - + Mettez à jour les détails de votre adresse de versement.
+- **fr** `walletScreen.json::editWalletTitle`
+  - − Modifier le portefeuille
+  - + Modifier l'adresse de versement
+- **fr** `walletScreen.json::emailRequiredDesc`
+  - − Pour ajouter un portefeuille, nous avons besoin d’un e-mail vérifié afin de vous envoyer des codes de sécurité pour toute modification du portefeuille.
+  - + Pour ajouter une adresse de versement, nous avons besoin d’un e-mail vérifié afin de vous envoyer des codes de sécurité pour toute modification de l'adresse de versement.
+- **fr** `walletScreen.json::goToWallets`
+  - − Aller aux wallets
+  - + Aller aux adresses de versement
+- **fr** `walletScreen.json::lastPayoutNone`
+  - − Aucun versement vers ce wallet pour l'instant
+  - + Aucun versement vers cette adresse de versement pour l'instant
+- **fr** `walletScreen.json::manageWallets`
+  - − Gérer les portefeuilles
+  - + Gérer les adresses de versement
+- **fr** `walletScreen.json::noActiveWalletsTitle`
+  - − Vous n'avez pas de wallets actifs
+  - + Vous n'avez pas d'adresses de versement actives
+- **fr** `walletScreen.json::reuse.body`
+  - − Évitez de ressaisir les adresses — copiez les adresses de portefeuilles que vous avez déjà configurées dans vos autres entreprises.
+  - + Évitez de ressaisir les adresses — copiez les adresse de versement que vous avez déjà configurées dans vos autres entreprises.
+- **fr** `walletScreen.json::reuse.copiedCount_one`
+  - − {{count}} portefeuille copié
+  - + {{count}} adresse de versement copiée
+- **fr** `walletScreen.json::reuse.copiedCount_other`
+  - − {{count}} portefeuilles copiés
+  - + {{count}} adresses de versement copiées
+- **fr** `walletScreen.json::reuse.copyFailed`
+  - − Impossible de copier les portefeuilles. Veuillez réessayer.
+  - + Impossible de copier les adresses de versement. Veuillez réessayer.
+- **fr** `walletScreen.json::reuse.title`
+  - − Réutiliser les portefeuilles de vos autres entreprises
+  - + Réutiliser les adresses de versement de vos autres entreprises
+- **fr** `walletScreen.json::reuse.useSelected_one`
+  - − Utiliser {{count}} portefeuille sélectionné
+  - + Utiliser {{count}} adresse de versement sélectionnée
+- **fr** `walletScreen.json::reuse.useSelected_other`
+  - − Utiliser {{count}} portefeuilles sélectionnés
+  - + Utiliser {{count}} adresses de versement sélectionnées
+- **fr** `walletScreen.json::reuse.useThese`
+  - − Utiliser ces portefeuilles
+  - + Utiliser ces adresses de versement
+- **fr** `walletScreen.json::reuseNudge.copiedTo_one`
+  - − {{count}} portefeuille copié vers {{target}}
+  - + {{count}} adresse de versement copiée vers {{target}}
+- **fr** `walletScreen.json::reuseNudge.copiedTo_other`
+  - − {{count}} portefeuilles copiés vers {{target}}
+  - + {{count}} adresses de versement copiées vers {{target}}
+- **fr** `walletScreen.json::reuseNudge.copyCta_one`
+  - − Copier {{count}} portefeuille
+  - + Copier {{count}} adresse de versement
+- **fr** `walletScreen.json::reuseNudge.copyCta_other`
+  - − Copier {{count}} portefeuilles
+  - + Copier {{count}} adresses de versement
+- **fr** `walletScreen.json::reuseNudge.title`
+  - − Utilisez les mêmes portefeuilles que {{company}}
+  - + Utilisez les mêmes adresses de versement que {{company}}
+- **fr** `walletScreen.json::security.backToWallets`
+  - − Wallets de paiement
+  - + Adresses de versement
+- **fr** `walletScreen.json::security.checkOtp`
+  - − Un code à usage unique est requis pour chaque changement de wallet
+  - + Un code à usage unique est requis pour chaque changement d'adresse de versement
+- **fr** `walletScreen.json::security.frozenBody`
+  - − Vous (ou quelqu'un ayant accès à votre e-mail) avez signalé un changement de wallet comme non autorisé ; nous avons rétabli l'ancienne adresse et gelé les modifications. Contactez le support pour déverrouiller.
+  - + Vous (ou quelqu'un ayant accès à votre e-mail) avez signalé un changement d'adresse de versement comme non autorisé ; nous avons rétabli l'ancienne adresse et gelé les modifications. Contactez le support pour déverrouiller.
+- **fr** `walletScreen.json::security.frozenTitle`
+  - − Les modifications de wallet sont verrouillées
+  - + Les modifications d'adresse de versement sont verrouillées
+- **fr** `walletScreen.json::security.goToWallets`
+  - − Wallets de paiement
+  - + Adresses de versement
+- **fr** `walletScreen.json::security.historyAdd`
+  - − Wallet de paiement ajouté
+  - + Adresse de versement ajoutée
+- **fr** `walletScreen.json::security.historyChange`
+  - − Adresse d'un wallet de paiement modifiée
+  - + Adresse d'une adresse de versement modifiée
+- **fr** `walletScreen.json::security.historyDelete`
+  - − Wallet de paiement supprimé
+  - + Adresse de versement supprimée
+- **fr** `walletScreen.json::security.historyEmpty`
+  - − Aucun changement de wallet pour l'instant. Chaque ajout, modification ou suppression apparaîtra ici avec l'auteur et la date.
+  - + Aucun changement d'adresse de versement pour l'instant. Chaque ajout, modification ou suppression apparaîtra ici avec l'auteur et la date.
+- **fr** `walletScreen.json::security.historyOwnerOnly`
+  - − Seul le propriétaire de la marque peut voir l'historique des modifications de wallet.
+  - + Seul le propriétaire de la marque peut voir l'historique des modifications d'adresse de versement.
+- **fr** `walletScreen.json::security.historyTitle`
+  - − Historique des modifications de wallet
+  - + Historique des modifications d'adresse de versement
+- **fr** `walletScreen.json::security.historyUpdate`
+  - − Wallet de paiement mis à jour
+  - + Adresse de versement mis à jour
+- **fr** `walletScreen.json::security.levelLockedBody`
+  - − Les modifications de wallet sont gelées après un signalement « ce n'était pas moi ». Contactez le support pour déverrouiller.
+  - + Les modifications d'adresse de versement sont gelées après un signalement « ce n'était pas moi ». Contactez le support pour déverrouiller.
+- **fr** `walletScreen.json::security.levelStandardBody`
+  - − Chaque changement de wallet exige un code à usage unique et vous envoie un lien d'annulation. Activez la double authentification pour atteindre le niveau Élevé.
+  - + Chaque changement d'adresse de versement exige un code à usage unique et vous envoie un lien d'annulation. Activez la double authentification pour atteindre le niveau Élevé.
+- **fr** `walletScreen.json::security.levelStrongBody`
+  - − Chaque changement de wallet exige un code à usage unique, vous envoie un lien d'annulation, et votre connexion est protégée par la double authentification.
+  - + Chaque changement d'adresse de versement exige un code à usage unique, vous envoie un lien d'annulation, et votre connexion est protégée par la double authentification.
+- **fr** `walletScreen.json::security.levelSubtitle`
+  - − Comment vos wallets de paiement sont protégés en ce moment.
+  - + Comment vos adresses de versement sont protégées en ce moment.
+- **fr** `walletScreen.json::security.pageDescription`
+  - − Comment vos wallets de paiement sont protégés, et chaque modification apportée.
+  - + Comment vos adresses de versement sont protégées, et chaque modification apportée.
+- **fr** `walletScreen.json::security.pageTitle`
+  - − Sécurité des wallets
+  - + Sécurité des adresses de versement
+- **fr** `walletScreen.json::security.profileLinkBody`
+  - − Voyez comment vos wallets de paiement sont protégés, chaque modification apportée, et déconnectez les autres appareils.
+  - + Voyez comment vos adresses de versement sont protégées, chaque modification apportée, et déconnectez les autres appareils.
+- **fr** `walletScreen.json::security.step1Title`
+  - − Vous modifiez un wallet
+  - + Vous modifiez une adresse de versement
+- **fr** `walletScreen.json::security.stripLocked`
+  - − Les modifications de wallet sont gelées après un signalement « ce n'était pas moi ».
+  - + Les modifications d'adresse de versement sont gelées après un signalement « ce n'était pas moi ».
+- **fr** `walletScreen.json::security.stripTitle`
+  - − Protection des wallets
+  - + Protection des adresses de versement
+- **fr** `walletScreen.json::sharedAddressTapHint`
+  - − Touchez pour mettre en évidence tous les portefeuilles utilisant cette adresse
+  - + Touchez pour mettre en évidence toutes les adresses de versement utilisant cette adresse
+- **fr** `walletScreen.json::sharedHighlightTitle`
+  - − {{n}} portefeuilles partagent
+  - + {{n}} adresses de versement partagent
+- **fr** `walletScreen.json::stepUpAwaiting`
+  - − Vérifiez votre identité pour gérer les portefeuilles de paiement.
+  - + Vérifiez votre identité pour gérer les adresses de versement.
+- **fr** `walletScreen.json::updatingWallet`
+  - − Mise à jour de votre portefeuille…
+  - + Mise à jour de votre adresse de versement…
+- **fr** `walletScreen.json::walletAddedSuccess`
+  - − Portefeuille ajouté !
+  - + Adresse de versement ajoutée !
+- **fr** `walletScreen.json::walletAddress`
+  - − Adresse du Portefeuille
+  - + Adresse
+- **fr** `walletScreen.json::walletAddressPlaceholder`
+  - − Entrez l'adresse du portefeuille
+  - + Entrez l'adresse de versement
+- **fr** `walletScreen.json::walletAddressRequired`
+  - − L'adresse du portefeuille est obligatoire
+  - + L'adresse de versement est obligatoire
+- **fr** `walletScreen.json::walletCompanyFirstBody`
+  - − Vous devez créer un profil de marque avant d'ajouter des adresses de portefeuille. Appuyez ici pour commencer.
+  - + Vous devez créer un profil de marque avant d'ajouter des adresse de versement. Appuyez ici pour commencer.
+- **fr** `walletScreen.json::walletName`
+  - − Nom du Portefeuille
+  - + Nom
+- **fr** `walletScreen.json::walletNameRequired`
+  - − Le nom du portefeuille est obligatoire
+  - + Le nom est obligatoire
+- **fr** `walletScreen.json::walletSetUpWarnnigSubtitle`
+  - − Veuillez ajouter les huit adresses de portefeuilles crypto. Certaines fonctionnalités resteront indisponibles jusqu'à ce que tous les portefeuilles soient ajoutés.
+  - + Veuillez ajouter les huit adresse de versement crypto. Certaines fonctionnalités resteront indisponibles jusqu'à ce que toutes les adresses de versement soient ajoutés.
+- **fr** `walletScreen.json::walletSetUpWarnnigSubtitleBold`
+  - − les huit adresses de portefeuilles crypto
+  - + les huit adresse de versement crypto
+- **fr** `walletScreen.json::walletSetUpWarnnigTitle`
+  - − Compléter la configuration du portefeuille
+  - + Compléter la configuration de l'adresse de versement
+- **fr** `walletScreen.json::walletUpdated`
+  - − Portefeuille mis à jour avec succès
+  - + Adresse de versement mis à jour avec succès
+- **fr** `walletScreen.json::walletWarnnigTitle`
+  - − configuration du portefeuille
+  - + configuration de l'adresse de versement
+- **fr** `walletScreen.json::walletsAddedCount`
+  - − {{count}} portefeuilles ajoutés !
+  - + {{count}} adresses de versement ajoutées !
+- **fr** `walletScreen.json::walletsDescription`
+  - − Gérez vos adresses de portefeuilles de cryptomonnaie
+  - + Gérez vos adresse de versement de cryptomonnaie
+- **fr** `walletScreen.json::walletsTitle`
+  - − Portefeuilles
+  - + Adresses de versement
+- **fr** `walletScreen.json::warningMessage`
+  - − Veuillez vérifier attentivement l'adresse du portefeuille. Les transactions ne peuvent pas être annulées
+  - + Veuillez vérifier attentivement l'adresse de versement. Les transactions ne peuvent pas être annulées
+- **pt** `walletScreen.json::addOtpNotice`
+  - − Enviaremos por e-mail um código de 6 dígitos para confirmar esta carteira antes de a guardar.
+  - + Enviaremos por e-mail um código de 6 dígitos para confirmar este endereço de recebimento antes de o guardar.
+- **pt** `walletScreen.json::addVerifyNotice`
+  - − Vamos pedir-te para confirmares que és tu antes de guardar esta carteira.
+  - + Vamos pedir-te para confirmares que és tu antes de guardar este endereço de recebimento.
+- **pt** `walletScreen.json::addWallet`
+  - − Adicionar Nova Carteira
+  - + Adicionar endereço de recebimento
+- **pt** `walletScreen.json::addWalletDescription`
+  - − Adicione um endereço de carteira de criptomoeda para receber pagamentos
+  - + Adicione um endereço de recebimento de criptomoeda para receber pagamentos
+- **pt** `walletScreen.json::addWalletTitle`
+  - − Adicionar Carteira
+  - + Adicionar endereço de recebimento
+- **pt** `walletScreen.json::coverageBody`
+  - − Os seus links de pagamento ativos aceitam estas moedas, mas os pagamentos nelas não têm destino. Adicione uma wallet para começar a recebê-las.
+  - + Os seus links de pagamento ativos aceitam estas moedas, mas os pagamentos nelas não têm destino. Adicione um endereço de recebimento para começar a recebê-las.
+- **pt** `walletScreen.json::coverageTitle`
+  - − {{count}} moedas aceites não têm wallet de pagamento
+  - + {{count}} moedas aceites não têm endereço de recebimento
+- **pt** `walletScreen.json::deleteWallet`
+  - − Eliminar carteira
+  - + Eliminar endereço de recebimento
+- **pt** `walletScreen.json::editWalletSubtitle`
+  - − Atualize os detalhes da sua carteira de pagamento.
+  - + Atualize os detalhes do seu endereço de recebimento.
+- **pt** `walletScreen.json::editWalletTitle`
+  - − Editar carteira
+  - + Editar endereço de recebimento
+- **pt** `walletScreen.json::emailRequiredDesc`
+  - − Para adicionar uma carteira, precisamos de um e-mail verificado para lhe enviar códigos de segurança de quaisquer alterações na carteira.
+  - + Para adicionar um endereço de recebimento, precisamos de um e-mail verificado para lhe enviar códigos de segurança de quaisquer alterações no endereço de recebimento.
+- **pt** `walletScreen.json::goToWallets`
+  - − Ir para carteiras
+  - + Ir para endereços de recebimento
+- **pt** `walletScreen.json::lastPayoutNone`
+  - − Ainda sem pagamentos para esta wallet
+  - + Ainda sem pagamentos para este endereço de recebimento
+- **pt** `walletScreen.json::manageWallets`
+  - − Gerir carteiras
+  - + Gerir endereços de recebimento
+- **pt** `walletScreen.json::noActiveWalletsTitle`
+  - − Você não tem carteiras ativas
+  - + Você não tem endereços de recebimento ativos
+- **pt** `walletScreen.json::reuse.body`
+  - − Evite reintroduzir endereços — copie os endereços das carteiras que já configurou nas suas outras empresas.
+  - + Evite reintroduzir endereços — copie os endereço de recebimento que já configurou nas suas outras empresas.
+- **pt** `walletScreen.json::reuse.copiedCount_one`
+  - − {{count}} carteira copiada
+  - + {{count}} endereço de recebimento copiado
+- **pt** `walletScreen.json::reuse.copiedCount_other`
+  - − {{count}} carteiras copiadas
+  - + {{count}} endereços de recebimento copiados
+- **pt** `walletScreen.json::reuse.copyFailed`
+  - − Não foi possível copiar as carteiras. Por favor, tente novamente.
+  - + Não foi possível copiar os endereços de recebimento. Por favor, tente novamente.
+- **pt** `walletScreen.json::reuse.title`
+  - − Reutilizar carteiras das suas outras empresas
+  - + Reutilizar endereços de recebimento das suas outras empresas
+- **pt** `walletScreen.json::reuse.useSelected_one`
+  - − Usar {{count}} carteira selecionada
+  - + Usar {{count}} endereço de recebimento selecionado
+- **pt** `walletScreen.json::reuse.useSelected_other`
+  - − Usar {{count}} carteiras selecionadas
+  - + Usar {{count}} endereços de recebimento selecionados
+- **pt** `walletScreen.json::reuse.useThese`
+  - − Usar estas carteiras
+  - + Usar estes endereços de recebimento
+- **pt** `walletScreen.json::reuseNudge.copiedTo_one`
+  - − {{count}} carteira copiada para {{target}}
+  - + {{count}} endereço de recebimento copiado para {{target}}
+- **pt** `walletScreen.json::reuseNudge.copiedTo_other`
+  - − {{count}} carteiras copiadas para {{target}}
+  - + {{count}} endereços de recebimento copiados para {{target}}
+- **pt** `walletScreen.json::reuseNudge.copyCta_one`
+  - − Copiar {{count}} carteira
+  - + Copiar {{count}} endereço de recebimento
+- **pt** `walletScreen.json::reuseNudge.copyCta_other`
+  - − Copiar {{count}} carteiras
+  - + Copiar {{count}} endereços de recebimento
+- **pt** `walletScreen.json::reuseNudge.title`
+  - − Usar as mesmas carteiras que {{company}}
+  - + Usar os mesmos endereços de recebimento que {{company}}
+- **pt** `walletScreen.json::security.backToWallets`
+  - − Wallets de pagamento
+  - + Endereços de recebimento
+- **pt** `walletScreen.json::security.checkOtp`
+  - − É necessário um código único para cada alteração de wallet
+  - + É necessário um código único para cada alteração do endereço de recebimento
+- **pt** `walletScreen.json::security.frozenBody`
+  - − Você (ou alguém com o seu e-mail) reportou uma alteração de wallet como não sua, por isso repusemos o endereço anterior e congelámos as alterações. Contacte o suporte para desbloquear.
+  - + Você (ou alguém com o seu e-mail) reportou uma alteração do endereço de recebimento como não sua, por isso repusemos o endereço anterior e congelámos as alterações. Contacte o suporte para desbloquear.
+- **pt** `walletScreen.json::security.frozenTitle`
+  - − As alterações de wallet estão bloqueadas
+  - + As alterações do endereço de recebimento estão bloqueadas
+- **pt** `walletScreen.json::security.goToWallets`
+  - − Wallets de pagamento
+  - + Endereços de recebimento
+- **pt** `walletScreen.json::security.historyAdd`
+  - − Wallet de pagamento adicionada
+  - + Endereço de recebimento adicionado
+- **pt** `walletScreen.json::security.historyChange`
+  - − Endereço de uma wallet de pagamento alterado
+  - + Endereço de recebimento alterado
+- **pt** `walletScreen.json::security.historyDelete`
+  - − Wallet de pagamento removida
+  - + Endereço de recebimento removido
+- **pt** `walletScreen.json::security.historyEmpty`
+  - − Ainda não há alterações de wallet. Cada adição, edição ou remoção aparecerá aqui com quem a fez e quando.
+  - + Ainda não há alterações do endereço de recebimento. Cada adição, edição ou remoção aparecerá aqui com quem a fez e quando.
+- **pt** `walletScreen.json::security.historyOwnerOnly`
+  - − Apenas o proprietário da marca pode ver o histórico de alterações de wallet.
+  - + Apenas o proprietário da marca pode ver o histórico de alterações do endereço de recebimento.
+- **pt** `walletScreen.json::security.historyTitle`
+  - − Histórico de alterações de wallet
+  - + Histórico de alterações do endereço de recebimento
+- **pt** `walletScreen.json::security.historyUpdate`
+  - − Wallet de pagamento atualizada
+  - + Endereço de recebimento atualizado
+- **pt** `walletScreen.json::security.levelLockedBody`
+  - − As alterações de wallet estão congeladas após um aviso «não fui eu». Contacte o suporte para desbloquear.
+  - + As alterações do endereço de recebimento estão congeladas após um aviso «não fui eu». Contacte o suporte para desbloquear.
+- **pt** `walletScreen.json::security.levelStandardBody`
+  - − Cada alteração de wallet exige um código único e envia-lhe um link para anular. Ative o início de sessão de dois fatores para chegar a Forte.
+  - + Cada alteração do endereço de recebimento exige um código único e envia-lhe um link para anular. Ative o início de sessão de dois fatores para chegar a Forte.
+- **pt** `walletScreen.json::security.levelStrongBody`
+  - − Cada alteração de wallet exige um código único, envia-lhe um link para anular e o seu início de sessão tem proteção de dois fatores.
+  - + Cada alteração do endereço de recebimento exige um código único, envia-lhe um link para anular e o seu início de sessão tem proteção de dois fatores.
+- **pt** `walletScreen.json::security.levelSubtitle`
+  - − Como as suas wallets de pagamento estão protegidas neste momento.
+  - + Como os seus endereços de recebimento estão protegidas neste momento.
+- **pt** `walletScreen.json::security.pageDescription`
+  - − Como as suas wallets de pagamento estão protegidas e cada alteração feita.
+  - + Como os seus endereços de recebimento estão protegidas e cada alteração feita.
+- **pt** `walletScreen.json::security.pageTitle`
+  - − Segurança das wallets
+  - + Segurança dos endereços de recebimento
+- **pt** `walletScreen.json::security.profileLinkBody`
+  - − Veja como as suas wallets de pagamento estão protegidas, cada alteração feita e termine sessão em outros dispositivos.
+  - + Veja como os seus endereços de recebimento estão protegidas, cada alteração feita e termine sessão em outros dispositivos.
+- **pt** `walletScreen.json::security.step1Title`
+  - − Altera uma wallet
+  - + Altera um endereço de recebimento
+- **pt** `walletScreen.json::security.stripLocked`
+  - − As alterações de wallet estão congeladas após um aviso de “não fui eu”.
+  - + As alterações do endereço de recebimento estão congeladas após um aviso de “não fui eu”.
+- **pt** `walletScreen.json::security.stripTitle`
+  - − Proteção das wallets
+  - + Proteção dos endereços de recebimento
+- **pt** `walletScreen.json::sharedAddressTapHint`
+  - − Toque para destacar todas as carteiras que usam este endereço
+  - + Toque para destacar todos os endereços de recebimento que usam este endereço
+- **pt** `walletScreen.json::sharedHighlightTitle`
+  - − {{n}} carteiras partilham
+  - + {{n}} endereços de recebimento partilham
+- **pt** `walletScreen.json::stepUpAwaiting`
+  - − Confirma que és tu para gerir as carteiras de pagamento.
+  - + Confirma que és tu para gerir os endereços de recebimento.
+- **pt** `walletScreen.json::updatingWallet`
+  - − A atualizar a sua carteira…
+  - + A atualizar o seu endereço de recebimento…
+- **pt** `walletScreen.json::walletAddedSuccess`
+  - − Carteira adicionada!
+  - + Endereço de recebimento adicionado!
+- **pt** `walletScreen.json::walletAddress`
+  - − Endereço da Carteira
+  - + Endereço
+- **pt** `walletScreen.json::walletAddressPlaceholder`
+  - − Digite o endereço da carteira
+  - + Digite o endereço de recebimento
+- **pt** `walletScreen.json::walletAddressRequired`
+  - − O endereço da carteira é obrigatório
+  - + O endereço de recebimento é obrigatório
+- **pt** `walletScreen.json::walletCompanyFirstBody`
+  - − Precisa de criar um perfil de marca antes de adicionar endereços de carteira. Toque aqui para começar.
+  - + Precisa de criar um perfil de marca antes de adicionar endereço de recebimento. Toque aqui para começar.
+- **pt** `walletScreen.json::walletName`
+  - − Nome da Carteira
+  - + Nome
+- **pt** `walletScreen.json::walletNameRequired`
+  - − O nome da carteira é obrigatório
+  - + O nome é obrigatório
+- **pt** `walletScreen.json::walletSetUpWarnnigSubtitle`
+  - − Por favor, adicione os oito endereços de carteira de criptomoedas. Algumas funcionalidades permanecerão indisponíveis até que todas as carteiras sejam adicionadas.
+  - + Por favor, adicione os oito endereços de recebimento de criptomoedas. Algumas funcionalidades permanecerão indisponíveis até que todos os endereços de recebimento sejam adicionadas.
+- **pt** `walletScreen.json::walletSetUpWarnnigSubtitleBold`
+  - − os oito endereços de carteira de criptomoedas
+  - + os oito endereços de recebimento de criptomoedas
+- **pt** `walletScreen.json::walletSetUpWarnnigTitle`
+  - − Configuração completa da carteira
+  - + Configuração completa do endereço de recebimento
+- **pt** `walletScreen.json::walletUpdated`
+  - − Carteira atualizada com sucesso
+  - + Endereço de recebimento atualizado com sucesso
+- **pt** `walletScreen.json::walletWarnnigTitle`
+  - − configuração da carteira
+  - + configuração do endereço de recebimento
+- **pt** `walletScreen.json::walletsAddedCount`
+  - − {{count}} carteiras adicionadas!
+  - + {{count}} endereços de recebimento adicionados!
+- **pt** `walletScreen.json::walletsDescription`
+  - − Gerencie os endereços da sua carteira de criptomoedas.
+  - + Gerencie os seus endereços de recebimento.
+- **pt** `walletScreen.json::walletsTitle`
+  - − Carteiras
+  - + Endereços de recebimento
+- **pt** `walletScreen.json::warningMessage`
+  - − Verifique o endereço da carteira com atenção. As transações não podem ser revertidas.
+  - + Verifique o endereço de recebimento com atenção. As transações não podem ser revertidas.
+- **en** `dashboardLayout.json::activeWallets`
+  - − Active Wallets
+  - + Active payout addresses
+- **en** `dashboardLayout.json::activeWalletsCount_one`
+  - − {{count}} active wallet
+  - + {{count}} active payout address
+- **en** `dashboardLayout.json::activeWalletsCount_other`
+  - − {{count}} active wallets
+  - + {{count}} active payout addresses
+- **en** `dashboardLayout.json::emptyAddWallet`
+  - − Add a wallet
+  - + Add a payout address
+- **en** `dashboardLayout.json::firstLinkStep1Title`
+  - − Add a wallet
+  - + Add a payout address
+- **en** `dashboardLayout.json::obWalletLabel`
+  - − Add a payout wallet
+  - + Add a payout address
+- **en** `dashboardLayout.json::setupStablecoinWallet`
+  - − Set up a stablecoin wallet first
+  - + Add a stablecoin payout address first
+- **en** `dashboardLayout.json::walletSetUpWarnnigTitle`
+  - − Complete wallet setup
+  - + Add a payout address
+- **en** `dashboardLayout.json::walletWarnnigTitle`
+  - − wallet setup
+  - + payout address setup
+- **en** `dashboardLayout.json::wallets`
+  - − Wallets
+  - + Payout addresses
+- **en** `dashboardLayout.json::payoutWallets`
+  - − Payout wallets
+  - + Payout addresses
+- **en** `dashboardLayout.json::stepWallet`
+  - − Add a crypto wallet
+  - + Add a payout address
+- **en** `dashboardLayout.json::attnAddWalletTitle`
+  - − Add your first wallet
+  - + Add your first payout address
+- **en** `dashboardLayout.json::attnAddWalletBody`
+  - − Connect a wallet to start accepting crypto payments.
+  - + Add a payout address to start accepting crypto payments.
+- **en** `dashboardLayout.json::attnAddWalletCta`
+  - − Add wallet
+  - + Add payout address
+- **en** `dashboardLayout.json::qaShortcutWallet`
+  - − Open wallet
+  - + Open payout addresses
+- **en** `dashboardLayout.json::search.actionAddWallet`
+  - − Add payout wallet
+  - + Add payout address
+- **en** `dashboardLayout.json::navWallet`
+  - − Wallet
+  - + Payout address
+- **en** `dashboardLayout.json::gs.payoutsPoint3`
+  - − Wallet changes always ask for a code sent to your email.
+  - + Payout address changes always ask for a code sent to your email.
+- **en** `dashboardLayout.json::gs.walletsConfigured`
+  - − Configured payout wallets ({{count}})
+  - + Configured payout addresses ({{count}})
+- **en** `dashboardLayout.json::gs.addAnotherWallet`
+  - − Add another wallet
+  - + Add another payout address
+- **en** `dashboardLayout.json::gs.noWalletsYet`
+  - − No payout wallet yet — add your first one to unlock payment links. It takes about 30 seconds.
+  - + No payout address yet — add your first one to unlock payment links. It takes about 30 seconds.
+- **en** `dashboardLayout.json::gs.addWallet`
+  - − Add payout wallet
+  - + Add payout address
+- **en** `dashboardLayout.json::gs.needWalletTitle`
+  - − Add a payout wallet first
+  - + Add a payout address first
+- **en** `dashboardLayout.json::gs.goToPayouts`
+  - − Add payout wallet
+  - + Add payout address
+- **en** `dashboardLayout.json::gs.previewNoCoins`
+  - − Coins from your payout wallets appear here
+  - + Coins from your payout addresses appear here
+- **en** `dashboardLayout.json::gs.next2`
+  - − The funds are forwarded straight to your payout wallet.
+  - + The funds are forwarded straight to your payout address.
+- **en** `dashboardLayout.json::expandWallets`
+  - − Show wallets
+  - + Show payout addresses
+- **en** `dashboardLayout.json::showAllWallets`
+  - − Show all wallets
+  - + Show all payout addresses
+- **en** `dashboardLayout.json::hideAllWallets`
+  - − Show fewer wallets
+  - + Show fewer payout addresses
+- **en** `dashboardLayout.json::command.walletFrozenUntil`
+  - − Payout-wallet changes are frozen until {{until}} after a security reset
+  - + Payout address changes are frozen until {{until}} after a security reset
+- **en** `dashboardLayout.json::command.walletFrozen`
+  - − Payout-wallet changes are frozen after a security reset
+  - + Payout address changes are frozen after a security reset
+- **en** `dashboardLayout.json::command.coinsNoWallet`
+  - − Live links accept {{coins}} but you have no payout wallet for them
+  - + Live links accept {{coins}} but you have no payout address for them
+- **en** `dashboardLayout.json::command.addWallet`
+  - − Add wallet
+  - + Add payout address
+- **de** `dashboardLayout.json::activeWallets`
+  - − Aktive Wallets
+  - + Aktive Auszahlungsadressen
+- **de** `dashboardLayout.json::activeWalletsCount_one`
+  - − {{count}} aktives Wallet
+  - + {{count}} aktive Auszahlungsadresse
+- **de** `dashboardLayout.json::activeWalletsCount_other`
+  - − {{count}} aktive Wallets
+  - + {{count}} aktive Auszahlungsadressen
+- **de** `dashboardLayout.json::attnAddWalletBody`
+  - − Verbinden Sie eine Wallet, um Krypto-Zahlungen zu akzeptieren.
+  - + Fügen Sie eine Auszahlungsadresse hinzu, um Krypto-Zahlungen zu akzeptieren.
+- **de** `dashboardLayout.json::attnAddWalletCta`
+  - − Wallet hinzufügen
+  - + Auszahlungsadresse hinzufügen
+- **de** `dashboardLayout.json::attnAddWalletTitle`
+  - − Fügen Sie Ihre erste Wallet hinzu
+  - + Fügen Sie Ihre erste Auszahlungsadresse hinzu
+- **de** `dashboardLayout.json::command.addWallet`
+  - − Wallet hinzufügen
+  - + Auszahlungsadresse hinzufügen
+- **de** `dashboardLayout.json::command.coinsNoWallet`
+  - − Aktive Links akzeptieren {{coins}}, aber Sie haben dafür keine Auszahlungs-Wallet
+  - + Aktive Links akzeptieren {{coins}}, aber Sie haben dafür keine Auszahlungsadresse
+- **de** `dashboardLayout.json::command.walletFrozen`
+  - − Änderungen an Auszahlungs-Wallets sind nach einem Sicherheits-Reset gesperrt
+  - + Änderungen an Auszahlungsadressen sind nach einem Sicherheits-Reset gesperrt
+- **de** `dashboardLayout.json::command.walletFrozenUntil`
+  - − Änderungen an Auszahlungs-Wallets sind nach einem Sicherheits-Reset bis {{until}} gesperrt
+  - + Änderungen an Auszahlungsadressen sind nach einem Sicherheits-Reset bis {{until}} gesperrt
+- **de** `dashboardLayout.json::emptyAddWallet`
+  - − Wallet hinzufügen
+  - + Auszahlungsadresse hinzufügen
+- **de** `dashboardLayout.json::expandWallets`
+  - − Wallets anzeigen
+  - + Auszahlungsadressen anzeigen
+- **de** `dashboardLayout.json::firstLinkStep1Title`
+  - − Wallet hinzufügen
+  - + Auszahlungsadresse hinzufügen
+- **de** `dashboardLayout.json::gs.addAnotherWallet`
+  - − Weitere Wallet hinzufügen
+  - + Weitere Auszahlungsadresse hinzufügen
+- **de** `dashboardLayout.json::gs.addWallet`
+  - − Auszahlungs-Wallet hinzufügen
+  - + Auszahlungsadresse hinzufügen
+- **de** `dashboardLayout.json::gs.goToPayouts`
+  - − Auszahlungs-Wallet hinzufügen
+  - + Auszahlungsadresse hinzufügen
+- **de** `dashboardLayout.json::gs.needWalletTitle`
+  - − Füge zuerst eine Auszahlungs-Wallet hinzu
+  - + Füge zuerst eine Auszahlungsadresse hinzu
+- **de** `dashboardLayout.json::gs.next2`
+  - − Die Gelder werden direkt an deine Auszahlungs-Wallet weitergeleitet.
+  - + Die Gelder werden direkt an deine Auszahlungsadresse weitergeleitet.
+- **de** `dashboardLayout.json::gs.noWalletsYet`
+  - − Noch keine Auszahlungs-Wallet — füge deine erste hinzu, um Zahlungslinks freizuschalten. Dauert etwa 30 Sekunden.
+  - + Noch keine Auszahlungsadresse — füge deine erste hinzu, um Zahlungslinks freizuschalten. Dauert etwa 30 Sekunden.
+- **de** `dashboardLayout.json::gs.payoutsPoint3`
+  - − Wallet-Änderungen erfordern immer einen Code, der an deine E-Mail gesendet wird.
+  - + Änderungen an Auszahlungsadressen erfordern immer einen Code, der an deine E-Mail gesendet wird.
+- **de** `dashboardLayout.json::gs.previewNoCoins`
+  - − Coins aus deinen Auszahlungs-Wallets erscheinen hier
+  - + Coins aus deinen Auszahlungsadressen erscheinen hier
+- **de** `dashboardLayout.json::gs.walletsConfigured`
+  - − Eingerichtete Auszahlungs-Wallets ({{count}})
+  - + Eingerichtete Auszahlungsadressen ({{count}})
+- **de** `dashboardLayout.json::hideAllWallets`
+  - − Weniger Wallets anzeigen
+  - + Weniger Auszahlungsadressen anzeigen
+- **de** `dashboardLayout.json::navWallet`
+  - − Wallet
+  - + Auszahlungsadresse
+- **de** `dashboardLayout.json::obWalletLabel`
+  - − Fügen Sie ein Auszahlungs-Wallet hinzu
+  - + Fügen Sie eine Auszahlungsadresse hinzu
+- **de** `dashboardLayout.json::payoutWallets`
+  - − Auszahlungs-Wallets
+  - + Auszahlungsadressen
+- **de** `dashboardLayout.json::qaShortcutWallet`
+  - − Wallet öffnen
+  - + Auszahlungsadresse öffnen
+- **de** `dashboardLayout.json::search.actionAddWallet`
+  - − Auszahlungs-Wallet hinzufügen
+  - + Auszahlungsadresse hinzufügen
+- **de** `dashboardLayout.json::setupStablecoinWallet`
+  - − Richten Sie zuerst ein Stablecoin-Wallet ein
+  - + Richten Sie zuerst eine Stablecoin-Auszahlungsadresse ein
+- **de** `dashboardLayout.json::showAllWallets`
+  - − Alle Wallets anzeigen
+  - + Alle Auszahlungsadressen anzeigen
+- **de** `dashboardLayout.json::stepWallet`
+  - − Füge eine Krypto-Wallet hinzu
+  - + Füge eine Krypto-Auszahlungsadresse hinzu
+- **de** `dashboardLayout.json::walletSetUpWarnnigTitle`
+  - − Wallet-Einrichtung abschließen
+  - + Einrichtung der Auszahlungsadresse abschließen
+- **de** `dashboardLayout.json::walletWarnnigTitle`
+  - − Wallet-Einrichtung
+  - + Einrichtung der Auszahlungsadresse
+- **de** `dashboardLayout.json::wallets`
+  - − Wallets
+  - + Auszahlungsadressen
+- **nl** `dashboardLayout.json::activeWallets`
+  - − Actieve wallets
+  - + Actieve uitbetalingsadressen
+- **nl** `dashboardLayout.json::activeWalletsCount_one`
+  - − {{count}} actieve wallet
+  - + {{count}} actief uitbetalingsadres
+- **nl** `dashboardLayout.json::activeWalletsCount_other`
+  - − {{count}} actieve wallets
+  - + {{count}} actieve uitbetalingsadressen
+- **nl** `dashboardLayout.json::attnAddWalletBody`
+  - − Verbind een wallet om crypto-betalingen te accepteren.
+  - + Voeg een uitbetalingsadres toe om crypto-betalingen te accepteren.
+- **nl** `dashboardLayout.json::attnAddWalletCta`
+  - − Wallet toevoegen
+  - + Uitbetalingsadres toevoegen
+- **nl** `dashboardLayout.json::attnAddWalletTitle`
+  - − Voeg je eerste wallet toe
+  - + Voeg je eerste uitbetalingsadres toe
+- **nl** `dashboardLayout.json::command.addWallet`
+  - − Wallet toevoegen
+  - + Uitbetalingsadres toevoegen
+- **nl** `dashboardLayout.json::command.coinsNoWallet`
+  - − Actieve links accepteren {{coins}}, maar je hebt er geen uitbetaalwallet voor
+  - + Actieve links accepteren {{coins}}, maar je hebt er geen uitbetalingsadres voor
+- **nl** `dashboardLayout.json::command.walletFrozen`
+  - − Wijzigingen aan uitbetaalwallets zijn na een beveiligingsreset bevroren
+  - + Wijzigingen aan uitbetalingsadressen zijn na een beveiligingsreset bevroren
+- **nl** `dashboardLayout.json::command.walletFrozenUntil`
+  - − Wijzigingen aan uitbetaalwallets zijn na een beveiligingsreset bevroren tot {{until}}
+  - + Wijzigingen aan uitbetalingsadressen zijn na een beveiligingsreset bevroren tot {{until}}
+- **nl** `dashboardLayout.json::emptyAddWallet`
+  - − Wallet toevoegen
+  - + Uitbetalingsadres toevoegen
+- **nl** `dashboardLayout.json::expandWallets`
+  - − Toon wallets
+  - + Toon uitbetalingsadressen
+- **nl** `dashboardLayout.json::firstLinkStep1Title`
+  - − Voeg een wallet toe
+  - + Voeg een uitbetalingsadres toe
+- **nl** `dashboardLayout.json::gs.addAnotherWallet`
+  - − Nog een wallet toevoegen
+  - + Nog een uitbetalingsadres toevoegen
+- **nl** `dashboardLayout.json::gs.addWallet`
+  - − Uitbetalingswallet toevoegen
+  - + Uitbetalingsadres toevoegen
+- **nl** `dashboardLayout.json::gs.goToPayouts`
+  - − Uitbetalingswallet toevoegen
+  - + Uitbetalingsadres toevoegen
+- **nl** `dashboardLayout.json::gs.needWalletTitle`
+  - − Voeg eerst een uitbetalingswallet toe
+  - + Voeg eerst een uitbetalingsadres toe
+- **nl** `dashboardLayout.json::gs.next2`
+  - − Het geld gaat rechtstreeks naar je uitbetalingswallet.
+  - + Het geld gaat rechtstreeks naar je uitbetalingsadres.
+- **nl** `dashboardLayout.json::gs.noWalletsYet`
+  - − Nog geen uitbetalingswallet — voeg je eerste toe om betaallinks te ontgrendelen. Dit duurt ongeveer 30 seconden.
+  - + Nog geen uitbetalingsadres — voeg je eerste toe om betaallinks te ontgrendelen. Dit duurt ongeveer 30 seconden.
+- **nl** `dashboardLayout.json::gs.payoutsPoint3`
+  - − Walletwijzigingen vragen altijd om een code die naar je e-mail wordt gestuurd.
+  - + Wijzigingen aan uitbetalingsadressen vragen altijd om een code die naar je e-mail wordt gestuurd.
+- **nl** `dashboardLayout.json::gs.previewNoCoins`
+  - − Coins uit je uitbetalingswallets verschijnen hier
+  - + Coins uit je uitbetalingsadressen verschijnen hier
+- **nl** `dashboardLayout.json::gs.walletsConfigured`
+  - − Ingestelde uitbetalingswallets ({{count}})
+  - + Ingestelde uitbetalingsadressen ({{count}})
+- **nl** `dashboardLayout.json::hideAllWallets`
+  - − Toon minder wallets
+  - + Toon minder uitbetalingsadressen
+- **nl** `dashboardLayout.json::navWallet`
+  - − Wallet
+  - + Uitbetalingsadres
+- **nl** `dashboardLayout.json::obWalletLabel`
+  - − Voeg een uitbetalingswallet toe
+  - + Voeg een uitbetalingsadres toe
+- **nl** `dashboardLayout.json::payoutWallets`
+  - − Uitbetaalwallets
+  - + Uitbetalingsadressen
+- **nl** `dashboardLayout.json::qaShortcutWallet`
+  - − Open wallet
+  - + Open uitbetalingsadressen
+- **nl** `dashboardLayout.json::search.actionAddWallet`
+  - − Uitbetalingswallet toevoegen
+  - + Uitbetalingsadres toevoegen
+- **nl** `dashboardLayout.json::setupStablecoinWallet`
+  - − Stel eerst een stablecoin-wallet in
+  - + Stel eerst een stablecoin-uitbetalingsadres in
+- **nl** `dashboardLayout.json::showAllWallets`
+  - − Toon alle wallets
+  - + Toon alle uitbetalingsadressen
+- **nl** `dashboardLayout.json::stepWallet`
+  - − Voeg een crypto-portemonnee toe
+  - + Voeg een crypto-uitbetalingsadres toe
+- **nl** `dashboardLayout.json::walletSetUpWarnnigTitle`
+  - − Wallet-instelling voltooien
+  - + Uitbetalingsadres-instelling voltooien
+- **nl** `dashboardLayout.json::walletWarnnigTitle`
+  - − Wallet-instelling
+  - + Uitbetalingsadres-instelling
+- **nl** `dashboardLayout.json::wallets`
+  - − Wallets
+  - + Uitbetalingsadressen
+- **es** `dashboardLayout.json::activeWallets`
+  - − Billeteras Activas
+  - + Direcciones de cobro activas
+- **es** `dashboardLayout.json::attnAddWalletBody`
+  - − Conecta una billetera para comenzar a aceptar pagos en crypto.
+  - + Añade una dirección de cobro para comenzar a aceptar pagos en crypto.
+- **es** `dashboardLayout.json::attnAddWalletCta`
+  - − Agregar billetera
+  - + Agregar dirección de cobro
+- **es** `dashboardLayout.json::attnAddWalletTitle`
+  - − Agrega tu primera billetera
+  - + Agrega tu primera dirección de cobro
+- **es** `dashboardLayout.json::command.addWallet`
+  - − Añadir wallet
+  - + Añadir dirección de cobro
+- **es** `dashboardLayout.json::command.coinsNoWallet`
+  - − Hay enlaces activos que aceptan {{coins}} pero no tienes wallet de pago para ellas
+  - + Hay enlaces activos que aceptan {{coins}} pero no tienes dirección de cobro para ellas
+- **es** `dashboardLayout.json::command.walletFrozen`
+  - − Los cambios en las wallets de pago están congelados tras un restablecimiento de seguridad
+  - + Los cambios en las direcciones de cobro están congelados tras un restablecimiento de seguridad
+- **es** `dashboardLayout.json::command.walletFrozenUntil`
+  - − Los cambios en las wallets de pago están congelados hasta {{until}} tras un restablecimiento de seguridad
+  - + Los cambios en las direcciones de cobro están congelados hasta {{until}} tras un restablecimiento de seguridad
+- **es** `dashboardLayout.json::expandWallets`
+  - − Mostrar billeteras
+  - + Mostrar direcciones de cobro
+- **es** `dashboardLayout.json::firstLinkStep1Title`
+  - − Añade una wallet
+  - + Añade una dirección de cobro
+- **es** `dashboardLayout.json::gs.addAnotherWallet`
+  - − Añadir otra wallet
+  - + Añadir otra dirección de cobro
+- **es** `dashboardLayout.json::gs.addWallet`
+  - − Añadir wallet de pago
+  - + Añadir dirección de cobro
+- **es** `dashboardLayout.json::gs.goToPayouts`
+  - − Añadir wallet de pago
+  - + Añadir dirección de cobro
+- **es** `dashboardLayout.json::gs.needWalletTitle`
+  - − Añade primero una wallet de pago
+  - + Añade primero una dirección de cobro
+- **es** `dashboardLayout.json::gs.next2`
+  - − Los fondos se envían directamente a tu wallet de pago.
+  - + Los fondos se envían directamente a tu dirección de cobro.
+- **es** `dashboardLayout.json::gs.noWalletsYet`
+  - − Aún no hay wallet de pago: añade la primera para desbloquear los enlaces de pago. Tarda unos 30 segundos.
+  - + Aún no hay dirección de cobro: añade la primera para desbloquear los enlaces de pago. Tarda unos 30 segundos.
+- **es** `dashboardLayout.json::gs.payoutsPoint3`
+  - − Los cambios de wallet siempre piden un código enviado a tu correo.
+  - + Los cambios de dirección de cobro siempre piden un código enviado a tu correo.
+- **es** `dashboardLayout.json::gs.previewNoCoins`
+  - − Aquí aparecerán las monedas de tus wallets de pago
+  - + Aquí aparecerán las monedas de tus direcciones de cobro
+- **es** `dashboardLayout.json::gs.walletsConfigured`
+  - − Wallets de pago configuradas ({{count}})
+  - + Direcciones de cobro configuradas ({{count}})
+- **es** `dashboardLayout.json::hideAllWallets`
+  - − Mostrar menos billeteras
+  - + Mostrar menos direcciones de cobro
+- **es** `dashboardLayout.json::navWallet`
+  - − Cartera
+  - + Dirección de cobro
+- **es** `dashboardLayout.json::payoutWallets`
+  - − Carteras de cobro
+  - + Direcciones de cobro
+- **es** `dashboardLayout.json::qaShortcutWallet`
+  - − Abrir billetera
+  - + Abrir direcciones de cobro
+- **es** `dashboardLayout.json::search.actionAddWallet`
+  - − Añadir cartera de pagos
+  - + Añadir dirección de cobro
+- **es** `dashboardLayout.json::setupStablecoinWallet`
+  - − Configure primero una billetera stablecoin
+  - + Configure primero una dirección de cobro stablecoin
+- **es** `dashboardLayout.json::showAllWallets`
+  - − Mostrar todas las billeteras
+  - + Mostrar todas las direcciones de cobro
+- **es** `dashboardLayout.json::stepWallet`
+  - − Agrega una billetera de criptomonedas
+  - + Agrega una dirección de cobro de criptomonedas
+- **es** `dashboardLayout.json::walletSetUpWarnnigTitle`
+  - − Completar configuración de billetera
+  - + Completar configuración de dirección de cobro
+- **es** `dashboardLayout.json::walletWarnnigTitle`
+  - − configuración de billetera
+  - + configuración de dirección de cobro
+- **es** `dashboardLayout.json::wallets`
+  - − Billeteras
+  - + Direcciones de cobro
+- **fr** `dashboardLayout.json::activeWallets`
+  - − Portefeuilles Actifs
+  - + Adresses de versement actives
+- **fr** `dashboardLayout.json::activeWalletsCount_one`
+  - − {{count}} portefeuille actif
+  - + {{count}} adresse de versement active
+- **fr** `dashboardLayout.json::activeWalletsCount_other`
+  - − {{count}} portefeuilles actifs
+  - + {{count}} adresses de versement actives
+- **fr** `dashboardLayout.json::attnAddWalletBody`
+  - − Connectez un portefeuille pour commencer à accepter des paiements en crypto.
+  - + Ajoutez une adresse de versement pour commencer à accepter des paiements en crypto.
+- **fr** `dashboardLayout.json::attnAddWalletCta`
+  - − Ajouter un portefeuille
+  - + Ajouter une adresse de versement
+- **fr** `dashboardLayout.json::attnAddWalletTitle`
+  - − Ajoutez votre premier portefeuille
+  - + Ajoutez votre première adresse de versement
+- **fr** `dashboardLayout.json::command.addWallet`
+  - − Ajouter un portefeuille
+  - + Ajouter une adresse de versement
+- **fr** `dashboardLayout.json::command.coinsNoWallet`
+  - − Des liens actifs acceptent {{coins}} mais vous n'avez pas de portefeuille de versement pour ces actifs
+  - + Des liens actifs acceptent {{coins}} mais vous n'avez pas d'adresse de versement pour ces actifs
+- **fr** `dashboardLayout.json::command.walletFrozen`
+  - − Les modifications des portefeuilles de versement sont gelées après une réinitialisation de sécurité
+  - + Les modifications des adresses de versement sont gelées après une réinitialisation de sécurité
+- **fr** `dashboardLayout.json::command.walletFrozenUntil`
+  - − Les modifications des portefeuilles de versement sont gelées jusqu'à {{until}} après une réinitialisation de sécurité
+  - + Les modifications des adresses de versement sont gelées jusqu'à {{until}} après une réinitialisation de sécurité
+- **fr** `dashboardLayout.json::emptyAddWallet`
+  - − Ajouter un portefeuille
+  - + Ajouter une adresse de versement
+- **fr** `dashboardLayout.json::expandWallets`
+  - − Afficher les portefeuilles
+  - + Afficher les adresses de versement
+- **fr** `dashboardLayout.json::firstLinkStep1Title`
+  - − Ajouter un portefeuille
+  - + Ajouter une adresse de versement
+- **fr** `dashboardLayout.json::gs.addAnotherWallet`
+  - − Ajouter un autre portefeuille
+  - + Ajouter une autre adresse de versement
+- **fr** `dashboardLayout.json::gs.addWallet`
+  - − Ajouter un portefeuille de paiement
+  - + Ajouter une adresse de versement
+- **fr** `dashboardLayout.json::gs.goToPayouts`
+  - − Ajouter un portefeuille de paiement
+  - + Ajouter une adresse de versement
+- **fr** `dashboardLayout.json::gs.needWalletTitle`
+  - − Ajoutez d'abord un portefeuille de paiement
+  - + Ajoutez d'abord une adresse de versement
+- **fr** `dashboardLayout.json::gs.next2`
+  - − Les fonds sont transférés directement vers votre portefeuille de paiement.
+  - + Les fonds sont transférés directement vers votre adresse de versement.
+- **fr** `dashboardLayout.json::gs.noWalletsYet`
+  - − Aucun portefeuille de paiement pour l'instant — ajoutez le premier pour débloquer les liens de paiement. Cela prend environ 30 secondes.
+  - + Aucune adresse de versement pour l'instant — ajoutez la première pour débloquer les liens de paiement. Cela prend environ 30 secondes.
+- **fr** `dashboardLayout.json::gs.payoutsPoint3`
+  - − Toute modification de portefeuille demande un code envoyé à votre e-mail.
+  - + Toute modification d'adresse de versement demande un code envoyé à votre e-mail.
+- **fr** `dashboardLayout.json::gs.previewNoCoins`
+  - − Les cryptos de vos portefeuilles de paiement apparaîtront ici
+  - + Les cryptos de vos adresses de versement apparaîtront ici
+- **fr** `dashboardLayout.json::gs.walletsConfigured`
+  - − Portefeuilles de paiement configurés ({{count}})
+  - + Adresses de versement configurées ({{count}})
+- **fr** `dashboardLayout.json::hideAllWallets`
+  - − Afficher moins de portefeuilles
+  - + Afficher moins d'adresses de versement
+- **fr** `dashboardLayout.json::navWallet`
+  - − Portefeuille
+  - + Adresse de versement
+- **fr** `dashboardLayout.json::obWalletLabel`
+  - − Ajoutez un portefeuille de versement
+  - + Ajoutez une adresse de versement
+- **fr** `dashboardLayout.json::payoutWallets`
+  - − Portefeuilles de versement
+  - + Adresses de versement
+- **fr** `dashboardLayout.json::qaShortcutWallet`
+  - − Ouvrir le portefeuille
+  - + Ouvrir les adresses de versement
+- **fr** `dashboardLayout.json::search.actionAddWallet`
+  - − Ajouter un portefeuille
+  - + Ajouter une adresse de versement
+- **fr** `dashboardLayout.json::setupStablecoinWallet`
+  - − Configurez d'abord un portefeuille stablecoin
+  - + Configurez d'abord une adresse de versement stablecoin
+- **fr** `dashboardLayout.json::showAllWallets`
+  - − Afficher tous les portefeuilles
+  - + Afficher toutes les adresses de versement
+- **fr** `dashboardLayout.json::stepWallet`
+  - − Ajoutez un portefeuille crypto
+  - + Ajoutez une adresse de versement crypto
+- **fr** `dashboardLayout.json::walletSetUpWarnnigTitle`
+  - − Compléter la configuration du portefeuille
+  - + Compléter la configuration de l'adresse de versement
+- **fr** `dashboardLayout.json::walletWarnnigTitle`
+  - − configuration du portefeuille
+  - + configuration de l'adresse de versement
+- **fr** `dashboardLayout.json::wallets`
+  - − Portefeuilles
+  - + Adresses de versement
+- **pt** `dashboardLayout.json::activeWallets`
+  - − Carteiras Ativas
+  - + Endereços de recebimento ativos
+- **pt** `dashboardLayout.json::activeWalletsCount_one`
+  - − {{count}} carteira ativa
+  - + {{count}} endereço de recebimento ativo
+- **pt** `dashboardLayout.json::activeWalletsCount_other`
+  - − {{count}} carteiras ativas
+  - + {{count}} endereços de recebimento ativos
+- **pt** `dashboardLayout.json::attnAddWalletBody`
+  - − Conecte uma carteira para começar a aceitar pagamentos em crypto.
+  - + Adicione um endereço de recebimento para começar a aceitar pagamentos em crypto.
+- **pt** `dashboardLayout.json::attnAddWalletCta`
+  - − Adicionar carteira
+  - + Adicionar endereço de recebimento
+- **pt** `dashboardLayout.json::attnAddWalletTitle`
+  - − Adicione a sua primeira carteira
+  - + Adicione o seu primeiro endereço de recebimento
+- **pt** `dashboardLayout.json::command.addWallet`
+  - − Adicionar wallet
+  - + Adicionar endereço de recebimento
+- **pt** `dashboardLayout.json::command.coinsNoWallet`
+  - − Links ativos aceitam {{coins}}, mas não tens wallet de pagamento para elas
+  - + Links ativos aceitam {{coins}}, mas não tens endereço de recebimento para elas
+- **pt** `dashboardLayout.json::command.walletFrozen`
+  - − As alterações às wallets de pagamento estão congeladas após uma reposição de segurança
+  - + As alterações aos endereços de recebimento estão congeladas após uma reposição de segurança
+- **pt** `dashboardLayout.json::command.walletFrozenUntil`
+  - − As alterações às wallets de pagamento estão congeladas até {{until}} após uma reposição de segurança
+  - + As alterações aos endereços de recebimento estão congeladas até {{until}} após uma reposição de segurança
+- **pt** `dashboardLayout.json::emptyAddWallet`
+  - − Adicionar uma carteira
+  - + Adicionar um endereço de recebimento
+- **pt** `dashboardLayout.json::expandWallets`
+  - − Mostrar carteiras
+  - + Mostrar endereços de recebimento
+- **pt** `dashboardLayout.json::firstLinkStep1Title`
+  - − Adicione uma carteira
+  - + Adicione um endereço de recebimento
+- **pt** `dashboardLayout.json::gs.addAnotherWallet`
+  - − Adicionar outra carteira
+  - + Adicionar outro endereço de recebimento
+- **pt** `dashboardLayout.json::gs.addWallet`
+  - − Adicionar carteira de pagamento
+  - + Adicionar endereço de recebimento
+- **pt** `dashboardLayout.json::gs.goToPayouts`
+  - − Adicionar carteira de pagamento
+  - + Adicionar endereço de recebimento
+- **pt** `dashboardLayout.json::gs.needWalletTitle`
+  - − Adiciona primeiro uma carteira de pagamento
+  - + Adiciona primeiro um endereço de recebimento
+- **pt** `dashboardLayout.json::gs.next2`
+  - − Os fundos são enviados diretamente para a tua carteira de pagamento.
+  - + Os fundos são enviados diretamente para o teu endereço de recebimento.
+- **pt** `dashboardLayout.json::gs.noWalletsYet`
+  - − Ainda não há carteira de pagamento — adiciona a primeira para desbloquear os links de pagamento. Demora cerca de 30 segundos.
+  - + Ainda não há endereço de recebimento — adiciona o primeiro para desbloquear os links de pagamento. Demora cerca de 30 segundos.
+- **pt** `dashboardLayout.json::gs.payoutsPoint3`
+  - − As alterações de carteira pedem sempre um código enviado para o teu e-mail.
+  - + As alterações do endereço de recebimento pedem sempre um código enviado para o teu e-mail.
+- **pt** `dashboardLayout.json::gs.previewNoCoins`
+  - − As moedas das tuas carteiras de pagamento aparecem aqui
+  - + As moedas das teus endereços de recebimento aparecem aqui
+- **pt** `dashboardLayout.json::gs.walletsConfigured`
+  - − Carteiras de pagamento configuradas ({{count}})
+  - + Endereços de recebimento configurados ({{count}})
+- **pt** `dashboardLayout.json::hideAllWallets`
+  - − Mostrar menos carteiras
+  - + Mostrar menos endereços de recebimento
+- **pt** `dashboardLayout.json::navWallet`
+  - − Carteira
+  - + Endereço de recebimento
+- **pt** `dashboardLayout.json::obWalletLabel`
+  - − Adicione uma carteira de pagamento
+  - + Adicione um endereço de recebimento
+- **pt** `dashboardLayout.json::payoutWallets`
+  - − Carteiras de recebimento
+  - + Endereços de recebimento
+- **pt** `dashboardLayout.json::qaShortcutWallet`
+  - − Abrir carteira
+  - + Abrir endereços de recebimento
+- **pt** `dashboardLayout.json::search.actionAddWallet`
+  - − Adicionar carteira de pagamento
+  - + Adicionar endereço de recebimento
+- **pt** `dashboardLayout.json::setupStablecoinWallet`
+  - − Configure primeiro uma carteira stablecoin
+  - + Configure primeiro um endereço de recebimento stablecoin
+- **pt** `dashboardLayout.json::showAllWallets`
+  - − Mostrar todas as carteiras
+  - + Mostrar todos os endereços de recebimento
+- **pt** `dashboardLayout.json::stepWallet`
+  - − Adicione uma carteira de criptomoeda
+  - + Adicione um endereço de recebimento de criptomoeda
+- **pt** `dashboardLayout.json::walletSetUpWarnnigTitle`
+  - − Configuração completa da carteira
+  - + Configuração completa do endereço de recebimento
+- **pt** `dashboardLayout.json::walletWarnnigTitle`
+  - − configuração da carteira
+  - + configuração do endereço de recebimento
+- **pt** `dashboardLayout.json::wallets`
+  - − Carteiras
+  - + Endereços de recebimento
+- **en** `pageTitles.json::wallet_title`
+  - − Wallets · Dynopay
+  - + Payout addresses · Dynopay
+- **en** `pageTitles.json::wallet_desc`
+  - − Manage your payout wallet addresses for Bitcoin, Ethereum, Litecoin, USDT, USDC, and more.
+  - + Manage your payout addresses for Bitcoin, Ethereum, Litecoin, USDT, USDC, and more.
+- **en** `pageTitles.json::walletSecurity_title`
+  - − Wallet security · Dynopay
+  - + Payout address security · Dynopay
+- **en** `pageTitles.json::walletSecurity_desc`
+  - − How your payout wallets are protected, every change made to them, and your signed-in devices.
+  - + How your payout addresses are protected, every change made to them, and your signed-in devices.
+- **de** `pageTitles.json::walletSecurity_desc`
+  - − Wie Ihre Auszahlungs-Wallets geschützt sind, jede Änderung an ihnen und Ihre angemeldeten Geräte.
+  - + Wie Ihre Auszahlungsadressen geschützt sind, jede Änderung an ihnen und Ihre angemeldeten Geräte.
+- **de** `pageTitles.json::walletSecurity_title`
+  - − Wallet-Sicherheit · Dynopay
+  - + Sicherheit der Auszahlungsadressen · Dynopay
+- **de** `pageTitles.json::wallet_desc`
+  - − Verwalte deine Auszahlungs-Wallet-Adressen für Bitcoin, Ethereum, Litecoin, USDT, USDC und mehr.
+  - + Verwalte deine Auszahlungsadressen für Bitcoin, Ethereum, Litecoin, USDT, USDC und mehr.
+- **de** `pageTitles.json::wallet_title`
+  - − Wallets · Dynopay
+  - + Auszahlungsadressen · Dynopay
+- **nl** `pageTitles.json::walletSecurity_desc`
+  - − Hoe je uitbetalingswallets beschermd zijn, elke wijziging eraan en je ingelogde apparaten.
+  - + Hoe je uitbetalingsadressen beschermd zijn, elke wijziging eraan en je ingelogde apparaten.
+- **nl** `pageTitles.json::walletSecurity_title`
+  - − Walletbeveiliging · Dynopay
+  - + Beveiliging van uitbetalingsadressen · Dynopay
+- **nl** `pageTitles.json::wallet_desc`
+  - − Beheer je uitbetalings-walletadressen voor Bitcoin, Ethereum, Litecoin, USDT, USDC en meer.
+  - + Beheer je uitbetalingsadressen voor Bitcoin, Ethereum, Litecoin, USDT, USDC en meer.
+- **nl** `pageTitles.json::wallet_title`
+  - − Wallets · Dynopay
+  - + Uitbetalingsadressen · Dynopay
+- **es** `pageTitles.json::walletSecurity_desc`
+  - − Cómo se protegen tus wallets de cobro, cada cambio realizado y tus dispositivos conectados.
+  - + Cómo se protegen tus direcciones de cobro, cada cambio realizado y tus dispositivos conectados.
+- **es** `pageTitles.json::walletSecurity_title`
+  - − Seguridad de wallets · Dynopay
+  - + Seguridad de las direcciones de cobro · Dynopay
+- **fr** `pageTitles.json::walletSecurity_desc`
+  - − Comment vos wallets de paiement sont protégés, chaque modification apportée et vos appareils connectés.
+  - + Comment vos adresses de versement sont protégées, chaque modification apportée et vos appareils connectés.
+- **fr** `pageTitles.json::walletSecurity_title`
+  - − Sécurité des wallets · Dynopay
+  - + Sécurité des adresses de versement · Dynopay
+- **fr** `pageTitles.json::wallet_desc`
+  - − Gérez vos adresses de portefeuille de versement pour Bitcoin, Ethereum, Litecoin, USDT, USDC et plus.
+  - + Gérez vos adresse de versement pour Bitcoin, Ethereum, Litecoin, USDT, USDC et plus.
+- **fr** `pageTitles.json::wallet_title`
+  - − Portefeuilles · Dynopay
+  - + Adresses de versement · Dynopay
+- **pt** `pageTitles.json::walletSecurity_desc`
+  - − Como as suas wallets de pagamento estão protegidas, cada alteração feita e os seus dispositivos com sessão iniciada.
+  - + Como os seus endereços de recebimento estão protegidas, cada alteração feita e os seus dispositivos com sessão iniciada.
+- **pt** `pageTitles.json::walletSecurity_title`
+  - − Segurança das wallets · Dynopay
+  - + Segurança dos endereços de recebimento · Dynopay
+- **pt** `pageTitles.json::wallet_desc`
+  - − Gerencie os endereços das suas carteiras de recebimento para Bitcoin, Ethereum, Litecoin, USDT, USDC e mais.
+  - + Gerencie os seus endereços de recebimento para Bitcoin, Ethereum, Litecoin, USDT, USDC e mais.
+- **pt** `pageTitles.json::wallet_title`
+  - − Carteiras · Dynopay
+  - + Endereços de recebimento · Dynopay
+- **en** `transactions.json::allWallets`
+  - − All Wallets
+  - + All payout addresses
+- **en** `transactions.json::settlementWallet`
+  - − Settlement wallet
+  - + Settlement address
+- **de** `transactions.json::allWallets`
+  - − Alle Wallets
+  - + Alle Auszahlungsadressen
+- **de** `transactions.json::settlementWallet`
+  - − Auszahlungs-Wallet
+  - + Auszahlungsadresse
+- **nl** `transactions.json::allWallets`
+  - − Alle wallets
+  - + Alle uitbetalingsadressen
+- **nl** `transactions.json::settlementWallet`
+  - − Uitbetalingswallet
+  - + Uitbetalingsadres
+- **es** `transactions.json::allWallets`
+  - − Todas las Billeteras
+  - + Todas las direcciones de cobro
+- **es** `transactions.json::settlementWallet`
+  - − Billetera de liquidación
+  - + Dirección de liquidación
+- **fr** `transactions.json::allWallets`
+  - − Tous les Portefeuilles
+  - + Toutes les adresses de versement
+- **fr** `transactions.json::settlementWallet`
+  - − Portefeuille de règlement
+  - + Adresse de règlement
+- **pt** `transactions.json::allWallets`
+  - − Todas as Carteiras
+  - + Todos os endereços de recebimento
+- **pt** `transactions.json::settlementWallet`
+  - − Carteira de liquidação
+  - + endereço de liquidação
+- **en** `notifications.json::category_config_desc`
+  - − Webhook, API key, wallet and profile changes
+  - + Webhook, API key, payout address and profile changes
+- **de** `notifications.json::category_config_desc`
+  - − Änderungen an Webhooks, API-Schlüsseln, Wallets und Profil
+  - + Änderungen an Webhooks, API-Schlüsseln, Auszahlungsadressen und Profil
+- **nl** `notifications.json::category_config_desc`
+  - − Wijzigingen aan webhook, API-sleutel, wallet en profiel
+  - + Wijzigingen aan webhook, API-sleutel, uitbetalingsadres en profiel
+- **es** `notifications.json::category_config_desc`
+  - − Cambios de webhook, clave API, billetera y perfil
+  - + Cambios de webhook, clave API, dirección de cobro y perfil
+- **fr** `notifications.json::category_config_desc`
+  - − Modifications de webhook, clé API, portefeuille et profil
+  - + Modifications de webhook, clé API, adresse de versement et profil
+- **pt** `notifications.json::category_config_desc`
+  - − Alterações de webhook, chave API, carteira e perfil
+  - + Alterações de webhook, chave API, endereço de recebimento e perfil
+- **en** `createPaymentLinkScreen.json::setUpWalletFirst`
+  - − *Set up wallet first
+  - + *Add a payout address first
+- **en** `createPaymentLinkScreen.json::setupStepWalletLabel`
+  - − Add a Payout Wallet
+  - + Add a Payout Address
+- **en** `createPaymentLinkScreen.json::addWalletCta`
+  - − Add payout wallet
+  - + Add payout address
+- **en** `createPaymentLinkScreen.json::activationRequiredBody`
+  - − You can design and preview your payment link now. To activate it (accept real crypto payments), complete two quick steps: add your business details and at least one payout wallet. It takes ~60 seconds.
+  - + You can design and preview your payment link now. To activate it (accept real crypto payments), complete two quick steps: add your business details and at least one payout address. It takes ~60 seconds.
+- **de** `createPaymentLinkScreen.json::activationRequiredBody`
+  - − Sie können jetzt Ihren Zahlungslink gestalten und in der Vorschau anzeigen. Um ihn zu aktivieren (echte Krypto-Zahlungen zu akzeptieren), schließen Sie zwei schnelle Schritte ab: Fügen Sie Ihre Geschäftsdaten und mindestens ein Auszahlungs-Wallet hinzu. Es dauert ca. 60 Sekunden.
+  - + Sie können jetzt Ihren Zahlungslink gestalten und in der Vorschau anzeigen. Um ihn zu aktivieren (echte Krypto-Zahlungen zu akzeptieren), schließen Sie zwei schnelle Schritte ab: Fügen Sie Ihre Geschäftsdaten und mindestens eine Auszahlungsadresse hinzu. Es dauert ca. 60 Sekunden.
+- **de** `createPaymentLinkScreen.json::addWalletCta`
+  - − Auszahlungs-Wallet hinzufügen
+  - + Auszahlungsadresse hinzufügen
+- **de** `createPaymentLinkScreen.json::setUpWalletFirst`
+  - − *Richten Sie zuerst ein Wallet ein
+  - + *Richten Sie zuerst eine Auszahlungsadresse ein
+- **de** `createPaymentLinkScreen.json::setupStepWalletLabel`
+  - − Auszahlungs-Wallet hinzufügen
+  - + Auszahlungsadresse hinzufügen
+- **nl** `createPaymentLinkScreen.json::setUpWalletFirst`
+  - − *Stel eerst een wallet in
+  - + *Stel eerst een uitbetalingsadres in
+- **nl** `createPaymentLinkScreen.json::setupStepWalletLabel`
+  - − Voeg een uitbetalingswallet toe
+  - + Voeg een uitbetalingsadres toe
+- **es** `createPaymentLinkScreen.json::activationRequiredBody`
+  - − Puedes diseñar y previsualizar tu enlace de pago ahora. Para activarlo (aceptar pagos reales en cripto), completa dos pasos rápidos: agrega los detalles de tu negocio y al menos una billetera de pago. Toma ~60 segundos.
+  - + Puedes diseñar y previsualizar tu enlace de pago ahora. Para activarlo (aceptar pagos reales en cripto), completa dos pasos rápidos: agrega los detalles de tu negocio y al menos una dirección de cobro. Toma ~60 segundos.
+- **es** `createPaymentLinkScreen.json::addWalletCta`
+  - − Agregar billetera de pago
+  - + Agregar dirección de cobro
+- **es** `createPaymentLinkScreen.json::setUpWalletFirst`
+  - − *Configura primero la billetera
+  - + *Configura primero la dirección de cobro
+- **fr** `createPaymentLinkScreen.json::activationRequiredBody`
+  - − Vous pouvez concevoir et prévisualiser votre lien de paiement maintenant. Pour l'activer (accepter des paiements crypto réels), complétez deux étapes rapides : ajoutez vos informations commerciales et au moins un portefeuille de paiement. Cela prend environ 60 secondes.
+  - + Vous pouvez concevoir et prévisualiser votre lien de paiement maintenant. Pour l'activer (accepter des paiements crypto réels), complétez deux étapes rapides : ajoutez vos informations commerciales et au moins une adresse de versement. Cela prend environ 60 secondes.
+- **fr** `createPaymentLinkScreen.json::addWalletCta`
+  - − Ajouter un portefeuille de paiement
+  - + Ajouter une adresse de versement
+- **fr** `createPaymentLinkScreen.json::setUpWalletFirst`
+  - − *Configurez d'abord le portefeuille
+  - + *Configurez d'abord l'adresse de versement
+- **fr** `createPaymentLinkScreen.json::setupStepWalletLabel`
+  - − Ajoutez un portefeuille de versement
+  - + Ajoutez une adresse de versement
+- **pt** `createPaymentLinkScreen.json::activationRequiredBody`
+  - − Pode desenhar e pré-visualizar o seu link de pagamento agora. Para ativá-lo (aceitar pagamentos reais em cripto), complete dois passos rápidos: adicione os detalhes da sua empresa e pelo menos uma carteira de pagamento. Leva cerca de 60 segundos.
+  - + Pode desenhar e pré-visualizar o seu link de pagamento agora. Para ativá-lo (aceitar pagamentos reais em cripto), complete dois passos rápidos: adicione os detalhes da sua empresa e pelo menos um endereço de recebimento. Leva cerca de 60 segundos.
+- **pt** `createPaymentLinkScreen.json::addWalletCta`
+  - − Adicionar carteira de pagamento
+  - + Adicionar endereço de recebimento
+- **pt** `createPaymentLinkScreen.json::setUpWalletFirst`
+  - − *Configure sua carteira primeiro
+  - + *Configure seu endereço de recebimento primeiro
+- **pt** `createPaymentLinkScreen.json::setupStepWalletLabel`
+  - − Adicione uma carteira de pagamento
+  - + Adicione um endereço de recebimento
+- **en** `companySettings.json::cryptoConversionSubtitle`
+  - − Optional — when enabled, incoming BTC, ETH, LTC on this wallet will be converted to a stablecoin. Off by default; leave off to receive the original coin.
+  - + Optional — when enabled, incoming BTC, ETH, LTC to this payout address will be converted to a stablecoin. Off by default; leave off to receive the original coin.
+- **en** `companySettings.json::cryptoConversionAlert`
+  - − Please set up your USDT/USDC wallet first.
+  - + Please add a USDT/USDC payout address first.
+- **en** `companySettings.json::cryptoConversionSaveFailed`
+  - − Auto-convert could not be saved. Add a matching stablecoin wallet first, then try again.
+  - + Auto-convert could not be saved. Add a matching stablecoin payout address first, then try again.
+- **de** `companySettings.json::cryptoConversionAlert`
+  - − Bitte richten Sie zuerst Ihr USDT/USDC-Wallet ein.
+  - + Bitte richten Sie zuerst Ihre USDT/USDC-Auszahlungsadresse ein.
+- **de** `companySettings.json::cryptoConversionSaveFailed`
+  - − Auto-Umwandlung konnte nicht gespeichert werden. Bitte zuerst eine passende Stablecoin-Wallet hinzufügen und erneut versuchen.
+  - + Auto-Umwandlung konnte nicht gespeichert werden. Bitte zuerst eine passende Stablecoin-Auszahlungsadresse hinzufügen und erneut versuchen.
+- **nl** `companySettings.json::cryptoConversionAlert`
+  - − Stel eerst uw USDT/USDC-wallet in.
+  - + Stel eerst uw USDT/USDC-uitbetalingsadres in.
+- **nl** `companySettings.json::cryptoConversionSaveFailed`
+  - − Automatisch omzetten kon niet worden opgeslagen. Voeg eerst een passende stablecoin-wallet toe en probeer het opnieuw.
+  - + Automatisch omzetten kon niet worden opgeslagen. Voeg eerst een passend stablecoin-uitbetalingsadres toe en probeer het opnieuw.
+- **es** `companySettings.json::cryptoConversionAlert`
+  - − Por favor, configura primero tu billetera USDT/USDC.
+  - + Por favor, configura primero tu dirección de cobro USDT/USDC.
+- **es** `companySettings.json::cryptoConversionSaveFailed`
+  - − No se pudo guardar la conversión automática. Añade primero una billetera de stablecoin compatible e inténtalo de nuevo.
+  - + No se pudo guardar la conversión automática. Añade primero una dirección de cobro de stablecoin compatible e inténtalo de nuevo.
+- **fr** `companySettings.json::cryptoConversionAlert`
+  - − Veuillez d'abord configurer votre portefeuille USDT/USDC.
+  - + Veuillez d'abord configurer votre adresse de versement USDT/USDC.
+- **fr** `companySettings.json::cryptoConversionSaveFailed`
+  - − Impossible d'enregistrer la conversion automatique. Ajoutez d'abord un portefeuille stablecoin correspondant, puis réessayez.
+  - + Impossible d'enregistrer la conversion automatique. Ajoutez d'abord une adresse de versement stablecoin correspondant, puis réessayez.
+- **pt** `companySettings.json::cryptoConversionAlert`
+  - − Por favor, configure sua carteira USDT/USDC primeiro.
+  - + Por favor, configure seu endereço de recebimento USDT/USDC primeiro.
+- **pt** `companySettings.json::cryptoConversionSaveFailed`
+  - − Não foi possível guardar a conversão automática. Adicione primeiro uma carteira de stablecoin compatível e tente novamente.
+  - + Não foi possível guardar a conversão automática. Adicione primeiro um endereço de recebimento de stablecoin compatível e tente novamente.
+- **en** `companyDialog.json::createModal.stepWallet`
+  - − Wallet
+  - + Payout address
+- **en** `companyDialog.json::accountType.switchHelper`
+  - − Add your business name and country below, then Save to switch to a business account. Your wallets, keys and history stay exactly as they are.
+  - + Add your business name and country below, then Save to switch to a business account. Your payout addresses, keys and history stay exactly as they are.
+- **de** `companyDialog.json::accountType.switchHelper`
+  - − Füge unten deinen Firmennamen und dein Land hinzu und speichere, um zu einem Geschäftskonto zu wechseln. Deine Wallets, Schlüssel und dein Verlauf bleiben unverändert.
+  - + Füge unten deinen Firmennamen und dein Land hinzu und speichere, um zu einem Geschäftskonto zu wechseln. Deine Auszahlungsadressen, Schlüssel und dein Verlauf bleiben unverändert.
+- **de** `companyDialog.json::createModal.stepWallet`
+  - − Wallet
+  - + Auszahlungsadresse
+- **nl** `companyDialog.json::accountType.switchHelper`
+  - − Voeg hieronder je bedrijfsnaam en land toe en sla op om over te schakelen naar een zakelijk account. Je wallets, sleutels en geschiedenis blijven ongewijzigd.
+  - + Voeg hieronder je bedrijfsnaam en land toe en sla op om over te schakelen naar een zakelijk account. Je uitbetalingsadressen, sleutels en geschiedenis blijven ongewijzigd.
+- **nl** `companyDialog.json::createModal.stepWallet`
+  - − Portemonnee
+  - + Uitbetalingsadres
+- **es** `companyDialog.json::accountType.switchHelper`
+  - − Añade el nombre de tu empresa y el país abajo y pulsa Guardar para cambiar a una cuenta de empresa. Tus billeteras, claves e historial se mantienen igual.
+  - + Añade el nombre de tu empresa y el país abajo y pulsa Guardar para cambiar a una cuenta de empresa. Tus direcciones de cobro, claves e historial se mantienen igual.
+- **es** `companyDialog.json::createModal.stepWallet`
+  - − Billetera
+  - + Dirección de cobro
+- **fr** `companyDialog.json::accountType.switchHelper`
+  - − Ajoutez le nom et le pays de votre entreprise ci-dessous, puis enregistrez pour passer à un compte entreprise. Vos portefeuilles, clés et historique restent inchangés.
+  - + Ajoutez le nom et le pays de votre entreprise ci-dessous, puis enregistrez pour passer à un compte entreprise. Vos adresses de versement, clés et historique restent inchangés.
+- **fr** `companyDialog.json::createModal.stepWallet`
+  - − Portefeuille
+  - + Adresse de versement
+- **pt** `companyDialog.json::accountType.switchHelper`
+  - − Adicione o nome e o país da sua empresa abaixo e salve para mudar para uma conta empresarial. Suas carteiras, chaves e histórico permanecem iguais.
+  - + Adicione o nome e o país da sua empresa abaixo e salve para mudar para uma conta empresarial. Seus endereços de recebimento, chaves e histórico permanecem iguais.
+- **pt** `companyDialog.json::createModal.stepWallet`
+  - − Carteira
+  - + Endereço de recebimento
+- **en** `auth.json::twoFactor.resetConsequences`
+  - − For your safety this signs you out everywhere, forgets all trusted browsers and locks payout-wallet changes for 24 hours.
+  - + For your safety this signs you out everywhere, forgets all trusted browsers and locks payout address changes for 24 hours.
+- **de** `auth.json::twoFactor.resetConsequences`
+  - − Zu deiner Sicherheit wirst du überall abgemeldet, alle vertrauenswürdigen Browser werden vergessen und Änderungen an Auszahlungs-Wallets sind 24 Stunden gesperrt.
+  - + Zu deiner Sicherheit wirst du überall abgemeldet, alle vertrauenswürdigen Browser werden vergessen und Änderungen an Auszahlungsadressen sind 24 Stunden gesperrt.
+- **nl** `auth.json::twoFactor.resetConsequences`
+  - − Voor je veiligheid word je overal uitgelogd, worden alle vertrouwde browsers vergeten en zijn wijzigingen aan uitbetalingswallets 24 uur geblokkeerd.
+  - + Voor je veiligheid word je overal uitgelogd, worden alle vertrouwde browsers vergeten en zijn wijzigingen aan uitbetalingsadressen 24 uur geblokkeerd.
+- **es** `auth.json::twoFactor.resetConsequences`
+  - − Por tu seguridad, se cerrará la sesión en todos los dispositivos, se olvidarán los navegadores de confianza y los cambios de wallet de pago quedarán bloqueados 24 horas.
+  - + Por tu seguridad, se cerrará la sesión en todos los dispositivos, se olvidarán los navegadores de confianza y los cambios de dirección de cobro quedarán bloqueados 24 horas.
+- **fr** `auth.json::twoFactor.resetConsequences`
+  - − Pour votre sécurité, vous serez déconnecté partout, tous les navigateurs approuvés seront oubliés et les modifications de wallet de paiement seront verrouillées 24 heures.
+  - + Pour votre sécurité, vous serez déconnecté partout, tous les navigateurs approuvés seront oubliés et les modifications d'adresse de versement seront verrouillées 24 heures.
+- **pt** `auth.json::twoFactor.resetConsequences`
+  - − Para sua segurança, termina a sessão em todo o lado, esquece todos os navegadores de confiança e bloqueia alterações às wallets de pagamento durante 24 horas.
+  - + Para sua segurança, termina a sessão em todo o lado, esquece todos os navegadores de confiança e bloqueia alterações aos endereços de recebimento durante 24 horas.
+- **en** `apiScreen.json::keys.liveUnlockHint`
+  - − Your live key activates automatically once you add (or reuse) your first wallet on this brand.
+  - + Your live key activates automatically once you add (or reuse) your first payout address on this brand.
+- **de** `apiScreen.json::keys.liveUnlockHint`
+  - − Ihr Live-Schlüssel wird automatisch aktiviert, sobald Sie Ihre erste Wallet für diese Marke hinzufügen (oder wiederverwenden).
+  - + Ihr Live-Schlüssel wird automatisch aktiviert, sobald Sie Ihre erste Auszahlungsadresse für diese Marke hinzufügen (oder wiederverwenden).
+- **nl** `apiScreen.json::keys.liveUnlockHint`
+  - − Uw live-sleutel wordt automatisch geactiveerd zodra u uw eerste wallet aan dit merk toevoegt (of hergebruikt).
+  - + Uw live-sleutel wordt automatisch geactiveerd zodra u uw eerste uitbetalingsadres aan dit merk toevoegt (of hergebruikt).
+- **es** `apiScreen.json::keys.liveUnlockHint`
+  - − Tu clave en vivo se activa automáticamente cuando añades (o reutilizas) tu primera billetera en esta marca.
+  - + Tu clave en vivo se activa automáticamente cuando añades (o reutilizas) tu primera dirección de cobro en esta marca.
+- **fr** `apiScreen.json::keys.liveUnlockHint`
+  - − Votre clé en direct s'active automatiquement dès que vous ajoutez (ou réutilisez) votre premier portefeuille sur cette marque.
+  - + Votre clé en direct s'active automatiquement dès que vous ajoutez (ou réutilisez) votre première adresse de versement sur cette marque.
+- **pt** `apiScreen.json::keys.liveUnlockHint`
+  - − Sua chave em produção é ativada automaticamente assim que você adiciona (ou reutiliza) a primeira carteira nesta marca.
+  - + Sua chave em produção é ativada automaticamente assim que você adiciona (ou reutiliza) o primeiro endereço de recebimento nesta marca.
+- **en** `paymentLinks.json::coins.acceptsAllHint`
+  - − Buyers can pay with any coin you have a payout wallet for: {{list}}
+  - + Buyers can pay with any coin you have a payout address for: {{list}}
+- **de** `paymentLinks.json::coins.acceptsAllHint`
+  - − Käufer können mit jedem Coin zahlen, für den du eine Auszahlungs-Wallet hast: {{list}}
+  - + Käufer können mit jedem Coin zahlen, für den du eine Auszahlungsadresse hast: {{list}}
+- **nl** `paymentLinks.json::coins.acceptsAllHint`
+  - − Kopers kunnen betalen met elke coin waarvoor je een uitbetalingswallet hebt: {{list}}
+  - + Kopers kunnen betalen met elke coin waarvoor je een uitbetalingsadres hebt: {{list}}
+- **es** `paymentLinks.json::coins.acceptsAllHint`
+  - − Los compradores pueden pagar con cualquier moneda para la que tengas una cartera de cobro: {{list}}
+  - + Los compradores pueden pagar con cualquier moneda para la que tengas una dirección de cobro: {{list}}
+- **fr** `paymentLinks.json::coins.acceptsAllHint`
+  - − Les acheteurs peuvent payer avec n'importe quelle crypto pour laquelle vous avez un portefeuille : {{list}}
+  - + Les acheteurs peuvent payer avec n'importe quelle crypto pour laquelle vous avez une adresse de versement : {{list}}
+- **pt** `paymentLinks.json::coins.acceptsAllHint`
+  - − Os compradores podem pagar com qualquer moeda para a qual tenha uma carteira de pagamento: {{list}}
+  - + Os compradores podem pagar com qualquer moeda para a qual tenha um endereço de recebimento: {{list}}
+- **en** `referrals.json::payoutAccountLevelNote`
+  - − Referral earnings belong to your account, not a single business. Pick one USDT (TRC-20) wallet for all your referral payouts.
+  - + Referral earnings belong to your account, not a single business. Pick one USDT (TRC-20) payout address for all your referral payouts.
+- **en** `referrals.json::payoutCreditDesc`
+  - − Automatically reduces your own Dynopay fees. No wallet needed.
+  - + Automatically reduces your own Dynopay fees. No payout address needed.
+- **en** `referrals.json::payoutUseSaved`
+  - − Use a wallet you've already saved
+  - + Use a payout address you've already saved
+- **en** `referrals.json::payoutSavedWallet`
+  - − Your saved payout wallet
+  - + Your saved payout address
+- **de** `referrals.json::payoutAccountLevelNote`
+  - − Empfehlungsprämien gehören zu deinem Konto, nicht zu einem einzelnen Unternehmen. Wähle eine USDT-(TRC-20)-Wallet für alle deine Empfehlungsauszahlungen.
+  - + Empfehlungsprämien gehören zu deinem Konto, nicht zu einem einzelnen Unternehmen. Wähle eine USDT-(TRC-20)-Auszahlungsadresse für alle deine Empfehlungsauszahlungen.
+- **de** `referrals.json::payoutCreditDesc`
+  - − Reduziert automatisch deine eigenen Dynopay-Gebühren. Keine Wallet nötig.
+  - + Reduziert automatisch deine eigenen Dynopay-Gebühren. Keine Auszahlungsadresse nötig.
+- **de** `referrals.json::payoutSavedWallet`
+  - − Deine gespeicherte Auszahlungs-Wallet
+  - + Deine gespeicherte Auszahlungsadresse
+- **de** `referrals.json::payoutUseSaved`
+  - − Eine bereits gespeicherte Wallet verwenden
+  - + Eine bereits gespeicherte Auszahlungsadresse verwenden
+- **nl** `referrals.json::payoutAccountLevelNote`
+  - − Aanbrengbeloningen horen bij je account, niet bij één bedrijf. Kies één USDT-(TRC-20)-wallet voor al je aanbrenguitbetalingen.
+  - + Aanbrengbeloningen horen bij je account, niet bij één bedrijf. Kies één USDT-(TRC-20)-uitbetalingsadres voor al je aanbrenguitbetalingen.
+- **nl** `referrals.json::payoutCreditDesc`
+  - − Verlaagt automatisch je eigen Dynopay-kosten. Geen wallet nodig.
+  - + Verlaagt automatisch je eigen Dynopay-kosten. Geen uitbetalingsadres nodig.
+- **nl** `referrals.json::payoutSavedWallet`
+  - − Je opgeslagen uitbetalingswallet
+  - + Je opgeslagen uitbetalingsadres
+- **nl** `referrals.json::payoutUseSaved`
+  - − Een al opgeslagen wallet gebruiken
+  - + Een al opgeslagen uitbetalingsadres gebruiken
+- **es** `referrals.json::payoutAccountLevelNote`
+  - − Las recompensas por referidos pertenecen a tu cuenta, no a un negocio en concreto. Elige una wallet USDT (TRC-20) para todos tus pagos de referidos.
+  - + Las recompensas por referidos pertenecen a tu cuenta, no a un negocio en concreto. Elige una dirección de cobro USDT (TRC-20) para todos tus pagos de referidos.
+- **es** `referrals.json::payoutCreditDesc`
+  - − Reduce automáticamente tus propias comisiones de Dynopay. No necesitas wallet.
+  - + Reduce automáticamente tus propias comisiones de Dynopay. No necesitas dirección de cobro.
+- **es** `referrals.json::payoutSavedWallet`
+  - − Tu wallet de pago guardada
+  - + Tu dirección de cobro guardada
+- **es** `referrals.json::payoutUseSaved`
+  - − Usar una wallet que ya has guardado
+  - + Usar una dirección de cobro que ya has guardado
+- **fr** `referrals.json::payoutAccountLevelNote`
+  - − Les récompenses de parrainage appartiennent à votre compte, pas à une entreprise précise. Choisissez un portefeuille USDT (TRC-20) pour tous vos retraits de parrainage.
+  - + Les récompenses de parrainage appartiennent à votre compte, pas à une entreprise précise. Choisissez une adresse de versement USDT (TRC-20) pour tous vos retraits de parrainage.
+- **fr** `referrals.json::payoutCreditDesc`
+  - − Réduit automatiquement vos propres frais Dynopay. Aucun portefeuille requis.
+  - + Réduit automatiquement vos propres frais Dynopay. Aucune adresse de versement requise.
+- **fr** `referrals.json::payoutSavedWallet`
+  - − Votre portefeuille de versement enregistré
+  - + Votre adresse de versement enregistrée
+- **fr** `referrals.json::payoutUseSaved`
+  - − Utiliser un portefeuille déjà enregistré
+  - + Utiliser une adresse de versement déjà enregistré
+- **pt** `referrals.json::payoutAccountLevelNote`
+  - − As recompensas por indicação pertencem à sua conta, não a um negócio específico. Escolha uma carteira USDT (TRC-20) para todos os seus saques de indicação.
+  - + As recompensas por indicação pertencem à sua conta, não a um negócio específico. Escolha um endereço de recebimento USDT (TRC-20) para todos os seus saques de indicação.
+- **pt** `referrals.json::payoutCreditDesc`
+  - − Reduz automaticamente as suas próprias taxas da Dynopay. Nenhuma carteira necessária.
+  - + Reduz automaticamente as suas próprias taxas da Dynopay. Nenhum endereço de recebimento necessário.
+- **pt** `referrals.json::payoutSavedWallet`
+  - − Sua carteira de pagamento salva
+  - + Seu endereço de recebimento salvo
+- **pt** `referrals.json::payoutUseSaved`
+  - − Usar uma carteira que você já salvou
+  - + Usar um endereço de recebimento que você já salvou
+- **en** `common.json::pageTips.payouts.body`
+  - − This shows what's settled and what's pending per coin. Dynopay forwards funds straight to your payout wallet — we never hold them.
+  - + This shows what's settled and what's pending per coin. Dynopay forwards funds straight to your payout address — we never hold them.
+- **en** `common.json::pageTips.wallet.body`
+  - − Add one wallet per coin. Every payment is forwarded to your own address — Dynopay never custodies your funds.
+  - + Add one payout address per coin. Every payment is forwarded to your own address — Dynopay never custodies your funds.
+- **en** `common.json::pageTips.walletSecurity.title`
+  - − You're always one tap from undoing a wallet change
+  - + You're always one tap from undoing a payout address change
+- **en** `common.json::pageTips.walletSecurity.body`
+  - − Every payout-wallet change needs a one-time code and emails you a “This wasn't me” link that restores the old address and locks further edits.
+  - + Every payout address change needs a one-time code and emails you a “This wasn't me” link that restores the old address and locks further edits.
+- **en** `common.json::EmptyWalletTitle`
+  - − No payout wallets yet
+  - + No payout addresses yet
+- **en** `common.json::EmptyWalletDescription`
+  - − A payout wallet is where customer payments are sent. Add at least one to start receiving crypto.
+  - + A payout address is where customer payments are sent. Add at least one to start receiving crypto.
+- **en** `common.json::addWallet`
+  - − Add wallet
+  - + Add payout address
+- **en** `common.json::deleteWalletTitle`
+  - − Delete Wallet?
+  - + Remove payout address?
+- **en** `common.json::deleteWalletAction`
+  - − Delete Wallet
+  - + Remove payout address
+- **en** `common.json::whatIsPayoutWallet`
+  - − What's a payout wallet?
+  - + What's a payout address?
+- **en** `common.json::team.ownerOnlyNote`
+  - − Owner-only actions (changing payout wallets, deleting API keys, billing) are never granted to teammates.
+  - + Owner-only actions (changing payout addresses, deleting API keys, billing) are never granted to teammates.
+- **en** `common.json::team.activityEmptyBody`
+  - − Changes to settings, keys, wallets and the team will show up here.
+  - + Changes to settings, keys, payout addresses and the team will show up here.
+- **en** `common.json::activityLog.wallet.add`
+  - − Added a payout wallet
+  - + Added a payout address
+- **en** `common.json::activityLog.wallet.delete`
+  - − Removed a payout wallet
+  - + Removed a payout address
+- **en** `common.json::activityLog.wallet.update`
+  - − Updated the payout wallet
+  - + Updated the payout address
+- **en** `common.json::activityLog.wallet.change`
+  - − Changed a payout wallet
+  - + Changed a payout address
+- **en** `common.json::setupPrompt.addWallet`
+  - − Add a Wallet Address
+  - + Add a payout address
+- **en** `common.json::payouts.addWalletFirst`
+  - − Add a stablecoin settlement wallet first
+  - + Add a stablecoin settlement address first
+- **en** `common.json::payouts.settlementWallets`
+  - − Settlement wallets
+  - + Settlement addresses
+- **en** `common.json::payouts.noSettlementWallet`
+  - − No stablecoin settlement wallet configured yet. Add one in Settings to auto-convert payouts.
+  - + No stablecoin settlement address configured yet. Add one in Settings to auto-convert payouts.
+- **en** `common.json::payouts.payoutWallets`
+  - − Payout wallets
+  - + Payout addresses
+- **en** `common.json::payouts.settlementSettings`
+  - − Settlement coin & wallets ↓
+  - + Settlement coin & addresses ↓
+- **en** `common.json::payouts.byWallet`
+  - − By wallet
+  - + By payout address
+- **en** `common.json::payouts.noWallets`
+  - − No payout wallets yet — add one so settled payments have somewhere to land.
+  - + No payout addresses yet — add one so settled payments have somewhere to land.
+- **en** `common.json::walletSecurityLanding.loadingBody`
+  - − Undoing the wallet change and locking further edits. This only takes a moment.
+  - + Undoing the payout address change and locking further edits. This only takes a moment.
+- **en** `common.json::walletSecurityLanding.successBody`
+  - − We've undone the recent payout wallet change(s){{networks}} and locked wallet changes on your account. To make new wallet changes, contact support so we can confirm it's really you.
+  - + We've undone the recent payout address change(s){{networks}} and locked payout address changes on your account. To make new payout address changes, contact support so we can confirm it's really you.
+- **en** `common.json::stepUp.scope.wallet`
+  - − change payout wallets
+  - + change payout addresses
+- **en** `common.json::deleteWalletBody`
+  - − You're about to remove the {{type}} wallet{{address}}. This action is permanent and cannot be undone. We'll ask you to verify it's you first.
+  - + You're about to remove the {{type}} payout address{{address}}. This action is permanent and cannot be undone. We'll ask you to verify it's you first.
+- **de** `common.json::EmptyWalletDescription`
+  - − In einer Auszahlungs-Wallet gehen die Zahlungen Ihrer Kunden ein. Fügen Sie mindestens eine hinzu, um Krypto zu empfangen.
+  - + In einer Auszahlungsadresse gehen die Zahlungen Ihrer Kunden ein. Fügen Sie mindestens eine hinzu, um Krypto zu empfangen.
+- **de** `common.json::EmptyWalletTitle`
+  - − Noch keine Auszahlungs-Wallets
+  - + Noch keine Auszahlungsadressen
+- **de** `common.json::activityLog.wallet.add`
+  - − Hat ein Auszahlungs-Wallet hinzugefügt
+  - + Hat eine Auszahlungsadresse hinzugefügt
+- **de** `common.json::activityLog.wallet.change`
+  - − Hat ein Auszahlungs-Wallet geändert
+  - + Hat eine Auszahlungsadresse geändert
+- **de** `common.json::activityLog.wallet.delete`
+  - − Hat ein Auszahlungs-Wallet entfernt
+  - + Hat eine Auszahlungsadresse entfernt
+- **de** `common.json::activityLog.wallet.update`
+  - − Hat das Auszahlungs-Wallet aktualisiert
+  - + Hat die Auszahlungsadresse aktualisiert
+- **de** `common.json::addWallet`
+  - − Wallet hinzufügen
+  - + Auszahlungsadresse hinzufügen
+- **de** `common.json::deleteWalletAction`
+  - − Wallet löschen
+  - + Auszahlungsadresse löschen
+- **de** `common.json::deleteWalletBody`
+  - − Du bist dabei, die {{type}}-Wallet{{address}} zu entfernen. Diese Aktion ist endgültig und kann nicht rückgängig gemacht werden. Wir bitten dich zuerst, deine Identität zu bestätigen.
+  - + Du bist dabei, die {{type}}-Auszahlungsadresse{{address}} zu entfernen. Diese Aktion ist endgültig und kann nicht rückgängig gemacht werden. Wir bitten dich zuerst, deine Identität zu bestätigen.
+- **de** `common.json::deleteWalletTitle`
+  - − Wallet löschen?
+  - + Auszahlungsadresse löschen?
+- **de** `common.json::pageTips.payouts.body`
+  - − Zeigt pro Coin, was abgerechnet und was noch ausstehend ist. Dynopay leitet die Mittel direkt an dein Auszahlungs-Wallet weiter — wir verwahren sie nie.
+  - + Zeigt pro Coin, was abgerechnet und was noch ausstehend ist. Dynopay leitet die Mittel direkt an deine Auszahlungsadresse weiter — wir verwahren sie nie.
+- **de** `common.json::pageTips.wallet.body`
+  - − Füge ein Wallet pro Coin hinzu. Jede Zahlung wird an deine eigene Adresse weitergeleitet — Dynopay verwahrt deine Mittel nie.
+  - + Füge eine Auszahlungsadresse pro Coin hinzu. Jede Zahlung wird an deine eigene Adresse weitergeleitet — Dynopay verwahrt deine Mittel nie.
+- **de** `common.json::pageTips.walletSecurity.body`
+  - − Jede Änderung an einer Auszahlungs-Wallet erfordert einen Einmalcode und sendet Ihnen einen „Das war nicht ich“-Link, der die alte Adresse wiederherstellt und weitere Änderungen sperrt.
+  - + Jede Änderung an einer Auszahlungsadresse erfordert einen Einmalcode und sendet Ihnen einen „Das war nicht ich“-Link, der die alte Adresse wiederherstellt und weitere Änderungen sperrt.
+- **de** `common.json::pageTips.walletSecurity.title`
+  - − Eine Wallet-Änderung ist immer nur einen Tipp entfernt rückgängig
+  - + Eine Änderung der Auszahlungsadresse ist immer nur einen Tipp entfernt rückgängig
+- **de** `common.json::payouts.byWallet`
+  - − Nach Wallet
+  - + Nach Auszahlungsadresse
+- **de** `common.json::payouts.noWallets`
+  - − Noch keine Auszahlungs-Wallets — fügen Sie eine hinzu, damit Zahlungen ankommen können.
+  - + Noch keine Auszahlungsadressen — fügen Sie eine hinzu, damit Zahlungen ankommen können.
+- **de** `common.json::payouts.payoutWallets`
+  - − Auszahlungswallets
+  - + Auszahlungsadressen
+- **de** `common.json::payouts.settlementSettings`
+  - − Abrechnungs-Coin & Wallets ↓
+  - + Abrechnungs-Coin & Auszahlungsadressen ↓
+- **de** `common.json::setupPrompt.addWallet`
+  - − Wallet-Adresse hinzufügen
+  - + Auszahlungsadresse hinzufügen
+- **de** `common.json::stepUp.scope.wallet`
+  - − Auszahlungs-Wallets zu ändern
+  - + Auszahlungsadressen zu ändern
+- **de** `common.json::team.activityEmptyBody`
+  - − Änderungen an Einstellungen, Schlüsseln, Wallets und am Team werden hier angezeigt.
+  - + Änderungen an Einstellungen, Schlüsseln, Auszahlungsadressen und am Team werden hier angezeigt.
+- **de** `common.json::team.ownerOnlyNote`
+  - − Aktionen nur für Eigentümer (Auszahlungs-Wallets ändern, API-Schlüssel löschen, Abrechnung) werden Teammitgliedern nie erteilt.
+  - + Aktionen nur für Eigentümer (Auszahlungsadressen ändern, API-Schlüssel löschen, Abrechnung) werden Teammitgliedern nie erteilt.
+- **de** `common.json::walletSecurityLanding.loadingBody`
+  - − Widerrufe die Wallet-Änderung und sperre weitere Bearbeitungen. Das dauert nur einen Moment.
+  - + Widerrufe die Änderung der Auszahlungsadresse und sperre weitere Bearbeitungen. Das dauert nur einen Moment.
+- **de** `common.json::walletSecurityLanding.successBody`
+  - − Wir haben die kürzlichen Auszahlungs-Wallet-Änderungen{{networks}} rückgängig gemacht und die Wallet-Änderungen auf deinem Konto gesperrt. Um neue Wallet-Änderungen vorzunehmen, kontaktiere den Support, damit wir bestätigen können, dass du es wirklich bist.
+  - + Wir haben die kürzlichen Änderungen an Auszahlungsadressen{{networks}} rückgängig gemacht und die Änderungen an Auszahlungsadressen auf deinem Konto gesperrt. Um neue Änderungen an Auszahlungsadressen vorzunehmen, kontaktiere den Support, damit wir bestätigen können, dass du es wirklich bist.
+- **de** `common.json::whatIsPayoutWallet`
+  - − Was ist eine Auszahlungs-Wallet?
+  - + Was ist eine Auszahlungsadresse?
+- **nl** `common.json::EmptyWalletDescription`
+  - − Een uitbetalingswallet is waar klantbetalingen naartoe gaan. Voeg er ten minste één toe om crypto te ontvangen.
+  - + Een uitbetalingsadres is waar klantbetalingen naartoe gaan. Voeg er ten minste één toe om crypto te ontvangen.
+- **nl** `common.json::EmptyWalletTitle`
+  - − Nog geen uitbetalingswallets
+  - + Nog geen uitbetalingsadressen
+- **nl** `common.json::activityLog.wallet.add`
+  - − Heeft een uitbetalings-wallet toegevoegd
+  - + Heeft een uitbetalingsadres toegevoegd
+- **nl** `common.json::activityLog.wallet.change`
+  - − Heeft een uitbetalings-wallet gewijzigd
+  - + Heeft een uitbetalingsadres gewijzigd
+- **nl** `common.json::activityLog.wallet.delete`
+  - − Heeft een uitbetalings-wallet verwijderd
+  - + Heeft een uitbetalingsadres verwijderd
+- **nl** `common.json::activityLog.wallet.update`
+  - − Heeft de uitbetalings-wallet bijgewerkt
+  - + Heeft het uitbetalingsadres bijgewerkt
+- **nl** `common.json::addWallet`
+  - − Wallet toevoegen
+  - + Uitbetalingsadres toevoegen
+- **nl** `common.json::deleteWalletAction`
+  - − Wallet verwijderen
+  - + Uitbetalingsadres verwijderen
+- **nl** `common.json::deleteWalletBody`
+  - − Je staat op het punt de {{type}}-wallet{{address}} te verwijderen. Deze actie is permanent en kan niet ongedaan worden gemaakt. We vragen je eerst om te bevestigen dat jij het bent.
+  - + Je staat op het punt de {{type}}-uitbetalingsadres{{address}} te verwijderen. Deze actie is permanent en kan niet ongedaan worden gemaakt. We vragen je eerst om te bevestigen dat jij het bent.
+- **nl** `common.json::deleteWalletTitle`
+  - − Wallet verwijderen?
+  - + Uitbetalingsadres verwijderen?
+- **nl** `common.json::pageTips.payouts.body`
+  - − Toont per munt wat is afgerekend en wat in behandeling is. Dynopay stuurt het geld rechtstreeks naar je uitbetalingswallet — we houden het nooit vast.
+  - + Toont per munt wat is afgerekend en wat in behandeling is. Dynopay stuurt het geld rechtstreeks naar je uitbetalingsadres — we houden het nooit vast.
+- **nl** `common.json::pageTips.wallet.body`
+  - − Voeg één wallet per munt toe. Elke betaling wordt doorgestuurd naar je eigen adres — Dynopay beheert je geld nooit.
+  - + Voeg één uitbetalingsadres per munt toe. Elke betaling wordt doorgestuurd naar je eigen adres — Dynopay beheert je geld nooit.
+- **nl** `common.json::pageTips.walletSecurity.body`
+  - − Elke wijziging van een uitbetalingswallet vereist een eenmalige code en stuurt je een 'Dit was ik niet'-link die het oude adres herstelt en verdere wijzigingen vergrendelt.
+  - + Elke wijziging van een uitbetalingsadres vereist een eenmalige code en stuurt je een 'Dit was ik niet'-link die het oude adres herstelt en verdere wijzigingen vergrendelt.
+- **nl** `common.json::pageTips.walletSecurity.title`
+  - − Een walletwijziging is altijd met één tik ongedaan te maken
+  - + Een wijziging van het uitbetalingsadres is altijd met één tik ongedaan te maken
+- **nl** `common.json::payouts.byWallet`
+  - − Per wallet
+  - + Per uitbetalingsadres
+- **nl** `common.json::payouts.noWallets`
+  - − Nog geen uitbetaalwallets — voeg er een toe zodat betalingen kunnen landen.
+  - + Nog geen uitbetalingsadressen — voeg er een toe zodat betalingen kunnen landen.
+- **nl** `common.json::payouts.settlementSettings`
+  - − Afwikkelmunt & wallets ↓
+  - + Afwikkelmunt & uitbetalingsadressen ↓
+- **nl** `common.json::setupPrompt.addWallet`
+  - − Walletadres toevoegen
+  - + Uitbetalingsadres toevoegen
+- **nl** `common.json::stepUp.scope.wallet`
+  - − uitbetalingswallets te wijzigen
+  - + uitbetalingsadressen te wijzigen
+- **nl** `common.json::team.activityEmptyBody`
+  - − Wijzigingen aan instellingen, sleutels, wallets en het team verschijnen hier.
+  - + Wijzigingen aan instellingen, sleutels, uitbetalingsadressen en het team verschijnen hier.
+- **nl** `common.json::team.ownerOnlyNote`
+  - − Acties alleen voor de eigenaar (uitbetalings-wallets wijzigen, API-sleutels verwijderen, facturering) worden nooit aan teamgenoten verleend.
+  - + Acties alleen voor de eigenaar (uitbetalingsadressen wijzigen, API-sleutels verwijderen, facturering) worden nooit aan teamgenoten verleend.
+- **nl** `common.json::walletSecurityLanding.loadingBody`
+  - − De wijziging van de wallet ongedaan maken en verdere bewerkingen vergrendelen. Dit duurt maar een moment.
+  - + De wijziging van het uitbetalingsadres ongedaan maken en verdere bewerkingen vergrendelen. Dit duurt maar een moment.
+- **nl** `common.json::walletSecurityLanding.successBody`
+  - − We hebben de recente uitbetalingswalletwijziging(en){{networks}} ongedaan gemaakt en walletwijzigingen op je account vergrendeld. Neem contact op met de ondersteuning om nieuwe walletwijzigingen aan te brengen, zodat we kunnen bevestigen dat jij het echt bent.
+  - + We hebben de recente uitbetalingsadreswijziging(en){{networks}} ongedaan gemaakt en wijzigingen aan uitbetalingsadressen op je account vergrendeld. Neem contact op met de ondersteuning om nieuwe wijzigingen aan uitbetalingsadressen aan te brengen, zodat we kunnen bevestigen dat jij het echt bent.
+- **nl** `common.json::whatIsPayoutWallet`
+  - − Wat is een uitbetalingswallet?
+  - + Wat is een uitbetalingsadres?
+- **es** `common.json::EmptyWalletTitle`
+  - − No hay billeteras
+  - + No hay direcciones de cobro
+- **es** `common.json::activityLog.wallet.add`
+  - − Añadió una cartera de pago
+  - + Añadió una dirección de cobro
+- **es** `common.json::activityLog.wallet.change`
+  - − Cambió una cartera de pago
+  - + Cambió una dirección de cobro
+- **es** `common.json::activityLog.wallet.delete`
+  - − Eliminó una cartera de pago
+  - + Eliminó una dirección de cobro
+- **es** `common.json::activityLog.wallet.update`
+  - − Actualizó la cartera de pago
+  - + Actualizó la dirección de cobro
+- **es** `common.json::addWallet`
+  - − Agregar billetera
+  - + Agregar dirección de cobro
+- **es** `common.json::deleteWalletAction`
+  - − Eliminar billetera
+  - + Eliminar dirección de cobro
+- **es** `common.json::deleteWalletBody`
+  - − Estás a punto de eliminar la cartera {{type}}{{address}}. Esta acción es permanente y no se puede deshacer. Primero te pediremos que verifiques que eres tú.
+  - + Estás a punto de eliminar la dirección de cobro {{type}}{{address}}. Esta acción es permanente y no se puede deshacer. Primero te pediremos que verifiques que eres tú.
+- **es** `common.json::deleteWalletTitle`
+  - − ¿Eliminar billetera?
+  - + ¿Eliminar dirección de cobro?
+- **es** `common.json::pageTips.walletSecurity.body`
+  - − Cada cambio en una wallet de cobro requiere un código de un solo uso y te envía un enlace «No fui yo» que restaura la dirección anterior y bloquea más cambios.
+  - + Cada cambio en una dirección de cobro requiere un código de un solo uso y te envía un enlace «No fui yo» que restaura la dirección anterior y bloquea más cambios.
+- **es** `common.json::pageTips.walletSecurity.title`
+  - − Siempre estás a un toque de deshacer un cambio de wallet
+  - + Siempre estás a un toque de deshacer un cambio de dirección de cobro
+- **es** `common.json::payouts.addWalletFirst`
+  - − Agrega primero una billetera de liquidación en stablecoin
+  - + Agrega primero una dirección de liquidación en stablecoin
+- **es** `common.json::payouts.byWallet`
+  - − Por wallet
+  - + Por dirección de cobro
+- **es** `common.json::payouts.noSettlementWallet`
+  - − Aún no se ha configurado ninguna billetera de liquidación en stablecoin. Agrega una en Configuración para convertir automáticamente los pagos.
+  - + Aún no se ha configurado ninguna dirección de liquidación en stablecoin. Agrega una en Configuración para convertir automáticamente los pagos.
+- **es** `common.json::payouts.noWallets`
+  - − Aún no hay wallets de pago — añade una para que los pagos tengan destino.
+  - + Aún no hay direcciones de cobro — añade una para que los pagos tengan destino.
+- **es** `common.json::payouts.payoutWallets`
+  - − Carteras de pago
+  - + Direcciones de cobro
+- **es** `common.json::payouts.settlementSettings`
+  - − Moneda de liquidación y wallets ↓
+  - + Moneda de liquidación y direcciones de cobro ↓
+- **es** `common.json::payouts.settlementWallets`
+  - − Billeteras de liquidación
+  - + Direcciones de liquidación
+- **es** `common.json::setupPrompt.addWallet`
+  - − Añadir una dirección de billetera
+  - + Añadir una dirección de cobro
+- **es** `common.json::stepUp.scope.wallet`
+  - − cambiar las carteras de pago
+  - + cambiar las direcciones de cobro
+- **es** `common.json::team.activityEmptyBody`
+  - − Los cambios en ajustes, claves, carteras y el equipo aparecerán aquí.
+  - + Los cambios en ajustes, claves, direcciones de cobro y el equipo aparecerán aquí.
+- **es** `common.json::team.ownerOnlyNote`
+  - − Las acciones solo del propietario (cambiar carteras de pago, eliminar claves API, facturación) nunca se conceden a los compañeros.
+  - + Las acciones solo del propietario (cambiar direcciones de cobro, eliminar claves API, facturación) nunca se conceden a los compañeros.
+- **es** `common.json::walletSecurityLanding.loadingBody`
+  - − Deshaciendo el cambio de billetera y bloqueando más ediciones. Esto solo toma un momento.
+  - + Deshaciendo el cambio de dirección de cobro y bloqueando más ediciones. Esto solo toma un momento.
+- **es** `common.json::walletSecurityLanding.successBody`
+  - − Hemos deshecho el cambio reciente de billetera de pago{{networks}} y bloqueado los cambios de billetera en tu cuenta. Para hacer nuevos cambios de billetera, contacta al soporte para que podamos confirmar que realmente eres tú.
+  - + Hemos deshecho el cambio reciente de dirección de cobro{{networks}} y bloqueado los cambios de dirección de cobro en tu cuenta. Para hacer nuevos cambios de dirección de cobro, contacta al soporte para que podamos confirmar que realmente eres tú.
+- **es** `common.json::whatIsPayoutWallet`
+  - − ¿Qué es una billetera de cobros?
+  - + ¿Qué es una dirección de cobro?
+- **fr** `common.json::EmptyWalletTitle`
+  - − Il n'y a pas de portefeuilles
+  - + Il n'y a pas d'adresses de versement
+- **fr** `common.json::activityLog.wallet.add`
+  - − A ajouté un portefeuille de paiement
+  - + A ajouté une adresse de versement
+- **fr** `common.json::activityLog.wallet.change`
+  - − A modifié un portefeuille de paiement
+  - + A modifié une adresse de versement
+- **fr** `common.json::activityLog.wallet.delete`
+  - − A retiré un portefeuille de paiement
+  - + A retiré une adresse de versement
+- **fr** `common.json::activityLog.wallet.update`
+  - − A mis à jour le portefeuille de paiement
+  - + A mis à jour l'adresse de versement
+- **fr** `common.json::addWallet`
+  - − Ajouter un portefeuille
+  - + Ajouter une adresse de versement
+- **fr** `common.json::deleteWalletAction`
+  - − Supprimer le wallet
+  - + Supprimer l'adresse de versement
+- **fr** `common.json::deleteWalletBody`
+  - − Vous êtes sur le point de supprimer le portefeuille {{type}}{{address}}. Cette action est définitive et irréversible. Nous vous demanderons d'abord de vérifier votre identité.
+  - + Vous êtes sur le point de supprimer l'adresse de versement {{type}}{{address}}. Cette action est définitive et irréversible. Nous vous demanderons d'abord de vérifier votre identité.
+- **fr** `common.json::deleteWalletTitle`
+  - − Supprimer le wallet ?
+  - + Supprimer l'adresse de versement ?
+- **fr** `common.json::pageTips.payouts.body`
+  - − Affiche ce qui est réglé et ce qui est en attente par crypto. Dynopay transfère les fonds directement vers votre portefeuille de versement — nous ne les conservons jamais.
+  - + Affiche ce qui est réglé et ce qui est en attente par crypto. Dynopay transfère les fonds directement vers votre adresse de versement — nous ne les conservons jamais.
+- **fr** `common.json::pageTips.wallet.body`
+  - − Ajoutez un portefeuille par crypto. Chaque paiement est transféré vers votre propre adresse — Dynopay ne conserve jamais vos fonds.
+  - + Ajoutez une adresse de versement par crypto. Chaque paiement est transféré vers votre propre adresse — Dynopay ne conserve jamais vos fonds.
+- **fr** `common.json::pageTips.walletSecurity.body`
+  - − Chaque changement de wallet de paiement exige un code à usage unique et vous envoie un lien « Ce n'était pas moi » qui rétablit l'ancienne adresse et verrouille les modifications.
+  - + Chaque changement d'adresse de versement exige un code à usage unique et vous envoie un lien « Ce n'était pas moi » qui rétablit l'ancienne adresse et verrouille les modifications.
+- **fr** `common.json::pageTips.walletSecurity.title`
+  - − Annuler un changement de wallet ne prend jamais plus d'un geste
+  - + Annuler un changement d'adresse de versement ne prend jamais plus d'un geste
+- **fr** `common.json::payouts.addWalletFirst`
+  - − Ajoutez d'abord un portefeuille de règlement en stablecoin
+  - + Ajoutez d'abord une adresse de règlement en stablecoin
+- **fr** `common.json::payouts.byWallet`
+  - − Par wallet
+  - + Par adresse de versement
+- **fr** `common.json::payouts.noSettlementWallet`
+  - − Aucun portefeuille de règlement en stablecoin configuré pour le moment. Ajoutez-en un dans les paramètres pour convertir automatiquement les paiements.
+  - + Aucune adresse de règlement en stablecoin configurée pour le moment. Ajoutez-en une dans les paramètres pour convertir automatiquement les paiements.
+- **fr** `common.json::payouts.noWallets`
+  - − Aucun wallet de versement — ajoutez-en un pour recevoir vos paiements.
+  - + Aucune adresse de versement — ajoutez-en un pour recevoir vos paiements.
+- **fr** `common.json::payouts.payoutWallets`
+  - − Portefeuilles de paiement
+  - + Adresses de versement
+- **fr** `common.json::payouts.settlementSettings`
+  - − Devise de règlement et wallets ↓
+  - + Devise de règlement et adresses de versement ↓
+- **fr** `common.json::payouts.settlementWallets`
+  - − Portefeuilles de règlement
+  - + Adresses de règlement
+- **fr** `common.json::setupPrompt.addWallet`
+  - − Ajouter une adresse de portefeuille
+  - + Ajouter une adresse de versement
+- **fr** `common.json::stepUp.scope.wallet`
+  - − modifier les portefeuilles de paiement
+  - + modifier les adresses de versement
+- **fr** `common.json::team.activityEmptyBody`
+  - − Les modifications des paramètres, des clés, des portefeuilles et de l'équipe apparaîtront ici.
+  - + Les modifications des paramètres, des clés, des adresses de versement et de l'équipe apparaîtront ici.
+- **fr** `common.json::team.ownerOnlyNote`
+  - − Les actions réservées au propriétaire (changer les portefeuilles de paiement, supprimer des clés API, la facturation) ne sont jamais accordées aux coéquipiers.
+  - + Les actions réservées au propriétaire (changer les adresses de versement, supprimer des clés API, la facturation) ne sont jamais accordées aux coéquipiers.
+- **fr** `common.json::walletSecurityLanding.loadingBody`
+  - − Annulation du changement de portefeuille et verrouillage des modifications ultérieures. Cela ne prend qu'un instant.
+  - + Annulation du changement d'adresse de versement et verrouillage des modifications ultérieures. Cela ne prend qu'un instant.
+- **fr** `common.json::walletSecurityLanding.successBody`
+  - − Nous avons annulé le(s) changement(s) récent(s) de portefeuille de paiement{{networks}} et verrouillé les changements de portefeuille sur votre compte. Pour effectuer de nouveaux changements de portefeuille, contactez le support afin que nous puissions confirmer que c'est bien vous.
+  - + Nous avons annulé le(s) changement(s) récent(s) d'adresse de versement{{networks}} et verrouillé les changements d'adresse de versement sur votre compte. Pour effectuer de nouveaux changements d'adresse de versement, contactez le support afin que nous puissions confirmer que c'est bien vous.
+- **fr** `common.json::whatIsPayoutWallet`
+  - − Qu'est-ce qu'un portefeuille de versement ?
+  - + Qu'est-ce qu'une adresse de versement ?
+- **pt** `common.json::EmptyWalletTitle`
+  - − Não há carteiras
+  - + Não há endereços de recebimento
+- **pt** `common.json::activityLog.wallet.add`
+  - − Adicionou uma carteira de pagamento
+  - + Adicionou um endereço de recebimento
+- **pt** `common.json::activityLog.wallet.change`
+  - − Alterou uma carteira de pagamento
+  - + Alterou um endereço de recebimento
+- **pt** `common.json::activityLog.wallet.delete`
+  - − Removeu uma carteira de pagamento
+  - + Removeu um endereço de recebimento
+- **pt** `common.json::activityLog.wallet.update`
+  - − Atualizou a carteira de pagamento
+  - + Atualizou o endereço de recebimento
+- **pt** `common.json::addWallet`
+  - − Adicionar carteira
+  - + Adicionar endereço de recebimento
+- **pt** `common.json::deleteWalletAction`
+  - − Excluir carteira
+  - + Excluir endereço de recebimento
+- **pt** `common.json::deleteWalletBody`
+  - − Estás prestes a remover a carteira {{type}}{{address}}. Esta ação é permanente e não pode ser anulada. Primeiro vamos pedir-te para confirmares que és tu.
+  - + Estás prestes a remover o endereço de recebimento {{type}}{{address}}. Esta ação é permanente e não pode ser anulada. Primeiro vamos pedir-te para confirmares que és tu.
+- **pt** `common.json::deleteWalletTitle`
+  - − Excluir carteira?
+  - + Excluir endereço de recebimento?
+- **pt** `common.json::pageTips.payouts.body`
+  - − Mostra o que está liquidado e o que está pendente por moeda. A Dynopay encaminha os fundos diretamente para a sua carteira de pagamento — nunca os retemos.
+  - + Mostra o que está liquidado e o que está pendente por moeda. A Dynopay encaminha os fundos diretamente para o seu endereço de recebimento — nunca os retemos.
+- **pt** `common.json::pageTips.wallet.body`
+  - − Adicione uma carteira por moeda. Cada pagamento é encaminhado para o seu próprio endereço — a Dynopay nunca fica com a custódia dos seus fundos.
+  - + Adicione um endereço de recebimento por moeda. Cada pagamento é encaminhado para o seu próprio endereço — a Dynopay nunca fica com a custódia dos seus fundos.
+- **pt** `common.json::pageTips.walletSecurity.body`
+  - − Cada alteração de uma wallet de pagamento exige um código único e envia-lhe um link «Não fui eu» que repõe o endereço anterior e bloqueia novas alterações.
+  - + Cada alteração de um endereço de recebimento exige um código único e envia-lhe um link «Não fui eu» que repõe o endereço anterior e bloqueia novas alterações.
+- **pt** `common.json::pageTips.walletSecurity.title`
+  - − Está sempre a um toque de anular uma alteração de wallet
+  - + Está sempre a um toque de anular uma alteração do endereço de recebimento
+- **pt** `common.json::payouts.addWalletFirst`
+  - − Adicione primeiro uma carteira de liquidação em stablecoin
+  - + Adicione primeiro um endereço de liquidação em stablecoin
+- **pt** `common.json::payouts.byWallet`
+  - − Por wallet
+  - + Por endereço de recebimento
+- **pt** `common.json::payouts.noSettlementWallet`
+  - − Ainda não há carteira de liquidação em stablecoin configurada. Adicione uma nas Configurações para converter automaticamente os pagamentos.
+  - + Ainda não há endereço de liquidação em stablecoin configurado. Adicione um nas Configurações para converter automaticamente os pagamentos.
+- **pt** `common.json::payouts.noWallets`
+  - − Ainda sem wallets de pagamento — adicione uma para os pagamentos terem destino.
+  - + Ainda sem endereços de recebimento — adicione um para os pagamentos terem destino.
+- **pt** `common.json::payouts.payoutWallets`
+  - − Carteiras de pagamento
+  - + Endereços de recebimento
+- **pt** `common.json::payouts.settlementSettings`
+  - − Moeda de liquidação e wallets ↓
+  - + Moeda de liquidação e endereços de recebimento ↓
+- **pt** `common.json::payouts.settlementWallets`
+  - − Carteiras de liquidação
+  - + endereços de liquidação
+- **pt** `common.json::setupPrompt.addWallet`
+  - − Adicionar um endereço de carteira
+  - + Adicionar um endereço de recebimento
+- **pt** `common.json::stepUp.scope.wallet`
+  - − alterar carteiras de pagamento
+  - + alterar endereços de recebimento
+- **pt** `common.json::team.activityEmptyBody`
+  - − Alterações em configurações, chaves, carteiras e na equipe aparecerão aqui.
+  - + Alterações em configurações, chaves, endereços de recebimento e na equipe aparecerão aqui.
+- **pt** `common.json::team.ownerOnlyNote`
+  - − Ações exclusivas do proprietário (alterar carteiras de pagamento, excluir chaves de API, faturamento) nunca são concedidas aos colegas.
+  - + Ações exclusivas do proprietário (alterar endereços de recebimento, excluir chaves de API, faturamento) nunca são concedidas aos colegas.
+- **pt** `common.json::walletSecurityLanding.loadingBody`
+  - − A desfazer a alteração da carteira e a bloquear novas edições. Isto leva apenas um momento.
+  - + A desfazer a alteração do endereço de recebimento e a bloquear novas edições. Isto leva apenas um momento.
+- **pt** `common.json::walletSecurityLanding.successBody`
+  - − Desfazemos as alterações recentes da carteira de pagamento{{networks}} e bloqueámos alterações na carteira da sua conta. Para fazer novas alterações na carteira, contacte o suporte para que possamos confirmar que é realmente você.
+  - + Desfazemos as alterações recentes do endereço de recebimento{{networks}} e bloqueámos alterações no endereço de recebimento da sua conta. Para fazer novas alterações no endereço de recebimento, contacte o suporte para que possamos confirmar que é realmente você.
+- **pt** `common.json::whatIsPayoutWallet`
+  - − O que é uma carteira de recebimento?
+  - + O que é um endereço de recebimento?
+- **en** `emails.json::paymentReceived.outro`
+  - − The funds are on their way to your payout wallet.
+  - + The funds are on their way to your payout address.
+- **en** `emails.json::paymentReceived.preheader`
+  - − Funds are settling to your payout wallet now.
+  - + Funds are settling to your payout address now.
+- **en** `emails.json::merchant.labels.walletName`
+  - − Wallet Name
+  - + Label
+- **en** `emails.json::merchant.labels.wallet`
+  - − Wallet
+  - + Payout address
+- **en** `emails.json::merchant.welcome.next2`
+  - − 2. Add your payout wallet
+  - + 2. Add your payout address
+- **en** `emails.json::merchant.companyCreated.subject`
+  - − One step left — add a payout wallet to get paid
+  - + One step left — add a payout address to get paid
+- **en** `emails.json::merchant.companyCreated.intro2`
+  - − You're almost ready to start accepting payments. The last step is to add your payout wallet address.
+  - + You're almost ready to start accepting payments. The last step is to add your payout address.
+- **en** `emails.json::merchant.companyCreated.whyTitle`
+  - − Why add a wallet?
+  - + Why add a payout address?
+- **en** `emails.json::merchant.companyCreated.whyText`
+  - − Your wallet is where we'll send the crypto payments you receive. It's quick and secure.
+  - + Your payout address is where we'll send the crypto payments you receive. It's quick and secure.
+- **en** `emails.json::merchant.companyCreated.cta`
+  - − Add Wallet
+  - + Add payout address
+- **en** `emails.json::merchant.walletVerified.subject`
+  - − Payout wallet active
+  - + Payout address active
+- **en** `emails.json::merchant.walletVerified.heading`
+  - − Wallet Active
+  - + Payout address active
+- **en** `emails.json::merchant.walletVerified.intro`
+  - − Your payout wallet has been verified and is now active.
+  - + Your payout address has been verified and is now active.
+- **en** `emails.json::merchant.walletVerified.outro`
+  - − All payments you receive will be automatically forwarded to this wallet. You're all set to start accepting crypto payments.
+  - + All payments you receive will be automatically forwarded to this payout address. You're all set to start accepting crypto payments.
+- **en** `emails.json::merchant.walletUpdateOtp.subject`
+  - − Confirm wallet update
+  - + Confirm payout address update
+- **en** `emails.json::merchant.walletUpdateOtp.heading`
+  - − Confirm Wallet Update
+  - + Confirm payout address update
+- **en** `emails.json::merchant.walletUpdateOtp.intro`
+  - − You're updating your payout wallet. Please verify this change with the code below:
+  - + You're updating your payout address. Please verify this change with the code below:
+- **en** `emails.json::merchant.walletDeleted.subject`
+  - − Wallet removed from your account
+  - + Payout address removed from your account
+- **en** `emails.json::merchant.walletDeleted.heading`
+  - − Wallet Removed
+  - + Payout address removed
+- **en** `emails.json::merchant.walletDeleted.intro`
+  - − A wallet has been removed from your Dynopay account.
+  - + A payout address has been removed from your Dynopay account.
+- **en** `emails.json::merchant.walletDeleted.outro`
+  - − Payments will no longer be forwarded to this wallet.
+  - + Payments will no longer be forwarded to this payout address.
+- **en** `emails.json::merchant.walletDeleted.didntDoThis`
+  - − <strong>Didn't do this?</strong><br />If you didn't remove this wallet, please secure your account immediately and contact support.
+  - + <strong>Didn't do this?</strong><br />If you didn't remove this payout address, please secure your account immediately and contact support.
+- **en** `emails.json::merchant.walletDeleted.cta`
+  - − View Wallets
+  - + View payout addresses
+- **en** `emails.json::merchant.addWalletReminder.heading`
+  - − Add Your Wallet
+  - + Add your payout address
+- **en** `emails.json::merchant.addWalletReminder.intro`
+  - − You're so close! Your <strong>{{companyName}}</strong> profile is set up, but you haven't added a payout wallet yet.
+  - + You're so close! Your <strong>{{companyName}}</strong> profile is set up, but you haven't added a payout address yet.
+- **en** `emails.json::merchant.addWalletReminder.whyTitle`
+  - − Why add a wallet?
+  - + Why add a payout address?
+- **en** `emails.json::merchant.addWalletReminder.whyText`
+  - − Without a wallet, you can't receive payments. It takes less than 2 minutes to set up.
+  - + Without a payout address, you can't receive payments. It takes less than 2 minutes to set up.
+- **en** `emails.json::merchant.addWalletReminder.outro`
+  - − Add your wallet now and start accepting crypto payments today.
+  - + Add your payout address now and start accepting crypto payments today.
+- **en** `emails.json::merchant.addWalletReminder.cta`
+  - − Add Wallet Now
+  - + Add payout address now
+- **en** `emails.json::merchant.walletAdded.subject`
+  - − Wallet added – {{network}}
+  - + Payout address added – {{network}}
+- **en** `emails.json::merchant.walletAdded.heading`
+  - − Wallet Added
+  - + Payout address added
+- **en** `emails.json::merchant.walletAdded.intro`
+  - − A new payout wallet has been successfully added to your brand <strong>{{companyName}}</strong>.
+  - + A new payout address has been successfully added to your brand <strong>{{companyName}}</strong>.
+- **en** `emails.json::merchant.walletAdded.outro`
+  - − All payments in {{network}} will be forwarded to this wallet. You can manage your wallets in the dashboard.
+  - + All payments in {{network}} will be forwarded to this payout address. You can manage your payout addresses in the dashboard.
+- **en** `emails.json::merchant.walletAdded.didntDoThis`
+  - − <strong>Didn't do this?</strong><br />If you didn't add this wallet, please secure your account immediately.
+  - + <strong>Didn't do this?</strong><br />If you didn't add this payout address, please secure your account immediately.
+- **en** `emails.json::merchant.walletAdded.cta`
+  - − View Wallets
+  - + View payout addresses
+- **en** `emails.json::merchant.walletUpdated.subject`
+  - − Wallet updated – {{network}}
+  - + Payout address updated – {{network}}
+- **en** `emails.json::merchant.walletUpdated.heading`
+  - − Wallet Updated
+  - + Payout address updated
+- **en** `emails.json::merchant.walletUpdated.intro`
+  - − Your payout wallet for <strong>{{companyName}}</strong> has been updated.
+  - + Your payout address for <strong>{{companyName}}</strong> has been updated.
+- **en** `emails.json::merchant.walletUpdated.didntDoThis`
+  - − <strong>Didn't do this?</strong><br />If you didn't update this wallet, please secure your account immediately and contact support.
+  - + <strong>Didn't do this?</strong><br />If you didn't update this payout address, please secure your account immediately and contact support.
+- **en** `emails.json::merchant.walletUpdated.cta`
+  - − View Wallets
+  - + View payout addresses
+- **en** `emails.json::merchant.walletEditOtp.subject`
+  - − Confirm wallet edit
+  - + Confirm payout address edit
+- **en** `emails.json::merchant.walletEditOtp.heading`
+  - − Confirm Wallet Edit
+  - + Confirm payout address edit
+- **en** `emails.json::merchant.walletEditOtp.intro`
+  - − You're about to edit a wallet address. Please verify this action with the code below:
+  - + You're about to edit a payout address. Please verify this action with the code below:
+- **en** `emails.json::merchant.walletDeleteOtp.subject`
+  - − Confirm wallet deletion
+  - + Confirm payout address removal
+- **en** `emails.json::merchant.walletDeleteOtp.heading`
+  - − Confirm Wallet Deletion
+  - + Confirm payout address removal
+- **en** `emails.json::merchant.walletDeleteOtp.intro`
+  - − You're about to <strong>permanently delete</strong> a wallet address. This action cannot be undone.
+  - + You're about to <strong>permanently delete</strong> a payout address. This action cannot be undone.
+- **en** `emails.json::merchant.companyDeleted.note`
+  - − Your transaction history is kept for your records. Payout wallets that were assigned to this brand are no longer linked to it.
+  - + Your transaction history is kept for your records. Payout addresses that were assigned to this brand are no longer linked to it.
+- **en** `emails.json::merchant.brandSoftDeleted.intro`
+  - − Your brand <strong>{{companyName}}</strong> was just deleted on Dynopay. Don't worry — nothing is gone yet. We're keeping everything (payment links, wallets, settings and history) safe for the next <strong>7 days</strong> in case this was a mistake.
+  - + Your brand <strong>{{companyName}}</strong> was just deleted on Dynopay. Don't worry — nothing is gone yet. We're keeping everything (payment links, payout addresses, settings and history) safe for the next <strong>7 days</strong> in case this was a mistake.
+- **en** `emails.json::merchant.brandRestored.intro`
+  - − We've restored your brand <strong>{{companyName}}</strong> on Dynopay. Everything — your payment links, wallets, settings and history — is exactly as you left it.
+  - + We've restored your brand <strong>{{companyName}}</strong> on Dynopay. Everything — your payment links, payout addresses, settings and history — is exactly as you left it.
+- **en** `emails.json::merchant.brandDeleteReminder.intro`
+  - − Just a heads-up: your deleted brand <strong>{{companyName}}</strong> is scheduled to be <strong>permanently deleted on {{date}}</strong> — that's about <strong>{{daysLabel}}</strong> away. After that, its payment links, wallets, settings and history can't be recovered.
+  - + Just a heads-up: your deleted brand <strong>{{companyName}}</strong> is scheduled to be <strong>permanently deleted on {{date}}</strong> — that's about <strong>{{daysLabel}}</strong> away. After that, its payment links, payout addresses, settings and history can't be recovered.
+- **en** `emails.json::walletOtp.subject`
+  - − Confirm your wallet address
+  - + Confirm your payout address
+- **en** `emails.json::walletOtp.heading`
+  - − Wallet Verification Code
+  - + Payout address verification code
+- **en** `emails.json::walletOtp.intro`
+  - − You are validating a new wallet address for {{currency}}.
+  - + You are validating a new payout address for {{currency}}.
+- **en** `emails.json::walletOtp.walletAddress`
+  - − Wallet Address
+  - + Address
+- **en** `emails.json::activation.seg.madeLink.line`
+  - − You've already created a payment link — nice. Add a payout wallet so the moment someone pays, we settle it straight to a wallet you control.
+  - + You've already created a payment link — nice. Add a payout address so the moment someone pays, we settle it straight to a wallet you control.
+- **en** `emails.json::activation.seg.madeLink.cta`
+  - − Add your payout wallet
+  - + Add your payout address
+- **en** `emails.json::activation.gate.wallet.intro`
+  - − You tried to create a payment link, but there's no payout wallet on your account yet. Payments settle straight to a wallet you control, so we need an address before you can get paid.
+  - + You tried to create a payment link, but there's no payout address on your account yet. Payments settle straight to a wallet you control, so we need an address before you can get paid.
+- **en** `emails.json::activation.gate.wallet.cta`
+  - − Add your payout wallet
+  - + Add your payout address
+- **en** `emails.json::security.accountDeleted.intro`
+  - − As requested, your Dynopay account and all of its data — brands, payment links, API keys, payout wallets and settings — have been permanently deleted.
+  - + As requested, your Dynopay account and all of its data — brands, payment links, API keys, payout addresses and settings — have been permanently deleted.
+- **en** `emails.json::security.stepUpActions.wallet`
+  - − changing payout wallets
+  - + changing payout addresses
+- **en** `emails.json::security.twoFaReset.consequences`
+  - − Confirming will sign you out of every device, forget all trusted browsers, switch your second step to email codes and lock payout-wallet changes for 24 hours as a safety measure.
+  - + Confirming will sign you out of every device, forget all trusted browsers, switch your second step to email codes and lock payout address changes for 24 hours as a safety measure.
+- **en** `emails.json::security.twoFaResetDone.preheader`
+  - − Authenticator removed, sessions signed out, wallet changes locked for 24 hours.
+  - + Authenticator removed, sessions signed out, payout address changes locked for 24 hours.
+- **en** `emails.json::security.twoFaResetDone.freeze`
+  - − Payout-wallet changes are locked until {{until}}. Our team has been notified and can lift the lock sooner if you contact support.
+  - + Payout address changes are locked until {{until}}. Our team has been notified and can lift the lock sooner if you contact support.
+- **en** `emails.json::paymentSettled.introForwarding`
+  - − <strong>{{companyName}}</strong> received a payment and it has settled. The net amount is being forwarded to your payout wallet now.
+  - + <strong>{{companyName}}</strong> received a payment and it has settled. The net amount is being forwarded to your payout address now.
+- **en** `emails.json::payoutDelayed.delayed.intro`
+  - − {{companyName}} received {{amount}} from a buyer, but the payout to your wallet has not completed yet.
+  - + {{companyName}} received {{amount}} from a buyer, but it has not reached your payout address yet.
+- **de** `emails.json::activation.gate.wallet.cta`
+  - − Auszahlungs-Wallet hinzufügen
+  - + Auszahlungsadresse hinzufügen
+- **de** `emails.json::activation.gate.wallet.intro`
+  - − Sie wollten einen Zahlungslink erstellen, aber in Ihrem Konto ist noch keine Auszahlungs-Wallet hinterlegt. Zahlungen gehen direkt in eine Wallet, die Sie kontrollieren — deshalb brauchen wir eine Adresse, bevor Sie bezahlt werden können.
+  - + Sie wollten einen Zahlungslink erstellen, aber in Ihrem Konto ist noch keine Auszahlungsadresse hinterlegt. Zahlungen gehen direkt in eine Auszahlungsadresse, die Sie kontrollieren — deshalb brauchen wir eine Adresse, bevor Sie bezahlt werden können.
+- **de** `emails.json::activation.seg.madeLink.cta`
+  - − Auszahlungs-Wallet hinzufügen
+  - + Auszahlungsadresse hinzufügen
+- **de** `emails.json::activation.seg.madeLink.line`
+  - − Sie haben bereits einen Zahlungslink erstellt – super. Fügen Sie eine Auszahlungs-Wallet hinzu, damit wir, sobald jemand zahlt, direkt an eine Wallet auszahlen, die Sie kontrollieren.
+  - + Sie haben bereits einen Zahlungslink erstellt – super. Fügen Sie eine Auszahlungsadresse hinzu, damit wir, sobald jemand zahlt, direkt an eine Auszahlungsadresse auszahlen, die Sie kontrollieren.
+- **de** `emails.json::merchant.addWalletReminder.cta`
+  - − Jetzt Wallet hinzufügen
+  - + Jetzt Auszahlungsadresse hinzufügen
+- **de** `emails.json::merchant.addWalletReminder.heading`
+  - − Fügen Sie Ihre Wallet hinzu
+  - + Fügen Sie Ihre Auszahlungsadresse hinzu
+- **de** `emails.json::merchant.addWalletReminder.intro`
+  - − Sie sind fast am Ziel! Das Profil von <strong>{{companyName}}</strong> ist eingerichtet, aber Sie haben noch keine Auszahlungs-Wallet hinzugefügt.
+  - + Sie sind fast am Ziel! Das Profil von <strong>{{companyName}}</strong> ist eingerichtet, aber Sie haben noch keine Auszahlungsadresse hinzugefügt.
+- **de** `emails.json::merchant.addWalletReminder.outro`
+  - − Fügen Sie jetzt Ihre Wallet hinzu und beginnen Sie noch heute, Krypto-Zahlungen zu akzeptieren.
+  - + Fügen Sie jetzt Ihre Auszahlungsadresse hinzu und beginnen Sie noch heute, Krypto-Zahlungen zu akzeptieren.
+- **de** `emails.json::merchant.addWalletReminder.whyText`
+  - − Ohne Wallet können Sie keine Zahlungen erhalten. Die Einrichtung dauert weniger als 2 Minuten.
+  - + Ohne Auszahlungsadresse können Sie keine Zahlungen erhalten. Die Einrichtung dauert weniger als 2 Minuten.
+- **de** `emails.json::merchant.addWalletReminder.whyTitle`
+  - − Warum eine Wallet hinzufügen?
+  - + Warum eine Auszahlungsadresse hinzufügen?
+- **de** `emails.json::merchant.brandDeleteReminder.intro`
+  - − Kurzer Hinweis: Ihre gelöschte Marke <strong>{{companyName}}</strong> wird am <strong>{{date}} dauerhaft gelöscht</strong> – das ist in etwa <strong>{{daysLabel}}</strong>. Danach können ihre Zahlungslinks, Wallets, Einstellungen und ihr Verlauf nicht mehr wiederhergestellt werden.
+  - + Kurzer Hinweis: Ihre gelöschte Marke <strong>{{companyName}}</strong> wird am <strong>{{date}} dauerhaft gelöscht</strong> – das ist in etwa <strong>{{daysLabel}}</strong>. Danach können ihre Zahlungslinks, Auszahlungsadressen, Einstellungen und ihr Verlauf nicht mehr wiederhergestellt werden.
+- **de** `emails.json::merchant.brandRestored.intro`
+  - − Wir haben Ihre Marke <strong>{{companyName}}</strong> auf Dynopay wiederhergestellt. Alles – Zahlungslinks, Wallets, Einstellungen und Verlauf – ist genau so, wie Sie es hinterlassen haben.
+  - + Wir haben Ihre Marke <strong>{{companyName}}</strong> auf Dynopay wiederhergestellt. Alles – Zahlungslinks, Auszahlungsadressen, Einstellungen und Verlauf – ist genau so, wie Sie es hinterlassen haben.
+- **de** `emails.json::merchant.brandSoftDeleted.intro`
+  - − Ihre Marke <strong>{{companyName}}</strong> wurde gerade auf Dynopay gelöscht. Keine Sorge – noch ist nichts verloren. Wir bewahren alles (Zahlungslinks, Wallets, Einstellungen und Verlauf) für die nächsten <strong>7 Tage</strong> sicher auf, falls dies ein Versehen war.
+  - + Ihre Marke <strong>{{companyName}}</strong> wurde gerade auf Dynopay gelöscht. Keine Sorge – noch ist nichts verloren. Wir bewahren alles (Zahlungslinks, Auszahlungsadressen, Einstellungen und Verlauf) für die nächsten <strong>7 Tage</strong> sicher auf, falls dies ein Versehen war.
+- **de** `emails.json::merchant.companyCreated.cta`
+  - − Wallet hinzufügen
+  - + Auszahlungsadresse hinzufügen
+- **de** `emails.json::merchant.companyCreated.intro2`
+  - − Sie sind fast bereit, Zahlungen zu akzeptieren. Der letzte Schritt ist, Ihre Auszahlungs-Wallet-Adresse hinzuzufügen.
+  - + Sie sind fast bereit, Zahlungen zu akzeptieren. Der letzte Schritt ist, Ihre Auszahlungsadresse hinzuzufügen.
+- **de** `emails.json::merchant.companyCreated.subject`
+  - − Ein Schritt fehlt — füge eine Auszahlungs-Wallet hinzu, um Geld zu erhalten
+  - + Ein Schritt fehlt — füge eine Auszahlungsadresse hinzu, um Geld zu erhalten
+- **de** `emails.json::merchant.companyCreated.whyText`
+  - − An Ihre Wallet senden wir die Krypto-Zahlungen, die Sie erhalten. Es ist schnell und sicher.
+  - + An Ihre Auszahlungsadresse senden wir die Krypto-Zahlungen, die Sie erhalten. Es ist schnell und sicher.
+- **de** `emails.json::merchant.companyCreated.whyTitle`
+  - − Warum eine Wallet hinzufügen?
+  - + Warum eine Auszahlungsadresse hinzufügen?
+- **de** `emails.json::merchant.companyDeleted.note`
+  - − Ihr Transaktionsverlauf bleibt für Ihre Unterlagen erhalten. Auszahlungs-Wallets, die dieser Marke zugeordnet waren, sind nicht mehr mit ihr verknüpft.
+  - + Ihr Transaktionsverlauf bleibt für Ihre Unterlagen erhalten. Auszahlungsadressen, die dieser Marke zugeordnet waren, sind nicht mehr mit ihr verknüpft.
+- **de** `emails.json::merchant.labels.wallet`
+  - − Wallet
+  - + Auszahlungsadresse
+- **de** `emails.json::merchant.labels.walletName`
+  - − Wallet-Name
+  - + Bezeichnung
+- **de** `emails.json::merchant.walletAdded.cta`
+  - − Wallets ansehen
+  - + Auszahlungsadressen ansehen
+- **de** `emails.json::merchant.walletAdded.didntDoThis`
+  - − <strong>Nicht Sie?</strong><br />Wenn Sie diese Wallet nicht hinzugefügt haben, sichern Sie Ihr Konto umgehend.
+  - + <strong>Nicht Sie?</strong><br />Wenn Sie diese Auszahlungsadresse nicht hinzugefügt haben, sichern Sie Ihr Konto umgehend.
+- **de** `emails.json::merchant.walletAdded.heading`
+  - − Wallet hinzugefügt
+  - + Auszahlungsadresse hinzugefügt
+- **de** `emails.json::merchant.walletAdded.intro`
+  - − Ihrer Marke <strong>{{companyName}}</strong> wurde erfolgreich eine neue Auszahlungs-Wallet hinzugefügt.
+  - + Ihrer Marke <strong>{{companyName}}</strong> wurde erfolgreich eine neue Auszahlungsadresse hinzugefügt.
+- **de** `emails.json::merchant.walletAdded.outro`
+  - − Alle Zahlungen in {{network}} werden an diese Wallet weitergeleitet. Sie können Ihre Wallets im Dashboard verwalten.
+  - + Alle Zahlungen in {{network}} werden an diese Auszahlungsadresse weitergeleitet. Sie können Ihre Auszahlungsadressen im Dashboard verwalten.
+- **de** `emails.json::merchant.walletAdded.subject`
+  - − Wallet hinzugefügt – {{network}}
+  - + Auszahlungsadresse hinzugefügt – {{network}}
+- **de** `emails.json::merchant.walletDeleteOtp.heading`
+  - − Wallet-Löschung bestätigen
+  - + Entfernen der Auszahlungsadresse bestätigen
+- **de** `emails.json::merchant.walletDeleteOtp.intro`
+  - − Sie sind dabei, eine Wallet-Adresse <strong>endgültig zu löschen</strong>. Diese Aktion kann nicht rückgängig gemacht werden.
+  - + Sie sind dabei, eine Auszahlungsadresse <strong>endgültig zu löschen</strong>. Diese Aktion kann nicht rückgängig gemacht werden.
+- **de** `emails.json::merchant.walletDeleteOtp.subject`
+  - − Wallet-Löschung bestätigen
+  - + Entfernen der Auszahlungsadresse bestätigen
+- **de** `emails.json::merchant.walletDeleted.cta`
+  - − Wallets ansehen
+  - + Auszahlungsadressen ansehen
+- **de** `emails.json::merchant.walletDeleted.didntDoThis`
+  - − <strong>Nicht Sie?</strong><br />Wenn Sie diese Wallet nicht entfernt haben, sichern Sie Ihr Konto umgehend und kontaktieren Sie den Support.
+  - + <strong>Nicht Sie?</strong><br />Wenn Sie diese Auszahlungsadresse nicht entfernt haben, sichern Sie Ihr Konto umgehend und kontaktieren Sie den Support.
+- **de** `emails.json::merchant.walletDeleted.heading`
+  - − Wallet entfernt
+  - + Auszahlungsadresse entfernt
+- **de** `emails.json::merchant.walletDeleted.intro`
+  - − Eine Wallet wurde aus Ihrem Dynopay-Konto entfernt.
+  - + Eine Auszahlungsadresse wurde aus Ihrem Dynopay-Konto entfernt.
+- **de** `emails.json::merchant.walletDeleted.outro`
+  - − Zahlungen werden nicht mehr an diese Wallet weitergeleitet.
+  - + Zahlungen werden nicht mehr an diese Auszahlungsadresse weitergeleitet.
+- **de** `emails.json::merchant.walletDeleted.subject`
+  - − Wallet aus Ihrem Konto entfernt
+  - + Auszahlungsadresse aus Ihrem Konto entfernt
+- **de** `emails.json::merchant.walletEditOtp.heading`
+  - − Wallet-Bearbeitung bestätigen
+  - + Bearbeitung der Auszahlungsadresse bestätigen
+- **de** `emails.json::merchant.walletEditOtp.intro`
+  - − Sie sind dabei, eine Wallet-Adresse zu bearbeiten. Bitte bestätigen Sie diese Aktion mit dem folgenden Code:
+  - + Sie sind dabei, eine Auszahlungsadresse zu bearbeiten. Bitte bestätigen Sie diese Aktion mit dem folgenden Code:
+- **de** `emails.json::merchant.walletEditOtp.subject`
+  - − Wallet-Bearbeitung bestätigen
+  - + Bearbeitung der Auszahlungsadresse bestätigen
+- **de** `emails.json::merchant.walletUpdateOtp.heading`
+  - − Wallet-Aktualisierung bestätigen
+  - + Aktualisierung der Auszahlungsadresse bestätigen
+- **de** `emails.json::merchant.walletUpdateOtp.intro`
+  - − Sie aktualisieren Ihre Auszahlungs-Wallet. Bitte bestätigen Sie diese Änderung mit dem folgenden Code:
+  - + Sie aktualisieren Ihre Auszahlungsadresse. Bitte bestätigen Sie diese Änderung mit dem folgenden Code:
+- **de** `emails.json::merchant.walletUpdateOtp.subject`
+  - − Wallet-Aktualisierung bestätigen
+  - + Aktualisierung der Auszahlungsadresse bestätigen
+- **de** `emails.json::merchant.walletUpdated.cta`
+  - − Wallets ansehen
+  - + Auszahlungsadressen ansehen
+- **de** `emails.json::merchant.walletUpdated.didntDoThis`
+  - − <strong>Nicht Sie?</strong><br />Wenn Sie diese Wallet nicht aktualisiert haben, sichern Sie Ihr Konto umgehend und kontaktieren Sie den Support.
+  - + <strong>Nicht Sie?</strong><br />Wenn Sie diese Auszahlungsadresse nicht aktualisiert haben, sichern Sie Ihr Konto umgehend und kontaktieren Sie den Support.
+- **de** `emails.json::merchant.walletUpdated.heading`
+  - − Wallet aktualisiert
+  - + Auszahlungsadresse aktualisiert
+- **de** `emails.json::merchant.walletUpdated.intro`
+  - − Ihre Auszahlungs-Wallet für <strong>{{companyName}}</strong> wurde aktualisiert.
+  - + Ihre Auszahlungsadresse für <strong>{{companyName}}</strong> wurde aktualisiert.
+- **de** `emails.json::merchant.walletUpdated.subject`
+  - − Wallet aktualisiert – {{network}}
+  - + Auszahlungsadresse aktualisiert – {{network}}
+- **de** `emails.json::merchant.walletVerified.heading`
+  - − Wallet aktiv
+  - + Auszahlungsadresse aktiv
+- **de** `emails.json::merchant.walletVerified.intro`
+  - − Ihre Auszahlungs-Wallet wurde verifiziert und ist jetzt aktiv.
+  - + Ihre Auszahlungsadresse wurde verifiziert und ist jetzt aktiv.
+- **de** `emails.json::merchant.walletVerified.outro`
+  - − Alle Zahlungen, die Sie erhalten, werden automatisch an diese Wallet weitergeleitet. Sie sind startklar, um Krypto-Zahlungen zu akzeptieren.
+  - + Alle Zahlungen, die Sie erhalten, werden automatisch an diese Auszahlungsadresse weitergeleitet. Sie sind startklar, um Krypto-Zahlungen zu akzeptieren.
+- **de** `emails.json::merchant.walletVerified.subject`
+  - − Auszahlungs-Wallet aktiv
+  - + Auszahlungsadresse aktiv
+- **de** `emails.json::merchant.welcome.next2`
+  - − 2. Fügen Sie Ihre Auszahlungs-Wallet hinzu
+  - + 2. Fügen Sie Ihre Auszahlungsadresse hinzu
+- **de** `emails.json::paymentReceived.outro`
+  - − Die Gelder sind auf dem Weg zu deiner Auszahlungs-Wallet.
+  - + Die Gelder sind auf dem Weg zu deiner Auszahlungsadresse.
+- **de** `emails.json::paymentReceived.preheader`
+  - − Das Geld wird jetzt an Ihre Auszahlungs-Wallet überwiesen.
+  - + Das Geld wird jetzt an Ihre Auszahlungsadresse überwiesen.
+- **de** `emails.json::paymentSettled.introForwarding`
+  - − <strong>{{companyName}}</strong> hat eine Zahlung erhalten, die nun abgewickelt ist. Der Nettobetrag wird gerade an Ihre Auszahlungs-Wallet weitergeleitet.
+  - + <strong>{{companyName}}</strong> hat eine Zahlung erhalten, die nun abgewickelt ist. Der Nettobetrag wird gerade an Ihre Auszahlungsadresse weitergeleitet.
+- **de** `emails.json::payoutDelayed.delayed.intro`
+  - − {{companyName}} hat {{amount}} von einem Käufer erhalten, die Auszahlung an Ihre Wallet ist jedoch noch nicht abgeschlossen.
+  - + {{companyName}} hat {{amount}} von einem Käufer erhalten, die Auszahlung an Ihre Auszahlungsadresse ist jedoch noch nicht abgeschlossen.
+- **de** `emails.json::security.accountDeleted.intro`
+  - − Wie gewünscht wurden Ihr Dynopay-Konto und alle zugehörigen Daten – Marken, Zahlungslinks, API-Schlüssel, Auszahlungs-Wallets und Einstellungen – dauerhaft gelöscht.
+  - + Wie gewünscht wurden Ihr Dynopay-Konto und alle zugehörigen Daten – Marken, Zahlungslinks, API-Schlüssel, Auszahlungsadressen und Einstellungen – dauerhaft gelöscht.
+- **de** `emails.json::security.stepUpActions.wallet`
+  - − Änderung von Auszahlungs-Wallets
+  - + Änderung von Auszahlungsadressen
+- **de** `emails.json::walletOtp.heading`
+  - − Wallet-Bestätigungscode
+  - + Bestätigungscode für die Auszahlungsadresse
+- **de** `emails.json::walletOtp.intro`
+  - − Sie bestätigen eine neue Wallet-Adresse für {{currency}}.
+  - + Sie bestätigen eine neue Auszahlungsadresse für {{currency}}.
+- **de** `emails.json::walletOtp.subject`
+  - − Code zur Bestätigung der Wallet-Adresse
+  - + Code zur Bestätigung der Auszahlungsadresse
+- **de** `emails.json::walletOtp.walletAddress`
+  - − Wallet-Adresse
+  - + Auszahlungsadresse
+- **nl** `emails.json::activation.gate.wallet.cta`
+  - − Uitbetaalwallet toevoegen
+  - + Uitbetalingsadres toevoegen
+- **nl** `emails.json::activation.gate.wallet.intro`
+  - − U probeerde een betaallink te maken, maar er is nog geen uitbetaalwallet aan uw account gekoppeld. Betalingen worden rechtstreeks afgewikkeld naar een wallet die u beheert, dus we hebben een adres nodig voordat u betaald kunt worden.
+  - + U probeerde een betaallink te maken, maar er is nog geen uitbetalingsadres aan uw account gekoppeld. Betalingen worden rechtstreeks afgewikkeld naar een uitbetalingsadres die u beheert, dus we hebben een adres nodig voordat u betaald kunt worden.
+- **nl** `emails.json::activation.seg.madeLink.cta`
+  - − Uitbetalingswallet toevoegen
+  - + Uitbetalingsadres toevoegen
+- **nl** `emails.json::activation.seg.madeLink.line`
+  - − U heeft al een betaallink gemaakt — mooi. Voeg een uitbetalingswallet toe zodat we, zodra iemand betaalt, direct uitbetalen naar een wallet die u beheert.
+  - + U heeft al een betaallink gemaakt — mooi. Voeg een uitbetalingsadres toe zodat we, zodra iemand betaalt, direct uitbetalen naar een uitbetalingsadres die u beheert.
+- **nl** `emails.json::merchant.addWalletReminder.cta`
+  - − Nu wallet toevoegen
+  - + Nu uitbetalingsadres toevoegen
+- **nl** `emails.json::merchant.addWalletReminder.heading`
+  - − Voeg uw wallet toe
+  - + Voeg uw uitbetalingsadres toe
+- **nl** `emails.json::merchant.addWalletReminder.intro`
+  - − U bent er bijna! Het profiel van <strong>{{companyName}}</strong> is ingesteld, maar u heeft nog geen uitbetalingswallet toegevoegd.
+  - + U bent er bijna! Het profiel van <strong>{{companyName}}</strong> is ingesteld, maar u heeft nog geen uitbetalingsadres toegevoegd.
+- **nl** `emails.json::merchant.addWalletReminder.outro`
+  - − Voeg nu uw wallet toe en begin vandaag nog met het accepteren van cryptobetalingen.
+  - + Voeg nu uw uitbetalingsadres toe en begin vandaag nog met het accepteren van cryptobetalingen.
+- **nl** `emails.json::merchant.addWalletReminder.whyText`
+  - − Zonder wallet kunt u geen betalingen ontvangen. Instellen duurt minder dan 2 minuten.
+  - + Zonder uitbetalingsadres kunt u geen betalingen ontvangen. Instellen duurt minder dan 2 minuten.
+- **nl** `emails.json::merchant.addWalletReminder.whyTitle`
+  - − Waarom een wallet toevoegen?
+  - + Waarom een uitbetalingsadres toevoegen?
+- **nl** `emails.json::merchant.brandDeleteReminder.intro`
+  - − Even een herinnering: uw verwijderde merk <strong>{{companyName}}</strong> wordt op <strong>{{date}} definitief verwijderd</strong> — dat is over ongeveer <strong>{{daysLabel}}</strong>. Daarna kunnen de betaallinks, wallets, instellingen en geschiedenis niet meer worden hersteld.
+  - + Even een herinnering: uw verwijderde merk <strong>{{companyName}}</strong> wordt op <strong>{{date}} definitief verwijderd</strong> — dat is over ongeveer <strong>{{daysLabel}}</strong>. Daarna kunnen de betaallinks, uitbetalingsadressen, instellingen en geschiedenis niet meer worden hersteld.
+- **nl** `emails.json::merchant.brandRestored.intro`
+  - − We hebben uw merk <strong>{{companyName}}</strong> op Dynopay hersteld. Alles — uw betaallinks, wallets, instellingen en geschiedenis — is precies zoals u het achterliet.
+  - + We hebben uw merk <strong>{{companyName}}</strong> op Dynopay hersteld. Alles — uw betaallinks, uitbetalingsadressen, instellingen en geschiedenis — is precies zoals u het achterliet.
+- **nl** `emails.json::merchant.brandSoftDeleted.intro`
+  - − Uw merk <strong>{{companyName}}</strong> is zojuist verwijderd op Dynopay. Geen zorgen — er is nog niets verloren. We bewaren alles (betaallinks, wallets, instellingen en geschiedenis) de komende <strong>7 dagen</strong> veilig, voor het geval dit een vergissing was.
+  - + Uw merk <strong>{{companyName}}</strong> is zojuist verwijderd op Dynopay. Geen zorgen — er is nog niets verloren. We bewaren alles (betaallinks, uitbetalingsadressen, instellingen en geschiedenis) de komende <strong>7 dagen</strong> veilig, voor het geval dit een vergissing was.
+- **nl** `emails.json::merchant.companyCreated.cta`
+  - − Wallet toevoegen
+  - + Uitbetalingsadres toevoegen
+- **nl** `emails.json::merchant.companyCreated.intro2`
+  - − U bent bijna klaar om betalingen te accepteren. De laatste stap is het toevoegen van uw uitbetalingswalletadres.
+  - + U bent bijna klaar om betalingen te accepteren. De laatste stap is het toevoegen van uw uitbetalingsadresadres.
+- **nl** `emails.json::merchant.companyCreated.subject`
+  - − Nog één stap — voeg een uitbetaalwallet toe om betaald te worden
+  - + Nog één stap — voeg een uitbetalingsadres toe om betaald te worden
+- **nl** `emails.json::merchant.companyCreated.whyText`
+  - − Naar uw wallet sturen we de cryptobetalingen die u ontvangt. Het is snel en veilig.
+  - + Naar uw uitbetalingsadres sturen we de cryptobetalingen die u ontvangt. Het is snel en veilig.
+- **nl** `emails.json::merchant.companyCreated.whyTitle`
+  - − Waarom een wallet toevoegen?
+  - + Waarom een uitbetalingsadres toevoegen?
+- **nl** `emails.json::merchant.companyDeleted.note`
+  - − Uw transactiegeschiedenis blijft bewaard voor uw administratie. Uitbetaalwallets die aan dit merk waren toegewezen, zijn er niet langer aan gekoppeld.
+  - + Uw transactiegeschiedenis blijft bewaard voor uw administratie. Uitbetalingsadressen die aan dit merk waren toegewezen, zijn er niet langer aan gekoppeld.
+- **nl** `emails.json::merchant.labels.wallet`
+  - − Wallet
+  - + Uitbetalingsadres
+- **nl** `emails.json::merchant.labels.walletName`
+  - − Walletnaam
+  - + Naam
+- **nl** `emails.json::merchant.walletAdded.cta`
+  - − Wallets bekijken
+  - + Uitbetalingsadressen bekijken
+- **nl** `emails.json::merchant.walletAdded.didntDoThis`
+  - − <strong>Niet u?</strong><br />Als u deze wallet niet heeft toegevoegd, beveilig dan onmiddellijk uw account.
+  - + <strong>Niet u?</strong><br />Als u dit uitbetalingsadres niet heeft toegevoegd, beveilig dan onmiddellijk uw account.
+- **nl** `emails.json::merchant.walletAdded.heading`
+  - − Wallet toegevoegd
+  - + Uitbetalingsadres toegevoegd
+- **nl** `emails.json::merchant.walletAdded.intro`
+  - − Er is succesvol een nieuwe uitbetalingswallet toegevoegd aan uw merk <strong>{{companyName}}</strong>.
+  - + Er is succesvol een nieuwe uitbetalingsadres toegevoegd aan uw merk <strong>{{companyName}}</strong>.
+- **nl** `emails.json::merchant.walletAdded.outro`
+  - − Alle betalingen in {{network}} worden naar deze wallet doorgestuurd. U kunt uw wallets beheren in het dashboard.
+  - + Alle betalingen in {{network}} worden naar dit uitbetalingsadres doorgestuurd. U kunt uw uitbetalingsadressen beheren in het dashboard.
+- **nl** `emails.json::merchant.walletAdded.subject`
+  - − Wallet toegevoegd – {{network}}
+  - + Uitbetalingsadres toegevoegd – {{network}}
+- **nl** `emails.json::merchant.walletDeleteOtp.intro`
+  - − U staat op het punt een walletadres <strong>permanent te verwijderen</strong>. Deze actie kan niet ongedaan worden gemaakt.
+  - + U staat op het punt een uitbetalingsadres <strong>permanent te verwijderen</strong>. Deze actie kan niet ongedaan worden gemaakt.
+- **nl** `emails.json::merchant.walletDeleted.cta`
+  - − Wallets bekijken
+  - + Uitbetalingsadressen bekijken
+- **nl** `emails.json::merchant.walletDeleted.didntDoThis`
+  - − <strong>Niet u?</strong><br />Als u deze wallet niet heeft verwijderd, beveilig dan onmiddellijk uw account en neem contact op met support.
+  - + <strong>Niet u?</strong><br />Als u dit uitbetalingsadres niet heeft verwijderd, beveilig dan onmiddellijk uw account en neem contact op met support.
+- **nl** `emails.json::merchant.walletDeleted.heading`
+  - − Wallet verwijderd
+  - + Uitbetalingsadres verwijderd
+- **nl** `emails.json::merchant.walletDeleted.intro`
+  - − Er is een wallet verwijderd uit uw Dynopay-account.
+  - + Er is een uitbetalingsadres verwijderd uit uw Dynopay-account.
+- **nl** `emails.json::merchant.walletDeleted.outro`
+  - − Betalingen worden niet langer naar deze wallet doorgestuurd.
+  - + Betalingen worden niet langer naar dit uitbetalingsadres doorgestuurd.
+- **nl** `emails.json::merchant.walletDeleted.subject`
+  - − Wallet verwijderd uit uw account
+  - + Uitbetalingsadres verwijderd uit uw account
+- **nl** `emails.json::merchant.walletEditOtp.intro`
+  - − U staat op het punt een walletadres te bewerken. Bevestig deze actie met de onderstaande code:
+  - + U staat op het punt een uitbetalingsadres te bewerken. Bevestig deze actie met de onderstaande code:
+- **nl** `emails.json::merchant.walletUpdateOtp.heading`
+  - − Bevestig walletwijziging
+  - + Bevestig wijziging van het uitbetalingsadres
+- **nl** `emails.json::merchant.walletUpdateOtp.intro`
+  - − U werkt uw uitbetalingswallet bij. Bevestig deze wijziging met de onderstaande code:
+  - + U werkt uw uitbetalingsadres bij. Bevestig deze wijziging met de onderstaande code:
+- **nl** `emails.json::merchant.walletUpdateOtp.subject`
+  - − Bevestig walletwijziging
+  - + Bevestig wijziging van het uitbetalingsadres
+- **nl** `emails.json::merchant.walletUpdated.cta`
+  - − Wallets bekijken
+  - + Uitbetalingsadressen bekijken
+- **nl** `emails.json::merchant.walletUpdated.didntDoThis`
+  - − <strong>Niet u?</strong><br />Als u deze wallet niet heeft bijgewerkt, beveilig dan onmiddellijk uw account en neem contact op met support.
+  - + <strong>Niet u?</strong><br />Als u dit uitbetalingsadres niet heeft bijgewerkt, beveilig dan onmiddellijk uw account en neem contact op met support.
+- **nl** `emails.json::merchant.walletUpdated.heading`
+  - − Wallet bijgewerkt
+  - + Uitbetalingsadres bijgewerkt
+- **nl** `emails.json::merchant.walletUpdated.intro`
+  - − Uw uitbetalingswallet voor <strong>{{companyName}}</strong> is bijgewerkt.
+  - + Uw uitbetalingsadres voor <strong>{{companyName}}</strong> is bijgewerkt.
+- **nl** `emails.json::merchant.walletUpdated.subject`
+  - − Wallet bijgewerkt – {{network}}
+  - + Uitbetalingsadres bijgewerkt – {{network}}
+- **nl** `emails.json::merchant.walletVerified.heading`
+  - − Wallet actief
+  - + Uitbetalingsadres actief
+- **nl** `emails.json::merchant.walletVerified.intro`
+  - − Uw uitbetalingswallet is geverifieerd en is nu actief.
+  - + Uw uitbetalingsadres is geverifieerd en is nu actief.
+- **nl** `emails.json::merchant.walletVerified.outro`
+  - − Alle betalingen die u ontvangt, worden automatisch naar deze wallet doorgestuurd. U bent helemaal klaar om cryptobetalingen te accepteren.
+  - + Alle betalingen die u ontvangt, worden automatisch naar dit uitbetalingsadres doorgestuurd. U bent helemaal klaar om cryptobetalingen te accepteren.
+- **nl** `emails.json::merchant.walletVerified.subject`
+  - − Uitbetalingswallet actief
+  - + Uitbetalingsadres actief
+- **nl** `emails.json::merchant.welcome.next2`
+  - − 2. Voeg uw uitbetalingswallet toe
+  - + 2. Voeg uw uitbetalingsadres toe
+- **nl** `emails.json::paymentReceived.outro`
+  - − De gelden zijn onderweg naar je uitbetaalwallet.
+  - + De gelden zijn onderweg naar je uitbetalingsadres.
+- **nl** `emails.json::paymentReceived.preheader`
+  - − Het geld wordt nu naar uw uitbetalingswallet overgemaakt.
+  - + Het geld wordt nu naar uw uitbetalingsadres overgemaakt.
+- **nl** `emails.json::paymentSettled.introForwarding`
+  - − <strong>{{companyName}}</strong> heeft een betaling ontvangen die nu is afgewikkeld. Het nettobedrag wordt nu doorgestuurd naar uw uitbetalingswallet.
+  - + <strong>{{companyName}}</strong> heeft een betaling ontvangen die nu is afgewikkeld. Het nettobedrag wordt nu doorgestuurd naar uw uitbetalingsadres.
+- **nl** `emails.json::payoutDelayed.delayed.intro`
+  - − {{companyName}} heeft {{amount}} van een koper ontvangen, maar de uitbetaling naar uw wallet is nog niet voltooid.
+  - + {{companyName}} heeft {{amount}} van een koper ontvangen, maar de uitbetaling naar uw uitbetalingsadres is nog niet voltooid.
+- **nl** `emails.json::security.accountDeleted.intro`
+  - − Zoals gevraagd zijn uw Dynopay-account en alle bijbehorende gegevens – merken, betaallinks, API-sleutels, uitbetalingswallets en instellingen – permanent verwijderd.
+  - + Zoals gevraagd zijn uw Dynopay-account en alle bijbehorende gegevens – merken, betaallinks, API-sleutels, uitbetalingsadressen en instellingen – permanent verwijderd.
+- **nl** `emails.json::security.stepUpActions.wallet`
+  - − wijzigen van uitbetalingswallets
+  - + wijzigen van uitbetalingsadressen
+- **nl** `emails.json::walletOtp.heading`
+  - − Verificatiecode wallet
+  - + Verificatiecode uitbetalingsadres
+- **nl** `emails.json::walletOtp.intro`
+  - − U valideert een nieuw walletadres voor {{currency}}.
+  - + U valideert een nieuw uitbetalingsadres voor {{currency}}.
+- **nl** `emails.json::walletOtp.subject`
+  - − Code voor validatie van walletadres
+  - + Code voor validatie van uitbetalingsadres
+- **nl** `emails.json::walletOtp.walletAddress`
+  - − Walletadres
+  - + Uitbetalingsadres
+- **es** `emails.json::activation.seg.madeLink.cta`
+  - − Agregar billetera de retiro
+  - + Agregar dirección de cobro
+- **es** `emails.json::activation.seg.madeLink.line`
+  - − Ya creaste un enlace de pago, ¡genial! Agrega una billetera de retiro para que, en cuanto alguien pague, liquidemos directo en una billetera que tú controlas.
+  - + Ya creaste un enlace de pago, ¡genial! Agrega una dirección de cobro para que, en cuanto alguien pague, liquidemos directo en una dirección de cobro que tú controlas.
+- **es** `emails.json::merchant.addWalletReminder.cta`
+  - − Añadir billetera ahora
+  - + Añadir dirección de cobro ahora
+- **es** `emails.json::merchant.addWalletReminder.heading`
+  - − Añada su billetera
+  - + Añada su dirección de cobro
+- **es** `emails.json::merchant.addWalletReminder.intro`
+  - − ¡Ya casi está! El perfil de <strong>{{companyName}}</strong> está configurado, pero aún no ha añadido una billetera de cobro.
+  - + ¡Ya casi está! El perfil de <strong>{{companyName}}</strong> está configurado, pero aún no ha añadido una dirección de cobro.
+- **es** `emails.json::merchant.addWalletReminder.outro`
+  - − Añada su billetera ahora y empiece a aceptar pagos en cripto hoy.
+  - + Añada su dirección de cobro ahora y empiece a aceptar pagos en cripto hoy.
+- **es** `emails.json::merchant.addWalletReminder.whyText`
+  - − Sin una billetera, no puede recibir pagos. Configurarla lleva menos de 2 minutos.
+  - + Sin una dirección de cobro, no puede recibir pagos. Configurarla lleva menos de 2 minutos.
+- **es** `emails.json::merchant.addWalletReminder.whyTitle`
+  - − ¿Por qué añadir una billetera?
+  - + ¿Por qué añadir una dirección de cobro?
+- **es** `emails.json::merchant.brandDeleteReminder.intro`
+  - − Un aviso rápido: su marca eliminada <strong>{{companyName}}</strong> está programada para <strong>eliminarse permanentemente el {{date}}</strong>, es decir, en aproximadamente <strong>{{daysLabel}}</strong>. Después de esa fecha, sus enlaces de pago, wallets, configuración e historial no podrán recuperarse.
+  - + Un aviso rápido: su marca eliminada <strong>{{companyName}}</strong> está programada para <strong>eliminarse permanentemente el {{date}}</strong>, es decir, en aproximadamente <strong>{{daysLabel}}</strong>. Después de esa fecha, sus enlaces de pago, direcciones de cobro, configuración e historial no podrán recuperarse.
+- **es** `emails.json::merchant.brandRestored.intro`
+  - − Hemos restaurado su marca <strong>{{companyName}}</strong> en Dynopay. Todo (enlaces de pago, wallets, configuración e historial) está exactamente como lo dejó.
+  - + Hemos restaurado su marca <strong>{{companyName}}</strong> en Dynopay. Todo (enlaces de pago, direcciones de cobro, configuración e historial) está exactamente como lo dejó.
+- **es** `emails.json::merchant.brandSoftDeleted.intro`
+  - − Su marca <strong>{{companyName}}</strong> acaba de eliminarse en Dynopay. No se preocupe: todavía no se ha perdido nada. Conservaremos todo (enlaces de pago, wallets, configuración e historial) a buen recaudo durante los próximos <strong>7 días</strong> por si ha sido un error.
+  - + Su marca <strong>{{companyName}}</strong> acaba de eliminarse en Dynopay. No se preocupe: todavía no se ha perdido nada. Conservaremos todo (enlaces de pago, direcciones de cobro, configuración e historial) a buen recaudo durante los próximos <strong>7 días</strong> por si ha sido un error.
+- **es** `emails.json::merchant.companyCreated.cta`
+  - − Añadir billetera
+  - + Añadir dirección de cobro
+- **es** `emails.json::merchant.companyCreated.intro2`
+  - − Está casi listo para empezar a aceptar pagos. El último paso es añadir la dirección de su billetera de cobro.
+  - + Está casi listo para empezar a aceptar pagos. El último paso es añadir la dirección de cobro.
+- **es** `emails.json::merchant.companyCreated.subject`
+  - − Falta un paso: añade una cartera de cobro para recibir pagos
+  - + Falta un paso: añade una dirección de cobro para recibir pagos
+- **es** `emails.json::merchant.companyCreated.whyText`
+  - − Su billetera es donde enviaremos los pagos en cripto que reciba. Es rápido y seguro.
+  - + Su dirección de cobro es donde enviaremos los pagos en cripto que reciba. Es rápido y seguro.
+- **es** `emails.json::merchant.companyCreated.whyTitle`
+  - − ¿Por qué añadir una billetera?
+  - + ¿Por qué añadir una dirección de cobro?
+- **es** `emails.json::merchant.companyDeleted.note`
+  - − Su historial de transacciones se conserva para sus registros. Las billeteras de pago asignadas a esta marca ya no están vinculadas a ella.
+  - + Su historial de transacciones se conserva para sus registros. Las direcciones de cobro asignadas a esta marca ya no están vinculadas a ella.
+- **es** `emails.json::merchant.labels.wallet`
+  - − Billetera
+  - + Dirección de cobro
+- **es** `emails.json::merchant.labels.walletName`
+  - − Nombre de la billetera
+  - + Nombre
+- **es** `emails.json::merchant.walletAdded.cta`
+  - − Ver billeteras
+  - + Ver direcciones de cobro
+- **es** `emails.json::merchant.walletAdded.didntDoThis`
+  - − <strong>¿No fue usted?</strong><br />Si no añadió esta billetera, proteja su cuenta de inmediato.
+  - + <strong>¿No fue usted?</strong><br />Si no añadió esta dirección de cobro, proteja su cuenta de inmediato.
+- **es** `emails.json::merchant.walletAdded.heading`
+  - − Billetera añadida
+  - + Dirección de cobro añadida
+- **es** `emails.json::merchant.walletAdded.intro`
+  - − Se ha añadido correctamente una nueva billetera de cobro a su marca <strong>{{companyName}}</strong>.
+  - + Se ha añadido correctamente una nueva dirección de cobro a su marca <strong>{{companyName}}</strong>.
+- **es** `emails.json::merchant.walletAdded.outro`
+  - − Todos los pagos en {{network}} se reenviarán a esta billetera. Puede gestionar sus billeteras en el panel.
+  - + Todos los pagos en {{network}} se reenviarán a esta dirección de cobro. Puede gestionar sus direcciones de cobro en el panel.
+- **es** `emails.json::merchant.walletAdded.subject`
+  - − Billetera añadida – {{network}}
+  - + Dirección de cobro añadida – {{network}}
+- **es** `emails.json::merchant.walletDeleteOtp.heading`
+  - − Confirme la eliminación de la billetera
+  - + Confirme la eliminación de la dirección de cobro
+- **es** `emails.json::merchant.walletDeleteOtp.intro`
+  - − Está a punto de <strong>eliminar permanentemente</strong> una dirección de billetera. Esta acción no se puede deshacer.
+  - + Está a punto de <strong>eliminar permanentemente</strong> una dirección de cobro. Esta acción no se puede deshacer.
+- **es** `emails.json::merchant.walletDeleteOtp.subject`
+  - − Confirme la eliminación de la billetera
+  - + Confirme la eliminación de la dirección de cobro
+- **es** `emails.json::merchant.walletDeleted.cta`
+  - − Ver billeteras
+  - + Ver direcciones de cobro
+- **es** `emails.json::merchant.walletDeleted.didntDoThis`
+  - − <strong>¿No fue usted?</strong><br />Si no eliminó esta billetera, proteja su cuenta de inmediato y contacte con soporte.
+  - + <strong>¿No fue usted?</strong><br />Si no eliminó esta dirección de cobro, proteja su cuenta de inmediato y contacte con soporte.
+- **es** `emails.json::merchant.walletDeleted.heading`
+  - − Billetera eliminada
+  - + Dirección de cobro eliminada
+- **es** `emails.json::merchant.walletDeleted.intro`
+  - − Se ha eliminado una billetera de su cuenta de Dynopay.
+  - + Se ha eliminado una dirección de cobro de su cuenta de Dynopay.
+- **es** `emails.json::merchant.walletDeleted.outro`
+  - − Los pagos ya no se reenviarán a esta billetera.
+  - + Los pagos ya no se reenviarán a esta dirección de cobro.
+- **es** `emails.json::merchant.walletDeleted.subject`
+  - − Billetera eliminada de su cuenta
+  - + Dirección de cobro eliminada de su cuenta
+- **es** `emails.json::merchant.walletEditOtp.heading`
+  - − Confirme la edición de la billetera
+  - + Confirme la edición de la dirección de cobro
+- **es** `emails.json::merchant.walletEditOtp.intro`
+  - − Está a punto de editar una dirección de billetera. Verifique esta acción con el código de abajo:
+  - + Está a punto de editar una dirección de cobro. Verifique esta acción con el código de abajo:
+- **es** `emails.json::merchant.walletEditOtp.subject`
+  - − Confirme la edición de la billetera
+  - + Confirme la edición de la dirección de cobro
+- **es** `emails.json::merchant.walletUpdateOtp.heading`
+  - − Confirme la actualización de la billetera
+  - + Confirme la actualización de la dirección de cobro
+- **es** `emails.json::merchant.walletUpdateOtp.intro`
+  - − Está actualizando su billetera de cobro. Verifique este cambio con el código de abajo:
+  - + Está actualizando su dirección de cobro. Verifique este cambio con el código de abajo:
+- **es** `emails.json::merchant.walletUpdateOtp.subject`
+  - − Confirme la actualización de la billetera
+  - + Confirme la actualización de la dirección de cobro
+- **es** `emails.json::merchant.walletUpdated.cta`
+  - − Ver billeteras
+  - + Ver direcciones de cobro
+- **es** `emails.json::merchant.walletUpdated.didntDoThis`
+  - − <strong>¿No fue usted?</strong><br />Si no actualizó esta billetera, proteja su cuenta de inmediato y contacte con soporte.
+  - + <strong>¿No fue usted?</strong><br />Si no actualizó esta dirección de cobro, proteja su cuenta de inmediato y contacte con soporte.
+- **es** `emails.json::merchant.walletUpdated.heading`
+  - − Billetera actualizada
+  - + Dirección de cobro actualizada
+- **es** `emails.json::merchant.walletUpdated.intro`
+  - − Su billetera de cobro para <strong>{{companyName}}</strong> se ha actualizado.
+  - + Su dirección de cobro para <strong>{{companyName}}</strong> se ha actualizado.
+- **es** `emails.json::merchant.walletUpdated.subject`
+  - − Billetera actualizada – {{network}}
+  - + Dirección de cobro actualizada – {{network}}
+- **es** `emails.json::merchant.walletVerified.heading`
+  - − Billetera activa
+  - + Dirección de cobro activa
+- **es** `emails.json::merchant.walletVerified.intro`
+  - − Su billetera de cobro ha sido verificada y ya está activa.
+  - + Su dirección de cobro ha sido verificada y ya está activa.
+- **es** `emails.json::merchant.walletVerified.outro`
+  - − Todos los pagos que reciba se reenviarán automáticamente a esta billetera. Ya está todo listo para empezar a aceptar pagos en cripto.
+  - + Todos los pagos que reciba se reenviarán automáticamente a esta dirección de cobro. Ya está todo listo para empezar a aceptar pagos en cripto.
+- **es** `emails.json::merchant.walletVerified.subject`
+  - − Billetera de cobro activa
+  - + Dirección de cobro activa
+- **es** `emails.json::merchant.welcome.next2`
+  - − 2. Añada su billetera de cobro
+  - + 2. Añada su dirección de cobro
+- **es** `emails.json::paymentReceived.outro`
+  - − Los fondos van camino a tu cartera de cobro.
+  - + Los fondos van camino a tu dirección de cobro.
+- **es** `emails.json::paymentSettled.introForwarding`
+  - − <strong>{{companyName}}</strong> recibió un pago que ya está liquidado. El importe neto se está enviando ahora a su wallet de cobro.
+  - + <strong>{{companyName}}</strong> recibió un pago que ya está liquidado. El importe neto se está enviando ahora a su dirección de cobro.
+- **es** `emails.json::payoutDelayed.delayed.intro`
+  - − {{companyName}} recibió {{amount}} de un comprador, pero el pago a su wallet aún no se ha completado.
+  - + {{companyName}} recibió {{amount}} de un comprador, pero el pago a su dirección de cobro aún no se ha completado.
+- **es** `emails.json::security.stepUpActions.wallet`
+  - − cambio de wallets de pago
+  - + cambio de direcciones de cobro
+- **es** `emails.json::walletOtp.heading`
+  - − Código de verificación de la billetera
+  - + Código de verificación de la dirección de cobro
+- **es** `emails.json::walletOtp.intro`
+  - − Estás validando una nueva dirección de billetera para {{currency}}.
+  - + Estás validando una nueva dirección de cobro para {{currency}}.
+- **es** `emails.json::walletOtp.subject`
+  - − Código para validar la dirección de la billetera
+  - + Código para validar la dirección de cobro
+- **es** `emails.json::walletOtp.walletAddress`
+  - − Dirección de la billetera
+  - + Dirección
+- **fr** `emails.json::activation.gate.wallet.cta`
+  - − Ajouter mon portefeuille
+  - + Ajouter mon adresse de versement
+- **fr** `emails.json::activation.gate.wallet.intro`
+  - − Vous avez essayé de créer un lien de paiement, mais aucun portefeuille de versement n'est associé à votre compte. Les paiements sont réglés directement dans un portefeuille que vous contrôlez : nous avons donc besoin d'une adresse avant de pouvoir vous payer.
+  - + Vous avez essayé de créer un lien de paiement, mais aucune adresse de versement n'est associé à votre compte. Les paiements sont réglés directement dans une adresse de versement que vous contrôlez : nous avons donc besoin d'une adresse avant de pouvoir vous payer.
+- **fr** `emails.json::activation.seg.madeLink.cta`
+  - − Ajouter un portefeuille de retrait
+  - + Ajouter une adresse de versement
+- **fr** `emails.json::activation.seg.madeLink.line`
+  - − Vous avez déjà créé un lien de paiement — parfait. Ajoutez un portefeuille de retrait pour qu'au moment où quelqu'un paie, nous versions directement sur un portefeuille que vous contrôlez.
+  - + Vous avez déjà créé un lien de paiement — parfait. Ajoutez une adresse de versement pour qu'au moment où quelqu'un paie, nous versions directement sur une adresse de versement que vous contrôlez.
+- **fr** `emails.json::merchant.addWalletReminder.cta`
+  - − Ajouter un portefeuille maintenant
+  - + Ajouter une adresse de versement maintenant
+- **fr** `emails.json::merchant.addWalletReminder.heading`
+  - − Ajoutez votre portefeuille
+  - + Ajoutez votre adresse de versement
+- **fr** `emails.json::merchant.addWalletReminder.intro`
+  - − Vous y êtes presque ! Le profil de <strong>{{companyName}}</strong> est configuré, mais vous n'avez pas encore ajouté de portefeuille de paiement.
+  - + Vous y êtes presque ! Le profil de <strong>{{companyName}}</strong> est configuré, mais vous n'avez pas encore ajouté d'adresse de versement.
+- **fr** `emails.json::merchant.addWalletReminder.outro`
+  - − Ajoutez votre portefeuille maintenant et commencez à accepter les paiements en crypto dès aujourd'hui.
+  - + Ajoutez votre adresse de versement maintenant et commencez à accepter les paiements en crypto dès aujourd'hui.
+- **fr** `emails.json::merchant.addWalletReminder.whyText`
+  - − Sans portefeuille, vous ne pouvez pas recevoir de paiements. La configuration prend moins de 2 minutes.
+  - + Sans adresse de versement, vous ne pouvez pas recevoir de paiements. La configuration prend moins de 2 minutes.
+- **fr** `emails.json::merchant.addWalletReminder.whyTitle`
+  - − Pourquoi ajouter un portefeuille ?
+  - + Pourquoi ajouter une adresse de versement ?
+- **fr** `emails.json::merchant.brandDeleteReminder.intro`
+  - − Petit rappel : votre marque supprimée <strong>{{companyName}}</strong> sera <strong>définitivement supprimée le {{date}}</strong>, soit dans environ <strong>{{daysLabel}}</strong>. Passé ce délai, ses liens de paiement, wallets, paramètres et historique ne pourront plus être récupérés.
+  - + Petit rappel : votre marque supprimée <strong>{{companyName}}</strong> sera <strong>définitivement supprimée le {{date}}</strong>, soit dans environ <strong>{{daysLabel}}</strong>. Passé ce délai, ses liens de paiement, adresses de versement, paramètres et historique ne pourront plus être récupérés.
+- **fr** `emails.json::merchant.brandRestored.intro`
+  - − Nous avons restauré votre marque <strong>{{companyName}}</strong> sur Dynopay. Tout — vos liens de paiement, wallets, paramètres et historique — est exactement comme vous l'aviez laissé.
+  - + Nous avons restauré votre marque <strong>{{companyName}}</strong> sur Dynopay. Tout — vos liens de paiement, adresses de versement, paramètres et historique — est exactement comme vous l'aviez laissé.
+- **fr** `emails.json::merchant.brandSoftDeleted.intro`
+  - − Votre marque <strong>{{companyName}}</strong> vient d'être supprimée sur Dynopay. Pas d'inquiétude : rien n'est encore perdu. Nous conservons tout (liens de paiement, wallets, paramètres et historique) en sécurité pendant les <strong>7 prochains jours</strong>, au cas où il s'agirait d'une erreur.
+  - + Votre marque <strong>{{companyName}}</strong> vient d'être supprimée sur Dynopay. Pas d'inquiétude : rien n'est encore perdu. Nous conservons tout (liens de paiement, adresses de versement, paramètres et historique) en sécurité pendant les <strong>7 prochains jours</strong>, au cas où il s'agirait d'une erreur.
+- **fr** `emails.json::merchant.companyCreated.cta`
+  - − Ajouter un portefeuille
+  - + Ajouter une adresse de versement
+- **fr** `emails.json::merchant.companyCreated.intro2`
+  - − Vous êtes presque prêt à accepter les paiements. La dernière étape consiste à ajouter l'adresse de votre portefeuille de paiement.
+  - + Vous êtes presque prêt à accepter les paiements. La dernière étape consiste à ajouter l'adresse de votre adresse de versement.
+- **fr** `emails.json::merchant.companyCreated.subject`
+  - − Plus qu'une étape — ajoutez un portefeuille de paiement pour être payé
+  - + Plus qu'une étape — ajoutez une adresse de versement pour être payé
+- **fr** `emails.json::merchant.companyCreated.whyText`
+  - − Votre portefeuille est l'endroit où nous enverrons les paiements en crypto que vous recevez. C'est rapide et sécurisé.
+  - + Votre adresse de versement est l'endroit où nous enverrons les paiements en crypto que vous recevez. C'est rapide et sécurisé.
+- **fr** `emails.json::merchant.companyCreated.whyTitle`
+  - − Pourquoi ajouter un portefeuille ?
+  - + Pourquoi ajouter une adresse de versement ?
+- **fr** `emails.json::merchant.companyDeleted.note`
+  - − Votre historique de transactions est conservé pour vos archives. Les portefeuilles de paiement associés à cette marque n'y sont plus liés.
+  - + Votre historique de transactions est conservé pour vos archives. Les adresses de versement associées à cette marque n'y sont plus liés.
+- **fr** `emails.json::merchant.labels.wallet`
+  - − Portefeuille
+  - + Adresse de versement
+- **fr** `emails.json::merchant.labels.walletName`
+  - − Nom du portefeuille
+  - + Nom
+- **fr** `emails.json::merchant.walletAdded.cta`
+  - − Voir les portefeuilles
+  - + Voir les adresses de versement
+- **fr** `emails.json::merchant.walletAdded.didntDoThis`
+  - − <strong>Ce n'était pas vous ?</strong><br />Si vous n'avez pas ajouté ce portefeuille, sécurisez immédiatement votre compte.
+  - + <strong>Ce n'était pas vous ?</strong><br />Si vous n'avez pas ajouté cette adresse de versement, sécurisez immédiatement votre compte.
+- **fr** `emails.json::merchant.walletAdded.heading`
+  - − Portefeuille ajouté
+  - + Adresse de versement ajoutée
+- **fr** `emails.json::merchant.walletAdded.intro`
+  - − Un nouveau portefeuille de paiement a été ajouté avec succès à votre marque <strong>{{companyName}}</strong>.
+  - + Une nouvelle adresse de versement a été ajoutée avec succès à votre marque <strong>{{companyName}}</strong>.
+- **fr** `emails.json::merchant.walletAdded.outro`
+  - − Tous les paiements en {{network}} seront transférés vers ce portefeuille. Vous pouvez gérer vos portefeuilles dans le tableau de bord.
+  - + Tous les paiements en {{network}} seront transférés vers cette adresse de versement. Vous pouvez gérer vos adresses de versement dans le tableau de bord.
+- **fr** `emails.json::merchant.walletAdded.subject`
+  - − Portefeuille ajouté – {{network}}
+  - + Adresse de versement ajoutée – {{network}}
+- **fr** `emails.json::merchant.walletDeleteOtp.heading`
+  - − Confirmez la suppression du portefeuille
+  - + Confirmez la suppression de l'adresse de versement
+- **fr** `emails.json::merchant.walletDeleteOtp.intro`
+  - − Vous êtes sur le point de <strong>supprimer définitivement</strong> une adresse de portefeuille. Cette action est irréversible.
+  - + Vous êtes sur le point de <strong>supprimer définitivement</strong> une adresse de versement. Cette action est irréversible.
+- **fr** `emails.json::merchant.walletDeleteOtp.subject`
+  - − Confirmez la suppression du portefeuille
+  - + Confirmez la suppression de l'adresse de versement
+- **fr** `emails.json::merchant.walletDeleted.cta`
+  - − Voir les portefeuilles
+  - + Voir les adresses de versement
+- **fr** `emails.json::merchant.walletDeleted.didntDoThis`
+  - − <strong>Ce n'était pas vous ?</strong><br />Si vous n'avez pas supprimé ce portefeuille, sécurisez immédiatement votre compte et contactez l'assistance.
+  - + <strong>Ce n'était pas vous ?</strong><br />Si vous n'avez pas supprimé cette adresse de versement, sécurisez immédiatement votre compte et contactez l'assistance.
+- **fr** `emails.json::merchant.walletDeleted.heading`
+  - − Portefeuille supprimé
+  - + Adresse de versement supprimée
+- **fr** `emails.json::merchant.walletDeleted.intro`
+  - − Un portefeuille a été supprimé de votre compte Dynopay.
+  - + Une adresse de versement a été supprimée de votre compte Dynopay.
+- **fr** `emails.json::merchant.walletDeleted.outro`
+  - − Les paiements ne seront plus transférés vers ce portefeuille.
+  - + Les paiements ne seront plus transférés vers cette adresse de versement.
+- **fr** `emails.json::merchant.walletDeleted.subject`
+  - − Portefeuille supprimé de votre compte
+  - + Adresse de versement supprimée de votre compte
+- **fr** `emails.json::merchant.walletEditOtp.heading`
+  - − Confirmez la modification du portefeuille
+  - + Confirmez la modification de l'adresse de versement
+- **fr** `emails.json::merchant.walletEditOtp.intro`
+  - − Vous êtes sur le point de modifier une adresse de portefeuille. Veuillez vérifier cette action avec le code ci-dessous :
+  - + Vous êtes sur le point de modifier une adresse de versement. Veuillez vérifier cette action avec le code ci-dessous :
+- **fr** `emails.json::merchant.walletEditOtp.subject`
+  - − Confirmez la modification du portefeuille
+  - + Confirmez la modification de l'adresse de versement
+- **fr** `emails.json::merchant.walletUpdateOtp.heading`
+  - − Confirmez la mise à jour du portefeuille
+  - + Confirmez la mise à jour de l'adresse de versement
+- **fr** `emails.json::merchant.walletUpdateOtp.intro`
+  - − Vous mettez à jour votre portefeuille de paiement. Veuillez vérifier ce changement avec le code ci-dessous :
+  - + Vous mettez à jour votre adresse de versement. Veuillez vérifier ce changement avec le code ci-dessous :
+- **fr** `emails.json::merchant.walletUpdateOtp.subject`
+  - − Confirmez la mise à jour du portefeuille
+  - + Confirmez la mise à jour de l'adresse de versement
+- **fr** `emails.json::merchant.walletUpdated.cta`
+  - − Voir les portefeuilles
+  - + Voir les adresses de versement
+- **fr** `emails.json::merchant.walletUpdated.didntDoThis`
+  - − <strong>Ce n'était pas vous ?</strong><br />Si vous n'avez pas mis à jour ce portefeuille, sécurisez immédiatement votre compte et contactez l'assistance.
+  - + <strong>Ce n'était pas vous ?</strong><br />Si vous n'avez pas mis à jour cette adresse de versement, sécurisez immédiatement votre compte et contactez l'assistance.
+- **fr** `emails.json::merchant.walletUpdated.heading`
+  - − Portefeuille mis à jour
+  - + Adresse de versement mis à jour
+- **fr** `emails.json::merchant.walletUpdated.intro`
+  - − Votre portefeuille de paiement pour <strong>{{companyName}}</strong> a été mis à jour.
+  - + Votre adresse de versement pour <strong>{{companyName}}</strong> a été mis à jour.
+- **fr** `emails.json::merchant.walletUpdated.subject`
+  - − Portefeuille mis à jour – {{network}}
+  - + Adresse de versement mis à jour – {{network}}
+- **fr** `emails.json::merchant.walletVerified.heading`
+  - − Portefeuille actif
+  - + Adresse de versement actif
+- **fr** `emails.json::merchant.walletVerified.intro`
+  - − Votre portefeuille de paiement a été vérifié et est maintenant actif.
+  - + Votre adresse de versement a été vérifié et est maintenant actif.
+- **fr** `emails.json::merchant.walletVerified.outro`
+  - − Tous les paiements que vous recevez seront automatiquement transférés vers ce portefeuille. Vous êtes prêt à accepter des paiements en crypto.
+  - + Tous les paiements que vous recevez seront automatiquement transférés vers cette adresse de versement. Vous êtes prêt à accepter des paiements en crypto.
+- **fr** `emails.json::merchant.walletVerified.subject`
+  - − Portefeuille de paiement actif
+  - + Adresse de versement actif
+- **fr** `emails.json::merchant.welcome.next2`
+  - − 2. Ajoutez votre portefeuille de paiement
+  - + 2. Ajoutez votre adresse de versement
+- **fr** `emails.json::paymentReceived.outro`
+  - − Les fonds sont en route vers votre portefeuille de paiement.
+  - + Les fonds sont en route vers votre adresse de versement.
+- **fr** `emails.json::paymentReceived.preheader`
+  - − Les fonds sont en cours de versement sur votre portefeuille.
+  - + Les fonds sont en cours de versement sur votre adresse de versement.
+- **fr** `emails.json::paymentSettled.introForwarding`
+  - − <strong>{{companyName}}</strong> a reçu un paiement qui est maintenant réglé. Le montant net est en cours de transfert vers votre wallet de versement.
+  - + <strong>{{companyName}}</strong> a reçu un paiement qui est maintenant réglé. Le montant net est en cours de transfert vers votre adresse de versement.
+- **fr** `emails.json::payoutDelayed.delayed.intro`
+  - − {{companyName}} a reçu {{amount}} d'un acheteur, mais le versement vers votre wallet n'est pas encore terminé.
+  - + {{companyName}} a reçu {{amount}} d'un acheteur, mais le versement vers votre adresse de versement n'est pas encore terminé.
+- **fr** `emails.json::security.accountDeleted.intro`
+  - − Comme demandé, votre compte Dynopay et toutes ses données (marques, liens de paiement, clés API, portefeuilles de versement et paramètres) ont été définitivement supprimés.
+  - + Comme demandé, votre compte Dynopay et toutes ses données (marques, liens de paiement, clés API, adresses de versement et paramètres) ont été définitivement supprimés.
+- **fr** `emails.json::security.stepUpActions.wallet`
+  - − la modification des portefeuilles de paiement
+  - + la modification des adresses de versement
+- **fr** `emails.json::walletOtp.heading`
+  - − Code de vérification du portefeuille
+  - + Code de vérification de l'adresse de versement
+- **fr** `emails.json::walletOtp.intro`
+  - − Vous validez une nouvelle adresse de portefeuille pour {{currency}}.
+  - + Vous validez une nouvelle adresse de versement pour {{currency}}.
+- **fr** `emails.json::walletOtp.subject`
+  - − Code de validation de l'adresse du portefeuille
+  - + Code de validation de l'adresse de versement
+- **fr** `emails.json::walletOtp.walletAddress`
+  - − Adresse du portefeuille
+  - + Adresse
+- **pt** `emails.json::activation.gate.wallet.cta`
+  - − Adicionar carteira de recebimento
+  - + Adicionar endereço de recebimento
+- **pt** `emails.json::activation.gate.wallet.intro`
+  - − Você tentou criar um link de pagamento, mas ainda não há uma carteira de recebimento na sua conta. Os pagamentos são liquidados direto em uma carteira que você controla, então precisamos de um endereço antes de você receber.
+  - + Você tentou criar um link de pagamento, mas ainda não há um endereço de recebimento na sua conta. Os pagamentos são liquidados direto em um endereço de recebimento que você controla, então precisamos de um endereço antes de você receber.
+- **pt** `emails.json::activation.seg.madeLink.cta`
+  - − Adicionar carteira de saque
+  - + Adicionar endereço de recebimento
+- **pt** `emails.json::activation.seg.madeLink.line`
+  - − Você já criou um link de pagamento — ótimo. Adicione uma carteira de saque para que, assim que alguém pagar, liquidemos direto numa carteira que você controla.
+  - + Você já criou um link de pagamento — ótimo. Adicione um endereço de recebimento para que, assim que alguém pagar, liquidemos direto num endereço de recebimento que você controla.
+- **pt** `emails.json::merchant.addWalletReminder.cta`
+  - − Adicionar carteira agora
+  - + Adicionar endereço de recebimento agora
+- **pt** `emails.json::merchant.addWalletReminder.heading`
+  - − Adicione a sua carteira
+  - + Adicione o seu endereço de recebimento
+- **pt** `emails.json::merchant.addWalletReminder.intro`
+  - − Está quase! O perfil de <strong>{{companyName}}</strong> está configurado, mas ainda não adicionou uma carteira de pagamento.
+  - + Está quase! O perfil de <strong>{{companyName}}</strong> está configurado, mas ainda não adicionou um endereço de recebimento.
+- **pt** `emails.json::merchant.addWalletReminder.outro`
+  - − Adicione já a sua carteira e comece a aceitar pagamentos em cripto hoje.
+  - + Adicione já o seu endereço de recebimento e comece a aceitar pagamentos em cripto hoje.
+- **pt** `emails.json::merchant.addWalletReminder.whyText`
+  - − Sem uma carteira, não pode receber pagamentos. A configuração demora menos de 2 minutos.
+  - + Sem um endereço de recebimento, não pode receber pagamentos. A configuração demora menos de 2 minutos.
+- **pt** `emails.json::merchant.addWalletReminder.whyTitle`
+  - − Porquê adicionar uma carteira?
+  - + Porquê adicionar um endereço de recebimento?
+- **pt** `emails.json::merchant.brandDeleteReminder.intro`
+  - − Só para avisar: a sua marca eliminada <strong>{{companyName}}</strong> está agendada para ser <strong>eliminada permanentemente em {{date}}</strong> — ou seja, daqui a cerca de <strong>{{daysLabel}}</strong>. Depois disso, os seus links de pagamento, wallets, definições e histórico não poderão ser recuperados.
+  - + Só para avisar: a sua marca eliminada <strong>{{companyName}}</strong> está agendada para ser <strong>eliminada permanentemente em {{date}}</strong> — ou seja, daqui a cerca de <strong>{{daysLabel}}</strong>. Depois disso, os seus links de pagamento, endereços de recebimento, definições e histórico não poderão ser recuperados.
+- **pt** `emails.json::merchant.brandRestored.intro`
+  - − Restaurámos a sua marca <strong>{{companyName}}</strong> no Dynopay. Tudo — links de pagamento, wallets, definições e histórico — está exatamente como deixou.
+  - + Restaurámos a sua marca <strong>{{companyName}}</strong> no Dynopay. Tudo — links de pagamento, endereços de recebimento, definições e histórico — está exatamente como deixou.
+- **pt** `emails.json::merchant.brandSoftDeleted.intro`
+  - − A sua marca <strong>{{companyName}}</strong> acabou de ser eliminada no Dynopay. Não se preocupe — ainda nada se perdeu. Vamos guardar tudo (links de pagamento, wallets, definições e histórico) em segurança durante os próximos <strong>7 dias</strong>, caso tenha sido um engano.
+  - + A sua marca <strong>{{companyName}}</strong> acabou de ser eliminada no Dynopay. Não se preocupe — ainda nada se perdeu. Vamos guardar tudo (links de pagamento, endereços de recebimento, definições e histórico) em segurança durante os próximos <strong>7 dias</strong>, caso tenha sido um engano.
+- **pt** `emails.json::merchant.companyCreated.cta`
+  - − Adicionar carteira
+  - + Adicionar endereço de recebimento
+- **pt** `emails.json::merchant.companyCreated.intro2`
+  - − Está quase pronto para começar a aceitar pagamentos. O último passo é adicionar o endereço da sua carteira de pagamento.
+  - + Está quase pronto para começar a aceitar pagamentos. O último passo é adicionar o endereço de recebimento.
+- **pt** `emails.json::merchant.companyCreated.subject`
+  - − Falta um passo — adicione uma carteira de recebimento para receber
+  - + Falta um passo — adicione um endereço de recebimento para receber
+- **pt** `emails.json::merchant.companyCreated.whyText`
+  - − A sua carteira é para onde enviaremos os pagamentos em cripto que receber. É rápido e seguro.
+  - + O seu endereço de recebimento é para onde enviaremos os pagamentos em cripto que receber. É rápido e seguro.
+- **pt** `emails.json::merchant.companyCreated.whyTitle`
+  - − Porquê adicionar uma carteira?
+  - + Porquê adicionar um endereço de recebimento?
+- **pt** `emails.json::merchant.companyDeleted.note`
+  - − O seu histórico de transações é mantido para os seus registos. As carteiras de pagamento atribuídas a esta marca deixaram de estar associadas a ela.
+  - + O seu histórico de transações é mantido para os seus registos. Os endereços de recebimento atribuídos a esta marca deixaram de estar associadas a ela.
+- **pt** `emails.json::merchant.labels.wallet`
+  - − Carteira
+  - + Endereço de recebimento
+- **pt** `emails.json::merchant.labels.walletName`
+  - − Nome da carteira
+  - + Nome
+- **pt** `emails.json::merchant.walletAdded.cta`
+  - − Ver carteiras
+  - + Ver endereços de recebimento
+- **pt** `emails.json::merchant.walletAdded.didntDoThis`
+  - − <strong>Não foi você?</strong><br />Se não adicionou esta carteira, proteja a sua conta imediatamente.
+  - + <strong>Não foi você?</strong><br />Se não adicionou este endereço de recebimento, proteja a sua conta imediatamente.
+- **pt** `emails.json::merchant.walletAdded.heading`
+  - − Carteira adicionada
+  - + Endereço de recebimento adicionado
+- **pt** `emails.json::merchant.walletAdded.intro`
+  - − Uma nova carteira de pagamento foi adicionada com sucesso à sua marca <strong>{{companyName}}</strong>.
+  - + Um novo endereço de recebimento foi adicionado com sucesso à sua marca <strong>{{companyName}}</strong>.
+- **pt** `emails.json::merchant.walletAdded.outro`
+  - − Todos os pagamentos em {{network}} serão encaminhados para esta carteira. Pode gerir as suas carteiras no painel.
+  - + Todos os pagamentos em {{network}} serão encaminhados para este endereço de recebimento. Pode gerir as seus endereços de recebimento no painel.
+- **pt** `emails.json::merchant.walletAdded.subject`
+  - − Carteira adicionada – {{network}}
+  - + Endereço de recebimento adicionado – {{network}}
+- **pt** `emails.json::merchant.walletDeleteOtp.heading`
+  - − Confirme a eliminação da carteira
+  - + Confirme a eliminação do endereço de recebimento
+- **pt** `emails.json::merchant.walletDeleteOtp.intro`
+  - − Está prestes a <strong>eliminar permanentemente</strong> um endereço de carteira. Esta ação não pode ser anulada.
+  - + Está prestes a <strong>eliminar permanentemente</strong> um endereço de recebimento. Esta ação não pode ser anulada.
+- **pt** `emails.json::merchant.walletDeleteOtp.subject`
+  - − Confirme a eliminação da carteira
+  - + Confirme a eliminação do endereço de recebimento
+- **pt** `emails.json::merchant.walletDeleted.cta`
+  - − Ver carteiras
+  - + Ver endereços de recebimento
+- **pt** `emails.json::merchant.walletDeleted.didntDoThis`
+  - − <strong>Não foi você?</strong><br />Se não removeu esta carteira, proteja a sua conta imediatamente e contacte o suporte.
+  - + <strong>Não foi você?</strong><br />Se não removeu este endereço de recebimento, proteja a sua conta imediatamente e contacte o suporte.
+- **pt** `emails.json::merchant.walletDeleted.heading`
+  - − Carteira removida
+  - + Endereço de recebimento removido
+- **pt** `emails.json::merchant.walletDeleted.intro`
+  - − Uma carteira foi removida da sua conta Dynopay.
+  - + Um endereço de recebimento foi removido da sua conta Dynopay.
+- **pt** `emails.json::merchant.walletDeleted.outro`
+  - − Os pagamentos deixarão de ser encaminhados para esta carteira.
+  - + Os pagamentos deixarão de ser encaminhados para este endereço de recebimento.
+- **pt** `emails.json::merchant.walletDeleted.subject`
+  - − Carteira removida da sua conta
+  - + Endereço de recebimento removido da sua conta
+- **pt** `emails.json::merchant.walletEditOtp.heading`
+  - − Confirme a edição da carteira
+  - + Confirme a edição do endereço de recebimento
+- **pt** `emails.json::merchant.walletEditOtp.intro`
+  - − Está prestes a editar um endereço de carteira. Verifique esta ação com o código abaixo:
+  - + Está prestes a editar um endereço de recebimento. Verifique esta ação com o código abaixo:
+- **pt** `emails.json::merchant.walletEditOtp.subject`
+  - − Confirme a edição da carteira
+  - + Confirme a edição do endereço de recebimento
+- **pt** `emails.json::merchant.walletUpdateOtp.heading`
+  - − Confirme a atualização da carteira
+  - + Confirme a atualização do endereço de recebimento
+- **pt** `emails.json::merchant.walletUpdateOtp.intro`
+  - − Está a atualizar a sua carteira de pagamento. Verifique esta alteração com o código abaixo:
+  - + Está a atualizar o seu endereço de recebimento. Verifique esta alteração com o código abaixo:
+- **pt** `emails.json::merchant.walletUpdateOtp.subject`
+  - − Confirme a atualização da carteira
+  - + Confirme a atualização do endereço de recebimento
+- **pt** `emails.json::merchant.walletUpdated.cta`
+  - − Ver carteiras
+  - + Ver endereços de recebimento
+- **pt** `emails.json::merchant.walletUpdated.didntDoThis`
+  - − <strong>Não foi você?</strong><br />Se não atualizou esta carteira, proteja a sua conta imediatamente e contacte o suporte.
+  - + <strong>Não foi você?</strong><br />Se não atualizou este endereço de recebimento, proteja a sua conta imediatamente e contacte o suporte.
+- **pt** `emails.json::merchant.walletUpdated.heading`
+  - − Carteira atualizada
+  - + Endereço de recebimento atualizado
+- **pt** `emails.json::merchant.walletUpdated.intro`
+  - − A sua carteira de pagamento para <strong>{{companyName}}</strong> foi atualizada.
+  - + O seu endereço de recebimento para <strong>{{companyName}}</strong> foi atualizado.
+- **pt** `emails.json::merchant.walletUpdated.subject`
+  - − Carteira atualizada – {{network}}
+  - + Endereço de recebimento atualizado – {{network}}
+- **pt** `emails.json::merchant.walletVerified.heading`
+  - − Carteira ativa
+  - + Endereço de recebimento ativo
+- **pt** `emails.json::merchant.walletVerified.intro`
+  - − A sua carteira de pagamento foi verificada e está agora ativa.
+  - + O seu endereço de recebimento foi verificado e está agora ativo.
+- **pt** `emails.json::merchant.walletVerified.outro`
+  - − Todos os pagamentos que receber serão automaticamente encaminhados para esta carteira. Está tudo pronto para começar a aceitar pagamentos em cripto.
+  - + Todos os pagamentos que receber serão automaticamente encaminhados para este endereço de recebimento. Está tudo pronto para começar a aceitar pagamentos em cripto.
+- **pt** `emails.json::merchant.walletVerified.subject`
+  - − Carteira de pagamento ativa
+  - + Endereço de recebimento ativo
+- **pt** `emails.json::merchant.welcome.next2`
+  - − 2. Adicione a sua carteira de pagamento
+  - + 2. Adicione o seu endereço de recebimento
+- **pt** `emails.json::paymentReceived.outro`
+  - − Os fundos estão a caminho da sua carteira de recebimento.
+  - + Os fundos estão a caminho do seu endereço de recebimento.
+- **pt** `emails.json::paymentReceived.preheader`
+  - − Os fundos estão a ser liquidados na sua carteira de pagamentos.
+  - + Os fundos estão a ser liquidados no seu endereço de recebimento.
+- **pt** `emails.json::paymentSettled.introForwarding`
+  - − <strong>{{companyName}}</strong> recebeu um pagamento que já está liquidado. O valor líquido está a ser encaminhado agora para a sua wallet de pagamento.
+  - + <strong>{{companyName}}</strong> recebeu um pagamento que já está liquidado. O valor líquido está a ser encaminhado agora para o seu endereço de recebimento.
+- **pt** `emails.json::payoutDelayed.delayed.intro`
+  - − {{companyName}} recebeu {{amount}} de um comprador, mas o pagamento para a sua wallet ainda não foi concluído.
+  - + {{companyName}} recebeu {{amount}} de um comprador, mas o pagamento para o seu endereço de recebimento ainda não foi concluído.
+- **pt** `emails.json::security.accountDeleted.intro`
+  - − Conforme pedido, a sua conta Dynopay e todos os seus dados — marcas, links de pagamento, chaves API, carteiras de pagamento e definições — foram eliminados permanentemente.
+  - + Conforme pedido, a sua conta Dynopay e todos os seus dados — marcas, links de pagamento, chaves API, endereços de recebimento e definições — foram eliminados permanentemente.
+- **pt** `emails.json::security.stepUpActions.wallet`
+  - − alteração de carteiras de pagamento
+  - + alteração de endereços de recebimento
+- **pt** `emails.json::walletOtp.heading`
+  - − Código de verificação da carteira
+  - + Código de verificação do endereço de recebimento
+- **pt** `emails.json::walletOtp.intro`
+  - − Você está validando um novo endereço de carteira para {{currency}}.
+  - + Você está validando um novo endereço de recebimento para {{currency}}.
+- **pt** `emails.json::walletOtp.subject`
+  - − Código para validação de endereço de carteira
+  - + Código para validação de endereço de recebimento
+- **pt** `emails.json::walletOtp.walletAddress`
+  - − Endereço da carteira
+  - + Endereço
+- **src** `pages/create-pay-link.tsx`
+  - − Add a Payout Wallet
+  - + Add a Payout Address
+- **src** `pages/create-pay-link.tsx`
+  - − Add a Payout Wallet
+  - + Add a Payout Address
+- **src** `pages/wallet.tsx`
+  - − Add wallet
+  - + Add payout address
+- **src** `pages/wallet.tsx`
+  - − Manage wallets
+  - + Manage payout addresses
+- **src** `pages/wallet.tsx`
+  - − Add Wallet
+  - + Add payout address
+- **src** `pages/wallet.tsx`
+  - − Manage your cryptocurrency wallet addresses
+  - + Manage the addresses your payments are forwarded to
+- **src** `pages/wallet-security.tsx`
+  - − Undoing the wallet change and locking further edits. This only takes a moment.
+  - + Undoing the payout address change and locking further edits. This only takes a moment.
+- **src** `pages/wallet-security.tsx`
+  - − We've undone the recent payout wallet change(s){{networks}} and locked wallet changes on your account. To make new wallet changes, contact support so we can confirm it's really you.
+  - + We've undone the recent payout address change(s){{networks}} and locked payout address changes on your account. To make new payout address changes, contact support so we can confirm it's really you.
+- **src** `pages/wallet-security.tsx`
+  - − This security link has already been used, has expired, or isn't valid. If you didn't make the wallet change yourself, sign in now, go to Settings → Security, remove the wallet you don't recognise and change your password — then contact support right away.
+  - + This security link has already been used, has expired, or isn't valid. If you didn't make the payout address change yourself, sign in now, go to Settings → Security, remove the wallet you don't recognise and change your password — then contact support right away.
+- **src** `pages/settings/index.tsx`
+  - − Two-step verification, password, payout-wallet protection and signed-in devices.
+  - + Two-step verification, password, payout address protection and signed-in devices.
+- **src** `pages/auth/reset-2fa.tsx`
+  - − Your authenticator app will be removed and email codes become your second step. For your safety this signs you out everywhere, forgets all trusted browsers and locks payout-wallet changes for 24 hours.
+  - + Your authenticator app will be removed and email codes become your second step. For your safety this signs you out everywhere, forgets all trusted browsers and locks payout address changes for 24 hours.
+- **src** `pages/auth/reset-2fa.tsx`
+  - − Payout-wallet changes are locked until {{until}}. Contact support to unlock sooner.
+  - + Payout address changes are locked until {{until}}. Contact support to unlock sooner.
+- **src** `pages/auth/reset-2fa.tsx`
+  - − Payout-wallet changes are locked for 24 hours. Contact support to unlock sooner.
+  - + Payout address changes are locked for 24 hours. Contact support to unlock sooner.
+- **src** `Components/UI/SharedAddressTag.tsx`
+  - − Tap to highlight every wallet using this address
+  - + Tap to highlight every coin paid out to this address
+- **src** `Components/UI/InfoBanner/index.tsx`
+  - − Please set up your USDT/USDC wallet first.
+  - + Please add a USDT/USDC payout address first.
+- **src** `Components/UI/OtpDialog/index.tsx`
+  - − Setting up your wallet…
+  - + Saving your payout address…
+- **src** `Components/UI/WalletManagerModal/ManagerFooter.tsx`
+  - − {{n}} wallets copied and saved to this brand
+  - + {{n}} payout addresses copied and saved to this brand
+- **src** `Components/UI/WalletManagerModal/ManagerFooter.tsx`
+  - − Finish the new wallet rows to include them
+  - + Finish the new address rows to include them
+- **src** `Components/UI/WalletManagerModal/ManagerFooter.tsx`
+  - − No changes yet — edit a wallet or add a network
+  - + No changes yet — edit an address or add a network
+- **src** `Components/UI/WalletManagerModal/ExistingWalletRow.tsx`
+  - − Wallet address
+  - + Address
+- **src** `Components/UI/WalletManagerModal/ExistingWalletRow.tsx`
+  - − Wallet name (optional)
+  - + Label (optional)
+- **src** `Components/UI/WalletManagerModal/AddWalletCard.tsx`
+  - − New wallet
+  - + New payout address
+- **src** `Components/UI/WalletManagerModal/AddWalletCard.tsx`
+  - − Wallet address
+  - + Address
+- **src** `Components/UI/WalletManagerModal/AddWalletCard.tsx`
+  - − Wallet name (optional)
+  - + Label (optional)
+- **src** `Components/UI/WalletManagerModal/ReuseSection.tsx`
+  - − {{n}} wallets this brand doesn't have yet
+  - + {{n}} payout addresses this brand doesn't have yet
+- **src** `Components/UI/WalletManagerModal/index.tsx`
+  - − Wallets copied
+  - + Payout addresses copied
+- **src** `Components/UI/WalletManagerModal/index.tsx`
+  - − Couldn't copy wallets
+  - + Couldn't copy payout addresses
+- **src** `Components/UI/WalletManagerModal/index.tsx`
+  - − Manage wallets
+  - + Manage payout addresses
+- **src** `Components/UI/WalletManagerModal/index.tsx`
+  - − Add, edit or remove multiple payout wallets in one go.
+  - + Add, edit or remove multiple payout addresses in one go.
+- **src** `Components/UI/WalletManagerModal/index.tsx`
+  - − Verify it's you to manage payout wallets.
+  - + Verify it's you to manage payout addresses.
+- **src** `Components/UI/WalletManagerModal/index.tsx`
+  - − Your wallets
+  - + Your payout addresses
+- **src** `Components/UI/WalletManagerModal/index.tsx`
+  - − Add wallets
+  - + Add payout addresses
+- **src** `Components/UI/WalletManagerModal/index.tsx`
+  - − Every supported network already has a wallet on this brand.
+  - + Every supported network already has a payout address on this brand.
+- **src** `Components/UI/OnboardingFlow/index.tsx`
+  - − Add payout wallet
+  - + Add payout address
+- **src** `Components/UI/DeleteWalletModal/index.tsx`
+  - − You're about to remove the {{type}} wallet{{address}}. This action is permanent and cannot be undone. We'll ask you to verify it's you first.
+  - + You're about to remove the {{type}} payout address{{address}}. This action is permanent and cannot be undone. We'll ask you to verify it's you first.
+- **src** `Components/UI/WalletReuseSelector/index.tsx`
+  - − Reuse wallets from an existing company
+  - + Reuse payout addresses from an existing company
+- **src** `Components/UI/WalletReuseSelector/index.tsx`
+  - − {{count}} wallet(s) copied
+  - + {{count}} payout address(es) copied
+- **src** `Components/UI/WalletReuseSelector/index.tsx`
+  - − Could not copy wallets. Please try again.
+  - + Could not copy the payout addresses. Please try again.
+- **src** `Components/UI/WalletReuseSelector/index.tsx`
+  - − Reuse wallets from your other companies
+  - + Reuse payout addresses from your other companies
+- **src** `Components/UI/WalletReuseSelector/index.tsx`
+  - − Skip re-entering addresses — copy wallet addresses you've already set up in your other companies.
+  - + Skip re-entering addresses — copy payout addresses you've already set up in your other companies.
+- **src** `Components/UI/WalletReuseSelector/index.tsx`
+  - − Use these wallets
+  - + Use these addresses
+- **src** `Components/UI/WalletReuseSelector/index.tsx`
+  - − Use {{count}} selected wallet(s)
+  - + Use {{count}} selected payout address(es)
+- **src** `Components/UI/TwoFactorLoginDialog/ResetViaEmailPanel.tsx`
+  - − For your safety this signs you out everywhere, forgets all trusted browsers and locks payout-wallet changes for 24 hours.
+  - + For your safety this signs you out everywhere, forgets all trusted browsers and locks payout address changes for 24 hours.
+- **src** `Components/UI/CompanySettingsDialog/CompanyDetailsSection.tsx`
+  - − Add your business name and country below, then Save to switch to a business account. Your wallets, keys and history stay exactly as they are.
+  - + Add your business name and country below, then Save to switch to a business account. Your payout addresses, keys and history stay exactly as they are.
+- **src** `Components/UI/AddWalletModal/index.tsx`
+  - − Wallet updated successfully
+  - + Payout address updated
+- **src** `Components/UI/AddWalletModal/index.tsx`
+  - − Wallet updated successfully
+  - + Payout address updated
+- **src** `Components/UI/AddWalletModal/index.tsx`
+  - − Failed to add wallet address
+  - + Failed to add payout address
+- **src** `Components/UI/AddWalletModal/index.tsx`
+  - − Failed to add wallet address
+  - + Failed to add payout address
+- **src** `Components/UI/AddWalletModal/index.tsx`
+  - − Update your payout wallet details.
+  - + Update your payout address details.
+- **src** `Components/UI/AddWalletModal/index.tsx`
+  - − We'll ask you to verify it's you before this wallet is saved.
+  - + We'll ask you to verify it's you before this address is saved.
+- **src** `Components/Layout/Menus.tsx`
+  - − Wallet Address
+  - + Address
+- **src** `Components/Layout/NewSidebar/index.tsx`
+  - − Payout wallets
+  - + Payout addresses
+- **src** `Components/Layout/MobileNavigationBar/index.tsx`
+  - − Payout wallets
+  - + Payout addresses
+- **src** `Components/Common/CommandPalette/index.tsx`
+  - − add wallet
+  - + add payout address
+- **src** `Components/Common/CommandPalette/index.tsx`
+  - − Payout wallets
+  - + Payout addresses
+- **src** `Components/Common/CommandPalette/index.tsx`
+  - − Add payout wallet
+  - + Add payout address
+- **src** `Components/Page/Transactions/TransactionsFilterSheet.tsx`
+  - − All wallets
+  - + All payout addresses
+- **src** `Components/Page/Transactions/TransactionDetailsModal.tsx`
+  - − Settlement wallet
+  - + Settlement address
+- **src** `Components/Page/Transactions/AutoConvertPayoutRow.tsx`
+  - − Sent from our exchange account to your {{chain}} payout wallet after converting {{from}}.
+  - + Sent from our exchange account to your {{chain}} payout address after converting {{from}}.
+- **src** `Components/Page/WalletSecurity/WalletChangeHistory.tsx`
+  - − Added a payout wallet
+  - + Added a payout address
+- **src** `Components/Page/WalletSecurity/WalletChangeHistory.tsx`
+  - − Updated a payout wallet
+  - + Updated a payout address
+- **src** `Components/Page/WalletSecurity/WalletChangeHistory.tsx`
+  - − Changed a payout wallet address
+  - + Changed a payout address
+- **src** `Components/Page/WalletSecurity/WalletChangeHistory.tsx`
+  - − Removed a payout wallet
+  - + Removed a payout address
+- **src** `Components/Page/WalletSecurity/WalletChangeHistory.tsx`
+  - − Only the brand owner can see wallet change history.
+  - + Only the brand owner can see payout address change history.
+- **src** `Components/Page/WalletSecurity/WalletChangeHistory.tsx`
+  - − No wallet changes yet. Every add, edit or removal will show up here with who did it and when.
+  - + No payout address changes yet. Every add, edit or removal will show up here with who did it and when.
+- **src** `Components/Page/WalletSecurity/WalletChangeHistory.tsx`
+  - − Payout wallets
+  - + Payout addresses
+- **src** `Components/Page/WalletSecurity/WalletChangeHistory.tsx`
+  - − Wallet change history
+  - + Payout address change history
+- **src** `Components/Page/WalletSecurity/HowItWorks.tsx`
+  - − You change a wallet
+  - + You change a payout address
+- **src** `Components/Page/WalletSecurity/HowItWorks.tsx`
+  - − If it wasn’t you, that link restores the previous address and locks further wallet changes until support confirms it’s really you.
+  - + If it wasn’t you, that link restores the previous address and locks further payout address changes until support confirms it’s really you.
+- **src** `Components/Page/WalletSecurity/ProtectionLevelCard.tsx`
+  - − Wallet changes are frozen after a “this wasn’t me” report. Contact support to unlock.
+  - + Payout address changes are frozen after a “this wasn’t me” report. Contact support to unlock.
+- **src** `Components/Page/WalletSecurity/ProtectionLevelCard.tsx`
+  - − Every wallet change needs a one-time code, emails you an undo link, and your sign-in has two-factor protection.
+  - + Every payout address change needs a one-time code, emails you an undo link, and your sign-in has two-factor protection.
+- **src** `Components/Page/WalletSecurity/ProtectionLevelCard.tsx`
+  - − Every wallet change needs a one-time code and emails you an undo link. Turn on two-factor sign-in to reach Strong.
+  - + Every payout address change needs a one-time code and emails you an undo link. Turn on two-factor sign-in to reach Strong.
+- **src** `Components/Page/WalletSecurity/ProtectionLevelCard.tsx`
+  - − A one-time code is required for every wallet change
+  - + A one-time code is required for every payout address change
+- **src** `Components/Page/WalletSecurity/ProtectionLevelCard.tsx`
+  - − How your payout wallets are protected right now.
+  - + How your payout addresses are protected right now.
+- **src** `Components/Page/CreatePaymentLink/index.tsx`
+  - − ,
+              flexDirection: { xs: "column", sm: "row" },
+            }}
+          >
+            <Icon icon="mdi:alert-circle-outline" width={20} style={{ flexShrink: 0, marginTop: 1, color: theme.palette.mode === "dark" ? "#FFB74D" : "#E65100" }} aria-hidden />
+            <Box sx={{ flex: 1 }}>
+              <Typography
+                sx={{
+                  fontSize: "14px",
+                  fontFamily: "var(--font-sans)",
+                  fontWeight: 600,
+                  color: theme.palette.mode === "dark" ? "#FFB74D" : "#E65100",
+                  lineHeight: 1.4,
+                  mb: 0.5,
+                }}
+              >
+                {tPaymentLink("activationRequiredTitle", { defaultValue: "Preview mode — activate to accept real payments" })}
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: "13px",
+                  fontFamily: "var(--font-sans)",
+                  color: theme.palette.mode === "dark" ? "#FFB74D" : "#E65100",
+                  lineHeight: 1.5,
+                  opacity: 0.9,
+                }}
+              >
+                {tPaymentLink("activationRequiredBody", { defaultValue: "You can design and preview your payment link now. To activate it (accept real crypto payments), complete two quick steps: add your business details and at least one payout wallet. It takes ~60 seconds." })}
+              </Typography>
+              <Box sx={{ display: "flex", gap: 1, mt: 1.25, flexWrap: "wrap" }}>
+                <Box
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => router.push("/dashboard?onboarding=1")}
+                  onKeyDown={(e: React.KeyboardEvent) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      router.push("/dashboard?onboarding=1");
+                    }
+                  }}
+                  sx={{
+                    cursor: "pointer",
+                    padding: "6px 12px",
+                    borderRadius: 999,
+                    fontFamily: "var(--font-sans)",
+                    fontSize: 12,
+                    backgroundColor: theme.palette.mode === "dark" ? "#FFB74D" : "#E65100",
+                    color: theme.palette.mode === "dark" ? "#000" : "#FFF",
+                    "&:hover": { filter: "brightness(1.1)" },
+                    userSelect: "none",
+                  }}
+                >
+                  {tPaymentLink("activationCta", { defaultValue: "Complete setup" })}
+                </Box>
+                <Box
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => router.push("/wallet")}
+                  onKeyDown={(e: React.KeyboardEvent) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      router.push("/wallet");
+                    }
+                  }}
+                  sx={{
+                    cursor: "pointer",
+                    padding: "6px 12px",
+                    borderRadius: 999,
+                    fontFamily: "var(--font-sans)",
+                    fontSize: 12,
+                    border: 
+  - + ,
+              flexDirection: { xs: "column", sm: "row" },
+            }}
+          >
+            <Icon icon="mdi:alert-circle-outline" width={20} style={{ flexShrink: 0, marginTop: 1, color: theme.palette.mode === "dark" ? "#FFB74D" : "#E65100" }} aria-hidden />
+            <Box sx={{ flex: 1 }}>
+              <Typography
+                sx={{
+                  fontSize: "14px",
+                  fontFamily: "var(--font-sans)",
+                  fontWeight: 600,
+                  color: theme.palette.mode === "dark" ? "#FFB74D" : "#E65100",
+                  lineHeight: 1.4,
+                  mb: 0.5,
+                }}
+              >
+                {tPaymentLink("activationRequiredTitle", { defaultValue: "Preview mode — activate to accept real payments" })}
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: "13px",
+                  fontFamily: "var(--font-sans)",
+                  color: theme.palette.mode === "dark" ? "#FFB74D" : "#E65100",
+                  lineHeight: 1.5,
+                  opacity: 0.9,
+                }}
+              >
+                {tPaymentLink("activationRequiredBody", { defaultValue: "You can design and preview your payment link now. To activate it (accept real crypto payments), complete two quick steps: add your business details and at least one payout address. It takes ~60 seconds." })}
+              </Typography>
+              <Box sx={{ display: "flex", gap: 1, mt: 1.25, flexWrap: "wrap" }}>
+                <Box
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => router.push("/dashboard?onboarding=1")}
+                  onKeyDown={(e: React.KeyboardEvent) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      router.push("/dashboard?onboarding=1");
+                    }
+                  }}
+                  sx={{
+                    cursor: "pointer",
+                    padding: "6px 12px",
+                    borderRadius: 999,
+                    fontFamily: "var(--font-sans)",
+                    fontSize: 12,
+                    backgroundColor: theme.palette.mode === "dark" ? "#FFB74D" : "#E65100",
+                    color: theme.palette.mode === "dark" ? "#000" : "#FFF",
+                    "&:hover": { filter: "brightness(1.1)" },
+                    userSelect: "none",
+                  }}
+                >
+                  {tPaymentLink("activationCta", { defaultValue: "Complete setup" })}
+                </Box>
+                <Box
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => router.push("/wallet")}
+                  onKeyDown={(e: React.KeyboardEvent) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      router.push("/wallet");
+                    }
+                  }}
+                  sx={{
+                    cursor: "pointer",
+                    padding: "6px 12px",
+                    borderRadius: 999,
+                    fontFamily: "var(--font-sans)",
+                    fontSize: 12,
+                    border: 
+- **src** `Components/Page/CreatePaymentLink/index.tsx`
+  - − ,
+                    color: theme.palette.mode === "dark" ? "#FFB74D" : "#E65100",
+                    "&:hover": { backgroundColor: theme.palette.mode === "dark" ? "rgba(255,183,77,0.15)" : "rgba(230,81,0,0.10)" },
+                    userSelect: "none",
+                  }}
+                >
+                  {tPaymentLink("addWalletCta", { defaultValue: "Add payout wallet" })}
+                </Box>
+              </Box>
+            </Box>
+          </Box>
+        )}
+        {/* Link type: Payment link vs Donation / Crowdfunding (locked in edit mode) */}
+        <LinkTypeSelector
+          value={linkKind}
+          onChange={(k) => setLinkKind(k)}
+          disabled={hasPaymentLinkData || disabled}
+          isMobile={isMobile}
+        />
+
+        {/* < lg: collapsible customer preview (plan 2.3) — desktop shows the sticky pane instead. */}
+        <Box
+          data-testid="mobile-preview-section"
+          sx={{
+            display: { xs: "block", lg: "none" },
+            mb: 2,
+            border: 
+  - + ,
+                    color: theme.palette.mode === "dark" ? "#FFB74D" : "#E65100",
+                    "&:hover": { backgroundColor: theme.palette.mode === "dark" ? "rgba(255,183,77,0.15)" : "rgba(230,81,0,0.10)" },
+                    userSelect: "none",
+                  }}
+                >
+                  {tPaymentLink("addWalletCta", { defaultValue: "Add payout address" })}
+                </Box>
+              </Box>
+            </Box>
+          </Box>
+        )}
+        {/* Link type: Payment link vs Donation / Crowdfunding (locked in edit mode) */}
+        <LinkTypeSelector
+          value={linkKind}
+          onChange={(k) => setLinkKind(k)}
+          disabled={hasPaymentLinkData || disabled}
+          isMobile={isMobile}
+        />
+
+        {/* < lg: collapsible customer preview (plan 2.3) — desktop shows the sticky pane instead. */}
+        <Box
+          data-testid="mobile-preview-section"
+          sx={{
+            display: { xs: "block", lg: "none" },
+            mb: 2,
+            border: 
+- **src** `Components/Page/Referrals/PayoutCard.tsx`
+  - − Referral earnings belong to your account, not a single business. Pick one USDT (TRC-20) wallet for all your referral payouts.
+  - + Referral earnings belong to your account, not a single business. Pick one USDT (TRC-20) payout address for all your referral payouts.
+- **src** `Components/Page/Referrals/PayoutCard.tsx`
+  - − Reduces your own Dynopay fees. No wallet needed.
+  - + Reduces your own Dynopay fees. No payout address needed.
+- **src** `Components/Page/Referrals/PayoutCard.tsx`
+  - − Your saved payout wallet
+  - + Your saved payout address
+- **src** `Components/Page/Referrals/PayoutCard.tsx`
+  - − Use a wallet you've already saved
+  - + Use a payout address you've already saved
+- **src** `Components/Page/Payment-link/LinkCoinsBadge.tsx`
+  - − Buyers can pay with any coin you have a payout wallet for: {{list}}
+  - + Buyers can pay with any coin you have a payout address for: {{list}}
+- **src** `Components/Page/Dashboard/RecentTransactionsWidget.tsx`
+  - − Add a wallet
+  - + Add a payout address
+- **src** `Components/Page/Dashboard/DashboardLeftSection.tsx`
+  - − Show wallets
+  - + Show payout addresses
+- **src** `Components/Page/Dashboard/DashboardLeftSection.tsx`
+  - − Wallet Icon
+  - + Payout address icon
+- **src** `Components/Page/Dashboard/DashboardLeftSection.tsx`
+  - − Show all wallets
+  - + Show all payout addresses
+- **src** `Components/Page/Dashboard/DashboardLeftSection.tsx`
+  - − Show fewer wallets
+  - + Show fewer payout addresses
+- **src** `Components/Page/Dashboard/coinbase/styled.tsx`
+  - − Active wallets
+  - + Active payout addresses
+- **src** `Components/Page/Dashboard/coinbase/AttentionCardsRow.tsx`
+  - − Add your first wallet
+  - + Add your first payout address
+- **src** `Components/Page/Dashboard/coinbase/AttentionCardsRow.tsx`
+  - − Add your first wallet
+  - + Add your first payout address
+- **src** `Components/Page/Dashboard/coinbase/AttentionCardsRow.tsx`
+  - − Connect a wallet to start accepting crypto payments.
+  - + Add a payout address to start accepting crypto payments.
+- **src** `Components/Page/Dashboard/coinbase/AttentionCardsRow.tsx`
+  - − Add wallet
+  - + Add payout address
+- **src** `Components/Page/Dashboard/coinbase/QuickActionsPanel.tsx`
+  - − Open wallet
+  - + Open payout addresses
+- **src** `Components/Page/Wallet/WalletSecurityStrip.tsx`
+  - − Wallet changes are frozen after a “this wasn't me” report.
+  - + Payout address changes are frozen after a “this wasn't me” report.
+- **src** `Components/Page/Wallet/WalletSecurityStrip.tsx`
+  - − Wallet protection
+  - + Payout address protection
+- **src** `Components/Page/Wallet/SharedHighlightBar.tsx`
+  - − N wallets share this address
+  - + N payout addresses share this address
+- **src** `Components/Page/Wallet/SharedHighlightBar.tsx`
+  - − {{n}} wallets share
+  - + {{n}} payout addresses share
+- **src** `Components/Page/Wallet/CoverageStrip.tsx`
+  - − {{count}} accepted coins have no payout wallet
+  - + {{count}} accepted coins have no payout address
+- **src** `Components/Page/Wallet/CoverageStrip.tsx`
+  - − Your live payment links accept these coins, but payments in them have nowhere to land. Add a wallet to start receiving them.
+  - + Your live payment links accept these coins, but payments in them have nowhere to land. Add a payout address to start receiving them.
+- **src** `Components/Page/Wallet/WalletReuseNudge.tsx`
+  - − {{count}} wallet(s) copied to {{target}}
+  - + {{count}} payout address(es) copied to {{target}}
+- **src** `Components/Page/Wallet/WalletReuseNudge.tsx`
+  - − Could not copy the wallets. Please try again.
+  - + Could not copy the payout addresses. Please try again.
+- **src** `Components/Page/Wallet/WalletReuseNudge.tsx`
+  - − Use the same wallets as {{company}}
+  - + Use the same payout addresses as {{company}}
+- **src** `Components/Page/Wallet/WalletReuseNudge.tsx`
+  - − Copy {{count}} wallet(s)
+  - + Copy {{count}} payout address(es)
+- **src** `Components/Page/Wallet/WalletCardMeta.tsx`
+  - − No payouts to this wallet yet
+  - + No payouts to this address yet
+- **src** `Components/Page/Wallet/index.tsx`
+  - − Wallet deleted successfully
+  - + Payout address removed
+- **src** `Components/Page/Wallet/index.tsx`
+  - − Delete wallet
+  - + Remove payout address
+- **src** `Components/Page/Wallet/index.tsx`
+  - − Add wallet
+  - + Add payout address
+- **src** `Components/Page/Payouts/PayoutTiles.tsx`
+  - − Add a stablecoin settlement wallet first
+  - + Add a stablecoin settlement address first
+- **src** `Components/Page/Payouts/PayoutTiles.tsx`
+  - − Settlement coin & wallets ↓
+  - + Settlement coin & addresses ↓
+- **src** `Components/Page/Payouts/WalletsTimeline.tsx`
+  - − By wallet
+  - + By payout address
+- **src** `Components/Page/Payouts/WalletsTimeline.tsx`
+  - − No payout wallets yet — add one so settled payments have somewhere to land.
+  - + No payout addresses yet — add one so settled payments have somewhere to land.
+- **src** `Components/Page/Payouts/SettlementCard.tsx`
+  - − Add a stablecoin settlement wallet first
+  - + Add a stablecoin settlement address first
+- **src** `Components/Page/Payouts/SettlementCard.tsx`
+  - − Settlement wallets
+  - + Settlement addresses
+- **src** `Components/Page/Payouts/SettlementCard.tsx`
+  - − No stablecoin settlement wallet configured yet. Add one in Settings to auto-convert payouts.
+  - + No stablecoin settlement address configured yet. Add one in Settings to auto-convert payouts.
+- **src** `Components/Page/GetStarted/StepShare.tsx`
+  - − The funds are forwarded straight to your payout wallet.
+  - + The funds are forwarded straight to your payout address.
+- **src** `Components/Page/GetStarted/StepPayouts.tsx`
+  - − Wallet changes always ask for a code sent to your email.
+  - + Payout address changes always ask for a code sent to your email.
+- **src** `Components/Page/GetStarted/StepPayouts.tsx`
+  - − Configured payout wallets ({{count}})
+  - + Configured payout addresses ({{count}})
+- **src** `Components/Page/GetStarted/StepPayouts.tsx`
+  - − Add another wallet
+  - + Add another payout address
+- **src** `Components/Page/GetStarted/StepPayouts.tsx`
+  - − No payout wallet yet — paste the address of a wallet you control. We'll confirm it with a code sent to your email.
+  - + No payout address yet — paste the address of a wallet you control. We'll confirm it with a code sent to your email.
+- **src** `Components/Page/GetStarted/StepPayouts.tsx`
+  - − Add payout wallet
+  - + Add payout address
+- **src** `Components/Page/GetStarted/CheckoutPreview.tsx`
+  - − Coins from your payout wallets appear here
+  - + Coins from your payout addresses appear here
+- **src** `Components/Page/GetStarted/StepFirstLink.tsx`
+  - − Design your link now — it goes live the moment you add the wallet the money should land in. We'll ask for it when you hit Create.
+  - + Design your link now — it goes live the moment you add the payout address the money should land in. We'll ask for it when you hit Create.
+- **src** `Components/Page/GetStarted/StepFirstLink.tsx`
+  - − Add the wallet first
+  - + Add the payout address first
+- **src** `Components/Page/GetStarted/StepFirstLink.tsx`
+  - − Add payout wallet & create
+  - + Add payout address & create
+- **src** `Components/Page/API/ApiKeysPage.tsx`
+  - − Your live key activates automatically once you add (or reuse) your first wallet on this company.
+  - + Your live key activates automatically once you add (or reuse) your first payout address on this company.
+- **src** `Components/Page/Notification/CompanyEmailRoutingCard.tsx`
+  - − Webhook, API key, wallet and profile changes
+  - + Webhook, API key, payout address and profile changes
+- **src** `Components/Page/Settings/TeamActivityPanel.tsx`
+  - − Changes to settings, keys, wallets and the team will show up here.
+  - + Changes to settings, keys, payout addresses and the team will show up here.
+- **src** `Components/Page/Settings/TeamMemberDialog.tsx`
+  - − Owner-only actions (changing payout wallets, deleting API keys, billing) are never granted to teammates.
+  - + Owner-only actions (changing payout addresses, deleting API keys, billing) are never granted to teammates.
+- **src** `Components/Page/Settings/SecuritySection.tsx`
+  - − Wallet changes are locked
+  - + Payout address changes are locked
+- **src** `Components/Page/Settings/SecuritySection.tsx`
+  - − You (or someone with your email) reported a wallet change as not yours, so we restored the previous address and froze edits. Contact support to unlock.
+  - + You (or someone with your email) reported a payout address change as not yours, so we restored the previous address and froze edits. Contact support to unlock.
+- **src** `Components/Page/Settings/SecuritySection.tsx`
+  - − Payout wallets
+  - + Payout addresses
+- **src** `Components/UI/StepUp/stepUpCopy.ts`
+  - − change payout wallets
+  - + change payout addresses
+- **src** `Components/Layout/NewSidebar/navSections.ts`
+  - − Payout wallets
+  - + Payout addresses
+- **src** `Components/Page/Dashboard/v2026/command/useAttentionItems.ts`
+  - − Payout-wallet changes are frozen until {{until}} after a security reset
+  - + Payout address changes are frozen until {{until}} after a security reset
+- **src** `Components/Page/Dashboard/v2026/command/useAttentionItems.ts`
+  - − Payout-wallet changes are frozen after a security reset
+  - + Payout address changes are frozen after a security reset
+- **src** `Components/Page/Dashboard/v2026/command/useAttentionItems.ts`
+  - − Live links accept {{coins}} but you have no payout wallet for them
+  - + Live links accept {{coins}} but you have no payout address for them
+- **src** `Components/Page/Dashboard/v2026/command/useAttentionItems.ts`
+  - − Add wallet
+  - + Add payout address
+- **src** `hooks/useReusableWallets.ts`
+  - − reuse wallets from an existing company
+  - + reuse payout addresses from an existing company
+- **src** `backend/services/email/walletEmails.ts`
+  - − (whole file)
+  - + 9 lines
+- **src** `backend/services/email/walletSecurityEmails.ts`
+  - − (whole file)
+  - + 11 lines
+- **src** `backend/services/email/orderEmails.ts`
+  - − (whole file)
+  - + 1 lines
+- **src** `backend/services/email/adminOpsEmails.ts`
+  - − (whole file)
+  - + 1 lines
+- **src** `backend/services/email/securityEmails.ts`
+  - − (whole file)
+  - + 3 lines
+- **src** `backend/services/email/referralEmails.ts`
+  - − (whole file)
+  - + 1 lines
+- **src** `backend/services/email/adminNotificationEmails.ts`
+  - − (whole file)
+  - + 1 lines
+- **src** `backend/services/conversionService.ts`
+  - − (whole file)
+  - + 1 lines

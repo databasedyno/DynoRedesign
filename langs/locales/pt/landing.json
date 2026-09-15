@@ -944,7 +944,9 @@
     },
     "helpLine": "Algo não parece certo? Contacte {{merchant}} e indique a encomenda #{{ref}}.",
     "helpLineSeller": "o vendedor",
-    "helpLineLink": "Visitar a página"
+    "helpLineLink": "Visitar a página",
+    "helpLineWebsite": "Site",
+    "viewPaymentReceipt": "Ver recibo de pagamento"
   },
   "seo": {
     "home": "Início",

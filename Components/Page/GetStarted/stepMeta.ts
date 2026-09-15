@@ -41,7 +41,7 @@ export const stepDesc = (t: TFunction, key: SetupStepKey): string => {
     case "about":
       return t("gs.stepAboutDesc", { defaultValue: "Your name, brand and country" });
     case "payouts":
-      return t("gs.stepPayoutsDesc", { defaultValue: "The wallet your funds are forwarded to" });
+      return t("gs.stepPayoutsDesc", { defaultValue: "The address your funds are forwarded to" });
     case "link":
       return t("gs.stepLinkDesc", { defaultValue: "Amount, description and a live preview" });
     default:

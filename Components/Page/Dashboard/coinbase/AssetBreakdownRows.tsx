@@ -65,7 +65,7 @@ const AssetBreakdownRows: React.FC = () => {
         icon: <CurrencyBitcoinRounded sx={{ fontSize: 20 }} />,
         label: t("assetCrypto", { defaultValue: "Crypto" }),
         meta: t("assetCryptoMeta", {
-          defaultValue: "Across {{count}} wallets",
+          defaultValue: "Across {{count}} payout addresses",
           count: walletsCount,
         }),
         value: totalVolFmt,

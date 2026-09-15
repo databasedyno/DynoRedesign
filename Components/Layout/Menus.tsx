@@ -69,7 +69,7 @@ const navItems = [
   },
   {
     icon: <AccountBalanceWallet color="inherit" />,
-    name: "Wallet Address",
+    name: "Address",
     link: "/wallet",
   },
 ];

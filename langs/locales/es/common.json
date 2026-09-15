@@ -50,8 +50,8 @@
       "body": "Busca primero en las guías — la mayoría de las respuestas están aquí. ¿Sigues atascado? Inicia un chat y una persona del equipo lo atenderá."
     },
     "walletSecurity": {
-      "title": "Siempre estás a un toque de deshacer un cambio de wallet",
-      "body": "Cada cambio en una wallet de cobro requiere un código de un solo uso y te envía un enlace «No fui yo» que restaura la dirección anterior y bloquea más cambios."
+      "title": "Siempre estás a un toque de deshacer un cambio de dirección de cobro",
+      "body": "Cada cambio en una dirección de cobro requiere un código de un solo uso y te envía un enlace «No fui yo» que restaura la dirección anterior y bloquea más cambios."
     },
     "kyc": {
       "title": "La verificación es una comprobación única de unos minutos",
@@ -91,9 +91,9 @@
   "EmptyTransactionTitle": "No hay transacciones",
   "EmptyTransactionDescription": "Comienza a aceptar pagos para ver transacciones",
   "createPaymentLink": "Crear Enlace de Pago",
-  "EmptyWalletTitle": "No hay billeteras",
+  "EmptyWalletTitle": "No hay direcciones de cobro",
   "EmptyWalletDescription": "Agreguemos la primera",
-  "addWallet": "Agregar billetera",
+  "addWallet": "Agregar dirección de cobro",
   "EmptyApiKeyTitle": "No hay claves API",
   "EmptyApiKeyDescription": "Creemos la primera",
   "createNewKey": "Crear Nueva Clave",
@@ -693,15 +693,15 @@
   "noDataToShow": "Aún no hay nada que mostrar aquí.",
   "poweredByDynopay": "Con tecnología de Dynopay",
   "verifyEmailBanner": "Verifica tu correo para desbloquear todas las funciones.",
-  "deleteWalletTitle": "¿Eliminar billetera?",
-  "deleteWalletAction": "Eliminar billetera",
+  "deleteWalletTitle": "¿Eliminar dirección de cobro?",
+  "deleteWalletAction": "Eliminar dirección de cobro",
   "enterVerificationCode": "Introduce el código de verificación",
   "completeYourSetup": "Completa tu configuración",
   "saveChangesTitle": "¿Guardar cambios?",
   "saveChangeAction": "Guardar cambio",
   "feeFreePromotion": "Primer pago: 0% de comisión de plataforma",
   "youWillPay": "Pagarás",
-  "whatIsPayoutWallet": "¿Qué es una billetera de cobros?",
+  "whatIsPayoutWallet": "¿Qué es una dirección de cobro?",
   "demoChooseHowToPay": "Elige cómo pagar",
   "demoSendExactly": "Envía exactamente",
   "walletAddressLabel": "Dirección de la billetera",
@@ -1059,7 +1059,7 @@
     "roleMember": "Miembro: solo el acceso que elijas abajo",
     "roleAdmin": "Administrador: acceso completo (excepto acciones solo del propietario)",
     "permissions": "Permisos",
-    "ownerOnlyNote": "Las acciones solo del propietario (cambiar carteras de pago, eliminar claves API, facturación) nunca se conceden a los compañeros.",
+    "ownerOnlyNote": "Las acciones solo del propietario (cambiar direcciones de cobro, eliminar claves API, facturación) nunca se conceden a los compañeros.",
     "quickPresets": "Preajuste rápido:",
     "presetReadOnly": "Solo lectura (solo ver)",
     "done": "Hecho",
@@ -1080,7 +1080,7 @@
     "activityTitle": "Actividad",
     "activitySubtitle": "Un registro de los cambios hechos en este negocio: quién hizo qué y cuándo.",
     "activityEmptyTitle": "Aún no hay actividad",
-    "activityEmptyBody": "Los cambios en ajustes, claves, carteras y el equipo aparecerán aquí."
+    "activityEmptyBody": "Los cambios en ajustes, claves, direcciones de cobro y el equipo aparecerán aquí."
   },
   "acceptInvite": {
     "headTitle": "Aceptar invitación · Dynopay",
@@ -1140,10 +1140,10 @@
       "change": "Cambió una clave API"
     },
     "wallet": {
-      "add": "Añadió una cartera de pago",
-      "delete": "Eliminó una cartera de pago",
-      "update": "Actualizó la cartera de pago",
-      "change": "Cambió una cartera de pago"
+      "add": "Añadió una dirección de cobro",
+      "delete": "Eliminó una dirección de cobro",
+      "update": "Actualizó la dirección de cobro",
+      "change": "Cambió una dirección de cobro"
     }
   },
   "verifiedBadge": {
@@ -1176,7 +1176,7 @@
   },
   "setupPrompt": {
     "createCompany": "Crear una marca",
-    "addWallet": "Añadir una dirección de billetera"
+    "addWallet": "Añadir una dirección de cobro"
   },
   "payouts": {
     "pageName": "Pagos y liquidaciones",
@@ -1203,11 +1203,11 @@
     "settlementAutoConvert": "Liquidación y conversión automática",
     "loading": "Cargando…",
     "autoConvertOffDesc": "La conversión automática está desactivada — los pagos se liquidan en la moneda recibida",
-    "addWalletFirst": "Agrega primero una billetera de liquidación en stablecoin",
+    "addWalletFirst": "Agrega primero una dirección de liquidación en stablecoin",
     "settleTo": "Liquidar a",
     "selectSettlementCoin": "Selecciona la moneda de liquidación",
-    "settlementWallets": "Billeteras de liquidación",
-    "noSettlementWallet": "Aún no se ha configurado ninguna billetera de liquidación en stablecoin. Agrega una en Configuración para convertir automáticamente los pagos.",
+    "settlementWallets": "Direcciones de liquidación",
+    "noSettlementWallet": "Aún no se ha configurado ninguna dirección de liquidación en stablecoin. Agrega una en Configuración para convertir automáticamente los pagos.",
     "onChain": "en",
     "active": "Activo",
     "autoConvertProtection": "Protección de conversión automática",
@@ -1225,7 +1225,7 @@
     "weeklyDigestDesc": "Recibe un correo electrónico semanal resumiendo los pagos liquidados y cualquier cosa aún pendiente",
     "sending": "Enviando…",
     "sendPreview": "Enviar vista previa",
-    "payoutWallets": "Carteras de pago",
+    "payoutWallets": "Direcciones de cobro",
     "payoutWalletsDesc": "Donde aterrizan tus fondos liquidados",
     "manage": "Gestionar",
     "taxCollected": "Impuesto recaudado",
@@ -1283,9 +1283,9 @@
     "awaitingNone": "Todo lo liquidado ya llegó a tus wallets.",
     "awaitingSome": "{{count}} pagos confirmados, enviándose a tu wallet",
     "autoConvertOffShort": "Los pagos se liquidan en la moneda recibida. Actívalo para fijarlos en una stablecoin.",
-    "settlementSettings": "Moneda de liquidación y wallets ↓",
-    "byWallet": "Por wallet",
-    "noWallets": "Aún no hay wallets de pago — añade una para que los pagos tengan destino.",
+    "settlementSettings": "Moneda de liquidación y direcciones de cobro ↓",
+    "byWallet": "Por dirección de cobro",
+    "noWallets": "Aún no hay direcciones de cobro — añade una para que los pagos tengan destino.",
     "walletCount": "{{count}} pagos en el rango",
     "walletNoneRange": "ninguno en el rango",
     "walletIdle": "Sin pagos aún",
@@ -1609,8 +1609,8 @@
     "successTitle": "Tu cuenta está asegurada",
     "expiredTitle": "Este enlace ha expirado",
     "errorTitle": "Algo salió mal",
-    "loadingBody": "Deshaciendo el cambio de billetera y bloqueando más ediciones. Esto solo toma un momento.",
-    "successBody": "Hemos deshecho el cambio reciente de billetera de pago{{networks}} y bloqueado los cambios de billetera en tu cuenta. Para hacer nuevos cambios de billetera, contacta al soporte para que podamos confirmar que realmente eres tú.",
+    "loadingBody": "Deshaciendo el cambio de dirección de cobro y bloqueando más ediciones. Esto solo toma un momento.",
+    "successBody": "Hemos deshecho el cambio reciente de dirección de cobro{{networks}} y bloqueado los cambios de dirección de cobro en tu cuenta. Para hacer nuevos cambios de dirección de cobro, contacta al soporte para que podamos confirmar que realmente eres tú.",
     "expiredBody": "Este enlace de seguridad ya ha sido utilizado o ha expirado. Si aún crees que algo está mal, contacta al soporte de inmediato.",
     "errorBody": "No pudimos completar esta acción. Por favor, inténtalo de nuevo o contacta al soporte si el problema persiste.",
     "pageTitle": "Seguridad de la cuenta",
@@ -1645,7 +1645,7 @@
     "noMethods": "Añade primero una dirección de correo a tu cuenta: necesitamos dónde enviarte el código de verificación.",
     "scope": {
       "apikey": "gestionar las claves API",
-      "wallet": "cambiar las carteras de pago",
+      "wallet": "cambiar las direcciones de cobro",
       "brand_delete": "eliminar una marca",
       "security": "cambiar tu configuración de seguridad",
       "payout": "cambiar tu configuración de pagos",
@@ -1653,5 +1653,5 @@
       "settlement": "cambiar tu moneda de liquidación"
     }
   },
-  "deleteWalletBody": "Estás a punto de eliminar la cartera {{type}}{{address}}. Esta acción es permanente y no se puede deshacer. Primero te pediremos que verifiques que eres tú."
+  "deleteWalletBody": "Estás a punto de eliminar la dirección de cobro {{type}}{{address}}. Esta acción es permanente y no se puede deshacer. Primero te pediremos que verifiques que eres tú."
 }

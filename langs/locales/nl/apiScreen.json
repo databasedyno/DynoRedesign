@@ -86,7 +86,7 @@
   "apiKeyTitleLive": "Live API-sleutel",
   "apiKeyTitleTest": "Test-API-sleutel",
   "keys": {
-    "liveUnlockHint": "Uw live-sleutel wordt automatisch geactiveerd zodra u uw eerste wallet aan dit merk toevoegt (of hergebruikt).",
+    "liveUnlockHint": "Uw live-sleutel wordt automatisch geactiveerd zodra u uw eerste uitbetalingsadres aan dit merk toevoegt (of hergebruikt).",
     "testAutoCreatedBadge": "Automatisch aangemaakt · Sandbox",
     "sandboxLimits": "Max ${{max}} · {{currencies}} · sandbox-modus",
     "tryFirstPaymentTitle": "Probeer uw eerste betaling",

@@ -33,7 +33,12 @@ type PublicReceipt = {
   coinSymbol: string | null
   coinName: string | null
   network: string | null
-  merchant: { name: string; logo: string | null; verified: boolean }
+  merchant: {
+    name: string
+    logo: string | null
+    verified: boolean
+    contact?: { legalName: string | null; email: string | null; website: string | null; phone: string | null; address: string | null } | null
+  }
   customer: { name: string | null; emailMasked: string | null }
   transactionId: string
   transactionReference: string | null
@@ -132,6 +137,10 @@ const ReceiptPage = ({ receipt, siteUrl }: Props) => {
     }
   }, [shareUrl])
 
+  const contact = receipt.merchant.contact || null
+  const showLegalName = !!contact?.legalName && contact.legalName.trim().toLowerCase() !== receipt.merchant.name.trim().toLowerCase()
+  const printPage = useCallback(() => { if (typeof window !== 'undefined') window.print() }, [])
+
   const ogTitle = `${L.title} · ${receipt.amount} ${receipt.currency} · ${receipt.merchant.name}`
   const ogDesc = `${L.successful} — ${dateLong}${receipt.cryptoAmount ? ` · ${trimCrypto(receipt.cryptoAmount)} ${receipt.coinSymbol}${receipt.network ? ` · ${receipt.network}` : ''}` : ''} · Dynopay`
 
@@ -150,7 +159,13 @@ const ReceiptPage = ({ receipt, siteUrl }: Props) => {
         <meta key="twitter:description" name="twitter:description" content={ogDesc} />
       </Head>
 
-      <Box sx={{ minHeight: '100vh', bgcolor: theme.palette.background.default, py: { xs: 3, sm: 6 }, px: 2 }} data-testid="public-receipt-page">
+      <Box
+        sx={{
+          minHeight: '100vh', bgcolor: theme.palette.background.default, py: { xs: 3, sm: 6 }, px: 2,
+          '@media print': { minHeight: 0, py: 0, px: 0, bgcolor: '#fff', '& .receipt-no-print': { display: 'none' }, '& .receipt-card': { border: 'none' } },
+        }}
+        data-testid="public-receipt-page"
+      >
         <Box sx={{ maxWidth: 560, mx: 'auto' }}>
           {/* Brand row */}
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2.5 }}>
@@ -164,7 +179,7 @@ const ReceiptPage = ({ receipt, siteUrl }: Props) => {
           </Box>
 
           {/* Card */}
-          <Box sx={{ border: `1px solid ${border}`, borderRadius: '16px', bgcolor: theme.palette.background.paper, overflow: 'hidden' }}>
+          <Box className="receipt-card" sx={{ border: `1px solid ${border}`, borderRadius: '16px', bgcolor: theme.palette.background.paper, overflow: 'hidden' }}>
             {/* Status + date */}
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, px: { xs: 2.5, sm: 3.5 }, pt: 3 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }} data-testid="public-receipt-status">
@@ -275,8 +290,30 @@ const ReceiptPage = ({ receipt, siteUrl }: Props) => {
               </Box>
             )}
 
+            {/* Merchant contact — legal name, e-mail, website, phone, address (live from the brand profile) */}
+            {contact && (
+              <Box sx={{ px: { xs: 2.5, sm: 3.5 }, py: 2.5, borderBottom: `1px solid ${border}` }} data-testid="public-receipt-merchant-contact">
+                <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: muted, mb: 0.5 }}>{L.merchantContact}</Typography>
+                {showLegalName && <Row label={L.legalName} testId="public-receipt-legal-name">{contact.legalName}</Row>}
+                {contact.email && (
+                  <Row label={L.emailLabel} testId="public-receipt-contact-email">
+                    <Box component="a" href={`mailto:${contact.email}?subject=${encodeURIComponent(L.receiptNo)}`} sx={{ color: brandFg(isDark), textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}>{contact.email}</Box>
+                  </Row>
+                )}
+                {contact.website && (
+                  <Row label={L.websiteLabel} testId="public-receipt-contact-website">
+                    <Box component="a" href={contact.website} target="_blank" rel="noopener noreferrer" sx={{ color: brandFg(isDark), textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}>
+                      {contact.website.replace(/^https?:\/\//i, '').replace(/\/$/, '')}
+                    </Box>
+                  </Row>
+                )}
+                {contact.phone && <Row label={L.phoneLabel} testId="public-receipt-contact-phone">{contact.phone}</Row>}
+                {contact.address && <Row label={L.addressLabel} testId="public-receipt-contact-address">{contact.address}</Row>}
+              </Box>
+            )}
+
             {/* Actions */}
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.25, px: { xs: 2.5, sm: 3.5 }, py: 2.5 }}>
+            <Box className="receipt-no-print" sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.25, px: { xs: 2.5, sm: 3.5 }, py: 2.5 }}>
               <Button
                 component="a"
                 href={pdfHref}
@@ -298,12 +335,23 @@ const ReceiptPage = ({ receipt, siteUrl }: Props) => {
               >
                 {copied ? L.linkCopied : L.copyLink}
               </Button>
+              <Button
+                variant="outlined"
+                disableElevation
+                onClick={printPage}
+                data-testid="public-receipt-print"
+                startIcon={<Icon icon="mdi:printer-outline" width={18} />}
+                sx={{ textTransform: 'none', borderRadius: '999px', fontWeight: 700, fontSize: 13.5, px: 2.5, minHeight: 40, color: theme.palette.text.primary, borderColor: border, '&:hover': { borderColor: theme.palette.text.primary, backgroundColor: 'transparent' } }}
+              >
+                {L.print}
+              </Button>
             </Box>
           </Box>
 
           {/* Footer */}
           <Box sx={{ mt: 2.5, textAlign: 'center' }}>
             <Typography sx={{ fontSize: 12.5, color: muted }}>{L.contactMerchant}</Typography>
+            <Typography sx={{ fontSize: 12.5, color: muted, mt: 0.75, maxWidth: 480, mx: 'auto', lineHeight: 1.5 }} data-testid="public-receipt-refund-note">{L.refundNote}</Typography>
             <Typography sx={{ fontSize: 12, color: muted, mt: 1.5 }}>
               {L.tagline} ·{' '}
               <Box component="a" href="https://dynopay.com" target="_blank" rel="noopener noreferrer" sx={{ color: brandFg(isDark), textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}>

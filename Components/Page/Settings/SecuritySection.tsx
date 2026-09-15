@@ -46,10 +46,10 @@ const SecuritySection: React.FC = () => {
           <Icon name="lock" size={20} style={{ color: negative, flexShrink: 0, marginTop: 2 }} />
           <Box>
             <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 14.5, fontWeight: 700, color: theme.palette.text.primary }}>
-              {t("walletScreen:security.frozenTitle", { defaultValue: "Wallet changes are locked" })}
+              {t("walletScreen:security.frozenTitle", { defaultValue: "Payout address changes are locked" })}
             </Typography>
             <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 13, color: theme.palette.text.secondary, mt: 0.25 }}>
-              {t("walletScreen:security.frozenBody", { defaultValue: "You (or someone with your email) reported a wallet change as not yours, so we restored the previous address and froze edits. Contact support to unlock." })}
+              {t("walletScreen:security.frozenBody", { defaultValue: "You (or someone with your email) reported a payout address change as not yours, so we restored the previous address and froze edits. Contact support to unlock." })}
             </Typography>
           </Box>
         </Box>
@@ -62,7 +62,7 @@ const SecuritySection: React.FC = () => {
         </Box>
       </Group>
 
-      <Group title={t("common:settingsPage.securityWallets", { defaultValue: "Payout wallets" })} testId="settings-security-wallets">
+      <Group title={t("common:settingsPage.securityWallets", { defaultValue: "Payout addresses" })} testId="settings-security-wallets">
         <ProtectionLevelCard level={level} loading={loading} twoFaOn={twoFaOn} frozenSince={freeze.data?.since} />
         <HowItWorks alertEmail={tokenData?.email} />
         <WalletChangeHistory rows={activity.data} loading={activity.isLoading && !activity.data} />

@@ -40,10 +40,10 @@
     "subject": "{{amount}} {{currency}} reçus",
     "heading": "Paiement reçu",
     "intro": "Bonne nouvelle ! Votre marque <strong>{{companyName}}</strong> a reçu un paiement.",
-    "outro": "Les fonds sont en route vers votre portefeuille de paiement.",
+    "outro": "Les fonds sont en route vers votre adresse de versement.",
     "cta": "Voir la transaction",
     "referralCredit": "Le crédit de parrainage a couvert {{amount}} de vos frais de plateforme Dynopay sur ce paiement — vous en avez conservé davantage.",
-    "preheader": "Les fonds sont en cours de versement sur votre portefeuille."
+    "preheader": "Les fonds sont en cours de versement sur votre adresse de versement."
   },
   "paymentPending": {
     "subject": "{{amount}} {{currency}} pour {{companyName}} — en cours de confirmation",
@@ -192,7 +192,15 @@
     "downloadPdf": "Télécharger le PDF",
     "copyLink": "Copier le lien",
     "linkCopied": "Lien copié",
-    "viewOnExplorer": "Voir dans l'explorateur de blocs"
+    "viewOnExplorer": "Voir dans l'explorateur de blocs",
+    "merchantContact": "Contact du marchand",
+    "refundNote": "Les remboursements et ajustements sont gérés par {{company}} — Dynopay est non dépositaire et ne détient jamais vos fonds. Indiquez le numéro de reçu ci-dessus lors de votre demande.",
+    "print": "Imprimer",
+    "legalName": "Raison sociale",
+    "emailLabel": "E-mail",
+    "websiteLabel": "Site web",
+    "phoneLabel": "Téléphone",
+    "addressLabel": "Adresse"
   },
   "merchant": {
     "labels": {
@@ -202,8 +210,8 @@
       "time": "Heure",
       "network": "Réseau",
       "blockchain": "Blockchain",
-      "walletName": "Nom du portefeuille",
-      "wallet": "Portefeuille",
+      "walletName": "Nom",
+      "wallet": "Adresse de versement",
       "address": "Adresse",
       "newAddress": "Nouvelle adresse",
       "toAddress": "Adresse de destination",
@@ -267,7 +275,7 @@
       "promo": "Votre premier paiement est offert — nous renonçons à l'intégralité de nos frais de plateforme sur votre premier paiement réglé, quel que soit le montant.",
       "nextTitle": "Voici ce que vous pouvez faire ensuite :",
       "next1": "1. Complétez le profil de votre marque",
-      "next2": "2. Ajoutez votre portefeuille de paiement",
+      "next2": "2. Ajoutez votre adresse de versement",
       "next3": "3. Commencez à accepter les paiements",
       "questions": "Si vous avez des questions, notre équipe d'assistance est là pour vous aider.",
       "cta": "Commencer",
@@ -373,13 +381,13 @@
       "preheader": "Plusieurs tentatives de connexion ont échoué sur votre compte."
     },
     "companyCreated": {
-      "subject": "Plus qu'une étape — ajoutez un portefeuille de paiement pour être payé",
+      "subject": "Plus qu'une étape — ajoutez une adresse de versement pour être payé",
       "heading": "Profil complété",
       "intro1": "Bravo ! Le profil de votre marque <strong>{{companyName}}</strong> est maintenant complet.",
-      "intro2": "Vous êtes presque prêt à accepter les paiements. La dernière étape consiste à ajouter l'adresse de votre portefeuille de paiement.",
-      "whyTitle": "Pourquoi ajouter un portefeuille ?",
-      "whyText": "Votre portefeuille est l'endroit où nous enverrons les paiements en crypto que vous recevez. C'est rapide et sécurisé.",
-      "cta": "Ajouter un portefeuille",
+      "intro2": "Vous êtes presque prêt à accepter les paiements. La dernière étape consiste à ajouter l'adresse de votre adresse de versement.",
+      "whyTitle": "Pourquoi ajouter une adresse de versement ?",
+      "whyText": "Votre adresse de versement est l'endroit où nous enverrons les paiements en crypto que vous recevez. C'est rapide et sécurisé.",
+      "cta": "Ajouter une adresse de versement",
       "preheader": "Encore une étape avant de pouvoir accepter des paiements."
     },
     "companyContactWelcome": {
@@ -405,50 +413,50 @@
       "preheader": "Les informations de profil de votre marque ont été mises à jour."
     },
     "walletVerified": {
-      "subject": "Portefeuille de paiement actif",
-      "heading": "Portefeuille actif",
-      "intro": "Votre portefeuille de paiement a été vérifié et est maintenant actif.",
-      "outro": "Tous les paiements que vous recevez seront automatiquement transférés vers ce portefeuille. Vous êtes prêt à accepter des paiements en crypto.",
+      "subject": "Adresse de versement actif",
+      "heading": "Adresse de versement actif",
+      "intro": "Votre adresse de versement a été vérifié et est maintenant actif.",
+      "outro": "Tous les paiements que vous recevez seront automatiquement transférés vers cette adresse de versement. Vous êtes prêt à accepter des paiements en crypto.",
       "cta": "Voir le tableau de bord"
     },
     "walletUpdateOtp": {
-      "subject": "Confirmez la mise à jour du portefeuille",
-      "heading": "Confirmez la mise à jour du portefeuille",
-      "intro": "Vous mettez à jour votre portefeuille de paiement. Veuillez vérifier ce changement avec le code ci-dessous :",
+      "subject": "Confirmez la mise à jour de l'adresse de versement",
+      "heading": "Confirmez la mise à jour de l'adresse de versement",
+      "intro": "Vous mettez à jour votre adresse de versement. Veuillez vérifier ce changement avec le code ci-dessous :",
       "expiry": "Ce code expire dans 10 minutes. Si vous n'avez pas demandé ce changement, sécurisez immédiatement votre compte."
     },
     "walletDeleted": {
-      "subject": "Portefeuille supprimé de votre compte",
-      "heading": "Portefeuille supprimé",
-      "intro": "Un portefeuille a été supprimé de votre compte Dynopay.",
-      "outro": "Les paiements ne seront plus transférés vers ce portefeuille.",
-      "didntDoThis": "<strong>Ce n'était pas vous ?</strong><br />Si vous n'avez pas supprimé ce portefeuille, sécurisez immédiatement votre compte et contactez l'assistance.",
-      "cta": "Voir les portefeuilles"
+      "subject": "Adresse de versement supprimée de votre compte",
+      "heading": "Adresse de versement supprimée",
+      "intro": "Une adresse de versement a été supprimée de votre compte Dynopay.",
+      "outro": "Les paiements ne seront plus transférés vers cette adresse de versement.",
+      "didntDoThis": "<strong>Ce n'était pas vous ?</strong><br />Si vous n'avez pas supprimé cette adresse de versement, sécurisez immédiatement votre compte et contactez l'assistance.",
+      "cta": "Voir les adresses de versement"
     },
     "addWalletReminder": {
       "subject": "Vous êtes presque prêt à accepter les paiements",
-      "heading": "Ajoutez votre portefeuille",
-      "intro": "Vous y êtes presque ! Le profil de <strong>{{companyName}}</strong> est configuré, mais vous n'avez pas encore ajouté de portefeuille de paiement.",
-      "whyTitle": "Pourquoi ajouter un portefeuille ?",
-      "whyText": "Sans portefeuille, vous ne pouvez pas recevoir de paiements. La configuration prend moins de 2 minutes.",
-      "outro": "Ajoutez votre portefeuille maintenant et commencez à accepter les paiements en crypto dès aujourd'hui.",
-      "cta": "Ajouter un portefeuille maintenant"
+      "heading": "Ajoutez votre adresse de versement",
+      "intro": "Vous y êtes presque ! Le profil de <strong>{{companyName}}</strong> est configuré, mais vous n'avez pas encore ajouté d'adresse de versement.",
+      "whyTitle": "Pourquoi ajouter une adresse de versement ?",
+      "whyText": "Sans adresse de versement, vous ne pouvez pas recevoir de paiements. La configuration prend moins de 2 minutes.",
+      "outro": "Ajoutez votre adresse de versement maintenant et commencez à accepter les paiements en crypto dès aujourd'hui.",
+      "cta": "Ajouter une adresse de versement maintenant"
     },
     "walletAdded": {
-      "subject": "Portefeuille ajouté – {{network}}",
-      "heading": "Portefeuille ajouté",
-      "intro": "Un nouveau portefeuille de paiement a été ajouté avec succès à votre marque <strong>{{companyName}}</strong>.",
-      "outro": "Tous les paiements en {{network}} seront transférés vers ce portefeuille. Vous pouvez gérer vos portefeuilles dans le tableau de bord.",
-      "didntDoThis": "<strong>Ce n'était pas vous ?</strong><br />Si vous n'avez pas ajouté ce portefeuille, sécurisez immédiatement votre compte.",
-      "cta": "Voir les portefeuilles"
+      "subject": "Adresse de versement ajoutée – {{network}}",
+      "heading": "Adresse de versement ajoutée",
+      "intro": "Une nouvelle adresse de versement a été ajoutée avec succès à votre marque <strong>{{companyName}}</strong>.",
+      "outro": "Tous les paiements en {{network}} seront transférés vers cette adresse de versement. Vous pouvez gérer vos adresses de versement dans le tableau de bord.",
+      "didntDoThis": "<strong>Ce n'était pas vous ?</strong><br />Si vous n'avez pas ajouté cette adresse de versement, sécurisez immédiatement votre compte.",
+      "cta": "Voir les adresses de versement"
     },
     "walletUpdated": {
-      "subject": "Portefeuille mis à jour – {{network}}",
-      "heading": "Portefeuille mis à jour",
-      "intro": "Votre portefeuille de paiement pour <strong>{{companyName}}</strong> a été mis à jour.",
+      "subject": "Adresse de versement mis à jour – {{network}}",
+      "heading": "Adresse de versement mis à jour",
+      "intro": "Votre adresse de versement pour <strong>{{companyName}}</strong> a été mis à jour.",
       "outro": "Les paiements futurs en {{network}} seront transférés vers la nouvelle adresse.",
-      "didntDoThis": "<strong>Ce n'était pas vous ?</strong><br />Si vous n'avez pas mis à jour ce portefeuille, sécurisez immédiatement votre compte et contactez l'assistance.",
-      "cta": "Voir les portefeuilles"
+      "didntDoThis": "<strong>Ce n'était pas vous ?</strong><br />Si vous n'avez pas mis à jour cette adresse de versement, sécurisez immédiatement votre compte et contactez l'assistance.",
+      "cta": "Voir les adresses de versement"
     },
     "withdrawalOtp": {
       "subject": "Confirmez votre retrait",
@@ -471,15 +479,15 @@
       "expiry": "Ce code expire dans <strong>5 minutes</strong>. Si vous n'avez pas demandé cet échange, ignorez cet e-mail."
     },
     "walletEditOtp": {
-      "subject": "Confirmez la modification du portefeuille",
-      "heading": "Confirmez la modification du portefeuille",
-      "intro": "Vous êtes sur le point de modifier une adresse de portefeuille. Veuillez vérifier cette action avec le code ci-dessous :",
+      "subject": "Confirmez la modification de l'adresse de versement",
+      "heading": "Confirmez la modification de l'adresse de versement",
+      "intro": "Vous êtes sur le point de modifier une adresse de versement. Veuillez vérifier cette action avec le code ci-dessous :",
       "expiry": "Ce code expire dans <strong>10 minutes</strong>. Si vous n'avez pas demandé cela, ignorez cet e-mail ou contactez l'assistance."
     },
     "walletDeleteOtp": {
-      "subject": "Confirmez la suppression du portefeuille",
-      "heading": "Confirmez la suppression du portefeuille",
-      "intro": "Vous êtes sur le point de <strong>supprimer définitivement</strong> une adresse de portefeuille. Cette action est irréversible.",
+      "subject": "Confirmez la suppression de l'adresse de versement",
+      "heading": "Confirmez la suppression de l'adresse de versement",
+      "intro": "Vous êtes sur le point de <strong>supprimer définitivement</strong> une adresse de versement. Cette action est irréversible.",
       "expiry": "Ce code expire dans <strong>10 minutes</strong>. Si vous n'avez pas demandé cela, ignorez cet e-mail ou contactez immédiatement l'assistance."
     },
     "companyDeleteOtp": {
@@ -497,7 +505,7 @@
       "removed1": "Tous les liens de paiement de cette marque",
       "removed2": "Clés API ({{apiKeys}}) — révoquées immédiatement",
       "removed3": "Paramètres de la marque, webhooks et préférences de conversion automatique",
-      "note": "Votre historique de transactions est conservé pour vos archives. Les portefeuilles de paiement associés à cette marque n'y sont plus liés.",
+      "note": "Votre historique de transactions est conservé pour vos archives. Les adresses de versement associées à cette marque n'y sont plus liés.",
       "didntDoThis": "<strong>Ce n'était pas vous ?</strong><br />Si vous n'avez pas supprimé cette marque, sécurisez immédiatement votre compte et contactez le support.",
       "cta": "Accéder au tableau de bord",
       "preheader": "{{companyName}} a été supprimée de votre compte."
@@ -516,7 +524,7 @@
     "brandSoftDeleted": {
       "subject": "Votre marque « {{companyName}} » a été supprimée — vous avez 7 jours pour la restaurer",
       "heading": "Votre marque a été supprimée",
-      "intro": "Votre marque <strong>{{companyName}}</strong> vient d'être supprimée sur Dynopay. Pas d'inquiétude : rien n'est encore perdu. Nous conservons tout (liens de paiement, wallets, paramètres et historique) en sécurité pendant les <strong>7 prochains jours</strong>, au cas où il s'agirait d'une erreur.",
+      "intro": "Votre marque <strong>{{companyName}}</strong> vient d'être supprimée sur Dynopay. Pas d'inquiétude : rien n'est encore perdu. Nous conservons tout (liens de paiement, adresses de versement, paramètres et historique) en sécurité pendant les <strong>7 prochains jours</strong>, au cas où il s'agirait d'une erreur.",
       "status": "Suppression programmée",
       "restoreBefore": "Restaurer avant le",
       "changedMind": "<strong>Vous avez changé d'avis ?</strong> Répondez simplement à cet e-mail ou contactez notre équipe d'assistance avant le <strong>{{date}}</strong> et nous rétablirons la marque exactement comme elle était, en un clic.",
@@ -538,7 +546,7 @@
     "brandRestored": {
       "subject": "Bonne nouvelle — votre marque « {{companyName}} » est de retour",
       "heading": "Votre marque est de retour",
-      "intro": "Nous avons restauré votre marque <strong>{{companyName}}</strong> sur Dynopay. Tout — vos liens de paiement, wallets, paramètres et historique — est exactement comme vous l'aviez laissé.",
+      "intro": "Nous avons restauré votre marque <strong>{{companyName}}</strong> sur Dynopay. Tout — vos liens de paiement, adresses de versement, paramètres et historique — est exactement comme vous l'aviez laissé.",
       "status": "Restaurée",
       "pickUp": "Vous pouvez reprendre là où vous vous étiez arrêté depuis votre tableau de bord.",
       "cta": "Accéder au tableau de bord",
@@ -547,7 +555,7 @@
     "brandDeleteReminder": {
       "subject": "Plus que {{daysLabel}} pour restaurer « {{companyName}} »",
       "heading": "Votre marque est sur le point d'être supprimée",
-      "intro": "Petit rappel : votre marque supprimée <strong>{{companyName}}</strong> sera <strong>définitivement supprimée le {{date}}</strong>, soit dans environ <strong>{{daysLabel}}</strong>. Passé ce délai, ses liens de paiement, wallets, paramètres et historique ne pourront plus être récupérés.",
+      "intro": "Petit rappel : votre marque supprimée <strong>{{companyName}}</strong> sera <strong>définitivement supprimée le {{date}}</strong>, soit dans environ <strong>{{daysLabel}}</strong>. Passé ce délai, ses liens de paiement, adresses de versement, paramètres et historique ne pourront plus être récupérés.",
       "timeLeft": "Temps restant",
       "timeLeftBadge": "Plus que {{daysLabel}}",
       "deletesOn": "Suppression le",
@@ -827,10 +835,10 @@
     "preheader": "Merci — votre reçu de contribution est joint."
   },
   "walletOtp": {
-    "subject": "Code de validation de l'adresse du portefeuille",
-    "heading": "Code de vérification du portefeuille",
-    "intro": "Vous validez une nouvelle adresse de portefeuille pour {{currency}}.",
-    "walletAddress": "Adresse du portefeuille",
+    "subject": "Code de validation de l'adresse de versement",
+    "heading": "Code de vérification de l'adresse de versement",
+    "intro": "Vous validez une nouvelle adresse de versement pour {{currency}}.",
+    "walletAddress": "Adresse",
     "currency": "Devise",
     "expiry": "Ce code expirera dans {{minutes}} minutes."
   },
@@ -943,8 +951,8 @@
     },
     "seg": {
       "madeLink": {
-        "line": "Vous avez déjà créé un lien de paiement — parfait. Ajoutez un portefeuille de retrait pour qu'au moment où quelqu'un paie, nous versions directement sur un portefeuille que vous contrôlez.",
-        "cta": "Ajouter un portefeuille de retrait"
+        "line": "Vous avez déjà créé un lien de paiement — parfait. Ajoutez une adresse de versement pour qu'au moment où quelqu'un paie, nous versions directement sur une adresse de versement que vous contrôlez.",
+        "cta": "Ajouter une adresse de versement"
       },
       "noLink": {
         "line": "Créez votre premier lien de paiement — partagez-le partout et commencez à accepter Bitcoin, Ethereum ou stablecoins, sans rétrofacturation.",
@@ -969,8 +977,8 @@
         "cta": "Ajouter ma marque"
       },
       "wallet": {
-        "intro": "Vous avez essayé de créer un lien de paiement, mais aucun portefeuille de versement n'est associé à votre compte. Les paiements sont réglés directement dans un portefeuille que vous contrôlez : nous avons donc besoin d'une adresse avant de pouvoir vous payer.",
-        "cta": "Ajouter mon portefeuille"
+        "intro": "Vous avez essayé de créer un lien de paiement, mais aucune adresse de versement n'est associé à votre compte. Les paiements sont réglés directement dans une adresse de versement que vous contrôlez : nous avons donc besoin d'une adresse avant de pouvoir vous payer.",
+        "cta": "Ajouter mon adresse de versement"
       },
       "kyc": {
         "intro": "Vous avez traité plus de 10 000 $ de paiements — bravo. Une vérification d'identité rapide est désormais requise avant de créer de nouveaux liens de paiement. Cela prend généralement environ 5 minutes.",
@@ -1064,7 +1072,7 @@
     "accountDeleted": {
       "subject": "Votre compte Dynopay a été supprimé",
       "heading": "Compte supprimé",
-      "intro": "Comme demandé, votre compte Dynopay et toutes ses données (marques, liens de paiement, clés API, portefeuilles de versement et paramètres) ont été définitivement supprimés.",
+      "intro": "Comme demandé, votre compte Dynopay et toutes ses données (marques, liens de paiement, clés API, adresses de versement et paramètres) ont été définitivement supprimés.",
       "outro": "Si vous souhaitez à nouveau accepter des cryptos, vous êtes le bienvenu à tout moment.",
       "notice": "<strong>Vous n'avez pas demandé cette suppression ?</strong> Contactez immédiatement notre équipe support.",
       "preheader": "Votre compte et vos données ont été définitivement supprimés."
@@ -1105,7 +1113,7 @@
     },
     "stepUpActions": {
       "apikey": "la gestion des clés API",
-      "wallet": "la modification des portefeuilles de paiement",
+      "wallet": "la modification des adresses de versement",
       "brand_delete": "la suppression d'une marque",
       "security": "les paramètres de sécurité du compte",
       "payout": "les paramètres de retrait",
@@ -1178,7 +1186,7 @@
     "heading": "Paiement réglé",
     "preheader": "Net {{net}} {{asset}} transféré vers votre wallet — détail complet à l'intérieur.",
     "intro": "<strong>{{companyName}}</strong> a reçu un paiement qui est maintenant réglé. Voici exactement où est allé l'argent.",
-    "introForwarding": "<strong>{{companyName}}</strong> a reçu un paiement qui est maintenant réglé. Le montant net est en cours de transfert vers votre wallet de versement.",
+    "introForwarding": "<strong>{{companyName}}</strong> a reçu un paiement qui est maintenant réglé. Le montant net est en cours de transfert vers votre adresse de versement.",
     "received": "Reçu (brut)",
     "fiatNote": "La valeur ≈ est la valeur en monnaie fiat au moment où le paiement a été détecté — utilisez-la pour votre comptabilité.",
     "dynopayFee": "Frais Dynopay ({{percent}} %)",
@@ -1228,7 +1236,7 @@
       "subject": "Le versement de {{amount}} est retardé",
       "heading": "Votre versement est en retard",
       "preheader": "{{amount}} prend plus de temps que d'habitude — aucune action requise.",
-      "intro": "{{companyName}} a reçu {{amount}} d'un acheteur, mais le versement vers votre wallet n'est pas encore terminé.",
+      "intro": "{{companyName}} a reçu {{amount}} d'un acheteur, mais le versement vers votre adresse de versement n'est pas encore terminé.",
       "next": "Nous le surveillons. Vous recevrez un e-mail « Paiement réglé » ou « Versement terminé » dès qu'il arrive ; s'il n'est pas passé sous 24 heures, notre équipe intervient et nous vous tiendrons informé."
     },
     "failed": {

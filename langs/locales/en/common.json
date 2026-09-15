@@ -11,11 +11,11 @@
     },
     "payouts": {
       "title": "How payouts work",
-      "body": "This shows what's settled and what's pending per coin. Dynopay forwards funds straight to your payout wallet — we never hold them."
+      "body": "This shows what's settled and what's pending per coin. Dynopay forwards funds straight to your payout address — we never hold them."
     },
     "wallet": {
       "title": "Where your money lands",
-      "body": "Add one wallet per coin. Every payment is forwarded to your own address — Dynopay never custodies your funds."
+      "body": "Add one payout address per coin. Every payment is forwarded to your own address — Dynopay never custodies your funds."
     },
     "invoices": {
       "title": "Receipts & tax in one place",
@@ -50,8 +50,8 @@
       "body": "Search the guides first — most answers are here. Still stuck? Start a chat and a human will pick it up."
     },
     "walletSecurity": {
-      "title": "You're always one tap from undoing a wallet change",
-      "body": "Every payout-wallet change needs a one-time code and emails you a “This wasn't me” link that restores the old address and locks further edits."
+      "title": "You're always one tap from undoing a payout address change",
+      "body": "Every payout address change needs a one-time code and emails you a “This wasn't me” link that restores the old address and locks further edits."
     },
     "kyc": {
       "title": "Verification is a one-time, few-minute check",
@@ -92,9 +92,9 @@
   "EmptyTransactionTitle": "No transactions yet",
   "EmptyTransactionDescription": "Transactions appear here when customers pay via your payment links or API. Create a link to get started.",
   "createPaymentLink": "Create Payment Link",
-  "EmptyWalletTitle": "No payout wallets yet",
-  "EmptyWalletDescription": "A payout wallet is where customer payments are sent. Add at least one to start receiving crypto.",
-  "addWallet": "Add wallet",
+  "EmptyWalletTitle": "No payout addresses yet",
+  "EmptyWalletDescription": "A payout address is where customer payments are sent. Add at least one to start receiving crypto.",
+  "addWallet": "Add payout address",
   "EmptyApiKeyTitle": "No API keys yet",
   "EmptyApiKeyDescription": "Create a key to authenticate your server-to-server calls to the Dynopay API.",
   "createNewKey": "Create New Key",
@@ -693,15 +693,15 @@
   "noDataToShow": "Nothing to show here yet.",
   "poweredByDynopay": "Powered by Dynopay",
   "verifyEmailBanner": "Verify your email to unlock every feature.",
-  "deleteWalletTitle": "Delete Wallet?",
-  "deleteWalletAction": "Delete Wallet",
+  "deleteWalletTitle": "Remove payout address?",
+  "deleteWalletAction": "Remove payout address",
   "enterVerificationCode": "Enter Verification Code",
   "completeYourSetup": "Complete your setup",
   "saveChangesTitle": "Save Changes?",
   "saveChangeAction": "Save Change",
   "feeFreePromotion": "First Payment: 0% Platform Fee",
   "youWillPay": "You will pay",
-  "whatIsPayoutWallet": "What's a payout wallet?",
+  "whatIsPayoutWallet": "What's a payout address?",
   "demoChooseHowToPay": "Choose how to pay",
   "demoSendExactly": "Send exactly",
   "walletAddressLabel": "Wallet address",
@@ -1059,7 +1059,7 @@
     "roleMember": "Member — only the access you choose below",
     "roleAdmin": "Admin — full access (except owner-only actions)",
     "permissions": "Permissions",
-    "ownerOnlyNote": "Owner-only actions (changing payout wallets, deleting API keys, billing) are never granted to teammates.",
+    "ownerOnlyNote": "Owner-only actions (changing payout addresses, deleting API keys, billing) are never granted to teammates.",
     "quickPresets": "Quick preset:",
     "presetReadOnly": "Read-only (view only)",
     "done": "Done",
@@ -1080,7 +1080,7 @@
     "activityTitle": "Activity",
     "activitySubtitle": "A record of changes made to this business — who did what, and when.",
     "activityEmptyTitle": "No activity yet",
-    "activityEmptyBody": "Changes to settings, keys, wallets and the team will show up here."
+    "activityEmptyBody": "Changes to settings, keys, payout addresses and the team will show up here."
   },
   "acceptInvite": {
     "headTitle": "Accept invite · Dynopay",
@@ -1140,10 +1140,10 @@
       "change": "Changed an API key"
     },
     "wallet": {
-      "add": "Added a payout wallet",
-      "delete": "Removed a payout wallet",
-      "update": "Updated the payout wallet",
-      "change": "Changed a payout wallet"
+      "add": "Added a payout address",
+      "delete": "Removed a payout address",
+      "update": "Updated the payout address",
+      "change": "Changed a payout address"
     }
   },
   "verifiedBadge": {
@@ -1176,7 +1176,7 @@
   },
   "setupPrompt": {
     "createCompany": "Create a brand",
-    "addWallet": "Add a Wallet Address"
+    "addWallet": "Add a payout address"
   },
   "payouts": {
     "pageName": "Payouts & settlements",
@@ -1203,11 +1203,11 @@
     "settlementAutoConvert": "Settlement & auto-convert",
     "loading": "Loading…",
     "autoConvertOffDesc": "Auto‑convert is off — payments settle in the coin received",
-    "addWalletFirst": "Add a stablecoin settlement wallet first",
+    "addWalletFirst": "Add a stablecoin settlement address first",
     "settleTo": "Settle to",
     "selectSettlementCoin": "Select settlement coin",
-    "settlementWallets": "Settlement wallets",
-    "noSettlementWallet": "No stablecoin settlement wallet configured yet. Add one in Settings to auto-convert payouts.",
+    "settlementWallets": "Settlement addresses",
+    "noSettlementWallet": "No stablecoin settlement address configured yet. Add one in Settings to auto-convert payouts.",
     "onChain": "on",
     "active": "Active",
     "autoConvertProtection": "Auto-convert protection",
@@ -1225,7 +1225,7 @@
     "weeklyDigestDesc": "Get a weekly email summarising settled payouts and anything still pending",
     "sending": "Sending…",
     "sendPreview": "Send preview",
-    "payoutWallets": "Payout wallets",
+    "payoutWallets": "Payout addresses",
     "payoutWalletsDesc": "Where your settled funds land",
     "manage": "Manage",
     "taxCollected": "Tax collected",
@@ -1283,9 +1283,9 @@
     "awaitingNone": "Everything settled has reached your wallets.",
     "awaitingSome": "{{count}} payments confirmed, forwarding to your wallet",
     "autoConvertOffShort": "Payments settle in the coin received. Turn on to lock into a stablecoin.",
-    "settlementSettings": "Settlement coin & wallets ↓",
-    "byWallet": "By wallet",
-    "noWallets": "No payout wallets yet — add one so settled payments have somewhere to land.",
+    "settlementSettings": "Settlement coin & addresses ↓",
+    "byWallet": "By payout address",
+    "noWallets": "No payout addresses yet — add one so settled payments have somewhere to land.",
     "walletCount": "{{count}} payouts in range",
     "walletNoneRange": "none in range",
     "walletIdle": "No payouts yet",
@@ -1609,8 +1609,8 @@
     "successTitle": "Your account is secured",
     "expiredTitle": "This link has expired",
     "errorTitle": "Something went wrong",
-    "loadingBody": "Undoing the wallet change and locking further edits. This only takes a moment.",
-    "successBody": "We've undone the recent payout wallet change(s){{networks}} and locked wallet changes on your account. To make new wallet changes, contact support so we can confirm it's really you.",
+    "loadingBody": "Undoing the payout address change and locking further edits. This only takes a moment.",
+    "successBody": "We've undone the recent payout address change(s){{networks}} and locked payout address changes on your account. To make new payout address changes, contact support so we can confirm it's really you.",
     "expiredBody": "This security link has already been used or has expired. If you still think something's wrong, contact support right away.",
     "errorBody": "We couldn't complete this action. Please try again, or contact support if the problem continues.",
     "pageTitle": "Account security",
@@ -1645,7 +1645,7 @@
     "noMethods": "Add an email address to your account first — we need somewhere to send your verification code.",
     "scope": {
       "apikey": "manage API keys",
-      "wallet": "change payout wallets",
+      "wallet": "change payout addresses",
       "brand_delete": "delete a brand",
       "security": "change your security settings",
       "payout": "change your payout settings",
@@ -1653,5 +1653,5 @@
       "settlement": "change your settlement currency"
     }
   },
-  "deleteWalletBody": "You're about to remove the {{type}} wallet{{address}}. This action is permanent and cannot be undone. We'll ask you to verify it's you first."
+  "deleteWalletBody": "You're about to remove the {{type}} payout address{{address}}. This action is permanent and cannot be undone. We'll ask you to verify it's you first."
 }

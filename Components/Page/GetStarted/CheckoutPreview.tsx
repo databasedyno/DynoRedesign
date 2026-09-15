@@ -94,7 +94,7 @@ const CheckoutPreview: React.FC<Props> = ({ brandName, logoUrl, description, amo
                 <CoinChips value={coins} max={4} />
               ) : (
                 <Box sx={{ fontFamily: "var(--font-sans)", fontSize: 12, color: muted }}>
-                  {t("gs.previewNoCoins", { defaultValue: "Coins from your payout wallets appear here" })}
+                  {t("gs.previewNoCoins", { defaultValue: "Coins from your payout addresses appear here" })}
                 </Box>
               )}
             </Box>

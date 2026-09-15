@@ -43,7 +43,7 @@
   "category_orders_title": "Bestellingen & facturen",
   "category_orders_desc": "Bestelbevestigingen, downloads en factuurmails",
   "category_config_title": "Account & configuratie",
-  "category_config_desc": "Wijzigingen aan webhook, API-sleutel, wallet en profiel",
+  "category_config_desc": "Wijzigingen aan webhook, API-sleutel, uitbetalingsadres en profiel",
   "category_digests_title": "Overzichten & samenvattingen",
   "category_digests_desc": "Wekelijkse samenvattingen en uitbetalingsoverzichten",
   "inboxTab": "Inbox",

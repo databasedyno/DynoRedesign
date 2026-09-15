@@ -944,7 +944,9 @@
     },
     "helpLine": "Klopt er iets niet? Neem contact op met {{merchant}} en vermeld bestelling #{{ref}}.",
     "helpLineSeller": "de verkoper",
-    "helpLineLink": "Bekijk hun pagina"
+    "helpLineLink": "Bekijk hun pagina",
+    "helpLineWebsite": "Website",
+    "viewPaymentReceipt": "Betaalbewijs bekijken"
   },
   "seo": {
     "home": "Home",

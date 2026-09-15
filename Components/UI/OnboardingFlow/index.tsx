@@ -67,7 +67,7 @@ const OnboardingFlow: React.FC = () => {
   // UX-2026-07-08: Only count wallets that ACTUALLY have an address set. The
   // walletReducer sometimes carries placeholder rows for supported chains
   // even when the user hasn't configured them yet — those must not falsely
-  // mark the "Add payout wallet" step as complete.
+  // mark the "Add payout address" step as complete.
   const hasWallet = walletList.some(
     (w: any) => Boolean(w?.wallet_address && String(w.wallet_address).trim().length > 0),
   );

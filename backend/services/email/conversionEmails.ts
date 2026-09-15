@@ -129,7 +129,7 @@ export const sendAutoConversionPayoutEmail = async (
       ${p(t('merchant.autoConversion.intro', L))}
       ${twoColumnStats(
         statCard('Received', `${sourceFmt} ${sourceCurrency}`, `~$${toFixedStr(sourceAmountUsd, 2)} USD`),
-        statCard('Payout', `${payoutFmt} ${targetCurrency}`, 'Sent to your wallet', 'green')
+        statCard('Payout', `${payoutFmt} ${targetCurrency}`, 'Sent to your payout address', 'green')
       )}
       ${volatilityVisual}
       ${savingsBlock}

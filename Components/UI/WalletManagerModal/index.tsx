@@ -225,7 +225,7 @@ const WalletManagerModal: React.FC<Props> = ({ open, onClose, companyId, onSaved
     setCopyingFrom(co.company_id);
     try {
       const res: any = await axiosBaseApi.post(API_ENDPOINTS.wallet.copyWalletAddresses, { source_company_id: co.company_id, target_company_id: companyId, currencies });
-      toast(res?.data?.message || tw("copied", "Wallets copied"));
+      toast(res?.data?.message || tw("copied", "Payout addresses copied"));
       setJustCopied((n) => n + currencies.length);
       await walletStore.refetchWallets();
       seededRef.current = false;
@@ -233,7 +233,7 @@ const WalletManagerModal: React.FC<Props> = ({ open, onClose, companyId, onSaved
       // Copy is a real save — let the parent refresh its wallet views too.
       onSaved?.();
     } catch (e: any) {
-      toast(e?.response?.data?.message || tw("copyFailed", "Couldn't copy wallets"), "error");
+      toast(e?.response?.data?.message || tw("copyFailed", "Couldn't copy payout addresses"), "error");
     } finally {
       setCopyingFrom(null);
     }
@@ -308,10 +308,10 @@ const WalletManagerModal: React.FC<Props> = ({ open, onClose, companyId, onSaved
             <Box>
               {headerExtra && <Box sx={{ mb: 1.25 }}>{headerExtra}</Box>}
               <Typography component="h2" sx={{ fontSize: { xs: 18, sm: 20 }, fontWeight: 700, fontFamily: "var(--font-display)", letterSpacing: -0.3, lineHeight: 1.2 }}>
-                {tw("managerTitle", "Manage wallets")}
+                {tw("managerTitle", "Manage payout addresses")}
               </Typography>
               <Typography sx={{ fontSize: 13, color: theme.palette.text.secondary, fontFamily: "var(--font-sans)", mt: 0.5 }}>
-                {tw("managerSubtitle", "Add, edit or remove multiple payout wallets in one go.")}
+                {tw("managerSubtitle", "Add, edit or remove multiple payout addresses in one go.")}
               </Typography>
             </Box>
             <IconButton onClick={requestClose} aria-label={tw("close", "Close")} data-testid="wallet-manager-x-btn" size="small" sx={{ color: theme.palette.text.secondary, mt: -0.5, mr: -0.5 }}>
@@ -329,7 +329,7 @@ const WalletManagerModal: React.FC<Props> = ({ open, onClose, companyId, onSaved
                     <Icon name="lock" size={20} color={c.indigo} />
                   </Box>
                   <Typography sx={{ fontSize: 14, color: theme.palette.text.secondary, fontFamily: "var(--font-sans)", maxWidth: 360 }}>
-                    {tw("stepUpAwaiting", "Verify it's you to manage payout wallets.")}
+                    {tw("stepUpAwaiting", "Verify it's you to manage payout addresses.")}
                   </Typography>
                   <CustomButton label={tw("stepUpVerifyNow", "Verify now")} variant="primary" size="small" onClick={() => session.unlock()} data-testid="wallet-manager-verify-btn" sx={{ height: 36, px: 2.5 }} />
                 </>
@@ -343,7 +343,7 @@ const WalletManagerModal: React.FC<Props> = ({ open, onClose, companyId, onSaved
               <Box data-testid="wallet-manager-body" sx={{ flex: 1, minHeight: 0, overflowY: "auto", px: { xs: 2, sm: 3 }, py: 2.5, display: "flex", flexDirection: "column", gap: 3.5 }}>
                 {walletData.length > 0 && (
                   <Box>
-                    <SectionLabel label={tw("yourWallets", "Your wallets")} count={walletData.length} hint={tw("tapToEdit", "Tap a row to edit")} />
+                    <SectionLabel label={tw("yourWallets", "Your payout addresses")} count={walletData.length} hint={tw("tapToEdit", "Tap a row to edit")} />
                     <Box sx={{ border: `1px solid ${border}`, borderRadius: "8px", overflow: "hidden" }} data-testid="wallet-manager-existing-list">
                       {walletData.map((w) => (
                         <ExistingWalletRow
@@ -366,7 +366,7 @@ const WalletManagerModal: React.FC<Props> = ({ open, onClose, companyId, onSaved
 
                 <Box>
                   <SectionLabel
-                    label={tw("addWallets", "Add wallets")}
+                    label={tw("addWallets", "Add payout addresses")}
                     count={st.addRows.length || undefined}
                     action={
                       <Box
@@ -388,7 +388,7 @@ const WalletManagerModal: React.FC<Props> = ({ open, onClose, companyId, onSaved
                       <Box sx={{ p: 2, borderRadius: "8px", border: `1px dashed ${border}`, display: "flex", alignItems: "center", gap: 1.25 }} data-testid="wallet-manager-all-set">
                         <Icon name="circle-check" size={16} color={c.emerald} />
                         <Typography sx={{ fontSize: 13, color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}>
-                          {tw("allNetworksSet", "Every supported network already has a wallet on this brand.")}
+                          {tw("allNetworksSet", "Every supported network already has a payout address on this brand.")}
                         </Typography>
                       </Box>
                     )}

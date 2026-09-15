@@ -113,7 +113,7 @@
   "duplicateLink": "Duplicate",
   "coins": {
     "acceptsAll": "Accepts all {{count}} coins",
-    "acceptsAllHint": "Buyers can pay with any coin you have a payout wallet for: {{list}}",
+    "acceptsAllHint": "Buyers can pay with any coin you have a payout address for: {{list}}",
     "acceptsSome": "Accepts {{count}} of {{total}} coins"
   },
   "last30Header": "Last 30 days",

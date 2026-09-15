@@ -43,7 +43,7 @@ export const LinkCoinsBadge: React.FC<Props> = ({ value, max = 4, size = "sm" })
 
   const isDark = theme.palette.mode === "dark";
   return (
-    <Tooltip title={t("coins.acceptsAllHint", { defaultValue: "Buyers can pay with any coin you have a payout wallet for: {{list}}", list: configured.join(", ") })} arrow>
+    <Tooltip title={t("coins.acceptsAllHint", { defaultValue: "Buyers can pay with any coin you have a payout address for: {{list}}", list: configured.join(", ") })} arrow>
       <Box
         component="span"
         data-testid="paylink-coins-all"

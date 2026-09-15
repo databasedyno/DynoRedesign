@@ -303,7 +303,7 @@ export const sendConversionFailedAdminEmail = async (recipientEmail: string, d: 
           ${dataRow('Retries', String(d.retryCount))}
           ${dataRow('Created', escapeHtml(d.createdAt))}
           ${dataRow('Merchant', `${escapeHtml(d.merchantEmail)} · company #${escapeHtml(d.companyId)}`)}
-          ${d.settlementWallet ? dataRow('Payout wallet', mono(d.settlementWallet)) : ''}
+          ${d.settlementWallet ? dataRow('Payout address', mono(d.settlementWallet)) : ''}
           ${d.depositTxHash ? dataRow('Deposit tx', mono(d.depositTxHash)) : ''}
           ${d.transactionId ? dataRow('Payment tx', mono(d.transactionId)) : ''}
           ${dataRow('Conversion', mono(`#${d.conversionId}`), true)}

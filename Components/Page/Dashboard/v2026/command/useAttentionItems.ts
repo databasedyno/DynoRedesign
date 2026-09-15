@@ -136,8 +136,8 @@ export const useAttentionItems = ({ overview, onboarding, includeDismissed = fal
         severity: "warning",
         icon: "lock",
         text: freeze.until
-          ? t("command.walletFrozenUntil", { until: new Date(freeze.until).toLocaleString(i18n.language, { weekday: "short", hour: "2-digit", minute: "2-digit" }), defaultValue: "Payout-wallet changes are frozen until {{until}} after a security reset" })
-          : t("command.walletFrozen", { defaultValue: "Payout-wallet changes are frozen after a security reset" }),
+          ? t("command.walletFrozenUntil", { until: new Date(freeze.until).toLocaleString(i18n.language, { weekday: "short", hour: "2-digit", minute: "2-digit" }), defaultValue: "Payout address changes are frozen until {{until}} after a security reset" })
+          : t("command.walletFrozen", { defaultValue: "Payout address changes are frozen after a security reset" }),
         actionLabel: t("command.viewSecurity", { defaultValue: "View security" }),
         href: "/settings?section=security",
         testId: "attention-wallet-frozen",
@@ -209,8 +209,8 @@ export const useAttentionItems = ({ overview, onboarding, includeDismissed = fal
           group: "config",
           severity: "warning",
           icon: "wallet",
-          text: t("command.coinsNoWallet", { coins: a.coins_without_wallet.join(", "), defaultValue: "Live links accept {{coins}} but you have no payout wallet for them" }),
-          actionLabel: t("command.addWallet", { defaultValue: "Add wallet" }),
+          text: t("command.coinsNoWallet", { coins: a.coins_without_wallet.join(", "), defaultValue: "Live links accept {{coins}} but you have no payout address for them" }),
+          actionLabel: t("command.addWallet", { defaultValue: "Add payout address" }),
           href: "/wallet",
           testId: "attention-coins-no-wallet",
         });

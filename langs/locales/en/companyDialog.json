@@ -135,7 +135,7 @@
     "cancel": "Cancel",
     "emailLabelOptional": "Email (optional)",
     "stepBrand": "Brand",
-    "stepWallet": "Wallet",
+    "stepWallet": "Payout address",
     "nameLockedNotice": "Your name is verified and can't be changed here. Contact support to update it.",
     "logoAdded": "Logo added"
   },
@@ -151,6 +151,6 @@
     "individualDesc": "Personal payments, tips and a public page.",
     "businessTitle": "Registered business",
     "businessDesc": "Invoices, VAT/tax, address and team access.",
-    "switchHelper": "Add your business name and country below, then Save to switch to a business account. Your wallets, keys and history stay exactly as they are."
+    "switchHelper": "Add your business name and country below, then Save to switch to a business account. Your payout addresses, keys and history stay exactly as they are."
   }
 }

@@ -42,10 +42,10 @@ const CoverageStrip: React.FC<Props> = ({ missing, onAdd }) => {
         <Icon name="triangle-alert" size={20} style={{ color: warn, flexShrink: 0, marginTop: 2 }} />
         <Box>
           <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 14.5, fontWeight: 700, color: theme.palette.text.primary }}>
-            {t("coverageTitle", { count: missing.length, defaultValue: "{{count}} accepted coins have no payout wallet" })}
+            {t("coverageTitle", { count: missing.length, defaultValue: "{{count}} accepted coins have no payout address" })}
           </Typography>
           <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 13, color: theme.palette.text.secondary, mt: 0.25 }}>
-            {t("coverageBody", { defaultValue: "Your live payment links accept these coins, but payments in them have nowhere to land. Add a wallet to start receiving them." })}
+            {t("coverageBody", { defaultValue: "Your live payment links accept these coins, but payments in them have nowhere to land. Add a payout address to start receiving them." })}
           </Typography>
         </Box>
       </Box>

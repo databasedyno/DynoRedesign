@@ -28,10 +28,10 @@ const WalletChangeHistory: React.FC<Props> = ({ rows, loading }) => {
   const labelFor = (action: string, fallback: string | null) => {
     const key = action.replace("wallet.", "");
     const map: Record<string, string> = {
-      add: t("security.historyAdd", { defaultValue: "Added a payout wallet" }),
-      update: t("security.historyUpdate", { defaultValue: "Updated a payout wallet" }),
-      change: t("security.historyChange", { defaultValue: "Changed a payout wallet address" }),
-      delete: t("security.historyDelete", { defaultValue: "Removed a payout wallet" }),
+      add: t("security.historyAdd", { defaultValue: "Added a payout address" }),
+      update: t("security.historyUpdate", { defaultValue: "Updated a payout address" }),
+      change: t("security.historyChange", { defaultValue: "Changed a payout address" }),
+      delete: t("security.historyDelete", { defaultValue: "Removed a payout address" }),
     };
     return map[key] || fallback || action;
   };
@@ -42,7 +42,7 @@ const WalletChangeHistory: React.FC<Props> = ({ rows, loading }) => {
   } else if (rows === "forbidden") {
     body = (
       <Typography data-testid="wallet-security-history-forbidden" sx={{ fontFamily: "var(--font-sans)", fontSize: 13.5, color: muted }}>
-        {t("security.historyOwnerOnly", { defaultValue: "Only the brand owner can see wallet change history." })}
+        {t("security.historyOwnerOnly", { defaultValue: "Only the brand owner can see payout address change history." })}
       </Typography>
     );
   } else if (!rows || rows.length === 0) {
@@ -50,9 +50,9 @@ const WalletChangeHistory: React.FC<Props> = ({ rows, loading }) => {
       <Box data-testid="wallet-security-history-empty" sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, alignItems: { xs: "flex-start", sm: "center" }, gap: 1.5, p: 2, borderRadius: "12px", border: `1px dashed ${border}` }}>
         <Icon name="clipboard-clock" size={20} style={{ color: muted, flexShrink: 0 }} />
         <Typography sx={{ flex: 1, fontFamily: "var(--font-sans)", fontSize: 13.5, color: muted }}>
-          {t("security.historyEmpty", { defaultValue: "No wallet changes yet. Every add, edit or removal will show up here with who did it and when." })}
+          {t("security.historyEmpty", { defaultValue: "No payout address changes yet. Every add, edit or removal will show up here with who did it and when." })}
         </Typography>
-        <CustomButton label={t("security.goToWallets", { defaultValue: "Payout wallets" })} variant="outlined" size="small" onClick={() => router.push("/wallet")} data-testid="wallet-security-history-go-wallets" />
+        <CustomButton label={t("security.goToWallets", { defaultValue: "Payout addresses" })} variant="outlined" size="small" onClick={() => router.push("/wallet")} data-testid="wallet-security-history-go-wallets" />
       </Box>
     );
   } else {
@@ -79,7 +79,7 @@ const WalletChangeHistory: React.FC<Props> = ({ rows, loading }) => {
   }
 
   return (
-    <PanelCard title={t("security.historyTitle", { defaultValue: "Wallet change history" })} subTitle={t("security.historySubtitle", { defaultValue: "Who changed what, and when — for the selected brand." })} showHeaderBorder={false}>
+    <PanelCard title={t("security.historyTitle", { defaultValue: "Payout address change history" })} subTitle={t("security.historySubtitle", { defaultValue: "Who changed what, and when — for the selected brand." })} showHeaderBorder={false}>
       {body}
     </PanelCard>
   );

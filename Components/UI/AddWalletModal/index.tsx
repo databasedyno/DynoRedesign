@@ -261,7 +261,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
           if (TAG_BASED_CHAINS.includes(cryptocurrency)) payload.destination_tag = xrpTag.trim() || null;
           const response: any = await axiosBaseApi.post(API_ENDPOINTS.wallet.updateWalletWithOtp, payload);
           if (response.status === 200 && !response.error) {
-            finishSuccess(response?.data?.message || tWallet("walletUpdated", { defaultValue: "Wallet updated successfully" }));
+            finishSuccess(response?.data?.message || tWallet("walletUpdated", { defaultValue: "Payout address updated" }));
             handleClose();
           } else {
             toastError(response?.data?.message ?? "Failed to update wallet");
@@ -273,7 +273,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
             { wallet_name: effectiveWalletName },
           );
           if (response.status === 200 && !response.error) {
-            finishSuccess(tWallet("walletUpdated", { defaultValue: "Wallet updated successfully" }));
+            finishSuccess(tWallet("walletUpdated", { defaultValue: "Payout address updated" }));
             handleClose();
           } else {
             toastError(response?.data?.message ?? "Failed to update wallet");
@@ -299,7 +299,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
 
       const validated: any = await axiosBaseApi.post(API_ENDPOINTS.wallet.validateWalletAddress, values);
       if (validated.status !== 200 || validated.error) {
-        toastError(validated?.data?.message ?? "Failed to add wallet address");
+        toastError(validated?.data?.message ?? "Failed to add payout address");
         setPopupLoading(false);
         setIsSubmitting(false);
         return;
@@ -307,7 +307,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
 
       const saved: any = await axiosBaseApi.post(API_ENDPOINTS.wallet.saveValidatedWallet, values);
       if (saved.status !== 200 || saved.error) {
-        toastError(saved?.data?.message ?? "Failed to add wallet address");
+        toastError(saved?.data?.message ?? "Failed to add payout address");
         setPopupLoading(false);
         setIsSubmitting(false);
         return;
@@ -467,7 +467,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
         title={editMode ? tWallet("editWalletTitle") : tWallet("addWalletTitle")}
         subTitle={
           editMode
-            ? tWallet("editWalletSubtitle", { defaultValue: "Update your payout wallet details." })
+            ? tWallet("editWalletSubtitle", { defaultValue: "Update your payout address details." })
             : tWallet("addWalletSubtitle", { defaultValue: "Pick a coin and paste your wallet address — we'll verify before saving." })
         }
         showHeaderBorder={false}
@@ -708,7 +708,7 @@ const AddWalletModal: React.FC<AddWalletModalProps> = ({
             }}
           >
             <Icon name="lock" size={14} />
-            {tWallet("addVerifyNotice", { defaultValue: "We'll ask you to verify it's you before this wallet is saved." })}
+            {tWallet("addVerifyNotice", { defaultValue: "We'll ask you to verify it's you before this address is saved." })}
           </Typography>
         )}
         <Box

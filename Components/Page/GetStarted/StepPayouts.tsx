@@ -36,7 +36,7 @@ const StepPayouts: React.FC<Props> = ({ progress, onBack, onNext }) => {
   const points = [
     { icon: "key-round", title: t("gs.payoutsPoint1Title", { defaultValue: "Your keys, your coins" }), body: t("gs.payoutsPoint1", { defaultValue: "Each payment settles straight to the address you add here. Dynopay never holds your funds." }) },
     { icon: "coins", title: t("gs.payoutsPoint2Title", { defaultValue: "One address per coin" }), body: t("gs.payoutsPoint2", { defaultValue: "Add the coins you want to accept now — you can add more later." }) },
-    { icon: "shield-check", title: t("gs.payoutsPoint3Title", { defaultValue: "Protected by a one-time code" }), body: t("gs.payoutsPoint3", { defaultValue: "Wallet changes always ask for a code sent to your email." }) },
+    { icon: "shield-check", title: t("gs.payoutsPoint3Title", { defaultValue: "Protected by a one-time code" }), body: t("gs.payoutsPoint3", { defaultValue: "Payout address changes always ask for a code sent to your email." }) },
   ];
 
   const openManager = () => {
@@ -78,11 +78,11 @@ const StepPayouts: React.FC<Props> = ({ progress, onBack, onNext }) => {
       <Box sx={{ order: { xs: 1, md: 2 }, mt: { xs: 0, md: 3 } }}>
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 1, mb: 1.25 }}>
           <Box data-testid="gs-wallets-count" data-count={configuredWallets.length} sx={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700, color: ink }}>
-            {t("gs.walletsConfigured", { count: configuredWallets.length, defaultValue: "Configured payout wallets ({{count}})" })}
+            {t("gs.walletsConfigured", { count: configuredWallets.length, defaultValue: "Configured payout addresses ({{count}})" })}
           </Box>
           {hasWallet && (
             <Box component="button" type="button" data-testid="gs-add-another-wallet" onClick={openManager} sx={{ border: 0, background: "transparent", cursor: "pointer", fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700, color: indigo, p: 0.5, borderRadius: 6, "&:focus-visible": { outline: `2px solid ${indigo}` } }}>
-              + {t("gs.addAnotherWallet", { defaultValue: "Add another wallet" })}
+              + {t("gs.addAnotherWallet", { defaultValue: "Add another payout address" })}
             </Box>
           )}
         </Box>
@@ -107,7 +107,7 @@ const StepPayouts: React.FC<Props> = ({ progress, onBack, onNext }) => {
         ) : (
           <Box data-testid="gs-no-wallets" sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, alignItems: { xs: "stretch", sm: "center" }, gap: 1.5, p: 2, borderRadius: "14px", border: `1px dashed ${border}` }}>
             <Box sx={{ flex: 1, fontFamily: "var(--font-sans)", fontSize: 13.5, lineHeight: 1.5, color: muted }}>
-              {t("gs.noWalletsYet", { defaultValue: "No payout wallet yet — paste the address of a wallet you control. We'll confirm it with a code sent to your email." })}
+              {t("gs.noWalletsYet", { defaultValue: "No payout address yet — paste the address of a wallet you control. We'll confirm it with a code sent to your email." })}
             </Box>
           </Box>
         )}
@@ -117,7 +117,7 @@ const StepPayouts: React.FC<Props> = ({ progress, onBack, onNext }) => {
       <Box sx={{ order: { xs: 2, md: 3 } }}>
         <StepFooter
           onBack={onBack}
-          primaryLabel={hasWallet ? t("gs.continue", { defaultValue: "Continue" }) : t("gs.addWallet", { defaultValue: "Add payout wallet" })}
+          primaryLabel={hasWallet ? t("gs.continue", { defaultValue: "Continue" }) : t("gs.addWallet", { defaultValue: "Add payout address" })}
           onPrimary={hasWallet ? onNext : openManager}
           primaryTestId={hasWallet ? "gs-payouts-continue" : "gs-add-wallet"}
         />

@@ -64,7 +64,7 @@ export const LastForwardRow: React.FC<ForwardProps> = ({ wallet, loading, symbol
     <Box data-testid={testId} data-idle={idle ? "1" : "0"} sx={{ display: "flex", alignItems: "center", gap: 0.75, minWidth: 0, fontFamily: "var(--font-sans)", fontSize: 12.5, color: muted, lineHeight: 1.3 }}>
       <Icon name="arrow-up-right" size={13} style={{ flexShrink: 0, color: idle ? muted : (isDark ? CB_TOKENS.semantic.positive.dark : CB_TOKENS.semantic.positive.light) }} />
       {idle ? (
-        <Box component="span">{t("walletScreen:lastPayoutNone", { defaultValue: "No payouts to this wallet yet" })}</Box>
+        <Box component="span">{t("walletScreen:lastPayoutNone", { defaultValue: "No payouts to this address yet" })}</Box>
       ) : (
         <Box component="span" sx={{ display: "flex", alignItems: "center", gap: 0.75, minWidth: 0, flexWrap: "wrap" }}>
           <Box component="span">

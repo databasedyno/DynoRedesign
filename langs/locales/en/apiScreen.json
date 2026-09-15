@@ -86,7 +86,7 @@
   "apiKeyTitleLive": "Live API Key",
   "apiKeyTitleTest": "Test API Key",
   "keys": {
-    "liveUnlockHint": "Your live key activates automatically once you add (or reuse) your first wallet on this brand.",
+    "liveUnlockHint": "Your live key activates automatically once you add (or reuse) your first payout address on this brand.",
     "testAutoCreatedBadge": "Auto-created · Sandbox",
     "sandboxLimits": "Max ${{max}} · {{currencies}} · sandbox mode",
     "tryFirstPaymentTitle": "Try your first payment",

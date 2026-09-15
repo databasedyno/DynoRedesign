@@ -614,7 +614,7 @@ const DashboardLeftSection = () => {
               data-testid="wallets-compact-toggle"
               aria-label={
                 walletCardCompact
-                  ? tDashboard("expandWallets", { defaultValue: "Show wallets" })
+                  ? tDashboard("expandWallets", { defaultValue: "Show payout addresses" })
                   : tDashboard("compactWallets", { defaultValue: "Compact view" })
               }
               sx={{
@@ -627,7 +627,7 @@ const DashboardLeftSection = () => {
             >
               <Image
                 src={WalletIcon}
-                alt="Wallet Icon"
+                alt="Payout address icon"
                 style={{
                   width: "clamp(12px, 2vw, 17px)",
                   height: "auto",
@@ -717,7 +717,7 @@ const DashboardLeftSection = () => {
             {hasMoreWallets && !showAllWallets && (
               <IconButton
                 onClick={() => setShowAllWallets(true)}
-                aria-label={tDashboard("showAllWallets", { defaultValue: "Show all wallets" })}
+                aria-label={tDashboard("showAllWallets", { defaultValue: "Show all payout addresses" })}
                 sx={{
                   // Session 74 P1: 44×44 tap target on mobile (WCAG 2.5.5).
                   width: { xs: "44px", md: "30px" },
@@ -744,7 +744,7 @@ const DashboardLeftSection = () => {
             {showAllWallets && (
               <IconButton
                 onClick={() => setShowAllWallets(false)}
-                aria-label={tDashboard("hideAllWallets", { defaultValue: "Show fewer wallets" })}
+                aria-label={tDashboard("hideAllWallets", { defaultValue: "Show fewer payout addresses" })}
                 sx={{
                   // Session 74 P1: 44×44 tap target on mobile (WCAG 2.5.5).
                   width: { xs: "44px", md: "30px" },

@@ -50,7 +50,7 @@ const Reset2FAPage = () => {
 
   const untilLabel = freezeUntil ? new Date(freezeUntil).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }) : "";
   const cfg: Record<Status, { tone: "loading" | "success" | "error" | "neutral"; icon: React.ReactNode; title: string; subtitle: string }> = {
-    confirm: { tone: "neutral", icon: <LockResetIcon fontSize="medium" />, title: t("reset2fa.confirmTitle", { defaultValue: "Reset two-step verification?" }), subtitle: t("reset2fa.confirmSubtitle", { defaultValue: "Your authenticator app will be removed and email codes become your second step. For your safety this signs you out everywhere, forgets all trusted browsers and locks payout-wallet changes for 24 hours." }) },
+    confirm: { tone: "neutral", icon: <LockResetIcon fontSize="medium" />, title: t("reset2fa.confirmTitle", { defaultValue: "Reset two-step verification?" }), subtitle: t("reset2fa.confirmSubtitle", { defaultValue: "Your authenticator app will be removed and email codes become your second step. For your safety this signs you out everywhere, forgets all trusted browsers and locks payout address changes for 24 hours." }) },
     loading: { tone: "loading", icon: null, title: t("reset2fa.loadingTitle", { defaultValue: "Resetting…" }), subtitle: t("reset2fa.loadingSubtitle", { defaultValue: "Signing out other sessions and updating your account." }) },
     success: { tone: "success", icon: <CheckCircleOutlineIcon fontSize="medium" />, title: t("reset2fa.successTitle", { defaultValue: "Two-step verification reset" }), subtitle: message },
     error: { tone: "error", icon: <ErrorOutlineIcon fontSize="medium" />, title: t("reset2fa.errorTitle", { defaultValue: "Couldn't reset" }), subtitle: message },
@@ -79,7 +79,7 @@ const Reset2FAPage = () => {
               <Typography component="li" sx={{ listStyle: "none", ml: -2.25, mb: 0.75, fontSize: 13.5, fontWeight: 700, color: theme.palette.text.primary }}>{t("reset2fa.nextTitle", { defaultValue: "What happens next" })}</Typography>
               <li>{t("reset2fa.next1", { defaultValue: "Sign in with your password — we'll email you a 6-digit code." })}</li>
               <li>{t("reset2fa.next2", { defaultValue: "Add a new authenticator app from Settings → Security when you're ready." })}</li>
-              <li data-testid="reset-2fa-freeze-note">{untilLabel ? t("reset2fa.next3", { defaultValue: "Payout-wallet changes are locked until {{until}}. Contact support to unlock sooner.", until: untilLabel }) : t("reset2fa.next3NoDate", { defaultValue: "Payout-wallet changes are locked for 24 hours. Contact support to unlock sooner." })}</li>
+              <li data-testid="reset-2fa-freeze-note">{untilLabel ? t("reset2fa.next3", { defaultValue: "Payout address changes are locked until {{until}}. Contact support to unlock sooner.", until: untilLabel }) : t("reset2fa.next3NoDate", { defaultValue: "Payout address changes are locked for 24 hours. Contact support to unlock sooner." })}</li>
             </Box>
           )}
         </AuthStatus>

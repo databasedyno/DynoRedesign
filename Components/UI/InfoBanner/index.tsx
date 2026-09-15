@@ -6,7 +6,7 @@ import React from "react";
 import { WarningIconContainer } from "../AddWalletModal/styled";
 
 export type InfoBannerProps = {
-  /** Message to display (e.g. "Please set up your USDT/USDC wallet first.") */
+  /** Message to display (e.g. "Please add a USDT/USDC payout address first.") */
   message: string;
   /** Optional custom content instead of message */
   children?: React.ReactNode;

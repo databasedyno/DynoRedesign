@@ -138,7 +138,7 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: (crypto?: string) => void }) =>
   const handleWalletDeleted = () => {
     dispatch({
       type: TOAST_SHOW,
-      payload: { message: "Wallet deleted successfully", severity: "success" },
+      payload: { message: "Payout address removed", severity: "success" },
     });
     // Re-fetch wallets
     refetchWallets();
@@ -580,7 +580,7 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: (crypto?: string) => void }) =>
 
                     <WalletEditButton
                       onClick={() => handleDelete(wallet)}
-                      aria-label={tWallet("deleteWallet", { defaultValue: "Delete wallet" })}
+                      aria-label={tWallet("deleteWallet", { defaultValue: "Remove payout address" })}
                       data-testid="wallet-delete-btn"
                       sx={{
                         "&:hover": {
@@ -716,7 +716,7 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: (crypto?: string) => void }) =>
       />
 
       {/* Session 74 P1-4: mobile-only bottom spacer so the last wallet's
-          action row and the "Add wallet" button clear the ~80px bottom-nav
+          action row and the "Add payout address" button clear the ~80px bottom-nav
           + 68px chat-FAB gutter. Desktop is 0-height (no impact). */}
       <Box
         data-testid="wallet-mobile-spacer"

@@ -31,7 +31,7 @@ const AddWalletAction: React.FC<{ onClick: () => void }> = ({ onClick }) => {
   const { t } = useTranslation("walletScreen");
   return (
     <CustomButton
-      label={t("addWallet", { defaultValue: "Add wallet" })}
+      label={t("addWallet", { defaultValue: "Add payout address" })}
       variant="primary"
       size="medium"
       endIcon={<Icon name="plus" size={isMobile ? 18 : 20} />}
@@ -81,7 +81,7 @@ const WalletHeaderActions: React.FC<{
       />
       {hasWallets && (
         <CustomButton
-          label={t("manageWallets", { defaultValue: "Manage wallets" })}
+          label={t("manageWallets", { defaultValue: "Manage payout addresses" })}
           variant="outlined"
           size="medium"
           startIcon={<Icon name="settings-2" size={isMobile ? 16 : 18} />}
@@ -197,7 +197,7 @@ const WalletPage = ({
   const hasCompany = (companyState.companyList ?? []).length > 0;
   const hasWallets = walletData.length > 0;
   const selectedCompanyId = companyState.selectedCompanyId;
-  // Hide "Add Wallet" when all supported crypto types already have wallets
+  // Hide "Add payout address" when all supported crypto types already have wallets
   // Also hide during loading to prevent flash of the button
   // Also hide when no company exists (wallet requires company)
   const canAddMoreWallets = !walletLoading && cryptocurrencies.length > 0 && hasCompany;
@@ -208,7 +208,7 @@ const WalletPage = ({
       setPageDescription(
         tDashboard(
           "walletsDescription",
-          "Manage your cryptocurrency wallet addresses",
+          "Manage the addresses your payments are forwarded to",
         ),
       );
     }

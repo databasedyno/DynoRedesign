@@ -43,7 +43,7 @@
   "category_orders_title": "Pedidos y facturas",
   "category_orders_desc": "Recibos de pedido, descargas y correos de factura",
   "category_config_title": "Cuenta y configuración",
-  "category_config_desc": "Cambios de webhook, clave API, billetera y perfil",
+  "category_config_desc": "Cambios de webhook, clave API, dirección de cobro y perfil",
   "category_digests_title": "Resúmenes",
   "category_digests_desc": "Resúmenes semanales y de liquidaciones",
   "inboxTab": "Bandeja",

@@ -31,7 +31,7 @@ interface WalletReuseSelectorProps {
 const LIME = "#4F46E5";
 
 /**
- * "Reuse wallets from an existing company" card.
+ * "Reuse payout addresses from an existing company" card.
  * Renders nothing when the merchant has no other company with saved wallets, so
  * it can be dropped at the top of the Add-Wallet flow unconditionally.
  */
@@ -121,7 +121,7 @@ const WalletReuseSelector: React.FC<WalletReuseSelectorProps> = ({
       dispatch({
         type: TOAST_SHOW,
         payload: {
-          message: data?.message || t("reuse.copiedCount", { count: copiedCount, defaultValue: "{{count}} wallet(s) copied" }),
+          message: data?.message || t("reuse.copiedCount", { count: copiedCount, defaultValue: "{{count}} payout address(es) copied" }),
           severity: "success",
         },
       });
@@ -131,7 +131,7 @@ const WalletReuseSelector: React.FC<WalletReuseSelectorProps> = ({
     } catch (e) {
       const msg =
         (e as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-        t("reuse.copyFailed", { defaultValue: "Could not copy wallets. Please try again." });
+        t("reuse.copyFailed", { defaultValue: "Could not copy the payout addresses. Please try again." });
       dispatch({ type: TOAST_SHOW, payload: { message: msg, severity: "error" } });
     } finally {
       setCopying(false);
@@ -182,7 +182,7 @@ const WalletReuseSelector: React.FC<WalletReuseSelectorProps> = ({
               lineHeight: 1.2,
             }}
           >
-            {t("reuse.title", { defaultValue: "Reuse wallets from your other companies" })}
+            {t("reuse.title", { defaultValue: "Reuse payout addresses from your other companies" })}
           </Typography>
           <Typography
             sx={{
@@ -191,7 +191,7 @@ const WalletReuseSelector: React.FC<WalletReuseSelectorProps> = ({
               fontFamily: "var(--font-sans)",
             }}
           >
-            {t("reuse.body", { defaultValue: "Skip re-entering addresses — copy wallet addresses you've already set up in your other companies." })}
+            {t("reuse.body", { defaultValue: "Skip re-entering addresses — copy payout addresses you've already set up in your other companies." })}
           </Typography>
         </Box>
         <Box
@@ -311,7 +311,7 @@ const WalletReuseSelector: React.FC<WalletReuseSelectorProps> = ({
       {/* Action */}
       <Box
         role="button"
-        aria-label={t("reuse.useThese", { defaultValue: "Use these wallets" })}
+        aria-label={t("reuse.useThese", { defaultValue: "Use these addresses" })}
         data-testid="wallet-reuse-apply"
         onClick={copying || selectedCurrencies.length === 0 ? undefined : handleCopy}
         sx={{
@@ -340,7 +340,7 @@ const WalletReuseSelector: React.FC<WalletReuseSelectorProps> = ({
         )}
         {copying
           ? t("reuse.copying", { defaultValue: "Copying…" })
-          : t("reuse.useSelected", { count: selectedCurrencies.length, defaultValue: "Use {{count}} selected wallet(s)" })}
+          : t("reuse.useSelected", { count: selectedCurrencies.length, defaultValue: "Use {{count}} selected payout address(es)" })}
       </Box>
     </Box>
   );

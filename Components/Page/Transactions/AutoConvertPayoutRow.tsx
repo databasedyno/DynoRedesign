@@ -61,7 +61,7 @@ export const AutoConvertPayoutRow: React.FC<Props> = ({ info, isMobile, onCopied
             </ExplorerButton>
           </ActionButtonGroup>
         </HashRow>
-        {hint("payoutHashHint", "Sent from our exchange account to your {{chain}} payout wallet after converting {{from}}.", { chain: chainLabel, from: info.sourceCurrency })}
+        {hint("payoutHashHint", "Sent from our exchange account to your {{chain}} payout address after converting {{from}}.", { chain: chainLabel, from: info.sourceCurrency })}
       </Box>
     );
   }

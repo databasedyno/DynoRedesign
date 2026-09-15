@@ -31,8 +31,8 @@
     "minutes": "minutes"
   },
   "cryptoConversion": "Crypto conversion",
-  "cryptoConversionSubtitle": "Optional — when enabled, incoming BTC, ETH, LTC on this wallet will be converted to a stablecoin. Off by default; leave off to receive the original coin.",
-  "cryptoConversionAlert": "Please set up your USDT/USDC wallet first.",
+  "cryptoConversionSubtitle": "Optional — when enabled, incoming BTC, ETH, LTC to this payout address will be converted to a stablecoin. Off by default; leave off to receive the original coin.",
+  "cryptoConversionAlert": "Please add a USDT/USDC payout address first.",
   "cryptoConversionAutoConvert": "Auto-convert volatile crypto",
   "cryptoConversionYes": "Yes",
   "cryptoConversionNo": "No",
@@ -42,7 +42,7 @@
   "cryptoConversionUsdtErc20": "USDT (ERC20)",
   "cryptoConversionUsdcErc20": "USDC (ERC20)",
   "cryptoConversionEnabledToast": "Auto-convert is on — volatile coins now settle as {{currency}} ({{chain}}).",
-  "cryptoConversionSaveFailed": "Auto-convert could not be saved. Add a matching stablecoin wallet first, then try again.",
+  "cryptoConversionSaveFailed": "Auto-convert could not be saved. Add a matching stablecoin payout address first, then try again.",
   "actions": {
     "cancel": "Cancel",
     "saveChanges": "Save Changes",

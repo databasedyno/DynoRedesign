@@ -300,7 +300,7 @@ router.post("/cryptoPayment", legacyApiAuthMiddleware, idempotencyMiddleware, as
   if (allConfiguredCurrencies.length === 0) {
     return sendError(res, {
       status: 400,
-      message: "No crypto wallet configured. Please add at least one crypto wallet address before creating a payment.",
+      message: "No payout address configured. Please add at least one payout address before creating a payment.",
       code: "no_wallet_configured",
     });
   }
@@ -314,7 +314,7 @@ router.post("/cryptoPayment", legacyApiAuthMiddleware, idempotencyMiddleware, as
     if (unconfiguredCurrencies.length > 0) {
       return sendError(res, {
         status: 400,
-        message: `No wallet configured for: ${unconfiguredCurrencies.join(', ')}. Available currencies: ${allConfiguredCurrencies.join(', ')}`,
+        message: `No payout address configured for: ${unconfiguredCurrencies.join(', ')}. Available currencies: ${allConfiguredCurrencies.join(', ')}`,
         code: "currency_not_available",
         param: "accepted_currencies",
       });
@@ -508,7 +508,7 @@ router.post("/createPayment", legacyApiAuthMiddleware, idempotencyMiddleware, as
   if (allConfiguredCurrencies.length === 0) {
     return sendError(res, {
       status: 400,
-      message: "No crypto wallet configured. Please add at least one crypto wallet address before creating a payment.",
+      message: "No payout address configured. Please add at least one payout address before creating a payment.",
       code: "no_wallet_configured",
     });
   }
@@ -521,7 +521,7 @@ router.post("/createPayment", legacyApiAuthMiddleware, idempotencyMiddleware, as
     if (unconfiguredCurrencies.length > 0) {
       return sendError(res, {
         status: 400,
-        message: `No wallet configured for: ${unconfiguredCurrencies.join(', ')}. Available currencies: ${allConfiguredCurrencies.join(', ')}`,
+        message: `No payout address configured for: ${unconfiguredCurrencies.join(', ')}. Available currencies: ${allConfiguredCurrencies.join(', ')}`,
         code: "currency_not_available",
         param: "accepted_currencies",
       });
@@ -623,7 +623,7 @@ router.post("/embed/session", legacyApiAuthMiddleware, idempotencyMiddleware, as
   if (allConfiguredCurrencies.length === 0) {
     return sendError(res, {
       status: 400,
-      message: "No crypto wallet configured. Please add at least one crypto wallet address before creating a payment.",
+      message: "No payout address configured. Please add at least one payout address before creating a payment.",
     });
   }
 
@@ -635,7 +635,7 @@ router.post("/embed/session", legacyApiAuthMiddleware, idempotencyMiddleware, as
     if (unconfiguredCurrencies.length > 0) {
       return sendError(res, {
         status: 400,
-        message: `No wallet configured for: ${unconfiguredCurrencies.join(', ')}. Available currencies: ${allConfiguredCurrencies.join(', ')}`,
+        message: `No payout address configured for: ${unconfiguredCurrencies.join(', ')}. Available currencies: ${allConfiguredCurrencies.join(', ')}`,
       });
     }
     effectiveAvailableCurrencies = requestedCurrencies;
@@ -731,7 +731,7 @@ router.post("/addFunds", legacyApiAuthMiddleware, idempotencyMiddleware, asyncHa
   if (availableCurrencies.length === 0) {
     return sendError(res, {
       status: 400,
-      message: "No crypto wallet configured. Please add at least one crypto wallet address before adding funds.",
+      message: "No payout address configured. Please add at least one payout address before adding funds.",
     });
   }
 
@@ -801,7 +801,7 @@ router.post("/useWallet", legacyApiAuthMiddleware, idempotencyMiddleware, asyncH
   );
 
   if (walletData.length === 0) {
-    return sendError(res, { status: 404, message: "Wallet not found" });
+    return sendError(res, { status: 404, message: "Payout address not found" });
   }
 
   if (walletData[0].amount < amount) {

@@ -40,7 +40,7 @@ export const ReuseSection: React.FC<Props> = ({ companies, sel, copyingFrom, onT
                 <Box sx={{ minWidth: 0 }}>
                   <Typography sx={{ fontSize: 13.5, fontWeight: 600, fontFamily: "var(--font-sans)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{co.company_name}</Typography>
                   <Typography sx={{ fontSize: 12, color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}>
-                    {tw("reuseMissingHere", "{{n}} wallets this brand doesn't have yet", { n: co.wallet_count })}
+                    {tw("reuseMissingHere", "{{n}} payout addresses this brand doesn't have yet", { n: co.wallet_count })}
                   </Typography>
                 </Box>
               </Box>

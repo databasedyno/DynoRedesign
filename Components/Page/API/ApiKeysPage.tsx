@@ -1686,7 +1686,7 @@ const ApiKeysPage = ({
               >
                 {t("keys.liveUnlockHint", {
                   defaultValue:
-                    "Your live key activates automatically once you add (or reuse) your first wallet on this company.",
+                    "Your live key activates automatically once you add (or reuse) your first payout address on this company.",
                 })}
               </Typography>
             </Box>

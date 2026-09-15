@@ -42,7 +42,7 @@ const SettlementCard: React.FC<Props> = ({ ac, cardSx, hideToggle }) => {
         </Stack>
         {!hideToggle && (
         <Tooltip
-          title={!hasStablecoinWallet && !enabled ? t("payouts.addWalletFirst", { defaultValue: "Add a stablecoin settlement wallet first" }) : ""}
+          title={!hasStablecoinWallet && !enabled ? t("payouts.addWalletFirst", { defaultValue: "Add a stablecoin settlement address first" }) : ""}
           arrow
           placement="top"
         >
@@ -94,13 +94,13 @@ const SettlementCard: React.FC<Props> = ({ ac, cardSx, hideToggle }) => {
       <Divider sx={{ my: 2 }} />
 
       <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-        {t("payouts.settlementWallets", { defaultValue: "Settlement wallets" })}
+        {t("payouts.settlementWallets", { defaultValue: "Settlement addresses" })}
       </Typography>
       {settlementLoading ? (
         <Skeleton height={48} />
       ) : settlementOptions.length === 0 ? (
         <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
-          {t("payouts.noSettlementWallet", { defaultValue: "No stablecoin settlement wallet configured yet. Add one in Settings to auto-convert payouts." })}
+          {t("payouts.noSettlementWallet", { defaultValue: "No stablecoin settlement address configured yet. Add one in Settings to auto-convert payouts." })}
         </Typography>
       ) : (
         <Stack divider={<Divider flexItem />} spacing={0}>

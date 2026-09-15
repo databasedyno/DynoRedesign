@@ -3,7 +3,7 @@
  *
  * One search field that finds:
  *  - PAGES    ("settings", "webhooks", "wallet"…) — static index, i18n labels
- *  - ACTIONS  ("create payment link", "add wallet"…)
+ *  - ACTIONS  ("create payment link", "add payout address"…)
  *  - RECORDS  — customers (server search, read-only GET) and payment links
  *               (fetched once per palette open, filtered client-side); long
  *               alphanumeric queries also offer a transaction-ID search that
@@ -85,7 +85,7 @@ const CommandPaletteDialog = ({ open, onClose }: { open: boolean; onClose: () =>
       { id: "p-paylinks", label: t("payLinks", { defaultValue: "Payment links" }), keywords: "links checkout request", path: "/pay-links" },
       { id: "p-invoices", label: t("receiptsTax", { defaultValue: "Receipts & Tax" }), keywords: "invoices receipts tax vat", path: "/invoices" },
       { id: "p-customers", label: t("customers", { defaultValue: "Customers" }), keywords: "buyers payers crm", path: "/customers" },
-      { id: "p-wallet", label: t("payoutWallets", { defaultValue: "Payout wallets" }), keywords: "wallet crypto address", path: "/wallet" },
+      { id: "p-wallet", label: t("payoutWallets", { defaultValue: "Payout addresses" }), keywords: "wallet crypto address", path: "/wallet" },
       { id: "p-payouts", label: t("balancesPayouts", { defaultValue: "Balances" }), keywords: "payouts settlement", path: "/payouts" },
       { id: "p-storefront", label: t("storefront", { defaultValue: "Your page" }), keywords: "your page creator shop products storefront checkout", path: "/storefront" },
       { id: "p-settings", label: t("settings", { defaultValue: "Settings" }), keywords: "account company profile preferences", path: "/settings" },
@@ -125,7 +125,7 @@ const CommandPaletteDialog = ({ open, onClose }: { open: boolean; onClose: () =>
       {
         id: "a-add-wallet",
         group: "actions",
-        label: t("search.actionAddWallet", { defaultValue: "Add payout wallet" }),
+        label: t("search.actionAddWallet", { defaultValue: "Add payout address" }),
         keywords: "new wallet address crypto",
         run: () => go("/wallet"),
       },

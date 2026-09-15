@@ -139,7 +139,7 @@ export const ExistingWalletRow: React.FC<Props> = ({ wallet: w, edit: e, expande
       <Collapse in={expanded && !e.remove} unmountOnExit>
         <Box sx={{ px: { xs: 1.5, sm: 2 }, pb: 2, pt: 0.5, display: "flex", flexDirection: "column", gap: 1.25 }} data-testid={`wallet-manager-editor-${tag}`}>
           <InputField
-            label={tw("walletAddress", "Wallet address")}
+            label={tw("walletAddress", "Address")}
             value={e.address}
             error={invalid || !!error}
             onChange={(ev: any) => onChange({ address: ev.target.value })}
@@ -156,7 +156,7 @@ export const ExistingWalletRow: React.FC<Props> = ({ wallet: w, edit: e, expande
           )}
           <Box sx={{ display: "grid", gridTemplateColumns: isTagChain(tag) ? "1fr 1fr" : "1fr", gap: 1.25 }}>
             <InputField
-              label={tw("walletNameOptional", "Wallet name (optional)")}
+              label={tw("walletNameOptional", "Label (optional)")}
               placeholder={tw("walletNamePlaceholder", "e.g. Treasury, Ledger…")}
               value={e.name}
               onChange={(ev: any) => onChange({ name: ev.target.value })}

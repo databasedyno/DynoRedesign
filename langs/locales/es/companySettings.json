@@ -32,7 +32,7 @@
   },
   "cryptoConversion": "Conversión Crypto",
   "cryptoConversionSubtitle": "Los BTC, ETH, LTC entrantes serán convertidos automáticamente a una stablecoin.",
-  "cryptoConversionAlert": "Por favor, configura primero tu billetera USDT/USDC.",
+  "cryptoConversionAlert": "Por favor, configura primero tu dirección de cobro USDT/USDC.",
   "cryptoConversionAutoConvert": "Conversión automática de crypto volátil",
   "cryptoConversionYes": "Sí",
   "cryptoConversionNo": "No",
@@ -42,7 +42,7 @@
   "cryptoConversionUsdtErc20": "USDT (ERC20)",
   "cryptoConversionUsdcErc20": "USDC (ERC20)",
   "cryptoConversionEnabledToast": "La conversión automática está activada: las monedas volátiles ahora se liquidan en {{currency}} ({{chain}}).",
-  "cryptoConversionSaveFailed": "No se pudo guardar la conversión automática. Añade primero una billetera de stablecoin compatible e inténtalo de nuevo.",
+  "cryptoConversionSaveFailed": "No se pudo guardar la conversión automática. Añade primero una dirección de cobro de stablecoin compatible e inténtalo de nuevo.",
   "actions": {
     "cancel": "Cancelar",
     "saveChanges": "Guardar cambios",

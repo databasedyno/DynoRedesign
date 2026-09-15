@@ -40,10 +40,10 @@
     "subject": "{{amount}} {{currency}} recebidos",
     "heading": "Pagamento recebido",
     "intro": "Ótimas notícias! A sua marca <strong>{{companyName}}</strong> recebeu um pagamento.",
-    "outro": "Os fundos estão a caminho da sua carteira de recebimento.",
+    "outro": "Os fundos estão a caminho do seu endereço de recebimento.",
     "cta": "Ver transação",
     "referralCredit": "O crédito de indicação cobriu {{amount}} da sua taxa de plataforma da Dynopay neste pagamento — você ficou com mais.",
-    "preheader": "Os fundos estão a ser liquidados na sua carteira de pagamentos."
+    "preheader": "Os fundos estão a ser liquidados no seu endereço de recebimento."
   },
   "paymentPending": {
     "subject": "{{amount}} {{currency}} para {{companyName}} — confirmando",
@@ -192,7 +192,15 @@
     "downloadPdf": "Baixar PDF",
     "copyLink": "Copiar link",
     "linkCopied": "Link copiado",
-    "viewOnExplorer": "Ver no explorador de blocos"
+    "viewOnExplorer": "Ver no explorador de blocos",
+    "merchantContact": "Contacto do comerciante",
+    "refundNote": "Reembolsos e ajustes são tratados por {{company}} — a Dynopay não tem custódia e nunca retém os seus fundos. Indique o número do recibo acima quando entrar em contacto.",
+    "print": "Imprimir",
+    "legalName": "Nome legal",
+    "emailLabel": "E-mail",
+    "websiteLabel": "Site",
+    "phoneLabel": "Telefone",
+    "addressLabel": "Morada"
   },
   "merchant": {
     "labels": {
@@ -202,8 +210,8 @@
       "time": "Hora",
       "network": "Rede",
       "blockchain": "Blockchain",
-      "walletName": "Nome da carteira",
-      "wallet": "Carteira",
+      "walletName": "Nome",
+      "wallet": "Endereço de recebimento",
       "address": "Endereço",
       "newAddress": "Novo endereço",
       "toAddress": "Endereço de destino",
@@ -267,7 +275,7 @@
       "promo": "O seu primeiro pagamento é por nossa conta — isentamos toda a nossa taxa de plataforma no seu primeiro pagamento liquidado, seja qual for o valor.",
       "nextTitle": "Veja o que pode fazer a seguir:",
       "next1": "1. Complete o perfil da sua marca",
-      "next2": "2. Adicione a sua carteira de pagamento",
+      "next2": "2. Adicione o seu endereço de recebimento",
       "next3": "3. Comece a aceitar pagamentos",
       "questions": "Se tiver alguma dúvida, a nossa equipa de suporte está aqui para ajudar.",
       "cta": "Começar",
@@ -373,13 +381,13 @@
       "preheader": "Várias tentativas de início de sessão na sua conta falharam."
     },
     "companyCreated": {
-      "subject": "Falta um passo — adicione uma carteira de recebimento para receber",
+      "subject": "Falta um passo — adicione um endereço de recebimento para receber",
       "heading": "Perfil concluído",
       "intro1": "Excelente! O perfil da marca <strong>{{companyName}}</strong> está agora concluído.",
-      "intro2": "Está quase pronto para começar a aceitar pagamentos. O último passo é adicionar o endereço da sua carteira de pagamento.",
-      "whyTitle": "Porquê adicionar uma carteira?",
-      "whyText": "A sua carteira é para onde enviaremos os pagamentos em cripto que receber. É rápido e seguro.",
-      "cta": "Adicionar carteira",
+      "intro2": "Está quase pronto para começar a aceitar pagamentos. O último passo é adicionar o endereço de recebimento.",
+      "whyTitle": "Porquê adicionar um endereço de recebimento?",
+      "whyText": "O seu endereço de recebimento é para onde enviaremos os pagamentos em cripto que receber. É rápido e seguro.",
+      "cta": "Adicionar endereço de recebimento",
       "preheader": "Falta apenas um passo para começar a aceitar pagamentos."
     },
     "companyContactWelcome": {
@@ -405,50 +413,50 @@
       "preheader": "Os dados do perfil da sua marca foram atualizados."
     },
     "walletVerified": {
-      "subject": "Carteira de pagamento ativa",
-      "heading": "Carteira ativa",
-      "intro": "A sua carteira de pagamento foi verificada e está agora ativa.",
-      "outro": "Todos os pagamentos que receber serão automaticamente encaminhados para esta carteira. Está tudo pronto para começar a aceitar pagamentos em cripto.",
+      "subject": "Endereço de recebimento ativo",
+      "heading": "Endereço de recebimento ativo",
+      "intro": "O seu endereço de recebimento foi verificado e está agora ativo.",
+      "outro": "Todos os pagamentos que receber serão automaticamente encaminhados para este endereço de recebimento. Está tudo pronto para começar a aceitar pagamentos em cripto.",
       "cta": "Ver painel"
     },
     "walletUpdateOtp": {
-      "subject": "Confirme a atualização da carteira",
-      "heading": "Confirme a atualização da carteira",
-      "intro": "Está a atualizar a sua carteira de pagamento. Verifique esta alteração com o código abaixo:",
+      "subject": "Confirme a atualização do endereço de recebimento",
+      "heading": "Confirme a atualização do endereço de recebimento",
+      "intro": "Está a atualizar o seu endereço de recebimento. Verifique esta alteração com o código abaixo:",
       "expiry": "Este código expira em 10 minutos. Se não solicitou esta alteração, proteja a sua conta imediatamente."
     },
     "walletDeleted": {
-      "subject": "Carteira removida da sua conta",
-      "heading": "Carteira removida",
-      "intro": "Uma carteira foi removida da sua conta Dynopay.",
-      "outro": "Os pagamentos deixarão de ser encaminhados para esta carteira.",
-      "didntDoThis": "<strong>Não foi você?</strong><br />Se não removeu esta carteira, proteja a sua conta imediatamente e contacte o suporte.",
-      "cta": "Ver carteiras"
+      "subject": "Endereço de recebimento removido da sua conta",
+      "heading": "Endereço de recebimento removido",
+      "intro": "Um endereço de recebimento foi removido da sua conta Dynopay.",
+      "outro": "Os pagamentos deixarão de ser encaminhados para este endereço de recebimento.",
+      "didntDoThis": "<strong>Não foi você?</strong><br />Se não removeu este endereço de recebimento, proteja a sua conta imediatamente e contacte o suporte.",
+      "cta": "Ver endereços de recebimento"
     },
     "addWalletReminder": {
       "subject": "Está quase pronto para aceitar pagamentos",
-      "heading": "Adicione a sua carteira",
-      "intro": "Está quase! O perfil de <strong>{{companyName}}</strong> está configurado, mas ainda não adicionou uma carteira de pagamento.",
-      "whyTitle": "Porquê adicionar uma carteira?",
-      "whyText": "Sem uma carteira, não pode receber pagamentos. A configuração demora menos de 2 minutos.",
-      "outro": "Adicione já a sua carteira e comece a aceitar pagamentos em cripto hoje.",
-      "cta": "Adicionar carteira agora"
+      "heading": "Adicione o seu endereço de recebimento",
+      "intro": "Está quase! O perfil de <strong>{{companyName}}</strong> está configurado, mas ainda não adicionou um endereço de recebimento.",
+      "whyTitle": "Porquê adicionar um endereço de recebimento?",
+      "whyText": "Sem um endereço de recebimento, não pode receber pagamentos. A configuração demora menos de 2 minutos.",
+      "outro": "Adicione já o seu endereço de recebimento e comece a aceitar pagamentos em cripto hoje.",
+      "cta": "Adicionar endereço de recebimento agora"
     },
     "walletAdded": {
-      "subject": "Carteira adicionada – {{network}}",
-      "heading": "Carteira adicionada",
-      "intro": "Uma nova carteira de pagamento foi adicionada com sucesso à sua marca <strong>{{companyName}}</strong>.",
-      "outro": "Todos os pagamentos em {{network}} serão encaminhados para esta carteira. Pode gerir as suas carteiras no painel.",
-      "didntDoThis": "<strong>Não foi você?</strong><br />Se não adicionou esta carteira, proteja a sua conta imediatamente.",
-      "cta": "Ver carteiras"
+      "subject": "Endereço de recebimento adicionado – {{network}}",
+      "heading": "Endereço de recebimento adicionado",
+      "intro": "Um novo endereço de recebimento foi adicionado com sucesso à sua marca <strong>{{companyName}}</strong>.",
+      "outro": "Todos os pagamentos em {{network}} serão encaminhados para este endereço de recebimento. Pode gerir as seus endereços de recebimento no painel.",
+      "didntDoThis": "<strong>Não foi você?</strong><br />Se não adicionou este endereço de recebimento, proteja a sua conta imediatamente.",
+      "cta": "Ver endereços de recebimento"
     },
     "walletUpdated": {
-      "subject": "Carteira atualizada – {{network}}",
-      "heading": "Carteira atualizada",
-      "intro": "A sua carteira de pagamento para <strong>{{companyName}}</strong> foi atualizada.",
+      "subject": "Endereço de recebimento atualizado – {{network}}",
+      "heading": "Endereço de recebimento atualizado",
+      "intro": "O seu endereço de recebimento para <strong>{{companyName}}</strong> foi atualizado.",
       "outro": "Os pagamentos futuros em {{network}} serão encaminhados para o novo endereço.",
-      "didntDoThis": "<strong>Não foi você?</strong><br />Se não atualizou esta carteira, proteja a sua conta imediatamente e contacte o suporte.",
-      "cta": "Ver carteiras"
+      "didntDoThis": "<strong>Não foi você?</strong><br />Se não atualizou este endereço de recebimento, proteja a sua conta imediatamente e contacte o suporte.",
+      "cta": "Ver endereços de recebimento"
     },
     "withdrawalOtp": {
       "subject": "Confirme o seu levantamento",
@@ -471,15 +479,15 @@
       "expiry": "Este código expira em <strong>5 minutos</strong>. Se não solicitou esta troca, ignore este e-mail."
     },
     "walletEditOtp": {
-      "subject": "Confirme a edição da carteira",
-      "heading": "Confirme a edição da carteira",
-      "intro": "Está prestes a editar um endereço de carteira. Verifique esta ação com o código abaixo:",
+      "subject": "Confirme a edição do endereço de recebimento",
+      "heading": "Confirme a edição do endereço de recebimento",
+      "intro": "Está prestes a editar um endereço de recebimento. Verifique esta ação com o código abaixo:",
       "expiry": "Este código expira em <strong>10 minutos</strong>. Se não solicitou isto, ignore este e-mail ou contacte o suporte."
     },
     "walletDeleteOtp": {
-      "subject": "Confirme a eliminação da carteira",
-      "heading": "Confirme a eliminação da carteira",
-      "intro": "Está prestes a <strong>eliminar permanentemente</strong> um endereço de carteira. Esta ação não pode ser anulada.",
+      "subject": "Confirme a eliminação do endereço de recebimento",
+      "heading": "Confirme a eliminação do endereço de recebimento",
+      "intro": "Está prestes a <strong>eliminar permanentemente</strong> um endereço de recebimento. Esta ação não pode ser anulada.",
       "expiry": "Este código expira em <strong>10 minutos</strong>. Se não solicitou isto, ignore este e-mail ou contacte imediatamente o suporte."
     },
     "companyDeleteOtp": {
@@ -497,7 +505,7 @@
       "removed1": "Todos os links de pagamento desta marca",
       "removed2": "Chaves API ({{apiKeys}}) — revogadas imediatamente",
       "removed3": "Definições da marca, webhooks e preferências de conversão automática",
-      "note": "O seu histórico de transações é mantido para os seus registos. As carteiras de pagamento atribuídas a esta marca deixaram de estar associadas a ela.",
+      "note": "O seu histórico de transações é mantido para os seus registos. Os endereços de recebimento atribuídos a esta marca deixaram de estar associadas a ela.",
       "didntDoThis": "<strong>Não foi você?</strong><br />Se não eliminou esta marca, proteja a sua conta de imediato e contacte o suporte.",
       "cta": "Ir para o painel",
       "preheader": "{{companyName}} foi removida da sua conta."
@@ -516,7 +524,7 @@
     "brandSoftDeleted": {
       "subject": "A sua marca \"{{companyName}}\" foi eliminada — tem 7 dias para a restaurar",
       "heading": "A sua marca foi eliminada",
-      "intro": "A sua marca <strong>{{companyName}}</strong> acabou de ser eliminada no Dynopay. Não se preocupe — ainda nada se perdeu. Vamos guardar tudo (links de pagamento, wallets, definições e histórico) em segurança durante os próximos <strong>7 dias</strong>, caso tenha sido um engano.",
+      "intro": "A sua marca <strong>{{companyName}}</strong> acabou de ser eliminada no Dynopay. Não se preocupe — ainda nada se perdeu. Vamos guardar tudo (links de pagamento, endereços de recebimento, definições e histórico) em segurança durante os próximos <strong>7 dias</strong>, caso tenha sido um engano.",
       "status": "Eliminação agendada",
       "restoreBefore": "Restaurar antes de",
       "changedMind": "<strong>Mudou de ideias?</strong> Basta responder a este e-mail ou contactar a nossa equipa de suporte antes de <strong>{{date}}</strong> e repomos a marca exatamente como estava — com um clique.",
@@ -538,7 +546,7 @@
     "brandRestored": {
       "subject": "Boas notícias — a sua marca \"{{companyName}}\" está de volta",
       "heading": "A sua marca está de volta",
-      "intro": "Restaurámos a sua marca <strong>{{companyName}}</strong> no Dynopay. Tudo — links de pagamento, wallets, definições e histórico — está exatamente como deixou.",
+      "intro": "Restaurámos a sua marca <strong>{{companyName}}</strong> no Dynopay. Tudo — links de pagamento, endereços de recebimento, definições e histórico — está exatamente como deixou.",
       "status": "Restaurada",
       "pickUp": "Pode retomar exatamente onde ficou a partir do seu painel.",
       "cta": "Ir para o painel",
@@ -547,7 +555,7 @@
     "brandDeleteReminder": {
       "subject": "Último aviso: {{daysLabel}} para restaurar \"{{companyName}}\"",
       "heading": "A sua marca está prestes a ser eliminada",
-      "intro": "Só para avisar: a sua marca eliminada <strong>{{companyName}}</strong> está agendada para ser <strong>eliminada permanentemente em {{date}}</strong> — ou seja, daqui a cerca de <strong>{{daysLabel}}</strong>. Depois disso, os seus links de pagamento, wallets, definições e histórico não poderão ser recuperados.",
+      "intro": "Só para avisar: a sua marca eliminada <strong>{{companyName}}</strong> está agendada para ser <strong>eliminada permanentemente em {{date}}</strong> — ou seja, daqui a cerca de <strong>{{daysLabel}}</strong>. Depois disso, os seus links de pagamento, endereços de recebimento, definições e histórico não poderão ser recuperados.",
       "timeLeft": "Tempo restante",
       "timeLeftBadge": "Restante: {{daysLabel}}",
       "deletesOn": "Eliminada em",
@@ -827,10 +835,10 @@
     "preheader": "Obrigado — o recibo da sua contribuição está em anexo."
   },
   "walletOtp": {
-    "subject": "Código para validação de endereço de carteira",
-    "heading": "Código de verificação da carteira",
-    "intro": "Você está validando um novo endereço de carteira para {{currency}}.",
-    "walletAddress": "Endereço da carteira",
+    "subject": "Código para validação de endereço de recebimento",
+    "heading": "Código de verificação do endereço de recebimento",
+    "intro": "Você está validando um novo endereço de recebimento para {{currency}}.",
+    "walletAddress": "Endereço",
     "currency": "Moeda",
     "expiry": "Este código expira em {{minutes}} minutos."
   },
@@ -943,8 +951,8 @@
     },
     "seg": {
       "madeLink": {
-        "line": "Você já criou um link de pagamento — ótimo. Adicione uma carteira de saque para que, assim que alguém pagar, liquidemos direto numa carteira que você controla.",
-        "cta": "Adicionar carteira de saque"
+        "line": "Você já criou um link de pagamento — ótimo. Adicione um endereço de recebimento para que, assim que alguém pagar, liquidemos direto num endereço de recebimento que você controla.",
+        "cta": "Adicionar endereço de recebimento"
       },
       "noLink": {
         "line": "Crie o seu primeiro link de pagamento — partilhe em qualquer lugar e comece a aceitar Bitcoin, Ethereum ou stablecoins, sem estornos.",
@@ -969,8 +977,8 @@
         "cta": "Adicionar minha marca"
       },
       "wallet": {
-        "intro": "Você tentou criar um link de pagamento, mas ainda não há uma carteira de recebimento na sua conta. Os pagamentos são liquidados direto em uma carteira que você controla, então precisamos de um endereço antes de você receber.",
-        "cta": "Adicionar carteira de recebimento"
+        "intro": "Você tentou criar um link de pagamento, mas ainda não há um endereço de recebimento na sua conta. Os pagamentos são liquidados direto em um endereço de recebimento que você controla, então precisamos de um endereço antes de você receber.",
+        "cta": "Adicionar endereço de recebimento"
       },
       "kyc": {
         "intro": "Você já processou mais de US$ 10.000 em pagamentos — ótimo trabalho. Por isso, uma verificação rápida de identidade agora é necessária antes de criar novos links de pagamento. Costuma levar cerca de 5 minutos.",
@@ -1064,7 +1072,7 @@
     "accountDeleted": {
       "subject": "A sua conta Dynopay foi eliminada",
       "heading": "Conta eliminada",
-      "intro": "Conforme pedido, a sua conta Dynopay e todos os seus dados — marcas, links de pagamento, chaves API, carteiras de pagamento e definições — foram eliminados permanentemente.",
+      "intro": "Conforme pedido, a sua conta Dynopay e todos os seus dados — marcas, links de pagamento, chaves API, endereços de recebimento e definições — foram eliminados permanentemente.",
       "outro": "Se um dia quiser voltar a aceitar cripto, você será bem-vindo.",
       "notice": "<strong>Não pediu isto?</strong> Contacte imediatamente a nossa equipa de suporte.",
       "preheader": "A sua conta e os seus dados foram removidos permanentemente."
@@ -1105,7 +1113,7 @@
     },
     "stepUpActions": {
       "apikey": "gestão de chaves API",
-      "wallet": "alteração de carteiras de pagamento",
+      "wallet": "alteração de endereços de recebimento",
       "brand_delete": "eliminação de uma marca",
       "security": "definições de segurança da conta",
       "payout": "definições de levantamento",
@@ -1178,7 +1186,7 @@
     "heading": "Pagamento liquidado",
     "preheader": "Líquido {{net}} {{asset}} encaminhado para a sua wallet — detalhe completo no interior.",
     "intro": "<strong>{{companyName}}</strong> recebeu um pagamento que já está liquidado. Veja exatamente para onde foi o dinheiro.",
-    "introForwarding": "<strong>{{companyName}}</strong> recebeu um pagamento que já está liquidado. O valor líquido está a ser encaminhado agora para a sua wallet de pagamento.",
+    "introForwarding": "<strong>{{companyName}}</strong> recebeu um pagamento que já está liquidado. O valor líquido está a ser encaminhado agora para o seu endereço de recebimento.",
     "received": "Recebido (bruto)",
     "fiatNote": "O valor ≈ é o valor em fiat no momento em que o pagamento foi detetado — use-o na sua contabilidade.",
     "dynopayFee": "Taxa Dynopay ({{percent}} %)",
@@ -1228,7 +1236,7 @@
       "subject": "O pagamento de {{amount}} está atrasado",
       "heading": "O seu pagamento está atrasado",
       "preheader": "{{amount}} está a demorar mais do que o habitual — nenhuma ação necessária.",
-      "intro": "{{companyName}} recebeu {{amount}} de um comprador, mas o pagamento para a sua wallet ainda não foi concluído.",
+      "intro": "{{companyName}} recebeu {{amount}} de um comprador, mas o pagamento para o seu endereço de recebimento ainda não foi concluído.",
       "next": "Estamos a acompanhar. Receberá um e-mail \"Pagamento liquidado\" ou \"Pagamento concluído\" assim que chegar; se não for concluído em 24 horas, a nossa equipa intervém e nós informamos."
     },
     "failed": {

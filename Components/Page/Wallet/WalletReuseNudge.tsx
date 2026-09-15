@@ -74,7 +74,7 @@ const WalletReuseNudge: React.FC<Props> = ({ onAddWallet }) => {
         payload: {
           message:
             count > 0
-              ? t("reuseNudge.copiedTo", { count, target: targetName, defaultValue: "{{count}} wallet(s) copied to {{target}}" })
+              ? t("reuseNudge.copiedTo", { count, target: targetName, defaultValue: "{{count}} payout address(es) copied to {{target}}" })
               : data?.message || t("reuseNudge.nothingNew", { defaultValue: "Nothing new to copy" }),
           severity: "success",
         },
@@ -87,7 +87,7 @@ const WalletReuseNudge: React.FC<Props> = ({ onAddWallet }) => {
         payload: {
           message:
             (e as { response?: { data?: { message?: string } } })?.response?.data
-              ?.message || t("reuse.copyFailed", { defaultValue: "Could not copy the wallets. Please try again." }),
+              ?.message || t("reuse.copyFailed", { defaultValue: "Could not copy the payout addresses. Please try again." }),
           severity: "error",
         },
       });
@@ -141,7 +141,7 @@ const WalletReuseNudge: React.FC<Props> = ({ onAddWallet }) => {
             color: theme.palette.text.primary,
           }}
         >
-          {t("reuseNudge.title", { company: source.company_name, defaultValue: "Use the same wallets as {{company}}" })}
+          {t("reuseNudge.title", { company: source.company_name, defaultValue: "Use the same payout addresses as {{company}}" })}
         </Typography>
         <Typography
           sx={{
@@ -205,7 +205,7 @@ const WalletReuseNudge: React.FC<Props> = ({ onAddWallet }) => {
           ) : (
             <Icon name="copy" size={15} />
           )}
-          {t("reuseNudge.copyCta", { count: source.wallet_count, defaultValue: "Copy {{count}} wallet(s)" })}
+          {t("reuseNudge.copyCta", { count: source.wallet_count, defaultValue: "Copy {{count}} payout address(es)" })}
         </Box>
         {onAddWallet && (
           <Box

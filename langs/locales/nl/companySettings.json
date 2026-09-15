@@ -32,7 +32,7 @@
   },
   "cryptoConversion": "Crypto-conversie",
   "cryptoConversionSubtitle": "Inkomende BTC, ETH, LTC worden automatisch geconverteerd naar een stablecoin.",
-  "cryptoConversionAlert": "Stel eerst uw USDT/USDC-wallet in.",
+  "cryptoConversionAlert": "Stel eerst uw USDT/USDC-uitbetalingsadres in.",
   "cryptoConversionAutoConvert": "Volatiele crypto automatisch converteren",
   "cryptoConversionYes": "Ja",
   "cryptoConversionNo": "Nee",
@@ -42,7 +42,7 @@
   "cryptoConversionUsdtErc20": "USDT (ERC20)",
   "cryptoConversionUsdcErc20": "USDC (ERC20)",
   "cryptoConversionEnabledToast": "Automatisch omzetten staat aan — volatiele munten worden nu uitbetaald als {{currency}} ({{chain}}).",
-  "cryptoConversionSaveFailed": "Automatisch omzetten kon niet worden opgeslagen. Voeg eerst een passende stablecoin-wallet toe en probeer het opnieuw.",
+  "cryptoConversionSaveFailed": "Automatisch omzetten kon niet worden opgeslagen. Voeg eerst een passend stablecoin-uitbetalingsadres toe en probeer het opnieuw.",
   "actions": {
     "cancel": "Annuleren",
     "saveChanges": "Wijzigingen opslaan",

@@ -944,7 +944,9 @@
     },
     "helpLine": "Quelque chose ne va pas ? Contactez {{merchant}} en mentionnant la commande #{{ref}}.",
     "helpLineSeller": "le vendeur",
-    "helpLineLink": "Voir sa page"
+    "helpLineLink": "Voir sa page",
+    "helpLineWebsite": "Site web",
+    "viewPaymentReceipt": "Voir le reçu de paiement"
   },
   "seo": {
     "home": "Accueil",

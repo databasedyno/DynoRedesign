@@ -499,7 +499,7 @@ export const createPublicEmbedSession = async (req: express.Request, res: expres
     // Configured currencies
     const allConfigured = await getAvailableCurrencies(secretData.user_id, pk.company_id);
     if (allConfigured.length === 0) {
-      res.status(400).json({ success: false, message: "No crypto wallets configured for this company." });
+      res.status(400).json({ success: false, message: "No payout addresses configured for this company." });
       return;
     }
 
@@ -529,7 +529,7 @@ export const createPublicEmbedSession = async (req: express.Request, res: expres
     if (effective.length === 0) {
       res.status(400).json({
         success: false,
-        message: "No currencies available for this publishable key. Check allowed_currencies and configured wallets.",
+        message: "No currencies available for this publishable key. Check allowed_currencies and configured payout addresses.",
       });
       return;
     }

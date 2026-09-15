@@ -43,7 +43,7 @@
   "category_orders_title": "Orders & invoices",
   "category_orders_desc": "Order receipts, downloads and invoice emails",
   "category_config_title": "Account & config",
-  "category_config_desc": "Webhook, API key, wallet and profile changes",
+  "category_config_desc": "Webhook, API key, payout address and profile changes",
   "category_digests_title": "Digests & summaries",
   "category_digests_desc": "Weekly summaries and payout digests",
   "inboxTab": "Inbox",

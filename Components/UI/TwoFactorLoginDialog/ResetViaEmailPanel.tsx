@@ -52,7 +52,7 @@ const ResetViaEmailPanel: React.FC<Props> = ({ challengeToken, onBack }) => {
         {t("twoFactor.resetIntro", { defaultValue: "We'll email you a link to remove the authenticator app from your account. Email codes become your second step instead." })}
       </Typography>
       <Alert severity="warning" sx={{ fontSize: "13px", mb: 2 }} data-testid="login-2fa-reset-warning">
-        {t("twoFactor.resetConsequences", { defaultValue: "For your safety this signs you out everywhere, forgets all trusted browsers and locks payout-wallet changes for 24 hours." })}
+        {t("twoFactor.resetConsequences", { defaultValue: "For your safety this signs you out everywhere, forgets all trusted browsers and locks payout address changes for 24 hours." })}
       </Alert>
       {error && <Alert severity="error" sx={{ fontSize: "13px", mb: 1.5 }} data-testid="login-2fa-reset-error">{error}</Alert>}
       <CustomButton

@@ -193,7 +193,7 @@ export const sendAccountSoftDeletedEmail = async (email: string, name: string, p
   try {
     const who = name ? `Hey ${escapeHtml(name.split(" ")[0])},` : "Hey there,";
     const content = `${p(who)}
-    ${p(`Your Dynopay account was just scheduled for deletion, and you've been signed out of all devices. Nothing is gone yet — we're keeping your account and all of its data (brands, wallets, payment links and history) safe for the next <strong>7 days</strong> in case this was a mistake.`)}
+    ${p(`Your Dynopay account was just scheduled for deletion, and you've been signed out of all devices. Nothing is gone yet — we're keeping your account and all of its data (brands, payout addresses, payment links and history) safe for the next <strong>7 days</strong> in case this was a mistake.`)}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${dataRow("Status", statusBadge("Scheduled for deletion", "pending"))}
@@ -215,7 +215,7 @@ export const sendAccountRestoredEmail = async (email: string, name: string) => {
   try {
     const who = name ? `Hey ${escapeHtml(name.split(" ")[0])},` : "Hey there,";
     const content = `${p(who)}
-    ${p(`Good news — your Dynopay account has been <strong>restored</strong>. Everything (brands, wallets, payment links and history) is exactly as you left it.`)}
+    ${p(`Good news — your Dynopay account has been <strong>restored</strong>. Everything (brands, payout addresses, payment links and history) is exactly as you left it.`)}
     ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${dataRow("Status", statusBadge("Restored", "success"), true)}</table>`, "#12B76A")}
     ${p(`Sign in again to pick up right where you left off.`)}`;
     const html = dynoPayEmailTemplate("Your account is back", content, true, "Sign in", `${FRONTEND_BASE_URL}/auth/login`, "Your Dynopay account has been restored.", null, "check");
@@ -258,7 +258,7 @@ export const send2FAResetLinkEmail = async (email: string, name: string, link: s
   }
 };
 
-/** 2FA reset — completed notice (sessions revoked, wallet changes frozen 24h). */
+/** 2FA reset — completed notice (sessions revoked, payout address changes frozen 24h). */
 export const send2FAResetDoneEmail = async (email: string, name: string, freezeUntil: Date, lang?: string | null) => {
   try {
     const L = await resolveEmailLang(lang, email);

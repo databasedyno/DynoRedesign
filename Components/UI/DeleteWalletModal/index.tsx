@@ -63,7 +63,7 @@ const DeleteWalletModal: React.FC<DeleteWalletModalProps> = ({ open, onClose, wa
 
         <Typography data-testid="delete-wallet-body" sx={{ fontFamily: "var(--font-sans)", fontWeight: 500, fontSize: "14px", lineHeight: "150%", color: theme.palette.text.secondary, mb: 1.5 }}>
           {t("deleteWalletBody", {
-            defaultValue: "You're about to remove the {{type}} wallet{{address}}. This action is permanent and cannot be undone. We'll ask you to verify it's you first.",
+            defaultValue: "You're about to remove the {{type}} payout address{{address}}. This action is permanent and cannot be undone. We'll ask you to verify it's you first.",
             type: walletType,
             address: truncatedAddress ? ` (${truncatedAddress})` : "",
           })}

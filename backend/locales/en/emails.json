@@ -40,10 +40,10 @@
     "subject": "{{amount}} {{currency}} received",
     "heading": "Payment Received",
     "intro": "Great news! Your brand <strong>{{companyName}}</strong> has received a payment.",
-    "outro": "The funds are on their way to your payout wallet.",
+    "outro": "The funds are on their way to your payout address.",
     "cta": "View Transaction",
     "referralCredit": "Referral credit covered {{amount}} of your Dynopay platform fee on this payment — you kept more of it.",
-    "preheader": "Funds are settling to your payout wallet now."
+    "preheader": "Funds are settling to your payout address now."
   },
   "paymentPending": {
     "subject": "{{amount}} {{currency}} incoming for {{companyName}} — confirming",
@@ -192,7 +192,15 @@
     "downloadPdf": "Download PDF",
     "copyLink": "Copy link",
     "linkCopied": "Link copied",
-    "viewOnExplorer": "View on block explorer"
+    "viewOnExplorer": "View on block explorer",
+    "merchantContact": "Merchant contact",
+    "refundNote": "Refunds and adjustments are handled by {{company}} — Dynopay is non-custodial and never holds your funds. Quote the receipt number above when you get in touch.",
+    "print": "Print",
+    "legalName": "Legal name",
+    "emailLabel": "Email",
+    "websiteLabel": "Website",
+    "phoneLabel": "Phone",
+    "addressLabel": "Address"
   },
   "merchant": {
     "labels": {
@@ -202,8 +210,8 @@
       "time": "Time",
       "network": "Network",
       "blockchain": "Blockchain",
-      "walletName": "Wallet Name",
-      "wallet": "Wallet",
+      "walletName": "Label",
+      "wallet": "Payout address",
       "address": "Address",
       "newAddress": "New Address",
       "toAddress": "To Address",
@@ -267,7 +275,7 @@
       "promo": "Your first payment is on us — we waive our entire platform fee on your first settled payment, any amount.",
       "nextTitle": "Here's what you can do next:",
       "next1": "1. Complete your brand profile",
-      "next2": "2. Add your payout wallet",
+      "next2": "2. Add your payout address",
       "next3": "3. Start accepting payments",
       "questions": "If you have any questions, our support team is here to help.",
       "cta": "Get Started",
@@ -373,13 +381,13 @@
       "preheader": "Several sign-in attempts failed on your account."
     },
     "companyCreated": {
-      "subject": "One step left — add a payout wallet to get paid",
+      "subject": "One step left — add a payout address to get paid",
       "heading": "Profile Complete",
       "intro1": "Great job! Your brand profile for <strong>{{companyName}}</strong> is now complete.",
-      "intro2": "You're almost ready to start accepting payments. The last step is to add your payout wallet address.",
-      "whyTitle": "Why add a wallet?",
-      "whyText": "Your wallet is where we'll send the crypto payments you receive. It's quick and secure.",
-      "cta": "Add Wallet",
+      "intro2": "You're almost ready to start accepting payments. The last step is to add your payout address.",
+      "whyTitle": "Why add a payout address?",
+      "whyText": "Your payout address is where we'll send the crypto payments you receive. It's quick and secure.",
+      "cta": "Add payout address",
       "preheader": "One quick step left before you can accept payments."
     },
     "companyContactWelcome": {
@@ -405,50 +413,50 @@
       "preheader": "Your brand profile details were updated."
     },
     "walletVerified": {
-      "subject": "Payout wallet active",
-      "heading": "Wallet Active",
-      "intro": "Your payout wallet has been verified and is now active.",
-      "outro": "All payments you receive will be automatically forwarded to this wallet. You're all set to start accepting crypto payments.",
+      "subject": "Payout address active",
+      "heading": "Payout address active",
+      "intro": "Your payout address has been verified and is now active.",
+      "outro": "All payments you receive will be automatically forwarded to this payout address. You're all set to start accepting crypto payments.",
       "cta": "View Dashboard"
     },
     "walletUpdateOtp": {
-      "subject": "Confirm wallet update",
-      "heading": "Confirm Wallet Update",
-      "intro": "You're updating your payout wallet. Please verify this change with the code below:",
+      "subject": "Confirm payout address update",
+      "heading": "Confirm payout address update",
+      "intro": "You're updating your payout address. Please verify this change with the code below:",
       "expiry": "This code expires in 10 minutes. If you didn't request this change, please secure your account immediately."
     },
     "walletDeleted": {
-      "subject": "Wallet removed from your account",
-      "heading": "Wallet Removed",
-      "intro": "A wallet has been removed from your Dynopay account.",
-      "outro": "Payments will no longer be forwarded to this wallet.",
-      "didntDoThis": "<strong>Didn't do this?</strong><br />If you didn't remove this wallet, please secure your account immediately and contact support.",
-      "cta": "View Wallets"
+      "subject": "Payout address removed from your account",
+      "heading": "Payout address removed",
+      "intro": "A payout address has been removed from your Dynopay account.",
+      "outro": "Payments will no longer be forwarded to this payout address.",
+      "didntDoThis": "<strong>Didn't do this?</strong><br />If you didn't remove this payout address, please secure your account immediately and contact support.",
+      "cta": "View payout addresses"
     },
     "addWalletReminder": {
       "subject": "You're almost ready to accept payments",
-      "heading": "Add Your Wallet",
-      "intro": "You're so close! Your <strong>{{companyName}}</strong> profile is set up, but you haven't added a payout wallet yet.",
-      "whyTitle": "Why add a wallet?",
-      "whyText": "Without a wallet, you can't receive payments. It takes less than 2 minutes to set up.",
-      "outro": "Add your wallet now and start accepting crypto payments today.",
-      "cta": "Add Wallet Now"
+      "heading": "Add your payout address",
+      "intro": "You're so close! Your <strong>{{companyName}}</strong> profile is set up, but you haven't added a payout address yet.",
+      "whyTitle": "Why add a payout address?",
+      "whyText": "Without a payout address, you can't receive payments. It takes less than 2 minutes to set up.",
+      "outro": "Add your payout address now and start accepting crypto payments today.",
+      "cta": "Add payout address now"
     },
     "walletAdded": {
-      "subject": "Wallet added – {{network}}",
-      "heading": "Wallet Added",
-      "intro": "A new payout wallet has been successfully added to your brand <strong>{{companyName}}</strong>.",
-      "outro": "All payments in {{network}} will be forwarded to this wallet. You can manage your wallets in the dashboard.",
-      "didntDoThis": "<strong>Didn't do this?</strong><br />If you didn't add this wallet, please secure your account immediately.",
-      "cta": "View Wallets"
+      "subject": "Payout address added – {{network}}",
+      "heading": "Payout address added",
+      "intro": "A new payout address has been successfully added to your brand <strong>{{companyName}}</strong>.",
+      "outro": "All payments in {{network}} will be forwarded to this payout address. You can manage your payout addresses in the dashboard.",
+      "didntDoThis": "<strong>Didn't do this?</strong><br />If you didn't add this payout address, please secure your account immediately.",
+      "cta": "View payout addresses"
     },
     "walletUpdated": {
-      "subject": "Wallet updated – {{network}}",
-      "heading": "Wallet Updated",
-      "intro": "Your payout wallet for <strong>{{companyName}}</strong> has been updated.",
+      "subject": "Payout address updated – {{network}}",
+      "heading": "Payout address updated",
+      "intro": "Your payout address for <strong>{{companyName}}</strong> has been updated.",
       "outro": "Future payments in {{network}} will be forwarded to the new address.",
-      "didntDoThis": "<strong>Didn't do this?</strong><br />If you didn't update this wallet, please secure your account immediately and contact support.",
-      "cta": "View Wallets"
+      "didntDoThis": "<strong>Didn't do this?</strong><br />If you didn't update this payout address, please secure your account immediately and contact support.",
+      "cta": "View payout addresses"
     },
     "withdrawalOtp": {
       "subject": "Confirm your withdrawal",
@@ -471,15 +479,15 @@
       "expiry": "This code expires in <strong>5 minutes</strong>. If you didn't request this exchange, please ignore this email."
     },
     "walletEditOtp": {
-      "subject": "Confirm wallet edit",
-      "heading": "Confirm Wallet Edit",
-      "intro": "You're about to edit a wallet address. Please verify this action with the code below:",
+      "subject": "Confirm payout address edit",
+      "heading": "Confirm payout address edit",
+      "intro": "You're about to edit a payout address. Please verify this action with the code below:",
       "expiry": "This code expires in <strong>10 minutes</strong>. If you didn't request this, please ignore this email or contact support."
     },
     "walletDeleteOtp": {
-      "subject": "Confirm wallet deletion",
-      "heading": "Confirm Wallet Deletion",
-      "intro": "You're about to <strong>permanently delete</strong> a wallet address. This action cannot be undone.",
+      "subject": "Confirm payout address removal",
+      "heading": "Confirm payout address removal",
+      "intro": "You're about to <strong>permanently delete</strong> a payout address. This action cannot be undone.",
       "expiry": "This code expires in <strong>10 minutes</strong>. If you didn't request this, please ignore this email or contact support immediately."
     },
     "companyDeleteOtp": {
@@ -497,7 +505,7 @@
       "removed1": "All payment links belonging to this brand",
       "removed2": "API keys ({{apiKeys}}) — revoked immediately",
       "removed3": "Brand settings, webhooks and auto-conversion preferences",
-      "note": "Your transaction history is kept for your records. Payout wallets that were assigned to this brand are no longer linked to it.",
+      "note": "Your transaction history is kept for your records. Payout addresses that were assigned to this brand are no longer linked to it.",
       "didntDoThis": "<strong>Didn't do this?</strong><br />If you didn't delete this brand, please secure your account immediately and contact support.",
       "cta": "Go to dashboard",
       "preheader": "{{companyName}} was removed from your account."
@@ -516,7 +524,7 @@
     "brandSoftDeleted": {
       "subject": "Your brand \"{{companyName}}\" was deleted — you have 7 days to restore it",
       "heading": "Your brand was deleted",
-      "intro": "Your brand <strong>{{companyName}}</strong> was just deleted on Dynopay. Don't worry — nothing is gone yet. We're keeping everything (payment links, wallets, settings and history) safe for the next <strong>7 days</strong> in case this was a mistake.",
+      "intro": "Your brand <strong>{{companyName}}</strong> was just deleted on Dynopay. Don't worry — nothing is gone yet. We're keeping everything (payment links, payout addresses, settings and history) safe for the next <strong>7 days</strong> in case this was a mistake.",
       "status": "Scheduled for deletion",
       "restoreBefore": "Restore before",
       "changedMind": "<strong>Changed your mind?</strong> Just reply to this email or contact our support team before <strong>{{date}}</strong> and we'll bring the brand back exactly as it was — with one click.",
@@ -538,7 +546,7 @@
     "brandRestored": {
       "subject": "Good news — your brand \"{{companyName}}\" is back",
       "heading": "Your brand is back",
-      "intro": "We've restored your brand <strong>{{companyName}}</strong> on Dynopay. Everything — your payment links, wallets, settings and history — is exactly as you left it.",
+      "intro": "We've restored your brand <strong>{{companyName}}</strong> on Dynopay. Everything — your payment links, payout addresses, settings and history — is exactly as you left it.",
       "status": "Restored",
       "pickUp": "You can pick up right where you left off from your dashboard.",
       "cta": "Go to dashboard",
@@ -547,7 +555,7 @@
     "brandDeleteReminder": {
       "subject": "Only {{daysLabel}} left to restore \"{{companyName}}\"",
       "heading": "Your brand is about to be deleted",
-      "intro": "Just a heads-up: your deleted brand <strong>{{companyName}}</strong> is scheduled to be <strong>permanently deleted on {{date}}</strong> — that's about <strong>{{daysLabel}}</strong> away. After that, its payment links, wallets, settings and history can't be recovered.",
+      "intro": "Just a heads-up: your deleted brand <strong>{{companyName}}</strong> is scheduled to be <strong>permanently deleted on {{date}}</strong> — that's about <strong>{{daysLabel}}</strong> away. After that, its payment links, payout addresses, settings and history can't be recovered.",
       "timeLeft": "Time left",
       "timeLeftBadge": "{{daysLabel}} left",
       "deletesOn": "Deletes on",
@@ -827,10 +835,10 @@
     "preheader": "Thank you — your contribution receipt is attached."
   },
   "walletOtp": {
-    "subject": "Confirm your wallet address",
-    "heading": "Wallet Verification Code",
-    "intro": "You are validating a new wallet address for {{currency}}.",
-    "walletAddress": "Wallet Address",
+    "subject": "Confirm your payout address",
+    "heading": "Payout address verification code",
+    "intro": "You are validating a new payout address for {{currency}}.",
+    "walletAddress": "Address",
     "currency": "Currency",
     "expiry": "This code will expire in {{minutes}} minutes."
   },
@@ -943,8 +951,8 @@
     },
     "seg": {
       "madeLink": {
-        "line": "You've already created a payment link — nice. Add a payout wallet so the moment someone pays, we settle it straight to a wallet you control.",
-        "cta": "Add your payout wallet"
+        "line": "You've already created a payment link — nice. Add a payout address so the moment someone pays, we settle it straight to a wallet you control.",
+        "cta": "Add your payout address"
       },
       "noLink": {
         "line": "Create your first payment link — share it anywhere and start accepting Bitcoin, Ethereum or stablecoins, with no chargebacks.",
@@ -969,8 +977,8 @@
         "cta": "Add your brand"
       },
       "wallet": {
-        "intro": "You tried to create a payment link, but there's no payout wallet on your account yet. Payments settle straight to a wallet you control, so we need an address before you can get paid.",
-        "cta": "Add your payout wallet"
+        "intro": "You tried to create a payment link, but there's no payout address on your account yet. Payments settle straight to a wallet you control, so we need an address before you can get paid.",
+        "cta": "Add your payout address"
       },
       "kyc": {
         "intro": "You've processed over $10,000 in payments — nice work. Because of that, a quick identity check is now required before you can create new payment links. It usually takes about 5 minutes.",
@@ -1064,7 +1072,7 @@
     "accountDeleted": {
       "subject": "Your Dynopay account has been deleted",
       "heading": "Account deleted",
-      "intro": "As requested, your Dynopay account and all of its data — brands, payment links, API keys, payout wallets and settings — have been permanently deleted.",
+      "intro": "As requested, your Dynopay account and all of its data — brands, payment links, API keys, payout addresses and settings — have been permanently deleted.",
       "outro": "If you ever want to accept crypto again, you're welcome back any time.",
       "notice": "<strong>Didn't request this?</strong> Contact our support team immediately.",
       "preheader": "Your account and its data were permanently removed."
@@ -1105,7 +1113,7 @@
     },
     "stepUpActions": {
       "apikey": "managing API keys",
-      "wallet": "changing payout wallets",
+      "wallet": "changing payout addresses",
       "brand_delete": "deleting a brand",
       "security": "account security settings",
       "payout": "payout settings",
@@ -1119,16 +1127,16 @@
       "preheader": "Confirm to remove your authenticator app and switch to email codes.",
       "heading": "Reset two-step verification?",
       "intro": "Someone (hopefully you) asked to reset the authenticator app on your account after entering the correct password. Click below to confirm. The link expires in 30 minutes and works once.",
-      "consequences": "Confirming will sign you out of every device, forget all trusted browsers, switch your second step to email codes and lock payout-wallet changes for 24 hours as a safety measure.",
+      "consequences": "Confirming will sign you out of every device, forget all trusted browsers, switch your second step to email codes and lock payout address changes for 24 hours as a safety measure.",
       "cta": "Reset two-step verification",
       "ignore": "If you didn't request this, you can ignore this email — nothing changes. Consider changing your password if you don't recognise this activity."
     },
     "twoFaResetDone": {
       "subject": "Your two-step verification was reset",
-      "preheader": "Authenticator removed, sessions signed out, wallet changes locked for 24 hours.",
+      "preheader": "Authenticator removed, sessions signed out, payout address changes locked for 24 hours.",
       "heading": "Two-step verification reset",
       "intro": "Your authenticator app was removed and email codes are now your second step at sign-in. All sessions and trusted devices were signed out.",
-      "freeze": "Payout-wallet changes are locked until {{until}}. Our team has been notified and can lift the lock sooner if you contact support."
+      "freeze": "Payout address changes are locked until {{until}}. Our team has been notified and can lift the lock sooner if you contact support."
     }
   },
   "paymentRequest": {
@@ -1194,7 +1202,7 @@
     "heading": "Payment settled",
     "preheader": "Net {{net}} {{asset}} forwarded to your wallet — full breakdown inside.",
     "intro": "<strong>{{companyName}}</strong> received a payment and it has settled. Here is exactly where the money went.",
-    "introForwarding": "<strong>{{companyName}}</strong> received a payment and it has settled. The net amount is being forwarded to your payout wallet now.",
+    "introForwarding": "<strong>{{companyName}}</strong> received a payment and it has settled. The net amount is being forwarded to your payout address now.",
     "received": "Received (gross)",
     "fiatNote": "The ≈ value is the fiat value at the moment the payment was detected — use it for your books.",
     "dynopayFee": "Dynopay fee ({{percent}}%)",
@@ -1244,7 +1252,7 @@
       "subject": "Payout of {{amount}} is delayed",
       "heading": "Your payout is running late",
       "preheader": "{{amount}} is taking longer than usual — no action needed.",
-      "intro": "{{companyName}} received {{amount}} from a buyer, but the payout to your wallet has not completed yet.",
+      "intro": "{{companyName}} received {{amount}} from a buyer, but it has not reached your payout address yet.",
       "next": "We're watching it. You'll get a \"Payment settled\" or \"Payout complete\" email the moment it lands — if it isn't through in 24 hours, our team steps in and we'll update you."
     },
     "failed": {

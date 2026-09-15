@@ -113,7 +113,7 @@
   "duplicateLink": "Duplizieren",
   "coins": {
     "acceptsAll": "Akzeptiert alle {{count}} Coins",
-    "acceptsAllHint": "Käufer können mit jedem Coin zahlen, für den du eine Auszahlungs-Wallet hast: {{list}}",
+    "acceptsAllHint": "Käufer können mit jedem Coin zahlen, für den du eine Auszahlungsadresse hast: {{list}}",
     "acceptsSome": "Akzeptiert {{count}} von {{total}} Coins"
   },
   "last30Header": "Letzte 30 Tage",

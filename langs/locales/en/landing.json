@@ -944,7 +944,9 @@
     },
     "helpLine": "Something looks wrong? Contact {{merchant}} and mention order #{{ref}}.",
     "helpLineSeller": "the seller",
-    "helpLineLink": "Visit their page"
+    "helpLineLink": "Visit their page",
+    "helpLineWebsite": "Website",
+    "viewPaymentReceipt": "View payment receipt"
   },
   "seo": {
     "home": "Home",

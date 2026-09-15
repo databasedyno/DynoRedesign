@@ -11,7 +11,7 @@ interface Props {
   onClear: () => void;
 }
 
-/** Floating "N wallets share this address" bar shown while a shared-address highlight is active. */
+/** Floating "N payout addresses share this address" bar shown while a shared-address highlight is active. */
 const SharedHighlightBar: React.FC<Props> = ({ wallets, onJump, onClear }) => {
   const theme = useTheme();
   const { t } = useTranslation("walletScreen");
@@ -49,7 +49,7 @@ const SharedHighlightBar: React.FC<Props> = ({ wallets, onJump, onClear }) => {
     >
       <Icon name="link" size={14} color={indigo} />
       <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 12.5, fontWeight: 600, whiteSpace: "nowrap" }} data-testid="wallet-highlight-title">
-        {t("sharedHighlightTitle", { defaultValue: "{{n}} wallets share", n: wallets.length })}{" "}
+        {t("sharedHighlightTitle", { defaultValue: "{{n}} payout addresses share", n: wallets.length })}{" "}
         <Box component="span" sx={{ fontFamily: MONO, fontWeight: 500, color: theme.palette.text.secondary }}>
           {shortAddress(wallets[0].walletAddress, 6, 4)}
         </Box>

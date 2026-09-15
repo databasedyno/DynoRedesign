@@ -1532,7 +1532,7 @@ const CreatePaymentLinkPage = ({
                   opacity: 0.9,
                 }}
               >
-                {tPaymentLink("activationRequiredBody", { defaultValue: "You can design and preview your payment link now. To activate it (accept real crypto payments), complete two quick steps: add your business details and at least one payout wallet. It takes ~60 seconds." })}
+                {tPaymentLink("activationRequiredBody", { defaultValue: "You can design and preview your payment link now. To activate it (accept real crypto payments), complete two quick steps: add your business details and at least one payout address. It takes ~60 seconds." })}
               </Typography>
               <Box sx={{ display: "flex", gap: 1, mt: 1.25, flexWrap: "wrap" }}>
                 <Box
@@ -1581,7 +1581,7 @@ const CreatePaymentLinkPage = ({
                     userSelect: "none",
                   }}
                 >
-                  {tPaymentLink("addWalletCta", { defaultValue: "Add payout wallet" })}
+                  {tPaymentLink("addWalletCta", { defaultValue: "Add payout address" })}
                 </Box>
               </Box>
             </Box>

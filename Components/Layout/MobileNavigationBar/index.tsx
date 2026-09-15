@@ -181,7 +181,7 @@ const MobileNavigationBar = () => {
     id: "money",
   };
   const walletsItem = {
-    label: t("payoutWallets", { defaultValue: "Payout wallets" }),
+    label: t("payoutWallets", { defaultValue: "Payout addresses" }),
     icon: "wallets",
     path: "/wallet",
     id: "wallet",

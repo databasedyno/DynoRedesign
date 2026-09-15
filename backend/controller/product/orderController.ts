@@ -11,6 +11,7 @@
  */
 import { raw as envRaw } from "../../utils/config";
 import express from "express";
+import { Op } from "sequelize";
 import fs from "fs";
 import path from "path";
 import {
@@ -18,7 +19,10 @@ import {
   productOrderItemModel,
   productAssetModel,
   userModel,
+  paymentLinkModel,
+  paymentReceiptModel,
 } from "../../models";
+import { buildReceiptUrl, loadMerchantContact } from "../../services/receiptLinkService";
 import productModel from "../../models/userModels/productModel";
 import {
   successResponseHelper,
@@ -75,10 +79,28 @@ export const getOrderByPublicRef = async (
       Number(order.dataValues.merchant_user_id),
       (order.dataValues as any).company_id ?? null
     );
+    // Public business contact (brand profile) + the shareable payment receipt, both best-effort.
+    const contact = await loadMerchantContact((order.dataValues as any).company_id ?? null);
+    let receiptUrl: string | null = null;
+    try {
+      const linkId = order.dataValues.payment_link_id;
+      const link: any = linkId ? await paymentLinkModel.findByPk(linkId, { attributes: ["transaction_reference"] }) : null;
+      const txRef = String(link?.dataValues?.transaction_reference || "").split(",")[0].trim();
+      if (isPaid && txRef) {
+        const rcpt: any = await paymentReceiptModel.findOne({
+          where: { [Op.or]: [{ dedupe_key: `tx:${txRef}`.slice(0, 191) }, { dedupe_key: `id:${txRef}`.slice(0, 191) }, { transaction_ref: txRef.slice(0, 191) }] },
+          attributes: ["receipt_token"],
+        });
+        if (rcpt) receiptUrl = buildReceiptUrl(rcpt.dataValues.receipt_token);
+      }
+    } catch {
+      receiptUrl = null;
+    }
 
     return successResponseHelper(res, 200, "Order fetched.", {
       order: order.dataValues,
       items: projected,
+      receipt_url: receiptUrl,
       merchant: merchant
         ? {
             handle: merchant.dataValues.handle,
@@ -87,6 +109,9 @@ export const getOrderByPublicRef = async (
               merchant.dataValues.username ||
               merchant.dataValues.handle,
             vat_id: orderTax.merchant_vat_id,
+            email: contact?.email ?? null,
+            website: contact?.website ?? null,
+            legal_name: contact?.legalName ?? null,
           }
         : null,
     });

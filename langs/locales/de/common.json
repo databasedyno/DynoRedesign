@@ -11,11 +11,11 @@
     },
     "payouts": {
       "title": "So funktionieren Auszahlungen",
-      "body": "Zeigt pro Coin, was abgerechnet und was noch ausstehend ist. Dynopay leitet die Mittel direkt an dein Auszahlungs-Wallet weiter — wir verwahren sie nie."
+      "body": "Zeigt pro Coin, was abgerechnet und was noch ausstehend ist. Dynopay leitet die Mittel direkt an deine Auszahlungsadresse weiter — wir verwahren sie nie."
     },
     "wallet": {
       "title": "Wohin dein Geld fließt",
-      "body": "Füge ein Wallet pro Coin hinzu. Jede Zahlung wird an deine eigene Adresse weitergeleitet — Dynopay verwahrt deine Mittel nie."
+      "body": "Füge eine Auszahlungsadresse pro Coin hinzu. Jede Zahlung wird an deine eigene Adresse weitergeleitet — Dynopay verwahrt deine Mittel nie."
     },
     "invoices": {
       "title": "Belege & Steuern an einem Ort",
@@ -50,8 +50,8 @@
       "body": "Durchsuchen Sie zuerst die Anleitungen — die meisten Antworten finden Sie hier. Kommen Sie nicht weiter? Starten Sie einen Chat, und ein Mensch übernimmt."
     },
     "walletSecurity": {
-      "title": "Eine Wallet-Änderung ist immer nur einen Tipp entfernt rückgängig",
-      "body": "Jede Änderung an einer Auszahlungs-Wallet erfordert einen Einmalcode und sendet Ihnen einen „Das war nicht ich“-Link, der die alte Adresse wiederherstellt und weitere Änderungen sperrt."
+      "title": "Eine Änderung der Auszahlungsadresse ist immer nur einen Tipp entfernt rückgängig",
+      "body": "Jede Änderung an einer Auszahlungsadresse erfordert einen Einmalcode und sendet Ihnen einen „Das war nicht ich“-Link, der die alte Adresse wiederherstellt und weitere Änderungen sperrt."
     },
     "kyc": {
       "title": "Die Verifizierung ist eine einmalige Prüfung von wenigen Minuten",
@@ -439,9 +439,9 @@
   "EmptyTransactionTitle": "Noch keine Transaktionen",
   "EmptyTransactionDescription": "Transaktionen erscheinen hier, wenn Kunden über Ihre Zahlungslinks oder die API bezahlen. Erstellen Sie einen Link, um zu beginnen.",
   "createPaymentLink": "Zahlungslink erstellen",
-  "EmptyWalletTitle": "Noch keine Auszahlungs-Wallets",
-  "EmptyWalletDescription": "In einer Auszahlungs-Wallet gehen die Zahlungen Ihrer Kunden ein. Fügen Sie mindestens eine hinzu, um Krypto zu empfangen.",
-  "addWallet": "Wallet hinzufügen",
+  "EmptyWalletTitle": "Noch keine Auszahlungsadressen",
+  "EmptyWalletDescription": "In einer Auszahlungsadresse gehen die Zahlungen Ihrer Kunden ein. Fügen Sie mindestens eine hinzu, um Krypto zu empfangen.",
+  "addWallet": "Auszahlungsadresse hinzufügen",
   "EmptyApiKeyTitle": "Noch keine API-Schlüssel",
   "EmptyApiKeyDescription": "Erstellen Sie einen Schlüssel, um Ihre Server-zu-Server-Aufrufe an die Dynopay-API zu authentifizieren.",
   "createNewKey": "Neuen Schlüssel erstellen",
@@ -693,15 +693,15 @@
   "noDataToShow": "Hier gibt es noch nichts zu sehen.",
   "poweredByDynopay": "Bereitgestellt von Dynopay",
   "verifyEmailBanner": "Bestätige deine E-Mail, um alle Funktionen freizuschalten.",
-  "deleteWalletTitle": "Wallet löschen?",
-  "deleteWalletAction": "Wallet löschen",
+  "deleteWalletTitle": "Auszahlungsadresse löschen?",
+  "deleteWalletAction": "Auszahlungsadresse löschen",
   "enterVerificationCode": "Bestätigungscode eingeben",
   "completeYourSetup": "Schließen Sie Ihre Einrichtung ab",
   "saveChangesTitle": "Änderungen speichern?",
   "saveChangeAction": "Speichern",
   "feeFreePromotion": "Erste Zahlung: 0% Plattformgebühr",
   "youWillPay": "Sie zahlen",
-  "whatIsPayoutWallet": "Was ist eine Auszahlungs-Wallet?",
+  "whatIsPayoutWallet": "Was ist eine Auszahlungsadresse?",
   "demoChooseHowToPay": "Zahlungsart wählen",
   "demoSendExactly": "Senden Sie genau",
   "walletAddressLabel": "Wallet-Adresse",
@@ -1059,7 +1059,7 @@
     "roleMember": "Mitglied – nur der Zugriff, den du unten auswählst",
     "roleAdmin": "Administrator – voller Zugriff (außer Aktionen nur für Eigentümer)",
     "permissions": "Berechtigungen",
-    "ownerOnlyNote": "Aktionen nur für Eigentümer (Auszahlungs-Wallets ändern, API-Schlüssel löschen, Abrechnung) werden Teammitgliedern nie erteilt.",
+    "ownerOnlyNote": "Aktionen nur für Eigentümer (Auszahlungsadressen ändern, API-Schlüssel löschen, Abrechnung) werden Teammitgliedern nie erteilt.",
     "quickPresets": "Schnellvorlage:",
     "presetReadOnly": "Nur lesen (nur ansehen)",
     "done": "Fertig",
@@ -1080,7 +1080,7 @@
     "activityTitle": "Aktivität",
     "activitySubtitle": "Ein Protokoll der Änderungen an diesem Unternehmen – wer was wann getan hat.",
     "activityEmptyTitle": "Noch keine Aktivität",
-    "activityEmptyBody": "Änderungen an Einstellungen, Schlüsseln, Wallets und am Team werden hier angezeigt."
+    "activityEmptyBody": "Änderungen an Einstellungen, Schlüsseln, Auszahlungsadressen und am Team werden hier angezeigt."
   },
   "acceptInvite": {
     "headTitle": "Einladung annehmen · Dynopay",
@@ -1140,10 +1140,10 @@
       "change": "Hat einen API-Schlüssel geändert"
     },
     "wallet": {
-      "add": "Hat ein Auszahlungs-Wallet hinzugefügt",
-      "delete": "Hat ein Auszahlungs-Wallet entfernt",
-      "update": "Hat das Auszahlungs-Wallet aktualisiert",
-      "change": "Hat ein Auszahlungs-Wallet geändert"
+      "add": "Hat eine Auszahlungsadresse hinzugefügt",
+      "delete": "Hat eine Auszahlungsadresse entfernt",
+      "update": "Hat die Auszahlungsadresse aktualisiert",
+      "change": "Hat eine Auszahlungsadresse geändert"
     }
   },
   "verifiedBadge": {
@@ -1176,7 +1176,7 @@
   },
   "setupPrompt": {
     "createCompany": "Marke anlegen",
-    "addWallet": "Wallet-Adresse hinzufügen"
+    "addWallet": "Auszahlungsadresse hinzufügen"
   },
   "payouts": {
     "pageName": "Auszahlungen & Abrechnungen",
@@ -1225,7 +1225,7 @@
     "weeklyDigestDesc": "Erhalten Sie wöchentlich eine E-Mail mit einer Zusammenfassung der abgewickelten Auszahlungen und aller noch ausstehenden",
     "sending": "Senden…",
     "sendPreview": "Vorschau senden",
-    "payoutWallets": "Auszahlungswallets",
+    "payoutWallets": "Auszahlungsadressen",
     "payoutWalletsDesc": "Wo Ihre ausgeglichenen Mittel landen",
     "manage": "Verwalten",
     "taxCollected": "Eingezogene Steuern",
@@ -1283,9 +1283,9 @@
     "awaitingNone": "Alles Abgerechnete ist in Ihren Wallets angekommen.",
     "awaitingSome": "{{count}} Zahlungen bestätigt, Weiterleitung läuft",
     "autoConvertOffShort": "Zahlungen werden in der erhaltenen Coin abgerechnet. Einschalten, um in Stablecoins zu sichern.",
-    "settlementSettings": "Abrechnungs-Coin & Wallets ↓",
-    "byWallet": "Nach Wallet",
-    "noWallets": "Noch keine Auszahlungs-Wallets — fügen Sie eine hinzu, damit Zahlungen ankommen können.",
+    "settlementSettings": "Abrechnungs-Coin & Auszahlungsadressen ↓",
+    "byWallet": "Nach Auszahlungsadresse",
+    "noWallets": "Noch keine Auszahlungsadressen — fügen Sie eine hinzu, damit Zahlungen ankommen können.",
     "walletCount": "{{count}} Auszahlungen im Zeitraum",
     "walletNoneRange": "keine im Zeitraum",
     "walletIdle": "Noch keine Auszahlungen",
@@ -1609,8 +1609,8 @@
     "successTitle": "Dein Konto ist gesichert",
     "expiredTitle": "Dieser Link ist abgelaufen",
     "errorTitle": "Etwas ist schiefgelaufen",
-    "loadingBody": "Widerrufe die Wallet-Änderung und sperre weitere Bearbeitungen. Das dauert nur einen Moment.",
-    "successBody": "Wir haben die kürzlichen Auszahlungs-Wallet-Änderungen{{networks}} rückgängig gemacht und die Wallet-Änderungen auf deinem Konto gesperrt. Um neue Wallet-Änderungen vorzunehmen, kontaktiere den Support, damit wir bestätigen können, dass du es wirklich bist.",
+    "loadingBody": "Widerrufe die Änderung der Auszahlungsadresse und sperre weitere Bearbeitungen. Das dauert nur einen Moment.",
+    "successBody": "Wir haben die kürzlichen Änderungen an Auszahlungsadressen{{networks}} rückgängig gemacht und die Änderungen an Auszahlungsadressen auf deinem Konto gesperrt. Um neue Änderungen an Auszahlungsadressen vorzunehmen, kontaktiere den Support, damit wir bestätigen können, dass du es wirklich bist.",
     "expiredBody": "Dieser Sicherheitslink wurde bereits verwendet oder ist abgelaufen. Wenn du denkst, dass etwas nicht stimmt, kontaktiere sofort den Support.",
     "errorBody": "Wir konnten diese Aktion nicht abschließen. Bitte versuche es erneut oder kontaktiere den Support, wenn das Problem weiterhin besteht.",
     "pageTitle": "Kontosicherheit",
@@ -1645,7 +1645,7 @@
     "noMethods": "Füge zuerst eine E-Mail-Adresse zu deinem Konto hinzu – wir brauchen einen Ort, an den wir deinen Bestätigungscode senden können.",
     "scope": {
       "apikey": "API-Schlüssel zu verwalten",
-      "wallet": "Auszahlungs-Wallets zu ändern",
+      "wallet": "Auszahlungsadressen zu ändern",
       "brand_delete": "eine Marke zu löschen",
       "security": "deine Sicherheitseinstellungen zu ändern",
       "payout": "deine Auszahlungseinstellungen zu ändern",
@@ -1653,5 +1653,5 @@
       "settlement": "deine Abrechnungswährung zu ändern"
     }
   },
-  "deleteWalletBody": "Du bist dabei, die {{type}}-Wallet{{address}} zu entfernen. Diese Aktion ist endgültig und kann nicht rückgängig gemacht werden. Wir bitten dich zuerst, deine Identität zu bestätigen."
+  "deleteWalletBody": "Du bist dabei, die {{type}}-Auszahlungsadresse{{address}} zu entfernen. Diese Aktion ist endgültig und kann nicht rückgängig gemacht werden. Wir bitten dich zuerst, deine Identität zu bestätigen."
 }

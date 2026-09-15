@@ -40,7 +40,7 @@
     "subject": "{{amount}} {{currency}} recibidos",
     "heading": "Pago recibido",
     "intro": "¡Buenas noticias! Tu marca <strong>{{companyName}}</strong> ha recibido un pago.",
-    "outro": "Los fondos van camino a tu cartera de cobro.",
+    "outro": "Los fondos van camino a tu dirección de cobro.",
     "cta": "Ver transacción",
     "referralCredit": "El crédito por referidos cubrió {{amount}} de su comisión de plataforma de Dynopay en este pago; usted conservó más.",
     "preheader": "Los fondos se están liquidando en tu monedero de cobros."
@@ -192,7 +192,15 @@
     "downloadPdf": "Descargar PDF",
     "copyLink": "Copiar enlace",
     "linkCopied": "Enlace copiado",
-    "viewOnExplorer": "Ver en el explorador de bloques"
+    "viewOnExplorer": "Ver en el explorador de bloques",
+    "merchantContact": "Contacto del comercio",
+    "refundNote": "Los reembolsos y ajustes los gestiona {{company}} — Dynopay no tiene custodia y nunca retiene tus fondos. Indica el número de recibo de arriba al contactar.",
+    "print": "Imprimir",
+    "legalName": "Razón social",
+    "emailLabel": "Correo",
+    "websiteLabel": "Sitio web",
+    "phoneLabel": "Teléfono",
+    "addressLabel": "Dirección"
   },
   "merchant": {
     "labels": {
@@ -202,8 +210,8 @@
       "time": "Hora",
       "network": "Red",
       "blockchain": "Blockchain",
-      "walletName": "Nombre de la billetera",
-      "wallet": "Billetera",
+      "walletName": "Nombre",
+      "wallet": "Dirección de cobro",
       "address": "Dirección",
       "newAddress": "Nueva dirección",
       "toAddress": "Dirección de destino",
@@ -267,7 +275,7 @@
       "promo": "Tu primer pago corre de nuestra cuenta: eximimos toda nuestra comisión de plataforma en tu primer pago liquidado, sea cual sea el importe.",
       "nextTitle": "Esto es lo que puede hacer a continuación:",
       "next1": "1. Complete el perfil de su marca",
-      "next2": "2. Añada su billetera de cobro",
+      "next2": "2. Añada su dirección de cobro",
       "next3": "3. Empiece a aceptar pagos",
       "questions": "Si tiene alguna pregunta, nuestro equipo de soporte está aquí para ayudar.",
       "cta": "Empezar",
@@ -373,13 +381,13 @@
       "preheader": "Varios intentos de inicio de sesión fallaron en tu cuenta."
     },
     "companyCreated": {
-      "subject": "Falta un paso: añade una cartera de cobro para recibir pagos",
+      "subject": "Falta un paso: añade una dirección de cobro para recibir pagos",
       "heading": "Perfil completo",
       "intro1": "¡Buen trabajo! El perfil de su marca <strong>{{companyName}}</strong> ya está completo.",
-      "intro2": "Está casi listo para empezar a aceptar pagos. El último paso es añadir la dirección de su billetera de cobro.",
-      "whyTitle": "¿Por qué añadir una billetera?",
-      "whyText": "Su billetera es donde enviaremos los pagos en cripto que reciba. Es rápido y seguro.",
-      "cta": "Añadir billetera",
+      "intro2": "Está casi listo para empezar a aceptar pagos. El último paso es añadir la dirección de cobro.",
+      "whyTitle": "¿Por qué añadir una dirección de cobro?",
+      "whyText": "Su dirección de cobro es donde enviaremos los pagos en cripto que reciba. Es rápido y seguro.",
+      "cta": "Añadir dirección de cobro",
       "preheader": "Solo queda un paso para empezar a aceptar pagos."
     },
     "companyContactWelcome": {
@@ -405,50 +413,50 @@
       "preheader": "Se actualizaron los datos del perfil de tu marca."
     },
     "walletVerified": {
-      "subject": "Billetera de cobro activa",
-      "heading": "Billetera activa",
-      "intro": "Su billetera de cobro ha sido verificada y ya está activa.",
-      "outro": "Todos los pagos que reciba se reenviarán automáticamente a esta billetera. Ya está todo listo para empezar a aceptar pagos en cripto.",
+      "subject": "Dirección de cobro activa",
+      "heading": "Dirección de cobro activa",
+      "intro": "Su dirección de cobro ha sido verificada y ya está activa.",
+      "outro": "Todos los pagos que reciba se reenviarán automáticamente a esta dirección de cobro. Ya está todo listo para empezar a aceptar pagos en cripto.",
       "cta": "Ver panel"
     },
     "walletUpdateOtp": {
-      "subject": "Confirme la actualización de la billetera",
-      "heading": "Confirme la actualización de la billetera",
-      "intro": "Está actualizando su billetera de cobro. Verifique este cambio con el código de abajo:",
+      "subject": "Confirme la actualización de la dirección de cobro",
+      "heading": "Confirme la actualización de la dirección de cobro",
+      "intro": "Está actualizando su dirección de cobro. Verifique este cambio con el código de abajo:",
       "expiry": "Este código expira en 10 minutos. Si no solicitó este cambio, proteja su cuenta de inmediato."
     },
     "walletDeleted": {
-      "subject": "Billetera eliminada de su cuenta",
-      "heading": "Billetera eliminada",
-      "intro": "Se ha eliminado una billetera de su cuenta de Dynopay.",
-      "outro": "Los pagos ya no se reenviarán a esta billetera.",
-      "didntDoThis": "<strong>¿No fue usted?</strong><br />Si no eliminó esta billetera, proteja su cuenta de inmediato y contacte con soporte.",
-      "cta": "Ver billeteras"
+      "subject": "Dirección de cobro eliminada de su cuenta",
+      "heading": "Dirección de cobro eliminada",
+      "intro": "Se ha eliminado una dirección de cobro de su cuenta de Dynopay.",
+      "outro": "Los pagos ya no se reenviarán a esta dirección de cobro.",
+      "didntDoThis": "<strong>¿No fue usted?</strong><br />Si no eliminó esta dirección de cobro, proteja su cuenta de inmediato y contacte con soporte.",
+      "cta": "Ver direcciones de cobro"
     },
     "addWalletReminder": {
       "subject": "Está casi listo para aceptar pagos",
-      "heading": "Añada su billetera",
-      "intro": "¡Ya casi está! El perfil de <strong>{{companyName}}</strong> está configurado, pero aún no ha añadido una billetera de cobro.",
-      "whyTitle": "¿Por qué añadir una billetera?",
-      "whyText": "Sin una billetera, no puede recibir pagos. Configurarla lleva menos de 2 minutos.",
-      "outro": "Añada su billetera ahora y empiece a aceptar pagos en cripto hoy.",
-      "cta": "Añadir billetera ahora"
+      "heading": "Añada su dirección de cobro",
+      "intro": "¡Ya casi está! El perfil de <strong>{{companyName}}</strong> está configurado, pero aún no ha añadido una dirección de cobro.",
+      "whyTitle": "¿Por qué añadir una dirección de cobro?",
+      "whyText": "Sin una dirección de cobro, no puede recibir pagos. Configurarla lleva menos de 2 minutos.",
+      "outro": "Añada su dirección de cobro ahora y empiece a aceptar pagos en cripto hoy.",
+      "cta": "Añadir dirección de cobro ahora"
     },
     "walletAdded": {
-      "subject": "Billetera añadida – {{network}}",
-      "heading": "Billetera añadida",
-      "intro": "Se ha añadido correctamente una nueva billetera de cobro a su marca <strong>{{companyName}}</strong>.",
-      "outro": "Todos los pagos en {{network}} se reenviarán a esta billetera. Puede gestionar sus billeteras en el panel.",
-      "didntDoThis": "<strong>¿No fue usted?</strong><br />Si no añadió esta billetera, proteja su cuenta de inmediato.",
-      "cta": "Ver billeteras"
+      "subject": "Dirección de cobro añadida – {{network}}",
+      "heading": "Dirección de cobro añadida",
+      "intro": "Se ha añadido correctamente una nueva dirección de cobro a su marca <strong>{{companyName}}</strong>.",
+      "outro": "Todos los pagos en {{network}} se reenviarán a esta dirección de cobro. Puede gestionar sus direcciones de cobro en el panel.",
+      "didntDoThis": "<strong>¿No fue usted?</strong><br />Si no añadió esta dirección de cobro, proteja su cuenta de inmediato.",
+      "cta": "Ver direcciones de cobro"
     },
     "walletUpdated": {
-      "subject": "Billetera actualizada – {{network}}",
-      "heading": "Billetera actualizada",
-      "intro": "Su billetera de cobro para <strong>{{companyName}}</strong> se ha actualizado.",
+      "subject": "Dirección de cobro actualizada – {{network}}",
+      "heading": "Dirección de cobro actualizada",
+      "intro": "Su dirección de cobro para <strong>{{companyName}}</strong> se ha actualizado.",
       "outro": "Los pagos futuros en {{network}} se reenviarán a la nueva dirección.",
-      "didntDoThis": "<strong>¿No fue usted?</strong><br />Si no actualizó esta billetera, proteja su cuenta de inmediato y contacte con soporte.",
-      "cta": "Ver billeteras"
+      "didntDoThis": "<strong>¿No fue usted?</strong><br />Si no actualizó esta dirección de cobro, proteja su cuenta de inmediato y contacte con soporte.",
+      "cta": "Ver direcciones de cobro"
     },
     "withdrawalOtp": {
       "subject": "Confirme su retiro",
@@ -471,15 +479,15 @@
       "expiry": "Este código expira en <strong>5 minutos</strong>. Si no solicitó este intercambio, ignore este correo."
     },
     "walletEditOtp": {
-      "subject": "Confirme la edición de la billetera",
-      "heading": "Confirme la edición de la billetera",
-      "intro": "Está a punto de editar una dirección de billetera. Verifique esta acción con el código de abajo:",
+      "subject": "Confirme la edición de la dirección de cobro",
+      "heading": "Confirme la edición de la dirección de cobro",
+      "intro": "Está a punto de editar una dirección de cobro. Verifique esta acción con el código de abajo:",
       "expiry": "Este código expira en <strong>10 minutos</strong>. Si no solicitó esto, ignore este correo o contacte con soporte."
     },
     "walletDeleteOtp": {
-      "subject": "Confirme la eliminación de la billetera",
-      "heading": "Confirme la eliminación de la billetera",
-      "intro": "Está a punto de <strong>eliminar permanentemente</strong> una dirección de billetera. Esta acción no se puede deshacer.",
+      "subject": "Confirme la eliminación de la dirección de cobro",
+      "heading": "Confirme la eliminación de la dirección de cobro",
+      "intro": "Está a punto de <strong>eliminar permanentemente</strong> una dirección de cobro. Esta acción no se puede deshacer.",
       "expiry": "Este código expira en <strong>10 minutos</strong>. Si no solicitó esto, ignore este correo o contacte con soporte de inmediato."
     },
     "companyDeleteOtp": {
@@ -497,7 +505,7 @@
       "removed1": "Todos los enlaces de pago de esta marca",
       "removed2": "Claves API ({{apiKeys}}): revocadas de inmediato",
       "removed3": "Ajustes de la marca, webhooks y preferencias de conversión automática",
-      "note": "Su historial de transacciones se conserva para sus registros. Las billeteras de pago asignadas a esta marca ya no están vinculadas a ella.",
+      "note": "Su historial de transacciones se conserva para sus registros. Las direcciones de cobro asignadas a esta marca ya no están vinculadas a ella.",
       "didntDoThis": "<strong>¿No fue usted?</strong><br />Si no eliminó esta marca, proteja su cuenta de inmediato y contacte con soporte.",
       "cta": "Ir al panel",
       "preheader": "{{companyName}} se eliminó de su cuenta."
@@ -516,7 +524,7 @@
     "brandSoftDeleted": {
       "subject": "Su marca «{{companyName}}» se ha eliminado: tiene 7 días para restaurarla",
       "heading": "Su marca se ha eliminado",
-      "intro": "Su marca <strong>{{companyName}}</strong> acaba de eliminarse en Dynopay. No se preocupe: todavía no se ha perdido nada. Conservaremos todo (enlaces de pago, wallets, configuración e historial) a buen recaudo durante los próximos <strong>7 días</strong> por si ha sido un error.",
+      "intro": "Su marca <strong>{{companyName}}</strong> acaba de eliminarse en Dynopay. No se preocupe: todavía no se ha perdido nada. Conservaremos todo (enlaces de pago, direcciones de cobro, configuración e historial) a buen recaudo durante los próximos <strong>7 días</strong> por si ha sido un error.",
       "status": "Programada para eliminación",
       "restoreBefore": "Restaurar antes del",
       "changedMind": "<strong>¿Ha cambiado de opinión?</strong> Responda a este correo o contacte con nuestro equipo de soporte antes del <strong>{{date}}</strong> y recuperaremos la marca exactamente como estaba, con un solo clic.",
@@ -538,7 +546,7 @@
     "brandRestored": {
       "subject": "Buenas noticias: su marca «{{companyName}}» está de vuelta",
       "heading": "Su marca está de vuelta",
-      "intro": "Hemos restaurado su marca <strong>{{companyName}}</strong> en Dynopay. Todo (enlaces de pago, wallets, configuración e historial) está exactamente como lo dejó.",
+      "intro": "Hemos restaurado su marca <strong>{{companyName}}</strong> en Dynopay. Todo (enlaces de pago, direcciones de cobro, configuración e historial) está exactamente como lo dejó.",
       "status": "Restaurada",
       "pickUp": "Puede continuar justo donde lo dejó desde su panel.",
       "cta": "Ir al panel",
@@ -547,7 +555,7 @@
     "brandDeleteReminder": {
       "subject": "Último aviso: {{daysLabel}} para restaurar «{{companyName}}»",
       "heading": "Su marca está a punto de eliminarse",
-      "intro": "Un aviso rápido: su marca eliminada <strong>{{companyName}}</strong> está programada para <strong>eliminarse permanentemente el {{date}}</strong>, es decir, en aproximadamente <strong>{{daysLabel}}</strong>. Después de esa fecha, sus enlaces de pago, wallets, configuración e historial no podrán recuperarse.",
+      "intro": "Un aviso rápido: su marca eliminada <strong>{{companyName}}</strong> está programada para <strong>eliminarse permanentemente el {{date}}</strong>, es decir, en aproximadamente <strong>{{daysLabel}}</strong>. Después de esa fecha, sus enlaces de pago, direcciones de cobro, configuración e historial no podrán recuperarse.",
       "timeLeft": "Tiempo restante",
       "timeLeftBadge": "Restante: {{daysLabel}}",
       "deletesOn": "Se elimina el",
@@ -827,10 +835,10 @@
     "preheader": "Gracias — tu recibo de contribución está adjunto."
   },
   "walletOtp": {
-    "subject": "Código para validar la dirección de la billetera",
-    "heading": "Código de verificación de la billetera",
-    "intro": "Estás validando una nueva dirección de billetera para {{currency}}.",
-    "walletAddress": "Dirección de la billetera",
+    "subject": "Código para validar la dirección de cobro",
+    "heading": "Código de verificación de la dirección de cobro",
+    "intro": "Estás validando una nueva dirección de cobro para {{currency}}.",
+    "walletAddress": "Dirección",
     "currency": "Moneda",
     "expiry": "Este código caducará en {{minutes}} minutos."
   },
@@ -943,8 +951,8 @@
     },
     "seg": {
       "madeLink": {
-        "line": "Ya creaste un enlace de pago, ¡genial! Agrega una billetera de retiro para que, en cuanto alguien pague, liquidemos directo en una billetera que tú controlas.",
-        "cta": "Agregar billetera de retiro"
+        "line": "Ya creaste un enlace de pago, ¡genial! Agrega una dirección de cobro para que, en cuanto alguien pague, liquidemos directo en una dirección de cobro que tú controlas.",
+        "cta": "Agregar dirección de cobro"
       },
       "noLink": {
         "line": "Crea tu primer enlace de pago: compártelo donde quieras y empieza a aceptar Bitcoin, Ethereum o stablecoins, sin contracargos.",
@@ -1105,7 +1113,7 @@
     },
     "stepUpActions": {
       "apikey": "gestión de claves API",
-      "wallet": "cambio de wallets de pago",
+      "wallet": "cambio de direcciones de cobro",
       "brand_delete": "eliminación de una marca",
       "security": "ajustes de seguridad de la cuenta",
       "payout": "ajustes de retiro",
@@ -1178,7 +1186,7 @@
     "heading": "Pago liquidado",
     "preheader": "Neto {{net}} {{asset}} enviado a su wallet — desglose completo dentro.",
     "intro": "<strong>{{companyName}}</strong> recibió un pago que ya está liquidado. Así se distribuyó exactamente el dinero.",
-    "introForwarding": "<strong>{{companyName}}</strong> recibió un pago que ya está liquidado. El importe neto se está enviando ahora a su wallet de cobro.",
+    "introForwarding": "<strong>{{companyName}}</strong> recibió un pago que ya está liquidado. El importe neto se está enviando ahora a su dirección de cobro.",
     "received": "Recibido (bruto)",
     "fiatNote": "El valor ≈ es el valor en fiat en el momento en que se detectó el pago — úselo para su contabilidad.",
     "dynopayFee": "Comisión de Dynopay ({{percent}} %)",
@@ -1228,7 +1236,7 @@
       "subject": "El pago de {{amount}} se ha retrasado",
       "heading": "Su pago va con retraso",
       "preheader": "{{amount}} está tardando más de lo habitual — no se requiere ninguna acción.",
-      "intro": "{{companyName}} recibió {{amount}} de un comprador, pero el pago a su wallet aún no se ha completado.",
+      "intro": "{{companyName}} recibió {{amount}} de un comprador, pero el pago a su dirección de cobro aún no se ha completado.",
       "next": "Lo estamos vigilando. Recibirá un correo de \"Pago liquidado\" o \"Pago completado\" en cuanto llegue; si no se completa en 24 horas, nuestro equipo intervendrá y le informaremos."
     },
     "failed": {

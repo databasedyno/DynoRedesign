@@ -135,7 +135,7 @@
     "cancel": "Annuleren",
     "emailLabelOptional": "E-mail (optioneel)",
     "stepBrand": "Merk",
-    "stepWallet": "Portemonnee",
+    "stepWallet": "Uitbetalingsadres",
     "nameLockedNotice": "Je naam is geverifieerd en kan hier niet worden gewijzigd. Neem contact op met support om deze bij te werken.",
     "logoAdded": "Logo toegevoegd"
   },
@@ -151,6 +151,6 @@
     "individualDesc": "Persoonlijke betalingen, fooien en een openbare pagina.",
     "businessTitle": "Geregistreerd bedrijf",
     "businessDesc": "Facturen, btw/belasting, adres en teamtoegang.",
-    "switchHelper": "Voeg hieronder je bedrijfsnaam en land toe en sla op om over te schakelen naar een zakelijk account. Je wallets, sleutels en geschiedenis blijven ongewijzigd."
+    "switchHelper": "Voeg hieronder je bedrijfsnaam en land toe en sla op om over te schakelen naar een zakelijk account. Je uitbetalingsadressen, sleutels en geschiedenis blijven ongewijzigd."
   }
 }

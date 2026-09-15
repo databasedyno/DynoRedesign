@@ -151,8 +151,8 @@ export async function notifyWalletChanges(params: {
         user_id: params.user_id,
         company_id: params.company_id || null,
         type: "wallet_changed",
-        title: rows.length > 1 ? "Payout wallets changed" : `${addressChanges[0].currency} payout wallet changed`,
-        message: `Your payout ${rows.length > 1 ? "wallets were" : "wallet was"} updated (${networks}). If this wasn't you, secure your account now.`,
+        title: rows.length > 1 ? "Payout addresses changed" : `${addressChanges[0].currency} payout address changed`,
+        message: `Your payout ${rows.length > 1 ? "addresses were" : "address was"} updated (${networks}). If this wasn't you, secure your account now.`,
         data: { revert_url: revertUrl, networks: addressChanges.map((c) => c.currency), action: "wallet_changed" },
         is_read: false,
       })
@@ -239,7 +239,7 @@ export async function performRevert(
         company_id: company_id || null,
         type: "wallet_security_lock",
         title: "Account secured",
-        message: `We undid the recent payout wallet change${networks.length > 1 ? "s" : ""} and locked wallet changes. Contact support to unlock.`,
+        message: `We undid the recent payout address change${networks.length > 1 ? "s" : ""} and locked payout address changes. Contact support to unlock.`,
         data: { networks, action: "wallet_locked" },
         is_read: false,
       })

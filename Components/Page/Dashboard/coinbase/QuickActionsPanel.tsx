@@ -438,7 +438,7 @@ const QuickActionsPanel: React.FC = () => {
                     : CB_TOKENS.ink.primaryLight,
               }}
             >
-              {t("qaShortcutWallet", { defaultValue: "Open wallet" })}
+              {t("qaShortcutWallet", { defaultValue: "Open payout addresses" })}
             </Box>
           </Box>
         </QuickActionRow>

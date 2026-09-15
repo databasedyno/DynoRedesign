@@ -283,7 +283,7 @@ const NewSidebar = ({
                         // same full labels, same 14px type, same left alignment.
                         // (Previously the drawer shrank to 11px AND truncated
                         // every label to its first word, e.g. "Payment Links"
-                        // -> "Payment", "Payout wallets" -> "Payout".)
+                        // -> "Payment", "Payout addresses" -> "Payout".)
                         fontSize: "14px",
                         fontWeight: isActive ? 600 : 500,
                         textAlign: "left",

@@ -11,11 +11,11 @@
     },
     "payouts": {
       "title": "Comment fonctionnent les paiements",
-      "body": "Affiche ce qui est réglé et ce qui est en attente par crypto. Dynopay transfère les fonds directement vers votre portefeuille de versement — nous ne les conservons jamais."
+      "body": "Affiche ce qui est réglé et ce qui est en attente par crypto. Dynopay transfère les fonds directement vers votre adresse de versement — nous ne les conservons jamais."
     },
     "wallet": {
       "title": "Où arrive votre argent",
-      "body": "Ajoutez un portefeuille par crypto. Chaque paiement est transféré vers votre propre adresse — Dynopay ne conserve jamais vos fonds."
+      "body": "Ajoutez une adresse de versement par crypto. Chaque paiement est transféré vers votre propre adresse — Dynopay ne conserve jamais vos fonds."
     },
     "invoices": {
       "title": "Reçus et taxes au même endroit",
@@ -50,8 +50,8 @@
       "body": "Cherchez d'abord dans les guides — la plupart des réponses s'y trouvent. Toujours bloqué ? Lancez un chat et une personne de l'équipe prend le relais."
     },
     "walletSecurity": {
-      "title": "Annuler un changement de wallet ne prend jamais plus d'un geste",
-      "body": "Chaque changement de wallet de paiement exige un code à usage unique et vous envoie un lien « Ce n'était pas moi » qui rétablit l'ancienne adresse et verrouille les modifications."
+      "title": "Annuler un changement d'adresse de versement ne prend jamais plus d'un geste",
+      "body": "Chaque changement d'adresse de versement exige un code à usage unique et vous envoie un lien « Ce n'était pas moi » qui rétablit l'ancienne adresse et verrouille les modifications."
     },
     "kyc": {
       "title": "La vérification est un contrôle unique de quelques minutes",
@@ -91,9 +91,9 @@
   "EmptyTransactionTitle": "Il n'y a pas de transactions",
   "EmptyTransactionDescription": "Commencez à accepter des paiements pour voir les transactions",
   "createPaymentLink": "Créer un Lien de Paiement",
-  "EmptyWalletTitle": "Il n'y a pas de portefeuilles",
+  "EmptyWalletTitle": "Il n'y a pas d'adresses de versement",
   "EmptyWalletDescription": "Ajoutons le premier",
-  "addWallet": "Ajouter un portefeuille",
+  "addWallet": "Ajouter une adresse de versement",
   "EmptyApiKeyTitle": "Il n'y a pas de clés API",
   "EmptyApiKeyDescription": "Créons la première",
   "createNewKey": "Créer une Nouvelle Clé",
@@ -693,15 +693,15 @@
   "noDataToShow": "Rien à afficher ici pour le moment.",
   "poweredByDynopay": "Propulsé par Dynopay",
   "verifyEmailBanner": "Vérifiez votre e-mail pour débloquer toutes les fonctionnalités.",
-  "deleteWalletTitle": "Supprimer le wallet ?",
-  "deleteWalletAction": "Supprimer le wallet",
+  "deleteWalletTitle": "Supprimer l'adresse de versement ?",
+  "deleteWalletAction": "Supprimer l'adresse de versement",
   "enterVerificationCode": "Saisissez le code de vérification",
   "completeYourSetup": "Terminez votre configuration",
   "saveChangesTitle": "Enregistrer les modifications ?",
   "saveChangeAction": "Enregistrer",
   "feeFreePromotion": "Premier paiement : 0% de frais de plateforme",
   "youWillPay": "Vous paierez",
-  "whatIsPayoutWallet": "Qu'est-ce qu'un portefeuille de versement ?",
+  "whatIsPayoutWallet": "Qu'est-ce qu'une adresse de versement ?",
   "demoChooseHowToPay": "Choisissez comment payer",
   "demoSendExactly": "Envoyez exactement",
   "walletAddressLabel": "Adresse du wallet",
@@ -1059,7 +1059,7 @@
     "roleMember": "Membre — uniquement l'accès que vous choisissez ci-dessous",
     "roleAdmin": "Administrateur — accès complet (sauf les actions réservées au propriétaire)",
     "permissions": "Autorisations",
-    "ownerOnlyNote": "Les actions réservées au propriétaire (changer les portefeuilles de paiement, supprimer des clés API, la facturation) ne sont jamais accordées aux coéquipiers.",
+    "ownerOnlyNote": "Les actions réservées au propriétaire (changer les adresses de versement, supprimer des clés API, la facturation) ne sont jamais accordées aux coéquipiers.",
     "quickPresets": "Préréglage rapide :",
     "presetReadOnly": "Lecture seule (consultation uniquement)",
     "done": "Terminé",
@@ -1080,7 +1080,7 @@
     "activityTitle": "Activité",
     "activitySubtitle": "Un historique des modifications apportées à cette entreprise — qui a fait quoi, et quand.",
     "activityEmptyTitle": "Aucune activité pour l'instant",
-    "activityEmptyBody": "Les modifications des paramètres, des clés, des portefeuilles et de l'équipe apparaîtront ici."
+    "activityEmptyBody": "Les modifications des paramètres, des clés, des adresses de versement et de l'équipe apparaîtront ici."
   },
   "acceptInvite": {
     "headTitle": "Accepter l'invitation · Dynopay",
@@ -1140,10 +1140,10 @@
       "change": "A modifié une clé API"
     },
     "wallet": {
-      "add": "A ajouté un portefeuille de paiement",
-      "delete": "A retiré un portefeuille de paiement",
-      "update": "A mis à jour le portefeuille de paiement",
-      "change": "A modifié un portefeuille de paiement"
+      "add": "A ajouté une adresse de versement",
+      "delete": "A retiré une adresse de versement",
+      "update": "A mis à jour l'adresse de versement",
+      "change": "A modifié une adresse de versement"
     }
   },
   "verifiedBadge": {
@@ -1176,7 +1176,7 @@
   },
   "setupPrompt": {
     "createCompany": "Créer une marque",
-    "addWallet": "Ajouter une adresse de portefeuille"
+    "addWallet": "Ajouter une adresse de versement"
   },
   "payouts": {
     "pageName": "Paiements & règlements",
@@ -1203,11 +1203,11 @@
     "settlementAutoConvert": "Règlement & conversion automatique",
     "loading": "Chargement…",
     "autoConvertOffDesc": "La conversion automatique est désactivée — les paiements se règlent dans la crypto reçue",
-    "addWalletFirst": "Ajoutez d'abord un portefeuille de règlement en stablecoin",
+    "addWalletFirst": "Ajoutez d'abord une adresse de règlement en stablecoin",
     "settleTo": "Régler à",
     "selectSettlementCoin": "Sélectionnez la crypto de règlement",
-    "settlementWallets": "Portefeuilles de règlement",
-    "noSettlementWallet": "Aucun portefeuille de règlement en stablecoin configuré pour le moment. Ajoutez-en un dans les paramètres pour convertir automatiquement les paiements.",
+    "settlementWallets": "Adresses de règlement",
+    "noSettlementWallet": "Aucune adresse de règlement en stablecoin configurée pour le moment. Ajoutez-en une dans les paramètres pour convertir automatiquement les paiements.",
     "onChain": "sur",
     "active": "Actif",
     "autoConvertProtection": "Protection de conversion automatique",
@@ -1225,7 +1225,7 @@
     "weeklyDigestDesc": "Recevez un e-mail hebdomadaire résumant les paiements réglés et tout ce qui est encore en attente",
     "sending": "Envoi…",
     "sendPreview": "Envoyer l'aperçu",
-    "payoutWallets": "Portefeuilles de paiement",
+    "payoutWallets": "Adresses de versement",
     "payoutWalletsDesc": "Où se trouvent vos fonds réglés",
     "manage": "Gérer",
     "taxCollected": "Impôt collecté",
@@ -1283,9 +1283,9 @@
     "awaitingNone": "Tout ce qui est réglé est arrivé dans vos wallets.",
     "awaitingSome": "{{count}} paiements confirmés, transfert vers votre wallet",
     "autoConvertOffShort": "Les paiements sont réglés dans la devise reçue. Activez pour figer en stablecoin.",
-    "settlementSettings": "Devise de règlement et wallets ↓",
-    "byWallet": "Par wallet",
-    "noWallets": "Aucun wallet de versement — ajoutez-en un pour recevoir vos paiements.",
+    "settlementSettings": "Devise de règlement et adresses de versement ↓",
+    "byWallet": "Par adresse de versement",
+    "noWallets": "Aucune adresse de versement — ajoutez-en un pour recevoir vos paiements.",
     "walletCount": "{{count}} versements sur la période",
     "walletNoneRange": "aucun sur la période",
     "walletIdle": "Aucun versement",
@@ -1609,8 +1609,8 @@
     "successTitle": "Votre compte est sécurisé",
     "expiredTitle": "Ce lien a expiré",
     "errorTitle": "Une erreur s'est produite",
-    "loadingBody": "Annulation du changement de portefeuille et verrouillage des modifications ultérieures. Cela ne prend qu'un instant.",
-    "successBody": "Nous avons annulé le(s) changement(s) récent(s) de portefeuille de paiement{{networks}} et verrouillé les changements de portefeuille sur votre compte. Pour effectuer de nouveaux changements de portefeuille, contactez le support afin que nous puissions confirmer que c'est bien vous.",
+    "loadingBody": "Annulation du changement d'adresse de versement et verrouillage des modifications ultérieures. Cela ne prend qu'un instant.",
+    "successBody": "Nous avons annulé le(s) changement(s) récent(s) d'adresse de versement{{networks}} et verrouillé les changements d'adresse de versement sur votre compte. Pour effectuer de nouveaux changements d'adresse de versement, contactez le support afin que nous puissions confirmer que c'est bien vous.",
     "expiredBody": "Ce lien de sécurité a déjà été utilisé ou a expiré. Si vous pensez toujours qu'il y a un problème, contactez immédiatement le support.",
     "errorBody": "Nous n'avons pas pu compléter cette action. Veuillez réessayer ou contacter le support si le problème persiste.",
     "pageTitle": "Sécurité du compte",
@@ -1645,7 +1645,7 @@
     "noMethods": "Ajoutez d'abord une adresse e-mail à votre compte — nous devons pouvoir vous envoyer votre code de vérification.",
     "scope": {
       "apikey": "gérer les clés API",
-      "wallet": "modifier les portefeuilles de paiement",
+      "wallet": "modifier les adresses de versement",
       "brand_delete": "supprimer une marque",
       "security": "modifier vos paramètres de sécurité",
       "payout": "modifier vos paramètres de versement",
@@ -1653,5 +1653,5 @@
       "settlement": "modifier votre devise de règlement"
     }
   },
-  "deleteWalletBody": "Vous êtes sur le point de supprimer le portefeuille {{type}}{{address}}. Cette action est définitive et irréversible. Nous vous demanderons d'abord de vérifier votre identité."
+  "deleteWalletBody": "Vous êtes sur le point de supprimer l'adresse de versement {{type}}{{address}}. Cette action est définitive et irréversible. Nous vous demanderons d'abord de vérifier votre identité."
 }

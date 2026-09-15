@@ -72,14 +72,14 @@ export const ManagerFooter: React.FC<Props> = ({ counts, justCopied = 0, saving,
                 <Box sx={{ display: "flex", alignItems: "center", gap: 0.6 }} data-testid="wallet-manager-copied-success">
                   <Icon name="check" size={14} color={c.emerald} />
                   <Typography sx={{ fontSize: 12.5, fontWeight: 600, fontFamily: "var(--font-sans)", color: c.emerald }}>
-                    {tw("copiedSaved", "{{n}} wallets copied and saved to this brand", { n: justCopied })}
+                    {tw("copiedSaved", "{{n}} payout addresses copied and saved to this brand", { n: justCopied })}
                   </Typography>
                 </Box>
               ) : (
                 <Typography sx={{ fontSize: 12.5, color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}>
                   {counts.drafts > 0
-                    ? tw("summaryDrafts", "Finish the new wallet rows to include them")
-                    : tw("summaryNone", "No changes yet — edit a wallet or add a network")}
+                    ? tw("summaryDrafts", "Finish the new address rows to include them")
+                    : tw("summaryNone", "No changes yet — edit an address or add a network")}
                 </Typography>
               )
             ) : (

@@ -43,7 +43,7 @@
   "category_orders_title": "Bestellungen & Rechnungen",
   "category_orders_desc": "Bestellbelege, Downloads und Rechnungs-E-Mails",
   "category_config_title": "Konto & Konfiguration",
-  "category_config_desc": "Änderungen an Webhooks, API-Schlüsseln, Wallets und Profil",
+  "category_config_desc": "Änderungen an Webhooks, API-Schlüsseln, Auszahlungsadressen und Profil",
   "category_digests_title": "Zusammenfassungen",
   "category_digests_desc": "Wöchentliche Zusammenfassungen und Auszahlungsübersichten",
   "inboxTab": "Posteingang",

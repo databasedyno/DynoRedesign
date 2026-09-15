@@ -55,7 +55,7 @@ export const AddWalletCard: React.FC<Props> = ({ row: r, index, usedCurrencies, 
             {complete ? <Icon name="check" size={13} color={c.emerald} /> : index + 1}
           </Box>
           <Typography sx={{ fontSize: 13, fontWeight: 600, fontFamily: "var(--font-sans)" }}>
-            {r.currency ? tw("newWalletFor", "New {{cur}} wallet", { cur: r.currency }) : tw("newWallet", "New wallet")}
+            {r.currency ? tw("newWalletFor", "New {{cur}} wallet", { cur: r.currency }) : tw("newWallet", "New payout address")}
           </Typography>
         </Box>
         <Box sx={{ display: "flex", alignItems: "center", gap: 0.25 }}>
@@ -86,7 +86,7 @@ export const AddWalletCard: React.FC<Props> = ({ row: r, index, usedCurrencies, 
       />
 
       <InputField
-        label={tw("walletAddress", "Wallet address")}
+        label={tw("walletAddress", "Address")}
         placeholder={tw("walletAddressPlaceholder", "Paste your wallet address")}
         value={r.address}
         error={invalid || !!error}
@@ -140,7 +140,7 @@ export const AddWalletCard: React.FC<Props> = ({ row: r, index, usedCurrencies, 
 
       <Box sx={{ display: "grid", gridTemplateColumns: isTagChain(r.currency) ? "1fr 1fr" : "1fr", gap: 1.25 }}>
         <InputField
-          label={tw("walletNameOptional", "Wallet name (optional)")}
+          label={tw("walletNameOptional", "Label (optional)")}
           placeholder={tw("walletNamePlaceholder", "e.g. Treasury, Ledger…")}
           value={r.name}
           onChange={(ev: any) => onUpdate({ name: ev.target.value })}

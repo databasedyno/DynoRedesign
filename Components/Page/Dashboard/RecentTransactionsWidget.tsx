@@ -169,7 +169,7 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
   const firstLinkSteps = [
     {
       icon: <AccountBalanceWalletRounded sx={{ fontSize: 18 }} />,
-      title: t("firstLinkStep1Title", { defaultValue: "Add a wallet" }),
+      title: t("firstLinkStep1Title", { defaultValue: "Add a payout address" }),
       desc: t("firstLinkStep1Desc", {
         defaultValue: "Pick the currencies you want to get paid in.",
       }),

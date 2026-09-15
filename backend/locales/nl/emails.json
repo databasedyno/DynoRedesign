@@ -40,10 +40,10 @@
     "subject": "{{amount}} {{currency}} ontvangen",
     "heading": "Betaling ontvangen",
     "intro": "Goed nieuws! Uw merk <strong>{{companyName}}</strong> heeft een betaling ontvangen.",
-    "outro": "De gelden zijn onderweg naar je uitbetaalwallet.",
+    "outro": "De gelden zijn onderweg naar je uitbetalingsadres.",
     "cta": "Transactie bekijken",
     "referralCredit": "Referral-tegoed dekte {{amount}} van uw Dynopay-platformkosten voor deze betaling — u hield er meer aan over.",
-    "preheader": "Het geld wordt nu naar uw uitbetalingswallet overgemaakt."
+    "preheader": "Het geld wordt nu naar uw uitbetalingsadres overgemaakt."
   },
   "paymentPending": {
     "subject": "{{amount}} {{currency}} voor {{companyName}} — wordt bevestigd",
@@ -192,7 +192,15 @@
     "downloadPdf": "PDF downloaden",
     "copyLink": "Link kopiëren",
     "linkCopied": "Link gekopieerd",
-    "viewOnExplorer": "Bekijken in block explorer"
+    "viewOnExplorer": "Bekijken in block explorer",
+    "merchantContact": "Contact met de verkoper",
+    "refundNote": "Terugbetalingen en correcties worden afgehandeld door {{company}} — Dynopay bewaart je geld nooit. Vermeld het bonnummer hierboven als je contact opneemt.",
+    "print": "Afdrukken",
+    "legalName": "Juridische naam",
+    "emailLabel": "E-mail",
+    "websiteLabel": "Website",
+    "phoneLabel": "Telefoon",
+    "addressLabel": "Adres"
   },
   "merchant": {
     "labels": {
@@ -202,8 +210,8 @@
       "time": "Tijd",
       "network": "Netwerk",
       "blockchain": "Blockchain",
-      "walletName": "Walletnaam",
-      "wallet": "Wallet",
+      "walletName": "Naam",
+      "wallet": "Uitbetalingsadres",
       "address": "Adres",
       "newAddress": "Nieuw adres",
       "toAddress": "Bestemmingsadres",
@@ -267,7 +275,7 @@
       "promo": "Uw eerste betaling is van ons — we schelden onze volledige platformkosten kwijt op uw eerste afgewikkelde betaling, ongeacht het bedrag.",
       "nextTitle": "Dit kunt u nu doen:",
       "next1": "1. Vul uw merkprofiel in",
-      "next2": "2. Voeg uw uitbetalingswallet toe",
+      "next2": "2. Voeg uw uitbetalingsadres toe",
       "next3": "3. Begin met het accepteren van betalingen",
       "questions": "Als u vragen heeft, staat ons supportteam voor u klaar.",
       "cta": "Aan de slag",
@@ -373,13 +381,13 @@
       "preheader": "Meerdere aanmeldpogingen op uw account zijn mislukt."
     },
     "companyCreated": {
-      "subject": "Nog één stap — voeg een uitbetaalwallet toe om betaald te worden",
+      "subject": "Nog één stap — voeg een uitbetalingsadres toe om betaald te worden",
       "heading": "Profiel compleet",
       "intro1": "Goed gedaan! Het merkprofiel voor <strong>{{companyName}}</strong> is nu compleet.",
-      "intro2": "U bent bijna klaar om betalingen te accepteren. De laatste stap is het toevoegen van uw uitbetalingswalletadres.",
-      "whyTitle": "Waarom een wallet toevoegen?",
-      "whyText": "Naar uw wallet sturen we de cryptobetalingen die u ontvangt. Het is snel en veilig.",
-      "cta": "Wallet toevoegen",
+      "intro2": "U bent bijna klaar om betalingen te accepteren. De laatste stap is het toevoegen van uw uitbetalingsadresadres.",
+      "whyTitle": "Waarom een uitbetalingsadres toevoegen?",
+      "whyText": "Naar uw uitbetalingsadres sturen we de cryptobetalingen die u ontvangt. Het is snel en veilig.",
+      "cta": "Uitbetalingsadres toevoegen",
       "preheader": "Nog één stap voordat u betalingen kunt accepteren."
     },
     "companyContactWelcome": {
@@ -405,50 +413,50 @@
       "preheader": "De gegevens van uw merkprofiel zijn bijgewerkt."
     },
     "walletVerified": {
-      "subject": "Uitbetalingswallet actief",
-      "heading": "Wallet actief",
-      "intro": "Uw uitbetalingswallet is geverifieerd en is nu actief.",
-      "outro": "Alle betalingen die u ontvangt, worden automatisch naar deze wallet doorgestuurd. U bent helemaal klaar om cryptobetalingen te accepteren.",
+      "subject": "Uitbetalingsadres actief",
+      "heading": "Uitbetalingsadres actief",
+      "intro": "Uw uitbetalingsadres is geverifieerd en is nu actief.",
+      "outro": "Alle betalingen die u ontvangt, worden automatisch naar dit uitbetalingsadres doorgestuurd. U bent helemaal klaar om cryptobetalingen te accepteren.",
       "cta": "Dashboard bekijken"
     },
     "walletUpdateOtp": {
-      "subject": "Bevestig walletwijziging",
-      "heading": "Bevestig walletwijziging",
-      "intro": "U werkt uw uitbetalingswallet bij. Bevestig deze wijziging met de onderstaande code:",
+      "subject": "Bevestig wijziging van het uitbetalingsadres",
+      "heading": "Bevestig wijziging van het uitbetalingsadres",
+      "intro": "U werkt uw uitbetalingsadres bij. Bevestig deze wijziging met de onderstaande code:",
       "expiry": "Deze code verloopt over 10 minuten. Als u deze wijziging niet heeft aangevraagd, beveilig dan onmiddellijk uw account."
     },
     "walletDeleted": {
-      "subject": "Wallet verwijderd uit uw account",
-      "heading": "Wallet verwijderd",
-      "intro": "Er is een wallet verwijderd uit uw Dynopay-account.",
-      "outro": "Betalingen worden niet langer naar deze wallet doorgestuurd.",
-      "didntDoThis": "<strong>Niet u?</strong><br />Als u deze wallet niet heeft verwijderd, beveilig dan onmiddellijk uw account en neem contact op met support.",
-      "cta": "Wallets bekijken"
+      "subject": "Uitbetalingsadres verwijderd uit uw account",
+      "heading": "Uitbetalingsadres verwijderd",
+      "intro": "Er is een uitbetalingsadres verwijderd uit uw Dynopay-account.",
+      "outro": "Betalingen worden niet langer naar dit uitbetalingsadres doorgestuurd.",
+      "didntDoThis": "<strong>Niet u?</strong><br />Als u dit uitbetalingsadres niet heeft verwijderd, beveilig dan onmiddellijk uw account en neem contact op met support.",
+      "cta": "Uitbetalingsadressen bekijken"
     },
     "addWalletReminder": {
       "subject": "U bent bijna klaar om betalingen te accepteren",
-      "heading": "Voeg uw wallet toe",
-      "intro": "U bent er bijna! Het profiel van <strong>{{companyName}}</strong> is ingesteld, maar u heeft nog geen uitbetalingswallet toegevoegd.",
-      "whyTitle": "Waarom een wallet toevoegen?",
-      "whyText": "Zonder wallet kunt u geen betalingen ontvangen. Instellen duurt minder dan 2 minuten.",
-      "outro": "Voeg nu uw wallet toe en begin vandaag nog met het accepteren van cryptobetalingen.",
-      "cta": "Nu wallet toevoegen"
+      "heading": "Voeg uw uitbetalingsadres toe",
+      "intro": "U bent er bijna! Het profiel van <strong>{{companyName}}</strong> is ingesteld, maar u heeft nog geen uitbetalingsadres toegevoegd.",
+      "whyTitle": "Waarom een uitbetalingsadres toevoegen?",
+      "whyText": "Zonder uitbetalingsadres kunt u geen betalingen ontvangen. Instellen duurt minder dan 2 minuten.",
+      "outro": "Voeg nu uw uitbetalingsadres toe en begin vandaag nog met het accepteren van cryptobetalingen.",
+      "cta": "Nu uitbetalingsadres toevoegen"
     },
     "walletAdded": {
-      "subject": "Wallet toegevoegd – {{network}}",
-      "heading": "Wallet toegevoegd",
-      "intro": "Er is succesvol een nieuwe uitbetalingswallet toegevoegd aan uw merk <strong>{{companyName}}</strong>.",
-      "outro": "Alle betalingen in {{network}} worden naar deze wallet doorgestuurd. U kunt uw wallets beheren in het dashboard.",
-      "didntDoThis": "<strong>Niet u?</strong><br />Als u deze wallet niet heeft toegevoegd, beveilig dan onmiddellijk uw account.",
-      "cta": "Wallets bekijken"
+      "subject": "Uitbetalingsadres toegevoegd – {{network}}",
+      "heading": "Uitbetalingsadres toegevoegd",
+      "intro": "Er is succesvol een nieuwe uitbetalingsadres toegevoegd aan uw merk <strong>{{companyName}}</strong>.",
+      "outro": "Alle betalingen in {{network}} worden naar dit uitbetalingsadres doorgestuurd. U kunt uw uitbetalingsadressen beheren in het dashboard.",
+      "didntDoThis": "<strong>Niet u?</strong><br />Als u dit uitbetalingsadres niet heeft toegevoegd, beveilig dan onmiddellijk uw account.",
+      "cta": "Uitbetalingsadressen bekijken"
     },
     "walletUpdated": {
-      "subject": "Wallet bijgewerkt – {{network}}",
-      "heading": "Wallet bijgewerkt",
-      "intro": "Uw uitbetalingswallet voor <strong>{{companyName}}</strong> is bijgewerkt.",
+      "subject": "Uitbetalingsadres bijgewerkt – {{network}}",
+      "heading": "Uitbetalingsadres bijgewerkt",
+      "intro": "Uw uitbetalingsadres voor <strong>{{companyName}}</strong> is bijgewerkt.",
       "outro": "Toekomstige betalingen in {{network}} worden naar het nieuwe adres doorgestuurd.",
-      "didntDoThis": "<strong>Niet u?</strong><br />Als u deze wallet niet heeft bijgewerkt, beveilig dan onmiddellijk uw account en neem contact op met support.",
-      "cta": "Wallets bekijken"
+      "didntDoThis": "<strong>Niet u?</strong><br />Als u dit uitbetalingsadres niet heeft bijgewerkt, beveilig dan onmiddellijk uw account en neem contact op met support.",
+      "cta": "Uitbetalingsadressen bekijken"
     },
     "withdrawalOtp": {
       "subject": "Bevestig uw opname",
@@ -473,13 +481,13 @@
     "walletEditOtp": {
       "subject": "Bevestig walletbewerking",
       "heading": "Bevestig walletbewerking",
-      "intro": "U staat op het punt een walletadres te bewerken. Bevestig deze actie met de onderstaande code:",
+      "intro": "U staat op het punt een uitbetalingsadres te bewerken. Bevestig deze actie met de onderstaande code:",
       "expiry": "Deze code verloopt over <strong>10 minuten</strong>. Als u dit niet heeft aangevraagd, negeer dan deze e-mail of neem contact op met support."
     },
     "walletDeleteOtp": {
       "subject": "Bevestig walletverwijdering",
       "heading": "Bevestig walletverwijdering",
-      "intro": "U staat op het punt een walletadres <strong>permanent te verwijderen</strong>. Deze actie kan niet ongedaan worden gemaakt.",
+      "intro": "U staat op het punt een uitbetalingsadres <strong>permanent te verwijderen</strong>. Deze actie kan niet ongedaan worden gemaakt.",
       "expiry": "Deze code verloopt over <strong>10 minuten</strong>. Als u dit niet heeft aangevraagd, negeer dan deze e-mail of neem onmiddellijk contact op met support."
     },
     "companyDeleteOtp": {
@@ -497,7 +505,7 @@
       "removed1": "Alle betaallinks van dit merk",
       "removed2": "API-sleutels ({{apiKeys}}) – direct ingetrokken",
       "removed3": "Merkinstellingen, webhooks en voorkeuren voor automatische omzetting",
-      "note": "Uw transactiegeschiedenis blijft bewaard voor uw administratie. Uitbetaalwallets die aan dit merk waren toegewezen, zijn er niet langer aan gekoppeld.",
+      "note": "Uw transactiegeschiedenis blijft bewaard voor uw administratie. Uitbetalingsadressen die aan dit merk waren toegewezen, zijn er niet langer aan gekoppeld.",
       "didntDoThis": "<strong>Was u dit niet?</strong><br />Als u dit merk niet hebt verwijderd, beveilig dan onmiddellijk uw account en neem contact op met support.",
       "cta": "Naar het dashboard",
       "preheader": "{{companyName}} is uit uw account verwijderd."
@@ -516,7 +524,7 @@
     "brandSoftDeleted": {
       "subject": "Uw merk \"{{companyName}}\" is verwijderd — u heeft 7 dagen om het te herstellen",
       "heading": "Uw merk is verwijderd",
-      "intro": "Uw merk <strong>{{companyName}}</strong> is zojuist verwijderd op Dynopay. Geen zorgen — er is nog niets verloren. We bewaren alles (betaallinks, wallets, instellingen en geschiedenis) de komende <strong>7 dagen</strong> veilig, voor het geval dit een vergissing was.",
+      "intro": "Uw merk <strong>{{companyName}}</strong> is zojuist verwijderd op Dynopay. Geen zorgen — er is nog niets verloren. We bewaren alles (betaallinks, uitbetalingsadressen, instellingen en geschiedenis) de komende <strong>7 dagen</strong> veilig, voor het geval dit een vergissing was.",
       "status": "Ingepland voor verwijdering",
       "restoreBefore": "Herstellen vóór",
       "changedMind": "<strong>Van gedachten veranderd?</strong> Beantwoord deze e-mail of neem vóór <strong>{{date}}</strong> contact op met ons supportteam en we zetten het merk met één klik precies terug zoals het was.",
@@ -538,7 +546,7 @@
     "brandRestored": {
       "subject": "Goed nieuws — uw merk \"{{companyName}}\" is terug",
       "heading": "Uw merk is terug",
-      "intro": "We hebben uw merk <strong>{{companyName}}</strong> op Dynopay hersteld. Alles — uw betaallinks, wallets, instellingen en geschiedenis — is precies zoals u het achterliet.",
+      "intro": "We hebben uw merk <strong>{{companyName}}</strong> op Dynopay hersteld. Alles — uw betaallinks, uitbetalingsadressen, instellingen en geschiedenis — is precies zoals u het achterliet.",
       "status": "Hersteld",
       "pickUp": "U kunt vanuit uw dashboard verdergaan waar u gebleven was.",
       "cta": "Naar het dashboard",
@@ -547,7 +555,7 @@
     "brandDeleteReminder": {
       "subject": "Nog {{daysLabel}} om \"{{companyName}}\" te herstellen",
       "heading": "Uw merk wordt binnenkort verwijderd",
-      "intro": "Even een herinnering: uw verwijderde merk <strong>{{companyName}}</strong> wordt op <strong>{{date}} definitief verwijderd</strong> — dat is over ongeveer <strong>{{daysLabel}}</strong>. Daarna kunnen de betaallinks, wallets, instellingen en geschiedenis niet meer worden hersteld.",
+      "intro": "Even een herinnering: uw verwijderde merk <strong>{{companyName}}</strong> wordt op <strong>{{date}} definitief verwijderd</strong> — dat is over ongeveer <strong>{{daysLabel}}</strong>. Daarna kunnen de betaallinks, uitbetalingsadressen, instellingen en geschiedenis niet meer worden hersteld.",
       "timeLeft": "Resterende tijd",
       "timeLeftBadge": "Nog {{daysLabel}}",
       "deletesOn": "Wordt verwijderd op",
@@ -827,10 +835,10 @@
     "preheader": "Bedankt — uw bijdragebewijs zit in de bijlage."
   },
   "walletOtp": {
-    "subject": "Code voor validatie van walletadres",
-    "heading": "Verificatiecode wallet",
-    "intro": "U valideert een nieuw walletadres voor {{currency}}.",
-    "walletAddress": "Walletadres",
+    "subject": "Code voor validatie van uitbetalingsadres",
+    "heading": "Verificatiecode uitbetalingsadres",
+    "intro": "U valideert een nieuw uitbetalingsadres voor {{currency}}.",
+    "walletAddress": "Uitbetalingsadres",
     "currency": "Valuta",
     "expiry": "Deze code verloopt over {{minutes}} minuten."
   },
@@ -943,8 +951,8 @@
     },
     "seg": {
       "madeLink": {
-        "line": "U heeft al een betaallink gemaakt — mooi. Voeg een uitbetalingswallet toe zodat we, zodra iemand betaalt, direct uitbetalen naar een wallet die u beheert.",
-        "cta": "Uitbetalingswallet toevoegen"
+        "line": "U heeft al een betaallink gemaakt — mooi. Voeg een uitbetalingsadres toe zodat we, zodra iemand betaalt, direct uitbetalen naar een uitbetalingsadres die u beheert.",
+        "cta": "Uitbetalingsadres toevoegen"
       },
       "noLink": {
         "line": "Maak uw eerste betaallink — deel hem overal en accepteer Bitcoin, Ethereum of stablecoins, zonder terugboekingen.",
@@ -969,8 +977,8 @@
         "cta": "Merk toevoegen"
       },
       "wallet": {
-        "intro": "U probeerde een betaallink te maken, maar er is nog geen uitbetaalwallet aan uw account gekoppeld. Betalingen worden rechtstreeks afgewikkeld naar een wallet die u beheert, dus we hebben een adres nodig voordat u betaald kunt worden.",
-        "cta": "Uitbetaalwallet toevoegen"
+        "intro": "U probeerde een betaallink te maken, maar er is nog geen uitbetalingsadres aan uw account gekoppeld. Betalingen worden rechtstreeks afgewikkeld naar een uitbetalingsadres die u beheert, dus we hebben een adres nodig voordat u betaald kunt worden.",
+        "cta": "Uitbetalingsadres toevoegen"
       },
       "kyc": {
         "intro": "U heeft al meer dan $10.000 aan betalingen verwerkt — goed bezig. Daarom is nu een korte identiteitscontrole vereist voordat u nieuwe betaallinks kunt maken. Dit duurt meestal ongeveer 5 minuten.",
@@ -1064,7 +1072,7 @@
     "accountDeleted": {
       "subject": "Uw Dynopay-account is verwijderd",
       "heading": "Account verwijderd",
-      "intro": "Zoals gevraagd zijn uw Dynopay-account en alle bijbehorende gegevens – merken, betaallinks, API-sleutels, uitbetalingswallets en instellingen – permanent verwijderd.",
+      "intro": "Zoals gevraagd zijn uw Dynopay-account en alle bijbehorende gegevens – merken, betaallinks, API-sleutels, uitbetalingsadressen en instellingen – permanent verwijderd.",
       "outro": "Wil je ooit weer crypto accepteren, dan ben je altijd welkom terug.",
       "notice": "<strong>Heeft u dit niet aangevraagd?</strong> Neem direct contact op met onze support.",
       "preheader": "Uw account en gegevens zijn permanent verwijderd."
@@ -1105,7 +1113,7 @@
     },
     "stepUpActions": {
       "apikey": "beheer van API-sleutels",
-      "wallet": "wijzigen van uitbetalingswallets",
+      "wallet": "wijzigen van uitbetalingsadressen",
       "brand_delete": "verwijderen van een merk",
       "security": "beveiligingsinstellingen van het account",
       "payout": "uitbetalingsinstellingen",
@@ -1178,7 +1186,7 @@
     "heading": "Betaling afgewikkeld",
     "preheader": "Netto {{net}} {{asset}} doorgestuurd naar uw wallet — volledige uitsplitsing binnenin.",
     "intro": "<strong>{{companyName}}</strong> heeft een betaling ontvangen die nu is afgewikkeld. Zo is het geld precies verdeeld.",
-    "introForwarding": "<strong>{{companyName}}</strong> heeft een betaling ontvangen die nu is afgewikkeld. Het nettobedrag wordt nu doorgestuurd naar uw uitbetalingswallet.",
+    "introForwarding": "<strong>{{companyName}}</strong> heeft een betaling ontvangen die nu is afgewikkeld. Het nettobedrag wordt nu doorgestuurd naar uw uitbetalingsadres.",
     "received": "Ontvangen (bruto)",
     "fiatNote": "De ≈-waarde is de fiatwaarde op het moment dat de betaling werd gedetecteerd — gebruik die voor uw boekhouding.",
     "dynopayFee": "Dynopay-kosten ({{percent}} %)",
@@ -1228,7 +1236,7 @@
       "subject": "Uitbetaling van {{amount}} is vertraagd",
       "heading": "Uw uitbetaling loopt vertraging op",
       "preheader": "{{amount}} duurt langer dan normaal — geen actie nodig.",
-      "intro": "{{companyName}} heeft {{amount}} van een koper ontvangen, maar de uitbetaling naar uw wallet is nog niet voltooid.",
+      "intro": "{{companyName}} heeft {{amount}} van een koper ontvangen, maar de uitbetaling naar uw uitbetalingsadres is nog niet voltooid.",
       "next": "We houden het in de gaten. U ontvangt een e-mail \"Betaling afgewikkeld\" of \"Uitbetaling voltooid\" zodra het binnen is — als het niet binnen 24 uur is voltooid, grijpt ons team in en houden we u op de hoogte."
     },
     "failed": {

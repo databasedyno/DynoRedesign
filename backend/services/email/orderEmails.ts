@@ -204,7 +204,7 @@ export const sendOrderReceiptMerchantEmail = async (
       : "";
 
     const paidWithBlock = order.crypto_amount && order.crypto_currency
-      ? infoBox(`<strong>Paid with</strong><br/>${esc(String(order.crypto_amount))} ${esc(assetNetworkLabel(String(order.crypto_currency)))}<br/><span style="color:#6b7280;font-size:13px;">Fee, net amount, payout wallet and the on-chain transaction are in your “Payment settled” email for this payment.</span>`)
+      ? infoBox(`<strong>Paid with</strong><br/>${esc(String(order.crypto_amount))} ${esc(assetNetworkLabel(String(order.crypto_currency)))}<br/><span style="color:#6b7280;font-size:13px;">Fee, net amount, payout address and the on-chain transaction are in your “Payment settled” email for this payment.</span>`)
       : "";
     const message = `
       ${p(`You just made a new sale${companyName ? ` on <strong>${esc(companyName)}</strong>` : ""}! Order <strong style="font-family:monospace;">${esc(shortRef)}</strong> has been paid in full.`)}

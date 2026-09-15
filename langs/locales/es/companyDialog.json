@@ -135,7 +135,7 @@
     "cancel": "Cancelar",
     "emailLabelOptional": "Correo electrónico (opcional)",
     "stepBrand": "Marca",
-    "stepWallet": "Billetera",
+    "stepWallet": "Dirección de cobro",
     "nameLockedNotice": "Tu nombre está verificado y no se puede cambiar aquí. Contacta con soporte para actualizarlo.",
     "logoAdded": "Logo añadido"
   },
@@ -151,6 +151,6 @@
     "individualDesc": "Pagos personales, propinas y una página pública.",
     "businessTitle": "Empresa registrada",
     "businessDesc": "Facturas, IVA/impuestos, dirección y acceso del equipo.",
-    "switchHelper": "Añade el nombre de tu empresa y el país abajo y pulsa Guardar para cambiar a una cuenta de empresa. Tus billeteras, claves e historial se mantienen igual."
+    "switchHelper": "Añade el nombre de tu empresa y el país abajo y pulsa Guardar para cambiar a una cuenta de empresa. Tus direcciones de cobro, claves e historial se mantienen igual."
   }
 }

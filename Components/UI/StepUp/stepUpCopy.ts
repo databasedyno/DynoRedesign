@@ -5,7 +5,7 @@ import type { StepUpScope } from "./stepUpBus";
 export const scopeActionLabel = (t: TFunction, scope: StepUpScope): string => {
   const map: Record<StepUpScope, [string, string]> = {
     apikey: ["stepUp.scope.apikey", "manage API keys"],
-    wallet: ["stepUp.scope.wallet", "change payout wallets"],
+    wallet: ["stepUp.scope.wallet", "change payout addresses"],
     brand_delete: ["stepUp.scope.brand_delete", "delete a brand"],
     security: ["stepUp.scope.security", "change your security settings"],
     payout: ["stepUp.scope.payout", "change your payout settings"],

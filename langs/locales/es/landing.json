@@ -944,7 +944,9 @@
     },
     "helpLine": "¿Algo no cuadra? Contacta a {{merchant}} y menciona el pedido #{{ref}}.",
     "helpLineSeller": "el vendedor",
-    "helpLineLink": "Visitar su página"
+    "helpLineLink": "Visitar su página",
+    "helpLineWebsite": "Sitio web",
+    "viewPaymentReceipt": "Ver recibo de pago"
   },
   "seo": {
     "home": "Inicio",

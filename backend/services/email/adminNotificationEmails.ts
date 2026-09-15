@@ -177,7 +177,7 @@ export const sendOnboardingCompletedAdminEmail = async (userData: {
         ${dataRow('Email', contact)}
         ${dataRow('User ID', String(userData.user_id))}
         ${dataRow('Company', userData.company_name || 'N/A')}
-        ${dataRow('Wallets Configured', String(userData.wallet_count))}
+        ${dataRow('Payout addresses configured', String(userData.wallet_count))}
         ${dataRow('Registered', userData.registered_at)}
         ${dataRow('Time to Complete', hoursStr, true)}
       </table>

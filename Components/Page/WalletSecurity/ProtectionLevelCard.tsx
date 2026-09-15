@@ -39,13 +39,13 @@ const ProtectionLevelCard: React.FC<Props> = ({ level, loading, twoFaOn, frozenS
         : t("security.levelStandard", { defaultValue: "Standard" });
   const summary =
     level === "locked"
-      ? t("security.levelLockedBody", { defaultValue: "Wallet changes are frozen after a “this wasn’t me” report. Contact support to unlock." })
+      ? t("security.levelLockedBody", { defaultValue: "Payout address changes are frozen after a “this wasn’t me” report. Contact support to unlock." })
       : level === "strong"
-        ? t("security.levelStrongBody", { defaultValue: "Every wallet change needs a one-time code, emails you an undo link, and your sign-in has two-factor protection." })
-        : t("security.levelStandardBody", { defaultValue: "Every wallet change needs a one-time code and emails you an undo link. Turn on two-factor sign-in to reach Strong." });
+        ? t("security.levelStrongBody", { defaultValue: "Every payout address change needs a one-time code, emails you an undo link, and your sign-in has two-factor protection." })
+        : t("security.levelStandardBody", { defaultValue: "Every payout address change needs a one-time code and emails you an undo link. Turn on two-factor sign-in to reach Strong." });
 
   const checks = [
-    { key: "otp", ok: true, text: t("security.checkOtp", { defaultValue: "A one-time code is required for every wallet change" }) },
+    { key: "otp", ok: true, text: t("security.checkOtp", { defaultValue: "A one-time code is required for every payout address change" }) },
     { key: "alerts", ok: true, text: t("security.checkAlerts", { defaultValue: "Every change emails you with a one-tap undo" }) },
     { key: "2fa", ok: twoFaOn, text: twoFaOn ? t("security.check2faOn", { defaultValue: "Two-factor sign-in is on" }) : t("security.check2faOff", { defaultValue: "Two-factor sign-in is off" }) },
   ];
@@ -53,7 +53,7 @@ const ProtectionLevelCard: React.FC<Props> = ({ level, loading, twoFaOn, frozenS
   return (
     <PanelCard
       title={t("security.levelTitle", { defaultValue: "Protection level" })}
-      subTitle={t("security.levelSubtitle", { defaultValue: "How your payout wallets are protected right now." })}
+      subTitle={t("security.levelSubtitle", { defaultValue: "How your payout addresses are protected right now." })}
       showHeaderBorder={false}
     >
       <Box data-testid="wallet-security-level" data-level={level} sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "220px 1fr" }, gap: { xs: 2.5, md: 4 }, alignItems: "start", pt: 1 }}>

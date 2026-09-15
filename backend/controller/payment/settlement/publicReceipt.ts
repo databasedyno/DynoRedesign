@@ -8,6 +8,7 @@ import {
   isValidReceiptToken,
   buildReceiptUrl,
   toPublicReceipt,
+  loadMerchantContact,
 } from "../../../services/receiptLinkService";
 
 /**
@@ -25,7 +26,8 @@ export const getPublicReceipt = async (req: express.Request, res: express.Respon
     if (!found) return errorResponseHelper(res, 404, "Receipt not found");
     res.setHeader("Cache-Control", "private, max-age=300");
     res.setHeader("X-Robots-Tag", "noindex");
-    return successResponseHelper(res, 200, "Receipt", toPublicReceipt(found.token, found.snapshot));
+    const contact = await loadMerchantContact(found.companyId);
+    return successResponseHelper(res, 200, "Receipt", toPublicReceipt(found.token, found.snapshot, contact));
   } catch (e) {
     apiLogger.error("[getPublicReceipt] " + getErrorMessage(e), new Error(e));
     return errorResponseHelper(res, 500, "Could not load receipt");

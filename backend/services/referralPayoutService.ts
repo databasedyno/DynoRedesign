@@ -180,7 +180,7 @@ export const optInPayout = async (params: {
     return {
       success: true,
       mode: "credit",
-      message: "Cash-out turned off — your earnings now reduce your own Dynopay fees. Your wallet stays saved.",
+      message: "Cash-out turned off — your earnings now reduce your own Dynopay fees. Your payout address stays saved.",
     };
   }
 

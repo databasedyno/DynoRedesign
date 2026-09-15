@@ -43,7 +43,7 @@
   "category_orders_title": "Encomendas e faturas",
   "category_orders_desc": "Recibos de encomenda, downloads e e-mails de fatura",
   "category_config_title": "Conta e configuração",
-  "category_config_desc": "Alterações de webhook, chave API, carteira e perfil",
+  "category_config_desc": "Alterações de webhook, chave API, endereço de recebimento e perfil",
   "category_digests_title": "Resumos",
   "category_digests_desc": "Resumos semanais e de pagamentos",
   "inboxTab": "Caixa de entrada",

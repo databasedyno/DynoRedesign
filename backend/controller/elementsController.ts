@@ -152,7 +152,7 @@ export const createElementsIntent = async (
     if (allConfigured.length === 0) {
       res.status(400).json({
         success: false,
-        message: "No crypto wallets configured for this company.",
+        message: "No payout addresses configured for this company.",
       });
       return;
     }

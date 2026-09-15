@@ -167,7 +167,7 @@ const TransactionsFilterSheet: React.FC<Props> = ({ open, onClose, filters, rows
           <Box sx={eyebrowSx}>{t("filterSheet.wallet", { defaultValue: "Coin" })}</Box>
           <Box role="listbox" sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
             <OptionChip selected={draft.selectedWallet === "all"} onClick={() => setDraft({ ...draft, selectedWallet: "all" })} testId="tx-filter-wallet-all">
-              {t("allWallets", { defaultValue: "All wallets" })}
+              {t("allWallets", { defaultValue: "All payout addresses" })}
             </OptionChip>
             {ALLCRYPTOCURRENCIES.map((c, i) => {
               const key = `wallet${i + 1}`;

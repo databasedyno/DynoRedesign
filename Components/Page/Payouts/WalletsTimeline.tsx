@@ -38,7 +38,7 @@ const WalletsTimeline: React.FC<Props> = ({ data, loading, rangeLabel }) => {
   return (
     <SurfaceCard data-testid="payouts-wallets" sx={{ p: 0, overflow: "hidden", display: "flex", flexDirection: "column" }}>
       <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", px: { xs: 2, md: 2.5 }, pt: { xs: 1.75, md: 2 }, pb: 1 }}>
-        <Eyebrow>{t("payouts.byWallet", { defaultValue: "By wallet" })} · {rangeLabel}</Eyebrow>
+        <Eyebrow>{t("payouts.byWallet", { defaultValue: "By payout address" })} · {rangeLabel}</Eyebrow>
         <Button size="small" variant="text" data-testid="payouts-manage-wallets" onClick={() => router.push("/wallet")} endIcon={<Icon name="arrow-right" size={14} />} sx={{ textTransform: "none", fontFamily: "var(--font-sans)", fontWeight: 600, color: muted }}>
           {t("payouts.manage", { defaultValue: "Manage" })}
         </Button>
@@ -47,7 +47,7 @@ const WalletsTimeline: React.FC<Props> = ({ data, loading, rangeLabel }) => {
         <Box sx={{ px: 2.5, pb: 2 }}>{[0, 1, 2].map((i) => <Skeleton key={i} height={44} />)}</Box>
       ) : wallets.length === 0 ? (
         <Box data-testid="payouts-wallets-empty" sx={{ px: 2.5, pb: 2.5, fontFamily: "var(--font-sans)", fontSize: 13.5, color: muted }}>
-          {t("payouts.noWallets", { defaultValue: "No payout wallets yet — add one so settled payments have somewhere to land." })}
+          {t("payouts.noWallets", { defaultValue: "No payout addresses yet — add one so settled payments have somewhere to land." })}
         </Box>
       ) : (
         <Box component="ul" sx={{ listStyle: "none", m: 0, p: 0 }}>

@@ -24,12 +24,12 @@ export const sendWalletBatchSummaryEmail = async (
     if (changes.added?.length) rows.push(dataRow("Added", list(changes.added)));
     if (changes.updated?.length) rows.push(dataRow("Updated", list(changes.updated)));
     if (changes.removed?.length) rows.push(dataRow("Removed", list(changes.removed), true));
-    const subject = brandSubject(changes.companyName, "Your payout wallets were updated");
+    const subject = brandSubject(changes.companyName, "Your payout addresses were updated");
     const content = `${p(name ? `Hey ${escapeHtml(firstNameOnly(name))},` : "Hey there,")}
-    ${p(`Your payout wallets for ${escapeHtml(changes.companyName || "your brand")} were just updated.`)}
+    ${p(`Your payout addresses for ${escapeHtml(changes.companyName || "your brand")} were just updated.`)}
     ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows.join("")}</table>`)}
     ${warnText("If you didn't make these changes, contact support immediately.")}`;
-    const html = dynoPayEmailTemplate(subject, content, true, "View payout wallets", `${FRONTEND_BASE_URL}/wallet`, "A summary of the payout wallet changes you just made.", undefined, 'wallet');
+    const html = dynoPayEmailTemplate(subject, content, true, "View payout addresses", `${FRONTEND_BASE_URL}/wallet`, "A summary of the payout address changes you just made.", undefined, 'wallet');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`Wallet batch summary email sent to ${email}`);
   } catch (e) {
@@ -75,7 +75,7 @@ export const sendWalletDeletedEmail = async (
 };
 
 /**
- * Template 7: Add Wallet Reminder
+ * Template 7: Add payout address Reminder
  */
 export const sendAddWalletReminderEmail = async (
   email: string,
@@ -96,15 +96,15 @@ export const sendAddWalletReminderEmail = async (
 
     const html = dynoPayEmailTemplate(t('merchant.addWalletReminder.heading', L), content, true, t('merchant.addWalletReminder.cta', L), `${FRONTEND_BASE_URL}/wallet`, "", L, 'wallet');
     await mailTransporter({ to: email, name, subject, body: html });
-    apiLogger.info(`Add wallet reminder email sent to ${email}`);
+    apiLogger.info(`Add payout address reminder email sent to ${email}`);
   } catch (e) {
-    apiLogger.error("Add wallet reminder email error:", e);
+    apiLogger.error("Add payout address reminder email error:", e);
   }
 };
 
 /**
- * Wallet Added Confirmation
- * Sent when a new payout wallet is successfully verified and added
+ * Payout address added Confirmation
+ * Sent when a new payout address is successfully verified and added
  */
 export const sendWalletAddedEmail = async (
   email: string,
@@ -140,7 +140,7 @@ export const sendWalletAddedEmail = async (
 };
 
 /**
- * Wallet Updated Confirmation
+ * Payout address updated Confirmation
  * Sent when a wallet address is successfully changed
  */
 export const sendWalletUpdatedEmail = async (

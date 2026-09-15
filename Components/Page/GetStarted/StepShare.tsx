@@ -89,7 +89,7 @@ const StepShare: React.FC<Props> = ({ link, companyId, justCreated, onBack, onDo
   const iconBtnSx = { border: `1px solid ${border}`, borderRadius: "12px", minWidth: 46, minHeight: 46, flexShrink: 0, color: ink };
   const nextSteps = [
     t("gs.next1", { defaultValue: "Your customer opens the link and pays in the coin they choose." }),
-    t("gs.next2", { defaultValue: "The funds are forwarded straight to your payout wallet." }),
+    t("gs.next2", { defaultValue: "The funds are forwarded straight to your payout address." }),
     t("gs.next3", { defaultValue: "You get notified and your dashboard fills in." }),
   ];
 

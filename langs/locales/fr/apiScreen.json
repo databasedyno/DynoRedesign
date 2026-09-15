@@ -86,7 +86,7 @@
   "apiKeyTitleLive": "Clé API en direct",
   "apiKeyTitleTest": "Clé API de test",
   "keys": {
-    "liveUnlockHint": "Votre clé en direct s'active automatiquement dès que vous ajoutez (ou réutilisez) votre premier portefeuille sur cette marque.",
+    "liveUnlockHint": "Votre clé en direct s'active automatiquement dès que vous ajoutez (ou réutilisez) votre première adresse de versement sur cette marque.",
     "testAutoCreatedBadge": "Créée automatiquement · Sandbox",
     "sandboxLimits": "Max ${{max}} · {{currencies}} · mode sandbox",
     "tryFirstPaymentTitle": "Essayez votre premier paiement",

@@ -24,7 +24,7 @@ import { BRAND_ACCENT } from "@/constants/theme";
  * Which cards render depends on merchant setup state:
  *   1. Always: Refer & earn — 100% match, unlimited                       → /referrals
  *   2. If no company:      "Add your brand"                             → /profile
- *   3. Else if no wallet:  "Add your first wallet"                        → /wallet
+ *   3. Else if no wallet:  "Add your first payout address"                        → /wallet
  *   4. Else if !hasHandle: "Claim your @handle"                           → /profile#handle
  *   5. Else:               "Explore Creator Page" (still shown as tile)   → /creator
  *
@@ -106,11 +106,11 @@ const AttentionCardsRow: React.FC = () => {
     : !hasWallet
       ? {
           id: "add-wallet",
-          title: t("attnAddWalletTitle", { defaultValue: "Add your first wallet" }),
+          title: t("attnAddWalletTitle", { defaultValue: "Add your first payout address" }),
           body: t("attnAddWalletBody", {
-            defaultValue: "Connect a wallet to start accepting crypto payments.",
+            defaultValue: "Add a payout address to start accepting crypto payments.",
           }),
-          cta: t("attnAddWalletCta", { defaultValue: "Add wallet" }),
+          cta: t("attnAddWalletCta", { defaultValue: "Add payout address" }),
           icon: <AccountBalanceWalletRounded sx={{ fontSize: 22 }} />,
           href: "/wallet",
           gradient: ["#8B5CF6", "#7C3AED"],

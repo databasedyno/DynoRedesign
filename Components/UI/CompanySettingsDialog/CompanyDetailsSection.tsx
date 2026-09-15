@@ -402,7 +402,7 @@ export default function CompanyDetailsSection({
                 >
                   {t("accountType.switchHelper", {
                     defaultValue:
-                      "Add your business name and country below, then Save to switch to a business account. Your wallets, keys and history stay exactly as they are.",
+                      "Add your business name and country below, then Save to switch to a business account. Your payout addresses, keys and history stay exactly as they are.",
                   })}
                 </Typography>
               )}

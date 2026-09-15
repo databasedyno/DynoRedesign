@@ -86,7 +86,7 @@
   "apiKeyTitleLive": "Live-API-Schlüssel",
   "apiKeyTitleTest": "Test-API-Schlüssel",
   "keys": {
-    "liveUnlockHint": "Ihr Live-Schlüssel wird automatisch aktiviert, sobald Sie Ihre erste Wallet für diese Marke hinzufügen (oder wiederverwenden).",
+    "liveUnlockHint": "Ihr Live-Schlüssel wird automatisch aktiviert, sobald Sie Ihre erste Auszahlungsadresse für diese Marke hinzufügen (oder wiederverwenden).",
     "testAutoCreatedBadge": "Automatisch erstellt · Sandbox",
     "sandboxLimits": "Max ${{max}} · {{currencies}} · Sandbox-Modus",
     "tryFirstPaymentTitle": "Probieren Sie Ihre erste Zahlung aus",

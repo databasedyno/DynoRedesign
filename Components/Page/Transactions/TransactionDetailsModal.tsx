@@ -483,7 +483,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                     {isSettled
                       ? tTransactions("settledTo")
                       : tTransactions("settlementWallet", {
-                          defaultValue: "Settlement wallet",
+                          defaultValue: "Settlement address",
                         })}
                   </TitleLabel>
                   <Box sx={{ display: "flex", alignItems: "center", gap: "6px" }}>

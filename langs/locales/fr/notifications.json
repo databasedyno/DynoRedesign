@@ -43,7 +43,7 @@
   "category_orders_title": "Commandes et factures",
   "category_orders_desc": "Reçus de commande, téléchargements et e-mails de facture",
   "category_config_title": "Compte et configuration",
-  "category_config_desc": "Modifications de webhook, clé API, portefeuille et profil",
+  "category_config_desc": "Modifications de webhook, clé API, adresse de versement et profil",
   "category_digests_title": "Récapitulatifs",
   "category_digests_desc": "Récapitulatifs hebdomadaires et de versements",
   "inboxTab": "Boîte de réception",

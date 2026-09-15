@@ -384,7 +384,7 @@ const SettingsPageInner = ({
         key: "security" as SectionKey,
         label: t("settingsPage.security", { defaultValue: "Security" }),
         description: t("settingsPage.securityDesc", {
-          defaultValue: "Two-step verification, password, payout-wallet protection and signed-in devices.",
+          defaultValue: "Two-step verification, password, payout address protection and signed-in devices.",
         }),
         icon: <ShieldRounded sx={{ fontSize: 19 }} />,
         scope: "account" as const,

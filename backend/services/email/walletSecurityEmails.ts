@@ -1,5 +1,5 @@
 /**
- * Wallet security emails — payout-address CHANGE alert (with a one-tap
+ * Payout address security emails — payout-address CHANGE alert (with a one-tap
  * "this wasn't me" revert link) and the follow-up "account secured" notice.
  *
  * These are additive to walletEmails.ts and surfaced through the emailService
@@ -18,7 +18,7 @@ export interface WalletChangeRow {
 }
 
 /**
- * Sent immediately whenever a payout wallet address is added or changed.
+ * Sent immediately whenever a payout address is added or changed.
  * Doubles as a friendly confirmation AND a security net: the button reverts
  * the change and locks further wallet edits.
  */
@@ -43,29 +43,29 @@ export const sendWalletChangeAlertEmail = async (
       .join("");
 
     const subject = multiple
-      ? "Your payout wallets were changed"
-      : `Your ${escapeHtml(rows[0]?.network || "payout")} wallet was changed`;
+      ? "Your payout addresses were changed"
+      : `Your ${escapeHtml(rows[0]?.network || "")} payout address was changed`;
 
     const content = `${p(name ? `Hey ${escapeHtml(firstNameOnly(name))},` : "Hey there,")}
-    ${p(`The payout ${multiple ? "wallets" : "wallet"} for <strong>${brand}</strong> ${multiple ? "were" : "was"} just updated. Here ${multiple ? "are" : "is"} the ${multiple ? "details" : "detail"}:`)}
+    ${p(`The payout ${multiple ? "addresses" : "address"} for <strong>${brand}</strong> ${multiple ? "were" : "was"} just updated. Here ${multiple ? "are" : "is"} the ${multiple ? "details" : "detail"}:`)}
     ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${tableRows}</table>`, "#f59e0b")}
     ${p("If you made this change, you're all set — no action is needed.")}
-    ${alertBox("Didn't do this? Tap the button below to instantly undo it and lock further wallet changes on your account.")}`;
+    ${alertBox("Didn't do this? Tap the button below to instantly undo it and lock further payout address changes on your account.")}`;
 
     const html = dynoPayEmailTemplate(
-      "Payout wallet changed",
+      "Payout address changed",
       content,
       true,
       "This wasn't me — undo & lock",
       revertUrl,
-      "If this wasn't you, undo it in one tap and lock wallet changes.",
+      "If this wasn't you, undo it in one tap and lock payout address changes.",
       undefined,
       "shield-alert",
     );
     await mailTransporter({ to: email, name, subject, body: html });
-    apiLogger.info(`[Email] Wallet change alert sent to ${email} (${rows.length} row(s))`);
+    apiLogger.info(`[Email] Payout address change alert sent to ${email} (${rows.length} row(s))`);
   } catch (e) {
-    apiLogger.error("Wallet change alert email error:", e);
+    apiLogger.error("Payout address change alert email error:", e);
   }
 };
 
@@ -84,9 +84,9 @@ export const sendWalletSecuredEmail = async (
     const nets = (data.networks || []).map(escapeHtml).join(", ");
     const subject = "We've secured your account";
     const content = `${p(name ? `Hey ${escapeHtml(firstNameOnly(name))},` : "Hey there,")}
-    ${p(`As requested, we've undone the recent payout wallet change${data.networks.length > 1 ? "s" : ""} for <strong>${brand}</strong> and <strong>locked further wallet changes</strong> on your account.`)}
+    ${p(`As requested, we've undone the recent payout address change${data.networks.length > 1 ? "s" : ""} for <strong>${brand}</strong> and <strong>locked further payout address changes</strong> on your account.`)}
     ${nets ? infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${dataRow("Networks restored", nets, true)}</table>`, "#12B76A") : ""}
-    ${warnText("For your safety, new payout wallets can't be added or edited until you contact support and confirm it's really you.")}
+    ${warnText("For your safety, new payout addresses can't be added or edited until you contact support and confirm it's really you.")}
     ${p("We also recommend changing your account password if you suspect it was compromised.")}`;
     const html = dynoPayEmailTemplate(
       "Account secured",
@@ -94,7 +94,7 @@ export const sendWalletSecuredEmail = async (
       true,
       "Contact support",
       `${FRONTEND_BASE_URL}/help-support`,
-      "We've undone the wallet change and locked further edits on your account.",
+      "We've undone the payout address change and locked further edits on your account.",
       undefined,
       "shield-green",
     );

@@ -80,7 +80,7 @@ const TeamActivityPanel: React.FC = () => {
         <Box sx={{ py: 5, textAlign: "center", border: `1px dashed ${theme.palette.divider}`, borderRadius: 2 }}>
           <Typography fontWeight={600}>{t("team.activityEmptyTitle", { defaultValue: "No activity yet" })}</Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-            {t("team.activityEmptyBody", { defaultValue: "Changes to settings, keys, wallets and the team will show up here." })}
+            {t("team.activityEmptyBody", { defaultValue: "Changes to settings, keys, payout addresses and the team will show up here." })}
           </Typography>
         </Box>
       ) : (

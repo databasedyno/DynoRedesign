@@ -113,7 +113,7 @@
   "duplicateLink": "Duplicar",
   "coins": {
     "acceptsAll": "Aceita todas as {{count}} moedas",
-    "acceptsAllHint": "Os compradores podem pagar com qualquer moeda para a qual tenha uma carteira de pagamento: {{list}}",
+    "acceptsAllHint": "Os compradores podem pagar com qualquer moeda para a qual tenha um endereço de recebimento: {{list}}",
     "acceptsSome": "Aceita {{count}} de {{total}} moedas"
   },
   "last30Header": "Últimos 30 dias",

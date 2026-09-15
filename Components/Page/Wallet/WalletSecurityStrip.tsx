@@ -33,7 +33,7 @@ const WalletSecurityStrip: React.FC = () => {
       ? t("security.levelStrong", { defaultValue: "Strong" })
       : t("security.levelStandard", { defaultValue: "Standard" });
   const detail = level === "locked"
-    ? t("security.stripLocked", { defaultValue: "Wallet changes are frozen after a “this wasn't me” report." })
+    ? t("security.stripLocked", { defaultValue: "Payout address changes are frozen after a “this wasn't me” report." })
     : level === "strong"
       ? t("security.stripStrong", { defaultValue: "One-time code on every change · undo link by email · two-factor sign-in on." })
       : t("security.stripStandard", { defaultValue: "One-time code on every change · undo link by email. Turn on two-factor sign-in to reach Strong." });
@@ -70,7 +70,7 @@ const WalletSecurityStrip: React.FC = () => {
           <Skeleton width={220} height={18} />
         ) : (
           <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 13.5, color: theme.palette.text.primary, display: "flex", alignItems: "baseline", gap: 0.75, flexWrap: "wrap" }}>
-            <Box component="span" sx={{ fontWeight: 700 }}>{t("security.stripTitle", { defaultValue: "Wallet protection" })}:</Box>
+            <Box component="span" sx={{ fontWeight: 700 }}>{t("security.stripTitle", { defaultValue: "Payout address protection" })}:</Box>
             <Box component="span" data-testid="wallet-security-strip-level" sx={{ fontWeight: 700, color: tone }}>{label}</Box>
             <Box component="span" sx={{ color: theme.palette.text.secondary, fontSize: 12.5, display: { xs: "none", sm: "inline" } }}>· {detail}</Box>
           </Typography>

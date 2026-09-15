@@ -96,14 +96,14 @@ const WalletSecurityPage: NextPageWithLayout = () => {
 
   const body =
     status === "loading"
-      ? t("walletSecurityLanding.loadingBody", { defaultValue: "Undoing the wallet change and locking further edits. This only takes a moment." })
+      ? t("walletSecurityLanding.loadingBody", { defaultValue: "Undoing the payout address change and locking further edits. This only takes a moment." })
       : status === "success"
         ? t("walletSecurityLanding.successBody", {
             networks: networks.length ? ` (${networks.join(", ")})` : "",
-            defaultValue: "We've undone the recent payout wallet change(s){{networks}} and locked wallet changes on your account. To make new wallet changes, contact support so we can confirm it's really you.",
+            defaultValue: "We've undone the recent payout address change(s){{networks}} and locked payout address changes on your account. To make new payout address changes, contact support so we can confirm it's really you.",
           })
         : status === "expired"
-          ? t("walletSecurityLanding.expiredBody", { defaultValue: "This security link has already been used, has expired, or isn't valid. If you didn't make the wallet change yourself, sign in now, go to Settings → Security, remove the wallet you don't recognise and change your password — then contact support right away." })
+          ? t("walletSecurityLanding.expiredBody", { defaultValue: "This security link has already been used, has expired, or isn't valid. If you didn't make the payout address change yourself, sign in now, go to Settings → Security, remove the wallet you don't recognise and change your password — then contact support right away." })
           : t("walletSecurityLanding.errorBody", { defaultValue: "We couldn't complete this action. Please try again, or contact support if the problem continues." });
 
   return (

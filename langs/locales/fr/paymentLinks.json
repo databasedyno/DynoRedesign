@@ -113,7 +113,7 @@
   "duplicateLink": "Dupliquer",
   "coins": {
     "acceptsAll": "Accepte les {{count}} cryptos",
-    "acceptsAllHint": "Les acheteurs peuvent payer avec n'importe quelle crypto pour laquelle vous avez un portefeuille : {{list}}",
+    "acceptsAllHint": "Les acheteurs peuvent payer avec n'importe quelle crypto pour laquelle vous avez une adresse de versement : {{list}}",
     "acceptsSome": "Accepte {{count}} cryptos sur {{total}}"
   },
   "last30Header": "30 derniers jours",

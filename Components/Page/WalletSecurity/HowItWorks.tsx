@@ -15,9 +15,9 @@ const HowItWorks: React.FC<{ alertEmail?: string }> = ({ alertEmail }) => {
   const border = isDark ? CB_TOKENS.border.dark : CB_TOKENS.border.light;
 
   const steps = [
-    { icon: "lucide:key-round", title: t("security.step1Title", { defaultValue: "You change a wallet" }), body: t("security.step1Body", { defaultValue: "Adding, editing or removing a payout address always asks for a one-time code sent to you first." }) },
+    { icon: "lucide:key-round", title: t("security.step1Title", { defaultValue: "You change a payout address" }), body: t("security.step1Body", { defaultValue: "Adding, editing or removing a payout address always asks for a one-time code sent to you first." }) },
     { icon: "lucide:mail", title: t("security.step2Title", { defaultValue: "We email you straight away" }), body: alertEmail ? t("security.step2BodyEmail", { email: alertEmail, defaultValue: "An alert goes to {{email}} with the old and new address and a one-tap “This wasn’t me” link. Alerts can’t be switched off." }) : t("security.step2Body", { defaultValue: "An alert goes to your account email with the old and new address and a one-tap “This wasn’t me” link. Alerts can’t be switched off." }) },
-    { icon: "lucide:undo-2", title: t("security.step3Title", { defaultValue: "One tap undoes it" }), body: t("security.step3Body", { defaultValue: "If it wasn’t you, that link restores the previous address and locks further wallet changes until support confirms it’s really you." }) },
+    { icon: "lucide:undo-2", title: t("security.step3Title", { defaultValue: "One tap undoes it" }), body: t("security.step3Body", { defaultValue: "If it wasn’t you, that link restores the previous address and locks further payout address changes until support confirms it’s really you." }) },
   ];
 
   return (

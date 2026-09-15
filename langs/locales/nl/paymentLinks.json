@@ -113,7 +113,7 @@
   "duplicateLink": "Dupliceren",
   "coins": {
     "acceptsAll": "Accepteert alle {{count}} coins",
-    "acceptsAllHint": "Kopers kunnen betalen met elke coin waarvoor je een uitbetalingswallet hebt: {{list}}",
+    "acceptsAllHint": "Kopers kunnen betalen met elke coin waarvoor je een uitbetalingsadres hebt: {{list}}",
     "acceptsSome": "Accepteert {{count}} van {{total}} coins"
   },
   "last30Header": "Laatste 30 dagen",

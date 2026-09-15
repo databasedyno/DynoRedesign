@@ -135,7 +135,7 @@
     "cancel": "Cancelar",
     "emailLabelOptional": "E-mail (opcional)",
     "stepBrand": "Marca",
-    "stepWallet": "Carteira",
+    "stepWallet": "Endereço de recebimento",
     "nameLockedNotice": "O seu nome está verificado e não pode ser alterado aqui. Contacte o suporte para atualizá-lo.",
     "logoAdded": "Logo adicionado"
   },
@@ -151,6 +151,6 @@
     "individualDesc": "Pagamentos pessoais, gorjetas e uma página pública.",
     "businessTitle": "Empresa registrada",
     "businessDesc": "Faturas, IVA/impostos, endereço e acesso da equipe.",
-    "switchHelper": "Adicione o nome e o país da sua empresa abaixo e salve para mudar para uma conta empresarial. Suas carteiras, chaves e histórico permanecem iguais."
+    "switchHelper": "Adicione o nome e o país da sua empresa abaixo e salve para mudar para uma conta empresarial. Seus endereços de recebimento, chaves e histórico permanecem iguais."
   }
 }
