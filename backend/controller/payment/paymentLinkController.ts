@@ -38,6 +38,7 @@ import { PaymentState, parseState } from "../../services/paymentStateMachine";
 import { finalizeUploadedImage } from "../../services/objectStorage";
 import { STOREFRONT_PER_COMPANY, resolveStorefrontByHandle } from "../storefrontScope";
 import { toFixedStr, toNumber } from "../../utils/money";
+import { paidStatsForLinks, LinkPaidStats } from "../../services/paymentLinks/linkStats";
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SHORT PAYMENT REFERENCE — the `d` in /pay?d=<ref>
@@ -1331,11 +1332,20 @@ export const getPaymentLinks = async (req: express.Request, res: express.Respons
       }
     }
 
+    // ── Settled-payment stats per link (30-day count/volume, last paid) — Wave 3a ──
+    let linkStats: Record<number, LinkPaidStats> = {};
+    try {
+      linkStats = await paidStatsForLinks((links as Array<{ dataValues: PaymentLinkData }>).map((l) => l.dataValues.link_id));
+    } catch (statsErr) {
+      cronLogger.warn('[getPaymentLinks] Link stats query failed:', statsErr);
+    }
+
     // Format for UI with computed status
     const formattedLinks = (links as Array<{ dataValues: PaymentLinkData }>).map((link) => {
       const linkData = link.dataValues;
       const now = new Date();
       const isDonationLink = linkData.link_type === 'donation';
+      const stats = linkStats[linkData.link_id] || { paid_30d_count: 0, paid_30d_usd: 0, paid_total_count: 0, last_paid_at: null };
       const agg = isDonationLink
         ? donationAgg[linkData.link_id] || { raised_amount: 0, supporters_count: 0 }
         : null;
@@ -1402,6 +1412,9 @@ export const getPaymentLinks = async (req: express.Request, res: express.Respons
         base_currency: linkData.base_currency,
         created: formatDate(linkData.createdAt),
         expires: formatDate(linkData.expires_at),
+        created_at_iso: linkData.createdAt ? new Date(linkData.createdAt as string).toISOString() : null,
+        expires_at_iso: linkData.expires_at ? new Date(linkData.expires_at as string).toISOString() : null,
+        stats,
         status: status,
         times_used: linkData.times_used || 0,
         payment_link: linkData.payment_link,

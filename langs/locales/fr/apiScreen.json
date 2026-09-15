@@ -376,5 +376,33 @@
     "redirectBody": "Votre point de terminaison répond avec une redirection HTTP {{status}}. Nous la suivons maintenant automatiquement afin que vos webhooks soient toujours livrés — mais ce saut supplémentaire ajoute de la latence. Mettez à jour votre URL vers l'adresse finale ci-dessous pour rendre la livraison directe.",
     "secretSet": "{{preview}} · défini — régénérez pour remplacer",
     "subscribeAria": "Abonnez-vous à {{event}}"
+  },
+  "health": {
+    "webhooks": "Webhooks · 24 h",
+    "notConfigured": "Non configuré",
+    "paused": "En pause",
+    "noDeliveries": "Aucune livraison",
+    "notConfiguredHint": "Ajoutez un endpoint pour recevoir les événements de paiement sur votre serveur.",
+    "lastFailure": "Dernier échec {{when}} · {{event}} · HTTP {{status}}",
+    "deliveries24h": "{{count}} livraisons en 24 h · moy. {{ms}} ms",
+    "quiet24h": "Rien d'envoyé ces 24 dernières heures — aucun échec enregistré.",
+    "retry": "Réessayer le dernier échec",
+    "retrying": "Nouvel essai…",
+    "viewEvents": "Journal des événements",
+    "setupWebhook": "Configurer le webhook",
+    "apiKeys": "Clés API",
+    "noKeys": "Aucune clé",
+    "activeKeys": "{{count}} actives",
+    "rotateDue": "{{count}} clé live de plus de {{days}} mois — faites-la tourner pour limiter l'exposition.",
+    "oldestKey": "La plus ancienne : {{name}} · {{days}} jours depuis l'émission/rotation",
+    "noKeysHint": "Créez une clé pour commencer l'intégration.",
+    "rotateNow": "Faire tourner",
+    "manageKeys": "Gérer les clés",
+    "quickLinks": "Liens rapides",
+    "docsTitle": "Docs et outils",
+    "docsHint": "Référence, signatures et journal de livraison — tout pour déboguer une intégration.",
+    "apiReference": "Référence API",
+    "apiReferenceTip": "Référence API complète (nouvel onglet)",
+    "reenable": "Réactiver le webhook"
   }
 }

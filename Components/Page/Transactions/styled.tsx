@@ -62,7 +62,7 @@ export const TransactionsTableHeader = styled(Box)(({ theme }) => ({
   display: "grid",
   // >=md: weighted columns that always FIT the container (no horizontal scroll,
   // so the Status column is never pushed off-screen on 1280-1440 laptops).
-  gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 0.9fr) minmax(0, 0.7fr) minmax(0, 1.3fr) minmax(0, 1.1fr)",
+  gridTemplateColumns: "minmax(0, 1fr) minmax(0, 0.95fr) minmax(0, 1.15fr) minmax(0, 0.85fr) minmax(0, 1.1fr) minmax(0, 0.65fr) minmax(0, 1.2fr) minmax(0, 1.1fr)",
   gridAutoColumns: "minmax(0, 1fr)",
   alignItems: "center",
   padding: "12px 20px",
@@ -169,7 +169,7 @@ export const TransactionsTableBody = styled(Box)(({ theme }) => ({
 export const TransactionsTableRow = styled(Box)(({ theme }) => ({
   width: "100%",
   display: "grid",
-  gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 0.9fr) minmax(0, 0.7fr) minmax(0, 1.3fr) minmax(0, 1.1fr)",
+  gridTemplateColumns: "minmax(0, 1fr) minmax(0, 0.95fr) minmax(0, 1.15fr) minmax(0, 0.85fr) minmax(0, 1.1fr) minmax(0, 0.65fr) minmax(0, 1.2fr) minmax(0, 1.1fr)",
   gridAutoColumns: "minmax(0, 1fr)",
   alignItems: "center",
   padding: "11px 0",

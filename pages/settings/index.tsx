@@ -14,7 +14,9 @@ import {
   GroupAddRounded,
   PercentRounded,
   CodeRounded,
+  ShieldRounded,
   ArrowOutwardRounded,
+  TranslateRounded,
 } from "@mui/icons-material";
 import { useRouter } from "next/router";
 import Head from "next/head";
@@ -73,6 +75,14 @@ const PlanFeesSection = dynamic(() => import("@/Components/Page/Settings/PlanFee
   ssr: false,
   loading: () => <SectionLoading />,
 });
+const SecuritySection = dynamic(() => import("@/Components/Page/Settings/SecuritySection"), {
+  ssr: false,
+  loading: () => <SectionLoading />,
+});
+const LanguageSection = dynamic(() => import("@/Components/Page/Settings/LanguageSection"), {
+  ssr: false,
+  loading: () => <SectionLoading />,
+});
 const AccountDangerZone = dynamic(() => import("@/Components/Page/Settings/AccountDangerZone"), {
   ssr: false,
 });
@@ -89,21 +99,25 @@ const CreateCompanyModal = dynamic(
 
 type SectionKey =
   | "profile"
+  | "security"
   | "company"
   | "payments"
   | "tax"
   | "notifications"
   | "team"
-  | "plan";
+  | "plan"
+  | "language";
 
 const SECTION_KEYS: SectionKey[] = [
   "profile",
+  "security",
   "company",
   "payments",
   "plan",
   "tax",
   "notifications",
   "team",
+  "language",
 ];
 
 /** Legacy ?tab= values (pre-redesign launcher) → new sections.
@@ -367,6 +381,15 @@ const SettingsPageInner = ({
         scope: "account" as const,
       },
       {
+        key: "security" as SectionKey,
+        label: t("settingsPage.security", { defaultValue: "Security" }),
+        description: t("settingsPage.securityDesc", {
+          defaultValue: "Two-step verification, password, payout-wallet protection and signed-in devices.",
+        }),
+        icon: <ShieldRounded sx={{ fontSize: 19 }} />,
+        scope: "account" as const,
+      },
+      {
         // F11: "Company" is the wrong word for an individual creator — the
         // section is now "Account details" and the copy switches on account_type.
         key: "company" as SectionKey,
@@ -422,6 +445,16 @@ const SettingsPageInner = ({
         icon: <GroupAddRounded sx={{ fontSize: 19 }} />,
         scope: "company" as const,
       },
+      {
+        // Wave 3e — Language row (plan §4: Settings rail ends with Language).
+        key: "language" as SectionKey,
+        label: t("settingsPage.language", { defaultValue: "Language" }),
+        description: t("settingsPage.languageDesc", {
+          defaultValue: "The language of your dashboard and the e-mails we send you. Saved to your account so it follows you across devices.",
+        }),
+        icon: <TranslateRounded sx={{ fontSize: 19 }} />,
+        scope: "account" as const,
+      },
     ],
     [t, isIndividual],
   );
@@ -436,7 +469,7 @@ const SettingsPageInner = ({
       {
         id: "account",
         label: t("settingsPage.groupAccount", { defaultValue: "Account" }),
-        keys: ["profile", "notifications"] as SectionKey[],
+        keys: ["profile", "security", "notifications", "language"] as SectionKey[],
       },
       {
         id: "business",
@@ -863,6 +896,7 @@ const SettingsPageInner = ({
                   <AccountDangerZone />
                 </>
               )}
+              {key === "security" && <SecuritySection />}
               {key === "company" && (
                 <CompanyConfigSection visibleSections={["company"]} allowAdd dirtySection="company" />
               )}
@@ -873,6 +907,7 @@ const SettingsPageInner = ({
               {key === "tax" && <TaxSettingsSection />}
               {key === "team" && <TeamSettingsSection />}
               {key === "notifications" && <NotificationPage initialTab="settings" />}
+              {key === "language" && <LanguageSection />}
             </Box>
           ))}
 

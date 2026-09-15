@@ -1,5 +1,8 @@
 import express from "express";
 import dashboardController from "../controller/dashboardController";
+import dashboardOverviewController from "../controller/dashboardOverviewController";
+import payoutsController from "../controller/payoutsController";
+import developerHealthController from "../controller/developerHealthController";
 import { authMiddleware } from "../middleware";
 
 const dashboardRouter = express.Router();
@@ -9,6 +12,19 @@ dashboardRouter.use(authMiddleware);
 
 // GET /api/dashboard - Get all dashboard statistics
 dashboardRouter.get("/", dashboardController.getDashboard);
+
+// GET /api/dashboard/overview - Command-centre aggregates (money in motion,
+// checkout health, exceptions, config gaps, top sources) for a range.
+// Query params: company_id, period (today|7d|30d|90d|1y), startDate, endDate
+dashboardRouter.get("/overview", dashboardOverviewController.getOverview);
+
+// GET /api/dashboard/payouts - Forwarded-to-wallet totals, per-wallet activity,
+// recent forwards and stuck items (failed conversions / unswept settlements).
+dashboardRouter.get("/payouts", payoutsController.getPayouts);
+
+// GET /api/dashboard/developer-health - Webhook delivery health (24h), API-key
+// age + rotation reminder, configured endpoint. Query params: company_id.
+dashboardRouter.get("/developer-health", developerHealthController.getDeveloperHealth);
 
 // GET /api/dashboard/chart - Get volume chart data
 // Query params: period (7d, 30d, 90d, 1y), company_id

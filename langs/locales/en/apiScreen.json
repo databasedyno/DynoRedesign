@@ -376,5 +376,33 @@
     "redirectBody": "Your endpoint responds with an HTTP {{status}} redirect. We now follow it automatically so your webhooks are still delivered — but the extra hop adds latency. Update your URL to the final address below to make delivery direct.",
     "secretSet": "{{preview}} · set — regenerate to replace",
     "subscribeAria": "Subscribe to {{event}}"
+  },
+  "health": {
+    "webhooks": "Webhooks · 24 h",
+    "notConfigured": "Not set up",
+    "paused": "Paused",
+    "noDeliveries": "No deliveries",
+    "notConfiguredHint": "Add an endpoint to get payment events pushed to your server.",
+    "lastFailure": "Last failure {{when}} · {{event}} · HTTP {{status}}",
+    "deliveries24h": "{{count}} deliveries in 24 h · avg {{ms}} ms",
+    "quiet24h": "Nothing sent in the last 24 h — no failures on record.",
+    "retry": "Retry last failure",
+    "retrying": "Retrying…",
+    "viewEvents": "Events log",
+    "setupWebhook": "Set up webhook",
+    "apiKeys": "API keys",
+    "noKeys": "No keys",
+    "activeKeys": "{{count}} active",
+    "rotateDue": "{{count}} live key older than {{days}} months — rotate it to limit exposure.",
+    "oldestKey": "Oldest: {{name}} · {{days}} days since issue/rotation",
+    "noKeysHint": "Create a key to start integrating.",
+    "rotateNow": "Rotate now",
+    "manageKeys": "Manage keys",
+    "quickLinks": "Quick links",
+    "docsTitle": "Docs & tools",
+    "docsHint": "Reference, signatures and the delivery log — everything to debug an integration.",
+    "apiReference": "API reference",
+    "apiReferenceTip": "Full API reference (opens in a new tab)",
+    "reenable": "Re-enable webhook"
   }
 }

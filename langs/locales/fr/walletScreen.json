@@ -120,7 +120,12 @@
     "manageDevices": "Gérer les appareils",
     "signedOutCount": "Déconnecté de {{count}} autre(s) appareil(s) — vous restez connecté ici.",
     "noOtherDevices": "Aucun autre appareil à déconnecter.",
-    "signOutFailed": "Impossible de déconnecter les autres appareils. Veuillez réessayer."
+    "signOutFailed": "Impossible de déconnecter les autres appareils. Veuillez réessayer.",
+    "stripTitle": "Protection des wallets",
+    "stripManage": "Gérer dans les Paramètres",
+    "stripLocked": "Les modifications de wallet sont gelées après un signalement « ce n'était pas moi ».",
+    "stripStrong": "Code à usage unique à chaque modification · lien d'annulation par e-mail · connexion à deux facteurs activée.",
+    "stripStandard": "Code à usage unique à chaque modification · lien d'annulation par e-mail. Activez la connexion à deux facteurs pour atteindre Fort."
   },
   "chooseCoin": "Choisissez une crypto…",
   "deleteWallet": "Supprimer le portefeuille",
@@ -165,5 +170,14 @@
   "stepUpVerifyNow": "Vérifier maintenant",
   "stepUpCancelled": "Vérification annulée — vos modifications n'ont pas été enregistrées.",
   "sudoEndedBanner": "Vérification expirée",
-  "sudoEndedHint": "Nous vous demanderons de vérifier à nouveau lors de l'enregistrement."
+  "sudoEndedHint": "Nous vous demanderons de vérifier à nouveau lors de l'enregistrement.",
+  "coverageTitle": "{{count}} cryptos acceptées n'ont pas de wallet de versement",
+  "coverageBody": "Vos liens de paiement actifs acceptent ces cryptos, mais les paiements n'ont nulle part où arriver. Ajoutez un wallet pour les recevoir.",
+  "formatOk": "Format OK",
+  "formatUnusual": "Format inhabituel",
+  "formatOkTip": "Cette adresse correspond au format habituel {{chain}}.",
+  "formatUnusualTip": "Cela ne ressemble pas à une adresse {{chain}} classique. Vérifiez-la avant votre prochain versement.",
+  "lastPayoutNone": "Aucun versement vers ce wallet pour l'instant",
+  "lastPayoutAt": "Dernier versement {{when}}",
+  "in30d": "sur 30 j"
 }

@@ -63,5 +63,19 @@
   "pushBlockedDesc": "Push-Benachrichtigungen sind blockiert. Bitte aktivieren Sie sie in den Browser-Einstellungen.",
   "pushDisable": "Deaktivieren",
   "pushBlocked": "Blockiert",
-  "pushActive": "Aktiv"
+  "pushActive": "Aktiv",
+  "kind": {
+    "all": "Alle",
+    "payments": "Zahlungen",
+    "security": "Sicherheit",
+    "system": "System",
+    "growth": "Wachstum",
+    "empty": "Noch keine Benachrichtigungen: {{kind}}."
+  },
+  "attention": {
+    "title": "Erfordert Aufmerksamkeit",
+    "hint": "Vom Dashboard gespiegelt — nichts geht verloren, wenn Sie dort eine Zeile ausblenden.",
+    "hiddenOnDashboard": "Im Dashboard ausgeblendet",
+    "restore": "Im Dashboard anzeigen"
+  }
 }

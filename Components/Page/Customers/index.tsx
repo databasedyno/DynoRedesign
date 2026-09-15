@@ -70,6 +70,7 @@ import { StatusDot, StatusTone } from "@/Components/UI/StatusDot";
 import StatusChip from "@/Components/UI/StatusChip";
 import { txStatusTone } from "@/helpers/txStatus";
 import TransactionSourceBadge from "@/Components/UI/TransactionSourceBadge";
+import CoinChips from "@/Components/UI/CoinChips";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import { CustomerWalletPanel } from "./CustomerWalletPanel";
 import { useEdgeFades, EdgeFades } from "@/Components/Common/ScrollHint";
@@ -98,6 +99,9 @@ interface DirectoryEntry {
   wallet_balance: number;
   wallet_currency: string | null;
   customer_ids: number[];
+  preferred_asset?: string | null;
+  last_paid_usd?: number | null;
+  last_paid_asset?: string | null;
 }
 
 interface Aggregates {
@@ -357,7 +361,7 @@ const CustomersPage: React.FC = () => {
       const res = await axiosBaseApi.get(`${API_ENDPOINTS.userApi.customersDirectory}?${params.toString()}`);
       const rows: DirectoryEntry[] = res.data?.data?.customers || [];
       const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-      const header = ["name", "email", "mobile", "segment", "channels", "payments", "pending", "lifetime_value_usd", "first_seen", "last_payment"];
+      const header = ["name", "email", "mobile", "segment", "channels", "payments", "pending", "lifetime_value_usd", "first_seen", "last_payment", "last_paid_usd", "preferred_asset"];
       const lines = [header.join(",")].concat(
         rows.map((r) =>
           [
@@ -371,6 +375,8 @@ const CustomersPage: React.FC = () => {
             toFixedStr(r.ltv_usd, 2),
             esc(r.first_seen ? r.first_seen.slice(0, 10) : ""),
             esc(r.last_payment ? r.last_payment.slice(0, 10) : ""),
+            r.last_paid_usd != null ? toFixedStr(r.last_paid_usd, 2) : "",
+            esc(r.preferred_asset || ""),
           ].join(",")
         )
       );
@@ -469,6 +475,40 @@ const CustomersPage: React.FC = () => {
       )}
     </Box>
   );
+
+  /* Wave 3c — "Last paid": date + the settled amount/asset of that payment. */
+  const renderLastPaid = (c: DirectoryEntry, compact = false) => {
+    if (!c.last_payment) {
+      return (
+        <Typography component="span" sx={{ fontSize: compact ? "11.5px" : "12.5px", color: theme.palette.text.secondary, ...sansSx }}>
+          {compact ? t("customers.noPaymentsYet", { defaultValue: "No payments yet" }) : "—"}
+        </Typography>
+      );
+    }
+    const amount = c.last_paid_usd != null ? fx.formatFromUsd(c.last_paid_usd) || `$${toFixedStr(c.last_paid_usd, 2)}` : null;
+    return (
+      <Box component="span" data-testid={`customer-last-paid-${c.key}`} sx={{ display: "inline-flex", alignItems: "baseline", gap: 0.75, whiteSpace: "nowrap" }}>
+        {amount && (
+          <Typography component="span" className="tabular-nums" sx={{ fontSize: compact ? "12px" : "13px", fontWeight: 600, fontFamily: MONO, color: theme.palette.text.primary }}>
+            {amount}
+          </Typography>
+        )}
+        <Typography component="span" sx={{ fontSize: compact ? "11.5px" : "12px", color: theme.palette.text.secondary, ...sansSx }}>
+          {amount ? `· ${fmtDate(c.last_payment)}` : fmtDate(c.last_payment)}
+        </Typography>
+      </Box>
+    );
+  };
+
+  /* Wave 3c — preferred asset chip (most-used coin across settled payments). */
+  const renderPreferredAsset = (c: DirectoryEntry) =>
+    c.preferred_asset ? (
+      <Box component="span" data-testid={`customer-asset-${c.key}`} sx={{ display: "inline-flex" }}>
+        <CoinChips value={c.preferred_asset} max={1} size="xs" />
+      </Box>
+    ) : (
+      <Typography component="span" sx={{ fontSize: "12px", color: theme.palette.text.secondary, ...sansSx }}>—</Typography>
+    );
 
   const secondaryLine = (c: DirectoryEntry) => {
     if (c.kind === "anonymous") return t("customers.anonHint", { defaultValue: "No contact details captured" });
@@ -782,10 +822,9 @@ const CustomersPage: React.FC = () => {
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1.25, flexWrap: "wrap" }}>
                   <StatusDot tone={segmentTone(c.segment)}>{segmentLabel(c.segment)}</StatusDot>
                   {renderChannelChips(c, 2)}
+                  {c.preferred_asset && renderPreferredAsset(c)}
                   <Box sx={{ flexGrow: 1 }} />
-                  <Typography sx={{ fontSize: "11.5px", color: theme.palette.text.secondary, ...sansSx }}>
-                    {c.last_payment ? fmtDate(c.last_payment) : t("customers.noPaymentsYet", { defaultValue: "No payments yet" })}
-                  </Typography>
+                  {renderLastPaid(c, true)}
                 </Box>
               </Box>
             ))
@@ -813,10 +852,13 @@ const CustomersPage: React.FC = () => {
                     : [{ label: t("customers.colChannels", { defaultValue: "Channels" }), align: "left" as const }]),
                   { label: t("customers.colPayments", { defaultValue: "Payments" }), align: "right" as const },
                   { label: t("customers.colLifetimeValue", { defaultValue: "Lifetime value" }), align: "right" as const },
-                  // < 900px: drop "Last payment" so Status never falls off-screen
+                  // < 900px: drop "Asset" + "Last paid" so Status never falls off-screen
                   ...(isMobile
                     ? []
-                    : [{ label: t("customers.colLastPayment", { defaultValue: "Last payment" }), align: "left" as const }]),
+                    : [
+                        { label: t("customers.colPreferredAsset", { defaultValue: "Pays with" }), align: "left" as const },
+                        { label: t("customers.colLastPaid", { defaultValue: "Last paid" }), align: "left" as const },
+                      ]),
                   { label: t("customers.colStatus"), align: "left" as const },
                   ...(isMobile ? [] : [{ label: "", align: "right" as const }]),
                 ].map((col, i) => (
@@ -840,14 +882,14 @@ const CustomersPage: React.FC = () => {
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
-                    <TableCell colSpan={7} sx={{ borderColor: cardBorder }}>
+                    <TableCell colSpan={8} sx={{ borderColor: cardBorder }}>
                       <Skeleton height={36} />
                     </TableCell>
                   </TableRow>
                 ))
               ) : customers.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} sx={{ border: 0, py: 6 }}>
+                  <TableCell colSpan={8} sx={{ border: 0, py: 6 }}>
                     <EmptyState
                       search={debouncedSearch}
                       segment={segment}
@@ -933,11 +975,10 @@ const CustomersPage: React.FC = () => {
                       </Typography>
                     </TableCell>
                     {!isMobile && (
-                      <TableCell sx={{ borderColor: cardBorder, whiteSpace: "nowrap" }}>
-                        <Typography component="span" sx={{ fontSize: "12.5px", color: theme.palette.text.secondary, ...sansSx }}>
-                          {c.last_payment ? fmtDate(c.last_payment) : "—"}
-                        </Typography>
-                      </TableCell>
+                      <>
+                        <TableCell sx={{ borderColor: cardBorder, whiteSpace: "nowrap" }}>{renderPreferredAsset(c)}</TableCell>
+                        <TableCell sx={{ borderColor: cardBorder, whiteSpace: "nowrap" }}>{renderLastPaid(c)}</TableCell>
+                      </>
                     )}
                     <TableCell sx={{ borderColor: cardBorder, whiteSpace: "nowrap" }}>
                       <StatusDot tone={segmentTone(c.segment)}>{segmentLabel(c.segment)}</StatusDot>

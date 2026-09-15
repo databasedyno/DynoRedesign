@@ -63,5 +63,19 @@
   "pushBlockedDesc": "Las notificaciones push están bloqueadas. Actívalas en la configuración de tu navegador.",
   "pushDisable": "Desactivar",
   "pushBlocked": "Bloqueadas",
-  "pushActive": "Activo"
+  "pushActive": "Activo",
+  "kind": {
+    "all": "Todas",
+    "payments": "Pagos",
+    "security": "Seguridad",
+    "system": "Sistema",
+    "growth": "Crecimiento",
+    "empty": "Aún no hay notificaciones de {{kind}}."
+  },
+  "attention": {
+    "title": "Requiere atención",
+    "hint": "Reflejado desde tu panel: no se pierde nada cuando ocultas una fila allí.",
+    "hiddenOnDashboard": "Oculto en el panel",
+    "restore": "Mostrar en el panel"
+  }
 }

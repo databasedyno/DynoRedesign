@@ -115,5 +115,16 @@
     "acceptsAll": "Accepte les {{count}} cryptos",
     "acceptsAllHint": "Les acheteurs peuvent payer avec n'importe quelle crypto pour laquelle vous avez un portefeuille : {{list}}",
     "acceptsSome": "Accepte {{count}} cryptos sur {{total}}"
-  }
+  },
+  "last30Header": "30 derniers jours",
+  "last30Tooltip": "Paiements réglés sur ce lien au cours des 30 derniers jours (nombre · USD brut).",
+  "last30Tip": "{{count}} paiements réglés au total",
+  "paidCount": "{{count}} payés",
+  "noPayments30d": "— aucun en 30 j",
+  "expiringSoon": "Expire bientôt",
+  "expiringSoonTip": "Se ferme dans environ {{count}} h — prolongez-le ou partagez-le maintenant.",
+  "statusEarning": "Rapporte (30 j)",
+  "statusExpiringSoon": "Expire bientôt",
+  "qrTooltip": "Afficher le QR code",
+  "shareTooltip": "Partager le lien"
 }

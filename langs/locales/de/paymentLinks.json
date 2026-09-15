@@ -115,5 +115,16 @@
     "acceptsAll": "Akzeptiert alle {{count}} Coins",
     "acceptsAllHint": "Käufer können mit jedem Coin zahlen, für den du eine Auszahlungs-Wallet hast: {{list}}",
     "acceptsSome": "Akzeptiert {{count}} von {{total}} Coins"
-  }
+  },
+  "last30Header": "Letzte 30 Tage",
+  "last30Tooltip": "Abgerechnete Zahlungen über diesen Link in den letzten 30 Tagen (Anzahl · Brutto-USD).",
+  "last30Tip": "{{count}} abgerechnete Zahlungen insgesamt",
+  "paidCount": "{{count}} bezahlt",
+  "noPayments30d": "— keine in 30 T.",
+  "expiringSoon": "Läuft bald ab",
+  "expiringSoonTip": "Schließt in etwa {{count}} Std. — verlängern oder jetzt teilen.",
+  "statusEarning": "Verdient (30 T.)",
+  "statusExpiringSoon": "Läuft bald ab",
+  "qrTooltip": "QR-Code anzeigen",
+  "shareTooltip": "Link teilen"
 }

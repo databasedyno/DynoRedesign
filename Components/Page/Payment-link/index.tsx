@@ -11,6 +11,7 @@ import { PAYLINK_FETCH } from "@/Redux/Actions/PaymentLinkAction";
 import { rootReducer } from "@/utils/types";
 import PaymentLinksTable from "./PaymentLinksTable";
 import PaymentLinksTopBar, { PaymentLinkStatusFilter } from "./PaymentLinksTopBar";
+import { isExpiringSoon } from "./linkStatus";
 
 const PaymentLinksPage = ({
   setPageName,
@@ -72,8 +73,13 @@ const PaymentLinksPage = ({
           : "",
       createdAt: link.created || link.created_at || link.createdAt || "",
       expiresAt: link.expires || link.expires_at || link.expiresAt || "",
+      expiresAtIso: link.expires_at_iso || null,
       status: (link.status || "pending").toLowerCase(),
       timesUsed: link.times_used || link.timesUsed || 0,
+      paid30dCount: Number(link.stats?.paid_30d_count || 0),
+      paid30dUsd: Number(link.stats?.paid_30d_usd || 0),
+      paidTotalCount: Number(link.stats?.paid_total_count || 0),
+      lastPaidAt: link.stats?.last_paid_at || null,
       paymentUrl: link.payment_link || link.paymentUrl || link.payment_url || "",
       linkType: isDonation ? ("donation" as const) : ("standard" as const),
       donation: link.donation
@@ -103,8 +109,13 @@ const PaymentLinksPage = ({
       );
     }
 
-    // Status filter
-    if (statusFilter !== "all") {
+    // Status filter ("earning" = at least one settled payment in the last 30 days;
+    // "expiring" = live and closing within 48 h)
+    if (statusFilter === "earning") {
+      result = result.filter((link) => (link.paid30dCount ?? 0) > 0);
+    } else if (statusFilter === "expiring") {
+      result = result.filter((link) => isExpiringSoon(link));
+    } else if (statusFilter !== "all") {
       result = result.filter(
         (link) => link.status === statusFilter
       );

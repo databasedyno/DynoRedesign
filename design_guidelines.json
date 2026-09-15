@@ -1,324 +1,280 @@
 {
-  "project_name": "Dynopay Payer Checkout UX (Area 4)",
-  "version": "2026.08.10",
-  "context": "Customer/Payer crypto checkout UX across hosted checkout (/pay/*) and embedded storefront checkout (/order/*, [handle]/checkout).",
-  "design_philosophy": {
-    "core_archetype": "Swiss & High-Contrast Fintech Precision",
-    "mantra": "Trust, clarity, and zero friction. Crypto payments made as effortless as credit card checkouts.",
-    "rules": [
-      "Match existing checkout paper card aesthetic: max-width ~450px single panel or 1080px dual panel, 14-16px border-radius, subtle hairline borders, soft elevation.",
-      "Primary Accent: Indigo (#4338CA light, #818CF8 dark) with gentle indigo tint backgrounds.",
-      "Numbers & Crypto: Tabular-nums monospace (IBM Plex Mono / SF Mono) for precise alignment.",
-      "Copy & Headings: Clean sans-serif (Manrope / Outfit / Inter) with clear visual hierarchy.",
-      "Never restart checkout on expiry: In-place 'Refresh quote' re-quotes the exact same coin/network while keeping buyer in context.",
-      "Explicit Policy Copy: Reassuring, exact micro-copy for overpayments, underpayments, and below-minimum payments."
+  "project_name": "Dynopay Merchant Command Centre Redesign",
+  "version": "2026.09.15",
+  "context": "Merchant Dashboard redesign for Dynopay non-custodial crypto payment gateway. Fixed, opinionated layout following the command-centre principle: State → Attention → Money → Trend → Activity.",
+  "visual_direction": {
+    "theme_mode": "Quiet Money (Dark mode first-class)",
+    "accent_color_light": "#4F46E5",
+    "accent_color_dark": "#818CF8",
+    "core_principles": [
+      "Large tabular numerals using monospace font for all financial metrics.",
+      "One accent color (#4F46E5 light / #818CF8 dark) strictly reserved for interactive actions and primary CTAs.",
+      "Semantic colors strictly reserved for payment state machine states (green paid, amber confirming/underpaid, red expired/failed, grey refunded).",
+      "Depth created through subtle surface layering and elevation rather than border overload.",
+      "Fixed opinionated layout without user customization."
     ]
   },
   "color_system": {
     "light": {
-      "accent": "#4338CA",
-      "accent_hover": "#3730A3",
-      "accent_tint": "rgba(67, 56, 202, 0.08)",
-      "accent_border": "rgba(67, 56, 202, 0.20)",
-      "surface_card": "#FFFFFF",
-      "surface_canvas": "#FAFAFC",
-      "surface_subtle": "#F1F1F5",
+      "canvas": "#F8FAFC",
+      "surface": "#FFFFFF",
+      "surface_subtle": "#F1F5F9",
+      "hairline_border": "#E2E8F0",
       "text_primary": "#0F172A",
       "text_secondary": "#64748B",
       "text_muted": "#94A3B8",
-      "border": "rgba(10, 10, 15, 0.08)",
-      "border_hover": "rgba(10, 10, 15, 0.16)",
-      "success_fg": "#05936A",
-      "success_bg": "rgba(5, 147, 106, 0.10)",
-      "warning_fg": "#B45309",
-      "warning_bg": "rgba(245, 158, 11, 0.08)",
-      "warning_border": "rgba(245, 158, 11, 0.25)",
-      "error_fg": "#B91C1C",
-      "error_bg": "rgba(239, 68, 68, 0.08)",
-      "error_border": "rgba(239, 68, 68, 0.25)"
+      "brand_accent": "#4F46E5",
+      "brand_accent_hover": "#4338CA",
+      "brand_accent_subtle": "rgba(79, 70, 229, 0.08)"
     },
     "dark": {
-      "accent": "#818CF8",
-      "accent_hover": "#A5B4FC",
-      "accent_tint": "rgba(129, 140, 248, 0.12)",
-      "accent_border": "rgba(129, 140, 248, 0.25)",
-      "surface_card": "#0F1015",
-      "surface_canvas": "#0B0F19",
-      "surface_subtle": "rgba(255, 255, 255, 0.04)",
+      "canvas": "#0B0F19",
+      "surface": "#111827",
+      "surface_subtle": "#1F2937",
+      "hairline_border": "rgba(255, 255, 255, 0.08)",
       "text_primary": "#F8FAFC",
-      "text_secondary": "#A1A1AA",
-      "text_muted": "#71717A",
-      "border": "rgba(255, 255, 255, 0.10)",
-      "border_hover": "rgba(255, 255, 255, 0.20)",
-      "success_fg": "#3FD98A",
-      "success_bg": "rgba(63, 217, 138, 0.12)",
-      "warning_fg": "#F59E0B",
-      "warning_bg": "rgba(245, 158, 11, 0.12)",
-      "warning_border": "rgba(245, 158, 11, 0.30)",
-      "error_fg": "#FF7A6B",
-      "error_bg": "rgba(255, 122, 107, 0.12)",
-      "error_border": "rgba(255, 122, 107, 0.30)"
+      "text_secondary": "#9CA3AF",
+      "text_muted": "#6B7280",
+      "brand_accent": "#818CF8",
+      "brand_accent_hover": "#A5B4FC",
+      "brand_accent_subtle": "rgba(129, 140, 248, 0.12)"
+    },
+    "payment_states": {
+      "paid": {
+        "text": "#10B981",
+        "bg_light": "#ECFDF5",
+        "bg_dark": "rgba(16, 185, 129, 0.12)",
+        "label": "Paid"
+      },
+      "confirming": {
+        "text": "#F59E0B",
+        "bg_light": "#FFFBEB",
+        "bg_dark": "rgba(245, 158, 11, 0.12)",
+        "label": "Confirming"
+      },
+      "underpaid": {
+        "text": "#F59E0B",
+        "bg_light": "#FFFBEB",
+        "bg_dark": "rgba(245, 158, 11, 0.12)",
+        "label": "Underpaid"
+      },
+      "overpaid": {
+        "text": "#10B981",
+        "bg_light": "#ECFDF5",
+        "bg_dark": "rgba(16, 185, 129, 0.12)",
+        "label": "Overpaid"
+      },
+      "expired": {
+        "text": "#EF4444",
+        "bg_light": "#FEF2F2",
+        "bg_dark": "rgba(239, 68, 68, 0.12)",
+        "label": "Expired"
+      },
+      "failed": {
+        "text": "#EF4444",
+        "bg_light": "#FEF2F2",
+        "bg_dark": "rgba(239, 68, 68, 0.12)",
+        "label": "Failed"
+      },
+      "refunded": {
+        "text": "#6B7280",
+        "bg_light": "#F3F4F6",
+        "bg_dark": "rgba(107, 114, 128, 0.12)",
+        "label": "Refunded"
+      }
     }
   },
   "typography": {
-    "font_family_body": "Manrope, Outfit, Inter, sans-serif",
-    "font_family_mono": "'IBMPlexMono', 'SFMono-Regular', Menlo, Monaco, Consolas, monospace",
-    "font_family_heading": "Outfit, Manrope, sans-serif",
+    "font_family_body": "Inter, sans-serif",
+    "font_family_heading": "Inter, sans-serif",
+    "font_family_mono": "'IBMPlexMono', 'SFMono-Regular', Consolas, monospace",
     "scale": {
-      "h1_merchant_title": {
-        "size": "20px",
-        "size_sm": "22px",
+      "h1_title": {
+        "size": "24px",
+        "size_lg": "28px",
         "weight": 700,
-        "line_height": 1.25,
+        "line_height": 1.2,
         "letter_spacing": "-0.02em"
       },
-      "amount_headline_crypto": {
-        "size": "24px",
-        "size_sm": "28px",
-        "weight": 800,
+      "money_numeral_xl": {
+        "size": "28px",
+        "size_lg": "32px",
+        "weight": 700,
         "font_family": "mono",
-        "letter_spacing": "-0.03em"
+        "letter_spacing": "-0.02em"
       },
-      "amount_subline_fiat": {
-        "size": "15px",
-        "size_sm": "16px",
+      "money_numeral_lg": {
+        "size": "20px",
+        "size_lg": "24px",
         "weight": 600,
-        "color": "secondary"
+        "font_family": "mono"
+      },
+      "money_numeral_md": {
+        "size": "15px",
+        "weight": 600,
+        "font_family": "mono"
       },
       "section_label": {
         "size": "11px",
-        "weight": 700,
+        "weight": 600,
         "transform": "uppercase",
-        "letter_spacing": "0.08em",
-        "color": "muted"
+        "letter_spacing": "0.05em",
+        "color": "secondary"
       },
-      "body_copy": {
-        "size": "13.5px",
-        "size_sm": "14px",
+      "body_text": {
+        "size": "14px",
+        "weight": 400,
         "line_height": 1.5
       },
-      "mono_address": {
-        "size": "12.5px",
-        "size_sm": "13px",
-        "font_family": "mono",
-        "word_break": "break-all"
+      "caption_text": {
+        "size": "12px",
+        "weight": 400,
+        "line_height": 1.4,
+        "color": "secondary"
       }
     }
   },
-  "layout_and_containers": {
-    "card_shell": {
-      "single_panel_max_width": "450px",
-      "dual_panel_max_width": "1080px",
-      "border_radius": "16px",
-      "padding_xs": "20px 18px",
-      "padding_sm": "28px 24px",
-      "shadow_light": "0 20px 50px rgba(10, 10, 15, 0.06)",
-      "shadow_dark": "0 20px 50px rgba(0, 0, 0, 0.40)"
-    },
-    "touch_targets": {
-      "min_height_mobile": "44px",
-      "primary_cta_height": "48px",
-      "copy_button_height": "40px"
-    }
-  },
-  "checkout_ux_blueprint": {
-    "asset_network_unit": {
-      "concept": "Present asset + network as a single unified unit with clear badge formatting.",
-      "format_pattern": "{SYMBOL} · {NETWORK}",
-      "examples": [
-        "USDT · TRC-20",
-        "USDC · Solana",
-        "BTC · Bitcoin",
-        "ETH · Arbitrum One",
-        "XRP · XRP Ledger",
-        "RLUSD · XRPL"
+  "zones": {
+    "zone_1_header": {
+      "name": "Header & Controls",
+      "anatomy": [
+        "Greeting + Brand Switcher (Page H1)",
+        "NEW 'Live pulse' chip: shows gateway state ('3 payments confirming · last paid 4 min ago' or 'Quiet — last payment Tue 14:02'). Turns amber/red only when gateway is degraded and expands to detail service.",
+        "Global range control pills: Today · 7d · 30d · 90d · 12m · Custom"
       ],
-      "visual_badge": {
-        "border_radius": "6px",
-        "padding": "2px 8px",
-        "font_size": "11px",
-        "font_weight": 700,
-        "background_light": "rgba(67, 56, 202, 0.08)",
-        "background_dark": "rgba(129, 140, 248, 0.14)",
-        "color_light": "#4338CA",
-        "color_dark": "#818CF8"
-      }
-    },
-    "amount_block": {
-      "concept": "Crypto amount and fiat equivalent rendered with equal legibility and side-by-side/stacked tabular layout.",
-      "primary_crypto": {
-        "font_family": "mono",
-        "font_weight": 800,
-        "font_size": "24px",
-        "copy_button": "One-tap copy button next to crypto figure"
+      "pulse_chip_states": {
+        "healthy": "Subtle green indicator dot, muted text background, quiet presence",
+        "confirming": "Amber pulse dot + live count of confirming payments",
+        "degraded": "Amber/Red expanding banner listing affected service (e.g. TRON RPC delayed)"
       },
-      "secondary_fiat": {
-        "font_family": "body",
-        "font_weight": 600,
-        "font_size": "15px",
-        "prefix": "≈ "
-      },
-      "price_freshness": {
-        "indicator": "Live rate timestamp indicator (e.g. 'Rate updated 12s ago')",
-        "font_size": "11px",
-        "color": "muted"
-      }
+      "data_testids": [
+        "dashboard-header-h1",
+        "dashboard-live-pulse-chip",
+        "dashboard-range-control"
+      ]
     },
-    "coin_network_picker": {
-      "concept": "Tile grid selection with automatic minimum amount validation per coin/network.",
-      "grid_layout": "grid-cols-2 sm:grid-cols-3 gap-2.5",
-      "tile_states": {
-        "default": "1px hairline border, subtle background hover",
-        "selected": "2px solid ACCENT border, subtle ACCENT tint fill, check mark icon",
-        "disabled_below_minimum": {
-          "opacity": 0.5,
-          "cursor": "not-allowed",
-          "badge": "BELOW MIN",
-          "tooltip": "Order total is below this coin's minimum deposit requirement ({min_amount} {symbol})."
-        }
-      }
+    "zone_2_attention_feed": {
+      "name": "Needs Attention Task Feed",
+      "behavior": "Renders ONLY when non-empty. Ordered list, max 5 visible + 'Show all' toggle button.",
+      "row_anatomy": "Icon · One plain sentence · One action button",
+      "priority_hierarchy": [
+        "1. Security & Compliance blockers (KYC due, 2FA missing, wallet changes frozen, password missing)",
+        "2. Money exceptions (underpaid awaiting decision, overpaid, expired checkouts today, payments confirming >60 min)",
+        "3. Configuration gaps (accepted coin without payout wallet, failing webhooks N times/24h, API key >12m, product out of stock)",
+        "4. At most one growth nudge (claim handle, referral reward, fee-free credit)"
+      ],
+      "severity_design": "Subtle left accent indicator or muted icon color; avoids alarm-color overload across the row.",
+      "data_testids": [
+        "attention-feed-container",
+        "attention-feed-item",
+        "attention-feed-action-btn",
+        "attention-feed-show-all-btn"
+      ]
     },
-    "price_lock_timer": {
-      "concept": "Price-lock countdown timer with progressive visual escalation.",
-      "default_state": "Quiet monospace countdown MM:SS",
-      "amber_state": "Triggers under 300 seconds (5 min). Shift border and text to Amber (#B45309 light / #F59E0B dark).",
-      "red_pulsing_state": "Triggers under 120 seconds (2 min). Shift to Red/Coral (#B91C1C light / #FF7A6B dark) with soft breathing pulse animation.",
-      "progress_bar": "3px hairline progress bar at top/bottom of status strip decreasing from 100% to 0%."
-    },
-    "status_timeline_3step": {
-      "concept": "Replaces plain loading spinners with an explicit 3-step live status stepper connected to polling / SSE socket.",
-      "steps": [
+    "zone_3_money_now": {
+      "name": "Money Now Tiles",
+      "layout": "3 tiles in one horizontal row (desktop) / horizontally swipeable row (phone)",
+      "tiles": [
         {
-          "key": "detected",
-          "label": "Detected",
-          "description": "Payment detected on-chain / mempool. Awaiting network confirmations."
+          "id": "settled",
+          "title": "Settled in range",
+          "content": "Gross amount → Net after fees (large tabular mono), delta % vs previous period, payment count"
         },
         {
-          "key": "confirming",
-          "label": "Confirming",
-          "description": "Transaction broadcasting in block. Finalizing settlement."
+          "id": "in_flight",
+          "title": "In flight",
+          "content": "Amount detected on-chain awaiting confirmations + count. Tap → Transactions filtered confirming",
+          "action": "Tap navigates to /transactions?status=confirming"
         },
         {
-          "key": "paid",
-          "label": "Paid",
-          "description": "Payment settled to merchant account."
+          "id": "forwarded",
+          "title": "Forwarded to your wallets",
+          "content": "Amount forwarded in range split by asset as mini stacked bars, last forward timestamp, auto-convert note ('Converted to USDT: $x'). Tap → Payouts",
+          "action": "Tap navigates to /payouts"
         }
       ],
-      "visual_design": {
-        "connector_line": "2px horizontal line between step dots (green fill on completed, gray on pending)",
-        "active_dot": "Glow/pulse animation on active stage",
-        "completed_dot": "Checkmark icon with volt green fill"
-      }
+      "data_testids": [
+        "money-tile-settled",
+        "money-tile-in-flight",
+        "money-tile-forwarded"
+      ]
     },
-    "expired_state_refresh_quote": {
-      "concept": "Invoice expiration preserves buyer context and re-quotes the SAME coin/network in place.",
-      "rules": [
-        "DO NOT redirect or reset the checkout flow.",
-        "DO NOT force the buyer to re-select coin/network or return to merchant cart.",
-        "Display expired notice banner with 'Refresh quote' action button.",
-        "Clicking 'Refresh quote' calls getCurrencyRates and addPayment in place, refreshing timer to 30 mins and updating the pay-to address / amount instantly."
+    "zone_4_trend": {
+      "name": "Trend & Checkout Health",
+      "layout": "One wide card container",
+      "components": [
+        "Volume chart with toggle buttons: Volume / Payments / Avg ticket",
+        "Asset mix legend toggle embedded inside chart header card",
+        "Beneath chart: Checkout health metric line (Completion rate created → paid, Median confirmation time, Underpaid + expired rate, each with delta %)"
       ],
-      "action_button": {
-        "text": "Refresh quote",
-        "variant": "contained",
-        "bg_color": "ACCENT indigo",
-        "data_testid": "checkout-refresh-quote-btn"
-      }
+      "phone_behavior": "Trend chart defaults to 7d timeframe on mobile screens",
+      "data_testids": [
+        "trend-chart-card",
+        "trend-toggle-volume",
+        "trend-toggle-payments",
+        "trend-toggle-avg-ticket",
+        "checkout-health-line"
+      ]
     },
-    "microcopy_and_policy_patterns": {
-      "overpayment": {
-        "policy": "The ENTIRE excess is credited to the MERCHANT (not refunded to buyer).",
-        "headline": "Overpayment Received",
-        "body_copy": "You sent {excess_crypto} {symbol} (≈ {excess_fiat}) extra. The excess has been credited to the merchant account. Contact the merchant if you require an adjustment.",
-        "tone": "Informative & clear, amber/info callout banner"
-      },
-      "underpayment": {
-        "policy": "Prompt buyer to top up remaining amount within grace period.",
-        "headline": "Partial Payment Received",
-        "body_copy": "We received {paid_amount} {symbol}. Please send the remaining {remaining_amount} {symbol} (≈ {remaining_fiat}) to complete your order before the timer expires.",
-        "tone": "Actionable, amber callout banner with dedicated 'Pay remaining' QR/address view"
-      },
-      "below_minimum": {
-        "policy": "Payment below platform/network minimum is non-recoverable and credited to platform.",
-        "headline": "Amount Below Network Minimum",
-        "body_copy": "Transfers below {min_amount} {symbol} cannot be processed by the network and are non-recoverable. Please check network minimums before sending.",
-        "tone": "Warning/Coral callout notice"
-      }
-    },
-    "qr_and_wallet_deeplinks": {
-      "desktop_qr": {
-        "size": "200px - 220px",
-        "background": "#FFFFFF",
-        "padding": "12px",
-        "border_radius": "12px",
-        "border": "1px solid hairline",
-        "alignment": "centered in card"
-      },
-      "mobile_qr": {
-        "size": "160px - 180px",
-        "deep_link_button": {
-          "text": "Open in Wallet",
-          "icon": "wallet-outline",
-          "action": "Opens crypto URI scheme (e.g. ethereum:, bitcoin:, solana:) on mobile"
+    "zone_5_activity": {
+      "name": "Activity Grid",
+      "layout": "Two equal columns on desktop / vertically stacked on phone",
+      "columns": [
+        {
+          "id": "recent_payments",
+          "title": "Recent Payments",
+          "content": "8 rows desktop / 5 rows mobile (+ 'See all' link). Row anatomy: Amount (mono tabular), Asset icon, Status chip (confirming/paid/underpaid/overpaid/expired/refunded), Customer, Time, Tx link",
+          "data_testid": "recent-payments-list"
+        },
+        {
+          "id": "top_links_products",
+          "title": "Top Links & Products in Range",
+          "content": "List of top items. Row anatomy: Item name, Paid count, Volume (mono tabular)",
+          "data_testid": "top-products-list"
         }
-      }
+      ]
     },
-    "memo_destination_tag_block": {
-      "networks_requiring": ["XRP", "RLUSD-XRPL", "EOS"],
-      "rendering": "Displayed directly below pay-to address as a high-visibility required copy field.",
-      "warning": "MEMO/Tag is REQUIRED for XRP/XRPL transfers. Missing tag will delay or lose deposit."
-    },
-    "success_and_autoredirect": {
-      "elements": [
-        "Confetti particle burst animation (canvas-confetti, ~60 particles, 1.6s duration)",
-        "Checkmark badge + 'Payment confirmed' headline",
-        "On-screen proof of payment breakdown",
-        "Download PDF receipt button & Share receipt link button",
-        "Auto-redirect countdown: 'Redirecting back to {merchant_name} in 6s...'"
+    "zone_6_plan_growth": {
+      "name": "Plan & Growth",
+      "layout": "One collapsible row at the very bottom, collapsed by default",
+      "collapsed_content": "'Starter tier · 1.5% · $x of $10k to Growth (1%)' with expand arrow",
+      "expanded_content": "Detailed breakdown of current fee tier, progress bar toward next tier, and upgrade details",
+      "data_testids": [
+        "plan-growth-row",
+        "plan-growth-toggle-btn"
       ]
     }
   },
-  "component_mapping_js": {
-    "CheckoutShell": "/app/Components/UI/CheckoutShell.js",
-    "CleanCheckoutV2": "/app/Components/Page/Pay3Components/CleanCheckoutV2.js",
-    "CheckoutStatusTimeline": "/app/Components/Page/Pay3Components/checkout/checkoutPrimitives.js",
-    "CheckoutStatusStrip": "/app/Components/UI/CheckoutStatusStrip.js",
-    "PriceBreakdown": "/app/Components/Page/Pay3Components/checkout/PriceBreakdown.js",
-    "CoinChips": "/app/Components/UI/CoinChips.js"
-  },
-  "testing_and_accessibility": {
-    "required_data_testids": [
-      "checkout-shell",
-      "clean-checkout-panel",
-      "checkout-status-timeline",
-      "checkout-status-text",
-      "checkout-timer-label",
-      "checkout-countdown-bar",
-      "checkout-asset-network-unit",
-      "checkout-crypto-amount",
-      "checkout-fiat-amount",
-      "checkout-copy-address-btn",
-      "checkout-copy-amount-btn",
-      "checkout-qr-code",
-      "checkout-open-wallet-btn",
-      "checkout-memo-tag-box",
-      "checkout-refresh-quote-btn",
-      "checkout-overpaid-note",
-      "checkout-underpaid-note",
-      "clean-checkout-success-icon",
-      "clean-checkout-return-btn"
-    ],
-    "a11y_rules": [
-      "All interactive buttons must have 44px min touch target on mobile.",
-      "Color contrast ratios must exceed 4.5:1 for normal text and 3:1 for large/bold text.",
-      "Motion keyframes must respect prefers-reduced-motion media query.",
-      "Tabular-nums must be enforced on all financial figures."
+  "new_merchant_state": {
+    "trigger": "Active until the merchant receives their first crypto payment.",
+    "zone_2_override": "Zone 2 transforms into the 'Getting-started' onboarding checklist.",
+    "zones_3_to_5_override": "Zones 3, 4, and 5 render as a faded preview overlay captioned 'fills in after your first payment'.",
+    "data_testids": [
+      "new-merchant-getting-started",
+      "new-merchant-faded-preview"
     ]
   },
-  "UNIVERSAL GUIDELINES FOR MAIN AGENT": {
-    "avoid_ai_slop": "Never use generic flashy gradients or rainbow overlays. Use subtle 1px hairline borders, clean typography, and precise spacing.",
-    "file_extension": "Use .js or .jsx file extensions (React JS environment). Do not create .tsx files unless existing files dictate.",
-    "spacing_philosophy": "Use generous internal card padding (p-6 or p-8) and keep elements breathing with gap-3 / gap-4.",
-    "state_machine": "Keep status state decoupled: waiting -> detected -> confirming -> paid / expired / underpaid / overpaid."
+  "responsive_rhythm": {
+    "mobile": {
+      "breakpoint": "< 768px",
+      "money_tiles": "Horizontally swipeable scroll snap row",
+      "trend": "Defaults to 7d timeframe",
+      "activity": "Stacked single column, 5 rows max with 'See all' button"
+    },
+    "desktop": {
+      "breakpoint": ">= 768px",
+      "money_tiles": "Grid 3 columns (1 row)",
+      "activity": "2 equal columns side-by-side"
+    }
+  },
+  "motion_and_interactions": {
+    "hover_states": "Subtle surface fill change (1px lighter/darker) with 150ms ease-in-out transition.",
+    "entrance_animations": "Staggered fade-in upward slide for zones (fade in 200ms, translate-y 4px).",
+    "a11y": "Respects prefers-reduced-motion. High contrast ratios for all money text and status chips."
+  },
+  "GENERAL UI UX DESIGN GUIDELINES": {
+    "file_extension": "Use .js or .jsx file extensions for React components in this project environment.",
+    "avoid_ai_slop": "Avoid generic dark gradients and flashy card borders. Maintain crisp hairline borders #E2E8F0 / rgba(255,255,255,0.08) and flat solid surfaces.",
+    "testing_attribute_requirement": "All interactive elements (buttons, inputs, filters, links, cards) MUST include kebab-case role-based data-testid attributes."
   }
 }

@@ -1,10 +1,6 @@
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
-import { useWalletStore } from "@/contexts/WalletDataContext";
-import ClaimHandleBanner from "@/Components/Page/Dashboard/ClaimHandleBanner";
-import KycGraceBanner from "@/Components/Page/Dashboard/KycGraceBanner";
 import AutoClaimHandle from "@/Components/Page/Dashboard/AutoClaimHandle";
 import FirstRunRedirect from "@/Components/Page/GetStarted/FirstRunRedirect";
-import { useSetupProgress } from "@/Components/Page/GetStarted/useSetupProgress";
 import Dashboard2026 from "@/Components/Page/Dashboard/v2026";
 import { pageProps, rootReducer } from "@/utils/types";
 import Head from "next/head";
@@ -13,25 +9,18 @@ import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 
 /**
- * Dashboard — 2026 merchant command center (default & only layout).
+ * Dashboard — the merchant command centre (Components/Page/Dashboard/v2026).
  *
- * The dashboard renders `Dashboard2026` (Components/Page/Dashboard/v2026),
- * a bento command center: a BalanceStrip (metric + global time range +
- * settings + big mono volume), a quiet ActionsRow, the Volume chart, a KPI
- * strip, recent activity, an assets breakdown, the fee-tier card, grow /
- * storefront slots. Until the first payment lands it shows the
- * Getting-started hero over a faded preview (plan 1.19), and a brand-new
- * merchant is sent to the guided /get-started wizard once per session
- * (`FirstRunRedirect`, plan 1.18) — this replaced the auto-popping
- * CreateCompanyModal, the legacy checklist card and the WalletSetupNudge.
+ * State → Attention → Money → Trend → Activity: a live pulse chip + global
+ * range control, ONE "Needs attention" task feed (which replaced the KYC,
+ * underpaid, password, claim-handle and 2FA banners), three money-in-motion
+ * tiles, the trend card with checkout health, recent payments + top links /
+ * products, and a collapsed plan & fees line. Until the first payment lands the
+ * Getting-started checklist owns the page (`FirstRunRedirect` sends a brand-new
+ * merchant to /get-started once per session).
  *
- * Top-area polish (Jun 2026): the page H1 IS the personalised greeting (with
- * today's date as the description) — the old "Dashboard / Overview of…" title
- * pair and the in-card greeting eyebrow were three competing headers. The
- * page-level "Create payment link" button was retired: the header's `+ New`
- * is the ONE create control (IA audit Law 3). The dismissible referral banner
- * left the dashboard too — the referral offer already lives in the right rail
- * (Grow slot + Referral code card).
+ * The page H1 IS the personalised greeting; the header's `+ New` is the ONE
+ * create control, so the home carries no navigation tiles.
  */
 export default function Home({
   setPageName,
@@ -42,15 +31,7 @@ export default function Home({
   const { t, i18n } = useTranslation(namespaces);
 
   const companyState = useCompanyStore();
-  const walletState = useWalletStore();
   const isMember = companyState.isMember; // teammate viewing the OWNER's business
-  const hasCompany = (companyState.companyList?.length ?? 0) > 0;
-  const hasWallet = (walletState.walletList?.length ?? 0) > 0;
-  // A team member never sees merchant onboarding — the business is already set up.
-  const setupComplete = isMember || (hasCompany && hasWallet);
-  // The handle nudge waits until the first payment has landed — before that the
-  // Getting-started hero owns the page and must not compete with a second banner.
-  const { hasPayment } = useSetupProgress();
 
   const firstName = useSelector(
     (s: rootReducer) => (s as any).userReducer?.profile?.first_name,
@@ -106,10 +87,8 @@ export default function Home({
       </Head>
 
       <main>
-        {!isMember && <KycGraceBanner />}
         {!isMember && <FirstRunRedirect />}
         {!isMember && <AutoClaimHandle />}
-        {!isMember && setupComplete && hasPayment && <ClaimHandleBanner />}
 
         <div
           style={

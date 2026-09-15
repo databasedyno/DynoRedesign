@@ -1,12 +1,16 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { Box, Typography, useTheme } from "@mui/material";
+import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
 import { differenceInCalendarDays } from "date-fns";
 import CustomButton from "@/Components/UI/Buttons";
 import SkeletonList from "@/Components/UI/SkeletonList";
-import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
+import { CB_TOKENS, PillButton } from "@/Components/Page/Dashboard/coinbase/styled";
+import { statusToneColors } from "@/Components/UI/StatusDot";
 import { Icon } from "@/styles/uiKit";
 import { roundLongDecimalsInText } from "@/utils/currencyFormat";
+import type { AttentionItem } from "@/Components/Page/Dashboard/v2026/command/useAttentionItems";
+import { KIND_ICON, NOTIF_KINDS, NotifKind, kindOf, kindOfAttention } from "./notificationKind";
 
 export type NotifTarget = { kind: "transaction" } | { kind: "route"; href: string } | null;
 
@@ -19,7 +23,12 @@ interface Props {
   onOpen: (notif: any) => void;
   targetFor: (notif: any) => NotifTarget;
   formatTimeAgo: (iso: string) => string;
+  /** Wave 3g — dashboard "Needs attention" rows mirrored here (incl. dismissed ones). */
+  attention?: AttentionItem[];
+  onRestoreAttention?: (key: string) => void;
 }
+
+type KindFilter = "all" | NotifKind;
 
 type Bucket = "today" | "yesterday" | "thisWeek" | "earlier";
 
@@ -46,10 +55,12 @@ const familyOf = (type: string): { icon: string; tone: "positive" | "negative" |
 };
 
 /** Grouped inbox (plan 3.9): Today / Yesterday / This week / Earlier, unread emphasis, every row taps through. */
-const NotificationInbox: React.FC<Props> = ({ notifications, loading, unreadCount, markingAllRead, onMarkAllRead, onOpen, targetFor, formatTimeAgo }) => {
+const NotificationInbox: React.FC<Props> = ({ notifications, loading, unreadCount, markingAllRead, onMarkAllRead, onOpen, targetFor, formatTimeAgo, attention = [], onRestoreAttention }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+  const router = useRouter();
   const { t } = useTranslation("notifications");
+  const [kind, setKind] = useState<KindFilter>("all");
   const indigo = isDark ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light;
   const muted = isDark ? CB_TOKENS.ink.mutedDark : CB_TOKENS.ink.mutedLight;
   const border = isDark ? CB_TOKENS.border.dark : CB_TOKENS.border.light;
@@ -58,12 +69,97 @@ const NotificationInbox: React.FC<Props> = ({ notifications, loading, unreadCoun
     return { fg: isDark ? s.dark : s.light, bg: isDark ? s.glowDark : s.glowLight };
   };
 
+  const kindCounts = useMemo(() => {
+    const c: Record<NotifKind, number> = { payments: 0, security: 0, system: 0, growth: 0 };
+    for (const n of notifications) c[kindOf(String(n.type || ""))] += 1;
+    for (const a of attention) c[kindOfAttention(a.group)] += 1;
+    return c;
+  }, [notifications, attention]);
+
+  const filtered = useMemo(
+    () => (kind === "all" ? notifications : notifications.filter((n) => kindOf(String(n.type || "")) === kind)),
+    [notifications, kind],
+  );
+  const attentionRows = useMemo(
+    () => (kind === "all" ? attention : attention.filter((a) => kindOfAttention(a.group) === kind)),
+    [attention, kind],
+  );
+
   const groups = useMemo(() => {
     const order: Bucket[] = ["today", "yesterday", "thisWeek", "earlier"];
     const map: Record<Bucket, any[]> = { today: [], yesterday: [], thisWeek: [], earlier: [] };
-    for (const n of notifications) map[bucketOf(n.created_at)].push(n);
+    for (const n of filtered) map[bucketOf(n.created_at)].push(n);
     return order.filter((b) => map[b].length).map((b) => ({ bucket: b, items: map[b], unread: map[b].filter((n) => !n.is_read).length }));
-  }, [notifications]);
+  }, [filtered]);
+
+  const kindLabel: Record<KindFilter, string> = {
+    all: t("kind.all", { defaultValue: "All" }),
+    payments: t("kind.payments", { defaultValue: "Payments" }),
+    security: t("kind.security", { defaultValue: "Security" }),
+    system: t("kind.system", { defaultValue: "System" }),
+    growth: t("kind.growth", { defaultValue: "Growth" }),
+  };
+
+  const chips = (
+    <Box data-testid="notifications-kind-filter" role="tablist" sx={{ display: "flex", alignItems: "center", gap: 0.5, p: 0.5, mb: 2, borderRadius: 999, backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "rgba(10,10,15,0.05)", overflowX: "auto", maxWidth: "100%", "&::-webkit-scrollbar": { display: "none" }, scrollbarWidth: "none" }}>
+      {(["all", ...NOTIF_KINDS] as KindFilter[]).map((k) => {
+        const count = k === "all" ? notifications.length + attention.length : kindCounts[k];
+        return (
+          <PillButton key={k} active={kind === k} role="tab" aria-selected={kind === k} data-testid={`notifications-kind-${k}`} onClick={() => setKind(k)} sx={{ display: "inline-flex", alignItems: "center", gap: 0.6, whiteSpace: "nowrap" }}>
+            {k !== "all" && <Icon name={KIND_ICON[k]} size={13} />}
+            {kindLabel[k]}
+            <Box component="span" sx={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, opacity: 0.75 }}>{count}</Box>
+          </PillButton>
+        );
+      })}
+    </Box>
+  );
+
+  const attentionBlock = attentionRows.length > 0 && (
+    <Box data-testid="notifications-attention" data-count={attentionRows.length}>
+      <Box sx={{ display: "flex", alignItems: "baseline", gap: 1, mb: 1, px: 0.5 }}>
+        <Typography component="h3" sx={{ m: 0, fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: muted }}>
+          {t("attention.title", { defaultValue: "Needs attention" })}
+        </Typography>
+        <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 12, color: muted }}>
+          {t("attention.hint", { defaultValue: "Mirrored from your dashboard — nothing is lost when you hide a row there." })}
+        </Typography>
+      </Box>
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+        {attentionRows.map((item) => {
+          const tone = item.severity === "critical" ? statusToneColors("failed", isDark) : item.severity === "warning" ? statusToneColors("pending", isDark) : statusToneColors("neutral", isDark);
+          return (
+            <Box
+              key={item.id}
+              data-testid={`notifications-attention-${item.testId}`}
+              data-dismissed={item.dismissed ? "true" : "false"}
+              sx={{ display: "flex", gap: 1.5, alignItems: "center", p: { xs: 1.5, md: 2 }, borderRadius: "14px", border: `1px solid ${border}`, backgroundColor: theme.palette.background.paper, opacity: item.dismissed ? 0.78 : 1, flexWrap: "wrap" }}
+            >
+              <Box sx={{ width: 40, height: 40, borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, color: item.severity === "info" ? muted : tone.fg, backgroundColor: item.severity === "info" ? (isDark ? "rgba(255,255,255,0.05)" : "rgba(10,10,15,0.04)") : `${tone.dot}1F` }}>
+                <Icon name={item.icon} size={18} />
+              </Box>
+              <Box sx={{ flex: "1 1 220px", minWidth: 0 }}>
+                <Typography sx={{ fontSize: { xs: "13.5px", md: "14.5px" }, fontWeight: 600, fontFamily: "var(--font-sans)", color: theme.palette.text.primary, lineHeight: 1.35 }}>{item.text}</Typography>
+                {item.dismissed && (
+                  <Typography data-testid={`notifications-attention-${item.testId}-hidden`} sx={{ mt: 0.25, fontSize: 12, color: muted, fontFamily: "var(--font-sans)" }}>
+                    {t("attention.hiddenOnDashboard", { defaultValue: "Hidden on the dashboard" })}
+                  </Typography>
+                )}
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexShrink: 0 }}>
+                {item.dismissed && item.dismissKey && onRestoreAttention && (
+                  <Box component="button" type="button" data-testid={`notifications-attention-${item.testId}-restore`} onClick={() => onRestoreAttention(item.dismissKey as string)} sx={{ all: "unset", cursor: "pointer", fontFamily: "var(--font-sans)", fontSize: 12.5, fontWeight: 600, color: muted, "&:hover": { color: theme.palette.text.primary, textDecoration: "underline" } }}>
+                    {t("attention.restore", { defaultValue: "Show on dashboard" })}
+                  </Box>
+                )}
+                <CustomButton data-testid={`notifications-attention-${item.testId}-action`} label={item.actionLabel} variant="outlined" size="small" onClick={() => router.push(item.href)} />
+              </Box>
+            </Box>
+          );
+        })}
+      </Box>
+    </Box>
+  );
 
   const bucketLabel: Record<Bucket, string> = {
     today: t("group.today", { defaultValue: "Today" }),
@@ -80,7 +176,7 @@ const NotificationInbox: React.FC<Props> = ({ notifications, loading, unreadCoun
     );
   }
 
-  if (notifications.length === 0) {
+  if (notifications.length === 0 && attention.length === 0) {
     return (
       <Box data-testid="notifications-empty" sx={{ textAlign: "center", py: 6, display: "flex", flexDirection: "column", alignItems: "center", gap: 1.25 }}>
         <Box sx={{ width: 52, height: 52, borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center", bgcolor: theme.palette.action.hover, color: indigo }}>
@@ -95,7 +191,14 @@ const NotificationInbox: React.FC<Props> = ({ notifications, loading, unreadCoun
   }
 
   return (
-    <Box data-testid="notifications-inbox" sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
+    <Box data-testid="notifications-inbox" data-kind={kind} sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
+      {chips}
+      {attentionBlock}
+      {groups.length === 0 && (
+        <Typography data-testid="notifications-kind-empty" sx={{ py: 3, textAlign: "center", fontSize: 13.5, color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}>
+          {t("kind.empty", { defaultValue: "No {{kind}} notifications yet.", kind: kindLabel[kind].toLowerCase() })}
+        </Typography>
+      )}
       {groups.map((g, gi) => (
         <Box key={g.bucket} data-testid={`notifications-group-${g.bucket}`}>
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, mb: 1, px: 0.5 }}>

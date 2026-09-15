@@ -120,7 +120,12 @@
     "manageDevices": "Geräte verwalten",
     "signedOutCount": "Auf {{count}} anderen Gerät(en) abgemeldet – hier sind Sie weiterhin angemeldet.",
     "noOtherDevices": "Keine anderen Geräte zum Abmelden.",
-    "signOutFailed": "Andere Geräte konnten nicht abgemeldet werden. Bitte erneut versuchen."
+    "signOutFailed": "Andere Geräte konnten nicht abgemeldet werden. Bitte erneut versuchen.",
+    "stripTitle": "Wallet-Schutz",
+    "stripManage": "In Einstellungen verwalten",
+    "stripLocked": "Wallet-Änderungen sind nach einer „Das war ich nicht“-Meldung gesperrt.",
+    "stripStrong": "Einmalcode bei jeder Änderung · Rückgängig-Link per E-Mail · Zwei-Faktor-Anmeldung aktiv.",
+    "stripStandard": "Einmalcode bei jeder Änderung · Rückgängig-Link per E-Mail. Aktivieren Sie die Zwei-Faktor-Anmeldung für „Stark“."
   },
   "chooseCoin": "Coin auswählen…",
   "deleteWallet": "Wallet löschen",
@@ -165,5 +170,14 @@
   "stepUpVerifyNow": "Jetzt bestätigen",
   "stepUpCancelled": "Bestätigung abgebrochen – deine Änderungen wurden nicht gespeichert.",
   "sudoEndedBanner": "Bestätigung abgelaufen",
-  "sudoEndedHint": "Beim Speichern bitten wir dich erneut um eine Bestätigung."
+  "sudoEndedHint": "Beim Speichern bitten wir dich erneut um eine Bestätigung.",
+  "coverageTitle": "{{count}} akzeptierte Coins haben keine Auszahlungs-Wallet",
+  "coverageBody": "Ihre aktiven Zahlungslinks akzeptieren diese Coins, aber Zahlungen darin haben kein Ziel. Fügen Sie eine Wallet hinzu, um sie zu empfangen.",
+  "formatOk": "Format OK",
+  "formatUnusual": "Ungewöhnliches Format",
+  "formatOkTip": "Diese Adresse entspricht dem üblichen {{chain}}-Format.",
+  "formatUnusualTip": "Das sieht nicht wie eine typische {{chain}}-Adresse aus. Prüfen Sie sie vor der nächsten Auszahlung.",
+  "lastPayoutNone": "Noch keine Auszahlungen an diese Wallet",
+  "lastPayoutAt": "Letzte Auszahlung {{when}}",
+  "in30d": "in 30 T"
 }

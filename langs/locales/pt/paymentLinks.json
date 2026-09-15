@@ -115,5 +115,16 @@
     "acceptsAll": "Aceita todas as {{count}} moedas",
     "acceptsAllHint": "Os compradores podem pagar com qualquer moeda para a qual tenha uma carteira de pagamento: {{list}}",
     "acceptsSome": "Aceita {{count}} de {{total}} moedas"
-  }
+  },
+  "last30Header": "Últimos 30 dias",
+  "last30Tooltip": "Pagamentos liquidados neste link nos últimos 30 dias (número · USD bruto).",
+  "last30Tip": "{{count}} pagamentos liquidados no total",
+  "paidCount": "{{count}} pagos",
+  "noPayments30d": "— nenhum em 30 d",
+  "expiringSoon": "Expira em breve",
+  "expiringSoonTip": "Fecha em cerca de {{count}} h — prolongue ou partilhe agora.",
+  "statusEarning": "A render (30 d)",
+  "statusExpiringSoon": "Expira em breve",
+  "qrTooltip": "Mostrar código QR",
+  "shareTooltip": "Partilhar link"
 }

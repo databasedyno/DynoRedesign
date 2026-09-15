@@ -264,6 +264,11 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
       icon: CurrencyIcon,
     },
     {
+      label: tTransactions("customer", { defaultValue: "Customer" }),
+      key: "customer",
+      icon: HexagonIcon,
+    },
+    {
       label: tTransactions("vat", { defaultValue: "VAT / Tax" }),
       key: "vat",
       icon: CurrencyIcon,
@@ -480,7 +485,11 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                       #{transaction.id}
                     </Typography>
                   </Box>
-                  {(transaction.reverseCharge || Number(transaction.taxAmount) > 0) && (
+                  {(transaction.customerName || transaction.customerEmail) ? (
+                    <Typography data-testid="tx-card-customer" sx={{ fontSize: "11.5px", fontFamily: "var(--font-sans)", fontWeight: 600, color: theme.palette.text.secondary, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "45%" }}>
+                      {transaction.customerName || transaction.customerEmail}
+                    </Typography>
+                  ) : (transaction.reverseCharge || Number(transaction.taxAmount) > 0) && (
                     <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, whiteSpace: "nowrap" }}>
                       {transaction.reverseCharge
                         ? tTransactions("reverseCharge", { defaultValue: "Reverse-charge" })
@@ -550,7 +559,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
           },
         }}
       >
-        <Box sx={{ minWidth: "max-content" }}>
+        <Box sx={{ minWidth: { xs: "max-content", md: 0 } }}>
           {/* Header Section — sticky top (stays on vertical scroll); the first
               item is also sticky left so it freezes with the ID column. */}
           <TransactionsTableHeader
@@ -682,16 +691,27 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                   </TransactionsTableCell>
 
                   <TransactionsTableCell>
-                    <CryptoIconChip accent={getAssetColor(transaction.crypto)} sx={{ width: "fit-content" }}>
-                      <Image
-                        src={getCryptoIcon(transaction.crypto)}
-                        alt={transaction.crypto}
-                        draggable={false}
-                      />
-                      <Typography component="span">
-                        {transaction.crypto}
-                      </Typography>
-                    </CryptoIconChip>
+                    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "3px", minWidth: 0 }}>
+                      <CryptoIconChip accent={getAssetColor(transaction.crypto)} sx={{ width: "fit-content" }}>
+                        <Image
+                          src={getCryptoIcon(transaction.crypto)}
+                          alt={transaction.crypto}
+                          draggable={false}
+                        />
+                        <Typography component="span">
+                          {transaction.crypto}
+                        </Typography>
+                      </CryptoIconChip>
+                      {transaction.network && (
+                        <Typography
+                          component="span"
+                          data-testid="tx-network"
+                          sx={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: theme.palette.text.secondary, whiteSpace: "nowrap", pl: "2px", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "100%" }}
+                        >
+                          {transaction.network}
+                        </Typography>
+                      )}
+                    </Box>
                     {transaction.autoConverted && (
                       <Box
                         sx={{
@@ -740,6 +760,29 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                     {displayValue(transaction)}
                   </TransactionsTableCell>
 
+                  <TransactionsTableCell data-testid="tx-customer" sx={{ minWidth: 0 }}>
+                    {transaction.customerName || transaction.customerEmail ? (
+                      <Box sx={{ display: "flex", flexDirection: "column", minWidth: 0, maxWidth: 170, gap: "2px" }}>
+                        <Typography
+                          component="span"
+                          sx={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: theme.palette.text.primary, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                        >
+                          {transaction.customerName || transaction.customerEmail}
+                        </Typography>
+                        {transaction.customerName && transaction.customerEmail && (
+                          <Typography
+                            component="span"
+                            sx={{ fontFamily: "var(--font-sans)", fontSize: "11.5px", color: theme.palette.text.secondary, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                          >
+                            {transaction.customerEmail}
+                          </Typography>
+                        )}
+                      </Box>
+                    ) : (
+                      <Typography component="span" sx={{ color: theme.palette.text.disabled }}>—</Typography>
+                    )}
+                  </TransactionsTableCell>
+
                   <TransactionsTableCell sx={{ justifyContent: "flex-end", fontVariantNumeric: "tabular-nums" }}>
                     {transaction.reverseCharge ? (
                       <Typography
@@ -780,11 +823,22 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                   </TransactionsTableCell>
 
                   <TransactionsTableCell>
-                    <TransactionStatusBadge
-                      status={transaction.status}
-                      autoConverted={transaction.autoConverted}
-                      data-testid="tx-row-status"
-                    />
+                    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "3px", minWidth: 0 }}>
+                      <TransactionStatusBadge
+                        status={transaction.status}
+                        autoConverted={transaction.autoConverted}
+                        data-testid="tx-row-status"
+                      />
+                      {(transaction.status === "processing" || transaction.status === "confirmed" || transaction.status === "pending") && transaction.confirmations && (
+                        <Typography
+                          component="span"
+                          data-testid="tx-row-confirmations"
+                          sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontSize: "11px", color: theme.palette.text.secondary, pl: "2px", whiteSpace: "nowrap" }}
+                        >
+                          {tTransactions("confirmationsShort", { value: transaction.confirmations, defaultValue: "{{value}} conf." })}
+                        </Typography>
+                      )}
+                    </Box>
                   </TransactionsTableCell>
                 </TransactionsTableRow>
               ))

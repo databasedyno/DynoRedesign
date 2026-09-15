@@ -35,6 +35,10 @@ import { prefetchInvoicePdf } from "@/helpers/invoicePdfCache";
 import CustomButton from "@/Components/UI/Buttons";
 import PanelCard from "@/Components/UI/PanelCard";
 import CollectedTaxReport from "@/Components/Page/Invoices/CollectedTaxReport";
+import PeriodTotals from "@/Components/Page/Invoices/PeriodTotals";
+import ReceiptsEmptyState from "@/Components/Page/Invoices/ReceiptsEmptyState";
+import { usePeriodSummary } from "@/Components/Page/Invoices/usePeriodSummary";
+import { InvoicePeriod, isInvoicePeriod, periodParams } from "@/Components/Page/Invoices/invoicePeriods";
 import InvoicePreviewDrawer, { InvoicePreviewInvoice } from "@/Components/Page/Invoices/InvoicePreviewDrawer";
 import { StatusPill } from "@/Components/UI/_shared";
 import { Icon, MONO } from "@/styles/uiKit";
@@ -148,7 +152,23 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
   const [taxReport, setTaxReport] = useState<TaxReportData | null>(null);
   const [taxLoading, setTaxLoading] = useState(false);
   const [groupBy, setGroupBy] = useState<string>("month");
-  const [taxPeriod, setTaxPeriod] = useState<string>("all");
+  // Page-wide period (header tiles, receipts list, tax report, export). Deep-linkable: ?period=thisMonth.
+  const [taxPeriod, setTaxPeriodState] = useState<InvoicePeriod>("all");
+  useEffect(() => {
+    if (!router.isReady) return;
+    const p = router.query.period;
+    if (isInvoicePeriod(p)) setTaxPeriodState(p);
+  }, [router.isReady, router.query.period]);
+  const setTaxPeriod = (p: InvoicePeriod) => {
+    setTaxPeriodState(p);
+    setPage(1);
+    const q = { ...router.query };
+    if (p === "all") delete q.period;
+    else q.period = p;
+    router.replace({ pathname: router.pathname, query: q }, undefined, { shallow: true });
+  };
+  const periodSummary = usePeriodSummary(taxPeriod);
+  const [exporting, setExporting] = useState(false);
 
   // "Fiat Everywhere" — resolve the merchant's chosen DISPLAY currency
   // (USD/EUR/GBP/NGN/CAD/AUD) via cached Redis-backed FX rate. Used for the
@@ -198,8 +218,8 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
     }
   }, [setPageName, setPageDescription]);
 
-  // Fetch invoices (SWR — cached per page/company, deduped across remounts)
-  const invoicesParams = new URLSearchParams();
+  // Fetch invoices (SWR — cached per page/company/period, deduped across remounts)
+  const invoicesParams = new URLSearchParams(periodParams(taxPeriod));
   invoicesParams.set("page", String(page));
   invoicesParams.set("limit", "20");
   if (selectedCompanyId) invoicesParams.set("company_id", String(selectedCompanyId));
@@ -218,48 +238,8 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
   const fetchTaxReport = useCallback(async () => {
     setTaxLoading(true);
     try {
-      const params: Record<string, string> = { group_by: groupBy };
+      const params: Record<string, string> = { group_by: groupBy, ...periodParams(taxPeriod) };
       if (selectedCompanyId) params.company_id = String(selectedCompanyId);
-
-      if (taxPeriod !== "all") {
-        const now = new Date();
-        let startDate: Date;
-
-        switch (taxPeriod) {
-          case "thisMonth":
-            startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-            break;
-          case "lastMonth":
-            startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-            params.end_date = new Date(
-              now.getFullYear(),
-              now.getMonth(),
-              0
-            ).toISOString();
-            break;
-          case "thisQuarter": {
-            const q = Math.floor(now.getMonth() / 3) * 3;
-            startDate = new Date(now.getFullYear(), q, 1);
-            break;
-          }
-          case "thisYear":
-            startDate = new Date(now.getFullYear(), 0, 1);
-            break;
-          case "lastYear":
-            startDate = new Date(now.getFullYear() - 1, 0, 1);
-            params.end_date = new Date(
-              now.getFullYear() - 1,
-              11,
-              31
-            ).toISOString();
-            break;
-          default:
-            startDate = new Date(2020, 0, 1);
-        }
-
-        params.start_date = startDate.toISOString();
-        if (!params.end_date) params.end_date = now.toISOString();
-      }
 
       const res = await axiosBaseApi.get(API_ENDPOINTS.invoices.taxReport, { params });
       if (res?.data?.data) {
@@ -270,7 +250,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
     } finally {
       setTaxLoading(false);
     }
-  }, [groupBy, taxPeriod]);
+  }, [groupBy, taxPeriod, selectedCompanyId]);
 
   useEffect(() => {
     if (activeTab === 1) {
@@ -297,39 +277,11 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
   };
 
   const handleExportCSV = async () => {
+    if (exporting) return;
+    setExporting(true);
     try {
-      const params: Record<string, string> = {};
+      const params: Record<string, string> = periodParams(taxPeriod);
       if (selectedCompanyId) params.company_id = String(selectedCompanyId);
-      if (taxPeriod !== "all") {
-        const now = new Date();
-        let startDate: Date;
-        let endDate: Date = now;
-        switch (taxPeriod) {
-          case "thisMonth":
-            startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-            break;
-          case "lastMonth":
-            startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-            endDate = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
-            break;
-          case "thisQuarter": {
-            const quarter = Math.floor(now.getMonth() / 3);
-            startDate = new Date(now.getFullYear(), quarter * 3, 1);
-            break;
-          }
-          case "thisYear":
-            startDate = new Date(now.getFullYear(), 0, 1);
-            break;
-          case "lastYear":
-            startDate = new Date(now.getFullYear() - 1, 0, 1);
-            endDate = new Date(now.getFullYear() - 1, 11, 31, 23, 59, 59);
-            break;
-          default:
-            startDate = new Date(2020, 0, 1);
-        }
-        params.start_date = startDate.toISOString();
-        params.end_date = endDate.toISOString();
-      }
 
       const res = await axiosBaseApi.get(API_ENDPOINTS.invoices.taxReportCsv, {
         params,
@@ -340,7 +292,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
       link.href = url;
       link.setAttribute(
         "download",
-        `tax-report-${new Date().toISOString().split("T")[0]}.csv`
+        `tax-report-${taxPeriod}-${new Date().toISOString().split("T")[0]}.csv`
       );
       document.body.appendChild(link);
       link.click();
@@ -348,6 +300,8 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
       window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error("Failed to export CSV:", err);
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -363,6 +317,15 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
         <title>{t("invoices.pageName")} — Dynopay</title>
       </Head>
       <Box sx={{ px: { xs: "16px", md: 0 } }} style={{ "--font-sans": "var(--font-inter)", fontFamily: "var(--font-inter)" } as any}>
+        {/* Period header — collected · tax · fees for the selected period + one-click export (Wave 2d). */}
+        <PeriodTotals
+          period={taxPeriod}
+          onPeriodChange={setTaxPeriod}
+          data={periodSummary.data}
+          loading={periodSummary.isLoading}
+          exporting={exporting}
+          onExport={handleExportCSV}
+        />
         {/* Tabs */}
         <Box
           sx={{
@@ -423,29 +386,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                       </Box>
                     ))
                   ) : invoices.length === 0 ? (
-                    <Box sx={{ py: 5, textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 1.5 }}>
-                      <Box
-                        sx={{
-                          width: 56,
-                          height: 56,
-                          borderRadius: "50%",
-                          bgcolor: `${muiTheme.palette.primary.main}10`,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          color: brandFg(muiTheme.palette.mode === "dark"),
-                        }}
-                      >
-                        <Icon name="file-text" size={26} />
-                      </Box>
-                      <Typography sx={{ fontWeight: 600, fontFamily: "var(--font-sans)", color: muiTheme.palette.text.primary }}>
-                        {t("invoices.noInvoicesTitle")}
-                      </Typography>
-                      <Typography sx={{ fontSize: 13, color: muiTheme.palette.text.secondary, fontFamily: "var(--font-sans)", maxWidth: 320, lineHeight: 1.5 }}>
-                        {t("invoices.noInvoicesDesc")}
-                      </Typography>
-                      <CustomButton label={t("invoices.noInvoicesCta")} variant="primary" size="small" onClick={() => router.push("/create-pay-link")} />
-                    </Box>
+                    <ReceiptsEmptyState periodActive={taxPeriod !== "all"} onShowAll={() => setTaxPeriod("all")} compact />
                   ) : (
                     invoices.map((inv) => (
                       <Box
@@ -609,54 +550,9 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                             <TableCell
                               colSpan={6}
                               align="center"
-                              sx={{ py: 6, border: "none" }}
+                              sx={{ py: 2, border: "none" }}
                             >
-                              <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1.5 }}>
-                                <Box
-                                  sx={{
-                                    width: 56,
-                                    height: 56,
-                                    borderRadius: "50%",
-                                    bgcolor: `${muiTheme.palette.primary.main}10`,
-                                    color: brandFg(muiTheme.palette.mode === "dark"),
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    mb: 0.5,
-                                  }}
-                                >
-                                  <Icon name="file-text" size={26} />
-                                </Box>
-                                <Typography
-                                  sx={{
-                                    fontFamily: "var(--font-sans)",
-                                    fontWeight: 600,
-                                    color: muiTheme.palette.text.primary,
-                                    fontSize: isMobile ? 15 : 16,
-                                  }}
-                                >
-                                  {t("invoices.noInvoicesTitle")}
-                                </Typography>
-                                <Typography
-                                  sx={{
-                                    fontFamily: "var(--font-sans)",
-                                    color: muiTheme.palette.text.secondary,
-                                    fontSize: isMobile ? 12 : 13,
-                                    maxWidth: 340,
-                                    lineHeight: 1.5,
-                                  }}
-                                >
-                                  {t("invoices.noInvoicesDesc")}
-                                </Typography>
-                                <Box sx={{ mt: 1 }}>
-                                  <CustomButton
-                                    label={t("invoices.noInvoicesCta")}
-                                    variant="primary"
-                                    size="small"
-                                    onClick={() => router.push("/create-pay-link")}
-                                  />
-                                </Box>
-                              </Box>
+                              <ReceiptsEmptyState periodActive={taxPeriod !== "all"} onShowAll={() => setTaxPeriod("all")} />
                             </TableCell>
                           </TableRow>
                         )
@@ -901,27 +797,6 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
               <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap" }}>
                 <FormControl size="small">
                   <Select
-                    value={taxPeriod}
-                    onChange={(e) => setTaxPeriod(e.target.value)}
-                    data-testid="tax-period-select"
-                    inputProps={{ "aria-label": t("invoices.period") }}
-                    sx={{
-                      fontFamily: "var(--font-sans)",
-                      fontSize: 13,
-                      minWidth: 140,
-                      height: 36,
-                    }}
-                  >
-                    <MenuItem value="all" data-testid="tax-period-all">{t("invoices.allTime")}</MenuItem>
-                    <MenuItem value="thisMonth" data-testid="tax-period-thisMonth">{t("invoices.thisMonth")}</MenuItem>
-                    <MenuItem value="lastMonth" data-testid="tax-period-lastMonth">{t("invoices.lastMonth")}</MenuItem>
-                    <MenuItem value="thisQuarter" data-testid="tax-period-thisQuarter">{t("invoices.thisQuarter")}</MenuItem>
-                    <MenuItem value="thisYear" data-testid="tax-period-thisYear">{t("invoices.thisYear")}</MenuItem>
-                    <MenuItem value="lastYear" data-testid="tax-period-lastYear">{t("invoices.lastYear")}</MenuItem>
-                  </Select>
-                </FormControl>
-                <FormControl size="small">
-                  <Select
                     value={groupBy}
                     onChange={(e) => setGroupBy(e.target.value)}
                     data-testid="tax-groupby-select"
@@ -940,15 +815,6 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                 </FormControl>
               </Box>
               <Box sx={{ display: "flex", gap: 1 }}>
-                <CustomButton
-                  data-testid="tax-export-csv"
-                  label={t("invoices.exportCsv")}
-                  startIcon={<Icon name="download" size={16} />}
-                  variant="secondary"
-                  size="small"
-                  onClick={handleExportCSV}
-                  sx={{ fontSize: 13 }}
-                />
                 <CustomButton
                   data-testid="tax-print"
                   label={t("invoices.print")}

@@ -92,6 +92,16 @@ export function toTxStatusBucket(displayStatus: unknown): TxStatusBucket {
   return "pending";
 }
 
+/** Saved "Needs action" filter: underpaid, or money seen on-chain but still
+ *  confirming for longer than the payment window. */
+export const NEEDS_ACTION_RAW = ["underpaid", "partial", "partially_paid", "processing", "confirmed", "pending"];
+export function isNeedsAction(bucket: TxStatusBucket, createdAt: unknown): boolean {
+  if (bucket === "underpaid") return true;
+  if (bucket !== "processing" && bucket !== "confirmed" && bucket !== "pending") return false;
+  const created = createdAt ? new Date(createdAt as string | Date).getTime() : NaN;
+  return Number.isFinite(created) && Date.now() - created > UNPAID_AFTER_MINUTES * 60 * 1000;
+}
+
 /** Raw DB statuses that can resolve to a bucket (cheap SQL pre-filter).
  *  null = no safe pre-filter ('pending' is the catch-all) — rely on the JS post-filter. */
 export function rawStatusesForBucket(bucket: TxStatusBucket): string[] | null {

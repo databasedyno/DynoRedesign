@@ -1,5 +1,6 @@
 import express from "express";
 import invoiceController from "../controller/invoiceController";
+import invoicePeriodSummary from "../controller/invoicePeriodSummary";
 import authMiddleware from "../middleware/authMiddleware";
 
 const invoiceRouter = express.Router();
@@ -46,6 +47,13 @@ invoiceRouter.get(
   "/invoices/tax-report/csv",
   authMiddleware,
   invoiceController.exportTaxReportCSV
+);
+
+// Receipts & Tax header totals for a period (collected · tax · fees)
+invoiceRouter.get(
+  "/invoices/period-summary",
+  authMiddleware,
+  invoicePeriodSummary.getPeriodSummary
 );
 
 // Get specific invoice by invoice ID

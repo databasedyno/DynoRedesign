@@ -39,6 +39,7 @@ import KeyboardArrowRightRoundedIcon from "@mui/icons-material/KeyboardArrowRigh
 
 import CopyIcon from "@/assets/Icons/copy-icon.svg";
 import LinkCoinsBadge from "./LinkCoinsBadge";
+import { ExpiringSoonBadge, Last30Cell, QrShareActions } from "./LinkRowExtras";
 import { StatusDot } from "@/Components/UI/StatusDot";
 import { formatDisplayDateTime } from "@/helpers/displayDate";
 import TransactionSourceBadge from "@/Components/UI/TransactionSourceBadge";
@@ -349,19 +350,22 @@ const PaymentLinksTable = ({
                       </Typography>
                       {row.linkType === "donation" && donationChip}
                     </Box>
-                    <StatusDot
-                      tone={
-                        row.status === "paid" || row.status === "completed"
-                          ? "settled"
-                          : row.status === "active"
-                            ? "info"
-                            : row.status === "expired"
-                              ? "neutral"
-                              : "pending"
-                      }
-                    >
-                      {row.status === "active" ? t("statusActive", { defaultValue: "Active" }) : row.status === "expired" ? t("statusExpired", { defaultValue: "Expired" }) : row.status === "paid" || row.status === "completed" ? t("statusPaid", { defaultValue: "Paid" }) : t("statusPending", { defaultValue: "Pending" })}
-                    </StatusDot>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                      <StatusDot
+                        tone={
+                          row.status === "paid" || row.status === "completed"
+                            ? "settled"
+                            : row.status === "active"
+                              ? "info"
+                              : row.status === "expired"
+                                ? "neutral"
+                                : "pending"
+                        }
+                      >
+                        {row.status === "active" ? t("statusActive", { defaultValue: "Active" }) : row.status === "expired" ? t("statusExpired", { defaultValue: "Expired" }) : row.status === "paid" || row.status === "completed" ? t("statusPaid", { defaultValue: "Paid" }) : t("statusPending", { defaultValue: "Pending" })}
+                      </StatusDot>
+                      <ExpiringSoonBadge link={row} testId={`paylink-expiring-mobile-${row.id}`} />
+                    </Box>
                   </Box>
                   {/* Middle: USD + Crypto */}
                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", mb: 1 }}>
@@ -370,6 +374,7 @@ const PaymentLinksTable = ({
                     </Typography>
                     <LinkCoinsBadge value={row.cryptoValue} size="xs" max={2} />
                   </Box>
+                  <Box sx={{ mb: 1 }}><Last30Cell link={row} compact /></Box>
                   {row.linkType === "donation" && row.donation?.goalAmount ? (
                     <Box sx={{ mb: 1 }}>{donationProgressBar(row, 999)}</Box>
                   ) : null}
@@ -392,6 +397,7 @@ const PaymentLinksTable = ({
                           </RowActionButton>
                         </Tooltip>
                       )}
+                      <QrShareActions link={row} onToast={fireToast} compact />
                       <Tooltip title={t("viewLinkTooltip", { defaultValue: "View details" })} arrow>
                         <RowActionButton
                           aria-label={t("viewLinkTooltip", { defaultValue: "View details" })}
@@ -548,7 +554,7 @@ const PaymentLinksTable = ({
                     <Header label="statusHeader" />
                   </TableCell>
                   <TableCell>
-                    <Header label="timesUsedHeader" tooltip="timesUsedTooltip" />
+                    <Header label="last30Header" tooltip="last30Tooltip" />
                   </TableCell>
                   <TableCell
                     align="center"
@@ -639,28 +645,31 @@ const PaymentLinksTable = ({
                     </TableBodyCell>
 
                     <TableBodyCell>
-                      <StatusDot
-                        tone={
-                          row.status === "paid" || row.status === "completed"
-                            ? "settled"
-                            : row.status === "active"
-                              ? "info"
-                              : row.status === "expired"
-                                ? "neutral"
-                                : "pending"
-                        }
-                      >
-                        {row.status === "active"
-                          ? t("statusActive", { defaultValue: "Active" })
-                          : row.status === "expired"
-                            ? t("statusExpired", { defaultValue: "Expired" })
-                            : row.status === "paid" || row.status === "completed"
-                              ? t("statusPaid", { defaultValue: "Paid" })
-                              : t("statusPending", { defaultValue: "Pending" })}
-                      </StatusDot>
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, flexWrap: "wrap" }}>
+                        <StatusDot
+                          tone={
+                            row.status === "paid" || row.status === "completed"
+                              ? "settled"
+                              : row.status === "active"
+                                ? "info"
+                                : row.status === "expired"
+                                  ? "neutral"
+                                  : "pending"
+                          }
+                        >
+                          {row.status === "active"
+                            ? t("statusActive", { defaultValue: "Active" })
+                            : row.status === "expired"
+                              ? t("statusExpired", { defaultValue: "Expired" })
+                              : row.status === "paid" || row.status === "completed"
+                                ? t("statusPaid", { defaultValue: "Paid" })
+                                : t("statusPending", { defaultValue: "Pending" })}
+                        </StatusDot>
+                        <ExpiringSoonBadge link={row} testId={`paylink-expiring-${row.id}`} />
+                      </Box>
                     </TableBodyCell>
 
-                    <TableBodyCell sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums" }}>{row.timesUsed}</TableBodyCell>
+                    <TableBodyCell><Last30Cell link={row} /></TableBodyCell>
 
                     <TableBodyCell
                       align="center"
@@ -708,6 +717,7 @@ const PaymentLinksTable = ({
                           </RowActionButton>
                         </Tooltip>
                       )}
+                      <QrShareActions link={row} onToast={fireToast} />
                       <Tooltip title={t("viewLinkTooltip", { defaultValue: "View details" })} arrow>
                         <RowActionButton
                           aria-label={t("viewLinkTooltip", { defaultValue: "View details" })}

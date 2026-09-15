@@ -10,6 +10,8 @@ import { useMfaEnforcement } from "./useMfaEnforcement";
 
 const INTERSTITIAL_KEY = "mfa_interstitial_seen";
 const SKIP_PATHS = ["/get-started", "/admin"];
+// The dashboard surfaces the soft wall as a "Needs attention" feed row instead of the shell banner.
+const BANNER_HIDDEN_PATHS = ["/dashboard"];
 
 const seenThisSession = () => {
   try { return sessionStorage.getItem(INTERSTITIAL_KEY) === "1"; } catch { return true; }
@@ -34,6 +36,7 @@ const MfaGate: React.FC = () => {
   const [bannerDialogOpen, setBannerDialogOpen] = useState(false);
 
   const skipped = SKIP_PATHS.some((p) => router.pathname === p || router.pathname.startsWith(p + "/"));
+  const bannerHidden = BANNER_HIDDEN_PATHS.includes(router.pathname);
   const pending = !!enforcement && !enforcement.enrolled && !skipped;
   const hardWall = pending && enforcement!.hard_wall;
   const softWall = pending && !enforcement!.hard_wall;
@@ -64,6 +67,7 @@ const MfaGate: React.FC = () => {
 
   return (
     <>
+      {!bannerHidden && (
       <Box
         data-testid="mfa-soft-banner"
         sx={{
@@ -93,6 +97,7 @@ const MfaGate: React.FC = () => {
           {t("twoFactor.bannerCta", { defaultValue: "Set up now" })}
         </Button>
       </Box>
+      )}
 
       <EnrollDialog
         open={interstitialOpen || bannerDialogOpen}

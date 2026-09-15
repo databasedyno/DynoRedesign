@@ -28,6 +28,10 @@ import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import WalletTotalHero from "./WalletTotalHero";
 import WalletReuseNudge from "./WalletReuseNudge";
+import CoverageStrip from "./CoverageStrip";
+import WalletSecurityStrip from "./WalletSecurityStrip";
+import { AddressFormatBadge, LastForwardRow } from "./WalletCardMeta";
+import { useDashboardPayouts } from "@/Components/Page/Payouts/useDashboardPayouts";
 import CopyInline from "@/Components/UX/CopyInline";
 import { maskAddress } from "@/helpers/maskAddress";
 import {
@@ -39,7 +43,7 @@ import {
   WalletLabel,
 } from "./styled";
 
-const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
+const Wallet = ({ onAddWallet }: { onAddWallet?: (crypto?: string) => void }) => {
   const isMobile = useIsMobile("md");
   const dispatch = useDispatch();
   const theme = useTheme();
@@ -78,6 +82,17 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
   const { refetchWallets } = useWalletStore();
 
   const { walletLoading, walletData } = useWalletData();
+  // Forwarding activity per wallet + accepted-coin coverage (same feed as the Payouts page).
+  const payouts = useDashboardPayouts({ range: "30d", custom: null });
+  const payoutByWalletId = useMemo(() => {
+    const m = new Map<string, NonNullable<typeof payouts.data>["wallets"][number]>();
+    for (const w of payouts.data?.wallets ?? []) m.set(String(w.wallet_id), w);
+    return m;
+  }, [payouts.data]);
+  const missingCoins = payouts.data?.coverage?.missing_coins ?? [];
+  const payoutsLoading = payouts.isLoading && !payouts.data;
+  const paySym = payouts.data?.currency_symbol || "$";
+  const payCur = payouts.data?.currency || "USD";
   // Shared-address tags: one address saved under several networks (plan backlog P2).
   const sharedMap = useMemo(() => buildSharedAddressMap(walletData), [walletData]);
   // Tap a tag → highlight every sibling card sharing that address, dim the rest.
@@ -168,6 +183,7 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
   if (walletData.length === 0 && !walletLoading) {
     return (
       <>
+        <CoverageStrip missing={missingCoins} onAdd={(c) => onAddWallet?.(c)} />
         {/* Wallets are per-account: if another account already has addresses,
             offer them here instead of making the merchant retype anything. */}
         <WalletReuseNudge onAddWallet={onAddWallet} />
@@ -191,7 +207,10 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
           Only render when the user actually has wallets configured, so first-
           time visitors see the empty-state warning banner (already surfaced
           via setPageWarning) instead of an unhelpful "$0.00" hero. */}
+      {/* Coverage FIRST: coins live links accept with nowhere to land. */}
+      <CoverageStrip missing={missingCoins} onAdd={(c) => onAddWallet?.(c)} />
       {walletData.length > 0 && <WalletTotalHero />}
+      <WalletSecurityStrip />
       <SharedHighlightBar wallets={highlighted} onJump={jumpToCard} onClear={() => setHighlightAddr(null)} />
       <Grid container spacing={isMobile ? "12px" : 2.7}>
         {walletData.map((wallet, index) => {
@@ -357,17 +376,20 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
                       minWidth: 0,
                     }}
                   >
-                    <WalletLabel>
-                      <Image src={LinkIcon} alt="Address" draggable={false} className="themed-icon" />
-                      <span>{tWallet("address")}</span>
-                      <SharedAddressTag
-                        networks={sharedNetworksFor(sharedMap, wallet)}
-                        size={isMobile ? "sm" : "md"}
-                        testId={`wallet-shared-tag-${wallet.id}`}
-                        active={lit}
-                        onClick={() => toggleHighlight(wallet)}
-                      />
-                    </WalletLabel>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <WalletLabel>
+                        <Image src={LinkIcon} alt="Address" draggable={false} className="themed-icon" />
+                        <span>{tWallet("address")}</span>
+                        <SharedAddressTag
+                          networks={sharedNetworksFor(sharedMap, wallet)}
+                          size={isMobile ? "sm" : "md"}
+                          testId={`wallet-shared-tag-${wallet.id}`}
+                          active={lit}
+                          onClick={() => toggleHighlight(wallet)}
+                        />
+                      </WalletLabel>
+                      <AddressFormatBadge chain={wallet.walletTitle} address={wallet.walletAddress} testId={`wallet-address-format-${wallet.id}`} />
+                    </Box>
                     <Typography
                       data-testid={`wallet-address-${wallet.id}`}
                       data-revealed={isRevealed(wallet.id) ? "true" : "false"}
@@ -503,6 +525,15 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: () => void }) => {
                       </Typography>
                     </Box>
                   )}
+                </WalletCardBodyRow>
+                <WalletCardBodyRow>
+                  <LastForwardRow
+                    wallet={payoutByWalletId.get(String(wallet.id))}
+                    loading={payoutsLoading}
+                    symbol={paySym}
+                    currency={payCur}
+                    testId={`wallet-last-forward-${wallet.id}`}
+                  />
                 </WalletCardBodyRow>
 
                 <Box sx={{ marginTop: isMobile ? "0px" : "4px" }}>

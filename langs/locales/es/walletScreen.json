@@ -120,7 +120,12 @@
     "manageDevices": "Gestionar dispositivos",
     "signedOutCount": "Sesión cerrada en {{count}} dispositivo(s) más — aquí sigues conectado.",
     "noOtherDevices": "No hay otros dispositivos para cerrar sesión.",
-    "signOutFailed": "No se pudo cerrar sesión en otros dispositivos. Inténtalo de nuevo."
+    "signOutFailed": "No se pudo cerrar sesión en otros dispositivos. Inténtalo de nuevo.",
+    "stripTitle": "Protección de wallets",
+    "stripManage": "Gestionar en Ajustes",
+    "stripLocked": "Los cambios de wallet están congelados tras un aviso de “no fui yo”.",
+    "stripStrong": "Código de un solo uso en cada cambio · enlace para deshacer por email · inicio de sesión en dos pasos activo.",
+    "stripStandard": "Código de un solo uso en cada cambio · enlace para deshacer por email. Activa la verificación en dos pasos para llegar a Fuerte."
   },
   "chooseCoin": "Elige una moneda…",
   "deleteWallet": "Eliminar billetera",
@@ -165,5 +170,14 @@
   "stepUpVerifyNow": "Verificar ahora",
   "stepUpCancelled": "Verificación cancelada: tus cambios no se guardaron.",
   "sudoEndedBanner": "Verificación finalizada",
-  "sudoEndedHint": "Te pediremos verificar de nuevo al guardar."
+  "sudoEndedHint": "Te pediremos verificar de nuevo al guardar.",
+  "coverageTitle": "{{count}} monedas aceptadas no tienen wallet de pago",
+  "coverageBody": "Tus enlaces de pago activos aceptan estas monedas, pero los pagos en ellas no tienen destino. Añade una wallet para empezar a recibirlas.",
+  "formatOk": "Formato correcto",
+  "formatUnusual": "Formato inusual",
+  "formatOkTip": "Esta dirección coincide con el formato habitual de {{chain}}.",
+  "formatUnusualTip": "No parece una dirección típica de {{chain}}. Revísala antes de tu próximo pago.",
+  "lastPayoutNone": "Aún no hay pagos a esta wallet",
+  "lastPayoutAt": "Último pago {{when}}",
+  "in30d": "en 30 d"
 }

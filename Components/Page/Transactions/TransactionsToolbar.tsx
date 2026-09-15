@@ -67,6 +67,7 @@ const TransactionsToolbar: React.FC<Props> = ({
   const chips = useMemo(
     () => [
       { value: "all" as TxStatusFilter, label: t("statusAll", { defaultValue: "All" }) },
+      { value: "needs_action" as TxStatusFilter, label: t("needsAction", { defaultValue: "Needs action" }) },
       ...STATUS_FILTERS.filter((s) => counts[s] > 0 || selected === s).map((s) => ({
         value: s as TxStatusFilter,
         label:
@@ -138,10 +139,13 @@ const TransactionsToolbar: React.FC<Props> = ({
               selected={isSelected}
               onClick={() => onChange(chip.value)}
               data-testid={`transactions-status-chip-${chip.value}`}
+              title={chip.value === "needs_action" ? (t("needsActionHint", { defaultValue: "Underpaid payments and payments still confirming after an hour." }) as string) : undefined}
             >
-              {chip.value !== "all" && (
+              {chip.value === "needs_action" ? (
+                <Icon name="circle-alert" size={13} color={isSelected ? "currentColor" : "#D97706"} />
+              ) : chip.value !== "all" ? (
                 <StatusDot tone={txStatusTone(chip.value)} sx={{ gap: 0 }} />
-              )}
+              ) : null}
               <span className="chip-label">{chip.label}</span>
               <span
                 className="chip-count"

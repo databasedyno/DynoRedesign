@@ -28,6 +28,8 @@ export const API_ENDPOINTS = {
     analytics: "/user/creator/analytics",
     /** Public creator stats. */
     stats: "/user/creator/stats",
+    /** Wave 3b — views → checkouts → paid funnel for a range (7d|30d|90d). */
+    funnel: (period: string) => `/user/creator/funnel?period=${period}`,
     /** Cover-image upload. */
     uploadCover: "/user/creator/upload-cover",
     /** Authed availability check with query (handle + optional reservation token). */
@@ -140,6 +142,7 @@ export const API_ENDPOINTS = {
     list: "/invoices",
     taxReport: "/invoices/tax-report",
     taxReportCsv: "/invoices/tax-report/csv",
+    periodSummary: "/invoices/period-summary",
     collectedTaxReport: "/tax/collected-report",
     collectedTaxReportCsv: "/tax/collected-report/csv",
     pdf: (invoiceId: PathId) => `/invoices/${invoiceId}/pdf`,
@@ -198,6 +201,8 @@ export const API_ENDPOINTS = {
     invoice: (transactionId: PathId) => `/transactions/${transactionId}/invoice`,
     // Accepts DB id, numeric transaction_id, or an on-chain tx hash
     detail: (idOrHash: PathId) => `/wallet/transaction/${encodeURIComponent(String(idOrHash))}`,
+    // Re-send the buyer's "send the remaining X" e-mail for an underpaid payment
+    requestTopup: (transactionId: PathId) => `/wallet/transactions/${encodeURIComponent(String(transactionId))}/request-topup`,
   },
 
   userApi: {

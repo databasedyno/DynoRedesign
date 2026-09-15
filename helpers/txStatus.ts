@@ -57,3 +57,13 @@ export const TX_STATUS_TONE: Record<TxStatusBucket, StatusTone> = {
 
 export const txStatusTone = (raw: unknown): StatusTone =>
   TX_STATUS_TONE[toTxStatusBucket(raw)];
+
+/** Minutes after which a still-confirming payment counts as "needs action" (mirrors the backend window). */
+export const NEEDS_ACTION_AFTER_MS = 60 * 60 * 1000;
+
+/** Saved "Needs action" filter: underpaid, or money seen on-chain but confirming for over an hour. */
+export const isNeedsAction = (bucket: TxStatusBucket, createdAtTs: number, now = Date.now()): boolean => {
+  if (bucket === "underpaid") return true;
+  if (bucket !== "processing" && bucket !== "confirmed" && bucket !== "pending") return false;
+  return createdAtTs > 0 && now - createdAtTs > NEEDS_ACTION_AFTER_MS;
+};

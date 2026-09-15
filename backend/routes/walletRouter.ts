@@ -83,6 +83,7 @@ walletRouter.post("/getWalletTransactions/:id", walletController.getWalletTransa
 walletRouter.post("/getAllTransactions", walletController.getAllTransactions);
 walletRouter.get("/transaction/:id", walletController.getTransactionDetails);
 walletRouter.post("/transactions/export", walletController.exportTransactions);
+walletRouter.post("/transactions/:id/request-topup", walletController.requestTopup);
 
 walletRouter.post("/addFunds", walletController.addFunds);
 walletRouter.post("/encrypt-payload", walletController.encryptPayload);

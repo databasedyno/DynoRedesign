@@ -64,6 +64,11 @@ export interface DirectoryEntry {
   wallet_balance: number;
   wallet_currency: string | null;
   customer_ids: number[];
+  /** Wave 3c — most-used crypto asset across settled payments (ties → most recent). */
+  preferred_asset: string | null;
+  /** Wave 3c — the latest settled payment (USD + asset), for the "Last paid" cell. */
+  last_paid_usd: number | null;
+  last_paid_asset: string | null;
 }
 
 export interface DirectoryData {
@@ -272,7 +277,7 @@ export const buildDirectory = async (
     { replacements, type: QueryTypes.SELECT }
   )) as Array<Record<string, unknown>>;
 
-  type Accum = DirectoryEntry & { first_paid: string | null; _channels: Set<CanonicalTxSourceType> };
+  type Accum = DirectoryEntry & { first_paid: string | null; _channels: Set<CanonicalTxSourceType>; _assets: Map<string, number> };
   const persons = new Map<string, Accum>();
   const anon = new Map<string, Accum>();
 
@@ -294,8 +299,12 @@ export const buildDirectory = async (
     wallet_balance: 0,
     wallet_currency: null,
     customer_ids: [],
+    preferred_asset: null,
+    last_paid_usd: null,
+    last_paid_asset: null,
     first_paid: null,
     _channels: new Set<CanonicalTxSourceType>(),
+    _assets: new Map<string, number>(),
   });
 
   // 1) Fold every transaction into a person (by email) or an anonymous channel bucket.
@@ -321,8 +330,17 @@ export const buildDirectory = async (
     if (PAID_SET.has(status)) {
       entry.payments_count += 1;
       entry.ltv_usd = add(entry.ltv_usd, row.usd_display).toNumber();
+      // Rows arrive newest-first, so the first paid row seen is the latest payment.
+      if (entry.last_payment == null || new Date(row.createdAt).getTime() > new Date(entry.last_payment).getTime()) {
+        entry.last_paid_usd = toNumber(Number(row.usd_display) || 0, 2);
+        entry.last_paid_asset = row.crypto_currency ? String(row.crypto_currency).toUpperCase() : null;
+      }
       entry.last_payment = maxDate(entry.last_payment, row.createdAt);
       entry.first_paid = minDate(entry.first_paid, row.createdAt);
+      if (row.crypto_currency) {
+        const asset = String(row.crypto_currency).toUpperCase();
+        entry._assets.set(asset, (entry._assets.get(asset) || 0) + 1);
+      }
     } else if (deriveTxDisplayStatus(status, row.createdAt) === "pending") {
       entry.pending_count += 1;
     }
@@ -362,9 +380,13 @@ export const buildDirectory = async (
 
   // Finalize
   const finalize = (e: Accum): DirectoryEntry => {
-    const { _channels, first_paid, ...rest } = e;
+    const { _channels, _assets, first_paid, ...rest } = e;
+    let preferred: string | null = null;
+    let best = 0;
+    for (const [asset, n] of _assets) if (n > best) { best = n; preferred = asset; }
     return {
       ...rest,
+      preferred_asset: preferred,
       ltv_usd: toNumber(e.ltv_usd, 2),
       channels: Array.from(_channels),
       segment: e.kind === "anonymous" ? "anonymous" : segmentOf({ ...e, first_paid }),

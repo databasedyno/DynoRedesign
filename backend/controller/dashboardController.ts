@@ -398,6 +398,7 @@ const getChartData = async (req: express.Request, res: express.Response) => {
     } else {
       let days = 30;
       switch (period) {
+        case 'today': days = 0; groupBy = 'hour'; break;
         case '7d': days = 7; groupBy = 'day'; break;
         case '30d': days = 30; groupBy = 'day'; break;
         case '90d': days = 90; groupBy = 'week'; break;
@@ -405,7 +406,8 @@ const getChartData = async (req: express.Request, res: express.Response) => {
         default: days = 30; groupBy = 'day';
       }
       startDate = new Date();
-      startDate.setDate(startDate.getDate() - days);
+      if (groupBy === 'hour') startDate.setHours(0, 0, 0, 0);
+      else startDate.setDate(startDate.getDate() - days);
     }
 
     // Check cache (120s TTL). Cache key includes the resolved window so custom
@@ -425,7 +427,8 @@ const getChartData = async (req: express.Request, res: express.Response) => {
 
     // ── 1. Chart data grouped by date AND currency (so we can convert volumes) ──
     let dateTrunc: string;
-    if (groupBy === 'day') dateTrunc = `DATE(ut."createdAt")`;
+    if (groupBy === 'hour') dateTrunc = `DATE_TRUNC('hour', ut."createdAt")`;
+    else if (groupBy === 'day') dateTrunc = `DATE(ut."createdAt")`;
     else if (groupBy === 'week') dateTrunc = `DATE_TRUNC('week', ut."createdAt")`;
     else dateTrunc = `DATE_TRUNC('month', ut."createdAt")`;
 
@@ -531,7 +534,7 @@ const getChartData = async (req: express.Request, res: express.Response) => {
     
     const dateAgg: Record<string, { volume: number; transaction_count: number }> = {};
     for (const row of rawChartData) {
-      const dateKey = new Date(String(row.date)).toISOString().split('T')[0];
+      const dateKey = bucketKeyFor(new Date(String(row.date)), groupBy);
       const usdVol = parseFloat(String(row.usd_volume || '0'));
       const count = parseInt(String(row.transaction_count || '0'));
       
@@ -619,11 +622,15 @@ const getChartData = async (req: express.Request, res: express.Response) => {
   }
 };
 
+/** Bucket key: `YYYY-MM-DD` for day/week/month buckets, `YYYY-MM-DDTHH:00` for hour buckets (UTC). */
+const bucketKeyFor = (d: Date, groupBy: string): string =>
+  groupBy === 'hour' ? d.toISOString().slice(0, 13) + ':00' : d.toISOString().split('T')[0];
+
 /**
  * Helper function to fill missing dates with zero values
  */
 const fillMissingDates = (data: Array<Record<string, unknown>>, startDate: Date, endDate: Date, groupBy: string) => {
-  const bucketKey = (d: Date): string => d.toISOString().split('T')[0];
+  const bucketKey = (d: Date): string => bucketKeyFor(d, groupBy);
 
   // Snap a date to the START of its bucket, in UTC, to MATCH the keys produced
   // by Postgres DATE_TRUNC (week => Monday, month => 1st). Previously the grid
@@ -632,6 +639,10 @@ const fillMissingDates = (data: Array<Record<string, unknown>>, startDate: Date,
   // dropped and the 90d (week) / 1y (month) series came back all-zero.
   const snapToBucketStart = (input: Date): Date => {
     const x = new Date(input);
+    if (groupBy === 'hour') {
+      x.setUTCMinutes(0, 0, 0);
+      return x;
+    }
     x.setUTCHours(0, 0, 0, 0);
     if (groupBy === 'week') {
       const dow = x.getUTCDay(); // 0=Sun … 6=Sat
@@ -643,7 +654,7 @@ const fillMissingDates = (data: Array<Record<string, unknown>>, startDate: Date,
     return x;
   };
 
-  const dataMap = new Map(data.map(d => [new Date(String(d.date)).toISOString().split('T')[0], d]));
+  const dataMap = new Map(data.map(d => [bucketKey(new Date(String(d.date))), d]));
   const used = new Set<string>();
   const filledData: Array<Record<string, unknown>> = [];
 
@@ -670,7 +681,9 @@ const fillMissingDates = (data: Array<Record<string, unknown>>, startDate: Date,
     }
 
     // Increment based on groupBy (UTC-safe so DST never skips/duplicates a bucket)
-    if (groupBy === 'day') {
+    if (groupBy === 'hour') {
+      current.setUTCHours(current.getUTCHours() + 1);
+    } else if (groupBy === 'day') {
       current.setUTCDate(current.getUTCDate() + 1);
     } else if (groupBy === 'week') {
       current.setUTCDate(current.getUTCDate() + 7);

@@ -69,7 +69,7 @@ const WalletHeaderActions: React.FC<{
         variant="outlined"
         size="medium"
         startIcon={<Icon name="shield-check" size={isMobile ? 16 : 18} />}
-        onClick={() => router.push("/wallet/security")}
+        onClick={() => router.push("/settings?section=security")}
         data-testid="wallet-security-btn"
         sx={{
           height: isMobile ? 34 : 40,
@@ -281,11 +281,19 @@ const WalletPage = ({
         sx={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}
         style={{ "--font-sans": "var(--font-inter)", fontFamily: "var(--font-inter)" } as any}
       >
-        <Wallet onAddWallet={() => setOpenCreate(true)} />
+        <Wallet
+          onAddWallet={(crypto) => {
+            setCurrentCryptocurrency(crypto || "");
+            setOpenCreate(true);
+          }}
+        />
         <AddWalletModal
           open={openCreate}
           currentCryptocurrency={currentCryptocurrency}
-          onClose={() => setOpenCreate(false)}
+          onClose={() => {
+            setOpenCreate(false);
+            setCurrentCryptocurrency("");
+          }}
         />
         <WalletManagerModal
           open={openManage}

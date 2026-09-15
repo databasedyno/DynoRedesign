@@ -9,17 +9,19 @@ import { AutoConvertSettings } from "./useAutoConvertSettings";
 interface Props {
   ac: AutoConvertSettings;
   cardSx: CardSx;
+  /** The toggle lives in the money tile above; hide the duplicate here. */
+  hideToggle?: boolean;
 }
 
 /** Settlement & auto-convert: toggle, settle-to coin picker, configured stablecoin wallets. */
-const SettlementCard: React.FC<Props> = ({ ac, cardSx }) => {
+const SettlementCard: React.FC<Props> = ({ ac, cardSx, hideToggle }) => {
   const theme = useTheme();
   const { t } = useTranslation("common");
   const accent = brandFg(theme.palette.mode === "dark");
   const { settlement, settlementLoading, settlementOptions, enabled, selectedWallet, hasStablecoinWallet, settlementTarget, handleToggle, handleCoinChange, toggleDisabled } = ac;
 
   return (
-    <Box sx={cardSx}>
+    <Box sx={cardSx} data-testid="payouts-settlement-card">
       <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1}>
         <Stack direction="row" alignItems="center" gap={1.25}>
           <Box sx={{ width: 40, height: 40, borderRadius: 2, display: "grid", placeItems: "center", bgcolor: brandAlpha(0.12), color: accent }}>
@@ -38,6 +40,7 @@ const SettlementCard: React.FC<Props> = ({ ac, cardSx }) => {
             </Typography>
           </Box>
         </Stack>
+        {!hideToggle && (
         <Tooltip
           title={!hasStablecoinWallet && !enabled ? t("payouts.addWalletFirst", { defaultValue: "Add a stablecoin settlement wallet first" }) : ""}
           arrow
@@ -56,6 +59,7 @@ const SettlementCard: React.FC<Props> = ({ ac, cardSx }) => {
             />
           </span>
         </Tooltip>
+        )}
       </Stack>
 
       {hasStablecoinWallet && (

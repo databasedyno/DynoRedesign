@@ -671,13 +671,22 @@ const getAllInvoices = async (
   res: express.Response
 ) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
-  const { company_id, page = 1, limit = 10 } = req.query;
+  const { company_id, page = 1, limit = 10, start_date, end_date } = req.query;
 
   try {
     const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
 
     // Build where clause
     const whereClause: Record<string, unknown> = {};
+    // Optional period filter (Receipts & Tax header period selector).
+    if (start_date || end_date) {
+      const dateFilter: Record<symbol, Date> = {};
+      const s = start_date ? new Date(start_date as string) : null;
+      const e = end_date ? new Date(end_date as string) : null;
+      if (s && !isNaN(s.getTime())) dateFilter[Op.gte] = s;
+      if (e && !isNaN(e.getTime())) dateFilter[Op.lte] = e;
+      if (Object.getOwnPropertySymbols(dateFilter).length > 0) whereClause.invoice_date = dateFilter;
+    }
 
     // Get user's companies to filter invoices
     const companies = await companyModel.findAll({

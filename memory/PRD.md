@@ -1,3 +1,60 @@
+# === 2026-06 (fork) NEW EPIC APPROVED — EMAILS · PUBLIC PAGES · CHECKOUT · CREATOR PAGES AUDIT + FIX WAVES 4–8 ===
+# STATUS: PHASE 1 (AUDIT) NOT STARTED — context gathered + harness designed only; session ended by user
+#   ("ensure the next agent can continue… end the session after updating document"). NO code changed.
+# FULL PLAN + EXECUTION HANDOFF: /app/plan/emails_pages_audit_plan.md (Parts A–H = approved proposal; §2–§7 = what
+#   was found, harness design, page/email inventories, first blocker fix recipe, order of work).
+# USER DECISIONS (binding): (1) audit = /app/plan/audit_phase1.md + HTML gallery served from the preview at
+#   /audit/index.html (generate into /app/public/audit/, add to .gitignore); page shots 390/820/1366/1920 light+dark,
+#   email shots 600+390 light/dark/gmail-inversion. (2) render + score EVERY email sender (~110 across 21 files in
+#   backend/services/email + services/refund) — merchant/buyer scored fully vs standard A1, admin/ops lighter verdict.
+#   (3) FIX BLOCKERS AS FOUND during Phase 1 (missing/wrong money info in emails, dead-end states, unusable on phone).
+#   Wave 2+3 testing_agent sweep stays PARKED until asked. Respond in English.
+# FIRST BLOCKER TO FIX: merchant "Payment received" email → "Payment settled" with full money path (gross + fiat at
+#   detection, Dynopay fee tier%+amount, network fee + payer, net forwarded, masked destination wallet + forward tx
+#   explorer link or "Forwarding… appears in Payouts", asset·network, what was paid for, masked customer, reference,
+#   CTA to THE payment). All data is in scope at chainVerification.ts ≈L1780 (variable map in plan §6); other callers
+#   merchantPoolSweep.ts:1124, testRouter.ts:700, scripts/verify_footer_lang.ts:53.
+# HARNESS TO BUILD: backend/scripts/audit_render_all_emails.ts (DISABLE_OUTBOUND_EMAIL + EMAIL_DUMP_DIR, rename dumps
+#   per sender, manifest.json; NEVER pass customer-receipt `company` (writes a receipt token); call refund builders
+#   directly) → scripts/qa/email_dark_shots.mjs with --width → scripts/qa/public_sweep.mjs + responsive_sweep.mjs
+#   extended with 820/1366 heights + both themes → gallery generator → report.
+# NEXT AGENT: follow plan §7 order (harness → page shots → gallery → report → blocker fixes → finish).
+# ============================================================================================
+
+
+# === 2026-06 (fork) WAVE 2 (MONEY PAGES) CODED — TESTING DEFERRED BY USER; WAVE 3 STARTED ===
+# STATUS: 2a Transactions, 2b Payouts, 2c Wallet-security→Settings merge + Payout-wallets overhaul
+#   (coverage strip / security strip / last-forward row / address-format badge), 2d Receipts & Tax
+#   (GET /api/invoices/period-summary + header tiles + period export + teaching empty state) are ALL
+#   CODED, FE+BE tsc 0, smoke-screenshotted. testing_agent NOT yet run for Wave 2 — user said
+#   "start the next wave and will test later" → owed before Wave 2 is SHIPPED. Details + file map:
+#   /app/plan/wave_execution_plan.md "STATUS BOARD". Wave 3 pages: Payment links → Your page →
+#   Customers → Refer & earn → Settings (Plan & fees) → Developers → Notifications (plan/plan.md §4).
+# ============================================================================================
+
+# === 2026-09-15 SHIPPED — DASHBOARD REDESIGN WAVE 1: COMMAND CENTRE ===
+# STATUS: DONE & VERIFIED (testing_agent iteration_178 = backend 19/19, frontend 100%, 0 issues).
+# Proposal + page audit: /app/plan/plan.md · execution plan: /app/plan/wave_execution_plan.md ·
+# visual spec: /app/design_guidelines.json. User approved: test as built → continue straight to Wave 2.
+# BACKEND: GET /api/dashboard/overview?company_id&period=today|7d|30d|90d|1y | startDate&endDate
+#   (controller/dashboardOverviewController.ts + services/dashboard/overviewQueries.ts; Redis cache 60s).
+#   Returns pulse, settled{gross,net,fees,count,delta,avg_ticket}, in_flight, forwarded{by_asset,auto_convert},
+#   health{completion_rate, median_settle_minutes, exception_rate + previous}, attention{underpaid_open,
+#   expired_today, confirming_stale, webhook_failures_24h, stale_api_keys, coins_without_wallet,
+#   paylinks_expiring_48h}, top_sources (links+products ≤6).
+# FRONTEND: Components/Page/Dashboard/v2026/index.tsx → zones: RangeBar(PulseChip+range) → AttentionFeed
+#   (useAttentionItems: security→money→config→one growth nudge; dismiss in localStorage) → MoneyRow (3 tiles)
+#   → TrendCard (+CheckoutHealthLine) → activity (RecentTransactionsWidget | TopSourcesCard) → PlanRow
+#   (collapsed). New-merchant state = GettingStartedHero + faded preview. REMOVED from home: quick-action
+#   cards, gateway health strip, auto-convert banner, fee-tier/grow/referral rail, ad-hoc banners
+#   (ActionsRow/BalanceStrip/GatewayHealthStrip/GrowSlot/AssetsCard/CommandBar/EmptyHero deleted).
+# Regression: backend/tests/test_dashboard_overview_iter178.py. Brand 179 no longer exists → use 228/219.
+# NEXT: Wave 2 money pages (Transactions → Payouts (+auto-convert toggle moves here) → Payout wallets +
+#   Wallet-security merge → Receipts & Tax), then Wave 3 (Payment links, Your page, Customers, Refer &
+#   earn, Settings Plan & fees/Security, Developers, Notifications).
+# ============================================================================================
+
+
 # === 2026-09-14 SHIPPED — MANDATORY 2FA + TRUSTED DEVICES + 30-DAY SESSIONS + 2FA RESET ===
 # STATUS: DONE & VERIFIED (testing_agent iteration_177 = 15/15 backend, 100% frontend; hard-wall +
 # wizard enrolment + reset page also self-tested). User decisions (ask_human): 90-day rolling trust,

@@ -1,0 +1,35 @@
+{
+  "summary": "Wave 1 Command-Centre /dashboard (frontend) + GET /api/dashboard/overview (backend) tested end-to-end. Backend: 19/19 pytest cases passed (shape, math sanity fees==gross-net, completion_rate==paid/created*100, avg_ticket==net/count, top_sources sorted+capped≤6, period echo for today/7d/30d/90d/1y, unknown period fallback to 30d, custom range 00:00/23:59:59 boundaries, brands 71/165 200, no-auth 401, foreign company_id 9999 returns 4xx not 5xx, 60s cache same generated_at on identical calls). Frontend: dash2026-root renders, all zones present in correct order (range-bar+pulse+range-control → attention feed → 3 money tiles → trend + checkout-health → activity (recent + top sources) → plan-growth), no removed elements (no 'Grow with Dynopay' / 'Refer a friend' / 'Fee tier' cards). Numbers match expected reference (settled $4733.06 net / $4889.89 gross / $156.84 fees / 83 count / -34.3% delta on brand 1 30d; forwarded $4626.22 with per-asset bars USDT-TRC20 38% BTC 31% ETH 27% and 'Last forward 16 min ago'; pulse 'Quiet · last paid 16 min ago'; 2 attention items incl. '3 checkouts expired unpaid today (≈ $79.95)'; 6 top-sources; 8 recent-txn-rows; health completion 45% with -15.4pp delta). Range control clicks 7D/90D/1Y each re-fetch /api/dashboard/overview with the matching ?period=. Plan-growth toggle button works. Trend asset legend toggle works. Brand switching (company-selector-trigger → company-option-<id>) works: brand 71 (SMADAV) 30d renders gross $75.00/fees $1.75 and 7d re-fetch fires; brand 228 (empty QA brand) enters new-merchant state with new-merchant-getting-started + new-merchant-faded-preview visible, and correctly hides dashboard-range-bar and plan-growth-row. Mobile 390x844: scrollWidth==390 (no horizontal overflow), default range is 7D, recent-txn-row count == 5. Zero console errors across the flow. No 4xx/5xx on /api during interactions.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_dashboard_overview_iter178.py",
+    "/app/test_reports/pytest/iter178_dashboard.xml"
+  ],
+  "action_items": [
+    "Non-blocking: Update /app/memory/test_credentials.md — brand 179 'QA Throwaway Brand 2' is no longer in user 1's companies. The empty-brand new-merchant path is now testable via brand 228 (QA HashKeys Brand) or 219 (QA BuyerEmail Test). Current brands under owner: 1, 71, 165, 219, 228."
+  ],
+  "critical_code_review_comments": [
+    "MoneyRow.tsx correctly renders money-tile-forwarded-autoconvert only when forwarded.auto_convert.enabled is true (brand 1 has it disabled, so testid is absent — expected, not a bug).",
+    "Backend cache key (dashboardOverviewController ~line 100) works: two identical calls within 60s return identical generated_at. Consider documenting cache TTL constant and adding an X-Cache header for observability.",
+    "Foreign company_id (9999) returns a proper 4xx (not 500) — authz check ok. Recommend confirming this returns 403 (not 404) to avoid enumeration leakage.",
+    "No React key warnings or unhandled fetch errors observed on the dashboard during range/toggle/brand-switch interactions."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_dashboard_overview_iter178.py (new)"
+  ],
+  "success_rate": {"backend": "100% (19/19)", "frontend": "100% of testable spec paths (12/13; new-merchant via brand 179 substituted with brand 228 because 179 no longer exists for user 1)"},
+  "test_credentials": "Uses onarrival21@gmail.com / Katiekendra123@ from /app/memory/test_credentials.md; MFA interstitial bypassed via sessionStorage.setItem('mfa_interstitial_seen','1').",
+  "seed_data_creation": "None — SAFE MODE read-only. Only sessionStorage was set on the test browser (does not affect prod DB).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend at https://344a40b3-ff42-4c97-9de3-1b749ec105fa.preview.emergentagent.com. Login is 2-step (email → Continue → password → signin-submit-btn). Set sessionStorage.mfa_interstitial_seen='1' before submit to skip 2FA interstitial. Dashboard root selector = [data-testid=dash2026-root]. Range control buttons have UPPERCASE labels ('7D','30D','90D','1Y','Custom'). Brand 179 (QA Throwaway Brand 2) is NOT in user 1's companies anymore; use brand 228 (QA HashKeys Brand) for empty/new-merchant flow. Backend can briefly return 503 'Backend starting' right after a ts-node reload — retry once after ~20s.",
+  "rca of the issue": "No functional issues found. Only environment drift: the credentials doc referenced brand 179 which has since been deleted; workaround documented above."
+}

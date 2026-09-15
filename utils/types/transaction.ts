@@ -2,9 +2,11 @@ import type { ReactNode } from "react";
 import { menuItem } from "../types";
 import { DateRange } from "./dashboard";
 
-/** Status chips on the transactions table toolbar ("all" = no status filter). */
+/** Status chips on the transactions table toolbar ("all" = no status filter,
+ *  "needs_action" = saved filter: underpaid + confirming past the payment window). */
 export type TxStatusFilter =
   | "all"
+  | "needs_action"
   | "settled"
   | "confirmed"
   | "processing"
@@ -13,6 +15,9 @@ export type TxStatusFilter =
   | "awaiting_payment"
   | "unpaid"
   | "failed";
+
+/** Date presets on the transactions page — 30 days is the default view. */
+export type TxRangePreset = "today" | "7d" | "30d" | "90d" | "all" | "custom";
 
 export type TransactionSourceType =
   | "payment_link"
@@ -89,6 +94,11 @@ export interface ExtendedTransaction {
   /** Epoch ms of createdAt (for sorting). */
   createdAtTs: number;
   status: "pending" | "confirmed" | "settled" | "failed" | "processing" | "underpaid" | "unpaid" | "awaiting_payment";
+  /** Buyer on file for this payment (from the checkout capture), if any. */
+  customerName?: string | null;
+  customerEmail?: string | null;
+  /** Short chain label for the asset ("TRC-20", "Ethereum"…). */
+  network?: string;
   fees?: number | string;
   feesBreakdown?: {
     platform: number;
@@ -170,6 +180,9 @@ export interface TransactionsTopBarProps {
   /** Phone (<768px): opens the bottom-sheet filter; badge shows the active count. */
   onOpenFilters?: () => void;
   activeFilterCount?: number;
+  /** Date preset (default 30d); "custom" when an explicit window is applied. */
+  range?: TxRangePreset;
+  onRangeChange?: (preset: Exclude<TxRangePreset, "custom">) => void;
 }
 
 export interface RowsPerPageSelectorProps {

@@ -186,5 +186,14 @@
   "payoutCreditedToDate": "Crédité à ce jour",
   "payoutCreditedToDateDesc": "Total des frais déjà couverts par vos récompenses de parrainage.",
   "payoutMethod": "Mode de versement",
-  "payoutWithdrawIntro": "Nous enverrons {{amount}} en USDT (TRC-20) à {{address}}. Il vous sera demandé de vérifier votre identité."
+  "payoutWithdrawIntro": "Nous enverrons {{amount}} en USDT (TRC-20) à {{address}}. Il vous sera demandé de vérifier votre identité.",
+  "rewardPending": "Récompense en attente",
+  "rewardEarned": "Gagné ${{amount}}",
+  "rewardPaid": "Versé ${{amount}}",
+  "rewardPendingTip": "Acquise dès qu'un paiement éligible est effectué.",
+  "joinedOn": "Inscrit le {{date}}",
+  "refStatus_pending": "En attente",
+  "refStatus_active": "Actif",
+  "refStatus_rewarded": "Récompensé",
+  "refStatus_expired": "Expiré"
 }

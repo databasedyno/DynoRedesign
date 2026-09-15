@@ -50,6 +50,7 @@ import { getWallet, getWalletTransactions } from "./wallet/walletRead";
 import { estimateFees, getConfiguredCurrencies, getNetworkFees, calculatePaymentAmount, encryptPayload } from "./wallet/feesEstimates";
 import { getAllTransactions } from "./wallet/transactionsList";
 import { getTransactionDetails, exportTransactions } from "./wallet/transactionsDetail";
+import { requestTopup } from "./wallet/transactionsTopup";
 import { addFunds, authStep, verifyPayment, confirmPayment } from "./wallet/funding";
 import { verifyCryptoPayment } from "./wallet/cryptoVerify";
 import { getCurrencyRates } from "./wallet/fundingMethods";
@@ -90,6 +91,7 @@ export default {
   editWalletAddress,
   getTransactionDetails,
   exportTransactions,
+  requestTopup,
   getConfiguredCurrencies,
   getNetworkFees,
   calculatePaymentAmount,

@@ -1,6 +1,5 @@
 import InputField from "@/Components/UI/AuthLayout/InputFields";
 import CustomDatePicker, { DatePickerRef } from "@/Components/UI/DatePicker";
-import CalendarIcon from "@/assets/Icons/calendar-icon.svg";
 import SearchIcon from "@/assets/Icons/search-icon.svg";
 import WalletIcon from "@/assets/Icons/wallet-icon.svg";
 import useIsMobile from "@/hooks/useIsMobile";
@@ -21,7 +20,6 @@ import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import FavoriteRounded from "@mui/icons-material/FavoriteRounded";
 import Inventory2Rounded from "@mui/icons-material/Inventory2Rounded";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import LinkRounded from "@mui/icons-material/LinkRounded";
 import PublicRounded from "@mui/icons-material/PublicRounded";
 import { Box, Typography, useTheme } from "@mui/material";
@@ -37,7 +35,6 @@ import React, {
 import { useTranslation } from "react-i18next";
 import {
   CryptoIconChip,
-  DatePickerTriggerButton,
   DatePickerWrapper,
   FiltersContainer,
   SearchContainer,
@@ -49,6 +46,7 @@ import {
   WalletListItem,
   WalletSelectorButton,
 } from "./styled";
+import TxRangePresets from "./TxRangePresets";
 
 const TransactionsTopBar: React.FC<TransactionsTopBarProps & { initialWallet?: string; initialSearch?: string; initialDateRange?: DateRange }> = ({
   onSearch,
@@ -61,6 +59,8 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps & { initialWallet?: s
   initialSource,
   initialSearch,
   initialDateRange,
+  range = "30d",
+  onRangeChange,
 }) => {
   const theme = useTheme();
   const isMobile = useIsMobile("md");
@@ -73,7 +73,6 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps & { initialWallet?: s
     [t],
   );
   const datePickerRef = useRef<DatePickerRef>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
   const walletButtonRef = useRef<HTMLButtonElement>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [dateRange, setDateRange] = useState<DateRange>({
@@ -196,35 +195,24 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps & { initialWallet?: s
     setWalletMenuAnchor(null);
   };
 
-  const handleCalendarButtonClick = (e: React.MouseEvent<HTMLElement>) => {
-    if (datePickerRef.current) {
-      datePickerRef.current.open(e);
+  const customRangeLabel = (): string => {
+    if (dateRange.startDate && dateRange.endDate) {
+      return `${format(dateRange.startDate, "MMM d")} – ${format(dateRange.endDate, "MMM d")}`;
     }
+    return tTransactions("customShort", { defaultValue: "Custom" });
   };
 
-  const formatDateRange = (): string => {
-    if (dateRange.startDate && dateRange.endDate) {
-      if (isMobile) {
-        return `${format(dateRange.startDate, "dd.MM.yy")}-${format(
-          dateRange.endDate,
-          "dd.MM.yy",
-        )}`;
-      }
-      return `${format(dateRange.startDate, "MMM dd, yyyy")} - ${format(
-        dateRange.endDate,
-        "MMM dd, yyyy",
-      )}`;
-    }
-    if (dateRange.startDate) {
-      if (isMobile) {
-        return format(dateRange.startDate, "dd.MM.yy");
-      }
-      return format(dateRange.startDate, "MMM dd, yyyy");
-    }
-    return isMobile
-      ? tTransactions("period")
-      : tTransactions("selectDateRange");
-  };
+  const rangePresets = (
+    <TxRangePresets
+      range={range}
+      customLabel={customRangeLabel()}
+      onChange={(preset) => onRangeChange?.(preset)}
+      onOpenCustom={(anchor) => {
+        if (cardView) onOpenFilters?.();
+        else datePickerRef.current?.open({ currentTarget: anchor });
+      }}
+    />
+  );
 
   const walletOptions = useMemo(
     () => [
@@ -362,27 +350,16 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps & { initialWallet?: s
         </Box>
       )}
 
+      {cardView && (
+        <Box data-testid="transactions-range-row-phone" sx={{ flexBasis: "100%", minWidth: 0, display: "flex" }}>
+          {rangePresets}
+        </Box>
+      )}
+
       {!cardView && (
       <FiltersContainer>
         <DatePickerWrapper>
-          <DatePickerTriggerButton
-            ref={buttonRef}
-            onClick={handleCalendarButtonClick}
-          >
-            <Image
-              src={CalendarIcon}
-              alt="calendar"
-              width={14}
-              height={14}
-              className="themed-icon"
-              style={{
-                marginTop: "-3px",
-              }}
-            />
-            <Typography className="date-text">{formatDateRange()}</Typography>
-            <Box className="separator" />
-            <KeyboardArrowDownIcon className="arrow-icon" />
-          </DatePickerTriggerButton>
+          {rangePresets}
 
           <Box
             sx={{

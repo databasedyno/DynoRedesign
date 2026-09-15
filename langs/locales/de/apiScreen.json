@@ -376,5 +376,33 @@
     "redirectBody": "Ihr Endpunkt antwortet mit einer HTTP {{status}}-Weiterleitung. Wir folgen ihr jetzt automatisch, damit Ihre Webhooks weiterhin zugestellt werden — aber der zusätzliche Sprung erhöht die Latenz. Aktualisieren Sie Ihre URL auf die endgültige Adresse unten, um die Zustellung direkt zu machen.",
     "secretSet": "{{preview}} · gesetzt — regenerieren, um zu ersetzen",
     "subscribeAria": "Abonnieren Sie {{event}}"
+  },
+  "health": {
+    "webhooks": "Webhooks · 24 Std.",
+    "notConfigured": "Nicht eingerichtet",
+    "paused": "Pausiert",
+    "noDeliveries": "Keine Zustellungen",
+    "notConfiguredHint": "Fügen Sie einen Endpunkt hinzu, um Zahlungsereignisse an Ihren Server zu senden.",
+    "lastFailure": "Letzter Fehler {{when}} · {{event}} · HTTP {{status}}",
+    "deliveries24h": "{{count}} Zustellungen in 24 Std. · Ø {{ms}} ms",
+    "quiet24h": "In den letzten 24 Std. nichts gesendet — keine Fehler verzeichnet.",
+    "retry": "Letzten Fehler wiederholen",
+    "retrying": "Wird wiederholt…",
+    "viewEvents": "Ereignisprotokoll",
+    "setupWebhook": "Webhook einrichten",
+    "apiKeys": "API-Schlüssel",
+    "noKeys": "Keine Schlüssel",
+    "activeKeys": "{{count}} aktiv",
+    "rotateDue": "{{count}} Live-Schlüssel älter als {{days}} Monate — rotieren Sie ihn, um das Risiko zu begrenzen.",
+    "oldestKey": "Ältester: {{name}} · {{days}} Tage seit Ausgabe/Rotation",
+    "noKeysHint": "Erstellen Sie einen Schlüssel, um zu integrieren.",
+    "rotateNow": "Jetzt rotieren",
+    "manageKeys": "Schlüssel verwalten",
+    "quickLinks": "Schnellzugriff",
+    "docsTitle": "Doku & Tools",
+    "docsHint": "Referenz, Signaturen und das Zustellprotokoll — alles zum Debuggen einer Integration.",
+    "apiReference": "API-Referenz",
+    "apiReferenceTip": "Vollständige API-Referenz (öffnet in neuem Tab)",
+    "reenable": "Webhook wieder aktivieren"
   }
 }

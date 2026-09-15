@@ -115,5 +115,16 @@
     "acceptsAll": "Accepts all {{count}} coins",
     "acceptsAllHint": "Buyers can pay with any coin you have a payout wallet for: {{list}}",
     "acceptsSome": "Accepts {{count}} of {{total}} coins"
-  }
+  },
+  "last30Header": "Last 30 days",
+  "last30Tooltip": "Settled payments on this link in the last 30 days (count · gross USD).",
+  "last30Tip": "{{count}} settled payments all-time",
+  "paidCount": "{{count}} paid",
+  "noPayments30d": "— none in 30d",
+  "expiringSoon": "Expiring soon",
+  "expiringSoonTip": "Closes in about {{count}} h — extend it or share it now.",
+  "statusEarning": "Earning (30d)",
+  "statusExpiringSoon": "Expiring soon",
+  "qrTooltip": "Show QR code",
+  "shareTooltip": "Share link"
 }

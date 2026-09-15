@@ -1,5 +1,5 @@
 import { endOfDay, isWithinInterval, parseISO, startOfDay } from "date-fns";
-import { toTxStatusBucket } from "@/helpers/txStatus";
+import { isNeedsAction, toTxStatusBucket } from "@/helpers/txStatus";
 import { ICustomerTransactions } from "@/utils/types";
 import { DateRange } from "@/utils/types/dashboard";
 import { TransactionSource, TransactionSourceType, TxStatusFilter } from "@/utils/types/transaction";
@@ -95,8 +95,12 @@ export const matchesBaseFilters = (
   return true;
 };
 
-export const matchesStatus = (item: ICustomerTransactions, status: TxStatusFilter) =>
-  status === "all" || toTxStatusBucket(item.status) === status;
+export const matchesStatus = (item: ICustomerTransactions, status: TxStatusFilter) => {
+  if (status === "all") return true;
+  const bucket = toTxStatusBucket(item.status);
+  if (status === "needs_action") return isNeedsAction(bucket, item.createdAt ? new Date(item.createdAt).getTime() : 0);
+  return bucket === status;
+};
 
 /** Number of non-search filters that differ from the defaults (badge on the phone "Filters" button). */
 export const countActiveFilters = (f: TxFilters): number =>

@@ -151,7 +151,28 @@ export const listMyReferrals = async (req: Request, res: Response) => {
     return res.status(200).json({
       message: "Referrals retrieved successfully",
       data: {
-        referrals: rows,
+        // Wave 3d — flat rows + reward status (pending / earned / paid) per referral.
+        referrals: rows.map((row) => {
+          const r = row.get({ plain: true }) as Record<string, any>;
+          const accrued = Number(r.commission_accrued_usd || 0);
+          const settled = Number(r.commission_paid_usd || 0) + Number(r.commission_credited_usd || 0);
+          const unpaid = Math.max(0, accrued - settled);
+          const rewardStatus = accrued <= 0 ? "pending" : unpaid > 0.005 ? "earned" : "paid";
+          return {
+            id: r.referral_id,
+            referred_name: r.referred_user?.name || null,
+            referred_email: r.referred_user?.email || null,
+            status: r.status,
+            created_at: r.referred_at || r.createdAt,
+            activated_at: r.activated_at || null,
+            rewarded_at: r.rewarded_at || null,
+            commission_window_ends_at: r.commission_window_ends_at || null,
+            reward_status: rewardStatus,
+            accrued_usd: Number(accrued.toFixed(2)),
+            paid_usd: Number(settled.toFixed(2)),
+            unpaid_usd: Number(unpaid.toFixed(2)),
+          };
+        }),
         pagination: {
           total: count,
           page: Number(page),

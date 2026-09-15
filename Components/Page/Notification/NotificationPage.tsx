@@ -42,6 +42,8 @@ import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
 import { useReportDirty } from "@/Components/Page/Settings/settingsDirty";
 import { useRouter } from "next/router";
 import NotificationInbox, { NotifTarget } from "./NotificationInbox";
+import { useDashboardOverview } from "@/Components/Page/Dashboard/v2026/command/useDashboardOverview";
+import { useAttentionItems } from "@/Components/Page/Dashboard/v2026/command/useAttentionItems";
 
 const NotificationItem: React.FC<NotificationItemProps> = ({
   title,
@@ -125,6 +127,10 @@ const NotificationPage = ({ initialTab = "inbox" }: { initialTab?: "inbox" | "se
 
   const selectedCompanyId = useCompanyStore().selectedCompanyId;
   const isMember = useCompanyStore().isMember;
+  // Wave 3g — mirror the dashboard's "Needs attention" rows (incl. dismissed ones)
+  // into the inbox so nothing is lost after a dismissal. 30-day overview, SWR-shared.
+  const { data: overview } = useDashboardOverview({ range: "30d", custom: null });
+  const { items: attentionItems, restore: restoreAttention } = useAttentionItems({ overview, onboarding: !isMember, includeDismissed: true });
   // Fall back to the persisted last_company_id before Redux hydrates so the
   // initial fetches are already company-scoped (avoids a duplicate un-scoped
   // request on every full page load).
@@ -198,7 +204,7 @@ const NotificationPage = ({ initialTab = "inbox" }: { initialTab?: "inbox" | "se
     if (/conversion/.test(type)) return { kind: "route", href: "/payouts" };
     if (isTransactionNotification(type)) return { kind: "transaction" };
     if (/kyc/.test(type)) return { kind: "route", href: "/kyc" };
-    if (/wallet/.test(type)) return { kind: "route", href: "/wallet/security" };
+    if (/wallet/.test(type)) return { kind: "route", href: "/settings?section=security" };
     if (/security/.test(type)) return { kind: "route", href: "/settings?section=profile" };
     if (/team/.test(type)) return { kind: "route", href: "/settings?section=team" };
     if (/api_key/.test(type)) return { kind: "route", href: "/developer-keys" };
@@ -479,6 +485,8 @@ const NotificationPage = ({ initialTab = "inbox" }: { initialTab?: "inbox" | "se
           onOpen={handleNotificationClick}
           targetFor={targetFor}
           formatTimeAgo={formatTimeAgo}
+          attention={attentionItems}
+          onRestoreAttention={restoreAttention}
         />
       )}
 

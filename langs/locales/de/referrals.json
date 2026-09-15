@@ -186,5 +186,14 @@
   "payoutCreditedToDate": "Bisher gutgeschrieben",
   "payoutCreditedToDateDesc": "Gesamte Gebühren, die bereits durch Ihre Empfehlungsprämien gedeckt sind.",
   "payoutMethod": "Auszahlungsmethode",
-  "payoutWithdrawIntro": "Wir senden {{amount}} in USDT (TRC-20) an {{address}}. Du wirst gebeten, deine Identität zu bestätigen."
+  "payoutWithdrawIntro": "Wir senden {{amount}} in USDT (TRC-20) an {{address}}. Du wirst gebeten, deine Identität zu bestätigen.",
+  "rewardPending": "Prämie ausstehend",
+  "rewardEarned": "Verdient ${{amount}}",
+  "rewardPaid": "Ausgezahlt ${{amount}}",
+  "rewardPendingTip": "Wird verdient, sobald eine qualifizierende Zahlung abgeschlossen ist.",
+  "joinedOn": "Beigetreten am {{date}}",
+  "refStatus_pending": "Ausstehend",
+  "refStatus_active": "Aktiv",
+  "refStatus_rewarded": "Belohnt",
+  "refStatus_expired": "Abgelaufen"
 }

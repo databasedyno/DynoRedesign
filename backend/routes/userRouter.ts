@@ -97,6 +97,7 @@ userRouter.post(
   userController.uploadCoverImage
 );
 userRouter.get("/creator/stats", authMiddleware, userController.getCreatorStats);
+userRouter.get("/creator/funnel", authMiddleware, userController.getCreatorFunnel);
 userRouter.get("/creator/analytics", authMiddleware, userController.getCreatorAnalytics);
 userRouter.get("/creator/analytics/split", authMiddleware, userController.getCreatorAnalyticsSplit);
 

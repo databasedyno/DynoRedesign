@@ -61,6 +61,7 @@ import { sendActivationNudge } from "./user/activationNudge";
 import { checkHandle, checkHandlePublic, reserveHandle } from "./user/creatorHandle";
 import { updateCreatorProfile, uploadCoverImage, getCreatorProfileSettings } from "./user/creatorProfile";
 import { getCreatorStats, getCreatorAnalytics, getCreatorAnalyticsSplit } from "./user/creatorAnalytics";
+import { getCreatorFunnel } from "./user/creatorFunnel";
 import { getUserDisplayCurrency, updateUserDisplayCurrency, getMerchantTaxSettings, updateMerchantTaxSettings } from "./user/preferences";
 
 export default {
@@ -120,6 +121,7 @@ export default {
   getCreatorProfileSettings,
   uploadCoverImage,
   getCreatorStats,
+  getCreatorFunnel,
   getCreatorAnalytics,
   getCreatorAnalyticsSplit,
   getUserDisplayCurrency,

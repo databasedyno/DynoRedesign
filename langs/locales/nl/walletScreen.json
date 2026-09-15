@@ -120,7 +120,12 @@
     "manageDevices": "Apparaten beheren",
     "signedOutCount": "Uitgelogd op {{count}} ander(e) apparaat/apparaten — hier blijf je ingelogd.",
     "noOtherDevices": "Geen andere apparaten om uit te loggen.",
-    "signOutFailed": "Kon andere apparaten niet uitloggen. Probeer het opnieuw."
+    "signOutFailed": "Kon andere apparaten niet uitloggen. Probeer het opnieuw.",
+    "stripTitle": "Walletbeveiliging",
+    "stripManage": "Beheren in Instellingen",
+    "stripLocked": "Walletwijzigingen zijn bevroren na een “dit was ik niet”-melding.",
+    "stripStrong": "Eenmalige code bij elke wijziging · ongedaan-maken-link per e-mail · tweestapsverificatie aan.",
+    "stripStandard": "Eenmalige code bij elke wijziging · ongedaan-maken-link per e-mail. Zet tweestapsverificatie aan voor Sterk."
   },
   "chooseCoin": "Kies een munt…",
   "deleteWallet": "Verwijder wallet",
@@ -165,5 +170,14 @@
   "stepUpVerifyNow": "Nu verifiëren",
   "stepUpCancelled": "Verificatie geannuleerd — je wijzigingen zijn niet opgeslagen.",
   "sudoEndedBanner": "Verificatie verlopen",
-  "sudoEndedHint": "Bij het opslaan vragen we je opnieuw om te verifiëren."
+  "sudoEndedHint": "Bij het opslaan vragen we je opnieuw om te verifiëren.",
+  "coverageTitle": "{{count}} geaccepteerde coins hebben geen uitbetalingswallet",
+  "coverageBody": "Je actieve betaallinks accepteren deze coins, maar betalingen erin kunnen nergens landen. Voeg een wallet toe om ze te ontvangen.",
+  "formatOk": "Formaat OK",
+  "formatUnusual": "Ongewoon formaat",
+  "formatOkTip": "Dit adres komt overeen met het gebruikelijke {{chain}}-formaat.",
+  "formatUnusualTip": "Dit lijkt geen typisch {{chain}}-adres. Controleer het voor je volgende uitbetaling.",
+  "lastPayoutNone": "Nog geen uitbetalingen naar deze wallet",
+  "lastPayoutAt": "Laatste uitbetaling {{when}}",
+  "in30d": "in 30 d"
 }

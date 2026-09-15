@@ -63,5 +63,19 @@
   "pushBlockedDesc": "Push notifications are blocked. Please enable them in your browser settings.",
   "pushDisable": "Disable",
   "pushBlocked": "Blocked",
-  "pushActive": "Active"
+  "pushActive": "Active",
+  "kind": {
+    "all": "All",
+    "payments": "Payments",
+    "security": "Security",
+    "system": "System",
+    "growth": "Growth",
+    "empty": "No {{kind}} notifications yet."
+  },
+  "attention": {
+    "title": "Needs attention",
+    "hint": "Mirrored from your dashboard — nothing is lost when you hide a row there.",
+    "hiddenOnDashboard": "Hidden on the dashboard",
+    "restore": "Show on dashboard"
+  }
 }

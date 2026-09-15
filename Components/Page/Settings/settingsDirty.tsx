@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useId, useMemo, useState } from "react";
 
-export type SettingsSectionKey = "profile" | "company" | "payments" | "tax" | "notifications" | "team" | "plan";
+export type SettingsSectionKey = "profile" | "security" | "company" | "payments" | "tax" | "notifications" | "team" | "plan" | "language";
 
 type Reporters = Partial<Record<SettingsSectionKey, Record<string, boolean>>>;
 

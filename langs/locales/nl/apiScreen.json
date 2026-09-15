@@ -376,5 +376,33 @@
     "redirectBody": "Uw endpoint reageert met een HTTP {{status}} omleiding. We volgen deze nu automatisch, zodat uw webhooks nog steeds worden afgeleverd — maar de extra stap voegt latentie toe. Werk uw URL bij naar het uiteindelijke adres hieronder om de levering direct te maken.",
     "secretSet": "{{preview}} · ingesteld — regenereren om te vervangen",
     "subscribeAria": "Abonneer op {{event}}"
+  },
+  "health": {
+    "webhooks": "Webhooks · 24 u",
+    "notConfigured": "Niet ingesteld",
+    "paused": "Gepauzeerd",
+    "noDeliveries": "Geen leveringen",
+    "notConfiguredHint": "Voeg een endpoint toe om betalingsgebeurtenissen naar je server te pushen.",
+    "lastFailure": "Laatste fout {{when}} · {{event}} · HTTP {{status}}",
+    "deliveries24h": "{{count}} leveringen in 24 u · gem. {{ms}} ms",
+    "quiet24h": "Niets verzonden in de laatste 24 u — geen fouten geregistreerd.",
+    "retry": "Laatste fout opnieuw proberen",
+    "retrying": "Opnieuw proberen…",
+    "viewEvents": "Gebeurtenissenlog",
+    "setupWebhook": "Webhook instellen",
+    "apiKeys": "API-sleutels",
+    "noKeys": "Geen sleutels",
+    "activeKeys": "{{count}} actief",
+    "rotateDue": "{{count}} live-sleutel ouder dan {{days}} maanden — roteer hem om het risico te beperken.",
+    "oldestKey": "Oudste: {{name}} · {{days}} dagen sinds uitgifte/rotatie",
+    "noKeysHint": "Maak een sleutel om te integreren.",
+    "rotateNow": "Nu roteren",
+    "manageKeys": "Sleutels beheren",
+    "quickLinks": "Snelkoppelingen",
+    "docsTitle": "Docs & tools",
+    "docsHint": "Referentie, signatures en het leveringslog — alles om een integratie te debuggen.",
+    "apiReference": "API-referentie",
+    "apiReferenceTip": "Volledige API-referentie (opent in nieuw tabblad)",
+    "reenable": "Webhook opnieuw inschakelen"
   }
 }

@@ -3,14 +3,7 @@ import { Box, Menu, MenuItem } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { Icon } from "@/styles/uiKit";
 import { PillButton } from "../coinbase/styled";
-import { RangeId } from "./CommandBar";
-
-export const RANGES: Array<{ id: RangeId; label: string }> = [
-  { id: "7d", label: "7D" },
-  { id: "30d", label: "30D" },
-  { id: "90d", label: "90D" },
-  { id: "1y", label: "1Y" },
-];
+import { RangeId, RANGES } from "./ranges";
 
 interface Props {
   isDark: boolean;

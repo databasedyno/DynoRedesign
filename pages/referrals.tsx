@@ -35,10 +35,16 @@ type ReferralStats = {
 
 type Referral = {
   id: number;
-  referred_email: string;
-  referred_name: string;
+  referred_email: string | null;
+  referred_name: string | null;
   status: string;
   created_at: string;
+  /** Wave 3d — reward status per referral. */
+  reward_status?: "pending" | "earned" | "paid";
+  accrued_usd?: number;
+  paid_usd?: number;
+  unpaid_usd?: number;
+  commission_window_ends_at?: string | null;
 };
 
 type Earnings = {
@@ -100,6 +106,37 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
   const { t: tCommon } = useTranslation("common");
 
   const [toast, setToast] = useState({ open: false, message: "", severity: "success" as "success" | "error" });
+
+  /* Wave 3d — reward status per referral: pending (nothing earned yet) →
+     earned (accrued, unpaid balance) → paid (everything accrued was paid/credited). */
+  const renderRewardChip = (r: Referral) => {
+    const rs = r.reward_status || "pending";
+    const isDark = theme.palette.mode === "dark";
+    const palette = {
+      pending: { fg: isDark ? "#FBBF24" : "#B45309", bg: isDark ? "rgba(245,158,11,0.16)" : "rgba(245,158,11,0.12)", icon: "clock" },
+      earned: { fg: isDark ? "#5AC8FA" : "#2775CA", bg: isDark ? "rgba(39,117,202,0.18)" : "rgba(39,117,202,0.10)", icon: "coins" },
+      paid: { fg: isDark ? "#3FD98A" : "#05936A", bg: isDark ? "rgba(5,177,105,0.16)" : "rgba(5,177,105,0.10)", icon: "circle-check" },
+    }[rs];
+    const amount = rs === "earned" ? r.unpaid_usd : rs === "paid" ? r.paid_usd : undefined;
+    const label =
+      rs === "pending"
+        ? t("rewardPending", { defaultValue: "Reward pending" })
+        : rs === "earned"
+          ? t("rewardEarned", { amount: toFixedStr(amount || 0, 2), defaultValue: "Earned ${{amount}}" })
+          : t("rewardPaid", { amount: toFixedStr(amount || 0, 2), defaultValue: "Paid ${{amount}}" });
+    return (
+      <Box
+        component="span"
+        data-testid={`referral-reward-${r.id}`}
+        data-reward={rs}
+        title={rs === "pending" ? (t("rewardPendingTip", { defaultValue: "Earns once they complete a qualifying payment." }) as string) : undefined}
+        sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, px: 1, py: 0.35, borderRadius: 999, fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontSize: 11.5, fontWeight: 700, color: palette.fg, backgroundColor: palette.bg, whiteSpace: "nowrap" }}
+      >
+        <Icon name={palette.icon} size={12} />
+        {label}
+      </Box>
+    );
+  };
 
   // Each referral endpoint gets its own SWR key → cached + deduped across
   // remounts (and shared with anything else that reads the same endpoint).
@@ -905,39 +942,43 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                     >
                       {r.referred_name || r.referred_email}
                     </Typography>
-                    {r.referred_name && (
-                      <Typography
-                        sx={{
-                          fontSize: "12px",
-                          fontFamily: "var(--font-sans)",
-                          color: theme.palette.text.secondary,
-                        }}
-                      >
-                        {r.referred_email}
-                      </Typography>
-                    )}
+                    <Typography
+                      sx={{
+                        fontSize: "12px",
+                        fontFamily: "var(--font-sans)",
+                        color: theme.palette.text.secondary,
+                      }}
+                    >
+                      {[r.referred_name ? r.referred_email : null, r.created_at ? t("joinedOn", { date: new Date(r.created_at).toLocaleDateString(), defaultValue: "Joined {{date}}" }) : null]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </Typography>
                   </Box>
-                  <Chip
-                    label={r.status}
-                    size="small"
-                    sx={{
-                      fontFamily: "var(--font-sans)",
-                      fontSize: "12px",
-                      fontWeight: 600,
-                      bgcolor:
-                        r.status === "active"
-                          ? theme.palette.success.main
-                          : r.status === "pending"
-                            ? "#FEF3CD"
-                            : theme.palette.secondary.main,
-                      color:
-                        r.status === "active"
-                          ? theme.palette.border.success
-                          : r.status === "pending"
-                            ? "#856404"
-                            : theme.palette.text.secondary,
-                    }}
-                  />
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                    <Chip
+                      label={t(`refStatus_${r.status}`, { defaultValue: r.status })}
+                      size="small"
+                      data-testid={`referral-status-${r.id}`}
+                      sx={{
+                        fontFamily: "var(--font-sans)",
+                        fontSize: "12px",
+                        fontWeight: 600,
+                        bgcolor:
+                          r.status === "active"
+                            ? theme.palette.success.main
+                            : r.status === "pending"
+                              ? "#FEF3CD"
+                              : theme.palette.secondary.main,
+                        color:
+                          r.status === "active"
+                            ? theme.palette.border.success
+                            : r.status === "pending"
+                              ? "#856404"
+                              : theme.palette.text.secondary,
+                      }}
+                    />
+                    {renderRewardChip(r)}
+                  </Box>
                 </Box>
               ))}
             </Box>

@@ -33,3 +33,12 @@ export const isLinkPaid = (status?: string) => ["paid", "completed"].includes(St
 export const isLinkExpired = (status?: string) => String(status || "").toLowerCase() === "expired";
 /** Edit + delete are only offered on links that can still be paid (matches the list's row rules). */
 export const isLinkEditable = (status?: string) => !isLinkPaid(status) && !isLinkExpired(status);
+
+export const EXPIRING_SOON_MS = 48 * 60 * 60 * 1000;
+
+/** Live link whose expiry lands within the next 48 hours (Wave 3a "Expiring soon" badge / filter). */
+export const isExpiringSoon = (link: { status?: string; expiresAtIso?: string | null }, now = Date.now()): boolean => {
+  if (!link.expiresAtIso || isLinkPaid(link.status) || isLinkExpired(link.status)) return false;
+  const t = new Date(link.expiresAtIso).getTime();
+  return Number.isFinite(t) && t > now && t - now <= EXPIRING_SOON_MS;
+};

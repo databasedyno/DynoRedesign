@@ -186,5 +186,14 @@
   "payoutCreditedToDate": "Creditos até à data",
   "payoutCreditedToDateDesc": "Total de taxas já cobertas pelas suas recompensas de referência.",
   "payoutMethod": "Método de pagamento",
-  "payoutWithdrawIntro": "Vamos enviar {{amount}} em USDT (TRC-20) para {{address}}. Vais ser convidado a confirmar que és tu."
+  "payoutWithdrawIntro": "Vamos enviar {{amount}} em USDT (TRC-20) para {{address}}. Vais ser convidado a confirmar que és tu.",
+  "rewardPending": "Recompensa pendente",
+  "rewardEarned": "Ganho ${{amount}}",
+  "rewardPaid": "Pago ${{amount}}",
+  "rewardPendingTip": "É ganha quando concluem um pagamento qualificado.",
+  "joinedOn": "Aderiu em {{date}}",
+  "refStatus_pending": "Pendente",
+  "refStatus_active": "Ativo",
+  "refStatus_rewarded": "Recompensado",
+  "refStatus_expired": "Expirado"
 }

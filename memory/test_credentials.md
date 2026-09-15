@@ -3,10 +3,13 @@
 Preview URL (THIS pod): https://cred-manager-29.preview.emergentagent.com
 
 ## Brands on the owner account (company selector: data-testid=company-option-<id>)
-- 1 The Dev Store — populated (458 payments) → normal dashboard
-- 165 Nameword — 13 wallets, 0 links, 0 payments → new-merchant hero + wizard resumes at step "link"
-- 179 QA Throwaway Brand 2 — 0 wallets, 0 links → wizard resumes at "payouts"
+- 1 The Dev Store — populated (458+ payments) → normal dashboard
+- 165 Nameword — 13 wallets, 2 successful payments (Sep 2026) + 1 failing webhook → normal dashboard
 - 71 SMADAV — 13 wallets, 2 links, 2 payments → normal dashboard
+- 228 QA HashKeys Brand / 219 QA BuyerEmail Test — empty → new-merchant Getting-started state
+- (179 QA Throwaway Brand 2 no longer belongs to user 1 — deleted)
+- Dashboard (Wave 1 Command Centre) root: data-testid=dash2026-root; range buttons UPPERCASE (7D/30D/90D/1Y/Custom);
+  skip MFA interstitial with sessionStorage.mfa_interstitial_seen='1'. API: GET /api/dashboard/overview?company_id=&period=
 
 ## Merchant (owner test account)
 - Email: onarrival21@gmail.com

@@ -34,6 +34,10 @@ const WebhookConsoleSection = dynamic(
   () => import("@/Components/Page/API/WebhookConsoleSection"),
   { ssr: false, loading: () => tabFallback },
 );
+const DeveloperHealthStrip = dynamic(
+  () => import("@/Components/Page/API/DeveloperHealthStrip"),
+  { ssr: false },
+);
 
 type TabId = "keys" | "webhooks" | "events" | "docs";
 const TAB_IDS: TabId[] = ["keys", "webhooks", "events", "docs"];
@@ -143,6 +147,10 @@ const Developers = ({
         <title>{t("settingsPage.developers", { ns: "common", defaultValue: "Developers" })} · Dynopay</title>
       </Head>
       <OnboardingBanner vertical="developers" />
+
+      {/* Wave 3f — integration health: webhook success (24 h) + last failure/retry,
+          API-key age with rotation reminder, quick links. */}
+      <DeveloperHealthStrip onGoTab={go} />
 
       {/* Segmented tabs — same shell as /storefront. Edge fade = honest scroll
           affordance so the last pill (Docs) no longer hard-clips on mobile. */}

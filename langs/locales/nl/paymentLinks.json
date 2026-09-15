@@ -115,5 +115,16 @@
     "acceptsAll": "Accepteert alle {{count}} coins",
     "acceptsAllHint": "Kopers kunnen betalen met elke coin waarvoor je een uitbetalingswallet hebt: {{list}}",
     "acceptsSome": "Accepteert {{count}} van {{total}} coins"
-  }
+  },
+  "last30Header": "Laatste 30 dagen",
+  "last30Tooltip": "Afgerekende betalingen via deze link in de laatste 30 dagen (aantal · bruto USD).",
+  "last30Tip": "{{count}} afgerekende betalingen in totaal",
+  "paidCount": "{{count}} betaald",
+  "noPayments30d": "— geen in 30 d",
+  "expiringSoon": "Verloopt binnenkort",
+  "expiringSoonTip": "Sluit in ongeveer {{count}} u — verleng of deel nu.",
+  "statusEarning": "Verdient (30 d)",
+  "statusExpiringSoon": "Verloopt binnenkort",
+  "qrTooltip": "QR-code tonen",
+  "shareTooltip": "Link delen"
 }

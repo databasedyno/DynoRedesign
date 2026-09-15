@@ -43,6 +43,8 @@ import {
 } from "./TransactionDetailsModal.styled";
 import { CryptoIconChip } from "./styled";
 import { AutoConvertPayoutRow } from "./AutoConvertPayoutRow";
+import TxResolveActions from "./TxResolveActions";
+import { explorerTxUrl } from "@/helpers/explorerUrl";
 import CopyInline from "@/Components/UX/CopyInline";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import { toFixedStr } from "@/utils/money";
@@ -94,39 +96,10 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
     [theme.breakpoints.down("md")]: { width: 44, height: 44 },
   };
 
-  const getBlockchairUrl = (crypto: string, txHash: string): string => {
-    const chainMap: Record<string, string> = {
-      BTC: "bitcoin",
-      ETH: "ethereum",
-      LTC: "litecoin",
-      DOGE: "dogecoin",
-      BCH: "bitcoin-cash",
-      SOL: "solana",
-      XRP: "ripple",
-      POLYGON: "polygon",
-      BNB: "bnb",
-    };
-    // TRC20 tokens use Tronscan (better support than Blockchair for TRON)
-    const upperCrypto = crypto.toUpperCase();
-    if (upperCrypto.includes("TRC20") || upperCrypto === "TRX") {
-      return `https://tronscan.org/#/transaction/${txHash}`;
-    }
-    // ERC20 tokens use Ethereum explorer
-    if (upperCrypto.includes("ERC20") || upperCrypto.includes("RLUSD-ERC20")) {
-      return `https://blockchair.com/ethereum/transaction/${txHash}`;
-    }
-    // USDT-POLYGON uses Polygon explorer
-    if (upperCrypto.includes("POLYGON")) {
-      return `https://blockchair.com/polygon/transaction/${txHash}`;
-    }
-    const chain = chainMap[upperCrypto] || "bitcoin";
-    return `https://blockchair.com/${chain}/transaction/${txHash}`;
-  };
-
   const handleViewOnExplorer = (txHash?: string) => {
     const hash = txHash || transaction.incomingTransactionId || transaction.id;
     if (!hash) return;
-    const url = getBlockchairUrl(transaction.crypto, hash);
+    const url = explorerTxUrl(transaction.crypto, hash);
     window.open(url, "_blank");
   };
 
@@ -447,6 +420,19 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                   <TitleValue>{transaction.customerVatId}</TitleValue>
                 </DetailRow>
               )}
+              {(transaction.customerName || transaction.customerEmail) && (
+                <DetailRow>
+                  <TitleLabel>{tTransactions("customer", { defaultValue: "Customer" })}</TitleLabel>
+                  <TitleValue data-testid="tx-detail-customer" sx={{ textAlign: "right", minWidth: 0 }}>
+                    {transaction.customerName || transaction.customerEmail}
+                    {transaction.customerName && transaction.customerEmail && (
+                      <Typography component="span" sx={{ display: "block", fontSize: 12, color: theme.palette.text.secondary, fontWeight: 400 }}>
+                        {transaction.customerEmail}
+                      </Typography>
+                    )}
+                  </TitleValue>
+                </DetailRow>
+              )}
               {(Number(transaction.fees) > 0 || (transaction.feesBreakdown && (transaction.feesBreakdown.platform > 0 || transaction.feesBreakdown.blockchain > 0))) && (
                 <>
                   <DetailRow>
@@ -732,6 +718,8 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
               </Box>
             </Box>
           )}
+
+          <TxResolveActions transaction={transaction} />
 
           <Box
             sx={{

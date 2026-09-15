@@ -68,8 +68,15 @@ export interface PaymentLinkData {
   cryptoValue?: string;
   createdAt: string;
   expiresAt: string;
+  /** Raw ISO expiry (Wave 3a) — drives the "Expiring soon" badge. */
+  expiresAtIso?: string | null;
   status: PaymentLinkStatus;
   timesUsed: number;
+  /** Settled payments in the last 30 days (Wave 3a). */
+  paid30dCount?: number;
+  paid30dUsd?: number;
+  paidTotalCount?: number;
+  lastPaidAt?: string | null;
   paymentUrl: string;
   linkType?: "standard" | "donation";
   donation?: {

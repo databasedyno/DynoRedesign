@@ -186,5 +186,14 @@
   "payoutCreditedToDate": "Credited to date",
   "payoutCreditedToDateDesc": "Total fees already covered by your referral rewards.",
   "payoutMethod": "Payout method",
-  "payoutWithdrawIntro": "We'll send {{amount}} in USDT (TRC-20) to {{address}}. You'll be asked to verify it's you."
+  "payoutWithdrawIntro": "We'll send {{amount}} in USDT (TRC-20) to {{address}}. You'll be asked to verify it's you.",
+  "rewardPending": "Reward pending",
+  "rewardEarned": "Earned ${{amount}}",
+  "rewardPaid": "Paid ${{amount}}",
+  "rewardPendingTip": "Earns once they complete a qualifying payment.",
+  "joinedOn": "Joined {{date}}",
+  "refStatus_pending": "Pending",
+  "refStatus_active": "Active",
+  "refStatus_rewarded": "Rewarded",
+  "refStatus_expired": "Expired"
 }

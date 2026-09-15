@@ -9,6 +9,7 @@ import {
   ExtendedTransaction,
   TransactionSource,
   TransactionSourceType,
+  TxRangePreset,
   TxStatusFilter,
   toAutoConvertInfo,
 } from "@/utils/types/transaction";
@@ -23,7 +24,8 @@ import { useTranslation } from "react-i18next";
 import { useRouter } from "next/router";
 import TransactionsTable from "./TransactionsTable";
 import { formatDisplayDateTime } from "@/helpers/displayDate";
-import { toTxStatusBucket } from "@/helpers/txStatus";
+import { isNeedsAction, toTxStatusBucket } from "@/helpers/txStatus";
+import { getNetworkLabel } from "@/utils/networkLabels";
 import TransactionsTopBar from "./TransactionsTopBar";
 import TransactionsToolbar, { STATUS_FILTERS } from "./TransactionsToolbar";
 import TransactionsSkeleton from "./TransactionsSkeleton";
@@ -31,6 +33,10 @@ import TransactionsFilterSheet from "./TransactionsFilterSheet";
 import useTableCardView from "@/hooks/useTableCardView";
 import { toFixedStr, toNumber } from "@/utils/money";
 import { SOURCE_OPTIONS, TxFilters, countActiveFilters, cryptoToWalletKey, hasDateRange, matchesBaseFilters, walletMapping } from "./txFilters";
+import { DEFAULT_TX_RANGE, isTxRangePreset, rangeToDates } from "./txRange";
+
+/** Open states are actionable no matter how old — deep links to them default to "all time". */
+const OPEN_STATE_FILTERS: TxStatusFilter[] = ["needs_action", "underpaid", "processing", "confirmed", "pending"];
 
 const TransactionPage = () => {
   const dispatch = useDispatch();
@@ -38,10 +44,9 @@ const TransactionPage = () => {
   const { t } = useTranslation("dashboardLayout");
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [dateRange, setDateRange] = useState<DateRange>({
-    startDate: null,
-    endDate: null,
-  });
+  // Default view is the last 30 days (plan.md §4); "all" lifts the window, "custom" = explicit dates.
+  const [range, setRange] = useState<TxRangePreset>(DEFAULT_TX_RANGE);
+  const [dateRange, setDateRange] = useState<DateRange>(() => rangeToDates(DEFAULT_TX_RANGE));
   const [selectedWallet, setSelectedWallet] = useState("all");
   const [selectedSource, setSelectedSource] = useState<TransactionSourceType | "all">(
     "all",
@@ -61,10 +66,26 @@ const TransactionPage = () => {
       success: "settled",
       successful: "settled",
       completed: "settled",
+      needs_action: "needs_action",
+      "needs-action": "needs_action",
     };
     const mapped = aliases[raw] ?? ((STATUS_FILTERS as string[]).includes(raw) ? (raw as TxStatusFilter) : null);
     if (mapped) setSelectedStatus(mapped);
+    if (mapped && OPEN_STATE_FILTERS.includes(mapped) && !router.query.range) {
+      setRange("all");
+      setDateRange(rangeToDates("all"));
+    }
   }, [router.isReady, router.query.status]);
+
+  // Read the date preset from the URL (e.g. /transactions?range=today from the dashboard).
+  useEffect(() => {
+    if (!router.isReady || !router.query.range) return;
+    const raw = String(router.query.range).toLowerCase();
+    if (isTxRangePreset(raw) && raw !== "custom") {
+      setRange(raw);
+      setDateRange(rangeToDates(raw));
+    }
+  }, [router.isReady, router.query.range]);
 
   // Read wallet filter from query parameter (e.g., /transactions?wallet=ETH)
   useEffect(() => {
@@ -228,6 +249,9 @@ const TransactionPage = () => {
             return Number.isFinite(ts) ? ts : 0;
           })(),
           status: toTxStatusBucket(item.status),
+          customerName: (item as any).customer_name || null,
+          customerEmail: (item as any).email || null,
+          network: getNetworkLabel(cryptoCurrency),
           receivedAmountRaw: (item as any).received_amount != null ? Number((item as any).received_amount) : null,
           remainingAmountRaw: (item as any).remaining_amount != null ? Number((item as any).remaining_amount) : null,
           fees: (() => {
@@ -311,9 +335,12 @@ const TransactionPage = () => {
   ]);
 
   const statusCounts = useMemo(() => {
-    const counts = { all: baseTransactions.length } as Record<TxStatusFilter, number>;
+    const counts = { all: baseTransactions.length, needs_action: 0 } as Record<TxStatusFilter, number>;
     for (const s of STATUS_FILTERS) counts[s] = 0;
-    for (const tx of baseTransactions) counts[tx.status] = (counts[tx.status] || 0) + 1;
+    for (const tx of baseTransactions) {
+      counts[tx.status] = (counts[tx.status] || 0) + 1;
+      if (isNeedsAction(tx.status, tx.createdAtTs || 0)) counts.needs_action += 1;
+    }
     return counts;
   }, [baseTransactions]);
 
@@ -321,7 +348,9 @@ const TransactionPage = () => {
     () =>
       selectedStatus === "all"
         ? baseTransactions
-        : baseTransactions.filter((tx) => tx.status === selectedStatus),
+        : selectedStatus === "needs_action"
+          ? baseTransactions.filter((tx) => isNeedsAction(tx.status, tx.createdAtTs || 0))
+          : baseTransactions.filter((tx) => tx.status === selectedStatus),
     [baseTransactions, selectedStatus],
   );
 
@@ -343,8 +372,25 @@ const TransactionPage = () => {
     setSearchTerm(term);
   };
 
-  const handleDateRangeChange = (range: DateRange) => {
-    setDateRange(range);
+  const syncRangeQuery = (preset: TxRangePreset) => {
+    const query: Record<string, string> = { ...(router.query as any) };
+    if (preset === DEFAULT_TX_RANGE || preset === "custom") delete query.range;
+    else query.range = preset;
+    router.replace({ pathname: router.pathname, query }, undefined, { shallow: true });
+  };
+
+  const handleRangeChange = (preset: Exclude<TxRangePreset, "custom">) => {
+    setRange(preset);
+    setDateRange(rangeToDates(preset));
+    syncRangeQuery(preset);
+  };
+
+  // Explicit dates from the calendar (desktop) or the phone filter sheet.
+  const handleDateRangeChange = (next: DateRange) => {
+    setDateRange(next);
+    const preset: TxRangePreset = hasDateRange(next) ? "custom" : "all";
+    setRange(preset);
+    syncRangeQuery(preset);
   };
 
   const handleWalletChange = (wallet: string) => {
@@ -373,9 +419,11 @@ const TransactionPage = () => {
     router.replace({ pathname: router.pathname, query }, undefined, { shallow: true });
   };
 
+  // "Clear filters" lifts everything — including the date window — so results always come back.
   const clearFilters = () => {
     setSearchTerm("");
-    setDateRange({ startDate: null, endDate: null });
+    setRange("all");
+    setDateRange(rangeToDates("all"));
     setSelectedWallet("all");
     setSelectedSource("all");
     setSelectedStatus("all");
@@ -384,6 +432,7 @@ const TransactionPage = () => {
     delete query.source;
     delete query.wallet;
     delete query.status;
+    query.range = "all";
     router.replace({ pathname: router.pathname, query }, undefined, {
       shallow: true,
     });
@@ -395,7 +444,13 @@ const TransactionPage = () => {
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
   const { t: tTx } = useTranslation("transactions");
   const currentFilters: TxFilters = { searchTerm, dateRange, selectedWallet, selectedSource, selectedStatus };
+  // Preset windows (30d default…) are the page's normal view, not an "active filter"; only explicit dates count.
+  const filtersForCount: TxFilters = { ...currentFilters, dateRange: range === "custom" ? dateRange : { startDate: null, endDate: null } };
   const applyFilters = (next: TxFilters) => {
+    if (next.dateRange.startDate !== dateRange.startDate || next.dateRange.endDate !== dateRange.endDate) {
+      const preset: TxRangePreset = hasDateRange(next.dateRange) ? "custom" : "all";
+      setRange(preset);
+    }
     setDateRange(next.dateRange);
     setSelectedWallet(next.selectedWallet);
     setSelectedSource(next.selectedSource);
@@ -404,6 +459,9 @@ const TransactionPage = () => {
     if (next.selectedSource === "all") delete query.source; else query.source = next.selectedSource;
     if (next.selectedStatus === "all") delete query.status; else query.status = next.selectedStatus;
     if (next.selectedWallet === "all") delete query.wallet; else query.wallet = walletMapping[next.selectedWallet];
+    if (next.dateRange.startDate !== dateRange.startDate || next.dateRange.endDate !== dateRange.endDate) {
+      if (hasDateRange(next.dateRange)) delete query.range; else query.range = "all";
+    }
     router.replace({ pathname: router.pathname, query }, undefined, { shallow: true });
   };
   const activeFilterPills = [
@@ -414,7 +472,12 @@ const TransactionPage = () => {
     },
     selectedStatus !== "all" && {
       key: "status",
-      label: selectedStatus === "awaiting_payment" ? tTx("awaitingShort", { defaultValue: "Awaiting" }) : String(tTx(selectedStatus)),
+      label:
+        selectedStatus === "awaiting_payment"
+          ? tTx("awaitingShort", { defaultValue: "Awaiting" })
+          : selectedStatus === "needs_action"
+            ? tTx("needsAction", { defaultValue: "Needs action" })
+            : String(tTx(selectedStatus)),
       onRemove: () => applyFilters({ ...currentFilters, selectedStatus: "all" }),
     },
     selectedWallet !== "all" && {
@@ -422,7 +485,7 @@ const TransactionPage = () => {
       label: walletMapping[selectedWallet] || selectedWallet,
       onRemove: () => applyFilters({ ...currentFilters, selectedWallet: "all" }),
     },
-    hasDateRange(dateRange) && {
+    range === "custom" && hasDateRange(dateRange) && {
       key: "date",
       label: `${format(dateRange.startDate as Date, "d MMM")} – ${format(dateRange.endDate as Date, "d MMM")}`,
       onRemove: () => applyFilters({ ...currentFilters, dateRange: { startDate: null, endDate: null } }),
@@ -486,11 +549,13 @@ const TransactionPage = () => {
         onWalletChange={handleWalletChange}
         onSourceChange={handleSourceChange}
         onOpenFilters={() => setFilterSheetOpen(true)}
-        activeFilterCount={countActiveFilters(currentFilters)}
+        activeFilterCount={countActiveFilters(filtersForCount)}
         initialWallet={selectedWallet}
         initialSource={selectedSource}
         initialSearch={searchTerm}
         initialDateRange={dateRange}
+        range={range}
+        onRangeChange={handleRangeChange}
       />
       {cardView && (
         <TransactionsFilterSheet

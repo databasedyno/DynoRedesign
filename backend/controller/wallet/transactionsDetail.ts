@@ -35,8 +35,10 @@ import { formatAmountForDisplay, getCurrencyInfo, COMPANY_CURRENCY_QUERY, conver
 import { resolveTransactionSource } from "../../utils/transactionSource";
 import {
   deriveTxDisplayStatus,
+  isNeedsAction,
   isPaymentDetected,
   isTxStatusBucket,
+  NEEDS_ACTION_RAW,
   rawStatusesForBucket,
   toTxStatusBucket,
   TxStatusBucket,
@@ -253,15 +255,16 @@ export const exportTransactions = async (req: express.Request, res: express.Resp
     }
 
     // `status` is either a UI bucket (settled / unpaid / awaiting_payment / …
-    // — what the status chips send) or a raw DB status for legacy callers.
-    // "Settled only" is shorthand for the settled bucket.
+    // — what the status chips send), the saved "needs_action" filter, or a raw
+    // DB status for legacy callers. "Settled only" is shorthand for the settled bucket.
+    const needsAction = status === "needs_action";
     const bucket: TxStatusBucket | null = isTxStatusBucket(status)
       ? status
       : settled_only && !status
         ? "settled"
         : null;
     const { whereConditions, replacements } = buildTransactionFilters(effectiveUserId, {
-      date_from, date_to, status: bucket ? undefined : status, currency, company_id
+      date_from, date_to, status: bucket || needsAction ? undefined : status, currency, company_id
     });
     let finalWhere = whereConditions;
     // Search parity with the on-screen filter (id / amount / currency) plus the
@@ -270,7 +273,7 @@ export const exportTransactions = async (req: express.Request, res: express.Resp
       finalWhere += ` AND (ut.id ILIKE :search OR ut.transaction_reference ILIKE :search OR ut.base_currency ILIKE :search OR uw.wallet_type ILIKE :search OR CAST(ut.base_amount AS TEXT) ILIKE :search)`;
       replacements.search = `%${String(search)}%`;
     }
-    const rawStatuses = bucket ? rawStatusesForBucket(bucket) : null;
+    const rawStatuses = needsAction ? NEEDS_ACTION_RAW : bucket ? rawStatusesForBucket(bucket) : null;
     if (rawStatuses) {
       finalWhere += ` AND ut.status IN (:bucket_statuses)`;
       replacements.bucket_statuses = rawStatuses;
@@ -333,7 +336,11 @@ export const exportTransactions = async (req: express.Request, res: express.Resp
         ...tx,
         display_status: deriveTxDisplayStatus(tx.status, tx.date_time, isPaymentDetected(tx as any)),
       }))
-      .filter((tx) => !bucket || toTxStatusBucket(tx.display_status) === bucket)
+      .filter((tx) => {
+        const b = toTxStatusBucket(tx.display_status);
+        if (needsAction) return isNeedsAction(b, tx.date_time);
+        return !bucket || b === bucket;
+      })
       .filter((tx) => {
         if (!source || source === "all") return true;
         return (

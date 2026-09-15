@@ -63,5 +63,19 @@
   "pushBlockedDesc": "Les notifications push sont bloquées. Activez-les dans les paramètres de votre navigateur.",
   "pushDisable": "Désactiver",
   "pushBlocked": "Bloquées",
-  "pushActive": "Actif"
+  "pushActive": "Actif",
+  "kind": {
+    "all": "Toutes",
+    "payments": "Paiements",
+    "security": "Sécurité",
+    "system": "Système",
+    "growth": "Croissance",
+    "empty": "Aucune notification {{kind}} pour l'instant."
+  },
+  "attention": {
+    "title": "À traiter",
+    "hint": "Reflet de votre tableau de bord — rien n'est perdu quand vous y masquez une ligne.",
+    "hiddenOnDashboard": "Masqué sur le tableau de bord",
+    "restore": "Afficher sur le tableau de bord"
+  }
 }

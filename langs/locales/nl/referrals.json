@@ -186,5 +186,14 @@
   "payoutCreditedToDate": "Tot nu toe gecrediteerd",
   "payoutCreditedToDateDesc": "Totaal aan fees al gedekt door je referral rewards.",
   "payoutMethod": "Uitbetalingsmethode",
-  "payoutWithdrawIntro": "We sturen {{amount}} in USDT (TRC-20) naar {{address}}. Je wordt gevraagd te bevestigen dat jij het bent."
+  "payoutWithdrawIntro": "We sturen {{amount}} in USDT (TRC-20) naar {{address}}. Je wordt gevraagd te bevestigen dat jij het bent.",
+  "rewardPending": "Beloning in afwachting",
+  "rewardEarned": "Verdiend ${{amount}}",
+  "rewardPaid": "Uitbetaald ${{amount}}",
+  "rewardPendingTip": "Wordt verdiend zodra ze een kwalificerende betaling voltooien.",
+  "joinedOn": "Lid sinds {{date}}",
+  "refStatus_pending": "In afwachting",
+  "refStatus_active": "Actief",
+  "refStatus_rewarded": "Beloond",
+  "refStatus_expired": "Verlopen"
 }

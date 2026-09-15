@@ -14,6 +14,8 @@ import { TxStatusFilter } from "@/utils/types/transaction";
 import { STATUS_FILTERS } from "./TransactionsToolbar";
 import { SOURCE_OPTIONS, TxFilters, EMPTY_TX_FILTERS, hasDateRange, matchesBaseFilters, matchesStatus } from "./txFilters";
 
+const SHEET_STATUSES: Exclude<TxStatusFilter, "all">[] = ["needs_action", ...STATUS_FILTERS];
+
 interface Props {
   open: boolean;
   onClose: () => void;
@@ -78,14 +80,20 @@ const TransactionsFilterSheet: React.FC<Props> = ({ open, onClose, filters, rows
   const baseRows = useMemo(() => rows.filter((r) => matchesBaseFilters(r, draft)), [rows, draft]);
   const statusCounts = useMemo(() => {
     const counts = { all: baseRows.length } as Record<TxStatusFilter, number>;
-    for (const s of STATUS_FILTERS) counts[s] = 0;
-    for (const r of baseRows) for (const s of STATUS_FILTERS) if (matchesStatus(r, s)) counts[s] += 1;
+    for (const s of SHEET_STATUSES) counts[s] = 0;
+    for (const r of baseRows) for (const s of SHEET_STATUSES) if (matchesStatus(r, s)) counts[s] += 1;
     return counts;
   }, [baseRows]);
   const resultCount = useMemo(() => baseRows.filter((r) => matchesStatus(r, draft.selectedStatus)).length, [baseRows, draft.selectedStatus]);
 
   const statusLabel = (s: TxStatusFilter) =>
-    s === "all" ? t("statusAll", { defaultValue: "All" }) : s === "awaiting_payment" ? t("awaitingShort", { defaultValue: "Awaiting" }) : String(t(s));
+    s === "all"
+      ? t("statusAll", { defaultValue: "All" })
+      : s === "needs_action"
+        ? t("needsAction", { defaultValue: "Needs action" })
+        : s === "awaiting_payment"
+          ? t("awaitingShort", { defaultValue: "Awaiting" })
+          : String(t(s));
 
   const dateLabel = hasDateRange(draft.dateRange)
     ? `${format(draft.dateRange.startDate as Date, "d MMM yyyy")} – ${format(draft.dateRange.endDate as Date, "d MMM yyyy")}`
@@ -136,13 +144,17 @@ const TransactionsFilterSheet: React.FC<Props> = ({ open, onClose, filters, rows
         <Box data-testid="tx-filter-status">
           <Box sx={eyebrowSx}>{t("filterSheet.status", { defaultValue: "Status" })}</Box>
           <Box role="listbox" sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-            {(["all", ...STATUS_FILTERS] as TxStatusFilter[])
-              .filter((s) => s === "all" || statusCounts[s] > 0 || draft.selectedStatus === s)
+            {(["all", ...SHEET_STATUSES] as TxStatusFilter[])
+              .filter((s) => s === "all" || s === "needs_action" || statusCounts[s] > 0 || draft.selectedStatus === s)
               .map((s) => {
                 const selected = draft.selectedStatus === s;
                 return (
                   <OptionChip key={s} selected={selected} onClick={() => setDraft({ ...draft, selectedStatus: s })} testId={`tx-filter-status-${s}`}>
-                    {s !== "all" && <StatusDot tone={txStatusTone(s)} sx={{ gap: 0, ...(selected ? { "& span": { backgroundColor: "#fff", borderColor: "#fff" } } : {}) }} />}
+                    {s === "needs_action" ? (
+                      <Icon name="circle-alert" size={13} color={selected ? "#fff" : "#D97706"} />
+                    ) : s !== "all" ? (
+                      <StatusDot tone={txStatusTone(s)} sx={{ gap: 0, ...(selected ? { "& span": { backgroundColor: "#fff", borderColor: "#fff" } } : {}) }} />
+                    ) : null}
                     <Box component="span" sx={{ textTransform: "capitalize" }}>{statusLabel(s)}</Box>
                     <Box component="span" sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontSize: 12, fontWeight: 600, opacity: 0.75 }}>{statusCounts[s].toLocaleString()}</Box>
                   </OptionChip>

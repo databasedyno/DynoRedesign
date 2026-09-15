@@ -376,5 +376,33 @@
     "redirectBody": "O seu endpoint responde com um redirecionamento HTTP {{status}}. Agora seguimos isso automaticamente para que os seus webhooks sejam ainda entregues — mas a etapa extra adiciona latência. Atualize a sua URL para o endereço final abaixo para tornar a entrega direta.",
     "secretSet": "{{preview}} · definido — regenere para substituir",
     "subscribeAria": "Inscreva-se em {{event}}"
+  },
+  "health": {
+    "webhooks": "Webhooks · 24 h",
+    "notConfigured": "Não configurado",
+    "paused": "Em pausa",
+    "noDeliveries": "Sem entregas",
+    "notConfiguredHint": "Adicione um endpoint para receber eventos de pagamento no seu servidor.",
+    "lastFailure": "Última falha {{when}} · {{event}} · HTTP {{status}}",
+    "deliveries24h": "{{count}} entregas em 24 h · média {{ms}} ms",
+    "quiet24h": "Nada enviado nas últimas 24 h — sem falhas registadas.",
+    "retry": "Repetir última falha",
+    "retrying": "A repetir…",
+    "viewEvents": "Registo de eventos",
+    "setupWebhook": "Configurar webhook",
+    "apiKeys": "Chaves API",
+    "noKeys": "Sem chaves",
+    "activeKeys": "{{count}} ativas",
+    "rotateDue": "{{count}} chave live com mais de {{days}} meses — rode-a para limitar a exposição.",
+    "oldestKey": "Mais antiga: {{name}} · {{days}} dias desde emissão/rotação",
+    "noKeysHint": "Crie uma chave para começar a integrar.",
+    "rotateNow": "Rodar agora",
+    "manageKeys": "Gerir chaves",
+    "quickLinks": "Ligações rápidas",
+    "docsTitle": "Docs e ferramentas",
+    "docsHint": "Referência, assinaturas e o registo de entregas — tudo para depurar uma integração.",
+    "apiReference": "Referência da API",
+    "apiReferenceTip": "Referência completa da API (abre num novo separador)",
+    "reenable": "Reativar webhook"
   }
 }

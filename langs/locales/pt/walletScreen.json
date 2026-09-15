@@ -120,7 +120,12 @@
     "manageDevices": "Gerir dispositivos",
     "signedOutCount": "Sessão terminada em {{count}} outro(s) dispositivo(s) — aqui continua com sessão iniciada.",
     "noOtherDevices": "Não há outros dispositivos para terminar sessão.",
-    "signOutFailed": "Não foi possível terminar sessão em outros dispositivos. Tente novamente."
+    "signOutFailed": "Não foi possível terminar sessão em outros dispositivos. Tente novamente.",
+    "stripTitle": "Proteção das wallets",
+    "stripManage": "Gerir nas Definições",
+    "stripLocked": "As alterações de wallet estão congeladas após um aviso de “não fui eu”.",
+    "stripStrong": "Código único em cada alteração · link para anular por e-mail · autenticação de dois fatores ativa.",
+    "stripStandard": "Código único em cada alteração · link para anular por e-mail. Ative a autenticação de dois fatores para chegar a Forte."
   },
   "chooseCoin": "Escolha uma moeda…",
   "deleteWallet": "Eliminar carteira",
@@ -165,5 +170,14 @@
   "stepUpVerifyNow": "Verificar agora",
   "stepUpCancelled": "Verificação cancelada — as tuas alterações não foram guardadas.",
   "sudoEndedBanner": "Verificação terminada",
-  "sudoEndedHint": "Vamos pedir-te para verificares novamente ao guardar."
+  "sudoEndedHint": "Vamos pedir-te para verificares novamente ao guardar.",
+  "coverageTitle": "{{count}} moedas aceites não têm wallet de pagamento",
+  "coverageBody": "Os seus links de pagamento ativos aceitam estas moedas, mas os pagamentos nelas não têm destino. Adicione uma wallet para começar a recebê-las.",
+  "formatOk": "Formato OK",
+  "formatUnusual": "Formato incomum",
+  "formatOkTip": "Este endereço corresponde ao formato habitual de {{chain}}.",
+  "formatUnusualTip": "Isto não parece um endereço {{chain}} típico. Verifique-o antes do próximo pagamento.",
+  "lastPayoutNone": "Ainda sem pagamentos para esta wallet",
+  "lastPayoutAt": "Último pagamento {{when}}",
+  "in30d": "em 30 d"
 }

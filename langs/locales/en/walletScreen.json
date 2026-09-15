@@ -120,7 +120,12 @@
     "manageDevices": "Manage devices",
     "signedOutCount": "Signed out on {{count}} other device(s) — you're still signed in here.",
     "noOtherDevices": "No other devices to sign out.",
-    "signOutFailed": "Couldn't sign out other devices. Please try again."
+    "signOutFailed": "Couldn't sign out other devices. Please try again.",
+    "stripTitle": "Wallet protection",
+    "stripManage": "Manage in Settings",
+    "stripLocked": "Wallet changes are frozen after a “this wasn't me” report.",
+    "stripStrong": "One-time code on every change · undo link by email · two-factor sign-in on.",
+    "stripStandard": "One-time code on every change · undo link by email. Turn on two-factor sign-in to reach Strong."
   },
   "chooseCoin": "Choose a coin…",
   "deleteWallet": "Delete wallet",
@@ -165,5 +170,14 @@
   "stepUpVerifyNow": "Verify now",
   "stepUpCancelled": "Verification cancelled — your changes weren't saved.",
   "sudoEndedBanner": "Verification ended",
-  "sudoEndedHint": "We'll ask you to verify again when you save."
+  "sudoEndedHint": "We'll ask you to verify again when you save.",
+  "coverageTitle": "{{count}} accepted coins have no payout wallet",
+  "coverageBody": "Your live payment links accept these coins, but payments in them have nowhere to land. Add a wallet to start receiving them.",
+  "formatOk": "Format OK",
+  "formatUnusual": "Unusual format",
+  "formatOkTip": "This address matches the usual {{chain}} format.",
+  "formatUnusualTip": "This doesn't look like a typical {{chain}} address. Double-check it before your next payout.",
+  "lastPayoutNone": "No payouts to this wallet yet",
+  "lastPayoutAt": "Last payout {{when}}",
+  "in30d": "in 30d"
 }

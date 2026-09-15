@@ -63,5 +63,19 @@
   "pushBlockedDesc": "Pushmeldingen zijn geblokkeerd. Schakel ze in via de instellingen van je browser.",
   "pushDisable": "Uitschakelen",
   "pushBlocked": "Geblokkeerd",
-  "pushActive": "Actief"
+  "pushActive": "Actief",
+  "kind": {
+    "all": "Alle",
+    "payments": "Betalingen",
+    "security": "Beveiliging",
+    "system": "Systeem",
+    "growth": "Groei",
+    "empty": "Nog geen meldingen: {{kind}}."
+  },
+  "attention": {
+    "title": "Aandacht nodig",
+    "hint": "Gespiegeld vanaf je dashboard — er gaat niets verloren als je daar een rij verbergt.",
+    "hiddenOnDashboard": "Verborgen op het dashboard",
+    "restore": "Tonen op dashboard"
+  }
 }

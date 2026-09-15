@@ -10,8 +10,6 @@ import { USER_PROFILE_FETCH, UserAction } from "@/Redux/Actions/UserAction";
 import { Icon } from "@/styles/uiKit";
 import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
 import { pageProps, rootReducer } from "@/utils/types";
-import { buildCreatorUrl } from "@/helpers/creatorUrl";
-import useStorefrontProfile from "@/hooks/useStorefrontProfile";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 
 const tabFallback = <Skeleton variant="rounded" height={420} sx={{ borderRadius: "16px" }} />;
@@ -44,11 +42,9 @@ const StorefrontComparePanel = dynamic(
  * Tabs are code-split: the products list and the QR canvas never load for
  * someone who only came to tweak their bio.
  *
- * NOTE (2026-06): the header action is rendered by <OpenPageAction/> rather than
- * built inline in the effect. Depending on MUI's `theme` inside an effect that
- * calls setPageAction (state in _app) created a render loop, and a page stuck
- * re-rendering never lets Next commit the next route — the global transition
- * loader then hung over the new page. Keep effect deps primitive here.
+ * NOTE: effects that call setPageAction (state in _app) must keep PRIMITIVE deps —
+ * depending on MUI's `theme` there once created a render loop that blocked Next
+ * from committing the next route (transition loader stuck).
  */
 
 type TabId = "page" | "products" | "share";
@@ -58,52 +54,6 @@ const TABS: Array<{ id: TabId; label: string; icon: string }> = [
   { id: "products", label: "Products", icon: "package" },
   { id: "share", label: "Share", icon: "share-2" },
 ];
-
-/**
- * Header action. Kept as its own component so the effect that registers it with
- * the layout does NOT have to depend on the MUI `theme` object — depending on
- * theme made the effect re-run on every render, and since it also calls
- * setPageAction (state in _app) that became a render loop which blocked Next
- * from ever committing the next route (the transition loader stuck on screen).
- */
-const OpenPageAction: React.FC<{ handle: string }> = ({ handle }) => {
-  const theme = useTheme();
-  const { t } = useTranslation("common");
-  const open = () => window.open(buildCreatorUrl(handle), "_blank");
-  return (
-    <Box
-      role="button"
-      tabIndex={0}
-      data-testid="storefront-open-page"
-      onClick={open}
-      onKeyDown={(e: React.KeyboardEvent) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          open();
-        }
-      }}
-      sx={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 0.75,
-        px: 2,
-        height: 40,
-        borderRadius: 999,
-        cursor: "pointer",
-        fontFamily: "var(--font-sans)",
-        fontSize: 14,
-        fontWeight: 600,
-        whiteSpace: "nowrap",
-        color: theme.palette.text.primary,
-        border: `1px solid ${theme.palette.border.main}`,
-        "&:hover": { backgroundColor: theme.palette.action.hover },
-      }}
-    >
-      <Icon name="external-link" size={15} />
-      {t("storefront.viewMyPage", { defaultValue: "View my page" })}
-    </Box>
-  );
-};
 
 const Storefront = ({ setPageName, setPageDescription, setPageAction, setPageHeaderSx }: pageProps) => {
   const theme = useTheme();
@@ -123,10 +73,6 @@ const Storefront = ({ setPageName, setPageDescription, setPageAction, setPageHea
     return () => setPageHeaderSx(null);
   }, [setPageHeaderSx]);
   const profile = useSelector((s: rootReducer) => (s as any).userReducer.profile) as any;
-  // Storefront-per-company: the header "View my page" + switcher hint reflect the
-  // ACTIVE company (resolves per-company when the flag is on, else the account).
-  const { profile: storefront } = useStorefrontProfile();
-  const handle = storefront?.handle as string | undefined;
   const { companyList, selectedCompanyId } = useCompanyStore();
   const selectedCompany = companyList.find(
     (c: any) => Number(c.company_id) === Number(selectedCompanyId),
@@ -165,16 +111,13 @@ const Storefront = ({ setPageName, setPageDescription, setPageAction, setPageHea
     };
   }, [setPageName, setPageDescription, t]);
 
-  // Header action: jump straight to the live page once a handle exists.
+  // Wave 3b: the ONE primary action ("Edit page") lives in the Page header card;
+  // "View my page" sits in its publish row — so no layout header action here.
   useEffect(() => {
     if (!setPageAction) return;
-    if (!handle) {
-      setPageAction(null);
-      return;
-    }
-    setPageAction(<OpenPageAction handle={handle} />);
+    setPageAction(null);
     return () => setPageAction(null);
-  }, [setPageAction, handle]);
+  }, [setPageAction]);
 
   const go = (id: TabId) => {
     setActive(id);

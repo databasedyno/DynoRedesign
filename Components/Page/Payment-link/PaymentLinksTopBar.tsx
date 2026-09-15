@@ -16,7 +16,7 @@ import {
 } from "../Transactions/styled";
 import { brandFg } from "@/constants/theme";
 
-export type PaymentLinkStatusFilter = "all" | "active" | "completed" | "expired" | "pending";
+export type PaymentLinkStatusFilter = "all" | "active" | "earning" | "expiring" | "completed" | "expired" | "pending";
 
 interface PaymentLinksTopBarProps {
   onSearch: (value: string) => void;
@@ -190,13 +190,16 @@ const PaymentLinksTopBar = ({
         onChange={(e) => onStatusFilter(e.target.value as PaymentLinkStatusFilter)}
         size="small"
         displayEmpty
-        sx={{ ...selectSx, minWidth: isMobile ? "100%" : "160px" }}
+        data-testid="paylinks-status-filter"
+        sx={{ ...selectSx, minWidth: isMobile ? "100%" : "170px" }}
       >
-        <MenuItem value="all">{t("allStatuses")}</MenuItem>
-        <MenuItem value="active">{t("statusActive")}</MenuItem>
-        <MenuItem value="completed">{t("statusPaid")}</MenuItem>
-        <MenuItem value="expired">{t("statusExpired")}</MenuItem>
-        <MenuItem value="pending">{t("statusPending")}</MenuItem>
+        <MenuItem value="all" data-testid="paylinks-status-all">{t("allStatuses")}</MenuItem>
+        <MenuItem value="active" data-testid="paylinks-status-active">{t("statusActive")}</MenuItem>
+        <MenuItem value="earning" data-testid="paylinks-status-earning">{t("statusEarning", { defaultValue: "Earning (30d)" })}</MenuItem>
+        <MenuItem value="expiring" data-testid="paylinks-status-expiring">{t("statusExpiringSoon", { defaultValue: "Expiring soon" })}</MenuItem>
+        <MenuItem value="completed" data-testid="paylinks-status-completed">{t("statusPaid")}</MenuItem>
+        <MenuItem value="expired" data-testid="paylinks-status-expired">{t("statusExpired")}</MenuItem>
+        <MenuItem value="pending" data-testid="paylinks-status-pending">{t("statusPending")}</MenuItem>
       </Select>
 
       {/* Clear-range button — only when a range is set */}
