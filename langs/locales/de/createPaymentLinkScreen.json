@@ -313,5 +313,7 @@
   "pricesIncludeTax": "Preise enthalten Steuern",
   "pricesIncludeTaxHint": "MwSt. vom Preis abziehen, anstatt sie oben drauf zu addieren",
   "campaignDelete": "Löschen",
-  "campaignRemoveReply": "Antwort entfernen"
+  "campaignRemoveReply": "Antwort entfernen",
+  "advancedOptionsHintSingleForm": "Coins, Ablauf, Gebühren, Kunden-E-Mail, Steuer, Webhooks",
+  "advancedOptionsHintSingleFormEdit": "Coins, Ablauf, Gebühren, Kunden-E-Mail, Steuer"
 }

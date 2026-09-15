@@ -49,6 +49,8 @@ export interface ICryptoItem {
 }
 
 export interface CryptoSelectionProps {
+  /** Section step badge; pass "" to hide (inside "More options"). */
+  step?: string;
   isMobile: boolean;
   searchTerm: string;
   setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
@@ -121,6 +123,10 @@ export interface PaymentSettingsBasicProps {
   currencyTriggerRef: React.MutableRefObject<HTMLButtonElement | null>;
   expireAnchorEl: React.MutableRefObject<HTMLElement | null>;
   expireTriggerRef: React.MutableRefObject<HTMLDivElement | null>;
+  /** Render only the amount block, only the details block, or both (default). */
+  part?: "amount" | "details" | "both";
+  amountStep?: string;
+  detailsStep?: string;
 }
 
 export interface PostPaymentSettingsProps {

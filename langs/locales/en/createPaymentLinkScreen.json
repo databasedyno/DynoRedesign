@@ -313,5 +313,7 @@
   "pricesIncludeTax": "Prices include tax",
   "pricesIncludeTaxHint": "Back out VAT from the price instead of adding on top",
   "campaignDelete": "Delete",
-  "campaignRemoveReply": "Remove reply"
+  "campaignRemoveReply": "Remove reply",
+  "advancedOptionsHintSingleForm": "Coins, expiry, fees, customer email, tax, webhooks",
+  "advancedOptionsHintSingleFormEdit": "Coins, expiry, fees, customer email, tax"
 }

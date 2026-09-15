@@ -191,5 +191,16 @@
     "bdBlockchainFee": "Taxa de blockchain / rede",
     "bdNetToMerchant": "Líquido para o comerciante"
   },
-  "ffWelcomeCtaShare": "Partilhe o seu link de pagamento"
+  "ffWelcomeCtaShare": "Partilhe o seu link de pagamento",
+  "worked": {
+    "eyebrow": "Exemplo prático",
+    "headline": "Venda de {{sale}} → recebe {{receive}}",
+    "sale": "O cliente paga",
+    "platform": "Taxa Dynopay ({{tier}} · {{pct}}%)",
+    "network": "Taxa de rede · {{coin}}",
+    "receive": "Recebe",
+    "payoutCoin": "Pago em",
+    "footnoteLive": "A taxa de rede é obtida em tempo real da blockchain. A sua taxa exata aparece em cada fatura — sem extras escondidos.",
+    "footnoteTypical": "A taxa de rede mostrada é a típica desta blockchain. A sua taxa exata aparece em cada fatura — sem extras escondidos."
+  }
 }

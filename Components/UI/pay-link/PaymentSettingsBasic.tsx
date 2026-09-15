@@ -41,6 +41,9 @@ const PaymentSettingsBasic: React.FC<PaymentSettingsBasicProps> = ({
   handleCurrencySelect,
   handleExpireSelect,
   handleBlockchainFeesChange,
+  part = "both",
+  amountStep = "02",
+  detailsStep = "03",
 }) => {
   const feeOptions: Array<{ value: "customer" | "company"; title: string; sub: string }> = [
     {
@@ -57,10 +60,11 @@ const PaymentSettingsBasic: React.FC<PaymentSettingsBasicProps> = ({
 
   return (
     <>
-      {/* ── 02 · How much? ── */}
+      {/* ── How much? ── */}
+      {part !== "details" && (
       <FormSectionRoot data-testid="pay-link-section-amount">
         <FormSectionHeader>
-          <span className="step">02</span>
+          <span className="step">{amountStep}</span>
           <Box sx={{ minWidth: 0 }}>
             <Typography className="title">
               {tPaymentLink("sectionAmountTitle", { defaultValue: "How much?" })}
@@ -131,11 +135,13 @@ const PaymentSettingsBasic: React.FC<PaymentSettingsBasicProps> = ({
           </Box>
         </Box>
       </FormSectionRoot>
+      )}
 
-      {/* ── 03 · Details ── */}
+      {/* ── Details ── */}
+      {part !== "amount" && (
       <FormSectionRoot data-testid="pay-link-section-details">
         <FormSectionHeader>
-          <span className="step">03</span>
+          {detailsStep && <span className="step">{detailsStep}</span>}
           <Box sx={{ minWidth: 0 }}>
             <Typography className="title">
               {tPaymentLink("sectionDetailsTitle", { defaultValue: "Details" })}
@@ -229,6 +235,7 @@ const PaymentSettingsBasic: React.FC<PaymentSettingsBasicProps> = ({
           </Box>
         </Box>
       </FormSectionRoot>
+      )}
     </>
   );
 };

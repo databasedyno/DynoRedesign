@@ -799,9 +799,13 @@
   },
   "creator": {
     "card": {
-      "supportCampaign": "Steun deze campagne",
-      "emptyTitle": "Hier staat nog niets",
-      "exploreLink": "Ontdek Dynopay-creators →"
+      "title": "Je bedankkaart",
+      "iSupported": "Ik heb net gesteund:",
+      "poweredBy": "Powered by Dynopay · niet-bewarende cryptobetalingen",
+      "shareText": "Ik heb net {{name}} gesteund 💛",
+      "alt": "Kaart 'Ik steunde {{name}}'",
+      "download": "Kaart downloaden",
+      "share": "Kaart delen"
     },
     "inline": {
       "preferFullPage": "Liever de volledige pagina? →",
@@ -1099,7 +1103,25 @@
     "buildTitle": "Waarop we bouwen",
     "buildBody": "Een klein, snel team met één focus: handelaren in crypto laten betalen zonder de complexiteit. Dit zijn de principes achter elke functie die we uitbrengen.",
     "ctaTitle": "Wilt u samen met ons de toekomst van betalingen bouwen?",
-    "ctaBody": "We horen altijd graag van handelaren, partners en mensen die het team willen versterken. Neem gerust contact op — we lezen elk bericht."
+    "ctaBody": "We horen altijd graag van handelaren, partners en mensen die het team willen versterken. Neem gerust contact op — we lezen elk bericht.",
+    "legit": {
+      "eyebrow": "Wie achter Dynopay zit",
+      "title": "Controleerbaar, officieel.",
+      "body": "De feiten die een koper of partner moet kunnen nagaan voordat hij een betaalpagina vertrouwt.",
+      "entity": "Rechtspersoon",
+      "since": "Actief sinds",
+      "contact": "Contact",
+      "custody": "Bewaring",
+      "custodyValue": "Niet-bewarend — geld gaat rechtstreeks naar de verkoper",
+      "docsTitle": "Beleid & status",
+      "docs": {
+        "terms": "Algemene voorwaarden",
+        "privacy": "Privacybeleid",
+        "aml": "AML-/KYC-beleid",
+        "status": "Systeemstatus"
+      },
+      "note": "Dynopay bewaart nooit geld van klanten of verkopers: elke betaling wordt on-chain doorgestuurd naar het eigen uitbetalingsadres van de verkoper."
+    }
   },
   "blogIndex": {
     "metaTitle": "Cryptobetalingen blog — kosten, afwikkeling & integraties · Dynopay",

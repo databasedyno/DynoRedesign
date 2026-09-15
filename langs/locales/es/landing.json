@@ -799,9 +799,13 @@
   },
   "creator": {
     "card": {
-      "supportCampaign": "Apoya esta campaña",
-      "emptyTitle": "Aquí no hay nada todavía",
-      "exploreLink": "Explorar creadores de Dynopay →"
+      "title": "Tu tarjeta de agradecimiento",
+      "iSupported": "Acabo de apoyar a",
+      "poweredBy": "Powered by Dynopay · pagos cripto sin custodia",
+      "shareText": "Acabo de apoyar a {{name}} 💛",
+      "alt": "Tarjeta «Apoyé a {{name}}»",
+      "download": "Descargar tarjeta",
+      "share": "Compartir tarjeta"
     },
     "inline": {
       "preferFullPage": "¿Prefieres página completa? →",
@@ -1099,7 +1103,25 @@
     "buildTitle": "Sobre qué construimos",
     "buildBody": "Un equipo pequeño y ágil centrado en una sola cosa: que los comercios cobren en cripto sin complicaciones. Estos son los principios detrás de cada función que lanzamos.",
     "ctaTitle": "¿Quieres construir el futuro de los pagos con nosotros?",
-    "ctaBody": "Siempre nos alegra saber de comercios, socios y personas que quieren unirse al equipo. Escríbenos cuando quieras — leemos todos los mensajes."
+    "ctaBody": "Siempre nos alegra saber de comercios, socios y personas que quieren unirse al equipo. Escríbenos cuando quieras — leemos todos los mensajes.",
+    "legit": {
+      "eyebrow": "Quién está detrás de Dynopay",
+      "title": "Verificable y en el registro.",
+      "body": "Los datos que un comprador o socio debería poder comprobar antes de confiar en una página de pago.",
+      "entity": "Entidad legal",
+      "since": "Operando desde",
+      "contact": "Contacto",
+      "custody": "Custodia",
+      "custodyValue": "Sin custodia — los fondos van directamente al comercio",
+      "docsTitle": "Políticas y estado",
+      "docs": {
+        "terms": "Términos y condiciones",
+        "privacy": "Política de privacidad",
+        "aml": "Política AML / KYC",
+        "status": "Estado del sistema"
+      },
+      "note": "Dynopay nunca retiene fondos de clientes ni de comercios: cada pago se reenvía on-chain a la dirección de cobro del propio comercio."
+    }
   },
   "blogIndex": {
     "metaTitle": "Blog de pagos cripto — comisiones, liquidación e integraciones · Dynopay",

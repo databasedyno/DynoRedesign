@@ -799,9 +799,13 @@
   },
   "creator": {
     "card": {
-      "supportCampaign": "Soutenir cette campagne",
-      "emptyTitle": "Rien ici pour l'instant",
-      "exploreLink": "Découvrir les créateurs Dynopay →"
+      "title": "Votre carte de remerciement",
+      "iSupported": "Je viens de soutenir",
+      "poweredBy": "Powered by Dynopay · paiements crypto non dépositaires",
+      "shareText": "Je viens de soutenir {{name}} 💛",
+      "alt": "Carte « J'ai soutenu {{name}} »",
+      "download": "Télécharger la carte",
+      "share": "Partager la carte"
     },
     "inline": {
       "preferFullPage": "Vous préférez la page complète ? →",
@@ -1099,7 +1103,25 @@
     "buildTitle": "Nos fondations",
     "buildBody": "Une petite équipe rapide, concentrée sur une seule chose : permettre aux marchands d'être payés en crypto sans la complexité. Voici les principes derrière chaque fonctionnalité que nous livrons.",
     "ctaTitle": "Envie de construire l'avenir des paiements avec nous ?",
-    "ctaBody": "Nous sommes toujours ravis d'échanger avec des marchands, des partenaires et des personnes qui veulent rejoindre l'équipe. Contactez-nous à tout moment — nous lisons chaque message."
+    "ctaBody": "Nous sommes toujours ravis d'échanger avec des marchands, des partenaires et des personnes qui veulent rejoindre l'équipe. Contactez-nous à tout moment — nous lisons chaque message.",
+    "legit": {
+      "eyebrow": "Qui est derrière Dynopay",
+      "title": "Vérifiable, officiel.",
+      "body": "Les faits qu'un acheteur ou un partenaire doit pouvoir vérifier avant de faire confiance à une page de paiement.",
+      "entity": "Entité légale",
+      "since": "En activité depuis",
+      "contact": "Contact",
+      "custody": "Garde des fonds",
+      "custodyValue": "Non dépositaire — les fonds vont directement au marchand",
+      "docsTitle": "Politiques et statut",
+      "docs": {
+        "terms": "Conditions générales",
+        "privacy": "Politique de confidentialité",
+        "aml": "Politique AML / KYC",
+        "status": "État du système"
+      },
+      "note": "Dynopay ne détient jamais les fonds des clients ni des marchands : chaque paiement est transféré on-chain vers l'adresse de versement du marchand."
+    }
   },
   "blogIndex": {
     "metaTitle": "Blog paiements crypto — frais, règlement & intégrations · Dynopay",

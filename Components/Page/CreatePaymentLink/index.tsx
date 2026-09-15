@@ -807,6 +807,7 @@ const CreatePaymentLinkPage = ({
         type: "TOAST_SHOW",
         payload: { message: "Please select at least 1 cryptocurrency", severity: "error" },
       });
+      document.querySelector('[data-testid="pay-link-advanced-options"]')?.setAttribute("open", "");
       if (activeTab === 1) {
         setActiveTab(0);
       }
@@ -1152,25 +1153,24 @@ const CreatePaymentLinkPage = ({
   );
   const showActivationBanner = (!hasCompanyForBanner || !hasConfiguredWallet || !hasActiveApiKey) && !apiState?.loading;
 
-  // UX-2026-07-08: Pre-select the 3 most-popular cryptos (BTC / ETH / USDT-ERC20)
-  // intersected with what the merchant actually has wallets configured for.
-  // Only runs when creating a NEW pay-link (skip when editing) AND when no crypto
-  // has been picked yet — otherwise we'd nuke the user's own choices on re-render.
+  // Wave 8 (single-form): pre-select EVERY coin the merchant has a payout address
+  // for — the coin picker now lives under "More options", so the default must be
+  // complete. Only runs when creating a NEW pay-link (skip when editing) AND when
+  // no crypto has been picked yet — otherwise we'd nuke the user's own choices.
   const hasSeededDefaultsRef = useRef(false);
   useEffect(() => {
     if (hasSeededDefaultsRef.current) return;
     if (hasPaymentLinkData) return; // never auto-modify while editing
     if (paymentSettings.acceptedCryptoCurrency && paymentSettings.acceptedCryptoCurrency.length > 0) return;
     if (!walletList || walletList.length === 0) return; // wait until wallets are known
-    const PREFERRED = ["BTC", "ETH", "USDT-ERC20"];
-    const configured = new Set(
-      walletList.filter((w: any) => Boolean(w.wallet_address)).map((w: any) => w.wallet_type),
+    const configured = new Set<string>(
+      walletList.filter((w: any) => Boolean(w.wallet_address)).map((w: any) => String(w.wallet_type)),
     );
-    const preselect = PREFERRED.filter((label) => configured.has(label));
+    const preselect = ALL_CRYPTO_ITEMS.map((item) => item.label).filter((label) => configured.has(label));
     if (preselect.length === 0) return;
     hasSeededDefaultsRef.current = true;
     setPaymentSettings((prev) => ({ ...prev, acceptedCryptoCurrency: preselect }));
-  }, [walletList, hasPaymentLinkData, paymentSettings.acceptedCryptoCurrency]);
+  }, [walletList, hasPaymentLinkData, paymentSettings.acceptedCryptoCurrency, ALL_CRYPTO_ITEMS]);
 
   // Deep-link support: /create-pay-link?product_id=X&qty=N (session 49 round 3
   // follow-up) — merchant clicks "Quick sell" on the Products list, we jump
@@ -1742,10 +1742,39 @@ const CreatePaymentLinkPage = ({
                   gap: { xs: 2, md: 3 },
                 }}
               >
-                {/* ── 01 · What is this payment for? ── */}
+                {/* ── 01 · How much? (amount + currency first — the one thing every link needs) ── */}
+                <PaymentSettingsBasic
+                  part="amount"
+                  amountStep="01"
+                  isMobile={isMobile}
+                  tPaymentLink={tPaymentLink}
+                  paymentSettings={paymentSettings}
+                  paymentSettingsTouched={paymentSettingsTouched}
+                  paymentSettingsErrors={paymentSettingsErrors}
+                  currencyOpen={currencyOpen}
+                  currencies={currencies}
+                  expireOpen={expireOpen}
+                  blockchainFees={blockchainFees}
+                  disable={disable}
+                  handlePaymentSettingsChange={handlePaymentSettingsChange}
+                  handlePaymentSettingsBlur={handlePaymentSettingsBlur}
+                  handleCurrencyOpen={handleCurrencyOpen}
+                  handleCurrencyClose={handleCurrencyClose}
+                  handleCurrencySelect={handleCurrencySelect}
+                  handleExpireOpen={handleExpireOpen}
+                  handleExpireClose={handleExpireClose}
+                  handleExpireSelect={handleExpireSelect}
+                  handleBlockchainFeesChange={handleBlockchainFeesChange}
+                  currencyAnchorEl={currencyAnchorEl}
+                  currencyTriggerRef={currencyTriggerRef}
+                  expireAnchorEl={expireAnchorEl}
+                  expireTriggerRef={expireTriggerRef}
+                />
+
+                {/* ── 02 · What is this payment for? ── */}
                 <FormSectionRoot data-testid="pay-link-section-purpose">
                   <FormSectionHeader>
-                    <span className="step">01</span>
+                    <span className="step">02</span>
                     <Box sx={{ minWidth: 0 }}>
                       <Typography className="title">
                         {tPaymentLink("sectionPurposeTitle", { defaultValue: "What is this payment for?" })}
@@ -1782,33 +1811,6 @@ const CreatePaymentLinkPage = ({
                     handlePaymentSettingsBlur={handlePaymentSettingsBlur}
                   />
                 </FormSectionRoot>
-
-                {/* ── 02 · How much?  +  03 · Details ── */}
-                <PaymentSettingsBasic
-                  isMobile={isMobile}
-                  tPaymentLink={tPaymentLink}
-                  paymentSettings={paymentSettings}
-                  paymentSettingsTouched={paymentSettingsTouched}
-                  paymentSettingsErrors={paymentSettingsErrors}
-                  currencyOpen={currencyOpen}
-                  currencies={currencies}
-                  expireOpen={expireOpen}
-                  blockchainFees={blockchainFees}
-                  disable={disable}
-                  handlePaymentSettingsChange={handlePaymentSettingsChange}
-                  handlePaymentSettingsBlur={handlePaymentSettingsBlur}
-                  handleCurrencyOpen={handleCurrencyOpen}
-                  handleCurrencyClose={handleCurrencyClose}
-                  handleCurrencySelect={handleCurrencySelect}
-                  handleExpireOpen={handleExpireOpen}
-                  handleExpireClose={handleExpireClose}
-                  handleExpireSelect={handleExpireSelect}
-                  handleBlockchainFeesChange={handleBlockchainFeesChange}
-                  currencyAnchorEl={currencyAnchorEl}
-                  currencyTriggerRef={currencyTriggerRef}
-                  expireAnchorEl={expireAnchorEl}
-                  expireTriggerRef={expireTriggerRef}
-                />
               </Box>
               )}
 
@@ -1821,31 +1823,29 @@ const CreatePaymentLinkPage = ({
                 />
               )}
 
-              <Box
-                sx={{
-                  height: "1px",
-                  backgroundColor: theme.palette.border.main,
-                }}
-              />
-
-              <CryptoSelection
-                isMobile={isMobile}
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-                handleSearch={handleSearch}
-                cryptoItems={cryptoItems}
-                allCryptoItems={ALL_CRYPTO_ITEMS}
-                filteredCryptoItems={filteredCryptoItems}
-                showFilteredCryptoItems={showFilteredCryptoItems}
-                showAllCoins={showAllCoins}
-                setShowAllCoins={setShowAllCoins}
-                hasPaymentLinkData={hasPaymentLinkData}
-                isLarge={isLarge}
-                isSmall={isSmall}
-                walletNotSetUp={walletNotSetUp}
-                paymentSettings={paymentSettings}
-                setPaymentSettings={setPaymentSettings}
-              />
+              {linkKind === "donation" && (
+                <>
+                  <Box sx={{ height: "1px", backgroundColor: theme.palette.border.main }} />
+                  <CryptoSelection
+                    isMobile={isMobile}
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
+                    handleSearch={handleSearch}
+                    cryptoItems={cryptoItems}
+                    allCryptoItems={ALL_CRYPTO_ITEMS}
+                    filteredCryptoItems={filteredCryptoItems}
+                    showFilteredCryptoItems={showFilteredCryptoItems}
+                    showAllCoins={showAllCoins}
+                    setShowAllCoins={setShowAllCoins}
+                    hasPaymentLinkData={hasPaymentLinkData}
+                    isLarge={isLarge}
+                    isSmall={isSmall}
+                    walletNotSetUp={walletNotSetUp}
+                    paymentSettings={paymentSettings}
+                    setPaymentSettings={setPaymentSettings}
+                  />
+                </>
+              )}
 
               <Box
                 sx={{
@@ -1914,8 +1914,8 @@ const CreatePaymentLinkPage = ({
                       {linkKind === "donation"
                         ? t("advancedOptionsHintDonation", { defaultValue: "Webhooks, redirect URL" })
                         : !hasPaymentLinkData
-                          ? t("advancedOptionsHintFull", { defaultValue: "Customer email, tax, webhooks" })
-                          : tPaymentLink("advancedOptionsHint", { defaultValue: "Customer email, tax" })}
+                          ? tPaymentLink("advancedOptionsHintSingleForm", { defaultValue: "Coins, expiry, fees, customer email, tax, webhooks" })
+                          : tPaymentLink("advancedOptionsHintSingleFormEdit", { defaultValue: "Coins, expiry, fees, customer email, tax" })}
                     </Typography>
                   </Box>
                 </Box>
@@ -1928,6 +1928,59 @@ const CreatePaymentLinkPage = ({
                 >
                   {linkKind !== "donation" && (
                   <>
+                  {/* Wave 8 single form: the accepted-coin picker and the Details block (client
+                      name / expiry / fee payer) live here — sensible defaults (all your enabled
+                      coins, no expiry, you pay fees) mean most merchants never open this. */}
+                  <Box sx={{ pt: 2 }} data-testid="pay-link-more-coins">
+                    <CryptoSelection
+                      step=""
+                      isMobile={isMobile}
+                      searchTerm={searchTerm}
+                      setSearchTerm={setSearchTerm}
+                      handleSearch={handleSearch}
+                      cryptoItems={cryptoItems}
+                      allCryptoItems={ALL_CRYPTO_ITEMS}
+                      filteredCryptoItems={filteredCryptoItems}
+                      showFilteredCryptoItems={showFilteredCryptoItems}
+                      showAllCoins={showAllCoins}
+                      setShowAllCoins={setShowAllCoins}
+                      hasPaymentLinkData={hasPaymentLinkData}
+                      isLarge={isLarge}
+                      isSmall={isSmall}
+                      walletNotSetUp={walletNotSetUp}
+                      paymentSettings={paymentSettings}
+                      setPaymentSettings={setPaymentSettings}
+                    />
+                  </Box>
+                  <Box sx={{ pt: 2, pb: 1 }} data-testid="pay-link-more-details">
+                    <PaymentSettingsBasic
+                      part="details"
+                      detailsStep=""
+                      isMobile={isMobile}
+                      tPaymentLink={tPaymentLink}
+                      paymentSettings={paymentSettings}
+                      paymentSettingsTouched={paymentSettingsTouched}
+                      paymentSettingsErrors={paymentSettingsErrors}
+                      currencyOpen={currencyOpen}
+                      currencies={currencies}
+                      expireOpen={expireOpen}
+                      blockchainFees={blockchainFees}
+                      disable={disable}
+                      handlePaymentSettingsChange={handlePaymentSettingsChange}
+                      handlePaymentSettingsBlur={handlePaymentSettingsBlur}
+                      handleCurrencyOpen={handleCurrencyOpen}
+                      handleCurrencyClose={handleCurrencyClose}
+                      handleCurrencySelect={handleCurrencySelect}
+                      handleExpireOpen={handleExpireOpen}
+                      handleExpireClose={handleExpireClose}
+                      handleExpireSelect={handleExpireSelect}
+                      handleBlockchainFeesChange={handleBlockchainFeesChange}
+                      currencyAnchorEl={currencyAnchorEl}
+                      currencyTriggerRef={currencyTriggerRef}
+                      expireAnchorEl={expireAnchorEl}
+                      expireTriggerRef={expireTriggerRef}
+                    />
+                  </Box>
                   {/* Optional Customer Email for referral code delivery */}
                   <Box sx={{ py: 2 }}>
                     <Typography

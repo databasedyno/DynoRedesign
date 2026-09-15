@@ -452,6 +452,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
       "/pay/terms-of-service":     "payTermsOfService",
       "/pay/payment-states-demo":  "paymentStatesDemo",
       "/pay/success-demo":         "paySuccessDemo",
+      "/pay/tip-card-demo":        "paySuccessDemo",
       "/payment":                  "payment",
       "/payment/success":          "paymentSuccess",
       "/payment/failed":           "paymentFailed",

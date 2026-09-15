@@ -799,9 +799,13 @@
   },
   "creator": {
     "card": {
-      "supportCampaign": "Support this campaign",
-      "emptyTitle": "Nothing here yet",
-      "exploreLink": "Explore Dynopay creators →"
+      "title": "Your thank-you card",
+      "iSupported": "I just supported",
+      "poweredBy": "Powered by Dynopay · non-custodial crypto payments",
+      "shareText": "I just supported {{name}} 💛",
+      "alt": "I supported {{name}} card",
+      "download": "Download card",
+      "share": "Share card"
     },
     "inline": {
       "preferFullPage": "Prefer full page? →",
@@ -1099,7 +1103,25 @@
     "buildTitle": "What we build on",
     "buildBody": "A small, fast-moving team focused on one thing: getting merchants paid in crypto without the complexity. These are the principles behind every feature we ship.",
     "ctaTitle": "Want to build the future of payments with us?",
-    "ctaBody": "We're always happy to hear from merchants, partners and people who want to join the team. Reach out any time — we read every message."
+    "ctaBody": "We're always happy to hear from merchants, partners and people who want to join the team. Reach out any time — we read every message.",
+    "legit": {
+      "eyebrow": "Who runs Dynopay",
+      "title": "Verifiable, on the record.",
+      "body": "The facts a buyer or partner should be able to check before trusting a checkout page.",
+      "entity": "Legal entity",
+      "since": "Operating since",
+      "contact": "Contact",
+      "custody": "Custody",
+      "custodyValue": "Non-custodial — funds go straight to the merchant",
+      "docsTitle": "Policies & status",
+      "docs": {
+        "terms": "Terms & conditions",
+        "privacy": "Privacy policy",
+        "aml": "AML / KYC policy",
+        "status": "System status"
+      },
+      "note": "Dynopay never holds customer or merchant funds: every payment is forwarded on-chain to the merchant's own payout address."
+    }
   },
   "blogIndex": {
     "metaTitle": "Crypto payments blog — fees, settlement & integrations · Dynopay",

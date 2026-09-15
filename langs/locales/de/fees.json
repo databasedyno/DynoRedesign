@@ -191,5 +191,16 @@
     "bdBlockchainFee": "Blockchain- / Netzwerkgebühr",
     "bdNetToMerchant": "Netto an Händler"
   },
-  "ffWelcomeCtaShare": "Ihren Zahlungslink teilen"
+  "ffWelcomeCtaShare": "Ihren Zahlungslink teilen",
+  "worked": {
+    "eyebrow": "Rechenbeispiel",
+    "headline": "{{sale}} Verkauf → Sie erhalten {{receive}}",
+    "sale": "Kunde zahlt",
+    "platform": "Dynopay-Gebühr ({{tier}} · {{pct}} %)",
+    "network": "Netzwerkgebühr · {{coin}}",
+    "receive": "Sie erhalten",
+    "payoutCoin": "Auszahlung in",
+    "footnoteLive": "Die Netzwerkgebühr kommt live von der Chain. Ihre genaue Gebühr steht auf jeder Rechnung — keine versteckten Extras.",
+    "footnoteTypical": "Die gezeigte Netzwerkgebühr ist typisch für diese Chain. Ihre genaue Gebühr steht auf jeder Rechnung — keine versteckten Extras."
+  }
 }

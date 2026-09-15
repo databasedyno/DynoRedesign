@@ -43,11 +43,13 @@ const SupportWidget = ({
   creatorName,
   widget,
   siteUrl,
+  accentColor,
 }: {
   handle: string
   creatorName: string
   widget: SupportWidgetData
   siteUrl?: string
+  accentColor?: string | null
 }) => {
   const { t } = useTranslation('landing')
   const theme = useTheme()
@@ -272,6 +274,7 @@ const SupportWidget = ({
             creatorName={creatorName}
             style={widget.style}
             siteUrl={siteUrl || (typeof window !== 'undefined' ? window.location.href : '')}
+            accentColor={accentColor}
             onNewTip={resetToForm}
             onCancel={resetToForm}
           />

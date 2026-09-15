@@ -313,5 +313,7 @@
   "pricesIncludeTax": "Les prix incluent la taxe",
   "pricesIncludeTaxHint": "Déduisez la TVA du prix au lieu de l'ajouter",
   "campaignDelete": "Supprimer",
-  "campaignRemoveReply": "Supprimer la réponse"
+  "campaignRemoveReply": "Supprimer la réponse",
+  "advancedOptionsHintSingleForm": "Cryptos, expiration, frais, e-mail client, taxes, webhooks",
+  "advancedOptionsHintSingleFormEdit": "Cryptos, expiration, frais, e-mail client, taxes"
 }

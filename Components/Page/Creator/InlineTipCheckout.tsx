@@ -34,6 +34,7 @@ import type { Phase, CryptoInfo } from '@/Components/Page/Pay3Components/checkou
 import { checkoutApi as api, fetchReceiptBlob, fetchReceiptLink } from '@/Components/Page/Pay3Components/checkout/checkoutApi'
 import SaveMerchantButton from '@/Components/UI/SaveMerchantButton'
 import { QRCodeSVG } from 'qrcode.react'
+import TipThankYouCard from './TipThankYouCard'
 import { getRuntimeFlags } from '@/helpers/runtimeFlags'
 
 interface Meta {
@@ -151,6 +152,8 @@ interface InlineTipCheckoutProps {
   creatorName: string
   style: 'coffee' | 'tip' | 'support'
   siteUrl: string
+  /** Creator accent colour for the shareable thank-you card (defaults to brand). */
+  accentColor?: string | null
   onNewTip: () => void
   onCancel: () => void
   /** Fired once the payment reaches the confirmed phase. The store checkout
@@ -180,6 +183,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
   creatorName,
   style,
   siteUrl,
+  accentColor,
   onNewTip,
   onCancel,
   onConfirmed,
@@ -1452,6 +1456,19 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
             {copiedFlag === 'share' ? t('creator.inline.copiedExclaim', { defaultValue: 'Copied!' }) : t('creator.inline.copyLink', { defaultValue: 'Copy link' })}
           </Box>
         </Box>
+
+        {/* Shareable "I supported {creator}" card — tips only (store checkouts get a receipt instead) */}
+        {mode === 'tip' && (
+          <TipThankYouCard
+            creatorName={meta_.merchant?.name || meta_.merchant?.company_name || creatorName || `@${handle}`}
+            handle={meta_.merchant?.handle || handle}
+            avatarUrl={meta_.merchant?.company_logo || null}
+            accent={accentColor || LIME}
+            amountLabel={fiatStr}
+            message={showDonorMsg ? donorMessage : null}
+            pageUrl={shareUrl}
+          />
+        )}
 
         <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
           <Button

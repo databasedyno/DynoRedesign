@@ -313,5 +313,7 @@
   "pricesIncludeTax": "Prijzen zijn inclusief belasting",
   "pricesIncludeTaxHint": "Verwijder btw van de prijs in plaats van deze bovenop toe te voegen",
   "campaignDelete": "Verwijderen",
-  "campaignRemoveReply": "Verwijder antwoord"
+  "campaignRemoveReply": "Verwijder antwoord",
+  "advancedOptionsHintSingleForm": "Coins, vervaldatum, kosten, klant-e-mail, btw, webhooks",
+  "advancedOptionsHintSingleFormEdit": "Coins, vervaldatum, kosten, klant-e-mail, btw"
 }

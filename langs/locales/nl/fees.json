@@ -191,5 +191,16 @@
     "bdBlockchainFee": "Blockchain / netwerkkosten",
     "bdNetToMerchant": "Netto voor handelaar"
   },
-  "ffWelcomeCtaShare": "Deel je betaallink"
+  "ffWelcomeCtaShare": "Deel je betaallink",
+  "worked": {
+    "eyebrow": "Rekenvoorbeeld",
+    "headline": "Verkoop van {{sale}} → jij ontvangt {{receive}}",
+    "sale": "Klant betaalt",
+    "platform": "Dynopay-kosten ({{tier}} · {{pct}}%)",
+    "network": "Netwerkkosten · {{coin}}",
+    "receive": "Jij ontvangt",
+    "payoutCoin": "Uitbetaald in",
+    "footnoteLive": "Netwerkkosten komen live van de chain. Je exacte kosten staan op elke factuur — geen verborgen extra's.",
+    "footnoteTypical": "De getoonde netwerkkosten zijn typisch voor deze chain. Je exacte kosten staan op elke factuur — geen verborgen extra's."
+  }
 }

@@ -14,6 +14,7 @@ import { Section, SectionHead, PrimaryBtn, SecondaryBtn } from "@/Components/Pag
 import { Stagger, StaggerItem } from "@/Components/Page/Home/motion/Stagger";
 import PublicPageHero from "@/Components/Page/Home/v5/PublicPageHero";
 import CtaBand from "@/Components/Page/Home/v5/CtaBand";
+import AboutLegitimacyBlock from "@/Components/Page/About/LegitimacyBlock";
 
 const STATS = [
   { value: "1.5%", labelKey: "about.stats.baseFee" },
@@ -94,6 +95,9 @@ const AboutPage: React.FC = () => {
             ))}
           </Stagger>
         </Section>
+
+        {/* Who runs Dynopay — legal entity, contact, custody model, policies (Wave 7) */}
+        <AboutLegitimacyBlock />
 
         <CtaBand
           testId="about-cta"

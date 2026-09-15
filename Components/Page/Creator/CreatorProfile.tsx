@@ -504,7 +504,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
         {/* ── Support Widget (always-on tip / coffee / support) ── */}
         {supportWidget?.enabled && !activeLink && (
           <Box data-testid='creator-support-section' sx={{ mb: 3 }}>
-            <SupportWidget handle={creator.handle} creatorName={creator.name} widget={supportWidget} siteUrl={siteUrl ? `${siteUrl.replace(/\/+$/, '')}/${creator.handle}` : undefined} />
+            <SupportWidget handle={creator.handle} creatorName={creator.name} widget={supportWidget} accentColor={accent} siteUrl={siteUrl ? `${siteUrl.replace(/\/+$/, '')}/${creator.handle}` : undefined} />
             {/* Compact 30-day momentum widget — shown when the creator's
                 public_analytics_enabled toggle is on AND we have data.
                 Session 2026-08-05. */}

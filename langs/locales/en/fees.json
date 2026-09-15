@@ -191,5 +191,16 @@
     "bdBlockchainFee": "Blockchain / network fee",
     "bdNetToMerchant": "Net to merchant"
   },
-  "ffWelcomeCtaShare": "Share your payment link"
+  "ffWelcomeCtaShare": "Share your payment link",
+  "worked": {
+    "eyebrow": "Worked example",
+    "headline": "{{sale}} sale → you receive {{receive}}",
+    "sale": "Customer pays",
+    "platform": "Dynopay fee ({{tier}} · {{pct}}%)",
+    "network": "Network fee · {{coin}}",
+    "receive": "You receive",
+    "payoutCoin": "Paid out in",
+    "footnoteLive": "Network fee is live from the chain. Your exact fee is shown on every invoice — no hidden extras.",
+    "footnoteTypical": "Network fee shown is typical for this chain. Your exact fee is shown on every invoice — no hidden extras."
+  }
 }

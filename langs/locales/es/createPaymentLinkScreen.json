@@ -313,5 +313,7 @@
   "pricesIncludeTax": "Los precios incluyen impuestos",
   "pricesIncludeTaxHint": "Resta el IVA del precio en lugar de añadirlo",
   "campaignDelete": "Eliminar",
-  "campaignRemoveReply": "Eliminar respuesta"
+  "campaignRemoveReply": "Eliminar respuesta",
+  "advancedOptionsHintSingleForm": "Monedas, caducidad, comisiones, email del cliente, impuestos, webhooks",
+  "advancedOptionsHintSingleFormEdit": "Monedas, caducidad, comisiones, email del cliente, impuestos"
 }

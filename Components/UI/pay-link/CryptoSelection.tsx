@@ -28,6 +28,7 @@ const CryptoSelection: React.FC<CryptoSelectionProps> = ({
   walletNotSetUp,
   paymentSettings,
   setPaymentSettings,
+  step = "04",
 }) => {
   const { t } = useTranslation("createPaymentLinkScreen");
   const theme = useTheme();
@@ -50,7 +51,7 @@ const CryptoSelection: React.FC<CryptoSelectionProps> = ({
         >
           {/* Redesign (2026-09): numbered header, matching sections 01–03 */}
           <FormSectionHeader>
-            <span className="step">04</span>
+            {step && <span className="step">{step}</span>}
             <Box sx={{ minWidth: 0 }}>
               <Typography className="title">{t("acceptedCryptocurrencies")}</Typography>
               <Typography className="subtitle">{t("whichCryptoCanCustomersUseToPay")}</Typography>

@@ -191,5 +191,16 @@
     "bdBlockchainFee": "Frais blockchain / réseau",
     "bdNetToMerchant": "Net au marchand"
   },
-  "ffWelcomeCtaShare": "Partagez votre lien de paiement"
+  "ffWelcomeCtaShare": "Partagez votre lien de paiement",
+  "worked": {
+    "eyebrow": "Exemple concret",
+    "headline": "Vente de {{sale}} → vous recevez {{receive}}",
+    "sale": "Le client paie",
+    "platform": "Frais Dynopay ({{tier}} · {{pct}} %)",
+    "network": "Frais de réseau · {{coin}}",
+    "receive": "Vous recevez",
+    "payoutCoin": "Versé en",
+    "footnoteLive": "Les frais de réseau sont relevés en direct sur la chaîne. Vos frais exacts figurent sur chaque facture — aucun supplément caché.",
+    "footnoteTypical": "Les frais de réseau affichés sont typiques pour cette chaîne. Vos frais exacts figurent sur chaque facture — aucun supplément caché."
+  }
 }

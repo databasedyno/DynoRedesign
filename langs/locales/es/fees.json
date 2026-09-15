@@ -191,5 +191,16 @@
     "bdBlockchainFee": "Tarifa de blockchain / red",
     "bdNetToMerchant": "Neto para el comerciante"
   },
-  "ffWelcomeCtaShare": "Comparte tu enlace de pago"
+  "ffWelcomeCtaShare": "Comparte tu enlace de pago",
+  "worked": {
+    "eyebrow": "Ejemplo práctico",
+    "headline": "Venta de {{sale}} → recibes {{receive}}",
+    "sale": "El cliente paga",
+    "platform": "Comisión Dynopay ({{tier}} · {{pct}}%)",
+    "network": "Comisión de red · {{coin}}",
+    "receive": "Recibes",
+    "payoutCoin": "Cobro en",
+    "footnoteLive": "La comisión de red es en vivo desde la cadena. Tu comisión exacta aparece en cada factura — sin extras ocultos.",
+    "footnoteTypical": "La comisión de red mostrada es la típica de esta cadena. Tu comisión exacta aparece en cada factura — sin extras ocultos."
+  }
 }

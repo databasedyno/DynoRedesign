@@ -17,6 +17,7 @@ import { Section, SectionHead, PrimaryBtn, SecondaryBtn, cardSx } from "@/Compon
 import { Stagger, StaggerItem } from "@/Components/Page/Home/motion/Stagger";
 import { BRAND_ACCENT } from "@/constants/theme";
 import { toFixedStr } from "@/utils/money";
+import FeesWorkedExample from "@/Components/Page/Fees/WorkedExample";
 
 /* ── Aurora restyle of the public /fees page (2026-07-18) ── */
 
@@ -275,6 +276,17 @@ const FeesPage = () => {
                 );
               })}
           </Stagger>
+        </Section>
+
+        {/* ===== WORKED EXAMPLE — "$100 sale → you receive $X" (Wave 7) ===== */}
+        <Section testId="fees-worked" sx={{ pb: { xs: 0, md: 0 } }}>
+          <FeesWorkedExample
+            tiers={TIERS}
+            currentTierName={tier.name}
+            currencies={SETTLE_CURRENCIES}
+            feeFor={(c) => feeFor(c as (typeof SETTLE_CURRENCIES)[number])}
+            live={!!liveFees}
+          />
         </Section>
 
         {/* ===== FEE CALCULATOR ===== */}

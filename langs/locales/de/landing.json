@@ -799,9 +799,13 @@
   },
   "creator": {
     "card": {
-      "supportCampaign": "Diese Kampagne unterstützen",
-      "emptyTitle": "Hier ist noch nichts",
-      "exploreLink": "Dynopay-Creator entdecken →"
+      "title": "Ihre Dankeskarte",
+      "iSupported": "Ich habe gerade unterstützt:",
+      "poweredBy": "Powered by Dynopay · nicht verwahrende Krypto-Zahlungen",
+      "shareText": "Ich habe gerade {{name}} unterstützt 💛",
+      "alt": "Karte „Ich habe {{name}} unterstützt“",
+      "download": "Karte herunterladen",
+      "share": "Karte teilen"
     },
     "inline": {
       "preferFullPage": "Lieber die volle Seite? →",
@@ -1099,7 +1103,25 @@
     "buildTitle": "Worauf wir bauen",
     "buildBody": "Ein kleines, schnelles Team mit einem Fokus: Händler in Krypto bezahlen lassen — ohne Komplexität. Das sind die Prinzipien hinter jedem Feature, das wir ausliefern.",
     "ctaTitle": "Möchten Sie mit uns die Zukunft des Bezahlens bauen?",
-    "ctaBody": "Wir freuen uns immer über Nachrichten von Händlern, Partnern und Menschen, die Teil des Teams werden möchten. Melden Sie sich jederzeit — wir lesen jede Nachricht."
+    "ctaBody": "Wir freuen uns immer über Nachrichten von Händlern, Partnern und Menschen, die Teil des Teams werden möchten. Melden Sie sich jederzeit — wir lesen jede Nachricht.",
+    "legit": {
+      "eyebrow": "Wer hinter Dynopay steht",
+      "title": "Nachprüfbar, offiziell.",
+      "body": "Die Fakten, die Käufer oder Partner prüfen sollten, bevor sie einer Checkout-Seite vertrauen.",
+      "entity": "Rechtsträger",
+      "since": "Aktiv seit",
+      "contact": "Kontakt",
+      "custody": "Verwahrung",
+      "custodyValue": "Nicht verwahrend — Gelder gehen direkt an den Händler",
+      "docsTitle": "Richtlinien & Status",
+      "docs": {
+        "terms": "AGB",
+        "privacy": "Datenschutz",
+        "aml": "AML-/KYC-Richtlinie",
+        "status": "Systemstatus"
+      },
+      "note": "Dynopay hält nie Kunden- oder Händlergelder: Jede Zahlung wird on-chain an die eigene Auszahlungsadresse des Händlers weitergeleitet."
+    }
   },
   "blogIndex": {
     "metaTitle": "Krypto-Zahlungen Blog — Gebühren, Abrechnung & Integrationen · Dynopay",

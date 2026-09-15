@@ -39,6 +39,7 @@ const DEV_ONLY_PATHS = new Set([
   "/pay/payment-states-demo",
   "/pay/state-demo",
   "/pay/success-demo",
+  "/pay/tip-card-demo",
 ]);
 
 function shouldBlock(): boolean {
@@ -72,5 +73,6 @@ export const config = {
     "/pay/payment-states-demo",
     "/pay/state-demo",
     "/pay/success-demo",
+    "/pay/tip-card-demo",
   ],
 };

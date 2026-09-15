@@ -799,9 +799,13 @@
   },
   "creator": {
     "card": {
-      "supportCampaign": "Apoie esta campanha",
-      "emptyTitle": "Ainda não há nada aqui",
-      "exploreLink": "Explorar criadores Dynopay →"
+      "title": "O seu cartão de agradecimento",
+      "iSupported": "Acabei de apoiar",
+      "poweredBy": "Powered by Dynopay · pagamentos cripto sem custódia",
+      "shareText": "Acabei de apoiar {{name}} 💛",
+      "alt": "Cartão «Apoiei {{name}}»",
+      "download": "Transferir cartão",
+      "share": "Partilhar cartão"
     },
     "inline": {
       "preferFullPage": "Prefere página completa? →",
@@ -1099,7 +1103,25 @@
     "buildTitle": "No que nos baseamos",
     "buildBody": "Uma equipe pequena e ágil focada em uma coisa: fazer comerciantes receberem em cripto sem complexidade. Estes são os princípios por trás de cada recurso que lançamos.",
     "ctaTitle": "Quer construir o futuro dos pagamentos com a gente?",
-    "ctaBody": "Adoramos ouvir comerciantes, parceiros e pessoas que querem entrar para o time. Fale com a gente a qualquer momento — lemos todas as mensagens."
+    "ctaBody": "Adoramos ouvir comerciantes, parceiros e pessoas que querem entrar para o time. Fale com a gente a qualquer momento — lemos todas as mensagens.",
+    "legit": {
+      "eyebrow": "Quem está por trás da Dynopay",
+      "title": "Verificável e registado.",
+      "body": "Os factos que um comprador ou parceiro deve poder confirmar antes de confiar numa página de pagamento.",
+      "entity": "Entidade legal",
+      "since": "A operar desde",
+      "contact": "Contacto",
+      "custody": "Custódia",
+      "custodyValue": "Sem custódia — os fundos vão diretamente para o comerciante",
+      "docsTitle": "Políticas e estado",
+      "docs": {
+        "terms": "Termos e condições",
+        "privacy": "Política de privacidade",
+        "aml": "Política AML / KYC",
+        "status": "Estado do sistema"
+      },
+      "note": "A Dynopay nunca retém fundos de clientes nem de comerciantes: cada pagamento é encaminhado on-chain para o endereço de recebimento do próprio comerciante."
+    }
   },
   "blogIndex": {
     "metaTitle": "Blog de pagamentos cripto — taxas, liquidação e integrações · Dynopay",
