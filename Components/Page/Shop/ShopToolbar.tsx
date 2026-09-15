@@ -145,6 +145,8 @@ export default function ShopToolbar({
     >
       {/* LEFT: type chips + category chips */}
       <Box sx={{ flex: 1, minWidth: 0 }}>
+        {/* Type chips earn their space only once the grid is big enough to need filtering */}
+        {availableTypes.length > 1 && products.length > CATEGORY_FILTER_MIN_PRODUCTS && (
         <Stack
           direction="row"
           spacing={1}
@@ -162,6 +164,7 @@ export default function ShopToolbar({
             />
           ))}
         </Stack>
+        )}
 
         {/* D8: category chips only add signal with >1 category AND a grid big enough to need filtering */}
         {categories.length > 1 && products.length > CATEGORY_FILTER_MIN_PRODUCTS && (

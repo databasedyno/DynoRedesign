@@ -22,10 +22,9 @@ REMAINING (in order):
       (?period=), header tiles + "Export period (CSV)", tax-tab duplicate select/export removed, teaching
       empty state. GOTCHA fixed: open-ended presets must NOT send end_date=now (SWR key churn → infinite
       refetch). i18n scripts/i18n_invoices_wave2.py. Smoke-screenshot OK (thisMonth $2,593.59 / $0 / $89.13).
-[ ] TEST  DEFERRED BY USER ("lets start the next wave and will test later") — one testing_agent run for ALL of
-      Wave 2 (Transactions filters/deep links/drawer/top-up, Payouts attention+tiles+timeline, Wallets
-      coverage/strip/last-forward/format badge, Settings→Security + /wallet/security redirect, Receipts & Tax
-      header totals/export/empty state) still owed before Wave 2 is called SHIPPED.
+[x] TEST  Wave 2 regression sweep DONE — testing_agent iteration_181 (100% backend + frontend): Transactions
+      presets/filters/deep link, Payouts root/tiles/wallets/recent/range/export, Payout addresses strips,
+      /wallet/security → Settings → Security, Receipts & Tax period totals/export. Wave 2 = SHIPPED.
 [x] 3a Payment links  DONE: backend services/paymentLinks/linkStats.ts (30d settled count/USD, all-time, last paid →
       `stats` on GET /api/pay/getPaymentLinks); FE Last-30-days column (LinkRowExtras Last30Cell), Expiring-soon
       badge (<48h), inline QR popover + share, status filter "Earning (30d)" / "Expiring soon"; in-page create
@@ -52,13 +51,18 @@ REMAINING (in order):
       day grouping; dashboard "Needs attention" rows mirrored into the inbox incl. dismissed ones ("Hidden on the
       dashboard" + "Show on dashboard" restore) via useAttentionItems({includeDismissed}) + restore().
       i18n scripts/i18n_wave3_pages.py (3c–3g keys). Smoke OK.
-[ ] TEST  Wave 3 (all of the above) — run together with the Wave 2 sweep.
+[x] TEST  Wave 3 regression sweep DONE — iteration_181: Payment links stats/QR, Your page funnel header,
+      Customers columns, Referrals (no rows on prod), Settings Language, Developer health strip, Notification
+      kind filter. Wave 3 = SHIPPED.
 NOW:   Wave 3 CODED (3a–3g, smoke-tested). The Wave 2+3 testing_agent sweep is PARKED until the user asks.
        Emails/pages epic (/app/plan/emails_pages_audit_plan.md): Phase 1 audit DONE, Wave 4 emails DONE (iter 179),
        Wave 5 hosted checkout + buyer pages DONE (iter 180: rate-lock tiers, /payment/* states, checkout trust cues,
        receipt contact/refund/print, order contact + receipt link) + global "Wallet → Payout address" rename
-       (scripts/i18n/rename_wallet_to_payout_address.py, 6 langs, UI + emails + API copy). NEXT: Wave 6 creator pages
-       → Wave 7 marketing → Wave 8 in-app pages.
+       (scripts/i18n/rename_wallet_to_payout_address.py, 6 langs, UI + emails + API copy). Wave 6 creator pages DONE
+       (iter 181: supporter wall opt-in + migration 0028, presets $10/$25/$50 default, non-custodial note, shop grid
+       rules 4-col/>8 cats/>20 search, phone sticky buy bar). Waves 2–3 regression sweep DONE (iter 181) → SHIPPED.
+       NEXT: Wave 7 marketing pages → Wave 8 in-app pages (create-pay-link single form, product editor live
+       preview, KYC status timeline).
        P0 backlog after that: US sales-tax engine, 1099-DA broker determination.
 
 State at fork: Wave 1 (Command Centre) fully coded (backend `GET /api/dashboard/overview`,
