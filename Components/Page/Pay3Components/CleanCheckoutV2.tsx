@@ -1755,14 +1755,28 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
             })}
           </Button>
         )}
+        {phase === 'currency_select' && meta_ && (
+          <Box sx={{ mt: 1.25, display: 'flex', flexDirection: 'column', gap: 0.5, alignItems: 'center' }} data-testid="clean-checkout-trust-lines">
+            <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.6, fontSize: 11.5, color: muted }} data-testid="clean-checkout-noncustodial">
+              <Icon icon="mdi:shield-lock-outline" width={13} />
+              <span>{t('checkout.nonCustodialLine', { defaultValue: 'Paid straight to {{merchant}} — Dynopay never holds your funds.', merchant: merchantName || t('checkout.theMerchant', { defaultValue: 'the merchant' }) })}</span>
+            </Box>
+            <Typography sx={{ fontSize: 11.5, color: muted, textAlign: 'center' }} data-testid="clean-checkout-fee-disclosure">
+              {(() => {
+                const walletFee = selectedCurrency ? fmtNetworkFee(networkFeeUsd(selectedCurrency, netFees)) : null
+                const tail = walletFee
+                  ? t('checkout.feeDisclosure.walletFee', { defaultValue: 'Your wallet adds its own network fee ({{fee}}).', fee: walletFee })
+                  : t('checkout.feeDisclosure.walletFeeUnknown', { defaultValue: 'Your wallet adds its own network fee.' })
+                return feePayerIsCustomer
+                  ? `${t('checkout.feeDisclosure.customerPays', { defaultValue: 'Processing fee is included in the total above.' })} ${tail}`
+                  : `${t('checkout.feeDisclosure.merchantPays', { defaultValue: 'No Dynopay fee is added — {{merchant}} covers it.', merchant: merchantName || t('checkout.theMerchant', { defaultValue: 'the merchant' }) })} ${tail}`
+              })()}
+            </Typography>
+          </Box>
+        )}
         {phase === 'currency_select' && selectedCurrency && (
           <Typography sx={{ mt: 1, fontSize: 11.5, color: muted, textAlign: 'center' }} data-testid="clean-checkout-continue-hint">
-            {(() => {
-              const fee = fmtNetworkFee(networkFeeUsd(selectedCurrency, netFees))
-              return fee
-                ? t('checkout.continueHintCost', { defaultValue: '{{fee}} network fee · usually confirms in {{eta}} · 30 minutes to send.', fee, eta: networkEta(selectedCurrency) })
-                : t('checkout.continueHintEta', { defaultValue: 'Usually confirms in {{eta}} · 30 minutes to send.', eta: networkEta(selectedCurrency) })
-            })()}
+            {t('checkout.continueHintEta', { defaultValue: 'Usually confirms in {{eta}} · you get 30 minutes to send.', eta: networkEta(selectedCurrency) })}
           </Typography>
         )}
       </Box>

@@ -102,6 +102,17 @@ export default function UnsubscribePage() {
               <Typography sx={{ mt: 1, color: "text.secondary", fontSize: 14 }}>
                 {message}
               </Typography>
+              <Typography sx={{ mt: 1.5, color: "text.secondary", fontSize: 13.5 }} data-testid="unsubscribe-invalid-help">
+                Unsubscribe links are single-use and expire after a while. You can still turn any email off:{" "}
+                <Box component="a" href="/settings?section=notifications" sx={{ color: "primary.main", fontWeight: 600 }} data-testid="unsubscribe-settings-link">
+                  sign in → Settings → Notifications
+                </Box>
+                , or{" "}
+                <Box component="a" href="/help-support" sx={{ color: "primary.main", fontWeight: 600 }} data-testid="unsubscribe-support-link">
+                  ask support
+                </Box>{" "}
+                to do it for you.
+              </Typography>
             </Box>
           )}
           <Button

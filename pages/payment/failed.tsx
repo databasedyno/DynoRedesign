@@ -77,9 +77,19 @@ const Failed = () => {
             fontSize: 15,
           }}
         >
-          {errorData?.error
-            ? String(errorData.error)
-            : t("paymentFailedBody")}
+          {(() => {
+            const st = String(errorData?.status ?? "").toLowerCase();
+            const byStatus: Record<string, string> = {
+              expired: t("paymentResult.failed.expired", { defaultValue: "The payment window closed before the payment was completed. Nothing was charged — you can start again whenever you're ready." }),
+              cancelled: t("paymentResult.failed.cancelled", { defaultValue: "The payment was cancelled before it completed. Nothing was charged." }),
+              underpaid: t("paymentResult.failed.underpaid", { defaultValue: "The amount that arrived was less than the amount due, so the payment couldn't be completed. Check the request and try again." }),
+              declined: t("paymentResult.failed.declined", { defaultValue: "The payment was declined by the provider. Try another method or contact your bank." }),
+            };
+            return byStatus[st] || (errorData?.error ? String(errorData.error) : t("paymentFailedBody"));
+          })()}
+        </Typography>
+        <Typography data-testid="payment-failed-next" sx={{ fontFamily: "var(--font-sans)", color: "text.secondary", mb: 3, fontSize: 13.5 }}>
+          {t("paymentResult.failed.next", { defaultValue: "Nothing to undo — no money moved. If you were charged anyway, keep the reference below and contact support; we'll sort it out." })}
         </Typography>
 
         {Boolean(errorData?.transaction_id) && (
@@ -146,6 +156,15 @@ const Failed = () => {
             {t("returnHome")}
           </Button>
         </Box>
+        <Typography sx={{ mt: 2.5, fontFamily: "var(--font-sans)", fontSize: 12.5, color: "text.secondary" }}>
+          <Box component="a" href="/help-support" data-testid="payment-failed-support-link" sx={{ color: "primary.main", fontWeight: 600 }}>
+            {t("paymentResult.contactSupport", { defaultValue: "Contact support" })}
+          </Box>
+          {" · "}
+          <Box component="a" href="/system-status" data-testid="payment-failed-status-link" sx={{ color: "primary.main", fontWeight: 600 }}>
+            {t("paymentResult.systemStatus", { defaultValue: "System status" })}
+          </Box>
+        </Typography>
       </Box>
     </Box>
   );

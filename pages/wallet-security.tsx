@@ -45,7 +45,8 @@ const WalletSecurityPage: NextPageWithLayout = () => {
         if (res.ok && json?.data?.reverted) {
           setNetworks(json.data.networks || []);
           setStatus("success");
-        } else if (res.status === 410) {
+        } else if (res.status === 410 || res.status === 400 || res.status === 401 || res.status === 404) {
+          // Expired, already used, or not a real token → same calm explanation.
           setStatus("expired");
         } else {
           setStatus("error");
@@ -102,7 +103,7 @@ const WalletSecurityPage: NextPageWithLayout = () => {
             defaultValue: "We've undone the recent payout wallet change(s){{networks}} and locked wallet changes on your account. To make new wallet changes, contact support so we can confirm it's really you.",
           })
         : status === "expired"
-          ? t("walletSecurityLanding.expiredBody", { defaultValue: "This security link has already been used or has expired. If you still think something's wrong, contact support right away." })
+          ? t("walletSecurityLanding.expiredBody", { defaultValue: "This security link has already been used, has expired, or isn't valid. If you didn't make the wallet change yourself, sign in now, go to Settings → Security, remove the wallet you don't recognise and change your password — then contact support right away." })
           : t("walletSecurityLanding.errorBody", { defaultValue: "We couldn't complete this action. Please try again, or contact support if the problem continues." });
 
   return (

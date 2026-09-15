@@ -198,11 +198,28 @@ export default function CheckoutStatusStrip({ state, title, caption, secondsRema
   const urgentPill    = t("checkout.strip.urgent.pill",    { defaultValue: "HURRY" });
 
   const displayTitle   = isUrgent ? urgentTitle   : baseTitle;
-  const displayCaption = isUrgent ? urgentCaption : baseCaption;
+  // ── Rate-lock tiers (Wave 5): calm → amber (≤ 5 min) → red (≤ 2 min) → urgent (≤ 60 s).
+  // The quoted crypto amount is only good for the window; colour the countdown
+  // so the buyer notices *before* the price refreshes.
+  const tier: "calm" | "amber" | "red" | "urgent" =
+    isUrgent ? "urgent"
+    : typeof secondsRemaining === "number" && secondsRemaining > 0 && secondsRemaining <= 120 && state !== "failed" && state !== "confirmed" ? "red"
+    : typeof secondsRemaining === "number" && secondsRemaining > 0 && secondsRemaining <= 300 && state !== "failed" && state !== "confirmed" ? "amber"
+    : "calm";
+  const amber = dark ? "#FBBF24" : "#B45309";
+  const tierCaption =
+    tier === "red"
+      ? t("checkout.strip.tier.red", { defaultValue: "Under 2 minutes left on this price — send now, or restart for a fresh quote.", time: formatCountdown(secondsRemaining) })
+      : tier === "amber"
+        ? t("checkout.strip.tier.amber", { defaultValue: "Price locked for {{time}} more — pay before it refreshes.", time: formatCountdown(secondsRemaining) })
+        : null;
+
+  const displayCaption = isUrgent ? urgentCaption : (tierCaption ?? baseCaption);
   const displayPill    = isUrgent ? urgentPill    : pillLabel;
   const displayPillTone: "settled" | "pending" | "failed" | "info" = isUrgent ? "failed" : style.pill;
 
   const showPulse = !isUrgent && (state === "pending" || state === "confirming");
+
 
   // Countdown progress (0–100) — only when the parent supplies a window.
   const hasTimer =
@@ -223,6 +240,7 @@ export default function CheckoutStatusStrip({ state, title, caption, secondsRema
       data-state={state}
       data-detect-stage={rest["data-detect-stage"]}
       data-urgent={isUrgent ? "1" : "0"}
+      data-timer-tier={tier}
       sx={{
         position: "relative",
         overflow: "hidden",
@@ -347,17 +365,18 @@ export default function CheckoutStatusStrip({ state, title, caption, secondsRema
             zIndex: 1,
             flexShrink: 0,
             minWidth: isUrgent ? { xs: 58, md: 70 } : undefined,
-            padding: isUrgent ? { xs: "6px 10px", md: "8px 14px" } : "0 2px",
             borderRadius: "10px",
-            border: isUrgent ? `1px solid ${dark ? "rgba(255,91,73,0.42)" : "rgba(255,91,73,0.34)"}` : "none",
-            backgroundColor: isUrgent ? (dark ? "rgba(255,91,73,0.10)" : "rgba(255,91,73,0.06)") : "transparent",
+            border: isUrgent ? `1px solid ${dark ? "rgba(255,91,73,0.42)" : "rgba(255,91,73,0.34)"}` : tier === "red" ? `1px solid ${dark ? "rgba(255,91,73,0.30)" : "rgba(255,91,73,0.24)"}` : tier === "amber" ? `1px solid ${dark ? "rgba(251,191,36,0.35)" : "rgba(180,83,9,0.28)"}` : "none",
+            backgroundColor: isUrgent ? (dark ? "rgba(255,91,73,0.10)" : "rgba(255,91,73,0.06)") : tier === "red" ? (dark ? "rgba(255,91,73,0.07)" : "rgba(255,91,73,0.05)") : tier === "amber" ? (dark ? "rgba(251,191,36,0.08)" : "rgba(180,83,9,0.06)") : "transparent",
+            padding: isUrgent ? { xs: "6px 10px", md: "8px 14px" } : tier !== "calm" ? { xs: "5px 9px", md: "6px 12px" } : "0 2px",
             textAlign: "center",
             fontFamily: "var(--font-tech), ui-monospace, SFMono-Regular, Menlo, monospace",
             fontVariantNumeric: "tabular-nums",
-            fontWeight: isUrgent ? 700 : 600,
-            fontSize: isUrgent ? { xs: 16, md: 20 } : { xs: 13, md: 14 },
+            fontWeight: isUrgent || tier !== "calm" ? 700 : 600,
+            fontSize: isUrgent ? { xs: 16, md: 20 } : tier !== "calm" ? { xs: 14, md: 16 } : { xs: 13, md: 14 },
             letterSpacing: "0.02em",
-            color: isUrgent ? coral : theme.palette.text.secondary,
+            color: isUrgent || tier === "red" ? coral : tier === "amber" ? amber : theme.palette.text.secondary,
+            transition: "color 300ms ease, background-color 300ms ease, border-color 300ms ease",
             lineHeight: 1,
             userSelect: "none",
             display: "inline-flex",
@@ -390,7 +409,7 @@ export default function CheckoutStatusStrip({ state, title, caption, secondsRema
             sx={{
               height: "100%",
               width: `${barPct}%`,
-              backgroundColor: isUrgent || barPct <= 20 ? coral : indigo,
+              backgroundColor: isUrgent || tier === "red" ? coral : tier === "amber" ? amber : indigo,
               transition: "width 1s linear, background-color 300ms ease",
             }}
           />

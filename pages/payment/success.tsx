@@ -114,19 +114,50 @@ const Success = () => {
           </Box>
         )}
 
-        <Button
-          variant="contained"
-          onClick={() => router.push("/")}
+        <Box
+          data-testid="payment-success-next"
           sx={{
-            fontFamily: "var(--font-sans)",
-            textTransform: "none",
+            textAlign: "left",
+            background: theme.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "rgba(10,10,10,0.03)",
             borderRadius: 2,
-            px: 4,
-            py: 1.2,
+            p: 2,
+            mb: 3,
           }}
         >
-          {t("returnHome")}
-        </Button>
+          <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700, mb: 0.75 }}>
+            {t("paymentResult.nextTitle", { defaultValue: "What happens next" })}
+          </Typography>
+          <Typography component="ul" sx={{ fontFamily: "var(--font-sans)", fontSize: 13.5, color: "text.secondary", pl: 2.5, m: 0, "& li": { mb: 0.5 } }}>
+            <li>{t("paymentResult.nextCredit", { defaultValue: "The amount is credited to your Dynopay wallet within a few minutes." })}</li>
+            <li>{t("paymentResult.nextReceipt", { defaultValue: "A receipt is on its way to your e-mail — keep the transaction ID above for your records." })}</li>
+            <li>{t("paymentResult.nextTransactions", { defaultValue: "You can follow it under Transactions in your dashboard." })}</li>
+          </Typography>
+        </Box>
+
+        <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2, justifyContent: "center" }}>
+          <Button
+            variant="contained"
+            data-testid="payment-success-dashboard-btn"
+            onClick={() => router.push("/transactions")}
+            sx={{ fontFamily: "var(--font-sans)", textTransform: "none", borderRadius: 2, px: 3, py: 1.2, minHeight: 44, width: { xs: "100%", sm: "auto" } }}
+          >
+            {t("paymentResult.viewTransactions", { defaultValue: "View in Transactions" })}
+          </Button>
+          <Button
+            variant="outlined"
+            data-testid="payment-success-home-btn"
+            onClick={() => router.push("/")}
+            sx={{ fontFamily: "var(--font-sans)", textTransform: "none", borderRadius: 2, px: 3, py: 1.2, minHeight: 44, width: { xs: "100%", sm: "auto" } }}
+          >
+            {t("returnHome")}
+          </Button>
+        </Box>
+        <Typography sx={{ mt: 2.5, fontFamily: "var(--font-sans)", fontSize: 12.5, color: "text.secondary" }}>
+          {t("paymentResult.somethingWrong", { defaultValue: "Something doesn't look right?" })}{" "}
+          <Box component="a" href="/help-support" data-testid="payment-success-support-link" sx={{ color: "primary.main", fontWeight: 600 }}>
+            {t("paymentResult.contactSupport", { defaultValue: "Contact support" })}
+          </Box>
+        </Typography>
       </Box>
     </Box>
   );
