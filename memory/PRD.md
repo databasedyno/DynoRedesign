@@ -1,3 +1,21 @@
+# === 2026-06 (fork) DONE — DEPLOY BLOCKER FIXED: strict `tsc` build failed on the sharp-0.35 type error ===
+# SYMPTOM: DigitalOcean droplet deploy (GitHub Actions .github/workflows/deploy-droplet.yml, repo databasedyno/DynoRedesign,
+#   branch Improvement) failed at Docker "Build and push image": `process "/bin/sh -c yarn build" ... exit code: 2`.
+# ROOT CAUSE (from the run logs, run 35071869964 sha c5379d12): the BACKEND stage `yarn build` = `tsc` (strict; NOT the
+#   ts-node transpile-only the pod runs) errored on backend/controller/payment/campaignOgImage.ts(387,19)
+#   `error TS2503: Cannot find namespace 'sharp'`. Pre-existing from the Dependabot sharp 0.34->0.35 bump — sharp now ships
+#   its own types as `declare namespace sharp { interface OverlayOptions } export = sharp`, so `sharp.OverlayOptions` on a
+#   default `import sharp from "sharp"` no longer resolves as a namespace. Harmless at runtime (transpile-only) but fatal to
+#   `tsc`. Last green build 932f098d predated the bump landing in the built tree. NOT caused by this session's feature work.
+# FIX: campaignOgImage.ts — added `import type { OverlayOptions } from "sharp";` (named type import works on the express-style
+#   `export = namespace`) and changed `sharp.OverlayOptions[]` -> `OverlayOptions[]`. VERIFIED: backend `tsc` 0 errors,
+#   frontend `tsc` 0 errors, ESLint clean on all changed FE files (next.config has typescript.ignoreBuildErrors:false AND
+#   eslint.ignoreDuringBuilds:false, so both gates matter). Deploy will build once pushed via Save to GitHub.
+# NOTE: a run was in-progress on an older sha (0ee9f60b) at diagnosis time and will still fail — it predates this fix.
+# ⚠️ SECURITY: user pasted a classic GitHub PAT in chat to let me read the Actions logs (used transiently via curl header,
+#   never written to disk/git config). MUST be rotated.
+# ============================================================================================
+
 # === 2026-06 (fork) DONE — WEBHOOK ALERT FALSE-POSITIVE (P0) · AI SUPPORT SCOPE + REALTIME ESCALATION (P1) · 10-YEAR AML RETENTION (P1) · TABLE-HEIGHT SWEEP · WEBHOOK UI CLEANUP (testing_agent iteration_189: backend 100%, frontend 100%, 0 issues) ===
 # ISSUE 1 (P0) WEBHOOK DASHBOARD FALSE POSITIVE: services/dashboard/overviewQueries.ts configGaps `webhooks` query now JOINs
 #   tbl_company co ON co.company_id=wl.company_id and only counts failures where wl.webhook_url = co.webhook_url AND

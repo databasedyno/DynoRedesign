@@ -19,6 +19,7 @@
  */
 import express from "express";
 import sharp from "sharp";
+import type { OverlayOptions } from "sharp";
 import axios from "axios";
 import { QueryTypes } from "sequelize";
 import sequelize from "../../utils/dbInstance";
@@ -384,7 +385,7 @@ export const getCampaignOgImage = async (req: express.Request, res: express.Resp
     if (!card) return res.redirect(302, FALLBACK_OG);
 
     const base = await buildBase(card);
-    const layers: sharp.OverlayOptions[] = [];
+    const layers: OverlayOptions[] = [];
     let hasAvatar = false;
     if (card.kind === "shop" && card.logo) {
       const av = await circleAvatar(card.logo, 140);
