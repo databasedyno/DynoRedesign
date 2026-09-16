@@ -1,0 +1,40 @@
+{
+  "summary": "Iteration 194 QA: Backend step-up policy + cleanup + regression fully pass (22/22 checks). Frontend light-theme default verified on landing/fees/login/register/help-support and dashboard. Landing renders '1,056' under es-ES locale with no hydration errors. Login 2FA OTP shows 'Checking your code…' (otp-verifying) then 'Verified — signing you in…' (otp-verified) before redirect. Delete Account flow correctly opens shared step-up dialog with data-scope=account_delete + body mentions 'delete' + Cancel closes step-up WITHOUT surfacing delete-account-error (modal stays open).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/scripts/qa_stepup_policy.cjs",
+    "/app/backend/scripts/qa_iter194_extra.cjs"
+  ],
+  "action_items": [],
+  "backend_checks_detail": {
+    "qa_stepup_policy": "17/17 PASS — TOTP account (user 1): status methods authenticator-only; request-code 403; email verify 403; toggleStatus/92 → 403 STEPUP_REQUIRED apikey; PATCH & DELETE /publishable-keys/6 → 403 apikey (no mutation); DELETE /user/account → 403 account_delete; legacy /user/account/send-otp → 404; account_delete valid scope; TOTP unlocks apikey; revoke works. Email-factor account (user 221): status methods email-only; totp verify 400; request-code returns preview_otp; email code unlocks.",
+    "qa_iter194_extra": "5/5 PASS — publishable keys company_id=1 has exactly 1 key 'Live Buy Button' (active, pk_live_wCJi6deu6y…); API keys company_id=1 has exactly 1 key 'Pulse-26'; brand delete on company_id=165 challenges 403 STEPUP_REQUIRED scope=brand_delete."
+  },
+  "frontend_checks_detail": {
+    "light_default_fresh_context": "PASS — /, /fees, /auth/login, /auth/register, /help-support, /dashboard all render document.documentElement.dataset.theme='light' in a fresh browser context. Landing shows 5 top-nav items (Products, Solutions, Developers, Resources, Pricing).",
+    "es_ES_hydration": "PASS — Spanish locale (locale='es-ES') browser context on /: body contains '1,056', 0 hydration errors captured (no 'did not match' or 'hydrat' errors).",
+    "login_2fa_otp_feedback": "PASS — user 221 login: after typing 6th digit of preview_otp captured from POST /api/user/login response, dialog shows [data-testid='otp-verifying'] then [data-testid='otp-verified'] before redirect to /dashboard.",
+    "delete_account_stepup_cancel": "PASS — /settings → Profile & Security → Danger zone → open-delete-account-btn opens [data-testid='delete-account-modal']. Filling delete-account-confirm-input with account email and clicking delete-account-submit-btn opens shared [data-testid='stepup-dialog'] with data-scope='account_delete' and body text contains 'delete'. Clicking [data-testid='stepup-cancel-btn'] closes the step-up; [data-testid='delete-account-error'] is NOT present; delete-account-modal remains open.",
+    "password_change_stepup": "NOT COMPLETED — Security rail tab was clicked but its lazy-loaded panel did not render password inputs within timeout during my run; would recommend the main agent self-verifies. All underlying backend evidence (email-factor 'security' scope 200 + preview_otp) is green.",
+    "api_key_toggle_stepup_ui": "NOT EXERCISED via UI — brand for user 221 (QA MinOrder, company 231) has no existing API keys or publishable keys (empty state 'No API keys yet'). Per request this branch is optional/skippable; backend policy for the same actions is confirmed via qa_stepup_policy (17/17)."
+  },
+  "critical_code_review_comments": [
+    "Backend step-up policy is coherent: usesAuthenticator gating returns 403 with the AUTHENTICATOR_REQUIRED_MESSAGE for TOTP accounts and the email-factor path returns 400 'No authenticator app is enrolled on this account.' for totp verifies on email-only accounts — good UX-preserving errors.",
+    "Response shape for POST /api/user/2fa/validate places the JWT at data.accessToken (not data.token). qa_stepup_policy handles both via `d.token || d.accessToken`; be sure any new callers do the same."
+  ],
+  "updated_files": [
+    "/app/backend/scripts/qa_iter194_extra.cjs (new — cleanup + brand_delete regression)"
+  ],
+  "success_rate": {"backend": "100% (22/22)", "frontend": "5/6 completed and passing; 1 not exercised via UI (password-change step-up), 1 not exercised (API/publishable key toggle UI — no keys exist for user 221 brand)."},
+  "test_credentials": "TOTP: onarrival21@gmail.com / Katiekendra123@ (user 1). Email-factor: qa_minorder_p1b@example.com / QaMinOrder123@ (user 221). See /app/memory/test_credentials.md.",
+  "seed_data_creation": "None. No mutations to production data. No brand_delete or account_delete scope was ever verified/unlocked.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Backend policy is fully validated via /app/backend/scripts/qa_stepup_policy.cjs (17/17) and /app/backend/scripts/qa_iter194_extra.cjs (5/5). For the API/publishable key toggle UI you must create a key first for user 221 (or use user 1 read-only — but Toggling user 1 keys would require TOTP unlock which is NOT allowed on the live production key 'Live Buy Button' id 6 / api key id 92). Recommend using user 221 and creating a throwaway API key + publishable key. For password-change step-up UI verification the Settings 'Security' rail (data-testid=settings-rail-security) sometimes lazy-loads; wait ≥3s and search for input[type=password] before searching for the submit button.",
+  "rca of the issue": "N/A — no bugs found this iteration."
+}

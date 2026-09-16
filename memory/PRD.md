@@ -1,3 +1,99 @@
+# === 2026-06 (fork) FORK CLOSED BY USER — NO CODE CHANGED THIS FORK; RESUME POINTS PINNED BELOW ===
+# This fork opened on the block below and the user closed it before any code was written. The previous fork's
+# work (SECURITY STEP-UP · LIGHT DEFAULT · OTP FEEDBACK · DEV-STORE KEY CLEANUP · HYDRATION FIX) is SHIPPED &
+# VERIFIED (iteration_194). Two items remain OPEN and are the next agent's starting point — do these in order:
+#   RESUME 1 (P0, needs USER SIGN-OFF FIRST): Email redesign — crisp layout + FRIENDLY voice. DO NOT roll out
+#     code changes yet. Produce the SIGN-OFF PACK described in the "5) EMAIL REDESIGN — HANDOFF" section below
+#     (3 sample emails rendered as PNGs at 600px light + 600px dark + 390px: payment pending
+#     services/email/paymentEmails.ts sendPaymentPendingEmail L100; payment settled services/email/paymentSettled.ts;
+#     payout forwarded services/email/conversionEmails.ts sendAutoConversionPayoutEmail L18) PLUS the NOTIFICATION
+#     MATRIX (referral-credit-applied-to-fee, referral credit low/exhausted, credit earned from referee, auto-convert
+#     started/converted+forwarded USD, payout delayed). Present via ask_human → get approval → only then roll out to
+#     all ~110 senders in waves (merchant/buyer money first, then security/account, then admin/ops).
+#     ask_human WAS already triggered at fork open; re-confirm the plan with the user before generating the pack.
+#   RESUME 2 (P1, browser verification owed): API-keys page step-up UI was NOT exercised in a browser (backend is
+#     verified). testing_agent iteration_194 timed out on [data-testid=pk-empty-cta]/[pk-create-btn]. Root cause:
+#     the test account it drove has NO API keys and Components/Page/API/PublishableKeysSection.tsx is hidden until
+#     ≥1 API key exists. RECIPE (see "1) STEP-UP" section L28-32 below): login user 221 (qa_minorder_p1b — enrolled,
+#     email 2FA) OR user 1 → /developer-keys → "Create New Key" → card data-testid=api-toggle-status-btn → expect
+#     stepup-dialog data-scope=apikey (email code; read preview_otp from POST /api/stepup/apikey/request-code) →
+#     toggle applies → 2nd toggle within 10 min must NOT re-prompt → then pk-create-btn / pk-toggle-<id> /
+#     pk-revoke-<id> same dialog; password change → Settings → Profile & Security → stepup-dialog scope security.
+#     Use creds from /app/memory/test_credentials.md. Handle the empty state (create a key first, don't wait on it).
+#   COMMIT: no local commit possible from here — user must click "Save to GitHub" in the chat to push this fork.
+# ============================================================================================
+# === 2026-06 (fork) SESSION CLOSED BY USER — SECURITY STEP-UP · LIGHT DEFAULT · OTP FEEDBACK · KEY CLEANUP SHIPPED (testing_agent iteration_194: backend 22/22, frontend 5/6 flows pass, 0 issues) · EMAIL REDESIGN NOT STARTED ===
+# USER REQUEST BATCH (all approved via ask_human; order 1→5; English only):
+#   1 DONE  Step-up ("sudo") for API-key disable + publishable (Buy Button) key edit/disable/revoke; AUTHENTICATOR-ONLY step-up when TOTP enrolled;
+#           account deletion through the same step-up (new scope account_delete).
+#   2 DONE  LIGHT theme default everywhere (landing, auth, dashboard); explicit toggles persist.
+#   3 DONE  OTP feedback on every 6-digit panel: "Checking your code…" → "Code verified" / "Verified — signing you in…".
+#   4 DONE  Hard-deleted The Dev Store's 4 revoked test Buy Button keys (pub_key_id 5,7,8,9) + leftover QA API key 225 "QaTest".
+#   5 NOT STARTED  Email redesign (crisp layout, FRIENDLY voice) — user wants a SIGN-OFF PACK first (see handoff below).
+#   0 DONE  Hydration mismatch "1,056" vs "1056" on landing (browser-locale toLocaleString) → formatInt(n, i18n.language) in
+#           Components/Page/Home/v5/useLandingMetrics.ts, used by v6/LiveStrip.tsx + v6/NumbersBand.tsx. Verified with es-ES browser, 0 errors.
+#
+# 1) STEP-UP — backend/services/stepUpService.ts: usesAuthenticator(userId) = User2FA.enabled && method==="totp". getStepUpStatus.methods =
+#    {email:!auth&&hasEmail, sms:!auth&&!hasEmail&&mobile, totp:auth, backup:auth} + `factor:"authenticator"|"code"`; requestStepUpCode → 403
+#    AUTHENTICATOR_REQUIRED_MESSAGE when auth; verifyStepUp refuses email/sms for auth accounts (403) and totp/backup for non-auth (400).
+#    STEP_UP_SCOPES += "account_delete". Routes: publishableKeyRouter PATCH+DELETE → requireStepUp("apikey"); apiRouter PUT /toggleStatus/:id →
+#    requireCompanyOwnerBy + stepUp; userRouter DELETE /account → requireStepUp("account_delete"); POST /user/account/send-otp REMOVED (404).
+#    controller/user/accountLifecycle.ts: deleteAccount no longer checks an OTP (middleware guarantees fresh factor), revokes the step-up
+#    session after success; sendDeleteAccountOtp deleted (userController export removed). Brand delete already used requireStepUp("brand_delete").
+#    FRONTEND: stepUpBus.ts scope union + stepUpCopy.ts account_delete ("delete your account", i18n common.json stepUp.scope.account_delete ×6);
+#    StepUpDialog/MethodTabs unchanged (they render only the methods the status returns → TOTP users see Authenticator|Backup code only).
+#    Components/UI/DeleteAccountModal/index.tsx REWRITTEN: single confirm step (type email → "Delete account" data-testid=delete-account-submit-btn)
+#    → DELETE /user/account → axios interceptor opens the shared step-up → retry; isStepUpCancelled swallowed (no error alert on cancel).
+#    api/endpoints.ts deleteAccountSendOtp removed. Redux/Sagas/ApiSaga.ts: all 6 catches bail silently on step-up cancel.
+#    Components/Page/API/PublishableKeysSection.tsx: save/toggle/revoke catches ignore isStepUpCancelled.
+#    TEST: backend/scripts/qa_stepup_policy.cjs (BASE=<preview> node …; 17 checks — logs in as user 1 via TOTP computed from tbl_user_2fa.secret
+#    with otplib, and user 221 via preview_otp) + testing agent's backend/scripts/qa_iter194_extra.cjs. NOTE: 2fa/validate returns data.accessToken.
+#    NOT YET EXERCISED IN THE BROWSER (backend verified): API-key toggle + Buy Button toggle/revoke step-up dialogs, password-change step-up dialog.
+#    Reason: user 221 (QA MinOrder, company 231) has NO API keys, and ApiKeysPage hides PublishableKeysSection until ≥1 API key exists.
+#    Recipe to finish: login user 221 → /developer-keys → "Create New Key" (CreateApiModel: key_name + base_currency; first key = development)
+#    → card data-testid=api-toggle-status-btn → expect stepup-dialog data-scope=apikey with email code only (read preview_otp from the
+#    POST /api/stepup/apikey/request-code response) → toggle applies → 2nd toggle within 10 min must NOT re-prompt. Then pk-create-btn →
+#    pk-toggle-<id> / pk-revoke-<id> same dialog. Password: Settings → Profile & Security → change password → stepup-dialog scope security.
+# 2) LIGHT DEFAULT — pages/_document.tsx defaultMode 'light'; utils/theme/routeContext.ts getDefaultThemeForContext/Path → "light";
+#    contexts/ThemeContext.tsx fallbacks 'light'. readPreferredMode is localStorage-first so visitors who never toggled flip to light
+#    (their auto-written 'dark' cookie is rewritten on first visit; /help-support may show dark once for merchants until then). Verified light on
+#    /, /fees, /auth/*, /help-support, /dashboard, /transactions, /settings in a fresh context; toggled dark persists on reload.
+# 3) OTP FEEDBACK — Components/UI/OtpInputPanel/index.tsx: phase idle|verifying|verified (verifying set on submit; verified when `loading`
+#    drops with no error after a submit, or forced via new `verified` prop); status row data-testid otp-verifying / otp-verified (or
+#    `${testIdPrefix}-verifying/-verified`), boxes dimmed + pointer-events none while checking, green borders when verified; props
+#    verifyingLabel/verifiedLabel; i18n auth.json otpChecking/otpVerified ×6. Login: Redux userReducer login2faVerified (true on USER_LOGIN when
+#    a 2FA challenge was pending; reset on 2FA_REQUIRED/RESET), utils/types.ts, pages/auth/login.tsx passes verified → TwoFactorLoginDialog
+#    (new prop; its duplicate "Verifying…" line removed; label auth.json twoFactor.verifiedSigningIn ×6). Verified in browser: login 2FA (email
+#    code) shows checking → "Verified — signing you in…" → /dashboard. Register / forgot-password / step-up code entry use the same panel.
+# 4) CLEANUP — backend/scripts/cleanup_devstore_test_keys.js (--apply; transactional; backup memory/backups/devstore_test_keys_backup_*.json).
+#    The Dev Store now: publishable keys = [6 "Live Buy Button" active]; API keys = [92 "Pulse-26" development active].
+#
+# 5) EMAIL REDESIGN — HANDOFF (next agent starts here; nothing coded yet):
+#    USER FEEDBACK: emails "not crispy"; payment-pending email dull; overall poor; voice should be FRIENDLY, not formal; also asked which email a
+#    merchant gets when REFERRAL CREDIT is used to cover a fee, and when earned amount is FORWARDED OUT IN USD (auto-convert) — "think of
+#    relevant notification steps". User chose (a): produce a SIGN-OFF PACK before any rollout.
+#    SIGN-OFF PACK TO PRODUCE: (i) new crisp shared layout + friendly voice applied to 3 sample emails rendered as PNGs (600px light + dark +
+#    390px): payment pending (services/email/paymentEmails.ts sendPaymentPendingEmail L100), payment settled (services/email/paymentSettled.ts),
+#    payout forwarded / auto-conversion payout (services/email/conversionEmails.ts sendAutoConversionPayoutEmail L18); (ii) a NOTIFICATION
+#    MATRIX (event → recipient → channel → exists today? → proposed copy) covering: referral credit applied to a fee (today: only the LEGACY
+#    paymentReceived email has the line paymentReceived.referralCredit — paymentSettled.ts has NO referral-credit row although
+#    controller/paymentController.ts ~L1827-1926 computes referralCreditAppliedUsd via services/referralCreditService.ts and persists
+#    referral_credit_applied_usd), referral credit balance low / exhausted, credit earned from a referee, auto-convert started / converted &
+#    forwarded in USDC/USDT with rate + USD value (sendAutoConversionPayoutEmail exists; weekly summary sendWeeklyConversionSummaryEmail),
+#    payout delayed (payoutEmails.ts). Render harness: backend/scripts/audit_render_all_emails.ts (DISABLE_OUTBOUND_EMAIL + EMAIL_DUMP_DIR) +
+#    scripts/qa/email_dark_shots.mjs; shared layout/helpers live in services/email/emailShared.ts + backend emailTemplate.ts (EMAIL_LOGO_FILE v3).
+#    ~110 senders across 23 files in backend/services/email (+ services/refund); i18n in langs/locales/*/emails.json (6 langs, pt = pt-PT).
+#    AFTER SIGN-OFF: roll out layout + voice to all senders in waves (merchant/buyer money emails first, then security/account, then admin/ops).
+#
+# VERIFY: FE tsc 0, BE tsc 0, eslint 0 errors on changed files. iteration_194: backend 22/22 (policy, challenges, 404 legacy, cleanup,
+#   brand_delete regression); frontend: light default ✓, es-ES hydration ✓, login OTP verifying→verified ✓, delete-account → step-up
+#   scope account_delete + cancel w/o error ✓; not exercised: key-toggle UI + password-change UI (see recipe above).
+# STALE DOC FIXED: memory/test_credentials.md "Account/Brand deletion QA" section (send-otp endpoints no longer exist).
+# BACKLOG unchanged: Part B Tier 3 per-customer actions P2; Part A Tier 3 fee-cover toggle P3; Part A Tier 4 recurring giving P3;
+#   Part B Tier 4 unified customer timeline P3. Landing follow-ups: Lighthouse on prod build; merchant quotes in ProofV6.
+# ============================================================================================
+
+
 # === 2026-06 (fork) DONE — LANDING v6 "STRIPE QUALITY" SHIPPED + HEADER LAPTOP OVERFLOW FIXED (testing_agent iteration_193: backend 100%, frontend 100%, 0 issues; English only) ===
 # SCOPE (user spec): replace homepage with a high-conversion Stripe-quality page. Components/Page/Home/index.tsx order:
 #   HeroV6 → LandingNav → ProductsBento(#products) → ConversionStory(#how-it-works) → NumbersBand(#numbers) → ProofV6(#proof)
