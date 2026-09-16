@@ -26,6 +26,7 @@ const ASSETS = [
 const PressPage: React.FC = () => {
   const router = useRouter();
   const { t } = useTranslation("landing");
+  const { t: tCommon } = useTranslation("common");
   const s = useAurora();
   const accent = s.dark ? "#818CF8" : BRAND_ACCENT;
   const [copied, setCopied] = useState(false);
@@ -74,14 +75,9 @@ const PressPage: React.FC = () => {
           title={t("press.heroTitle")}
           body={t("press.heroBody")}
           actions={
-            <>
-              <PrimaryBtn data-testid="press-contact-btn" href="mailto:support@dynopay.com" startIcon={<MailOutlineRoundedIcon sx={{ fontSize: 18 }} />}>
-                support@dynopay.com
-              </PrimaryBtn>
-              <SecondaryBtn data-testid="press-story-btn" onClick={() => router.push("/about")} endIcon={<ArrowForwardRoundedIcon sx={{ fontSize: 18 }} />}>
-                {t("press.storyCta")}
-              </SecondaryBtn>
-            </>
+            <PrimaryBtn data-testid="press-story-btn" onClick={() => router.push("/about")} endIcon={<ArrowForwardRoundedIcon sx={{ fontSize: 18 }} />}>
+              {t("press.storyCta")}
+            </PrimaryBtn>
           }
         />
 
@@ -157,8 +153,8 @@ const PressPage: React.FC = () => {
           body={t("press.contactBody")}
           actions={
             <>
-              <PrimaryBtn data-testid="press-cta-email" href="mailto:support@dynopay.com" startIcon={<MailOutlineRoundedIcon sx={{ fontSize: 18 }} />}>
-                support@dynopay.com
+              <PrimaryBtn data-testid="press-cta-support" onClick={() => router.push("/help-support")} startIcon={<MailOutlineRoundedIcon sx={{ fontSize: 18 }} />}>
+                {tCommon("helpSupport")}
               </PrimaryBtn>
               <SecondaryBtn onDark data-testid="press-cta-story" onClick={() => router.push("/about")}>
                 {t("press.storyCta")}

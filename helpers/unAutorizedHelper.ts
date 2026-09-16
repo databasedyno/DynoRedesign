@@ -1,5 +1,7 @@
 import Router from "next/router";
 import { setAuthNotice } from "@/helpers/authNotice";
+import { isProtectedPath } from "@/helpers/publicPaths";
+import { notifyTokenUpdated } from "@/hooks/useTokenData";
 
 const unAuthorizedHelper = (e: any) => {
   const status = e?.response?.status;
@@ -7,15 +9,14 @@ const unAuthorizedHelper = (e: any) => {
     localStorage.removeItem("token");
     localStorage.removeItem("refreshToken");
     setAuthNotice("session_expired");
-    // Never bounce to /auth/login when already on an auth surface — it would
-    // just reload the same page (and can loop on browsers where the token
-    // removal above doesn't persist across reloads, e.g. Firefox mobile).
-    // The public landing stays put too: a stale token there is simply dropped.
+    notifyTokenUpdated();
+    // Only in-app / admin routes bounce to login. Public surfaces (marketing,
+    // blog, help centre, auth screens, checkout…) just drop the stale token and
+    // stay put — redirecting from /auth/login onto itself also caused a reload
+    // loop on browsers where the removal above doesn't persist (Firefox mobile).
     const p =
       typeof window !== "undefined" ? window.location.pathname || "" : "";
-    const onAuthPage =
-      p.startsWith("/auth") || p === "/reset-password" || p === "/admin/login" || p === "/";
-    if (!onAuthPage) Router.replace("/auth/login");
+    if (isProtectedPath(p)) Router.replace("/auth/login");
   }
 };
 

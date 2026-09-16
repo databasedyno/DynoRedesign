@@ -1,25 +1,45 @@
-/** Routes that never require a signed-in merchant session (auth, checkout, marketing). */
-const PUBLIC_PATH_PREFIXES = [
-  "/auth",
-  "/reset-password",
-  "/pay/",
-  "/pay",
-  "/payment",
-  "/admin/login",
+/**
+ * Route classification for session handling.
+ *
+ * Only the merchant dashboard (in-app) and the admin panel require a signed-in
+ * session. EVERYTHING else — marketing pages (/, /press, /about, /fees…), blog and
+ * SEO pages, auth screens, buyer checkout (/pay, /payment, /<handle>/…), receipts,
+ * order pages, the help centre — is public: a visitor with no token, or with a
+ * stale/expired token left in localStorage, must never be bounced to /auth/login.
+ *
+ * Works with real URL paths ("/jltvisuals/shop") AND Next route patterns
+ * ("/[handle]/shop"): protected routes are literal prefixes, so any route with a
+ * dynamic first segment is public by construction.
+ */
+const PROTECTED_PREFIXES = [
+  "/dashboard",
+  "/transactions",
+  "/wallet",
+  "/wallet-security",
+  "/customers",
+  "/invoices",
+  "/notifications",
+  "/settings",
+  "/profile",
+  "/create-pay-link",
+  "/pay-links",
+  "/referrals",
+  "/developer-keys",
+  "/payouts",
+  "/get-started",
+  "/kyc",
+  "/storefront",
+  "/admin",
 ];
-const PUBLIC_EXACT_PATHS = new Set([
-  "/",
-  "/fees",
-  "/terms-conditions",
-  "/privacy-policy",
-  "/aml-policy",
-  "/system-status",
-  "/documentation",
-  "/blog",
-]);
+const PROTECTED_EXCEPTIONS = new Set(["/admin/login"]);
 
-export const isPublicPath = (pathname: string): boolean => {
-  if (PUBLIC_EXACT_PATHS.has(pathname)) return true;
-  if (pathname.startsWith("/blog/")) return true;
-  return PUBLIC_PATH_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"));
+const normalize = (pathname: string) => (pathname || "/").replace(/\/+$/, "") || "/";
+
+/** In-app / admin route — the only surfaces that may redirect to login on a lost session. */
+export const isProtectedPath = (pathname: string): boolean => {
+  const p = normalize(pathname);
+  if (PROTECTED_EXCEPTIONS.has(p)) return false;
+  return PROTECTED_PREFIXES.some((prefix) => p === prefix || p.startsWith(prefix + "/"));
 };
+
+export const isPublicPath = (pathname: string): boolean => !isProtectedPath(pathname);

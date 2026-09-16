@@ -2,7 +2,24 @@ import unAuthorizedHelper from "@/helpers/unAutorizedHelper";
 import { setAuthNotice } from "@/helpers/authNotice";
 import { getCheckoutToken, isCheckoutSurface } from "@/helpers/checkoutSession";
 import { isStepUpChallenge, requestStepUp } from "@/Components/UI/StepUp/stepUpBus";
+import { isProtectedPath } from "@/helpers/publicPaths";
+import { notifyTokenUpdated } from "@/hooks/useTokenData";
 import axios from "axios";
+
+// Drop a dead merchant session and tell every mounted token reader (header, layout
+// resolver, CompanyDataProvider) so the page flips to its logged-out state in place.
+const clearSession = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("refreshToken");
+  delete axiosBaseApi.defaults.headers.common.Authorization;
+  setAuthNotice("session_expired");
+  notifyTokenUpdated();
+  try {
+    window.dispatchEvent(new StorageEvent("storage", { key: "token", newValue: null }));
+  } catch {
+    /* StorageEvent unavailable — token readers re-check on the next route change */
+  }
+};
 
 const apiBaseUrl = (process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/+$/, "");
 
@@ -94,35 +111,30 @@ axiosBaseApi.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Skip auth redirect for public pages (homepage, checkout, fees, etc.) — visitors are not logged in.
+    // WHERE may a lost session bounce the visitor to /auth/login? ONLY on in-app /
+    // admin routes (helpers/publicPaths isProtectedPath). Every other surface —
+    // marketing pages (/press, /about, /fees…), blog, help centre, auth screens,
+    // buyer checkout, receipts, creator pages — is public: an expired token left in
+    // localStorage is dropped silently and the page re-renders logged-out in place.
+    // (Previously an allow-list of public paths that missed /press, /about, /compare…
+    // and only applied when NO token existed, so a refresh after a session timeout
+    // hard-redirected visitors from public pages to the login screen.)
     //
-    // IMPORTANT (Session 43 bug fix, 2026-07-13): the checkout / payment surfaces are treated as
-    // "never redirect to /auth/login" regardless of whether a token exists in localStorage. A
-    // merchant previewing their own paylink (token in LS on the checkout subdomain) used to get
-    // bounced to /auth/login mid-checkout when any incidental API call returned 401 (e.g. the old
-    // LanguageSwitcher firing PUT /user/profile from /pay?d=…). Public checkout must be a hard
-    // boundary — customers on this page must never see a merchant login screen.
+    // Checkout / payment surfaces are a HARD boundary on top of that (Session 43,
+    // 2026-07-13): never redirect AND never clear the session — a merchant previewing
+    // their own paylink must not be logged out by an incidental 401 mid-checkout.
     const pathname = typeof window !== "undefined" ? (window.location.pathname || "") : "";
-    const isCheckoutPage =
-      pathname === "/pay" ||
-      pathname.startsWith("/pay/") ||
-      pathname.startsWith("/pay-links/") ||
-      pathname.startsWith("/payment");
-    // Already ON an auth page? Redirecting to /auth/login would just reload the
-    // SAME page. If an incidental authed call (e.g. CompanyDataProvider firing
-    // /company/getCompany with a stale token) 401s here, that reload re-fires
-    // the call and reloads again — an infinite, millisecond-fast refresh loop
-    // (reported on Firefox mobile, where the token/removal doesn't persist
-    // across reloads). Never navigate to login from a login/auth surface.
-    const isAuthPage =
-      pathname.startsWith("/auth") ||
-      pathname === "/reset-password" ||
-      pathname === "/admin/login";
-    const isPublicPage = typeof window !== "undefined" && (
-      ["/", "/fees", "/terms-conditions", "/privacy-policy", "/aml-policy", "/system-status", "/documentation", "/blog"].includes(pathname) ||
-      ["/help-support", "/blog/", "/for/", "/accept-crypto-payments-in/"].some((p) => pathname.startsWith(p))
-    );
+    // Single source of truth (helpers/checkoutSession). The old inline list also
+    // matched the IN-APP /pay-links/* pages, which then never refreshed or
+    // redirected on an expired session.
+    const isCheckoutPage = isCheckoutSurface(pathname);
+    const onProtectedPage = typeof window !== "undefined" && isProtectedPath(pathname);
     const hasToken = typeof window !== "undefined" && !!localStorage.getItem("token");
+    // Auth pages are public too, so this can never reload /auth/login onto itself
+    // (the old Firefox-mobile refresh loop).
+    const bounceToLogin = () => {
+      if (onProtectedPage) window.location.href = "/auth/login";
+    };
 
     if (error.response?.status === 401 && !isAuthEndpoint(originalRequest?.url || "")) {
       // Checkout / payment surfaces: HARD boundary — never redirect, never clear session.
@@ -130,18 +142,15 @@ axiosBaseApi.interceptors.response.use(
       if (isCheckoutPage) {
         return Promise.reject(error);
       }
-      // Other public pages: only exempt when unauthenticated.
-      if (isPublicPage && !hasToken) {
+      // Anonymous visitor on a public page: nothing to refresh, nothing to redirect.
+      if (!onProtectedPage && !hasToken) {
         return Promise.reject(error);
       }
 
       // If this was a refresh-token call that got 401, the refresh token is invalid — clear session
       if ((originalRequest.url || "").includes("user/refresh-token")) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("refreshToken");
-        delete axiosBaseApi.defaults.headers.common.Authorization;
-        setAuthNotice("session_expired");
-        if (!isAuthPage) window.location.href = "/auth/login";
+        clearSession();
+        bounceToLogin();
         return Promise.reject(error);
       }
 
@@ -170,10 +179,8 @@ axiosBaseApi.interceptors.response.use(
       const refreshToken = localStorage.getItem("refreshToken");
       if (!refreshToken) {
         isRefreshing = false;
-        localStorage.removeItem("token");
-        delete axiosBaseApi.defaults.headers.common.Authorization;
-        setAuthNotice("session_expired");
-        if (!isAuthPage) window.location.href = "/auth/login";
+        clearSession();
+        bounceToLogin();
         return Promise.reject(error);
       }
 
@@ -202,11 +209,8 @@ axiosBaseApi.interceptors.response.use(
         }
       } catch (refreshError) {
         processQueue(refreshError, null);
-        localStorage.removeItem("token");
-        localStorage.removeItem("refreshToken");
-        delete axiosBaseApi.defaults.headers.common.Authorization;
-        setAuthNotice("session_expired");
-        if (!isAuthPage) window.location.href = "/auth/login";
+        clearSession();
+        bounceToLogin();
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

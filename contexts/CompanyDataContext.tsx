@@ -17,6 +17,7 @@ import {
   companyKeywordMap,
 } from "@/Redux/Sagas/helpers/mapBackendErrorToField";
 import { API_ENDPOINTS } from "@/api/endpoints";
+import { isProtectedPath } from "@/helpers/publicPaths";
 
 // Stable empty array so consumers' memo/effect deps don't churn while data is undefined.
 const EMPTY_LIST: any[] = [];
@@ -69,6 +70,8 @@ export interface CompanyStore {
   isMember: boolean;
   memberRole: string;
   can: (key: string) => boolean;
+  /** True only when a merchant token exists AND the route is an in-app surface. */
+  merchantDataEnabled: boolean;
   createError: string | null;
   createErrorField: string | null;
   createErrorNonce: number;
@@ -116,39 +119,20 @@ export function CompanyDataProvider({ children }: { children: React.ReactNode })
     };
   }, [router.events]);
 
-  // Buyer-facing public routes (payment checkout / creator / store / order)
-  // never use merchant company data. Skipping the fetch here keeps these
-  // pages clean and error-free for anonymous OR stale-/expired-token visitors
-  // (no pointless 401 on /company/getCompany). router.pathname is the route
-  // PATTERN (e.g. "/[handle]/checkout"), so this safely excludes the in-app
-  // "/pay-links" surface.
-  const isBuyerRoute = (() => {
-    const p = router.pathname;
-    return (
-      p === "/pay" ||
-      p.startsWith("/pay/") ||
-      p.startsWith("/payment") ||
-      p === "/[handle]" ||
-      p.startsWith("/[handle]/") ||
-      p.startsWith("/order/")
-    );
-  })();
-
-  // Auth surfaces (login / register / reset / admin-login) never need merchant
-  // company data. A stale/expired token in localStorage here would otherwise
-  // fire /company/getCompany -> 401 -> redirect to /auth/login = a reload loop
-  // (esp. Firefox mobile). Skip the fetch entirely on these routes.
-  const isAuthRoute = (() => {
-    const p = router.pathname;
-    return (
-      p.startsWith("/auth") ||
-      p === "/reset-password" ||
-      p === "/admin/login"
-    );
-  })();
+  // Merchant company data is only needed inside the app shell: in-app routes
+  // (helpers/publicPaths isProtectedPath) plus /help-support, which renders the
+  // authenticated shell for logged-in merchants. Public surfaces — marketing
+  // pages, blog, auth screens, buyer checkout / creator / store / order pages —
+  // never fetch it, so a stale/expired token there can't fire
+  // /company/getCompany -> 401 -> refresh -> redirect-to-login (the "/press
+  // redirects to login after a timeout" bug). router.pathname is the route
+  // PATTERN (e.g. "/[handle]/checkout"), which isProtectedPath handles.
+  const merchantDataEnabled =
+    hasToken &&
+    (isProtectedPath(router.pathname) || router.pathname.startsWith("/help-support"));
 
   const { data, error, isLoading, mutate } = useSWR(
-    hasToken && !isBuyerRoute && !isAuthRoute ? COMPANIES_KEY : null,
+    merchantDataEnabled ? COMPANIES_KEY : null,
     companyFetcher
   );
 
@@ -341,6 +325,7 @@ export function CompanyDataProvider({ children }: { children: React.ReactNode })
       isMember,
       memberRole,
       can,
+      merchantDataEnabled,
       createError,
       createErrorField,
       createErrorNonce,
@@ -363,6 +348,7 @@ export function CompanyDataProvider({ children }: { children: React.ReactNode })
       isMember,
       memberRole,
       can,
+      merchantDataEnabled,
       createError,
       createErrorField,
       createErrorNonce,

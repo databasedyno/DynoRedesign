@@ -101,11 +101,13 @@ export interface WalletStore {
 const WalletContext = createContext<WalletStore | null>(null);
 
 export function WalletDataProvider({ children }: { children: React.ReactNode }) {
-  const { selectedCompanyId } = useCompanyStore();
+  const { selectedCompanyId, merchantDataEnabled } = useCompanyStore();
 
-  const swrKey: [string, number] | null = selectedCompanyId
-    ? [WALLET_KEY, selectedCompanyId]
-    : null;
+  // selectedCompanyId is seeded from localStorage synchronously, so without the
+  // merchantDataEnabled gate this fired wallet/getWallet on public pages (and
+  // 401'd with a stale token → redirect to login).
+  const swrKey: [string, number] | null =
+    merchantDataEnabled && selectedCompanyId ? [WALLET_KEY, selectedCompanyId] : null;
 
   const { data, isLoading, mutate } = useSWR(swrKey, walletFetcher);
 
