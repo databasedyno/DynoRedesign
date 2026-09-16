@@ -23,8 +23,8 @@ type Row = Record<string, unknown>;
 export const NET_USD = PROCESSED_USD_EXPR;
 // usd_value is the merchant NET (crypto_amount − transaction_fee); scale it back up to gross.
 const GROSS_USD = `CASE WHEN COALESCE(ut.crypto_amount, 0) > 0
-  AND (ut.crypto_amount - COALESCE(ut.transaction_fee, 0)) > 0
-  THEN (${NET_USD}) * ut.crypto_amount / (ut.crypto_amount - COALESCE(ut.transaction_fee, 0))
+  AND (ut.crypto_amount - (COALESCE(ut.transaction_fee, 0) + COALESCE(ut.fixed_fee, 0))) > 0
+  THEN (${NET_USD}) * ut.crypto_amount / (ut.crypto_amount - (COALESCE(ut.transaction_fee, 0) + COALESCE(ut.fixed_fee, 0)))
   ELSE (${NET_USD}) END`;
 export { GROSS_USD };
 export const FORWARDED = `(NULLIF(ut.outgoing_tx_hash, '') IS NOT NULL)`;

@@ -561,6 +561,20 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
         const feePercentageD = div(totalDeduction, feeCalcBasisUSD); // 0 when basis is 0
         const feePercentage = feePercentageD.toNumber();
 
+        // Fee is priced as "tier% + a flat $1 per payment". Persist those two parts
+        // SEPARATELY on the transaction row (tbl_user_transaction.fixed_fee /
+        // .transaction_fee) instead of lumping the whole fee into transaction_fee.
+        // The split ratio comes from the USD breakdown (fixedFee ÷ totalDeduction) and
+        // is applied to whatever crypto fee is finally routed to admin, so it survives
+        // fee-free / over- / under-payment scaling. Totals and on-chain routing are
+        // unchanged — this only fixes the bookkeeping split (2026-06).
+        const fixedFeeCryptoRatio = Number(totalDeduction) > 0 ? Number(fixedFee || 0) / Number(totalDeduction) : 0;
+        const splitFeeCrypto = (feeCrypto: number | string) => {
+          const total = Number(feeCrypto) || 0;
+          const fixedPart = Number(toFixedStr(total * fixedFeeCryptoRatio, 8));
+          return { fixed_fee: fixedPart, transaction_fee: Number(toFixedStr(total - fixedPart, 8)) };
+        };
+
         cronLogger.info(`[cryptoVerification] Fee calculation (fee_payer=${fee_payer}):
             - Total received (crypto): ${totalAmountReceived} ${tempCurrency}
             - Total received (USD): $${toFixedStr(receivedUSD, 2)}
@@ -1240,7 +1254,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
             // transaction_fee = the platform fee deducted (in crypto)
             crypto_amount: Number(totalAmountReceived),
             crypto_currency: tempCurrency,
-            transaction_fee: Number(adminAmountToSend),
+            ...splitFeeCrypto(adminAmountToSend),
             // Referral fee-credit (Option 1.a): USD of the platform fee that was
             // covered by the merchant's own referral revenue-share balance on THIS
             // payment (0 when not applicable). Powers the merchant email + UI badge.
@@ -1314,7 +1328,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
               // both captured BEFORE the merge. NO on-chain routing changes here.
               ...(autoConvertEnabled
                 ? {
-                    transaction_fee: Number(adminFeeForConversion),
+                    ...splitFeeCrypto(adminFeeForConversion),
                     base_amount: toFixedStr(originalUserAmount, 8),
                     usd_value: (await convertToUSD(Number(originalUserAmount), tempCurrency)) || 0,
                   }

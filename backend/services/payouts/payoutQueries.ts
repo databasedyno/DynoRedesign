@@ -40,7 +40,7 @@ export const payoutByAsset = (s: OverviewScope) =>
     `SELECT UPPER(COALESCE(NULLIF(ut.crypto_currency, ''), ut.base_currency)) AS asset,
             COUNT(*) AS count,
             COALESCE(SUM(${NET_USD}), 0) AS amount,
-            COALESCE(SUM(ut.crypto_amount - COALESCE(ut.transaction_fee, 0)), 0) AS crypto_amount
+            COALESCE(SUM(ut.crypto_amount - (COALESCE(ut.transaction_fee, 0) + COALESCE(ut.fixed_fee, 0))), 0) AS crypto_amount
      ${fromClause(s)}
      AND ${PROCESSED_STATUS_SQL} AND ${FORWARDED_ANY} AND ${IN_RANGE}
      GROUP BY 1 ORDER BY amount DESC`,
@@ -72,7 +72,7 @@ export const recentForwards = (s: OverviewScope) =>
   many(
     `SELECT ut.id, ut.transaction_id,
             UPPER(COALESCE(NULLIF(ut.crypto_currency, ''), ut.base_currency)) AS asset,
-            (ut.crypto_amount - COALESCE(ut.transaction_fee, 0)) AS crypto_amount,
+            (ut.crypto_amount - (COALESCE(ut.transaction_fee, 0) + COALESCE(ut.fixed_fee, 0))) AS crypto_amount,
             ${NET_USD} AS amount,
             ${FORWARDED_AT} AS forwarded_at,
             COALESCE(sc.withdrawal_tx_hash, NULLIF(ut.outgoing_tx_hash, '')) AS tx_hash,
@@ -101,7 +101,7 @@ export const stuckForwards = (s: OverviewScope) =>
   many(
     `SELECT ut.id, ut.transaction_id,
             UPPER(COALESCE(NULLIF(ut.crypto_currency, ''), ut.base_currency)) AS asset,
-            (ut.crypto_amount - COALESCE(ut.transaction_fee, 0)) AS crypto_amount,
+            (ut.crypto_amount - (COALESCE(ut.transaction_fee, 0) + COALESCE(ut.fixed_fee, 0))) AS crypto_amount,
             ${NET_USD} AS amount,
             ut."updatedAt" AS settled_at
      ${fromClause(s)}

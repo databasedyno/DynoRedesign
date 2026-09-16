@@ -875,7 +875,7 @@ const getAdminAnalytics = async (
     // source (tbl_user_temp_address.blockchain_fee) is empty, which is why
     // fees showed $0.
     const totalFee = await sequelize.query<{ wallet_type: string; fee_amount: number }>(
-      `select base_currency as wallet_type, sum(transaction_fee) as fee_amount
+      `select base_currency as wallet_type, sum(COALESCE(transaction_fee,0) + COALESCE(fixed_fee,0)) as fee_amount
        from tbl_user_transaction ut ${settledWhere} group by base_currency`,
       { type: QueryTypes.SELECT, replacements: { settledStatuses: SETTLED_STATUSES } }
     );
@@ -894,7 +894,7 @@ const getAdminAnalytics = async (
     const bucketUnit = periodType === "MONTH" ? "day" : "month";
     const feeRevenueSeries = await sequelize.query<{ bucket: string; fee_usd: number; volume_usd: number }>(
       `select date_trunc('${bucketUnit}', ut."createdAt") as bucket,
-              sum(ut.transaction_fee * ut.usd_value / nullif(ut.base_amount, 0)) as fee_usd,
+              sum((COALESCE(ut.transaction_fee,0) + COALESCE(ut.fixed_fee,0)) * ut.usd_value / nullif(ut.base_amount, 0)) as fee_usd,
               sum(ut.usd_value) as volume_usd
        from tbl_user_transaction ut ${settledWhere}
        group by bucket order by bucket`,

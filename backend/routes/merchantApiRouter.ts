@@ -1198,7 +1198,7 @@ router.get("/getPaymentStatus/:payment_id", legacyApiAuthMiddleware, asyncHandle
   // only ever read their own payments.
   const rows = await sequelize.query<Record<string, unknown>>(
     `SELECT ut.id, ut.payment_mode, ut.base_amount, ut.base_currency,
-            ut.crypto_amount, ut.crypto_currency, ut.usd_value, ut.transaction_fee,
+            ut.crypto_amount, ut.crypto_currency, ut.usd_value, ut.transaction_fee, ut.fixed_fee,
             ut.received_amount, ut.remaining_amount,
             ut.tax_amount, ut.confirmations, ut.required_confirmations,
             ut.transaction_reference, ut.incoming_tx_hash, ut.outgoing_tx_hash,
@@ -1273,6 +1273,15 @@ router.get("/getPaymentStatus/:payment_id", legacyApiAuthMiddleware, asyncHandle
   const amountReceivedBase = roundBase(baseAmountFiat * Math.min(1, receivedRatio));
   const amountRemainingBase = roundBase(Math.max(0, baseAmountFiat - amountReceivedBase));
 
+  // Platform fee is stored split across transaction_fee (the tier %) and
+  // fixed_fee (the flat $1 per payment). Report the FULL fee = both parts.
+  // Historical rows carry the whole fee in transaction_fee with fixed_fee=0,
+  // so summing is correct for both old and new rows.
+  const totalFee =
+    row.transaction_fee != null || row.fixed_fee != null
+      ? Number(row.transaction_fee ?? 0) + Number(row.fixed_fee ?? 0)
+      : null;
+
   const data: Record<string, unknown> = {
     payment_id: row.id,
     payment_status: paymentStatus, // waiting | pending | confirmed | processing | settled | underpaid | failed | expired | refunded
@@ -1292,7 +1301,7 @@ router.get("/getPaymentStatus/:payment_id", legacyApiAuthMiddleware, asyncHandle
     base_amount: row.base_amount != null ? Number(row.base_amount) : null,
     base_currency: row.base_currency || baseCurrency,
     usd_value: row.usd_value != null ? Number(row.usd_value) : null,
-    fee: row.transaction_fee != null ? Number(row.transaction_fee) : null,
+    fee: totalFee,
     tax_amount: row.tax_amount != null ? Number(row.tax_amount) : null,
     confirmations: row.confirmations != null ? Number(row.confirmations) : null,
     required_confirmations: row.required_confirmations != null ? Number(row.required_confirmations) : null,
@@ -1333,7 +1342,7 @@ router.get("/getPaymentStatus/:payment_id", legacyApiAuthMiddleware, asyncHandle
         baseCurrency: (row.base_currency as string) || baseCurrency,
         cryptoAmount: row.crypto_amount as number | string | null,
         cryptoCurrency: row.crypto_currency as string | null,
-        fee: row.transaction_fee as number | null,
+        fee: totalFee,
         taxAmount: row.tax_amount as number | null,
         createdAt: row.createdAt as string | Date | null,
         updatedAt: row.updatedAt as string | Date | null,

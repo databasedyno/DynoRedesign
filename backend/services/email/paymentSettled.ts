@@ -49,11 +49,13 @@ export const renderMoneyPath = (L: string, mp: PaymentMoneyPath): string => {
   const gas = num(mp.networkFeeCrypto);
   const net = mp.netCrypto != null ? num(mp.netCrypto) : Math.max(0, num(mp.grossCrypto) - fee - gas);
   const gross = num(mp.grossCrypto);
-  const pctNum = mp.feePercent != null && isFinite(Number(mp.feePercent)) ? Number(mp.feePercent) : gross > 0 && fee > 0 ? (fee / gross) * 100 : null;
-  const pct = pctNum != null ? pctNum.toFixed(2).replace(/\.?0+$/, "") : null;
+  // The platform fee is priced as "tier% + a flat $1 per payment". Rendering it as
+  // a single effective % (fee ÷ amount) made small payments look like 5–6% and made
+  // the same merchant appear to have a different rate on every transaction. Show a
+  // plain "Dynopay fee" label with the exact deducted amount instead (2026-06).
   const feeLabel = mp.belowMinimum
     ? t("paymentSettled.belowMinimum", L)
-    : `${pct ? t("paymentSettled.dynopayFee", L, { percent: pct }) : t("paymentSettled.dynopayFeeNoPct", L)}${mp.feePayer === "customer" ? ` <span style="color:#6b7280;font-weight:400;">· ${t("paymentSettled.feePaidByCustomer", L)}</span>` : ""}`;
+    : `${t("paymentSettled.dynopayFeeNoPct", L)}${mp.feePayer === "customer" ? ` <span style="color:#6b7280;font-weight:400;">· ${t("paymentSettled.feePaidByCustomer", L)}</span>` : ""}`;
   const fiat = mp.fiatAtDetection && num(mp.fiatAtDetection.amount) > 0
     ? `<span style="color:#6b7280;font-weight:400;"> ≈ ${escapeHtml(mp.fiatAtDetection.amount)} ${escapeHtml(mp.fiatAtDetection.currency)}</span>`
     : "";
