@@ -1,0 +1,29 @@
+{
+  "summary": "DynoPay brand icon refresh (Bold Loop) rollout verified. Backend: 26/26 pytest assertions on favicons/PWA/OG/press/email assets pass (all 200 + correct content-type). favicon.svg embeds new Bold Loop geometry (arc 'A' commands, round tails) and no longer contains the old 'M13.73 23.86' path. site.webmanifest icons correctly reference pwa-192/pwa-512/pwa-maskable-512 with theme_color #4338CA. Email v3 chip served AND legacy v2 chip still 200 (already-sent emails still resolve). getDynopayLogoUrl() from backend/utils/emailTemplate.ts returns the /api/static/dynopay-email-logo-v3.png URL as expected. Frontend: homepage <head> has every ?v=6 link + og:image ?v=3. Wordmark lockup renders at naturalWidth=134 in home header+footer (dark=whiteLogo, light=blackLogo via data-testid=theme-toggle-button), /auth/login and /auth/register (blackLogo, not broken). /press cards (press-download-black/white/icon) all present and hrefs return 200. Hosted checkout /pay?d=rNtQRX renders <Logo data-testid=dynopay-logo> viewBox 0 0 64 64 as a single white path with fill-rule=evenodd — arrows visibly cut out (screenshot confirms). Public receipt /receipt/oN7U2knyNnaQ3NBrfNXL3F renders the <Logo> without errors after cold-compile retry. Merchant login (onarrival21) reaches dash2026-root; wordmark visible in sidebar in both light and dark in-app modes. No functionality regressions observed. SAFE MODE respected — no mutations.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_brand_assets.py",
+    "/app/test_reports/pytest/brand_assets.xml"
+  ],
+  "action_items": [
+    "Minor testid naming gap: sidebar brand mark in dashboard uses data-testid='app-brand-cell' (a DIV wrapping an <img>), while the review request expected 'brand-logo' or 'dynopay-logo'. Not a bug — wordmark renders correctly (indigo coin with white arrows visible between 'dyn' and 'pay') in both light and dark in-app modes. Consider adding data-testid='brand-logo' or 'dynopay-logo' alias on the underlying <img>/<svg> for testability parity with the review checklist and the checkout/receipt <Logo/> component. Optional."
+  ],
+  "critical_code_review_comments": [
+    "backend/utils/emailTemplate.ts EMAIL_LOGO_FILE = 'dynopay-email-logo-v3.png' confirmed; cache-busting via filename (v3) is a correct pattern for Gmail/Outlook remote-image proxy caches — keep this convention for future refreshes.",
+    "Legacy /api/static/dynopay-email-logo-v2.png is intentionally still served (200) so previously delivered emails do not break — good backward compatibility.",
+    "favicon.svg body was verified to contain a <path d=\"...A...\"> (arc command) matching the new round-tail Bold Loop geometry AND the old path start 'M13.73 23.86' is absent — clean cut-over.",
+    "Preview intermittently returns 503 on first cold-hit for /api/static/* — build-in retry (test uses 8x2s) is sufficient; not a production concern."
+  ],
+  "updated_files": ["/app/backend/tests/test_brand_assets.py"],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (used, login verified, no mutations)",
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Brand asset rollout is complete and green. Test suite at /app/backend/tests/test_brand_assets.py can be re-run any time to regress-check favicons/PWA/OG/press/email chip. If v3 chip or any /api/static asset flakes on 503, that is the CF/next-cold-start note in the review request — the test already retries 8x/2s."
+}
