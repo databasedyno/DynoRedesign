@@ -1,0 +1,20 @@
+{
+  "summary": "Dependabot upgrade regression pass. Next 15.5.25 + backend nodemailer 9 / sharp 0.35 / uuid 11 / axios-0.33 (Tatum) all healthy on the preview pod. Backend: GET /api=200, /api/status=200, /api/public/tickers=200 with BTC/ETH/LTC/DOGE/SOL/XRP prices from Tatum path (confirms axios 0.33.0 forced resolution loads & Tatum SDK still returns rates). /api/dashboard/overview returns 401 without token (correct), and 200 with real data after login (settled 30d=$5,114.20, 87 payments, forwarded $5,007.36). Public Next 15 pages all serve 200: /, /press, /fees, /auth/login, /transactions, /pay?d=rNtQRX (occasional cold-compile 502s absorbed by retry — expected per Next dev memory-restart note). /pricing is 404 (not implemented, /fees is the canonical URL). Merchant login (onarrival21@gmail.com) via 2-step UI (email → Continue → password → signin-submit-btn) landed on dash2026-root with no email 2FA challenge (soft banner only, as expected). Transactions page rendered the 186-row table. Hosted checkout /pay?d=rNtQRX rendered (routes for /api/pay/addPayment and verifyCryptoPayment were mocked; no real address was reserved). No pageerrors, no 500s. Backend tests: 10/10 pass.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": ["/app/backend/tests/test_dependabot_regression.py", "/app/test_reports/pytest/dependabot_regression.xml"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Next 15 dev warnings still present (next/head <script>, legacyBehavior Link, Cross-origin _next/*). Non-blocking for this upgrade but should be addressed before the next Next major (16). Consider running `npx @next/codemod@latest new-link .` and adding `allowedDevOrigins` to next.config.mjs so dev warnings stop and future upgrades don't fail on hard-deprecation.",
+    "Next dev server hits the memory threshold and self-restarts (visible in supervisor log). Repeated cold-compiles produce user-visible 502s on first hit of a route. Consider bumping NODE_OPTIONS=--max-old-space-size or moving preview to `next build && next start`.",
+    "/pricing returns 404 while marketing may still link to it — either add a redirect to /fees or delete external references."
+  ],
+  "updated_files": ["/app/backend/tests/test_dependabot_regression.py"],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (user_id=1, company_id=1). No 2FA challenge (user 1 not enrolled — soft banner only). sessionStorage.mfa_interstitial_seen='1' used to skip the once-per-session interstitial.",
+  "seed_data_creation": "None (SAFE MODE, read-only). Hosted-checkout writes were mocked at the browser via page.route so no pool address was reserved.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Next 15 dev server flaps under memory pressure; wrap public-page HTTP asserts with a small retry (see _retry_get in test_dependabot_regression.py). /pricing is 404, use /fees. Login is strictly 2-step: fill login-email-input → click button role=Continue exact → password-input → signin-submit-btn. For hosted checkout, always mock POST /api/pay/addPayment and /api/pay/verifyCryptoPayment before proceeding past coin select — never click Pay.",
+  "rca of the issue": "Not a bug — this iteration was a regression sweep after the Next 14→15 major upgrade and backend dep swaps (nodemailer 9, sharp 0.35, axios 0.33 forced into Tatum SDK, uuid 11). All critical paths (public SSR, merchant login, dashboard-overview via Tatum/axios, transactions list, hosted checkout render) still work. Deprecation warnings from Next 15 (next/head <script>, legacyBehavior Link) are noisy but non-blocking."
+}

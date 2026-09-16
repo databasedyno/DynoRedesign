@@ -1,3 +1,47 @@
+# === 2026-06 (fork) DONE — DEPENDABOT CLEANUP: ALL DEP VULNS CLEARED (testing_agent iteration_187: backend 10/10, frontend 100%, 0 issues) ===
+# TASK: "Review the 11 critical Dependabot alerts GitHub flagged and upgrade the affected packages."
+# No GitHub API access to the alerts page, so drove off `yarn audit` (same GitHub Advisory DB Dependabot uses).
+# Before: /app 33 advisories (2 critical Next.js RCE + 16 high + 13 mod + 2 low), /app/backend 34 (14 high + 17 mod + 3 low), /app/frontend 0.
+# AFTER: `yarn audit` = 0 vulnerabilities on ALL THREE manifests (/app, /app/backend, /app/frontend). User approved (ask_human): full Next 15 upgrade, fix EVERYTHING, nodemailer to 9.x.
+# ROOT /app/package.json:
+#   * next 14.2.35 -> 15.5.25 (MAJOR; clears 2 critical RCE + all high/mod/low next advisories). App is PAGES ROUTER
+#     so migration was low-risk (getServerSideProps/getStaticProps unchanged; middleware.ts standard). React kept at
+#     18.3.1 (next@15 peer allows ^18.2.0). next.config.mjs unchanged (scrollRestoration/optimizePackageImports/
+#     transpilePackages/output:standalone/distDir .next-dev all still valid on 15).
+#   * eslint-config-next 14.2.4 -> 15.5.25 (its @next/eslint-plugin-next@15 uses fast-glob, so the old vulnerable
+#     glob@10.3.10 transitive disappeared).
+#   * @typescript-eslint/eslint-plugin 7.2.0 -> ^7.18.0 (7.18 pulls typescript-estree@7.18 -> minimatch ^9.0.4=9.0.9,
+#     killing the vulnerable minimatch@9.0.3 pinned by estree@7.2.0; stayed on 7.x to avoid lint-rule churn on the
+#     prod `next build` eslint gate). sharp ^0.34.5 -> ^0.35.4 (libvips/libheif CVEs).
+#   * resolutions: { "postcss": "^8.5.23" } (was 8.4.31 hoisted from next; safe 8.x minor).
+# BACKEND /app/backend/package.json:
+#   * nodemailer ^8.0.1 -> ^9.1.1 (unused in source — zero runtime risk; grep found NO nodemailer import anywhere).
+#   * sharp 0.34.4 -> ^0.35.4 (used by utils/qrCodeWithLogo.ts + controller/payment/campaignOgImage.ts).
+#   * joi ^17.13.3 -> ^17.13.6 (direct already 17.13.8).
+#   * resolutions: { "@tatumio/api-client/axios":"0.33.0", "flutterwave-node-v3/joi":"^17.13.6", "uuid":"^11.1.1" }.
+#     - Tatum SDK bundled axios 0.26.1 (all the backend "axios" high/mod alerts) -> forced to 0.33.0 (SECURE 0.x
+#       backport line — API-compatible with 0.26, so NO risky 0->1 jump; our own code uses top-level axios 1.20.0 via
+#       utils/tatumHttp, unaffected). VERIFIED: Tatum currency rates still fetch on boot + /api/public/tickers 200.
+#     - flutterwave-node-v3 pinned joi@17.8.3 -> forced 17.13.8.
+#     - uuid 9.0.1 (sequelize/node-cron/gaxios) -> 11.1.1. uuid@11 keeps a CJS `require` entry (exports map), so the
+#       CJS deps still load; backend boots + sequelize/node-cron run clean.
+# GOTCHA FIXED: the rapid back-to-back yarn installs (editing package.json auto-triggers an install here) CORRUPTED
+#   /app/yarn.lock — the `mime-types@^2.1.35` block lost its `dependencies:` line so `mime-db` was dropped entirely
+#   (both from lock + node_modules) -> form-data/mime-types threw MODULE_NOT_FOUND -> homepage 500. `yarn install`
+#   AND `--force` would NOT re-add it (lock looked "satisfied"). FIX: hand-restored the mime-db@1.52.0 lock entry +
+#   the mime-types `dependencies: mime-db "1.52.0"` line (canonical hashes), then `yarn install` materialised it.
+#   LESSON: run ONE yarn install at a time here; never let package.json edits and a manual install overlap.
+# NON-BLOCKING follow-ups flagged by review (NOT regressions, pre-existing/expected on Next 15 dev): next/head
+#   <script> + legacyBehavior <Link> deprecation warnings (run `npx @next/codemod@latest new-link .` before Next 16);
+#   Next dev server self-restarts on a memory threshold (first cold-compile of a route can 502 — retry); /pricing is
+#   404 (canonical marketing URL is /fees).
+# VERIFY: `cd /app && yarn audit` / `cd /app/backend && yarn audit` both = 0. testing_agent iteration_187 read-only
+#   regression (SAFE MODE prod DB): public Next 15 pages 200 (/, /press, /fees, /auth/login, /transactions), merchant
+#   login -> dash2026-root with real data (settled 30d $5,114.20 / 87 payments), hosted checkout /pay?d=rNtQRX rendered
+#   (addPayment+verify mocked, no address reserved), backend 10/10. Regression test: backend/tests/test_dependabot_regression.py.
+# ============================================================================================
+
+
 # === 2026-06 (fork) DONE — PUBLIC PAGES NEVER REDIRECT TO LOGIN · /press email removed (testing_agent iteration_186: 44/44) ===
 # BUG: /press (and every public page) hard-redirected to /auth/login on refresh after a session timeout.
 # ROOT CAUSE: axiosConfig.ts 401 interceptor used an incomplete inline public allow-list (missed /press,/about,
