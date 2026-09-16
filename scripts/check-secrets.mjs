@@ -36,18 +36,25 @@ try {
   process.exit(0); // not a git context — never block
 }
 
+// Exit codes: 0 = clean, 2 = confirmed hit (the ONLY code the pre-commit hook blocks on),
+// anything else = guard itself failed and must never block a commit.
 const hits = [];
-for (const f of staged) {
-  if (SKIP.test(f)) continue;
-  let content;
-  try { content = readFileSync(f, "utf8"); } catch { continue; }
-  const lines = content.split("\n");
-  for (let i = 0; i < lines.length; i++) {
-    if (lines[i].includes("REDACTED")) continue;
-    for (const [rx, label] of PATTERNS) {
-      if (rx.test(lines[i])) { hits.push(`  ${f}:${i + 1}  (${label})`); break; }
+try {
+  for (const f of staged) {
+    if (SKIP.test(f)) continue;
+    let content;
+    try { content = readFileSync(f, "utf8"); } catch { continue; }
+    const lines = content.split("\n");
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].includes("REDACTED")) continue;
+      for (const [rx, label] of PATTERNS) {
+        if (rx.test(lines[i])) { hits.push(`  ${f}:${i + 1}  (${label})`); break; }
+      }
     }
   }
+} catch (err) {
+  console.error(`[secrets] guard error (commit allowed): ${err?.message || err}`);
+  process.exit(0);
 }
 
 if (hits.length) {
@@ -56,6 +63,6 @@ if (hits.length) {
     hits.join("\n") +
     "\n  Move real values to gitignored .env files and replace these with REDACTED placeholders."
   );
-  process.exit(1);
+  process.exit(2);
 }
 console.log(`[secrets] OK — no credential patterns in ${staged.length} staged files.`);

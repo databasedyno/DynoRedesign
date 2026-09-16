@@ -7,7 +7,7 @@ Tests the /api/notifications/payout-digest/preview endpoint
 import requests
 import json
 
-BASE_URL = "https://passphrase-init.preview.emergentagent.com"
+BASE_URL = "https://preview-host.invalid"
 
 def test_payout_digest_preview():
     print("=== Test 5: Runtime Endpoint Verification ===\n")

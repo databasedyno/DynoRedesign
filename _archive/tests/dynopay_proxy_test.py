@@ -91,7 +91,7 @@ class DynoPayProxyTester:
         try:
             # Check if backend .env has FRONTEND_URL set to pod URL
             env_path = "/app/backend/.env"
-            expected_url = "https://passphrase-init.preview.emergentagent.com"
+            expected_url = "https://preview-host.invalid"
             
             if os.path.exists(env_path):
                 with open(env_path, 'r') as f:
@@ -168,7 +168,7 @@ class DynoPayProxyTester:
                     data = response.json()
                     if 'payment_link' in data:
                         payment_link = data['payment_link']
-                        pod_url = "e8e955c6-8e61-4dfe-94ca-15f3ba9be27b.preview.emergentagent.com"
+                        pod_url = "preview-host.invalid"
                         
                         if pod_url in payment_link:
                             self.log_result(

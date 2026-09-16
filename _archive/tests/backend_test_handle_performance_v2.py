@@ -12,7 +12,7 @@ import time
 
 # Base URLs
 LOCALHOST_BASE = "http://localhost:8001"
-EXTERNAL_BASE = "https://passphrase-init.preview.emergentagent.com"
+EXTERNAL_BASE = "https://preview-host.invalid"
 
 # Performance threshold
 FAST_THRESHOLD_MS = 300  # Well under 300ms

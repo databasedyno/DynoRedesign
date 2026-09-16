@@ -11,7 +11,7 @@ import sys
 from datetime import datetime
 
 # Base URL for the preview environment
-BASE_URL = "https://passphrase-init.preview.emergentagent.com"
+BASE_URL = "https://preview-host.invalid"
 
 # Test results storage
 test_results = []

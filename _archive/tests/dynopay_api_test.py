@@ -10,7 +10,7 @@ import sys
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://passphrase-init.preview.emergentagent.com/api"
+BASE_URL = "https://preview-host.invalid/api"
 TIMEOUT = 30
 
 def log_test(test_name, status, details=""):

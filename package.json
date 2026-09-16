@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "rimraf .next && next dev --turbo",
+    "dev": "rimraf .next-dev && next dev --turbo",
     "build": "next build",
     "icons:bundle": "node scripts/gen-icon-bundle.mjs",
     "start": "next start",

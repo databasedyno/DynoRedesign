@@ -12,7 +12,7 @@ import re
 import pytest
 import requests
 
-BASE = "https://passphrase-init.preview.emergentagent.com"
+BASE = "https://preview-host.invalid"
 EMAIL = "onarrival21@gmail.com"
 PASSWORD = "Katiekendra123@"
 

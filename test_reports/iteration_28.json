@@ -58,5 +58,5 @@
   "seed_data_creation": "None. Read-only verification with pre-minted JWTs from /app/scripts/ux_tokens.json. No companies/wallets/pay-links/payments created.",
   "retest_needed": false,
   "should_main_agent_self_test": false,
-  "context_for_next_testing_agent": "Session-31 re-fixes (F1 collision-aware FAB, F5 continuous dialog gate, F22 opacity-on-<img>, F10 data-testid) all verified. F3 aria-labels present but use raw i18n keys — minor a11y issue for main agent. Dashboard has an 'AutoAwesomeRounded is not defined' runtime error caught by ErrorBoundary; check ChatBubble/support widget imports. Preview host = 8d0200cf-65f6-4dfd-a2d1-85d5a5960c0f.preview.emergentagent.com. Use tokens from /app/scripts/ux_tokens.json (localStorage 'token'). Dark mode = localStorage 'theme-mode'=dark."
+  "context_for_next_testing_agent": "Session-31 re-fixes (F1 collision-aware FAB, F5 continuous dialog gate, F22 opacity-on-<img>, F10 data-testid) all verified. F3 aria-labels present but use raw i18n keys — minor a11y issue for main agent. Dashboard has an 'AutoAwesomeRounded is not defined' runtime error caught by ErrorBoundary; check ChatBubble/support widget imports. Preview host = preview-host.invalid. Use tokens from /app/scripts/ux_tokens.json (localStorage 'token'). Dark mode = localStorage 'theme-mode'=dark."
 }

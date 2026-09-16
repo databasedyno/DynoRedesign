@@ -9,23 +9,20 @@
 #    interface in backend/controller/payment/cryptoCheckout.ts). A 15-second
 #    local `tsc --noEmit` would have caught it before the push happened.
 #
-#  Design (2026-07-14 update — session 47)
-#    Original behavior BLOCKED every git commit that had a backend TS error.
-#    Problem: the Emergent "Save to GitHub" flow uses `git commit` under the
-#    hood, so a broken backend TS file made "Save to GitHub" silently fail —
-#    the button click just did nothing from the user's perspective. Fix:
+#  Design (2026-09 update)
+#    This script is NO LONGER wired into .husky/pre-commit. A full tsc pass is
+#    ~13s (backend) + ~41s (frontend) and could even trigger a multi-minute
+#    `yarn install` on a cold pod — inside `git commit`. The Emergent
+#    "Save to GitHub" flow runs `git commit` under the hood, so that made the
+#    commit silently never happen. TypeScript gating now lives in
+#    .github/workflows/preflight.yml (CI) and `yarn preflight` (manual).
 #
-#    - When invoked as a HOOK (no --force flag): WARN only (exit 0).
-#      Errors are printed loudly so the developer sees them, but the commit
-#      is allowed through. Save-to-GitHub keeps working. The .github
-#      workflow (preflight.yml) still catches the error server-side.
-#    - When invoked with --force (yarn preflight / CI): HARD FAIL (exit 1).
-#      This is what `yarn preflight` and the CI workflow call. Deploy
-#      pipelines and manual "please gate my push" runs still get strict
-#      enforcement.
+#    - Without --force: staged-file-aware, WARN only (exit 0).
+#    - With --force (yarn preflight / CI): HARD FAIL (exit 1).
 #
 #  Usage
-#    ./scripts/preflight-tsc.sh              # hook-mode: warn only, never blocks
+#    yarn preflight                          # strict: fails on any TS error
+#    ./scripts/preflight-tsc.sh              # staged-aware, warn only
 #    ./scripts/preflight-tsc.sh --force      # strict: fails on any TS error
 # =============================================================================
 

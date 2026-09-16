@@ -10,7 +10,7 @@ import copy
 import pytest
 import requests
 
-BASE_URL = "https://passphrase-init.preview.emergentagent.com"
+BASE_URL = "https://preview-host.invalid"
 EMAIL = "onarrival21@gmail.com"
 PASSWORD = "Katiekendra123@"
 COMPANY_ID = 1

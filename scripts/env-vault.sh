@@ -2,11 +2,16 @@
 # =============================================================================
 # Encrypted env vault — survives new pods.
 #
-# WHY: /app is restored from git on every new pod, so `.env`, `backend/.env`
+# WHY: /app is restored from git on every new pod, so `.env.local`, `backend/.env`
 # and `backend/dynopay.json` (all gitignored) are wiped and had to be re-pasted
 # by hand every single time. This seals them into ONE tracked ciphertext file
 # (env.vault.enc, AES-256-CBC + PBKDF2/300k) that git keeps, so a new pod only
 # needs the passphrase.
+#
+# NOTE: the frontend env file is /app/.env.local, NOT /app/.env — a root-level
+# ignored `.env` makes Emergent's `git add -A ':(exclude).env'` staging exit 1
+# and silently kills every commit (see scripts/start-frontend.sh header).
+# Older vaults contain `app/.env`; `open` renames it on extraction.
 #
 # Usage:
 #   bash scripts/env-vault.sh seal [passphrase]   # encrypt current env -> env.vault.enc
@@ -22,7 +27,7 @@ CMD="${1:-}"
 PASS="${2:-${DYNOPAY_VAULT_PASSPHRASE:-}}"
 
 MEMBERS=()
-for f in app/.env app/backend/.env app/backend/dynopay.json; do
+for f in app/.env.local app/backend/.env app/backend/dynopay.json; do
   [ -f "/$f" ] && MEMBERS+=("$f")
 done
 
@@ -43,7 +48,7 @@ dec() { openssl enc -d -aes-256-cbc -pbkdf2 -iter 300000 -base64 -pass env:VP; }
 
 case "$CMD" in
   seal)
-    [ ${#MEMBERS[@]} -eq 0 ] && die "nothing to seal — /app/.env and /app/backend/.env are both missing"
+    [ ${#MEMBERS[@]} -eq 0 ] && die "nothing to seal — /app/.env.local and /app/backend/.env are both missing"
     tar -C / -czf - "${MEMBERS[@]}" | enc > "$VAULT" || die "encryption failed"
     # Verify the vault decrypts before anyone commits it.
     if ! dec < "$VAULT" | tar -tzf - >/dev/null 2>&1; then
@@ -55,14 +60,19 @@ case "$CMD" in
   open)
     [ ! -f "$VAULT" ] && die "$VAULT not found"
     STAMP=$(date +%s)
-    for f in /app/.env /app/backend/.env; do
+    for f in /app/.env.local /app/backend/.env; do
       [ -f "$f" ] && cp "$f" "$f.bak.$STAMP"
     done
     if ! dec < "$VAULT" | tar -C / -xzf -; then
       die "decryption failed — wrong passphrase?"
     fi
+    # Legacy vaults carry app/.env — it must not live at the root (see header).
+    if [ -f /app/.env ]; then
+      mv -f /app/.env /app/.env.local
+      echo "   ↪ legacy app/.env renamed to /app/.env.local"
+    fi
     echo "✅ restored from vault:"
-    for f in /app/.env /app/backend/.env /app/backend/dynopay.json; do
+    for f in /app/.env.local /app/backend/.env /app/backend/dynopay.json; do
       if [ -f "$f" ]; then echo "   $f ($(wc -l < "$f") lines)"; fi
     done
     exit 0

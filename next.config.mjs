@@ -1,9 +1,9 @@
 /** @type {import('next').NextConfig} */
+import { PHASE_DEVELOPMENT_SERVER } from "next/constants.js";
+
 const nextConfig = {
   reactStrictMode: false,
   output: "standalone",
-  // Optional alternate build dir so a prod build can run beside the dev server.
-  ...(process.env.NEXT_DIST_DIR ? { distDir: process.env.NEXT_DIST_DIR } : {}),
   // TypeScript strict-mode is now enforced by `next build` (2026-08-02
   // Session 97i). Previously ignored because the frontend had 286
   // pre-existing strict-tsc errors; the Session 97e→97h cleanup arc
@@ -185,4 +185,13 @@ if (process.env.ANALYZE === "true") {
   withBundleAnalyzer = mod.default({ enabled: true });
 }
 
-export default withBundleAnalyzer(nextConfig);
+// Build dir: NEXT_DIST_DIR wins; otherwise `next dev` uses .next-dev and
+// builds keep .next (Dockerfiles copy .next/standalone). A root-level ignored
+// `.next` breaks Emergent's commit staging — see scripts/start-frontend.sh.
+export default (phase) =>
+  withBundleAnalyzer({
+    ...nextConfig,
+    distDir:
+      process.env.NEXT_DIST_DIR ||
+      (phase === PHASE_DEVELOPMENT_SERVER ? ".next-dev" : ".next"),
+  });

@@ -8,7 +8,7 @@ import re
 import pytest
 import requests
 
-BASE = "https://passphrase-init.preview.emergentagent.com"
+BASE = "https://preview-host.invalid"
 HANDLE = "devhub"
 SLUG = "talk-to-a-developer"
 LANGS = ["en", "es", "pt", "fr", "de", "nl"]

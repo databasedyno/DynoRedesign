@@ -4,7 +4,7 @@ import json
 import pytest
 import requests
 
-BASE = "https://passphrase-init.preview.emergentagent.com"
+BASE = "https://preview-host.invalid"
 
 HELP_SLUGS = [
     "supported-cryptocurrencies-and-networks",

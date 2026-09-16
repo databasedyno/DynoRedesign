@@ -1,6 +1,6 @@
 # DynoPay Mobile QA Sweep Report - Session 74
 **Date:** 2026-07-18  
-**Preview URL:** https://passphrase-init.preview.emergentagent.com  
+**Preview URL:** https://preview-host.invalid  
 **Test Account:** hostbay@moxx.co  
 **Viewports Tested:** iPhone 14 Pro (393×852), iPhone SE (375×667)
 

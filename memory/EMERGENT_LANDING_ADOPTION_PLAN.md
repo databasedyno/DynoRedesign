@@ -5,7 +5,7 @@ decided end-to-end. Builds on the typography clarity fix already shipped (Inter
 body font + neutral dark greys). This doc is the source of truth for the pass;
 update the checklist as items land.
 
-Preview: https://passphrase-init.preview.emergentagent.com
+Preview: https://preview-host.invalid
 Owner login (2-step): onarrival21@gmail.com / Katiekendra123@
 Dark mode: set localStorage 'theme-mode-inapp'='dark' + 'theme-mode-public'='dark'
 (or click the sun/moon ThemeToggle). Frontend = Next.js dev, hot reload.

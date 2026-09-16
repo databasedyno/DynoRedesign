@@ -1,6 +1,6 @@
 # Auto API-Key Provisioning UI Verification Report
 **Date:** 2026-07-12  
-**Environment:** https://passphrase-init.preview.emergentagent.com  
+**Environment:** https://preview-host.invalid  
 **QA Account:** qa.empty.1782626169@dynopaytest.com  
 **Tester:** Frontend Testing Agent
 

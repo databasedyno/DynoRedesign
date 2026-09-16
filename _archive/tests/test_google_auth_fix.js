@@ -11,7 +11,7 @@
 const { chromium } = require('playwright');
 const fs = require('fs');
 
-const PREVIEW_URL = 'https://passphrase-init.preview.emergentagent.com';
+const PREVIEW_URL = 'https://preview-host.invalid';
 const PRODUCTION_URL = 'https://dynopay.com';
 
 async function runTests() {

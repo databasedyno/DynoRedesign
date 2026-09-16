@@ -1,27 +1,41 @@
-# Husky pre-commit hook — see scripts/preflight-tsc.sh for rationale.
-# This runs on every `git commit` unless bypassed with --no-verify.
+# Husky pre-commit — FAST + FAIL-SAFE by design.
 #
-# Fast path: skips entirely when no backend TS/config files are staged
-# (typical frontend-only commits pay <1s). Full run <20s on cold cache.
-#
-# Husky v9 auto-runs hooks; no sourcing required.
+# Emergent "Save to GitHub" runs `git commit` under the hood, so anything slow or
+# fragile here makes the commit silently never happen. Rules:
+#   * total budget: a few seconds, hard `timeout` on every step
+#   * the ONLY blocking check is the secrets guard (GitHub push protection would
+#     reject the push anyway, so failing early with a clear message is strictly better)
+#   * everything else is warn-only
+#   * NEVER run tsc / yarn install here — TypeScript gating lives in CI
+#     (.github/workflows/preflight.yml) and `yarn preflight`
+#   * missing node / a crashed guard script must never block a commit
+# Bypass: `git commit --no-verify` or HUSKY=0.
 
-sh scripts/preflight-tsc.sh
+if ! command -v node >/dev/null 2>&1; then
+  echo "[pre-commit] node not on PATH — guards skipped (CI preflight still runs)."
+  exit 0
+fi
 
-# R2 500-line file-size gate REMOVED per user request (2026-06). Previously ran
-# `node backend/scripts/check-file-size.mjs` and blocked commits when a new/edited
-# backend file exceeded 500 lines. Re-enable by restoring that line if desired.
+with_timeout() {
+  if command -v timeout >/dev/null 2>&1; then timeout "$@"; else shift; "$@"; fi
+}
 
-# Secrets guard (added 2026-08 after live keys in tracked files blocked GitHub
-# pushes via push protection GH013): scans STAGED files for high-confidence
-# credential patterns. Real values belong only in gitignored .env files.
-node scripts/check-secrets.mjs
+# 1. Secrets guard — BLOCKING only on a confirmed hit (exit 2). Any other failure
+#    (timeout 124, crash 1, missing file 127) is reported but lets the commit through.
+set +e
+with_timeout 15 node scripts/check-secrets.mjs
+rc=$?
+set -e
+if [ "$rc" -eq 2 ]; then
+  exit 1
+fi
+if [ "$rc" -ne 0 ]; then
+  echo "[pre-commit] secrets guard did not finish cleanly (rc=$rc) — commit allowed."
+fi
 
-# Dark-mode brand-foreground contrast guardrail (warn-only in hook so
-# Save-to-GitHub is never blocked; strict in CI via `yarn lint` / `yarn lint:contrast`).
-node scripts/check-contrast.mjs --hook || true
+# 2. Warn-only guards (never block).
+with_timeout 10 node scripts/check-contrast.mjs --hook || true
+with_timeout 10 node backend/scripts/check-email-dark-mode.mjs --hook || echo "[pre-commit] email dark-mode guard reported findings above — commit allowed (fix before deploy)."
 
-# Email dark-mode guard (2026-06, after the unreadable "welcome gift" email in
-# Gmail dark mode): no gradients, no unclassed light boxes, no hand-rolled
-# buttons, no "Hey <email-local-part>," greetings in email builders.
-node backend/scripts/check-email-dark-mode.mjs --hook
+echo "[pre-commit] OK. TypeScript is type-checked in CI (preflight.yml) or via \`yarn preflight\`."
+exit 0

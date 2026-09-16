@@ -5,7 +5,7 @@
 
 const { chromium } = require('playwright');
 
-const PREVIEW_URL = 'https://passphrase-init.preview.emergentagent.com';
+const PREVIEW_URL = 'https://preview-host.invalid';
 
 async function testGISIntegration() {
   console.log('='.repeat(80));

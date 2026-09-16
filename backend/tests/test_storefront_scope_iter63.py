@@ -6,7 +6,7 @@ import os
 import pytest
 import requests
 
-BASE = "https://passphrase-init.preview.emergentagent.com"
+BASE = "https://preview-host.invalid"
 EMAIL = "hostbay@moxx.co"
 PASSWORD = "Katiekendra123@"
 

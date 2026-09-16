@@ -30,6 +30,9 @@
   ],
   "exclude": [
     "node_modules",
+    ".next",
+    ".next-dev",
+    ".next-prod",
     "backend",
     "_archive"
   ]

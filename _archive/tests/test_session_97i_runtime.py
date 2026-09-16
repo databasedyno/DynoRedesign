@@ -8,7 +8,7 @@ import requests
 import json
 import sys
 
-BASE_URL = "https://passphrase-init.preview.emergentagent.com"
+BASE_URL = "https://preview-host.invalid"
 
 def test_3a_login():
     """Test 3a: Login flow with CSRF + credentials"""

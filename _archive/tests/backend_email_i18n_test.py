@@ -9,7 +9,7 @@ import requests
 import json
 import sys
 
-BASE_URL = "https://passphrase-init.preview.emergentagent.com"
+BASE_URL = "https://preview-host.invalid"
 
 def test_health_check():
     """Test 1: Backend health check"""

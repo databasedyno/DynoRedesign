@@ -3,7 +3,7 @@
 const { chromium } = require("playwright");
 const sharp = require("sharp");
 
-const BASE = process.env.BASE || "https://passphrase-init.preview.emergentagent.com";
+const BASE = process.env.BASE || "https://preview-host.invalid";
 const OUT = "/app/public/landing/products";
 
 (async () => {

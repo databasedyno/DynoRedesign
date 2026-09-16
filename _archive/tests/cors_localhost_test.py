@@ -41,7 +41,7 @@ TESTS = [
     },
     {
         "id": 5,
-        "origin": "https://passphrase-init.preview.emergentagent.com",
+        "origin": "https://preview-host.invalid",
         "expected": "ALLOWED",
         "description": "Preview pattern"
     },

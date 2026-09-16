@@ -7,7 +7,7 @@ import subprocess
 import pytest
 import requests
 
-BASE_URL = "https://passphrase-init.preview.emergentagent.com"
+BASE_URL = "https://preview-host.invalid"
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
 COMPANY_ID = 228
 EMAIL = "onarrival21@gmail.com"

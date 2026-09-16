@@ -10,17 +10,40 @@
 #   - and runs the standalone server: `node server.js`
 #   (see railway-frontend.json / Dockerfile.frontend / start-all.sh)
 #
-# Mode selection (env var wins, then /app/.env, then default):
+# Mode selection (env var wins, then /app/.env.local, then default):
 #   FRONTEND_MODE=dev         -> `next dev`   (hot reload, no build step) [default]
-#   FRONTEND_MODE=production  -> `next start` (builds first if no .next/BUILD_ID)
+#   FRONTEND_MODE=production  -> `next start` (builds first if no BUILD_ID)
+#
+# ROOT-LEVEL `.env` AND `.next` MUST NOT EXIST IN THE POD (2026-09):
+#   Emergent's commit tool stages with `git add -A ':(exclude).env' ':(exclude).next/*' …`
+#   and git 2.39 exits 1 ("paths are ignored: .env .next") whenever an IGNORED
+#   entry literally named `.env` or `.next` sits at the repo root — so every
+#   checkpoint / Save-to-GitHub commit silently aborted before `git commit`.
+#   Nested names are unaffected. Hence: env lives in /app/.env.local (Next.js
+#   loads it natively) and the dev build dir is /app/.next-dev (NEXT_DIST_DIR).
 # =============================================================================
 
 set -e
 cd /app
 
+# Self-heal legacy layouts (see header): root .env -> .env.local, drop root .next
+if [ -f /app/.env ]; then
+  if [ -f /app/.env.local ]; then
+    mv /app/.env "/app/.env.bak.$(date +%s)"
+    echo "[start-frontend] moved stray /app/.env aside (.env.local already present)"
+  else
+    mv /app/.env /app/.env.local
+    echo "[start-frontend] migrated /app/.env -> /app/.env.local"
+  fi
+fi
+if [ -d /app/.next ]; then
+  rm -rf /app/.next
+  echo "[start-frontend] removed legacy /app/.next (dev builds now use .next-dev)"
+fi
+
 MODE="${FRONTEND_MODE:-}"
-if [ -z "$MODE" ] && [ -f /app/.env ]; then
-  MODE=$(grep -E '^FRONTEND_MODE=' /app/.env | tail -1 | cut -d'=' -f2- | tr -d '"' | tr -d "'" | tr -d '[:space:]')
+if [ -z "$MODE" ] && [ -f /app/.env.local ]; then
+  MODE=$(grep -E '^FRONTEND_MODE=' /app/.env.local | tail -1 | cut -d'=' -f2- | tr -d '"' | tr -d "'" | tr -d '[:space:]')
 fi
 MODE="${MODE:-dev}"
 
@@ -58,19 +81,21 @@ export HOSTNAME=0.0.0.0
 export PORT=3000
 
 if [ "$MODE" = "production" ] || [ "$MODE" = "prod" ] || [ "$MODE" = "start" ]; then
-  if [ ! -f /app/.next/BUILD_ID ]; then
+  export NEXT_DIST_DIR="${NEXT_DIST_DIR:-.next-prod}"
+  if [ ! -f "/app/$NEXT_DIST_DIR/BUILD_ID" ]; then
     echo "[start-frontend] FRONTEND_MODE=$MODE but no production build found -> running next build first..."
     node_modules/.bin/next build
   fi
-  echo "[start-frontend] Starting Next.js in PRODUCTION mode (next start)"
+  echo "[start-frontend] Starting Next.js in PRODUCTION mode (next start, distDir=$NEXT_DIST_DIR)"
   exec node_modules/.bin/next start -p 3000 -H 0.0.0.0
 else
-  # A production build left in .next confuses `next dev` (stale manifests).
+  export NEXT_DIST_DIR="${NEXT_DIST_DIR:-.next-dev}"
+  # A production build left in the dist dir confuses `next dev` (stale manifests).
   # BUILD_ID only exists after `next build`, so this runs exactly once when
   # switching prod -> dev and never wipes the dev cache afterwards.
-  if [ -f /app/.next/BUILD_ID ]; then
+  if [ -f "/app/$NEXT_DIST_DIR/BUILD_ID" ]; then
     echo "[start-frontend] Removing stale production build before dev start"
-    rm -rf /app/.next
+    rm -rf "/app/$NEXT_DIST_DIR"
   fi
   # Prewarm: `next dev` compiles on first request (15-35s). Warming the hot
   # routes in the background means the first human click is instant.
@@ -88,6 +113,6 @@ else
     echo "[start-frontend] prewarm complete (/, /auth/login, /dashboard, /pay compiled)"
   ) &
 
-  echo "[start-frontend] Starting Next.js in DEV mode (hot reload enabled)"
+  echo "[start-frontend] Starting Next.js in DEV mode (hot reload enabled, distDir=$NEXT_DIST_DIR)"
   exec node_modules/.bin/next dev -p 3000 -H 0.0.0.0
 fi

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # E2E: "sign out all other devices" must kill every other token (tracked or not) and keep the caller alive.
 set -u
-API=${API:-https://passphrase-init.preview.emergentagent.com}
+API=${API:-https://preview-host.invalid}
 EMAIL=onarrival21@gmail.com
 PASS='Katiekendra123@'
 

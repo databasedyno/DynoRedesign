@@ -6,6 +6,8 @@
     "node_modules/",
     "**/node_modules/",
     ".next/",
+    ".next-dev/",
+    ".next-prod/",
     "out/",
     "build/",
     "dist/",

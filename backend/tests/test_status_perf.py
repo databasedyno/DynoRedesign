@@ -4,7 +4,7 @@ import time
 import requests
 import pytest
 
-BASE_URL = "https://passphrase-init.preview.emergentagent.com"
+BASE_URL = "https://preview-host.invalid"
 
 
 def _csrf_session():

@@ -3,7 +3,8 @@
 # One-command setup for a NEW Emergent preview pod.
 #
 # Replaces the ~10 manual steps that used to be redone by hand every pod:
-#   1. restore /app/.env + /app/backend/.env from the encrypted vault
+#   1. restore /app/.env.local + /app/backend/.env from the encrypted vault
+#      (root `.env`/`.next` must NOT exist — see scripts/start-frontend.sh header)
 #   2. point every URL key at THIS pod's preview hostname
 #   3. enforce SAFE MODE (background jobs off — preview talks to the LIVE DB)
 #   4. install deps (root first, then backend — serialised, shared yarn cache)
@@ -56,8 +57,10 @@ fi
 step "2/6  Environment files"
 if [ "$SKIP_ENV" -eq 1 ]; then
   ok "skipped (--skip-env)"
-elif [ -f /app/.env ] && [ -f /app/backend/.env ] && [ -z "$VAULT_PASS" ]; then
-  ok "already present (root $(wc -l < /app/.env) lines, backend $(wc -l < /app/backend/.env) lines)"
+elif [ -f /app/.env ] && [ ! -f /app/.env.local ] && mv /app/.env /app/.env.local; then
+  ok "migrated legacy /app/.env -> /app/.env.local"
+elif [ -f /app/.env.local ] && [ -f /app/backend/.env ] && [ -z "$VAULT_PASS" ]; then
+  ok "already present (root $(wc -l < /app/.env.local) lines, backend $(wc -l < /app/backend/.env) lines)"
 elif [ -f /app/env.vault.enc ]; then
   if DYNOPAY_VAULT_PASSPHRASE="$VAULT_PASS" bash /app/scripts/env-vault.sh open; then
     ok "restored from env.vault.enc"
@@ -70,7 +73,7 @@ fi
 
 # ----------------------------------------------------- URL sync + safe mode
 step "3/6  Syncing URLs to this pod + enforcing SAFE MODE"
-if [ -n "$PREVIEW_URL" ] && [ -f /app/.env ] && [ -f /app/backend/.env ]; then
+if [ -n "$PREVIEW_URL" ] && [ -f /app/.env.local ] && [ -f /app/backend/.env ]; then
   python3 - "$PREVIEW_URL" <<'PY'
 import sys
 
@@ -109,7 +112,7 @@ def patch(path, keys, cors_key=None, forced=None):
     open(path, 'w').write('\n'.join(out) + '\n')
     print(f"   ✅ {path}: {', '.join(changed) if changed else 'already correct'}")
 
-patch('/app/.env',
+patch('/app/.env.local',
       {'NEXTAUTH_URL', 'NEXT_PUBLIC_SERVER_URL', 'NEXT_PUBLIC_CREATOR_BASE_URL'},
       forced={'FRONTEND_MODE': 'dev', 'INTERNAL_API_URL': 'http://localhost:8001'})
 

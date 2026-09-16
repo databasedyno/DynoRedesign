@@ -15,7 +15,7 @@ import uuid
 import pytest
 import requests
 
-BASE = "https://passphrase-init.preview.emergentagent.com"
+BASE = "https://preview-host.invalid"
 INTERNAL = "http://localhost:8001"  # for /health (not routed via /api ingress)
 
 EMAIL = "onarrival21@gmail.com"

@@ -92,6 +92,6 @@
   {
     "name": "unsubscribe",
     "route": "/unsubscribe?token=bad",
-    "error": "page.goto: net::ERR_ABORTED at https://passphrase-init.preview.emergentagent.com/unsubscribe?token="
+    "error": "page.goto: net::ERR_ABORTED at https://preview-host.invalid/unsubscribe?token="
   }
 ]

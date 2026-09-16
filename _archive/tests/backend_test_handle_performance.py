@@ -19,7 +19,7 @@ import time
 
 # Base URLs
 LOCALHOST_BASE = "http://localhost:8001"
-EXTERNAL_BASE = "https://passphrase-init.preview.emergentagent.com"
+EXTERNAL_BASE = "https://preview-host.invalid"
 API_BASE = f"{EXTERNAL_BASE}/api"
 
 # Performance threshold

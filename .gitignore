@@ -29,7 +29,12 @@ node_modules/
 /coverage
 
 # Next.js
+# Pod dev/prod builds use NEXT_DIST_DIR=.next-dev / .next-prod — a root-level
+# ignored `.next` (or `.env`) makes Emergent's `git add -A ':(exclude).next/*'`
+# exit 1 and silently kills every commit. Keep the literal names out of the root.
 /.next/
+/.next-dev/
+/.next-prod/
 /out/
 next-env.d.ts
 *.tsbuildinfo
@@ -83,7 +88,6 @@ backend/dynopay.json
 # Jest cache + test logs (pod-local, never commit)
 backend/.jest-cache/
 backend/test-run.log
-.next-prod
 
 # audit helper tokens
 backend/scripts/audit/.tok

@@ -3,7 +3,7 @@
 import { chromium } from "playwright";
 import fs from "node:fs";
 
-const BASE = "https://passphrase-init.preview.emergentagent.com";
+const BASE = "https://preview-host.invalid";
 const EMAIL = "onarrival21@gmail.com";
 const PASSWORD = "Katiekendra123@";
 

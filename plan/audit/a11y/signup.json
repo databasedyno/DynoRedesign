@@ -34,7 +34,7 @@
       "nodes": [
         {
           "target": ".mui-1e6te3t",
-          "html": "<a class=\"MuiBox-root mui-1e6te3t\" href=\"https://passphrase-init.preview.emergentagent.com\" aria-label=\"Dynopay home\">",
+          "html": "<a class=\"MuiBox-root mui-1e6te3t\" href=\"https://preview-host.invalid\" aria-label=\"Dynopay home\">",
           "msg": "Some page content is not contained by landmarks"
         },
         {

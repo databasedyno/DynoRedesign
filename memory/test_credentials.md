@@ -1,6 +1,6 @@
 # Test credentials (current pod)
 
-Preview URL (THIS pod): https://fb0ee85b-d90b-49e5-8b2a-bd2f244fc255.preview.emergentagent.com
+Preview URL (THIS pod): https://preview-host.invalid
 
 ## Brands on the owner account (company selector: data-testid=company-option-<id>)
 - 1 The Dev Store — populated (458+ payments) → normal dashboard

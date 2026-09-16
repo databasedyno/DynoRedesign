@@ -17,8 +17,8 @@ OWNER_PASSWORD = "Katiekendra123@"
 TEST_EMAIL = "onarrival21+ptest@gmail.com"
 
 # Read SERVER_URL and CHECKOUT_URL from backend/.env
-SERVER_URL = "https://passphrase-init.preview.emergentagent.com"
-CHECKOUT_URL = "https://passphrase-init.preview.emergentagent.com"
+SERVER_URL = "https://preview-host.invalid"
+CHECKOUT_URL = "https://preview-host.invalid"
 
 class Colors:
     GREEN = '\033[92m'

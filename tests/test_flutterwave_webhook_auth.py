@@ -15,7 +15,7 @@ import requests
 
 BASE_URL = os.environ.get(
     "PREVIEW_BASE_URL",
-    "https://passphrase-init.preview.emergentagent.com",
+    "https://preview-host.invalid",
 ).rstrip("/")
 
 # A realistic-looking payload; must NOT be processed because the signature is invalid.

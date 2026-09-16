@@ -1,5 +1,5 @@
 {
-  "summary": "Frontend-only verification of the new-tab logged-in landing redirect + 'Go to dashboard' header CTA fix. 8/9 behaviours pass on the live preview (crypto-payment-hub-38.preview.emergentagent.com). Only edge case: with an expired JWT injected into localStorage, the '/' route ends up on /auth/login (via the 401-driven unAuthorizedHelper triggered by a page-level authed API call) rather than rendering the landing. The critical guarantee ('stale token must NOT redirect anonymous visitor to /dashboard') is met; the token is also cleared, so no infinite loop.",
+  "summary": "Frontend-only verification of the new-tab logged-in landing redirect + 'Go to dashboard' header CTA fix. 8/9 behaviours pass on the live preview (preview-host.invalid). Only edge case: with an expired JWT injected into localStorage, the '/' route ends up on /auth/login (via the 401-driven unAuthorizedHelper triggered by a page-level authed API call) rather than rendering the landing. The critical guarantee ('stale token must NOT redirect anonymous visitor to /dashboard') is met; the token is also cleared, so no infinite loop.",
   "backend_issues": {"critical": [], "minor": []},
   "frontend_issues": {
     "ui_bugs": [],

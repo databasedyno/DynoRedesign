@@ -10,7 +10,7 @@ import subprocess
 import pytest
 import requests
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://passphrase-init.preview.emergentagent.com").rstrip("/")
+BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://preview-host.invalid").rstrip("/")
 MERCHANT_EMAIL = "onarrival21@gmail.com"
 MERCHANT_PASSWORD = "Katiekendra123@"
 

@@ -1,7 +1,7 @@
 # DynoPay Webhook Processor Bug Fix Verification Report
 **Date:** 2026-07-17  
 **Tester:** Testing Agent (Backend SDET)  
-**Environment:** Preview (blockchain-processor-1.preview.emergentagent.com)  
+**Environment:** Preview (preview-host.invalid)  
 **Database:** LIVE Railway Production (READ-ONLY verification)
 
 ---
@@ -247,7 +247,7 @@ metadata: { webhookAsset } // Raw contract preserved for audit
 
 ## Test Environment Details
 
-- **Preview URL:** https://passphrase-init.preview.emergentagent.com
+- **Preview URL:** https://preview-host.invalid
 - **Backend:** Internal :8001 (uvicorn proxy) → :3300 (ts-node server.ts)
 - **Database:** LIVE Railway Production (roundhouse.proxy.rlwy.net:23599)
 - **Redis:** LIVE Railway Production (nozomi.proxy.rlwy.net:15794)
