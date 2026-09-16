@@ -1,0 +1,88 @@
+{
+  "summary": "Full validation of the v6 DynoPay homepage redesign — backend metrics endpoint, header at all desktop widths (English & Spanish), mega-menus, command menu, 6-language switcher, mobile drawer at 390px, SSR of live metrics, all 10 section IDs, LandingNav chip bar, PricingTeaser calculator, FAQ (8 items + JSON-LD + help-support link), footer, theme toggle, console hygiene, and public route regression. Everything passes acceptance criteria. Zero console errors, zero duplicate-key React warnings, zero hydration errors. Only pre-existing next/head <script> warnings remain (acceptable per request).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "detailed_results": {
+    "backend_landing_metrics": {
+      "endpoint": "GET /api/status/landing-metrics",
+      "status": 200,
+      "payload": {"uptime_90d_pct": 99.93, "median_settle_minutes_fast": 4.1, "payments_settled_this_month": 1055, "countries_served": 56, "languages": 6, "payments_30d": 94, "settled_by_chain_30d": [{"chain":"Bitcoin","count":35},{"chain":"Tron","count":29},{"chain":"Ethereum","count":28},{"chain":"Litecoin","count":2}], "checked_at": "2026-09-16T16:33:31.684Z"},
+      "verdict": "PASS — all numeric, no null/NaN, countries_served>0, languages=6, chain array is counts only (no $ amounts)"
+    },
+    "header_desktop_widths_english": {
+      "1101": "nav=[products,solutions,developers,pricing], Resources hidden, hamburger hidden, Start free inside viewport, scrollW==vw",
+      "1200": "same as 1101 (Resources hidden ≤1220) — PASS",
+      "1300": "nav=[products,solutions,developers,resources,pricing] all 5 visible — PASS",
+      "1366": "5 nav items visible — PASS",
+      "1440": "5 nav items visible — PASS",
+      "1920": "5 nav items visible — PASS",
+      "1100": "nav hidden, mobile-menu-toggle visible — PASS"
+    },
+    "header_desktop_widths_spanish": {
+      "1101": "nav=[products,solutions,developers,pricing], Resources hidden, scrollW==vw=1101 — PASS",
+      "1500": "all 5 nav items, scrollW==vw=1500 — PASS"
+    },
+    "mega_menus": {
+      "products": "visible, 7 links, featured tile present — PASS",
+      "solutions": "visible, 7 links, featured tile present — PASS",
+      "developers": "visible, 3 links — PASS",
+      "resources": "visible, 4 links — PASS",
+      "pricing": "plain link href=/fees (returns 200) — PASS"
+    },
+    "command_menu": {
+      "opens_on_search_click": true,
+      "opens_on_ctrl_k": true,
+      "verdict": "PASS"
+    },
+    "language_menu": {
+      "options": ["en","pt","fr","es","de","nl"],
+      "pt_switch_persists_on_reload": true,
+      "sample_pt_text": "Produtos, Soluções, Programadores, Recursos, Preços, Entrar, Comece grátis — Portuguese (pt-PT) confirmed",
+      "verdict": "PASS (all 6 languages)"
+    },
+    "mobile_390": {
+      "no_horizontal_overflow": "scrollWidth==clientWidth==390 (pre-scroll and after full scroll)",
+      "drawer_opens": true,
+      "drawer_items_present": {"mnav-company": true, "mnav-pricing": true, "mobile-get-started-btn": true, "mobile-sign-in-btn": true},
+      "sticky_mobile_cta_after_scroll": true,
+      "verdict": "PASS"
+    },
+    "ssr_first_paint_metrics": {
+      "payments_settled_this_month_in_ssr_dom": "1,055 rendered as <span data-countup=\"static\">1,055</span> in NumbersBand (SSR HTML)",
+      "countries_rendered_in_ssr_dom": "55+ (formatted with plus-suffix; API value=56)",
+      "no_placeholders": "No '—' / 'NaN' / '0' skeletons in NumbersBand / Hero live strip on first paint",
+      "faqpage_jsonld_in_ssr_html": true,
+      "verdict": "PASS"
+    },
+    "sections_present_1440": ["#products","#how-it-works","#numbers","#proof","#coins","#developers","#pricing","#security","#resources","#faq — ALL present with non-zero heights"],
+    "landing_nav_chip_bar": "Chip bar becomes visible after scrolling past hero (6+ chips rendered: PRODUCTS · HOW IT WORKS · GLOBAL · DEVELOPERS · PRICING · SECURITY · FAQ). Chips are buttons/links.",
+    "pricing_calculator": "range input present; text shows real tier values (1.5% / 1% / 0.7% / 0.5%); no NaN before or after moving the slider to 50,000",
+    "faq": {"question_buttons": 8, "opens_close_accordion": true, "help_support_link_present": true, "jsonld_faqpage": true},
+    "footer": {"links_count": 35, "columns_visible": "PRODUCTS / SOLUTIONS / DEVELOPERS / COMPANY (+RESOURCES=5th) — 5-column layout present with Company links", "language_switcher_present": true, "duplicate_key_react_warnings": 0},
+    "console_hygiene": {"errors": 0, "hydration_mismatches": 0, "duplicate_key_warnings": 0, "next_head_script_warnings": "present (pre-existing, acceptable)"},
+    "public_page_regression": {
+      "/": 200, "/fees": 200, "/auth/login": 200, "/auth/register": "200 after 1 cold-compile retry (initial hit 502)", "/help-support": 200,
+      "signed_out_redirect_to_login": "None observed on public routes"
+    }
+  },
+  "test_report_links": ["/app/test_reports/iteration_193.json"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Header desktop layout at 1101/1200/1300/1366/1440/1920 all pass no-overlap and start-inside-viewport in EN and ES — CSS-only fix works.",
+    "Countries figure is rendered as '55+' in SSR (rounded-down + suffix) while API returns 56. Intentional presentation; not a placeholder. If exact number desired, format server-side before render.",
+    "Cold-compile 502 on /auth/register (first hit) is a Next.js dev-server characteristic, not an app bug.",
+    "Two elements share data-testid=\"theme-toggle-button\" (header + likely mobile drawer). Consider suffixing (e.g. -header / -mobile) to avoid ambiguity in tests."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "Not required — homepage/public pages only. Merchant creds available in /app/memory/test_credentials.md if needed (READ-ONLY, prod SAFE MODE).",
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "v6 homepage is production-ready. Key testids used: nav-{products,solutions,developers,resources,pricing}, mega-{key}, mega-featured, mobile-menu-toggle, mobile-menu-panel, mnav-{company,pricing}, mobile-get-started-btn, mobile-sign-in-btn, header-search-button, header-language-globe, header-lang-{en|pt|fr|es|de|nl}, theme-toggle-button (note: 2 exist), section IDs listed above. Language via localStorage 'lang'. HAMBURGER_BP=1100 (verified), Resources hides ≤1220 (verified between 1200 and 1300).",
+  "rca of the issue": "N/A — no bugs found"
+}

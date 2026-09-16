@@ -643,7 +643,7 @@ const HomeHeader = memo(function HomeHeader() {
 
             <MobileLanguageWrapper>
               <LanguageSwitcher showBig={true} />
-              <ThemeToggle size="small" sx={{ ml: 1 }} />
+              <ThemeToggle size="small" sx={{ ml: 1 }} data-testid="mobile-theme-toggle-button" />
             </MobileLanguageWrapper>
 
             <MobileTrustBadges>
