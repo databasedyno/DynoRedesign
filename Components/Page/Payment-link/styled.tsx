@@ -209,8 +209,14 @@ export const TransactionsTableScrollWrapper = styled(Box)(({ theme }) => ({
   width: "100%",
   display: "flex",
   flexDirection: "column",
-  flex: 1,
   minHeight: 0,
+  // Desktop: grow to fit the page's rows (never collapse to 1–2 rows), capped
+  // to the viewport so the sticky header keeps a single scroll container.
+  // (Mirrors the /transactions table fix — the old `flex: 1` inside a
+  // `height: 100%` container collapsed the table on short flex layouts.)
+  [theme.breakpoints.up("md")]: {
+    maxHeight: "calc(100dvh - 260px)",
+  },
   overflowX: "auto",
   overflowY: "auto",
   // §4.2 — thin visible scrollbar so it's obvious the table scrolls sideways.
@@ -244,7 +250,7 @@ export const TransactionsTableScrollWrapper = styled(Box)(({ theme }) => ({
 
 export const TransactionsTableContainer = styled(Box)(({ theme }) => ({
   width: "100%",
-  height: "100%",
+  height: "auto",
   display: "flex",
   flexDirection: "column",
   backgroundColor: theme.palette.background.paper,

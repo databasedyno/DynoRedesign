@@ -268,6 +268,7 @@ adminRouter.post("/referral/share-nudge", adminAuthMiddleware, async (req, res) 
 
 // ── Admin Support Inbox (live chat + AI takeover + email reply) ──────────────
 adminRouter.get("/support/summary", adminAuthMiddleware, supportInboxController.summary);
+adminRouter.get("/support/stream", adminAuthMiddleware, supportInboxController.stream);
 adminRouter.get("/support/sessions", adminAuthMiddleware, supportInboxController.listSessions);
 adminRouter.get("/support/sessions/:session_id", adminAuthMiddleware, supportInboxController.getSession);
 adminRouter.post("/support/sessions/:session_id/reply", adminAuthMiddleware, supportInboxController.reply);

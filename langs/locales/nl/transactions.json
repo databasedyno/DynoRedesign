@@ -134,5 +134,6 @@
   "topupSentShort": "Herinnering verzonden",
   "topupSent": "Herinnering verzonden naar {{email}}",
   "topupFailed": "Herinnering kon niet worden verzonden.",
-  "refund": "Terugbetalen"
+  "refund": "Terugbetalen",
+  "viaApi": "via API"
 }

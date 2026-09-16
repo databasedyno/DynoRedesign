@@ -50,6 +50,19 @@ export const getNetworkLabel = (walletType?: string | null): string => {
 };
 
 /**
+ * Clean display ticker for a wallet_type. Strips the redundant network suffix
+ * so token rows read "USDT" (with a separate "TRC-20" network chip) instead of
+ * the rough, duplicated "USDT-TRC20 · TRC-20". Native coins are returned as-is.
+ *   USDT-TRC20 → USDT   USDC-ERC20 → USDC   RLUSD-ERC20 → RLUSD   BTC → BTC
+ */
+export const getAssetTicker = (walletType?: string | null): string => {
+  if (!walletType) return "";
+  const key = walletType.toUpperCase();
+  const dash = key.indexOf("-");
+  return dash > 0 ? key.slice(0, dash) : key;
+};
+
+/**
  * True if this wallet_type is a TOKEN on another chain (as opposed to a native
  * L1 coin). Tokens have the highest cross-chain send-to-wrong-network risk,
  * so we style their chip more prominently.

@@ -134,5 +134,6 @@
   "topupSentShort": "Erinnerung gesendet",
   "topupSent": "Erinnerung an {{email}} gesendet",
   "topupFailed": "Erinnerung konnte nicht gesendet werden.",
-  "refund": "Rückerstattung"
+  "refund": "Rückerstattung",
+  "viaApi": "über API"
 }

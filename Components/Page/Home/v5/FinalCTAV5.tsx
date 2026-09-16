@@ -20,6 +20,7 @@ const FinalCTAV5: React.FC = () => {
         <Stagger step={0.1} sx={{ display: "grid" }}>
         <StaggerItem i={0} y={28}>
         <Box sx={{ position: "relative", overflow: "hidden", borderRadius: { xs: "24px", md: "32px" }, background: "#0A0A0A", px: { xs: 3, md: 8 }, py: { xs: 8, md: 12 }, textAlign: "center", border: "1px solid rgba(255,255,255,0.10)" }}>
+          <Box aria-hidden sx={{ position: "absolute", inset: 0, backgroundImage: "url(/landing/cta-bg.jpg)", backgroundSize: "cover", backgroundPosition: "center", opacity: 0.55, pointerEvents: "none" }} />
           <Box aria-hidden sx={{ position: "absolute", top: "-40%", left: "-10%", width: 780, height: 780, borderRadius: "50%", background: `radial-gradient(circle, ${BRAND_ACCENT} 0%, ${BRAND_ACCENT}99 30%, transparent 70%)`, opacity: 0.2, pointerEvents: "none" }} />
           <Box aria-hidden sx={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)", backgroundSize: "60px 60px", maskImage: "radial-gradient(ellipse 80% 90% at 50% 50%, black 20%, transparent 85%)", WebkitMaskImage: "radial-gradient(ellipse 80% 90% at 50% 50%, black 20%, transparent 85%)", pointerEvents: "none" }} />
           <Box sx={{ position: "relative", zIndex: 1 }}>

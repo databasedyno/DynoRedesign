@@ -197,12 +197,22 @@ export const coinsWithoutWallet = (s: OverviewScope) =>
 export const configGaps = async (s: OverviewScope) => {
   const [webhooks, keys, coins, links] = await Promise.all([
     one(
-      `SELECT COUNT(*) FILTER (WHERE status = 'failed') AS failed,
+      // Only alert on failures for the merchant's CURRENTLY-configured, active
+      // webhook. Joining tbl_company and matching wl.webhook_url = co.webhook_url
+      // means historical failures for a URL the merchant has since cleared or
+      // changed (e.g. a removed placeholder) no longer raise a false positive.
+      // We also skip URLs the circuit breaker (or the merchant) has disabled.
+      `SELECT COUNT(*) FILTER (WHERE wl.status = 'failed') AS failed,
               COUNT(*) AS total,
-              MAX(created_at) FILTER (WHERE status = 'failed') AS last_failed_at,
-              (ARRAY_AGG(webhook_url ORDER BY created_at DESC) FILTER (WHERE status = 'failed'))[1] AS webhook_url
-       FROM tbl_webhook_delivery_log
-       WHERE ${companyScopeSql(s, "company_id")} AND created_at > NOW() - INTERVAL '24 hours'`,
+              MAX(wl.created_at) FILTER (WHERE wl.status = 'failed') AS last_failed_at,
+              (ARRAY_AGG(wl.webhook_url ORDER BY wl.created_at DESC) FILTER (WHERE wl.status = 'failed'))[1] AS webhook_url
+       FROM tbl_webhook_delivery_log wl
+       JOIN tbl_company co ON co.company_id = wl.company_id
+       WHERE ${companyScopeSql(s, "wl.company_id")}
+         AND wl.created_at > NOW() - INTERVAL '24 hours'
+         AND co.webhook_url IS NOT NULL AND co.webhook_url <> ''
+         AND wl.webhook_url = co.webhook_url
+         AND COALESCE(co.webhook_disabled, false) = false`,
       s,
     ),
     many(

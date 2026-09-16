@@ -128,7 +128,7 @@ export const deleteAccount = async (req: express.Request, res: express.Response)
 
     userLogger.info(`User account ${userData.user_id} soft-deleted (${email}) — purge ${scheduledPurgeAt.toISOString()}`);
 
-    return successResponseHelper(res, 200, "Your account has been scheduled for deletion. You have 7 days to restore it — contact support if this was a mistake.", {
+    return successResponseHelper(res, 200, "Your account has been deactivated and you've been signed out of every device. For legal/compliance reasons some records are retained securely and are no longer accessible to you. Contact support if this was a mistake.", {
       scheduled_purge_at: scheduledPurgeAt.toISOString(),
       restore_before: purgeDateStr,
       grace_days: ACCOUNT_DELETE_GRACE_DAYS,

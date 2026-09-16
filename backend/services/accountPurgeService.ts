@@ -108,11 +108,15 @@ export const purgeAccount = async (user: {
   return true;
 };
 
-/** Sweep accounts past their 7-day grace window and purge them permanently. */
+/** Sweep accounts past their retention window and purge them permanently. */
 export const purgeExpiredAccounts = async (): Promise<{ scanned: number; purged: number; failed: number }> => {
   const now = new Date();
+  // Derive due-ness from deleted_at + the CURRENT grace window (not the stored
+  // scheduled_purge_at) so extending retention to 10 years also protects accounts
+  // soft-deleted under the old 7-day policy — no data migration needed.
+  const cutoff = new Date(now.getTime() - ACCOUNT_DELETE_GRACE_DAYS * 24 * 60 * 60 * 1000);
   const due = await userModel.findAll({
-    where: { deleted_at: { [Op.ne]: null }, scheduled_purge_at: { [Op.ne]: null, [Op.lte]: now } },
+    where: { deleted_at: { [Op.ne]: null, [Op.lte]: cutoff } },
     attributes: ["user_id", "email", "name", "language"],
   });
 

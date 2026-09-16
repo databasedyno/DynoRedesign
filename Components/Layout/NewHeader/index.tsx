@@ -178,11 +178,11 @@ const NewHeader = () => {
             <CreateNewButton />
           </Box>
           <NotificationsBell />
-          {/* Tablet theme toggle. Hidden on phones (<600px) — it is duplicated
-              inside the user menu (user-menu-theme-toggle) and the header pill
-              needs the width for the business name. */}
-          <Box sx={{ display: { xs: "none", sm: "flex", lg: "none" } }}>
-            <ThemeToggle size="small" data-testid="theme-toggle-mobile" />
+          {/* Theme toggle — visible in the header on tablet AND desktop so it's
+              easy to find. On phones it lives as a labelled row in the mobile
+              nav drawer (below) + the user menu (user-menu-theme-toggle). */}
+          <Box sx={{ display: { xs: "none", sm: "flex" } }}>
+            <ThemeToggle size="small" data-testid="theme-toggle-header" />
           </Box>
           <Box sx={{ display: { xs: "none", lg: "flex" }, gap: "20px" }}>
             {kycRequired && (
@@ -357,6 +357,35 @@ const NewHeader = () => {
             </Box>
           </Box>
         )}
+        {/* Appearance toggle — first-class, visible row so the theme switcher
+            is easy to find on phones (not buried in a menu). */}
+        <Box
+          data-testid="mobile-drawer-theme-row"
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            px: 2,
+            py: 1.25,
+            borderBottom: `1px solid ${
+              muiTheme.palette.mode === "dark"
+                ? "rgba(255,255,255,0.06)"
+                : "rgba(10,10,15,0.06)"
+            }`,
+          }}
+        >
+          <Typography
+            sx={{
+              fontSize: 14,
+              fontWeight: 600,
+              color: muiTheme.palette.text.primary,
+              fontFamily: "var(--font-sans)",
+            }}
+          >
+            {t("dashboardLayout:appearance", { defaultValue: "Appearance" })}
+          </Typography>
+          <ThemeToggle size="small" data-testid="theme-toggle-drawer" />
+        </Box>
         {/* Reuse the desktop sidebar so nothing is lost. It already knows how
             to render active states + section groupings. */}
         <Box

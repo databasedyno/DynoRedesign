@@ -153,7 +153,9 @@ export const resolveTransactionSource = (input: TxSourceInput): TxSource => {
     ref = Number(source_link_id);
   } else if (isApiBuyerEmail(customer_email)) {
     type = "api";
-    title = "API payment";
+    // No redundant title — the badge label already reads "API". A generic
+    // "API payment" title only produced the rough "API · API payment" render.
+    title = null;
   }
 
   return {

@@ -7,6 +7,7 @@ import { sendEmail } from "../services/emailService";
 import { apiLogger } from "../utils/loggers";
 import successResponseHelper from "../helper/successResponseHelper";
 import errorResponseHelper from "../helper/errorResponseHelper";
+import { subscribeSupportEscalations } from "../services/supportEventBus";
 
 /**
  * Admin Support Inbox (2026-09-08).
@@ -401,6 +402,43 @@ const emailReply = async (req: express.Request, res: express.Response) => {
   }
 };
 
+/**
+ * GET /api/admin/support/stream — SSE. Pushes a live `escalation` event to the
+ * admin browser the moment a visitor clicks "Talk to a human". Client uses
+ * fetch() streaming so the admin Bearer token rides in the Authorization header
+ * (see Components/Page/Admin/SupportInbox/useAdminSupportStream.ts).
+ */
+const stream = (req: express.Request, res: express.Response) => {
+  res.writeHead(200, {
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache",
+    Connection: "keep-alive",
+    "X-Accel-Buffering": "no",
+  });
+  res.write(`event: connected\ndata: ${JSON.stringify({ at: new Date().toISOString() })}\n\n`);
+
+  const unsubscribe = subscribeSupportEscalations((event) => {
+    try {
+      res.write(`event: escalation\ndata: ${JSON.stringify(event)}\n\n`);
+    } catch {
+      /* client gone — cleaned up on 'close' */
+    }
+  });
+
+  const heartbeat = setInterval(() => {
+    try {
+      res.write(`:hb ${Date.now()}\n\n`);
+    } catch {
+      /* ignore */
+    }
+  }, 25000);
+
+  req.on("close", () => {
+    clearInterval(heartbeat);
+    unsubscribe();
+  });
+};
+
 export default {
   listSessions,
   summary,
@@ -411,4 +449,5 @@ export default {
   close: setStatus("closed"),
   reopen: setStatus("open"),
   emailReply,
+  stream,
 };

@@ -15,6 +15,8 @@ import RLUSDIcon from "@/assets/cryptocurrency/RLUSD-icon.svg";
 import { Icon, MONO } from "@/styles/uiKit";
 import TransactionStatusBadge from "@/Components/UI/TransactionStatusBadge";
 import { getAssetColor } from "@/helpers/assetColor";
+import { getAssetTicker } from "@/utils/networkLabels";
+import { isSyntheticCustomer } from "@/utils/txDisplay";
 import TransactionSourceBadge from "@/Components/UI/TransactionSourceBadge";
 import { Box, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
@@ -485,7 +487,11 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                       #{transaction.id}
                     </Typography>
                   </Box>
-                  {(transaction.customerName || transaction.customerEmail) ? (
+                  {isSyntheticCustomer(transaction.customerName, transaction.customerEmail) ? (
+                    <Typography data-testid="tx-card-customer" sx={{ fontSize: "11.5px", fontFamily: "var(--font-sans)", fontWeight: 500, color: theme.palette.text.secondary, whiteSpace: "nowrap" }}>
+                      {tTransactions("viaApi", { defaultValue: "via API" })}
+                    </Typography>
+                  ) : (transaction.customerName || transaction.customerEmail) ? (
                     <Typography data-testid="tx-card-customer" sx={{ fontSize: "11.5px", fontFamily: "var(--font-sans)", fontWeight: 600, color: theme.palette.text.secondary, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "45%" }}>
                       {transaction.customerName || transaction.customerEmail}
                     </Typography>
@@ -538,7 +544,10 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
         ref={scrollRef}
         onScroll={handleTableScroll}
         sx={{
-          flex: 1,
+          // Desktop: grow to fit the page's rows (never collapse to 1–2 rows),
+          // capped to the viewport so the sticky header + frozen first column
+          // keep a single scroll container. Short screens scroll internally.
+          maxHeight: { md: "calc(100dvh - 240px)" },
           minHeight: 0,
           overflow: "auto",
           backgroundColor: theme.palette.background.paper,
@@ -701,7 +710,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                           draggable={false}
                         />
                         <Typography component="span">
-                          {transaction.crypto}
+                          {getAssetTicker(transaction.crypto)}
                         </Typography>
                       </CryptoIconChip>
                       {transaction.network && (
@@ -763,7 +772,15 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                   </TransactionsTableCell>
 
                   <TransactionsTableCell data-testid="tx-customer" sx={{ minWidth: 0 }}>
-                    {transaction.customerName || transaction.customerEmail ? (
+                    {isSyntheticCustomer(transaction.customerName, transaction.customerEmail) ? (
+                      <Typography
+                        component="span"
+                        data-testid="tx-customer-via-api"
+                        sx={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 500, color: theme.palette.text.secondary, whiteSpace: "nowrap" }}
+                      >
+                        {tTransactions("viaApi", { defaultValue: "via API" })}
+                      </Typography>
+                    ) : transaction.customerName || transaction.customerEmail ? (
                       <Box sx={{ display: "flex", flexDirection: "column", minWidth: 0, maxWidth: 170, gap: "2px" }}>
                         <Typography
                           component="span"
@@ -863,7 +880,10 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
         // taller than the viewport) so the inner scroll box scrolls vertically
         // and the column header genuinely sticks. Mobile keeps content flow —
         // the cards scroll with the page.
-        flex: isMobile ? 1 : "0 1 auto",
+        // Desktop: the card takes its natural height (all rows for the page)
+        // instead of shrinking to the leftover flex space (which collapsed it
+        // to ~2 rows). The inner scroll box caps the height to the viewport.
+        flex: isMobile ? 1 : "0 0 auto",
         maxHeight: isMobile ? "fit-content" : undefined,
         backgroundColor: isMobile ? "transparent" : theme.palette.background.paper,
         // Flat card (dashboard parity): 16px radius + hairline, no shadow.

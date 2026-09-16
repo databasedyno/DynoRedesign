@@ -4,11 +4,12 @@ import { companyModel, userModel, apiModel, paymentLinkModel, customerModel } fr
 import { deleteRedisItem } from "../utils/redisInstance";
 import { companyLogger } from "../utils/loggers";
 import { getErrorMessage } from "../helper";
-import { sendBrandPermanentlyDeletedEmail, sendBrandDeleteReminderEmail } from "./emailService";
-import { setRedisItemWithTTL, getRedisItem } from "../utils/redisInstance";
+import { sendBrandPermanentlyDeletedEmail } from "./emailService";
 
-/** Days a soft-deleted brand is retained before the cron permanently purges it. */
-export const BRAND_DELETE_GRACE_DAYS = 7;
+/** Days a soft-deleted brand is retained before the cron permanently purges it.
+ *  AML/KYC compliance: retain financial + identity records ~10 years. The brand
+ *  is hidden/deactivated immediately on delete; the purge only runs after this. */
+export const BRAND_DELETE_GRACE_DAYS = 3650;
 
 interface PurgeTarget {
   company_id: number | string;
@@ -119,10 +120,13 @@ export const purgeBrand = async (
  */
 export const purgeExpiredBrands = async (): Promise<{ scanned: number; purged: number; failed: number }> => {
   const now = new Date();
+  // Due-ness is derived from deleted_at + the CURRENT grace window (not the
+  // stored scheduled_purge_at) so extending retention to 10 years also protects
+  // brands that were soft-deleted under the old 7-day policy — no data migration.
+  const cutoff = new Date(now.getTime() - BRAND_DELETE_GRACE_DAYS * 24 * 60 * 60 * 1000);
   const due = await companyModel.findAll({
     where: {
-      deleted_at: { [Op.ne]: null },
-      scheduled_purge_at: { [Op.ne]: null, [Op.lte]: now },
+      deleted_at: { [Op.ne]: null, [Op.lte]: cutoff },
     },
     paranoid: false,
   });
@@ -152,40 +156,11 @@ export const purgeExpiredBrands = async (): Promise<{ scanned: number; purged: n
 };
 
 /**
- * Day-5 nudge: email merchants whose soft-deleted brand is ~2 days from being
- * permanently purged. Redis-deduped per company so each brand is nudged once.
+ * DISABLED under the 10-year AML/KYC retention policy. There is no longer a
+ * short "recovery window" to remind merchants about (a soft-deleted brand is
+ * retained for ~10 years), so this daily nudge is a no-op. Kept as a stub so
+ * the cron wiring in server.ts stays valid.
  */
 export const remindExpiringBrands = async (): Promise<{ scanned: number; reminded: number }> => {
-  const now = new Date();
-  const windowEnd = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000); // within the next 2 days
-  const soon = await companyModel.findAll({
-    where: {
-      deleted_at: { [Op.ne]: null },
-      scheduled_purge_at: { [Op.ne]: null, [Op.gt]: now, [Op.lte]: windowEnd },
-    },
-    paranoid: false,
-  });
-
-  let reminded = 0;
-  for (const c of soon) {
-    const companyId = c.dataValues.company_id;
-    const dedupeKey = `brand-delete-reminder-sent:${companyId}`;
-    try {
-      if (await getRedisItem(dedupeKey)) continue; // already nudged
-      const purgeAt = new Date(c.dataValues.scheduled_purge_at);
-      const daysLeft = Math.max(1, Math.ceil((purgeAt.getTime() - now.getTime()) / 86400000));
-      const owner = await userModel.findOne({ where: { user_id: c.dataValues.user_id }, attributes: ["name", "email"] });
-      const ownerEmail = owner?.dataValues.email;
-      if (ownerEmail) {
-        await sendBrandDeleteReminderEmail(ownerEmail, owner?.dataValues.name || "", c.dataValues.company_name || "your brand", purgeAt, daysLeft);
-        reminded++;
-      }
-      // Dedupe for 4 days (longer than the 2-day window) so we never double-nudge.
-      await setRedisItemWithTTL(dedupeKey, { sentAt: now.toISOString() }, 4 * 24 * 60 * 60);
-    } catch (e) {
-      companyLogger.warn(`[remindExpiringBrands] Failed for company ${companyId}: ${getErrorMessage(e)}`);
-    }
-  }
-  if (soon.length > 0) companyLogger.info(`[remindExpiringBrands] Scanned ${soon.length}, reminded ${reminded}`);
-  return { scanned: soon.length, reminded };
+  return { scanned: 0, reminded: 0 };
 };

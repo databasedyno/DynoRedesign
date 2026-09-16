@@ -11,6 +11,7 @@ import SidebarIcon from "@/utils/customIcons/sidebar-icons";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import CloseRounded from "@mui/icons-material/Close";
 import {
   Box,
   Dialog,
@@ -105,7 +106,6 @@ export default function WebhookNotificationsSection({
           size={16}
           color={theme.palette.text.primary}
         />
-        // <NotificationsIcon sx={{ color: "text.primary", height: 16, width: 16 }} />
       }
       title={tSettings("webhookNotifications")}
       subtitle={tSettings("webhookSubtitle")}
@@ -206,7 +206,7 @@ export default function WebhookNotificationsSection({
                   color: "text.primary",
                   backgroundColor: theme.palette.background.paper,
                   "&:hover": {
-                    backgroundColor: "#F5F5F5",
+                    backgroundColor: theme.palette.action.hover,
                   },
                 }}
               >
@@ -228,7 +228,7 @@ export default function WebhookNotificationsSection({
                   color: "text.primary",
                   backgroundColor: theme.palette.background.paper,
                   "&:hover": {
-                    backgroundColor: "#F5F5F5",
+                    backgroundColor: theme.palette.action.hover,
                   },
                 }}
               >
@@ -321,6 +321,7 @@ export default function WebhookNotificationsSection({
           <IconButton
             onClick={handleRegenerateCancel}
             aria-label="Close"
+            data-testid="webhook-regenerate-close-btn"
             sx={{
               position: "absolute",
               top: 15,
@@ -335,14 +336,7 @@ export default function WebhookNotificationsSection({
               backgroundColor: theme.palette.background.paper,
             }}
           >
-            <Image
-              src={RefreshIcon}
-              alt="Refresh Icon"
-              width={isMobile ? 12 : 22}
-              height={isMobile ? 12 : 16}
-              draggable={false}
-              className="themed-icon"
-            />
+            <CloseRounded sx={{ fontSize: 20, color: "text.primary" }} />
           </IconButton>
         </DialogTitle>
         <DialogContent sx={{ px: "30px", pt: 1.5, pb: 0 }}>

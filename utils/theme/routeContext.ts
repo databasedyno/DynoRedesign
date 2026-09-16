@@ -123,16 +123,15 @@ export function getStorageKeyForPath(pathname: string | undefined | null): strin
 /** Default theme for a given PATH. Help & Support keeps the LIGHT public
  *  default so logged-out visitors see the clean marketing look. */
 export function getDefaultThemeForPath(pathname: string | undefined | null): ThemeMode {
-  if (isHelpSupportPath(pathname)) return "light";
+  if (isHelpSupportPath(pathname)) return "dark";
   return getDefaultThemeForContext(getRouteContext(pathname));
 }
 
 export function getDefaultThemeForContext(context: ThemeContext): ThemeMode {
-  // 2026-08 usability plan (decision 1a): the app now defaults to LIGHT for
-  // everyone — the design system is light-first and reads "bank", not
-  // "trading terminal". Merchants who explicitly chose dark keep it via
-  // their saved localStorage/cookie preference (readPreferredMode).
-  return "light";
+  // 2026-06: DARK is now the default everywhere (landing + app). A merchant/
+  // visitor who explicitly toggles keeps their choice via the saved
+  // localStorage/cookie preference (readPreferredMode).
+  return "dark";
 }
 
 export function getStorageKeyForContext(context: ThemeContext): string {

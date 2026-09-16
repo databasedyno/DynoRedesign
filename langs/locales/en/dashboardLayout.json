@@ -713,5 +713,6 @@
       "body": "Full limits, live payment links and settlements to your payout addresses.",
       "wait": "Done"
     }
-  }
+  },
+  "appearance": "Appearance"
 }

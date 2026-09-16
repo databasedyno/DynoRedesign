@@ -134,5 +134,6 @@
   "topupSentShort": "Recordatorio enviado",
   "topupSent": "Recordatorio enviado a {{email}}",
   "topupFailed": "No se pudo enviar el recordatorio.",
-  "refund": "Reembolsar"
+  "refund": "Reembolsar",
+  "viaApi": "vía API"
 }

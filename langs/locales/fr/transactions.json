@@ -134,5 +134,6 @@
   "topupSentShort": "Rappel envoyé",
   "topupSent": "Rappel envoyé à {{email}}",
   "topupFailed": "Impossible d’envoyer le rappel.",
-  "refund": "Rembourser"
+  "refund": "Rembourser",
+  "viaApi": "via l'API"
 }

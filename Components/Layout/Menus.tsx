@@ -30,11 +30,13 @@ import {
   ListItemButton,
   Popover,
   Typography,
+  Badge,
 } from "@mui/material";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import useTokenData from "@/hooks/useTokenData";
+import { useAdminSupportAlerts } from "@/contexts/AdminSupportAlertContext";
 
 const navItems = [
   {
@@ -110,6 +112,7 @@ const Menus = ({ type = "user" }: { type: string }) => {
   const [popOverItem, setPopOverItem] = useState("");
 
   const [localItems, setLocalItems] = useState(navItems);
+  const { unseen: supportUnseen } = useAdminSupportAlerts();
   const handlePopoverOpen = (
     event: React.MouseEvent<HTMLElement>,
     name?: string
@@ -217,7 +220,18 @@ const Menus = ({ type = "user" }: { type: string }) => {
               selected={item.link === router.pathname}
               disableRipple
             >
-              {item.icon}
+              {type === "admin" && item.link === "/admin/support" && supportUnseen > 0 ? (
+                <Badge
+                  color="error"
+                  badgeContent={supportUnseen}
+                  max={99}
+                  data-testid="admin-support-badge"
+                >
+                  {item.icon}
+                </Badge>
+              ) : (
+                item.icon
+              )}
             </ListItemButton>
             <ListItem sx={{ display: { lg: "none", sm: "block" }, px: 0 }}>
               {item.name}

@@ -48,6 +48,7 @@ import { explorerTxUrl } from "@/helpers/explorerUrl";
 import CopyInline from "@/Components/UX/CopyInline";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import { toFixedStr } from "@/utils/money";
+import { isSyntheticCustomer } from "@/utils/txDisplay";
 
 const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
   open,
@@ -420,7 +421,14 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                   <TitleValue>{transaction.customerVatId}</TitleValue>
                 </DetailRow>
               )}
-              {(transaction.customerName || transaction.customerEmail) && (
+              {isSyntheticCustomer(transaction.customerName, transaction.customerEmail) ? (
+                <DetailRow>
+                  <TitleLabel>{tTransactions("customer", { defaultValue: "Customer" })}</TitleLabel>
+                  <TitleValue data-testid="tx-detail-customer" sx={{ textAlign: "right", minWidth: 0 }}>
+                    {tTransactions("viaApi", { defaultValue: "via API" })}
+                  </TitleValue>
+                </DetailRow>
+              ) : (transaction.customerName || transaction.customerEmail) && (
                 <DetailRow>
                   <TitleLabel>{tTransactions("customer", { defaultValue: "Customer" })}</TitleLabel>
                   <TitleValue data-testid="tx-detail-customer" sx={{ textAlign: "right", minWidth: 0 }}>

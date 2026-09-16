@@ -188,23 +188,23 @@ export const sendAccountDeleteOTPEmail = async (email: string, name: string, otp
   }
 };
 
-/** Account soft-deleted — the user has 7 days to get it back via support. */
-export const sendAccountSoftDeletedEmail = async (email: string, name: string, purgeDateStr: string) => {
+/** Account soft-deleted — the account is deactivated + locked immediately; some
+ *  records are retained securely for AML/KYC compliance. Restore is via support. */
+export const sendAccountSoftDeletedEmail = async (email: string, name: string, _purgeDateStr: string) => {
   try {
     const who = name ? `Hey ${escapeHtml(name.split(" ")[0])},` : "Hey there,";
     const content = `${p(who)}
-    ${p(`Your Dynopay account was just scheduled for deletion, and you've been signed out of all devices. Nothing is gone yet — we're keeping your account and all of its data (brands, payout addresses, payment links and history) safe for the next <strong>7 days</strong> in case this was a mistake.`)}
+    ${p(`Your Dynopay account has just been <strong>deactivated</strong> at your request, and you've been signed out of every device. You won't be able to sign in or process payments with it anymore.`)}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-        ${dataRow("Status", statusBadge("Scheduled for deletion", "pending"))}
-        ${dataRow("Restore before", `<strong>${escapeHtml(purgeDateStr)}</strong>`, true)}
+        ${dataRow("Status", statusBadge("Account deactivated", "pending"))}
       </table>
     `, "#f59e0b")}
-    ${p(`<strong>Changed your mind?</strong> Contact our support team before <strong>${escapeHtml(purgeDateStr)}</strong> and we'll restore your account exactly as it was.`)}
-    ${warnText(`After ${escapeHtml(purgeDateStr)} your account and all of its data are permanently deleted and can't be recovered.`)}
+    ${p(`As a regulated payments platform, we're required to keep certain financial and identity records (for anti-money-laundering / KYC purposes) securely for a retention period. Those records are locked and are no longer accessible from your account.`)}
+    ${p(`<strong>Changed your mind?</strong> Contact our support team and, where permitted, we can reactivate your account.`)}
     ${p(`If you didn't request this, contact us immediately so we can secure your account.`)}`;
-    const html = dynoPayEmailTemplate("Your account is scheduled for deletion", content, true, "Contact support", `${FRONTEND_BASE_URL}/help-support`, `You have until ${escapeHtml(purgeDateStr)} to restore your Dynopay account.`, null, "person-off");
-    await send(email, name, "Your Dynopay account is scheduled for deletion", html, "Account soft-deleted");
+    const html = dynoPayEmailTemplate("Your account has been deactivated", content, true, "Contact support", `${FRONTEND_BASE_URL}/help-support`, `Your Dynopay account has been deactivated.`, null, "person-off");
+    await send(email, name, "Your Dynopay account has been deactivated", html, "Account soft-deleted");
   } catch (e) {
     apiLogger.error("Account soft-deleted email error:", e);
   }

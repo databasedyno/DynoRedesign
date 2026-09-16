@@ -113,9 +113,9 @@ const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({ open, onClose, 
           <>
             {header(<DeleteForeverRounded sx={{ color: "#DC2626", fontSize: 22 }} />, "#FEE2E2", "Delete your account?")}
             <Typography sx={{ fontSize: "14px", lineHeight: 1.6, color: theme.palette.text.secondary, mb: 2 }}>
-              This schedules your <strong>entire Dynopay account</strong> — every brand, wallet, payment link and
-              setting — for deletion, and signs you out of all devices. You&apos;ll have <strong>7 days</strong> to
-              restore it by contacting support before it&apos;s permanently deleted. We&apos;ll email you a 6-digit code to confirm.
+              This <strong>deactivates your entire Dynopay account</strong> — every brand, wallet, payment link and
+              setting — and signs you out of all devices immediately. For legal/compliance reasons some records are
+              kept securely afterwards, so only our support team can restore the account. We&apos;ll email you a 6-digit code to confirm.
             </Typography>
             <Typography sx={{ fontSize: "13px", color: theme.palette.text.secondary, mb: 0.75 }}>
               Type your account email <strong>{email}</strong> to continue:

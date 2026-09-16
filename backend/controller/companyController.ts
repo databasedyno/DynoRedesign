@@ -911,7 +911,7 @@ const deleteCompany = async (req: express.Request, res: express.Response) => {
       companyLogger.warn(`Brand soft-deleted email/notify failed for company ${company_id}: ${getErrorMessage(emailError)}`);
     }
 
-    return successResponseHelper(res, 200, "Brand deleted. You have 7 days to restore it — contact support if this was a mistake.", {
+    return successResponseHelper(res, 200, "Brand deleted and deactivated. For compliance reasons its records are retained securely — contact support if this was a mistake.", {
       company_id: Number(company_id),
       scheduled_purge_at: purgeAt.toISOString(),
       restore_before: purgeDateStr,

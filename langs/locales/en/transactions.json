@@ -134,5 +134,6 @@
   "topupSentShort": "Reminder sent",
   "topupSent": "Reminder sent to {{email}}",
   "topupFailed": "Couldn't send the reminder.",
-  "refund": "Refund"
+  "refund": "Refund",
+  "viaApi": "via API"
 }

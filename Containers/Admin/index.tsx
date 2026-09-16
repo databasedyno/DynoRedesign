@@ -10,13 +10,14 @@ import Toast from "@/Components/UI/Toast";
 import { useSelector } from "react-redux";
 import adminAuth from "@/Components/Page/Common/HOC/adminAuth";
 import AdminHeader from "@/Components/Layout/AdminHeader";
+import { AdminSupportAlertProvider } from "@/contexts/AdminSupportAlertContext";
 
 const AdminLayout = ({ children, pageName, pageDescription, }: LayoutProps) => {
   const theme = useTheme();
   const tokenData = useTokenData();
   const ToastState = useSelector((state: rootReducer) => state.toastReducer);
   return (
-    <>
+    <AdminSupportAlertProvider>
       <Toast
         open={ToastState.open}
         message={ToastState.message}
@@ -61,7 +62,7 @@ const AdminLayout = ({ children, pageName, pageDescription, }: LayoutProps) => {
           {children}
         </Box>
       </Box>
-    </>
+    </AdminSupportAlertProvider>
   );
 };
 

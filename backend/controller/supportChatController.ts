@@ -11,6 +11,7 @@ import { apiLogger } from "../utils/loggers";
 import successResponseHelper from "../helper/successResponseHelper";
 import errorResponseHelper from "../helper/errorResponseHelper";
 import { sendEmail } from "../services/emailService";
+import { publishSupportEscalation } from "../services/supportEventBus";
 
 /**
  * AI Support Chat (session 12, 2026-07-10).
@@ -85,7 +86,8 @@ Non-custodial architecture, KYT (know-your-transaction) screening, Chainalysis o
 RULES
 - Be concise, warm and professional. Answer in the SAME LANGUAGE the user writes in.
 - PLAIN TEXT ONLY: no markdown, no asterisks, no headers, no bullet symbols other than a simple dash.
-- Only discuss Dynopay and crypto-payment topics. Politely decline anything unrelated.
+- SCOPE: In addition to Dynopay-specific help, you MAY answer general questions about cryptocurrency, blockchain, payments and finance (for example: how a blockchain confirmation works, what a stablecoin or a network/gas fee is, how crypto payments differ from card payments, general concepts around wallets, KYC/AML or invoicing). Politely DECLINE anything clearly unrelated to crypto, payments or finance — for example writing or debugging code, homework or essays, general trivia, medical, legal or relationship advice, or casual chit-chat — and gently steer the user back to how you can help with Dynopay or crypto payments.
+- Do NOT give personalised financial, investment, tax or trading advice, do NOT predict prices, and never tell anyone what to buy or sell. You can explain concepts neutrally; when a question drifts toward an investment decision, add a brief "this isn't financial advice" style caveat and suggest they consult a qualified professional.
 - NEVER invent features, prices or limits that are not listed above. If you are not sure, say so and point the user to https://dynopay.com/documentation or https://dynopay.com/fees, or suggest they press the "Talk to a human" button in this chat to reach the support team.
 - For account-specific actions you cannot perform (refunds, KYC review, unlocking accounts, payout investigations, changing account data), apologise briefly and direct the user to the "Talk to a human" escalation button.
 - NEVER ask for or accept private keys, seed phrases, passwords or 2FA codes. If a user shares one, tell them to consider it compromised and rotate it immediately.
@@ -453,6 +455,16 @@ const escalateChat = async (req: express.Request, res: express.Response) => {
       last_message_at: new Date(),
     });
     await supportSessionModel.increment({ admin_unread: 1 }, { where: { session_id } });
+
+    // Real-time in-app alert to every connected admin (Support Inbox SSE). Fires
+    // ONLY on an explicit escalation — never on ordinary AI/human chat turns.
+    publishSupportEscalation({
+      session_id,
+      contact_email: contact_email || null,
+      note: typeof note === "string" && note ? note : null,
+      user_id: user?.user_id ?? null,
+      at: new Date().toISOString(),
+    });
 
     apiLogger.info(`[supportChat] session ${session_id} escalated to ${adminEmail}`);
     return successResponseHelper(res, 200, "Escalated to human support.", { session_id, escalated: true });

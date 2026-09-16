@@ -39,9 +39,9 @@ const AccountDangerZone: React.FC = () => {
         </Typography>
       </Box>
       <Typography sx={{ fontSize: 13.5, lineHeight: 1.6, color: theme.palette.text.secondary, fontFamily: "var(--font-sans)", mb: 2, maxWidth: 560 }}>
-        Permanently delete your Dynopay account and everything in it — all brands, wallets, payment links and
-        history. You&apos;ll be signed out of every device and have <strong>7 days to restore it via support</strong>
-        {" "}before it&apos;s gone for good.
+        Deactivate your Dynopay account and everything in it — all brands, wallets, payment links and
+        history. You&apos;ll be signed out of every device immediately. For legal/compliance reasons some records are
+        {" "}<strong>retained securely afterwards and only support can restore the account</strong>.
       </Typography>
       <CustomButton
         label="Delete account"

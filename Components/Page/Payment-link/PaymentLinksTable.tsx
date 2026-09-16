@@ -300,9 +300,7 @@ const PaymentLinksTable = ({
         sx={{
           display: "flex",
           flexDirection: "column",
-          flex: 1,
           minHeight: 0,
-          maxHeight: "fit-content",
           p: isMobile ? 0 : "0px",
         }}
       >

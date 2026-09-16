@@ -2,7 +2,6 @@ import { brandFg } from "@/constants/theme";
 import useIsMobile from "@/hooks/useIsMobile";
 import { Box, Button, CircularProgress, useTheme } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import MessageIcon from "@/assets/Icons/MessageIcon.svg";
 import Image from "next/image";
 import {
     FooterIconButton,
@@ -363,10 +362,10 @@ const HelpAndSupport = () => {
                 <Box
                     sx={{
                         display: "grid",
-                        gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)" },
+                        gridTemplateColumns: "1fr",
                         gap: "20px",
                         width: "100%",
-                        maxWidth: 720,
+                        maxWidth: 440,
                     }}
                 >
                     {/* Chat with us — opens the AI support widget (primary CTA) */}
@@ -438,46 +437,6 @@ const HelpAndSupport = () => {
                         </Button>
                         <TextDecoration sx={{ fontSize: "12px", color: theme.palette.text.secondary }}>
                             {t("chatResponseTime")}
-                        </TextDecoration>
-                    </Box>
-
-                    {/* Email us */}
-                    <Box
-                        data-testid="help-email-card"
-                        sx={{
-                            border: `1px solid ${theme.palette.divider}`,
-                            p: "24px",
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                            gap: "12px",
-                            textAlign: "center",
-                            backgroundColor: theme.palette.background.paper,
-                            borderRadius: "16px",
-                        }}
-                    >
-                        <FooterIconButton
-                            tabIndex={-1}
-                            aria-hidden
-                            disableRipple
-                            sx={{ height: 58, width: 58, borderColor: theme.palette.divider, pointerEvents: "none" }}
-                        >
-                            <Image src={MessageIcon} alt="email" width={24} height={24} className="themed-icon-primary" />
-                        </FooterIconButton>
-                        <TextDecoration sx={{ fontSize: "15px", fontWeight: 600, color: theme.palette.text.primary }}>
-                            {t("emailUs")}
-                        </TextDecoration>
-                        <TextDecoration sx={{ fontSize: "15px", color: theme.palette.text.primary }}>
-                            <a
-                                href="mailto:support@dynopay.com"
-                                data-testid="help-email-link"
-                                style={{ color: brandFg(theme.palette.mode === "dark"), textDecoration: "none", fontWeight: 600 }}
-                            >
-                                support@dynopay.com
-                            </a>
-                        </TextDecoration>
-                        <TextDecoration sx={{ fontSize: "12px", color: theme.palette.text.secondary }}>
-                            {t("emaiResponseTime")}
                         </TextDecoration>
                     </Box>
                 </Box>
