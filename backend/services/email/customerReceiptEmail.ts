@@ -83,6 +83,7 @@ export const sendCustomerPaymentConfirmationEmail = async (
         status: t('receipt.completed', L),
         lang: L,
         breakdown: split,
+        isContribution,
       };
 
       // Shareable proof-of-payment link (snapshot of exactly these figures). Best-effort.
@@ -130,6 +131,7 @@ export const sendCustomerPaymentConfirmationEmail = async (
       </td></tr>
     </table>` : ''}
     ${pdfAttachment ? p(t('customerPaymentConfirmation.pdfAttached', L)) : ''}
+    ${isContribution ? p(`<span style="font-size: 12px; color: #6b7280;">${t('receipt.contributionNote', L)}</span>`) : ''}
     ${p(
       isContribution
         ? t('contributionThankYou.contact', L, { campaignName })

@@ -46,6 +46,7 @@ type PublicReceipt = {
   paymentDate: string
   description: string | null
   paymentMethod: string
+  isContribution?: boolean
   labels: Record<string, string>
 }
 
@@ -353,6 +354,9 @@ const ReceiptPage = ({ receipt, siteUrl }: Props) => {
           {/* Footer */}
           <Box sx={{ mt: 2.5, textAlign: 'center' }}>
             <Typography sx={{ fontSize: 12.5, color: muted }}>{L.contactMerchant}</Typography>
+            {receipt.isContribution && (
+              <Typography sx={{ fontSize: 12.5, color: muted, mt: 0.75, maxWidth: 480, mx: 'auto', lineHeight: 1.5, fontStyle: 'italic' }} data-testid="public-receipt-contribution-note">{L.contributionNote}</Typography>
+            )}
             <Typography sx={{ fontSize: 12.5, color: muted, mt: 0.75, maxWidth: 480, mx: 'auto', lineHeight: 1.5 }} data-testid="public-receipt-refund-note">{L.refundNote}</Typography>
             <Typography sx={{ fontSize: 12, color: muted, mt: 1.5 }}>
               {L.tagline} ·{' '}

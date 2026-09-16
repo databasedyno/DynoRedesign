@@ -519,6 +519,33 @@ const createTipGoalMilestoneTable = async (): Promise<void> => {
   if (isSyncable(tipGoalMilestoneModel)) await tipGoalMilestoneModel.sync();
 };
 
+/**
+ * 0033 — Customers CRM notes/tags + manual contacts: tbl_customer_annotation.
+ * Additive, idempotent (IF NOT EXISTS), merchant-private overlay keyed by
+ * (company_id, lowercased email). Safe on live prod.
+ */
+const createCustomerAnnotationTable = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `CREATE TABLE IF NOT EXISTS "tbl_customer_annotation" (
+       "annotation_id" SERIAL PRIMARY KEY,
+       "company_id" INTEGER NOT NULL,
+       "email" VARCHAR(255) NOT NULL,
+       "display_name" VARCHAR(255),
+       "mobile" VARCHAR(64),
+       "notes" TEXT,
+       "tags" JSONB,
+       "created_manually" BOOLEAN NOT NULL DEFAULT FALSE,
+       "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+       "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+     )`
+  );
+  await sequelize.query(
+    `CREATE UNIQUE INDEX IF NOT EXISTS "tbl_customer_annotation_company_email_uq"
+       ON "tbl_customer_annotation" ("company_id", "email")`
+  );
+};
+
 export async function buildBootMigrations(): Promise<Migration[]> {  const { v1, extra } = await loadBootModelGroups();
   return [
     { version: "0001_boot_model_tables", up: syncGroup(v1) },
@@ -550,6 +577,7 @@ export async function buildBootMigrations(): Promise<Migration[]> {  const { v1,
     { version: "0029_product_tax_treatment", up: addProductTaxTreatment },
     { version: "0030_nexus_alert", up: createNexusAlertTable },
     { version: "0032_tip_goal_milestone", up: createTipGoalMilestoneTable },
+    { version: "0033_customer_annotation", up: createCustomerAnnotationTable },
     ...perfMigrations,
     ...securityMigrations,
   ];

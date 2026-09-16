@@ -35,6 +35,8 @@ import {
   RewardTierShelf,
   DonorWallV2,
   CampaignShareTray,
+  CampaignTrustInfo,
+  AcceptedCoinsStrip,
 } from './campaign'
 
 /**
@@ -550,6 +552,7 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
         <Icon icon='mdi:lock-outline' width={12} style={{ verticalAlign: '-2px', marginRight: 3 }} />
         {t('donation.secureNote', { defaultValue: 'Secure crypto payment — you will pick a coin on the next step.' })}
       </Typography>
+      <AcceptedCoinsStrip />
     </Box>
   )
 
@@ -1000,6 +1003,9 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
           {donation.campaign_closed && supportersWall && (
             <Box mt={3}>{supportersWall}</Box>
           )}
+
+          {/* ── Trust & compliance: accepted coins, fund-handling, tax/refund, FAQ ── */}
+          <CampaignTrustInfo merchantName={merchant?.name || null} minAmountLabel={fmt(minAmount)} />
         </Box>
       </Box>
     </Box>

@@ -79,7 +79,7 @@
     "relatedArticles": "Related articles"
   },
   "supportChat": {
-    "greeting": "Hi, I'm Emily — your Dynopay support assistant. Ask me anything about fees, supported coins, payment links, wallets or our API. You can also attach a screenshot and I'll take a look. Need a person? Hit the headset icon above to reach human support.",
+    "greeting": "Hi, I'm Emily — your Dynopay support assistant. Ask me anything about fees, supported coins, payment links, wallets or our API. You can also attach a screenshot and I'll take a look. Need a person? Tap the \u201cTalk to a human\u201d button above and we'll connect you.",
     "quickFees": "How are fees calculated?",
     "quickCoins": "Which coins are supported?",
     "quickLinks": "How do payment links work?",

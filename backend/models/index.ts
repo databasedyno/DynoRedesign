@@ -9,6 +9,7 @@ import {
   customerModel,
   customerTransactionModel,
   customerWalletModel,
+  customerAnnotationModel,
 } from "./customerModels";
 import feesModel from "./feesModel";
 import {
@@ -109,6 +110,7 @@ export {
   customerWalletModel,
   paymentLinkModel,
   customerTransactionModel,
+  customerAnnotationModel,
   userWalletAddressModel,
   userTransactionModel,
   userTempAddressModel,

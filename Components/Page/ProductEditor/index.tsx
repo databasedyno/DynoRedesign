@@ -75,6 +75,8 @@ interface ProductRow {
   base_stock?: number | null;
   digital_delivery_type?: "url" | "file" | "license_key" | null;
   digital_delivery_payload?: any;
+  product_type?: "digital" | "physical" | "service";
+  service_calendar_url?: string | null;
   tax_category?: "digital" | "physical" | "service" | "exempt";
   apply_tax_override?: boolean | null;
   tax_treatment?: "standard" | "reduced" | "zero";
@@ -105,10 +107,11 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId, onDraftC
   const theme = useTheme();
   const { t } = useTranslation("common");
 
-  const DELIVERY_OPTS: Array<{ v: "url" | "file" | "license_key"; label: string; hint: string }> = [
+  const DELIVERY_OPTS: Array<{ v: "url" | "file" | "license_key" | "none"; label: string; hint: string }> = [
     { v: "url", label: t("productEditor.delivery.url.label", { defaultValue: "Access URL" }), hint: t("productEditor.delivery.url.hint", { defaultValue: "Deliver a link (Notion, Google Drive, private site) on payment." }) },
     { v: "file", label: t("productEditor.delivery.file.label", { defaultValue: "File download" }), hint: t("productEditor.delivery.file.hint", { defaultValue: "Upload your file(s). Buyer gets signed download links." }) },
     { v: "license_key", label: t("productEditor.delivery.licenseKey.label", { defaultValue: "License keys" }), hint: t("productEditor.delivery.licenseKey.hint", { defaultValue: "Paste one key per line. One key is issued per purchase." }) },
+    { v: "none", label: t("productEditor.delivery.none.label", { defaultValue: "Service — no digital delivery" }), hint: t("productEditor.delivery.none.hint", { defaultValue: "For services, consultations or offline items. Buyers get a receipt; you fulfil it manually — no file or link required." }) },
   ];
 
   const [loading, setLoading] = useState<boolean>(mode === "edit");
@@ -151,8 +154,9 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId, onDraftC
   const [currency, setCurrency] = useState<string>("USD");
   const [coverUrl, setCoverUrl] = useState<string>("");
   const [gallery, setGallery] = useState<GalleryItem[]>([]);
-  const [deliveryType, setDeliveryType] = useState<"url" | "file" | "license_key">("url");
+  const [deliveryType, setDeliveryType] = useState<"url" | "file" | "license_key" | "none">("url");
   const [accessUrl, setAccessUrl] = useState<string>("");
+  const [serviceCalendarUrl, setServiceCalendarUrl] = useState<string>("");
   const [hasVariants, setHasVariants] = useState<boolean>(false);
   const [baseStock, setBaseStock] = useState<string>("");
   const [taxCategory, setTaxCategory] = useState<"digital" | "physical" | "service" | "exempt">("digital");
@@ -230,8 +234,9 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId, onDraftC
                 .map((g) => ({ url: String(g.url), alt: g.alt ? String(g.alt) : undefined }))
             : []
         );
-        setDeliveryType((p.digital_delivery_type as any) || "url");
+        setDeliveryType((p.digital_delivery_type as any) || (p.product_type === "service" ? "none" : "url"));
         setAccessUrl(p.digital_delivery_payload?.access_url || "");
+        setServiceCalendarUrl(p.service_calendar_url || "");
         setHasVariants(!!p.has_variants);
         setBaseStock(p.base_stock == null ? "" : String(p.base_stock));
         setTaxCategory((p.tax_category as any) || "digital");
@@ -305,14 +310,14 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId, onDraftC
       currency,
       cover_image_url: coverUrl.trim() || undefined,
       gallery_images: cleanGallery,
-      product_type: "digital",
+      product_type: deliveryType === "none" ? "service" : "digital",
       has_variants: hasVariants,
       base_stock: hasVariants
         ? null
         : baseStock === ""
         ? null
         : Math.max(0, Math.floor(Number(baseStock) || 0)),
-      digital_delivery_type: deliveryType,
+      digital_delivery_type: deliveryType === "none" ? null : deliveryType,
       tax_category: taxCategory,
       apply_tax_override:
         applyTaxOverride === "on" ? true : applyTaxOverride === "off" ? false : null,
@@ -328,6 +333,8 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId, onDraftC
         .map((k) => k.trim())
         .filter(Boolean);
       payload.digital_delivery_payload = { keys };
+    } else if (deliveryType === "none") {
+      payload.service_calendar_url = serviceCalendarUrl.trim() || null;
     }
     return payload;
   };
@@ -1085,6 +1092,25 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId, onDraftC
             />
           )}
 
+          {deliveryType === "none" && (
+            <Stack spacing={1} data-testid="product-service-block">
+              <Alert severity="info" sx={{ borderRadius: "10px" }} data-testid="product-service-note">
+                {t("productEditor.serviceNote", { defaultValue: "This is a service or offline item — no file or link is delivered automatically. Buyers receive a receipt and you fulfil it manually." })}
+              </Alert>
+              <TextField
+                label={t("productEditor.serviceCalendarUrl", { defaultValue: "Booking / calendar link (optional)" })}
+                placeholder="https://calendly.com/…"
+                fullWidth
+                value={serviceCalendarUrl}
+                onChange={(e) => setServiceCalendarUrl(e.target.value)}
+                inputProps={{ "data-testid": "product-service-calendar-input", maxLength: 1024 }}
+              />
+              <Typography variant="caption" color="text.secondary">
+                {t("productEditor.serviceCalendarHint", { defaultValue: "If set, buyers see this booking link on their receipt so they can schedule with you." })}
+              </Typography>
+            </Stack>
+          )}
+
           {deliveryType === "file" && (
             <Stack spacing={1}>
               <Box>
@@ -1506,7 +1532,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId, onDraftC
           variant="primary"
           onClick={publish}
           loading={publishing}
-          disabled={saving || publishing || !product}
+          disabled={saving || publishing}
           data-testid="product-publish-btn"
         />
         {product && (

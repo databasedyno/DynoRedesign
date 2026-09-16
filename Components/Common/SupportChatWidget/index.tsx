@@ -111,7 +111,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
 
   const GREETING = t("supportChat.greeting", {
     defaultValue:
-      "Hi, I'm Emily — your Dynopay support assistant. Ask me anything about fees, supported coins, payment links, wallets or our API. You can also attach a screenshot and I'll take a look. Need a person? Hit the headset icon above to reach human support.",
+      "Hi, I'm Emily — your Dynopay support assistant. Ask me anything about fees, supported coins, payment links, wallets or our API. You can also attach a screenshot and I'll take a look. Need a person? Tap the “Talk to a human” button above and we'll connect you.",
   });
   // One-tap starter questions shown under the greeting so first-time visitors get
   // value instantly (and are more likely to engage / convert).
@@ -756,17 +756,37 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
                 {t("supportChat.active", { defaultValue: "Active" })}
               </Typography>
             </Box>
-            <Tooltip title={t("supportChat.talkToHuman", { defaultValue: "Talk to a human" })}>
-              <IconButton
-                size="small"
-                data-testid="support-chat-escalate"
-                onClick={() => setEscalateOpen((v) => !v)}
-                sx={{ color: escalateOpen ? "#818CF8" : "rgba(255,255,255,0.75)" }}
-                aria-label={t("supportChat.talkToHuman", { defaultValue: "Talk to a human" })}
-              >
-                <SupportAgentRoundedIcon sx={{ fontSize: 20 }} />
-              </IconButton>
-            </Tooltip>
+            <Box
+              component="button"
+              type="button"
+              data-testid="support-chat-escalate"
+              onClick={() => setEscalateOpen((v) => !v)}
+              aria-label={t("supportChat.talkToHuman", { defaultValue: "Talk to a human" })}
+              aria-pressed={escalateOpen}
+              sx={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 0.5,
+                flexShrink: 0,
+                cursor: "pointer",
+                fontFamily: "var(--font-sans)",
+                fontSize: 12,
+                fontWeight: 600,
+                lineHeight: 1,
+                whiteSpace: "nowrap",
+                color: "#FFFFFF",
+                background: escalateOpen ? BRAND_ACCENT : "rgba(255,255,255,0.12)",
+                border: `1px solid ${escalateOpen ? BRAND_ACCENT : "rgba(255,255,255,0.20)"}`,
+                borderRadius: "999px",
+                px: 1.1,
+                py: 0.7,
+                transition: "background-color 0.15s ease, border-color 0.15s ease",
+                "&:hover": { background: escalateOpen ? "#4338CA" : "rgba(255,255,255,0.22)" },
+              }}
+            >
+              <SupportAgentRoundedIcon sx={{ fontSize: 15 }} />
+              {t("supportChat.talkToHuman", { defaultValue: "Talk to a human" })}
+            </Box>
             <Tooltip title={t("supportChat.newConversation", { defaultValue: "New conversation" })}>
               <IconButton size="small" onClick={resetConversation} sx={{ color: "rgba(255,255,255,0.75)" }} aria-label={t("supportChat.newConversation", { defaultValue: "New conversation" })}>
                 <RestartAltRoundedIcon sx={{ fontSize: 20 }} />

@@ -79,7 +79,7 @@
     "relatedArticles": "Artigos relacionados"
   },
   "supportChat": {
-    "greeting": "Olá, sou a Emily — a sua assistente de suporte Dynopay. Pergunte-me qualquer coisa sobre taxas, moedas suportadas, links de pagamento, carteiras ou a nossa API. Também pode anexar uma captura de ecrã e eu irei analisar. Precisa de uma pessoa? Clique no ícone de auricular acima para contactar o suporte humano.",
+    "greeting": "Olá, sou a Emily — a sua assistente de suporte Dynopay. Pergunte-me qualquer coisa sobre taxas, moedas suportadas, links de pagamento, carteiras ou a nossa API. Também pode anexar uma captura de ecrã e eu irei analisar. Precisa de uma pessoa? Toque no botão «Falar com um humano» acima e iremos ligá-lo.",
     "quickFees": "Como são calculadas as taxas?",
     "quickCoins": "Quais moedas são suportadas?",
     "quickLinks": "Como funcionam os links de pagamento?",

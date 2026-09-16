@@ -79,7 +79,7 @@
     "relatedArticles": "Articles connexes"
   },
   "supportChat": {
-    "greeting": "Bonjour, je suis Emily — votre assistante de support Dynopay. Posez-moi toutes vos questions sur les frais, les cryptomonnaies prises en charge, les liens de paiement, les portefeuilles ou notre API. Vous pouvez également joindre une capture d'écran et je vais jeter un œil. Besoin d'une personne ? Cliquez sur l'icône de casque ci-dessus pour contacter le support humain.",
+    "greeting": "Bonjour, je suis Emily — votre assistante de support Dynopay. Posez-moi toutes vos questions sur les frais, les cryptomonnaies prises en charge, les liens de paiement, les portefeuilles ou notre API. Vous pouvez également joindre une capture d'écran et je vais jeter un œil. Besoin d'une personne ? Appuyez sur le bouton « Parler à un humain » ci-dessus et nous vous mettrons en relation.",
     "quickFees": "Comment les frais sont-ils calculés ?",
     "quickCoins": "Quelles cryptomonnaies sont prises en charge ?",
     "quickLinks": "Comment fonctionnent les liens de paiement ?",

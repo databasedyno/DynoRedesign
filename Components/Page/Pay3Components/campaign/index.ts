@@ -8,3 +8,4 @@ export type { Tier } from "./RewardTierShelf";
 export { default as DonorWallV2 } from "./DonorWallV2";
 export type { DonorSupporter } from "./DonorWallV2";
 export { default as CampaignShareTray } from "./CampaignShareTray";
+export { default as CampaignTrustInfo, AcceptedCoinsStrip } from "./CampaignTrustInfo";

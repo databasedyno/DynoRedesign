@@ -69,6 +69,10 @@ export interface DirectoryEntry {
   /** Wave 3c — the latest settled payment (USD + asset), for the "Last paid" cell. */
   last_paid_usd: number | null;
   last_paid_asset: string | null;
+  /** Merchant-private CRM overlay (tbl_customer_annotation). */
+  notes: string | null;
+  tags: string[];
+  manual: boolean;
 }
 
 export interface DirectoryData {
@@ -302,6 +306,9 @@ export const buildDirectory = async (
     preferred_asset: null,
     last_paid_usd: null,
     last_paid_asset: null,
+    notes: null,
+    tags: [],
+    manual: false,
     first_paid: null,
     _channels: new Set<CanonicalTxSourceType>(),
     _assets: new Map<string, number>(),

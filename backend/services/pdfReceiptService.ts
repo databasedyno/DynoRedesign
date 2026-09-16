@@ -112,6 +112,9 @@ export interface ReceiptData {
   breakdown?: { merchantReceives: string; platformFee: string; feePayer: "customer" | "company" };
   // Public shareable receipt URL — printed in the footer as "View this receipt online".
   receiptUrl?: string;
+  /** True for donation/crowdfunding contributions — adds the "no goods or services were
+   *  provided in exchange for this contribution" compliance line to the receipt. */
+  isContribution?: boolean;
 }
 
 /**
@@ -366,6 +369,12 @@ export const generatePaymentReceipt = async (data: ReceiptData): Promise<Buffer>
       if (y + 30 < CONTENT_BOTTOM) {
         doc.font(FONT).fontSize(9.5).fillColor(MUTED)
           .text(t("receipt.contactMerchant", L, { company: data.companyName }), X, y + 16, { width: W, lineBreak: false, ellipsis: true });
+      }
+
+      // Contribution compliance line ("No goods or services were provided…").
+      if (data.isContribution && y + 44 < CONTENT_BOTTOM) {
+        doc.font(FONT).fontSize(8.5).fillColor(MUTED)
+          .text(t("receipt.contributionNote", L), X, y + 30, { width: W, lineBreak: false, ellipsis: true });
       }
 
       // ============================================

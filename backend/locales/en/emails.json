@@ -196,6 +196,7 @@
     "merchantContact": "Merchant contact",
     "refundNote": "Refunds and adjustments are handled by {{company}} — Dynopay is non-custodial and never holds your funds. Quote the receipt number above when you get in touch.",
     "print": "Print",
+    "contributionNote": "No goods or services were provided in exchange for this contribution.",
     "legalName": "Legal name",
     "emailLabel": "Email",
     "websiteLabel": "Website",
