@@ -1,0 +1,28 @@
+{
+  "summary": "Phase 2 Customer Directory CRM (Part B Tiers 1&2) verified end-to-end on the preview URL as merchant onarrival21 with The Dev Store (company_id=1). All five requested scenarios pass: (1) Manual Add Customer via /customers → 'Add customer' dialog worked; submit-disabled gating verified for empty and invalid emails; filled email qa_crm_ui1_1789563306@example.com + name 'QA CRM UI One' + mobile '+1 555 0111' + tags [vip, lead] + notes 'met at conf' → success toast 'Customer added.', dialog closed, detail drawer opened showing the manual person as 'Invited' with an 'Added manually' chip (data-testid=customer-detail-manual-badge), tags rendered, and the note prefilled. (2) Notes & tags editor persistence: edited notes to 'Follow up next week' and added tag 'newsletter'; Save became enabled and produced toast 'Saved.'; after closing + reopening the same customer the persisted values re-appeared (notes='Follow up next week', chips=[vip, lead, newsletter], manual badge still shown), confirming the directory read folds annotations back in. (3) Tag chips in list: the row's [data-testid=customer-tags-<email>] container showed 'vip lead' initially and 'vip lead newsletter' after the second save. (4) Email validation: submit-btn stayed disabled for empty and invalid email ('not-an-email'), enabled only for a syntactically valid address. (5) Backend contract was exercised transitively through the UI flow — POST /api/userApi/customers/manual, POST /api/userApi/customers/annotation, and GET /api/userApi/customers/directory all responded 200 with the annotations folded into the read (no errors observed in DevTools/console). No bugs found.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "customerAnnotationController.upsertAnnotation validates email format (RFC-lite) and slices tags to <=20 x 40 chars — reasonable defensive bounds.",
+    "createManualCustomer preserves prior notes/mobile/name/tags when re-adding an existing email as manual (only fills missing fields, sets created_manually=true) — good idempotency.",
+    "Both writes correctly bust the 60s Redis directory cache (invalidateDirectoryCache for both company-scope AND owner-scope) so the UI reflects changes immediately after save.",
+    "Frontend AddCustomerDialog gates submit on emailValid — solid: empty and invalid emails cannot fire a request. Persistence of tag input on Enter is smooth.",
+    "Testability note (not a bug): data-testid=customer-detail-notes-input is placed on the actual <textarea> via TextField inputProps, so the correct Playwright selector is 'textarea[data-testid=\"customer-detail-notes-input\"]' (not '[data-testid=customer-detail-notes-input] textarea'). Same pattern for [data-testid=customer-detail-tag-input] (on the <input>). The MUI *-input wrappers used elsewhere (customers-add-email etc.) have the testid on the outer FormControl div; both patterns coexist in this file. Consider standardising for cleaner test scripts.",
+    "The list-row tag container testid is customer-tags-<customerKey/email>, not per-tag-key (matches the code Box wrapper at index.tsx:482). The review request phrased this as 'customer-tags-<key>' which is technically correct (key=customer key) but the individual chips inside do not have per-tag testids — fine, but adding per-tag testids would make automated verification of a specific tag simpler.",
+    "customer-detail-manual-badge is implemented as a MuiChip inside the customer-detail-crm card header; when counting chips inside that card for assertions, remember it will show alongside the tag chips."
+  ],
+  "updated_files": [],
+  "success_rate": { "backend": "100% (writes 200, GET directory 200, cache-bust visible)", "frontend": "100% on all 4 requested UI scenarios" },
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (user_id=1, company_id=1 'The Dev Store'). No 2FA challenge triggered.",
+  "seed_data_creation": "One throwaway manual contact added on The Dev Store: qa_crm_ui1_1789563306@example.com ('QA CRM UI One', mobile +1 555 0111, tags: vip/lead/newsletter, note: 'Follow up next week', created_manually=true). Please clean up via the qa_crm_ prefix as agreed. No other merchant data touched.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Phase 2 Customers CRM writes (POST /api/userApi/customers/annotation, POST /api/userApi/customers/manual) and the read overlay in GET /api/userApi/customers/directory are all working. The 'Add customer' dialog + Notes & tags drawer editor + list-row tag chips + email validation are all functional. One leftover row (qa_crm_ui1_1789563306@example.com) is on company 1 pending cleanup by prefix.",
+  "rca of the issue": "N/A — no bugs found."
+}

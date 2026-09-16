@@ -1,3 +1,60 @@
+# === 2026-06 (fork) DONE — P0 PRODUCT/SUPPORT BUG FIX + PART B CUSTOMER CRM (testing_agent iter_190 P0 100%, iter_191 CRM 100%; English only) ===
+# CONTEXT: live user bug report + resume of the approved standards plan (Part A shipped last session; Part B backend was
+#   PARTIALLY done — model existed but routes were NOT wired and the directory read did NOT fold annotations in).
+#
+# PHASE 1 — P0 BUG (service product could not publish + hidden "Talk to a human"):
+#   ROOT CAUSES (confirmed in code): (a) Components/Page/ProductEditor/index.tsx Publish button was
+#     `disabled={saving||publishing||!product}` → grayed out for ANY brand-new (unsaved) product; (b) the delivery
+#     dropdown only offered url/file/license_key and validate() forced an Access URL, so a SERVICE seller could never
+#     save → Publish stayed disabled forever; (c) Components/Common/SupportChatWidget/index.tsx escalate control was an
+#     unlabeled headset IconButton in the header (greeting even said "hit the headset icon") — undiscoverable.
+#   FIX (ProductEditor): added delivery option {v:"none"} "Service — no digital delivery" (data-testid=product-delivery-opt-none);
+#     buildPayload() now sends product_type:"service" + digital_delivery_type:null when deliveryType==="none" (+ optional
+#     service_calendar_url field, data-testid=product-service-calendar-input, info note product-service-note); validate()
+#     only requires the access URL when deliveryType==="url"; Publish disabled reduced to `saving||publishing` (publish()
+#     already CREATES-then-publishes new products in one click); edit-load maps null delivery → "none" when
+#     product_type==="service". NO backend change needed — publishProduct only enforces a delivery method when
+#     product_type==="digital", so a service publishes with null delivery (fulfillment already handles product_type "service").
+#   FIX (SupportChatWidget): header escalate control is now a LABELED pill <Box component="button" data-testid=support-chat-escalate>
+#     reading "Talk to a human" (BRAND_ACCENT when open); greeting copy updated in ALL 6 langs (en/de/es/fr/nl/pt
+#     langs/locales/*/helpAndSupport.json) — dropped "headset icon", now "Tap the 'Talk to a human' button above".
+#   FIX (cold-open escalate, from iter_190 minor finding): backend controller/supportChatController.ts escalateChat no longer
+#     hard-400s when there are ZERO prior messages — it now allows escalation as long as there's a contact email (typed OR
+#     logged-in) or a note (empty transcript renders "No messages yet — visitor requested a human directly"). Only a truly
+#     empty+anonymous request is blocked with a friendly message. Verified: cold-open escalate WITH email → 200.
+#   ALSO fixed a LATENT deploy blocker in Components/Page/Pay3Components/campaign/CampaignTrustInfo.tsx (Part A file):
+#     `overlineSx = (theme: ReturnType<typeof useTheme>)` resolved theme as `unknown` under this tsconfig → changed to
+#     `import { ..., type Theme }` + `(theme: Theme)`. Frontend tsc now 0 errors.
+#
+# PHASE 2 — PART B CUSTOMER CRM (Tiers 1&2: private notes, tags, manual add):
+#   BACKEND WIRING (was missing): routes/apiRouter.ts now mounts POST /userApi/customers/annotation
+#     (customerAnnotationController.upsertAnnotation) + POST /userApi/customers/manual (createManualCustomer) — both
+#     authMiddleware; controller enforces manage_customers + company scope (resolveWriteScope) and busts the 60s Redis
+#     directory cache (company-scope AND owner-scope). controller/customerDirectoryService.ts buildDirectory() gained a
+#     STEP 4 that overlays tbl_customer_annotation onto the persons map: notes, tags[], manual(created_manually),
+#     display_name override (wins over derived name) + mobile override, AND surfaces manual-only contacts (no txns) as
+#     prospect persons. Query scoped by company_id IN scope.companyIds → works for single-brand AND "all brands" views.
+#   FRONTEND (Components/Page/Customers/index.tsx): "Add customer" button (data-testid=customers-add-btn) → AddCustomerDialog
+#     (customers-add-dialog: email/name/mobile/tags/notes; submit gated on a valid email; needs a single brand selected).
+#     DetailPanel now has a "Notes & tags" editor card (customer-detail-crm: TagsEditor chips + notes textarea
+#     customer-detail-notes-input + Save customer-detail-notes-save; shows "Added manually" chip customer-detail-manual-badge;
+#     shows customer-detail-crm-need-brand hint when no single brand). Shared TagsEditor (Enter/comma to add, chip delete,
+#     max 20×40chars). List rows show tag chips via renderTags (data-testid=customer-tags-<key>). Page Snackbar
+#     (customers-toast) for success/errors; list refreshes via the BOUND useApiSWR `mutate`. api/endpoints.ts added
+#     userApi.customersAnnotation + userApi.customersManual.
+#   NOTE: annotation writes REQUIRE a single brand (company_id); the "all brands" view disables the notes editor + Add
+#     dialog submit with a hint (mirrors CustomerWalletPanel).
+#
+# VERIFY: backend tsc 0 errors, frontend tsc 0 errors. iter_190 (P0) backend+frontend 100%: service product create+publish
+#   in one click, url-delivery regression intact, labeled "Talk to a human" + escalation 200. iter_191 (CRM) backend+frontend
+#   100%: manual add → prospect w/ badge, notes+tags persist across reopen (read overlay), list tag chips, email validation.
+#   All QA rows cleaned up (tbl_customer_annotation qa_crm_% deleted; throwaway products 18/19 soft-deleted; QA support
+#   sessions purged). Test account onarrival21@gmail.com/Katiekendra123@ (company 1) — no new creds, no 2FA challenge.
+# REMAINING PART B BACKLOG (P2/P3, NOT started): Tier 3 per-customer actions (resend receipt / refund / email); Tier 4
+#   unified customer timeline. Part A backlog: Tier 3 "cover the processing fee" donate toggle; Tier 4 recurring giving.
+# ============================================================================================
+
+
 # === 2026-06 (fork) DONE — DEPLOY BLOCKER FIXED: strict `tsc` build failed on the sharp-0.35 type error ===
 # SYMPTOM: DigitalOcean droplet deploy (GitHub Actions .github/workflows/deploy-droplet.yml, repo databasedyno/DynoRedesign,
 #   branch Improvement) failed at Docker "Build and push image": `process "/bin/sh -c yarn build" ... exit code: 2`.
