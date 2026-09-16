@@ -1,3 +1,101 @@
+# === 2026-06 (fork) SESSION PAUSED BY USER — EMAIL REDESIGN PHASES 2+3 + REFERRAL i18n: SCOPED & PLANNED, NO CODE WRITTEN (RESUME HERE) ===
+# User instruction this session: "continue" the email-redesign rollout — Phase 2 (Security & Account) + Phase 3
+#   (Admin & Ops) + make referral emails multilingual. Then user paused: "document the task end to end and end the
+#   session." NOTHING WAS CODED THIS SESSION — this block is pure context-gathering + a precise, verified execution plan.
+#   The previous "MONEY WAVE" block (further down) is DONE & verified (141/141 renders, tsc 0). Env was already
+#   bootstrapped on fork open (vault decrypted, all services RUNNING). Vault/admin passphrase: Katiekendra123@.
+#
+# ── USER DECISIONS CONFIRMED THIS SESSION (ask_human) ──
+#   1. Admin-internal emails (adminNotificationEmails, adminOpsEmails) → YES, full 6-language i18n too (no English-only).
+#   2. Execution approach → BATCH all of Phase 2 + Phase 3 + referral i18n, THEN one combined verify + testing pass.
+#   3. Prioritise referral i18n first if time-constrained (smallest contained win).
+#   4. Matrix B/C thresholds → user was NON-COMMITTAL ("your preference / your value"). AGENT-CHOSEN DEFAULTS to use
+#      (flag to user, easy to change): low-credit threshold = remaining referral credit < $10; dedup = Redis guard,
+#      once per merchant per 30 days, SEPARATE guard key per alert type (low vs exhausted). Confirm with user before ship.
+#
+# ── VERIFIED SCOPE (grep + import audit; this corrects earlier assumptions) ──
+#   HARDCODED ENGLISH — need i18n FROM SCRATCH (import may exist but ZERO real t()/tr() calls in bodies):
+#     • services/email/referralEmails.ts — 8 senders, ALL `void lang;` (sendReferralPayoutReadyEmail,
+#       sendReferralAutoPayEnabledEmail, sendReferralPayoutRequestedEmail, sendReferralPayoutFailedEmail,
+#       sendReferralAccrualEmail, sendReferralActivatedEmail, sendReferralMonthlyDigestEmail, sendReferralShareNudgeEmail).
+#       Only imports firstNameOnly — must add `t`. NOTE existing `referral` namespace in emails.json only has
+#       whyTitle/why1..why4/codeLabel/unsubscribe/reminder/invite (used by linkCampaignEmails, NOT these senders) —
+#       add a NEW sub-namespace e.g. referral.emails.* for the 8 senders. (Task 3 — do FIRST.)
+#     • services/email/walletSecurityEmails.ts — 2 senders (sendWalletChangeAlertEmail, sendWalletSecuredEmail),
+#       `_lang` ignored, no `t` import. (Phase 2.)
+#     • services/email/adminNotificationEmails.ts — 6 senders (sendNewUserAdminNotification, sendOnboardingStuckAdminEmail,
+#       sendOnboardingCompletedAdminEmail, sendFirstPaymentAdminEmail, sendBrandDeletedAdminEmail,
+#       sendAccountDeletedAdminEmail). Imports t/normalizeLang/resolveEmailLang but NEVER calls them → all hardcoded EN. (Phase 3.)
+#     • services/email/adminOpsEmails.ts — 6 senders (sendWebhookDisabledEmail, sendWebhookRedirectEmail,
+#       sendAdminFeeReceivedEmail, sendAdminFeeSweepEmail, sendTreasuryLowAlertEmail, sendConversionFailedAdminEmail).
+#       2 senders compute `const L = await resolveEmailLang(...)` but DON'T use L for copy → still hardcoded EN. (Phase 3.)
+#   ALREADY i18n'd — friendly-voice + crisp polish ONLY (crisp layout is already inherited from emailTemplate.ts):
+#     • orderEmails.ts (tr×22, uses orderReceipt.*/orderTable.* keys), securityEmails.ts (t×76), accountEmails.ts (t×84),
+#       walletEmails.ts (t×48), kycEmails.ts (t×40), otpEmails.ts, activationEmails.ts, activationGateEmail.ts,
+#       billingReportEmails.ts (t×75), companyEmails.ts (t×71), customerReceiptEmail.ts (t×35), linkCampaignEmails.ts (t×67),
+#       tipGoalEmails.ts. For these, do NOT re-translate everything — only warm up formal HEADINGS/INTROS (like the
+#       Money Wave did) and add amountHero() where an email is money-focal (wallet balance, withdrawals, billing totals,
+#       payout digests). Every string touched must be updated across ALL 6 langs.
+#   OUT OF SCOPE: services/email/buyAgainLink.ts is a URL-builder helper (returns a link), NOT an email sender — no copy,
+#     leave it alone. Don't be fooled by its 0 t() count.
+#
+# ── CONCRETE i18n BUG TO FIX (real gap, not cosmetic) ──
+#   Key parity: en/emails.json = 1059 leaf keys; de/es/fr/nl/pt = 1046 EACH → 13 keys exist ONLY in English, so these
+#   emails silently fall back to English for non-EN merchants. THE 13 MISSING KEYS (add translations to all 5 non-en files):
+#     receipt.contributionNote
+#     security.twoFaReset.{subject,preheader,heading,intro,consequences,cta,ignore}   (7 — 2FA reset LINK email)
+#     security.twoFaResetDone.{subject,preheader,heading,intro,freeze}                (5 — 2FA reset DONE email)
+#   Re-run the parity check after: `node -e "const en=require('./locales/en/emails.json'),de=require('./locales/de/emails.json');
+#   const f=(o,p='')=>Object.entries(o).flatMap(([k,v])=>v&&typeof v=='object'?f(v,p+k+'.'):[p+k]);
+#   console.log(f(en).filter(k=>!new Set(f(de)).has(k)))"` for each of de/es/fr/nl/pt → expect [].
+#
+# ── MATRIX B/C (NEW referral-credit senders — was BLOCKED on the product decision above) ──
+#   Trigger: services/referralCreditService.ts — after consumeReferralCreditForTransaction(), read
+#   getAvailableCreditForFees(); if it crossed < $10 → sendReferralCreditLowEmail; if it hit $0 → sendReferralCreditExhaustedEmail.
+#   Add both senders to referralEmails.ts (+ referral.emails.creditLow / creditExhausted i18n ×6). Dedup via a Redis
+#   guard (SET key `refcredit:low:<companyId>` / `refcredit:exhausted:<companyId>` NX EX 2592000). Register both in the
+#   audit harness (scripts/audit_render_all_emails.ts, "referral programme" section) so they render. Read
+#   referralCreditService.ts BEFORE wiring — it's on the payment settlement path, keep the send fire-and-forget + wrapped.
+#
+# ── HOW TO BUILD (mirror the Money Wave that's already shipped) ──
+#   • Layout engine (DONE, shared): utils/emailTemplate.ts — components already crisp + dark-mode + amountHero(amount,{pill,
+#     pillType,sublabel}), statusBadge (pill), feeTable/feeRow/feeTotalRow (money-card), infoBox/dataRow/p/mono/warnText/
+#     alertBox/successBox/statCard. baseEmailTemplate(heading, body, {lang, hero, audience:'merchant'|'buyer'|'admin', ...}).
+#   • i18n engine (DONE): utils/emailI18n.ts — t(key, lang, vars) with {{var}} interp + EN fallback; resolveEmailLang(lang,
+#     email) resolves a merchant's stored language by email; resolveCustomerLanguage(...) for buyers; formatEmailDateTime/
+#     formatEmailDate/emailDateParts. Catalogs: backend/locales/{en,de,es,fr,nl,pt}/emails.json (pt = pt-PT).
+#   • Reference implementation to copy the pattern from: services/email/paymentSettled.ts (money path) and the Money-Wave
+#     senders in paymentEmails.ts / conversionEmails.ts / payoutEmails.ts (all use amountHero + t()).
+#   • Wrapper helpers: services/email/emailShared.ts — dynoPayEmailTemplate(heading, content, showButton, btnText, btnLink,
+#     preheader, lang, hero, audience), dynoPayGreetingTemplate(...), greetingLine(lang, name), escapeHtml, brandSubject.
+#   • WORKFLOW per hardcoded file: (1) add EN keys to locales/en/emails.json under a clear namespace; (2) translate to the
+#     other 5 langs (a small python helper like the prior scripts/_apply_money_i18n.py pattern, or inline); (3) rewire the
+#     sender body to `const L = await resolveEmailLang(lang, email)` (or resolveCustomerLanguage for buyer emails) + t("ns.key", L,
+#     {vars}); (4) pass `lang: L` to the template wrapper so chrome/footer localise too.
+#
+# ── VERIFY LOOP (backend-only; no real emails sent) ──
+#   cd /app/backend && node_modules/.bin/ts-node --transpile-only scripts/audit_render_all_emails.ts   # renders ~141 → EMAIL_DUMP_DIR
+#   cd /app/backend && node_modules/.bin/tsc --noEmit                                                    # MUST be 0 errors (strict deploy gate)
+#   Then run the key-parity check (above) for all 5 non-en langs. THEN call testing_agent (backend only) to sanity-render +
+#   spot-check a few languages. The harness invokes every sender with mock data incl. `de` variants — add invocations for
+#   any NEW senders (Matrix B/C) and for referral senders in a non-en lang to prove i18n.
+#
+# ── RECOMMENDED ORDER (batch, then one verify pass) ──
+#   1. referralEmails.ts → full i18n (8 senders) + Matrix B/C (2 new senders + trigger in referralCreditService.ts).
+#   2. walletSecurityEmails.ts → i18n (2 senders).  [Phase 2]
+#   3. Fill the 13 missing security.twoFaReset*/receipt.contributionNote keys in de/es/fr/nl/pt.  [Phase 2 i18n bug]
+#   4. adminNotificationEmails.ts (6) + adminOpsEmails.ts (6) → i18n.  [Phase 3]
+#   5. Friendly-voice/amountHero polish on already-i18n'd security/account/ops emails (headings/intros only, ×6 langs).
+#   6. Verify loop (renders + tsc + parity) → testing_agent (backend) → finish + update this PRD.
+#
+# FILES OF REFERENCE: utils/emailTemplate.ts, utils/emailI18n.ts, services/email/emailShared.ts, services/email/paymentSettled.ts,
+#   services/email/{referralEmails,walletSecurityEmails,adminNotificationEmails,adminOpsEmails,orderEmails,securityEmails}.ts,
+#   services/referralCreditService.ts, scripts/audit_render_all_emails.ts, backend/locales/*/emails.json,
+#   memory/email_previews_v5/NOTIFICATION_MATRIX.md.  TEST CREDS: memory/test_credentials.md (merchant onarrival21@gmail.com,
+#   super-admin moxxcompany@gmail.com, all pw Katiekendra123@).  COMMIT: user must click "Save to GitHub" (no local push from pod).
+# ============================================================================================
+
+
 # === 2026-09 (fork) IN PROGRESS — EMAIL REDESIGN ROLLOUT: MONEY WAVE SHIPPED & VERIFIED (RESUME 1 from the block below) ===
 # User re-confirmed the plan (ask_human) and approved: EVOLVE the look (keep dark chip header/footer + indigo, make
 # it crisper), FRIENDLY-PROFESSIONAL voice, apply to ALL ~110 senders, FULL 6-language i18n with NO gaps, waves =
