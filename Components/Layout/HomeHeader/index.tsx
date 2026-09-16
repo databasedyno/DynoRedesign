@@ -1,9 +1,11 @@
 // Coinbase-style marketing header (2026-08-02):
-//   • Desktop: logo + mega-menu dropdowns (Products / Developers / Resources /
-//     Company). Products includes a highlighted "featured" promo tile.
-//   • Right side: search (⌘K command menu), "All systems normal" pill, globe
-//     language menu, theme toggle, Sign in, Get started.
-//   • Mobile / tablet (<1025px): full-height drawer with an accordion of the
+//   • Desktop: logo + mega-menu dropdowns (Products / Solutions / Developers /
+//     Resources) + plain Pricing link — five items, Stripe parity. Company lives
+//     in the footer, mobile menu and ⌘K. Products includes a "featured" promo tile.
+//   • Right side: search icon (⌘K command menu), globe language menu, theme
+//     toggle, Sign in, Get started. Everything is sized to fit the 1280 cap in
+//     all six languages (ES is the widest) — see styled.tsx NavLinks tiers.
+//   • Mobile / tablet (<=1100px): full-height drawer with an accordion of the
 //     same sections, auth CTAs, language + theme, trust row.
 // Menu items are real <Link> anchors (reliable + a11y/SEO). Preserves the
 // hardened hamburger tap (onPointerUp + de-dupe) and body-only scroll-lock.
@@ -60,7 +62,6 @@ import {
   NavLinks,
   RightGroup,
   SearchButton,
-  StatusPillWrap,
   StyledGetStartedButton,
   StyledSignInButton,
   TrustPill,
@@ -271,13 +272,33 @@ const HomeHeader = memo(function HomeHeader() {
 
           {!minimalChrome && (
           <NavLinks>
-            {MENU_SECTIONS.map((section) => {
+            {MENU_SECTIONS.filter((s) => !s.desktopHidden).map((section) => {
+              if (section.href) {
+                const href = section.href;
+                return (
+                  <MegaTrigger key={section.key}>
+                    <MegaTriggerButton
+                      disableRipple
+                      href={href}
+                      data-testid={`nav-${section.key}`}
+                      onClick={(e: ReactMouseEvent<HTMLElement>) => {
+                        e.preventDefault();
+                        handleItemClick(e, href);
+                        void router.push(href);
+                      }}
+                    >
+                      {t(section.labelKey)}
+                    </MegaTriggerButton>
+                  </MegaTrigger>
+                );
+              }
               const open = openMenu === section.key;
               const featured = section.featured;
               const FeaturedIcon = featured?.Icon;
               return (
                 <MegaTrigger
                   key={section.key}
+                  data-nav-optional={section.optional ? "true" : undefined}
                   onMouseEnter={() => openNow(section.key)}
                   onMouseLeave={scheduleClose}
                 >
@@ -398,13 +419,6 @@ const HomeHeader = memo(function HomeHeader() {
         <RightGroup>
           <Actions>
             {!minimalChrome && (
-            <StatusPillWrap aria-label={t("v3.header.ariaSystemStatus")}>
-              <span className="dot" />
-              <span className="status-label">{t("v3.header.systemsNormal")}</span>
-            </StatusPillWrap>
-            )}
-
-            {!minimalChrome && (
             <SearchButton
               disableRipple
               aria-label={t("search.button")}
@@ -412,7 +426,6 @@ const HomeHeader = memo(function HomeHeader() {
               onClick={() => setSearchOpen(true)}
             >
               <SearchRoundedIcon />
-              <span className="kbd">⌘K</span>
             </SearchButton>
             )}
 
@@ -515,6 +528,23 @@ const HomeHeader = memo(function HomeHeader() {
         <MobileDrawer>
           <MobileNavContent>
             {!minimalChrome && MENU_SECTIONS.map((section) => {
+              if (section.href) {
+                const href = section.href;
+                return (
+                  <MobileSection key={section.key}>
+                    <MobileSectionButton
+                      type="button"
+                      data-testid={`mnav-${section.key}`}
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        void router.push(href);
+                      }}
+                    >
+                      {t(section.labelKey)}
+                    </MobileSectionButton>
+                  </MobileSection>
+                );
+              }
               const open = openMobileSection === section.key;
               return (
                 <MobileSection key={section.key}>

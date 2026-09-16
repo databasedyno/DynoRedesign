@@ -74,16 +74,18 @@ const HomeFooter: FC = () => {
   const trustText = dark ? "rgba(255,255,255,0.78)" : "#3F3F46";
   const divider = dark ? "rgba(255,255,255,0.08)" : "rgba(10,10,10,0.07)";
 
-  // Column model — keeps existing i18n keys + the SEO industry pages.
+  // Column model (§2.3-14: Products · Solutions · Developers · Company · Legal). Every href is a real public route.
   const columns: readonly FooterColumn[] = useMemo(
     () => [
       {
-        heading: t("footerNav.product"),
+        heading: t("v6.footer.products"),
         links: [
-          { label: t("features"), link: "/#products" },
+          { label: t("v6.footer.links"), link: "/#products" },
+          { label: t("v6.footer.checkout"), link: "/pay/demo" },
+          { label: t("v6.footer.storefront"), link: "/for/creators" },
+          { label: t("v6.footer.donations"), link: "/pay/donation-demo" },
+          { label: t("v6.footer.invoices"), link: "/#products" },
           { label: t("headerFees"), link: "/fees" },
-          { label: t("documentation"), link: "/documentation" },
-          { label: t("footerApiStatus"), link: "/system-status" },
         ],
       },
       {
@@ -91,25 +93,43 @@ const HomeFooter: FC = () => {
         links: [
           { label: t("footerNav.verticals.ecommerce"), link: "/for/ecommerce" },
           { label: t("footerNav.verticals.saas"), link: "/for/saas" },
-          { label: t("footerNav.verticals.gaming"), link: "/for/gaming" },
           { label: t("footerNav.verticals.freelancers"), link: "/for/freelancers" },
-          { label: t("footerNav.verticals.remittance"), link: "/for/remittance" },
           { label: t("footerNav.verticals.digitalDownloads"), link: "/for/digital-downloads" },
-          { label: t("footerNav.verticals.hosting"), link: "/for/hosting" },
-          { label: t("footerNav.verticals.vpn"), link: "/for/vpn" },
           { label: t("footerNav.verticals.marketplaces"), link: "/for/marketplaces" },
-          { label: t("footerNav.verticals.agencies"), link: "/for/agencies" },
           { label: t("footerNav.verticals.nonprofits"), link: "/for/nonprofits" },
+          { label: t("footerNav.verticals.gaming"), link: "/for/gaming" },
+          { label: t("footerNav.verticals.hosting"), link: "/for/hosting" },
+          { label: t("footerNav.verticals.agencies"), link: "/for/agencies" },
+        ],
+      },
+      {
+        heading: t("v6.footer.developers"),
+        links: [
+          { label: t("documentation"), link: "/documentation" },
+          { label: t("v6.footer.api"), link: "/documentation#authentication" },
+          { label: t("v6.footer.webhooks"), link: "/documentation#webhooks" },
+          { label: t("v6.footer.embeds"), link: "/documentation#buy-button" },
+          { label: t("footerApiStatus"), link: "/system-status" },
         ],
       },
       {
         heading: t("footerNav.company"),
         links: [
+          { label: t("v6.footer.about"), link: "/about" },
           { label: t("blog"), link: "/blog" },
+          { label: t("v6.footer.press"), link: "/press" },
+          { label: t("v6.footer.howto"), link: "/how-to" },
           { label: t("referralProgram"), link: "/referral-program" },
           { label: t("footerSupport"), link: "/help-support" },
+        ],
+      },
+      {
+        heading: t("v6.footer.legal"),
+        links: [
           { label: t("footerTerms"), link: "/terms-conditions" },
           { label: t("footerPrivacy"), link: "/privacy-policy" },
+          { label: t("v6.footer.aml"), link: "/aml-policy" },
+          { label: t("v6.footer.walletSecurity"), link: "/wallet-security" },
         ],
       },
     ],
@@ -143,13 +163,13 @@ const HomeFooter: FC = () => {
         <Box
           sx={{
             display: "grid",
-            gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", md: "1.7fr 1fr 1fr 1fr" },
-            gap: { xs: 5, md: 6 },
+            gridTemplateColumns: { xs: "1fr 1fr", md: "1.6fr repeat(5, 1fr)" },
+            gap: { xs: 4, md: 4 },
             pb: { xs: 6, md: 8 },
           }}
         >
           {/* Brand */}
-          <Box sx={{ maxWidth: 340 }}>
+          <Box sx={{ maxWidth: 340, gridColumn: { xs: "1 / -1", md: "auto" } }}>
             <LogoWrapper onClick={() => router.push("/")}>
               <Image src={logoSrc} alt={t("footerNav.logoAlt")} width={128} height={43} priority />
             </LogoWrapper>
@@ -186,7 +206,7 @@ const HomeFooter: FC = () => {
               </Typography>
               <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
                 {col.links.map((l) => (
-                  <Box key={l.link} component={Link} href={l.link} sx={linkSx}>
+                  <Box key={`${l.label}-${l.link}`} component={Link} href={l.link} sx={linkSx}>
                     {l.label}
                   </Box>
                 ))}

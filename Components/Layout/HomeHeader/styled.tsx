@@ -22,6 +22,9 @@ const VIOLET = "#7C5CFF";
 const VOLT = "#22C55E";
 const AURORA_GRADIENT =
   `linear-gradient(90deg, ${BRAND_ACCENT} 0%, #7C5CFF 55%, #4FD1FF 100%)`;
+// Below this the desktop nav + inline auth CTAs give way to the hamburger drawer.
+// 1100 (not 1024): five nav items + actions cannot fit the 1026–1100 band in ES/NL/FR.
+const HAMBURGER_BP = "@media (max-width: 1100px)";
 
 /* ================= HEADER SHELL ================= */
 
@@ -77,7 +80,7 @@ export const FixedHeader = styled("header")(({ theme }) => {
     // backdrop-filter on mobile entirely — so below the hamburger breakpoint we
     // DROP the blur and use a near-solid background. Visually clean, and the
     // menu now opens/closes instantly.
-    "@media (max-width: 1025px)": {
+    [HAMBURGER_BP]: {
       backdropFilter: "none",
       WebkitBackdropFilter: "none",
       backgroundColor: dark ? "rgba(11,11,15,0.96)" : "rgba(250,250,247,0.98)",
@@ -153,27 +156,49 @@ export const ClickableLogo = styled(Button)({
 export const LeftGroup = styled(Box)({
   display: "flex",
   alignItems: "center",
-  gap: "72px",
-  // Reclaim horizontal space on laptops (1025–1360) so the desktop nav row
+  gap: "40px",
+  minWidth: 0,
+  // Reclaim horizontal space on laptops (1100–1440) so the desktop nav row
   // + right-side actions never overflow the 1280 content cap.
-  "@media (max-width: 1360px)": {
-    gap: "36px",
-  },
+  "@media (max-width: 1440px)": { gap: "32px" },
+  "@media (max-width: 1360px)": { gap: "24px" },
+  "@media (max-width: 1220px)": { gap: "18px" },
+  "@media (max-width: 1150px)": { gap: "12px" },
 });
 
 export const RightGroup = styled(Box)({
   display: "flex",
   alignItems: "center",
   gap: "10px",
+  flexShrink: 0,
 });
 
 export const NavLinks = styled("nav")(({ theme }) => ({
   display: "flex",
-  gap: 28,
+  gap: 18,
   fontFamily: "var(--font-body)",
   alignItems: "center",
 
-  "@media (max-width: 1025px)": {
+  // Five top-level items (Products · Solutions · Developers · Resources · Pricing — Stripe parity;
+  // Company lives in the footer, mobile menu and ⌘K) must fit beside the utility actions inside
+  // the 1280 cap in all six languages (ES "Desarrolladores · Iniciar sesión · Empieza gratis" is the
+  // widest). Tiered collapse: ≤1440 tighter gaps · ≤1360 smaller type · ≤1220 Resources hides.
+  "@media (max-width: 1440px)": {
+    gap: 14,
+  },
+  "@media (max-width: 1360px)": {
+    gap: 8,
+    "& button": { fontSize: "14px", padding: "8px 4px" },
+  },
+  "@media (max-width: 1220px)": {
+    '& [data-nav-optional="true"]': { display: "none" },
+  },
+  "@media (max-width: 1150px)": {
+    gap: 4,
+    "& button": { padding: "8px 2px" },
+  },
+
+  [HAMBURGER_BP]: {
     display: "none",
   },
 
@@ -278,7 +303,7 @@ export const MobileMenuButton = styled(IconButton)(({ theme }) => {
       },
     },
 
-    "@media (max-width: 1025px)": {
+    [HAMBURGER_BP]: {
       display: "inline-flex",
     },
   };
@@ -321,7 +346,7 @@ export const MobilePanelBackdrop = styled("div")({
     opacity: 1,
     pointerEvents: "auto",
   },
-  "@media (max-width: 1025px)": {
+  [HAMBURGER_BP]: {
     display: "block",
   },
   "@media (prefers-reduced-motion: reduce)": {
@@ -351,7 +376,7 @@ export const MobilePanel = styled("div")({
     transform: "translate3d(0, 0, 0)",
     transition: "transform 200ms cubic-bezier(0.16, 1, 0.3, 1)",
   },
-  "@media (max-width: 1025px)": {
+  [HAMBURGER_BP]: {
     display: "block",
   },
   "@media (prefers-reduced-motion: reduce)": {
@@ -389,7 +414,7 @@ export const MobileMenuDrawer = styled(Drawer)(() => ({
     willChange: "opacity",
   },
 
-  "@media (max-width: 1025px)": {
+  [HAMBURGER_BP]: {
     display: "block",
   },
 }));
@@ -492,10 +517,10 @@ export const StyledSignInButton = styled(Button)(({ theme }) => ({
   borderRadius: 999,
   minWidth: 0,
 
-  // Hide the inline auth CTAs once the hamburger appears (<1025px). They live
+  // Hide the inline auth CTAs once the hamburger appears (<=1100px). They live
   // inside the mobile drawer instead, so the header never gets crowded and the
   // menu icon is never pushed off the right edge (iPhone 14 Pro Max report).
-  "@media (max-width: 1025px)": {
+  [HAMBURGER_BP]: {
     display: "none",
   },
 
@@ -513,9 +538,9 @@ export const StyledGetStartedButton = styled(Box)({
   // Never let the flex row compress this pill — long translated CTAs
   // (FR "Commencer gratuitement", DE "Kostenlos starten") must not clip (QA #10).
   flexShrink: 0,
-  // Hidden on mobile alongside the sign-in link (<1025px) — the primary CTA is
+  // Hidden on mobile alongside the sign-in link (<=1100px) — the primary CTA is
   // surfaced inside the drawer, keeping room for the hamburger on phones.
-  "@media (max-width: 1025px)": {
+  [HAMBURGER_BP]: {
     display: "none",
   },
   // `&&` doubles the wrapper class to reliably outrank MUI's own
@@ -543,47 +568,7 @@ export const StyledGetStartedButton = styled(Box)({
   },
 });
 
-/* ================= STATUS PILL ================= */
-
-export const StatusPillWrap = styled(Box)(({ theme }) => ({
-  display: "inline-flex",
-  alignItems: "center",
-  gap: 7,
-  padding: "6px 12px",
-  border: `1px solid ${
-    theme.palette.mode === "dark" ? "rgba(255,255,255,0.10)" : "rgba(10,10,10,0.08)"
-  }`,
-  background: theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(10,10,10,0.02)",
-  borderRadius: 999,
-  fontFamily: "var(--font-body)",
-  fontSize: 12.5,
-  fontWeight: 500,
-  letterSpacing: "-0.005em",
-  color: theme.palette.mode === "dark" ? "rgba(255,255,255,0.72)" : "#52525B",
-  whiteSpace: "nowrap",
-  cursor: "default",
-
-  "@keyframes dynoStatusPulse": {
-    "0%": { boxShadow: "0 0 0 0 rgba(34,197,94,0.5)" },
-    "70%": { boxShadow: "0 0 0 5px rgba(34,197,94,0)" },
-    "100%": { boxShadow: "0 0 0 0 rgba(34,197,94,0)" },
-  },
-  "& .dot": {
-    width: 7,
-    height: 7,
-    borderRadius: 999,
-    background: VOLT,
-    display: "inline-block",
-    animation: "dynoStatusPulse 2.4s ease-out infinite",
-  },
-
-  // Hidden below 1360px so the desktop nav + right-side actions never overflow
-  // the 1280 content cap on laptops (1025–1360). The status label is
-  // decorative; the utility actions and the primary CTA take priority.
-  "@media (max-width: 1360px)": {
-    display: "none",
-  },
-}));
+/* ================= ACTION DIVIDER ================= */
 
 // Thin vertical rule to group the utility actions (status/lang/theme) apart
 // from the auth actions (sign in / get started) — adds structure to the bar.
@@ -756,6 +741,14 @@ export const LangGlobeButton = styled(IconButton)(({ theme }) => {
       borderColor: CORAL,
       color: dark ? "#fff" : "#0A0A0A",
       background: dark ? "rgba(255,255,255,0.06)" : "rgba(79,70,229,0.05)",
+    },
+    // Header instance only: globe-only (code in aria-label/tooltip) so the five-item nav
+    // + actions fit the 1280 cap in every language.
+    "&[data-compact='true']": {
+      padding: 0,
+      width: 40,
+      minWidth: 40,
+      "& .lang-code, & .lang-chev": { display: "none" },
     },
   };
 });
@@ -933,35 +926,24 @@ export const SearchButton = styled(IconButton)(({ theme }) => {
   const dark = theme.palette.mode === "dark";
   return {
     height: 40,
+    width: 40,
     minWidth: 40,
-    padding: "0 12px",
+    padding: 0,
     borderRadius: 999,
     display: "inline-flex",
     alignItems: "center",
-    gap: 8,
+    justifyContent: "center",
     color: dark ? "rgba(255,255,255,0.72)" : "#52525B",
     border: `1px solid ${dark ? "rgba(255,255,255,0.10)" : "rgba(10,10,10,0.10)"}`,
     background: dark ? "rgba(255,255,255,0.03)" : "rgba(10,10,10,0.02)",
     transition: "all 180ms ease",
     touchAction: "manipulation",
     "& svg": { fontSize: 19 },
-    "& .kbd": {
-      fontFamily: "var(--font-tech), var(--font-body)",
-      fontSize: 11,
-      fontWeight: 600,
-      padding: "2px 6px",
-      borderRadius: 6,
-      lineHeight: 1.4,
-      color: dark ? "rgba(255,255,255,0.6)" : "#71717A",
-      border: `1px solid ${dark ? "rgba(255,255,255,0.14)" : "rgba(10,10,10,0.12)"}`,
-      background: dark ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.7)",
-    },
     "&:hover": {
       borderColor: CORAL,
       color: dark ? "#fff" : "#0A0A0A",
       background: dark ? "rgba(255,255,255,0.06)" : "rgba(79,70,229,0.05)",
     },
-    [theme.breakpoints.down("sm")]: { padding: 0, width: 40, "& .kbd": { display: "none" } },
   };
 });
 
@@ -983,7 +965,7 @@ export const CmdCard = styled(Box)(({ theme }) => {
     WebkitBackdropFilter: "blur(16px)",
     // Drop the blur on mobile — same iOS Safari compositor stall as the header
     // (the card's background is already near-opaque, so no visual change).
-    "@media (max-width: 1025px)": {
+    [HAMBURGER_BP]: {
       backdropFilter: "none",
       WebkitBackdropFilter: "none",
     },

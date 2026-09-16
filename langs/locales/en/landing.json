@@ -561,7 +561,8 @@
       "faq": "FAQ",
       "products": "Products",
       "pricing": "Pricing",
-      "security": "Security"
+      "security": "Security",
+      "global": "Global"
     },
     "more": {
       "eyebrow": "[ More about Dynopay ]",
@@ -1622,5 +1623,180 @@
     "emptyTitle": "Nothing saved yet",
     "emptyBody": "After you pay a merchant with Dynopay, tap “Save for next time” on the receipt screen and they'll show up here.",
     "browse": "Back to home"
+  },
+  "v6": {
+    "hero": {
+      "h1a": "Get paid in crypto.",
+      "h1b": "Keep it, or settle in stablecoins.",
+      "primary": "Start now",
+      "google": "Sign up with Google",
+      "sandboxTag": "Live sandbox · real prices",
+      "liveLabel": "Settled through Dynopay — live"
+    },
+    "vig": {
+      "paid": "Paid",
+      "settledAs": "settled as",
+      "yourWallet": "your wallet",
+      "more": "+{{n}} more",
+      "oneTime": "one-time link",
+      "pay": "Pay",
+      "chooseCoin": "Choose a coin",
+      "sendExactly": "Send exactly",
+      "settlesIn": "Settles in USDC",
+      "detected": "Detected",
+      "confirming": "Confirming",
+      "paidStep": "Paid",
+      "addToCart": "Add to cart",
+      "cart": "Cart",
+      "live": "Live",
+      "support": "Support {{name}}",
+      "monthlyGoal": "{{pct}}% of monthly goal",
+      "tip": "Tip",
+      "donors": "{{n}} supporters",
+      "invoice": "Invoice",
+      "due": "Due",
+      "total": "Total",
+      "paidIn": "Paid in {{coin}}",
+      "receipt": "Receipt PDF",
+      "taxIncl": "VAT included",
+      "buyNow": "Buy now",
+      "oneLine": "One line of HTML",
+      "request": "Request",
+      "response": "Response",
+      "webhook": "Webhook · payment.settled"
+    },
+    "story": {
+      "eyebrow": "How it works",
+      "headline": "Buyer pays in Bitcoin. You receive USDC. In your own wallet.",
+      "body": "One path for every payment: the buyer sends any supported coin, the network confirms, and settlement lands at an address you control — as the coin itself, or auto-converted to a stablecoin.",
+      "buyerPays": "Buyer pays",
+      "yourWallet": "Your wallet",
+      "autoConvert": "Auto-convert",
+      "on": "on",
+      "keepCoin": "or keep the coin — your choice",
+      "confirmed": "Confirmed",
+      "detected": "Detected",
+      "settled": "settled",
+      "nonCustodial": "Non-custodial — we never hold your funds.",
+      "anyWallet": "From any wallet, in any supported coin."
+    },
+    "numbers": {
+      "eyebrow": "By the numbers",
+      "headline": "Live figures, not marketing.",
+      "body": "Every number below is read from production when this page is served — no rounding up, no placeholders.",
+      "chartTitle": "Settled payments by chain",
+      "chartSub": "Last 30 days · share of payments",
+      "chartNote": "Counts by settlement chain, anonymised. Stablecoins on Tron and Ethereum are grouped with their chain.",
+      "live": "Live",
+      "other": "Other",
+      "checks": "{{n}} checks",
+      "settleMeta": "Solana · XRP · Tron · Polygon · Ethereum",
+      "countriesMeta": "Merchants, by signup country"
+    },
+    "proof": {
+      "langsT": "Checkout in six languages",
+      "langsD": "Every buyer sees the pay sheet in their own language — English, German, Spanish, French, Portuguese and Dutch.",
+      "langsCta": "Open the live demo"
+    },
+    "global": {
+      "noList": "No country list to apply to",
+      "noBank": "No bank approval to wait for",
+      "anyWallet": "Any wallet, anywhere"
+    },
+    "dev": {
+      "headline": "Three ways in. Pick your depth.",
+      "body": "Start with no code today and go deeper whenever you need to — same account, same payments, same wallet.",
+      "nocode": {
+        "eyebrow": "No code",
+        "t": "Links & dashboard",
+        "d": "Create payment links, invoices, a storefront or a donation page from the dashboard. Nothing to install.",
+        "cta": "Create your first link"
+      },
+      "prebuilt": {
+        "eyebrow": "Pre-built",
+        "t": "Buy button & embeds",
+        "d": "One line of HTML puts a crypto checkout on any site. Publishable keys keep your secret key off the browser.",
+        "cta": "Get the snippet"
+      },
+      "api": {
+        "eyebrow": "Build your own",
+        "t": "REST API & webhooks",
+        "d": "Create payments from your backend, redirect the buyer, listen for signed webhooks. No SDK lock-in.",
+        "cta": "Read the API docs"
+      }
+    },
+    "pricing": {
+      "teaserNote": "Network fees go to the blockchain and are shown before the buyer pays. The side-by-side comparison with cards and custodial gateways lives on the fees page.",
+      "cta": "See the full fee schedule"
+    },
+    "resources": {
+      "eyebrow": "Resources",
+      "headline": "Guides from the team.",
+      "body": "Integration walkthroughs, cost breakdowns and product notes — published, not promised.",
+      "readMore": "Read",
+      "allPosts": "All posts",
+      "guide": "Guide",
+      "docs": "Docs",
+      "howtoT": "Set up a wallet and take your first payment",
+      "howtoD": "The step-by-step path new merchants follow — wallet, first link, first settlement.",
+      "docsT": "API reference",
+      "docsD": "Every merchant endpoint, request and webhook payload, documented before you sign up.",
+      "prev": "Previous",
+      "next": "Next"
+    },
+    "faq": {
+      "coins": {
+        "q": "Which coins can my buyers pay with?",
+        "a": "Bitcoin, Ethereum, Solana, XRP, Litecoin, Dogecoin, Bitcoin Cash, TRX and POL, plus USDT, USDC and RLUSD on the cheapest rails — Tron, Polygon, Ethereum and the XRP Ledger. You choose which to accept; the checkout only shows coins you have added a wallet for."
+      },
+      "setup": {
+        "q": "How long does setup take?",
+        "a": "About five minutes for a payment link: create an account, add a payout wallet address, share the link. A buy button is one line of HTML. A full API integration is one request plus a webhook endpoint — most teams ship it in an afternoon."
+      },
+      "more": "More questions are answered in Help & Support"
+    },
+    "final": {
+      "pricingT": "See pricing",
+      "pricingD": "One percentage that drops as you grow. No monthly fee, no setup fee, no chargebacks.",
+      "buildT": "Start building",
+      "buildD": "One request creates a payment. Sandbox keys, signed webhooks and public docs."
+    },
+    "footer": {
+      "products": "Products",
+      "developers": "Developers",
+      "legal": "Legal",
+      "links": "Payment links",
+      "checkout": "Hosted checkout",
+      "storefront": "Storefront",
+      "donations": "Donations & tips",
+      "invoices": "Invoices",
+      "embeds": "Buy button",
+      "api": "API reference",
+      "webhooks": "Webhooks",
+      "howto": "How-to guide",
+      "aml": "AML policy",
+      "about": "About",
+      "press": "Press",
+      "walletSecurity": "Wallet security"
+    },
+    "nav": {
+      "solutions": "Solutions",
+      "pricing": "Pricing",
+      "donationsDesc": "Campaigns, tip jars and donation pages that settle to your wallet",
+      "invoicesDesc": "Pay-in-crypto invoices with receipts and tax lines",
+      "vert": {
+        "ecommerce": "Crypto checkout for online stores",
+        "saas": "Subscriptions and one-off plans, paid in crypto",
+        "freelancers": "Invoice clients anywhere, get paid in crypto",
+        "digitalDownloads": "Sell files and licence keys with instant delivery",
+        "marketplaces": "Take payments from buyers in any country",
+        "nonprofits": "Accept donations with no card fees or chargebacks"
+      },
+      "creatorsFeatured": {
+        "title": "For creators",
+        "desc": "Tip jars, storefronts and donation pages that settle straight to your wallet.",
+        "cta": "See creator pages"
+      }
+    }
   }
 }

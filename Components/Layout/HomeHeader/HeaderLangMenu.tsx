@@ -139,11 +139,13 @@ function HeaderLangMenu({
         aria-label={t("language.change")}
         data-testid={`${idPrefix}-language-globe`}
         data-current-lang={selected.code}
+        data-compact={hideOnMobile ? "true" : undefined}
         onClick={() => setIsOpen((v) => !v)}
       >
         <LanguageRoundedIcon />
-        {selected.code.toUpperCase()}
+        <span className="lang-code">{selected.code.toUpperCase()}</span>
         <KeyboardArrowDownRoundedIcon
+          className="lang-chev"
           sx={{
             fontSize: 16,
             transition: "transform 220ms ease",

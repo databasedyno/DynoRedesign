@@ -1,5 +1,7 @@
 import HomePage from "@/Components/Page/Home";
+import { fetchLandingMetricsServer, type LandingMetrics } from "@/Components/Page/Home/v5/useLandingMetrics";
 import { Box } from "@mui/material";
+import type { GetServerSideProps } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { memo, useEffect } from "react";
@@ -28,7 +30,11 @@ const hasLiveSession = (): boolean => {
 const { PERSIST_KEY, HEARTBEAT_KEY, GRACE_MS } = AUTH_PERSISTENCE;
 const EARLY_REDIRECT = `(function(){try{if(/[?&]view=landing(?:&|$)/.test(location.search))return;var t=localStorage.getItem('token');if(!t)return;var p=JSON.parse(atob(t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));if(p&&p.exp&&p.exp*1000<Date.now()&&!localStorage.getItem('refreshToken')){localStorage.removeItem('token');return;}if(localStorage.getItem('${PERSIST_KEY}')==='0'){var h=parseInt(localStorage.getItem('${HEARTBEAT_KEY}')||'0',10);if(!h||Date.now()-h>${GRACE_MS})return;}location.replace('/dashboard');}catch(e){}})();`;
 
-const Home = () => {
+interface HomeProps {
+  landingMetrics: LandingMetrics | null;
+}
+
+const Home = ({ landingMetrics }: HomeProps) => {
   const router = useRouter();
 
   // Client-side navigations to "/" (e.g. the in-app logo) — the head script only runs on a full load.
@@ -42,9 +48,17 @@ const Home = () => {
       <Head>
         <script data-testid="home-authed-redirect" dangerouslySetInnerHTML={{ __html: EARLY_REDIRECT }} />
       </Head>
-      <HomePage />
+      <HomePage landingMetrics={landingMetrics} />
     </Box>
   );
 };
+
+/* The live proof numbers (uptime · settle time · payments this month · countries)
+ * are fetched on the server so the REAL values are in the HTML on first paint —
+ * for crawlers, no-JS visitors and before hydration. 60s in-process cache +
+ * 1.5s timeout; null → the strip renders its neutral placeholders. */
+export const getServerSideProps: GetServerSideProps<HomeProps> = async () => ({
+  props: { landingMetrics: await fetchLandingMetricsServer() },
+});
 
 export default memo(Home);

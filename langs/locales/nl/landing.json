@@ -561,7 +561,8 @@
       "faq": "FAQ",
       "products": "Producten",
       "pricing": "Prijzen",
-      "security": "Veiligheid"
+      "security": "Veiligheid",
+      "global": "Wereldwijd"
     },
     "more": {
       "eyebrow": "[ Meer over Dynopay ]",
@@ -1622,5 +1623,180 @@
     "emptyTitle": "Nog niets bewaard",
     "emptyBody": "Nadat je een verkoper met Dynopay hebt betaald, tik je op ‘Bewaren voor de volgende keer’ op het bonscherm en verschijnt die hier.",
     "browse": "Terug naar home"
+  },
+  "v6": {
+    "hero": {
+      "h1a": "Word betaald in crypto.",
+      "h1b": "Houd het, of reken af in stablecoins.",
+      "primary": "Nu starten",
+      "google": "Registreren met Google",
+      "sandboxTag": "Live sandbox · echte koersen",
+      "liveLabel": "Afgerekend via Dynopay — live"
+    },
+    "vig": {
+      "paid": "Betaald",
+      "settledAs": "afgerekend als",
+      "yourWallet": "jouw wallet",
+      "more": "+{{n}} meer",
+      "oneTime": "eenmalige link",
+      "pay": "Betalen",
+      "chooseCoin": "Kies een coin",
+      "sendExactly": "Stuur precies",
+      "settlesIn": "Afrekening in USDC",
+      "detected": "Gedetecteerd",
+      "confirming": "Bevestigen",
+      "paidStep": "Betaald",
+      "addToCart": "In winkelwagen",
+      "cart": "Winkelwagen",
+      "live": "Live",
+      "support": "Steun {{name}}",
+      "monthlyGoal": "{{pct}}% van het maanddoel",
+      "tip": "Fooi",
+      "donors": "{{n}} supporters",
+      "invoice": "Factuur",
+      "due": "Vervalt",
+      "total": "Totaal",
+      "paidIn": "Betaald in {{coin}}",
+      "receipt": "Bon als PDF",
+      "taxIncl": "incl. btw",
+      "buyNow": "Nu kopen",
+      "oneLine": "Eén regel HTML",
+      "request": "Verzoek",
+      "response": "Antwoord",
+      "webhook": "Webhook · payment.settled"
+    },
+    "story": {
+      "eyebrow": "Hoe het werkt",
+      "headline": "De koper betaalt in Bitcoin. Jij ontvangt USDC. In je eigen wallet.",
+      "body": "Eén route voor elke betaling: de koper stuurt een ondersteunde coin, het netwerk bevestigt en de afrekening landt op een adres dat jij beheert — als de coin zelf of automatisch omgezet naar een stablecoin.",
+      "buyerPays": "Koper betaalt",
+      "yourWallet": "Jouw wallet",
+      "autoConvert": "Auto-omzetten",
+      "on": "aan",
+      "keepCoin": "of houd de coin — jij kiest",
+      "confirmed": "Bevestigd",
+      "detected": "Gedetecteerd",
+      "settled": "afgerekend",
+      "nonCustodial": "Non-custodial — wij houden je geld nooit vast.",
+      "anyWallet": "Vanuit elke wallet, in elke ondersteunde coin."
+    },
+    "numbers": {
+      "eyebrow": "In cijfers",
+      "headline": "Live cijfers, geen marketing.",
+      "body": "Elk getal hieronder wordt uit productie gelezen op het moment dat deze pagina wordt geladen — niet naar boven afgerond, geen placeholders.",
+      "chartTitle": "Afgerekende betalingen per chain",
+      "chartSub": "Laatste 30 dagen · aandeel van de betalingen",
+      "chartNote": "Aantallen per afrekenings-chain, geanonimiseerd. Stablecoins op Tron en Ethereum tellen mee bij hun chain.",
+      "live": "Live",
+      "other": "Overig",
+      "checks": "{{n}} controles",
+      "settleMeta": "Solana · XRP · Tron · Polygon · Ethereum",
+      "countriesMeta": "Merchants, naar land van registratie"
+    },
+    "proof": {
+      "langsT": "Checkout in zes talen",
+      "langsD": "Elke koper ziet de betaalpagina in zijn eigen taal — Engels, Duits, Spaans, Frans, Portugees en Nederlands.",
+      "langsCta": "Open de live demo"
+    },
+    "global": {
+      "noList": "Geen landenlijst om je voor aan te melden",
+      "noBank": "Geen bankgoedkeuring om op te wachten",
+      "anyWallet": "Elke wallet, overal"
+    },
+    "dev": {
+      "headline": "Drie manieren om te starten. Kies je diepgang.",
+      "body": "Begin vandaag zonder code en ga dieper wanneer je wilt — hetzelfde account, dezelfde betalingen, dezelfde wallet.",
+      "nocode": {
+        "eyebrow": "Zonder code",
+        "t": "Links & dashboard",
+        "d": "Maak betaallinks, facturen, een winkel of een donatiepagina vanuit het dashboard. Niets te installeren.",
+        "cta": "Maak je eerste link"
+      },
+      "prebuilt": {
+        "eyebrow": "Kant-en-klaar",
+        "t": "Koopknop & embeds",
+        "d": "Eén regel HTML zet een crypto-checkout op elke site. Publiceerbare sleutels houden je geheime sleutel uit de browser.",
+        "cta": "Snippet ophalen"
+      },
+      "api": {
+        "eyebrow": "Zelf bouwen",
+        "t": "REST API & webhooks",
+        "d": "Maak betalingen vanuit je backend, stuur de koper door en luister naar ondertekende webhooks. Geen SDK-lock-in.",
+        "cta": "Lees de API-docs"
+      }
+    },
+    "pricing": {
+      "teaserNote": "Netwerkkosten gaan naar de blockchain en worden getoond voordat de koper betaalt. De vergelijking met kaarten en custodial gateways staat op de tarievenpagina.",
+      "cta": "Bekijk het volledige tarievenoverzicht"
+    },
+    "resources": {
+      "eyebrow": "Bronnen",
+      "headline": "Gidsen van het team.",
+      "body": "Integratiehandleidingen, kostenanalyses en productnotities — gepubliceerd, niet beloofd.",
+      "readMore": "Lezen",
+      "allPosts": "Alle artikelen",
+      "guide": "Gids",
+      "docs": "Docs",
+      "howtoT": "Een wallet instellen en je eerste betaling ontvangen",
+      "howtoD": "De stap-voor-stap-route die nieuwe merchants volgen — wallet, eerste link, eerste afrekening.",
+      "docsT": "API-referentie",
+      "docsD": "Elk merchant-endpoint, elke request en elke webhook-payload, gedocumenteerd voordat je je registreert.",
+      "prev": "Vorige",
+      "next": "Volgende"
+    },
+    "faq": {
+      "coins": {
+        "q": "Met welke coins kunnen mijn kopers betalen?",
+        "a": "Bitcoin, Ethereum, Solana, XRP, Litecoin, Dogecoin, Bitcoin Cash, TRX en POL, plus USDT, USDC en RLUSD op de goedkoopste netwerken — Tron, Polygon, Ethereum en XRP Ledger. Jij kiest welke je accepteert; de checkout toont alleen coins waarvoor je een wallet hebt toegevoegd."
+      },
+      "setup": {
+        "q": "Hoe lang duurt het instellen?",
+        "a": "Ongeveer vijf minuten voor een betaallink: account aanmaken, uitbetaaladres toevoegen, link delen. Een koopknop is één regel HTML. Een volledige API-integratie is één request plus een webhook-endpoint — de meeste teams hebben dat in een middag live."
+      },
+      "more": "Meer vragen beantwoorden we in Help & Support"
+    },
+    "final": {
+      "pricingT": "Bekijk tarieven",
+      "pricingD": "Eén percentage dat daalt naarmate je groeit. Geen maandelijkse kosten, geen setupkosten, geen chargebacks.",
+      "buildT": "Begin met bouwen",
+      "buildD": "Eén request maakt een betaling. Sandbox-sleutels, ondertekende webhooks en openbare docs."
+    },
+    "footer": {
+      "products": "Producten",
+      "developers": "Developers",
+      "legal": "Juridisch",
+      "links": "Betaallinks",
+      "checkout": "Gehoste checkout",
+      "storefront": "Winkelpagina",
+      "donations": "Donaties & fooien",
+      "invoices": "Facturen",
+      "embeds": "Koopknop",
+      "api": "API-referentie",
+      "webhooks": "Webhooks",
+      "howto": "Handleiding",
+      "aml": "AML-beleid",
+      "about": "Over ons",
+      "press": "Pers",
+      "walletSecurity": "Walletbeveiliging"
+    },
+    "nav": {
+      "solutions": "Oplossingen",
+      "pricing": "Tarieven",
+      "donationsDesc": "Campagnes, fooienpotten en donatiepagina's die afrekenen naar je wallet",
+      "invoicesDesc": "Facturen betaalbaar in crypto, met bonnen en btw-regels",
+      "vert": {
+        "ecommerce": "Crypto-checkout voor webshops",
+        "saas": "Abonnementen en eenmalige plannen, betaald in crypto",
+        "freelancers": "Factureer klanten overal en word betaald in crypto",
+        "digitalDownloads": "Verkoop bestanden en licentiesleutels met directe levering",
+        "marketplaces": "Ontvang betalingen van kopers uit elk land",
+        "nonprofits": "Ontvang donaties zonder kaartkosten of chargebacks"
+      },
+      "creatorsFeatured": {
+        "title": "Voor creators",
+        "desc": "Fooienpotten, winkels en donatiepagina's die rechtstreeks naar je wallet afrekenen.",
+        "cta": "Bekijk creatorpagina's"
+      }
+    }
   }
 }

@@ -1,12 +1,12 @@
-// Navigable landing sections (order = page order). `id` is the DOM anchor,
+// Navigable landing sections (order = page order, §2.3 of the v6 proposal). `id` is the DOM anchor,
 // `key` resolves to landing:v3.nav.<key>. Header/footer hash links reuse the ids.
 export const LANDING_SECTIONS = [
-  { id: "how-it-works", key: "howitworks" },
   { id: "products", key: "products" },
+  { id: "how-it-works", key: "howitworks" },
+  { id: "coins", key: "global" },
+  { id: "developers", key: "developers" },
   { id: "pricing", key: "pricing" },
   { id: "security", key: "security" },
-  { id: "developers", key: "developers" },
-  { id: "coins", key: "coins" },
   { id: "faq", key: "faq" },
 ] as const;
 

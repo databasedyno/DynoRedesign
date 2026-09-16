@@ -561,7 +561,8 @@
       "faq": "FAQ",
       "products": "Produits",
       "pricing": "Tarifs",
-      "security": "Sécurité"
+      "security": "Sécurité",
+      "global": "International"
     },
     "more": {
       "eyebrow": "[ En savoir plus sur Dynopay ]",
@@ -1622,5 +1623,180 @@
     "emptyTitle": "Rien d'enregistré pour l'instant",
     "emptyBody": "Après avoir payé un marchand avec Dynopay, touchez « Enregistrer pour la prochaine fois » sur l'écran du reçu : il apparaîtra ici.",
     "browse": "Retour à l'accueil"
+  },
+  "v6": {
+    "hero": {
+      "h1a": "Soyez payé en crypto.",
+      "h1b": "Gardez-la, ou réglez en stablecoins.",
+      "primary": "Commencer",
+      "google": "S'inscrire avec Google",
+      "sandboxTag": "Sandbox en direct · prix réels",
+      "liveLabel": "Réglé via Dynopay — en direct"
+    },
+    "vig": {
+      "paid": "Payé",
+      "settledAs": "réglé en",
+      "yourWallet": "votre wallet",
+      "more": "+{{n}} autres",
+      "oneTime": "lien unique",
+      "pay": "Payer",
+      "chooseCoin": "Choisir une crypto",
+      "sendExactly": "Envoyez exactement",
+      "settlesIn": "Réglé en USDC",
+      "detected": "Détecté",
+      "confirming": "Confirmation",
+      "paidStep": "Payé",
+      "addToCart": "Ajouter au panier",
+      "cart": "Panier",
+      "live": "En ligne",
+      "support": "Soutenir {{name}}",
+      "monthlyGoal": "{{pct}} % de l'objectif mensuel",
+      "tip": "Pourboire",
+      "donors": "{{n}} soutiens",
+      "invoice": "Facture",
+      "due": "Échéance",
+      "total": "Total",
+      "paidIn": "Payée en {{coin}}",
+      "receipt": "Reçu PDF",
+      "taxIncl": "TVA incluse",
+      "buyNow": "Acheter",
+      "oneLine": "Une ligne de HTML",
+      "request": "Requête",
+      "response": "Réponse",
+      "webhook": "Webhook · payment.settled"
+    },
+    "story": {
+      "eyebrow": "Comment ça marche",
+      "headline": "L'acheteur paie en Bitcoin. Vous recevez des USDC. Dans votre propre wallet.",
+      "body": "Un seul parcours pour chaque paiement : l'acheteur envoie n'importe quelle crypto prise en charge, le réseau confirme, et le règlement arrive à une adresse que vous contrôlez — dans la crypto envoyée ou convertie automatiquement en stablecoin.",
+      "buyerPays": "L'acheteur paie",
+      "yourWallet": "Votre wallet",
+      "autoConvert": "Conversion auto",
+      "on": "activée",
+      "keepCoin": "ou gardez la crypto — à vous de choisir",
+      "confirmed": "Confirmé",
+      "detected": "Détecté",
+      "settled": "réglé",
+      "nonCustodial": "Non-custodial — nous ne détenons jamais vos fonds.",
+      "anyWallet": "Depuis n'importe quel wallet, dans n'importe quelle crypto prise en charge."
+    },
+    "numbers": {
+      "eyebrow": "En chiffres",
+      "headline": "Des chiffres en direct, pas du marketing.",
+      "body": "Chaque chiffre ci-dessous est lu en production au moment où cette page est servie — pas d'arrondi, pas de valeur factice.",
+      "chartTitle": "Paiements réglés par chaîne",
+      "chartSub": "30 derniers jours · part des paiements",
+      "chartNote": "Nombre par chaîne de règlement, anonymisé. Les stablecoins sur Tron et Ethereum sont regroupés avec leur chaîne.",
+      "live": "En direct",
+      "other": "Autres",
+      "checks": "{{n}} contrôles",
+      "settleMeta": "Solana · XRP · Tron · Polygon · Ethereum",
+      "countriesMeta": "Marchands, par pays d'inscription"
+    },
+    "proof": {
+      "langsT": "Un checkout en six langues",
+      "langsD": "Chaque acheteur voit la page de paiement dans sa langue — anglais, allemand, espagnol, français, portugais et néerlandais.",
+      "langsCta": "Ouvrir la démo en direct"
+    },
+    "global": {
+      "noList": "Aucune liste de pays à laquelle postuler",
+      "noBank": "Aucune validation bancaire à attendre",
+      "anyWallet": "N'importe quel wallet, n'importe où"
+    },
+    "dev": {
+      "headline": "Trois portes d'entrée. Choisissez votre profondeur.",
+      "body": "Commencez sans code dès aujourd'hui et allez plus loin quand vous le voulez — même compte, mêmes paiements, même wallet.",
+      "nocode": {
+        "eyebrow": "Sans code",
+        "t": "Liens & tableau de bord",
+        "d": "Créez des liens de paiement, des factures, une boutique ou une page de dons depuis le tableau de bord. Rien à installer.",
+        "cta": "Créer votre premier lien"
+      },
+      "prebuilt": {
+        "eyebrow": "Prêt à l'emploi",
+        "t": "Bouton d'achat & embeds",
+        "d": "Une ligne de HTML place un checkout crypto sur n'importe quel site. Les clés publiables gardent votre clé secrète hors du navigateur.",
+        "cta": "Récupérer le snippet"
+      },
+      "api": {
+        "eyebrow": "Sur mesure",
+        "t": "API REST & webhooks",
+        "d": "Créez des paiements depuis votre backend, redirigez l'acheteur, écoutez des webhooks signés. Aucune dépendance à un SDK.",
+        "cta": "Lire la documentation API"
+      }
+    },
+    "pricing": {
+      "teaserNote": "Les frais de réseau vont à la blockchain et sont affichés avant que l'acheteur paie. La comparaison avec les cartes et les passerelles custodial se trouve sur la page des frais.",
+      "cta": "Voir la grille tarifaire complète"
+    },
+    "resources": {
+      "eyebrow": "Ressources",
+      "headline": "Les guides de l'équipe.",
+      "body": "Tutoriels d'intégration, analyses de coûts et notes produit — publiés, pas promis.",
+      "readMore": "Lire",
+      "allPosts": "Tous les articles",
+      "guide": "Guide",
+      "docs": "Docs",
+      "howtoT": "Configurer un wallet et encaisser un premier paiement",
+      "howtoD": "Le parcours pas à pas des nouveaux marchands — wallet, premier lien, premier règlement.",
+      "docsT": "Référence API",
+      "docsD": "Chaque endpoint marchand, chaque requête et chaque payload de webhook, documentés avant même l'inscription.",
+      "prev": "Précédent",
+      "next": "Suivant"
+    },
+    "faq": {
+      "coins": {
+        "q": "Avec quelles cryptos mes acheteurs peuvent-ils payer ?",
+        "a": "Bitcoin, Ethereum, Solana, XRP, Litecoin, Dogecoin, Bitcoin Cash, TRX et POL, plus USDT, USDC et RLUSD sur les réseaux les moins chers — Tron, Polygon, Ethereum et XRP Ledger. Vous choisissez celles que vous acceptez ; le checkout n'affiche que les cryptos pour lesquelles vous avez ajouté un wallet."
+      },
+      "setup": {
+        "q": "Combien de temps prend la mise en place ?",
+        "a": "Environ cinq minutes pour un lien de paiement : créez un compte, ajoutez une adresse de wallet de règlement, partagez le lien. Un bouton d'achat, c'est une ligne de HTML. Une intégration API complète, c'est une requête plus un endpoint de webhook — la plupart des équipes la livrent en un après-midi."
+      },
+      "more": "D'autres questions trouvent réponse dans l'Aide & support"
+    },
+    "final": {
+      "pricingT": "Voir les tarifs",
+      "pricingD": "Un seul pourcentage, qui baisse à mesure que vous grandissez. Pas d'abonnement, pas de frais d'installation, pas de rétrofacturation.",
+      "buildT": "Commencer à intégrer",
+      "buildD": "Une requête crée un paiement. Clés sandbox, webhooks signés et documentation publique."
+    },
+    "footer": {
+      "products": "Produits",
+      "developers": "Développeurs",
+      "legal": "Mentions légales",
+      "links": "Liens de paiement",
+      "checkout": "Checkout hébergé",
+      "storefront": "Boutique",
+      "donations": "Dons & pourboires",
+      "invoices": "Factures",
+      "embeds": "Bouton d'achat",
+      "api": "Référence API",
+      "webhooks": "Webhooks",
+      "howto": "Guide pas à pas",
+      "aml": "Politique AML",
+      "about": "À propos",
+      "press": "Presse",
+      "walletSecurity": "Sécurité du wallet"
+    },
+    "nav": {
+      "solutions": "Solutions",
+      "pricing": "Tarifs",
+      "donationsDesc": "Campagnes, pots à pourboires et pages de dons réglés dans votre wallet",
+      "invoicesDesc": "Factures payables en crypto, avec reçus et lignes de taxes",
+      "vert": {
+        "ecommerce": "Checkout crypto pour boutiques en ligne",
+        "saas": "Abonnements et offres ponctuelles, payés en crypto",
+        "freelancers": "Facturez des clients partout, soyez payé en crypto",
+        "digitalDownloads": "Vendez fichiers et clés de licence avec livraison instantanée",
+        "marketplaces": "Encaissez des acheteurs de tous les pays",
+        "nonprofits": "Recevez des dons sans frais de carte ni rétrofacturation"
+      },
+      "creatorsFeatured": {
+        "title": "Pour les créateurs",
+        "desc": "Pots à pourboires, boutiques et pages de dons réglés directement dans votre wallet.",
+        "cta": "Voir les pages créateur"
+      }
+    }
   }
 }

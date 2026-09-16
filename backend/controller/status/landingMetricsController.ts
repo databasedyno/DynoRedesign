@@ -18,6 +18,29 @@ const SETTLED_MONTH_PAD = 1000;
 const FAST_CHAINS = ["TRX", "USDT-TRC20", "SOL", "XRP", "POLYGON", "USDT-POLYGON", "ETH", "USDT-ERC20", "USDC-ERC20", "RLUSD", "RLUSD-ERC20"];
 const ISO_NAMES: Record<string, string> = { BD: "bangladesh", IR: "iran", EE: "estonia", KH: "cambodia", PT: "portugal", TZ: "tanzania", US: "united states", GB: "united kingdom", DE: "germany" };
 
+/** base_currency (checkout coin code) → chain label; labels match the landing's chain strip. */
+const CHAIN_OF: Record<string, string> = {
+  BTC: "Bitcoin", ETH: "Ethereum", "USDT-ERC20": "Ethereum", "USDC-ERC20": "Ethereum", "RLUSD-ERC20": "Ethereum",
+  LTC: "Litecoin", DOGE: "Dogecoin", BCH: "Bitcoin Cash", TRX: "Tron", "USDT-TRC20": "Tron", SOL: "Solana",
+  XRP: "XRP Ledger", RLUSD: "XRP Ledger", POLYGON: "Polygon", "USDT-POLYGON": "Polygon",
+};
+
+/** Settled payments by chain, last 30 days — counts only (no amounts), descending, max 6 rows. */
+const settledByChain30d = async (): Promise<{ rows: { chain: string; count: number }[]; total: number }> => {
+  const raw = await sequelize.query<{ base_currency: string | null; n: string }>(
+    `SELECT base_currency, COUNT(*) AS n FROM tbl_user_transaction
+      WHERE status = 'successful' AND "createdAt" > NOW() - INTERVAL '30 days' GROUP BY base_currency`,
+    { type: QueryTypes.SELECT }
+  );
+  const byChain = new Map<string, number>();
+  for (const r of raw) {
+    const chain = CHAIN_OF[String(r.base_currency || "").toUpperCase()] || "Other";
+    byChain.set(chain, (byChain.get(chain) || 0) + Number(r.n || 0));
+  }
+  const rows = [...byChain.entries()].map(([chain, count]) => ({ chain, count })).sort((a, b) => b.count - a.count).slice(0, 6);
+  return { rows, total: raw.reduce((acc, r) => acc + Number(r.n || 0), 0) };
+};
+
 let cached: { at: number; body: Record<string, unknown> } | null = null;
 
 const normalizeCountry = (raw: string): string => {
@@ -43,7 +66,7 @@ export const getLandingMetrics = async (_req: express.Request, res: express.Resp
       res.set("Cache-Control", "public, max-age=300");
       return successResponseHelper(res, 200, "Landing metrics", cached.body);
     }
-    const [uptime, settle, month, countries] = await Promise.all([
+    const [uptime, settle, month, countries, byChain] = await Promise.all([
       monitoringService.calculateServiceUptime("api_gateway", 90),
       sequelize.query<{ med: string | null; n: string }>(
         `SELECT percentile_cont(0.5) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM ("updatedAt" - "createdAt")) / 60) AS med, COUNT(*) AS n
@@ -56,6 +79,7 @@ export const getLandingMetrics = async (_req: express.Request, res: express.Resp
         { type: QueryTypes.SELECT }
       ),
       countCountries(),
+      settledByChain30d(),
     ]);
     const med = settle[0]?.med != null ? toNumber(Number(settle[0].med), 1) : null;
     const body = {
@@ -66,6 +90,8 @@ export const getLandingMetrics = async (_req: express.Request, res: express.Resp
       payments_settled_this_month: Number(month[0]?.n || 0) + SETTLED_MONTH_PAD,
       countries_served: countries,
       languages: 6,
+      payments_30d: byChain.total,
+      settled_by_chain_30d: byChain.rows,
       checked_at: new Date().toISOString(),
     };
     cached = { at: Date.now(), body };

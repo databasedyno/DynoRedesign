@@ -38,16 +38,16 @@ const TrustSecurityV5: React.FC = () => {
   return (
     <Section id="security" testId="security">
       <SectionHead eyebrow={t("v5.security.eyebrow")} headline={t("v5.security.headline")} body={t("v5.security.body")} />
-      <Stagger step={0.05} sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", lg: "repeat(3, 1fr)" }, gap: { xs: 1.5, md: 2 } }}>
+      <Stagger step={0.05} sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", lg: "repeat(3, 1fr)" }, gap: { xs: 1.25, md: 1.5 } }}>
         {ITEMS.map((it, i) => (
           <StaggerItem key={it.id} i={i} y={16}>
-          <Box component="a" href={it.href} data-testid={`security-${it.id}`} sx={{ position: "relative", display: "flex", gap: 1.75, alignItems: "flex-start", textDecoration: "none", borderRadius: "18px", background: s.surface, border: `1px solid ${s.line}`, p: { xs: 2.25, md: 2.75 }, transition: "border-color 220ms ease, transform 220ms cubic-bezier(0.16,1,0.3,1), box-shadow 220ms ease", "&:hover": { borderColor: `${BRAND_ACCENT}55`, transform: "translateY(-2px)", boxShadow: `0 22px 44px -32px ${BRAND_ACCENT}66` }, "&:hover .sec-arrow": { opacity: 1, transform: "translate(0,0)" }, "&:focus-visible": { outline: `2px solid ${BRAND_ACCENT}`, outlineOffset: 3 } }}>
-            <ArrowOutwardRoundedIcon className="sec-arrow" sx={{ position: "absolute", top: 14, right: 14, fontSize: 15, color: accent, opacity: 0, transform: "translate(-2px,2px)", transition: "opacity 200ms ease, transform 200ms ease" }} />
-            <Box sx={{ flexShrink: 0, width: 38, height: 38, borderRadius: "11px", display: "grid", placeItems: "center", background: s.dark ? "rgba(129,140,248,0.14)" : "rgba(79,70,229,0.09)", color: accent }}>
-              <it.Icon sx={{ fontSize: 20 }} />
+          <Box component="a" href={it.href} data-testid={`security-${it.id}`} sx={{ position: "relative", display: "flex", gap: 1.5, alignItems: "flex-start", height: "100%", textDecoration: "none", borderRadius: "16px", background: s.surface, border: `1px solid ${s.line}`, p: { xs: 2, md: 2.25 }, transition: "border-color 220ms ease, transform 220ms cubic-bezier(0.16,1,0.3,1), box-shadow 220ms ease", "&:hover": { borderColor: `${BRAND_ACCENT}55`, transform: "translateY(-2px)", boxShadow: `0 22px 44px -32px ${BRAND_ACCENT}66` }, "&:hover .sec-arrow": { opacity: 1, transform: "translate(0,0)" }, "&:focus-visible": { outline: `2px solid ${BRAND_ACCENT}`, outlineOffset: 3 } }}>
+            <ArrowOutwardRoundedIcon className="sec-arrow" sx={{ position: "absolute", top: 12, right: 12, fontSize: 14, color: accent, opacity: 0, transform: "translate(-2px,2px)", transition: "opacity 200ms ease, transform 200ms ease" }} />
+            <Box sx={{ flexShrink: 0, width: 34, height: 34, borderRadius: "10px", display: "grid", placeItems: "center", background: s.dark ? "rgba(129,140,248,0.14)" : "rgba(79,70,229,0.09)", color: accent }}>
+              <it.Icon sx={{ fontSize: 18 }} />
             </Box>
-            <Box>
-              <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 15.5, color: s.ink, mb: 0.5, letterSpacing: "-0.01em" }}>
+            <Box sx={{ minWidth: 0 }}>
+              <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 15, color: s.ink, mb: 0.4, letterSpacing: "-0.01em", pr: 2 }}>
                 {t(`v5.security.${it.id}.t`)}
                 {it.id === "status" && m ? <Box component="span" className="tabular-nums" sx={{ ml: 1, fontFamily: FONT_BODY, fontSize: 12.5, fontWeight: 600, color: "#10B981" }}>{m.uptime_90d_pct.toFixed(2)}%</Box> : null}
               </Typography>

@@ -561,7 +561,8 @@
       "faq": "FAQ",
       "products": "Produkte",
       "pricing": "Preise",
-      "security": "Sicherheit"
+      "security": "Sicherheit",
+      "global": "Global"
     },
     "more": {
       "eyebrow": "[ Mehr über Dynopay ]",
@@ -1622,5 +1623,180 @@
     "emptyTitle": "Noch nichts gespeichert",
     "emptyBody": "Wenn du einen Händler über Dynopay bezahlt hast, tippe auf dem Belegbildschirm auf „Für das nächste Mal speichern“ – dann erscheint er hier.",
     "browse": "Zur Startseite"
+  },
+  "v6": {
+    "hero": {
+      "h1a": "Werde in Krypto bezahlt.",
+      "h1b": "Behalten – oder in Stablecoins abrechnen.",
+      "primary": "Jetzt starten",
+      "google": "Mit Google registrieren",
+      "sandboxTag": "Live-Sandbox · echte Kurse",
+      "liveLabel": "Über Dynopay abgerechnet — live"
+    },
+    "vig": {
+      "paid": "Bezahlt",
+      "settledAs": "abgerechnet als",
+      "yourWallet": "deine Wallet",
+      "more": "+{{n}} weitere",
+      "oneTime": "Einmal-Link",
+      "pay": "Zahlen",
+      "chooseCoin": "Coin wählen",
+      "sendExactly": "Genau senden",
+      "settlesIn": "Abrechnung in USDC",
+      "detected": "Erkannt",
+      "confirming": "Bestätigung",
+      "paidStep": "Bezahlt",
+      "addToCart": "In den Warenkorb",
+      "cart": "Warenkorb",
+      "live": "Live",
+      "support": "Unterstütze {{name}}",
+      "monthlyGoal": "{{pct}} % des Monatsziels",
+      "tip": "Trinkgeld",
+      "donors": "{{n}} Unterstützer",
+      "invoice": "Rechnung",
+      "due": "Fällig",
+      "total": "Gesamt",
+      "paidIn": "Bezahlt in {{coin}}",
+      "receipt": "Beleg als PDF",
+      "taxIncl": "inkl. MwSt.",
+      "buyNow": "Jetzt kaufen",
+      "oneLine": "Eine Zeile HTML",
+      "request": "Anfrage",
+      "response": "Antwort",
+      "webhook": "Webhook · payment.settled"
+    },
+    "story": {
+      "eyebrow": "So funktioniert es",
+      "headline": "Der Käufer zahlt in Bitcoin. Du erhältst USDC. In deiner eigenen Wallet.",
+      "body": "Ein Weg für jede Zahlung: Der Käufer sendet einen unterstützten Coin, das Netzwerk bestätigt, und die Abrechnung landet an einer Adresse, die du kontrollierst — als der Coin selbst oder automatisch in einen Stablecoin umgewandelt.",
+      "buyerPays": "Käufer zahlt",
+      "yourWallet": "Deine Wallet",
+      "autoConvert": "Auto-Umwandlung",
+      "on": "an",
+      "keepCoin": "oder den Coin behalten — deine Wahl",
+      "confirmed": "Bestätigt",
+      "detected": "Erkannt",
+      "settled": "abgerechnet",
+      "nonCustodial": "Non-custodial — wir halten dein Geld nie.",
+      "anyWallet": "Aus jeder Wallet, in jedem unterstützten Coin."
+    },
+    "numbers": {
+      "eyebrow": "In Zahlen",
+      "headline": "Live-Werte, kein Marketing.",
+      "body": "Jede Zahl unten wird beim Ausliefern dieser Seite aus der Produktion gelesen — nicht aufgerundet, keine Platzhalter.",
+      "chartTitle": "Abgerechnete Zahlungen nach Chain",
+      "chartSub": "Letzte 30 Tage · Anteil der Zahlungen",
+      "chartNote": "Anzahl nach Abrechnungs-Chain, anonymisiert. Stablecoins auf Tron und Ethereum werden ihrer Chain zugeordnet.",
+      "live": "Live",
+      "other": "Andere",
+      "checks": "{{n}} Prüfungen",
+      "settleMeta": "Solana · XRP · Tron · Polygon · Ethereum",
+      "countriesMeta": "Händler, nach Registrierungsland"
+    },
+    "proof": {
+      "langsT": "Checkout in sechs Sprachen",
+      "langsD": "Jeder Käufer sieht die Zahlungsseite in seiner Sprache — Englisch, Deutsch, Spanisch, Französisch, Portugiesisch und Niederländisch.",
+      "langsCta": "Live-Demo öffnen"
+    },
+    "global": {
+      "noList": "Keine Länderliste, keine Bewerbung",
+      "noBank": "Keine Bankfreigabe abwarten",
+      "anyWallet": "Jede Wallet, überall"
+    },
+    "dev": {
+      "headline": "Drei Wege hinein. Du wählst die Tiefe.",
+      "body": "Starte heute ohne Code und gehe tiefer, wann immer du willst — gleicher Account, gleiche Zahlungen, gleiche Wallet.",
+      "nocode": {
+        "eyebrow": "Ohne Code",
+        "t": "Links & Dashboard",
+        "d": "Erstelle Zahlungslinks, Rechnungen, einen Shop oder eine Spendenseite direkt im Dashboard. Nichts zu installieren.",
+        "cta": "Ersten Link erstellen"
+      },
+      "prebuilt": {
+        "eyebrow": "Vorgefertigt",
+        "t": "Kaufen-Button & Embeds",
+        "d": "Eine Zeile HTML bringt einen Krypto-Checkout auf jede Website. Publishable Keys halten deinen Secret Key aus dem Browser.",
+        "cta": "Snippet holen"
+      },
+      "api": {
+        "eyebrow": "Selbst bauen",
+        "t": "REST-API & Webhooks",
+        "d": "Erstelle Zahlungen aus deinem Backend, leite den Käufer weiter und empfange signierte Webhooks. Kein SDK-Lock-in.",
+        "cta": "API-Doku lesen"
+      }
+    },
+    "pricing": {
+      "teaserNote": "Netzwerkgebühren gehen an die Blockchain und werden vor der Zahlung angezeigt. Den direkten Vergleich mit Karten und Custodial-Gateways findest du auf der Gebührenseite.",
+      "cta": "Vollständige Gebührenübersicht ansehen"
+    },
+    "resources": {
+      "eyebrow": "Ressourcen",
+      "headline": "Guides vom Team.",
+      "body": "Integrations-Anleitungen, Kostenvergleiche und Produktnotizen — veröffentlicht, nicht versprochen.",
+      "readMore": "Lesen",
+      "allPosts": "Alle Beiträge",
+      "guide": "Guide",
+      "docs": "Doku",
+      "howtoT": "Wallet einrichten und die erste Zahlung annehmen",
+      "howtoD": "Der Schritt-für-Schritt-Weg für neue Händler — Wallet, erster Link, erste Abrechnung.",
+      "docsT": "API-Referenz",
+      "docsD": "Jeder Händler-Endpunkt, jede Anfrage und jede Webhook-Payload — dokumentiert, bevor du dich registrierst.",
+      "prev": "Zurück",
+      "next": "Weiter"
+    },
+    "faq": {
+      "coins": {
+        "q": "Mit welchen Coins können meine Käufer zahlen?",
+        "a": "Bitcoin, Ethereum, Solana, XRP, Litecoin, Dogecoin, Bitcoin Cash, TRX und POL sowie USDT, USDC und RLUSD auf den günstigsten Netzwerken — Tron, Polygon, Ethereum und XRP Ledger. Du wählst, was du akzeptierst; der Checkout zeigt nur Coins, für die du eine Wallet hinterlegt hast."
+      },
+      "setup": {
+        "q": "Wie lange dauert die Einrichtung?",
+        "a": "Etwa fünf Minuten für einen Zahlungslink: Account erstellen, Auszahlungsadresse hinzufügen, Link teilen. Ein Kaufen-Button ist eine Zeile HTML. Eine vollständige API-Integration ist eine Anfrage plus ein Webhook-Endpunkt — die meisten Teams schaffen das an einem Nachmittag."
+      },
+      "more": "Weitere Fragen beantworten wir im Hilfe-Center"
+    },
+    "final": {
+      "pricingT": "Preise ansehen",
+      "pricingD": "Ein Prozentsatz, der mit deinem Wachstum sinkt. Keine Monatsgebühr, keine Einrichtungsgebühr, keine Chargebacks.",
+      "buildT": "Loslegen mit der API",
+      "buildD": "Eine Anfrage erstellt eine Zahlung. Sandbox-Keys, signierte Webhooks und öffentliche Doku."
+    },
+    "footer": {
+      "products": "Produkte",
+      "developers": "Entwickler",
+      "legal": "Rechtliches",
+      "links": "Zahlungslinks",
+      "checkout": "Gehosteter Checkout",
+      "storefront": "Shop-Seite",
+      "donations": "Spenden & Trinkgeld",
+      "invoices": "Rechnungen",
+      "embeds": "Kaufen-Button",
+      "api": "API-Referenz",
+      "webhooks": "Webhooks",
+      "howto": "Anleitung",
+      "aml": "AML-Richtlinie",
+      "about": "Über uns",
+      "press": "Presse",
+      "walletSecurity": "Wallet-Sicherheit"
+    },
+    "nav": {
+      "solutions": "Lösungen",
+      "pricing": "Preise",
+      "donationsDesc": "Kampagnen, Trinkgeldkassen und Spendenseiten, die in deine Wallet abrechnen",
+      "invoicesDesc": "Rechnungen mit Krypto-Zahlung, Belegen und Steuerzeilen",
+      "vert": {
+        "ecommerce": "Krypto-Checkout für Online-Shops",
+        "saas": "Abos und Einmalpläne, in Krypto bezahlt",
+        "freelancers": "Kunden weltweit in Rechnung stellen, in Krypto bezahlt werden",
+        "digitalDownloads": "Dateien und Lizenzschlüssel mit Sofortlieferung verkaufen",
+        "marketplaces": "Zahlungen von Käufern aus jedem Land annehmen",
+        "nonprofits": "Spenden ohne Kartengebühren oder Chargebacks annehmen"
+      },
+      "creatorsFeatured": {
+        "title": "Für Creator",
+        "desc": "Trinkgeldkassen, Shops und Spendenseiten, die direkt in deine Wallet abrechnen.",
+        "cta": "Creator-Seiten ansehen"
+      }
+    }
   }
 }

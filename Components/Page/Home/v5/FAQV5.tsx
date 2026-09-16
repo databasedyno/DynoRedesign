@@ -8,13 +8,23 @@ import { BRAND_ACCENT } from "@/constants/theme";
 import { Section, SectionHead } from "./shared";
 import { Stagger, StaggerItem } from "../motion/Stagger";
 
-const IDS = ["cost", "funds", "speed", "crypto", "wallet", "buyers", "donations", "refunds", "wrongAmount", "legal", "myCountry", "countries", "referral"] as const;
+/* §2.3-12: the eight highest-intent questions; everything else lives on /help-support. `v6` ids are the two new ones. */
+const IDS = [
+  { id: "cost", ns: "v5" },
+  { id: "speed", ns: "v5" },
+  { id: "funds", ns: "v5" },
+  { id: "coins", ns: "v6" },
+  { id: "setup", ns: "v6" },
+  { id: "buyers", ns: "v5" },
+  { id: "refunds", ns: "v5" },
+  { id: "legal", ns: "v5" },
+] as const;
 
 const FAQV5: React.FC = () => {
   const s = useAurora();
   const { t } = useTranslation("landing");
   const [open, setOpen] = useState<string | null>("cost");
-  const faqs = IDS.map((id) => ({ id, q: t(`v5.faq.${id}.q`), a: t(`v5.faq.${id}.a`) }));
+  const faqs = IDS.map(({ id, ns }) => ({ id, q: t(`${ns}.faq.${id}.q`), a: t(`${ns}.faq.${id}.a`) }));
   const jsonLd = JSON.stringify({ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faqs.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) });
 
   return (
@@ -43,8 +53,8 @@ const FAQV5: React.FC = () => {
               <Collapse in={isOpen} timeout={260} easing="cubic-bezier(0.16,1,0.3,1)">
                 <Box sx={{ px: { xs: 2.5, md: 3.5 }, pb: { xs: 2.75, md: 3.25 } }}>
                   <Typography sx={{ fontFamily: FONT_BODY, fontSize: 15, color: s.ink2, lineHeight: 1.65, maxWidth: 760 }}>{f.a}</Typography>
-                  {f.id === "donations" && (
-                    <Box component="a" href="/pay/donation-demo" data-testid="faq-donations-demo" sx={{ display: "inline-block", mt: 1.5, fontFamily: FONT_TECH, fontSize: 13.5, fontWeight: 700, color: BRAND_ACCENT, textDecoration: "none", borderBottom: "1px solid transparent", transition: "border-color 160ms ease", "&:hover": { borderColor: BRAND_ACCENT } }}>{t("v5.products.donations.cta")} →</Box>
+                  {f.id === "coins" && (
+                    <Box component="a" href="/fees" data-testid="faq-coins-fees" sx={{ display: "inline-block", mt: 1.5, fontFamily: FONT_TECH, fontSize: 13.5, fontWeight: 700, color: BRAND_ACCENT, textDecoration: "none", borderBottom: "1px solid transparent", transition: "border-color 160ms ease", "&:hover": { borderColor: BRAND_ACCENT } }}>{t("v5.coins.cta")} →</Box>
                   )}
                 </Box>
               </Collapse>
@@ -54,7 +64,7 @@ const FAQV5: React.FC = () => {
         })}
       </Stagger>
       <Typography sx={{ mt: 3, fontFamily: FONT_TECH, fontSize: 13, color: s.ink3, letterSpacing: "0.06em" }}>
-        {t("v5.faq.still")} ·{" "}
+        {t("v6.faq.more")} ·{" "}
         <Box component="a" href="/help-support" data-testid="faq-ask" sx={{ color: s.ink, fontWeight: 600, textDecoration: "none", borderBottom: `1px dashed ${s.lineStrong}`, "&:hover": { color: BRAND_ACCENT, borderColor: BRAND_ACCENT } }}>{t("v5.faq.ask")}</Box>
       </Typography>
     </Section>

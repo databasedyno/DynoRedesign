@@ -561,7 +561,8 @@
       "faq": "FAQ",
       "products": "Produtos",
       "pricing": "Preços",
-      "security": "Segurança"
+      "security": "Segurança",
+      "global": "Global"
     },
     "more": {
       "eyebrow": "[ Mais sobre a Dynopay ]",
@@ -1622,5 +1623,180 @@
     "emptyTitle": "Ainda não há nada guardado",
     "emptyBody": "Depois de pagar a um comerciante com a Dynopay, toque em “Guardar para a próxima vez” no ecrã do recibo e ele aparecerá aqui.",
     "browse": "Voltar ao início"
+  },
+  "v6": {
+    "hero": {
+      "h1a": "Receba em cripto.",
+      "h1b": "Fique com ela, ou liquide em stablecoins.",
+      "primary": "Começar agora",
+      "google": "Registar com o Google",
+      "sandboxTag": "Sandbox ao vivo · preços reais",
+      "liveLabel": "Liquidado através da Dynopay — em direto"
+    },
+    "vig": {
+      "paid": "Pago",
+      "settledAs": "liquidado como",
+      "yourWallet": "a sua carteira",
+      "more": "+{{n}} mais",
+      "oneTime": "ligação única",
+      "pay": "Pagar",
+      "chooseCoin": "Escolha uma moeda",
+      "sendExactly": "Envie exatamente",
+      "settlesIn": "Liquida em USDC",
+      "detected": "Detetado",
+      "confirming": "A confirmar",
+      "paidStep": "Pago",
+      "addToCart": "Adicionar ao carrinho",
+      "cart": "Carrinho",
+      "live": "Ao vivo",
+      "support": "Apoie {{name}}",
+      "monthlyGoal": "{{pct}}% do objetivo mensal",
+      "tip": "Gorjeta",
+      "donors": "{{n}} apoiantes",
+      "invoice": "Fatura",
+      "due": "Vencimento",
+      "total": "Total",
+      "paidIn": "Paga em {{coin}}",
+      "receipt": "Recibo em PDF",
+      "taxIncl": "IVA incluído",
+      "buyNow": "Comprar agora",
+      "oneLine": "Uma linha de HTML",
+      "request": "Pedido",
+      "response": "Resposta",
+      "webhook": "Webhook · payment.settled"
+    },
+    "story": {
+      "eyebrow": "Como funciona",
+      "headline": "O comprador paga em Bitcoin. Recebe USDC. Na sua própria carteira.",
+      "body": "Um único percurso para cada pagamento: o comprador envia qualquer moeda suportada, a rede confirma e a liquidação chega a um endereço que controla — na própria moeda ou convertida automaticamente numa stablecoin.",
+      "buyerPays": "O comprador paga",
+      "yourWallet": "A sua carteira",
+      "autoConvert": "Conversão automática",
+      "on": "ativa",
+      "keepCoin": "ou fique com a moeda — a escolha é sua",
+      "confirmed": "Confirmado",
+      "detected": "Detetado",
+      "settled": "liquidado",
+      "nonCustodial": "Sem custódia — nunca retemos os seus fundos.",
+      "anyWallet": "A partir de qualquer carteira, em qualquer moeda suportada."
+    },
+    "numbers": {
+      "eyebrow": "Em números",
+      "headline": "Valores em direto, não marketing.",
+      "body": "Cada número abaixo é lido da produção no momento em que esta página é servida — sem arredondamentos por cima, sem valores fictícios.",
+      "chartTitle": "Pagamentos liquidados por cadeia",
+      "chartSub": "Últimos 30 dias · quota de pagamentos",
+      "chartNote": "Contagem por cadeia de liquidação, anonimizada. As stablecoins em Tron e Ethereum são agrupadas com a respetiva cadeia.",
+      "live": "Em direto",
+      "other": "Outras",
+      "checks": "{{n}} verificações",
+      "settleMeta": "Solana · XRP · Tron · Polygon · Ethereum",
+      "countriesMeta": "Comerciantes, por país de registo"
+    },
+    "proof": {
+      "langsT": "Checkout em seis línguas",
+      "langsD": "Cada comprador vê a página de pagamento na sua língua — inglês, alemão, espanhol, francês, português e neerlandês.",
+      "langsCta": "Abrir a demonstração em direto"
+    },
+    "global": {
+      "noList": "Sem lista de países a que concorrer",
+      "noBank": "Sem esperar pela aprovação de um banco",
+      "anyWallet": "Qualquer carteira, em qualquer lugar"
+    },
+    "dev": {
+      "headline": "Três formas de entrar. Escolha a profundidade.",
+      "body": "Comece hoje sem código e aprofunde quando precisar — a mesma conta, os mesmos pagamentos, a mesma carteira.",
+      "nocode": {
+        "eyebrow": "Sem código",
+        "t": "Ligações e painel",
+        "d": "Crie ligações de pagamento, faturas, uma loja ou uma página de donativos a partir do painel. Nada para instalar.",
+        "cta": "Criar a primeira ligação"
+      },
+      "prebuilt": {
+        "eyebrow": "Pré-construído",
+        "t": "Botão de compra e embeds",
+        "d": "Uma linha de HTML coloca um checkout cripto em qualquer site. As chaves publicáveis mantêm a sua chave secreta fora do browser.",
+        "cta": "Obter o snippet"
+      },
+      "api": {
+        "eyebrow": "Construa o seu",
+        "t": "API REST e webhooks",
+        "d": "Crie pagamentos a partir do seu backend, redirecione o comprador e receba webhooks assinados. Sem dependência de SDK.",
+        "cta": "Ler a documentação da API"
+      }
+    },
+    "pricing": {
+      "teaserNote": "As taxas de rede vão para a blockchain e são mostradas antes de o comprador pagar. A comparação com cartões e gateways com custódia está na página de taxas.",
+      "cta": "Ver a tabela de taxas completa"
+    },
+    "resources": {
+      "eyebrow": "Recursos",
+      "headline": "Guias da equipa.",
+      "body": "Tutoriais de integração, análises de custos e notas de produto — publicados, não prometidos.",
+      "readMore": "Ler",
+      "allPosts": "Todos os artigos",
+      "guide": "Guia",
+      "docs": "Docs",
+      "howtoT": "Configurar uma carteira e receber o primeiro pagamento",
+      "howtoD": "O percurso passo a passo que os novos comerciantes seguem — carteira, primeira ligação, primeira liquidação.",
+      "docsT": "Referência da API",
+      "docsD": "Cada endpoint, pedido e payload de webhook, documentados antes de se registar.",
+      "prev": "Anterior",
+      "next": "Seguinte"
+    },
+    "faq": {
+      "coins": {
+        "q": "Com que moedas podem pagar os meus compradores?",
+        "a": "Bitcoin, Ethereum, Solana, XRP, Litecoin, Dogecoin, Bitcoin Cash, TRX e POL, além de USDT, USDC e RLUSD nas redes mais baratas — Tron, Polygon, Ethereum e XRP Ledger. Cabe-lhe escolher quais aceitar; o checkout mostra apenas as moedas para as quais adicionou uma carteira."
+      },
+      "setup": {
+        "q": "Quanto tempo demora a configuração?",
+        "a": "Cerca de cinco minutos para uma ligação de pagamento: criar conta, adicionar um endereço de carteira para receber e partilhar a ligação. Um botão de compra é uma linha de HTML. Uma integração completa por API é um pedido mais um endpoint de webhook — a maioria das equipas fá-lo numa tarde."
+      },
+      "more": "Respondemos a mais perguntas na Ajuda e suporte"
+    },
+    "final": {
+      "pricingT": "Ver preços",
+      "pricingD": "Uma única percentagem que baixa à medida que cresce. Sem mensalidade, sem taxa de adesão, sem chargebacks.",
+      "buildT": "Começar a construir",
+      "buildD": "Um pedido cria um pagamento. Chaves de sandbox, webhooks assinados e documentação pública."
+    },
+    "footer": {
+      "products": "Produtos",
+      "developers": "Programadores",
+      "legal": "Legal",
+      "links": "Ligações de pagamento",
+      "checkout": "Checkout alojado",
+      "storefront": "Loja",
+      "donations": "Donativos e gorjetas",
+      "invoices": "Faturas",
+      "embeds": "Botão de compra",
+      "api": "Referência da API",
+      "webhooks": "Webhooks",
+      "howto": "Guia passo a passo",
+      "aml": "Política AML",
+      "about": "Sobre nós",
+      "press": "Imprensa",
+      "walletSecurity": "Segurança da carteira"
+    },
+    "nav": {
+      "solutions": "Soluções",
+      "pricing": "Preços",
+      "donationsDesc": "Campanhas, caixas de gorjetas e páginas de donativos que liquidam na sua carteira",
+      "invoicesDesc": "Faturas pagáveis em cripto, com recibos e linhas de IVA",
+      "vert": {
+        "ecommerce": "Checkout cripto para lojas online",
+        "saas": "Subscrições e planos únicos, pagos em cripto",
+        "freelancers": "Fature clientes em qualquer lugar e receba em cripto",
+        "digitalDownloads": "Venda ficheiros e chaves de licença com entrega imediata",
+        "marketplaces": "Receba pagamentos de compradores de qualquer país",
+        "nonprofits": "Receba donativos sem taxas de cartão nem chargebacks"
+      },
+      "creatorsFeatured": {
+        "title": "Para criadores",
+        "desc": "Caixas de gorjetas, lojas e páginas de donativos que liquidam diretamente na sua carteira.",
+        "cta": "Ver páginas de criador"
+      }
+    }
   }
 }

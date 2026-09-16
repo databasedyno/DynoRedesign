@@ -1,47 +1,48 @@
 import { FC, memo, useEffect } from "react";
 import dynamic from "next/dynamic";
-import HeroV5 from "./v5/HeroV5";
+import HeroV6 from "./v6/HeroV6";
 import { HomeWrapper } from "./styled";
+import { LandingMetricsContext, type LandingMetrics } from "./v5/useLandingMetrics";
 
 /* HYDRATION BUDGET (2026-08 — "hamburger tap does nothing on mobile"):
  * everything below the hero is code-split. next/dynamic keeps the
  * server-rendered HTML (SEO unchanged) but moves the JS into lazy chunks, so
  * the header + hero hydrate first and become interactive almost immediately.
  * Do NOT convert these back to static imports. ssr:true (default) is required. */
-const ProofBandV5 = dynamic(() => import("./v5/ProofBandV5"));
-const OnchainProofV5 = dynamic(() => import("./v5/OnchainProofV5"));
-const HowItWorksV5 = dynamic(() => import("./v5/HowItWorksV5"));
-const ProductsV5 = dynamic(() => import("./v5/ProductsV5"));
-const PricingV5 = dynamic(() => import("./v5/PricingV5"));
+const ProductsBento = dynamic(() => import("./v6/ProductsBento"));
+const ConversionStory = dynamic(() => import("./v6/ConversionStory"));
+const NumbersBand = dynamic(() => import("./v6/NumbersBand"));
+const ProofV6 = dynamic(() => import("./v6/ProofV6"));
+const GlobalV6 = dynamic(() => import("./v6/GlobalV6"));
+const DevelopersV6 = dynamic(() => import("./v6/DevelopersV6"));
+const PricingTeaser = dynamic(() => import("./v6/PricingTeaser"));
 const TrustSecurityV5 = dynamic(() => import("./v5/TrustSecurityV5"));
-const DevelopersV5 = dynamic(() => import("./v5/DevelopersV5"));
-const CoinsV5 = dynamic(() => import("./v5/CoinsV5"));
+const ResourcesV6 = dynamic(() => import("./v6/ResourcesV6"));
 const FAQV5 = dynamic(() => import("./v5/FAQV5"));
-const GlobalReachV5 = dynamic(() => import("./v5/GlobalReachV5"));
-const FinalCTAV5 = dynamic(() => import("./v5/FinalCTAV5"));
+const FinalCTAV6 = dynamic(() => import("./v6/FinalCTAV6"));
 // Scroll-driven navigators — client-only by nature.
 const LandingNav = dynamic(() => import("./v3/LandingNav"), { ssr: false });
 const StickyMobileCta = dynamic(() => import("./v5/StickyMobileCta"), { ssr: false });
 
 /**
- * HomePage v5 — "nine concise moments" (2026-09 landing audit + re-imagining).
+ * HomePage v6 — "Stripe quality" structure (plan/plan.md §2.3):
  *
- *   1. HeroV5           — one promise, one action, interactive checkout demo + live proof strip
- *   2. ProofBandV5      — "built in the open": status, docs, on-chain settlement, global
- *   3. HowItWorksV5     — 3 steps + network ETAs straight from the checkout catalogue
- *   4. ProductsV5       — one tabbed showcase (links / checkout / storefront / invoices / embeds / API)
- *   5. PricingV5        — tier ladder + fee calculator + who-pays toggle + compare table
- *   6. TrustSecurityV5  — the shipped controls (non-custodial, 2FA, wallet lock, webhooks, KYC…)
- *   7. DevelopersV5     — cURL / Node / Python tabs + real response shape
- *   8. CoinsV5          — every supported code from CRYPTO_INFO
- *   9. FAQV5            — eleven real questions + FAQPage JSON-LD
- *  10. FinalCTAV5       — Start free · Try a live checkout · Talk to us
+ *   1. HeroV6           — statement headline over the animated conversion gradient, floating sandbox checkout, live strip
+ *   2. ProductsBento    — seven surfaces as a bento grid, each a UI vignette built from the product
+ *   3. ConversionStory  — buyer pays BTC → you receive USDC → your wallet (animated), three steps + network ETAs
+ *   4. NumbersBand      — four live stats + settlements by chain (30d), server-rendered
+ *   5. ProofV6          — verify it yourself: real on-chain settlements + status/docs/languages (merchant stories hidden — no content yet)
+ *   6. GlobalV6         — world map, live country count, coins & chains grid, wallets strip
+ *   7. DevelopersV6     — No-code · Pre-built · Build your own + live request/response
+ *   8. PricingTeaser    — tier ladder + calculator (comparison table lives on /fees)
+ *   9. TrustSecurityV5  — the nine shipped controls, tight grid
+ *  10. ResourcesV6      — published posts + guides carousel
+ *  11. FAQV5            — eight highest-intent questions + FAQPage JSON-LD
+ *  12. FinalCTAV6       — headline + two cards (See pricing · Start building)
  *
  * Section anchor ids match LANDING_SECTIONS (chip bar + header/footer hash links).
- * MOTION (2026-09, Hostinger study): each section owns its own staggered
- * reveals (`motion/Stagger`) — no whole-section fade wrapper any more.
  */
-const HomePage: FC = () => {
+const HomePage: FC<{ landingMetrics?: LandingMetrics | null }> = ({ landingMetrics = null }) => {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const key = "dynopay_visitor_tracked";
@@ -60,22 +61,24 @@ const HomePage: FC = () => {
   }, []);
 
   return (
+    <LandingMetricsContext.Provider value={landingMetrics}>
     <HomeWrapper>
-      <HeroV5 />
+      <HeroV6 />
       <LandingNav />
-      <ProofBandV5 />
-      <OnchainProofV5 />
-      <HowItWorksV5 />
-      <ProductsV5 />
-      <PricingV5 />
+      <ProductsBento />
+      <ConversionStory />
+      <NumbersBand />
+      <ProofV6 />
+      <GlobalV6 />
+      <DevelopersV6 />
+      <PricingTeaser />
       <TrustSecurityV5 />
-      <DevelopersV5 />
-      <CoinsV5 />
+      <ResourcesV6 />
       <FAQV5 />
-      <GlobalReachV5 />
-      <FinalCTAV5 />
+      <FinalCTAV6 />
       <StickyMobileCta />
     </HomeWrapper>
+    </LandingMetricsContext.Provider>
   );
 };
 

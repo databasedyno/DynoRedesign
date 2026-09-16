@@ -20,6 +20,14 @@ import ShoppingCartCheckoutRoundedIcon from "@mui/icons-material/ShoppingCartChe
 import StorefrontRoundedIcon from "@mui/icons-material/StorefrontRounded";
 import SupportAgentRoundedIcon from "@mui/icons-material/SupportAgentRounded";
 import WebhookRoundedIcon from "@mui/icons-material/WebhookRounded";
+import VolunteerActivismRoundedIcon from "@mui/icons-material/VolunteerActivismRounded";
+import ReceiptLongRoundedIcon from "@mui/icons-material/ReceiptLongRounded";
+import ShoppingBagRoundedIcon from "@mui/icons-material/ShoppingBagRounded";
+import CloudRoundedIcon from "@mui/icons-material/CloudRounded";
+import WorkOutlineRoundedIcon from "@mui/icons-material/WorkOutlineRounded";
+import DownloadRoundedIcon from "@mui/icons-material/DownloadRounded";
+import StoreMallDirectoryRoundedIcon from "@mui/icons-material/StoreMallDirectoryRounded";
+import SellRoundedIcon from "@mui/icons-material/SellRounded";
 
 export interface MegaItem {
   readonly titleKey: string;
@@ -42,6 +50,12 @@ export interface MegaSection {
   readonly labelKey: string;
   readonly items: readonly MegaItem[];
   readonly featured?: MegaFeatured;
+  /** Plain top-level link (no panel) when set — e.g. Pricing. */
+  readonly href?: string;
+  /** Hidden from the desktop bar on narrow laptops ≤1220 (still in footer, mobile menu and ⌘K). */
+  readonly optional?: boolean;
+  /** Never in the desktop bar (Stripe parity: 5 items) — footer, mobile menu and ⌘K only. */
+  readonly desktopHidden?: boolean;
 }
 
 export const MENU_SECTIONS: readonly MegaSection[] = [
@@ -68,6 +82,18 @@ export const MENU_SECTIONS: readonly MegaSection[] = [
         Icon: StorefrontRoundedIcon,
       },
       {
+        titleKey: "v5.products.donations.tab",
+        descKey: "v6.nav.donationsDesc",
+        href: "/pay/donation-demo",
+        Icon: VolunteerActivismRoundedIcon,
+      },
+      {
+        titleKey: "v5.products.invoices.tab",
+        descKey: "v6.nav.invoicesDesc",
+        href: "/#products",
+        Icon: ReceiptLongRoundedIcon,
+      },
+      {
         titleKey: "nav.mega.payouts.title",
         descKey: "nav.mega.payouts.desc",
         href: "/#how-it-works",
@@ -80,6 +106,25 @@ export const MENU_SECTIONS: readonly MegaSection[] = [
       ctaKey: "nav.mega.featured.cta",
       href: "/auth/register",
       Icon: RocketLaunchRoundedIcon,
+    },
+  },
+  {
+    key: "solutions",
+    labelKey: "v6.nav.solutions",
+    items: [
+      { titleKey: "footerNav.verticals.ecommerce", descKey: "v6.nav.vert.ecommerce", href: "/for/ecommerce", Icon: ShoppingBagRoundedIcon },
+      { titleKey: "footerNav.verticals.saas", descKey: "v6.nav.vert.saas", href: "/for/saas", Icon: CloudRoundedIcon },
+      { titleKey: "footerNav.verticals.freelancers", descKey: "v6.nav.vert.freelancers", href: "/for/freelancers", Icon: WorkOutlineRoundedIcon },
+      { titleKey: "footerNav.verticals.digitalDownloads", descKey: "v6.nav.vert.digitalDownloads", href: "/for/digital-downloads", Icon: DownloadRoundedIcon },
+      { titleKey: "footerNav.verticals.marketplaces", descKey: "v6.nav.vert.marketplaces", href: "/for/marketplaces", Icon: StoreMallDirectoryRoundedIcon },
+      { titleKey: "footerNav.verticals.nonprofits", descKey: "v6.nav.vert.nonprofits", href: "/for/nonprofits", Icon: VolunteerActivismRoundedIcon },
+    ],
+    featured: {
+      titleKey: "v6.nav.creatorsFeatured.title",
+      descKey: "v6.nav.creatorsFeatured.desc",
+      ctaKey: "v6.nav.creatorsFeatured.cta",
+      href: "/for/creators",
+      Icon: StorefrontRoundedIcon,
     },
   },
   {
@@ -109,6 +154,7 @@ export const MENU_SECTIONS: readonly MegaSection[] = [
   {
     key: "resources",
     labelKey: "nav.resources",
+    optional: true,
     items: [
       {
         titleKey: "nav.mega.blog.title",
@@ -139,6 +185,7 @@ export const MENU_SECTIONS: readonly MegaSection[] = [
   {
     key: "company",
     labelKey: "nav.company",
+    desktopHidden: true,
     items: [
       {
         titleKey: "nav.mega.about.title",
@@ -171,6 +218,12 @@ export const MENU_SECTIONS: readonly MegaSection[] = [
         Icon: ShieldRoundedIcon,
       },
     ],
+  },
+  {
+    key: "pricing",
+    labelKey: "v6.nav.pricing",
+    href: "/fees",
+    items: [{ titleKey: "v6.nav.pricing", descKey: "nav.mega.fees.desc", href: "/fees", Icon: SellRoundedIcon }],
   },
 ] as const;
 

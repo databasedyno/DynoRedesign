@@ -22,9 +22,11 @@ const StickyMobileCta: React.FC = () => {
       ticking = true;
       requestAnimationFrame(() => {
         ticking = false;
-        const hero = document.querySelector<HTMLElement>("[data-testid=hero-v5]");
+        const hero = document.querySelector<HTMLElement>("[data-testid=hero-v6]");
         const past = hero ? hero.getBoundingClientRect().bottom < 0 : window.scrollY > window.innerHeight;
-        const nearEnd = window.innerHeight + window.scrollY > document.body.scrollHeight - 700;
+        // Fold away as soon as the closing CTA is on screen — never two CTA rows at once.
+        const finalCta = document.querySelector<HTMLElement>("[data-testid=final-cta]");
+        const nearEnd = finalCta ? finalCta.getBoundingClientRect().top < window.innerHeight : window.innerHeight + window.scrollY > document.body.scrollHeight - 700;
         setShow(past && !nearEnd);
         // Sit above the first-visit language chooser (also fixed to the bottom) instead of under it.
         const langBar = document.querySelector<HTMLElement>("[data-testid=language-onboarding-bar]");
