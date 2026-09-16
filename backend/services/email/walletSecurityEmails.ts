@@ -1,6 +1,7 @@
 /**
  * Payout address security emails — payout-address CHANGE alert (with a one-tap
  * "this wasn't me" revert link) and the follow-up "account secured" notice.
+ * Fully localized (6 languages) via the walletSecurity.* catalog.
  *
  * These are additive to walletEmails.ts and surfaced through the emailService
  * facade (export * in services/emailService.ts).
@@ -8,14 +9,24 @@
 import mailTransporter from "../../utils/mailTransporter";
 import { apiLogger } from "../../utils/loggers";
 import { p, infoBox, dataRow, warnText, alertBox, mono } from "../../utils/emailTemplate";
-import { dynoPayEmailTemplate, escapeHtml, FRONTEND_BASE_URL } from "./emailShared";
-import { firstNameOnly } from "../../utils/emailI18n";
+import { dynoPayEmailTemplate, escapeHtml, greetingLine, FRONTEND_BASE_URL } from "./emailShared";
+import { t, resolveEmailLang } from "../../utils/emailI18n";
 
 export interface WalletChangeRow {
   network: string;
   address: string; // already masked
   actionLabel: string; // "added" | "updated"
 }
+
+const wk = (key: string) => `walletSecurity.${key}`;
+
+/** Localize the raw action label ("added"/"updated") passed by the caller. */
+const localizeAction = (L: string, actionLabel: string): string => {
+  const a = String(actionLabel || "").trim().toLowerCase();
+  if (a === "added") return t(wk("actionAdded"), L);
+  if (a === "updated") return t(wk("actionUpdated"), L);
+  return escapeHtml(actionLabel);
+};
 
 /**
  * Sent immediately whenever a payout address is added or changed.
@@ -26,40 +37,41 @@ export const sendWalletChangeAlertEmail = async (
   email: string,
   name: string,
   data: { companyName?: string | null; rows: WalletChangeRow[]; revertUrl: string },
-  _lang?: string | null,
+  lang?: string | null,
 ) => {
   try {
+    const L = await resolveEmailLang(lang, email);
     const { companyName, rows, revertUrl } = data;
     const multiple = rows.length > 1;
-    const brand = escapeHtml(companyName || "your brand");
+    const brand = escapeHtml(companyName || t(wk("brandFallback"), L));
     const tableRows = rows
       .map((r, i) =>
         dataRow(
           escapeHtml(r.network),
-          `${mono(escapeHtml(r.address))} <span style="color:#6b7280;font-size:12px;">(${escapeHtml(r.actionLabel)})</span>`,
+          `${mono(escapeHtml(r.address))} <span style="color:#6b7280;font-size:12px;">(${localizeAction(L, r.actionLabel)})</span>`,
           i === rows.length - 1,
         ),
       )
       .join("");
 
     const subject = multiple
-      ? "Your payout addresses were changed"
-      : `Your ${escapeHtml(rows[0]?.network || "")} payout address was changed`;
+      ? t(wk("changeAlert.subjectMulti"), L)
+      : t(wk("changeAlert.subjectSingle"), L, { network: escapeHtml(rows[0]?.network || "") });
 
-    const content = `${p(name ? `Hey ${escapeHtml(firstNameOnly(name))},` : "Hey there,")}
-    ${p(`The payout ${multiple ? "addresses" : "address"} for <strong>${brand}</strong> ${multiple ? "were" : "was"} just updated. Here ${multiple ? "are" : "is"} the ${multiple ? "details" : "detail"}:`)}
+    const content = `${greetingLine(L, name)}
+    ${p(t(wk(multiple ? "changeAlert.introMulti" : "changeAlert.introSingle"), L, { brand }))}
     ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${tableRows}</table>`, "#f59e0b")}
-    ${p("If you made this change, you're all set — no action is needed.")}
-    ${alertBox("Didn't do this? Tap the button below to instantly undo it and lock further payout address changes on your account.")}`;
+    ${p(t(wk("changeAlert.noAction"), L))}
+    ${alertBox(t(wk("changeAlert.alert"), L))}`;
 
     const html = dynoPayEmailTemplate(
-      "Payout address changed",
+      t(wk("changeAlert.heading"), L),
       content,
       true,
-      "This wasn't me — undo & lock",
+      t(wk("changeAlert.cta"), L),
       revertUrl,
-      "If this wasn't you, undo it in one tap and lock payout address changes.",
-      undefined,
+      t(wk("changeAlert.preheader"), L),
+      L,
       "shield-alert",
     );
     await mailTransporter({ to: email, name, subject, body: html });
@@ -77,25 +89,27 @@ export const sendWalletSecuredEmail = async (
   email: string,
   name: string,
   data: { companyName?: string | null; networks: string[] },
-  _lang?: string | null,
+  lang?: string | null,
 ) => {
   try {
-    const brand = escapeHtml(data.companyName || "your brand");
+    const L = await resolveEmailLang(lang, email);
+    const brand = escapeHtml(data.companyName || t(wk("brandFallback"), L));
     const nets = (data.networks || []).map(escapeHtml).join(", ");
-    const subject = "We've secured your account";
-    const content = `${p(name ? `Hey ${escapeHtml(firstNameOnly(name))},` : "Hey there,")}
-    ${p(`As requested, we've undone the recent payout address change${data.networks.length > 1 ? "s" : ""} for <strong>${brand}</strong> and <strong>locked further payout address changes</strong> on your account.`)}
-    ${nets ? infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${dataRow("Networks restored", nets, true)}</table>`, "#12B76A") : ""}
-    ${warnText("For your safety, new payout addresses can't be added or edited until you contact support and confirm it's really you.")}
-    ${p("We also recommend changing your account password if you suspect it was compromised.")}`;
+    const multiple = (data.networks || []).length > 1;
+    const subject = t(wk("secured.subject"), L);
+    const content = `${greetingLine(L, name)}
+    ${p(t(wk(multiple ? "secured.introMulti" : "secured.introSingle"), L, { brand }))}
+    ${nets ? infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${dataRow(t(wk("secured.networksRestoredLabel"), L), nets, true)}</table>`, "#12B76A") : ""}
+    ${warnText(t(wk("secured.warn"), L))}
+    ${p(t(wk("secured.passwordRec"), L))}`;
     const html = dynoPayEmailTemplate(
-      "Account secured",
+      t(wk("secured.heading"), L),
       content,
       true,
-      "Contact support",
+      t(wk("secured.cta"), L),
       `${FRONTEND_BASE_URL}/help-support`,
-      "We've undone the payout address change and locked further edits on your account.",
-      undefined,
+      t(wk("secured.preheader"), L),
+      L,
       "shield-green",
     );
     await mailTransporter({ to: email, name, subject, body: html });

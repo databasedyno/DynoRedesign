@@ -132,6 +132,7 @@ const main = async () => {
 
   // ── admin ops (M + A) ──
   await capture("adminOps", "webhookDisabled", "", "M", () => ops.sendWebhookDisabledEmail(M, NAME, BRAND, "https://acme.example.com/hooks/dynopay", "payment.confirmed", "HTTP 503 Service Unavailable", 25));
+  await capture("adminOps", "webhookDisabled", "de", "M", () => ops.sendWebhookDisabledEmail(M, NAME, BRAND, "https://acme.example.com/hooks/dynopay", "payment.confirmed", "HTTP 503 Service Unavailable", 25, "de"));
   await capture("adminOps", "webhookRedirect", "", "M", () => ops.sendWebhookRedirectEmail(M, NAME, BRAND, "http://acme.example.com/hooks", "https://acme.example.com/hooks", 301));
   await capture("adminOps", "adminFeeReceived", "", "A", () => ops.sendAdminFeeReceivedEmail(A, "Ops", "0.000063", "BTC", TX, BRAND, "0.004137", "0.0042"));
   await capture("adminOps", "adminFeeSweep", "", "A", () => ops.sendAdminFeeSweepEmail(A, "0.0412", "ETH", "0x8a3f…c21d", "0x71e2…9b04", "0xfeedface1234", "0.00021", "scheduled"));
@@ -241,6 +242,10 @@ const main = async () => {
   await capture("referral", "activated", "", "M", () => ref.sendReferralActivatedEmail(M, NAME, "Nameword"));
   await capture("referral", "monthlyDigest", "", "M", () => ref.sendReferralMonthlyDigestEmail(M, NAME, "May 2026", 48.2, [{ name: "Nameword", usd: 30.1 }, { name: "SMADAV", usd: 18.1 }], "auto"));
   await capture("referral", "shareNudge", "", "M", () => ref.sendReferralShareNudgeEmail(M, NAME, "REF-4B9444E9"));
+  await capture("referral", "creditLow", "", "M", () => ref.sendReferralCreditLowEmail(M, NAME, 6.4));
+  await capture("referral", "creditExhausted", "", "M", () => ref.sendReferralCreditExhaustedEmail(M, NAME));
+  await capture("referral", "accrual", "de", "M", () => ref.sendReferralAccrualEmail(M, NAME, 3.92, "Nameword", 129.42, "de"));
+  await capture("referral", "monthlyDigest", "es", "M", () => ref.sendReferralMonthlyDigestEmail(M, NAME, "mayo 2026", 48.2, [{ name: "Nameword", usd: 30.1 }], "credit", "es"));
 
   // ── security ──
   await capture("security", "twoFaEnabled", "", "M", () => sec.send2FAEnabledEmail(M, NAME));
@@ -270,6 +275,7 @@ const main = async () => {
   await capture("wallet", "walletDeleteOtp", "", "M", () => wal.sendWalletDeleteOTPEmail(M, NAME, "482913", "bc1q…k4x7", "BTC"));
   await capture("walletSecurity", "walletChangeAlert", "", "M", () => wsec.sendWalletChangeAlertEmail(M, NAME, { companyName: BRAND, rows: [{ network: "Bitcoin", address: "bc1q…9x2k", actionLabel: "updated" }, { network: "USDT · TRC-20", address: "TXk…9fA2", actionLabel: "added" }], revertUrl: `${FE}/wallet-security?token=abc` }));
   await capture("walletSecurity", "walletSecured", "", "M", () => wsec.sendWalletSecuredEmail(M, NAME, { companyName: BRAND, networks: ["Bitcoin", "USDT · TRC-20"] }));
+  await capture("walletSecurity", "walletChangeAlert", "de", "M", () => wsec.sendWalletChangeAlertEmail(M, NAME, { companyName: BRAND, rows: [{ network: "Bitcoin", address: "bc1q…9x2k", actionLabel: "updated" }], revertUrl: `${FE}/wallet-security?token=abc` }, "de"));
 
   // ── refunds (builders — the sender reads companyModel) ──
   const r1 = rfd.buildRefundEmail({ refund_amount: 0.0012, asset: "BTC", chain: "BTC", brand_name: BRAND }, "forwarding");

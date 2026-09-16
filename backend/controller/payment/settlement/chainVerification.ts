@@ -1863,17 +1863,20 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
         let mrNotifMessage: string;
         let mrNotifAmount: number;
         let mrNotifCurrency: string;
+        // How the payment was made — surfaced in the notification text + metadata.
+        const SOURCE_LABEL: Record<string, string> = { api: "API", paymentLink: "Payment link", productOrder: "Store", donation: "Donation", tip: "Tip" };
+        const sourceSuffix = paymentSourceKey && SOURCE_LABEL[paymentSourceKey] ? ` · via ${SOURCE_LABEL[paymentSourceKey]}` : "";
         if (autoConvertEnabled) {
           const merchantUsdApprox = Number(totalAmountReceived) > 0
             ? roundTo(mul(originalUserAmount, div(receivedUSD, totalAmountReceived)), 2, "down").toNumber()
             : 0;
           mrNotifAmount = merchantUsdApprox;
           mrNotifCurrency = autoConvertTargetCurrency;
-          mrNotifMessage = `Your company ${companyName} received ≈ $${toFixedStr(merchantUsdApprox, 2)} — auto-converting to ${autoConvertTargetCurrency}`;
+          mrNotifMessage = `Your company ${companyName} received ≈ $${toFixedStr(merchantUsdApprox, 2)} — auto-converting to ${autoConvertTargetCurrency}${sourceSuffix}`;
         } else {
           mrNotifAmount = userAmountToSend;
           mrNotifCurrency = tempCurrency;
-          mrNotifMessage = `Your company ${companyName} received ${formatCryptoAmount(userAmountToSend, tempCurrency)} ${tempCurrency}`;
+          mrNotifMessage = `Your company ${companyName} received ${formatCryptoAmount(userAmountToSend, tempCurrency)} ${tempCurrency}${sourceSuffix}`;
         }
         await createNotification(
           customerData.adm_id,
@@ -1889,6 +1892,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
             transaction_id: transactionId,
             company_name: companyName,
             company_id: company_data?.company_id,
+            payment_source: paymentSourceKey,
           },
           company_data?.company_id
         );

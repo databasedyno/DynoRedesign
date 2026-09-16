@@ -13,11 +13,20 @@ jest.mock("../models/userModels/userModel", () => ({ __esModule: true, default: 
 jest.mock("../models/referralModels/referralModel", () => ({ __esModule: true, default: mockReferral }));
 jest.mock("../models/referralModels/referralRewardModel", () => ({ __esModule: true, default: mockReward }));
 
+const mockRedis = { set: jest.fn(), del: jest.fn() };
+jest.mock("../utils/redisInstance", () => ({ redis: mockRedis }));
+const mockEmails = {
+  sendReferralCreditLowEmail: jest.fn().mockResolvedValue(undefined),
+  sendReferralCreditExhaustedEmail: jest.fn().mockResolvedValue(undefined),
+};
+jest.mock("../services/email/referralEmails", () => mockEmails);
+
 import sequelize from "../utils/dbInstance";
 import {
   computeReferralFeeCreditShift,
   consumeReferralCreditForTransaction,
   getAvailableCreditForFees,
+  maybeAlertReferralCredit,
 } from "../services/referralCreditService";
 
 const referral = (over: Record<string, unknown>) => ({
@@ -146,5 +155,53 @@ describe("computeReferralFeeCreditShift", () => {
     await computeReferralFeeCreditShift({ ...base, userId: null });
     await computeReferralFeeCreditShift({ ...base, adminAmountToSend: 0 });
     expect(mockUser.findByPk).not.toHaveBeenCalled();
+  });
+});
+
+describe("maybeAlertReferralCredit (Matrix B/C)", () => {
+  // findByPk answers BOTH the payout-mode lookup and the recipient lookup.
+  const recipient = { referral_payout_mode: "credit", email: "ref@example.com", name: "Ref User", language: "de" };
+
+  it("sends the LOW alert (once, Redis-guarded) when remaining credit is under $10", async () => {
+    mockUser.findByPk.mockResolvedValue(recipient);
+    mockReferral.findAll.mockResolvedValue([referral({ commission_accrued_usd: 6 })]); // remaining $6
+    mockRedis.set.mockResolvedValue("OK"); // guard acquired
+    await maybeAlertReferralCredit(1);
+    expect(mockRedis.set).toHaveBeenCalledWith("refcredit:low:1", "1", expect.objectContaining({ NX: true }));
+    expect(mockEmails.sendReferralCreditLowEmail).toHaveBeenCalledWith("ref@example.com", "Ref User", 6, "de");
+    expect(mockEmails.sendReferralCreditExhaustedEmail).not.toHaveBeenCalled();
+  });
+
+  it("sends the EXHAUSTED alert when remaining credit is $0", async () => {
+    mockUser.findByPk.mockResolvedValue(recipient);
+    mockReferral.findAll.mockResolvedValue([referral({ commission_accrued_usd: 5, commission_credited_usd: 5 })]); // remaining $0
+    mockRedis.set.mockResolvedValue("OK");
+    await maybeAlertReferralCredit(1);
+    expect(mockRedis.set).toHaveBeenCalledWith("refcredit:exhausted:1", "1", expect.objectContaining({ NX: true }));
+    expect(mockEmails.sendReferralCreditExhaustedEmail).toHaveBeenCalledWith("ref@example.com", "Ref User", "de");
+    expect(mockEmails.sendReferralCreditLowEmail).not.toHaveBeenCalled();
+  });
+
+  it("does NOT resend when the Redis guard is already held (dedup)", async () => {
+    mockUser.findByPk.mockResolvedValue(recipient);
+    mockReferral.findAll.mockResolvedValue([referral({ commission_accrued_usd: 6 })]);
+    mockRedis.set.mockResolvedValue(null); // guard already set → set NX returns null
+    await maybeAlertReferralCredit(1);
+    expect(mockEmails.sendReferralCreditLowEmail).not.toHaveBeenCalled();
+  });
+
+  it("clears both guards (no email) when credit is healthy again", async () => {
+    mockUser.findByPk.mockResolvedValue(recipient);
+    mockReferral.findAll.mockResolvedValue([referral({ commission_accrued_usd: 50 })]); // remaining $50
+    await maybeAlertReferralCredit(1);
+    expect(mockRedis.del).toHaveBeenCalledWith("refcredit:low:1");
+    expect(mockRedis.del).toHaveBeenCalledWith("refcredit:exhausted:1");
+    expect(mockEmails.sendReferralCreditLowEmail).not.toHaveBeenCalled();
+    expect(mockEmails.sendReferralCreditExhaustedEmail).not.toHaveBeenCalled();
+  });
+
+  it("never throws (swallows errors so a settlement is never affected)", async () => {
+    mockUser.findByPk.mockRejectedValue(new Error("db down"));
+    await expect(maybeAlertReferralCredit(1)).resolves.toBeUndefined();
   });
 });

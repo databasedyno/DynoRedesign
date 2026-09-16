@@ -27,6 +27,7 @@ import { dispatchCompanyEmail } from "./email/companyDispatch";
 import { toFixedStr } from "../utils/money";
 import type { PaymentMoneyPath } from "./email/paymentSettled";
 import { isConfirmingEmailOptedIn } from "../utils/notificationRecipients";
+import { classifyPaymentSource } from "../utils/paymentSource";
 
 /**
  * Convert a received crypto amount into the merchant's fiat display currency
@@ -93,7 +94,7 @@ export const sendPendingPaymentNotification = async (
   txId: string,
   amount: number,
   currency: string,
-  customerData: { name?: string; email?: string; phone?: string; metadata?: Record<string, unknown>; adm_id?: number; company_id?: number; amount?: number }
+  customerData: { name?: string; email?: string; phone?: string; metadata?: Record<string, unknown>; adm_id?: number; company_id?: number; amount?: number; link_id?: string | number | null; link_type?: string | null }
 ): Promise<boolean> => {
   try {
     // Check if we already sent a pending notification for this transaction
@@ -139,6 +140,10 @@ export const sendPendingPaymentNotification = async (
 
     const user = userResult[0] as { user_id: number; name: string; email: string; language: string; company_name: string; company_id: number };
     const confirmationsRequired = CONFIRMATION_REQUIREMENTS[currency] || 1;
+    // How the payment was made — only when we have link context (else leave unknown).
+    const pendingSourceKey = (customerData.link_id || customerData.link_type)
+      ? classifyPaymentSource({ linkId: customerData.link_id, linkType: customerData.link_type })
+      : undefined;
 
     // Create in-app notification
     await createNotification(
@@ -154,6 +159,7 @@ export const sendPendingPaymentNotification = async (
         confirmations_required: confirmationsRequired,
         estimated_time: ESTIMATED_CONFIRMATION_TIMES[currency] || "1-10 minutes",
         status: "pending",
+        payment_source: pendingSourceKey,
       },
       customerData.company_id
     );
@@ -180,7 +186,8 @@ export const sendPendingPaymentNotification = async (
         normalizeLang(user.language),
         pendingFiat.cryptoAmount,
         pendingFiat.cryptoCurrency || currency,
-        (ESTIMATED_CONFIRMATION_TIMES[currency] || "").replace("minutes", "min").replace("-", "–") || null
+        (ESTIMATED_CONFIRMATION_TIMES[currency] || "").replace("minutes", "min").replace("-", "–") || null,
+        pendingSourceKey
       )
     );
 

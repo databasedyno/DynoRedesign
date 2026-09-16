@@ -905,6 +905,7 @@ async function handleNewTransaction(
     if (!customerData.webhook_secret && items?.webhook_secret) customerData.webhook_secret = items.webhook_secret;
     if (!customerData.company_id && items?.company_id) customerData.company_id = items.company_id;
     if (!customerData.link_id && items?.link_id) customerData.link_id = items.link_id;
+    if (!customerData.link_type && items?.link_type) customerData.link_type = items.link_type;
   }
 
   // Send pending notification

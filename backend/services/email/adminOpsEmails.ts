@@ -2,14 +2,14 @@ import mailTransporter from "../../utils/mailTransporter";
 import config from "../../utils/config";
 import { apiLogger } from "../../utils/loggers";
 import { captureError } from "../errorMonitoringService";
-import { generatePaymentReceipt, getReceiptFilename } from "../pdfReceiptService";
-import { emailDateParts, t, normalizeLang, resolveEmailLang, firstNameOnly } from "../../utils/emailI18n";
-import { formatCryptoAmount } from "../../utils/currencyUtils";
-import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../../utils/emailTemplate";
+import { emailDateParts, t, resolveEmailLang, firstNameOnly } from "../../utils/emailI18n";
+import { baseEmailTemplate, infoBox, dataRow, statusBadge, p, feeRow, feeTotalRow, feeTable, mono } from "../../utils/emailTemplate";
 import { EMAIL_TOKENS } from "../../utils/brandTokens";
-import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, dynoPayGreetingTemplate, formatAmountWithCurrency, formatMoneyForEmail, sendEmail } from "./emailShared";
+import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, dynoPayGreetingTemplate, formatMoneyForEmail } from "./emailShared";
 import { toFixedStr } from "../../utils/money";
-import { isPlaceholderBuyerEmail } from "../../utils/transactionSource";
+
+const ak = (key: string) => `admin.${key}`;
+const WEBHOOK_SETTINGS_URL = `${FRONTEND_BASE_URL}/developer-keys?tab=webhooks`;
 
 export const sendWebhookDisabledEmail = async (
   email: string,
@@ -23,26 +23,27 @@ export const sendWebhookDisabledEmail = async (
 ) => {
   try {
     const L = await resolveEmailLang(lang, email);
-    const subject = `Action needed – webhook delivery paused for ${companyName || 'your company'}`;
+    const company = escapeHtml(companyName || t(ak("webhookDisabled.companyFallback"), L));
+    const subject = t(ak("webhookDisabled.subject"), L, { company: companyName || t(ak("webhookDisabled.companyFallback"), L) });
     const displayUrl = String(webhookUrl || '').length > 80 ? String(webhookUrl).substring(0, 77) + '…' : String(webhookUrl || '(none)');
 
     const message = `
-      ${p(`We had to temporarily <strong>disable webhook delivery</strong> for <strong>${escapeHtml(companyName || 'your company')}</strong> because your endpoint has failed <strong>${failureCount} consecutive delivery attempts</strong> in the past 24 hours.`)}
+      ${p(t(ak("webhookDisabled.intro"), L, { company, count: failureCount }))}
       ${infoBox(`
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-          ${dataRow('Endpoint', `<span style="font-family:monospace;font-size:13px;">${escapeHtml(displayUrl)}</span>`)}
-          ${dataRow('Last event type', escapeHtml(eventType || 'unknown'))}
-          ${dataRow('Last error', `<span style="font-family:monospace;font-size:12px;">${escapeHtml(lastError)}</span>`)}
-          ${dataRow('Consecutive failures', String(failureCount), true)}
+          ${dataRow(t(ak("webhookDisabled.endpointLabel"), L), `<span style="font-family:monospace;font-size:13px;">${escapeHtml(displayUrl)}</span>`)}
+          ${dataRow(t(ak("webhookDisabled.lastEventLabel"), L), escapeHtml(eventType || t(ak("webhookDisabled.unknownEvent"), L)))}
+          ${dataRow(t(ak("webhookDisabled.lastErrorLabel"), L), `<span style="font-family:monospace;font-size:12px;">${escapeHtml(lastError)}</span>`)}
+          ${dataRow(t(ak("webhookDisabled.failuresLabel"), L), String(failureCount), true)}
         </table>
       `, '#f59e0b')}
-      ${p(`<strong>What you need to do:</strong>`)}
-      ${p(`1. Verify the URL is correct and reachable from the public internet.<br>2. Confirm your endpoint returns HTTP 2xx within 10 seconds.<br>3. Re-enable delivery from the <a href="${escapeHtml(FRONTEND_BASE_URL)}/developer-keys?tab=webhooks" style="color:#05936A;font-weight:600;">webhook settings page</a>.`)}
-      ${p(`No payments were lost — every attempt was captured in your <a href="${escapeHtml(FRONTEND_BASE_URL)}/developer-keys?tab=webhooks" style="color:#05936A;">webhook delivery log</a> and can be re-fired once your endpoint is healthy again.`)}
-      ${p(`If you don't recognize this endpoint or believe this is a mistake, please reply to this email and we'll investigate immediately.`)}
+      ${p(t(ak("webhookDisabled.whatToDoTitle"), L))}
+      ${p(t(ak("webhookDisabled.steps"), L, { settingsUrl: escapeHtml(WEBHOOK_SETTINGS_URL) }))}
+      ${p(t(ak("webhookDisabled.noLost"), L, { settingsUrl: escapeHtml(WEBHOOK_SETTINGS_URL) }))}
+      ${p(t(ak("webhookDisabled.notRecognize"), L))}
     `;
 
-    const html = dynoPayGreetingTemplate(name || 'there', message, `Webhook auto-disabled`, false, undefined, `We paused webhook delivery after ${failureCount} failed attempts — action needed.`, 'webhook');
+    const html = dynoPayGreetingTemplate(name || 'there', message, t(ak("webhookDisabled.heading"), L), false, L, t(ak("webhookDisabled.preheader"), L, { count: failureCount }), 'webhook');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Webhook auto-disabled alert sent to ${email} (company="${companyName}" url="${displayUrl}" failures=${failureCount})`);
   } catch (e) {
@@ -51,14 +52,8 @@ export const sendWebhookDisabledEmail = async (
 };
 
 /**
- * Webhook Redirect Notice
- *
- * Fired the first time we detect a merchant's CONFIGURED webhook endpoint
- * responding with a 3xx redirect (e.g. 308 apex → www). We now safely follow
- * the redirect (after re-running the SSRF guard on the target) so delivery
- * succeeds, but the extra hop adds latency and is fragile — so we nudge the
- * merchant to point their webhook URL straight at the final address. Throttled
- * to one email per (url → target) pair per 7 days in the caller.
+ * Webhook Redirect Notice — fired when a merchant's configured endpoint responds
+ * with a 3xx redirect. We follow it safely, but nudge them to point at the final URL.
  */
 export const sendWebhookRedirectEmail = async (
   email: string,
@@ -71,25 +66,26 @@ export const sendWebhookRedirectEmail = async (
 ) => {
   try {
     const L = await resolveEmailLang(lang, email);
-    const subject = `Heads up – your webhook URL redirects (${companyName || 'your company'})`;
+    const company = escapeHtml(companyName || t(ak("webhookRedirect.companyFallback"), L));
+    const subject = t(ak("webhookRedirect.subject"), L, { company: companyName || t(ak("webhookRedirect.companyFallback"), L) });
     const clip = (u: string) => (String(u || '').length > 90 ? String(u).substring(0, 87) + '…' : String(u || '(none)'));
     const fromUrl = clip(originalUrl);
     const toUrl = clip(finalUrl);
 
     const message = `
-      ${p(`Your webhook endpoint for <strong>${escapeHtml(companyName || 'your company')}</strong> is responding with an <strong>HTTP ${status} redirect</strong>. Good news — we automatically follow it (after a security re-check), so <strong>your webhooks are being delivered</strong>. But the extra redirect hop adds latency and can break if the redirect ever changes.`)}
+      ${p(t(ak("webhookRedirect.intro"), L, { company, status }))}
       ${infoBox(`
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-          ${dataRow('Configured URL', `<span style="font-family:monospace;font-size:13px;">${escapeHtml(fromUrl)}</span>`)}
-          ${dataRow('Redirects to', `<span style="font-family:monospace;font-size:13px;">${escapeHtml(toUrl)}</span>`)}
-          ${dataRow('Redirect status', `HTTP ${status}`, true)}
+          ${dataRow(t(ak("webhookRedirect.configuredLabel"), L), `<span style="font-family:monospace;font-size:13px;">${escapeHtml(fromUrl)}</span>`)}
+          ${dataRow(t(ak("webhookRedirect.redirectsToLabel"), L), `<span style="font-family:monospace;font-size:13px;">${escapeHtml(toUrl)}</span>`)}
+          ${dataRow(t(ak("webhookRedirect.statusLabel"), L), `HTTP ${status}`, true)}
         </table>
       `, '#f59e0b')}
-      ${p(`<strong>Recommended:</strong> update your webhook URL to the final address above so delivery is direct and reliable. You can change it on the <a href="${escapeHtml(FRONTEND_BASE_URL)}/developer-keys?tab=webhooks" style="color:#05936A;font-weight:600;">webhook settings page</a>.`)}
-      ${p(`Nothing is broken and no action is strictly required — this is just a recommendation to keep your integration fast and resilient.`)}
+      ${p(t(ak("webhookRedirect.recommended"), L, { settingsUrl: escapeHtml(WEBHOOK_SETTINGS_URL) }))}
+      ${p(t(ak("webhookRedirect.nothingBroken"), L))}
     `;
 
-    const html = dynoPayGreetingTemplate(name || 'there', message, `Your webhook URL redirects`, false, undefined, `We're auto-following an HTTP ${status} redirect on your webhook — please update the URL.`, 'webhook');
+    const html = dynoPayGreetingTemplate(name || 'there', message, t(ak("webhookRedirect.heading"), L), false, L, t(ak("webhookRedirect.preheader"), L, { status }), 'webhook');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Webhook redirect notice sent to ${email} (company="${companyName}" ${fromUrl} → ${toUrl} status=${status})`);
   } catch (e) {
@@ -97,13 +93,8 @@ export const sendWebhookRedirectEmail = async (
   }
 };
 
-
-// ============================================================
-// SECTION 7: ADMIN EMAILS
-// ============================================================
-
 /**
- * Admin Fee Received notification
+ * Admin Fee Received notification (ops).
  */
 export const sendAdminFeeReceivedEmail = async (
   recipientEmail: string,
@@ -116,16 +107,14 @@ export const sendAdminFeeReceivedEmail = async (
   totalAmount: string
 ) => {
   try {
-    // Trim noisy DECIMAL(20,8) trailing zeros for display (e.g. 3.20000000 -> 3.20).
-    // NOTE: these MUST be declared before `subject` (which uses feeFmt) — a prior
-    // ordering bug referenced feeFmt before init (TDZ) and this email never sent.
+    const L = await resolveEmailLang(undefined, recipientEmail);
     const feeFmt = formatMoneyForEmail(feeAmount, currency);
     const merchantFmt = formatMoneyForEmail(merchantAmount, currency);
     const totalFmt = formatMoneyForEmail(totalAmount, currency);
 
-    const subject = `Platform fee received – ${feeFmt} ${currency}`;
+    const subject = t(ak("feeReceived.subject"), L, { fee: feeFmt, currency });
     const now = new Date();
-    const { date: dateStr, time: timeStr } = emailDateParts(now);
+    const { date: dateStr, time: timeStr } = emailDateParts(now, L);
 
     const merchantAmountNum = parseFloat(merchantAmount);
     const feeAmountNum = parseFloat(feeAmount);
@@ -138,37 +127,37 @@ export const sendAdminFeeReceivedEmail = async (
     if (isUnderThreshold) {
       detailContent = `
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-          ${dataRow('Total Received', `<strong>${feeFmt} ${currency}</strong>`)}
-          ${dataRow('Status', statusBadge('Under Threshold', 'pending'))}
-          ${dataRow('Merchant Received', `${merchantFmt} ${currency}`)}
-          ${dataRow('Platform Received', `<strong>${feeFmt} ${currency} (100%)</strong>`)}
-          ${dataRow('Date', `${dateStr} · ${timeStr}`)}
-          ${dataRow('Company', companyName)}
-          ${dataRow('Transaction ID', `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`, true)}
+          ${dataRow(t(ak("feeReceived.totalReceivedLabel"), L), `<strong>${feeFmt} ${escapeHtml(currency)}</strong>`)}
+          ${dataRow(t(ak("feeReceived.statusLabel"), L), statusBadge(t(ak("feeReceived.statusUnderThreshold"), L), 'pending'))}
+          ${dataRow(t(ak("feeReceived.merchantReceivedLabel"), L), `${merchantFmt} ${escapeHtml(currency)}`)}
+          ${dataRow(t(ak("feeReceived.platformReceivedLabel"), L), `<strong>${t(ak("feeReceived.platformReceivedValue"), L, { fee: feeFmt, currency })}</strong>`)}
+          ${dataRow(t(ak("feeReceived.dateLabel"), L), `${dateStr} · ${timeStr}`)}
+          ${dataRow(t(ak("feeReceived.companyLabel"), L), escapeHtml(companyName))}
+          ${dataRow(t(ak("feeReceived.txLabel"), L), `<span style="font-family: monospace; font-size: 13px;">${escapeHtml(transactionId)}</span>`, true)}
         </table>`;
       noticeBlock = infoBox(`
-        <p style="margin: 0; font-size: 14px; color: #92400e; line-height: 1.5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;"><strong>Under Threshold:</strong> This payment was below the minimum forwarding threshold. All funds have been credited to the admin ${currency} wallet.</p>
+        <p style="margin: 0; font-size: 14px; color: #92400e; line-height: 1.5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t(ak("feeReceived.underThresholdNote"), L, { currency })}</p>
       `, '#f59e0b');
     } else {
       detailContent = `
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-          ${dataRow('Platform Fee', `<strong>${feeFmt} ${currency}</strong>`)}
-          ${dataRow('Status', statusBadge('Processed', 'success'))}
-          ${dataRow('Merchant Net', `${merchantFmt} ${currency}`)}
-          ${dataRow('Total Processed', `${totalFmt} ${currency}`)}
-          ${dataRow('Date', `${dateStr} · ${timeStr}`)}
-          ${dataRow('Company', companyName)}
-          ${dataRow('Transaction ID', `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`, true)}
+          ${dataRow(t(ak("feeReceived.platformFeeLabel"), L), `<strong>${feeFmt} ${escapeHtml(currency)}</strong>`)}
+          ${dataRow(t(ak("feeReceived.statusLabel"), L), statusBadge(t(ak("feeReceived.statusProcessed"), L), 'success'))}
+          ${dataRow(t(ak("feeReceived.merchantNetLabel"), L), `${merchantFmt} ${escapeHtml(currency)}`)}
+          ${dataRow(t(ak("feeReceived.totalProcessedLabel"), L), `${totalFmt} ${escapeHtml(currency)}`)}
+          ${dataRow(t(ak("feeReceived.dateLabel"), L), `${dateStr} · ${timeStr}`)}
+          ${dataRow(t(ak("feeReceived.companyLabel"), L), escapeHtml(companyName))}
+          ${dataRow(t(ak("feeReceived.txLabel"), L), `<span style="font-family: monospace; font-size: 13px;">${escapeHtml(transactionId)}</span>`, true)}
         </table>`;
     }
 
     const htmlContent = `
-      ${p(`Platform fee received from <strong>${companyName}</strong>.`)}
+      ${p(t(ak("feeReceived.intro"), L, { company: escapeHtml(companyName) }))}
       ${infoBox(detailContent, '#12B76A')}
       ${noticeBlock}
-      ${p(`The fee has been credited to the admin ${currency} wallet.`)}`;
+      ${p(t(ak("feeReceived.credited"), L, { currency }))}`;
 
-    const htmlBody = dynoPayEmailTemplate("Platform Fee Received", `${p(`Hey ${firstNameOnly(name)},`)}\n${htmlContent}`, false, "", "", "", undefined, 'check', 'admin');
+    const htmlBody = dynoPayEmailTemplate(t(ak("feeReceived.heading"), L), `${p(`${firstNameOnly(name) ? `Hey ${escapeHtml(firstNameOnly(name))},` : t(ak("greeting"), L)}`)}\n${htmlContent}`, false, "", "", "", L, 'check', 'admin');
     const info = await mailTransporter({ to: recipientEmail, name, subject, body: htmlBody });
     return info;
   } catch (e) {
@@ -177,7 +166,7 @@ export const sendAdminFeeReceivedEmail = async (
 };
 
 /**
- * Admin Fee Sweep notification
+ * Admin Fee Sweep notification (ops).
  */
 export const sendAdminFeeSweepEmail = async (
   recipientEmail: string,
@@ -190,30 +179,31 @@ export const sendAdminFeeSweepEmail = async (
   sweepMode: string
 ) => {
   try {
+    const L = await resolveEmailLang(undefined, recipientEmail);
     const sweptFmt = formatMoneyForEmail(amountSwept, currency);
-    const subject = `Admin Fee Swept — ${sweptFmt} ${currency}`;
+    const subject = t(ak("feeSweep.subject"), L, { amount: sweptFmt, currency });
     const now = new Date();
-    const { date: dateStr, time: timeStr } = emailDateParts(now);
+    const { date: dateStr, time: timeStr } = emailDateParts(now, L);
 
-    const sweepModeDisplay = sweepMode === 'threshold' ? 'USD Threshold' : sweepMode.startsWith('auto-convert') ? 'Auto-Convert (Direct Transfer)' : 'Time-Based';
+    const sweepModeDisplay = sweepMode === 'threshold' ? t(ak("feeSweep.modeThreshold"), L) : sweepMode.startsWith('auto-convert') ? t(ak("feeSweep.modeAutoConvert"), L) : t(ak("feeSweep.modeTime"), L);
 
     const htmlContent = `
-      ${p(`Admin fees have been swept from a pool address to the admin wallet.`)}
+      ${p(t(ak("feeSweep.intro"), L))}
       ${infoBox(`
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-          ${dataRow('Amount Swept', `<strong style="color: #166534;">${sweptFmt} ${currency}</strong>`)}
-          ${dataRow('Status', statusBadge('Swept', 'success'))}
-          ${dataRow('Sweep Mode', sweepModeDisplay)}
-          ${dataRow('Gas Used', gasUsed)}
-          ${dataRow('From Address', `<span style="font-family: monospace; font-size: 12px; word-break: break-all;">${fromAddress}</span>`)}
-          ${dataRow('To Admin Wallet', `<span style="font-family: monospace; font-size: 12px; word-break: break-all;">${toAddress}</span>`)}
-          ${dataRow('Date', `${dateStr} · ${timeStr}`)}
-          ${dataRow('Sweep TX ID', `<span style="font-family: monospace; font-size: 12px; word-break: break-all;">${sweepTxId}</span>`, true)}
+          ${dataRow(t(ak("feeSweep.amountSweptLabel"), L), `<strong style="color: #166534;">${sweptFmt} ${escapeHtml(currency)}</strong>`)}
+          ${dataRow(t(ak("feeSweep.statusLabel"), L), statusBadge(t(ak("feeSweep.statusSwept"), L), 'success'))}
+          ${dataRow(t(ak("feeSweep.sweepModeLabel"), L), sweepModeDisplay)}
+          ${dataRow(t(ak("feeSweep.gasUsedLabel"), L), escapeHtml(gasUsed))}
+          ${dataRow(t(ak("feeSweep.fromLabel"), L), `<span style="font-family: monospace; font-size: 12px; word-break: break-all;">${escapeHtml(fromAddress)}</span>`)}
+          ${dataRow(t(ak("feeSweep.toLabel"), L), `<span style="font-family: monospace; font-size: 12px; word-break: break-all;">${escapeHtml(toAddress)}</span>`)}
+          ${dataRow(t(ak("feeSweep.dateLabel"), L), `${dateStr} · ${timeStr}`)}
+          ${dataRow(t(ak("feeSweep.sweepTxLabel"), L), `<span style="font-family: monospace; font-size: 12px; word-break: break-all;">${escapeHtml(sweepTxId)}</span>`, true)}
         </table>
       `, EMAIL_TOKENS.brand)}
-      ${p(`The admin fees have been transferred to the admin ${currency} wallet. You can verify the transaction on the blockchain explorer.`)}`;
+      ${p(t(ak("feeSweep.outro"), L, { currency }))}`;
 
-    const htmlBody = dynoPayEmailTemplate("Admin Fee Sweep Completed", `${p(`Hey Dynopay Admin,`)}\n${htmlContent}`, false, "", "", "", undefined, 'payout', 'admin');
+    const htmlBody = dynoPayEmailTemplate(t(ak("feeSweep.heading"), L), `${p(t(ak("greeting"), L))}\n${htmlContent}`, false, "", "", "", L, 'payout', 'admin');
     const info = await mailTransporter({
       to: recipientEmail,
       name: "Dynopay Admin",
@@ -227,9 +217,8 @@ export const sendAdminFeeSweepEmail = async (
 };
 
 /**
- * Treasury-Low Alert (admin/ops) — a payout/withdrawal could not be sent because
- * the Binance balance for the asset is too low. The payout WAITS for a top-up
- * (never failed). Throttled by utils/treasuryAlert.ts (once per asset per 3h).
+ * Treasury-Low Alert (admin/ops) — a payout could not be sent because the Binance
+ * balance for the asset is too low. The payout WAITS for a top-up (never failed).
  */
 export const sendTreasuryLowAlertEmail = async (
   recipientEmail: string,
@@ -239,33 +228,30 @@ export const sendTreasuryLowAlertEmail = async (
   context: string
 ) => {
   try {
-    const subject = `Low ${asset} treasury — top up Binance`;
+    const L = await resolveEmailLang(undefined, recipientEmail);
+    const subject = t(ak("treasuryLow.subject"), L, { asset });
     const shortfall = Math.max(0, need - have);
     const content = `
-      ${p(`A payout could not be sent because the Binance <strong>${escapeHtml(asset)}</strong> balance is too low to cover it.`)}
+      ${p(t(ak("treasuryLow.intro"), L, { asset: escapeHtml(asset) }))}
       ${infoBox(`
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-          ${dataRow('Asset', `<strong>${escapeHtml(asset)}</strong>`)}
-          ${dataRow('Available', `${toFixedStr(have, 2)} ${escapeHtml(asset)}`)}
-          ${dataRow('Required', `${toFixedStr(need, 2)} ${escapeHtml(asset)}`)}
-          ${dataRow('Shortfall', `<strong style="color:#b91c1c;">${toFixedStr(shortfall, 2)} ${escapeHtml(asset)}</strong>`)}
-          ${dataRow('Context', escapeHtml(context), true)}
+          ${dataRow(t(ak("treasuryLow.assetLabel"), L), `<strong>${escapeHtml(asset)}</strong>`)}
+          ${dataRow(t(ak("treasuryLow.availableLabel"), L), `${toFixedStr(have, 2)} ${escapeHtml(asset)}`)}
+          ${dataRow(t(ak("treasuryLow.requiredLabel"), L), `${toFixedStr(need, 2)} ${escapeHtml(asset)}`)}
+          ${dataRow(t(ak("treasuryLow.shortfallLabel"), L), `<strong style="color:#b91c1c;">${toFixedStr(shortfall, 2)} ${escapeHtml(asset)}</strong>`)}
+          ${dataRow(t(ak("treasuryLow.contextLabel"), L), escapeHtml(context), true)}
         </table>
       `, '#f59e0b')}
-      ${p(`The affected payout is <strong>safely waiting</strong> and will retry automatically once the Binance ${escapeHtml(asset)} balance is topped up. No funds were lost and nothing was marked failed.`)}
-      ${p(`<strong>Action:</strong> top up the Binance ${escapeHtml(asset)} balance to at least ${toFixedStr(need, 2)} ${escapeHtml(asset)}.`)}`;
+      ${p(t(ak("treasuryLow.waiting"), L, { asset: escapeHtml(asset) }))}
+      ${p(t(ak("treasuryLow.action"), L, { asset: escapeHtml(asset), need: toFixedStr(need, 2) }))}`;
 
-    const html = dynoPayEmailTemplate(`Low ${asset} treasury`, `${p(`Hey Dynopay Admin,`)}\n${content}`, false, "", "", "", undefined, 'danger', 'admin');
+    const html = dynoPayEmailTemplate(t(ak("treasuryLow.heading"), L, { asset: escapeHtml(asset) }), `${p(t(ak("greeting"), L))}\n${content}`, false, "", "", "", L, 'danger', 'admin');
     await mailTransporter({ to: recipientEmail, name: "Dynopay Admin", subject, body: html });
     apiLogger.info(`[Email] Treasury-low alert sent to ${recipientEmail} (${asset}: have ${have}, need ${need}, ${context})`);
   } catch (e) {
     captureError(e, 'email', { extraContext: 'sendTreasuryLowAlertEmail' });
   }
 };
-
-// ============================================================
-// SECTION 8: AUTO-CONVERSION EMAILS
-// ============================================================
 
 export interface ConversionFailedAdminData {
   conversionId: string;
@@ -291,31 +277,31 @@ export interface ConversionFailedAdminData {
  */
 export const sendConversionFailedAdminEmail = async (recipientEmail: string, d: ConversionFailedAdminData) => {
   try {
+    const L = await resolveEmailLang(undefined, recipientEmail);
     const amountLine = `${d.sourceAmount} ${d.sourceCurrency}${d.sourceAmountUsd ? ` (~$${d.sourceAmountUsd})` : ''}`;
-    const subject = `Auto-convert failed — ${amountLine} held for ${d.companyName}`;
+    const subject = t(ak("conversionFailed.subject"), L, { amount: amountLine, company: d.companyName });
     const content = `
-      ${p(`Auto-conversion <strong>#${escapeHtml(d.conversionId)}</strong> for <strong>${escapeHtml(d.companyName)}</strong> gave up. The crypto is parked in the Binance deposit wallet and will not move until you settle it manually. The merchant has <strong>not</strong> been notified.`)}
+      ${p(t(ak("conversionFailed.intro"), L, { id: escapeHtml(d.conversionId), company: escapeHtml(d.companyName) }))}
       ${infoBox(`
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-          ${dataRow('Amount', `<strong>${escapeHtml(amountLine)}</strong>`)}
-          ${dataRow('Target', `${escapeHtml(d.targetCurrency)}${d.settlementChain ? ` (${escapeHtml(d.settlementChain)})` : ''}`)}
-          ${dataRow('Reason', `<span style="color:#b91c1c;">${escapeHtml(d.reason || 'Unknown')}</span>`)}
-          ${dataRow('Retries', String(d.retryCount))}
-          ${dataRow('Created', escapeHtml(d.createdAt))}
-          ${dataRow('Merchant', `${escapeHtml(d.merchantEmail)} · company #${escapeHtml(d.companyId)}`)}
-          ${d.settlementWallet ? dataRow('Payout address', mono(d.settlementWallet)) : ''}
-          ${d.depositTxHash ? dataRow('Deposit tx', mono(d.depositTxHash)) : ''}
-          ${d.transactionId ? dataRow('Payment tx', mono(d.transactionId)) : ''}
-          ${dataRow('Conversion', mono(`#${d.conversionId}`), true)}
+          ${dataRow(t(ak("conversionFailed.amountLabel"), L), `<strong>${escapeHtml(amountLine)}</strong>`)}
+          ${dataRow(t(ak("conversionFailed.targetLabel"), L), `${escapeHtml(d.targetCurrency)}${d.settlementChain ? ` (${escapeHtml(d.settlementChain)})` : ''}`)}
+          ${dataRow(t(ak("conversionFailed.reasonLabel"), L), `<span style="color:#b91c1c;">${escapeHtml(d.reason || t(ak("conversionFailed.reasonUnknown"), L))}</span>`)}
+          ${dataRow(t(ak("conversionFailed.retriesLabel"), L), String(d.retryCount))}
+          ${dataRow(t(ak("conversionFailed.createdLabel"), L), escapeHtml(d.createdAt))}
+          ${dataRow(t(ak("conversionFailed.merchantLabel"), L), `${escapeHtml(d.merchantEmail)} · company #${escapeHtml(d.companyId)}`)}
+          ${d.settlementWallet ? dataRow(t(ak("conversionFailed.payoutAddressLabel"), L), mono(escapeHtml(d.settlementWallet))) : ''}
+          ${d.depositTxHash ? dataRow(t(ak("conversionFailed.depositTxLabel"), L), mono(escapeHtml(d.depositTxHash))) : ''}
+          ${d.transactionId ? dataRow(t(ak("conversionFailed.paymentTxLabel"), L), mono(escapeHtml(d.transactionId))) : ''}
+          ${dataRow(t(ak("conversionFailed.conversionLabel"), L), mono(`#${escapeHtml(d.conversionId)}`), true)}
         </table>
       `, '#f59e0b')}
-      ${p(`<strong>Action:</strong> check the Binance deposit for this coin, then either re-run the conversion (<code>POST /api/company/conversion/${escapeHtml(d.conversionId)}/retry</code>) or send the ${escapeHtml(d.sourceCurrency)} to the merchant in the original coin and mark the row COMPLETED.`)}`;
+      ${p(t(ak("conversionFailed.action"), L, { id: escapeHtml(d.conversionId), currency: escapeHtml(d.sourceCurrency) }))}`;
 
-    const html = dynoPayEmailTemplate(`Auto-convert failed — #${d.conversionId}`, `${p(`Hey Dynopay Admin,`)}\n${content}`, false, "", "", "", undefined, 'danger', 'admin');
+    const html = dynoPayEmailTemplate(t(ak("conversionFailed.heading"), L, { id: escapeHtml(d.conversionId) }), `${p(t(ak("greeting"), L))}\n${content}`, false, "", "", "", L, 'danger', 'admin');
     await mailTransporter({ to: recipientEmail, name: "Dynopay Admin", subject, body: html });
     apiLogger.info(`[Email] Conversion-failed admin alert sent to ${recipientEmail} (conversion #${d.conversionId}, ${amountLine})`);
   } catch (e) {
     captureError(e, 'email', { extraContext: 'sendConversionFailedAdminEmail' });
   }
 };
-

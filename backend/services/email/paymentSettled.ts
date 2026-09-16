@@ -30,6 +30,8 @@ export interface PaymentMoneyPath {
   largePayment?: boolean;
   /** Referral credit (USD) applied to the Dynopay fee on this payment — shown as a benefit row. */
   referralCreditUsd?: number | null;
+  /** How the payment was made: api | paymentLink | productOrder | donation | tip — shown as a "Received via" row. */
+  sourceKey?: string | null;
 }
 
 export const maskAddress = (a?: string | null): string =>
@@ -96,6 +98,7 @@ export const renderMoneyPath = (L: string, mp: PaymentMoneyPath): string => {
           : `<span style="color:#b45309;">${t("paymentSettled.forwarding", L)}</span>`,
       );
   const rows = [
+    mp.sourceKey ? dataRow(t("labels.paymentSource", L), escapeHtml(t("paymentSource." + mp.sourceKey, L))) : "",
     dest,
     fwd,
     dataRow(t("paymentSettled.assetNetwork", L), escapeHtml(assetNetworkLabel(mp.asset))),

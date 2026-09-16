@@ -53,7 +53,7 @@ export const sendPaymentReceivedEmail = async (
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${dataRow(t('labels.amount', L), `<strong>${amount} ${currency}</strong>`)}
         ${cryptoAmount && cryptoCurrency ? dataRow(t('labels.cryptoAmount', L), `${formatCryptoAmount(cryptoAmount, cryptoCurrency)} ${cryptoCurrency}`) : ''}
-        ${paymentSourceKey ? dataRow(t('labels.paymentMethod', L), t('paymentSource.' + paymentSourceKey, L)) : ''}
+        ${paymentSourceKey ? dataRow(t('labels.paymentSource', L), t('paymentSource.' + paymentSourceKey, L)) : ''}
         ${dataRow(t('labels.status', L), statusBadge(t('statusLabels.received', L), 'success'))}
         ${dataRow(t('labels.date', L), dateTimeStr)}
         ${dataRow(t('labels.transactionId', L), `<span style="font-size: 12px; font-family: monospace;">${transactionId}</span>`, true)}
@@ -83,7 +83,7 @@ export const sendPaymentReceivedEmail = async (
     ${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
     ${p(intro)}
     ${settled && isContribution ? p(t('contributionReceived.intro', L, { campaignName })) : ''}
-    ${settled && moneyPath ? renderMoneyPath(L, { ...moneyPath, referralCreditUsd: Number(referralCreditAppliedUsd) || moneyPath.referralCreditUsd || null, paidFor: moneyPath.paidFor ?? campaignName ?? null }) : legacyBox}
+    ${settled && moneyPath ? renderMoneyPath(L, { ...moneyPath, referralCreditUsd: Number(referralCreditAppliedUsd) || moneyPath.referralCreditUsd || null, paidFor: moneyPath.paidFor ?? campaignName ?? null, sourceKey: paymentSourceKey ?? moneyPath.sourceKey ?? null }) : legacyBox}
     ${Number(referralCreditAppliedUsd) > 0
         ? p(t('paymentReceived.referralCredit', L, { amount: `$${toFixedStr(referralCreditAppliedUsd, 2)}` }))
         : ''}
@@ -119,7 +119,9 @@ export const sendPaymentPendingEmail = async (
   cryptoAmount?: string,
   cryptoCurrency?: string,
   /** Typical wait for `confirmationsRequired` on this network, e.g. "10–60 min". */
-  estimatedWait?: string | null
+  estimatedWait?: string | null,
+  /** How the payment was made (api|paymentLink|productOrder|donation|tip) — shown as a "Received via" row. */
+  paymentSourceKey?: string
 ) => {
   try {
     const L = normalizeLang(lang);
@@ -138,6 +140,7 @@ export const sendPaymentPendingEmail = async (
         ${dataRow(t('labels.amount', L), `<strong>${amount} ${currency}</strong>`)}
         ${cryptoAmount && cryptoCurrency ? dataRow(t('labels.cryptoAmount', L), `${formatCryptoAmount(cryptoAmount, cryptoCurrency)} ${getCoinSymbol(cryptoCurrency)}`) : ''}
         ${network ? dataRow(t('labels.network', L), network) : ''}
+        ${paymentSourceKey ? dataRow(t('labels.paymentSource', L), t('paymentSource.' + paymentSourceKey, L)) : ''}
         ${dataRow(t('labels.confirmationsNeeded', L), `<strong>${confirmationsRequired}</strong>${estimatedWait ? ` <span style="color:#6b7280;">· ${t('labels.typicalWait', L, { wait: estimatedWait })}</span>` : ''}`)}
         ${dataRow(t('labels.status', L), statusBadge(t('statusLabels.awaitingConfirmation', L), 'pending'))}
         ${dataRow(t('labels.transactionId', L), `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`, true)}

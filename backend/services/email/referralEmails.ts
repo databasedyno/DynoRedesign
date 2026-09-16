@@ -2,16 +2,19 @@ import mailTransporter from "../../utils/mailTransporter";
 import { apiLogger } from "../../utils/loggers";
 import { captureError } from "../errorMonitoringService";
 import { p, infoBox, dataRow, amountHero } from "../../utils/emailTemplate";
-import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate } from "./emailShared";
-import { firstNameOnly } from "../../utils/emailI18n";
+import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, greetingLine } from "./emailShared";
+import { t, resolveEmailLang } from "../../utils/emailI18n";
 import { toFixedStr } from "../../utils/money";
 
 /**
- * Referral revenue-share payout emails (merchant-facing).
- * Plain-English (like the webhook-disabled alert); Provider: Brevo.
+ * Referral revenue-share emails (merchant-facing). Fully localized (6 languages)
+ * via the referral.emails.* catalog. Friendly-professional voice; Provider: Brevo.
+ * The recipient `email` is always the referrer's own Dynopay account, so the
+ * language is resolved from their stored profile when no explicit `lang` is passed.
  */
 
 const REFERRALS_URL = `${FRONTEND_BASE_URL}/referrals`;
+const rk = (key: string) => `referral.emails.${key}`;
 
 /** Balance crossed the cash-out minimum — nudge the referrer. */
 export const sendReferralPayoutReadyEmail = async (
@@ -22,23 +25,22 @@ export const sendReferralPayoutReadyEmail = async (
   lang?: string
 ) => {
   try {
-    void lang;
+    const L = await resolveEmailLang(lang, email);
     const amount = `$${toFixedStr(unpaidUsd, 2)}`;
     const isCash = mode === "cash";
-    const subject = `${amount} in referral rewards ready to cash out`;
+    const subject = t(rk("payoutReady.subject"), L, { amount });
     const content = `
-      ${p(`Hey ${escapeHtml(firstNameOnly(name))},`)}
-      ${p(`Nice work — you've earned <strong>${amount}</strong> in Dynopay referral rewards from the merchants you referred.`)}
+      ${amountHero(amount, { pill: t(rk("payoutReady.heroPill"), L), pillType: "success", sublabel: t(rk("payoutReady.heroSub"), L) })}
+      ${greetingLine(L, name)}
+      ${p(t(rk("payoutReady.intro"), L, { amount }))}
       ${infoBox(`
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-          ${dataRow('Available to cash out', `<strong style="color:#166534;">${amount}</strong>`, true)}
+          ${dataRow(t(rk("payoutReady.availableLabel"), L), `<strong style="color:#166534;">${amount}</strong>`, true)}
         </table>
       `, '#12B76A')}
-      ${isCash
-        ? p(`Your payout method is set to <strong>USDT (TRC-20) cash-out</strong> — head to your referrals page to withdraw it to your wallet.`)
-        : p(`It's currently reducing your own Dynopay fees automatically. Prefer cash? Switch to <strong>USDT (TRC-20) cash-out</strong> on your referrals page and withdraw it to your wallet.`)}`;
+      ${p(t(rk(isCash ? "payoutReady.cashLine" : "payoutReady.creditLine"), L))}`;
 
-    const html = dynoPayEmailTemplate(`Referral rewards ready`, content, true, isCash ? `Cash out now` : `View rewards`, REFERRALS_URL, `You've got ${amount} in referral rewards ready to cash out.`, undefined, 'gift');
+    const html = dynoPayEmailTemplate(t(rk("payoutReady.heading"), L), content, true, t(rk(isCash ? "payoutReady.ctaCash" : "payoutReady.ctaView"), L), REFERRALS_URL, t(rk("payoutReady.preheader"), L, { amount }), L, 'gift');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Referral payout-ready nudge sent to ${email} (${amount}, mode=${mode})`);
   } catch (e) {
@@ -55,21 +57,21 @@ export const sendReferralAutoPayEnabledEmail = async (
   lang?: string
 ) => {
   try {
-    void lang;
+    const L = await resolveEmailLang(lang, email);
     const min = `$${toFixedStr(autoMinUsd, 2)}`;
-    const subject = `Auto cash-out is on for your referral rewards`;
+    const subject = t(rk("autoPayEnabled.subject"), L);
     const content = `
-      ${p(`Hey ${escapeHtml(firstNameOnly(name))},`)}
-      ${p(`Automatic cash-out is now <strong>ON</strong>. Whenever your referral balance reaches <strong>${min}</strong>, we'll send it to your USDT (TRC-20) wallet automatically — no action needed.`)}
+      ${greetingLine(L, name)}
+      ${p(t(rk("autoPayEnabled.intro"), L, { min }))}
       ${infoBox(`
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-          ${dataRow('Auto-pay at', `<strong>${min}</strong>`)}
-          ${dataRow('Payout address', `<span style="font-family:monospace;font-size:13px;">${escapeHtml(addressMasked)}</span>`, true)}
+          ${dataRow(t(rk("autoPayEnabled.autoPayAtLabel"), L), `<strong>${min}</strong>`)}
+          ${dataRow(t(rk("autoPayEnabled.addressLabel"), L), `<span style="font-family:monospace;font-size:13px;">${escapeHtml(addressMasked)}</span>`, true)}
         </table>
       `, '#05936A')}
-      ${p(`You can turn this off or change the amount anytime on your referrals page.`)}`;
+      ${p(t(rk("autoPayEnabled.outro"), L))}`;
 
-    const html = dynoPayEmailTemplate(`Auto cash-out enabled`, content, true, `Manage payouts`, REFERRALS_URL, `We'll auto-send your referral rewards to your USDT wallet at ${min}.`, undefined, 'gift');
+    const html = dynoPayEmailTemplate(t(rk("autoPayEnabled.heading"), L), content, true, t(rk("autoPayEnabled.cta"), L), REFERRALS_URL, t(rk("autoPayEnabled.preheader"), L, { min }), L, 'gift');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Referral auto-pay enabled confirmation sent to ${email} (min=${min})`);
   } catch (e) {
@@ -87,21 +89,22 @@ export const sendReferralPayoutRequestedEmail = async (
   lang?: string
 ) => {
   try {
-    void lang;
+    const L = await resolveEmailLang(lang, email);
     const amount = `$${toFixedStr(amountUsd, 2)}`;
-    const subject = `Your ${amount} referral cash-out is on the way`;
+    const subject = t(rk("payoutRequested.subject"), L, { amount });
     const content = `
-      ${p(`Hey ${escapeHtml(firstNameOnly(name))},`)}
-      ${p(`${viaAuto ? `Auto cash-out triggered — we're` : `We're`} sending <strong>${amount}</strong> in referral rewards to your USDT (TRC-20) wallet.`)}
+      ${amountHero(amount, { pill: t(rk("payoutRequested.heroPill"), L), pillType: "info", sublabel: t(rk("payoutRequested.heroSub"), L) })}
+      ${greetingLine(L, name)}
+      ${p(t(rk(viaAuto ? "payoutRequested.introAuto" : "payoutRequested.introManual"), L, { amount }))}
       ${infoBox(`
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-          ${dataRow('Amount', `<strong>${amount}</strong>`)}
-          ${dataRow('Payout address', `<span style="font-family:monospace;font-size:13px;">${escapeHtml(addressMasked)}</span>`, true)}
+          ${dataRow(t(rk("payoutRequested.amountLabel"), L), `<strong>${amount}</strong>`)}
+          ${dataRow(t(rk("payoutRequested.addressLabel"), L), `<span style="font-family:monospace;font-size:13px;">${escapeHtml(addressMasked)}</span>`, true)}
         </table>
       `, '#05936A')}
-      ${p(`You'll get another email with the transaction link once it lands on-chain. This usually takes a few minutes.`)}`;
+      ${p(t(rk("payoutRequested.outro"), L))}`;
 
-    const html = dynoPayEmailTemplate(`Cash-out requested`, content, true, `View history`, REFERRALS_URL, `${amount} in referral rewards is on the way to your wallet.`, undefined, 'payout');
+    const html = dynoPayEmailTemplate(t(rk("payoutRequested.heading"), L), content, true, t(rk("payoutRequested.cta"), L), REFERRALS_URL, t(rk("payoutRequested.preheader"), L, { amount }), L, 'payout');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Referral payout-requested sent to ${email} (${amount}, auto=${viaAuto})`);
   } catch (e) {
@@ -119,22 +122,23 @@ export const sendReferralPayoutFailedEmail = async (
   lang?: string
 ) => {
   try {
-    void lang;
+    const L = await resolveEmailLang(lang, email);
     const amount = `$${toFixedStr(amountUsd, 2)}`;
-    const subject = `Your ${amount} referral cash-out couldn't be sent`;
+    const subject = t(rk("payoutFailed.subject"), L, { amount });
     const content = `
-      ${p(`Hey ${escapeHtml(firstNameOnly(name))},`)}
-      ${p(`We tried to send <strong>${amount}</strong> in referral rewards to your USDT (TRC-20) wallet, but the transfer didn't go through.`)}
+      ${amountHero(amount, { pill: t(rk("payoutFailed.heroPill"), L), pillType: "error", sublabel: t(rk("payoutFailed.heroSub"), L) })}
+      ${greetingLine(L, name)}
+      ${p(t(rk("payoutFailed.intro"), L, { amount }))}
       ${infoBox(`
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-          ${dataRow('Amount', `<strong>${amount}</strong>`)}
-          ${dataRow('Payout address', `<span style="font-family:monospace;font-size:13px;">${escapeHtml(addressMasked)}</span>`)}
-          ${dataRow('Reason', `<span style="font-family:monospace;font-size:12px;">${escapeHtml(reason)}</span>`, true)}
+          ${dataRow(t(rk("payoutFailed.amountLabel"), L), `<strong>${amount}</strong>`)}
+          ${dataRow(t(rk("payoutFailed.addressLabel"), L), `<span style="font-family:monospace;font-size:13px;">${escapeHtml(addressMasked)}</span>`)}
+          ${dataRow(t(rk("payoutFailed.reasonLabel"), L), `<span style="font-family:monospace;font-size:12px;">${escapeHtml(reason)}</span>`, true)}
         </table>
       `, '#f59e0b')}
-      ${p(`Your rewards are safe and still in your balance. Please double-check your payout address on your referrals page and try again — if it keeps failing, just reply to this email and we'll help.`)}`;
+      ${p(t(rk("payoutFailed.outro"), L))}`;
 
-    const html = dynoPayEmailTemplate(`Cash-out failed`, content, true, `Review payout`, REFERRALS_URL, `Your ${amount} cash-out didn't go through — your rewards are safe.`, undefined, 'danger');
+    const html = dynoPayEmailTemplate(t(rk("payoutFailed.heading"), L), content, true, t(rk("payoutFailed.cta"), L), REFERRALS_URL, t(rk("payoutFailed.preheader"), L, { amount }), L, 'danger');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Referral payout-failed sent to ${email} (${amount}, reason="${reason}")`);
   } catch (e) {
@@ -152,25 +156,26 @@ export const sendReferralAccrualEmail = async (
   lang?: string
 ) => {
   try {
-    void lang;
+    const L = await resolveEmailLang(lang, email);
     const earned = `$${toFixedStr(newCommissionUsd, 2)}`;
     const balance = `$${toFixedStr(unpaidBalanceUsd, 2)}`;
-    const merchant = escapeHtml(merchantName || 'a merchant you referred');
-    const subject = `+${earned} from ${merchantName || 'a merchant you referred'} — referral rewards`;
+    const merchantRaw = merchantName || t(rk("merchantFallback"), L);
+    const merchant = escapeHtml(merchantRaw);
+    const subject = t(rk("accrual.subject"), L, { amount: earned, merchant: merchantRaw });
     const content = `
-      ${amountHero(`+${earned}`, { pill: 'Reward earned', pillType: 'success', sublabel: `Referral rewards from ${merchant}` })}
-      ${p(`Hey ${escapeHtml(firstNameOnly(name))},`)}
-      ${p(`Good news — <strong>${merchant}</strong> just processed a payment, so you earned <strong>${earned}</strong> in Dynopay referral rewards (25% of their fees).`)}
+      ${amountHero(`+${earned}`, { pill: t(rk("accrual.heroPill"), L), pillType: 'success', sublabel: t(rk("accrual.heroSub"), L, { merchant }) })}
+      ${greetingLine(L, name)}
+      ${p(t(rk("accrual.intro"), L, { amount: earned, merchant }))}
       ${infoBox(`
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-          ${dataRow('Just earned', `<strong style="color:#067647;">${earned}</strong>`)}
-          ${dataRow('From', `<strong>${merchant}</strong>`)}
-          ${dataRow('Available balance', `<strong>${balance}</strong>`, true)}
+          ${dataRow(t(rk("accrual.justEarnedLabel"), L), `<strong style="color:#067647;">${earned}</strong>`)}
+          ${dataRow(t(rk("accrual.fromLabel"), L), `<strong>${merchant}</strong>`)}
+          ${dataRow(t(rk("accrual.balanceLabel"), L), `<strong>${balance}</strong>`, true)}
         </table>
       `, '#12B76A')}
-      ${p(`Your rewards keep building for the full 12-month window. Take them as automatic fee credit, or switch to USDT (TRC-20) cash-out anytime on your referrals page.`)}`;
+      ${p(t(rk("accrual.outro"), L))}`;
 
-    const html = dynoPayEmailTemplate(`You earned ${earned}`, content, true, `View referral rewards`, REFERRALS_URL, `${merchant} processed a payment — you earned ${earned}.`, undefined, undefined);
+    const html = dynoPayEmailTemplate(t(rk("accrual.heading"), L, { amount: earned }), content, true, t(rk("accrual.cta"), L), REFERRALS_URL, t(rk("accrual.preheader"), L, { amount: earned, merchant }), L);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Referral accrual alert sent to ${email} (+${earned} from ${merchantName}, bal=${balance})`);
   } catch (e) {
@@ -186,21 +191,22 @@ export const sendReferralActivatedEmail = async (
   lang?: string
 ) => {
   try {
-    void lang;
-    const merchant = escapeHtml(merchantName || 'a merchant you referred');
-    const subject = `${merchantName || 'a merchant you referred'} took their first payment — you earn 25% of their fees`;
+    const L = await resolveEmailLang(lang, email);
+    const merchantRaw = merchantName || t(rk("merchantFallback"), L);
+    const merchant = escapeHtml(merchantRaw);
+    const subject = t(rk("activated.subject"), L, { merchant: merchantRaw });
     const content = `
-      ${p(`Hey ${escapeHtml(firstNameOnly(name))},`)}
-      ${p(`Great news — <strong>${merchant}</strong>, a merchant you referred, just processed their first qualifying payment and is now <strong>active</strong>.`)}
+      ${greetingLine(L, name)}
+      ${p(t(rk("activated.intro"), L, { merchant }))}
       ${infoBox(`
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-          ${dataRow('Referred merchant', `<strong>${merchant}</strong>`)}
-          ${dataRow('Your reward', `<strong style="color:#166534;">25% of their Dynopay fees</strong>`, true)}
+          ${dataRow(t(rk("activated.merchantLabel"), L), `<strong>${merchant}</strong>`)}
+          ${dataRow(t(rk("activated.rewardLabel"), L), `<strong style="color:#166534;">${t(rk("activated.rewardValue"), L)}</strong>`, true)}
         </table>
       `, '#12B76A')}
-      ${p(`From now on you earn <strong>25% of the platform fees</strong> ${merchant} generates, for a full 12 months. We'll keep you posted as the rewards roll in.`)}`;
+      ${p(t(rk("activated.outro"), L, { merchant }))}`;
 
-    const html = dynoPayEmailTemplate(`${merchant} is now active`, content, true, `View referral rewards`, REFERRALS_URL, `${merchant} went live — you now earn 25% of their fees for 12 months.`, undefined, 'gift');
+    const html = dynoPayEmailTemplate(t(rk("activated.heading"), L, { merchant }), content, true, t(rk("activated.cta"), L), REFERRALS_URL, t(rk("activated.preheader"), L, { merchant }), L, 'gift');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Referral activation alert sent to ${email} (merchant=${merchantName})`);
   } catch (e) {
@@ -219,34 +225,34 @@ export const sendReferralMonthlyDigestEmail = async (
   lang?: string
 ) => {
   try {
-    void lang;
+    const L = await resolveEmailLang(lang, email);
     const total = `$${toFixedStr(totalUsd, 2)}`;
+    const month = escapeHtml(monthLabel);
     const isCash = mode === 'cash';
     const top = perMerchant.slice(0, 12);
     const rowsHtml = top
       .map((m, i) => dataRow(escapeHtml(m.name), `<strong>$${toFixedStr(m.usd, 2)}</strong>`, i === top.length - 1))
       .join('');
-    const subject = `${monthLabel} referrals: ${total} earned`;
+    const subject = t(rk("monthlyDigest.subject"), L, { month, total });
     const content = `
-      ${p(`Hey ${escapeHtml(firstNameOnly(name))},`)}
-      ${p(`Here's your Dynopay referral recap for <strong>${escapeHtml(monthLabel)}</strong> — the merchants you referred generated fees, and you earned 25% of them.`)}
+      ${amountHero(total, { pill: t(rk("monthlyDigest.heroPill"), L), pillType: 'success', sublabel: t(rk("monthlyDigest.heroSub"), L, { month }) })}
+      ${greetingLine(L, name)}
+      ${p(t(rk("monthlyDigest.intro"), L, { month }))}
       ${infoBox(`
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-          ${dataRow(`Earned in ${escapeHtml(monthLabel)}`, `<strong style="color:#166534;">${total}</strong>`, true)}
+          ${dataRow(t(rk("monthlyDigest.earnedLabel"), L, { month }), `<strong style="color:#166534;">${total}</strong>`, true)}
         </table>
       `, '#12B76A')}
       ${top.length
-        ? p(`<strong>Where it came from</strong>`) +
+        ? p(`<strong>${t(rk("monthlyDigest.breakdownTitle"), L)}</strong>`) +
           infoBox(`
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rowsHtml}</table>
       `, '#05936A')
         : ''}
-      ${isCash
-        ? p(`Your rewards are set to <strong>USDT (TRC-20) cash-out</strong> — withdraw anytime on your referrals page.`)
-        : p(`These rewards automatically lower your own Dynopay fees. Prefer cash? Switch to <strong>USDT (TRC-20) cash-out</strong> on your referrals page.`)}
-      ${p(`Keep sharing your link to grow next month's total.`)}`;
+      ${p(t(rk(isCash ? "monthlyDigest.cashLine" : "monthlyDigest.creditLine"), L))}
+      ${p(t(rk("monthlyDigest.keepSharing"), L))}`;
 
-    const html = dynoPayEmailTemplate(`You earned ${total} in ${monthLabel}`, content, true, `View referral rewards`, REFERRALS_URL, `Your referrals earned you ${total} in ${monthLabel}.`, undefined, 'chart');
+    const html = dynoPayEmailTemplate(t(rk("monthlyDigest.heading"), L, { total, month }), content, true, t(rk("monthlyDigest.cta"), L), REFERRALS_URL, t(rk("monthlyDigest.preheader"), L, { total, month }), L, 'chart');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Referral monthly digest sent to ${email} (${total}, ${monthLabel}, ${perMerchant.length} merchant(s))`);
   } catch (e) {
@@ -258,9 +264,8 @@ export const sendReferralMonthlyDigestEmail = async (
 /**
  * SHARE NUDGE — for referrers who have a code but have never referred anyone
  * (0 referrals, $0 earned). A gentle "your link is ready, here's why it pays"
- * push so dormant referrers actually start sharing. Plain English, matches the
- * other referral emails in this file. Idempotency + eligibility live in
- * referralNudgeService; sending is gated by DISABLE_OUTBOUND_EMAIL.
+ * push so dormant referrers actually start sharing. Idempotency + eligibility live
+ * in referralNudgeService; sending is gated by DISABLE_OUTBOUND_EMAIL.
  */
 export const sendReferralShareNudgeEmail = async (
   email: string,
@@ -269,25 +274,84 @@ export const sendReferralShareNudgeEmail = async (
   lang?: string
 ) => {
   try {
-    void lang;
+    const L = await resolveEmailLang(lang, email);
     const signupLink = `${FRONTEND_BASE_URL}/signup?ref=${code}`;
-    const subject = `Earn 25% of every referred merchant's fees for 12 months`;
+    const subject = t(rk("shareNudge.subject"), L);
     const content = `
-      ${p(`Hey ${escapeHtml(firstNameOnly(name))},`)}
-      ${p(`Your Dynopay referral link is set up and ready to share — but it hasn't been used yet. Here's a quick nudge, because it genuinely pays off.`)}
-      ${p(`Refer another business. When they take their first payment, <strong>you earn 25% of the Dynopay fee on every payment they make for a full 12 months</strong> — and they get <strong>50% off their own fees for 30 days</strong>, so it's an easy pitch.`)}
+      ${greetingLine(L, name)}
+      ${p(t(rk("shareNudge.intro"), L))}
+      ${p(t(rk("shareNudge.pitch"), L))}
       ${infoBox(`
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-          ${dataRow('Your referral code', `<strong style="font-family:monospace;color:#166534;">${escapeHtml(code)}</strong>`)}
-          ${dataRow('Your link', `<a href="${signupLink}" style="color:#05936A;word-break:break-all;">${escapeHtml(signupLink)}</a>`, true)}
+          ${dataRow(t(rk("shareNudge.codeLabel"), L), `<strong style="font-family:monospace;color:#166534;">${escapeHtml(code)}</strong>`)}
+          ${dataRow(t(rk("shareNudge.linkLabel"), L), `<a href="${signupLink}" style="color:#05936A;word-break:break-all;">${escapeHtml(signupLink)}</a>`, true)}
         </table>
       `, '#12B76A')}
-      ${p(`Share it once and it keeps earning in the background — no extra work.`)}`;
+      ${p(t(rk("shareNudge.outro"), L))}`;
 
-    const html = dynoPayEmailTemplate(`Start earning with referrals`, content, true, `Share your link`, REFERRALS_URL, `Share your link and earn 25% of referred merchants' fees for a year.`, undefined, 'gift');
+    const html = dynoPayEmailTemplate(t(rk("shareNudge.heading"), L), content, true, t(rk("shareNudge.cta"), L), REFERRALS_URL, t(rk("shareNudge.preheader"), L), L, 'gift');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Referral share nudge sent to ${email} (code=${code})`);
   } catch (e) {
     captureError(e, 'email', { extraContext: 'sendReferralShareNudgeEmail' });
+  }
+};
+
+/**
+ * MATRIX B — referral fee-credit running LOW. Fired once (Redis-guarded) when the
+ * referrer's remaining fee-credit balance crosses below the low threshold.
+ */
+export const sendReferralCreditLowEmail = async (
+  email: string,
+  name: string,
+  remainingUsd: number,
+  lang?: string
+) => {
+  try {
+    const L = await resolveEmailLang(lang, email);
+    const amount = `$${toFixedStr(remainingUsd, 2)}`;
+    const subject = t(rk("creditLow.subject"), L);
+    const content = `
+      ${amountHero(amount, { pill: t(rk("creditLow.heroPill"), L), pillType: 'pending', sublabel: t(rk("creditLow.heroSub"), L) })}
+      ${greetingLine(L, name)}
+      ${p(t(rk("creditLow.intro"), L, { amount }))}
+      ${infoBox(`
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          ${dataRow(t(rk("creditLow.remainingLabel"), L), `<strong>${amount}</strong>`, true)}
+        </table>
+      `, '#f59e0b')}
+      ${p(t(rk("creditLow.explain"), L))}`;
+
+    const html = dynoPayEmailTemplate(t(rk("creditLow.heading"), L), content, true, t(rk("creditLow.cta"), L), REFERRALS_URL, t(rk("creditLow.preheader"), L, { amount }), L, 'gift');
+    await mailTransporter({ to: email, name, subject, body: html });
+    apiLogger.info(`[Email] Referral credit-low alert sent to ${email} (${amount} left)`);
+  } catch (e) {
+    captureError(e, 'email', { extraContext: 'sendReferralCreditLowEmail' });
+  }
+};
+
+/**
+ * MATRIX C — referral fee-credit EXHAUSTED ($0). Fired once (Redis-guarded) when the
+ * referrer's fee-credit balance hits zero. Payments revert to the standard fee.
+ */
+export const sendReferralCreditExhaustedEmail = async (
+  email: string,
+  name: string,
+  lang?: string
+) => {
+  try {
+    const L = await resolveEmailLang(lang, email);
+    const subject = t(rk("creditExhausted.subject"), L);
+    const content = `
+      ${amountHero("$0.00", { pill: t(rk("creditExhausted.heroPill"), L), pillType: 'error', sublabel: t(rk("creditExhausted.heroSub"), L) })}
+      ${greetingLine(L, name)}
+      ${p(t(rk("creditExhausted.intro"), L))}
+      ${p(t(rk("creditExhausted.explain"), L))}`;
+
+    const html = dynoPayEmailTemplate(t(rk("creditExhausted.heading"), L), content, true, t(rk("creditExhausted.cta"), L), REFERRALS_URL, t(rk("creditExhausted.preheader"), L), L, 'gift');
+    await mailTransporter({ to: email, name, subject, body: html });
+    apiLogger.info(`[Email] Referral credit-exhausted alert sent to ${email}`);
+  } catch (e) {
+    captureError(e, 'email', { extraContext: 'sendReferralCreditExhaustedEmail' });
   }
 };

@@ -5,6 +5,67 @@ import User from "../models/userModels/userModel";
 import Referral from "../models/referralModels/referralModel";
 import ReferralReward from "../models/referralModels/referralRewardModel";
 import { div, mul, roundTo, sum, toFixedStr, toNumber } from "../utils/money";
+import { redis } from "../utils/redisInstance";
+
+/** Fee-credit alert thresholds (Matrix B/C). Low alert fires below $10; exhausted at $0. */
+const REFERRAL_CREDIT_LOW_THRESHOLD_USD = 10;
+const REFERRAL_CREDIT_ALERT_TTL_SEC = 30 * 24 * 60 * 60; // one alert per merchant per 30 days, per type
+
+/**
+ * After referral fee-credit is consumed, check the merchant's REMAINING balance and
+ * send a one-time "running low" (Matrix B) or "used up" (Matrix C) email. Redis-guarded
+ * so each alert fires at most once per 30 days per merchant. When credit is healthy again
+ * the guards are cleared so a future drop re-alerts. Fully fire-and-forget: any failure is
+ * swallowed so it can NEVER affect a settlement.
+ */
+export const maybeAlertReferralCredit = async (userId: number): Promise<void> => {
+  try {
+    if (!userId) return;
+    const remaining = await getAvailableCreditForFees(userId);
+    const lowKey = `refcredit:low:${userId}`;
+    const exhaustedKey = `refcredit:exhausted:${userId}`;
+
+    const loadRecipient = async () => {
+      const u = (await User.findByPk(userId, { attributes: ["email", "name", "language"] })) as unknown as
+        | { email?: string | null; name?: string | null; language?: string | null }
+        | null;
+      const email = u?.email || "";
+      return email ? { email, name: u?.name || email, language: u?.language || undefined } : null;
+    };
+
+    if (remaining <= 0.01) {
+      const acquired = await redis.set(exhaustedKey, "1", { NX: true, EX: REFERRAL_CREDIT_ALERT_TTL_SEC });
+      if (acquired) {
+        const r = await loadRecipient();
+        if (r) {
+          const { sendReferralCreditExhaustedEmail } = await import("./email/referralEmails");
+          await sendReferralCreditExhaustedEmail(r.email, r.name, r.language);
+        }
+      }
+      return;
+    }
+
+    if (remaining < REFERRAL_CREDIT_LOW_THRESHOLD_USD) {
+      const acquired = await redis.set(lowKey, "1", { NX: true, EX: REFERRAL_CREDIT_ALERT_TTL_SEC });
+      if (acquired) {
+        const r = await loadRecipient();
+        if (r) {
+          const { sendReferralCreditLowEmail } = await import("./email/referralEmails");
+          await sendReferralCreditLowEmail(r.email, r.name, remaining, r.language);
+        }
+      }
+      return;
+    }
+
+    // Credit is healthy again — clear the guards so a later drop re-alerts.
+    await redis.del(lowKey);
+    await redis.del(exhaustedKey);
+  } catch (err) {
+    apiLogger.warn(
+      `[ReferralCredit] low/exhausted credit alert skipped (non-fatal): ${(err as Error)?.message || err}`
+    );
+  }
+};
 
 /**
  * Referral revenue-share FEE-CREDIT consumption (BLENDED model, default path).
@@ -116,6 +177,8 @@ export const consumeReferralCreditForTransaction = async (params: {
     apiLogger.info(
       `[ReferralCredit] Applied $${toFixedStr(consumed, 2)} referral fee-credit for user ${userId} (tx ${transactionRef})`
     );
+    // Fire-and-forget: alert the merchant if this settlement pushed their credit low/empty.
+    void maybeAlertReferralCredit(userId).catch(() => undefined);
   }
   return consumed;
 };

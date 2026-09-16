@@ -114,7 +114,7 @@ export const sendCustomerPaymentConfirmationEmail = async (
         ${dataRow(t('labels.status', L), statusBadge(t('statusLabels.complete', L), 'success'))}
         ${dataRow(t('labels.amountPaid', L), `<strong>${amount} ${currency}</strong>`)}
         ${cryptoAmount && cryptoCurrency ? dataRow(t('labels.cryptoAmount', L), `${formatMoneyForEmail(cryptoAmount, cryptoCurrency)} ${assetNetworkLabel(cryptoCurrency)}`) : ''}
-        ${paymentSourceKey ? dataRow(t('labels.paymentMethod', L), t('paymentSource.' + paymentSourceKey, L)) : ''}
+        ${paymentSourceKey ? dataRow(t('labels.paymentSource', L), t('paymentSource.' + paymentSourceKey, L)) : ''}
         ${description ? dataRow(t('labels.description', L), description) : ''}
         ${dataRow(t('labels.transactionId', L), `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`)}
         ${transactionReference ? dataRow(t('labels.reference', L), explorerUrl
