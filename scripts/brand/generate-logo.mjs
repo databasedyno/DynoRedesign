@@ -25,26 +25,36 @@ const DESC = 480; // "y" / "p" descender
 
 const fmt = (n) => (Math.round(n * 100) / 100).toString();
 
-/* ---------- coin geometry (px space, centre cx,cy, radius R) ---------- */
+/* ---------- coin geometry (px space, centre cx,cy, radius R) ----------
+   "Bold Loop" (2026-06 refresh): thicker arrows, round tails, larger heads and a
+   wider head→tail gap so the loop stays legible at 16px. Single outline per
+   arrow (no self-overlap) so the evenodd monochrome cut-out in <Logo/> is safe. */
+const ARROW = { r: 0.57, t: 0.235, hw: 1.35, h: 1.6, start: 28, sweep: 108 };
 function arrowPolygon(cx, cy, R, a0deg, a1deg) {
-  const r = R * 0.57;
-  const t = R * 0.19;
-  const hw = t * 1.4;
-  const h = t * 1.9;
+  const r = R * ARROW.r;
+  const t = R * ARROW.t;
+  const hw = t * ARROW.hw;
+  const h = t * ARROW.h;
   const rad = (d) => (d * Math.PI) / 180;
   const pt = (ang, rr) => [cx + Math.cos(ang) * rr, cy + Math.sin(ang) * rr];
   const a0 = rad(a0deg);
   const a1 = rad(a1deg);
-  const steps = 28;
+  const steps = 32;
   const pts = [];
   for (let i = 0; i <= steps; i++) pts.push(pt(a0 + ((a1 - a0) * i) / steps, r + t / 2));
   pts.push(pt(a1, r + hw));
   pts.push(pt(a1 + h / r, r));
   pts.push(pt(a1, r - hw));
   for (let i = steps; i >= 0; i--) pts.push(pt(a0 + ((a1 - a0) * i) / steps, r - t / 2));
-  return "M" + pts.map(([x, y]) => `${fmt(x)} ${fmt(y)}`).join("L") + "Z";
+  const [ox, oy] = pt(a0, r + t / 2);
+  return (
+    "M" + pts.map(([x, y]) => `${fmt(x)} ${fmt(y)}`).join("L") +
+    `A${fmt(t / 2)} ${fmt(t / 2)} 0 0 0 ${fmt(ox)} ${fmt(oy)}Z`
+  );
 }
-const arrowsPath = (cx, cy, R) => arrowPolygon(cx, cy, R, 204, 320) + arrowPolygon(cx, cy, R, 24, 140);
+const arrowsPath = (cx, cy, R) =>
+  arrowPolygon(cx, cy, R, 180 + ARROW.start, 180 + ARROW.start + ARROW.sweep) +
+  arrowPolygon(cx, cy, R, ARROW.start, ARROW.start + ARROW.sweep);
 const circlePath = (cx, cy, R) =>
   `M${fmt(cx - R)} ${fmt(cy)}a${fmt(R)} ${fmt(R)} 0 1 0 ${fmt(2 * R)} 0a${fmt(R)} ${fmt(R)} 0 1 0 ${fmt(-2 * R)} 0Z`;
 
@@ -111,6 +121,16 @@ function markSvg(size, coinFill, arrowFill = WHITE, { bg = null, marginRatio = 0
   const inner = bg
     ? `<rect width="${size}" height="${size}" fill="${bg}"/><path d="${arrowsPath(size / 2, size / 2, size / 2)}" fill="${arrowFill}"/>`
     : coinSvgInner(size / 2, size / 2, R, coinFill, arrowFill);
+  return svgDoc(size, size, inner);
+}
+
+// Full-bleed indigo tile with white arrows for home-screen / launcher icons.
+// rx=0 → square (iOS + "maskable" PWA icons are masked by the OS, arrows sit
+// inside the 80% safe zone); rx>0 → pre-rounded tile for unmasked "any" icons.
+function tileSvg(size, { rx = 0, fill = INDIGO } = {}) {
+  const inner =
+    `<rect width="${size}" height="${size}" rx="${fmt(rx)}" fill="${fill}"/>` +
+    `<path d="${arrowsPath(size / 2, size / 2, size / 2)}" fill="${WHITE}"/>`;
   return svgDoc(size, size, inner);
 }
 
@@ -182,15 +202,23 @@ async function main() {
       `export const LOGO_MARK_ARROWS = "${arrowsPath(M / 2, M / 2, R)}";\n`
   );
 
-  /* Favicon PNGs + ICO */
+  /* Favicon PNGs + ICO (coin on transparent — browser tabs / Google result icons) */
   const mark = (fill) => markSvg(64, fill);
   await png("public/favicon-16.png", mark(INDIGO), { width: 16, height: 16 });
   await png("public/favicon-32.png", mark(INDIGO), { width: 32, height: 32 });
+  await png("public/favicon-48.png", mark(INDIGO), { width: 48, height: 48 });
+  await png("public/favicon-192.png", mark(INDIGO), { width: 192, height: 192 });
   await png("public/favicon-16-light.png", mark(INDIGO_DARK), { width: 16, height: 16 });
   await png("public/favicon-32-light.png", mark(INDIGO_DARK), { width: 32, height: 32 });
   await png("public/favicon-512.png", mark(INDIGO), { width: 512, height: 512 });
   await png("public/press/dynopay-icon-512.png", mark(INDIGO), { width: 512, height: 512 });
-  const tile = markSvg(64, INDIGO, WHITE, { bg: INDIGO });
+
+  /* Home-screen / launcher tiles (full-bleed indigo, white arrows) */
+  await png("public/apple-touch-icon.png", tileSvg(64), { width: 180, height: 180 }); // iOS rounds it
+  await png("public/pwa-maskable-512.png", tileSvg(64), { width: 512, height: 512 }); // launcher masks it
+  await png("public/pwa-192.png", tileSvg(64, { rx: 64 * 0.22 }), { width: 192, height: 192 });
+  await png("public/pwa-512.png", tileSvg(64, { rx: 64 * 0.22 }), { width: 512, height: 512 });
+  const tile = tileSvg(64);
   await png("public/dynopay-favicon.png", tile, { width: 180, height: 180 });
   await png("public/dynopay-favicon-light.png", tile, { width: 180, height: 180 });
   const icoParts = [];
@@ -211,6 +239,7 @@ async function main() {
   await png("backend/assets/dynopay-logo2.png", mark(INDIGO), { width: 128, height: 128 });
   await png("backend/public/dynopay-white-logo.png", white, { width: 804, height: 270 });
   // Email chip: white wordmark baked onto the always-dark header colour (3:1 to match the <img> box).
+  // Versioned filename (v3) so Gmail/Outlook image proxies drop the cached old mark.
   const chipW = 480;
   const chipH = 160;
   const chipLock = lockup(360, WHITE);
@@ -220,7 +249,7 @@ async function main() {
     `<rect width="${chipW}" height="${chipH}" fill="${CHIP}"/>` +
       `<g transform="translate(${fmt((chipW - chipLock.w) / 2)} ${fmt((chipH - chipLock.h) / 2)})">${chipLock.inner}</g>`
   );
-  await png("backend/public/dynopay-email-logo.png", chip, { width: chipW, height: chipH });
+  await png("backend/public/dynopay-email-logo-v3.png", chip, { width: chipW * 2, height: chipH * 2 });
 
   /* Preview sheet for eyeballing */
   const sheet = svgDoc(

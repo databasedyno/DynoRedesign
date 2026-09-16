@@ -15,7 +15,7 @@ export { ctaButton, formatPercent };
 // email chip, so it is pixel-identical to the site header. The version suffix is
 // REQUIRED: Gmail/Outlook proxy-cache remote images by URL, so reusing the old
 // filename kept serving the stale logo even after the image bytes changed.
-const EMAIL_LOGO_FILE = "dynopay-email-logo-v2.png";
+const EMAIL_LOGO_FILE = "dynopay-email-logo-v3.png";
 
 // Last-resort absolute base used only if NO url env is configured (e.g. a worker
 // booted without SERVER_URL — the exact case that made admin emails fall back to

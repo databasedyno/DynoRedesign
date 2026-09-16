@@ -123,11 +123,13 @@ def render(kind: str, display_name: str, slug: str):
     paste_logo(im, left, 66)
 
     # eyebrow
-    eyebrow = "ACCEPT CRYPTO PAYMENTS IN" if kind == "country" else "CRYPTO PAYMENTS FOR"
+    eyebrow = {"country": "ACCEPT CRYPTO PAYMENTS IN", "comparison": "COMPARE CRYPTO PAYMENT GATEWAYS"}.get(kind, "CRYPTO PAYMENTS FOR")
     tracked_text(d, (left, 208), eyebrow, load_font("Outfit-SemiBold", 27), LAVENDER, tracking=5)
 
     # hero title (block must end by y=448 so the pill clears the footer row)
     title = display_name[0].upper() + display_name[1:]
+    if kind == "comparison":
+        title = f"{title} alternative"
     font, lines = fit_title(d, title, W - left - 90, 258, 448)
     y = 258
     for line in lines:
@@ -300,6 +302,11 @@ def main():
     for p in sorted(glob.glob(os.path.join(ROOT, "data", "seo-pages", "*", "*.json"))):
         c = json.load(open(p))
         render(c["_kind"], c["_display_name"], c["_slug"])
+    # Country cards have no JSON source any more; re-render the existing set so
+    # they carry the current brand mark instead of a stale one.
+    for p in sorted(glob.glob(os.path.join(OUT_DIR, "country-*.png"))):
+        slug = os.path.basename(p)[len("country-"):-len(".png")]
+        render("country", slug.replace("-", " ").title(), slug)
 
 
 if __name__ == "__main__":

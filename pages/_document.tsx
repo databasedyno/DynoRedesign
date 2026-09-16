@@ -25,14 +25,14 @@ export default function MyDocument({ emotionStyleTags, lang }: MyDocumentProps) 
             crawler (which ignores prefers-color-scheme) ONE clear signal set:
             /favicon.ico + unconditional 48/192 PNGs + the web manifest. The indigo
             coin reads fine on both light and dark backgrounds, so no separate dark-mode
-            PNG variants are needed. v5 bump forces browsers/crawlers to drop the cached
-            v4 icon. */}
-        <link rel="icon" href="/favicon.ico?v=5" sizes="any" />
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=5" />
-        <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png?v=5" />
-        <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png?v=5" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=5" />
-        <link rel="manifest" href="/site.webmanifest?v=5" />
+            PNG variants are needed. v6 bump (2026-06 "Bold Loop" mark refresh) forces
+            browsers/crawlers to drop the cached v5 icon. */}
+        <link rel="icon" href="/favicon.ico?v=6" sizes="any" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=6" />
+        <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png?v=6" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png?v=6" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=6" />
+        <link rel="manifest" href="/site.webmanifest?v=6" />
         {/* iOS safe area and mobile optimization — viewport is set via next.config or _app */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
