@@ -3,7 +3,6 @@ import {
   Alert,
   Box,
   Button,
-  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -22,6 +21,8 @@ import { useResendChallengeCode } from "./useResendChallengeCode";
 interface TwoFactorLoginDialogProps {
   open: boolean;
   loading?: boolean;
+  /** Second factor accepted — show the success state while the app redirects. */
+  verified?: boolean;
   error?: string;
   /** Which second factor the account uses — decides the copy and the resend control. */
   method?: "totp" | "email";
@@ -36,7 +37,7 @@ const BACKUP_CODE_RE = /^[A-Za-z0-9]{4}-?[A-Za-z0-9]{4}$/;
 
 /** Second-factor prompt after the first factor succeeded on a browser this account hasn't trusted yet. */
 const TwoFactorLoginDialog: React.FC<TwoFactorLoginDialogProps> = ({
-  open, loading = false, error, method = "totp", maskedEmail = "", challengeToken = "", onVerify, onClose,
+  open, loading = false, verified = false, error, method = "totp", maskedEmail = "", challengeToken = "", onVerify, onClose,
 }) => {
   const { t } = useTranslation("auth");
   const theme = useTheme();
@@ -62,7 +63,7 @@ const TwoFactorLoginDialog: React.FC<TwoFactorLoginDialogProps> = ({
   const Icon = isEmail ? MailOutline : ShieldOutlined;
 
   return (
-    <Dialog open={open} onClose={loading ? undefined : onClose} fullWidth maxWidth="xs" PaperProps={{ sx: { borderRadius: "12px" } }} data-testid="login-2fa-dialog">
+    <Dialog open={open} onClose={loading || verified ? undefined : onClose} fullWidth maxWidth="xs" PaperProps={{ sx: { borderRadius: "12px" } }} data-testid="login-2fa-dialog">
       <DialogContent sx={{ px: "28px", pt: "28px", pb: "12px" }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: "10px", mb: 2 }}>
           <Box sx={{ width: 40, height: 40, borderRadius: "10px", backgroundColor: isDark ? "rgba(99,102,241,0.18)" : "#EEF2FF", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -91,12 +92,9 @@ const TwoFactorLoginDialog: React.FC<TwoFactorLoginDialogProps> = ({
               showLabel={false}
               showActions={false}
               resetKey={resetKey}
+              verified={verified}
+              verifiedLabel={t("twoFactor.verifiedSigningIn", { defaultValue: "Verified — signing you in…" })}
             />
-            {loading && (
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, color: theme.palette.text.secondary, fontSize: "13px" }}>
-                <CircularProgress size={14} color="inherit" /> {t("verifying", { defaultValue: "Verifying…" })}
-              </Box>
-            )}
             {isEmail && (
               <Box sx={{ mt: 1.5, display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
                 <Button

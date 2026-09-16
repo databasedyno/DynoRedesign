@@ -55,7 +55,7 @@ import { signOutEverywhereConfirmPage, signOutEverywhereAction } from "./user/si
 import { updateUser, getProfile, updateProfile, updateDashboardQuickActions, updateLastCompany } from "./user/profile";
 import { changeEmail, removeEmail, addEmail, verifyAddEmail } from "./user/contactEmail";
 import { changePhone, removePhone, addPhone, verifyAddPhone } from "./user/contactPhone";
-import { deleteAccount, sendDeleteAccountOtp, unsubscribeFromReminders, unsubscribeFromPaymentReminders } from "./user/accountLifecycle";
+import { deleteAccount, unsubscribeFromReminders, unsubscribeFromPaymentReminders } from "./user/accountLifecycle";
 import { getOnboardingStatus, verifyEmail, resendVerification } from "./user/onboarding";
 import { sendActivationNudge } from "./user/activationNudge";
 import { checkHandle, checkHandlePublic, reserveHandle } from "./user/creatorHandle";
@@ -97,7 +97,6 @@ export default {
   removeEmail,
   removePhone,
   deleteAccount,
-  sendDeleteAccountOtp,
   unsubscribeFromReminders,
   unsubscribeFromPaymentReminders,
   getOnboardingStatus,

@@ -17,6 +17,7 @@
 
 import express from "express";
 import authMiddleware from "../middleware/authMiddleware";
+import { requireStepUp } from "../middleware/requireStepUp";
 import {
   createPublishableKey,
   listPublishableKeys,
@@ -37,11 +38,13 @@ import {
 
 /* Dashboard CRUD router (mounted at /api/publishable-keys) */
 export const publishableKeyRouter = express.Router();
+// Editing (domains/limits/disable) and revoking a Buy Button key are step-up protected (same "apikey" sudo scope as API keys).
+const stepUp = requireStepUp("apikey");
 publishableKeyRouter.post("/", authMiddleware, createPublishableKey);
 publishableKeyRouter.get("/", authMiddleware, listPublishableKeys);
 publishableKeyRouter.get("/:id", authMiddleware, getPublishableKey);
-publishableKeyRouter.patch("/:id", authMiddleware, updatePublishableKey);
-publishableKeyRouter.delete("/:id", authMiddleware, deletePublishableKey);
+publishableKeyRouter.patch("/:id", authMiddleware, stepUp, updatePublishableKey);
+publishableKeyRouter.delete("/:id", authMiddleware, stepUp, deletePublishableKey);
 
 /* Public embed router (mounted at /api/embed/public)
  *

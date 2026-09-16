@@ -30,69 +30,17 @@ import { finalizeUploadedImage } from "../../services/objectStorage";
 import { is2FARequired } from "../../services/twoFactorService";
 import { normalizeLang } from "../../utils/emailI18n";
 import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, getAccessToken, sendEmailOTP, sendTelnyxSMS } from "./userShared";
-import { sendAccountDeletedEmail, sendAccountDeleteOTPEmail, sendAccountSoftDeletedEmail } from "../../services/email/securityEmails";
+import { sendAccountDeletedEmail, sendAccountSoftDeletedEmail } from "../../services/email/securityEmails";
 import { sendAccountDeletedAdminEmail } from "../../services/email/adminNotificationEmails";
 import { softDeleteAccount } from "../../services/accountPurgeService";
-import { generateOtpCode, recordOtpFailure, otpLockedMessage, OTP_TTL_SECONDS } from "../../helper/otpGuard";
 import { ACCOUNT_DELETE_GRACE_DAYS } from "../../helper/accountDeletion";
-import { raw as envRaw } from "../../utils/config";
-
-const accountDeleteOtpKey = (userId: number | string) => `account_delete_otp_${userId}`;
-const maskAccountEmail = (email: string) => email.replace(/(.{2})(.*)(@.*)/, "$1***$3");
-
-/**
- * POST /api/user/account/send-otp
- * Step 1 of account deletion: email a one-time code to the account owner
- * (mirrors the brand-deletion confirmation flow).
- */
-export const sendDeleteAccountOtp = async (req: express.Request, res: express.Response) => {
-  const userData = jwt.decode(res.locals.token) as IUserType;
-  try {
-    const user = await userModel.findOne({ where: { user_id: userData.user_id }, attributes: ["name", "email"] });
-    if (!user) return errorResponseHelper(res, 404, "Account not found");
-    const email: string | null = user.dataValues.email || userData.email || null;
-    if (!email) {
-      return errorResponseHelper(res, 400, "Your account has no email address to receive the verification code.");
-    }
-
-    const otp = generateOtpCode();
-    await setRedisItemWithTTL(
-      accountDeleteOtpKey(userData.user_id),
-      { otp, createdAt: new Date().toISOString(), attempts: 0 },
-      OTP_TTL_SECONDS,
-    );
-    await sendAccountDeleteOTPEmail(email, user.dataValues.name || userData.name || "", otp);
-    userLogger.info(`Account delete OTP sent for user ${userData.user_id}`);
-
-    return successResponseHelper(res, 200, "Verification code sent to your email", {
-      email: maskAccountEmail(email),
-      expires_in: OTP_TTL_SECONDS,
-      // Preview pods suppress outbound email, so surface the code for QA there only.
-      ...(envRaw("DISABLE_OUTBOUND_EMAIL") === "true" ? { preview_otp: otp } : {}),
-    });
-  } catch (e) {
-    handleControllerError(res, e, userLogger);
-  }
-};
-
-/** Step 2 helper: consume the account-delete code (5-strike lockout). */
-const verifyDeleteAccountOtp = async (userId: number | string, otp: unknown) => {
-  const code = String(otp ?? "").trim();
-  if (!code) return { ok: false, status: 400, message: "Verification code is required. Request a code to your email first." };
-  const key = accountDeleteOtpKey(userId);
-  const item = (await getRedisItem(key)) as Record<string, unknown> | null;
-  if (!item || !item.otp) return { ok: false, status: 400, message: "Verification code expired or not found. Please request a new one." };
-  if (String(item.otp) !== code) {
-    const locked = await recordOtpFailure(key, item);
-    return { ok: false, status: 400, message: locked ? otpLockedMessage : "Invalid verification code." };
-  }
-  await deleteRedisItem(key);
-  return { ok: true };
-};
+import { revokeStepUp } from "../../services/stepUpService";
 
 /**
  * DELETE /api/user/account
- * Soft-delete (7-day recoverable) the whole account after OTP confirmation.
+ * Soft-delete the whole account. Fresh verification is enforced by
+ * requireStepUp("account_delete") on the route (authenticator when enrolled,
+ * else an emailed code) — no separate OTP round-trip here.
  * The account is hidden + the user is signed out everywhere immediately; the
  * irreversible data purge happens after 7 days (services/accountPurgeService),
  * or when an admin manually purges it. An admin can restore within the window.
@@ -100,11 +48,6 @@ const verifyDeleteAccountOtp = async (userId: number | string, otp: unknown) => 
 export const deleteAccount = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
   try {
-    const otpCheck = await verifyDeleteAccountOtp(userData.user_id, req.body?.otp ?? req.query?.otp);
-    if (!otpCheck.ok) {
-      return errorResponseHelper(res, otpCheck.status || 400, otpCheck.message || "Invalid verification code.");
-    }
-
     const user = await userModel.findOne({ where: { user_id: userData.user_id }, attributes: ["name", "email", "language"] });
     if (!user) return errorResponseHelper(res, 404, "Account not found");
 
@@ -112,6 +55,8 @@ export const deleteAccount = async (req: express.Request, res: express.Response)
     if (!ok) {
       return errorResponseHelper(res, 400, "Your account is already scheduled for deletion.");
     }
+    // One-shot: the elevated session must not outlive the action it unlocked.
+    void revokeStepUp(userData.user_id, "account_delete").catch(() => {});
 
     const purgeDateStr = scheduledPurgeAt.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
     const email = user.dataValues.email;

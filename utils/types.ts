@@ -39,6 +39,7 @@ export interface userReducer {
   login2faEmail?: string;
   login2faRemember?: boolean;
   login2faLoading?: boolean;
+  login2faVerified?: boolean;
   // Email-verification banner state (populated after profile fetch).
   email_verified?: boolean;
 }

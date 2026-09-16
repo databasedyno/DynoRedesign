@@ -1669,7 +1669,8 @@
       "security": "deine Sicherheitseinstellungen zu ändern",
       "payout": "deine Auszahlungseinstellungen zu ändern",
       "team": "den Teamzugriff zu ändern",
-      "settlement": "deine Abrechnungswährung zu ändern"
+      "settlement": "deine Abrechnungswährung zu ändern",
+      "account_delete": "dein Konto zu löschen"
     }
   },
   "deleteWalletBody": "Du bist dabei, die {{type}}-Auszahlungsadresse{{address}} zu entfernen. Diese Aktion ist endgültig und kann nicht rückgängig gemacht werden. Wir bitten dich zuerst, deine Identität zu bestätigen."

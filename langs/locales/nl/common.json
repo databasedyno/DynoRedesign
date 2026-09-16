@@ -1669,7 +1669,8 @@
       "security": "je beveiligingsinstellingen te wijzigen",
       "payout": "je uitbetalingsinstellingen te wijzigen",
       "team": "teamtoegang te wijzigen",
-      "settlement": "je afwikkelingsvaluta te wijzigen"
+      "settlement": "je afwikkelingsvaluta te wijzigen",
+      "account_delete": "je account te verwijderen"
     }
   },
   "deleteWalletBody": "Je staat op het punt de {{type}}-uitbetalingsadres{{address}} te verwijderen. Deze actie is permanent en kan niet ongedaan worden gemaakt. We vragen je eerst om te bevestigen dat jij het bent."

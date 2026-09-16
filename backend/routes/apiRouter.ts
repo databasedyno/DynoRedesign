@@ -53,7 +53,7 @@ apiRouter.put("/updateApi/:id", authMiddleware, auditKey, apiController.updateAp
 apiRouter.post("/regenerateKey/:id", authMiddleware, requireCompanyOwnerBy(resolveApiKeyCompany), stepUp, auditKey, apiController.regenerateApiKey);
 // ALIAS: Frontend compatibility - POST /userApi/regenerateApi/:id -> POST /userApi/regenerateKey/:id
 apiRouter.post("/regenerateApi/:id", authMiddleware, requireCompanyOwnerBy(resolveApiKeyCompany), stepUp, auditKey, apiController.regenerateApiKey);
-apiRouter.put("/toggleStatus/:id", authMiddleware, auditKey, apiController.toggleApiStatus);
+apiRouter.put("/toggleStatus/:id", authMiddleware, requireCompanyOwnerBy(resolveApiKeyCompany), stepUp, auditKey, apiController.toggleApiStatus);
 apiRouter.post("/revoke/:id", authMiddleware, requireCompanyOwnerBy(resolveApiKeyCompany), stepUp, auditKey, apiController.revokeApi);
 apiRouter.delete("/deleteApi/:id", authMiddleware, requireCompanyOwnerBy(resolveApiKeyCompany), stepUp, auditKey, apiController.deleteApi);
 

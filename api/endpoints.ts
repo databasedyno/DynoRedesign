@@ -109,7 +109,6 @@ export const API_ENDPOINTS = {
     trustedDevice: (id: PathId) => `/user/trusted-devices/${id}`,
     verifyAddEmail: "/user/verifyAddEmail",
     verifyAddPhone: "/user/verifyAddPhone",
-    deleteAccountSendOtp: "/user/account/send-otp",
     deleteAccount: "/user/account",
   },
 

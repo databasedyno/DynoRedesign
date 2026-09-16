@@ -2,7 +2,7 @@
  * Step-up (sudo mode) event bus — lets the axios interceptor ask the UI to run a
  * verification without importing React. StepUpHost registers the handler once.
  */
-export type StepUpScope = "apikey" | "wallet" | "brand_delete" | "security" | "payout" | "team" | "settlement";
+export type StepUpScope = "apikey" | "wallet" | "brand_delete" | "security" | "payout" | "team" | "settlement" | "account_delete";
 
 type Handler = (scope: StepUpScope) => Promise<boolean>;
 

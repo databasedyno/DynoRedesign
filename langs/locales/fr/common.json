@@ -1669,7 +1669,8 @@
       "security": "modifier vos paramètres de sécurité",
       "payout": "modifier vos paramètres de versement",
       "team": "modifier l'accès de l'équipe",
-      "settlement": "modifier votre devise de règlement"
+      "settlement": "modifier votre devise de règlement",
+      "account_delete": "supprimer votre compte"
     }
   },
   "deleteWalletBody": "Vous êtes sur le point de supprimer l'adresse de versement {{type}}{{address}}. Cette action est définitive et irréversible. Nous vous demanderons d'abord de vérifier votre identité."

@@ -4,9 +4,9 @@ import FormManager from "@/Components/Page/Common/FormManager";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
 import CustomButton from "@/Components/UI/Buttons";
 import useIsMobile from "@/hooks/useIsMobile";
-import { Info } from "@mui/icons-material";
-import { Box, Typography, useTheme } from "@mui/material";
-import React, { useEffect, useRef } from "react";
+import { CheckCircleRounded, Info } from "@mui/icons-material";
+import { Box, CircularProgress, Typography, useTheme } from "@mui/material";
+import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
 
@@ -72,6 +72,11 @@ export interface OtpInputPanelProps {
   resetKey?: string | number;
   /** When set, exposes `${prefix}-error`, `${prefix}-verify-btn`, `${prefix}-resend-btn`, `${prefix}-otp-input-<n>` testids. */
   testIdPrefix?: string;
+  /** Force the "Verified" state (e.g. right before the parent navigates). Auto-detected otherwise. */
+  verified?: boolean;
+  /** Status copy overrides. Defaults: "Checking your code…" / "Code verified". */
+  verifyingLabel?: string;
+  verifiedLabel?: string;
 }
 
 type OtpFieldName = `otp${number}`;
@@ -105,6 +110,9 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
   actionsLayout = "row",
   resetKey,
   testIdPrefix,
+  verified,
+  verifyingLabel,
+  verifiedLabel,
 }) => {
   const { t } = useTranslation("auth");
   const tid = (suffix: string) => (testIdPrefix ? `${testIdPrefix}-${suffix}` : undefined);
@@ -121,6 +129,10 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
   const formValuesRef = useRef<OtpFormValues | null>(null);
   const isSubmittingRef = useRef<boolean>(false);
   const resetFormRef = useRef<((values?: OtpFormValues) => void) | null>(null);
+  // Feedback after the 6th digit: "verifying" while the parent checks the code,
+  // "verified" once `loading` drops with no error (or `verified` is forced).
+  const [phase, setPhase] = useState<"idle" | "verifying" | "verified">("idle");
+  const sawLoadingRef = useRef<boolean>(false);
 
   const labelResend = resendCodeLabel || t("resendCode");
   const labelCountdown =
@@ -149,6 +161,7 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
   useEffect(() => {
     previousOtpRef.current = "";
     isSubmittingRef.current = false;
+    setPhase("idle");
     // Clear all boxes when resetKey changes
     if (resetFormRef.current) {
       resetFormRef.current(otpInitial);
@@ -170,8 +183,21 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
     if (error) {
       previousOtpRef.current = "";
       isSubmittingRef.current = false;
+      setPhase("idle");
     }
   }, [error]);
+
+  // A submit was made and the parent's request finished cleanly → verified.
+  useEffect(() => {
+    if (verified) {
+      setPhase("verified");
+      return;
+    }
+    if (!loading && !error) {
+      setPhase((p) => (p === "verifying" && isSubmittingRef.current && sawLoadingRef.current ? "verified" : p));
+    }
+    if (loading) sawLoadingRef.current = true;
+  }, [loading, error, verified]);
 
   const buildOtpFromValues = React.useCallback(
     (values: OtpFormValues): string => {
@@ -218,6 +244,8 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
       if (onVerify) {
         isSubmittingRef.current = true;
         previousOtpRef.current = trimmedOtp;
+        sawLoadingRef.current = false;
+        setPhase("verifying");
         onVerify(trimmedOtp);
       }
     },
@@ -663,6 +691,8 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
                     typeof valueForField === "string" &&
                     valueForField.length > 0;
                   const hasError = !!error;
+                  const isVerified = phase === "verified";
+                  const isChecking = phase === "verifying" || loading;
                   const ariaLabel = `${contactType === "phone" ? "SMS" : "Email"} OTP digit ${index + 1} of ${otpLength}`;
 
                   return (
@@ -677,6 +707,12 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
                         WebkitUserSelect: "none",
                         MozUserSelect: "none",
                         msUserSelect: "none",
+                        opacity: isChecking && !isVerified ? 0.65 : 1,
+                        pointerEvents: isChecking || isVerified ? "none" : "auto",
+                        transition: "opacity 160ms ease",
+                        ...(isVerified
+                          ? { "& .MuiOutlinedInput-root fieldset": { borderColor: `${theme.palette.success.main} !important` } }
+                          : {}),
                       }}
                     >
                       <InputField
@@ -723,7 +759,7 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
                         }}
                         autoComplete="one-time-code"
                         error={hasError}
-                        success={Boolean(hasValue && !hasError)}
+                        success={Boolean(hasValue && !hasError) || isVerified}
                         fullWidth
                         // NO maxLength here on purpose: iOS AutoFill inserts
                         // the whole code into the focused box as one input
@@ -777,6 +813,32 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
                   );
                 })}
               </Box>
+              {phase !== "idle" && !error && (
+                <Box
+                  role="status"
+                  aria-live="polite"
+                  data-testid={tid(phase === "verified" ? "verified" : "verifying") || (phase === "verified" ? "otp-verified" : "otp-verifying")}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    marginTop: "10px",
+                    fontSize: "13px",
+                    fontWeight: 500,
+                    fontFamily: "var(--font-sans)",
+                    color: phase === "verified" ? theme.palette.success.main : theme.palette.text.secondary,
+                  }}
+                >
+                  {phase === "verified" ? (
+                    <CheckCircleRounded sx={{ fontSize: 18 }} />
+                  ) : (
+                    <CircularProgress size={14} color="inherit" />
+                  )}
+                  {phase === "verified"
+                    ? verifiedLabel || t("otpVerified", { defaultValue: "Code verified" })
+                    : verifyingLabel || t("otpChecking", { defaultValue: "Checking your code…" })}
+                </Box>
+              )}
               {error && (
                 <Typography
                   role="alert"

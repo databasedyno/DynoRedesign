@@ -122,9 +122,9 @@ export const useThemeMode = () => {
   const context = useContext(ThemeContext);
   if (!context) {
     return {
-      mode: 'dark' as ThemeMode,
+      mode: 'light' as ThemeMode,
       toggleTheme: () => {},
-      isDark: true,
+      isDark: false,
       routeContext: 'public' as ThemeCtxKind,
     };
   }
@@ -139,7 +139,7 @@ export const ThemeProvider: React.FC<{
 }> = ({ children, initialMode }) => {
   // Initial state mirrors the server-provided value. Identical on server +
   // first client render → no hydration mismatch.
-  const [mode, setMode] = useState<ThemeMode>(initialMode ?? 'dark');
+  const [mode, setMode] = useState<ThemeMode>(initialMode ?? 'light');
   const [routeCtx, setRouteCtx] = useState<ThemeCtxKind>(() =>
     typeof window === 'undefined' ? 'public' : currentRouteContext(),
   );

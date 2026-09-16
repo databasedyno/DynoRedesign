@@ -31,6 +31,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 
 import axiosBaseApi from "@/axiosConfig";
+import { isStepUpCancelled } from "@/Components/UI/StepUp/stepUpBus";
 import CustomButton from "@/Components/UI/Buttons";
 import DeleteModel from "@/Components/UI/DeleteModel";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
@@ -596,6 +597,7 @@ const KeyFormModal = ({
       }
       onClose();
     } catch (err: any) {
+      if (isStepUpCancelled(err)) return;
       const msg =
         err?.response?.data?.message ||
         err?.message ||
@@ -1008,6 +1010,7 @@ const PublishableKeysSection = () => {
       });
       loadKeys();
     } catch (err: any) {
+      if (isStepUpCancelled(err)) return;
       dispatch({
         type: TOAST_SHOW,
         payload: {
@@ -1033,6 +1036,7 @@ const PublishableKeysSection = () => {
       });
       loadKeys();
     } catch (err: any) {
+      if (isStepUpCancelled(err)) return;
       dispatch({
         type: TOAST_SHOW,
         payload: {

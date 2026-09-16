@@ -3,7 +3,7 @@ import { Box, Typography } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
 import { FONT_HERO, FONT_TECH, useAurora } from "../v3/theme.v3";
-import { floor5, useLandingMetrics } from "../v5/useLandingMetrics";
+import { floor5, formatInt, useLandingMetrics } from "../v5/useLandingMetrics";
 import { CountUp } from "../motion/CountUp";
 
 export const CHAINS: { icon: string; label: string }[] = [
@@ -21,11 +21,11 @@ export const CHAINS: { icon: string; label: string }[] = [
 /** "Settled through Dynopay — live": payments this month · uptime · median settle · countries, plus the nine chains. Every number is real and server-rendered. */
 const LiveStrip: React.FC = () => {
   const s = useAurora();
-  const { t } = useTranslation("landing");
+  const { t, i18n } = useTranslation("landing");
   const m = useLandingMetrics();
   const settleMin = m?.median_settle_minutes_fast != null ? Math.max(1, Math.round(m.median_settle_minutes_fast)) : null;
   const stats = [
-    { id: "month", to: m ? m.payments_settled_this_month : null, render: (n: number) => Math.round(n).toLocaleString(), label: t("v5.proof.month") },
+    { id: "month", to: m ? m.payments_settled_this_month : null, render: (n: number) => formatInt(n, i18n.language), label: t("v5.proof.month") },
     { id: "uptime", to: m ? m.uptime_90d_pct : null, render: (n: number) => `${n.toFixed(2)}%`, label: t("v5.proof.uptime") },
     { id: "settle", to: settleMin, render: (n: number) => t("v5.proof.minutes", { n: Math.max(1, Math.round(n)) }), label: t("v5.proof.settle") },
     { id: "countries", to: m ? floor5(m.countries_served) : null, render: (n: number) => `${Math.round(n)}+`, label: t("v5.proof.countries") },

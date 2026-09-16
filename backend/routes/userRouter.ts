@@ -140,9 +140,8 @@ userRouter.put(
   userController.changePassword
 );
 
-// Account deletion (requires auth)
-userRouter.post("/account/send-otp", authMiddleware, userController.sendDeleteAccountOtp);
-userRouter.delete("/account", authMiddleware, userController.deleteAccount);
+// Account deletion — step-up protected (authenticator when enrolled, else emailed code) via the unified sudo flow.
+userRouter.delete("/account", authMiddleware, requireStepUp("account_delete"), userController.deleteAccount);
 
 // Onboarding status (requires auth) - check wallet, KYC, API key, company setup status
 userRouter.get("/onboarding-status", authMiddleware, userController.getOnboardingStatus);

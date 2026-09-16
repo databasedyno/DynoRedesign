@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   Alert,
   Box,
@@ -11,15 +11,15 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import { DeleteForeverRounded, WarningAmberRounded } from "@mui/icons-material";
-import OtpInputPanel from "@/Components/UI/OtpInputPanel";
+import { DeleteForeverRounded } from "@mui/icons-material";
 import axiosBaseApi from "@/axiosConfig";
 import { API_ENDPOINTS } from "@/api/endpoints";
+import { isStepUpCancelled } from "@/Components/UI/StepUp/stepUpBus";
 
 interface DeleteAccountModalProps {
   open: boolean;
   onClose: () => void;
-  /** Account email — the user types it to confirm before the OTP step. */
+  /** Account email — the user types it to confirm before the step-up challenge. */
   email: string;
 }
 
@@ -38,162 +38,100 @@ const clearSessionAndLeave = () => {
   window.location.replace("/auth/login?account_deleted=1");
 };
 
+/**
+ * Account deletion: type the email to confirm, then DELETE /user/account. The
+ * backend answers 403 STEPUP_REQUIRED (scope account_delete) and the shared
+ * step-up dialog runs the account's 2FA factor — authenticator when enrolled,
+ * otherwise an emailed code — before the request is retried.
+ */
 const DeleteAccountModal: React.FC<DeleteAccountModalProps> = ({ open, onClose, email }) => {
   const theme = useTheme();
-  const [step, setStep] = useState<"confirm" | "otp">("confirm");
   const [confirmText, setConfirmText] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [maskedEmail, setMaskedEmail] = useState("");
-  const [countdown, setCountdown] = useState(0);
-  const [otpResetKey, setOtpResetKey] = useState(0);
-
-  useEffect(() => {
-    if (countdown <= 0) return;
-    const id = setInterval(() => setCountdown((c) => c - 1), 1000);
-    return () => clearInterval(id);
-  }, [countdown]);
 
   const emailMatches = email.trim().length > 0 && confirmText.trim().toLowerCase() === email.trim().toLowerCase();
 
   const handleClose = useCallback(() => {
-    setStep("confirm");
+    if (loading) return;
     setConfirmText("");
     setError("");
-    setLoading(false);
-    setMaskedEmail("");
-    setCountdown(0);
-    setOtpResetKey((k) => k + 1);
     onClose();
-  }, [onClose]);
+  }, [loading, onClose]);
 
-  const requestCode = useCallback(async () => {
+  const handleDelete = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
-      const { data } = await axiosBaseApi.post(API_ENDPOINTS.user.deleteAccountSendOtp);
-      if (data?.data?.email) setMaskedEmail(data.data.email);
-      setStep("otp");
-      setCountdown(60);
-      setOtpResetKey((k) => k + 1);
-    } catch (e) {
-      setError(errMsg(e, "Couldn't send the verification code."));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const handleVerify = useCallback(async (otp: string) => {
-    if (otp.length !== 6) return;
-    setLoading(true);
-    setError("");
-    try {
-      await axiosBaseApi.delete(API_ENDPOINTS.user.deleteAccount, { data: { otp } });
+      await axiosBaseApi.delete(API_ENDPOINTS.user.deleteAccount);
       // Backend soft-deleted the account and signed us out — leave immediately.
       clearSessionAndLeave();
     } catch (e) {
-      setError(errMsg(e, "Couldn't delete your account."));
+      if (!isStepUpCancelled(e)) setError(errMsg(e, "Couldn't delete your account."));
       setLoading(false);
     }
   }, []);
-
-  const header = (icon: React.ReactNode, bg: string, title: string) => (
-    <Box sx={{ display: "flex", alignItems: "center", gap: "10px", mb: 2 }}>
-      <Box sx={{ width: 40, height: 40, borderRadius: "10px", backgroundColor: bg, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        {icon}
-      </Box>
-      <Typography sx={{ fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: "18px", lineHeight: "100%" }}>{title}</Typography>
-    </Box>
-  );
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="xs" PaperProps={{ sx: { borderRadius: "12px" } }} data-testid="delete-account-modal">
       <DialogContent sx={{ px: "28px", pt: "28px", pb: "16px" }}>
-        {step === "confirm" ? (
-          <>
-            {header(<DeleteForeverRounded sx={{ color: "#DC2626", fontSize: 22 }} />, "#FEE2E2", "Delete your account?")}
-            <Typography sx={{ fontSize: "14px", lineHeight: 1.6, color: theme.palette.text.secondary, mb: 2 }}>
-              This <strong>deactivates your entire Dynopay account</strong> — every brand, wallet, payment link and
-              setting — and signs you out of all devices immediately. For legal/compliance reasons some records are
-              kept securely afterwards, so only our support team can restore the account. We&apos;ll email you a 6-digit code to confirm.
-            </Typography>
-            <Typography sx={{ fontSize: "13px", color: theme.palette.text.secondary, mb: 0.75 }}>
-              Type your account email <strong>{email}</strong> to continue:
-            </Typography>
-            <TextField
-              fullWidth
-              size="small"
-              autoComplete="off"
-              placeholder={email}
-              value={confirmText}
-              onChange={(e) => setConfirmText(e.target.value)}
-              inputProps={{ "data-testid": "delete-account-confirm-input" }}
-              error={confirmText.length > 0 && !emailMatches}
-              sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
-            />
-            {error && (
-              <Alert severity="error" data-testid="delete-account-error" sx={{ mt: 1.5, fontSize: "13px" }}>
-                {error}
-              </Alert>
-            )}
-          </>
-        ) : (
-          <>
-            {header(<WarningAmberRounded sx={{ color: "#D97706", fontSize: 22 }} />, "#FEF3C7", "Enter verification code")}
-            <Typography data-testid="delete-account-otp-hint" sx={{ fontSize: "14px", lineHeight: 1.6, color: theme.palette.text.secondary, mb: 2 }}>
-              We sent a 6-digit code to {maskedEmail || "your email"}. Enter it below to schedule your account for deletion.
-            </Typography>
-            <OtpInputPanel
-              contactType="email"
-              otpLength={6}
-              onVerify={handleVerify}
-              onResendCode={requestCode}
-              onClearError={() => setError("")}
-              countdown={countdown}
-              loading={loading}
-              error={error}
-              primaryButtonLabel="Delete account"
-              showInfoChip={false}
-              showLabel={false}
-              actionsLayout="stacked"
-              resetKey={otpResetKey}
-            />
-          </>
+        <Box sx={{ display: "flex", alignItems: "center", gap: "10px", mb: 2 }}>
+          <Box sx={{ width: 40, height: 40, borderRadius: "10px", backgroundColor: "#FEE2E2", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <DeleteForeverRounded sx={{ color: "#DC2626", fontSize: 22 }} />
+          </Box>
+          <Typography sx={{ fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: "18px", lineHeight: "100%" }}>Delete your account?</Typography>
+        </Box>
+        <Typography sx={{ fontSize: "14px", lineHeight: 1.6, color: theme.palette.text.secondary, mb: 2 }}>
+          This <strong>deactivates your entire Dynopay account</strong> — every brand, wallet, payment link and
+          setting — and signs you out of all devices immediately. For legal/compliance reasons some records are
+          kept securely afterwards, so only our support team can restore the account. You&apos;ll confirm with your
+          two-step verification next.
+        </Typography>
+        <Typography sx={{ fontSize: "13px", color: theme.palette.text.secondary, mb: 0.75 }}>
+          Type your account email <strong>{email}</strong> to continue:
+        </Typography>
+        <TextField
+          fullWidth
+          size="small"
+          autoComplete="off"
+          placeholder={email}
+          value={confirmText}
+          onChange={(e) => setConfirmText(e.target.value)}
+          inputProps={{ "data-testid": "delete-account-confirm-input" }}
+          error={confirmText.length > 0 && !emailMatches}
+          sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
+        />
+        {error && (
+          <Alert severity="error" data-testid="delete-account-error" sx={{ mt: 1.5, fontSize: "13px" }}>
+            {error}
+          </Alert>
         )}
       </DialogContent>
 
-      {step === "confirm" ? (
-        <DialogActions sx={{ px: "28px", pb: "24px", display: "flex", gap: "12px" }}>
-          <Button
-            fullWidth
-            onClick={handleClose}
-            disabled={loading}
-            data-testid="delete-account-cancel-btn"
-            sx={{ fontWeight: 500, fontSize: "14px", color: theme.palette.text.secondary, border: `1px solid ${theme.palette.border.main}`, py: "10px", borderRadius: "8px", textTransform: "none" }}
-          >
-            Cancel
-          </Button>
-          <Button
-            fullWidth
-            onClick={requestCode}
-            disabled={loading || !emailMatches}
-            data-testid="delete-account-send-code-btn"
-            sx={{
-              fontWeight: 600, fontSize: "14px", color: "#FFFFFF", backgroundColor: "#DC2626", py: "10px", borderRadius: "8px", textTransform: "none",
-              "&:hover": { backgroundColor: "#B91C1C" },
-              "&:disabled": { backgroundColor: "#FCA5A5", color: "#FFF" },
-            }}
-          >
-            {loading ? <CircularProgress size={20} sx={{ color: "#FFF" }} /> : "Send code"}
-          </Button>
-        </DialogActions>
-      ) : (
-        <DialogActions sx={{ px: "28px", pb: "24px", justifyContent: "center" }}>
-          <Button onClick={handleClose} disabled={loading} data-testid="delete-account-otp-cancel-btn" sx={{ fontSize: "13px", color: theme.palette.text.secondary, textTransform: "none" }}>
-            Cancel
-          </Button>
-        </DialogActions>
-      )}
+      <DialogActions sx={{ px: "28px", pb: "24px", display: "flex", gap: "12px" }}>
+        <Button
+          fullWidth
+          onClick={handleClose}
+          disabled={loading}
+          data-testid="delete-account-cancel-btn"
+          sx={{ fontWeight: 500, fontSize: "14px", color: theme.palette.text.secondary, border: `1px solid ${theme.palette.border.main}`, py: "10px", borderRadius: "8px", textTransform: "none" }}
+        >
+          Cancel
+        </Button>
+        <Button
+          fullWidth
+          onClick={handleDelete}
+          disabled={loading || !emailMatches}
+          data-testid="delete-account-submit-btn"
+          sx={{
+            fontWeight: 600, fontSize: "14px", color: "#FFFFFF", backgroundColor: "#DC2626", py: "10px", borderRadius: "8px", textTransform: "none",
+            "&:hover": { backgroundColor: "#B91C1C" },
+            "&:disabled": { backgroundColor: "#FCA5A5", color: "#FFF" },
+          }}
+        >
+          {loading ? <CircularProgress size={20} sx={{ color: "#FFF" }} /> : "Delete account"}
+        </Button>
+      </DialogActions>
     </Dialog>
   );
 };

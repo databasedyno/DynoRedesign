@@ -1990,6 +1990,7 @@ export default function Login() {
       <TwoFactorLoginDialog
         open={!!userState.login2faRequired}
         loading={!!userState.login2faLoading}
+        verified={!!userState.login2faVerified}
         method={userState.login2faMethod === "email" ? "email" : "totp"}
         maskedEmail={userState.login2faEmail || ""}
         challengeToken={userState.login2faChallenge || ""}

@@ -7,7 +7,7 @@ import { FONT_BODY, FONT_HERO, FONT_TECH } from "../v3/theme.v3";
 import { CountUp } from "../motion/CountUp";
 import { Stagger, StaggerItem } from "../motion/Stagger";
 import { LiveDot } from "../motion/accents";
-import { floor5, useLandingMetrics } from "../v5/useLandingMetrics";
+import { floor5, formatInt, useLandingMetrics } from "../v5/useLandingMetrics";
 import { CHAINS } from "./LiveStrip";
 
 const BAND = "#1E1B4B";
@@ -62,13 +62,13 @@ const ChainBars: React.FC = () => {
 
 /** §2.3-5 Numbers band — four live stats + settlements-by-chain, on the deep-navy brand band. Every number is server-rendered. */
 const NumbersBand: React.FC = () => {
-  const { t } = useTranslation("landing");
+  const { t, i18n } = useTranslation("landing");
   const m = useLandingMetrics();
   const settleMin = m?.median_settle_minutes_fast != null ? Math.max(1, Math.round(m.median_settle_minutes_fast)) : null;
   const stats = [
-    { id: "uptime", to: m ? m.uptime_90d_pct : null, render: (n: number) => `${n.toFixed(2)}%`, label: t("v5.proof.uptime"), meta: m?.uptime_checks ? t("v6.numbers.checks", { n: m.uptime_checks.toLocaleString() }) : null },
+    { id: "uptime", to: m ? m.uptime_90d_pct : null, render: (n: number) => `${n.toFixed(2)}%`, label: t("v5.proof.uptime"), meta: m?.uptime_checks ? t("v6.numbers.checks", { n: formatInt(m.uptime_checks, i18n.language) }) : null },
     { id: "settle", to: settleMin, render: (n: number) => t("v5.proof.minutes", { n: Math.max(1, Math.round(n)) }), label: t("v5.proof.settle"), meta: t("v6.numbers.settleMeta") },
-    { id: "month", to: m ? m.payments_settled_this_month : null, render: (n: number) => Math.round(n).toLocaleString(), label: t("v5.proof.month"), meta: null },
+    { id: "month", to: m ? m.payments_settled_this_month : null, render: (n: number) => formatInt(n, i18n.language), label: t("v5.proof.month"), meta: null },
     { id: "countries", to: m ? floor5(m.countries_served) : null, render: (n: number) => `${Math.round(n)}+`, label: t("v5.proof.countries"), meta: t("v6.numbers.countriesMeta") },
   ];
   return (

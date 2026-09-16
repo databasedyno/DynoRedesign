@@ -3,12 +3,14 @@
  *
  * One verified factor opens a short, SCOPED elevated session in Redis
  * (`stepup:{scope}:{userId}`). Scopes never bleed into each other: unlocking
- * API-key management does not unlock payouts. Factors:
- *   - email  : 6-digit code emailed to the account owner (always offered when the
- *              account has an email address).
- *   - sms    : 6-digit Telnyx code — ONLY when the account has no email.
- *   - totp   : authenticator-app code (only when 2FA is enrolled).
- *   - backup : 2FA recovery code (only when 2FA is enrolled).
+ * API-key management does not unlock payouts.
+ *
+ * FACTOR POLICY (2026-06): the step-up factor is the account's enrolled 2FA factor.
+ *   - Authenticator enrolled (User2FA.method === "totp") → ONLY totp / backup codes.
+ *     Email/SMS codes are never offered or accepted — a mailbox must not be able to
+ *     bypass the authenticator.
+ *   - Email factor (or no 2FA yet) → 6-digit code emailed to the account owner;
+ *     SMS (Telnyx) only when the account has no email address.
  */
 import axios from "axios";
 import crypto from "crypto";
@@ -21,7 +23,7 @@ import { validate2FAToken, get2FAStatus } from "./twoFactorService";
 import { sendTelnyxSMS } from "../controller/user/userShared";
 import { sendStepUpCodeEmail } from "./email/securityEmails";
 
-export const STEP_UP_SCOPES = ["apikey", "wallet", "brand_delete", "security", "payout", "team", "settlement"] as const;
+export const STEP_UP_SCOPES = ["apikey", "wallet", "brand_delete", "security", "payout", "team", "settlement", "account_delete"] as const;
 export type StepUpScope = (typeof STEP_UP_SCOPES)[number];
 export type StepUpMethod = "email" | "sms" | "totp" | "backup";
 
@@ -29,6 +31,9 @@ export const STEP_UP_TTL_SECONDS = 10 * 60;
 const CODE_TTL_SECONDS = 5 * 60;
 const CODE_RATE_SECONDS = 30;
 const MAX_CODE_ATTEMPTS = 5;
+
+export const AUTHENTICATOR_REQUIRED_MESSAGE =
+  "Your account is protected by an authenticator app — enter the code from your app (or a backup code) instead.";
 
 export const isStepUpScope = (s: unknown): s is StepUpScope => STEP_UP_SCOPES.includes(String(s) as StepUpScope);
 
@@ -71,11 +76,17 @@ export const readSession = async (userId: number, scope: StepUpScope) => {
   return { active: true, expiresAt: exp };
 };
 
+/** True when the account's enrolled 2FA factor is an authenticator app (totp/backup are then the ONLY step-up methods). */
+export const usesAuthenticator = async (userId: number): Promise<boolean> => {
+  const twofa = await get2FAStatus(userId);
+  return !!twofa.enabled && twofa.method === "totp";
+};
+
 export const getStepUpStatus = async (userId: number, scope: StepUpScope) => {
-  const [{ active, expiresAt }, contact, twofa] = await Promise.all([
+  const [{ active, expiresAt }, contact, authenticator] = await Promise.all([
     readSession(userId, scope),
     loadContact(userId),
-    get2FAStatus(userId),
+    usesAuthenticator(userId),
   ]);
   const hasEmail = !!contact.email;
   return {
@@ -84,12 +95,19 @@ export const getStepUpStatus = async (userId: number, scope: StepUpScope) => {
     expires_at: expiresAt,
     now: Date.now(),
     ttl_seconds: STEP_UP_TTL_SECONDS,
-    methods: { email: hasEmail, sms: !hasEmail && !!contact.mobile, totp: !!twofa.enabled, backup: !!twofa.enabled },
+    factor: authenticator ? "authenticator" : "code",
+    methods: {
+      email: !authenticator && hasEmail,
+      sms: !authenticator && !hasEmail && !!contact.mobile,
+      totp: authenticator,
+      backup: authenticator,
+    },
     contact: { email: maskEmail(contact.email), phone: maskPhone(contact.mobile) },
   };
 };
 
 export const requestStepUpCode = async (userId: number, scope: StepUpScope) => {
+  if (await usesAuthenticator(userId)) throw new StepUpError(403, AUTHENTICATOR_REQUIRED_MESSAGE);
   const contact = await loadContact(userId);
   if (!contact.email && !contact.mobile) {
     throw new StepUpError(400, "Add an email address to your account to receive verification codes.");
@@ -161,10 +179,14 @@ const verifyEmittedCode = async (userId: number, scope: StepUpScope, method: "em
 export const verifyStepUp = async (userId: number, scope: StepUpScope, method: StepUpMethod, rawCode: string) => {
   const code = String(rawCode || "").trim();
   if (!code) throw new StepUpError(400, "Verification code is required.");
+  const authenticator = await usesAuthenticator(userId);
 
   if (method === "email" || method === "sms") {
+    // Policy: a mailbox/phone code can never stand in for an enrolled authenticator.
+    if (authenticator) throw new StepUpError(403, AUTHENTICATOR_REQUIRED_MESSAGE);
     await verifyEmittedCode(userId, scope, method, code);
   } else if (method === "totp" || method === "backup") {
+    if (!authenticator) throw new StepUpError(400, "No authenticator app is enrolled on this account.");
     // Never let "none" (2FA disabled) authorise — only a real totp/backup match counts.
     const r = await validate2FAToken(userId, code);
     if (!(r.valid && (r.method === "totp" || r.method === "backup_code"))) {

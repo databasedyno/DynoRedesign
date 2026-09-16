@@ -1669,7 +1669,8 @@
       "security": "alterar as tuas definições de segurança",
       "payout": "alterar as tuas definições de pagamento",
       "team": "alterar o acesso da equipa",
-      "settlement": "alterar a tua moeda de liquidação"
+      "settlement": "alterar a tua moeda de liquidação",
+      "account_delete": "eliminar a tua conta"
     }
   },
   "deleteWalletBody": "Estás prestes a remover o endereço de recebimento {{type}}{{address}}. Esta ação é permanente e não pode ser anulada. Primeiro vamos pedir-te para confirmares que és tu."

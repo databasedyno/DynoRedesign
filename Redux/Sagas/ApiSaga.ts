@@ -1,6 +1,7 @@
 import { call, put } from "redux-saga/effects";
 
 import axios from "@/axiosConfig";
+import { isStepUpCancelled } from "@/Components/UI/StepUp/stepUpBus";
 import { TOAST_SHOW } from "../Actions/ToastAction";
 import {
   API_ERROR,
@@ -68,6 +69,10 @@ export function* addApi(payload: any): unknown {
       payload: response?.data?.data,
     });
   } catch (e: any) {
+    if (isStepUpCancelled(e)) {
+      yield put({ type: API_ERROR });
+      return;
+    }
     const message = e?.response?.data?.message ?? e?.message ?? "Failed to create API key";
     yield put({
       type: TOAST_SHOW,
@@ -90,6 +95,10 @@ export function* getApi(payload?: any): unknown {
       payload: data?.all || data || [],
     });
   } catch (e: any) {
+    if (isStepUpCancelled(e)) {
+      yield put({ type: API_ERROR });
+      return;
+    }
     const message = e?.response?.data?.message ?? e?.message ?? "Failed to fetch API keys";
     yield put({
       type: TOAST_SHOW,
@@ -115,6 +124,10 @@ export function* deleteApi(payload: any): unknown {
       payload: id,
     });
   } catch (e: any) {
+    if (isStepUpCancelled(e)) {
+      yield put({ type: API_ERROR });
+      return;
+    }
     const message = e?.response?.data?.message ?? e?.message ?? "Failed to delete API key";
     yield put({
       type: TOAST_SHOW,
@@ -143,6 +156,10 @@ export function* updateApi(payload: any): unknown {
       payload: responseData?.data || responseData,
     });
   } catch (e: any) {
+    if (isStepUpCancelled(e)) {
+      yield put({ type: API_ERROR });
+      return;
+    }
     const message = e?.response?.data?.message ?? e?.message ?? "Failed to update API key";
     yield put({
       type: TOAST_SHOW,
@@ -173,6 +190,10 @@ export function* regenerateApi(payload: any): unknown {
     // Re-fetch all keys to stay in sync (keep the current brand filter)
     yield getApi(company_id ? { company_id } : undefined);
   } catch (e: any) {
+    if (isStepUpCancelled(e)) {
+      yield put({ type: API_ERROR });
+      return;
+    }
     const message = e?.response?.data?.message ?? e?.message ?? "Failed to regenerate API key";
     yield put({
       type: TOAST_SHOW,
@@ -201,6 +222,10 @@ export function* toggleApiStatus(payload: any): unknown {
       payload: { id, status: responseData?.data?.status || status },
     });
   } catch (e: any) {
+    if (isStepUpCancelled(e)) {
+      yield put({ type: API_ERROR });
+      return;
+    }
     const message = e?.response?.data?.message ?? e?.message ?? "Failed to toggle API status";
     yield put({
       type: TOAST_SHOW,

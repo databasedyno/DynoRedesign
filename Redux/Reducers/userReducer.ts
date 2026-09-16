@@ -61,6 +61,9 @@ const userInitialState = {
   login2faEmail: "",
   login2faRemember: false,
   login2faLoading: false,
+  // Flips true the moment the second factor is accepted so the dialog can show
+  // "Verified — signing you in…" during the redirect.
+  login2faVerified: false,
 };
 
 const userReducer = (state = userInitialState, action: ReducerAction) => {
@@ -93,6 +96,8 @@ const userReducer = (state = userInitialState, action: ReducerAction) => {
         name: payload.name,
         loading: false,
         error: null,
+        login2faLoading: false,
+        login2faVerified: !!state.login2faRequired,
         email_verified: payload?.email_verified ?? state.email_verified,
       };
     case USER_REGISTER:
@@ -216,6 +221,7 @@ const userReducer = (state = userInitialState, action: ReducerAction) => {
         login2faEmail: payload.masked_email || "",
         login2faRemember: !!payload.remember,
         login2faLoading: false,
+        login2faVerified: false,
         error: null,
       };
 
@@ -228,6 +234,7 @@ const userReducer = (state = userInitialState, action: ReducerAction) => {
         login2faEmail: "",
         login2faRemember: false,
         login2faLoading: false,
+        login2faVerified: false,
       };
 
     case USER_VERIFY_2FA:

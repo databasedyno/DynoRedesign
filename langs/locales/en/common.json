@@ -1669,7 +1669,8 @@
       "security": "change your security settings",
       "payout": "change your payout settings",
       "team": "change team access",
-      "settlement": "change your settlement currency"
+      "settlement": "change your settlement currency",
+      "account_delete": "delete your account"
     }
   },
   "deleteWalletBody": "You're about to remove the {{type}} payout address{{address}}. This action is permanent and cannot be undone. We'll ask you to verify it's you first."

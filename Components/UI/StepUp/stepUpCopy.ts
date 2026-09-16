@@ -11,6 +11,7 @@ export const scopeActionLabel = (t: TFunction, scope: StepUpScope): string => {
     payout: ["stepUp.scope.payout", "change your payout settings"],
     team: ["stepUp.scope.team", "change team access"],
     settlement: ["stepUp.scope.settlement", "change your settlement currency"],
+    account_delete: ["stepUp.scope.account_delete", "delete your account"],
   };
   const [key, fallback] = map[scope] || map.security;
   return t(key, { defaultValue: fallback });

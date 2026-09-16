@@ -125,9 +125,9 @@ export default function MyDocument({ emotionStyleTags, lang }: MyDocumentProps) 
   // Help & Support is dual-purpose: FOLLOW the in-app theme preference (so a
   // dark merchant keeps dark) but DEFAULT to light for logged-out visitors.
   var storageKey = (context === 'inapp' || isHelp) ? 'theme-mode-inapp' : 'theme-mode-public';
-  // 2026-06: DARK is the default everywhere (landing + app); saved
-  // preferences (localStorage/cookie) still win below.
-  var defaultMode = 'dark';
+  // 2026-06: LIGHT is the default everywhere (landing + auth + app); an
+  // explicit saved preference (localStorage) still wins below.
+  var defaultMode = 'light';
 
   // Start from the ROUTE default. Only a stored preference (or auth-path
   // inheritance) may override it — and reading storage is isolated so its
@@ -161,8 +161,7 @@ export default function MyDocument({ emotionStyleTags, lang }: MyDocumentProps) 
       }
     }
   } catch (e) {
-    // Storage unavailable/blocked — keep the route-aware default (dark for
-    // in-app). Do NOT force light here (that was the mobile-Safari bug).
+    // Storage unavailable/blocked — keep the route default (light).
   }
 
   try {

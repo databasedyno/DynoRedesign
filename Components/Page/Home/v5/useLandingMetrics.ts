@@ -47,6 +47,12 @@ export const useLandingMetrics = (): LandingMetrics | null => {
 /** "30+" style rounding so the number stays honest and stable between visits. */
 export const floor5 = (n: number): number => Math.max(5, Math.floor(n / 5) * 5);
 
+const INTL_LOCALE: Record<string, string> = { en: "en-US", pt: "pt-PT", fr: "fr-FR", es: "es-ES", de: "de-DE", nl: "nl-NL" };
+
+/** Integer formatter keyed on the i18n language (NOT the browser locale) so SSR "1,056" and the hydrating client agree. */
+export const formatInt = (n: number, lng: string | undefined): string =>
+  new Intl.NumberFormat(INTL_LOCALE[(lng ?? "en").slice(0, 2)] ?? "en-US", { maximumFractionDigits: 0 }).format(Math.round(n));
+
 /* ---------- server side ---------- */
 const SSR_TTL_MS = 60_000;
 let ssrCache: { at: number; data: LandingMetrics | null } | null = null;

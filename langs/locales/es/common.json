@@ -1669,7 +1669,8 @@
       "security": "cambiar tu configuración de seguridad",
       "payout": "cambiar tu configuración de pagos",
       "team": "cambiar el acceso del equipo",
-      "settlement": "cambiar tu moneda de liquidación"
+      "settlement": "cambiar tu moneda de liquidación",
+      "account_delete": "eliminar tu cuenta"
     }
   },
   "deleteWalletBody": "Estás a punto de eliminar la dirección de cobro {{type}}{{address}}. Esta acción es permanente y no se puede deshacer. Primero te pediremos que verifiques que eres tú."
