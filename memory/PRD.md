@@ -1,3 +1,46 @@
+# === 2026-06 (fork) DONE & VERIFIED — EMAIL REDESIGN PHASES 2+3 + REFERRAL i18n + MATRIX B/C SHIPPED (testing_agent iteration_195: backend 100%, 0 issues, retest_needed=false) ===
+# Resumes & completes the "SESSION PAUSED" block just below. User approved the full batch (ask_human) with default
+# Matrix B/C thresholds (low < $10, exhausted at $0, Redis dedup once per merchant per 30 days per alert type).
+#
+# WHAT SHIPPED (all verified: render harness 147/147, tsc 0, i18n leaf-key parity en=de=es=fr=nl=pt=1352 with ZERO
+#   missing/extra, jest __tests__/referralCreditService.test.ts 17/17 incl. 5 new Matrix B/C cases, no leaked raw keys):
+#   1. 13 English-only keys filled in de/es/fr/nl/pt: receipt.contributionNote + security.twoFaReset.{7} +
+#      security.twoFaResetDone.{5}. (Parity bug closed.)
+#   2. services/email/referralEmails.ts — FULL 6-lang i18n for all 8 senders (was `void lang;` English-only). Now uses
+#      resolveEmailLang(lang,email) + greetingLine + t("referral.emails.*"). amountHero added to the money-focal ones
+#      (payoutReady, payoutRequested, payoutFailed, accrual, monthlyDigest). New i18n namespace `referral.emails.*` (×6).
+#   3. MATRIX B/C — NEW senders sendReferralCreditLowEmail (credit < $10) + sendReferralCreditExhaustedEmail ($0), i18n
+#      referral.emails.creditLow / creditExhausted (×6). Trigger: services/referralCreditService.ts NEW export
+#      maybeAlertReferralCredit(userId), fired FIRE-AND-FORGET at the end of consumeReferralCreditForTransaction() when
+#      consumed>0 (`void maybeAlertReferralCredit(userId).catch(()=>undefined)` — can NEVER affect a settlement). Redis
+#      guard keys `refcredit:low:<userId>` / `refcredit:exhausted:<userId>` set NX EX 2592000 (30d); both DEL'd when
+#      credit is healthy again (>= $10) so a later drop re-alerts. Exhausted takes priority over low.
+#      NOTE: keyed on <userId> (referral credit is user-scoped via referral_payout_mode), not companyId as an earlier
+#      PRD note guessed. Registered in the render harness + covered by 5 jest cases (dedup / clear / never-throws).
+#   4. services/email/walletSecurityEmails.ts — i18n for both senders (walletChangeAlert, walletSecured). New top-level
+#      namespace `walletSecurity.*` (×6); localizes the "added/updated" action chips + singular/plural intros.
+#   5. services/email/adminNotificationEmails.ts (6 senders) + adminOpsEmails.ts (6 senders) — i18n via NEW top-level
+#      `admin.*` namespace (×6). Merchant-facing ones (webhookDisabled/webhookRedirect) localize to the MERCHANT via
+#      resolveEmailLang(lang,email); the pure-ops ones resolve via resolveEmailLang(undefined, ADMIN_EMAIL/recipient) →
+#      the ops account's stored language, else 'en'. Dates via emailDateParts(now, L).
+#   6. Deferred "Received via" payment-source feature (from the prior session, untouched code) CONFIRMED: settled +
+#      buyer-receipt emails render a "Received via: Payment link" row; shortened source labels API/Payment link/Store/
+#      Donation/Tip present across all 6 langs (labels.paymentSource + paymentSource.*).
+#
+# DELIBERATELY DEFERRED (low value / high churn, NOT done): the broad "friendly-voice re-write of headings/intros on the
+#   ~90 ALREADY-translated security/account/ops senders" (PRD step 5). amountHero polish WAS applied to the referral
+#   money emails; re-voicing the rest is cosmetic and would touch all 6 locales for every string — left as optional polish.
+#
+# HOW TO RE-VERIFY: cd /app/backend && EMAIL_DUMP_DIR=/tmp/audit_emails node_modules/.bin/ts-node --transpile-only
+#   scripts/audit_render_all_emails.ts  (expect 'rendered 147/147'); node_modules/.bin/tsc --noEmit (0);
+#   npx jest --config jest.config.ts --forceExit __tests__/referralCreditService.test.ts (17/17);
+#   parity one-liner (see below) → all 6 = 1352, OK. The one-off injection scripts (qa_fill_missing_i18n.cjs,
+#   apply_referral_emails_i18n.cjs, apply_wallet_security_i18n.cjs, apply_admin_i18n.cjs) were DELETED after use — the
+#   catalog edits are already in backend/locales/*/emails.json.
+# COMMIT: user must click "Save to GitHub" (no local push from pod).
+# ============================================================================================
+
+
 # === 2026-06 (fork) SESSION PAUSED BY USER — EMAIL REDESIGN PHASES 2+3 + REFERRAL i18n: SCOPED & PLANNED, NO CODE WRITTEN (RESUME HERE) ===
 # User instruction this session: "continue" the email-redesign rollout — Phase 2 (Security & Account) + Phase 3
 #   (Admin & Ops) + make referral emails multilingual. Then user paused: "document the task end to end and end the
