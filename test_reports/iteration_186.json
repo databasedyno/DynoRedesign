@@ -1,0 +1,19 @@
+{
+  "summary": "Verified DynoPay 401-interceptor fix. (1) /press: no 'support@dynopay.com' text; hero has single 'Read our story' (press-story-btn) navigating to /about; CTA band exposes press-cta-support (->/help-support) and press-cta-story; legacy press-contact-btn and press-cta-email are absent. (2) Simulated expired session (stale token + refreshToken + last_company_id) then hard-loaded 12 public paths (/press,/about,/fees,/help-support,/blog,/how-to,/referral-program,/terms-conditions,/documentation,/system-status,/compare/coingate,/auth/login) — all 12 stayed on their URL; on all 11 non-login pages the stale token was silently cleared from localStorage. (3) Stale-token hard-loads to /dashboard and /transactions still redirect to /auth/login. (4) Anonymous no-token /press,/about,/fees,/help-support render publicly with no redirect. (5) Real merchant login (onarrival21@gmail.com) reached /dashboard (no 2FA challenge — trusted device); token persisted; /press while logged in kept token intact and header showed 'Go to dashboard' (logged-in state); back to /dashboard still authed; /help-support rendered inside authed shell with sidebar; /pay-links loaded normally. (6) Backend sanity: /api => 200, /api/user/profile without token => 401. Total: 44/44 functional assertions passed (1 header-text substring assertion was a false negative — actual header text is 'Go to dashboard', which is the logged-in state).",
+  "backend_issues": {"critical": [], "minor": [{"endpoint": "/api/health", "issue": "Not implemented (404). /api base returns 200 and was used for the liveness check instead."}]},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": ["/app/test_reports/iteration_186.json"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "helpers/publicPaths.ts is the correct single source of truth for isProtectedPath / isPublicPath — add a unit test to lock the allow-list against regressions.",
+    "On silent-clear on public pages, consider emitting an event so in-memory contexts (CompanyDataContext/WalletDataContext) reset if the user later SPA-navigates to a protected surface without a full reload."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (from /app/memory/test_credentials.md). No 2FA challenge presented this session (trusted-device cookie).",
+  "seed_data_creation": "None (SAFE MODE, read-only).",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Compare slugs available on prod: coingate, coinpayments. Backend has no /api/health — use GET /api (200) for liveness. Header 'logged-in' text is 'Go to dashboard' (not 'Dashboard'). Stale-token public-page assertion pattern: set localStorage token='stale.jwt.token' + refreshToken='stale.refresh' + last_company_id='1' before page.goto, wait 6s, assert (a) final URL unchanged and (b) localStorage.token === null.",
+  "rca of the issue": "Original bug: axiosConfig.ts 401 interceptor's public-path allow-list was gated on 'no token present', so any stale/expired token in localStorage would fall through to the refresh-token attempt; when refresh failed, a hard redirect to /auth/login triggered even on public pages. Fix (verified): helpers/publicPaths.ts is single source of truth; interceptor only bounces to /auth/login when isProtectedPath(pathname); on public pages it silently clears token + refreshToken. CompanyDataProvider/WalletDataProvider gate SWR keys via merchantDataEnabled so no authed calls fire on public pages. Press page hero/CTA rewritten to drop both mailto buttons."
+}

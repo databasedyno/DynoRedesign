@@ -1,3 +1,25 @@
+# === 2026-06 (fork) DONE — PUBLIC PAGES NEVER REDIRECT TO LOGIN · /press email removed (testing_agent iteration_186: 44/44) ===
+# BUG: /press (and every public page) hard-redirected to /auth/login on refresh after a session timeout.
+# ROOT CAUSE: axiosConfig.ts 401 interceptor used an incomplete inline public allow-list (missed /press,/about,
+#   /compare,/how-to…) that ONLY applied when no token existed; global providers (CompanyDataProvider
+#   company/getCompany, WalletDataProvider wallet/getWallet seeded from last_company_id, SessionRevocationCheck
+#   user/session-check, useDisplayIdentity user/profile) fired with the stale token → 401 → refresh failed →
+#   window.location.href="/auth/login". Layout/withAuth was NOT at fault (all public pages already had public layouts).
+# FIX: helpers/publicPaths.ts = single source of truth: isProtectedPath(pathname) (in-app prefixes /dashboard,
+#   /transactions,/wallet,/wallet-security,/customers,/invoices,/notifications,/settings,/profile,/create-pay-link,
+#   /pay-links,/referrals,/developer-keys,/payouts,/get-started,/kyc,/storefront,/admin except /admin/login; works on
+#   real paths AND Next route patterns) + isPublicPath = !isProtectedPath. axiosConfig: bounceToLogin() ONLY when
+#   protected; clearSession() drops token/refreshToken + notifyTokenUpdated() + synthetic StorageEvent so header/
+#   layout/providers flip to logged-out in place; isCheckoutPage now = isCheckoutSurface() (old inline list wrongly
+#   included in-app /pay-links/*). unAutorizedHelper (403) same rule. CompanyDataProvider exposes merchantDataEnabled
+#   = hasToken && (isProtectedPath(router.pathname) || /help-support); WalletDataProvider gated by it.
+# PRESS PAGE: both mailto:support@dynopay.com buttons removed — hero = single primary "Read our story"
+#   (press-story-btn → /about); CTA band = "Help & Support" (press-cta-support → /help-support, common:helpSupport)
+#   + "Read our story" (press-cta-story). press.heroBody ×6 langs: "one email away" → "one message away".
+# VERIFIED: stale token on 12 public paths stays put + token cleared; /dashboard,/transactions still → login;
+#   real login → /dashboard → /press keeps token + logged-in header; /help-support authed shell + brand selector OK.
+# ============================================================================================
+
 # === 2026-06 (fork) ROOT CAUSE FOUND & FIXED — "Save to GitHub didn't reach commit" ===
 # PROOF: /var/log/e1_agent.log → every platform commit since the fork failed at STAGING, before `git commit`:
 #   "git add failed: The following paths are ignored by one of your .gitignore files: .env .next"
