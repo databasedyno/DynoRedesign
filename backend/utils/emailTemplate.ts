@@ -290,6 +290,13 @@ export const baseEmailTemplate = (
       .hl-box { background-color: #1c1c22 !important; } .hl-box td, .hl-box p, .hl-box span, .hl-box div { color: #d4d4d8 !important; } .hl-box strong { color: #fafafa !important; }
       .chip { background-color: #26262c !important; color: #e4e4e7 !important; border-color: #33333a !important; } .chip-success, .success-box .chip { background-color: #14532d !important; color: #DCFCE7 !important; }
       .tbl-surface { background-color: #18181b !important; border-color: #33333a !important; } .tbl-head { background-color: #26262c !important; } .track { background-color: #3a3a42 !important; }
+      /* Crisp money card + amount hero (2026 email redesign) */
+      .money-card { background-color: #18181b !important; border-color: #33333a !important; }
+      .money-card td, .money-card p, .money-card span { color: #d4d4d8 !important; }
+      .money-card strong { color: #fafafa !important; }
+      .money-card .fee-total td { color: #fafafa !important; }
+      .amt-hero-value { color: #fafafa !important; }
+      .amt-hero-sub { color: #a1a1aa !important; }
       /* Gmail workaround */
       u + .body .bg { background-color: #0a0a0a !important; }
     }
@@ -300,7 +307,7 @@ export const baseEmailTemplate = (
   <table role="presentation" class="bg" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f4; table-layout: fixed;">
     <tr>
       <td align="center" style="padding: 32px 16px;">
-        <table role="presentation" class="outer card" width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden;">
+        <table role="presentation" class="outer card" width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border: 1px solid #ededf0; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 2px rgba(16,24,40,0.04);">
           <!-- Neon accent bar -->
           <tr>
             <td style="background-color: #4338CA; height: 5px; line-height: 5px; font-size: 5px;">&nbsp;</td>
@@ -317,7 +324,7 @@ export const baseEmailTemplate = (
           <tr>
             <td class="inner msg" style="padding: 36px 40px 40px 40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">
               ${heroBlock}
-              <h1 class="hdg" style="font-size: 24px; font-weight: 800; color: #0a0a0a; margin: 0 0 20px 0; line-height: 1.3; letter-spacing: -0.3px;">${heading}</h1>
+              <h1 class="hdg" style="font-size: 23px; font-weight: 800; color: #0a0a0a; margin: 0 0 14px 0; line-height: 1.25; letter-spacing: -0.5px;">${heading}</h1>
               ${bodyContent}
               ${buttonBlock}
               <!-- Sign-off -->
@@ -377,8 +384,8 @@ export const baseEmailTemplate = (
  * Used for payment details, transaction info, etc.
  */
 export const infoBox = (content: string, borderColor: string = '#4338CA'): string => {
-  return `<table role="presentation" class="info-box" width="100%" cellpadding="0" cellspacing="0" style="background-color: #fafaf9; border: 1px solid #e7e5e4; border-radius: 12px; border-left: 4px solid ${borderColor}; margin: 20px 0;">
-    <tr><td style="padding: 16px 20px;">${content}</td></tr>
+  return `<table role="presentation" class="info-box" width="100%" cellpadding="0" cellspacing="0" style="background-color: #fbfbfb; border: 1px solid #ececee; border-radius: 14px; border-left: 3px solid ${borderColor}; margin: 22px 0;">
+    <tr><td style="padding: 8px 20px;">${content}</td></tr>
   </table>`;
 };
 
@@ -386,10 +393,10 @@ export const infoBox = (content: string, borderColor: string = '#4338CA'): strin
  * Reusable email component: Data row for tables
  */
 export const dataRow = (label: string, value: string, isLast: boolean = false): string => {
-  const border = isLast ? '' : 'border-bottom: 1px solid #f1f5f9;';
+  const border = isLast ? '' : 'border-bottom: 1px solid #f1f1f3;';
   return `<tr class="data-row" style="${border}">
-    <td style="padding: 10px 0; color: #6b7280; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${label}</td>
-    <td style="padding: 10px 0; color: #1f2937; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: right;">${value}</td>
+    <td style="padding: 9px 0; color: #71717a; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${label}</td>
+    <td style="padding: 9px 0; color: #111827; font-size: 14px; font-weight: 500; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: right;">${value}</td>
   </tr>`;
 };
 
@@ -398,13 +405,13 @@ export const dataRow = (label: string, value: string, isLast: boolean = false): 
  */
 export const statusBadge = (label: string, type: 'success' | 'pending' | 'error' | 'info' = 'info'): string => {
   const styles: Record<string, { bg: string; color: string; cls: string }> = {
-    success: { bg: '#dcfce7', color: '#166534', cls: 'status-success' },
-    pending: { bg: '#fef3c7', color: '#92400e', cls: 'status-pending' },
-    error: { bg: '#fee2e2', color: '#991b1b', cls: 'status-error' },
-    info: { bg: '#dbeafe', color: '#1e40af', cls: 'status-success' },
+    success: { bg: '#e7f8ef', color: '#067647', cls: 'status-success' },
+    pending: { bg: '#fef6e7', color: '#b25e09', cls: 'status-pending' },
+    error: { bg: '#feecec', color: '#b42318', cls: 'status-error' },
+    info: { bg: '#eef0ff', color: '#4338ca', cls: 'status-success' },
   };
   const s = styles[type];
-  return `<span class="${s.cls}" style="display: inline-block; background: ${s.bg}; color: ${s.color}; padding: 3px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${label}</span>`;
+  return `<span class="${s.cls}" style="display: inline-block; background: ${s.bg}; color: ${s.color}; padding: 4px 12px; border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${label}</span>`;
 };
 
 /**
@@ -500,10 +507,10 @@ export const twoColumnStats = (leftHtml: string, rightHtml: string): string => {
  * Fee breakdown table row
  */
 export const feeRow = (label: string, value: string, isNegative: boolean = false): string => {
-  const valueColor = isNegative ? '#dc2626' : '#1f2937';
+  const valueColor = isNegative ? '#dc2626' : '#111827';
   return `<tr class="fee-row">
-    <td style="padding: 6px 0; color: #6b7280; font-size: 13px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; border-bottom: 1px solid #f1f5f9;">${label}</td>
-    <td style="padding: 6px 0; text-align: right; color: ${valueColor}; font-size: 13px; font-weight: 500; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; border-bottom: 1px solid #f1f5f9;">${value}</td>
+    <td style="padding: 9px 0; color: #71717a; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; border-bottom: 1px solid #f1f1f3;">${label}</td>
+    <td style="padding: 9px 0; text-align: right; color: ${valueColor}; font-size: 14px; font-weight: 500; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; border-bottom: 1px solid #f1f1f3;">${value}</td>
   </tr>`;
 };
 
@@ -512,8 +519,8 @@ export const feeRow = (label: string, value: string, isNegative: boolean = false
  */
 export const feeTotalRow = (label: string, value: string): string => {
   return `<tr class="fee-total">
-    <td style="padding: 10px 0 0; font-weight: 700; color: #1f2937; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${label}</td>
-    <td style="padding: 10px 0 0; text-align: right; font-weight: 700; color: #15803d; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${value}</td>
+    <td style="padding: 13px 0 2px; font-weight: 700; color: #0a0a0a; font-size: 15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${label}</td>
+    <td style="padding: 13px 0 2px; text-align: right; font-weight: 800; color: #067647; font-size: 16px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${value}</td>
   </tr>`;
 };
 
@@ -521,10 +528,12 @@ export const feeTotalRow = (label: string, value: string): string => {
  * Fee breakdown table wrapper
  */
 export const feeTable = (rows: string, title: string = "Fee Breakdown"): string => {
-  return alertBox(`
-    <p style="font-size: 13px; font-weight: 600; color: #78716c; margin: 0 0 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">${title}</p>
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows}</table>
-  `);
+  return `<table role="presentation" class="money-card" width="100%" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border: 1px solid #ececee; border-radius: 14px; margin: 22px 0;">
+    <tr><td style="padding: 18px 20px 14px;">
+      <p style="font-size: 11px; font-weight: 700; color: #8a8a94; margin: 0 0 8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.6px;">${title}</p>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows}</table>
+    </td></tr>
+  </table>`;
 };
 
 /**
@@ -532,4 +541,29 @@ export const feeTable = (rows: string, title: string = "Fee Breakdown"): string 
  */
 export const mono = (text: string): string => {
   return `<span class="mono" style="font-family: 'SF Mono', 'Fira Code', monospace, Arial, sans-serif; font-size: 13px; word-break: break-all; color: #374151;">${text}</span>`;
+};
+
+/**
+ * Amount hero — the crisp "one glance" focal block for money emails.
+ * Renders a small status pill, a large amount, and an optional sub-label.
+ * Sits directly under the H1 so the reader sees WHAT and HOW MUCH instantly.
+ */
+export const amountHero = (
+  amount: string,
+  options?: { pill?: string; pillType?: 'success' | 'pending' | 'error' | 'info'; sublabel?: string }
+): string => {
+  const { pill, pillType = 'success', sublabel } = options || {};
+  const pillHtml = pill
+    ? `<div style="margin: 0 0 12px;">${statusBadge(pill, pillType)}</div>`
+    : '';
+  const subHtml = sublabel
+    ? `<div class="amt-hero-sub" style="font-size: 14px; color: #6b7280; margin-top: 8px; line-height: 1.4; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${sublabel}</div>`
+    : '';
+  return `<table role="presentation" class="amt-hero" width="100%" cellpadding="0" cellspacing="0" style="margin: 4px 0 22px;">
+    <tr><td>
+      ${pillHtml}
+      <div class="amt-hero-value" style="font-size: 36px; font-weight: 800; color: #0a0a0a; letter-spacing: -1px; line-height: 1.05; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${amount}</div>
+      ${subHtml}
+    </td></tr>
+  </table>`;
 };

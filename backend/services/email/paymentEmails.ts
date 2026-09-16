@@ -4,7 +4,7 @@ import { apiLogger } from "../../utils/loggers";
 import { captureError } from "../errorMonitoringService";
 import { formatEmailDateTime, t, normalizeLang, resolveEmailLang } from "../../utils/emailI18n";
 import { formatCryptoAmount } from "../../utils/currencyUtils";
-import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../../utils/emailTemplate";
+import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono, amountHero } from "../../utils/emailTemplate";
 import { EMAIL_TOKENS } from "../../utils/brandTokens";
 import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, dynoPayGreetingTemplate, formatAmountWithCurrency, sendEmail } from "./emailShared";
 import { toFixedStr } from "../../utils/money";
@@ -69,11 +69,21 @@ export const sendPaymentReceivedEmail = async (
       ? t('paymentSettled.nothingToDo', L)
       : isContribution ? t('contributionReceived.outro', L) : t('paymentReceived.outro', L);
 
-    const content = `${settled && moneyPath?.largePayment ? `<p style="margin:0 0 12px;">${statusBadge(t('paymentSettled.largeBadge', L), 'success')}</p>` : ''}
+    const settledHero = settled
+      ? amountHero(formatAmountWithCurrency(Number(amount), currency), {
+          pill: moneyPath?.largePayment ? t('paymentSettled.largeBadge', L) : t('paymentSettled.heroPill', L),
+          pillType: moneyPath?.belowMinimum ? 'pending' : 'success',
+          sublabel: moneyPath?.autoConvertTarget
+            ? t('paymentSettled.heroSubConverting', L, { target: getCoinSymbol(moneyPath.autoConvertTarget) })
+            : t('paymentSettled.heroSub', L),
+        })
+      : '';
+
+    const content = `${settledHero}
     ${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
     ${p(intro)}
     ${settled && isContribution ? p(t('contributionReceived.intro', L, { campaignName })) : ''}
-    ${settled && moneyPath ? renderMoneyPath(L, { ...moneyPath, paidFor: moneyPath.paidFor ?? campaignName ?? null }) : legacyBox}
+    ${settled && moneyPath ? renderMoneyPath(L, { ...moneyPath, referralCreditUsd: Number(referralCreditAppliedUsd) || moneyPath.referralCreditUsd || null, paidFor: moneyPath.paidFor ?? campaignName ?? null }) : legacyBox}
     ${Number(referralCreditAppliedUsd) > 0
         ? p(t('paymentReceived.referralCredit', L, { amount: `$${toFixedStr(referralCreditAppliedUsd, 2)}` }))
         : ''}
@@ -86,7 +96,7 @@ export const sendPaymentReceivedEmail = async (
         ? t('paymentSettled.preheaderBelowMinimum', L, { amount, currency })
         : t('paymentSettled.preheader', L, { net: moneyPath?.netCrypto ?? cryptoAmount ?? amount, asset: getCoinSymbol(moneyPath?.autoConvertTarget ?? moneyPath?.asset ?? currency) })
       : isContribution ? t('contributionReceived.preheader', L) : t('paymentReceived.preheader', L);
-    const html = dynoPayEmailTemplate(heading, content, true, cta, txLink, preheader, L, 'check');
+    const html = dynoPayEmailTemplate(heading, content, true, cta, txLink, preheader, L, settled ? undefined : 'check');
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`${settled ? 'Payment settled' : isContribution ? 'Contribution' : 'Payment'} received email sent to ${email}`);
   } catch (e) {
@@ -116,7 +126,12 @@ export const sendPaymentPendingEmail = async (
     const subject = t('paymentPending.subject', L, { amount, currency, companyName });
     const network = cryptoCurrency ? assetNetworkLabel(cryptoCurrency) : '';
 
-    const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
+    const content = `${amountHero(formatAmountWithCurrency(Number(amount), currency), {
+      pill: t('paymentPending.heroPill', L),
+      pillType: 'pending',
+      sublabel: t('paymentPending.heroSub', L, { company: escapeHtml(companyName) }),
+    })}
+    ${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
     ${p(t('paymentPending.intro', L, { amount, currency, companyName }))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
@@ -130,7 +145,7 @@ export const sendPaymentPendingEmail = async (
     `, '#f59e0b')}
     ${p(t('paymentPending.outro', L))}`;
 
-    const html = dynoPayEmailTemplate(t('paymentPending.heading', L), content, true, t('paymentReceived.cta', L), `${FRONTEND_BASE_URL}/transactions?search=${encodeURIComponent(transactionId)}`, t('paymentPending.preheader', L), L, 'hourglass');
+    const html = dynoPayEmailTemplate(t('paymentPending.heading', L), content, true, t('paymentReceived.cta', L), `${FRONTEND_BASE_URL}/transactions?search=${encodeURIComponent(transactionId)}`, t('paymentPending.preheader', L), L, undefined);
     const info = await mailTransporter({ to: recipientEmail, name, subject, body: html });
     return info;
   } catch (e) {

@@ -1,7 +1,7 @@
 import mailTransporter from "../../utils/mailTransporter";
 import { captureError } from "../errorMonitoringService";
 import { apiLogger } from "../../utils/loggers";
-import { infoBox, dataRow, statusBadge, p, mono } from "../../utils/emailTemplate";
+import { infoBox, dataRow, statusBadge, p, mono, amountHero } from "../../utils/emailTemplate";
 import { t, normalizeLang, formatEmailDateTime } from "../../utils/emailI18n";
 import { formatCryptoAmount } from "../../utils/currencyUtils";
 import { getCoinSymbol, assetNetworkLabel } from "../../utils/networkLabels";
@@ -56,7 +56,12 @@ export const sendPayoutDelayedEmail = async (
       data.conversionId ? dataRow(t("payoutDelayed.conversionId", L), mono(`#${escapeHtml(String(data.conversionId))}`), true) : "",
     ].filter(Boolean).join("");
 
-    const content = `${p(name ? t("common.greeting", L, { name }) : t("common.greetingDefault", L))}
+    const content = `${amountHero(`${amountStr}${fiatStr}`, {
+        pill: t(failed ? "payoutDelayed.statusManual" : "payoutDelayed.statusDelayed", L),
+        pillType: "pending",
+        sublabel: t("payoutDelayed.heroSub", L),
+      })}
+      ${p(name ? t("common.greeting", L, { name }) : t("common.greetingDefault", L))}
       ${p(t(`${K}.intro`, L, { companyName: `<strong>${escapeHtml(companyName)}</strong>`, amount: `<strong>${amountStr}</strong>` }))}
       ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows}</table>`, "#f59e0b")}
       ${p(`<strong>${t("payoutDelayed.whyLabel", L)}</strong> ${reason}`)}
@@ -65,7 +70,7 @@ export const sendPayoutDelayedEmail = async (
 
     const html = dynoPayEmailTemplate(
       t(`${K}.heading`, L), content, true, t("payoutDelayed.cta", L), `${FRONTEND_BASE_URL}/payouts`,
-      t(`${K}.preheader`, L, { amount: amountStr }), L, "hourglass",
+      t(`${K}.preheader`, L, { amount: amountStr }), L, undefined,
     );
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[email] payout ${data.stage} sent to ${email} (${amountStr})`);

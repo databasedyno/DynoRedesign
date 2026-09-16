@@ -1,3 +1,52 @@
+# === 2026-09 (fork) IN PROGRESS — EMAIL REDESIGN ROLLOUT: MONEY WAVE SHIPPED & VERIFIED (RESUME 1 from the block below) ===
+# User re-confirmed the plan (ask_human) and approved: EVOLVE the look (keep dark chip header/footer + indigo, make
+# it crisper), FRIENDLY-PROFESSIONAL voice, apply to ALL ~110 senders, FULL 6-language i18n with NO gaps, waves =
+# money → security/account → admin/ops. Matrix scope approved: build A + B + C + D + F + G; SKIP E.
+#
+# SHARED LAYOUT (applies to ALL emails at once — utils/emailTemplate.ts): crisper components — statusBadge now a
+#   pill (999px, uppercase, refined success/pending/error/info colors), dataRow/feeRow lighter separators (#f1f1f3)
+#   + darker values, infoBox 1px #ececee + 3px accent + radius 14, feeTable DE-AMBERED → clean white "money-card"
+#   (class .money-card, dark-mode added) with a bold GREEN feeTotalRow, H1 22→23px tighter, card gets a 1px border +
+#   subtle shadow. NEW component `amountHero(amount,{pill,pillType,sublabel})` = the crisp "one glance" focal block
+#   (big amount + status pill) used by money emails; dark classes .amt-hero-value/.amt-hero-sub added.
+# MONEY WAVE (done + verified, FE/BE tsc 0, 141/141 render clean via scripts/audit_render_all_emails.ts):
+#   • Payment settled (paymentEmails.sendPaymentReceivedEmail settled branch): leads with amountHero ($ gross + PAID
+#     pill + "Settled to your payout wallet"), dropped the top check icon, friendly heading "You've been paid".
+#   • Payment pending (paymentEmails.sendPaymentPendingEmail): amountHero ($ + CONFIRMING pill + "Incoming for {co}"),
+#     heading "Your payment's on the way", dropped hourglass icon. (Fixes the "dull" complaint.)
+#   • Auto-convert payout / F (conversionEmails.sendAutoConversionPayoutEmail): amountHero (payout amount + PAYOUT
+#     COMPLETE pill), friendly heading/intro, and ALL previously-hardcoded labels moved to i18n keys
+#     merchant.autoConversion.l.* (20 keys × 6 langs: received/payout/fees/rows/broadcasting/viewOnExplorer/…).
+#   • Payout delayed / G (payoutEmails.sendPayoutDelayedEmail): amountHero (amount waiting + pending pill), copy was
+#     already reassuring; dropped hourglass icon; heroSub key added ×6.
+#   • Referral accrual / D (referralEmails.sendReferralAccrualEmail): leads with "+$X earned" hero. NOTE: ALL of
+#     referralEmails.ts is still `void lang;` ENGLISH-ONLY (i18n gap — do in the referral/admin wave).
+#   • Matrix A: referralCreditUsd now flows into renderMoneyPath and shows a green "Referral credit · fee covered
+#     −$X" ROW inside the money-card (paymentSettled.ts), plus the existing "you saved" line kept.
+#   i18n added ×6 langs: paymentSettled.{heading,heroPill,heroSub,heroSubConverting,referralCreditRow,referralCreditNote},
+#     paymentPending.{heading,heroPill,heroSub}, merchant.autoConversion.{heading,heroPill,heroSub,intro,l.*},
+#     payoutDelayed.heroSub. EN headings: "You've been paid" / "Your payment's on the way" / "Your payout's complete".
+# SIGN-OFF PACK saved to /app/memory/email_previews_v5/ (before/after HTML light+dark for pending/settled/payout +
+#   PNG screenshots + NOTIFICATION_MATRIX.md). User approved the direction in-chat.
+#
+# REMAINING (next turns, waves 2→3 + new emails — user already approved building these):
+#   • Matrix B (referral credit running low) + C (credit exhausted): NEW senders. Trigger point = after
+#     services/referralCreditService.consumeReferralCreditForTransaction() when remaining getAvailableCreditForFees()
+#     crosses a LOW threshold / hits 0. NEEDS a product decision: low threshold value + dedup (Redis guard or a
+#     tbl_*_alert row like nexusService). Build templates + i18n ×6.
+#   • VOICE + FULL 6-LANG i18n sweep of the remaining ~90 senders (security/account: securityEmails, accountEmails,
+#     walletEmails, walletSecurityEmails, kycEmails, otpEmails, activation*; then admin/ops: adminNotificationEmails,
+#     adminOpsEmails, billingReportEmails, companyEmails, orderEmails, customerReceiptEmail, linkCampaignEmails,
+#     tipGoalEmails, buyAgainLink, refund/*). Known EN-only gaps: ALL of referralEmails.ts (void lang), plus the
+#     auto-convert email's CONDITIONAL blocks (volatilityVisual/savingsBlock/priceUpBlock) and
+#     sendWeeklyConversionSummaryEmail are still hardcoded English.
+#   • Add hero icons back only where they help; otherwise money emails lead with amountHero (no top badge).
+# VERIFY loop: `cd /app/backend && EMAIL_DUMP_DIR=/tmp/x DISABLE_OUTBOUND_EMAIL=true node_modules/.bin/ts-node
+#   --transpile-only scripts/audit_render_all_emails.ts` (renders 141) + `node_modules/.bin/tsc --noEmit`. Screenshot
+#   by copying rendered HTML into /app/public/<dir> and hitting the preview URL (Next serves /public); force dark by
+#   swapping `@media (prefers-color-scheme: dark)`→`@media all` (the screenshot infra ignores emulate_media).
+# ============================================================================================
+
 # === 2026-06 (fork) FORK CLOSED BY USER — NO CODE CHANGED THIS FORK; RESUME POINTS PINNED BELOW ===
 # This fork opened on the block below and the user closed it before any code was written. The previous fork's
 # work (SECURITY STEP-UP · LIGHT DEFAULT · OTP FEEDBACK · DEV-STORE KEY CLEANUP · HYDRATION FIX) is SHIPPED &

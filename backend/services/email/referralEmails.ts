@@ -1,7 +1,7 @@
 import mailTransporter from "../../utils/mailTransporter";
 import { apiLogger } from "../../utils/loggers";
 import { captureError } from "../errorMonitoringService";
-import { p, infoBox, dataRow } from "../../utils/emailTemplate";
+import { p, infoBox, dataRow, amountHero } from "../../utils/emailTemplate";
 import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate } from "./emailShared";
 import { firstNameOnly } from "../../utils/emailI18n";
 import { toFixedStr } from "../../utils/money";
@@ -158,18 +158,19 @@ export const sendReferralAccrualEmail = async (
     const merchant = escapeHtml(merchantName || 'a merchant you referred');
     const subject = `+${earned} from ${merchantName || 'a merchant you referred'} — referral rewards`;
     const content = `
+      ${amountHero(`+${earned}`, { pill: 'Reward earned', pillType: 'success', sublabel: `Referral rewards from ${merchant}` })}
       ${p(`Hey ${escapeHtml(firstNameOnly(name))},`)}
       ${p(`Good news — <strong>${merchant}</strong> just processed a payment, so you earned <strong>${earned}</strong> in Dynopay referral rewards (25% of their fees).`)}
       ${infoBox(`
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-          ${dataRow('Just earned', `<strong style="color:#166534;">${earned}</strong>`)}
+          ${dataRow('Just earned', `<strong style="color:#067647;">${earned}</strong>`)}
           ${dataRow('From', `<strong>${merchant}</strong>`)}
           ${dataRow('Available balance', `<strong>${balance}</strong>`, true)}
         </table>
       `, '#12B76A')}
       ${p(`Your rewards keep building for the full 12-month window. Take them as automatic fee credit, or switch to USDT (TRC-20) cash-out anytime on your referrals page.`)}`;
 
-    const html = dynoPayEmailTemplate(`You earned ${earned}`, content, true, `View referral rewards`, REFERRALS_URL, `${merchant} processed a payment — you earned ${earned}.`, undefined, 'gift');
+    const html = dynoPayEmailTemplate(`You earned ${earned}`, content, true, `View referral rewards`, REFERRALS_URL, `${merchant} processed a payment — you earned ${earned}.`, undefined, undefined);
     await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[Email] Referral accrual alert sent to ${email} (+${earned} from ${merchantName}, bal=${balance})`);
   } catch (e) {

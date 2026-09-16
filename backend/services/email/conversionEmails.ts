@@ -5,7 +5,7 @@ import { captureError } from "../errorMonitoringService";
 import { generatePaymentReceipt, getReceiptFilename } from "../pdfReceiptService";
 import { emailDateParts, t, normalizeLang, resolveEmailLang } from "../../utils/emailI18n";
 import { formatCryptoAmount } from "../../utils/currencyUtils";
-import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../../utils/emailTemplate";
+import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono, amountHero } from "../../utils/emailTemplate";
 import { EMAIL_TOKENS } from "../../utils/brandTokens";
 import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, dynoPayGreetingTemplate, formatAmountWithCurrency, formatMoneyForEmail, sendEmail, brandSubject } from "./emailShared";
 import { toFixedStr } from "../../utils/money";
@@ -111,25 +111,31 @@ export const sendAutoConversionPayoutEmail = async (
         ? (platformFeeUsd / grossSaleUsd) * 100
         : 0;
     const platformPctLabel = effectivePlatformPct > 0
-      ? toFixedStr(effectivePlatformPct, effectivePlatformPct < 1 ? 2 : 1) + "% effective"
+      ? toFixedStr(effectivePlatformPct, effectivePlatformPct < 1 ? 2 : 1) + "% " + t('merchant.autoConversion.l.effective', L)
       : "";
 
+    const acL = (k: string) => t(`merchant.autoConversion.l.${k}`, L);
     const feeRows = [
-      feeRow('Gross Conversion', `$${toFixedStr(grossSaleUsd, 2)} ${targetCurrency}`),
-      platformFeeUsd > 0 ? feeRow(`Platform Fee${platformPctLabel ? ` (${platformPctLabel})` : ''}`, `-$${toFixedStr(platformFeeUsd, 4)}`, true) : '',
-      sweepGasFeeUsd > 0 ? feeRow('Network Gas Fee (sweep)', `-$${toFixedStr(sweepGasFeeUsd, 4)}`, true) : '',
-      tradeFeeUsd > 0 ? feeRow('Exchange Fee (0.1%)', `-$${toFixedStr(tradeFeeUsd, 4)}`, true) : '',
+      feeRow(acL('grossConversion'), `$${toFixedStr(grossSaleUsd, 2)} ${targetCurrency}`),
+      platformFeeUsd > 0 ? feeRow(`${acL('platformFee')}${platformPctLabel ? ` (${platformPctLabel})` : ''}`, `-$${toFixedStr(platformFeeUsd, 4)}`, true) : '',
+      sweepGasFeeUsd > 0 ? feeRow(acL('networkGasFee'), `-$${toFixedStr(sweepGasFeeUsd, 4)}`, true) : '',
+      tradeFeeUsd > 0 ? feeRow(acL('exchangeFee'), `-$${toFixedStr(tradeFeeUsd, 4)}`, true) : '',
       binanceWithdrawalFeeUsd > 0
-        ? feeRow('Withdrawal Fee (on-chain)', `-$${toFixedStr(binanceWithdrawalFeeUsd, 4)}`, true)
-        : feeRow('Withdrawal Fee', '$0.00 (off-chain)'),
-      feeTotalRow('Net Payout', `${payoutFmt} ${targetCurrency}`),
+        ? feeRow(acL('withdrawalFeeOnchain'), `-$${toFixedStr(binanceWithdrawalFeeUsd, 4)}`, true)
+        : feeRow(acL('withdrawalFee'), `$0.00 (${acL('offchain')})`),
+      feeTotalRow(acL('netPayout'), `${payoutFmt} ${targetCurrency}`),
     ].filter(Boolean).join('');
 
     const htmlContent = `
+      ${amountHero(`${payoutFmt} ${targetCurrency}`, {
+        pill: t('merchant.autoConversion.heroPill', L),
+        pillType: 'success',
+        sublabel: t('merchant.autoConversion.heroSub', L, { sourceAmount: sourceFmt, sourceCurrency }),
+      })}
       ${p(t('merchant.autoConversion.intro', L))}
       ${twoColumnStats(
-        statCard('Received', `${sourceFmt} ${sourceCurrency}`, `~$${toFixedStr(sourceAmountUsd, 2)} USD`),
-        statCard('Payout', `${payoutFmt} ${targetCurrency}`, 'Sent to your payout address', 'green')
+        statCard(acL('received'), `${sourceFmt} ${sourceCurrency}`, `~$${toFixedStr(sourceAmountUsd, 2)} USD`),
+        statCard(acL('payout'), `${payoutFmt} ${targetCurrency}`, acL('sentToPayout'), 'green')
       )}
       ${volatilityVisual}
       ${savingsBlock}
@@ -137,17 +143,17 @@ export const sendAutoConversionPayoutEmail = async (
       ${hasDetailedFees ? feeTable(feeRows) : ''}
       ${infoBox(`
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-          ${dataRow('Conversion Rate', `<strong>1 ${sourceCurrency} = ${parseFloat(conversionRate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${targetCurrency}</strong>`)}
-          ${dataRow('Market State', statusBadge(marketState, isVolatile ? 'pending' : 'success'))}
-          ${dataRow('Date', `${dateStr} · ${timeStr}`)}
-          ${settlementWallet ? dataRow('Sent to', `${mono(settlementWallet.length > 12 ? `${settlementWallet.slice(0, 6)}…${settlementWallet.slice(-4)}` : settlementWallet)}${settlementChain ? ` <span style="color:#6b7280;font-size:12px;">· ${assetNetworkLabel(`${targetCurrency}-${settlementChain}`)}</span>` : ''}`) : ''}
-          ${withdrawalTxHash ? dataRow('Withdrawal TX', (() => { const x = explorerTxUrl(`${targetCurrency}-${settlementChain || ''}`, withdrawalTxHash); return x ? `<a href="${x}" style="font-family: monospace; font-size: 12px; color: #4F46E5; word-break: break-all; text-decoration: underline;" target="_blank" rel="noopener">${withdrawalTxHash.slice(0, 10)}…${withdrawalTxHash.slice(-6)}</a> <span style="font-size:12px;color:#6b7280;">View on explorer &#8599;</span>` : mono(withdrawalTxHash); })()) : dataRow('Withdrawal TX', '<span style="color:#b45309;">Broadcasting — appears in Payouts shortly</span>')}
-          ${dataRow('Conversion ID', mono(`#${conversionId}`), true)}
+          ${dataRow(acL('conversionRate'), `<strong>1 ${sourceCurrency} = ${parseFloat(conversionRate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${targetCurrency}</strong>`)}
+          ${dataRow(acL('marketState'), statusBadge(marketState, isVolatile ? 'pending' : 'success'))}
+          ${dataRow(acL('date'), `${dateStr} · ${timeStr}`)}
+          ${settlementWallet ? dataRow(acL('sentTo'), `${mono(settlementWallet.length > 12 ? `${settlementWallet.slice(0, 6)}…${settlementWallet.slice(-4)}` : settlementWallet)}${settlementChain ? ` <span style="color:#6b7280;font-size:12px;">· ${assetNetworkLabel(`${targetCurrency}-${settlementChain}`)}</span>` : ''}`) : ''}
+          ${withdrawalTxHash ? dataRow(acL('withdrawalTx'), (() => { const x = explorerTxUrl(`${targetCurrency}-${settlementChain || ''}`, withdrawalTxHash); return x ? `<a href="${x}" style="font-family: monospace; font-size: 12px; color: #4F46E5; word-break: break-all; text-decoration: underline;" target="_blank" rel="noopener">${withdrawalTxHash.slice(0, 10)}…${withdrawalTxHash.slice(-6)}</a> <span style="font-size:12px;color:#6b7280;">${acL('viewOnExplorer')} &#8599;</span>` : mono(withdrawalTxHash); })()) : dataRow(acL('withdrawalTx'), `<span style="color:#b45309;">${acL('broadcasting')}</span>`)}
+          ${dataRow(acL('conversionId'), mono(`#${conversionId}`), true)}
         </table>
       `)}
       ${p(t('merchant.autoConversion.outro', L))}`;
 
-    const htmlBody = dynoPayEmailTemplate(t('merchant.autoConversion.heading', L), `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}\n${htmlContent}`, true, t('merchant.autoConversion.cta', L), `${FRONTEND_BASE_URL}/payouts`, t('merchant.autoConversion.preheader', L), L, 'swap');
+    const htmlBody = dynoPayEmailTemplate(t('merchant.autoConversion.heading', L), `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}\n${htmlContent}`, true, t('merchant.autoConversion.cta', L), `${FRONTEND_BASE_URL}/payouts`, t('merchant.autoConversion.preheader', L), L, undefined);
     const info = await mailTransporter({
       to: recipientEmail,
       name,

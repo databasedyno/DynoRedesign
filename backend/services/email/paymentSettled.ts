@@ -28,6 +28,8 @@ export interface PaymentMoneyPath {
   detectedAt?: Date | null;
   /** ≥ $1,000 equivalent — shown as a badge (replaces the old separate alert email). */
   largePayment?: boolean;
+  /** Referral credit (USD) applied to the Dynopay fee on this payment — shown as a benefit row. */
+  referralCreditUsd?: number | null;
 }
 
 export const maskAddress = (a?: string | null): string =>
@@ -63,9 +65,18 @@ export const renderMoneyPath = (L: string, mp: PaymentMoneyPath): string => {
     ? t("paymentSettled.netConverting", L, { target: escapeHtml(mp.autoConvertTarget) })
     : t("paymentSettled.netForwarded", L);
 
+  const referralUsd = num(mp.referralCreditUsd);
+  const referralRow = referralUsd > 0
+    ? feeRow(
+        `${t("paymentSettled.referralCreditRow", L)} <span style="color:#6b7280;font-weight:400;">· ${t("paymentSettled.referralCreditNote", L)}</span>`,
+        `<span style="color:#067647;font-weight:600;">−$${referralUsd.toFixed(2)}</span>`,
+      )
+    : "";
+
   const money = feeTable(
     feeRow(t("paymentSettled.received", L), `<strong>${fmt(mp.grossCrypto, mp.asset)}</strong>${fiat}`) +
     feeRow(feeLabel, `−${fmt(fee, mp.asset)}`, true) +
+    referralRow +
     (gas > 0
       ? feeRow(`${t("paymentSettled.networkFee", L)} <span style="color:#6b7280;font-weight:400;">· ${t("paymentSettled.networkFeeMerchant", L)}</span>`, `−${fmt(gas, mp.asset)}`, true)
       : feeRow(t("paymentSettled.networkFee", L), `<span style="color:#6b7280;font-weight:400;">${t("paymentSettled.networkFeeDynopay", L)}</span>`)) +
