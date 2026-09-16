@@ -404,8 +404,16 @@ const escalateChat = async (req: express.Request, res: express.Response) => {
       order: [["createdAt", "ASC"]],
       limit: 60,
     });
-    if (rows.length === 0) {
-      return errorResponseHelper(res, 400, "No conversation found for this session.");
+
+    const user = resolveOptionalUser(req);
+    const trimmedNote = typeof note === "string" ? note.trim() : "";
+    const hasContact = (typeof contact_email === "string" && !!contact_email) || !!user?.email;
+    // The "Talk to a human" pill is now prominent in the header, so visitors
+    // often escalate from a cold open (no messages yet). Allow that as long as
+    // we have SOME way to help them — a contact email (typed or logged-in) or
+    // a note. Only block a truly empty request.
+    if (rows.length === 0 && !hasContact && !trimmedNote) {
+      return errorResponseHelper(res, 400, "Please add a short message or leave your email so our team can follow up.");
     }
 
     const adminEmail = envRaw("ADMIN_EMAIL");
@@ -414,18 +422,19 @@ const escalateChat = async (req: express.Request, res: express.Response) => {
       return errorResponseHelper(res, 503, "Escalation is temporarily unavailable.");
     }
 
-    const user = resolveOptionalUser(req);
     const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    const transcriptHtml = rows
-      .map((m) => {
-        const who = m.role === "assistant" ? "Emily (AI)" : "Visitor";
-        const when = m.createdAt ? new Date(m.createdAt).toISOString().replace("T", " ").slice(0, 16) : "";
-        const attachmentLine = m.attachment_url
-          ? `<br/><em>Attachment:</em> <a href="${esc(`${envRaw("SERVER_URL") || "https://dynopay.com"}${m.attachment_url}`)}">${esc(m.attachment_name || "file")}</a>`
-          : "";
-        return `<p style=\"margin:4px 0\"><strong>${who}</strong> <span style=\"color:#888\">${when} UTC</span><br/>${esc(m.content)}${attachmentLine}</p>`;
-      })
-      .join("\n");
+    const transcriptHtml = rows.length === 0
+      ? `<p style="color:#888"><em>No messages yet — the visitor requested a human directly from the chat.</em></p>`
+      : rows
+        .map((m) => {
+          const who = m.role === "assistant" ? "Emily (AI)" : "Visitor";
+          const when = m.createdAt ? new Date(m.createdAt).toISOString().replace("T", " ").slice(0, 16) : "";
+          const attachmentLine = m.attachment_url
+            ? `<br/><em>Attachment:</em> <a href="${esc(`${envRaw("SERVER_URL") || "https://dynopay.com"}${m.attachment_url}`)}">${esc(m.attachment_name || "file")}</a>`
+            : "";
+          return `<p style=\"margin:4px 0\"><strong>${who}</strong> <span style=\"color:#888\">${when} UTC</span><br/>${esc(m.content)}${attachmentLine}</p>`;
+        })
+        .join("\n");
 
     const contactLine = contact_email
       ? `<p><strong>Visitor contact email:</strong> ${esc(contact_email)}</p>`

@@ -214,6 +214,9 @@ export const API_ENDPOINTS = {
     // In-app customer wallet (store credit): ledger + credit/debit (brand-scoped)
     customersWalletLedger: "/userApi/customers/wallet/ledger",
     customersWalletAdjust: "/userApi/customers/wallet/adjust",
+    // CRM-lite writes: private notes/tags/name & mobile overrides, manual add
+    customersAnnotation: "/userApi/customers/annotation",
+    customersManual: "/userApi/customers/manual",
   },
 } as const;
 

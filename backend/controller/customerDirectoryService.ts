@@ -16,7 +16,7 @@
  * READ-ONLY: no schema changes, no writes (safe against the live DB).
  */
 import { QueryTypes } from "sequelize";
-import { companyModel } from "../models";
+import { companyModel, customerAnnotationModel } from "../models";
 import sequelize from "../utils/dbInstance";
 import { getRedisItem, setRedisItemWithTTL, deleteRedisItem } from "../utils/redisInstance";
 import {
@@ -383,6 +383,37 @@ export const buildDirectory = async (
     const ch: CanonicalTxSourceType =
       lt === "cart" ? "product" : lt === "contribution" ? (l.is_tip_jar ? "tip" : "contribution") : "payment_link";
     entry._channels.add(ch);
+  }
+
+  // 4) Overlay merchant-private annotations: notes, tags, name/mobile overrides,
+  //    and SURFACE manually-added contacts that have no transactions yet (they
+  //    show as prospects until they pay). tbl_customer_annotation is keyed by
+  //    (company_id, lowercased email); a write busts this cached directory.
+  if (scope.companyIds.length) {
+    const annotationRows = (await customerAnnotationModel.findAll({
+      where: { company_id: scope.companyIds },
+      attributes: ["email", "display_name", "mobile", "notes", "tags", "created_manually"],
+    })) as unknown as Array<{
+      dataValues: {
+        email: string;
+        display_name: string | null;
+        mobile: string | null;
+        notes: string | null;
+        tags: string[] | null;
+        created_manually: boolean;
+      };
+    }>;
+    for (const a of annotationRows) {
+      const av = a.dataValues;
+      const email = cleanEmail(av.email);
+      if (!email) continue;
+      const entry = persons.get(email) || persons.set(email, blank(email, "person")).get(email)!;
+      if (av.display_name) entry.name = av.display_name; // merchant override wins over derived
+      if (av.mobile) entry.mobile = av.mobile;
+      entry.notes = av.notes ?? null;
+      entry.tags = Array.isArray(av.tags) ? av.tags : [];
+      entry.manual = !!av.created_manually;
+    }
   }
 
   // Finalize

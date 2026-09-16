@@ -1,6 +1,7 @@
 import express from "express";
 import { apiController } from "../controller";
 import customerDirectoryController from "../controller/customerDirectoryController";
+import customerAnnotationController from "../controller/customerAnnotationController";
 import customerWalletController from "../controller/customerWalletController";
 import { apiMiddleware, authMiddleware } from "../middleware";
 import { requireCompanyOwnerBy } from "../middleware/teamPermissionMiddleware";
@@ -76,6 +77,11 @@ apiRouter.post("/getApiCustomers", authMiddleware, apiController.getApiCustomers
 // NOTE: registered BEFORE the legacy /customers + /customer/:id routes.
 apiRouter.get("/customers/directory", authMiddleware, customerDirectoryController.getCustomerDirectory);
 apiRouter.get("/customers/directory/detail", authMiddleware, customerDirectoryController.getCustomerDirectoryDetail);
+// CRM-lite writes: merchant-private notes/tags/name & mobile overrides, and
+// manually-added contacts. Both are company-scoped + manage_customers-gated
+// inside the controller (resolveWriteScope) and bust the directory cache.
+apiRouter.post("/customers/annotation", authMiddleware, customerAnnotationController.upsertAnnotation);
+apiRouter.post("/customers/manual", authMiddleware, customerAnnotationController.createManualCustomer);
 // In-app customer wallet (store credit): ledger + credit/debit, brand-scoped.
 apiRouter.get("/customers/wallet/ledger", authMiddleware, customerWalletController.getLedger);
 apiRouter.post("/customers/wallet/adjust", authMiddleware, customerWalletController.adjust);

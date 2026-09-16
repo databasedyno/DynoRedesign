@@ -38,6 +38,12 @@ import {
   MenuItem,
   Select,
   Alert,
+  Chip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Snackbar,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
@@ -102,6 +108,9 @@ interface DirectoryEntry {
   preferred_asset?: string | null;
   last_paid_usd?: number | null;
   last_paid_asset?: string | null;
+  notes?: string | null;
+  tags?: string[];
+  manual?: boolean;
 }
 
 interface Aggregates {
@@ -198,6 +207,9 @@ const CustomersPage: React.FC = () => {
   const [detailLoading, setDetailLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
+  const [toast, setToast] = useState<{ text: string; kind: "ok" | "err" } | null>(null);
+  const notify = (text: string, kind: "ok" | "err" = "ok") => setToast({ text, kind });
 
   const selectedCompanyId = useCompanyStore().selectedCompanyId;
 
@@ -249,7 +261,7 @@ const CustomersPage: React.FC = () => {
   if (debouncedSearch.trim()) listParams.set("search", debouncedSearch.trim());
   if (selectedCompanyId) listParams.set("company_id", String(selectedCompanyId));
 
-  const { data: resp, isLoading } = useApiSWR<any>(
+  const { data: resp, isLoading, mutate } = useApiSWR<any>(
     [`${API_ENDPOINTS.userApi.customersDirectory}?${listParams.toString()}`, selectedCompanyId],
     { unwrap: true, keepPreviousData: true }
   );
@@ -463,6 +475,26 @@ const CustomersPage: React.FC = () => {
     </Box>
   );
 
+  const renderTags = (c: DirectoryEntry, max = 3) => {
+    const tg = c.tags || [];
+    if (!tg.length) return null;
+    return (
+      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flexWrap: "wrap" }} data-testid={`customer-tags-${c.key}`}>
+        {tg.slice(0, max).map((tag) => (
+          <Chip
+            key={tag}
+            label={tag}
+            size="small"
+            sx={{ height: 18, fontSize: "10.5px", fontWeight: 600, ...sansSx, bgcolor: isDark ? "rgba(129,140,248,0.15)" : "rgba(79,70,229,0.08)", color: accent, "& .MuiChip-label": { px: 0.75 } }}
+          />
+        ))}
+        {tg.length > max && (
+          <Typography sx={{ fontSize: "10.5px", color: theme.palette.text.secondary, ...sansSx }}>+{tg.length - max}</Typography>
+        )}
+      </Box>
+    );
+  };
+
   const renderChannelChips = (c: DirectoryEntry, max = 3) => (
     <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flexWrap: "wrap" }}>
       {c.channels.slice(0, max).map((ch) => (
@@ -654,6 +686,14 @@ const CustomersPage: React.FC = () => {
             {t("customers.sortName", { defaultValue: "Name" })}
           </MenuItem>
         </Select>
+        <CustomButton
+          label={t("customers.addCustomer", { defaultValue: "Add customer" })}
+          variant="primary"
+          size="small"
+          startIcon={<PersonAddAltRounded sx={{ fontSize: 17 }} />}
+          onClick={() => setAddOpen(true)}
+          data-testid="customers-add-btn"
+        />
         <Tooltip title={t("customers.exportCsvHint", { defaultValue: "Download the current list as CSV" })} arrow>
           <span>
             <IconButton
@@ -823,6 +863,7 @@ const CustomersPage: React.FC = () => {
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1.25, flexWrap: "wrap" }}>
                   <StatusDot tone={segmentTone(c.segment)}>{segmentLabel(c.segment)}</StatusDot>
                   {renderChannelChips(c, 2)}
+                  {renderTags(c, 2)}
                   {c.preferred_asset && renderPreferredAsset(c)}
                   <Box sx={{ flexGrow: 1 }} />
                   {renderLastPaid(c, true)}
@@ -941,6 +982,9 @@ const CustomersPage: React.FC = () => {
                           >
                             {secondaryLine(c)}
                           </Typography>
+                          {c.tags && c.tags.length > 0 && (
+                            <Box sx={{ mt: 0.5 }}>{renderTags(c, 3)}</Box>
+                          )}
                         </Box>
                       </Box>
                     </TableCell>
@@ -1052,9 +1096,38 @@ const CustomersPage: React.FC = () => {
             renderAvatar={renderAvatar}
             companyId={selectedCompanyId}
             onWalletChanged={() => { if (detailKey) void openDetail(detailKey); }}
+            notify={notify}
+            onAnnotationSaved={() => { void mutate(); if (detailKey) void openDetail(detailKey); }}
           />
         )}
       </Drawer>
+
+      <AddCustomerDialog
+        open={addOpen}
+        onClose={() => setAddOpen(false)}
+        companyId={selectedCompanyId}
+        onCreated={(email) => { setAddOpen(false); void mutate(); void openDetail(email); }}
+        notify={notify}
+        t={t}
+        theme={theme}
+        accent={accent}
+      />
+      <Snackbar
+        open={!!toast}
+        autoHideDuration={3500}
+        onClose={() => setToast(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          severity={toast?.kind === "err" ? "error" : "success"}
+          variant="filled"
+          onClose={() => setToast(null)}
+          data-testid="customers-toast"
+          sx={{ width: "100%" }}
+        >
+          {toast?.text || ""}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
@@ -1121,6 +1194,8 @@ const DetailPanel: React.FC<{
   renderAvatar: (c: DirectoryEntry, size?: number) => React.ReactNode;
   companyId?: string | number | null;
   onWalletChanged?: () => void;
+  notify?: (text: string, kind?: "ok" | "err") => void;
+  onAnnotationSaved?: () => void;
 }> = ({
   detail,
   t,
@@ -1139,10 +1214,39 @@ const DetailPanel: React.FC<{
   renderAvatar,
   companyId,
   onWalletChanged,
+  notify,
+  onAnnotationSaved,
 }) => {
   const c = detail.profile;
   const sansSx = { fontFamily: "var(--font-sans)" };
   const isPerson = c.kind === "person";
+  const accent = theme.palette.mode === "dark" ? "#818CF8" : "#4F46E5";
+  const [annNotes, setAnnNotes] = useState<string>(c.notes || "");
+  const [annTags, setAnnTags] = useState<string[]>(c.tags || []);
+  const [savingAnn, setSavingAnn] = useState(false);
+  useEffect(() => {
+    setAnnNotes(c.notes || "");
+    setAnnTags(c.tags || []);
+  }, [c.key, c.notes, c.tags]);
+  const annDirty = annNotes !== (c.notes || "") || JSON.stringify(annTags) !== JSON.stringify(c.tags || []);
+  const saveAnnotation = async () => {
+    if (!isPerson || !c.email || !companyId) return;
+    setSavingAnn(true);
+    try {
+      await axiosBaseApi.post(API_ENDPOINTS.userApi.customersAnnotation, {
+        company_id: String(companyId),
+        email: c.email,
+        notes: annNotes.trim() || null,
+        tags: annTags,
+      });
+      notify?.(t("customers.notesSaved", { defaultValue: "Saved." }), "ok");
+      onAnnotationSaved?.();
+    } catch (e: any) {
+      notify?.(e?.response?.data?.message || t("customers.notesFailed", { defaultValue: "Could not save." }), "err");
+    } finally {
+      setSavingAnn(false);
+    }
+  };
 
   const kpi = (label: string, value: React.ReactNode) => (
     <Box sx={{ flex: 1, minWidth: 0 }}>
@@ -1293,6 +1397,59 @@ const DetailPanel: React.FC<{
         {kpi(t("customers.kpiPayments", { defaultValue: "Payments" }), c.payments_count)}
         {kpi(t("customers.kpiFirstSeen", { defaultValue: "First seen" }), fmtDate(c.first_seen))}
       </Box>
+
+      {/* Notes & tags — merchant-private CRM overlay (identified customers only) */}
+      {isPerson && c.email && (
+        <Box sx={{ mt: 1.5, p: "12px 14px", borderRadius: "12px", border: `1px solid ${cardBorder}` }} data-testid="customer-detail-crm">
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
+            <Typography sx={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: theme.palette.text.secondary, ...sansSx }}>
+              {t("customers.crmSection", { defaultValue: "Notes & tags" })}
+            </Typography>
+            {c.manual && (
+              <Chip size="small" label={t("customers.manualBadge", { defaultValue: "Added manually" })} data-testid="customer-detail-manual-badge" sx={{ height: 20, fontSize: "10.5px", ...sansSx }} />
+            )}
+          </Box>
+          {companyId ? (
+            <>
+              <TagsEditor
+                tags={annTags}
+                onChange={setAnnTags}
+                theme={theme}
+                accent={accent}
+                testIdPrefix="customer-detail"
+                placeholder={t("customers.tagPlaceholder", { defaultValue: "Add a tag, press Enter" })}
+                disabled={savingAnn}
+              />
+              <TextField
+                value={annNotes}
+                onChange={(e) => setAnnNotes(e.target.value)}
+                placeholder={t("customers.notesPlaceholder", { defaultValue: "Private notes only you can see…" })}
+                size="small"
+                fullWidth
+                multiline
+                minRows={3}
+                sx={{ mt: 1.5 }}
+                inputProps={{ "data-testid": "customer-detail-notes-input", maxLength: 5000 }}
+              />
+              <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1 }}>
+                <CustomButton
+                  label={t("customers.saveNotes", { defaultValue: "Save" })}
+                  variant="primary"
+                  size="small"
+                  onClick={saveAnnotation}
+                  loading={savingAnn}
+                  disabled={savingAnn || !annDirty}
+                  data-testid="customer-detail-notes-save"
+                />
+              </Box>
+            </>
+          ) : (
+            <Typography sx={{ fontSize: "12.5px", color: theme.palette.text.secondary, ...sansSx }} data-testid="customer-detail-crm-need-brand">
+              {t("customers.crmNeedBrand", { defaultValue: "Switch to a single brand to add private notes and tags." })}
+            </Typography>
+          )}
+        </Box>
+      )}
 
       {/* store credit — identified customers only, needs a single brand selected */}
       {isPerson ? (
@@ -1483,6 +1640,211 @@ const DetailPanel: React.FC<{
         </Alert>
       )}
     </Box>
+  );
+};
+
+/* ------------------------------------------------ tags editor (shared) */
+const TagsEditor: React.FC<{
+  tags: string[];
+  onChange: (next: string[]) => void;
+  theme: any;
+  accent: string;
+  testIdPrefix: string;
+  placeholder: string;
+  disabled?: boolean;
+}> = ({ tags, onChange, theme, accent, testIdPrefix, placeholder, disabled }) => {
+  const [draft, setDraft] = useState("");
+  const sansSx = { fontFamily: "var(--font-sans)" };
+  const isDark = theme.palette.mode === "dark";
+  const addTag = (raw: string) => {
+    const v = raw.trim().slice(0, 40);
+    setDraft("");
+    if (!v) return;
+    if (tags.some((x) => x.toLowerCase() === v.toLowerCase())) return;
+    if (tags.length >= 20) return;
+    onChange([...tags, v]);
+  };
+  return (
+    <Box>
+      {tags.length > 0 && (
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.75, mb: 1 }} data-testid={`${testIdPrefix}-tags`}>
+          {tags.map((tag) => (
+            <Chip
+              key={tag}
+              label={tag}
+              size="small"
+              onDelete={disabled ? undefined : () => onChange(tags.filter((x) => x !== tag))}
+              data-testid={`${testIdPrefix}-tag-${tag.replace(/[^a-z0-9]/gi, "-").toLowerCase()}`}
+              sx={{ ...sansSx, fontSize: "12px", fontWeight: 600, bgcolor: isDark ? "rgba(129,140,248,0.15)" : "rgba(79,70,229,0.08)", color: accent }}
+            />
+          ))}
+        </Box>
+      )}
+      <TextField
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === ",") {
+            e.preventDefault();
+            addTag(draft);
+          }
+        }}
+        onBlur={() => { if (draft.trim()) addTag(draft); }}
+        placeholder={placeholder}
+        size="small"
+        fullWidth
+        disabled={disabled}
+        inputProps={{ "data-testid": `${testIdPrefix}-tag-input`, maxLength: 40 }}
+      />
+    </Box>
+  );
+};
+
+/* --------------------------------------------- add customer dialog */
+const AddCustomerDialog: React.FC<{
+  open: boolean;
+  onClose: () => void;
+  companyId?: string | number | null;
+  onCreated: (email: string) => void;
+  notify: (text: string, kind?: "ok" | "err") => void;
+  t: any;
+  theme: any;
+  accent: string;
+}> = ({ open, onClose, companyId, onCreated, notify, t, theme, accent }) => {
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [mobile, setMobile] = useState("");
+  const [notes, setNotes] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
+  const [saving, setSaving] = useState(false);
+  const sansSx = { fontFamily: "var(--font-sans)" };
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+
+  const reset = () => {
+    setEmail("");
+    setName("");
+    setMobile("");
+    setNotes("");
+    setTags([]);
+  };
+
+  const submit = async () => {
+    if (!emailValid) {
+      notify(t("customers.add.invalidEmail", { defaultValue: "Enter a valid email address." }), "err");
+      return;
+    }
+    if (!companyId) {
+      notify(t("customers.add.needBrand", { defaultValue: "Switch to a single brand to add a customer." }), "err");
+      return;
+    }
+    setSaving(true);
+    try {
+      await axiosBaseApi.post(API_ENDPOINTS.userApi.customersManual, {
+        company_id: String(companyId),
+        email: email.trim(),
+        name: name.trim() || undefined,
+        mobile: mobile.trim() || undefined,
+        notes: notes.trim() || undefined,
+        tags,
+      });
+      notify(t("customers.add.saved", { defaultValue: "Customer added." }), "ok");
+      const created = email.trim().toLowerCase();
+      reset();
+      onCreated(created);
+    } catch (e: any) {
+      notify(e?.response?.data?.message || t("customers.add.failed", { defaultValue: "Could not add customer." }), "err");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Dialog
+      open={open}
+      onClose={saving ? undefined : onClose}
+      maxWidth="xs"
+      fullWidth
+      PaperProps={{ sx: { borderRadius: "16px", bgcolor: theme.palette.mode === "dark" ? "#101014" : "#FFFFFF", backgroundImage: "none" } }}
+      data-testid="customers-add-dialog"
+    >
+      <DialogTitle sx={{ ...sansSx, fontWeight: 700, fontSize: "17px" }}>
+        {t("customers.add.title", { defaultValue: "Add customer" })}
+      </DialogTitle>
+      <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 1.75, pt: "8px !important" }}>
+        <Typography sx={{ fontSize: "12.5px", color: theme.palette.text.secondary, ...sansSx }}>
+          {t("customers.add.subtitle", { defaultValue: "Add a contact manually. They appear as a prospect until they pay." })}
+        </Typography>
+        <TextField
+          label={t("customers.add.email", { defaultValue: "Email" })}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          size="small"
+          fullWidth
+          required
+          type="email"
+          inputProps={{ "data-testid": "customers-add-email", maxLength: 255 }}
+        />
+        <TextField
+          label={t("customers.add.name", { defaultValue: "Name (optional)" })}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          size="small"
+          fullWidth
+          inputProps={{ "data-testid": "customers-add-name", maxLength: 120 }}
+        />
+        <TextField
+          label={t("customers.add.mobile", { defaultValue: "Mobile (optional)" })}
+          value={mobile}
+          onChange={(e) => setMobile(e.target.value)}
+          size="small"
+          fullWidth
+          inputProps={{ "data-testid": "customers-add-mobile", maxLength: 40 }}
+        />
+        <Box>
+          <Typography sx={{ fontSize: "12px", fontWeight: 600, color: theme.palette.text.secondary, ...sansSx, mb: 0.75 }}>
+            {t("customers.add.tags", { defaultValue: "Tags (optional)" })}
+          </Typography>
+          <TagsEditor
+            tags={tags}
+            onChange={setTags}
+            theme={theme}
+            accent={accent}
+            testIdPrefix="customers-add"
+            placeholder={t("customers.tagPlaceholder", { defaultValue: "Add a tag, press Enter" })}
+            disabled={saving}
+          />
+        </Box>
+        <TextField
+          label={t("customers.add.notes", { defaultValue: "Private notes (optional)" })}
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          size="small"
+          fullWidth
+          multiline
+          minRows={2}
+          inputProps={{ "data-testid": "customers-add-notes", maxLength: 5000 }}
+        />
+      </DialogContent>
+      <DialogActions sx={{ px: 3, pb: 2.5 }}>
+        <CustomButton
+          label={t("customers.add.cancel", { defaultValue: "Cancel" })}
+          variant="outlined"
+          size="small"
+          onClick={onClose}
+          disabled={saving}
+          data-testid="customers-add-cancel"
+        />
+        <CustomButton
+          label={t("customers.add.submit", { defaultValue: "Add customer" })}
+          variant="primary"
+          size="small"
+          onClick={submit}
+          loading={saving}
+          disabled={saving || !emailValid}
+          data-testid="customers-add-submit"
+        />
+      </DialogActions>
+    </Dialog>
   );
 };
 
