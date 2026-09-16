@@ -1,0 +1,23 @@
+{
+  "summary": "Validated the getPaymentStatus fee-sum change (session change: fee = transaction_fee + fixed_fee). Backend pytest 2/2 PASS: on both settled sample payments (831d6b34…=BTC and 1eecbbde…=USDT-TRC20), GET /api/user/getPaymentStatus/:id returns 200 and both the top-level `fee` and the nested `payment.fee` equal transaction_fee (fixed_fee=0 for historical rows), i.e. the value is unchanged for historical rows and correctly the sum on new split rows. Auth flow used: merchant JWT login → POST /api/stepup/apikey/request-code (preview_otp exposed because DISABLE_OUTBOUND_EMAIL=true) → verify → POST /api/userApi/regenerateApi/92 to mint a fresh SECRET dev key (dpk_test_…) → GET /api/user/getPaymentStatus with x-api-key. Cleanup: revoked the apikey step-up session (dev key left rotated; the previous dev key is dead since only the new hash is stored — this is the same effect as the manual UI 'Regenerate then discard'). Frontend: /transactions loads for owner (186 rows, no console errors, no misleading '%' in fee text) and /payouts loads clean ($5,046.88 forwarded over last 30d, per-coin breakdown, payout addresses, latest payouts all render). Two-step verification soft banner present as expected (user_id=1 not enrolled).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_get_payment_status_fee.py",
+    "/app/test_reports/pytest/getPaymentStatus_fee.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "merchantApiRouter.ts L1280-1283: `totalFee` becomes null only when BOTH transaction_fee AND fixed_fee are null; correct for historical rows (fixed_fee stored as 0). The Number() coercion + nullish-fallback is safe.",
+    "Same shape applied at top-level (fee, L1304) and inside buildPaymentObject (payment.fee, L1345) — good, no drift between the two response surfaces.",
+    "Test opened a step-up + rotated the DEV key (api_id=92) on company 1 because both slots were pre-populated; the previous dev key hash is now invalid. This is the same net effect as a manual UI regenerate — flag if the team wants a lower-blast-radius test (e.g. a dedicated QA company)."
+  ],
+  "updated_files": ["/app/backend/tests/test_get_payment_status_fee.py"],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (user_id=1, company_id=1, The Dev Store). Dev key (api_id=92) rotated by this test — previous plaintext no longer works.",
+  "seed_data_creation": "None persisted; the DEV api_key row (api_id=92) got a fresh hash from regenerateApi (rotation, not a new row). Step-up session revoked in teardown.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "For any x-api-key test on company 1 with 2FA-not-enrolled owner, use the stepup preview_otp shortcut: POST /api/stepup/apikey/request-code -> read data.preview_otp -> POST /api/stepup/apikey/verify {method:'email', code}. Only 1 active key per (company, environment) pair; regenerate returns the new plaintext in `data.apiKey` (string). Backend login is single-shot at /api/user/login (email+password body); the 2-step is a UI concept only.",
+  "rca of the issue": "Not a bug — verification of the getPaymentStatus fee-sum split. `fee` on the response now equals ut.transaction_fee + ut.fixed_fee. For all currently-settled rows fixed_fee=0 so the numeric result is unchanged (historical rows: BTC 0.00001655, USDT-TRC20 2). New settled rows will additionally include the $1 flat portion. Both response shapes (top-level `fee` and nested `payment.fee`) return the same value."
+}

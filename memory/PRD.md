@@ -1,3 +1,35 @@
+# === 2026-06 (fork) DONE — PLATFORM-FEE SPLIT: getPaymentStatus API now returns fee = transaction_fee + fixed_fee (testing_agent iteration_188: backend 100%, frontend 100%, 0 issues) ===
+# BUG (user): merchants saw inconsistent platform-fee % (2%/5%/6.5%) in "Payment settled" emails despite a fixed 1% tier.
+# ROOT CAUSE (prior sessions): fee is priced "tier% + a flat $1 per payment"; the $1 was blended into the % so small
+#   payments looked like a huge rate, and tbl_user_transaction.fixed_fee was ALWAYS 0 (whole fee lumped into transaction_fee).
+# ALREADY SHIPPED before this session: (a) settlement chainVerification.ts splits the fee — splitFeeCrypto() writes the %
+#   part to transaction_fee and the flat-$1 part to fixed_fee (main path L1257; auto-convert path L1331). (b) merchant
+#   "Payment settled" email paymentSettled.ts shows a plain "Dynopay fee" AMOUNT with NO % (dynopayFeeNoPct label). (c) all
+#   downstream fee SUMS updated to (transaction_fee + fixed_fee): payoutQueries.ts, dashboard/overviewQueries.ts,
+#   adminController.ts, payoutDigestService.ts, and the merchant Transactions dashboard (transactionsDetail.ts L146 +
+#   frontend Transactions/index.tsx total). PDF receipt + dashboard details modal already show fees as flat amounts (no %).
+# THIS SESSION (the last remaining consumer): routes/merchantApiRouter.ts getPaymentStatus (~L1180-1346) previously
+#   returned `fee` from ut.transaction_fee ONLY. FIX: added `ut.fixed_fee` to the SELECT (~L1201); computed
+#   `totalFee = (transaction_fee!=null||fixed_fee!=null) ? Number(transaction_fee??0)+Number(fixed_fee??0) : null` (~L1276);
+#   used `fee: totalFee` in BOTH the top-level response and the nested buildPaymentObject `payment.fee`. Safe for historical
+#   rows (fixed_fee=0 → fee unchanged) and correct for new split rows.
+# VERIFY: backend tsc clean for this file (only pre-existing sharp-0.35 type error in campaignOgImage.ts, runtime-harmless
+#   under ts-node --transpile-only). Read-only DB check: id 831d6b34…(BTC txfee 0.00001655, fixed 0)→fee 0.00001655;
+#   1eecbbde…(USDT-TRC20 txfee 2, fixed 0)→fee 2; sim split row txfee .5+fixed .5→fee 1. testing_agent iteration_188:
+#   getPaymentStatus 200 with fee=transaction_fee+fixed_fee on both response surfaces (pytest 2/2), /transactions (186 rows,
+#   no "%") + /payouts render clean. Test file backend/tests/test_get_payment_status_fee.py.
+# ⚠️ SIDE EFFECTS to know: (1) testing_agent ROTATED The Dev Store (company 1) dev API key api_id=92 to test the endpoint —
+#   the previous plaintext key is now dead (regen via Developer Keys / POST /api/userApi/regenerateApi/:id). Low blast radius
+#   (owner's own dev store). (2) A yarn install during testing RE-NORMALISED /app/yarn.lock + /app/backend/yarn.lock (the
+#   hand-edited dependabot lockfiles → clean yarn-generated form). VERIFIED SAFE: `yarn audit` = 0 vulns on BOTH manifests,
+#   mime-db@1.52.0 intact with mime-types dependency line (no corruption recurrence). Left as-is (improvement over hand-edit).
+# NON-BLOCKING FOLLOW-UP: controller/payment/campaignOgImage.ts L387 `sharp.OverlayOptions` fails tsc under sharp 0.35 type
+#   exports (pre-existing from the dependabot sharp 0.34→0.35 bump; NOT introduced here). Harmless at runtime (transpile-only)
+#   but would block a strict backend tsc build — fix when touching that file (e.g. import type { OverlayOptions } from "sharp").
+# ============================================================================================
+
+
+
 # === 2026-06 (fork) DONE — DEPENDABOT CLEANUP: ALL DEP VULNS CLEARED (testing_agent iteration_187: backend 10/10, frontend 100%, 0 issues) ===
 # TASK: "Review the 11 critical Dependabot alerts GitHub flagged and upgrade the affected packages."
 # No GitHub API access to the alerts page, so drove off `yarn audit` (same GitHub Advisory DB Dependabot uses).
