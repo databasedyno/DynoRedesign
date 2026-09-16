@@ -1,3 +1,47 @@
+# === 2026-06 (fork) DONE — WEBHOOK ALERT FALSE-POSITIVE (P0) · AI SUPPORT SCOPE + REALTIME ESCALATION (P1) · 10-YEAR AML RETENTION (P1) · TABLE-HEIGHT SWEEP · WEBHOOK UI CLEANUP (testing_agent iteration_189: backend 100%, frontend 100%, 0 issues) ===
+# ISSUE 1 (P0) WEBHOOK DASHBOARD FALSE POSITIVE: services/dashboard/overviewQueries.ts configGaps `webhooks` query now JOINs
+#   tbl_company co ON co.company_id=wl.company_id and only counts failures where wl.webhook_url = co.webhook_url AND
+#   co.webhook_url IS NOT NULL/'' AND COALESCE(co.webhook_disabled,false)=false. So stale failures to a REMOVED/changed URL
+#   (e.g. the old placeholder 'https://mystore.com/dynopay-webhook') no longer alert. NOTE: user asked to gate on
+#   "webhook_events set" — deliberately used webhook_disabled instead because webhook_events is OPT-IN (NULL = legacy events
+#   still active), so requiring it would wrongly silence valid legacy-only merchants. VERIFIED via SQL: company 165 (current
+#   webhook_url NULL, 28 stale failed logs) -> failed=0; companies 139(208)/148(2) with a matching ACTIVE url still alert.
+# ISSUE 2 (P1) AI SUPPORT SCOPE + REALTIME ADMIN ALERT: controller/supportChatController.ts SYSTEM_PROMPT SCOPE rule now
+#   ALLOWS general crypto/blockchain/payments/finance Qs, DECLINES clearly-unrelated (code, homework, trivia, medical/legal/
+#   chit-chat) + no personalised investment/tax/price advice (neutral caveat). Realtime: NEW services/supportEventBus.ts
+#   (EventEmitter fan-out, leaf module) — escalateChat publishSupportEscalation() ONLY on explicit "Talk to a human"
+#   (email kept). NEW SSE GET /api/admin/support/stream (adminRouter, adminAuthMiddleware) -> supportInboxController.stream
+#   (connected+escalation+:hb, cleanup on close). FE: Components/Page/Admin/SupportInbox/useAdminSupportStream.ts (fetch-SSE
+#   with admin_token, auto-reconnect), contexts/AdminSupportAlertContext.tsx (provider: warning toast + `unseen` count,
+#   clears on /admin/support), mounted in Containers/Admin/index.tsx (wraps whole layout incl. sidebar), badge on the admin
+#   sidebar "Support Inbox" item in Components/Layout/Menus.tsx (data-testid=admin-support-badge, admin type only).
+# ISSUE 3 (P1) 10-YEAR AML/KYC RETENTION (was 7-day hard delete): helper/accountDeletion.ts ACCOUNT_DELETE_GRACE_DAYS 7->3650
+#   + login message reworded (deactivated + records retained). services/brandPurgeService.ts BRAND_DELETE_GRACE_DAYS 7->3650;
+#   remindExpiringBrands() now a no-op stub (removed the day-5 nudge + its unused imports). BOTH purge sweeps
+#   (purgeExpiredAccounts / purgeExpiredBrands) now derive due-ness from deleted_at + CURRENT grace cutoff (NOT the stored
+#   scheduled_purge_at) so old 7-day rows are retroactively protected — NO data migration. Account is LOCKED immediately on
+#   delete (existing softDeleteAccount: sessions revoked + auth cache dropped). Reworded user-facing copy: accountLifecycle.ts
+#   + companyController.ts delete responses, securityEmails.ts sendAccountSoftDeletedEmail (dropped "7 days"/restore-before),
+#   FE DeleteAccountModal + AccountDangerZone (deactivation + compliance retention, only support restores). BRAND delete
+#   modal copy left as-is (didn't mention 7 days). Background jobs are OFF in this pod (SAFE MODE) so no cron ran.
+# UI CLEANUP (user: "webhook UI has unnecessary things"): Components/UI/CompanySettingsDialog/WebhookNotificationsSection.tsx
+#   — regenerate-confirm dialog top-right CLOSE button was rendering a REFRESH icon; now CloseRounded X
+#   (data-testid=webhook-regenerate-close-btn); removed a dead `// <NotificationsIcon…>` comment; hardcoded '#F5F5F5' hover on
+#   the reveal/regenerate icon buttons -> theme.palette.action.hover (dark-mode correct).
+# TABLE-HEIGHT SWEEP (user: "table shrinks to 2 rows on desktop — check other pages too"): the /transactions fix was already
+#   shipped last session. Found the SAME collapsing chain in the PAY-LINKS table: Payment-link/styled.tsx
+#   TransactionsTableContainer height:100% + TransactionsTableScrollWrapper flex:1 + PaymentLinksTable.tsx outer Box
+#   flex:1 + maxHeight:"fit-content" -> collapsed to ~2 rows. FIX (mirrors transactions): container height:auto, scroll
+#   wrapper drop flex:1 + add md maxHeight:calc(100dvh - 260px), outer Box drop flex:1 + maxHeight:fit-content. Audited
+#   Customers/Invoices/Notifications/Admin — their other overflow:auto hits are bounded drawers/modals/panels (SupportInbox,
+#   MerchantDrawer, InvoicePreviewDrawer), NOT page-table collapses. VERIFIED desktop 1920: pay-links 10 rows, customers 12,
+#   invoices 13, admin/transactions 25, transactions list 32 nodes — none collapsed.
+# TYPECHECK: backend tsc clean except the pre-existing controller/payment/campaignOgImage.ts sharp-0.35 error (documented,
+#   transpile-only-harmless). Frontend tsc 0 errors. NON-BLOCKING follow-ups from review: add a data-testid to the shared
+#   toast surface; add a Settings shortcut to the webhook section. English only.
+# ============================================================================================
+
+
 # === 2026-06 (fork) DONE — PLATFORM-FEE SPLIT: getPaymentStatus API now returns fee = transaction_fee + fixed_fee (testing_agent iteration_188: backend 100%, frontend 100%, 0 issues) ===
 # BUG (user): merchants saw inconsistent platform-fee % (2%/5%/6.5%) in "Payment settled" emails despite a fixed 1% tier.
 # ROOT CAUSE (prior sessions): fee is priced "tier% + a flat $1 per payment"; the $1 was blended into the % so small

@@ -1,0 +1,73 @@
+{
+  "summary": "End-to-end verification of Dynopay session fixes: (a) webhook dashboard alert respects CURRENT tbl_company.webhook_url, (b) AI support strictness scope, (c) realtime SSE support escalation w/ admin toast + sidebar badge, (d) webhook regenerate-confirm close icon, (e) pay-links table height regression + sweep across other tables, (f) delete-account copy = immediate deactivation + compliance retention (no 7-day). All 8 checks PASS.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_results": {
+    "P0_webhook_overview": {
+      "company_165_webhook_failures_24h": 0,
+      "company_165_webhook_url": null,
+      "company_1_status": "200 OK, attention object present",
+      "verdict": "PASS - stale failures no longer counted for a webhook_url that isn't the CURRENT active one"
+    },
+    "P1_ai_support_scope": {
+      "session_id": "qa-702dd0b584c40aa99a0a",
+      "stablecoin_msg": "helpful crypto reply (mode:ai)",
+      "python_code_msg": "politely declined, redirected to Dynopay integrations",
+      "invest_advice_msg": "neutral no-financial-advice reply",
+      "verdict": "PASS"
+    },
+    "P1_realtime_escalation_stream": {
+      "sse_content_type": "text/event-stream",
+      "connected_frame": "received",
+      "escalation_frame": "received (session_id qa-702dd0b584c40aa99a0a, contact_email qa_escalation@example.com)",
+      "verdict": "PASS"
+    },
+    "FE_admin_realtime_alert": {
+      "toast_dispatched_via_redux_TOAST_SHOW": true,
+      "admin-support-badge_after_escalation": "count=2 (icon+list), text='1'",
+      "admin-support-badge_after_nav_to_admin_support": "count=0 (cleared)",
+      "verdict": "PASS"
+    },
+    "FE_webhook_close_btn": {
+      "path": "Dashboard -> company-selector-trigger -> company-edit-1 -> Webhook notifications accordion -> Regenerate secret key -> confirm dialog",
+      "webhook-regenerate-close-btn_present": true,
+      "svg_data_testid": "CloseIcon",
+      "aria_label": "Close",
+      "close_dismisses_dialog": true,
+      "verdict": "PASS"
+    },
+    "FE_table_heights_desktop_1920": {
+      "/pay-links": "10 rows (table)",
+      "/customers": "12 rows",
+      "/invoices": "13 rows",
+      "/transactions": "not <table>; 32 transaction-testid nodes rendered (list layout, no collapse)",
+      "/admin/transactions": "25 table rows",
+      "verdict": "PASS - no collapse; all tables render full page size"
+    },
+    "FE_delete_copy": {
+      "path": "Settings -> Profile & Security -> Delete account (bottom)",
+      "modal_text": "This deactivates your entire Dynopay account — every brand, wallet, payment link and setting — and signs you out of all devices immediately. For legal/compliance reasons some records are kept securely afterwards, so only our support team can restore the account. We'll email you a 6-digit code to confirm.",
+      "danger_zone_copy": "Deactivate your Dynopay account and everything in it — all brands, wallets, payment links and history. You'll be signed out of every device immediately. For legal/compliance reasons some records are retained securely afterwards and only support can restore the account.",
+      "has_7_days": false,
+      "has_deactivate": true,
+      "has_compliance_retention": true,
+      "mentions_support_only_restore": true,
+      "verdict": "PASS"
+    }
+  },
+  "test_report_links": ["/app/test_reports/iteration_189.json"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "AdminSupportAlertContext dispatches TOAST_SHOW via redux (Toastify-style). Consider adding a data-testid on the toast surface (e.g. admin-support-escalation-toast) to make future E2E toast assertions selector-stable — currently toast dismissal is fast and DOM-generic, only sidebar badge is reliably assertable.",
+    "/pages/settings/index.tsx CompanyConfigSection uses visibleSections=[company|crypto|payment] — the WebhookNotificationsSection is only reachable via CompanySelector → company-edit-<id>. Consider surfacing a shortcut link in /settings so QA/users can find it faster.",
+    "Overview attention object is emitted with webhook_url:null and webhook_deliveries_24h:0 for company 165 — good. The API contract exposes webhook_url as null when co.webhook_disabled or missing; consumers should key off webhook_failures_24h + webhook_url both. Doc-worthy."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "Used /app/memory/test_credentials.md as-is (owner onarrival21@gmail.com, admin moxxcompany@gmail.com).",
+  "seed_data_creation": "Support chat sessions qa-702dd0b584c40aa99a0a and qa-ui<random> created via public /api/support/chat (+ escalate). Acceptable throwaway data per request.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Backend endpoints /api/dashboard/overview, /api/support/chat, /api/support/chat/escalate, /api/admin/support/stream all verified live against preview URL. SSE requires bearer admin_token; browser fetch-SSE path works. Delete-account modal is under Settings → Profile & Security (scroll to bottom). Webhook regen dialog is inside CompanySettingsDialog, opened via header company-selector-trigger → company-edit-<id> → expand 'Webhook notifications' accordion. /transactions merchant page is not a <table> (list layout with data-testid transactions-*) — assert via those testids rather than tbody tr.",
+  "rca of the issue": "N/A — this iteration is a verification-only pass; all 8 fixes behave as designed."
+}
