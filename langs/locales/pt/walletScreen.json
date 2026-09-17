@@ -143,7 +143,9 @@
     "copiedCount_one": "{{count}} endereço de recebimento copiado",
     "copiedCount_other": "{{count}} endereços de recebimento copiados",
     "useSelected_one": "Usar {{count}} endereço de recebimento selecionado",
-    "useSelected_other": "Usar {{count}} endereços de recebimento selecionados"
+    "useSelected_other": "Usar {{count}} endereços de recebimento selecionados",
+    "copiedCount": "{{count}} endereço(s) de pagamento copiado(s)",
+    "useSelected": "Usar {{count}} endereço(s) de pagamento selecionado(s)"
   },
   "copyFailed": "Não foi possível copiar — tente novamente",
   "reuseNudge": {
@@ -155,7 +157,10 @@
     "copyCta_one": "Copiar {{count}} endereço de recebimento",
     "copyCta_other": "Copiar {{count}} endereços de recebimento",
     "body_one": "{{count}} endereço ({{coins}}) já está guardado na sua outra conta — copie-o para {{target}} e comece a aceitar pagamentos agora.",
-    "body_other": "{{count}} endereços ({{coins}}) já estão guardados na sua outra conta — copie-os para {{target}} e comece a aceitar pagamentos agora."
+    "body_other": "{{count}} endereços ({{coins}}) já estão guardados na sua outra conta — copie-os para {{target}} e comece a aceitar pagamentos agora.",
+    "copiedTo": "{{count}} endereço(s) de pagamento copiado(s) para {{target}}",
+    "body": "{{count}} endereço(s) ({{coins}}) já estão guardados na sua outra conta — copie-os para {{target}} e comece a aceitar pagamentos agora.",
+    "copyCta": "Copiar {{count}} endereço(s) de pagamento"
   },
   "addOtpNotice": "Enviaremos por e-mail um código de 6 dígitos para confirmar este endereço de recebimento antes de o guardar.",
   "sharedAddressTag": "Usado em {{n}} redes",

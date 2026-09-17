@@ -143,7 +143,9 @@
     "copiedCount_one": "{{count}} dirección de cobro copiada",
     "copiedCount_other": "{{count}} direcciones de cobro copiadas",
     "useSelected_one": "Usar {{count}} dirección de cobro seleccionada",
-    "useSelected_other": "Usar {{count}} direcciones de cobro seleccionadas"
+    "useSelected_other": "Usar {{count}} direcciones de cobro seleccionadas",
+    "copiedCount": "{{count}} dirección(es) de pago copiadas",
+    "useSelected": "Usar {{count}} dirección(es) de pago seleccionadas"
   },
   "copyFailed": "No se pudo copiar — intenta de nuevo",
   "reuseNudge": {
@@ -155,7 +157,10 @@
     "copyCta_one": "Copiar {{count}} dirección de cobro",
     "copyCta_other": "Copiar {{count}} direcciones de cobro",
     "body_one": "{{count}} dirección ({{coins}}) ya está guardada en tu otra cuenta — cópiala a {{target}} y comienza a aceptar pagos ahora.",
-    "body_other": "{{count}} direcciones ({{coins}}) ya están guardadas en tu otra cuenta — cópialas a {{target}} y comienza a aceptar pagos ahora."
+    "body_other": "{{count}} direcciones ({{coins}}) ya están guardadas en tu otra cuenta — cópialas a {{target}} y comienza a aceptar pagos ahora.",
+    "copiedTo": "{{count}} dirección(es) de pago copiadas a {{target}}",
+    "body": "{{count}} dirección(es) ({{coins}}) ya están guardadas en tu otra cuenta — cópialas a {{target}} y comienza a aceptar pagos ahora.",
+    "copyCta": "Copiar {{count}} dirección(es) de pago"
   },
   "addOtpNotice": "Te enviaremos por correo un código de 6 dígitos para confirmar esta dirección de cobro antes de guardarla.",
   "sharedAddressTag": "Usada en {{n}} redes",

@@ -630,14 +630,17 @@
     "success": {
       "title": "Payment successful",
       "titleContribution": "Thank you for contributing!",
-      "paidTo": "Paid to {{name}}"
+      "paidTo": "Paid to {{name}}",
+      "nextContribution": "Your contribution is confirmed on the network — nothing else to do.",
+      "next": "{{name}} has been notified and will fulfil your order. Keep the receipt as your proof of payment."
     },
     "share": {
       "prompt": "Enjoyed paying with crypto? Spread the word",
       "promptContribution": "Help {{name}} reach more people",
       "copied": "Link copied!",
       "fundraiser": "Share this fundraiser",
-      "dynopay": "Share Dynopay"
+      "dynopay": "Share Dynopay",
+      "paidWithCrypto": "Share that you paid with crypto"
     },
     "status": {
       "confirming": "Payment detected — confirming…",
@@ -683,6 +686,10 @@
         "pill": "HURRY",
         "title": "Only {{seconds}}s left",
         "caption": "Complete your transfer now — this pay link expires soon."
+      },
+      "tier": {
+        "red": "Under 2 minutes left on this price — send now, or restart for a fresh quote.",
+        "amber": "Price locked for {{time}} more — pay before it refreshes."
       }
     },
     "demo": {
@@ -796,7 +803,31 @@
       "saved": "Saved on this device",
       "view": "View saved merchants →"
     },
-    "orderSummary": "Order summary"
+    "orderSummary": "Order summary",
+    "refreshQuote": "Refresh quote",
+    "genericError": "Something went wrong.",
+    "expiredBodyRefresh": "The price-lock window ran out. Your coin and amount are saved — just refresh the quote to get a fresh address and timer. If you already sent funds, contact the merchant.",
+    "returnToMerchant": "Return to {{name}}",
+    "overpaid": {
+      "note": "You sent {{amount}} more than needed{{fiat}}. The extra has been credited to the merchant along with your payment — contact them if you need an adjustment."
+    },
+    "feeUpdatedExact": "Updated with the exact {{coin}} network fee.",
+    "payWithLabel": "PAY WITH",
+    "coinCostFrom": "from {{fee}} · {{eta}}",
+    "coinCost": "{{fee}} · {{eta}}",
+    "cheapest": "Cheapest",
+    "continueWith": "Continue with {{coin}} on {{network}}",
+    "nonCustodialLine": "Paid straight to {{merchant}} — Dynopay never holds your funds.",
+    "theMerchant": "the merchant",
+    "feeDisclosure": {
+      "walletFee": "Your wallet adds its own network fee ({{fee}}).",
+      "walletFeeUnknown": "Your wallet adds its own network fee.",
+      "customerPays": "Processing fee is included in the total above.",
+      "merchantPays": "No Dynopay fee is added — {{merchant}} covers it."
+    },
+    "continueHintEta": "Usually confirms in {{eta}} · you get 30 minutes to send.",
+    "errorTitle": "We couldn't prepare this payment",
+    "errorHint": "Try again, or pick a different coin or network above."
   },
   "creator": {
     "card": {

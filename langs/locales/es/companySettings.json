@@ -28,7 +28,9 @@
     "flagOverpaymentsHelper": "Recibirás una notificación cuando alguien pague más de esta cantidad por encima del total.",
     "timeForPartialPayments": "Tiempo para Pagos Parciales",
     "timeForPartialPaymentsHelper": "Cuánto tiempo esperar para que un cliente complete un pago parcial",
-    "minutes": "minutos"
+    "minutes": "minutos",
+    "minOrderAmount": "Monto mínimo del pedido",
+    "minOrderHelper": "La cantidad más baja que un cliente puede pagarte. Deja en blanco para usar el mínimo automático por moneda de la red — solo puedes aumentarlo."
   },
   "cryptoConversion": "Conversión Crypto",
   "cryptoConversionSubtitle": "Los BTC, ETH, LTC entrantes serán convertidos automáticamente a una stablecoin.",
@@ -66,5 +68,15 @@
     "typeToConfirm": "Escribe {{name}} para continuar:",
     "otpBody": "Enviamos un código de 6 dígitos a {{email}}. Ingrésalo a continuación para eliminar {{name}}.",
     "bodyStepUp": "Esto elimina permanentemente {{name}} junto con sus enlaces de pago, claves API y configuración. No se puede deshacer. Primero te pediremos que verifiques que eres tú."
+  },
+  "feeSplit": {
+    "auto": "Solo cuando el cliente paga la tarifa",
+    "autoHint": "Recomendado. Los compradores ven la tarifa que se les cobra; cuando tú la absorbes, solo ven el precio.",
+    "always": "Siempre",
+    "alwaysHint": "Cada pago, pantalla de éxito y recibo muestra lo que recibes y lo que retiene Dynopay.",
+    "never": "Nunca",
+    "neverHint": "Los compradores solo ven el total que pagan — como en un pago con tarjeta.",
+    "label": "Mostrar el desglose de tarifas a los clientes",
+    "desc": "Controla las filas “El comerciante recibe / Tarifa de Dynopay” en tu pago, su pantalla de éxito y el recibo del comprador."
   }
 }

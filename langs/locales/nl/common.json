@@ -135,7 +135,11 @@
     "loadFailed": "We konden deze betalingslink niet laden. Probeer het opnieuw.",
     "linkExpiredTitle": "Deze betalingslink is verlopen",
     "linkErrorTitle": "Deze betalingslink kan niet worden geopend",
-    "goToDynopay": "Ga naar Dynopay"
+    "goToDynopay": "Ga naar Dynopay",
+    "reference": "Referentie",
+    "linkExpiredAsk": "Vraag de verkoper om een nieuwe betalingslink en noem de bovenstaande referentie.",
+    "aboutDynopay": "Wat is Dynopay?",
+    "incompletePaymentDesc": "Je hebt een openstaande betaling van ${incompletePayment.pending_amount} ${incompletePayment.currency}. Voltooi deze binnen ${incompletePayment.remaining_minutes} minuten of wacht tot deze verloopt."
   },
   "crypto": {
     "title": "Cryptovaluta",
@@ -663,7 +667,34 @@
       "sourceDashboard": "Dashboard"
     },
     "colPreferredAsset": "Betaalt met",
-    "colLastPaid": "Laatst betaald"
+    "colLastPaid": "Laatst betaald",
+    "linksSentShort": "{{count}} betalingsverzoek verzonden",
+    "sortLabel": "Klanten sorteren",
+    "addCustomer": "Voeg klant toe",
+    "paymentsShort": "{{count}} betalingen",
+    "notesSaved": "Opgeslagen.",
+    "notesFailed": "Kon niet opslaan.",
+    "crmSection": "Notities & tags",
+    "manualBadge": "Handmatig toegevoegd",
+    "tagPlaceholder": "Voeg een tag toe, druk op Enter",
+    "notesPlaceholder": "Privé notities die alleen jij kunt zien…",
+    "saveNotes": "Opslaan",
+    "crmNeedBrand": "Schakel over naar een enkele merk om privé notities en tags toe te voegen.",
+    "add": {
+      "invalidEmail": "Voer een geldig e-mailadres in.",
+      "needBrand": "Schakel over naar een enkele merk om een klant toe te voegen.",
+      "saved": "Klant toegevoegd.",
+      "failed": "Kon klant niet toevoegen.",
+      "title": "Klant toevoegen",
+      "subtitle": "Voeg handmatig een contact toe. Ze verschijnen als een prospect totdat ze betalen.",
+      "email": "E-mail",
+      "name": "Naam (optioneel)",
+      "mobile": "Mobiel (optioneel)",
+      "tags": "Tags (optioneel)",
+      "notes": "Privé notities (optioneel)",
+      "cancel": "Annuleren",
+      "submit": "Klant toevoegen"
+    }
   },
   "pleaseWait": "Even geduld",
   "transferRate": "Wisselkoers",
@@ -766,7 +797,12 @@
     "useCompanyDefault": "Gebruik team standaard ({{code}})",
     "language": "Taal",
     "languageDesc": "De taal van je dashboard en de e-mails die we je sturen. Opgeslagen in je account zodat hij je volgt op al je apparaten.",
-    "languagePick": "Kies je taal"
+    "languagePick": "Kies je taal",
+    "securitySignIn": "Inloggen",
+    "securityWallets": "Uitbetalingsadressen",
+    "securityDevices": "Apparaten & activiteit",
+    "security": "Beveiliging",
+    "securityDesc": "Twee-staps verificatie, wachtwoord, bescherming van uitbetalingsadressen en ingelogde apparaten."
   },
   "donation": {
     "defaultTitle": "Steun deze campagne",
@@ -809,7 +845,25 @@
       "m": "min"
     },
     "urgency": "Nog maar {{time}} — help het doel te bereiken",
-    "urgencyNoGoal": "Nog maar {{time}} — draag bij voordat het sluit"
+    "urgencyNoGoal": "Nog maar {{time}} — draag bij voordat het sluit",
+    "acceptedCoins": "Betaal met je favoriete crypto — 12 munten geaccepteerd",
+    "theOrganizer": "de organisator",
+    "fundHandlingTitle": "Waar je gift naartoe gaat",
+    "fundHandlingBody": "Je gift gaat rechtstreeks naar ${organizer}. Afhankelijk van hun instellingen wordt het ontvangen als crypto of automatisch omgezet naar een stablecoin. DynoPay verwerkt alleen de betaling — het houdt of investeert je donatie nooit.",
+    "taxNoteTitle": "Goed om te weten",
+    "taxNoteBody": "In veel plaatsen wordt crypto behandeld als eigendom, dus houd je eigen administratie bij voor grotere giften en controleer de belastingregels waar je woont — dit is geen financieel of belastingadvies. Crypto-betalingen zijn definitief en kunnen over het algemeen niet worden teruggedraaid, dus controleer het bedrag voordat je het verzendt. Voor een terugbetaling, neem rechtstreeks contact op met de organisator.",
+    "faqTitle": "Veelgestelde vragen",
+    "faqMinimumQ": "Is er een minimum gift?",
+    "faqMinimumA": "Ja — het minimum voor deze campagne is ${minAmountLabel}. Je kunt elk bedrag geven dat gelijk aan of hoger is dan dat.",
+    "faqConfirmQ": "Hoe lang duurt de bevestiging?",
+    "faqConfirmA": "De meeste betalingen worden binnen enkele minuten bevestigd zodra het netwerk je transactie verwerkt. Snellere ketens en stablecoins zijn meestal het snelst; Bitcoin kan iets langer duren.",
+    "faqAnonQ": "Kan ik anoniem geven?",
+    "faqAnonA": "Ja. Vink “Anoniem doneren” aan en je naam wordt niet weergegeven op de openbare supporterslijst. Als je een e-mail achterlaat, sturen we je nog steeds een privéontvangst.",
+    "faqRefundQ": "Kan ik een terugbetaling krijgen?",
+    "faqRefundA": "Crypto-betalingen zijn definitief, dus terugbetalingen zijn niet automatisch. Als er iets misgaat, neem dan rechtstreeks contact op met ${organizer} en zij kunnen er een regelen.",
+    "faqContactQ": "Wie kan ik contacteren voor hulp?",
+    "faqContactA": "Neem contact op met ${organizer} voor alles over deze campagne. Voor betalingsproblemen kun je ook de ondersteuning van DynoPay contacteren via je ontvangst.",
+    "securedByFooter": "Betalingen beveiligd & verwerkt door DynoPay"
   },
   "taxSettings": {
     "loadError": "Kon de belastinginstellingen niet laden.",
@@ -947,7 +1001,13 @@
       "showWallHint": "Voornaam, bedrag en bericht van je laatste 8 supporters. Anonieme tips verschijnen als \"Iemand\". Standaard uit.",
       "monthlyGoal": "Maandelijks tipdoel",
       "monthlyGoalNote": "(optioneel — laat leeg om de balk te verbergen)",
-      "monthlyGoalHint": "Toont \"$X van $Y deze maand\" op je pagina. Telt bevestigde tips en reset op de 1e."
+      "monthlyGoalHint": "Toont \"$X van $Y deze maand\" op je pagina. Telt bevestigde tips en reset op de 1e.",
+      "namePlaceholderWarning": "Dit lijkt een automatisch gegenereerde naam. Bezoekers zien het als je paginatitel, kop en deeltekst — voer de naam in waarmee je bekend wilt zijn. Tot die tijd toont je openbare pagina je accountnaam.",
+      "presetBelowFloor": "Onder de $10 minimum — verborgen op je pagina",
+      "presetPlaceholderV2": "bijv. 15",
+      "presetFloorWarning": "Voorinstellingen moeten $10 of meer zijn.",
+      "floorExplainer": "Dynopay's minimum voor elke crypto-betaling is $10 — netwerkvergoedingen maken kleinere bedragen onrendabel. Voorinstellingen onder de $10 worden niet getoond aan supporters.",
+      "floorHiddenPresets": "Doorgehaalde voorinstellingen zijn verborgen op je pagina — verwijder ze of verhoog ze naar $10+."
     },
     "compare": {
       "title": "Etalages vergelijken",
@@ -1302,7 +1362,8 @@
     "exportRange": "Periode exporteren (CSV)",
     "noForwardsYet": "Nog geen uitbetalingen. Zodra een betaling is afgewikkeld, verschijnt de doorsturing hier met transactie-hash.",
     "toWallet": "naar {{wallet}}",
-    "hashPending": "hash in afwachting"
+    "hashPending": "hash in afwachting",
+    "settlementCoinLabel": "Afrekenmunt"
   },
   "liveBrand": {
     "payNow": "Betaal nu",
@@ -1345,6 +1406,10 @@
       "licenseKey": {
         "label": "Licentiesleutels",
         "hint": "Plak één sleutel per regel. Eén sleutel wordt uitgegeven per aankoop."
+      },
+      "none": {
+        "label": "Dienst — geen digitale levering",
+        "hint": "Voor diensten, consulten of offline items. Kopers ontvangen een ontvangstbewijs; je vervult het handmatig — geen bestand of link vereist."
       }
     },
     "variantDefault": "Variant",
@@ -1478,7 +1543,26 @@
       "secured": "Beveiligd door Dynopay · betaal met crypto",
       "hide": "Voorbeeld verbergen",
       "show": "Voorbeeld"
-    }
+    },
+    "aiNeedTitle": "Voeg eerst een producttitel toe.",
+    "aiFailed": "Kon niet automatisch detecteren — kies handmatig.",
+    "aiApplied": "AI heeft een btw-behandeling voorgesteld — controleer voordat je opslaat.",
+    "serviceNote": "Dit is een dienst of offline item — er wordt automatisch geen bestand of link geleverd. Kopers ontvangen een ontvangstbewijs en je vervult het handmatig.",
+    "serviceCalendarUrl": "Boekings-/kalenderlink (optioneel)",
+    "serviceCalendarHint": "Als ingesteld, zien kopers deze boekingslink op hun ontvangstbewijs zodat ze een afspraak met je kunnen plannen.",
+    "removeAsset": "Verwijder bestand",
+    "vatRate": "BTW-tarief",
+    "vatStandard": "Standaardtarief",
+    "vatReduced": "Verlaagd tarief",
+    "vatZero": "Nultarief (0%)",
+    "vatReducedHint": "Van toepassing op het verlaagde tarief van elk bestemmingsland voor de onderstaande categorie (valt terug op het standaardtarief waar een land geen heeft).",
+    "vatZeroHint": "Kopers worden 0% BTW in rekening gebracht (nultarief, nog steeds een belastbare levering binnen het bereik).",
+    "vatStandardHint": "Kopers worden het standaard BTW/GST-tarief van het bestemmingsland in rekening gebracht.",
+    "aiDetecting": "Detecteren…",
+    "aiDetect": "Automatisch detecteren met AI",
+    "aiReasonPrefix": "AI:",
+    "reducedCategory": "Categorie met verlaagd tarief",
+    "reducedCategoryHint": "Tarief is indicatief en varieert per land — bevestig geschiktheid met je belastingadviseur."
   },
   "products": {
     "viewLabel": "Weergave",
@@ -1673,5 +1757,39 @@
       "account_delete": "je account te verwijderen"
     }
   },
-  "deleteWalletBody": "Je staat op het punt de {{type}}-uitbetalingsadres{{address}} te verwijderen. Deze actie is permanent en kan niet ongedaan worden gemaakt. We vragen je eerst om te bevestigen dat jij het bent."
+  "deleteWalletBody": "Je staat op het punt de {{type}}-uitbetalingsadres{{address}} te verwijderen. Deze actie is permanent en kan niet ongedaan worden gemaakt. We vragen je eerst om te bevestigen dat jij het bent.",
+  "directPayAdvanced": "Directe betaaladres (geavanceerd)",
+  "directPayWarning": "Iedereen die dit adres rechtstreeks betaalt, slaat de bedrag- en netwerkcontroles van de gehoste checkout over. Deel in plaats daarvan de betalingslink, tenzij je klant precies weet wat te sturen.",
+  "paymentResult": {
+    "verify": {
+      "slow": "Dit duurt langer dan normaal. Je betaling is veilig — houd deze pagina open, of controleer over een paar minuten bij Transacties.",
+      "checking": "We bevestigen de betaling met de aanbieder. Dit duurt meestal minder dan 10 seconden — sluit deze pagina niet.",
+      "nothingTitle": "Niets om hier te verifiëren",
+      "nothingBody": "Deze pagina werkt alleen wanneer een betalingsaanbieder je hier terug naartoe stuurt. Als je net hebt betaald, toont je Transactielijst de huidige status.",
+      "errorTitle": "We konden de betaling nog niet bevestigen",
+      "errorBody": "De aanbieder heeft niet geantwoord. Als er geld van je rekening is afgeschreven, is het niet verloren — het verschijnt onder Transacties zodra het is bevestigd, en de ondersteuning kan het traceren met je referentie."
+    },
+    "viewTransactions": "Bekijk in Transacties",
+    "contactSupport": "Neem contact op met ondersteuning",
+    "systemStatus": "Systeemstatus",
+    "nextTitle": "Wat gebeurt er nu",
+    "nextCredit": "Het bedrag wordt binnen enkele minuten bijgeschreven op je Dynopay-portemonnee.",
+    "nextReceipt": "Een ontvangstbewijs is onderweg naar je e-mail — bewaar de transactie-ID hierboven voor je administratie.",
+    "nextTransactions": "Je kunt het volgen onder Transacties in je dashboard.",
+    "somethingWrong": "Ziet er iets niet goed uit?",
+    "failed": {
+      "expired": "Het betalingsvenster is gesloten voordat de betaling was voltooid. Er is niets in rekening gebracht — je kunt opnieuw beginnen wanneer je er klaar voor bent.",
+      "cancelled": "De betaling is geannuleerd voordat deze was voltooid. Er is niets in rekening gebracht.",
+      "underpaid": "Het bedrag dat is aangekomen was minder dan het verschuldigde bedrag, dus de betaling kon niet worden voltooid. Controleer de aanvraag en probeer het opnieuw.",
+      "declined": "De betaling is afgewezen door de aanbieder. Probeer een andere methode of neem contact op met je bank.",
+      "next": "Niets om ongedaan te maken — er is geen geld verplaatst. Als je toch in rekening bent gebracht, bewaar dan de referentie hieronder en neem contact op met ondersteuning; we lossen het op."
+    }
+  },
+  "balancesPayouts": "Saldi",
+  "receiptsTax": "Ontvangsten & Belasting",
+  "payoutWallets": "Uitbetalingsadressen",
+  "developers": "Ontwikkelaars",
+  "sidebarSectionSell": "Verkopen",
+  "sidebarSectionMoney": "Geld",
+  "sidebarSectionGrow": "Groeien"
 }

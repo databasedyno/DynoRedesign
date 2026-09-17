@@ -143,7 +143,9 @@
     "copiedCount_one": "{{count}} Auszahlungsadresse kopiert",
     "copiedCount_other": "{{count}} Auszahlungsadressen kopiert",
     "useSelected_one": "Verwenden Sie {{count}} ausgewählte Auszahlungsadresse",
-    "useSelected_other": "Verwenden Sie {{count}} ausgewählte Auszahlungsadressen"
+    "useSelected_other": "Verwenden Sie {{count}} ausgewählte Auszahlungsadressen",
+    "copiedCount": "{{count}} Auszahlungsadresse(n) kopiert",
+    "useSelected": "{{count}} ausgewählte Auszahlungsadresse(n) verwenden"
   },
   "copyFailed": "Konnte nicht kopieren — versuchen Sie es erneut",
   "reuseNudge": {
@@ -155,7 +157,10 @@
     "copyCta_one": "Kopiere {{count}} Auszahlungsadresse",
     "copyCta_other": "Kopiere {{count}} Auszahlungsadressen",
     "body_one": "{{count}} Adresse ({{coins}}) ist bereits in Ihrem anderen Konto gespeichert — kopieren Sie sie nach {{target}} und beginnen Sie jetzt mit dem Akzeptieren von Zahlungen.",
-    "body_other": "{{count}} Adressen ({{coins}}) sind bereits in Ihrem anderen Konto gespeichert — kopieren Sie sie nach {{target}} und beginnen Sie jetzt mit dem Akzeptieren von Zahlungen."
+    "body_other": "{{count}} Adressen ({{coins}}) sind bereits in Ihrem anderen Konto gespeichert — kopieren Sie sie nach {{target}} und beginnen Sie jetzt mit dem Akzeptieren von Zahlungen.",
+    "copiedTo": "{{count}} Auszahlungsadresse(n) in {{target}} kopiert",
+    "body": "{{count}} Adresse(n) ({{coins}}) sind bereits in deinem anderen Konto gespeichert — kopiere sie nach {{target}} und beginne jetzt mit dem Akzeptieren von Zahlungen.",
+    "copyCta": "{{count}} Auszahlungsadresse(n) kopieren"
   },
   "addOtpNotice": "Wir senden Ihnen per E-Mail einen 6-stelligen Code, um diese Auszahlungsadresse vor dem Speichern zu bestätigen.",
   "sharedAddressTag": "Auf {{n}} Netzwerken verwendet",

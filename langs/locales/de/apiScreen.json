@@ -65,7 +65,12 @@
     "yourKey": "API-Schlüssel",
     "adminToken": "Admin-Token",
     "securityTitle": "Wichtiger Sicherheitshinweis",
-    "securityMessage": "Kopieren Sie Ihren API-Schlüssel jetzt. Aus Sicherheitsgründen zeigen wir ihn nicht erneut an. Bewahren Sie ihn sicher auf und teilen Sie ihn niemals öffentlich."
+    "securityMessage": "Kopieren Sie Ihren API-Schlüssel jetzt. Aus Sicherheitsgründen zeigen wir ihn nicht erneut an. Bewahren Sie ihn sicher auf und teilen Sie ihn niemals öffentlich.",
+    "expiry": "Ablaufdatum des Schlüssels",
+    "expiryNever": "Läuft nie ab",
+    "expiry30": "30 Tage",
+    "expiry90": "90 Tage",
+    "expiry365": "1 Jahr"
   },
   "withdrawalWhitelist": {
     "title": "Auszahlungs-Whitelist",
@@ -105,7 +110,12 @@
     "copyNowNotice": "Kopieren Sie diesen Schlüssel jetzt — aus Sicherheitsgründen wird er nach dem Verlassen dieser Seite nicht mehr angezeigt.",
     "shownOnceNotice": "Schlüssel werden nur einmal angezeigt. Es wird nur ein Einweg-Hash gespeichert, daher kann dieser Schlüssel nicht eingeblendet werden — mit „Neu generieren“ erhalten Sie einen neuen, kopierbaren Schlüssel.",
     "tryFirstPaymentRegenerate": "Sandbox-Schlüssel neu generieren, um ihn zu kopieren",
-    "tryFirstPaymentKeyUnavailable": "Ihr Sandbox-Schlüssel ist als Einweg-Hash gespeichert und kann hier nicht angezeigt werden. Generieren Sie ihn einmal neu, kopieren Sie ihn — dann funktioniert der Befehl unten sofort."
+    "tryFirstPaymentKeyUnavailable": "Ihr Sandbox-Schlüssel ist als Einweg-Hash gespeichert und kann hier nicht angezeigt werden. Generieren Sie ihn einmal neu, kopieren Sie ihn — dann funktioniert der Befehl unten sofort.",
+    "lastUsed": "Zuletzt verwendet am {{date}}",
+    "neverUsed": "Nie verwendet",
+    "noExpiry": "Keine Ablaufdatum",
+    "expired": "Abgelaufen am {{date}}",
+    "expiresOn": "Läuft ab am {{date}}"
   },
   "developersTitle": "Entwickler",
   "developersDescription": "API-Schlüssel, Webhooks, Zustellungsereignisse und Integrationsdokumentation — an einem Ort",
@@ -257,7 +267,10 @@
     "chipUses_one": "{{count}} Verwendung",
     "chipUses_other": "{{count}} Verwendungen",
     "chipCurrencies_one": "{{count}} Währung",
-    "chipCurrencies_other": "{{count}} Währungen"
+    "chipCurrencies_other": "{{count}} Währungen",
+    "chipUses": "{{count}} Verwendungen",
+    "chipCurrencies": "{{count}} Währungen",
+    "chipDomains": "{{count}} Domain(s)"
   },
   "snippet": {
     "copy": "Kopieren"
@@ -268,7 +281,9 @@
     "snippetServer": "1 · Server — Sitzung erstellen",
     "snippetClient": "2 · Client — Checkout einbinden",
     "snippetModal": "Optional — Modal",
-    "viewGuide": "Vollständigen Leitfaden anzeigen"
+    "viewGuide": "Vollständigen Leitfaden anzeigen",
+    "authNote": "(x-api-key) — Sie benötigen keinen Kundentoken oder einen Create-Customer-Schritt, um eine Sitzung zu erstellen.",
+    "notifyNote": "Fügen Sie einen Webhook-Endpunkt hinzu (Webhook-Konsole unten), damit Ihr Server benachrichtigt wird, um die Bestellung als bezahlt zu markieren — dies ist der zuverlässige Weg, um Bestellungen zu erfüllen. Ohne einen solchen erhalten Sie dennoch eine E-Mail und eine In-App-Benachrichtigung, und der Browser onComplete wird nur für die Benutzererfahrung ausgelöst."
   },
   "elements": {
     "errorNoPk": "Sie benötigen mindestens einen aktiven veröffentlichbaren Schlüssel. Scrollen Sie zum Abschnitt „Veröffentlichbare Schlüssel“ weiter unten und erstellen Sie einen — kommen Sie dann zurück und versuchen Sie die Vorschau.",
@@ -375,7 +390,12 @@
     "pausedAutoHint": "Beheben oder aktualisieren Sie Ihre Endpunkt-URL {{where}}, und aktivieren Sie die Zustellung erneut.",
     "redirectBody": "Ihr Endpunkt antwortet mit einer HTTP {{status}}-Weiterleitung. Wir folgen ihr jetzt automatisch, damit Ihre Webhooks weiterhin zugestellt werden — aber der zusätzliche Sprung erhöht die Latenz. Aktualisieren Sie Ihre URL auf die endgültige Adresse unten, um die Zustellung direkt zu machen.",
     "secretSet": "{{preview}} · gesetzt — regenerieren, um zu ersetzen",
-    "subscribeAria": "Abonnieren Sie {{event}}"
+    "subscribeAria": "Abonnieren Sie {{event}}",
+    "toastResent": "Ereignis erneut gesendet",
+    "toastResendFailed": "Wiederholung versucht, aber der Endpunkt hat es nicht akzeptiert{{err}}",
+    "toastResendError": "Fehler beim erneuten Senden dieses Ereignisses",
+    "resending": "Wird erneut gesendet…",
+    "resendEvent": "Dieses Ereignis erneut senden"
   },
   "health": {
     "webhooks": "Webhooks · 24 Std.",

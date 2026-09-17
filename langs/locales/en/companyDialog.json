@@ -137,7 +137,10 @@
     "stepBrand": "Brand",
     "stepWallet": "Payout address",
     "nameLockedNotice": "Your name is verified and can't be changed here. Contact support to update it.",
-    "logoAdded": "Logo added"
+    "logoAdded": "Logo added",
+    "displayNameLabelOptional": "Display name (optional)",
+    "displayNamePlaceholder": "Leave blank to use your name",
+    "displayNameHint": "Your name is used as the brand if you leave this blank."
   },
   "addCompanyBtn": "Add brand",
   "noCompaniesYet": "No brands yet",

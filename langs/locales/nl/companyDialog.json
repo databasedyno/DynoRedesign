@@ -137,7 +137,10 @@
     "stepBrand": "Merk",
     "stepWallet": "Uitbetalingsadres",
     "nameLockedNotice": "Je naam is geverifieerd en kan hier niet worden gewijzigd. Neem contact op met support om deze bij te werken.",
-    "logoAdded": "Logo toegevoegd"
+    "logoAdded": "Logo toegevoegd",
+    "displayNameLabelOptional": "Weergavenaam (optioneel)",
+    "displayNamePlaceholder": "Laat leeg om je naam te gebruiken",
+    "displayNameHint": "Je naam wordt als het merk gebruikt als je dit leeg laat."
   },
   "addCompanyBtn": "Merk toevoegen",
   "noCompaniesYet": "Nog geen merken",

@@ -143,7 +143,9 @@
     "copiedCount_one": "{{count}} uitbetalingsadres gekopieerd",
     "copiedCount_other": "{{count}} uitbetalingsadressen gekopieerd",
     "useSelected_one": "Gebruik {{count}} geselecteerd uitbetalingsadres",
-    "useSelected_other": "Gebruik {{count}} geselecteerde uitbetalingsadressen"
+    "useSelected_other": "Gebruik {{count}} geselecteerde uitbetalingsadressen",
+    "copiedCount": "{{count}} uitbetalingsadres(sen) gekopieerd",
+    "useSelected": "Gebruik {{count}} geselecteerd uitbetalingsadres(sen)"
   },
   "copyFailed": "Kon niet kopiëren — probeer het opnieuw",
   "reuseNudge": {
@@ -155,7 +157,10 @@
     "copyCta_one": "Kopieer {{count}} uitbetalingsadres",
     "copyCta_other": "Kopieer {{count}} uitbetalingsadressen",
     "body_one": "{{count}} adres ({{coins}}) is al opgeslagen op je andere account — kopieer het naar {{target}} en begin nu met het accepteren van betalingen.",
-    "body_other": "{{count}} adressen ({{coins}}) zijn al opgeslagen op je andere account — kopieer ze naar {{target}} en begin nu met het accepteren van betalingen."
+    "body_other": "{{count}} adressen ({{coins}}) zijn al opgeslagen op je andere account — kopieer ze naar {{target}} en begin nu met het accepteren van betalingen.",
+    "copiedTo": "{{count}} uitbetalingsadres(sen) gekopieerd naar {{target}}",
+    "body": "{{count}} adres(sen) ({{coins}}) zijn al opgeslagen op je andere account — kopieer ze naar {{target}} en begin nu met het accepteren van betalingen.",
+    "copyCta": "Kopieer {{count}} uitbetalingsadres(sen)"
   },
   "addOtpNotice": "We e-mailen je een 6-cijferige code om dit uitbetalingsadres te bevestigen voordat hij wordt opgeslagen.",
   "sharedAddressTag": "Gebruikt op {{n}} netwerken",

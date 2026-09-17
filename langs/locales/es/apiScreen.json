@@ -65,7 +65,12 @@
     "yourKey": "Clave API",
     "adminToken": "Token de Admin",
     "securityTitle": "Aviso de Seguridad Importante",
-    "securityMessage": "Asegúrate de copiar tu clave API ahora. Por razones de seguridad, no la mostraremos de nuevo. Guárdala de forma segura y nunca la compartas públicamente."
+    "securityMessage": "Asegúrate de copiar tu clave API ahora. Por razones de seguridad, no la mostraremos de nuevo. Guárdala de forma segura y nunca la compartas públicamente.",
+    "expiry": "Expiración de la clave",
+    "expiryNever": "Nunca expira",
+    "expiry30": "30 días",
+    "expiry90": "90 días",
+    "expiry365": "1 año"
   },
   "withdrawalWhitelist": {
     "title": "Lista Blanca de Retiros",
@@ -105,7 +110,12 @@
     "copyNowNotice": "Copia esta clave ahora: por seguridad no volverá a mostrarse cuando salgas de esta página.",
     "shownOnceNotice": "Las claves se muestran una sola vez. Solo se guarda un hash unidireccional, así que esta clave no puede revelarse — pulsa Regenerar para obtener una nueva que puedas copiar.",
     "tryFirstPaymentRegenerate": "Regenerar la clave sandbox para copiarla",
-    "tryFirstPaymentKeyUnavailable": "Tu clave sandbox se guarda como hash unidireccional, por lo que no puede mostrarse aquí. Regenérala una vez, cópiala y el comando de abajo funcionará directamente."
+    "tryFirstPaymentKeyUnavailable": "Tu clave sandbox se guarda como hash unidireccional, por lo que no puede mostrarse aquí. Regenérala una vez, cópiala y el comando de abajo funcionará directamente.",
+    "lastUsed": "Último uso {{date}}",
+    "neverUsed": "Nunca usado",
+    "noExpiry": "Sin expiración",
+    "expired": "Expirado {{date}}",
+    "expiresOn": "Expira {{date}}"
   },
   "developersTitle": "Desarrolladores",
   "developersDescription": "Claves API, webhooks, eventos de entrega y documentación de integración — en un solo lugar",
@@ -257,7 +267,10 @@
     "chipUses_one": "{{count}} uso",
     "chipUses_other": "{{count}} usos",
     "chipCurrencies_one": "{{count}} moneda",
-    "chipCurrencies_other": "{{count}} monedas"
+    "chipCurrencies_other": "{{count}} monedas",
+    "chipUses": "{{count}} usos",
+    "chipCurrencies": "{{count}} monedas",
+    "chipDomains": "{{count}} dominio(s)"
   },
   "snippet": {
     "copy": "Copiar"
@@ -268,7 +281,9 @@
     "snippetServer": "1 · Servidor — crear sesión",
     "snippetClient": "2 · Cliente — montar pago",
     "snippetModal": "Opcional — modal",
-    "viewGuide": "Ver guía completa"
+    "viewGuide": "Ver guía completa",
+    "authNote": "(x-api-key) — no necesitas un token de cliente ni un paso de Crear-Cliente para crear una sesión.",
+    "notifyNote": "agrega un endpoint de webhook (Consola de Webhook abajo) para que tu servidor sea notificado y marque el pedido como pagado — esta es la forma confiable de cumplir con los pedidos. Sin uno, aún recibirás un correo electrónico y una alerta en la aplicación, y el onComplete del navegador se activa solo para la experiencia del usuario."
   },
   "elements": {
     "errorNoPk": "Necesitas al menos una clave publicable activa. Desplázate a la sección de Claves Publicables a continuación y crea una — luego vuelve y prueba la vista previa.",
@@ -375,7 +390,12 @@
     "pausedAutoHint": "Corrige o actualiza tu URL de endpoint {{where}}, luego vuelve a habilitar la entrega.",
     "redirectBody": "Tu endpoint responde con una redirección HTTP {{status}}. Ahora la seguimos automáticamente para que tus webhooks se sigan entregando, pero el salto adicional añade latencia. Actualiza tu URL a la dirección final a continuación para hacer la entrega directa.",
     "secretSet": "{{preview}} · configurado — regenera para reemplazar",
-    "subscribeAria": "Suscribirse a {{event}}"
+    "subscribeAria": "Suscribirse a {{event}}",
+    "toastResent": "Evento re-enviado",
+    "toastResendFailed": "Intento de reenvío fallido, el endpoint no lo aceptó{{err}}",
+    "toastResendError": "Error al re-enviar este evento",
+    "resending": "Reenviando…",
+    "resendEvent": "Reenviar este evento"
   },
   "health": {
     "webhooks": "Webhooks · 24 h",

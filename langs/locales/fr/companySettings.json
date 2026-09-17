@@ -28,7 +28,9 @@
     "flagOverpaymentsHelper": "Vous recevrez une notification lorsque quelqu'un paie plus que ce montant au-dessus du total.",
     "timeForPartialPayments": "Délai pour les Paiements Partiels",
     "timeForPartialPaymentsHelper": "Combien de temps attendre qu'un client complète un paiement partiel",
-    "minutes": "minutes"
+    "minutes": "minutes",
+    "minOrderAmount": "Montant minimum de commande",
+    "minOrderHelper": "Montant le plus bas qu'un client peut vous payer. Laissez vide pour utiliser le minimum automatique par pièce du réseau — vous ne pouvez que l'augmenter."
   },
   "cryptoConversion": "Conversion Crypto",
   "cryptoConversionSubtitle": "Les BTC, ETH, LTC entrants seront automatiquement convertis en stablecoin.",
@@ -66,5 +68,15 @@
     "typeToConfirm": "Tapez {{name}} pour continuer :",
     "otpBody": "Nous avons envoyé un code à 6 chiffres à {{email}}. Entrez-le ci-dessous pour supprimer {{name}}.",
     "bodyStepUp": "Cela supprime définitivement {{name}} ainsi que ses liens de paiement, clés API et paramètres. Cette action est irréversible. Nous vous demanderons d'abord de vérifier votre identité."
+  },
+  "feeSplit": {
+    "auto": "Uniquement lorsque le client paie les frais",
+    "autoHint": "Recommandé. Les acheteurs voient les frais qui leur sont facturés ; lorsque vous les absorbez, ils ne voient que le prix.",
+    "always": "Toujours",
+    "alwaysHint": "Chaque paiement, écran de succès et reçu montre ce que vous recevez et ce que Dynopay conserve.",
+    "never": "Jamais",
+    "neverHint": "Les acheteurs ne voient jamais que le total qu'ils paient — comme lors d'un paiement par carte.",
+    "label": "Afficher la répartition des frais aux clients",
+    "desc": "Contrôle les lignes « Le commerçant reçoit / Frais Dynopay » sur votre paiement, son écran de succès et le reçu de l'acheteur."
   }
 }

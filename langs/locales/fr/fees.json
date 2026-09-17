@@ -189,7 +189,8 @@
     "useCheapest": "Utilisez-le",
     "bdPaymentAmount": "Montant du paiement",
     "bdBlockchainFee": "Frais blockchain / réseau",
-    "bdNetToMerchant": "Net au marchand"
+    "bdNetToMerchant": "Net au marchand",
+    "volumeSliderLabel": "Volume mensuel"
   },
   "ffWelcomeCtaShare": "Partagez votre lien de paiement",
   "worked": {

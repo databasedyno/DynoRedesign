@@ -126,5 +126,6 @@
   "statusEarning": "Rapporte (30 j)",
   "statusExpiringSoon": "Expire bientôt",
   "qrTooltip": "Afficher le QR code",
-  "shareTooltip": "Partager le lien"
+  "shareTooltip": "Partager le lien",
+  "statusFilterLabel": "Filtrer par statut"
 }

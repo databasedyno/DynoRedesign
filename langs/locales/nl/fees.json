@@ -189,7 +189,8 @@
     "useCheapest": "Gebruik het",
     "bdPaymentAmount": "Betalingsbedrag",
     "bdBlockchainFee": "Blockchain / netwerkkosten",
-    "bdNetToMerchant": "Netto voor handelaar"
+    "bdNetToMerchant": "Netto voor handelaar",
+    "volumeSliderLabel": "Maandvolume"
   },
   "ffWelcomeCtaShare": "Deel je betaallink",
   "worked": {

@@ -505,7 +505,24 @@
     "secureSubtitle": "Dynopay transfère de l'argent réel vers vos wallets, donc chaque compte utilise la vérification en deux étapes. Choisissez une méthode — un code ne vous sera demandé que sur un nouveau navigateur.",
     "secureDoneTitle": "La vérification en deux étapes est activée",
     "secureDoneBody": "Ce navigateur est approuvé pendant 90 jours. Gérez les méthodes et appareils approuvés dans Paramètres → Sécurité.",
-    "secureSavedContinue": "J'ai enregistré mes codes — continuer"
+    "secureSavedContinue": "J'ai enregistré mes codes — continuer",
+    "linkNoWalletNote": "Concevez votre lien maintenant — il sera actif dès que vous ajouterez l'adresse de paiement où l'argent doit arriver. Nous vous le demanderons lorsque vous cliquerez sur Créer.",
+    "addWalletFirst": "Ajoutez d'abord l'adresse de paiement",
+    "addWalletAndCreate": "Ajouter l'adresse de paiement & créer",
+    "accountTypeShort": "Type de compte",
+    "change": "Changer",
+    "signedUpAs": "Inscrit en tant que",
+    "edit": "Modifier",
+    "heroTitleAllDone": "Vous êtes prêt — en attente de votre premier paiement",
+    "heroSubtitleAllDone": "Votre lien est en ligne. Dès que quelqu'un paie, ce tableau de bord se remplit avec des chiffres réels.",
+    "ctaShareAgain": "Partagez-le à nouveau",
+    "stepSharedPending": "Partagé — en attente de votre premier paiement",
+    "noWalletQ": "Vous n'avez pas encore de portefeuille crypto ?",
+    "noWalletIntro": "Un portefeuille est une application gratuite qui conserve vos pièces — vous gardez les clés, Dynopay ne fait que transférer les paiements. En installer un prend environ une minute.",
+    "quickPathTitle": "Chemin le plus rapide : une adresse stablecoin",
+    "quickPathBody": "Ajoutez une seule adresse USDT (Tron) — les frais sont en centimes et cela se règle en quelques secondes. Vous pouvez accepter chaque autre pièce plus tard, ou activer la conversion automatique pour que tout arrive en USDT.",
+    "recommendedWallets": "Portefeuilles populaires",
+    "noWalletSteps": "Installer → créer un portefeuille → noter la phrase de récupération → appuyer sur Recevoir, choisir la pièce, copier l'adresse → coller ici."
   },
   "kycPage": {
     "pageTitle": "Vérification d'identité",
@@ -714,5 +731,27 @@
       "wait": "Terminé"
     }
   },
-  "appearance": "Apparence"
+  "appearance": "Apparence",
+  "pwNudge": {
+    "title": "Ignorez le code la prochaine fois",
+    "body": "Vous vous connectez avec un code à usage unique. Définissez un mot de passe une fois et connectez-vous instantanément — le code reste en tant que sauvegarde.",
+    "cta": "Définir un mot de passe",
+    "dismiss": "Ignorer"
+  },
+  "underpaidBanner": {
+    "title": "{{count}} sous-payé — action requise",
+    "subtitle": "Les acheteurs ont payé moins que prévu — examinez et poursuivez le manque à gagner."
+  },
+  "assetCryptoMeta": "Sur {{count}} adresses de paiement",
+  "nowViewing": "Maintenant en vue",
+  "firstPayment": {
+    "bodyWithAmount": "Votre premier paiement de {{amount}} vient d'arriver. C'est une véritable étape — la partie difficile est faite. Voici à beaucoup d'autres.",
+    "body": "Votre premier paiement vient d'arriver. C'est une véritable étape — la partie difficile est faite. Voici à beaucoup d'autres.",
+    "eyebrowNamed": "{{name}} · Étape",
+    "eyebrow": "Étape débloquée",
+    "title": "Vous avez reçu votre premier paiement ! 🎉",
+    "cta": "Voir les transactions",
+    "dismiss": "Continuer",
+    "footnote": "Nous vous enverrons un reçu par e-mail pour chaque paiement que vous recevez."
+  }
 }

@@ -28,7 +28,9 @@
     "flagOverpaymentsHelper": "Sie erhalten eine Benachrichtigung, wenn jemand mehr als diesen Betrag über den Gesamtbetrag zahlt.",
     "timeForPartialPayments": "Zeit für Teilzahlungen",
     "timeForPartialPaymentsHelper": "Wie lange auf den Abschluss einer Teilzahlung gewartet werden soll",
-    "minutes": "Minuten"
+    "minutes": "Minuten",
+    "minOrderAmount": "Mindestbestellbetrag",
+    "minOrderHelper": "Der niedrigste Betrag, den ein Kunde Ihnen zahlen kann. Lassen Sie das Feld leer, um den automatischen Mindestbetrag pro Coin im Netzwerk zu verwenden — Sie können ihn nur erhöhen."
   },
   "cryptoConversion": "Krypto-Konvertierung",
   "cryptoConversionSubtitle": "Eingehende BTC, ETH, LTC werden automatisch in einen Stablecoin konvertiert.",
@@ -66,5 +68,15 @@
     "typeToConfirm": "Geben Sie {{name}} ein, um fortzufahren:",
     "otpBody": "Wir haben einen 6-stelligen Code an {{email}} gesendet. Geben Sie ihn unten ein, um {{name}} zu löschen.",
     "bodyStepUp": "Dadurch wird {{name}} zusammen mit allen Zahlungslinks, API-Schlüsseln und Einstellungen dauerhaft entfernt. Dies kann nicht rückgängig gemacht werden. Wir bitten dich zuerst, deine Identität zu bestätigen."
+  },
+  "feeSplit": {
+    "auto": "Nur wenn der Kunde die Gebühr bezahlt",
+    "autoHint": "Empfohlen. Käufer sehen die Gebühr, die ihnen berechnet wird; wenn Sie sie übernehmen, sehen sie nur den Preis.",
+    "always": "Immer",
+    "alwaysHint": "Jeder Checkout, Erfolgsbildschirm und Beleg zeigt, was Sie erhalten und was Dynopay behält.",
+    "never": "Nie",
+    "neverHint": "Käufer sehen nur den Gesamtbetrag, den sie zahlen — wie bei einem Karten-Checkout.",
+    "label": "Zeige die Gebührenaufteilung den Kunden",
+    "desc": "Steuert die Zeilen „Händler erhält / Dynopay Gebühr“ in Ihrem Checkout, auf dem Erfolgsbildschirm und im Beleg des Käufers."
   }
 }

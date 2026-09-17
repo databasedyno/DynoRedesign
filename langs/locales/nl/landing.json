@@ -630,14 +630,17 @@
     "success": {
       "title": "Betaling geslaagd",
       "titleContribution": "Bedankt voor je bijdrage!",
-      "paidTo": "Betaald aan {{name}}"
+      "paidTo": "Betaald aan {{name}}",
+      "nextContribution": "Je bijdrage is bevestigd op het netwerk — verder niets te doen.",
+      "next": "{{name}} is op de hoogte gesteld en zal je bestelling vervullen. Bewaar de bon als bewijs van betaling."
     },
     "share": {
       "prompt": "Betalen met crypto bevallen? Vertel het verder",
       "promptContribution": "Help {{name}} meer mensen te bereiken",
       "copied": "Link gekopieerd!",
       "fundraiser": "Deel deze inzameling",
-      "dynopay": "Deel Dynopay"
+      "dynopay": "Deel Dynopay",
+      "paidWithCrypto": "Deel dat je met crypto hebt betaald"
     },
     "status": {
       "confirming": "Betaling gedetecteerd — bevestigen…",
@@ -683,6 +686,10 @@
         "pill": "HAAST",
         "title": "Nog maar {{seconds}}s",
         "caption": "Voltooi je overboeking nu — deze betaallink verloopt binnenkort."
+      },
+      "tier": {
+        "red": "Minder dan 2 minuten over op deze prijs — stuur nu, of herstart voor een nieuwe offerte.",
+        "amber": "Prijs vergrendeld voor {{time}} meer — betaal voordat het vernieuwt."
       }
     },
     "demo": {
@@ -796,7 +803,31 @@
       "saved": "Bewaard op dit apparaat",
       "view": "Bewaarde verkopers bekijken →"
     },
-    "orderSummary": "Besteloverzicht"
+    "orderSummary": "Besteloverzicht",
+    "refreshQuote": "Offerte vernieuwen",
+    "genericError": "Er is iets misgegaan.",
+    "expiredBodyRefresh": "De prijsvergrendelingsperiode is verlopen. Je munt en bedrag zijn opgeslagen — ververs de offerte om een nieuw adres en timer te krijgen. Als je al geld hebt gestuurd, neem dan contact op met de verkoper.",
+    "returnToMerchant": "Terug naar {{name}}",
+    "overpaid": {
+      "note": "Je hebt {{amount}} meer gestuurd dan nodig{{fiat}}. Het extra bedrag is aan de verkoper gecrediteerd samen met je betaling — neem contact met hen op als je een aanpassing nodig hebt."
+    },
+    "feeUpdatedExact": "Bijgewerkt met de exacte {{coin}} netwerkvergoeding.",
+    "payWithLabel": "BETAAL MET",
+    "coinCostFrom": "vanaf {{fee}} · {{eta}}",
+    "coinCost": "{{fee}} · {{eta}}",
+    "cheapest": "Goedkoopste",
+    "continueWith": "Ga verder met {{coin}} op {{network}}",
+    "nonCustodialLine": "Rechtstreeks betaald aan {{merchant}} — Dynopay houdt je fondsen nooit vast.",
+    "theMerchant": "de verkoper",
+    "feeDisclosure": {
+      "walletFee": "Je wallet voegt zijn eigen netwerkvergoeding toe ({{fee}}).",
+      "walletFeeUnknown": "Je wallet voegt zijn eigen netwerkvergoeding toe.",
+      "customerPays": "Verwerkingskosten zijn inbegrepen in het totaal hierboven.",
+      "merchantPays": "Er is geen Dynopay vergoeding toegevoegd — {{merchant}} dekt het."
+    },
+    "continueHintEta": "Bevestigt meestal in {{eta}} · je krijgt 30 minuten om te verzenden.",
+    "errorTitle": "We konden deze betaling niet voorbereiden",
+    "errorHint": "Probeer het opnieuw, of kies een andere munt of netwerk hierboven."
   },
   "creator": {
     "card": {

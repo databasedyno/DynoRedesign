@@ -65,7 +65,12 @@
     "yourKey": "API key",
     "adminToken": "Admin Token",
     "securityTitle": "Important Security Notice",
-    "securityMessage": "Make sure to copy your API key now. For security reasons, we won't show it again. Store it securely and never share it publicly."
+    "securityMessage": "Make sure to copy your API key now. For security reasons, we won't show it again. Store it securely and never share it publicly.",
+    "expiry": "Key expiration",
+    "expiryNever": "Never expires",
+    "expiry30": "30 days",
+    "expiry90": "90 days",
+    "expiry365": "1 year"
   },
   "withdrawalWhitelist": {
     "title": "Withdrawal Whitelist",
@@ -105,7 +110,12 @@
     "copyNowNotice": "Copy this key now — for security it will not be shown again once you leave this page.",
     "shownOnceNotice": "Keys are shown once. Only a one-way hash is stored, so this key can't be revealed — press Regenerate to get a new one you can copy.",
     "tryFirstPaymentRegenerate": "Regenerate sandbox key to copy it",
-    "tryFirstPaymentKeyUnavailable": "Your sandbox key is stored as a one-way hash, so it can't be shown here. Regenerate it once, copy it, and the command below will work out of the box."
+    "tryFirstPaymentKeyUnavailable": "Your sandbox key is stored as a one-way hash, so it can't be shown here. Regenerate it once, copy it, and the command below will work out of the box.",
+    "lastUsed": "Last used {{date}}",
+    "neverUsed": "Never used",
+    "noExpiry": "No expiry",
+    "expired": "Expired {{date}}",
+    "expiresOn": "Expires {{date}}"
   },
   "developersTitle": "Developers",
   "developersDescription": "API keys, webhooks, delivery events and integration docs — in one place",
@@ -257,7 +267,10 @@
     "chipUses_one": "{{count}} use",
     "chipUses_other": "{{count}} uses",
     "chipCurrencies_one": "{{count}} currency",
-    "chipCurrencies_other": "{{count}} currencies"
+    "chipCurrencies_other": "{{count}} currencies",
+    "chipUses": "{{count}} uses",
+    "chipCurrencies": "{{count}} currencies",
+    "chipDomains": "{{count}} domain(s)"
   },
   "snippet": {
     "copy": "Copy"
@@ -268,7 +281,9 @@
     "snippetServer": "1 · Server — create session",
     "snippetClient": "2 · Client — mount checkout",
     "snippetModal": "Optional — modal",
-    "viewGuide": "View full guide"
+    "viewGuide": "View full guide",
+    "authNote": "(x-api-key) — you do not need a customer token or a Create-Customer step to create a session.",
+    "notifyNote": "add a webhook endpoint (Webhook Console below) so your server is pinged to mark the order paid — this is the reliable way to fulfil orders. Without one you'll still get an email and an in-app alert, and the browser onComplete fires for UX only."
   },
   "elements": {
     "errorNoPk": "You need at least one active publishable key. Scroll to the Publishable Keys section below and create one — then come back and try the preview.",
@@ -375,7 +390,12 @@
     "pausedAutoHint": "Fix or update your endpoint URL {{where}}, then re-enable delivery.",
     "redirectBody": "Your endpoint responds with an HTTP {{status}} redirect. We now follow it automatically so your webhooks are still delivered — but the extra hop adds latency. Update your URL to the final address below to make delivery direct.",
     "secretSet": "{{preview}} · set — regenerate to replace",
-    "subscribeAria": "Subscribe to {{event}}"
+    "subscribeAria": "Subscribe to {{event}}",
+    "toastResent": "Event re-sent",
+    "toastResendFailed": "Re-send attempted but the endpoint did not accept it{{err}}",
+    "toastResendError": "Failed to re-send this event",
+    "resending": "Re-sending…",
+    "resendEvent": "Re-send this event"
   },
   "health": {
     "webhooks": "Webhooks · 24 h",

@@ -126,5 +126,6 @@
   "statusEarning": "Verdient (30 d)",
   "statusExpiringSoon": "Verloopt binnenkort",
   "qrTooltip": "QR-code tonen",
-  "shareTooltip": "Link delen"
+  "shareTooltip": "Link delen",
+  "statusFilterLabel": "Filteren op status"
 }

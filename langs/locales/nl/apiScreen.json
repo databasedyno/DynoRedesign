@@ -65,7 +65,12 @@
     "yourKey": "API-sleutel",
     "adminToken": "Admin-token",
     "securityTitle": "Belangrijke beveiligingsmelding",
-    "securityMessage": "Kopieer nu uw API-sleutel. Om veiligheidsredenen tonen we deze niet opnieuw. Bewaar deze veilig en deel deze nooit openbaar."
+    "securityMessage": "Kopieer nu uw API-sleutel. Om veiligheidsredenen tonen we deze niet opnieuw. Bewaar deze veilig en deel deze nooit openbaar.",
+    "expiry": "Sleutelverval",
+    "expiryNever": "Vervalt nooit",
+    "expiry30": "30 dagen",
+    "expiry90": "90 dagen",
+    "expiry365": "1 jaar"
   },
   "withdrawalWhitelist": {
     "title": "Opname-whitelist",
@@ -105,7 +110,12 @@
     "copyNowNotice": "Kopieer deze sleutel nu — om veiligheidsredenen wordt hij niet meer getoond zodra je deze pagina verlaat.",
     "shownOnceNotice": "Sleutels worden één keer getoond. Er wordt alleen een eenrichtingshash opgeslagen, dus deze sleutel kan niet worden onthuld — klik op Opnieuw genereren voor een nieuwe die je kunt kopiëren.",
     "tryFirstPaymentRegenerate": "Sandbox-sleutel opnieuw genereren om te kopiëren",
-    "tryFirstPaymentKeyUnavailable": "Je sandbox-sleutel is opgeslagen als eenrichtingshash en kan hier niet worden getoond. Genereer hem één keer opnieuw, kopieer hem, en het commando hieronder werkt direct."
+    "tryFirstPaymentKeyUnavailable": "Je sandbox-sleutel is opgeslagen als eenrichtingshash en kan hier niet worden getoond. Genereer hem één keer opnieuw, kopieer hem, en het commando hieronder werkt direct.",
+    "lastUsed": "Laatst gebruikt {{date}}",
+    "neverUsed": "Nooit gebruikt",
+    "noExpiry": "Geen vervaldatum",
+    "expired": "Vervallen {{date}}",
+    "expiresOn": "Vervalt op {{date}}"
   },
   "developersTitle": "Ontwikkelaars",
   "developersDescription": "API-sleutels, webhooks, gebeurtenislog en integratiedocumentatie — op één plek",
@@ -257,7 +267,10 @@
     "chipUses_one": "{{count}} gebruik",
     "chipUses_other": "{{count}} gebruiken",
     "chipCurrencies_one": "{{count}} valuta",
-    "chipCurrencies_other": "{{count}} valuta's"
+    "chipCurrencies_other": "{{count}} valuta's",
+    "chipUses": "{{count}} gebruik(en)",
+    "chipCurrencies": "{{count}} valuta",
+    "chipDomains": "{{count}} domein(en)"
   },
   "snippet": {
     "copy": "Kopiëren"
@@ -268,7 +281,9 @@
     "snippetServer": "1 · Server — sessie aanmaken",
     "snippetClient": "2 · Client — checkout plaatsen",
     "snippetModal": "Optioneel — modal",
-    "viewGuide": "Bekijk volledige gids"
+    "viewGuide": "Bekijk volledige gids",
+    "authNote": "(x-api-key) — je hebt geen klanttoken of een Create-Customer stap nodig om een sessie te creëren.",
+    "notifyNote": "voeg een webhook endpoint toe (Webhook Console hieronder) zodat je server wordt gepingd om de bestelling als betaald te markeren — dit is de betrouwbare manier om bestellingen te vervullen. Zonder een zal je nog steeds een e-mail en een in-app melding ontvangen, en de browser onComplete wordt alleen voor UX geactiveerd."
   },
   "elements": {
     "errorNoPk": "Je hebt minstens één actieve publiceerbare sleutel nodig. Scroll naar de sectie Publiceerbare Sleutels hieronder en maak er een — kom dan terug en probeer de preview.",
@@ -375,7 +390,12 @@
     "pausedAutoHint": "Los uw endpoint-URL {{where}} op of werk deze bij, en schakel de levering opnieuw in.",
     "redirectBody": "Uw endpoint reageert met een HTTP {{status}} omleiding. We volgen deze nu automatisch, zodat uw webhooks nog steeds worden afgeleverd — maar de extra stap voegt latentie toe. Werk uw URL bij naar het uiteindelijke adres hieronder om de levering direct te maken.",
     "secretSet": "{{preview}} · ingesteld — regenereren om te vervangen",
-    "subscribeAria": "Abonneer op {{event}}"
+    "subscribeAria": "Abonneer op {{event}}",
+    "toastResent": "Evenement opnieuw verzonden",
+    "toastResendFailed": "Opnieuw verzenden geprobeerd, maar de endpoint accepteerde het niet{{err}}",
+    "toastResendError": "Het opnieuw verzenden van dit evenement is mislukt",
+    "resending": "Opnieuw verzenden…",
+    "resendEvent": "Dit evenement opnieuw verzenden"
   },
   "health": {
     "webhooks": "Webhooks · 24 u",

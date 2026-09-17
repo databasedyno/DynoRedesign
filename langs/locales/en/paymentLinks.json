@@ -126,5 +126,6 @@
   "statusEarning": "Earning (30d)",
   "statusExpiringSoon": "Expiring soon",
   "qrTooltip": "Show QR code",
-  "shareTooltip": "Share link"
+  "shareTooltip": "Share link",
+  "statusFilterLabel": "Filter by status"
 }

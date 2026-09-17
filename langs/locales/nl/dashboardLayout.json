@@ -505,7 +505,24 @@
     "secureSubtitle": "Dynopay stuurt echt geld naar je wallets, dus elk account gebruikt tweestapsverificatie. Kies een methode — je wordt alleen in een nieuwe browser om een code gevraagd.",
     "secureDoneTitle": "Tweestapsverificatie staat aan",
     "secureDoneBody": "Deze browser is 90 dagen vertrouwd. Beheer methoden en vertrouwde apparaten via Instellingen → Beveiliging.",
-    "secureSavedContinue": "Codes opgeslagen — verder"
+    "secureSavedContinue": "Codes opgeslagen — verder",
+    "linkNoWalletNote": "Ontwerp je link nu — het gaat live op het moment dat je het uitbetalingsadres toevoegt waar het geld naartoe moet. We vragen erom wanneer je op Aanmaken drukt.",
+    "addWalletFirst": "Voeg eerst het uitbetalingsadres toe",
+    "addWalletAndCreate": "Voeg uitbetalingsadres toe & maak aan",
+    "accountTypeShort": "Accounttype",
+    "change": "Wijzig",
+    "signedUpAs": "Ingeschreven als",
+    "edit": "Bewerken",
+    "heroTitleAllDone": "Je bent helemaal klaar — wachtend op je eerste betaling",
+    "heroSubtitleAllDone": "Je link is online. Op het moment dat iemand betaalt, wordt dit dashboard gevuld met echte cijfers.",
+    "ctaShareAgain": "Deel het opnieuw",
+    "stepSharedPending": "Gedeeld — wachtend op je eerste betaling",
+    "noWalletQ": "Heb je nog geen crypto wallet?",
+    "noWalletIntro": "Een wallet is een gratis app die je munten vasthoudt — jij houdt de sleutels, Dynopay stuurt alleen betalingen door. Het installeren duurt ongeveer een minuut.",
+    "quickPathTitle": "Snelste pad: één stablecoin adres",
+    "quickPathBody": "Voeg een enkel USDT (Tron) adres toe — de kosten zijn centen en het wordt binnen enkele seconden geregeld. Je kunt later elke andere munt accepteren, of auto-convert inschakelen zodat alles als USDT binnenkomt.",
+    "recommendedWallets": "Populaire wallets",
+    "noWalletSteps": "Installeer → maak een wallet aan → schrijf de herstelzin op → tik op Ontvangen, kies de munt, kopieer het adres → plak het hier."
   },
   "kycPage": {
     "pageTitle": "Identiteitsverificatie",
@@ -714,5 +731,27 @@
       "wait": "Klaar"
     }
   },
-  "appearance": "Weergave"
+  "appearance": "Weergave",
+  "pwNudge": {
+    "title": "Sla de code de volgende keer over",
+    "body": "Je logt in met een eenmalige code. Stel een wachtwoord in en log direct in — de code blijft als backup.",
+    "cta": "Stel een wachtwoord in",
+    "dismiss": "Afwijzen"
+  },
+  "underpaidBanner": {
+    "title": "{{count}} onderbetaald — actie vereist",
+    "subtitle": "Kopers hebben minder betaald dan verschuldigd — bekijk en volg het tekort na."
+  },
+  "assetCryptoMeta": "Over {{count}} uitbetalingsadressen",
+  "nowViewing": "Nu bekijken",
+  "firstPayment": {
+    "bodyWithAmount": "Je eerste betaling van {{amount}} is net binnengekomen. Dat is een echte mijlpaal — het moeilijke werk is gedaan. Op naar nog veel meer.",
+    "body": "Je eerste betaling is net binnengekomen. Dat is een echte mijlpaal — het moeilijke werk is gedaan. Op naar nog veel meer.",
+    "eyebrowNamed": "{{name}} · Mijlpaal",
+    "eyebrow": "Mijlpaal ontgrendeld",
+    "title": "Je hebt je eerste betaling ontvangen! 🎉",
+    "cta": "Bekijk transacties",
+    "dismiss": "Doorgaan",
+    "footnote": "We sturen je een ontvangstbewijs per e-mail voor elke betaling die je ontvangt."
+  }
 }

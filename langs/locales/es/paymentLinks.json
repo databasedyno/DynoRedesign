@@ -126,5 +126,6 @@
   "statusEarning": "Con ingresos (30 d)",
   "statusExpiringSoon": "Expira pronto",
   "qrTooltip": "Mostrar código QR",
-  "shareTooltip": "Compartir enlace"
+  "shareTooltip": "Compartir enlace",
+  "statusFilterLabel": "Filtrar por estado"
 }

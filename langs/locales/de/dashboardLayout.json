@@ -505,7 +505,24 @@
     "secureSubtitle": "Dynopay leitet echtes Geld an deine Wallets weiter, deshalb nutzt jedes Konto die Zwei-Schritt-Verifizierung. Wähle eine Methode — nach einem Code wirst du nur in einem neuen Browser gefragt.",
     "secureDoneTitle": "Zwei-Schritt-Verifizierung ist aktiv",
     "secureDoneBody": "Dieser Browser ist 90 Tage vertrauenswürdig. Methoden und vertrauenswürdige Geräte verwaltest du jederzeit unter Einstellungen → Sicherheit.",
-    "secureSavedContinue": "Codes gespeichert — weiter"
+    "secureSavedContinue": "Codes gespeichert — weiter",
+    "linkNoWalletNote": "Gestalte deinen Link jetzt — er wird live, sobald du die Auszahlung-Adresse hinzufügst, auf die das Geld landen soll. Wir fragen danach, wenn du auf Erstellen klickst.",
+    "addWalletFirst": "Füge zuerst die Auszahlung-Adresse hinzu",
+    "addWalletAndCreate": "Auszahlung-Adresse hinzufügen & erstellen",
+    "accountTypeShort": "Kontotyp",
+    "change": "Ändern",
+    "signedUpAs": "Registriert als",
+    "edit": "Bearbeiten",
+    "heroTitleAllDone": "Du bist bereit — warte auf deine erste Zahlung",
+    "heroSubtitleAllDone": "Dein Link ist draußen. In dem Moment, in dem jemand bezahlt, füllt sich dieses Dashboard mit echten Zahlen.",
+    "ctaShareAgain": "Teile es erneut",
+    "stepSharedPending": "Geteilt — warte auf deine erste Zahlung",
+    "noWalletQ": "Hast du noch keine Krypto-Wallet?",
+    "noWalletIntro": "Eine Wallet ist eine kostenlose App, die deine Coins hält — du behältst die Schlüssel, Dynopay leitet nur die Zahlungen weiter. Die Installation dauert etwa eine Minute.",
+    "quickPathTitle": "Schnellster Weg: eine Stablecoin-Adresse",
+    "quickPathBody": "Füge eine einzige USDT (Tron) Adresse hinzu — die Gebühren sind Cent und die Abwicklung erfolgt in Sekunden. Du kannst später jede andere Münze akzeptieren oder die automatische Umwandlung aktivieren, sodass alles als USDT ankommt.",
+    "recommendedWallets": "Beliebte Wallets",
+    "noWalletSteps": "Installieren → Wallet erstellen → Wiederherstellungsphrase aufschreiben → Auf Empfangen tippen, die Münze auswählen, die Adresse kopieren → hier einfügen."
   },
   "kycPage": {
     "pageTitle": "Identitätsprüfung",
@@ -714,5 +731,27 @@
       "wait": "Erledigt"
     }
   },
-  "appearance": "Darstellung"
+  "appearance": "Darstellung",
+  "pwNudge": {
+    "title": "Überspringe den Code beim nächsten Mal",
+    "body": "Du meldest dich mit einem einmaligen Code an. Setze einmal ein Passwort und melde dich sofort an — der Code bleibt als Backup.",
+    "cta": "Setze ein Passwort",
+    "dismiss": "Schließen"
+  },
+  "underpaidBanner": {
+    "title": "{{count}} unterbezahlt — Handlungsbedarf",
+    "subtitle": "Käufer haben weniger als fällig bezahlt — überprüfe und verfolge die Differenz."
+  },
+  "assetCryptoMeta": "Über {{count}} Auszahlung-Adressen",
+  "nowViewing": "Jetzt ansehen",
+  "firstPayment": {
+    "bodyWithAmount": "Deine erste Zahlung von {{amount}} ist gerade eingegangen. Das ist ein echter Meilenstein — der harte Teil ist geschafft. Auf viele weitere.",
+    "body": "Deine erste Zahlung ist gerade eingegangen. Das ist ein echter Meilenstein — der harte Teil ist geschafft. Auf viele weitere.",
+    "eyebrowNamed": "{{name}} · Meilenstein",
+    "eyebrow": "Meilenstein freigeschaltet",
+    "title": "Du hast deine erste Zahlung erhalten! 🎉",
+    "cta": "Transaktionen ansehen",
+    "dismiss": "Weiter machen",
+    "footnote": "Wir senden dir eine Quittung für jede Zahlung, die du erhältst."
+  }
 }

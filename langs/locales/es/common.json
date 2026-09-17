@@ -162,7 +162,11 @@
     "loadFailed": "No pudimos cargar este enlace de pago. Por favor, inténtalo de nuevo.",
     "linkExpiredTitle": "Este enlace de pago ha expirado",
     "linkErrorTitle": "Este enlace de pago no se puede abrir",
-    "goToDynopay": "Ir a Dynopay"
+    "goToDynopay": "Ir a Dynopay",
+    "reference": "Referencia",
+    "linkExpiredAsk": "Pide al comerciante un nuevo enlace de pago y cita la referencia anterior.",
+    "aboutDynopay": "¿Qué es Dynopay?",
+    "incompletePaymentDesc": "Tienes un pago pendiente de ${incompletePayment.pending_amount} ${incompletePayment.currency}. Por favor, complétalo dentro de ${incompletePayment.remaining_minutes} minutos o espera a que expire."
   },
   "crypto": {
     "title": "Criptomoneda",
@@ -663,7 +667,34 @@
       "sourceDashboard": "Panel"
     },
     "colPreferredAsset": "Paga con",
-    "colLastPaid": "Último pago"
+    "colLastPaid": "Último pago",
+    "linksSentShort": "{{count}} solicitud de pago enviada",
+    "sortLabel": "Ordenar clientes",
+    "addCustomer": "Agregar cliente",
+    "paymentsShort": "{{count}} pagos",
+    "notesSaved": "Guardado.",
+    "notesFailed": "No se pudo guardar.",
+    "crmSection": "Notas y etiquetas",
+    "manualBadge": "Agregado manualmente",
+    "tagPlaceholder": "Agregar una etiqueta, presiona Enter",
+    "notesPlaceholder": "Notas privadas que solo tú puedes ver…",
+    "saveNotes": "Guardar",
+    "crmNeedBrand": "Cambia a una sola marca para agregar notas y etiquetas privadas.",
+    "add": {
+      "invalidEmail": "Ingresa una dirección de correo electrónico válida.",
+      "needBrand": "Cambia a una sola marca para agregar un cliente.",
+      "saved": "Cliente agregado.",
+      "failed": "No se pudo agregar el cliente.",
+      "title": "Agregar cliente",
+      "subtitle": "Agrega un contacto manualmente. Aparecen como un prospecto hasta que paguen.",
+      "email": "Correo electrónico",
+      "name": "Nombre (opcional)",
+      "mobile": "Móvil (opcional)",
+      "tags": "Etiquetas (opcional)",
+      "notes": "Notas privadas (opcional)",
+      "cancel": "Cancelar",
+      "submit": "Agregar cliente"
+    }
   },
   "pleaseWait": "Por favor espere",
   "transferRate": "Tasa de cambio",
@@ -766,7 +797,12 @@
     "useCompanyDefault": "Usar predeterminado del equipo ({{code}})",
     "language": "Idioma",
     "languageDesc": "El idioma de tu panel y de los correos que te enviamos. Se guarda en tu cuenta para que te acompañe en todos tus dispositivos.",
-    "languagePick": "Elige tu idioma"
+    "languagePick": "Elige tu idioma",
+    "securitySignIn": "Iniciando sesión",
+    "securityWallets": "Direcciones de pago",
+    "securityDevices": "Dispositivos y actividad",
+    "security": "Seguridad",
+    "securityDesc": "Verificación en dos pasos, contraseña, protección de direcciones de pago y dispositivos conectados."
   },
   "donation": {
     "defaultTitle": "Apoya esta campaña",
@@ -809,7 +845,25 @@
       "m": "min"
     },
     "urgency": "Solo quedan {{time}} — ayuda a alcanzar la meta",
-    "urgencyNoGoal": "Solo quedan {{time}} — aporta antes de que cierre"
+    "urgencyNoGoal": "Solo quedan {{time}} — aporta antes de que cierre",
+    "acceptedCoins": "Paga con tu criptomoneda favorita — 12 monedas aceptadas",
+    "theOrganizer": "el organizador",
+    "fundHandlingTitle": "A dónde va tu regalo",
+    "fundHandlingBody": "Tu regalo va directamente a ${organizer}. Dependiendo de su configuración, se recibe como criptomoneda o se convierte automáticamente en una stablecoin. DynoPay solo procesa el pago — nunca retiene ni invierte tu donación.",
+    "taxNoteTitle": "Bueno saber",
+    "taxNoteBody": "En muchos lugares, las criptomonedas se consideran propiedad, así que lleva tus propios registros para regalos más grandes y verifica las reglas fiscales donde vives — esto no es asesoramiento financiero ni fiscal. Los pagos en criptomonedas son finales y generalmente no se pueden revertir, así que verifica el monto antes de enviar. Para un reembolso, contacta directamente al organizador.",
+    "faqTitle": "Preguntas frecuentes",
+    "faqMinimumQ": "¿Hay una donación mínima?",
+    "faqMinimumA": "Sí — la mínima para esta campaña es ${minAmountLabel}. Puedes donar cualquier cantidad igual o superior a eso.",
+    "faqConfirmQ": "¿Cuánto tiempo tarda la confirmación?",
+    "faqConfirmA": "La mayoría de los pagos se confirman en unos minutos una vez que la red procesa tu transacción. Las cadenas más rápidas y las stablecoins suelen ser las más rápidas; Bitcoin puede tardar un poco más.",
+    "faqAnonQ": "¿Puedo donar de forma anónima?",
+    "faqAnonA": "Sí. Marca “Donar de forma anónima” y tu nombre no aparecerá en la lista pública de supporters. Si dejas un correo electrónico, aún te enviaremos un recibo privado.",
+    "faqRefundQ": "¿Puedo obtener un reembolso?",
+    "faqRefundA": "Los pagos en criptomonedas son finales, por lo que los reembolsos no son automáticos. Si algo salió mal, contacta directamente a ${organizer} y ellos pueden organizar uno.",
+    "faqContactQ": "¿A quién contacto para obtener ayuda?",
+    "faqContactA": "Contacta a ${organizer} para cualquier cosa relacionada con esta campaña. Para problemas de pago, también puedes contactar al soporte de DynoPay desde tu recibo.",
+    "securedByFooter": "Pagos asegurados y procesados por DynoPay"
   },
   "taxSettings": {
     "loadError": "No se pudieron cargar los ajustes de impuestos.",
@@ -947,7 +1001,13 @@
       "showWallHint": "Nombre, importe y mensaje de tus últimos 8 apoyos. Las propinas anónimas aparecen como \"Alguien\". Desactivado por defecto.",
       "monthlyGoal": "Meta mensual de propinas",
       "monthlyGoalNote": "(opcional — déjalo vacío para ocultar la barra)",
-      "monthlyGoalHint": "Muestra «$X de $Y este mes» en tu página. Cuenta propinas confirmadas y se reinicia el día 1."
+      "monthlyGoalHint": "Muestra «$X de $Y este mes» en tu página. Cuenta propinas confirmadas y se reinicia el día 1.",
+      "namePlaceholderWarning": "Parece un nombre generado automáticamente. Los visitantes lo ven como el título de tu página, encabezado y texto para compartir; ingresa el nombre con el que deseas ser conocido. Hasta entonces, tu página pública muestra el nombre de tu cuenta.",
+      "presetBelowFloor": "Por debajo del mínimo de $10 — oculto en tu página",
+      "presetPlaceholderV2": "p. ej. 15",
+      "presetFloorWarning": "Los presets deben ser de $10 o más.",
+      "floorExplainer": "El mínimo de Dynopay para cualquier pago en criptomonedas es de $10; las tarifas de red hacen que montos más pequeños no sean económicos. Los presets por debajo de $10 no se muestran a los patrocinadores.",
+      "floorHiddenPresets": "Los presets tachados están ocultos en tu página; elimínalos o súbelos a $10 o más."
     },
     "compare": {
       "title": "Comparar tiendas",
@@ -1302,7 +1362,8 @@
     "exportRange": "Exportar rango (CSV)",
     "noForwardsYet": "Aún no hay pagos. Cuando un pago se liquide, el envío a tu wallet aparecerá aquí con su hash.",
     "toWallet": "a {{wallet}}",
-    "hashPending": "hash pendiente"
+    "hashPending": "hash pendiente",
+    "settlementCoinLabel": "Moneda de liquidación"
   },
   "liveBrand": {
     "payNow": "Pagar ahora",
@@ -1345,6 +1406,10 @@
       "licenseKey": {
         "label": "Claves de licencia",
         "hint": "Pega una clave por línea. Se emite una clave por compra."
+      },
+      "none": {
+        "label": "Servicio — sin entrega digital",
+        "hint": "Para servicios, consultas o artículos fuera de línea. Los compradores reciben un recibo; tú lo cumples manualmente — no se requiere archivo o enlace."
       }
     },
     "variantDefault": "Variante",
@@ -1478,7 +1543,26 @@
       "secured": "Protegido por Dynopay · paga con cripto",
       "hide": "Ocultar vista previa",
       "show": "Vista previa"
-    }
+    },
+    "aiNeedTitle": "Agrega primero un título de producto.",
+    "aiFailed": "No se pudo detectar automáticamente; por favor elige manualmente.",
+    "aiApplied": "La IA sugirió un tratamiento de IVA; revisa antes de guardar.",
+    "serviceNote": "Este es un servicio o artículo fuera de línea; no se entrega automáticamente ningún archivo o enlace. Los compradores reciben un recibo y tú lo cumples manualmente.",
+    "serviceCalendarUrl": "Enlace de reserva / calendario (opcional)",
+    "serviceCalendarHint": "Si se establece, los compradores ven este enlace de reserva en su recibo para que puedan programar contigo.",
+    "removeAsset": "Eliminar archivo",
+    "vatRate": "Tasa de IVA",
+    "vatStandard": "Tasa estándar",
+    "vatReduced": "Tasa reducida",
+    "vatZero": "Exento (0%)",
+    "vatReducedHint": "Aplica la banda reducida de cada país de destino para la categoría a continuación (se aplica la tasa estándar donde un país no tiene ninguna).",
+    "vatZeroHint": "A los compradores se les cobra un IVA del 0% (exento, sigue siendo un suministro gravable dentro del alcance).",
+    "vatStandardHint": "A los compradores se les cobra la tasa estándar de IVA/GST del país de destino.",
+    "aiDetecting": "Detectando…",
+    "aiDetect": "Detección automática con IA",
+    "aiReasonPrefix": "IA:",
+    "reducedCategory": "Categoría de tasa reducida",
+    "reducedCategoryHint": "Las tasas son indicativas y varían según el país; confirma la elegibilidad con tu asesor fiscal."
   },
   "products": {
     "viewLabel": "Vista",
@@ -1673,5 +1757,39 @@
       "account_delete": "eliminar tu cuenta"
     }
   },
-  "deleteWalletBody": "Estás a punto de eliminar la dirección de cobro {{type}}{{address}}. Esta acción es permanente y no se puede deshacer. Primero te pediremos que verifiques que eres tú."
+  "deleteWalletBody": "Estás a punto de eliminar la dirección de cobro {{type}}{{address}}. Esta acción es permanente y no se puede deshacer. Primero te pediremos que verifiques que eres tú.",
+  "directPayAdvanced": "Dirección de Pago Directo (avanzado)",
+  "directPayWarning": "Cualquiera que pague esta dirección directamente omite la verificación de monto y red del pago alojado. Comparte el enlace de pago en su lugar, a menos que tu cliente sepa exactamente qué enviar.",
+  "paymentResult": {
+    "verify": {
+      "slow": "Esto está tardando más de lo habitual. Tu pago está seguro — mantén esta página abierta, o revisa Transacciones en unos minutos.",
+      "checking": "Estamos confirmando el pago con el proveedor. Esto generalmente toma menos de 10 segundos — no cierres esta página.",
+      "nothingTitle": "Nada que verificar aquí",
+      "nothingBody": "Esta página solo funciona cuando un proveedor de pagos te devuelve a ella. Si acabas de pagar, tu lista de Transacciones muestra el estado actual.",
+      "errorTitle": "No pudimos confirmar el pago aún",
+      "errorBody": "El proveedor no respondió. Si el dinero salió de tu cuenta, no está perdido — aparecerá en Transacciones una vez confirmado, y el soporte puede rastrearlo con tu referencia."
+    },
+    "viewTransactions": "Ver en Transacciones",
+    "contactSupport": "Contactar soporte",
+    "systemStatus": "Estado del sistema",
+    "nextTitle": "Qué sucede a continuación",
+    "nextCredit": "El monto se acredita a tu billetera de Dynopay en unos minutos.",
+    "nextReceipt": "Un recibo está en camino a tu correo electrónico — guarda el ID de transacción arriba para tus registros.",
+    "nextTransactions": "Puedes seguirlo en Transacciones en tu panel.",
+    "somethingWrong": "¿Algo no parece correcto?",
+    "failed": {
+      "expired": "La ventana de pago se cerró antes de que se completara el pago. No se cobró nada — puedes comenzar de nuevo cuando estés listo.",
+      "cancelled": "El pago fue cancelado antes de completarse. No se cobró nada.",
+      "underpaid": "El monto que llegó fue menor que el monto adeudado, por lo que no se pudo completar el pago. Revisa la solicitud y vuelve a intentarlo.",
+      "declined": "El pago fue rechazado por el proveedor. Prueba otro método o contacta a tu banco.",
+      "next": "Nada que deshacer — no se movió dinero. Si te cobraron de todos modos, guarda la referencia a continuación y contacta al soporte; lo resolveremos."
+    }
+  },
+  "balancesPayouts": "Saldos",
+  "receiptsTax": "Recibos y impuestos",
+  "payoutWallets": "Direcciones de pago",
+  "developers": "Desarrolladores",
+  "sidebarSectionSell": "Vender",
+  "sidebarSectionMoney": "Dinero",
+  "sidebarSectionGrow": "Crecer"
 }

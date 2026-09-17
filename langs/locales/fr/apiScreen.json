@@ -65,7 +65,12 @@
     "yourKey": "Clé API",
     "adminToken": "Jeton Admin",
     "securityTitle": "Avis de Sécurité Important",
-    "securityMessage": "Assurez-vous de copier votre clé API maintenant. Pour des raisons de sécurité, nous ne l'afficherons plus. Stockez-la en sécurité et ne la partagez jamais publiquement."
+    "securityMessage": "Assurez-vous de copier votre clé API maintenant. Pour des raisons de sécurité, nous ne l'afficherons plus. Stockez-la en sécurité et ne la partagez jamais publiquement.",
+    "expiry": "Expiration de la clé",
+    "expiryNever": "N'expire jamais",
+    "expiry30": "30 jours",
+    "expiry90": "90 jours",
+    "expiry365": "1 an"
   },
   "withdrawalWhitelist": {
     "title": "Liste Blanche de Retrait",
@@ -105,7 +110,12 @@
     "copyNowNotice": "Copiez cette clé maintenant — pour des raisons de sécurité, elle ne sera plus affichée une fois que vous aurez quitté cette page.",
     "shownOnceNotice": "Les clés ne sont affichées qu'une seule fois. Seul un hachage à sens unique est stocké : cette clé ne peut pas être révélée — cliquez sur Régénérer pour en obtenir une nouvelle à copier.",
     "tryFirstPaymentRegenerate": "Régénérer la clé sandbox pour la copier",
-    "tryFirstPaymentKeyUnavailable": "Votre clé sandbox est stockée sous forme de hachage à sens unique et ne peut donc pas être affichée ici. Régénérez-la une fois, copiez-la, et la commande ci-dessous fonctionnera directement."
+    "tryFirstPaymentKeyUnavailable": "Votre clé sandbox est stockée sous forme de hachage à sens unique et ne peut donc pas être affichée ici. Régénérez-la une fois, copiez-la, et la commande ci-dessous fonctionnera directement.",
+    "lastUsed": "Dernière utilisation {{date}}",
+    "neverUsed": "Jamais utilisé",
+    "noExpiry": "Pas d'expiration",
+    "expired": "Expiré {{date}}",
+    "expiresOn": "Expire {{date}}"
   },
   "developersTitle": "Développeurs",
   "developersDescription": "Clés API, webhooks, journal des événements et documentation d'intégration — au même endroit",
@@ -257,7 +267,10 @@
     "chipUses_one": "{{count}} utilisation",
     "chipUses_other": "{{count}} utilisations",
     "chipCurrencies_one": "{{count}} devise",
-    "chipCurrencies_other": "{{count}} devises"
+    "chipCurrencies_other": "{{count}} devises",
+    "chipUses": "{{count}} utilisations",
+    "chipCurrencies": "{{count}} devises",
+    "chipDomains": "{{count}} domaine(s)"
   },
   "snippet": {
     "copy": "Copier"
@@ -268,7 +281,9 @@
     "snippetServer": "1 · Serveur — créer une session",
     "snippetClient": "2 · Client — monter le paiement",
     "snippetModal": "Optionnel — modal",
-    "viewGuide": "Voir le guide complet"
+    "viewGuide": "Voir le guide complet",
+    "authNote": "(x-api-key) — vous n'avez pas besoin d'un jeton client ou d'une étape de création de client pour créer une session.",
+    "notifyNote": "ajoutez un point de terminaison webhook (Console Webhook ci-dessous) afin que votre serveur soit averti pour marquer la commande comme payée — c'est la manière fiable de traiter les commandes. Sans cela, vous recevrez toujours un e-mail et une alerte dans l'application, et le onComplete du navigateur se déclenche uniquement pour l'UX."
   },
   "elements": {
     "errorNoPk": "Vous avez besoin d'au moins une clé publiable active. Faites défiler jusqu'à la section Clés publiables ci-dessous et créez-en une — puis revenez et essayez l'aperçu.",
@@ -375,7 +390,12 @@
     "pausedAutoHint": "Corrigez ou mettez à jour l'URL de votre point de terminaison {{where}}, puis réactivez la livraison.",
     "redirectBody": "Votre point de terminaison répond avec une redirection HTTP {{status}}. Nous la suivons maintenant automatiquement afin que vos webhooks soient toujours livrés — mais ce saut supplémentaire ajoute de la latence. Mettez à jour votre URL vers l'adresse finale ci-dessous pour rendre la livraison directe.",
     "secretSet": "{{preview}} · défini — régénérez pour remplacer",
-    "subscribeAria": "Abonnez-vous à {{event}}"
+    "subscribeAria": "Abonnez-vous à {{event}}",
+    "toastResent": "Événement renvoyé",
+    "toastResendFailed": "Tentative de renvoi mais le point de terminaison ne l'a pas accepté{{err}}",
+    "toastResendError": "Échec du renvoi de cet événement",
+    "resending": "Renvoi en cours…",
+    "resendEvent": "Renvoie cet événement"
   },
   "health": {
     "webhooks": "Webhooks · 24 h",

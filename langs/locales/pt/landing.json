@@ -630,14 +630,17 @@
     "success": {
       "title": "Pagamento efetuado",
       "titleContribution": "Obrigado pela tua contribuição!",
-      "paidTo": "Pago a {{name}}"
+      "paidTo": "Pago a {{name}}",
+      "nextContribution": "A sua contribuição está confirmada na rede — nada mais a fazer.",
+      "next": "{{name}} foi notificado e irá cumprir o seu pedido. Guarde o recibo como prova de pagamento."
     },
     "share": {
       "prompt": "Gostaste de pagar com cripto? Espalha a palavra",
       "promptContribution": "Ajuda {{name}} a chegar a mais pessoas",
       "copied": "Link copiado!",
       "fundraiser": "Partilhar esta angariação",
-      "dynopay": "Partilhar o Dynopay"
+      "dynopay": "Partilhar o Dynopay",
+      "paidWithCrypto": "Partilhe que pagou com cripto"
     },
     "status": {
       "confirming": "Pagamento detetado — a confirmar…",
@@ -683,6 +686,10 @@
         "pill": "DEPRESSA",
         "title": "Restam apenas {{seconds}}s",
         "caption": "Complete a sua transferência agora — este link expira em breve."
+      },
+      "tier": {
+        "red": "Menos de 2 minutos restantes a este preço — envie agora ou reinicie para uma nova cotação.",
+        "amber": "Preço bloqueado por mais {{time}} — pague antes que seja atualizado."
       }
     },
     "demo": {
@@ -796,7 +803,31 @@
       "saved": "Guardado neste dispositivo",
       "view": "Ver comerciantes guardados →"
     },
-    "orderSummary": "Resumo do pedido"
+    "orderSummary": "Resumo do pedido",
+    "refreshQuote": "Atualizar cotação",
+    "genericError": "Algo correu mal.",
+    "expiredBodyRefresh": "O período de bloqueio de preço expirou. A sua moeda e montante estão guardados — basta atualizar a cotação para obter um novo endereço e temporizador. Se já enviou fundos, contacte o comerciante.",
+    "returnToMerchant": "Voltar a {{name}}",
+    "overpaid": {
+      "note": "Você enviou {{amount}} a mais do que o necessário{{fiat}}. O extra foi creditado ao comerciante juntamente com o seu pagamento — contacte-os se precisar de um ajuste."
+    },
+    "feeUpdatedExact": "Atualizado com a taxa de rede exata de {{coin}}.",
+    "payWithLabel": "PAGAR COM",
+    "coinCostFrom": "de {{fee}} · {{eta}}",
+    "coinCost": "{{fee}} · {{eta}}",
+    "cheapest": "Mais barato",
+    "continueWith": "Continuar com {{coin}} na {{network}}",
+    "nonCustodialLine": "Pago diretamente a {{merchant}} — a Dynopay nunca retém os seus fundos.",
+    "theMerchant": "o comerciante",
+    "feeDisclosure": {
+      "walletFee": "A sua carteira adiciona a sua própria taxa de rede ({{fee}}).",
+      "walletFeeUnknown": "A sua carteira adiciona a sua própria taxa de rede.",
+      "customerPays": "A taxa de processamento está incluída no total acima.",
+      "merchantPays": "Nenhuma taxa da Dynopay é adicionada — {{merchant}} cobre isso."
+    },
+    "continueHintEta": "Normalmente confirma em {{eta}} · você tem 30 minutos para enviar.",
+    "errorTitle": "Não conseguimos preparar este pagamento",
+    "errorHint": "Tente novamente ou escolha uma moeda ou rede diferente acima."
   },
   "creator": {
     "card": {

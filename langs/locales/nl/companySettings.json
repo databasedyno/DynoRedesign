@@ -28,7 +28,9 @@
     "flagOverpaymentsHelper": "U ontvangt een melding wanneer iemand meer betaalt dan dit bedrag boven het totaal.",
     "timeForPartialPayments": "Tijd voor gedeeltelijke betalingen",
     "timeForPartialPaymentsHelper": "Hoe lang wachten op voltooiing van een gedeeltelijke betaling",
-    "minutes": "minuten"
+    "minutes": "minuten",
+    "minOrderAmount": "Minimale bestelbedrag",
+    "minOrderHelper": "Laagste bedrag dat een klant je kan betalen. Laat leeg om het automatische minimum per munt te gebruiken — je kunt het alleen verhogen."
   },
   "cryptoConversion": "Crypto-conversie",
   "cryptoConversionSubtitle": "Inkomende BTC, ETH, LTC worden automatisch geconverteerd naar een stablecoin.",
@@ -66,5 +68,15 @@
     "typeToConfirm": "Typ {{name}} om door te gaan:",
     "otpBody": "We hebben een 6-cijferige code naar {{email}} gestuurd. Voer deze hieronder in om {{name}} te verwijderen.",
     "bodyStepUp": "Hiermee wordt {{name}} permanent verwijderd, inclusief betaallinks, API-sleutels en instellingen. Dit kan niet ongedaan worden gemaakt. We vragen je eerst om te bevestigen dat jij het bent."
+  },
+  "feeSplit": {
+    "auto": "Alleen wanneer de klant de vergoeding betaalt",
+    "autoHint": "Aanbevolen. Kopers zien de vergoeding die ze betalen; wanneer je deze absorbeert, zien ze alleen de prijs.",
+    "always": "Altijd",
+    "alwaysHint": "Elke checkout, succes scherm en bon toont wat je ontvangt en wat Dynopay behoudt.",
+    "never": "Nooit",
+    "neverHint": "Kopers zien alleen het totaal dat ze betalen — zoals bij een kaartafrekening.",
+    "label": "Toon de vergoedingenspecificatie aan klanten",
+    "desc": "Beheert de rijen “Merchant ontvangt / Dynopay vergoeding” op je checkout, het succes scherm en de bon van de koper."
   }
 }

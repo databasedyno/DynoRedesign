@@ -505,7 +505,24 @@
     "secureSubtitle": "Dynopay envía dinero real a tus wallets, así que todas las cuentas usan verificación en dos pasos. Elige un método: solo te pediremos un código en un navegador nuevo.",
     "secureDoneTitle": "La verificación en dos pasos está activa",
     "secureDoneBody": "Este navegador es de confianza durante 90 días. Gestiona métodos y dispositivos de confianza en Ajustes → Seguridad.",
-    "secureSavedContinue": "He guardado mis códigos — continuar"
+    "secureSavedContinue": "He guardado mis códigos — continuar",
+    "linkNoWalletNote": "Diseña tu enlace ahora — se activa en el momento en que agregas la dirección de pago a la que debe llegar el dinero. Te lo pediremos cuando presiones Crear.",
+    "addWalletFirst": "Agrega la dirección de pago primero",
+    "addWalletAndCreate": "Agregar dirección de pago y crear",
+    "accountTypeShort": "Tipo de cuenta",
+    "change": "Cambiar",
+    "signedUpAs": "Registrado como",
+    "edit": "Editar",
+    "heroTitleAllDone": "Estás listo — esperando tu primer pago",
+    "heroSubtitleAllDone": "Tu enlace está en circulación. En el momento en que alguien pague, este panel se llenará con números reales.",
+    "ctaShareAgain": "Compártelo de nuevo",
+    "stepSharedPending": "Compartido — esperando tu primer pago",
+    "noWalletQ": "¿No tienes una billetera de criptomonedas aún?",
+    "noWalletIntro": "Una billetera es una aplicación gratuita que guarda tus monedas — tú mantienes las llaves, Dynopay solo reenvía los pagos a ella. Instalar una toma alrededor de un minuto.",
+    "quickPathTitle": "Camino más rápido: una dirección de stablecoin",
+    "quickPathBody": "Agrega una única dirección USDT (Tron) — las tarifas son centavos y se liquida en segundos. Puedes aceptar cualquier otra moneda más tarde, o activar la conversión automática para que todo llegue como USDT.",
+    "recommendedWallets": "Billeteras populares",
+    "noWalletSteps": "Instalar → crear una billetera → anotar la frase de recuperación → tocar Recibir, elegir la moneda, copiar la dirección → pegarla aquí."
   },
   "kycPage": {
     "pageTitle": "Verificación de identidad",
@@ -714,5 +731,27 @@
       "wait": "Hecho"
     }
   },
-  "appearance": "Apariencia"
+  "appearance": "Apariencia",
+  "pwNudge": {
+    "title": "Saltar el código la próxima vez",
+    "body": "Inicias sesión con un código de un solo uso. Establece una contraseña una vez y accede al instante — el código se queda como respaldo.",
+    "cta": "Establecer una contraseña",
+    "dismiss": "Descartar"
+  },
+  "underpaidBanner": {
+    "title": "{{count}} subpagados — se necesita acción",
+    "subtitle": "Los compradores pagaron menos de lo debido — revisa y persigue el déficit."
+  },
+  "assetCryptoMeta": "A través de {{count}} direcciones de pago",
+  "nowViewing": "Ahora viendo",
+  "firstPayment": {
+    "bodyWithAmount": "Tu primer pago de {{amount}} acaba de llegar. Es un verdadero hito — la parte difícil ya está hecha. Brindemos por muchos más.",
+    "body": "Tu primer pago acaba de llegar. Es un verdadero hito — la parte difícil ya está hecha. Brindemos por muchos más.",
+    "eyebrowNamed": "{{name}} · Hito",
+    "eyebrow": "Hito desbloqueado",
+    "title": "¡Recibiste tu primer pago! 🎉",
+    "cta": "Ver transacciones",
+    "dismiss": "Seguir adelante",
+    "footnote": "Te enviaremos un recibo por cada pago que recibas."
+  }
 }

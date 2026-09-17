@@ -189,7 +189,8 @@
     "useCheapest": "Use it",
     "bdPaymentAmount": "Payment amount",
     "bdBlockchainFee": "Blockchain / network fee",
-    "bdNetToMerchant": "Net to merchant"
+    "bdNetToMerchant": "Net to merchant",
+    "volumeSliderLabel": "Monthly volume"
   },
   "ffWelcomeCtaShare": "Share your payment link",
   "worked": {

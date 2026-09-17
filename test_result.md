@@ -1,3 +1,58 @@
+# === 2026-09 (fork: setup-vault) PHASE 3 & 4 — FRONTEND VERIFICATION RESULTS ===
+# PHASE 3 (email preferences):
+#   - Deep-link preservation (withAuth): BROWSER-VERIFIED — logged-out /settings?section=notifications
+#     -> /auth/login?next=%2Fsettings%3Fsection%3Dnotifications. PASS.
+#   - Marketing & Product Emails toggle: BROWSER-VERIFIED end-to-end on the PREVIEW url
+#     (renders inside the Email-notifications card; ON -> toggle OFF -> Save "Settings updated
+#     successfully!" -> reload stayed OFF -> restored to ON). Backend API round-trip 4/4 earlier.
+#   - Post-login `next` honouring (login.tsx): CODE-VERIFIED. The redirect runs in the effect
+#     gated on Redux userState (a real login), reading router.query.next; a full browser E2E is
+#     blocked by mandatory TOTP 2FA, but Test-1 proves the `next` param is preserved on the login URL.
+# PHASE 4 (i18n): German language switch BROWSER-VERIFIED (Anmelden/Passwort/E-Mail/Willkommen...).
+#   check-i18n = 0 missing; i18n_missing_keys = 0. Reusable audit: scripts/i18n_audit.sh.
+# NOTE: testing on http://localhost:3000 shows a 404 storm + a Next dev error-overlay because
+#   :3000 has NO /api->backend proxy; the PREVIEW url (ingress) has ZERO 404s. Always test via preview.
+# ============================================================================================
+
+
+# ============================================================================
+# CURRENT SESSION — 2026-09 (fork: setup-vault) PHASE 4: i18n HARDCODED-ENGLISH SWEEP.
+#   Env: LIVE PROD DB, SAFE MODE. This phase only edited langs/locales/*.json + scripts
+#   (+ scanner fix). No app runtime/logic changed. Frontend recompiled to bundle new keys.
+#
+#   USER ASK: kill the "hardcoded English" that doesn't translate across account settings,
+#   2FA, trusted devices, sidebar, page titles, plan/fee, popups + a reusable "way to check".
+#   Clarified scope: translate everything END-TO-END incl. BUYER CHECKOUT (Pay3/pay),
+#   SecuritySection + sidebar navSections; EXCEPT the PUBLIC developer DOCUMENTATION page
+#   (pages/documentation.tsx) which stays English. (The in-app dev/API-keys page = apiScreen
+#   namespace = allowed to be translated; documentation.tsx has ZERO t() keys already.)
+#
+#   ROOT CAUSE (not raw strings — the app is t()-wired): the real gap was
+#   t(key,{defaultValue:"English"}) calls whose key was missing from the locale JSON, so
+#   i18next returned the English default for every language. 205 such keys across 11 ns.
+#   Plus 13 keys present in en/auth.json but missing from 5 locales, plus 51 residual
+#   (buyer checkout / SecuritySection / sidebar / wallet / modals the builder had skipped).
+#
+#   FIX (data + tooling):
+#     * Built scripts/i18n_manifest.json (qa/i18n_build_manifest.py) + folded locale-gap
+#       + residual keys => 269 keys total.
+#     * scripts/translate_missing_i18n.py (OpenAI gpt-4o-mini): backfilled en/*.json (256
+#       new EN keys) + machine-translated de/es/fr/pt/nl (placeholder/HTML guards, idempotent).
+#     * Fixed a false-positive in scripts/qa/i18n_missing_keys.py (now strips `ns:` prefix).
+#     * NEW reusable entrypoint: scripts/i18n_audit.sh  (report; `--fix` builds+translates).
+#
+#   RESULT (all green):
+#     - node scripts/check-i18n.mjs  => "all 5 locales complete against en" (0 missing).
+#     - python3 scripts/qa/i18n_missing_keys.py => 0 calls, 0 distinct keys.
+#     - Spot-checks: settingsPage.security = Sicherheit/Sécurité/Seguridad/Segurança/Beveiliging;
+#       donation.faqRefundQ + checkout.cheapest translated in all 5.
+#     - pages/documentation.tsx (public dev docs) has 0 t() keys => stays English (untouched).
+#
+#   FRONTEND VISUAL: to be verified by the frontend testing agent below (switch language via
+#   the in-app selector, confirm a translated surface e.g. Settings→Security / checkout).
+# ============================================================================
+
+
 # ============================================================================
 # CURRENT SESSION — 2026-09 (fork: setup-vault) PHASE 3: EMAIL PREFERENCES.
 #   Env: LIVE PROD DB + REDIS, SAFE MODE. (This phase writes ONLY the owner test

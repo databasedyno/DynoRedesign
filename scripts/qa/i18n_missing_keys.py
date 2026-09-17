@@ -25,7 +25,11 @@ for fp in files:
         alias, key, opts = m.groups()
         if alias not in ("t",) and not alias.startswith("t"):
             continue
-        if key in present:
+        # A key may carry an explicit namespace prefix (e.g. "common:referAndEarn").
+        # The `present` set is prefix-less (built from each namespace's own keys), so
+        # strip the ns prefix before checking — otherwise prefixed keys are false-flagged.
+        bare = key.split(":", 1)[1] if ":" in key else key
+        if key in present or bare in present:
             continue
         dv = DV.search(opts)
         english = dv.group(1)[1:-1] if dv else ""

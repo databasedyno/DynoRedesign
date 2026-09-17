@@ -28,7 +28,9 @@
     "flagOverpaymentsHelper": "You'll get a notification when someone pays more than this amount over the total.",
     "timeForPartialPayments": "Time for Partial Payments",
     "timeForPartialPaymentsHelper": "How long to wait for a customer to complete a partial payment",
-    "minutes": "minutes"
+    "minutes": "minutes",
+    "minOrderAmount": "Minimum order amount",
+    "minOrderHelper": "Lowest amount a customer can pay you. Leave blank to use the automatic per-coin network minimum — you can only raise it."
   },
   "cryptoConversion": "Crypto conversion",
   "cryptoConversionSubtitle": "Optional — when enabled, incoming BTC, ETH, LTC to this payout address will be converted to a stablecoin. Off by default; leave off to receive the original coin.",
@@ -66,5 +68,15 @@
     "typeToConfirm": "Type {{name}} to continue:",
     "otpBody": "We sent a 6-digit code to {{email}}. Enter it below to delete {{name}}.",
     "bodyStepUp": "This permanently removes {{name}} together with its payment links, API keys and settings. This cannot be undone. We'll ask you to verify it's you first."
+  },
+  "feeSplit": {
+    "auto": "Only when the customer pays the fee",
+    "autoHint": "Recommended. Buyers see the fee they are charged; when you absorb it, they just see the price.",
+    "always": "Always",
+    "alwaysHint": "Every checkout, success screen and receipt shows what you receive and what Dynopay keeps.",
+    "never": "Never",
+    "neverHint": "Buyers only ever see the total they pay — like a card checkout.",
+    "label": "Show the fee breakdown to customers",
+    "desc": "Controls the “Merchant receives / Dynopay fee” rows on your checkout, its success screen and the buyer's receipt."
   }
 }

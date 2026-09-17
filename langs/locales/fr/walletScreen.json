@@ -143,7 +143,9 @@
     "copiedCount_one": "{{count}} adresse de versement copiée",
     "copiedCount_other": "{{count}} adresses de versement copiées",
     "useSelected_one": "Utiliser {{count}} adresse de versement sélectionnée",
-    "useSelected_other": "Utiliser {{count}} adresses de versement sélectionnées"
+    "useSelected_other": "Utiliser {{count}} adresses de versement sélectionnées",
+    "copiedCount": "{{count}} adresse(s) de paiement copiée(s)",
+    "useSelected": "Utiliser {{count}} adresse(s) de paiement sélectionnée(s)"
   },
   "copyFailed": "Impossible de copier — réessayez",
   "reuseNudge": {
@@ -155,7 +157,10 @@
     "copyCta_one": "Copier {{count}} adresse de versement",
     "copyCta_other": "Copier {{count}} adresses de versement",
     "body_one": "{{count}} adresse ({{coins}}) est déjà enregistrée sur votre autre compte — copiez-la vers {{target}} et commencez à accepter des paiements maintenant.",
-    "body_other": "{{count}} adresses ({{coins}}) sont déjà enregistrées sur votre autre compte — copiez-les vers {{target}} et commencez à accepter des paiements maintenant."
+    "body_other": "{{count}} adresses ({{coins}}) sont déjà enregistrées sur votre autre compte — copiez-les vers {{target}} et commencez à accepter des paiements maintenant.",
+    "copiedTo": "{{count}} adresse(s) de paiement copiée(s) vers {{target}}",
+    "body": "{{count}} adresse(s) ({{coins}}) sont déjà enregistrées sur votre autre compte — copiez-les vers {{target}} et commencez à accepter des paiements maintenant.",
+    "copyCta": "Copier {{count}} adresse(s) de paiement"
   },
   "addOtpNotice": "Nous vous enverrons par e-mail un code à 6 chiffres pour confirmer cette adresse de versement avant de l'enregistrer.",
   "sharedAddressTag": "Utilisée sur {{n}} réseaux",

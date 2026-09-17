@@ -630,14 +630,17 @@
     "success": {
       "title": "Zahlung erfolgreich",
       "titleContribution": "Danke für deinen Beitrag!",
-      "paidTo": "Bezahlt an {{name}}"
+      "paidTo": "Bezahlt an {{name}}",
+      "nextContribution": "Ihr Beitrag ist im Netzwerk bestätigt — es gibt nichts weiter zu tun.",
+      "next": "{{name}} wurde benachrichtigt und wird Ihre Bestellung erfüllen. Bewahren Sie den Beleg als Zahlungsnachweis auf."
     },
     "share": {
       "prompt": "Hat das Bezahlen mit Krypto Spaß gemacht? Erzähl es weiter",
       "promptContribution": "Hilf {{name}}, mehr Menschen zu erreichen",
       "copied": "Link kopiert!",
       "fundraiser": "Diese Spendenaktion teilen",
-      "dynopay": "Dynopay teilen"
+      "dynopay": "Dynopay teilen",
+      "paidWithCrypto": "Teilen Sie, dass Sie mit Krypto bezahlt haben"
     },
     "status": {
       "confirming": "Zahlung erkannt – wird bestätigt…",
@@ -683,6 +686,10 @@
         "pill": "SCHNELL",
         "title": "Nur noch {{seconds}}s",
         "caption": "Schließe deine Überweisung jetzt ab — dieser Zahlungslink läuft bald ab."
+      },
+      "tier": {
+        "red": "Weniger als 2 Minuten für diesen Preis übrig — jetzt senden oder neu starten für ein frisches Zitat.",
+        "amber": "Preis für weitere {{time}} gesperrt — vor der Aktualisierung bezahlen."
       }
     },
     "demo": {
@@ -796,7 +803,31 @@
       "saved": "Auf diesem Gerät gespeichert",
       "view": "Gespeicherte Händler ansehen →"
     },
-    "orderSummary": "Bestellübersicht"
+    "orderSummary": "Bestellübersicht",
+    "refreshQuote": "Zitat aktualisieren",
+    "genericError": "Etwas ist schiefgelaufen.",
+    "expiredBodyRefresh": "Das Preis-Lock-Fenster ist abgelaufen. Ihre Münze und der Betrag sind gespeichert — aktualisieren Sie einfach das Angebot, um eine neue Adresse und einen neuen Timer zu erhalten. Wenn Sie bereits Gelder gesendet haben, kontaktieren Sie den Händler.",
+    "returnToMerchant": "Zurück zu {{name}}",
+    "overpaid": {
+      "note": "Sie haben {{amount}} mehr gesendet als nötig{{fiat}}. Der Überschuss wurde dem Händler zusammen mit Ihrer Zahlung gutgeschrieben — kontaktieren Sie ihn, wenn Sie eine Anpassung benötigen."
+    },
+    "feeUpdatedExact": "Aktualisiert mit der genauen {{coin}} Netzwerkgebühr.",
+    "payWithLabel": "ZAHLEN MIT",
+    "coinCostFrom": "von {{fee}} · {{eta}}",
+    "coinCost": "{{fee}} · {{eta}}",
+    "cheapest": "Günstigster",
+    "continueWith": "Fortfahren mit {{coin}} auf {{network}}",
+    "nonCustodialLine": "Direkt an {{merchant}} bezahlt — Dynopay hält Ihre Gelder niemals.",
+    "theMerchant": "der Händler",
+    "feeDisclosure": {
+      "walletFee": "Ihre Wallet fügt eine eigene Netzwerkgebühr hinzu ({{fee}}).",
+      "walletFeeUnknown": "Ihre Wallet fügt eine eigene Netzwerkgebühr hinzu.",
+      "customerPays": "Die Bearbeitungsgebühr ist im oben genannten Gesamtbetrag enthalten.",
+      "merchantPays": "Es wird keine Dynopay-Gebühr hinzugefügt — {{merchant}} übernimmt sie."
+    },
+    "continueHintEta": "Bestätigt normalerweise in {{eta}} · Sie haben 30 Minuten Zeit zum Senden.",
+    "errorTitle": "Wir konnten diese Zahlung nicht vorbereiten",
+    "errorHint": "Versuchen Sie es erneut oder wählen Sie oben eine andere Münze oder ein anderes Netzwerk."
   },
   "creator": {
     "card": {

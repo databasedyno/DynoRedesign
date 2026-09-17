@@ -163,7 +163,11 @@
     "loadFailed": "We could not load this payment link. Please try again.",
     "linkExpiredTitle": "This payment link has expired",
     "linkErrorTitle": "This payment link can't be opened",
-    "goToDynopay": "Go to Dynopay"
+    "goToDynopay": "Go to Dynopay",
+    "reference": "Reference",
+    "linkExpiredAsk": "Ask the merchant for a new payment link and quote the reference above.",
+    "aboutDynopay": "What is Dynopay?",
+    "incompletePaymentDesc": "You have a pending payment of ${incompletePayment.pending_amount} ${incompletePayment.currency}. Please complete it within ${incompletePayment.remaining_minutes} minutes or wait for it to expire."
   },
   "crypto": {
     "title": "Cryptocurrency",
@@ -663,7 +667,34 @@
       "sourceDashboard": "Dashboard"
     },
     "colPreferredAsset": "Pays with",
-    "colLastPaid": "Last paid"
+    "colLastPaid": "Last paid",
+    "linksSentShort": "{{count}} payment request sent",
+    "sortLabel": "Sort customers",
+    "addCustomer": "Add customer",
+    "paymentsShort": "{{count}} payments",
+    "notesSaved": "Saved.",
+    "notesFailed": "Could not save.",
+    "crmSection": "Notes & tags",
+    "manualBadge": "Added manually",
+    "tagPlaceholder": "Add a tag, press Enter",
+    "notesPlaceholder": "Private notes only you can see…",
+    "saveNotes": "Save",
+    "crmNeedBrand": "Switch to a single brand to add private notes and tags.",
+    "add": {
+      "invalidEmail": "Enter a valid email address.",
+      "needBrand": "Switch to a single brand to add a customer.",
+      "saved": "Customer added.",
+      "failed": "Could not add customer.",
+      "title": "Add customer",
+      "subtitle": "Add a contact manually. They appear as a prospect until they pay.",
+      "email": "Email",
+      "name": "Name (optional)",
+      "mobile": "Mobile (optional)",
+      "tags": "Tags (optional)",
+      "notes": "Private notes (optional)",
+      "cancel": "Cancel",
+      "submit": "Add customer"
+    }
   },
   "pleaseWait": "Please wait",
   "transferRate": "Transfer Rate",
@@ -766,7 +797,12 @@
     "useCompanyDefault": "Use team default ({{code}})",
     "language": "Language",
     "languageDesc": "The language of your dashboard and the e-mails we send you. Saved to your account so it follows you across devices.",
-    "languagePick": "Choose your language"
+    "languagePick": "Choose your language",
+    "securitySignIn": "Signing in",
+    "securityWallets": "Payout addresses",
+    "securityDevices": "Devices & activity",
+    "security": "Security",
+    "securityDesc": "Two-step verification, password, payout address protection and signed-in devices."
   },
   "donation": {
     "defaultTitle": "Support this campaign",
@@ -809,7 +845,25 @@
       "m": "m"
     },
     "urgency": "Only {{time}} left — help it reach the goal",
-    "urgencyNoGoal": "Only {{time}} left — chip in before it closes"
+    "urgencyNoGoal": "Only {{time}} left — chip in before it closes",
+    "acceptedCoins": "Pay with your favourite crypto — 12 coins accepted",
+    "theOrganizer": "the organizer",
+    "fundHandlingTitle": "Where your gift goes",
+    "fundHandlingBody": "Your gift goes directly to ${organizer}. Depending on their settings it's received as crypto or automatically converted to a stablecoin. DynoPay only processes the payment — it never holds or invests your donation.",
+    "taxNoteTitle": "Good to know",
+    "taxNoteBody": "In many places crypto is treated as property, so keep your own records for larger gifts and check the tax rules where you live — this isn't financial or tax advice. Crypto payments are final and generally can't be reversed, so please double-check the amount before you send. For a refund, contact the organizer directly.",
+    "faqTitle": "Frequently asked",
+    "faqMinimumQ": "Is there a minimum donation?",
+    "faqMinimumA": "Yes — the minimum for this campaign is ${minAmountLabel}. You can give any amount at or above that.",
+    "faqConfirmQ": "How long does confirmation take?",
+    "faqConfirmA": "Most payments confirm within a few minutes once the network processes your transaction. Faster chains and stablecoins are usually quickest; Bitcoin can take a little longer.",
+    "faqAnonQ": "Can I give anonymously?",
+    "faqAnonA": "Yes. Tick “Donate anonymously” and your name won't be shown on the public supporters list. If you leave an email we'll still send you a private receipt.",
+    "faqRefundQ": "Can I get a refund?",
+    "faqRefundA": "Crypto payments are final, so refunds aren't automatic. If something went wrong, contact ${organizer} directly and they can arrange one.",
+    "faqContactQ": "Who do I contact for help?",
+    "faqContactA": "Reach out to ${organizer} for anything about this campaign. For payment issues you can also contact DynoPay support from your receipt.",
+    "securedByFooter": "Payments secured & processed by DynoPay"
   },
   "taxSettings": {
     "loadError": "Couldn't load tax settings.",
@@ -947,7 +1001,13 @@
       "showWallHint": "First name, amount and message of your last 8 supporters. Anonymous tips show as \"Someone\". Off by default.",
       "monthlyGoal": "Monthly tip goal",
       "monthlyGoalNote": "(optional — leave empty to hide the bar)",
-      "monthlyGoalHint": "Shows \"$X of $Y this month\" on your page. Counts confirmed tips and resets on the 1st."
+      "monthlyGoalHint": "Shows \"$X of $Y this month\" on your page. Counts confirmed tips and resets on the 1st.",
+      "namePlaceholderWarning": "This looks like an auto-generated name. Visitors see it as your page title, heading and share text — enter the name you want to be known by. Until then, your public page shows your account name instead.",
+      "presetBelowFloor": "Below the $10 minimum — hidden on your page",
+      "presetPlaceholderV2": "e.g. 15",
+      "presetFloorWarning": "Presets must be $10 or more.",
+      "floorExplainer": "Dynopay's minimum for any crypto payment is $10 — network fees make smaller amounts uneconomical. Presets below $10 are not shown to supporters.",
+      "floorHiddenPresets": "Crossed-out presets are hidden on your page — remove them or raise them to $10+."
     },
     "compare": {
       "title": "Compare storefronts",
@@ -1302,7 +1362,8 @@
     "exportRange": "Export range (CSV)",
     "noForwardsYet": "No payouts yet. Once a payment settles, the forward to your wallet shows up here with its transaction hash.",
     "toWallet": "to {{wallet}}",
-    "hashPending": "hash pending"
+    "hashPending": "hash pending",
+    "settlementCoinLabel": "Settlement coin"
   },
   "liveBrand": {
     "payNow": "Pay Now",
@@ -1345,6 +1406,10 @@
       "licenseKey": {
         "label": "License keys",
         "hint": "Paste one key per line. One key is issued per purchase."
+      },
+      "none": {
+        "label": "Service — no digital delivery",
+        "hint": "For services, consultations or offline items. Buyers get a receipt; you fulfil it manually — no file or link required."
       }
     },
     "variantDefault": "Variant",
@@ -1478,7 +1543,26 @@
       "secured": "Secured by Dynopay · pay with crypto",
       "hide": "Hide preview",
       "show": "Preview"
-    }
+    },
+    "aiNeedTitle": "Add a product title first.",
+    "aiFailed": "Could not auto-detect — please pick manually.",
+    "aiApplied": "AI suggested a VAT treatment — review before saving.",
+    "serviceNote": "This is a service or offline item — no file or link is delivered automatically. Buyers receive a receipt and you fulfil it manually.",
+    "serviceCalendarUrl": "Booking / calendar link (optional)",
+    "serviceCalendarHint": "If set, buyers see this booking link on their receipt so they can schedule with you.",
+    "removeAsset": "Remove file",
+    "vatRate": "VAT rate",
+    "vatStandard": "Standard rate",
+    "vatReduced": "Reduced rate",
+    "vatZero": "Zero-rated (0%)",
+    "vatReducedHint": "Applies each destination country's reduced band for the category below (falls back to the standard rate where a country has none).",
+    "vatZeroHint": "Buyers are charged 0% VAT (zero-rated, still an in-scope taxable supply).",
+    "vatStandardHint": "Buyers are charged the destination country's standard VAT/GST rate.",
+    "aiDetecting": "Detecting…",
+    "aiDetect": "Auto-detect with AI",
+    "aiReasonPrefix": "AI:",
+    "reducedCategory": "Reduced-rate category",
+    "reducedCategoryHint": "Rates are indicative and vary by country — confirm eligibility with your tax adviser."
   },
   "products": {
     "viewLabel": "View",
@@ -1673,5 +1757,39 @@
       "account_delete": "delete your account"
     }
   },
-  "deleteWalletBody": "You're about to remove the {{type}} payout address{{address}}. This action is permanent and cannot be undone. We'll ask you to verify it's you first."
+  "deleteWalletBody": "You're about to remove the {{type}} payout address{{address}}. This action is permanent and cannot be undone. We'll ask you to verify it's you first.",
+  "directPayAdvanced": "Direct Pay address (advanced)",
+  "directPayWarning": "Anyone paying this address directly skips the amount and network checks of the hosted checkout. Share the payment link instead unless your customer knows exactly what to send.",
+  "paymentResult": {
+    "verify": {
+      "slow": "This is taking longer than usual. Your payment is safe — keep this page open, or check Transactions in a few minutes.",
+      "checking": "We're confirming the payment with the provider. This usually takes under 10 seconds — don't close this page.",
+      "nothingTitle": "Nothing to verify here",
+      "nothingBody": "This page only works when a payment provider sends you back to it. If you just paid, your Transactions list shows the current status.",
+      "errorTitle": "We couldn't confirm the payment yet",
+      "errorBody": "The provider didn't answer. If money left your account it is not lost — it will show under Transactions once confirmed, and support can trace it with your reference."
+    },
+    "viewTransactions": "View in Transactions",
+    "contactSupport": "Contact support",
+    "systemStatus": "System status",
+    "nextTitle": "What happens next",
+    "nextCredit": "The amount is credited to your Dynopay wallet within a few minutes.",
+    "nextReceipt": "A receipt is on its way to your e-mail — keep the transaction ID above for your records.",
+    "nextTransactions": "You can follow it under Transactions in your dashboard.",
+    "somethingWrong": "Something doesn't look right?",
+    "failed": {
+      "expired": "The payment window closed before the payment was completed. Nothing was charged — you can start again whenever you're ready.",
+      "cancelled": "The payment was cancelled before it completed. Nothing was charged.",
+      "underpaid": "The amount that arrived was less than the amount due, so the payment couldn't be completed. Check the request and try again.",
+      "declined": "The payment was declined by the provider. Try another method or contact your bank.",
+      "next": "Nothing to undo — no money moved. If you were charged anyway, keep the reference below and contact support; we'll sort it out."
+    }
+  },
+  "balancesPayouts": "Balances",
+  "receiptsTax": "Receipts & Tax",
+  "payoutWallets": "Payout addresses",
+  "developers": "Developers",
+  "sidebarSectionSell": "Sell",
+  "sidebarSectionMoney": "Money",
+  "sidebarSectionGrow": "Grow"
 }

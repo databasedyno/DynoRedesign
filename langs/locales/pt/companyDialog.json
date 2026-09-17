@@ -137,7 +137,10 @@
     "stepBrand": "Marca",
     "stepWallet": "Endereço de recebimento",
     "nameLockedNotice": "O seu nome está verificado e não pode ser alterado aqui. Contacte o suporte para atualizá-lo.",
-    "logoAdded": "Logo adicionado"
+    "logoAdded": "Logo adicionado",
+    "displayNameLabelOptional": "Nome de exibição (opcional)",
+    "displayNamePlaceholder": "Deixe em branco para usar o seu nome",
+    "displayNameHint": "O seu nome é usado como a marca se deixar isto em branco."
   },
   "addCompanyBtn": "Adicionar marca",
   "noCompaniesYet": "Ainda não há marcas",

@@ -126,5 +126,6 @@
   "statusEarning": "Verdient (30 T.)",
   "statusExpiringSoon": "Läuft bald ab",
   "qrTooltip": "QR-Code anzeigen",
-  "shareTooltip": "Link teilen"
+  "shareTooltip": "Link teilen",
+  "statusFilterLabel": "Nach Status filtern"
 }

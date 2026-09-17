@@ -65,7 +65,12 @@
     "yourKey": "Chave de API",
     "adminToken": "Token de administração",
     "securityTitle": "Aviso de Segurança Importante",
-    "securityMessage": "Certifique-se de copiar sua chave de API agora. Por motivos de segurança, não a mostraremos novamente. Armazene-a com segurança e nunca a compartilhe publicamente."
+    "securityMessage": "Certifique-se de copiar sua chave de API agora. Por motivos de segurança, não a mostraremos novamente. Armazene-a com segurança e nunca a compartilhe publicamente.",
+    "expiry": "Expiração da chave",
+    "expiryNever": "Nunca expira",
+    "expiry30": "30 dias",
+    "expiry90": "90 dias",
+    "expiry365": "1 ano"
   },
   "withdrawalWhitelist": {
     "title": "Lista de permissões de saque",
@@ -105,7 +110,12 @@
     "copyNowNotice": "Copie esta chave agora — por segurança, não voltará a ser mostrada depois de sair desta página.",
     "shownOnceNotice": "As chaves são mostradas uma única vez. Apenas um hash unidirecional é guardado, por isso esta chave não pode ser revelada — carregue em Regenerar para obter uma nova que possa copiar.",
     "tryFirstPaymentRegenerate": "Regenerar a chave sandbox para a copiar",
-    "tryFirstPaymentKeyUnavailable": "A sua chave sandbox está guardada como hash unidirecional, por isso não pode ser mostrada aqui. Regenere-a uma vez, copie-a e o comando abaixo funcionará de imediato."
+    "tryFirstPaymentKeyUnavailable": "A sua chave sandbox está guardada como hash unidirecional, por isso não pode ser mostrada aqui. Regenere-a uma vez, copie-a e o comando abaixo funcionará de imediato.",
+    "lastUsed": "Último uso {{date}}",
+    "neverUsed": "Nunca utilizado",
+    "noExpiry": "Sem expiração",
+    "expired": "Expirado {{date}}",
+    "expiresOn": "Expira {{date}}"
   },
   "developersTitle": "Desenvolvedores",
   "developersDescription": "Chaves de API, webhooks, eventos de entrega e documentação de integração — em um só lugar",
@@ -257,7 +267,10 @@
     "chipUses_one": "{{count}} uso",
     "chipUses_other": "{{count}} usos",
     "chipCurrencies_one": "{{count}} moeda",
-    "chipCurrencies_other": "{{count}} moedas"
+    "chipCurrencies_other": "{{count}} moedas",
+    "chipUses": "{{count}} utilizações",
+    "chipCurrencies": "{{count}} moedas",
+    "chipDomains": "{{count}} domínio(s)"
   },
   "snippet": {
     "copy": "Copiar"
@@ -268,7 +281,9 @@
     "snippetServer": "1 · Servidor — criar sessão",
     "snippetClient": "2 · Cliente — montar checkout",
     "snippetModal": "Opcional — modal",
-    "viewGuide": "Ver guia completo"
+    "viewGuide": "Ver guia completo",
+    "authNote": "(x-api-key) — não precisa de um token de cliente ou de um passo de Criar-Cliente para criar uma sessão.",
+    "notifyNote": "adicione um endpoint de webhook (Console de Webhook abaixo) para que o seu servidor seja notificado para marcar o pedido como pago — esta é a forma fiável de cumprir pedidos. Sem um, ainda receberá um e-mail e um alerta na app, e o onComplete do navegador é acionado apenas para UX."
   },
   "elements": {
     "errorNoPk": "Você precisa de pelo menos uma chave publicável ativa. Role até a seção Chaves Publicáveis abaixo e crie uma — depois volte e tente a pré-visualização.",
@@ -375,7 +390,12 @@
     "pausedAutoHint": "Corrija ou atualize a sua URL de endpoint {{where}}, depois reative a entrega.",
     "redirectBody": "O seu endpoint responde com um redirecionamento HTTP {{status}}. Agora seguimos isso automaticamente para que os seus webhooks sejam ainda entregues — mas a etapa extra adiciona latência. Atualize a sua URL para o endereço final abaixo para tornar a entrega direta.",
     "secretSet": "{{preview}} · definido — regenere para substituir",
-    "subscribeAria": "Inscreva-se em {{event}}"
+    "subscribeAria": "Inscreva-se em {{event}}",
+    "toastResent": "Evento re-enviado",
+    "toastResendFailed": "Tentativa de reenvio falhou, o endpoint não o aceitou{{err}}",
+    "toastResendError": "Falha ao re-enviar este evento",
+    "resending": "A re-enviar…",
+    "resendEvent": "Reenviar este evento"
   },
   "health": {
     "webhooks": "Webhooks · 24 h",

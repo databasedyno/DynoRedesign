@@ -28,7 +28,9 @@
     "flagOverpaymentsHelper": "Você receberá uma notificação quando alguém pagar mais do que este valor sobre o total.",
     "timeForPartialPayments": "Tempo para pagamentos parciais",
     "timeForPartialPaymentsHelper": "Quanto tempo esperar para o cliente concluir um pagamento parcial",
-    "minutes": "minutos"
+    "minutes": "minutos",
+    "minOrderAmount": "Montante mínimo do pedido",
+    "minOrderHelper": "Montante mais baixo que um cliente pode pagar. Deixe em branco para usar o mínimo automático da rede por moeda — você só pode aumentá-lo."
   },
   "cryptoConversion": "Conversão de criptomoedas",
   "cryptoConversionSubtitle": "BTC, ETH e LTC recebidos serão convertidos automaticamente em uma stablecoin.",
@@ -66,5 +68,15 @@
     "typeToConfirm": "Escreva {{name}} para continuar:",
     "otpBody": "Enviámos um código de 6 dígitos para {{email}}. Introduza-o abaixo para eliminar {{name}}.",
     "bodyStepUp": "Isto remove permanentemente {{name}} juntamente com os seus links de pagamento, chaves de API e definições. Não pode ser anulado. Primeiro vamos pedir-te para confirmares que és tu."
+  },
+  "feeSplit": {
+    "auto": "Apenas quando o cliente paga a taxa",
+    "autoHint": "Recomendado. Os compradores veem a taxa que lhes é cobrada; quando você a absorve, eles apenas veem o preço.",
+    "always": "Sempre",
+    "alwaysHint": "Cada checkout, ecrã de sucesso e recibo mostra o que você recebe e o que a Dynopay retém.",
+    "never": "Nunca",
+    "neverHint": "Os compradores veem apenas o total que pagam — como num checkout com cartão.",
+    "label": "Mostrar a discriminação da taxa aos clientes",
+    "desc": "Controla as linhas “O comerciante recebe / Taxa da Dynopay” no seu checkout, no ecrã de sucesso e no recibo do comprador."
   }
 }

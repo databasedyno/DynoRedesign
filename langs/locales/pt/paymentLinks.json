@@ -126,5 +126,6 @@
   "statusEarning": "A render (30 d)",
   "statusExpiringSoon": "Expira em breve",
   "qrTooltip": "Mostrar código QR",
-  "shareTooltip": "Partilhar link"
+  "shareTooltip": "Partilhar link",
+  "statusFilterLabel": "Filtrar por estado"
 }

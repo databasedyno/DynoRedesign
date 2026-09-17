@@ -630,14 +630,17 @@
     "success": {
       "title": "Paiement réussi",
       "titleContribution": "Merci pour votre contribution !",
-      "paidTo": "Payé à {{name}}"
+      "paidTo": "Payé à {{name}}",
+      "nextContribution": "Votre contribution est confirmée sur le réseau — rien d'autre à faire.",
+      "next": "{{name}} a été notifié et remplira votre commande. Conservez le reçu comme preuve de paiement."
     },
     "share": {
       "prompt": "Vous avez aimé payer en crypto ? Faites passer le mot",
       "promptContribution": "Aidez {{name}} à toucher plus de monde",
       "copied": "Lien copié !",
       "fundraiser": "Partager cette collecte",
-      "dynopay": "Partager Dynopay"
+      "dynopay": "Partager Dynopay",
+      "paidWithCrypto": "Partagez que vous avez payé avec des cryptos"
     },
     "status": {
       "confirming": "Paiement détecté — confirmation…",
@@ -683,6 +686,10 @@
         "pill": "VITE",
         "title": "Plus que {{seconds}}s",
         "caption": "Terminez votre virement maintenant — ce lien expire bientôt."
+      },
+      "tier": {
+        "red": "Moins de 2 minutes restantes à ce prix — envoyez maintenant ou redémarrez pour un nouveau devis.",
+        "amber": "Prix verrouillé pour {{time}} de plus — payez avant qu'il ne soit rafraîchi."
       }
     },
     "demo": {
@@ -796,7 +803,31 @@
       "saved": "Enregistré sur cet appareil",
       "view": "Voir les marchands enregistrés →"
     },
-    "orderSummary": "Récapitulatif de la commande"
+    "orderSummary": "Récapitulatif de la commande",
+    "refreshQuote": "Rafraîchir le devis",
+    "genericError": "Une erreur est survenue.",
+    "expiredBodyRefresh": "La fenêtre de verrouillage des prix a expiré. Votre pièce et votre montant sont enregistrés — il suffit de rafraîchir le devis pour obtenir une nouvelle adresse et un nouveau minuteur. Si vous avez déjà envoyé des fonds, contactez le marchand.",
+    "returnToMerchant": "Retourner à {{name}}",
+    "overpaid": {
+      "note": "Vous avez envoyé {{amount}} de plus que nécessaire{{fiat}}. L'excédent a été crédité au marchand avec votre paiement — contactez-les si vous avez besoin d'un ajustement."
+    },
+    "feeUpdatedExact": "Mis à jour avec les frais de réseau {{coin}} exacts.",
+    "payWithLabel": "PAYER AVEC",
+    "coinCostFrom": "à partir de {{fee}} · {{eta}}",
+    "coinCost": "{{fee}} · {{eta}}",
+    "cheapest": "Le moins cher",
+    "continueWith": "Continuer avec {{coin}} sur {{network}}",
+    "nonCustodialLine": "Payé directement à {{merchant}} — Dynopay ne conserve jamais vos fonds.",
+    "theMerchant": "le marchand",
+    "feeDisclosure": {
+      "walletFee": "Votre portefeuille ajoute ses propres frais de réseau ({{fee}}).",
+      "walletFeeUnknown": "Votre portefeuille ajoute ses propres frais de réseau.",
+      "customerPays": "Les frais de traitement sont inclus dans le total ci-dessus.",
+      "merchantPays": "Aucun frais Dynopay n'est ajouté — {{merchant}} le couvre."
+    },
+    "continueHintEta": "Confirme généralement en {{eta}} · vous avez 30 minutes pour envoyer.",
+    "errorTitle": "Nous n'avons pas pu préparer ce paiement",
+    "errorHint": "Réessayez, ou choisissez une autre pièce ou un autre réseau ci-dessus."
   },
   "creator": {
     "card": {

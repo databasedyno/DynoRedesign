@@ -143,7 +143,9 @@
     "copiedCount_one": "{{count}} payout address copied",
     "copiedCount_other": "{{count}} payout addresses copied",
     "useSelected_one": "Use {{count}} selected address",
-    "useSelected_other": "Use {{count}} selected addresses"
+    "useSelected_other": "Use {{count}} selected addresses",
+    "copiedCount": "{{count}} payout address(es) copied",
+    "useSelected": "Use {{count}} selected payout address(es)"
   },
   "copyFailed": "Couldn't copy — try again",
   "reuseNudge": {
@@ -155,7 +157,10 @@
     "copyCta_one": "Copy {{count}} payout address",
     "copyCta_other": "Copy {{count}} payout addresses",
     "body_one": "{{count}} address ({{coins}}) is already saved on your other account — copy it to {{target}} and start accepting payments now.",
-    "body_other": "{{count}} addresses ({{coins}}) are already saved on your other account — copy them to {{target}} and start accepting payments now."
+    "body_other": "{{count}} addresses ({{coins}}) are already saved on your other account — copy them to {{target}} and start accepting payments now.",
+    "copiedTo": "{{count}} payout address(es) copied to {{target}}",
+    "body": "{{count}} address(es) ({{coins}}) are already saved on your other account — copy them to {{target}} and start accepting payments now.",
+    "copyCta": "Copy {{count}} payout address(es)"
   },
   "addOtpNotice": "We'll email you a 6-digit code to confirm this address before it's saved.",
   "sharedAddressTag": "Used on {{n}} networks",

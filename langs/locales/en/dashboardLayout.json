@@ -505,7 +505,24 @@
     "secureSubtitle": "Dynopay forwards real money to your wallets, so every account uses two-step verification. Pick a method — you'll only be asked for a code on a new browser.",
     "secureDoneTitle": "Two-step verification is on",
     "secureDoneBody": "This browser is trusted for 90 days. You can manage methods and trusted devices anytime in Settings → Security.",
-    "secureSavedContinue": "I've saved my codes — continue"
+    "secureSavedContinue": "I've saved my codes — continue",
+    "linkNoWalletNote": "Design your link now — it goes live the moment you add the payout address the money should land in. We'll ask for it when you hit Create.",
+    "addWalletFirst": "Add the payout address first",
+    "addWalletAndCreate": "Add payout address & create",
+    "accountTypeShort": "Account type",
+    "change": "Change",
+    "signedUpAs": "Signed up as",
+    "edit": "Edit",
+    "heroTitleAllDone": "You're all set — waiting for your first payment",
+    "heroSubtitleAllDone": "Your link is out there. The moment someone pays, this dashboard fills in with real numbers.",
+    "ctaShareAgain": "Share it again",
+    "stepSharedPending": "Shared — waiting for your first payment",
+    "noWalletQ": "Don't have a crypto wallet yet?",
+    "noWalletIntro": "A wallet is a free app that holds your coins — you keep the keys, Dynopay only forwards payments to it. Installing one takes about a minute.",
+    "quickPathTitle": "Fastest path: one stablecoin address",
+    "quickPathBody": "Add a single USDT (Tron) address — fees are cents and it settles in seconds. You can accept every other coin later, or turn on auto-convert so everything lands as USDT.",
+    "recommendedWallets": "Popular wallets",
+    "noWalletSteps": "Install → create a wallet → write down the recovery phrase → tap Receive, pick the coin, copy the address → paste it here."
   },
   "kycPage": {
     "pageTitle": "Identity verification",
@@ -714,5 +731,27 @@
       "wait": "Done"
     }
   },
-  "appearance": "Appearance"
+  "appearance": "Appearance",
+  "pwNudge": {
+    "title": "Skip the code next time",
+    "body": "You log in with a one-time code. Set a password once and sign in instantly — the code stays as a backup.",
+    "cta": "Set a password",
+    "dismiss": "Dismiss"
+  },
+  "underpaidBanner": {
+    "title": "{{count}} underpaid — action needed",
+    "subtitle": "Buyers paid less than due — review and chase the shortfall."
+  },
+  "assetCryptoMeta": "Across {{count}} payout addresses",
+  "nowViewing": "Now viewing",
+  "firstPayment": {
+    "bodyWithAmount": "Your first payment of {{amount}} just landed. That's a real milestone — the hard part is done. Here's to many more.",
+    "body": "Your first payment just landed. That's a real milestone — the hard part is done. Here's to many more.",
+    "eyebrowNamed": "{{name}} · Milestone",
+    "eyebrow": "Milestone unlocked",
+    "title": "You got your first payment! 🎉",
+    "cta": "View transactions",
+    "dismiss": "Keep going",
+    "footnote": "We'll email you a receipt for every payment you receive."
+  }
 }
