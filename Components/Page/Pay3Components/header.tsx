@@ -16,6 +16,7 @@ import WbSunnyIcon from '@mui/icons-material/WbSunny';
 import BedtimeIcon from '@mui/icons-material/Bedtime';
 import Logo from "@/assets/Icons/Logo";
 import LanguageSwitcher from "@/Components/UI/LanguageSwitcher";
+import Link from "next/link";
 
 const Header = ({
   darkMode,
@@ -102,9 +103,16 @@ const Header = ({
             px: { xs: 2, md: 4 },
           }}
         >
-          {/* Left: Logo */}
+          {/* Left: Logo → home (gives every hosted /pay page, incl. demos, a way back to the site) */}
           <Box display='flex' alignItems='center'>
-            <Logo width={36} height={42} color="#FFFFFF" />
+            <Link
+              href="/"
+              aria-label="Dynopay — back to home"
+              data-testid="pay-header-logo-home"
+              style={{ display: 'inline-flex', alignItems: 'center', lineHeight: 0 }}
+            >
+              <Logo width={36} height={42} color="#FFFFFF" />
+            </Link>
           </Box>
 
           {/* Right */}

@@ -518,7 +518,7 @@ const PaymentLinksTable = ({
         /* DESKTOP: Table layout */
         <TransactionsTableContainer sx={{ position: "relative" }}>
           <TransactionsTableScrollWrapper ref={hscrollRef}>
-            <Table>
+            <Table sx={{ width: "max-content", minWidth: "100%" }}>
               <TableHead
                 sx={{
                   position: "sticky",
@@ -548,7 +548,7 @@ const PaymentLinksTable = ({
                   <TableCell>
                     <Header label="expiresHeader" />
                   </TableCell>
-                  <TableCell>
+                  <TableCell sx={{ minWidth: 108 }}>
                     <Header label="statusHeader" />
                   </TableCell>
                   <TableCell>
@@ -642,7 +642,7 @@ const PaymentLinksTable = ({
                       {formatUtcToDisplay(row.expiresAt)}
                     </TableBodyCell>
 
-                    <TableBodyCell>
+                    <TableBodyCell sx={{ minWidth: 108 }}>
                       <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, flexWrap: "wrap" }}>
                         <StatusDot
                           tone={
