@@ -1,11 +1,14 @@
 import express from "express";
 import jwt from "jsonwebtoken";
+import { QueryTypes } from "sequelize";
 import { handleControllerErrorReturn } from "../helper/controllerErrorHandler";
-import { successResponseHelper } from "../helper";
+import { successResponseHelper, errorResponseHelper } from "../helper";
+import userTransactionModel from "../models/userModels/userTransactionModel";
+import { isOpsEmail } from "../utils/config";
 import { apiLogger } from "../utils/loggers";
 import { IUserType } from "../utils/types";
 import { validateCompanyOwnership } from "../utils/validateCompanyOwnership";
-import { getRedisItem, setRedisItemWithTTL } from "../utils/redisInstance";
+import { getRedisItem, setRedisItemWithTTL, invalidateCache } from "../utils/redisInstance";
 import { convertToFiat, getCurrencySymbol, getUserDisplayCurrency } from "../utils/currencyUtils";
 import { toNumber } from "../utils/money";
 import { OverviewScope, coinsWithoutWallet } from "../services/dashboard/overviewQueries";
@@ -29,6 +32,9 @@ const mask = (a: unknown) => {
   return s.length <= 12 ? s : `${s.slice(0, 6)}…${s.slice(-4)}`;
 };
 
+const callerEmail = (res: express.Response): string | undefined =>
+  (res.locals.authUser as { email?: string | null } | undefined)?.email || undefined;
+
 /**
  * GET /api/dashboard/payouts — "did my money reach my wallet?" for a range:
  * forwarded totals + per-asset split, per-wallet activity, the latest forwards
@@ -50,10 +56,13 @@ const getPayouts = async (req: express.Request, res: express.Response) => {
     const rangeKey = range.period === "custom"
       ? `${range.start.toISOString().slice(0, 10)}_${range.end.toISOString().slice(0, 10)}`
       : range.period;
-    const cacheKey = `dashboard:payouts:${userId}:${company_id || "all"}:${rangeKey}:${currency}:v3`;
+    // viewer_is_ops is per-CALLER (not the resolved company owner), so it is
+    // attached to the response AFTER the shared cache read — never cached.
+    const viewerIsOps = isOpsEmail(callerEmail(res));
+    const cacheKey = `dashboard:payouts:${userId}:${company_id || "all"}:${rangeKey}:${currency}:v4`;
     const cached = await getRedisItem(cacheKey);
     if (cached && Object.keys(cached).length > 0) {
-      return successResponseHelper(res, 200, "Payouts retrieved", cached);
+      return successResponseHelper(res, 200, "Payouts retrieved", { ...cached, viewer_is_ops: viewerIsOps });
     }
 
     const now = new Date();
@@ -174,10 +183,84 @@ const getPayouts = async (req: express.Request, res: express.Response) => {
     };
 
     await setRedisItemWithTTL(cacheKey, data, CACHE_TTL);
-    return successResponseHelper(res, 200, "Payouts retrieved", data);
+    return successResponseHelper(res, 200, "Payouts retrieved", { ...data, viewer_is_ops: viewerIsOps });
   } catch (e) {
     return handleControllerErrorReturn(res, e, apiLogger);
   }
 };
 
-export default { getPayouts };
+/**
+ * POST /api/dashboard/payouts/:transactionId/acknowledge — OPS-ONLY.
+ * Marks a stuck payout as manually resolved (ops has settled the funds by hand),
+ * which removes it from the merchant "Needs attention" feed and records who/when.
+ * Does NOT move any money — it is an acknowledgement flag on the transaction.
+ * Body: { company_id, note? }.
+ */
+const acknowledgeStuckPayout = async (req: express.Request, res: express.Response) => {
+  const userData = jwt.decode(res.locals.token) as IUserType;
+  try {
+    if (!isOpsEmail(callerEmail(res))) {
+      return errorResponseHelper(res, 403, "Only an operator can resolve a stuck payout.");
+    }
+    const transactionId = parseInt(String(req.params.transactionId), 10);
+    if (!Number.isInteger(transactionId) || transactionId <= 0) {
+      return errorResponseHelper(res, 400, "Invalid transaction id.");
+    }
+    const company_id = req.body?.company_id;
+    let userId = userData.user_id;
+    if (company_id) {
+      const companyData = await validateCompanyOwnership(res, String(company_id), userId);
+      if (!companyData) return; // helper already responded
+      userId = Number((companyData as unknown as { user_id: number }).user_id);
+    }
+    const note = typeof req.body?.note === "string" ? req.body.note.trim().slice(0, 500) : null;
+
+    const tx = await userTransactionModel.findOne({
+      where: { transaction_id: transactionId },
+      attributes: ["transaction_id", "company_id", "user_id"],
+    });
+    if (!tx) return errorResponseHelper(res, 404, "Transaction not found.");
+    const txCompany = (tx.dataValues.company_id ?? null) as number | null;
+    const txUser = Number(tx.dataValues.user_id);
+    const ownsByCompany = company_id != null && txCompany != null && Number(txCompany) === Number(company_id);
+    const ownsByUser = txCompany == null && txUser === Number(userId);
+    if (!ownsByCompany && !ownsByUser) {
+      return errorResponseHelper(res, 403, "This payout does not belong to the selected brand.");
+    }
+
+    // Raw UPDATE of ONLY the three ack columns — deterministically leaves the
+    // row's `updatedAt` untouched (it is the payment's settlement timestamp,
+    // used across the payout queries for settled_at / the stuck window).
+    await userTransactionModel.sequelize!.query(
+      `UPDATE "tbl_user_transaction"
+         SET "attention_resolved_at" = NOW(),
+             "attention_resolved_by" = :by,
+             "attention_resolved_note" = :note
+       WHERE transaction_id = :tid`,
+      {
+        replacements: { by: (callerEmail(res) || "ops").slice(0, 200), note, tid: transactionId },
+        type: QueryTypes.UPDATE,
+      },
+    );
+
+    // Best-effort cache bust so the item disappears immediately on the next fetch
+    // (across the common preset ranges for this owner + brand + display currency).
+    try {
+      const currency = company_id ? await getUserDisplayCurrency(userId, String(company_id)) : "USD";
+      const scopeKey = company_id || "all";
+      await Promise.all(
+        ["today", "7d", "30d", "90d", "1y", "all"].map((p) =>
+          invalidateCache(`dashboard:payouts:${userId}:${scopeKey}:${p}:${currency}:v4`),
+        ),
+      );
+    } catch {
+      // cache bust is best-effort — the 30s TTL clears it regardless.
+    }
+
+    return successResponseHelper(res, 200, "Payout marked as resolved", { transaction_id: transactionId });
+  } catch (e) {
+    return handleControllerErrorReturn(res, e, apiLogger);
+  }
+};
+
+export default { getPayouts, acknowledgeStuckPayout };

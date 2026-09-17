@@ -64,6 +64,8 @@ export interface PayoutsData {
     stuck_forwards: Array<{ id: string; transaction_id: number; asset: string; crypto_amount: number; amount: number; settled_at: string }>;
   };
   generated_at: string;
+  /** True when the logged-in caller is an operator (may resolve stuck payouts). */
+  viewer_is_ops?: boolean;
 }
 
 export interface PayoutsRange {

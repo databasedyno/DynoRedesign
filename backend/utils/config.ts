@@ -49,6 +49,16 @@ export function requireEnv(key: string): string {
 const nodeEnv = str("NODE_ENV", "development");
 const isProduction = nodeEnv === "production";
 
+/**
+ * Ops/operator allow-list for privileged merchant-context actions (e.g. resolving
+ * a stuck payout from the Payouts "Needs attention" feed). Comma-separated
+ * OPS_EMAILS env; falls back to ADMIN_EMAIL when unset. Lowercased + trimmed.
+ */
+const opsEmails = (str("OPS_EMAILS") || str("ADMIN_EMAIL"))
+  .split(",")
+  .map((e) => e.trim().toLowerCase())
+  .filter(Boolean);
+
 // Database — mirrors the exact reads/fallbacks in utils/dbInstance.ts.
 const db = {
   /** Full connection string; when set it is preferred (and enables SSL for railway). */
@@ -92,6 +102,8 @@ export const config = {
 
   // ── Ops / misc ─────────────────────────────────────────────
   adminEmail: str("ADMIN_EMAIL"),
+  /** Operator allow-list (privileged merchant-context actions). See isOpsEmail(). */
+  opsEmails,
 
   // ── Crypto Refunds (feature-flagged; default off) ──────────
   /** Master switch for the on-chain crypto refund flow. */
@@ -106,5 +118,9 @@ export const config = {
   bool,
   requireEnv,
 } as const;
+
+/** True when the given email is on the ops/operator allow-list (OPS_EMAILS / ADMIN_EMAIL). */
+export const isOpsEmail = (email?: string | null): boolean =>
+  !!email && opsEmails.includes(email.trim().toLowerCase());
 
 export default config;

@@ -1,3 +1,51 @@
+# === 2026-06 (fork: setup-vault) STUCK-PAYOUT "MARK AS RESOLVED" (ops acknowledge) — DONE & SELF-VERIFIED (backend curl e2e + FE browser + FE/BE tsc 0) ===
+# CONTEXT: last open item — the stuck $18.81 (tx 883) in Payouts "Needs attention". User chose (ask_human):
+#   build an OPS-ONLY "mark resolved/acknowledge" action (least invasive, NOT hide); do root-cause first;
+#   ops settle the money BY HAND in real prod, then click acknowledge. Env: SAFE MODE, PROD DB, workers OFF.
+#
+# ROOT CAUSE (read-only, tx 883 / conversion_id 1): 0.00752783 ETH ($18.81) WAS swept to the platform admin
+#   wallet 0x9a72…b38f (deposit_tx_hash 0xfc98…5471 present) but Binance NEVER credited the deposit
+#   (deposit_confirmed_at / binance_order_id / conversion_rate / target_amount all NULL) → Phase-1 deposit
+#   detection retried 30× and markExhaustedAsFailed flipped it FAILED. Money is NOT lost — it sits in the admin
+#   wallet, never converted to USDT nor forwarded to the merchant TRC20 addr TTve8v6Y…. => manual ops settlement.
+#
+# WHAT SHIPPED (code-only; NO money moved; NO permanent prod-data change — tx 883 acknowledged+reverted in test):
+#   • Migration 0034_txn_attention_resolved (backend/migrations/bootMigrations.ts) — adds nullable
+#     attention_resolved_at TIMESTAMPTZ / attention_resolved_by VARCHAR(200) / attention_resolved_note TEXT to
+#     tbl_user_transaction. APPLIED on prod at boot (1 applied, recorded in schema_migrations). Model fields added
+#     to models/userModels/userTransactionModel.ts.
+#   • Ops gate: NEW config.opsEmails + isOpsEmail() (backend/utils/config.ts) parsed from OPS_EMAILS env (comma
+#     list, falls back to ADMIN_EMAIL). backend/.env: OPS_EMAILS=moxxcompany@gmail.com,onarrival21@gmail.com.
+#   • Endpoint: POST /api/dashboard/payouts/:transactionId/acknowledge (dashboardRouter, authMiddleware) →
+#     payoutsController.acknowledgeStuckPayout. Requires isOpsEmail(res.locals.authUser.email) (else 403),
+#     validateCompanyOwnership, and the tx must belong to that brand (else 403). Writes the 3 ack columns via a
+#     RAW UPDATE (sequelize.query) — deliberately NOT model.update, so the row's `updatedAt` (the payment's
+#     settlement timestamp used by payout queries) is NEVER bumped. Busts the payouts Redis cache (preset ranges).
+#     NOTE: model.update({silent:true}) did NOT prevent the updatedAt bump here → raw UPDATE is the fix. Bug caught
+#     in test: bumping updatedAt made tx 883 fall out of the >2h "stuck" window entirely; restored the original
+#     updatedAt 2026-09-06T09:15:44.650Z on prod.
+#   • stuckForwards (backend/services/payouts/payoutQueries.ts) now filters `AND ut.attention_resolved_at IS NULL`
+#     → acknowledged items leave the merchant "Needs attention" feed. payouts cache key bumped v3→v4.
+#   • getPayouts now returns per-CALLER `viewer_is_ops` (computed from res.locals.authUser.email, NOT cached —
+#     attached after the shared cache read) so the FE shows the button only to operators.
+#   • FE: Components/Page/Payouts/PayoutAttention.tsx — stuck rows get an OPS-ONLY green "Mark as resolved" button
+#     (data-testid=payouts-stuck-resolve-<tx>) → confirm dialog (payouts-resolve-dialog / -note-input / -cancel /
+#     -confirm) → POST acknowledge → toast → SWR mutate refetch. useDashboardPayouts.ts PayoutsData gains
+#     viewer_is_ops?. i18n payouts.{markResolved,resolving,resolveConfirmTitle,resolveConfirmBody,resolveNoteLabel,
+#     resolveConfirmCta,resolveCancel,resolveDone,resolveFailed} added to all 6 locales (en/de/es/fr/nl/pt).
+#
+# VERIFIED (SAFE, prod ended UNCHANGED): owner token via scripts/qa/owner_login.cjs. GET payouts →
+#   viewer_is_ops=true, stuck_forwards=[tx883 $18.81 ETH]. ack with wrong brand (71) → 403; ack brand 1 → 200,
+#   DB shows ack cols set + updatedAt UNCHANGED (2026-09-06), item GONE from feed. Reverted ack cols to NULL →
+#   tx 883 back in feed. FE browser: button + dialog render for ops (cancelled, no write). FE tsc 0, BE tsc 0,
+#   all 6 common.json parse. Preview: https://setup-vault-7.preview.emergentagent.com  (route /payouts).
+# TO ACTUALLY CLEAR THE REAL $18.81: ops settles it by hand in the DEPLOYED prod (send ~$18.81 USDT-TRC20 to
+#   TTve8v6Y48ChsCTEiCjMRFSbjNtz4mAkxR), then clicks "Mark as resolved". testing_agent NOT used (acknowledge
+#   writes to a live prod row; verified via reversible curl e2e + browser instead). COMMIT: user must Save to GitHub.
+# ============================================================================================
+
+
+
 # === 2026-09 (fork: setup-vault) PHASE 1 — PAYMENT-EMAIL CONSOLIDATION + "Received via" ROW — DONE & VERIFIED (testing_agent 7/7) ===
 # User report (screenshots): one settled+overpaid BTC payment produced ~5 emails; payment method not shown.
 # FIX (backend, code-only, NO money moved / NO DB writes):

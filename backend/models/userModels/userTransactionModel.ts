@@ -198,6 +198,22 @@ const userTransactionModel = sequelize.define(
       defaultValue: 0,
       comment: "USD of platform fee covered by the merchant's referral credit on this payment",
     },
+    // ── Ops "Needs attention" resolution (0034) ──
+    // Set when an operator manually resolves a stuck payout for this transaction
+    // (funds settled by hand). Removes the item from the merchant Needs-attention
+    // feed. Does NOT move money — purely an acknowledgement + audit trail.
+    attention_resolved_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    attention_resolved_by: {
+      type: DataTypes.STRING(200),
+      allowNull: true,
+    },
+    attention_resolved_note: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
   },
   {
     tableName: "tbl_user_transaction",

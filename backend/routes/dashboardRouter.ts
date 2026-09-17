@@ -22,6 +22,11 @@ dashboardRouter.get("/overview", dashboardOverviewController.getOverview);
 // recent forwards and stuck items (failed conversions / unswept settlements).
 dashboardRouter.get("/payouts", payoutsController.getPayouts);
 
+// POST /api/dashboard/payouts/:transactionId/acknowledge - OPS-ONLY. Marks a
+// stuck payout as manually resolved (funds settled by hand) so it leaves the
+// merchant "Needs attention" feed. Records who/when. Moves no money.
+dashboardRouter.post("/payouts/:transactionId/acknowledge", payoutsController.acknowledgeStuckPayout);
+
 // GET /api/dashboard/developer-health - Webhook delivery health (24h), API-key
 // age + rotation reminder, configured endpoint. Query params: company_id.
 dashboardRouter.get("/developer-health", developerHealthController.getDeveloperHealth);

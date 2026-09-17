@@ -546,8 +546,23 @@ const createCustomerAnnotationTable = async (): Promise<void> => {
   );
 };
 
-export async function buildBootMigrations(): Promise<Migration[]> {  const { v1, extra } = await loadBootModelGroups();
-  return [
+/**
+ * 0034 — Ops "Needs attention" resolution flags on tbl_user_transaction.
+ * Lets an operator mark a stuck payout as manually resolved (funds settled by
+ * hand) so it leaves the merchant Needs-attention feed. Additive, nullable,
+ * metadata-only => idempotent, safe on live prod.
+ */
+const addTxnAttentionResolved = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `ALTER TABLE "tbl_user_transaction"
+       ADD COLUMN IF NOT EXISTS "attention_resolved_at" TIMESTAMPTZ,
+       ADD COLUMN IF NOT EXISTS "attention_resolved_by" VARCHAR(200),
+       ADD COLUMN IF NOT EXISTS "attention_resolved_note" TEXT`
+  );
+};
+
+export async function buildBootMigrations(): Promise<Migration[]> {  const { v1, extra } = await loadBootModelGroups();  return [
     { version: "0001_boot_model_tables", up: syncGroup(v1) },
     { version: "0002_boot_model_tables_extra", up: syncGroup(extra) },
     { version: "0003_add_payout_digest_pref", up: addPayoutDigestPref },
@@ -578,6 +593,7 @@ export async function buildBootMigrations(): Promise<Migration[]> {  const { v1,
     { version: "0030_nexus_alert", up: createNexusAlertTable },
     { version: "0032_tip_goal_milestone", up: createTipGoalMilestoneTable },
     { version: "0033_customer_annotation", up: createCustomerAnnotationTable },
+    { version: "0034_txn_attention_resolved", up: addTxnAttentionResolved },
     ...perfMigrations,
     ...securityMigrations,
   ];

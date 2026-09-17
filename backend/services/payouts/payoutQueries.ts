@@ -118,6 +118,7 @@ export const stuckForwards = (s: OverviewScope) =>
      ${fromClause(s)}
      AND ${PROCESSED_STATUS_SQL} AND NOT ${FORWARDED_ANY} AND NOT ${CONV_ACTIVE}
      AND ut."updatedAt" < NOW() - ${STUCK_AFTER}
+     AND ut.attention_resolved_at IS NULL
      ORDER BY ut."updatedAt" DESC
      LIMIT 10`,
     s,
