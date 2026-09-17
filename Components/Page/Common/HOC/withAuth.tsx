@@ -26,6 +26,19 @@ const withAuth = (WrappedComponent: any) => {
     const [isReady, setIsReady] = useState(false);
     const checkedRef = useRef(false);
 
+    // Send an unauthenticated visitor to login while PRESERVING where they were
+    // headed (e.g. the "Manage preferences" email link -> /settings?section=notifications),
+    // so after they sign in they land on that exact page instead of the dashboard.
+    // Never carry an /auth path as the target (would loop).
+    const gotoLogin = () => {
+      const here = Router.asPath || "/";
+      if (here.startsWith("/") && !here.startsWith("//") && !here.startsWith("/auth")) {
+        Router.replace(`/auth/login?next=${encodeURIComponent(here)}`);
+      } else {
+        Router.replace("/auth/login");
+      }
+    };
+
     useIsomorphicLayoutEffect(() => {
       if (checkedRef.current) return;
       checkedRef.current = true;
@@ -55,7 +68,7 @@ const withAuth = (WrappedComponent: any) => {
           setIsReady(true);
         } else if (attempts >= MAX_ATTEMPTS) {
           cleanup();
-          Router.replace("/auth/login");
+          gotoLogin();
         } else {
           attempts += 1;
           timer = setTimeout(tryAuth, RETRY_INTERVAL_MS);
@@ -73,7 +86,7 @@ const withAuth = (WrappedComponent: any) => {
       if (!isReady) return;
       const token = localStorage.getItem("token");
       if (!token) {
-        Router.replace("/auth/login");
+        gotoLogin();
       }
     }, [Router.pathname, isReady]);
 

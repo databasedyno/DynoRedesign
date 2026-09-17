@@ -1,0 +1,18 @@
+{
+  "token_acquisition": {
+    "pass": true,
+    "error": null
+  },
+  "test_1_payouts_30d": {
+    "pass": true,
+    "error": null
+  },
+  "test_2_overview_30d": {
+    "pass": true,
+    "error": null
+  },
+  "test_3_regression": {
+    "pass": true,
+    "error": null
+  }
+}

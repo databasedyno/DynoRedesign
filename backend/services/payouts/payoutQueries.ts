@@ -13,12 +13,21 @@ import { PROCESSED_STATUS_SQL } from "../../utils/processedVolume";
 /** A payment counts as forwarded when the pool swept it to the merchant wallet OR an auto-convert withdrawal completed. */
 const CONV_DONE = `EXISTS (SELECT 1 FROM tbl_stablecoin_conversion sc
   WHERE sc.transaction_id = ut.transaction_id AND UPPER(sc.status::text) = 'COMPLETED')`;
-const CONV_ANY = `EXISTS (SELECT 1 FROM tbl_stablecoin_conversion sc WHERE sc.transaction_id = ut.transaction_id)`;
+/** An auto-convert that is still ACTIVELY processing (not yet COMPLETED, not FAILED).
+ *  Money in this state is genuinely in-flight and belongs in the conversions feed —
+ *  NOT in "stuck". A FAILED conversion, by contrast, is dead money the merchant must
+ *  see (surfaced by stuckForwards → "contact support"), so it is NOT active here. */
+const CONV_ACTIVE = `EXISTS (SELECT 1 FROM tbl_stablecoin_conversion sc
+  WHERE sc.transaction_id = ut.transaction_id AND UPPER(sc.status::text) NOT IN ('COMPLETED', 'FAILED'))`;
 export const FORWARDED_ANY = `(${FORWARDED} OR ${CONV_DONE})`;
 const FORWARDED_AT = `COALESCE((SELECT MAX(COALESCE(sc.completed_at, sc.withdrawn_at, sc."updatedAt"))
   FROM tbl_stablecoin_conversion sc
   WHERE sc.transaction_id = ut.transaction_id AND UPPER(sc.status::text) = 'COMPLETED'), ut."updatedAt")`;
 const STUCK_AFTER = `INTERVAL '2 hours'`;
+/** Genuinely in-flight: settled but not yet forwarded, within the STUCK_AFTER window.
+ *  Beyond that the money is "stuck" (surfaced separately by stuckForwards / the
+ *  Needs-attention feed), so it must NOT keep inflating "Settled, on its way". */
+const IN_FLIGHT = `ut."updatedAt" >= NOW() - ${STUCK_AFTER}`;
 
 /** Range totals: forwarded count/amount, last forward, and processed-but-not-yet-forwarded money. */
 export const payoutTotals = (s: OverviewScope) =>
@@ -27,8 +36,8 @@ export const payoutTotals = (s: OverviewScope) =>
       COUNT(*) FILTER (WHERE ${IN_RANGE} AND ${FORWARDED_ANY}) AS fwd_count,
       COALESCE(SUM(${NET_USD}) FILTER (WHERE ${IN_RANGE} AND ${FORWARDED_ANY}), 0) AS fwd_amount,
       MAX(${FORWARDED_AT}) FILTER (WHERE ${FORWARDED_ANY}) AS last_forward_at,
-      COUNT(*) FILTER (WHERE NOT ${FORWARDED_ANY}) AS awaiting_count,
-      COALESCE(SUM(${NET_USD}) FILTER (WHERE NOT ${FORWARDED_ANY}), 0) AS awaiting_amount
+      COUNT(*) FILTER (WHERE NOT ${FORWARDED_ANY} AND ${IN_FLIGHT}) AS awaiting_count,
+      COALESCE(SUM(${NET_USD}) FILTER (WHERE NOT ${FORWARDED_ANY} AND ${IN_FLIGHT}), 0) AS awaiting_amount
      ${fromClause(s)}
      AND ${PROCESSED_STATUS_SQL}`,
     s,
@@ -96,7 +105,9 @@ export const recentForwards = (s: OverviewScope) =>
     s,
   );
 
-/** Money that reached the merchant but has not been forwarded for a while and is not in a conversion pipeline. */
+/** Money that reached the merchant but has not been forwarded for a while and is
+ *  NOT in an active conversion. Includes payments whose auto-convert FAILED (dead
+ *  money the merchant must be able to see + escalate), so nothing silently vanishes. */
 export const stuckForwards = (s: OverviewScope) =>
   many(
     `SELECT ut.id, ut.transaction_id,
@@ -105,7 +116,7 @@ export const stuckForwards = (s: OverviewScope) =>
             ${NET_USD} AS amount,
             ut."updatedAt" AS settled_at
      ${fromClause(s)}
-     AND ${PROCESSED_STATUS_SQL} AND NOT ${FORWARDED_ANY} AND NOT ${CONV_ANY}
+     AND ${PROCESSED_STATUS_SQL} AND NOT ${FORWARDED_ANY} AND NOT ${CONV_ACTIVE}
      AND ut."updatedAt" < NOW() - ${STUCK_AFTER}
      ORDER BY ut."updatedAt" DESC
      LIMIT 10`,

@@ -79,5 +79,7 @@
     "restore": "Show on dashboard"
   },
   "category_confirming_title": "Confirmation progress",
-  "category_confirming_desc": "One email per block confirmation (“1 of 3…”). Off by default — you always get Pending and Settled."
+  "category_confirming_desc": "One email per block confirmation (“1 of 3…”). Off by default — you always get Pending and Settled.",
+  "marketingEmailsTitle": "Marketing & Product Emails",
+  "marketingEmailsDescription": "News, tips and product updates. Turn off to stop promotional emails — you'll still get payment, security and account emails."
 }

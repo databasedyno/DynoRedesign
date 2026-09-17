@@ -711,6 +711,13 @@ const NotificationPage = ({ initialTab = "inbox" }: { initialTab?: "inbox" | "se
                   onChange={(val) => updatePreference("emailNotifications", val)}
                 />
                 <NotificationItem
+                  title={tNotifications("marketingEmailsTitle")}
+                  testId="notification-pref-marketingEmails"
+                  description={tNotifications("marketingEmailsDescription")}
+                  checked={preferences.marketingEmails}
+                  onChange={(val) => updatePreference("marketingEmails", val)}
+                />
+                <NotificationItem
                   title={tNotifications("smsNotificationsTitle")}
                   testId="notification-pref-smsNotifications"
                   description={tNotifications("smsNotificationsDescription")}

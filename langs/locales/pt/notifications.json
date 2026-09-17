@@ -79,5 +79,7 @@
     "restore": "Mostrar no painel"
   },
   "category_confirming_title": "Progresso de confirmação",
-  "category_confirming_desc": "Um e-mail por confirmação de bloco («1 de 3…»). Desativado por predefinição — recebe sempre Pendente e Liquidado."
+  "category_confirming_desc": "Um e-mail por confirmação de bloco («1 de 3…»). Desativado por predefinição — recebe sempre Pendente e Liquidado.",
+  "marketingEmailsTitle": "E-mails de Marketing e Produto",
+  "marketingEmailsDescription": "Novidades, dicas e atualizações do produto. Desative para parar os e-mails promocionais — continuará a receber e-mails de pagamento, segurança e conta."
 }

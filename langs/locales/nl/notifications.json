@@ -79,5 +79,7 @@
     "restore": "Tonen op dashboard"
   },
   "category_confirming_title": "Bevestigingsvoortgang",
-  "category_confirming_desc": "Eén e-mail per blokbevestiging (“1 van 3…”). Standaard uit — In afwachting en Afgewikkeld krijg je altijd."
+  "category_confirming_desc": "Eén e-mail per blokbevestiging (“1 van 3…”). Standaard uit — In afwachting en Afgewikkeld krijg je altijd.",
+  "marketingEmailsTitle": "Marketing- en Producte-mails",
+  "marketingEmailsDescription": "Nieuws, tips en productupdates. Zet uit om promotionele e-mails te stoppen — betaal-, beveiligings- en account-e-mails blijf je ontvangen."
 }

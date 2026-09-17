@@ -1127,6 +1127,12 @@ export const sweepPoolAddress = async (tempAddressId: number, options: SweepPool
                 }))?.dataValues;
                 const grossAmt = Number(ptx.payment_amount) || paymentAmount;
                 const feeAmt = Number(ptx.admin_fee_amount) || 0;
+                // NOTE: no `sourceKey` here on purpose. The payment method (api/paymentLink/
+                // productOrder/donation/tip) is only known from the ephemeral Redis checkout
+                // session, which is already gone by the time this sweep-RECOVERY path runs.
+                // tbl_merchant_temp_address / tbl_user_transaction carry no link columns, so
+                // there is no persisted way to classify it — omitting the "Received via" row
+                // is correct here rather than guessing (which would misinform the merchant).
                 const moneyPath = {
                   grossCrypto: toFixedStr(grossAmt, 8),
                   asset: walletType,

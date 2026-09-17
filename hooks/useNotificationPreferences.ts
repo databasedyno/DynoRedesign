@@ -9,6 +9,9 @@ interface NotificationPreferences {
   securityAlerts: boolean;
   emailNotifications: boolean;
   smsNotifications: boolean;
+  /** Marketing & product emails (true = opted in). Persisted as the inverse opt-out
+   *  flag the marketing/activation senders already honour. */
+  marketingEmails: boolean;
 }
 
 const defaultPreferences: NotificationPreferences = {
@@ -18,6 +21,7 @@ const defaultPreferences: NotificationPreferences = {
   securityAlerts: false,
   emailNotifications: true,
   smsNotifications: false,
+  marketingEmails: true,
 };
 
 // Company-scoped email ROUTING config (migration 0018). Governs where the
@@ -59,6 +63,7 @@ type BackendPreferences = {
   security_alerts?: boolean;
   email_notifications?: boolean;
   sms_notifications?: boolean;
+  marketing_emails?: boolean;
   company_notification_email?: string | null;
   company_notification_prefs?: {
     team_fanout?: boolean;
@@ -73,6 +78,7 @@ const fromBackend = (b: BackendPreferences | undefined | null): NotificationPref
   securityAlerts: b?.security_alerts ?? defaultPreferences.securityAlerts,
   emailNotifications: b?.email_notifications ?? defaultPreferences.emailNotifications,
   smsNotifications: b?.sms_notifications ?? defaultPreferences.smsNotifications,
+  marketingEmails: b?.marketing_emails ?? defaultPreferences.marketingEmails,
 });
 
 const toBackend = (p: NotificationPreferences): BackendPreferences => ({
@@ -82,6 +88,7 @@ const toBackend = (p: NotificationPreferences): BackendPreferences => ({
   security_alerts: p.securityAlerts,
   email_notifications: p.emailNotifications,
   sms_notifications: p.smsNotifications,
+  marketing_emails: p.marketingEmails,
 });
 
 // Missing flags default to ENABLED (true) so a fresh company opts INTO every

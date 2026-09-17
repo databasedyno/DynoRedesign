@@ -241,7 +241,15 @@ export default function Login() {
           // Warm the dashboard SWR cache (company list / onboarding / fee-free)
           // BEFORE the route transition so the dashboard paints with data ready.
           prefetchDashboardData();
-          router.replace("/dashboard");
+          // Honour a deep-link "next" target (e.g. the "Manage preferences" email
+          // link -> /settings?section=notifications) when it's a safe internal path;
+          // otherwise fall back to the dashboard.
+          const nextRaw = typeof router.query.next === "string" ? router.query.next : "";
+          const safeNext =
+            nextRaw.startsWith("/") && !nextRaw.startsWith("//") && !nextRaw.startsWith("/auth")
+              ? nextRaw
+              : "";
+          router.replace(safeNext || "/dashboard");
         }
       }, 850);
     }

@@ -9,7 +9,7 @@ import {
   successResponseHelper,
 } from "../helper";
 import { IUserType } from "../utils/types";
-import { notificationModel, notificationPreferencesModel, companyModel } from "../models";
+import { notificationModel, notificationPreferencesModel, companyModel, signupAttributionModel } from "../models";
 import { validateCompanyOwnership } from "../utils/validateCompanyOwnership";
 // sequelize import removed - not used
 import { getRedisItem, setRedisItem, setRedisTTL } from "../utils/redisInstance";
@@ -74,6 +74,13 @@ const getPreferences = async (req: express.Request, res: express.Response) => {
       },
     });
 
+    // Marketing/product emails are account-scoped: stored as the (inverse) opt-out
+    // flag on tbl_signup_attribution, which the activation/marketing senders already
+    // honour. Surface it here as `marketing_emails` (true = opted IN) so the
+    // Notifications settings can turn real marketing sends on/off.
+    const attribution = await signupAttributionModel.findOne({ where: { user_id: userId } });
+    const marketing_emails = !(attribution?.dataValues?.marketing_opt_out ?? false);
+
     if (!preferences) {
       // Return default preferences (not saved yet)
       return successResponseHelper(res, 200, "Default notification preferences", {
@@ -88,6 +95,7 @@ const getPreferences = async (req: express.Request, res: express.Response) => {
         email_notifications: true,
         sms_notifications: false,
         browser_notifications: false,
+        marketing_emails,
         ...companyExtras,
         is_default: true,
       });
@@ -95,6 +103,7 @@ const getPreferences = async (req: express.Request, res: express.Response) => {
 
     return successResponseHelper(res, 200, "Notification preferences retrieved", {
       ...preferences.dataValues,
+      marketing_emails,
       ...companyExtras,
       is_default: false,
     });
@@ -125,6 +134,7 @@ const updatePreferences = async (req: express.Request, res: express.Response) =>
       email_notifications,
       sms_notifications,
       browser_notifications,
+      marketing_emails,
       company_notification_email,
       company_notification_prefs,
     } = req.body;
@@ -132,6 +142,24 @@ const updatePreferences = async (req: express.Request, res: express.Response) =>
     if (company_id) {
       const companyData = await validateCompanyOwnership(res, company_id, userId);
       if (!companyData) return;
+    }
+
+    // Marketing/product emails (account-scoped): persist as the inverse opt-out flag
+    // on tbl_signup_attribution — the SAME flag the activation/marketing senders check,
+    // so toggling it here actually turns real marketing sends on/off. Upsert so a user
+    // with no attribution row (older accounts) can still set the preference.
+    if (marketing_emails !== undefined) {
+      const optOut = !marketing_emails;
+      const [attr] = await signupAttributionModel.findOrCreate({
+        where: { user_id: userId },
+        defaults: { user_id: userId, marketing_opt_out: optOut },
+      });
+      if (attr.dataValues.marketing_opt_out !== optOut) {
+        await signupAttributionModel.update(
+          { marketing_opt_out: optOut },
+          { where: { user_id: userId } },
+        );
+      }
     }
 
     // Find or create preferences
@@ -213,7 +241,10 @@ const updatePreferences = async (req: express.Request, res: express.Response) =>
       }
     }
 
-    return successResponseHelper(res, 200, "Notification preferences updated", preferences?.dataValues);
+    return successResponseHelper(res, 200, "Notification preferences updated", {
+      ...(preferences?.dataValues ?? {}),
+      ...(marketing_emails !== undefined && { marketing_emails }),
+    });
 
   } catch (e) {
 

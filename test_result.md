@@ -1,4 +1,372 @@
 # ============================================================================
+# CURRENT SESSION — 2026-09 (fork: setup-vault) PHASE 3: EMAIL PREFERENCES.
+#   Env: LIVE PROD DB + REDIS, SAFE MODE. (This phase writes ONLY the owner test
+#   account's own prefs — reversible; reset marketing_emails=true at the end.)
+#
+#   USER ASK: (1) "Manage preferences" email link should land on notification
+#   settings for BOTH logged-in and logged-out users; (2) add a marketing-email
+#   opt-off in notification settings (folded into the existing email prefs card).
+#
+#   FIX A — deep-link through login (frontend):
+#     * Components/Page/Common/HOC/withAuth.tsx — when an unauthenticated visitor hits a
+#       protected route it now redirects to /auth/login?next=<encoded current path>
+#       (was a bare /auth/login that dropped the target). Never carries an /auth path.
+#     * pages/auth/login.tsx — after a successful login it now honours a SAFE internal
+#       `next` param (must start "/", not "//", not "/auth") instead of always /dashboard.
+#     => Logged-out click on the email footer "Manage preferences" (-> /settings?section=
+#        notifications) now returns the user to that exact page after signing in.
+#     (Logged-in already worked: /settings?section=notifications renders <NotificationPage
+#      initialTab="settings">.)
+#
+#   FIX B — marketing-email opt-off (backend + frontend), folded into the EXISTING
+#   "Email notifications" card:
+#     * Reuses the EXISTING tbl_signup_attribution.marketing_opt_out flag (already honoured
+#       by services/email/activationEmails.ts + activationGateEmail.ts), surfaced as
+#       `marketing_emails` (true = opted IN). NO parallel/unenforced flag invented.
+#     * controller/notificationController.ts getPreferences: returns account-scoped
+#       marketing_emails (= !marketing_opt_out). updatePreferences: accepts marketing_emails
+#       and upserts tbl_signup_attribution (findOrCreate by user_id) marketing_opt_out=!value.
+#     * hooks/useNotificationPreferences.ts: marketingEmails in the type/defaults + both
+#       mappers (marketing_emails <-> marketingEmails).
+#     * Components/Page/Notification/NotificationPage.tsx: new toggle
+#       data-testid="notification-pref-marketingEmails" inside the Email-notifications card.
+#     * i18n marketingEmailsTitle/Description added to notifications.json (6 locales).
+#
+#   SELF-VERIFIED (read-only): GET /api/notifications/preferences?company_id=1 -> marketing_emails:true.
+#
+#   TESTING_AGENT — BACKEND ONLY for now. SAFE MODE: the ONLY allowed writes are to the
+#   OWNER test account's OWN notification prefs (user 1) — and marketing_emails MUST be left
+#   = true at the end. AUTH: TOKEN=$(node /app/scripts/qa/owner_login.cjs http://localhost:8001)
+#   VERIFY (curl http://localhost:8001, Authorization: Bearer $TOKEN):
+#     1) GET  /api/notifications/preferences?company_id=1 -> data.marketing_emails === true.
+#     2) PUT  /api/notifications/preferences  body {"company_id":1,"marketing_emails":false}
+#        -> 200; then GET again -> data.marketing_emails === false.
+#     3) PUT  /api/notifications/preferences  body {"company_id":1,"marketing_emails":true}
+#        -> 200; GET -> data.marketing_emails === true  (RESET — leave it true).
+#     4) Regression: the same GET still returns the other prefs (email_notifications,
+#        transaction_updates, etc.) and company routing fields unchanged.
+#   (FRONTEND deep-link redirect + the toggle UI need the frontend testing agent — pending
+#    explicit user permission; do NOT run frontend tests here.)
+# ============================================================================
+
+# ============================================================================
+# TESTING AGENT VERIFICATION — 2026-09 (PHASE 3): EMAIL PREFERENCES — ALL TESTS PASSED ✅✅✅
+# ============================================================================
+#   Tested by: testing_agent
+#   Test date: 2026-09-17
+#   Test method: Python backend test (backend_test_notification_prefs.py)
+#   Base URL: http://localhost:8001
+#   Auth: Owner account token via owner_login.cjs helper (user 1, company 1)
+#
+#   CONTEXT: Verified the backend notification preferences API for the new
+#   account-scoped "marketing_emails" preference. This preference maps to the
+#   existing tbl_signup_attribution.marketing_opt_out flag (marketing_emails = 
+#   !marketing_opt_out) that marketing/activation email senders already honour.
+#   true = opted IN to marketing/product emails.
+#
+#   TEST RESULTS SUMMARY: 4/4 TESTS PASSED (100% success rate)
+#
+#   ✅ TEST 1: GET /api/notifications/preferences?company_id=1 — PASS
+#        Initial state verification:
+#        ✓ HTTP 200 received
+#        ✓ data.marketing_emails === true (as expected)
+#        ✓ All required fields present: email_notifications, transaction_updates, marketing_emails
+#        ✓ Other preference fields intact:
+#          * email_notifications: true
+#          * transaction_updates: true
+#          * weekly_summary: true
+#          * security_alerts: true
+#          * sms_notifications: false
+#        ✓ company_notification_prefs field present (company routing fields)
+#
+#   ✅ TEST 2: PUT marketing_emails=false, then verify — PASS
+#        Request: PUT /api/notifications/preferences
+#        Body: {"company_id": 1, "marketing_emails": false}
+#        ✓ HTTP 200 received
+#        ✓ Subsequent GET shows data.marketing_emails === false
+#        ✓ Preference successfully changed from true to false
+#        ✓ Database verification: tbl_signup_attribution.marketing_opt_out = true
+#          (correctly inverted: marketing_emails=false → marketing_opt_out=true)
+#
+#   ✅ TEST 3: PUT marketing_emails=true (RESET), then verify — PASS
+#        Request: PUT /api/notifications/preferences
+#        Body: {"company_id": 1, "marketing_emails": true}
+#        ✓ HTTP 200 received
+#        ✓ Subsequent GET shows data.marketing_emails === true
+#        ✓ Preference successfully reset to true (REQUIRED end state)
+#        ✓ Database verification: tbl_signup_attribution.marketing_opt_out = false
+#          (correctly inverted: marketing_emails=true → marketing_opt_out=false)
+#
+#   ✅ TEST 4: Regression - Other fields intact — PASS
+#        ✓ All preference fields still present after marketing_emails updates:
+#          * email_notifications
+#          * transaction_updates
+#          * weekly_summary
+#          * security_alerts
+#          * sms_notifications
+#        ✓ company_notification_prefs field still present
+#        ✓ All other preference values unchanged from initial state
+#        ✓ No fields were wiped by the marketing-only updates
+#        ✓ Final state confirmed:
+#          * marketing_emails: true ✓
+#          * email_notifications: true
+#          * transaction_updates: true
+#          * weekly_summary: true
+#          * security_alerts: true
+#          * sms_notifications: false
+#
+#   ✅ TOKEN ACQUISITION — PASS
+#        ✓ owner_login.cjs helper successfully minted token
+#        ✓ Token length: 3155 characters (valid JWT)
+#        ✓ TOTP 2FA challenge completed automatically
+#
+#   OVERALL RESULT: ✅✅✅ ALL TESTS PASSED ✅✅✅
+#
+#   DETAILED FINDINGS:
+#   1. marketing_emails preference correctly surfaces from tbl_signup_attribution ✓
+#   2. Inverse mapping working correctly: marketing_emails = !marketing_opt_out ✓
+#   3. PUT updates correctly persist to database (findOrCreate + update) ✓
+#   4. GET correctly retrieves and inverts the flag ✓
+#   5. Other preference fields remain intact during marketing_emails updates ✓
+#   6. Company routing fields (company_notification_prefs) preserved ✓
+#   7. End state: marketing_emails === true (REQUIRED) ✓
+#   8. No 500 errors, all endpoints return 200 ✓
+#
+#   CODE VERIFICATION:
+#   - File: backend/controller/notificationController.ts
+#     * Lines 78-82: getPreferences reads marketing_opt_out from tbl_signup_attribution
+#       and inverts it to marketing_emails (true = opted IN)
+#     * Lines 147-163: updatePreferences accepts marketing_emails, inverts to optOut,
+#       and upserts tbl_signup_attribution (findOrCreate by user_id)
+#     * Lines 98, 106: marketing_emails included in response (default + saved prefs)
+#     * Lines 246: marketing_emails included in update response
+#   
+#   - Database: tbl_signup_attribution
+#     * user_id=1, marketing_opt_out=false (correctly maps to marketing_emails=true)
+#     * Flag is the SAME flag that activation/marketing email senders check
+#     * services/email/activationEmails.ts already honours this flag
+#
+#   SAFETY COMPLIANCE:
+#   - ✅ ONLY writes to owner test account (user 1) notification preferences
+#   - ✅ marketing_emails left as true at the end (REQUIRED)
+#   - ✅ NO writes to any other account
+#   - ✅ NO funds moved
+#   - ✅ NO payments created
+#   - ✅ All tests performed on company_id=1 (The Dev Store, owner account)
+#
+#   NOTES:
+#   - Test script: /app/backend_test_notification_prefs.py
+#   - Auth helper: /app/scripts/qa/owner_login.cjs
+#   - All tests completed in ~5 seconds
+#   - Database: LIVE PROD DB (roundhouse.proxy.rlwy.net:23599)
+#   - Redis: LIVE PROD REDIS (nozomi.proxy.rlwy.net:15794)
+#
+#   VERDICT: FIX VERIFIED AND WORKING ✅✅✅
+#   
+#   The backend notification preferences API correctly implements the marketing_emails
+#   preference. The preference maps to the existing tbl_signup_attribution.marketing_opt_out
+#   flag (with correct inversion), which marketing/activation email senders already honour.
+#   All CRUD operations work correctly, and the preference can be toggled on/off via the API.
+#   
+#   The implementation correctly:
+#   1. Surfaces the existing marketing_opt_out flag as marketing_emails (inverted)
+#   2. Persists changes back to tbl_signup_attribution (with correct inversion)
+#   3. Uses findOrCreate to handle users without an attribution row
+#   4. Preserves all other notification preferences during updates
+#   5. Maintains company routing fields (company_notification_prefs)
+#   6. Returns the preference in both default and saved states
+#   
+#   The API is ready for frontend integration. The toggle in the notification settings
+#   UI will control real marketing email sends via this existing, enforced flag.
+# ============================================================================
+
+
+# ============================================================================
+# CURRENT SESSION — 2026-09 (fork: setup-vault) PHASE 2: PAYOUTS/SETTLEMENT ANALYTICS
+#   TRUTHFULNESS. Env: LIVE PROD DB + REDIS, SAFE MODE (READ-ONLY — no writes).
+#
+#   USER REPORT (screenshot): Payouts & settlements for The Dev Store showed
+#   "SETTLED, ON ITS WAY  $18.81 · 1 payment confirmed, forwarding to your wallet",
+#   which was STALE; also asked to ensure completion-rate / median-to-settle /
+#   unpaid(exception)-rate are truly computed, not hardcoded.
+#
+#   ROOT CAUSE: services/payouts/payoutQueries.ts payoutTotals — awaiting_count/
+#   awaiting_amount filtered only `NOT FORWARDED_ANY` with NO time window, so a
+#   settled-but-never-forwarded payment counted as "on its way" forever. The $18.81
+#   is tx 883: a FAILED ETH->USDT auto-conversion (30 retries, since 2026-09-06) —
+#   genuinely stuck money, not in-flight. stuckForwards excluded ANY conversion row
+#   (NOT CONV_ANY) and conversionsNeedingAttention hides FAILED from merchants, so a
+#   naive "on its way" fix alone would have made the $18.81 VANISH.
+#
+#   FIX (backend, code-only, payoutQueries.ts):
+#     * awaiting_* now also requires IN_FLIGHT = ut."updatedAt" >= NOW() - 2h (matches the
+#       app's own STUCK_AFTER). => "on its way" = genuinely forwarding-now money only.
+#     * stuckForwards now excludes only ACTIVE conversions (CONV_ACTIVE = status NOT IN
+#       COMPLETED/FAILED) instead of ANY conversion. => FAILED-conversion + no-conversion
+#       stuck money (>2h, not forwarded) surfaces in the Needs-attention feed with a
+#       "View payment / Contact support" CTA. Nothing silently vanishes.
+#   NOTE (product): this intentionally re-surfaces FAILED-conversion money to the MERCHANT
+#   as generic "stuck -> contact support" (NOT a technical conversion-retry alert, which
+#   remains admin/ops-only per conversionsNeedingAttention policy). Flag to user.
+#
+#   Completion-rate / median-settle / exception(underpaid+expired)-rate: VERIFIED already
+#   truly computed via SQL (controller/dashboardOverviewController.ts + services/dashboard/
+#   overviewQueries.ts percentile_cont). Frontend CheckoutHealthLine.tsx shows "—" when
+#   absent (no hardcoded placeholder). No change needed — just assert they return real numbers.
+#
+#   SELF-VERIFIED (read-only) on company_id=1 (The Dev Store): awaiting_amount 18.81 -> 0;
+#   forwarded 4796.54/84 (matches screenshot); stuck_forwards now = [{tx:883,$18.81,ETH}].
+#
+#   TESTING_AGENT — BACKEND ONLY. SAFE MODE: READ-ONLY, NO writes, NO payments.
+#   AUTH (owner is TOTP-2FA enrolled): mint a token via the owned-account helper:
+#     TOKEN=$(node /app/scripts/qa/owner_login.cjs http://localhost:8001)
+#     (prints only the access token; reads the owned TOTP secret + completes 2fa/validate).
+#   VERIFY (curl http://localhost:8001, header Authorization: Bearer $TOKEN):
+#     1) GET /api/dashboard/payouts?company_id=1&period=30d ->
+#          data.totals.awaiting_amount === 0 AND data.totals.awaiting_count === 0
+#          data.totals.forwarded_count === 84 (forwarded_amount ~4796.54)
+#          data.attention.stuck_forwards includes an entry with transaction_id 883,
+#            amount ≈ 18.81, asset "ETH".
+#     2) GET /api/dashboard/overview?company_id=1&period=30d ->
+#          data.health.completion_rate is a finite number 0..100; median_settle_minutes is
+#          a number or null (NOT a constant placeholder); exception_rate finite 0..100;
+#          created > 0 and paid >= 0 (real funnel counts). Confirm values look data-derived.
+# ============================================================================
+
+# ============================================================================
+# TESTING AGENT VERIFICATION — 2026-09 (PHASE 2): PAYOUTS/SETTLEMENT ANALYTICS — ALL TESTS PASSED ✅✅✅
+# ============================================================================
+#   Tested by: testing_agent
+#   Test date: 2026-09-17
+#   Test method: Python backend test (backend_test_analytics.py)
+#   Base URL: http://localhost:8001
+#   Auth: Owner account token via owner_login.cjs helper
+#
+#   CONTEXT: Verified the analytics fix for stale "on its way" amounts and
+#   checkout health metrics computation. The fix ensures that:
+#   1. "On its way" only counts genuinely in-flight money (settled < 2h ago)
+#   2. Stuck failed-conversion money is surfaced in the Needs-attention feed
+#   3. Checkout health analytics are truly computed (not hardcoded)
+#
+#   TEST RESULTS SUMMARY: 4/4 TESTS PASSED (100% success rate)
+#
+#   ✅ TEST 1: GET /api/dashboard/payouts?company_id=1&period=30d — PASS
+#        All assertions verified:
+#        ✓ data.totals.awaiting_amount === 0 (was $18.81, now fixed)
+#        ✓ data.totals.awaiting_count === 0 (was 1, now fixed)
+#        ✓ data.totals.forwarded_count === 84 (exactly as expected)
+#        ✓ data.totals.forwarded_amount === 4796.54 (exactly as expected)
+#        ✓ data.attention.stuck_forwards includes tx 883:
+#          * transaction_id: 883
+#          * amount: 18.81 (within expected range 18.80-18.82)
+#          * asset: "ETH"
+#          * settled_at: "2026-09-06T09:15:44.650Z"
+#        
+#        CRITICAL FINDING: The stuck failed-conversion payment (tx 883, $18.81 ETH)
+#        is now correctly surfaced in stuck_forwards instead of being hidden or
+#        incorrectly counted as "on its way". This ensures merchants can see and
+#        escalate genuinely stuck money.
+#
+#   ✅ TEST 2: GET /api/dashboard/overview?company_id=1&period=30d — PASS
+#        All health metrics verified as truly computed (not hardcoded):
+#        ✓ data.health.completion_rate = 43.8 (finite, 0-100, real data-derived)
+#        ✓ data.health.median_settle_minutes = 6.1 (real number, not a placeholder)
+#        ✓ data.health.exception_rate = 56.2 (finite, 0-100, real data-derived)
+#        ✓ data.health.created = 194 (> 0, real funnel count)
+#        ✓ data.health.paid = 85 (>= 0, real funnel count)
+#        
+#        Additional metrics observed:
+#        * previous_completion_rate = 61.5 (shows period-over-period comparison)
+#        * previous_median_settle_minutes = 7.0 (historical comparison)
+#        * underpaid_count = 0
+#        * expired_count = 109
+#        * previous_exception_rate = 38.5
+#        
+#        VERIFICATION: All values are data-derived from SQL queries (not hardcoded
+#        constants). The metrics show realistic variation and period-over-period
+#        changes, confirming they are computed from actual transaction data.
+#
+#   ✅ TEST 3: Regression - Multiple periods — PASS
+#        ✓ GET /api/dashboard/payouts?company_id=1&period=7d → HTTP 200
+#          * Well-formed totals object
+#          * awaiting_amount = 0 (number >= 0)
+#        ✓ GET /api/dashboard/payouts?company_id=1&period=90d → HTTP 200
+#          * Well-formed totals object
+#          * awaiting_amount = 0 (number >= 0)
+#        ✓ No 500 errors
+#        ✓ No regressions in response structure
+#
+#   ✅ TOKEN ACQUISITION — PASS
+#        ✓ owner_login.cjs helper successfully minted token
+#        ✓ Token length: 3151 characters (valid JWT)
+#        ✓ TOTP 2FA challenge completed automatically
+#
+#   OVERALL RESULT: ✅✅✅ ALL TESTS PASSED ✅✅✅
+#
+#   DETAILED FINDINGS:
+#   1. Stale "on its way" amount removed: awaiting_amount changed from $18.81 to $0 ✓
+#   2. Stale "on its way" count removed: awaiting_count changed from 1 to 0 ✓
+#   3. Stuck failed-conversion money surfaced: tx 883 now appears in stuck_forwards ✓
+#   4. Forwarded totals accurate: 84 payments, $4796.54 (matches screenshot) ✓
+#   5. Health metrics truly computed: completion_rate, median_settle_minutes, exception_rate all show real data ✓
+#   6. No regressions: 7d and 90d periods work correctly ✓
+#   7. No 500 errors: All endpoints return 200 with well-formed responses ✓
+#
+#   CODE VERIFICATION:
+#   - File: backend/services/payouts/payoutQueries.ts
+#     * Lines 27-30: IN_FLIGHT constant added (ut."updatedAt" >= NOW() - 2h)
+#     * Lines 39-40: awaiting_count/awaiting_amount now filter by IN_FLIGHT
+#     * Lines 19-21: CONV_ACTIVE excludes COMPLETED and FAILED conversions
+#     * Lines 111-124: stuckForwards now excludes only CONV_ACTIVE (not all conversions)
+#   
+#   - File: backend/controller/payoutsController.ts
+#     * Line 53: Cache key bumped to :v3 (busts stale cache)
+#     * Lines 136-150: failed_conversions kept in response (always empty now)
+#     * Lines 164-171: stuck_forwards includes failed-conversion money
+#   
+#   - File: backend/controller/dashboardOverviewController.ts
+#     * Lines 229-240: health metrics computed via SQL aggregates
+#     * Line 154: median_settle_minutes from percentile_cont (SQL function)
+#     * Lines 232-233: completion_rate = ratio(paid, created) - real data
+#     * Line 238: exception_rate = ratio(underpaid + expired, created) - real data
+#
+#   SAFETY COMPLIANCE:
+#   - ✅ NO writes to database (READ-ONLY mode)
+#   - ✅ NO payments created or confirmed
+#   - ✅ NO funds moved
+#   - ✅ NO data mutations
+#   - ✅ All tests performed via GET requests only
+#
+#   NOTES:
+#   - Test script: /app/backend_test_analytics.py
+#   - Test results: /app/analytics_test_results.json
+#   - Auth helper: /app/scripts/qa/owner_login.cjs
+#   - All tests completed in ~18 seconds
+#   - Database: LIVE PROD DB (roundhouse.proxy.rlwy.net:23599)
+#   - Redis: LIVE PROD REDIS (nozomi.proxy.rlwy.net:15794)
+#
+#   VERDICT: FIX VERIFIED AND WORKING ✅✅✅
+#   
+#   The payouts/settlement analytics fix is working correctly. The stale "on its way"
+#   amount has been removed, stuck failed-conversion money is now surfaced in the
+#   Needs-attention feed, and checkout health metrics are truly computed from real
+#   transaction data (not hardcoded). All assertions from the review request have
+#   been verified successfully.
+#   
+#   The fix correctly implements the 2-hour IN_FLIGHT window for "on its way" money,
+#   ensuring that only genuinely forwarding-now payments are counted. Failed-conversion
+#   stuck money (like tx 883, $18.81 ETH) is now visible to merchants via the
+#   stuck_forwards feed, preventing money from silently vanishing.
+#   
+#   Checkout health analytics (completion_rate, median_settle_minutes, exception_rate)
+#   are confirmed to be computed via SQL queries with real data, showing realistic
+#   variation and period-over-period changes. No hardcoded placeholders detected.
+# ============================================================================
+
+
+
+
+# ============================================================================
 # CURRENT SESSION — 2026-09 (fork: setup-vault) PHASE 1: PAYMENT-EMAIL
 #   CONSOLIDATION + PAYMENT-METHOD ("Received via") ROW.
 #   Env: LIVE PROD DB + REDIS, SAFE MODE (read-only preferred).
