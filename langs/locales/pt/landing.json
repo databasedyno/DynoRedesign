@@ -1117,6 +1117,7 @@
       "entity": "Entidade legal",
       "since": "A operar desde",
       "contact": "Contacto",
+      "contactValue": "Fale connosco no chat",
       "custody": "Custódia",
       "custodyValue": "Sem custódia — os fundos vão diretamente para o comerciante",
       "docsTitle": "Políticas e estado",

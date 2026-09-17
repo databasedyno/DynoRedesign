@@ -431,6 +431,29 @@
   "addressLabel": "Morada"
  },
  "merchant": {
+  "onboardingComplete": {
+   "subject": "Tudo pronto — comece a aceitar cripto",
+   "heading": "Tudo pronto",
+   "intro": "Configuração concluída! A <strong>{{companyName}}</strong> está verificada, o seu endereço de pagamento está definido e já pode aceitar pagamentos em cripto.",
+   "nextTitle": "Formas de receber:",
+   "next1": "Crie um link de pagamento e partilhe-o em qualquer lugar",
+   "next2": "Coloque um checkout no seu site ou ligue a API",
+   "next3": "Adicione produtos à sua loja",
+   "promo": "E lembre-se — o seu primeiro pagamento é sem comissão. Dispensamos toda a comissão da plataforma no seu primeiro pagamento liquidado.",
+   "cta": "Ir para o painel",
+   "preheader": "Configuração concluída — veja como receber o seu primeiro pagamento."
+  },
+  "firstPayment": {
+   "subject": "Recebeu o seu primeiro pagamento",
+   "heading": "O seu primeiro pagamento chegou",
+   "heroPill": "Primeiro pagamento",
+   "heroSub": "O seu primeiro pagamento na Dynopay",
+   "intro": "Parabéns — a <strong>{{companyName}}</strong> acabou de receber o seu <strong>primeiro pagamento</strong> na Dynopay. Este é por nossa conta: dispensámos toda a comissão da plataforma.",
+   "amountLabel": "Valor recebido",
+   "outro": "Os fundos foram liquidados diretamente na sua carteira de pagamento. A muitos mais — continue a partilhar os seus links e o checkout.",
+   "cta": "Ver os seus pagamentos",
+   "preheader": "O seu primeiro pagamento chegou — e foi sem comissão."
+  },
   "labels": {
    "location": "Localização",
    "device": "Dispositivo",
@@ -496,18 +519,18 @@
   "typeProduction": "produção",
   "typeDevelopment": "desenvolvimento",
   "welcome": {
-   "subject": "Bem-vindo à Dynopay — seu primeiro pagamento é sem taxa",
-   "heading": "Bem-vindo à Dynopay",
-   "intro1": "Bem-vindo à Dynopay! Estamos felizes por tê-lo connosco.",
-   "intro2": "A Dynopay torna aceitar cripto simples e seguro — os fundos vão direto para uma carteira que você controla.",
-   "promo": "O seu primeiro pagamento é por nossa conta — isentamos toda a nossa taxa de plataforma no seu primeiro pagamento liquidado, seja qual for o valor.",
-   "nextTitle": "Veja o que pode fazer a seguir:",
-   "next1": "1. Complete o perfil da sua marca",
-   "next2": "2. Adicione o seu endereço de recebimento",
-   "next3": "3. Comece a aceitar pagamentos",
-   "questions": "Se tiver alguma dúvida, a nossa equipa de suporte está aqui para ajudar.",
-   "cta": "Começar",
-   "preheader": "O seu primeiro pagamento liquidado é sem taxas — veja como receber."
+   "subject": "Bem-vindo à Dynopay — vamos terminar a configuração",
+   "heading": "Bem-vindo — vamos terminar a sua configuração",
+   "intro1": "Já está! A sua conta Dynopay está pronta. Uns passos rápidos e estará a aceitar cripto.",
+   "intro2": "A Dynopay torna aceitar cripto simples e seguro — os fundos são liquidados diretamente numa carteira que você controla.",
+   "promo": "E o seu primeiro pagamento é por nossa conta — dispensamos toda a comissão da plataforma no seu primeiro pagamento liquidado, seja qual for o valor.",
+   "nextTitle": "Termine a configuração para entrar em atividade:",
+   "next1": "1. Crie o perfil da sua marca",
+   "next2": "2. Adicione o seu endereço de pagamento",
+   "next3": "3. Partilhe um link de pagamento ou ligue a API — e receba",
+   "questions": "Dúvidas pelo caminho? Responda a este e-mail ou abra o chat no nosso site — teremos todo o gosto em ajudar.",
+   "cta": "Terminar configuração",
+   "preheader": "Já está — termine uns passos rápidos para começar a aceitar cripto."
   },
   "emailVerifyOtp": {
    "subject": "{{code}} é o seu código de verificação Dynopay",

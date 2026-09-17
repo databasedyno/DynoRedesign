@@ -11,6 +11,8 @@
  */
 import crypto from "crypto";
 import type { Response } from "express";
+import { QueryTypes } from "sequelize";
+import sequelize from "../../utils/dbInstance";
 import config from "../../utils/config";
 import {
   getRedisItem,
@@ -27,9 +29,26 @@ import {
   sendWalletSecuredEmail,
   WalletChangeRow,
 } from "../email/walletSecurityEmails";
+import { sendWalletAddedEmail } from "../email/walletEmails";
 import { sendEmail } from "../email/emailShared";
 
 const REVERT_TTL_SECONDS = 7 * 24 * 3600; // link valid for 7 days
+
+/** Count a user's payout addresses (crypto wallets + saved addresses), matching
+ *  the onboarding "hasWallet" definition. Used to detect a FIRST-ever add. */
+async function countPayoutAddresses(userId: number): Promise<number> {
+  const rows = await sequelize.query<{ cnt: string }>(
+    `SELECT COUNT(*) as cnt FROM (
+       SELECT 1 FROM tbl_user_wallet
+       WHERE user_id = :u AND currency_type = 'CRYPTO'
+         AND wallet_address IS NOT NULL AND wallet_address != ''
+       UNION ALL
+       SELECT 1 FROM tbl_user_addresses WHERE user_id = :u
+     ) combined`,
+    { replacements: { u: userId }, type: QueryTypes.SELECT }
+  );
+  return parseInt(rows[0]?.cnt || "0", 10);
+}
 
 const freezeKey = (uid: number | string) => `wallet_freeze_${uid}`;
 const revertKey = (token: string) => `wallet_revert_${token}`;
@@ -115,6 +134,48 @@ export async function notifyWalletChanges(params: {
       (c) => c.new_address && (c.action === "add" || c.new_address !== c.previous_address),
     );
     if (addressChanges.length === 0) return;
+
+    // Context-aware: a merchant's FIRST-EVER payout address (a single add with no
+    // prior address on file) gets a friendly "you're ready to get paid"
+    // confirmation instead of the security "this wasn't me / undo & lock" alert.
+    // Any later add or change keeps the security alert. On any doubt/error we
+    // fall back to the security alert (never suppress it unsafely).
+    let isFirstAdd = false;
+    if (addressChanges.length === 1 && addressChanges[0].action === "add") {
+      try {
+        isFirstAdd = (await countPayoutAddresses(params.user_id)) <= 1;
+      } catch {
+        isFirstAdd = false;
+      }
+    }
+
+    if (isFirstAdd) {
+      const c0 = addressChanges[0];
+      if (params.email) {
+        await sendWalletAddedEmail(
+          params.email,
+          params.name || "",
+          maskWalletAddr(c0.new_address),
+          c0.currency,
+          params.companyName || "",
+          undefined,
+          params.lang || undefined,
+        );
+      }
+      await notificationModel
+        .create({
+          user_id: params.user_id,
+          company_id: params.company_id || null,
+          type: "wallet_added",
+          title: `${c0.currency} payout address added`,
+          message: `Your ${c0.currency} payout address was added — you're ready to get paid.`,
+          data: { networks: [c0.currency], action: "wallet_added" },
+          is_read: false,
+        })
+        .catch((e: Error) => walletLogger.warn(`[walletAlert] notification skipped: ${e.message}`));
+      walletLogger.info(`[walletAlert] first payout address added for user ${params.user_id} — friendly confirmation sent`);
+      return;
+    }
 
     const token = genToken();
     await setRedisItemWithTTL(

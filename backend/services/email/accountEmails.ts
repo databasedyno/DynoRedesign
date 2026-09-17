@@ -5,7 +5,7 @@ import { captureError } from "../errorMonitoringService";
 import { generatePaymentReceipt, getReceiptFilename } from "../pdfReceiptService";
 import { emailDateParts, t, normalizeLang, resolveEmailLang, firstNameOnly, formatEmailDateTime } from "../../utils/emailI18n";
 import { formatCryptoAmount } from "../../utils/currencyUtils";
-import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../../utils/emailTemplate";
+import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono, amountHero } from "../../utils/emailTemplate";
 import { EMAIL_TOKENS } from "../../utils/brandTokens";
 import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, dynoPayGreetingTemplate, formatAmountWithCurrency, sendEmail, greetingLine } from "./emailShared";
 import { toFixedStr } from "../../utils/money";
@@ -49,6 +49,86 @@ export const sendWelcomeEmail = async (
     apiLogger.error("Welcome email error:", e);
   }
 };
+
+/**
+ * Onboarding complete — the merchant-facing "you're all set" milestone email.
+ * Fired ONCE (Redis-deduped in onboardingMonitor) when email is verified, a
+ * company exists and a payout address is configured. This is the true "start
+ * accepting payments" moment — distinct from the signup welcome (which nudges
+ * the merchant to FINISH setup).
+ */
+export const sendOnboardingCompleteMerchantEmail = async (
+  email: string,
+  name: string,
+  companyName: string,
+  lang?: string
+) => {
+  try {
+    const L = await resolveEmailLang(lang, email);
+    const K = 'merchant.onboardingComplete';
+    const brand = escapeHtml(companyName || '');
+    const subject = t(`${K}.subject`, L);
+    const row = (text: string) => `<tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${text}</td></tr>`;
+    const content = `${greetingLine(L, name)}
+    ${p(t(`${K}.intro`, L, { companyName: brand }))}
+    ${infoBox(`
+      <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;"><strong>${t(`${K}.nextTitle`, L)}</strong></p>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        ${row(t(`${K}.next1`, L))}
+        ${row(t(`${K}.next2`, L))}
+        ${row(t(`${K}.next3`, L))}
+      </table>
+    `)}
+    ${infoBox(`
+      <p style="margin: 0; font-size: 14px; font-weight: 600; color: #166534; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t(`${K}.promo`, L)}</p>
+    `, '#12B76A')}`;
+
+    const html = dynoPayEmailTemplate(t(`${K}.heading`, L), content, true, t(`${K}.cta`, L), `${FRONTEND_BASE_URL}/dashboard`, t(`${K}.preheader`, L), L, 'rocket');
+    await mailTransporter({ to: email, name, subject, body: html });
+    apiLogger.info(`[Email] Onboarding-complete merchant email sent to ${email} (${companyName})`);
+  } catch (e) {
+    apiLogger.error("Onboarding-complete merchant email error:", e);
+  }
+};
+
+/**
+ * First payment received — merchant-facing celebration, sent ONCE (Redis-deduped
+ * in firstPaymentMonitor) when a merchant's very first payment settles. Separate
+ * from the per-payment receipt; this is the "you made your first sale" moment.
+ */
+export const sendFirstPaymentMerchantEmail = async (
+  email: string,
+  name: string,
+  companyName: string,
+  amountDisplay: string,
+  amountUsd?: string | null,
+  lang?: string
+) => {
+  try {
+    const L = await resolveEmailLang(lang, email);
+    const K = 'merchant.firstPayment';
+    const brand = escapeHtml(companyName || '');
+    const amt = escapeHtml(amountDisplay);
+    const subject = t(`${K}.subject`, L);
+    const content = `
+    ${amountHero(amt, { pill: t(`${K}.heroPill`, L), pillType: 'success', sublabel: t(`${K}.heroSub`, L) })}
+    ${greetingLine(L, name)}
+    ${p(t(`${K}.intro`, L, { companyName: brand }))}
+    ${infoBox(`
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        ${dataRow(t(`${K}.amountLabel`, L), `<strong style="color:#166534;">${amt}</strong>${amountUsd ? ` (~$${escapeHtml(amountUsd)})` : ''}`, true)}
+      </table>
+    `, '#12B76A')}
+    ${p(t(`${K}.outro`, L))}`;
+
+    const html = dynoPayEmailTemplate(t(`${K}.heading`, L), content, true, t(`${K}.cta`, L), `${FRONTEND_BASE_URL}/transactions`, t(`${K}.preheader`, L), L, 'check');
+    await mailTransporter({ to: email, name, subject, body: html });
+    apiLogger.info(`[Email] First-payment merchant celebration sent to ${email} (${amountDisplay})`);
+  } catch (e) {
+    apiLogger.error("First-payment merchant email error:", e);
+  }
+};
+
 
 /**
  * Volume-Tier Upgrade

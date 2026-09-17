@@ -1117,6 +1117,7 @@
       "entity": "Rechtspersoon",
       "since": "Actief sinds",
       "contact": "Contact",
+      "contactValue": "Chat met ons",
       "custody": "Bewaring",
       "custodyValue": "Niet-bewarend — geld gaat rechtstreeks naar de verkoper",
       "docsTitle": "Beleid & status",

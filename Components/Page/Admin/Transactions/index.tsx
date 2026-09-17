@@ -52,6 +52,50 @@ interface SelfTx {
 
 const STATUS_FILTERS = ["all", "successful", "pending", "failed"];
 
+// USD value on tbl_user_transaction is only LOCKED at settlement (the fiat rate
+// is captured when a payment settles). Pending/awaiting rows legitimately carry
+// 0/NULL, so rendering formatUSD(0) → "$0.00" reads as "a $0 payment". Show the
+// locked value for settled rows; for pending rows show a best-effort estimate
+// (stablecoins ≈ crypto amount, USD-priced orders ≈ base amount) or an explicit
+// "Pending" chip — never a misleading "$0.00".
+const SETTLED_STATES = ["successful", "success", "settled", "completed", "confirmed"];
+const FAILED_STATES = ["failed", "expired", "cancelled", "canceled"];
+const USD_STABLECOINS = new Set([
+  "USDT", "USDC", "DAI", "BUSD", "TUSD", "USDP", "GUSD", "PYUSD", "FDUSD", "RLUSD",
+]);
+// "USDT-TRC20" / "USDC_ERC20" / "RLUSD-ERC20" → base symbol "USDT" / "USDC" / "RLUSD".
+const baseCoinSymbol = (c?: string) => (c || "").toUpperCase().split(/[-_/ ]/)[0];
+
+const renderUsdValue = (t: CustomerTx): React.ReactNode => {
+  const s = (t.status || "").toLowerCase();
+  const usd = Number(t.usd_value) || 0;
+  // Settled rows (or any row that already has a real locked value) → show it.
+  if (SETTLED_STATES.includes(s) || usd > 0) return formatUSD(usd);
+  // Failed / expired / cancelled with no locked value → nothing to estimate.
+  if (FAILED_STATES.includes(s)) {
+    return <Box component="span" sx={{ color: "text.disabled" }}>—</Box>;
+  }
+  // Pending / awaiting / processing, no USD locked yet → best-effort estimate.
+  const cryptoAmt = Number(t.crypto_amount) || 0;
+  if (USD_STABLECOINS.has(baseCoinSymbol(t.crypto_currency)) && cryptoAmt > 0) {
+    return <Box component="span" sx={{ color: "text.secondary" }}>≈ {formatUSD(cryptoAmt)}</Box>;
+  }
+  const baseAmt = Number(t.base_amount) || 0;
+  if ((t.base_currency || "").toUpperCase() === "USD" && baseAmt > 0) {
+    return <Box component="span" sx={{ color: "text.secondary" }}>≈ {formatUSD(baseAmt)} (expected)</Box>;
+  }
+  // Volatile coin with no USD priced yet → explicit Pending, never "$0.00".
+  return (
+    <Chip
+      size="small"
+      variant="outlined"
+      color="warning"
+      label="Pending"
+      sx={{ height: 20, fontSize: 10.5, fontWeight: 600 }}
+    />
+  );
+};
+
 const AdminTransactions: React.FC = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -244,8 +288,8 @@ const AdminTransactions: React.FC = () => {
                         <TableCell align="right" sx={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "text.secondary" }}>
                           {t.crypto_amount ? `${formatCrypto(t.crypto_amount)} ${t.crypto_currency || ""}` : "—"}
                         </TableCell>
-                        <TableCell align="right" sx={{ fontFamily: "var(--font-mono)", fontSize: 12.5 }}>
-                          {formatUSD(t.usd_value)}
+                        <TableCell align="right" sx={{ fontFamily: "var(--font-mono)", fontSize: 12.5 }} data-testid={`tx-usd-${t.id || i}`}>
+                          {renderUsdValue(t)}
                         </TableCell>
                         <TableCell>
                           <AdminStatusChip status={t.status} />

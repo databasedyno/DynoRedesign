@@ -431,6 +431,29 @@
   "addressLabel": "Adresse"
  },
  "merchant": {
+  "onboardingComplete": {
+   "subject": "Alles bereit — nimm jetzt Krypto an",
+   "heading": "Alles bereit",
+   "intro": "Einrichtung abgeschlossen! <strong>{{companyName}}</strong> ist verifiziert, deine Auszahlungsadresse ist hinterlegt und du kannst jetzt Krypto-Zahlungen annehmen.",
+   "nextTitle": "So wirst du bezahlt:",
+   "next1": "Erstelle einen Zahlungslink und teile ihn überall",
+   "next2": "Binde ein Checkout auf deiner Website ein oder verbinde die API",
+   "next3": "Füge Produkte zu deinem Shop hinzu",
+   "promo": "Und denk daran — deine erste Zahlung ist gebührenfrei. Wir erlassen die gesamte Plattformgebühr bei deiner ersten abgeschlossenen Zahlung.",
+   "cta": "Zum Dashboard",
+   "preheader": "Einrichtung abgeschlossen — so nimmst du deine erste Zahlung entgegen."
+  },
+  "firstPayment": {
+   "subject": "Du hast deine erste Zahlung erhalten",
+   "heading": "Deine erste Zahlung ist da",
+   "heroPill": "Erste Zahlung",
+   "heroSub": "Deine erste Zahlung bei Dynopay",
+   "intro": "Glückwunsch — <strong>{{companyName}}</strong> hat gerade seine <strong>erste Zahlung</strong> bei Dynopay erhalten. Die geht auf uns: Wir haben die gesamte Plattformgebühr erlassen.",
+   "amountLabel": "Erhaltener Betrag",
+   "outro": "Die Gelder wurden direkt an dein Auszahlungs-Wallet überwiesen. Auf viele weitere — teile weiter deine Links und dein Checkout.",
+   "cta": "Zahlungen ansehen",
+   "preheader": "Deine erste Zahlung ist da — und sie war gebührenfrei."
+  },
   "labels": {
    "location": "Standort",
    "device": "Gerät",
@@ -496,18 +519,18 @@
   "typeProduction": "Produktion",
   "typeDevelopment": "Entwicklung",
   "welcome": {
-   "subject": "Willkommen bei Dynopay — deine erste Zahlung ist gebührenfrei",
-   "heading": "Willkommen bei Dynopay",
-   "intro1": "Willkommen bei Dynopay! Wir freuen uns, Sie an Bord zu haben.",
-   "intro2": "Dynopay macht das Annehmen von Krypto einfach und sicher — Gelder gehen direkt an eine Wallet, die du kontrollierst.",
-   "promo": "Ihre erste Zahlung geht auf uns — wir erlassen die gesamte Plattformgebühr auf Ihre erste abgewickelte Zahlung, unabhängig vom Betrag.",
-   "nextTitle": "Das können Sie als Nächstes tun:",
-   "next1": "1. Vervollständigen Sie Ihr Markenprofil",
-   "next2": "2. Fügen Sie Ihre Auszahlungsadresse hinzu",
-   "next3": "3. Beginnen Sie, Zahlungen zu akzeptieren",
-   "questions": "Bei Fragen ist unser Support-Team gerne für Sie da.",
-   "cta": "Loslegen",
-   "preheader": "Ihre erste abgewickelte Zahlung ist gebührenfrei — so werden Sie bezahlt."
+   "subject": "Willkommen bei Dynopay — lass uns die Einrichtung abschließen",
+   "heading": "Willkommen — schließen wir deine Einrichtung ab",
+   "intro1": "Du bist dabei! Dein Dynopay-Konto ist bereit. Nur ein paar schnelle Schritte und du kannst Krypto annehmen.",
+   "intro2": "Dynopay macht das Annehmen von Krypto einfach und sicher — die Gelder gehen direkt an ein Wallet, das du kontrollierst.",
+   "promo": "Und deine erste Zahlung geht auf uns — wir erlassen die gesamte Plattformgebühr bei deiner ersten abgeschlossenen Zahlung, egal in welcher Höhe.",
+   "nextTitle": "Schließe die Einrichtung ab, um live zu gehen:",
+   "next1": "1. Erstelle dein Markenprofil",
+   "next2": "2. Füge deine Auszahlungsadresse hinzu",
+   "next3": "3. Teile einen Zahlungslink oder verbinde die API — und werde bezahlt",
+   "questions": "Fragen unterwegs? Antworte einfach auf diese E-Mail oder öffne den Chat auf unserer Website — wir helfen gerne.",
+   "cta": "Einrichtung abschließen",
+   "preheader": "Du bist dabei — schließe ein paar schnelle Schritte ab, um Krypto anzunehmen."
   },
   "emailVerifyOtp": {
    "subject": "{{code}} ist dein Dynopay-Bestätigungscode",

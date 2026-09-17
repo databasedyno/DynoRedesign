@@ -33,7 +33,7 @@ export const setupOnboardingMonitorCron = () => {
 
     try {
       const { getRedisItem, setRedisItemWithTTL } = await import("../redisInstance");
-      const { sendOnboardingStuckAdminEmail, sendOnboardingCompletedAdminEmail, sendAddWalletReminderEmail } = await import("../../services/emailService");
+      const { sendOnboardingStuckAdminEmail, sendOnboardingCompletedAdminEmail, sendOnboardingCompleteMerchantEmail, sendAddWalletReminderEmail } = await import("../../services/emailService");
 
       // Fetch users registered in the last 72 hours
       const users = await sequelize.query<{
@@ -113,6 +113,20 @@ export const setupOnboardingMonitorCron = () => {
                 }) + " UTC",
                 hours_to_complete: hoursSinceReg,
               });
+
+              // Merchant-facing "you're all set" milestone (same one-time guard).
+              if (user.email) {
+                try {
+                  await sendOnboardingCompleteMerchantEmail(
+                    user.email,
+                    user.name || "there",
+                    companyName || "your business",
+                  );
+                  log(`Onboarding Monitor: "all set" email sent to merchant ${userId} (${user.email})`, "info");
+                } catch (mErr) {
+                  log(`Onboarding Monitor: merchant all-set email failed for user ${userId}: ${mErr}`, "error");
+                }
+              }
             }
             continue; // Onboarding complete — no stuck check needed
           }

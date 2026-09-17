@@ -18,7 +18,7 @@ import { apiModel, companyModel, customerModel, customerWalletModel, userModel, 
 import { companyLogger } from "../utils/loggers";
 import sequelize from "../utils/dbInstance";
 import { QueryTypes, Op } from "sequelize";
-import { sendCompanyProfileCreatedEmail, sendCompanyContactWelcomeEmail, sendCompanyProfileUpdatedEmail, sendCompanyDeletedEmail, sendBrandSoftDeletedEmail, sendBrandDeletedAdminEmail } from "../services/emailService";
+import { sendCompanyProfileCreatedEmail, sendCompanyProfileUpdatedEmail, sendCompanyDeletedEmail, sendBrandSoftDeletedEmail, sendBrandDeletedAdminEmail } from "../services/emailService";
 import { BRAND_DELETE_GRACE_DAYS } from "../services/brandPurgeService";
 export const ONLY_BRAND_MESSAGE =
   "Cannot delete your only brand. Add another brand first, then delete this one.";
@@ -359,29 +359,18 @@ const addCompany = async (req: express.Request, res: express.Response) => {
           const companyContactEmail = data.email; // Company contact email from form
           const accountEmail = userDetails.email; // may be null for phone/SMS-only accounts
 
-          // Email 1: Send to account holder (operational confirmation) — only if
-          // the account actually has an email. Phone/SMS-only users have none.
-          if (accountEmail) {
+          // Single, consolidated "brand created" confirmation. Goes to the
+          // account holder; if the account has no email (phone/SMS-only) but a
+          // company-contact email was provided, that address receives it instead.
+          const confirmEmail = accountEmail || companyContactEmail;
+          if (confirmEmail) {
             await sendCompanyProfileCreatedEmail(
-              accountEmail,
+              confirmEmail,
               userDetails.name || 'User',
               companyName
             );
             companyLogger.info(
-              `Company profile created email sent to account: ${accountEmail}`,
-              { user_id: userData.user_id, company_name: companyName }
-            );
-          }
-
-          // Email 2: Send to company contact (if provided and different from account email)
-          if (companyContactEmail && companyContactEmail.toLowerCase() !== (accountEmail || '').toLowerCase()) {
-            await sendCompanyContactWelcomeEmail(
-              companyContactEmail,
-              companyName,
-              userDetails.name || 'the account holder'
-            );
-            companyLogger.info(
-              `Company contact welcome email sent to: ${companyContactEmail}`,
+              `Company profile created email sent to: ${confirmEmail}`,
               { user_id: userData.user_id, company_name: companyName }
             );
           }

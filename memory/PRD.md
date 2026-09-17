@@ -1,3 +1,58 @@
+# === 2026-06 (fork) DONE & VERIFIED — SUPPORT-EMAIL→CHAT + LIFECYCLE-EMAIL RETIMING FINALIZED · P0 ADMIN "$0.00" PENDING FIXED ===
+# This fork RESUMED the prior session's UNCOMMITTED working-tree work (support-email removal + lifecycle email
+# retiming), VERIFIED it end-to-end, then fixed the P0 admin-transactions "$0.00" bug. User approved the plan
+# (ask_human): finalize+verify the pending work, then fix the P0 bug; lifecycle-email timing = keep current defaults.
+#
+# ── TASK 1 (prior session's code, now VERIFIED — was "TESTING PENDING") ──
+#   A) PUBLIC SUPPORT EMAIL → IN-APP CHAT (frontend): pages/about.tsx (hero "Talk to us" + CTA-band button),
+#      Components/Page/About/LegitimacyBlock.tsx (contact fact → "Chat with us"), pages/help-support/[slug].tsx
+#      (articleStubMore copy) all now fire `window.dispatchEvent(new CustomEvent("dynopay:open-support-chat"))`
+#      instead of mailto:. Listener confirmed in Components/Common/SupportChatWidget/index.tsx:160 (widget mounted
+#      globally in pages/_app.tsx:715). VERIFIED (real Playwright, headless_shell): /about renders (the blank
+#      screenshot_tool capture was a TOOL TIMING ARTIFACT — its 10s nav cap vs the slow Next dev bundle; content is
+#      present at opacity 1, only the pre-existing legacyBehavior <Link> warning in console). All 3 chat triggers
+#      open the widget (body[data-dp-support-chat-open]=1); no support email in /about or /help-support body text;
+#      mobile 390 no horizontal overflow. NOTE: all 8 /help-support slugs render DB-backed KB articles on prod, so
+#      the (updated) articleStubMore stub copy is a fallback only — verified at code+locale level ("one tap away").
+#      REMAINING support@dynopay.com strings are ONLY legal: en/common.json:395 (Terms §14 Contact), termsConditions.json,
+#      privacyPolicy.json — KEPT per user instruction ("only legal/technical references").
+#   B) LIFECYCLE EMAIL RETIMING (backend, render-verified — crons can't fire live in this pod, SAFE MODE/jobs OFF):
+#      • accountEmails.ts: welcome REWORDED to "let's finish your setup"; NEW sendOnboardingCompleteMerchantEmail
+#        ("You're all set", hero 'rocket') + sendFirstPaymentMerchantEmail ("Your first payment landed", amountHero).
+#      • onboardingMonitor.ts: fires the "all set" merchant email once (Redis-deduped) when email verified + company +
+#        payout address exist. firstPaymentMonitor.ts: fires the first-payment merchant celebration once (same guard).
+#      • companyController.addCompany: MERGED the 2 brand-created emails into ONE consolidated confirmation
+#        (sendCompanyContactWelcomeEmail call removed; sendCompanyProfileCreatedEmail → account email, or company
+#        contact email if the account is phone/SMS-only).
+#      • walletChangeAlert.ts: CONTEXT-AWARE — a merchant's FIRST-EVER payout address add (countPayoutAddresses<=1)
+#        gets the friendly sendWalletAddedEmail instead of the security "this wasn't me / undo & lock" alert; any later
+#        add/change keeps the security alert; on any error falls back to the security alert (never suppress unsafely).
+#      VERIFY (re-run anytime): cd /app/backend && EMAIL_DUMP_DIR=/tmp/audit_emails DISABLE_OUTBOUND_EMAIL=true
+#        node_modules/.bin/ts-node --transpile-only scripts/audit_render_all_emails.ts  → "rendered 151/151", ZERO
+#        leaked {{keys}}; node_modules/.bin/tsc --noEmit → 0 errors. i18n spot-checked: onboardingComplete es="Todo
+#        listo", firstPayment fr="Votre premier paiement est arrivé". New i18n namespaces: merchant.onboardingComplete.*
+#        + merchant.firstPayment.* (×6 langs, backend/locales/*/emails.json). Harness gained 4 invocations (147→151).
+#      One-off injection scripts left in backend/scripts/ (apply_lifecycle_email_i18n.cjs, apply_about_contactvalue_i18n.cjs,
+#      apply_articlestub_chat_i18n.cjs) — safe to delete post-commit (edits already baked into the JSON catalogs).
+#
+# ── P0 BUG FIXED — ADMIN TXNS "$0.00" FOR PENDING (frontend-only, per PRD analysis option "c") ──
+#   Components/Page/Admin/Transactions/index.tsx: added module-scope renderUsdValue(t) helper (+ SETTLED_STATES,
+#   FAILED_STATES, USD_STABLECOINS set, baseCoinSymbol). USD-value cell now: settled row (or usd_value>0) → formatUSD
+#   (locked value, unchanged); failed/expired/cancelled w/o value → muted "—"; pending stablecoin (USDT/USDC/DAI/BUSD/
+#   TUSD/USDP/GUSD/PYUSD/FDUSD/RLUSD, incl. -TRC20/-POLYGON/-ERC20 suffixes) w/ crypto_amount>0 → "≈ $X"
+#   (text.secondary); pending USD-priced order → "≈ $X (expected)"; volatile coin (ETH/BTC…) w/ no USD yet → outlined
+#   amber "Pending" chip (NEVER "$0.00"). Cell got data-testid=tx-usd-<id>. NO backend/DB change (usd_value is
+#   correctly 0 until settlement). VERIFIED live (Playwright, admin_token only, moxxcompany@gmail.com): prod has 554
+#   pending rows — USDT show "≈ $10.00"/"≈ $1,100.00"/"≈ $15,000.00", ETH/BTC show "Pending" chip, 0 "$0.00" cells;
+#   settled rows still show locked $ ($73.15…). FE tsc 0, eslint 0 on the file.
+#
+# TESTING: self-tested comprehensively (backend render harness + tsc + i18n spot-check; frontend real-Playwright
+#   functional tests against PROD data for both the chat triggers and the admin pending render). testing_agent NOT
+#   invoked (changes are render/content-level; crons OFF in SAFE MODE so no live-trigger to exercise).
+# COMMIT: all changes are in the working tree, NOT yet committed — user must click "Save to GitHub".
+# ============================================================================================
+
+
 # === 2026-06 (fork) DONE & VERIFIED — EMAIL REDESIGN PHASES 2+3 + REFERRAL i18n + MATRIX B/C SHIPPED (testing_agent iteration_195: backend 100%, 0 issues, retest_needed=false) ===
 # Resumes & completes the "SESSION PAUSED" block just below. User approved the full batch (ask_human) with default
 # Matrix B/C thresholds (low < $10, exhausted at $0, Redis dedup once per merchant per 30 days per alert type).

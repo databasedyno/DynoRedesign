@@ -431,6 +431,29 @@
   "addressLabel": "Address"
  },
  "merchant": {
+  "onboardingComplete": {
+   "subject": "You're all set — start accepting crypto",
+   "heading": "You're all set",
+   "intro": "Setup complete! <strong>{{companyName}}</strong> is verified, your payout address is in, and you're ready to accept crypto payments.",
+   "nextTitle": "Ways to get paid:",
+   "next1": "Create a payment link and share it anywhere",
+   "next2": "Drop a checkout on your site or connect the API",
+   "next3": "Add products to your storefront",
+   "promo": "And remember — your first payment is fee-free. We waive our entire platform fee on your first settled payment.",
+   "cta": "Go to dashboard",
+   "preheader": "Setup complete — here's how to take your first payment."
+  },
+  "firstPayment": {
+   "subject": "You got your first payment",
+   "heading": "Your first payment landed",
+   "heroPill": "First payment",
+   "heroSub": "Your first payment on Dynopay",
+   "intro": "Congratulations — <strong>{{companyName}}</strong> just received its <strong>first payment</strong> on Dynopay. This one's on us: we waived our entire platform fee.",
+   "amountLabel": "Amount received",
+   "outro": "The funds settled straight to your payout wallet. Here's to many more — keep sharing your links and checkout.",
+   "cta": "View your payments",
+   "preheader": "Your first payment landed — and it was fee-free."
+  },
   "labels": {
    "location": "Location",
    "device": "Device",
@@ -496,18 +519,18 @@
   "typeProduction": "production",
   "typeDevelopment": "development",
   "welcome": {
-   "subject": "Welcome to Dynopay — your first payment is fee-free",
-   "heading": "Welcome to Dynopay",
-   "intro1": "Welcome to Dynopay! We're excited to have you on board.",
+   "subject": "Welcome to Dynopay — let's finish setting up",
+   "heading": "Welcome — let's finish your setup",
+   "intro1": "You're in! Your Dynopay account is ready. A couple of quick steps and you'll be accepting crypto.",
    "intro2": "Dynopay makes accepting crypto simple and secure — funds settle straight to a wallet you control.",
-   "promo": "Your first payment is on us — we waive our entire platform fee on your first settled payment, any amount.",
-   "nextTitle": "Here's what you can do next:",
-   "next1": "1. Complete your brand profile",
+   "promo": "And your first payment is on us — we waive our entire platform fee on your first settled payment, any amount.",
+   "nextTitle": "Finish setup to go live:",
+   "next1": "1. Create your brand profile",
    "next2": "2. Add your payout address",
-   "next3": "3. Start accepting payments",
-   "questions": "If you have any questions, our support team is here to help.",
-   "cta": "Get Started",
-   "preheader": "Your first settled payment is fee-free — here's how to get paid."
+   "next3": "3. Share a payment link or connect the API — and get paid",
+   "questions": "Questions along the way? Just reply to this email or open the chat on our site — we're happy to help.",
+   "cta": "Finish setup",
+   "preheader": "You're in — finish a couple of quick steps to start accepting crypto."
   },
   "emailVerifyOtp": {
    "subject": "{{code}} is your Dynopay verification code",

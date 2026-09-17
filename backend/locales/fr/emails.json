@@ -431,6 +431,29 @@
   "addressLabel": "Adresse"
  },
  "merchant": {
+  "onboardingComplete": {
+   "subject": "Tout est prêt — commencez à accepter la crypto",
+   "heading": "Tout est prêt",
+   "intro": "Configuration terminée ! <strong>{{companyName}}</strong> est vérifiée, votre adresse de versement est enregistrée et vous êtes prêt à accepter des paiements en crypto.",
+   "nextTitle": "Comment encaisser :",
+   "next1": "Créez un lien de paiement et partagez-le partout",
+   "next2": "Ajoutez un checkout à votre site ou connectez l'API",
+   "next3": "Ajoutez des produits à votre boutique",
+   "promo": "Et n'oubliez pas — votre premier paiement est sans frais. Nous supprimons la totalité des frais de plateforme sur votre premier paiement réglé.",
+   "cta": "Aller au tableau de bord",
+   "preheader": "Configuration terminée — voici comment recevoir votre premier paiement."
+  },
+  "firstPayment": {
+   "subject": "Vous avez reçu votre premier paiement",
+   "heading": "Votre premier paiement est arrivé",
+   "heroPill": "Premier paiement",
+   "heroSub": "Votre premier paiement sur Dynopay",
+   "intro": "Félicitations — <strong>{{companyName}}</strong> vient de recevoir son <strong>premier paiement</strong> sur Dynopay. Celui-ci est offert : nous avons supprimé la totalité des frais de plateforme.",
+   "amountLabel": "Montant reçu",
+   "outro": "Les fonds ont été versés directement sur votre portefeuille de versement. À bien d'autres — continuez à partager vos liens et votre checkout.",
+   "cta": "Voir vos paiements",
+   "preheader": "Votre premier paiement est arrivé — et il était sans frais."
+  },
   "labels": {
    "location": "Emplacement",
    "device": "Appareil",
@@ -496,18 +519,18 @@
   "typeProduction": "production",
   "typeDevelopment": "développement",
   "welcome": {
-   "subject": "Bienvenue sur Dynopay — votre premier paiement est sans frais",
-   "heading": "Bienvenue chez Dynopay",
-   "intro1": "Bienvenue chez Dynopay ! Nous sommes ravis de vous compter parmi nous.",
-   "intro2": "Dynopay rend l'acceptation des cryptos simple et sûre — les fonds arrivent directement sur un portefeuille que vous contrôlez.",
-   "promo": "Votre premier paiement est offert — nous renonçons à l'intégralité de nos frais de plateforme sur votre premier paiement réglé, quel que soit le montant.",
-   "nextTitle": "Voici ce que vous pouvez faire ensuite :",
-   "next1": "1. Complétez le profil de votre marque",
+   "subject": "Bienvenue sur Dynopay — terminons la configuration",
+   "heading": "Bienvenue — terminons votre configuration",
+   "intro1": "Vous y êtes ! Votre compte Dynopay est prêt. Quelques étapes rapides et vous accepterez la crypto.",
+   "intro2": "Dynopay rend l'acceptation de la crypto simple et sûre — les fonds sont versés directement sur un portefeuille que vous contrôlez.",
+   "promo": "Et votre premier paiement est offert — nous supprimons la totalité des frais de plateforme sur votre premier paiement réglé, quel que soit le montant.",
+   "nextTitle": "Terminez la configuration pour vous lancer :",
+   "next1": "1. Créez le profil de votre marque",
    "next2": "2. Ajoutez votre adresse de versement",
-   "next3": "3. Commencez à accepter les paiements",
-   "questions": "Si vous avez des questions, notre équipe d'assistance est là pour vous aider.",
-   "cta": "Commencer",
-   "preheader": "Votre premier paiement réglé est sans frais — voici comment être payé."
+   "next3": "3. Partagez un lien de paiement ou connectez l'API — et encaissez",
+   "questions": "Des questions en chemin ? Répondez simplement à cet e-mail ou ouvrez le chat sur notre site — nous sommes ravis de vous aider.",
+   "cta": "Terminer la configuration",
+   "preheader": "Vous y êtes — terminez quelques étapes rapides pour accepter la crypto."
   },
   "emailVerifyOtp": {
    "subject": "{{code}} est votre code de vérification Dynopay",

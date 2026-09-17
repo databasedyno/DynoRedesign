@@ -431,6 +431,29 @@
   "addressLabel": "Adres"
  },
  "merchant": {
+  "onboardingComplete": {
+   "subject": "Alles klaar — begin met crypto accepteren",
+   "heading": "Alles klaar",
+   "intro": "Setup voltooid! <strong>{{companyName}}</strong> is geverifieerd, je uitbetaaladres staat erin en je kunt nu crypto-betalingen accepteren.",
+   "nextTitle": "Manieren om betaald te worden:",
+   "next1": "Maak een betaallink en deel hem overal",
+   "next2": "Zet een checkout op je site of koppel de API",
+   "next3": "Voeg producten toe aan je storefront",
+   "promo": "En vergeet niet — je eerste betaling is kosteloos. We schelden de volledige platformkosten kwijt op je eerste afgewikkelde betaling.",
+   "cta": "Naar dashboard",
+   "preheader": "Setup voltooid — zo ontvang je je eerste betaling."
+  },
+  "firstPayment": {
+   "subject": "Je hebt je eerste betaling ontvangen",
+   "heading": "Je eerste betaling is binnen",
+   "heroPill": "Eerste betaling",
+   "heroSub": "Je eerste betaling op Dynopay",
+   "intro": "Gefeliciteerd — <strong>{{companyName}}</strong> heeft zojuist zijn <strong>eerste betaling</strong> op Dynopay ontvangen. Deze is van ons: we hebben de volledige platformkosten kwijtgescholden.",
+   "amountLabel": "Ontvangen bedrag",
+   "outro": "Het geld is rechtstreeks op je uitbetaalwallet binnengekomen. Op nog veel meer — blijf je links en checkout delen.",
+   "cta": "Bekijk je betalingen",
+   "preheader": "Je eerste betaling is binnen — en het was kosteloos."
+  },
   "labels": {
    "location": "Locatie",
    "device": "Apparaat",
@@ -496,18 +519,18 @@
   "typeProduction": "productie",
   "typeDevelopment": "ontwikkeling",
   "welcome": {
-   "subject": "Welkom bij Dynopay — je eerste betaling is gratis",
-   "heading": "Welkom bij Dynopay",
-   "intro1": "Welkom bij Dynopay! We zijn blij dat u erbij bent.",
-   "intro2": "Dynopay maakt crypto accepteren simpel en veilig — gelden komen direct in een wallet die jij beheert.",
-   "promo": "Uw eerste betaling is van ons — we schelden onze volledige platformkosten kwijt op uw eerste afgewikkelde betaling, ongeacht het bedrag.",
-   "nextTitle": "Dit kunt u nu doen:",
-   "next1": "1. Vul uw merkprofiel in",
-   "next2": "2. Voeg uw uitbetalingsadres toe",
-   "next3": "3. Begin met het accepteren van betalingen",
-   "questions": "Als u vragen heeft, staat ons supportteam voor u klaar.",
-   "cta": "Aan de slag",
-   "preheader": "Uw eerste afgehandelde betaling is gratis — zo wordt u betaald."
+   "subject": "Welkom bij Dynopay — laten we de setup afronden",
+   "heading": "Welkom — laten we je setup afronden",
+   "intro1": "Je bent binnen! Je Dynopay-account is klaar. Een paar snelle stappen en je accepteert crypto.",
+   "intro2": "Dynopay maakt het accepteren van crypto simpel en veilig — het geld komt rechtstreeks binnen op een wallet die jij beheert.",
+   "promo": "En je eerste betaling is van ons — we schelden de volledige platformkosten kwijt op je eerste afgewikkelde betaling, ongeacht het bedrag.",
+   "nextTitle": "Rond de setup af om live te gaan:",
+   "next1": "1. Maak je merkprofiel aan",
+   "next2": "2. Voeg je uitbetaaladres toe",
+   "next3": "3. Deel een betaallink of koppel de API — en word betaald",
+   "questions": "Vragen onderweg? Beantwoord gewoon deze e-mail of open de chat op onze site — we helpen je graag.",
+   "cta": "Setup afronden",
+   "preheader": "Je bent binnen — rond een paar snelle stappen af om crypto te accepteren."
   },
   "emailVerifyOtp": {
    "subject": "{{code}} is je Dynopay-verificatiecode",

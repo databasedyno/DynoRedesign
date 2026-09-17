@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Box, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import BusinessRoundedIcon from "@mui/icons-material/BusinessRounded";
-import MailOutlineRoundedIcon from "@mui/icons-material/MailOutlineRounded";
+import MailOutlineRoundedIcon from "@mui/icons-material/ChatBubbleOutlineRounded";
 import VerifiedUserRoundedIcon from "@mui/icons-material/VerifiedUserRounded";
 import AccountBalanceWalletRoundedIcon from "@mui/icons-material/AccountBalanceWalletRounded";
 import ArrowOutwardRoundedIcon from "@mui/icons-material/ArrowOutwardRounded";
@@ -12,8 +12,24 @@ import { BRAND_ACCENT } from "@/constants/theme";
 import { Section, SectionHead } from "@/Components/Page/Home/v5/shared";
 
 const LEGAL_NAME = "Dynopay Payments Ltd.";
-const CONTACT_EMAIL = "support@dynopay.com";
 const SINCE = "2024";
+
+// Opens the global in-app support chat (mounted in _app.tsx) via a window
+// CustomEvent — replaces the old mailto: contact so no support email is shown.
+const openSupportChat = () => {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("dynopay:open-support-chat"));
+  }
+};
+
+type Fact = {
+  Icon: React.ElementType;
+  label: string;
+  value: string;
+  href?: string;
+  onClick?: () => void;
+  testId: string;
+};
 
 const DOCS = [
   { key: "terms", href: "/terms-conditions" },
@@ -28,10 +44,10 @@ const AboutLegitimacyBlock = () => {
   const s = useAurora();
   const accent = s.dark ? "#818CF8" : BRAND_ACCENT;
 
-  const facts = [
+  const facts: Fact[] = [
     { Icon: BusinessRoundedIcon, label: t("about.legit.entity", { defaultValue: "Legal entity" }), value: LEGAL_NAME, testId: "about-legit-entity" },
     { Icon: VerifiedUserRoundedIcon, label: t("about.legit.since", { defaultValue: "Operating since" }), value: SINCE, testId: "about-legit-since" },
-    { Icon: MailOutlineRoundedIcon, label: t("about.legit.contact", { defaultValue: "Contact" }), value: CONTACT_EMAIL, href: `mailto:${CONTACT_EMAIL}`, testId: "about-legit-contact" },
+    { Icon: MailOutlineRoundedIcon, label: t("about.legit.contact", { defaultValue: "Contact" }), value: t("about.legit.contactValue", { defaultValue: "Chat with us" }), onClick: openSupportChat, testId: "about-legit-contact" },
     { Icon: AccountBalanceWalletRoundedIcon, label: t("about.legit.custody", { defaultValue: "Custody" }), value: t("about.legit.custodyValue", { defaultValue: "Non-custodial — funds go straight to the merchant" }), testId: "about-legit-custody" },
   ];
 
@@ -44,14 +60,16 @@ const AboutLegitimacyBlock = () => {
       />
       <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1.2fr 0.8fr" }, gap: { xs: 2, md: 3 } }}>
         <Box sx={{ borderRadius: "20px", background: s.surface, border: `1px solid ${s.line}`, p: { xs: 2.5, md: 3.5 } }} data-testid="about-legit-facts">
-          {facts.map(({ Icon, label, value, href, testId }, i) => (
+          {facts.map(({ Icon, label, value, href, onClick, testId }, i) => (
             <Box key={testId} data-testid={testId} sx={{ display: "flex", gap: 2, alignItems: "flex-start", py: 1.75, borderTop: i ? `1px dashed ${s.line}` : "none" }}>
               <Box sx={{ flexShrink: 0, width: 38, height: 38, borderRadius: "11px", display: "grid", placeItems: "center", background: s.dark ? "rgba(129,140,248,0.14)" : "rgba(79,70,229,0.09)", color: accent }}>
                 <Icon sx={{ fontSize: 20 }} />
               </Box>
               <Box sx={{ minWidth: 0 }}>
                 <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase", color: s.ink3 }}>{label}</Typography>
-                {href ? (
+                {onClick ? (
+                  <Typography component="a" role="button" tabIndex={0} onClick={onClick} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } }} sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 17, color: accent, textDecoration: "none", cursor: "pointer", "&:hover": { textDecoration: "underline" }, overflowWrap: "anywhere" }}>{value}</Typography>
+                ) : href ? (
                   <Typography component="a" href={href} sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 17, color: accent, textDecoration: "none", "&:hover": { textDecoration: "underline" }, overflowWrap: "anywhere" }}>{value}</Typography>
                 ) : (
                   <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 17, color: s.ink, letterSpacing: "-0.01em" }}>{value}</Typography>

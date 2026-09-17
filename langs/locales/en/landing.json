@@ -1117,6 +1117,7 @@
       "entity": "Legal entity",
       "since": "Operating since",
       "contact": "Contact",
+      "contactValue": "Chat with us",
       "custody": "Custody",
       "custodyValue": "Non-custodial — funds go straight to the merchant",
       "docsTitle": "Policies & status",

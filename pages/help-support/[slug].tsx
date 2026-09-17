@@ -232,7 +232,7 @@ const HelpDetail = ({ article, stub, setPageName, setPageDescription }: HelpDeta
               {stub?.description}
             </Typography>
             <Typography component="p" sx={{ mt: 2, fontFamily: "var(--font-sans)", fontSize: isMobile ? "13px" : "15px", color: theme.palette.text.secondary, lineHeight: 1.7 }}>
-              {t("articleStubMore", { defaultValue: "Need a hand with this topic? Our support team is available in the dashboard and at support@dynopay.com." })}
+              {t("articleStubMore", { defaultValue: "Need a hand with this topic? Our support team is one tap away — just open the chat from any page and we'll help you out." })}
             </Typography>
           </Box>
           {feedbackBox}

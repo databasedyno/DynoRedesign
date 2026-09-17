@@ -98,6 +98,10 @@ const main = async () => {
   // ── account ──
   await capture("account", "welcome", "", "M", () => acc.sendWelcomeEmail(M, NAME));
   await capture("account", "welcome", "de", "M", () => acc.sendWelcomeEmail(M, NAME, "de"));
+  await capture("account", "onboardingComplete", "", "M", () => acc.sendOnboardingCompleteMerchantEmail(M, NAME, BRAND));
+  await capture("account", "onboardingComplete", "es", "M", () => acc.sendOnboardingCompleteMerchantEmail(M, NAME, BRAND, "es"));
+  await capture("account", "firstPaymentMerchant", "", "M", () => acc.sendFirstPaymentMerchantEmail(M, NAME, BRAND, "0.05 ETH", "182.40"));
+  await capture("account", "firstPaymentMerchant", "fr", "M", () => acc.sendFirstPaymentMerchantEmail(M, NAME, BRAND, "0.05 ETH", "182.40", "fr"));
   await capture("account", "volumeTierUpgrade", "", "M", () => acc.sendVolumeTierUpgradeEmail(M, { name: NAME, previousTier: "Starter", previousPercent: 1.5, newTier: "Growth", newPercent: 1.2, totalVolumeUsd: 10240 }));
   await capture("account", "emailVerificationOtp", "", "M", () => acc.sendEmailVerificationOTPEmail(M, NAME, "482913"));
   await capture("account", "loginOtp", "", "M", () => acc.sendLoginOTPEmail(M, NAME, "482913"));

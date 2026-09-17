@@ -16,6 +16,14 @@ import PublicPageHero from "@/Components/Page/Home/v5/PublicPageHero";
 import CtaBand from "@/Components/Page/Home/v5/CtaBand";
 import AboutLegitimacyBlock from "@/Components/Page/About/LegitimacyBlock";
 
+// Opens the global in-app support chat widget (mounted in _app.tsx) via a
+// window CustomEvent — no import needed. Replaces the old mailto: contact CTAs.
+const openSupportChat = () => {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("dynopay:open-support-chat"));
+  }
+};
+
 const STATS = [
   { value: "1.5%", labelKey: "about.stats.baseFee" },
   { value: "9", labelKey: "about.stats.chains" },
@@ -53,7 +61,7 @@ const AboutPage: React.FC = () => {
               <PrimaryBtn data-testid="about-start-free-btn" onClick={() => router.push("/auth/register")} endIcon={<ArrowForwardRoundedIcon sx={{ fontSize: 18 }} />}>
                 {t("startFree")}
               </PrimaryBtn>
-              <SecondaryBtn data-testid="about-contact-btn" href="mailto:support@dynopay.com">
+              <SecondaryBtn data-testid="about-contact-btn" onClick={openSupportChat}>
                 {t("about.talkToUs")}
               </SecondaryBtn>
             </>
@@ -108,8 +116,8 @@ const AboutPage: React.FC = () => {
               <PrimaryBtn data-testid="about-cta-start" onClick={() => router.push("/auth/register")} endIcon={<ArrowForwardRoundedIcon sx={{ fontSize: 18 }} />}>
                 {t("v3.hero.primaryCta")}
               </PrimaryBtn>
-              <SecondaryBtn onDark data-testid="about-cta-email" href="mailto:support@dynopay.com">
-                support@dynopay.com
+              <SecondaryBtn onDark data-testid="about-cta-chat" onClick={openSupportChat}>
+                {t("about.talkToUs")}
               </SecondaryBtn>
             </>
           }

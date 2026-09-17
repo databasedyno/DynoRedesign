@@ -23,7 +23,7 @@ export const setupFirstPaymentMonitorCron = () => {
   cron.schedule("5,20,35,50 * * * *", async () => {
     try {
       const { getRedisItem, setRedisItemWithTTL } = await import("../redisInstance");
-      const { sendFirstPaymentAdminEmail } = await import("../../services/emailService");
+      const { sendFirstPaymentAdminEmail, sendFirstPaymentMerchantEmail } = await import("../../services/emailService");
 
       // Find companies whose first successful transaction happened in the last 30 minutes
       const firstPayments = await sequelize.query<{
@@ -129,6 +129,21 @@ export const setupFirstPaymentMonitorCron = () => {
             }) + " UTC",
             days_since_registration: daysSinceReg,
           });
+
+          // Merchant-facing "your first payment landed" celebration (same dedup guard).
+          if (fp.merchant_email) {
+            try {
+              await sendFirstPaymentMerchantEmail(
+                fp.merchant_email,
+                fp.merchant_name || "there",
+                fp.company_name || "your business",
+                `${fp.amount} ${fp.currency}`,
+                amountUsd,
+              );
+            } catch (mErr) {
+              log(`First Payment Monitor: merchant celebration email failed for company ${fp.company_id}: ${mErr}`, "error");
+            }
+          }
 
         } catch (fpErr) {
           log(`First Payment Monitor: Error for company ${fp.company_id}: ${fpErr}`, "error");
