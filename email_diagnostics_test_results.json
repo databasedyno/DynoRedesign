@@ -1,0 +1,30 @@
+{
+  "wrong_password": {
+    "pass": true,
+    "error": null
+  },
+  "no_auth_token": {
+    "pass": true,
+    "error": null
+  },
+  "test_1_settled_paymentlink_overpay": {
+    "pass": true,
+    "error": null
+  },
+  "test_2_settled_api_no_overpay": {
+    "pass": true,
+    "error": null
+  },
+  "test_3_pending_productorder": {
+    "pass": true,
+    "error": null
+  },
+  "test_4_confirming_donation": {
+    "pass": true,
+    "error": null
+  },
+  "test_5_settled_spanish": {
+    "pass": true,
+    "error": null
+  }
+}

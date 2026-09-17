@@ -1634,7 +1634,8 @@
   "heroSub": "Auf Ihre Auszahlungs-Wallet überwiesen",
   "heroSubConverting": "Wird in {{target}} umgewandelt — erscheint nach Abschluss unter Auszahlungen",
   "referralCreditRow": "Empfehlungsguthaben",
-  "referralCreditNote": "Gebühr gedeckt"
+  "referralCreditNote": "Gebühr gedeckt",
+  "overpaidNote": "Ein Käufer hat {{excess}} (≈ {{excessFiat}}) zu viel gezahlt. Der Mehrbetrag ist in dieser Auszahlung enthalten — Sie können die Differenz bei Bedarf aus der Transaktion erstatten."
  },
  "payoutDelayed": {
   "amountWaiting": "Wartet auf Auszahlung",

@@ -32,6 +32,8 @@ export interface PaymentMoneyPath {
   referralCreditUsd?: number | null;
   /** How the payment was made: api | paymentLink | productOrder | donation | tip — shown as a "Received via" row. */
   sourceKey?: string | null;
+  /** Buyer overpaid — the excess is included in this payout. Folds the old standalone "a buyer overpaid" email into this settled email. */
+  overpayment?: { excessCrypto: string; excessFiat: string } | null;
 }
 
 export const maskAddress = (a?: string | null): string =>
@@ -109,5 +111,10 @@ export const renderMoneyPath = (L: string, mp: PaymentMoneyPath): string => {
   ].filter(Boolean);
   const details = infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows.join("")}</table>`, "#12B76A");
 
-  return `${money}${details}${fiat ? p(t("paymentSettled.fiatNote", L), "font-size:13px;color:#6b7280;") : ""}`;
+  // Overpayment is folded into this settled email (no separate "a buyer overpaid" email).
+  const overpaidNote = mp.overpayment
+    ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:16px 0;"><tr><td style="background:#FFFAEB;border-left:4px solid #F79009;border-radius:8px;padding:14px 16px;font-size:14px;color:#93370D;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;line-height:1.6;">${t("paymentSettled.overpaidNote", L, { excess: escapeHtml(mp.overpayment.excessCrypto), excessFiat: escapeHtml(mp.overpayment.excessFiat) })}</td></tr></table>`
+    : "";
+
+  return `${money}${details}${overpaidNote}${fiat ? p(t("paymentSettled.fiatNote", L), "font-size:13px;color:#6b7280;") : ""}`;
 };

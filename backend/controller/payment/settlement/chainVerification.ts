@@ -519,6 +519,8 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
         let adminAmountToSend, userAmountToSend;
         // Crypto the buyer sent ABOVE the quoted total — credited to the merchant in full (see computeReceivedSplit).
         let overpaymentExcessCrypto = 0;
+        // Fiat value of that excess — surfaced in the settled email's overpayment note (folds the old standalone email).
+        let overpaidExcessBase = 0;
         
         // ── IMPROVED FEE CALCULATION: Use stored base_amount_usd for tier consistency ──
         // Uses pre-calculated base_amount_usd from payment creation for fee tier selection.
@@ -1466,6 +1468,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
           const excessBase = Number(newAmount[0]?.amount) > 0
             ? Number(newAmount[0].amount)
             : toNumber(mul(overpaymentExcessCrypto, div(receivedUSD, totalAmountReceived)), 2);
+          overpaidExcessBase = excessBase;
           const overpaidPaymentId = String(tempData?.payment_id || tempData?.unique_tx_id || tempData?.ref || transactionId || "");
           persistTransition({
             paymentId: overpaidPaymentId,
@@ -1819,6 +1822,13 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
             txRowId: tempData?.user_tx_id || tempData?.unique_tx_id || tempData?.payment_id || null,
             detectedAt: paymentDateTime,
             largePayment: mpLarge,
+            // Fold the old standalone "a buyer overpaid" email into this settled email.
+            overpayment: overpaymentExcessCrypto > 0
+              ? {
+                  excessCrypto: `${formatCryptoAmount(String(overpaymentExcessCrypto), tempCurrency)} ${tempCurrency}`,
+                  excessFiat: `${toFixedStr(overpaidExcessBase, 2)} ${customerData?.base_currency || "USD"}`,
+                }
+              : null,
           };
 
           await dispatchCompanyEmail(

@@ -1634,7 +1634,8 @@
   "heroSub": "Afgewikkeld naar uw uitbetaal-wallet",
   "heroSubConverting": "Wordt omgezet naar {{target}} — verschijnt in Uitbetalingen zodra klaar",
   "referralCreditRow": "Referral-tegoed",
-  "referralCreditNote": "kosten gedekt"
+  "referralCreditNote": "kosten gedekt",
+  "overpaidNote": "Een koper heeft {{excess}} (≈ {{excessFiat}}) te veel betaald. Het extra bedrag is in deze uitbetaling opgenomen — je kunt het verschil vanuit de transactie terugbetalen als erom wordt gevraagd."
  },
  "payoutDelayed": {
   "amountWaiting": "Wacht op uitbetaling",

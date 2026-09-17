@@ -1634,7 +1634,8 @@
   "heroSub": "Réglé vers votre portefeuille de versement",
   "heroSubConverting": "Conversion en {{target}} — apparaîtra dans Versements une fois terminé",
   "referralCreditRow": "Crédit de parrainage",
-  "referralCreditNote": "frais couverts"
+  "referralCreditNote": "frais couverts",
+  "overpaidNote": "Un acheteur a payé {{excess}} (≈ {{excessFiat}}) de trop. Le surplus est inclus dans ce versement — vous pouvez rembourser la différence depuis la transaction s'il le demande."
  },
  "payoutDelayed": {
   "amountWaiting": "En attente de versement",

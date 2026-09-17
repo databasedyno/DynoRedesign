@@ -170,7 +170,9 @@ export const sendPaymentConfirmingEmail = async (
   requiredConfirmations: number,
   lang: string = 'en',
   cryptoAmount?: string,
-  cryptoCurrency?: string
+  cryptoCurrency?: string,
+  /** How the payment was made (api|paymentLink|productOrder|donation|tip) — shown as a "Received via" row. */
+  paymentSourceKey?: string
 ) => {
   try {
     const L = normalizeLang(lang);
@@ -187,6 +189,7 @@ export const sendPaymentConfirmingEmail = async (
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
             <tr><td style="padding: 8px 0; color: #6b7280; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; border-bottom: 1px solid #f3f4f6;">${t('labels.amount', L)}</td><td style="padding: 8px 0; color: #1a1a2e; font-size: 16px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: right; border-bottom: 1px solid #f3f4f6;">${amount} ${currency}</td></tr>
             ${cryptoAmount && cryptoCurrency ? `<tr><td style="padding: 8px 0; color: #6b7280; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; border-bottom: 1px solid #f3f4f6;">${t('labels.cryptoAmount', L)}</td><td style="padding: 8px 0; color: #1a1a2e; font-size: 14px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: right; border-bottom: 1px solid #f3f4f6;">${formatCryptoAmount(cryptoAmount, cryptoCurrency)} ${cryptoCurrency}</td></tr>` : ''}
+            ${paymentSourceKey ? `<tr><td style="padding: 8px 0; color: #6b7280; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; border-bottom: 1px solid #f3f4f6;">${t('labels.paymentSource', L)}</td><td style="padding: 8px 0; color: #1a1a2e; font-size: 14px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: right; border-bottom: 1px solid #f3f4f6;">${t('paymentSource.' + paymentSourceKey, L)}</td></tr>` : ''}
             <tr><td style="padding: 8px 0; color: #6b7280; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; border-bottom: 1px solid #f3f4f6;">${t('labels.confirmations', L)}</td><td style="padding: 8px 0; color: #1a1a2e; font-size: 14px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: right; border-bottom: 1px solid #f3f4f6;">${t('paymentConfirming.confirmationsOf', L, { current: currentConfirmations, required: requiredConfirmations })}</td></tr>
             <tr><td colspan="2" style="padding: 12px 0 4px 0;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="track" style="background: #e5e7eb; border-radius: 4px; height: 8px;">

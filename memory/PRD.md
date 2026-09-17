@@ -1,3 +1,27 @@
+# === 2026-09 (fork: setup-vault) PHASE 1 — PAYMENT-EMAIL CONSOLIDATION + "Received via" ROW — DONE & VERIFIED (testing_agent 7/7) ===
+# User report (screenshots): one settled+overpaid BTC payment produced ~5 emails; payment method not shown.
+# FIX (backend, code-only, NO money moved / NO DB writes):
+#   - services/email/paymentSettled.ts: PaymentMoneyPath.overpayment {excessCrypto,excessFiat}; renderMoneyPath appends
+#     amber note (i18n paymentSettled.overpaidNote, 6 locales en/pt/es/fr/de/nl).
+#   - controller/payment/settlement/chainVerification.ts: settled-email moneyPath carries `overpayment` when excess>0.
+#   - services/overpaymentNotifier.ts: standalone "a buyer overpaid" MERCHANT email SUPPRESSED (folded into settled email);
+#     buyer copy + ADMIN "overpayment credited" email + in-app notification unchanged.
+#   - "Received via" row: pending email already had it, settled already rendered it; ADDED to opt-in confirming email
+#     (services/pendingPaymentService.ts + sendPaymentConfirmingEmail in services/email/paymentEmails.ts).
+#   - NEW admin diagnostics preview (renders real emails, sends nothing):
+#     GET /api/diagnostics/payment-email-preview?type=settled|pending|confirming&source=paymentLink|api|productOrder|donation|tip&overpay=1|0&lang=en
+#     (routes/diagnosticsRouter.ts; adminAuthMiddleware; admin login POST /api/admin/login {email,password} -> data.accessToken).
+# NOTE: "platform fee received" + "overpayment credited to merchant" are ADMIN emails (audience:'admin', -> ADMIN_EMAIL) —
+#   the owner test account sees them only because it is also the platform admin; real merchants do NOT receive them.
+# KNOWN MINOR GAP (not fixed): the rare merchantPoolSweep.ts sweep-RECOVERY settled email still omits the source row.
+# REMAINING AGREED PHASES: 2) Payouts/settlement analytics (screenshot #2: "$18.81 settled on its way" staleness +
+#   completion-rate / median-to-settle / unpaid-rate real-not-hardcoded). 3) Email "Manage preferences" deep-link
+#   (logged-in + logged-out) + marketing-email opt-out folded into existing email toggle. 4) i18n hardcoded-string sweep
+#   of core authed surfaces (Settings/2FA/Trusted-devices/sidebar/page-titles/plan-fee/popups) + scanner, pt/fr/es/de/nl
+#   auto-translated via OpenAI.
+# ============================================================================================
+
+
 # === 2026-06 (fork) UI BUG FIXES — Payment-Links STATUS clipping + Donation-demo back-nav — DONE & VERIFIED (testing_agent iter 196, 100%) ===
 # User-reported (with screenshot): (1) Payment Links table STATUS column clipped ("Act"/"Pai"/"Exp", header "STA…")
 # because the sticky ACTIONS column squeezed STATUS; user noted "similar issues exist in several places across the app".

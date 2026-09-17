@@ -153,13 +153,14 @@ export async function notifyOverpayment(info: OverpaymentInfo): Promise<void> {
       ? dataRow("Transaction", `<span style="font-family: monospace; font-size: 13px;">${info.txId}</span>`, true)
       : "";
 
-    // ── Merchant email (localized to the merchant's language) ────────
+    // ── Merchant: the overpayment is now folded into the "Payment settled"
+    //    email (paymentSettled.ts → overpaidNote) plus the in-app notification
+    //    below, so we NO LONGER send a separate "a buyer overpaid" email — this
+    //    is what collapsed the settlement inbox flood down to 2 merchant emails. ──
     if (merchantEmail) {
-      const m = buildOverpaidMerchantEmail(info, { companyName, merchantName, merchantLang });
-      await mailTransporter({ to: merchantEmail, name: merchantName || companyName, subject: m.subject, body: m.html });
-      apiLogger.info(`[Overpayment] merchant alert (${merchantLang}) sent to ${merchantEmail} (${excessCrypto} extra on ${companyName})`);
+      apiLogger.info(`[Overpayment] folded into settled email — standalone merchant alert suppressed for ${merchantEmail} (${excessCrypto} extra on ${companyName}, lang ${merchantLang}, name ${merchantName || "-"})`);
     } else {
-      apiLogger.warn(`[Overpayment] No merchant email resolved for company ${info.companyId} — skipping merchant alert`);
+      apiLogger.warn(`[Overpayment] No merchant email resolved for company ${info.companyId}`);
     }
 
     // ── Buyer copy: what happened + how to get the difference back ───

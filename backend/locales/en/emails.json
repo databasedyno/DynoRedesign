@@ -1634,7 +1634,8 @@
   "heroSub": "Settled to your payout wallet",
   "heroSubConverting": "Converting to {{target}} — appears in Payouts once done",
   "referralCreditRow": "Referral credit",
-  "referralCreditNote": "fee covered"
+  "referralCreditNote": "fee covered",
+  "overpaidNote": "A buyer overpaid by {{excess}} (≈ {{excessFiat}}). The extra is included in this payout — you can refund the difference from the transaction if they ask."
  },
  "payoutDelayed": {
   "amountWaiting": "Waiting to be paid out",

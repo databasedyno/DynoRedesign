@@ -220,6 +220,73 @@ router.get("/email-preview", adminAuthMiddleware, async (req: express.Request, r
 });
 
 /**
+ * GET /diagnostics/payment-email-preview
+ * Renders the REAL payment lifecycle emails (settled / pending / confirming)
+ * using the actual builders — NO email is ever sent (the transporter is
+ * suppressed under DISABLE_OUTBOUND_EMAIL and dumped to a temp dir we read back).
+ * Lets QA verify the "Received via <method>" row + the folded overpayment note.
+ * Admin only.
+ *
+ * Query:
+ *   type=settled|pending|confirming            (default settled)
+ *   source=paymentLink|api|productOrder|donation|tip   (default paymentLink)
+ *   overpay=1|0                                (settled only, default 1)
+ *   lang=en|pt|es|fr|de|nl                     (default en)
+ */
+router.get("/payment-email-preview", adminAuthMiddleware, async (req: express.Request, res: express.Response) => {
+  const type = String(req.query.type || "settled");
+  const source = String(req.query.source || "paymentLink");
+  const overpay = String(req.query.overpay ?? "1") === "1";
+  const lang = String(req.query.lang || "en");
+
+  const {
+    sendPaymentReceivedEmail,
+    sendPaymentPendingEmail,
+    sendPaymentConfirmingEmail,
+  } = await import("../helper/sendEmail");
+
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "dpemail-"));
+  const prevDump = process.env.EMAIL_DUMP_DIR;
+  process.env.EMAIL_DUMP_DIR = dir;
+  const to = "diagnostics-preview@dynopay.invalid";
+  try {
+    if (type === "pending") {
+      await sendPaymentPendingEmail(to, "Katie", "The Dev Store", "30.25", "USD", "TX-PENDING", 3, lang, "0.00040861", "BTC", "10–60 min", source);
+    } else if (type === "confirming") {
+      await sendPaymentConfirmingEmail(to, "Katie", "The Dev Store", "30.25", "USD", "TX-CONFIRMING", 1, 3, lang, "0.00040861", "BTC", source);
+    } else {
+      await sendPaymentReceivedEmail(
+        to, "Katie", "30.25", "USD", "The Dev Store", "TX-SETTLED",
+        "2026-09-17", "3:03 PM", lang, "0.00040861", "BTC", undefined, 0, source,
+        {
+          grossCrypto: "0.00040861", asset: "BTC",
+          fiatAtDetection: { amount: "30.25", currency: "USD" },
+          feePercent: 3, feeCrypto: "0.00001702", feePayer: "company",
+          networkFeeCrypto: null, netCrypto: "0.00039159",
+          destinationAddress: "bc1qexampledestinationaddress0000",
+          forwardTxHash: "abc123def456abc123def456",
+          explorerUrl: "https://mempool.space/tx/abc123",
+          reference: "rNtQRX", txRowId: 944, detectedAt: new Date(),
+          largePayment: false, paidFor: null, customerEmail: "buyer@example.com",
+          overpayment: overpay ? { excessCrypto: "0.00000234 BTC", excessFiat: "0.17 USD" } : null,
+        }
+      );
+    }
+    const files = fs.readdirSync(dir).sort();
+    const html = files.length ? fs.readFileSync(path.join(dir, files[files.length - 1]), "utf8") : "<p>no output</p>";
+    res.setHeader("Content-Type", "text/html");
+    res.send(html);
+  } catch (e: any) {
+    res.status(500).send(`<pre>${String(e?.stack || e?.message || e)}</pre>`);
+  } finally {
+    if (prevDump === undefined) delete process.env.EMAIL_DUMP_DIR;
+    else process.env.EMAIL_DUMP_DIR = prevDump;
+    try { fs.rmSync(dir, { recursive: true, force: true }); } catch { /* best-effort cleanup */ }
+  }
+});
+
+
+/**
  * GET /diagnostics/binance-ping
  * Test basic Binance connectivity (public endpoint, no auth)
  */

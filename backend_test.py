@@ -1,310 +1,331 @@
 #!/usr/bin/env python3
 """
-Behavioral E2E test for buyer email capture feature on DynoPay.
-Tests against company_id 219 (QA BuyerEmail Test) via EXTERNAL preview origin.
+Backend test for DynoPay payment email rendering diagnostics endpoint.
+Tests the /api/diagnostics/payment-email-preview endpoint with various parameters.
+SAFE MODE: READ-ONLY, no payments created, no data mutations.
 """
 
 import requests
 import time
 import json
 import sys
+import re
 
-# EXTERNAL preview origin (client uses relative /api base)
-BASE_URL = "https://preview-host.invalid"
+# Backend URL (external preview origin with /api prefix)
+BASE_URL = "https://setup-vault-7.preview.emergentagent.com"
 
-# Test brand credentials
-MERCHANT_EMAIL = "onarrival21@gmail.com"
-MERCHANT_PASSWORD = "Katiekendra123@"
-COMPANY_ID = 219  # QA BuyerEmail Test
-
-# API key for test brand (send as header x-api-key)
-API_KEY = "U2FsdGVkX1+RlYJogoYEqSr5oXyqu6HXFRUjHSs+Xdu1FJuc8qKZqCe2CxD/RiiBWnLnglD8EEO/32hrgim5/iRejXpnVrX+GuzITYjUE8LuZ2hq2VKDbtHPIPCAlZO644tWF/x8KS6lGBvWZBR99t//HwV3zrf5P9ZnjmzTiNE="
+# Admin credentials for diagnostics endpoint
+ADMIN_EMAIL = "moxxcompany@gmail.com"
+ADMIN_PASSWORD = "Katiekendra123@"
 
 def log(msg):
     """Print timestamped log message"""
     print(f"[{time.strftime('%H:%M:%S')}] {msg}")
 
-def test_buyer_email_capture():
+def admin_login():
     """
-    Test buyer email capture feature:
-    1. Login to get merchant JWT
-    2. Create payment with REAL email
-    3. Create payment with PLACEHOLDER .local email
-    4. Get customer directory
-    5. Assert REAL email is captured, PLACEHOLDER is rejected
+    Login as admin to get JWT token.
+    Returns: (success: bool, token: str or None, error: str or None)
     """
-    
-    results = {
-        "login": None,
-        "real_email_payment": None,
-        "placeholder_email_payment": None,
-        "customer_directory": None,
-        "assertions": {
-            "real_email_captured": False,
-            "placeholder_rejected": False,
-            "no_500_errors": True
-        }
-    }
-    
-    # Generate unique emails for this run
-    unix_ts = int(time.time())
-    real_email = f"qa.real.{unix_ts}@example.com"
-    placeholder_email = f"buyer.{unix_ts}@qabuyeremail.local"
-    
-    log(f"Generated test emails:")
-    log(f"  REAL: {real_email}")
-    log(f"  PLACEHOLDER: {placeholder_email}")
-    
-    # STEP 1: Login to get merchant JWT
-    log("\n=== STEP 1: Merchant Login ===")
+    log("\n=== ADMIN LOGIN ===")
     try:
-        login_response = requests.post(
-            f"{BASE_URL}/api/user/login",
+        response = requests.post(
+            f"{BASE_URL}/api/admin/login",
             json={
-                "email": MERCHANT_EMAIL,
-                "password": MERCHANT_PASSWORD
+                "email": ADMIN_EMAIL,
+                "password": ADMIN_PASSWORD
             },
             timeout=30
         )
-        log(f"Login status: {login_response.status_code}")
+        log(f"Login status: {response.status_code}")
         
-        if login_response.status_code == 200:
-            login_data = login_response.json()
-            if "data" in login_data and "accessToken" in login_data["data"]:
-                jwt_token = login_data["data"]["accessToken"]
-                log(f"✓ JWT token obtained (length: {len(jwt_token)})")
-                results["login"] = {"status": 200, "success": True}
+        if response.status_code == 200:
+            data = response.json()
+            if "data" in data and "accessToken" in data["data"]:
+                token = data["data"]["accessToken"]
+                log(f"✓ Admin JWT token obtained (length: {len(token)})")
+                return True, token, None
             else:
-                log(f"✗ No accessToken in response: {login_data}")
-                results["login"] = {"status": 200, "success": False, "error": "No accessToken"}
-                return results
+                log(f"✗ No accessToken in response: {data}")
+                return False, None, "No accessToken in response"
         else:
-            log(f"✗ Login failed: {login_response.text}")
-            results["login"] = {"status": login_response.status_code, "success": False}
-            return results
+            log(f"✗ Login failed: {response.status_code} - {response.text[:200]}")
+            return False, None, f"HTTP {response.status_code}"
     except Exception as e:
         log(f"✗ Login exception: {e}")
-        results["login"] = {"error": str(e)}
+        return False, None, str(e)
+
+def test_wrong_password():
+    """
+    Test that wrong password returns auth error (not a token).
+    """
+    log("\n=== TEST: Wrong Password ===")
+    try:
+        response = requests.post(
+            f"{BASE_URL}/api/admin/login",
+            json={
+                "email": ADMIN_EMAIL,
+                "password": "WrongPassword123@"
+            },
+            timeout=30
+        )
+        log(f"Wrong password status: {response.status_code}")
+        
+        # Should be 401 or 403, NOT 200
+        if response.status_code in [401, 403, 400]:
+            log(f"✓ PASS: Wrong password correctly rejected with {response.status_code}")
+            return True, None
+        elif response.status_code == 200:
+            data = response.json()
+            if "data" in data and "accessToken" in data["data"]:
+                log(f"✗ FAIL: Wrong password returned a token!")
+                return False, "Wrong password returned token"
+            else:
+                log(f"✓ PASS: Wrong password returned 200 but no token")
+                return True, None
+        else:
+            log(f"⚠ Unexpected status: {response.status_code}")
+            return True, None  # Still pass if it's not 200 with token
+    except Exception as e:
+        log(f"✗ Exception: {e}")
+        return False, str(e)
+
+def test_no_auth_token():
+    """
+    Test that diagnostics endpoint without Bearer token returns 403.
+    """
+    log("\n=== TEST: No Auth Token ===")
+    try:
+        response = requests.get(
+            f"{BASE_URL}/api/diagnostics/payment-email-preview",
+            params={"type": "settled", "source": "paymentLink", "overpay": "1"},
+            timeout=30
+        )
+        log(f"No auth status: {response.status_code}")
+        
+        # Should be 401 or 403
+        if response.status_code in [401, 403]:
+            log(f"✓ PASS: No auth token correctly rejected with {response.status_code}")
+            return True, None
+        else:
+            log(f"✗ FAIL: Expected 401/403, got {response.status_code}")
+            return False, f"Expected 401/403, got {response.status_code}"
+    except Exception as e:
+        log(f"✗ Exception: {e}")
+        return False, str(e)
+
+def test_email_preview(token, test_name, params, must_contain=None, must_not_contain=None):
+    """
+    Test the diagnostics endpoint with given parameters.
+    
+    Args:
+        token: Admin JWT token
+        test_name: Name of the test case
+        params: Query parameters dict
+        must_contain: List of strings that MUST be in the HTML (case-insensitive)
+        must_not_contain: List of strings that MUST NOT be in the HTML (case-insensitive)
+    
+    Returns: (success: bool, error: str or None)
+    """
+    log(f"\n=== TEST: {test_name} ===")
+    log(f"Params: {params}")
+    
+    try:
+        response = requests.get(
+            f"{BASE_URL}/api/diagnostics/payment-email-preview",
+            params=params,
+            headers={"Authorization": f"Bearer {token}"},
+            timeout=30
+        )
+        log(f"Status: {response.status_code}")
+        
+        if response.status_code != 200:
+            log(f"✗ FAIL: Expected 200, got {response.status_code}")
+            log(f"Response: {response.text[:500]}")
+            return False, f"HTTP {response.status_code}"
+        
+        # Check content type
+        content_type = response.headers.get("Content-Type", "")
+        if "text/html" not in content_type.lower():
+            log(f"⚠ Warning: Content-Type is {content_type}, expected text/html")
+        
+        html = response.text
+        log(f"HTML length: {len(html)} characters")
+        
+        # Convert to lowercase for case-insensitive matching
+        html_lower = html.lower()
+        
+        # Check must_contain
+        if must_contain:
+            for substring in must_contain:
+                substring_lower = substring.lower()
+                if substring_lower in html_lower:
+                    log(f"✓ Found: '{substring}'")
+                else:
+                    log(f"✗ FAIL: Missing required substring: '{substring}'")
+                    # Show context around where it should be
+                    log(f"HTML preview (first 1000 chars): {html[:1000]}")
+                    return False, f"Missing required substring: '{substring}'"
+        
+        # Check must_not_contain
+        if must_not_contain:
+            for substring in must_not_contain:
+                substring_lower = substring.lower()
+                if substring_lower not in html_lower:
+                    log(f"✓ Correctly absent: '{substring}'")
+                else:
+                    log(f"✗ FAIL: Found forbidden substring: '{substring}'")
+                    # Find and show context
+                    idx = html_lower.find(substring_lower)
+                    context_start = max(0, idx - 100)
+                    context_end = min(len(html), idx + len(substring) + 100)
+                    log(f"Context: ...{html[context_start:context_end]}...")
+                    return False, f"Found forbidden substring: '{substring}'"
+        
+        log(f"✓ PASS: All assertions passed")
+        return True, None
+        
+    except Exception as e:
+        log(f"✗ Exception: {e}")
+        return False, str(e)
+
+def run_all_tests():
+    """
+    Run all test cases and return results.
+    """
+    results = {
+        "wrong_password": {"pass": False, "error": None},
+        "no_auth_token": {"pass": False, "error": None},
+        "test_1_settled_paymentlink_overpay": {"pass": False, "error": None},
+        "test_2_settled_api_no_overpay": {"pass": False, "error": None},
+        "test_3_pending_productorder": {"pass": False, "error": None},
+        "test_4_confirming_donation": {"pass": False, "error": None},
+        "test_5_settled_spanish": {"pass": False, "error": None},
+    }
+    
+    # Test 1: Wrong password
+    success, error = test_wrong_password()
+    results["wrong_password"]["pass"] = success
+    results["wrong_password"]["error"] = error
+    
+    # Test 2: No auth token
+    success, error = test_no_auth_token()
+    results["no_auth_token"]["pass"] = success
+    results["no_auth_token"]["error"] = error
+    
+    # Login as admin
+    login_success, token, login_error = admin_login()
+    if not login_success:
+        log(f"\n✗✗✗ CRITICAL: Admin login failed, cannot proceed with email tests")
+        results["admin_login"] = {"pass": False, "error": login_error}
         return results
     
-    # STEP 2: Create payment with REAL email
-    log("\n=== STEP 2: Create Payment with REAL Email ===")
-    try:
-        real_payment_response = requests.post(
-            f"{BASE_URL}/api/user/createPayment",
-            headers={
-                "x-api-key": API_KEY,
-                "Content-Type": "application/json"
-            },
-            json={
-                "amount": 25,
-                "redirect_uri": "https://example.com/return",
-                "customer_email": real_email,
-                "customer_name": "QA Real Buyer"
-            },
-            timeout=30
-        )
-        log(f"Real email payment status: {real_payment_response.status_code}")
-        log(f"Real email payment response: {real_payment_response.text[:500]}")
-        
-        results["real_email_payment"] = {
-            "status": real_payment_response.status_code,
-            "body": real_payment_response.text[:500]
-        }
-        
-        # Expected: 400 "No crypto wallet configured..." (test brand has no wallet)
-        # 500 or crash = FAIL
-        if real_payment_response.status_code == 500:
-            log("✗ FAIL: Real email payment returned 500")
-            results["assertions"]["no_500_errors"] = False
-        elif real_payment_response.status_code == 400:
-            if "No crypto wallet" in real_payment_response.text or "wallet" in real_payment_response.text.lower():
-                log("✓ Expected 400 (no wallet configured) - customer should be created before this check")
-            else:
-                log(f"⚠ 400 but unexpected message: {real_payment_response.text}")
-        else:
-            log(f"⚠ Unexpected status: {real_payment_response.status_code}")
-            
-    except Exception as e:
-        log(f"✗ Real email payment exception: {e}")
-        results["real_email_payment"] = {"error": str(e)}
-        results["assertions"]["no_500_errors"] = False
+    # Test 3: settled + paymentLink + overpay=1
+    # Must contain: "Received via", "Payment link", "A buyer overpaid by 0.00000234 BTC"
+    success, error = test_email_preview(
+        token,
+        "Test 1: Settled + Payment Link + Overpay",
+        {"type": "settled", "source": "paymentLink", "overpay": "1"},
+        must_contain=["Received via", "Payment link", "A buyer overpaid by 0.00000234 BTC"],
+        must_not_contain=None
+    )
+    results["test_1_settled_paymentlink_overpay"]["pass"] = success
+    results["test_1_settled_paymentlink_overpay"]["error"] = error
     
-    # STEP 3: Create payment with PLACEHOLDER .local email
-    log("\n=== STEP 3: Create Payment with PLACEHOLDER .local Email ===")
-    try:
-        placeholder_payment_response = requests.post(
-            f"{BASE_URL}/api/user/createPayment",
-            headers={
-                "x-api-key": API_KEY,
-                "Content-Type": "application/json"
-            },
-            json={
-                "amount": 25,
-                "redirect_uri": "https://example.com/return",
-                "customer_email": placeholder_email,
-                "customer_name": "QA Placeholder"
-            },
-            timeout=30
-        )
-        log(f"Placeholder email payment status: {placeholder_payment_response.status_code}")
-        log(f"Placeholder email payment response: {placeholder_payment_response.text[:500]}")
-        
-        results["placeholder_email_payment"] = {
-            "status": placeholder_payment_response.status_code,
-            "body": placeholder_payment_response.text[:500]
-        }
-        
-        # Expected: 400 "No crypto wallet configured..." (test brand has no wallet)
-        # 500 or crash = FAIL
-        if placeholder_payment_response.status_code == 500:
-            log("✗ FAIL: Placeholder email payment returned 500")
-            results["assertions"]["no_500_errors"] = False
-        elif placeholder_payment_response.status_code == 400:
-            if "No crypto wallet" in placeholder_payment_response.text or "wallet" in placeholder_payment_response.text.lower():
-                log("✓ Expected 400 (no wallet configured)")
-            else:
-                log(f"⚠ 400 but unexpected message: {placeholder_payment_response.text}")
-        else:
-            log(f"⚠ Unexpected status: {placeholder_payment_response.status_code}")
-            
-    except Exception as e:
-        log(f"✗ Placeholder email payment exception: {e}")
-        results["placeholder_email_payment"] = {"error": str(e)}
-        results["assertions"]["no_500_errors"] = False
+    # Test 4: settled + api + overpay=0
+    # Must contain: "Received via", "API"
+    # Must NOT contain: "A buyer overpaid"
+    success, error = test_email_preview(
+        token,
+        "Test 2: Settled + API + No Overpay",
+        {"type": "settled", "source": "api", "overpay": "0"},
+        must_contain=["Received via", "API"],
+        must_not_contain=["A buyer overpaid"]
+    )
+    results["test_2_settled_api_no_overpay"]["pass"] = success
+    results["test_2_settled_api_no_overpay"]["error"] = error
     
-    # STEP 4: Get customer directory
-    log("\n=== STEP 4: Get Customer Directory ===")
-    try:
-        directory_response = requests.get(
-            f"{BASE_URL}/api/userApi/customers/directory",
-            headers={
-                "Authorization": f"Bearer {jwt_token}",
-                "Content-Type": "application/json"
-            },
-            params={"company_id": COMPANY_ID},
-            timeout=30
-        )
-        log(f"Customer directory status: {directory_response.status_code}")
-        
-        if directory_response.status_code == 200:
-            directory_data = directory_response.json()
-            log(f"Customer directory response keys: {directory_data.keys()}")
-            
-            # Extract customer emails
-            customer_emails = []
-            if "data" in directory_data and "customers" in directory_data["data"]:
-                customers = directory_data["data"]["customers"]
-                log(f"Found {len(customers)} customers")
-                customer_emails = [c.get("email") for c in customers if c.get("email")]
-                log(f"Customer emails: {customer_emails}")
-            else:
-                log(f"⚠ Unexpected directory structure: {directory_data}")
-            
-            results["customer_directory"] = {
-                "status": 200,
-                "customer_emails": customer_emails
-            }
-            
-            # STEP 5: Assertions
-            log("\n=== STEP 5: Assertions ===")
-            
-            # Assert 1: REAL email appears in directory
-            if real_email in customer_emails:
-                log(f"✓ PASS: Real email {real_email} found in customer directory")
-                results["assertions"]["real_email_captured"] = True
-            else:
-                log(f"✗ FAIL: Real email {real_email} NOT found in customer directory")
-                results["assertions"]["real_email_captured"] = False
-            
-            # Assert 2: PLACEHOLDER email does NOT appear in directory
-            if placeholder_email not in customer_emails:
-                log(f"✓ PASS: Placeholder email {placeholder_email} correctly rejected (not in directory)")
-                results["assertions"]["placeholder_rejected"] = True
-            else:
-                log(f"✗ FAIL: Placeholder email {placeholder_email} incorrectly stored in directory")
-                results["assertions"]["placeholder_rejected"] = False
-                
-        else:
-            log(f"✗ Customer directory failed: {directory_response.status_code}")
-            log(f"Response: {directory_response.text}")
-            results["customer_directory"] = {
-                "status": directory_response.status_code,
-                "error": directory_response.text[:500]
-            }
-            
-    except Exception as e:
-        log(f"✗ Customer directory exception: {e}")
-        results["customer_directory"] = {"error": str(e)}
+    # Test 5: pending + productOrder
+    # Must contain: "Received via", "Store"
+    success, error = test_email_preview(
+        token,
+        "Test 3: Pending + Product Order",
+        {"type": "pending", "source": "productOrder"},
+        must_contain=["Received via", "Store"],
+        must_not_contain=None
+    )
+    results["test_3_pending_productorder"]["pass"] = success
+    results["test_3_pending_productorder"]["error"] = error
+    
+    # Test 6: confirming + donation
+    # Must contain: "Received via", "Donation"
+    success, error = test_email_preview(
+        token,
+        "Test 4: Confirming + Donation",
+        {"type": "confirming", "source": "donation"},
+        must_contain=["Received via", "Donation"],
+        must_not_contain=None
+    )
+    results["test_4_confirming_donation"]["pass"] = success
+    results["test_4_confirming_donation"]["error"] = error
+    
+    # Test 7: settled + paymentLink + lang=es
+    # Must contain: "Recibido vía" (Spanish for "Received via")
+    success, error = test_email_preview(
+        token,
+        "Test 5: Settled + Spanish Localization",
+        {"type": "settled", "source": "paymentLink", "lang": "es"},
+        must_contain=["Recibido vía"],
+        must_not_contain=None
+    )
+    results["test_5_settled_spanish"]["pass"] = success
+    results["test_5_settled_spanish"]["error"] = error
     
     return results
 
 def print_summary(results):
-    """Print test summary"""
+    """
+    Print test summary and return overall pass/fail.
+    """
     log("\n" + "="*80)
     log("TEST SUMMARY")
     log("="*80)
     
-    # Login
-    if results["login"]:
-        log(f"Login: {'✓ PASS' if results['login'].get('success') else '✗ FAIL'}")
+    total_tests = 0
+    passed_tests = 0
     
-    # Real email payment
-    if results["real_email_payment"]:
-        status = results["real_email_payment"].get("status", "ERROR")
-        log(f"Real email payment: HTTP {status}")
-        if "body" in results["real_email_payment"]:
-            log(f"  Message: {results['real_email_payment']['body'][:200]}")
-    
-    # Placeholder email payment
-    if results["placeholder_email_payment"]:
-        status = results["placeholder_email_payment"].get("status", "ERROR")
-        log(f"Placeholder email payment: HTTP {status}")
-        if "body" in results["placeholder_email_payment"]:
-            log(f"  Message: {results['placeholder_email_payment']['body'][:200]}")
-    
-    # Customer directory
-    if results["customer_directory"]:
-        if "customer_emails" in results["customer_directory"]:
-            emails = results["customer_directory"]["customer_emails"]
-            log(f"Customer directory: {len(emails)} customers")
-            log(f"  Emails: {emails}")
-        else:
-            log(f"Customer directory: ERROR - {results['customer_directory'].get('error', 'Unknown')}")
-    
-    # Assertions
-    log("\nASSERTIONS:")
-    log(f"  1. Real email captured: {'✓ PASS' if results['assertions']['real_email_captured'] else '✗ FAIL'}")
-    log(f"  2. Placeholder rejected: {'✓ PASS' if results['assertions']['placeholder_rejected'] else '✗ FAIL'}")
-    log(f"  3. No 500 errors: {'✓ PASS' if results['assertions']['no_500_errors'] else '✗ FAIL'}")
-    
-    # Overall result
-    all_pass = (
-        results["assertions"]["real_email_captured"] and
-        results["assertions"]["placeholder_rejected"] and
-        results["assertions"]["no_500_errors"]
-    )
+    for test_name, result in results.items():
+        total_tests += 1
+        status = "✓ PASS" if result["pass"] else "✗ FAIL"
+        log(f"{test_name}: {status}")
+        if result["error"]:
+            log(f"  Error: {result['error']}")
+        if result["pass"]:
+            passed_tests += 1
     
     log("\n" + "="*80)
-    if all_pass:
+    log(f"RESULTS: {passed_tests}/{total_tests} tests passed")
+    
+    if passed_tests == total_tests:
         log("OVERALL: ✓✓✓ ALL TESTS PASSED ✓✓✓")
     else:
         log("OVERALL: ✗✗✗ SOME TESTS FAILED ✗✗✗")
     log("="*80)
     
-    return all_pass
+    return passed_tests == total_tests
 
 if __name__ == "__main__":
-    log("Starting buyer email capture E2E test")
+    log("Starting DynoPay email rendering diagnostics tests")
     log(f"Target: {BASE_URL}")
-    log(f"Test brand: company_id={COMPANY_ID}")
+    log(f"Admin: {ADMIN_EMAIL}")
+    log("Mode: SAFE (READ-ONLY, no payments, no mutations)")
     
-    results = test_buyer_email_capture()
+    results = run_all_tests()
     all_pass = print_summary(results)
     
     # Write results to file
-    with open("/app/buyer_email_test_results.json", "w") as f:
+    with open("/app/email_diagnostics_test_results.json", "w") as f:
         json.dump(results, f, indent=2)
-    log("\nResults written to /app/buyer_email_test_results.json")
+    log("\nResults written to /app/email_diagnostics_test_results.json")
     
     sys.exit(0 if all_pass else 1)

@@ -1634,7 +1634,8 @@
   "heroSub": "Liquidado na sua carteira de pagamentos",
   "heroSubConverting": "A converter para {{target}} — aparece em Pagamentos quando concluir",
   "referralCreditRow": "Crédito de indicação",
-  "referralCreditNote": "taxa coberta"
+  "referralCreditNote": "taxa coberta",
+  "overpaidNote": "Um comprador pagou {{excess}} (≈ {{excessFiat}}) a mais. O valor extra está incluído neste pagamento — pode reembolsar a diferença na transação, se ele solicitar."
  },
  "payoutDelayed": {
   "amountWaiting": "A aguardar pagamento",

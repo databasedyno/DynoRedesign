@@ -218,7 +218,7 @@ export const sendConfirmationProgressNotification = async (
   txId: string,
   currentConfirmations: number,
   currency: string,
-  customerData: { name?: string; email?: string; phone?: string; metadata?: Record<string, unknown>; adm_id?: number; company_id?: number; amount?: number }
+  customerData: { name?: string; email?: string; phone?: string; metadata?: Record<string, unknown>; adm_id?: number; company_id?: number; amount?: number; link_id?: string | number | null; link_type?: string | null }
 ): Promise<boolean> => {
   try {
     const requiredConfirmations = CONFIRMATION_REQUIREMENTS[currency] || 1;
@@ -302,7 +302,10 @@ export const sendConfirmationProgressNotification = async (
           requiredConfirmations,
           normalizeLang(user.language),
           confirmingFiat.cryptoAmount,
-          confirmingFiat.cryptoCurrency
+          confirmingFiat.cryptoCurrency,
+          (customerData.link_id || customerData.link_type)
+            ? classifyPaymentSource({ linkId: customerData.link_id, linkType: customerData.link_type })
+            : undefined
         )
       );
     }

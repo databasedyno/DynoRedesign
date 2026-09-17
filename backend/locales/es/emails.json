@@ -1634,7 +1634,8 @@
   "heroSub": "Liquidado en su billetera de pagos",
   "heroSubConverting": "Convirtiendo a {{target}} — aparecerá en Pagos al finalizar",
   "referralCreditRow": "Crédito por referidos",
-  "referralCreditNote": "comisión cubierta"
+  "referralCreditNote": "comisión cubierta",
+  "overpaidNote": "Un comprador pagó {{excess}} (≈ {{excessFiat}}) de más. El excedente está incluido en este pago; puedes reembolsar la diferencia desde la transacción si lo solicita."
  },
  "payoutDelayed": {
   "amountWaiting": "Pendiente de pago",
