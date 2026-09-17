@@ -42,8 +42,9 @@ import { revokeStepUp } from "../../services/stepUpService";
  * requireStepUp("account_delete") on the route (authenticator when enrolled,
  * else an emailed code) — no separate OTP round-trip here.
  * The account is hidden + the user is signed out everywhere immediately; the
- * irreversible data purge happens after 7 days (services/accountPurgeService),
- * or when an admin manually purges it. An admin can restore within the window.
+ * irreversible data purge only happens after the AML/KYC retention window
+ * (~10 years, services/accountPurgeService), or when an admin manually purges it.
+ * Only support/admin can restore it.
  */
 export const deleteAccount = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;

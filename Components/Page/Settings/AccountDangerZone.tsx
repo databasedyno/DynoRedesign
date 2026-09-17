@@ -10,8 +10,10 @@ import { rootReducer } from "@/utils/types";
 const DeleteAccountModal = dynamic(() => import("@/Components/UI/DeleteAccountModal"), { ssr: false });
 
 /**
- * "Danger zone" card in Settings → Profile. Lets a merchant schedule their whole
- * account for deletion (OTP-confirmed, 7-day recoverable — mirrors brand delete).
+ * "Danger zone" card in Settings → Profile. Lets a merchant delete their whole
+ * account (email-confirmed + step-up 2FA). Soft delete: sessions revoked and the
+ * account locked immediately; records are retained for compliance and only support
+ * can restore. Mirrors the brand soft-delete pattern.
  */
 const AccountDangerZone: React.FC = () => {
   const theme = useTheme();

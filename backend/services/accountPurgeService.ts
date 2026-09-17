@@ -13,7 +13,8 @@ import { ACCOUNT_DELETE_GRACE_DAYS } from "../helper/accountDeletion";
 import { sendAccountDeletedEmail } from "./emailService";
 
 /**
- * Soft-delete a user account: mark it for deletion (7-day grace), then log the
+ * Soft-delete a user account: mark it for deletion (~10-year AML/KYC retention
+ * window), then log the
  * user out everywhere (revoke sessions + move the token cutoff) and drop the
  * auth cache so any live JWT is rejected on the next request. NO data is removed
  * here — that happens at purge time (after the grace window) or on admin purge.
