@@ -1,3 +1,57 @@
+# === 2026-06 (fork) SECURITY HARDENING SPRINT — C (payout route) + D (API-key expiry) DONE & VERIFIED; E ALREADY COMPLETE ===
+# User picked "implement C, D (except IP lock), E" from a security menu. Investigation showed this codebase is already
+# heavily hardened (rate-limit + lockout, signed webhooks both ways, helmet/CSP, CSRF, idempotency on merchant-API,
+# refresh rotation, sessions, admin audit log, secret redaction, Joi validation). So most of C/D and ALL of E were
+# already shipped; only two genuine gaps existed, both now closed and verified. AUTH GATE: integration_expert (JWT auth)
+# was called before touching auth-adjacent code, per policy.
+#
+# ── E (login alerts + activity view) — ALREADY FULLY IMPLEMENTED, NO CHANGES ──
+#   • New-device login alert: controller/user/userShared.ts:272-286 sendNewDeviceAlertEmail (one-tap "This wasn't me —
+#     sign out everywhere" CTA), with bot-UA + internal-IP filtering and a 30-day per-fingerprint dedup (seenKey).
+#   • Active sessions UI: Components/Page/Profile/ActiveSessions.tsx (list + revoke one + "Sign out all others"),
+#     backed by GET /api/user/sessions, DELETE /api/user/sessions/:id, DELETE /api/user/sessions, GET /api/user/login-history.
+#
+# ── C (finish half-done controls) — ONE REAL GAP CLOSED: payout route validation + idempotency ──
+#   Findings: OTP/2FA lockout already robust (helper/otpGuard.ts 5-attempt + notifySuspiciousActivity; authLogin
+#   verifyLoginOTP 3-attempt; twoFactorService validate2FAToken locked_until). Idempotency already mounted on ALL
+#   merchant-API money routes (merchantApiRouter cryptoPayment/createPayment/addFunds/useWallet/embed/session).
+#   THE gap: the dashboard payout route had NEITHER validation NOR idempotency.
+#   Changes:
+#     • backend/middleware/validateRequest.ts — added withdrawAssetsSchema (Joi): currency/amount(positive)/address/otp
+#       required, feeType/feeToPay/saveAddress optional, `.unknown(true)` so non-critical body fields pass through
+#       untouched (the validate() factory strips unknowns otherwise — would have dropped controller-needed fields).
+#     • backend/middleware/idempotencyMiddleware.ts — namespace is now PER AUTHENTICATED CALLER: `c<company_id>` for
+#       merchant-API (apiKeyData) else `u<user_id>` decoded from res.locals.token (jwt.decode) else "anon". Prevents
+#       dashboard routes from colliding/replaying under a shared global "anon" idem namespace. redisKey `idem:<scope>:<key>`.
+#     • backend/routes/walletRouter.ts:99 — POST /wallet/withdrawAssets now:
+#         requireStepUp("payout") → validate(withdrawAssetsSchema) → idempotencyMiddleware → controller.
+#   VERIFIED: schema unit tests all pass (valid accepted, missing/zero/negative amount + missing address/otp rejected,
+#   string amount coerced to number, unknown fields pass through); tsc 0; backend restarts clean. NOT e2e-run: an actual
+#   payout needs a live payout step-up session AND moves real funds on the prod DB (SAFE MODE) — inappropriate to fire.
+#
+# ── D (stronger API keys, NO IP lock) — expiry create + display added; enforcement/last-used/rotate already existed ──
+#   Findings: tbl_api already has expires_at/last_used_at/usage_count columns; validateApiKey (legacyApiAuthMiddleware:83)
+#   ALREADY rejects expired keys (`expires_at IS NULL OR > NOW()`); apiUsageLogger updates last_used_at; regenerateApiKey
+#   (rotate) + its UI button exist. Missing: no way to SET an expiry, and the card didn't SHOW last-used/expiry.
+#   Changes:
+#     • backend/controller/apiController.ts — addApi accepts expires_in_days | expires_at → computes+stores expires_at;
+#       updateApi accepts the same (null/0 ⇒ "never expires"). getApi already returns them (SELECT a.*).
+#     • Components/UI/ApiKeysModel/CreateApiModel/index.tsx — new "Key expiration" Select (Never/30/90/365 days,
+#       data-testid=api-key-expiry-select) → posts expires_in_days.
+#     • Components/Page/API/ApiKeysPage.tsx — ApiKeyCard meta row: "Last used …/Never used" (data-testid=api-last-used)
+#       + "Expires …/No expiry/Expired …" in red when past (data-testid=api-expires).
+#   VERIFIED END-TO-END (QA acct user 221 / company 231, email-2FA preview_otp): created a dev key with expires_in_days=30
+#   → expires_at ~30d out; fresh key authenticated (GET /api/user/getSupportedCurrency → 200); backdated expires_at to
+#   2020 via updateApi → same call now 401 api_key_invalid (enforcement proven); UI card showed "Never used · Expired
+#   Jan 01, 2020" and the create modal showed the expiry dropdown; then DELETED the test key via step-up (acct restored
+#   to 0 keys). tsc 0 (backend + frontend), eslint clean.
+#
+# TESTING METHOD: self-tested (Joi unit tests + real curl e2e for D incl. enforcement + Playwright UI screenshots).
+#   testing_agent NOT used. NOTE current preview URL = https://af4c5982-2aad-4216-a67f-638c968a85f4.preview.emergentagent.com
+#   (test_credentials.md's 27632836 URL is STALE from a prior pod). COMMIT: all changes uncommitted — user must Save to GitHub.
+# ============================================================================================
+
+
 # === 2026-06 (fork) DONE & VERIFIED — SUPPORT-EMAIL→CHAT + LIFECYCLE-EMAIL RETIMING FINALIZED · P0 ADMIN "$0.00" PENDING FIXED ===
 # This fork RESUMED the prior session's UNCOMMITTED working-tree work (support-email removal + lifecycle email
 # retiming), VERIFIED it end-to-end, then fixed the P0 admin-transactions "$0.00" bug. User approved the plan

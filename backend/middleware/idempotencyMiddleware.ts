@@ -23,6 +23,7 @@
  */
 import express from "express";
 import crypto from "crypto";
+import jwt from "jsonwebtoken";
 import { redis } from "../utils/redisInstance";
 import { apiLogger } from "../utils/loggers";
 import { sendError } from "../helper/apiResponse";
@@ -70,11 +71,28 @@ const idempotencyMiddleware = async (
       return;
     }
 
-    const companyId =
-      (res.locals?.apiKeyData?.company_id as number | undefined) ?? "anon";
+    // Namespace the key per authenticated caller so two different callers can
+    // never collide on (or replay) each other's Idempotency-Key. Merchant-API
+    // routes carry apiKeyData.company_id; dashboard routes (e.g. payouts) carry
+    // an authenticated user JWT in res.locals.token.
+    let scope = "anon";
+    const companyId = res.locals?.apiKeyData?.company_id as number | undefined;
+    if (companyId != null) {
+      scope = `c${companyId}`;
+    } else {
+      const rawToken = res.locals?.token;
+      if (typeof rawToken === "string" && rawToken.length > 0) {
+        try {
+          const decoded = jwt.decode(rawToken) as { user_id?: number | string } | null;
+          if (decoded?.user_id != null) scope = `u${decoded.user_id}`;
+        } catch {
+          /* fall through to anon */
+        }
+      }
+    }
     const routeId = `${req.method}:${req.baseUrl || ""}${req.path || req.url}`;
     const requestHash = hashRequest(routeId, req.body);
-    const redisKey = `idem:${companyId}:${idemKey}`;
+    const redisKey = `idem:${scope}:${idemKey}`;
 
     // Atomically take a processing lock. "OK" => we own it; null => it exists.
     const lockValue = JSON.stringify({
@@ -124,7 +142,7 @@ const idempotencyMiddleware = async (
       }
       // Completed earlier — replay the stored response verbatim.
       apiLogger.info(
-        `[Idempotency] replay company=${companyId} key=${idemKey} route=${routeId}`
+        `[Idempotency] replay scope=${scope} key=${idemKey} route=${routeId}`
       );
       res.setHeader("Idempotent-Replay", "true");
       res.status(existing.statusCode || 200).json(existing.body);

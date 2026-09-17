@@ -212,6 +212,9 @@ const ApiKeyCard = ({ title, apiRow, revealedKey, onCopy, onDelete, onRegenerate
 
   const createdAt =
     apiRow?.created_at || apiRow?.createdAt || apiRow?.createdOn || "";
+  const lastUsedAt = (apiRow as { last_used_at?: string })?.last_used_at || "";
+  const expiresAt = (apiRow as { expires_at?: string })?.expires_at || "";
+  const isExpired = expiresAt ? new Date(expiresAt).getTime() < Date.now() : false;
   // Derive sandbox metadata for auto-created development keys.
   // test_mode_restrictions may arrive as a JSON string (raw DB value) or an object (parsed by getApi).
   const isDev =
@@ -603,6 +606,52 @@ const ApiKeyCard = ({ title, apiRow, revealedKey, onCopy, onDelete, onRegenerate
             </Typography>
           </ApiKeyCreatedText>
         </ApiKeyCardTopRow>
+        <Box
+          data-testid="api-key-meta"
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            gap: "4px 16px",
+            mt: 1,
+          }}
+        >
+          <Box
+            data-testid="api-last-used"
+            sx={{ display: "inline-flex", alignItems: "center", gap: 0.5 }}
+          >
+            <Icon name="activity" size={13} color={theme.palette.text.secondary} />
+            <Typography sx={{ fontSize: 12, color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}>
+              {lastUsedAt
+                ? t("keys.lastUsed", { date: formatDate(lastUsedAt), defaultValue: "Last used {{date}}" })
+                : t("keys.neverUsed", { defaultValue: "Never used" })}
+            </Typography>
+          </Box>
+          <Box
+            data-testid="api-expires"
+            sx={{ display: "inline-flex", alignItems: "center", gap: 0.5 }}
+          >
+            <Icon
+              name={isExpired ? "triangle-alert" : "calendar-clock"}
+              size={13}
+              color={isExpired ? theme.palette.error.main : theme.palette.text.secondary}
+            />
+            <Typography
+              sx={{
+                fontSize: 12,
+                fontFamily: "var(--font-sans)",
+                color: isExpired ? theme.palette.error.main : theme.palette.text.secondary,
+                fontWeight: isExpired ? 600 : 400,
+              }}
+            >
+              {!expiresAt
+                ? t("keys.noExpiry", { defaultValue: "No expiry" })
+                : isExpired
+                  ? t("keys.expired", { date: formatDate(expiresAt), defaultValue: "Expired {{date}}" })
+                  : t("keys.expiresOn", { date: formatDate(expiresAt), defaultValue: "Expires {{date}}" })}
+            </Typography>
+          </Box>
+        </Box>
       </ApiKeyCardBody>
     </PanelCard>
   );

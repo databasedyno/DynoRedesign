@@ -5,6 +5,8 @@ import { requireStepUp } from "../middleware/requireStepUp";
 import { auditMutations } from "../utils/activityLog";
 import { userWalletModel } from "../models";
 import { checkAddressSanity, getWalletSecurityStatus } from "../controller/wallet/walletSecurity";
+import { validate, withdrawAssetsSchema } from "../middleware/validateRequest";
+import idempotencyMiddleware from "../middleware/idempotencyMiddleware";
 
 const walletRouter = express.Router();
 
@@ -96,7 +98,13 @@ walletRouter.post("/estimateFees", walletController.estimateFees);
 walletRouter.get("/network-fees", walletController.getNetworkFees);
 walletRouter.post("/calculate-payment", walletController.calculatePaymentAmount);
 walletRouter.post("/sendConfirmationOTP", walletController.sendConfirmationOTP);
-walletRouter.post("/withdrawAssets", requireStepUp("payout"), walletController.withdrawAssets);
+walletRouter.post(
+  "/withdrawAssets",
+  requireStepUp("payout"),
+  validate(withdrawAssetsSchema),
+  idempotencyMiddleware,
+  walletController.withdrawAssets,
+);
 walletRouter.post("/exchangeCreate", walletController.exchangeCreate);
 walletRouter.post("/confirmExchange", walletController.confirmExchange);
 walletRouter.post("/getUserAnalytics", walletController.getUserAnalytics);

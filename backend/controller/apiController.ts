@@ -41,7 +41,9 @@ const addApi = async (req: express.Request, res: express.Response) => {
       withdrawal_whitelist, 
       api_name, 
       permissions,
-      environment = 'production' // Default to production
+      environment = 'production', // Default to production
+      expires_in_days,
+      expires_at,
     } = req.body;
 
     // Validate environment
@@ -211,6 +213,17 @@ const addApi = async (req: express.Request, res: express.Response) => {
         })
       : null;
 
+    // Optional key expiry: merchant may set a fixed lifetime (expires_in_days)
+    // or an explicit expires_at. NULL = never expires (default). validateApiKey
+    // already rejects any key whose expires_at has passed.
+    let expiresAtValue: Date | null = null;
+    if (expires_at) {
+      const d = new Date(expires_at);
+      if (!isNaN(d.getTime())) expiresAtValue = d;
+    } else if (expires_in_days && Number(expires_in_days) > 0) {
+      expiresAtValue = new Date(Date.now() + Number(expires_in_days) * 24 * 60 * 60 * 1000);
+    }
+
     const resData = await apiModel.create({
       company_id,
       base_currency: finalCurrency,
@@ -227,6 +240,7 @@ const addApi = async (req: express.Request, res: express.Response) => {
       environment,
       status: 'active',
       test_mode_restrictions: testModeRestrictions,
+      expires_at: expiresAtValue,
       request_count: 0,
       rate_limit_per_minute: 60,
       rate_limit_per_hour: 3600,
@@ -642,7 +656,9 @@ const updateApi = async (req: express.Request, res: express.Response) => {
       base_currency,
       webhook_url,
       webhook_secret,
-      notes
+      notes,
+      expires_in_days,
+      expires_at
     } = req.body;
 
     // Check if API exists and belongs to user
@@ -704,6 +720,19 @@ const updateApi = async (req: express.Request, res: express.Response) => {
     
     if (notes !== undefined) {
       updateData.notes = notes || null;
+    }
+
+    // Key expiry: null/0 → never expires; a date or day-count → set expiry.
+    if (expires_at !== undefined || expires_in_days !== undefined) {
+      if (expires_at === null || expires_in_days === 0 || expires_in_days === "0") {
+        updateData.expires_at = null;
+      } else if (expires_at) {
+        const d = new Date(expires_at);
+        if (isNaN(d.getTime())) return errorResponseHelper(res, 400, "Invalid expires_at date");
+        updateData.expires_at = d;
+      } else if (expires_in_days && Number(expires_in_days) > 0) {
+        updateData.expires_at = new Date(Date.now() + Number(expires_in_days) * 24 * 60 * 60 * 1000);
+      }
     }
 
     if (Object.keys(updateData).length === 0) {

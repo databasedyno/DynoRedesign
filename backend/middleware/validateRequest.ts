@@ -111,6 +111,29 @@ export const broadcastSchema = Joi.object({
   type: Joi.string().optional(),
 });
 
+// Payout / withdrawal — the single dashboard money-moving route. `.unknown(true)`
+// so any additional (non-security-critical) body fields pass through untouched;
+// we strictly validate only the fields that move money.
+export const withdrawAssetsSchema = Joi.object({
+  currency: Joi.string().trim().min(1).max(30).required().messages({
+    "any.required": "currency is required",
+  }),
+  amount: Joi.number().positive().required().messages({
+    "number.base": "amount must be a number",
+    "number.positive": "amount must be greater than 0",
+    "any.required": "amount is required",
+  }),
+  address: Joi.string().trim().min(1).max(200).required().messages({
+    "any.required": "A destination address is required",
+  }),
+  otp: Joi.alternatives().try(Joi.string().trim().min(1), Joi.number()).required().messages({
+    "any.required": "otp is required",
+  }),
+  feeType: Joi.string().trim().max(30).optional().allow("", null),
+  feeToPay: Joi.number().min(0).optional(),
+  saveAddress: Joi.boolean().optional(),
+}).unknown(true);
+
 export const pushNotificationSchema = Joi.object({
   userId: Joi.alternatives().try(Joi.number(), Joi.string()).required().messages({
     "any.required": "userId is required",

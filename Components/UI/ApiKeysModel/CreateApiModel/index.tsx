@@ -2,7 +2,7 @@ import InfoIcon from "@/assets/Icons/info-icon.svg";
 import WalletIcon from "@/assets/Icons/wallet-icon.svg";
 import FormManager from "@/Components/Page/Common/FormManager";
 import useIsMobile from "@/hooks/useIsMobile";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, FormControl, Select, MenuItem } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import Image from "next/image";
 import React, { useMemo, useState } from "react";
@@ -43,6 +43,8 @@ const CreateApiModel: React.FC<CreateApiModelProps> = ({ open, onClose }) => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [createdKey, setCreatedKey] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  // Optional key lifetime — "0" = never expires (default). Backend enforces it.
+  const [expiresInDays, setExpiresInDays] = useState("0");
 
   // One active key per environment: mint the sandbox key first, then live.
   const environment = useMemo(() => {
@@ -61,6 +63,7 @@ const CreateApiModel: React.FC<CreateApiModelProps> = ({ open, onClose }) => {
         api_name: values.key_name,
         base_currency: values.base_currency || "USD",
         environment,
+        expires_in_days: Number(expiresInDays) || 0,
       });
       const row = data?.data;
       // The plaintext key exists ONLY in this response — surface it once.
@@ -194,6 +197,37 @@ const CreateApiModel: React.FC<CreateApiModelProps> = ({ open, onClose }) => {
                       : undefined
                   }
                 />
+
+                <Box>
+                  <Typography
+                    sx={{
+                      fontSize: "13px",
+                      fontWeight: 500,
+                      fontFamily: "var(--font-sans)",
+                      color: theme.palette.text.secondary,
+                      mb: 0.75,
+                    }}
+                  >
+                    {t("generate.expiry", { defaultValue: "Key expiration" })}
+                  </Typography>
+                  <FormControl fullWidth size="small">
+                    <Select
+                      value={expiresInDays}
+                      onChange={(e) => setExpiresInDays(String(e.target.value))}
+                      data-testid="api-key-expiry-select"
+                      sx={{
+                        fontFamily: "var(--font-sans)",
+                        fontSize: 14,
+                        borderRadius: "8px",
+                      }}
+                    >
+                      <MenuItem value="0">{t("generate.expiryNever", { defaultValue: "Never expires" })}</MenuItem>
+                      <MenuItem value="30">{t("generate.expiry30", { defaultValue: "30 days" })}</MenuItem>
+                      <MenuItem value="90">{t("generate.expiry90", { defaultValue: "90 days" })}</MenuItem>
+                      <MenuItem value="365">{t("generate.expiry365", { defaultValue: "1 year" })}</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Box>
 
                 <PermissionsContainer>
                   <IconContainer sx={{ width: "24px", height: "24px" }}>
