@@ -1,3 +1,40 @@
+# === 2026-06 (fork) UI BUG FIXES — Payment-Links STATUS clipping + Donation-demo back-nav — DONE & VERIFIED (testing_agent iter 196, 100%) ===
+# User-reported (with screenshot): (1) Payment Links table STATUS column clipped ("Act"/"Pai"/"Exp", header "STA…")
+# because the sticky ACTIONS column squeezed STATUS; user noted "similar issues exist in several places across the app".
+# (2) /pay/donation-demo felt disconnected — no way to navigate back (header logo wasn't clickable).
+#
+# FIX 1 — Payment Links STATUS column (frontend/CSS only):
+#   /app/Components/Page/Payment-link/PaymentLinksTable.tsx
+#     • desktop <Table> (line ~521) → sx={{ width: "max-content", minWidth: "100%" }} so columns size to their
+#       (nowrap) content and the table scrolls horizontally when narrow, instead of the browser squeezing the
+#       right-side columns under the sticky-right ACTIONS cell.
+#     • STATUS header <TableCell> (~551) and body <TableBodyCell> (~645) → sx={{ minWidth: 108 }}.
+#   Root cause: MUI <Table> defaults to width:100% + table-layout:auto; with a sticky-right opaque ACTIONS column
+#   the flexible STATUS/LAST30 columns got compressed and clipped (container overflow:hidden). Mobile uses a card
+#   layout (unaffected). NO backend/DB change.
+#
+# FIX 2 — Donation demo (and ALL /pay/* pages) back-navigation:
+#   /app/Components/Page/Pay3Components/header.tsx — the checkout header logo (~line 106) is now wrapped in
+#   next/link <Link href="/" data-testid="pay-header-logo-home">. Pay3Layout wraps every /pay/* page, so the
+#   whole hosted-checkout family (donation-demo, state demos, real checkout) now has a standard logo→home affordance.
+#
+# VERIFIED: testing_agent iteration 196 = 100% frontend, no issues. BUG1 first 8 rows read
+#   ['Active','Paid','Paid','Expired','Paid','Paid','Paid','Paid'] at 1920x800, no horizontal overflow, all 9 headers
+#   legible. BUG2 logo <A href="/"> navigates to home; donation campaign still renders. Screenshots:
+#   /app/test_reports/pay_links_status.png, /app/test_reports/donation_demo.png. FE tsc 0.
+#
+# QA HELPER (persistent, reusable): /app/scripts/qa/owner_login.cjs — mints a valid owner (user 1, company 1,
+#   33 links) access token by reading the owned test account's TOTP secret (read-only) + otplib (backend node_modules,
+#   functional API generateSync/verifySync) and completing the /2fa/validate handshake. Inject into
+#   localStorage['token'] + sessionStorage['mfa_interstitial_seen']='1', then goto <BASE>/pay-links. Needed because
+#   user 1 is now TOTP-2FA enrolled (test_credentials.md line 81 "NOT enrolled" is STALE) so plain Uin login is gated.
+#   Payment-links page route = /pay-links (NOT /payment-links). Owner brands with links live only on user 1.
+#
+# OPEN FOLLOW-UP (user hint "several places"): only the Payment Links table was reported+fixed. A repo-wide sweep for
+#   other MUI <Table> instances with sticky ACTIONS + width:100% auto-layout (same clip risk) was NOT done — offer it.
+# ============================================================================================
+
+
 # === 2026-06 (fork) SECURITY HARDENING SPRINT — C (payout route) + D (API-key expiry) DONE & VERIFIED; E ALREADY COMPLETE ===
 # User picked "implement C, D (except IP lock), E" from a security menu. Investigation showed this codebase is already
 # heavily hardened (rate-limit + lockout, signed webhooks both ways, helmet/CSP, CSRF, idempotency on merchant-API,
