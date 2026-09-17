@@ -84,7 +84,7 @@
 #   to 0 keys). tsc 0 (backend + frontend), eslint clean.
 #
 # TESTING METHOD: self-tested (Joi unit tests + real curl e2e for D incl. enforcement + Playwright UI screenshots).
-#   testing_agent NOT used. NOTE current preview URL = https://af4c5982-2aad-4216-a67f-638c968a85f4.preview.emergentagent.com
+#   testing_agent NOT used. NOTE current preview URL = https://setup-vault-7.preview.emergentagent.com
 #   (test_credentials.md's 27632836 URL is STALE from a prior pod). COMMIT: all changes uncommitted — user must Save to GitHub.
 # ============================================================================================
 
