@@ -488,6 +488,8 @@
   "hello": "Olá",
   "copyFailed": "Não foi possível copiar — copie manualmente",
   "invoices": {
+    "searchPlaceholder": "Pesquisar por n.º de fatura ou nome do cliente",
+    "searchNoResults": "Nenhuma fatura corresponde à sua pesquisa.",
     "pageName": "Recibos e impostos",
     "pageDescription": "Veja faturas e relatórios de impostos",
     "tabInvoices": "Recibos",

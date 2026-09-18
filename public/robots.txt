@@ -15,6 +15,14 @@
 User-agent: *
 Allow: /
 
+# Public, read-only JSON that the marketing homepage renders (FX rates, price
+# tickers, on-chain proof, recent settlements). Let Googlebot fetch these so the
+# rendered page is complete for indexing. A more-specific Allow overrides the
+# Disallow below (Googlebot uses longest-match). Analytics/geo endpoints
+# (/api/geo-detect, /api/track/*) stay blocked on purpose — no crawl value.
+Allow: /api/public/
+Allow: /api/status/
+
 # Backend JSON API — not indexable content, no crawl value.
 Disallow: /api/
 

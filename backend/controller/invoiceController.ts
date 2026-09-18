@@ -671,7 +671,7 @@ const getAllInvoices = async (
   res: express.Response
 ) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
-  const { company_id, page = 1, limit = 10, start_date, end_date } = req.query;
+  const { company_id, page = 1, limit = 10, start_date, end_date, search } = req.query;
 
   try {
     const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
@@ -686,6 +686,15 @@ const getAllInvoices = async (
       if (s && !isNaN(s.getTime())) dateFilter[Op.gte] = s;
       if (e && !isNaN(e.getTime())) dateFilter[Op.lte] = e;
       if (Object.getOwnPropertySymbols(dateFilter).length > 0) whereClause.invoice_date = dateFilter;
+    }
+
+    // Optional search by invoice number or customer name (Receipts search box).
+    if (search && String(search).trim()) {
+      const term = `%${String(search).trim()}%`;
+      (whereClause as Record<symbol, unknown>)[Op.or] = [
+        { invoice_number: { [Op.iLike]: term } },
+        { customer_name: { [Op.iLike]: term } },
+      ];
     }
 
     // Get user's companies to filter invoices

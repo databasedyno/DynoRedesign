@@ -1,4 +1,7 @@
 {
+  "platformFee": "Taxa da plataforma",
+  "networkFee": "Taxa de rede",
+  "fixedFee": "Taxa fixa",
   "transactionsTitle": "Transações",
   "transactionsDescription": "Visualize e gerencie todas as suas transações de pagamento em criptomoedas.",
   "search": "Pesquisar",

@@ -1,4 +1,7 @@
 {
+  "platformFee": "Comisión de la plataforma",
+  "networkFee": "Comisión de red",
+  "fixedFee": "Comisión fija",
   "transactionsTitle": "Transacciones",
   "transactionsDescription": "Consulta y administra todas tus transacciones de pago en criptomonedas",
   "search": "Buscar transacciones...",

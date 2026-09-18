@@ -1,4 +1,7 @@
 {
+  "platformFee": "Platform fee",
+  "networkFee": "Network fee",
+  "fixedFee": "Fixed fee",
   "transactionsTitle": "Transactions",
   "transactionsDescription": "View and manage all your cryptocurrency payment transactions",
   "search": "Search transactions...",

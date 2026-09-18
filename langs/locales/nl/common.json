@@ -488,6 +488,8 @@
   "EmptyPaymentLinkTitle": "Nog geen betaallinks",
   "EmptyPaymentLinkDescription": "Betaallinks zijn deelbare URL's waarmee klanten je in crypto kunnen betalen. Maak er een en deel het.",
   "invoices": {
+    "searchPlaceholder": "Zoek op factuurnr. of klantnaam",
+    "searchNoResults": "Geen facturen komen overeen met je zoekopdracht.",
     "pageName": "Bonnen & belasting",
     "pageDescription": "Bekijk facturen en belastingrapporten",
     "tabInvoices": "Bonnen",

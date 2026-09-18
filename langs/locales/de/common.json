@@ -488,6 +488,8 @@
   "EmptyPaymentLinkTitle": "Noch keine Zahlungslinks",
   "EmptyPaymentLinkDescription": "Zahlungslinks sind teilbare URLs, über die Kunden Sie in Krypto bezahlen können. Erstellen Sie einen und teilen Sie ihn.",
   "invoices": {
+    "searchPlaceholder": "Nach Rechnungsnr. oder Kundenname suchen",
+    "searchNoResults": "Keine Rechnungen entsprechen Ihrer Suche.",
     "pageName": "Belege & Steuern",
     "pageDescription": "Rechnungen und Steuerberichte ansehen",
     "tabInvoices": "Belege",

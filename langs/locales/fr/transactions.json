@@ -1,4 +1,7 @@
 {
+  "platformFee": "Frais de plateforme",
+  "networkFee": "Frais de réseau",
+  "fixedFee": "Frais fixes",
   "transactionsTitle": "Transactions",
   "transactionsDescription": "Consultez et gérez toutes vos transactions de paiement en cryptomonnaie",
   "search": "Rechercher des transactions...",

@@ -488,6 +488,8 @@
   "hello": "Bonjour",
   "copyFailed": "Impossible de copier — veuillez copier manuellement",
   "invoices": {
+    "searchPlaceholder": "Rechercher par n° de facture ou nom du client",
+    "searchNoResults": "Aucune facture ne correspond à votre recherche.",
     "pageName": "Reçus et taxes",
     "pageDescription": "Consultez les factures et les rapports fiscaux",
     "tabInvoices": "Reçus",

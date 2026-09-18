@@ -488,6 +488,8 @@
   "logout": "Logout",
   "hello": "Hello",
   "invoices": {
+    "searchPlaceholder": "Search by invoice # or customer name",
+    "searchNoResults": "No invoices match your search.",
     "pageName": "Receipts & Tax",
     "pageDescription": "View invoices and tax reports",
     "tabInvoices": "Receipts",

@@ -23,6 +23,8 @@ import {
   FormControl,
   useTheme,
   Tooltip,
+  TextField,
+  InputAdornment,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { pageProps } from "@/utils/types";
@@ -130,6 +132,18 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
   };
   const [page, setPage] = useState(1);
 
+  // Invoice search (by invoice # or customer name), debounced → server-side filter.
+  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState("");
+  useEffect(() => {
+    const val = searchInput.trim();
+    const id = setTimeout(() => {
+      setSearch(val);
+      setPage(1);
+    }, 350);
+    return () => clearTimeout(id);
+  }, [searchInput]);
+
   // Live PDF preview drawer (design audit 2026-08-05, Phase 3 invoices).
   // Row click populates `previewInvoice`; the drawer fetches the PDF blob
   // via /invoices/{id}/pdf and renders it inline as an iframe. Merchants
@@ -223,6 +237,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
   invoicesParams.set("page", String(page));
   invoicesParams.set("limit", "20");
   if (selectedCompanyId) invoicesParams.set("company_id", String(selectedCompanyId));
+  if (search) invoicesParams.set("search", search);
   const { data: invoicesResp, isLoading: invoicesSwrLoading, mutate: mutateInvoices } = useApiSWR<any>(
     [`${API_ENDPOINTS.invoices.list}?${invoicesParams.toString()}`, selectedCompanyId],
     { unwrap: true, keepPreviousData: true }
@@ -375,6 +390,24 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
               headerPadding={muiTheme.spacing(2.5)}
               bodyPadding={muiTheme.spacing(0)}
             >
+              <Box sx={{ px: 2, pt: 2, pb: 1 }}>
+                <TextField
+                  size="small"
+                  fullWidth
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  placeholder={t("invoices.searchPlaceholder", { defaultValue: "Search by invoice # or customer name" })}
+                  data-testid="invoices-search-input"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Icon name="search" size={16} />
+                      </InputAdornment>
+                    ),
+                  }}
+                  sx={{ maxWidth: { xs: "100%", sm: 420 } }}
+                />
+              </Box>
               {/* Invoices — card list (<768) / table (>=768). §4.2 shared breakpoint. */}
               {cardView ? (
                 <Box sx={{ display: "flex", flexDirection: "column", gap: 1, p: 2 }} data-testid="invoices-card-list">
@@ -386,7 +419,15 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                       </Box>
                     ))
                   ) : invoices.length === 0 ? (
-                    <ReceiptsEmptyState periodActive={taxPeriod !== "all"} onShowAll={() => setTaxPeriod("all")} compact />
+                    search ? (
+                      <Box sx={{ p: 4, textAlign: "center" }} data-testid="invoices-search-empty">
+                        <Typography sx={{ fontSize: 14, color: muiTheme.palette.text.secondary }}>
+                          {t("invoices.searchNoResults", { defaultValue: "No invoices match your search." })}
+                        </Typography>
+                      </Box>
+                    ) : (
+                      <ReceiptsEmptyState periodActive={taxPeriod !== "all"} onShowAll={() => setTaxPeriod("all")} compact />
+                    )
                   ) : (
                     invoices.map((inv) => (
                       <Box
@@ -552,7 +593,13 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                               align="center"
                               sx={{ py: 2, border: "none" }}
                             >
-                              <ReceiptsEmptyState periodActive={taxPeriod !== "all"} onShowAll={() => setTaxPeriod("all")} />
+                              {search ? (
+                                <Typography data-testid="invoices-search-empty-table" sx={{ fontSize: 14, color: muiTheme.palette.text.secondary }}>
+                                  {t("invoices.searchNoResults", { defaultValue: "No invoices match your search." })}
+                                </Typography>
+                              ) : (
+                                <ReceiptsEmptyState periodActive={taxPeriod !== "all"} onShowAll={() => setTaxPeriod("all")} />
+                              )}
                             </TableCell>
                           </TableRow>
                         )

@@ -441,9 +441,33 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                   </TitleValue>
                 </DetailRow>
               )}
-              {(Number(transaction.fees) > 0 || (transaction.feesBreakdown && (transaction.feesBreakdown.platform > 0 || transaction.feesBreakdown.blockchain > 0))) && (
+              {(Number(transaction.fees) > 0 || (transaction.feesBreakdown && (transaction.feesBreakdown.platform > 0 || transaction.feesBreakdown.blockchain > 0 || transaction.feesBreakdown.fixed > 0))) && (
                 <>
-                  <DetailRow>
+                  {transaction.feesBreakdown && transaction.feesBreakdown.platform > 0 && (
+                    <DetailRow data-testid="tx-fee-platform">
+                      <TitleLabel sx={{ pl: 1.5, fontWeight: 400 }}>{tTransactions("platformFee", { defaultValue: "Platform fee" })}</TitleLabel>
+                      <TitleValue sx={{ fontWeight: 400 }}>
+                        {fx.formatFromUsd(transaction.feesBreakdown.platform) ?? `$${toFixedStr(transaction.feesBreakdown.platform, 2)}`}
+                      </TitleValue>
+                    </DetailRow>
+                  )}
+                  {transaction.feesBreakdown && transaction.feesBreakdown.blockchain > 0 && (
+                    <DetailRow data-testid="tx-fee-network">
+                      <TitleLabel sx={{ pl: 1.5, fontWeight: 400 }}>{tTransactions("networkFee", { defaultValue: "Network fee" })}</TitleLabel>
+                      <TitleValue sx={{ fontWeight: 400 }}>
+                        {fx.formatFromUsd(transaction.feesBreakdown.blockchain) ?? `$${toFixedStr(transaction.feesBreakdown.blockchain, 2)}`}
+                      </TitleValue>
+                    </DetailRow>
+                  )}
+                  {transaction.feesBreakdown && transaction.feesBreakdown.fixed > 0 && (
+                    <DetailRow data-testid="tx-fee-fixed">
+                      <TitleLabel sx={{ pl: 1.5, fontWeight: 400 }}>{tTransactions("fixedFee", { defaultValue: "Fixed fee" })}</TitleLabel>
+                      <TitleValue sx={{ fontWeight: 400 }}>
+                        {fx.formatFromUsd(transaction.feesBreakdown.fixed) ?? `$${toFixedStr(transaction.feesBreakdown.fixed, 2)}`}
+                      </TitleValue>
+                    </DetailRow>
+                  )}
+                  <DetailRow data-testid="tx-fee-total">
                     <TitleLabel>{tTransactions("totalFees")}</TitleLabel>
                     <TitleValue>
                       {fx.formatFromUsd(Number(transaction.fees) || 0) ?? `$${toFixedStr(transaction.fees, 2)}`}
