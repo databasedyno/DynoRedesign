@@ -309,7 +309,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
     window.print();
   };
 
-  const formatDate = (dateStr: string) => formatDateI18n(dateStr);
+  const formatDate = (dateStr: string) => formatDateI18n(dateStr, { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" });
 
   return (
     <>

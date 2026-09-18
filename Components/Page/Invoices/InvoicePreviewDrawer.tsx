@@ -60,7 +60,9 @@ interface Props {
 
 const formatDate = (isoStr: string) => {
   if (!isoStr) return "";
-  return formatDateI18n(isoStr, { year: "numeric", month: "short", day: "numeric" }) || isoStr;
+  // Invoice dates are calendar dates — render in UTC so the preview matches the
+  // PDF and never drifts a day in tz-ahead locales. (QA INV-002)
+  return formatDateI18n(isoStr, { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" }) || isoStr;
 };
 
 const formatUSD = (n: number) =>

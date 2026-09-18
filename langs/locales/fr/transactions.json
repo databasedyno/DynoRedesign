@@ -70,6 +70,8 @@
   "statusAll": "Tous",
   "awaitingShort": "En attente",
   "settledOnly": "Réglés uniquement",
+  "exportSettledOnly": "Exporter les règlements uniquement",
+  "exportSettledOnlyHint": "Limite l'export CSV aux paiements réglés — cela ne modifie pas la liste ci-dessous.",
   "statusFilterLabel": "Filtrer par statut",
   "exportScoped": "Exporter {{count}}",
   "exportScopedHint": "Exporte les {{count}} lignes correspondant à vos filtres et au statut actif.",

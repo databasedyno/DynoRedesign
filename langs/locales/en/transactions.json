@@ -74,6 +74,8 @@
   "statusAll": "All",
   "awaitingShort": "Awaiting",
   "settledOnly": "Settled only",
+  "exportSettledOnly": "Export settled only",
+  "exportSettledOnlyHint": "Limits the CSV export to settled payments — it doesn't change the list below.",
   "statusFilterLabel": "Filter by status",
   "exportScoped": "Export {{count}}",
   "exportScopedHint": "Exports the {{count}} rows matching your filters and the active status chip.",

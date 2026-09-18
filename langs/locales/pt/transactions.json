@@ -70,6 +70,8 @@
   "statusAll": "Todos",
   "awaitingShort": "Aguardando",
   "settledOnly": "Apenas liquidados",
+  "exportSettledOnly": "Exportar apenas liquidados",
+  "exportSettledOnlyHint": "Limita a exportação CSV aos pagamentos liquidados — não altera a lista abaixo.",
   "statusFilterLabel": "Filtrar por status",
   "exportScoped": "Exportar {{count}}",
   "exportScopedHint": "Exporta as {{count}} linhas que correspondem aos seus filtros e ao status ativo.",

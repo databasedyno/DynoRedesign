@@ -70,6 +70,8 @@
   "statusAll": "Alle",
   "awaitingShort": "Wartend",
   "settledOnly": "Nur abgerechnete",
+  "exportSettledOnly": "Nur abgewickelte exportieren",
+  "exportSettledOnlyHint": "Beschränkt den CSV-Export auf abgewickelte Zahlungen — die Liste unten ändert sich dadurch nicht.",
   "statusFilterLabel": "Nach Status filtern",
   "exportScoped": "{{count}} exportieren",
   "exportScopedHint": "Exportiert die {{count}} Zeilen, die Ihren Filtern und dem aktiven Status-Chip entsprechen.",

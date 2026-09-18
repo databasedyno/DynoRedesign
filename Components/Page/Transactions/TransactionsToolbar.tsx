@@ -161,26 +161,33 @@ const TransactionsToolbar: React.FC<Props> = ({
 
       <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexShrink: 0 }}>
         {!isMobile && !scoped && (
-          <FormControlLabel
-            control={
-              <Checkbox
-                size="small"
-                checked={settledOnly}
-                onChange={(e) => onSettledOnlyChange(e.target.checked)}
-                data-testid="transactions-export-settled-only"
-              />
-            }
-            label={t("settledOnly", { defaultValue: "Settled only" })}
-            sx={{
-              m: 0,
-              whiteSpace: "nowrap",
-              "& .MuiFormControlLabel-label": {
-                fontSize: 13,
-                fontFamily: "var(--font-sans)",
-                color: theme.palette.text.secondary,
-              },
-            }}
-          />
+          <Tooltip
+            title={t("exportSettledOnlyHint", { defaultValue: "Limits the CSV export to settled payments — it doesn't change the list below." })}
+            arrow
+            placement="top"
+            enterDelay={400}
+          >
+            <FormControlLabel
+              control={
+                <Checkbox
+                  size="small"
+                  checked={settledOnly}
+                  onChange={(e) => onSettledOnlyChange(e.target.checked)}
+                  data-testid="transactions-export-settled-only"
+                />
+              }
+              label={t("exportSettledOnly", { defaultValue: "Export settled only" })}
+              sx={{
+                m: 0,
+                whiteSpace: "nowrap",
+                "& .MuiFormControlLabel-label": {
+                  fontSize: 13,
+                  fontFamily: "var(--font-sans)",
+                  color: theme.palette.text.secondary,
+                },
+              }}
+            />
+          </Tooltip>
         )}
         <Tooltip title={exportHint} arrow placement="top" enterDelay={400}>
           <Box component="span" sx={{ display: "inline-flex" }}>

@@ -70,6 +70,8 @@
   "statusAll": "Alle",
   "awaitingShort": "Wachtend",
   "settledOnly": "Alleen afgewikkeld",
+  "exportSettledOnly": "Alleen afgewikkelde exporteren",
+  "exportSettledOnlyHint": "Beperkt de CSV-export tot afgewikkelde betalingen — de lijst hieronder verandert niet.",
   "statusFilterLabel": "Filteren op status",
   "exportScoped": "{{count}} exporteren",
   "exportScopedHint": "Exporteert de {{count}} rijen die overeenkomen met je filters en de actieve status.",

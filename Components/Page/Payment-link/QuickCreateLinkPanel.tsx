@@ -123,9 +123,6 @@ const QuickCreateLinkPanel = ({
     if (!amount || !isFinite(n) || n <= 0) {
       next.amount = t("quickCreate.errorAmount", { defaultValue: "Enter an amount greater than 0" });
     }
-    if (!description.trim()) {
-      next.description = t("quickCreate.errorDescription", { defaultValue: "A short description is required" });
-    }
     if (email.trim() && !/^\S+@\S+\.\S+$/.test(email.trim())) {
       next.email = t("quickCreate.errorEmail", { defaultValue: "Enter a valid email or leave empty" });
     }

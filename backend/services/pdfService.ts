@@ -109,12 +109,14 @@ export const generateInvoicePDF = (invoiceData: InvoiceData): PDFKit.PDFDocument
     return `${symbol}${toFixedStr(finalAmount, 2)} ${currency}`;
   };
 
-  // Helper function to format date
+  // Helper function to format date. Invoice dates are calendar dates — force
+  // UTC so the PDF matches the in-app list regardless of server tz. (QA INV-002)
   const formatDate = (date: Date): string => {
     return new Date(date).toLocaleDateString(dateLocale, {
       day: "2-digit",
       month: "long",
       year: "numeric",
+      timeZone: "UTC",
     });
   };
 

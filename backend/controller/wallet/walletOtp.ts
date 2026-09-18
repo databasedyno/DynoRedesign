@@ -27,6 +27,29 @@ import { t, resolveEmailLang } from "../../utils/emailI18n";
 import { notifyWalletChanges, assertWalletNotFrozen } from "../../services/wallet/walletChangeAlert";
 import { generateOtpCode } from "../../helper/otpGuard";
 
+/** Lightweight cross-chain guard: catches the common "pasted an address for the
+ *  wrong network" mistake (e.g. an ETH 0x… address selected for BTC) so the API
+ *  returns a clear mismatch instead of silently accepting it. (QA WAL-005) */
+const addressMatchesCurrency = (currency: string, address: string): boolean => {
+  const c = String(currency || "").toUpperCase();
+  const a = String(address || "").trim();
+  if (!a) return false;
+  const evmRe = /^0x[0-9a-fA-F]{40}$/;
+  const isEvm =
+    c === "ETH" || c.includes("ERC20") || c === "POLYGON" || c === "MATIC" ||
+    c.includes("POLYGON") || c === "BNB" || c.includes("BEP20");
+  if (isEvm) return evmRe.test(a);
+  // Non-EVM chains must NOT be a 0x… EVM address.
+  if (evmRe.test(a)) return false;
+  if (c === "TRX" || c.includes("TRC20")) return /^T[1-9A-HJ-NP-Za-km-z]{33}$/.test(a);
+  if (c === "XRP" || c === "RLUSD") return /^r[1-9A-HJ-NP-Za-km-z]{24,34}$/.test(a);
+  if (c === "BTC") return /^(bc1[0-9a-z]{20,90}|[13][1-9A-HJ-NP-Za-km-z]{25,39})$/.test(a);
+  if (c === "LTC") return /^(ltc1[0-9a-z]{20,90}|[LM3][1-9A-HJ-NP-Za-km-z]{25,39})$/.test(a);
+  if (c === "DOGE") return /^D[1-9A-HJ-NP-Za-km-z]{25,39}$/.test(a);
+  if (c === "SOL") return /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(a);
+  return true; // unknown/new asset — don't block
+};
+
 export const validateWallet = async (
   req: express.Request,
   res: express.Response
@@ -69,6 +92,18 @@ export const validateWallet = async (
       
       if (!company) {
         return errorResponseHelper(res, 403, "You don't have access to this company!");
+      }
+
+      // Reject an address that doesn't match the selected network before we even
+      // ask Tatum (which won't reliably flag a cross-chain paste). (QA WAL-005)
+      if (!addressMatchesCurrency(currency, wallet_address)) {
+        return res.status(400).json({
+          success: false,
+          statusCode: 400,
+          valid: false,
+          code: "ADDRESS_CURRENCY_MISMATCH",
+          message: `That doesn't look like a valid ${currency} address — please check you selected the right network.`,
+        });
       }
       
       // CRITICAL VALIDATION: Check if company already has a wallet for this blockchain type

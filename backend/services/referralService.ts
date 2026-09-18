@@ -7,6 +7,28 @@ import RefereeCode from '../models/referralModels/refereeCodeModel';
 import Referral from '../models/referralModels/referralModel';
 import { toFixedStr } from "../utils/money";
 
+/**
+ * Recompute a referrer's denormalized `referral_count` from the source of truth
+ * — the distinct referred users who hold a live (pending/active/rewarded)
+ * referral. Idempotent: safe to call from any redeem path without ever
+ * double-counting. Fixes QA REF-002 (leaderboard showed 2 for a single referral
+ * because two redeem paths each did a blind +1).
+ */
+export const syncReferralCount = async (referrerUserId: number): Promise<void> => {
+  const count = await Referral.count({
+    where: {
+      referrer_user_id: referrerUserId,
+      status: { [Op.in]: ['pending', 'active', 'rewarded'] },
+    },
+    distinct: true,
+    col: 'referred_user_id',
+  });
+  await User.update(
+    { referral_count: count },
+    { where: { user_id: referrerUserId } }
+  );
+};
+
 // ============================================
 // REFEREE CODE SERVICE (Type 2 - Payment Link)
 // ============================================
@@ -200,11 +222,10 @@ export const redeemRefereeCode = async (params: {
         expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
       } as Record<string, unknown>);
 
-      // Increment referrer's referral count (once per invited user)
-      await User.increment(
-        { referral_count: 1 },
-        { where: { user_id: refereeCode.referrer_user_id } }
-      );
+      // Keep referral_count authoritative (= distinct referred users with a live
+      // referral) instead of a blind +1, so it can never double-count when more
+      // than one redeem path runs for the same signup. (QA REF-002)
+      await syncReferralCount(refereeCode.referrer_user_id);
     }
   }
 
@@ -313,11 +334,8 @@ export const redeemUserReferralCode = async (params: {
     { where: { user_id: newUserId } }
   );
 
-  // Increment referrer's referral count
-  await User.increment(
-    { referral_count: 1 },
-    { where: { user_id: referrerId } }
-  );
+  // Keep referral_count authoritative (see syncReferralCount / QA REF-002).
+  await syncReferralCount(referrerId);
 
   apiLogger.info(`[UserReferral] New user ${newUserId} referred by ${referrerId}`);
 
