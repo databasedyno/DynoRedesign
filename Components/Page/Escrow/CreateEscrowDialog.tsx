@@ -20,7 +20,7 @@ import { useDispatch } from "react-redux";
 import Logo from "@/assets/Icons/Logo";
 import { escrowApi, EscrowDeal, FeeBreakdown, FeePayer, EscrowRole } from "@/api/escrow";
 import { BRAND_ACCENT, brandAlpha, brandFg } from "@/constants/theme";
-import { FUNDING_COINS } from "./escrowUtils";
+import { FUNDING_COINS, PAYOUT_OPTIONS } from "./escrowUtils";
 import { CoinIcon, coinInfo } from "./CoinIcon";
 import FeeBreakdownCard from "./FeeBreakdownCard";
 
@@ -48,6 +48,9 @@ export default function CreateEscrowDialog({ open, companyId, onClose, onCreated
   const [feePayer, setFeePayer] = useState<FeePayer>("buyer");
   const [autoReleaseDays, setAutoReleaseDays] = useState("3");
   const [acceptedCoins, setAcceptedCoins] = useState<string[]>(["USDT-TRON", "BTC", "ETH"]);
+  // Payout network used for the withdrawal-fee estimate in the quote. The seller
+  // picks the final network at cash-out; this only affects the estimate shown here.
+  const [payoutCoin, setPayoutCoin] = useState("USDT-TRON");
   const [terms, setTerms] = useState("");
 
   const [preview, setPreview] = useState<FeeBreakdown | null>(null);
@@ -65,6 +68,7 @@ export default function CreateEscrowDialog({ open, companyId, onClose, onCreated
     setFeePayer("buyer");
     setAutoReleaseDays("3");
     setAcceptedCoins(["USDT-TRON", "BTC", "ETH"]);
+    setPayoutCoin("USDT-TRON");
     setTerms("");
     setPreview(null);
     setCreated(null);
@@ -91,12 +95,13 @@ export default function CreateEscrowDialog({ open, companyId, onClose, onCreated
           fee_percent: Number(feePercent) || 0,
           fee_payer: feePayer,
           accepted_coins: acceptedCoins.length ? acceptedCoins.join(",") : undefined,
+          payout_coin: payoutCoin,
         })
         .then(setPreview)
         .catch(() => setPreview(null));
     }, 350);
     return () => clearTimeout(handle);
-  }, [amount, currency, feePercent, feePayer, acceptedCoins]);
+  }, [amount, currency, feePercent, feePayer, acceptedCoins, payoutCoin]);
 
   const emailValid = useMemo(() => /.+@.+\..+/.test(counterpartyEmail.trim()), [counterpartyEmail]);
   const canSubmit = title.trim().length >= 2 && Number(amount) > 0 && emailValid && !!companyId && !submitting;
@@ -400,6 +405,27 @@ export default function CreateEscrowDialog({ open, companyId, onClose, onCreated
                   );
                 })}
               </Box>
+            </Box>
+
+            {/* Payout network — sets the withdrawal-fee estimate in the quote */}
+            <Box>
+              <Typography sx={{ fontSize: 13, fontWeight: 700, mb: 0.8 }}>Payout network (for the estimate)</Typography>
+              <TextField
+                select
+                SelectProps={{ native: true }}
+                value={payoutCoin}
+                onChange={(e) => setPayoutCoin(e.target.value)}
+                size="small"
+                fullWidth
+                inputProps={{ "data-testid": "escrow-create-payout-coin" }}
+                helperText="The seller chooses the final stablecoin network at cash-out — this only sets the withdrawal-fee estimate in the quote below."
+              >
+                {PAYOUT_OPTIONS.map((o) => (
+                  <option key={o.key} value={o.key}>
+                    {o.label}
+                  </option>
+                ))}
+              </TextField>
             </Box>
 
             <TextField

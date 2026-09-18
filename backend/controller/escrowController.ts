@@ -238,7 +238,11 @@ async function authorizeOutcome(
   outcome: SettlementOutcome,
   opts: { splitPercentSeller?: number; actorLabel: string; actorRole: string }
 ): Promise<{ summary: string }> {
-  const breakdown = computeFeeBreakdown({ amount: deal.amount, currency: deal.currency, feePercent: deal.fee_percent, feeMinUsd: deal.fee_min_usd, feePayer: deal.fee_payer });
+  // Use the seller's chosen payout coin + the coin actually funded so the
+  // withdrawal/network estimates baked into sellerReceives/buyerPays match the
+  // quote the parties saw and the coin funded (consistent with serializeDeal
+  // and actFund). Falls back to defaults when not yet set.
+  const breakdown = computeFeeBreakdown({ amount: deal.amount, currency: deal.currency, feePercent: deal.fee_percent, feeMinUsd: deal.fee_min_usd, feePayer: deal.fee_payer, payoutCoin: deal.seller_payout_coin, fundingCoin: deal.funding_coin, acceptedCoins: deal.accepted_coins });
   const amounts = computeSettlementAmounts(breakdown, outcome, opts.splitPercentSeller);
   const nextStatus = outcomeToStatus(outcome);
   assertTransition(deal.status, nextStatus as any);

@@ -1,0 +1,23 @@
+{
+  "timestamp": 1789749272.8553975,
+  "all_passed": true,
+  "results": [
+    {
+      "test": "TEST 1: FEE PREVIEW",
+      "passed": true
+    },
+    {
+      "test": "TEST 2: LIFECYCLE + ENTITLEMENT CONSISTENCY",
+      "passed": true,
+      "escrow_id": 34
+    },
+    {
+      "test": "TEST 3: ADMIN ENDPOINTS",
+      "passed": true
+    },
+    {
+      "test": "TEST 4: IDEMPOTENCY / GUARDS",
+      "passed": true
+    }
+  ]
+}

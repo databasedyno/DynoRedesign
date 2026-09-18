@@ -1,4 +1,36 @@
 # ============================================================================
+# >>> CURRENT SESSION (2026-09, fork: continue-escrow) — ESCROW FEE-COIN CONSISTENCY <<<
+#   Env: SAFE MODE, LIVE prod DB, money SIMULATED. Backend BOOTS HEALTHY after edits.
+#
+#   CHANGES MADE THIS SESSION (2 small, additive):
+#   1) BACKEND — controller/escrowController.ts authorizeOutcome(): now calls
+#      computeFeeBreakdown() with payoutCoin=deal.seller_payout_coin, fundingCoin=
+#      deal.funding_coin, acceptedCoins=deal.accepted_coins (was using defaults). This
+#      makes the release/refund/split ENTITLEMENTS use the same withdrawal/network
+#      estimate as the quote the parties saw (consistent with serializeDeal + actFund).
+#   2) FRONTEND — Components/Page/Escrow/CreateEscrowDialog.tsx: added a "Payout network
+#      (for the estimate)" native <select> (data-testid=escrow-create-payout-coin, 5
+#      PAYOUT_OPTIONS) and now passes payout_coin to escrowApi.feePreview so the quote's
+#      withdrawal-fee row matches the chosen network. Seller still picks the final
+#      network at cash-out; this only drives the estimate.
+#
+#   BACKEND RE-TEST NEEDED (deep_testing_backend_v2):
+#     POST /api/escrow/fee-preview {amount, fee_payer:buyer|seller|split, payout_coin} —
+#       assert 4 costItems (escrow_fee/network_fee/conversion_fee/withdrawal_fee),
+#       totalCost = sum, buyerPays/sellerReceives allocate per fee_payer, and the
+#       withdrawal fee CHANGES with payout_coin (USDT-TRON cheap vs USDT-ERC20 dearer).
+#     Full lifecycle create->fund->deliver->release (and refund + split) still passes and
+#       the authorized entitlement equals sellerReceives/buyerPays from the SAME breakdown
+#       (esp. when seller_payout_coin is a non-default network like USDT-ERC20).
+#     Merchant login: onarrival21@gmail.com / Katiekendra123@ ; 2FA TOTP via
+#       `node /app/backend/scripts/print_totp.cjs 1`. Use throwaway counterparty emails
+#       (escrow_frontend_*@example.com) and company_id=1. SAFE MODE — do not mutate other
+#       live merchant data destructively.
+# ============================================================================
+
+
+
+# ============================================================================
 # >>> HANDOFF (2026-09, fork: continue-escrow) — ESCROW FEE/COST MODEL ADDED <<<
 #   State: SAFE MODE, LIVE prod DB, money SIMULATED. Backend BOOTS HEALTHY.
 #   Full plan + detailed TODO: /app/memory/ESCROW_PLAN.md (SESSION UPDATE at bottom).
