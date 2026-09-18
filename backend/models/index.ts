@@ -35,6 +35,7 @@ import vatValidationModel from "./vatValidationModel";
 import nexusAlertModel from "./nexusAlertModel";
 import tipGoalMilestoneModel from "./tipGoalMilestoneModel";
 import invoiceModel from "./invoiceModel";
+import escrowDealModel from "./escrowDealModel";
 import notificationModel from "./notificationModel";
 import notificationPreferencesModel from "./notificationPreferencesModel";
 import kycModel from "./kycModel";
@@ -121,6 +122,7 @@ export {
   nexusAlertModel,
   tipGoalMilestoneModel,
   invoiceModel,
+  escrowDealModel,
   notificationModel,
   notificationPreferencesModel,
   kycModel,

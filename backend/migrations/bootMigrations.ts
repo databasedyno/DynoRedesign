@@ -96,6 +96,7 @@ export async function getBootModels(): Promise<unknown[]> {
   const { signupAttributionModel } = await import("../models"); // Signup Attribution (0019)
   const { paymentReceiptModel } = await import("../models"); // Shareable receipts (0021)
   const { vatValidationModel } = await import("../models"); // VAT validation cache (0028)
+  const { escrowDealModel } = await import("../models"); // Escrow deals (0035)
   return [
     ...v1,
     ...extra,
@@ -109,6 +110,7 @@ export async function getBootModels(): Promise<unknown[]> {
     signupAttributionModel,
     paymentReceiptModel,
     vatValidationModel,
+    escrowDealModel,
   ];
 }
 
@@ -562,6 +564,49 @@ const addTxnAttentionResolved = async (): Promise<void> => {
   );
 };
 
+/**
+ * 0035 — Escrow deals (tbl_escrow_deal). Brand-new table (create-only sync —
+ * a no-op when it already exists). Additive, safe on live prod: unused until the
+ * Escrow feature is exercised, touches no existing table.
+ */
+const createEscrowTable = async (): Promise<void> => {
+  const { escrowDealModel } = await import("../models");
+  if (isSyncable(escrowDealModel)) await escrowDealModel.sync();
+};
+
+/**
+ * 0036 — Escrow custody + two-phase settlement + OTP onboarding columns.
+ * Additive ADD COLUMN IF NOT EXISTS on the (new, escrow-only) tbl_escrow_deal —
+ * metadata-only, idempotent, safe on live prod.
+ */
+const addEscrowSettlementColumns = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `ALTER TABLE "tbl_escrow_deal"
+       ADD COLUMN IF NOT EXISTS "custody_stablecoin" VARCHAR(20),
+       ADD COLUMN IF NOT EXISTS "custody_amount_stable" DECIMAL(18,2),
+       ADD COLUMN IF NOT EXISTS "converted_at" TIMESTAMPTZ,
+       ADD COLUMN IF NOT EXISTS "outcome" VARCHAR(16),
+       ADD COLUMN IF NOT EXISTS "outcome_authorized_at" TIMESTAMPTZ,
+       ADD COLUMN IF NOT EXISTS "seller_entitlement_stable" DECIMAL(18,2),
+       ADD COLUMN IF NOT EXISTS "seller_payout_state" VARCHAR(16) NOT NULL DEFAULT 'na',
+       ADD COLUMN IF NOT EXISTS "seller_paid_at" TIMESTAMPTZ,
+       ADD COLUMN IF NOT EXISTS "seller_payout_tx" VARCHAR(255),
+       ADD COLUMN IF NOT EXISTS "seller_signed_in" BOOLEAN NOT NULL DEFAULT false,
+       ADD COLUMN IF NOT EXISTS "buyer_entitlement_stable" DECIMAL(18,2),
+       ADD COLUMN IF NOT EXISTS "buyer_payout_state" VARCHAR(16) NOT NULL DEFAULT 'na',
+       ADD COLUMN IF NOT EXISTS "buyer_refund_coin" VARCHAR(20),
+       ADD COLUMN IF NOT EXISTS "buyer_paid_at" TIMESTAMPTZ,
+       ADD COLUMN IF NOT EXISTS "buyer_payout_tx" VARCHAR(255),
+       ADD COLUMN IF NOT EXISTS "buyer_signed_in" BOOLEAN NOT NULL DEFAULT false,
+       ADD COLUMN IF NOT EXISTS "fully_paid_at" TIMESTAMPTZ,
+       ADD COLUMN IF NOT EXISTS "payout_reminder_count" INTEGER NOT NULL DEFAULT 0,
+       ADD COLUMN IF NOT EXISTS "payout_reminder_last_at" TIMESTAMPTZ,
+       ADD COLUMN IF NOT EXISTS "needs_admin_review" BOOLEAN NOT NULL DEFAULT false,
+       ADD COLUMN IF NOT EXISTS "counterparty_verified_at" TIMESTAMPTZ`
+  );
+};
+
 export async function buildBootMigrations(): Promise<Migration[]> {  const { v1, extra } = await loadBootModelGroups();  return [
     { version: "0001_boot_model_tables", up: syncGroup(v1) },
     { version: "0002_boot_model_tables_extra", up: syncGroup(extra) },
@@ -594,6 +639,8 @@ export async function buildBootMigrations(): Promise<Migration[]> {  const { v1,
     { version: "0032_tip_goal_milestone", up: createTipGoalMilestoneTable },
     { version: "0033_customer_annotation", up: createCustomerAnnotationTable },
     { version: "0034_txn_attention_resolved", up: addTxnAttentionResolved },
+    { version: "0035_escrow_deals", up: createEscrowTable },
+    { version: "0036_escrow_settlement_columns", up: addEscrowSettlementColumns },
     ...perfMigrations,
     ...securityMigrations,
   ];

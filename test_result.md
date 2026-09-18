@@ -1,3 +1,107 @@
+# ============================================================================
+# >>> HANDOFF (2026-09) — ESCROW SERVICE: BACKEND DONE, NEEDS RE-TEST + FRONTEND <<<
+#   Full plan: /app/memory/ESCROW_PLAN.md  (read this first — end-to-end spec).
+#   Env: LIVE PROD Postgres + Redis, SAFE MODE. Feature is ADDITIVE (tbl_escrow_deal,
+#   migrations 0035 + 0036). MONEY IS SIMULATED — funding, stable conversion, custody
+#   and payouts never touch chain (gated by ESCROW_LIVE_SETTLEMENT, default OFF).
+#
+#   STATE OF PLAY
+#   ✅ Backend v1 built + tested earlier (fee math, create/list/get, guards, admin,
+#      simulated fund/settlement, lifecycle emails). CSRF exemption added for
+#      /api/escrow/public/ (fix from prior test run).
+#   ✅ Backend REVISION built (this session), NOT YET RE-TESTED end-to-end:
+#        - migration 0036 adds custody + two-phase + onboarding columns (applied OK).
+#        - Funding now simulates convert-to-stable into pooled custody (per-deal ledger).
+#        - TWO-PHASE SETTLEMENT: authorize outcome (release/refund/split) -> per-leg
+#          payout state na|pending|paid. Deal shows "Completed — payout pending" until a
+#          destination exists, then "…— payout paid". Idempotent; no payout while disputed.
+#        - Adding a payout/refund address triggers the pending leg to pay (attemptPayouts).
+#        - Split settles per-leg independently.
+#        - EMAIL-OTP counterparty onboarding replaces the old plain-email check:
+#            POST /escrow/public/:token/send-otp {email}   -> returns preview_otp (email off in preview)
+#            POST /escrow/public/:token/verify-otp {email,otp} -> {escrow_session}
+#            then send header  x-escrow-token: <escrow_session>  on respond/action.
+#        - Admin maintenance: POST /escrow/admin/run-auto-release, /escrow/admin/run-payout-reminders.
+#      Verified wired (controller reachable; CSRF-exempt; admin auth enforced) but the
+#      full OTP->act lifecycle has NOT been run by the testing agent yet.
+#
+#   NEXT AGENT — DO THIS
+#   1) BACKEND RE-TEST (deep_testing_backend_v2). The public contract CHANGED: you must
+#      send-otp -> read preview_otp -> verify-otp -> use x-escrow-token for respond/action.
+#      Cover: OTP verify; happy path A (owner=seller) & B (owner=buyer); fund converts to
+#      custody (custody_amount_stable set, custody_stablecoin=USDT-TRON); release with NO
+#      seller address -> status 'completed' + seller_payout_state 'pending' (settlement_phase
+#      'pending'); then POST payout-info {payout_address} -> seller_payout_state 'paid',
+#      fully_paid_at set, settlement_phase 'paid'. Dispute -> admin resolve split (e.g. 60)
+#      -> status 'split', per-leg pending until each address added; refund resolution ->
+#      'refunded'. run-auto-release on a delivered+past-timer deal authorizes release.
+#      Guards: OTP mismatch 403/400; missing x-escrow-token 401; deliver-before-funded 409.
+#   2) FRONTEND (NOT STARTED): build P3 public invite page /escrow/invite/[token] (OTP verify
+#      + role actions + add stable/refund address + payout-pending state + offer sign-in when
+#      has_account), P4 merchant Escrow dashboard (list/create/detail + nav), P5 admin Escrow
+#      oversight (deals + dispute queue + resolve). Follow existing Next.js patterns in /app/pages.
+#      Ask the user before running the FRONTEND testing agent.
+# ============================================================================
+
+
+
+# ============================================================================
+# CURRENT SESSION — 2026-09 ESCROW SERVICE v1 (BACKEND) — NEEDS BACKEND TESTING
+#   Env: LIVE PROD DB + REDIS, SAFE MODE. Feature is ADDITIVE (new table
+#   tbl_escrow_deal via migration 0035; no existing tables/logic changed).
+#   MONEY-SAFETY: funding + settlement are SIMULATED (no on-chain broadcast) —
+#   gated behind ESCROW_LIVE_SETTLEMENT (default OFF). Tests move NO real crypto.
+#
+#   WHAT WAS BUILT (standalone Escrow product; buyer<->seller crypto escrow):
+#     * models/escrowDealModel.ts -> tbl_escrow_deal (JSONB activity_log timeline)
+#     * controller/escrow/escrowShared.ts -> fee math, state machine, settlement sim
+#     * controller/escrowController.ts + routes/escrowRouter.ts
+#     * services/email/escrowEmails.ts (invite/accept/funded/delivered/released/dispute)
+#
+#   API CONTRACT (all under REACT_APP_BACKEND_URL, prefix /api):
+#     MERCHANT (Bearer JWT):
+#       POST /api/escrow/fee-preview {amount,currency,fee_percent,fee_min_usd,fee_payer}
+#            -> {escrowFee, buyerPays, sellerReceives, feePayer,...}
+#       POST /api/escrow {company_id,title,description,amount,currency,accepted_coins,
+#            terms,counterparty_email,creator_role(buyer|seller),fee_percent,fee_payer
+#            (buyer|seller|split),auto_release_days,send_invite} -> creates deal (status
+#            'invited' when send_invite). company_id must be owned (perm manage_payment_links).
+#       GET  /api/escrow?company_id=&status=&role=buyer|seller  (deals I participate in)
+#       GET  /api/escrow/:id  (participant only; 403 otherwise)
+#       POST /api/escrow/:id/simulate-fund {coin}   (BUYER only; SAFE-MODE only; -> funded)
+#       POST /api/escrow/:id/deliver {delivery_note} (SELLER only; funded->delivered, sets auto_release_at)
+#       POST /api/escrow/:id/release                 (BUYER only; funded|delivered -> completed)
+#       POST /api/escrow/:id/dispute {reason}        (either party; funded|delivered -> disputed)
+#       POST /api/escrow/:id/cancel {reason}         (CREATOR only; pre-funding)
+#       POST /api/escrow/:id/payout-info {payout_address,payout_coin,refund_address}
+#     PUBLIC (no auth, token + email confirm — counterparty may have NO account):
+#       GET  /api/escrow/public/:token
+#       POST /api/escrow/public/:token/respond {action:accept|decline, email(must match counterparty_email), reason?}
+#       POST /api/escrow/public/:token/action  {action:fund|deliver|release|dispute|payout-info, email, coin?/delivery_note?/reason?}
+#         -> lets the invited counterparty perform THEIR role action (buyer funds/releases,
+#            seller delivers) without a DynoPay account. Same state-machine + role guards.
+#     ADMIN (adminAuthMiddleware — super-admin token from /api/admin/login):
+#       GET  /api/escrow/admin/deals?status=&company_id=
+#       GET  /api/escrow/admin/disputes
+#       POST /api/escrow/admin/:id/resolve {outcome:release|refund|split, split_percent_seller, note}
+#
+#   HAPPY PATH TO TEST (all simulated, no real crypto):
+#     create(invited) -> public respond accept(awaiting_payment) -> simulate-fund(funded)
+#     -> deliver(delivered) -> release(completed). Also: dispute -> admin resolve split/refund/release.
+#     Validate: state machine rejects invalid jumps (e.g. deliver before funded -> 409),
+#     role guards (403), participant guard on GET/:id, fee math (5% default, buyer/seller/split).
+#
+#   AUTH FOR TESTS (see memory/test_credentials.md):
+#     Merchant owner onarrival21@gmail.com / Katiekendra123@ (user_id=1, company_id=1),
+#     TOTP 2FA: `node /app/backend/scripts/print_totp.cjs 1`. API login: POST /api/user/login
+#     -> data.challenge_token -> POST /api/user/2fa/validate {challenge_token,token} -> data.accessToken.
+#     Super-admin moxxcompany@gmail.com / Katiekendra123@ via POST /api/admin/login.
+#     NOTE: counterparty_email for created test deals should be a DIFFERENT address than the
+#     owner's (self-invite is blocked). Use e.g. escrow_buyer_test@example.com.
+# ============================================================================
+
+
+
 # === 2026-09 (fork: setup-vault) PHASE 3 & 4 — FRONTEND VERIFICATION RESULTS ===
 # PHASE 3 (email preferences):
 #   - Deep-link preservation (withAuth): BROWSER-VERIFIED — logged-out /settings?section=notifications
