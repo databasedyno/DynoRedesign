@@ -74,6 +74,16 @@ const SESSION_TTL = 3600; // 1 h
 const REMINDER_REVIEW_THRESHOLD = 3;
 // How long a dispute proposal can sit unanswered before it auto-escalates to admin.
 const DISPUTE_AUTO_ESCALATE_HOURS = Number(envRaw("ESCROW_DISPUTE_AUTO_ESCALATE_HOURS")) || 72;
+// Platform escrow fee — ADMIN-CONTROLLED via .env only (never client-supplied).
+const ESCROW_FEE_PERCENT = Number(envRaw("ESCROW_FEE_PERCENT")) || 5;
+const ESCROW_FEE_MIN_USD = Number(envRaw("ESCROW_FEE_MIN_USD")) || 1;
+// Auto-release presets offered to merchants (days). Any other value clamps to the default.
+const ESCROW_AUTO_RELEASE_PRESETS = [3, 5, 7, 14];
+const ESCROW_AUTO_RELEASE_DEFAULT = 3;
+const clampAutoReleaseDays = (v: unknown): number => {
+  const n = Math.round(Number(v));
+  return ESCROW_AUTO_RELEASE_PRESETS.includes(n) ? n : ESCROW_AUTO_RELEASE_DEFAULT;
+};
 
 const otpKey = (escrowId: number | string, email: string) => `escrow:otp:${escrowId}:${norm(email)}`;
 const sessionKey = (tok: string) => `escrow:session:${tok}`;
@@ -671,10 +681,11 @@ async function loadAuthedDealActor(req: express.Request, res: express.Response):
 
 const previewFee = async (req: express.Request, res: express.Response) => {
   try {
-    const { amount, currency, fee_percent, fee_min_usd, fee_payer, payout_coin, accepted_coins } = req.body || {};
+    const { amount, currency, fee_payer, payout_coin, accepted_coins } = req.body || {};
     if (amount == null || Number(amount) <= 0) return errorResponseHelper(res, 400, "A positive 'amount' is required.");
     void refreshEscrowCostRates(); // best-effort live rates; static estimates used until it lands
-    const breakdown = computeFeeBreakdown({ amount, currency, feePercent: fee_percent, feeMinUsd: fee_min_usd, feePayer: fee_payer, payoutCoin: payout_coin, acceptedCoins: accepted_coins });
+    // Escrow fee % is admin-controlled (env) — never taken from the client.
+    const breakdown = computeFeeBreakdown({ amount, currency, feePercent: ESCROW_FEE_PERCENT, feeMinUsd: ESCROW_FEE_MIN_USD, feePayer: fee_payer, payoutCoin: payout_coin, acceptedCoins: accepted_coins });
     return successResponseHelper(res, 200, "Fee breakdown computed.", breakdown);
   } catch (e) {
     return handle(res, e, "previewFee");
@@ -686,8 +697,8 @@ const createDeal = async (req: express.Request, res: express.Response) => {
     const auth = getAuthUser(res);
     const {
       company_id, title, description, amount, currency = "USD", accepted_coins, terms,
-      counterparty_email, creator_role = "seller", fee_percent = 5, fee_min_usd = 1,
-      fee_payer = "buyer", auto_release_days = 3, send_invite = true,
+      counterparty_email, creator_role = "seller",
+      fee_payer = "buyer", auto_release_days = ESCROW_AUTO_RELEASE_DEFAULT, send_invite = true,
     } = req.body || {};
 
     if (!company_id) return errorResponseHelper(res, 400, "company_id is required.");
@@ -716,10 +727,11 @@ const createDeal = async (req: express.Request, res: express.Response) => {
       currency: String(currency).toUpperCase().slice(0, 10),
       accepted_coins: accepted_coins ? String(accepted_coins) : null,
       terms: terms ? String(terms) : null,
-      fee_percent: Number(fee_percent),
-      fee_min_usd: Number(fee_min_usd),
+      // Escrow fee is admin-controlled via .env — client-sent values are ignored.
+      fee_percent: ESCROW_FEE_PERCENT,
+      fee_min_usd: ESCROW_FEE_MIN_USD,
       fee_payer,
-      auto_release_days: Number(auto_release_days) || 3,
+      auto_release_days: clampAutoReleaseDays(auto_release_days),
       status,
       invited_at: send_invite ? now : null,
       activity_log: appendActivity([], {

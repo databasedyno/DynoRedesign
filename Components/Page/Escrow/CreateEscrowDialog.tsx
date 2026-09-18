@@ -44,7 +44,6 @@ export default function CreateEscrowDialog({ open, companyId, onClose, onCreated
   const [currency] = useState("USD");
   const [creatorRole, setCreatorRole] = useState<EscrowRole>("seller");
   const [counterpartyEmail, setCounterpartyEmail] = useState("");
-  const [feePercent, setFeePercent] = useState("5");
   const [feePayer, setFeePayer] = useState<FeePayer>("buyer");
   const [autoReleaseDays, setAutoReleaseDays] = useState("3");
   const [acceptedCoins, setAcceptedCoins] = useState<string[]>(["USDT-TRON", "BTC", "ETH"]);
@@ -64,7 +63,6 @@ export default function CreateEscrowDialog({ open, companyId, onClose, onCreated
     setAmount("");
     setCreatorRole("seller");
     setCounterpartyEmail("");
-    setFeePercent("5");
     setFeePayer("buyer");
     setAutoReleaseDays("3");
     setAcceptedCoins(["USDT-TRON", "BTC", "ETH"]);
@@ -92,7 +90,6 @@ export default function CreateEscrowDialog({ open, companyId, onClose, onCreated
         .feePreview({
           amount: amt,
           currency,
-          fee_percent: Number(feePercent) || 0,
           fee_payer: feePayer,
           accepted_coins: acceptedCoins.length ? acceptedCoins.join(",") : undefined,
           payout_coin: payoutCoin,
@@ -101,7 +98,7 @@ export default function CreateEscrowDialog({ open, companyId, onClose, onCreated
         .catch(() => setPreview(null));
     }, 350);
     return () => clearTimeout(handle);
-  }, [amount, currency, feePercent, feePayer, acceptedCoins, payoutCoin]);
+  }, [amount, currency, feePayer, acceptedCoins, payoutCoin]);
 
   const emailValid = useMemo(() => /.+@.+\..+/.test(counterpartyEmail.trim()), [counterpartyEmail]);
   const canSubmit = title.trim().length >= 2 && Number(amount) > 0 && emailValid && !!companyId && !submitting;
@@ -140,7 +137,6 @@ export default function CreateEscrowDialog({ open, companyId, onClose, onCreated
         terms: terms.trim() || undefined,
         counterparty_email: counterpartyEmail.trim(),
         creator_role: creatorRole,
-        fee_percent: Number(feePercent) || 0,
         fee_payer: feePayer,
         auto_release_days: Number(autoReleaseDays) || 3,
         send_invite: true,
@@ -333,24 +329,42 @@ export default function CreateEscrowDialog({ open, companyId, onClose, onCreated
               inputProps={{ "data-testid": "escrow-create-email-input" }}
             />
 
-            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+            {/* Escrow fee — platform-set (admin-controlled), shown read-only */}
+            <Box
+              sx={{ p: 1.4, borderRadius: 2, backgroundColor: theme.palette.action.hover, border: `1px solid ${theme.palette.divider}` }}
+              data-testid="escrow-create-fee-info"
+            >
+              <Typography sx={{ fontSize: 13, fontWeight: 700 }}>
+                Escrow fee: {preview?.feePercent ?? 5}%{" "}
+                <Typography component="span" sx={{ fontSize: 12.5, color: "text.secondary", fontWeight: 500 }}>
+                  (min ${Number(preview?.feeMinUsd ?? 1).toFixed(0)}) · set by DynoPay
+                </Typography>
+              </Typography>
+              <Typography sx={{ fontSize: 12, color: "text.secondary", mt: 0.2 }}>
+                Choose below who covers this fee. Network &amp; exchange costs are added on top.
+              </Typography>
+            </Box>
+
+            {/* Auto-release — merchant-chosen preset */}
+            <Box>
+              <Typography sx={{ fontSize: 13, fontWeight: 700, mb: 0.8 }}>Auto-release window</Typography>
               <TextField
-                label="Escrow fee %"
-                value={feePercent}
-                onChange={(e) => setFeePercent(e.target.value.replace(/[^0-9.]/g, ""))}
-                size="small"
-                sx={{ flex: 1 }}
-                inputProps={{ inputMode: "decimal", "data-testid": "escrow-create-feepercent-input" }}
-              />
-              <TextField
-                label="Auto-release (days)"
+                select
+                SelectProps={{ native: true }}
                 value={autoReleaseDays}
-                onChange={(e) => setAutoReleaseDays(e.target.value.replace(/[^0-9]/g, ""))}
+                onChange={(e) => setAutoReleaseDays(e.target.value)}
                 size="small"
-                sx={{ flex: 1 }}
-                inputProps={{ inputMode: "numeric", "data-testid": "escrow-create-autorelease-input" }}
-              />
-            </Stack>
+                fullWidth
+                inputProps={{ "data-testid": "escrow-create-autorelease-select" }}
+                helperText="If the buyer doesn't confirm, the held funds automatically release to the seller this long after delivery."
+              >
+                {[3, 5, 7, 14].map((d) => (
+                  <option key={d} value={String(d)}>
+                    {d} days after delivery
+                  </option>
+                ))}
+              </TextField>
+            </Box>
 
             {/* Fee payer — segmented cards */}
             <Box>

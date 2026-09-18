@@ -1,4 +1,22 @@
 # ============================================================================
+# >>> CURRENT SESSION (2026-09) — ESCROW CREATE-DIALOG UX: FEE ADMIN-ONLY + AUTO-RELEASE PRESET <<<
+#   Backend re-tested 7/7 PASS. Backend healthy.
+#   - Escrow fee % is now ADMIN-CONTROLLED via .env: ESCROW_FEE_PERCENT=5, ESCROW_FEE_MIN_USD=1
+#     (added to backend/.env). createDeal + fee-preview IGNORE any client-sent fee_percent/fee_min_usd.
+#   - auto_release_days clamps to presets {3,5,7,14}, default 3 (clampAutoReleaseDays()).
+#   FRONTEND (CreateEscrowDialog.tsx, tsc 0 / eslint clean):
+#     - REMOVED the editable "Escrow fee %" input; now a READ-ONLY info line
+#       (data-testid=escrow-create-fee-info) driven by the quote ("Escrow fee: 5% (min $1) · set by DynoPay").
+#     - Auto-release is now a native <select> preset dropdown (data-testid=escrow-create-autorelease-select,
+#       options "3/5/7/14 days after delivery") with explanatory helper copy. Old free-number input removed.
+#     - "Who pays the escrow cost?" (buyer/seller/split) REMAINS a merchant choice.
+#   PENDING: escrow FRONTEND E2E (awaiting user go-ahead) — covers create dialog + full dispute negotiation
+#   + admin. Login onarrival21@gmail.com / Katiekendra123@ (2FA: node /app/backend/scripts/print_totp.cjs 1).
+# ============================================================================
+
+
+
+# ============================================================================
 # >>> CURRENT SESSION (2026-09) — ESCROW DISPUTE REIMAGINED: FRONTEND BUILT <<<
 #   Backend for the P2P dispute + fee model = DONE & re-tested (29/31, 2 non-bugs).
 #   FRONTEND now BUILT (tsc --noEmit = 0 project-wide; eslint clean; all 4 escrow routes 200):
@@ -6903,3 +6921,173 @@ Test Data Cleaned: Attempted (deletion blocked by OTP requirement)
 #   The backend email rendering is production-ready. The diagnostics endpoint provides
 #   a safe way to preview email templates without sending real emails.
 # ============================================================================
+
+
+# ============================================================================
+# TESTING AGENT VERIFICATION — 2026-09: ESCROW ADMIN-CONTROLLED FEE + AUTO_RELEASE_DAYS CLAMPING — ALL TESTS PASSED ✅✅✅
+# ============================================================================
+#   Tested by: testing_agent (deep_testing_backend_v2)
+#   Test date: 2026-09-18
+#   Test method: Python backend test (backend_test_escrow_changes.py)
+#   Base URL: http://localhost:8001/api
+#   Auth: Merchant owner (onarrival21@gmail.com) with 2FA
+#
+#   CONTEXT: Focused re-test of two small ESCROW backend changes:
+#   CHANGE 1 — Escrow fee % is now ADMIN-CONTROLLED via .env (ESCROW_FEE_PERCENT=5, 
+#              ESCROW_FEE_MIN_USD=1) and client-supplied fee % must be IGNORED
+#   CHANGE 2 — auto_release_days now clamps to presets {3,5,7,14}, default 3
+#
+#   TEST RESULTS SUMMARY: 7/7 TESTS PASSED (100% success rate)
+#
+#   ✅ TEST 1a: Fee preview ignores client-supplied fee values — PASS
+#        Request: POST /api/escrow/fee-preview
+#        Body: {amount:100, fee_payer:"buyer", fee_percent:99, fee_min_usd:50, payout_coin:"USDT-TRON"}
+#        ✓ Response breakdown.feePercent === 5 (NOT 99 from client)
+#        ✓ Response breakdown.feeMinUsd === 1 (NOT 50 from client)
+#        ✓ Response escrowFee === 5.00 (5% of 100, admin values applied)
+#        ✓ Client-supplied fee values (99%, $50) were completely ignored
+#        ✓ Admin .env values (ESCROW_FEE_PERCENT=5, ESCROW_FEE_MIN_USD=1) used instead
+#
+#   ✅ TEST 1b: Create deal ignores client fee values — PASS
+#        Request: POST /api/escrow
+#        Body: {company_id:1, title:"fee-test", amount:100, currency:"USD", 
+#               counterparty_email:"escrow_test_<rand>@example.com", creator_role:"seller",
+#               fee_payer:"buyer", fee_percent:42, fee_min_usd:20, accepted_coins:"USDT-TRON,BTC",
+#               send_invite:false}
+#        ✓ Deal created successfully (escrow_id: 62)
+#        ✓ GET /api/escrow/:id shows stored fee_percent === 5 (NOT 42 from client)
+#        ✓ GET /api/escrow/:id shows breakdown.feeMinUsd === 1 (NOT 20 from client)
+#        ✓ fee_payer === "buyer" was honored (fee_payer IS still a merchant choice)
+#        ✓ Client-supplied fee values (42%, $20) were ignored at creation time
+#
+#   ✅ TEST 1c: Fee minimum applied for small amounts — PASS
+#        Request: POST /api/escrow/fee-preview
+#        Body: {amount:5, fee_payer:"buyer", payout_coin:"USDT-TRON"}
+#        ✓ Response escrowFee === 1.00 (NOT 0.25)
+#        ✓ Calculation: 5% of $5 = $0.25, but $1 minimum applied
+#        ✓ Fee minimum (ESCROW_FEE_MIN_USD=1) working correctly
+#
+#   ✅ TEST 2d: Invalid auto_release_days clamped to default — PASS
+#        Request: POST /api/escrow with auto_release_days:99
+#        ✓ Deal created successfully (escrow_id: 63)
+#        ✓ Stored auto_release_days === 3 (NOT 99)
+#        ✓ Invalid value (99) clamped to default (3)
+#        ✓ Presets: {3, 5, 7, 14}, default: 3
+#
+#   ✅ TEST 2e: Valid auto_release_days preset honored — PASS
+#        Request: POST /api/escrow with auto_release_days:7
+#        ✓ Deal created successfully (escrow_id: 64)
+#        ✓ Stored auto_release_days === 7 (valid preset honored)
+#        ✓ Value 7 is in presets {3, 5, 7, 14} and was accepted
+#
+#   ✅ TEST 2f: Non-preset auto_release_days clamped to default — PASS
+#        Request: POST /api/escrow with auto_release_days:4
+#        ✓ Deal created successfully (escrow_id: 65)
+#        ✓ Stored auto_release_days === 3 (NOT 4)
+#        ✓ Non-preset value (4) clamped to default (3)
+#        ✓ Only presets {3, 5, 7, 14} are accepted
+#
+#   ✅ REGRESSION: Fee preview structure and math unchanged — PASS
+#        ✓ Fee preview returns exactly 4 costItems:
+#          * escrow_fee (5%)
+#          * network_fee (inbound sweep)
+#          * conversion_fee (Binance conversion)
+#          * withdrawal_fee (Binance withdrawal)
+#        ✓ Buyer pays (fee_payer:"buyer"):
+#          * buyerPays = 108.1 (amount 100 + totalCost 8.1) ✓
+#          * sellerReceives = 100 (full amount) ✓
+#        ✓ Seller pays (fee_payer:"seller"):
+#          * buyerPays = 100 (amount only) ✓
+#          * sellerReceives = 91.9 (amount 100 - totalCost 8.1) ✓
+#        ✓ Math formula unchanged: buyerPays/sellerReceives allocate per fee_payer
+#
+#   OVERALL RESULT: ✅✅✅ ALL TESTS PASSED ✅✅✅
+#
+#   DETAILED FINDINGS:
+#   1. Admin-controlled fee working correctly ✓
+#      - ESCROW_FEE_PERCENT=5 from .env enforced
+#      - ESCROW_FEE_MIN_USD=1 from .env enforced
+#      - Client-supplied fee_percent/fee_min_usd completely ignored
+#      - Applied at both preview and creation time
+#   2. Fee minimum ($1) working correctly ✓
+#      - Small amounts (e.g. $5) apply $1 minimum instead of 5% ($0.25)
+#   3. fee_payer still merchant-controlled ✓
+#      - fee_payer (buyer/seller/split) is honored (not admin-controlled)
+#   4. auto_release_days clamping working correctly ✓
+#      - Presets: {3, 5, 7, 14}
+#      - Default: 3
+#      - Invalid values (e.g. 99) clamped to 3
+#      - Non-preset values (e.g. 4) clamped to 3
+#      - Valid presets (e.g. 7) honored
+#   5. Fee breakdown structure unchanged (regression) ✓
+#      - 4 costItems returned
+#      - buyerPays/sellerReceives math correct for all fee_payer options
+#
+#   CODE VERIFICATION:
+#   - File: backend/controller/escrowController.ts
+#     * Lines 77-79: ESCROW_FEE_PERCENT/ESCROW_FEE_MIN_USD read from .env
+#     * Lines 81-86: ESCROW_AUTO_RELEASE_PRESETS + clampAutoReleaseDays()
+#     * Line 688: previewFee uses ESCROW_FEE_PERCENT/MIN (NOT client values)
+#     * Lines 730-732: createDeal stores admin fee values (NOT client values)
+#     * Line 734: auto_release_days clamped via clampAutoReleaseDays()
+#   
+#   - File: backend/controller/escrow/escrowShared.ts
+#     * Lines 167-262: computeFeeBreakdown() uses feePercent/feeMinUsd params
+#     * Line 189: escrowFee = max(amount * feePercent / 100, feeMinUsd)
+#     * Lines 223-239: costItems array (4 items: escrow_fee, network_fee, conversion_fee, withdrawal_fee)
+#   
+#   - File: backend/.env
+#     * Line 190: ESCROW_FEE_PERCENT=5
+#     * Line 191: ESCROW_FEE_MIN_USD=1
+#
+#   SAFETY COMPLIANCE:
+#   - ✅ ALL MONEY IS SIMULATED (no real crypto moved)
+#   - ✅ All deals created on company_id=1 (The Dev Store, owner account)
+#   - ✅ Counterparty emails: escrow_test_<random>@example.com (throwaway)
+#   - ✅ NO writes to other live merchant data
+#   - ✅ NO funds moved
+#   - ✅ send_invite=false (no emails sent to counterparties)
+#
+#   NOTES:
+#   - Test script: /app/backend_test_escrow_changes.py
+#   - All tests completed in ~10 seconds
+#   - Database: LIVE PROD DB (roundhouse.proxy.rlwy.net:23599)
+#   - Redis: LIVE PROD REDIS (nozomi.proxy.rlwy.net:15794)
+#   - 4 escrow deals created during testing (escrow_id 62-65)
+#   - All deals in 'draft' status (send_invite=false)
+#
+#   VERDICT: ESCROW ADMIN-CONTROLLED FEE + AUTO_RELEASE_DAYS CLAMPING VERIFIED AND WORKING ✅✅✅
+#   
+#   Both changes have been successfully implemented and verified:
+#   
+#   ✅ CHANGE 1: Admin-controlled escrow fee
+#      - Fee % and minimum are now read from .env only (ESCROW_FEE_PERCENT=5, ESCROW_FEE_MIN_USD=1)
+#      - Client-supplied fee_percent/fee_min_usd values are completely ignored
+#      - Applied consistently at both preview and creation time
+#      - Fee minimum ($1) correctly applied for small amounts
+#      - fee_payer (buyer/seller/split) remains a merchant choice (not admin-controlled)
+#   
+#   ✅ CHANGE 2: auto_release_days clamping
+#      - Valid presets: {3, 5, 7, 14}
+#      - Default: 3
+#      - Invalid values (e.g. 99) are clamped to default (3)
+#      - Non-preset values (e.g. 4) are clamped to default (3)
+#      - Valid preset values (e.g. 7) are honored
+#   
+#   ✅ REGRESSION: Fee breakdown structure unchanged
+#      - Fee preview still returns 4 costItems (escrow_fee, network_fee, conversion_fee, withdrawal_fee)
+#      - buyerPays/sellerReceives math unchanged for all fee_payer options
+#      - totalCost = escrowFee + passThroughCosts (network + conversion + withdrawal)
+#   
+#   The backend API is production-ready. Both changes work as specified and do not
+#   break existing functionality. The fee model is now fully admin-controlled via
+#   environment variables, preventing clients from manipulating fee percentages.
+#   
+#   NEXT STEPS:
+#   1. ✅ BACKEND RE-TEST COMPLETE (this session)
+#   2. FRONTEND: Update any UI that shows/sets fee percentages to reflect that
+#      these are now admin-controlled (display-only, not editable)
+#   3. FRONTEND: Update auto_release_days UI to show only the valid presets {3, 5, 7, 14}
+#      **YOU MUST ASK USER BEFORE DOING FRONTEND TESTING**
+# ============================================================================
+
