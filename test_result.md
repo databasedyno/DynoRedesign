@@ -6279,7 +6279,7 @@ Test Data Cleaned: Attempted (deletion blocked by OTP requirement)
 #   Tested by: testing_agent
 #   Test date: 2026-09-17
 #   Test method: Python backend test (backend_test.py)
-#   Backend URL: https://setup-vault-7.preview.emergentagent.com/api
+#   Backend URL: https://auth-config-8.preview.emergentagent.com/api
 #   Admin login: moxxcompany@gmail.com / Katiekendra123@
 #
 #   CONTEXT: Verified the payment email rendering fix via the new diagnostics endpoint
