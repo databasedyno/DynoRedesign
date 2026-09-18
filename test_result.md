@@ -124,7 +124,7 @@
 #   Tested by: testing_agent (deep_testing_backend_v2)
 #   Test date: 2026-09-18
 #   Test method: Python backend test (backend_test_escrow.py)
-#   Base URL: https://b93492c2-7db2-4c32-9560-14ab8aa77a80.preview.emergentagent.com/api
+#   Base URL: https://secure-setup-2.preview.emergentagent.com/api
 #   Auth: Merchant owner (onarrival21@gmail.com) + Super-admin (moxxcompany@gmail.com)
 #
 #   CONTEXT: Verified the NEW email-OTP flow, custody conversion, two-phase settlement
@@ -6653,7 +6653,7 @@ Test Data Cleaned: Attempted (deletion blocked by OTP requirement)
 #   Tested by: testing_agent
 #   Test date: 2026-09-17
 #   Test method: Python backend test (backend_test.py)
-#   Backend URL: https://auth-config-8.preview.emergentagent.com/api
+#   Backend URL: https://secure-setup-2.preview.emergentagent.com/api
 #   Admin login: moxxcompany@gmail.com / Katiekendra123@
 #
 #   CONTEXT: Verified the payment email rendering fix via the new diagnostics endpoint

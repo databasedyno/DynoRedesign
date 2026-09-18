@@ -42,7 +42,7 @@
 #   success + confetti; deal detail progress + 5-network payout picker; public invite OTP → accept → fund → deliver
 #   → release with the progress ladder). At wrap-up the EXTERNAL preview host returned a transient Cloudflare 502
 #   (local was healthy) — just retry. Preview URL (source of truth = APP_URL in /etc/supervisor/conf.d/*.conf):
-#   https://b93492c2-7db2-4c32-9560-14ab8aa77a80.preview.emergentagent.com  (older auth-config-8 URL is STALE).
+#   https://secure-setup-2.preview.emergentagent.com  (older auth-config-8 URL is STALE).
 #   Escrow invite OTP is a SINGLE TextField (escrow-invite-otp) — the "12 OTP inputs" E2E blocker was the login-2FA
 #   segmented input, NOT escrow. NOTE: backend invite_url is built from SERVER_URL/FRONTEND_URL (= b93492c2 host),
 #   so the QR/link resolve there. COMMIT: user must click "Save to GitHub" (all changes uncommitted).
@@ -159,7 +159,7 @@
 # VERIFY: FE tsc 0, BE tsc 0. iteration_197 all 9 checks pass (range switching refetches + updates summary,
 #   Manage switches brand + routes to /dashboard, "View all brands" navigates, sidebar item visible for 5 brands,
 #   no console errors, no overflow at 1920x800 / 390x844). Preview (THIS pod):
-#   https://auth-config-8.preview.emergentagent.com/brands  (setup-vault-7 URL is STALE).
+#   https://secure-setup-2.preview.emergentagent.com/brands  (setup-vault-7 URL is STALE).
 #   COMMIT: user must click "Save to GitHub" (no local push from pod).
 # ============================================================================================
 
@@ -204,7 +204,7 @@
 #   viewer_is_ops=true, stuck_forwards=[tx883 $18.81 ETH]. ack with wrong brand (71) → 403; ack brand 1 → 200,
 #   DB shows ack cols set + updatedAt UNCHANGED (2026-09-06), item GONE from feed. Reverted ack cols to NULL →
 #   tx 883 back in feed. FE browser: button + dialog render for ops (cancelled, no write). FE tsc 0, BE tsc 0,
-#   all 6 common.json parse. Preview: https://auth-config-8.preview.emergentagent.com  (route /payouts).
+#   all 6 common.json parse. Preview: https://secure-setup-2.preview.emergentagent.com  (route /payouts).
 # TO ACTUALLY CLEAR THE REAL $18.81: ops settles it by hand in the DEPLOYED prod (send ~$18.81 USDT-TRC20 to
 #   TTve8v6Y48ChsCTEiCjMRFSbjNtz4mAkxR), then clicks "Mark as resolved". testing_agent NOT used (acknowledge
 #   writes to a live prod row; verified via reversible curl e2e + browser instead). COMMIT: user must Save to GitHub.
@@ -322,7 +322,7 @@
 #   to 0 keys). tsc 0 (backend + frontend), eslint clean.
 #
 # TESTING METHOD: self-tested (Joi unit tests + real curl e2e for D incl. enforcement + Playwright UI screenshots).
-#   testing_agent NOT used. NOTE current preview URL = https://auth-config-8.preview.emergentagent.com
+#   testing_agent NOT used. NOTE current preview URL = https://secure-setup-2.preview.emergentagent.com
 #   (test_credentials.md's 27632836 URL is STALE from a prior pod). COMMIT: all changes uncommitted — user must Save to GitHub.
 # ============================================================================================
 
