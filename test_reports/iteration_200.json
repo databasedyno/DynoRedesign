@@ -1,0 +1,24 @@
+{
+  "summary": "Verified all 3 items and regression. (1) robots.txt: 'Allow: /api/public/' and 'Allow: /api/status/' both appear ABOVE 'Disallow: /api/'; all 4 public content endpoints return 200 unauthenticated. (2) Tx details modal for tx 1060 (USDT-TRC20, $18.84) shows the new fee breakdown: tx-fee-platform='Platform fee $0.19', tx-fee-fixed='Fixed fee $0.94', tx-fee-total='Fee $1.13', Amount Received=$17.71; tx-fee-network is correctly ABSENT (network fee = 0). Sub-fees sum to total (0.19+0.94=1.13) and net matches ($18.84-$1.13=$17.71). (3) Invoice search FE+BE working: baseline 9; 'hostbay' -> 8 rows all customer_name=hostbay; 'INV-20260712' -> 4 rows all invoice_number prefix matches; 'zzznomatch' -> 0 with data-testid=invoices-search-empty-table shown; clearing restores 9. Header Receipts (N) updates correctly. Debounce ~350ms, server-side search confirmed via /api/invoices?search=. Regression: /transactions, /invoices, /brands render with no page errors and no horizontal overflow at 1920x1080 or 390x844. 'Export settled only' relabel intact (data-testid=transactions-export-settled-only visible).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "TransactionDetailsModal", "issues": ["Total-fees row label reads just 'Fee' rather than 'Total fees' as described in the spec — data-testid=tx-fee-total is present and value is correct, purely a copy nit"]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Optional: consider relabeling tx-fee-total row to 'Total fees' to match the specified copy and better distinguish from the individual fee rows."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "Owner via /app/scripts/qa/owner_login.cjs (onarrival21@gmail.com), token injected via localStorage.",
+  "seed_data_creation": "None (SAFE MODE / READ-ONLY prod DB).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "robots.txt, invoice search (FE+BE), and tx fee breakdown modal all verified. tx 1060 currently shows platform $0.19, fixed $0.94, total $1.13, net $17.71. Modal has data-testids: tx-fee-platform, tx-fee-fixed, tx-fee-total (tx-fee-network only when >0). Invoice search testids: invoices-search-input (wrapper is on the MUI TextField div; use `[data-testid=\"invoices-search-input\"] input` to type). Empty-state testid: invoices-search-empty-table.",
+  "rca of the issue": "N/A — all features working as specified."
+}

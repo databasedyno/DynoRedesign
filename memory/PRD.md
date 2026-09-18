@@ -1,3 +1,24 @@
+# === 2026-06 (fork) SEO robots.txt + FEE BREAKDOWN + INVOICE SEARCH — DONE & VERIFIED (testing_agent iteration_200: BE 100% / FE 100%, 0 issues) ===
+# 1) SEO (Search Console "6/77 page resources blocked by robots.txt" on the marketing homepage): public/robots.txt
+#    now has `Allow: /api/public/` + `Allow: /api/status/` ABOVE `Disallow: /api/` (longest-match wins), so
+#    Googlebot can fetch the homepage's content widgets (fx-rates, tickers, onchain-proof, recent-settlements —
+#    all return 200 unauthenticated). Analytics/geo (/api/geo-detect, /api/track/visitor) stay blocked on purpose.
+#    NOTE: takes effect on the next PRODUCTION deploy (Google reads dynopay.com/robots.txt, not the preview host).
+# 2) FEE BREAKDOWN on transaction details (QA Bucket-B): TransactionDetailsModal.tsx now itemises the fee —
+#    Platform fee (tx-fee-platform) + Network fee (tx-fee-network, only when >0) + Fixed fee (tx-fee-fixed) +
+#    Total fees (tx-fee-total) + Amount received (net). Data from transaction.feesBreakdown (already computed in
+#    Components/Page/Transactions/index.tsx from transaction_fee/fixed_fee/blockchain_buffer_fee × USD rate).
+#    i18n platformFee/networkFee/fixedFee ×6; clarified totalFees value "Fee"→"Total fees" ×6 (key used only here).
+# 3) INVOICE SEARCH by number or customer name (QA Bucket-B): backend invoiceController.getAllInvoices accepts
+#    ?search and filters invoice_number/customer_name via Op.iLike+Op.or; pages/invoices.tsx adds a debounced
+#    (350ms) search box (data-testid=invoices-search-input) that sets the server param + resets to page 1, with
+#    search-aware empty states (invoices-search-empty / -empty-table). i18n invoices.searchPlaceholder/searchNoResults ×6.
+# VERIFY: FE tsc 0, BE tsc 0, all locale JSON parse. robots served + endpoints 200 (curl). Search curl: baseline 9,
+#    hostbay→8, INV-20260712→4, zzznomatch→0. Modal screenshot: tx 1066 shows Platform $0.92 / Fixed $0.98 /
+#    Total fees $1.91 / Received $101.29. iteration_200 all pass. COMMIT via "Save to GitHub".
+# ============================================================================================
+
+
 # === 2026-06 (fork) QA "QUALITY CENTER" FAILURE TRIAGE + BUCKET-A FIXES — DONE & VERIFIED (testing_agent iteration_199: BE 100% / FE 100%, 0 issues) ===
 # User asked to review the DB-backed Quality Center failure notes (tbl_qa_comment, /quality page), assess which
 # are still applicable to the current UI/UX, and "fix all". Full triage: /app/memory/qa_center_triage.md.
