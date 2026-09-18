@@ -4,7 +4,6 @@ export type BrandsRange = "today" | "7d" | "30d" | "90d" | "1y" | "all";
 
 export interface BrandAttentionBreakdown {
   stuck_forwards: number;
-  failed_conversions: number;
   coins_without_wallet: number;
   webhook_failures: number;
 }

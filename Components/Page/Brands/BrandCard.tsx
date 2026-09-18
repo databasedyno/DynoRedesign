@@ -88,14 +88,46 @@ const BrandCard: React.FC<{ brand: BrandRow; currency: string; onManage: () => v
       </Box>
 
       <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1.5 }}>
-        {stats.map((st) => (
-          <Box key={st.k} data-testid={`brand-${st.k}-${brand.company_id}`}>
-            <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 12, color: muted, mb: 0.25 }}>{st.label}</Typography>
-            <Typography sx={{ fontFamily: "var(--font-mono, var(--font-sans))", fontWeight: 700, fontSize: 16, color: st.warn ? warn : primary, wordBreak: "break-word" }}>
-              {st.value}
-            </Typography>
-          </Box>
-        ))}
+        {stats.map((st) => {
+          const clickable = st.k === "attention" && brand.attention_count > 0;
+          return (
+            <Box
+              key={st.k}
+              data-testid={`brand-${st.k}-${brand.company_id}`}
+              role={clickable ? "button" : undefined}
+              tabIndex={clickable ? 0 : undefined}
+              aria-label={clickable ? t("brandsOverview.attentionHint", { defaultValue: "Open this brand to review what needs attention" }) : undefined}
+              title={clickable ? t("brandsOverview.attentionHint", { defaultValue: "Open this brand to review what needs attention" }) : undefined}
+              onClick={clickable ? onManage : undefined}
+              onKeyDown={
+                clickable
+                  ? (e: React.KeyboardEvent) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        onManage();
+                      }
+                    }
+                  : undefined
+              }
+              sx={clickable ? { cursor: "pointer", borderRadius: 1, transition: "opacity 150ms ease", "&:hover": { opacity: 0.82 } } : undefined}
+            >
+              <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 12, color: muted, mb: 0.25 }}>{st.label}</Typography>
+              <Typography
+                sx={{
+                  fontFamily: "var(--font-mono, var(--font-sans))",
+                  fontWeight: 700,
+                  fontSize: 16,
+                  color: st.warn ? warn : primary,
+                  wordBreak: "break-word",
+                  textDecoration: clickable ? "underline" : "none",
+                  textUnderlineOffset: "3px",
+                }}
+              >
+                {st.value}
+              </Typography>
+            </Box>
+          );
+        })}
       </Box>
 
       <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, mt: "auto" }}>

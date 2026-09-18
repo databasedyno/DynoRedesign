@@ -20,6 +20,7 @@
     "cardAttention": "Needs attention",
     "lastActivity": "Last activity",
     "manage": "Manage",
+    "attentionHint": "Open this brand to review what needs attention",
     "roleOwner": "Owner",
     "roleAdmin": "Admin",
     "roleMember": "Member",

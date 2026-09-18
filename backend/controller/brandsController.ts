@@ -127,10 +127,12 @@ const getBrands = async (req: express.Request, res: express.Response) => {
         const settledNetUsd = num(stats.settled_net);
         const pendingUsd = num(stats.pending_usd_est);
         const stuck = num(attention.stuck_count);
-        const failed = num(attention.failed_count);
         const webhookFailed = num(attention.webhook_failed);
         const coinsMissing = coins.length;
-        const attentionCount = stuck + failed + coinsMissing + (webhookFailed > 0 ? 1 : 0);
+        // Only merchant-actionable items (matches the brand's own dashboard /
+        // payouts "Needs attention" feed). FAILED auto-conversions are ops-only
+        // and are NOT surfaced to merchants, so they never count here.
+        const attentionCount = stuck + coinsMissing + (webhookFailed > 0 ? 1 : 0);
         const lifetimePaid = num(stats.lifetime_paid);
 
         return {
@@ -151,7 +153,6 @@ const getBrands = async (req: express.Request, res: express.Response) => {
           attention_count: attentionCount,
           attention: {
             stuck_forwards: stuck,
-            failed_conversions: failed,
             coins_without_wallet: coinsMissing,
             webhook_failures: webhookFailed,
           },

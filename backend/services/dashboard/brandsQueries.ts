@@ -30,10 +30,15 @@ export const brandStats = (s: OverviewScope) =>
   );
 
 /**
- * Needs-attention pieces for one brand: stuck payouts (money settled >2h ago,
- * not forwarded, not in an active conversion, not acknowledged), FAILED
- * auto-conversions, and configured-webhook failures in the last 24h. Uses
- * scalar subqueries so it's a single round-trip.
+ * Needs-attention pieces for one brand — only the items the merchant can
+ * actually see and act on inside the brand (so the Brands count reconciles
+ * with the brand's own dashboard/payouts feed): stuck payouts (money settled
+ * >2h ago, not forwarded, not in an active conversion, not acknowledged) and
+ * configured-webhook failures in the last 24h. FAILED auto-conversions are NOT
+ * counted here — by platform policy they alert admin/ops only and are hidden
+ * from the merchant (conversionsNeedingAttention excludes them); any money left
+ * stuck by a failed conversion is already captured by stuck_count. Uses scalar
+ * subqueries so it's a single round-trip.
  */
 export const brandAttention = (s: OverviewScope) =>
   one(
@@ -49,8 +54,6 @@ export const brandAttention = (s: OverviewScope) =>
             AND ut."updatedAt" < NOW() - INTERVAL '2 hours'
             AND ut.attention_resolved_at IS NULL
        ) AS stuck_count,
-       (SELECT COUNT(*) FROM tbl_stablecoin_conversion sc
-          WHERE sc.company_id = :companyId AND UPPER(sc.status::text) = 'FAILED') AS failed_count,
        (SELECT COUNT(*) FROM tbl_webhook_delivery_log wl
           JOIN tbl_company co ON co.company_id = wl.company_id
           WHERE wl.company_id = :companyId
