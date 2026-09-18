@@ -15,6 +15,7 @@ Preview URL (THIS pod): https://0cce8ac9-aadd-4935-940d-e56167a52ed7.preview.eme
 - Email: onarrival21@gmail.com
 - Password: Katiekendra123@
 - user_id=1, company_id=1
+- TOTP 2FA is enrolled on this account. Get the current 6-digit code: `node /app/backend/scripts/print_totp.cjs 1` (rotates every 30s — read it right before typing). API login: POST /api/user/login → data.challenge_token → POST /api/user/2fa/validate {challenge_token, token} → data.accessToken.
 - 2-step login: /auth/login -> data-testid=login-email-input -> button "Continue" (exact) -> password-input -> signin-submit-btn
 
 ## Phase 1b QA throwaway (min_order_usd persistence) — created 2026-06

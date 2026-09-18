@@ -1,0 +1,20 @@
+{
+  "summary": "Frontend-only verification for Transaction Details modal 'Network fee (est.)' row on tx 1066 (ETH, settled Sep 17 2026). Logged in as owner merchant (email + password + TOTP via print_totp.cjs), opened /transactions, clicked tx 1066 row. All three acceptance checks PASS: (1) new row data-testid='tx-fee-network-est' rendered as 'Network fee (est.)  ~ $0.00702' (non-blank, > 0, prefixed with ~ and clearly labeled estimate); (2) existing rows tx-fee-platform ($0.92) and tx-fee-fixed ($0.98) still render; tx-fee-total shows '~ $1.92' with the ~ prefix indicating the estimate is folded in, and Amount Received correctly shows $101.28; (3) backend already validated by main agent (network_fee_estimated_usd=0.0052051, network_fee_is_estimate=true) and the UI value confirms the estimate is being fetched successfully from GET /api/wallet/transaction/1066. No data was mutated (read-only browsing + modal open).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Estimate is re-fetched on every modal open when blockchain_buffer_fee<=0 and status is settled; consider caching per-tx or memoizing to avoid repeated /api/wallet/transaction/:id calls if the user reopens the drawer frequently.",
+    "Consider a small tooltip on 'Network fee (est.)' explaining that the value is fetched from a live gas quote and may differ from the on-chain fee actually paid.",
+    "Long-term fix (backend): persist blockchain_buffer_fee at settlement so historical transactions do not need a runtime estimate."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped per request)", "frontend": "100% (3/3 acceptance criteria pass)"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ + mandatory TOTP via `node /app/backend/scripts/print_totp.cjs 1`",
+  "seed_data_creation": "None (SAFE MODE / prod DB, read-only)",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "TOTP replay is single-use and rotates every 30s: generate the code immediately before typing. The 2FA dialog contains 6 MUI inputs named otp1..otp6; focus otp1 via JS then use keyboard.type(code, delay=100). The transactions table is not <tbody><tr>; use get_by_text('1066', exact=True) to click a row. The details panel is a right-side drawer; wait ~5-7s after opening for the async gas-quote estimate to populate tx-fee-network-est.",
+  "rca of the issue": "Bug: blockchain_buffer_fee column stayed 0 because network fee is computed at settlement but never persisted, so the modal hid the Network fee row for every transaction. Fix verified: backend controller/wallet/transactionsDetail.ts now returns network_fee_estimated_usd + network_fee_is_estimate from a live getBlockchainNetworkFee(chain) call whenever the stored fee is <=0 and the tx has settled on-chain; TransactionDetailsModal.tsx fetches this estimate on open, renders a labeled 'Network fee (est.)' row (data-testid=tx-fee-network-est) with the ~ prefix, and folds the value into Total fees (also prefixed ~) and Amount Received."
+}
