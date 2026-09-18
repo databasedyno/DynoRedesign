@@ -1,0 +1,68 @@
+{
+  "summary": "Verified 6 QA fixes on DynoPay preview (SAFE MODE, prod DB, read-only). All 4 frontend flows and both backend code-level fixes PASS. No new bugs found.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "results": {
+    "TX_settled_only_relabel": {
+      "status": "PASS",
+      "label": "Export settled only",
+      "tooltip": "Limits the CSV export to settled payments — it doesn't change the list below.",
+      "rows_before_toggle": "unchanged",
+      "rows_after_toggle": "unchanged (list filtering unaffected by checkbox)"
+    },
+    "PAY_quick_create_desc_optional": {
+      "status": "PASS",
+      "note": "Amount=1.23, description empty → submit reaches API (intercepted with mock to avoid persisting), success drawer shown, no 'A short description is required' helper text.",
+      "captured_api_call": "https://<host>/api/pay/createPaymentLink (mocked, not persisted)"
+    },
+    "TX_view_on_explorer_per_chain": {
+      "status": "PASS",
+      "checks": {
+        "ETH_1066": "https://etherscan.io/tx/0x1048db0b4ab5d40069efeff72a81b3c8e504ffc08a31e1904296f106e0367207",
+        "USDT-TRC20_1060": "https://tronscan.org/#/transaction/b891f0d5f35fada644499b10fe3bb5dc55f174846de91bd7f317cbef22ac9e72",
+        "BTC_1059": "https://blockchair.com/bitcoin/transaction/f36421c34950a0b8908e2fd957363ba51f0bfe40d6a0c3549f86e032788002bd"
+      }
+    },
+    "INV_date_utc_consistency": {
+      "status": "PASS",
+      "invoice": "INV-20260712-00004 (hostbay)",
+      "list_date": "Jul 12, 2026",
+      "drawer_header_date": "Jul 12, 2026",
+      "note": "Both list and preview drawer show the same UTC calendar date; no off-by-one seen."
+    },
+    "REGRESSION_brands_overview": {
+      "status": "PASS",
+      "summary_strip": "Brands=3, Settled=$5,149.36, Payments=93, Pending=$0.00, Needs attention=0",
+      "dev_store_needs_attention": 0,
+      "no_horizontal_overflow_1920": true,
+      "no_page_errors": true
+    },
+    "BE_referral_syncReferralCount": {
+      "status": "PASS",
+      "grep": "referralService.ts — no User.increment(+1) on referral_count; syncReferralCount defined (line 17) and called in both redeem paths (lines 228 & 338).",
+      "leaderboard_http": "GET /api/referral/leaderboard → 200, returns ranked list"
+    },
+    "BE_wallet_address_mismatch_guard": {
+      "status": "PASS",
+      "grep": "walletOtp.ts — addressMatchesCurrency() helper defined (line 33); validateWallet rejects mismatch (line 99) with 400 code=ADDRESS_CURRENCY_MISMATCH; guard is placed AFTER the company-access check (line 86-95), as required. Step-up middleware is on the route so raw curl would 401 before reaching this — cannot E2E without an OTP handshake."
+    }
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "explorerUrl.ts token-suffix ordering is correct (TRC20 checked before ERC20/ETH via includes()), so USDT-TRC20 won't accidentally route to etherscan.",
+    "QuickCreateLinkPanel.validate() no longer sets errors.description; description input still supports a soft helperText but the required branch is fully removed as intended."
+  ],
+  "updated_files": [],
+  "success_rate": { "backend": "100%", "frontend": "100%" },
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (owner, company_id=1). Token minted via /app/scripts/qa/owner_login.cjs; injected via page.add_init_script.",
+  "seed_data_creation": "None. Payment-link quick-create was tested with a mocked /api/pay/createPaymentLink response so nothing was persisted.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "All 6 fixes verified. If retesting the wallet-mismatch path end-to-end, you must first complete a step-up 2FA (TOTP) handshake to obtain a step-up token — plain owner JWT will 401 at the step-up middleware.",
+  "rca of the issue": "N/A — this run was a verification pass, all fixes confirmed."
+}

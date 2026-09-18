@@ -1,3 +1,19 @@
+## RESOLUTION (2026-06) — Bucket A fixed & verified (testing_agent iteration_199: backend 100% / frontend 100%, 0 issues)
+FIXED & VERIFIED (6):
+- custom::21 Settled-only → relabelled "Export settled only" + tooltip (TransactionsToolbar.tsx); list unaffected by toggle. i18n added to 6 transactions.json (exportSettledOnly/-Hint).
+- custom::20 View-on-Explorer → helpers/explorerUrl.ts rewritten with correct per-chain explorers (etherscan / tronscan / blockchair / xrpscan / solscan / polygonscan / bscscan) + empty-hash guard. Verified: ETH→etherscan, USDT-TRC20→tronscan, BTC→blockchair.
+- INV-002 invoice date off-by-one → forced timeZone:"UTC" in pages/invoices.tsx, InvoicePreviewDrawer.tsx and backend pdfService.ts. Verified INV-20260712-00004 shows "Jul 12" in both list + PDF/preview.
+- REF-002 referral double-count → referralService.ts now recomputes referral_count via syncReferralCount(distinct referred users) in both redeem paths (no blind +1). Leaderboard 200.
+- custom::22 short description → made OPTIONAL in the quick-create modal (QuickCreateLinkPanel.validate) to match the full page.
+- WAL-005 wallet address mismatch → walletOtp.validateWallet now rejects a wrong-network address (addressMatchesCurrency) with 400 ADDRESS_CURRENCY_MISMATCH before the Tatum call.
+ALREADY RESOLVED — NO CHANGE NEEDED (verified in code/UI):
+- COMP-006 company-delete OTP → DeleteBrandModal copy already says "We'll ask you to verify it's you first" (step-up is intentional).
+- custom::23 2FA/Security card → renders cleanly at 390px (component already rebuilt responsive).
+- PAY-003 pay-link edit → checkout → updatePaymentLink already syncs base_currency + accepted_currencies + available_currencies to DB AND the customer-<ref> Redis payload; not reproducible from code — needs a live edit→checkout retest only.
+Buckets B (feature gaps) and D (env/scope) remain product decisions — untouched.
+--------------------------------------------------------------------------------------------
+
+
 # Quality Center (/quality) — failure triage vs CURRENT codebase
 Source: tbl_qa_comment (DB-backed Quality Center, passcode-gated /quality page). Tester: Tuhin Hossain, Sept 2026.
 Method: took the LATEST status per item (a thread can go fail→…→pass). 99 items total → 40 pass, 20 fail, 17 blocked, 17 awaiting_retest, 5 not_tested.

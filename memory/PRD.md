@@ -1,3 +1,33 @@
+# === 2026-06 (fork) QA "QUALITY CENTER" FAILURE TRIAGE + BUCKET-A FIXES — DONE & VERIFIED (testing_agent iteration_199: BE 100% / FE 100%, 0 issues) ===
+# User asked to review the DB-backed Quality Center failure notes (tbl_qa_comment, /quality page), assess which
+# are still applicable to the current UI/UX, and "fix all". Full triage: /app/memory/qa_center_triage.md.
+# Latest-status-per-item: 37 open (fail/blocked) + 17 awaiting-retest. Many Sept notes were already fixed / are
+# env-only / are scope decisions. Fixed the genuine, applicable "true bugs" (Bucket A):
+#   FIXED (6): (custom21) Transactions "Settled only" relabelled → "Export settled only" + tooltip (it only scopes
+#     the CSV export, not the list) [TransactionsToolbar.tsx + 6× transactions.json exportSettledOnly/-Hint];
+#     (custom20) "View on Explorer" HTTP 400 → helpers/explorerUrl.ts rewritten with correct per-chain explorers
+#     (etherscan/tronscan/blockchair/xrpscan/solscan/polygonscan/bscscan) + empty-hash guard;
+#     (INV-002) invoice date off-by-one → timeZone:"UTC" in pages/invoices.tsx + InvoicePreviewDrawer.tsx +
+#     backend/services/pdfService.ts (list now matches PDF);
+#     (REF-002) referral leaderboard double-count → services/referralService.ts syncReferralCount() recomputes
+#     referral_count = distinct referred users in BOTH redeem paths (no blind +1);
+#     (custom22) pay-link "Short Description" now OPTIONAL in the quick-create modal to match the full page
+#     [QuickCreateLinkPanel.validate];
+#     (WAL-005) wallet address/network mismatch → controller/wallet/walletOtp.ts addressMatchesCurrency() guard
+#     returns 400 ADDRESS_CURRENCY_MISMATCH before the Tatum call.
+#   ALREADY RESOLVED, no change (verified): COMP-006 (DeleteBrandModal copy already surfaces the verify step),
+#     custom23 (2FA/Security card renders cleanly at 390px), PAY-003 (updatePaymentLink already syncs currency +
+#     accepted_currencies to DB + Redis — needs a live retest only), SET-008 (login blocks soft-deleted users),
+#     SET-002 (profile-photo upload exists).
+#   Buckets B (feature gaps: invoice search, delete-notification/customer, login history, webhook log viewer, fee
+#     breakdown) and D (env/scope: phone-OTP/SMS, web push, Facebook sign-in, bank transfer, /api/tax rename) are
+#     product decisions — left untouched.
+# VERIFY: FE tsc 0, BE tsc 0, all locale JSON parse. iteration_199 all 6 active fixes PASS + Brands regression clean.
+# READ-ONLY prod (SAFE MODE); nothing persisted (quick-create test used a mocked create endpoint). COMMIT: user
+# must click "Save to GitHub". Wallet-mismatch E2E needs a step-up TOTP handshake (route is step-up gated).
+# ============================================================================================
+
+
 # === 2026-06 (fork) BRANDS OVERVIEW — "NEEDS ATTENTION" PHANTOM-COUNT BUG FIX — DONE & VERIFIED (testing_agent iteration_198: backend 100%, frontend 100%, 0 issues) ===
 # USER BUG: The Dev Store's Brands card showed "Needs attention: 3" but the merchant could not locate those 3
 # items anywhere inside the brand (UX / data-consistency).
