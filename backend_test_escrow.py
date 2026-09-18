@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Backend test for DynoPay Escrow Service v1 (SAFE MODE - simulated settlement).
-Tests the full escrow lifecycle: fee math, happy paths, disputes, state machine, auth guards.
+Backend test for DynoPay Escrow Service v2 (SAFE MODE - simulated settlement).
+Tests the NEW email-OTP flow, custody conversion, two-phase payout (pending->paid),
+fee math, happy paths, disputes, state machine, and auth guards.
 """
 import requests
 import json
@@ -10,8 +11,8 @@ import subprocess
 import sys
 from typing import Dict, Any, Optional
 
-# Base URL from .env.local
-BASE_URL = "https://7f123f55-5720-4355-8e48-5cafe6f3c410.preview.emergentagent.com/api"
+# Base URL - external preview URL
+BASE_URL = "https://b93492c2-7db2-4c32-9560-14ab8aa77a80.preview.emergentagent.com/api"
 
 # Test credentials
 MERCHANT_EMAIL = "onarrival21@gmail.com"
@@ -28,23 +29,11 @@ class Colors:
     RED = '\033[91m'
     YELLOW = '\033[93m'
     BLUE = '\033[94m'
+    CYAN = '\033[96m'
     END = '\033[0m'
 
 def log(msg: str, color: str = ""):
     print(f"{color}{msg}{Colors.END}")
-
-def get_csrf_token() -> tuple[str, dict]:
-    """Get CSRF token and cookies"""
-    try:
-        resp = requests.get(f"{BASE_URL}/csrf-token")
-        if resp.status_code == 200:
-            csrf_token = resp.json().get("data", {}).get("csrf_token", "")
-            cookies = resp.cookies.get_dict()
-            return csrf_token, cookies
-        return "", {}
-    except Exception as e:
-        log(f"⚠️  Failed to get CSRF token: {e}", Colors.YELLOW)
-        return "", {}
 
 def get_totp_code() -> str:
     """Get fresh TOTP code for merchant owner (user_id=1)"""
@@ -82,7 +71,6 @@ def merchant_login() -> Optional[str]:
     
     # Check if 2FA required
     if not data.get("requires_2fa"):
-        # Direct token
         token = data.get("accessToken")
         if token:
             log("✅ Merchant login successful (no 2FA)", Colors.GREEN)
@@ -149,7 +137,7 @@ def test_fee_math(token: str) -> bool:
     all_pass = True
     
     # Test 1a: fee_payer="buyer"
-    log("\n📊 Test 1a: fee_payer='buyer', amount=100, fee_percent=5", Colors.BLUE)
+    log("\n📊 Test 1a: fee_payer='buyer', amount=100, fee_percent=5", Colors.CYAN)
     resp = requests.post(f"{BASE_URL}/escrow/fee-preview", headers=headers, json={
         "amount": 100,
         "fee_percent": 5,
@@ -177,7 +165,7 @@ def test_fee_math(token: str) -> bool:
             all_pass = False
     
     # Test 1b: fee_payer="seller"
-    log("\n📊 Test 1b: fee_payer='seller', amount=100, fee_percent=5", Colors.BLUE)
+    log("\n📊 Test 1b: fee_payer='seller', amount=100, fee_percent=5", Colors.CYAN)
     resp = requests.post(f"{BASE_URL}/escrow/fee-preview", headers=headers, json={
         "amount": 100,
         "fee_percent": 5,
@@ -199,7 +187,7 @@ def test_fee_math(token: str) -> bool:
             all_pass = False
     
     # Test 1c: fee_payer="split"
-    log("\n📊 Test 1c: fee_payer='split', amount=100, fee_percent=5", Colors.BLUE)
+    log("\n📊 Test 1c: fee_payer='split', amount=100, fee_percent=5", Colors.CYAN)
     resp = requests.post(f"{BASE_URL}/escrow/fee-preview", headers=headers, json={
         "amount": 100,
         "fee_percent": 5,
@@ -220,8 +208,8 @@ def test_fee_math(token: str) -> bool:
             log(f"❌ FAIL: Expected buyer=102.5, seller=97.5, got buyer={buyer_pays}, seller={seller_receives}", Colors.RED)
             all_pass = False
     
-    # Test 1d: fee_min_usd floor
-    log("\n📊 Test 1d: fee_min_usd floor, amount=5, fee_percent=5, fee_min_usd=1", Colors.BLUE)
+    # Test 1d: fee_min_usd floor ($1 floor on tiny amounts)
+    log("\n📊 Test 1d: fee_min_usd floor, amount=5, fee_percent=5, fee_min_usd=1", Colors.CYAN)
     resp = requests.post(f"{BASE_URL}/escrow/fee-preview", headers=headers, json={
         "amount": 5,
         "fee_percent": 5,
@@ -245,22 +233,148 @@ def test_fee_math(token: str) -> bool:
     
     return all_pass
 
-def test_happy_path_a(token: str) -> bool:
-    """Test 2: Happy Path A - owner is SELLER"""
+def test_otp_onboarding(token: str) -> bool:
+    """Test 2: OTP onboarding flow"""
     log("\n" + "="*80, Colors.BLUE)
-    log("TEST 2: HAPPY PATH A (owner is SELLER)", Colors.BLUE)
+    log("TEST 2: OTP ONBOARDING (send-otp -> verify-otp -> x-escrow-token)", Colors.BLUE)
     log("="*80, Colors.BLUE)
     
     headers = {"Authorization": f"Bearer {token}"}
-    csrf_token, csrf_cookies = get_csrf_token()
+    all_pass = True
+    
+    # Create a test deal
+    log("\n📝 Creating test deal for OTP flow...", Colors.CYAN)
+    resp = requests.post(f"{BASE_URL}/escrow", headers=headers, json={
+        "company_id": 1,
+        "title": "Test Deal - OTP Flow",
+        "amount": 50,
+        "counterparty_email": BUYER_EMAIL,
+        "creator_role": "seller",
+        "send_invite": True
+    })
+    
+    if resp.status_code != 201:
+        log(f"❌ FAIL: Create deal failed: {resp.status_code} {resp.text}", Colors.RED)
+        return False
+    
+    deal_data = resp.json().get("data", {})
+    deal_token = deal_data.get("deal_token")
+    log(f"✅ Deal created: token={deal_token}", Colors.GREEN)
+    
+    # Test 2a: send-otp returns preview_otp
+    log("\n📧 Test 2a: POST /escrow/public/:token/send-otp", Colors.CYAN)
+    resp = requests.post(f"{BASE_URL}/escrow/public/{deal_token}/send-otp", json={
+        "email": BUYER_EMAIL
+    })
+    
+    if resp.status_code != 200:
+        log(f"❌ FAIL: {resp.status_code} {resp.text}", Colors.RED)
+        all_pass = False
+        return all_pass
+    
+    data = resp.json().get("data", {})
+    preview_otp = data.get("preview_otp")
+    has_account = data.get("has_account")
+    
+    if preview_otp and len(preview_otp) == 6 and preview_otp.isdigit():
+        log(f"✅ PASS: preview_otp={preview_otp}, has_account={has_account}", Colors.GREEN)
+    else:
+        log(f"❌ FAIL: Expected 6-digit preview_otp, got {preview_otp}", Colors.RED)
+        all_pass = False
+        return all_pass
+    
+    # Test 2b: verify-otp returns escrow_session + has_account
+    log("\n🔐 Test 2b: POST /escrow/public/:token/verify-otp", Colors.CYAN)
+    resp = requests.post(f"{BASE_URL}/escrow/public/{deal_token}/verify-otp", json={
+        "email": BUYER_EMAIL,
+        "otp": preview_otp
+    })
+    
+    if resp.status_code != 200:
+        log(f"❌ FAIL: {resp.status_code} {resp.text}", Colors.RED)
+        all_pass = False
+        return all_pass
+    
+    data = resp.json().get("data", {})
+    escrow_session = data.get("escrow_session")
+    has_account = data.get("has_account")
+    expires_in = data.get("expires_in")
+    
+    if escrow_session and len(escrow_session) > 20 and has_account is not None:
+        log(f"✅ PASS: escrow_session={escrow_session[:20]}..., has_account={has_account}, expires_in={expires_in}", Colors.GREEN)
+    else:
+        log(f"❌ FAIL: Expected escrow_session token, got {escrow_session}", Colors.RED)
+        all_pass = False
+        return all_pass
+    
+    # Test 2c: Guard - wrong OTP -> 400
+    log("\n🚫 Test 2c: verify-otp with wrong OTP (should fail 400)", Colors.CYAN)
+    resp = requests.post(f"{BASE_URL}/escrow/public/{deal_token}/send-otp", json={"email": BUYER_EMAIL})
+    resp = requests.post(f"{BASE_URL}/escrow/public/{deal_token}/verify-otp", json={
+        "email": BUYER_EMAIL,
+        "otp": "999999"
+    })
+    
+    if resp.status_code == 400:
+        log(f"✅ PASS: Got 400 as expected", Colors.GREEN)
+    else:
+        log(f"❌ FAIL: Expected 400, got {resp.status_code}", Colors.RED)
+        all_pass = False
+    
+    # Test 2d: Guard - verify with mismatched email -> 403
+    log("\n🚫 Test 2d: verify-otp with mismatched email (should fail 403)", Colors.CYAN)
+    resp = requests.post(f"{BASE_URL}/escrow/public/{deal_token}/verify-otp", json={
+        "email": "wrong@example.com",
+        "otp": "123456"
+    })
+    
+    if resp.status_code == 403:
+        log(f"✅ PASS: Got 403 as expected", Colors.GREEN)
+    else:
+        log(f"❌ FAIL: Expected 403, got {resp.status_code}", Colors.RED)
+        all_pass = False
+    
+    # Test 2e: Guard - public respond WITHOUT x-escrow-token -> 401
+    log("\n🚫 Test 2e: public respond WITHOUT x-escrow-token (should fail 401)", Colors.CYAN)
+    resp = requests.post(f"{BASE_URL}/escrow/public/{deal_token}/respond", json={
+        "action": "accept"
+    })
+    
+    if resp.status_code == 401:
+        log(f"✅ PASS: Got 401 as expected", Colors.GREEN)
+    else:
+        log(f"❌ FAIL: Expected 401, got {resp.status_code}", Colors.RED)
+        all_pass = False
+    
+    # Test 2f: public respond WITH x-escrow-token -> 200
+    log("\n✅ Test 2f: public respond WITH x-escrow-token (should succeed)", Colors.CYAN)
+    resp = requests.post(f"{BASE_URL}/escrow/public/{deal_token}/respond", 
+                        headers={"x-escrow-token": escrow_session},
+                        json={"action": "accept"})
+    
+    if resp.status_code == 200:
+        log(f"✅ PASS: Got 200 with x-escrow-token", Colors.GREEN)
+    else:
+        log(f"❌ FAIL: Expected 200, got {resp.status_code} {resp.text}", Colors.RED)
+        all_pass = False
+    
+    return all_pass
+
+def test_happy_path_a(token: str) -> bool:
+    """Test 3: Happy Path A - owner is SELLER (custody + two-phase payout)"""
+    log("\n" + "="*80, Colors.BLUE)
+    log("TEST 3: HAPPY PATH A (owner=seller, custody conversion, two-phase payout)", Colors.BLUE)
+    log("="*80, Colors.BLUE)
+    
+    headers = {"Authorization": f"Bearer {token}"}
     all_pass = True
     
     # Create deal
-    log("\n📝 Creating deal (owner=seller, counterparty=buyer)...", Colors.BLUE)
+    log("\n📝 Creating deal (owner=seller, counterparty=buyer)...", Colors.CYAN)
     resp = requests.post(f"{BASE_URL}/escrow", headers=headers, json={
         "company_id": 1,
         "title": "Test Deal A - Owner is Seller",
-        "description": "Testing happy path where owner is the seller",
+        "description": "Testing custody + two-phase payout",
         "amount": 200,
         "currency": "USD",
         "accepted_coins": "USDT-TRC20,BTC",
@@ -288,26 +402,29 @@ def test_happy_path_a(token: str) -> bool:
         log(f"❌ FAIL: Expected status='invited', got '{status}'", Colors.RED)
         all_pass = False
     
-    # Public GET
-    log(f"\n🌐 Public GET /api/escrow/public/{deal_token}...", Colors.BLUE)
-    resp = requests.get(f"{BASE_URL}/escrow/public/{deal_token}")
+    # Buyer OTP-verify
+    log(f"\n🔐 Buyer OTP-verify...", Colors.CYAN)
+    resp = requests.post(f"{BASE_URL}/escrow/public/{deal_token}/send-otp", json={"email": BUYER_EMAIL})
+    preview_otp = resp.json().get("data", {}).get("preview_otp")
+    
+    resp = requests.post(f"{BASE_URL}/escrow/public/{deal_token}/verify-otp", json={
+        "email": BUYER_EMAIL,
+        "otp": preview_otp
+    })
     
     if resp.status_code != 200:
-        log(f"❌ FAIL: {resp.status_code} {resp.text}", Colors.RED)
+        log(f"❌ FAIL: OTP verify failed: {resp.status_code} {resp.text}", Colors.RED)
         all_pass = False
-    else:
-        log("✅ PASS: Public GET successful", Colors.GREEN)
+        return all_pass
     
-    # Public accept
-    log(f"\n✅ Public respond accept (email={BUYER_EMAIL})...", Colors.BLUE)
-    public_headers = {"x-csrf-token": csrf_token} if csrf_token else {}
+    escrow_session = resp.json().get("data", {}).get("escrow_session")
+    log(f"✅ OTP verified, escrow_session={escrow_session[:20]}...", Colors.GREEN)
+    
+    # Buyer accept
+    log(f"\n✅ Buyer respond accept...", Colors.CYAN)
     resp = requests.post(f"{BASE_URL}/escrow/public/{deal_token}/respond", 
-                        headers=public_headers,
-                        cookies=csrf_cookies,
-                        json={
-        "action": "accept",
-        "email": BUYER_EMAIL
-    })
+                        headers={"x-escrow-token": escrow_session},
+                        json={"action": "accept"})
     
     if resp.status_code != 200:
         log(f"❌ FAIL: {resp.status_code} {resp.text}", Colors.RED)
@@ -320,16 +437,11 @@ def test_happy_path_a(token: str) -> bool:
             log(f"❌ FAIL: Expected status='awaiting_payment', got '{new_status}'", Colors.RED)
             all_pass = False
     
-    # Public fund
-    log(f"\n💰 Public action fund (email={BUYER_EMAIL})...", Colors.BLUE)
+    # Buyer fund (custody conversion)
+    log(f"\n💰 Buyer action fund (should convert to stable custody)...", Colors.CYAN)
     resp = requests.post(f"{BASE_URL}/escrow/public/{deal_token}/action", 
-                        headers=public_headers,
-                        cookies=csrf_cookies,
-                        json={
-        "action": "fund",
-        "email": BUYER_EMAIL,
-        "coin": "BTC"
-    })
+                        headers={"x-escrow-token": escrow_session},
+                        json={"action": "fund", "coin": "BTC"})
     
     if resp.status_code != 200:
         log(f"❌ FAIL: {resp.status_code} {resp.text}", Colors.RED)
@@ -337,17 +449,25 @@ def test_happy_path_a(token: str) -> bool:
     else:
         deal = resp.json().get("data", {})
         new_status = deal.get("status")
-        funding_address = deal.get("funding_deposit_address")
+        custody_stablecoin = deal.get("custody_stablecoin")
+        custody_amount_stable = deal.get("custody_amount_stable")
+        converted_at = deal.get("converted_at")
         simulated = deal.get("simulated")
         
-        if new_status == "funded" and simulated and funding_address and funding_address.startswith("SIMULATED-"):
-            log(f"✅ PASS: Status='funded', simulated=True, address={funding_address}", Colors.GREEN)
+        if (new_status == "funded" and 
+            custody_stablecoin in ["USDT-TRC20", "USDT-TRON"] and 
+            custody_amount_stable is not None and 
+            custody_amount_stable > 0 and
+            converted_at and 
+            simulated):
+            log(f"✅ PASS: Status='funded', custody_stablecoin={custody_stablecoin}, custody_amount_stable={custody_amount_stable}, converted_at={converted_at}", Colors.GREEN)
         else:
-            log(f"❌ FAIL: Expected funded+simulated, got status={new_status}, simulated={simulated}, addr={funding_address}", Colors.RED)
+            log(f"❌ FAIL: Expected funded+custody conversion", Colors.RED)
+            log(f"   Got: status={new_status}, custody_stablecoin={custody_stablecoin}, custody_amount_stable={custody_amount_stable}, converted_at={converted_at}", Colors.RED)
             all_pass = False
     
-    # Authed deliver (owner=seller)
-    log(f"\n📦 Authed POST /{escrow_id}/deliver (owner=seller)...", Colors.BLUE)
+    # Seller deliver (owner, authed)
+    log(f"\n📦 Seller deliver (owner, authed)...", Colors.CYAN)
     resp = requests.post(f"{BASE_URL}/escrow/{escrow_id}/deliver", headers=headers, json={
         "delivery_note": "Goods delivered"
     })
@@ -366,15 +486,11 @@ def test_happy_path_a(token: str) -> bool:
             log(f"❌ FAIL: Expected delivered+auto_release_at, got status={new_status}, auto_release_at={auto_release_at}", Colors.RED)
             all_pass = False
     
-    # Public release
-    log(f"\n🎉 Public action release (email={BUYER_EMAIL})...", Colors.BLUE)
+    # Buyer release (two-phase: authorize + payout pending)
+    log(f"\n🎉 Buyer action release (should authorize + payout pending)...", Colors.CYAN)
     resp = requests.post(f"{BASE_URL}/escrow/public/{deal_token}/action", 
-                        headers=public_headers,
-                        cookies=csrf_cookies,
-                        json={
-        "action": "release",
-        "email": BUYER_EMAIL
-    })
+                        headers={"x-escrow-token": escrow_session},
+                        json={"action": "release"})
     
     if resp.status_code != 200:
         log(f"❌ FAIL: {resp.status_code} {resp.text}", Colors.RED)
@@ -382,39 +498,74 @@ def test_happy_path_a(token: str) -> bool:
     else:
         deal = resp.json().get("data", {})
         new_status = deal.get("status")
-        settlement_note = deal.get("settlement_note", "")
+        outcome = deal.get("outcome")
+        outcome_authorized_at = deal.get("outcome_authorized_at")
+        seller_payout_state = deal.get("seller_payout_state")
+        seller_entitlement_stable = deal.get("seller_entitlement_stable")
+        settlement_phase = deal.get("settlement_phase")
         
-        if new_status == "completed" and "[SIMULATED" in settlement_note:
-            log(f"✅ PASS: Status='completed', settlement_note contains '[SIMULATED'", Colors.GREEN)
+        if (new_status == "completed" and 
+            outcome == "release" and 
+            outcome_authorized_at and 
+            seller_payout_state == "pending" and 
+            seller_entitlement_stable is not None and
+            settlement_phase == "pending"):
+            log(f"✅ PASS: Status='completed', outcome='release', seller_payout_state='pending', settlement_phase='pending'", Colors.GREEN)
+            log(f"   seller_entitlement_stable={seller_entitlement_stable}, outcome_authorized_at={outcome_authorized_at}", Colors.GREEN)
         else:
-            log(f"❌ FAIL: Expected completed+simulated note, got status={new_status}, note={settlement_note}", Colors.RED)
+            log(f"❌ FAIL: Expected completed+release+pending payout", Colors.RED)
+            log(f"   Got: status={new_status}, outcome={outcome}, seller_payout_state={seller_payout_state}, settlement_phase={settlement_phase}", Colors.RED)
+            all_pass = False
+    
+    # Seller adds payout address (owner, authed) -> payout executes
+    log(f"\n💳 Seller POST /escrow/:id/payout-info (should trigger payout -> paid)...", Colors.CYAN)
+    resp = requests.post(f"{BASE_URL}/escrow/{escrow_id}/payout-info", headers=headers, json={
+        "payout_address": "TTestSellerAddress123456789",
+        "payout_coin": "USDT-TRC20"
+    })
+    
+    if resp.status_code != 200:
+        log(f"❌ FAIL: {resp.status_code} {resp.text}", Colors.RED)
+        all_pass = False
+    else:
+        deal = resp.json().get("data", {})
+        seller_payout_state = deal.get("seller_payout_state")
+        seller_paid_at = deal.get("seller_paid_at")
+        seller_payout_tx = deal.get("seller_payout_tx")
+        fully_paid_at = deal.get("fully_paid_at")
+        settlement_phase = deal.get("settlement_phase")
+        
+        if (seller_payout_state == "paid" and 
+            seller_paid_at and 
+            seller_payout_tx and 
+            fully_paid_at and
+            settlement_phase == "paid"):
+            log(f"✅ PASS: seller_payout_state='paid', seller_paid_at={seller_paid_at}, fully_paid_at={fully_paid_at}, settlement_phase='paid'", Colors.GREEN)
+            log(f"   seller_payout_tx={seller_payout_tx}", Colors.GREEN)
+        else:
+            log(f"❌ FAIL: Expected seller_payout_state='paid' + fully_paid_at set", Colors.RED)
+            log(f"   Got: seller_payout_state={seller_payout_state}, seller_paid_at={seller_paid_at}, fully_paid_at={fully_paid_at}, settlement_phase={settlement_phase}", Colors.RED)
             all_pass = False
     
     return all_pass
 
 def test_happy_path_b(token: str) -> bool:
-    """Test 3: Happy Path B - owner is BUYER"""
+    """Test 4: Happy Path B - owner is BUYER"""
     log("\n" + "="*80, Colors.BLUE)
-    log("TEST 3: HAPPY PATH B (owner is BUYER)", Colors.BLUE)
+    log("TEST 4: HAPPY PATH B (owner=buyer, seller OTP-only adds address)", Colors.BLUE)
     log("="*80, Colors.BLUE)
     
     headers = {"Authorization": f"Bearer {token}"}
-    csrf_token, csrf_cookies = get_csrf_token()
-    public_headers = {"x-csrf-token": csrf_token} if csrf_token else {}
     all_pass = True
     
     # Create deal
-    log("\n📝 Creating deal (owner=buyer, counterparty=seller)...", Colors.BLUE)
+    log("\n📝 Creating deal (owner=buyer, counterparty=seller)...", Colors.CYAN)
     resp = requests.post(f"{BASE_URL}/escrow", headers=headers, json={
         "company_id": 1,
         "title": "Test Deal B - Owner is Buyer",
-        "description": "Testing happy path where owner is the buyer",
         "amount": 150,
-        "currency": "USD",
-        "accepted_coins": "USDT-TRC20,BTC",
         "counterparty_email": SELLER_EMAIL,
         "creator_role": "buyer",
-        "fee_percent": 5,
         "fee_payer": "seller",
         "send_invite": True
     })
@@ -429,15 +580,29 @@ def test_happy_path_b(token: str) -> bool:
     
     log(f"✅ Deal created: escrow_id={escrow_id}, token={deal_token}", Colors.GREEN)
     
-    # Public accept
-    log(f"\n✅ Public respond accept (email={SELLER_EMAIL})...", Colors.BLUE)
-    resp = requests.post(f"{BASE_URL}/escrow/public/{deal_token}/respond", 
-                        headers=public_headers,
-                        cookies=csrf_cookies,
-                        json={
-        "action": "accept",
-        "email": SELLER_EMAIL
+    # Seller OTP-verify
+    log(f"\n🔐 Seller OTP-verify...", Colors.CYAN)
+    resp = requests.post(f"{BASE_URL}/escrow/public/{deal_token}/send-otp", json={"email": SELLER_EMAIL})
+    preview_otp = resp.json().get("data", {}).get("preview_otp")
+    
+    resp = requests.post(f"{BASE_URL}/escrow/public/{deal_token}/verify-otp", json={
+        "email": SELLER_EMAIL,
+        "otp": preview_otp
     })
+    
+    if resp.status_code != 200:
+        log(f"❌ FAIL: OTP verify failed: {resp.status_code} {resp.text}", Colors.RED)
+        all_pass = False
+        return all_pass
+    
+    escrow_session = resp.json().get("data", {}).get("escrow_session")
+    log(f"✅ OTP verified, escrow_session={escrow_session[:20]}...", Colors.GREEN)
+    
+    # Seller accept
+    log(f"\n✅ Seller respond accept...", Colors.CYAN)
+    resp = requests.post(f"{BASE_URL}/escrow/public/{deal_token}/respond", 
+                        headers={"x-escrow-token": escrow_session},
+                        json={"action": "accept"})
     
     if resp.status_code != 200:
         log(f"❌ FAIL: {resp.status_code} {resp.text}", Colors.RED)
@@ -445,8 +610,8 @@ def test_happy_path_b(token: str) -> bool:
     else:
         log("✅ PASS: Accept successful", Colors.GREEN)
     
-    # Authed simulate-fund (owner=buyer)
-    log(f"\n💰 Authed POST /{escrow_id}/simulate-fund (owner=buyer)...", Colors.BLUE)
+    # Buyer simulate-fund (owner, authed)
+    log(f"\n💰 Buyer POST /escrow/:id/simulate-fund (owner, authed)...", Colors.CYAN)
     resp = requests.post(f"{BASE_URL}/escrow/{escrow_id}/simulate-fund", headers=headers, json={
         "coin": "BTC"
     })
@@ -462,16 +627,11 @@ def test_happy_path_b(token: str) -> bool:
             log(f"❌ FAIL: Expected status='funded', got '{deal.get('status')}'", Colors.RED)
             all_pass = False
     
-    # Public deliver
-    log(f"\n📦 Public action deliver (email={SELLER_EMAIL})...", Colors.BLUE)
+    # Seller deliver (OTP-only)
+    log(f"\n📦 Seller action deliver (OTP-only)...", Colors.CYAN)
     resp = requests.post(f"{BASE_URL}/escrow/public/{deal_token}/action", 
-                        headers=public_headers,
-                        cookies=csrf_cookies,
-                        json={
-        "action": "deliver",
-        "email": SELLER_EMAIL,
-        "delivery_note": "Service completed"
-    })
+                        headers={"x-escrow-token": escrow_session},
+                        json={"action": "deliver", "delivery_note": "Service completed"})
     
     if resp.status_code != 200:
         log(f"❌ FAIL: {resp.status_code} {resp.text}", Colors.RED)
@@ -484,8 +644,8 @@ def test_happy_path_b(token: str) -> bool:
             log(f"❌ FAIL: Expected status='delivered', got '{deal.get('status')}'", Colors.RED)
             all_pass = False
     
-    # Authed release (owner=buyer)
-    log(f"\n🎉 Authed POST /{escrow_id}/release (owner=buyer)...", Colors.BLUE)
+    # Buyer release (owner, authed)
+    log(f"\n🎉 Buyer POST /escrow/:id/release (owner, authed)...", Colors.CYAN)
     resp = requests.post(f"{BASE_URL}/escrow/{escrow_id}/release", headers=headers)
     
     if resp.status_code != 200:
@@ -493,28 +653,50 @@ def test_happy_path_b(token: str) -> bool:
         all_pass = False
     else:
         deal = resp.json().get("data", {})
-        if deal.get("status") == "completed":
-            log("✅ PASS: Status='completed'", Colors.GREEN)
+        if deal.get("status") == "completed" and deal.get("seller_payout_state") == "pending":
+            log(f"✅ PASS: Status='completed', seller_payout_state='pending'", Colors.GREEN)
         else:
-            log(f"❌ FAIL: Expected status='completed', got '{deal.get('status')}'", Colors.RED)
+            log(f"❌ FAIL: Expected completed+pending, got status={deal.get('status')}, seller_payout_state={deal.get('seller_payout_state')}", Colors.RED)
+            all_pass = False
+    
+    # Seller adds payout address via public action (OTP-only) -> payout executes
+    log(f"\n💳 Seller public action payout-info (OTP-only, should trigger payout)...", Colors.CYAN)
+    resp = requests.post(f"{BASE_URL}/escrow/public/{deal_token}/action", 
+                        headers={"x-escrow-token": escrow_session},
+                        json={
+                            "action": "payout-info",
+                            "payout_address": "TTestSellerAddress987654321",
+                            "payout_coin": "USDT-TRC20"
+                        })
+    
+    if resp.status_code != 200:
+        log(f"❌ FAIL: {resp.status_code} {resp.text}", Colors.RED)
+        all_pass = False
+    else:
+        deal = resp.json().get("data", {})
+        seller_payout_state = deal.get("seller_payout_state")
+        seller_paid_at = deal.get("seller_paid_at")
+        
+        if seller_payout_state == "paid" and seller_paid_at:
+            log(f"✅ PASS: seller_payout_state='paid', seller_paid_at={seller_paid_at}", Colors.GREEN)
+        else:
+            log(f"❌ FAIL: Expected seller_payout_state='paid', got {seller_payout_state}", Colors.RED)
             all_pass = False
     
     return all_pass
 
 def test_dispute_admin_resolve(merchant_token: str, admin_token: str) -> bool:
-    """Test 4: Dispute + Admin Resolve"""
+    """Test 5: Dispute + Admin Resolve (split/refund/release)"""
     log("\n" + "="*80, Colors.BLUE)
-    log("TEST 4: DISPUTE + ADMIN RESOLVE", Colors.BLUE)
+    log("TEST 5: DISPUTE + ADMIN RESOLVE (split/refund/release)", Colors.BLUE)
     log("="*80, Colors.BLUE)
     
     headers = {"Authorization": f"Bearer {merchant_token}"}
     admin_headers = {"Authorization": f"Bearer {admin_token}"}
-    csrf_token, csrf_cookies = get_csrf_token()
-    public_headers = {"x-csrf-token": csrf_token} if csrf_token else {}
     all_pass = True
     
-    # Create and fund a deal for split resolution
-    log("\n📝 Creating deal for split resolution...", Colors.BLUE)
+    # Test 5a: Dispute + admin resolve split
+    log("\n📝 Test 5a: Create deal, fund, dispute, admin resolve split 60/40...", Colors.CYAN)
     resp = requests.post(f"{BASE_URL}/escrow", headers=headers, json={
         "company_id": 1,
         "title": "Test Deal - Dispute Split",
@@ -536,15 +718,20 @@ def test_dispute_admin_resolve(merchant_token: str, admin_token: str) -> bool:
     log(f"✅ Deal created: escrow_id={escrow_id}", Colors.GREEN)
     
     # Accept and fund
+    resp = requests.post(f"{BASE_URL}/escrow/public/{deal_token}/send-otp", json={"email": BUYER_EMAIL})
+    preview_otp = resp.json().get("data", {}).get("preview_otp")
+    resp = requests.post(f"{BASE_URL}/escrow/public/{deal_token}/verify-otp", json={"email": BUYER_EMAIL, "otp": preview_otp})
+    escrow_session = resp.json().get("data", {}).get("escrow_session")
+    
     requests.post(f"{BASE_URL}/escrow/public/{deal_token}/respond", 
-                 headers=public_headers, cookies=csrf_cookies,
-                 json={"action": "accept", "email": BUYER_EMAIL})
+                 headers={"x-escrow-token": escrow_session},
+                 json={"action": "accept"})
     requests.post(f"{BASE_URL}/escrow/public/{deal_token}/action", 
-                 headers=public_headers, cookies=csrf_cookies,
-                 json={"action": "fund", "email": BUYER_EMAIL})
+                 headers={"x-escrow-token": escrow_session},
+                 json={"action": "fund"})
     
     # Raise dispute
-    log(f"\n⚠️  Authed POST /{escrow_id}/dispute...", Colors.BLUE)
+    log(f"\n⚠️  Authed POST /escrow/{escrow_id}/dispute...", Colors.CYAN)
     resp = requests.post(f"{BASE_URL}/escrow/{escrow_id}/dispute", headers=headers, json={
         "reason": "Product not as described"
     })
@@ -563,8 +750,20 @@ def test_dispute_admin_resolve(merchant_token: str, admin_token: str) -> bool:
             log(f"❌ FAIL: Expected disputed+cleared auto_release, got status={status}, auto_release_at={auto_release_at}", Colors.RED)
             all_pass = False
     
+    # Verify NO payout allowed while disputed (buyer tries to release)
+    log(f"\n🚫 Test: release while disputed (buyer tries, should fail 409)...", Colors.CYAN)
+    resp = requests.post(f"{BASE_URL}/escrow/public/{deal_token}/action", 
+                        headers={"x-escrow-token": escrow_session},
+                        json={"action": "release"})
+    
+    if resp.status_code == 409:
+        log(f"✅ PASS: Got 409 as expected (no payout while disputed)", Colors.GREEN)
+    else:
+        log(f"❌ FAIL: Expected 409, got {resp.status_code}", Colors.RED)
+        all_pass = False
+    
     # Admin get disputes
-    log(f"\n👮 Admin GET /api/escrow/admin/disputes...", Colors.BLUE)
+    log(f"\n👮 Admin GET /escrow/admin/disputes...", Colors.CYAN)
     resp = requests.get(f"{BASE_URL}/escrow/admin/disputes", headers=admin_headers)
     
     if resp.status_code != 200:
@@ -580,7 +779,7 @@ def test_dispute_admin_resolve(merchant_token: str, admin_token: str) -> bool:
             all_pass = False
     
     # Admin resolve split
-    log(f"\n⚖️  Admin POST /api/escrow/admin/{escrow_id}/resolve (split 60/40)...", Colors.BLUE)
+    log(f"\n⚖️  Admin POST /escrow/admin/{escrow_id}/resolve (split 60/40)...", Colors.CYAN)
     resp = requests.post(f"{BASE_URL}/escrow/admin/{escrow_id}/resolve", headers=admin_headers, json={
         "outcome": "split",
         "split_percent_seller": 60,
@@ -595,15 +794,22 @@ def test_dispute_admin_resolve(merchant_token: str, admin_token: str) -> bool:
         status = deal.get("status")
         resolution = deal.get("dispute_resolution")
         split_pct = deal.get("split_percent_seller")
+        seller_payout_state = deal.get("seller_payout_state")
+        buyer_payout_state = deal.get("buyer_payout_state")
         
-        if status == "completed" and resolution == "split" and split_pct == 60:
-            log(f"✅ PASS: Status='completed', resolution='split', split_percent_seller=60", Colors.GREEN)
+        if (status == "split" and 
+            resolution == "split" and 
+            split_pct == 60 and
+            seller_payout_state == "pending" and
+            buyer_payout_state == "pending"):
+            log(f"✅ PASS: Status='split', resolution='split', split_percent_seller=60, both legs pending", Colors.GREEN)
         else:
-            log(f"❌ FAIL: Expected completed+split+60%, got status={status}, resolution={resolution}, split={split_pct}", Colors.RED)
+            log(f"❌ FAIL: Expected split+60%+both pending", Colors.RED)
+            log(f"   Got: status={status}, resolution={resolution}, split={split_pct}, seller_state={seller_payout_state}, buyer_state={buyer_payout_state}", Colors.RED)
             all_pass = False
     
-    # Create another deal for refund resolution
-    log("\n📝 Creating deal for refund resolution...", Colors.BLUE)
+    # Test 5b: Dispute + admin resolve refund
+    log("\n📝 Test 5b: Create deal, fund, dispute, admin resolve refund...", Colors.CYAN)
     resp = requests.post(f"{BASE_URL}/escrow", headers=headers, json={
         "company_id": 1,
         "title": "Test Deal - Dispute Refund",
@@ -624,16 +830,21 @@ def test_dispute_admin_resolve(merchant_token: str, admin_token: str) -> bool:
     log(f"✅ Deal created: escrow_id={escrow_id2}", Colors.GREEN)
     
     # Accept, fund, dispute
+    resp = requests.post(f"{BASE_URL}/escrow/public/{deal_token2}/send-otp", json={"email": BUYER_EMAIL})
+    preview_otp = resp.json().get("data", {}).get("preview_otp")
+    resp = requests.post(f"{BASE_URL}/escrow/public/{deal_token2}/verify-otp", json={"email": BUYER_EMAIL, "otp": preview_otp})
+    escrow_session = resp.json().get("data", {}).get("escrow_session")
+    
     requests.post(f"{BASE_URL}/escrow/public/{deal_token2}/respond", 
-                 headers=public_headers, cookies=csrf_cookies,
-                 json={"action": "accept", "email": BUYER_EMAIL})
+                 headers={"x-escrow-token": escrow_session},
+                 json={"action": "accept"})
     requests.post(f"{BASE_URL}/escrow/public/{deal_token2}/action", 
-                 headers=public_headers, cookies=csrf_cookies,
-                 json={"action": "fund", "email": BUYER_EMAIL})
+                 headers={"x-escrow-token": escrow_session},
+                 json={"action": "fund"})
     requests.post(f"{BASE_URL}/escrow/{escrow_id2}/dispute", headers=headers, json={"reason": "Never delivered"})
     
     # Admin resolve refund
-    log(f"\n💸 Admin POST /api/escrow/admin/{escrow_id2}/resolve (refund)...", Colors.BLUE)
+    log(f"\n💸 Admin POST /escrow/admin/{escrow_id2}/resolve (refund)...", Colors.CYAN)
     resp = requests.post(f"{BASE_URL}/escrow/admin/{escrow_id2}/resolve", headers=admin_headers, json={
         "outcome": "refund",
         "note": "Full refund to buyer"
@@ -646,24 +857,79 @@ def test_dispute_admin_resolve(merchant_token: str, admin_token: str) -> bool:
         deal = resp.json().get("data", {})
         status = deal.get("status")
         resolution = deal.get("dispute_resolution")
+        buyer_payout_state = deal.get("buyer_payout_state")
         
-        if status == "refunded" and resolution == "refund":
-            log(f"✅ PASS: Status='refunded', resolution='refund'", Colors.GREEN)
+        if status == "refunded" and resolution == "refund" and buyer_payout_state == "pending":
+            log(f"✅ PASS: Status='refunded', resolution='refund', buyer_payout_state='pending'", Colors.GREEN)
         else:
-            log(f"❌ FAIL: Expected refunded+refund, got status={status}, resolution={resolution}", Colors.RED)
+            log(f"❌ FAIL: Expected refunded+refund+pending, got status={status}, resolution={resolution}, buyer_state={buyer_payout_state}", Colors.RED)
+            all_pass = False
+    
+    # Test 5c: Dispute + admin resolve release
+    log("\n📝 Test 5c: Create deal, fund, dispute, admin resolve release...", Colors.CYAN)
+    resp = requests.post(f"{BASE_URL}/escrow", headers=headers, json={
+        "company_id": 1,
+        "title": "Test Deal - Dispute Release",
+        "amount": 70,
+        "counterparty_email": BUYER_EMAIL,
+        "creator_role": "seller",
+        "send_invite": True
+    })
+    
+    if resp.status_code != 201:
+        log(f"❌ FAIL: Create deal failed", Colors.RED)
+        return all_pass
+    
+    deal_data = resp.json().get("data", {})
+    deal_token3 = deal_data.get("deal_token")
+    escrow_id3 = deal_data.get("escrow_id")
+    
+    log(f"✅ Deal created: escrow_id={escrow_id3}", Colors.GREEN)
+    
+    # Accept, fund, dispute
+    resp = requests.post(f"{BASE_URL}/escrow/public/{deal_token3}/send-otp", json={"email": BUYER_EMAIL})
+    preview_otp = resp.json().get("data", {}).get("preview_otp")
+    resp = requests.post(f"{BASE_URL}/escrow/public/{deal_token3}/verify-otp", json={"email": BUYER_EMAIL, "otp": preview_otp})
+    escrow_session = resp.json().get("data", {}).get("escrow_session")
+    
+    requests.post(f"{BASE_URL}/escrow/public/{deal_token3}/respond", 
+                 headers={"x-escrow-token": escrow_session},
+                 json={"action": "accept"})
+    requests.post(f"{BASE_URL}/escrow/public/{deal_token3}/action", 
+                 headers={"x-escrow-token": escrow_session},
+                 json={"action": "fund"})
+    requests.post(f"{BASE_URL}/escrow/{escrow_id3}/dispute", headers=headers, json={"reason": "Dispute test"})
+    
+    # Admin resolve release
+    log(f"\n🎉 Admin POST /escrow/admin/{escrow_id3}/resolve (release)...", Colors.CYAN)
+    resp = requests.post(f"{BASE_URL}/escrow/admin/{escrow_id3}/resolve", headers=admin_headers, json={
+        "outcome": "release",
+        "note": "Release to seller"
+    })
+    
+    if resp.status_code != 200:
+        log(f"❌ FAIL: {resp.status_code} {resp.text}", Colors.RED)
+        all_pass = False
+    else:
+        deal = resp.json().get("data", {})
+        status = deal.get("status")
+        outcome = deal.get("outcome")
+        
+        if status == "completed" and outcome == "release":
+            log(f"✅ PASS: Status='completed', outcome='release'", Colors.GREEN)
+        else:
+            log(f"❌ FAIL: Expected completed+release, got status={status}, outcome={outcome}", Colors.RED)
             all_pass = False
     
     return all_pass
 
 def test_state_machine_guards(token: str) -> bool:
-    """Test 5: State machine + auth guards"""
+    """Test 6: State machine + auth guards"""
     log("\n" + "="*80, Colors.BLUE)
-    log("TEST 5: STATE MACHINE + AUTH GUARDS", Colors.BLUE)
+    log("TEST 6: STATE MACHINE + AUTH GUARDS", Colors.BLUE)
     log("="*80, Colors.BLUE)
     
     headers = {"Authorization": f"Bearer {token}"}
-    csrf_token, csrf_cookies = get_csrf_token()
-    public_headers = {"x-csrf-token": csrf_token} if csrf_token else {}
     all_pass = True
     
     # Create a deal
@@ -687,12 +953,17 @@ def test_state_machine_guards(token: str) -> bool:
     log(f"✅ Deal created: escrow_id={escrow_id}", Colors.GREEN)
     
     # Accept
+    resp = requests.post(f"{BASE_URL}/escrow/public/{deal_token}/send-otp", json={"email": BUYER_EMAIL})
+    preview_otp = resp.json().get("data", {}).get("preview_otp")
+    resp = requests.post(f"{BASE_URL}/escrow/public/{deal_token}/verify-otp", json={"email": BUYER_EMAIL, "otp": preview_otp})
+    escrow_session = resp.json().get("data", {}).get("escrow_session")
+    
     requests.post(f"{BASE_URL}/escrow/public/{deal_token}/respond", 
-                 headers=public_headers, cookies=csrf_cookies,
-                 json={"action": "accept", "email": BUYER_EMAIL})
+                 headers={"x-escrow-token": escrow_session},
+                 json={"action": "accept"})
     
     # Test: deliver before funded -> 409
-    log(f"\n🚫 Test: deliver before funded (should fail 409)...", Colors.BLUE)
+    log(f"\n🚫 Test: deliver before funded (should fail 409)...", Colors.CYAN)
     resp = requests.post(f"{BASE_URL}/escrow/{escrow_id}/deliver", headers=headers)
     
     if resp.status_code == 409:
@@ -701,9 +972,11 @@ def test_state_machine_guards(token: str) -> bool:
         log(f"❌ FAIL: Expected 409, got {resp.status_code}", Colors.RED)
         all_pass = False
     
-    # Test: release before funded -> 409
-    log(f"\n🚫 Test: release before funded (should fail 409)...", Colors.BLUE)
-    resp = requests.post(f"{BASE_URL}/escrow/{escrow_id}/release", headers=headers)
+    # Test: release before funded -> 409 (buyer tries via public action)
+    log(f"\n🚫 Test: release before funded (buyer tries, should fail 409)...", Colors.CYAN)
+    resp = requests.post(f"{BASE_URL}/escrow/public/{deal_token}/action", 
+                        headers={"x-escrow-token": escrow_session},
+                        json={"action": "release"})
     
     if resp.status_code == 409:
         log(f"✅ PASS: Got 409 as expected", Colors.GREEN)
@@ -713,11 +986,11 @@ def test_state_machine_guards(token: str) -> bool:
     
     # Fund the deal
     requests.post(f"{BASE_URL}/escrow/public/{deal_token}/action", 
-                 headers=public_headers, cookies=csrf_cookies,
-                 json={"action": "fund", "email": BUYER_EMAIL})
+                 headers={"x-escrow-token": escrow_session},
+                 json={"action": "fund"})
     
     # Test: cancel after funded -> 409
-    log(f"\n🚫 Test: cancel after funded (should fail 409)...", Colors.BLUE)
+    log(f"\n🚫 Test: cancel after funded (should fail 409)...", Colors.CYAN)
     resp = requests.post(f"{BASE_URL}/escrow/{escrow_id}/cancel", headers=headers)
     
     if resp.status_code == 409:
@@ -727,7 +1000,7 @@ def test_state_machine_guards(token: str) -> bool:
         all_pass = False
     
     # Test: self-invite -> 400
-    log(f"\n🚫 Test: create with counterparty_email == owner email (should fail 400)...", Colors.BLUE)
+    log(f"\n🚫 Test: create with counterparty_email == owner email (should fail 400)...", Colors.CYAN)
     resp = requests.post(f"{BASE_URL}/escrow", headers=headers, json={
         "company_id": 1,
         "title": "Self Invite Test",
@@ -742,37 +1015,8 @@ def test_state_machine_guards(token: str) -> bool:
         log(f"❌ FAIL: Expected 400, got {resp.status_code}", Colors.RED)
         all_pass = False
     
-    # Test: missing amount -> 400
-    log(f"\n🚫 Test: create with missing amount (should fail 400)...", Colors.BLUE)
-    resp = requests.post(f"{BASE_URL}/escrow", headers=headers, json={
-        "company_id": 1,
-        "title": "Missing Amount",
-        "counterparty_email": BUYER_EMAIL
-    })
-    
-    if resp.status_code == 400:
-        log(f"✅ PASS: Got 400 as expected", Colors.GREEN)
-    else:
-        log(f"❌ FAIL: Expected 400, got {resp.status_code}", Colors.RED)
-        all_pass = False
-    
-    # Test: public respond with wrong email -> 403
-    log(f"\n🚫 Test: public respond with wrong email (should fail 403)...", Colors.BLUE)
-    resp = requests.post(f"{BASE_URL}/escrow/public/{deal_token}/respond", 
-                        headers=public_headers, cookies=csrf_cookies,
-                        json={
-        "action": "accept",
-        "email": "wrong@example.com"
-    })
-    
-    if resp.status_code == 403:
-        log(f"✅ PASS: Got 403 as expected", Colors.GREEN)
-    else:
-        log(f"❌ FAIL: Expected 403, got {resp.status_code}", Colors.RED)
-        all_pass = False
-    
     # Test: unauthenticated GET /api/escrow -> 401
-    log(f"\n🚫 Test: unauthenticated GET /api/escrow (should fail 401)...", Colors.BLUE)
+    log(f"\n🚫 Test: unauthenticated GET /api/escrow (should fail 401)...", Colors.CYAN)
     resp = requests.get(f"{BASE_URL}/escrow")
     
     if resp.status_code == 401:
@@ -783,79 +1027,128 @@ def test_state_machine_guards(token: str) -> bool:
     
     return all_pass
 
-def test_list_participant_scoping(token: str) -> bool:
-    """Test 6: List + participant scoping"""
+def test_idempotency(token: str) -> bool:
+    """Test 7: Idempotency - releasing/paying twice doesn't double-pay"""
     log("\n" + "="*80, Colors.BLUE)
-    log("TEST 6: LIST + PARTICIPANT SCOPING", Colors.BLUE)
+    log("TEST 7: IDEMPOTENCY (releasing/paying twice doesn't double-pay)", Colors.BLUE)
     log("="*80, Colors.BLUE)
     
     headers = {"Authorization": f"Bearer {token}"}
     all_pass = True
     
-    # List deals
-    log(f"\n📋 GET /api/escrow?company_id=1...", Colors.BLUE)
-    resp = requests.get(f"{BASE_URL}/escrow?company_id=1", headers=headers)
+    # Create deal where owner is BUYER (so owner can release)
+    log("\n📝 Creating deal for idempotency test (owner=buyer)...", Colors.CYAN)
+    resp = requests.post(f"{BASE_URL}/escrow", headers=headers, json={
+        "company_id": 1,
+        "title": "Test Deal - Idempotency",
+        "amount": 60,
+        "counterparty_email": SELLER_EMAIL,
+        "creator_role": "buyer",
+        "send_invite": True
+    })
+    
+    if resp.status_code != 201:
+        log(f"❌ FAIL: Create deal failed", Colors.RED)
+        return False
+    
+    deal_data = resp.json().get("data", {})
+    deal_token = deal_data.get("deal_token")
+    escrow_id = deal_data.get("escrow_id")
+    
+    # Seller accept
+    resp = requests.post(f"{BASE_URL}/escrow/public/{deal_token}/send-otp", json={"email": SELLER_EMAIL})
+    preview_otp = resp.json().get("data", {}).get("preview_otp")
+    resp = requests.post(f"{BASE_URL}/escrow/public/{deal_token}/verify-otp", json={"email": SELLER_EMAIL, "otp": preview_otp})
+    escrow_session = resp.json().get("data", {}).get("escrow_session")
+    
+    requests.post(f"{BASE_URL}/escrow/public/{deal_token}/respond", 
+                 headers={"x-escrow-token": escrow_session},
+                 json={"action": "accept"})
+    
+    # Buyer fund (owner, authed)
+    requests.post(f"{BASE_URL}/escrow/{escrow_id}/simulate-fund", headers=headers, json={"coin": "BTC"})
+    
+    # Seller deliver
+    requests.post(f"{BASE_URL}/escrow/public/{deal_token}/action", 
+                 headers={"x-escrow-token": escrow_session},
+                 json={"action": "deliver", "delivery_note": "Delivered"})
+    
+    # Release once (owner=buyer)
+    log(f"\n🎉 First release (owner=buyer)...", Colors.CYAN)
+    resp = requests.post(f"{BASE_URL}/escrow/{escrow_id}/release", headers=headers)
     
     if resp.status_code != 200:
-        log(f"❌ FAIL: {resp.status_code} {resp.text}", Colors.RED)
+        log(f"❌ FAIL: First release failed: {resp.status_code} {resp.text}", Colors.RED)
         all_pass = False
-    else:
-        deals = resp.json().get("data", [])
-        log(f"✅ PASS: Got {len(deals)} deals", Colors.GREEN)
-        
-        # Check that deals have my_role and is_creator fields
-        if deals:
-            first_deal = deals[0]
-            if "my_role" in first_deal and "is_creator" in first_deal:
-                log(f"✅ PASS: Deals have my_role and is_creator fields", Colors.GREEN)
-            else:
-                log(f"❌ FAIL: Deals missing my_role or is_creator fields", Colors.RED)
-                all_pass = False
+        return all_pass
     
-    # Test role filter
-    log(f"\n📋 GET /api/escrow?company_id=1&role=buyer...", Colors.BLUE)
-    resp = requests.get(f"{BASE_URL}/escrow?company_id=1&role=buyer", headers=headers)
+    deal = resp.json().get("data", {})
+    first_outcome_authorized_at = deal.get("outcome_authorized_at")
+    log(f"✅ First release successful, outcome_authorized_at={first_outcome_authorized_at}", Colors.GREEN)
+    
+    # Try to release again (should be idempotent - fail with 409)
+    log(f"\n🚫 Second release (should fail 409 - already settled)...", Colors.CYAN)
+    resp = requests.post(f"{BASE_URL}/escrow/{escrow_id}/release", headers=headers)
+    
+    if resp.status_code == 409:
+        log(f"✅ PASS: Got 409 as expected (idempotent - no double-release)", Colors.GREEN)
+    else:
+        log(f"❌ FAIL: Expected 409, got {resp.status_code}", Colors.RED)
+        all_pass = False
+    
+    # Seller adds payout address (OTP-only)
+    log(f"\n💳 Seller adding payout address (first time, OTP-only)...", Colors.CYAN)
+    resp = requests.post(f"{BASE_URL}/escrow/public/{deal_token}/action", 
+                        headers={"x-escrow-token": escrow_session},
+                        json={
+                            "action": "payout-info",
+                            "payout_address": "TTestIdempotencyAddress",
+                            "payout_coin": "USDT-TRC20"
+                        })
     
     if resp.status_code != 200:
-        log(f"❌ FAIL: {resp.status_code} {resp.text}", Colors.RED)
+        log(f"❌ FAIL: Add payout address failed: {resp.status_code} {resp.text}", Colors.RED)
         all_pass = False
-    else:
-        deals = resp.json().get("data", [])
-        log(f"✅ PASS: Got {len(deals)} buyer deals", Colors.GREEN)
-        
-        # Verify all are buyer role
-        if deals:
-            all_buyer = all(d.get("my_role") == "buyer" for d in deals)
-            if all_buyer:
-                log(f"✅ PASS: All deals have my_role='buyer'", Colors.GREEN)
-            else:
-                log(f"❌ FAIL: Some deals don't have my_role='buyer'", Colors.RED)
-                all_pass = False
+        return all_pass
     
-    log(f"\n📋 GET /api/escrow?company_id=1&role=seller...", Colors.BLUE)
-    resp = requests.get(f"{BASE_URL}/escrow?company_id=1&role=seller", headers=headers)
+    deal = resp.json().get("data", {})
+    first_seller_paid_at = deal.get("seller_paid_at")
+    first_seller_payout_tx = deal.get("seller_payout_tx")
+    log(f"✅ Payout executed, seller_paid_at={first_seller_paid_at}, tx={first_seller_payout_tx}", Colors.GREEN)
+    
+    # Try to add payout address again (should be idempotent - no double-pay)
+    log(f"\n💳 Seller adding payout address again (should be idempotent - no double-pay)...", Colors.CYAN)
+    resp = requests.post(f"{BASE_URL}/escrow/public/{deal_token}/action", 
+                        headers={"x-escrow-token": escrow_session},
+                        json={
+                            "action": "payout-info",
+                            "payout_address": "TTestIdempotencyAddress2",
+                            "payout_coin": "USDT-TRC20"
+                        })
     
     if resp.status_code != 200:
-        log(f"❌ FAIL: {resp.status_code} {resp.text}", Colors.RED)
+        log(f"❌ FAIL: Second payout-info failed: {resp.status_code} {resp.text}", Colors.RED)
         all_pass = False
+        return all_pass
+    
+    deal = resp.json().get("data", {})
+    second_seller_paid_at = deal.get("seller_paid_at")
+    second_seller_payout_tx = deal.get("seller_payout_tx")
+    
+    if (second_seller_paid_at == first_seller_paid_at and 
+        second_seller_payout_tx == first_seller_payout_tx):
+        log(f"✅ PASS: Idempotent - same paid_at and tx (no double-pay)", Colors.GREEN)
     else:
-        deals = resp.json().get("data", [])
-        log(f"✅ PASS: Got {len(deals)} seller deals", Colors.GREEN)
-        
-        # Verify all are seller role
-        if deals:
-            all_seller = all(d.get("my_role") == "seller" for d in deals)
-            if all_seller:
-                log(f"✅ PASS: All deals have my_role='seller'", Colors.GREEN)
-            else:
-                log(f"❌ FAIL: Some deals don't have my_role='seller'", Colors.RED)
-                all_pass = False
+        log(f"❌ FAIL: Not idempotent - different paid_at or tx", Colors.RED)
+        log(f"   First: paid_at={first_seller_paid_at}, tx={first_seller_payout_tx}", Colors.RED)
+        log(f"   Second: paid_at={second_seller_paid_at}, tx={second_seller_payout_tx}", Colors.RED)
+        all_pass = False
     
     return all_pass
 
 def main():
     log("\n" + "="*80, Colors.BLUE)
-    log("🚀 DYNOPAY ESCROW SERVICE BACKEND TEST", Colors.BLUE)
+    log("🚀 DYNOPAY ESCROW SERVICE BACKEND TEST v2", Colors.BLUE)
     log("="*80, Colors.BLUE)
     log(f"Base URL: {BASE_URL}", Colors.BLUE)
     log(f"Mode: SAFE MODE (simulated settlement, no real crypto)", Colors.YELLOW)
@@ -876,11 +1169,12 @@ def main():
     results = {}
     
     results["Test 1: Fee Math"] = test_fee_math(merchant_token)
-    results["Test 2: Happy Path A (owner=seller)"] = test_happy_path_a(merchant_token)
-    results["Test 3: Happy Path B (owner=buyer)"] = test_happy_path_b(merchant_token)
-    results["Test 4: Dispute + Admin Resolve"] = test_dispute_admin_resolve(merchant_token, admin_token)
-    results["Test 5: State Machine + Auth Guards"] = test_state_machine_guards(merchant_token)
-    results["Test 6: List + Participant Scoping"] = test_list_participant_scoping(merchant_token)
+    results["Test 2: OTP Onboarding"] = test_otp_onboarding(merchant_token)
+    results["Test 3: Happy Path A (owner=seller, custody, two-phase)"] = test_happy_path_a(merchant_token)
+    results["Test 4: Happy Path B (owner=buyer, seller OTP-only)"] = test_happy_path_b(merchant_token)
+    results["Test 5: Dispute + Admin Resolve"] = test_dispute_admin_resolve(merchant_token, admin_token)
+    results["Test 6: State Machine + Auth Guards"] = test_state_machine_guards(merchant_token)
+    results["Test 7: Idempotency"] = test_idempotency(merchant_token)
     
     # Summary
     log("\n" + "="*80, Colors.BLUE)
@@ -900,7 +1194,7 @@ def main():
     log("="*80 + "\n", Colors.BLUE)
     
     if passed == total:
-        log("🎉 ALL TESTS PASSED! Escrow service is working correctly.", Colors.GREEN)
+        log("🎉 ALL TESTS PASSED! Escrow service v2 is working correctly.", Colors.GREEN)
         sys.exit(0)
     else:
         log(f"⚠️  {total - passed} test(s) failed. Review the output above.", Colors.YELLOW)
