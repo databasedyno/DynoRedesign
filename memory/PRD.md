@@ -1,3 +1,26 @@
+# === 2026-06 (fork) BRANDS OVERVIEW — "NEEDS ATTENTION" PHANTOM-COUNT BUG FIX — DONE & VERIFIED (testing_agent iteration_198: backend 100%, frontend 100%, 0 issues) ===
+# USER BUG: The Dev Store's Brands card showed "Needs attention: 3" but the merchant could not locate those 3
+# items anywhere inside the brand (UX / data-consistency).
+# ROOT CAUSE: brandsQueries.brandAttention counted a RAW all-time COUNT of FAILED stablecoin conversions
+# (company 1 = tx 883, 933, 934). Those are NOT merchant-actionable: tx 883 was already resolved/acknowledged
+# (attention_resolved_at set last fork), and tx 933 & 934 had their money forwarded anyway (outgoing_tx_hash set).
+# Platform policy hides FAILED conversions from merchants entirely (payoutQueries.conversionsNeedingAttention
+# excludes them; they alert admin/ops only) — so the card surfaced a "3" that the merchant could never open.
+# FIX: brandAttention no longer selects failed_count; brandsController attention_count = stuck_forwards +
+# coins_without_wallet + (webhook_failures>0 ? 1 : 0) — i.e. ONLY the merchant-actionable items that also appear
+# in the brand's own dashboard/payouts "Needs attention" feed (genuinely stuck money is still captured by
+# stuck_forwards, which correctly excludes forwarded + acknowledged rows). The per-brand `attention` breakdown is
+# now {stuck_forwards, coins_without_wallet, webhook_failures} (failed_conversions removed from the API + the
+# useBrands.ts type). PLUS discoverability: Components/Page/Brands/BrandCard.tsx — the "Needs attention" tile is
+# now a clickable drill-in (role=button, underline, pointer) that opens the brand (onManage) when count>0, with a
+# localized tooltip brandsOverview.attentionHint (×6 locales). VERIFIED: GET /api/dashboard/brands → The Dev Store
+# attention_count=0 and summary.attention_count=0 for every period; FE card shows "Needs attention 0"; reconciles
+# with the brand's (empty) needs-attention feed. FE/BE tsc 0; all 12 i18n JSON parse. NOTE (unrelated data change
+# observed by QA): brands 219 & 228 were soft-deleted on prod 2026-09-18, so the owner now sees 3 brands not 5 —
+# not caused by this fix. COMMIT: user must click "Save to GitHub".
+# ============================================================================================
+
+
 # === 2026-06 (fork) BRANDS OVERVIEW PAGE — DONE & VERIFIED (testing_agent iteration_197: backend 100%, frontend 100%, 0 issues) ===
 # User PRD: a "Brands overview" page showing every brand on the account in one view — a stats summary (settled
 # volume, payments, pending, needs-attention, brand count), a time-range filter (default 30D), and a per-brand
