@@ -1,4 +1,6 @@
 {
+  "brands": "Brands",
+  "viewAllBrands": "View all brands",
   "account": "Account",
   "activeWallets": "Active payout addresses",
   "activeWalletsCount_one": "{{count}} active payout address",

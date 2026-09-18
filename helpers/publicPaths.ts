@@ -13,6 +13,7 @@
  */
 const PROTECTED_PREFIXES = [
   "/dashboard",
+  "/brands",
   "/transactions",
   "/wallet",
   "/wallet-security",

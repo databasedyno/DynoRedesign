@@ -24,6 +24,9 @@ interface BuildInput {
   isIndividual: boolean;
   hasClaimedCreator: boolean;
   reveal: NavRevealFlags;
+  /** Number of brands the account can access — the "Brands" overview row only
+   *  appears for multi-brand accounts (2+). */
+  brandCount: number;
 }
 
 /**
@@ -32,8 +35,9 @@ interface BuildInput {
  * (receipts, customers, developers) only appear once they mean something.
  * Creators lead Sell with their page; businesses lead with payment links.
  */
-export const buildNavSections = ({ t, isIndividual, hasClaimedCreator, reveal }: BuildInput): SidebarSection[] => {
+export const buildNavSections = ({ t, isIndividual, hasClaimedCreator, reveal, brandCount }: BuildInput): SidebarSection[] => {
   const dashboard: SidebarItem = { label: t("dashboard"), icon: "dashboard", path: "/dashboard", permission: "view_dashboard" };
+  const brands: SidebarItem = { label: t("brands", { defaultValue: "Brands" }), icon: "brands", path: "/brands" };
   const payLinks: SidebarItem = { label: t("payLinks"), icon: "payment-links", path: "/pay-links", permission: "manage_payment_links" };
   const publicPage: SidebarItem = {
     label: t("storefront", { defaultValue: "Your page" }),
@@ -53,7 +57,7 @@ export const buildNavSections = ({ t, isIndividual, hasClaimedCreator, reveal }:
   const help: SidebarItem = { label: t("common:helpSupport", { defaultValue: "Help & Support" }), icon: "help", path: "/help-support" };
 
   return [
-    { key: "dashboard", label: "", items: [dashboard] },
+    { key: "dashboard", label: "", items: brandCount >= 2 ? [dashboard, brands] : [dashboard] },
     {
       key: "sell",
       label: t("sidebarSectionSell", { defaultValue: "Sell" }),

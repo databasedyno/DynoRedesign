@@ -1,4 +1,6 @@
 {
+  "brands": "Merken",
+  "viewAllBrands": "Alle merken bekijken",
   "account": "Account",
   "activeWallets": "Actieve uitbetalingsadressen",
   "activeWalletsCount_one": "{{count}} actief uitbetalingsadres",

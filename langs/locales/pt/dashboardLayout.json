@@ -1,4 +1,6 @@
 {
+  "brands": "Marcas",
+  "viewAllBrands": "Ver todas as marcas",
   "account": "Conta",
   "activeWallets": "Endereços de recebimento ativos",
   "activeWalletsCount_one": "{{count}} endereço de recebimento ativo",

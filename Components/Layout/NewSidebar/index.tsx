@@ -2,6 +2,7 @@ import { useSidebarCollapsed } from "@/hooks/useSidebarCollapsed";
 import { useCollapsedSections } from "@/hooks/useCollapsedSections";
 import SidebarIcon from "@/utils/customIcons/sidebar-icons";
 import AutoAwesomeRounded from "@mui/icons-material/AutoAwesomeRounded";
+import GridViewRounded from "@mui/icons-material/GridViewRounded";
 import ChevronLeftRounded from "@mui/icons-material/ChevronLeftRounded";
 import ChevronRightRounded from "@mui/icons-material/ChevronRightRounded";
 import HelpOutlineRounded from "@mui/icons-material/HelpOutlineRounded";
@@ -47,6 +48,7 @@ const NewSidebar = ({
   const dispatch = useDispatch();
   const selectedCompanyId = useCompanyStore().selectedCompanyId;
   const { isMember, can } = useCompanyStore();
+  const brandCount = useCompanyStore().companyList?.length ?? 0;
   const txLoadedCompany = useSelector(
     (s: rootReducer) => s.transactionReducer?.loaded_company_id,
   );
@@ -128,7 +130,7 @@ const NewSidebar = ({
   // Prefetch all menu routes for instant navigation
   useEffect(() => {
     const paths = [
-      "/dashboard", "/transactions", "/invoices", "/pay-links",
+      "/dashboard", "/brands", "/transactions", "/invoices", "/pay-links",
       "/wallet", "/customers", "/developer-keys",
       "/create-pay-link", "/settings", "/storefront",
       "/referrals", "/notifications", "/help-support",
@@ -145,8 +147,8 @@ const NewSidebar = ({
   // 768px tall without scrolling.
   const { isIndividual, reveal } = useAccountProfile();
   const sections = useMemo(
-    () => buildNavSections({ t, isIndividual, hasClaimedCreator, reveal }),
-    [t, isIndividual, hasClaimedCreator, reveal],
+    () => buildNavSections({ t, isIndividual, hasClaimedCreator, reveal, brandCount }),
+    [t, isIndividual, hasClaimedCreator, reveal, brandCount],
   );
   const { isSectionCollapsed, toggle: toggleSection, expand: expandSection } = useCollapsedSections();
 
@@ -265,6 +267,8 @@ const NewSidebar = ({
                         <SettingsRounded sx={{ fontSize: 20, color: iconColor(isActive) }} />
                       ) : item.icon === "creator" ? (
                         <AutoAwesomeRounded sx={{ fontSize: 20, color: iconColor(isActive) }} />
+                      ) : item.icon === "brands" ? (
+                        <GridViewRounded sx={{ fontSize: 20, color: iconColor(isActive) }} />
                       ) : item.icon === "help" ? (
                         <HelpOutlineRounded sx={{ fontSize: 20, color: iconColor(isActive) }} />
                       ) : (

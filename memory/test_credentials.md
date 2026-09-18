@@ -1,6 +1,6 @@
 # Test credentials (current pod)
 
-Preview URL (THIS pod): https://setup-vault-7.preview.emergentagent.com  (source of truth: APP_URL in /etc/supervisor/conf.d/*.conf; frontend env = /app/.env.local, NOT /app/.env)
+Preview URL (THIS pod): https://0cce8ac9-aadd-4935-940d-e56167a52ed7.preview.emergentagent.com  (source of truth: APP_URL in /etc/supervisor/conf.d/*.conf; frontend env = /app/.env.local, NOT /app/.env)
 
 ## Brands on the owner account (company selector: data-testid=company-option-<id>)
 - 1 The Dev Store — populated (458+ payments) → normal dashboard

@@ -1,4 +1,6 @@
 {
+  "brands": "Marken",
+  "viewAllBrands": "Alle Marken anzeigen",
   "account": "Konto",
   "activeWallets": "Aktive Auszahlungsadressen",
   "activeWalletsCount_one": "{{count}} aktive Auszahlungsadresse",

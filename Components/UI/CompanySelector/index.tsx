@@ -18,6 +18,7 @@ import useIsMobile from "@/hooks/useIsMobile";
 import { rootReducer } from "@/utils/types";
 import { sanitizeBrandName } from "@/utils/brandName";
 import { Add } from "@mui/icons-material";
+import GridViewRounded from "@mui/icons-material/GridViewRounded";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Image from "next/image";
@@ -501,6 +502,31 @@ export default function CompanySelector() {
                 )}
               </CompanyItem>
             ))}
+
+            {companies.length >= 2 && (
+              <Box
+                data-testid="company-selector-view-all-brands"
+                onClick={() => {
+                  handleClose();
+                  router.push("/brands");
+                }}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  padding: "8px 10px",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                  color: brandFg(theme.palette.mode === "dark"),
+                  "&:hover": { backgroundColor: theme.palette.action.hover },
+                }}
+              >
+                <GridViewRounded sx={{ fontSize: 18 }} />
+                <Typography sx={{ fontSize: "14px", fontWeight: 600, fontFamily: "var(--font-sans)" }}>
+                  {t("viewAllBrands", { defaultValue: "View all brands" })}
+                </Typography>
+              </Box>
+            )}
 
             <Divider sx={{ my: "6px", borderColor: theme.palette.mode === "dark" ? "#2A2D42" : "#D9D9D9" }} />
 

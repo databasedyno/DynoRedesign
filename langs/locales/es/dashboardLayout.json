@@ -1,4 +1,6 @@
 {
+  "brands": "Marcas",
+  "viewAllBrands": "Ver todas las marcas",
   "account": "Cuenta",
   "activeWallets": "Direcciones de cobro activas",
   "activeWalletsCount_one": "{{count}} monedero activo",

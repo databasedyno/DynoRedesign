@@ -2,6 +2,7 @@ import express from "express";
 import dashboardController from "../controller/dashboardController";
 import dashboardOverviewController from "../controller/dashboardOverviewController";
 import payoutsController from "../controller/payoutsController";
+import brandsController from "../controller/brandsController";
 import developerHealthController from "../controller/developerHealthController";
 import { authMiddleware } from "../middleware";
 
@@ -26,6 +27,12 @@ dashboardRouter.get("/payouts", payoutsController.getPayouts);
 // stuck payout as manually resolved (funds settled by hand) so it leaves the
 // merchant "Needs attention" feed. Records who/when. Moves no money.
 dashboardRouter.post("/payouts/:transactionId/acknowledge", payoutsController.acknowledgeStuckPayout);
+
+// GET /api/dashboard/brands - Portfolio overview across every brand the user
+// can access: a combined summary strip + per-brand stats (settled volume,
+// payments, pending, needs-attention, last activity) for the selected range.
+// Query params: period (today|7d|30d|90d|1y|all) or startDate&endDate.
+dashboardRouter.get("/brands", brandsController.getBrands);
 
 // GET /api/dashboard/developer-health - Webhook delivery health (24h), API-key
 // age + rotation reminder, configured endpoint. Query params: company_id.
