@@ -8,6 +8,7 @@ import {
   DescriptionRounded,
   DraftsRounded,
   GroupsRounded,
+  HandshakeRounded,
   HomeRounded,
   InsertDriveFileRounded,
   InsightsRounded,
@@ -91,6 +92,11 @@ const adminMenus = [
     icon: <GroupsRounded color="inherit" />,
     name: "Merchants",
     link: "/admin/merchants",
+  },
+  {
+    icon: <HandshakeRounded color="inherit" />,
+    name: "Escrow",
+    link: "/admin/escrow",
   },
   {
     icon: <ReceiptLongRounded color="inherit" />,

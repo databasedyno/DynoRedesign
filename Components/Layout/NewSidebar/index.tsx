@@ -6,6 +6,7 @@ import GridViewRounded from "@mui/icons-material/GridViewRounded";
 import ChevronLeftRounded from "@mui/icons-material/ChevronLeftRounded";
 import ChevronRightRounded from "@mui/icons-material/ChevronRightRounded";
 import HelpOutlineRounded from "@mui/icons-material/HelpOutlineRounded";
+import HandshakeRounded from "@mui/icons-material/HandshakeRounded";
 import SettingsRounded from "@mui/icons-material/SettingsRounded";
 import { Box, Button, ClickAwayListener, Divider, Fade, IconButton, Popper, Tooltip, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
@@ -271,6 +272,8 @@ const NewSidebar = ({
                         <GridViewRounded sx={{ fontSize: 20, color: iconColor(isActive) }} />
                       ) : item.icon === "help" ? (
                         <HelpOutlineRounded sx={{ fontSize: 20, color: iconColor(isActive) }} />
+                      ) : item.icon === "escrow" ? (
+                        <HandshakeRounded sx={{ fontSize: 20, color: iconColor(isActive) }} />
                       ) : (
                         <SidebarIcon
                           name={item.icon}

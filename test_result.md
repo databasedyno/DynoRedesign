@@ -1,4 +1,46 @@
 # ============================================================================
+# >>> CURRENT SESSION (2026-09, fork: continue-escrow) — ESCROW FRONTEND BUILT <<<
+#   Backend re-test: PASSED 7/7 (OTP flow, custody, two-phase, split/refund/release,
+#   auto-release, guards, idempotency). See report lower in this file.
+#   FRONTEND P3+P4+P5 now BUILT (MUI, follows DynoPay design system). SAFE MODE,
+#   money simulated. NEEDS FRONTEND E2E TESTING (user approved).
+#
+#   NEW FILES:
+#     api/escrow.ts (escrowApi merchant / escrowAdminApi admin / escrowPublicApi public)
+#     Components/Page/Escrow/{escrowUtils.ts,StatusChip.tsx,EscrowDashboard.tsx,
+#       CreateEscrowDialog.tsx,EscrowDetail.tsx,Public/EscrowInvite.tsx}
+#     Components/Page/Admin/Escrow/index.tsx
+#     pages/escrow/index.tsx, pages/escrow/[id].tsx, pages/escrow/invite/[token].tsx,
+#       pages/admin/escrow.tsx
+#   EDITS: NewSidebar/navSections.ts + index.tsx (Escrow nav in "Sell", icon=escrow ->
+#     Handshake), Menus.tsx (admin nav "Escrow" -> /admin/escrow), helpers/publicPaths.ts
+#     (/escrow protected; /escrow/invite public), _app.tsx (privatePrefixes += /escrow).
+#
+#   FRONTEND E2E TO TEST (Preview: read APP_URL from supervisor conf; NEXT_PUBLIC_BASE_URL="" so /api is same-origin):
+#     Merchant login: onarrival21@gmail.com / Katiekendra123@ ; 2FA TOTP via
+#       `node /app/backend/scripts/print_totp.cjs 1`. 2-step UI: /auth/login -> login-email-input
+#       -> "Continue" -> password-input -> signin-submit-btn -> TOTP.
+#     Admin login: /admin/login moxxcompany@gmail.com / Katiekendra123@.
+#     P4 dashboard /escrow: sidebar-item-escrow visible next to Pay Links; escrow-list renders
+#       company_id=1 deals; filters escrow-filter-*; escrow-new-btn opens CreateEscrowDialog;
+#       fill escrow-create-title-input/amount-input/email-input (use escrow_frontend_test@example.com,
+#       NOT the owner email — self-invite blocked), role escrow-role-seller, submit escrow-create-submit ->
+#       escrow-created-invite-url shown. Row escrow-row-<id> -> detail.
+#     P4 detail /escrow/[id]: amounts/parties/timeline/settlement + Actions panel (escrow-action-*).
+#     P3 public /escrow/invite/[token]: use the token from the deal just created (GET its detail or
+#       the created invite_url). escrow-invite-summary; escrow-invite-send-otp -> preview otp auto-fills
+#       escrow-invite-otp (also shown at escrow-invite-preview-otp) -> escrow-invite-verify-otp ->
+#       escrow-invite-accept -> then buyer funds (escrow-invite-fund-open/confirm) etc.
+#     P5 admin /admin/escrow: escrow-admin-tab-disputes / -tab-all; resolve a disputed deal
+#       (escrow-admin-resolve-<id> -> outcome/split slider/note -> escrow-admin-resolve-confirm);
+#       escrow-admin-run-autorelease + -run-reminders buttons.
+#   SAFETY: SAFE MODE, simulated money; create throwaway deals only (counterparty escrow_frontend_*),
+#     do NOT destructively mutate other live merchant data.
+# ============================================================================
+
+
+
+# ============================================================================
 # >>> HANDOFF (2026-09) — ESCROW SERVICE: BACKEND DONE, NEEDS RE-TEST + FRONTEND <<<
 #   Full plan: /app/memory/ESCROW_PLAN.md  (read this first — end-to-end spec).
 #   Env: LIVE PROD Postgres + Redis, SAFE MODE. Feature is ADDITIVE (tbl_escrow_deal,
