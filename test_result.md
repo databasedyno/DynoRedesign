@@ -7091,3 +7091,111 @@ Test Data Cleaned: Attempted (deletion blocked by OTP requirement)
 #      **YOU MUST ASK USER BEFORE DOING FRONTEND TESTING**
 # ============================================================================
 
+
+
+# ============================================================================
+# TESTING AGENT VERIFICATION — 2026-09-18: ESCROW FRONTEND E2E — BLOCKED BY PREVIEW URL 502 ❌
+# ============================================================================
+#   Tested by: testing_agent (auto_frontend_testing_agent)
+#   Test date: 2026-09-18 18:12 UTC
+#   Test method: Python Playwright browser automation
+#   Base URL: https://b3e8a0ae-58d8-4d4e-9384-206e4f1f52b2.preview.emergentagent.com
+#   Auth: Merchant owner (onarrival21@gmail.com) + TOTP 2FA
+#
+#   CONTEXT: Attempted comprehensive E2E testing of the DynoPay ESCROW UI covering:
+#   - TEST A: Create dialog UX (fee admin-only, auto-release preset, payout selector)
+#   - TEST B: Full dispute negotiation (buyer → seller → buyer accept → auto-resolve)
+#   - TEST C: Escalation (second deal, buyer disputes → seller escalates)
+#   - TEST D: Admin (best-effort, dispute queue, run-escalations)
+#
+#   CRITICAL BLOCKER: Preview URL returned 502 Bad Gateway (Cloudflare error)
+#   - The preview URL https://b3e8a0ae-58d8-4d4e-9384-206e4f1f52b2.preview.emergentagent.com
+#     is showing "Bad gateway - Error code 502" from Cloudflare
+#   - This appears to be a Kubernetes ingress or preview environment issue
+#   - Local services are HEALTHY:
+#     * Backend (FastAPI): Running on http://localhost:8001 (HTTP 200 OK)
+#     * Frontend (Next.js): Running on http://localhost:3000 (HTTP 200 OK, took 11s to respond)
+#     * MongoDB: Running
+#     * Supervisor status: backend RUNNING (pid 6816), frontend RUNNING (pid 392)
+#
+#   TEST RESULTS: UNABLE TO EXECUTE (0/4 tests completed)
+#   ❌ TEST A: Create dialog UX — NOT TESTED (preview URL 502)
+#   ❌ TEST B: Dispute negotiation — NOT TESTED (preview URL 502)
+#   ❌ TEST C: Escalation — NOT TESTED (preview URL 502)
+#   ❌ TEST D: Admin — NOT TESTED (preview URL 502)
+#
+#   CODE VERIFICATION (static analysis of frontend components):
+#   Based on code review of the escrow components, the implementation appears correct:
+#
+#   ✅ CreateEscrowDialog.tsx (lines 1-580):
+#      - NO editable fee % input (data-testid=escrow-create-feepercent-input does NOT exist)
+#      - Read-only fee info line exists (data-testid=escrow-create-fee-info, line 335)
+#        Shows: "Escrow fee: {preview?.feePercent ?? 5}% (min ${feeMinUsd}) · set by DynoPay"
+#      - Auto-release dropdown exists (data-testid=escrow-create-autorelease-select, line 358)
+#        Native <select> with options for 3, 5, 7, 14 days (lines 361-365)
+#      - Payout selector exists (data-testid=escrow-create-payout-coin, line 434)
+#        Passes payout_coin to escrowApi.feePreview (line 95) to update quote
+#      - Success UI with QR (data-testid=escrow-created-qr, line 215) and invite URL
+#        (data-testid=escrow-created-invite-url, line 229)
+#
+#   ✅ DisputePanel.tsx (lines 1-440):
+#      - Dispute open button (data-testid=escrow-dispute-open-btn, line 142)
+#      - Proposal dialog (data-testid=escrow-dispute-proposal-dialog, line 341)
+#      - Outcome buttons: release/refund/split (data-testid=escrow-dispute-outcome-{outcome}, line 353)
+#      - Split slider (data-testid=escrow-dispute-split-slider, line 387)
+#      - Message input (data-testid=escrow-dispute-message-input, line 419)
+#      - Submit button (data-testid=escrow-dispute-submit, line 430)
+#      - Accept button (data-testid=escrow-dispute-accept-btn, line 209)
+#      - Counter button (data-testid=escrow-dispute-counter-btn, line 226)
+#      - Escalate button (data-testid=escrow-dispute-escalate-btn, line 237)
+#      - Stage chip (data-testid=escrow-dispute-stage, line 167)
+#      - Thread (data-testid=escrow-dispute-thread, line 254)
+#      - Thread message input (data-testid=escrow-dispute-thread-msg-input, line 318)
+#      - Thread send button (data-testid=escrow-dispute-thread-send, line 324)
+#
+#   ✅ EscrowInvite.tsx (lines 1-639):
+#      - Email verification flow:
+#        * Send OTP button (data-testid=escrow-invite-send-otp, line 318)
+#        * Preview OTP display (data-testid=escrow-invite-preview-otp, line 329)
+#        * OTP input (data-testid=escrow-invite-otp, line 339)
+#        * Verify OTP button (data-testid=escrow-invite-verify-otp, line 350)
+#      - Accept invite button (data-testid=escrow-invite-accept, line 386)
+#      - Fund flow:
+#        * Fund open button (data-testid=escrow-invite-fund-open, line 412)
+#        * Coin selector (data-testid=escrow-invite-fund-coin, line 424)
+#        * Fund confirm button (data-testid=escrow-invite-fund-confirm, line 422)
+#      - Deliver button (data-testid=escrow-invite-deliver-open, line 434)
+#      - Release button (data-testid=escrow-invite-release-open, line 451)
+#      - DisputePanel integrated (lines 505-520) with same API adapter pattern
+#
+#   ✅ Admin/Escrow/index.tsx:
+#      - Dispute queue with stage chips (data-testid=escrow-admin-stage-<id>)
+#      - Thread blocks (data-testid=escrow-admin-thread-<id>)
+#      - Run escalations button (data-testid=escrow-admin-run-escalations)
+#
+#   VERDICT: FRONTEND CODE APPEARS CORRECT BUT CANNOT BE TESTED DUE TO PREVIEW URL 502 ❌
+#   
+#   The escrow frontend implementation looks correct based on code review:
+#   - All required testids are present
+#   - Create dialog has admin-only fee (read-only), auto-release preset dropdown, payout selector
+#   - DisputePanel has full negotiation flow (open, counter, accept, escalate, thread)
+#   - EscrowInvite has OTP verification, accept, fund, deliver, release, and dispute integration
+#   - Admin page has dispute queue with stage chips, thread blocks, and run-escalations button
+#   
+#   However, the preview URL is returning 502 Bad Gateway, preventing browser-based E2E testing.
+#   This is a Kubernetes ingress or preview environment issue, NOT a code issue.
+#   
+#   NEXT STEPS:
+#   1. ⚠️ CRITICAL: Fix the preview URL 502 error (Kubernetes ingress / preview environment)
+#   2. Once preview URL is accessible, re-run the E2E test script
+#   3. The test script is ready and covers all 4 test scenarios (A, B, C, D)
+#   
+#   NOTES:
+#   - Local services are healthy (backend 8001, frontend 3000, mongodb running)
+#   - Frontend took 11 seconds to respond on localhost:3000 (Next.js dev server warm-up)
+#   - Backend responded immediately on localhost:8001
+#   - The 502 error is external to the application (Cloudflare → Kubernetes ingress)
+#   - Test script location: Embedded in testing agent (can be re-run when URL is fixed)
+#
+# ============================================================================
+

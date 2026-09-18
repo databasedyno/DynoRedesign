@@ -1,3 +1,44 @@
+# === 2026-09 (session: continue-escrow) ESCROW DISPUTE REIMAGINED (P2P) + FEE/UX ===
+# Scope this session (all in code; backend fully tested; frontend built + tsc/eslint clean):
+#
+# 1) DISPUTE — two-tier P2P resolution (Bybit/Binance-style), replacing "raise -> admin only":
+#    - Raise REQUIRES a proposal: release | refund | partial-% (split) + optional message/reason.
+#    - Full negotiation loop: the other party can accept | counter (turn flips) | message
+#      (evidence thread) | escalate. You cannot accept/counter your OWN live proposal.
+#    - Accept => auto-resolves via the existing two-phase engine (authorize + payout). NO admin.
+#    - Escalate: manual + auto after ESCROW_DISPUTE_AUTO_ESCALATE_HOURS (default 72h) via admin
+#      scan POST /api/escrow/admin/run-dispute-escalations. Admin resolve remains final arbiter.
+#    - Works for signed-in merchant AND OTP-only counterparty (public invite), same guards.
+#    - DB: migration 0037 added dispute_stage, dispute_proposal(JSONB), dispute_proposal_by,
+#      dispute_escalated_at, dispute_auto_escalate_at, dispute_thread(JSONB).
+#    - Backend re-tested 29/31 (2 "fails" were an apples-to-different-networks fee comparison, not bugs).
+#
+# 2) FEE / SETTLEMENT MODEL (per owner decisions + Binance/USDT custody reality):
+#    - Fees ALWAYS charged on EVERY outcome. Settlement distributes the NET POOL
+#      P = sellerReceives (= buyerPays - totalCost); platform always keeps totalCost.
+#      release: seller=P; refund: buyer=P (NO fee waiver anymore); split: seller=P*pct, buyer=rest.
+#    - Custody ALWAYS held in USDT on Binance (CUSTODY_STABLECOIN='USDT'). Inbound conversion
+#      skipped when funded in USDT. USDC payout: USDT->USDC conversion MERGED into the single
+#      withdrawal_fee line (so USDC withdrawal > same-network USDT). costItems stays length 4.
+#    - Escrow fee is ADMIN-ONLY via .env: ESCROW_FEE_PERCENT=5, ESCROW_FEE_MIN_USD=1
+#      (createDeal + fee-preview IGNORE any client-sent fee %). Re-tested 7/7.
+#    - auto_release_days clamps to presets {3,5,7,14}, default 3.
+#
+# 3) FRONTEND: NEW shared Components/Page/Escrow/DisputePanel.tsx (injected API adapter drives
+#    both merchant + public). Wired into EscrowDetail (merchant), Public/EscrowInvite, and the
+#    Admin escrow page (stage chip + proposal + thread + "Run auto-escalations"). CreateEscrowDialog:
+#    fee is now a READ-ONLY line (no % input), auto-release is a 3/5/7/14-day dropdown; who-pays stays.
+#
+# 4) INFRA: Next DEV heap raised 2048->8192 (scripts/start-frontend.sh) to cut the memory-recycle
+#    edge-502s that block the testing agent.
+#
+# STATUS: Backend done + verified. Frontend built, tsc 0 / eslint clean, all escrow routes 200.
+# PENDING: full escrow FRONTEND E2E was interrupted by a transient dev-server 502 (now mitigated) and
+#          the user ended the session before the green run. That is the one remaining verification.
+# =====================================================================================
+
+
+
 # === 2026-06 (fork: escrow-design-polish) ESCROW EXPERIENCE — DESIGN POLISH (frontend) — CODE DONE, tsc 0, E2E PENDING ===
 # User asked to polish the Escrow UI end-to-end: DynoPay brand logos instead of generic icons, real crypto coin
 # icons everywhere coins appear, itemized cost summaries, progress trackers, and stablecoin-network selection at

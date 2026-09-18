@@ -76,7 +76,7 @@ if [ ! -x /app/node_modules/.bin/next ]; then
   echo "[start-frontend] deps installed"
 fi
 
-export NODE_OPTIONS="${NODE_OPTIONS:---max-old-space-size=2048}"
+export NODE_OPTIONS="${NODE_OPTIONS:---max-old-space-size=8192}"
 export HOSTNAME=0.0.0.0
 export PORT=3000
 
