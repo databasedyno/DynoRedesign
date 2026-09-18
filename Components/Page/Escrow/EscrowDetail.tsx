@@ -24,7 +24,6 @@ import {
   PaymentsRounded,
   LocalShippingRounded,
   LockOpenRounded,
-  GavelRounded,
   CancelRounded,
   AccountBalanceWalletRounded,
 } from "@mui/icons-material";
@@ -36,10 +35,11 @@ import { BRAND_ACCENT, brandAlpha, brandFg } from "@/constants/theme";
 import StatusChip from "./StatusChip";
 import EscrowProgress from "./EscrowProgress";
 import FeeBreakdownCard from "./FeeBreakdownCard";
+import DisputePanel from "./DisputePanel";
 import { CoinIcon } from "./CoinIcon";
 import { money, stable, shortDate, titleize, legTone, relativeDays, FUNDING_COINS, PAYOUT_OPTIONS } from "./escrowUtils";
 
-type DialogKind = null | "fund" | "deliver" | "release" | "dispute" | "cancel" | "seller-address" | "buyer-address";
+type DialogKind = null | "fund" | "deliver" | "release" | "cancel" | "seller-address" | "buyer-address";
 
 const celebrate = () => {
   try {
@@ -136,12 +136,11 @@ export default function EscrowDetail({ id }: { id: string | number }) {
   const canFund = isBuyer && status === "awaiting_payment";
   const canDeliver = isSeller && status === "funded";
   const canRelease = isBuyer && ["funded", "delivered"].includes(status || "");
-  const canDispute = ["funded", "delivered"].includes(status || "");
   const sellerNeedsAddress =
     isSeller && !deal?.seller_payout_address && (deal?.seller_payout_state === "pending" || ["funded", "delivered"].includes(status || ""));
   const buyerNeedsRefund = isBuyer && !deal?.buyer_refund_address && deal?.buyer_payout_state === "pending";
 
-  const hasAnyAction = canCancel || canFund || canDeliver || canRelease || canDispute || sellerNeedsAddress || buyerNeedsRefund;
+  const hasAnyAction = canCancel || canFund || canDeliver || canRelease || sellerNeedsAddress || buyerNeedsRefund;
 
   const cardSx = {
     p: 2.2,
@@ -202,6 +201,23 @@ export default function EscrowDetail({ id }: { id: string | number }) {
       <Box sx={{ display: "flex", gap: 2.5, flexDirection: { xs: "column", md: "row" }, alignItems: "flex-start" }}>
         {/* Main column */}
         <Stack spacing={2} sx={{ flex: 1, width: "100%", minWidth: 0 }}>
+          {/* Dispute — negotiation / escalation (parties settle first, admin fallback) */}
+          {(status === "disputed" || ["funded", "delivered"].includes(status || "")) && (isBuyer || isSeller) && (
+            <DisputePanel
+              deal={deal}
+              myRole={(myRole as "buyer" | "seller") || "seller"}
+              onUpdated={(d) => setDeal(d)}
+              notify={notify}
+              api={{
+                raise: (body) => escrowApi.dispute(deal.escrow_id, body),
+                counter: (body) => escrowApi.counterDispute(deal.escrow_id, body),
+                accept: () => escrowApi.acceptDispute(deal.escrow_id),
+                message: (m) => escrowApi.disputeMessage(deal.escrow_id, m),
+                escalate: () => escrowApi.escalateDispute(deal.escrow_id),
+              }}
+            />
+          )}
+
           {/* Money / fee breakdown */}
           <Box sx={cardSx}>
             <Typography sx={sectionTitleSx}>Amounts</Typography>
@@ -367,12 +383,11 @@ export default function EscrowDetail({ id }: { id: string | number }) {
               {canFund && <ActionBtn icon={<PaymentsRounded />} label="Fund escrow" testId="escrow-action-fund" onClick={() => setDialog("fund")} primary />}
               {canDeliver && <ActionBtn icon={<LocalShippingRounded />} label="Mark as delivered" testId="escrow-action-deliver" onClick={() => setDialog("deliver")} primary />}
               {canRelease && <ActionBtn icon={<LockOpenRounded />} label="Release funds" testId="escrow-action-release" onClick={() => setDialog("release")} primary />}
-              {canDispute && <ActionBtn icon={<GavelRounded />} label="Open dispute" testId="escrow-action-dispute" onClick={() => setDialog("dispute")} tone="warning" />}
               {canCancel && <ActionBtn icon={<CancelRounded />} label="Cancel deal" testId="escrow-action-cancel" onClick={() => setDialog("cancel")} tone="error" />}
               {!hasAnyAction && (
                 <Typography sx={{ fontSize: 13, color: "text.secondary" }} data-testid="escrow-no-actions">
                   {status === "disputed"
-                    ? "This deal is under dispute. A DynoPay admin will review and resolve it."
+                    ? "This deal is under dispute — see the dispute panel to respond, counter, or escalate."
                     : "No actions needed from you right now."}
                 </Typography>
               )}
@@ -468,37 +483,6 @@ export default function EscrowDetail({ id }: { id: string | number }) {
             sx={{ backgroundColor: "#12B76A", textTransform: "none", fontWeight: 700 }}
           >
             {busy ? "Releasing…" : "Release funds"}
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      <Dialog open={dialog === "dispute"} onClose={busy ? undefined : closeDialog} maxWidth="xs" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
-        <DialogTitle sx={{ fontWeight: 700 }}>Open a dispute</DialogTitle>
-        <DialogContent>
-          <Typography sx={{ fontSize: 13.5, color: "text.secondary", mb: 2 }}>
-            Funds stay safely in custody while a DynoPay admin reviews. Tell us what went wrong.
-          </Typography>
-          <TextField
-            fullWidth
-            size="small"
-            multiline
-            minRows={3}
-            label="Reason"
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-            inputProps={{ "data-testid": "escrow-dispute-reason" }}
-          />
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={closeDialog} disabled={busy} sx={{ textTransform: "none" }}>Cancel</Button>
-          <Button
-            variant="contained"
-            disabled={busy || reason.trim().length < 3}
-            onClick={() => runAction(() => escrowApi.dispute(deal.escrow_id, reason.trim()), "Dispute opened.")}
-            data-testid="escrow-dispute-confirm"
-            sx={{ backgroundColor: "#F59E0B", textTransform: "none", fontWeight: 700 }}
-          >
-            {busy ? "Opening…" : "Open dispute"}
           </Button>
         </DialogActions>
       </Dialog>

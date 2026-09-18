@@ -21,6 +21,7 @@ import {
   GavelRounded,
   ScheduleRounded,
   NotificationsActiveRounded,
+  SupportAgentRounded,
   RefreshRounded,
 } from "@mui/icons-material";
 import { useDispatch } from "react-redux";
@@ -42,7 +43,7 @@ export default function AdminEscrow() {
   const [deals, setDeals] = useState<EscrowDeal[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>("");
-  const [maint, setMaint] = useState<null | "auto" | "reminders">(null);
+  const [maint, setMaint] = useState<null | "auto" | "reminders" | "escalations">(null);
 
   // resolve dialog
   const [resolveTarget, setResolveTarget] = useState<EscrowDeal | null>(null);
@@ -98,12 +99,15 @@ export default function AdminEscrow() {
     }
   };
 
-  const runMaintenance = async (kind: "auto" | "reminders") => {
+  const runMaintenance = async (kind: "auto" | "reminders" | "escalations") => {
     setMaint(kind);
     try {
       if (kind === "auto") {
         const r = await escrowAdminApi.runAutoRelease();
         notify(`Auto-release processed ${r?.count ?? 0} deal(s).`);
+      } else if (kind === "escalations") {
+        const r = await escrowAdminApi.runDisputeEscalations();
+        notify(`Auto-escalated ${r?.count ?? 0} dispute(s).`);
       } else {
         await escrowAdminApi.runPayoutReminders();
         notify("Payout reminders processed.");
@@ -117,6 +121,21 @@ export default function AdminEscrow() {
   };
 
   const cardBorder = `1px solid ${theme.palette.divider}`;
+
+  const proposalText = (p?: { outcome?: string; split_percent_seller?: number | null } | null): string => {
+    if (!p || !p.outcome) return "";
+    if (p.outcome === "release") return "release to seller";
+    if (p.outcome === "refund") return "refund to buyer";
+    return `split — seller ${p.split_percent_seller ?? 50}%`;
+  };
+  const threadLine = (t: any): string => {
+    if (t.type === "open" || t.type === "counter") return `${t.type} — ${proposalText(t)}${t.message ? ` · "${t.message}"` : ""}`;
+    if (t.type === "accept") return "accepted the proposal";
+    if (t.type === "escalate") return "escalated to admin";
+    if (t.type === "auto_escalate") return "auto-escalated (no response)";
+    if (t.type === "resolve") return `admin resolved — ${t.outcome}`;
+    return t.message || t.type;
+  };
 
   const STATUS_OPTIONS = ["", "invited", "awaiting_payment", "funded", "delivered", "disputed", "completed", "refunded", "split", "cancelled"];
 
@@ -147,6 +166,17 @@ export default function AdminEscrow() {
           sx={{ textTransform: "none", fontWeight: 600 }}
         >
           Run payout reminders
+        </Button>
+        <Button
+          size="small"
+          variant="outlined"
+          startIcon={maint === "escalations" ? <CircularProgress size={14} /> : <SupportAgentRounded />}
+          disabled={!!maint}
+          onClick={() => runMaintenance("escalations")}
+          data-testid="escrow-admin-run-escalations"
+          sx={{ textTransform: "none", fontWeight: 600 }}
+        >
+          Run auto-escalations
         </Button>
       </Box>
 
@@ -212,11 +242,35 @@ export default function AdminEscrow() {
                   <Typography sx={{ fontSize: 12.5, color: "text.secondary", mt: 0.3 }}>
                     #{d.escrow_id} · brand {d.company_id} · {titleize(d.creator_role)} created · {d.counterparty_email} · {shortDate(d.created_at)}
                   </Typography>
-                  {d.status === "disputed" && d.dispute_reason && (
+                  {d.status === "disputed" && (
                     <Box sx={{ mt: 1, p: 1.2, borderRadius: 1.5, backgroundColor: brandAlpha(isDark ? 0.1 : 0.05) }}>
-                      <Typography sx={{ fontSize: 12.5 }}>
-                        <b>Dispute ({titleize(d.dispute_raised_by || "")}):</b> {d.dispute_reason}
-                      </Typography>
+                      <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" sx={{ mb: 0.5 }}>
+                        <Chip
+                          size="small"
+                          label={d.dispute_stage === "escalated" ? "Escalated to admin" : d.dispute_stage === "resolved" ? "Resolved" : "In negotiation"}
+                          data-testid={`escrow-admin-stage-${d.escrow_id}`}
+                          sx={{ fontSize: 10.5, fontWeight: 700, height: 20 }}
+                        />
+                        {d.dispute_proposal && (
+                          <Typography sx={{ fontSize: 12 }}>
+                            Current offer ({titleize(String(d.dispute_proposal.by || ""))}): <b>{proposalText(d.dispute_proposal)}</b>
+                          </Typography>
+                        )}
+                      </Stack>
+                      {d.dispute_reason && (
+                        <Typography sx={{ fontSize: 12.5 }}>
+                          <b>Reason ({titleize(d.dispute_raised_by || "")}):</b> {d.dispute_reason}
+                        </Typography>
+                      )}
+                      {Array.isArray(d.dispute_thread) && d.dispute_thread.length > 0 && (
+                        <Box sx={{ mt: 0.8, pl: 1, borderLeft: `2px solid ${theme.palette.divider}` }} data-testid={`escrow-admin-thread-${d.escrow_id}`}>
+                          {d.dispute_thread.slice(-5).map((t, i) => (
+                            <Typography key={i} sx={{ fontSize: 11.5, color: "text.secondary" }}>
+                              <b style={{ textTransform: "capitalize" }}>{t.by}</b>: {threadLine(t)}
+                            </Typography>
+                          ))}
+                        </Box>
+                      )}
                     </Box>
                   )}
                 </Box>

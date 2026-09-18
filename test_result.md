@@ -1,4 +1,34 @@
 # ============================================================================
+# >>> CURRENT SESSION (2026-09) — ESCROW DISPUTE REIMAGINED: FRONTEND BUILT <<<
+#   Backend for the P2P dispute + fee model = DONE & re-tested (29/31, 2 non-bugs).
+#   FRONTEND now BUILT (tsc --noEmit = 0 project-wide; eslint clean; all 4 escrow routes 200):
+#     - NEW Components/Page/Escrow/DisputePanel.tsx — shared, injected with an API adapter so
+#       the SAME UI drives merchant (Bearer) and public (OTP) flows. Handles: open-with-proposal,
+#       counter (turn flips), accept (auto-resolve), message/evidence thread, escalate; a
+#       partial-refund % Slider; live pool-based amount preview; disputed vs escalated states.
+#     - api/escrow.ts — escrowApi.{dispute(body),counterDispute,acceptDispute,disputeMessage,
+#       escalateDispute}; escrowAdminApi.{disputes(stage?),runDisputeEscalations}; public action
+#       union extended with dispute-counter/-accept/-message/-escalate + proposal fields. New types
+#       DisputeProposal/DisputeThreadEntry/DisputeProposalInput + EscrowDeal dispute_* fields.
+#     - EscrowDetail.tsx (merchant): renders <DisputePanel> at top of main column; old single-shot
+#       dispute button+dialog REMOVED.
+#     - Public/EscrowInvite.tsx: renders <DisputePanel> for the verified OTP counterparty; old
+#       dispute InlineForm REMOVED.
+#     - Admin/Escrow/index.tsx: dispute cards now show stage chip + current proposal + last-5 thread
+#       entries; NEW "Run auto-escalations" button (escrow-admin-run-escalations).
+#
+#   KEY TESTIDS for E2E: escrow-dispute-panel, escrow-dispute-open-btn, escrow-dispute-proposal-dialog,
+#     escrow-dispute-outcome-{release,refund,split}, escrow-dispute-split-slider, escrow-dispute-reason-input,
+#     escrow-dispute-message-input, escrow-dispute-submit, escrow-dispute-accept-btn, escrow-dispute-counter-btn,
+#     escrow-dispute-escalate-btn, escrow-dispute-thread, escrow-dispute-thread-msg-input, escrow-dispute-thread-send,
+#     escrow-dispute-stage; admin: escrow-admin-stage-<id>, escrow-admin-thread-<id>, escrow-admin-run-escalations.
+#   NEXT: run escrow FRONTEND E2E (pending user go-ahead). Login onarrival21@gmail.com / Katiekendra123@
+#     (2FA: node /app/backend/scripts/print_totp.cjs 1). SAFE MODE — throwaway escrow_test_* counterparties.
+# ============================================================================
+
+
+
+# ============================================================================
 # >>> CURRENT SESSION (2026-09) — ESCROW DISPUTE REIMAGINED (P2P, Bybit-style) + FEE MODEL <<<
 #   Env: SAFE MODE, LIVE prod DB, money SIMULATED. Backend BOOTS HEALTHY.
 #   Migration 0037_escrow_dispute_negotiation applied (6 new tbl_escrow_deal cols).

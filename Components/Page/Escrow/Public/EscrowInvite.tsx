@@ -23,6 +23,7 @@ import { BRAND_ACCENT, brandAlpha, brandFg } from "@/constants/theme";
 import StatusChip from "@/Components/Page/Escrow/StatusChip";
 import EscrowProgress from "@/Components/Page/Escrow/EscrowProgress";
 import FeeBreakdownCard from "@/Components/Page/Escrow/FeeBreakdownCard";
+import DisputePanel from "@/Components/Page/Escrow/DisputePanel";
 import { CoinIcon } from "@/Components/Page/Escrow/CoinIcon";
 import { stable, shortDate, titleize, legTone, FUNDING_COINS, PAYOUT_OPTIONS } from "@/Components/Page/Escrow/escrowUtils";
 
@@ -500,33 +501,28 @@ export default function EscrowInvite({ token }: { token: string }) {
                   </InlineForm>
                 )}
 
-                {/* Dispute */}
-                {canDispute && active !== "dispute" && (
-                  <Button onClick={() => setActive("dispute")} sx={{ textTransform: "none", color: "#B45309", mt: 1 }} data-testid="escrow-invite-dispute-open">
-                    Something wrong? Open a dispute
-                  </Button>
-                )}
-                {active === "dispute" && (
-                  <InlineForm
-                    title="Open a dispute"
-                    hint="Funds stay safely in custody while a DynoPay admin reviews."
-                    onCancel={() => setActive(null)}
-                    onConfirm={() => doAction({ action: "dispute", reason: reason.trim() }, "Dispute opened.")}
-                    confirmLabel="Open dispute"
-                    confirmColor="#F59E0B"
-                    confirmDisabled={reason.trim().length < 3}
-                    busy={busy}
-                    testId="escrow-invite-dispute"
-                  >
-                    <TextField label="What went wrong?" value={reason} onChange={(e) => setReason(e.target.value)} size="small" fullWidth multiline minRows={3} inputProps={{ "data-testid": "escrow-invite-dispute-reason" }} />
-                  </InlineForm>
+                {/* Dispute — negotiation / escalation (shared panel; parties settle first) */}
+                {(status === "disputed" || canDispute) && myRole && sessionToken && (
+                  <Box sx={{ mt: 1.5 }}>
+                    <DisputePanel
+                      deal={deal}
+                      myRole={myRole as "buyer" | "seller"}
+                      onUpdated={(d) => setDeal(d)}
+                      notify={(m, sev) => flash(m, sev === "error" ? "err" : "ok")}
+                      api={{
+                        raise: (body) => escrowPublicApi.action(token, sessionToken!, { action: "dispute", ...body }),
+                        counter: (body) => escrowPublicApi.action(token, sessionToken!, { action: "dispute-counter", ...body }),
+                        accept: () => escrowPublicApi.action(token, sessionToken!, { action: "dispute-accept" }),
+                        message: (m) => escrowPublicApi.action(token, sessionToken!, { action: "dispute-message", message: m }),
+                        escalate: () => escrowPublicApi.action(token, sessionToken!, { action: "dispute-escalate" }),
+                      }}
+                    />
+                  </Box>
                 )}
 
-                {!canAccept && !canFund && !canDeliver && !canRelease && !canDispute && !sellerNeedsAddress && !buyerNeedsRefund && (
+                {status !== "disputed" && !canAccept && !canFund && !canDeliver && !canRelease && !canDispute && !sellerNeedsAddress && !buyerNeedsRefund && (
                   <Typography sx={{ fontSize: 13.5, color: "text.secondary" }} data-testid="escrow-invite-no-actions">
-                    {status === "disputed"
-                      ? "This deal is under dispute. A DynoPay admin will review and resolve it."
-                      : "Nothing to do right now — you're all set. Check back for updates."}
+                    Nothing to do right now — you&apos;re all set. Check back for updates.
                   </Typography>
                 )}
               </Box>

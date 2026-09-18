@@ -88,6 +88,13 @@ export interface EscrowDeal {
   dispute_reason?: string | null;
   dispute_raised_by?: string | null;
   dispute_resolution?: string | null;
+  // Dispute negotiation (two-tier: parties settle first, admin fallback)
+  dispute_stage?: "negotiation" | "escalated" | "resolved" | null;
+  dispute_proposal?: DisputeProposal | null;
+  dispute_proposal_by?: EscrowRole | null;
+  dispute_escalated_at?: string | null;
+  dispute_auto_escalate_at?: string | null;
+  dispute_thread?: DisputeThreadEntry[];
   split_percent_seller?: number | null;
   custody_stablecoin?: string | null;
   custody_amount_stable?: number | null;
@@ -136,6 +143,32 @@ export interface ActivityEntry {
   at?: string;
 }
 
+export interface DisputeProposal {
+  outcome: SettlementOutcome;
+  split_percent_seller?: number | null;
+  by?: EscrowRole;
+  at?: string;
+  message?: string | null;
+}
+
+export interface DisputeThreadEntry {
+  at?: string;
+  by?: string; // buyer | seller | admin | system
+  type: string; // open | counter | accept | message | escalate | auto_escalate | resolve
+  outcome?: SettlementOutcome;
+  split_percent_seller?: number | null;
+  message?: string | null;
+  reason?: string | null;
+}
+
+/** A proposed dispute resolution, sent when raising or countering. */
+export interface DisputeProposalInput {
+  proposed_outcome: SettlementOutcome;
+  split_percent_seller?: number;
+  message?: string;
+  reason?: string;
+}
+
 const unwrap = (res: any) => res?.data?.data;
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -175,8 +208,20 @@ export const escrowApi = {
   release: async (id: number | string): Promise<EscrowDeal> =>
     unwrap(await axiosBaseApi.post(`/escrow/${id}/release`, {})),
 
-  dispute: async (id: number | string, reason: string): Promise<EscrowDeal> =>
-    unwrap(await axiosBaseApi.post(`/escrow/${id}/dispute`, { reason })),
+  dispute: async (id: number | string, body: DisputeProposalInput): Promise<EscrowDeal> =>
+    unwrap(await axiosBaseApi.post(`/escrow/${id}/dispute`, body)),
+
+  counterDispute: async (id: number | string, body: DisputeProposalInput): Promise<EscrowDeal> =>
+    unwrap(await axiosBaseApi.post(`/escrow/${id}/dispute/counter`, body)),
+
+  acceptDispute: async (id: number | string): Promise<EscrowDeal> =>
+    unwrap(await axiosBaseApi.post(`/escrow/${id}/dispute/accept`, {})),
+
+  disputeMessage: async (id: number | string, message: string): Promise<EscrowDeal> =>
+    unwrap(await axiosBaseApi.post(`/escrow/${id}/dispute/message`, { message })),
+
+  escalateDispute: async (id: number | string): Promise<EscrowDeal> =>
+    unwrap(await axiosBaseApi.post(`/escrow/${id}/dispute/escalate`, {})),
 
   cancel: async (id: number | string, reason?: string): Promise<EscrowDeal> =>
     unwrap(await axiosBaseApi.post(`/escrow/${id}/cancel`, { reason })),
@@ -198,7 +243,8 @@ export const escrowAdminApi = {
     const qs = q.toString();
     return unwrap(await adminBaseApi.get(`/escrow/admin/deals${qs ? `?${qs}` : ""}`)) || [];
   },
-  disputes: async (): Promise<EscrowDeal[]> => unwrap(await adminBaseApi.get("/escrow/admin/disputes")) || [],
+  disputes: async (stage?: "negotiation" | "escalated" | "resolved"): Promise<EscrowDeal[]> =>
+    unwrap(await adminBaseApi.get(`/escrow/admin/disputes${stage ? `?stage=${stage}` : ""}`)) || [],
   resolve: async (
     id: number | string,
     body: { outcome: SettlementOutcome; split_percent_seller?: number; note?: string }
@@ -206,6 +252,8 @@ export const escrowAdminApi = {
   runAutoRelease: async (): Promise<{ processed: number[]; count: number }> =>
     unwrap(await adminBaseApi.post("/escrow/admin/run-auto-release", {})),
   runPayoutReminders: async (): Promise<any> => unwrap(await adminBaseApi.post("/escrow/admin/run-payout-reminders", {})),
+  runDisputeEscalations: async (): Promise<{ escalated: number[]; count: number }> =>
+    unwrap(await adminBaseApi.post("/escrow/admin/run-dispute-escalations", {})),
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -244,10 +292,23 @@ export const escrowPublicApi = {
     token: string,
     sessionToken: string,
     body: {
-      action: "fund" | "deliver" | "release" | "dispute" | "payout-info";
+      action:
+        | "fund"
+        | "deliver"
+        | "release"
+        | "dispute"
+        | "dispute-counter"
+        | "dispute-accept"
+        | "dispute-message"
+        | "dispute-escalate"
+        | "payout-info";
       coin?: string;
       delivery_note?: string;
       reason?: string;
+      // dispute proposal fields
+      proposed_outcome?: SettlementOutcome;
+      split_percent_seller?: number;
+      message?: string;
       payout_address?: string;
       payout_coin?: string;
       refund_address?: string;
