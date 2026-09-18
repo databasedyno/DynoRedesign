@@ -150,6 +150,32 @@ export const getTransactionDetails = async (req: express.Request, res: express.R
     // counter for addresses that were generated but never funded.
     const paymentDetected = isPaymentDetected(txData as any);
 
+    // Network (gas) fee is deducted on-chain for EVERY settlement but is not
+    // persisted on the row (blockchain_buffer_fee stays 0). When it's absent and
+    // the payment actually settled on-chain, expose a read-time ESTIMATE from the
+    // live gas quote so merchants can see the gas cost everyone pays regardless of
+    // platform fees or referral credit. Best-effort: never fails the request.
+    let networkFeeEstimatedUsd = 0;
+    let networkFeeIsEstimate = false;
+    const storedBlockchainFee = Number(txData.blockchain_buffer_fee || 0);
+    const settledOnChain =
+      Boolean(txData.outgoing_tx_hash) ||
+      ["successful", "settled", "confirmed", "completed", "success", "converted", "recovered", "payout_complete", "done"].includes(
+        String(txData.status || "").toLowerCase(),
+      );
+    if (storedBlockchainFee <= 0 && settledOnChain) {
+      try {
+        const chain = String(txData.crypto_currency || txData.wallet_type || txData.base_currency || "");
+        if (chain) {
+          const nf = await getBlockchainNetworkFee(chain);
+          networkFeeEstimatedUsd = Number(nf?.feeInUSD) || 0;
+          networkFeeIsEstimate = networkFeeEstimatedUsd > 0;
+        }
+      } catch {
+        // leave estimate at 0 — the UI simply omits the row
+      }
+    }
+
     // Format response according to Figma UI requirements
     const response = {
       // Header
@@ -173,6 +199,9 @@ export const getTransactionDetails = async (req: express.Request, res: express.R
         fixed_fee: txData.fixed_fee || 0,
         blockchain_buffer: txData.blockchain_buffer_fee || 0,
       },
+      // Read-time network-fee estimate (USD) when none is persisted — see above.
+      network_fee_estimated_usd: networkFeeEstimatedUsd,
+      network_fee_is_estimate: networkFeeIsEstimate,
       
       // Confirmations - both formats
       confirmations: txData.confirmations || 0,  // Backward compatible: single number

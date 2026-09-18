@@ -1,6 +1,7 @@
 {
   "platformFee": "Platformkosten",
   "networkFee": "Netwerkkosten",
+  "networkFeeEstimated": "Netwerkkosten (schatting)",
   "fixedFee": "Vaste kosten",
   "transactionsTitle": "Transacties",
   "transactionsDescription": "Bekijk en beheer al uw cryptocurrency-betalingstransacties",

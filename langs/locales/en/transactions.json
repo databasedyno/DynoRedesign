@@ -1,6 +1,7 @@
 {
   "platformFee": "Platform fee",
   "networkFee": "Network fee",
+  "networkFeeEstimated": "Network fee (est.)",
   "fixedFee": "Fixed fee",
   "transactionsTitle": "Transactions",
   "transactionsDescription": "View and manage all your cryptocurrency payment transactions",

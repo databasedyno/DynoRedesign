@@ -2,7 +2,7 @@ import CustomButton from "@/Components/UI/Buttons";
 import { Box, Drawer, IconButton, Typography, useTheme } from "@mui/material";
 import { Icon, MONO } from "@/styles/uiKit";
 import Image from "next/image";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import HashIcon from "@/assets/Icons/hash-icon.svg";
@@ -68,6 +68,41 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
   const [openToast, setOpenToast] = useState(false);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fx = useDisplayFx();
+
+  // Read-time NETWORK-FEE estimate. Gas is deducted on-chain for every
+  // settlement but is not stored on the row, so the details endpoint returns a
+  // live estimate when none is persisted. Fetched lazily on open so a settled
+  // payment always shows the network fee — even when the platform fee was fully
+  // covered by referral credit (network fee is paid by everyone regardless).
+  const [estNetworkFeeUsd, setEstNetworkFeeUsd] = useState<number | null>(null);
+
+  useEffect(() => {
+    setEstNetworkFeeUsd(null);
+    if (!open || !transaction?.id) return;
+    const tx = transaction;
+    // Skip when a real network fee is already persisted on the row.
+    if (Number(tx.feesBreakdown?.blockchain) > 0) return;
+    // Gas is only paid once a payment actually settles on-chain.
+    const s = String(tx.status || "").toLowerCase();
+    const settled =
+      ["settled", "confirmed", "completed", "success", "successful", "paid", "converted", "recovered", "payout_complete", "done"].includes(s) ||
+      Boolean(tx.outgoingTransactionId);
+    if (!settled) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await axiosBaseApi.get(API_ENDPOINTS.transactions.detail(tx.id));
+        const est = Number(res?.data?.data?.network_fee_estimated_usd) || 0;
+        if (!cancelled && est > 0) setEstNetworkFeeUsd(est);
+      } catch {
+        /* estimate is best-effort; ignore failures */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, transaction?.id]);
 
   if (!transaction) return null;
 
@@ -157,6 +192,13 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
   const hasOutgoing = Boolean(transaction.outgoingTransactionId);
   const isSettled = isSettledState || hasOutgoing;
   const awaitingPayment = !hasIncoming && !hasOutgoing && !isSettledState && _status !== "underpaid";
+
+  // Estimated network fee to fold into the totals (only when nothing persisted).
+  const estNetForTotal =
+    estNetworkFeeUsd != null && estNetworkFeeUsd > 0 && !(Number(transaction.feesBreakdown?.blockchain) > 0)
+      ? estNetworkFeeUsd
+      : 0;
+  const totalFeesDisplay = (Number(transaction.fees) || 0) + estNetForTotal;
 
 
   return (
@@ -441,7 +483,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                   </TitleValue>
                 </DetailRow>
               )}
-              {(Number(transaction.fees) > 0 || (transaction.feesBreakdown && (transaction.feesBreakdown.platform > 0 || transaction.feesBreakdown.blockchain > 0 || transaction.feesBreakdown.fixed > 0))) && (
+              {(Number(transaction.fees) > 0 || estNetForTotal > 0 || (transaction.feesBreakdown && (transaction.feesBreakdown.platform > 0 || transaction.feesBreakdown.blockchain > 0 || transaction.feesBreakdown.fixed > 0))) && (
                 <>
                   {transaction.feesBreakdown && transaction.feesBreakdown.platform > 0 && (
                     <DetailRow data-testid="tx-fee-platform">
@@ -459,6 +501,14 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                       </TitleValue>
                     </DetailRow>
                   )}
+                  {estNetForTotal > 0 && (
+                    <DetailRow data-testid="tx-fee-network-est">
+                      <TitleLabel sx={{ pl: 1.5, fontWeight: 400 }}>{tTransactions("networkFeeEstimated", { defaultValue: "Network fee (est.)" })}</TitleLabel>
+                      <TitleValue sx={{ fontWeight: 400 }}>
+                        {`~ ${fx.formatFromUsd(estNetForTotal) ?? `$${toFixedStr(estNetForTotal, 2)}`}`}
+                      </TitleValue>
+                    </DetailRow>
+                  )}
                   {transaction.feesBreakdown && transaction.feesBreakdown.fixed > 0 && (
                     <DetailRow data-testid="tx-fee-fixed">
                       <TitleLabel sx={{ pl: 1.5, fontWeight: 400 }}>{tTransactions("fixedFee", { defaultValue: "Fixed fee" })}</TitleLabel>
@@ -470,15 +520,15 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                   <DetailRow data-testid="tx-fee-total">
                     <TitleLabel>{tTransactions("totalFees")}</TitleLabel>
                     <TitleValue>
-                      {fx.formatFromUsd(Number(transaction.fees) || 0) ?? `$${toFixedStr(transaction.fees, 2)}`}
+                      {`${estNetForTotal > 0 ? "~ " : ""}${fx.formatFromUsd(totalFeesDisplay) ?? `$${toFixedStr(totalFeesDisplay, 2)}`}`}
                     </TitleValue>
                   </DetailRow>
                   <DetailRow>
                     <TitleLabel>{tTransactions("amountReceived")}</TitleLabel>
                     <TitleValue sx={{ color: "#10B981", fontWeight: 600 }}>
                       {fx.formatFromUsd(
-                        (Number(transaction.usdValueRaw) || 0) - (Number(transaction.fees) || 0),
-                      ) ?? `$${toFixedStr(((Number(transaction.usdValueRaw) || 0) - (Number(transaction.fees) || 0)), 2)}`}
+                        (Number(transaction.usdValueRaw) || 0) - totalFeesDisplay,
+                      ) ?? `$${toFixedStr(((Number(transaction.usdValueRaw) || 0) - totalFeesDisplay), 2)}`}
                     </TitleValue>
                   </DetailRow>
                 </>

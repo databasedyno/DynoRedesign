@@ -1,6 +1,7 @@
 {
   "platformFee": "Plattformgebühr",
   "networkFee": "Netzwerkgebühr",
+  "networkFeeEstimated": "Netzwerkgebühr (geschätzt)",
   "fixedFee": "Feste Gebühr",
   "transactionsTitle": "Transaktionen",
   "transactionsDescription": "Alle Ihre Kryptowährungs-Zahlungstransaktionen anzeigen und verwalten",
