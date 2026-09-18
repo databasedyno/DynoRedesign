@@ -607,6 +607,24 @@ const addEscrowSettlementColumns = async (): Promise<void> => {
   );
 };
 
+/**
+ * 0037 — Escrow dispute negotiation (two-tier resolution: parties settle first,
+ * admin as fallback). Additive ADD COLUMN IF NOT EXISTS on the (escrow-only)
+ * tbl_escrow_deal — metadata-only, idempotent, safe on live prod.
+ */
+const addEscrowDisputeColumns = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `ALTER TABLE "tbl_escrow_deal"
+       ADD COLUMN IF NOT EXISTS "dispute_stage" VARCHAR(16),
+       ADD COLUMN IF NOT EXISTS "dispute_proposal" JSONB,
+       ADD COLUMN IF NOT EXISTS "dispute_proposal_by" VARCHAR(10),
+       ADD COLUMN IF NOT EXISTS "dispute_escalated_at" TIMESTAMPTZ,
+       ADD COLUMN IF NOT EXISTS "dispute_auto_escalate_at" TIMESTAMPTZ,
+       ADD COLUMN IF NOT EXISTS "dispute_thread" JSONB NOT NULL DEFAULT '[]'::jsonb`
+  );
+};
+
 export async function buildBootMigrations(): Promise<Migration[]> {  const { v1, extra } = await loadBootModelGroups();  return [
     { version: "0001_boot_model_tables", up: syncGroup(v1) },
     { version: "0002_boot_model_tables_extra", up: syncGroup(extra) },
@@ -641,6 +659,7 @@ export async function buildBootMigrations(): Promise<Migration[]> {  const { v1,
     { version: "0034_txn_attention_resolved", up: addTxnAttentionResolved },
     { version: "0035_escrow_deals", up: createEscrowTable },
     { version: "0036_escrow_settlement_columns", up: addEscrowSettlementColumns },
+    { version: "0037_escrow_dispute_negotiation", up: addEscrowDisputeColumns },
     ...perfMigrations,
     ...securityMigrations,
   ];

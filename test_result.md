@@ -1,4 +1,45 @@
 # ============================================================================
+# >>> CURRENT SESSION (2026-09) — ESCROW DISPUTE REIMAGINED (P2P, Bybit-style) + FEE MODEL <<<
+#   Env: SAFE MODE, LIVE prod DB, money SIMULATED. Backend BOOTS HEALTHY.
+#   Migration 0037_escrow_dispute_negotiation applied (6 new tbl_escrow_deal cols).
+#
+#   NEW DISPUTE MODEL (two-tier: parties settle first, admin fallback):
+#   - Raise dispute REQUIRES a proposed resolution (decision 2a): outcome in
+#     release|refund|split(+split_percent_seller 0-100 for a partial refund) + optional message.
+#   - Full negotiation loop (decision 1b): the OTHER party can accept | counter (turn flips) |
+#     message (evidence thread, 5b) | escalate. Can't accept/counter your OWN active proposal.
+#   - Accept => auto-resolves via the existing two-phase engine (authorize + payout), NO admin.
+#   - Escalate: manual button + AUTO-escalate after ESCROW_DISPUTE_AUTO_ESCALATE_HOURS (default 72h)
+#     via admin scan POST /api/escrow/admin/run-dispute-escalations. Admin resolve is final arbiter.
+#   - dispute_stage: negotiation | escalated | resolved. dispute_proposal (JSONB), dispute_proposal_by,
+#     dispute_thread (JSONB [{at,by,type,outcome?,split_percent_seller?,message?}]), dispute_auto_escalate_at.
+#
+#   NEW/CHANGED ENDPOINTS (prefix /api):
+#     Authed: POST /escrow/:id/dispute {proposed_outcome, split_percent_seller?, reason?, message?}
+#             POST /escrow/:id/dispute/counter {proposed_outcome, split_percent_seller?, message?}
+#             POST /escrow/:id/dispute/accept ; /dispute/message {message} ; /dispute/escalate
+#     Public (x-escrow-token): POST /escrow/public/:token/action {action: dispute|dispute-counter|
+#             dispute-accept|dispute-message|dispute-escalate, ...}
+#     Admin: POST /escrow/admin/run-dispute-escalations ; GET /escrow/admin/disputes?stage=
+#            adminResolveDispute now sets dispute_stage='resolved' + records a thread entry.
+#
+#   FEE-MODEL CHANGES (decision 4 + Binance/USDT custody reality):
+#   - Fees ALWAYS charged on EVERY outcome. computeSettlementAmounts now distributes the NET POOL
+#     P = breakdown.sellerReceives (= buyerPays - totalCost); platform always keeps totalCost.
+#       release: seller=P ; refund: buyer=P (NO fee waiver anymore) ; split: seller=P*pct, buyer=rest.
+#   - Custody ALWAYS held in USDT on Binance (CUSTODY_STABLECOIN='USDT'); custody_stablecoin now 'USDT'.
+#   - Inbound conversion fee skipped when funded coin is already USDT.
+#   - USDC payout: the USDT->USDC conversion is MERGED into the single withdrawal_fee line (decision: b),
+#     so a USDC payout's withdrawal_fee > the same-network USDT one. costItems still length 4.
+#
+#   BACKEND RE-TEST NEEDED (deep_testing_backend_v2) — see the detailed task in chat. Merchant login
+#   onarrival21@gmail.com / Katiekendra123@ (2FA: node /app/backend/scripts/print_totp.cjs 1),
+#   company_id=1, throwaway counterparties escrow_test_*@example.com, SAFE MODE (simulated money).
+# ============================================================================
+
+
+
+# ============================================================================
 # >>> CURRENT SESSION (2026-09, fork: continue-escrow) — ESCROW FEE-COIN CONSISTENCY <<<
 #   Env: SAFE MODE, LIVE prod DB, money SIMULATED. Backend BOOTS HEALTHY after edits.
 #

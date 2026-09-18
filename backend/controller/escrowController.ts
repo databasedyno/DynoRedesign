@@ -26,6 +26,7 @@ import {
   EscrowRole,
   SettlementOutcome,
   DEFAULT_ESCROW_STABLECOIN,
+  CUSTODY_STABLECOIN,
   ESCROW_STABLECOINS,
   appendActivity,
   assertTransition,
@@ -46,8 +47,10 @@ import {
   sendEscrowDeliveredEmail,
   sendEscrowReleasedEmail,
   sendEscrowRefundedEmail,
-  sendEscrowDisputeOpenedEmail,
   sendEscrowDisputeResolvedEmail,
+  sendEscrowDisputeProposalEmail,
+  sendEscrowDisputeEscalatedEmail,
+  sendEscrowDisputeAgreedEmail,
   sendEscrowOtpEmail,
   sendEscrowPayoutPendingEmail,
   sendEscrowPaidEmail,
@@ -69,6 +72,8 @@ const fail = (code: number, message: string): never => {
 const OTP_TTL = 600; // 10 min
 const SESSION_TTL = 3600; // 1 h
 const REMINDER_REVIEW_THRESHOLD = 3;
+// How long a dispute proposal can sit unanswered before it auto-escalates to admin.
+const DISPUTE_AUTO_ESCALATE_HOURS = Number(envRaw("ESCROW_DISPUTE_AUTO_ESCALATE_HOURS")) || 72;
 
 const otpKey = (escrowId: number | string, email: string) => `escrow:otp:${escrowId}:${norm(email)}`;
 const sessionKey = (tok: string) => `escrow:session:${tok}`;
@@ -191,6 +196,13 @@ function serializeDeal(deal: any, includePrivate = true): Record<string, unknown
     dispute_reason: d.dispute_reason,
     dispute_raised_by: d.dispute_raised_by,
     dispute_resolution: d.dispute_resolution,
+    // Dispute negotiation (two-tier: parties settle first, admin fallback)
+    dispute_stage: d.dispute_stage,
+    dispute_proposal: d.dispute_proposal || null,
+    dispute_proposal_by: d.dispute_proposal_by,
+    dispute_escalated_at: d.dispute_escalated_at,
+    dispute_auto_escalate_at: d.dispute_auto_escalate_at,
+    dispute_thread: Array.isArray(d.dispute_thread) ? d.dispute_thread : [],
     split_percent_seller: d.split_percent_seller != null ? Number(d.split_percent_seller) : null,
     // custody (simulated)
     custody_stablecoin: d.custody_stablecoin,
@@ -252,7 +264,7 @@ async function authorizeOutcome(
   deal.simulated = true;
   deal.outcome = outcome;
   deal.outcome_authorized_at = now;
-  if (!deal.custody_stablecoin) deal.custody_stablecoin = DEFAULT_ESCROW_STABLECOIN;
+  if (!deal.custody_stablecoin) deal.custody_stablecoin = CUSTODY_STABLECOIN;
 
   // Reset then set the applicable legs to pending.
   deal.seller_payout_state = "na";
@@ -407,14 +419,14 @@ async function actFund(deal: any, actor: ActorInfo, coinIn?: string): Promise<an
   deal.funding_deposit_address = `SIMULATED-${crypto.randomBytes(8).toString("hex")}`;
   deal.funding_tx_hash = `SIMULATED-${crypto.randomBytes(16).toString("hex")}`;
   // Simulated sweep + convert-to-stable into pooled custody (per-deal ledger).
-  deal.custody_stablecoin = DEFAULT_ESCROW_STABLECOIN;
+  deal.custody_stablecoin = CUSTODY_STABLECOIN;
   deal.custody_amount_stable = breakdown.buyerPays;
   deal.converted_at = now;
   deal.activity_log = appendActivity(deal.activity_log, {
     type: "funded",
     actor: actor.label,
     role: "buyer",
-    note: `[SIMULATED] Buyer funded ${breakdown.buyerPays} ${deal.currency} in ${coin}; converted to ${breakdown.buyerPays} ${DEFAULT_ESCROW_STABLECOIN} held in custody.`,
+    note: `[SIMULATED] Buyer funded ${breakdown.buyerPays} ${deal.currency} in ${coin}; converted to ${breakdown.buyerPays} ${CUSTODY_STABLECOIN} held in custody.`,
     meta: { breakdown },
   });
   await deal.save();
@@ -446,19 +458,151 @@ async function actRelease(deal: any, actor: ActorInfo): Promise<any> {
   return deal;
 }
 
-async function actDispute(deal: any, actor: ActorInfo, reason?: string): Promise<any> {
+// ── dispute negotiation helpers + actions (two-tier: parties first, admin fallback) ─
+
+function appendDisputeThread(deal: any, entry: Record<string, unknown>): void {
+  const list = Array.isArray(deal.dispute_thread) ? deal.dispute_thread : [];
+  deal.dispute_thread = [...list, { at: new Date().toISOString(), ...entry }];
+}
+
+function describeProposalShort(outcome: SettlementOutcome, splitPct?: number | null): string {
+  if (outcome === "release") return "full release to the seller";
+  if (outcome === "refund") return "full refund to the buyer";
+  const s = Number(splitPct ?? 50);
+  return `a ${s}%/${100 - s}% split (seller/buyer)`;
+}
+
+/** Validate + normalise a proposed resolution from a request body (decision 2a). */
+function normalizeProposal(body: any): { outcome: SettlementOutcome; split_percent_seller: number | null } {
+  const raw = String(body?.proposed_outcome ?? body?.outcome ?? "").toLowerCase().trim();
+  const outcome =
+    raw === "release" ? "release" : raw === "refund" ? "refund" : raw === "split" || raw === "partial" ? "split" : "";
+  if (!outcome) fail(400, "A proposed resolution is required: 'release', 'refund' or 'split' (partial refund).");
+  let pct: number | null = null;
+  if (outcome === "split") {
+    let n = Number(body?.split_percent_seller);
+    // Also accept a buyer-centric "refund_percent" (seller keeps the remainder).
+    if (!Number.isFinite(n) && Number.isFinite(Number(body?.refund_percent))) n = 100 - Number(body.refund_percent);
+    if (!Number.isFinite(n) || n < 0 || n > 100) fail(400, "For a partial refund, provide split_percent_seller (0–100).");
+    pct = Math.round(n);
+  }
+  return { outcome: outcome as SettlementOutcome, split_percent_seller: pct };
+}
+
+const escalateWindowMs = () => DISPUTE_AUTO_ESCALATE_HOURS * 3600000;
+
+/** Open a dispute WITH a proposed resolution (decision 2a). Enters party negotiation. */
+async function actRaiseDispute(deal: any, actor: ActorInfo, body: any): Promise<any> {
   if (!["funded", "delivered"].includes(deal.status)) fail(409, `A dispute can only be raised on a funded or delivered deal (current: '${deal.status}').`);
+  const { outcome, split_percent_seller } = normalizeProposal(body);
   assertTransition(deal.status, "disputed");
+  const now = new Date();
+  const message = body?.message ? String(body.message).slice(0, 2000) : null;
   deal.status = "disputed";
-  deal.disputed_at = new Date();
+  deal.disputed_at = now;
   deal.dispute_raised_by = actor.role;
-  if (reason) deal.dispute_reason = String(reason);
+  if (body?.reason) deal.dispute_reason = String(body.reason);
   deal.auto_release_at = null;
-  deal.activity_log = appendActivity(deal.activity_log, { type: "dispute_opened", actor: actor.label, role: actor.role, note: deal.dispute_reason || "Dispute opened." });
+  deal.dispute_stage = "negotiation";
+  deal.dispute_proposal = { outcome, split_percent_seller, by: actor.role, at: now.toISOString(), message };
+  deal.dispute_proposal_by = actor.role;
+  deal.dispute_auto_escalate_at = new Date(now.getTime() + escalateWindowMs());
+  appendDisputeThread(deal, { by: actor.role, type: "open", outcome, split_percent_seller, message, reason: deal.dispute_reason || null });
+  deal.activity_log = appendActivity(deal.activity_log, {
+    type: "dispute_opened",
+    actor: actor.label,
+    role: actor.role,
+    note: `Dispute opened with proposal: ${describeProposalShort(outcome, split_percent_seller)}. ${deal.dispute_reason || ""}`.trim(),
+  });
   await deal.save();
   const { buyerEmail, sellerEmail } = await partyEmails(deal);
   const otherEmail = actor.role === "buyer" ? sellerEmail : buyerEmail;
-  if (otherEmail) void sendEscrowDisputeOpenedEmail(otherEmail, otherEmail, deal, actor.role, deal.dispute_reason || "");
+  if (otherEmail) void sendEscrowDisputeProposalEmail(otherEmail, otherEmail, deal, actor.role, outcome, split_percent_seller, message || undefined, inviteUrl(deal.deal_token), false);
+  return deal;
+}
+
+/** Counter-offer a different resolution (decision 1b — full back-and-forth). Turn flips. */
+async function actCounterDispute(deal: any, actor: ActorInfo, body: any): Promise<any> {
+  if (deal.status !== "disputed") fail(409, `No open dispute to counter (status '${deal.status}').`);
+  if ((deal.dispute_stage || "negotiation") !== "negotiation") fail(409, "This dispute has been escalated to an admin — counter-offers are closed.");
+  if (deal.dispute_proposal_by === actor.role) fail(403, "It's the other party's turn — you can't counter your own proposal.");
+  const { outcome, split_percent_seller } = normalizeProposal(body);
+  const now = new Date();
+  const message = body?.message ? String(body.message).slice(0, 2000) : null;
+  deal.dispute_proposal = { outcome, split_percent_seller, by: actor.role, at: now.toISOString(), message };
+  deal.dispute_proposal_by = actor.role;
+  deal.dispute_auto_escalate_at = new Date(now.getTime() + escalateWindowMs());
+  appendDisputeThread(deal, { by: actor.role, type: "counter", outcome, split_percent_seller, message });
+  deal.activity_log = appendActivity(deal.activity_log, {
+    type: "dispute_counter",
+    actor: actor.label,
+    role: actor.role,
+    note: `Counter-offer: ${describeProposalShort(outcome, split_percent_seller)}.`,
+  });
+  await deal.save();
+  const { buyerEmail, sellerEmail } = await partyEmails(deal);
+  const otherEmail = actor.role === "buyer" ? sellerEmail : buyerEmail;
+  if (otherEmail) void sendEscrowDisputeProposalEmail(otherEmail, otherEmail, deal, actor.role, outcome, split_percent_seller, message || undefined, inviteUrl(deal.deal_token), true);
+  return deal;
+}
+
+/** Accept the current proposal → auto-resolve via the two-phase engine (no admin). */
+async function actAcceptDispute(deal: any, actor: ActorInfo): Promise<any> {
+  if (deal.status !== "disputed") fail(409, `No open dispute to accept (status '${deal.status}').`);
+  if ((deal.dispute_stage || "negotiation") !== "negotiation") fail(409, "This dispute is no longer open for a party agreement (it was escalated to an admin).");
+  const prop = deal.dispute_proposal;
+  if (!prop || !prop.outcome) fail(409, "There is no active proposal to accept.");
+  if (deal.dispute_proposal_by === actor.role) fail(403, "You can't accept your own proposal — wait for the other party, counter, or escalate.");
+  const outcome = String(prop.outcome) as SettlementOutcome;
+  const splitPct = outcome === "split" ? Number(prop.split_percent_seller) : undefined;
+  deal.dispute_stage = "resolved";
+  deal.dispute_resolved_at = new Date();
+  deal.dispute_auto_escalate_at = null;
+  appendDisputeThread(deal, { by: actor.role, type: "accept", outcome, split_percent_seller: splitPct ?? null });
+  deal.activity_log = appendActivity(deal.activity_log, {
+    type: "dispute_agreed",
+    actor: actor.label,
+    role: actor.role,
+    note: `Accepted ${describeProposalShort(outcome, splitPct)} — resolved by agreement.`,
+  });
+  const { summary } = await settleOutcome(deal, outcome, { splitPercentSeller: splitPct, actorLabel: actor.label, actorRole: actor.role });
+  const { buyerEmail, sellerEmail } = await partyEmails(deal);
+  const msg = `Resolved by agreement — ${summary}`;
+  if (buyerEmail) void sendEscrowDisputeAgreedEmail(buyerEmail, buyerEmail, deal, msg);
+  if (sellerEmail) void sendEscrowDisputeAgreedEmail(sellerEmail, sellerEmail, deal, msg);
+  return deal;
+}
+
+/** Add a message / evidence note to the dispute thread (decision 5b). */
+async function actDisputeMessage(deal: any, actor: ActorInfo, message?: string): Promise<any> {
+  if (deal.status !== "disputed") fail(409, "There is no open dispute to add a message to.");
+  const text = String(message || "").trim();
+  if (!text) fail(400, "A message is required.");
+  if (text.length > 2000) fail(400, "Message is too long (2000 characters max).");
+  appendDisputeThread(deal, { by: actor.role, type: "message", message: text });
+  await deal.save();
+  return deal;
+}
+
+/** Escalate to admin arbitration (manual). Either party, during negotiation. */
+async function actEscalateDispute(deal: any, actor: ActorInfo): Promise<any> {
+  if (deal.status !== "disputed") fail(409, `No open dispute to escalate (status '${deal.status}').`);
+  if ((deal.dispute_stage || "negotiation") === "escalated") fail(409, "This dispute is already with a DynoPay admin.");
+  const now = new Date();
+  deal.dispute_stage = "escalated";
+  deal.dispute_escalated_at = now;
+  deal.dispute_auto_escalate_at = null;
+  appendDisputeThread(deal, { by: actor.role, type: "escalate" });
+  deal.activity_log = appendActivity(deal.activity_log, {
+    type: "dispute_escalated",
+    actor: actor.label,
+    role: actor.role,
+    note: "Escalated to a DynoPay admin — no agreement reached.",
+  });
+  await deal.save();
+  const { buyerEmail, sellerEmail } = await partyEmails(deal);
+  if (buyerEmail) void sendEscrowDisputeEscalatedEmail(buyerEmail, buyerEmail, deal, actor.role);
+  if (sellerEmail) void sendEscrowDisputeEscalatedEmail(sellerEmail, sellerEmail, deal, actor.role);
   return deal;
 }
 
@@ -666,10 +810,50 @@ const confirmRelease = async (req: express.Request, res: express.Response) => {
 const raiseDispute = async (req: express.Request, res: express.Response) => {
   try {
     const { deal, actor } = await loadAuthedDealActor(req, res);
-    await actDispute(deal, actor, req.body?.reason);
-    return respond(res, deal, 200, "Dispute opened. A DynoPay admin will review it.", actor);
+    await actRaiseDispute(deal, actor, req.body || {});
+    return respond(res, deal, 200, "Dispute opened — your proposal was sent to the counterparty.", actor);
   } catch (e) {
     return handle(res, e, "raiseDispute");
+  }
+};
+
+const counterDispute = async (req: express.Request, res: express.Response) => {
+  try {
+    const { deal, actor } = await loadAuthedDealActor(req, res);
+    await actCounterDispute(deal, actor, req.body || {});
+    return respond(res, deal, 200, "Counter-offer sent to the counterparty.", actor);
+  } catch (e) {
+    return handle(res, e, "counterDispute");
+  }
+};
+
+const acceptDispute = async (req: express.Request, res: express.Response) => {
+  try {
+    const { deal, actor } = await loadAuthedDealActor(req, res);
+    await actAcceptDispute(deal, actor);
+    return respond(res, deal, 200, "Proposal accepted — the dispute is resolved by agreement.", actor);
+  } catch (e) {
+    return handle(res, e, "acceptDispute");
+  }
+};
+
+const disputeMessage = async (req: express.Request, res: express.Response) => {
+  try {
+    const { deal, actor } = await loadAuthedDealActor(req, res);
+    await actDisputeMessage(deal, actor, req.body?.message);
+    return respond(res, deal, 200, "Message added to the dispute.", actor);
+  } catch (e) {
+    return handle(res, e, "disputeMessage");
+  }
+};
+
+const escalateDispute = async (req: express.Request, res: express.Response) => {
+  try {
+    const { deal, actor } = await loadAuthedDealActor(req, res);
+    await actEscalateDispute(deal, actor);
+    return respond(res, deal, 200, "Dispute escalated to a DynoPay admin.", actor);
+  } catch (e) {
+    return handle(res, e, "escalateDispute");
   }
 };
 
@@ -811,8 +995,20 @@ const publicAction = async (req: express.Request, res: express.Response) => {
         return respond(res, deal, 200, msg, actor, false);
       }
       case "dispute":
-        await actDispute(deal, actor, req.body?.reason);
-        return respond(res, deal, 200, "Dispute opened. A DynoPay admin will review it.", actor, false);
+        await actRaiseDispute(deal, actor, req.body || {});
+        return respond(res, deal, 200, "Dispute opened — your proposal was sent to the other party.", actor, false);
+      case "dispute-counter":
+        await actCounterDispute(deal, actor, req.body || {});
+        return respond(res, deal, 200, "Counter-offer sent.", actor, false);
+      case "dispute-accept":
+        await actAcceptDispute(deal, actor);
+        return respond(res, deal, 200, "Proposal accepted — the dispute is resolved by agreement.", actor, false);
+      case "dispute-message":
+        await actDisputeMessage(deal, actor, req.body?.message);
+        return respond(res, deal, 200, "Message added to the dispute.", actor, false);
+      case "dispute-escalate":
+        await actEscalateDispute(deal, actor);
+        return respond(res, deal, 200, "Dispute escalated to a DynoPay admin.", actor, false);
       case "payout-info": {
         // OTP-only party MUST paste an explicit address (no account-wallet reuse).
         if (actor.role === "seller" && !req.body?.payout_address) return errorResponseHelper(res, 400, "A stablecoin payout address is required.");
@@ -847,13 +1043,60 @@ const adminListDeals = async (req: express.Request, res: express.Response) => {
   }
 };
 
-const adminDisputeQueue = async (_req: express.Request, res: express.Response) => {
+const adminDisputeQueue = async (req: express.Request, res: express.Response) => {
   try {
-    const deals: any[] = await escrowDealModel.findAll({ where: { status: "disputed" }, order: [["disputed_at", "ASC"]] });
+    const { stage } = req.query as Record<string, string>;
+    const where: any = { status: "disputed" };
+    if (stage === "negotiation" || stage === "escalated" || stage === "resolved") where.dispute_stage = stage;
+    const deals: any[] = await escrowDealModel.findAll({ where, order: [["disputed_at", "ASC"]] });
     const out = deals.map((d) => serializeDeal(d));
     return successResponseHelper(res, 200, "Dispute queue fetched.", out, out.length);
   } catch (e) {
     return handle(res, e, "adminDisputeQueue");
+  }
+};
+
+/**
+ * POST /api/escrow/admin/run-dispute-escalations — auto-escalate disputes whose
+ * negotiation window elapsed with no agreement (decision 3b). Same maintenance-scan
+ * pattern as run-auto-release; a scheduler calls it in production (jobs off in preview).
+ */
+const adminRunDisputeEscalations = async (_req: express.Request, res: express.Response) => {
+  try {
+    const now = new Date();
+    const deals: any[] = await escrowDealModel.findAll({
+      where: {
+        status: "disputed",
+        dispute_stage: "negotiation",
+        dispute_auto_escalate_at: { [Op.ne]: null, [Op.lte]: now } as any,
+      },
+      limit: 200,
+    });
+    const escalated: number[] = [];
+    for (const deal of deals) {
+      try {
+        deal.dispute_stage = "escalated";
+        deal.dispute_escalated_at = now;
+        deal.dispute_auto_escalate_at = null;
+        appendDisputeThread(deal, { by: "system", type: "auto_escalate" });
+        deal.activity_log = appendActivity(deal.activity_log, {
+          type: "dispute_escalated",
+          actor: "system(auto-escalate)",
+          role: "system",
+          note: `No agreement within ${DISPUTE_AUTO_ESCALATE_HOURS}h — auto-escalated to admin.`,
+        });
+        await deal.save();
+        const { buyerEmail, sellerEmail } = await partyEmails(deal);
+        if (buyerEmail) void sendEscrowDisputeEscalatedEmail(buyerEmail, buyerEmail, deal, "system");
+        if (sellerEmail) void sendEscrowDisputeEscalatedEmail(sellerEmail, sellerEmail, deal, "system");
+        escalated.push(deal.escrow_id);
+      } catch (err) {
+        apiLogger.error(`[escrow.autoEscalate] deal ${deal.escrow_id}: ${(err as Error).message}`);
+      }
+    }
+    return successResponseHelper(res, 200, `Auto-escalated ${escalated.length} dispute(s).`, { escalated, count: escalated.length });
+  } catch (e) {
+    return handle(res, e, "adminRunDisputeEscalations");
   }
 };
 
@@ -869,6 +1112,15 @@ const adminResolveDispute = async (req: express.Request, res: express.Response) 
       if (!Number.isFinite(pct) || pct < 0 || pct > 100) return errorResponseHelper(res, 400, "split_percent_seller must be between 0 and 100 for a split.");
     }
     deal.dispute_resolved_at = new Date();
+    deal.dispute_stage = "resolved";
+    deal.dispute_auto_escalate_at = null;
+    appendDisputeThread(deal, {
+      by: "admin",
+      type: "resolve",
+      outcome,
+      split_percent_seller: outcome === "split" ? Number(split_percent_seller) : null,
+      message: note ? String(note) : null,
+    });
     if (note) deal.activity_log = appendActivity(deal.activity_log, { type: "admin_note", actor: "admin", role: "admin", note: String(note) });
     await settleOutcome(deal, outcome as SettlementOutcome, {
       splitPercentSeller: outcome === "split" ? Number(split_percent_seller) : undefined,
@@ -949,6 +1201,10 @@ export default {
   markDelivered,
   confirmRelease,
   raiseDispute,
+  counterDispute,
+  acceptDispute,
+  disputeMessage,
+  escalateDispute,
   cancelDeal,
   simulateFund,
   getPublicDeal,
@@ -961,4 +1217,5 @@ export default {
   adminResolveDispute,
   adminRunAutoRelease,
   adminRunPayoutReminders,
+  adminRunDisputeEscalations,
 };

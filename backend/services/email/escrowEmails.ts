@@ -172,3 +172,67 @@ export async function sendEscrowPaidEmail(
     `<p>${summary}</p>`;
   await sendEmail(toEmail, toName || toEmail, `Escrow funds sent: ${deal.title}`, message);
 }
+
+
+// ── Dispute negotiation (parties settle first; admin is the fallback) ────────
+
+function describeProposal(outcome: string, splitPercentSeller?: number | null): string {
+  if (outcome === "release") return "release the full amount to the seller";
+  if (outcome === "refund") return "refund the full amount to the buyer";
+  const s = Number(splitPercentSeller ?? 50);
+  return `a partial settlement — seller keeps ${s}%, buyer is refunded ${100 - s}%`;
+}
+
+/** A proposal (dispute opened WITH a proposal, or a counter-offer) sent to the other party. */
+export async function sendEscrowDisputeProposalEmail(
+  toEmail: string,
+  toName: string,
+  deal: DealLike,
+  fromRole: string,
+  outcome: string,
+  splitPercentSeller: number | null | undefined,
+  note: string | undefined,
+  inviteUrl: string,
+  isCounter = false
+): Promise<void> {
+  const lead = isCounter
+    ? `The <b>${fromRole}</b> has made a <b>counter-offer</b> to resolve the dispute on`
+    : `The <b>${fromRole}</b> has opened a dispute and proposed a resolution for`;
+  const message =
+    `<p>${lead} <b>${deal.title}</b> (${money(deal)}):</p>` +
+    `<p><b>Proposal:</b> ${describeProposal(outcome, splitPercentSeller)}.</p>` +
+    (note ? `<p>Their note: ${note}</p>` : "") +
+    `<p>You can <b>accept</b> it, make a <b>counter-offer</b>, or <b>escalate to a DynoPay admin</b> if you can't reach an agreement.</p>` +
+    `<p><a href="${inviteUrl}">Open the dispute</a></p>`;
+  await sendEmail(toEmail, toName || toEmail, `Dispute proposal: ${deal.title}`, message);
+}
+
+/** Sent to both parties when a dispute is escalated to admin arbitration. */
+export async function sendEscrowDisputeEscalatedEmail(
+  toEmail: string,
+  toName: string,
+  deal: DealLike,
+  byRole: string
+): Promise<void> {
+  const how =
+    byRole && byRole !== "system"
+      ? ` by the <b>${byRole}</b>`
+      : " automatically because no agreement was reached in time";
+  const message =
+    `<p>The dispute on <b>${deal.title}</b> (${money(deal)}) has been <b>escalated to a DynoPay admin</b>${how}.</p>` +
+    `<p>An admin will review the case (including any messages exchanged) and decide the outcome. Your funds remain held safely in a stablecoin in the meantime.</p>`;
+  await sendEmail(toEmail, toName || toEmail, `Dispute escalated: ${deal.title}`, message);
+}
+
+/** Sent to both parties when a dispute is resolved by mutual agreement (no admin). */
+export async function sendEscrowDisputeAgreedEmail(
+  toEmail: string,
+  toName: string,
+  deal: DealLike,
+  summary: string
+): Promise<void> {
+  const message =
+    `<p>The dispute on <b>${deal.title}</b> (${money(deal)}) has been <b>resolved by mutual agreement</b>.</p>` +
+    `<p>${summary}</p>`;
+  await sendEmail(toEmail, toName || toEmail, `Dispute resolved by agreement: ${deal.title}`, message);
+}

@@ -1,0 +1,162 @@
+{
+  "total": 31,
+  "passed": 29,
+  "failed": 2,
+  "results": [
+    {
+      "test": "1a_costItems",
+      "success": true,
+      "message": "Both USDT and USDC have 4 costItems"
+    },
+    {
+      "test": "1a_withdrawal_fee",
+      "success": false,
+      "message": "USDC withdrawal $0.9 not > USDT $1"
+    },
+    {
+      "test": "1a_totalCost",
+      "success": false,
+      "message": "USDC totalCost $6.02 not > USDT $6.12"
+    },
+    {
+      "test": "1c_custody",
+      "success": true,
+      "message": "custody_stablecoin is 'USDT'"
+    },
+    {
+      "test": "1d_refund_fees",
+      "success": true,
+      "message": "Buyer refund $100 equals pool $100, fees charged"
+    },
+    {
+      "test": "1e_split",
+      "success": true,
+      "message": "Split correct: seller $60, buyer $40"
+    },
+    {
+      "test": "1e_split_pool",
+      "success": true,
+      "message": "Total entitlements $100 equals pool $100"
+    },
+    {
+      "test": "2_no_proposal",
+      "success": true,
+      "message": "Dispute without proposal rejected with 400"
+    },
+    {
+      "test": "2_with_proposal",
+      "success": true,
+      "message": "Dispute with proposal succeeded with correct state"
+    },
+    {
+      "test": "3_accept_own",
+      "success": true,
+      "message": "Accept own proposal rejected with 403"
+    },
+    {
+      "test": "3_counter_own",
+      "success": true,
+      "message": "Counter own proposal rejected with 403"
+    },
+    {
+      "test": "3_counter_flip",
+      "success": true,
+      "message": "dispute_proposal_by flipped to buyer"
+    },
+    {
+      "test": "3_counter_proposal",
+      "success": true,
+      "message": "Proposal updated to split 70/30"
+    },
+    {
+      "test": "3_counter_thread",
+      "success": true,
+      "message": "dispute_thread has counter entry"
+    },
+    {
+      "test": "3_message",
+      "success": true,
+      "message": "Message added to thread"
+    },
+    {
+      "test": "3_empty_message",
+      "success": true,
+      "message": "Empty message rejected"
+    },
+    {
+      "test": "3_accept",
+      "success": true,
+      "message": "Accept auto-resolved with correct state"
+    },
+    {
+      "test": "3_accept_release",
+      "success": true,
+      "message": "RELEASE accepted correctly"
+    },
+    {
+      "test": "3_accept_refund",
+      "success": true,
+      "message": "REFUND accepted correctly"
+    },
+    {
+      "test": "4_manual_escalate",
+      "success": true,
+      "message": "Manual escalation successful"
+    },
+    {
+      "test": "4_counter_after_escalate",
+      "success": true,
+      "message": "Counter after escalation rejected"
+    },
+    {
+      "test": "4_accept_after_escalate",
+      "success": true,
+      "message": "Accept after escalation rejected"
+    },
+    {
+      "test": "4_admin_resolve",
+      "success": true,
+      "message": "Admin resolve successful"
+    },
+    {
+      "test": "4_auto_escalate_scan",
+      "success": true,
+      "message": "Auto-escalate scan successful: 0 deals"
+    },
+    {
+      "test": "5_public_counter",
+      "success": true,
+      "message": "Public counter successful"
+    },
+    {
+      "test": "5_public_accept_own",
+      "success": true,
+      "message": "Public accept own proposal rejected"
+    },
+    {
+      "test": "5_public_flow",
+      "success": true,
+      "message": "Public counter + authed accept successful"
+    },
+    {
+      "test": "5_public_message",
+      "success": true,
+      "message": "Public message successful"
+    },
+    {
+      "test": "5_public_escalate",
+      "success": true,
+      "message": "Public escalate successful"
+    },
+    {
+      "test": "6_happy_path",
+      "success": true,
+      "message": "Happy path successful"
+    },
+    {
+      "test": "6_idempotency",
+      "success": true,
+      "message": "Accept idempotency working"
+    }
+  ]
+}

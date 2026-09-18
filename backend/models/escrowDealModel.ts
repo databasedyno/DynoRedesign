@@ -186,6 +186,20 @@ const escrowDealModel = sequelize.define(
     needs_admin_review: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
     // ── Onboarding ─────────────────────────────────────────────────────────
     counterparty_verified_at: { type: DataTypes.DATE, allowNull: true },
+    // ── Dispute negotiation (two-tier: parties settle first, admin fallback) ─
+    // Stage of an open dispute: 'negotiation' (parties exchanging proposals) |
+    // 'escalated' (handed to a DynoPay admin) | 'resolved'. Null when not disputed.
+    dispute_stage: { type: DataTypes.STRING(16), allowNull: true },
+    // The current active proposal awaiting the other party's response:
+    // { outcome:'release'|'refund'|'split', split_percent_seller, by:'buyer'|'seller', at, message }
+    dispute_proposal: { type: DataTypes.JSONB, allowNull: true },
+    // Which side made the current active proposal (the OTHER side responds).
+    dispute_proposal_by: { type: DataTypes.STRING(10), allowNull: true },
+    dispute_escalated_at: { type: DataTypes.DATE, allowNull: true },
+    // When an un-answered negotiation auto-escalates to admin (set now + window).
+    dispute_auto_escalate_at: { type: DataTypes.DATE, allowNull: true },
+    // Negotiation/evidence thread: [{ at, by, type, outcome?, split_percent_seller?, message? }].
+    dispute_thread: { type: DataTypes.JSONB, allowNull: false, defaultValue: [] },
     // Timeline / audit trail: array of { at, type, actor, role, note, meta }.
     activity_log: {
       type: DataTypes.JSONB,

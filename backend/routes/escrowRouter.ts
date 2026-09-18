@@ -17,6 +17,7 @@ escrowRouter.get("/escrow/admin/deals", adminAuthMiddleware, escrowController.ad
 escrowRouter.get("/escrow/admin/disputes", adminAuthMiddleware, escrowController.adminDisputeQueue);
 escrowRouter.post("/escrow/admin/run-auto-release", adminAuthMiddleware, escrowController.adminRunAutoRelease);
 escrowRouter.post("/escrow/admin/run-payout-reminders", adminAuthMiddleware, escrowController.adminRunPayoutReminders);
+escrowRouter.post("/escrow/admin/run-dispute-escalations", adminAuthMiddleware, escrowController.adminRunDisputeEscalations);
 escrowRouter.post("/escrow/admin/:id/resolve", adminAuthMiddleware, escrowController.adminResolveDispute);
 
 // ── Merchant (authenticated) ─────────────────────────────────────────────────
@@ -28,6 +29,10 @@ escrowRouter.post("/escrow/:id/payout-info", authMiddleware, escrowController.se
 escrowRouter.post("/escrow/:id/deliver", authMiddleware, escrowController.markDelivered);
 escrowRouter.post("/escrow/:id/release", authMiddleware, escrowController.confirmRelease);
 escrowRouter.post("/escrow/:id/dispute", authMiddleware, escrowController.raiseDispute);
+escrowRouter.post("/escrow/:id/dispute/counter", authMiddleware, escrowController.counterDispute);
+escrowRouter.post("/escrow/:id/dispute/accept", authMiddleware, escrowController.acceptDispute);
+escrowRouter.post("/escrow/:id/dispute/message", authMiddleware, escrowController.disputeMessage);
+escrowRouter.post("/escrow/:id/dispute/escalate", authMiddleware, escrowController.escalateDispute);
 escrowRouter.post("/escrow/:id/cancel", authMiddleware, escrowController.cancelDeal);
 escrowRouter.post("/escrow/:id/simulate-fund", authMiddleware, escrowController.simulateFund);
 

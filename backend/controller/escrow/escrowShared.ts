@@ -49,6 +49,12 @@ export const TERMINAL_STATUSES: EscrowStatus[] = [
 /** Default hold/payout stablecoins (decision 6). */
 export const ESCROW_STABLECOINS = ["USDT-TRON", "USDC"] as const;
 export const DEFAULT_ESCROW_STABLECOIN = "USDT-TRON";
+/**
+ * Custody is ALWAYS held as USDT on Binance: funded crypto is swept to the
+ * exchange and instantly converted to USDT. The specific network/stablecoin is
+ * only chosen at withdrawal (cashout).
+ */
+export const CUSTODY_STABLECOIN = "USDT";
 
 /**
  * Allowed forward transitions. An invalid jump (e.g. a disputed deal silently
@@ -131,6 +137,11 @@ function round2(n: number): number {
   return Math.round((Number(n) + Number.EPSILON) * 100) / 100;
 }
 
+/** True when a coin string represents USDT on any network (already the custody asset). */
+function isUsdtCoin(coin?: string | null): boolean {
+  return !!coin && /usdt/i.test(String(coin));
+}
+
 /** Cheapest inbound sweep among a comma-list of accepted coins (for the quote). */
 function estimateInboundFee(fundingCoin?: string | null, acceptedCoins?: string | null): number {
   if (fundingCoin) return sweepFeeUsdFor(fundingCoin);
@@ -177,13 +188,21 @@ export function computeFeeBreakdown(input: {
 
   const escrowFee = round2(Math.max((amount * feePercent) / 100, feeMinUsd));
 
-  // ── settlement cost estimate ───────────────────────────────────────────────
+  // ── settlement cost estimate (all via Binance; custody held in USDT) ────────
   const includeCosts = input.includeCosts !== false;
   const payoutKey = normalizePayoutKey(input.payoutCoin || DEFAULT_PAYOUT_KEY);
   const rates = getEscrowCostRates();
+  const convPct = rates.conversionPct || 0;
+  // Inbound: sweep the funded crypto to Binance + convert it to USDT (custody).
+  // The conversion is skipped when the buyer already funds in USDT (any network).
+  const fundedIsUsdt = isUsdtCoin(input.fundingCoin);
   const networkFeeUsd = includeCosts ? round2(estimateInboundFee(input.fundingCoin, input.acceptedCoins)) : 0;
-  const conversionFeeUsd = includeCosts ? round2((amount * (rates.conversionPct || 0)) / 100) : 0;
-  const withdrawalFeeUsd = includeCosts ? round2(withdrawFeeUsdFor(payoutKey)) : 0;
+  const conversionFeeUsd = includeCosts && !fundedIsUsdt ? round2((amount * convPct) / 100) : 0;
+  // Outbound: withdraw USDT to the payout network. A USDC cash-out needs an extra
+  // USDT->USDC conversion on Binance — merged into the single withdrawal figure.
+  const payoutIsUsdc = payoutKey.startsWith("USDC");
+  const payoutConversionUsd = includeCosts && payoutIsUsdc ? round2((amount * convPct) / 100) : 0;
+  const withdrawalFeeUsd = includeCosts ? round2(withdrawFeeUsdFor(payoutKey) + payoutConversionUsd) : 0;
   const passThroughCosts = round2(networkFeeUsd + conversionFeeUsd + withdrawalFeeUsd);
   const totalCost = round2(escrowFee + passThroughCosts);
 
@@ -206,9 +225,16 @@ export function computeFeeBreakdown(input: {
   ];
   if (includeCosts) {
     costItems.push(
-      { key: "network_fee", label: "Network fee (est.)", amount: networkFeeUsd, note: "On-chain fee to move the funded crypto into custody." },
-      { key: "conversion_fee", label: "Conversion fee (est.)", amount: conversionFeeUsd, note: "Converting the crypto to a stablecoin on the exchange." },
-      { key: "withdrawal_fee", label: `Withdrawal fee (est., ${payoutKey})`, amount: withdrawalFeeUsd, note: "Exchange withdrawal fee to pay the stablecoin out at cashout." }
+      { key: "network_fee", label: "Network fee (est.)", amount: networkFeeUsd, note: "On-chain fee to move the funded crypto to the exchange (custody)." },
+      { key: "conversion_fee", label: "Conversion fee (est.)", amount: conversionFeeUsd, note: fundedIsUsdt ? "No conversion — funded directly in USDT." : "Converting the funded crypto to USDT on the exchange." },
+      {
+        key: "withdrawal_fee",
+        label: `Withdrawal fee (est., ${payoutKey})`,
+        amount: withdrawalFeeUsd,
+        note: payoutIsUsdc
+          ? "Binance withdrawal to this network, incl. the USDT→USDC conversion at cashout."
+          : "Binance withdrawal to pay the USDT out at cashout.",
+      }
     );
   }
 
@@ -263,6 +289,13 @@ export function appendActivity(
 /**
  * Compute the settlement amounts for an outcome (does NOT move money).
  * splitPercentSeller only applies to outcome === "split".
+ *
+ * Fee policy (all outcomes): the platform ALWAYS retains the full cost
+ * (escrow fee + network + conversion + withdrawal = totalCost). The distributable
+ * pool is therefore `P = sellerReceives` (== buyerPays − totalCost, which holds for
+ * every fee_payer). Each outcome splits P between the parties; the retained
+ * `platformFee` shown is the escrow-fee revenue line (pass-through costs are also
+ * retained but are not platform revenue).
  */
 export function computeSettlementAmounts(
   breakdown: FeeBreakdown,
@@ -274,31 +307,34 @@ export function computeSettlementAmounts(
   buyerRefund: number;
   platformFee: number;
 } {
+  // Distributable pool after the platform keeps every fee/cost, on ANY outcome.
+  const pool = round2(breakdown.sellerReceives);
   if (outcome === "release") {
     return {
       outcome,
-      sellerAmount: breakdown.sellerReceives,
+      sellerAmount: pool,
       buyerRefund: 0,
       platformFee: breakdown.platformFee,
     };
   }
   if (outcome === "refund") {
-    // Full refund to buyer — platform waives the escrow fee on a refund.
+    // Fees are NOT waived on a refund — the buyer is refunded the net pool and the
+    // platform keeps the escrow fee + settlement costs (decision: always charge).
     return {
       outcome,
       sellerAmount: 0,
-      buyerRefund: breakdown.buyerPays,
-      platformFee: 0,
+      buyerRefund: pool,
+      platformFee: breakdown.platformFee,
     };
   }
-  // split — sellerPct of the deal amount goes to the seller, remainder refunded.
+  // split — sellerPct of the NET POOL goes to the seller, the remainder is refunded.
   const pct = Math.max(0, Math.min(100, Number(splitPercentSeller ?? 50)));
-  const sellerShare = round2((breakdown.amount * pct) / 100);
-  const buyerShare = round2(breakdown.amount - sellerShare);
+  const sellerShare = round2((pool * pct) / 100);
+  const buyerShare = round2(pool - sellerShare);
   return {
     outcome,
     sellerAmount: sellerShare,
-    buyerRefund: round2(buyerShare + (breakdown.buyerPays - breakdown.amount)),
+    buyerRefund: buyerShare,
     platformFee: breakdown.platformFee,
   };
 }
@@ -331,7 +367,20 @@ export function deriveSettlement(d: {
   outcome?: string | null;
   seller_payout_state?: string | null;
   buyer_payout_state?: string | null;
+  dispute_stage?: string | null;
 }): { phase: "none" | "pending" | "partial" | "paid"; label: string } {
+  // An open dispute reflects its negotiation stage in the label.
+  if (d.status === "disputed") {
+    const stage = d.dispute_stage || "negotiation";
+    const label =
+      stage === "escalated"
+        ? "In dispute — admin review"
+        : stage === "resolved"
+        ? "Dispute resolved"
+        : "In dispute — awaiting response";
+    return { phase: "none", label };
+  }
+
   const legStates = [d.seller_payout_state, d.buyer_payout_state].filter(
     (s) => s && s !== "na"
   ) as string[];
