@@ -1,0 +1,16 @@
+{
+  "summary": "Full backend + frontend verification of the new /brands portfolio feature for the owner test account (5 brands). All 9 requested checks pass. Backend GET /api/dashboard/brands is auth-gated (401 without token), returns the correct shape (summary + brands[] + range + currency/currency_symbol), sorts by settled DESC with is_new brands last, echoes ?period, and all-time totals >= 30d (all=$31,847.06 >= 30d=$5,149.36). Frontend /brands renders brands-root, summary strip with all 5 tiles, brands-grid with 5 brand-card-<id> cards (1 The Dev Store, 71 SMADAV, 165 Nameword, 228 QA HashKeys, 219 QA BuyerEmail), default 30D preset ($5,149.36 shown), range presets refetch (network call to dashboard/brands?period=7d & period=all fired and summary updated to $1,131.18 and $31,847.06 respectively), sidebar-item-brands is visible (5 brands >= 2) and navigates to /brands, company-selector-view-all-brands is visible and navigates to /brands, Manage on SMADAV (brand-manage-71) switches active brand to SMADAV and routes to /dashboard (company-selector-name = 'SMADAV'). No console errors. No horizontal overflow at 1920x900 or 390x844.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": ["/app/test_reports/brands_desktop.png", "/app/test_reports/brands_mobile.png"],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "owner onarrival21@gmail.com; token obtained via node /app/scripts/qa/owner_login.cjs <BASE>",
+  "seed_data_creation": "None (READ-ONLY). Manage flow persisted last_company_id to 71 briefly then reset to 1 in browser storage; no server writes beyond the standard selectCompany call.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Feature is stable. Brand list order confirmed by settled DESC: 1 (4818.53) > 71 (310.85) > 165 (19.98) > 228 (is_new) > 219 (is_new). Period matrix verified: today=0, 7d=1131.18, 30d=5149.36, 90d=16900.4, 1y=31847.06, all=31847.06.",
+  "rca of the issue": "N/A - no issues found."
+}

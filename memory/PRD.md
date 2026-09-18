@@ -1,3 +1,43 @@
+# === 2026-06 (fork) BRANDS OVERVIEW PAGE — DONE & VERIFIED (testing_agent iteration_197: backend 100%, frontend 100%, 0 issues) ===
+# User PRD: a "Brands overview" page showing every brand on the account in one view — a stats summary (settled
+# volume, payments, pending, needs-attention, brand count), a time-range filter (default 30D), and a per-brand
+# "Manage" button that switches the active brand and opens its dashboard; plus a left-nav "Brands" item and a
+# top-switcher "View all brands" option. User choices (ask_human): nav item shown ONLY for 2+ brands, pinned
+# under Dashboard; keep BOTH entry points; amounts unified into the account display currency (native cur as a
+# small label when it differs). English.
+#
+# BACKEND (was pre-built last fork; only the route was missing):
+#   • GET /api/dashboard/brands (dashboardRouter, authMiddleware) -> controller/brandsController.getBrands.
+#     Resolves accessible brands (owned via companyModel.user_id + active team memberships via teamMemberModel),
+#     runs services/dashboard/brandsQueries.{brandStats,brandAttention} + overviewQueries.coinsWithoutWallet per
+#     brand, converts every USD figure to the account display currency (convertToFiat rate), sorts by settled
+#     volume DESC with is_new/empty brands LAST, builds the summary strip, Redis-cached 60s. Query: ?period=
+#     today|7d|30d|90d|1y|all (resolveRange reused from dashboardOverviewController).
+#   VERIFIED (owner user 1, prod read-only): 5 brands, summary {brand_count:5, settled:$5,149.36, payments:93,
+#     pending:$0, attention:3}; period matrix today=0 / 7d=1131.18 / 30d=5149.36 / 90d=16900.4 / 1y=all=31847.06;
+#     401 without token.
+#
+# FRONTEND (all new): pages/brands.tsx -> Components/Page/Brands/{index,BrandsSummary,BrandCard,BrandsRangePresets}.tsx
+#   + hook useBrands.ts (SWR `dashboard/brands?period=`, 60s refresh). Summary strip (data-testid=brands-summary,
+#   tiles brands-sum-{brands,settled,payments,pending,attention}); range pills (brands-range-{today,7d,30d,90d,1y,all},
+#   default 30d, reuse coinbase PillButton); per-brand cards (brand-card-<id>) with settled/payments/pending/
+#   needs-attention (amber when >0) + last-activity relative time + native-currency chip when it differs + Manage
+#   (brand-manage-<id> -> selectCompany(id) + router.push('/dashboard')). Money via utils/currencyFormat.formatCurrency.
+#   Nav: NewSidebar/navSections.ts brands item pinned in the dashboard section, gated brandCount>=2 (brandCount =
+#   companyList.length in NewSidebar/index.tsx); icon 'brands' = MUI GridViewRounded; /brands added to the nav
+#   prefetch list. Switcher: CompanySelector "View all brands" row (company-selector-view-all-brands, shown for 2+
+#   brands) -> /brands. Route guards: helpers/publicPaths.ts PROTECTED_PREFIXES + _app.tsx isPrivatePage (noindex).
+#   i18n ×6 (en/de/es/fr/nl/pt): dashboardLayout.json {brands, viewAllBrands} + common.json brandsOverview.* (all
+#   12 JSON files parse). Default 'client' app-shell layout is inherited automatically (no _app layout change).
+#
+# VERIFY: FE tsc 0, BE tsc 0. iteration_197 all 9 checks pass (range switching refetches + updates summary,
+#   Manage switches brand + routes to /dashboard, "View all brands" navigates, sidebar item visible for 5 brands,
+#   no console errors, no overflow at 1920x800 / 390x844). Preview (THIS pod):
+#   https://0cce8ac9-aadd-4935-940d-e56167a52ed7.preview.emergentagent.com/brands  (setup-vault-7 URL is STALE).
+#   COMMIT: user must click "Save to GitHub" (no local push from pod).
+# ============================================================================================
+
+
 # === 2026-06 (fork: setup-vault) STUCK-PAYOUT "MARK AS RESOLVED" (ops acknowledge) — DONE & SELF-VERIFIED (backend curl e2e + FE browser + FE/BE tsc 0) ===
 # CONTEXT: last open item — the stuck $18.81 (tx 883) in Payouts "Needs attention". User chose (ask_human):
 #   build an OPS-ONLY "mark resolved/acknowledge" action (least invasive, NOT hide); do root-cause first;
