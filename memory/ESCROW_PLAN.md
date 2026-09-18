@@ -262,3 +262,32 @@ payment links, in‑app chat, referral invites, NGN cash‑out.
 3. **RE‑RUN frontend E2E** (auto_frontend_testing_agent) — see test_result.md handoff for the exact
    testids + login recipe. For the 2FA step, target the TOTP entry specifically (the screen renders
    segmented digit boxes → `input[type=text]` matches many).
+
+
+## SESSION UPDATE (2026-06, fork: escrow-design-polish) — FRONTEND POLISH SHIPPED (code), E2E PENDING
+
+### Done this session (frontend only; backend untouched — it already returns itemised fees)
+- **Shared components** (new, `/app/Components/Page/Escrow/`):
+  - `CoinIcon.tsx` — `CoinIcon`, `CoinChip`, `coinInfo(code)` using the checkout's Iconify `cryptocurrency-color:*` set.
+  - `FeeBreakdownCard.tsx` — itemised: escrow fee / network / conversion / withdrawal → total + buyer pays / seller receives.
+  - `EscrowProgress.tsx` — step ladder (Invited→Accepted→Funded→Delivered→Released/Refunded/Split→Paid out; terminal banner + disputed amber).
+- **api/escrow.ts** — `FeeBreakdown` extended (networkFeeUsd/conversionFeeUsd/withdrawalFeeUsd/passThroughCosts/totalCost/payoutCoin/costsEstimated/costItems[] + `CostItem`); `feePreview` sends `payout_coin` + `accepted_coins`.
+- **escrowUtils.ts** — `PAYOUT_OPTIONS` (5 nets: USDT Tron/ERC20/Polygon, USDC ERC20/Polygon), `PAYOUT_STABLECOINS`, `payoutOptionLabel()`.
+- **CreateEscrowDialog** — DynoPay Logo header, role/fee-payer cards, coin icon chips, live itemised quote, QR success (qrcode.react), confetti.
+- **EscrowDetail** — progress card, FeeBreakdownCard amounts, coin icons in custody/legs, 5-network payout picker, confetti on release/pay.
+- **EscrowInvite (public)** — DynoPay Logo brand bar, progress tracker, itemised breakdown, coin icons, 5-network cash-out, confetti.
+- **EscrowDashboard** — DynoPay Logo in banner.
+- Verified `tsc --noEmit` = 0; all escrow routes compiled; `/escrow` = 200 locally.
+
+### TODO for next agent (in order)
+1. **RE-RUN frontend E2E via testing_agent** — escrow surfaces. Merchant login = user 1 (onarrival21@gmail.com,
+   TOTP: `node /app/backend/scripts/print_totp.cjs 1`). Flows: create deal (assert escrow-fee-preview itemised rows
+   escrow-cost-escrow_fee/network_fee/conversion_fee/withdrawal_fee, escrow-preview-buyerpays/-sellerreceives,
+   escrow-preview-total; on submit assert escrow-created-qr + invite url). Deal detail: escrow-detail-progress renders,
+   payout network picker escrow-address-coin shows 5 options. Public invite: escrow-invite-progress + escrow-invite-total
+   + OTP (single field escrow-invite-otp, preview_otp returned) → accept → fund → deliver → release.
+   Preview URL: https://b93492c2-7db2-4c32-9560-14ab8aa77a80.preview.emergentagent.com (retry if Cloudflare 502 —
+   transient at wrap-up). To create a public-invite test deal, POST /api/escrow (merchant token) then use returned deal_token.
+2. Optional: expand FUNDING_COINS chip set / add per-network sub-labels if desired; wire payout_coin into the
+   create quote (currently the quote uses default USDT-TRON withdrawal fee; seller picks the real network later).
+3. COMMIT via "Save to GitHub" (nothing pushed from pod).

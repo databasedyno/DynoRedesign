@@ -1,9 +1,8 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Box,
   Button,
   CircularProgress,
-  Divider,
   MenuItem,
   Select,
   Stack,
@@ -12,18 +11,38 @@ import {
   useTheme,
 } from "@mui/material";
 import {
-  HandshakeRounded,
   VerifiedUserRounded,
   CheckCircleRounded,
   MarkEmailReadRounded,
   ShieldRounded,
 } from "@mui/icons-material";
+import confetti from "canvas-confetti";
+import Logo from "@/assets/Icons/Logo";
 import { escrowPublicApi, EscrowDeal } from "@/api/escrow";
-import { BRAND_ACCENT, brandAlpha } from "@/constants/theme";
+import { BRAND_ACCENT, brandAlpha, brandFg } from "@/constants/theme";
 import StatusChip from "@/Components/Page/Escrow/StatusChip";
-import { money, stable, shortDate, titleize, legTone, FUNDING_COINS, PAYOUT_STABLECOINS } from "@/Components/Page/Escrow/escrowUtils";
+import EscrowProgress from "@/Components/Page/Escrow/EscrowProgress";
+import FeeBreakdownCard from "@/Components/Page/Escrow/FeeBreakdownCard";
+import { CoinIcon } from "@/Components/Page/Escrow/CoinIcon";
+import { stable, shortDate, titleize, legTone, FUNDING_COINS, PAYOUT_OPTIONS } from "@/Components/Page/Escrow/escrowUtils";
 
 type ActiveAction = null | "decline" | "fund" | "deliver" | "release" | "dispute" | "address";
+
+const celebrate = () => {
+  try {
+    confetti({
+      disableForReducedMotion: true,
+      particleCount: 90,
+      spread: 72,
+      startVelocity: 40,
+      origin: { x: 0.5, y: 0.35 },
+      colors: ["#4338CA", "#6366F1", "#818CF8", "#12B76A"],
+      scalar: 0.9,
+    });
+  } catch {
+    /* best-effort */
+  }
+};
 
 export default function EscrowInvite({ token }: { token: string }) {
   const theme = useTheme();
@@ -131,6 +150,7 @@ export default function EscrowInvite({ token }: { token: string }) {
       setActive(null);
       setReason("");
       flash(action === "accept" ? "Invitation accepted." : "Invitation declined.");
+      if (action === "accept") setTimeout(celebrate, 100);
     } catch (e: any) {
       flash(e?.response?.data?.message || "Could not submit your response.", "err");
     } finally {
@@ -138,7 +158,7 @@ export default function EscrowInvite({ token }: { token: string }) {
     }
   };
 
-  const doAction = async (body: Parameters<typeof escrowPublicApi.action>[2], okMsg: string) => {
+  const doAction = async (body: Parameters<typeof escrowPublicApi.action>[2], okMsg: string, party?: boolean) => {
     if (!sessionToken) return;
     setBusy(true);
     try {
@@ -149,6 +169,7 @@ export default function EscrowInvite({ token }: { token: string }) {
       setReason("");
       setAddr("");
       flash(okMsg);
+      if (party) setTimeout(celebrate, 100);
     } catch (e: any) {
       flash(e?.response?.data?.message || "That action could not be completed.", "err");
     } finally {
@@ -184,14 +205,14 @@ export default function EscrowInvite({ token }: { token: string }) {
     <Box sx={{ minHeight: "100vh", backgroundColor: pageBg, py: { xs: 3, sm: 6 }, px: 2 }}>
       {/* brand bar */}
       <Box sx={{ maxWidth: 620, mx: "auto", mb: 2.5, display: "flex", alignItems: "center", gap: 1 }}>
-        <Box sx={{ width: 34, height: 34, borderRadius: 1.5, display: "grid", placeItems: "center", backgroundColor: BRAND_ACCENT, color: "#fff" }}>
-          <HandshakeRounded fontSize="small" />
+        <Box sx={{ width: 36, height: 36, borderRadius: 2, display: "grid", placeItems: "center", backgroundColor: brandAlpha(isDark ? 0.16 : 0.1) }}>
+          <Logo width={24} height={24} />
         </Box>
         <Typography sx={{ fontWeight: 800, fontSize: 18 }}>DynoPay</Typography>
         <Box sx={{ flex: 1 }} />
-        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, color: "text.secondary" }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, color: brandFg(isDark) }}>
           <ShieldRounded sx={{ fontSize: 16 }} />
-          <Typography sx={{ fontSize: 12.5, fontWeight: 600 }}>Secure escrow</Typography>
+          <Typography sx={{ fontSize: 12.5, fontWeight: 700 }}>Secure escrow</Typography>
         </Box>
       </Box>
 
@@ -217,18 +238,19 @@ export default function EscrowInvite({ token }: { token: string }) {
                 <b>{deal.created_by || deal.brand}</b> invited you as the <b>{titleize(myRole)}</b>.
               </Typography>
 
+              {/* Progress tracker */}
+              <Box sx={{ mb: 2 }}>
+                <EscrowProgress deal={deal} testId="escrow-invite-progress" />
+              </Box>
+
               {deal.description && (
                 <Typography sx={{ fontSize: 14, mb: 2, whiteSpace: "pre-wrap" }}>{deal.description}</Typography>
               )}
 
-              <Box sx={{ p: 1.6, borderRadius: 2, backgroundColor: brandAlpha(isDark ? 0.12 : 0.06) }}>
-                <Stack spacing={0.6}>
-                  <Row label="Deal amount" value={money(deal.amount, deal.currency)} />
-                  {b && <Row label={`Escrow fee (${b.feePercent}%, ${titleize(b.feePayer)} pays)`} value={money(b.escrowFee, deal.currency)} />}
-                  <Divider sx={{ my: 0.5 }} />
-                  {b && <Row label="Buyer pays" value={money(b.buyerPays, deal.currency)} bold />}
-                  {b && <Row label="Seller receives" value={money(b.sellerReceives, deal.currency)} bold />}
-                </Stack>
+              <Box sx={{ p: 1.8, borderRadius: 2, backgroundColor: brandAlpha(isDark ? 0.1 : 0.05) }}>
+                {b ? (
+                  <FeeBreakdownCard breakdown={b} currency={deal.currency} totalTestId="escrow-invite-total" />
+                ) : null}
               </Box>
 
               {deal.terms && (
@@ -244,14 +266,20 @@ export default function EscrowInvite({ token }: { token: string }) {
                   <Typography sx={{ fontSize: 12.5, fontWeight: 700, color: "text.secondary", mb: 1 }}>Settlement</Typography>
                   <Stack spacing={1}>
                     {deal.seller_payout_state && deal.seller_payout_state !== "na" && (
-                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <Typography sx={{ fontSize: 13 }}>Seller payout · {stable(deal.seller_entitlement_stable, deal.custody_stablecoin)}</Typography>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 1 }}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.6, minWidth: 0 }}>
+                          <CoinIcon code={deal.seller_payout_coin || deal.custody_stablecoin} size={16} />
+                          <Typography sx={{ fontSize: 13 }}>Seller payout · {stable(deal.seller_entitlement_stable, deal.seller_payout_coin || deal.custody_stablecoin)}</Typography>
+                        </Box>
                         <StatusChip tone={legTone(deal.seller_payout_state)} label={titleize(deal.seller_payout_state)} size="sm" />
                       </Box>
                     )}
                     {deal.buyer_payout_state && deal.buyer_payout_state !== "na" && (
-                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <Typography sx={{ fontSize: 13 }}>Buyer refund · {stable(deal.buyer_entitlement_stable, deal.custody_stablecoin)}</Typography>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 1 }}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.6, minWidth: 0 }}>
+                          <CoinIcon code={deal.buyer_refund_coin || deal.custody_stablecoin} size={16} />
+                          <Typography sx={{ fontSize: 13 }}>Buyer refund · {stable(deal.buyer_entitlement_stable, deal.buyer_refund_coin || deal.custody_stablecoin)}</Typography>
+                        </Box>
                         <StatusChip tone={legTone(deal.buyer_payout_state)} label={titleize(deal.buyer_payout_state)} size="sm" />
                       </Box>
                     )}
@@ -380,21 +408,21 @@ export default function EscrowInvite({ token }: { token: string }) {
 
                 {/* Fund */}
                 {canFund && active !== "fund" && (
-                  <ActionRow label={`Fund the escrow (${b ? money(b.buyerPays, deal.currency) : ""})`} onClick={() => setActive("fund")} testId="escrow-invite-fund-open" />
+                  <ActionRow label={`Fund the escrow (${b ? new Intl.NumberFormat("en-US", { style: "currency", currency: deal.currency }).format(b.buyerPays) : ""})`} onClick={() => setActive("fund")} testId="escrow-invite-fund-open" />
                 )}
                 {active === "fund" && (
                   <InlineForm
                     title="Fund the escrow"
                     hint="In preview this is simulated and converted to a stablecoin held in custody — no real crypto moves."
                     onCancel={() => setActive(null)}
-                    onConfirm={() => doAction({ action: "fund", coin }, "Escrow funded (simulated).")}
+                    onConfirm={() => doAction({ action: "fund", coin }, "Escrow funded (simulated).", true)}
                     confirmLabel="Fund now"
                     busy={busy}
                     testId="escrow-invite-fund"
                   >
-                    <Select fullWidth size="small" value={coin} onChange={(e) => setCoin(e.target.value)} data-testid="escrow-invite-fund-coin">
+                    <Select fullWidth size="small" value={coin} onChange={(e) => setCoin(e.target.value)} data-testid="escrow-invite-fund-coin" renderValue={(v) => <CoinMenuLabel code={String(v)} prefix="Pay with " />}>
                       {FUNDING_COINS.map((c) => (
-                        <MenuItem key={c} value={c}>Pay with {c}</MenuItem>
+                        <MenuItem key={c} value={c}><CoinMenuLabel code={c} /></MenuItem>
                       ))}
                     </Select>
                   </InlineForm>
@@ -426,7 +454,7 @@ export default function EscrowInvite({ token }: { token: string }) {
                     title="Release funds to the seller?"
                     hint="This confirms the deal is complete and authorizes the seller payout."
                     onCancel={() => setActive(null)}
-                    onConfirm={() => doAction({ action: "release" }, "Release authorized.")}
+                    onConfirm={() => doAction({ action: "release" }, "Release authorized.", true)}
                     confirmLabel="Release"
                     confirmColor="#12B76A"
                     busy={busy}
@@ -446,14 +474,15 @@ export default function EscrowInvite({ token }: { token: string }) {
                 {active === "address" && (
                   <InlineForm
                     title={sellerNeedsAddress ? "Where should we send your funds?" : "Where should your refund go?"}
-                    hint="Paste a stablecoin address you control. This is required — account wallets aren't used here."
+                    hint="Pick a network and paste a stablecoin address you control. This is required — account wallets aren't used here."
                     onCancel={() => setActive(null)}
                     onConfirm={() =>
                       doAction(
                         sellerNeedsAddress
                           ? { action: "payout-info", payout_address: addr.trim(), payout_coin: payoutCoin }
                           : { action: "payout-info", refund_address: addr.trim(), refund_coin: payoutCoin },
-                        "Address saved."
+                        "Address saved.",
+                        true
                       )
                     }
                     confirmLabel="Save address"
@@ -461,9 +490,10 @@ export default function EscrowInvite({ token }: { token: string }) {
                     busy={busy}
                     testId="escrow-invite-address"
                   >
-                    <Select fullWidth size="small" value={payoutCoin} onChange={(e) => setPayoutCoin(e.target.value)} sx={{ mb: 1.5 }} data-testid="escrow-invite-address-coin">
-                      {PAYOUT_STABLECOINS.map((c) => (
-                        <MenuItem key={c} value={c}>{c}</MenuItem>
+                    <Typography sx={{ fontSize: 12, fontWeight: 700, color: "text.secondary", mb: 0.6 }}>Payout network</Typography>
+                    <Select fullWidth size="small" value={payoutCoin} onChange={(e) => setPayoutCoin(e.target.value)} sx={{ mb: 1.5 }} data-testid="escrow-invite-address-coin" renderValue={(v) => <CoinMenuLabel code={String(v)} network />}>
+                      {PAYOUT_OPTIONS.map((o) => (
+                        <MenuItem key={o.key} value={o.key}><CoinMenuLabel code={o.key} network /></MenuItem>
                       ))}
                     </Select>
                     <TextField label={`${payoutCoin} address`} value={addr} onChange={(e) => setAddr(e.target.value)} size="small" fullWidth inputProps={{ "data-testid": "escrow-invite-address-input" }} />
@@ -496,7 +526,7 @@ export default function EscrowInvite({ token }: { token: string }) {
                   <Typography sx={{ fontSize: 13.5, color: "text.secondary" }} data-testid="escrow-invite-no-actions">
                     {status === "disputed"
                       ? "This deal is under dispute. A DynoPay admin will review and resolve it."
-                      : "Nothing to do right now — you&apos;re all set. Check back for updates."}
+                      : "Nothing to do right now — you're all set. Check back for updates."}
                   </Typography>
                 )}
               </Box>
@@ -519,10 +549,13 @@ export default function EscrowInvite({ token }: { token: string }) {
               </Box>
             )}
 
-            <Typography sx={{ textAlign: "center", fontSize: 11.5, color: "text.secondary", mt: 1 }}>
-              Protected by DynoPay escrow · funds are held until the deal completes or a dispute is resolved
-              {deal.simulated ? " · preview (simulated, no real crypto)" : ""}. Invited {shortDate(deal.invited_at)}.
-            </Typography>
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5, mt: 1 }}>
+              <ShieldRounded sx={{ fontSize: 13, color: "text.secondary" }} />
+              <Typography sx={{ textAlign: "center", fontSize: 11.5, color: "text.secondary" }}>
+                Protected by DynoPay escrow · funds held until the deal completes or a dispute is resolved
+                {deal.simulated ? " · preview (simulated, no real crypto)" : ""}. Invited {shortDate(deal.invited_at)}.
+              </Typography>
+            </Box>
           </Stack>
         )}
       </Box>
@@ -530,11 +563,14 @@ export default function EscrowInvite({ token }: { token: string }) {
   );
 }
 
-function Row({ label, value, bold }: { label: string; value: string; bold?: boolean }) {
+function CoinMenuLabel({ code, prefix, network }: { code: string; prefix?: string; network?: boolean }) {
   return (
-    <Box sx={{ display: "flex", justifyContent: "space-between", gap: 2, alignItems: "baseline" }}>
-      <Typography sx={{ fontSize: 13, color: bold ? "text.primary" : "text.secondary", fontWeight: bold ? 700 : 400 }}>{label}</Typography>
-      <Typography sx={{ fontSize: 13.5, fontWeight: bold ? 700 : 500, textAlign: "right" }}>{value}</Typography>
+    <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.8 }}>
+      <CoinIcon code={code} size={18} />
+      <span>
+        {prefix}
+        {network ? PAYOUT_OPTIONS.find((o) => o.key === code)?.label || code : code}
+      </span>
     </Box>
   );
 }

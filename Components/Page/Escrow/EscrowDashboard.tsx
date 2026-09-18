@@ -16,6 +16,7 @@ import { BRAND_ACCENT, brandAlpha } from "@/constants/theme";
 import StatusChip from "./StatusChip";
 import CreateEscrowDialog from "./CreateEscrowDialog";
 import { money, shortDate, titleize } from "./escrowUtils";
+import Logo from "@/assets/Icons/Logo";
 
 type FilterKey = "all" | "open" | "settling" | "done" | "disputed";
 
@@ -106,7 +107,7 @@ export default function EscrowDashboard() {
               flexShrink: 0,
             }}
           >
-            <HandshakeRounded />
+            <Logo width={26} height={26} />
           </Box>
           <Box>
             <Typography sx={{ fontWeight: 700, fontSize: 16 }}>Hold crypto safely until the deal is done</Typography>

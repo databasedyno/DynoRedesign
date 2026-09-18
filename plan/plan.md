@@ -1,127 +1,48 @@
-# Escrow — Value, Custody, Onboarding & Settlement Completion
+# Escrow experience — design polish (end to end)
 
-## Objective
-Decide how escrow value is denominated, how funds are held while a deal is open, how the
-invited counterparty joins and gets paid, and — the focus of this revision — **exactly when
-a deal is considered settled relative to the seller having a payout wallet.**
+## Why
+The escrow feature works but doesn't yet feel native to DynoPay:
+- Coins are shown as plain text with no currency icons (create dialog, coin pickers, settlement).
+- The escrow header uses a generic "handshake" glyph instead of the DynoPay brand logo.
+- The create form and the deal/invite screens read as functional rather than polished.
 
-Builds on the escrow service already in progress (a standalone product where the platform
-holds crypto and releases it on completion or dispute resolution). In the preview, funding
-and settlement are simulated and the exchange is unavailable, so real conversion/custody/
-payout run only in production.
+This is a presentation pass across all three escrow surfaces — merchant dashboard, deal detail, and the public (account‑less) invite page. No changes to escrow rules, money movement, or the API. All money stays simulated (safe mode).
 
----
+## What changes
 
-## Value & custody model (from the prior revision, unchanged)
-- **Deals are priced in fiat** (e.g., USD) — the source of truth for what's owed.
-- Buyer pays in any supported crypto at the live rate.
-- On funding, funds are **swept to platform custody and converted to a stablecoin** (skip if
-  already stable) and recorded per-deal in an internal ledger.
-- **Held in stable** while open, so value never drifts with the market.
-- Release / refund / split pay out in a **stablecoin** of the seller's choosing.
-- This uses **pooled custody + a per-deal ledger** (not per-deal addresses).
+### 1. Brand & logo consistency
+- Replace the handshake icon in every escrow header/brand bar with the real DynoPay logo/mark (the same one used in the top navigation).
+- Give all three surfaces one consistent header: DynoPay mark + an "Escrow" product label; the public invite page also keeps a "Secure escrow" trust cue.
 
----
+### 2. Crypto currency icons everywhere coins appear
+- Show a coin icon next to every coin/stablecoin: the "coins the buyer can pay with" selector, the funding‑coin picker, the payout/refund stablecoin pickers, and in deal detail (custody + settlement).
+- Turn the "coins the buyer can pay with" control from a plain comma list into selectable icon chips so options are scannable at a glance.
+- Where a coin has no available icon, show a neutral token badge with the ticker so nothing looks broken.
 
-## Settlement completion & seller payout timing (this revision)
+### 3. Create‑escrow dialog — clearer layout
+- Reorganize into clean sections with stronger visual hierarchy.
+- Present the two roles ("I'm the seller" / "I'm the buyer") as two clickable cards with a one‑line explanation each, instead of plain radio text.
+- Add a persistent, **itemized** cost summary: deal amount, escrow fee, and the network / conversion / withdrawal estimates, then the total, who pays it, and the resulting "buyer pays" / "seller receives". (This also surfaces the fee detail the backend already calculates.)
+- Improve the post‑create success panel: copy‑link, a QR code of the invite link, and a clear "invitation sent" confirmation.
 
-Settlement is **two phases**, so a missing or late wallet never blocks the deal:
+### 4. Deal detail (merchant) & public invite — progress + clarity
+- Add a horizontal progress tracker for the escrow lifecycle (Invited → Accepted → Funded → Delivered → Released / Settled, with dispute, refund and split branches indicated).
+- Show amounts and settlement as clean cards with coin icons and obvious "in custody / released / refunded" states.
+- Rework the public invite page into a mobile‑first, trust‑building layout: brand header, progress tracker, itemized costs, coin icons, and a clearer "verify → act" sequence.
 
-1. **Outcome authorized.** Triggered by buyer confirmation, the auto-release timer, or an
-   admin ruling. The seller's (and/or buyer's) entitlement is locked in stable value. Does
-   **not** require a payout address.
-2. **Payout executed.** Funds leave custody to the destination address. Runs as soon as a
-   valid destination exists — immediately if on file, or later when it's added.
+### 5. Cashout stablecoin choice
+- Let the party being paid choose their cashout stablecoin + network — USDT on Tron / Ethereum / Polygon, and USDC on Ethereum / Polygon — each shown with its icon, and reflect the matching withdrawal‑fee estimate in the totals.
 
-A deal therefore has a clear "decided but not yet paid" state: **"completed — payout
-pending"**, which becomes **"completed — paid"** once the transfer succeeds. Because value is
-held in stable, time spent pending costs the seller nothing.
+### 6. Consistency & states
+- Consistent status colors/legend, empty states, loading placeholders, and dark‑mode parity across all three surfaces.
 
-### Scenario matrix (seller side, at the moment of release)
-- **Seller signed in to an existing account with a payout wallet** → pay out immediately to
-  the confirmed wallet.
-- **Seller signed in, but no payout wallet set** → payout pending; prompt to add one; pay on
-  add.
-- **Seller has no account but added a stable address earlier** → pay out immediately.
-- **Seller has no account and no address at release** → outcome authorized, **payout
-  pending**; seller is prompted (email + invite page, OTP-verified) to add a stable address;
-  on add + validation → payout executes → fully complete. (This directly answers: yes,
-  settlement completes after the seller adds a wallet post-trade.)
+## Assumptions (change these if wrong)
+- Stay inside the current DynoPay look (indigo, existing component style) — this is polish, not a new visual identity.
+- Reuse the coin icons already used elsewhere in the product for brand consistency; neutral ticker badge as fallback. No new paid service or keys required.
+- The create flow stays a single modal (with a sticky summary), not a full‑page multi‑step wizard.
+- Include a QR code on the invite share panel.
+- Copy stays in English; no new translation scope in this pass.
 
-### Auto-release edge cases
-- Timer elapses with no seller address → still authorizes automatically; payout pending
-  (never blocked by the missing address).
-- A dispute opened before the timer → timer paused (already handled); on resolution the same
-  two-phase rule applies.
-
-### Refund side (buyer)
-- Refund needs a **buyer refund address**. Buyer with account (signed in) → available; buyer
-  without → must provide one. If absent at refund time → **"refunded — payout pending"** until
-  they add it. Same two-phase pattern.
-
-### Split outcome (needs both destinations)
-- Seller leg pays when the seller's stable address is available; buyer leg pays when the
-  buyer's refund address is available. **Each leg can settle independently** — one side may be
-  paid while the other stays pending.
-
-### Existing-account reuse — security stance
-- Paying to an account's saved wallet requires the seller to have **signed in** (proved
-  identity), not merely that the invited email equals an account email. An OTP-only seller
-  (no sign-in) must paste an explicit stable address they control. This prevents anyone
-  holding the invite link from redirecting funds.
-
-### Integrity / failure handling
-- **Idempotent payout** — a deal pays out once even if the address is submitted twice or a
-  trigger fires twice (e.g., buyer confirm racing the auto-release timer).
-- **No payout while disputed** — a pending payout does not execute until a dispute resolves.
-- **Failed on-chain payout (production):** stays "payout pending (retrying)", retried, with an
-  admin alert; value remains safe in stable custody.
-- **Unclaimed funds:** if payout stays pending because the seller never adds an address,
-  reminders are sent, then after a set window it goes to admin review (policy in decisions).
-- **Preview:** the payout step is simulated, but the pending → paid transition is still
-  modeled so the flow is exercised end-to-end.
-
----
-
-## Counterparty onboarding (role-aware, account-optional)
-- Verify the email once with a **6-digit OTP** when the invite opens (no account needed).
-- If the invited email **already has an account**, offer one-tap sign-in to reuse wallet +
-  identity (offered, not forced; required only to pay to an account wallet — see above).
-- **Buyer:** accept, then pay; refund address optional.
-- **Seller:** accept; add a stable payout address any time (before or after release) — funds
-  wait safely.
-- Offer, don't require, creating a full account afterwards.
-
----
-
-## Decisions to confirm
-1. **Two-phase settlement** (authorize the outcome now, pay out when a valid destination
-   exists; deals can sit "completed — payout pending"). Recommended: yes.
-2. **Reuse of an existing account's wallet requires sign-in**, while OTP-only parties must
-   paste their own address. Recommended: yes (security).
-3. **Splits settle per-leg independently** as each address becomes available. Recommended:
-   yes.
-4. **Unclaimed-funds policy:** how long a pending payout waits (reminder cadence) and what
-   happens after (recommended: reminders, then admin review; funds stay in stable custody).
-5. Value/custody model: adopt fiat + convert-to-stable + pooled custody (recommended).
-6. Hold/payout stablecoin(s) & network(s) (default: USDT-TRON + USDC).
-7. Fiat pricing currencies (default: USD first).
-8. Who bears conversion + withdrawal costs (recommended: folded into the buyer-paid amount
-   with network fees).
-9. Stablecoin-only payouts in v1 (recommended) vs a later second conversion to a non-stable
-   coin.
-10. Counterparty identity check: email OTP (recommended) / type-the-email / full account.
-11. KYC/compliance for receiving parties and pooled custody: none in v1 (assumption); flag if
-    legal review is needed above a threshold.
-
----
-
-## Scope
-- **This version:** fiat-priced deals; convert-to-stable on funding into pooled custody with a
-  per-deal ledger; **two-phase settlement** with a "payout pending" state so a deal completes
-  once the seller adds a wallet (or immediately if already available); stable payouts on
-  release/refund/split with per-leg splits; email-OTP counterparty verification; reuse an
-  existing account (sign-in required to use its wallet); the public invite page reflecting all
-  of this. Conversion/custody/payout are simulated in preview.
-- **Later:** non-stable seller payouts (second conversion), multi-fiat pricing, reputation and
-  saved wallets across deals, full counterparty accounts/dashboard, and any KYC gating.
+## Out of scope
+- Escrow business logic, state machine, fee math, and the API contract stay as they are.
+- No live on‑chain settlement is enabled; money remains simulated.

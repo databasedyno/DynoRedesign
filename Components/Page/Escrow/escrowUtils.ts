@@ -111,7 +111,31 @@ export function stable(amount?: number | null, coin?: string | null): string {
 }
 
 export const FUNDING_COINS = ["BTC", "ETH", "USDT-TRON", "USDT-ERC20", "USDC", "LTC", "SOL", "XRP"] as const;
-export const PAYOUT_STABLECOINS = ["USDT-TRON", "USDC"] as const;
+
+/**
+ * Stablecoin cash-out options (kept in sync with the backend
+ * ESCROW_PAYOUT_OPTIONS). Sellers/buyers pick one so the quote's withdrawal
+ * fee matches the network they'll actually receive on.
+ */
+export interface PayoutOption {
+  key: string;
+  coin: "USDT" | "USDC";
+  networkLabel: string;
+  label: string;
+}
+export const PAYOUT_OPTIONS: PayoutOption[] = [
+  { key: "USDT-TRON", coin: "USDT", networkLabel: "Tron (TRC-20)", label: "USDT · Tron (TRC-20)" },
+  { key: "USDT-ERC20", coin: "USDT", networkLabel: "Ethereum (ERC-20)", label: "USDT · Ethereum (ERC-20)" },
+  { key: "USDT-POLYGON", coin: "USDT", networkLabel: "Polygon", label: "USDT · Polygon" },
+  { key: "USDC-ERC20", coin: "USDC", networkLabel: "Ethereum (ERC-20)", label: "USDC · Ethereum (ERC-20)" },
+  { key: "USDC-POLYGON", coin: "USDC", networkLabel: "Polygon", label: "USDC · Polygon" },
+];
+export const PAYOUT_STABLECOINS = PAYOUT_OPTIONS.map((o) => o.key);
+
+export function payoutOptionLabel(key?: string | null): string {
+  const o = PAYOUT_OPTIONS.find((x) => x.key === key);
+  return o ? o.label : key || "USDT-TRON";
+}
 
 export function shortDate(iso?: string | null): string {
   if (!iso) return "—";

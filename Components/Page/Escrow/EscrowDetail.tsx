@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -30,12 +30,32 @@ import {
 } from "@mui/icons-material";
 import { useRouter } from "next/router";
 import { useDispatch } from "react-redux";
+import confetti from "canvas-confetti";
 import { escrowApi, EscrowDeal } from "@/api/escrow";
-import { BRAND_ACCENT, brandAlpha } from "@/constants/theme";
+import { BRAND_ACCENT, brandAlpha, brandFg } from "@/constants/theme";
 import StatusChip from "./StatusChip";
-import { money, stable, shortDate, titleize, legTone, relativeDays, FUNDING_COINS, PAYOUT_STABLECOINS } from "./escrowUtils";
+import EscrowProgress from "./EscrowProgress";
+import FeeBreakdownCard from "./FeeBreakdownCard";
+import { CoinIcon } from "./CoinIcon";
+import { money, stable, shortDate, titleize, legTone, relativeDays, FUNDING_COINS, PAYOUT_OPTIONS } from "./escrowUtils";
 
 type DialogKind = null | "fund" | "deliver" | "release" | "dispute" | "cancel" | "seller-address" | "buyer-address";
+
+const celebrate = () => {
+  try {
+    confetti({
+      disableForReducedMotion: true,
+      particleCount: 90,
+      spread: 72,
+      startVelocity: 40,
+      origin: { x: 0.5, y: 0.35 },
+      colors: ["#4338CA", "#6366F1", "#818CF8", "#12B76A"],
+      scalar: 0.9,
+    });
+  } catch {
+    /* best-effort */
+  }
+};
 
 export default function EscrowDetail({ id }: { id: string | number }) {
   const theme = useTheme();
@@ -91,13 +111,14 @@ export default function EscrowDetail({ id }: { id: string | number }) {
     }
   };
 
-  const runAction = async (fn: () => Promise<EscrowDeal>, successMsg: string) => {
+  const runAction = async (fn: () => Promise<EscrowDeal>, successMsg: string, party?: boolean) => {
     setBusy(true);
     try {
       const updated = await fn();
       setDeal(updated);
       notify(successMsg);
       closeDialog();
+      if (party) setTimeout(celebrate, 100);
     } catch (e: any) {
       notify(e?.response?.data?.message || "That action could not be completed.", "error");
     } finally {
@@ -164,14 +185,18 @@ export default function EscrowDetail({ id }: { id: string | number }) {
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
             <Typography sx={{ fontWeight: 800, fontSize: 20, minWidth: 0 }}>{deal.title}</Typography>
             <StatusChip deal={deal} testId="escrow-detail-status" />
-            {deal.simulated && (
-              <StatusChip tone="neutral" label="Simulated" size="sm" testId="escrow-detail-simulated" />
-            )}
+            {deal.simulated && <StatusChip tone="neutral" label="Simulated" size="sm" testId="escrow-detail-simulated" />}
           </Box>
           <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
             You are the <b>{titleize(myRole)}</b> · deal #{deal.escrow_id}
           </Typography>
         </Box>
+      </Box>
+
+      {/* Progress tracker */}
+      <Box sx={{ ...cardSx, mb: 2 }}>
+        <Typography sx={sectionTitleSx}>Progress</Typography>
+        <EscrowProgress deal={deal} testId="escrow-detail-progress" />
       </Box>
 
       <Box sx={{ display: "flex", gap: 2.5, flexDirection: { xs: "column", md: "row" }, alignItems: "flex-start" }}>
@@ -180,20 +205,17 @@ export default function EscrowDetail({ id }: { id: string | number }) {
           {/* Money / fee breakdown */}
           <Box sx={cardSx}>
             <Typography sx={sectionTitleSx}>Amounts</Typography>
-            <Stack spacing={0.7}>
-              <Row label="Deal amount" value={money(deal.amount, deal.currency)} />
-              <Row label={`Escrow fee (${b.feePercent}%, paid by ${titleize(b.feePayer)})`} value={money(b.escrowFee, deal.currency)} />
-              <Divider sx={{ my: 0.6 }} />
-              <Row label="Buyer pays" value={money(b.buyerPays, deal.currency)} bold />
-              <Row label="Seller receives" value={money(b.sellerReceives, deal.currency)} bold />
-            </Stack>
+            <FeeBreakdownCard breakdown={b} currency={deal.currency} totalTestId="escrow-detail-total" />
             {deal.custody_amount_stable != null && (
               <Box sx={{ mt: 1.5, p: 1.4, borderRadius: 2, backgroundColor: brandAlpha(isDark ? 0.12 : 0.06) }}>
-                <Typography sx={{ fontSize: 12.5, color: BRAND_ACCENT, fontWeight: 700 }}>In custody</Typography>
-                <Typography sx={{ fontSize: 14, fontWeight: 600 }} data-testid="escrow-detail-custody">
-                  {stable(deal.custody_amount_stable, deal.custody_stablecoin)}
-                </Typography>
-                <Typography sx={{ fontSize: 11.5, color: "text.secondary" }}>
+                <Typography sx={{ fontSize: 12.5, color: brandFg(isDark), fontWeight: 700 }}>In custody</Typography>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 0.7, mt: 0.3 }} data-testid="escrow-detail-custody">
+                  <CoinIcon code={deal.custody_stablecoin} size={18} />
+                  <Typography sx={{ fontSize: 14, fontWeight: 700 }}>
+                    {stable(deal.custody_amount_stable, deal.custody_stablecoin)}
+                  </Typography>
+                </Box>
+                <Typography sx={{ fontSize: 11.5, color: "text.secondary", mt: 0.3 }}>
                   Converted on funding{deal.converted_at ? ` · ${shortDate(deal.converted_at)}` : ""} — held stable so the value can&apos;t drift.
                 </Typography>
               </Box>
@@ -209,10 +231,7 @@ export default function EscrowDetail({ id }: { id: string | number }) {
                 label={`Counterparty (${titleize(deal.creator_role === "seller" ? "buyer" : "seller")})`}
                 value={deal.counterparty_email}
               />
-              <Row
-                label="Counterparty verified email"
-                value={deal.counterparty_verified ? "Yes" : "Not yet"}
-              />
+              <Row label="Counterparty verified email" value={deal.counterparty_verified ? "Yes" : "Not yet"} />
             </Stack>
             {deal.terms && (
               <Box sx={{ mt: 1.5 }}>
@@ -243,6 +262,7 @@ export default function EscrowDetail({ id }: { id: string | number }) {
                 {deal.seller_payout_state && deal.seller_payout_state !== "na" && (
                   <LegRow
                     who="Seller payout"
+                    coin={deal.seller_payout_coin || deal.custody_stablecoin}
                     entitlement={stable(deal.seller_entitlement_stable, deal.seller_payout_coin || deal.custody_stablecoin)}
                     state={deal.seller_payout_state}
                     address={deal.seller_payout_address}
@@ -253,6 +273,7 @@ export default function EscrowDetail({ id }: { id: string | number }) {
                 {deal.buyer_payout_state && deal.buyer_payout_state !== "na" && (
                   <LegRow
                     who="Buyer refund"
+                    coin={deal.buyer_refund_coin || deal.custody_stablecoin}
                     entitlement={stable(deal.buyer_entitlement_stable, deal.buyer_refund_coin || deal.custody_stablecoin)}
                     state={deal.buyer_payout_state}
                     address={deal.buyer_refund_address}
@@ -274,20 +295,9 @@ export default function EscrowDetail({ id }: { id: string | number }) {
                   .reverse()
                   .map((a, i) => (
                     <Box key={i} sx={{ display: "flex", gap: 1.2 }}>
-                      <Box
-                        sx={{
-                          width: 8,
-                          height: 8,
-                          borderRadius: 999,
-                          mt: 0.7,
-                          flexShrink: 0,
-                          backgroundColor: BRAND_ACCENT,
-                        }}
-                      />
+                      <Box sx={{ width: 8, height: 8, borderRadius: 999, mt: 0.7, flexShrink: 0, backgroundColor: BRAND_ACCENT }} />
                       <Box>
-                        <Typography sx={{ fontSize: 13.5, fontWeight: 600 }}>
-                          {a.note || titleize(a.type)}
-                        </Typography>
+                        <Typography sx={{ fontSize: 13.5, fontWeight: 600 }}>{a.note || titleize(a.type)}</Typography>
                         <Typography sx={{ fontSize: 11.5, color: "text.secondary" }}>
                           {[a.role ? titleize(a.role) : null, a.actor, a.at ? shortDate(a.at) : null].filter(Boolean).join(" · ")}
                         </Typography>
@@ -354,51 +364,11 @@ export default function EscrowDetail({ id }: { id: string | number }) {
                   primary
                 />
               )}
-              {canFund && (
-                <ActionBtn
-                  icon={<PaymentsRounded />}
-                  label="Fund escrow"
-                  testId="escrow-action-fund"
-                  onClick={() => setDialog("fund")}
-                  primary
-                />
-              )}
-              {canDeliver && (
-                <ActionBtn
-                  icon={<LocalShippingRounded />}
-                  label="Mark as delivered"
-                  testId="escrow-action-deliver"
-                  onClick={() => setDialog("deliver")}
-                  primary
-                />
-              )}
-              {canRelease && (
-                <ActionBtn
-                  icon={<LockOpenRounded />}
-                  label="Release funds"
-                  testId="escrow-action-release"
-                  onClick={() => setDialog("release")}
-                  primary
-                />
-              )}
-              {canDispute && (
-                <ActionBtn
-                  icon={<GavelRounded />}
-                  label="Open dispute"
-                  testId="escrow-action-dispute"
-                  onClick={() => setDialog("dispute")}
-                  tone="warning"
-                />
-              )}
-              {canCancel && (
-                <ActionBtn
-                  icon={<CancelRounded />}
-                  label="Cancel deal"
-                  testId="escrow-action-cancel"
-                  onClick={() => setDialog("cancel")}
-                  tone="error"
-                />
-              )}
+              {canFund && <ActionBtn icon={<PaymentsRounded />} label="Fund escrow" testId="escrow-action-fund" onClick={() => setDialog("fund")} primary />}
+              {canDeliver && <ActionBtn icon={<LocalShippingRounded />} label="Mark as delivered" testId="escrow-action-deliver" onClick={() => setDialog("deliver")} primary />}
+              {canRelease && <ActionBtn icon={<LockOpenRounded />} label="Release funds" testId="escrow-action-release" onClick={() => setDialog("release")} primary />}
+              {canDispute && <ActionBtn icon={<GavelRounded />} label="Open dispute" testId="escrow-action-dispute" onClick={() => setDialog("dispute")} tone="warning" />}
+              {canCancel && <ActionBtn icon={<CancelRounded />} label="Cancel deal" testId="escrow-action-cancel" onClick={() => setDialog("cancel")} tone="error" />}
               {!hasAnyAction && (
                 <Typography sx={{ fontSize: 13, color: "text.secondary" }} data-testid="escrow-no-actions">
                   {status === "disputed"
@@ -419,17 +389,17 @@ export default function EscrowDetail({ id }: { id: string | number }) {
       </Box>
 
       {/* ── Action dialogs ── */}
-      <Dialog open={dialog === "fund"} onClose={busy ? undefined : closeDialog} maxWidth="xs" fullWidth>
+      <Dialog open={dialog === "fund"} onClose={busy ? undefined : closeDialog} maxWidth="xs" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
         <DialogTitle sx={{ fontWeight: 700 }}>Fund the escrow</DialogTitle>
         <DialogContent>
           <Typography sx={{ fontSize: 13.5, color: "text.secondary", mb: 2 }}>
             The buyer pays <b>{money(b.buyerPays, deal.currency)}</b>. In preview this is simulated and converted to a
             stablecoin held in custody — no real crypto moves.
           </Typography>
-          <Select fullWidth size="small" value={coin} onChange={(e) => setCoin(e.target.value)} data-testid="escrow-fund-coin">
+          <Select fullWidth size="small" value={coin} onChange={(e) => setCoin(e.target.value)} data-testid="escrow-fund-coin" renderValue={(v) => <CoinMenuLabel code={String(v)} prefix="Pay with " />}>
             {FUNDING_COINS.map((c) => (
               <MenuItem key={c} value={c}>
-                Pay with {c}
+                <CoinMenuLabel code={c} />
               </MenuItem>
             ))}
           </Select>
@@ -448,7 +418,7 @@ export default function EscrowDetail({ id }: { id: string | number }) {
         </DialogActions>
       </Dialog>
 
-      <Dialog open={dialog === "deliver"} onClose={busy ? undefined : closeDialog} maxWidth="xs" fullWidth>
+      <Dialog open={dialog === "deliver"} onClose={busy ? undefined : closeDialog} maxWidth="xs" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
         <DialogTitle sx={{ fontWeight: 700 }}>Mark as delivered</DialogTitle>
         <DialogContent>
           <Typography sx={{ fontSize: 13.5, color: "text.secondary", mb: 2 }}>
@@ -479,7 +449,7 @@ export default function EscrowDetail({ id }: { id: string | number }) {
         </DialogActions>
       </Dialog>
 
-      <Dialog open={dialog === "release"} onClose={busy ? undefined : closeDialog} maxWidth="xs" fullWidth>
+      <Dialog open={dialog === "release"} onClose={busy ? undefined : closeDialog} maxWidth="xs" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
         <DialogTitle sx={{ fontWeight: 700 }}>Release funds to the seller</DialogTitle>
         <DialogContent>
           <Typography sx={{ fontSize: 13.5, color: "text.secondary" }}>
@@ -493,7 +463,7 @@ export default function EscrowDetail({ id }: { id: string | number }) {
           <Button
             variant="contained"
             disabled={busy}
-            onClick={() => runAction(() => escrowApi.release(deal.escrow_id), "Release authorized.")}
+            onClick={() => runAction(() => escrowApi.release(deal.escrow_id), "Release authorized.", true)}
             data-testid="escrow-release-confirm"
             sx={{ backgroundColor: "#12B76A", textTransform: "none", fontWeight: 700 }}
           >
@@ -502,7 +472,7 @@ export default function EscrowDetail({ id }: { id: string | number }) {
         </DialogActions>
       </Dialog>
 
-      <Dialog open={dialog === "dispute"} onClose={busy ? undefined : closeDialog} maxWidth="xs" fullWidth>
+      <Dialog open={dialog === "dispute"} onClose={busy ? undefined : closeDialog} maxWidth="xs" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
         <DialogTitle sx={{ fontWeight: 700 }}>Open a dispute</DialogTitle>
         <DialogContent>
           <Typography sx={{ fontSize: 13.5, color: "text.secondary", mb: 2 }}>
@@ -533,7 +503,7 @@ export default function EscrowDetail({ id }: { id: string | number }) {
         </DialogActions>
       </Dialog>
 
-      <Dialog open={dialog === "cancel"} onClose={busy ? undefined : closeDialog} maxWidth="xs" fullWidth>
+      <Dialog open={dialog === "cancel"} onClose={busy ? undefined : closeDialog} maxWidth="xs" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
         <DialogTitle sx={{ fontWeight: 700 }}>Cancel this deal</DialogTitle>
         <DialogContent>
           <Typography sx={{ fontSize: 13.5, color: "text.secondary", mb: 2 }}>
@@ -562,20 +532,21 @@ export default function EscrowDetail({ id }: { id: string | number }) {
         </DialogActions>
       </Dialog>
 
-      <Dialog open={dialog === "seller-address" || dialog === "buyer-address"} onClose={busy ? undefined : closeDialog} maxWidth="xs" fullWidth>
+      <Dialog open={dialog === "seller-address" || dialog === "buyer-address"} onClose={busy ? undefined : closeDialog} maxWidth="xs" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
         <DialogTitle sx={{ fontWeight: 700 }}>
           {dialog === "seller-address" ? "Add your payout address" : "Add your refund address"}
         </DialogTitle>
         <DialogContent>
           <Typography sx={{ fontSize: 13.5, color: "text.secondary", mb: 2 }}>
             {dialog === "seller-address"
-              ? "Where should DynoPay send your released funds? Paste a stablecoin address you control."
-              : "Where should your refund be sent? Paste a stablecoin address you control."}
+              ? "Where should DynoPay send your released funds? Pick a network and paste a stablecoin address you control."
+              : "Where should your refund be sent? Pick a network and paste a stablecoin address you control."}
           </Typography>
-          <Select fullWidth size="small" value={payoutCoin} onChange={(e) => setPayoutCoin(e.target.value)} sx={{ mb: 2 }} data-testid="escrow-address-coin">
-            {PAYOUT_STABLECOINS.map((c) => (
-              <MenuItem key={c} value={c}>
-                {c}
+          <Typography sx={{ fontSize: 12, fontWeight: 700, color: "text.secondary", mb: 0.6 }}>Payout network</Typography>
+          <Select fullWidth size="small" value={payoutCoin} onChange={(e) => setPayoutCoin(e.target.value)} sx={{ mb: 2 }} data-testid="escrow-address-coin" renderValue={(v) => <CoinMenuLabel code={String(v)} network />}>
+            {PAYOUT_OPTIONS.map((o) => (
+              <MenuItem key={o.key} value={o.key}>
+                <CoinMenuLabel code={o.key} network />
               </MenuItem>
             ))}
           </Select>
@@ -602,7 +573,8 @@ export default function EscrowDetail({ id }: { id: string | number }) {
                       ? { payout_address: addr.trim(), payout_coin: payoutCoin }
                       : { refund_address: addr.trim(), refund_coin: payoutCoin }
                   ),
-                "Address saved."
+                "Address saved.",
+                true
               )
             }
             data-testid="escrow-address-confirm"
@@ -618,6 +590,18 @@ export default function EscrowDetail({ id }: { id: string | number }) {
 
 const sectionTitleSx = { fontSize: 12.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5, color: "text.secondary", mb: 1.5 } as const;
 
+function CoinMenuLabel({ code, prefix, network }: { code: string; prefix?: string; network?: boolean }) {
+  return (
+    <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.8 }}>
+      <CoinIcon code={code} size={18} />
+      <span>
+        {prefix}
+        {network ? PAYOUT_OPTIONS.find((o) => o.key === code)?.label || code : code}
+      </span>
+    </Box>
+  );
+}
+
 function Row({ label, value, bold }: { label: string; value: string; bold?: boolean }) {
   return (
     <Box sx={{ display: "flex", justifyContent: "space-between", gap: 2, alignItems: "baseline" }}>
@@ -629,6 +613,7 @@ function Row({ label, value, bold }: { label: string; value: string; bold?: bool
 
 function LegRow({
   who,
+  coin,
   entitlement,
   state,
   address,
@@ -636,6 +621,7 @@ function LegRow({
   paidAt,
 }: {
   who: string;
+  coin?: string | null;
   entitlement: string;
   state: string;
   address?: string | null;
@@ -648,7 +634,10 @@ function LegRow({
         <Typography sx={{ fontSize: 13.5, fontWeight: 600 }}>{who}</Typography>
         <StatusChip tone={legTone(state)} label={titleize(state)} size="sm" />
       </Box>
-      <Typography sx={{ fontSize: 13 }}>{entitlement}</Typography>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 0.6, mt: 0.2 }}>
+        <CoinIcon code={coin} size={16} />
+        <Typography sx={{ fontSize: 13 }}>{entitlement}</Typography>
+      </Box>
       {address && <Typography sx={{ fontSize: 11.5, color: "text.secondary", wordBreak: "break-all" }}>To {address}</Typography>}
       {tx && <Typography sx={{ fontSize: 11.5, color: "text.secondary", wordBreak: "break-all" }}>Tx {tx}{paidAt ? ` · ${shortDate(paidAt)}` : ""}</Typography>}
     </Box>

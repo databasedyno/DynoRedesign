@@ -1,35 +1,28 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Box,
   Button,
   Dialog,
   DialogContent,
-  DialogTitle,
-  Divider,
-  FormControlLabel,
   IconButton,
   InputAdornment,
-  MenuItem,
-  Radio,
-  RadioGroup,
-  Select,
   Stack,
   TextField,
   Tooltip,
   Typography,
   useTheme,
 } from "@mui/material";
-import {
-  CloseRounded,
-  ContentCopyRounded,
-  HandshakeRounded,
-  OpenInNewRounded,
-  CheckCircleRounded,
-} from "@mui/icons-material";
+import { CloseRounded, ContentCopyRounded, OpenInNewRounded, CheckCircleRounded } from "@mui/icons-material";
+import { Icon } from "@iconify/react";
+import { QRCodeSVG } from "qrcode.react";
+import confetti from "canvas-confetti";
 import { useDispatch } from "react-redux";
+import Logo from "@/assets/Icons/Logo";
 import { escrowApi, EscrowDeal, FeeBreakdown, FeePayer, EscrowRole } from "@/api/escrow";
-import { BRAND_ACCENT, brandAlpha } from "@/constants/theme";
-import { money } from "./escrowUtils";
+import { BRAND_ACCENT, brandAlpha, brandFg } from "@/constants/theme";
+import { FUNDING_COINS } from "./escrowUtils";
+import { CoinIcon, coinInfo } from "./CoinIcon";
+import FeeBreakdownCard from "./FeeBreakdownCard";
 
 interface Props {
   open: boolean;
@@ -37,8 +30,6 @@ interface Props {
   onClose: () => void;
   onCreated: (deal: EscrowDeal) => void;
 }
-
-const FUNDING_COINS = ["BTC", "ETH", "USDT-TRON", "USDT-ERC20", "USDC", "LTC", "SOL", "XRP"];
 
 export default function CreateEscrowDialog({ open, companyId, onClose, onCreated }: Props) {
   const theme = useTheme();
@@ -62,6 +53,7 @@ export default function CreateEscrowDialog({ open, companyId, onClose, onCreated
   const [preview, setPreview] = useState<FeeBreakdown | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [created, setCreated] = useState<EscrowDeal | null>(null);
+  const qrWrapRef = useRef<HTMLDivElement | null>(null);
 
   const reset = useCallback(() => {
     setTitle("");
@@ -83,7 +75,8 @@ export default function CreateEscrowDialog({ open, companyId, onClose, onCreated
     if (!open) reset();
   }, [open, reset]);
 
-  // Live fee preview (debounced).
+  // Live fee preview (debounced) — includes the accepted coins so the network
+  // fee estimate reflects the cheapest coin the buyer can actually pay with.
   useEffect(() => {
     const amt = Number(amount);
     if (!amt || amt <= 0) {
@@ -92,15 +85,41 @@ export default function CreateEscrowDialog({ open, companyId, onClose, onCreated
     }
     const handle = setTimeout(() => {
       escrowApi
-        .feePreview({ amount: amt, currency, fee_percent: Number(feePercent) || 0, fee_payer: feePayer })
+        .feePreview({
+          amount: amt,
+          currency,
+          fee_percent: Number(feePercent) || 0,
+          fee_payer: feePayer,
+          accepted_coins: acceptedCoins.length ? acceptedCoins.join(",") : undefined,
+        })
         .then(setPreview)
         .catch(() => setPreview(null));
     }, 350);
     return () => clearTimeout(handle);
-  }, [amount, currency, feePercent, feePayer]);
+  }, [amount, currency, feePercent, feePayer, acceptedCoins]);
 
   const emailValid = useMemo(() => /.+@.+\..+/.test(counterpartyEmail.trim()), [counterpartyEmail]);
   const canSubmit = title.trim().length >= 2 && Number(amount) > 0 && emailValid && !!companyId && !submitting;
+
+  const fireConfetti = useCallback(() => {
+    try {
+      const rect = qrWrapRef.current?.getBoundingClientRect();
+      const origin = rect
+        ? { x: (rect.left + rect.width / 2) / window.innerWidth, y: (rect.top + rect.height / 2) / window.innerHeight }
+        : { x: 0.5, y: 0.35 };
+      confetti({
+        disableForReducedMotion: true,
+        particleCount: 90,
+        spread: 70,
+        startVelocity: 38,
+        origin,
+        colors: ["#4338CA", "#6366F1", "#818CF8", "#12B76A"],
+        scalar: 0.9,
+      });
+    } catch {
+      /* confetti is best-effort */
+    }
+  }, []);
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
@@ -122,6 +141,7 @@ export default function CreateEscrowDialog({ open, companyId, onClose, onCreated
         send_invite: true,
       });
       setCreated(deal);
+      setTimeout(fireConfetti, 120);
       notify("Escrow deal created — invitation sent to the counterparty.");
       onCreated(deal);
     } catch (e: any) {
@@ -140,6 +160,9 @@ export default function CreateEscrowDialog({ open, companyId, onClose, onCreated
     }
   };
 
+  const toggleCoin = (c: string) =>
+    setAcceptedCoins((prev) => (prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]));
+
   const cardSx = {
     p: 2,
     borderRadius: 2,
@@ -155,31 +178,49 @@ export default function CreateEscrowDialog({ open, companyId, onClose, onCreated
       fullWidth
       PaperProps={{ sx: { borderRadius: 3 } }}
     >
-      <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1.2, pr: 6 }}>
-        <HandshakeRounded sx={{ color: BRAND_ACCENT }} />
-        <Typography component="span" sx={{ fontWeight: 700, fontSize: 18 }}>
-          {created ? "Escrow deal created" : "New escrow deal"}
-        </Typography>
-        <IconButton
-          onClick={onClose}
-          disabled={submitting}
-          data-testid="escrow-create-close"
-          sx={{ position: "absolute", right: 12, top: 12 }}
-        >
+      {/* Branded header */}
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1.2, px: 3, pt: 2.5, pb: 1.5, pr: 6 }}>
+        <Box sx={{ width: 34, height: 34, borderRadius: 2, display: "grid", placeItems: "center", backgroundColor: brandAlpha(isDark ? 0.16 : 0.09) }}>
+          <Logo width={22} height={22} />
+        </Box>
+        <Box>
+          <Typography sx={{ fontWeight: 800, fontSize: 17, lineHeight: 1.15 }}>
+            {created ? "Escrow deal created" : "New escrow deal"}
+          </Typography>
+          <Typography sx={{ fontSize: 12, color: "text.secondary" }}>
+            {created ? "Share the secure link with your counterparty" : "DynoPay holds the funds until the deal is done"}
+          </Typography>
+        </Box>
+        <IconButton onClick={onClose} disabled={submitting} data-testid="escrow-create-close" sx={{ position: "absolute", right: 12, top: 14 }}>
           <CloseRounded />
         </IconButton>
-      </DialogTitle>
+      </Box>
 
-      <DialogContent>
+      <DialogContent sx={{ pt: 1 }}>
         {created ? (
           <Stack spacing={2} sx={{ pt: 1 }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
               <CheckCircleRounded sx={{ color: "#12B76A" }} />
               <Typography sx={{ fontSize: 14.5 }}>
-                Share this secure link with <b>{created.counterparty_email}</b>. They verify their email with a
-                one-time code, then accept and act on the deal — no account needed.
+                Share this secure link with <b>{created.counterparty_email}</b>. They verify their email with a one-time
+                code, then accept and act on the deal — no account needed.
               </Typography>
             </Box>
+
+            {/* Shareable QR */}
+            <Box sx={{ ...cardSx, display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
+              <Box
+                ref={qrWrapRef}
+                data-testid="escrow-created-qr"
+                sx={{ p: 1.5, borderRadius: 2, backgroundColor: "#fff", border: `1px solid ${theme.palette.divider}` }}
+              >
+                <QRCodeSVG value={created.invite_url} size={148} fgColor="#4338CA" bgColor="#ffffff" level="M" includeMargin={false} />
+              </Box>
+              <Typography sx={{ fontSize: 12, color: "text.secondary", display: "flex", alignItems: "center", gap: 0.5 }}>
+                <Icon icon="mdi:cellphone-nfc" width={14} /> Scan to open the invitation
+              </Typography>
+            </Box>
+
             <Box sx={cardSx}>
               <Typography sx={{ fontSize: 12, color: "text.secondary", mb: 0.5 }}>Shareable invite link</Typography>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -202,7 +243,7 @@ export default function CreateEscrowDialog({ open, companyId, onClose, onCreated
               </Box>
             </Box>
             <Stack direction="row" spacing={1.5} justifyContent="flex-end">
-              <Button onClick={reset} data-testid="escrow-create-another">
+              <Button onClick={reset} data-testid="escrow-create-another" sx={{ textTransform: "none" }}>
                 Create another
               </Button>
               <Button
@@ -251,24 +292,27 @@ export default function CreateEscrowDialog({ open, companyId, onClose, onCreated
               <TextField label="Currency" value={currency} size="small" disabled sx={{ width: 110 }} />
             </Stack>
 
+            {/* Role selection — cards */}
             <Box>
-              <Typography sx={{ fontSize: 13, fontWeight: 600, mb: 0.5 }}>Your role in this deal</Typography>
-              <RadioGroup
-                row
-                value={creatorRole}
-                onChange={(e) => setCreatorRole(e.target.value as EscrowRole)}
-              >
-                <FormControlLabel
-                  value="seller"
-                  control={<Radio size="small" data-testid="escrow-role-seller" />}
-                  label="I'm the seller (I receive funds)"
+              <Typography sx={{ fontSize: 13, fontWeight: 700, mb: 0.8 }}>Your role in this deal</Typography>
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={1.2}>
+                <SelectCard
+                  selected={creatorRole === "seller"}
+                  onClick={() => setCreatorRole("seller")}
+                  testId="escrow-role-seller"
+                  icon="mdi:storefront-outline"
+                  title="I'm the seller"
+                  subtitle="I deliver & receive funds"
                 />
-                <FormControlLabel
-                  value="buyer"
-                  control={<Radio size="small" data-testid="escrow-role-buyer" />}
-                  label="I'm the buyer (I pay)"
+                <SelectCard
+                  selected={creatorRole === "buyer"}
+                  onClick={() => setCreatorRole("buyer")}
+                  testId="escrow-role-buyer"
+                  icon="mdi:cart-outline"
+                  title="I'm the buyer"
+                  subtitle="I pay into escrow"
                 />
-              </RadioGroup>
+              </Stack>
             </Box>
 
             <TextField
@@ -303,32 +347,59 @@ export default function CreateEscrowDialog({ open, companyId, onClose, onCreated
               />
             </Stack>
 
+            {/* Fee payer — segmented cards */}
             <Box>
-              <Typography sx={{ fontSize: 13, fontWeight: 600, mb: 0.5 }}>Who pays the escrow fee?</Typography>
-              <RadioGroup row value={feePayer} onChange={(e) => setFeePayer(e.target.value as FeePayer)}>
-                <FormControlLabel value="buyer" control={<Radio size="small" data-testid="escrow-feepayer-buyer" />} label="Buyer" />
-                <FormControlLabel value="seller" control={<Radio size="small" data-testid="escrow-feepayer-seller" />} label="Seller" />
-                <FormControlLabel value="split" control={<Radio size="small" data-testid="escrow-feepayer-split" />} label="Split 50/50" />
-              </RadioGroup>
+              <Typography sx={{ fontSize: 13, fontWeight: 700, mb: 0.8 }}>Who pays the escrow cost?</Typography>
+              <Stack direction="row" spacing={1.2}>
+                <SegChip selected={feePayer === "buyer"} onClick={() => setFeePayer("buyer")} testId="escrow-feepayer-buyer" label="Buyer" />
+                <SegChip selected={feePayer === "seller"} onClick={() => setFeePayer("seller")} testId="escrow-feepayer-seller" label="Seller" />
+                <SegChip selected={feePayer === "split"} onClick={() => setFeePayer("split")} testId="escrow-feepayer-split" label="Split 50/50" />
+              </Stack>
             </Box>
 
-            <Box>
-              <Typography sx={{ fontSize: 13, fontWeight: 600, mb: 0.5 }}>Coins the buyer can pay with</Typography>
-              <Select
-                multiple
-                size="small"
-                fullWidth
-                value={acceptedCoins}
-                onChange={(e) => setAcceptedCoins(typeof e.target.value === "string" ? e.target.value.split(",") : e.target.value)}
-                renderValue={(sel) => (sel as string[]).join(", ") || "All supported coins"}
-                data-testid="escrow-create-coins-select"
-              >
-                {FUNDING_COINS.map((c) => (
-                  <MenuItem key={c} value={c}>
-                    {c}
-                  </MenuItem>
-                ))}
-              </Select>
+            {/* Accepted coins — icon chips */}
+            <Box data-testid="escrow-create-coins-select">
+              <Typography sx={{ fontSize: 13, fontWeight: 700, mb: 0.8 }}>Coins the buyer can pay with</Typography>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                {FUNDING_COINS.map((c) => {
+                  const on = acceptedCoins.includes(c);
+                  const info = coinInfo(c);
+                  return (
+                    <Box
+                      key={c}
+                      role="button"
+                      onClick={() => toggleCoin(c)}
+                      data-testid={`escrow-coin-${c}`}
+                      data-selected={on ? "true" : "false"}
+                      sx={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 0.6,
+                        px: 1.1,
+                        py: 0.6,
+                        borderRadius: 999,
+                        cursor: "pointer",
+                        userSelect: "none",
+                        fontSize: 12.5,
+                        fontWeight: 600,
+                        border: `1.5px solid ${on ? BRAND_ACCENT : theme.palette.divider}`,
+                        color: on ? brandFg(isDark) : theme.palette.text.secondary,
+                        backgroundColor: on ? brandAlpha(isDark ? 0.14 : 0.07) : "transparent",
+                        transition: "border-color .15s, background-color .15s",
+                        "&:hover": { borderColor: BRAND_ACCENT },
+                      }}
+                    >
+                      <CoinIcon code={c} size={16} />
+                      {info.symbol}
+                      {info.networkLabel && info.symbol !== info.networkLabel ? (
+                        <Typography component="span" sx={{ fontSize: 10.5, color: "text.secondary", fontWeight: 500 }}>
+                          {c.includes("-") ? c.split("-")[1] : ""}
+                        </Typography>
+                      ) : null}
+                    </Box>
+                  );
+                })}
+              </Box>
             </Box>
 
             <TextField
@@ -342,23 +413,23 @@ export default function CreateEscrowDialog({ open, companyId, onClose, onCreated
               placeholder="What must happen for the funds to be released?"
             />
 
-            {/* Live fee preview */}
-            <Box sx={{ ...cardSx, backgroundColor: brandAlpha(isDark ? 0.1 : 0.05) }} data-testid="escrow-fee-preview">
-              <Typography sx={{ fontSize: 12.5, fontWeight: 700, color: BRAND_ACCENT, mb: 1 }}>
-                Fee breakdown
-              </Typography>
+            {/* Live itemised quote */}
+            <Box sx={{ ...cardSx, backgroundColor: brandAlpha(isDark ? 0.08 : 0.04) }}>
               {preview ? (
-                <Stack spacing={0.6}>
-                  <Row label="Deal amount" value={money(preview.amount, currency)} />
-                  <Row label={`Escrow fee (${preview.feePercent}%)`} value={money(preview.escrowFee, currency)} />
-                  <Divider sx={{ my: 0.5 }} />
-                  <Row label="Buyer pays" value={money(preview.buyerPays, currency)} bold testId="escrow-preview-buyerpays" />
-                  <Row label="Seller receives" value={money(preview.sellerReceives, currency)} bold testId="escrow-preview-sellerreceives" />
-                </Stack>
+                <FeeBreakdownCard
+                  breakdown={preview}
+                  currency={currency}
+                  buyerPaysTestId="escrow-preview-buyerpays"
+                  sellerReceivesTestId="escrow-preview-sellerreceives"
+                  totalTestId="escrow-preview-total"
+                />
               ) : (
-                <Typography sx={{ fontSize: 13, color: "text.secondary" }}>
-                  Enter an amount to see who pays what.
-                </Typography>
+                <Box data-testid="escrow-fee-preview">
+                  <Typography sx={{ fontSize: 12.5, fontWeight: 800, textTransform: "uppercase", letterSpacing: 0.3, color: brandFg(isDark), mb: 0.5 }}>
+                    Cost breakdown
+                  </Typography>
+                  <Typography sx={{ fontSize: 13, color: "text.secondary" }}>Enter an amount to see who pays what.</Typography>
+                </Box>
               )}
             </Box>
 
@@ -368,7 +439,7 @@ export default function CreateEscrowDialog({ open, companyId, onClose, onCreated
               disabled={!canSubmit}
               onClick={handleSubmit}
               data-testid="escrow-create-submit"
-              sx={{ backgroundColor: BRAND_ACCENT, textTransform: "none", fontWeight: 700, py: 1.2 }}
+              sx={{ backgroundColor: BRAND_ACCENT, textTransform: "none", fontWeight: 700, py: 1.2, "&:hover": { backgroundColor: "#3730A3" } }}
             >
               {submitting ? "Creating…" : "Create & send invite"}
             </Button>
@@ -379,15 +450,90 @@ export default function CreateEscrowDialog({ open, companyId, onClose, onCreated
   );
 }
 
-function Row({ label, value, bold, testId }: { label: string; value: string; bold?: boolean; testId?: string }) {
+function SelectCard({
+  selected,
+  onClick,
+  testId,
+  icon,
+  title,
+  subtitle,
+}: {
+  selected: boolean;
+  onClick: () => void;
+  testId: string;
+  icon: string;
+  title: string;
+  subtitle: string;
+}) {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
   return (
-    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-      <Typography sx={{ fontSize: 13, color: bold ? "text.primary" : "text.secondary", fontWeight: bold ? 700 : 400 }}>
-        {label}
-      </Typography>
-      <Typography data-testid={testId} sx={{ fontSize: 13.5, fontWeight: bold ? 700 : 500 }}>
-        {value}
-      </Typography>
+    <Box
+      role="button"
+      onClick={onClick}
+      data-testid={testId}
+      data-selected={selected ? "true" : "false"}
+      sx={{
+        flex: 1,
+        display: "flex",
+        alignItems: "center",
+        gap: 1,
+        p: 1.4,
+        borderRadius: 2,
+        cursor: "pointer",
+        border: `1.5px solid ${selected ? BRAND_ACCENT : theme.palette.divider}`,
+        backgroundColor: selected ? brandAlpha(isDark ? 0.14 : 0.06) : "transparent",
+        transition: "border-color .15s, background-color .15s",
+        "&:hover": { borderColor: BRAND_ACCENT },
+      }}
+    >
+      <Box
+        sx={{
+          width: 34,
+          height: 34,
+          borderRadius: 1.5,
+          display: "grid",
+          placeItems: "center",
+          flexShrink: 0,
+          backgroundColor: selected ? BRAND_ACCENT : theme.palette.action.hover,
+          color: selected ? "#fff" : theme.palette.text.secondary,
+        }}
+      >
+        <Icon icon={icon} width={19} />
+      </Box>
+      <Box sx={{ minWidth: 0 }}>
+        <Typography sx={{ fontSize: 13.5, fontWeight: 700, lineHeight: 1.2 }}>{title}</Typography>
+        <Typography sx={{ fontSize: 11.5, color: "text.secondary" }}>{subtitle}</Typography>
+      </Box>
+    </Box>
+  );
+}
+
+function SegChip({ selected, onClick, testId, label }: { selected: boolean; onClick: () => void; testId: string; label: string }) {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+  return (
+    <Box
+      role="button"
+      onClick={onClick}
+      data-testid={testId}
+      data-selected={selected ? "true" : "false"}
+      sx={{
+        flex: 1,
+        textAlign: "center",
+        py: 0.9,
+        borderRadius: 1.5,
+        cursor: "pointer",
+        fontSize: 13,
+        fontWeight: 700,
+        border: `1.5px solid ${selected ? BRAND_ACCENT : theme.palette.divider}`,
+        color: selected ? brandFg(isDark) : theme.palette.text.secondary,
+        backgroundColor: selected ? brandAlpha(isDark ? 0.14 : 0.07) : "transparent",
+        transition: "border-color .15s, background-color .15s",
+        "&:hover": { borderColor: BRAND_ACCENT },
+      }}
+    >
+      {label}
     </Box>
   );
 }

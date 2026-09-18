@@ -1,3 +1,55 @@
+# === 2026-06 (fork: escrow-design-polish) ESCROW EXPERIENCE — DESIGN POLISH (frontend) — CODE DONE, tsc 0, E2E PENDING ===
+# User asked to polish the Escrow UI end-to-end: DynoPay brand logos instead of generic icons, real crypto coin
+# icons everywhere coins appear, itemized cost summaries, progress trackers, and stablecoin-network selection at
+# cash-out. User choices (ask_human): stay consistent with the existing DynoPay dashboard system (NO from-scratch
+# redesign); ADD a shareable QR of the invite link on the create-success panel; ADD a tasteful confetti moment on
+# create / release. English.
+#
+# SHARED PIECES (new, reused across all 3 surfaces) in /app/Components/Page/Escrow/:
+#   - CoinIcon.tsx: real coin marks via the SAME Iconify set the checkout uses (`cryptocurrency-color:*`), plus a
+#     `CoinChip` (icon + symbol + network) and `coinInfo(code)` mapper. Covers funding + payout codes
+#     (BTC/ETH/LTC/DOGE/BCH/SOL/XRP/TRX/POLYGON/USDT-TRON|TRC20|ERC20|POLYGON/USDC-ERC20|POLYGON). NO generic glyphs.
+#   - FeeBreakdownCard.tsx: itemised summary — Deal amount + costItems (escrow fee / network / conversion /
+#     withdrawal, each with icon + tooltip note) + "Total escrow cost" (tinted) + Buyer pays / Seller receives.
+#     Reads deal.breakdown / fee-preview response (backend already returns costItems/totalCost/costsEstimated).
+#   - EscrowProgress.tsx: horizontal step ladder Invited → Accepted → Funded → Delivered → Released/Refunded/Split
+#     → Paid out (label adapts to outcome; disputed shows amber marker; declined/cancelled/expired render a compact
+#     terminal banner). Derives state from status + settlement_phase. Scroll-safe on mobile (overflowX auto).
+#
+# TYPES / API: api/escrow.ts FeeBreakdown extended with networkFeeUsd/conversionFeeUsd/withdrawalFeeUsd/
+#   passThroughCosts/totalCost/payoutCoin/costsEstimated/costItems[] + CostItem type; escrowApi.feePreview now also
+#   sends payout_coin + accepted_coins. escrowUtils.ts: PAYOUT_OPTIONS (5 networks: USDT Tron/ERC20/Polygon, USDC
+#   ERC20/Polygon) + PAYOUT_STABLECOINS (derived) + payoutOptionLabel() — replaces the old 2-coin list.
+#
+# SURFACES POLISHED:
+#   - CreateEscrowDialog.tsx: DynoPay Logo header; role + fee-payer as selectable cards (SelectCard/SegChip);
+#     accepted-coins as toggleable icon chips (data-testid=escrow-coin-<CODE>); live itemised quote (FeeBreakdownCard,
+#     fed accepted_coins so network fee ≈ cheapest coin); success panel with a scannable QRCodeSVG of invite_url
+#     (data-testid=escrow-created-qr) + confetti.
+#   - EscrowDetail.tsx: NEW Progress card (EscrowProgress, testid=escrow-detail-progress); Amounts card now uses
+#     FeeBreakdownCard; coin icons in custody + settlement legs; 5-network payout picker (CoinMenuLabel in the
+#     add-address Select, testid=escrow-address-coin); confetti on release + address-save-that-pays.
+#   - Public EscrowInvite.tsx: real DynoPay Logo brand bar (was a Handshake box); progress tracker
+#     (escrow-invite-progress); itemised FeeBreakdownCard; coin icons in legs + fund/payout selects; 5-network
+#     cash-out selection; confetti on accept/release/address-save.
+#   - EscrowDashboard.tsx: DynoPay Logo in the banner icon box.
+#   ALL existing data-testids preserved. New: escrow-created-qr, escrow-coin-<CODE>, escrow-detail-progress,
+#   escrow-invite-progress, escrow-cost-<key>, escrow-preview-total, escrow-detail-total, escrow-invite-total.
+#
+# VERIFIED: `npx tsc --noEmit` = 0 errors. /escrow, /escrow/invite/[token], /admin/escrow all compiled; GET
+#   http://localhost:3000/escrow = 200. Deps already present: @iconify/react, qrcode.react, canvas-confetti.
+# NOT DONE (next agent): run testing_agent on the escrow FRONTEND flows (merchant create → itemised quote + QR
+#   success + confetti; deal detail progress + 5-network payout picker; public invite OTP → accept → fund → deliver
+#   → release with the progress ladder). At wrap-up the EXTERNAL preview host returned a transient Cloudflare 502
+#   (local was healthy) — just retry. Preview URL (source of truth = APP_URL in /etc/supervisor/conf.d/*.conf):
+#   https://b93492c2-7db2-4c32-9560-14ab8aa77a80.preview.emergentagent.com  (older auth-config-8 URL is STALE).
+#   Escrow invite OTP is a SINGLE TextField (escrow-invite-otp) — the "12 OTP inputs" E2E blocker was the login-2FA
+#   segmented input, NOT escrow. NOTE: backend invite_url is built from SERVER_URL/FRONTEND_URL (= b93492c2 host),
+#   so the QR/link resolve there. COMMIT: user must click "Save to GitHub" (all changes uncommitted).
+# ============================================================================================
+
+
+
 # === 2026-06 (fork) SEO robots.txt + FEE BREAKDOWN + INVOICE SEARCH — DONE & VERIFIED (testing_agent iteration_200: BE 100% / FE 100%, 0 issues) ===
 # 1) SEO (Search Console "6/77 page resources blocked by robots.txt" on the marketing homepage): public/robots.txt
 #    now has `Allow: /api/public/` + `Allow: /api/status/` ABOVE `Disallow: /api/` (longest-match wins), so

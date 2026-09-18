@@ -22,6 +22,13 @@ export type EscrowRole = "buyer" | "seller";
 export type FeePayer = "buyer" | "seller" | "split";
 export type SettlementOutcome = "release" | "refund" | "split";
 
+export interface CostItem {
+  key: "escrow_fee" | "network_fee" | "conversion_fee" | "withdrawal_fee";
+  label: string;
+  amount: number;
+  note?: string;
+}
+
 export interface FeeBreakdown {
   amount: number;
   currency: string;
@@ -29,6 +36,15 @@ export interface FeeBreakdown {
   feeMinUsd: number;
   feePayer: FeePayer;
   escrowFee: number;
+  // itemised pass-through settlement costs (estimated, folded into the price)
+  networkFeeUsd?: number;
+  conversionFeeUsd?: number;
+  withdrawalFeeUsd?: number;
+  passThroughCosts?: number;
+  totalCost?: number;
+  payoutCoin?: string;
+  costsEstimated?: boolean;
+  costItems?: CostItem[];
   buyerPays: number;
   sellerReceives: number;
   platformFee: number;
@@ -132,6 +148,8 @@ export const escrowApi = {
     fee_percent?: number;
     fee_min_usd?: number;
     fee_payer?: FeePayer;
+    payout_coin?: string;
+    accepted_coins?: string;
   }): Promise<FeeBreakdown> => unwrap(await axiosBaseApi.post("/escrow/fee-preview", body)),
 
   create: async (body: Record<string, unknown>): Promise<EscrowDeal> =>
