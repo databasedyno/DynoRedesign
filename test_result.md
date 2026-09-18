@@ -1,4 +1,36 @@
 # ============================================================================
+# >>> HANDOFF (2026-09, fork: continue-escrow) — ESCROW FEE/COST MODEL ADDED <<<
+#   State: SAFE MODE, LIVE prod DB, money SIMULATED. Backend BOOTS HEALTHY.
+#   Full plan + detailed TODO: /app/memory/ESCROW_PLAN.md (SESSION UPDATE at bottom).
+#
+#   DONE: backend re-test 7/7 (report below). Frontend P3/P4/P5 built (MUI). Then per
+#   user request, added the REAL cost model on top of the 5% escrow fee:
+#     price = escrow fee (5%, platform revenue) + pass-through costs
+#            [inbound NETWORK sweep + Binance CONVERSION ~0.1% + outbound WITHDRAWAL],
+#     total allocated per fee_payer (buyer on top / seller net / split 50-50).
+#   NEW backend/services/escrow/escrowCosts.ts (static table + live refresh via existing
+#   blockchainFeeService + new binanceService.getWithdrawFeesUsd()). computeFeeBreakdown
+#   now returns networkFeeUsd/conversionFeeUsd/withdrawalFeeUsd/passThroughCosts/totalCost/
+#   payoutCoin/costItems[]. previewFee accepts {payout_coin}. Payout coins = USDT-TRON/
+#   ERC20/POLYGON + USDC-ERC20/POLYGON.
+#
+#   NEXT AGENT (do in order):
+#   1) BACKEND re-test the new fee model (deep_testing_backend_v2): /api/escrow/fee-preview
+#      {amount, fee_payer:buyer|seller|split, payout_coin} — assert 4 costItems, totalCost =
+#      escrowFee+network+conversion+withdrawal, buyerPays/sellerReceives per fee_payer,
+#      withdrawal fee changes with payout_coin. Re-confirm lifecycle still passes (additive).
+#   2) FRONTEND: render the itemized costItems + total on the 3 surfaces (CreateEscrowDialog
+#      fee-preview, EscrowDetail Amounts, EscrowInvite summary); expand PAYOUT_STABLECOINS in
+#      Components/Page/Escrow/escrowUtils.ts to the 5 options + let create/address pick payout coin.
+#   3) RE-RUN frontend E2E (auto_frontend_testing_agent) — testids + login recipe in the
+#      "ESCROW FRONTEND BUILT" block below. NOTE the earlier 502 was a Next dev-server
+#      memory-restart window (transient), and the 2FA blocker was a segmented-OTP selector —
+#      neither is a real bug; all 3 routes compile & serve 200.
+# ============================================================================
+
+
+
+# ============================================================================
 # >>> CURRENT SESSION (2026-09, fork: continue-escrow) — ESCROW FRONTEND BUILT <<<
 #   Backend re-test: PASSED 7/7 (OTP flow, custody, two-phase, split/refund/release,
 #   auto-release, guards, idempotency). See report lower in this file.

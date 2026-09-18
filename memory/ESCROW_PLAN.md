@@ -198,3 +198,67 @@ Network + conversion + withdrawal costs are covered from the funded amount (buye
 Non‑stable seller payouts (2nd conversion), multi‑fiat pricing, reputation/saved wallets
 across deals, full counterparty accounts/dashboard, KYC gating, "escrow protection" toggle on
 payment links, in‑app chat, referral invites, NGN cash‑out.
+
+---
+
+## SESSION UPDATE (2026‑09, fork: continue‑escrow)
+
+### Done this session
+- **Backend re‑test PASSED 7/7** (OTP onboarding, custody convert, two‑phase
+  authorize→payout per‑leg, split/refund/release, run‑auto‑release, guards,
+  idempotency). SAFE MODE, simulated money.
+- **Frontend P3+P4+P5 BUILT** (MUI, DynoPay design system):
+  - `api/escrow.ts` — merchant (`escrowApi`) / admin (`escrowAdminApi`) / public
+    (`escrowPublicApi`, bare axios + `x-escrow-token`).
+  - Merchant: `pages/escrow/index.tsx` (+ `Components/Page/Escrow/EscrowDashboard.tsx`,
+    `CreateEscrowDialog.tsx`), `pages/escrow/[id].tsx` (+ `EscrowDetail.tsx`),
+    shared `escrowUtils.ts` + `StatusChip.tsx`. Nav entry in "Sell"
+    (navSections.ts + NewSidebar icon `escrow`→Handshake). `/escrow` protected,
+    `/escrow/invite` public (helpers/publicPaths.ts), `_app` privatePrefixes += `/escrow`.
+  - Public invite `pages/escrow/invite/[token].tsx` (layout "none") +
+    `Components/Page/Escrow/Public/EscrowInvite.tsx` — email‑OTP verify + role actions
+    + add stable/refund address + payout‑pending + offer sign‑in when has_account.
+    VERIFIED rendering (screenshot) — summary + fee breakdown + OTP card.
+  - Admin `pages/admin/escrow.tsx` + `Components/Page/Admin/Escrow/index.tsx` — deals
+    list + dispute queue + resolve (outcome/split slider/note) + run‑auto‑release /
+    run‑payout‑reminders. Admin nav "Escrow" (Menus.tsx).
+  - All three routes compile & serve 200 (verified). Frontend E2E NOT yet green —
+    first test run was blocked by a dev‑server memory‑restart window + the 2FA
+    segmented‑OTP selector; NOT real bugs. RE‑RUN frontend E2E.
+
+### Fee/cost model change (user decisions: 1‑c cost split follows fee_payer; 2 automatic;
+###   3 USDT+USDC; 4 reuse existing Binance code; 5 itemized)
+- §8 replaced: price now = escrow fee (5%, floor $1, platform revenue) **+ pass‑through
+  costs**: inbound **network** sweep + Binance **conversion** (~0.1% taker) + outbound
+  **withdrawal** (Binance flat per payout network). Total allocated per `fee_payer`
+  (buyer on top / seller net / split 50‑50). Costs are ESTIMATES folded into the quote,
+  refined at funding once the real coin is known.
+- NEW `backend/services/escrow/escrowCosts.ts` — sync static rate table (env‑overridable)
+  + best‑effort `refreshEscrowCostRates()` that pulls LIVE rates from existing
+  `blockchainFeeService.getBlockchainNetworkFee` (sweep) and new
+  `binanceService.getWithdrawFeesUsd()` (Binance `/sapi/v1/capital/config/getall`),
+  static fallback in SAFE MODE. Payout options: USDT‑TRON/ERC20/POLYGON, USDC‑ERC20/POLYGON.
+- `computeFeeBreakdown` (escrowShared.ts) extended: returns `networkFeeUsd,
+  conversionFeeUsd, withdrawalFeeUsd, passThroughCosts, totalCost, payoutCoin,
+  costsEstimated, costItems[]` (+ existing escrowFee/buyerPays/sellerReceives now
+  include costs). Callers updated: serializeDeal (passes payoutCoin/fundingCoin/
+  acceptedCoins), actFund (fundingCoin=coin), previewFee (accepts `payout_coin`,
+  fires refresh). Backend BOOTS HEALTHY after change.
+
+### TODO for next agent (in order)
+1. **BACKEND re‑test the new fee/cost model** (deep_testing_backend_v2): POST /api/escrow/fee-preview
+   with {amount,fee_payer,payout_coin} for buyer/seller/split — assert escrowFee + networkFeeUsd +
+   conversionFeeUsd + withdrawalFeeUsd sum into totalCost and buyerPays/sellerReceives allocate per
+   fee_payer; withdrawal fee changes with payout_coin (USDT-TRON vs USDT-ERC20); costItems length=4.
+   Re‑confirm the full lifecycle still passes (it's additive). Note: line ~247 authorizeOutcome's
+   computeFeeBreakdown call still uses default payout coin (minor; entitlements use sellerReceives) —
+   optionally pass deal.seller_payout_coin there too.
+2. **FRONTEND display of itemized costs**: `Components/Page/Escrow/escrowUtils.ts` `FeeBreakdown`
+   type + the three surfaces (CreateEscrowDialog fee-preview panel, EscrowDetail Amounts card,
+   EscrowInvite summary) should render costItems (escrow fee / network / conversion / withdrawal)
+   + total. Currently they show only escrowFee/buyerPays/sellerReceives (still correct, just not
+   itemized yet). Also expand PAYOUT_STABLECOINS in escrowUtils.ts to the 5 options above and let
+   the create dialog + address forms pick the payout coin so the quote's withdrawal fee matches.
+3. **RE‑RUN frontend E2E** (auto_frontend_testing_agent) — see test_result.md handoff for the exact
+   testids + login recipe. For the 2FA step, target the TOTP entry specifically (the screen renders
+   segmented digit boxes → `input[type=text]` matches many).

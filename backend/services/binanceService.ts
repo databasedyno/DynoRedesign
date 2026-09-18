@@ -779,6 +779,48 @@ export const getWithdrawalHistory = async ({
 };
 
 // ============================================
+// Withdrawal fee lookup (for escrow cost quotes)
+// ============================================
+let _withdrawFeeCache: { at: number; data: Record<string, number> } | null = null;
+const WITHDRAW_FEE_CACHE_TTL = 30 * 60 * 1000; // 30 min
+
+/**
+ * Fetch Binance per-network withdrawal fees for the given stablecoin payout
+ * options and return them keyed by the caller's option key (e.g. "USDT-TRON").
+ * The withdrawFee Binance returns is denominated in the coin; for USDT/USDC
+ * that is ~= USD. Returns null when Binance isn't configured/reachable so the
+ * caller can fall back to static estimates. Never throws.
+ */
+export const getWithdrawFeesUsd = async (
+  options: Array<{ key: string; coin: string; binanceNetwork: string }>
+): Promise<Record<string, number> | null> => {
+  if (!BINANCE_API_KEY) return null;
+  if (_withdrawFeeCache && Date.now() - _withdrawFeeCache.at < WITHDRAW_FEE_CACHE_TTL) {
+    return _withdrawFeeCache.data;
+  }
+  try {
+    const all = (await makeSignedRequest("GET", "/sapi/v1/capital/config/getall")) as Array<{
+      coin: string;
+      networkList?: Array<{ network: string; withdrawFee: string }>;
+    }>;
+    if (!Array.isArray(all)) return null;
+    const out: Record<string, number> = {};
+    for (const opt of options) {
+      const coinCfg = all.find((c) => (c.coin || "").toUpperCase() === opt.coin.toUpperCase());
+      const net = coinCfg?.networkList?.find((n) => (n.network || "").toUpperCase() === opt.binanceNetwork.toUpperCase());
+      const fee = net ? Number(net.withdrawFee) : NaN;
+      if (Number.isFinite(fee)) out[opt.key] = fee;
+    }
+    _withdrawFeeCache = { at: Date.now(), data: out };
+    return out;
+  } catch (e) {
+    cronLogger.warn(`[Binance] getWithdrawFeesUsd failed: ${e instanceof Error ? e.message : String(e)}`);
+    return null;
+  }
+};
+
+
+// ============================================
 // Deposit Detection
 // ============================================
 

@@ -8,6 +8,13 @@
  * moved. This lets the full lifecycle be exercised without touching real funds.
  */
 import { raw as envRaw } from "../../utils/config";
+import {
+  getEscrowCostRates,
+  sweepFeeUsdFor,
+  withdrawFeeUsdFor,
+  normalizePayoutKey,
+  DEFAULT_PAYOUT_KEY,
+} from "../../services/escrow/escrowCosts";
 
 export type EscrowRole = "buyer" | "seller";
 export type FeePayer = "buyer" | "seller" | "split";
@@ -91,15 +98,31 @@ export function resolveRoles(creatorRole: string): {
   return { creator, counterparty: opposite(creator) };
 }
 
+export interface CostItem {
+  key: "escrow_fee" | "network_fee" | "conversion_fee" | "withdrawal_fee";
+  label: string;
+  amount: number; // USD
+  note?: string;
+}
+
 export interface FeeBreakdown {
   amount: number; // deal value (fiat display currency)
   currency: string;
   feePercent: number;
   feeMinUsd: number;
   feePayer: FeePayer;
-  escrowFee: number; // total platform escrow fee
+  escrowFee: number; // platform escrow fee (platform revenue)
+  // pass-through settlement costs (estimated; folded into the price)
+  networkFeeUsd: number; // inbound sweep of the funded crypto to custody
+  conversionFeeUsd: number; // Binance conversion crypto -> stablecoin
+  withdrawalFeeUsd: number; // Binance withdrawal at cashout (per payout network)
+  passThroughCosts: number; // network + conversion + withdrawal
+  totalCost: number; // escrowFee + passThroughCosts (what the fee_payer bears beyond `amount`)
+  payoutCoin: string; // stablecoin the withdrawal fee was estimated for
+  costsEstimated: boolean; // true — refined at funding when the real coin is known
+  costItems: CostItem[]; // itemised, for UI
   buyerPays: number; // what the buyer funds into escrow
-  sellerReceives: number; // net to seller BEFORE on-chain network fees
+  sellerReceives: number; // net to seller after their share of costs
   platformFee: number; // == escrowFee (kept by platform)
   networkNote: string;
 }
@@ -108,13 +131,27 @@ function round2(n: number): number {
   return Math.round((Number(n) + Number.EPSILON) * 100) / 100;
 }
 
+/** Cheapest inbound sweep among a comma-list of accepted coins (for the quote). */
+function estimateInboundFee(fundingCoin?: string | null, acceptedCoins?: string | null): number {
+  if (fundingCoin) return sweepFeeUsdFor(fundingCoin);
+  const coins = String(acceptedCoins || "")
+    .split(",")
+    .map((c) => c.trim())
+    .filter(Boolean);
+  if (!coins.length) return sweepFeeUsdFor(null);
+  return Math.min(...coins.map((c) => sweepFeeUsdFor(c)));
+}
+
 /**
- * Compute the itemised escrow fee breakdown for a deal.
- * - buyer  : buyer pays amount + fee; seller receives full amount.
- * - seller : buyer pays amount; fee deducted from seller's payout.
- * - split  : fee split 50/50 between both parties.
- * Network (on-chain) fees are covered from the funded amount at settlement, the
- * same way the existing checkout already handles them — surfaced as a note.
+ * Compute the itemised escrow fee + settlement-cost breakdown for a deal.
+ * - escrow fee: max(amount * feePercent/100, feeMinUsd), default 5% floor $1.
+ * - settlement costs (inbound network sweep + Binance conversion + outbound
+ *   withdrawal) are ESTIMATED and folded into the price.
+ * - the TOTAL (escrow fee + costs) is allocated to whoever pays the fee:
+ *     buyer  -> added on top of the amount the buyer funds; seller nets full amount.
+ *     seller -> deducted from the seller's payout; buyer funds only the amount.
+ *     split  -> 50/50.
+ * Costs are refined at funding time once the real funding coin is known.
  */
 export function computeFeeBreakdown(input: {
   amount: number | string;
@@ -122,6 +159,10 @@ export function computeFeeBreakdown(input: {
   feePercent?: number | string;
   feeMinUsd?: number | string;
   feePayer?: string;
+  payoutCoin?: string | null;
+  fundingCoin?: string | null;
+  acceptedCoins?: string | null;
+  includeCosts?: boolean;
 }): FeeBreakdown {
   const amount = round2(Number(input.amount) || 0);
   const currency = (input.currency || "USD").toUpperCase();
@@ -136,18 +177,39 @@ export function computeFeeBreakdown(input: {
 
   const escrowFee = round2(Math.max((amount * feePercent) / 100, feeMinUsd));
 
+  // ── settlement cost estimate ───────────────────────────────────────────────
+  const includeCosts = input.includeCosts !== false;
+  const payoutKey = normalizePayoutKey(input.payoutCoin || DEFAULT_PAYOUT_KEY);
+  const rates = getEscrowCostRates();
+  const networkFeeUsd = includeCosts ? round2(estimateInboundFee(input.fundingCoin, input.acceptedCoins)) : 0;
+  const conversionFeeUsd = includeCosts ? round2((amount * (rates.conversionPct || 0)) / 100) : 0;
+  const withdrawalFeeUsd = includeCosts ? round2(withdrawFeeUsdFor(payoutKey)) : 0;
+  const passThroughCosts = round2(networkFeeUsd + conversionFeeUsd + withdrawalFeeUsd);
+  const totalCost = round2(escrowFee + passThroughCosts);
+
   let buyerPays = amount;
   let sellerReceives = amount;
   if (feePayer === "buyer") {
-    buyerPays = round2(amount + escrowFee);
+    buyerPays = round2(amount + totalCost);
     sellerReceives = amount;
   } else if (feePayer === "seller") {
     buyerPays = amount;
-    sellerReceives = round2(amount - escrowFee);
+    sellerReceives = round2(Math.max(0, amount - totalCost));
   } else {
-    const half = round2(escrowFee / 2);
+    const half = round2(totalCost / 2);
     buyerPays = round2(amount + half);
-    sellerReceives = round2(amount - (escrowFee - half));
+    sellerReceives = round2(Math.max(0, amount - (totalCost - half)));
+  }
+
+  const costItems: CostItem[] = [
+    { key: "escrow_fee", label: `Escrow fee (${feePercent}%)`, amount: escrowFee },
+  ];
+  if (includeCosts) {
+    costItems.push(
+      { key: "network_fee", label: "Network fee (est.)", amount: networkFeeUsd, note: "On-chain fee to move the funded crypto into custody." },
+      { key: "conversion_fee", label: "Conversion fee (est.)", amount: conversionFeeUsd, note: "Converting the crypto to a stablecoin on the exchange." },
+      { key: "withdrawal_fee", label: `Withdrawal fee (est., ${payoutKey})`, amount: withdrawalFeeUsd, note: "Exchange withdrawal fee to pay the stablecoin out at cashout." }
+    );
   }
 
   return {
@@ -157,11 +219,19 @@ export function computeFeeBreakdown(input: {
     feeMinUsd,
     feePayer,
     escrowFee,
+    networkFeeUsd,
+    conversionFeeUsd,
+    withdrawalFeeUsd,
+    passThroughCosts,
+    totalCost,
+    payoutCoin: payoutKey,
+    costsEstimated: includeCosts,
+    costItems,
     buyerPays,
     sellerReceives,
     platformFee: escrowFee,
     networkNote:
-      "On-chain network fees for funding and payout are covered from the funded amount, the same as standard checkout.",
+      "Network, conversion and withdrawal costs are estimates folded into the price and settled from the funded amount; the exact withdrawal fee depends on the payout coin/network chosen at cashout.",
   };
 }
 

@@ -37,6 +37,7 @@ import {
   outcomeToStatus,
   resolveRoles,
 } from "./escrow/escrowShared";
+import { refreshEscrowCostRates } from "../services/escrow/escrowCosts";
 import {
   sendEscrowInviteEmail,
   sendEscrowAcceptedEmail,
@@ -151,7 +152,7 @@ async function hasAccount(email: string): Promise<boolean> {
 
 function serializeDeal(deal: any, includePrivate = true): Record<string, unknown> {
   const d = deal.dataValues ? deal.dataValues : deal;
-  const breakdown = computeFeeBreakdown({ amount: d.amount, currency: d.currency, feePercent: d.fee_percent, feeMinUsd: d.fee_min_usd, feePayer: d.fee_payer });
+  const breakdown = computeFeeBreakdown({ amount: d.amount, currency: d.currency, feePercent: d.fee_percent, feeMinUsd: d.fee_min_usd, feePayer: d.fee_payer, payoutCoin: d.seller_payout_coin, fundingCoin: d.funding_coin, acceptedCoins: d.accepted_coins });
   const settlement = deriveSettlement(d);
   const base: Record<string, unknown> = {
     escrow_id: d.escrow_id,
@@ -389,8 +390,8 @@ async function actFund(deal: any, actor: ActorInfo, coinIn?: string): Promise<an
   if (isLiveSettlementEnabled()) fail(403, "Simulated funding is disabled when live settlement is on. Fund via the hosted checkout.");
   if (actor.role !== "buyer") fail(403, "Only the buyer funds the escrow.");
   if (deal.status !== "awaiting_payment") fail(409, `Cannot fund from status '${deal.status}'.`);
-  const breakdown = computeFeeBreakdown({ amount: deal.amount, currency: deal.currency, feePercent: deal.fee_percent, feeMinUsd: deal.fee_min_usd, feePayer: deal.fee_payer });
   const coin = (coinIn ? String(coinIn) : (deal.accepted_coins || "USDT-TRC20").split(",")[0]).trim();
+  const breakdown = computeFeeBreakdown({ amount: deal.amount, currency: deal.currency, feePercent: deal.fee_percent, feeMinUsd: deal.fee_min_usd, feePayer: deal.fee_payer, payoutCoin: deal.seller_payout_coin, fundingCoin: coin, acceptedCoins: deal.accepted_coins });
   const now = new Date();
   assertTransition(deal.status, "funded");
   deal.status = "funded";
@@ -522,9 +523,10 @@ async function loadAuthedDealActor(req: express.Request, res: express.Response):
 
 const previewFee = async (req: express.Request, res: express.Response) => {
   try {
-    const { amount, currency, fee_percent, fee_min_usd, fee_payer } = req.body || {};
+    const { amount, currency, fee_percent, fee_min_usd, fee_payer, payout_coin, accepted_coins } = req.body || {};
     if (amount == null || Number(amount) <= 0) return errorResponseHelper(res, 400, "A positive 'amount' is required.");
-    const breakdown = computeFeeBreakdown({ amount, currency, feePercent: fee_percent, feeMinUsd: fee_min_usd, feePayer: fee_payer });
+    void refreshEscrowCostRates(); // best-effort live rates; static estimates used until it lands
+    const breakdown = computeFeeBreakdown({ amount, currency, feePercent: fee_percent, feeMinUsd: fee_min_usd, feePayer: fee_payer, payoutCoin: payout_coin, acceptedCoins: accepted_coins });
     return successResponseHelper(res, 200, "Fee breakdown computed.", breakdown);
   } catch (e) {
     return handle(res, e, "previewFee");
