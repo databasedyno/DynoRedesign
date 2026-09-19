@@ -1192,7 +1192,7 @@ const ACTION_COUNTS_CACHE_TTL = 60;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DELIBERATELY ABSENT: an "unpaid invoices" count.
-// In DynoPay an invoice is a RECEIPT, not a receivable: rows in tbl_invoice are
+// In Dynopay an invoice is a RECEIPT, not a receivable: rows in tbl_invoice are
 // created by autoGenerateInvoice() only AFTER a transaction reaches
 // done/successful, and the UI hardcodes a settled pill
 // (Components/Page/Invoices/InvoicePreviewDrawer.tsx: "every invoice in Dynopay

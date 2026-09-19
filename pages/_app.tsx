@@ -376,6 +376,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
       "/settings", "/admin", "/auth",
       "/reset-password", "/payment/verify", "/storefront",
       "/payouts", "/kyc", "/design", "/brands", "/escrow",
+      "/safedeal/deals", "/safedeal/deal", "/safedeal/wallet", "/safedeal/signin",
     ];
     return privatePrefixes.some((p) => pathname === p || pathname.startsWith(p + "/"));
   }, [pathname]);

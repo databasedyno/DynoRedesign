@@ -4,7 +4,7 @@
  * Reusable across Product Orders and Payment Links. Given a refund source it:
  *   1) previews the original payment (asset, chain, cap, customer refund address, gas)
  *   2) lets the merchant enter a partial/full amount (single refund, capped) + reason
- *   3) creates the refund invoice and shows the DynoPay deposit address + status
+ *   3) creates the refund invoice and shows the Dynopay deposit address + status
  *
  * The backend is gated by ENABLE_CRYPTO_REFUNDS and, in the preview, runs in
  * DRY-RUN (placeholder deposit address, no funds move) — surfaced via `is_dry_run`.

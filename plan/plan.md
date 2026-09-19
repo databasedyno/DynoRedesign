@@ -1,48 +1,53 @@
-# Escrow experience — design polish (end to end)
+# SafeDeal — standalone escrow product powered by Dynopay
 
-## Why
-The escrow feature works but doesn't yet feel native to DynoPay:
-- Coins are shown as plain text with no currency icons (create dialog, coin pickers, settlement).
-- The escrow header uses a generic "handshake" glyph instead of the DynoPay brand logo.
-- The create form and the deal/invite screens read as functional rather than polished.
+## Goal
+Move the escrow experience out of the Dynopay merchant dashboard into its own product, **SafeDeal** (safedeal.sh). Dynopay stays the engine underneath: it takes the payment, converts and holds the funds, keeps each user's wallet balance and statement, stores saved payout addresses, and pays out. Escrow users never need a Dynopay account — they are **customers of one Dynopay brand** ("SafeDeal"), so the brand owner manages every user's balance from the Dynopay dashboard like a financial statement.
 
-This is a presentation pass across all three escrow surfaces — merchant dashboard, deal detail, and the public (account‑less) invite page. No changes to escrow rules, money movement, or the API. All money stays simulated (safe mode).
+## What the user sees on safedeal.sh
 
-## What changes
+**Landing page** — what SafeDeal does, how it works (invite → fund → deliver → release), the fee card (5% escrow fee, min $10, min deal $30, who can pay it), the cancellation and dispute policy in plain words, and a single **"Start a deal"** call to action. "Powered by Dynopay" trust line.
 
-### 1. Brand & logo consistency
-- Replace the handshake icon in every escrow header/brand bar with the real DynoPay logo/mark (the same one used in the top navigation).
-- Give all three surfaces one consistent header: DynoPay mark + an "Escrow" product label; the public invite page also keeps a "Secure escrow" trust cue.
+**Sign-in** — email + one-time code (no passwords). The first sign-in creates the user (and their customer record + wallet under the SafeDeal brand). The counterparty who opens an invite link goes through the same step and becomes a customer too.
 
-### 2. Crypto currency icons everywhere coins appear
-- Show a coin icon next to every coin/stablecoin: the "coins the buyer can pay with" selector, the funding‑coin picker, the payout/refund stablecoin pickers, and in deal detail (custody + settlement).
-- Turn the "coins the buyer can pay with" control from a plain comma list into selectable icon chips so options are scannable at a glance.
-- Where a coin has no available icon, show a neutral token badge with the ticker so nothing looks broken.
+**Create a deal** — title, amount (USD, min $30), my role (buyer/seller), the other party's email, who pays the fee (buyer / seller / split), auto-release window (3/5/7/14 days), optional terms. Live itemised quote (escrow fee, network, conversion, withdrawal). On create: invite email + shareable link/QR.
 
-### 3. Create‑escrow dialog — clearer layout
-- Reorganize into clean sections with stronger visual hierarchy.
-- Present the two roles ("I'm the seller" / "I'm the buyer") as two clickable cards with a one‑line explanation each, instead of plain radio text.
-- Add a persistent, **itemized** cost summary: deal amount, escrow fee, and the network / conversion / withdrawal estimates, then the total, who pays it, and the resulting "buyer pays" / "seller receives". (This also surfaces the fee detail the backend already calculates.)
-- Improve the post‑create success panel: copy‑link, a QR code of the invite link, and a clear "invitation sent" confirmation.
+**Deal page** — progress ladder (Invited → Accepted → Funded → Delivered → Released/Refunded/Split → Paid), amounts card, actions by role (accept/decline, fund, mark delivered, release), the dispute/cancellation panel (propose → accept / counter / message / escalate; auto-escalates to Dynopay after 72h of silence), activity timeline.
 
-### 4. Deal detail (merchant) & public invite — progress + clarity
-- Add a horizontal progress tracker for the escrow lifecycle (Invited → Accepted → Funded → Delivered → Released / Settled, with dispute, refund and split branches indicated).
-- Show amounts and settlement as clean cards with coin icons and obvious "in custody / released / refunded" states.
-- Rework the public invite page into a mobile‑first, trust‑building layout: brand header, progress tracker, itemized costs, coin icons, and a clearer "verify → act" sequence.
+**Funding** — the buyer pays through Dynopay's hosted checkout in any accepted coin; or, if they already have an available balance in their SafeDeal wallet (e.g. from a previous refund), they can **pay from balance**.
 
-### 5. Cashout stablecoin choice
-- Let the party being paid choose their cashout stablecoin + network — USDT on Tron / Ethereum / Polygon, and USDC on Ethereum / Polygon — each shown with its icon, and reflect the matching withdrawal‑fee estimate in the totals.
+**My deals** — list with status filters, as buyer and as seller.
 
-### 6. Consistency & states
-- Consistent status colors/legend, empty states, loading placeholders, and dark‑mode parity across all three surfaces.
+**Wallet** — one wallet per user, shown in USD (funds are custodied as USDT):
+- Balance split into **Available** and **Held in escrow**.
+- **Statement**: every entry with date, deal reference, type and running balance — escrow funding received, hold placed, release received, refund received, escrow fee, network/exchange costs, withdrawal, manual adjustment. Filter by date, export CSV.
+- **Saved payout addresses** — stablecoin only: USDT (TRC20, ERC20, Polygon) and USDC (ERC20, Polygon). Adding or changing an address needs a fresh one-time code and sends a "this wasn't me" email alert.
+- **Withdraw** — pick a saved address, see the network fee and what arrives, confirm with a one-time code. Optional per-user toggle **"auto-withdraw when funds are released to me"**.
 
-## Assumptions (change these if wrong)
-- Stay inside the current DynoPay look (indigo, existing component style) — this is polish, not a new visual identity.
-- Reuse the coin icons already used elsewhere in the product for brand consistency; neutral ticker badge as fallback. No new paid service or keys required.
-- The create flow stays a single modal (with a sticky summary), not a full‑page multi‑step wizard.
-- Include a QR code on the invite share panel.
-- Copy stays in English; no new translation scope in this pass.
+## What the Dynopay brand owner sees (Dynopay dashboard)
+- A **SafeDeal brand** (new test brand now; the real one later). Every escrow user appears in that brand's **Customers** list.
+- Each customer row shows **wallet balance (available / held)** and opens a **statement** view identical to what the user sees, plus lifetime deal count and volume.
+- **Manual adjustment** (credit or debit with a mandatory note, ops only, logged) for corrections and goodwill refunds — appears on the customer's statement as "Adjustment".
+- Brand-level totals: total customer balances held, total held in escrow, fees earned, withdrawals paid — reconcilable against the USDT custody balance.
+- **Dispute arbitration stays in the Dynopay admin panel** (escalated cases queue, resolve as release / refund / split, thread visible).
 
-## Out of scope
-- Escrow business logic, state machine, fee math, and the API contract stay as they are.
-- No live on‑chain settlement is enabled; money remains simulated.
+## What is removed from Dynopay
+The merchant-facing escrow UI: the Escrow nav item, the escrow list/detail pages, the create-deal dialog, and the public `/escrow/invite/...` page. The engine (deal lifecycle, disputes, fees, settlement) remains inside Dynopay and is exposed to SafeDeal. Existing test deals are not migrated.
+
+## Money rules (carried over, unchanged)
+- Escrow fee **5%**, floor **$10**; minimum deal **$30**; fee rate is set by Dynopay only.
+- Fees and all network/exchange costs are charged on **every** outcome — release, refund, split, agreed cancellation.
+- Custody always in **USDT**; payout network chosen by the user at withdrawal.
+- **Cancellation**: free before funding (either party, instant). After funding it is a **cancellation request** that the other party must agree to; on agreement the buyer's wallet is credited with the held amount minus fees and costs.
+- **Disputes**: raised with a proposal; counter / accept / message / escalate; accepted proposals settle automatically with no admin; 72h of no response auto-escalates to Dynopay.
+
+## Assumptions (change any of these before approving)
+1. **SafeDeal is a separate web app** on safedeal.sh built in this workspace and deployed on its own; it talks only to Dynopay's API through a dedicated partner key. Dynopay's own frontend is untouched apart from the removals above.
+2. **The deal engine stays in Dynopay** (it is already built and tested) rather than being rebuilt inside SafeDeal.
+3. **Sign-in is email + one-time code only** — no passwords, no social login at launch.
+4. **Both parties are customers** of the SafeDeal brand; a user is one customer regardless of how many deals or roles they have.
+5. **Released and refunded funds land in the wallet balance**; they leave only when the user withdraws (or has auto-withdraw on). This is what makes the statement complete, but it means sellers take one extra step unless they enable auto-withdraw.
+6. **Withdrawal safety**: minimum withdrawal $10; single withdrawals above **$1,000** are held for ops approval in Dynopay before they are sent. Everything below goes out immediately.
+7. **One currency**: deals and wallets are shown in USD only at launch.
+8. In the preview environment money movement stays **simulated** (safe mode); production uses Dynopay's real hosted checkout and Binance settlement.
+9. **KYC/limits** for large escrow volumes are out of scope for this build and can be added later.
+10. Brand spelling everywhere is **"Dynopay"**; the product name is **"SafeDeal"**.

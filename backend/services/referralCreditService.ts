@@ -72,7 +72,7 @@ export const maybeAlertReferralCredit = async (userId: number): Promise<void> =>
  *
  * When a referrer is in 'credit' payout mode (the default / opt-out of cash-out),
  * their accrued-but-unpaid revenue-share balance is spent to REDUCE their own
- * DynoPay platform fee at settlement (Option 1.a — the merchant keeps more of the
+ * Dynopay platform fee at settlement (Option 1.a — the merchant keeps more of the
  * payment). Blockchain/gas cost is NEVER touched here (always deducted as usual).
  *
  * ONE shared balance pool: unpaid = accrued − cash_paid − credited, so a dollar can

@@ -8,7 +8,7 @@ import crypto from "crypto";
  * deal is completed (buyer confirmation / auto-release) or a dispute is resolved.
  *
  * v1 holds funds on each deal's OWN dedicated deposit address (no commingled pool)
- * and reuses DynoPay's existing checkout / payout engine. On-chain settlement is
+ * and reuses Dynopay's existing checkout / payout engine. On-chain settlement is
  * gated behind ESCROW_LIVE_SETTLEMENT (default OFF -> simulated, records intent
  * and advances state without broadcasting a transaction).
  *
@@ -39,11 +39,22 @@ const escrowDealModel = sequelize.define(
     },
     creator_user_id: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true, // null for SafeDeal deals (parties are brand customers, not Dynopay users)
       references: { model: "tbl_user", key: "user_id" },
       onUpdate: "CASCADE",
       onDelete: "CASCADE",
     },
+    // 'merchant' (Dynopay dashboard) | 'safedeal' (standalone product on top of Dynopay)
+    source: { type: DataTypes.STRING(16), allowNull: false, defaultValue: "merchant" },
+    // SafeDeal: the creator is identified by e-mail + brand customer row.
+    creator_email: { type: DataTypes.STRING(255), allowNull: true },
+    creator_customer_id: { type: DataTypes.INTEGER, allowNull: true },
+    counterparty_customer_id: { type: DataTypes.INTEGER, allowNull: true },
+    // How the buyer funded: 'simulated' | 'balance' | 'checkout'
+    funding_method: { type: DataTypes.STRING(16), allowNull: true },
+    // Hosted-checkout payment link used to fund this deal (live path).
+    funding_link_transaction_id: { type: DataTypes.STRING(64), allowNull: true },
+    funding_link_ref: { type: DataTypes.STRING(64), allowNull: true },
     // Role the CREATOR takes in this deal. The counterparty takes the opposite.
     creator_role: {
       type: DataTypes.STRING(10),
@@ -188,7 +199,7 @@ const escrowDealModel = sequelize.define(
     counterparty_verified_at: { type: DataTypes.DATE, allowNull: true },
     // ── Dispute negotiation (two-tier: parties settle first, admin fallback) ─
     // Stage of an open dispute: 'negotiation' (parties exchanging proposals) |
-    // 'escalated' (handed to a DynoPay admin) | 'resolved'. Null when not disputed.
+    // 'escalated' (handed to a Dynopay admin) | 'resolved'. Null when not disputed.
     dispute_stage: { type: DataTypes.STRING(16), allowNull: true },
     // The current active proposal awaiting the other party's response:
     // { outcome:'release'|'refund'|'split', split_percent_seller, by:'buyer'|'seller', at, message }

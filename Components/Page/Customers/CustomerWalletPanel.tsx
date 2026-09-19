@@ -7,6 +7,7 @@ import { API_ENDPOINTS } from "@/api/endpoints";
 import CustomButton from "@/Components/UI/Buttons";
 import { formatDateI18n } from "@/utils/formatDate";
 import { toFixedStr } from "@/utils/money";
+import CustomerEscrowStatement from "./CustomerEscrowStatement";
 
 interface LedgerEntry {
   id: string | null;
@@ -165,6 +166,9 @@ export const CustomerWalletPanel: React.FC<Props> = ({ customerKey, customerName
           </Box>
         </>
       )}
+      {companyId && data?.customer_ids?.[0] ? (
+        <CustomerEscrowStatement companyId={companyId} customerId={data.customer_ids[0]} cardBorder={cardBorder} softBg={softBg} />
+      ) : null}
     </Box>
   );
 };

@@ -64,7 +64,7 @@ const CreatorLivePreview: React.FC<Props> = ({ state }) => {
   const initial = (name || handle || "?").charAt(0).toUpperCase();
 
   // ── Custom theme (mirror of CreatorProfile) so the preview renders exactly
-  // what gets published. Defaults fall back to the DynoPay brand accent and a
+  // what gets published. Defaults fall back to the Dynopay brand accent and a
   // solid cover (or "image" when a cover image is present).
   const accent = state.accentColor || DEFAULT_ACCENT;
   const coverStyleSel = state.coverStyle || (cover ? "image" : "solid");

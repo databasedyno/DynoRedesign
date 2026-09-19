@@ -186,7 +186,9 @@ export function computeFeeBreakdown(input: {
       ? "split"
       : "buyer";
 
-  const escrowFee = round2(Math.max((amount * feePercent) / 100, feeMinUsd));
+  const pctFee = round2((amount * feePercent) / 100);
+  const escrowFee = round2(Math.max(pctFee, feeMinUsd));
+  const feeFloorApplied = escrowFee > pctFee;
 
   // ── settlement cost estimate (all via Binance; custody held in USDT) ────────
   const includeCosts = input.includeCosts !== false;
@@ -221,7 +223,12 @@ export function computeFeeBreakdown(input: {
   }
 
   const costItems: CostItem[] = [
-    { key: "escrow_fee", label: `Escrow fee (${feePercent}%)`, amount: escrowFee },
+    {
+      key: "escrow_fee",
+      label: feeFloorApplied ? `Escrow fee (min $${feeMinUsd})` : `Escrow fee (${feePercent}%)`,
+      amount: escrowFee,
+      ...(feeFloorApplied ? { note: `${feePercent}% of ${amount} is below the $${feeMinUsd} minimum escrow fee, so the minimum applies.` } : {}),
+    },
   ];
   if (includeCosts) {
     costItems.push(

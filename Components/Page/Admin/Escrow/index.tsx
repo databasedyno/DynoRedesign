@@ -29,8 +29,9 @@ import { escrowAdminApi, EscrowDeal, SettlementOutcome } from "@/api/escrow";
 import { BRAND_ACCENT, brandAlpha } from "@/constants/theme";
 import StatusChip from "@/Components/Page/Escrow/StatusChip";
 import { money, shortDate, titleize } from "@/Components/Page/Escrow/escrowUtils";
+import AdminWithdrawals from "./AdminWithdrawals";
 
-type Tab = "disputes" | "all";
+type Tab = "disputes" | "all" | "withdrawals";
 
 export default function AdminEscrow() {
   const theme = useTheme();
@@ -53,6 +54,7 @@ export default function AdminEscrow() {
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
+    if (tab === "withdrawals") { setLoading(false); return; }
     setLoading(true);
     try {
       const list =
@@ -196,6 +198,13 @@ export default function AdminEscrow() {
           variant={tab === "all" ? "filled" : "outlined"}
           sx={{ fontWeight: 600, backgroundColor: tab === "all" ? BRAND_ACCENT : "transparent", color: tab === "all" ? "#fff" : "text.primary" }}
         />
+        <Chip
+          label="Withdrawals"
+          onClick={() => setTab("withdrawals")}
+          data-testid="escrow-admin-tab-withdrawals"
+          variant={tab === "withdrawals" ? "filled" : "outlined"}
+          sx={{ fontWeight: 600, backgroundColor: tab === "withdrawals" ? BRAND_ACCENT : "transparent", color: tab === "withdrawals" ? "#fff" : "text.primary" }}
+        />
         {tab === "all" && (
           <Select
             size="small"
@@ -218,7 +227,9 @@ export default function AdminEscrow() {
         </Button>
       </Stack>
 
-      {loading ? (
+      {tab === "withdrawals" ? (
+        <AdminWithdrawals />
+      ) : loading ? (
         <Box sx={{ display: "grid", placeItems: "center", py: 8 }}>
           <CircularProgress size={28} sx={{ color: BRAND_ACCENT }} />
         </Box>

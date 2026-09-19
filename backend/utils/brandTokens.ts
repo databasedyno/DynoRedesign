@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- * DynoPay — Central Brand Tokens (backend / email single source of truth)
+ * Dynopay — Central Brand Tokens (backend / email single source of truth)
  * ============================================================================
  *
  * Mirrors the frontend palette in `constants/theme.ts` (Aurora Indigo brand)
@@ -51,7 +51,7 @@ export const EMAIL_TOKENS = {
 
 /**
  * Canonical crypto brand colours (mirror of frontend `helpers/assetColor.ts`).
- * RLUSD intentionally uses the DynoPay brand indigo.
+ * RLUSD intentionally uses the Dynopay brand indigo.
  */
 export const EMAIL_COIN_COLOR: Record<string, string> = {
   BTC: "#F7931A",

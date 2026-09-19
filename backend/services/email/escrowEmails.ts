@@ -1,6 +1,6 @@
 /**
  * Escrow lifecycle emails. Thin wrappers over the shared sendEmail() so escrow
- * notifications inherit the DynoPay branded template automatically.
+ * notifications inherit the Dynopay branded template automatically.
  *
  * In the SAFE-MODE preview DISABLE_OUTBOUND_EMAIL=true, so these are no-ops that
  * are logged rather than actually delivered.
@@ -29,9 +29,9 @@ export async function sendEscrowInviteEmail(
       ? "You have been invited to <b>pay into escrow</b> for this deal."
       : "You have been invited as the <b>seller</b> for this deal.";
   const message =
-    `<p>${fromName} has invited you to an escrow deal on DynoPay.</p>` +
+    `<p>${fromName} has invited you to an escrow deal on Dynopay.</p>` +
     `<p><b>${deal.title}</b><br/>Amount: <b>${money(deal)}</b></p>` +
-    `<p>${roleLine} Funds are held safely by DynoPay and only released when the deal is completed.</p>` +
+    `<p>${roleLine} Funds are held safely by Dynopay and only released when the deal is completed.</p>` +
     `<p><a href="${inviteUrl}">Review &amp; respond to this escrow invitation</a></p>`;
   await sendEmail(toEmail, toName || toEmail, `Escrow invitation: ${deal.title}`, message);
 }
@@ -60,6 +60,19 @@ export async function sendEscrowDeclinedEmail(
   await sendEmail(toEmail, toName || toEmail, `Escrow declined: ${deal.title}`, message);
 }
 
+/** Pre-funding cancellation by either party (free — nothing was paid). */
+export async function sendEscrowCancelledEmail(
+  toEmail: string,
+  toName: string,
+  deal: DealLike,
+  byRole: string
+): Promise<void> {
+  const message =
+    `<p>The <b>${byRole}</b> has <b>cancelled</b> the escrow deal <b>${deal.title}</b> (${money(deal)}) before it was funded.</p>` +
+    `<p>No funds have moved and nothing was charged. You can create a new deal if needed.</p>`;
+  await sendEmail(toEmail, toName || toEmail, `Escrow cancelled: ${deal.title}`, message);
+}
+
 export async function sendEscrowFundedEmail(
   toEmail: string,
   toName: string,
@@ -67,7 +80,7 @@ export async function sendEscrowFundedEmail(
 ): Promise<void> {
   const message =
     `<p>Good news — the buyer has funded the escrow for <b>${deal.title}</b> (${money(deal)}).</p>` +
-    `<p>The funds are now <b>held safely</b> by DynoPay. The seller can proceed and mark the deal as delivered.</p>`;
+    `<p>The funds are now <b>held safely</b> by Dynopay. The seller can proceed and mark the deal as delivered.</p>`;
   await sendEmail(toEmail, toName || toEmail, `Escrow funded: ${deal.title}`, message);
 }
 
@@ -117,7 +130,7 @@ export async function sendEscrowDisputeOpenedEmail(
   const message =
     `<p>A dispute has been opened on the escrow deal <b>${deal.title}</b> (${money(deal)}) by the <b>${raisedBy}</b>.</p>` +
     `<p>Reason: ${reason || "(none provided)"}</p>` +
-    `<p>The auto-release timer is paused. A DynoPay admin will review and resolve the dispute.</p>`;
+    `<p>The auto-release timer is paused. A Dynopay admin will review and resolve the dispute.</p>`;
   await sendEmail(toEmail, toName || toEmail, `Escrow dispute opened: ${deal.title}`, message);
 }
 
@@ -128,7 +141,7 @@ export async function sendEscrowDisputeResolvedEmail(
   summary: string
 ): Promise<void> {
   const message =
-    `<p>The dispute on <b>${deal.title}</b> (${money(deal)}) has been resolved by a DynoPay admin.</p>` +
+    `<p>The dispute on <b>${deal.title}</b> (${money(deal)}) has been resolved by a Dynopay admin.</p>` +
     `<p>${summary}</p>`;
   await sendEmail(toEmail, toName || toEmail, `Escrow dispute resolved: ${deal.title}`, message);
 }
@@ -193,8 +206,19 @@ export async function sendEscrowDisputeProposalEmail(
   splitPercentSeller: number | null | undefined,
   note: string | undefined,
   inviteUrl: string,
-  isCounter = false
+  isCounter = false,
+  kind: string | null = null
 ): Promise<void> {
+  if (kind === "cancellation" && !isCounter) {
+    const message =
+      `<p>The <b>${fromRole}</b> has asked to <b>cancel</b> the escrow deal <b>${deal.title}</b> (${money(deal)}).</p>` +
+      `<p>Because the deal is already funded, cancelling needs your agreement. If you agree, the buyer is refunded the held amount <b>minus the escrow fee and network/exchange costs</b> (these are non-refundable).</p>` +
+      (note ? `<p>Their note: ${note}</p>` : "") +
+      `<p>You can <b>agree</b>, make a <b>counter-offer</b>, or <b>escalate to a Dynopay admin</b>.</p>` +
+      `<p><a href="${inviteUrl}">Review the request</a></p>`;
+    await sendEmail(toEmail, toName || toEmail, `Cancellation requested: ${deal.title}`, message);
+    return;
+  }
   const lead = isCounter
     ? `The <b>${fromRole}</b> has made a <b>counter-offer</b> to resolve the dispute on`
     : `The <b>${fromRole}</b> has opened a dispute and proposed a resolution for`;
@@ -202,7 +226,7 @@ export async function sendEscrowDisputeProposalEmail(
     `<p>${lead} <b>${deal.title}</b> (${money(deal)}):</p>` +
     `<p><b>Proposal:</b> ${describeProposal(outcome, splitPercentSeller)}.</p>` +
     (note ? `<p>Their note: ${note}</p>` : "") +
-    `<p>You can <b>accept</b> it, make a <b>counter-offer</b>, or <b>escalate to a DynoPay admin</b> if you can't reach an agreement.</p>` +
+    `<p>You can <b>accept</b> it, make a <b>counter-offer</b>, or <b>escalate to a Dynopay admin</b> if you can't reach an agreement.</p>` +
     `<p><a href="${inviteUrl}">Open the dispute</a></p>`;
   await sendEmail(toEmail, toName || toEmail, `Dispute proposal: ${deal.title}`, message);
 }
@@ -219,7 +243,7 @@ export async function sendEscrowDisputeEscalatedEmail(
       ? ` by the <b>${byRole}</b>`
       : " automatically because no agreement was reached in time";
   const message =
-    `<p>The dispute on <b>${deal.title}</b> (${money(deal)}) has been <b>escalated to a DynoPay admin</b>${how}.</p>` +
+    `<p>The dispute on <b>${deal.title}</b> (${money(deal)}) has been <b>escalated to a Dynopay admin</b>${how}.</p>` +
     `<p>An admin will review the case (including any messages exchanged) and decide the outcome. Your funds remain held safely in a stablecoin in the meantime.</p>`;
   await sendEmail(toEmail, toName || toEmail, `Dispute escalated: ${deal.title}`, message);
 }

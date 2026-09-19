@@ -11,7 +11,7 @@
  * payment, yet never reach any of those features.
  * (Full analysis: docs/IA_AUDIT_2026-08.md §1.)
  *
- * Founder decision 2026-08-12: DynoPay serves BOTH individuals and businesses,
+ * Founder decision 2026-08-12: Dynopay serves BOTH individuals and businesses,
  * so the Account is the single tenant and "Company" is simply an Account that has
  * filled in a business profile. Every user therefore gets an Account at signup.
  *

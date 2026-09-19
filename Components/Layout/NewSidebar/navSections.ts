@@ -39,7 +39,6 @@ export const buildNavSections = ({ t, isIndividual, hasClaimedCreator, reveal, b
   const dashboard: SidebarItem = { label: t("dashboard"), icon: "dashboard", path: "/dashboard", permission: "view_dashboard" };
   const brands: SidebarItem = { label: t("brands", { defaultValue: "Brands" }), icon: "brands", path: "/brands" };
   const payLinks: SidebarItem = { label: t("payLinks"), icon: "payment-links", path: "/pay-links", permission: "manage_payment_links" };
-  const escrow: SidebarItem = { label: t("escrow", { defaultValue: "Escrow" }), icon: "escrow", path: "/escrow", permission: "manage_payment_links", isNew: true };
   const publicPage: SidebarItem = {
     label: t("storefront", { defaultValue: "Your page" }),
     icon: "creator",
@@ -62,7 +61,7 @@ export const buildNavSections = ({ t, isIndividual, hasClaimedCreator, reveal, b
     {
       key: "sell",
       label: t("sidebarSectionSell", { defaultValue: "Sell" }),
-      items: isIndividual ? [publicPage, payLinks, escrow] : [payLinks, escrow, publicPage],
+      items: isIndividual ? [publicPage, payLinks] : [payLinks, publicPage],
     },
     {
       key: "money",

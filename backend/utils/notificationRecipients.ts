@@ -1,7 +1,7 @@
 /**
  * notificationRecipients.ts — central recipient resolver for OUTBOUND emails.
  *
- * DynoPay has two email identities that were previously conflated (everything
+ * Dynopay has two email identities that were previously conflated (everything
  * went to the owner's personal login email):
  *   • ACCOUNT scope  -> the individual user (tbl_user.email): security, login,
  *     OTP, password, KYC. Personal — never fanned out to a team.

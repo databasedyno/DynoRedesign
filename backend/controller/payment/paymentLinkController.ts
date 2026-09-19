@@ -66,7 +66,7 @@ const randomShortRef = (): string => {
   return out;
 };
 
-const generatePaymentRef = async (): Promise<string> => {
+export const generatePaymentRef = async (): Promise<string> => {
   for (let attempt = 0; attempt < 12; attempt++) {
     const ref = randomShortRef();
     const rows = await sequelize.query(

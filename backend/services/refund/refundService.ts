@@ -196,7 +196,7 @@ const persistSourceRefundAddress = async (
 
 /**
  * Create an on-chain refund invoice (Phase B). Enforces single-refund-per-source,
- * amount cap, and allocates a same-chain DynoPay deposit address (real or dry-run).
+ * amount cap, and allocates a same-chain Dynopay deposit address (real or dry-run).
  */
 export const createRefund = async (input: CreateRefundInput) => {
   const { sourceType, sourceRef, requestedAmount, reason, actorUserId } = input;
@@ -238,7 +238,7 @@ export const createRefund = async (input: CreateRefundInput) => {
 
   const refundId = (globalThis.crypto?.randomUUID?.() as string) || require("crypto").randomUUID();
 
-  // Allocate the DynoPay deposit address on the SAME chain.
+  // Allocate the Dynopay deposit address on the SAME chain.
   let depositAddress: string;
   let tempAddressId: number | null = null;
   if (dryRun) {

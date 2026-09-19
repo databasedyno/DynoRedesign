@@ -1,0 +1,185 @@
+import React, { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/router";
+import { Alert, Box, Button, Container, Grid, InputAdornment, MenuItem, Stack, TextField, Typography } from "@mui/material";
+import { Icon } from "@iconify/react";
+import { BRAND_ACCENT } from "@/constants/theme";
+import safedealApi, { SdConfig, sdError } from "@/api/safedeal";
+import type { FeeBreakdown } from "@/api/escrow";
+import { money } from "@/Components/Page/Escrow/escrowUtils";
+import { useRequireSdSession, useSdHref } from "./sdRouting";
+
+type Role = "buyer" | "seller";
+type FeePayer = "buyer" | "seller" | "split";
+
+function Choice<T extends string>({ value, onChange, options, testid }: { value: T; onChange: (v: T) => void; options: { v: T; label: string; sub?: string; icon?: string }[]; testid: string }) {
+  return (
+    <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+      {options.map((o) => {
+        const on = o.v === value;
+        return (
+          <Box
+            key={o.v}
+            role="button"
+            onClick={() => onChange(o.v)}
+            data-testid={`${testid}-${o.v}`}
+            data-selected={on ? "true" : "false"}
+            sx={{ flex: 1, minWidth: 120, p: 1.4, borderRadius: 2.5, cursor: "pointer", border: `1.5px solid ${on ? BRAND_ACCENT : "#E5E7EB"}`, backgroundColor: on ? `${BRAND_ACCENT}0F` : "#fff", transition: "border-color .15s, background-color .15s" }}
+          >
+            <Stack direction="row" spacing={0.8} alignItems="center">
+              {o.icon && <Icon icon={o.icon} width={18} color={on ? BRAND_ACCENT : "#6B7280"} />}
+              <Typography sx={{ fontWeight: 800, fontSize: 14, color: on ? BRAND_ACCENT : "#111827" }}>{o.label}</Typography>
+            </Stack>
+            {o.sub && <Typography sx={{ fontSize: 12, color: "#6B7280", mt: 0.3 }}>{o.sub}</Typography>}
+          </Box>
+        );
+      })}
+    </Stack>
+  );
+}
+
+export default function NewDeal() {
+  const { user, ready } = useRequireSdSession();
+  const router = useRouter();
+  const href = useSdHref();
+  const [cfg, setCfg] = useState<SdConfig | null>(null);
+  const [title, setTitle] = useState("");
+  const [amount, setAmount] = useState("");
+  const [role, setRole] = useState<Role>("seller");
+  const [email, setEmail] = useState("");
+  const [feePayer, setFeePayer] = useState<FeePayer>("buyer");
+  const [days, setDays] = useState<number>(3);
+  const [terms, setTerms] = useState("");
+  const [preview, setPreview] = useState<FeeBreakdown | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    safedealApi.config().then((c) => { setCfg(c); setDays(c.auto_release_default); }).catch(() => undefined);
+  }, []);
+
+  const minDeal = cfg?.min_deal_usd ?? 30;
+  const amountNum = Number(amount);
+  const belowMin = amountNum > 0 && amountNum < minDeal;
+  const emailValid = /.+@.+\..+/.test(email.trim());
+  const selfInvite = !!user && email.trim().toLowerCase() === user.email.toLowerCase();
+
+  useEffect(() => {
+    if (!(amountNum >= minDeal)) return setPreview(null);
+    const t = setTimeout(() => {
+      safedealApi.feePreview({ amount: amountNum, fee_payer: feePayer }).then(setPreview).catch(() => setPreview(null));
+    }, 250);
+    return () => clearTimeout(t);
+  }, [amountNum, feePayer, minDeal]);
+
+  const canSubmit = useMemo(() => title.trim().length >= 2 && amountNum >= minDeal && emailValid && !selfInvite && !busy, [title, amountNum, minDeal, emailValid, selfInvite, busy]);
+
+  const submit = async () => {
+    setError(null);
+    setBusy(true);
+    try {
+      const deal = await safedealApi.createDeal({
+        title: title.trim(), amount: amountNum, my_role: role, counterparty_email: email.trim(), fee_payer: feePayer, auto_release_days: days,
+        ...(terms.trim() ? { terms: terms.trim() } : {}),
+      });
+      void router.push(href(`/deal/${deal.deal_token}?created=1`));
+    } catch (e) {
+      setError(sdError(e));
+      setBusy(false);
+    }
+  };
+
+  if (!ready) return null;
+
+  return (
+    <Container maxWidth="lg" sx={{ py: { xs: 3, md: 5 } }} data-testid="sd-new-deal-page">
+      <Typography component="h1" sx={{ fontSize: { xs: 26, md: 32 }, fontWeight: 900, letterSpacing: -0.8, mb: 0.5 }}>Create a deal</Typography>
+      <Typography sx={{ fontSize: 14, color: "#6B7280", mb: 3 }}>The other party gets an email invite. Nothing is charged until the buyer funds the escrow.</Typography>
+
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={7}>
+          <Stack spacing={2.5} sx={{ p: { xs: 2, md: 3 }, borderRadius: 3, backgroundColor: "#fff", border: "1px solid #E5E7EB" }}>
+            {error && <Alert severity="error" data-testid="sd-new-deal-error">{error}</Alert>}
+            <TextField label="What's the deal?" placeholder="e.g. Logo & brand kit for Acme" value={title} onChange={(e) => setTitle(e.target.value)} fullWidth inputProps={{ "data-testid": "sd-new-title", maxLength: 255 }} />
+            <TextField
+              label="Amount"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ""))}
+              fullWidth
+              error={belowMin}
+              helperText={belowMin ? `Minimum deal amount is $${minDeal}` : `USD · minimum $${minDeal}`}
+              FormHelperTextProps={{ "data-testid": "sd-new-amount-helper" } as any}
+              InputProps={{ startAdornment: <InputAdornment position="start">$</InputAdornment> }}
+              inputProps={{ "data-testid": "sd-new-amount", inputMode: "decimal" }}
+            />
+            <Box>
+              <Typography sx={{ fontSize: 13, fontWeight: 800, mb: 0.8 }}>I am the…</Typography>
+              <Choice value={role} onChange={setRole} testid="sd-new-role" options={[
+                { v: "seller", label: "Seller", sub: "I deliver and get paid", icon: "mdi:storefront-outline" },
+                { v: "buyer", label: "Buyer", sub: "I pay and receive", icon: "mdi:cart-outline" },
+              ]} />
+            </Box>
+            <TextField
+              label={role === "seller" ? "Buyer's email" : "Seller's email"}
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              fullWidth
+              error={selfInvite}
+              helperText={selfInvite ? "That's you — enter the other party's email." : "They'll receive an invite link. No account needed."}
+              inputProps={{ "data-testid": "sd-new-email" }}
+            />
+            <Box>
+              <Typography sx={{ fontSize: 13, fontWeight: 800, mb: 0.8 }}>Who covers the {cfg?.fee_percent ?? 5}% escrow fee?</Typography>
+              <Choice value={feePayer} onChange={setFeePayer} testid="sd-new-fee" options={[
+                { v: "buyer", label: "Buyer", sub: "Added on top of the price" },
+                { v: "seller", label: "Seller", sub: "Taken from the payout" },
+                { v: "split", label: "Split 50/50", sub: "Half each" },
+              ]} />
+            </Box>
+            <TextField select label="Auto-release after delivery" value={days} onChange={(e) => setDays(Number(e.target.value))} fullWidth helperText="Days the buyer has to check the delivery before funds release automatically." inputProps={{ "data-testid": "sd-new-days" }}>
+              {(cfg?.auto_release_presets ?? [3, 5, 7, 14]).map((d) => (
+                <MenuItem key={d} value={d} data-testid={`sd-new-days-${d}`}>{d} days</MenuItem>
+              ))}
+            </TextField>
+            <TextField label="Terms (optional)" placeholder="What exactly is being delivered, by when, acceptance criteria…" value={terms} onChange={(e) => setTerms(e.target.value)} fullWidth multiline minRows={3} inputProps={{ "data-testid": "sd-new-terms", maxLength: 10000 }} />
+            <Button variant="contained" size="large" disabled={!canSubmit} onClick={() => void submit()} data-testid="sd-new-submit" endIcon={<Icon icon="mdi:send" />} sx={{ textTransform: "none", fontWeight: 900, borderRadius: 99, py: 1.3, backgroundColor: BRAND_ACCENT, "&:hover": { backgroundColor: "#3730A3" } }}>
+              {busy ? "Creating…" : "Create deal & send invite"}
+            </Button>
+          </Stack>
+        </Grid>
+
+        <Grid item xs={12} md={5}>
+          <Box sx={{ p: 2.5, borderRadius: 3, backgroundColor: "#0B1020", color: "#fff", position: "sticky", top: 84 }} data-testid="sd-new-quote">
+            <Typography sx={{ fontSize: 12, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: "rgba(255,255,255,0.55)", mb: 1.2 }}>Live quote</Typography>
+            {!preview ? (
+              <Typography sx={{ fontSize: 14, color: "rgba(255,255,255,0.65)" }}>Enter an amount of ${minDeal} or more to see the itemised quote.</Typography>
+            ) : (
+              <Stack spacing={1}>
+                <Row l="Deal amount" v={money(preview.amount, "USD")} />
+                {(preview.costItems || []).map((c) => (
+                  <Row key={c.key} l={c.label} v={money(c.amount, "USD")} soft testid={`sd-quote-${c.key}`} />
+                ))}
+                <Box sx={{ borderTop: "1px solid rgba(255,255,255,0.12)", pt: 1 }}>
+                  <Row l="Buyer pays" v={money(preview.buyerPays, "USD")} strong color="#A5B4FC" testid="sd-quote-buyer-pays" />
+                  <Row l="Seller receives" v={money(preview.sellerReceives, "USD")} strong color="#6EE7B7" testid="sd-quote-seller-receives" />
+                </Box>
+                <Typography sx={{ fontSize: 11.5, color: "rgba(255,255,255,0.5)", mt: 0.5 }}>
+                  Network, conversion & withdrawal costs are estimates and depend on the coin the buyer pays with. Fees are set by Dynopay and charged on every outcome.
+                </Typography>
+              </Stack>
+            )}
+          </Box>
+        </Grid>
+      </Grid>
+    </Container>
+  );
+}
+
+function Row({ l, v, soft, strong, color, testid }: { l: string; v: string; soft?: boolean; strong?: boolean; color?: string; testid?: string }) {
+  return (
+    <Stack direction="row" justifyContent="space-between" data-testid={testid}>
+      <Typography sx={{ fontSize: strong ? 14.5 : 13.5, fontWeight: strong ? 800 : 500, color: soft ? "rgba(255,255,255,0.65)" : "#fff" }}>{l}</Typography>
+      <Typography sx={{ fontSize: strong ? 14.5 : 13.5, fontWeight: strong ? 900 : 700, color: color || (soft ? "rgba(255,255,255,0.65)" : "#fff") }}>{v}</Typography>
+    </Stack>
+  );
+}

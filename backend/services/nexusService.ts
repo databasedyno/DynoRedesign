@@ -122,7 +122,7 @@ export async function notifyNexusEscalations(
           <p><strong>${r.currency} ${r.current.toLocaleString()}</strong> of <strong>${r.currency} ${r.threshold.toLocaleString()}</strong> (${r.pct}%).</p>
           <p>${th?.note || ""}</p>
           <p>You may need to register and start charging tax in this jurisdiction. This is an automated heads-up, not tax advice — please confirm with your tax adviser.</p>
-          <p>— DynoPay</p>`;
+          <p>— Dynopay</p>`;
         await mailTransporter({ to, name: user?.dataValues?.first_name || to, subject, body }).catch(() => {});
       }
       await nexusAlertModel

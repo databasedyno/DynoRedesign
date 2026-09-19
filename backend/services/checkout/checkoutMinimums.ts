@@ -6,7 +6,7 @@
  * ---------------
  * At settlement (controller/payment/settlement/chainVerification.ts) a payment
  * whose received USD is below the chain's forwarding threshold is credited 100%
- * to the DynoPay admin wallet — the merchant receives nothing. On top of that,
+ * to the Dynopay admin wallet — the merchant receives nothing. On top of that,
  * the platform fee ($1 fixed + 1.5%) is taken from the payment. So a small order
  * on an EXPENSIVE network (e.g. USDT-TRC20 / ERC-20) can leave the merchant with
  * a trivial or zero net, or silently disappear.

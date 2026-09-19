@@ -49,6 +49,9 @@ export interface FeeBreakdown {
   sellerReceives: number;
   platformFee: number;
   networkNote: string;
+  // fee-preview extras (admin policy)
+  minDealUsd?: number;
+  belowMinimum?: boolean;
 }
 
 export interface EscrowDeal {
@@ -149,12 +152,15 @@ export interface DisputeProposal {
   by?: EscrowRole;
   at?: string;
   message?: string | null;
+  /** "cancellation" = a post-funding cancel request (always a refund; fees kept). */
+  kind?: "cancellation" | null;
 }
 
 export interface DisputeThreadEntry {
   at?: string;
   by?: string; // buyer | seller | admin | system
   type: string; // open | counter | accept | message | escalate | auto_escalate | resolve
+  kind?: "cancellation" | null;
   outcome?: SettlementOutcome;
   split_percent_seller?: number | null;
   message?: string | null;
@@ -167,6 +173,7 @@ export interface DisputeProposalInput {
   split_percent_seller?: number;
   message?: string;
   reason?: string;
+  kind?: "cancellation";
 }
 
 const unwrap = (res: any) => res?.data?.data;
@@ -257,7 +264,7 @@ export const escrowAdminApi = {
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
-// PUBLIC (counterparty — no DynoPay account required)
+// PUBLIC (counterparty — no Dynopay account required)
 // ═══════════════════════════════════════════════════════════════════════════
 const publicClient = axios.create({
   baseURL: apiBaseUrl + "/api/",
@@ -301,6 +308,7 @@ export const escrowPublicApi = {
         | "dispute-accept"
         | "dispute-message"
         | "dispute-escalate"
+        | "cancel"
         | "payout-info";
       coin?: string;
       delivery_note?: string;
@@ -309,6 +317,7 @@ export const escrowPublicApi = {
       proposed_outcome?: SettlementOutcome;
       split_percent_seller?: number;
       message?: string;
+      kind?: "cancellation";
       payout_address?: string;
       payout_coin?: string;
       refund_address?: string;

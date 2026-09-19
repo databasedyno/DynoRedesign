@@ -14,7 +14,7 @@ import { computeNexusStatus, notifyNexusEscalations } from "../services/nexusSer
 /**
  * Buyer-side / OSS destination tax report (backlog #6).
  *
- * The pre-existing `/api/invoices/tax-report` reports VAT on DynoPay's own
+ * The pre-existing `/api/invoices/tax-report` reports VAT on Dynopay's own
  * SERVICE-FEE invoices, grouped by the merchant's country — the wrong dataset
  * for a VAT/OSS return. This report reads the TAX ACTUALLY COLLECTED FROM
  * BUYERS off `tbl_product_order` (cents in the order's own currency, with the

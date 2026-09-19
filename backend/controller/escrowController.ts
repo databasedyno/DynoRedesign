@@ -2,7 +2,7 @@
  * Escrow controller — merchant dashboard, public counterparty (email-OTP), and
  * admin handlers.
  *
- * Counterparty model (v1): the invited party may NOT have a DynoPay account. They
+ * Counterparty model (v1): the invited party may NOT have a Dynopay account. They
  * verify their email once with a 6-digit OTP and receive a short-lived escrow
  * session token (x-escrow-token) used for every public action.
  *
@@ -39,10 +39,14 @@ import {
   resolveRoles,
 } from "./escrow/escrowShared";
 import { refreshEscrowCostRates } from "../services/escrow/escrowCosts";
+import { recordFundingReceived, fundFromBalance, settleToWallets } from "../services/safedeal/safedealEscrowLedger";
+import { getBalances } from "../services/safedeal/safedealWallet";
+import { maybeAutoWithdraw } from "../services/safedeal/safedealWithdrawals";
 import {
   sendEscrowInviteEmail,
   sendEscrowAcceptedEmail,
   sendEscrowDeclinedEmail,
+  sendEscrowCancelledEmail,
   sendEscrowFundedEmail,
   sendEscrowDeliveredEmail,
   sendEscrowReleasedEmail,
@@ -76,7 +80,9 @@ const REMINDER_REVIEW_THRESHOLD = 3;
 const DISPUTE_AUTO_ESCALATE_HOURS = Number(envRaw("ESCROW_DISPUTE_AUTO_ESCALATE_HOURS")) || 72;
 // Platform escrow fee — ADMIN-CONTROLLED via .env only (never client-supplied).
 const ESCROW_FEE_PERCENT = Number(envRaw("ESCROW_FEE_PERCENT")) || 5;
-const ESCROW_FEE_MIN_USD = Number(envRaw("ESCROW_FEE_MIN_USD")) || 1;
+const ESCROW_FEE_MIN_USD = Number(envRaw("ESCROW_FEE_MIN_USD")) || 10;
+// Smallest deal we escrow (USD). Below this the fee floor dominates the economics.
+const ESCROW_MIN_DEAL_USD = Number(envRaw("ESCROW_MIN_DEAL_USD")) || 30;
 // Auto-release presets offered to merchants (days). Any other value clamps to the default.
 const ESCROW_AUTO_RELEASE_PRESETS = [3, 5, 7, 14];
 const ESCROW_AUTO_RELEASE_DEFAULT = 3;
@@ -91,7 +97,13 @@ const emailDisabled = () => String(envRaw("DISABLE_OUTBOUND_EMAIL") || "").toLow
 
 const frontendBase = (): string =>
   (envRaw("SERVER_URL") || envRaw("FRONTEND_URL") || envRaw("CHECKOUT_URL") || "").trim().replace(/\/$/, "");
+/** SafeDeal public base (prod: https://safedeal.sh; preview: <dynopay>/safedeal). */
+const safedealBase = (): string => (envRaw("SAFEDEAL_URL") || `${frontendBase()}/safedeal`).trim().replace(/\/$/, "");
 const inviteUrl = (token: string): string => `${frontendBase()}/escrow/invite/${token}`;
+/** Where a party opens this deal — SafeDeal deals live on the SafeDeal site. */
+const dealUrl = (deal: any): string =>
+  deal?.source === "safedeal" ? `${safedealBase()}/deal/${deal.deal_token}` : dealUrl(deal);
+const isSafeDeal = (deal: any): boolean => deal?.source === "safedeal";
 const norm = (s: unknown): string => String(s ?? "").trim().toLowerCase();
 
 const getAuthUser = (res: express.Response): { user_id: number; email: string | null } => {
@@ -105,7 +117,7 @@ interface ActorInfo {
   isCounterparty: boolean;
   role: EscrowRole;
   label: string;
-  signedIn: boolean; // true = authenticated DynoPay account (may reuse saved wallet)
+  signedIn: boolean; // true = authenticated Dynopay account (may reuse saved wallet)
 }
 
 function resolveAuthedActor(deal: any, auth: { user_id: number; email: string | null }): ActorInfo | null {
@@ -133,16 +145,18 @@ async function resolvePublicActor(req: express.Request, deal: any): Promise<Acto
 }
 
 async function loadCreatorAndCompany(deal: any): Promise<{ creatorEmail: string; creatorName: string; companyName: string }> {
-  let creatorEmail = "";
-  let creatorName = "there";
-  let companyName = "DynoPay";
-  try {
-    const u: any = await userModel.findByPk(deal.creator_user_id, { attributes: ["user_id", "email", "first_name", "last_name"] });
-    if (u) {
-      creatorEmail = u.dataValues.email || "";
-      creatorName = [u.dataValues.first_name, u.dataValues.last_name].filter(Boolean).join(" ") || creatorEmail || "there";
-    }
-  } catch { /* non-fatal */ }
+  let creatorEmail = deal.creator_email ? String(deal.creator_email) : "";
+  let creatorName = creatorEmail || "there";
+  let companyName = isSafeDeal(deal) ? "SafeDeal" : "Dynopay";
+  if (deal.creator_user_id) {
+    try {
+      const u: any = await userModel.findByPk(deal.creator_user_id, { attributes: ["user_id", "email", "first_name", "last_name"] });
+      if (u) {
+        creatorEmail = u.dataValues.email || creatorEmail;
+        creatorName = [u.dataValues.first_name, u.dataValues.last_name].filter(Boolean).join(" ") || creatorEmail || "there";
+      }
+    } catch { /* non-fatal */ }
+  }
   try {
     const c: any = await companyModel.findByPk(deal.company_id, { attributes: ["company_id", "company_name"] });
     if (c) companyName = c.dataValues.company_name || companyName;
@@ -173,9 +187,14 @@ function serializeDeal(deal: any, includePrivate = true): Record<string, unknown
     escrow_id: d.escrow_id,
     deal_token: d.deal_token,
     company_id: d.company_id,
+    source: d.source || "merchant",
+    creator_email: d.creator_email || null,
     creator_role: d.creator_role,
     counterparty_email: d.counterparty_email,
     counterparty_verified: !!d.counterparty_verified_at,
+    funding_method: d.funding_method || null,
+    funding_link_ref: d.funding_link_ref || null,
+    checkout_url: d.funding_link_ref ? `${(envRaw("CHECKOUT_URL") || frontendBase()).trim().replace(/\/$/, "")}/pay?d=${d.funding_link_ref}` : null,
     title: d.title,
     description: d.description,
     amount: Number(d.amount),
@@ -231,7 +250,7 @@ function serializeDeal(deal: any, includePrivate = true): Record<string, unknown
     funding_coin: d.funding_coin,
     funded_amount_usd: d.funded_amount_usd != null ? Number(d.funded_amount_usd) : null,
     simulated: d.simulated,
-    invite_url: inviteUrl(d.deal_token),
+    invite_url: dealUrl(d),
     stablecoins: ESCROW_STABLECOINS,
     breakdown,
     created_at: d.created_at,
@@ -312,6 +331,58 @@ async function attemptPayouts(deal: any, actorLabel = "system"): Promise<{ selle
   let sellerPaid = false;
   let buyerPaid = false;
   if (!["completed", "refunded", "split"].includes(deal.status)) return { sellerPaid, buyerPaid };
+
+  // SafeDeal: settlement lands in the parties' SafeDeal wallets (no on-chain leg).
+  if (isSafeDeal(deal)) {
+    const legsPending = deal.seller_payout_state === "pending" || deal.buyer_payout_state === "pending";
+    if (!legsPending) return { sellerPaid, buyerPaid };
+    const breakdown = computeFeeBreakdown({ amount: deal.amount, currency: deal.currency, feePercent: deal.fee_percent, feeMinUsd: deal.fee_min_usd, feePayer: deal.fee_payer, payoutCoin: deal.seller_payout_coin, fundingCoin: deal.funding_coin, acceptedCoins: deal.accepted_coins });
+    const amounts = { sellerAmount: Number(deal.seller_entitlement_stable || 0), buyerRefund: Number(deal.buyer_entitlement_stable || 0) };
+    try {
+      await settleToWallets(deal, amounts, breakdown);
+    } catch (err) {
+      apiLogger.error(`[escrow.safedeal] wallet settlement failed for deal ${deal.escrow_id}: ${(err as Error).message}`);
+      deal.needs_admin_review = true;
+      await deal.save();
+      return { sellerPaid, buyerPaid };
+    }
+    const now = new Date();
+    if (deal.seller_payout_state === "pending") {
+      deal.seller_payout_state = "paid";
+      deal.seller_paid_at = now;
+      deal.seller_payout_tx = `WALLET-CREDIT-${deal.escrow_id}`;
+      deal.activity_log = appendActivity(deal.activity_log, {
+        type: "payout_seller",
+        actor: actorLabel,
+        role: "system",
+        note: `Credited ${deal.seller_entitlement_stable} USD to the seller's SafeDeal wallet.`,
+      });
+      sellerPaid = true;
+    }
+    if (deal.buyer_payout_state === "pending") {
+      deal.buyer_payout_state = "paid";
+      deal.buyer_paid_at = now;
+      deal.buyer_payout_tx = `WALLET-CREDIT-${deal.escrow_id}`;
+      deal.activity_log = appendActivity(deal.activity_log, {
+        type: "payout_buyer",
+        actor: actorLabel,
+        role: "system",
+        note: `Refunded ${deal.buyer_entitlement_stable} USD to the buyer's SafeDeal wallet (fees & costs kept).`,
+      });
+      buyerPaid = true;
+    }
+    deal.fully_paid_at = now;
+    deal.needs_admin_review = false;
+    await deal.save();
+    // Opt-in auto-withdraw for whoever just got credited.
+    const creditedIds = [
+      sellerPaid ? (deal.creator_role === "seller" ? deal.creator_customer_id : deal.counterparty_customer_id) : null,
+      buyerPaid && amounts.buyerRefund > 0 ? (deal.creator_role === "buyer" ? deal.creator_customer_id : deal.counterparty_customer_id) : null,
+    ].filter(Boolean) as number[];
+    for (const cid of creditedIds) void maybeAutoWithdraw(Number(cid));
+    return { sellerPaid, buyerPaid };
+  }
+
   if (isLiveSettlementEnabled()) {
     // Live wiring is a follow-up; never broadcast in v1.
     return { sellerPaid, buyerPaid };
@@ -357,7 +428,13 @@ async function attemptPayouts(deal: any, actorLabel = "system"): Promise<{ selle
 /** Notify parties of an outcome: "paid" if their leg executed, else "payout pending". */
 async function notifyOutcome(deal: any, summary: string): Promise<void> {
   const { buyerEmail, sellerEmail } = await partyEmails(deal);
-  const url = inviteUrl(deal.deal_token);
+  const url = dealUrl(deal);
+  if (isSafeDeal(deal)) {
+    // Funds land in wallets — one clear email per party, no "paste an address" nudges.
+    if (deal.seller_payout_state === "paid" && sellerEmail) void sendEscrowReleasedEmail(sellerEmail, sellerEmail, deal, summary);
+    if (deal.buyer_payout_state === "paid" && buyerEmail) void sendEscrowRefundedEmail(buyerEmail, buyerEmail, deal, summary);
+    return;
+  }
   if (deal.seller_payout_state === "paid" && sellerEmail) {
     void sendEscrowReleasedEmail(sellerEmail, sellerEmail, deal, summary);
     void sendEscrowPaidEmail(sellerEmail, sellerEmail, deal, summary);
@@ -412,6 +489,40 @@ async function actDecline(deal: any, actor: ActorInfo, reason?: string): Promise
   return deal;
 }
 
+const PRE_FUNDING_STATUSES = ["draft", "invited", "awaiting_payment"];
+const FUNDED_STATUSES = ["funded", "delivered"];
+
+/**
+ * Cancellation policy:
+ *  - BEFORE funding: free — either participant voids the deal instantly.
+ *  - AFTER funding: needs mutual agreement — becomes a cancellation request that
+ *    runs through the dispute engine as a `refund` proposal (fees/costs are kept).
+ */
+async function actCancel(deal: any, actor: ActorInfo, body: any): Promise<{ deal: any; requested: boolean }> {
+  if (FUNDED_STATUSES.includes(deal.status)) {
+    await actRaiseDispute(deal, actor, { proposed_outcome: "refund", kind: "cancellation", message: body?.reason || body?.message });
+    return { deal, requested: true };
+  }
+  if (!PRE_FUNDING_STATUSES.includes(deal.status)) {
+    fail(409, `This deal can no longer be cancelled (status '${deal.status}').`);
+  }
+  if (deal.status === "draft" && !actor.isCreator) fail(403, "Only the creator can cancel a draft.");
+  assertTransition(deal.status, "cancelled");
+  deal.status = "cancelled";
+  deal.cancelled_at = new Date();
+  deal.activity_log = appendActivity(deal.activity_log, {
+    type: "cancelled",
+    actor: actor.label,
+    role: actor.role,
+    note: body?.reason ? String(body.reason).slice(0, 500) : `Deal cancelled by the ${actor.role} before funding (no charge).`,
+  });
+  await deal.save();
+  const { buyerEmail, sellerEmail } = await partyEmails(deal);
+  const otherEmail = actor.role === "buyer" ? sellerEmail : buyerEmail;
+  if (otherEmail) void sendEscrowCancelledEmail(otherEmail, otherEmail, deal, actor.role);
+  return { deal, requested: false };
+}
+
 async function actFund(deal: any, actor: ActorInfo, coinIn?: string): Promise<any> {
   if (isLiveSettlementEnabled()) fail(403, "Simulated funding is disabled when live settlement is on. Fund via the hosted checkout.");
   if (actor.role !== "buyer") fail(403, "Only the buyer funds the escrow.");
@@ -424,6 +535,7 @@ async function actFund(deal: any, actor: ActorInfo, coinIn?: string): Promise<an
   deal.funded_at = now;
   deal.simulated = true;
   deal.funding_coin = coin;
+  deal.funding_method = "simulated";
   deal.funding_crypto_amount = breakdown.buyerPays;
   deal.funded_amount_usd = breakdown.buyerPays;
   deal.funding_deposit_address = `SIMULATED-${crypto.randomBytes(8).toString("hex")}`;
@@ -439,6 +551,75 @@ async function actFund(deal: any, actor: ActorInfo, coinIn?: string): Promise<an
     note: `[SIMULATED] Buyer funded ${breakdown.buyerPays} ${deal.currency} in ${coin}; converted to ${breakdown.buyerPays} ${CUSTODY_STABLECOIN} held in custody.`,
     meta: { breakdown },
   });
+  if (isSafeDeal(deal)) await recordFundingReceived(deal, breakdown.buyerPays, "simulated");
+  await deal.save();
+  const { sellerEmail } = await partyEmails(deal);
+  if (sellerEmail) void sendEscrowFundedEmail(sellerEmail, sellerEmail, deal);
+  return deal;
+}
+
+/** SafeDeal only — the buyer pays the full quote from their available wallet balance. */
+async function actFundFromBalance(deal: any, actor: ActorInfo): Promise<any> {
+  if (!isSafeDeal(deal)) fail(400, "Paying from balance is only available on SafeDeal.");
+  if (actor.role !== "buyer") fail(403, "Only the buyer funds the escrow.");
+  if (deal.status !== "awaiting_payment") fail(409, `Cannot fund from status '${deal.status}'.`);
+  if (!deal.creator_customer_id && !deal.counterparty_customer_id) fail(409, "Buyer wallet not found.");
+  const buyerCustomerId = deal.creator_role === "buyer" ? deal.creator_customer_id : deal.counterparty_customer_id;
+  const breakdown = computeFeeBreakdown({ amount: deal.amount, currency: deal.currency, feePercent: deal.fee_percent, feeMinUsd: deal.fee_min_usd, feePayer: deal.fee_payer, payoutCoin: deal.seller_payout_coin, fundingCoin: CUSTODY_STABLECOIN, acceptedCoins: deal.accepted_coins });
+  const bal = buyerCustomerId ? await getBalances(Number(buyerCustomerId)) : { available: 0 };
+  if (bal.available < breakdown.buyerPays) {
+    fail(400, `Your available balance (${bal.available.toFixed(2)} USD) is below the ${breakdown.buyerPays.toFixed(2)} USD due for this deal.`);
+  }
+  await fundFromBalance(deal, breakdown.buyerPays);
+  const now = new Date();
+  assertTransition(deal.status, "funded");
+  deal.status = "funded";
+  deal.funded_at = now;
+  deal.simulated = false;
+  deal.funding_coin = CUSTODY_STABLECOIN;
+  deal.funding_method = "balance";
+  deal.funding_crypto_amount = breakdown.buyerPays;
+  deal.funded_amount_usd = breakdown.buyerPays;
+  deal.custody_stablecoin = CUSTODY_STABLECOIN;
+  deal.custody_amount_stable = breakdown.buyerPays;
+  deal.converted_at = now;
+  deal.activity_log = appendActivity(deal.activity_log, {
+    type: "funded",
+    actor: actor.label,
+    role: "buyer",
+    note: `Buyer paid ${breakdown.buyerPays} ${deal.currency} from their SafeDeal balance; held in escrow as ${CUSTODY_STABLECOIN}.`,
+    meta: { breakdown },
+  });
+  await deal.save();
+  const { sellerEmail } = await partyEmails(deal);
+  if (sellerEmail) void sendEscrowFundedEmail(sellerEmail, sellerEmail, deal);
+  return deal;
+}
+
+/** Live path — a hosted-checkout payment for this deal was confirmed on-chain. */
+async function actFundFromCheckout(deal: any, paidUsd: number, coin: string, txHash: string): Promise<any> {
+  if (deal.status !== "awaiting_payment") return deal; // already funded / cancelled — idempotent
+  const breakdown = computeFeeBreakdown({ amount: deal.amount, currency: deal.currency, feePercent: deal.fee_percent, feeMinUsd: deal.fee_min_usd, feePayer: deal.fee_payer, payoutCoin: deal.seller_payout_coin, fundingCoin: coin, acceptedCoins: deal.accepted_coins });
+  const now = new Date();
+  assertTransition(deal.status, "funded");
+  deal.status = "funded";
+  deal.funded_at = now;
+  deal.simulated = false;
+  deal.funding_coin = coin;
+  deal.funding_method = "checkout";
+  deal.funding_tx_hash = txHash;
+  deal.funded_amount_usd = breakdown.buyerPays;
+  deal.custody_stablecoin = CUSTODY_STABLECOIN;
+  deal.custody_amount_stable = breakdown.buyerPays;
+  deal.converted_at = now;
+  deal.activity_log = appendActivity(deal.activity_log, {
+    type: "funded",
+    actor: "checkout",
+    role: "buyer",
+    note: `Buyer paid ${paidUsd} ${deal.currency} via hosted checkout in ${coin} (tx ${txHash}); ${breakdown.buyerPays} ${CUSTODY_STABLECOIN} held in custody.`,
+    meta: { breakdown, paidUsd },
+  });
+  if (isSafeDeal(deal)) await recordFundingReceived(deal, breakdown.buyerPays, "checkout");
   await deal.save();
   const { sellerEmail } = await partyEmails(deal);
   if (sellerEmail) void sendEscrowFundedEmail(sellerEmail, sellerEmail, deal);
@@ -475,12 +656,15 @@ function appendDisputeThread(deal: any, entry: Record<string, unknown>): void {
   deal.dispute_thread = [...list, { at: new Date().toISOString(), ...entry }];
 }
 
-function describeProposalShort(outcome: SettlementOutcome, splitPct?: number | null): string {
+function describeProposalShort(outcome: SettlementOutcome, splitPct?: number | null, kind?: string | null): string {
+  if (kind === "cancellation") return "cancel the deal — full refund to the buyer (fees & costs kept)";
   if (outcome === "release") return "full release to the seller";
   if (outcome === "refund") return "full refund to the buyer";
   const s = Number(splitPct ?? 50);
   return `a ${s}%/${100 - s}% split (seller/buyer)`;
 }
+
+const proposalKind = (body: any): "cancellation" | null => (String(body?.kind || "") === "cancellation" ? "cancellation" : null);
 
 /** Validate + normalise a proposed resolution from a request body (decision 2a). */
 function normalizeProposal(body: any): { outcome: SettlementOutcome; split_percent_seller: number | null } {
@@ -503,8 +687,10 @@ const escalateWindowMs = () => DISPUTE_AUTO_ESCALATE_HOURS * 3600000;
 
 /** Open a dispute WITH a proposed resolution (decision 2a). Enters party negotiation. */
 async function actRaiseDispute(deal: any, actor: ActorInfo, body: any): Promise<any> {
-  if (!["funded", "delivered"].includes(deal.status)) fail(409, `A dispute can only be raised on a funded or delivered deal (current: '${deal.status}').`);
-  const { outcome, split_percent_seller } = normalizeProposal(body);
+  if (!FUNDED_STATUSES.includes(deal.status)) fail(409, `A dispute can only be raised on a funded or delivered deal (current: '${deal.status}').`);
+  const kind = proposalKind(body);
+  // A cancellation request is always "refund the buyer"; fees/costs are never returned.
+  const { outcome, split_percent_seller } = kind === "cancellation" ? { outcome: "refund" as SettlementOutcome, split_percent_seller: null } : normalizeProposal(body);
   assertTransition(deal.status, "disputed");
   const now = new Date();
   const message = body?.message ? String(body.message).slice(0, 2000) : null;
@@ -512,22 +698,25 @@ async function actRaiseDispute(deal: any, actor: ActorInfo, body: any): Promise<
   deal.disputed_at = now;
   deal.dispute_raised_by = actor.role;
   if (body?.reason) deal.dispute_reason = String(body.reason);
+  else if (kind === "cancellation") deal.dispute_reason = "Cancellation requested after funding";
   deal.auto_release_at = null;
   deal.dispute_stage = "negotiation";
-  deal.dispute_proposal = { outcome, split_percent_seller, by: actor.role, at: now.toISOString(), message };
+  deal.dispute_proposal = { outcome, split_percent_seller, by: actor.role, at: now.toISOString(), message, kind };
   deal.dispute_proposal_by = actor.role;
   deal.dispute_auto_escalate_at = new Date(now.getTime() + escalateWindowMs());
-  appendDisputeThread(deal, { by: actor.role, type: "open", outcome, split_percent_seller, message, reason: deal.dispute_reason || null });
+  appendDisputeThread(deal, { by: actor.role, type: "open", kind, outcome, split_percent_seller, message, reason: deal.dispute_reason || null });
   deal.activity_log = appendActivity(deal.activity_log, {
-    type: "dispute_opened",
+    type: kind === "cancellation" ? "cancellation_requested" : "dispute_opened",
     actor: actor.label,
     role: actor.role,
-    note: `Dispute opened with proposal: ${describeProposalShort(outcome, split_percent_seller)}. ${deal.dispute_reason || ""}`.trim(),
+    note: kind === "cancellation"
+      ? `Cancellation requested — needs the other party's agreement: ${describeProposalShort(outcome, null, kind)}.`
+      : `Dispute opened with proposal: ${describeProposalShort(outcome, split_percent_seller)}. ${deal.dispute_reason || ""}`.trim(),
   });
   await deal.save();
   const { buyerEmail, sellerEmail } = await partyEmails(deal);
   const otherEmail = actor.role === "buyer" ? sellerEmail : buyerEmail;
-  if (otherEmail) void sendEscrowDisputeProposalEmail(otherEmail, otherEmail, deal, actor.role, outcome, split_percent_seller, message || undefined, inviteUrl(deal.deal_token), false);
+  if (otherEmail) void sendEscrowDisputeProposalEmail(otherEmail, otherEmail, deal, actor.role, outcome, split_percent_seller, message || undefined, dealUrl(deal), false, kind);
   return deal;
 }
 
@@ -552,7 +741,7 @@ async function actCounterDispute(deal: any, actor: ActorInfo, body: any): Promis
   await deal.save();
   const { buyerEmail, sellerEmail } = await partyEmails(deal);
   const otherEmail = actor.role === "buyer" ? sellerEmail : buyerEmail;
-  if (otherEmail) void sendEscrowDisputeProposalEmail(otherEmail, otherEmail, deal, actor.role, outcome, split_percent_seller, message || undefined, inviteUrl(deal.deal_token), true);
+  if (otherEmail) void sendEscrowDisputeProposalEmail(otherEmail, otherEmail, deal, actor.role, outcome, split_percent_seller, message || undefined, dealUrl(deal), true);
   return deal;
 }
 
@@ -565,19 +754,22 @@ async function actAcceptDispute(deal: any, actor: ActorInfo): Promise<any> {
   if (deal.dispute_proposal_by === actor.role) fail(403, "You can't accept your own proposal — wait for the other party, counter, or escalate.");
   const outcome = String(prop.outcome) as SettlementOutcome;
   const splitPct = outcome === "split" ? Number(prop.split_percent_seller) : undefined;
+  const kind = prop.kind === "cancellation" ? "cancellation" : null;
   deal.dispute_stage = "resolved";
   deal.dispute_resolved_at = new Date();
   deal.dispute_auto_escalate_at = null;
-  appendDisputeThread(deal, { by: actor.role, type: "accept", outcome, split_percent_seller: splitPct ?? null });
+  appendDisputeThread(deal, { by: actor.role, type: "accept", kind, outcome, split_percent_seller: splitPct ?? null });
   deal.activity_log = appendActivity(deal.activity_log, {
-    type: "dispute_agreed",
+    type: kind === "cancellation" ? "cancellation_agreed" : "dispute_agreed",
     actor: actor.label,
     role: actor.role,
-    note: `Accepted ${describeProposalShort(outcome, splitPct)} — resolved by agreement.`,
+    note: kind === "cancellation"
+      ? "Agreed to cancel the deal — buyer refunded minus escrow fee & costs."
+      : `Accepted ${describeProposalShort(outcome, splitPct)} — resolved by agreement.`,
   });
   const { summary } = await settleOutcome(deal, outcome, { splitPercentSeller: splitPct, actorLabel: actor.label, actorRole: actor.role });
   const { buyerEmail, sellerEmail } = await partyEmails(deal);
-  const msg = `Resolved by agreement — ${summary}`;
+  const msg = kind === "cancellation" ? `Deal cancelled by mutual agreement — ${summary}` : `Resolved by agreement — ${summary}`;
   if (buyerEmail) void sendEscrowDisputeAgreedEmail(buyerEmail, buyerEmail, deal, msg);
   if (sellerEmail) void sendEscrowDisputeAgreedEmail(sellerEmail, sellerEmail, deal, msg);
   return deal;
@@ -597,7 +789,7 @@ async function actDisputeMessage(deal: any, actor: ActorInfo, message?: string):
 /** Escalate to admin arbitration (manual). Either party, during negotiation. */
 async function actEscalateDispute(deal: any, actor: ActorInfo): Promise<any> {
   if (deal.status !== "disputed") fail(409, `No open dispute to escalate (status '${deal.status}').`);
-  if ((deal.dispute_stage || "negotiation") === "escalated") fail(409, "This dispute is already with a DynoPay admin.");
+  if ((deal.dispute_stage || "negotiation") === "escalated") fail(409, "This dispute is already with a Dynopay admin.");
   const now = new Date();
   deal.dispute_stage = "escalated";
   deal.dispute_escalated_at = now;
@@ -607,7 +799,7 @@ async function actEscalateDispute(deal: any, actor: ActorInfo): Promise<any> {
     type: "dispute_escalated",
     actor: actor.label,
     role: actor.role,
-    note: "Escalated to a DynoPay admin — no agreement reached.",
+    note: "Escalated to a Dynopay admin — no agreement reached.",
   });
   await deal.save();
   const { buyerEmail, sellerEmail } = await partyEmails(deal);
@@ -686,7 +878,11 @@ const previewFee = async (req: express.Request, res: express.Response) => {
     void refreshEscrowCostRates(); // best-effort live rates; static estimates used until it lands
     // Escrow fee % is admin-controlled (env) — never taken from the client.
     const breakdown = computeFeeBreakdown({ amount, currency, feePercent: ESCROW_FEE_PERCENT, feeMinUsd: ESCROW_FEE_MIN_USD, feePayer: fee_payer, payoutCoin: payout_coin, acceptedCoins: accepted_coins });
-    return successResponseHelper(res, 200, "Fee breakdown computed.", breakdown);
+    return successResponseHelper(res, 200, "Fee breakdown computed.", {
+      ...breakdown,
+      minDealUsd: ESCROW_MIN_DEAL_USD,
+      belowMinimum: Number(amount) < ESCROW_MIN_DEAL_USD,
+    });
   } catch (e) {
     return handle(res, e, "previewFee");
   }
@@ -704,6 +900,9 @@ const createDeal = async (req: express.Request, res: express.Response) => {
     if (!company_id) return errorResponseHelper(res, 400, "company_id is required.");
     if (!title || String(title).trim().length < 2) return errorResponseHelper(res, 400, "A deal title is required.");
     if (amount == null || Number(amount) <= 0) return errorResponseHelper(res, 400, "A positive amount is required.");
+    if (Number(amount) < ESCROW_MIN_DEAL_USD) {
+      return errorResponseHelper(res, 400, `The minimum escrow deal is $${ESCROW_MIN_DEAL_USD} (escrow fee ${ESCROW_FEE_PERCENT}%, min $${ESCROW_FEE_MIN_USD}).`);
+    }
     if (!counterparty_email || !/.+@.+\..+/.test(String(counterparty_email))) return errorResponseHelper(res, 400, "A valid counterparty email is required.");
     if (!["buyer", "seller"].includes(String(creator_role))) return errorResponseHelper(res, 400, "creator_role must be 'buyer' or 'seller'.");
     if (!["buyer", "seller", "split"].includes(String(fee_payer))) return errorResponseHelper(res, 400, "fee_payer must be 'buyer', 'seller' or 'split'.");
@@ -863,7 +1062,7 @@ const escalateDispute = async (req: express.Request, res: express.Response) => {
   try {
     const { deal, actor } = await loadAuthedDealActor(req, res);
     await actEscalateDispute(deal, actor);
-    return respond(res, deal, 200, "Dispute escalated to a DynoPay admin.", actor);
+    return respond(res, deal, 200, "Dispute escalated to a Dynopay admin.", actor);
   } catch (e) {
     return handle(res, e, "escalateDispute");
   }
@@ -872,16 +1071,14 @@ const escalateDispute = async (req: express.Request, res: express.Response) => {
 const cancelDeal = async (req: express.Request, res: express.Response) => {
   try {
     const { deal, actor } = await loadAuthedDealActor(req, res);
-    if (!actor.isCreator) return errorResponseHelper(res, 403, "Only the creator can cancel this deal.");
-    if (!["draft", "invited", "awaiting_payment"].includes(deal.status)) {
-      return errorResponseHelper(res, 409, `A funded deal cannot be cancelled (current: '${deal.status}'). Use a refund/dispute instead.`);
-    }
-    assertTransition(deal.status, "cancelled");
-    deal.status = "cancelled";
-    deal.cancelled_at = new Date();
-    deal.activity_log = appendActivity(deal.activity_log, { type: "cancelled", actor: actor.label, role: actor.role, note: req.body?.reason ? String(req.body.reason) : "Deal cancelled by creator." });
-    await deal.save();
-    return respond(res, deal, 200, "Escrow deal cancelled.", actor);
+    const { requested } = await actCancel(deal, actor, req.body || {});
+    return respond(
+      res,
+      deal,
+      200,
+      requested ? "Cancellation requested — the other party must agree before the buyer is refunded." : "Escrow deal cancelled (no charge).",
+      actor
+    );
   } catch (e) {
     return handle(res, e, "cancelDeal");
   }
@@ -1009,6 +1206,17 @@ const publicAction = async (req: express.Request, res: express.Response) => {
       case "dispute":
         await actRaiseDispute(deal, actor, req.body || {});
         return respond(res, deal, 200, "Dispute opened — your proposal was sent to the other party.", actor, false);
+      case "cancel": {
+        const { requested } = await actCancel(deal, actor, req.body || {});
+        return respond(
+          res,
+          deal,
+          200,
+          requested ? "Cancellation requested — the other party must agree before the buyer is refunded." : "Deal cancelled (no charge).",
+          actor,
+          false
+        );
+      }
       case "dispute-counter":
         await actCounterDispute(deal, actor, req.body || {});
         return respond(res, deal, 200, "Counter-offer sent.", actor, false);
@@ -1020,7 +1228,7 @@ const publicAction = async (req: express.Request, res: express.Response) => {
         return respond(res, deal, 200, "Message added to the dispute.", actor, false);
       case "dispute-escalate":
         await actEscalateDispute(deal, actor);
-        return respond(res, deal, 200, "Dispute escalated to a DynoPay admin.", actor, false);
+        return respond(res, deal, 200, "Dispute escalated to a Dynopay admin.", actor, false);
       case "payout-info": {
         // OTP-only party MUST paste an explicit address (no account-wallet reuse).
         if (actor.role === "seller" && !req.body?.payout_address) return errorResponseHelper(res, 400, "A stablecoin payout address is required.");
@@ -1178,6 +1386,7 @@ const adminRunPayoutReminders = async (_req: express.Request, res: express.Respo
     const deals: any[] = await escrowDealModel.findAll({
       where: {
         status: { [Op.in]: ["completed", "refunded", "split"] },
+        source: { [Op.ne]: "safedeal" }, // SafeDeal legs land in wallets automatically
         [Op.or]: [{ seller_payout_state: "pending" }, { buyer_payout_state: "pending" }],
       },
       limit: 300,
@@ -1186,7 +1395,7 @@ const adminRunPayoutReminders = async (_req: express.Request, res: express.Respo
     const flagged: number[] = [];
     for (const deal of deals) {
       const { buyerEmail, sellerEmail } = await partyEmails(deal);
-      const url = inviteUrl(deal.deal_token);
+      const url = dealUrl(deal);
       if (deal.seller_payout_state === "pending" && sellerEmail) void sendEscrowPayoutPendingEmail(sellerEmail, sellerEmail, deal, "seller", url);
       if (deal.buyer_payout_state === "pending" && buyerEmail) void sendEscrowPayoutPendingEmail(buyerEmail, buyerEmail, deal, "buyer", url);
       deal.payout_reminder_count = Number(deal.payout_reminder_count || 0) + 1;
@@ -1203,6 +1412,39 @@ const adminRunPayoutReminders = async (_req: express.Request, res: express.Respo
     return handle(res, e, "adminRunPayoutReminders");
   }
 };
+
+/**
+ * Engine surface for SafeDeal (controller/safedealController.ts). Same state
+ * machine, same money rules — only the actor/session layer differs.
+ */
+export const escrowEngine = {
+  EscrowError,
+  fail,
+  ESCROW_FEE_PERCENT,
+  ESCROW_FEE_MIN_USD,
+  ESCROW_MIN_DEAL_USD,
+  ESCROW_AUTO_RELEASE_PRESETS,
+  ESCROW_AUTO_RELEASE_DEFAULT,
+  clampAutoReleaseDays,
+  serializeDeal,
+  loadCreatorAndCompany,
+  partyEmails,
+  dealUrl,
+  actAccept,
+  actDecline,
+  actCancel,
+  actFund,
+  actFundFromBalance,
+  actFundFromCheckout,
+  actDeliver,
+  actRelease,
+  actRaiseDispute,
+  actCounterDispute,
+  actAcceptDispute,
+  actDisputeMessage,
+  actEscalateDispute,
+};
+export type { ActorInfo };
 
 export default {
   previewFee,

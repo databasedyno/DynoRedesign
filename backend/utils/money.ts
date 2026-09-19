@@ -1,7 +1,7 @@
 import Decimal from "decimal.js";
 
 /**
- * Exact money arithmetic for DynoPay.
+ * Exact money arithmetic for Dynopay.
  *
  * Every amount that is stored, transmitted on-chain, shown to a merchant or
  * used in a fee split must go through here instead of raw float math

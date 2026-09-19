@@ -625,6 +625,94 @@ const addEscrowDisputeColumns = async (): Promise<void> => {
   );
 };
 
+/**
+ * 0038 — SafeDeal (standalone escrow product on top of Dynopay). Additive only:
+ *  - tbl_escrow_deal: source/creator_email/customer links + funding method/link
+ *    columns; creator_user_id becomes nullable (SafeDeal parties are customers).
+ *  - tbl_customer_wallet.held_amount: funds held in escrow (Available vs Held).
+ *  - tbl_customer_transaction.meta: machine-readable statement metadata.
+ *  - new tables: safedeal profile, customer payout addresses, customer withdrawals.
+ */
+const addSafeDealTables = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `ALTER TABLE "tbl_escrow_deal"
+       ADD COLUMN IF NOT EXISTS "source" VARCHAR(16) NOT NULL DEFAULT 'merchant',
+       ADD COLUMN IF NOT EXISTS "creator_email" VARCHAR(255),
+       ADD COLUMN IF NOT EXISTS "creator_customer_id" INTEGER,
+       ADD COLUMN IF NOT EXISTS "counterparty_customer_id" INTEGER,
+       ADD COLUMN IF NOT EXISTS "funding_method" VARCHAR(16),
+       ADD COLUMN IF NOT EXISTS "funding_link_transaction_id" VARCHAR(64),
+       ADD COLUMN IF NOT EXISTS "funding_link_ref" VARCHAR(64)`
+  );
+  await sequelize.query(`ALTER TABLE "tbl_escrow_deal" ALTER COLUMN "creator_user_id" DROP NOT NULL`);
+  await sequelize.query(
+    `CREATE INDEX IF NOT EXISTS "idx_escrow_deal_source_emails" ON "tbl_escrow_deal" ("source", "creator_email", "counterparty_email")`
+  );
+  await sequelize.query(
+    `ALTER TABLE "tbl_customer_wallet" ADD COLUMN IF NOT EXISTS "held_amount" FLOAT NOT NULL DEFAULT 0`
+  );
+  await sequelize.query(`ALTER TABLE "tbl_customer_transaction" ADD COLUMN IF NOT EXISTS "meta" JSONB`);
+  await sequelize.query(
+    `CREATE TABLE IF NOT EXISTS "tbl_safedeal_profile" (
+       "customer_id" INTEGER PRIMARY KEY REFERENCES "tbl_customer"("customer_id") ON DELETE CASCADE,
+       "company_id" INTEGER NOT NULL,
+       "display_name" VARCHAR(120),
+       "auto_withdraw" BOOLEAN NOT NULL DEFAULT false,
+       "auto_withdraw_address_id" INTEGER,
+       "last_login_at" TIMESTAMPTZ,
+       "created_at" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+       "updated_at" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+     )`
+  );
+  await sequelize.query(
+    `CREATE TABLE IF NOT EXISTS "tbl_customer_payout_address" (
+       "address_id" SERIAL PRIMARY KEY,
+       "company_id" INTEGER NOT NULL,
+       "customer_id" INTEGER NOT NULL REFERENCES "tbl_customer"("customer_id") ON DELETE CASCADE,
+       "payout_key" VARCHAR(24) NOT NULL,
+       "coin" VARCHAR(10) NOT NULL,
+       "network" VARCHAR(16) NOT NULL,
+       "address" VARCHAR(255) NOT NULL,
+       "label" VARCHAR(80),
+       "last_used_at" TIMESTAMPTZ,
+       "removed_at" TIMESTAMPTZ,
+       "created_at" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+     )`
+  );
+  await sequelize.query(
+    `CREATE INDEX IF NOT EXISTS "idx_customer_payout_address_customer" ON "tbl_customer_payout_address" ("customer_id")`
+  );
+  await sequelize.query(
+    `CREATE TABLE IF NOT EXISTS "tbl_customer_withdrawal" (
+       "withdrawal_id" SERIAL PRIMARY KEY,
+       "company_id" INTEGER NOT NULL,
+       "customer_id" INTEGER NOT NULL REFERENCES "tbl_customer"("customer_id") ON DELETE CASCADE,
+       "address_id" INTEGER,
+       "payout_key" VARCHAR(24) NOT NULL,
+       "address" VARCHAR(255) NOT NULL,
+       "amount_usd" DECIMAL(18,2) NOT NULL,
+       "fee_usd" DECIMAL(18,2) NOT NULL DEFAULT 0,
+       "net_usd" DECIMAL(18,2) NOT NULL,
+       "status" VARCHAR(24) NOT NULL DEFAULT 'queued',
+       "requires_approval" BOOLEAN NOT NULL DEFAULT false,
+       "approved_by" VARCHAR(120),
+       "approved_at" TIMESTAMPTZ,
+       "rejected_reason" TEXT,
+       "tx_hash" VARCHAR(255),
+       "simulated" BOOLEAN NOT NULL DEFAULT false,
+       "sent_at" TIMESTAMPTZ,
+       "ledger_reference" VARCHAR(64),
+       "source" VARCHAR(16) NOT NULL DEFAULT 'manual',
+       "created_at" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+       "updated_at" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+     )`
+  );
+  await sequelize.query(
+    `CREATE INDEX IF NOT EXISTS "idx_customer_withdrawal_status" ON "tbl_customer_withdrawal" ("company_id", "status")`
+  );
+};
+
 export async function buildBootMigrations(): Promise<Migration[]> {  const { v1, extra } = await loadBootModelGroups();  return [
     { version: "0001_boot_model_tables", up: syncGroup(v1) },
     { version: "0002_boot_model_tables_extra", up: syncGroup(extra) },
@@ -660,6 +748,7 @@ export async function buildBootMigrations(): Promise<Migration[]> {  const { v1,
     { version: "0035_escrow_deals", up: createEscrowTable },
     { version: "0036_escrow_settlement_columns", up: addEscrowSettlementColumns },
     { version: "0037_escrow_dispute_negotiation", up: addEscrowDisputeColumns },
+    { version: "0038_safedeal", up: addSafeDealTables },
     ...perfMigrations,
     ...securityMigrations,
   ];

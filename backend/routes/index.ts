@@ -12,6 +12,7 @@ import dashboardRouter from "./dashboardRouter";
 import notificationRouter from "./notificationRouter";
 import invoiceRouter from "./invoiceRouter";
 import escrowRouter from "./escrowRouter";
+import safedealRouter from "./safedealRouter";
 import kycRouter from "./kycRouter";
 import statusRouter from "./statusRouter";
 import subscriptionRouter from "./subscriptionRouter";
@@ -450,6 +451,7 @@ router.use("/admin/analytics", analyticsRouter); // Admin analytics (revenue, co
 router.use("/", productRouter); // Product Catalog (Phase 1): /products, /shop, /cart, /checkout, /order
 router.use("/", invoiceRouter); // Invoice routes (transactions/:id/invoice, invoices, invoices/:id)
 router.use("/", escrowRouter); // Escrow deals (/escrow, /escrow/:id, /escrow/public/:token, /escrow/admin/*)
+router.use("/", safedealRouter); // SafeDeal — standalone escrow product on the Dynopay engine (/safedeal/*)
 
 router.post("/webhook", webhookRateLimiter, flutterwaveWebHook);
 router.post("/failed_webhook", webhookRateLimiter, flutterwaveWebHook);

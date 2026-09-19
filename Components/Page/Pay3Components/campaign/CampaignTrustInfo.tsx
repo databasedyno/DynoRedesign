@@ -178,7 +178,7 @@ export const CampaignTrustInfo: React.FC<CampaignTrustInfoProps> = ({ merchantNa
         </Box>
         <Typography sx={{ fontSize: 13.5, lineHeight: 1.65, color: theme.palette.text.secondary }}>
           {t("donation.fundHandlingBody", {
-            defaultValue: `Your gift goes directly to ${organizer}. Depending on their settings it's received as crypto or automatically converted to a stablecoin. DynoPay only processes the payment — it never holds or invests your donation.`,
+            defaultValue: `Your gift goes directly to ${organizer}. Depending on their settings it's received as crypto or automatically converted to a stablecoin. Dynopay only processes the payment — it never holds or invests your donation.`,
             organizer,
           })}
         </Typography>
@@ -242,7 +242,7 @@ export const CampaignTrustInfo: React.FC<CampaignTrustInfoProps> = ({ merchantNa
             testid="donation-faq-contact"
             q={t("donation.faqContactQ", { defaultValue: "Who do I contact for help?" })}
             a={t("donation.faqContactA", {
-              defaultValue: `Reach out to ${organizer} for anything about this campaign. For payment issues you can also contact DynoPay support from your receipt.`,
+              defaultValue: `Reach out to ${organizer} for anything about this campaign. For payment issues you can also contact Dynopay support from your receipt.`,
               organizer,
             })}
           />
@@ -251,7 +251,7 @@ export const CampaignTrustInfo: React.FC<CampaignTrustInfoProps> = ({ merchantNa
 
       <Typography sx={{ fontSize: 11, color: theme.palette.text.disabled, textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5 }}>
         <Icon icon="mdi:lock-outline" width={12} />
-        {t("donation.securedByFooter", { defaultValue: "Payments secured & processed by DynoPay" })}
+        {t("donation.securedByFooter", { defaultValue: "Payments secured & processed by Dynopay" })}
       </Typography>
     </Box>
   );

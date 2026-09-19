@@ -18,7 +18,7 @@ import { QUICK_CREATE_LINK_EVENT } from "@/Components/Common/CommandPalette";
  * CTAs), so nothing was learned by repetition. This is the single affordance.
  *
  * Two entries only — Payment link and Product. *Bill* is deliberately absent:
- * DynoPay has no accounts-receivable invoicing (every row in tbl_invoice is a
+ * Dynopay has no accounts-receivable invoicing (every row in tbl_invoice is a
  * RECEIPT for money already received), so offering "Bill" would promise a
  * capability that does not exist. It joins this menu the day real invoicing does.
  *

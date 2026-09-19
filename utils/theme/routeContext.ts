@@ -1,7 +1,7 @@
 /**
  * Theme route-context helper (2025-07 pass).
  *
- * DynoPay now runs TWO independent theme preferences:
+ * Dynopay now runs TWO independent theme preferences:
  *  - "inapp"  — merchant admin surfaces (dashboard, transactions, wallets,
  *               settings, etc.)  → defaults to DARK, feels like a tool.
  *  - "public" — landing, marketing, buyer checkout, docs → defaults to

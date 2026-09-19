@@ -112,7 +112,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
   const surface = isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'
 
   // ── Custom theme (Session 60) ──
-  // Falls back to the DynoPay Lime when the creator hasn't customized.
+  // Falls back to the Dynopay Lime when the creator hasn't customized.
   const accent = creator.theme?.accent_color || LIME
   const coverStyle = creator.theme?.cover_style || (creator.cover_image ? 'image' : 'solid')
   const coverGradient = creator.theme?.cover_gradient || 'sunset'

@@ -12,10 +12,10 @@ import {
 const otpHtml = baseEmailTemplate(
   "Your login code",
   `${p("Hey Alex,")}
-   ${p("Use the code below to sign in to your DynoPay account. It expires in <strong>10 minutes</strong>.")}
+   ${p("Use the code below to sign in to your Dynopay account. It expires in <strong>10 minutes</strong>.")}
    ${otpBlock("482913")}
    ${p("If you didn't request this code, you can safely ignore this email.")}`,
-  { showButton: false, preheader: "Your DynoPay login code" }
+  { showButton: false, preheader: "Your Dynopay login code" }
 );
 
 // 2. Payment received email
@@ -38,12 +38,12 @@ const paymentHtml = baseEmailTemplate(
 
 // 3. Welcome email
 const welcomeHtml = baseEmailTemplate(
-  "Welcome to DynoPay",
+  "Welcome to Dynopay",
   `${p("Hey Alex,")}
    ${p("Your account is ready. Accept crypto payments and get paid straight to your wallet — or auto-converted to stablecoins.")}
    ${successBox(`<p style="margin:0;font-size:14px;color:#374151;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;"><strong>Your first $500 in volume is fee-free.</strong> Fees start at 1.5% and drop to 0.5% as your volume grows.</p>`)}
    ${alertBox(`<p style="margin:0;font-size:14px;color:#78350f;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">Next step: add your payout wallet to start accepting payments.</p>`)}`,
-  { showButton: true, buttonText: "Go to dashboard", buttonLink: "https://dynopay.com/dashboard", preheader: "Your DynoPay account is ready" }
+  { showButton: true, buttonText: "Go to dashboard", buttonLink: "https://dynopay.com/dashboard", preheader: "Your Dynopay account is ready" }
 );
 
 fs.writeFileSync("/tmp/email_preview/otp.html", otpHtml);

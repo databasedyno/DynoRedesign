@@ -34,7 +34,7 @@ export const urlFromSwrKey = (key: SwrKey): string => {
 
 /**
  * Default fetcher: GET the URL and return the raw response body (`res.data`).
- * Most DynoPay endpoints wrap payloads as `{ data: ... }`; callers unwrap as
+ * Most Dynopay endpoints wrap payloads as `{ data: ... }`; callers unwrap as
  * needed (or use `swrDataFetcher` below to auto-unwrap `.data.data`).
  */
 export const swrFetcher = async <T = unknown>(key: SwrKey): Promise<T> => {

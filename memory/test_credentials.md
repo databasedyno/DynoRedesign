@@ -81,3 +81,13 @@ Preview URL (THIS pod): https://b3e8a0ae-58d8-4d4e-9384-206e4f1f52b2.preview.eme
 - Trusted devices: GET/DELETE /api/user/trusted-devices[/:id]; UI card on Settings → Profile & Security (data-testid=trusted-devices-list, trusted-device-forget-<id>, trusted-devices-forget-all).
 - Wizard /get-started now has 5 steps; step 1 = "secure" (data-testid=gs-step-secure, twofa-method-totp / twofa-method-email). Payouts+ are unreachable until enrolled.
 - Current states: user 221 (qa_minorder_p1b) = enrolled, method=email (login on a fresh browser ⇒ email challenge). user 1 (onarrival21) = NOT enrolled, deadline set 2026-09-28 ⇒ soft banner + wizard step 1.
+
+## SafeDeal (standalone escrow product, added 2026-09) — no passwords
+- URL: <preview>/safedeal  (landing), /safedeal/signin, /safedeal/deals, /safedeal/deals/new, /safedeal/deal/<deal_token>, /safedeal/wallet
+- Sign-in = email + one-time code. Outbound email is OFF in preview, so the code is shown in the UI (data-testid=sd-signin-preview-code → <b>) and returned by the API as data.preview_code.
+- Any email works (first sign-in creates the customer + wallet under brand company_id=262 "SafeDeal"). Use two emails for buyer/seller (e.g. sd-buyer-x@example.com / sd-seller-x@example.com).
+- API: POST /api/safedeal/auth/send-code {email} → POST /api/safedeal/auth/verify-code {email, code} → data.token; send as header x-safedeal-token.
+- Step-up (add payout address / withdraw): POST /api/safedeal/auth/step-up → data.preview_code; UI shows it at data-testid=<dialog>-preview-code.
+- Money is SIMULATED (ESCROW_LIVE_SETTLEMENT off): "Pay with crypto (simulated)" funds instantly.
+- Dynopay admin side: Admin → Escrow → tab "Withdrawals" (super-admin login). Brand owner side: Customers page with brand 262 selected shows escrow totals + per-customer statement.
+- Smoke script (backend, all flows): bash /app/backend/scripts/safedeal_smoke.sh

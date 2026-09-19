@@ -5,9 +5,9 @@ import { BRAND_ACCENT, DARK, RADIUS } from "@/constants/theme";
  * Coinbase-style dashboard tokens (theme-aware).
  * Both light & dark modes render the same visual system — only surfaces flip.
  *
- * Indigo brand accent is preserved from DynoPay's session-82 Aurora Indigo migration
+ * Indigo brand accent is preserved from Dynopay's session-82 Aurora Indigo migration
  * (#4F46E5 light / #818CF8 dark). Coinbase uses royal blue for primary interactions;
- * we keep DynoPay indigo which is functionally identical at these alpha levels.
+ * we keep Dynopay indigo which is functionally identical at these alpha levels.
  */
 export const CB_TOKENS = {
   /** Canonical radius scale (Phase 3) — one geometry across the dashboard. */

@@ -86,6 +86,7 @@ import { checkTipGoalMilestone } from "../../../services/tipGoalMilestoneService
 
 import { settleCryptoTransaction } from "./settleTransaction";
 import { D, add, div, mul, roundTo, sub, toFixedStr, toNumber } from "../../../utils/money";
+import { onPaymentLinkPaid as onEscrowPaymentLinkPaid } from "../../../services/safedeal/safedealCheckout";
 
 export const cryptoVerification = async (address, webhook = true, overrideRedisKey?: string) => {
   const transaction = await sequelize.transaction();
@@ -1407,6 +1408,8 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
         // fulfillment + receipt emails. Idempotent: handleCartPaymentSettled
         // early-returns on already-paid orders, so webhook retries are safe.
         let __cartOrderIdForFanout: number | null = null;
+        // SafeDeal escrow funding — fan-out after commit (see below).
+        const __escrowLinkTxIdForFanout: string | null = linkTransactionId ? String(linkTransactionId) : null;
         try {
           const linkType = customerData?.link_type || tempData?.link_type;
           if (linkType === "cart") {
@@ -1541,6 +1544,16 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
                 }`
               );
             }
+          });
+        }
+        // SafeDeal escrow: if this link funds an escrow deal, mark it funded (post-commit, non-fatal).
+        if (__escrowLinkTxIdForFanout) {
+          setImmediate(() => {
+            void onEscrowPaymentLinkPaid(__escrowLinkTxIdForFanout as string, {
+              paidUsd: Number(receivedUSD) || undefined,
+              coin: tempCurrency,
+              txHash: transactionId,
+            });
           });
         }
         

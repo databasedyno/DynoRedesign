@@ -314,7 +314,7 @@ export async function performRevert(
     if (config.adminEmail) {
       await sendEmail(
         config.adminEmail,
-        "DynoPay Security",
+        "Dynopay Security",
         "[Security] Merchant reverted a payout wallet change",
         `User ${user_id} clicked "this wasn't me". Reverted networks: ${networks.join(", ") || "none"}. Wallet changes are now frozen pending manual unlock.`,
       );

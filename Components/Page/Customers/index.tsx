@@ -79,6 +79,7 @@ import TransactionSourceBadge from "@/Components/UI/TransactionSourceBadge";
 import CoinChips from "@/Components/UI/CoinChips";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import { CustomerWalletPanel } from "./CustomerWalletPanel";
+import BrandEscrowTotals from "./BrandEscrowTotals";
 import { useEdgeFades, EdgeFades } from "@/Components/Common/ScrollHint";
 import { toFixedStr } from "@/utils/money";
 
@@ -617,6 +618,8 @@ const CustomersPage: React.FC = () => {
           </Box>
         ))}
       </Box>
+
+      <BrandEscrowTotals companyId={selectedCompanyId} cardBorder={cardBorder} />
 
       {/* Toolbar: search + sort + export */}
       <Box

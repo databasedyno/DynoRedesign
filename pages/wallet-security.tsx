@@ -109,7 +109,7 @@ const WalletSecurityPage: NextPageWithLayout = () => {
   return (
     <>
       <Head>
-        <title>{t("walletSecurityLanding.pageTitle", { defaultValue: "Account security" })} · DynoPay</title>
+        <title>{t("walletSecurityLanding.pageTitle", { defaultValue: "Account security" })} · Dynopay</title>
         <meta name="robots" content="noindex,nofollow" />
       </Head>
       <style>{`@keyframes wsspin{to{transform:rotate(360deg)}}`}</style>

@@ -1,6 +1,6 @@
 /**
  * Activation Drip Cron — MERCHANT-facing (distinct from the admin-facing
- * onboarding/first-payment monitors that email the DynoPay team).
+ * onboarding/first-payment monitors that email the Dynopay team).
  *
  * Daily run. For real external signups (owner QA/test accounts excluded) who
  * have verified their email but have NOT transacted, sends a localized,

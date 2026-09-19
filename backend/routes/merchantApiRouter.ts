@@ -1170,7 +1170,7 @@ router.get("/getCryptoTransaction/:address", legacyApiAuthMiddleware, asyncHandl
 
 // ============================================================
 // GET /api/user/getPaymentStatus/:payment_id
-// Verify a payment by its DynoPay payment_id (the id returned when the payment
+// Verify a payment by its Dynopay payment_id (the id returned when the payment
 // was created). Unlike getCryptoTransaction/:address, this is keyed on the
 // unique, immutable payment_id — so it never breaks on reusable merchant-pool
 // addresses and returns the AUTHORITATIVE final status from the database even

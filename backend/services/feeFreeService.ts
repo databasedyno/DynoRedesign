@@ -6,7 +6,7 @@
  * across ALL of that user's companies.
  *
  * Rule (decided 2026-08, replaces the old "first $500 of lifetime volume"):
- *   - The merchant's FIRST successfully-settled payment has DynoPay's full
+ *   - The merchant's FIRST successfully-settled payment has Dynopay's full
  *     platform deduction (fixed fee + %) waived — any size, no cap.
  *   - Blockchain / gas cost is SEPARATE and ALWAYS applies (never part of the
  *     platform deduction), matching "fee-free except blockchain cost".

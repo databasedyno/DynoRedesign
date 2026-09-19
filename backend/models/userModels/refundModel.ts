@@ -1,11 +1,11 @@
 /**
  * Refund — one row per on-chain crypto refund invoice.
  *
- * Crypto Refund Flow (DynoPay-mediated, same-chain, same-asset):
+ * Crypto Refund Flow (Dynopay-mediated, same-chain, same-asset):
  *  - The merchant triggers a refund on a paid Payment Link or Product Order.
- *  - DynoPay allocates a deposit address on the SAME chain the customer paid on.
+ *  - Dynopay allocates a deposit address on the SAME chain the customer paid on.
  *  - The merchant sends the refund (+ gas the merchant covers) to that address.
- *  - On confirmation, DynoPay forwards the funds to the customer's saved
+ *  - On confirmation, Dynopay forwards the funds to the customer's saved
  *    refund address. (Forwarding = Phase C, gated behind ENABLE_CRYPTO_REFUNDS
  *    + background jobs; never runs in the safe-mode preview.)
  *
@@ -104,7 +104,7 @@ const refundModel = sequelize.define(
       type: DataTypes.STRING(24),
       allowNull: true,
     },
-    /** DynoPay-controlled deposit address on the same chain. */
+    /** Dynopay-controlled deposit address on the same chain. */
     dyno_deposit_address: {
       type: DataTypes.STRING(255),
       allowNull: true,

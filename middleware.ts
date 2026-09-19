@@ -48,7 +48,23 @@ function shouldBlock(): boolean {
   return process.env.NODE_ENV === "production";
 }
 
+const SAFEDEAL_HOSTS = new Set(["safedeal.sh", "www.safedeal.sh"]);
+
 export function middleware(req: NextRequest) {
+  // SafeDeal (safedeal.sh) is served by this same app from /safedeal/*. Rewrite
+  // the host's root paths onto that section so one deployment serves both domains.
+  const host = (req.headers.get("host") || "").toLowerCase().split(":")[0];
+  if (SAFEDEAL_HOSTS.has(host)) {
+    const p = req.nextUrl.pathname;
+    const passthrough = p.startsWith("/_next") || p.startsWith("/api") || p.startsWith("/safedeal") || /\.[a-z0-9]+$/i.test(p);
+    if (!passthrough) {
+      const url = req.nextUrl.clone();
+      url.pathname = `/safedeal${p === "/" ? "" : p}`;
+      return NextResponse.rewrite(url);
+    }
+    return NextResponse.next();
+  }
+
   if (!shouldBlock()) return NextResponse.next();
 
   // Normalise a trailing slash so "/QA/" is treated the same as "/QA".
@@ -65,14 +81,9 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  // Exact paths only — never a broad matcher, so normal traffic is untouched.
+  // Exact dev-page paths + everything except static assets for the SafeDeal host
+  // rewrite (the handler itself early-returns for non-SafeDeal hosts).
   matcher: [
-    "/QA",
-    "/pay/demo",
-    "/pay/donation-demo",
-    "/pay/payment-states-demo",
-    "/pay/state-demo",
-    "/pay/success-demo",
-    "/pay/tip-card-demo",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)",
   ],
 };
