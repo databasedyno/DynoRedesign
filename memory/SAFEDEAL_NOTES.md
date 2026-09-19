@@ -38,3 +38,8 @@
   appends Caddy blocks (www → 301 apex; apex → reverse_proxy 127.0.0.1:8001), `caddy validate` + `systemctl reload caddy`; plus a non-blocking
   post-deploy check that https://safedeal.sh serves `sd-landing`. Triggered by "Save to GitHub" (push to `Improvement`).
 - DO API token pasted in chat on 2026-06 → owner should ROTATE it.
+
+## 2026-06 safedeal.sh showed the Dynopay home (after nginx fix) — ROOT CAUSE
+- Dockerfile frontend-builder stage COPYs an explicit allow-list of dirs; root `middleware.ts` was never copied → prod `next build` had NO
+  middleware → no Host rewrite (and the dev-page guard was also absent in prod). Fixed: `COPY middleware.ts ./` in Dockerfile.
+- Verify after deploy: `curl -s https://safedeal.sh/ | grep -c sd-landing` (>0) and `curl -sI https://safedeal.sh/deals` → 200.

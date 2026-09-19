@@ -64,6 +64,11 @@ WORKDIR /app
 COPY --from=frontend-deps /app/node_modules ./node_modules
 COPY package.json yarn.lock* next.config.mjs tsconfig.json ./
 COPY i18n.js axiosConfig.ts axiosAdmin.ts store.ts ./
+# Root middleware: dev-page guard + safedeal.sh Host → /safedeal/* rewrite.
+# It lives at the repo root (not in pages/), so an explicit COPY is required
+# or `next build` silently ships WITHOUT middleware (safedeal.sh then renders
+# the Dynopay home — root cause of the 2026-06 "safedeal.sh shows dynopay" bug).
+COPY middleware.ts ./
 
 # Copy all frontend source directories
 COPY pages/ ./pages/
