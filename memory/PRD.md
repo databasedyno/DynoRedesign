@@ -1,3 +1,11 @@
+# === 2026-06 (fork: safedeal-verify) PROD BUG "Network Error on Create deal → Send invite" on https://safedeal.sh — FIXED (iteration_205: 100%) ===
+# RCA: safedeal.sh frontend called the Dynopay API cross-origin; preflight rejected because CORS allowedHeaders lacked `x-safedeal-token`
+#   (sign-in has no custom header → worked; every authed call failed). FIX: server.ts allowedHeaders += x-safedeal-token (cors() + options('*'));
+#   api/safedeal.ts sdApiBase() → same-origin '' on *.safedeal.sh (Caddy→nginx proxies /api in the same container) so prod skips CORS entirely.
+# ALSO this fork: Dockerfile now COPYs root middleware.ts (prod build previously shipped WITHOUT middleware → safedeal.sh rendered Dynopay home).
+# Owner must "Save to GitHub" to deploy both. Verify: curl -s https://safedeal.sh/ | grep -c sd-landing ; create a deal in the browser.
+# ============================================================================================
+
 # === 2026-06 (fork: safedeal-verify) SAFEDEAL UX PROGRAMME — BATCH 1 "Clarity & trust" — DONE (testing_agent iteration_204: BE 23/23, FE ~97% → 4 minors fixed + self-verified) ===
 # Approved plan (plan mode): 3 batches. B1 = next-step banner+countdown · deadline pills · invite-aware sign-in · segmented code input
 #   + 30s resend cooldown · landing calculator (real quote) · For buyers/For sellers + FAQ · footer + Terms/Privacy/Help (DRAFT pages) ·

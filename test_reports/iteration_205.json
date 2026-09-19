@@ -1,0 +1,22 @@
+{
+  "summary": "Verified CORS fix + create-deal/send-invite flow. Preflight OPTIONS for POST /api/safedeal/deals, GET /api/safedeal/deals, POST /api/safedeal/deals/:token/action all return 204 with 'x-safedeal-token' in access-control-allow-headers (comma-list including x-safedeal-token). Cross-origin POST /api/safedeal/deals with x-safedeal-token header returned 201 with access-control-allow-credentials:true. Playwright E2E: signed in with fresh email, navigated to /safedeal/deals/new, submitted the create form (title 'Network error repro', $300, seller, buyer email, buyer fee payer) → POST /api/safedeal/deals responded 201, page navigated to /safedeal/deal/<token>, sd-deal-created-banner visible, no error toast, no failed /api/safedeal requests (only benign ERR_ABORTED from navigation cancelling an in-flight list fetch, plus cdn-cgi/rum which is unrelated). Deals list showed new deal, wallet page loaded successfully (both send x-safedeal-token). Regression pytest tests/test_safedeal_api.py + tests/test_safedeal_iter203.py: 23/23 passed. Dynopay /auth/login and /admin/login still return 200.",
+  "backend_issues": {"critical": [], "minor": [
+    {"endpoint": "OPTIONS /api/safedeal/deals with disallowed Origin", "issue": "Ingress fallback responds with access-control-allow-origin:* and allow-headers:* (204). The backend correctly does not echo the evil origin (no credentials), but the outer proxy provides a wildcard fallback. Browser will still block credentialed requests, so functionally safe, but note if strict origin-echo is required at the edge."}
+  ]},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": ["/app/backend/tests/test_safedeal_api.py", "/app/backend/tests/test_safedeal_iter203.py"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Backend CORS allowedHeaders now correctly includes x-safedeal-token in both global cors() and app.options('*') — verified via preflight response headers.",
+    "Frontend sdApiBase() returning '' for *.safedeal.sh hosts is a good same-origin optimization for prod; in preview it uses NEXT_PUBLIC_BASE_URL — verified traffic routes correctly.",
+    "Preflight ACAO echoes a normalized cluster hostname rather than the exact sent Origin — likely ingress rewrite. Not a functional problem for the real production browser call because prod is same-origin (safedeal.sh) after the frontend change."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "SafeDeal accepts any email; preview code from sd-signin-preview-code-value or POST /api/safedeal/auth/send-code preview_code.",
+  "seed_data_creation": "Created one deal via E2E (title 'Network error repro'). Cross-origin curl created one deal ('CORS test deal').",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "CORS x-safedeal-token fix confirmed. Preflight returns 204 with x-safedeal-token in allow-headers. Full E2E create-deal → send-invite works (201 → banner). Regression 23/23 pytest passing. Backend must not be modified.",
+  "rca of the issue": "Original bug: production https://safedeal.sh sent cross-origin POST /api/safedeal/deals with custom header x-safedeal-token; backend CORS allowedHeaders lacked x-safedeal-token so browser preflight failed → Network Error. Fix (already applied by main agent): (1) added 'x-safedeal-token' to allowedHeaders in server.ts cors() and app.options('*'); (2) client sdApiBase() switches to same-origin ('') on *.safedeal.sh hosts. Both verified in preview: preflight returns allow-headers containing x-safedeal-token and E2E create-deal flow completes without error."
+}
