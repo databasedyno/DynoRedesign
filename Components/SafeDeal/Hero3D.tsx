@@ -37,7 +37,7 @@ export default function Hero3D() {
   const float = (delay: number) =>
     lite
       ? {}
-      : { animate: { y: [0, -10, 0] }, transition: { duration: 5, repeat: Infinity, ease: "easeInOut", delay } };
+      : { animate: { y: [0, -10, 0] }, transition: { duration: 5, repeat: Infinity, ease: "easeInOut" as const, delay } };
 
   return (
     <Box

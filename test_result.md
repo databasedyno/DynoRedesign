@@ -245,7 +245,7 @@
 #   Tested by: testing_agent (deep_testing_backend_v2)
 #   Test date: 2026-09-18
 #   Test method: Python backend test (backend_test_escrow.py)
-#   Base URL: https://secure-setup-2.preview.emergentagent.com/api
+#   Base URL: https://safedeal-reskin.preview.emergentagent.com/api
 #   Auth: Merchant owner (onarrival21@gmail.com) + Super-admin (moxxcompany@gmail.com)
 #
 #   CONTEXT: Verified the NEW email-OTP flow, custody conversion, two-phase settlement
@@ -6774,7 +6774,7 @@ Test Data Cleaned: Attempted (deletion blocked by OTP requirement)
 #   Tested by: testing_agent
 #   Test date: 2026-09-17
 #   Test method: Python backend test (backend_test.py)
-#   Backend URL: https://secure-setup-2.preview.emergentagent.com/api
+#   Backend URL: https://safedeal-reskin.preview.emergentagent.com/api
 #   Admin login: moxxcompany@gmail.com / Katiekendra123@
 #
 #   CONTEXT: Verified the payment email rendering fix via the new diagnostics endpoint
@@ -7099,7 +7099,7 @@ Test Data Cleaned: Attempted (deletion blocked by OTP requirement)
 #   Tested by: testing_agent (auto_frontend_testing_agent)
 #   Test date: 2026-09-18 18:12 UTC
 #   Test method: Python Playwright browser automation
-#   Base URL: https://b3e8a0ae-58d8-4d4e-9384-206e4f1f52b2.preview.emergentagent.com
+#   Base URL: https://safedeal-reskin.preview.emergentagent.com
 #   Auth: Merchant owner (onarrival21@gmail.com) + TOTP 2FA
 #
 #   CONTEXT: Attempted comprehensive E2E testing of the DynoPay ESCROW UI covering:
@@ -7109,7 +7109,7 @@ Test Data Cleaned: Attempted (deletion blocked by OTP requirement)
 #   - TEST D: Admin (best-effort, dispute queue, run-escalations)
 #
 #   CRITICAL BLOCKER: Preview URL returned 502 Bad Gateway (Cloudflare error)
-#   - The preview URL https://b3e8a0ae-58d8-4d4e-9384-206e4f1f52b2.preview.emergentagent.com
+#   - The preview URL https://safedeal-reskin.preview.emergentagent.com
 #     is showing "Bad gateway - Error code 502" from Cloudflare
 #   - This appears to be a Kubernetes ingress or preview environment issue
 #   - Local services are HEALTHY:

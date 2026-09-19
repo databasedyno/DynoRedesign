@@ -1,6 +1,6 @@
 # Test credentials (current pod)
 
-Preview URL (THIS pod): https://b3e8a0ae-58d8-4d4e-9384-206e4f1f52b2.preview.emergentagent.com  (source of truth: APP_URL in /etc/supervisor/conf.d/*.conf; frontend env = /app/.env.local, NOT /app/.env)
+Preview URL (THIS pod): https://safedeal-reskin.preview.emergentagent.com  (source of truth: APP_URL in /etc/supervisor/conf.d/*.conf; frontend env = /app/.env.local, NOT /app/.env)
 # NOTE (2026-09): Next DEV heap raised to 8192 in scripts/start-frontend.sh to cut the memory-recycle 502s that intermittently hit the edge. If E2E hits a 502, it's a ~5s dev-server recycle — retry after ~15s.
 
 ## Brands on the owner account (company selector: data-testid=company-option-<id>)
