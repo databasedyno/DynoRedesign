@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { Alert, Box, Button, Chip, Container, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Grid, Skeleton, Snackbar, Stack, TextField, Tooltip, Typography } from "@mui/material";
 import { Icon } from "@iconify/react";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { SD_ACCENT } from "./sdTheme";
 import safedealApi, { SdConfig, SdDeal, SdDealPreview, SdDealAction, sdError } from "@/api/safedeal";
 import DisputePanel from "@/Components/Page/Escrow/DisputePanel";
 import EscrowProgress from "@/Components/Page/Escrow/EscrowProgress";
@@ -109,8 +109,8 @@ export default function DealPage({ token }: { token: string }) {
         {preview && (
           <Box sx={{ ...card, p: 3.5 }}>
             <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
-              <Icon icon="mdi:shield-check" width={22} color={BRAND_ACCENT} />
-              <Typography sx={{ fontSize: 12.5, fontWeight: 800, color: BRAND_ACCENT, letterSpacing: 0.6, textTransform: "uppercase" }}>You&apos;re invited to an escrow deal</Typography>
+              <Icon icon="mdi:shield-check" width={22} color={SD_ACCENT} />
+              <Typography sx={{ fontSize: 12.5, fontWeight: 800, color: SD_ACCENT, letterSpacing: 0.6, textTransform: "uppercase" }}>You&apos;re invited to an escrow deal</Typography>
             </Stack>
             <Typography component="h1" sx={{ fontSize: 26, fontWeight: 900, letterSpacing: -0.6 }} data-testid="sd-preview-title">{preview.title}</Typography>
             <Typography sx={{ fontSize: 30, fontWeight: 900, my: 1 }}>{money(preview.amount, preview.currency)}</Typography>
@@ -179,7 +179,7 @@ export default function DealPage({ token }: { token: string }) {
     <Container maxWidth="lg" sx={{ py: { xs: 3, md: 5 } }} data-testid="sd-deal-page" data-status={status}>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.5 }}>
         <Link href={href("/deals")} style={{ textDecoration: "none" }} data-testid="sd-deal-back">
-          <Typography sx={{ fontSize: 13, color: "#6B7280", display: "inline-flex", alignItems: "center", gap: 0.4, "&:hover": { color: BRAND_ACCENT } }}>
+          <Typography sx={{ fontSize: 13, color: "#6B7280", display: "inline-flex", alignItems: "center", gap: 0.4, "&:hover": { color: SD_ACCENT } }}>
             <Icon icon="mdi:arrow-left" width={16} /> My deals
           </Typography>
         </Link>
@@ -240,7 +240,7 @@ export default function DealPage({ token }: { token: string }) {
               <Stack spacing={1.2}>
                 {[...(deal.activity_log || [])].reverse().map((a, i) => (
                   <Stack key={i} direction="row" spacing={1.2} alignItems="flex-start">
-                    <Box sx={{ width: 8, height: 8, mt: 0.7, borderRadius: "50%", flexShrink: 0, backgroundColor: a.type.includes("dispute") || a.type.includes("cancel") || a.type === "changes_requested" ? SD_AMBER : BRAND_ACCENT }} />
+                    <Box sx={{ width: 8, height: 8, mt: 0.7, borderRadius: "50%", flexShrink: 0, backgroundColor: a.type.includes("dispute") || a.type.includes("cancel") || a.type === "changes_requested" ? SD_AMBER : SD_ACCENT }} />
                     <Box>
                       <Typography sx={{ fontSize: 13, color: "#111827" }}>{a.note || a.type}</Typography>
                       <Tooltip title={absTime(a.at)} arrow><Typography component="time" dateTime={a.at} sx={{ fontSize: 11.5, color: "#6B7280", cursor: "help" }}>{relTime(a.at, now)} · {a.role || a.actor}</Typography></Tooltip>
@@ -295,7 +295,7 @@ export default function DealPage({ token }: { token: string }) {
           <Box sx={{ display: { xs: "block", md: "none" }, position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 30, p: 1.4, backgroundColor: "rgba(255,255,255,0.96)", backdropFilter: "blur(10px)", borderTop: "1px solid #E5E7EB", boxShadow: "0 -8px 24px rgba(15,23,42,0.08)" }} data-testid="sd-sticky-bar">
             <Stack direction="row" spacing={1.2} alignItems="center">
               <Box sx={{ minWidth: 0, flex: 1 }}>
-                <Typography sx={{ fontSize: 11, fontWeight: 900, letterSpacing: 0.6, textTransform: "uppercase", color: BRAND_ACCENT }}>Your move</Typography>
+                <Typography sx={{ fontSize: 11, fontWeight: 900, letterSpacing: 0.6, textTransform: "uppercase", color: SD_ACCENT }}>Your move</Typography>
                 <Typography sx={{ fontSize: 12.5, color: "#4B5563", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{nextStep(deal).text}</Typography>
               </Box>
               <Button variant={primary.variant || "contained"} disabled={!!busy} onClick={primary.onClick} data-testid={primary.testid} sx={primary.variant === "outlined" ? { ...ghostBtn, flexShrink: 0 } : { ...primaryBtn, flexShrink: 0 }}>
@@ -355,9 +355,9 @@ export default function DealPage({ token }: { token: string }) {
 
 function Row({ l, v, soft, strong, hi, testid }: { l: string; v: string; soft?: boolean; strong?: boolean; hi?: boolean; testid?: string }) {
   return (
-    <Stack direction="row" justifyContent="space-between" data-testid={testid} sx={hi ? { px: 1, py: 0.4, mx: -1, borderRadius: 1.5, backgroundColor: `${BRAND_ACCENT}0F` } : undefined}>
+    <Stack direction="row" justifyContent="space-between" data-testid={testid} sx={hi ? { px: 1, py: 0.4, mx: -1, borderRadius: 1.5, backgroundColor: `${SD_ACCENT}0F` } : undefined}>
       <Typography sx={{ fontSize: strong ? 14 : 13, fontWeight: strong ? 800 : 500, color: soft ? "#6B7280" : "#111827" }}>{l}</Typography>
-      <Typography sx={{ fontSize: strong ? 14 : 13, fontWeight: strong ? 900 : 700, color: soft ? "#6B7280" : hi ? BRAND_ACCENT : "#111827", ...TABULAR }}>{v}</Typography>
+      <Typography sx={{ fontSize: strong ? 14 : 13, fontWeight: strong ? 900 : 700, color: soft ? "#6B7280" : hi ? SD_ACCENT : "#111827", ...TABULAR }}>{v}</Typography>
     </Stack>
   );
 }

@@ -2,7 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { Alert, Box, Button, Divider, Stack, TextField, Tooltip, Typography } from "@mui/material";
 import { Icon } from "@iconify/react";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { SD_ACCENT } from "./sdTheme";
 import type { SdDeal, SdDealAction } from "@/api/safedeal";
 import { money } from "@/Components/Page/Escrow/escrowUtils";
 import { absTime, relTime } from "./sdFormat";
@@ -77,10 +77,10 @@ export default function DealActionsCard({ deal, busy, live, now, walletHref, new
             {deal.price_currency && deal.price_currency !== "USD" ? `The ${deal.price_currency} price converts to USD at the live rate the moment you pay. ` : ""}Your payment is held by Dynopay as USDT until you release it (or the inspection timer runs out after delivery). Nothing reaches the seller before that.
           </Typography>
           <Box sx={{ mb: 1.8, p: 1.4, borderRadius: 2.5, border: "1px solid #E5E7EB", backgroundColor: "#F9FAFB", display: "flex", alignItems: "center", gap: 1.2, flexWrap: "wrap" }} data-testid="sd-fund-balance-box">
-            <Icon icon="mdi:wallet-outline" width={22} color={BRAND_ACCENT} />
+            <Icon icon="mdi:wallet-outline" width={22} color={SD_ACCENT} />
             <Typography sx={{ fontSize: 13, color: "#374151", flex: 1, minWidth: 160 }}>
               SafeDeal balance: <b>{money(deal.buyer_balance?.available || 0)}</b>
-              {(deal.buyer_balance?.available || 0) < b.buyerPays ? <> — not enough for this deal. <Link href={walletHref} style={{ color: BRAND_ACCENT, fontWeight: 700 }} data-testid="sd-fund-topup-link">Top up your balance</Link> to pay in one tap (stablecoin top-ups carry no exchange fee).</> : ""}
+              {(deal.buyer_balance?.available || 0) < b.buyerPays ? <> — not enough for this deal. <Link href={walletHref} style={{ color: SD_ACCENT, fontWeight: 700 }} data-testid="sd-fund-topup-link">Top up your balance</Link> to pay in one tap (stablecoin top-ups carry no exchange fee).</> : ""}
             </Typography>
             <Button size="small" variant="contained" disabled={!!busy || (deal.buyer_balance?.available || 0) < b.buyerPays} onClick={() => act("fund-balance")} data-testid="sd-act-fund-balance" sx={primaryBtn}>Pay from balance</Button>
           </Box>
@@ -152,7 +152,7 @@ export default function DealActionsCard({ deal, busy, live, now, walletHref, new
                 ) : (
                   <><b>{money(amount, deal.currency)}</b> is in your SafeDeal balance{deal.my_addresses?.length ? " and goes out automatically once your payout address clears its safety hold" : " — add a payout address and it's sent automatically"}.{" "}</>
                 )}
-                <Link href={walletHref} style={{ fontWeight: 800, color: BRAND_ACCENT }} data-testid="sd-settled-wallet-link">Open wallet →</Link>
+                <Link href={walletHref} style={{ fontWeight: 800, color: SD_ACCENT }} data-testid="sd-settled-wallet-link">Open wallet →</Link>
               </Alert>
             );
           })()}
@@ -160,7 +160,7 @@ export default function DealActionsCard({ deal, busy, live, now, walletHref, new
       )}
       {["cancelled", "declined", "expired"].includes(status) && (
         <Typography sx={{ fontSize: 13.5, color: "#4B5563" }} data-testid="sd-terminal-note">
-          This deal was {status}. Nothing was charged. <Link href={newDealHref} style={{ color: BRAND_ACCENT, fontWeight: 700 }}>Start a new deal</Link>
+          This deal was {status}. Nothing was charged. <Link href={newDealHref} style={{ color: SD_ACCENT, fontWeight: 700 }}>Start a new deal</Link>
         </Typography>
       )}
 
@@ -170,7 +170,7 @@ export default function DealActionsCard({ deal, busy, live, now, walletHref, new
           <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between" flexWrap="wrap" useFlexGap>
             <Typography sx={{ fontSize: 12.5, color: "#6B7280" }}>{deal.is_creator ? "Need to tweak something? Changing terms is free before funding." : "Changed your mind? Cancelling before funding is free."}</Typography>
             <Stack direction="row" spacing={0.5}>
-              {deal.is_creator && <Button size="small" disabled={!!busy} onClick={() => openDialog("amend")} data-testid="sd-act-amend-open" sx={{ ...ghostBtn, color: BRAND_ACCENT }} startIcon={<Icon icon="mdi:pencil-outline" />}>Change terms</Button>}
+              {deal.is_creator && <Button size="small" disabled={!!busy} onClick={() => openDialog("amend")} data-testid="sd-act-amend-open" sx={{ ...ghostBtn, color: SD_ACCENT }} startIcon={<Icon icon="mdi:pencil-outline" />}>Change terms</Button>}
               <Button size="small" color="inherit" disabled={!!busy} onClick={() => openDialog("cancel")} data-testid="sd-act-cancel-open" sx={{ ...ghostBtn, color: "#6B7280" }} startIcon={<Icon icon="mdi:cancel" />}>Cancel deal</Button>
             </Stack>
           </Stack>

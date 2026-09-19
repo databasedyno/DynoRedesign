@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography } from "@mui/material";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { SD_GOLD, SD_GOLD_DARK, SD_INK } from "./sdTheme";
 import type { SdDeal } from "@/api/safedeal";
 
-const primaryBtn = { textTransform: "none", fontWeight: 800, borderRadius: 99, backgroundColor: BRAND_ACCENT, "&:hover": { backgroundColor: "#3730A3" } } as const;
+const primaryBtn = { textTransform: "none", fontWeight: 800, borderRadius: 99, color: SD_INK, backgroundColor: SD_GOLD, "&:hover": { backgroundColor: SD_GOLD_DARK } } as const;
 
 /** Buyer sends the delivery back for changes (capped rounds) — lighter than a dispute. */
 export default function RequestChangesDialog({ open, deal, busy, onClose, onSubmit }: {

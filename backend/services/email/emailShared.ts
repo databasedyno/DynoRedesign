@@ -1,5 +1,5 @@
 import mailTransporter from "../../utils/mailTransporter";
-import config from "../../utils/config";
+import config, { raw as envRaw } from "../../utils/config";
 import { captureError } from "../errorMonitoringService";
 import { baseEmailTemplate, getCurrencySymbol, p, type EmailHero, type EmailAudience, type EmailBrand } from "../../utils/emailTemplate";
 import { t as tr, firstNameOnly } from "../../utils/emailI18n";
@@ -176,11 +176,16 @@ export const sendEmail = async (
       buttonText: opts.cta?.text,
       buttonLink: opts.cta?.link,
     });
+    const brandSender =
+      opts.brand === "safedeal"
+        ? { name: "SafeDeal", email: envRaw("SAFEDEAL_SENDER_EMAIL") || "hi@safedeal.sh" }
+        : undefined;
     const info = await mailTransporter({
       to: recipientEmail,
       name,
       subject,
       body: htmlBody,
+      sender: brandSender,
     });
     return info;
   } catch (e) {

@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Divider, Stack, Typography } from "@mui/material";
 import { Icon } from "@iconify/react";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { SD_GOLD, SD_INK } from "./sdTheme";
 import type { SdFeePreview } from "@/api/safedeal";
 import { money } from "@/Components/Page/Escrow/escrowUtils";
 import { TABULAR } from "./sdFormat";
@@ -80,7 +80,7 @@ export function QuoteBody({ preview }: { preview: SdFeePreview }) {
         <Row key={c.key} l={c.label} v={money(c.amount, "USD")} soft testid={`sd-quote-${c.key}`} />
       ))}
       <Box sx={{ borderTop: "1px solid rgba(255,255,255,0.12)", pt: 1 }}>
-        <Row l="Buyer pays" v={money(preview.buyerPays, "USD")} strong color="#A5B4FC" testid="sd-quote-buyer-pays" />
+        <Row l="Buyer pays" v={money(preview.buyerPays, "USD")} strong color={SD_GOLD} testid="sd-quote-buyer-pays" />
         <Row l="Seller receives" v={money(preview.sellerReceives, "USD")} strong color="#6EE7B7" testid="sd-quote-seller-receives" />
       </Box>
       <Typography sx={{ fontSize: 11.5, color: SD_INK_MUTED, mt: 0.5 }}>
@@ -99,4 +99,4 @@ export function Row({ l, v, soft, strong, color, testid }: { l: string; v: strin
   );
 }
 
-export const stepDot = (on: boolean, done: boolean) => ({ width: 26, height: 26, borderRadius: "50%", display: "grid", placeItems: "center", fontSize: 12, fontWeight: 900, color: on || done ? "#fff" : "#6B7280", backgroundColor: on ? BRAND_ACCENT : done ? "#047857" : "#E5E7EB", flexShrink: 0 });
+export const stepDot = (on: boolean, done: boolean) => ({ width: 26, height: 26, borderRadius: "50%", display: "grid", placeItems: "center", fontSize: 12, fontWeight: 900, color: on ? SD_INK : done ? "#fff" : "#6B7280", backgroundColor: on ? SD_GOLD : done ? "#047857" : "#E5E7EB", flexShrink: 0 });

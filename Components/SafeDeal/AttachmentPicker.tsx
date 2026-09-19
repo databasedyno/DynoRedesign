@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { Box, Chip, CircularProgress, IconButton, Stack, Tooltip, Typography } from "@mui/material";
 import { Icon } from "@iconify/react";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { SD_ACCENT } from "./sdTheme";
 import type { SdAttachment } from "@/api/safedeal";
 import { sdError } from "@/api/safedeal";
 
@@ -81,7 +81,7 @@ export default function AttachmentPicker({ upload, value, onChange, onError, max
           />
         ))}
         {Object.entries(progress).map(([name, pct]) => (
-          <Chip key={name} size="small" icon={<CircularProgress size={12} sx={{ color: BRAND_ACCENT }} />} label={`${name} · ${pct}%`} sx={{ fontWeight: 700 }} data-testid={`${testid}-uploading`} />
+          <Chip key={name} size="small" icon={<CircularProgress size={12} sx={{ color: SD_ACCENT }} />} label={`${name} · ${pct}%`} sx={{ fontWeight: 700 }} data-testid={`${testid}-uploading`} />
         ))}
         {value.length < max && (
           compact ? (
@@ -97,7 +97,7 @@ export default function AttachmentPicker({ upload, value, onChange, onError, max
               onClick={() => input.current?.click()}
               disabled={disabled || busy}
               data-testid={`${testid}-add`}
-              sx={{ fontWeight: 700, borderColor: BRAND_ACCENT, color: BRAND_ACCENT, borderStyle: "dashed" }}
+              sx={{ fontWeight: 700, borderColor: SD_ACCENT, color: SD_ACCENT, borderStyle: "dashed" }}
             />
           )
         )}

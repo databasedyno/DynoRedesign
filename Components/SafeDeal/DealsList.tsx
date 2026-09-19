@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { Box, Button, Chip, Container, Skeleton, Stack, Tooltip, Typography } from "@mui/material";
 import { Icon } from "@iconify/react";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { SD_ACCENT, SD_GOLD, SD_GOLD_DARK, SD_INK, SD_NOTE_BG, SD_NOTE_FG, SD_NOTE_BORDER } from "./sdTheme";
 import safedealApi, { SdDeal, sdError } from "@/api/safedeal";
 import { money } from "@/Components/Page/Escrow/escrowUtils";
 import { useRequireSdSession, useSdHref } from "./sdRouting";
@@ -65,7 +65,7 @@ export default function DealsList() {
           <Typography sx={{ fontSize: 13.5, color: "#6B7280" }}>{user?.email}</Typography>
         </Box>
         <Link href={href("/deals/new")} data-testid="sd-new-deal" style={{ textDecoration: "none" }}>
-          <Button variant="contained" startIcon={<Icon icon="mdi:plus" />} sx={{ textTransform: "none", fontWeight: 800, borderRadius: 99, px: 2.4, backgroundColor: BRAND_ACCENT, "&:hover": { backgroundColor: "#3730A3" } }}>
+          <Button variant="contained" startIcon={<Icon icon="mdi:plus" />} sx={{ textTransform: "none", fontWeight: 800, borderRadius: 99, px: 2.4, color: SD_INK, backgroundColor: SD_GOLD, "&:hover": { backgroundColor: SD_GOLD_DARK } }}>
             New deal
           </Button>
         </Link>
@@ -73,11 +73,11 @@ export default function DealsList() {
 
       <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mb: 2 }} role="tablist" aria-label="Filter deals">
         {FILTERS.map((f) => (
-          <Chip key={f.key} role="tab" aria-selected={filter === f.key} label={f.label} onClick={() => setFilter(f.key)} data-testid={`sd-filter-${f.key}`} sx={{ fontWeight: 700, backgroundColor: filter === f.key ? BRAND_ACCENT : "#fff", color: filter === f.key ? "#fff" : "#374151", border: "1px solid #E5E7EB", "&:hover": { backgroundColor: filter === f.key ? "#3730A3" : "#F3F4F6" } }} />
+          <Chip key={f.key} role="tab" aria-selected={filter === f.key} label={f.label} onClick={() => setFilter(f.key)} data-testid={`sd-filter-${f.key}`} sx={{ fontWeight: 700, backgroundColor: filter === f.key ? SD_GOLD : "#fff", color: filter === f.key ? SD_INK : "#374151", border: "1px solid #E5E7EB", "&:hover": { backgroundColor: filter === f.key ? SD_GOLD_DARK : "#F3F4F6" } }} />
         ))}
         <Box sx={{ flex: 1 }} />
         {ROLES.map((r) => (
-          <Chip key={r.key} label={r.label} variant="outlined" onClick={() => setRole(r.key)} data-testid={`sd-role-${r.key}`} aria-pressed={role === r.key} sx={{ fontWeight: 700, borderColor: role === r.key ? BRAND_ACCENT : "#E5E7EB", color: role === r.key ? BRAND_ACCENT : "#6B7280" }} />
+          <Chip key={r.key} label={r.label} variant="outlined" onClick={() => setRole(r.key)} data-testid={`sd-role-${r.key}`} aria-pressed={role === r.key} sx={{ fontWeight: 700, borderColor: role === r.key ? SD_ACCENT : "#E5E7EB", color: role === r.key ? SD_ACCENT : "#6B7280" }} />
         ))}
       </Stack>
 
@@ -92,7 +92,7 @@ export default function DealsList() {
           <Typography sx={{ fontSize: 13.5, color: "#6B7280", mb: empty.cta ? 2 : 0 }}>{empty.body}</Typography>
           {empty.cta && (
             <Link href={href("/deals/new")} style={{ textDecoration: "none" }}>
-              <Button variant="outlined" sx={{ textTransform: "none", fontWeight: 700, borderRadius: 99 }}>{empty.cta}</Button>
+              <Button variant="outlined" sx={{ textTransform: "none", fontWeight: 700, borderRadius: 99, color: SD_ACCENT, borderColor: SD_ACCENT, "&:hover": { borderColor: SD_GOLD_DARK, backgroundColor: SD_NOTE_BG } }}>{empty.cta}</Button>
             </Link>
           )}
         </Box>
@@ -105,15 +105,15 @@ export default function DealsList() {
             const updated = d.updated_at || d.created_at;
             return (
               <Link key={d.escrow_id} href={href(`/deal/${d.deal_token}`)} style={{ textDecoration: "none", color: "inherit" }} data-testid={`sd-deal-row-${d.escrow_id}`} aria-label={`${d.title}, ${money(d.amount, d.currency)}`}>
-                <Box sx={{ p: { xs: 1.6, sm: 2 }, borderRadius: 3, backgroundColor: "#fff", border: `1px solid ${todo ? "#C7D2FE" : "#E5E7EB"}`, display: "flex", alignItems: "center", gap: { xs: 1.2, sm: 2 }, transition: "box-shadow .15s, transform .15s", "&:hover": { boxShadow: "0 10px 26px rgba(15,23,42,0.07)", transform: "translateY(-1px)" } }}>
-                  <Box sx={{ width: 42, height: 42, borderRadius: 2, flexShrink: 0, display: { xs: "none", sm: "grid" }, placeItems: "center", backgroundColor: isBuyer ? "#EEF2FF" : "#ECFDF5" }} aria-hidden>
-                    <Icon icon={isBuyer ? "mdi:cart-outline" : "mdi:storefront-outline"} width={22} color={isBuyer ? BRAND_ACCENT : "#047857"} />
+                <Box sx={{ p: { xs: 1.6, sm: 2 }, borderRadius: 3, backgroundColor: "#fff", border: `1px solid ${todo ? SD_NOTE_BORDER : "#E5E7EB"}`, display: "flex", alignItems: "center", gap: { xs: 1.2, sm: 2 }, transition: "box-shadow .15s, transform .15s", "&:hover": { boxShadow: "0 10px 26px rgba(15,23,42,0.07)", transform: "translateY(-1px)" } }}>
+                  <Box sx={{ width: 42, height: 42, borderRadius: 2, flexShrink: 0, display: { xs: "none", sm: "grid" }, placeItems: "center", backgroundColor: isBuyer ? SD_NOTE_BG : "#ECFDF5" }} aria-hidden>
+                    <Icon icon={isBuyer ? "mdi:cart-outline" : "mdi:storefront-outline"} width={22} color={isBuyer ? SD_ACCENT : "#047857"} />
                   </Box>
                   <Box sx={{ flex: 1, minWidth: 0 }}>
                     <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
                       <Typography sx={{ fontWeight: 800, fontSize: 15, minWidth: 0, maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{d.title}</Typography>
                       <SdStatusChip deal={d} size="sm" testId={`sd-deal-status-${d.escrow_id}`} />
-                      {todo && <Chip size="small" label={todo} data-testid={`sd-deal-todo-${d.escrow_id}`} sx={{ fontWeight: 800, fontSize: 11, height: 22, backgroundColor: "#EEF2FF", color: "#3730A3", display: { xs: "none", md: "inline-flex" } }} />}
+                      {todo && <Chip size="small" label={todo} data-testid={`sd-deal-todo-${d.escrow_id}`} sx={{ fontWeight: 800, fontSize: 11, height: 22, backgroundColor: SD_NOTE_BG, color: SD_NOTE_FG, display: { xs: "none", md: "inline-flex" } }} />}
                     </Stack>
                     <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap sx={{ mt: 0.5 }}>
                       <Typography sx={{ fontSize: 12.5, color: "#6B7280", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>

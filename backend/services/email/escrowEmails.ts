@@ -147,7 +147,7 @@ export async function sendEscrowOtpEmail(toEmail: string, deal: DealLike, otp: s
   const v = voice(deal);
   const message =
     `<p>Use this code to verify your email for the escrow deal <b>${esc(deal.title)}</b> (${money(deal)}):</p>` +
-    otpBlock(otp) +
+    otpBlock(otp, deal.source === "safedeal" ? "#FFC61A" : undefined) +
     p("This code expires in 10 minutes. If you didn't request it, you can ignore this email.");
   await sendEmail(toEmail, toEmail, `${otp} is your ${v.name} verification code`, message, false, { ...v.opts("key"), heading: "Your verification code" });
 }

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { Box } from "@mui/material";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { SD_ACCENT } from "./sdTheme";
 
 /** Six digit boxes that behave like one field: type, backspace across boxes, paste a whole code. */
 export default function CodeInput({ value, onChange, onComplete, autoFocus, disabled, testId = "sd-signin-code" }: {
@@ -76,12 +76,12 @@ export default function CodeInput({ value, onChange, onComplete, autoFocus, disa
             fontWeight: 800,
             fontVariantNumeric: "tabular-nums",
             borderRadius: 2.5,
-            border: `1.5px solid ${digits[i] ? BRAND_ACCENT : "#D1D5DB"}`,
+            border: `1.5px solid ${digits[i] ? SD_ACCENT : "#D1D5DB"}`,
             backgroundColor: disabled ? "#F9FAFB" : "#fff",
             color: "#111827",
             outline: "none",
             transition: "border-color .12s, box-shadow .12s",
-            "&:focus": { borderColor: BRAND_ACCENT, boxShadow: `0 0 0 3px ${BRAND_ACCENT}33` },
+            "&:focus": { borderColor: SD_ACCENT, boxShadow: `0 0 0 3px ${SD_ACCENT}33` },
           }}
         />
       ))}

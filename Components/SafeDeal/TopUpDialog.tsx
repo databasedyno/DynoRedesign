@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Alert, Box, Button, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Divider, IconButton, Stack, TextField, Tooltip, Typography } from "@mui/material";
 import { Icon } from "@iconify/react";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { SD_ACCENT, SD_NOTE_BG, SD_NOTE_FG, SD_NOTE_BORDER } from "./sdTheme";
 import safedealApi, { SdTopup, SdTopupQuote, SdWallet, sdError } from "@/api/safedeal";
 import { money } from "@/Components/Page/Escrow/escrowUtils";
 import { TABULAR } from "./sdFormat";
@@ -60,7 +60,7 @@ export default function TopUpDialog({ wallet, resume, onClose, onCredited, notif
           <Stack spacing={1.5}>
             <Typography sx={{ fontSize: 13.5, color: "#4B5563" }}>Deposit crypto and your SafeDeal balance is credited in USD — ready to fund any deal from balance, no per-deal payment needed.</Typography>
             <TextField size="small" fullWidth label="Amount to add (USD)" value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ""))} helperText={`Min $${min} · max $${max.toLocaleString()}`} error={amount !== "" && !valid} inputProps={{ "data-testid": "sd-topup-amount", inputMode: "decimal" }} />
-            {valid && !quotes && <Box sx={{ py: 2, display: "grid", placeItems: "center" }}><CircularProgress size={20} sx={{ color: BRAND_ACCENT }} /></Box>}
+            {valid && !quotes && <Box sx={{ py: 2, display: "grid", placeItems: "center" }}><CircularProgress size={20} sx={{ color: SD_ACCENT }} /></Box>}
             {quotes && <CoinQuotes quotes={quotes} creating={creating} onPick={(c) => void pick(c)} />}
           </Stack>
         ) : (
@@ -79,7 +79,7 @@ function CoinQuotes({ quotes, creating, onPick }: { quotes: SdTopupQuote[]; crea
     const fees = q.network_fee + q.conversion_fee + q.exchange_fee;
     return (
       <Box key={q.coin} component="button" type="button" disabled={!!creating} onClick={() => onPick(q.coin)} data-testid={`sd-topup-coin-${q.coin}`}
-        sx={{ textAlign: "left", cursor: creating ? "progress" : "pointer", font: "inherit", p: 1.2, borderRadius: 2.5, backgroundColor: "#fff", border: "1.5px solid #E5E7EB", display: "flex", alignItems: "center", gap: 1.2, width: "100%", transition: "border-color .15s, transform .15s", "&:hover": { borderColor: BRAND_ACCENT, transform: "translateY(-1px)" }, "&:disabled": { opacity: 0.6 } }}>
+        sx={{ textAlign: "left", cursor: creating ? "progress" : "pointer", font: "inherit", p: 1.2, borderRadius: 2.5, backgroundColor: "#fff", border: "1.5px solid #E5E7EB", display: "flex", alignItems: "center", gap: 1.2, width: "100%", transition: "border-color .15s, transform .15s", "&:hover": { borderColor: SD_ACCENT, transform: "translateY(-1px)" }, "&:disabled": { opacity: 0.6 } }}>
         <Icon icon={COIN_ICON[q.coin] || "mdi:circle-multiple-outline"} width={28} />
         <Box sx={{ minWidth: 0, flex: 1 }}>
           <Typography sx={{ fontSize: 13.5, fontWeight: 800, lineHeight: 1.2 }}>{q.label} <Typography component="span" sx={{ fontSize: 12, color: "#6B7280", fontWeight: 600 }}>· {q.network}</Typography></Typography>
@@ -151,7 +151,7 @@ function TopupPayment({ topup, live, onUpdate, onCredited, notify }: { topup: Sd
   const fees = Number(topup.network_fee_usd) + Number(topup.conversion_fee_usd) + Number(topup.exchange_fee_usd);
   return (
     <Box data-testid="sd-topup-payment" data-status={topup.status}>
-      <Chip size="small" label={STATUS_LABEL[topup.status] || topup.status} data-testid="sd-topup-status" sx={{ fontWeight: 800, mb: 1.5, backgroundColor: topup.status === "credited" ? "#ECFDF5" : topup.status === "expired" ? "#FEF2F2" : "#EEF2FF", color: topup.status === "credited" ? "#047857" : topup.status === "expired" ? "#B91C1C" : "#3730A3" }} />
+      <Chip size="small" label={STATUS_LABEL[topup.status] || topup.status} data-testid="sd-topup-status" sx={{ fontWeight: 800, mb: 1.5, backgroundColor: topup.status === "credited" ? "#ECFDF5" : topup.status === "expired" ? "#FEF2F2" : SD_NOTE_BG, color: topup.status === "credited" ? "#047857" : topup.status === "expired" ? "#B91C1C" : SD_NOTE_FG }} />
       {topup.status === "credited" ? (
         <Alert severity="success" data-testid="sd-topup-credited"><b>{money(Number(topup.amount_usd))}</b> is now in your available balance{topup.simulated ? " (simulated)" : ""}. You can fund deals from balance right away.</Alert>
       ) : (
@@ -176,8 +176,8 @@ function TopupPayment({ topup, live, onUpdate, onCredited, notify }: { topup: Sd
         </Stack>
       )}
       {open && !live && (
-        <Box sx={{ mt: 1.6, p: 1.4, borderRadius: 2, border: "1px dashed #C7D2FE", backgroundColor: "#EEF2FF" }} data-testid="sd-topup-simulate-box">
-          <Typography sx={{ fontSize: 12.5, color: "#3730A3", mb: 0.8 }}><b>Preview environment.</b> Live settlement is off — simulate the deposit to credit your balance.</Typography>
+        <Box sx={{ mt: 1.6, p: 1.4, borderRadius: 2, border: `1px dashed ${SD_NOTE_BORDER}`, backgroundColor: SD_NOTE_BG }} data-testid="sd-topup-simulate-box">
+          <Typography sx={{ fontSize: 12.5, color: SD_NOTE_FG, mb: 0.8 }}><b>Preview environment.</b> Live settlement is off — simulate the deposit to credit your balance.</Typography>
           <Button size="small" variant="contained" disabled={busy} onClick={() => void simulate()} data-testid="sd-topup-simulate" sx={primaryBtn} startIcon={<Icon icon="mdi:flash-outline" />}>Simulate deposit received</Button>
         </Box>
       )}

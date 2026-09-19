@@ -2,7 +2,7 @@ import React, { ReactNode, useEffect, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Box, Button, Container, Stack, Typography } from "@mui/material";
+import { Box, Button, Container, Stack, Typography, ThemeProvider, createTheme, useTheme } from "@mui/material";
 import { Icon } from "@iconify/react";
 import safedealApi from "@/api/safedeal";
 import { useSdHref, useSdSession } from "./sdRouting";
@@ -48,6 +48,16 @@ const FOOTER_LINKS = [
 export default function SafeDealShell({ children, title, wide = false, dark = false }: { children: ReactNode; title?: string; wide?: boolean; dark?: boolean }) {
   const href = useSdHref();
   const router = useRouter();
+  // Inherit Dynopay's base theme but override ONLY the primary palette to
+  // SafeDeal gold, so every unstyled MUI control (default buttons, links,
+  // Switch, TextField focus ring/label, CircularProgress, Tabs) renders gold
+  // instead of Dynopay's indigo. Portaled dialogs keep React context, so this
+  // covers the SafeDeal dialogs too.
+  const parentTheme = useTheme();
+  const sdMuiTheme = React.useMemo(
+    () => createTheme(parentTheme, { palette: { primary: { main: SD_GOLD_DEEP, light: SD_GOLD, dark: SD_GOLD_DARK, contrastText: "#fff" } } }),
+    [parentTheme],
+  );
   const { user, ready, signOut } = useSdSession();
   const path = router.asPath;
   const isActive = (p: string) => path.includes(p);
@@ -68,6 +78,7 @@ export default function SafeDealShell({ children, title, wide = false, dark = fa
   const navActive = dark ? SD_GOLD : SD_GOLD_DEEP;
 
   return (
+    <ThemeProvider theme={sdMuiTheme}>
     <Box
       sx={{
         minHeight: "100vh",
@@ -156,5 +167,6 @@ export default function SafeDealShell({ children, title, wide = false, dark = fa
         </Container>
       </Box>
     </Box>
+    </ThemeProvider>
   );
 }

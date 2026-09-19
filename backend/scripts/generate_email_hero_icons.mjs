@@ -24,6 +24,7 @@ const ACCENT = {
   green: { fg: "#05936A", bg: "#F0FDF4" },
   amber: { fg: "#B45309", bg: "#FFFBEB" },
   red: { fg: "#DC2626", bg: "#FEF2F2" },
+  gold: { fg: "#B77E00", bg: "#FFF3CE" }, // SafeDeal accent (replaces indigo in the safedeal/ variant)
 };
 
 // name -> [MUI icon module, accent]
@@ -100,11 +101,17 @@ const svgFor = (icon, accent) => {
 };
 
 mkdirSync(OUT, { recursive: true });
+const SD_OUT = join(OUT, "safedeal");
+mkdirSync(SD_OUT, { recursive: true });
 let total = 0;
 for (const [name, [icon, accent]] of Object.entries(ICONS)) {
   const png = await sharp(Buffer.from(svgFor(icon, accent))).png({ compressionLevel: 9, palette: true }).toBuffer();
   writeFileSync(join(OUT, `${name}.png`), png);
   total += png.length;
+  // SafeDeal gold variant: indigo -> gold; semantic colours (green/amber/red) kept.
+  const sdAccent = accent === "indigo" ? "gold" : accent;
+  const sdPng = await sharp(Buffer.from(svgFor(icon, sdAccent))).png({ compressionLevel: 9, palette: true }).toBuffer();
+  writeFileSync(join(SD_OUT, `${name}.png`), sdPng);
   console.log(`${name}.png  ${(png.length / 1024).toFixed(1)} KB`);
 }
-console.log(`\n${Object.keys(ICONS).length} icons, ${(total / 1024).toFixed(0)} KB total -> ${OUT}`);
+console.log(`\n${Object.keys(ICONS).length} icons (x2 incl. safedeal/), ${(total / 1024).toFixed(0)} KB base -> ${OUT}`);

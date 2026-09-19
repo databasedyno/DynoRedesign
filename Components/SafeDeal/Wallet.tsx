@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Alert, Box, Button, Chip, Container, Dialog, DialogActions, DialogContent, DialogTitle, Divider, FormControlLabel, Grid, IconButton, MenuItem, Skeleton, Snackbar, Stack, Switch, TextField, Tooltip, Typography } from "@mui/material";
 import { Icon } from "@iconify/react";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { SD_GOLD, SD_GOLD_DARK, SD_NOTE_BG, SD_NOTE_FG } from "./sdTheme";
 import safedealApi, { SdAddress, SdStatementRow, SdTopup, SdWallet, sdError } from "@/api/safedeal";
 import { money } from "@/Components/Page/Escrow/escrowUtils";
 import { TABULAR, absTime, relTime, useNow, withdrawalStatusLabel } from "./sdFormat";
@@ -12,7 +12,7 @@ import TopUpDialog from "./TopUpDialog";
 import InvoicesCard from "./InvoicesCard";
 
 const card = { p: { xs: 2, md: 2.5 }, borderRadius: 3, backgroundColor: "#fff", border: "1px solid #E5E7EB" } as const;
-const primaryBtn = { textTransform: "none", fontWeight: 800, borderRadius: 99, backgroundColor: BRAND_ACCENT, "&:hover": { backgroundColor: "#3730A3" } } as const;
+const primaryBtn = { textTransform: "none", fontWeight: 800, borderRadius: 99, color: SD_INK, backgroundColor: SD_GOLD, "&:hover": { backgroundColor: SD_GOLD_DARK } } as const;
 
 const KIND_LABEL: Record<string, string> = {
   escrow_funding: "Escrow funding received",
@@ -238,7 +238,7 @@ export default function Wallet() {
                   <Stack key={x.withdrawal_id} direction="row" spacing={1.5} alignItems="center" data-testid={`sd-withdrawal-${x.withdrawal_id}`} data-source={x.source || "manual"} sx={{ py: 0.8, borderBottom: "1px solid #F3F4F6" }}>
                     <Box sx={{ flex: 1 }}>
                       <Typography sx={{ fontSize: 13.5, fontWeight: 700, ...TABULAR }}>
-                        {x.source === "settlement" && <Chip size="small" label={x.escrow_id ? `Deal #${x.escrow_id} payout` : "Deal payout"} sx={{ mr: 0.8, fontSize: 10.5, fontWeight: 800, height: 20, backgroundColor: "#EEF2FF", color: "#3730A3" }} />}
+                        {x.source === "settlement" && <Chip size="small" label={x.escrow_id ? `Deal #${x.escrow_id} payout` : "Deal payout"} sx={{ mr: 0.8, fontSize: 10.5, fontWeight: 800, height: 20, backgroundColor: SD_NOTE_BG, color: SD_NOTE_FG }} />}
                         #{x.withdrawal_id} · {money(Number(x.amount_usd))} → {shortAddr(x.address)} <span style={{ color: "#6B7280", fontWeight: 500 }}>({x.payout_key})</span>
                       </Typography>
                       <Typography sx={{ fontSize: 12, color: "#6B7280", ...TABULAR }}><Tooltip title={absTime(x.created_at)}><time dateTime={x.created_at}>{relTime(x.created_at, now)}</time></Tooltip> · {x.source === "settlement" ? "network fee covered by the deal" : `fee ${money(Number(x.fee_usd))}`} · you receive {money(Number(x.net_usd))}{x.tx_hash ? ` · ${x.tx_hash.slice(0, 22)}…` : ""}{x.rejected_reason ? ` · ${x.rejected_reason}` : ""}</Typography>

@@ -14,7 +14,7 @@ export async function sendSafeDealCodeEmail(toEmail: string, code: string, purpo
   const what = purpose === "signin" ? "sign in to SafeDeal" : "confirm this wallet action on SafeDeal";
   const message =
     p(`Use this one-time code to ${what}:`) +
-    otpBlock(code) +
+    otpBlock(code, '#FFC61A') +
     p("It expires in <b>10 minutes</b>. If you didn't request it, you can safely ignore this email — nothing happens without the code.");
   await sendEmail(
     toEmail,

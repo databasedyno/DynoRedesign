@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
 import { Alert, Box, Button, Collapse, Container, Grid, InputAdornment, MenuItem, Stack, TextField, Typography } from "@mui/material";
 import { Icon } from "@iconify/react";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { SD_GOLD, SD_GOLD_DARK, SD_INK } from "./sdTheme";
 import safedealApi, { SdConfig, SdDealType, SdFeePreview, sdError } from "@/api/safedeal";
 import { money } from "@/Components/Page/Escrow/escrowUtils";
 import { useRequireSdSession, useSdHref } from "./sdRouting";
@@ -15,7 +15,7 @@ import { NewDealDraft, NewDealReview, QuoteBody, stepDot } from "./NewDealReview
 type Role = "buyer" | "seller";
 type FeePayer = "buyer" | "seller" | "split";
 const STEPS = ["The basics", "Terms", "Review & send"];
-const primaryBtn = { textTransform: "none", fontWeight: 900, borderRadius: 99, py: 1.2, px: 3, backgroundColor: BRAND_ACCENT, "&:hover": { backgroundColor: "#3730A3" } } as const;
+const primaryBtn = { textTransform: "none", fontWeight: 900, borderRadius: 99, py: 1.2, px: 3, color: SD_INK, backgroundColor: SD_GOLD, "&:hover": { backgroundColor: SD_GOLD_DARK } } as const;
 
 export default function NewDeal() {
   const { user, ready } = useRequireSdSession();
@@ -192,7 +192,7 @@ export default function NewDeal() {
       <Box sx={{ display: { xs: "block", md: "none" }, position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 30, backgroundColor: "#0B1020", color: "#fff", borderTop: "1px solid rgba(255,255,255,0.12)", boxShadow: "0 -10px 30px rgba(0,0,0,0.25)" }} data-testid="sd-new-quote-bar">
         <Box role="button" tabIndex={0} aria-expanded={quoteOpen} aria-controls="sd-quote-details" onClick={() => setQuoteOpen((o) => !o)} onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setQuoteOpen((o) => !o)} data-testid="sd-new-quote-bar-toggle" sx={{ px: 2, py: 1.3, display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}>
           {preview ? (
-            <Typography sx={{ fontSize: 14, fontWeight: 800, ...TABULAR }}>Buyer pays <span style={{ color: "#A5B4FC" }}>{money(preview.buyerPays, "USD")}</span> · Seller gets <span style={{ color: "#6EE7B7" }}>{money(preview.sellerReceives, "USD")}</span></Typography>
+            <Typography sx={{ fontSize: 14, fontWeight: 800, ...TABULAR }}>Buyer pays <span style={{ color: SD_GOLD }}>{money(preview.buyerPays, "USD")}</span> · Seller gets <span style={{ color: "#6EE7B7" }}>{money(preview.sellerReceives, "USD")}</span></Typography>
           ) : (
             <Typography sx={{ fontSize: 13.5, color: SD_INK_MUTED }}>Live quote appears once the amount is ${minDeal} or more</Typography>
           )}

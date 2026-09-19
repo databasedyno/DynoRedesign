@@ -5,11 +5,12 @@ import safedealApi, { SdInvoice, sdError } from "@/api/safedeal";
 import { money } from "@/Components/Page/Escrow/escrowUtils";
 import { TABULAR, absTime, relTime } from "./sdFormat";
 import { card, ghostBtn } from "./sdStyles";
+import { SD_NOTE_BG, SD_NOTE_FG } from "./sdTheme";
 
 const OUTCOME: Record<string, { label: string; bg: string; fg: string }> = {
   release: { label: "Completed", bg: "#ECFDF5", fg: "#047857" },
   refund: { label: "Refunded", bg: "#FEF3C7", fg: "#92400E" },
-  split: { label: "Split", bg: "#EEF2FF", fg: "#3730A3" },
+  split: { label: "Split", bg: SD_NOTE_BG, fg: SD_NOTE_FG },
 };
 
 /** Every closed deal with its final fee stack — the user's invoices, downloadable any time. */

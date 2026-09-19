@@ -1,11 +1,11 @@
 import React, { useMemo, useState } from "react";
 import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, InputAdornment, MenuItem, Stack, TextField, Typography } from "@mui/material";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { SD_GOLD, SD_GOLD_DARK, SD_INK } from "./sdTheme";
 import type { SdAmendBody, SdConfig, SdDeal, SdDealType } from "@/api/safedeal";
 import SdChoice from "./SdChoice";
 import { DEAL_TYPES, toDateInput } from "./sdDealTypes";
 
-const primaryBtn = { textTransform: "none", fontWeight: 800, borderRadius: 99, backgroundColor: BRAND_ACCENT, "&:hover": { backgroundColor: "#3730A3" } } as const;
+const primaryBtn = { textTransform: "none", fontWeight: 800, borderRadius: 99, color: SD_INK, backgroundColor: SD_GOLD, "&:hover": { backgroundColor: SD_GOLD_DARK } } as const;
 
 /** Creator edits the terms before funding; only changed fields are sent. */
 export default function AmendDialog({ open, deal, cfg, busy, onClose, onSubmit }: {

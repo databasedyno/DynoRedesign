@@ -1,13 +1,13 @@
 import React from "react";
 import { Box, Stack, Tooltip, Typography } from "@mui/material";
 import { Icon } from "@iconify/react";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { SD_ACCENT, SD_NOTE_BG, SD_NOTE_FG, SD_NOTE_BORDER } from "./sdTheme";
 import type { SdDeal } from "@/api/safedeal";
 import { absTime, nextStep, relTime, useNow } from "./sdFormat";
 import { SD_AMBER } from "./SafeDealShell";
 
 const TONES = {
-  action: { bg: "#EEF2FF", border: "#C7D2FE", fg: "#3730A3", icon: "mdi:account-arrow-right-outline", accent: BRAND_ACCENT },
+  action: { bg: SD_NOTE_BG, border: SD_NOTE_BORDER, fg: SD_NOTE_FG, icon: "mdi:account-arrow-right-outline", accent: SD_ACCENT },
   waiting: { bg: "#F8FAFC", border: "#E2E8F0", fg: "#334155", icon: "mdi:clock-outline", accent: "#64748B" },
   attention: { bg: "#FFFBEB", border: "#FDE68A", fg: "#92400E", icon: "mdi:gavel", accent: SD_AMBER },
   done: { bg: "#ECFDF5", border: "#A7F3D0", fg: "#065F46", icon: "mdi:check-decagram", accent: "#059669" },

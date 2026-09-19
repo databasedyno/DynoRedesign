@@ -1,7 +1,7 @@
 import React from "react";
 import { Alert, Box, Chip, Link as MuiLink, Stack, Tooltip, Typography } from "@mui/material";
 import { Icon } from "@iconify/react";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { SD_ACCENT, SD_NOTE_BG } from "./sdTheme";
 import type { SdDeal } from "@/api/safedeal";
 import { AttachmentList } from "./AttachmentPicker";
 import { absTime, relTime } from "./sdFormat";
@@ -28,7 +28,7 @@ export function DeliveryProofCard({ deal, isBuyer, onOpenFile }: { deal: SdDeal;
       {(proof || deal.delivery_note) && (
         <>
           <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.8 }}>
-            <Icon icon="mdi:package-variant-closed-check" width={18} color={BRAND_ACCENT} />
+            <Icon icon="mdi:package-variant-closed-check" width={18} color={SD_ACCENT} />
             <Typography sx={{ fontWeight: 800, fontSize: 14 }}>Delivery proof</Typography>
             {deal.delivered_at && <Tooltip title={absTime(deal.delivered_at)}><Typography sx={{ fontSize: 12, color: "#6B7280" }}>{relTime(deal.delivered_at)}</Typography></Tooltip>}
           </Stack>
@@ -42,7 +42,7 @@ export function DeliveryProofCard({ deal, isBuyer, onOpenFile }: { deal: SdDeal;
           {!!proof?.links?.length && (
             <Stack spacing={0.4} sx={{ mb: 1 }} data-testid="sd-proof-links">
               {proof.links.map((l) => (
-                <MuiLink key={l} href={l} target="_blank" rel="noopener noreferrer" sx={{ fontSize: 13, color: BRAND_ACCENT, fontWeight: 700, wordBreak: "break-all", display: "inline-flex", alignItems: "center", gap: 0.5 }}>
+                <MuiLink key={l} href={l} target="_blank" rel="noopener noreferrer" sx={{ fontSize: 13, color: SD_ACCENT, fontWeight: 700, wordBreak: "break-all", display: "inline-flex", alignItems: "center", gap: 0.5 }}>
                   <Icon icon="mdi:open-in-new" width={14} /> {l}
                 </MuiLink>
               ))}
@@ -66,8 +66,8 @@ export function CounterpartyCard({ deal, isBuyer }: { deal: SdDeal; isBuyer: boo
     <Box sx={card} data-testid="sd-counterparty-card">
       <Typography sx={{ fontSize: 12, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: "#9CA3AF", mb: 1 }}>{isBuyer ? "Seller" : "Buyer"}</Typography>
       <Stack direction="row" spacing={1.2} alignItems="center" sx={{ mb: 1.2 }}>
-        <Box sx={{ width: 38, height: 38, borderRadius: "50%", display: "grid", placeItems: "center", backgroundColor: isBuyer ? "#ECFDF5" : "#EEF2FF", flexShrink: 0 }} aria-hidden>
-          <Icon icon={isBuyer ? "mdi:storefront-outline" : "mdi:cart-outline"} width={20} color={isBuyer ? "#047857" : BRAND_ACCENT} />
+        <Box sx={{ width: 38, height: 38, borderRadius: "50%", display: "grid", placeItems: "center", backgroundColor: isBuyer ? "#ECFDF5" : SD_NOTE_BG, flexShrink: 0 }} aria-hidden>
+          <Icon icon={isBuyer ? "mdi:storefront-outline" : "mdi:cart-outline"} width={20} color={isBuyer ? "#047857" : SD_ACCENT} />
         </Box>
         <Box sx={{ minWidth: 0 }}>
           <Typography sx={{ fontSize: 14, fontWeight: 800, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} data-testid="sd-counterparty-email">{other}</Typography>

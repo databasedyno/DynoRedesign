@@ -16,6 +16,8 @@ interface mailOptions {
   subject: string;
   body?: string;
   attachments?: Attachment[];
+  /** Per-brand "from" identity. Falls back to Dynopay when omitted. */
+  sender?: { name?: string; email?: string };
 }
 
 /**
@@ -42,7 +44,7 @@ const isValidEmail = (email: string): boolean => {
  * Send email using Brevo (formerly Sendinblue) API
  */
 /** Preview-only: when EMAIL_DUMP_DIR is set, suppressed emails are written as HTML for review. */
-const dumpForReview = (to: string, subject: string, body: string) => {
+const dumpForReview = (to: string, subject: string, body: string, from?: string) => {
   const dir = envRaw("EMAIL_DUMP_DIR");
   if (!dir) return;
   try {
@@ -51,13 +53,17 @@ const dumpForReview = (to: string, subject: string, body: string) => {
     fs.mkdirSync(dir, { recursive: true });
     const slug = String(subject).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60);
     const file = path.join(dir, `${Date.now()}_${slug}.html`);
-    fs.writeFileSync(file, `<!-- to: ${to} | subject: ${subject} -->\n${body}`);
+    fs.writeFileSync(file, `<!-- from: ${from || "hi@dynopay.com"} | to: ${to} | subject: ${subject} -->\n${body}`);
   } catch (e) {
     log(`[Email] dump failed: ${(e as Error).message}`);
   }
 };
 
-const mailTransporter = async ({ to, subject, body: rawBody, name, attachments }: mailOptions) => {
+const mailTransporter = async ({ to, subject, body: rawBody, name, attachments, sender }: mailOptions) => {
+  // Per-brand sender: SafeDeal escrow mail sends from hi@safedeal.sh; Dynopay mail
+  // stays on hi@dynopay.com. Resolved up-front so the preview log/dump shows it too.
+  const senderName = sender?.name || "Dynopay";
+  const senderEmail = sender?.email || envRaw("BREVO_SENDER_EMAIL") || "hi@dynopay.com";
   // Footer "you're receiving this because … (email)" — resolved here so every
   // template gets the real recipient without threading it through 110 senders.
   const body = String(rawBody || "").split(TO_EMAIL_TOKEN).join(
@@ -80,8 +86,8 @@ const mailTransporter = async ({ to, subject, body: rawBody, name, attachments }
       .filter(Boolean);
     const recipient = String(to || "").trim().toLowerCase();
     if (!allowlist.includes(recipient)) {
-      log(`[Email] SUPPRESSED (DISABLE_OUTBOUND_EMAIL) -> to=${to} | subject=${subject}`);
-      dumpForReview(to, subject, body);
+      log(`[Email] SUPPRESSED (DISABLE_OUTBOUND_EMAIL) -> from=${senderEmail} to=${to} | subject=${subject}`);
+      dumpForReview(to, subject, body, senderEmail);
       return { suppressed: true } as unknown;
     }
     log(`[Email] TEST-ALLOWLISTED (DISABLE_OUTBOUND_EMAIL bypassed) -> to=${to} | subject=${subject}`);
@@ -109,8 +115,8 @@ const mailTransporter = async ({ to, subject, body: rawBody, name, attachments }
 
   const payload: Record<string, unknown> = {
     sender: {
-      name: "Dynopay",
-      email: envRaw("BREVO_SENDER_EMAIL") || "hi@dynopay.com",
+      name: senderName,
+      email: senderEmail,
     },
     subject: subject.trim(),
     to: [

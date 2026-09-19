@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { Alert, Box, Button, Container, Stack, TextField, Typography } from "@mui/material";
 import { Icon } from "@iconify/react";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { SD_ACCENT, SD_GOLD, SD_GOLD_DARK, SD_INK, SD_NOTE_BG, SD_NOTE_BORDER } from "./sdTheme";
 import safedealApi, { SdDealPreview, sdError, sdSession } from "@/api/safedeal";
 import { money } from "@/Components/Page/Escrow/escrowUtils";
 import { useSdHref, useSdSession } from "./sdRouting";
@@ -11,17 +11,17 @@ import CodeInput from "./CodeInput";
 import { TABULAR } from "./sdFormat";
 
 const RESEND_COOLDOWN_S = 30;
-const primaryBtn = { textTransform: "none", fontWeight: 800, borderRadius: 99, py: 1.2, backgroundColor: BRAND_ACCENT, "&:hover": { backgroundColor: "#3730A3" } } as const;
+const primaryBtn = { textTransform: "none", fontWeight: 800, borderRadius: 99, py: 1.2, color: SD_INK, backgroundColor: SD_GOLD, "&:hover": { backgroundColor: SD_GOLD_DARK } } as const;
 
 /** Compact "what you're signing in for" card when the link carries a deal. */
 function InviteCard({ p }: { p: SdDealPreview }) {
   const invitedRole = p.creator_role === "buyer" ? "seller" : "buyer";
   const inviter = p.creator_role === "buyer" ? p.buyer_email_masked : p.seller_email_masked;
   return (
-    <Box sx={{ p: 1.8, mb: 2.5, borderRadius: 3, backgroundColor: "#EEF2FF", border: "1px solid #C7D2FE" }} data-testid="sd-signin-invite-card">
+    <Box sx={{ p: 1.8, mb: 2.5, borderRadius: 3, backgroundColor: SD_NOTE_BG, border: `1px solid ${SD_NOTE_BORDER}` }} data-testid="sd-signin-invite-card">
       <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.6 }}>
-        <Icon icon="mdi:email-open-outline" width={18} color={BRAND_ACCENT} aria-hidden />
-        <Typography sx={{ fontSize: 11.5, fontWeight: 900, letterSpacing: 0.8, textTransform: "uppercase", color: BRAND_ACCENT }}>You&apos;re invited as the {invitedRole}</Typography>
+        <Icon icon="mdi:email-open-outline" width={18} color={SD_ACCENT} aria-hidden />
+        <Typography sx={{ fontSize: 11.5, fontWeight: 900, letterSpacing: 0.8, textTransform: "uppercase", color: SD_ACCENT }}>You&apos;re invited as the {invitedRole}</Typography>
       </Stack>
       <Stack direction="row" justifyContent="space-between" alignItems="baseline" spacing={1}>
         <Typography sx={{ fontSize: 16, fontWeight: 800, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} data-testid="sd-signin-invite-title">{p.title}</Typography>

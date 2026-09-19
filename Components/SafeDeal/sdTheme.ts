@@ -34,6 +34,20 @@ export const SD_TEXT_MUTED = "#6B6B72";
 export const SD_OK = "#12B76A";
 export const SD_OK_SOFT = "#6EE7B7";
 
+/* ---- Interior UI accent roles (replace Dynopay's indigo BRAND_ACCENT="#4338CA") ----
+ * Used across the signed-in SafeDeal surfaces (deals, wallet, sign-in, new-deal,
+ * dialogs, legal/help). SD_ACCENT is deep gold so accent text/icons/links/borders
+ * clear WCAG AA on the light SafeDeal surfaces (bright SD_GOLD is reserved for
+ * button fills that pair with black SD_INK text). */
+export const SD_ACCENT = SD_GOLD_DEEP;        // #B77E00 — accent text / icons / links / borders (AA on light)
+export const SD_ACCENT_HOVER = "#8A5E00";     // darker gold for hover on links/borders
+export const SD_ACCENT_GLOW = "rgba(183,126,0,0.14)"; // soft gold hover shadow (was indigo rgba(79,70,229,…))
+
+/* Soft "info / next-step / note" chip + banner styling (was indigo #EEF2FF / #C7D2FE / #3730A3). */
+export const SD_NOTE_BG = SD_GOLD_SOFT;       // #FFF3CE — pale gold tint background
+export const SD_NOTE_FG = "#7A5300";          // deep amber text — AA on both white and the pale-gold tint
+export const SD_NOTE_BORDER = "#F0DFA8";      // soft gold hairline border
+
 /** SD_GOLD with an alpha channel appended as hex, e.g. goldAlpha(0.12). */
 export const goldAlpha = (a: number): string => {
   const c = Math.min(Math.max(a, 0), 1);

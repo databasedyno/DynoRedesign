@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Alert, Box, Container, Stack, Typography } from "@mui/material";
 import { Icon } from "@iconify/react";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { SD_ACCENT } from "./sdTheme";
 import safedealApi from "@/api/safedeal";
 import { LEGAL_DOCS, fillLegal, type LegalDoc } from "./legalContent";
 import { useSdHref } from "./sdRouting";
@@ -45,7 +45,7 @@ export default function LegalPage({ slug }: { slug: LegalDoc["slug"] }) {
         <Typography sx={{ fontSize: 13, color: "#6B7280", mb: 1 }}>Also see</Typography>
         <Stack direction="row" spacing={2}>
           {others.map((s) => (
-            <Link key={s} href={href(`/${s}`)} style={{ color: BRAND_ACCENT, fontWeight: 700, fontSize: 14 }} data-testid={`sd-legal-link-${s}`}>{LEGAL_DOCS[s].title}</Link>
+            <Link key={s} href={href(`/${s}`)} style={{ color: SD_ACCENT, fontWeight: 700, fontSize: 14 }} data-testid={`sd-legal-link-${s}`}>{LEGAL_DOCS[s].title}</Link>
           ))}
         </Stack>
       </Box>

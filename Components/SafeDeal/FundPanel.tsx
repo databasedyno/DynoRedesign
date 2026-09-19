@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Alert, Box, Button, Chip, CircularProgress, Divider, IconButton, Stack, Tooltip, Typography } from "@mui/material";
 import { Icon } from "@iconify/react";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { SD_ACCENT, SD_NOTE_BG, SD_NOTE_FG, SD_NOTE_BORDER, SD_ACCENT_GLOW } from "./sdTheme";
 import safedealApi, { SdDeal, SdFunding, SdFundingCoin, SdFundingPayment, sdError } from "@/api/safedeal";
 import { money } from "@/Components/Page/Escrow/escrowUtils";
 import { TABULAR, relTime } from "./sdFormat";
@@ -80,7 +80,7 @@ export default function FundPanel({ deal, live, busy, now, onSimulate, onFunded,
     }
   };
 
-  if (!funding) return <Box sx={{ py: 3, display: "grid", placeItems: "center" }} data-testid="sd-fund-loading"><CircularProgress size={22} sx={{ color: BRAND_ACCENT }} /></Box>;
+  if (!funding) return <Box sx={{ py: 3, display: "grid", placeItems: "center" }} data-testid="sd-fund-loading"><CircularProgress size={22} sx={{ color: SD_ACCENT }} /></Box>;
 
   if (!payment || picking) {
     return (
@@ -106,8 +106,8 @@ function CoinPicker({ coins, current, creating, onPick, onCancel, expired }: { c
       data-testid={`sd-fund-coin-${c.coin}`}
       sx={{
         textAlign: "left", cursor: creating ? "progress" : "pointer", font: "inherit", p: 1.4, borderRadius: 2.5, backgroundColor: "#fff",
-        border: `1.5px solid ${current === c.coin ? BRAND_ACCENT : "#E5E7EB"}`, display: "flex", alignItems: "center", gap: 1.2, width: "100%",
-        transition: "border-color .15s, transform .15s, box-shadow .15s", "&:hover": { borderColor: BRAND_ACCENT, transform: "translateY(-1px)", boxShadow: "0 6px 18px rgba(79,70,229,0.10)" },
+        border: `1.5px solid ${current === c.coin ? SD_ACCENT : "#E5E7EB"}`, display: "flex", alignItems: "center", gap: 1.2, width: "100%",
+        transition: "border-color .15s, transform .15s, box-shadow .15s", "&:hover": { borderColor: SD_ACCENT, transform: "translateY(-1px)", boxShadow: `0 6px 18px ${SD_ACCENT_GLOW}` },
         "&:disabled": { opacity: 0.6 },
       }}
     >
@@ -201,7 +201,7 @@ function PaymentView({ deal, payment, coin, now, live, busy, copied, onCopy, onS
           return (
             <Stack key={s} direction="row" spacing={1.2} alignItems="flex-start" sx={{ position: "relative", pb: i < STEPS.length - 1 ? 1.4 : 0 }} data-testid={`sd-fund-step-${s}`} data-state={done ? "done" : active ? "active" : "todo"}>
               <Box sx={{ width: 22, display: "grid", placeItems: "center", flexShrink: 0 }}>
-                {done ? <Icon icon="mdi:check-circle" width={20} color="#059669" /> : active ? <CircularProgress size={16} thickness={5} sx={{ color: BRAND_ACCENT, mt: 0.3 }} /> : <Box sx={{ width: 10, height: 10, borderRadius: "50%", border: "2px solid #D1D5DB", mt: 0.7 }} />}
+                {done ? <Icon icon="mdi:check-circle" width={20} color="#059669" /> : active ? <CircularProgress size={16} thickness={5} sx={{ color: SD_ACCENT, mt: 0.3 }} /> : <Box sx={{ width: 10, height: 10, borderRadius: "50%", border: "2px solid #D1D5DB", mt: 0.7 }} />}
               </Box>
               <Box>
                 <Typography sx={{ fontSize: 13.5, fontWeight: done || active ? 800 : 600, color: done || active ? "#111827" : "#9CA3AF" }}>{STEP_LABEL[s][0]}</Typography>
@@ -217,8 +217,8 @@ function PaymentView({ deal, payment, coin, now, live, busy, copied, onCopy, onS
       </Typography>
 
       {!live && (
-        <Box sx={{ mt: 1.6, p: 1.4, borderRadius: 2, border: "1px dashed #C7D2FE", backgroundColor: "#EEF2FF" }} data-testid="sd-fund-simulate-box">
-          <Typography sx={{ fontSize: 12.5, color: "#3730A3", mb: 0.8 }}><b>Preview environment.</b> The address above is real (issued by Dynopay) but live settlement is off — simulate the transfer to move on.</Typography>
+        <Box sx={{ mt: 1.6, p: 1.4, borderRadius: 2, border: `1px dashed ${SD_NOTE_BORDER}`, backgroundColor: SD_NOTE_BG }} data-testid="sd-fund-simulate-box">
+          <Typography sx={{ fontSize: 12.5, color: SD_NOTE_FG, mb: 0.8 }}><b>Preview environment.</b> The address above is real (issued by Dynopay) but live settlement is off — simulate the transfer to move on.</Typography>
           <Button size="small" variant="contained" disabled={!!busy} onClick={onSimulate} data-testid="sd-act-fund" sx={primaryBtn} startIcon={<Icon icon="mdi:flash-outline" />}>Simulate payment received</Button>
         </Box>
       )}
@@ -230,7 +230,7 @@ function PaymentView({ deal, payment, coin, now, live, busy, copied, onCopy, onS
 function CopyBtn({ k, v, copied, onCopy }: { k: string; v: string; copied: string | null; onCopy: (k: string, v: string) => void }) {
   return (
     <Tooltip title={copied === k ? "Copied" : "Copy"} arrow>
-      <IconButton size="small" onClick={() => onCopy(k, v)} data-testid={`sd-fund-copy-${k}`} sx={{ color: copied === k ? "#059669" : BRAND_ACCENT }}>
+      <IconButton size="small" onClick={() => onCopy(k, v)} data-testid={`sd-fund-copy-${k}`} sx={{ color: copied === k ? "#059669" : SD_ACCENT }}>
         <Icon icon={copied === k ? "mdi:check" : "mdi:content-copy"} width={16} />
       </IconButton>
     </Tooltip>

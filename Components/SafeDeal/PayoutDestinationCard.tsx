@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { Alert, Box, Button, MenuItem, Radio, Stack, TextField, Typography } from "@mui/material";
 import { Icon } from "@iconify/react";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { SD_ACCENT } from "./sdTheme";
 import safedealApi, { SdConfig, SdDeal, sdError } from "@/api/safedeal";
 import { absTime, relTime } from "./sdFormat";
 import { StepUpDialog } from "./StepUpDialog";
@@ -57,7 +57,7 @@ export default function PayoutDestinationCard({ deal, cfg, now, walletHref, onUp
       {pref?.address ? (
         <Box data-testid="sd-payout-current">
           <Stack direction="row" spacing={1} alignItems="center">
-            <Icon icon="mdi:bank-transfer-out" width={20} color={BRAND_ACCENT} />
+            <Icon icon="mdi:bank-transfer-out" width={20} color={SD_ACCENT} />
             <Box sx={{ minWidth: 0 }}>
               <Typography sx={{ fontSize: 13.5, fontWeight: 800 }}>{pref.address.label || label(pref.address.payout_key)}</Typography>
               <Typography sx={{ fontSize: 12.5, color: "#6B7280", fontFamily: "ui-monospace, Menlo, monospace" }}>{label(pref.address.payout_key)} · {shortAddr(pref.address.address)}</Typography>
@@ -72,7 +72,7 @@ export default function PayoutDestinationCard({ deal, cfg, now, walletHref, onUp
         <Box data-testid="sd-payout-none">
           <Typography sx={{ fontSize: 13.5, color: "#374151", mb: 1.2 }}>
             {me === "seller" ? "Add a USDT/USDC address now and your payout is sent the moment the buyer releases." : "Optional: choose where a refund should go if this deal is cancelled or settled in your favour."}
-            {" "}Without one, the money waits in your <Link href={walletHref} style={{ color: BRAND_ACCENT, fontWeight: 700 }}>SafeDeal balance</Link>.
+            {" "}Without one, the money waits in your <Link href={walletHref} style={{ color: SD_ACCENT, fontWeight: 700 }}>SafeDeal balance</Link>.
           </Typography>
           <Button size="small" variant="outlined" onClick={() => setOpen(true)} sx={ghostBtn} data-testid="sd-payout-choose" startIcon={<Icon icon="mdi:wallet-plus-outline" />}>{me === "seller" ? "Choose payout address" : "Choose refund address"}</Button>
         </Box>
@@ -81,7 +81,7 @@ export default function PayoutDestinationCard({ deal, cfg, now, walletHref, onUp
       {open && (
         <Stack spacing={0.8} sx={{ mt: 1.2 }} data-testid="sd-payout-picker">
           {addrs.map((a) => (
-            <Box key={a.address_id} component="button" type="button" disabled={busy} onClick={() => void choose(a.address_id)} data-testid={`sd-payout-pick-${a.address_id}`} sx={{ font: "inherit", textAlign: "left", cursor: "pointer", display: "flex", alignItems: "center", gap: 0.6, p: 0.8, borderRadius: 2, border: `1px solid ${pref?.address_id === a.address_id ? BRAND_ACCENT : "#E5E7EB"}`, backgroundColor: "#fff", "&:hover": { borderColor: BRAND_ACCENT } }}>
+            <Box key={a.address_id} component="button" type="button" disabled={busy} onClick={() => void choose(a.address_id)} data-testid={`sd-payout-pick-${a.address_id}`} sx={{ font: "inherit", textAlign: "left", cursor: "pointer", display: "flex", alignItems: "center", gap: 0.6, p: 0.8, borderRadius: 2, border: `1px solid ${pref?.address_id === a.address_id ? SD_ACCENT : "#E5E7EB"}`, backgroundColor: "#fff", "&:hover": { borderColor: SD_ACCENT } }}>
               <Radio size="small" checked={pref?.address_id === a.address_id} tabIndex={-1} sx={{ p: 0.3 }} />
               <Box sx={{ minWidth: 0 }}>
                 <Typography sx={{ fontSize: 13, fontWeight: 700 }}>{a.label || label(a.payout_key)}</Typography>
@@ -90,7 +90,7 @@ export default function PayoutDestinationCard({ deal, cfg, now, walletHref, onUp
             </Box>
           ))}
           <Stack direction="row" spacing={1}>
-            <Button size="small" onClick={() => setAdding(true)} sx={{ ...ghostBtn, color: BRAND_ACCENT }} data-testid="sd-payout-add-new" startIcon={<Icon icon="mdi:plus" />}>New address</Button>
+            <Button size="small" onClick={() => setAdding(true)} sx={{ ...ghostBtn, color: SD_ACCENT }} data-testid="sd-payout-add-new" startIcon={<Icon icon="mdi:plus" />}>New address</Button>
             <Button size="small" onClick={() => setOpen(false)} sx={{ ...ghostBtn, color: "#6B7280" }} data-testid="sd-payout-cancel">Cancel</Button>
           </Stack>
         </Stack>

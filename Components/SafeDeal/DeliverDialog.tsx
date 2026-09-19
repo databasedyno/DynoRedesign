@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { Alert, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, Typography } from "@mui/material";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { SD_GOLD, SD_GOLD_DARK, SD_INK } from "./sdTheme";
 import safedealApi, { SdAttachment, SdDeal } from "@/api/safedeal";
 import { money } from "@/Components/Page/Escrow/escrowUtils";
 import AttachmentPicker from "./AttachmentPicker";
 
-const primaryBtn = { textTransform: "none", fontWeight: 800, borderRadius: 99, backgroundColor: BRAND_ACCENT, "&:hover": { backgroundColor: "#3730A3" } } as const;
+const primaryBtn = { textTransform: "none", fontWeight: 800, borderRadius: 99, color: SD_INK, backgroundColor: SD_GOLD, "&:hover": { backgroundColor: SD_GOLD_DARK } } as const;
 
 export interface DeliverPayload {
   delivery_note: string;
