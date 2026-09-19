@@ -74,6 +74,11 @@ export interface SdConfig {
   live_settlement: boolean;
   dispute_auto_escalate_hours: number;
   legal_name?: string;
+  price_currencies?: string[];
+  attachment_limits?: { max_files: number; max_mb: number; types: string[] };
+  deal_types?: string[];
+  max_revision_rounds?: number;
+  address_cooling_hours?: number;
 }
 
 export interface SdBalances {
@@ -81,6 +86,82 @@ export interface SdBalances {
   held: number;
   total: number;
   currency: string;
+}
+
+export interface SdAttachment {
+  attachment_id: number;
+  name: string;
+  type: string;
+  size: number;
+  context: "delivery" | "dispute" | "pending" | string;
+  ref: string | null;
+  by: string | null;
+  created_at: string;
+}
+
+export interface SdDeliveryProof {
+  note?: string | null;
+  links?: string[];
+  tracking?: { carrier?: string | null; number: string } | null;
+  attachment_ids?: number[];
+}
+
+export interface SdCounterparty {
+  email_masked: string;
+  verified_email: boolean;
+  member_since: string | null;
+  completed_deals: number;
+}
+
+export type SdDealType = "goods" | "service" | "digital" | "other";
+
+export interface SdFundingPayment {
+  payment_id: string;
+  coin: string;
+  address: string;
+  destination_tag?: number | null;
+  crypto_amount: string;
+  base_amount: number;
+  base_currency: string;
+  qr_code?: string | null;
+  status: "waiting" | "pending" | "underpaid" | "confirmed" | "settled" | "expired";
+  created_at: string;
+  expires_at: string;
+  seen_tx?: string | null;
+  received_crypto?: number | null;
+  settlement_tx?: string | null;
+  merchant_amount?: number | null;
+  events?: { event: string; at: string }[];
+}
+
+export interface SdFundingCoin {
+  coin: string;
+  label: string;
+  network: string;
+  stable: boolean;
+  cheap: boolean;
+  buyer_pays: number;
+  network_fee: number;
+  conversion_fee: number;
+}
+
+export interface SdFunding {
+  status: string;
+  coins: SdFundingCoin[];
+  payment: SdFundingPayment | null;
+  funded_at?: string | null;
+  funding_coin?: string | null;
+  funding_tx_hash?: string | null;
+  funding_settled_at?: string | null;
+  custody_amount_stable?: number | null;
+  live: boolean;
+}
+
+export interface SdPayoutPref {
+  address_id: number;
+  set_at: string;
+  before_funding: boolean;
+  address?: Pick<SdAddress, "address_id" | "payout_key" | "address" | "label" | "usable_at" | "created_at"> | null;
 }
 
 export interface SdDeal extends EscrowDeal {
@@ -92,7 +173,31 @@ export interface SdDeal extends EscrowDeal {
   funding_link_ref?: string | null;
   checkout_url?: string | null;
   buyer_balance?: SdBalances;
-  checkout?: { ref: string; url: string; amount: number };
+  funding_payment?: SdFundingPayment | null;
+  funding_settled_at?: string | null;
+  custody_realized_usd?: number | null;
+  payout_prefs?: Record<string, SdPayoutPref> | null;
+  my_addresses?: Pick<SdAddress, "address_id" | "payout_key" | "address" | "label" | "usable_at" | "created_at">[];
+  my_payout_pref?: SdPayoutPref | null;
+  // Batch 2/3
+  deal_type?: SdDealType | null;
+  delivery_due_at?: string | null;
+  revision_round?: number;
+  revision_note?: string | null;
+  max_revision_rounds?: number;
+  amended_at?: string | null;
+  invite_resent_at?: string | null;
+  delivery_proof?: SdDeliveryProof | null;
+  price_currency?: string | null;
+  price_amount?: number | null;
+  fx_rate?: number | null;
+  fx_locked_at?: string | null;
+  attachments?: SdAttachment[];
+  counterparty?: SdCounterparty;
+}
+
+export interface SdFeePreview extends FeeBreakdown {
+  price?: { currency: string; amount: number; rate: number; usd: number; indicative: boolean } | null;
 }
 
 export interface SdDealPreview {
@@ -139,6 +244,8 @@ export interface SdAddress {
   label: string | null;
   last_used_at: string | null;
   created_at: string;
+  /** created_at + cooling-off window; withdrawals to this address are blocked before then. */
+  usable_at?: string;
 }
 
 export interface SdWithdrawal {
@@ -155,6 +262,8 @@ export interface SdWithdrawal {
   sent_at: string | null;
   rejected_reason: string | null;
   created_at: string;
+  source?: string;
+  escrow_id?: number | null;
   customer_email?: string | null;
 }
 
@@ -162,18 +271,35 @@ export interface SdWallet extends Partial<SdBalances> {
   wallet: SdBalances;
   addresses: SdAddress[];
   withdrawals: SdWithdrawal[];
-  profile: { auto_withdraw: boolean; auto_withdraw_address_id: number | null };
+  profile: { auto_withdraw: boolean; auto_withdraw_address_id: number | null; parked_payout_usd?: number };
   limits: { min_withdrawal_usd: number; approval_threshold_usd: number };
   payout_options: SdConfig["payout_options"];
 }
 
 export type SdDealAction =
-  | "accept" | "decline" | "cancel" | "fund" | "fund-balance" | "checkout" | "deliver" | "release"
+  | "accept" | "decline" | "cancel" | "fund" | "fund-balance" | "deliver" | "release"
+  | "request-changes" | "amend" | "resend-invite"
   | "dispute" | "dispute-counter" | "dispute-accept" | "dispute-message" | "dispute-escalate";
+
+export interface SdCreateDealBody {
+  title: string;
+  amount: number;
+  price_currency?: string;
+  my_role: "buyer" | "seller";
+  counterparty_email: string;
+  fee_payer: "buyer" | "seller" | "split";
+  auto_release_days: number;
+  deal_type?: SdDealType;
+  delivery_due_at?: string | null;
+  description?: string;
+  terms?: string;
+}
+
+export type SdAmendBody = Partial<Pick<SdCreateDealBody, "title" | "amount" | "price_currency" | "fee_payer" | "auto_release_days" | "deal_type" | "delivery_due_at" | "terms" | "description">>;
 
 export const safedealApi = {
   config: async (): Promise<SdConfig> => unwrap(await client.get("/config")),
-  feePreview: async (body: { amount: number; fee_payer: string }): Promise<FeeBreakdown> => unwrap(await client.post("/fee-preview", body)),
+  feePreview: async (body: { amount: number; fee_payer: string; price_currency?: string }): Promise<SdFeePreview> => unwrap(await client.post("/fee-preview", body)),
   sendCode: async (email: string): Promise<{ email: string; preview_code?: string }> => unwrap(await client.post("/auth/send-code", { email })),
   verifyCode: async (email: string, code: string): Promise<{ token: string; user: SdUser }> => unwrap(await client.post("/auth/verify-code", { email, code })),
   stepUp: async (): Promise<{ preview_code?: string }> => unwrap(await client.post("/auth/step-up", {})),
@@ -181,10 +307,7 @@ export const safedealApi = {
   updateProfile: async (body: { auto_withdraw?: boolean; auto_withdraw_address_id?: number | null; display_name?: string }) => unwrap(await client.post("/profile", body)),
 
   listDeals: async (status?: string, role?: string): Promise<SdDeal[]> => unwrap(await client.get("/deals", { params: { status, role } })),
-  createDeal: async (body: {
-    title: string; amount: number; my_role: "buyer" | "seller"; counterparty_email: string;
-    fee_payer: "buyer" | "seller" | "split"; auto_release_days: number; description?: string; terms?: string;
-  }): Promise<SdDeal> => unwrap(await client.post("/deals", body)),
+  createDeal: async (body: SdCreateDealBody): Promise<SdDeal> => unwrap(await client.post("/deals", body)),
   previewDeal: async (token: string): Promise<SdDealPreview> => unwrap(await client.get(`/deals/${token}/preview`)),
   getDeal: async (token: string): Promise<SdDeal> => unwrap(await client.get(`/deals/${token}`)),
   act: async (token: string, body: { action: SdDealAction } & Record<string, unknown>): Promise<{ deal: SdDeal; message: string }> => {
@@ -195,9 +318,43 @@ export const safedealApi = {
     raise: async (b: DisputeProposalInput) => { const r = await safedealApi.act(token, { action: "dispute", ...b }); onDeal(r.deal); return r.deal; },
     counter: async (b: DisputeProposalInput) => { const r = await safedealApi.act(token, { action: "dispute-counter", ...b }); onDeal(r.deal); return r.deal; },
     accept: async () => { const r = await safedealApi.act(token, { action: "dispute-accept" }); onDeal(r.deal); return r.deal; },
-    message: async (message: string) => { const r = await safedealApi.act(token, { action: "dispute-message", message }); onDeal(r.deal); return r.deal; },
+    message: async (message: string, attachment_ids?: number[]) => { const r = await safedealApi.act(token, { action: "dispute-message", message, attachment_ids }); onDeal(r.deal); return r.deal; },
     escalate: async () => { const r = await safedealApi.act(token, { action: "dispute-escalate" }); onDeal(r.deal); return r.deal; },
+    upload: (file: File, onProgress?: (pct: number) => void) => safedealApi.uploadFile(token, file, onProgress),
+    open: (id: number) => safedealApi.openFile(token, id),
   }),
+
+  /** Evidence upload (multipart) → pending attachment; bind it via the next deal action's attachment_ids. */
+  uploadFile: async (token: string, file: File, onProgress?: (pct: number) => void): Promise<SdAttachment> => {
+    const form = new FormData();
+    form.append("file", file);
+    const res = await client.post(`/deals/${token}/files`, form, {
+      headers: { "Content-Type": "multipart/form-data" },
+      onUploadProgress: (e) => onProgress?.(e.total ? Math.round((e.loaded / e.total) * 100) : 0),
+    });
+    return res.data.data as SdAttachment;
+  },
+  fileBlob: async (token: string, id: number): Promise<Blob> => (await client.get(`/deals/${token}/files/${id}`, { responseType: "blob" })).data as Blob,
+  /** Files are private (session header) — fetch as a blob and open in a new tab. */
+  openFile: async (token: string, id: number): Promise<void> => {
+    const blob = await safedealApi.fileBlob(token, id);
+    const url = URL.createObjectURL(blob);
+    window.open(url, "_blank", "noopener");
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  },
+  dealPdf: async (token: string): Promise<Blob> => (await client.get(`/deals/${token}/summary.pdf`, { responseType: "blob" })).data as Blob,
+
+  /** Funding via Dynopay's Merchant API: coin list + current payment (buyer only). */
+  funding: async (token: string): Promise<SdFunding> => unwrap(await client.get(`/deals/${token}/funding`)),
+  createFunding: async (token: string, coin: string): Promise<{ funding: SdFunding; message: string }> => {
+    const res = await client.post(`/deals/${token}/funding`, { coin });
+    return { funding: res.data.data as SdFunding, message: res.data.message as string };
+  },
+  /** Where my payout/refund should go for this deal — a saved address, or a new one (needs a step-up code). */
+  setPayoutDestination: async (token: string, body: { address_id?: number; payout_key?: string; address?: string; label?: string; code?: string }): Promise<{ deal: SdDeal; message: string }> => {
+    const res = await client.post(`/deals/${token}/payout-destination`, body);
+    return { deal: res.data.data as SdDeal, message: res.data.message as string };
+  },
 
   wallet: async (): Promise<SdWallet> => unwrap(await client.get("/wallet")),
   statement: async (params: { from?: string; to?: string; limit?: number } = {}): Promise<{ wallet: SdBalances; entries: SdStatementRow[] }> =>

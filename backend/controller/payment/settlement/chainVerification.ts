@@ -553,7 +553,8 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
         const { totalDeduction, minForwarding, fixedFee, transactionFee, feeFreeApplied, feeFreeDiscount } = await calculateTransactionFees(
           tempCurrency,
           feeCalcBasisUSD,  // Use base amount for consistent fee tier selection
-          verifyUserId  // Pass userId for fee-free discount
+          verifyUserId,  // Pass userId for fee-free discount
+          customerData?.company_id || tempData?.company_id  // First-party brands (SafeDeal) are fee-exempt
         );
         
         if (feeFreeApplied) {

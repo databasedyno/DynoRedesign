@@ -370,7 +370,8 @@ const addPayment = async (req: express.Request, res: express.Response) => {
             const { totalDeduction, fixedFee, transactionFee, feeFreeApplied } = await calculateTransactionFees(
               value.currency,
               baseAmountUSD,  // Fee calculation based on USD amount
-              Number(items.adm_id) || undefined  // Pass userId for fee-free discount
+              Number(items.adm_id) || undefined,  // Pass userId for fee-free discount
+              items.company_id  // First-party brands (SafeDeal) are fee-exempt
             );
             
             const feePercentage = baseAmountUSD > 0 ? toNumber(div(totalDeduction, baseAmountUSD), 8) : 0;
@@ -1804,7 +1805,9 @@ const processIncompletePayments = async () => {
               // COMPANY PAYS FEES MODE (default)
               const { totalDeduction, minForwarding } = await calculateTransactionFees(
                 tempTx.wallet_type,
-                totalReceived
+                totalReceived,
+                undefined,
+                tempTx.company_id
               );
 
               if (Number(totalReceived) < Number(minForwarding)) {
@@ -2001,7 +2004,9 @@ const processIncompletePayments = async () => {
               // COMPANY PAYS FEES MODE (default)
               const { totalDeduction, minForwarding } = await calculateTransactionFees(
                 tempTx.wallet_type,
-                Number(tempTx.amount)
+                Number(tempTx.amount),
+                undefined,
+                tempTx.company_id
               );
 
               if (Number(tempTx.amount) < Number(minForwarding)) {

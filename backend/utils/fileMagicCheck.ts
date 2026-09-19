@@ -46,6 +46,23 @@ const DANGEROUS_SIGS: Array<{ label: string; offset: number; bytes: number[] }> 
  * a failed read is treated as "unknown, allow" so an unrelated fs blip
  * doesn't lock out uploads. If you want strict fail-closed, wrap the caller.
  */
+/** Same check against an in-memory buffer (multer memoryStorage uploads). */
+export function magicSniffBuffer(buf: Buffer): string | null {
+  const head = buf.subarray(0, 16);
+  for (const sig of DANGEROUS_SIGS) {
+    if (head.length < sig.offset + sig.bytes.length) continue;
+    let ok = true;
+    for (let i = 0; i < sig.bytes.length; i++) {
+      if (head[sig.offset + i] !== sig.bytes[i]) {
+        ok = false;
+        break;
+      }
+    }
+    if (ok) return sig.label;
+  }
+  return null;
+}
+
 export async function magicSniff(filepath: string): Promise<string | null> {
   try {
     const buf = Buffer.alloc(16);

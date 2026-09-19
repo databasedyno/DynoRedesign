@@ -1621,7 +1621,8 @@ const createCryptoPayment = async (
         const { totalDeduction, fixedFee, transactionFee, feeFreeApplied } = await calculateTransactionFees(
           requestedCurrency,
           baseAmountUSD,  // Fee calculation based on USD amount (ensures correct tier)
-          merchantUserId  // Pass userId for fee-free discount
+          merchantUserId,  // Pass userId for fee-free discount
+          items?.company_id  // First-party brands (SafeDeal) are fee-exempt
         );
         
         if (feeFreeApplied) {

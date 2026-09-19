@@ -203,10 +203,22 @@ const findMatchingTier = (tiers: FeeTier[], amount: number, context: string): Fe
   throw new Error(`No fee tier found for amount ${amount}`);
 };
 
+/** First-party brands (SafeDeal) pay no Dynopay merchant fee — env PLATFORM_FEE_EXEMPT_COMPANY_IDS + SAFEDEAL_COMPANY_ID. */
+export const isPlatformFeeExemptCompany = (companyId?: number | string | null): boolean => {
+  const id = Number(companyId);
+  if (!id) return false;
+  const ids = `${process.env.PLATFORM_FEE_EXEMPT_COMPANY_IDS || ""},${process.env.SAFEDEAL_COMPANY_ID || ""}`
+    .split(",")
+    .map((s) => Number(s.trim()))
+    .filter((n) => n > 0);
+  return ids.includes(id);
+};
+
 export const calculateTransactionFees = async (
   blockchain: string,
   amount: number,
-  userId?: number
+  userId?: number,
+  companyId?: number | string | null
 ) => {
   const config = await getBlockchainConfig(blockchain, userId);
   if (!config) {
@@ -215,6 +227,22 @@ export const calculateTransactionFees = async (
 
   const tiers = (config.tiers || []) as FeeTier[];
   const effectiveTier = findMatchingTier(tiers, amount, 'calculateTransactionFees');
+
+  if (isPlatformFeeExemptCompany(companyId)) {
+    log(`[FeeExempt] Company ${companyId} is a first-party brand — no platform fee on $${amount}`, 'info');
+    return {
+      fixedFee: 0,
+      transactionFee: 0,
+      totalDeduction: 0,
+      userReceives: toNumber(D(amount), 8),
+      tierId: effectiveTier.id ?? 0,
+      minForwarding: config.min_forwarding_amount,
+      feeFreeApplied: false,
+      feeFreeDiscount: 0,
+      feeFreeRemaining: 0,
+      exemptApplied: true,
+    };
+  }
 
   // Exact decimal math (amounts are USD); rounded to 8 dp at the boundary so
   // downstream crypto conversions keep full precision.
@@ -261,6 +289,7 @@ export const calculateTransactionFees = async (
     feeFreeApplied,
     feeFreeDiscount: toNumber(feeFreeDiscountD, 8),
     feeFreeRemaining,
+    exemptApplied: false,
   };
 };
 

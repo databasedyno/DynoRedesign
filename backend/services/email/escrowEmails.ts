@@ -18,9 +18,16 @@ interface DealLike {
   currency: string;
   deal_token: string;
   source?: string | null;
+  price_currency?: string | null;
+  price_amount?: number | string | null;
 }
 
-const money = (d: DealLike) => `${Number(d.amount).toFixed(2)} ${d.currency}`;
+const fmt = (n: number | string) => Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+/** "300.00 EUR (≈ 344.70 USD)" when priced in another fiat, else "300.00 USD". */
+const money = (d: DealLike) =>
+  d.price_currency && d.price_currency !== d.currency && d.price_amount != null
+    ? `${fmt(d.price_amount)} ${d.price_currency} (≈ ${fmt(d.amount)} ${d.currency})`
+    : `${fmt(d.amount)} ${d.currency}`;
 const esc = (s: unknown) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 interface BrandVoice {
@@ -221,4 +228,68 @@ export async function sendEscrowDisputeAgreedEmail(toEmail: string, toName: stri
     `<p>The dispute on <b>${esc(deal.title)}</b> (${money(deal)}) has been <b>resolved by mutual agreement</b>.</p>` +
     `<p>${summary}</p>`;
   await sendEmail(toEmail, toName || toEmail, `Resolved by agreement: ${deal.title}`, message, false, v.opts("shield-green"));
+}
+
+// ── Batch 2: request changes / amend ─────────────────────────────────────────
+
+/** Buyer sent the delivery back for changes — seller must re-deliver. */
+export async function sendEscrowChangesRequestedEmail(toEmail: string, toName: string, deal: DealLike, request: string, round: number, maxRounds: number, url: string): Promise<void> {
+  const v = voice(deal);
+  const message =
+    `<p>The buyer has asked for <b>changes</b> on <b>${esc(deal.title)}</b> (${money(deal)}) — round ${round} of ${maxRounds}.</p>` +
+    `<p><b>What they need:</b><br/>${esc(request)}</p>` +
+    `<p>The inspection timer has been paused and the deal is back to <b>Funded</b>. The money stays held by Dynopay. Make the changes, then mark the deal delivered again on ${v.name}.</p>`;
+  await sendEmail(toEmail, toName || toEmail, `Changes requested: ${deal.title}`, message, false, v.opts("alert", { text: "See what changed", link: url }));
+}
+
+/** Creator changed the terms before funding — counterparty (re-)accepts. */
+export async function sendEscrowAmendedEmail(toEmail: string, toName: string, deal: DealLike, byName: string, changes: string[], needsReaccept: boolean, url: string): Promise<void> {
+  const v = voice(deal);
+  const message =
+    `<p>${esc(byName)} has <b>updated the terms</b> of the escrow deal <b>${esc(deal.title)}</b> (${money(deal)}).</p>` +
+    `<ul>${changes.map((c) => `<li>${esc(c)}</li>`).join("")}</ul>` +
+    (needsReaccept
+      ? `<p>Because you had already accepted, your acceptance was reset — please review the new terms and accept again before the buyer funds the escrow.</p>`
+      : `<p>Review the updated terms on ${v.name} and accept when you're happy.</p>`);
+  await sendEmail(toEmail, toName || toEmail, `Terms updated — please review: ${deal.title}`, message, false, v.opts("shield", { text: "Review the new terms", link: url }));
+}
+
+// ── Batch 3: once-only reminders ─────────────────────────────────────────────
+
+export async function sendEscrowInviteReminderEmail(toEmail: string, deal: DealLike, fromName: string, url: string): Promise<void> {
+  const v = voice(deal);
+  const message =
+    `<p>A quick reminder — ${esc(fromName)} invited you to an escrow deal on ${v.name} a few days ago and it's still waiting for your answer.</p>` +
+    dealLine(deal) +
+    `<p>Nothing is charged until the buyer funds the escrow. If this isn't for you, you can decline in one click.</p>`;
+  await sendEmail(toEmail, toEmail, `Still interested? ${deal.title}`, message, false, v.opts("shield", { text: "Accept or decline", link: url }));
+}
+
+export async function sendEscrowUnfundedReminderEmail(toEmail: string, deal: DealLike, buyerPays: number, url: string): Promise<void> {
+  const v = voice(deal);
+  const message =
+    `<p>Both sides have agreed on <b>${esc(deal.title)}</b> (${money(deal)}) — the only thing left is your payment of <b>${fmt(buyerPays)} USD</b> into escrow.</p>` +
+    `<p>The seller won't start until the deal shows <b>Funded</b>. Your money is held by Dynopay and only released when you confirm delivery.</p>`;
+  await sendEmail(toEmail, toEmail, `Ready when you are — fund ${deal.title}`, message, false, v.opts("lock", { text: "Fund the escrow", link: url }));
+}
+
+export async function sendEscrowInspectionEndingEmail(toEmail: string, deal: DealLike, autoReleaseAt: Date, url: string): Promise<void> {
+  const v = voice(deal);
+  const when = autoReleaseAt.toUTCString().replace(/:\d\d GMT$/, " UTC");
+  const message =
+    `<p>Your inspection period for <b>${esc(deal.title)}</b> (${money(deal)}) ends in about <b>24 hours</b> (${esc(when)}).</p>` +
+    `<p>If you do nothing, the funds release to the seller automatically. Happy with the delivery? Release now. Something wrong? Ask for changes or open a dispute on ${v.name} before the timer ends.</p>`;
+  await sendEmail(toEmail, toEmail, `24 hours left to check: ${deal.title}`, message, false, v.opts("truck", { text: "Review the delivery", link: url }));
+}
+
+export async function sendEscrowDeliveryOverdueEmail(toEmail: string, deal: DealLike, role: "buyer" | "seller", dueAt: Date, url: string): Promise<void> {
+  const v = voice(deal);
+  const due = dueAt.toUTCString().slice(0, 16);
+  const message =
+    role === "seller"
+      ? `<p>The delivery date you agreed for <b>${esc(deal.title)}</b> (${money(deal)}) — <b>${esc(due)}</b> — has passed and the deal isn't marked delivered yet.</p>` +
+        `<p>The escrow is funded and waiting. Deliver and mark it delivered on ${v.name}, or message the buyer if you need more time.</p>`
+      : `<p>The delivery date agreed for <b>${esc(deal.title)}</b> (${money(deal)}) — <b>${esc(due)}</b> — has passed without the seller marking it delivered.</p>` +
+        `<p>Your money is still safely held by Dynopay. You can wait, or request a cancellation / open a dispute on ${v.name}.</p>`;
+  await sendEmail(toEmail, toEmail, `Delivery overdue: ${deal.title}`, message, false, v.opts("alert", { text: "Open the deal", link: url }));
 }

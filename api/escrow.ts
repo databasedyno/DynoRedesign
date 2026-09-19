@@ -124,6 +124,18 @@ export interface EscrowDeal {
   created_by?: string;
   brand?: string;
   has_account?: boolean;
+  // SafeDeal Batch 2/3 (present on every deal; null for legacy rows)
+  deal_type?: string | null;
+  delivery_due_at?: string | null;
+  revision_round?: number;
+  revision_note?: string | null;
+  max_revision_rounds?: number;
+  delivery_proof?: { note?: string | null; links?: string[]; tracking?: { carrier?: string | null; number: string } | null; attachment_ids?: number[] } | null;
+  price_currency?: string | null;
+  price_amount?: number | null;
+  fx_rate?: number | null;
+  fx_locked_at?: string | null;
+  attachments?: EscrowAttachment[];
 }
 
 export interface ActivityEntry {
@@ -153,6 +165,8 @@ export interface DisputeThreadEntry {
   split_percent_seller?: number | null;
   message?: string | null;
   reason?: string | null;
+  /** Evidence files attached to this entry (ids resolve against deal.attachments). */
+  attachment_ids?: number[];
 }
 
 /** A proposed dispute resolution, sent when raising or countering. */
@@ -162,6 +176,18 @@ export interface DisputeProposalInput {
   message?: string;
   reason?: string;
   kind?: "cancellation";
+  attachment_ids?: number[];
+}
+
+export interface EscrowAttachment {
+  attachment_id: number;
+  name: string;
+  type: string;
+  size: number;
+  context: string;
+  ref: string | null;
+  by: string | null;
+  created_at: string;
 }
 
 const unwrap = (res: any) => res?.data?.data;
@@ -188,6 +214,14 @@ export const escrowAdminApi = {
   runPayoutReminders: async (): Promise<any> => unwrap(await adminBaseApi.post("/escrow/admin/run-payout-reminders", {})),
   runDisputeEscalations: async (): Promise<{ escalated: number[]; count: number }> =>
     unwrap(await adminBaseApi.post("/escrow/admin/run-dispute-escalations", {})),
+  runSafeDealReminders: async (): Promise<{ count: number }> => unwrap(await adminBaseApi.post("/safedeal/admin/run-reminders", {})),
+  /** Private evidence file → blob (admin token attached by adminBaseApi). */
+  openFile: async (id: number): Promise<void> => {
+    const res = await adminBaseApi.get(`/safedeal/admin/files/${id}`, { responseType: "blob" });
+    const url = URL.createObjectURL(res.data as Blob);
+    window.open(url, "_blank", "noopener");
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  },
 };
 
 export default escrowAdminApi;

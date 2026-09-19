@@ -7,6 +7,7 @@ import { money } from "@/Components/Page/Escrow/escrowUtils";
 import { TABULAR, absTime, relTime, useNow, withdrawalStatusLabel } from "./sdFormat";
 import { useRequireSdSession } from "./sdRouting";
 import { SD_AMBER, SD_INK, SD_INK_MUTED } from "./SafeDealShell";
+import { StepUpDialog } from "./StepUpDialog";
 
 const card = { p: { xs: 2, md: 2.5 }, borderRadius: 3, backgroundColor: "#fff", border: "1px solid #E5E7EB" } as const;
 const primaryBtn = { textTransform: "none", fontWeight: 800, borderRadius: 99, backgroundColor: BRAND_ACCENT, "&:hover": { backgroundColor: "#3730A3" } } as const;
@@ -19,6 +20,7 @@ const KIND_LABEL: Record<string, string> = {
   escrow_fee: "Escrow fee",
   escrow_costs: "Network & exchange costs",
   release_received: "Release received",
+  payout: "Deal payout sent",
   withdrawal: "Withdrawal",
   withdrawal_reversed: "Withdrawal reversed",
   adjustment_credit: "Adjustment (credit)",
@@ -117,6 +119,12 @@ export default function Wallet() {
             </Button>
             <Typography sx={{ fontSize: 11.5, color: SD_INK_MUTED, mt: 1 }}>Min ${w.limits.min_withdrawal_usd} · withdrawals above ${w.limits.approval_threshold_usd.toLocaleString()} are reviewed first</Typography>
           </Box>
+          {(w.profile.parked_payout_usd || 0) > 0 && (
+            <Alert severity="info" icon={<Icon icon="mdi:clock-fast" />} sx={{ mt: 1.5, borderRadius: 2.5 }} data-testid="sd-parked-payout">
+              <b>{money(w.profile.parked_payout_usd || 0)}</b> from a closed deal is waiting to be paid out.{" "}
+              {w.addresses.length === 0 ? "Add a payout address and it's sent automatically — the network fee is already covered." : "It goes out automatically as soon as your newest address clears its safety hold."}
+            </Alert>
+          )}
 
           <Box sx={{ ...card, mt: 2.5 }} data-testid="sd-addresses">
             <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
@@ -201,13 +209,16 @@ export default function Wallet() {
 
           {w.withdrawals.length > 0 && (
             <Box sx={{ ...card, mt: 2.5 }} data-testid="sd-withdrawals">
-              <Typography sx={{ fontWeight: 800, fontSize: 15, mb: 1 }}>Withdrawals</Typography>
+              <Typography sx={{ fontWeight: 800, fontSize: 15, mb: 1 }}>Withdrawals &amp; payouts</Typography>
               <Stack spacing={0.8}>
                 {w.withdrawals.map((x) => (
-                  <Stack key={x.withdrawal_id} direction="row" spacing={1.5} alignItems="center" data-testid={`sd-withdrawal-${x.withdrawal_id}`} sx={{ py: 0.8, borderBottom: "1px solid #F3F4F6" }}>
+                  <Stack key={x.withdrawal_id} direction="row" spacing={1.5} alignItems="center" data-testid={`sd-withdrawal-${x.withdrawal_id}`} data-source={x.source || "manual"} sx={{ py: 0.8, borderBottom: "1px solid #F3F4F6" }}>
                     <Box sx={{ flex: 1 }}>
-                      <Typography sx={{ fontSize: 13.5, fontWeight: 700, ...TABULAR }}>#{x.withdrawal_id} · {money(Number(x.amount_usd))} → {shortAddr(x.address)} <span style={{ color: "#6B7280", fontWeight: 500 }}>({x.payout_key})</span></Typography>
-                      <Typography sx={{ fontSize: 12, color: "#6B7280", ...TABULAR }}><Tooltip title={absTime(x.created_at)}><time dateTime={x.created_at}>{relTime(x.created_at, now)}</time></Tooltip> · fee {money(Number(x.fee_usd))} · you receive {money(Number(x.net_usd))}{x.tx_hash ? ` · ${x.tx_hash.slice(0, 22)}…` : ""}{x.rejected_reason ? ` · ${x.rejected_reason}` : ""}</Typography>
+                      <Typography sx={{ fontSize: 13.5, fontWeight: 700, ...TABULAR }}>
+                        {x.source === "settlement" && <Chip size="small" label={x.escrow_id ? `Deal #${x.escrow_id} payout` : "Deal payout"} sx={{ mr: 0.8, fontSize: 10.5, fontWeight: 800, height: 20, backgroundColor: "#EEF2FF", color: "#3730A3" }} />}
+                        #{x.withdrawal_id} · {money(Number(x.amount_usd))} → {shortAddr(x.address)} <span style={{ color: "#6B7280", fontWeight: 500 }}>({x.payout_key})</span>
+                      </Typography>
+                      <Typography sx={{ fontSize: 12, color: "#6B7280", ...TABULAR }}><Tooltip title={absTime(x.created_at)}><time dateTime={x.created_at}>{relTime(x.created_at, now)}</time></Tooltip> · {x.source === "settlement" ? "network fee covered by the deal" : `fee ${money(Number(x.fee_usd))}`} · you receive {money(Number(x.net_usd))}{x.tx_hash ? ` · ${x.tx_hash.slice(0, 22)}…` : ""}{x.rejected_reason ? ` · ${x.rejected_reason}` : ""}</Typography>
                     </Box>
                     <Chip size="small" label={withdrawalStatusLabel(x.status)} data-testid={`sd-withdrawal-status-${x.withdrawal_id}`} data-status={x.status} sx={{ fontWeight: 800, fontSize: 11, backgroundColor: x.status === "sent" ? "#ECFDF5" : x.status === "rejected" ? "#FEF2F2" : "#FEF3C7", color: x.status === "sent" ? "#047857" : x.status === "rejected" ? "#B91C1C" : "#92400E" }} />
                   </Stack>
@@ -236,60 +247,6 @@ export default function Wallet() {
         <Alert severity={toast?.severity || "success"} onClose={() => setToast(null)} data-testid="sd-toast" sx={{ fontWeight: 600 }}>{toast?.msg}</Alert>
       </Snackbar>
     </Container>
-  );
-}
-
-/** Reusable "request code → enter code → confirm" dialog for sensitive actions. */
-function StepUpDialog({ title, body, confirmLabel, testid, onClose, onConfirm, onError, children, disabled }: {
-  title: string; body?: string; confirmLabel: string; testid: string; onClose: () => void;
-  onConfirm: (code: string) => Promise<void>; onError: (m: string) => void; children?: React.ReactNode; disabled?: boolean;
-}) {
-  const [code, setCode] = useState("");
-  const [preview, setPreview] = useState<string | null>(null);
-  const [sent, setSent] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const send = async () => {
-    setBusy(true);
-    try {
-      const r = await safedealApi.stepUp();
-      setPreview(r.preview_code || null);
-      setSent(true);
-    } catch (e) {
-      onError(sdError(e));
-    } finally {
-      setBusy(false);
-    }
-  };
-  const confirm = async () => {
-    setBusy(true);
-    try {
-      await onConfirm(code.trim());
-    } catch (e) {
-      onError(sdError(e));
-    } finally {
-      setBusy(false);
-    }
-  };
-  return (
-    <Dialog open onClose={busy ? undefined : onClose} maxWidth="xs" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
-      <DialogTitle sx={{ fontWeight: 800 }}>{title}</DialogTitle>
-      <DialogContent data-testid={`${testid}-dialog`}>
-        {body && <Typography sx={{ fontSize: 13.5, color: "#4B5563", mb: 1.5 }}>{body}</Typography>}
-        {children}
-        <Box sx={{ mt: 1.5, p: 1.5, borderRadius: 2, backgroundColor: "#F9FAFB", border: "1px solid #E5E7EB" }}>
-          <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between" sx={{ mb: sent ? 1 : 0 }}>
-            <Typography sx={{ fontSize: 12.5, color: "#4B5563" }}><Icon icon="mdi:shield-lock-outline" width={14} style={{ verticalAlign: -2 }} /> Confirm with a one-time email code</Typography>
-            <Button size="small" disabled={busy} onClick={() => void send()} data-testid={`${testid}-send-code`} sx={{ textTransform: "none", fontWeight: 700 }}>{sent ? "Resend" : "Send code"}</Button>
-          </Stack>
-          {preview && <Alert severity="info" sx={{ mb: 1, py: 0 }} data-testid={`${testid}-preview-code`}>Preview: your code is <b>{preview}</b></Alert>}
-          {sent && <TextField size="small" fullWidth label="6-digit code" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))} inputProps={{ "data-testid": `${testid}-code`, inputMode: "numeric" }} />}
-        </Box>
-      </DialogContent>
-      <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button onClick={onClose} disabled={busy} sx={{ textTransform: "none" }}>Cancel</Button>
-        <Button variant="contained" disabled={busy || disabled || code.length < 6} onClick={() => void confirm()} data-testid={`${testid}-confirm`} sx={primaryBtn}>{busy ? "Working…" : confirmLabel}</Button>
-      </DialogActions>
-    </Dialog>
   );
 }
 

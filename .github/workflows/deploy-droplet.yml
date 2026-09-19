@@ -91,7 +91,7 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           username: root
           key: ${{ secrets.DEPLOY_SSH_KEY }}
-          envs: GITHUB_ACTOR,GHCR_TOKEN,GITHUB_SHA
+          envs: GITHUB_ACTOR,GHCR_TOKEN,GITHUB_SHA,SAFEDEAL_API_KEY,SAFEDEAL_WEBHOOK_SECRET
           script: |
             set -e
             cd /opt/dynopay
@@ -100,6 +100,10 @@ jobs:
             [ -z "$(tail -c1 .env)" ] || echo >> .env
             grep -q '^SAFEDEAL_COMPANY_ID=' .env || echo 'SAFEDEAL_COMPANY_ID=262' >> .env
             grep -q '^SAFEDEAL_URL=' .env || echo 'SAFEDEAL_URL=https://safedeal.sh' >> .env
+            # SafeDeal is an API-key merchant of Dynopay (funding via /api/user/cryptoPayment + signed webhooks).
+            # Secrets come from GitHub → repo secrets SAFEDEAL_API_KEY / SAFEDEAL_WEBHOOK_SECRET (written once, never overwritten).
+            if [ -n "$SAFEDEAL_API_KEY" ] && ! grep -q '^SAFEDEAL_API_KEY=' .env; then echo "SAFEDEAL_API_KEY=$SAFEDEAL_API_KEY" >> .env; fi
+            if [ -n "$SAFEDEAL_WEBHOOK_SECRET" ] && ! grep -q '^SAFEDEAL_WEBHOOK_SECRET=' .env; then echo "SAFEDEAL_WEBHOOK_SECRET=$SAFEDEAL_WEBHOOK_SECRET" >> .env; fi
             if ! grep -q 'safedeal.sh' /etc/caddy/Caddyfile; then
               cp /etc/caddy/Caddyfile /etc/caddy/Caddyfile.bak.$(date +%s)
               printf '\nwww.safedeal.sh {\n\tredir https://safedeal.sh{uri} permanent\n}\n\nsafedeal.sh {\n\tencode gzip zstd\n\treverse_proxy 127.0.0.1:8001\n}\n' >> /etc/caddy/Caddyfile
@@ -122,6 +126,8 @@ jobs:
           GITHUB_ACTOR: ${{ github.actor }}
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_SHA: ${{ github.sha }}
+          SAFEDEAL_API_KEY: ${{ secrets.SAFEDEAL_API_KEY }}
+          SAFEDEAL_WEBHOOK_SECRET: ${{ secrets.SAFEDEAL_WEBHOOK_SECRET }}
 
       - name: Wait for the new container to serve traffic
         run: |

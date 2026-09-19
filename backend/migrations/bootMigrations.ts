@@ -713,6 +713,86 @@ const addSafeDealTables = async (): Promise<void> => {
   );
 };
 
+
+/**
+ * 0039 — SafeDeal evidence attachments + delivery proof + multi-fiat pricing.
+ * Additive: new tbl_escrow_attachment (private object keys, never public URLs)
+ * and nullable columns on tbl_escrow_deal. Idempotent, safe on live prod.
+ */
+const addSafeDealAttachmentsAndPricing = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `ALTER TABLE "tbl_escrow_deal"
+       ADD COLUMN IF NOT EXISTS "delivery_proof" JSONB,
+       ADD COLUMN IF NOT EXISTS "price_currency" VARCHAR(8),
+       ADD COLUMN IF NOT EXISTS "price_amount" DECIMAL(18,2),
+       ADD COLUMN IF NOT EXISTS "fx_rate" DECIMAL(18,8),
+       ADD COLUMN IF NOT EXISTS "fx_locked_at" TIMESTAMPTZ`
+  );
+  await sequelize.query(
+    `CREATE TABLE IF NOT EXISTS "tbl_escrow_attachment" (
+       "attachment_id" SERIAL PRIMARY KEY,
+       "escrow_id" INTEGER NOT NULL,
+       "company_id" INTEGER,
+       "uploaded_by_role" VARCHAR(8),
+       "uploaded_by_email" VARCHAR(255),
+       "context" VARCHAR(16) NOT NULL DEFAULT 'pending',
+       "ref" VARCHAR(32),
+       "file_name" VARCHAR(255) NOT NULL,
+       "mime" VARCHAR(80) NOT NULL,
+       "size_bytes" INTEGER NOT NULL DEFAULT 0,
+       "storage" VARCHAR(8) NOT NULL,
+       "storage_key" VARCHAR(400) NOT NULL,
+       "created_at" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+     )`
+  );
+  await sequelize.query(`CREATE INDEX IF NOT EXISTS "idx_escrow_attachment_deal" ON "tbl_escrow_attachment" ("escrow_id", "context")`);
+};
+
+/**
+ * 0040 — SafeDeal deal terms: deal type, delivery due date, revision rounds
+ * ("request changes"), amend/resend bookkeeping and once-only reminder stamps.
+ * Additive + idempotent, safe on live prod.
+ */
+const addSafeDealDealTerms = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `ALTER TABLE "tbl_escrow_deal"
+       ADD COLUMN IF NOT EXISTS "deal_type" VARCHAR(16),
+       ADD COLUMN IF NOT EXISTS "delivery_due_at" TIMESTAMPTZ,
+       ADD COLUMN IF NOT EXISTS "revision_round" INTEGER NOT NULL DEFAULT 0,
+       ADD COLUMN IF NOT EXISTS "revision_note" TEXT,
+       ADD COLUMN IF NOT EXISTS "amended_at" TIMESTAMPTZ,
+       ADD COLUMN IF NOT EXISTS "invite_resent_at" TIMESTAMPTZ,
+       ADD COLUMN IF NOT EXISTS "reminders" JSONB`
+  );
+};
+
+/**
+ * 0041 — SafeDeal funding via Dynopay Merchant API + Binance custody hold + payout at close.
+ *  - tbl_escrow_deal.funding_payment (Direct-API payment: address/QR/status), payout_prefs
+ *    (per-party payout destination), custody_realized_usd/at (USDT realised after auto-convert),
+ *    funding_settled_at.
+ *  - tbl_safedeal_profile.parked_payout_usd: settlement waiting for a payout address.
+ *  - tbl_customer_withdrawal.escrow_id: payouts link back to their deal.
+ *  - conversion status HELD: SafeDeal deposits stay on Binance after conversion (no Phase 3 withdrawal).
+ * Additive + idempotent, safe on live prod.
+ */
+const addSafeDealApiFunding = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `ALTER TABLE "tbl_escrow_deal"
+       ADD COLUMN IF NOT EXISTS "funding_payment" JSONB,
+       ADD COLUMN IF NOT EXISTS "payout_prefs" JSONB,
+       ADD COLUMN IF NOT EXISTS "custody_realized_usd" NUMERIC(18,2),
+       ADD COLUMN IF NOT EXISTS "custody_realized_at" TIMESTAMPTZ,
+       ADD COLUMN IF NOT EXISTS "funding_settled_at" TIMESTAMPTZ`
+  );
+  await sequelize.query(`ALTER TABLE "tbl_safedeal_profile" ADD COLUMN IF NOT EXISTS "parked_payout_usd" NUMERIC(18,2) NOT NULL DEFAULT 0`);
+  await sequelize.query(`ALTER TABLE "tbl_customer_withdrawal" ADD COLUMN IF NOT EXISTS "escrow_id" INTEGER`);
+  await sequelize.query(`ALTER TYPE "enum_tbl_stablecoin_conversion_status" ADD VALUE IF NOT EXISTS 'HELD'`);
+};
+
 export async function buildBootMigrations(): Promise<Migration[]> {  const { v1, extra } = await loadBootModelGroups();  return [
     { version: "0001_boot_model_tables", up: syncGroup(v1) },
     { version: "0002_boot_model_tables_extra", up: syncGroup(extra) },
@@ -749,6 +829,9 @@ export async function buildBootMigrations(): Promise<Migration[]> {  const { v1,
     { version: "0036_escrow_settlement_columns", up: addEscrowSettlementColumns },
     { version: "0037_escrow_dispute_negotiation", up: addEscrowDisputeColumns },
     { version: "0038_safedeal", up: addSafeDealTables },
+    { version: "0039_safedeal_attachments_pricing", up: addSafeDealAttachmentsAndPricing },
+    { version: "0040_safedeal_deal_terms", up: addSafeDealDealTerms },
+    { version: "0041_safedeal_api_funding", up: addSafeDealApiFunding },
     ...perfMigrations,
     ...securityMigrations,
   ];

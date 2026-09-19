@@ -35,6 +35,7 @@ import config from "./utils/config";
 import { setupWeeklySummaryCron, setupWalletReminderCron, setupHealthCheckCron, setupRefereeCodeReminderCron, setupPaymentLinkReminderCron, setupOnboardingMonitorCron, setupFirstPaymentMonitorCron } from "./utils/cronJobs";
 import { setupReferralRewardCron } from "./utils/crons/referralRewardMonitor";
 import { setupActivationDripCron } from "./utils/crons/activationDrip";
+import { setupSafeDealMaintenanceCron } from "./utils/crons/safedealMaintenance";
 import { purgeExpiredBrands, remindExpiringBrands } from "./services/brandPurgeService";
 import { purgeExpiredAccounts } from "./services/accountPurgeService";
 import { getOptimizationDiagnostics } from "./services/tronEnergyService";
@@ -1279,6 +1280,9 @@ setupRefereeCodeReminderCron();
 
 // Setup payment link reminder cron job (every hour)
 setupPaymentLinkReminderCron();
+
+// SafeDeal maintenance — hourly auto-release / auto-escalate / once-only reminders
+setupSafeDealMaintenanceCron();
 
 // Onboarding monitor — detects stuck/completed users, emails admin (A + B)
 setupOnboardingMonitorCron();

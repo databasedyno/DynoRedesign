@@ -8,7 +8,7 @@ import type { SdConfig } from "@/api/safedeal";
 const BUYER = [
   { icon: "mdi:lock-check-outline", t: "Your money is held, not sent", b: "Dynopay keeps it in USDT. The seller can't touch it until you release — or the inspection period ends without an objection." },
   { icon: "mdi:magnify-scan", t: "You get time to check", b: "After the seller marks it delivered you have a set number of days to inspect. Raise an issue in that window and the timer stops." },
-  { icon: "mdi:cash-refund", t: "If it never arrives, you're refunded", b: "A deal that's disputed and decided in your favour is refunded to your SafeDeal wallet. Withdraw to your own address any time." },
+  { icon: "mdi:cash-refund", t: "If it never arrives, you're refunded", b: "A deal that's disputed and decided in your favour is refunded straight to your wallet address — or to your SafeDeal balance until you add one." },
 ];
 const SELLER = [
   { icon: "mdi:shield-check-outline", t: "Start only when it's funded", b: "You see 'Funded' before you lift a finger. The money is already in escrow — no chasing invoices." },
@@ -60,10 +60,10 @@ export function faqItems(cfg: SdConfig | null, helpHref: string) {
     { q: "Who holds my money?", a: "Dynopay does, in USDT (a US-dollar stablecoin), in escrow custody. SafeDeal is a Dynopay product — the funds never sit with the other party or with a third-party marketplace." },
     { q: "What if the seller disappears after I pay?", a: "Nothing releases without your action or the end of the inspection period — and the inspection period only starts once the seller marks the deal delivered. If they never deliver, open a dispute from the deal page; an unanswered dispute escalates to the SafeDeal team automatically." },
     { q: "What if I get nothing, or not what was agreed?", a: "Raise an issue during the inspection period. You propose an outcome (refund, partial refund or release), the seller responds, and most cases settle between the two of you. If you can't agree, the SafeDeal team decides based on the terms and the evidence in the deal." },
-    { q: "How do I get paid out?", a: "Released funds land in your SafeDeal wallet in USD value. Add a payout address (USDT or USDC on Tron, Ethereum or Polygon) and withdraw — most withdrawals are sent within minutes; large ones are reviewed first." },
+    { q: "How do I get paid out?", a: "Set a payout address (USDT or USDC on Tron, Ethereum or Polygon) on the deal and the money is sent there automatically the moment the buyer releases — network fee covered by the deal. No address yet? It waits in your SafeDeal balance and goes out as soon as you add one." },
     { q: "What does it cost?", a: `${fee}% of the deal amount, minimum $${feeMin}, plus network and exchange costs shown up-front in the quote. You choose whether the buyer, the seller or both cover the fee. Fees are charged on every outcome, including refunds and agreed cancellations.` },
     { q: "Can I cancel?", a: `Before funding, either side can cancel for free. After funding, one side requests it and the other agrees; the buyer is refunded minus fees and costs. A request that gets no answer for ${hours} hours escalates to the SafeDeal team.` },
-    { q: "Do I need an account or a crypto wallet?", a: "No. You sign in with an email code, and a SafeDeal wallet is created for you. Buyers pay through Dynopay's hosted checkout in any supported coin; sellers only need a payout address when they withdraw." },
+    { q: "Do I need an account or a crypto wallet?", a: "No. You sign in with an email code, and a SafeDeal wallet is created for you. Buyers pay from any wallet or exchange in the coin they choose — the deal page shows the address, amount and live status; sellers only need a payout address to get paid." },
   ].concat([{ q: "Where can I read the full rules?", a: `See the help centre and terms linked in the footer, or go to ${helpHref}.` }]).slice(0, 7);
 }
 

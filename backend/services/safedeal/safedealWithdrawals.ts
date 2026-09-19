@@ -6,7 +6,7 @@
  */
 import crypto from "crypto";
 import { QueryTypes } from "sequelize";
-import { raw as envRaw } from "../../utils/config";
+import { raw as envRaw, num } from "../../utils/config";
 import sequelize from "../../utils/dbInstance";
 import { apiLogger } from "../../utils/loggers";
 import { toFixedStr } from "../../utils/money";
@@ -18,6 +18,8 @@ import { sendSafeDealWithdrawalEmail, sendSafeDealWithdrawalRejectedEmail } from
 
 export const MIN_WITHDRAWAL_USD = Number(envRaw("SAFEDEAL_MIN_WITHDRAWAL_USD")) || 10;
 export const APPROVAL_THRESHOLD_USD = Number(envRaw("SAFEDEAL_WITHDRAWAL_APPROVAL_USD")) || 1000;
+// New-address cooling-off: hours before a freshly saved payout address can receive a withdrawal.
+export const ADDRESS_COOLING_HOURS = num("SAFEDEAL_ADDRESS_COOLING_HOURS", 24);
 
 const round2 = (n: number) => Math.round((Number(n) + Number.EPSILON) * 100) / 100;
 
@@ -32,6 +34,8 @@ export interface PayoutAddressRow {
   label: string | null;
   last_used_at: string | null;
   created_at: string;
+  /** created_at + cooling-off window; withdrawals to this address are blocked before then. */
+  usable_at?: string;
 }
 
 export interface WithdrawalRow {
@@ -54,6 +58,7 @@ export interface WithdrawalRow {
   sent_at: string | null;
   ledger_reference?: string | null;
   source: string;
+  escrow_id?: number | null;
   created_at: string;
   customer_email?: string | null;
 }
@@ -76,8 +81,23 @@ export function validatePayoutAddress(payoutKeyIn: string, addressIn: string): {
 
 export async function listAddresses(customerId: number): Promise<PayoutAddressRow[]> {
   return sequelize.query<PayoutAddressRow>(
-    `SELECT * FROM tbl_customer_payout_address WHERE customer_id = :customerId AND removed_at IS NULL ORDER BY created_at DESC`,
-    { replacements: { customerId }, type: QueryTypes.SELECT }
+    `SELECT *, created_at + (:hours || ' hours')::interval AS usable_at
+       FROM tbl_customer_payout_address WHERE customer_id = :customerId AND removed_at IS NULL ORDER BY created_at DESC`,
+    { replacements: { customerId, hours: String(ADDRESS_COOLING_HOURS) }, type: QueryTypes.SELECT }
+  );
+}
+
+/** New payout addresses can't receive withdrawals until the cooling-off window has passed. */
+export function assertAddressUsable(addr: PayoutAddressRow, now = Date.now()): void {
+  const usableAt = new Date(addr.created_at).getTime() + ADDRESS_COOLING_HOURS * 3600000;
+  const left = usableAt - now;
+  if (left <= 0) return;
+  const totalMin = Math.ceil(left / 60000);
+  const h = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
+  throw new CustomerWalletError(
+    400,
+    `This address was added recently. For your safety, new addresses can be used ${ADDRESS_COOLING_HOURS} hours after they're saved — usable in ${h ? `${h}h ` : ""}${m}m.`
   );
 }
 
@@ -142,7 +162,10 @@ async function dispatchWithdrawal(w: WithdrawalRow): Promise<WithdrawalRow> {
   let simulated = true;
   if (isLiveSettlementEnabled() && opt) {
     const { submitWithdrawal } = await import("../binanceService");
-    const r = await submitWithdrawal({ coin: opt.coin, address: w.address, amount: Number(w.net_usd), network: opt.chain, withdrawOrderId: `sd-wd-${w.withdrawal_id}` });
+    // Binance deducts its network fee FROM the submitted amount. Manual: submit the gross (user receives net).
+    // Settlement payout: the fee was reserved in the deal quote, so submit net + fee (recipient receives the full net).
+    const submitAmount = w.source === "settlement" ? round2(Number(w.net_usd) + withdrawFeeUsdFor(w.payout_key)) : Number(w.amount_usd);
+    const r = await submitWithdrawal({ coin: opt.coin, address: w.address, amount: submitAmount, network: opt.chain, withdrawOrderId: `sd-wd-${w.withdrawal_id}` });
     txHash = `BINANCE-${r.id}`;
     simulated = false;
   }
@@ -161,11 +184,15 @@ async function dispatchWithdrawal(w: WithdrawalRow): Promise<WithdrawalRow> {
 
 export async function requestWithdrawal(
   customer: CustomerRow,
-  input: { address_id: number; amount: number; source?: "manual" | "auto" }
+  input: { address_id: number; amount: number; source?: "manual" | "auto" | "settlement"; escrow_id?: number | null; fee_covered?: boolean; skip_cooling?: boolean; deal_title?: string | null }
 ): Promise<WithdrawalRow> {
   const addr = await loadAddress(customer.customer_id, Number(input.address_id));
+  if (!input.skip_cooling) assertAddressUsable(addr);
   const q = quoteWithdrawal(addr.payout_key, Number(input.amount));
-  if (!Number.isFinite(q.amount) || q.amount < MIN_WITHDRAWAL_USD) throw new CustomerWalletError(400, `Minimum withdrawal is $${MIN_WITHDRAWAL_USD}.`);
+  // Escrow payouts: the withdrawal fee was already collected in the deal quote (cost reserve) — never charge it twice.
+  if (input.fee_covered) { q.fee = 0; q.net = q.amount; }
+  const isSettlement = input.source === "settlement";
+  if (!Number.isFinite(q.amount) || (!isSettlement && q.amount < MIN_WITHDRAWAL_USD)) throw new CustomerWalletError(400, `Minimum withdrawal is $${MIN_WITHDRAWAL_USD}.`);
   if (q.net <= 0) throw new CustomerWalletError(400, `Amount must exceed the ${toFixedStr(q.fee, 2)} USD network fee.`);
   const bal = await getBalances(customer.customer_id);
   if (bal.available < q.amount) throw new CustomerWalletError(400, `Insufficient available balance (${toFixedStr(bal.available, 2)} USD).`);
@@ -173,8 +200,8 @@ export async function requestWithdrawal(
   const ledgerRef = `withdrawal:${crypto.randomUUID()}`;
   const rows = await sequelize.query<WithdrawalRow>(
     `INSERT INTO tbl_customer_withdrawal
-       (company_id, customer_id, address_id, payout_key, address, amount_usd, fee_usd, net_usd, status, requires_approval, ledger_reference, source)
-     VALUES (:companyId, :customerId, :addressId, :payoutKey, :address, :amount, :fee, :net, :status, :requiresApproval, :ledgerRef, :source)
+       (company_id, customer_id, address_id, payout_key, address, amount_usd, fee_usd, net_usd, status, requires_approval, ledger_reference, source, escrow_id)
+     VALUES (:companyId, :customerId, :addressId, :payoutKey, :address, :amount, :fee, :net, :status, :requiresApproval, :ledgerRef, :source, :escrowId)
      RETURNING *`,
     {
       replacements: {
@@ -190,22 +217,28 @@ export async function requestWithdrawal(
         requiresApproval,
         ledgerRef,
         source: input.source || "manual",
+        escrowId: input.escrow_id ?? null,
       },
       type: QueryTypes.SELECT,
     }
   );
   let w = rows[0];
   const opt = ESCROW_PAYOUT_OPTIONS.find((o) => o.key === w.payout_key);
+  const short = `${w.address.slice(0, 6)}…${w.address.slice(-4)}`;
   await applyEntries([
     {
       customer,
       type: "DEBIT",
       amount: q.amount,
-      kind: "withdrawal",
-      description: `Withdrawal to ${opt?.label || w.payout_key} ${w.address.slice(0, 6)}…${w.address.slice(-4)} (fee ${toFixedStr(q.fee, 2)} USD, you receive ${toFixedStr(q.net, 2)} ${opt?.coin || "USDT"})${requiresApproval ? " — awaiting approval" : ""}`,
+      kind: isSettlement ? "payout" : "withdrawal",
+      description: isSettlement
+        ? `Deal payout${input.deal_title ? ` — ${input.deal_title}` : ""} sent to ${opt?.label || w.payout_key} ${short} (network fee covered by the deal)${requiresApproval ? " — awaiting approval" : ""}`
+        : `Withdrawal to ${opt?.label || w.payout_key} ${short} (fee ${toFixedStr(q.fee, 2)} USD, you receive ${toFixedStr(q.net, 2)} ${opt?.coin || "USDT"})${requiresApproval ? " — awaiting approval" : ""}`,
       reference: ledgerRef,
       source: "WITHDRAWAL",
-      meta: { withdrawal_id: w.withdrawal_id, payout_key: w.payout_key, fee: q.fee, net: q.net },
+      escrowId: input.escrow_id ?? undefined,
+      dealTitle: input.deal_title ?? undefined,
+      meta: { withdrawal_id: w.withdrawal_id, payout_key: w.payout_key, fee: q.fee, net: q.net, source: input.source || "manual", escrow_id: input.escrow_id ?? null },
     },
   ]);
   if (!requiresApproval) w = await dispatchWithdrawal(w);
@@ -303,4 +336,93 @@ export async function maybeAutoWithdraw(customerId: number): Promise<WithdrawalR
     apiLogger.error(`[SafeDeal] auto-withdraw failed for customer ${customerId}: ${(err as Error).message}`);
     return null;
   }
+}
+
+// ── Settlement payouts (deal closed → Binance withdrawal to the party's address) ──
+
+export interface PayoutPref { address_id: number; set_at: string; before_funding: boolean }
+
+/** Destination precedence: the address chosen inside the deal → default auto-withdraw address → newest saved address. */
+export async function resolvePayoutDestination(customerId: number, pref?: PayoutPref | null): Promise<{ addr: PayoutAddressRow; skipCooling: boolean } | null> {
+  const addrs = await listAddresses(customerId);
+  if (!addrs.length) return null;
+  if (pref?.address_id) {
+    const a = addrs.find((x) => x.address_id === Number(pref.address_id));
+    if (a) return { addr: a, skipCooling: !!pref.before_funding };
+  }
+  const prof = await sequelize.query<{ auto_withdraw_address_id: number | null }>(
+    `SELECT auto_withdraw_address_id FROM tbl_safedeal_profile WHERE customer_id = :id LIMIT 1`,
+    { replacements: { id: customerId }, type: QueryTypes.SELECT }
+  );
+  const def = prof[0]?.auto_withdraw_address_id ? addrs.find((x) => x.address_id === prof[0].auto_withdraw_address_id) : null;
+  return { addr: def || addrs[addrs.length - 1], skipCooling: false };
+}
+
+export type SettlementPayoutResult =
+  | { mode: "sent"; withdrawal: WithdrawalRow }
+  | { mode: "parked"; reason: "no_address" | "cooling" | "error"; usable_at?: string | null; detail?: string };
+
+/**
+ * Pay a settled leg straight out of custody to the party's address. When that isn't
+ * possible yet (no address / new-address cooling-off), the amount stays in their
+ * SafeDeal balance and is released automatically by releaseParkedPayouts().
+ */
+export async function settlementPayout(customerId: number, amount: number, deal: { escrow_id: number; title: string }, pref?: PayoutPref | null): Promise<SettlementPayoutResult> {
+  const customer = await customerById(customerId);
+  if (!customer) return { mode: "parked", reason: "error", detail: "customer not found" };
+  const dest = await resolvePayoutDestination(customerId, pref);
+  if (!dest) {
+    await parkPayout(customerId, amount);
+    return { mode: "parked", reason: "no_address" };
+  }
+  try {
+    const w = await requestWithdrawal(customer, { address_id: dest.addr.address_id, amount, source: "settlement", escrow_id: deal.escrow_id, fee_covered: true, skip_cooling: dest.skipCooling, deal_title: deal.title });
+    return { mode: "sent", withdrawal: w };
+  } catch (err) {
+    const msg = (err as Error).message || "";
+    await parkPayout(customerId, amount);
+    if (/added recently/i.test(msg)) return { mode: "parked", reason: "cooling", usable_at: dest.addr.usable_at || null };
+    apiLogger.error(`[SafeDeal] settlement payout failed for customer ${customerId}: ${msg}`);
+    return { mode: "parked", reason: "error", detail: msg };
+  }
+}
+
+async function parkPayout(customerId: number, amount: number): Promise<void> {
+  await sequelize.query(
+    `UPDATE tbl_safedeal_profile SET parked_payout_usd = parked_payout_usd + :amt, updated_at = NOW() WHERE customer_id = :id`,
+    { replacements: { amt: toFixedStr(amount, 2), id: customerId }, type: QueryTypes.UPDATE }
+  );
+}
+
+/** Send parked settlement money as soon as the customer has a usable address (called on address add + hourly). */
+export async function releaseParkedPayouts(customerId?: number): Promise<number> {
+  const rows = await sequelize.query<{ customer_id: number; parked_payout_usd: string }>(
+    `SELECT customer_id, parked_payout_usd FROM tbl_safedeal_profile WHERE parked_payout_usd > 0${customerId ? " AND customer_id = :id" : ""} LIMIT 200`,
+    { replacements: { id: customerId ?? null }, type: QueryTypes.SELECT }
+  );
+  let released = 0;
+  for (const r of rows) {
+    const customer = await customerById(r.customer_id);
+    if (!customer) continue;
+    const dest = await resolvePayoutDestination(r.customer_id, null);
+    if (!dest) continue;
+    try { assertAddressUsable(dest.addr); } catch { continue; }
+    const bal = await getBalances(r.customer_id);
+    const amount = Math.min(round2(Number(r.parked_payout_usd)), round2(bal.available));
+    if (amount <= 0) {
+      await sequelize.query(`UPDATE tbl_safedeal_profile SET parked_payout_usd = 0, updated_at = NOW() WHERE customer_id = :id`, { replacements: { id: r.customer_id }, type: QueryTypes.UPDATE });
+      continue;
+    }
+    try {
+      await requestWithdrawal(customer, { address_id: dest.addr.address_id, amount, source: "settlement", fee_covered: true, deal_title: "parked deal payout" });
+      await sequelize.query(`UPDATE tbl_safedeal_profile SET parked_payout_usd = GREATEST(parked_payout_usd - :amt, 0), updated_at = NOW() WHERE customer_id = :id`, {
+        replacements: { amt: toFixedStr(amount, 2), id: r.customer_id },
+        type: QueryTypes.UPDATE,
+      });
+      released++;
+    } catch (err) {
+      apiLogger.error(`[SafeDeal] releasing parked payout for customer ${r.customer_id} failed: ${(err as Error).message}`);
+    }
+  }
+  return released;
 }

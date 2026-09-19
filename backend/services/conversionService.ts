@@ -31,6 +31,7 @@ import { normalizeLang } from "../utils/emailI18n";
 import { assetNetworkLabel } from "../utils/networkLabels";
 import { add, mul, pct, sub, sum, toFixedStr, toNumber } from "../utils/money";
 import { createNotification, NOTIFICATION_TYPES } from "../controller/notificationController";
+import { isSafeDealCompany, onCustodyConverted as onSafeDealCustodyConverted } from "./safedeal/safedealCheckout";
 
 const PAYOUT_STALL_HOURS = 2;   // merchant "running late" email after this many hours in flight
 const MAX_RETRIES = 30;           // ~30 checks after 30-min age gate ≈ hours of patience for slow chains (BTC)
@@ -509,6 +510,10 @@ const processConversions = async (): Promise<number> => {
 
       log(`💰 Fee breakdown for #${data.conversion_id}: platform=$${toFixedStr(platformFeeUsd, 4)}, sweepGas=$${toFixedStr(sweepFeeUsd, 4)}, tradeFee=$${toFixedStr(tradeFeeUsd, 4)}, surplus=$${toFixedStr(platformSurplus, 4)}`);
 
+      // SafeDeal (first-party escrow brand): the USDT stays on Binance as escrow custody —
+      // no Phase 3 withdrawal. Payouts happen at deal close via Binance withdrawal.
+      const holdOnBinance = isSafeDealCompany(data.company_id);
+
       await record.update({
         binance_order_id: String(result.orderId),
         conversion_rate: conversionRate,
@@ -522,9 +527,15 @@ const processConversions = async (): Promise<number> => {
         sweep_fee_usd: sweepFeeUsd,
         conversion_fee: platformFeeUsd, // Update with USD value using actual rate
         merchant_payout_usd: merchantPayoutPreFees, // Will be updated after withdrawal fee deduction
-        status: "CONVERTED",
+        status: holdOnBinance ? "HELD" : "CONVERTED",
         converted_at: new Date(),
+        ...(holdOnBinance ? { completed_at: new Date() } : {}),
       });
+
+      if (holdOnBinance) {
+        log(`🔒 #${data.conversion_id} HELD on Binance as SafeDeal escrow custody ($${toFixedStr(merchantPayoutPreFees, 2)} ${toAsset})`);
+        await onSafeDealCustodyConverted({ ...data, merchant_payout_usd: merchantPayoutPreFees, target_amount: actualSaleUsd, conversion_rate: conversionRate });
+      }
 
       converted++;
     } catch (err) {

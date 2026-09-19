@@ -12,9 +12,10 @@ interface Readiness {
   live_settlement: boolean;
   safedeal_url: string | null;
   brand: { company_id: number; name: string; owner_user_id: number; auto_convert: { enabled: boolean; currency: string | null; chain: string | null; address: string | null } } | null;
-  wallets: { coin: string; address: string; custody: boolean }[];
+  wallets: { coin: string; address: string; custody: boolean; pool_ready?: number }[];
+  api_key?: { configured: boolean; resolves: boolean; company_match: boolean; active: boolean; key_hint: string | null; api_name: string | null; webhook_secret_synced: boolean; webhook_url: string } | null;
   totals: { available_total?: number; held_total?: number; customers?: number; fees_earned?: number; pending_approvals: number } | null;
-  deals: { count: number; active: number; disputed: number; in_custody: number } | null;
+  deals: { count: number; active: number; disputed: number; in_custody: number; realized?: number } | null;
   checks: Check[];
 }
 
@@ -70,6 +71,10 @@ export default function AdminSafeDealReadiness() {
         {tile("Held in escrow", money(Number(data.totals?.held_total ?? data.deals?.in_custody ?? 0)), "escrow-admin-readiness-held")}
         {tile("Available balances", money(Number(data.totals?.available_total ?? 0)), "escrow-admin-readiness-available")}
         {tile("Pending approvals", String(data.totals?.pending_approvals ?? 0), "escrow-admin-readiness-pending")}
+        {tile("SafeDeal profit (escrow fees, on Binance)", money(Number(data.totals?.fees_earned ?? 0)), "escrow-admin-readiness-profit")}
+        {tile("Active deals", `${data.deals?.active ?? 0} / ${data.deals?.count ?? 0}`, "escrow-admin-readiness-deals")}
+        {tile("Realised custody (after conversion)", money(Number(data.deals?.realized ?? 0)), "escrow-admin-readiness-realized")}
+        {tile("API key", data.api_key?.key_hint ? `${data.api_key.key_hint}` : "not set", "escrow-admin-readiness-apikey")}
       </Grid>
 
       <Stack spacing={1}>
@@ -90,10 +95,10 @@ export default function AdminSafeDealReadiness() {
 
       {data.wallets.length > 0 && (
         <Box sx={{ mt: 2.5 }} data-testid="escrow-admin-readiness-wallets">
-          <Typography sx={{ fontWeight: 700, fontSize: 13, mb: 1 }}>Checkout coins on the brand</Typography>
+          <Typography sx={{ fontWeight: 700, fontSize: 13, mb: 1 }}>Funding coins on the brand (wallet = Dynopay custody · pool = ready deposit addresses)</Typography>
           <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
             {data.wallets.map((w) => (
-              <Chip key={w.coin} size="small" label={`${w.coin} · ${w.address}${w.custody ? " · custody" : ""}`} color={w.custody ? "success" : "default"} variant="outlined" sx={{ fontFamily: "monospace", fontSize: 11.5 }} />
+              <Chip key={w.coin} size="small" label={`${w.coin} · ${w.address}${w.custody ? " · custody" : ""}${w.pool_ready != null ? ` · pool ${w.pool_ready}` : ""}`} color={w.custody ? "success" : "default"} variant="outlined" sx={{ fontFamily: "monospace", fontSize: 11.5 }} />
             ))}
           </Stack>
         </Box>

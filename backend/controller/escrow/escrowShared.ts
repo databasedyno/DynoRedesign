@@ -64,9 +64,11 @@ export const ALLOWED_TRANSITIONS: Record<EscrowStatus, EscrowStatus[]> = {
   draft: ["invited", "cancelled"],
   invited: ["awaiting_payment", "declined", "cancelled", "expired"],
   declined: [],
-  awaiting_payment: ["funded", "cancelled", "expired"],
+  // → invited: the creator amended the terms, so the counterparty must re-accept.
+  awaiting_payment: ["funded", "cancelled", "expired", "invited"],
   funded: ["delivered", "disputed", "completed", "refunded", "split"],
-  delivered: ["completed", "disputed", "refunded", "split"],
+  // → funded: the buyer asked for changes; the seller re-delivers.
+  delivered: ["completed", "disputed", "refunded", "split", "funded"],
   disputed: ["completed", "refunded", "split"],
   completed: [],
   refunded: [],

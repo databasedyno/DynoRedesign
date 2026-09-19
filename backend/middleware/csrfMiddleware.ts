@@ -41,6 +41,8 @@ const EXEMPT_PATHS = [
   "/api/veriff",
   "/api/kyc/webhook",
   "/api/kb/webhook",
+  // SafeDeal ← Dynopay payment events (HMAC v2 verified in the handler)
+  "/api/safedeal/webhooks/",
   // Public "Was this article helpful?" feedback — anonymous & fire-and-forget:
   // only inserts a vote row / increments a counter (no auth, no funds, no PII).
   // Same rationale as /api/track/visitor. Covers both the id- and slug-based

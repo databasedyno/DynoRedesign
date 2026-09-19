@@ -120,6 +120,22 @@ export function spacesConfigSummary(): {
   };
 }
 
+/** Upload an in-memory buffer as a PRIVATE object (evidence files, never public URLs). */
+export async function uploadPrivateBufferToSpaces(buffer: Buffer, key: string, contentType: string): Promise<{ bucket: string; object: string }> {
+  const cleanKey = key.replace(/^\/+/, "");
+  await client().send(
+    new PutObjectCommand({
+      Bucket: BUCKET,
+      Key: cleanKey,
+      Body: buffer,
+      ContentLength: buffer.length,
+      ContentType: contentType || "application/octet-stream",
+      ACL: "private",
+    })
+  );
+  return { bucket: BUCKET, object: cleanKey };
+}
+
 /**
  * Upload a local file to Spaces as a PRIVATE object and return {bucket, object}.
  * Streams the file (with a known ContentLength) so large deliverables (up to the

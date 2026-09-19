@@ -144,6 +144,24 @@ const escrowDealModel = sequelize.define(
     expired_at: { type: DataTypes.DATE, allowNull: true },
     // ── Delivery / dispute ─────────────────────────────────────────────────
     delivery_note: { type: DataTypes.TEXT, allowNull: true },
+    // Proof of delivery: { note, links[], tracking:{carrier,number}, attachment_ids[] } (SafeDeal).
+    delivery_proof: { type: DataTypes.JSONB, allowNull: true },
+    // Multi-fiat pricing: the deal is priced in `price_currency`; `amount` (USD) is
+    // indicative until the buyer funds, then locked at fx_rate (1 unit = fx_rate USD).
+    price_currency: { type: DataTypes.STRING(8), allowNull: true },
+    price_amount: { type: DataTypes.DECIMAL(18, 2), allowNull: true },
+    fx_rate: { type: DataTypes.DECIMAL(18, 8), allowNull: true },
+    fx_locked_at: { type: DataTypes.DATE, allowNull: true },
+    // Deal terms (SafeDeal Batch 2): what kind of deal, when delivery is due,
+    // how many "request changes" rounds the buyer has used, amend/resend stamps.
+    deal_type: { type: DataTypes.STRING(16), allowNull: true }, // goods | service | digital | other
+    delivery_due_at: { type: DataTypes.DATE, allowNull: true },
+    revision_round: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
+    revision_note: { type: DataTypes.TEXT, allowNull: true },
+    amended_at: { type: DataTypes.DATE, allowNull: true },
+    invite_resent_at: { type: DataTypes.DATE, allowNull: true },
+    // Once-only reminder stamps: { invite_3d, unfunded_2d, inspection_24h, due_passed } → ISO time sent.
+    reminders: { type: DataTypes.JSONB, allowNull: true },
     dispute_reason: { type: DataTypes.TEXT, allowNull: true },
     dispute_raised_by: { type: DataTypes.STRING(10), allowNull: true }, // 'buyer'|'seller'
     // 'release' | 'refund' | 'split'
@@ -161,6 +179,14 @@ const escrowDealModel = sequelize.define(
     funding_deposit_address: { type: DataTypes.STRING(255), allowNull: true },
     funding_tx_hash: { type: DataTypes.STRING(255), allowNull: true },
     funded_amount_usd: { type: DataTypes.DECIMAL(18, 2), allowNull: true },
+    // Dynopay Merchant-API payment issued for this deal: { payment_id, coin, address, crypto_amount, qr_code, status, ... }.
+    funding_payment: { type: DataTypes.JSONB, allowNull: true },
+    funding_settled_at: { type: DataTypes.DATE, allowNull: true },
+    // Per-party payout destination: { seller?: { address_id, set_at, before_funding }, buyer?: {...} }.
+    payout_prefs: { type: DataTypes.JSONB, allowNull: true },
+    // USDT actually realised on Binance after auto-convert (custody stays there).
+    custody_realized_usd: { type: DataTypes.DECIMAL(18, 2), allowNull: true },
+    custody_realized_at: { type: DataTypes.DATE, allowNull: true },
     // True when funding/settlement was simulated (SAFE MODE / no live broadcast).
     simulated: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
     // Free-form record of the settlement action (amounts, mock txids, admin note).

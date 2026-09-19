@@ -18,6 +18,7 @@ import { Op } from "sequelize";
 import { apiLogger } from "../utils/loggers";
 import { errorResponseHelper, successResponseHelper } from "../helper";
 import { companyModel, userModel } from "../models";
+import { listAttachmentsForDeals } from "../services/safedeal/safedealAttachments";
 import escrowDealModel from "../models/escrowDealModel";
 import {
   EscrowRole,
@@ -38,7 +39,7 @@ import {
 import { refreshEscrowCostRates } from "../services/escrow/escrowCosts";
 import { recordFundingReceived, fundFromBalance, settleToWallets } from "../services/safedeal/safedealEscrowLedger";
 import { getBalances } from "../services/safedeal/safedealWallet";
-import { maybeAutoWithdraw } from "../services/safedeal/safedealWithdrawals";
+import { settlementPayout, type SettlementPayoutResult } from "../services/safedeal/safedealWithdrawals";
 import {
   sendEscrowInviteEmail,
   sendEscrowAcceptedEmail,
@@ -54,6 +55,7 @@ import {
   sendEscrowDisputeAgreedEmail,
   sendEscrowPayoutPendingEmail,
   sendEscrowPaidEmail,
+  sendEscrowChangesRequestedEmail,
 } from "../services/email/escrowEmails";
 
 // ── error type + utilities ───────────────────────────────────────────────────
@@ -84,6 +86,12 @@ const clampAutoReleaseDays = (v: unknown): number => {
   const n = Math.round(Number(v));
   return ESCROW_AUTO_RELEASE_PRESETS.includes(n) ? n : ESCROW_AUTO_RELEASE_DEFAULT;
 };
+// How many times a buyer can send a delivery back for changes before they must release or dispute.
+const MAX_REVISION_ROUNDS = Number(envRaw("ESCROW_MAX_REVISION_ROUNDS")) || 2;
+// Minimum gap between two "resend invite" emails for the same deal.
+const RESEND_INVITE_COOLDOWN_MS = 10 * 60 * 1000;
+export const DEAL_TYPES = ["goods", "service", "digital", "other"] as const;
+export const normalizeDealType = (v: unknown): string | null => (DEAL_TYPES.includes(String(v || "") as any) ? String(v) : null);
 
 
 const frontendBase = (): string =>
@@ -174,6 +182,20 @@ function serializeDeal(deal: any, includePrivate = true): Record<string, unknown
     dispute_resolved_at: d.dispute_resolved_at,
     fully_paid_at: d.fully_paid_at,
     delivery_note: d.delivery_note,
+    delivery_proof: d.delivery_proof || null,
+    // Multi-fiat pricing (SafeDeal): amount is USD; price_* is what the parties agreed in their currency.
+    price_currency: d.price_currency || null,
+    price_amount: d.price_amount != null ? Number(d.price_amount) : null,
+    fx_rate: d.fx_rate != null ? Number(d.fx_rate) : null,
+    fx_locked_at: d.fx_locked_at || null,
+    // Deal terms (SafeDeal Batch 2)
+    deal_type: d.deal_type || null,
+    delivery_due_at: d.delivery_due_at || null,
+    revision_round: Number(d.revision_round || 0),
+    revision_note: d.revision_note || null,
+    max_revision_rounds: MAX_REVISION_ROUNDS,
+    amended_at: d.amended_at || null,
+    invite_resent_at: d.invite_resent_at || null,
     dispute_reason: d.dispute_reason,
     dispute_raised_by: d.dispute_raised_by,
     dispute_resolution: d.dispute_resolution,
@@ -201,6 +223,10 @@ function serializeDeal(deal: any, includePrivate = true): Record<string, unknown
     needs_admin_review: d.needs_admin_review,
     funding_coin: d.funding_coin,
     funded_amount_usd: d.funded_amount_usd != null ? Number(d.funded_amount_usd) : null,
+    funding_payment: d.funding_payment ? { ...d.funding_payment, qr_code: undefined } : null,
+    funding_settled_at: d.funding_settled_at,
+    custody_realized_usd: d.custody_realized_usd != null ? Number(d.custody_realized_usd) : null,
+    payout_prefs: d.payout_prefs || null,
     simulated: d.simulated,
     invite_url: dealUrl(d),
     stablecoins: ESCROW_STABLECOINS,
@@ -299,39 +325,42 @@ async function attemptPayouts(deal: any, actorLabel = "system"): Promise<{ selle
       return { sellerPaid, buyerPaid };
     }
     const now = new Date();
+    const prefs = (deal.payout_prefs || {}) as Record<string, any>;
+    const sellerCid = deal.creator_role === "seller" ? deal.creator_customer_id : deal.counterparty_customer_id;
+    const buyerCid = deal.creator_role === "buyer" ? deal.creator_customer_id : deal.counterparty_customer_id;
+    const describe = (r: SettlementPayoutResult, amount: number, who: string): string => {
+      if (r.mode === "sent") {
+        const w = r.withdrawal;
+        const where = `${w.payout_key} ${w.address.slice(0, 6)}…${w.address.slice(-4)}`;
+        return w.status === "pending_approval"
+          ? `${amount} USD payout to the ${who} (${where}) is queued for review — sent once approved.`
+          : `Paid ${amount} USDT to the ${who}'s address ${where}${w.simulated ? " (simulated)" : ""}.`;
+      }
+      if (r.reason === "cooling") return `${amount} USD for the ${who} is held in their SafeDeal balance — their payout address is in its safety hold and will be paid automatically once usable.`;
+      if (r.reason === "no_address") return `${amount} USD for the ${who} is held in their SafeDeal balance until they add a payout address.`;
+      return `${amount} USD credited to the ${who}'s SafeDeal balance (automatic payout failed: ${r.detail || "unknown"}).`;
+    };
     if (deal.seller_payout_state === "pending") {
+      const amount = Number(deal.seller_entitlement_stable || 0);
+      const r = sellerCid && amount > 0 ? await settlementPayout(Number(sellerCid), amount, deal, prefs.seller) : null;
       deal.seller_payout_state = "paid";
       deal.seller_paid_at = now;
-      deal.seller_payout_tx = `WALLET-CREDIT-${deal.escrow_id}`;
-      deal.activity_log = appendActivity(deal.activity_log, {
-        type: "payout_seller",
-        actor: actorLabel,
-        role: "system",
-        note: `Credited ${deal.seller_entitlement_stable} USD to the seller's SafeDeal wallet.`,
-      });
+      deal.seller_payout_tx = r?.mode === "sent" ? r.withdrawal.tx_hash || `WITHDRAWAL-${r.withdrawal.withdrawal_id}` : `WALLET-CREDIT-${deal.escrow_id}`;
+      deal.activity_log = appendActivity(deal.activity_log, { type: "payout_seller", actor: actorLabel, role: "system", note: r ? describe(r, amount, "seller") : `Nothing due to the seller.`, meta: r?.mode === "sent" ? { withdrawal_id: r.withdrawal.withdrawal_id } : undefined });
       sellerPaid = true;
     }
     if (deal.buyer_payout_state === "pending") {
+      const amount = Number(deal.buyer_entitlement_stable || 0);
+      const r = buyerCid && amount > 0 ? await settlementPayout(Number(buyerCid), amount, deal, prefs.buyer) : null;
       deal.buyer_payout_state = "paid";
       deal.buyer_paid_at = now;
-      deal.buyer_payout_tx = `WALLET-CREDIT-${deal.escrow_id}`;
-      deal.activity_log = appendActivity(deal.activity_log, {
-        type: "payout_buyer",
-        actor: actorLabel,
-        role: "system",
-        note: `Refunded ${deal.buyer_entitlement_stable} USD to the buyer's SafeDeal wallet (fees & costs kept).`,
-      });
+      deal.buyer_payout_tx = r?.mode === "sent" ? r.withdrawal.tx_hash || `WITHDRAWAL-${r.withdrawal.withdrawal_id}` : `WALLET-CREDIT-${deal.escrow_id}`;
+      deal.activity_log = appendActivity(deal.activity_log, { type: "payout_buyer", actor: actorLabel, role: "system", note: r ? `Refund: ${describe(r, amount, "buyer")} Fees & costs were kept.` : `Nothing refunded to the buyer (fees & costs kept).`, meta: r?.mode === "sent" ? { withdrawal_id: r.withdrawal.withdrawal_id } : undefined });
       buyerPaid = true;
     }
     deal.fully_paid_at = now;
     deal.needs_admin_review = false;
     await deal.save();
-    // Opt-in auto-withdraw for whoever just got credited.
-    const creditedIds = [
-      sellerPaid ? (deal.creator_role === "seller" ? deal.creator_customer_id : deal.counterparty_customer_id) : null,
-      buyerPaid && amounts.buyerRefund > 0 ? (deal.creator_role === "buyer" ? deal.creator_customer_id : deal.counterparty_customer_id) : null,
-    ].filter(Boolean) as number[];
-    for (const cid of creditedIds) void maybeAutoWithdraw(Number(cid));
     return { sellerPaid, buyerPaid };
   }
 
@@ -558,7 +587,7 @@ async function actFundFromCheckout(deal: any, paidUsd: number, coin: string, txH
   deal.funded_at = now;
   deal.simulated = false;
   deal.funding_coin = coin;
-  deal.funding_method = "checkout";
+  deal.funding_method = deal.funding_method === "dynopay_api" ? "dynopay_api" : "checkout";
   deal.funding_tx_hash = txHash;
   deal.funded_amount_usd = breakdown.buyerPays;
   deal.custody_stablecoin = CUSTODY_STABLECOIN;
@@ -566,28 +595,61 @@ async function actFundFromCheckout(deal: any, paidUsd: number, coin: string, txH
   deal.converted_at = now;
   deal.activity_log = appendActivity(deal.activity_log, {
     type: "funded",
-    actor: "checkout",
+    actor: "dynopay",
     role: "buyer",
-    note: `Buyer paid ${paidUsd} ${deal.currency} via hosted checkout in ${coin} (tx ${txHash}); ${breakdown.buyerPays} ${CUSTODY_STABLECOIN} held in custody.`,
+    note: `Buyer paid ${paidUsd} ${deal.currency} in ${coin} via Dynopay${txHash ? ` (tx ${txHash})` : ""}; ${breakdown.buyerPays} ${CUSTODY_STABLECOIN} held in custody on Binance.`,
     meta: { breakdown, paidUsd },
   });
-  if (isSafeDeal(deal)) await recordFundingReceived(deal, breakdown.buyerPays, "checkout");
+  if (isSafeDeal(deal)) await recordFundingReceived(deal, breakdown.buyerPays, deal.funding_method);
   await deal.save();
   const { sellerEmail } = await partyEmails(deal);
   if (sellerEmail) void sendEscrowFundedEmail(sellerEmail, sellerEmail, deal);
   return deal;
 }
 
-async function actDeliver(deal: any, actor: ActorInfo, note?: string): Promise<any> {
+export interface DeliveryProofInput {
+  links?: unknown;
+  tracking?: { carrier?: unknown; number?: unknown } | null;
+  attachment_ids?: number[];
+}
+
+const MAX_PROOF_LINKS = 5;
+function normalizeProof(note: string | null, proof?: DeliveryProofInput | null): Record<string, unknown> | null {
+  const links = Array.isArray(proof?.links)
+    ? proof!.links
+        .map((l) => String(l ?? "").trim())
+        .filter((l) => /^https?:\/\/\S+$/i.test(l) && l.length <= 500)
+        .slice(0, MAX_PROOF_LINKS)
+    : [];
+  const carrier = String(proof?.tracking?.carrier ?? "").trim().slice(0, 60);
+  const number = String(proof?.tracking?.number ?? "").trim().slice(0, 80);
+  const attachment_ids = Array.isArray(proof?.attachment_ids) ? proof!.attachment_ids.slice(0, 5) : [];
+  if (!note && !links.length && !number && !attachment_ids.length) return null;
+  return { note, links, tracking: number ? { carrier: carrier || null, number } : null, attachment_ids };
+}
+
+async function actDeliver(deal: any, actor: ActorInfo, note?: string, proof?: DeliveryProofInput | null): Promise<any> {
   if (actor.role !== "seller") fail(403, "Only the seller can mark a deal as delivered.");
   if (deal.status !== "funded") fail(409, `Cannot mark delivered from status '${deal.status}'.`);
   assertTransition(deal.status, "delivered");
   const now = new Date();
   deal.status = "delivered";
   deal.delivered_at = now;
-  if (note) deal.delivery_note = String(note);
+  const cleanNote = note ? String(note).slice(0, 5000) : null;
+  if (cleanNote) deal.delivery_note = cleanNote;
+  const p = normalizeProof(cleanNote, proof);
+  deal.delivery_proof = p;
   deal.auto_release_at = new Date(now.getTime() + Number(deal.auto_release_days || 3) * 86400000);
-  deal.activity_log = appendActivity(deal.activity_log, { type: "delivered", actor: actor.label, role: "seller", note: deal.delivery_note || "Marked as delivered." });
+  const bits: string[] = [];
+  if (p?.tracking) bits.push(`tracking ${(p.tracking as any).carrier ? `${(p.tracking as any).carrier} ` : ""}${(p.tracking as any).number}`);
+  if ((p?.links as string[] | undefined)?.length) bits.push(`${(p!.links as string[]).length} link(s)`);
+  if ((p?.attachment_ids as number[] | undefined)?.length) bits.push(`${(p!.attachment_ids as number[]).length} file(s)`);
+  deal.activity_log = appendActivity(deal.activity_log, {
+    type: "delivered",
+    actor: actor.label,
+    role: "seller",
+    note: `${deal.delivery_note || "Marked as delivered."}${bits.length ? ` · Proof: ${bits.join(", ")}` : ""}`,
+  });
   await deal.save();
   const { buyerEmail } = await partyEmails(deal);
   if (buyerEmail) void sendEscrowDeliveredEmail(buyerEmail, buyerEmail, deal, Number(deal.auto_release_days || 3));
@@ -598,6 +660,51 @@ async function actRelease(deal: any, actor: ActorInfo): Promise<any> {
   if (actor.role !== "buyer") fail(403, "Only the buyer can release funds.");
   if (!["funded", "delivered"].includes(deal.status)) fail(409, `Cannot release from status '${deal.status}' (already settled?).`);
   await settleOutcome(deal, "release", { actorLabel: actor.label, actorRole: "buyer" });
+  return deal;
+}
+
+/** Buyer sends a delivery back for changes (capped) — deal returns to funded, timer cleared, seller re-delivers. */
+async function actRequestChanges(deal: any, actor: ActorInfo, message?: string): Promise<any> {
+  if (actor.role !== "buyer") fail(403, "Only the buyer can ask for changes.");
+  if (deal.status !== "delivered") fail(409, `You can only ask for changes on a delivered deal (current: '${deal.status}').`);
+  const text = String(message || "").trim();
+  if (text.length < 10) fail(400, "Tell the seller what needs to change (at least 10 characters).");
+  if (text.length > 2000) fail(400, "Keep the request under 2000 characters.");
+  const round = Number(deal.revision_round || 0);
+  if (round >= MAX_REVISION_ROUNDS) fail(409, `You've already asked for changes ${MAX_REVISION_ROUNDS} times. Release the funds or open a dispute.`);
+  assertTransition(deal.status, "funded");
+  const now = new Date();
+  deal.status = "funded";
+  deal.auto_release_at = null;
+  deal.revision_round = round + 1;
+  deal.revision_note = text;
+  deal.activity_log = appendActivity(deal.activity_log, {
+    type: "changes_requested",
+    actor: actor.label,
+    role: "buyer",
+    note: `Changes requested (round ${round + 1} of ${MAX_REVISION_ROUNDS}): ${text}`,
+    meta: { previous_proof: deal.delivery_proof || null, delivered_at: deal.delivered_at || null },
+  });
+  deal.delivered_at = null;
+  deal.delivery_proof = null;
+  await deal.save();
+  const { sellerEmail } = await partyEmails(deal);
+  if (sellerEmail) void sendEscrowChangesRequestedEmail(sellerEmail, sellerEmail, deal, text, round + 1, MAX_REVISION_ROUNDS, dealUrl(deal));
+  return deal;
+}
+
+/** Creator re-sends the invite email (rate-limited) while the deal is still waiting for an answer. */
+async function actResendInvite(deal: any, actor: ActorInfo): Promise<any> {
+  if (!actor.isCreator) fail(403, "Only the creator can resend the invite.");
+  if (deal.status !== "invited") fail(409, "The invite has already been answered.");
+  const last = deal.invite_resent_at ? new Date(deal.invite_resent_at).getTime() : 0;
+  const wait = RESEND_INVITE_COOLDOWN_MS - (Date.now() - last);
+  if (wait > 0) fail(429, `Invite already resent recently — try again in ${Math.ceil(wait / 60000)} min.`);
+  const { counterparty } = resolveRoles(deal.creator_role);
+  deal.invite_resent_at = new Date();
+  deal.activity_log = appendActivity(deal.activity_log, { type: "invite_resent", actor: actor.label, role: actor.role, note: `Invite re-sent to ${deal.counterparty_email}.` });
+  await deal.save();
+  void sendEscrowInviteEmail(deal.counterparty_email, deal.counterparty_email, deal, actor.label, counterparty, dealUrl(deal));
   return deal;
 }
 
@@ -656,7 +763,7 @@ async function actRaiseDispute(deal: any, actor: ActorInfo, body: any): Promise<
   deal.dispute_proposal = { outcome, split_percent_seller, by: actor.role, at: now.toISOString(), message, kind };
   deal.dispute_proposal_by = actor.role;
   deal.dispute_auto_escalate_at = new Date(now.getTime() + escalateWindowMs());
-  appendDisputeThread(deal, { by: actor.role, type: "open", kind, outcome, split_percent_seller, message, reason: deal.dispute_reason || null });
+  appendDisputeThread(deal, { by: actor.role, type: "open", kind, outcome, split_percent_seller, message, reason: deal.dispute_reason || null, attachment_ids: threadAttachments(body) });
   deal.activity_log = appendActivity(deal.activity_log, {
     type: kind === "cancellation" ? "cancellation_requested" : "dispute_opened",
     actor: actor.label,
@@ -683,7 +790,7 @@ async function actCounterDispute(deal: any, actor: ActorInfo, body: any): Promis
   deal.dispute_proposal = { outcome, split_percent_seller, by: actor.role, at: now.toISOString(), message };
   deal.dispute_proposal_by = actor.role;
   deal.dispute_auto_escalate_at = new Date(now.getTime() + escalateWindowMs());
-  appendDisputeThread(deal, { by: actor.role, type: "counter", outcome, split_percent_seller, message });
+  appendDisputeThread(deal, { by: actor.role, type: "counter", outcome, split_percent_seller, message, attachment_ids: threadAttachments(body) });
   deal.activity_log = appendActivity(deal.activity_log, {
     type: "dispute_counter",
     actor: actor.label,
@@ -727,13 +834,16 @@ async function actAcceptDispute(deal: any, actor: ActorInfo): Promise<any> {
   return deal;
 }
 
-/** Add a message / evidence note to the dispute thread (decision 5b). */
-async function actDisputeMessage(deal: any, actor: ActorInfo, message?: string): Promise<any> {
+const threadAttachments = (body: any): number[] =>
+  Array.isArray(body?.attachment_ids) ? body.attachment_ids.map(Number).filter((n: number) => Number.isInteger(n) && n > 0).slice(0, 5) : [];
+
+/** Add a message / evidence (text and/or files) to the dispute thread (decision 5b). */
+async function actDisputeMessage(deal: any, actor: ActorInfo, message?: string, attachmentIds: number[] = []): Promise<any> {
   if (deal.status !== "disputed") fail(409, "There is no open dispute to add a message to.");
   const text = String(message || "").trim();
-  if (!text) fail(400, "A message is required.");
+  if (!text && !attachmentIds.length) fail(400, "Write a message or attach a file.");
   if (text.length > 2000) fail(400, "Message is too long (2000 characters max).");
-  appendDisputeThread(deal, { by: actor.role, type: "message", message: text });
+  appendDisputeThread(deal, { by: actor.role, type: "message", message: text || null, attachment_ids: attachmentIds });
   await deal.save();
   return deal;
 }
@@ -821,7 +931,8 @@ const adminListDeals = async (req: express.Request, res: express.Response) => {
     if (status) where.status = status;
     if (company_id) where.company_id = Number(company_id);
     const deals: any[] = await escrowDealModel.findAll({ where, order: [["created_at", "DESC"]], limit: 500 });
-    const out = deals.map((d) => serializeDeal(d));
+    const files = await listAttachmentsForDeals(deals.map((d) => Number(d.escrow_id)));
+    const out = deals.map((d) => ({ ...serializeDeal(d), attachments: files[Number(d.escrow_id)] || [] }));
     return successResponseHelper(res, 200, "Escrow deals fetched.", out, out.length);
   } catch (e) {
     return handle(res, e, "adminListDeals");
@@ -834,51 +945,77 @@ const adminDisputeQueue = async (req: express.Request, res: express.Response) =>
     const where: any = { status: "disputed" };
     if (stage === "negotiation" || stage === "escalated" || stage === "resolved") where.dispute_stage = stage;
     const deals: any[] = await escrowDealModel.findAll({ where, order: [["disputed_at", "ASC"]] });
-    const out = deals.map((d) => serializeDeal(d));
+    const files = await listAttachmentsForDeals(deals.map((d) => Number(d.escrow_id)));
+    const out = deals.map((d) => ({ ...serializeDeal(d), attachments: files[Number(d.escrow_id)] || [] }));
     return successResponseHelper(res, 200, "Dispute queue fetched.", out, out.length);
   } catch (e) {
     return handle(res, e, "adminDisputeQueue");
   }
 };
 
+/** Auto-escalate disputes whose negotiation window elapsed with no agreement. */
+async function runDisputeEscalations(): Promise<number[]> {
+  const now = new Date();
+  const deals: any[] = await escrowDealModel.findAll({
+    where: {
+      status: "disputed",
+      dispute_stage: "negotiation",
+      dispute_auto_escalate_at: { [Op.ne]: null, [Op.lte]: now } as any,
+    },
+    limit: 200,
+  });
+  const escalated: number[] = [];
+  for (const deal of deals) {
+    try {
+      deal.dispute_stage = "escalated";
+      deal.dispute_escalated_at = now;
+      deal.dispute_auto_escalate_at = null;
+      appendDisputeThread(deal, { by: "system", type: "auto_escalate" });
+      deal.activity_log = appendActivity(deal.activity_log, {
+        type: "dispute_escalated",
+        actor: "system(auto-escalate)",
+        role: "system",
+        note: `No agreement within ${DISPUTE_AUTO_ESCALATE_HOURS}h — auto-escalated to admin.`,
+      });
+      await deal.save();
+      const { buyerEmail, sellerEmail } = await partyEmails(deal);
+      if (buyerEmail) void sendEscrowDisputeEscalatedEmail(buyerEmail, buyerEmail, deal, "system");
+      if (sellerEmail) void sendEscrowDisputeEscalatedEmail(sellerEmail, sellerEmail, deal, "system");
+      escalated.push(deal.escrow_id);
+    } catch (err) {
+      apiLogger.error(`[escrow.autoEscalate] deal ${deal.escrow_id}: ${(err as Error).message}`);
+    }
+  }
+  return escalated;
+}
+
+/** Authorize release on elapsed inspection timers. */
+async function runAutoRelease(): Promise<number[]> {
+  const now = new Date();
+  const deals: any[] = await escrowDealModel.findAll({
+    where: { status: "delivered", auto_release_at: { [Op.ne]: null, [Op.lte]: now } as any },
+    limit: 200,
+  });
+  const processed: number[] = [];
+  for (const deal of deals) {
+    try {
+      await settleOutcome(deal, "release", { actorLabel: "system(auto-release)", actorRole: "system" });
+      processed.push(deal.escrow_id);
+    } catch (err) {
+      apiLogger.error(`[escrow.autoRelease] deal ${deal.escrow_id}: ${(err as Error).message}`);
+    }
+  }
+  return processed;
+}
+
 /**
  * POST /api/escrow/admin/run-dispute-escalations — auto-escalate disputes whose
  * negotiation window elapsed with no agreement (decision 3b). Same maintenance-scan
- * pattern as run-auto-release; a scheduler calls it in production (jobs off in preview).
+ * pattern as run-auto-release; the hourly SafeDeal maintenance cron also runs it.
  */
 const adminRunDisputeEscalations = async (_req: express.Request, res: express.Response) => {
   try {
-    const now = new Date();
-    const deals: any[] = await escrowDealModel.findAll({
-      where: {
-        status: "disputed",
-        dispute_stage: "negotiation",
-        dispute_auto_escalate_at: { [Op.ne]: null, [Op.lte]: now } as any,
-      },
-      limit: 200,
-    });
-    const escalated: number[] = [];
-    for (const deal of deals) {
-      try {
-        deal.dispute_stage = "escalated";
-        deal.dispute_escalated_at = now;
-        deal.dispute_auto_escalate_at = null;
-        appendDisputeThread(deal, { by: "system", type: "auto_escalate" });
-        deal.activity_log = appendActivity(deal.activity_log, {
-          type: "dispute_escalated",
-          actor: "system(auto-escalate)",
-          role: "system",
-          note: `No agreement within ${DISPUTE_AUTO_ESCALATE_HOURS}h — auto-escalated to admin.`,
-        });
-        await deal.save();
-        const { buyerEmail, sellerEmail } = await partyEmails(deal);
-        if (buyerEmail) void sendEscrowDisputeEscalatedEmail(buyerEmail, buyerEmail, deal, "system");
-        if (sellerEmail) void sendEscrowDisputeEscalatedEmail(sellerEmail, sellerEmail, deal, "system");
-        escalated.push(deal.escrow_id);
-      } catch (err) {
-        apiLogger.error(`[escrow.autoEscalate] deal ${deal.escrow_id}: ${(err as Error).message}`);
-      }
-    }
+    const escalated = await runDisputeEscalations();
     return successResponseHelper(res, 200, `Auto-escalated ${escalated.length} dispute(s).`, { escalated, count: escalated.length });
   } catch (e) {
     return handle(res, e, "adminRunDisputeEscalations");
@@ -925,20 +1062,7 @@ const adminResolveDispute = async (req: express.Request, res: express.Response) 
 /** POST /api/escrow/admin/run-auto-release — authorize release on elapsed timers. */
 const adminRunAutoRelease = async (_req: express.Request, res: express.Response) => {
   try {
-    const now = new Date();
-    const deals: any[] = await escrowDealModel.findAll({
-      where: { status: "delivered", auto_release_at: { [Op.ne]: null, [Op.lte]: now } as any },
-      limit: 200,
-    });
-    const processed: number[] = [];
-    for (const deal of deals) {
-      try {
-        await settleOutcome(deal, "release", { actorLabel: "system(auto-release)", actorRole: "system" });
-        processed.push(deal.escrow_id);
-      } catch (err) {
-        apiLogger.error(`[escrow.autoRelease] deal ${deal.escrow_id}: ${(err as Error).message}`);
-      }
-    }
+    const processed = await runAutoRelease();
     return successResponseHelper(res, 200, `Auto-release processed ${processed.length} deal(s).`, { processed, count: processed.length });
   } catch (e) {
     return handle(res, e, "adminRunAutoRelease");
@@ -1003,11 +1127,16 @@ export const escrowEngine = {
   actFundFromCheckout,
   actDeliver,
   actRelease,
+  actRequestChanges,
+  actResendInvite,
   actRaiseDispute,
   actCounterDispute,
   actAcceptDispute,
   actDisputeMessage,
   actEscalateDispute,
+  runAutoRelease,
+  runDisputeEscalations,
+  MAX_REVISION_ROUNDS,
 };
 export type { ActorInfo };
 
