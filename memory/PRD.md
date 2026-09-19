@@ -1,3 +1,18 @@
+# === 2026-06 (fork: safedeal-verify) SAFEDEAL UX PROGRAMME — BATCH 1 "Clarity & trust" — DONE (testing_agent iteration_204: BE 23/23, FE ~97% → 4 minors fixed + self-verified) ===
+# Approved plan (plan mode): 3 batches. B1 = next-step banner+countdown · deadline pills · invite-aware sign-in · segmented code input
+#   + 30s resend cooldown · landing calculator (real quote) · For buyers/For sellers + FAQ · footer + Terms/Privacy/Help (DRAFT pages) ·
+#   status glossary · money/date/status standards · mobile sticky action bar + quote bar · a11y. B2 (NEXT, needs user decisions 1-3,5):
+#   deal type + delivery due date + guided terms + Review&send · delivery proof (files+links assumed) · Request changes · Amend before
+#   funding (re-accept) · Resend invite/copy link · Payment-detected state · Dispute panel v2. B3: deal PDF + receipt email · reminder
+#   emails · wallet withdrawing figure/stepper/explorer/statement filters · new-address 24h cooling-off · counterparty card.
+# FILES: Components/SafeDeal/{sdFormat.ts,NextStepBanner,DeadlinePill,SdStatusChip,CodeInput,FeeCalculator,LandingSections,LegalPage,
+#   legalContent.ts}; pages/safedeal/{terms,privacy,help}.tsx; updated Landing/SignIn/DealsList/NewDeal/DealPage/Wallet/SafeDealShell;
+#   LanguageOnboardingBar hidden on /safedeal; config() returns legal_name; shell sets --dyno-focus-ring (globals.css ring var) to indigo.
+# PROD: nginx.conf canonical-host map now includes safedeal.sh (was 301→dynopay.com — root cause of "safedeal.sh not responding");
+#   DO DNS zone safedeal.sh created (A→134.209.94.115, www CNAME), NS switched by owner; Caddy block + env applied by deploy workflow.
+#   Needs a "Save to GitHub" push to ship nginx fix + Batch 1.
+# ============================================================================================
+
 # === 2026-06 (fork: safedeal-verify) SAFEDEAL — UNTESTED FLOWS VERIFIED + API NITS + PRODUCTION READINESS — DONE (testing_agent iteration_203: BE 23/23, FE 100%, 0 issues) ===
 # User choices (ask_human): verify BOTH untested flows (post-funding cancel/dispute UI + admin withdrawals/customers), FIX the API nits,
 # then continue with production readiness (safedeal.sh middleware, real checkout path review, SafeDeal email templates). User note:

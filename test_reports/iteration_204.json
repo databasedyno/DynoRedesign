@@ -1,0 +1,41 @@
+{
+  "summary": "Batch 1 (Clarity & Trust) SafeDeal UI/UX programme verified end-to-end on preview. Backend regression (23 tests in test_safedeal_api.py + test_safedeal_iter203.py) is green and GET /api/safedeal/config now returns legal_name='Dynopay Payments Ltd.'. Landing (fee calculator, buyer/seller columns, FAQ, footer, invited CTA, trust strip, mobile no-hscroll, no 'DynoPay' spelling, no language bar), sign-in (reassurance, preview code, 30s resend cooldown w/ data-cooldown, auto-advance/auto-submit, ClipboardEvent paste, wrong-code error, use-different-email, ?invited=1 heading, invite-aware card with locked+unlock email), unauthenticated deal preview (sd-deal-preview + sd-preview-signin next+email), deals list (deadline pills, todo chips only on my move, status glossary tooltip, tabular-nums), deal page next-step banner for every state (invited creator/them, invited invitee/you, funded seller/you, funded buyer/them, delivered buyer/you with 'Auto-releases in Xd Yh · <abs date>', delivered seller/them), mobile sticky bar (release/accept/etc when my move; hidden when theirs), create deal (Inspection period label, sd-new-days-3, sticky desktop quote, mobile sd-new-quote-bar with correct 'Buyer pays $318.30 · Seller gets $300.00' after 300 + toggle aria-expanded + sd-quote-buyer-pays inside), wallet (available caption rgba(255,255,255,0.72), tabular-nums), a11y (1 h1, radiogroup+3 radios, Space toggles split, focus outline 2px solid) — all pass. Three minor issues found: (1) footer legal has a double period ('Ltd..'), (2) sd-deal-status chip on the deal page is not keyboard-focusable (tabindex not set to 0), (3) focus-visible outline color is near-black rgb(10,10,10) instead of the spec'd indigo #4338CA under /safedeal/*.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "SafeDealShell footer", "issue": "Legal line renders 'Operated by Dynopay Payments Ltd.. Not a bank; ...' — double period because a '.' is appended to a legal_name that already ends with '.'", "selector": "[data-testid='sd-footer-legal']", "priority": "LOW"},
+      {"component": "DealPage SdStatusChip", "issue": "sd-deal-status has no tabindex attribute (spec: tabindex=0 for keyboard focus / glossary reveal). Hover tooltip works; keyboard focus does not surface it.", "selector": "[data-testid='sd-deal-status']", "priority": "LOW"},
+      {"component": "SafeDealShell focus-visible CSS", "issue": "Computed :focus-visible outline color on /safedeal/* links is rgb(10,10,10) not the spec'd #4338CA (rgb(67,56,202)). outlineStyle=solid, outlineWidth=2px OK; only the color rule appears to be lost/overridden.", "selector": "a[data-testid='sd-nav-deals']:focus-visible", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Unauthenticated deal preview /safedeal/deal/<token>", "issues": ["Still shows 'Auto-release 3 days after delivery' rather than the Batch-1 'Inspection period' phrasing (spec explicitly required rename on create-deal + delivered banner; preview card left with old wording — minor inconsistency)"]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_safedeal_api.py",
+    "/app/backend/tests/test_safedeal_iter203.py"
+  ],
+  "action_items": [
+    "Fix footer legal double-period: SafeDealShell composes 'Operated by <legal_name>.' but config.legal_name already ends with '.'. Strip trailing '.' before appending, or drop the appended period.",
+    "Add tabindex={0} to the SdStatusChip on DealPage (sd-deal-status) so keyboard users can trigger the glossary tooltip.",
+    "Verify the :focus-visible outline-color rule (#4338CA) in SafeDealShell is actually being applied to focused elements — currently computed color is rgb(10,10,10) on landing anchors.",
+    "Optional/consistency: rename 'Auto-release … days after delivery' to 'Inspection period …' on the unauthenticated deal preview card so the Batch-1 vocabulary is consistent everywhere."
+  ],
+  "critical_code_review_comments": [
+    "The legal footer bug is caused by concatenating a period onto a value that already ends in one — safer to normalise once (e.g. `legal_name.replace(/\\.$/, '')`) and control punctuation in the JSX only.",
+    "SdStatusChip works as an interactive tooltip trigger; ensure it exposes role='button' or tabIndex=0 so it is discoverable via keyboard as well as hover (a11y regression risk when the tooltip carries the only 'what does this status mean' copy).",
+    "The `:focus-visible` outline colour appears to be overridden globally (MUI/CssBaseline default is near-black). Consider adding `!important` or scoping the CSS higher, and add a Playwright a11y guard so the outline colour doesn't regress silently."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "~97%"},
+  "test_credentials": "Fresh throwaways created for this run: sd-b1-sellera@example.com (customer_id 520) and sd-b1-buyerb@example.com (521). Sign-in code shown in UI (sd-signin-preview-code-value) or POST /api/safedeal/auth/send-code -> data.preview_code. Existing merchant creds in /app/memory/test_credentials.md were not needed for SafeDeal.",
+  "seed_data_creation": "Created three SafeDeal escrows on preview (all seller=A, buyer=B, fee_payer=buyer, auto_release_days=3): deal_token e9e3daf5c3853fd39e6a2734ff49ac6f26f55845574a1814 ('Batch1 invite test', $300, status=invited); 21fb1e633e2da9d8c543c0ea91acc86e1e0c507cbb751855 ('Funded deal', $200, status=funded); 551291db48832991c3aab58c3f6c14d649ca2c29b9e08d98 ('Delivered deal', $150, status=delivered). Left in place for retest.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "All 11 Batch-1 areas verified. Three minor issues only (footer 'Ltd..', sd-deal-status missing tabindex, focus-visible colour black instead of #4338CA). Preview deal card still says 'Auto-release … after delivery' (spec rename missed). Backend regression 23/23 green — no need to rerun unless controller changes. To re-verify quickly: seed tokens/deals already exist (see seed_data_creation); inject sd_token + sd_user into localStorage instead of full sign-in for speed. Time-based checks not run: (a) 60s 'still nothing?' helper on sign-in, (b) waiting resend cooldown all the way to 0. Wallet human-status label was not exhaustively driven because setting up a withdrawal from a fresh account requires step-up + payout address + withdraw sequence and the plumbing is already covered by existing test_safedeal_iter203.py which is green; the wallet page itself renders with tabular-nums and 0.72 caption contrast as required.",
+  "rca_of_the_issue": "Footer double period: legal_name in /api/safedeal/config returns 'Dynopay Payments Ltd.' (ends with '.'); SafeDealShell footer template appends another '.' after it, producing 'Ltd..'. Reproduce: open any /safedeal page and inspect [data-testid='sd-footer-legal']. Mitigation: trim trailing period from legal_name before concatenation, or remove the literal '.' after {legalName} in the JSX."
+}

@@ -98,7 +98,7 @@ export default function DealPage({ token }: { token: string }) {
             <Stack spacing={0.5} sx={{ mb: 2.5 }}>
               <Typography sx={{ fontSize: 13.5, color: "#4B5563" }}>Buyer: <b>{preview.buyer_email_masked}</b> · pays {money(preview.buyer_pays, preview.currency)}</Typography>
               <Typography sx={{ fontSize: 13.5, color: "#4B5563" }}>Seller: <b>{preview.seller_email_masked}</b> · receives {money(preview.seller_receives, preview.currency)}</Typography>
-              <Typography sx={{ fontSize: 13.5, color: "#4B5563" }}>Auto-release {preview.auto_release_days} days after delivery · status: {preview.status.replace("_", " ")}</Typography>
+              <Typography sx={{ fontSize: 13.5, color: "#4B5563" }}>Inspection period {preview.auto_release_days} days · status: {preview.status.replace("_", " ")}</Typography>
             </Stack>
             {forbidden ? (
               <Alert severity="warning" sx={{ mb: 2 }} data-testid="sd-preview-forbidden">{forbidden}</Alert>

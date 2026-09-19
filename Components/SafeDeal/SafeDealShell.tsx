@@ -74,7 +74,9 @@ export default function SafeDealShell({ children, title, wide = false, dark = fa
         flexDirection: "column",
         backgroundColor: dark ? SD_INK : "#F6F7FB",
         color: fg,
-        "& a:focus-visible, & button:focus-visible, & [role=button]:focus-visible, & input:focus-visible, & [tabindex]:focus-visible": { outline: `2px solid ${dark ? "#A5B4FC" : BRAND_ACCENT}`, outlineOffset: 2 },
+        // Global focus ring reads these vars (styles/globals.css) — brand indigo inside SafeDeal.
+        "--dyno-focus-ring": dark ? "#A5B4FC" : BRAND_ACCENT,
+        "--dyno-focus-ring-shadow": dark ? "0 0 0 2px rgba(165,180,252,0.3)" : "0 0 0 2px rgba(67,56,202,0.25)",
       }}
     >
       <Head>
@@ -82,14 +84,14 @@ export default function SafeDealShell({ children, title, wide = false, dark = fa
         <meta name="description" content="SafeDeal holds the buyer's payment until the seller delivers. 5% fee, no accounts to set up — sign in with your email." />
       </Head>
       <Box component="header" sx={{ borderBottom: dark ? "1px solid rgba(255,255,255,0.08)" : "1px solid #E5E7EB", backgroundColor: dark ? SD_INK : "rgba(255,255,255,0.85)", backdropFilter: "blur(12px)", position: "sticky", top: 0, zIndex: 20 }}>
-        <Container maxWidth={wide ? "xl" : "lg"} sx={{ py: 1.4, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
+        <Container maxWidth={wide ? "xl" : "lg"} sx={{ py: 1.4, display: "flex", alignItems: "center", justifyContent: "space-between", gap: { xs: 1, sm: 2 } }}>
           <Link href={href(user ? "/deals" : "/")} style={{ textDecoration: "none" }} aria-label="SafeDeal home">
             <SafeDealLogo light={dark} />
           </Link>
           <Stack component="nav" aria-label="Main" direction="row" spacing={{ xs: 1, sm: 2.5 }} alignItems="center">
             {nav.map((n) => (
               <Link key={n.key} href={href(n.to)} data-testid={n.testid} style={{ textDecoration: "none" }} aria-current={isActive(n.key) ? "page" : undefined}>
-                <Typography component="span" sx={{ fontSize: 14, fontWeight: 700, color: isActive(n.key) ? BRAND_ACCENT : dark ? "rgba(255,255,255,0.8)" : "#4B5563", "&:hover": { color: BRAND_ACCENT }, transition: "color .15s" }}>
+                <Typography component="span" sx={{ fontSize: { xs: 13, sm: 14 }, fontWeight: 700, whiteSpace: "nowrap", color: isActive(n.key) ? BRAND_ACCENT : dark ? "rgba(255,255,255,0.8)" : "#4B5563", "&:hover": { color: BRAND_ACCENT }, transition: "color .15s" }}>
                   {n.label}
                 </Typography>
               </Link>
@@ -107,7 +109,7 @@ export default function SafeDealShell({ children, title, wide = false, dark = fa
                     void router.push(href("/"));
                   }}
                   data-testid="sd-nav-signout"
-                  sx={{ textTransform: "none", fontWeight: 700, borderRadius: 99, borderColor: dark ? "rgba(255,255,255,0.25)" : "#D1D5DB", color: fg }}
+                  sx={{ textTransform: "none", fontWeight: 700, borderRadius: 99, whiteSpace: "nowrap", minWidth: 0, borderColor: dark ? "rgba(255,255,255,0.25)" : "#D1D5DB", color: fg }}
                 >
                   Sign out
                 </Button>
@@ -149,7 +151,7 @@ export default function SafeDealShell({ children, title, wide = false, dark = fa
             </Stack>
           </Stack>
           <Typography sx={{ fontSize: 12, color: dark ? "rgba(255,255,255,0.6)" : "#9CA3AF", mt: 3 }} data-testid="sd-footer-legal">
-            © {new Date().getFullYear()} SafeDeal · safedeal.sh · Operated by {legalName}. Not a bank; funds are held as USDT in escrow custody.
+            © {new Date().getFullYear()} SafeDeal · safedeal.sh · Operated by {legalName.replace(/\.$/, "")}. Not a bank; funds are held as USDT in escrow custody.
           </Typography>
         </Container>
       </Box>

@@ -8,8 +8,8 @@ import { STATUS_GLOSSARY } from "./sdFormat";
 export default function SdStatusChip({ deal, size = "md", testId }: { deal: SdDeal; size?: "sm" | "md"; testId?: string }) {
   const g = STATUS_GLOSSARY[deal.status];
   const role = (deal.my_role || "buyer") as "buyer" | "seller";
-  const chip = <StatusChip deal={deal} size={size} testId={testId} />;
-  if (!g) return chip;
+  if (!g) return <StatusChip deal={deal} size={size} testId={testId} />;
+  const chip = <StatusChip deal={deal} size={size} testId={testId ? `${testId}-chip` : undefined} />;
   return (
     <Tooltip
       arrow
@@ -21,7 +21,7 @@ export default function SdStatusChip({ deal, size = "md", testId }: { deal: SdDe
         </Box>
       }
     >
-      <Box component="span" tabIndex={0} sx={{ display: "inline-flex", cursor: "help", borderRadius: 999, "&:focus-visible": { outline: "2px solid #4338CA", outlineOffset: 2 } }}>
+      <Box component="span" tabIndex={0} role="button" aria-label={`Status: ${deal.status_label || deal.status}. ${g.meaning}`} data-testid={testId} data-status={deal.status} sx={{ display: "inline-flex", cursor: "help", borderRadius: 999 }}>
         {chip}
       </Box>
     </Tooltip>
