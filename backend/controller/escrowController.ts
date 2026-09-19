@@ -102,7 +102,7 @@ const safedealBase = (): string => (envRaw("SAFEDEAL_URL") || `${frontendBase()}
 const inviteUrl = (token: string): string => `${frontendBase()}/escrow/invite/${token}`;
 /** Where a party opens this deal — SafeDeal deals live on the SafeDeal site. */
 const dealUrl = (deal: any): string =>
-  deal?.source === "safedeal" ? `${safedealBase()}/deal/${deal.deal_token}` : dealUrl(deal);
+  deal?.source === "safedeal" ? `${safedealBase()}/deal/${deal.deal_token}` : inviteUrl(deal.deal_token);
 const isSafeDeal = (deal: any): boolean => deal?.source === "safedeal";
 const norm = (s: unknown): string => String(s ?? "").trim().toLowerCase();
 

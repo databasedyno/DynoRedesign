@@ -77,6 +77,16 @@ export const getEmailHeroUrl = (icon: string): string => {
 /** Who the email is for — drives the footer "why you received this" line. */
 export type EmailAudience = 'merchant' | 'buyer' | 'admin';
 
+/** Which product the email speaks for. SafeDeal reuses the Dynopay chrome with its own wordmark + copy. */
+export type EmailBrand = 'dynopay' | 'safedeal';
+
+export const safedealBaseUrl = (): string =>
+  (config.raw('SAFEDEAL_URL') || 'https://safedeal.sh').trim().replace(/\/+$/, '');
+
+/** Inline text wordmark (SVG/data URIs don't render in mail clients). */
+const safedealWordmark = (size: number, opacity = 1): string =>
+  `<span style="display: inline-block; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; font-size: ${size}px; font-weight: 900; letter-spacing: -0.5px; color: #ffffff; opacity: ${opacity}; line-height: 1;">Safe<span style="color: #A5B4FC;">Deal</span></span>`;
+
 /** Placeholder the transport layer swaps for the real recipient address (see mailTransporter). */
 export const TO_EMAIL_TOKEN = '%%TO_EMAIL%%';
 
@@ -100,11 +110,14 @@ export const baseEmailTemplate = (
     hero?: EmailHero;
     /** Footer "why you received this" variant. Defaults to merchant. */
     audience?: EmailAudience;
+    /** Product chrome — 'safedeal' swaps the wordmark, tagline, signature and "why" line. */
+    brand?: EmailBrand;
   }
 ): string => {
   const LOGO_URL = getDynopayLogoUrl();
   const year = new Date().getFullYear();
-  const { showButton = false, buttonText = '', buttonLink = '', lang, hero, audience = 'merchant' } = options || {};
+  const { showButton = false, buttonText = '', buttonLink = '', lang, hero, audience = 'merchant', brand = 'dynopay' } = options || {};
+  const isSafeDeal = brand === 'safedeal';
   // Preheader: never let the client fall back to "Hey Alex," — use the heading when none given.
   const preheader = (options?.preheader || '').trim() || heading.replace(/<[^>]+>/g, '').trim();
   const legal = legalEntity();
@@ -115,13 +128,15 @@ export const baseEmailTemplate = (
   // existing callers; t() falls back to English for any missing key).
   const chrome = {
     bestRegards: tr('chrome.bestRegards', lang),
-    team: tr('chrome.teamSignature', lang),
-    tagline: tr('chrome.tagline', lang),
+    team: isSafeDeal ? 'The SafeDeal team' : tr('chrome.teamSignature', lang),
+    tagline: isSafeDeal ? 'Escrow for online deals · powered by Dynopay' : tr('chrome.tagline', lang),
     rights: tr('chrome.legal', lang, { year, legalName: legal.name }),
     privacy: tr('chrome.privacy', lang),
     terms: tr('chrome.terms', lang),
     support: tr('chrome.support', lang),
-    why: audience === 'buyer'
+    why: isSafeDeal
+      ? `You're receiving this because ${TO_EMAIL_TOKEN} is a party to a deal on SafeDeal, the escrow service run by Dynopay. Funds are held by Dynopay until both sides complete the deal.`
+      : audience === 'buyer'
       ? tr('chrome.whyBuyer', lang)
       : audience === 'admin'
         ? tr('chrome.whyAdmin', lang)
@@ -130,10 +145,18 @@ export const baseEmailTemplate = (
     noReply: tr('chrome.noReply', lang),
     noReplyHelp: tr('chrome.noReplyHelp', lang),
   };
+  const brandHome = isSafeDeal ? safedealBaseUrl() : 'https://dynopay.com';
+  const brandTitle = isSafeDeal ? 'SafeDeal' : 'Dynopay';
+  const headerMark = isSafeDeal
+    ? safedealWordmark(24)
+    : `<img src="${LOGO_URL}" alt="Dynopay" width="120" height="40" style="display: inline-block; max-width: 120px; height: auto;" />`;
+  const footerMark = isSafeDeal
+    ? safedealWordmark(18, 0.85)
+    : `<img src="${LOGO_URL}" alt="Dynopay" width="90" height="30" style="display: inline-block; max-width: 90px; height: auto; opacity: 0.8;" />`;
   const ftrFont = "font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;";
   const whyBlock = `<tr>
                   <td align="center" class="ftr-text" style="color: #a1a1aa; font-size: 11px; line-height: 1.6; ${ftrFont} padding: 0 8px 12px;">
-                    ${chrome.why}${audience === 'merchant' ? ` <a class="ftr-link" href="${frontendUrl}/settings?section=notifications" style="color: #d4d4d8; text-decoration: underline; font-size: 11px;">${chrome.managePrefs}</a>` : ''}
+                    ${chrome.why}${audience === 'merchant' && !isSafeDeal ? ` <a class="ftr-link" href="${frontendUrl}/settings?section=notifications" style="color: #d4d4d8; text-decoration: underline; font-size: 11px;">${chrome.managePrefs}</a>` : ''}
                   </td>
                 </tr>`;
   // The From mailbox is send-only (no inbox) — say so, and point at the help centre instead.
@@ -157,6 +180,7 @@ export const baseEmailTemplate = (
   // Can be hidden platform-wide via env: set SHOW_SOCIAL_LINKS=false (or the landing's
   // NEXT_PUBLIC_SHOW_SOCIAL_LINKS=false). Either name turns social off everywhere. Default = shown.
   const showSocialLinks =
+    !isSafeDeal &&
     (process.env.SHOW_SOCIAL_LINKS ?? 'true').toLowerCase() !== 'false' &&
     (process.env.NEXT_PUBLIC_SHOW_SOCIAL_LINKS ?? 'true').toLowerCase() !== 'false';
   const socials: Array<{ name: string; url: string; label: string }> = [
@@ -197,7 +221,7 @@ export const baseEmailTemplate = (
   <meta content="telephone=no" name="format-detection" />
   <meta name="color-scheme" content="light dark" />
   <meta name="supported-color-schemes" content="light dark" />
-  <title>Dynopay</title>
+  <title>${brandTitle}</title>
   <!--[if mso]>
   <style type="text/css">
     body, table, td { font-family: Arial, Helvetica, sans-serif !important; }
@@ -315,8 +339,8 @@ export const baseEmailTemplate = (
           <!-- Logo Header -->
           <tr>
             <td class="hdr hdr-bar" style="background-color: #050505; padding: 26px 32px; text-align: center;">
-              <a href="https://dynopay.com" style="text-decoration: none;">
-                <img src="${LOGO_URL}" alt="Dynopay" width="120" height="40" style="display: inline-block; max-width: 120px; height: auto;" />
+              <a href="${brandHome}" style="text-decoration: none;">
+                ${headerMark}
               </a>
             </td>
           </tr>
@@ -343,7 +367,7 @@ export const baseEmailTemplate = (
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td align="center" style="padding-bottom: 16px;">
-                    <img src="${LOGO_URL}" alt="Dynopay" width="90" height="30" style="display: inline-block; max-width: 90px; height: auto; opacity: 0.8;" />
+                    ${footerMark}
                   </td>
                 </tr>
                 <tr>

@@ -30,8 +30,9 @@ import { BRAND_ACCENT, brandAlpha } from "@/constants/theme";
 import StatusChip from "@/Components/Page/Escrow/StatusChip";
 import { money, shortDate, titleize } from "@/Components/Page/Escrow/escrowUtils";
 import AdminWithdrawals from "./AdminWithdrawals";
+import AdminSafeDealReadiness from "./AdminSafeDealReadiness";
 
-type Tab = "disputes" | "all" | "withdrawals";
+type Tab = "disputes" | "all" | "withdrawals" | "safedeal";
 
 export default function AdminEscrow() {
   const theme = useTheme();
@@ -54,7 +55,7 @@ export default function AdminEscrow() {
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
-    if (tab === "withdrawals") { setLoading(false); return; }
+    if (tab === "withdrawals" || tab === "safedeal") { setLoading(false); return; }
     setLoading(true);
     try {
       const list =
@@ -205,6 +206,13 @@ export default function AdminEscrow() {
           variant={tab === "withdrawals" ? "filled" : "outlined"}
           sx={{ fontWeight: 600, backgroundColor: tab === "withdrawals" ? BRAND_ACCENT : "transparent", color: tab === "withdrawals" ? "#fff" : "text.primary" }}
         />
+        <Chip
+          label="SafeDeal setup"
+          onClick={() => setTab("safedeal")}
+          data-testid="escrow-admin-tab-safedeal"
+          variant={tab === "safedeal" ? "filled" : "outlined"}
+          sx={{ fontWeight: 600, backgroundColor: tab === "safedeal" ? BRAND_ACCENT : "transparent", color: tab === "safedeal" ? "#fff" : "text.primary" }}
+        />
         {tab === "all" && (
           <Select
             size="small"
@@ -229,6 +237,8 @@ export default function AdminEscrow() {
 
       {tab === "withdrawals" ? (
         <AdminWithdrawals />
+      ) : tab === "safedeal" ? (
+        <AdminSafeDealReadiness />
       ) : loading ? (
         <Box sx={{ display: "grid", placeItems: "center", py: 8 }}>
           <CircularProgress size={28} sx={{ color: BRAND_ACCENT }} />

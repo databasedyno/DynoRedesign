@@ -37,6 +37,8 @@ import {
 import { createFundingLink } from "../services/safedeal/safedealCheckout";
 import { sendSafeDealCodeEmail, sendSafeDealAddressAlertEmail } from "../services/email/safedealEmails";
 import { sendEscrowInviteEmail } from "../services/email/escrowEmails";
+import { companyModel, userWalletModel } from "../models";
+import { getAdminWalletAddress } from "../utils/adminUtils";
 import sequelize from "../utils/dbInstance";
 import { QueryTypes } from "sequelize";
 
@@ -534,6 +536,7 @@ const wallet = async (_req: express.Request, res: express.Response) => {
       loadProfile(sess.customer_id),
     ]);
     return successResponseHelper(res, 200, "OK", {
+      ...balances,
       wallet: balances,
       addresses,
       withdrawals,
@@ -637,7 +640,7 @@ const withdraw = async (req: express.Request, res: express.Response) => {
         : w.status === "pending_approval"
         ? `Withdrawals above $${APPROVAL_THRESHOLD_USD} are reviewed by our team first — you'll get an email once it's sent.`
         : "Withdrawal queued.";
-    return successResponseHelper(res, 200, msg, { withdrawal: w, wallet: await getBalances(sess.customer_id) });
+    return successResponseHelper(res, 201, msg, { withdrawal: w, wallet: await getBalances(sess.customer_id) });
   } catch (e) {
     return handle(res, e, "withdraw");
   }
@@ -681,6 +684,63 @@ const adminRejectWithdrawal = async (req: express.Request, res: express.Response
     return successResponseHelper(res, 200, "Withdrawal rejected — funds returned to the customer.", w);
   } catch (e) {
     return handle(res, e, "adminRejectWithdrawal");
+  }
+};
+
+// ── Dynopay admin (ops): production readiness of the SafeDeal brand ─────────
+
+const FUNDING_COINS = ["BTC", "ETH", "LTC", "DOGE", "TRX", "BCH", "USDT-TRC20", "USDT-ERC20", "USDC-ERC20", "SOL", "XRP", "POLYGON", "USDT-POLYGON"];
+const maskAddr = (a?: string | null) => (a && a.length > 12 ? `${a.slice(0, 6)}…${a.slice(-4)}` : a || "");
+
+const adminReadiness = async (_req: express.Request, res: express.Response) => {
+  try {
+    const cid = Number(envRaw("SAFEDEAL_COMPANY_ID")) || 0;
+    const live = isLiveSettlementEnabled();
+    const safedealUrl = (envRaw("SAFEDEAL_URL") || "").trim();
+    const brand: any = cid ? await companyModel.findByPk(cid) : null;
+    const b = brand?.dataValues || null;
+    const wallets = cid
+      ? await userWalletModel.findAll({ where: { company_id: cid, wallet_type: { [Op.in]: FUNDING_COINS }, wallet_address: { [Op.not]: null } } as any, attributes: ["wallet_type", "wallet_address"] })
+      : [];
+    const configured = wallets.map((w: any) => ({ coin: String(w.dataValues.wallet_type), address: String(w.dataValues.wallet_address) }));
+    const custodyCoins = configured.filter((w) => {
+      const admin = getAdminWalletAddress(w.coin);
+      return admin && admin.toLowerCase() === w.address.toLowerCase();
+    });
+    const [totals, pending, stats] = await Promise.all([
+      cid ? brandWalletTotals(cid) : Promise.resolve(null),
+      cid ? adminListWithdrawals({ status: "pending_approval", companyId: cid }, 500) : Promise.resolve([]),
+      cid
+        ? sequelize.query<Record<string, string>>(
+            `SELECT COUNT(*) AS deals, COUNT(*) FILTER (WHERE status IN ('funded','delivered','disputed')) AS active,
+                    COUNT(*) FILTER (WHERE status = 'disputed') AS disputed, COALESCE(SUM(custody_amount_stable) FILTER (WHERE status IN ('funded','delivered','disputed')),0) AS in_custody
+               FROM tbl_escrow_deal WHERE source = 'safedeal' AND company_id = :cid`,
+            { replacements: { cid }, type: QueryTypes.SELECT }
+          ).then((r) => r[0])
+        : Promise.resolve(null),
+    ]);
+    const checks = [
+      { key: "brand", ok: !!b, label: "SafeDeal brand configured", detail: b ? `SAFEDEAL_COMPANY_ID=${cid} → "${b.company_name}" (owner user ${b.user_id})` : "Set SAFEDEAL_COMPANY_ID to the SafeDeal brand's company_id." },
+      { key: "url", ok: !!safedealUrl && (!live || /^https:\/\/(www\.)?safedeal\.sh/.test(safedealUrl)), label: "Public URL (invite links, emails, checkout redirect)", detail: safedealUrl ? `SAFEDEAL_URL=${safedealUrl}${live && !/safedeal\.sh/.test(safedealUrl) ? " — live mode should point at https://safedeal.sh" : ""}` : "SAFEDEAL_URL is not set; links fall back to <FRONTEND_URL>/safedeal." },
+      { key: "live", ok: true, warn: !live, label: live ? "Live settlement ON — real money moves" : "Live settlement OFF — funding & withdrawals are simulated", detail: `ESCROW_LIVE_SETTLEMENT=${live ? "true" : "false"}` },
+      { key: "wallets", ok: configured.length > 0, label: "Checkout coins on the SafeDeal brand", detail: configured.length ? `${configured.length} coin(s): ${configured.map((w) => w.coin).join(", ")}` : "No crypto wallets on the brand — 'Pay with crypto' (hosted checkout) cannot create a payment link. Add wallets to brand " + cid + " in the Dynopay dashboard." },
+      { key: "custody", ok: configured.length > 0 && custodyCoins.length === configured.length, warn: configured.length > 0 && custodyCoins.length !== configured.length, label: "Brand wallets point at Dynopay custody", detail: configured.length ? `${custodyCoins.length}/${configured.length} brand wallets match the platform custody address for their coin. Buyer payments forward to these addresses — they must be Dynopay-controlled (Binance deposit), never a third party.` : "Add wallets first." },
+      { key: "autoconvert", ok: !!b?.auto_convert_enabled, warn: !b?.auto_convert_enabled, label: "Auto-convert volatile coins to stablecoin", detail: b?.auto_convert_enabled ? `${b.settlement_currency} on ${b.settlement_chain} → ${maskAddr(b.settlement_wallet_address)}` : "Off — BTC/ETH funding would stay volatile instead of being converted to USDT custody. Enable auto-convert on the brand (Settings → Payouts)." },
+      { key: "fees", ok: escrowEngine.ESCROW_FEE_PERCENT > 0 && escrowEngine.ESCROW_FEE_MIN_USD > 0 && escrowEngine.ESCROW_MIN_DEAL_USD >= escrowEngine.ESCROW_FEE_MIN_USD, label: "Fee & minimums", detail: `fee ${escrowEngine.ESCROW_FEE_PERCENT}% (min $${escrowEngine.ESCROW_FEE_MIN_USD}) · min deal $${escrowEngine.ESCROW_MIN_DEAL_USD} · min withdrawal $${MIN_WITHDRAWAL_USD} · approval above $${APPROVAL_THRESHOLD_USD}` },
+      { key: "email", ok: true, warn: emailDisabled(), label: emailDisabled() ? "Outbound email OFF — codes are shown in the UI instead" : "Outbound email ON", detail: `DISABLE_OUTBOUND_EMAIL=${emailDisabled() ? "true" : "false"}` },
+    ];
+    return successResponseHelper(res, 200, "OK", {
+      ready: checks.every((c) => c.ok),
+      live_settlement: live,
+      safedeal_url: safedealUrl || null,
+      brand: b ? { company_id: cid, name: b.company_name, owner_user_id: Number(b.user_id), auto_convert: { enabled: !!b.auto_convert_enabled, currency: b.settlement_currency || null, chain: b.settlement_chain || null, address: maskAddr(b.settlement_wallet_address) || null } } : null,
+      wallets: configured.map((w) => ({ coin: w.coin, address: maskAddr(w.address), custody: custodyCoins.some((c) => c.coin === w.coin) })),
+      totals: totals ? { ...totals, pending_approvals: pending.length } : null,
+      deals: stats ? { count: Number(stats.deals || 0), active: Number(stats.active || 0), disputed: Number(stats.disputed || 0), in_custody: Number(stats.in_custody || 0) } : null,
+      checks,
+    });
+  } catch (e) {
+    return handle(res, e, "adminReadiness");
   }
 };
 
@@ -764,6 +824,7 @@ export default {
   adminWithdrawals,
   adminApproveWithdrawal,
   adminRejectWithdrawal,
+  adminReadiness,
   brandTotals,
   brandCustomerStatement,
 };

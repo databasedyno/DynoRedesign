@@ -14,7 +14,7 @@ import { CustomerRow, CustomerWalletError } from "../customerWalletService";
 import { ESCROW_PAYOUT_OPTIONS, normalizePayoutKey, withdrawFeeUsdFor } from "../escrow/escrowCosts";
 import { isLiveSettlementEnabled } from "../../controller/escrow/escrowShared";
 import { applyEntries, getBalances } from "./safedealWallet";
-import { sendSafeDealWithdrawalEmail } from "../email/safedealEmails";
+import { sendSafeDealWithdrawalEmail, sendSafeDealWithdrawalRejectedEmail } from "../email/safedealEmails";
 
 export const MIN_WITHDRAWAL_USD = Number(envRaw("SAFEDEAL_MIN_WITHDRAWAL_USD")) || 10;
 export const APPROVAL_THRESHOLD_USD = Number(envRaw("SAFEDEAL_WITHDRAWAL_APPROVAL_USD")) || 1000;
@@ -233,6 +233,14 @@ export async function adminListWithdrawals(filter: { status?: string | null; com
   );
 }
 
+async function customerById(id: number): Promise<CustomerRow | null> {
+  const rows = await sequelize.query<CustomerRow>(`SELECT customer_id, company_id, customer_name, email FROM tbl_customer WHERE customer_id = :id LIMIT 1`, {
+    replacements: { id },
+    type: QueryTypes.SELECT,
+  });
+  return rows[0] || null;
+}
+
 export async function approveWithdrawal(id: number, adminLabel: string): Promise<WithdrawalRow> {
   const w = await getWithdrawal(id);
   if (!w) throw new CustomerWalletError(404, "Withdrawal not found.");
@@ -242,6 +250,9 @@ export async function approveWithdrawal(id: number, adminLabel: string): Promise
     { replacements: { by: adminLabel, id }, type: QueryTypes.UPDATE }
   );
   const sent = await dispatchWithdrawal({ ...w, status: "queued" });
+  const customer = await customerById(w.customer_id);
+  const opt = ESCROW_PAYOUT_OPTIONS.find((o) => o.key === w.payout_key);
+  if (customer?.email) void sendSafeDealWithdrawalEmail(customer.email, sent, opt?.label || w.payout_key);
   return sent;
 }
 
@@ -254,14 +265,11 @@ export async function rejectWithdrawal(id: number, adminLabel: string, reason: s
       WHERE withdrawal_id = :id RETURNING *`,
     { replacements: { by: adminLabel, reason: String(reason || "").slice(0, 500) || null, id }, type: QueryTypes.SELECT }
   );
-  const customerRows = await sequelize.query<CustomerRow>(
-    `SELECT customer_id, company_id, customer_name, email FROM tbl_customer WHERE customer_id = :id LIMIT 1`,
-    { replacements: { id: w.customer_id }, type: QueryTypes.SELECT }
-  );
-  if (customerRows[0]) {
+  const customer = await customerById(w.customer_id);
+  if (customer) {
     await applyEntries([
       {
-        customer: customerRows[0],
+        customer,
         type: "CREDIT",
         amount: Number(w.amount_usd),
         kind: "withdrawal_reversed",
@@ -271,6 +279,8 @@ export async function rejectWithdrawal(id: number, adminLabel: string, reason: s
         meta: { withdrawal_id: w.withdrawal_id },
       },
     ]);
+    const opt = ESCROW_PAYOUT_OPTIONS.find((o) => o.key === w.payout_key);
+    if (customer.email) void sendSafeDealWithdrawalRejectedEmail(customer.email, rows[0], opt?.label || w.payout_key);
   }
   return rows[0];
 }
@@ -285,13 +295,10 @@ export async function maybeAutoWithdraw(customerId: number): Promise<WithdrawalR
   if (!p?.auto_withdraw || !p.auto_withdraw_address_id) return null;
   const bal = await getBalances(customerId);
   if (bal.available < MIN_WITHDRAWAL_USD) return null;
-  const customerRows = await sequelize.query<CustomerRow>(
-    `SELECT customer_id, company_id, customer_name, email FROM tbl_customer WHERE customer_id = :id LIMIT 1`,
-    { replacements: { id: customerId }, type: QueryTypes.SELECT }
-  );
-  if (!customerRows[0]) return null;
+  const customer = await customerById(customerId);
+  if (!customer) return null;
   try {
-    return await requestWithdrawal(customerRows[0], { address_id: p.auto_withdraw_address_id, amount: bal.available, source: "auto" });
+    return await requestWithdrawal(customer, { address_id: p.auto_withdraw_address_id, amount: bal.available, source: "auto" });
   } catch (err) {
     apiLogger.error(`[SafeDeal] auto-withdraw failed for customer ${customerId}: ${(err as Error).message}`);
     return null;

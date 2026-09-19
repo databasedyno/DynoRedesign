@@ -1,50 +1,72 @@
 /**
  * SafeDeal transactional emails (sign-in code, payout-address alerts, withdrawals).
- * Thin wrappers over the shared sendEmail() — no-ops when DISABLE_OUTBOUND_EMAIL=true.
+ * Rendered in the SafeDeal chrome; no-ops when DISABLE_OUTBOUND_EMAIL=true.
  */
-import { sendEmail } from "./emailShared";
+import { sendEmail, SendEmailOptions } from "./emailShared";
+import { amountHero, mono, otpBlock, p, safedealBaseUrl, type EmailHero } from "../../utils/emailTemplate";
 
-const brand = "SafeDeal";
+const esc = (s: unknown) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const usd = (n: number | string) => `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const sd = (hero: EmailHero, extra: Partial<SendEmailOptions> = {}): SendEmailOptions => ({ brand: "safedeal", audience: "buyer", hero, ...extra });
+const walletUrl = () => `${safedealBaseUrl()}/wallet`;
 
 export async function sendSafeDealCodeEmail(toEmail: string, code: string, purpose: "signin" | "stepup"): Promise<void> {
-  const what = purpose === "signin" ? "sign in to SafeDeal" : "confirm this sensitive action on SafeDeal";
+  const what = purpose === "signin" ? "sign in to SafeDeal" : "confirm this wallet action on SafeDeal";
   const message =
-    `<p>Use this one-time code to ${what}:</p>` +
-    `<p style="font-size:28px;font-weight:700;letter-spacing:6px;margin:12px 0">${code}</p>` +
-    `<p>It expires in 10 minutes. If you didn't request it, you can ignore this email.</p>` +
-    `<p style="color:#6b7280;font-size:12px">${brand} is powered by Dynopay.</p>`;
-  await sendEmail(toEmail, toEmail, purpose === "signin" ? `${code} is your SafeDeal sign-in code` : `${code} — confirm your SafeDeal action`, message);
+    p(`Use this one-time code to ${what}:`) +
+    otpBlock(code) +
+    p("It expires in <b>10 minutes</b>. If you didn't request it, you can safely ignore this email — nothing happens without the code.");
+  await sendEmail(
+    toEmail,
+    toEmail,
+    purpose === "signin" ? `${code} is your SafeDeal sign-in code` : `${code} — confirm your SafeDeal wallet action`,
+    message,
+    false,
+    sd("key", { heading: purpose === "signin" ? "Your sign-in code" : "Confirm your wallet action" })
+  );
 }
 
-export async function sendSafeDealAddressAlertEmail(
-  toEmail: string,
-  action: "added" | "removed",
-  label: string,
-  address: string
-): Promise<void> {
+export async function sendSafeDealAddressAlertEmail(toEmail: string, action: "added" | "removed", label: string, address: string): Promise<void> {
   const message =
-    `<p>A payout address was <b>${action}</b> on your SafeDeal wallet:</p>` +
-    `<p><b>${label}</b><br/><code>${address}</code></p>` +
-    `<p><b>This wasn't me?</b> Reply to this email immediately or contact support@dynopay.com — we'll freeze withdrawals on your wallet while we check.</p>` +
-    `<p style="color:#6b7280;font-size:12px">${brand} is powered by Dynopay.</p>`;
-  await sendEmail(toEmail, toEmail, `Payout address ${action} on your SafeDeal wallet`, message);
+    p(`A payout address was <b>${action}</b> on your SafeDeal wallet:`) +
+    p(`<b>${esc(label)}</b><br/>${mono(esc(address))}`) +
+    p(`<b>This wasn't you?</b> Sign in and remove the address straight away, then contact us through the help centre — we'll freeze withdrawals on your wallet while we check.`);
+  await sendEmail(toEmail, toEmail, `Payout address ${action} on your SafeDeal wallet`, message, false, sd(action === "added" ? "wallet" : "trash", { cta: { text: "Review my wallet", link: walletUrl() } }));
 }
 
-export async function sendSafeDealWithdrawalEmail(
-  toEmail: string,
-  w: { withdrawal_id: number; amount_usd: string | number; fee_usd: string | number; net_usd: string | number; address: string; status: string; requires_approval: boolean },
-  networkLabel: string
-): Promise<void> {
-  const status =
-    w.status === "sent"
-      ? "has been sent"
-      : w.status === "pending_approval"
-      ? "is awaiting a quick review by our operations team (withdrawals above the review threshold are checked manually)"
-      : "is queued";
+interface WithdrawalLike {
+  withdrawal_id: number;
+  amount_usd: string | number;
+  fee_usd: string | number;
+  net_usd: string | number;
+  address: string;
+  status: string;
+  requires_approval: boolean;
+  rejected_reason?: string | null;
+}
+
+export async function sendSafeDealWithdrawalEmail(toEmail: string, w: WithdrawalLike, networkLabel: string): Promise<void> {
+  const sent = w.status === "sent";
+  const pending = w.status === "pending_approval";
+  const pill = sent ? "SENT" : pending ? "UNDER REVIEW" : "QUEUED";
+  const intro = sent
+    ? `Your withdrawal <b>#${w.withdrawal_id}</b> is on its way.`
+    : pending
+    ? `Your withdrawal <b>#${w.withdrawal_id}</b> is being reviewed by our team — withdrawals above the review threshold are checked manually. You'll get another email once it's sent.`
+    : `Your withdrawal <b>#${w.withdrawal_id}</b> is queued and will be sent shortly.`;
   const message =
-    `<p>Your withdrawal <b>#${w.withdrawal_id}</b> of <b>${Number(w.amount_usd).toFixed(2)} USD</b> ${status}.</p>` +
-    `<p>Network fee: ${Number(w.fee_usd).toFixed(2)} USD · You receive: <b>${Number(w.net_usd).toFixed(2)}</b> via ${networkLabel}<br/>` +
-    `To: <code>${w.address}</code></p>` +
-    `<p style="color:#6b7280;font-size:12px">${brand} is powered by Dynopay.</p>`;
-  await sendEmail(toEmail, toEmail, `SafeDeal withdrawal #${w.withdrawal_id} — ${w.status.replace("_", " ")}`, message);
+    amountHero(usd(w.amount_usd), { pill, pillType: sent ? "success" : "pending", sublabel: `You receive ${usd(w.net_usd)} via ${esc(networkLabel)} (network fee ${usd(w.fee_usd)})` }) +
+    p(intro) +
+    p(`To: ${mono(esc(w.address))}`);
+  await sendEmail(toEmail, toEmail, `SafeDeal withdrawal #${w.withdrawal_id} — ${w.status.replace("_", " ")}`, message, false, sd("payout", { heading: sent ? "Withdrawal sent" : pending ? "Withdrawal under review" : "Withdrawal queued", cta: { text: "Open my wallet", link: walletUrl() } }));
+}
+
+export async function sendSafeDealWithdrawalRejectedEmail(toEmail: string, w: WithdrawalLike, networkLabel: string): Promise<void> {
+  const message =
+    amountHero(usd(w.amount_usd), { pill: "RETURNED", pillType: "error", sublabel: `Withdrawal #${w.withdrawal_id} via ${esc(networkLabel)}` }) +
+    p(`We couldn't send this withdrawal, so the <b>full ${usd(w.amount_usd)}</b> is back in your available balance.`) +
+    (w.rejected_reason ? p(`Reason: ${esc(w.rejected_reason)}`) : "") +
+    p(`To: ${mono(esc(w.address))}`) +
+    p("You can request a new withdrawal any time — double-check the address and network first.");
+  await sendEmail(toEmail, toEmail, `SafeDeal withdrawal #${w.withdrawal_id} — returned to your balance`, message, false, sd("wallet-red", { heading: "Withdrawal returned", cta: { text: "Open my wallet", link: walletUrl() } }));
 }

@@ -150,7 +150,7 @@ export interface SdWithdrawal {
   customer_email?: string | null;
 }
 
-export interface SdWallet {
+export interface SdWallet extends Partial<SdBalances> {
   wallet: SdBalances;
   addresses: SdAddress[];
   withdrawals: SdWithdrawal[];

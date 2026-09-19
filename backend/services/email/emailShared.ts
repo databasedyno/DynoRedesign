@@ -1,7 +1,7 @@
 import mailTransporter from "../../utils/mailTransporter";
 import config from "../../utils/config";
 import { captureError } from "../errorMonitoringService";
-import { baseEmailTemplate, getCurrencySymbol, p, type EmailHero, type EmailAudience } from "../../utils/emailTemplate";
+import { baseEmailTemplate, getCurrencySymbol, p, type EmailHero, type EmailAudience, type EmailBrand } from "../../utils/emailTemplate";
 import { t as tr, firstNameOnly } from "../../utils/emailI18n";
 import { toFixedStr } from "../../utils/money";
 
@@ -146,15 +146,36 @@ export const formatMoneyForEmail = (amount: number | string, currency: string = 
 /**
  * Send a generic email with the Dynopay template
  */
+export interface SendEmailOptions {
+  brand?: EmailBrand;
+  audience?: EmailAudience;
+  hero?: EmailHero;
+  /** H1 inside the card; defaults to the subject line. */
+  heading?: string;
+  preheader?: string;
+  cta?: { text: string; link: string };
+  lang?: string | null;
+}
+
 export const sendEmail = async (
   recipientEmail: string,
   name: string,
   subject: string,
   message: string,
-  showImage = false
+  _showImage = false,
+  opts: SendEmailOptions = {}
 ) => {
   try {
-    const htmlBody = dynoPayEmailTemplate(subject, `${greetingLine(undefined, firstNameOnly(name))}\n${message}`);
+    const htmlBody = baseEmailTemplate(opts.heading || subject, `${greetingLine(opts.lang, firstNameOnly(name))}\n${message}`, {
+      brand: opts.brand,
+      audience: opts.audience,
+      hero: opts.hero,
+      preheader: opts.preheader,
+      lang: opts.lang || undefined,
+      showButton: !!opts.cta,
+      buttonText: opts.cta?.text,
+      buttonLink: opts.cta?.link,
+    });
     const info = await mailTransporter({
       to: recipientEmail,
       name,

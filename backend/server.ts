@@ -172,6 +172,7 @@ const trustedBaseDomains = new Set<string>();
   config.raw("NEXTAUTH_URL"),
   config.raw("NEXT_PUBLIC_BASE_URL"),
   config.raw("NEXT_PUBLIC_SERVER_URL"),
+  config.raw("SAFEDEAL_URL"),
   ...explicitOrigins,
   ...((config.str("CORS_TRUSTED_DOMAINS") || '').split(',')),
 ].forEach((v) => {

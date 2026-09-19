@@ -34,6 +34,7 @@ r.get("/safedeal/wallet/withdrawals", safedealAuth, safedealController.withdrawa
 r.get("/safedeal/admin/withdrawals", adminAuthMiddleware, safedealController.adminWithdrawals);
 r.post("/safedeal/admin/withdrawals/:id/approve", adminAuthMiddleware, safedealController.adminApproveWithdrawal);
 r.post("/safedeal/admin/withdrawals/:id/reject", adminAuthMiddleware, safedealController.adminRejectWithdrawal);
+r.get("/safedeal/admin/readiness", adminAuthMiddleware, safedealController.adminReadiness);
 
 // ── Dynopay brand owner (dashboard) ──────────────────────────────────────────
 r.get("/safedeal/brand/:companyId/totals", authMiddleware, safedealController.brandTotals);
