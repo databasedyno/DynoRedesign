@@ -1,3 +1,11 @@
+# === 2026-06 (fork: safedeal-verify) "deployment failed" (GH run 35433393407) — CI GUARD FIX, PROD IS LIVE (iteration_206: 100%) ===
+# Deploy steps all succeeded incl. "safedeal.sh serves the SafeDeal landing"; only the post-deploy hydration guard failed: it checked
+#   /pay/demo, which the (now shipped) middleware.ts 404s in production BY DESIGN. Fix: scripts/qa/hydration_guard.mjs default pages
+#   "/,/fees,/safedeal". Verified green vs https://dynopay.com (6/6). Live: safedeal.sh landing/deals/signin 200, www→apex 301,
+#   same-origin /api/safedeal/config OK, preflight allows x-safedeal-token. Repo: databasedyno/DynoRedesign, deploy branch `Improvement`.
+#   GitHub classic token + DO token pasted in chat 2026-06 → owner should rotate both.
+# ============================================================================================
+
 # === 2026-06 (fork: safedeal-verify) PROD BUG "Network Error on Create deal → Send invite" on https://safedeal.sh — FIXED (iteration_205: 100%) ===
 # RCA: safedeal.sh frontend called the Dynopay API cross-origin; preflight rejected because CORS allowedHeaders lacked `x-safedeal-token`
 #   (sign-in has no custom header → worked; every authed call failed). FIX: server.ts allowedHeaders += x-safedeal-token (cors() + options('*'));

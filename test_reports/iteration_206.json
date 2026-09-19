@@ -1,0 +1,18 @@
+{
+  "summary": "Verified the CI hydration-guard fix. Static review: /app/scripts/qa/hydration_guard.mjs default PAGES is now '/,/fees,/safedeal' (line 26) with updated header comment (lines 9-10). No CI workflow references /pay/demo. audit_page_shots.mjs and public_sweep.mjs (which do reference /pay/demo) are NOT referenced by any file under /app/.github/workflows/. deploy-droplet.yml runs the guard with GUARD_BASE_URL=https://dynopay.com and no GUARD_PAGES override. Live guard run against https://dynopay.com passed all 6 checks (/, /fees, /safedeal at 390px and 1920px) in 35.6s with exit code 0. Reproduced old failure: running with --pages=/pay/demo yields FAIL HTTP 404 on both widths (middleware.ts guard confirmed active in prod). Curl smoke: all endpoints as expected (safedeal.sh/ 200 with sd-landing, /deals 200, /signin 200, www→apex 301, /api/safedeal/config 200 JSON fee_percent=5, OPTIONS /api/safedeal/deals 204 with access-control-allow-headers containing x-safedeal-token, dynopay.com/pay/demo 404, dynopay.com/ 200, dynopay.com/health 200). Playwright browser smoke: sd-landing visible at 1920x800 and 360x740, sd-calc-quote renders full quote ($500 deal → $25 fee etc.), sd-nav-signin navigates to /signin and sd-signin-card renders. Zero console errors of type 'error'. ANSWER TO KEY QUESTION: YES — with the updated default pages, the CI hydration-guard step will pass on the next deploy; it passes right now against https://dynopay.com.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": ["/app/scripts/qa/hydration_guard.mjs"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Fix is minimal and correct; the header comment explicitly documents why /pay/demo cannot be in defaults, which is good for future maintainers.",
+    "audit_page_shots.mjs and public_sweep.mjs still list /pay/demo — safe today since they are manual preview-only QA scripts not wired into CI, but consider adding a comment or an assertion that they must run against non-production bases only."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "seed_data_creation": "None (production is read-only in this test)",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Live guard against https://dynopay.com is currently green; deploy-droplet.yml final step will succeed on next run. If /pay/demo ever needs to be tested, run guard against a non-production base (e.g., preview) or set GUARD_PAGES explicitly.",
+  "rca of the issue": "hydration_guard.mjs previously defaulted to '/,/fees,/pay/demo'. The first deploy that shipped middleware.ts (Dockerfile fixed to COPY middleware.ts) started 404-ing /pay/demo in production (NODE_ENV=production DEV_ONLY_PATHS guard), which is intended behaviour. The guard's default page list, not the app, was stale. Mitigation: swap /pay/demo for /safedeal in the default PAGES list — verified passing against dynopay.com."
+}
