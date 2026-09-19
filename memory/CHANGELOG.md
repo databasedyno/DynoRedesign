@@ -1,3 +1,13 @@
+# 2026-09-19 (pod 7d9ebf94) PROD DROPLET: SafeDeal connected + LIVE settlement ON — applied directly on droplet 134.209.94.115:/opt/dynopay/.env via SSH.
+#   Symptoms (prod): SafeDeal top-up (USDT) → "SafeDeal is not connected to Dynopay yet (SAFEDEAL_API_KEY missing)"; crypto escrow funding → "something went wrong".
+#   Root cause: /opt/dynopay/.env had SAFEDEAL_COMPANY_ID=262 + SAFEDEAL_URL but was MISSING SAFEDEAL_API_KEY / SAFEDEAL_WEBHOOK_SECRET; ESCROW_LIVE_SETTLEMENT unset (simulated).
+#     Both errors share one cause — funding calls Dynopay /api/user/cryptoPayment with the SafeDeal key; no key → throws → generic UI error.
+#   Verified read-only vs prod DB: key dpk_live_5jVl…thOz (api_name "Jade-97") → company_id 262 "SafeDeal", active. Brand 262 ready: auto_convert_enabled=true (USDT/TRC20), all 13 funding coins have wallets, pools pre-warmed.
+#   Fix (backup .env.bak.<ts> first): set SAFEDEAL_API_KEY=dpk_live_5jVl…thOz, SAFEDEAL_WEBHOOK_SECRET=b2d84553… (same as vault), ESCROW_LIVE_SETTLEMENT=true → `docker compose up -d --force-recreate`.
+#   VERIFIED in running prod container: apiKeyStatus {configured,resolves,company_match,active,webhook_secret_synced}=true; ESCROW_LIVE_SETTLEMENT=true; /health 200; safedeal.sh 200.
+#   Durability: deploy-droplet.yml only appends SAFEDEAL_* "if not present" & never touches ESCROW_LIVE_SETTLEMENT → values survive normal redeploys but a fresh droplet rebuild would lose them (add GitHub repo secrets + patch workflow for full resilience).
+#   TODO(user): re-test top-up + escrow crypto funding on prod; ROTATE the DO token, SafeDeal key, and the temp SSH key (remove emergent-dynopay-deploy from droplet authorized_keys) pasted/created in chat.
+
 # 2026-09-12 (pod 5971d3b4) DARK-MODE EMAIL SWEEP — preview-only (Save to GitHub to ship).
 #   Audited all 20 backend/services/email/*.ts templates for light backgrounds that stay light in dark mode (→ light text on light bg = invisible).
 #   Found 12 surfaces across 6 templates. Added 6 reusable dark-mode classes to backend/utils/emailTemplate.ts @media(prefers-color-scheme:dark)
