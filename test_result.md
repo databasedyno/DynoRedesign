@@ -1,4 +1,46 @@
 # ============================================================================
+# >>> HANDOFF (2026-09) — SAFEDEAL: 3 UI FIXES DONE ✅ | E2E FUNDING UNBLOCKED, FLOW PENDING <<<
+#
+# STATUS FOR NEXT AGENT:
+#   DONE & VERIFIED (frontend testing agent, screenshots): the 3 SafeDeal polish fixes
+#     1) gold progress tracker (EscrowProgress `accent` prop; DealPage passes SD_ACCENT #B77E00)
+#     2) mobile footer safe-area so the fixed "Your move" bar can't cover the footer legal line
+#        (SafeDealShell adds data-testid=sd-mobile-sticky-safearea, 84px, only on /deal/ routes)
+#     3) "Securing your deal…" caption under the shield on SafeDeal transitions
+#        (RouteTransitionLoader, data-testid=route-transition-caption-safedeal)
+#
+#   FIXED THIS SESSION — the E2E funding blocker (was: "cryptoPayment Invalid API key"):
+#     ROOT CAUSE: backend/.env SAFEDEAL_API_KEY was STALE (dpk_live_UA63…). The live brand
+#       (company 262) active key is different. User supplied the current key; it was verified
+#       against the live DB (company_id 262, status active, production, not expired).
+#     ACTION TAKEN: updated backend/.env SAFEDEAL_API_KEY -> dpk_live_oA0S… , restarted backend,
+#       RE-SEALED the vault (env.vault.enc) with passphrase so new pods keep the correct key.
+#     CONFIRMED WORKING: POST /api/safedeal/deals/<token>/funding now returns a real address
+#       ("Send exactly 265 USDT on Tron (TRC-20)", status waiting) — no more Invalid API key.
+#
+#   REMAINING (NEXT AGENT MUST RUN via frontend testing agent) — finish the buyer↔seller E2E,
+#   verifying the fund/deliver/release SCREENS. SAFE MODE, money SIMULATED.
+#     Test deal (already at "awaiting_payment", buyer accepted, funding address already created):
+#       token = e79888ff5e7e15c0657539d6c83f4242006f90db8846daa0  ($250, seller=cid607, buyer=cid608)
+#     Sessions (localStorage sd_token + sd_user; valid ~until 2026-09-26; re-mint if expired via
+#       POST /api/safedeal/auth/send-code {email} -> preview_code -> POST verify-code -> data.token):
+#       SELLER cid607 email sd-audit-1789847049@example.com
+#       BUYER  cid608 email sd-buyer-e2e-1789849169@example.com
+#       (full tokens are in the session note lower in this file / were logged this session)
+#     STEPS + testids:
+#       BUYER: open deal -> fund section -> pick coin (sd-fund-picker tile) -> sd-fund-payment ->
+#              click sd-act-fund ("Simulate payment received") -> status FUNDED
+#       SELLER: sd-act-deliver-open -> sd-deliver-dialog -> sd-act-deliver -> status DELIVERED
+#       BUYER: sd-act-release-open -> release dialog -> sd-act-release -> status COMPLETED/SETTLED,
+#              sd-settled-credit shown; then SELLER /safedeal/wallet shows credited balance.
+#     Swap party between steps: set localStorage sd_token+sd_user, reload the deal URL.
+#     NOTE: coin-tile click issues a REAL temp address via Tatum (operational). If a coin errors,
+#       try USDT-TRC20 or USDT-POLYGON first (stablecoins listed first in the picker).
+# ============================================================================
+
+
+
+# ============================================================================
 # >>> CURRENT SESSION (2026-09) — SAFEDEAL POLISH (gold stepper / footer safe-area /
 #     loader caption) + FULL BUYER↔SELLER E2E <<<
 #   THREE FRONTEND FIXES (all lint/tsc clean, verified via screenshots):

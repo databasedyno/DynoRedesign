@@ -1,3 +1,20 @@
+## SafeDeal E2E — IN PROGRESS handoff (2026-09) — flow verification pending
+- SAFEDEAL_API_KEY in backend/.env was STALE and has been UPDATED to the current active
+  company-262 key (dpk_live_oA0S…, verified active in live DB) and RE-SEALED into env.vault.enc.
+  Funding (POST /api/safedeal/deals/<token>/funding) now works (was "Invalid API key").
+- Test deal (status awaiting_payment; buyer already accepted; a funding address is already created):
+  deal_token = e79888ff5e7e15c0657539d6c83f4242006f90db8846daa0  ($250, service, buyer pays fee)
+- SafeDeal sessions (localStorage keys: sd_token = the JWT, sd_user = {"email":..,"customer_id":..}).
+  Valid ~until 2026-09-26; if expired re-mint via send-code/verify-code preview_code flow.
+  SELLER (cid 607, sd-audit-1789847049@example.com):
+    sd_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJraW5kIjoic2FmZWRlYWwiLCJjaWQiOjYwNywiY29pZCI6MjYyLCJlbWFpbCI6InNkLWF1ZGl0LTE3ODk4NDcwNDlAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODk4NDcwNTAsImV4cCI6MTc5MDQ1MTg1MH0.3RURGdsW0jHJf2KsyyEBZsfM5PWoEXgNHC7s3NxkGKM
+  BUYER (cid 608, sd-buyer-e2e-1789849169@example.com):
+    sd_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJraW5kIjoic2FmZWRlYWwiLCJjaWQiOjYwOCwiY29pZCI6MjYyLCJlbWFpbCI6InNkLWJ1eWVyLWUyZS0xNzg5ODQ5MTY5QGV4YW1wbGUuY29tIiwiaWF0IjoxNzg5ODQ5MTcxLCJleHAiOjE3OTA0NTM5NzF9.JqKYx8QYVzcNgPyO9S97slXgxV2KMf7QIafa7pjv5Ao
+- Remaining E2E steps (frontend): BUYER simulate-fund (sd-act-fund) -> SELLER deliver
+  (sd-act-deliver-open/sd-act-deliver) -> BUYER release (sd-act-release-open/sd-act-release)
+  -> completed + seller wallet credited. Full detail in test_result.md top HANDOFF block.
+
+
 # Test credentials (current pod)
 
 Preview URL (THIS pod): https://passphrases.preview.emergentagent.com  (source of truth: APP_URL in /etc/supervisor/conf.d/*.conf; frontend env = /app/.env.local, NOT /app/.env)
