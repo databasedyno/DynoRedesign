@@ -1,4 +1,93 @@
 # ============================================================================
+# >>> CURRENT SESSION (2026-09) — SAFEDEAL ROUTE-TRANSITION LOADER BRAND FIX <<<
+#   BUG (user): on SafeDeal pages, the page-to-page transition overlay showed the
+#     DYNOPAY logo instead of the SafeDeal shield.
+#   FIX (frontend only, no backend change):
+#     Components/Common/RouteTransitionLoader/index.tsx now brand-aware. On
+#     /safedeal/* routes (router.pathname) OR when navigating INTO a /safedeal/*
+#     route (captured destination), it renders <SafeDealMark size=96 ring={isDark}>
+#     (gold shield, aria-label "SafeDeal", data-testid=route-transition-mark-safedeal)
+#     instead of the Dynopay <img alt="Dynopay">. Non-SafeDeal routes unchanged.
+#   HOW TO VERIFY (frontend): the overlay (data-testid=route-transition-loader) only
+#     appears when a client-side route change takes >450ms (dev cold-compile does).
+#     Trigger a nav between two SafeDeal routes (public, no login needed):
+#       /safedeal (landing) -> /safedeal/terms or /safedeal/help or /safedeal/signin
+#     During the overlay: assert route-transition-mark-safedeal (SVG aria-label
+#     "SafeDeal") is present and NO img[alt="Dynopay"] is inside the overlay.
+#     Regression: on a NON-safedeal nav (e.g. / -> /fees) the overlay still shows
+#     the Dynopay logo.
+#   tsc/eslint on the file = clean.
+#
+#   ✅ TESTING AGENT VERIFICATION — 2026-09-19: ALL TESTS PASSED ✅
+#   Tested by: testing_agent (auto_frontend_testing_agent)
+#   Test date: 2026-09-19
+#   Test method: Python Playwright browser automation
+#   Base URL: https://eb4a00a2-ced4-4ccc-99d2-0b48f4ce8802.preview.emergentagent.com
+#
+#   TEST RESULTS SUMMARY: 2/2 TESTS PASSED (100% success rate)
+#
+#   ✅ TEST 1: SafeDeal navigation shows SafeDeal mark (PRIMARY FIX) — PASS
+#        Navigation tested: /safedeal → /safedeal/signin
+#        ✓ Route-transition overlay appeared during navigation (data-testid=route-transition-loader)
+#        ✓ SafeDeal mark FOUND in overlay (data-testid=route-transition-mark-safedeal)
+#        ✓ SafeDeal SVG with aria-label="SafeDeal" present
+#        ✓ Dynopay logo (img[alt="Dynopay"]) ABSENT from overlay (correct!)
+#        ✓ Screenshot captured: test1_safedeal_overlay.png
+#        → Shows gold SafeDeal shield on black tile (size=96, with ring glow)
+#
+#   ✅ TEST 2: Non-SafeDeal navigation shows Dynopay logo (REGRESSION) — PASS
+#        Navigation tested: / (home) → /fees
+#        ✓ Route-transition overlay appeared during navigation
+#        ✓ Dynopay logo (img[alt="Dynopay"]) FOUND in overlay (correct!)
+#        ✓ SafeDeal mark ABSENT from overlay (correct!)
+#        ✓ Screenshot captured: test2_dynopay_overlay.png
+#        → Shows Dynopay wordmark logo (theme-aware: dark/light variants)
+#
+#   DETAILED FINDINGS:
+#   1. Brand detection working correctly:
+#      - router.pathname.startsWith("/safedeal") detects current SafeDeal routes ✓
+#      - targetSafeDealRef.current captures destination route during navigation ✓
+#      - isSafeDeal = pathname check OR target check (covers all scenarios) ✓
+#   2. SafeDeal mark rendering correctly:
+#      - <SafeDealMark size={96} ring={isDark}> renders inline SVG ✓
+#      - Gold shield with interlocking arrows on black squircle tile ✓
+#      - aria-label="SafeDeal" for accessibility ✓
+#      - data-testid="route-transition-mark-safedeal" for testing ✓
+#   3. Dynopay logo rendering correctly on non-SafeDeal routes:
+#      - Theme-aware: DynopayBlackLogo (light mode) / DynopayWhiteLogo (dark mode) ✓
+#      - img[alt="Dynopay"] present ✓
+#   4. Overlay behavior verified:
+#      - Appears only when navigation takes >450ms (SHOW_DELAY_MS) ✓
+#      - Stays visible for at least 200ms (MIN_VISIBLE_MS) ✓
+#      - Graceful fade-out (140ms FADE_OUT_MS) ✓
+#      - Skips shallow routes and query-only changes ✓
+#
+#   CODE VERIFICATION:
+#   - File: /app/Components/Common/RouteTransitionLoader/index.tsx
+#     * Lines 64, 90: targetSafeDealRef captures destination route
+#     * Lines 155-156: isSafeDeal = pathname check OR target check
+#     * Lines 184-198: Conditional rendering — SafeDeal mark when isSafeDeal
+#     * Lines 199-217: Conditional rendering — Dynopay logo when NOT isSafeDeal
+#   - File: /app/Components/SafeDeal/SafeDealMark.tsx
+#     * Inline SVG with gold gradient shield, aria-label="SafeDeal"
+#     * Optional ring prop adds gold glow for dark backgrounds
+#
+#   VERDICT: BUG FIX VERIFIED AND WORKING ✅✅✅
+#   
+#   The route-transition loader now correctly shows brand-appropriate marks:
+#   - SafeDeal routes (/safedeal/*) → Gold SafeDeal shield
+#   - All other routes → Dynopay logo (theme-aware)
+#   
+#   The fix handles both scenarios:
+#   1. Navigation within SafeDeal (e.g. /safedeal → /safedeal/signin)
+#   2. Navigation into SafeDeal from other routes (e.g. / → /safedeal)
+#   
+#   No regression detected — non-SafeDeal routes continue to show Dynopay logo.
+# ============================================================================
+
+
+
+# ============================================================================
 # >>> CURRENT SESSION (2026-09) — ESCROW CREATE-DIALOG UX: FEE ADMIN-ONLY + AUTO-RELEASE PRESET <<<
 #   Backend re-tested 7/7 PASS. Backend healthy.
 #   - Escrow fee % is now ADMIN-CONTROLLED via .env: ESCROW_FEE_PERCENT=5, ESCROW_FEE_MIN_USD=1

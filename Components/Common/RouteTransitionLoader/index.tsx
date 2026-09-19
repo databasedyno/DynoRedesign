@@ -21,6 +21,7 @@ import { keyframes } from "@emotion/react";
 
 import DynopayBlackLogo from "@/assets/Icons/home/dynopay-blackLogo.svg";
 import DynopayWhiteLogo from "@/assets/Icons/home/dynopay-whiteLogo.svg";
+import SafeDealMark from "@/Components/SafeDeal/SafeDealMark";
 import { useThemeMode } from "@/contexts/ThemeContext";
 
 // Perceived-speed tuning (2026-08-14, "slow spinner between pages" report):
@@ -58,6 +59,9 @@ const RouteTransitionLoader: React.FC = () => {
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fadeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const shownAtRef = useRef<number>(0);
+  // Brand of the page we're navigating TO — so a transition that lands on a
+  // SafeDeal route shows the SafeDeal mark even before router.pathname flips.
+  const targetSafeDealRef = useRef<boolean>(false);
 
   useEffect(() => {
     const clearTimers = () => {
@@ -80,6 +84,10 @@ const RouteTransitionLoader: React.FC = () => {
       // Query-only change on the same page (e.g. ?page=2) — keep it subtle,
       // the NProgress bar already covers it.
       if (stripPath(url) === stripPath(router.asPath)) return;
+
+      // Remember whether the destination is a SafeDeal route so the overlay
+      // renders the correct brand mark (see logo selection below).
+      targetSafeDealRef.current = stripPath(url).startsWith("/safedeal");
 
       clearTimers();
       setLeaving(false);
@@ -140,6 +148,13 @@ const RouteTransitionLoader: React.FC = () => {
 
   if (!visible) return null;
 
+  // SafeDeal (/safedeal/*) is a separate brand served by this same app — its
+  // page-to-page loader must show the SafeDeal shield, not the Dynopay logo.
+  // Detect via the current route (covers safedeal→safedeal navigation) and the
+  // captured destination (covers entering SafeDeal from another in-app route).
+  const isSafeDeal =
+    router.pathname.startsWith("/safedeal") || targetSafeDealRef.current;
+
   const logoSrc = isDark ? DynopayWhiteLogo : DynopayBlackLogo;
 
   return (
@@ -166,23 +181,40 @@ const RouteTransitionLoader: React.FC = () => {
         pointerEvents: leaving ? "none" : "all",
       }}
     >
-      <Box
-        component="img"
-        src={(logoSrc as { src?: string })?.src || (logoSrc as unknown as string)}
-        alt="Dynopay"
-        sx={{
-          width: { xs: 130, sm: 150 },
-          height: "auto",
-          animation: `${logoBreath} 1.4s ease-in-out infinite`,
-          willChange: "opacity, transform",
-          userSelect: "none",
-          "@media (prefers-reduced-motion: reduce)": {
-            animation: "none",
-            opacity: 0.9,
-          },
-        }}
-        draggable={false}
-      />
+      {isSafeDeal ? (
+        <Box
+          data-testid="route-transition-mark-safedeal"
+          sx={{
+            display: "flex",
+            animation: `${logoBreath} 1.4s ease-in-out infinite`,
+            willChange: "opacity, transform",
+            "@media (prefers-reduced-motion: reduce)": {
+              animation: "none",
+              opacity: 0.9,
+            },
+          }}
+        >
+          <SafeDealMark size={96} ring={isDark} />
+        </Box>
+      ) : (
+        <Box
+          component="img"
+          src={(logoSrc as { src?: string })?.src || (logoSrc as unknown as string)}
+          alt="Dynopay"
+          sx={{
+            width: { xs: 130, sm: 150 },
+            height: "auto",
+            animation: `${logoBreath} 1.4s ease-in-out infinite`,
+            willChange: "opacity, transform",
+            userSelect: "none",
+            "@media (prefers-reduced-motion: reduce)": {
+              animation: "none",
+              opacity: 0.9,
+            },
+          }}
+          draggable={false}
+        />
+      )}
     </Box>
   );
 };
