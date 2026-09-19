@@ -6,7 +6,8 @@
 //   GUARD_BASE_URL=https://dynopay.com node scripts/qa/hydration_guard.mjs
 //   node scripts/qa/hydration_guard.mjs --base=<url> --pages=/,/fees --widths=390,1920
 //
-// Env/flags: GUARD_PAGES (default "/,/fees,/pay/demo"), GUARD_WIDTHS ("390,1920"),
+// Env/flags: GUARD_PAGES (default "/,/fees,/safedeal" — NOT /pay/demo: middleware.ts 404s the
+// dev-only demo pages in production, so it would always fail there), GUARD_WIDTHS ("390,1920"),
 // GUARD_RETRIES (1 — a failure must reproduce to count), PLAYWRIGHT_CHROME_EXECUTABLE_PATH.
 import { chromium } from "playwright";
 
@@ -22,7 +23,7 @@ if (!BASE) {
   console.error("hydration_guard: set GUARD_BASE_URL or --base=<url>");
   process.exit(2);
 }
-const PAGES = (args.pages || process.env.GUARD_PAGES || "/,/fees,/pay/demo").split(",").filter(Boolean);
+const PAGES = (args.pages || process.env.GUARD_PAGES || "/,/fees,/safedeal").split(",").filter(Boolean);
 const WIDTHS = (args.widths || process.env.GUARD_WIDTHS || "390,1920").split(",").map(Number);
 const RETRIES = Number(args.retries ?? process.env.GUARD_RETRIES ?? 1);
 
