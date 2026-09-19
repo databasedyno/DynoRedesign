@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import adminBaseApi from "@/axiosAdmin";
 import { BRAND_ACCENT } from "@/constants/theme";
 import { money, shortDate } from "@/Components/Page/Escrow/escrowUtils";
+import { tabSx } from "./tabSx";
 
 interface Withdrawal {
   withdrawal_id: number;
@@ -84,7 +85,7 @@ export default function AdminWithdrawals() {
     <Box data-testid="escrow-admin-withdrawals">
       <Stack direction="row" spacing={1} sx={{ mb: 2, flexWrap: "wrap", rowGap: 1 }}>
         {STATUSES.map((s) => (
-          <Chip key={s || "all"} label={s ? s.replace("_", " ") : "All"} onClick={() => setStatus(s)} data-testid={`escrow-admin-wd-filter-${s || "all"}`} variant={status === s ? "filled" : "outlined"} sx={{ fontWeight: 600, textTransform: "capitalize", backgroundColor: status === s ? BRAND_ACCENT : "transparent", color: status === s ? "#fff" : "text.primary" }} />
+          <Chip key={s || "all"} label={s ? s.replace("_", " ") : "All"} onClick={() => setStatus(s)} data-testid={`escrow-admin-wd-filter-${s || "all"}`} variant={status === s ? "filled" : "outlined"} sx={{ ...tabSx(status === s), textTransform: "capitalize" }} />
         ))}
       </Stack>
       {loading ? (

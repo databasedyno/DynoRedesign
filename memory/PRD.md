@@ -1,3 +1,28 @@
+# === 2026-06 (fork: safedeal-verify) SAFEDEAL — UNTESTED FLOWS VERIFIED + API NITS + PRODUCTION READINESS — DONE (testing_agent iteration_203: BE 23/23, FE 100%, 0 issues) ===
+# User choices (ask_human): verify BOTH untested flows (post-funding cancel/dispute UI + admin withdrawals/customers), FIX the API nits,
+# then continue with production readiness (safedeal.sh middleware, real checkout path review, SafeDeal email templates). User note:
+# "use existing Dynopay admin panel to manage the escrow" — confirmed: everything lives in /admin → Escrow (no separate admin).
+#
+# VERIFIED (iteration_203 + self-test): post-funding "Request cancellation" → disputed(kind=cancellation) → other party agrees → refunded,
+#   buyer refund ≈ net pool, requester can't accept own proposal; full dispute negotiation (open split → counter → message → accept → split);
+#   >$1000 withdrawal → pending_approval → admin approve (sent, simulated) / reject (funds returned + withdrawal_reversed statement row);
+#   Admin → Escrow → "SafeDeal setup" readiness tab; Customers page (brand 262) totals + per-customer SafeDeal wallet statement + CSV;
+#   safedeal.sh Host-header rewrite (curl); legacy /api/escrow/admin/deals regression.
+# CHANGES:
+#   • BUG FIX controller/escrowController.ts:104 dealUrl() recursed infinitely for non-SafeDeal deals → inviteUrl(deal.deal_token).
+#   • API: GET /api/safedeal/wallet → balances at data.* AND data.wallet.*; POST /api/safedeal/wallet/withdraw → 201 (test updated).
+#   • NEW GET /api/safedeal/admin/readiness (adminAuth) → 8 checks {brand,url,live,wallets,custody,autoconvert,fees,email} + totals/deals;
+#     FE Components/Page/Admin/Escrow/AdminSafeDealReadiness.tsx + tab escrow-admin-tab-safedeal. Chips keep colour on focus (tabSx.ts).
+#   • CORS server.ts: SAFEDEAL_URL apex added to trusted base domains (safedeal.sh → Dynopay API cross-origin).
+#   • EMAILS: utils/emailTemplate.ts baseEmailTemplate({brand:'safedeal'}) — text wordmark, "The SafeDeal team", SafeDeal footer, no socials;
+#     emailShared.sendEmail(..., opts:{brand,audience,hero,heading,preheader,cta,lang}); services/email/escrowEmails.ts brand-aware by deal.source
+#     (SafeDeal voice: "escalate to the SafeDeal team"); services/email/safedealEmails.ts rebuilt (otpBlock code, address alerts, withdrawal
+#     sent/review/rejected with amountHero) + admin approve/reject now email the customer. Render: scripts/render_safedeal_emails.ts (16/16).
+# PROD CHECKLIST (ops, surfaced by the readiness tab): brand 262 has NO crypto wallets → add Dynopay-custody wallet addresses per coin;
+#   enable auto-convert→USDT on brand 262; set ESCROW_LIVE_SETTLEMENT=true, SAFEDEAL_URL=https://safedeal.sh, DNS safedeal.sh → this Next app.
+# Tests: backend/tests/test_safedeal_iter203.py (new, 12). Notes: memory/SAFEDEAL_NOTES.md. COMMIT via "Save to GitHub".
+# ============================================================================================
+
 # === 2026-09 (session: continue-escrow) ESCROW DISPUTE REIMAGINED (P2P) + FEE/UX ===
 # Scope this session (all in code; backend fully tested; frontend built + tsc/eslint clean):
 #

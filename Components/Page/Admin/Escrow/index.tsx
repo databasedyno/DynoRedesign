@@ -31,6 +31,7 @@ import StatusChip from "@/Components/Page/Escrow/StatusChip";
 import { money, shortDate, titleize } from "@/Components/Page/Escrow/escrowUtils";
 import AdminWithdrawals from "./AdminWithdrawals";
 import AdminSafeDealReadiness from "./AdminSafeDealReadiness";
+import { tabSx } from "./tabSx";
 
 type Tab = "disputes" | "all" | "withdrawals" | "safedeal";
 
@@ -190,28 +191,28 @@ export default function AdminEscrow() {
           onClick={() => setTab("disputes")}
           data-testid="escrow-admin-tab-disputes"
           variant={tab === "disputes" ? "filled" : "outlined"}
-          sx={{ fontWeight: 600, backgroundColor: tab === "disputes" ? BRAND_ACCENT : "transparent", color: tab === "disputes" ? "#fff" : "text.primary" }}
+          sx={tabSx(tab === "disputes")}
         />
         <Chip
           label="All deals"
           onClick={() => setTab("all")}
           data-testid="escrow-admin-tab-all"
           variant={tab === "all" ? "filled" : "outlined"}
-          sx={{ fontWeight: 600, backgroundColor: tab === "all" ? BRAND_ACCENT : "transparent", color: tab === "all" ? "#fff" : "text.primary" }}
+          sx={tabSx(tab === "all")}
         />
         <Chip
           label="Withdrawals"
           onClick={() => setTab("withdrawals")}
           data-testid="escrow-admin-tab-withdrawals"
           variant={tab === "withdrawals" ? "filled" : "outlined"}
-          sx={{ fontWeight: 600, backgroundColor: tab === "withdrawals" ? BRAND_ACCENT : "transparent", color: tab === "withdrawals" ? "#fff" : "text.primary" }}
+          sx={tabSx(tab === "withdrawals")}
         />
         <Chip
           label="SafeDeal setup"
           onClick={() => setTab("safedeal")}
           data-testid="escrow-admin-tab-safedeal"
           variant={tab === "safedeal" ? "filled" : "outlined"}
-          sx={{ fontWeight: 600, backgroundColor: tab === "safedeal" ? BRAND_ACCENT : "transparent", color: tab === "safedeal" ? "#fff" : "text.primary" }}
+          sx={tabSx(tab === "safedeal")}
         />
         {tab === "all" && (
           <Select

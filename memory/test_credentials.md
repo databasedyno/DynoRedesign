@@ -91,3 +91,7 @@ Preview URL (THIS pod): https://b3e8a0ae-58d8-4d4e-9384-206e4f1f52b2.preview.eme
 - Money is SIMULATED (ESCROW_LIVE_SETTLEMENT off): "Pay with crypto (simulated)" funds instantly.
 - Dynopay admin side: Admin → Escrow → tab "Withdrawals" (super-admin login). Brand owner side: Customers page with brand 262 selected shows escrow totals + per-customer statement.
 - Smoke script (backend, all flows): bash /app/backend/scripts/safedeal_smoke.sh
+- Pytest: /app/backend/tests/test_safedeal_api.py (11) + test_safedeal_iter203.py (12) — `cd /app/backend && python3 -m pytest tests/test_safedeal_*.py -q`
+- Admin (super-admin): /admin/login (UI) or POST /api/admin/login → data.accessToken; localStorage key `admin_token`. Admin → Escrow tabs: escrow-admin-tab-{disputes,all,withdrawals,safedeal}. Withdrawals > $1000 → pending_approval → approve/reject there.
+- Owner view of brand 262: inject owner token (TOTP recipe above) + localStorage last_company_id=262 → /customers shows brand-escrow-totals; open a customer → customer-escrow-statement.
+- Rendered SafeDeal email previews: `cd /app/backend && EMAIL_DUMP_DIR=/tmp/safedeal_emails node_modules/.bin/ts-node --transpile-only scripts/render_safedeal_emails.ts`
