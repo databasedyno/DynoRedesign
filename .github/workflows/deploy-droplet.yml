@@ -95,6 +95,16 @@ jobs:
           script: |
             set -e
             cd /opt/dynopay
+            # SafeDeal (safedeal.sh) runs in the SAME container — Next middleware routes by Host.
+            # Idempotently ensure env + a Caddy site block exist (Caddy auto-issues the LE cert once DNS resolves).
+            [ -z "$(tail -c1 .env)" ] || echo >> .env
+            grep -q '^SAFEDEAL_COMPANY_ID=' .env || echo 'SAFEDEAL_COMPANY_ID=262' >> .env
+            grep -q '^SAFEDEAL_URL=' .env || echo 'SAFEDEAL_URL=https://safedeal.sh' >> .env
+            if ! grep -q 'safedeal.sh' /etc/caddy/Caddyfile; then
+              cp /etc/caddy/Caddyfile /etc/caddy/Caddyfile.bak.$(date +%s)
+              printf '\nwww.safedeal.sh {\n\tredir https://safedeal.sh{uri} permanent\n}\n\nsafedeal.sh {\n\tencode gzip zstd\n\treverse_proxy 127.0.0.1:8001\n}\n' >> /etc/caddy/Caddyfile
+              caddy validate --config /etc/caddy/Caddyfile && systemctl reload caddy
+            fi
             echo "${GHCR_TOKEN}" | docker login ghcr.io -u "${GITHUB_ACTOR}" --password-stdin
             # Pin the immutable commit SHA (NOT the mutable :latest) so Compose sees a
             # changed image reference every deploy and actually recreates the container.
@@ -122,6 +132,14 @@ jobs:
             sleep 5
           done
           echo "::error::https://dynopay.com/health not healthy after 180s"; exit 1
+
+      - name: SafeDeal host check (non-blocking until DNS/TLS cut over)
+        run: |
+          if curl -fsS --max-time 15 https://safedeal.sh/ | grep -q 'sd-landing'; then
+            echo "safedeal.sh serves the SafeDeal landing"
+          else
+            echo "::warning::https://safedeal.sh is not serving the SafeDeal landing yet (nameservers → DO + Caddy cert pending?)"
+          fi
 
       - name: Setup Node.js (hydration guard)
         uses: actions/setup-node@v4

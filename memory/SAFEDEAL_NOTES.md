@@ -29,3 +29,12 @@
 - Emails: baseEmailTemplate has brand:'safedeal' (text wordmark, "The SafeDeal team", SafeDeal "why" footer, no socials). escrowEmails.ts is brand-aware via deal.source; safedealEmails.ts (code / address / withdrawal sent|review|rejected). Render all: `EMAIL_DUMP_DIR=/tmp/x node_modules/.bin/ts-node --transpile-only scripts/render_safedeal_emails.ts` (16 files).
 - Bug fixed: escrowController.dealUrl recursed infinitely for non-SafeDeal deals (legacy admin list / emails) → now inviteUrl().
 - API: GET /wallet exposes balances top-level AND under data.wallet; POST /wallet/withdraw → 201. Admin approve/reject now email the customer.
+
+## safedeal.sh go-live (DNS/hosting) — configured 2026-06 (this fork)
+- Prod host = droplet `dynopay-prod-ams3` 134.209.94.115 (Caddy → nginx:8001 → Next+Express in one container). No SSH key on this pod.
+- DO DNS zone `safedeal.sh` CREATED via API: A @ → 134.209.94.115 (ttl 60), CNAME www → @. NS = ns1/2/3.digitalocean.com.
+- Registrar is Namecheap (current NS dns1/dns2.registrar-servers.com, parked A 192.64.119.252) → OWNER must switch nameservers to DO.
+- `.github/workflows/deploy-droplet.yml` SSH step now idempotently: appends SAFEDEAL_COMPANY_ID=262 + SAFEDEAL_URL=https://safedeal.sh to /opt/dynopay/.env,
+  appends Caddy blocks (www → 301 apex; apex → reverse_proxy 127.0.0.1:8001), `caddy validate` + `systemctl reload caddy`; plus a non-blocking
+  post-deploy check that https://safedeal.sh serves `sd-landing`. Triggered by "Save to GitHub" (push to `Improvement`).
+- DO API token pasted in chat on 2026-06 → owner should ROTATE it.
