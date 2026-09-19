@@ -9,7 +9,7 @@ import uuid
 import pytest
 import requests
 
-BASE = os.environ.get("SAFEDEAL_BASE_URL") or "https://safedeal-reskin.preview.emergentagent.com"
+BASE = os.environ.get("SAFEDEAL_BASE_URL") or "https://passphrases.preview.emergentagent.com"
 API = BASE.rstrip("/") + "/api"
 
 
