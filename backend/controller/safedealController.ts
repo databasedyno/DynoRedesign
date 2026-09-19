@@ -35,8 +35,11 @@ import {
   approveWithdrawal,
   rejectWithdrawal,
   releaseParkedPayouts,
+  clearParked,
+  listDealPayouts,
   type PayoutPref,
 } from "../services/safedeal/safedealWithdrawals";
+import { MIN_TOPUP_USD, MAX_TOPUP_USD, createTopup, getTopup, listTopups, simulateTopup, topupQuotes } from "../services/safedeal/safedealTopup";
 import {
   FUNDING_COIN_META,
   apiKeyStatus,
@@ -52,7 +55,8 @@ import { isPlatformFeeExemptCompany } from "../services/feeService";
 import { sendSafeDealCodeEmail, sendSafeDealAddressAlertEmail } from "../services/email/safedealEmails";
 import { sendEscrowInviteEmail, sendEscrowAmendedEmail } from "../services/email/escrowEmails";
 import { runSafeDealReminders } from "../services/safedeal/safedealReminders";
-import { generateDealSummaryPdf } from "../services/safedeal/safedealPdf";
+import { generateDealSummaryPdf, feeShares } from "../services/safedeal/safedealPdf";
+import { toFixedStr } from "../utils/money";
 import { companyModel, userWalletModel } from "../models";
 import { getAdminWalletAddress } from "../utils/adminUtils";
 import sequelize from "../utils/dbInstance";
@@ -251,6 +255,9 @@ const updateProfile = async (req: express.Request, res: express.Response) => {
         type: QueryTypes.UPDATE,
       }
     );
+    // ON → any parked leg goes out once its address is usable; OFF → nothing is parked any more.
+    if (auto_withdraw) void releaseParkedPayouts(sess.customer_id);
+    else await clearParked(sess.customer_id);
     return me(req, res);
   } catch (e) {
     return handle(res, e, "updateProfile");
@@ -268,6 +275,8 @@ const config = async (_req: express.Request, res: express.Response) => {
     auto_release_default: escrowEngine.ESCROW_AUTO_RELEASE_DEFAULT,
     payout_options: ESCROW_PAYOUT_OPTIONS,
     min_withdrawal_usd: MIN_WITHDRAWAL_USD,
+    min_topup_usd: MIN_TOPUP_USD,
+    max_topup_usd: MAX_TOPUP_USD,
     withdrawal_approval_usd: APPROVAL_THRESHOLD_USD,
     live_settlement: isLiveSettlementEnabled(),
     dispute_auto_escalate_hours: Number(envRaw("ESCROW_DISPUTE_AUTO_ESCALATE_HOURS")) || 72,
@@ -849,15 +858,80 @@ async function amendDeal(deal: any, actor: ActorInfo, body: any, actorEmail: str
 /** GET /deals/:token/summary.pdf — a party's printable record of the deal. */
 const dealPdf = async (req: express.Request, res: express.Response) => {
   try {
-    const { deal } = await loadDealActor(req.params.token, session(res));
+    const sess = session(res);
+    const { deal, actor } = await loadDealActor(req.params.token, sess);
     const { buyerEmail, sellerEmail } = partiesOf(deal);
-    const attachments = await listAttachments(Number(deal.escrow_id));
-    const doc = generateDealSummaryPdf({ deal: deal.dataValues || deal, buyerEmail, sellerEmail, attachments, legalName: (envRaw("EMAIL_LEGAL_NAME") || "Dynopay Payments Ltd.").trim() });
+    const [attachments, payouts] = await Promise.all([listAttachments(Number(deal.escrow_id)), listDealPayouts(Number(deal.escrow_id))]);
+    const closed = ["completed", "refunded", "split"].includes(deal.status) && !!deal.outcome;
+    const doc = generateDealSummaryPdf({
+      deal: deal.dataValues || deal,
+      buyerEmail,
+      sellerEmail,
+      attachments,
+      legalName: (envRaw("EMAIL_LEGAL_NAME") || "Dynopay Payments Ltd.").trim(),
+      viewer: { role: actor.role, email: sess.email },
+      payouts: payouts.filter((p) => p.customer_id === sess.customer_id),
+    });
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `attachment; filename="safedeal-${deal.escrow_id}.pdf"`);
+    res.setHeader("Content-Disposition", `attachment; filename="safedeal-${closed ? "invoice-" : ""}${deal.escrow_id}.pdf"`);
     doc.pipe(res);
   } catch (e) {
     return handle(res, e, "dealPdf");
+  }
+};
+
+/** GET /invoices — every closed deal I was part of, with my final fee share and payout (retrievable any time). */
+const invoices = async (_req: express.Request, res: express.Response) => {
+  try {
+    const sess = session(res);
+    const email = norm(sess.email);
+    const deals: any[] = await escrowDealModel.findAll({
+      where: {
+        source: "safedeal",
+        company_id: sess.company_id,
+        status: { [Op.in]: ["completed", "refunded", "split"] },
+        [Op.or]: [{ creator_email: { [Op.iLike]: email } }, { counterparty_email: { [Op.iLike]: email } }, { creator_customer_id: sess.customer_id }, { counterparty_customer_id: sess.customer_id }],
+      },
+      order: [["updated_at", "DESC"]],
+      limit: 200,
+    });
+    const payouts = await sequelize.query<{ withdrawal_id: number; escrow_id: number; status: string; net_usd: string; payout_key: string; address: string }>(
+      `SELECT withdrawal_id, escrow_id, status, net_usd, payout_key, address FROM tbl_customer_withdrawal WHERE customer_id = :cid AND source = 'settlement' AND escrow_id IS NOT NULL`,
+      { replacements: { cid: sess.customer_id }, type: QueryTypes.SELECT }
+    );
+    const out = deals
+      .map((d) => {
+        const actor = actorFor(d, sess);
+        if (!actor) return null;
+        const b = computeFeeBreakdown({ amount: d.amount, currency: d.currency, feePercent: d.fee_percent, feeMinUsd: d.fee_min_usd, feePayer: d.fee_payer, payoutCoin: d.seller_payout_coin, fundingCoin: d.funding_coin, acceptedCoins: d.accepted_coins });
+        const shares = feeShares(b.totalCost, String(d.fee_payer));
+        const mine = actor.role === "buyer" ? Number(d.buyer_entitlement_stable || 0) : Number(d.seller_entitlement_stable || 0);
+        const p = payouts.find((x) => Number(x.escrow_id) === Number(d.escrow_id));
+        return {
+          escrow_id: d.escrow_id,
+          deal_token: d.deal_token,
+          invoice_no: `SD-${d.escrow_id}`,
+          title: d.title,
+          status: d.status,
+          outcome: d.outcome,
+          closed_at: d.fully_paid_at || d.outcome_authorized_at || d.completed_at || d.refunded_at || d.updated_at,
+          my_role: actor.role,
+          amount: Number(d.amount),
+          currency: d.currency,
+          funding_coin: d.funding_coin,
+          fee_payer: d.fee_payer,
+          total_cost: b.totalCost,
+          cost_items: b.costItems,
+          my_fee_share: actor.role === "buyer" ? shares.buyer : shares.seller,
+          buyer_paid: Number(d.funded_amount_usd ?? b.buyerPays),
+          my_amount: mine,
+          my_payout: p ? { withdrawal_id: p.withdrawal_id, status: p.status, net_usd: Number(p.net_usd), payout_key: p.payout_key, address: p.address } : null,
+        };
+      })
+      .filter(Boolean);
+    return successResponseHelper(res, 200, "OK", out, out.length);
+  } catch (e) {
+    return handle(res, e, "invoices");
   }
 };
 
@@ -912,23 +986,83 @@ const adminDownloadAttachment = async (req: express.Request, res: express.Respon
 const wallet = async (_req: express.Request, res: express.Response) => {
   try {
     const sess = session(res);
-    const [balances, addresses, withdrawals, profile] = await Promise.all([
+    const [balances, addresses, withdrawals, profile, topups] = await Promise.all([
       getBalances(sess.customer_id),
       listAddresses(sess.customer_id),
       listWithdrawals(sess.customer_id, 20),
       loadProfile(sess.customer_id),
+      listTopups(sess.customer_id, 10),
     ]);
     return successResponseHelper(res, 200, "OK", {
       ...balances,
       wallet: balances,
       addresses,
       withdrawals,
+      topups,
       profile: { auto_withdraw: !!profile?.auto_withdraw, auto_withdraw_address_id: profile?.auto_withdraw_address_id || null, parked_payout_usd: Number(profile?.parked_payout_usd || 0) },
-      limits: { min_withdrawal_usd: MIN_WITHDRAWAL_USD, approval_threshold_usd: APPROVAL_THRESHOLD_USD },
+      limits: { min_withdrawal_usd: MIN_WITHDRAWAL_USD, approval_threshold_usd: APPROVAL_THRESHOLD_USD, min_topup_usd: MIN_TOPUP_USD, max_topup_usd: MAX_TOPUP_USD },
       payout_options: ESCROW_PAYOUT_OPTIONS,
+      live: isLiveSettlementEnabled(),
     });
   } catch (e) {
     return handle(res, e, "wallet");
+  }
+};
+
+// ── wallet top-ups (deposit crypto → USD balance) ────────────────────────────
+
+const topupCoins = async (req: express.Request, res: express.Response) => {
+  try {
+    const sess = session(res);
+    const amount = Number((req.query as Record<string, string>).amount || 0);
+    if (!(amount > 0)) return errorResponseHelper(res, 400, "Enter an amount to top up.");
+    void refreshEscrowCostRates();
+    const coins = await topupQuotes(sess.company_id, amount);
+    return successResponseHelper(res, 200, "OK", { amount, coins, min_topup_usd: MIN_TOPUP_USD, max_topup_usd: MAX_TOPUP_USD, live: isLiveSettlementEnabled() }, coins.length);
+  } catch (e) {
+    return handle(res, e, "topupCoins");
+  }
+};
+
+const topupCreate = async (req: express.Request, res: express.Response) => {
+  try {
+    const sess = session(res);
+    const customer = await customerFor(sess);
+    const row = await createTopup(customer, Number(req.body?.amount), String(req.body?.coin || ""));
+    const m = FUNDING_COIN_META[row.coin];
+    return successResponseHelper(res, 201, `Send exactly ${row.crypto_amount} ${m?.label || row.coin} on ${m?.network || row.coin}. Your balance is credited ${toFixedStr(Number(row.amount_usd), 2)} USD once it confirms.`, { topup: row, live: isLiveSettlementEnabled() });
+  } catch (e) {
+    return handle(res, e, "topupCreate");
+  }
+};
+
+const topupList = async (_req: express.Request, res: express.Response) => {
+  try {
+    const rows = await listTopups(session(res).customer_id, 20);
+    return successResponseHelper(res, 200, "OK", rows, rows.length);
+  } catch (e) {
+    return handle(res, e, "topupList");
+  }
+};
+
+const topupGet = async (req: express.Request, res: express.Response) => {
+  try {
+    const sess = session(res);
+    const row = await getTopup(sess.customer_id, Number(req.params.id));
+    return successResponseHelper(res, 200, "OK", { topup: row, wallet: await getBalances(sess.customer_id), live: isLiveSettlementEnabled() });
+  } catch (e) {
+    return handle(res, e, "topupGet");
+  }
+};
+
+/** Preview only (live settlement OFF): pretend the deposit arrived and credit the wallet. */
+const topupSimulate = async (req: express.Request, res: express.Response) => {
+  try {
+    const sess = session(res);
+    const row = await simulateTopup(sess.customer_id, Number(req.params.id));
+    return successResponseHelper(res, 200, `[SIMULATED] ${toFixedStr(Number(row.amount_usd), 2)} USD credited to your balance.`, { topup: row, wallet: await getBalances(sess.customer_id) });
+  } catch (e) {
+    return handle(res, e, "topupSimulate");
   }
 };
 
@@ -1243,6 +1377,7 @@ export default {
   dynopayWebhook,
   setPayoutDestination,
   dealPdf,
+  invoices,
   uploadAttachment,
   downloadAttachment,
   adminDownloadAttachment,
@@ -1256,6 +1391,11 @@ export default {
   withdrawQuote,
   withdraw,
   withdrawals,
+  topupCoins,
+  topupCreate,
+  topupList,
+  topupGet,
+  topupSimulate,
   adminWithdrawals,
   adminApproveWithdrawal,
   adminRejectWithdrawal,

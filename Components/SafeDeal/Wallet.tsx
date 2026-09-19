@@ -2,12 +2,14 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Alert, Box, Button, Chip, Container, Dialog, DialogActions, DialogContent, DialogTitle, Divider, FormControlLabel, Grid, IconButton, MenuItem, Skeleton, Snackbar, Stack, Switch, TextField, Tooltip, Typography } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { BRAND_ACCENT } from "@/constants/theme";
-import safedealApi, { SdAddress, SdStatementRow, SdWallet, sdError } from "@/api/safedeal";
+import safedealApi, { SdAddress, SdStatementRow, SdTopup, SdWallet, sdError } from "@/api/safedeal";
 import { money } from "@/Components/Page/Escrow/escrowUtils";
 import { TABULAR, absTime, relTime, useNow, withdrawalStatusLabel } from "./sdFormat";
-import { useRequireSdSession } from "./sdRouting";
+import { useRequireSdSession, useSdHref } from "./sdRouting";
 import { SD_AMBER, SD_INK, SD_INK_MUTED } from "./SafeDealShell";
 import { StepUpDialog } from "./StepUpDialog";
+import TopUpDialog from "./TopUpDialog";
+import InvoicesCard from "./InvoicesCard";
 
 const card = { p: { xs: 2, md: 2.5 }, borderRadius: 3, backgroundColor: "#fff", border: "1px solid #E5E7EB" } as const;
 const primaryBtn = { textTransform: "none", fontWeight: 800, borderRadius: 99, backgroundColor: BRAND_ACCENT, "&:hover": { backgroundColor: "#3730A3" } } as const;
@@ -18,8 +20,10 @@ const KIND_LABEL: Record<string, string> = {
   hold_released: "Escrow hold released",
   paid_to_seller: "Paid to seller",
   escrow_fee: "Escrow fee",
-  escrow_costs: "Network & exchange costs",
+  exchange_fee: "Exchange fee",
+  escrow_costs: "Network & conversion costs",
   release_received: "Release received",
+  topup: "Top-up",
   payout: "Deal payout sent",
   withdrawal: "Withdrawal",
   withdrawal_reversed: "Withdrawal reversed",
@@ -32,13 +36,14 @@ const shortAddr = (a: string) => `${a.slice(0, 6)}…${a.slice(-4)}`;
 
 export default function Wallet() {
   const { ready } = useRequireSdSession();
+  const href = useSdHref();
   const now = useNow(30000);
   const [w, setW] = useState<SdWallet | null>(null);
   const [rows, setRows] = useState<SdStatementRow[] | null>(null);
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [toast, setToast] = useState<{ msg: string; severity: "success" | "error" } | null>(null);
-  const [dialog, setDialog] = useState<null | "address" | "withdraw" | { remove: SdAddress }>(null);
+  const [dialog, setDialog] = useState<null | "address" | "withdraw" | "topup" | { remove: SdAddress } | { resume: SdTopup }>(null);
   const notify = (msg: string, severity: "success" | "error" = "success") => setToast({ msg, severity });
 
   const load = useCallback(async () => {
@@ -75,7 +80,7 @@ export default function Wallet() {
     if (on && !addr) return notify("Save a payout address first.", "error");
     try {
       await safedealApi.updateProfile({ auto_withdraw: on, auto_withdraw_address_id: on ? addr : null });
-      notify(on ? "Auto-withdraw is on — released funds go straight to your saved address." : "Auto-withdraw is off.");
+      notify(on ? "Auto-withdraw is on — future releases and refunds are sent straight to your saved address." : "Auto-withdraw is off — released funds stay in your balance until you withdraw.");
       await load();
     } catch (e) {
       notify(sdError(e), "error");
@@ -100,6 +105,8 @@ export default function Wallet() {
     );
   }
 
+  const openTopup = (w.topups || []).find((t) => ["waiting", "pending", "underpaid"].includes(t.status)) || null;
+
   return (
     <Container maxWidth="lg" sx={{ py: { xs: 3, md: 5 } }} data-testid="sd-wallet-page">
       <Typography component="h1" sx={{ fontSize: { xs: 26, md: 32 }, fontWeight: 900, letterSpacing: -0.8, mb: 0.5 }}>Wallet</Typography>
@@ -114,11 +121,22 @@ export default function Wallet() {
               <Icon icon="mdi:lock-outline" width={15} color={SD_AMBER} />
               <Typography sx={{ fontSize: 13, color: "rgba(255,255,255,0.85)", ...TABULAR }} data-testid="sd-wallet-held">Held in escrow: <b>{money(w.wallet.held)}</b></Typography>
             </Stack>
-            <Button fullWidth variant="contained" disabled={w.wallet.available < w.limits.min_withdrawal_usd} onClick={() => setDialog("withdraw")} data-testid="sd-withdraw-open" sx={{ ...primaryBtn, "&.Mui-disabled": { backgroundColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.45)" } }} startIcon={<Icon icon="mdi:bank-transfer-out" />}>
-              Withdraw
-            </Button>
-            <Typography sx={{ fontSize: 11.5, color: SD_INK_MUTED, mt: 1 }}>Min ${w.limits.min_withdrawal_usd} · withdrawals above ${w.limits.approval_threshold_usd.toLocaleString()} are reviewed first</Typography>
+            <Stack direction="row" spacing={1}>
+              <Button fullWidth variant="contained" onClick={() => setDialog("topup")} data-testid="sd-topup-open" sx={{ ...primaryBtn, backgroundColor: "#fff", color: SD_INK, "&:hover": { backgroundColor: "#E5E7EB" } }} startIcon={<Icon icon="mdi:plus-circle-outline" />}>
+                Top up
+              </Button>
+              <Button fullWidth variant="contained" disabled={w.wallet.available < w.limits.min_withdrawal_usd} onClick={() => setDialog("withdraw")} data-testid="sd-withdraw-open" sx={{ ...primaryBtn, "&.Mui-disabled": { backgroundColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.45)" } }} startIcon={<Icon icon="mdi:bank-transfer-out" />}>
+                Withdraw
+              </Button>
+            </Stack>
+            <Typography sx={{ fontSize: 11.5, color: SD_INK_MUTED, mt: 1 }}>Top up from ${w.limits.min_topup_usd} · withdraw min ${w.limits.min_withdrawal_usd} · above ${w.limits.approval_threshold_usd.toLocaleString()} reviewed first</Typography>
           </Box>
+          {openTopup && (
+            <Alert severity="info" icon={<Icon icon="mdi:qrcode-scan" />} sx={{ mt: 1.5, borderRadius: 2.5 }} data-testid="sd-topup-open-banner"
+              action={<Button size="small" onClick={() => setDialog({ resume: openTopup })} data-testid="sd-topup-resume" sx={{ textTransform: "none", fontWeight: 800 }}>Show address</Button>}>
+              Top-up of <b>{money(Number(openTopup.amount_usd))}</b> in {openTopup.coin} is {openTopup.status === "pending" ? "confirming" : "waiting for your transfer"}.
+            </Alert>
+          )}
           {(w.profile.parked_payout_usd || 0) > 0 && (
             <Alert severity="info" icon={<Icon icon="mdi:clock-fast" />} sx={{ mt: 1.5, borderRadius: 2.5 }} data-testid="sd-parked-payout">
               <b>{money(w.profile.parked_payout_usd || 0)}</b> from a closed deal is waiting to be paid out.{" "}
@@ -157,6 +175,9 @@ export default function Wallet() {
               control={<Switch checked={w.profile.auto_withdraw} onChange={(e) => void toggleAutoWithdraw(e.target.checked)} data-testid="sd-auto-withdraw-toggle" />}
               label={<Typography sx={{ fontSize: 13.5, fontWeight: 700 }}>Auto-withdraw when funds are released to me</Typography>}
             />
+            <Typography sx={{ fontSize: 12, color: "#6B7280", ml: 0.5 }} data-testid="sd-auto-withdraw-help">
+              {w.profile.auto_withdraw ? "On — each release or refund is sent to your saved address the moment a deal closes (network fee covered by the deal)." : "Off — released funds stay in your SafeDeal balance (custodied as USDT) until you press Withdraw."}
+            </Typography>
             {w.profile.auto_withdraw && w.addresses.length > 1 && (
               <TextField select size="small" fullWidth label="Send to" value={w.profile.auto_withdraw_address_id || ""} onChange={(e) => void setAutoAddress(Number(e.target.value))} sx={{ mt: 1 }} inputProps={{ "data-testid": "sd-auto-withdraw-address" }}>
                 {w.addresses.map((a) => <MenuItem key={a.address_id} value={a.address_id}>{a.label || a.coin} · {shortAddr(a.address)}</MenuItem>)}
@@ -207,6 +228,8 @@ export default function Wallet() {
             )}
           </Box>
 
+          <InvoicesCard now={now} dealHref={(t) => href(`/deal/${t}`)} notify={notify} />
+
           {w.withdrawals.length > 0 && (
             <Box sx={{ ...card, mt: 2.5 }} data-testid="sd-withdrawals">
               <Typography sx={{ fontWeight: 800, fontSize: 15, mb: 1 }}>Withdrawals &amp; payouts</Typography>
@@ -231,6 +254,10 @@ export default function Wallet() {
 
       {dialog === "address" && <AddAddressDialog wallet={w} onClose={() => setDialog(null)} onDone={async (m) => { notify(m); setDialog(null); await load(); }} onError={(m) => notify(m, "error")} />}
       {dialog === "withdraw" && <WithdrawDialog wallet={w} onClose={() => setDialog(null)} onDone={async (m) => { notify(m); setDialog(null); await load(); }} onError={(m) => notify(m, "error")} />}
+      {dialog === "topup" && <TopUpDialog wallet={w} onClose={async () => { setDialog(null); await load(); }} onCredited={async (m) => { notify(m); await load(); }} notify={notify} />}
+      {dialog && typeof dialog === "object" && "resume" in dialog && (
+        <TopUpDialog wallet={w} resume={dialog.resume} onClose={async () => { setDialog(null); await load(); }} onCredited={async (m) => { notify(m); await load(); }} notify={notify} />
+      )}
       {dialog && typeof dialog === "object" && "remove" in dialog && (
         <StepUpDialog
           title="Remove this payout address?"

@@ -114,7 +114,7 @@ function CoinPicker({ coins, current, creating, onPick, onCancel, expired }: { c
       <Icon icon={COIN_ICON[c.coin] || "mdi:circle-multiple-outline"} width={30} />
       <Box sx={{ minWidth: 0, flex: 1 }}>
         <Typography sx={{ fontSize: 14, fontWeight: 800, lineHeight: 1.2 }}>{c.label} <Typography component="span" sx={{ fontSize: 12, color: "#6B7280", fontWeight: 600 }}>· {c.network}</Typography></Typography>
-        <Typography sx={{ fontSize: 12, color: "#6B7280", mt: 0.2 }}>{c.stable ? "No conversion" : "Auto-converted to USDT"}{c.cheap ? " · low network fee" : ""}</Typography>
+        <Typography sx={{ fontSize: 12, color: "#6B7280", mt: 0.2 }}>{c.stable ? "No conversion · no exchange fee" : `Auto-converted to USDT · incl. ${money(c.exchange_fee)} exchange fee`}{c.cheap ? " · low network fee" : ""}</Typography>
       </Box>
       <Box sx={{ textAlign: "right", flexShrink: 0 }}>
         <Typography sx={{ fontSize: 14, fontWeight: 900, ...TABULAR }}>{creating === c.coin ? "…" : money(c.buyer_pays)}</Typography>
@@ -134,7 +134,7 @@ function CoinPicker({ coins, current, creating, onPick, onCancel, expired }: { c
           <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 1 }}>{other.map(tile)}</Box>
         </>
       )}
-      <Typography sx={{ fontSize: 12, color: "#6B7280", mt: 1.5 }}>The price includes the escrow fee and the real network cost of your chosen coin — that&apos;s why the total differs a little per coin.</Typography>
+      <Typography sx={{ fontSize: 12, color: "#6B7280", mt: 1.5 }}>The price includes the escrow fee and the real network cost of your chosen coin. Non-stablecoins also carry a small exchange fee for converting them to USDT — that&apos;s why the total differs per coin.</Typography>
       {onCancel && <Button size="small" onClick={onCancel} sx={{ ...ghostBtn, mt: 1 }} data-testid="sd-fund-picker-back">Back to my payment</Button>}
     </Box>
   );

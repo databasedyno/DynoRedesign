@@ -76,13 +76,14 @@ export default function DealActionsCard({ deal, busy, live, now, walletHref, new
           <Typography sx={{ fontSize: 13.5, color: "#4B5563", mb: 1.8 }}>
             {deal.price_currency && deal.price_currency !== "USD" ? `The ${deal.price_currency} price converts to USD at the live rate the moment you pay. ` : ""}Your payment is held by Dynopay as USDT until you release it (or the inspection timer runs out after delivery). Nothing reaches the seller before that.
           </Typography>
-          {deal.buyer_balance && deal.buyer_balance.available > 0 && (
-            <Box sx={{ mb: 1.8, p: 1.4, borderRadius: 2.5, border: "1px solid #E5E7EB", backgroundColor: "#F9FAFB", display: "flex", alignItems: "center", gap: 1.2, flexWrap: "wrap" }}>
-              <Icon icon="mdi:wallet-outline" width={22} color={BRAND_ACCENT} />
-              <Typography sx={{ fontSize: 13, color: "#374151", flex: 1, minWidth: 160 }}>SafeDeal balance: <b>{money(deal.buyer_balance.available)}</b>{deal.buyer_balance.available < b.buyerPays ? " — not enough for this deal" : ""}</Typography>
-              <Button size="small" variant="contained" disabled={!!busy || deal.buyer_balance.available < b.buyerPays} onClick={() => act("fund-balance")} data-testid="sd-act-fund-balance" sx={primaryBtn}>Pay from balance</Button>
-            </Box>
-          )}
+          <Box sx={{ mb: 1.8, p: 1.4, borderRadius: 2.5, border: "1px solid #E5E7EB", backgroundColor: "#F9FAFB", display: "flex", alignItems: "center", gap: 1.2, flexWrap: "wrap" }} data-testid="sd-fund-balance-box">
+            <Icon icon="mdi:wallet-outline" width={22} color={BRAND_ACCENT} />
+            <Typography sx={{ fontSize: 13, color: "#374151", flex: 1, minWidth: 160 }}>
+              SafeDeal balance: <b>{money(deal.buyer_balance?.available || 0)}</b>
+              {(deal.buyer_balance?.available || 0) < b.buyerPays ? <> — not enough for this deal. <Link href={walletHref} style={{ color: BRAND_ACCENT, fontWeight: 700 }} data-testid="sd-fund-topup-link">Top up your balance</Link> to pay in one tap (stablecoin top-ups carry no exchange fee).</> : ""}
+            </Typography>
+            <Button size="small" variant="contained" disabled={!!busy || (deal.buyer_balance?.available || 0) < b.buyerPays} onClick={() => act("fund-balance")} data-testid="sd-act-fund-balance" sx={primaryBtn}>Pay from balance</Button>
+          </Box>
           <FundPanel deal={deal} live={live} busy={busy} now={now} notify={notify} onFunded={reload} onSimulate={(coin) => act("fund", { coin })} />
         </Box>
       )}

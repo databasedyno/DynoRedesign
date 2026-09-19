@@ -79,11 +79,12 @@ export async function fundFromBalance(deal: any, amountUsd: number): Promise<voi
 export async function settleToWallets(
   deal: any,
   amounts: { sellerAmount: number; buyerRefund: number },
-  breakdown: { buyerPays: number; escrowFee: number; passThroughCosts: number; totalCost: number }
+  breakdown: { buyerPays: number; escrowFee: number; exchangeFeeUsd?: number; passThroughCosts: number; totalCost: number }
 ): Promise<{ sellerCredited: boolean; buyerRefunded: boolean }> {
   const { buyer, seller } = await resolveDealParties(deal);
   const held = round2(Number(deal.custody_amount_stable ?? deal.funded_amount_usd ?? breakdown.buyerPays));
   const outcome = String(deal.outcome || "release");
+  const exchangeFee = round2(Number(breakdown.exchangeFeeUsd || 0));
   const ref = (k: string) => `escrow:${deal.escrow_id}:settle:${k}`;
   const title = `deal ${dealRef(deal)} "${deal.title}"`;
   const entries: EntryInput[] = [
@@ -132,6 +133,20 @@ export async function settleToWallets(
       meta: { outcome },
     });
   }
+  if (exchangeFee > 0) {
+    entries.push({
+      customer: buyer,
+      type: "DEBIT",
+      amount: exchangeFee,
+      kind: "exchange_fee",
+      description: `Exchange fee (non-stablecoin funding) — ${title}`,
+      reference: ref("exchange_fee"),
+      escrowId: deal.escrow_id,
+      dealTitle: deal.title,
+      allowNegative: true,
+      meta: { outcome },
+    });
+  }
   if (breakdown.passThroughCosts > 0) {
     entries.push({
       customer: buyer,
@@ -148,7 +163,7 @@ export async function settleToWallets(
   }
   // Rounding guard: whatever is left of the hold after the debits above is the buyer's refund;
   // if the pieces don't sum exactly to the hold (cents), true it up on the buyer side.
-  const consumed = round2((amounts.sellerAmount > 0 ? amounts.sellerAmount : 0) + breakdown.escrowFee + breakdown.passThroughCosts);
+  const consumed = round2((amounts.sellerAmount > 0 ? amounts.sellerAmount : 0) + breakdown.escrowFee + exchangeFee + breakdown.passThroughCosts);
   const leftover = round2(held - consumed);
   const drift = round2(leftover - amounts.buyerRefund);
   if (Math.abs(drift) >= 0.01) {

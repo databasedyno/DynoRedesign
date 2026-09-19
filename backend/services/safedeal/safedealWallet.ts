@@ -40,7 +40,7 @@ export interface WalletBalances {
 }
 
 const round2 = (n: number): number => toNumber(Number(n) || 0, 2);
-const LEDGER_MODES = ["ESCROW", "WITHDRAWAL", "MERCHANT", "ADJUSTMENT"];
+const LEDGER_MODES = ["ESCROW", "WITHDRAWAL", "MERCHANT", "ADJUSTMENT", "TOPUP"];
 
 interface WalletRow {
   wallet_id: number;
@@ -82,7 +82,7 @@ export interface EntryInput {
   kind: string;
   description: string;
   reference: string; // idempotency key
-  source?: "ESCROW" | "WITHDRAWAL" | "ADJUSTMENT";
+  source?: "ESCROW" | "WITHDRAWAL" | "ADJUSTMENT" | "TOPUP";
   escrowId?: number | null;
   dealTitle?: string | null;
   meta?: Record<string, unknown>;
@@ -274,7 +274,7 @@ export async function brandWalletTotals(companyId: number): Promise<{
     { replacements: { companyId }, type: QueryTypes.SELECT }
   );
   const [f] = await sequelize.query<Record<string, string>>(
-    `SELECT COALESCE(SUM(CASE WHEN meta->>'kind' = 'escrow_fee' THEN paid_amount ELSE 0 END),0) AS fees_earned,
+    `SELECT COALESCE(SUM(CASE WHEN meta->>'kind' IN ('escrow_fee','exchange_fee') THEN paid_amount ELSE 0 END),0) AS fees_earned,
             COALESCE(SUM(CASE WHEN meta->>'kind' = 'escrow_costs' THEN paid_amount ELSE 0 END),0) AS costs_retained,
             COALESCE(SUM(CASE WHEN meta->>'kind' = 'withdrawal' THEN paid_amount ELSE 0 END),0) AS withdrawals_paid
        FROM tbl_customer_transaction WHERE company_id = :companyId AND payment_mode IN ('ESCROW','WITHDRAWAL')`,

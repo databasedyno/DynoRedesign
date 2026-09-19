@@ -56,6 +56,12 @@ r.post("/safedeal/wallet/addresses/:id/remove", safedealAuth, safedealController
 r.post("/safedeal/wallet/withdraw/quote", safedealAuth, safedealController.withdrawQuote);
 r.post("/safedeal/wallet/withdraw", safedealAuth, safedealController.withdraw);
 r.get("/safedeal/wallet/withdrawals", safedealAuth, safedealController.withdrawals);
+r.get("/safedeal/wallet/topup/coins", safedealAuth, safedealController.topupCoins);
+r.get("/safedeal/wallet/topup", safedealAuth, safedealController.topupList);
+r.post("/safedeal/wallet/topup", safedealAuth, safedealController.topupCreate);
+r.get("/safedeal/wallet/topup/:id", safedealAuth, safedealController.topupGet);
+r.post("/safedeal/wallet/topup/:id/simulate", safedealAuth, safedealController.topupSimulate);
+r.get("/safedeal/invoices", safedealAuth, safedealController.invoices);
 
 // ── Dynopay admin (ops approvals) ────────────────────────────────────────────
 r.get("/safedeal/admin/withdrawals", adminAuthMiddleware, safedealController.adminWithdrawals);

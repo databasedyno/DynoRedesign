@@ -253,6 +253,14 @@ export async function listWithdrawals(customerId: number, limit = 50): Promise<W
   );
 }
 
+/** Settlement payouts sent from custody for one deal (both legs). */
+export async function listDealPayouts(escrowId: number): Promise<WithdrawalRow[]> {
+  return sequelize.query<WithdrawalRow>(
+    `SELECT * FROM tbl_customer_withdrawal WHERE escrow_id = :escrowId AND source = 'settlement' ORDER BY created_at ASC`,
+    { replacements: { escrowId }, type: QueryTypes.SELECT }
+  );
+}
+
 export async function adminListWithdrawals(filter: { status?: string | null; companyId?: number | null }, limit = 200): Promise<WithdrawalRow[]> {
   const where: string[] = ["1=1"];
   const replacements: Record<string, unknown> = { limit };
@@ -318,31 +326,15 @@ export async function rejectWithdrawal(id: number, adminLabel: string, reason: s
   return rows[0];
 }
 
-/** After a wallet credit: if the user opted in, sweep the available balance to their saved address. */
-export async function maybeAutoWithdraw(customerId: number): Promise<WithdrawalRow | null> {
-  const prof = await sequelize.query<{ auto_withdraw: boolean; auto_withdraw_address_id: number | null }>(
-    `SELECT auto_withdraw, auto_withdraw_address_id FROM tbl_safedeal_profile WHERE customer_id = :id LIMIT 1`,
-    { replacements: { id: customerId }, type: QueryTypes.SELECT }
-  );
-  const p = prof[0];
-  if (!p?.auto_withdraw || !p.auto_withdraw_address_id) return null;
-  const bal = await getBalances(customerId);
-  if (bal.available < MIN_WITHDRAWAL_USD) return null;
-  const customer = await customerById(customerId);
-  if (!customer) return null;
-  try {
-    return await requestWithdrawal(customer, { address_id: p.auto_withdraw_address_id, amount: bal.available, source: "auto" });
-  } catch (err) {
-    apiLogger.error(`[SafeDeal] auto-withdraw failed for customer ${customerId}: ${(err as Error).message}`);
-    return null;
-  }
-}
-
 // ── Settlement payouts (deal closed → Binance withdrawal to the party's address) ──
 
 export interface PayoutPref { address_id: number; set_at: string; before_funding: boolean }
 
-/** Destination precedence: the address chosen inside the deal → default auto-withdraw address → newest saved address. */
+/**
+ * Destination precedence: the address chosen inside the deal → the auto-withdraw address
+ * (only when auto-withdraw is ON). Otherwise null: the money stays in the SafeDeal balance
+ * (custodied as USDT) until the user withdraws manually.
+ */
 export async function resolvePayoutDestination(customerId: number, pref?: PayoutPref | null): Promise<{ addr: PayoutAddressRow; skipCooling: boolean } | null> {
   const addrs = await listAddresses(customerId);
   if (!addrs.length) return null;
@@ -350,31 +342,32 @@ export async function resolvePayoutDestination(customerId: number, pref?: Payout
     const a = addrs.find((x) => x.address_id === Number(pref.address_id));
     if (a) return { addr: a, skipCooling: !!pref.before_funding };
   }
-  const prof = await sequelize.query<{ auto_withdraw_address_id: number | null }>(
-    `SELECT auto_withdraw_address_id FROM tbl_safedeal_profile WHERE customer_id = :id LIMIT 1`,
+  const prof = await sequelize.query<{ auto_withdraw: boolean; auto_withdraw_address_id: number | null }>(
+    `SELECT auto_withdraw, auto_withdraw_address_id FROM tbl_safedeal_profile WHERE customer_id = :id LIMIT 1`,
     { replacements: { id: customerId }, type: QueryTypes.SELECT }
   );
-  const def = prof[0]?.auto_withdraw_address_id ? addrs.find((x) => x.address_id === prof[0].auto_withdraw_address_id) : null;
-  return { addr: def || addrs[addrs.length - 1], skipCooling: false };
+  const p = prof[0];
+  if (!p?.auto_withdraw) return null;
+  const def = p.auto_withdraw_address_id ? addrs.find((x) => x.address_id === p.auto_withdraw_address_id) : null;
+  return def ? { addr: def, skipCooling: false } : null;
 }
 
 export type SettlementPayoutResult =
   | { mode: "sent"; withdrawal: WithdrawalRow }
-  | { mode: "parked"; reason: "no_address" | "cooling" | "error"; usable_at?: string | null; detail?: string };
+  | { mode: "kept" }
+  | { mode: "parked"; reason: "cooling" | "error"; usable_at?: string | null; detail?: string };
 
 /**
- * Pay a settled leg straight out of custody to the party's address. When that isn't
- * possible yet (no address / new-address cooling-off), the amount stays in their
- * SafeDeal balance and is released automatically by releaseParkedPayouts().
+ * Pay a settled leg straight out of custody when the party asked for it (deal-level
+ * address or auto-withdraw ON). Otherwise the amount simply stays in their SafeDeal
+ * balance ("kept"). When the chosen address is still in its cooling-off, the amount is
+ * parked and released automatically by releaseParkedPayouts().
  */
 export async function settlementPayout(customerId: number, amount: number, deal: { escrow_id: number; title: string }, pref?: PayoutPref | null): Promise<SettlementPayoutResult> {
   const customer = await customerById(customerId);
   if (!customer) return { mode: "parked", reason: "error", detail: "customer not found" };
   const dest = await resolvePayoutDestination(customerId, pref);
-  if (!dest) {
-    await parkPayout(customerId, amount);
-    return { mode: "parked", reason: "no_address" };
-  }
+  if (!dest) return { mode: "kept" };
   try {
     const w = await requestWithdrawal(customer, { address_id: dest.addr.address_id, amount, source: "settlement", escrow_id: deal.escrow_id, fee_covered: true, skip_cooling: dest.skipCooling, deal_title: deal.title });
     return { mode: "sent", withdrawal: w };
@@ -394,7 +387,11 @@ async function parkPayout(customerId: number, amount: number): Promise<void> {
   );
 }
 
-/** Send parked settlement money as soon as the customer has a usable address (called on address add + hourly). */
+export async function clearParked(customerId: number): Promise<void> {
+  await sequelize.query(`UPDATE tbl_safedeal_profile SET parked_payout_usd = 0, updated_at = NOW() WHERE customer_id = :id`, { replacements: { id: customerId }, type: QueryTypes.UPDATE });
+}
+
+/** Send parked settlement money once the auto-withdraw address clears its hold (called on profile change + hourly). */
 export async function releaseParkedPayouts(customerId?: number): Promise<number> {
   const rows = await sequelize.query<{ customer_id: number; parked_payout_usd: string }>(
     `SELECT customer_id, parked_payout_usd FROM tbl_safedeal_profile WHERE parked_payout_usd > 0${customerId ? " AND customer_id = :id" : ""} LIMIT 200`,
@@ -405,12 +402,16 @@ export async function releaseParkedPayouts(customerId?: number): Promise<number>
     const customer = await customerById(r.customer_id);
     if (!customer) continue;
     const dest = await resolvePayoutDestination(r.customer_id, null);
-    if (!dest) continue;
+    if (!dest) {
+      // Auto-withdraw is off (or its address is gone): the money simply stays in the balance.
+      await clearParked(r.customer_id);
+      continue;
+    }
     try { assertAddressUsable(dest.addr); } catch { continue; }
     const bal = await getBalances(r.customer_id);
     const amount = Math.min(round2(Number(r.parked_payout_usd)), round2(bal.available));
     if (amount <= 0) {
-      await sequelize.query(`UPDATE tbl_safedeal_profile SET parked_payout_usd = 0, updated_at = NOW() WHERE customer_id = :id`, { replacements: { id: r.customer_id }, type: QueryTypes.UPDATE });
+      await clearParked(r.customer_id);
       continue;
     }
     try {

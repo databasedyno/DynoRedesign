@@ -3,7 +3,7 @@
  * Sessions are a SafeDeal JWT kept in localStorage and sent as x-safedeal-token.
  */
 import axios from "axios";
-import type { EscrowDeal, FeeBreakdown, DisputeProposalInput } from "@/api/escrow";
+import type { EscrowDeal, FeeBreakdown, DisputeProposalInput, CostItem } from "@/api/escrow";
 
 const apiBaseUrl = (process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/+$/, "");
 export const SD_TOKEN_KEY = "sd_token";
@@ -143,6 +143,65 @@ export interface SdFundingCoin {
   buyer_pays: number;
   network_fee: number;
   conversion_fee: number;
+  exchange_fee: number;
+}
+
+export interface SdTopupQuote {
+  coin: string;
+  label: string;
+  network: string;
+  stable: boolean;
+  cheap: boolean;
+  amount: number;
+  network_fee: number;
+  conversion_fee: number;
+  exchange_fee: number;
+  exchange_fee_percent: number;
+  pays: number;
+}
+
+export type SdTopupStatus = "waiting" | "pending" | "underpaid" | "credited" | "expired";
+
+export interface SdTopup {
+  topup_id: number;
+  coin: string;
+  amount_usd: number | string;
+  network_fee_usd: number | string;
+  conversion_fee_usd: number | string;
+  exchange_fee_usd: number | string;
+  pays_usd: number | string;
+  payment_id: string | null;
+  address: string | null;
+  destination_tag: number | null;
+  crypto_amount: string | null;
+  qr_code: string | null;
+  status: SdTopupStatus;
+  seen_tx: string | null;
+  simulated: boolean;
+  expires_at: string;
+  credited_at: string | null;
+  created_at: string;
+}
+
+export interface SdInvoice {
+  escrow_id: number;
+  deal_token: string;
+  invoice_no: string;
+  title: string;
+  status: string;
+  outcome: string | null;
+  closed_at: string;
+  my_role: "buyer" | "seller";
+  amount: number;
+  currency: string;
+  funding_coin: string | null;
+  fee_payer: string;
+  total_cost: number;
+  cost_items: CostItem[];
+  my_fee_share: number;
+  buyer_paid: number;
+  my_amount: number;
+  my_payout: { withdrawal_id: number; status: string; net_usd: number; payout_key: string; address: string } | null;
 }
 
 export interface SdFunding {
@@ -271,9 +330,11 @@ export interface SdWallet extends Partial<SdBalances> {
   wallet: SdBalances;
   addresses: SdAddress[];
   withdrawals: SdWithdrawal[];
+  topups: SdTopup[];
   profile: { auto_withdraw: boolean; auto_withdraw_address_id: number | null; parked_payout_usd?: number };
-  limits: { min_withdrawal_usd: number; approval_threshold_usd: number };
+  limits: { min_withdrawal_usd: number; approval_threshold_usd: number; min_topup_usd: number; max_topup_usd: number };
   payout_options: SdConfig["payout_options"];
+  live: boolean;
 }
 
 export type SdDealAction =
@@ -372,6 +433,21 @@ export const safedealApi = {
     const res = await client.post("/wallet/withdraw", body);
     return { ...(res.data.data as any), message: res.data.message };
   },
+
+  /** Wallet top-ups: deposit crypto through Dynopay → USD balance credited on confirmation. */
+  topupCoins: async (amount: number): Promise<{ amount: number; coins: SdTopupQuote[]; min_topup_usd: number; max_topup_usd: number; live: boolean }> =>
+    unwrap(await client.get("/wallet/topup/coins", { params: { amount } })),
+  createTopup: async (body: { amount: number; coin: string }): Promise<{ topup: SdTopup; live: boolean; message: string }> => {
+    const res = await client.post("/wallet/topup", body);
+    return { ...(res.data.data as any), message: res.data.message };
+  },
+  getTopup: async (id: number): Promise<{ topup: SdTopup; wallet: SdBalances; live: boolean }> => unwrap(await client.get(`/wallet/topup/${id}`)),
+  simulateTopup: async (id: number): Promise<{ topup: SdTopup; wallet: SdBalances; message: string }> => {
+    const res = await client.post(`/wallet/topup/${id}/simulate`, {});
+    return { ...(res.data.data as any), message: res.data.message };
+  },
+  /** Closed deals with final costs — retrievable any time after sign-in. */
+  invoices: async (): Promise<SdInvoice[]> => unwrap(await client.get("/invoices")),
 };
 
 export default safedealApi;

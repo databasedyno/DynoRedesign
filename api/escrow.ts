@@ -11,7 +11,7 @@ export type FeePayer = "buyer" | "seller" | "split";
 export type SettlementOutcome = "release" | "refund" | "split";
 
 export interface CostItem {
-  key: "escrow_fee" | "network_fee" | "conversion_fee" | "withdrawal_fee";
+  key: "escrow_fee" | "exchange_fee" | "network_fee" | "conversion_fee" | "withdrawal_fee";
   label: string;
   amount: number;
   note?: string;
@@ -24,6 +24,8 @@ export interface FeeBreakdown {
   feeMinUsd: number;
   feePayer: FeePayer;
   escrowFee: number;
+  exchangeFeePercent?: number;
+  exchangeFeeUsd?: number;
   // itemised pass-through settlement costs (estimated, folded into the price)
   networkFeeUsd?: number;
   conversionFeeUsd?: number;

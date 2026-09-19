@@ -13,6 +13,7 @@ import {
   sweepFeeUsdFor,
   withdrawFeeUsdFor,
   normalizePayoutKey,
+  isStableFundingCoin,
   DEFAULT_PAYOUT_KEY,
 } from "../../services/escrow/escrowCosts";
 
@@ -107,7 +108,7 @@ export function resolveRoles(creatorRole: string): {
 }
 
 export interface CostItem {
-  key: "escrow_fee" | "network_fee" | "conversion_fee" | "withdrawal_fee";
+  key: "escrow_fee" | "exchange_fee" | "network_fee" | "conversion_fee" | "withdrawal_fee";
   label: string;
   amount: number; // USD
   note?: string;
@@ -120,12 +121,14 @@ export interface FeeBreakdown {
   feeMinUsd: number;
   feePayer: FeePayer;
   escrowFee: number; // platform escrow fee (platform revenue)
+  exchangeFeePercent: number; // SafeDeal margin on non-stablecoin funding
+  exchangeFeeUsd: number; // platform revenue (0 when funded in USDT/USDC)
   // pass-through settlement costs (estimated; folded into the price)
   networkFeeUsd: number; // inbound sweep of the funded crypto to custody
   conversionFeeUsd: number; // Binance conversion crypto -> stablecoin
   withdrawalFeeUsd: number; // Binance withdrawal at cashout (per payout network)
   passThroughCosts: number; // network + conversion + withdrawal
-  totalCost: number; // escrowFee + passThroughCosts (what the fee_payer bears beyond `amount`)
+  totalCost: number; // escrowFee + exchangeFee + passThroughCosts (what the fee_payer bears beyond `amount`)
   payoutCoin: string; // stablecoin the withdrawal fee was estimated for
   costsEstimated: boolean; // true — refined at funding when the real coin is known
   costItems: CostItem[]; // itemised, for UI
@@ -197,18 +200,22 @@ export function computeFeeBreakdown(input: {
   const payoutKey = normalizePayoutKey(input.payoutCoin || DEFAULT_PAYOUT_KEY);
   const rates = getEscrowCostRates();
   const convPct = rates.conversionPct || 0;
+  const exchangePct = rates.exchangePct || 0;
   // Inbound: sweep the funded crypto to Binance + convert it to USDT (custody).
   // The conversion is skipped when the buyer already funds in USDT (any network).
+  // The exchange fee (SafeDeal margin) applies to any non-stablecoin funding.
   const fundedIsUsdt = isUsdtCoin(input.fundingCoin);
+  const fundedIsStable = isStableFundingCoin(input.fundingCoin);
   const networkFeeUsd = includeCosts ? round2(estimateInboundFee(input.fundingCoin, input.acceptedCoins)) : 0;
   const conversionFeeUsd = includeCosts && !fundedIsUsdt ? round2((amount * convPct) / 100) : 0;
+  const exchangeFeeUsd = includeCosts && !fundedIsStable ? round2((amount * exchangePct) / 100) : 0;
   // Outbound: withdraw USDT to the payout network. A USDC cash-out needs an extra
   // USDT->USDC conversion on Binance — merged into the single withdrawal figure.
   const payoutIsUsdc = payoutKey.startsWith("USDC");
   const payoutConversionUsd = includeCosts && payoutIsUsdc ? round2((amount * convPct) / 100) : 0;
   const withdrawalFeeUsd = includeCosts ? round2(withdrawFeeUsdFor(payoutKey) + payoutConversionUsd) : 0;
   const passThroughCosts = round2(networkFeeUsd + conversionFeeUsd + withdrawalFeeUsd);
-  const totalCost = round2(escrowFee + passThroughCosts);
+  const totalCost = round2(escrowFee + exchangeFeeUsd + passThroughCosts);
 
   let buyerPays = amount;
   let sellerReceives = amount;
@@ -234,6 +241,12 @@ export function computeFeeBreakdown(input: {
   ];
   if (includeCosts) {
     costItems.push(
+      {
+        key: "exchange_fee",
+        label: `Exchange fee (${exchangePct}%)`,
+        amount: exchangeFeeUsd,
+        note: fundedIsStable ? "No exchange fee — funded in a stablecoin." : `SafeDeal's ${exchangePct}% fee for exchanging non-stablecoin funding into USDT (covers spread and slippage).`,
+      },
       { key: "network_fee", label: "Network fee (est.)", amount: networkFeeUsd, note: "On-chain fee to move the funded crypto to the exchange (custody)." },
       { key: "conversion_fee", label: "Conversion fee (est.)", amount: conversionFeeUsd, note: fundedIsUsdt ? "No conversion — funded directly in USDT." : "Converting the funded crypto to USDT on the exchange." },
       {
@@ -254,6 +267,8 @@ export function computeFeeBreakdown(input: {
     feeMinUsd,
     feePayer,
     escrowFee,
+    exchangeFeePercent: exchangePct,
+    exchangeFeeUsd,
     networkFeeUsd,
     conversionFeeUsd,
     withdrawalFeeUsd,

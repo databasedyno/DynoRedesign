@@ -793,6 +793,42 @@ const addSafeDealApiFunding = async (): Promise<void> => {
   await sequelize.query(`ALTER TYPE "enum_tbl_stablecoin_conversion_status" ADD VALUE IF NOT EXISTS 'HELD'`);
 };
 
+/**
+ * 0042 — SafeDeal wallet top-ups: a customer deposits crypto via Dynopay's Direct API and the
+ * customer wallet is credited in USD on confirmation. Additive + idempotent.
+ */
+const addSafeDealTopups = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `CREATE TABLE IF NOT EXISTS "tbl_safedeal_topup" (
+       "topup_id" SERIAL PRIMARY KEY,
+       "company_id" INTEGER NOT NULL,
+       "customer_id" INTEGER NOT NULL,
+       "coin" VARCHAR(32) NOT NULL,
+       "amount_usd" NUMERIC(18,2) NOT NULL,
+       "network_fee_usd" NUMERIC(18,2) NOT NULL DEFAULT 0,
+       "conversion_fee_usd" NUMERIC(18,2) NOT NULL DEFAULT 0,
+       "exchange_fee_usd" NUMERIC(18,2) NOT NULL DEFAULT 0,
+       "pays_usd" NUMERIC(18,2) NOT NULL,
+       "payment_id" VARCHAR(64),
+       "address" VARCHAR(160),
+       "destination_tag" BIGINT,
+       "crypto_amount" VARCHAR(64),
+       "qr_code" TEXT,
+       "status" VARCHAR(24) NOT NULL DEFAULT 'waiting',
+       "seen_tx" VARCHAR(160),
+       "received_crypto" NUMERIC(30,12),
+       "simulated" BOOLEAN NOT NULL DEFAULT false,
+       "expires_at" TIMESTAMPTZ NOT NULL,
+       "credited_at" TIMESTAMPTZ,
+       "created_at" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+       "updated_at" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+     )`
+  );
+  await sequelize.query(`CREATE INDEX IF NOT EXISTS "idx_safedeal_topup_customer" ON "tbl_safedeal_topup" ("customer_id", "created_at" DESC)`);
+  await sequelize.query(`CREATE INDEX IF NOT EXISTS "idx_safedeal_topup_payment" ON "tbl_safedeal_topup" ("payment_id")`);
+};
+
 export async function buildBootMigrations(): Promise<Migration[]> {  const { v1, extra } = await loadBootModelGroups();  return [
     { version: "0001_boot_model_tables", up: syncGroup(v1) },
     { version: "0002_boot_model_tables_extra", up: syncGroup(extra) },
@@ -832,6 +868,7 @@ export async function buildBootMigrations(): Promise<Migration[]> {  const { v1,
     { version: "0039_safedeal_attachments_pricing", up: addSafeDealAttachmentsAndPricing },
     { version: "0040_safedeal_deal_terms", up: addSafeDealDealTerms },
     { version: "0041_safedeal_api_funding", up: addSafeDealApiFunding },
+    { version: "0042_safedeal_topups", up: addSafeDealTopups },
     ...perfMigrations,
     ...securityMigrations,
   ];

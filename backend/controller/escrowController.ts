@@ -336,8 +336,8 @@ async function attemptPayouts(deal: any, actorLabel = "system"): Promise<{ selle
           ? `${amount} USD payout to the ${who} (${where}) is queued for review — sent once approved.`
           : `Paid ${amount} USDT to the ${who}'s address ${where}${w.simulated ? " (simulated)" : ""}.`;
       }
+      if (r.mode === "kept") return `${amount} USD credited to the ${who}'s SafeDeal balance (auto-withdraw is off — it stays in custody until they withdraw).`;
       if (r.reason === "cooling") return `${amount} USD for the ${who} is held in their SafeDeal balance — their payout address is in its safety hold and will be paid automatically once usable.`;
-      if (r.reason === "no_address") return `${amount} USD for the ${who} is held in their SafeDeal balance until they add a payout address.`;
       return `${amount} USD credited to the ${who}'s SafeDeal balance (automatic payout failed: ${r.detail || "unknown"}).`;
     };
     if (deal.seller_payout_state === "pending") {

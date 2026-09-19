@@ -85,9 +85,17 @@ const DEFAULT_NETWORK_FEE_USD: Record<string, number> = {
 };
 const DEFAULT_SWEEP_USD = envNum("ESCROW_SWEEP_FEE_USD_DEFAULT", 2);
 const CONVERSION_FEE_PCT = envNum("ESCROW_CONVERSION_FEE_PCT", 0.1); // Binance spot taker ~0.1%
+// SafeDeal's own margin on non-stablecoin funding (covers spread/slippage + profit). Configurable.
+const EXCHANGE_FEE_PCT = envNum("ESCROW_EXCHANGE_FEE_PCT", 2);
+
+/** USDT/USDC on any network — no exchange fee, already a dollar-stable asset. */
+export function isStableFundingCoin(coin?: string | null): boolean {
+  return !!coin && /usdt|usdc/i.test(String(coin));
+}
 
 interface CostRates {
   conversionPct: number;
+  exchangePct: number;
   network: Record<string, number>;
   withdraw: Record<string, number>;
   updatedAt: number;
@@ -95,6 +103,7 @@ interface CostRates {
 
 const RATES: CostRates = {
   conversionPct: CONVERSION_FEE_PCT,
+  exchangePct: EXCHANGE_FEE_PCT,
   network: { ...DEFAULT_NETWORK_FEE_USD },
   withdraw: { ...DEFAULT_WITHDRAW_FEE_USD },
   updatedAt: 0,

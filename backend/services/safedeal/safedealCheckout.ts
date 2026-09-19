@@ -73,21 +73,63 @@ export async function configuredFundingCoins(companyId: number): Promise<string[
 }
 
 /** Coin picker payload: what the buyer would pay in each coin the brand accepts. */
-export async function fundingCoins(deal: any): Promise<{ coin: string; label: string; network: string; stable: boolean; cheap: boolean; buyer_pays: number; network_fee: number; conversion_fee: number }[]> {
+export async function fundingCoins(deal: any): Promise<{ coin: string; label: string; network: string; stable: boolean; cheap: boolean; buyer_pays: number; network_fee: number; conversion_fee: number; exchange_fee: number }[]> {
   const coins = await configuredFundingCoins(Number(deal.company_id));
   return coins.map((coin) => {
     const b = computeFeeBreakdown({ amount: deal.amount, currency: deal.currency, feePercent: deal.fee_percent, feeMinUsd: deal.fee_min_usd, feePayer: deal.fee_payer, payoutCoin: deal.seller_payout_coin, fundingCoin: coin, acceptedCoins: deal.accepted_coins });
     const m = FUNDING_COIN_META[coin];
-    return { coin, label: m.label, network: m.network, stable: !!m.stable, cheap: !!m.cheap, buyer_pays: b.buyerPays, network_fee: b.networkFeeUsd, conversion_fee: b.conversionFeeUsd };
+    return { coin, label: m.label, network: m.network, stable: !!m.stable, cheap: !!m.cheap, buyer_pays: b.buyerPays, network_fee: b.networkFeeUsd, conversion_fee: b.conversionFeeUsd, exchange_fee: b.exchangeFeeUsd };
   });
 }
 
 const apiKey = (): string => (envRaw("SAFEDEAL_API_KEY") || "").trim();
 
-/** Ask Dynopay (as the SafeDeal merchant) for a deposit address in `coin` covering the buyer's quote. */
-export async function createFundingPayment(deal: any, coin: string): Promise<FundingPayment> {
+export interface DynopayPaymentResult {
+  transaction_id: string;
+  address: string;
+  destination_tag: number | null;
+  amount: string;
+  base_amount: number;
+  base_currency: string;
+  qr_code: string | null;
+}
+
+/** Call Dynopay's Direct API as the SafeDeal merchant for a `coin` deposit address covering `amountUsd`. */
+export async function requestDynopayPayment(amountUsd: number, coin: string, meta: Record<string, unknown>, redirectPath: string, idem: string): Promise<DynopayPaymentResult> {
   const key = apiKey();
   if (!key) throw new Error("SafeDeal is not connected to Dynopay yet (SAFEDEAL_API_KEY missing).");
+  const body = {
+    amount: amountUsd,
+    currency: coin,
+    fee_payer: "company",
+    redirect_uri: `${safedealBase()}${redirectPath}`,
+    webhook_url: webhookUrl(),
+    meta_data: { source: "safedeal", ...meta },
+  };
+  const res = await axios.post(`${apiBase()}/api/user/cryptoPayment`, body, {
+    headers: { "x-api-key": key, "Content-Type": "application/json", "Idempotency-Key": `${idem}-${Date.now()}` },
+    timeout: 25000,
+    validateStatus: () => true,
+  });
+  const d = res.data?.data;
+  if (res.status !== 200 || !d?.address) {
+    const msg = res.data?.message || res.data?.error?.message || `Dynopay API returned ${res.status}`;
+    apiLogger.error(`[SafeDeal] cryptoPayment failed (${coin}, ${idem}): ${msg}`);
+    throw new Error(`Couldn't create the payment: ${msg}`);
+  }
+  return {
+    transaction_id: String(d.transaction_id),
+    address: String(d.address),
+    destination_tag: d.destination_tag != null ? Number(d.destination_tag) : null,
+    amount: String(d.amount),
+    base_amount: Number(d.base_amount ?? amountUsd),
+    base_currency: String(d.base_currency || "USD"),
+    qr_code: d.qr_code || null,
+  };
+}
+
+/** Ask Dynopay (as the SafeDeal merchant) for a deposit address in `coin` covering the buyer's quote. */
+export async function createFundingPayment(deal: any, coin: string): Promise<FundingPayment> {
   const c = String(coin || "").toUpperCase().trim();
   if (!FUNDING_COIN_META[c]) throw new Error(`${coin} is not a supported funding coin.`);
   const configured = await configuredFundingCoins(Number(deal.company_id));
@@ -97,35 +139,17 @@ export async function createFundingPayment(deal: any, coin: string): Promise<Fun
   if (existing && existing.coin === c && ["waiting", "pending", "underpaid"].includes(existing.status) && new Date(existing.expires_at).getTime() > Date.now()) return existing;
 
   const breakdown = computeFeeBreakdown({ amount: deal.amount, currency: deal.currency, feePercent: deal.fee_percent, feeMinUsd: deal.fee_min_usd, feePayer: deal.fee_payer, payoutCoin: deal.seller_payout_coin, fundingCoin: c, acceptedCoins: deal.accepted_coins });
-  const body = {
-    amount: breakdown.buyerPays,
-    currency: c,
-    fee_payer: "company",
-    redirect_uri: `${safedealBase()}/deal/${deal.deal_token}?funded=1`,
-    webhook_url: webhookUrl(),
-    meta_data: { source: "safedeal", escrow_id: Number(deal.escrow_id), deal_token: deal.deal_token },
-  };
-  const res = await axios.post(`${apiBase()}/api/user/cryptoPayment`, body, {
-    headers: { "x-api-key": key, "Content-Type": "application/json", "Idempotency-Key": `sd-${deal.escrow_id}-${c}-${Date.now()}` },
-    timeout: 25000,
-    validateStatus: () => true,
-  });
-  const d = res.data?.data;
-  if (res.status !== 200 || !d?.address) {
-    const msg = res.data?.message || res.data?.error?.message || `Dynopay API returned ${res.status}`;
-    apiLogger.error(`[SafeDeal] cryptoPayment failed for escrow ${deal.escrow_id} (${c}): ${msg}`);
-    throw new Error(`Couldn't create the payment: ${msg}`);
-  }
+  const d = await requestDynopayPayment(breakdown.buyerPays, c, { escrow_id: Number(deal.escrow_id), deal_token: deal.deal_token }, `/deal/${deal.deal_token}?funded=1`, `sd-${deal.escrow_id}-${c}`);
   const now = new Date();
   const fp: FundingPayment = {
-    payment_id: String(d.transaction_id),
+    payment_id: d.transaction_id,
     coin: c,
-    address: String(d.address),
-    destination_tag: d.destination_tag != null ? Number(d.destination_tag) : null,
-    crypto_amount: String(d.amount),
-    base_amount: Number(d.base_amount ?? breakdown.buyerPays),
-    base_currency: String(d.base_currency || deal.currency || "USD"),
-    qr_code: d.qr_code || null,
+    address: d.address,
+    destination_tag: d.destination_tag,
+    crypto_amount: d.amount,
+    base_amount: d.base_amount,
+    base_currency: d.base_currency || deal.currency || "USD",
+    qr_code: d.qr_code,
     status: "waiting",
     created_at: now.toISOString(),
     expires_at: new Date(now.getTime() + RESERVATION_MINUTES * 60000).toISOString(),
@@ -189,6 +213,10 @@ export async function handleDynopayWebhook(payload: Record<string, any>): Promis
   const event = String(payload.event || "");
   let meta = payload.meta_data;
   if (typeof meta === "string") { try { meta = JSON.parse(meta); } catch { meta = null; } }
+  if (Number(meta?.topup_id) > 0) {
+    const { handleTopupWebhook } = await import("./safedealTopup");
+    return handleTopupWebhook(Number(meta.topup_id), event, payload);
+  }
   const escrowId = Number(meta?.escrow_id) || 0;
   const paymentId = payload.payment_id ? String(payload.payment_id) : "";
   const where: any = escrowId ? { escrow_id: escrowId, source: "safedeal" } : paymentId ? { funding_link_transaction_id: paymentId, source: "safedeal" } : null;
@@ -250,12 +278,13 @@ export async function onCustodyConverted(conv: { conversion_id: number; transact
     const held = Number(deal.custody_amount_stable || 0);
     const b = computeFeeBreakdown({ amount: deal.amount, currency: deal.currency, feePercent: deal.fee_percent, feeMinUsd: deal.fee_min_usd, feePayer: deal.fee_payer, payoutCoin: deal.seller_payout_coin, fundingCoin: deal.funding_coin, acceptedCoins: deal.accepted_coins });
     const shortfall = Math.round((held - realized) * 100) / 100;
-    if (shortfall > b.passThroughCosts) deal.needs_admin_review = true;
+    const buffer = b.passThroughCosts + b.exchangeFeeUsd;
+    if (shortfall > buffer) deal.needs_admin_review = true;
     deal.activity_log = appendActivity(deal.activity_log, {
       type: "custody_converted",
       actor: "binance",
       role: "system",
-      note: `Converted ${conv.source_amount} ${conv.source_currency} → ${realized.toFixed(2)} ${conv.target_currency} on Binance (held there as custody)${shortfall > 0 ? `; ${shortfall.toFixed(2)} USD below the quote${shortfall > b.passThroughCosts ? " — flagged for review" : ", covered by the cost reserve"}` : ""}.`,
+      note: `Converted ${conv.source_amount} ${conv.source_currency} → ${realized.toFixed(2)} ${conv.target_currency} on Binance (held there as custody)${shortfall > 0 ? `; ${shortfall.toFixed(2)} USD below the quote${shortfall > buffer ? " — flagged for review" : ", covered by the cost reserve"}` : ""}.`,
       meta: { conversion_id: conv.conversion_id, rate: conv.conversion_rate, realized, held },
     });
     await deal.save();
