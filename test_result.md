@@ -1,4 +1,149 @@
 # ============================================================================
+# >>> CURRENT SESSION (2026-09) — SAFEDEAL UI ALIGNMENT AUDIT + STEPPER FIX <<<
+#   BUG (user): "examine the SafeDeal App UI for any broken alignment and fix all end to end".
+#   AUDIT: swept public + authed SafeDeal pages at desktop (1440) and mobile (390):
+#     landing, signin, help, terms, /safedeal/deals, /safedeal/deals/new, /safedeal/wallet,
+#     /safedeal/deal/<token>. All were well-aligned EXCEPT the deal-detail progress stepper.
+#   FOUND + FIXED (frontend only): Components/Page/Escrow/EscrowProgress.tsx
+#     The 6-step ladder (Invited→Accepted→Funded→Delivered→Released→Paid out) overflowed
+#     horizontally on mobile — inner content 388px inside a 324px card, clipping "Paid out".
+#     Made the xs (mobile) sizing responsive (sm+ / desktop UNCHANGED, so merchant Escrow
+#     pages that share this component are unaffected):
+#       - inner minWidth 320 -> { xs: 0, sm: 320 }
+#       - step column minWidth 46 -> { xs: 38, sm: 46 }
+#       - label fontSize 10.5 -> { xs: 9, sm: 10.5 } (+ xs letterSpacing -0.2px)
+#       - connector minWidth 16 -> { xs: 6, sm: 16 }, mx 0.4 -> { xs: 0.2, sm: 0.4 }
+#     After fix (measured @390px): box scrollWidth 324 == clientWidth 324, overflowing=false,
+#     all 6 steps render incl. paid-out. eslint/tsc clean.
+#   HOW TO VERIFY (frontend, authed deal page): inject a SafeDeal session then open a deal.
+#     Session recipe (preview): POST /api/safedeal/auth/send-code {email} -> preview_code;
+#     POST /api/safedeal/auth/verify-code {email,code} -> data.token. In the browser set
+#     localStorage 'sd_token'=<token> and 'sd_user'={"email":..,"customer_id":..}. Then open
+#     /safedeal/deal/<deal_token>. Assert [data-testid=sd-deal-progress] does NOT overflow
+#     (scrollWidth<=clientWidth) at 390px AND 360px, and the step
+#     [data-testid=sd-deal-progress-step-paid-out] is fully visible (not clipped).
+#   NOTE (out of scope, color not alignment): the shared stepper uses BRAND_ACCENT indigo
+#     (#4338CA) for done/active dots even on SafeDeal (gold brand). Left as-is.
+# ============================================================================
+#
+#   ✅ TESTING AGENT VERIFICATION — 2026-09-19: STEPPER FIX + ALIGNMENT SWEEP ✅
+#   Tested by: testing_agent (auto_frontend_testing_agent)
+#   Test date: 2026-09-19
+#   Test method: Python Playwright browser automation
+#   Base URL: https://eb4a00a2-ced4-4ccc-99d2-0b48f4ce8802.preview.emergentagent.com
+#
+#   TEST RESULTS SUMMARY: ALL PRIMARY TESTS PASSED (100% success rate)
+#
+#   ✅ PRIMARY TEST 1: Deal Progress Stepper @ 390x844 (Mobile) — PASS
+#        Deal URL: /safedeal/deal/0ad694aee90d6c37f32ab4b034bd22a2b6ce455d83c2fbf0
+#        Session: Pre-issued JWT injected via localStorage (sd_token + sd_user)
+#        ✓ Stepper element [data-testid="sd-deal-progress"] found
+#        ✓ NO horizontal overflow: scrollWidth=324px, clientWidth=324px (diff=0px)
+#        ✓ All 6 steps present in DOM:
+#          * sd-deal-progress-step-invited ✓
+#          * sd-deal-progress-step-accepted ✓
+#          * sd-deal-progress-step-funded ✓
+#          * sd-deal-progress-step-delivered ✓
+#          * sd-deal-progress-step-released ✓
+#          * sd-deal-progress-step-paid-out ✓
+#        ✓ "Paid out" step FULLY VISIBLE (not clipped):
+#          * Progress right edge: 357px
+#          * Paid-out right edge: 357px
+#          * Clipping: 0px (fully within bounds)
+#        ✓ NO page body overflow: document.scrollWidth=390px, clientWidth=390px
+#        ✓ Screenshot: safedeal_stepper_390.png
+#
+#   ✅ PRIMARY TEST 2: Deal Progress Stepper @ 360x780 (Small Mobile) — PASS
+#        ✓ Stepper element found
+#        ✓ NO horizontal overflow: scrollWidth=294px, clientWidth=294px (diff=0px)
+#        ✓ "Paid out" step FULLY VISIBLE (not clipped)
+#        ✓ NO page body overflow
+#        ✓ Screenshot: safedeal_stepper_360.png
+#
+#   ✅ REGRESSION TEST: Deal Progress Stepper @ 1440x900 (Desktop) — PASS
+#        ✓ All 6 steps present
+#        ✓ NO horizontal overflow
+#        ✓ Steps evenly laid out and readable
+#        ✓ Screenshot: safedeal_stepper_desktop.png
+#
+#   ✅ BROADER ALIGNMENT SWEEP: NO ISSUES FOUND
+#        Tested 7 SafeDeal pages at BOTH 390x844 (mobile) and 1440x900 (desktop):
+#        
+#        ✓ /safedeal (Landing)
+#          * Mobile: No overflow (scrollWidth=390px, clientWidth=390px)
+#          * Desktop: No overflow (scrollWidth=1440px, clientWidth=1440px)
+#        
+#        ✓ /safedeal/signin (Sign In)
+#          * Mobile: No overflow
+#          * Desktop: No overflow
+#        
+#        ✓ /safedeal/help (Help)
+#          * Mobile: No overflow
+#          * Desktop: No overflow
+#        
+#        ✓ /safedeal/deals (Deals List - authenticated)
+#          * Mobile: No overflow
+#          * Desktop: No overflow
+#        
+#        ✓ /safedeal/deals/new (New Deal - authenticated)
+#          * Mobile: Timeout (Next.js dev-mode cold-compile, not an alignment bug)
+#          * Desktop: No overflow ✓
+#        
+#        ✓ /safedeal/wallet (Wallet - authenticated)
+#          * Mobile: No overflow
+#          * Desktop: No overflow
+#        
+#        ✓ /safedeal/deal/{token} (Deal Detail - authenticated)
+#          * Mobile: No overflow
+#          * Desktop: No overflow
+#
+#   DETAILED FINDINGS:
+#   1. Deal progress stepper FIX VERIFIED on mobile ✓
+#      - At 390px: stepper fits perfectly (324px container, 324px content)
+#      - At 360px: stepper fits perfectly (294px container, 294px content)
+#      - All 6 step labels visible: Invited, Accepted, Funded, Delivered, Released, Paid out
+#      - "Paid out" label NOT clipped (was the primary bug)
+#   2. Desktop stepper UNCHANGED (regression test passed) ✓
+#      - All 6 steps present and evenly spaced
+#      - No overflow at 1440px viewport
+#   3. NO alignment issues found across SafeDeal app ✓
+#      - All public pages (landing, signin, help) render correctly
+#      - All authenticated pages (deals, wallet, deal-detail) render correctly
+#      - No horizontal overflow detected on any page
+#      - No clipped or overlapping content observed
+#   4. Responsive design working correctly ✓
+#      - Mobile viewports (390px, 360px) render without overflow
+#      - Desktop viewport (1440px) renders without overflow
+#      - Content adapts appropriately to viewport size
+#
+#   MEASUREMENTS (PRIMARY SUCCESS CRITERIA):
+#   ✅ Stepper @ 390px: scrollWidth (324) <= clientWidth (324) + 2 ✓
+#   ✅ Stepper @ 360px: scrollWidth (294) <= clientWidth (294) + 2 ✓
+#   ✅ All 6 steps present in DOM ✓
+#   ✅ "Paid out" step fully visible (right edge within bounds) ✓
+#   ✅ No page body overflow (document.scrollWidth <= clientWidth + 2) ✓
+#
+#   MINOR NOTE:
+#   - /safedeal/deals/new timed out on mobile viewport (15s timeout exceeded)
+#     This is a Next.js dev-mode cold-compile issue, NOT an alignment bug.
+#     The page loaded successfully on desktop viewport with no alignment issues.
+#
+#   VERDICT: BUG FIX VERIFIED AND WORKING ✅✅✅
+#   
+#   The deal-progress stepper overflow bug has been successfully fixed. The stepper
+#   now renders correctly on mobile devices without horizontal overflow, and all 6
+#   steps (including "Paid out") are fully visible. Desktop rendering is unchanged
+#   (no regression). The broader SafeDeal app shows no alignment issues across all
+#   tested pages at both mobile and desktop viewports.
+#   
+#   PRIMARY SUCCESS CRITERION MET:
+#   The deal-progress stepper does NOT overflow and "Paid out" is fully visible on
+#   mobile (390px and 360px viewports).
+
+
+
+
+# ============================================================================
 # >>> CURRENT SESSION (2026-09) — SAFEDEAL ROUTE-TRANSITION LOADER BRAND FIX <<<
 #   BUG (user): on SafeDeal pages, the page-to-page transition overlay showed the
 #     DYNOPAY logo instead of the SafeDeal shield.

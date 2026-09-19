@@ -97,7 +97,7 @@ export default function EscrowProgress({ deal, testId = "escrow-progress" }: { d
 
   return (
     <Box data-testid={testId} sx={{ overflowX: "auto", pb: 0.5 }}>
-      <Box sx={{ display: "flex", alignItems: "flex-start", minWidth: 320 }}>
+      <Box sx={{ display: "flex", alignItems: "flex-start", minWidth: { xs: 0, sm: 320 } }}>
         {result.steps.map((s, i) => {
           const color =
             s.state === "disputed" ? AMBER : s.state === "done" || s.state === "active" ? BRAND_ACCENT : NEUTRAL;
@@ -105,7 +105,7 @@ export default function EscrowProgress({ deal, testId = "escrow-progress" }: { d
           const connectorDone = i < result.steps.length - 1 && (result.steps[i + 1].state === "done" || result.steps[i].state === "done");
           return (
             <React.Fragment key={s.key}>
-              <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0.6, minWidth: 46 }} data-testid={`${testId}-step-${s.key.toLowerCase().replace(/\s+/g, "-")}`} data-state={s.state}>
+              <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0.6, minWidth: { xs: 38, sm: 46 } }} data-testid={`${testId}-step-${s.key.toLowerCase().replace(/\s+/g, "-")}`} data-state={s.state}>
                 <Box
                   sx={{
                     width: 22,
@@ -135,7 +135,8 @@ export default function EscrowProgress({ deal, testId = "escrow-progress" }: { d
                 </Box>
                 <Typography
                   sx={{
-                    fontSize: 10.5,
+                    fontSize: { xs: 9, sm: 10.5 },
+                    letterSpacing: { xs: "-0.2px", sm: 0 },
                     fontWeight: reached ? 700 : 500,
                     color: reached ? (s.state === "disputed" ? AMBER : theme.palette.text.primary) : NEUTRAL,
                     whiteSpace: "nowrap",
@@ -145,7 +146,7 @@ export default function EscrowProgress({ deal, testId = "escrow-progress" }: { d
                 </Typography>
               </Box>
               {i < result.steps.length - 1 && (
-                <Box sx={{ flex: 1, minWidth: 16, height: 2, mt: "10px", mx: 0.4, borderRadius: 1, backgroundColor: connectorDone ? BRAND_ACCENT : border }} />
+                <Box sx={{ flex: 1, minWidth: { xs: 6, sm: 16 }, height: 2, mt: "10px", mx: { xs: 0.2, sm: 0.4 }, borderRadius: 1, backgroundColor: connectorDone ? BRAND_ACCENT : border }} />
               )}
             </React.Fragment>
           );
