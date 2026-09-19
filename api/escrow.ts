@@ -1,21 +1,9 @@
 /**
- * Escrow API client.
- *
- * - Merchant calls go through `axiosBaseApi` (auto-attaches the merchant Bearer
- *   token + X-Company-Id, base already prefixes /api/).
- * - Admin calls go through `adminBaseApi` (auto-attaches the admin_token).
- * - Public (counterparty) calls use a bare axios instance so the merchant
- *   token interceptor never runs; the escrow session token is passed in the
- *   `x-escrow-token` header after the email-OTP step.
- *
- * Every backend response is the `{ message, data }` envelope, so each helper
- * unwraps `res.data.data` for the caller.
+ * Escrow types + Dynopay ADMIN client (oversight, dispute arbitration, scans).
+ * Party-facing escrow calls live in api/safedeal.ts. Admin calls go through
+ * `adminBaseApi` (auto-attaches admin_token); responses are `{ message, data }`.
  */
-import axios from "axios";
-import axiosBaseApi from "@/axiosConfig";
 import adminBaseApi from "@/axiosAdmin";
-
-const apiBaseUrl = (process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/+$/, "");
 
 // ---- shared types (kept loose; the backend is the source of truth) ----------
 export type EscrowRole = "buyer" | "seller";
@@ -179,67 +167,6 @@ export interface DisputeProposalInput {
 const unwrap = (res: any) => res?.data?.data;
 
 // ═══════════════════════════════════════════════════════════════════════════
-// MERCHANT
-// ═══════════════════════════════════════════════════════════════════════════
-export const escrowApi = {
-  feePreview: async (body: {
-    amount: number | string;
-    currency?: string;
-    fee_percent?: number;
-    fee_min_usd?: number;
-    fee_payer?: FeePayer;
-    payout_coin?: string;
-    accepted_coins?: string;
-  }): Promise<FeeBreakdown> => unwrap(await axiosBaseApi.post("/escrow/fee-preview", body)),
-
-  create: async (body: Record<string, unknown>): Promise<EscrowDeal> =>
-    unwrap(await axiosBaseApi.post("/escrow", body)),
-
-  list: async (params: { company_id?: number | string; status?: string; role?: EscrowRole } = {}): Promise<EscrowDeal[]> => {
-    const q = new URLSearchParams();
-    if (params.company_id) q.set("company_id", String(params.company_id));
-    if (params.status) q.set("status", params.status);
-    if (params.role) q.set("role", params.role);
-    const qs = q.toString();
-    return unwrap(await axiosBaseApi.get(`/escrow${qs ? `?${qs}` : ""}`)) || [];
-  },
-
-  get: async (id: number | string): Promise<EscrowDeal> => unwrap(await axiosBaseApi.get(`/escrow/${id}`)),
-
-  simulateFund: async (id: number | string, coin: string): Promise<EscrowDeal> =>
-    unwrap(await axiosBaseApi.post(`/escrow/${id}/simulate-fund`, { coin })),
-
-  deliver: async (id: number | string, delivery_note?: string): Promise<EscrowDeal> =>
-    unwrap(await axiosBaseApi.post(`/escrow/${id}/deliver`, { delivery_note })),
-
-  release: async (id: number | string): Promise<EscrowDeal> =>
-    unwrap(await axiosBaseApi.post(`/escrow/${id}/release`, {})),
-
-  dispute: async (id: number | string, body: DisputeProposalInput): Promise<EscrowDeal> =>
-    unwrap(await axiosBaseApi.post(`/escrow/${id}/dispute`, body)),
-
-  counterDispute: async (id: number | string, body: DisputeProposalInput): Promise<EscrowDeal> =>
-    unwrap(await axiosBaseApi.post(`/escrow/${id}/dispute/counter`, body)),
-
-  acceptDispute: async (id: number | string): Promise<EscrowDeal> =>
-    unwrap(await axiosBaseApi.post(`/escrow/${id}/dispute/accept`, {})),
-
-  disputeMessage: async (id: number | string, message: string): Promise<EscrowDeal> =>
-    unwrap(await axiosBaseApi.post(`/escrow/${id}/dispute/message`, { message })),
-
-  escalateDispute: async (id: number | string): Promise<EscrowDeal> =>
-    unwrap(await axiosBaseApi.post(`/escrow/${id}/dispute/escalate`, {})),
-
-  cancel: async (id: number | string, reason?: string): Promise<EscrowDeal> =>
-    unwrap(await axiosBaseApi.post(`/escrow/${id}/cancel`, { reason })),
-
-  payoutInfo: async (
-    id: number | string,
-    body: { payout_address?: string; payout_coin?: string; refund_address?: string; refund_coin?: string }
-  ): Promise<EscrowDeal> => unwrap(await axiosBaseApi.post(`/escrow/${id}/payout-info`, body)),
-};
-
-// ═══════════════════════════════════════════════════════════════════════════
 // ADMIN
 // ═══════════════════════════════════════════════════════════════════════════
 export const escrowAdminApi = {
@@ -263,68 +190,4 @@ export const escrowAdminApi = {
     unwrap(await adminBaseApi.post("/escrow/admin/run-dispute-escalations", {})),
 };
 
-// ═══════════════════════════════════════════════════════════════════════════
-// PUBLIC (counterparty — no Dynopay account required)
-// ═══════════════════════════════════════════════════════════════════════════
-const publicClient = axios.create({
-  baseURL: apiBaseUrl + "/api/",
-  headers: { "Content-Type": "application/json" },
-});
-
-const withToken = (token?: string | null) =>
-  token ? { headers: { "x-escrow-token": token } } : undefined;
-
-export const escrowPublicApi = {
-  get: async (token: string): Promise<EscrowDeal> => unwrap(await publicClient.get(`/escrow/public/${token}`)),
-
-  sendOtp: async (token: string, email: string): Promise<{ has_account: boolean; preview_otp?: string }> =>
-    unwrap(await publicClient.post(`/escrow/public/${token}/send-otp`, { email })),
-
-  verifyOtp: async (
-    token: string,
-    email: string,
-    otp: string
-  ): Promise<{ escrow_session: string; expires_in: number; has_account: boolean }> =>
-    unwrap(await publicClient.post(`/escrow/public/${token}/verify-otp`, { email, otp })),
-
-  respond: async (
-    token: string,
-    sessionToken: string,
-    action: "accept" | "decline",
-    reason?: string
-  ): Promise<EscrowDeal> =>
-    unwrap(await publicClient.post(`/escrow/public/${token}/respond`, { action, reason }, withToken(sessionToken))),
-
-  action: async (
-    token: string,
-    sessionToken: string,
-    body: {
-      action:
-        | "fund"
-        | "deliver"
-        | "release"
-        | "dispute"
-        | "dispute-counter"
-        | "dispute-accept"
-        | "dispute-message"
-        | "dispute-escalate"
-        | "cancel"
-        | "payout-info";
-      coin?: string;
-      delivery_note?: string;
-      reason?: string;
-      // dispute proposal fields
-      proposed_outcome?: SettlementOutcome;
-      split_percent_seller?: number;
-      message?: string;
-      kind?: "cancellation";
-      payout_address?: string;
-      payout_coin?: string;
-      refund_address?: string;
-      refund_coin?: string;
-    }
-  ): Promise<EscrowDeal> =>
-    unwrap(await publicClient.post(`/escrow/public/${token}/action`, body, withToken(sessionToken))),
-};
-
-export default escrowApi;
+export default escrowAdminApi;

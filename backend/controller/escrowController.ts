@@ -1,15 +1,15 @@
 /**
- * Escrow controller — merchant dashboard, public counterparty (email-OTP), and
- * admin handlers.
+ * Escrow engine + Dynopay admin handlers.
  *
- * Counterparty model (v1): the invited party may NOT have a Dynopay account. They
- * verify their email once with a 6-digit OTP and receive a short-lived escrow
- * session token (x-escrow-token) used for every public action.
+ * The engine (state machine, fee math, custody ledger, two-phase settlement,
+ * dispute negotiation) is exported as `escrowEngine` and driven by SafeDeal
+ * (controller/safedealController.ts). The Dynopay admin console consumes the
+ * admin handlers (oversight, dispute arbitration, maintenance scans).
+ * Merchant-dashboard and public-invite handlers were retired when escrow moved
+ * to the standalone SafeDeal product.
  *
- * Money-safety (v1): funding, stablecoin conversion, custody and payouts are all
- * SIMULATED (no on-chain broadcast / no real conversion). The two-phase
- * settlement (authorize -> payout pending -> paid) is fully modelled so the flow
- * is exercised end-to-end. Live wiring is gated behind ESCROW_LIVE_SETTLEMENT.
+ * Money-safety: funding, stablecoin conversion, custody and payouts are
+ * SIMULATED unless ESCROW_LIVE_SETTLEMENT=true.
  */
 import { raw as envRaw } from "../utils/config";
 import express from "express";
@@ -17,11 +17,8 @@ import crypto from "crypto";
 import { Op } from "sequelize";
 import { apiLogger } from "../utils/loggers";
 import { errorResponseHelper, successResponseHelper } from "../helper";
-import { validateCompanyOwnership } from "../utils/validateCompanyOwnership";
 import { companyModel, userModel } from "../models";
 import escrowDealModel from "../models/escrowDealModel";
-import { PaymentUserJwtPayload } from "../utils/types";
-import { getRedisItem, setRedisItemWithTTL, deleteRedisItem } from "../utils/redisInstance";
 import {
   EscrowRole,
   SettlementOutcome,
@@ -55,7 +52,6 @@ import {
   sendEscrowDisputeProposalEmail,
   sendEscrowDisputeEscalatedEmail,
   sendEscrowDisputeAgreedEmail,
-  sendEscrowOtpEmail,
   sendEscrowPayoutPendingEmail,
   sendEscrowPaidEmail,
 } from "../services/email/escrowEmails";
@@ -73,8 +69,6 @@ const fail = (code: number, message: string): never => {
   throw new EscrowError(code, message);
 };
 
-const OTP_TTL = 600; // 10 min
-const SESSION_TTL = 3600; // 1 h
 const REMINDER_REVIEW_THRESHOLD = 3;
 // How long a dispute proposal can sit unanswered before it auto-escalates to admin.
 const DISPUTE_AUTO_ESCALATE_HOURS = Number(envRaw("ESCROW_DISPUTE_AUTO_ESCALATE_HOURS")) || 72;
@@ -91,9 +85,6 @@ const clampAutoReleaseDays = (v: unknown): number => {
   return ESCROW_AUTO_RELEASE_PRESETS.includes(n) ? n : ESCROW_AUTO_RELEASE_DEFAULT;
 };
 
-const otpKey = (escrowId: number | string, email: string) => `escrow:otp:${escrowId}:${norm(email)}`;
-const sessionKey = (tok: string) => `escrow:session:${tok}`;
-const emailDisabled = () => String(envRaw("DISABLE_OUTBOUND_EMAIL") || "").toLowerCase() === "true";
 
 const frontendBase = (): string =>
   (envRaw("SERVER_URL") || envRaw("FRONTEND_URL") || envRaw("CHECKOUT_URL") || "").trim().replace(/\/$/, "");
@@ -106,42 +97,12 @@ const dealUrl = (deal: any): string =>
 const isSafeDeal = (deal: any): boolean => deal?.source === "safedeal";
 const norm = (s: unknown): string => String(s ?? "").trim().toLowerCase();
 
-const getAuthUser = (res: express.Response): { user_id: number; email: string | null } => {
-  const u = res.locals.user as PaymentUserJwtPayload;
-  const authUser = res.locals.authUser as { email?: string | null } | undefined;
-  return { user_id: Number(u?.user_id), email: (authUser?.email ?? null) as string | null };
-};
-
 interface ActorInfo {
   isCreator: boolean;
   isCounterparty: boolean;
   role: EscrowRole;
   label: string;
   signedIn: boolean; // true = authenticated Dynopay account (may reuse saved wallet)
-}
-
-function resolveAuthedActor(deal: any, auth: { user_id: number; email: string | null }): ActorInfo | null {
-  const { creator, counterparty } = resolveRoles(deal.creator_role);
-  const isCreator = Number(deal.creator_user_id) === Number(auth.user_id);
-  const isCounterparty =
-    (deal.counterparty_user_id && Number(deal.counterparty_user_id) === Number(auth.user_id)) ||
-    (!!auth.email && norm(deal.counterparty_email) === norm(auth.email));
-  if (isCreator) return { isCreator: true, isCounterparty: false, role: creator, label: auth.email || `user:${auth.user_id}`, signedIn: true };
-  if (isCounterparty) return { isCreator: false, isCounterparty: true, role: counterparty, label: auth.email || `user:${auth.user_id}`, signedIn: true };
-  return null;
-}
-
-/** Build the counterparty actor from a verified escrow session token (OTP path). */
-async function resolvePublicActor(req: express.Request, deal: any): Promise<ActorInfo> {
-  const tok = (req.headers["x-escrow-token"] as string) || (req.body && req.body.escrow_session);
-  if (!tok) fail(401, "Please verify your email to continue — request a code first.");
-  const sess: any = await getRedisItem(sessionKey(String(tok)));
-  if (!sess) fail(401, "Your verification session expired. Please request a new code.");
-  if (Number(sess.escrow_id) !== Number(deal.escrow_id) || norm(sess.email) !== norm(deal.counterparty_email)) {
-    fail(403, "This verification does not match the invitation.");
-  }
-  const { counterparty } = resolveRoles(deal.creator_role);
-  return { isCreator: false, isCounterparty: true, role: counterparty, label: String(sess.email), signedIn: false };
 }
 
 async function loadCreatorAndCompany(deal: any): Promise<{ creatorEmail: string; creatorName: string; companyName: string }> {
@@ -168,15 +129,6 @@ async function partyEmails(deal: any): Promise<{ buyerEmail: string; sellerEmail
   const { creatorEmail } = await loadCreatorAndCompany(deal);
   if (deal.creator_role === "buyer") return { buyerEmail: creatorEmail, sellerEmail: deal.counterparty_email };
   return { buyerEmail: deal.counterparty_email, sellerEmail: creatorEmail };
-}
-
-async function hasAccount(email: string): Promise<boolean> {
-  try {
-    const u = await userModel.findOne({ where: { email: String(email) }, attributes: ["user_id"] });
-    return !!u;
-  } catch {
-    return false;
-  }
 }
 
 function serializeDeal(deal: any, includePrivate = true): Record<string, unknown> {
@@ -858,393 +810,6 @@ const handle = (res: express.Response, e: unknown, context: string) => {
   return errorResponseHelper(res, 500, "Something went wrong with this escrow action.");
 };
 
-async function loadAuthedDealActor(req: express.Request, res: express.Response): Promise<{ deal: any; actor: ActorInfo }> {
-  const auth = getAuthUser(res);
-  const deal: any = await escrowDealModel.findByPk(Number(req.params.id));
-  if (!deal) fail(404, "Escrow deal not found.");
-  const actor = resolveAuthedActor(deal, auth);
-  if (!actor) fail(403, "You are not a participant in this deal.");
-  return { deal, actor };
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// MERCHANT (authenticated) endpoints
-// ═══════════════════════════════════════════════════════════════════════════
-
-const previewFee = async (req: express.Request, res: express.Response) => {
-  try {
-    const { amount, currency, fee_payer, payout_coin, accepted_coins } = req.body || {};
-    if (amount == null || Number(amount) <= 0) return errorResponseHelper(res, 400, "A positive 'amount' is required.");
-    void refreshEscrowCostRates(); // best-effort live rates; static estimates used until it lands
-    // Escrow fee % is admin-controlled (env) — never taken from the client.
-    const breakdown = computeFeeBreakdown({ amount, currency, feePercent: ESCROW_FEE_PERCENT, feeMinUsd: ESCROW_FEE_MIN_USD, feePayer: fee_payer, payoutCoin: payout_coin, acceptedCoins: accepted_coins });
-    return successResponseHelper(res, 200, "Fee breakdown computed.", {
-      ...breakdown,
-      minDealUsd: ESCROW_MIN_DEAL_USD,
-      belowMinimum: Number(amount) < ESCROW_MIN_DEAL_USD,
-    });
-  } catch (e) {
-    return handle(res, e, "previewFee");
-  }
-};
-
-const createDeal = async (req: express.Request, res: express.Response) => {
-  try {
-    const auth = getAuthUser(res);
-    const {
-      company_id, title, description, amount, currency = "USD", accepted_coins, terms,
-      counterparty_email, creator_role = "seller",
-      fee_payer = "buyer", auto_release_days = ESCROW_AUTO_RELEASE_DEFAULT, send_invite = true,
-    } = req.body || {};
-
-    if (!company_id) return errorResponseHelper(res, 400, "company_id is required.");
-    if (!title || String(title).trim().length < 2) return errorResponseHelper(res, 400, "A deal title is required.");
-    if (amount == null || Number(amount) <= 0) return errorResponseHelper(res, 400, "A positive amount is required.");
-    if (Number(amount) < ESCROW_MIN_DEAL_USD) {
-      return errorResponseHelper(res, 400, `The minimum escrow deal is $${ESCROW_MIN_DEAL_USD} (escrow fee ${ESCROW_FEE_PERCENT}%, min $${ESCROW_FEE_MIN_USD}).`);
-    }
-    if (!counterparty_email || !/.+@.+\..+/.test(String(counterparty_email))) return errorResponseHelper(res, 400, "A valid counterparty email is required.");
-    if (!["buyer", "seller"].includes(String(creator_role))) return errorResponseHelper(res, 400, "creator_role must be 'buyer' or 'seller'.");
-    if (!["buyer", "seller", "split"].includes(String(fee_payer))) return errorResponseHelper(res, 400, "fee_payer must be 'buyer', 'seller' or 'split'.");
-    if (norm(counterparty_email) === norm(auth.email)) return errorResponseHelper(res, 400, "You cannot invite yourself as the counterparty.");
-
-    const access = await validateCompanyOwnership(res, company_id, auth.user_id, "manage_payment_links");
-    if (!access) return;
-
-    const status = send_invite ? "invited" : "draft";
-    const deal_token = crypto.randomBytes(24).toString("hex");
-    const now = new Date();
-    const deal: any = await escrowDealModel.create({
-      deal_token,
-      company_id: Number(company_id),
-      creator_user_id: auth.user_id,
-      creator_role,
-      counterparty_email: String(counterparty_email).trim(),
-      title: String(title).trim(),
-      description: description ? String(description) : null,
-      amount: Number(amount),
-      currency: String(currency).toUpperCase().slice(0, 10),
-      accepted_coins: accepted_coins ? String(accepted_coins) : null,
-      terms: terms ? String(terms) : null,
-      // Escrow fee is admin-controlled via .env — client-sent values are ignored.
-      fee_percent: ESCROW_FEE_PERCENT,
-      fee_min_usd: ESCROW_FEE_MIN_USD,
-      fee_payer,
-      auto_release_days: clampAutoReleaseDays(auto_release_days),
-      status,
-      invited_at: send_invite ? now : null,
-      activity_log: appendActivity([], {
-        type: "created",
-        actor: auth.email || `user:${auth.user_id}`,
-        role: creator_role,
-        note: send_invite ? "Deal created and counterparty invited." : "Deal drafted.",
-      }),
-    });
-
-    if (send_invite) {
-      const { creatorName } = await loadCreatorAndCompany(deal);
-      const { counterparty } = resolveRoles(creator_role);
-      void sendEscrowInviteEmail(deal.counterparty_email, deal.counterparty_email, deal, creatorName, counterparty, inviteUrl(deal_token));
-    }
-    return respond(res, deal, 201, "Escrow deal created.");
-  } catch (e) {
-    return handle(res, e, "createDeal");
-  }
-};
-
-const listDeals = async (req: express.Request, res: express.Response) => {
-  try {
-    const auth = getAuthUser(res);
-    const { company_id, status, role } = req.query as Record<string, string>;
-    const participantOr: any[] = [{ creator_user_id: auth.user_id }];
-    if (auth.email) participantOr.push({ counterparty_email: { [Op.iLike]: auth.email } });
-    const where: any = { [Op.or]: participantOr };
-    if (company_id) where.company_id = Number(company_id);
-    if (status) where.status = status;
-
-    const deals: any[] = await escrowDealModel.findAll({ where, order: [["created_at", "DESC"]], limit: 200 });
-    let out = deals.map((d) => {
-      const view = serializeDeal(d, false);
-      const isCreator = Number(d.dataValues.creator_user_id) === Number(auth.user_id);
-      const { creator, counterparty } = resolveRoles(d.dataValues.creator_role);
-      (view as any).my_role = isCreator ? creator : counterparty;
-      (view as any).is_creator = isCreator;
-      return view;
-    });
-    if (role === "buyer" || role === "seller") out = out.filter((d: any) => d.my_role === role);
-    return successResponseHelper(res, 200, "Escrow deals fetched.", out, out.length);
-  } catch (e) {
-    return handle(res, e, "listDeals");
-  }
-};
-
-const getDeal = async (req: express.Request, res: express.Response) => {
-  try {
-    const { deal, actor } = await loadAuthedDealActor(req, res);
-    return respond(res, deal, 200, "Escrow deal fetched.", actor);
-  } catch (e) {
-    return handle(res, e, "getDeal");
-  }
-};
-
-const setPayoutInfo = async (req: express.Request, res: express.Response) => {
-  try {
-    const { deal, actor } = await loadAuthedDealActor(req, res);
-    await actSetDestination(deal, actor, req.body || {});
-    return respond(res, deal, 200, "Settlement details saved.", actor);
-  } catch (e) {
-    return handle(res, e, "setPayoutInfo");
-  }
-};
-
-const markDelivered = async (req: express.Request, res: express.Response) => {
-  try {
-    const { deal, actor } = await loadAuthedDealActor(req, res);
-    await actDeliver(deal, actor, req.body?.delivery_note);
-    return respond(res, deal, 200, "Deal marked as delivered.", actor);
-  } catch (e) {
-    return handle(res, e, "markDelivered");
-  }
-};
-
-const confirmRelease = async (req: express.Request, res: express.Response) => {
-  try {
-    const { deal, actor } = await loadAuthedDealActor(req, res);
-    await actRelease(deal, actor);
-    const msg = deal.seller_payout_state === "paid" ? "Funds released to seller." : "Release authorized — payout pending (seller must add a payout address).";
-    return respond(res, deal, 200, msg, actor);
-  } catch (e) {
-    return handle(res, e, "confirmRelease");
-  }
-};
-
-const raiseDispute = async (req: express.Request, res: express.Response) => {
-  try {
-    const { deal, actor } = await loadAuthedDealActor(req, res);
-    await actRaiseDispute(deal, actor, req.body || {});
-    return respond(res, deal, 200, "Dispute opened — your proposal was sent to the counterparty.", actor);
-  } catch (e) {
-    return handle(res, e, "raiseDispute");
-  }
-};
-
-const counterDispute = async (req: express.Request, res: express.Response) => {
-  try {
-    const { deal, actor } = await loadAuthedDealActor(req, res);
-    await actCounterDispute(deal, actor, req.body || {});
-    return respond(res, deal, 200, "Counter-offer sent to the counterparty.", actor);
-  } catch (e) {
-    return handle(res, e, "counterDispute");
-  }
-};
-
-const acceptDispute = async (req: express.Request, res: express.Response) => {
-  try {
-    const { deal, actor } = await loadAuthedDealActor(req, res);
-    await actAcceptDispute(deal, actor);
-    return respond(res, deal, 200, "Proposal accepted — the dispute is resolved by agreement.", actor);
-  } catch (e) {
-    return handle(res, e, "acceptDispute");
-  }
-};
-
-const disputeMessage = async (req: express.Request, res: express.Response) => {
-  try {
-    const { deal, actor } = await loadAuthedDealActor(req, res);
-    await actDisputeMessage(deal, actor, req.body?.message);
-    return respond(res, deal, 200, "Message added to the dispute.", actor);
-  } catch (e) {
-    return handle(res, e, "disputeMessage");
-  }
-};
-
-const escalateDispute = async (req: express.Request, res: express.Response) => {
-  try {
-    const { deal, actor } = await loadAuthedDealActor(req, res);
-    await actEscalateDispute(deal, actor);
-    return respond(res, deal, 200, "Dispute escalated to a Dynopay admin.", actor);
-  } catch (e) {
-    return handle(res, e, "escalateDispute");
-  }
-};
-
-const cancelDeal = async (req: express.Request, res: express.Response) => {
-  try {
-    const { deal, actor } = await loadAuthedDealActor(req, res);
-    const { requested } = await actCancel(deal, actor, req.body || {});
-    return respond(
-      res,
-      deal,
-      200,
-      requested ? "Cancellation requested — the other party must agree before the buyer is refunded." : "Escrow deal cancelled (no charge).",
-      actor
-    );
-  } catch (e) {
-    return handle(res, e, "cancelDeal");
-  }
-};
-
-const simulateFund = async (req: express.Request, res: express.Response) => {
-  try {
-    const { deal, actor } = await loadAuthedDealActor(req, res);
-    await actFund(deal, actor, req.body?.coin);
-    return respond(res, deal, 200, "Escrow funded (SIMULATED — converted to stable, no real crypto moved).", actor);
-  } catch (e) {
-    return handle(res, e, "simulateFund");
-  }
-};
-
-// ═══════════════════════════════════════════════════════════════════════════
-// PUBLIC (counterparty) endpoints — email OTP + session token
-// ═══════════════════════════════════════════════════════════════════════════
-
-const getPublicDeal = async (req: express.Request, res: express.Response) => {
-  try {
-    const deal: any = await escrowDealModel.findOne({ where: { deal_token: String(req.params.token) } });
-    if (!deal) return errorResponseHelper(res, 404, "Escrow invitation not found.");
-    const { creator, counterparty } = resolveRoles(deal.creator_role);
-    const { creatorName, companyName } = await loadCreatorAndCompany(deal);
-    const view = serializeDeal(deal, false);
-    (view as any).counterparty_role = counterparty;
-    (view as any).creator_role_side = creator;
-    (view as any).created_by = creatorName;
-    (view as any).brand = companyName;
-    (view as any).has_account = await hasAccount(deal.counterparty_email);
-    return successResponseHelper(res, 200, "Escrow invitation fetched.", view);
-  } catch (e) {
-    return handle(res, e, "getPublicDeal");
-  }
-};
-
-/** POST /api/escrow/public/:token/send-otp {email} */
-const sendOtp = async (req: express.Request, res: express.Response) => {
-  try {
-    const deal: any = await escrowDealModel.findOne({ where: { deal_token: String(req.params.token) } });
-    if (!deal) return errorResponseHelper(res, 404, "Escrow invitation not found.");
-    const { email } = req.body || {};
-    if (!email || norm(email) !== norm(deal.counterparty_email)) {
-      return errorResponseHelper(res, 403, "Please use the email address this invitation was sent to.");
-    }
-    const otp = String(Math.floor(100000 + Math.random() * 900000));
-    await setRedisItemWithTTL(otpKey(deal.escrow_id, email), { otp }, OTP_TTL);
-    void sendEscrowOtpEmail(String(email), deal, otp);
-    const payload: Record<string, unknown> = { has_account: await hasAccount(String(email)) };
-    if (emailDisabled()) payload.preview_otp = otp; // preview only (outbound email disabled)
-    return successResponseHelper(res, 200, "Verification code sent.", payload);
-  } catch (e) {
-    return handle(res, e, "sendOtp");
-  }
-};
-
-/** POST /api/escrow/public/:token/verify-otp {email, otp} -> {escrow_session} */
-const verifyOtp = async (req: express.Request, res: express.Response) => {
-  try {
-    const deal: any = await escrowDealModel.findOne({ where: { deal_token: String(req.params.token) } });
-    if (!deal) return errorResponseHelper(res, 404, "Escrow invitation not found.");
-    const { email, otp } = req.body || {};
-    if (!email || norm(email) !== norm(deal.counterparty_email)) return errorResponseHelper(res, 403, "Please use the invited email address.");
-    const stored: any = await getRedisItem(otpKey(deal.escrow_id, email));
-    if (!stored || String(stored.otp) !== String(otp)) return errorResponseHelper(res, 400, "Invalid or expired code. Request a new one.");
-    await deleteRedisItem(otpKey(deal.escrow_id, email));
-    const sessionToken = crypto.randomBytes(24).toString("hex");
-    await setRedisItemWithTTL(sessionKey(sessionToken), { escrow_id: deal.escrow_id, email: norm(email) }, SESSION_TTL);
-    if (!deal.counterparty_verified_at) {
-      deal.counterparty_verified_at = new Date();
-      try { await deal.save(); } catch { /* non-fatal */ }
-    }
-    return successResponseHelper(res, 200, "Email verified.", {
-      escrow_session: sessionToken,
-      expires_in: SESSION_TTL,
-      has_account: await hasAccount(String(email)),
-    });
-  } catch (e) {
-    return handle(res, e, "verifyOtp");
-  }
-};
-
-/** POST /api/escrow/public/:token/respond {action:accept|decline, reason?} (x-escrow-token) */
-const respondInvite = async (req: express.Request, res: express.Response) => {
-  try {
-    const deal: any = await escrowDealModel.findOne({ where: { deal_token: String(req.params.token) } });
-    if (!deal) return errorResponseHelper(res, 404, "Escrow invitation not found.");
-    const { action, reason } = req.body || {};
-    if (!["accept", "decline"].includes(String(action))) return errorResponseHelper(res, 400, "action must be 'accept' or 'decline'.");
-    const actor = await resolvePublicActor(req, deal);
-    if (action === "accept") {
-      await actAccept(deal, actor);
-      return respond(res, deal, 200, "Invitation accepted. The buyer can now fund the escrow.", actor, false);
-    }
-    await actDecline(deal, actor, reason);
-    return respond(res, deal, 200, "Invitation declined.", actor, false);
-  } catch (e) {
-    return handle(res, e, "respondInvite");
-  }
-};
-
-/**
- * POST /api/escrow/public/:token/action {action, ...} (x-escrow-token)
- * fund (buyer) | deliver (seller) | release (buyer) | dispute (either) |
- * payout-info (seller stable address / buyer refund address).
- */
-const publicAction = async (req: express.Request, res: express.Response) => {
-  try {
-    const deal: any = await escrowDealModel.findOne({ where: { deal_token: String(req.params.token) } });
-    if (!deal) return errorResponseHelper(res, 404, "Escrow deal not found.");
-    const actor = await resolvePublicActor(req, deal);
-    switch (String(req.body?.action)) {
-      case "fund":
-        await actFund(deal, actor, req.body?.coin);
-        return respond(res, deal, 200, "Escrow funded (SIMULATED — no real crypto moved).", actor, false);
-      case "deliver":
-        await actDeliver(deal, actor, req.body?.delivery_note);
-        return respond(res, deal, 200, "Deal marked as delivered.", actor, false);
-      case "release": {
-        await actRelease(deal, actor);
-        const msg = deal.seller_payout_state === "paid" ? "Funds released to seller." : "Release authorized — payout pending.";
-        return respond(res, deal, 200, msg, actor, false);
-      }
-      case "dispute":
-        await actRaiseDispute(deal, actor, req.body || {});
-        return respond(res, deal, 200, "Dispute opened — your proposal was sent to the other party.", actor, false);
-      case "cancel": {
-        const { requested } = await actCancel(deal, actor, req.body || {});
-        return respond(
-          res,
-          deal,
-          200,
-          requested ? "Cancellation requested — the other party must agree before the buyer is refunded." : "Deal cancelled (no charge).",
-          actor,
-          false
-        );
-      }
-      case "dispute-counter":
-        await actCounterDispute(deal, actor, req.body || {});
-        return respond(res, deal, 200, "Counter-offer sent.", actor, false);
-      case "dispute-accept":
-        await actAcceptDispute(deal, actor);
-        return respond(res, deal, 200, "Proposal accepted — the dispute is resolved by agreement.", actor, false);
-      case "dispute-message":
-        await actDisputeMessage(deal, actor, req.body?.message);
-        return respond(res, deal, 200, "Message added to the dispute.", actor, false);
-      case "dispute-escalate":
-        await actEscalateDispute(deal, actor);
-        return respond(res, deal, 200, "Dispute escalated to a Dynopay admin.", actor, false);
-      case "payout-info": {
-        // OTP-only party MUST paste an explicit address (no account-wallet reuse).
-        if (actor.role === "seller" && !req.body?.payout_address) return errorResponseHelper(res, 400, "A stablecoin payout address is required.");
-        if (actor.role === "buyer" && !req.body?.refund_address) return errorResponseHelper(res, 400, "A refund address is required.");
-        await actSetDestination(deal, actor, req.body || {});
-        const paid = actor.role === "seller" ? deal.seller_payout_state === "paid" : deal.buyer_payout_state === "paid";
-        return respond(res, deal, 200, paid ? "Address saved — funds sent." : "Address saved.", actor, false);
-      }
-      default:
-        return errorResponseHelper(res, 400, "Unknown action.");
-    }
-  } catch (e) {
-    return handle(res, e, "publicAction");
-  }
-};
-
 // ═══════════════════════════════════════════════════════════════════════════
 // ADMIN endpoints
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1447,25 +1012,6 @@ export const escrowEngine = {
 export type { ActorInfo };
 
 export default {
-  previewFee,
-  createDeal,
-  listDeals,
-  getDeal,
-  setPayoutInfo,
-  markDelivered,
-  confirmRelease,
-  raiseDispute,
-  counterDispute,
-  acceptDispute,
-  disputeMessage,
-  escalateDispute,
-  cancelDeal,
-  simulateFund,
-  getPublicDeal,
-  sendOtp,
-  verifyOtp,
-  respondInvite,
-  publicAction,
   adminListDeals,
   adminDisputeQueue,
   adminResolveDispute,

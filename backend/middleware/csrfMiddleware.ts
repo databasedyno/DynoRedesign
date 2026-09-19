@@ -118,12 +118,6 @@ const EXEMPT_PATHS = [
   // QA Quality Center — passcode-gated internal tool. Auth is the shared
   // passcode header (x-qa-passcode), not a session cookie, so CSRF does not apply.
   "/api/quality",
-  // Escrow public counterparty endpoints — the invited party may have NO Dynopay
-  // account (opened from an invitation email/link). Auth is the unguessable
-  // deal_token + email confirmation, not a session cookie, so CSRF does not apply.
-  // Same rationale as `/api/pay/getData`. Only the /public/ subtree is exempt;
-  // the authed merchant + admin escrow routes still require Bearer/session.
-  "/api/escrow/public/",
   // SafeDeal (standalone escrow product, safedeal.sh) — users are brand customers
   // authenticated by an explicit x-safedeal-token header (never a cookie), so CSRF
   // does not apply. The brand-owner/admin routes under /api/safedeal/brand and

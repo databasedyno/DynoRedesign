@@ -21,6 +21,12 @@
 # PROD CHECKLIST (ops, surfaced by the readiness tab): brand 262 has NO crypto wallets → add Dynopay-custody wallet addresses per coin;
 #   enable auto-convert→USDT on brand 262; set ESCROW_LIVE_SETTLEMENT=true, SAFEDEAL_URL=https://safedeal.sh, DNS safedeal.sh → this Next app.
 # Tests: backend/tests/test_safedeal_iter203.py (new, 12). Notes: memory/SAFEDEAL_NOTES.md. COMMIT via "Save to GitHub".
+# CLEANUP (same fork, after user Q "did we remove escrow from the dynopay app?"): merchant + public-invite escrow is fully retired —
+#   routes/escrowRouter.ts now ONLY mounts /api/escrow/admin/* (merchant /api/escrow* + /api/escrow/public/* return 404);
+#   controller/escrowController.ts merchant/public handlers + OTP/session helpers deleted (engine `escrowEngine` + admin handlers kept);
+#   csrfMiddleware exemption /api/escrow/public/ removed; api/escrow.ts = types + escrowAdminApi only; helpers/publicPaths.ts + _app.tsx
+#   dropped /escrow. Verified: BE/FE tsc 0, admin deals/disputes 200, 23/23 SafeDeal pytest. NOTE: 65 legacy (pre-SafeDeal, source!=safedeal)
+#   TEST deals remain in tbl_escrow_deal and still show under Admin → Escrow → All deals; their invite_url (/escrow/invite/…) is now dead — purge candidates.
 # ============================================================================================
 
 # === 2026-09 (session: continue-escrow) ESCROW DISPUTE REIMAGINED (P2P) + FEE/UX ===

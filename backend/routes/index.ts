@@ -450,7 +450,7 @@ router.use("/track", trackRouter); // Visitor tracking (public, rate-limited)
 router.use("/admin/analytics", analyticsRouter); // Admin analytics (revenue, cohorts, funnels)
 router.use("/", productRouter); // Product Catalog (Phase 1): /products, /shop, /cart, /checkout, /order
 router.use("/", invoiceRouter); // Invoice routes (transactions/:id/invoice, invoices, invoices/:id)
-router.use("/", escrowRouter); // Escrow deals (/escrow, /escrow/:id, /escrow/public/:token, /escrow/admin/*)
+router.use("/", escrowRouter); // Escrow — Dynopay admin oversight only (/escrow/admin/*)
 router.use("/", safedealRouter); // SafeDeal — standalone escrow product on the Dynopay engine (/safedeal/*)
 
 router.post("/webhook", webhookRateLimiter, flutterwaveWebHook);

@@ -30,18 +30,12 @@ const PROTECTED_PREFIXES = [
   "/get-started",
   "/kyc",
   "/storefront",
-  "/escrow",
   "/admin",
 ];
 const PROTECTED_EXCEPTIONS = new Set(["/admin/login"]);
 
-/**
- * Public sub-trees that live UNDER a protected prefix. The escrow counterparty
- * page (/escrow/invite/:token) is a public, account-less surface even though
- * the merchant escrow dashboard (/escrow, /escrow/:id) is protected — so a
- * lost/expired token must never bounce an invited buyer/seller to /auth/login.
- */
-const PUBLIC_PREFIXES = ["/escrow/invite"];
+/** Public sub-trees that live UNDER a protected prefix (none today; SafeDeal has its own shell). */
+const PUBLIC_PREFIXES: string[] = [];
 
 const normalize = (pathname: string) => (pathname || "/").replace(/\/+$/, "") || "/";
 
