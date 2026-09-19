@@ -6,6 +6,7 @@ import type { FeeBreakdown } from "@/api/escrow";
 import { money } from "@/Components/Page/Escrow/escrowUtils";
 import { TABULAR } from "./sdFormat";
 import { SD_AMBER } from "./SafeDealShell";
+import { SD_GOLD, SD_INK } from "./sdTheme";
 
 type FeePayer = "buyer" | "seller" | "split";
 const PAYERS: { v: FeePayer; label: string }[] = [
@@ -45,8 +46,8 @@ export default function FeeCalculator({ minDeal, autoReleaseDefault }: { minDeal
         error={!!amount && !valid}
         helperText={!!amount && !valid ? `Deals start at $${minDeal}` : " "}
         sx={{ "& .MuiOutlinedInput-root": { background: "rgba(255,255,255,0.07)" }, "& .MuiOutlinedInput-root input": { color: "#fff" } }}
-        InputProps={{ startAdornment: <InputAdornment position="start" sx={{ "& p": { color: "#fff" } }}>$</InputAdornment>, sx: { color: "#fff", fontWeight: 800, ...TABULAR, "& fieldset": { borderColor: "rgba(255,255,255,0.3)" }, "&:hover fieldset": { borderColor: "rgba(255,255,255,0.55) !important" }, "&.Mui-focused fieldset": { borderColor: "#A5B4FC !important" } } }}
-        InputLabelProps={{ sx: { color: muted, "&.Mui-focused": { color: "#A5B4FC" } } }}
+        InputProps={{ startAdornment: <InputAdornment position="start" sx={{ "& p": { color: "#fff" } }}>$</InputAdornment>, sx: { color: "#fff", fontWeight: 800, ...TABULAR, "& fieldset": { borderColor: "rgba(255,255,255,0.3)" }, "&:hover fieldset": { borderColor: "rgba(255,255,255,0.55) !important" }, "&.Mui-focused fieldset": { borderColor: `${SD_GOLD} !important` } } }}
+        InputLabelProps={{ sx: { color: muted, "&.Mui-focused": { color: SD_GOLD } } }}
         FormHelperTextProps={{ sx: { color: "#FCA5A5", m: 0, mt: 0.4 } }}
         inputProps={{ "data-testid": "sd-calc-amount", inputMode: "decimal", "aria-label": "Deal amount in US dollars" }}
       />
@@ -62,7 +63,7 @@ export default function FeeCalculator({ minDeal, autoReleaseDefault }: { minDeal
               onClick={() => setPayer(p.v)}
               onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setPayer(p.v)}
               data-testid={`sd-calc-payer-${p.v}`}
-              sx={{ flex: 1, textAlign: "center", py: 0.7, px: 0.5, borderRadius: 99, cursor: "pointer", fontSize: 12, fontWeight: 800, color: on ? "#0B1020" : muted, backgroundColor: on ? "#fff" : "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", transition: "background-color .15s, color .15s", "&:focus-visible": { outline: "2px solid #A5B4FC", outlineOffset: 2 } }}
+              sx={{ flex: 1, textAlign: "center", py: 0.7, px: 0.5, borderRadius: 99, cursor: "pointer", fontSize: 12, fontWeight: 800, color: on ? SD_INK : muted, backgroundColor: on ? "#fff" : "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", transition: "background-color .15s, color .15s", "&:focus-visible": { outline: `2px solid ${SD_GOLD}`, outlineOffset: 2 } }}
             >
               {p.label}
             </Box>
@@ -79,12 +80,12 @@ export default function FeeCalculator({ minDeal, autoReleaseDefault }: { minDeal
           <Line l="Deal amount" v={money(q.amount)} />
           {(q.costItems || []).map((c) => <Line key={c.key} l={c.label} v={money(c.amount)} soft />)}
           <Box sx={{ borderTop: "1px solid rgba(255,255,255,0.12)", pt: 1.2 }}>
-            <Line l="Buyer pays" v={money(q.buyerPays)} strong color="#A5B4FC" testid="sd-calc-buyer-pays" />
+            <Line l="Buyer pays" v={money(q.buyerPays)} strong color={SD_GOLD} testid="sd-calc-buyer-pays" />
             <Line l="Seller receives" v={money(q.sellerReceives)} strong color="#6EE7B7" testid="sd-calc-seller-receives" />
           </Box>
           <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 0.5 }}>
             <Icon icon="mdi:timer-sand" width={16} color={SD_AMBER} aria-hidden />
-            <Typography sx={{ fontSize: 12.5, color: muted }}>Held in USDT by Dynopay · releases {autoReleaseDefault} days after delivery unless the buyer objects</Typography>
+            <Typography sx={{ fontSize: 12.5, color: muted }}>Held in USDT escrow by SafeDeal · releases {autoReleaseDefault} days after delivery unless the buyer objects</Typography>
           </Stack>
         </Stack>
       )}

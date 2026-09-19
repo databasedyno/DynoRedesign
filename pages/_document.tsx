@@ -18,21 +18,11 @@ export default function MyDocument({ emotionStyleTags, lang }: MyDocumentProps) 
   return (
     <Html lang={lang}>
       <Head>
-        {/* Favicon — deliberately minimal & unambiguous (consolidated 2026-09-07).
-            Modern browsers use the SVG, which self-switches dark/light via an embedded
-            @media(prefers-color-scheme), so the mark never disappears on dark chrome.
-            Every other entry is color-scheme-independent, giving Google's favicon
-            crawler (which ignores prefers-color-scheme) ONE clear signal set:
-            /favicon.ico + unconditional 48/192 PNGs + the web manifest. The indigo
-            coin reads fine on both light and dark backgrounds, so no separate dark-mode
-            PNG variants are needed. v6 bump (2026-06 "Bold Loop" mark refresh) forces
-            browsers/crawlers to drop the cached v5 icon. */}
-        <link rel="icon" href="/favicon.ico?v=6" sizes="any" />
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=6" />
-        <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png?v=6" />
-        <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png?v=6" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=6" />
-        <link rel="manifest" href="/site.webmanifest?v=6" />
+        {/* Favicon is managed ROUTE-AWARE in _app.tsx via next/head, so it stays
+            correct across client-side navigation: SafeDeal routes (/safedeal/*) get
+            the yellow/black SafeDeal mark, every other route keeps Dynopay's coin.
+            Kept out of _document because _document only renders on the initial SSR
+            and cannot re-assert the icon when the SPA navigates between pages. */}
         {/* iOS safe area and mobile optimization — viewport is set via next.config or _app */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />

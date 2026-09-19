@@ -4,35 +4,35 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { Box, Button, Container, Stack, Typography } from "@mui/material";
 import { Icon } from "@iconify/react";
-import { BRAND_ACCENT } from "@/constants/theme";
 import safedealApi from "@/api/safedeal";
 import { useSdHref, useSdSession } from "./sdRouting";
+import SafeDealMark from "./SafeDealMark";
+import {
+  SD_GOLD,
+  SD_GOLD_DARK,
+  SD_GOLD_DEEP,
+  SD_INK as SD_INK_TOKEN,
+  SD_INK_SOFT as SD_INK_SOFT_TOKEN,
+  SD_INK_MUTED as SD_INK_MUTED_TOKEN,
+  POWERED_BY_LINE,
+} from "./sdTheme";
 
-export const SD_INK = "#0B1020";
-export const SD_INK_SOFT = "#151B2E";
-export const SD_AMBER = "#F59E0B";
-/** Captions on ink cards — ≥ 4.5:1 on SD_INK (was 0.55 which fails WCAG AA). */
-export const SD_INK_MUTED = "rgba(255,255,255,0.72)";
+/* Back-compat re-exports (kept so existing SafeDeal components keep importing
+   these names from the shell). SD_AMBER is now the brand GOLD accent. */
+export const SD_INK = SD_INK_TOKEN;
+export const SD_INK_SOFT = SD_INK_SOFT_TOKEN;
+export const SD_AMBER = SD_GOLD;
+export const SD_INK_MUTED = SD_INK_MUTED_TOKEN;
 
 export function SafeDealLogo({ light = false, size = 22 }: { light?: boolean; size?: number }) {
   return (
-    <Stack direction="row" alignItems="center" spacing={0.9} data-testid="sd-logo">
-      <Box
-        aria-hidden
-        sx={{
-          width: size + 10,
-          height: size + 10,
-          borderRadius: 2,
-          display: "grid",
-          placeItems: "center",
-          background: `linear-gradient(135deg, ${BRAND_ACCENT} 0%, #6366F1 100%)`,
-          boxShadow: "0 6px 18px rgba(67,56,202,0.35)",
-        }}
+    <Stack direction="row" alignItems="center" spacing={1} data-testid="sd-logo">
+      <SafeDealMark size={size + 12} ring={light} />
+      <Typography
+        component="span"
+        sx={{ fontWeight: 900, fontSize: size, letterSpacing: -0.6, color: light ? "#fff" : SD_INK, lineHeight: 1 }}
       >
-        <Icon icon="mdi:shield-check" width={size} color="#fff" />
-      </Box>
-      <Typography component="span" sx={{ fontWeight: 900, fontSize: size - 2, letterSpacing: -0.5, color: light ? "#fff" : SD_INK }}>
-        Safe<span style={{ color: light ? "#A5B4FC" : BRAND_ACCENT }}>Deal</span>
+        Safe<span style={{ color: SD_GOLD }}>Deal</span>
       </Typography>
     </Stack>
   );
@@ -64,7 +64,8 @@ export default function SafeDealShell({ children, title, wide = false, dark = fa
     : [{ label: "How it works", to: "/#how", key: "#how", testid: "sd-nav-how" }, { label: "Fees", to: "/#fees", key: "#fees", testid: "sd-nav-fees" }];
 
   const fg = dark ? "#fff" : SD_INK;
-  const muted = dark ? SD_INK_MUTED : "#6B7280";
+  const muted = dark ? SD_INK_MUTED : "#6B6B72";
+  const navActive = dark ? SD_GOLD : SD_GOLD_DEEP;
 
   return (
     <Box
@@ -72,18 +73,17 @@ export default function SafeDealShell({ children, title, wide = false, dark = fa
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
-        backgroundColor: dark ? SD_INK : "#F6F7FB",
+        backgroundColor: dark ? SD_INK : "#FAFAF6",
         color: fg,
-        // Global focus ring reads these vars (styles/globals.css) — brand indigo inside SafeDeal.
-        "--dyno-focus-ring": dark ? "#A5B4FC" : BRAND_ACCENT,
-        "--dyno-focus-ring-shadow": dark ? "0 0 0 2px rgba(165,180,252,0.3)" : "0 0 0 2px rgba(67,56,202,0.25)",
+        "--dyno-focus-ring": SD_GOLD,
+        "--dyno-focus-ring-shadow": "0 0 0 3px rgba(255,198,26,0.35)",
       }}
     >
       <Head>
-        <title>{title ? `${title} · SafeDeal` : "SafeDeal — escrow for online deals, powered by Dynopay"}</title>
-        <meta name="description" content="SafeDeal holds the buyer's payment until the seller delivers. 5% fee, no accounts to set up — sign in with your email." />
+        <title>{title ? `${title} · SafeDeal` : "SafeDeal — escrow for buying & selling online"}</title>
+        <meta name="description" content="SafeDeal holds the buyer's payment in USDT escrow until the seller delivers, and steps in if there's a dispute. 5% fee, no account setup — sign in with your email." />
       </Head>
-      <Box component="header" sx={{ borderBottom: dark ? "1px solid rgba(255,255,255,0.08)" : "1px solid #E5E7EB", backgroundColor: dark ? SD_INK : "rgba(255,255,255,0.85)", backdropFilter: "blur(12px)", position: "sticky", top: 0, zIndex: 20 }}>
+      <Box component="header" sx={{ borderBottom: dark ? "1px solid rgba(255,255,255,0.08)" : "1px solid #ECE9E1", backgroundColor: dark ? "rgba(10,10,11,0.85)" : "rgba(255,255,255,0.85)", backdropFilter: "blur(12px)", position: "sticky", top: 0, zIndex: 20 }}>
         <Container maxWidth={wide ? "xl" : "lg"} sx={{ py: 1.4, display: "flex", alignItems: "center", justifyContent: "space-between", gap: { xs: 1, sm: 2 } }}>
           <Link href={href(user ? "/deals" : "/")} style={{ textDecoration: "none" }} aria-label="SafeDeal home">
             <SafeDealLogo light={dark} />
@@ -91,7 +91,7 @@ export default function SafeDealShell({ children, title, wide = false, dark = fa
           <Stack component="nav" aria-label="Main" direction="row" spacing={{ xs: 1, sm: 2.5 }} alignItems="center">
             {nav.map((n) => (
               <Link key={n.key} href={href(n.to)} data-testid={n.testid} style={{ textDecoration: "none" }} aria-current={isActive(n.key) ? "page" : undefined}>
-                <Typography component="span" sx={{ fontSize: { xs: 13, sm: 14 }, fontWeight: 700, whiteSpace: "nowrap", color: isActive(n.key) ? BRAND_ACCENT : dark ? "rgba(255,255,255,0.8)" : "#4B5563", "&:hover": { color: BRAND_ACCENT }, transition: "color .15s" }}>
+                <Typography component="span" sx={{ fontSize: { xs: 13, sm: 14 }, fontWeight: 700, whiteSpace: "nowrap", color: isActive(n.key) ? navActive : dark ? "rgba(255,255,255,0.8)" : "#4B4B52", "&:hover": { color: navActive }, transition: "color .15s" }}>
                   {n.label}
                 </Typography>
               </Link>
@@ -109,14 +109,14 @@ export default function SafeDealShell({ children, title, wide = false, dark = fa
                     void router.push(href("/"));
                   }}
                   data-testid="sd-nav-signout"
-                  sx={{ textTransform: "none", fontWeight: 700, borderRadius: 99, whiteSpace: "nowrap", minWidth: 0, borderColor: dark ? "rgba(255,255,255,0.25)" : "#D1D5DB", color: fg }}
+                  sx={{ textTransform: "none", fontWeight: 700, borderRadius: 99, whiteSpace: "nowrap", minWidth: 0, borderColor: dark ? "rgba(255,255,255,0.25)" : "#D8D3C6", color: fg, "&:hover": { borderColor: SD_GOLD_DEEP } }}
                 >
                   Sign out
                 </Button>
               </Stack>
             ) : ready ? (
               <Link href={href("/signin")} data-testid="sd-nav-signin" style={{ textDecoration: "none" }}>
-                <Button size="small" variant="contained" sx={{ textTransform: "none", fontWeight: 800, borderRadius: 99, px: 2, backgroundColor: BRAND_ACCENT, "&:hover": { backgroundColor: "#3730A3" } }}>
+                <Button size="small" variant="contained" sx={{ textTransform: "none", fontWeight: 800, borderRadius: 99, px: 2, color: SD_INK, backgroundColor: SD_GOLD, "&:hover": { backgroundColor: SD_GOLD_DARK } }}>
                   Sign in
                 </Button>
               </Link>
@@ -127,31 +127,31 @@ export default function SafeDealShell({ children, title, wide = false, dark = fa
 
       <Box component="main" sx={{ flex: 1 }}>{children}</Box>
 
-      <Box component="footer" sx={{ borderTop: dark ? "1px solid rgba(255,255,255,0.08)" : "1px solid #E5E7EB", py: 4, mt: 6 }} data-testid="sd-footer">
+      <Box component="footer" sx={{ borderTop: dark ? "1px solid rgba(255,255,255,0.08)" : "1px solid #ECE9E1", py: 4, mt: 6 }} data-testid="sd-footer">
         <Container maxWidth={wide ? "xl" : "lg"}>
           <Stack direction={{ xs: "column", md: "row" }} justifyContent="space-between" alignItems={{ xs: "flex-start", md: "flex-start" }} spacing={3}>
-            <Box sx={{ maxWidth: 380 }}>
+            <Box sx={{ maxWidth: 400 }}>
               <SafeDealLogo light={dark} size={18} />
               <Typography sx={{ fontSize: 13, color: muted, mt: 1.2, lineHeight: 1.6 }}>
-                Escrow for online deals. The buyer&apos;s money is held in USDT by Dynopay and released when the seller delivers.
+                Escrow for online deals. SafeDeal holds the buyer&apos;s payment in USDT and releases it to the seller once the deal is done.
               </Typography>
               <Stack direction="row" spacing={0.8} alignItems="center" sx={{ mt: 1.2 }} data-testid="sd-powered-by">
-                <Icon icon="mdi:lightning-bolt" width={15} color={dark ? "#A5B4FC" : BRAND_ACCENT} aria-hidden />
+                <Icon icon="mdi:credit-card-check-outline" width={15} color={dark ? SD_GOLD : SD_GOLD_DEEP} aria-hidden />
                 <Typography sx={{ fontSize: 12.5, color: muted }}>
-                  Powered by <b style={{ color: fg }}>Dynopay</b> — payments, custody and payouts
+                  {POWERED_BY_LINE.replace("Dynopay", "")}<b style={{ color: fg }}>Dynopay</b>
                 </Typography>
               </Stack>
             </Box>
             <Stack component="nav" aria-label="Footer" direction="row" spacing={{ xs: 2, sm: 3 }} flexWrap="wrap" useFlexGap>
               {FOOTER_LINKS.map((l) => (
                 <Link key={l.to} href={href(l.to)} data-testid={l.testid} style={{ textDecoration: "none" }}>
-                  <Typography component="span" sx={{ fontSize: 13.5, fontWeight: 700, color: dark ? "rgba(255,255,255,0.85)" : "#374151", "&:hover": { color: BRAND_ACCENT } }}>{l.label}</Typography>
+                  <Typography component="span" sx={{ fontSize: 13.5, fontWeight: 700, color: dark ? "rgba(255,255,255,0.85)" : "#374151", "&:hover": { color: navActive } }}>{l.label}</Typography>
                 </Link>
               ))}
             </Stack>
           </Stack>
-          <Typography sx={{ fontSize: 12, color: dark ? "rgba(255,255,255,0.6)" : "#9CA3AF", mt: 3 }} data-testid="sd-footer-legal">
-            © {new Date().getFullYear()} SafeDeal · safedeal.sh · Operated by {legalName.replace(/\.$/, "")}. Not a bank; funds are held as USDT in escrow custody.
+          <Typography sx={{ fontSize: 12, color: dark ? "rgba(255,255,255,0.6)" : "#9C9AA3", mt: 3 }} data-testid="sd-footer-legal">
+            © {new Date().getFullYear()} SafeDeal · safedeal.sh · Operated by {legalName.replace(/\.$/, "")}. Not a bank; funds are held as USDT in SafeDeal escrow.
           </Typography>
         </Container>
       </Box>

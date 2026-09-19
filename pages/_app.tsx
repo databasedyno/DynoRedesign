@@ -658,6 +658,32 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
         {/* ─── Viewport ─── */}
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" />
 
+        {/* ─── Favicon (route-aware, next/head-managed) ───
+             SafeDeal (/safedeal/*) is a separate brand served by this same app, so
+             it gets its own yellow/black mark in the tab, bookmarks & home-screen
+             icon; every other route keeps Dynopay's coin. Managed here (not in
+             _document) with stable keys so next/head SWAPS the icon on client-side
+             navigation instead of leaving the last-rendered one stuck. */}
+        {pathname.startsWith("/safedeal") ? (
+          <>
+            <link key="fav-svg" rel="icon" type="image/svg+xml" href="/safedeal/favicon.svg?v=1" />
+            <link key="fav-ico" rel="icon" href="/safedeal/favicon-48.png?v=1" sizes="any" />
+            <link key="fav-48" rel="icon" type="image/png" sizes="48x48" href="/safedeal/favicon-48.png?v=1" />
+            <link key="fav-192" rel="icon" type="image/png" sizes="192x192" href="/safedeal/favicon-192.png?v=1" />
+            <link key="fav-apple" rel="apple-touch-icon" sizes="180x180" href="/safedeal/apple-touch-icon.png?v=1" />
+            <link key="fav-manifest" rel="manifest" href="/safedeal/site.webmanifest?v=1" />
+          </>
+        ) : (
+          <>
+            <link key="fav-ico" rel="icon" href="/favicon.ico?v=6" sizes="any" />
+            <link key="fav-svg" rel="icon" type="image/svg+xml" href="/favicon.svg?v=6" />
+            <link key="fav-48" rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png?v=6" />
+            <link key="fav-192" rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png?v=6" />
+            <link key="fav-apple" rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=6" />
+            <link key="fav-manifest" rel="manifest" href="/site.webmanifest?v=6" />
+          </>
+        )}
+
         {/* ─── Canonical URL ─── */}
         {/* `key="canonical"` lets per-page Head overrides (e.g. SEOLandingPage
              with its slug-specific canonical) DEDUPE this fallback. */}
