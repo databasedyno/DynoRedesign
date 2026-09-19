@@ -1,0 +1,31 @@
+{
+  "summary": "SafeDeal iteration 208 (wallet top-ups, pay-from-balance, exchange fee, auto-withdraw ON/OFF semantics, invoices, PDF, webhook top-up) fully tested. Wrote /app/backend/tests/test_safedeal_iter208_wallet.py with 25 pytest tests → 25/25 PASS. Regression run of iter207 pytest → 9/9 PASS. Frontend E2E on preview (buyer flow via injected sd_token): wallet page renders sd-topup-open / sd-withdraw-open / sd-auto-withdraw-toggle (+help copy 'Off — released funds stay in your SafeDeal balance…') / sd-invoices + sd-invoices-empty. Toggling auto-withdraw ON without a saved address shows toast 'Save a payout address first.' Top-up dialog: sd-topup-dialog + sd-topup-amount (default 50) + 13 coin tiles with sd-topup-pays-*; USDT-TRC20 says 'No exchange fee', BTC says 'Exchange fee 2% ($1.00) · network $0.48 · conversion $0.05'. Clicking USDT-TRC20 opens payment view (sd-topup-payment/qr/address/crypto-amount/status='Waiting for your transfer'/simulate-box/simulate). Clicking Simulate → sd-topup-credited chip; statement row sd-statement-row-topup appears; on reload with a waiting top-up the sd-topup-open-banner + sd-topup-resume both render. Deal page (buyer, $30 deal, balance $100): fund panel shows sd-fund-balance-box + enabled sd-act-fund-balance ('Pay from balance'), no sd-fund-topup-link, BTC coin tile mentions 'exchange fee', and the money card shows 'Exchange fee (2%) $0.60' as its own line (buyer pays $43.63). Zero JS console errors on the deal page.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_safedeal_iter208_wallet.py",
+    "/app/test_reports/pytest/iter208.xml",
+    "/app/backend/tests/test_safedeal_iter207_funding.py"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Top-up idempotency: POST /wallet/topup returns the same topup_id while status='waiting' for identical (amount,coin) — verified. Cross-user GET returns 404 (owner scoping enforced).",
+    "Simulate is single-shot: 2nd POST /simulate returns 409 and wallet is not double-credited — verified. Wallet limits.min_topup_usd=10 / max_topup_usd=25000 and data.live=false surfaced correctly.",
+    "Ledger integrity end-to-end: buyer statement after a completed from-balance deal contains hold_released + paid_to_seller + escrow_fee + escrow_costs and NO exchange_fee row (USDT funding is stable so exchange_fee=0). Top-up row is 'topup' with signed +100 + running_balance.",
+    "Auto-withdraw OFF (default): release credits seller wallet (seller_payout_tx starts with WALLET-CREDIT-), activity note contains 'auto-withdraw is off', profile.parked_payout_usd=0, and NO withdrawal row is created — exactly as spec.",
+    "Auto-withdraw ON with an address inside its 24h cooling-off correctly parks the payout: profile.parked_payout_usd = payout, activity note contains 'safety hold', wallet.available remains topped up. Toggling OFF resets parked_payout_usd to 0 without touching balance.",
+    "POST /profile {auto_withdraw:true} without a valid address returns 400 (backend + frontend toast both enforce).",
+    "Deal-level payout-destination set BEFORE funding correctly overrides the cooling-off: release produces a settlement withdrawal (source='settlement', status='sent', fee_usd=0, escrow_id set) even with auto-withdraw OFF.",
+    "Invoices endpoint returns only closed deals (SD-<escrow_id>) with cost_items incl. exchange_fee; my_fee_share > 0 for buyer / 0 for seller when fee_payer='buyer'; open deals not listed.",
+    "PDF filenames follow spec: 'safedeal-invoice-<id>.pdf' for closed, 'safedeal-<id>.pdf' for open; non-party → 403.",
+    "Webhook v2 for top-ups: valid HMAC + meta_data.source='safedeal' + meta_data.topup_id credits wallet by amount_usd exactly once; replay is a no-op; bad signature → 401. Ledger and topup.status transition to 'credited'."
+  ],
+  "updated_files": ["/app/backend/tests/test_safedeal_iter208_wallet.py"],
+  "success_rate": {"backend": "100% (25/25 new + 9/9 regression)", "frontend": "100%"},
+  "test_credentials": "SafeDeal passwordless: POST /api/safedeal/auth/send-code {email} → data.preview_code → POST /api/safedeal/auth/verify-code → data.token as x-safedeal-token. Any fresh throwaway email works. Webhook secret in /app/backend/.env: SAFEDEAL_WEBHOOK_SECRET.",
+  "seed_data_creation": "Created ~8 throwaway SafeDeal customers (sd-qa208-<ts>-{seller,buyer,outsider}@example.com and sd-ui-<ts>-{seller,buyer}@example.com under brand 262), ~5 deals in various states (funded-from-balance, released with WALLET-CREDIT payout, released with settlement withdrawal, open awaiting_payment), and ~6 tbl_safedeal_topup rows (mix of credited and waiting).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "iter208 pytest at /app/backend/tests/test_safedeal_iter208_wallet.py is fully green (25/25). Key contract notes: (1) buyerPays for a $30 from-balance USDT-funded deal is $43.00 (no conversion fee for stablecoin) — not $43.10. (2) topup below min ($10) returns 400 with 'Minimum top-up is $10.' (3) POST /profile {auto_withdraw:true} without an address returns 400. (4) Deal-level payout-destination BEFORE funding causes settlement withdrawal on release even with global auto_withdraw=false. (5) When a top-up is waiting the wallet page shows sd-topup-open-banner + sd-topup-resume — this survives page reload. (6) For frontend E2E, injecting sd_token into localStorage on /safedeal/signin works reliably; the UI signin form path is also fine but slower. (7) Backend is ts-node w/o hot reload — my test helper _req retries on 503 'Backend starting'.",
+  "rca of the issue": "n/a — no regressions or bugs found; spec matches implementation on all 12 review checkpoints."
+}

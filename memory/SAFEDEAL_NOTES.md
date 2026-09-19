@@ -65,3 +65,10 @@
 - Dockerfile frontend-builder stage COPYs an explicit allow-list of dirs; root `middleware.ts` was never copied → prod `next build` had NO
   middleware → no Host rewrite (and the dev-page guard was also absent in prod). Fixed: `COPY middleware.ts ./` in Dockerfile.
 - Verify after deploy: `curl -s https://safedeal.sh/ | grep -c sd-landing` (>0) and `curl -sI https://safedeal.sh/deals` → 200.
+
+## 2026-06 iteration_208 — wallet top-ups / exchange fee / auto-withdraw / invoices (all verified)
+- Exchange fee 2% (env ESCROW_EXCHANGE_FEE_PCT) on non-stable funding, own cost line `exchange_fee`, separate from 0.1% conversion cost. Ledger DEBIT kind `exchange_fee` at settlement.
+- Auto-withdraw OFF ⇒ settlement `{mode:'kept'}` (Available balance, no parking). ON ⇒ pays to auto_withdraw_address_id (cooling ⇒ parked, hourly release). Deal-level payout address still always pays out. Toggling OFF clears parked_payout_usd.
+- Top-ups: tbl_safedeal_topup (migration 0042), service safedealTopup.ts, routes /api/safedeal/wallet/topup*, webhook meta.topup_id branch, CREDIT kind `topup` payment_mode `TOPUP`. Preview: POST /wallet/topup/:id/simulate.
+- Invoices: GET /api/safedeal/invoices + summary.pdf becomes "Invoice SD-<id>" for closed deals (viewer-addressed, final costs, payouts).
+- Tests: backend/tests/test_safedeal_iter208_wallet.py (25/25), scripts/safedeal_wallet_smoke.sh. Min deal is $30 (5% fee, $10 floor) — use amount>=30 in tests.

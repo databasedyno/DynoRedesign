@@ -153,7 +153,7 @@ export async function settleToWallets(
       type: "DEBIT",
       amount: breakdown.passThroughCosts,
       kind: "escrow_costs",
-      description: `Network & exchange costs — ${title}`,
+      description: `Network & conversion costs — ${title}`,
       reference: ref("costs"),
       escrowId: deal.escrow_id,
       dealTitle: deal.title,
