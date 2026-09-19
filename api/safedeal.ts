@@ -9,6 +9,12 @@ const apiBaseUrl = (process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/+$/, "");
 export const SD_TOKEN_KEY = "sd_token";
 export const SD_USER_KEY = "sd_user";
 
+/** On safedeal.sh the API is proxied same-origin under /api — skip the cross-origin hop (and its preflight). */
+const sdApiBase = (): string => {
+  if (typeof window !== "undefined" && /(^|\.)safedeal\.sh$/i.test(window.location.hostname)) return "";
+  return apiBaseUrl;
+};
+
 export interface SdUser {
   email: string;
   customer_id: number;
@@ -38,8 +44,9 @@ export const sdSession = {
   },
 };
 
-const client = axios.create({ baseURL: apiBaseUrl + "/api/safedeal", headers: { "Content-Type": "application/json" } });
+const client = axios.create({ headers: { "Content-Type": "application/json" } });
 client.interceptors.request.use((cfg) => {
+  cfg.baseURL = `${sdApiBase()}/api/safedeal`;
   const t = sdSession.token();
   if (t) cfg.headers["x-safedeal-token"] = t;
   return cfg;
