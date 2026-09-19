@@ -66,6 +66,7 @@ export interface SdConfig {
   withdrawal_approval_usd: number;
   live_settlement: boolean;
   dispute_auto_escalate_hours: number;
+  legal_name?: string;
 }
 
 export interface SdBalances {

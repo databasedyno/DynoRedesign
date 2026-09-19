@@ -243,6 +243,7 @@ const config = async (_req: express.Request, res: express.Response) => {
     withdrawal_approval_usd: APPROVAL_THRESHOLD_USD,
     live_settlement: isLiveSettlementEnabled(),
     dispute_auto_escalate_hours: Number(envRaw("ESCROW_DISPUTE_AUTO_ESCALATE_HOURS")) || 72,
+    legal_name: (envRaw("EMAIL_LEGAL_NAME") || "Dynopay Payments Ltd.").trim(),
   });
 };
 

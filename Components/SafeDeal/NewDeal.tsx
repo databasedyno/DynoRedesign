@@ -1,12 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
-import { Alert, Box, Button, Container, Grid, InputAdornment, MenuItem, Stack, TextField, Typography } from "@mui/material";
+import { Alert, Box, Button, Collapse, Container, Grid, InputAdornment, MenuItem, Stack, TextField, Typography } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { BRAND_ACCENT } from "@/constants/theme";
 import safedealApi, { SdConfig, sdError } from "@/api/safedeal";
 import type { FeeBreakdown } from "@/api/escrow";
 import { money } from "@/Components/Page/Escrow/escrowUtils";
 import { useRequireSdSession, useSdHref } from "./sdRouting";
+import { TABULAR } from "./sdFormat";
+import { SD_INK_MUTED } from "./SafeDealShell";
 
 type Role = "buyer" | "seller";
 type FeePayer = "buyer" | "seller" | "split";
@@ -52,6 +54,7 @@ export default function NewDeal() {
   const [preview, setPreview] = useState<FeeBreakdown | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [quoteOpen, setQuoteOpen] = useState(false);
 
   useEffect(() => {
     safedealApi.config().then((c) => { setCfg(c); setDays(c.auto_release_default); }).catch(() => undefined);
@@ -136,9 +139,9 @@ export default function NewDeal() {
                 { v: "split", label: "Split 50/50", sub: "Half each" },
               ]} />
             </Box>
-            <TextField select label="Auto-release after delivery" value={days} onChange={(e) => setDays(Number(e.target.value))} fullWidth helperText="Days the buyer has to check the delivery before funds release automatically." inputProps={{ "data-testid": "sd-new-days" }}>
+            <TextField select label="Inspection period" value={days} onChange={(e) => setDays(Number(e.target.value))} fullWidth helperText="How long the buyer has to check the delivery. If they do nothing, funds auto-release to the seller when it ends." inputProps={{ "data-testid": "sd-new-days" }}>
               {(cfg?.auto_release_presets ?? [3, 5, 7, 14]).map((d) => (
-                <MenuItem key={d} value={d} data-testid={`sd-new-days-${d}`}>{d} days</MenuItem>
+                <MenuItem key={d} value={d} data-testid={`sd-new-days-${d}`}>{d} days after delivery</MenuItem>
               ))}
             </TextField>
             <TextField label="Terms (optional)" placeholder="What exactly is being delivered, by when, acceptance criteria…" value={terms} onChange={(e) => setTerms(e.target.value)} fullWidth multiline minRows={3} inputProps={{ "data-testid": "sd-new-terms", maxLength: 10000 }} />
@@ -148,38 +151,62 @@ export default function NewDeal() {
           </Stack>
         </Grid>
 
-        <Grid item xs={12} md={5}>
+        <Grid item xs={12} md={5} sx={{ display: { xs: "none", md: "block" } }}>
           <Box sx={{ p: 2.5, borderRadius: 3, backgroundColor: "#0B1020", color: "#fff", position: "sticky", top: 84 }} data-testid="sd-new-quote">
-            <Typography sx={{ fontSize: 12, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: "rgba(255,255,255,0.55)", mb: 1.2 }}>Live quote</Typography>
+            <Typography sx={{ fontSize: 12, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: SD_INK_MUTED, mb: 1.2 }}>Live quote</Typography>
             {!preview ? (
-              <Typography sx={{ fontSize: 14, color: "rgba(255,255,255,0.65)" }}>Enter an amount of ${minDeal} or more to see the itemised quote.</Typography>
+              <Typography sx={{ fontSize: 14, color: SD_INK_MUTED }}>Enter an amount of ${minDeal} or more to see the itemised quote.</Typography>
             ) : (
-              <Stack spacing={1}>
-                <Row l="Deal amount" v={money(preview.amount, "USD")} />
-                {(preview.costItems || []).map((c) => (
-                  <Row key={c.key} l={c.label} v={money(c.amount, "USD")} soft testid={`sd-quote-${c.key}`} />
-                ))}
-                <Box sx={{ borderTop: "1px solid rgba(255,255,255,0.12)", pt: 1 }}>
-                  <Row l="Buyer pays" v={money(preview.buyerPays, "USD")} strong color="#A5B4FC" testid="sd-quote-buyer-pays" />
-                  <Row l="Seller receives" v={money(preview.sellerReceives, "USD")} strong color="#6EE7B7" testid="sd-quote-seller-receives" />
-                </Box>
-                <Typography sx={{ fontSize: 11.5, color: "rgba(255,255,255,0.5)", mt: 0.5 }}>
-                  Network, conversion & withdrawal costs are estimates and depend on the coin the buyer pays with. Fees are set by Dynopay and charged on every outcome.
-                </Typography>
-              </Stack>
+              <QuoteBody preview={preview} />
             )}
           </Box>
         </Grid>
       </Grid>
+
+      {/* Mobile: collapsed sticky quote bar */}
+      <Box sx={{ display: { xs: "block", md: "none" }, position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 30, backgroundColor: "#0B1020", color: "#fff", borderTop: "1px solid rgba(255,255,255,0.12)", boxShadow: "0 -10px 30px rgba(0,0,0,0.25)" }} data-testid="sd-new-quote-bar">
+        <Box role="button" tabIndex={0} aria-expanded={quoteOpen} aria-controls="sd-quote-details" onClick={() => setQuoteOpen((o) => !o)} onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setQuoteOpen((o) => !o)} data-testid="sd-new-quote-bar-toggle" sx={{ px: 2, py: 1.3, display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}>
+          {preview ? (
+            <Typography sx={{ fontSize: 14, fontWeight: 800, ...TABULAR }}>
+              Buyer pays <span style={{ color: "#A5B4FC" }}>{money(preview.buyerPays, "USD")}</span> · Seller gets <span style={{ color: "#6EE7B7" }}>{money(preview.sellerReceives, "USD")}</span>
+            </Typography>
+          ) : (
+            <Typography sx={{ fontSize: 13.5, color: SD_INK_MUTED }}>Live quote appears once the amount is ${minDeal} or more</Typography>
+          )}
+          <Icon icon={quoteOpen ? "mdi:chevron-down" : "mdi:chevron-up"} width={22} aria-hidden />
+        </Box>
+        <Collapse in={quoteOpen && !!preview} id="sd-quote-details">
+          <Box sx={{ px: 2, pb: 2 }}>{preview && <QuoteBody preview={preview} />}</Box>
+        </Collapse>
+      </Box>
+      <Box sx={{ display: { xs: "block", md: "none" }, height: 64 }} aria-hidden />
     </Container>
+  );
+}
+
+function QuoteBody({ preview }: { preview: FeeBreakdown }) {
+  return (
+    <Stack spacing={1}>
+      <Row l="Deal amount" v={money(preview.amount, "USD")} />
+      {(preview.costItems || []).map((c) => (
+        <Row key={c.key} l={c.label} v={money(c.amount, "USD")} soft testid={`sd-quote-${c.key}`} />
+      ))}
+      <Box sx={{ borderTop: "1px solid rgba(255,255,255,0.12)", pt: 1 }}>
+        <Row l="Buyer pays" v={money(preview.buyerPays, "USD")} strong color="#A5B4FC" testid="sd-quote-buyer-pays" />
+        <Row l="Seller receives" v={money(preview.sellerReceives, "USD")} strong color="#6EE7B7" testid="sd-quote-seller-receives" />
+      </Box>
+      <Typography sx={{ fontSize: 11.5, color: SD_INK_MUTED, mt: 0.5 }}>
+        Network, conversion & withdrawal costs are estimates and depend on the coin the buyer pays with. Fees are set by Dynopay and charged on every outcome.
+      </Typography>
+    </Stack>
   );
 }
 
 function Row({ l, v, soft, strong, color, testid }: { l: string; v: string; soft?: boolean; strong?: boolean; color?: string; testid?: string }) {
   return (
     <Stack direction="row" justifyContent="space-between" data-testid={testid}>
-      <Typography sx={{ fontSize: strong ? 14.5 : 13.5, fontWeight: strong ? 800 : 500, color: soft ? "rgba(255,255,255,0.65)" : "#fff" }}>{l}</Typography>
-      <Typography sx={{ fontSize: strong ? 14.5 : 13.5, fontWeight: strong ? 900 : 700, color: color || (soft ? "rgba(255,255,255,0.65)" : "#fff") }}>{v}</Typography>
+      <Typography sx={{ fontSize: strong ? 14.5 : 13.5, fontWeight: strong ? 800 : 500, color: soft ? SD_INK_MUTED : "#fff" }}>{l}</Typography>
+      <Typography sx={{ fontSize: strong ? 14.5 : 13.5, fontWeight: strong ? 900 : 700, color: color || (soft ? SD_INK_MUTED : "#fff"), ...TABULAR }}>{v}</Typography>
     </Stack>
   );
 }

@@ -3,9 +3,10 @@ import { Alert, Box, Button, Chip, Container, Dialog, DialogActions, DialogConte
 import { Icon } from "@iconify/react";
 import { BRAND_ACCENT } from "@/constants/theme";
 import safedealApi, { SdAddress, SdStatementRow, SdWallet, sdError } from "@/api/safedeal";
-import { money, shortDate } from "@/Components/Page/Escrow/escrowUtils";
+import { money } from "@/Components/Page/Escrow/escrowUtils";
+import { TABULAR, absTime, relTime, useNow, withdrawalStatusLabel } from "./sdFormat";
 import { useRequireSdSession } from "./sdRouting";
-import { SD_AMBER, SD_INK } from "./SafeDealShell";
+import { SD_AMBER, SD_INK, SD_INK_MUTED } from "./SafeDealShell";
 
 const card = { p: { xs: 2, md: 2.5 }, borderRadius: 3, backgroundColor: "#fff", border: "1px solid #E5E7EB" } as const;
 const primaryBtn = { textTransform: "none", fontWeight: 800, borderRadius: 99, backgroundColor: BRAND_ACCENT, "&:hover": { backgroundColor: "#3730A3" } } as const;
@@ -29,6 +30,7 @@ const shortAddr = (a: string) => `${a.slice(0, 6)}…${a.slice(-4)}`;
 
 export default function Wallet() {
   const { ready } = useRequireSdSession();
+  const now = useNow(30000);
   const [w, setW] = useState<SdWallet | null>(null);
   const [rows, setRows] = useState<SdStatementRow[] | null>(null);
   const [from, setFrom] = useState("");
@@ -104,16 +106,16 @@ export default function Wallet() {
       <Grid container spacing={2.5}>
         <Grid item xs={12} md={4}>
           <Box sx={{ ...card, backgroundColor: SD_INK, color: "#fff", border: "none" }} data-testid="sd-wallet-balance">
-            <Typography sx={{ fontSize: 12, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: "rgba(255,255,255,0.55)" }}>Available</Typography>
-            <Typography sx={{ fontSize: 38, fontWeight: 900, letterSpacing: -1, lineHeight: 1.1, my: 0.5 }} data-testid="sd-wallet-available">{money(w.wallet.available)}</Typography>
+            <Typography sx={{ fontSize: 12, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: SD_INK_MUTED }}>Available</Typography>
+            <Typography sx={{ fontSize: 38, fontWeight: 900, letterSpacing: -1, lineHeight: 1.1, my: 0.5, ...TABULAR }} data-testid="sd-wallet-available">{money(w.wallet.available)}</Typography>
             <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
               <Icon icon="mdi:lock-outline" width={15} color={SD_AMBER} />
-              <Typography sx={{ fontSize: 13, color: "rgba(255,255,255,0.75)" }} data-testid="sd-wallet-held">Held in escrow: <b>{money(w.wallet.held)}</b></Typography>
+              <Typography sx={{ fontSize: 13, color: "rgba(255,255,255,0.85)", ...TABULAR }} data-testid="sd-wallet-held">Held in escrow: <b>{money(w.wallet.held)}</b></Typography>
             </Stack>
             <Button fullWidth variant="contained" disabled={w.wallet.available < w.limits.min_withdrawal_usd} onClick={() => setDialog("withdraw")} data-testid="sd-withdraw-open" sx={{ ...primaryBtn, "&.Mui-disabled": { backgroundColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.45)" } }} startIcon={<Icon icon="mdi:bank-transfer-out" />}>
               Withdraw
             </Button>
-            <Typography sx={{ fontSize: 11.5, color: "rgba(255,255,255,0.5)", mt: 1 }}>Min ${w.limits.min_withdrawal_usd} · withdrawals above ${w.limits.approval_threshold_usd.toLocaleString()} are reviewed first</Typography>
+            <Typography sx={{ fontSize: 11.5, color: SD_INK_MUTED, mt: 1 }}>Min ${w.limits.min_withdrawal_usd} · withdrawals above ${w.limits.approval_threshold_usd.toLocaleString()} are reviewed first</Typography>
           </Box>
 
           <Box sx={{ ...card, mt: 2.5 }} data-testid="sd-addresses">
@@ -171,24 +173,24 @@ export default function Wallet() {
               <Typography sx={{ fontSize: 13.5, color: "#6B7280", py: 3, textAlign: "center" }} data-testid="sd-statement-empty">No entries yet. Funding, releases, refunds, fees and withdrawals all show up here with a running balance.</Typography>
             ) : (
               <Box sx={{ overflowX: "auto" }}>
-                <Box component="table" sx={{ width: "100%", borderCollapse: "collapse", fontSize: 13, "& th": { textAlign: "left", fontSize: 11.5, color: "#9CA3AF", fontWeight: 800, textTransform: "uppercase", letterSpacing: 0.5, py: 0.8, px: 0.8, borderBottom: "1px solid #E5E7EB" }, "& td": { py: 1, px: 0.8, borderBottom: "1px solid #F3F4F6", verticalAlign: "top" } }}>
+                <Box component="table" sx={{ width: "100%", borderCollapse: "collapse", fontSize: 13, "& th": { textAlign: "left", fontSize: 11.5, color: "#6B7280", fontWeight: 800, textTransform: "uppercase", letterSpacing: 0.5, py: 0.8, px: 0.8, borderBottom: "1px solid #E5E7EB" }, "& td": { py: 1, px: 0.8, borderBottom: "1px solid #F3F4F6", verticalAlign: "top" } }}>
                   <thead>
                     <tr><th>Date</th><th>Deal</th><th>Type</th><th style={{ textAlign: "right" }}>Amount</th><th style={{ textAlign: "right" }}>Balance</th></tr>
                   </thead>
                   <tbody>
                     {rows.map((r) => (
                       <tr key={r.id || r.reference} data-testid={`sd-statement-row-${r.kind}`}>
-                        <td style={{ whiteSpace: "nowrap", color: "#6B7280" }}>{shortDate(r.at)}</td>
+                        <td style={{ whiteSpace: "nowrap", color: "#6B7280" }}><Tooltip title={absTime(r.at)}><time dateTime={r.at}>{relTime(r.at, now)}</time></Tooltip></td>
                         <td>{r.escrow_id ? <><b>#{r.escrow_id}</b><br /><span style={{ color: "#6B7280" }}>{r.deal_title}</span></> : <span style={{ color: "#9CA3AF" }}>—</span>}</td>
                         <td>
                           <b>{KIND_LABEL[r.kind] || r.kind}</b>
                           <br />
                           <span style={{ color: "#6B7280", fontSize: 12 }}>{r.description}</span>
                         </td>
-                        <td style={{ textAlign: "right", whiteSpace: "nowrap", fontWeight: 800, color: r.signed > 0 ? "#047857" : r.signed < 0 ? "#B91C1C" : "#6B7280" }}>
+                        <td style={{ textAlign: "right", whiteSpace: "nowrap", fontWeight: 800, fontVariantNumeric: "tabular-nums", color: r.signed > 0 ? "#047857" : r.signed < 0 ? "#B91C1C" : "#6B7280" }}>
                           {r.signed !== 0 ? `${r.signed > 0 ? "+" : "−"}${money(Math.abs(r.signed))}` : <Tooltip title={r.type === "HOLD" ? "Moved from Available to Held" : "Moved from Held to Available"}><span>{r.type === "HOLD" ? "→ held" : "→ available"} {money(r.amount)}</span></Tooltip>}
                         </td>
-                        <td style={{ textAlign: "right", whiteSpace: "nowrap", fontWeight: 700 }}>{money(r.running_balance)}</td>
+                        <td style={{ textAlign: "right", whiteSpace: "nowrap", fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>{money(r.running_balance)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -204,10 +206,10 @@ export default function Wallet() {
                 {w.withdrawals.map((x) => (
                   <Stack key={x.withdrawal_id} direction="row" spacing={1.5} alignItems="center" data-testid={`sd-withdrawal-${x.withdrawal_id}`} sx={{ py: 0.8, borderBottom: "1px solid #F3F4F6" }}>
                     <Box sx={{ flex: 1 }}>
-                      <Typography sx={{ fontSize: 13.5, fontWeight: 700 }}>#{x.withdrawal_id} · {money(Number(x.amount_usd))} → {shortAddr(x.address)} <span style={{ color: "#6B7280", fontWeight: 500 }}>({x.payout_key})</span></Typography>
-                      <Typography sx={{ fontSize: 12, color: "#6B7280" }}>{shortDate(x.created_at)} · fee {money(Number(x.fee_usd))} · you receive {money(Number(x.net_usd))}{x.tx_hash ? ` · ${x.tx_hash.slice(0, 22)}…` : ""}{x.rejected_reason ? ` · ${x.rejected_reason}` : ""}</Typography>
+                      <Typography sx={{ fontSize: 13.5, fontWeight: 700, ...TABULAR }}>#{x.withdrawal_id} · {money(Number(x.amount_usd))} → {shortAddr(x.address)} <span style={{ color: "#6B7280", fontWeight: 500 }}>({x.payout_key})</span></Typography>
+                      <Typography sx={{ fontSize: 12, color: "#6B7280", ...TABULAR }}><Tooltip title={absTime(x.created_at)}><time dateTime={x.created_at}>{relTime(x.created_at, now)}</time></Tooltip> · fee {money(Number(x.fee_usd))} · you receive {money(Number(x.net_usd))}{x.tx_hash ? ` · ${x.tx_hash.slice(0, 22)}…` : ""}{x.rejected_reason ? ` · ${x.rejected_reason}` : ""}</Typography>
                     </Box>
-                    <Chip size="small" label={x.status.replace("_", " ")} data-testid={`sd-withdrawal-status-${x.withdrawal_id}`} sx={{ fontWeight: 800, fontSize: 11, backgroundColor: x.status === "sent" ? "#ECFDF5" : x.status === "rejected" ? "#FEF2F2" : "#FEF3C7", color: x.status === "sent" ? "#047857" : x.status === "rejected" ? "#B91C1C" : "#92400E" }} />
+                    <Chip size="small" label={withdrawalStatusLabel(x.status)} data-testid={`sd-withdrawal-status-${x.withdrawal_id}`} data-status={x.status} sx={{ fontWeight: 800, fontSize: 11, backgroundColor: x.status === "sent" ? "#ECFDF5" : x.status === "rejected" ? "#FEF2F2" : "#FEF3C7", color: x.status === "sent" ? "#047857" : x.status === "rejected" ? "#B91C1C" : "#92400E" }} />
                   </Stack>
                 ))}
               </Stack>

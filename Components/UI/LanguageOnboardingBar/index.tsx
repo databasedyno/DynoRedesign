@@ -59,7 +59,9 @@ export const LanguageOnboardingBar = () => {
         // Public receipts render in the BUYER's language (server-localized) — a UI
         // language switch would change nothing there, so never nudge on /receipt/.
         const isReceipt = router.pathname.startsWith("/receipt/");
-        eligible = isMobile && !hasToken && !chose && !dismissed && !isReceipt;
+        // SafeDeal is English-only with its own shell — no Dynopay language nudge there.
+        const isSafeDeal = router.pathname.startsWith("/safedeal");
+        eligible = isMobile && !hasToken && !chose && !dismissed && !isReceipt && !isSafeDeal;
       } catch {
         /* localStorage unavailable — never block the page */
       }

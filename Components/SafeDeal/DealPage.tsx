@@ -7,10 +7,12 @@ import { BRAND_ACCENT } from "@/constants/theme";
 import safedealApi, { SdDeal, SdDealPreview, SdDealAction, sdError } from "@/api/safedeal";
 import DisputePanel from "@/Components/Page/Escrow/DisputePanel";
 import EscrowProgress from "@/Components/Page/Escrow/EscrowProgress";
-import StatusChip from "@/Components/Page/Escrow/StatusChip";
-import { money, shortDate, relativeDays } from "@/Components/Page/Escrow/escrowUtils";
+import { money } from "@/Components/Page/Escrow/escrowUtils";
 import { useSdHref, useSdSession } from "./sdRouting";
 import { SD_AMBER } from "./SafeDealShell";
+import NextStepBanner from "./NextStepBanner";
+import SdStatusChip from "./SdStatusChip";
+import { TABULAR, absTime, nextStep, relTime, useNow } from "./sdFormat";
 
 const card = { p: { xs: 2, md: 2.5 }, borderRadius: 3, backgroundColor: "#fff", border: "1px solid #E5E7EB" } as const;
 const primaryBtn = { textTransform: "none", fontWeight: 800, borderRadius: 99, backgroundColor: BRAND_ACCENT, "&:hover": { backgroundColor: "#3730A3" } } as const;
@@ -29,6 +31,7 @@ export default function DealPage({ token }: { token: string }) {
   const [dialog, setDialog] = useState<null | "decline" | "cancel" | "deliver" | "release">(null);
   const [note, setNote] = useState("");
   const [live, setLive] = useState(false);
+  const now = useNow();
   useEffect(() => {
     safedealApi.config().then((c) => setLive(!!c.live_settlement)).catch(() => undefined);
   }, []);
@@ -144,6 +147,16 @@ export default function DealPage({ token }: { token: string }) {
     }
   };
 
+  const primary = ((): { label: string; testid: string; onClick: () => void; variant?: "contained" | "outlined" } | null => {
+    if (status === "invited" && !deal.is_creator) return { label: "Accept deal", testid: "sd-sticky-accept", onClick: () => void act("accept") };
+    if (status === "invited" && deal.is_creator) return { label: "Copy invite link", testid: "sd-sticky-copy", onClick: () => void copyInvite(), variant: "outlined" };
+    if (status === "awaiting_payment" && isBuyer) return { label: `Fund ${money(b.buyerPays, deal.currency)}`, testid: "sd-sticky-fund", onClick: () => void act(deal.checkout_url || isLive(deal, live) ? "checkout" : "fund") };
+    if (status === "funded" && !isBuyer) return { label: "Mark as delivered", testid: "sd-sticky-deliver", onClick: () => setDialog("deliver") };
+    if (status === "delivered" && isBuyer) return { label: "Confirm & release", testid: "sd-sticky-release", onClick: () => setDialog("release") };
+    return null;
+  })();
+
+
   return (
     <Container maxWidth="lg" sx={{ py: { xs: 3, md: 5 } }} data-testid="sd-deal-page" data-status={status}>
       <Link href={href("/deals")} style={{ textDecoration: "none" }} data-testid="sd-deal-back">
@@ -159,14 +172,16 @@ export default function DealPage({ token }: { token: string }) {
         <Box>
           <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
             <Typography component="h1" sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 900, letterSpacing: -0.8 }} data-testid="sd-deal-title">{deal.title}</Typography>
-            <StatusChip deal={deal} testId="sd-deal-status" />
+            <SdStatusChip deal={deal} testId="sd-deal-status" />
           </Stack>
           <Typography sx={{ fontSize: 13.5, color: "#6B7280", mt: 0.4 }} data-testid="sd-deal-parties">
             Deal #{deal.escrow_id} · You are the <b>{me}</b> · {isBuyer ? "Seller" : "Buyer"}: <b>{other}</b>
           </Typography>
         </Box>
-        <Typography sx={{ fontSize: { xs: 26, md: 32 }, fontWeight: 900 }} data-testid="sd-deal-amount">{money(deal.amount, deal.currency)}</Typography>
+        <Typography sx={{ fontSize: { xs: 26, md: 32 }, fontWeight: 900, ...TABULAR }} data-testid="sd-deal-amount">{money(deal.amount, deal.currency)}</Typography>
       </Stack>
+
+      <NextStepBanner deal={deal} />
 
       <Box sx={{ ...card, mb: 2.5 }}>
         <EscrowProgress deal={deal} testId="sd-deal-progress" />
@@ -229,7 +244,7 @@ export default function DealPage({ token }: { token: string }) {
               {status === "funded" && !isBuyer && (
                 <>
                   <Typography sx={{ fontWeight: 800, fontSize: 16, mb: 0.5 }}>Funded — {money(deal.custody_amount_stable ?? b.buyerPays, deal.currency)} is held in escrow</Typography>
-                  <Typography sx={{ fontSize: 13.5, color: "#4B5563", mb: 2 }}>Deliver the work, then mark it delivered. The buyer has {deal.auto_release_days} days to confirm before funds release automatically.</Typography>
+                  <Typography sx={{ fontSize: 13.5, color: "#4B5563", mb: 2 }}>Deliver the work, then mark it delivered. The buyer then has a {deal.auto_release_days}-day inspection period before funds release automatically.</Typography>
                   <Button variant="contained" disabled={!!busy} onClick={() => setDialog("deliver")} data-testid="sd-act-deliver-open" sx={primaryBtn} startIcon={<Icon icon="mdi:package-variant-closed-check" />}>Mark as delivered</Button>
                 </>
               )}
@@ -245,7 +260,7 @@ export default function DealPage({ token }: { token: string }) {
                   <Typography sx={{ fontWeight: 800, fontSize: 16, mb: 0.5 }}>Delivered — confirm to release {money(b.sellerReceives, deal.currency)} to the seller</Typography>
                   {deal.delivery_note && <Typography sx={{ fontSize: 13.5, color: "#4B5563", mb: 1, fontStyle: "italic" }}>“{deal.delivery_note}”</Typography>}
                   <Typography sx={{ fontSize: 13.5, color: "#4B5563", mb: 2 }}>
-                    Auto-releases <b>{relativeDays(deal.auto_release_at)}</b> ({shortDate(deal.auto_release_at)}) if you do nothing. Something wrong? Open a dispute below before then.
+                    Your inspection period ends <b>{relTime(deal.auto_release_at, now)}</b> ({absTime(deal.auto_release_at)}). If you do nothing, the funds release then. Something wrong? Raise an issue below before that.
                   </Typography>
                   <Button variant="contained" disabled={!!busy} onClick={() => setDialog("release")} data-testid="sd-act-release-open" sx={primaryBtn} startIcon={<Icon icon="mdi:cash-check" />}>Confirm & release</Button>
                 </>
@@ -253,7 +268,7 @@ export default function DealPage({ token }: { token: string }) {
               {status === "delivered" && !isBuyer && (
                 <>
                   <Typography sx={{ fontWeight: 800, fontSize: 16, mb: 0.5 }}>Delivered — waiting for the buyer</Typography>
-                  <Typography sx={{ fontSize: 13.5, color: "#4B5563" }}>Funds release automatically <b>{relativeDays(deal.auto_release_at)}</b> unless the buyer confirms sooner or opens a dispute.</Typography>
+                  <Typography sx={{ fontSize: 13.5, color: "#4B5563" }}>Funds release automatically <b>{relTime(deal.auto_release_at, now)}</b> ({absTime(deal.auto_release_at)}) unless the buyer confirms sooner or raises an issue.</Typography>
                 </>
               )}
               {status === "disputed" && (
@@ -310,7 +325,7 @@ export default function DealPage({ token }: { token: string }) {
                     <Box sx={{ width: 8, height: 8, mt: 0.7, borderRadius: "50%", flexShrink: 0, backgroundColor: a.type.includes("dispute") || a.type.includes("cancel") ? SD_AMBER : BRAND_ACCENT }} />
                     <Box>
                       <Typography sx={{ fontSize: 13, color: "#111827" }}>{a.note || a.type}</Typography>
-                      <Typography sx={{ fontSize: 11.5, color: "#9CA3AF" }}>{shortDate(a.at)} · {a.role || a.actor}</Typography>
+                      <Tooltip title={absTime(a.at)} arrow><Typography component="time" dateTime={a.at} sx={{ fontSize: 11.5, color: "#6B7280", cursor: "help" }}>{relTime(a.at, now)} · {a.role || a.actor}</Typography></Tooltip>
                     </Box>
                   </Stack>
                 ))}
@@ -330,7 +345,7 @@ export default function DealPage({ token }: { token: string }) {
               <Row l="Buyer pays" v={money(b.buyerPays, deal.currency)} strong hi={isBuyer} testid="sd-amt-buyer-pays" />
               <Row l="Seller receives" v={money(b.sellerReceives, deal.currency)} strong hi={!isBuyer} testid="sd-amt-seller-receives" />
             </Stack>
-            <Typography sx={{ fontSize: 11.5, color: "#9CA3AF", mt: 1.2 }}>
+            <Typography sx={{ fontSize: 11.5, color: "#6B7280", mt: 1.2 }}>
               Fee payer: <b>{deal.fee_payer}</b>. Fees & costs are charged on every outcome. {b.costsEstimated ? "Costs are estimates until funded." : ""}
             </Typography>
             {deal.custody_amount_stable != null && (
@@ -344,12 +359,30 @@ export default function DealPage({ token }: { token: string }) {
               </Box>
             )}
             <Stack direction="row" spacing={1} sx={{ mt: 1.5 }} flexWrap="wrap" useFlexGap>
-              <Chip size="small" label={`Auto-release ${deal.auto_release_days}d`} sx={{ fontWeight: 700 }} />
-              <Chip size="small" label={`Created ${shortDate(deal.created_at)}`} sx={{ fontWeight: 700 }} />
+              <Chip size="small" label={`Inspection period ${deal.auto_release_days}d`} sx={{ fontWeight: 700 }} />
+              <Tooltip title={absTime(deal.created_at)} arrow><Chip size="small" label={`Created ${relTime(deal.created_at, now)}`} sx={{ fontWeight: 700 }} /></Tooltip>
             </Stack>
           </Box>
         </Grid>
       </Grid>
+
+      {/* Mobile: sticky primary action */}
+      {primary && (
+        <>
+          <Box sx={{ display: { xs: "block", md: "none" }, position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 30, p: 1.4, backgroundColor: "rgba(255,255,255,0.96)", backdropFilter: "blur(10px)", borderTop: "1px solid #E5E7EB", boxShadow: "0 -8px 24px rgba(15,23,42,0.08)" }} data-testid="sd-sticky-bar">
+            <Stack direction="row" spacing={1.2} alignItems="center">
+              <Box sx={{ minWidth: 0, flex: 1 }}>
+                <Typography sx={{ fontSize: 11, fontWeight: 900, letterSpacing: 0.6, textTransform: "uppercase", color: BRAND_ACCENT }}>Your move</Typography>
+                <Typography sx={{ fontSize: 12.5, color: "#4B5563", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{nextStep(deal).text}</Typography>
+              </Box>
+              <Button variant={primary.variant || "contained"} disabled={!!busy} onClick={primary.onClick} data-testid={primary.testid} sx={primary.variant === "outlined" ? { ...ghostBtn, flexShrink: 0 } : { ...primaryBtn, flexShrink: 0 }}>
+                {primary.label}
+              </Button>
+            </Stack>
+          </Box>
+          <Box sx={{ display: { xs: "block", md: "none" }, height: 76 }} aria-hidden />
+        </>
+      )}
 
       {/* dialogs */}
       <Dialog open={dialog === "decline"} onClose={() => setDialog(null)} maxWidth="xs" fullWidth>
@@ -411,7 +444,7 @@ function Row({ l, v, soft, strong, hi, testid }: { l: string; v: string; soft?: 
   return (
     <Stack direction="row" justifyContent="space-between" data-testid={testid} sx={hi ? { px: 1, py: 0.4, mx: -1, borderRadius: 1.5, backgroundColor: `${BRAND_ACCENT}0F` } : undefined}>
       <Typography sx={{ fontSize: strong ? 14 : 13, fontWeight: strong ? 800 : 500, color: soft ? "#6B7280" : "#111827" }}>{l}</Typography>
-      <Typography sx={{ fontSize: strong ? 14 : 13, fontWeight: strong ? 900 : 700, color: soft ? "#6B7280" : hi ? BRAND_ACCENT : "#111827" }}>{v}</Typography>
+      <Typography sx={{ fontSize: strong ? 14 : 13, fontWeight: strong ? 900 : 700, color: soft ? "#6B7280" : hi ? BRAND_ACCENT : "#111827", ...TABULAR }}>{v}</Typography>
     </Stack>
   );
 }

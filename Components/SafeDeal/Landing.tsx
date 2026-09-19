@@ -5,7 +5,9 @@ import { Icon } from "@iconify/react";
 import { BRAND_ACCENT } from "@/constants/theme";
 import safedealApi, { SdConfig } from "@/api/safedeal";
 import { useSdHref, useSdSession } from "./sdRouting";
-import { SD_INK, SD_AMBER } from "./SafeDealShell";
+import { SD_INK, SD_INK_MUTED, SD_AMBER } from "./SafeDealShell";
+import FeeCalculator from "./FeeCalculator";
+import { Faq, ForBuyersSellers } from "./LandingSections";
 
 const STEPS = [
   { icon: "mdi:email-fast-outline", title: "Invite", body: "Describe the deal, set the price and invite the other party by email. They accept the terms in one click." },
@@ -38,14 +40,14 @@ export default function Landing() {
                 <Box sx={{ px: 1.2, py: 0.4, borderRadius: 99, backgroundColor: "rgba(165,180,252,0.15)", border: "1px solid rgba(165,180,252,0.35)", fontSize: 12, fontWeight: 800, color: "#C7D2FE" }}>
                   Escrow for online deals
                 </Box>
-                <Typography sx={{ fontSize: 12.5, color: "rgba(255,255,255,0.6)" }}>Powered by Dynopay</Typography>
+                <Typography sx={{ fontSize: 12.5, color: SD_INK_MUTED }}>Powered by Dynopay</Typography>
               </Stack>
               <Typography component="h1" sx={{ fontSize: { xs: 38, sm: 48, lg: 60 }, fontWeight: 900, lineHeight: 1.02, letterSpacing: -1.5, mb: 2.5 }}>
                 Pay when it&apos;s delivered.
                 <br />
                 <span style={{ color: "#A5B4FC" }}>Get paid when it&apos;s done.</span>
               </Typography>
-              <Typography sx={{ fontSize: { xs: 16, md: 18 }, color: "rgba(255,255,255,0.75)", maxWidth: 560, mb: 4, lineHeight: 1.6 }}>
+              <Typography sx={{ fontSize: { xs: 16, md: 18 }, color: "rgba(255,255,255,0.82)", maxWidth: 560, mb: 4, lineHeight: 1.6 }}>
                 SafeDeal holds the buyer&apos;s money in USDT until the seller delivers. No accounts to set up — both sides sign in with
                 an email code. If something goes wrong, you sort it out together first; Dynopay steps in only if you can&apos;t.
               </Typography>
@@ -55,41 +57,30 @@ export default function Landing() {
                     Start a deal
                   </Button>
                 </Link>
-                <Typography sx={{ fontSize: 13, color: "rgba(255,255,255,0.55)" }}>
-                  {fee}% escrow fee · min ${feeMin} · deals from ${minDeal}
-                </Typography>
+                <Link href={href("/signin?invited=1")} data-testid="sd-invited-cta" style={{ textDecoration: "none" }}>
+                  <Button size="large" variant="outlined" startIcon={<Icon icon="mdi:email-open-outline" />} sx={{ textTransform: "none", fontWeight: 800, borderRadius: 99, px: 2.6, py: 1.2, fontSize: 15, color: "#fff", borderColor: "rgba(255,255,255,0.35)", "&:hover": { borderColor: "#fff", backgroundColor: "rgba(255,255,255,0.06)" } }}>
+                    I was invited to a deal
+                  </Button>
+                </Link>
+              </Stack>
+              <Typography sx={{ fontSize: 13, color: SD_INK_MUTED, mt: 2 }} data-testid="sd-hero-fee-line">
+                {fee}% escrow fee · min ${feeMin} · deals from ${minDeal}
+              </Typography>
+              <Stack direction="row" spacing={{ xs: 1.5, sm: 3 }} flexWrap="wrap" useFlexGap sx={{ mt: 3 }} data-testid="sd-trust-strip">
+                {[
+                  ["mdi:lock-check-outline", "Held in USDT by Dynopay"],
+                  ["mdi:timer-check-outline", `Deadlines on every step`],
+                  ["mdi:account-check-outline", "Human arbitration if you can't agree"],
+                ].map(([ic, t]) => (
+                  <Stack key={t} direction="row" spacing={0.8} alignItems="center">
+                    <Icon icon={ic} width={16} color="#A5B4FC" aria-hidden />
+                    <Typography sx={{ fontSize: 12.5, color: "rgba(255,255,255,0.85)", fontWeight: 600 }}>{t}</Typography>
+                  </Stack>
+                ))}
               </Stack>
             </Grid>
             <Grid item xs={12} md={5}>
-              <Box sx={{ borderRadius: 4, p: 2.5, backgroundColor: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", backdropFilter: "blur(14px)" }} data-testid="sd-hero-card">
-                <Typography sx={{ fontSize: 12, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: "rgba(255,255,255,0.55)", mb: 1.5 }}>Example deal</Typography>
-                <Stack spacing={1.2}>
-                  {[
-                    ["Logo & brand kit", "$500.00", "#fff"],
-                    ["Escrow fee (5%)", "$25.00", "rgba(255,255,255,0.7)"],
-                    ["Network & exchange (est.)", "$2.50", "rgba(255,255,255,0.7)"],
-                  ].map(([l, v, c]) => (
-                    <Stack key={l} direction="row" justifyContent="space-between">
-                      <Typography sx={{ fontSize: 14, color: c }}>{l}</Typography>
-                      <Typography sx={{ fontSize: 14, fontWeight: 700, color: c }}>{v}</Typography>
-                    </Stack>
-                  ))}
-                  <Box sx={{ borderTop: "1px solid rgba(255,255,255,0.12)", pt: 1.2 }}>
-                    <Stack direction="row" justifyContent="space-between">
-                      <Typography sx={{ fontSize: 14, fontWeight: 800 }}>Buyer pays</Typography>
-                      <Typography sx={{ fontSize: 14, fontWeight: 900, color: "#A5B4FC" }}>$527.50</Typography>
-                    </Stack>
-                    <Stack direction="row" justifyContent="space-between">
-                      <Typography sx={{ fontSize: 14, fontWeight: 800 }}>Seller receives</Typography>
-                      <Typography sx={{ fontSize: 14, fontWeight: 900, color: "#6EE7B7" }}>$500.00</Typography>
-                    </Stack>
-                  </Box>
-                  <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 0.5 }}>
-                    <Icon icon="mdi:timer-sand" width={16} color={SD_AMBER} />
-                    <Typography sx={{ fontSize: 12.5, color: "rgba(255,255,255,0.6)" }}>Held in USDT · auto-releases 5 days after delivery unless the buyer objects</Typography>
-                  </Stack>
-                </Stack>
-              </Box>
+              <FeeCalculator minDeal={minDeal} autoReleaseDefault={cfg?.auto_release_default ?? 5} />
             </Grid>
           </Grid>
         </Container>
@@ -117,15 +108,17 @@ export default function Landing() {
         </Grid>
       </Container>
 
+      <ForBuyersSellers />
+
       {/* Fees + policy */}
       <Box sx={{ backgroundColor: "#fff", borderTop: "1px solid #E5E7EB", borderBottom: "1px solid #E5E7EB" }} id="fees">
         <Container maxWidth="lg" sx={{ py: { xs: 7, md: 9 } }}>
           <Grid container spacing={4}>
             <Grid item xs={12} md={5}>
               <Box sx={{ p: 3, borderRadius: 3, backgroundColor: SD_INK, color: "#fff", height: "100%" }} data-testid="sd-fee-card">
-                <Typography sx={{ fontSize: 12, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: "rgba(255,255,255,0.55)", mb: 1 }}>Pricing</Typography>
+                <Typography sx={{ fontSize: 12, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: SD_INK_MUTED, mb: 1 }}>Pricing</Typography>
                 <Typography sx={{ fontSize: 44, fontWeight: 900, letterSpacing: -1.5, lineHeight: 1 }}>{fee}%</Typography>
-                <Typography sx={{ fontSize: 14, color: "rgba(255,255,255,0.7)", mt: 0.8, mb: 2 }}>escrow fee per deal · minimum ${feeMin} · deals from ${minDeal}</Typography>
+                <Typography sx={{ fontSize: 14, color: "rgba(255,255,255,0.8)", mt: 0.8, mb: 2 }}>escrow fee per deal · minimum ${feeMin} · deals from ${minDeal}</Typography>
                 <Stack spacing={1}>
                   {[
                     "Buyer, seller or a 50/50 split can cover the fee — you choose when creating the deal.",
@@ -134,8 +127,8 @@ export default function Landing() {
                     "Custody is always in USDT. Payouts in USDT or USDC on Tron, Ethereum or Polygon.",
                   ].map((t) => (
                     <Stack key={t} direction="row" spacing={1} alignItems="flex-start">
-                      <Icon icon="mdi:check-circle" width={16} color="#6EE7B7" style={{ marginTop: 2 }} />
-                      <Typography sx={{ fontSize: 13.5, color: "rgba(255,255,255,0.8)" }}>{t}</Typography>
+                      <Icon icon="mdi:check-circle" width={16} color="#6EE7B7" style={{ marginTop: 2 }} aria-hidden />
+                      <Typography sx={{ fontSize: 13.5, color: "rgba(255,255,255,0.88)" }}>{t}</Typography>
                     </Stack>
                   ))}
                 </Stack>
@@ -165,6 +158,8 @@ export default function Landing() {
           </Grid>
         </Container>
       </Box>
+
+      <Faq cfg={cfg} helpHref={href("/help")} />
 
       <Container maxWidth="lg" sx={{ py: { xs: 7, md: 9 }, textAlign: { xs: "left", md: "center" } }}>
         <Typography component="h2" sx={{ fontSize: { xs: 26, md: 34 }, fontWeight: 900, letterSpacing: -0.8, mb: 1 }}>Ready when you are</Typography>
