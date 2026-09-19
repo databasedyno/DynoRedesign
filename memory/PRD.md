@@ -1,3 +1,45 @@
+# === 2026-06 (fork: safedeal-verify) SAFEDEAL DIRECT-API ESCROW FUNDING — DONE & VERIFIED (testing_agent iteration_207: BE 100% / FE 100%, 0 critical, retest_needed=false) ===
+# PRODUCT: SafeDeal = standalone escrow product on the Dynopay engine. Funding switched from Dynopay HOSTED checkout
+#   (iframe) → Dynopay DIRECT API (custom in-app UI: QR + address inside SafeDeal). Brand SafeDeal API key
+#   dpk_live_UA63FmzqGfnGwHrfeJgnrqtgVnwYA4HgUhusfDWkoeN → temp funding addresses tied to the SafeDeal brand mempool;
+#   non-stable inbound auto-converts on Binance; platform keeps 5% escrow fee as USDT profit; Dynopay NETWORK fee = 0% for SafeDeal.
+#
+# SHIPPED & VERIFIED (iteration_207):
+#   • Direct-API funding: POST /api/safedeal/deals/:token/funding (services/safedeal/safedealCheckout.ts uses cryptoPayment
+#     Direct API + SafeDeal key). GET /funding is IDEMPOTENT → FundPanel re-hydrates the reserved merchant-pool address on reload.
+#   • Custom UI: Components/SafeDeal/FundPanel.tsx (13-coin picker, stablecoin ordering USDT-TRC20→USDT-POLYGON→USDC-ERC20→
+#     USDT-ERC20→BTC→ETH…; QR sd-fund-qr, amount sd-fund-amount, TRON addr sd-fund-address, expiry sd-fund-expiry, copy btns,
+#     mobile sticky sd-sticky-fund), PayoutDestinationCard.tsx, StepUpDialog.tsx, DealPage.tsx (6-step timeline Invited→Paid out,
+#     money card locks EUR→USD at funding, refund destination card for buyer). 0 JS console errors.
+#   • Webhooks: HMAC-v2 (openssl timestamped) pending/confirmed/settled; meta_data parsed as raw object AND JSON string;
+#     idempotent (repeat confirmed/settled never flips status back); bad signature → 401.
+#   • Payout at close: SIMULATED withdrawal (source='settlement', fee 0) for a usable address; WALLET-CREDIT for a held address;
+#     parked payout (address added AFTER funding → wallet balance + parked banner + profile.parked_payout_usd). Atomic with release.
+#   • New-address 24h cooling-off (manual withdrawal on a fresh address blocked 400 "usable in 24h") — INTENTIONAL per spec.
+#   • Admin readiness expanded 8→12 checks {brand,api_key,webhook,url,live,wallets,custody,pool,fee_exempt,autoconvert,fees,email}
+#     (warn semantics for pool/live/autoconvert/email). Legacy action=checkout REMOVED (regression covered).
+#   TESTS: NEW backend/tests/test_safedeal_iter207_funding.py (9/9 green) + scripts/safedeal_api_funding_smoke.sh (e2e pass).
+#
+# PENDING FOR NEXT AGENT (nothing blocking; product is correct):
+#   1. NON-BLOCKING test hygiene — refresh 6 stale legacy pytest expectations to the new contract (24h cooling-off + 12-key
+#      readiness): test_safedeal_api.py::test_add_address_and_withdraw (expects 201, now correctly 400) and
+#      test_safedeal_iter203.py withdraw tests + test_admin_readiness (expects 8 checks, now 12). Product output is right.
+#   2. OPTIONAL — add a data-testid to the Currency selector on /safedeal/deals/new (currently reachable only by role='combobox')
+#      to make the multi-fiat E2E deterministic.
+#   3. P1 — Admin dispute queue filters ("In negotiation / Escalated / All") in the Dynopay Admin → Escrow UI.
+#   4. P1 — PROD GO-LIVE ops (not code, surfaced by the readiness tab): assign Dynopay-custody crypto wallets to brand 262,
+#      enable auto-convert→USDT on brand 262, set ESCROW_LIVE_SETTLEMENT=true + SAFEDEAL_URL=https://safedeal.sh. Live funding
+#      + Binance settlement are NOT exercisable in preview.
+#   5. P1 — purge the 65 legacy (pre-SafeDeal, source!=safedeal) TEST deals from tbl_escrow_deal (dead /escrow/invite/ links).
+#   6. P2 — "Escrow protection" toggle on Dynopay payment links.  7. P2 — KYC gating for large volumes.
+#
+# TEST CREDS: SafeDeal sign-in = any email → preview_code from POST /api/safedeal/auth/send-code (preview only). Admin =
+#   moxxcompany@gmail.com / Katiekendra123@ (POST /api/admin/login). Vault passphrase Katiekendra123@.
+# OPS NOTE: backend is ts-node WITHOUT hot reload → `sudo supervisorctl restart backend` (~90s) after any TS server edit.
+#   COMMIT: all changes uncommitted — user must click "Save to GitHub".
+# ============================================================================================
+
+
 # === 2026-06 (fork: safedeal-verify) "deployment failed" (GH run 35433393407) — CI GUARD FIX, PROD IS LIVE (iteration_206: 100%) ===
 # Deploy steps all succeeded incl. "safedeal.sh serves the SafeDeal landing"; only the post-deploy hydration guard failed: it checked
 #   /pay/demo, which the (now shipped) middleware.ts 404s in production BY DESIGN. Fix: scripts/qa/hydration_guard.mjs default pages

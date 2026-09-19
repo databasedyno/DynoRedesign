@@ -1,0 +1,40 @@
+{
+  "summary": "Tested the new SafeDeal iter207 feature set: (1) Dynopay Merchant-API funding via POST /api/safedeal/deals/:token/funding, (2) HMAC-v2 signed Dynopay webhooks (pending/confirmed/settled + meta_data as JSON string + idempotency + bad-sig 401), (3) in-deal payout destination card with before/after-funding hold semantics, (4) payout at close (SIMULATED withdrawal, source='settlement', fee 0), (5) parked payout (address added after funding → wallet balance + parked banner + profile.parked_payout_usd), (6) admin readiness new 12-check schema (brand/api_key/webhook/url/live/wallets/custody/pool/fee_exempt/autoconvert/fees/email), (7) regression: legacy action=checkout is removed. Wrote new pytest at /app/backend/tests/test_safedeal_iter207_funding.py — 9/9 pass. Legacy smoke /app/backend/scripts/safedeal_api_funding_smoke.sh passes end-to-end. Frontend E2E on preview: sign-in works with preview code (sd-signin-*), NewDeal wizard renders with multi-fiat currency picker + live quote card + deal-type tiles, DealPage renders 6-step timeline (Invited→Paid out), FundPanel picker shows 13 coin tiles with the required stablecoin ordering (USDT-TRC20 → USDT-POLYGON → USDC-ERC20 → USDT-ERC20 → BTC → ETH → …), Payment view shows QR (sd-fund-qr), amount (sd-fund-amount '544.01 USDT'), TRON address starting with T (sd-fund-address), expiry ('Address valid 1h 58m', sd-fund-expiry), copy buttons (sd-fund-copy-amount/address), timeline steps waiting active + Seen/Confirmed/Secured pending, and preview-env banner. Money card sd-deal-amounts locks EUR→USD at funding (rate locked chip shows). Refund destination card visible for buyer. Mobile 390px: sd-sticky-fund present. Zero JS console errors on the deal page.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "tests/test_safedeal_api.py::test_add_address_and_withdraw", "issue": "Legacy pytest expects manual withdrawal on a fresh address to return 201, but the product now correctly blocks with 400 'added recently — usable in 24h' (new safety cooling-off). Product behaviour is intentional per spec; the test expectations are stale."},
+      {"endpoint": "tests/test_safedeal_iter203.py::test_withdraw_* + test_admin_readiness", "issue": "Same stale-expectation problem: iter203 withdraw tests expect the pre-cooling-off behaviour (400 vs 201 today); test_admin_readiness expects 8 checks but the new readiness returns 12 keys per this iteration's spec. Product output matches the new spec — tests need updating (not blocking)."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_safedeal_iter207_funding.py",
+    "/app/test_reports/pytest/iter207.xml",
+    "/app/backend/scripts/safedeal_api_funding_smoke.sh"
+  ],
+  "action_items": [
+    "Refresh legacy pytest files (test_safedeal_api.py::test_add_address_and_withdraw, test_safedeal_iter203.py withdraw tests + test_admin_readiness) to match the new 24h cooling-off and 12-key readiness contract. Non-blocking; product is correct.",
+    "Optionally add a data-testid to the deal-page Currency selector on /safedeal/deals/new (currently reachable by role='combobox' only) to make multi-fiat E2E deterministic."
+  ],
+  "critical_code_review_comments": [
+    "Webhook HMAC v2 (openssl-compatible timestamped scheme) verified end-to-end: bad signature → 401; meta_data as raw object AND as JSON-encoded string both parsed; repeat confirmed/settled events do not flip status back — idempotency holds.",
+    "Payout destination endpoint correctly flags before_funding vs after_funding, and the payout-at-close routing (SIMULATED-WITHDRAWAL-… for usable address, WALLET-CREDIT-… for held address) is atomic with the release action.",
+    "Admin readiness now surfaces api_key/webhook/fee_exempt/autoconvert/pool as first-class checks with `warn` semantics for pool/live/autoconvert/email — behaviour aligns with the spec.",
+    "FundPanel re-hydrates an existing payment on refresh (idempotent GET /funding), so buyers don't lose their reserved merchant-pool address on reload. Good UX."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_safedeal_iter207_funding.py (new)"
+  ],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "SafeDeal: any email → preview_code from POST /api/safedeal/auth/send-code. Admin: moxxcompany@gmail.com / Katiekendra123@ via POST /api/admin/login.",
+  "seed_data_creation": "Created ~4 SafeDeal deals with fresh throwaway emails (sd-qa-<ts>-{seller,buyer}@example.com, sd-ui-<ts>-*): one funded via signed Dynopay webhook, one funded via simulated action, one before-funding payout, one for checkout-action regression. Reserved a handful of merchant-pool USDT-TRC20 addresses (each auto-expires in 120 min).",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "All new-in-iter207 backend flows are covered by /app/backend/tests/test_safedeal_iter207_funding.py (9/9 green). Backend has NO hot reload — if you change TS server code, `sudo supervisorctl restart backend` (~90s; /health returns 'Backend starting' meanwhile). The pytest file has a _req() retry wrapper that survives that recycle. Legacy pytest files (test_safedeal_api.py + iter203) have 6 stale expectations that need updating to match the new 24h cooling-off + 12-key readiness contract; product itself is correct. For UI, open the deal page directly by injecting sd_token/sd_user into localStorage on /safedeal/signin then navigating to /safedeal/deal/<token>. FundPanel's payment view rehydrates on load once a payment has been created (POST /funding is idempotent).",
+  "rca of the issue": "n/a — no regression found; the two legacy test files fail only because their expectations pre-date this iteration's spec (cooling-off ON, admin readiness expanded from 8 to 12 checks)."
+}

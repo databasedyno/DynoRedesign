@@ -20,6 +20,28 @@
 ## Pending after frontend
 - DONE (iteration_202/203): Customers page brand 262 totals + statement; admin withdrawals queue; merchant escrow UI removed.
 
+## 2026-06 DIRECT-API FUNDING (iteration_207) — DONE & VERIFIED (BE 100% / FE 100%, retest_needed=false)
+- Funding switched HOSTED checkout → DIRECT API. services/safedeal/safedealCheckout.ts uses cryptoPayment Direct API +
+  SafeDeal brand key (dpk_live_UA63…) → temp addresses on the SafeDeal brand mempool. Dynopay NETWORK fee = 0% for SafeDeal;
+  5% escrow fee kept as USDT profit; non-stable inbound auto-converts on Binance.
+- Endpoints: POST /api/safedeal/deals/:token/funding (create); GET /api/safedeal/deals/:token/funding (IDEMPOTENT — FundPanel
+  rehydrates the reserved address on reload). Webhooks: HMAC-v2 (openssl timestamped), meta_data raw-object OR JSON-string,
+  idempotent (repeat events never flip status back), bad-sig → 401.
+- UI: Components/SafeDeal/{FundPanel,PayoutDestinationCard,StepUpDialog,DealPage}.tsx. FundPanel = 13-coin picker with
+  stablecoin ordering (USDT-TRC20→USDT-POLYGON→USDC-ERC20→USDT-ERC20→BTC→ETH…), QR/amount/address/expiry/copy, mobile sticky.
+- 24h new-address cooling-off (manual withdrawal on a fresh address → 400 "usable in 24h", INTENTIONAL).
+- Admin readiness expanded 8→12 checks: {brand,api_key,webhook,url,live,wallets,custody,pool,fee_exempt,autoconvert,fees,email}.
+- Legacy action=checkout REMOVED.
+- Tests: backend/tests/test_safedeal_iter207_funding.py (9/9) + scripts/safedeal_api_funding_smoke.sh.
+
+## PENDING (next agent)
+- NON-BLOCKING: refresh 6 stale legacy pytest expectations (test_safedeal_api.py::test_add_address_and_withdraw +
+  test_safedeal_iter203.py withdraw tests + test_admin_readiness) to the new 24h cooling-off + 12-key readiness contract.
+- OPTIONAL: data-testid on the /safedeal/deals/new Currency selector (currently role='combobox' only).
+- P1: Admin dispute queue filters (In negotiation / Escalated / All). PROD go-live ops on brand 262 (custody wallets +
+  auto-convert→USDT + ESCROW_LIVE_SETTLEMENT=true + SAFEDEAL_URL). Purge 65 legacy test deals from tbl_escrow_deal.
+- P2: "Escrow protection" toggle on Dynopay payment links; KYC gating for large volumes.
+
 ## Production readiness (added this session, verified iteration_203 + self-test)
 - Admin → Escrow → "SafeDeal setup" tab = GET /api/safedeal/admin/readiness (8 checks: brand,url,live,wallets,custody,autoconvert,fees,email).
 - PROD BLOCKERS surfaced by the check (ops, not code): brand 262 has NO crypto wallets → hosted checkout ("Pay with crypto") cannot create a payment link. Brand wallets MUST be Dynopay custody addresses (= admin wallet per coin, env BTC/ETH/USDT_TRC20…) so buyer funds forward to Dynopay, never a third party; enable auto-convert → USDT on the brand so BTC/ETH funding lands in stablecoin custody. Set ESCROW_LIVE_SETTLEMENT=true + SAFEDEAL_URL=https://safedeal.sh in prod.
