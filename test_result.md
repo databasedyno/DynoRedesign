@@ -1,4 +1,35 @@
 # ============================================================================
+# >>> CURRENT SESSION (2026-09) — SAFEDEAL POLISH (gold stepper / footer safe-area /
+#     loader caption) + FULL BUYER↔SELLER E2E <<<
+#   THREE FRONTEND FIXES (all lint/tsc clean, verified via screenshots):
+#   1. Progress tracker now SafeDeal GOLD: EscrowProgress.tsx gained an `accent` prop
+#      (default BRAND_ACCENT indigo). DealPage.tsx passes accent={SD_ACCENT} (#B77E00),
+#      so done/active dots+connectors+checks render gold on SafeDeal (merchant Escrow
+#      unaffected — it uses the default).
+#   2. Mobile sticky "Your move" bar no longer covers the footer legal line:
+#      SafeDealShell.tsx adds a mobile-only 84px bottom safe-area
+#      (data-testid=sd-mobile-sticky-safearea) ONLY on the deal-detail route
+#      (path.includes('/deal/')).
+#   3. RouteTransitionLoader.tsx: on SafeDeal transitions the shield now shows a subtle
+#      "Securing your deal…" caption (data-testid=route-transition-caption-safedeal).
+#
+#   FULL E2E TEST DATA (SAFE MODE, money SIMULATED, ESCROW_LIVE_SETTLEMENT off):
+#     Fresh deal token: e79888ff5e7e15c0657539d6c83f4242006f90db8846daa0 (status invited)
+#     SELLER session (cid 607) sd_token:
+#       eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJraW5kIjoic2FmZWRlYWwiLCJjaWQiOjYwNywiY29pZCI6MjYyLCJlbWFpbCI6InNkLWF1ZGl0LTE3ODk4NDcwNDlAZXhhbXBsZS5jb20iLCJpYXQiOjE3ODk4NDcwNTAsImV4cCI6MTc5MDQ1MTg1MH0.3RURGdsW0jHJf2KsyyEBZsfM5PWoEXgNHC7s3NxkGKM
+#     BUYER session (cid 608, sd-buyer-e2e-1789849169@example.com) sd_token:
+#       eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJraW5kIjoic2FmZWRlYWwiLCJjaWQiOjYwOCwiY29pZCI6MjYyLCJlbWFpbCI6InNkLWJ1eWVyLWUyZS0xNzg5ODQ5MTY5QGV4YW1wbGUuY29tIiwiaWF0IjoxNzg5ODQ5MTcxLCJleHAiOjE3OTA0NTM5NzF9.JqKYx8QYVzcNgPyO9S97slXgxV2KMf7QIafa7pjv5Ao
+#   FLOW: seller invited -> BUYER accept (sd-act-accept) -> BUYER fund (open sd-fund-picker,
+#     pick a coin tile -> PaymentView sd-fund-payment -> sd-act-fund "Simulate payment received")
+#     -> SELLER deliver (sd-act-deliver-open -> sd-deliver-dialog -> sd-act-deliver)
+#     -> BUYER release (sd-act-release-open -> release dialog -> sd-act-release) -> completed,
+#     seller wallet credited (sd-settled-credit).
+#   Session swap between steps: set localStorage sd_token + sd_user, then reload the deal page.
+# ============================================================================
+
+
+
+# ============================================================================
 # >>> CURRENT SESSION (2026-09) — SAFEDEAL UI ALIGNMENT AUDIT + STEPPER FIX <<<
 #   BUG (user): "examine the SafeDeal App UI for any broken alignment and fix all end to end".
 #   AUDIT: swept public + authed SafeDeal pages at desktop (1440) and mobile (390):

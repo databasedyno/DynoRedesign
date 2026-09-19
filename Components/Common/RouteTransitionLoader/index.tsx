@@ -17,6 +17,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 import { keyframes } from "@emotion/react";
 
 import DynopayBlackLogo from "@/assets/Icons/home/dynopay-blackLogo.svg";
@@ -186,15 +187,36 @@ const RouteTransitionLoader: React.FC = () => {
           data-testid="route-transition-mark-safedeal"
           sx={{
             display: "flex",
-            animation: `${logoBreath} 1.4s ease-in-out infinite`,
-            willChange: "opacity, transform",
-            "@media (prefers-reduced-motion: reduce)": {
-              animation: "none",
-              opacity: 0.9,
-            },
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 1.6,
           }}
         >
-          <SafeDealMark size={96} ring={isDark} />
+          <Box
+            sx={{
+              display: "flex",
+              animation: `${logoBreath} 1.4s ease-in-out infinite`,
+              willChange: "opacity, transform",
+              "@media (prefers-reduced-motion: reduce)": {
+                animation: "none",
+                opacity: 0.9,
+              },
+            }}
+          >
+            <SafeDealMark size={96} ring={isDark} />
+          </Box>
+          <Typography
+            data-testid="route-transition-caption-safedeal"
+            sx={{
+              fontSize: 13,
+              fontWeight: 700,
+              letterSpacing: "0.2px",
+              color: isDark ? "rgba(255,255,255,0.72)" : "#6B6B72",
+              userSelect: "none",
+            }}
+          >
+            Securing your deal…
+          </Typography>
         </Box>
       ) : (
         <Box

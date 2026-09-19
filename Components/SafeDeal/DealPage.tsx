@@ -211,7 +211,7 @@ export default function DealPage({ token }: { token: string }) {
       <NextStepBanner deal={deal} />
 
       <Box sx={{ ...card, mb: 2.5 }}>
-        <EscrowProgress deal={deal} testId="sd-deal-progress" />
+        <EscrowProgress deal={deal} testId="sd-deal-progress" accent={SD_ACCENT} />
       </Box>
 
       <Grid container spacing={2.5}>

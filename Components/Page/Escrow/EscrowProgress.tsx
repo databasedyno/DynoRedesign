@@ -68,7 +68,7 @@ function derive(deal: EscrowDeal): { mode: "ladder"; steps: Step[] } | { mode: "
   return { mode: "ladder", steps };
 }
 
-export default function EscrowProgress({ deal, testId = "escrow-progress" }: { deal: EscrowDeal; testId?: string }) {
+export default function EscrowProgress({ deal, testId = "escrow-progress", accent = BRAND_ACCENT }: { deal: EscrowDeal; testId?: string; accent?: string }) {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const result = derive(deal);
@@ -100,7 +100,7 @@ export default function EscrowProgress({ deal, testId = "escrow-progress" }: { d
       <Box sx={{ display: "flex", alignItems: "flex-start", minWidth: { xs: 0, sm: 320 } }}>
         {result.steps.map((s, i) => {
           const color =
-            s.state === "disputed" ? AMBER : s.state === "done" || s.state === "active" ? BRAND_ACCENT : NEUTRAL;
+            s.state === "disputed" ? AMBER : s.state === "done" || s.state === "active" ? accent : NEUTRAL;
           const reached = s.state !== "upcoming";
           const connectorDone = i < result.steps.length - 1 && (result.steps[i + 1].state === "done" || result.steps[i].state === "done");
           return (
@@ -115,7 +115,7 @@ export default function EscrowProgress({ deal, testId = "escrow-progress" }: { d
                     alignItems: "center",
                     justifyContent: "center",
                     border: `2px solid ${color}`,
-                    backgroundColor: s.state === "done" ? BRAND_ACCENT : "transparent",
+                    backgroundColor: s.state === "done" ? accent : "transparent",
                     ...(s.state === "active"
                       ? {
                           animation: "escrowPulse 1.6s ease-in-out infinite",
@@ -146,7 +146,7 @@ export default function EscrowProgress({ deal, testId = "escrow-progress" }: { d
                 </Typography>
               </Box>
               {i < result.steps.length - 1 && (
-                <Box sx={{ flex: 1, minWidth: { xs: 6, sm: 16 }, height: 2, mt: "10px", mx: { xs: 0.2, sm: 0.4 }, borderRadius: 1, backgroundColor: connectorDone ? BRAND_ACCENT : border }} />
+                <Box sx={{ flex: 1, minWidth: { xs: 6, sm: 16 }, height: 2, mt: "10px", mx: { xs: 0.2, sm: 0.4 }, borderRadius: 1, backgroundColor: connectorDone ? accent : border }} />
               )}
             </React.Fragment>
           );

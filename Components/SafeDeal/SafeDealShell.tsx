@@ -61,6 +61,10 @@ export default function SafeDealShell({ children, title, wide = false, dark = fa
   const { user, ready, signOut } = useSdSession();
   const path = router.asPath;
   const isActive = (p: string) => path.includes(p);
+  // The deal-detail page renders a mobile-only fixed "Your move" action bar
+  // (position:fixed, bottom:0). Reserve safe-area at the very bottom so that
+  // bar never covers the footer's legal line on small screens.
+  const isDealPage = path.includes("/deal/");
   const [legalName, setLegalName] = useState("Dynopay Payments Ltd.");
   useEffect(() => {
     safedealApi.config().then((c) => c.legal_name && setLegalName(c.legal_name)).catch(() => undefined);
@@ -166,6 +170,7 @@ export default function SafeDealShell({ children, title, wide = false, dark = fa
           </Typography>
         </Container>
       </Box>
+      {isDealPage && <Box aria-hidden data-testid="sd-mobile-sticky-safearea" sx={{ display: { xs: "block", md: "none" }, height: 84 }} />}
     </Box>
     </ThemeProvider>
   );
