@@ -9,7 +9,7 @@ import uuid
 import pytest
 import requests
 
-BASE = os.environ.get("SAFEDEAL_BASE_URL") or "https://vault-auth-demo-1.preview.emergentagent.com"
+BASE = os.environ.get("SAFEDEAL_BASE_URL") or "https://memory-safe-12.preview.emergentagent.com"
 API = BASE.rstrip("/") + "/api"
 
 

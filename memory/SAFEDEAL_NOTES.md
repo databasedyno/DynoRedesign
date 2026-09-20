@@ -3,7 +3,7 @@
 # ============================================================================
 # STATUS: code complete, `tsc --noEmit` = 0 errors, backend restarted healthy. NO testing-agent
 #   run yet. NEXT AGENT: run deep_testing_backend_v2 with the 2 scenarios below; then, with user
-#   OK, run the frontend flow. Preview: https://765d59c7-3ab9-4a1f-9790-c6730b11ad84.preview.emergentagent.com
+#   OK, run the frontend flow. Preview: https://memory-safe-12.preview.emergentagent.com
 #   >>> ALSO SEE memory/ESCROW_PLAN.md TOP: "FUNDS / FEES / PAYOUTS ACCURACY AUDIT" — the next
 #       agent must verify EVERY funds/fee/payout calculation & invariant, not just these 2 changes.
 #
@@ -56,6 +56,62 @@
 # CLEANUP: reset any touched customer to auto_withdraw=false, parked=0 (cid607/608 are throwaway
 #   SafeDeal-brand QA customers; safe to mutate, but reset the toggle).
 # ============================================================================
+
+
+# ============================================================================
+# >>> CONSOLIDATED PENDING TASKS (compiled on pod setup) <<<
+#   Pod set up from env.vault.enc (passphrase Katiekendra123@). All services healthy:
+#   backend db+redis connected, SAFE MODE (background jobs OFF), frontend 200, external 200.
+#   SAFE MODE = wired to PRODUCTION DB, money SIMULATED (ESCROW_LIVE_SETTLEMENT off) -> prefer
+#   READ-ONLY; only mutate throwaway sd_qa_*/cid607/cid608 SafeDeal-brand (company_id=262) rows.
+# ============================================================================
+
+## P0 — BLOCKING (must verify before anything ships)
+- [ ] **Test the 2 implemented-but-UNTESTED backend refinements** via `deep_testing_backend_v2`.
+      Code complete, `tsc --noEmit` = 0 errors, backend healthy — but NO testing-agent run yet.
+  - [ ] **Scenario A — cancellation escrow-fee waiver** (+ CONTROL): a mutually-agreed cancellation
+        (dispute_proposal.kind='cancellation' dispute-accepted by the other party) WAIVES the 5%
+        escrow fee; only real network/exchange/conversion/withdrawal costs are kept. CONTROL: a
+        plain dispute-refund / admin ruling STILL keeps the fee. Full steps at top of this file.
+  - [ ] **Scenario B — auto-withdraw sweep-on-enable**: turning auto-withdraw ON also pushes the
+        CURRENT available balance out; if the address is in its 24h cooling-off the whole balance
+        is PARKED (parked_payout_usd) for hourly release. Full steps at top of this file.
+- [ ] **Full FUNDS / FEES / PAYOUTS accuracy audit** (memory/ESCROW_PLAN.md invariants 1-14, not
+      just the 2 new paths). Reconcile tbl_customer_ledger + wallet balances for release /
+      normal-refund / cancellation-refund / split, for BOTH fee_payer=buyer and fee_payer=seller.
+      Key invariant: custody conservation (held == seller_credit + buyer_credit + escrowFee +
+      exchangeFee + passThroughCosts, +/- $0.01) and "what the user saw == what they get".
+
+## P1
+- [ ] Admin dispute queue **filters** (In negotiation / Escalated / All).
+- [ ] **PROD go-live ops for SafeDeal brand (company_id=262)** — ops config, not code:
+      add Dynopay-custody crypto wallets per coin to brand 262 (buyer funds must forward to
+      Dynopay, never a 3rd party); enable auto-convert -> USDT on the brand; set
+      ESCROW_LIVE_SETTLEMENT=true and SAFEDEAL_URL=https://safedeal.sh in prod.
+- [ ] **safedeal.sh DNS cutover** — owner must switch Namecheap nameservers to DigitalOcean
+      (DO zone already created: A @ -> 134.209.94.115, CNAME www -> @). ROTATE the DO API token
+      that was pasted in chat during setup.
+- [ ] **Purge ~65 legacy test deals** from tbl_escrow_deal.
+
+## P2
+- [ ] "Escrow protection" toggle on Dynopay payment links.
+- [ ] KYC gating for large volumes.
+
+## NON-BLOCKING housekeeping
+- [ ] Refresh 6 stale legacy pytest expectations to the new 24h cooling-off + 12-key readiness
+      contract: test_safedeal_api.py::test_add_address_and_withdraw, test_safedeal_iter203.py
+      withdraw tests, and test_admin_readiness.
+- [ ] OPTIONAL: add a data-testid to the /safedeal/deals/new Currency selector (currently
+      role='combobox' only) to harden E2E selectors.
+
+## Already DONE / verified (do NOT redo)
+- SafeDeal buyer<->seller E2E (fund -> deliver -> release) — PASSED (frontend testing agent).
+  Deal e79888ff… is now COMPLETED/consumed; mint a fresh deal to re-run.
+- iteration_207 direct-API funding, iteration_208 wallet top-ups/exchange-fee/auto-withdraw/invoices
+  — implemented & verified (see build-notes sections below).
+# ============================================================================
+
+
 
 
 

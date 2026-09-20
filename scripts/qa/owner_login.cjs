@@ -16,7 +16,7 @@
 const { execFileSync } = require("child_process");
 const { generateSync } = require("/app/backend/node_modules/otplib");
 
-const BASE = process.argv[2] || "https://vault-auth-demo-1.preview.emergentagent.com";
+const BASE = process.argv[2] || "https://memory-safe-12.preview.emergentagent.com";
 const EMAIL = "onarrival21@gmail.com";
 const PASSWORD = "Katiekendra123@";
 

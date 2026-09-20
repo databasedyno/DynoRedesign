@@ -12,7 +12,7 @@ import sys
 import re
 
 # Backend URL (external preview origin with /api prefix)
-BASE_URL = "https://vault-auth-demo-1.preview.emergentagent.com"
+BASE_URL = "https://memory-safe-12.preview.emergentagent.com"
 
 # Admin credentials for diagnostics endpoint
 ADMIN_EMAIL = "moxxcompany@gmail.com"
