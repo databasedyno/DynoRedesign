@@ -16,13 +16,14 @@ const PAYERS: { v: FeePayer; label: string }[] = [
 ];
 
 /** Landing calculator on the ink hero: real quote from the fee engine, never a hard-coded example. */
-export default function FeeCalculator({ minDeal, autoReleaseDefault }: { minDeal: number; autoReleaseDefault: number }) {
+export default function FeeCalculator({ minDeal, autoReleaseDefault, maxDealUsd, maxDealEur }: { minDeal: number; autoReleaseDefault: number; maxDealUsd?: number | null; maxDealEur?: number }) {
   const [amount, setAmount] = useState("500");
   const [payer, setPayer] = useState<FeePayer>("buyer");
   const [q, setQ] = useState<FeeBreakdown | null>(null);
   const [loading, setLoading] = useState(true);
   const n = Number(amount);
-  const valid = n >= minDeal;
+  const tooHigh = maxDealUsd != null && n > maxDealUsd;
+  const valid = n >= minDeal && !tooHigh;
 
   useEffect(() => {
     if (!valid) { setQ(null); setLoading(false); return; }
@@ -44,7 +45,7 @@ export default function FeeCalculator({ minDeal, autoReleaseDefault }: { minDeal
         size="small"
         label="Deal amount"
         error={!!amount && !valid}
-        helperText={!!amount && !valid ? `Deals start at $${minDeal}` : " "}
+        helperText={!!amount && !valid ? (tooHigh ? `Deals cap at €${(maxDealEur ?? 2999).toLocaleString()}` : `Deals start at $${minDeal}`) : " "}
         sx={{ "& .MuiOutlinedInput-root": { background: "rgba(255,255,255,0.07)" }, "& .MuiOutlinedInput-root input": { color: "#fff" } }}
         InputProps={{ startAdornment: <InputAdornment position="start" sx={{ "& p": { color: "#fff" } }}>$</InputAdornment>, sx: { color: "#fff", fontWeight: 800, ...TABULAR, "& fieldset": { borderColor: "rgba(255,255,255,0.3)" }, "&:hover fieldset": { borderColor: "rgba(255,255,255,0.55) !important" }, "&.Mui-focused fieldset": { borderColor: `${SD_GOLD} !important` } } }}
         InputLabelProps={{ sx: { color: muted, "&.Mui-focused": { color: SD_GOLD } } }}

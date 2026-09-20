@@ -66,6 +66,8 @@ export interface SdConfig {
   fee_percent: number;
   fee_min_usd: number;
   min_deal_usd: number;
+  max_deal_eur?: number;
+  max_deal_usd?: number;
   auto_release_presets: number[];
   auto_release_default: number;
   payout_options: { key: string; coin: string; chain: string; label: string }[];

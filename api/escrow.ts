@@ -42,6 +42,9 @@ export interface FeeBreakdown {
   // fee-preview extras (admin policy)
   minDealUsd?: number;
   belowMinimum?: boolean;
+  maxDealUsd?: number;
+  maxDealEur?: number;
+  aboveMaximum?: boolean;
 }
 
 export interface EscrowDeal {

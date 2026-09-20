@@ -80,6 +80,8 @@ const ESCROW_FEE_PERCENT = Number(envRaw("ESCROW_FEE_PERCENT")) || 5;
 const ESCROW_FEE_MIN_USD = Number(envRaw("ESCROW_FEE_MIN_USD")) || 10;
 // Smallest deal we escrow (USD). Below this the fee floor dominates the economics.
 const ESCROW_MIN_DEAL_USD = Number(envRaw("ESCROW_MIN_DEAL_USD")) || 30;
+// Largest deal we escrow, expressed in EUR (resolved to USD at the live rate on validation).
+const ESCROW_MAX_DEAL_EUR = Number(envRaw("ESCROW_MAX_DEAL_EUR")) || 2999;
 // Auto-release presets offered to merchants (days). Any other value clamps to the default.
 const ESCROW_AUTO_RELEASE_PRESETS = [3, 5, 7, 14];
 const ESCROW_AUTO_RELEASE_DEFAULT = 3;
@@ -1130,6 +1132,7 @@ export const escrowEngine = {
   ESCROW_FEE_PERCENT,
   ESCROW_FEE_MIN_USD,
   ESCROW_MIN_DEAL_USD,
+  ESCROW_MAX_DEAL_EUR,
   ESCROW_AUTO_RELEASE_PRESETS,
   ESCROW_AUTO_RELEASE_DEFAULT,
   clampAutoReleaseDays,

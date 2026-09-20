@@ -10,6 +10,7 @@ import { SD_AMBER, SD_INK, SD_INK_MUTED } from "./SafeDealShell";
 import { StepUpDialog } from "./StepUpDialog";
 import TopUpDialog from "./TopUpDialog";
 import InvoicesCard from "./InvoicesCard";
+import { CoinBadge, PayoutOptionLabel } from "./PayoutOptionLabel";
 
 const card = { p: { xs: 2, md: 2.5 }, borderRadius: 3, backgroundColor: "#fff", border: "1px solid #E5E7EB" } as const;
 const primaryBtn = { textTransform: "none", fontWeight: 800, borderRadius: 99, color: SD_INK, backgroundColor: SD_GOLD, "&:hover": { backgroundColor: SD_GOLD_DARK } } as const;
@@ -155,9 +156,7 @@ export default function Wallet() {
               <Stack spacing={1}>
                 {w.addresses.map((a) => (
                   <Stack key={a.address_id} direction="row" spacing={1} alignItems="center" data-testid={`sd-address-${a.address_id}`} sx={{ p: 1.2, borderRadius: 2, border: "1px solid #F3F4F6", backgroundColor: "#FAFAFA" }}>
-                    <Box sx={{ width: 34, height: 34, borderRadius: 2, display: "grid", placeItems: "center", backgroundColor: a.coin === "USDT" ? "#ECFDF5" : "#EFF6FF", flexShrink: 0 }}>
-                      <Typography sx={{ fontSize: 10, fontWeight: 900, color: a.coin === "USDT" ? "#047857" : "#1D4ED8" }}>{a.coin}</Typography>
-                    </Box>
+                    <CoinBadge coin={a.coin} network={a.network} size={30} />
                     <Box sx={{ flex: 1, minWidth: 0 }}>
                       <Typography sx={{ fontSize: 13.5, fontWeight: 700 }}>{a.label || `${a.coin} · ${a.network}`}</Typography>
                       <Typography sx={{ fontSize: 12, color: "#6B7280", fontFamily: "monospace" }}>{shortAddr(a.address)} · {a.network}</Typography>
@@ -297,7 +296,7 @@ function AddAddressDialog({ wallet, onClose, onDone, onError }: { wallet: SdWall
     >
       <Stack spacing={1.5}>
         <TextField select size="small" fullWidth label="Coin & network" value={key} onChange={(e) => setKey(e.target.value)} inputProps={{ "data-testid": "sd-address-key" }}>
-          {wallet.payout_options.map((o) => <MenuItem key={o.key} value={o.key} data-testid={`sd-address-key-${o.key}`}>{o.label}</MenuItem>)}
+          {wallet.payout_options.map((o) => <MenuItem key={o.key} value={o.key} data-testid={`sd-address-key-${o.key}`}><PayoutOptionLabel option={o} /></MenuItem>)}
         </TextField>
         <TextField size="small" fullWidth label="Wallet address" value={address} onChange={(e) => setAddress(e.target.value)} inputProps={{ "data-testid": "sd-address-input", spellCheck: false }} />
         <TextField size="small" fullWidth label="Label (optional)" placeholder="e.g. Binance, Ledger" value={label} onChange={(e) => setLabel(e.target.value)} inputProps={{ "data-testid": "sd-address-label", maxLength: 80 }} />
@@ -335,7 +334,7 @@ function WithdrawDialog({ wallet, onClose, onDone, onError }: { wallet: SdWallet
       ) : (
         <Stack spacing={1.5}>
           <TextField select size="small" fullWidth label="To" value={addressId} onChange={(e) => setAddressId(Number(e.target.value))} inputProps={{ "data-testid": "sd-withdraw-address" }}>
-            {wallet.addresses.map((a) => <MenuItem key={a.address_id} value={a.address_id}>{a.label || a.coin} · {a.network} · {shortAddr(a.address)}</MenuItem>)}
+            {wallet.addresses.map((a) => <MenuItem key={a.address_id} value={a.address_id}><PayoutOptionLabel option={{ coin: a.coin, network: a.network, label: a.label || `${a.coin} · ${a.network}` }} sub={shortAddr(a.address)} /></MenuItem>)}
           </TextField>
           <TextField size="small" fullWidth label="Amount (USD)" value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ""))} helperText={`Available ${money(wallet.wallet.available)} · min $${wallet.limits.min_withdrawal_usd}`} inputProps={{ "data-testid": "sd-withdraw-amount", inputMode: "decimal" }} />
           {quote && (

@@ -572,6 +572,13 @@ select:focus-visible,
 .MuiOutlinedInput-root:focus-visible {
   outline: none !important;
 }
+/* Outlined fields already show focus via the 2px .Mui-focused notched border; the generic
+   ring on the inner <input>/combobox sits inside the field and strikes through the label. */
+.MuiOutlinedInput-root > .MuiInputBase-input:focus-visible,
+.MuiOutlinedInput-root > .MuiSelect-select:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
 
 /* Checkbox / radio / switch: the real <input> is opacity:0, so paint the ring on
    the visible host when the input has keyboard focus. */

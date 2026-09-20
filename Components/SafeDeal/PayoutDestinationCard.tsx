@@ -7,6 +7,7 @@ import safedealApi, { SdConfig, SdDeal, sdError } from "@/api/safedeal";
 import { absTime, relTime } from "./sdFormat";
 import { StepUpDialog } from "./StepUpDialog";
 import { card, ghostBtn } from "./sdStyles";
+import { PayoutOptionLabel } from "./PayoutOptionLabel";
 
 const shortAddr = (a: string) => `${a.slice(0, 6)}…${a.slice(-4)}`;
 
@@ -123,7 +124,7 @@ function AddDealAddress({ deal, cfg, onClose, onDone, onError }: { deal: SdDeal;
     >
       <Stack spacing={1.5}>
         <TextField select size="small" fullWidth label="Coin & network" value={key} onChange={(e) => setKey(e.target.value)} inputProps={{ "data-testid": "sd-payout-address-key" }}>
-          {options.map((o) => <MenuItem key={o.key} value={o.key} data-testid={`sd-payout-address-key-${o.key}`}>{o.label}</MenuItem>)}
+          {options.map((o) => <MenuItem key={o.key} value={o.key} data-testid={`sd-payout-address-key-${o.key}`}><PayoutOptionLabel option={o} /></MenuItem>)}
         </TextField>
         <TextField size="small" fullWidth label="Wallet address" value={address} onChange={(e) => setAddress(e.target.value)} inputProps={{ "data-testid": "sd-payout-address-input", spellCheck: false }} />
         <TextField size="small" fullWidth label="Label (optional)" placeholder="e.g. Binance, Ledger" value={label} onChange={(e) => setLabel(e.target.value)} inputProps={{ "data-testid": "sd-payout-address-label", maxLength: 80 }} />

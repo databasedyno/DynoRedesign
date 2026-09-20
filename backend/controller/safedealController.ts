@@ -278,6 +278,8 @@ const config = async (_req: express.Request, res: express.Response) => {
     fee_percent: escrowEngine.ESCROW_FEE_PERCENT,
     fee_min_usd: escrowEngine.ESCROW_FEE_MIN_USD,
     min_deal_usd: escrowEngine.ESCROW_MIN_DEAL_USD,
+    max_deal_eur: escrowEngine.ESCROW_MAX_DEAL_EUR,
+    max_deal_usd: await maxDealUsd(),
     auto_release_presets: escrowEngine.ESCROW_AUTO_RELEASE_PRESETS,
     auto_release_default: escrowEngine.ESCROW_AUTO_RELEASE_DEFAULT,
     payout_options: ESCROW_PAYOUT_OPTIONS,
@@ -304,10 +306,14 @@ const feePreview = async (req: express.Request, res: express.Response) => {
     const cur = String(price_currency || "USD").toUpperCase();
     const { usd, rate } = await fiatToUsd(cur, Number(amount));
     const breakdown = computeFeeBreakdown({ amount: usd, currency: "USD", feePercent: escrowEngine.ESCROW_FEE_PERCENT, feeMinUsd: escrowEngine.ESCROW_FEE_MIN_USD, feePayer: fee_payer, payoutCoin: payout_coin });
+    const maxUsd = await maxDealUsd();
     return successResponseHelper(res, 200, "Fee breakdown computed.", {
       ...breakdown,
       minDealUsd: escrowEngine.ESCROW_MIN_DEAL_USD,
       belowMinimum: usd < escrowEngine.ESCROW_MIN_DEAL_USD,
+      maxDealUsd: maxUsd,
+      maxDealEur: escrowEngine.ESCROW_MAX_DEAL_EUR,
+      aboveMaximum: usd > maxUsd,
       price: cur === "USD" ? null : { currency: cur, amount: round2(Number(amount)), rate, usd, indicative: true },
     });
   } catch (e) {
@@ -368,6 +374,22 @@ async function fiatToUsd(currency: string, amount: number): Promise<{ usd: numbe
   if (!(usd > 0)) fail(503, "Exchange rate temporarily unavailable — try again in a minute or price the deal in USD.");
   return { usd: round2(usd), rate: usd / amount };
 }
+
+/** The largest deal we escrow, set in EUR (env) and resolved to USD at the live rate.
+ *  Fails open to a conservative EUR→USD multiple if the FX provider is momentarily down. */
+async function maxDealUsd(): Promise<number> {
+  const eur = escrowEngine.ESCROW_MAX_DEAL_EUR;
+  try {
+    const usd = Number((await convertToFiat("EUR", "USD", eur)).amount) || 0;
+    if (usd > 0) return round2(usd);
+  } catch (e) {
+    apiLogger.warn(`[safedeal] FX EUR→USD (max cap) failed: ${(e as Error).message}`);
+  }
+  return round2(eur * 1.15);
+}
+
+const maxDealMessage = (maxUsd: number, priceCur: string, amount: number, usdAmount: number) =>
+  `The maximum deal is €${escrowEngine.ESCROW_MAX_DEAL_EUR.toLocaleString("en-US")} (≈ $${maxUsd.toFixed(2)})${priceCur !== "USD" ? ` — your ${Number(amount).toFixed(2)} ${priceCur} ≈ $${usdAmount.toFixed(2)}` : ""}. For larger deals, contact support.`;
 
 /** Buyer is about to pay: lock the USD amount for fiat-priced deals (once). */
 async function lockPriceIfNeeded(deal: any, actorLabel: string): Promise<void> {
@@ -504,7 +526,8 @@ const createDeal = async (req: express.Request, res: express.Response) => {
     if (usdAmount < escrowEngine.ESCROW_MIN_DEAL_USD) {
       return errorResponseHelper(res, 400, `The minimum deal is $${escrowEngine.ESCROW_MIN_DEAL_USD}${priceCur !== "USD" ? ` (your ${Number(amount).toFixed(2)} ${priceCur} ≈ $${usdAmount.toFixed(2)})` : ""} — escrow fee ${escrowEngine.ESCROW_FEE_PERCENT}%, min $${escrowEngine.ESCROW_FEE_MIN_USD}.`);
     }
-    if (usdAmount > 1000000) return errorResponseHelper(res, 400, "Deals above $1,000,000 need to be arranged with support.");
+    const maxUsd = await maxDealUsd();
+    if (usdAmount > maxUsd) return errorResponseHelper(res, 400, maxDealMessage(maxUsd, priceCur, Number(amount), usdAmount));
     if (!counterparty_email || !emailOk(String(counterparty_email))) return errorResponseHelper(res, 400, "Enter the other party's email.");
     if (!["buyer", "seller"].includes(String(my_role))) return errorResponseHelper(res, 400, "Your role must be buyer or seller.");
     if (!["buyer", "seller", "split"].includes(String(fee_payer))) return errorResponseHelper(res, 400, "fee_payer must be buyer, seller or split.");
@@ -806,7 +829,8 @@ async function amendDeal(deal: any, actor: ActorInfo, body: any, actorEmail: str
     if (cur !== (deal.price_currency || "USD") || round2(amt) !== round2(Number(deal.price_amount ?? deal.amount))) {
       const { usd, rate } = await fiatToUsd(cur, amt);
       if (usd < escrowEngine.ESCROW_MIN_DEAL_USD) fail(400, `The minimum deal is $${escrowEngine.ESCROW_MIN_DEAL_USD}.`);
-      if (usd > 1000000) fail(400, "Deals above $1,000,000 need to be arranged with support.");
+      const maxUsd = await maxDealUsd();
+      if (usd > maxUsd) fail(400, maxDealMessage(maxUsd, cur, amt, usd));
       changes.push(`Amount: ${Number(deal.price_amount ?? deal.amount).toFixed(2)} ${deal.price_currency || "USD"} → ${round2(amt).toFixed(2)} ${cur}`);
       deal.price_currency = cur;
       deal.price_amount = round2(amt);

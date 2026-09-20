@@ -1,3 +1,23 @@
+# === 2026-06 (fork: escrow-cap) MAX ESCROW PER DEAL = €2,999 EQUIV. USD — DONE & VERIFIED (self-test: BE curl + FE screenshots) ===
+# USER ASK: "highest escrow per deal cant be more than 2999 euros equivalent USD, then test all after."
+# IMPLEMENTATION (env-driven, EUR-based cap resolved to USD at the live FX rate):
+#   • backend/.env: NEW ESCROW_MAX_DEAL_EUR=2999. ALSO fixed the recurring stale SAFEDEAL_URL → current preview host
+#     https://19dd10de-75dd-42ca-9744-ed61fd58cebb.preview.emergentagent.com/safedeal (was b3e8a0ae…, dead).
+#   • controller/escrowController.ts: const ESCROW_MAX_DEAL_EUR = Number(envRaw("ESCROW_MAX_DEAL_EUR"))||2999; exported on escrowEngine.
+#   • controller/safedealController.ts: NEW async maxDealUsd() = convertToFiat("EUR","USD",2999) at live rate, FAILS OPEN to eur*1.15
+#     if FX momentarily down. maxDealMessage() helper. Enforced in createDeal (replaced dead >$1,000,000 check) AND amendDeal.
+#     config() now returns {max_deal_eur, max_deal_usd}; fee-preview returns {maxDealUsd, maxDealEur, aboveMaximum}.
+#   • FRONTEND: api/escrow.ts FeeBreakdown += maxDealUsd/maxDealEur/aboveMaximum; api/safedeal.ts SdConfig += max_deal_eur/max_deal_usd.
+#     Components/SafeDeal/NewDeal.tsx: aboveMax gate (blocks step0Ok/Continue/Send), amount helper "Maximum deal is €2,999 (≈ $X)".
+#     FeeCalculator.tsx (landing): tooHigh → "Deals cap at €2,999". Landing.tsx passes max_deal_usd/eur props.
+# VERIFIED: config max_deal_eur=2999/max_deal_usd=3446.08. fee-preview: USD1000 ok, USD5000 aboveMaximum, EUR3500 aboveMaximum,
+#   EUR2000 ok. createDeal (real session): USD5000 & EUR3500 BLOCKED (400 + clear msg), USD1000 succeeds. FE screenshots: landing
+#   calc shows red "Deals cap at €2,999" @5000; new-deal form shows "Maximum deal is €2,999 (≈ $3,446.08)" + Continue disabled.
+#   BE tsc 0, FE tsc 0. testing_agent NOT used (contained validation change, fully self-verified BE+FE). COMMIT: Save to GitHub.
+# STILL PENDING (deferred by user earlier this fork): rebrand indigo→yellow/gold (P2 — sdTheme already uses SD_GOLD/SD_INK, mostly done),
+#   unauthenticated landing→deal-draft flow (P2). Crypto-icon/dropdown-overlap UI fix from prior fork verified visually here (icons render).
+# ============================================================================================
+
 # === 2026-06 (fork: safedeal-verify) SAFEDEAL DIRECT-API ESCROW FUNDING — DONE & VERIFIED (testing_agent iteration_207: BE 100% / FE 100%, 0 critical, retest_needed=false) ===
 # PRODUCT: SafeDeal = standalone escrow product on the Dynopay engine. Funding switched from Dynopay HOSTED checkout
 #   (iframe) → Dynopay DIRECT API (custom in-app UI: QR + address inside SafeDeal). Brand SafeDeal API key

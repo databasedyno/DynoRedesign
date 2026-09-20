@@ -115,7 +115,7 @@ export default function Landing() {
               <Typography sx={{ color: "rgba(255,255,255,0.72)", mt: 0.6 }}>No surprises — network and exchange costs are folded into the quote.</Typography>
             </Box>
             <Box sx={{ maxWidth: 460, mx: "auto" }}>
-              <FeeCalculator minDeal={minDeal} autoReleaseDefault={cfg?.auto_release_default ?? 5} />
+              <FeeCalculator minDeal={minDeal} autoReleaseDefault={cfg?.auto_release_default ?? 5} maxDealUsd={cfg?.max_deal_usd ?? null} maxDealEur={cfg?.max_deal_eur ?? 2999} />
             </Box>
           </Reveal>
         </Container>

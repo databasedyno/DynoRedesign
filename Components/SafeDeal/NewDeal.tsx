@@ -43,10 +43,13 @@ export default function NewDeal() {
   }, []);
 
   const minDeal = cfg?.min_deal_usd ?? 30;
+  const maxDealUsd = cfg?.max_deal_usd ?? null;
+  const maxDealEur = cfg?.max_deal_eur ?? 2999;
   const amountNum = Number(amount);
   const fiat = currency !== "USD";
   const usdEquivalent = preview?.price ? preview.price.usd : amountNum;
   const belowMin = amountNum > 0 && (fiat ? !!preview && usdEquivalent < minDeal : amountNum < minDeal);
+  const aboveMax = amountNum > 0 && (preview?.aboveMaximum === true || (!fiat && maxDealUsd != null && amountNum > maxDealUsd));
   const emailValid = /.+@.+\..+/.test(email.trim());
   const selfInvite = !!user && email.trim().toLowerCase() === user.email.toLowerCase();
 
@@ -58,7 +61,7 @@ export default function NewDeal() {
     return () => clearTimeout(t);
   }, [amountNum, feePayer, minDeal, currency, fiat]);
 
-  const step0Ok = title.trim().length >= 2 && amountNum > 0 && !belowMin && emailValid && !selfInvite;
+  const step0Ok = title.trim().length >= 2 && amountNum > 0 && !belowMin && !aboveMax && emailValid && !selfInvite;
   const canSubmit = step0Ok && !!preview && !busy;
   const draft = useMemo<NewDealDraft>(() => ({ title: title.trim(), amount: amountNum, currency, role, email: email.trim(), feePayer, days, dealType, due, terms }), [title, amountNum, currency, role, email, feePayer, days, dealType, due, terms]);
 
@@ -120,8 +123,8 @@ export default function NewDeal() {
                     value={amount}
                     onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ""))}
                     fullWidth
-                    error={belowMin}
-                    helperText={belowMin ? `Minimum deal amount is $${minDeal}${fiat ? ` (≈ ${money(usdEquivalent)} today)` : ""}` : fiat && preview?.price ? `≈ ${money(preview.price.usd)} today · USD locked when the buyer funds` : `Minimum $${minDeal}${fiat ? " equivalent" : ""}`}
+                    error={belowMin || aboveMax}
+                    helperText={aboveMax ? `Maximum deal is €${maxDealEur.toLocaleString()}${maxDealUsd ? ` (≈ ${money(maxDealUsd)})` : ""}${fiat ? ` — your amount ≈ ${money(usdEquivalent)}` : ""}` : belowMin ? `Minimum deal amount is $${minDeal}${fiat ? ` (≈ ${money(usdEquivalent)} today)` : ""}` : fiat && preview?.price ? `≈ ${money(preview.price.usd)} today · USD locked when the buyer funds` : `Between $${minDeal} and €${maxDealEur.toLocaleString()}${fiat ? " equivalent" : ""}`}
                     FormHelperTextProps={{ "data-testid": "sd-new-amount-helper" } as any}
                     InputProps={{ startAdornment: <InputAdornment position="start">{currency === "USD" ? "$" : currency}</InputAdornment> }}
                     inputProps={{ "data-testid": "sd-new-amount", inputMode: "decimal" }}

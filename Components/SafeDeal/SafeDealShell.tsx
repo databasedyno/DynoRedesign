@@ -55,7 +55,15 @@ export default function SafeDealShell({ children, title, wide = false, dark = fa
   // covers the SafeDeal dialogs too.
   const parentTheme = useTheme();
   const sdMuiTheme = React.useMemo(
-    () => createTheme(parentTheme, { palette: { primary: { main: SD_GOLD_DEEP, light: SD_GOLD, dark: SD_GOLD_DARK, contrastText: "#fff" } } }),
+    () =>
+      createTheme(parentTheme, {
+        palette: { primary: { main: SD_GOLD_DEEP, light: SD_GOLD, dark: SD_GOLD_DARK, contrastText: "#fff" } },
+        components: {
+          // Dynopay's theme hardcodes an indigo focus border + legacy navy select text; SafeDeal is gold/ink.
+          MuiOutlinedInput: { styleOverrides: { root: { "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: SD_GOLD_DEEP } } } },
+          MuiSelect: { styleOverrides: { outlined: { color: "inherit" } } },
+        },
+      }),
     [parentTheme],
   );
   const { user, ready, signOut } = useSdSession();
@@ -97,6 +105,8 @@ export default function SafeDealShell({ children, title, wide = false, dark = fa
       <Head>
         <title>{title ? `${title} · SafeDeal` : "SafeDeal — escrow for buying & selling online"}</title>
         <meta name="description" content="SafeDeal holds the buyer's payment in USDT escrow until the seller delivers, and steps in if there's a dispute. 5% fee, no account setup — sign in with your email." />
+        {/* Dialogs portal to <body>, outside this Box — set the ring var globally so they stay gold too. */}
+        <style key="sd-focus-ring">{`:root{--dyno-focus-ring:${SD_GOLD};--dyno-focus-ring-shadow:0 0 0 3px rgba(255,198,26,0.35)}`}</style>
       </Head>
       <Box component="header" sx={{ borderBottom: dark ? "1px solid rgba(255,255,255,0.08)" : "1px solid #ECE9E1", backgroundColor: dark ? "rgba(10,10,11,0.85)" : "rgba(255,255,255,0.85)", backdropFilter: "blur(12px)", position: "sticky", top: 0, zIndex: 20 }}>
         <Container maxWidth={wide ? "xl" : "lg"} sx={{ py: 1.4, display: "flex", alignItems: "center", justifyContent: "space-between", gap: { xs: 1, sm: 2 } }}>

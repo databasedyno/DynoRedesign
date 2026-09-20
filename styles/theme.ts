@@ -334,7 +334,6 @@ export const theme = createTheme({
           [tempTheme.breakpoints.down("md")]: {
             minWidth: "75px",
           },
-          border: "1px solid ",
         },
       },
     },
@@ -518,7 +517,6 @@ const getCheckoutComponentStyles = (isDark: boolean) => ({
         [tempTheme.breakpoints.down("md")]: {
           minWidth: "75px",
         },
-        border: "1px solid ",
       },
     },
   },
@@ -919,7 +917,6 @@ export const themeDark = createTheme({
           color: BRAND_ACCENT,
           padding: "10px 15px",
           borderRadius: "20px",
-          border: "1px solid ",
         },
       },
     },

@@ -52,6 +52,7 @@ const Dropdown = ({
       <Select
         sx={{
           ".MuiOutlinedInput-notchedOutline": { border: "0 !important" },
+          "& .MuiSelect-outlined": { border: "1px solid currentColor" },
           "&.Mui-focused": {
             "& .MuiSelect-outlined": {
               border: `1px solid ${theme.palette.primary.main} !important`,
