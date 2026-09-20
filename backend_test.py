@@ -1,331 +1,551 @@
 #!/usr/bin/env python3
 """
-Backend test for DynoPay payment email rendering diagnostics endpoint.
-Tests the /api/diagnostics/payment-email-preview endpoint with various parameters.
-SAFE MODE: READ-ONLY, no payments created, no data mutations.
+SafeDeal Post-PURGE Verification Test
+Brand 262 was purged to clean state (0 deals, 0 customers)
+Verify all core functionality still works
 """
 
 import requests
-import time
 import json
-import sys
-import re
+import time
+import random
+import subprocess
+from typing import Dict, Any, Optional
 
-# Backend URL (external preview origin with /api prefix)
-BASE_URL = "https://memory-safe-12.preview.emergentagent.com"
+BASE_URL = "http://localhost:8001"
+SAFEDEAL_API = f"{BASE_URL}/api/safedeal"
+ADMIN_API = f"{BASE_URL}/api/admin"
 
-# Admin credentials for diagnostics endpoint
+# Generate unique throwaway emails
+RANDOM_ID = random.randint(1000000, 9999999)
+SELLER_EMAIL = f"sd_qa_purge_seller_{RANDOM_ID}@example.com"
+BUYER_EMAIL = f"sd_qa_purge_buyer_{RANDOM_ID}@example.com"
+FRESH_USER_EMAIL = f"sd_qa_purge_fresh_{RANDOM_ID}@example.com"
+
+# Admin credentials
 ADMIN_EMAIL = "moxxcompany@gmail.com"
 ADMIN_PASSWORD = "Katiekendra123@"
 
-def log(msg):
-    """Print timestamped log message"""
-    print(f"[{time.strftime('%H:%M:%S')}] {msg}")
+class TestResults:
+    def __init__(self):
+        self.tests = []
+        self.passed = 0
+        self.failed = 0
+    
+    def add(self, name: str, passed: bool, details: str = ""):
+        self.tests.append({
+            "name": name,
+            "passed": passed,
+            "details": details
+        })
+        if passed:
+            self.passed += 1
+        else:
+            self.failed += 1
+    
+    def summary(self):
+        print("\n" + "="*80)
+        print("TEST SUMMARY")
+        print("="*80)
+        for test in self.tests:
+            status = "✅ PASS" if test["passed"] else "❌ FAIL"
+            print(f"{status}: {test['name']}")
+            if test["details"]:
+                print(f"  → {test['details']}")
+        print(f"\nTotal: {self.passed} passed, {self.failed} failed")
+        print("="*80)
 
-def admin_login():
-    """
-    Login as admin to get JWT token.
-    Returns: (success: bool, token: str or None, error: str or None)
-    """
-    log("\n=== ADMIN LOGIN ===")
+results = TestResults()
+
+def safedeal_auth(email: str) -> Optional[str]:
+    """Authenticate with SafeDeal and return token"""
     try:
-        response = requests.post(
-            f"{BASE_URL}/api/admin/login",
-            json={
-                "email": ADMIN_EMAIL,
-                "password": ADMIN_PASSWORD
-            },
-            timeout=30
-        )
-        log(f"Login status: {response.status_code}")
+        # Send code
+        resp = requests.post(f"{SAFEDEAL_API}/auth/send-code", json={"email": email}, timeout=10)
+        if resp.status_code != 200:
+            print(f"❌ Send code failed: {resp.status_code} {resp.text}")
+            return None
         
-        if response.status_code == 200:
-            data = response.json()
-            if "data" in data and "accessToken" in data["data"]:
-                token = data["data"]["accessToken"]
-                log(f"✓ Admin JWT token obtained (length: {len(token)})")
-                return True, token, None
+        data = resp.json()
+        code = data.get("data", {}).get("preview_code")
+        if not code:
+            print(f"❌ No preview_code in response: {data}")
+            return None
+        
+        print(f"✓ Code sent to {email}: {code}")
+        
+        # Verify code
+        resp = requests.post(f"{SAFEDEAL_API}/auth/verify-code", 
+                           json={"email": email, "code": code}, timeout=10)
+        if resp.status_code != 200:
+            print(f"❌ Verify code failed: {resp.status_code} {resp.text}")
+            return None
+        
+        data = resp.json()
+        token = data.get("data", {}).get("token")
+        if not token:
+            print(f"❌ No token in response: {data}")
+            return None
+        
+        print(f"✓ Authenticated {email}")
+        return token
+    except Exception as e:
+        print(f"❌ Auth error: {e}")
+        return None
+
+def admin_login() -> Optional[str]:
+    """Login as admin and return access token"""
+    try:
+        resp = requests.post(f"{ADMIN_API}/login", 
+                           json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD}, 
+                           timeout=10)
+        if resp.status_code != 200:
+            print(f"❌ Admin login failed: {resp.status_code} {resp.text}")
+            return None
+        
+        data = resp.json()
+        token = data.get("data", {}).get("accessToken")
+        if not token:
+            print(f"❌ No accessToken in admin response: {data}")
+            return None
+        
+        print(f"✓ Admin authenticated")
+        return token
+    except Exception as e:
+        print(f"❌ Admin login error: {e}")
+        return None
+
+def test_1_fresh_signin_wallet():
+    """TEST 1: Fresh sign-in + wallet (brand-new email gets fresh wallet with 0 balances)"""
+    print("\n" + "="*80)
+    print("TEST 1: FRESH SIGN-IN + WALLET")
+    print("="*80)
+    
+    try:
+        # Sign in with brand-new email
+        token = safedeal_auth(FRESH_USER_EMAIL)
+        if not token:
+            results.add("Test 1: Fresh sign-in + wallet", False, "Failed to authenticate")
+            return
+        
+        # Get wallet
+        headers = {"Authorization": f"Bearer {token}"}
+        resp = requests.get(f"{SAFEDEAL_API}/wallet", headers=headers, timeout=10)
+        
+        if resp.status_code != 200:
+            results.add("Test 1: Fresh sign-in + wallet", False, 
+                       f"Wallet GET failed: {resp.status_code} {resp.text}")
+            return
+        
+        data = resp.json()
+        wallet = data.get("data", {})
+        
+        available = wallet.get("available", -1)
+        held = wallet.get("held", -1)
+        total = wallet.get("total", -1)
+        
+        print(f"✓ Wallet response: available={available}, held={held}, total={total}")
+        
+        # Verify all are 0
+        if available == 0 and held == 0 and total == 0:
+            results.add("Test 1: Fresh sign-in + wallet", True, 
+                       f"Fresh wallet created: available=0, held=0, total=0")
+        else:
+            results.add("Test 1: Fresh sign-in + wallet", False, 
+                       f"Expected all 0, got available={available}, held={held}, total={total}")
+    
+    except Exception as e:
+        results.add("Test 1: Fresh sign-in + wallet", False, f"Exception: {e}")
+
+def test_2_full_happy_path():
+    """TEST 2: Full happy path (create → fund → deliver → release)"""
+    print("\n" + "="*80)
+    print("TEST 2: FULL HAPPY PATH")
+    print("="*80)
+    
+    try:
+        # Seller signs up
+        seller_token = safedeal_auth(SELLER_EMAIL)
+        if not seller_token:
+            results.add("Test 2: Full happy path", False, "Seller auth failed")
+            return
+        
+        # Buyer signs up
+        buyer_token = safedeal_auth(BUYER_EMAIL)
+        if not buyer_token:
+            results.add("Test 2: Full happy path", False, "Buyer auth failed")
+            return
+        
+        # Seller creates deal
+        seller_headers = {"Authorization": f"Bearer {seller_token}"}
+        deal_data = {
+            "title": "purge check",
+            "amount": 100,
+            "price_currency": "USD",
+            "counterparty_email": BUYER_EMAIL,
+            "my_role": "seller",
+            "fee_payer": "buyer",
+            "auto_release_days": 5
+        }
+        
+        resp = requests.post(f"{SAFEDEAL_API}/deals", json=deal_data, 
+                           headers=seller_headers, timeout=10)
+        
+        if resp.status_code not in [200, 201]:
+            results.add("Test 2: Full happy path", False, 
+                       f"Create deal failed: {resp.status_code} {resp.text}")
+            return
+        
+        data = resp.json()
+        deal_token = data.get("data", {}).get("deal_token")
+        if not deal_token:
+            results.add("Test 2: Full happy path", False, 
+                       f"No deal_token in response: {data}")
+            return
+        
+        print(f"✓ Deal created: {deal_token}")
+        
+        # Buyer accepts
+        buyer_headers = {"Authorization": f"Bearer {buyer_token}"}
+        resp = requests.post(f"{SAFEDEAL_API}/deals/{deal_token}/action", 
+                           json={"action": "accept"}, 
+                           headers=buyer_headers, timeout=10)
+        
+        if resp.status_code != 200:
+            results.add("Test 2: Full happy path", False, 
+                       f"Buyer accept failed: {resp.status_code} {resp.text}")
+            return
+        
+        print(f"✓ Buyer accepted")
+        
+        # Buyer funds (simulated)
+        resp = requests.post(f"{SAFEDEAL_API}/deals/{deal_token}/action", 
+                           json={"action": "fund", "coin": "USDT-TRC20"}, 
+                           headers=buyer_headers, timeout=10)
+        
+        if resp.status_code != 200:
+            results.add("Test 2: Full happy path", False, 
+                       f"Buyer fund failed: {resp.status_code} {resp.text}")
+            return
+        
+        print(f"✓ Buyer funded (simulated)")
+        
+        # Seller delivers
+        resp = requests.post(f"{SAFEDEAL_API}/deals/{deal_token}/action", 
+                           json={"action": "deliver", "note": "done"}, 
+                           headers=seller_headers, timeout=10)
+        
+        if resp.status_code != 200:
+            results.add("Test 2: Full happy path", False, 
+                       f"Seller deliver failed: {resp.status_code} {resp.text}")
+            return
+        
+        print(f"✓ Seller delivered")
+        
+        # Buyer releases
+        resp = requests.post(f"{SAFEDEAL_API}/deals/{deal_token}/action", 
+                           json={"action": "release"}, 
+                           headers=buyer_headers, timeout=10)
+        
+        if resp.status_code != 200:
+            results.add("Test 2: Full happy path", False, 
+                       f"Buyer release failed: {resp.status_code} {resp.text}")
+            return
+        
+        print(f"✓ Buyer released")
+        
+        # Check seller wallet (should have ~100)
+        time.sleep(1)  # Give it a moment to settle
+        resp = requests.get(f"{SAFEDEAL_API}/wallet", headers=seller_headers, timeout=10)
+        
+        if resp.status_code != 200:
+            results.add("Test 2: Full happy path", False, 
+                       f"Seller wallet check failed: {resp.status_code} {resp.text}")
+            return
+        
+        data = resp.json()
+        seller_wallet = data.get("data", {})
+        seller_available = seller_wallet.get("available", 0)
+        
+        print(f"✓ Seller wallet available: ${seller_available}")
+        
+        # Check buyer wallet (should be 0)
+        resp = requests.get(f"{SAFEDEAL_API}/wallet", headers=buyer_headers, timeout=10)
+        
+        if resp.status_code != 200:
+            results.add("Test 2: Full happy path", False, 
+                       f"Buyer wallet check failed: {resp.status_code} {resp.text}")
+            return
+        
+        data = resp.json()
+        buyer_wallet = data.get("data", {})
+        buyer_available = buyer_wallet.get("available", 0)
+        buyer_held = buyer_wallet.get("held", 0)
+        
+        print(f"✓ Buyer wallet: available=${buyer_available}, held=${buyer_held}")
+        
+        # Verify amounts
+        if seller_available >= 95 and seller_available <= 105:  # ~100 (allow for rounding)
+            if buyer_available == 0 and buyer_held == 0:
+                results.add("Test 2: Full happy path", True, 
+                           f"Deal completed: seller received ${seller_available}, buyer at 0")
             else:
-                log(f"✗ No accessToken in response: {data}")
-                return False, None, "No accessToken in response"
+                results.add("Test 2: Full happy path", False, 
+                           f"Buyer wallet not cleared: available=${buyer_available}, held=${buyer_held}")
         else:
-            log(f"✗ Login failed: {response.status_code} - {response.text[:200]}")
-            return False, None, f"HTTP {response.status_code}"
+            results.add("Test 2: Full happy path", False, 
+                       f"Seller received ${seller_available}, expected ~100")
+    
     except Exception as e:
-        log(f"✗ Login exception: {e}")
-        return False, None, str(e)
+        results.add("Test 2: Full happy path", False, f"Exception: {e}")
 
-def test_wrong_password():
-    """
-    Test that wrong password returns auth error (not a token).
-    """
-    log("\n=== TEST: Wrong Password ===")
+def test_3_wallet_withdraw_plumbing():
+    """TEST 3: Wallet/withdraw plumbing (step-up, add address, withdraw quote)"""
+    print("\n" + "="*80)
+    print("TEST 3: WALLET/WITHDRAW PLUMBING")
+    print("="*80)
+    
     try:
-        response = requests.post(
-            f"{BASE_URL}/api/admin/login",
-            json={
-                "email": ADMIN_EMAIL,
-                "password": "WrongPassword123@"
-            },
-            timeout=30
-        )
-        log(f"Wrong password status: {response.status_code}")
+        # Use seller from test 2 (who now has balance)
+        seller_token = safedeal_auth(SELLER_EMAIL)
+        if not seller_token:
+            results.add("Test 3: Wallet/withdraw plumbing", False, "Seller auth failed")
+            return
         
-        # Should be 401 or 403, NOT 200
-        if response.status_code in [401, 403, 400]:
-            log(f"✓ PASS: Wrong password correctly rejected with {response.status_code}")
-            return True, None
-        elif response.status_code == 200:
-            data = response.json()
-            if "data" in data and "accessToken" in data["data"]:
-                log(f"✗ FAIL: Wrong password returned a token!")
-                return False, "Wrong password returned token"
+        seller_headers = {"Authorization": f"Bearer {seller_token}"}
+        
+        # Step-up for add_address
+        resp = requests.post(f"{SAFEDEAL_API}/auth/step-up", 
+                           json={"purpose": "add_address"}, 
+                           headers=seller_headers, timeout=10)
+        
+        if resp.status_code != 200:
+            results.add("Test 3: Wallet/withdraw plumbing", False, 
+                       f"Step-up failed: {resp.status_code} {resp.text}")
+            return
+        
+        data = resp.json()
+        step_up_code = data.get("data", {}).get("preview_code")
+        if not step_up_code:
+            results.add("Test 3: Wallet/withdraw plumbing", False, 
+                       f"No preview_code in step-up: {data}")
+            return
+        
+        print(f"✓ Step-up code: {step_up_code}")
+        
+        # Add payout address
+        address_data = {
+            "payout_key": "USDT-TRON",
+            "address": "TTve8v6Y48ChsCTEiCjMRFSbjNtz4mAkxR",
+            "label": "t",
+            "code": step_up_code
+        }
+        
+        resp = requests.post(f"{SAFEDEAL_API}/wallet/addresses", 
+                           json=address_data, 
+                           headers=seller_headers, timeout=10)
+        
+        if resp.status_code not in [200, 201]:
+            results.add("Test 3: Wallet/withdraw plumbing", False, 
+                       f"Add address failed: {resp.status_code} {resp.text}")
+            return
+        
+        data = resp.json()
+        address_id = data.get("data", {}).get("address_id") or data.get("data", {}).get("id")
+        if not address_id:
+            results.add("Test 3: Wallet/withdraw plumbing", False, 
+                       f"No address id in response: {data}")
+            return
+        
+        print(f"✓ Address added: id={address_id}")
+        
+        # Get withdraw quote
+        quote_data = {
+            "address_id": address_id,
+            "amount": 50
+        }
+        
+        resp = requests.post(f"{SAFEDEAL_API}/wallet/withdraw/quote", 
+                           json=quote_data, 
+                           headers=seller_headers, timeout=10)
+        
+        if resp.status_code == 400:
+            # Expected: 24h cooling-off
+            error_data = resp.json()
+            error_msg = error_data.get("error", {}).get("message", "")
+            if "cooling" in error_msg.lower() or "24" in error_msg:
+                print(f"✓ Withdraw quote returned 400 (expected: 24h cooling-off): {error_msg}")
+                results.add("Test 3: Wallet/withdraw plumbing", True, 
+                           "Step-up, add address, withdraw quote all working (cooling-off expected)")
             else:
-                log(f"✓ PASS: Wrong password returned 200 but no token")
-                return True, None
+                results.add("Test 3: Wallet/withdraw plumbing", False, 
+                           f"Unexpected 400 error: {error_msg}")
+        elif resp.status_code == 200:
+            data = resp.json()
+            quote = data.get("data", {})
+            print(f"✓ Withdraw quote: {quote}")
+            results.add("Test 3: Wallet/withdraw plumbing", True, 
+                       "Step-up, add address, withdraw quote all working")
         else:
-            log(f"⚠ Unexpected status: {response.status_code}")
-            return True, None  # Still pass if it's not 200 with token
-    except Exception as e:
-        log(f"✗ Exception: {e}")
-        return False, str(e)
-
-def test_no_auth_token():
-    """
-    Test that diagnostics endpoint without Bearer token returns 403.
-    """
-    log("\n=== TEST: No Auth Token ===")
-    try:
-        response = requests.get(
-            f"{BASE_URL}/api/diagnostics/payment-email-preview",
-            params={"type": "settled", "source": "paymentLink", "overpay": "1"},
-            timeout=30
-        )
-        log(f"No auth status: {response.status_code}")
-        
-        # Should be 401 or 403
-        if response.status_code in [401, 403]:
-            log(f"✓ PASS: No auth token correctly rejected with {response.status_code}")
-            return True, None
-        else:
-            log(f"✗ FAIL: Expected 401/403, got {response.status_code}")
-            return False, f"Expected 401/403, got {response.status_code}"
-    except Exception as e:
-        log(f"✗ Exception: {e}")
-        return False, str(e)
-
-def test_email_preview(token, test_name, params, must_contain=None, must_not_contain=None):
-    """
-    Test the diagnostics endpoint with given parameters.
+            results.add("Test 3: Wallet/withdraw plumbing", False, 
+                       f"Withdraw quote failed: {resp.status_code} {resp.text}")
     
-    Args:
-        token: Admin JWT token
-        test_name: Name of the test case
-        params: Query parameters dict
-        must_contain: List of strings that MUST be in the HTML (case-insensitive)
-        must_not_contain: List of strings that MUST NOT be in the HTML (case-insensitive)
-    
-    Returns: (success: bool, error: str or None)
-    """
-    log(f"\n=== TEST: {test_name} ===")
-    log(f"Params: {params}")
+    except Exception as e:
+        results.add("Test 3: Wallet/withdraw plumbing", False, f"Exception: {e}")
+
+def test_4_admin_readiness():
+    """TEST 4: Admin readiness check"""
+    print("\n" + "="*80)
+    print("TEST 4: ADMIN READINESS")
+    print("="*80)
     
     try:
-        response = requests.get(
-            f"{BASE_URL}/api/diagnostics/payment-email-preview",
-            params=params,
-            headers={"Authorization": f"Bearer {token}"},
-            timeout=30
-        )
-        log(f"Status: {response.status_code}")
+        # Admin login
+        admin_token = admin_login()
+        if not admin_token:
+            results.add("Test 4: Admin readiness", False, "Admin login failed")
+            return
         
-        if response.status_code != 200:
-            log(f"✗ FAIL: Expected 200, got {response.status_code}")
-            log(f"Response: {response.text[:500]}")
-            return False, f"HTTP {response.status_code}"
+        # Get readiness
+        admin_headers = {"Authorization": f"Bearer {admin_token}"}
+        resp = requests.get(f"{SAFEDEAL_API}/admin/readiness", 
+                          headers=admin_headers, timeout=10)
         
-        # Check content type
-        content_type = response.headers.get("Content-Type", "")
-        if "text/html" not in content_type.lower():
-            log(f"⚠ Warning: Content-Type is {content_type}, expected text/html")
+        if resp.status_code != 200:
+            results.add("Test 4: Admin readiness", False, 
+                       f"Readiness check failed: {resp.status_code} {resp.text}")
+            return
         
-        html = response.text
-        log(f"HTML length: {len(html)} characters")
+        data = resp.json()
+        readiness = data.get("data", {})
+        checks = readiness.get("checks", [])
+        totals = readiness.get("totals", {})
         
-        # Convert to lowercase for case-insensitive matching
-        html_lower = html.lower()
+        print(f"✓ Readiness response received")
+        print(f"  Checks count: {len(checks)}")
+        print(f"  Totals: {totals}")
         
-        # Check must_contain
-        if must_contain:
-            for substring in must_contain:
-                substring_lower = substring.lower()
-                if substring_lower in html_lower:
-                    log(f"✓ Found: '{substring}'")
-                else:
-                    log(f"✗ FAIL: Missing required substring: '{substring}'")
-                    # Show context around where it should be
-                    log(f"HTML preview (first 1000 chars): {html[:1000]}")
-                    return False, f"Missing required substring: '{substring}'"
+        # Verify 12 checks
+        if len(checks) != 12:
+            results.add("Test 4: Admin readiness", False, 
+                       f"Expected 12 checks, got {len(checks)}")
+            return
         
-        # Check must_not_contain
-        if must_not_contain:
-            for substring in must_not_contain:
-                substring_lower = substring.lower()
-                if substring_lower not in html_lower:
-                    log(f"✓ Correctly absent: '{substring}'")
-                else:
-                    log(f"✗ FAIL: Found forbidden substring: '{substring}'")
-                    # Find and show context
-                    idx = html_lower.find(substring_lower)
-                    context_start = max(0, idx - 100)
-                    context_end = min(len(html), idx + len(substring) + 100)
-                    log(f"Context: ...{html[context_start:context_end]}...")
-                    return False, f"Found forbidden substring: '{substring}'"
+        # Find brand, api_key, wallets checks
+        brand_check = next((c for c in checks if c.get("key") == "brand"), None)
+        api_key_check = next((c for c in checks if c.get("key") == "api_key"), None)
+        wallets_check = next((c for c in checks if c.get("key") == "wallets"), None)
         
-        log(f"✓ PASS: All assertions passed")
-        return True, None
+        issues = []
         
+        if not brand_check:
+            issues.append("brand check missing")
+        elif not brand_check.get("ok"):
+            issues.append(f"brand check failed: {brand_check.get('message')}")
+        else:
+            print(f"  ✓ brand check: ok")
+        
+        if not api_key_check:
+            issues.append("api_key check missing")
+        elif not api_key_check.get("ok"):
+            issues.append(f"api_key check failed: {api_key_check.get('message')}")
+        else:
+            print(f"  ✓ api_key check: ok")
+        
+        if not wallets_check:
+            issues.append("wallets check missing")
+        elif not wallets_check.get("ok"):
+            issues.append(f"wallets check failed: {wallets_check.get('message')}")
+        else:
+            print(f"  ✓ wallets check: ok")
+        
+        # Print all checks
+        for check in checks:
+            status = "✓" if check.get("ok") else "✗"
+            print(f"  {status} {check.get('key')}: {check.get('message', '')}")
+        
+        if issues:
+            results.add("Test 4: Admin readiness", False, 
+                       f"Issues: {', '.join(issues)}")
+        else:
+            results.add("Test 4: Admin readiness", True, 
+                       f"12 checks present, brand/api_key/wallets all ok")
+    
     except Exception as e:
-        log(f"✗ Exception: {e}")
-        return False, str(e)
+        results.add("Test 4: Admin readiness", False, f"Exception: {e}")
 
-def run_all_tests():
-    """
-    Run all test cases and return results.
-    """
-    results = {
-        "wrong_password": {"pass": False, "error": None},
-        "no_auth_token": {"pass": False, "error": None},
-        "test_1_settled_paymentlink_overpay": {"pass": False, "error": None},
-        "test_2_settled_api_no_overpay": {"pass": False, "error": None},
-        "test_3_pending_productorder": {"pass": False, "error": None},
-        "test_4_confirming_donation": {"pass": False, "error": None},
-        "test_5_settled_spanish": {"pass": False, "error": None},
-    }
+def test_5_regression_pytest():
+    """TEST 5: Regression pytest"""
+    print("\n" + "="*80)
+    print("TEST 5: REGRESSION PYTEST")
+    print("="*80)
     
-    # Test 1: Wrong password
-    success, error = test_wrong_password()
-    results["wrong_password"]["pass"] = success
-    results["wrong_password"]["error"] = error
+    try:
+        # Run pytest
+        cmd = [
+            "python3", "-m", "pytest",
+            "tests/test_safedeal_api.py",
+            "tests/test_safedeal_iter203.py",
+            "-q", "--tb=short"
+        ]
+        
+        print(f"Running: {' '.join(cmd)}")
+        result = subprocess.run(cmd, cwd="/app/backend", 
+                              capture_output=True, text=True, timeout=300)
+        
+        print("\n--- PYTEST OUTPUT ---")
+        print(result.stdout)
+        if result.stderr:
+            print("--- STDERR ---")
+            print(result.stderr)
+        print("--- END PYTEST OUTPUT ---\n")
+        
+        # Check result
+        if result.returncode == 0:
+            # Parse output for pass count
+            output = result.stdout
+            if "passed" in output:
+                results.add("Test 5: Regression pytest", True, 
+                           f"All tests passed (exit code 0)")
+            else:
+                results.add("Test 5: Regression pytest", True, 
+                           f"Exit code 0 (check output for details)")
+        else:
+            results.add("Test 5: Regression pytest", False, 
+                       f"Exit code {result.returncode} (see output above)")
     
-    # Test 2: No auth token
-    success, error = test_no_auth_token()
-    results["no_auth_token"]["pass"] = success
-    results["no_auth_token"]["error"] = error
-    
-    # Login as admin
-    login_success, token, login_error = admin_login()
-    if not login_success:
-        log(f"\n✗✗✗ CRITICAL: Admin login failed, cannot proceed with email tests")
-        results["admin_login"] = {"pass": False, "error": login_error}
-        return results
-    
-    # Test 3: settled + paymentLink + overpay=1
-    # Must contain: "Received via", "Payment link", "A buyer overpaid by 0.00000234 BTC"
-    success, error = test_email_preview(
-        token,
-        "Test 1: Settled + Payment Link + Overpay",
-        {"type": "settled", "source": "paymentLink", "overpay": "1"},
-        must_contain=["Received via", "Payment link", "A buyer overpaid by 0.00000234 BTC"],
-        must_not_contain=None
-    )
-    results["test_1_settled_paymentlink_overpay"]["pass"] = success
-    results["test_1_settled_paymentlink_overpay"]["error"] = error
-    
-    # Test 4: settled + api + overpay=0
-    # Must contain: "Received via", "API"
-    # Must NOT contain: "A buyer overpaid"
-    success, error = test_email_preview(
-        token,
-        "Test 2: Settled + API + No Overpay",
-        {"type": "settled", "source": "api", "overpay": "0"},
-        must_contain=["Received via", "API"],
-        must_not_contain=["A buyer overpaid"]
-    )
-    results["test_2_settled_api_no_overpay"]["pass"] = success
-    results["test_2_settled_api_no_overpay"]["error"] = error
-    
-    # Test 5: pending + productOrder
-    # Must contain: "Received via", "Store"
-    success, error = test_email_preview(
-        token,
-        "Test 3: Pending + Product Order",
-        {"type": "pending", "source": "productOrder"},
-        must_contain=["Received via", "Store"],
-        must_not_contain=None
-    )
-    results["test_3_pending_productorder"]["pass"] = success
-    results["test_3_pending_productorder"]["error"] = error
-    
-    # Test 6: confirming + donation
-    # Must contain: "Received via", "Donation"
-    success, error = test_email_preview(
-        token,
-        "Test 4: Confirming + Donation",
-        {"type": "confirming", "source": "donation"},
-        must_contain=["Received via", "Donation"],
-        must_not_contain=None
-    )
-    results["test_4_confirming_donation"]["pass"] = success
-    results["test_4_confirming_donation"]["error"] = error
-    
-    # Test 7: settled + paymentLink + lang=es
-    # Must contain: "Recibido vía" (Spanish for "Received via")
-    success, error = test_email_preview(
-        token,
-        "Test 5: Settled + Spanish Localization",
-        {"type": "settled", "source": "paymentLink", "lang": "es"},
-        must_contain=["Recibido vía"],
-        must_not_contain=None
-    )
-    results["test_5_settled_spanish"]["pass"] = success
-    results["test_5_settled_spanish"]["error"] = error
-    
-    return results
+    except subprocess.TimeoutExpired:
+        results.add("Test 5: Regression pytest", False, "Timeout (>300s)")
+    except Exception as e:
+        results.add("Test 5: Regression pytest", False, f"Exception: {e}")
 
-def print_summary(results):
-    """
-    Print test summary and return overall pass/fail.
-    """
-    log("\n" + "="*80)
-    log("TEST SUMMARY")
-    log("="*80)
+def main():
+    print("="*80)
+    print("SAFEDEAL POST-PURGE VERIFICATION TEST")
+    print("Brand 262 purged to clean state (0 deals, 0 customers)")
+    print("="*80)
+    print(f"Base URL: {BASE_URL}")
+    print(f"SafeDeal API: {SAFEDEAL_API}")
+    print(f"Fresh user: {FRESH_USER_EMAIL}")
+    print(f"Seller: {SELLER_EMAIL}")
+    print(f"Buyer: {BUYER_EMAIL}")
+    print("="*80)
     
-    total_tests = 0
-    passed_tests = 0
+    # Run all tests
+    test_1_fresh_signin_wallet()
+    test_2_full_happy_path()
+    test_3_wallet_withdraw_plumbing()
+    test_4_admin_readiness()
+    test_5_regression_pytest()
     
-    for test_name, result in results.items():
-        total_tests += 1
-        status = "✓ PASS" if result["pass"] else "✗ FAIL"
-        log(f"{test_name}: {status}")
-        if result["error"]:
-            log(f"  Error: {result['error']}")
-        if result["pass"]:
-            passed_tests += 1
+    # Print summary
+    results.summary()
     
-    log("\n" + "="*80)
-    log(f"RESULTS: {passed_tests}/{total_tests} tests passed")
-    
-    if passed_tests == total_tests:
-        log("OVERALL: ✓✓✓ ALL TESTS PASSED ✓✓✓")
+    # Exit with appropriate code
+    if results.failed > 0:
+        exit(1)
     else:
-        log("OVERALL: ✗✗✗ SOME TESTS FAILED ✗✗✗")
-    log("="*80)
-    
-    return passed_tests == total_tests
+        exit(0)
 
 if __name__ == "__main__":
-    log("Starting DynoPay email rendering diagnostics tests")
-    log(f"Target: {BASE_URL}")
-    log(f"Admin: {ADMIN_EMAIL}")
-    log("Mode: SAFE (READ-ONLY, no payments, no mutations)")
-    
-    results = run_all_tests()
-    all_pass = print_summary(results)
-    
-    # Write results to file
-    with open("/app/email_diagnostics_test_results.json", "w") as f:
-        json.dump(results, f, indent=2)
-    log("\nResults written to /app/email_diagnostics_test_results.json")
-    
-    sys.exit(0 if all_pass else 1)
+    main()
