@@ -150,7 +150,7 @@ export default function DealActionsCard({ deal, busy, live, now, walletHref, new
                 {sent ? (
                   <><b>{money(amount, deal.currency)}</b> {isBuyer ? "refund" : "payout"} sent to {dest ? `${dest.payout_key} ${dest.address.slice(0, 6)}…${dest.address.slice(-4)}` : "your payout address"} — network fee covered by the deal.{" "}</>
                 ) : (
-                  <><b>{money(amount, deal.currency)}</b> is in your SafeDeal balance{deal.my_addresses?.length ? " and goes out automatically once your payout address clears its safety hold" : " — add a payout address and it's sent automatically"}.{" "}</>
+                  <><b>{money(amount, deal.currency)}</b> is in your SafeDeal balance{deal.my_addresses?.length ? " and goes out automatically to your payout address" : " — add a payout address and it's sent automatically"}.{" "}</>
                 )}
                 <Link href={walletHref} style={{ fontWeight: 800, color: SD_ACCENT }} data-testid="sd-settled-wallet-link">Open wallet →</Link>
               </Alert>

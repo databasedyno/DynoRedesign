@@ -129,7 +129,7 @@ function AddDealAddress({ deal, cfg, onClose, onDone, onError }: { deal: SdDeal;
         <TextField size="small" fullWidth label="Wallet address" value={address} onChange={(e) => setAddress(e.target.value)} inputProps={{ "data-testid": "sd-payout-address-input", spellCheck: false }} />
         <TextField size="small" fullWidth label="Label (optional)" placeholder="e.g. Ledger, Trust Wallet" value={label} onChange={(e) => setLabel(e.target.value)} inputProps={{ "data-testid": "sd-payout-address-label", maxLength: 80 }} />
         <Alert severity={beforeFunding ? "success" : "info"} sx={{ py: 0.3 }} data-testid="sd-payout-address-hold-note">
-          {beforeFunding ? "Set before funding: no waiting period — usable the moment the deal closes." : `New addresses have a ${cfg?.address_cooling_hours ?? 24}h safety hold. A payout before then waits in your balance and is sent automatically once the hold ends.`}
+          {beforeFunding ? "Set before funding: no waiting period — usable the moment the deal closes." : (cfg?.address_cooling_hours ?? 0) > 0 ? `New addresses have a ${cfg?.address_cooling_hours}h safety hold. A payout before then waits in your balance and is sent automatically once the hold ends.` : "Usable right away — payouts go out as soon as the deal closes."}
         </Alert>
       </Stack>
     </StepUpDialog>

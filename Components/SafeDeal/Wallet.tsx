@@ -150,7 +150,7 @@ export default function Wallet() {
           {(w.profile.parked_payout_usd || 0) > 0 && (
             <Alert severity="info" icon={<Icon icon="mdi:clock-fast" />} sx={{ mt: 1.5, borderRadius: 2.5 }} data-testid="sd-parked-payout">
               <b>{money(w.profile.parked_payout_usd || 0)}</b> from a closed deal is waiting to be paid out.{" "}
-              {w.addresses.length === 0 ? "Add a payout address and it's sent automatically — the network fee is already covered." : "It goes out automatically as soon as your newest address clears its safety hold."}
+              {w.addresses.length === 0 ? "Add a payout address and it's sent automatically — the network fee is already covered." : "It goes out automatically to your payout address — the network fee is already covered."}
             </Alert>
           )}
           {(w.profile.deposit_reserved_usd || 0) > 0 && (

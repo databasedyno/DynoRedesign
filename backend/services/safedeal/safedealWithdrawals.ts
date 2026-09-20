@@ -19,7 +19,8 @@ import { sendSafeDealWithdrawalEmail, sendSafeDealWithdrawalRejectedEmail } from
 export const MIN_WITHDRAWAL_USD = Number(envRaw("SAFEDEAL_MIN_WITHDRAWAL_USD")) || 10;
 export const APPROVAL_THRESHOLD_USD = Number(envRaw("SAFEDEAL_WITHDRAWAL_APPROVAL_USD")) || 1000;
 // New-address cooling-off: hours before a freshly saved payout address can receive a withdrawal.
-export const ADDRESS_COOLING_HOURS = num("SAFEDEAL_ADDRESS_COOLING_HOURS", 24);
+// Default 0 = disabled (owner turned the 24h hold off). Set SAFEDEAL_ADDRESS_COOLING_HOURS=24 to re-enable.
+export const ADDRESS_COOLING_HOURS = num("SAFEDEAL_ADDRESS_COOLING_HOURS", 0);
 
 const round2 = (n: number) => Math.round((Number(n) + Number.EPSILON) * 100) / 100;
 
@@ -89,6 +90,7 @@ export async function listAddresses(customerId: number): Promise<PayoutAddressRo
 
 /** New payout addresses can't receive withdrawals until the cooling-off window has passed. */
 export function assertAddressUsable(addr: PayoutAddressRow, now = Date.now()): void {
+  if (ADDRESS_COOLING_HOURS <= 0) return; // hold disabled
   const usableAt = new Date(addr.created_at).getTime() + ADDRESS_COOLING_HOURS * 3600000;
   const left = usableAt - now;
   if (left <= 0) return;
