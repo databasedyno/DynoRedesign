@@ -179,6 +179,7 @@ export function computeFeeBreakdown(input: {
   fundingCoin?: string | null;
   acceptedCoins?: string | null;
   includeCosts?: boolean;
+  waiveEscrowFee?: boolean;
 }): FeeBreakdown {
   const amount = round2(Number(input.amount) || 0);
   const currency = (input.currency || "USD").toUpperCase();
@@ -192,8 +193,10 @@ export function computeFeeBreakdown(input: {
       : "buyer";
 
   const pctFee = round2((amount * feePercent) / 100);
-  const escrowFee = round2(Math.max(pctFee, feeMinUsd));
-  const feeFloorApplied = escrowFee > pctFee;
+  const grossEscrowFee = round2(Math.max(pctFee, feeMinUsd));
+  const waiveFee = input.waiveEscrowFee === true;
+  const escrowFee = waiveFee ? 0 : grossEscrowFee;
+  const feeFloorApplied = !waiveFee && grossEscrowFee > pctFee;
 
   // ── settlement cost estimate (all via Binance; custody held in USDT) ────────
   const includeCosts = input.includeCosts !== false;
@@ -234,9 +237,13 @@ export function computeFeeBreakdown(input: {
   const costItems: CostItem[] = [
     {
       key: "escrow_fee",
-      label: feeFloorApplied ? `Escrow fee (min $${feeMinUsd})` : `Escrow fee (${feePercent}%)`,
+      label: waiveFee ? "Escrow fee (waived)" : feeFloorApplied ? `Escrow fee (min $${feeMinUsd})` : `Escrow fee (${feePercent}%)`,
       amount: escrowFee,
-      ...(feeFloorApplied ? { note: `${feePercent}% of ${amount} is below the $${feeMinUsd} minimum escrow fee, so the minimum applies.` } : {}),
+      ...(waiveFee
+        ? { note: "Escrow fee waived for this mutually-agreed cancellation — only real network/exchange costs are kept." }
+        : feeFloorApplied
+        ? { note: `${feePercent}% of ${amount} is below the $${feeMinUsd} minimum escrow fee, so the minimum applies.` }
+        : {}),
     },
   ];
   if (includeCosts) {

@@ -35,6 +35,7 @@ import {
   approveWithdrawal,
   rejectWithdrawal,
   releaseParkedPayouts,
+  sweepBalanceToAutoWithdraw,
   clearParked,
   listDealPayouts,
   type PayoutPref,
@@ -255,9 +256,15 @@ const updateProfile = async (req: express.Request, res: express.Response) => {
         type: QueryTypes.UPDATE,
       }
     );
-    // ON → any parked leg goes out once its address is usable; OFF → nothing is parked any more.
-    if (auto_withdraw) void releaseParkedPayouts(sess.customer_id);
-    else await clearParked(sess.customer_id);
+    // ON → flush any parked legs, then sweep the CURRENT available balance out to the
+    //      auto-withdraw address too (turning it on settles what is already in the wallet,
+    //      not just future / parked payouts). OFF → nothing is parked any more.
+    if (auto_withdraw) {
+      await releaseParkedPayouts(sess.customer_id);
+      try { await sweepBalanceToAutoWithdraw(sess.customer_id); } catch { /* non-fatal — the toggle itself still succeeds */ }
+    } else {
+      await clearParked(sess.customer_id);
+    }
     return me(req, res);
   } catch (e) {
     return handle(res, e, "updateProfile");

@@ -391,6 +391,41 @@ export async function clearParked(customerId: number): Promise<void> {
   await sequelize.query(`UPDATE tbl_safedeal_profile SET parked_payout_usd = 0, updated_at = NOW() WHERE customer_id = :id`, { replacements: { id: customerId }, type: QueryTypes.UPDATE });
 }
 
+/**
+ * Switch-on sweep: when auto-withdraw is turned ON, push the CURRENT available balance
+ * out to the auto-withdraw address too (not only future settlements / parked funds).
+ * Behaves like a normal withdrawal — the network fee applies and amounts over the
+ * approval threshold are queued for review. If the address is still in its cooling-off,
+ * the whole available balance is parked so releaseParkedPayouts() sends it once usable.
+ */
+export async function sweepBalanceToAutoWithdraw(customerId: number): Promise<{ mode: "sent" | "parked" | "skipped"; amount: number; withdrawal?: WithdrawalRow }> {
+  const dest = await resolvePayoutDestination(customerId, null); // returns the auto-withdraw address only when auto-withdraw is ON
+  if (!dest) return { mode: "skipped", amount: 0 };
+  const bal = await getBalances(customerId);
+  const amount = round2(bal.available);
+  if (amount <= 0) return { mode: "skipped", amount: 0 };
+  try {
+    assertAddressUsable(dest.addr);
+  } catch {
+    // Address still cooling — park the whole balance; the hourly release sends it once usable.
+    await sequelize.query(
+      `UPDATE tbl_safedeal_profile SET parked_payout_usd = GREATEST(parked_payout_usd, :amt), updated_at = NOW() WHERE customer_id = :id`,
+      { replacements: { amt: toFixedStr(amount, 2), id: customerId }, type: QueryTypes.UPDATE }
+    );
+    return { mode: "parked", amount };
+  }
+  if (amount < MIN_WITHDRAWAL_USD) return { mode: "skipped", amount }; // below the minimum withdrawal — leave it in the balance
+  const customer = await customerById(customerId);
+  if (!customer) return { mode: "skipped", amount: 0 };
+  try {
+    const w = await requestWithdrawal(customer, { address_id: dest.addr.address_id, amount, source: "auto" });
+    return { mode: "sent", amount, withdrawal: w };
+  } catch (err) {
+    apiLogger.warn(`[SafeDeal] auto-withdraw enable sweep failed for customer ${customerId}: ${(err as Error).message}`);
+    return { mode: "skipped", amount: 0 };
+  }
+}
+
 /** Send parked settlement money once the auto-withdraw address clears its hold (called on profile change + hourly). */
 export async function releaseParkedPayouts(customerId?: number): Promise<number> {
   const rows = await sequelize.query<{ customer_id: number; parked_payout_usd: string }>(

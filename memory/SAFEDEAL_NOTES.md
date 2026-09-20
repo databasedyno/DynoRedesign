@@ -1,3 +1,62 @@
+# ============================================================================
+# SESSION HANDOFF (2026-09-20) — 2 backend refinements IMPLEMENTED, NOT YET TESTED
+# ============================================================================
+# STATUS: code complete, `tsc --noEmit` = 0 errors, backend restarted healthy. NO testing-agent
+#   run yet. NEXT AGENT: run deep_testing_backend_v2 with the 2 scenarios below; then, with user
+#   OK, run the frontend flow. Preview: https://765d59c7-3ab9-4a1f-9790-c6730b11ad84.preview.emergentagent.com
+#
+# WHAT CHANGED (file-level detail is in test_result.md top block):
+#  1) AUTO-WITHDRAW SWEEP-ON-ENABLE — services/safedeal/safedealWithdrawals.ts::
+#     sweepBalanceToAutoWithdraw(), called from safedealController.updateProfile after
+#     releaseParkedPayouts. Turning auto-withdraw ON now also pushes the CURRENT available
+#     balance out (not just future/parked). Cooling address -> PARK whole balance; else normal
+#     withdrawal (fee applies, >$1000 -> pending_approval).
+#  2) CANCELLATION FEE WAIVER — escrow/escrowShared.ts computeFeeBreakdown(waiveEscrowFee) +
+#     escrowController.ts isCancellationRefund()/authorizeOutcome/attemptPayouts/serializeDeal.
+#     A mutually-agreed cancellation (refund proposal kind='cancellation' that the OTHER party
+#     dispute-accepts) waives the 5% escrow fee; only real network/exchange/withdrawal costs kept.
+#     Buyer refund = custody_held - real costs. Plain dispute-refund / admin ruling STILL keeps
+#     the fee. Derived from persisted deal.dispute_proposal.kind — NO DB migration.
+#
+# TEST PLAN  (SafeDeal API base = <preview>/api/safedeal ; auth: POST auth/send-code {email}
+#   returns preview_code -> POST auth/verify-code {email,code} -> {token}; header x-safedeal-token.
+#   New customers via this API land on brand company_id=262. Throwaway emails: sd_qa_*@example.com.
+#   Read-only DB checks: node /app/backend/scripts/ro_query.js "SELECT ...").
+#
+#  SCENARIO A — cancellation fee waiver (PRIMARY):
+#   1. Seller signup; POST /deals {title, amount:200, price_currency:"USD",
+#      counterparty_email:<buyerEmail>, my_role:"seller", fee_payer:"buyer"} -> deal_token.
+#   2. Buyer signup; POST /deals/:token/action {action:"accept"}.
+#   3. Buyer POST /deals/:token/action {action:"fund", coin:"USDT-TRC20"} (simulated while
+#      ESCROW_LIVE_SETTLEMENT is off; if it errors, POST /deals/:token/funding {coin} first).
+#      Record custody_amount_stable (=held) + cost breakdown.
+#   4. Buyer POST /deals/:token/action {action:"cancel"} -> expect {requested:true}.
+#   5. Seller POST /deals/:token/action {action:"dispute-accept"} -> settles as refund.
+#   ASSERT: buyer wallet (GET /wallet as buyer) credited ~= held - (network+exchange+conversion+
+#      withdrawal); escrow fee NOT deducted. getDeal breakdown shows "Escrow fee (waived)" = 0.
+#      tbl_customer_ledger (where escrow_id=<id>) has NO escrow_fee debit. For a $200
+#      buyer-pays-fee deal the refund is ~$10 (the 5% fee) higher than a normal refund.
+#   CONTROL: repeat but use a NORMAL dispute refund instead of cancel
+#      (action:"dispute" {proposed_outcome:"refund", reason:"x"} -> seller "dispute-accept") ->
+#      escrow fee IS still deducted. Confirms the waiver is cancellation-only.
+#
+#  SCENARIO B — auto-withdraw sweep-on-enable:
+#   Use the Scenario-A buyer (holds a refund balance) OR seller cid607 (has $250 available).
+#   1. POST /wallet/addresses (inspect createAddress for coin/network/address fields). Any NEW
+#      address is in its 24h cooling-off.
+#   2. POST /profile {auto_withdraw:true, auto_withdraw_address_id:<id>}.
+#   3. ASSERT: address is cooling -> balance is PARKED not sent: tbl_safedeal_profile.parked_payout_usd
+#      == available (ro_query); available unchanged; GET /wallet reflects it. (The 'sent' path needs
+#      an address >24h old which can't be freshly created -> known coverage gap; the hourly
+#      releaseParkedPayouts job sends it once usable.)
+#   4. POST /profile {auto_withdraw:false} -> parked_payout_usd back to 0.
+#
+# CLEANUP: reset any touched customer to auto_withdraw=false, parked=0 (cid607/608 are throwaway
+#   SafeDeal-brand QA customers; safe to mutate, but reset the toggle).
+# ============================================================================
+
+
+
 # SafeDeal build notes (agent memory)
 
 ## Decisions (approved by user)

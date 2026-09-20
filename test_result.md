@@ -1,4 +1,30 @@
 # ============================================================================
+# >>> BACKEND CHANGE (2026-09-20) — 2 escrow/SafeDeal refinements (code-only, NO migration) <<<
+#   1) AUTO-WITHDRAW SWEEP-ON-ENABLE: turning auto-withdraw ON now also pushes the CURRENT
+#      available balance out to the auto-withdraw address (not just future/parked payouts).
+#      New fn services/safedeal/safedealWithdrawals.ts::sweepBalanceToAutoWithdraw() called
+#      from safedealController.updateProfile after releaseParkedPayouts. If the address is in
+#      its 24h cooling-off, the whole balance is PARKED (parked_payout_usd) for hourly release;
+#      else it withdraws as a normal withdrawal (fee applies, >$1000 -> pending_approval).
+#   2) CANCELLATION FEE WAIVER: a MUTUALLY-AGREED cancellation (refund proposal kind
+#      'cancellation' that the other party dispute-accepts) now WAIVES the 5% escrow fee -
+#      only real network/exchange/withdrawal costs are kept. Derived from
+#      deal.dispute_proposal.kind==='cancellation' (persisted; no new column). Buyer refund =
+#      custody_held - (network+exchange+conversion+withdrawal). A plain dispute-refund or an
+#      admin ruling STILL keeps the fee (unchanged). Files: escrow/escrowShared.ts
+#      (computeFeeBreakdown waiveEscrowFee), escrowController.ts (isCancellationRefund,
+#      authorizeOutcome, attemptPayouts, serializeDeal, messaging).
+#   tsc --noEmit = 0 errors. Backend restarted healthy.
+#   TEST HINTS: SafeDeal API base = <preview>/api/safedeal/*. Auth: POST auth/send-code {email}
+#     returns preview_code -> POST auth/verify-code {email,code} -> {token}; header x-safedeal-token.
+#     New customers via this API land on brand company_id=262. Deal actions: accept, fund
+#     (simulated when ESCROW_LIVE_SETTLEMENT off), cancel, dispute, dispute-accept. Read-only DB:
+#     node /app/backend/scripts/ro_query.js "SELECT ...". Use throwaway sd_qa_* emails only.
+# ============================================================================
+
+
+
+# ============================================================================
 # >>> CURRENT TASK (2026-09-20) — SAFEDEAL BUYER<->SELLER E2E (fund -> deliver -> release) <<<
 #   Preview URL (THIS pod): https://765d59c7-3ab9-4a1f-9790-c6730b11ad84.preview.emergentagent.com
 #   Prepared deal (LIVE prod DB, SAFE MODE, money SIMULATED, ESCROW_LIVE_SETTLEMENT off):
