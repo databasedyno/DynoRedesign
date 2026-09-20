@@ -171,7 +171,7 @@ function TopupPayment({ topup, live, onUpdate, onCredited, notify }: { topup: Sd
               <Tooltip title={copied === "address" ? "Copied" : "Copy"}><IconButton size="small" onClick={() => void copy("address", topup.address || "")} data-testid="sd-topup-copy-address"><Icon icon={copied === "address" ? "mdi:check" : "mdi:content-copy"} width={16} /></IconButton></Tooltip>
             </Box>
             {topup.destination_tag != null && <Typography sx={{ fontSize: 12.5, color: "#B45309", fontWeight: 700, mt: 0.8 }} data-testid="sd-topup-tag">Destination tag / memo: {topup.destination_tag} — required</Typography>}
-            <Typography sx={{ fontSize: 12, color: "#6B7280", mt: 1 }}>Address valid until {new Date(topup.expires_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}. Powered by Dynopay — held as USDT in your SafeDeal balance.</Typography>
+            <Typography sx={{ fontSize: 12, color: "#6B7280", mt: 1 }}>Address valid until {new Date(topup.expires_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}. Held as USDT in your SafeDeal balance.</Typography>
           </Box>
         </Stack>
       )}

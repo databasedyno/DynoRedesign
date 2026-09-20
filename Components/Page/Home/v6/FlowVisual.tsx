@@ -37,7 +37,7 @@ const Rail: React.FC<{ active: boolean; icon: string; vertical: boolean; testId:
     if (!active || !ref.current) return;
     setLen((vertical ? ref.current.offsetHeight : ref.current.offsetWidth) - 30);
   }, [active, vertical]);
-  const line = active ? (s.dark ? "rgba(165,180,252,0.9)" : "#4F46E5") : s.lineStrong;
+  const line = active ? (s.dark ? "rgba(94,234,212,0.9)" : "#0F766E") : s.lineStrong;
   return (
     <Box ref={ref} data-testid={testId} data-active={active ? "true" : "false"} sx={{ position: "relative", flex: vertical ? "0 0 44px" : "1 1 0", minWidth: vertical ? 0 : 28, height: vertical ? 44 : 30, alignSelf: "center", width: vertical ? 30 : "auto" }}>
       <Box sx={{ position: "absolute", ...(vertical ? { left: 14, top: 0, bottom: 0, width: 2 } : { top: 14, left: 0, right: 0, height: 2 }), backgroundImage: `repeating-linear-gradient(${vertical ? "180deg" : "90deg"}, ${line} 0 6px, transparent 6px 12px)`, opacity: active ? 1 : 0.6, transition: "opacity 300ms ease" }} />
@@ -105,7 +105,7 @@ const FlowVisual: React.FC = () => {
   const green = "#10B981";
 
   return (
-    <Box data-testid="flow-visual" data-phase={live ? phase : "static"} sx={{ position: "relative", borderRadius: "28px", p: { xs: 2, md: 3 }, background: s.dark ? "linear-gradient(160deg, rgba(79,70,229,0.16), rgba(52,211,153,0.05) 70%, transparent)" : "linear-gradient(160deg, rgba(79,70,229,0.08), rgba(52,211,153,0.09))", border: `1px solid ${s.line}` }}>
+    <Box data-testid="flow-visual" data-phase={live ? phase : "static"} sx={{ position: "relative", borderRadius: "28px", p: { xs: 2, md: 3 }, background: s.dark ? "linear-gradient(160deg, rgba(0,208,132,0.16), rgba(52,211,153,0.05) 70%, transparent)" : "linear-gradient(160deg, rgba(0,208,132,0.08), rgba(52,211,153,0.09))", border: `1px solid ${s.line}` }}>
       <Box sx={{ display: "flex", flexDirection: vertical ? "column" : "row", alignItems: "stretch", gap: vertical ? 0 : 1.5 }}>
         {/* buyer */}
         <Box data-testid="flow-buyer" sx={{ ...node, display: "flex", flexDirection: "column" }}>
@@ -124,7 +124,7 @@ const FlowVisual: React.FC = () => {
           <Typography sx={{ fontFamily: FONT_BODY, fontSize: 12.5, color: s.ink2, mt: 1.75, lineHeight: 1.45 }}>{t("v6.story.anyWallet")}</Typography>
           <Box data-testid="flow-coin-cycle" sx={{ display: "flex", gap: 0.6, flexWrap: "wrap", mt: "auto", pt: 2 }}>
             {COINS.map((c, i) => (
-              <Box key={c.code} sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, px: 0.9, py: 0.35, borderRadius: 999, fontFamily: FONT_TECH, fontSize: 10.5, letterSpacing: "0.06em", color: i === ci ? s.ink : s.ink3, background: i === ci ? (s.dark ? "rgba(99,102,241,0.22)" : "rgba(79,70,229,0.10)") : "transparent", border: `1px solid ${i === ci ? "rgba(79,70,229,0.45)" : s.line}`, transition: "background-color 300ms ease, border-color 300ms ease, color 300ms ease" }}>
+              <Box key={c.code} sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, px: 0.9, py: 0.35, borderRadius: 999, fontFamily: FONT_TECH, fontSize: 10.5, letterSpacing: "0.06em", color: i === ci ? s.ink : s.ink3, background: i === ci ? (s.dark ? "rgba(0,208,132,0.22)" : "rgba(0,208,132,0.10)") : "transparent", border: `1px solid ${i === ci ? "rgba(0,208,132,0.45)" : s.line}`, transition: "background-color 300ms ease, border-color 300ms ease, color 300ms ease" }}>
                 <Icon icon={c.icon} width={12} height={12} /> {c.code}
               </Box>
             ))}
@@ -135,13 +135,13 @@ const FlowVisual: React.FC = () => {
 
         {/* dynopay */}
         <Box data-testid="flow-core" sx={{ ...node, textAlign: "center", position: "relative", overflow: "hidden" }}>
-          <Box aria-hidden sx={{ position: "absolute", inset: 0, background: s.dark ? "radial-gradient(circle at 50% 30%, rgba(99,102,241,0.25), transparent 60%)" : "radial-gradient(circle at 50% 30%, rgba(79,70,229,0.10), transparent 60%)", pointerEvents: "none" }} />
+          <Box aria-hidden sx={{ position: "absolute", inset: 0, background: s.dark ? "radial-gradient(circle at 50% 30%, rgba(0,208,132,0.25), transparent 60%)" : "radial-gradient(circle at 50% 30%, rgba(0,208,132,0.10), transparent 60%)", pointerEvents: "none" }} />
           <Box sx={{ position: "relative" }}>
-            <Box sx={{ display: "grid", placeItems: "center", mx: "auto", width: 56, height: 56, borderRadius: "50%", background: s.dark ? "rgba(99,102,241,0.14)" : "rgba(79,70,229,0.08)", boxShadow: confirmed && live ? `0 0 0 8px ${s.dark ? "rgba(99,102,241,0.14)" : "rgba(79,70,229,0.08)"}` : "none", transition: "box-shadow 400ms ease" }}>
+            <Box sx={{ display: "grid", placeItems: "center", mx: "auto", width: 56, height: 56, borderRadius: "50%", background: s.dark ? "rgba(0,208,132,0.14)" : "rgba(0,208,132,0.08)", boxShadow: confirmed && live ? `0 0 0 8px ${s.dark ? "rgba(0,208,132,0.14)" : "rgba(0,208,132,0.08)"}` : "none", transition: "box-shadow 400ms ease" }}>
               <Logo width={34} height={34} />
             </Box>
             <Box data-testid="flow-status" sx={{ display: "inline-flex", alignItems: "center", gap: 0.7, mt: 1.5, px: 1.2, py: 0.45, borderRadius: 999, background: confirmed ? (s.dark ? "rgba(16,185,129,0.16)" : "rgba(16,185,129,0.10)") : s.bgAlt, border: `1px solid ${confirmed ? "rgba(16,185,129,0.45)" : s.line}`, fontFamily: FONT_TECH, fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", color: confirmed ? green : s.ink2, transition: "background-color 300ms ease, color 300ms ease" }}>
-              {confirmed ? <CheckRoundedIcon sx={{ fontSize: 13 }} /> : <LiveDot color="#4F46E5" size={6} />}
+              {confirmed ? <CheckRoundedIcon sx={{ fontSize: 13 }} /> : <LiveDot color="#0F766E" size={6} />}
               {confirmed ? t("v6.story.confirmed") : t("v6.story.detected")}
             </Box>
             <Box data-testid="flow-convert" sx={{ mt: 1.5, display: "flex", alignItems: "center", justifyContent: "center", gap: 0.8 }}>

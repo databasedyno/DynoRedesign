@@ -135,13 +135,13 @@ export const baseEmailTemplate = (
   const chrome = {
     bestRegards: tr('chrome.bestRegards', lang),
     team: isSafeDeal ? 'The SafeDeal team' : tr('chrome.teamSignature', lang),
-    tagline: isSafeDeal ? 'Escrow for online deals · powered by Dynopay' : tr('chrome.tagline', lang),
+    tagline: isSafeDeal ? 'Escrow for online deals' : tr('chrome.tagline', lang),
     rights: tr('chrome.legal', lang, { year, legalName: legal.name }),
     privacy: tr('chrome.privacy', lang),
     terms: tr('chrome.terms', lang),
     support: tr('chrome.support', lang),
     why: isSafeDeal
-      ? `You're receiving this because ${TO_EMAIL_TOKEN} is a party to a deal on SafeDeal, the escrow service run by Dynopay. Funds are held by Dynopay until both sides complete the deal.`
+      ? `You're receiving this because ${TO_EMAIL_TOKEN} is a party to a deal on SafeDeal. Funds are held securely in escrow until both sides complete the deal.`
       : audience === 'buyer'
       ? tr('chrome.whyBuyer', lang)
       : audience === 'admin'

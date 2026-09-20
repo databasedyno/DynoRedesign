@@ -3,7 +3,7 @@ import { Box, Slider, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "../v3/theme.v3";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { BRAND_ACCENT } from "../v3/theme.v3";
 import { Stagger, StaggerItem } from "../motion/Stagger";
 
 /** Mirrors backend/utils/volumeTierUtils.ts DEFAULT_TIERS (lifetime settled USD). */

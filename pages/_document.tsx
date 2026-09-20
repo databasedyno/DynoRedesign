@@ -28,6 +28,14 @@ export default function MyDocument({ emotionStyleTags, lang }: MyDocumentProps) 
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="theme-color" content="#0A0A0A" />
         <link rel="alternate" type="application/rss+xml" title="Dynopay Blog" href="https://dynopay.com/blog/rss.xml" />
+        {/* Poppins — display face for the Tatum-inspired marketing homepage headings. */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet" />
+        {/* Poppins — display face for the Tatum-inspired marketing homepage headings. */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet" />
 
         {/* Preload core Manrope weights (incl. ExtraBold for the boldest hero
             headings) — paired with font-display:swap + the metric-matched

@@ -1,18 +1,14 @@
 import React, { memo, useEffect, useState } from 'react';
 import { Box, Typography, IconButton } from '@mui/material';
-import { BRAND_ACCENT } from '@/constants/theme';
 import { Close, ArrowForward, CardGiftcardRounded } from '@mui/icons-material';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'react-i18next';
 
 /**
- * StickyPromoBar (item C) — a slim, dismissible bar at the very top of the
- * homepage that persistently offers the fee-free trial. Modern SaaS pattern
- * (Stripe, Cursor, Notion). Improves click-through by 15-30% on payment
- * landing pages per public benchmarks.
- *
- * Dismissed state is remembered in localStorage so returning visitors don't
- * see it after they close it once.
+ * StickyPromoBar — a slim, dismissible bar at the very top of the marketing
+ * homepage that persistently offers the fee-free trial (Stripe/Notion pattern).
+ * 2026-06: restyled to the Tatum-inspired light mint bar (dark teal text).
+ * Dismissed state is remembered in localStorage.
  */
 
 const DISMISS_KEY = 'dyno_promo_dismissed_v1';
@@ -58,6 +54,7 @@ const StickyPromoBar: React.FC = () => {
     <Box
       role="banner"
       aria-label={t("promoBar.aria")}
+      data-testid="promo-bar"
       sx={{
         position: 'fixed',
         top: 0,
@@ -66,8 +63,9 @@ const StickyPromoBar: React.FC = () => {
         zIndex: 1500, // above FixedHeader (1400)
         height: `${PROMO_HEIGHT_PX}px`,
         width: '100%',
-        background: `linear-gradient(90deg, ${BRAND_ACCENT} 0%, #3D40FF 55%, #6C7BFF 100%)`,
-        color: '#fff',
+        background: 'linear-gradient(90deg, #E6F4EA 0%, #D1FAE5 50%, #E6F4EA 100%)',
+        borderBottom: '1px solid rgba(15,118,110,0.16)',
+        color: '#0F766E',
         px: { xs: 2, md: 3 },
         display: 'flex',
         alignItems: 'center',
@@ -81,6 +79,8 @@ const StickyPromoBar: React.FC = () => {
         sx={{
           fontSize: { xs: 12.5, md: 13.5 },
           fontFamily: 'var(--font-sans)',
+          fontWeight: 600,
+          color: '#0A0F1D',
           display: 'inline-flex',
           alignItems: 'center',
           gap: 0.8,
@@ -91,7 +91,7 @@ const StickyPromoBar: React.FC = () => {
           minWidth: 0,
         }}
       >
-        <CardGiftcardRounded sx={{ fontSize: 18 }} aria-hidden />
+        <CardGiftcardRounded sx={{ fontSize: 18, color: '#0F766E' }} aria-hidden />
         {/* Shorter copy on mobile so the whole bar fits in one line at 375px iPhone width. */}
         <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
           {t("promoBar.desktop")}
@@ -104,21 +104,23 @@ const StickyPromoBar: React.FC = () => {
       <Box
         component="button"
         onClick={onClaim}
+        data-testid="promo-bar-claim"
         sx={{
           display: 'inline-flex',
           alignItems: 'center',
           gap: 0.4,
           border: 'none',
           cursor: 'pointer',
-          bgcolor: 'rgba(255,255,255,0.16)',
+          bgcolor: '#0F766E',
           color: '#fff',
           fontFamily: 'var(--font-sans)',
+          fontWeight: 600,
           fontSize: { xs: 12, md: 12.5 },
           px: { xs: 1.2, md: 1.6 },
           py: { xs: 0.3, md: 0.4 },
           borderRadius: '999px',
           transition: 'background 0.2s ease, transform 0.15s ease',
-          '&:hover': { bgcolor: 'rgba(255,255,255,0.26)', transform: 'translateY(-1px)' },
+          '&:hover': { bgcolor: '#0D5C56', transform: 'translateY(-1px)' },
         }}
       >
         {t("promoBar.claim")} <ArrowForward sx={{ fontSize: 14 }} />
@@ -128,12 +130,13 @@ const StickyPromoBar: React.FC = () => {
         aria-label={t("promoBar.dismiss")}
         size="small"
         onClick={onDismiss}
+        data-testid="promo-bar-dismiss"
         sx={{
-          color: 'rgba(255,255,255,0.85)',
+          color: 'rgba(15,118,110,0.7)',
           p: 0.4,
           position: { xs: 'static', md: 'absolute' },
           right: { md: 12 },
-          '&:hover': { color: '#fff', bgcolor: 'rgba(255,255,255,0.12)' },
+          '&:hover': { color: '#0F766E', bgcolor: 'rgba(15,118,110,0.10)' },
         }}
       >
         <Close sx={{ fontSize: 16 }} />

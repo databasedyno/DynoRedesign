@@ -7,7 +7,7 @@ import ArrowOutwardRoundedIcon from "@mui/icons-material/ArrowOutwardRounded";
 import SellRoundedIcon from "@mui/icons-material/SellRounded";
 import TerminalRoundedIcon from "@mui/icons-material/TerminalRounded";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "../v3/theme.v3";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { BRAND_ACCENT } from "../v3/theme.v3";
 import { PrimaryBtn, SecondaryBtn, goStart } from "../v5/shared";
 import { Stagger, StaggerItem } from "../motion/Stagger";
 

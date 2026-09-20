@@ -145,7 +145,7 @@ const STEP_LABEL: Record<(typeof STEPS)[number], [string, string]> = {
   waiting: ["Waiting for your transfer", "Send the exact amount to the address below."],
   pending: ["Seen on the blockchain", "Waiting for network confirmations."],
   confirmed: ["Confirmed — escrow funded", "The seller has been notified."],
-  settled: ["Secured in custody", "Held as USDT by Dynopay until you release it."],
+  settled: ["Secured in custody", "Held as USDT in escrow until you release it."],
 };
 
 function PaymentView({ deal, payment, coin, now, live, busy, copied, onCopy, onSwitch, onSimulate }: {
@@ -213,12 +213,12 @@ function PaymentView({ deal, payment, coin, now, live, busy, copied, onCopy, onS
       </Stack>
 
       <Typography sx={{ fontSize: 12, color: "#6B7280", mt: 1.6 }}>
-        Powered by Dynopay. Your payment lands in Dynopay custody{coin?.stable ? "" : ", is converted to USDT"} and stays locked until you release it or the inspection timer runs out. Created {relTime(payment.created_at, now)}.
+        Your payment lands in secure SafeDeal escrow custody{coin?.stable ? "" : ", is converted to USDT"} and stays locked until you release it or the inspection timer runs out. Created {relTime(payment.created_at, now)}.
       </Typography>
 
       {!live && (
         <Box sx={{ mt: 1.6, p: 1.4, borderRadius: 2, border: `1px dashed ${SD_NOTE_BORDER}`, backgroundColor: SD_NOTE_BG }} data-testid="sd-fund-simulate-box">
-          <Typography sx={{ fontSize: 12.5, color: SD_NOTE_FG, mb: 0.8 }}><b>Preview environment.</b> The address above is real (issued by Dynopay) but live settlement is off — simulate the transfer to move on.</Typography>
+          <Typography sx={{ fontSize: 12.5, color: SD_NOTE_FG, mb: 0.8 }}><b>Preview environment.</b> The address above is real but live settlement is off — simulate the transfer to move on.</Typography>
           <Button size="small" variant="contained" disabled={!!busy} onClick={onSimulate} data-testid="sd-act-fund" sx={primaryBtn} startIcon={<Icon icon="mdi:flash-outline" />}>Simulate payment received</Button>
         </Box>
       )}

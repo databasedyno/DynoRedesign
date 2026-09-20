@@ -141,3 +141,14 @@ Preview URL (THIS pod): https://memory-safe-12.preview.emergentagent.com  (sourc
 - Admin (super-admin): /admin/login (UI) or POST /api/admin/login → data.accessToken; localStorage key `admin_token`. Admin → Escrow tabs: escrow-admin-tab-{disputes,all,withdrawals,safedeal}. Withdrawals > $1000 → pending_approval → approve/reject there.
 - Owner view of brand 262: inject owner token (TOTP recipe above) + localStorage last_company_id=262 → /customers shows brand-escrow-totals; open a customer → customer-escrow-statement.
 - Rendered SafeDeal email previews: `cd /app/backend && EMAIL_DUMP_DIR=/tmp/safedeal_emails node_modules/.bin/ts-node --transpile-only scripts/render_safedeal_emails.ts`
+
+## SafeDeal auto-withdraw = deal-proceeds-only + brand scrub (2026-06 fork) — VERIFIED via 2-party curl + wallet screenshots
+## - No new passwords. SafeDeal sign-in = any email; preview_code from POST /api/safedeal/auth/send-code. Header x-safedeal-token=<jwt from verify-code>.
+## - CSRF-exempt prefixes now include /api/safedeal/{auth/,fee-preview,deals,wallet,profile} → the whole auto-withdraw flow is curl-testable.
+## - Auto-withdraw test recipe (proves top-ups are NEVER swept, only deal proceeds):
+##   1) seller: send-code/verify-code -> token; 2) POST /wallet/topup {amount:50,coin:USDT-TRC20} -> /wallet/topup/<id>/simulate;
+##   3) POST /auth/step-up -> preview_code; POST /wallet/addresses {payout_key:'USDT-TRON',address:'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',code};
+##   4) POST /profile {auto_withdraw:true,auto_withdraw_address_id:<id>}; 5) GET /wallet -> expect available 50, parked 0, 0 withdrawals (top-up NOT swept).
+##   Then run a full deal (seller creates my_role:seller, buyer accepts+fund(sim)+seller deliver+buyer release) -> GET /wallet expect parked = deal-proceeds ONLY (e.g. 60), available = 50+60.
+## - Wallet UI: data-testid sd-wallet-held (Held in escrow), sd-parked-payout (banner shows deal-proceeds only), sd-deposit-reserved.
+## - Brand scrub: ONLY remaining "Dynopay" allowed = the footer/PDF/email legal-entity line "Operated by Dynopay Payments Ltd." (EMAIL_LEGAL_NAME). No "Binance" anywhere user-facing. No "held by Dynopay/Binance".

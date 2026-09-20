@@ -162,12 +162,20 @@ async function dispatchWithdrawal(w: WithdrawalRow): Promise<WithdrawalRow> {
   let simulated = true;
   if (isLiveSettlementEnabled() && opt) {
     const { submitWithdrawal } = await import("../binanceService");
-    // Binance deducts its network fee FROM the submitted amount. Manual: submit the gross (user receives net).
+    // The exchange deducts its network fee FROM the submitted amount. Manual: submit the gross (user receives net).
     // Settlement payout: the fee was reserved in the deal quote, so submit net + fee (recipient receives the full net).
     const submitAmount = w.source === "settlement" ? round2(Number(w.net_usd) + withdrawFeeUsdFor(w.payout_key)) : Number(w.amount_usd);
-    const r = await submitWithdrawal({ coin: opt.coin, address: w.address, amount: submitAmount, network: opt.chain, withdrawOrderId: `sd-wd-${w.withdrawal_id}` });
-    txHash = `BINANCE-${r.id}`;
-    simulated = false;
+    apiLogger.info(`[SafeDeal] withdrawal ${w.withdrawal_id} dispatching LIVE (${w.source}): ${opt.coin} ${submitAmount} on ${opt.chain} → ${w.address}`);
+    try {
+      const r = await submitWithdrawal({ coin: opt.coin, address: w.address, amount: submitAmount, network: opt.chain, withdrawOrderId: `sd-wd-${w.withdrawal_id}` });
+      txHash = `BINANCE-${r.id}`;
+      simulated = false;
+    } catch (err) {
+      apiLogger.error(`[SafeDeal] withdrawal ${w.withdrawal_id} LIVE dispatch FAILED: ${(err as Error).message}`);
+      throw err;
+    }
+  } else if (w.source === "settlement" || w.source === "auto") {
+    apiLogger.warn(`[SafeDeal] withdrawal ${w.withdrawal_id} (${w.source}) SIMULATED — live settlement is OFF (ESCROW_LIVE_SETTLEMENT). No real payout was sent.`);
   }
   const rows = await sequelize.query<WithdrawalRow>(
     `UPDATE tbl_customer_withdrawal SET status = 'sent', tx_hash = :tx, simulated = :sim, sent_at = NOW(), updated_at = NOW()
@@ -368,7 +376,10 @@ export async function settlementPayout(customerId: number, amount: number, deal:
   const customer = await customerById(customerId);
   if (!customer) return { mode: "parked", reason: "error", detail: "customer not found" };
   const dest = await resolvePayoutDestination(customerId, pref);
-  if (!dest) return { mode: "kept" };
+  if (!dest) {
+    apiLogger.info(`[SafeDeal] settlement for customer ${customerId} kept in balance — no deal payout address and auto-withdraw is off.`);
+    return { mode: "kept" };
+  }
   try {
     const w = await requestWithdrawal(customer, { address_id: dest.addr.address_id, amount, source: "settlement", escrow_id: deal.escrow_id, fee_covered: true, skip_cooling: dest.skipCooling, deal_title: deal.title });
     return { mode: "sent", withdrawal: w };
@@ -432,6 +443,35 @@ export async function getDepositReserve(customerId: number): Promise<number> {
 }
 
 /**
+ * Deal proceeds still sitting in Available and eligible for auto-withdraw — derived
+ * straight from the ledger, so it can NEVER include wallet top-ups (top-ups carry no
+ * escrow_id and stay spendable until manually withdrawn). This is the single source of
+ * truth for "money from a closed deal waiting to be paid out"; stale/legacy values that
+ * once bundled a top-up self-heal against it. = Σ(deal-settlement credits to Available)
+ * − Σ(payouts/withdrawals already sent), clamped to the current available balance.
+ */
+export async function payoutEligibleUsd(customerId: number): Promise<number> {
+  const rows = await sequelize.query<{ proceeds: string | null; withdrawn: string | null }>(
+    `SELECT
+        COALESCE(SUM(CASE WHEN transaction_type = 'CREDIT'
+                           AND (meta->>'bucket' IS NULL OR meta->>'bucket' = 'available')
+                           AND meta->>'escrow_id' IS NOT NULL
+                          THEN paid_amount ELSE 0 END), 0) AS proceeds,
+        COALESCE(SUM(CASE WHEN transaction_type = 'DEBIT'
+                           AND meta->>'kind' IN ('payout', 'withdrawal')
+                          THEN paid_amount ELSE 0 END), 0) AS withdrawn
+       FROM tbl_customer_transaction
+      WHERE customer_id = :id AND payment_mode IN ('ESCROW', 'WITHDRAWAL', 'ADJUSTMENT', 'TOPUP', 'MERCHANT')`,
+    { replacements: { id: customerId }, type: QueryTypes.SELECT }
+  );
+  const proceeds = round2(Number(rows[0]?.proceeds || 0));
+  const withdrawn = round2(Number(rows[0]?.withdrawn || 0));
+  const net = Math.max(0, round2(proceeds - withdrawn));
+  const bal = await getBalances(customerId);
+  return round2(Math.min(net, bal.available));
+}
+
+/**
  * Switch-on sweep: when auto-withdraw is turned ON, push the CURRENT available balance
  * out to the auto-withdraw address too (not only future settlements / parked funds).
  * Behaves like a normal withdrawal — the network fee applies and amounts over the
@@ -441,9 +481,9 @@ export async function getDepositReserve(customerId: number): Promise<number> {
 export async function sweepBalanceToAutoWithdraw(customerId: number): Promise<{ mode: "sent" | "parked" | "skipped"; amount: number; withdrawal?: WithdrawalRow }> {
   const dest = await resolvePayoutDestination(customerId, null); // returns the auto-withdraw address only when auto-withdraw is ON
   if (!dest) return { mode: "skipped", amount: 0 };
-  const bal = await getBalances(customerId);
-  const reserved = await getDepositReserve(customerId); // deposits are for funding deals — never auto-swept
-  const amount = round2(Math.max(0, bal.available - reserved));
+  // Only money that ORIGINATED from a closed deal is eligible for auto-withdraw — wallet
+  // top-ups stay spendable in the balance and are NEVER swept out (derived from the ledger).
+  const amount = await payoutEligibleUsd(customerId);
   if (amount <= 0) return { mode: "skipped", amount: 0 };
   try {
     assertAddressUsable(dest.addr);
@@ -484,8 +524,9 @@ export async function releaseParkedPayouts(customerId?: number): Promise<number>
       continue;
     }
     try { assertAddressUsable(dest.addr); } catch { continue; }
-    const bal = await getBalances(r.customer_id);
-    const amount = Math.min(round2(Number(r.parked_payout_usd)), round2(bal.available));
+    // Never release more than the actual deal proceeds still in the wallet — a stale parked
+    // figure (e.g. one that once bundled a top-up) can't drag spendable balance out.
+    const amount = Math.min(round2(Number(r.parked_payout_usd)), await payoutEligibleUsd(r.customer_id));
     if (amount <= 0) {
       await clearParked(r.customer_id);
       continue;

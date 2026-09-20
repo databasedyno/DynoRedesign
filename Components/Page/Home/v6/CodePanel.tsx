@@ -81,7 +81,7 @@ const CodePanel: React.FC = () => {
       </StaggerItem>
       <StaggerItem i={1} y={20}>
         <Box sx={{ ...panel, mt: 1.5, border: "1px solid rgba(129,140,248,0.28)" }}>
-          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", px: 2, py: 1, borderBottom: "1px solid rgba(255,255,255,0.08)", background: "rgba(99,102,241,0.08)" }}>
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", px: 2, py: 1, borderBottom: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,208,132,0.08)" }}>
             <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase", color: "#A5B4FC", fontWeight: 700 }}>{t("v5.dev.response")}</Typography>
             <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, color: "rgba(255,255,255,0.45)" }}>~300 ms</Typography>
           </Box>

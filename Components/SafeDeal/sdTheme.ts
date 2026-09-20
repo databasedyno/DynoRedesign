@@ -95,4 +95,4 @@ export const sdCard = {
  * Canonical positioning line. SafeDeal owns escrow, custody, disputes and
  * payouts; Dynopay is named ONLY as the payment processor.
  */
-export const POWERED_BY_LINE = "Payments processed by Dynopay";
+export const POWERED_BY_LINE = "Secured by SafeDeal escrow";

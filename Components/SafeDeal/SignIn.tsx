@@ -202,7 +202,7 @@ export default function SignIn() {
         )}
       </Box>
       <Typography sx={{ fontSize: 12, color: "#6B7280", textAlign: "center", mt: 2 }}>
-        By signing in you agree to the SafeDeal <a href={href("/terms")} style={{ color: "inherit", fontWeight: 700 }} data-testid="sd-signin-terms-link">terms</a>. Payments, custody and payouts are provided by Dynopay.
+        By signing in you agree to the SafeDeal <a href={href("/terms")} style={{ color: "inherit", fontWeight: 700 }} data-testid="sd-signin-terms-link">terms</a>. Payments, custody and payouts are handled securely by SafeDeal.
       </Typography>
     </Container>
   );

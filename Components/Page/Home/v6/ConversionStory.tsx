@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "../v3/theme.v3";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { BRAND_ACCENT } from "../v3/theme.v3";
 import { PrimaryBtn, Section, SectionHead, goStart } from "../v5/shared";
 import { Stagger, StaggerItem } from "../motion/Stagger";
 import FlowVisual from "./FlowVisual";

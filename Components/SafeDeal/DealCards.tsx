@@ -82,7 +82,7 @@ export function CounterpartyCard({ deal, isBuyer }: { deal: SdDeal; isBuyer: boo
         <Stat label="Member since" value={since ? since.toLocaleDateString(undefined, { month: "short", year: "numeric" }) : "—"} testid="sd-counterparty-since" />
       </Stack>
       {isNew && <Chip size="small" label="New to SafeDeal" sx={{ mt: 1.2, fontWeight: 700, fontSize: 11, backgroundColor: "#F3F4F6", color: "#374151" }} data-testid="sd-counterparty-new" />}
-      <Typography sx={{ fontSize: 11.5, color: "#9CA3AF", mt: 1 }}>Counts come from completed SafeDeal escrows. Money is only ever held by Dynopay, never by the other party.</Typography>
+      <Typography sx={{ fontSize: 11.5, color: "#9CA3AF", mt: 1 }}>Counts come from completed SafeDeal escrows. Money is only ever held by SafeDeal in escrow, never by the other party.</Typography>
     </Box>
   );
 }

@@ -59,7 +59,7 @@ export function faqItems(cfg: SdConfig | null, helpHref: string) {
   const feeMin = cfg?.fee_min_usd ?? 10;
   const hours = cfg?.dispute_auto_escalate_hours ?? 72;
   return [
-    { q: "Who holds my money?", a: "SafeDeal does, in USDT (a US-dollar stablecoin), in escrow. Payments are processed by Dynopay, but the funds are held by SafeDeal — they never sit with the other party or a third-party marketplace." },
+    { q: "Who holds my money?", a: "SafeDeal does, in USDT (a US-dollar stablecoin), in escrow. The funds are held securely by SafeDeal — they never sit with the other party or a third-party marketplace." },
     { q: "What if the seller disappears after I pay?", a: "Nothing releases without your action or the end of the inspection period — and the inspection period only starts once the seller marks the deal delivered. If they never deliver, open a dispute from the deal page; an unanswered dispute escalates to the SafeDeal team automatically." },
     { q: "What if I get nothing, or not what was agreed?", a: "Raise an issue during the inspection period. You propose an outcome (refund, partial refund or release), the seller responds, and most cases settle between the two of you. If you can't agree, the SafeDeal team decides based on the terms and the evidence in the deal." },
     { q: "How do I get paid out?", a: "Set a payout address (USDT or USDC on Tron, Ethereum or Polygon) on the deal and the money is sent there automatically the moment the buyer releases — network fee covered by the deal. No address yet? It waits in your SafeDeal balance and goes out as soon as you add one." },

@@ -2,7 +2,7 @@ import React from "react";
 import { Box, Button, ButtonProps, Typography } from "@mui/material";
 import { FONT_BODY, useAurora, type AuroraTokens } from "../v3/theme.v3";
 import { Eyebrow, HeadlineL } from "../v3/styled.v3";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { BRAND_ACCENT } from "../v3/theme.v3";
 import { Stagger, StaggerItem } from "../motion/Stagger";
 
 /** One section grammar for the whole landing: eyebrow → h2 → one body line, left-aligned. Cascades in on scroll. */
@@ -47,9 +47,9 @@ export const PrimaryBtn: React.FC<ButtonProps & { small?: boolean }> = ({ small,
       fontSize: small ? 14.5 : 16,
       color: "#fff",
       background: BRAND_ACCENT,
-      boxShadow: "0 12px 30px -12px rgba(79,70,229,0.6)",
+      boxShadow: "0 12px 30px -12px rgba(15,118,110,0.5)",
       transition: "background-color 180ms ease, transform 180ms ease, box-shadow 180ms ease",
-      "&:hover": { background: "#4338CA", transform: "translateY(-1px)", boxShadow: "0 16px 34px -12px rgba(79,70,229,0.7)" },
+      "&:hover": { background: "#0D5C56", transform: "translateY(-1px)", boxShadow: "0 16px 34px -12px rgba(15,118,110,0.6)" },
       "&:active": { transform: "translateY(0) scale(0.99)" },
       ...sx,
     }}

@@ -18,7 +18,7 @@ export default function RequestChangesDialog({ open, deal, busy, onClose, onSubm
       <DialogTitle sx={{ fontWeight: 800 }}>Ask the seller for changes</DialogTitle>
       <DialogContent data-testid="sd-changes-dialog">
         <Typography sx={{ fontSize: 13.5, color: "#4B5563", mb: 1.5 }}>
-          The deal goes back to <b>Funded</b> and the inspection timer stops until the seller delivers again. Your money stays held by Dynopay. Round <b>{round + 1} of {max}</b>.
+          The deal goes back to <b>Funded</b> and the inspection timer stops until the seller delivers again. Your money stays held securely in escrow. Round <b>{round + 1} of {max}</b>.
         </Typography>
         {last && <Alert severity="info" sx={{ mb: 1.5, py: 0.5 }} data-testid="sd-changes-last-round">This is your last round of changes — after this you&apos;ll need to release or open a dispute.</Alert>}
         <TextField

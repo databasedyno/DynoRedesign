@@ -2,7 +2,7 @@ import React, { memo } from "react";
 import { Box } from "@mui/material";
 import { FONT_BODY, FONT_TECH, useAurora } from "../v3/theme.v3";
 import { Body, Eyebrow, HeadlineXL } from "../v3/styled.v3";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { BRAND_ACCENT } from "../v3/theme.v3";
 import { Stagger, StaggerItem } from "../motion/Stagger";
 
 interface Props {

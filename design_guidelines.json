@@ -1,280 +1,186 @@
 {
-  "project_name": "Dynopay Merchant Command Centre Redesign",
-  "version": "2026.09.15",
-  "context": "Merchant Dashboard redesign for Dynopay non-custodial crypto payment gateway. Fixed, opinionated layout following the command-centre principle: State → Attention → Money → Trend → Activity.",
-  "visual_direction": {
-    "theme_mode": "Quiet Money (Dark mode first-class)",
-    "accent_color_light": "#4F46E5",
-    "accent_color_dark": "#818CF8",
-    "core_principles": [
-      "Large tabular numerals using monospace font for all financial metrics.",
-      "One accent color (#4F46E5 light / #818CF8 dark) strictly reserved for interactive actions and primary CTAs.",
-      "Semantic colors strictly reserved for payment state machine states (green paid, amber confirming/underpaid, red expired/failed, grey refunded).",
-      "Depth created through subtle surface layering and elevation rather than border overload.",
-      "Fixed opinionated layout without user customization."
-    ]
+  "theme": "Light",
+  "brand_identity": {
+    "name": "Dynopay (Tatum.io-Inspired Light Redesign)",
+    "archetype": "The Performance Pro & High-Contrast Swiss Tech",
+    "dominant_color_family": "Mint / Teal-Green",
+    "background_philosophy": "Clean pure white (#FFFFFF), ultra-airy whitespace, light slate surfaces (#F8FAFC), zero purple/indigo washes",
+    "safedeal_exemption": "SafeDeal remains gold/black; this Tatum mint/teal-green reskin is strictly for the Dynopay marketing homepage landing page"
   },
-  "color_system": {
-    "light": {
-      "canvas": "#F8FAFC",
-      "surface": "#FFFFFF",
-      "surface_subtle": "#F1F5F9",
-      "hairline_border": "#E2E8F0",
-      "text_primary": "#0F172A",
-      "text_secondary": "#64748B",
-      "text_muted": "#94A3B8",
-      "brand_accent": "#4F46E5",
-      "brand_accent_hover": "#4338CA",
-      "brand_accent_subtle": "rgba(79, 70, 229, 0.08)"
+  "colors": {
+    "primary_mint": "#00D084",
+    "primary_emerald": "#05B875",
+    "deep_teal": "#0F766E",
+    "dark_teal_active": "#0D5C56",
+    "light_mint_subtle": "#E6F4EA",
+    "light_mint_border": "#D1FAE5",
+    "canvas_white": "#FFFFFF",
+    "surface_slate_light": "#F8FAFC",
+    "surface_card": "#FFFFFF",
+    "border_neutral": "#E2E8F0",
+    "border_hover_mint": "#10B981",
+    "text_ink_primary": "#0A0F1D",
+    "text_slate_secondary": "#334155",
+    "text_muted": "#64748B",
+    "success": "#10B981",
+    "warning": "#F59E0B",
+    "error": "#EF4444",
+    "css_variables": {
+      "--bg-canvas": "#FFFFFF",
+      "--bg-surface": "#F8FAFC",
+      "--brand-mint": "#00D084",
+      "--brand-emerald": "#05B875",
+      "--brand-teal-deep": "#0F766E",
+      "--text-primary": "#0A0F1D",
+      "--text-secondary": "#334155",
+      "--border-subtle": "#E2E8F0",
+      "--border-mint": "#D1FAE5",
+      "--glow-mint": "rgba(0, 208, 132, 0.12)"
     },
-    "dark": {
-      "canvas": "#0B0F19",
-      "surface": "#111827",
-      "surface_subtle": "#1F2937",
-      "hairline_border": "rgba(255, 255, 255, 0.08)",
-      "text_primary": "#F8FAFC",
-      "text_secondary": "#9CA3AF",
-      "text_muted": "#6B7280",
-      "brand_accent": "#818CF8",
-      "brand_accent_hover": "#A5B4FC",
-      "brand_accent_subtle": "rgba(129, 140, 248, 0.12)"
-    },
-    "payment_states": {
-      "paid": {
-        "text": "#10B981",
-        "bg_light": "#ECFDF5",
-        "bg_dark": "rgba(16, 185, 129, 0.12)",
-        "label": "Paid"
-      },
-      "confirming": {
-        "text": "#F59E0B",
-        "bg_light": "#FFFBEB",
-        "bg_dark": "rgba(245, 158, 11, 0.12)",
-        "label": "Confirming"
-      },
-      "underpaid": {
-        "text": "#F59E0B",
-        "bg_light": "#FFFBEB",
-        "bg_dark": "rgba(245, 158, 11, 0.12)",
-        "label": "Underpaid"
-      },
-      "overpaid": {
-        "text": "#10B981",
-        "bg_light": "#ECFDF5",
-        "bg_dark": "rgba(16, 185, 129, 0.12)",
-        "label": "Overpaid"
-      },
-      "expired": {
-        "text": "#EF4444",
-        "bg_light": "#FEF2F2",
-        "bg_dark": "rgba(239, 68, 68, 0.12)",
-        "label": "Expired"
-      },
-      "failed": {
-        "text": "#EF4444",
-        "bg_light": "#FEF2F2",
-        "bg_dark": "rgba(239, 68, 68, 0.12)",
-        "label": "Failed"
-      },
-      "refunded": {
-        "text": "#6B7280",
-        "bg_light": "#F3F4F6",
-        "bg_dark": "rgba(107, 114, 128, 0.12)",
-        "label": "Refunded"
-      }
+    "gradient_recipes": {
+      "headline_gradient": "linear-gradient(135deg, #059669 0%, #00D084 50%, #0D9488 100%)",
+      "announcement_bar": "linear-gradient(90deg, #E6F4EA 0%, #D1FAE5 50%, #E6F4EA 100%)",
+      "hero_radial_glow": "radial-gradient(circle at 50% 30%, rgba(0,208,132,0.14) 0%, rgba(255,255,255,0) 70%)",
+      "card_accent_glow": "linear-gradient(180deg, rgba(209,250,229,0.5) 0%, rgba(255,255,255,0) 100%)"
     }
   },
   "typography": {
-    "font_family_body": "Inter, sans-serif",
-    "font_family_heading": "Inter, sans-serif",
-    "font_family_mono": "'IBMPlexMono', 'SFMono-Regular', Consolas, monospace",
+    "font_family_heading": "Poppins, sans-serif",
+    "font_family_body": "Inter, DM Sans, sans-serif",
+    "font_family_mono": "JetBrains Mono, Source Code Pro, monospace",
     "scale": {
-      "h1_title": {
-        "size": "24px",
-        "size_lg": "28px",
-        "weight": 700,
-        "line_height": 1.2,
-        "letter_spacing": "-0.02em"
-      },
-      "money_numeral_xl": {
-        "size": "28px",
-        "size_lg": "32px",
-        "weight": 700,
-        "font_family": "mono",
-        "letter_spacing": "-0.02em"
-      },
-      "money_numeral_lg": {
-        "size": "20px",
-        "size_lg": "24px",
-        "weight": 600,
-        "font_family": "mono"
-      },
-      "money_numeral_md": {
-        "size": "15px",
-        "weight": 600,
-        "font_family": "mono"
-      },
-      "section_label": {
-        "size": "11px",
-        "weight": 600,
-        "transform": "uppercase",
-        "letter_spacing": "0.05em",
-        "color": "secondary"
-      },
-      "body_text": {
-        "size": "14px",
-        "weight": 400,
-        "line_height": 1.5
-      },
-      "caption_text": {
-        "size": "12px",
-        "weight": 400,
-        "line_height": 1.4,
-        "color": "secondary"
-      }
+      "hero_h1": "text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-[#0A0F1D]",
+      "section_h2": "text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-[#0A0F1D]",
+      "subsection_h3": "text-xl sm:text-2xl font-semibold text-[#0A0F1D]",
+      "card_h4": "text-lg sm:text-xl font-semibold text-[#0A0F1D]",
+      "body_lg": "text-base sm:text-lg text-[#334155] leading-relaxed",
+      "body": "text-sm sm:text-base text-[#334155] leading-relaxed",
+      "caption": "text-xs sm:text-sm font-medium text-[#64748B]"
     }
   },
-  "zones": {
-    "zone_1_header": {
-      "name": "Header & Controls",
-      "anatomy": [
-        "Greeting + Brand Switcher (Page H1)",
-        "NEW 'Live pulse' chip: shows gateway state ('3 payments confirming · last paid 4 min ago' or 'Quiet — last payment Tue 14:02'). Turns amber/red only when gateway is degraded and expands to detail service.",
-        "Global range control pills: Today · 7d · 30d · 90d · 12m · Custom"
-      ],
-      "pulse_chip_states": {
-        "healthy": "Subtle green indicator dot, muted text background, quiet presence",
-        "confirming": "Amber pulse dot + live count of confirming payments",
-        "degraded": "Amber/Red expanding banner listing affected service (e.g. TRON RPC delayed)"
-      },
-      "data_testids": [
-        "dashboard-header-h1",
-        "dashboard-live-pulse-chip",
-        "dashboard-range-control"
-      ]
+  "layout_and_spacing": {
+    "max_width": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
+    "section_padding": "py-16 sm:py-24 lg:py-32",
+    "card_padding": "p-6 sm:p-8",
+    "border_radius": {
+      "button_primary": "rounded-[3px]",
+      "card": "rounded-xl",
+      "badge": "rounded-full",
+      "code_panel": "rounded-lg"
     },
-    "zone_2_attention_feed": {
-      "name": "Needs Attention Task Feed",
-      "behavior": "Renders ONLY when non-empty. Ordered list, max 5 visible + 'Show all' toggle button.",
-      "row_anatomy": "Icon · One plain sentence · One action button",
-      "priority_hierarchy": [
-        "1. Security & Compliance blockers (KYC due, 2FA missing, wallet changes frozen, password missing)",
-        "2. Money exceptions (underpaid awaiting decision, overpaid, expired checkouts today, payments confirming >60 min)",
-        "3. Configuration gaps (accepted coin without payout wallet, failing webhooks N times/24h, API key >12m, product out of stock)",
-        "4. At most one growth nudge (claim handle, referral reward, fee-free credit)"
-      ],
-      "severity_design": "Subtle left accent indicator or muted icon color; avoids alarm-color overload across the row.",
-      "data_testids": [
-        "attention-feed-container",
-        "attention-feed-item",
-        "attention-feed-action-btn",
-        "attention-feed-show-all-btn"
-      ]
-    },
-    "zone_3_money_now": {
-      "name": "Money Now Tiles",
-      "layout": "3 tiles in one horizontal row (desktop) / horizontally swipeable row (phone)",
-      "tiles": [
-        {
-          "id": "settled",
-          "title": "Settled in range",
-          "content": "Gross amount → Net after fees (large tabular mono), delta % vs previous period, payment count"
-        },
-        {
-          "id": "in_flight",
-          "title": "In flight",
-          "content": "Amount detected on-chain awaiting confirmations + count. Tap → Transactions filtered confirming",
-          "action": "Tap navigates to /transactions?status=confirming"
-        },
-        {
-          "id": "forwarded",
-          "title": "Forwarded to your wallets",
-          "content": "Amount forwarded in range split by asset as mini stacked bars, last forward timestamp, auto-convert note ('Converted to USDT: $x'). Tap → Payouts",
-          "action": "Tap navigates to /payouts"
-        }
-      ],
-      "data_testids": [
-        "money-tile-settled",
-        "money-tile-in-flight",
-        "money-tile-forwarded"
-      ]
-    },
-    "zone_4_trend": {
-      "name": "Trend & Checkout Health",
-      "layout": "One wide card container",
-      "components": [
-        "Volume chart with toggle buttons: Volume / Payments / Avg ticket",
-        "Asset mix legend toggle embedded inside chart header card",
-        "Beneath chart: Checkout health metric line (Completion rate created → paid, Median confirmation time, Underpaid + expired rate, each with delta %)"
-      ],
-      "phone_behavior": "Trend chart defaults to 7d timeframe on mobile screens",
-      "data_testids": [
-        "trend-chart-card",
-        "trend-toggle-volume",
-        "trend-toggle-payments",
-        "trend-toggle-avg-ticket",
-        "checkout-health-line"
-      ]
-    },
-    "zone_5_activity": {
-      "name": "Activity Grid",
-      "layout": "Two equal columns on desktop / vertically stacked on phone",
-      "columns": [
-        {
-          "id": "recent_payments",
-          "title": "Recent Payments",
-          "content": "8 rows desktop / 5 rows mobile (+ 'See all' link). Row anatomy: Amount (mono tabular), Asset icon, Status chip (confirming/paid/underpaid/overpaid/expired/refunded), Customer, Time, Tx link",
-          "data_testid": "recent-payments-list"
-        },
-        {
-          "id": "top_links_products",
-          "title": "Top Links & Products in Range",
-          "content": "List of top items. Row anatomy: Item name, Paid count, Volume (mono tabular)",
-          "data_testid": "top-products-list"
-        }
-      ]
-    },
-    "zone_6_plan_growth": {
-      "name": "Plan & Growth",
-      "layout": "One collapsible row at the very bottom, collapsed by default",
-      "collapsed_content": "'Starter tier · 1.5% · $x of $10k to Growth (1%)' with expand arrow",
-      "expanded_content": "Detailed breakdown of current fee tier, progress bar toward next tier, and upgrade details",
-      "data_testids": [
-        "plan-growth-row",
-        "plan-growth-toggle-btn"
-      ]
+    "bento_grid": {
+      "base": "grid grid-cols-1 md:grid-cols-3 lg:grid-cols-12 gap-6 lg:gap-8",
+      "span_hero": "lg:col-span-8",
+      "span_side": "lg:col-span-4"
     }
   },
-  "new_merchant_state": {
-    "trigger": "Active until the merchant receives their first crypto payment.",
-    "zone_2_override": "Zone 2 transforms into the 'Getting-started' onboarding checklist.",
-    "zones_3_to_5_override": "Zones 3, 4, and 5 render as a faded preview overlay captioned 'fills in after your first payment'.",
-    "data_testids": [
-      "new-merchant-getting-started",
-      "new-merchant-faded-preview"
+  "buttons_and_controls": {
+    "primary_cta": {
+      "bg": "bg-[#00D084] hover:bg-[#05B875]",
+      "text": "text-white font-semibold",
+      "shape": "rounded-[3px] px-6 py-3 text-base shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5",
+      "data_testid": "primary-cta-btn"
+    },
+    "secondary_cta": {
+      "bg": "bg-transparent hover:bg-slate-100 border border-[#E2E8F0]",
+      "text": "text-[#0A0F1D] font-semibold",
+      "shape": "rounded-[3px] px-6 py-3 text-base transition-all duration-200",
+      "data_testid": "secondary-cta-btn"
+    },
+    "text_link_arrow": {
+      "style": "inline-flex items-center gap-1.5 text-sm font-semibold text-[#0F766E] hover:text-[#0D5C56] transition-colors"
+    }
+  },
+  "homepage_section_structure": [
+    {
+      "step": 1,
+      "name": "Announcement Bar & Sticky Header",
+      "description": "Thin mint-green gradient promo bar above white sticky header with backdrop blur, logo left, centered nav items (Products, Solutions, Developers, Resources, Pricing), right side search/locale/theme + Login + solid mint 'Start free' CTA button."
+    },
+    {
+      "step": 2,
+      "name": "Centered Hero + Sandbox Checkout + Live Settlement Strip + Trust Badges",
+      "description": "Big centered Poppins headline with mint gradient accent, two primary CTAs ('Start now →', 'Try live checkout'), live interactive coin checkout card with real prices and instant coin selection, live settlement feed ticker, and trust badges row."
+    },
+    {
+      "step": 3,
+      "name": "Partner & Customer Logo Wall",
+      "description": "Clean white background row featuring monochrome and mint-accented partner logos, showing ecosystem integration and volume trust."
+    },
+    {
+      "step": 4,
+      "name": "'One Platform - All the Tools' Products Bento Grid",
+      "description": "7 product surfaces rendered as sleek vignette cards (Payment Links, Hosted Checkout, Storefront, Donations, API, Subscriptions, Escrow)."
+    },
+    {
+      "step": 5,
+      "name": "Interactive Code & RPC Demo Panel + Conversion Story",
+      "description": "Dark code editor panel with language tabs (cURL, Node.js, Python, Go) showing real payment link API creation alongside the 3-step conversion flow (BTC -> USDC -> Wallet)."
+    },
+    {
+      "step": 6,
+      "name": "Supported Blockchains & Coins Grid",
+      "description": "Interactive grid displaying 15 supported cryptocurrencies across 9 chains with real-time network confirmation ETAs and settlement speed metrics."
+    },
+    {
+      "step": 7,
+      "name": "Dashboard Showcase & Live Stats Band",
+      "description": "High-fidelity light-themed dashboard preview showcasing real-time merchant analytics, revenue charts, and a 4-metric stats band."
+    },
+    {
+      "step": 8,
+      "name": "Proof, Security Controls & Pricing Teaser",
+      "description": "On-chain settlements verifier, grid of 9 security controls (non-custodial, key isolation, 2FA, rate limits, webhooks), and volume tier pricing fee calculator."
+    },
+    {
+      "step": 9,
+      "name": "Resources & Published Insights Carousel",
+      "description": "Carousel of published blog posts, developer guides, and integration docs with mint category tags."
+    },
+    {
+      "step": 10,
+      "name": "Contact / Get-in-Touch + FAQ Accordion + Final CTA",
+      "description": "Accordion FAQ with structured JSON-LD schema, contact support trigger, and final dual-card CTA ('See pricing' / 'Start building')."
+    },
+    {
+      "step": 11,
+      "name": "Footer",
+      "description": "Comprehensive footer with high-contrast type, language picker, legal links, status indicator, and social links."
+    }
+  ],
+  "preserved_functionalities": [
+    "Sticky top landing nav + mobile drawer + sticky mobile CTA",
+    "Hero live sandbox checkout widget with real crypto prices and QR code generation",
+    "Live settlement feed ticker with real-time on-chain confirmation updates",
+    "Products bento (7 product surfaces as vignette cards)",
+    "Conversion story animation (Buyer pays crypto -> Auto-convert to USDC -> Straight to wallet)",
+    "Numbers band with 4 live metrics + settlement distribution by chain",
+    "Global reach section with interactive map and supported chains grid",
+    "Developers live request/response code snippet box with cURL / JS / Python / Go tabs",
+    "Pricing tier ladder and interactive volume fee calculator",
+    "Trust & Security 9-point controls grid",
+    "Published blog posts carousel and FAQ accordion with JSON-LD schema",
+    "Final Dual CTA section"
+  ],
+  "image_urls": {
+    "hero_crypto_coins": "https://images.pexels.com/photos/14832157/pexels-photo-14832157.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+    "developer_code_screen": "https://images.unsplash.com/photo-1652533625932-25d5104161a1?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2MzR8MHwxfHNlYXJjaHwyfHxjcnlwdG8lMjBwYXltZW50JTIwZGFzaGJvYXJkJTIwY29kZSUyMGRldmVsb3BlcnxlbnwwfHx8fDE3ODk5MjMyNzN8MA&ixlib=rb-4.1.0&q=85",
+    "crypto_trading_chart": "https://images.pexels.com/photos/6770774/pexels-photo-6770774.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
+  },
+  "testing_attributes": {
+    "require_data_testid": true,
+    "convention": "kebab-case",
+    "examples": [
+      "data-testid=\"homepage-hero-heading\"",
+      "data-testid=\"start-now-button\"",
+      "data-testid=\"code-tab-node\"",
+      "data-testid=\"sandbox-checkout-card\""
     ]
   },
-  "responsive_rhythm": {
-    "mobile": {
-      "breakpoint": "< 768px",
-      "money_tiles": "Horizontally swipeable scroll snap row",
-      "trend": "Defaults to 7d timeframe",
-      "activity": "Stacked single column, 5 rows max with 'See all' button"
-    },
-    "desktop": {
-      "breakpoint": ">= 768px",
-      "money_tiles": "Grid 3 columns (1 row)",
-      "activity": "2 equal columns side-by-side"
-    }
-  },
-  "motion_and_interactions": {
-    "hover_states": "Subtle surface fill change (1px lighter/darker) with 150ms ease-in-out transition.",
-    "entrance_animations": "Staggered fade-in upward slide for zones (fade in 200ms, translate-y 4px).",
-    "a11y": "Respects prefers-reduced-motion. High contrast ratios for all money text and status chips."
-  },
-  "GENERAL UI UX DESIGN GUIDELINES": {
-    "file_extension": "Use .js or .jsx file extensions for React components in this project environment.",
-    "avoid_ai_slop": "Avoid generic dark gradients and flashy card borders. Maintain crisp hairline borders #E2E8F0 / rgba(255,255,255,0.08) and flat solid surfaces.",
-    "testing_attribute_requirement": "All interactive elements (buttons, inputs, filters, links, cards) MUST include kebab-case role-based data-testid attributes."
-  }
+  "instructions_to_main_agent": [
+    "Apply this Tatum.io-inspired light theme exclusively to the Dynopay marketing homepage landing page.",
+    "Do NOT touch SafeDeal styling - SafeDeal must retain its gold/black visual identity.",
+    "Ensure all purple/indigo aurora washes are completely replaced with crisp mint-green accents and light slate background surfaces.",
+    "Preserve all existing dynamic components, SWR hooks, and interactive payment sandbox handlers in /app/Components/Page/Home/v6/*."
+  ]
 }

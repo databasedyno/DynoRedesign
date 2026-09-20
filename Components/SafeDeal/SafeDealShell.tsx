@@ -177,7 +177,7 @@ export default function SafeDealShell({ children, title, wide = false, dark = fa
               <Stack direction="row" spacing={0.8} alignItems="center" sx={{ mt: 1.2 }} data-testid="sd-powered-by">
                 <Icon icon="mdi:credit-card-check-outline" width={15} color={dark ? SD_GOLD : SD_GOLD_DEEP} aria-hidden />
                 <Typography sx={{ fontSize: 12.5, color: muted }}>
-                  {POWERED_BY_LINE.replace("Dynopay", "")}<b style={{ color: fg }}>Dynopay</b>
+                  {POWERED_BY_LINE}
                 </Typography>
               </Stack>
             </Box>

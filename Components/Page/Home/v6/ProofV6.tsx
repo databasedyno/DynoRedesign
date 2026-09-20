@@ -8,7 +8,7 @@ import MonitorHeartRoundedIcon from "@mui/icons-material/MonitorHeartRounded";
 import MenuBookRoundedIcon from "@mui/icons-material/MenuBookRounded";
 import TranslateRoundedIcon from "@mui/icons-material/TranslateRounded";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "../v3/theme.v3";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { BRAND_ACCENT } from "../v3/theme.v3";
 import { Section, SectionHead, cardSx } from "../v5/shared";
 import { Stagger, StaggerItem } from "../motion/Stagger";
 import { coinIcon, relTime, useOnchainProof } from "../v5/useLandingProof";

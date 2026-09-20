@@ -6,7 +6,7 @@ import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import ArrowOutwardRoundedIcon from "@mui/icons-material/ArrowOutwardRounded";
 import { blogPosts, getBlogCover } from "@/utils/blogData";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "../v3/theme.v3";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { BRAND_ACCENT } from "../v3/theme.v3";
 import { Section, SectionHead, cardSx } from "../v5/shared";
 import { Stagger, StaggerItem } from "../motion/Stagger";
 

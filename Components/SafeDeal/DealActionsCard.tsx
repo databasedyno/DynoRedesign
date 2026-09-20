@@ -74,7 +74,7 @@ export default function DealActionsCard({ deal, busy, live, now, walletHref, new
         <Box id="sd-fund" data-testid="sd-fund-section">
           <Typography sx={{ fontWeight: 800, fontSize: 16, mb: 0.5 }}>Fund the escrow — {money(b.buyerPays, deal.currency)}</Typography>
           <Typography sx={{ fontSize: 13.5, color: "#4B5563", mb: 1.8 }}>
-            {deal.price_currency && deal.price_currency !== "USD" ? `The ${deal.price_currency} price converts to USD at the live rate the moment you pay. ` : ""}Your payment is held by Dynopay as USDT until you release it (or the inspection timer runs out after delivery). Nothing reaches the seller before that.
+            {deal.price_currency && deal.price_currency !== "USD" ? `The ${deal.price_currency} price converts to USD at the live rate the moment you pay. ` : ""}Your payment is held securely in escrow as USDT until you release it (or the inspection timer runs out after delivery). Nothing reaches the seller before that.
           </Typography>
           <Box sx={{ mb: 1.8, p: 1.4, borderRadius: 2.5, border: "1px solid #E5E7EB", backgroundColor: "#F9FAFB", display: "flex", alignItems: "center", gap: 1.2, flexWrap: "wrap" }} data-testid="sd-fund-balance-box">
             <Icon icon="mdi:wallet-outline" width={22} color={SD_ACCENT} />

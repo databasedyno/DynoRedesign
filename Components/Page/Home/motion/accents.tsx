@@ -1,7 +1,6 @@
 import { FC, ReactNode } from "react";
 import { Box, BoxProps, keyframes } from "@mui/material";
-import { BRAND_ACCENT } from "@/constants/theme";
-import { SKY, VIOLET, useAurora } from "../v3/theme.v3";
+import { BRAND_ACCENT, SKY, VIOLET, useAurora } from "../v3/theme.v3";
 import { REDUCED_MQ } from "./tokens";
 
 const ring = keyframes`0%{box-shadow:0 0 0 0 var(--live-ring)}100%{box-shadow:0 0 0 9px rgba(0,0,0,0)}`;
@@ -31,7 +30,7 @@ export const LiveDot: FC<{ color?: string; size?: number; sx?: BoxProps["sx"]; "
 /** Slow-drifting aurora gradient on a statement word (Hostinger `--gradient-angle` title line). */
 export const GradientInk: FC<{ children: ReactNode }> = ({ children }) => {
   const s = useAurora();
-  const a = s.dark ? "#818CF8" : BRAND_ACCENT;
+  const a = s.dark ? "#5EEAD4" : "#00D084";
   return (
     <Box
       component="span"

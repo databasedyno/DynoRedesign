@@ -1,35 +1,35 @@
 import { useTheme } from "@mui/material";
-import { BRAND_ACCENT } from "@/constants/theme";
 
-// ─── Aurora theme tokens (2026-07 landing v3) ──────────────────────────────
-// Creator-first palette. Indigo leads, violet supports, volt marks money.
-// NOTE: Historic `CORAL` name here always resolved to indigo (#4F46E5). Renamed
-// to `INDIGO` (2026-07-28) to stop colliding with Dashboard's semantic-negative
-// `CORAL = "#FF5B49"` (Components/Page/Dashboard/aurora/styled.tsx).
-export const INDIGO = BRAND_ACCENT;
-export const INDIGO_DEEP = "#4338CA";
-// Back-compat aliases — kept so stragglers don't break during migration. Point
-// at INDIGO so semantics are correct even under the old name.
+// ─── Landing tokens (2026-06 Tatum-inspired mint/teal reskin) ──────────────
+// Mint/teal-green LEADS; scoped to the Dynopay marketing homepage. Legacy names
+// (INDIGO/VIOLET/SKY/VOLT) are preserved so existing imports keep working, but
+// they now resolve to greens. SafeDeal (gold/black) and the dashboard/app keep
+// their own global BRAND_ACCENT and are unaffected by this file.
+export const MINT = "#00D084"; // bright mint — gradients, glows, live dots (decorative)
+export const EMERALD = "#05B875"; // money marker
+export const BRAND_ACCENT = "#0F766E"; // deep teal — solid CTAs/accents (white-text safe)
+export const INDIGO = BRAND_ACCENT; // legacy name → deep teal (legible where used as text/border)
+export const INDIGO_DEEP = "#0D5C56";
 export const CORAL = INDIGO;
 export const CORAL_DEEP = INDIGO_DEEP;
-export const VIOLET = "#7C5CFF";
-export const VIOLET_DEEP = "#5A3EFF";
-export const SKY = "#4FD1FF";
-export const VOLT = "#818CF8";
-export const VOLT_INK = "#5A6B00";
-export const PAPER = "#FAFAF7";
-export const PAPER_ALT = "#F3EFEA";
-export const INK = "#0A0A0A";
+export const VIOLET = "#0D9488"; // gradient mid (teal)
+export const VIOLET_DEEP = "#0D5C56";
+export const SKY = "#2DD4BF"; // teal-cyan accent
+export const VOLT = "#05B875"; // emerald money accent
+export const VOLT_INK = "#0F766E";
+export const PAPER = "#FFFFFF";
+export const PAPER_ALT = "#F8FAFC";
+export const INK = "#0A0F1D";
 export const OBSIDIAN = "#0B0B0F";
 
-export const FONT_HERO = "var(--font-hero)";
+export const FONT_HERO = "'Poppins', var(--font-hero)";
 export const FONT_BODY = "var(--font-body)";
 export const FONT_TECH = "var(--font-tech)";
 
 export const AURORA_GRADIENT =
-  `linear-gradient(135deg, ${BRAND_ACCENT} 0%, #7C5CFF 55%, #4FD1FF 100%)`;
+  `linear-gradient(135deg, ${EMERALD} 0%, ${MINT} 50%, ${VIOLET} 100%)`;
 export const AURORA_GRADIENT_SOFT =
-  "linear-gradient(135deg, rgba(79, 70, 229,0.14) 0%, rgba(124,92,255,0.14) 55%, rgba(79,209,255,0.14) 100%)";
+  "linear-gradient(135deg, rgba(0,208,132,0.14) 0%, rgba(13,148,136,0.14) 55%, rgba(45,212,191,0.14) 100%)";
 
 export interface AuroraTokens {
   dark: boolean;

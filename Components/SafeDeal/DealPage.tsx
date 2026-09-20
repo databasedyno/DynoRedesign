@@ -303,7 +303,7 @@ export default function DealPage({ token }: { token: string }) {
                   <Stack direction="row" spacing={1} alignItems="center">
                     <Icon icon="mdi:lock-outline" width={18} color="#B45309" />
                     <Typography sx={{ fontSize: 13, color: "#92400E" }}>
-                      <b>{money(deal.custody_amount_stable, "USD")}</b> held as {deal.custody_stablecoin || "USDT"} by Dynopay{deal.funding_coin ? ` · paid in ${deal.funding_coin}` : ""}{deal.custody_realized_usd != null ? ` · ${money(deal.custody_realized_usd, "USD")} realised after conversion` : ""}
+                      <b>{money(deal.custody_amount_stable, "USD")}</b> held as {deal.custody_stablecoin || "USDT"} in escrow{deal.funding_coin ? ` · paid in ${deal.funding_coin}` : ""}{deal.custody_realized_usd != null ? ` · ${money(deal.custody_realized_usd, "USD")} realised after conversion` : ""}
                     </Typography>
                   </Stack>
                 </Box>

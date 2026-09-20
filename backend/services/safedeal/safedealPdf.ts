@@ -159,7 +159,7 @@ export function generateDealSummaryPdf({ deal: d, buyerEmail, sellerEmail, attac
 
   doc.moveDown(1.2);
   doc.font("Helvetica").fontSize(8.5).fillColor(INK.faint).text(
-    `SafeDeal is operated by ${legalName}. Funds are held in USDT by Dynopay until the deal completes. This summary reflects the deal record at the time it was generated; the online deal page is the source of truth.`,
+    `SafeDeal is operated by ${legalName}. Funds are held securely in escrow (in USDT) until the deal completes. This summary reflects the deal record at the time it was generated; the online deal page is the source of truth.`,
     { width: W }
   );
   doc.end();
@@ -242,7 +242,7 @@ export function generateTopupReceiptPdf({ topup: t, coinLabel, network, customer
 
   doc.moveDown(1.2);
   doc.font("Helvetica").fontSize(8.5).fillColor(INK.faint).text(
-    `SafeDeal is operated by ${legalName}. Your balance is held in USDT by Dynopay. Network/exchange fees cover the on-chain cost of moving your deposit into custody; you were credited the full amount you asked to add. This receipt reflects the record at the time it was generated.`,
+    `SafeDeal is operated by ${legalName}. Your balance is held securely in escrow (in USDT). Network/exchange fees cover the on-chain cost of moving your deposit into custody; you were credited the full amount you asked to add. This receipt reflects the record at the time it was generated.`,
     { width: W }
   );
   doc.end();

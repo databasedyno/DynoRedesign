@@ -13,7 +13,7 @@ import { Faq, ForBuyersSellers } from "./LandingSections";
 
 const STEPS = [
   { icon: "mdi:email-fast-outline", title: "Invite", body: "Describe the deal, set the price and invite the other party by email. They accept the terms in one click." },
-  { icon: "mdi:lock-outline", title: "Fund", body: "The buyer pays in any supported coin (processed by Dynopay). SafeDeal converts it to USDT and holds it safely in escrow." },
+  { icon: "mdi:lock-outline", title: "Fund", body: "The buyer pays in any supported coin. SafeDeal converts it to USDT and holds it safely in escrow." },
   { icon: "mdi:package-variant-closed-check", title: "Deliver", body: "The seller delivers and marks the deal done. The buyer has a set number of days to check the work." },
   { icon: "mdi:cash-check", title: "Release", body: "The buyer releases — or the timer does. SafeDeal credits the seller's wallet instantly. Withdraw any time." },
 ];
@@ -59,7 +59,7 @@ export default function Landing() {
                 <Box sx={{ px: 1.2, py: 0.4, borderRadius: 99, backgroundColor: goldAlpha(0.16), border: `1px solid ${goldAlpha(0.45)}`, fontSize: 12, fontWeight: 800, color: SD_GOLD }}>
                   Escrow for online deals
                 </Box>
-                <Typography sx={{ fontSize: 12.5, color: SD_INK_MUTED }}>Payments by Dynopay</Typography>
+                <Typography sx={{ fontSize: 12.5, color: SD_INK_MUTED }}>Escrow held in USDT</Typography>
               </Stack>
               <Typography component="h1" sx={{ fontSize: { xs: 38, sm: 48, lg: 60 }, fontWeight: 900, lineHeight: 1.02, letterSpacing: -1.5, mb: 2.5 }}>
                 Pay when it&apos;s delivered.

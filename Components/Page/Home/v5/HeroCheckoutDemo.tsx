@@ -8,7 +8,7 @@ import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import LockRoundedIcon from "@mui/icons-material/LockRounded";
 import { CRYPTO_INFO } from "@/Components/Page/Pay3Components/checkout/checkoutConstants";
 import useLocalPrice from "@/hooks/useLocalPrice";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { BRAND_ACCENT } from "../v3/theme.v3";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "../v3/theme.v3";
 import { DEMO_COINS, DEMO_ORDER_USD, DEMO_SETTLE, DEMO_STORE, cryptoAmount, demoNetworkEta, demoNetworkLabel, fetchDemoPrices } from "./demoCoins";
 

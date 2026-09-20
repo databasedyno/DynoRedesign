@@ -37,6 +37,7 @@ import {
   releaseParkedPayouts,
   sweepBalanceToAutoWithdraw,
   clearParked,
+  payoutEligibleUsd,
   listDealPayouts,
   type PayoutPref,
 } from "../services/safedeal/safedealWithdrawals";
@@ -1143,12 +1144,13 @@ const adminDownloadAttachment = async (req: express.Request, res: express.Respon
 const wallet = async (_req: express.Request, res: express.Response) => {
   try {
     const sess = session(res);
-    const [balances, addresses, withdrawals, profile, topups] = await Promise.all([
+    const [balances, addresses, withdrawals, profile, topups, eligible] = await Promise.all([
       getBalances(sess.customer_id),
       listAddresses(sess.customer_id),
       listWithdrawals(sess.customer_id, 20),
       loadProfile(sess.customer_id),
       listTopups(sess.customer_id, 10),
+      payoutEligibleUsd(sess.customer_id),
     ]);
     return successResponseHelper(res, 200, "OK", {
       ...balances,
@@ -1156,7 +1158,7 @@ const wallet = async (_req: express.Request, res: express.Response) => {
       addresses,
       withdrawals,
       topups,
-      profile: { auto_withdraw: !!profile?.auto_withdraw, auto_withdraw_address_id: profile?.auto_withdraw_address_id || null, parked_payout_usd: Number(profile?.parked_payout_usd || 0), deposit_reserved_usd: Number(profile?.deposit_reserved_usd || 0) },
+      profile: { auto_withdraw: !!profile?.auto_withdraw, auto_withdraw_address_id: profile?.auto_withdraw_address_id || null, parked_payout_usd: Math.min(Number(profile?.parked_payout_usd || 0), eligible), deposit_reserved_usd: Number(profile?.deposit_reserved_usd || 0) },
       limits: { min_withdrawal_usd: MIN_WITHDRAWAL_USD, approval_threshold_usd: APPROVAL_THRESHOLD_USD, min_topup_usd: MIN_TOPUP_USD, max_topup_usd: MAX_TOPUP_USD },
       payout_options: ESCROW_PAYOUT_OPTIONS,
       live: isLiveSettlementEnabled(),

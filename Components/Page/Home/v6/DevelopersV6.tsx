@@ -9,7 +9,7 @@ import WebhookRoundedIcon from "@mui/icons-material/WebhookRounded";
 import ScienceRoundedIcon from "@mui/icons-material/ScienceRounded";
 import CodeOffRoundedIcon from "@mui/icons-material/CodeOffRounded";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "../v3/theme.v3";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { BRAND_ACCENT } from "../v3/theme.v3";
 import { PrimaryBtn, SecondaryBtn, Section, SectionHead, cardSx } from "../v5/shared";
 import { Stagger, StaggerItem } from "../motion/Stagger";
 import CodePanel from "./CodePanel";

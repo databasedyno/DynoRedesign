@@ -621,7 +621,9 @@ async function actFundFromCheckout(deal: any, paidUsd: number, coin: string, txH
     type: "funded",
     actor: "dynopay",
     role: "buyer",
-    note: `Buyer paid ${paidUsd} ${deal.currency} in ${coin} via Dynopay${txHash ? ` (tx ${txHash})` : ""}; ${breakdown.buyerPays} ${CUSTODY_STABLECOIN} held in custody on Binance.`,
+    note: isSafeDeal(deal)
+      ? `Buyer paid ${paidUsd} ${deal.currency} in ${coin}${txHash ? ` (tx ${txHash})` : ""}; ${breakdown.buyerPays} ${CUSTODY_STABLECOIN} held securely in escrow.`
+      : `Buyer paid ${paidUsd} ${deal.currency} in ${coin} via Dynopay${txHash ? ` (tx ${txHash})` : ""}; ${breakdown.buyerPays} ${CUSTODY_STABLECOIN} held in custody on Binance.`,
     meta: { breakdown, paidUsd },
   });
   if (isSafeDeal(deal)) await recordFundingReceived(deal, breakdown.buyerPays, deal.funding_method);

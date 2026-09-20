@@ -120,7 +120,7 @@ export default function Wallet() {
   return (
     <Container maxWidth="lg" sx={{ py: { xs: 3, md: 5 } }} data-testid="sd-wallet-page">
       <Typography component="h1" sx={{ fontSize: { xs: 26, md: 32 }, fontWeight: 900, letterSpacing: -0.8, mb: 0.5 }}>Wallet</Typography>
-      <Typography sx={{ fontSize: 13.5, color: "#6B7280", mb: 3 }}>Shown in USD · funds are custodied as USDT by Dynopay.</Typography>
+      <Typography sx={{ fontSize: 13.5, color: "#6B7280", mb: 3 }}>Shown in USD · funds are held securely in escrow as USDT.</Typography>
 
       <Grid container spacing={2.5}>
         <Grid item xs={12} md={4}>
@@ -316,7 +316,7 @@ function AddAddressDialog({ wallet, onClose, onDone, onError }: { wallet: SdWall
           {wallet.payout_options.map((o) => <MenuItem key={o.key} value={o.key} data-testid={`sd-address-key-${o.key}`}><PayoutOptionLabel option={o} /></MenuItem>)}
         </TextField>
         <TextField size="small" fullWidth label="Wallet address" value={address} onChange={(e) => setAddress(e.target.value)} inputProps={{ "data-testid": "sd-address-input", spellCheck: false }} />
-        <TextField size="small" fullWidth label="Label (optional)" placeholder="e.g. Binance, Ledger" value={label} onChange={(e) => setLabel(e.target.value)} inputProps={{ "data-testid": "sd-address-label", maxLength: 80 }} />
+        <TextField size="small" fullWidth label="Label (optional)" placeholder="e.g. Ledger, Trust Wallet" value={label} onChange={(e) => setLabel(e.target.value)} inputProps={{ "data-testid": "sd-address-label", maxLength: 80 }} />
       </Stack>
     </StepUpDialog>
   );

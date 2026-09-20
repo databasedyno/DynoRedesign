@@ -16,12 +16,12 @@ import {
 
 // Aurora tokens (kept inline here to avoid pulling the whole theme.v3 into
 // the header — one source of truth is theme.v3.ts, we duplicate 4 constants).
-const CORAL = BRAND_ACCENT;
-const CORAL_DEEP = "#4338CA";
-const VIOLET = "#7C5CFF";
+const CORAL = "#0F766E";
+const CORAL_DEEP = "#0D5C56";
+const VIOLET = "#0D9488";
 const VOLT = "#22C55E";
 const AURORA_GRADIENT =
-  `linear-gradient(90deg, ${BRAND_ACCENT} 0%, #7C5CFF 55%, #4FD1FF 100%)`;
+  `linear-gradient(90deg, #05B875 0%, #00D084 55%, #2DD4BF 100%)`;
 // Below this the desktop nav + inline auth CTAs give way to the hamburger drawer.
 // 1100 (not 1024): five nav items + actions cannot fit the 1026–1100 band in ES/NL/FR.
 const HAMBURGER_BP = "@media (max-width: 1100px)";

@@ -1,7 +1,7 @@
 import { Box, Typography, TypographyProps } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { FONT_HERO, FONT_TECH, FONT_BODY } from "./theme.v3";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { BRAND_ACCENT } from "./theme.v3";
 
 // Common section shell — max-width 1280, generous side padding on desktop.
 export const SectionShell = styled(Box)(({ theme }) => ({

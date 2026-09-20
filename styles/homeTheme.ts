@@ -1,68 +1,57 @@
 import { createTheme } from "@mui/material";
-import { BRAND_ACCENT } from "@/constants/theme";
 
 /**
- * homeTheme — "Floating Glass Bento" (bold, Emergent-style) mirrored from the
- * auth suite onto ALL `home`-layout pages (landing, fees, blog, docs, legal,
- * system-status). See `styles/authTheme.ts` for the sibling auth theme.
- *
- * Dark  → void-black canvas (#060606) + cyber-lime (#CCFF00) neon accent.
- * Light → frosty silver canvas (#EEF1F6) + bold near-black accent with lime text.
+ * homeTheme — Dynopay marketing surface (landing, fees, blog, docs, legal,
+ * system-status, hosted checkout). 2026-06 Tatum-inspired reskin: mint/teal-green
+ * leads; indigo dropped as a brand colour. SafeDeal keeps its own gold/black theme
+ * (Components/SafeDeal/SafeDealShell) and the signed-in dashboard keeps its own.
  *
  * NOTE: `background.paper` is kept OPAQUE on purpose so shared MUI surfaces that
- * read it (header menus, language dropdown, tooltips) stay crisp. The frosted
- * "glass" translucency for landing cards is applied explicitly per-section via
- * `styles/homeBento.ts` (backdrop-blur + translucent rgba), not through paper.
+ * read it (header menus, language dropdown, tooltips) stay crisp.
  *
  * A non-standard `primary.hover` token is added (cast `as any`) — consumed by
  * CustomButton / HomeButton with safe fallbacks.
  */
 
-// Session 82: HOME_LIME preserves its name for backward compat, but
-// the actual value is now aurora indigo #4F46E5 (Landing v3 canonical).
-export const HOME_LIME = BRAND_ACCENT;
-const LIME_HOVER = "#B4E600"; // retained for reference (marketing accent now indigo)
-void LIME_HOVER;
+// Marketing accent (deep teal — white-text safe). Kept name for back-compat.
+export const HOME_LIME = "#0F766E";
 
 export const homeTheme = createTheme({
   palette: {
     mode: "light",
     primary: {
-      main: BRAND_ACCENT,
-      dark: "#4338CA",
-      light: "rgba(79,70,229,0.08)",
+      main: "#0F766E",
+      dark: "#0D5C56",
+      light: "rgba(0,208,132,0.10)",
       contrastText: "#FFFFFF",
-      hover: "#4338CA",
+      hover: "#0D5C56",
     } as any,
     secondary: {
-      main: "#5865F2",
-      dark: "#4650C7",
-      light: "rgba(88,101,242,0.12)",
-      contrastText: "#FFFFFF",
+      main: "#00D084",
+      dark: "#05B875",
+      light: "rgba(0,208,132,0.12)",
+      contrastText: "#08231C",
     },
     success: {
       main: "#16A34A",
     },
     text: {
-      primary: "#18181B",
-      secondary: "#3F3F46",
-      // FIX (2026-07-10): #A1A1AA was ~2.3:1 on white — tertiary text (badge
-      // subtitles, footnotes, section eyebrows) was barely legible. #73737C
-      // keeps the muted look at ~4.6:1 (WCAG AA).
-      disabled: "#73737C",
+      primary: "#0A0F1D",
+      secondary: "#334155",
+      // ~4.6:1 muted (WCAG AA) for badge subtitles, footnotes, section eyebrows.
+      disabled: "#64748B",
     },
     background: {
-      default: "#EEF1F6",
+      default: "#F8FAFC",
       paper: "#FFFFFF",
     },
     divider: "rgba(10,10,10,0.10)",
     border: {
       main: "rgba(10,10,10,0.12)",
-      focus: "#0A0A0A",
+      focus: "#0F766E",
     } as any,
     // Custom `surface` palette used by the checkout (pay) page. Must exist in
-    // BOTH light and dark or `theme.palette.surface.border` throws in dark mode
-    // (root cause of the checkout "Something went wrong" crash, 2026-07-10).
+    // BOTH light and dark or `theme.palette.surface.border` throws in dark mode.
     surface: {
       main: "#F4F6FA",
       paper: "#FFFFFF",
@@ -79,17 +68,17 @@ export const homeThemeDark = createTheme({
   palette: {
     mode: "dark",
     primary: {
-      main: "#6366F1",
-      dark: BRAND_ACCENT,
-      light: "rgba(99,102,241,0.16)",
-      contrastText: "#FFFFFF",
-      hover: "#818CF8",
+      main: "#2DD4BF",
+      dark: "#0F766E",
+      light: "rgba(0,208,132,0.16)",
+      contrastText: "#04231C",
+      hover: "#5EEAD4",
     } as any,
     secondary: {
-      main: "#5865F2",
-      dark: "#4650C7",
-      light: "rgba(88,101,242,0.16)",
-      contrastText: "#FFFFFF",
+      main: "#00D084",
+      dark: "#05B875",
+      light: "rgba(0,208,132,0.16)",
+      contrastText: "#04231C",
     },
     success: {
       main: "#22C55E",
@@ -97,8 +86,6 @@ export const homeThemeDark = createTheme({
     text: {
       primary: "#FAFAFA",
       secondary: "#C9C9D1",
-      // FIX (2026-07-10): #52525B was ~2.6:1 on near-black — tertiary text was
-      // unreadable in dark mode. #86868F keeps hierarchy at ~5:1 (WCAG AA).
       disabled: "#86868F",
     },
     background: {
@@ -108,7 +95,7 @@ export const homeThemeDark = createTheme({
     divider: "rgba(255,255,255,0.10)",
     border: {
       main: "rgba(255,255,255,0.14)",
-      focus: "#6366F1",
+      focus: "#2DD4BF",
     } as any,
     // Custom `surface` palette used by the checkout (pay) page — see light theme note.
     surface: {
@@ -118,7 +105,7 @@ export const homeThemeDark = createTheme({
     } as any,
     action: {
       hover: "rgba(255,255,255,0.06)",
-      selected: "rgba(99,102,241,0.12)",
+      selected: "rgba(0,208,132,0.12)",
     },
   },
 });

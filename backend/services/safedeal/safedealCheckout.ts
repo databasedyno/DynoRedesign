@@ -297,9 +297,9 @@ export async function onCustodyConverted(conv: { conversion_id: number; transact
     if (shortfall > buffer) deal.needs_admin_review = true;
     deal.activity_log = appendActivity(deal.activity_log, {
       type: "custody_converted",
-      actor: "binance",
+      actor: "system",
       role: "system",
-      note: `Converted ${conv.source_amount} ${conv.source_currency} → ${realized.toFixed(2)} ${conv.target_currency} on Binance (held there as custody)${shortfall > 0 ? `; ${shortfall.toFixed(2)} USD below the quote${shortfall > buffer ? " — flagged for review" : ", covered by the cost reserve"}` : ""}.`,
+      note: `Deposit converted to ${realized.toFixed(2)} ${conv.target_currency} and secured in escrow custody${shortfall > 0 ? `; ${shortfall.toFixed(2)} USD below the quote${shortfall > buffer ? " — flagged for review" : ", covered by the cost reserve"}` : ""}.`,
       meta: { conversion_id: conv.conversion_id, rate: conv.conversion_rate, realized, held },
     });
     await deal.save();
