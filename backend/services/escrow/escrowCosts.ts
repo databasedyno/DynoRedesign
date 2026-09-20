@@ -71,13 +71,16 @@ const DEFAULT_WITHDRAW_FEE_USD: Record<string, number> = {
 // NOTE: sweeping an ERC-20/TRC-20 TOKEN costs far more than a native transfer on the
 // same chain (contract call energy/gas), so token keys carry their own realistic
 // defaults — never reuse the native TRX/ETH transfer fee for a USDT/USDC sweep.
+// These values also act as a SAFETY FLOOR: the live refresh only ever raises a fee
+// above its default (a momentarily near-zero live gas quote must never let the platform
+// under-collect the real sweep cost).
 const DEFAULT_NETWORK_FEE_USD: Record<string, number> = {
   BTC: 2,
   ETH: 3,
-  "USDT-ERC20": 6,
-  "USDC-ERC20": 6,
-  "USDT-TRON": 2.5,
-  "USDT-TRC20": 2.5,
+  "USDT-ERC20": 3,
+  "USDC-ERC20": 3,
+  "USDT-TRON": 2,
+  "USDT-TRC20": 2,
   TRX: 0.5,
   "USDT-POLYGON": 0.1,
   "USDC-POLYGON": 0.1,
@@ -147,6 +150,15 @@ export function withdrawFeeUsdFor(payoutKey?: string | null): number {
 let refreshing = false;
 const REFRESH_TTL_MS = 15 * 60 * 1000;
 
+/** Live fee is trusted only when it MEETS OR EXCEEDS the realistic per-coin floor,
+ * so a momentarily near-zero gas quote (e.g. an unreachable oracle) can never make us
+ * under-collect the real sweep cost. When the live network is congested, the higher
+ * live value shows through. */
+function flooredNetworkFee(key: string, liveUsd: number): number {
+  const floor = DEFAULT_NETWORK_FEE_USD[key] ?? DEFAULT_SWEEP_USD;
+  return Math.max(Number(liveUsd) || 0, floor);
+}
+
 /**
  * Best-effort refresh of the live rate table from the EXISTING Binance +
  * blockchain-fee services. Never throws; keeps static estimates on any failure
@@ -187,11 +199,11 @@ export async function refreshEscrowCostRates(force = false): Promise<void> {
       await Promise.all([
         ...nativeChains.map(async ([chain, key]) => {
           const usd = await fetchUsd(chain);
-          if (usd != null) RATES.network[key] = usd;
+          if (usd != null) RATES.network[key] = flooredNetworkFee(key, usd);
         }),
         ...tokenChains.map(async ([chain, keys]) => {
           const usd = await fetchUsd(chain);
-          if (usd != null) for (const k of keys) RATES.network[k] = usd;
+          if (usd != null) for (const k of keys) RATES.network[k] = flooredNetworkFee(k, usd);
         }),
       ]);
     } catch {

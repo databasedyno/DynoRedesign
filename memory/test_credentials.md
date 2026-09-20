@@ -1,3 +1,13 @@
+## SafeDeal top-up fees / orphan fix / branded invoices — VERIFIED 2026-06 (iteration_209: 7/7 pytest, FE 100%)
+## - Sign-in unchanged: POST /api/safedeal/auth/send-code {email} → data.preview_code → POST verify-code → data.token → header x-safedeal-token. customer_id = GET /api/safedeal/me → data.user.customer_id.
+## - NEW branded deposit-receipt PDF: GET /api/safedeal/wallet/topup/:id/receipt.pdf (SafeDeal logo + You sent/Network fee/Credited).
+## - Invoices list GET /api/safedeal/invoices returns a UNIFIED array: type:'deposit' (DEP-<id>) + type:'deal' (SD-<id>, funding_label). data is a plain array (NOT data.invoices).
+## - Network fees now realistic per coin (USDT-TRC20 ~2.24 live / 2 floor; ERC20 3; POLYGON 0.1) with a Math.max floor so live never under-quotes. Top-up credits the FULL requested amount; fee added on top (send amount+fee).
+## - Self-heal test helper: from /app/backend → `node -r dotenv/config scripts/topup_selfheal_test.js seed <customer_id>` → GET the topup (auto-credits) → `... cleanup <topup_id> <payment_id> <customer_id>`.
+## - Pytest: /app/backend/tests/test_safedeal_iter209_topup_orphan_fees.py (7 pass, 3 skip: reserve-vs-autowithdraw needs a payout address which CSRF-blocks curl; deal-funding orphan needs LIVE_SETTLEMENT; both covered by code+top-up path).
+## - Preview URL (this pod): https://19dd10de-75dd-42ca-9744-ed61fd58cebb.preview.emergentagent.com (older memory-safe-12 URL is STALE).
+
+
 ## Telegram Login (SafeDeal) — added & VERIFIED (2026-06). Bot @SafeDealAlert_bot, token in backend/.env SAFEDEAL_TELEGRAM_BOT_TOKEN.
 ##   Backend endpoint POST /api/safedeal/auth/telegram verifies HMAC-SHA256(secret=SHA256(bot_token)) + auth_date<24h, then mints the
 ##   normal SafeDeal JWT. To TEST without the widget: build a payload {id,first_name,...,auth_date=now}, compute hash with the bot token

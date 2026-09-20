@@ -1,0 +1,41 @@
+{
+  "summary": "SafeDeal iter209 tested the 5-requirement changeset (orphan customer fix, live per-coin network fees, itemized statement, branded invoices/PDFs, self-heal + deposit reserve). Wrote /app/backend/tests/test_safedeal_iter209_topup_orphan_fees.py (10 tests). Result: 6 PASS, 1 FAIL (real bug), 3 SKIP (env-constrained). Frontend wallet UI verified end-to-end via injected sd_token — all 4 key data-testids present (sd-topup-open, sd-invoices, sd-deposit-reserved, sd-invoice-pdf-DEP-<id>), no console errors. Wallet shows the exact itemized statement 'Wallet top-up — you sent 62.24 USDT on Tron (TRC-20) (62.24 USD) · network fee 2.24 USD · credited 60.00 USD' and the green deposit-reserve banner '$60.00 of your balance is kept for funding deals — it won't be auto-withdrawn'. Invoice card renders DEP-30 with Receipt PDF button. Deposit receipt PDF is a valid application/pdf ≥ 3KB. Top-up self-heal correctly credited a seeded 'waiting' top-up on GET. Orphan-customer invariant holds for wallet top-ups (legacy-api customer count unchanged). USDT-TRC20 fee correctly resolved live to $2.24 (was $0.10). HOWEVER — the token-specific sweep-fee override was only wired up for USDT-TRC20; USDT-POLYGON returns network_fee=0, USDT-ERC20/USDC-ERC20 return 0.01, contradicting the spec's ~0.1 / ~6 expectations.",
+  "backend_issues": {
+    "critical": [
+      {
+        "endpoint": "GET /api/safedeal/wallet/topup/coins",
+        "issue": "Requirement (2) — 'live token-sweep fee for ALL stablecoin funding coins' — is only satisfied for USDT-TRC20 (2.24). USDT-POLYGON network_fee=0.00 (expected ~0.10), USDT-ERC20 network_fee=0.01 (expected ~6), USDC-ERC20 network_fee=0.01 (expected ~6). These stablecoins are still falling back to the near-zero native chain gas cost instead of the ERC-20/POLYGON token-transfer sweep cost. Reproduced twice on cold and warmed caches. Likely: refreshEscrowCostRates() / sweepFeeUsdFor() only maps USDT_TRON key; the USDT_ERC20/USDC_ERC20/USDT_POLYGON branches are either not populated by the live fetch or the mapping from coin -> rate key is missing in the non-TRC20 arms.",
+        "priority": "HIGH"
+      }
+    ],
+    "minor": [
+      {
+        "endpoint": "POST /api/safedeal/addresses",
+        "issue": "Returns {\"error\":\"CSRF token validation failed\"} for cross-origin API test requests (curl / pytest). Not an issue for the in-browser flow that uses the CSRF token, but it blocks headless E2E of the deposit-reserve-vs-auto-withdraw path from pytest."
+      }
+    ]
+  },
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_safedeal_iter209_topup_orphan_fees.py",
+    "/app/test_reports/pytest/iter209.xml"
+  ],
+  "action_items": [
+    "Extend the live-token-sweep-fee mapping in /app/backend/services/escrow/escrowCosts.ts so USDT-POLYGON, USDT-ERC20 and USDC-ERC20 use their token-specific sweep costs (like USDT-TRC20 already does). Right now they still return ~0 / $0.01 (native gas), which is exactly the class of bug the ticket asked to eliminate for ALL coins.",
+    "Consider exempting internal API test paths (or accepting a signed backend token) for POST /api/safedeal/addresses so E2E can add a payout address without a browser CSRF token — currently unblockable from pytest."
+  ],
+  "critical_code_review_comments": [
+    "sweepFeeUsdFor()/refreshEscrowCostRates() coverage is incomplete: TRC-20 works, ERC-20 and POLYGON stablecoins don't. This is the primary user-visible bug the review requested to fix and it is only 25% fixed.",
+    "Orphan-customer fix for TOP-UPS is confirmed working end-to-end (legacy-api-*@dynopay.internal customer count unchanged before/after). The deal-funding orphan fix cannot be exercised in preview because ESCROW_LIVE_SETTLEMENT is OFF (fund action goes through actFund simulated path, never calls requestDynopayPayment).",
+    "Self-heal (syncTopupFromLedger) works synchronously on GET when a matching successful tbl_user_transaction exists — verified via /app/backend/scripts/topup_selfheal_test.js. Deposit-reserve invariant holds (profile.deposit_reserved_usd ≥ credited amount).",
+    "Invoices endpoint returns `data` as a plain array (not `data.invoices`) — helper types in the review request implied `.invoices`; tests were adjusted."
+  ],
+  "updated_files": ["/app/backend/tests/test_safedeal_iter209_topup_orphan_fees.py"],
+  "success_rate": {"backend": "86% (6/7 asserted; 3 skipped due to env/CSRF)", "frontend": "100%"},
+  "test_credentials": "SafeDeal passwordless via /api/safedeal/auth/{send-code,verify-code}. Any throwaway email works; use x-safedeal-token header.",
+  "seed_data_creation": "Created ~7 throwaway SafeDeal customers (sd-qatest-*, sd-qa209-*, sd-uife209-*, sd-inspect*-*, sd-fee-*, sd-verify-* under brand 262), ~5 tbl_safedeal_topup rows (mostly credited via /simulate for $50 and $60 USDT-TRC20). Deal-funding orphan test skipped so no throwaway deals were funded.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "iter209 pytest at /app/backend/tests/test_safedeal_iter209_topup_orphan_fees.py — 6 pass, 1 fail (POLYGON/ERC20/USDC-ERC20 network fees still wrong), 3 skip (deposit-reserve vs auto-withdraw needs a payout address which CSRF-blocks curl; deal-funding orphan needs LIVE_SETTLEMENT which is OFF in preview; deal invoice funding_label depends on prior). Reserve-shield & deal-funding orphan are BEST verified by main agent with a) live settlement on OR b) an internal E2E that mints a payout address without CSRF. Frontend wallet page fully working — all sd-* testids present, statement itemized, DEP-<id> invoice + Receipt PDF button render, no console errors. Deal PDF (Payment method line) was not exercised — requires funded/closed deals which iter208 already covered.",
+  "rca of the issue": "USDT-POLYGON/USDT-ERC20/USDC-ERC20 network_fee bug — RCA: /app/backend/services/escrow/escrowCosts.ts sweepFeeUsdFor() and refreshEscrowCostRates() were updated to fetch USDT_TRON token sweep cost (works: $2.24), but the equivalent USDT_ERC20 / USDC_ERC20 / USDT_POLYGON rate keys are not being populated or mapped from the funding-coin symbol. Empirical evidence: cold and warm requests to /api/safedeal/wallet/topup/coins?amount=50 return USDT-POLYGON=0.00, USDT-ERC20=0.01, USDC-ERC20=0.01 while USDT-TRC20 correctly returns 2.24. Reproduction: sign in, GET /api/safedeal/wallet/topup/coins?amount=50. Mitigation: complete the switch case in sweepFeeUsdFor() so that (a) coin==='USDT-ERC20' -> USDT_ERC20 rate key, (b) coin==='USDC-ERC20' -> USDC_ERC20 rate key, (c) coin==='USDT-POLYGON' -> USDT_POLYGON rate key, and make sure refreshEscrowCostRates() actually fetches those three keys live (currently only USDT_TRON is being resolved)."
+}
