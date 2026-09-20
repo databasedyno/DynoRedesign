@@ -1,4 +1,5 @@
 import mailTransporter from "../../utils/mailTransporter";
+import type { Attachment } from "../../utils/mailTransporter";
 import config, { raw as envRaw } from "../../utils/config";
 import { captureError } from "../errorMonitoringService";
 import { baseEmailTemplate, getCurrencySymbol, p, type EmailHero, type EmailAudience, type EmailBrand } from "../../utils/emailTemplate";
@@ -155,6 +156,8 @@ export interface SendEmailOptions {
   preheader?: string;
   cta?: { text: string; link: string };
   lang?: string | null;
+  /** Optional file attachments (e.g. a branded PDF receipt/invoice), passed through to Brevo. */
+  attachments?: Attachment[];
 }
 
 export const sendEmail = async (
@@ -186,6 +189,7 @@ export const sendEmail = async (
       subject,
       body: htmlBody,
       sender: brandSender,
+      attachments: opts.attachments,
     });
     return info;
   } catch (e) {

@@ -214,6 +214,12 @@ async function creditTopup(row: TopupRow, txId: string | null, simulated: boolea
     } catch (e) {
       apiLogger.warn(`[SafeDeal] deposit reserve bump failed for topup ${row.topup_id}: ${(e as Error).message}`);
     }
+    try {
+      const { emailSafeDealDepositReceipt } = await import("./safedealInvoiceEmail");
+      void emailSafeDealDepositReceipt(r, customer.email);
+    } catch (e) {
+      apiLogger.warn(`[SafeDeal] deposit receipt email dispatch failed for topup ${row.topup_id}: ${(e as Error).message}`);
+    }
     return r;
   });
 }

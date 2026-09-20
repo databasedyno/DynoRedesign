@@ -4,7 +4,7 @@ import { Box, Button, Container, Grid, Stack, Typography } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { motion, useReducedMotion } from "framer-motion";
 import safedealApi, { SdConfig } from "@/api/safedeal";
-import { useSdHref, useSdSession } from "./sdRouting";
+import { useSdHref } from "./sdRouting";
 import { SD_INK, SD_INK_MUTED } from "./SafeDealShell";
 import { SD_GOLD, SD_GOLD_SOFT, SD_GOLD_DEEP, SD_TEXT_MUTED, SD_BORDER, goldAlpha, sdPrimaryBtn, sdGhostBtnDark } from "./sdTheme";
 import Hero3D from "./Hero3D";
@@ -36,7 +36,6 @@ function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
 
 export default function Landing() {
   const href = useSdHref();
-  const { user } = useSdSession();
   const [cfg, setCfg] = useState<SdConfig | null>(null);
   useEffect(() => {
     safedealApi.config().then(setCfg).catch(() => undefined);
@@ -44,7 +43,8 @@ export default function Landing() {
   const fee = cfg?.fee_percent ?? 5;
   const feeMin = cfg?.fee_min_usd ?? 10;
   const minDeal = cfg?.min_deal_usd ?? 30;
-  const cta = href(user ? "/deals/new" : "/signin?next=%2Fdeals%2Fnew");
+  // Guests can draft a deal without signing in first; sign-in is only asked at "Send invite".
+  const cta = href("/deals/new");
 
   return (
     <Box data-testid="sd-landing">

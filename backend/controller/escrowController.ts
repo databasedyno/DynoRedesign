@@ -434,6 +434,10 @@ async function notifyOutcome(deal: any, summary: string): Promise<void> {
     // Funds land in wallets — one clear email per party, no "paste an address" nudges.
     if (deal.seller_payout_state === "paid" && sellerEmail) void sendEscrowReleasedEmail(sellerEmail, sellerEmail, deal, summary);
     if (deal.buyer_payout_state === "paid" && buyerEmail) void sendEscrowRefundedEmail(buyerEmail, buyerEmail, deal, summary);
+    // Branded SafeDeal invoice PDF (SD-<id>) to each party, on settlement.
+    void import("../services/safedeal/safedealInvoiceEmail")
+      .then((m) => m.emailSafeDealDealInvoices(deal, buyerEmail, sellerEmail))
+      .catch(() => undefined);
     return;
   }
   if (deal.seller_payout_state === "paid" && sellerEmail) {

@@ -35,6 +35,15 @@ const KIND_LABEL: Record<string, string> = {
 
 const shortAddr = (a: string) => `${a.slice(0, 6)}…${a.slice(-4)}`;
 
+/** Network/exchange fee in USD for a statement row, read from its stored meta (top-ups carry it). */
+const rowFeeUsd = (meta?: Record<string, unknown> | null): number => {
+  const m = (meta || {}) as Record<string, unknown>;
+  const total = Number(m.total_fee_usd);
+  if (isFinite(total) && total > 0) return total;
+  const sum = Number(m.network_fee_usd || 0) + Number(m.conversion_fee_usd || 0) + Number(m.exchange_fee_usd || 0);
+  return sum > 0 ? sum : 0;
+};
+
 export default function Wallet() {
   const { ready } = useRequireSdSession();
   const href = useSdHref();
@@ -208,7 +217,7 @@ export default function Wallet() {
               <Box sx={{ overflowX: "auto" }}>
                 <Box component="table" sx={{ width: "100%", borderCollapse: "collapse", fontSize: 13, "& th": { textAlign: "left", fontSize: 11.5, color: "#6B7280", fontWeight: 800, textTransform: "uppercase", letterSpacing: 0.5, py: 0.8, px: 0.8, borderBottom: "1px solid #E5E7EB" }, "& td": { py: 1, px: 0.8, borderBottom: "1px solid #F3F4F6", verticalAlign: "top" } }}>
                   <thead>
-                    <tr><th>Date</th><th>Deal</th><th>Type</th><th style={{ textAlign: "right" }}>Amount</th><th style={{ textAlign: "right" }}>Balance</th></tr>
+                    <tr><th>Date</th><th>Deal</th><th>Type</th><th style={{ textAlign: "right" }}>Amount</th><th style={{ textAlign: "right" }}>Fees</th><th style={{ textAlign: "right" }}>Balance</th></tr>
                   </thead>
                   <tbody>
                     {rows.map((r) => (
@@ -222,6 +231,9 @@ export default function Wallet() {
                         </td>
                         <td style={{ textAlign: "right", whiteSpace: "nowrap", fontWeight: 800, fontVariantNumeric: "tabular-nums", color: r.signed > 0 ? "#047857" : r.signed < 0 ? "#B91C1C" : "#6B7280" }}>
                           {r.signed !== 0 ? `${r.signed > 0 ? "+" : "−"}${money(Math.abs(r.signed))}` : <Tooltip title={r.type === "HOLD" ? "Moved from Available to Held" : "Moved from Held to Available"}><span>{r.type === "HOLD" ? "→ held" : "→ available"} {money(r.amount)}</span></Tooltip>}
+                        </td>
+                        <td style={{ textAlign: "right", whiteSpace: "nowrap", fontVariantNumeric: "tabular-nums", color: rowFeeUsd(r.meta) > 0 ? "#6B7280" : "#D1D5DB" }} data-testid={`sd-statement-fee-${r.kind}`}>
+                          {rowFeeUsd(r.meta) > 0 ? money(rowFeeUsd(r.meta)) : "—"}
                         </td>
                         <td style={{ textAlign: "right", whiteSpace: "nowrap", fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>{money(r.running_balance)}</td>
                       </tr>

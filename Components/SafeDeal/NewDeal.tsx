@@ -5,7 +5,7 @@ import { Icon } from "@iconify/react";
 import { SD_GOLD, SD_GOLD_DARK, SD_INK } from "./sdTheme";
 import safedealApi, { SdConfig, SdDealType, SdFeePreview, sdError } from "@/api/safedeal";
 import { money } from "@/Components/Page/Escrow/escrowUtils";
-import { useRequireSdSession, useSdHref } from "./sdRouting";
+import { useSdSession, useSdHref } from "./sdRouting";
 import { TABULAR } from "./sdFormat";
 import { SD_INK_MUTED } from "./SafeDealShell";
 import SdChoice from "./SdChoice";
@@ -16,9 +16,10 @@ type Role = "buyer" | "seller";
 type FeePayer = "buyer" | "seller" | "split";
 const STEPS = ["The basics", "Terms", "Review & send"];
 const primaryBtn = { textTransform: "none", fontWeight: 900, borderRadius: 99, py: 1.2, px: 3, color: SD_INK, backgroundColor: SD_GOLD, "&:hover": { backgroundColor: SD_GOLD_DARK } } as const;
+const DRAFT_KEY = "sd_deal_draft";
 
 export default function NewDeal() {
-  const { user, ready } = useRequireSdSession();
+  const { user, token, ready } = useSdSession();
   const router = useRouter();
   const href = useSdHref();
   const [cfg, setCfg] = useState<SdConfig | null>(null);
@@ -37,6 +38,7 @@ export default function NewDeal() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [quoteOpen, setQuoteOpen] = useState(false);
+  const [resumed, setResumed] = useState(false);
 
   useEffect(() => {
     safedealApi.config().then((c) => { setCfg(c); setDays(c.auto_release_default); }).catch(() => undefined);
@@ -71,20 +73,57 @@ export default function NewDeal() {
     setTerms(tpl);
   };
 
-  const submit = async () => {
+  const doCreate = async (d: NewDealDraft) => {
     setError(null);
     setBusy(true);
     try {
       const deal = await safedealApi.createDeal({
-        title: title.trim(), amount: amountNum, price_currency: currency, my_role: role, counterparty_email: email.trim(), fee_payer: feePayer, auto_release_days: days,
-        ...(dealType ? { deal_type: dealType } : {}), ...(due ? { delivery_due_at: due } : {}), ...(terms.trim() ? { terms: terms.trim() } : {}),
+        title: d.title, amount: d.amount, price_currency: d.currency, my_role: d.role, counterparty_email: d.email, fee_payer: d.feePayer, auto_release_days: d.days,
+        ...(d.dealType ? { deal_type: d.dealType as SdDealType } : {}), ...(d.due ? { delivery_due_at: d.due } : {}), ...(d.terms.trim() ? { terms: d.terms.trim() } : {}),
       });
+      try { sessionStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
       void router.push(href(`/deal/${deal.deal_token}?created=1`));
     } catch (e) {
       setError(sdError(e));
       setBusy(false);
     }
   };
+
+  // "Send invite": a signed-in user creates immediately; a guest's draft is saved,
+  // they sign in, and are brought straight back here to finish (auto-submitted).
+  const submit = () => {
+    if (!token) {
+      try { sessionStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch { /* ignore */ }
+      void router.push(href(`/signin?next=${encodeURIComponent(href("/deals/new?resume=1"))}`));
+      return;
+    }
+    void doCreate(draft);
+  };
+
+  // Returning from sign-in with a saved draft (?resume=1): restore the form and finish the deal.
+  useEffect(() => {
+    if (!ready || !token || router.query.resume !== "1" || resumed) return;
+    setResumed(true);
+    let raw: string | null = null;
+    try { raw = sessionStorage.getItem(DRAFT_KEY); } catch { /* ignore */ }
+    if (!raw) return;
+    try {
+      const d = JSON.parse(raw) as NewDealDraft;
+      setTitle(d.title || "");
+      setAmount(d.amount ? String(d.amount) : "");
+      setCurrency(d.currency || "USD");
+      setRole(d.role || "seller");
+      setEmail(d.email || "");
+      setFeePayer(d.feePayer || "buyer");
+      setDays(d.days || 3);
+      setDealType((d.dealType as SdDealType) ?? null);
+      setDue(d.due || "");
+      setTerms(d.terms || "");
+      setStep(2);
+      void doCreate(d);
+    } catch { /* ignore malformed draft */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, token, router.query.resume, resumed]);
 
   if (!ready) return null;
   const today = new Date().toISOString().slice(0, 10);

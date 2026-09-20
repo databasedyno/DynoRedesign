@@ -86,7 +86,7 @@ const mailTransporter = async ({ to, subject, body: rawBody, name, attachments, 
       .filter(Boolean);
     const recipient = String(to || "").trim().toLowerCase();
     if (!allowlist.includes(recipient)) {
-      log(`[Email] SUPPRESSED (DISABLE_OUTBOUND_EMAIL) -> from=${senderEmail} to=${to} | subject=${subject}`);
+      log(`[Email] SUPPRESSED (DISABLE_OUTBOUND_EMAIL) -> from=${senderEmail} to=${to} | subject=${subject}${attachments?.length ? ` | attachments=${attachments.length}` : ""}`);
       dumpForReview(to, subject, body, senderEmail);
       return { suppressed: true } as unknown;
     }

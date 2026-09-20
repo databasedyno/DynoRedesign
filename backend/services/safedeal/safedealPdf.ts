@@ -167,6 +167,16 @@ export function generateDealSummaryPdf({ deal: d, buyerEmail, sellerEmail, attac
 }
 
 
+/** Collect a finished PDFKit document (the generators call doc.end() already) into a Buffer for email attachments. */
+export function pdfToBuffer(doc: PDFKit.PDFDocument): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    doc.on("data", (c: Buffer) => chunks.push(Buffer.from(c)));
+    doc.on("end", () => resolve(Buffer.concat(chunks)));
+    doc.on("error", reject);
+  });
+}
+
 export interface TopupReceiptInput {
   topup: {
     topup_id: number;

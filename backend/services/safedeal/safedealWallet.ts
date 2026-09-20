@@ -235,21 +235,32 @@ export async function getStatement(
   return out.reverse(); // newest first for display
 }
 
+/** Per-row network/exchange fee in USD, read from the row's stored meta (top-ups carry it). */
+const rowFeeUsd = (meta: Record<string, unknown> | null | undefined): number => {
+  const m = (meta || {}) as Record<string, unknown>;
+  const total = Number(m.total_fee_usd);
+  if (isFinite(total) && total > 0) return round2(total);
+  const sum = Number(m.network_fee_usd || 0) + Number(m.conversion_fee_usd || 0) + Number(m.exchange_fee_usd || 0);
+  return sum > 0 ? round2(sum) : 0;
+};
+
 export function statementToCsv(rows: StatementRow[]): string {
   const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-  const header = ["Date", "Deal", "Type", "Description", "Amount (USD)", "Bucket", "Running balance (USD)", "Reference"];
-  const lines = rows.map((r) =>
-    [
+  const header = ["Date", "Deal", "Type", "Description", "Amount (USD)", "Fees (USD)", "Bucket", "Running balance (USD)", "Reference"];
+  const lines = rows.map((r) => {
+    const fee = rowFeeUsd(r.meta);
+    return [
       r.at,
       r.escrow_id ? `#${r.escrow_id}${r.deal_title ? ` ${r.deal_title}` : ""}` : "",
       r.kind,
       r.description,
       r.signed !== 0 ? toFixedStr(r.signed, 2) : `${r.type === "HOLD" ? "-" : "+"}${toFixedStr(r.amount, 2)} (${r.type.toLowerCase()})`,
+      fee > 0 ? toFixedStr(fee, 2) : "",
       r.bucket,
       toFixedStr(r.running_balance, 2),
       r.reference,
-    ].map(esc).join(",")
-  );
+    ].map(esc).join(",");
+  });
   return [header.join(","), ...lines].join("\n");
 }
 

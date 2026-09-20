@@ -70,3 +70,49 @@ export async function sendSafeDealWithdrawalRejectedEmail(toEmail: string, w: Wi
     p("You can request a new withdrawal any time — double-check the address and network first.");
   await sendEmail(toEmail, toEmail, `SafeDeal withdrawal #${w.withdrawal_id} — returned to your balance`, message, false, sd("wallet-red", { heading: "Withdrawal returned", cta: { text: "Open my wallet", link: walletUrl() } }));
 }
+
+const pdfAttachment = (name: string, pdf: Buffer) => ({ name, content: pdf.toString("base64"), contentType: "application/pdf" });
+
+/** Wallet top-up credited — send the branded deposit receipt PDF (DEP-<id>). */
+export async function sendSafeDealDepositReceiptEmail(
+  toEmail: string,
+  t: { topup_id: number; amount_usd: string | number; pays_usd: string | number },
+  coinLabel: string,
+  network: string,
+  pdf: Buffer
+): Promise<void> {
+  const message =
+    amountHero(usd(t.amount_usd), { pill: "CREDITED", pillType: "success", sublabel: `Deposited via ${esc(coinLabel)} · ${esc(network)}` }) +
+    p(`Your wallet top-up is credited. Your branded receipt <b>DEP-${t.topup_id}</b> is attached, with the full fee breakdown.`) +
+    p(`You sent ${usd(t.pays_usd)} · credited <b>${usd(t.amount_usd)}</b> to your SafeDeal balance.`);
+  await sendEmail(
+    toEmail,
+    toEmail,
+    `Your SafeDeal deposit receipt — DEP-${t.topup_id}`,
+    message,
+    false,
+    sd("receipt", { heading: "Deposit credited", cta: { text: "Open my wallet", link: walletUrl() }, attachments: [pdfAttachment(`safedeal-deposit-${t.topup_id}.pdf`, pdf)] })
+  );
+}
+
+/** A deal reached its final outcome — send the party their branded SafeDeal invoice PDF (SD-<id>). */
+export async function sendSafeDealDealInvoiceEmail(
+  toEmail: string,
+  deal: { escrow_id: number; title: string; deal_token: string; outcome?: string | null },
+  pdf: Buffer,
+  role: "buyer" | "seller"
+): Promise<void> {
+  const outcomeWord = deal.outcome === "refund" ? "refunded" : deal.outcome === "split" ? "split" : "completed";
+  const message =
+    p(`Deal <b>#${deal.escrow_id}</b> — &ldquo;${esc(deal.title)}&rdquo; is <b>${outcomeWord}</b>. Your SafeDeal invoice <b>SD-${deal.escrow_id}</b> is attached, with the itemised fees and costs.`) +
+    p(role === "seller" ? "Any funds released to you have been credited to your SafeDeal wallet." : "Any refund from this deal is in your SafeDeal wallet balance.");
+  await sendEmail(
+    toEmail,
+    toEmail,
+    `Your SafeDeal invoice SD-${deal.escrow_id} — ${outcomeWord}`,
+    message,
+    false,
+    sd("receipt", { heading: `Invoice SD-${deal.escrow_id}`, cta: { text: "Open the deal", link: `${safedealBaseUrl()}/deal/${deal.deal_token}` }, attachments: [pdfAttachment(`safedeal-invoice-${deal.escrow_id}.pdf`, pdf)] })
+  );
+}
+
