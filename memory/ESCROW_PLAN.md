@@ -1,3 +1,65 @@
+> ============================================================================
+> ## ⚠️ TOP PRIORITY FOR NEXT AGENT (2026-09-20): FUNDS / FEES / PAYOUTS ACCURACY AUDIT
+> ============================================================================
+> Two backend refinements were implemented this session but **NOT YET TESTED**:
+> (1) auto-withdraw **sweep-on-enable**, (2) mutually-agreed cancellation **escrow-fee waiver**.
+> Before anything ships, run deep_testing_backend_v2 and verify that **every calculation
+> relating to funds, fees, and payouts is accurate** across the escrow/SafeDeal money model —
+> not only the two new paths. Full step-by-step test scenarios (A cancellation waiver + control,
+> B sweep) live at the TOP of `memory/SAFEDEAL_NOTES.md`; file-level change detail is in the
+> `test_result.md` top block. Read-only DB: `node /app/backend/scripts/ro_query.js "SELECT ..."`.
+>
+> ### Money model (source of truth to check against)
+> - `computeFeeBreakdown` (controller/escrow/escrowShared.ts) → `escrowFee`, `exchangeFeeUsd`
+>   (conversion when funding coin ≠ stablecoin), `passThroughCosts` (network + conversion +
+>   withdrawal), `totalCost`, `buyerPays`, `sellerReceives`, `platformFee`.
+> - Funding: buyer pays `buyerPays`; custody converts to USDT → `custody_amount_stable` (= "held").
+> - Settlement: `authorizeOutcome` sets entitlements → `attemptPayouts` →
+>   `settleToWallets` (SafeDeal wallet ledger) + `settlementPayout` (external send / kept / parked).
+>
+> ### Invariants that MUST hold (assert each against tbl_customer_ledger + wallet balances)
+> 1. **Custody conservation:** for every settled deal, `held == seller_credit + buyer_credit +
+>    escrowFee + exchangeFee + passThroughCosts (± rounding ≤ $0.01)`. No dust left, no over-credit.
+> 2. **Fee-payer math:** buyer-pays → `buyerPays = amount + totalCost`, `sellerReceives = amount`.
+>    seller-pays → `buyerPays = amount`, `sellerReceives = amount − totalCost`. split → totalCost
+>    shared per policy. Displayed breakdown (fee-preview / serializeDeal) MUST equal what is
+>    actually charged/credited at settlement (what the user saw = what they get).
+> 3. **Release:** seller gets `sellerReceives`; platform keeps escrowFee + real costs; buyer $0.
+> 4. **Refund (normal dispute / admin ruling):** buyer gets `held − totalCost` (fee + costs KEPT).
+> 5. **Refund (mutually-agreed cancellation):** buyer gets `held − real costs`, escrow fee = $0
+>    (waived). Must equal normal-refund + escrowFee, and tbl_customer_ledger must have NO
+>    escrow_fee debit. Waiver applies ONLY when `dispute_proposal.kind === 'cancellation'` was
+>    dispute-accepted — a countered/negotiated refund or an admin ruling still KEEPS the fee.
+> 6. **Split:** seller gets split% of the pool, buyer the remainder; fees/costs counted once.
+> 7. **Fee floor:** when `5% < fee_min_usd`, the minimum applies (and is shown + charged);
+>    a waived cancellation → $0 regardless of the floor.
+> 8. **Withdrawal fee:** settlement legs use `fee_covered=true` (fee already reserved in the deal
+>    quote's passThroughCosts → no double charge). Manual withdraw AND the new auto-withdraw
+>    sweep charge the network fee (fee_covered=false, min $10, >$1000 → pending_approval).
+>    Confirm a 'kept' settlement balance later withdrawn manually is not surprisingly double-charged.
+> 9. **Sweep-on-enable:** swept = full available (or PARKED if the address is in its 24h cooling);
+>    parked_payout_usd ≤ available always; no double-send between releaseParkedPayouts + sweep;
+>    toggling auto-withdraw OFF clears parked.
+> 10. **Rounding & sign:** all values round2; rounding-guard entry ≤ $0.01; never negative
+>     balances; `buyerRefund`/`sellerAmount` ≥ 0.
+> 11. **Idempotency:** payout legs are state-gated (pending→paid); re-running attemptPayouts must
+>     NOT double-pay and must not create duplicate ledger rows.
+> 12. **Currency/coin:** non-USD deals converted via `fiatToUsd`; custody always USDT; refunds
+>     denominated in USDT regardless of funding coin. Verify FX rounding doesn't leak value.
+> 13. **Auto-release (3-day):** auto-released deals settle to the same seller entitlement as a
+>     manual release.
+> 14. **Live vs simulated:** with `ESCROW_LIVE_SETTLEMENT` off, funding + payouts are simulated;
+>     SafeDeal wallet credits are real either way. On-chain (non-SafeDeal) broadcast is NOT wired
+>     in v1 ("never broadcast in v1") — confirm nothing attempts a real on-chain send.
+>
+> ### Suggested method
+> Drive throwaway SafeDeal deals (brand company_id 262, `sd_qa_*@example.com`) through each
+> outcome (release, normal-refund, cancellation-refund, split) for BOTH fee_payer=buyer and
+> fee_payer=seller, and reconcile the ledger to the invariants above. Reset any touched
+> customer to auto_withdraw=false / parked=0 afterwards.
+> ============================================================================
+
+
 # DynoPay Escrow Service — End‑to‑End Plan & Implementation Doc
 
 _Last updated: 2026‑09 (session: escrow custody + two‑phase settlement + OTP onboarding)_

@@ -4,6 +4,8 @@
 # STATUS: code complete, `tsc --noEmit` = 0 errors, backend restarted healthy. NO testing-agent
 #   run yet. NEXT AGENT: run deep_testing_backend_v2 with the 2 scenarios below; then, with user
 #   OK, run the frontend flow. Preview: https://765d59c7-3ab9-4a1f-9790-c6730b11ad84.preview.emergentagent.com
+#   >>> ALSO SEE memory/ESCROW_PLAN.md TOP: "FUNDS / FEES / PAYOUTS ACCURACY AUDIT" — the next
+#       agent must verify EVERY funds/fee/payout calculation & invariant, not just these 2 changes.
 #
 # WHAT CHANGED (file-level detail is in test_result.md top block):
 #  1) AUTO-WITHDRAW SWEEP-ON-ENABLE — services/safedeal/safedealWithdrawals.ts::
