@@ -1,4 +1,4 @@
-## SafeDeal E2E — IN PROGRESS handoff (2026-09) — flow verification pending
+## SafeDeal E2E — VERIFIED (2026-09-20) — buyer<->seller fund->deliver->release PASSED (frontend testing agent). Deal e79888ff… now COMPLETED/consumed; mint a fresh deal to re-run.
 - SAFEDEAL_API_KEY in backend/.env was STALE and has been UPDATED to the current active
   company-262 key (dpk_live_oA0S…, verified active in live DB) and RE-SEALED into env.vault.enc.
   Funding (POST /api/safedeal/deals/<token>/funding) now works (was "Invalid API key").
