@@ -33,6 +33,7 @@ import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallet
 import { sendAccountDeletedEmail, sendAccountSoftDeletedEmail } from "../../services/email/securityEmails";
 import { sendAccountDeletedAdminEmail } from "../../services/email/adminNotificationEmails";
 import { softDeleteAccount } from "../../services/accountPurgeService";
+import { ownsSafeDealBrand } from "../../helper/protectedEntities";
 import { ACCOUNT_DELETE_GRACE_DAYS } from "../../helper/accountDeletion";
 import { revokeStepUp } from "../../services/stepUpService";
 
@@ -51,6 +52,12 @@ export const deleteAccount = async (req: express.Request, res: express.Response)
   try {
     const user = await userModel.findOne({ where: { user_id: userData.user_id }, attributes: ["name", "email", "language"] });
     if (!user) return errorResponseHelper(res, 404, "Account not found");
+
+    // The SafeDeal operator brand's owner can't be deleted — purging it would
+    // cascade-wipe every SafeDeal escrow deal (helper/protectedEntities).
+    if (await ownsSafeDealBrand(userData.user_id)) {
+      return errorResponseHelper(res, 403, "This account owns the SafeDeal brand and can't be deleted. Contact support if you need to transfer ownership first.");
+    }
 
     const { ok, scheduledPurgeAt } = await softDeleteAccount(userData.user_id, userData.user_id);
     if (!ok) {

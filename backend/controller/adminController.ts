@@ -1452,7 +1452,7 @@ const purgeBrandNow = async (req: express.Request, res: express.Response) => {
       user_id: company.dataValues.user_id,
       company_name: company.dataValues.company_name,
     });
-    if (!r.ok) return errorResponseHelper(res, 500, "Purge failed — brand may still exist.");
+    if (!r.ok) return errorResponseHelper(res, r.reason ? 409 : 500, r.reason ? `Cannot purge: ${r.reason}` : "Purge failed — brand may still exist.");
 
     return successResponseHelper(res, 200, "Brand permanently deleted", {
       company_id: companyId,

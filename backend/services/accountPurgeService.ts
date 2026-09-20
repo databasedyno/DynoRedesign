@@ -11,6 +11,7 @@ import { userLogger } from "../utils/loggers";
 import { getErrorMessage } from "../helper";
 import { ACCOUNT_DELETE_GRACE_DAYS } from "../helper/accountDeletion";
 import { sendAccountDeletedEmail } from "./emailService";
+import { ownsSafeDealBrand, canPurgeAccount } from "../helper/protectedEntities";
 
 /**
  * Soft-delete a user account: mark it for deletion (~10-year AML/KYC retention
@@ -25,6 +26,13 @@ export const softDeleteAccount = async (
 ): Promise<{ ok: boolean; scheduledPurgeAt: Date }> => {
   const now = new Date();
   const scheduledPurgeAt = new Date(now.getTime() + ACCOUNT_DELETE_GRACE_DAYS * 24 * 60 * 60 * 1000);
+
+  // Never allow the SafeDeal operator brand's owner to be scheduled for deletion:
+  // purging it cascade-deletes every SafeDeal escrow deal (see helper/protectedEntities).
+  if (await ownsSafeDealBrand(userId)) {
+    userLogger.warn(`[softDeleteAccount] refused — user ${userId} owns the SafeDeal operator brand; account is protected from deletion.`);
+    return { ok: false, scheduledPurgeAt };
+  }
 
   const [affected] = await userModel.update(
     { deleted_at: now, deleted_by: deletedBy, scheduled_purge_at: scheduledPurgeAt } as any,
@@ -66,6 +74,16 @@ export const purgeAccount = async (user: {
   language?: string | null;
 }): Promise<boolean> => {
   const userId = user.user_id;
+
+  // SAFEGUARD: never hard-delete an account that still owns escrow/financial
+  // records (esp. the SafeDeal operator brand). The user delete cascades to the
+  // user's companies and then, via ON DELETE CASCADE, to their escrow deals —
+  // which would silently destroy financial history. Keep it soft-deleted.
+  const guard = await canPurgeAccount(userId);
+  if (!guard.allowed) {
+    userLogger.error(`[purgeAccount] REFUSED — ${guard.reason}. Account ${userId} kept soft-deleted to preserve records.`);
+    return false;
+  }
 
   await notificationModel.destroy({ where: { user_id: userId } });
   await notificationPreferencesModel.destroy({ where: { user_id: userId } });
@@ -110,7 +128,7 @@ export const purgeAccount = async (user: {
 };
 
 /** Sweep accounts past their retention window and purge them permanently. */
-export const purgeExpiredAccounts = async (): Promise<{ scanned: number; purged: number; failed: number }> => {
+export const purgeExpiredAccounts = async (): Promise<{ scanned: number; purged: number; failed: number; skipped: number }> => {
   const now = new Date();
   // Derive due-ness from deleted_at + the CURRENT grace window (not the stored
   // scheduled_purge_at) so extending retention to 10 years also protects accounts
@@ -123,10 +141,20 @@ export const purgeExpiredAccounts = async (): Promise<{ scanned: number; purged:
 
   let purged = 0;
   let failed = 0;
+  let skipped = 0;
   for (const u of due) {
+    const uid = u.dataValues.user_id;
+    // Preserve accounts that still own escrow/financial records (incl. the
+    // SafeDeal operator brand) — never let the sweep cascade them away.
+    const guard = await canPurgeAccount(uid);
+    if (!guard.allowed) {
+      skipped++;
+      userLogger.warn(`[purgeExpiredAccounts] skipped user ${uid} — ${guard.reason}`);
+      continue;
+    }
     try {
       const ok = await purgeAccount({
-        user_id: u.dataValues.user_id,
+        user_id: uid,
         email: u.dataValues.email,
         name: u.dataValues.name,
         language: u.dataValues.language,
@@ -134,9 +162,9 @@ export const purgeExpiredAccounts = async (): Promise<{ scanned: number; purged:
       ok ? purged++ : failed++;
     } catch (e) {
       failed++;
-      userLogger.error(`[purgeExpiredAccounts] Failed to purge user ${u.dataValues.user_id}: ${getErrorMessage(e)}`);
+      userLogger.error(`[purgeExpiredAccounts] Failed to purge user ${uid}: ${getErrorMessage(e)}`);
     }
   }
-  if (due.length > 0) userLogger.info(`[purgeExpiredAccounts] Scanned ${due.length}, purged ${purged}, failed ${failed}`);
-  return { scanned: due.length, purged, failed };
+  if (due.length > 0) userLogger.info(`[purgeExpiredAccounts] Scanned ${due.length}, purged ${purged}, skipped ${skipped}, failed ${failed}`);
+  return { scanned: due.length, purged, failed, skipped };
 };

@@ -5,6 +5,7 @@ import { deleteRedisItem } from "../utils/redisInstance";
 import { companyLogger } from "../utils/loggers";
 import { getErrorMessage } from "../helper";
 import { sendBrandPermanentlyDeletedEmail } from "./emailService";
+import { canPurgeCompany } from "../helper/protectedEntities";
 
 /** Days a soft-deleted brand is retained before the cron permanently purges it.
  *  AML/KYC compliance: retain financial + identity records ~10 years. The brand
@@ -27,10 +28,19 @@ interface PurgeTarget {
 export const purgeBrand = async (
   company: PurgeTarget,
   opts: { notifyMerchant?: boolean } = {},
-): Promise<{ ok: boolean; revokedApiIds: number[] }> => {
+): Promise<{ ok: boolean; revokedApiIds: number[]; reason?: string }> => {
   const company_id = company.company_id;
   const user_id = company.user_id;
   const revokedApiIds: number[] = [];
+
+  // SAFEGUARD: never hard-delete the SafeDeal operator brand or any brand that
+  // still holds escrow deals — the ON DELETE CASCADE would silently destroy
+  // those financial records. Keep it soft-deleted instead.
+  const guard = await canPurgeCompany(company_id);
+  if (!guard.allowed) {
+    companyLogger.error(`[purgeBrand] REFUSED — ${guard.reason}. Brand ${company_id} kept soft-deleted; not purged.`);
+    return { ok: false, revokedApiIds, reason: guard.reason };
+  }
 
   // Revoke API keys (explicit audit trail + Redis cache invalidation).
   try {
@@ -118,7 +128,7 @@ export const purgeBrand = async (
  * Sweep every soft-deleted brand whose 7-day grace window has elapsed and purge
  * it permanently. Invoked by the daily leader cron (and the admin manual trigger).
  */
-export const purgeExpiredBrands = async (): Promise<{ scanned: number; purged: number; failed: number }> => {
+export const purgeExpiredBrands = async (): Promise<{ scanned: number; purged: number; failed: number; skipped: number }> => {
   const now = new Date();
   // Due-ness is derived from deleted_at + the CURRENT grace window (not the
   // stored scheduled_purge_at) so extending retention to 10 years also protects
@@ -133,12 +143,20 @@ export const purgeExpiredBrands = async (): Promise<{ scanned: number; purged: n
 
   let purged = 0;
   let failed = 0;
+  let skipped = 0;
   for (const c of due) {
     const target: PurgeTarget = {
       company_id: c.dataValues.company_id,
       user_id: c.dataValues.user_id,
       company_name: c.dataValues.company_name,
     };
+    // Preserve the SafeDeal brand and any brand still holding escrow deals.
+    const guard = await canPurgeCompany(target.company_id);
+    if (!guard.allowed) {
+      skipped++;
+      companyLogger.warn(`[purgeExpiredBrands] skipped company ${target.company_id} — ${guard.reason}`);
+      continue;
+    }
     try {
       const r = await purgeBrand(target);
       if (r.ok) purged++;
@@ -150,9 +168,9 @@ export const purgeExpiredBrands = async (): Promise<{ scanned: number; purged: n
   }
 
   if (due.length > 0) {
-    companyLogger.info(`[purgeExpiredBrands] Scanned ${due.length}, purged ${purged}, failed ${failed}`);
+    companyLogger.info(`[purgeExpiredBrands] Scanned ${due.length}, purged ${purged}, skipped ${skipped}, failed ${failed}`);
   }
-  return { scanned: due.length, purged, failed };
+  return { scanned: due.length, purged, failed, skipped };
 };
 
 /**

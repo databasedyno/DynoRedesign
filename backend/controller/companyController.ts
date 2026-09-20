@@ -20,6 +20,7 @@ import sequelize from "../utils/dbInstance";
 import { QueryTypes, Op } from "sequelize";
 import { sendCompanyProfileCreatedEmail, sendCompanyProfileUpdatedEmail, sendCompanyDeletedEmail, sendBrandSoftDeletedEmail, sendBrandDeletedAdminEmail } from "../services/emailService";
 import { BRAND_DELETE_GRACE_DAYS } from "../services/brandPurgeService";
+import { isSafeDealBrand } from "../helper/protectedEntities";
 export const ONLY_BRAND_MESSAGE =
   "Cannot delete your only brand. Add another brand first, then delete this one.";
 import { diffCompanyFields } from "./company/profileDiff";
@@ -844,6 +845,12 @@ const deleteCompany = async (req: express.Request, res: express.Response) => {
       return errorResponseHelper(res, 404, "Brand not found");
     }
     
+    // The SafeDeal operator brand underpins every escrow deal — deleting it would
+    // cascade-wipe the whole product's history. It can never be deleted here.
+    if (isSafeDealBrand(company_id)) {
+      return errorResponseHelper(res, 403, "This brand powers SafeDeal and can't be deleted.");
+    }
+
     // Prevent deleting the ONLY brand — user must always have at least one
     const remainingCount = await companyModel.count({ where: { user_id: userData.user_id } });
     if (remainingCount <= 1) {

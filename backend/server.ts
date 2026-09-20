@@ -918,7 +918,7 @@ leaderCron.schedule("20 3 * * *", async () => {
   try {
     const result = await purgeExpiredBrands();
     if (result.scanned > 0) {
-      log(`Cron: purgeExpiredBrands — scanned ${result.scanned}, purged ${result.purged}, failed ${result.failed}`, "info");
+      log(`Cron: purgeExpiredBrands — scanned ${result.scanned}, purged ${result.purged}, skipped ${result.skipped}, failed ${result.failed}`, "info");
     }
   } catch (err) {
     log(`Cron: purgeExpiredBrands failed: ${(err as Error).message}`, "error");
@@ -936,7 +936,7 @@ leaderCron.schedule("35 3 * * *", async () => {
   try {
     const result = await purgeExpiredAccounts();
     if (result.scanned > 0) {
-      log(`Cron: purgeExpiredAccounts — scanned ${result.scanned}, purged ${result.purged}, failed ${result.failed}`, "info");
+      log(`Cron: purgeExpiredAccounts — scanned ${result.scanned}, purged ${result.purged}, skipped ${result.skipped}, failed ${result.failed}`, "info");
     }
   } catch (err) {
     log(`Cron: purgeExpiredAccounts failed: ${(err as Error).message}`, "error");
