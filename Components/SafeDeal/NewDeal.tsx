@@ -126,7 +126,7 @@ export default function NewDeal() {
                     InputProps={{ startAdornment: <InputAdornment position="start">{currency === "USD" ? "$" : currency}</InputAdornment> }}
                     inputProps={{ "data-testid": "sd-new-amount", inputMode: "decimal" }}
                   />
-                  <TextField select label="Currency" value={currency} onChange={(e) => setCurrency(e.target.value)} sx={{ minWidth: 118 }} inputProps={{ "data-testid": "sd-new-currency" }} SelectProps={{ MenuProps: { PaperProps: { sx: { maxHeight: 320 } } } }}>
+                  <TextField select label="Currency" value={currency} onChange={(e) => setCurrency(e.target.value)} sx={{ minWidth: 118 }} inputProps={{ "data-testid": "sd-new-currency" }} SelectProps={{ SelectDisplayProps: { "data-testid": "sd-new-currency-select" } as any, MenuProps: { PaperProps: { sx: { maxHeight: 320 } } } }}>
                     {(cfg?.price_currencies || ["USD"]).map((c) => <MenuItem key={c} value={c} data-testid={`sd-new-currency-${c}`}>{c}</MenuItem>)}
                   </TextField>
                 </Stack>

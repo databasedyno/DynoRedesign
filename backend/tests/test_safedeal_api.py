@@ -4,13 +4,29 @@ Covers: config, sign-in preview code flow, deal validation, own-email rejection,
 insufficient balance, wallet/statement, address+withdraw, deals list.
 """
 import os
+import subprocess
 import time
 import uuid
 import pytest
 import requests
 
-BASE = os.environ.get("SAFEDEAL_BASE_URL") or "https://memory-safe-12.preview.emergentagent.com"
+BASE = os.environ.get("SAFEDEAL_BASE_URL") or "http://localhost:8001"
 API = BASE.rstrip("/") + "/api"
+
+# Directory that holds scripts/_pgq.js (the repo DB write helper) — this file lives in backend/tests/.
+BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def _make_address_usable(addr_id) -> None:
+    """Clear the 24h new-address cooling-off (SAFEDEAL_ADDRESS_COOLING_HOURS, default 24) for a
+    freshly-saved payout address by backdating its created_at, so a withdrawal can be exercised.
+    Throwaway QA customers only."""
+    subprocess.run(
+        ["node", "scripts/_pgq.js",
+         "UPDATE tbl_customer_payout_address SET created_at = created_at - interval '48 hours' "
+         f"WHERE address_id = {int(addr_id)}"],
+        cwd=BACKEND_DIR, check=True, capture_output=True, timeout=30,
+    )
 
 
 def _rand_email(role: str) -> str:
@@ -199,6 +215,7 @@ def test_add_address_and_withdraw(deal_ctx):
                              "label": "tron main", "code": code}, timeout=15)
     assert r2.status_code in (200, 201), r2.text[:300]
     addr_id = r2.json()["data"].get("id") or r2.json()["data"].get("address_id")
+    _make_address_usable(addr_id)  # clear the 24h new-address cooling-off so the withdraw proceeds
     # Get quote (POST)
     rq = requests.post(f"{API}/safedeal/wallet/withdraw/quote",
                        headers=_h(deal_ctx["seller_tok"]),

@@ -152,6 +152,12 @@ export default function DealPage({ token }: { token: string }) {
   const b = deal.breakdown;
   const status = deal.status;
   const live = !!cfg?.live_settlement;
+  // A mutually-agreed cancellation waives the escrow fee (only real network/exchange costs kept).
+  // Settled: the backend breakdown labels the escrow-fee line "waived". Pending: a cancellation is
+  // still being negotiated (dispute_proposal.kind === "cancellation").
+  const feeItem = (b.costItems || []).find((c) => c.key === "escrow_fee");
+  const feeWaivedInBreakdown = !!feeItem && /waived/i.test(feeItem.label);
+  const cancellationProposed = deal.dispute_proposal?.kind === "cancellation";
   const dispute = safedealApi.disputeApi(token, (d) => setDeal(d));
   const created = router.query.created === "1";
   const funded = router.query.funded === "1";
@@ -265,7 +271,11 @@ export default function DealPage({ token }: { token: string }) {
                 <Row l="Seller receives" v={money(b.sellerReceives, deal.currency)} strong hi={!isBuyer} testid="sd-amt-seller-receives" />
               </Stack>
               <Typography sx={{ fontSize: 11.5, color: "#6B7280", mt: 1.2 }}>
-                Fee payer: <b>{deal.fee_payer}</b>. Fees & costs are charged on every outcome. {b.costsEstimated ? "Costs are estimates until funded." : ""}
+                Fee payer: <b>{deal.fee_payer}</b>. {feeWaivedInBreakdown
+                  ? "This mutually-agreed cancellation waives the escrow fee — only the real network and exchange costs are kept."
+                  : cancellationProposed
+                  ? "If you both agree to cancel, the escrow fee is waived — the buyer is refunded the held amount minus only network and exchange costs."
+                  : "Fees & costs are charged on release, refund and split; the escrow fee is waived on a mutually-agreed cancellation."} {b.costsEstimated ? "Costs are estimates until funded." : ""}
                 {price.secondary && !price.locked ? ` The ${deal.price_currency} price converts to USD at the live rate when the buyer funds.` : ""}
                 {price.locked && deal.fx_rate && deal.price_currency !== "USD" ? ` Locked rate: 1 ${deal.price_currency} = ${Number(deal.fx_rate).toFixed(4)} USD.` : ""}
               </Typography>

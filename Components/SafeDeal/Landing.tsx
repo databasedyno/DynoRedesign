@@ -163,7 +163,7 @@ export default function Landing() {
                     {[
                       "Buyer, seller or a 50/50 split can cover the fee — you choose when creating the deal.",
                       "Network & exchange costs are shown up-front and folded into the quote.",
-                      "The fee is charged on every outcome — release, refund, split or agreed cancellation.",
+                      "The fee applies on release, refund and split. On a mutually-agreed cancellation it's waived — only network and exchange costs are kept.",
                       "SafeDeal holds every deal in USDT. Payouts in USDT or USDC on Tron, Ethereum or Polygon.",
                     ].map((t) => (
                       <Stack key={t} direction="row" spacing={1} alignItems="flex-start">
@@ -181,7 +181,7 @@ export default function Landing() {
                 <Stack spacing={2}>
                   {[
                     { icon: "mdi:cancel", title: "Cancel before funding — free", body: "Either side can cancel instantly while nothing has been paid." },
-                    { icon: "mdi:handshake-outline", title: "Cancel after funding — both agree", body: "One side requests it, the other agrees. The buyer gets the held amount back to their SafeDeal wallet, minus the escrow fee and costs." },
+                    { icon: "mdi:handshake-outline", title: "Cancel after funding — both agree", body: "One side requests it, the other agrees. The buyer gets the held amount back to their SafeDeal wallet, minus only the network and exchange costs — the escrow fee is waived." },
                     { icon: "mdi:gavel", title: "Disputes — you propose, they respond", body: "Raise a dispute with a proposal (release, refund or a split). The other party accepts, counters or adds messages. Accepted proposals settle automatically." },
                     { icon: "mdi:account-tie", title: "SafeDeal decides only as a last resort", body: `Either side can escalate at any time, and a proposal that gets no answer for ${cfg?.dispute_auto_escalate_hours ?? 72} hours escalates automatically to SafeDeal.` },
                   ].map((p) => (

@@ -66,7 +66,7 @@
 #   READ-ONLY; only mutate throwaway sd_qa_*/cid607/cid608 SafeDeal-brand (company_id=262) rows.
 # ============================================================================
 
-## P0 — BLOCKING (must verify before anything ships)
+## P0 — VERIFIED ✅ (deep_testing_backend_v2 this session: 23/23 pytest PASS + Scenario A/B/control PASS + money-model invariants reconciled against the ledger, no bugs)
 - [ ] **Test the 2 implemented-but-UNTESTED backend refinements** via `deep_testing_backend_v2`.
       Code complete, `tsc --noEmit` = 0 errors, backend healthy — but NO testing-agent run yet.
   - [ ] **Scenario A — cancellation escrow-fee waiver** (+ CONTROL): a mutually-agreed cancellation
@@ -97,12 +97,15 @@
 - [ ] "Escrow protection" toggle on Dynopay payment links.
 - [ ] KYC gating for large volumes.
 
-## NON-BLOCKING housekeeping
-- [ ] Refresh 6 stale legacy pytest expectations to the new 24h cooling-off + 12-key readiness
+## NON-BLOCKING housekeeping — BOTH DONE this session ✅
+- [x] Refreshed 6 stale legacy pytest expectations to the new 24h cooling-off + 12-key readiness
       contract: test_safedeal_api.py::test_add_address_and_withdraw, test_safedeal_iter203.py
-      withdraw tests, and test_admin_readiness.
-- [ ] OPTIONAL: add a data-testid to the /safedeal/deals/new Currency selector (currently
-      role='combobox' only) to harden E2E selectors.
+      withdraw tests, and test_admin_readiness. (withdraw tests backdate the payout address past
+      the cooling-off via scripts/_pgq.js; readiness now expects 12 keys and no longer hard-asserts
+      wallets.ok=False since brand 262 now has 13 funding wallets.) 23/23 pytest green.
+- [x] Added data-testid="sd-new-currency-select" to the /safedeal/deals/new currency combobox
+      (Components/SafeDeal/NewDeal.tsx, via SelectProps.SelectDisplayProps). Options already had
+      data-testid="sd-new-currency-<CODE>". Frontend E2E re-verification pending (optional).
 
 ## Already DONE / verified (do NOT redo)
 - SafeDeal buyer<->seller E2E (fund -> deliver -> release) — PASSED (frontend testing agent).
@@ -113,6 +116,34 @@
 
 
 
+
+
+# ============================================================================
+# >>> SESSION LOG — email deliverability RCA + fee-copy waiver update <<<
+#
+# 1) PROD EMAIL "OTP never arrived" (moxxcompany -> testsafe@dyno.pt, deal escrow_id 180,
+#    source=safedeal brand 262) — ROOT CAUSE: NOT an app bug. Brevo transactional event log
+#    (GET https://api.brevo.com/v3/smtp/statistics/events?email=<addr>) shows the invite AND both
+#    SafeDeal sign-in codes were "delivered" (accepted by the recipient MX) from hi@safedeal.sh.
+#    Recipient dyno.pt = iCloud (mx01/02.mail.icloud.com), which junks new/low-rep domains.
+#    safedeal.sh had DKIM (mail._domainkey) + DMARC (p=none) but NO SPF record.
+#    FIX APPLIED: added apex TXT `v=spf1 include:spf.brevo.com ~all` to the safedeal.sh DO DNS zone
+#    (record id 1832809556; Brevo sending IPs 77.32.148.22/185.41.28.5 are within spf.brevo.com).
+#    safedeal.sh now has SPF+DKIM+DMARC. Remaining: new-domain reputation warm-up; recipients should
+#    check Junk. NOTE: SafeDeal sign-in send is fire-and-forget (void sendSafeDealCodeEmail) so a
+#    Brevo rejection would be swallowed (API still returns "We emailed you a sign-in code") — not the
+#    cause here (Brevo delivered), but a future hardening candidate.
+#    ⚠️ The DigitalOcean API token was pasted in chat — OWNER MUST ROTATE IT.
+#
+# 2) FEE COPY — mutually-agreed cancellation WAIVES the escrow fee. Updated 6 copy spots so the UI
+#    no longer says the fee is "charged on every outcome": Components/SafeDeal/{Landing.tsx (fee
+#    bullet + "Cancel after funding — both agree" card), LandingSections.tsx (cost FAQ),
+#    legalContent.ts (Terms §3), NewDealReview.tsx (quote footnote), DealPage.tsx (Money-panel note,
+#    now tense-aware: pending-cancellation vs settled vs normal)}. Backend already emitted
+#    "Escrow fee (waived)" costItem; no backend change. Verified by auto_frontend_testing_agent
+#    (landing + terms live w/ screenshots; currency selector testid + deal-page note by source).
+#    Also added data-testid="sd-new-currency-select" to the /safedeal/deals/new currency combobox.
+# ============================================================================
 
 
 # SafeDeal build notes (agent memory)

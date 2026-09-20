@@ -84,7 +84,7 @@ export function QuoteBody({ preview }: { preview: SdFeePreview }) {
         <Row l="Seller receives" v={money(preview.sellerReceives, "USD")} strong color="#6EE7B7" testid="sd-quote-seller-receives" />
       </Box>
       <Typography sx={{ fontSize: 11.5, color: SD_INK_MUTED, mt: 0.5 }}>
-        {preview.price ? "Indicative — the USD amount locks at the live rate when the buyer funds. " : ""}Network, conversion & withdrawal costs are estimates and depend on the coin the buyer pays with. Fees are set by Dynopay and charged on every outcome.
+        {preview.price ? "Indicative — the USD amount locks at the live rate when the buyer funds. " : ""}Network, conversion & withdrawal costs are estimates and depend on the coin the buyer pays with. Fees are set by Dynopay and charged on release, refund and split; the escrow fee is waived on a mutually-agreed cancellation.
       </Typography>
     </Stack>
   );

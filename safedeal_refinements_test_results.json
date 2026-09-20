@@ -1,0 +1,14 @@
+{
+  "scenario_a_cancellation_fee_waiver": {
+    "pass": true,
+    "error": null
+  },
+  "scenario_a_control_normal_dispute": {
+    "pass": true,
+    "error": null
+  },
+  "scenario_b_auto_withdraw_sweep": {
+    "pass": true,
+    "error": null
+  }
+}

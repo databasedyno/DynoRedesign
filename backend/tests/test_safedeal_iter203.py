@@ -10,13 +10,29 @@ Covers new/uncovered flows:
  - legacy escrow admin deals list regression (dealUrl invite_url)
 """
 import os
+import subprocess
 import time
 import uuid
 import pytest
 import requests
 
-BASE = os.environ.get("SAFEDEAL_BASE_URL") or "https://memory-safe-12.preview.emergentagent.com"
+BASE = os.environ.get("SAFEDEAL_BASE_URL") or "http://localhost:8001"
 API = BASE.rstrip("/") + "/api"
+
+# Directory that holds scripts/_pgq.js (the repo DB write helper) — this file lives in backend/tests/.
+BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def _make_address_usable(addr_id) -> None:
+    """Clear the 24h new-address cooling-off (SAFEDEAL_ADDRESS_COOLING_HOURS, default 24) for a
+    freshly-saved payout address by backdating its created_at, so a withdrawal can be exercised.
+    Throwaway QA customers only."""
+    subprocess.run(
+        ["node", "scripts/_pgq.js",
+         "UPDATE tbl_customer_payout_address SET created_at = created_at - interval '48 hours' "
+         f"WHERE address_id = {int(addr_id)}"],
+        cwd=BACKEND_DIR, check=True, capture_output=True, timeout=30,
+    )
 
 ADMIN_EMAIL = "moxxcompany@gmail.com"
 ADMIN_PASS = "Katiekendra123@"
@@ -143,6 +159,7 @@ def big_withdrawal_ctx(admin_token):
                            "label": "big", "code": code})
     assert ra.status_code in (200, 201), ra.text[:300]
     addr_id = ra.json()["data"].get("id") or ra.json()["data"].get("address_id")
+    _make_address_usable(addr_id)  # clear the 24h new-address cooling-off so the withdraw proceeds
 
     # Withdraw 1100
     avail_before = _wallet(stok)["available"]
@@ -220,6 +237,7 @@ def test_admin_reject_withdrawal_reverses_balance(admin_token):
                            "label": "rej", "code": code})
     assert ra.status_code in (200, 201), ra.text[:300]
     addr_id = ra.json()["data"].get("id") or ra.json()["data"].get("address_id")
+    _make_address_usable(addr_id)  # clear the 24h new-address cooling-off so the withdraw proceeds
     avail_before = _wallet(stok)["available"]
     wcode = _stepup(stok, "withdraw")
     rw = _post_retry(f"{API}/safedeal/wallet/withdraw", headers=_h(stok),
@@ -267,16 +285,19 @@ def test_admin_readiness(admin_token):
     assert d.get("live_settlement") is False
     assert d.get("brand", {}).get("company_id") == 262
     checks = d.get("checks")
-    assert isinstance(checks, list) and len(checks) == 8, f"checks: {checks}"
+    assert isinstance(checks, list) and len(checks) == 12, f"checks: {checks}"
     keys = {c.get("key"): c for c in checks}
-    expected = {"brand", "url", "live", "wallets", "custody", "autoconvert", "fees", "email"}
+    expected = {"brand", "api_key", "webhook", "url", "live", "wallets", "custody",
+                "pool", "fee_exempt", "autoconvert", "fees", "email"}
     assert expected.issubset(set(keys.keys())), f"got keys={set(keys.keys())}"
     for c in checks:
         for k in ("key", "ok", "label", "detail"):
             assert k in c, f"missing {k} in check {c}"
     assert keys["brand"]["ok"] is True
     assert keys["fees"]["ok"] is True
-    assert keys["wallets"]["ok"] is False
+    # wallets.ok is data-dependent on prod-ops (brand 262 may or may not have funding wallets
+    # provisioned yet) — assert the shape, not a fixed value, so this doesn't flip on go-live.
+    assert isinstance(keys["wallets"]["ok"], bool)
     assert d.get("totals", {}).get("customers", 0) > 0
     assert d.get("deals", {}).get("count", 0) > 0
 
