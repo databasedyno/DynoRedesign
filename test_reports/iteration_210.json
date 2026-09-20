@@ -1,0 +1,25 @@
+{
+  "summary": "SafeDeal frontend testing (iteration 210): (1) Guest Deal Start flow works end-to-end — unauthenticated visitor navigated /safedeal → clicked Start-a-deal, filled 3-step form, was redirected to /safedeal/signin?next=... at Send invite, signed in with new email using shown preview code, was returned to /safedeal/deals/new?resume=1 which auto-created the deal and landed on /safedeal/deal/<token>?created=1 with the correct title 'Guest test deal' and $100.00 amount. (2) Wallet Statement Fees column present with headers Date/Deal/Type/Amount/FEES/Balance; simulated USDT-TRC20 $50 top-up row shows fee $2.24 via data-testid=sd-statement-fee-topup as expected. (3) Rebrand sweep on /safedeal, /safedeal/signin, /safedeal/wallet — no indigo/purple/violet colors detected by the JS color sniff and the visual design is fully gold #FFC61A + near-black.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/safedeal/deal/<token> (deal detail, NOT in required rebrand-sweep scope)", "issues": ["'Invited' MUI Chip on the deal detail header uses the default MUI 'info' palette which renders as a light indigo/blue background — not part of the pages in the rebrand sweep scope, so reported as informational only. Consider recoloring to a gold/amber variant for full brand consistency."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Optional: On deal detail page, the 'Invited' MUI Chip default color is indigo-tinted. If a full gold rebrand is desired across all SafeDeal surfaces (beyond the three specifically tested pages), switch Chip color to a gold palette or use sx overrides.",
+    "The signin OTP flow uses data-testid=sd-signin-code and sd-signin-code-2..6 (not sd-signin-code-1). This inconsistency is minor but future-proof by using sd-signin-code-1 for the first box as well."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped by request)", "frontend": "100%"},
+  "test_credentials": "SafeDeal magic-link only — used random emails like sd-guest-creator-rdtq1o@example.com; preview one-time code is visible in the UI at data-testid=sd-signin-preview-code and matches API data.preview_code.",
+  "seed_data_creation": "Created SafeDeal customer (email sd-guest-creator-rdtq1o@example.com, customer_id 752) with one draft deal 'Guest test deal' ($100 USD, buyer sd-guest-buyer-rdtq1o@example.com) and one simulated USDT-TRC20 $50 top-up (topup_id 36).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Guest-deal draft is persisted in sessionStorage under key 'sd_deal_draft'; the auto-submit is triggered by ?resume=1 param on /safedeal/deals/new. Signin uses segmented 6-digit inputs data-testid=sd-signin-code (first) and sd-signin-code-2..sd-signin-code-6. Verify button testid: sd-signin-verify. Wallet Statement table uses row testid sd-statement-row-<kind> and fee cell testid sd-statement-fee-<kind>.",
+  "rca of the issue": "N/A — all three tested behaviors passed."
+}

@@ -10,18 +10,21 @@ export default function StatusChip({
   label,
   size = "md",
   testId,
+  colorsOverride,
 }: {
   deal?: Pick<EscrowDeal, "status" | "status_label">;
   tone?: Tone;
   label?: string;
   size?: "sm" | "md";
   testId?: string;
+  /** Optional explicit colors that override the tone palette (used by SafeDeal to render its gold brand). */
+  colorsOverride?: { fg: string; bg: string; border: string };
 }) {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const resolvedTone: Tone = tone || (deal ? statusTone(deal.status) : "neutral");
   const resolvedLabel = label || (deal ? statusLabel(deal) : "");
-  const c = toneColors(resolvedTone, isDark);
+  const c = colorsOverride || toneColors(resolvedTone, isDark);
   return (
     <Box
       component="span"

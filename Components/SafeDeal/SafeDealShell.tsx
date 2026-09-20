@@ -11,6 +11,7 @@ import {
   SD_GOLD,
   SD_GOLD_DARK,
   SD_GOLD_DEEP,
+  SD_GOLD_SOFT,
   SD_INK as SD_INK_TOKEN,
   SD_INK_SOFT as SD_INK_SOFT_TOKEN,
   SD_INK_MUTED as SD_INK_MUTED_TOKEN,
@@ -62,6 +63,19 @@ export default function SafeDealShell({ children, title, wide = false, dark = fa
           // Dynopay's theme hardcodes an indigo focus border + legacy navy select text; SafeDeal is gold/ink.
           MuiOutlinedInput: { styleOverrides: { root: { "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: SD_GOLD_DEEP } } } },
           MuiSelect: { styleOverrides: { outlined: { color: "inherit" } } },
+          // Dynopay's parent theme sets palette.{success,info,warning,error}.light to a TRANSLUCENT
+          // colour (e.g. success.light="rgba(5,150,105,0.10)"). MUI uses `.light` as the base for the
+          // STANDARD Alert variant, so darken()/lighten() keep that ~10% alpha and the alert's text +
+          // background render almost invisible (only the opaque icon shows). Restore opaque, readable,
+          // on-brand colours for every standard alert used across SafeDeal (credited, reserved, parked…).
+          MuiAlert: {
+            styleOverrides: {
+              standardSuccess: { color: "#065F46", backgroundColor: "#ECFDF5", "& .MuiAlert-icon": { color: "#059669" } },
+              standardInfo: { color: "#1F2937", backgroundColor: SD_GOLD_SOFT, "& .MuiAlert-icon": { color: SD_GOLD_DEEP } },
+              standardWarning: { color: "#92400E", backgroundColor: "#FFFAEB", "& .MuiAlert-icon": { color: "#D97706" } },
+              standardError: { color: "#B91C1C", backgroundColor: "#FEF2F2", "& .MuiAlert-icon": { color: "#DC2626" } },
+            },
+          },
         },
       }),
     [parentTheme],

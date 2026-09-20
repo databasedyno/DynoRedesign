@@ -1,15 +1,19 @@
 import React from "react";
 import { Box, Tooltip, Typography } from "@mui/material";
 import StatusChip from "@/Components/Page/Escrow/StatusChip";
+import { statusTone } from "@/Components/Page/Escrow/escrowUtils";
 import type { SdDeal } from "@/api/safedeal";
 import { STATUS_GLOSSARY } from "./sdFormat";
+import { SD_GOLD_DEEP, SD_GOLD_SOFT, goldAlpha } from "./sdTheme";
 
 /** Status chip with the glossary on hover/focus: what it means and who acts next. */
 export default function SdStatusChip({ deal, size = "md", testId }: { deal: SdDeal; size?: "sm" | "md"; testId?: string }) {
   const g = STATUS_GLOSSARY[deal.status];
   const role = (deal.my_role || "buyer") as "buyer" | "seller";
-  if (!g) return <StatusChip deal={deal} size={size} testId={testId} />;
-  const chip = <StatusChip deal={deal} size={size} testId={testId ? `${testId}-chip` : undefined} />;
+  // The shared escrow "brand" tone is Dynopay indigo; recolor it to SafeDeal gold here only.
+  const brandGold = statusTone(deal.status) === "brand" ? { fg: SD_GOLD_DEEP, bg: SD_GOLD_SOFT, border: goldAlpha(0.5) } : undefined;
+  if (!g) return <StatusChip deal={deal} size={size} testId={testId} colorsOverride={brandGold} />;
+  const chip = <StatusChip deal={deal} size={size} testId={testId ? `${testId}-chip` : undefined} colorsOverride={brandGold} />;
   return (
     <Tooltip
       arrow

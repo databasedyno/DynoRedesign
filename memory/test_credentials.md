@@ -1,3 +1,13 @@
+## 2026-06 fork — SafeDeal rebrand-finish + email receipts + guest-deal + fees column (VERIFIED iteration_210 FE 100%)
+## - No new passwords. SafeDeal sign-in = any email; one-time code shown in UI (data-testid=sd-signin-preview-code) AND API POST /api/safedeal/auth/send-code -> data.preview_code (outbound email OFF in preview).
+## - Signin code input = segmented: first box data-testid=sd-signin-code, rest sd-signin-code-2..6; verify btn sd-signin-verify.
+## - GUEST DEAL: /safedeal landing "Start a deal" (sd-start-deal) now goes straight to /safedeal/deals/new for guests (no auth). Fill sd-new-title/-amount/-email, Continue (sd-new-continue) x2, Send invite (sd-new-submit). Guest → redirected to signin?next=/safedeal/deals/new?resume=1; draft saved in sessionStorage 'sd_deal_draft'; after signin auto-creates → /safedeal/deal/<token>?created=1.
+## - FEES COLUMN: /safedeal/wallet Statement table has Date/Deal/Type/Amount/FEES/Balance; fee cell testid sd-statement-fee-<kind> (e.g. sd-statement-fee-topup shows $2.24 for a USDT-TRC20 $50 top-up). CSV export also has a "Fees (USD)" column.
+## - EMAIL RECEIPTS (Brevo, suppressed+dumped in preview to /app/memory/email_outbox): a credited top-up emails DEP-<id> receipt PDF; a settled deal emails SD-<id> invoice PDF to both parties. Verify via log lines "[Email] SUPPRESSED ... subject=Your SafeDeal deposit receipt — DEP-<id> | attachments=1" / "... SafeDeal invoice SD-<id> ...". Backend smoke: bash /app/backend/scripts/safedeal_smoke.sh (create→accept→fund(sim)→deliver→release, + cancel/refund).
+## - Top-up via API for a quick funded wallet: send-code -> verify-code (data.token) -> POST /api/safedeal/wallet/topup {amount:50,coin:'USDT-TRC20'} (hdr x-safedeal-token) -> data.topup.topup_id -> POST /api/safedeal/wallet/topup/<id>/simulate. Inject localStorage sd_token=<jwt>, sd_user={"email":..,"customer_id":..} to view /safedeal/wallet in a browser.
+## - Rebrand: SafeDeal "Invited"/"Delivered" status chip was Dynopay indigo (shared escrow StatusChip "brand" tone) — now gold via StatusChip colorsOverride prop set by SdStatusChip. Dynopay admin escrow UI unchanged.
+
+
 ## SafeDeal top-up fees / orphan fix / branded invoices — VERIFIED 2026-06 (iteration_209: 7/7 pytest, FE 100%)
 ## - Sign-in unchanged: POST /api/safedeal/auth/send-code {email} → data.preview_code → POST verify-code → data.token → header x-safedeal-token. customer_id = GET /api/safedeal/me → data.user.customer_id.
 ## - NEW branded deposit-receipt PDF: GET /api/safedeal/wallet/topup/:id/receipt.pdf (SafeDeal logo + You sent/Network fee/Credited).
