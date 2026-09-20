@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { Alert, Box, Button, Container, Stack, TextField, Typography } from "@mui/material";
+import { Alert, Box, Button, Container, Divider, Stack, TextField, Typography } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { SD_ACCENT, SD_GOLD, SD_GOLD_DARK, SD_INK, SD_NOTE_BG, SD_NOTE_BORDER } from "./sdTheme";
 import safedealApi, { SdDealPreview, sdError, sdSession } from "@/api/safedeal";
@@ -8,6 +8,7 @@ import { money } from "@/Components/Page/Escrow/escrowUtils";
 import { useSdHref, useSdSession } from "./sdRouting";
 import { SafeDealLogo } from "./SafeDealShell";
 import CodeInput from "./CodeInput";
+import TelegramLoginButton from "./TelegramLoginButton";
 import { TABULAR } from "./sdFormat";
 
 const RESEND_COOLDOWN_S = 30;
@@ -49,6 +50,11 @@ export default function SignIn() {
   const [cooldown, setCooldown] = useState(0);
   const [sentAt, setSentAt] = useState<number | null>(null);
   const [showHelp, setShowHelp] = useState(false);
+  const [tgBot, setTgBot] = useState<string | null>(null);
+
+  useEffect(() => {
+    safedealApi.config().then((c) => setTgBot(c.telegram_bot || null)).catch(() => undefined);
+  }, []);
 
   const nextParam = typeof router.query.next === "string" ? router.query.next : "";
   const hintEmail = typeof router.query.email === "string" ? router.query.email : "";
@@ -168,6 +174,12 @@ export default function SignIn() {
             <Typography sx={{ fontSize: 12.5, color: "#6B7280", textAlign: "center" }} data-testid="sd-signin-reassurance">
               No bank details, no password. Your SafeDeal wallet is only used for the money in your deals.
             </Typography>
+            {tgBot && (
+              <>
+                <Divider sx={{ my: 0.5, color: "#9CA3AF", fontSize: 12, fontWeight: 700 }}>or</Divider>
+                <TelegramLoginButton bot={tgBot} onSuccess={() => void router.replace(target)} onError={setError} />
+              </>
+            )}
           </Stack>
         ) : (
           <Stack spacing={1.8}>

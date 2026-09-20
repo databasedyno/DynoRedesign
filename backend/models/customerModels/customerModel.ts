@@ -35,6 +35,9 @@ const customerModel = sequelize.define(
     mobile: {
       type: DataTypes.STRING,
     },
+    telegram_id: {
+      type: DataTypes.STRING,
+    },
   },
   {
     tableName: "tbl_customer",

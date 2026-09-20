@@ -1,3 +1,11 @@
+## Telegram Login (SafeDeal) — added & VERIFIED (2026-06). Bot @SafeDealAlert_bot, token in backend/.env SAFEDEAL_TELEGRAM_BOT_TOKEN.
+##   Backend endpoint POST /api/safedeal/auth/telegram verifies HMAC-SHA256(secret=SHA256(bot_token)) + auth_date<24h, then mints the
+##   normal SafeDeal JWT. To TEST without the widget: build a payload {id,first_name,...,auth_date=now}, compute hash with the bot token
+##   (see /tmp/tg_test2.py pattern: dcs = sorted "k=v" joined by \n; secret=sha256(token).digest(); hmac-sha256 hex), POST it.
+##   IMPORTANT: Cloudflare blocks urllib default UA (403 err 1010) — send a browser User-Agent header. Widget renders ONLY after the
+##   owner runs @BotFather /setdomain for the login domain (preview host, or safedeal.sh in prod); until then it shows "Bot domain invalid".
+##   Telegram-created customers get a non-routable synthetic email tg<telegram_id>@telegram.safedeal + telegram_id on tbl_customer (migration 0043).
+
 ## SafeDeal E2E — VERIFIED (2026-09-20) — buyer<->seller fund->deliver->release PASSED (frontend testing agent). Deal e79888ff… now COMPLETED/consumed; mint a fresh deal to re-run.
 ## NEXT AGENT (2026-09-20): 2 backend refinements IMPLEMENTED but NOT TESTED — auto-withdraw sweep-on-enable + cancellation escrow-fee waiver. Run deep_testing_backend_v2 first. Full test plan at the TOP of memory/SAFEDEAL_NOTES.md (Scenarios A & B) and test_result.md top block. tsc clean, backend healthy.
 - SAFEDEAL_API_KEY in backend/.env was STALE and has been UPDATED to the current active

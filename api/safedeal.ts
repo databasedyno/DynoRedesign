@@ -81,6 +81,7 @@ export interface SdConfig {
   deal_types?: string[];
   max_revision_rounds?: number;
   address_cooling_hours?: number;
+  telegram_bot?: string | null;
 }
 
 export interface SdBalances {
@@ -365,6 +366,7 @@ export const safedealApi = {
   feePreview: async (body: { amount: number; fee_payer: string; price_currency?: string }): Promise<SdFeePreview> => unwrap(await client.post("/fee-preview", body)),
   sendCode: async (email: string): Promise<{ email: string; preview_code?: string }> => unwrap(await client.post("/auth/send-code", { email })),
   verifyCode: async (email: string, code: string): Promise<{ token: string; user: SdUser }> => unwrap(await client.post("/auth/verify-code", { email, code })),
+  telegramAuth: async (data: Record<string, unknown>): Promise<{ token: string; user: SdUser }> => unwrap(await client.post("/auth/telegram", data)),
   stepUp: async (): Promise<{ preview_code?: string }> => unwrap(await client.post("/auth/step-up", {})),
   me: async (): Promise<{ user: SdUser; wallet: SdBalances; profile: SdWallet["profile"]; addresses_count: number }> => unwrap(await client.get("/me")),
   updateProfile: async (body: { auto_withdraw?: boolean; auto_withdraw_address_id?: number | null; display_name?: string }) => unwrap(await client.post("/profile", body)),

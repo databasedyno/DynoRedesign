@@ -1,3 +1,28 @@
+# === 2026-06 (fork: escrow-cap) TELEGRAM LOGIN for SafeDeal — ADDED & VERIFIED (self-test: BE curl/python + FE screenshot) ===
+# USER ASK: "how can we make user login with their telegram auth?" → SafeDeal only, ADD alongside email+code, account created purely
+#   from Telegram identity (no email). User created a DEDICATED bot @SafeDealAlert_bot (token given).
+# MECHANISM: Telegram Login Widget (core.telegram.org/widgets/login). integration_expert returned a generic bot-messaging playbook
+#   (wrong stack/flow) so implemented the OFFICIAL widget verification directly (web-search confirmed algo).
+# BACKEND:
+#   • backend/.env: SAFEDEAL_TELEGRAM_BOT_TOKEN=8783384934:AAG… , SAFEDEAL_TELEGRAM_BOT_USERNAME=SafeDealAlert_bot.
+#   • controller/safedealController.ts: verifyTelegramAuth() = data-check-string (all fields except hash, sorted, k=v joined \n) →
+#     HMAC-SHA256(secret = SHA256(bot_token)) hex, timing-safe compare vs hash + auth_date freshness ≤ 86400s. NEW handler telegramAuth
+#     mints the SAME SafeDeal JWT ({kind:safedeal,cid,coid,email}, 7d) as verify-code. config() now returns telegram_bot (username|null).
+#   • services/customerWalletService.ts: NEW resolveCustomerByTelegram() — find/create tbl_customer by (company_id, telegram_id);
+#     Telegram gives no email so stamps synthetic tg<id>@telegram.safedeal + sets display_name from Telegram name.
+#   • migration 0043_customer_telegram_id: adds tbl_customer.telegram_id VARCHAR(64) + UNIQUE(company_id,telegram_id) partial index. APPLIED on boot.
+#   • routes/safedealRouter.ts: POST /safedeal/auth/telegram (public; CSRF already exempt via /api/safedeal/auth/ prefix). models/customerModel.ts +telegram_id.
+# FRONTEND: api/safedeal.ts SdConfig+=telegram_bot, safedealApi.telegramAuth(). NEW Components/SafeDeal/TelegramLoginButton.tsx (injects
+#   telegram-widget.js, global onSafeDealTelegramAuth callback → telegramAuth → sdSession.set → redirect). SignIn.tsx shows an "or" divider
+#   + the widget when config.telegram_bot is set (data-testid sd-signin-telegram).
+# VERIFIED: signed payload → 200 signed-in (customer 700 created, display "Telegram Tester"); /me works; TAMPERED hash → 401; EXPIRED
+#   auth_date → 401; re-login same tg id → SAME customer_id (idempotent, no dup accounts). BE tsc 0, FE tsc 0. Sign-in page renders the
+#   button+iframe (oauth.telegram.org/embed/SafeDealAlert_bot).
+# ⚠️ ONE OWNER ACTION REQUIRED: run @BotFather → /setdomain on @SafeDealAlert_bot and register the login domain, else the widget shows
+#   "Bot domain invalid". Telegram allows ONE domain/bot: set the PREVIEW host to test now (19dd10de-…preview.emergentagent.com), switch to
+#   safedeal.sh at go-live (or use a second bot for prod). COMMIT: Save to GitHub.
+# ============================================================================================
+
 # === 2026-06 (fork: escrow-cap) MAX ESCROW PER DEAL = €2,999 EQUIV. USD — DONE & VERIFIED (self-test: BE curl + FE screenshots) ===
 # USER ASK: "highest escrow per deal cant be more than 2999 euros equivalent USD, then test all after."
 # IMPLEMENTATION (env-driven, EUR-based cap resolved to USD at the live FX rate):

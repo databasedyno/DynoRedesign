@@ -29,6 +29,7 @@ r.get("/safedeal/config", safedealController.config);
 r.post("/safedeal/fee-preview", safedealController.feePreview);
 r.post("/safedeal/auth/send-code", safedealController.sendCode);
 r.post("/safedeal/auth/verify-code", safedealController.verifyCode);
+r.post("/safedeal/auth/telegram", safedealController.telegramAuth);
 r.get("/safedeal/deals/:token/preview", safedealController.previewDeal);
 // Dynopay → SafeDeal payment events (HMAC-signed; SafeDeal is an API-key merchant of Dynopay)
 r.post("/safedeal/webhooks/dynopay", safedealController.dynopayWebhook);

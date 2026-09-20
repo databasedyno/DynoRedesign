@@ -19,7 +19,7 @@ import escrowDealModel from "../models/escrowDealModel";
 import { escrowEngine, ActorInfo, DEAL_TYPES, normalizeDealType } from "./escrowController";
 import { EscrowRole, appendActivity, computeFeeBreakdown, isLiveSettlementEnabled, resolveRoles } from "./escrow/escrowShared";
 import { ESCROW_PAYOUT_OPTIONS, refreshEscrowCostRates } from "../services/escrow/escrowCosts";
-import { resolveCustomerForBrand, CustomerRow, CustomerWalletError } from "../services/customerWalletService";
+import { resolveCustomerForBrand, resolveCustomerByTelegram, CustomerRow, CustomerWalletError } from "../services/customerWalletService";
 import { getBalances, getStatement, statementToCsv, brandWalletTotals } from "../services/safedeal/safedealWallet";
 import {
   MIN_WITHDRAWAL_USD,
@@ -205,6 +205,65 @@ const verifyCode = async (req: express.Request, res: express.Response) => {
   }
 };
 
+// Telegram Login Widget: verify the signed payload (HMAC-SHA256, secret = SHA256(bot token)),
+// check freshness, then mint the SAME SafeDeal session token as the email-code flow.
+const telegramBotToken = (): string => (envRaw("SAFEDEAL_TELEGRAM_BOT_TOKEN") || "").trim();
+
+function verifyTelegramAuth(data: Record<string, any>): { ok: boolean; reason?: string } {
+  const token = telegramBotToken();
+  if (!token) return { ok: false, reason: "not_configured" };
+  const hash = String(data.hash || "");
+  if (!hash) return { ok: false, reason: "missing_hash" };
+  const dataCheckString = Object.keys(data)
+    .filter((k) => k !== "hash" && data[k] !== undefined && data[k] !== null)
+    .sort()
+    .map((k) => `${k}=${data[k]}`)
+    .join("\n");
+  const secretKey = crypto.createHash("sha256").update(token).digest();
+  const computed = crypto.createHmac("sha256", secretKey).update(dataCheckString).digest("hex");
+  let match = false;
+  try {
+    match = computed.length === hash.length && crypto.timingSafeEqual(Buffer.from(computed, "hex"), Buffer.from(hash, "hex"));
+  } catch {
+    match = false;
+  }
+  if (!match) return { ok: false, reason: "bad_signature" };
+  const authDate = Number(data.auth_date || 0);
+  if (!authDate || Math.floor(Date.now() / 1000) - authDate > 86400) return { ok: false, reason: "expired" };
+  return { ok: true };
+}
+
+const telegramAuth = async (req: express.Request, res: express.Response) => {
+  try {
+    if (!telegramBotToken()) return errorResponseHelper(res, 503, "Telegram sign-in isn't configured.");
+    const data = { ...(req.body || {}) } as Record<string, any>;
+    const check = verifyTelegramAuth(data);
+    if (!check.ok) {
+      if (check.reason === "expired") return errorResponseHelper(res, 401, "This Telegram sign-in has expired. Please try again.");
+      return errorResponseHelper(res, 401, "Telegram verification failed. Please try again.");
+    }
+    const telegramId = String(data.id || "").trim();
+    if (!telegramId) return errorResponseHelper(res, 400, "Telegram didn't return a user id.");
+    const name = [data.first_name, data.last_name].filter(Boolean).join(" ").trim() || (data.username ? `@${data.username}` : `Telegram ${telegramId}`);
+    const customer = await resolveCustomerByTelegram({ companyId: companyId(), telegramId, name });
+    const profile = await ensureProfile(customer);
+    // First Telegram sign-in: stamp a friendly display name (never overwrite one the user chose).
+    if (!profile?.display_name && name) {
+      await sequelize.query(
+        `UPDATE tbl_safedeal_profile SET display_name = :n, updated_at = NOW() WHERE customer_id = :cid AND (display_name IS NULL OR display_name = '')`,
+        { replacements: { n: name.slice(0, 120), cid: customer.customer_id } }
+      );
+    }
+    const token = jwt.sign({ kind: "safedeal", cid: customer.customer_id, coid: customer.company_id, email: customer.email }, secret(), { expiresIn: `${SESSION_DAYS}d` });
+    return successResponseHelper(res, 200, "Signed in with Telegram.", {
+      token,
+      user: { email: customer.email, customer_id: customer.customer_id, display_name: name || profile?.display_name || null },
+    });
+  } catch (e) {
+    return handle(res, e, "telegramAuth");
+  }
+};
+
 const sendStepUp = async (_req: express.Request, res: express.Response) => {
   try {
     const sess = session(res);
@@ -280,6 +339,7 @@ const config = async (_req: express.Request, res: express.Response) => {
     min_deal_usd: escrowEngine.ESCROW_MIN_DEAL_USD,
     max_deal_eur: escrowEngine.ESCROW_MAX_DEAL_EUR,
     max_deal_usd: await maxDealUsd(),
+    telegram_bot: (envRaw("SAFEDEAL_TELEGRAM_BOT_USERNAME") || "").trim() || null,
     auto_release_presets: escrowEngine.ESCROW_AUTO_RELEASE_PRESETS,
     auto_release_default: escrowEngine.ESCROW_AUTO_RELEASE_DEFAULT,
     payout_options: ESCROW_PAYOUT_OPTIONS,
@@ -1393,6 +1453,7 @@ const brandCustomerStatement = async (req: express.Request, res: express.Respons
 export default {
   sendCode,
   verifyCode,
+  telegramAuth,
   sendStepUp,
   me,
   updateProfile,

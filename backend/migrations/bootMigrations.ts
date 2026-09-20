@@ -829,6 +829,13 @@ const addSafeDealTopups = async (): Promise<void> => {
   await sequelize.query(`CREATE INDEX IF NOT EXISTS "idx_safedeal_topup_payment" ON "tbl_safedeal_topup" ("payment_id")`);
 };
 
+// 0043 — Telegram login for SafeDeal: store the Telegram user id on the customer row (unique per brand).
+const addCustomerTelegramId = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(`ALTER TABLE "tbl_customer" ADD COLUMN IF NOT EXISTS "telegram_id" VARCHAR(64)`);
+  await sequelize.query(`CREATE UNIQUE INDEX IF NOT EXISTS "tbl_customer_telegram_id_uq" ON "tbl_customer" ("company_id", "telegram_id") WHERE "telegram_id" IS NOT NULL`);
+};
+
 export async function buildBootMigrations(): Promise<Migration[]> {  const { v1, extra } = await loadBootModelGroups();  return [
     { version: "0001_boot_model_tables", up: syncGroup(v1) },
     { version: "0002_boot_model_tables_extra", up: syncGroup(extra) },
@@ -869,6 +876,7 @@ export async function buildBootMigrations(): Promise<Migration[]> {  const { v1,
     { version: "0040_safedeal_deal_terms", up: addSafeDealDealTerms },
     { version: "0041_safedeal_api_funding", up: addSafeDealApiFunding },
     { version: "0042_safedeal_topups", up: addSafeDealTopups },
+    { version: "0043_customer_telegram_id", up: addCustomerTelegramId },
     ...perfMigrations,
     ...securityMigrations,
   ];

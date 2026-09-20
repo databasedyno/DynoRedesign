@@ -85,6 +85,37 @@ export const resolveCustomerForBrand = async (params: {
   return created[0];
 };
 
+/** Find/create a customer for the brand by their Telegram identity. Telegram gives no email,
+ *  so we store the telegram_id and stamp a non-routable synthetic email placeholder. */
+export const resolveCustomerByTelegram = async (params: {
+  companyId: number;
+  telegramId: string;
+  name?: string | null;
+}): Promise<CustomerRow> => {
+  const { companyId } = params;
+  const telegramId = String(params.telegramId || "").trim();
+  if (!telegramId) throw new CustomerWalletError(400, "A Telegram id is required");
+  const existing = await sequelize.query<CustomerRow>(
+    `SELECT customer_id, company_id, customer_name, email FROM tbl_customer
+      WHERE company_id = :companyId AND telegram_id = :telegramId
+      ORDER BY customer_id ASC LIMIT 1`,
+    { replacements: { companyId, telegramId }, type: QueryTypes.SELECT }
+  );
+  if (existing[0]) return existing[0];
+  const email = `tg${telegramId}@telegram.safedeal`; // non-routable placeholder (Telegram never shares an email)
+  const created = await sequelize.query<CustomerRow>(
+    `INSERT INTO tbl_customer (id, customer_name, email, mobile, company_id, telegram_id, "createdAt", "updatedAt")
+     VALUES (:id, :name, :email, '', :companyId, :telegramId, NOW(), NOW())
+     RETURNING customer_id, company_id, customer_name, email`,
+    {
+      replacements: { id: crypto.randomUUID(), name: String(params.name || "").trim() || `Telegram ${telegramId}`, email, telegramId, companyId },
+      type: QueryTypes.SELECT,
+    }
+  );
+  apiLogger.info(`[CustomerWallet] Created Telegram customer ${created[0].customer_id} (tg:${telegramId}) for company ${companyId}`);
+  return created[0];
+};
+
 const lockOrCreateWallet = async (customerId: number, t: Transaction): Promise<WalletRow> => {
   const rows = await sequelize.query<WalletRow>(
     `SELECT wallet_id, amount, wallet_type FROM tbl_customer_wallet WHERE customer_id = :customerId ORDER BY wallet_id ASC LIMIT 1 FOR UPDATE`,
