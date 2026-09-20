@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect } from "react";
 import Head from "next/head";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Typography,
@@ -116,6 +117,7 @@ const PRIORITY_COLORS: Record<string, string> = {
 
 /* ==================== COMPONENT ==================== */
 const QAPage = () => {
+  const { t } = useTranslation("pageTitles");
   const theme = useTheme();
   const isMobile = useIsMobile("md");
   const isDark = theme.palette.mode === "dark";
@@ -185,7 +187,7 @@ const QAPage = () => {
   return (
     <>
       <Head>
-        <title>QA Test Plan · Dynopay</title>
+        <title>{t("qaTestPlan_title", { defaultValue: "QA Test Plan · Dynopay" })}</title>
         <meta name="robots" content="noindex, nofollow" />
       </Head>
       <PageWrapper>

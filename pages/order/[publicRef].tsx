@@ -411,7 +411,7 @@ const OrderStatusPage: NextPageWithLayout<OrderPageProps> = ({ order: initialOrd
   return (
     <>
       <Head>
-        <title>{`Order ${order.public_ref.slice(0, 8).toUpperCase()} · Dynopay`}</title>
+        <title>{t("order_title", { ns: "pageTitles", ref: order.public_ref.slice(0, 8).toUpperCase(), defaultValue: `Order ${order.public_ref.slice(0, 8).toUpperCase()} · Dynopay` })}</title>
         <meta name="robots" content="noindex" />
       </Head>
       <Container component="main" maxWidth="md" sx={{ pt: { xs: "88px", md: "112px" }, pb: { xs: 3, md: 5 } }} data-testid="order-page">

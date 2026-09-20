@@ -42,7 +42,7 @@ const CheckoutStateDemo = () => {
   return (
     <Pay3Layout>
       <Head>
-        <title>Checkout state demo · Dynopay</title>
+        <title>{t("payStateDemo_title", { ns: "pageTitles", defaultValue: "Checkout state demo · Dynopay" })}</title>
         <meta name="robots" content="noindex,nofollow" />
       </Head>
       <Box sx={{ maxWidth: 640, mx: "auto", px: { xs: 2, md: 3 }, pt: { xs: 3, md: 5 }, pb: 8 }}>

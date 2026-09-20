@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Head from "next/head";
+import { useTranslation } from "react-i18next";
 import { useRouter } from "next/router";
 import { Box, Typography, Button, useMediaQuery, useTheme } from "@mui/material";
 import { styled } from "@mui/material/styles";
@@ -61,6 +62,7 @@ const PageWrapper = styled(Box)({ width: "100%" });
 
 // ─── Device / browser frame that houses the animated scene ───────────────────
 const HowToPage = () => {
+  const { t } = useTranslation("pageTitles");
   const s = useAurora();
   const theme = useTheme();
   const router = useRouter();
@@ -105,8 +107,8 @@ const HowToPage = () => {
   return (
     <>
       <Head>
-        <title>How Dynopay works — accept crypto in about 2 minutes</title>
-        <meta name="description" content={HOW_TO_DESC} />
+        <title>{t("howTo_title", { defaultValue: "How Dynopay works — accept crypto in about 2 minutes" })}</title>
+        <meta name="description" content={t("howTo_desc", { defaultValue: HOW_TO_DESC })} />
         <link key="canonical" rel="canonical" href={`${SITE_URL}/how-to`} />
         <meta key="og:title" property="og:title" content="How Dynopay works — accept crypto in about 2 minutes" />
         <meta key="og:description" property="og:description" content={HOW_TO_DESC} />

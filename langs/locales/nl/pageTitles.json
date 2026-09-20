@@ -110,5 +110,19 @@
   "kyc_title": "Identiteitsverificatie · Dynopay",
   "kyc_desc": "Je verificatiestatus, wat je nodig hebt en hoelang het duurt.",
   "authReset2fa_title": "Tweestapsverificatie resetten · Dynopay",
-  "authReset2fa_desc": "Bevestig het verwijderen van je authenticator-app en schakel over naar e-mailcodes."
+  "authReset2fa_desc": "Bevestig het verwijderen van je authenticator-app en schakel over naar e-mailcodes.",
+  "howTo_title": "Zo werkt Dynopay — accepteer crypto in ongeveer 2 minuten",
+  "howTo_desc": "Een korte rondleiding: maak een betaallink, deel deze, ontvang betalingen in Bitcoin, Ethereum of stablecoins en laat uitbetalen naar je eigen wallet. Ontdek hoe Dynopay werkt.",
+  "notFound_title": "Pagina niet beschikbaar · Dynopay",
+  "notFound_desc": "De pagina die je zoekt is niet beschikbaar of is mogelijk verplaatst.",
+  "serverError_title": "Er is iets misgegaan · Dynopay",
+  "unsubscribe_title": "Afmelden — Dynopay",
+  "adminEscrow_title": "Escrow · Admin · Dynopay",
+  "storeCheckout_title": "Afrekenen · @{{handle}} · Dynopay",
+  "order_title": "Bestelling {{ref}} · Dynopay",
+  "helpArticle_titleTemplate": "{{title}} · Dynopay Helpcentrum",
+  "qaTestPlan_title": "QA-testplan · Dynopay",
+  "otpHarness_title": "OTP-invoertestomgeving · QA",
+  "payStateDemo_title": "Demo van betaalstatussen · Dynopay",
+  "payDonationDemo_title": "Demo van donatie-checkout · Dynopay"
 }

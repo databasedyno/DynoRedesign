@@ -1,14 +1,18 @@
 import React from "react";
 import Head from "next/head";
+import { useTranslation } from "react-i18next";
 import PageUnavailable from "@/Components/Common/PageUnavailable";
 
 const Error = ({ statusCode }: any) => {
   // One unified, on-brand "page unavailable" screen for every error/404 state.
   // (statusCode is still surfaced via <Head> / HTTP status for correctness & SEO.)
+  const { t } = useTranslation("pageTitles");
   return (
     <>
       <Head>
-        <title>{`${statusCode === 404 ? "Page not available" : "Something went wrong"} · Dynopay`}</title>
+        <title>{statusCode === 404
+          ? t("notFound_title", { defaultValue: "Page not available · Dynopay" })
+          : t("serverError_title", { defaultValue: "Something went wrong · Dynopay" })}</title>
         <meta name="robots" content="noindex, nofollow" />
       </Head>
       <PageUnavailable />

@@ -110,5 +110,19 @@
   "kyc_title": "Identitätsprüfung · Dynopay",
   "kyc_desc": "Ihr Verifizierungsstatus, was Sie benötigen und wie lange es dauert.",
   "authReset2fa_title": "Zwei-Schritt-Verifizierung zurücksetzen · Dynopay",
-  "authReset2fa_desc": "Bestätige das Entfernen deiner Authenticator-App und wechsle zu E-Mail-Codes."
+  "authReset2fa_desc": "Bestätige das Entfernen deiner Authenticator-App und wechsle zu E-Mail-Codes.",
+  "howTo_title": "So funktioniert Dynopay — Krypto in etwa 2 Minuten akzeptieren",
+  "howTo_desc": "Ein kurzer Überblick: Zahlungslink erstellen, teilen, in Bitcoin, Ethereum oder Stablecoins bezahlt werden und auf die eigene Wallet auszahlen. So funktioniert Dynopay.",
+  "notFound_title": "Seite nicht verfügbar · Dynopay",
+  "notFound_desc": "Die gesuchte Seite ist nicht verfügbar oder wurde möglicherweise verschoben.",
+  "serverError_title": "Etwas ist schiefgelaufen · Dynopay",
+  "unsubscribe_title": "Abmelden — Dynopay",
+  "adminEscrow_title": "Treuhand · Admin · Dynopay",
+  "storeCheckout_title": "Checkout · @{{handle}} · Dynopay",
+  "order_title": "Bestellung {{ref}} · Dynopay",
+  "helpArticle_titleTemplate": "{{title}} · Dynopay Hilfe-Center",
+  "qaTestPlan_title": "QA-Testplan · Dynopay",
+  "otpHarness_title": "OTP-Eingabe-Testtool · QA",
+  "payStateDemo_title": "Checkout-Status-Demo · Dynopay",
+  "payDonationDemo_title": "Spenden-Checkout-Demo · Dynopay"
 }

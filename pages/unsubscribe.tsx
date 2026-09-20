@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
+import { useTranslation } from "react-i18next";
 import { Box, Button, CircularProgress, Typography } from "@mui/material";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import ErrorOutlineRoundedIcon from "@mui/icons-material/ErrorOutlineRounded";
@@ -11,6 +12,7 @@ type Status = "loading" | "success" | "invalid";
 // (links look like /unsubscribe?token=...). Calls the tokenized backend
 // endpoint — no login required.
 export default function UnsubscribePage() {
+  const { t } = useTranslation("pageTitles");
   const router = useRouter();
   const [status, setStatus] = useState<Status>("loading");
   const [message, setMessage] = useState("");
@@ -48,7 +50,7 @@ export default function UnsubscribePage() {
   return (
     <>
       <Head>
-        <title>Unsubscribe — Dynopay</title>
+        <title>{t("unsubscribe_title", { defaultValue: "Unsubscribe — Dynopay" })}</title>
         <meta name="robots" content="noindex" />
       </Head>
       <Box

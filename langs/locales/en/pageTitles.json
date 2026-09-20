@@ -110,5 +110,19 @@
   "kyc_title": "Identity verification · Dynopay",
   "kyc_desc": "Your verification status, what you'll need and how long it takes.",
   "authReset2fa_title": "Reset two-step verification · Dynopay",
-  "authReset2fa_desc": "Confirm the removal of your authenticator app and switch to email codes."
+  "authReset2fa_desc": "Confirm the removal of your authenticator app and switch to email codes.",
+  "howTo_title": "How Dynopay works — accept crypto in about 2 minutes",
+  "howTo_desc": "A quick walkthrough: create a payment link, share it, get paid in Bitcoin, Ethereum or stablecoins, and settle to your own wallet. See how Dynopay works.",
+  "notFound_title": "Page not available · Dynopay",
+  "notFound_desc": "The page you're looking for isn't available or may have moved.",
+  "serverError_title": "Something went wrong · Dynopay",
+  "unsubscribe_title": "Unsubscribe — Dynopay",
+  "adminEscrow_title": "Escrow · Admin · Dynopay",
+  "storeCheckout_title": "Checkout · @{{handle}} · Dynopay",
+  "order_title": "Order {{ref}} · Dynopay",
+  "helpArticle_titleTemplate": "{{title}} · Dynopay Help Center",
+  "qaTestPlan_title": "QA Test Plan · Dynopay",
+  "otpHarness_title": "OTP Input Harness · QA",
+  "payStateDemo_title": "Checkout state demo · Dynopay",
+  "payDonationDemo_title": "Donation checkout demo · Dynopay"
 }

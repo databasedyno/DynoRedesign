@@ -252,7 +252,7 @@ const CheckoutPage: NextPageWithLayout = () => {
 
   return (
     <>
-      <Head><title>{`Checkout · @${handle} · Dynopay`}</title><meta name="robots" content="noindex" /></Head>
+      <Head><title>{t("storeCheckout_title", { ns: "pageTitles", handle, defaultValue: `Checkout · @${handle} · Dynopay` })}</title><meta name="robots" content="noindex" /></Head>
       <Container maxWidth="lg" disableGutters sx={{ pt: { xs: "64px", md: "88px" }, pb: { xs: 3, md: 5 }, px: { xs: 0, sm: 3 } }} data-testid="checkout-page">
         {cartEmpty ? (
           <Container maxWidth="sm" sx={{ pt: 3 }}>

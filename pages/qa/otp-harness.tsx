@@ -13,10 +13,12 @@
  */
 import React, { useState } from "react";
 import Head from "next/head";
+import { useTranslation } from "react-i18next";
 import { Box, Typography, Button } from "@mui/material";
 import OtpInputPanel from "@/Components/UI/OtpInputPanel";
 
 const OtpHarness: React.FC = () => {
+  const { t } = useTranslation("pageTitles");
   const [submitted, setSubmitted] = useState<string>("");
   const [submitCount, setSubmitCount] = useState<number>(0);
   const [resetKey, setResetKey] = useState<number>(0);
@@ -24,7 +26,7 @@ const OtpHarness: React.FC = () => {
   return (
     <>
       <Head>
-        <title>OTP Input Harness · QA</title>
+        <title>{t("otpHarness_title", { defaultValue: "OTP Input Harness · QA" })}</title>
         <meta name="robots" content="noindex,nofollow" />
       </Head>
       <Box

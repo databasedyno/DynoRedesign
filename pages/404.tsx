@@ -1,5 +1,6 @@
 import React from "react";
 import Head from "next/head";
+import { useTranslation } from "react-i18next";
 import PageUnavailable from "@/Components/Common/PageUnavailable";
 import type { NextPageWithLayout } from "@/pages/_app";
 
@@ -11,10 +12,11 @@ import type { NextPageWithLayout } from "@/pages/_app";
  * merchant app / auth chrome.
  */
 const NotFoundPage: NextPageWithLayout = () => {
+  const { t } = useTranslation("pageTitles");
   return (
     <>
       <Head>
-        <title>Page not available · Dynopay</title>
+        <title>{t("notFound_title", { defaultValue: "Page not available · Dynopay" })}</title>
         <meta name="robots" content="noindex, nofollow" />
       </Head>
       <PageUnavailable />

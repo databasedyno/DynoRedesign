@@ -123,7 +123,7 @@ const HelpDetail = ({ article, stub, setPageName, setPageDescription }: HelpDeta
 
   const head = (
     <Head>
-      <title>{`${title} · Dynopay Help Center`}</title>
+      <title>{t("helpArticle_titleTemplate", { ns: "pageTitles", title, defaultValue: `${title} · Dynopay Help Center` })}</title>
       <meta name="description" content={metaDescription} />
       <link key="canonical" rel="canonical" href={canonicalUrl} />
       {LOCALES.map((l) => (

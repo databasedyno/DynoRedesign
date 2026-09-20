@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import Head from 'next/head'
+import { useTranslation } from 'react-i18next'
 import { Box, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
 import Pay3Layout from '@/Components/Layout/Pay3Layout'
 import DonationCampaign, { DonationCampaignData } from '@/Components/Page/Pay3Components/donationCampaign'
@@ -47,12 +48,13 @@ const scenarios: Record<string, DonationCampaignData> = {
 }
 
 const DonationDemo = () => {
+  const { t } = useTranslation("pageTitles")
   const [key, setKey] = useState<'campaign' | 'endingSoon' | 'noGoal' | 'closed'>('campaign')
 
   return (
     <>
       <Head>
-        <title>Donation checkout demo · Dynopay</title>
+        <title>{t("payDonationDemo_title", { defaultValue: "Donation checkout demo · Dynopay" })}</title>
         <meta name="description" content="A live crypto donation & crowdfunding checkout — goal bar, reward tiers and donor wall." />
         <meta key="og:title" property="og:title" content="Help rebuild the Riverside Community Library" />
         <meta key="og:description" property="og:description" content="$16,240 raised of $25,000 goal — 65% funded. Fundraise or take tips in crypto with Dynopay." />
