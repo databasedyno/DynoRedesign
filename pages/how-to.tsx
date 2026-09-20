@@ -20,7 +20,8 @@ import { Section, PrimaryBtn, SecondaryBtn, cardSx } from "@/Components/Page/Hom
 
 /* Public "how it works" walkthrough (/how-to). A self-playing, chaptered
  * product tour that the activation-drip emails link to as their how-to video.
- * Aurora design system; English copy (page localization is a later follow-up). */
+ * Aurora design system. Copy is fully localized via the `landing` (howTo.*)
+ * and `pageTitles` i18n namespaces. */
 
 const CHAPTER_MS = 4600;
 const SITE_URL = "https://dynopay.com";
@@ -28,41 +29,17 @@ const HOW_TO_DESC =
   "A quick walkthrough: create a payment link, share it, get paid in Bitcoin, Ethereum or stablecoins, and settle to your own wallet. See how Dynopay works.";
 
 const CHAPTERS = [
-  {
-    id: "create",
-    Icon: LinkRoundedIcon,
-    tag: "STEP 1",
-    title: "Create a payment link",
-    desc: "Name a price, add a short description, hit create. No code, no contract — you get a shareable link in seconds.",
-  },
-  {
-    id: "share",
-    Icon: ShareRoundedIcon,
-    tag: "STEP 2",
-    title: "Share it anywhere",
-    desc: "Drop the link into a chat, an invoice, your bio or a checkout button. One link works everywhere your customers are.",
-  },
-  {
-    id: "pay",
-    Icon: BoltRoundedIcon,
-    tag: "STEP 3",
-    title: "Your customer pays in crypto",
-    desc: "They pick Bitcoin, Ethereum or a stablecoin and pay. You watch it confirm on-chain in real time — no chargebacks, ever.",
-  },
-  {
-    id: "settle",
-    Icon: AccountBalanceWalletRoundedIcon,
-    tag: "STEP 4",
-    title: "Funds land in your wallet",
-    desc: "Payments settle straight to a wallet you control — keep the original coin, or auto-convert to USDC or USDT. Your choice.",
-  },
+  { id: "create", Icon: LinkRoundedIcon },
+  { id: "share", Icon: ShareRoundedIcon },
+  { id: "pay", Icon: BoltRoundedIcon },
+  { id: "settle", Icon: AccountBalanceWalletRoundedIcon },
 ] as const;
 
 const PageWrapper = styled(Box)({ width: "100%" });
 
 // ─── Device / browser frame that houses the animated scene ───────────────────
 const HowToPage = () => {
-  const { t } = useTranslation("pageTitles");
+  const { t } = useTranslation(["landing", "pageTitles"]);
   const s = useAurora();
   const theme = useTheme();
   const router = useRouter();
@@ -102,18 +79,25 @@ const HowToPage = () => {
     setProgress(0);
   };
 
-  const active = CHAPTERS[step];
+  // Translated chapter copy (structure stays in CHAPTERS; text comes from i18n).
+  const chapters = CHAPTERS.map((c, i) => ({
+    ...c,
+    tag: t("howTo.stepLabel", { n: i + 1, defaultValue: `STEP ${i + 1}` }),
+    title: t(`howTo.chapters.${c.id}.title`),
+    desc: t(`howTo.chapters.${c.id}.desc`),
+  }));
+  const active = chapters[step];
 
   return (
     <>
       <Head>
-        <title>{t("howTo_title", { defaultValue: "How Dynopay works — accept crypto in about 2 minutes" })}</title>
-        <meta name="description" content={t("howTo_desc", { defaultValue: HOW_TO_DESC })} />
+        <title>{t("howTo_title", { ns: "pageTitles", defaultValue: "How Dynopay works — accept crypto in about 2 minutes" })}</title>
+        <meta name="description" content={t("howTo_desc", { ns: "pageTitles", defaultValue: HOW_TO_DESC })} />
         <link key="canonical" rel="canonical" href={`${SITE_URL}/how-to`} />
-        <meta key="og:title" property="og:title" content="How Dynopay works — accept crypto in about 2 minutes" />
-        <meta key="og:description" property="og:description" content={t("howTo_desc", { defaultValue: HOW_TO_DESC })} />
-        <meta key="twitter:title" name="twitter:title" content="How Dynopay works — accept crypto in about 2 minutes" />
-        <meta key="twitter:description" name="twitter:description" content={t("howTo_desc", { defaultValue: HOW_TO_DESC })} />
+        <meta key="og:title" property="og:title" content={t("howTo_title", { ns: "pageTitles", defaultValue: "How Dynopay works — accept crypto in about 2 minutes" })} />
+        <meta key="og:description" property="og:description" content={t("howTo_desc", { ns: "pageTitles", defaultValue: HOW_TO_DESC })} />
+        <meta key="twitter:title" name="twitter:title" content={t("howTo_title", { ns: "pageTitles", defaultValue: "How Dynopay works — accept crypto in about 2 minutes" })} />
+        <meta key="twitter:description" name="twitter:description" content={t("howTo_desc", { ns: "pageTitles", defaultValue: HOW_TO_DESC })} />
       </Head>
 
       <PageWrapper sx={{ background: s.bg }} data-testid="how-to-page">
@@ -121,15 +105,15 @@ const HowToPage = () => {
         <PublicPageHero
           testId="how-to-hero"
           compact
-          eyebrow="How it works"
+          eyebrow={t("howTo.hero.eyebrow")}
           title={
             <>
-              Get paid in crypto,
+              {t("howTo.hero.titleLine1")}
               <br />
-              in about two minutes
+              {t("howTo.hero.titleLine2")}
             </>
           }
-          body="No code and no crypto experience needed. Watch the four steps from creating your first link to money landing in your wallet."
+          body={t("howTo.hero.body")}
         />
 
         {/* The "video" — player + chapter rail */}
@@ -225,7 +209,7 @@ const HowToPage = () => {
                 <Button
                   data-testid="how-to-play-toggle"
                   onClick={() => setPlaying((p) => !p)}
-                  aria-label={playing ? "Pause" : "Play"}
+                  aria-label={playing ? t("howTo.controls.pause") : t("howTo.controls.play")}
                   sx={{
                     minWidth: 0,
                     width: 40,
@@ -241,7 +225,7 @@ const HowToPage = () => {
                 </Button>
                 <Box sx={{ flex: 1 }}>
                   <Box sx={{ display: "flex", gap: 0.75 }}>
-                    {CHAPTERS.map((c, i) => (
+                    {chapters.map((c, i) => (
                       <Box
                         key={c.id}
                         onClick={() => goToChapter(i)}
@@ -275,7 +259,7 @@ const HowToPage = () => {
 
             {/* Chapter rail */}
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-              {CHAPTERS.map((c, i) => {
+              {chapters.map((c, i) => {
                 const isActive = i === step;
                 return (
                   <Box
@@ -326,10 +310,10 @@ const HowToPage = () => {
           {/* CTAs */}
           <Box sx={{ mt: { xs: 5, md: 7 }, display: "flex", flexWrap: "wrap", gap: 1.5, justifyContent: "center" }}>
             <PrimaryBtn data-testid="how-to-cta-primary" onClick={() => router.push("/auth/register?ref=how_to")} endIcon={<ArrowForwardRoundedIcon sx={{ fontSize: 18 }} />}>
-              Create your first link
+              {t("howTo.cta.primary")}
             </PrimaryBtn>
             <SecondaryBtn data-testid="how-to-cta-secondary" onClick={() => router.push("/documentation")}>
-              Read the docs
+              {t("howTo.cta.secondary")}
             </SecondaryBtn>
           </Box>
         </Section>

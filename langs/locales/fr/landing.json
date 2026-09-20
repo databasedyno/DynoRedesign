@@ -1830,5 +1830,40 @@
         "cta": "Voir les pages créateur"
       }
     }
+  },
+  "howTo": {
+    "hero": {
+      "eyebrow": "Comment ça marche",
+      "titleLine1": "Encaissez en crypto,",
+      "titleLine2": "en environ deux minutes",
+      "body": "Aucun code ni expérience en crypto nécessaire. Découvrez les quatre étapes, de la création de votre premier lien jusqu'à l'argent qui arrive sur votre portefeuille."
+    },
+    "stepLabel": "ÉTAPE {{n}}",
+    "chapters": {
+      "create": {
+        "title": "Créez un lien de paiement",
+        "desc": "Indiquez un prix, ajoutez une courte description et cliquez sur créer. Sans code ni contrat : vous obtenez un lien partageable en quelques secondes."
+      },
+      "share": {
+        "title": "Partagez-le partout",
+        "desc": "Glissez le lien dans une conversation, une facture, votre bio ou un bouton de paiement. Un seul lien fonctionne partout où sont vos clients."
+      },
+      "pay": {
+        "title": "Votre client paie en crypto",
+        "desc": "Il choisit Bitcoin, Ethereum ou un stablecoin et paie. Vous voyez la confirmation on-chain en temps réel, sans rétrofacturation, jamais."
+      },
+      "settle": {
+        "title": "Les fonds arrivent sur votre portefeuille",
+        "desc": "Les paiements sont réglés directement sur un portefeuille que vous contrôlez : conservez la crypto d'origine ou convertissez automatiquement en USDC ou USDT. À vous de choisir."
+      }
+    },
+    "controls": {
+      "play": "Lire",
+      "pause": "Pause"
+    },
+    "cta": {
+      "primary": "Créez votre premier lien",
+      "secondary": "Lire la documentation"
+    }
   }
 }

@@ -1830,5 +1830,40 @@
         "cta": "Ver páginas de criador"
       }
     }
+  },
+  "howTo": {
+    "hero": {
+      "eyebrow": "Como funciona",
+      "titleLine1": "Receba em cripto,",
+      "titleLine2": "em cerca de dois minutos",
+      "body": "Sem código e sem experiência com cripto. Veja os quatro passos, desde criar seu primeiro link até o dinheiro chegar à sua carteira."
+    },
+    "stepLabel": "PASSO {{n}}",
+    "chapters": {
+      "create": {
+        "title": "Crie um link de pagamento",
+        "desc": "Defina um preço, adicione uma breve descrição e clique em criar. Sem código nem contrato: você recebe um link para compartilhar em segundos."
+      },
+      "share": {
+        "title": "Compartilhe em qualquer lugar",
+        "desc": "Coloque o link em um chat, uma fatura, sua bio ou um botão de checkout. Um único link funciona em todos os lugares onde seus clientes estão."
+      },
+      "pay": {
+        "title": "Seu cliente paga em cripto",
+        "desc": "Ele escolhe Bitcoin, Ethereum ou uma stablecoin e paga. Você acompanha a confirmação on-chain em tempo real, sem estornos, nunca."
+      },
+      "settle": {
+        "title": "Os fundos chegam à sua carteira",
+        "desc": "Os pagamentos são liquidados diretamente em uma carteira que você controla: mantenha a moeda original ou converta automaticamente para USDC ou USDT. Você escolhe."
+      }
+    },
+    "controls": {
+      "play": "Reproduzir",
+      "pause": "Pausar"
+    },
+    "cta": {
+      "primary": "Crie seu primeiro link",
+      "secondary": "Leia a documentação"
+    }
   }
 }

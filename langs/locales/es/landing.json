@@ -1830,5 +1830,40 @@
         "cta": "Ver páginas de creador"
       }
     }
+  },
+  "howTo": {
+    "hero": {
+      "eyebrow": "Cómo funciona",
+      "titleLine1": "Cobra en cripto,",
+      "titleLine2": "en unos dos minutos",
+      "body": "Sin código ni experiencia en cripto. Mira los cuatro pasos, desde crear tu primer enlace hasta que el dinero llega a tu wallet."
+    },
+    "stepLabel": "PASO {{n}}",
+    "chapters": {
+      "create": {
+        "title": "Crea un enlace de pago",
+        "desc": "Pon un precio, añade una breve descripción y pulsa crear. Sin código ni contratos: obtienes un enlace para compartir en segundos."
+      },
+      "share": {
+        "title": "Compártelo donde quieras",
+        "desc": "Pega el enlace en un chat, una factura, tu bio o un botón de pago. Un solo enlace funciona en todos los lugares donde están tus clientes."
+      },
+      "pay": {
+        "title": "Tu cliente paga en cripto",
+        "desc": "Elige Bitcoin, Ethereum o una stablecoin y paga. Ves cómo se confirma on-chain en tiempo real, sin contracargos, nunca."
+      },
+      "settle": {
+        "title": "Los fondos llegan a tu wallet",
+        "desc": "Los pagos se liquidan directamente en una wallet que tú controlas: conserva la moneda original o convierte automáticamente a USDC o USDT. Tú decides."
+      }
+    },
+    "controls": {
+      "play": "Reproducir",
+      "pause": "Pausar"
+    },
+    "cta": {
+      "primary": "Crea tu primer enlace",
+      "secondary": "Lee la documentación"
+    }
   }
 }

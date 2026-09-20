@@ -1830,5 +1830,40 @@
         "cta": "Creator-Seiten ansehen"
       }
     }
+  },
+  "howTo": {
+    "hero": {
+      "eyebrow": "So funktioniert's",
+      "titleLine1": "Zahlungen in Krypto,",
+      "titleLine2": "in etwa zwei Minuten",
+      "body": "Kein Code und keine Krypto-Erfahrung nötig. Sehen Sie die vier Schritte – vom Erstellen des ersten Links bis zum Geldeingang in Ihrer Wallet."
+    },
+    "stepLabel": "SCHRITT {{n}}",
+    "chapters": {
+      "create": {
+        "title": "Zahlungslink erstellen",
+        "desc": "Preis festlegen, kurze Beschreibung hinzufügen, auf Erstellen klicken. Kein Code, kein Vertrag – in Sekunden erhalten Sie einen teilbaren Link."
+      },
+      "share": {
+        "title": "Überall teilen",
+        "desc": "Fügen Sie den Link in einen Chat, eine Rechnung, Ihre Bio oder einen Checkout-Button ein. Ein Link funktioniert überall, wo Ihre Kunden sind."
+      },
+      "pay": {
+        "title": "Ihr Kunde zahlt in Krypto",
+        "desc": "Er wählt Bitcoin, Ethereum oder einen Stablecoin und zahlt. Sie sehen die Bestätigung on-chain in Echtzeit – nie wieder Rückbuchungen."
+      },
+      "settle": {
+        "title": "Das Geld landet in Ihrer Wallet",
+        "desc": "Zahlungen werden direkt auf eine Wallet ausgezahlt, die Sie kontrollieren – behalten Sie die ursprüngliche Coin oder konvertieren Sie automatisch in USDC oder USDT. Ihre Wahl."
+      }
+    },
+    "controls": {
+      "play": "Abspielen",
+      "pause": "Pause"
+    },
+    "cta": {
+      "primary": "Ersten Link erstellen",
+      "secondary": "Doku lesen"
+    }
   }
 }

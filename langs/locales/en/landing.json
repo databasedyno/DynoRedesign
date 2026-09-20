@@ -1830,5 +1830,40 @@
         "cta": "See creator pages"
       }
     }
+  },
+  "howTo": {
+    "hero": {
+      "eyebrow": "How it works",
+      "titleLine1": "Get paid in crypto,",
+      "titleLine2": "in about two minutes",
+      "body": "No code and no crypto experience needed. Watch the four steps from creating your first link to money landing in your wallet."
+    },
+    "stepLabel": "STEP {{n}}",
+    "chapters": {
+      "create": {
+        "title": "Create a payment link",
+        "desc": "Name a price, add a short description, hit create. No code, no contract — you get a shareable link in seconds."
+      },
+      "share": {
+        "title": "Share it anywhere",
+        "desc": "Drop the link into a chat, an invoice, your bio or a checkout button. One link works everywhere your customers are."
+      },
+      "pay": {
+        "title": "Your customer pays in crypto",
+        "desc": "They pick Bitcoin, Ethereum or a stablecoin and pay. You watch it confirm on-chain in real time — no chargebacks, ever."
+      },
+      "settle": {
+        "title": "Funds land in your wallet",
+        "desc": "Payments settle straight to a wallet you control — keep the original coin, or auto-convert to USDC or USDT. Your choice."
+      }
+    },
+    "controls": {
+      "play": "Play",
+      "pause": "Pause"
+    },
+    "cta": {
+      "primary": "Create your first link",
+      "secondary": "Read the docs"
+    }
   }
 }

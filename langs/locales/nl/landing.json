@@ -1830,5 +1830,40 @@
         "cta": "Bekijk creatorpagina's"
       }
     }
+  },
+  "howTo": {
+    "hero": {
+      "eyebrow": "Zo werkt het",
+      "titleLine1": "Ontvang betalingen in crypto,",
+      "titleLine2": "in ongeveer twee minuten",
+      "body": "Geen code en geen crypto-ervaring nodig. Bekijk de vier stappen, van het maken van je eerste link tot het geld dat op je wallet binnenkomt."
+    },
+    "stepLabel": "STAP {{n}}",
+    "chapters": {
+      "create": {
+        "title": "Maak een betaallink",
+        "desc": "Stel een prijs in, voeg een korte omschrijving toe en klik op maken. Geen code, geen contract – je krijgt binnen enkele seconden een deelbare link."
+      },
+      "share": {
+        "title": "Deel hem overal",
+        "desc": "Zet de link in een chat, een factuur, je bio of een afrekenknop. Eén link werkt overal waar je klanten zijn."
+      },
+      "pay": {
+        "title": "Je klant betaalt in crypto",
+        "desc": "Ze kiezen Bitcoin, Ethereum of een stablecoin en betalen. Je ziet de bevestiging on-chain in realtime – nooit meer terugboekingen."
+      },
+      "settle": {
+        "title": "Het geld komt op je wallet",
+        "desc": "Betalingen worden rechtstreeks uitbetaald naar een wallet die jij beheert – behoud de oorspronkelijke coin of converteer automatisch naar USDC of USDT. Jouw keuze."
+      }
+    },
+    "controls": {
+      "play": "Afspelen",
+      "pause": "Pauzeren"
+    },
+    "cta": {
+      "primary": "Maak je eerste link",
+      "secondary": "Lees de documentatie"
+    }
   }
 }
