@@ -124,5 +124,6 @@
   "qaTestPlan_title": "Plano de testes QA · Dynopay",
   "otpHarness_title": "Ambiente de teste OTP · QA",
   "payStateDemo_title": "Demo de estados de pagamento · Dynopay",
-  "payDonationDemo_title": "Demo de checkout de doação · Dynopay"
+  "payDonationDemo_title": "Demo de checkout de doação · Dynopay",
+  "qualityCenter_title": "Centro de qualidade QA · Dynopay"
 }

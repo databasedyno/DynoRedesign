@@ -2,14 +2,18 @@ import React from "react";
 import Head from "next/head";
 import { Box, Button, CircularProgress, TextField, Typography } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import { useTranslation } from "react-i18next";
 import { brandFg } from "@/constants/theme";
 
-export const QualityHead = () => (
-  <Head>
-    <title>QA Quality Center · Dynopay</title>
-    <meta name="robots" content="noindex, nofollow" />
-  </Head>
-);
+export const QualityHead = () => {
+  const { t } = useTranslation("pageTitles");
+  return (
+    <Head>
+      <title>{t("qualityCenter_title", { defaultValue: "QA Quality Center · Dynopay" })}</title>
+      <meta name="robots" content="noindex, nofollow" />
+    </Head>
+  );
+};
 
 interface GateProps {
   booting: boolean;

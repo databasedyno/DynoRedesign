@@ -111,9 +111,9 @@ const HowToPage = () => {
         <meta name="description" content={t("howTo_desc", { defaultValue: HOW_TO_DESC })} />
         <link key="canonical" rel="canonical" href={`${SITE_URL}/how-to`} />
         <meta key="og:title" property="og:title" content="How Dynopay works — accept crypto in about 2 minutes" />
-        <meta key="og:description" property="og:description" content={HOW_TO_DESC} />
+        <meta key="og:description" property="og:description" content={t("howTo_desc", { defaultValue: HOW_TO_DESC })} />
         <meta key="twitter:title" name="twitter:title" content="How Dynopay works — accept crypto in about 2 minutes" />
-        <meta key="twitter:description" name="twitter:description" content={HOW_TO_DESC} />
+        <meta key="twitter:description" name="twitter:description" content={t("howTo_desc", { defaultValue: HOW_TO_DESC })} />
       </Head>
 
       <PageWrapper sx={{ background: s.bg }} data-testid="how-to-page">
