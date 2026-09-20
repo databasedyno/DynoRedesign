@@ -186,18 +186,26 @@ export interface SdTopup {
   created_at: string;
 }
 
-export interface SdInvoice {
+/** A unified invoice/receipt row: a closed/funded deal, or a wallet deposit (top-up). */
+export interface SdInvoiceDeal {
+  type: "deal";
+  id: string;
   escrow_id: number;
   deal_token: string;
   invoice_no: string;
   title: string;
   status: string;
   outcome: string | null;
+  state: string;
+  state_label: string;
+  date: string;
   closed_at: string;
   my_role: "buyer" | "seller";
   amount: number;
   currency: string;
   funding_coin: string | null;
+  funding_method: string | null;
+  funding_label: string;
   fee_payer: string;
   total_cost: number;
   cost_items: CostItem[];
@@ -206,6 +214,31 @@ export interface SdInvoice {
   my_amount: number;
   my_payout: { withdrawal_id: number; status: string; net_usd: number; payout_key: string; address: string } | null;
 }
+
+export interface SdInvoiceDeposit {
+  type: "deposit";
+  id: string;
+  topup_id: number;
+  invoice_no: string;
+  title: string;
+  state: string;
+  state_label: string;
+  date: string;
+  closed_at: string;
+  coin: string;
+  coin_label: string;
+  network: string;
+  amount: number;
+  currency: string;
+  received_usd: number;
+  network_fee_usd: number;
+  conversion_fee_usd: number;
+  exchange_fee_usd: number;
+  total_fee_usd: number;
+  credited_usd: number;
+}
+
+export type SdInvoice = SdInvoiceDeal | SdInvoiceDeposit;
 
 export interface SdFunding {
   status: string;
@@ -334,7 +367,7 @@ export interface SdWallet extends Partial<SdBalances> {
   addresses: SdAddress[];
   withdrawals: SdWithdrawal[];
   topups: SdTopup[];
-  profile: { auto_withdraw: boolean; auto_withdraw_address_id: number | null; parked_payout_usd?: number };
+  profile: { auto_withdraw: boolean; auto_withdraw_address_id: number | null; parked_payout_usd?: number; deposit_reserved_usd?: number };
   limits: { min_withdrawal_usd: number; approval_threshold_usd: number; min_topup_usd: number; max_topup_usd: number };
   payout_options: SdConfig["payout_options"];
   live: boolean;
@@ -450,8 +483,10 @@ export const safedealApi = {
     const res = await client.post(`/wallet/topup/${id}/simulate`, {});
     return { ...(res.data.data as any), message: res.data.message };
   },
-  /** Closed deals with final costs — retrievable any time after sign-in. */
+  /** Closed/funded deals + wallet deposits with fees — retrievable any time after sign-in. */
   invoices: async (): Promise<SdInvoice[]> => unwrap(await client.get("/invoices")),
+  /** Branded PDF deposit receipt for a wallet top-up. */
+  topupReceiptPdf: async (id: number): Promise<Blob> => (await client.get(`/wallet/topup/${id}/receipt.pdf`, { responseType: "blob" })).data as Blob,
 };
 
 export default safedealApi;

@@ -12,7 +12,7 @@ import sequelize from "../../utils/dbInstance";
 import { apiLogger } from "../../utils/loggers";
 import { toFixedStr } from "../../utils/money";
 import { CustomerRow, CustomerWalletError } from "../customerWalletService";
-import { getEscrowCostRates, isStableFundingCoin, sweepFeeUsdFor } from "../escrow/escrowCosts";
+import { getEscrowCostRates, isStableFundingCoin, sweepFeeUsdFor, awaitFreshRates } from "../escrow/escrowCosts";
 import { isLiveSettlementEnabled } from "../../controller/escrow/escrowShared";
 import { applyEntries } from "./safedealWallet";
 import { FUNDING_COIN_META, configuredFundingCoins, requestDynopayPayment } from "./safedealCheckout";
@@ -81,6 +81,7 @@ export function quoteTopup(amountUsd: number, coin: string): TopupQuote {
 }
 
 export async function topupQuotes(companyId: number, amountUsd: number): Promise<TopupQuote[]> {
+  await awaitFreshRates();
   const coins = await configuredFundingCoins(companyId);
   return coins.map((c) => quoteTopup(amountUsd, c));
 }
@@ -98,7 +99,7 @@ async function getTopupRow(id: number): Promise<TopupRow | null> {
 export async function getTopup(customerId: number, id: number): Promise<TopupRow> {
   const row = await getTopupRow(id);
   if (!row || row.customer_id !== customerId) throw new CustomerWalletError(404, "Top-up not found.");
-  return expireIfStale(row);
+  return syncTopupFromLedger(await expireIfStale(row));
 }
 
 async function expireIfStale(row: TopupRow): Promise<TopupRow> {
@@ -111,7 +112,10 @@ export async function listTopups(customerId: number, limit = 10): Promise<TopupR
     `SELECT * FROM tbl_safedeal_topup WHERE customer_id = :customerId ORDER BY created_at DESC LIMIT :limit`,
     { replacements: { customerId, limit }, type: QueryTypes.SELECT }
   );
-  return Promise.all(rows.map(expireIfStale));
+  return Promise.all(rows.map(async (r) => {
+    const fresh = await expireIfStale(r);
+    return ["waiting", "pending", "underpaid"].includes(fresh.status) ? syncTopupFromLedger(fresh) : fresh;
+  }));
 }
 
 async function patchTopup(id: number, patch: Partial<Pick<TopupRow, "status" | "seen_tx" | "received_crypto" | "simulated" | "credited_at">>): Promise<TopupRow> {
@@ -124,6 +128,7 @@ async function patchTopup(id: number, patch: Partial<Pick<TopupRow, "status" | "
 
 /** Reserve a Dynopay deposit address for the quote; the wallet is credited on confirmation. */
 export async function createTopup(customer: CustomerRow, amountUsd: number, coin: string): Promise<TopupRow> {
+  await awaitFreshRates();
   const q = quoteTopup(amountUsd, coin);
   assertAmount(q.amount);
   const configured = await configuredFundingCoins(customer.company_id);
@@ -142,7 +147,7 @@ export async function createTopup(customer: CustomerRow, amountUsd: number, coin
   );
   const row = ins[0];
   try {
-    const d = await requestDynopayPayment(q.pays, q.coin, { topup_id: row.topup_id, customer_id: customer.customer_id }, `/wallet?topup=${row.topup_id}`, `sd-topup-${row.topup_id}-${q.coin}`);
+    const d = await requestDynopayPayment(q.pays, q.coin, { topup_id: row.topup_id, customer_id: customer.customer_id }, `/wallet?topup=${row.topup_id}`, `sd-topup-${row.topup_id}-${q.coin}`, customer.email);
     const rows = await sequelize.query<TopupRow>(
       `UPDATE tbl_safedeal_topup SET payment_id = :pid, address = :addr, destination_tag = :tag, crypto_amount = :camt, qr_code = :qr, updated_at = NOW() WHERE topup_id = :id RETURNING *`,
       { replacements: { pid: d.transaction_id, addr: d.address, tag: d.destination_tag, camt: d.amount, qr: d.qr_code, id: row.topup_id }, type: QueryTypes.SELECT }
@@ -161,20 +166,77 @@ async function creditTopup(row: TopupRow, txId: string | null, simulated: boolea
   const customer = (await sequelize.query<CustomerRow>(`SELECT customer_id, company_id, customer_name, email FROM tbl_customer WHERE customer_id = :id LIMIT 1`, { replacements: { id: row.customer_id }, type: QueryTypes.SELECT }))[0];
   if (!customer) throw new CustomerWalletError(404, "Customer not found.");
   const m = FUNDING_COIN_META[row.coin];
-  const fees = round2(Number(row.network_fee_usd) + Number(row.conversion_fee_usd) + Number(row.exchange_fee_usd));
+  const net = round2(Number(row.network_fee_usd));
+  const conv = round2(Number(row.conversion_fee_usd));
+  const exch = round2(Number(row.exchange_fee_usd));
+  const fees = round2(net + conv + exch);
+  const received = round2(Number(row.pays_usd));
+  const credited = round2(Number(row.amount_usd));
+  const feeParts = [
+    net > 0 ? `network fee ${toFixedStr(net, 2)}` : "",
+    conv > 0 ? `conversion ${toFixedStr(conv, 2)}` : "",
+    exch > 0 ? `exchange ${toFixedStr(exch, 2)}` : "",
+  ].filter(Boolean).join(" · ");
+  const coinLabel = `${m?.label || row.coin}${m ? ` on ${m.network}` : ""}`.trim();
+  const sentStr = `${row.crypto_amount || toFixedStr(received, 2)} ${coinLabel}`;
   await applyEntries([
     {
       customer,
       type: "CREDIT",
-      amount: Number(row.amount_usd),
+      amount: credited,
       kind: "topup",
-      description: `Wallet top-up — ${row.crypto_amount || ""} ${m?.label || row.coin}${m ? ` on ${m.network}` : ""} received${fees > 0 ? ` (fees ${toFixedStr(fees, 2)} USD paid on top)` : ""}${simulated ? " [SIMULATED]" : ""}`,
+      description: `Wallet top-up — you sent ${sentStr} (${toFixedStr(received, 2)} USD)${feeParts ? ` · ${feeParts} USD` : ""} · credited ${toFixedStr(credited, 2)} USD${simulated ? " [SIMULATED]" : ""}`,
       reference: `topup:${row.topup_id}:credit`,
       source: "TOPUP",
-      meta: { topup_id: row.topup_id, coin: row.coin, pays: Number(row.pays_usd), network_fee: Number(row.network_fee_usd), conversion_fee: Number(row.conversion_fee_usd), exchange_fee: Number(row.exchange_fee_usd), tx: txId, simulated },
+      meta: {
+        topup_id: row.topup_id,
+        coin: row.coin,
+        received_usd: received,
+        network_fee_usd: net,
+        conversion_fee_usd: conv,
+        exchange_fee_usd: exch,
+        total_fee_usd: fees,
+        credited_usd: credited,
+        pays: received,
+        network_fee: net,
+        conversion_fee: conv,
+        exchange_fee: exch,
+        tx: txId,
+        simulated,
+      },
     },
   ]);
-  return patchTopup(row.topup_id, { status: "credited", seen_tx: txId ?? row.seen_tx, simulated, credited_at: new Date().toISOString() as any });
+  return patchTopup(row.topup_id, { status: "credited", seen_tx: txId ?? row.seen_tx, simulated, credited_at: new Date().toISOString() as any }).then(async (r) => {
+    // A deposit is "spending money for deals" — reserve it so auto-withdraw can never sweep it out.
+    try {
+      const { addDepositReserve } = await import("./safedealWithdrawals");
+      await addDepositReserve(row.customer_id, Number(row.amount_usd));
+    } catch (e) {
+      apiLogger.warn(`[SafeDeal] deposit reserve bump failed for topup ${row.topup_id}: ${(e as Error).message}`);
+    }
+    return r;
+  });
+}
+
+/**
+ * Self-heal safety net: if a top-up isn't credited yet, check Dynopay's own payment
+ * ledger (tbl_user_transaction) for a confirmed payment and credit idempotently. This
+ * recovers deposits whose confirmation webhook was missed, rejected, or arrived late
+ * (e.g. a slow low-gas confirmation) — mirroring deal-funding's syncFundingFromLedger.
+ * Invoked whenever the wallet page reads a top-up, so it needs no background cron.
+ */
+export async function syncTopupFromLedger(row: TopupRow): Promise<TopupRow> {
+  if (!row.payment_id || ["credited", "expired"].includes(row.status)) return row;
+  const rows = await sequelize.query<{ status: string; transaction_reference: string | null }>(
+    `SELECT status, transaction_reference FROM tbl_user_transaction WHERE id = :pid ORDER BY transaction_id DESC LIMIT 1`,
+    { replacements: { pid: row.payment_id }, type: QueryTypes.SELECT }
+  );
+  const tx = rows[0];
+  if (tx && ["successful", "completed", "complete", "settled"].includes(String(tx.status).toLowerCase())) {
+    apiLogger.info(`[SafeDeal] top-up ${row.topup_id} self-healed from ledger (missed/late webhook) — tx ${tx.transaction_reference || ""}`);
+    return creditTopup(row, tx.transaction_reference || row.seen_tx || null, false);
+  }
+  return row;
 }
 
 /** Preview only — live settlement OFF: mark the deposit as received and credit the wallet. */

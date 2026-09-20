@@ -4,9 +4,32 @@
  * for SafeDeal); same indigo/grey palette as the invoice chrome.
  */
 import PDFDocument from "pdfkit";
+import path from "path";
+import fs from "fs";
 import { INK } from "../pdf/invoiceChrome";
 import { computeFeeBreakdown } from "../../controller/escrow/escrowShared";
 import type { AttachmentPublic } from "./safedealAttachments";
+
+// SafeDeal brand — gold + near-black (matches the app's sdTheme).
+const SD_GOLD = "#F0A500";
+const SD_INK = "#0A0A0B";
+const SD_LOGO_PATH = path.resolve(__dirname, "../../../public/safedeal/favicon-512.png");
+
+/** Draw the SafeDeal brand mark (gold top rule + logo icon + wordmark) and return the y below it. */
+function drawBrandHeader(doc: PDFKit.PDFDocument, subtitle: string): void {
+  doc.rect(0, 0, doc.page.width, 6).fill(SD_GOLD);
+  let tx = 48;
+  try {
+    if (fs.existsSync(SD_LOGO_PATH)) {
+      doc.image(SD_LOGO_PATH, 48, 30, { width: 28, height: 28 });
+      tx = 84;
+    }
+  } catch {
+    /* logo optional — fall back to wordmark only */
+  }
+  doc.font("Helvetica-Bold").fontSize(18).fillColor(SD_INK).text("SafeDeal", tx, 34);
+  doc.font("Helvetica").fontSize(9).fillColor(INK.muted).text(subtitle, tx, 56);
+}
 
 const fmt = (n: number | string | null | undefined, cur = "USD") =>
   `${Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${cur}`;
@@ -43,10 +66,7 @@ export function generateDealSummaryPdf({ deal: d, buyerEmail, sellerEmail, attac
   const W = doc.page.width - 96;
 
   // Brand bar + header
-  doc.rect(0, 0, doc.page.width, 6).fill(INK.brand);
-  doc.moveDown(0.5);
-  doc.font("Helvetica-Bold").fontSize(18).fillColor(INK.brand).text("SafeDeal", 48, 36);
-  doc.font("Helvetica").fontSize(9).fillColor(INK.muted).text(`${closed ? `Invoice SD-${d.escrow_id}` : "Escrow deal summary"} · generated ${when(new Date())}`, 48, 58);
+  drawBrandHeader(doc, `${closed ? `Invoice SD-${d.escrow_id}` : "Escrow deal summary"} · generated ${when(new Date())}`);
   doc.font("Helvetica-Bold").fontSize(20).fillColor(INK.text).text(d.title, 48, 84, { width: W });
   doc.font("Helvetica").fontSize(10.5).fillColor(INK.body).text(`Deal #${d.escrow_id} · Status: ${title(String(d.status))}${d.deal_type ? ` · Type: ${title(String(d.deal_type))}` : ""}`);
   if (viewer) doc.font("Helvetica").fontSize(10).fillColor(INK.muted).text(`Issued to: ${viewer.email} (${viewer.role})`);
@@ -93,7 +113,8 @@ export function generateDealSummaryPdf({ deal: d, buyerEmail, sellerEmail, attac
   row("Seller's share of fees", fmt(shares.seller, d.currency));
   if (viewer) row("Your share of fees", fmt(viewer.role === "buyer" ? shares.buyer : shares.seller, d.currency), true);
   row(closed ? "Buyer paid into escrow" : "Buyer pays", fmt(d.funded_amount_usd ?? b.buyerPays, d.currency), true);
-  if (d.funding_coin) row("Funded in", `${d.funding_coin}${d.funding_crypto_amount ? ` · ${d.funding_crypto_amount}` : ""}${d.funding_tx_hash ? ` · tx ${String(d.funding_tx_hash).slice(0, 24)}…` : ""}`);
+  row("Payment method", String(d.funding_method) === "balance" ? "Paid with SafeDeal wallet balance" : `Paid with crypto${d.funding_coin ? ` — ${d.funding_coin}` : ""}`);
+  if (d.funding_coin && String(d.funding_method) !== "balance") row("Funded in", `${d.funding_coin}${d.funding_crypto_amount ? ` · ${d.funding_crypto_amount}` : ""}${d.funding_tx_hash ? ` · tx ${String(d.funding_tx_hash).slice(0, 24)}…` : ""}`);
   if (d.custody_amount_stable != null) row("Held in custody", `${fmt(d.custody_amount_stable, d.custody_stablecoin || "USDT")}${d.funding_method ? ` · via ${d.funding_method}` : ""}`);
   if (closed) {
     row("Outcome", `${title(String(d.outcome))}${d.outcome === "split" && d.split_percent_seller != null ? ` · seller ${d.split_percent_seller}%` : ""} · ${when(d.outcome_authorized_at || d.completed_at || d.refunded_at)}`);
@@ -139,6 +160,79 @@ export function generateDealSummaryPdf({ deal: d, buyerEmail, sellerEmail, attac
   doc.moveDown(1.2);
   doc.font("Helvetica").fontSize(8.5).fillColor(INK.faint).text(
     `SafeDeal is operated by ${legalName}. Funds are held in USDT by Dynopay until the deal completes. This summary reflects the deal record at the time it was generated; the online deal page is the source of truth.`,
+    { width: W }
+  );
+  doc.end();
+  return doc;
+}
+
+
+export interface TopupReceiptInput {
+  topup: {
+    topup_id: number;
+    coin: string;
+    amount_usd: string | number;
+    network_fee_usd: string | number;
+    conversion_fee_usd: string | number;
+    exchange_fee_usd: string | number;
+    pays_usd: string | number;
+    crypto_amount: string | null;
+    status: string;
+    seen_tx?: string | null;
+    credited_at?: string | null;
+    created_at: string;
+  };
+  coinLabel: string;
+  network: string;
+  customerEmail: string;
+  legalName: string;
+}
+
+/** SafeDeal deposit receipt — a customer's record of a wallet top-up and the fees on it. */
+export function generateTopupReceiptPdf({ topup: t, coinLabel, network, customerEmail, legalName }: TopupReceiptInput): PDFKit.PDFDocument {
+  const doc = new PDFDocument({ size: "A4", margin: 48, info: { Title: `SafeDeal deposit receipt DEP-${t.topup_id}` } });
+  const W = doc.page.width - 96;
+  const credited = t.status === "credited";
+
+  drawBrandHeader(doc, `Deposit receipt DEP-${t.topup_id} · generated ${when(new Date())}`);
+  doc.font("Helvetica-Bold").fontSize(20).fillColor(INK.text).text("Deposit to wallet balance", 48, 84, { width: W });
+  doc.font("Helvetica").fontSize(10).fillColor(INK.muted).text(`Issued to: ${customerEmail}`);
+  doc.moveDown(0.8);
+
+  const section = (label: string) => {
+    doc.moveDown(0.6);
+    doc.font("Helvetica-Bold").fontSize(9).fillColor(INK.muted).text(label.toUpperCase(), { characterSpacing: 0.8 });
+    doc.moveTo(48, doc.y + 2).lineTo(48 + W, doc.y + 2).strokeColor(INK.hairline).lineWidth(0.7).stroke();
+    doc.moveDown(0.5);
+  };
+  const row = (l: string, v: string, bold = false) => {
+    const y = doc.y;
+    doc.font("Helvetica").fontSize(10.5).fillColor(INK.body).text(l, 48, y, { width: W * 0.55 });
+    doc.font(bold ? "Helvetica-Bold" : "Helvetica").fontSize(10.5).fillColor(INK.text).text(v, 48 + W * 0.55, y, { width: W * 0.45, align: "right" });
+    doc.moveDown(0.25);
+  };
+
+  section("Deposit");
+  row("Date", when(t.credited_at || t.created_at));
+  row("Status", credited ? "Credited to balance" : title(String(t.status)));
+  row("Coin & network", `${coinLabel} · ${network}`);
+  if (t.crypto_amount) row("You sent", `${t.crypto_amount} ${coinLabel}`);
+  if (t.seen_tx) row("Transaction", String(t.seen_tx).slice(0, 40));
+
+  section("Amount & fees");
+  row("You sent (gross)", fmt(t.pays_usd));
+  const net = Number(t.network_fee_usd || 0);
+  const conv = Number(t.conversion_fee_usd || 0);
+  const exch = Number(t.exchange_fee_usd || 0);
+  if (net > 0) row("Network fee", fmt(net));
+  if (conv > 0) row("Conversion fee", fmt(conv));
+  if (exch > 0) row("Exchange fee", fmt(exch));
+  row("Total fees", fmt(net + conv + exch));
+  row(credited ? "Credited to your balance" : "Will be credited", fmt(t.amount_usd), true);
+
+  doc.moveDown(1.2);
+  doc.font("Helvetica").fontSize(8.5).fillColor(INK.faint).text(
+    `SafeDeal is operated by ${legalName}. Your balance is held in USDT by Dynopay. Network/exchange fees cover the on-chain cost of moving your deposit into custody; you were credited the full amount you asked to add. This receipt reflects the record at the time it was generated.`,
     { width: W }
   );
   doc.end();

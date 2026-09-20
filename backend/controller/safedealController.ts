@@ -56,7 +56,7 @@ import { isPlatformFeeExemptCompany } from "../services/feeService";
 import { sendSafeDealCodeEmail, sendSafeDealAddressAlertEmail } from "../services/email/safedealEmails";
 import { sendEscrowInviteEmail, sendEscrowAmendedEmail } from "../services/email/escrowEmails";
 import { runSafeDealReminders } from "../services/safedeal/safedealReminders";
-import { generateDealSummaryPdf, feeShares } from "../services/safedeal/safedealPdf";
+import { generateDealSummaryPdf, feeShares, generateTopupReceiptPdf } from "../services/safedeal/safedealPdf";
 import { toFixedStr } from "../utils/money";
 import { companyModel, userWalletModel } from "../models";
 import { getAdminWalletAddress } from "../utils/adminUtils";
@@ -971,7 +971,28 @@ const dealPdf = async (req: express.Request, res: express.Response) => {
   }
 };
 
-/** GET /invoices — every closed deal I was part of, with my final fee share and payout (retrievable any time). */
+/** GET /wallet/topup/:id/receipt.pdf — a branded deposit receipt for a wallet top-up. */
+const topupReceiptPdf = async (req: express.Request, res: express.Response) => {
+  try {
+    const sess = session(res);
+    const row = await getTopup(sess.customer_id, Number(req.params.id));
+    const m = FUNDING_COIN_META[row.coin];
+    const doc = generateTopupReceiptPdf({
+      topup: row,
+      coinLabel: m?.label || row.coin,
+      network: m?.network || row.coin,
+      customerEmail: sess.email,
+      legalName: (envRaw("EMAIL_LEGAL_NAME") || "Dynopay Payments Ltd.").trim(),
+    });
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="safedeal-deposit-${row.topup_id}.pdf"`);
+    doc.pipe(res);
+  } catch (e) {
+    return handle(res, e, "topupReceiptPdf");
+  }
+};
+
+/** GET /invoices — my invoices: closed/funded deals + wallet deposits, each with fees (retrievable any time). */
 const invoices = async (_req: express.Request, res: express.Response) => {
   try {
     const sess = session(res);
@@ -980,7 +1001,7 @@ const invoices = async (_req: express.Request, res: express.Response) => {
       where: {
         source: "safedeal",
         company_id: sess.company_id,
-        status: { [Op.in]: ["completed", "refunded", "split"] },
+        status: { [Op.in]: ["awaiting_delivery", "delivered", "disputed", "completed", "refunded", "split"] },
         [Op.or]: [{ creator_email: { [Op.iLike]: email } }, { counterparty_email: { [Op.iLike]: email } }, { creator_customer_id: sess.customer_id }, { counterparty_customer_id: sess.customer_id }],
       },
       order: [["updated_at", "DESC"]],
@@ -990,26 +1011,37 @@ const invoices = async (_req: express.Request, res: express.Response) => {
       `SELECT withdrawal_id, escrow_id, status, net_usd, payout_key, address FROM tbl_customer_withdrawal WHERE customer_id = :cid AND source = 'settlement' AND escrow_id IS NOT NULL`,
       { replacements: { cid: sess.customer_id }, type: QueryTypes.SELECT }
     );
-    const out = deals
+    const CLOSED = ["completed", "refunded", "split"];
+    const dealItems = deals
       .map((d) => {
         const actor = actorFor(d, sess);
         if (!actor) return null;
+        const closed = CLOSED.includes(String(d.status)) && !!d.outcome;
         const b = computeFeeBreakdown({ amount: d.amount, currency: d.currency, feePercent: d.fee_percent, feeMinUsd: d.fee_min_usd, feePayer: d.fee_payer, payoutCoin: d.seller_payout_coin, fundingCoin: d.funding_coin, acceptedCoins: d.accepted_coins });
         const shares = feeShares(b.totalCost, String(d.fee_payer));
         const mine = actor.role === "buyer" ? Number(d.buyer_entitlement_stable || 0) : Number(d.seller_entitlement_stable || 0);
         const p = payouts.find((x) => Number(x.escrow_id) === Number(d.escrow_id));
+        const fromBalance = String(d.funding_method) === "balance";
+        const outcomeLabel: Record<string, string> = { release: "Completed", refund: "Refunded", split: "Split" };
         return {
+          type: "deal" as const,
+          id: `SD-${d.escrow_id}`,
           escrow_id: d.escrow_id,
           deal_token: d.deal_token,
           invoice_no: `SD-${d.escrow_id}`,
           title: d.title,
           status: d.status,
           outcome: d.outcome,
+          state: closed ? String(d.outcome) : "funded",
+          state_label: closed ? (outcomeLabel[String(d.outcome)] || "Completed") : "Funded",
+          date: d.fully_paid_at || d.outcome_authorized_at || d.completed_at || d.refunded_at || d.funding_settled_at || d.updated_at,
           closed_at: d.fully_paid_at || d.outcome_authorized_at || d.completed_at || d.refunded_at || d.updated_at,
           my_role: actor.role,
           amount: Number(d.amount),
           currency: d.currency,
           funding_coin: d.funding_coin,
+          funding_method: d.funding_method || null,
+          funding_label: fromBalance ? "Wallet balance" : d.funding_coin ? `${d.funding_coin} (crypto)` : "Crypto",
           fee_payer: d.fee_payer,
           total_cost: b.totalCost,
           cost_items: b.costItems,
@@ -1019,7 +1051,41 @@ const invoices = async (_req: express.Request, res: express.Response) => {
           my_payout: p ? { withdrawal_id: p.withdrawal_id, status: p.status, net_usd: Number(p.net_usd), payout_key: p.payout_key, address: p.address } : null,
         };
       })
-      .filter(Boolean);
+      .filter(Boolean) as any[];
+
+    const topups = await listTopups(sess.customer_id, 50);
+    const depositItems = topups
+      .filter((t) => t.status === "credited")
+      .map((t) => {
+        const m = FUNDING_COIN_META[t.coin];
+        const net = Number(t.network_fee_usd || 0);
+        const conv = Number(t.conversion_fee_usd || 0);
+        const exch = Number(t.exchange_fee_usd || 0);
+        return {
+          type: "deposit" as const,
+          id: `DEP-${t.topup_id}`,
+          topup_id: t.topup_id,
+          invoice_no: `DEP-${t.topup_id}`,
+          title: "Deposit to wallet balance",
+          state: "credited",
+          state_label: "Credited",
+          date: t.credited_at || t.created_at,
+          closed_at: t.credited_at || t.created_at,
+          coin: t.coin,
+          coin_label: m?.label || t.coin,
+          network: m?.network || t.coin,
+          amount: Number(t.amount_usd),
+          currency: "USD",
+          received_usd: Number(t.pays_usd),
+          network_fee_usd: net,
+          conversion_fee_usd: conv,
+          exchange_fee_usd: exch,
+          total_fee_usd: Math.round((net + conv + exch) * 100) / 100,
+          credited_usd: Number(t.amount_usd),
+        };
+      });
+
+    const out = [...dealItems, ...depositItems].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     return successResponseHelper(res, 200, "OK", out, out.length);
   } catch (e) {
     return handle(res, e, "invoices");
@@ -1090,7 +1156,7 @@ const wallet = async (_req: express.Request, res: express.Response) => {
       addresses,
       withdrawals,
       topups,
-      profile: { auto_withdraw: !!profile?.auto_withdraw, auto_withdraw_address_id: profile?.auto_withdraw_address_id || null, parked_payout_usd: Number(profile?.parked_payout_usd || 0) },
+      profile: { auto_withdraw: !!profile?.auto_withdraw, auto_withdraw_address_id: profile?.auto_withdraw_address_id || null, parked_payout_usd: Number(profile?.parked_payout_usd || 0), deposit_reserved_usd: Number(profile?.deposit_reserved_usd || 0) },
       limits: { min_withdrawal_usd: MIN_WITHDRAWAL_USD, approval_threshold_usd: APPROVAL_THRESHOLD_USD, min_topup_usd: MIN_TOPUP_USD, max_topup_usd: MAX_TOPUP_USD },
       payout_options: ESCROW_PAYOUT_OPTIONS,
       live: isLiveSettlementEnabled(),
@@ -1488,6 +1554,7 @@ export default {
   topupList,
   topupGet,
   topupSimulate,
+  topupReceiptPdf,
   adminWithdrawals,
   adminApproveWithdrawal,
   adminRejectWithdrawal,

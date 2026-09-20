@@ -62,6 +62,7 @@ r.get("/safedeal/wallet/topup", safedealAuth, safedealController.topupList);
 r.post("/safedeal/wallet/topup", safedealAuth, safedealController.topupCreate);
 r.get("/safedeal/wallet/topup/:id", safedealAuth, safedealController.topupGet);
 r.post("/safedeal/wallet/topup/:id/simulate", safedealAuth, safedealController.topupSimulate);
+r.get("/safedeal/wallet/topup/:id/receipt.pdf", safedealAuth, safedealController.topupReceiptPdf);
 r.get("/safedeal/invoices", safedealAuth, safedealController.invoices);
 
 // ── Dynopay admin (ops approvals) ────────────────────────────────────────────

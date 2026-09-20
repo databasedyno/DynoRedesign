@@ -69,6 +69,11 @@ export async function fundFromBalance(deal: any, amountUsd: number): Promise<voi
       meta: { method: "balance" },
     },
   ]);
+  // The deposit just moved into escrow — release its auto-withdraw protection for whatever's left.
+  try {
+    const { clampDepositReserve } = await import("./safedealWithdrawals");
+    await clampDepositReserve(buyer.customer_id);
+  } catch { /* non-fatal */ }
 }
 
 /**

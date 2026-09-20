@@ -836,6 +836,12 @@ const addCustomerTelegramId = async (): Promise<void> => {
   await sequelize.query(`CREATE UNIQUE INDEX IF NOT EXISTS "tbl_customer_telegram_id_uq" ON "tbl_customer" ("company_id", "telegram_id") WHERE "telegram_id" IS NOT NULL`);
 };
 
+// 0044 — SafeDeal deposit reserve: wallet top-ups are "spending money for deals" and must never be auto-withdrawn.
+const addSafeDealDepositReserve = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(`ALTER TABLE "tbl_safedeal_profile" ADD COLUMN IF NOT EXISTS "deposit_reserved_usd" DOUBLE PRECISION NOT NULL DEFAULT 0`);
+};
+
 export async function buildBootMigrations(): Promise<Migration[]> {  const { v1, extra } = await loadBootModelGroups();  return [
     { version: "0001_boot_model_tables", up: syncGroup(v1) },
     { version: "0002_boot_model_tables_extra", up: syncGroup(extra) },
@@ -877,6 +883,7 @@ export async function buildBootMigrations(): Promise<Migration[]> {  const { v1,
     { version: "0041_safedeal_api_funding", up: addSafeDealApiFunding },
     { version: "0042_safedeal_topups", up: addSafeDealTopups },
     { version: "0043_customer_telegram_id", up: addCustomerTelegramId },
+    { version: "0044_safedeal_deposit_reserve", up: addSafeDealDepositReserve },
     ...perfMigrations,
     ...securityMigrations,
   ];

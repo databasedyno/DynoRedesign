@@ -241,6 +241,7 @@ export async function requestWithdrawal(
       meta: { withdrawal_id: w.withdrawal_id, payout_key: w.payout_key, fee: q.fee, net: q.net, source: input.source || "manual", escrow_id: input.escrow_id ?? null },
     },
   ]);
+  await clampDepositReserve(customer.customer_id); // funds left the wallet — release any now-unbacked deposit protection
   if (!requiresApproval) w = await dispatchWithdrawal(w);
   if (customer.email) void sendSafeDealWithdrawalEmail(customer.email, w, opt?.label || w.payout_key);
   return w;
@@ -392,6 +393,45 @@ export async function clearParked(customerId: number): Promise<void> {
 }
 
 /**
+ * Deposit reserve — wallet top-ups are "spending money for deals" and must NEVER be pulled out by
+ * auto-withdraw. We track the un-spent deposit total per customer; the auto-withdraw sweep skips it,
+ * so only deal *earnings* are ever auto-sent. The reserve grows on deposit (addDepositReserve) and is
+ * clamped down to the live available balance whenever funds leave the wallet (withdrawal or deal
+ * funding) via clampDepositReserve — so a manual withdrawal or funding a deal from balance correctly
+ * releases the protection, while incoming earnings stay sweepable.
+ */
+export async function addDepositReserve(customerId: number, amount: number): Promise<void> {
+  if (!(Number(amount) > 0)) return;
+  await sequelize.query(
+    `UPDATE tbl_safedeal_profile SET deposit_reserved_usd = COALESCE(deposit_reserved_usd, 0) + :amt, updated_at = NOW() WHERE customer_id = :id`,
+    { replacements: { amt: toFixedStr(Number(amount), 2), id: customerId }, type: QueryTypes.UPDATE }
+  );
+}
+
+export async function clampDepositReserve(customerId: number): Promise<void> {
+  await sequelize.query(
+    `UPDATE tbl_safedeal_profile p
+        SET deposit_reserved_usd = LEAST(
+              COALESCE(p.deposit_reserved_usd, 0),
+              GREATEST(0, COALESCE((SELECT amount FROM tbl_customer_wallet w WHERE w.customer_id = p.customer_id ORDER BY wallet_id ASC LIMIT 1), 0))),
+            updated_at = NOW()
+      WHERE p.customer_id = :id`,
+    { replacements: { id: customerId }, type: QueryTypes.UPDATE }
+  );
+}
+
+export async function getDepositReserve(customerId: number): Promise<number> {
+  const rows = await sequelize.query<{ deposit_reserved_usd: string | number }>(
+    `SELECT deposit_reserved_usd FROM tbl_safedeal_profile WHERE customer_id = :id LIMIT 1`,
+    { replacements: { id: customerId }, type: QueryTypes.SELECT }
+  );
+  const stored = round2(Number(rows[0]?.deposit_reserved_usd || 0));
+  if (stored <= 0) return 0;
+  const bal = await getBalances(customerId);
+  return round2(Math.min(stored, bal.available));
+}
+
+/**
  * Switch-on sweep: when auto-withdraw is turned ON, push the CURRENT available balance
  * out to the auto-withdraw address too (not only future settlements / parked funds).
  * Behaves like a normal withdrawal — the network fee applies and amounts over the
@@ -402,7 +442,8 @@ export async function sweepBalanceToAutoWithdraw(customerId: number): Promise<{ 
   const dest = await resolvePayoutDestination(customerId, null); // returns the auto-withdraw address only when auto-withdraw is ON
   if (!dest) return { mode: "skipped", amount: 0 };
   const bal = await getBalances(customerId);
-  const amount = round2(bal.available);
+  const reserved = await getDepositReserve(customerId); // deposits are for funding deals — never auto-swept
+  const amount = round2(Math.max(0, bal.available - reserved));
   if (amount <= 0) return { mode: "skipped", amount: 0 };
   try {
     assertAddressUsable(dest.addr);

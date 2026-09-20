@@ -16,6 +16,14 @@ import { userWalletModel } from "../../models";
 import escrowDealModel from "../../models/escrowDealModel";
 import { hashApiKey } from "../../helper/apiKeyToken";
 import { appendActivity, computeFeeBreakdown } from "../../controller/escrow/escrowShared";
+import { awaitFreshRates } from "../escrow/escrowCosts";
+
+/** A routable, non-synthetic email we can safely attribute a Dynopay payment to. */
+export function isRealCustomerEmail(email?: string | null): boolean {
+  const e = String(email || "").trim().toLowerCase();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) return false;
+  return !e.endsWith(".safedeal") && !e.endsWith(".internal") && !e.endsWith("@telegram.safedeal");
+}
 
 export const SAFEDEAL_COMPANY_ID = Number(envRaw("SAFEDEAL_COMPANY_ID")) || 0;
 export const isSafeDealCompany = (companyId?: number | string | null): boolean => !!SAFEDEAL_COMPANY_ID && Number(companyId) === SAFEDEAL_COMPANY_ID;
@@ -74,6 +82,7 @@ export async function configuredFundingCoins(companyId: number): Promise<string[
 
 /** Coin picker payload: what the buyer would pay in each coin the brand accepts. */
 export async function fundingCoins(deal: any): Promise<{ coin: string; label: string; network: string; stable: boolean; cheap: boolean; buyer_pays: number; network_fee: number; conversion_fee: number; exchange_fee: number }[]> {
+  await awaitFreshRates();
   const coins = await configuredFundingCoins(Number(deal.company_id));
   return coins.map((coin) => {
     const b = computeFeeBreakdown({ amount: deal.amount, currency: deal.currency, feePercent: deal.fee_percent, feeMinUsd: deal.fee_min_usd, feePayer: deal.fee_payer, payoutCoin: deal.seller_payout_coin, fundingCoin: coin, acceptedCoins: deal.accepted_coins });
@@ -95,10 +104,10 @@ export interface DynopayPaymentResult {
 }
 
 /** Call Dynopay's Direct API as the SafeDeal merchant for a `coin` deposit address covering `amountUsd`. */
-export async function requestDynopayPayment(amountUsd: number, coin: string, meta: Record<string, unknown>, redirectPath: string, idem: string): Promise<DynopayPaymentResult> {
+export async function requestDynopayPayment(amountUsd: number, coin: string, meta: Record<string, unknown>, redirectPath: string, idem: string, customerEmail?: string | null): Promise<DynopayPaymentResult> {
   const key = apiKey();
   if (!key) throw new Error("SafeDeal is not connected to Dynopay yet (SAFEDEAL_API_KEY missing).");
-  const body = {
+  const body: Record<string, unknown> = {
     amount: amountUsd,
     currency: coin,
     fee_payer: "company",
@@ -106,6 +115,9 @@ export async function requestDynopayPayment(amountUsd: number, coin: string, met
     webhook_url: webhookUrl(),
     meta_data: { source: "safedeal", ...meta },
   };
+  // Attribute the deposit to the real SafeDeal customer so the Direct API doesn't spin up a
+  // dummy "Legacy API Customer" with an empty wallet. Only pass a routable email.
+  if (isRealCustomerEmail(customerEmail)) body.customer_email = String(customerEmail).trim();
   const res = await axios.post(`${apiBase()}/api/user/cryptoPayment`, body, {
     headers: { "x-api-key": key, "Content-Type": "application/json", "Idempotency-Key": `${idem}-${Date.now()}` },
     timeout: 25000,
@@ -138,8 +150,11 @@ export async function createFundingPayment(deal: any, coin: string): Promise<Fun
   const existing = deal.funding_payment as FundingPayment | null;
   if (existing && existing.coin === c && ["waiting", "pending", "underpaid"].includes(existing.status) && new Date(existing.expires_at).getTime() > Date.now()) return existing;
 
+  await awaitFreshRates();
   const breakdown = computeFeeBreakdown({ amount: deal.amount, currency: deal.currency, feePercent: deal.fee_percent, feeMinUsd: deal.fee_min_usd, feePayer: deal.fee_payer, payoutCoin: deal.seller_payout_coin, fundingCoin: c, acceptedCoins: deal.accepted_coins });
-  const d = await requestDynopayPayment(breakdown.buyerPays, c, { escrow_id: Number(deal.escrow_id), deal_token: deal.deal_token }, `/deal/${deal.deal_token}?funded=1`, `sd-${deal.escrow_id}-${c}`);
+  // The buyer is the party actually paying — attribute the deposit to them, not a dummy customer.
+  const buyerEmail = String(deal.creator_role) === "buyer" ? deal.creator_email : deal.counterparty_email;
+  const d = await requestDynopayPayment(breakdown.buyerPays, c, { escrow_id: Number(deal.escrow_id), deal_token: deal.deal_token }, `/deal/${deal.deal_token}?funded=1`, `sd-${deal.escrow_id}-${c}`, buyerEmail);
   const now = new Date();
   const fp: FundingPayment = {
     payment_id: d.transaction_id,

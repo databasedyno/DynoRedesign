@@ -144,6 +144,11 @@ export default function Wallet() {
               {w.addresses.length === 0 ? "Add a payout address and it's sent automatically — the network fee is already covered." : "It goes out automatically as soon as your newest address clears its safety hold."}
             </Alert>
           )}
+          {(w.profile.deposit_reserved_usd || 0) > 0 && (
+            <Alert severity="success" icon={<Icon icon="mdi:shield-check-outline" />} sx={{ mt: 1.5, borderRadius: 2.5 }} data-testid="sd-deposit-reserved">
+              <b>{money(w.profile.deposit_reserved_usd || 0)}</b> of your balance is kept for funding deals — it won&apos;t be auto-withdrawn. Withdraw it any time yourself.
+            </Alert>
+          )}
 
           <Box sx={{ ...card, mt: 2.5 }} data-testid="sd-addresses">
             <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
