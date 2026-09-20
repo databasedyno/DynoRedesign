@@ -105,7 +105,26 @@ export default function DealPage({ token }: { token: string }) {
     const signinHref = href(`/signin?next=${encodeURIComponent(`/deal/${token}`)}${preview?.counterparty_email_hint ? `&email=${encodeURIComponent(preview.counterparty_email_hint)}` : ""}`);
     return (
       <Container maxWidth="sm" sx={{ py: { xs: 5, md: 8 } }} data-testid="sd-deal-preview">
-        {error && <Alert severity="error">{error}</Alert>}
+        {error && !preview && (
+          <Box sx={{ ...card, p: 3.5 }} data-testid="sd-deal-unavailable">
+            <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
+              <Icon icon="mdi:link-variant-off" width={22} color={SD_ACCENT} />
+              <Typography sx={{ fontSize: 12.5, fontWeight: 800, color: SD_ACCENT, letterSpacing: 0.6, textTransform: "uppercase" }}>Deal link unavailable</Typography>
+            </Stack>
+            <Typography component="h1" sx={{ fontSize: 22, fontWeight: 900, letterSpacing: -0.4, mb: 1 }} data-testid="sd-deal-unavailable-msg">{error}</Typography>
+            <Typography sx={{ fontSize: 13.5, color: "#4B5563", mb: 2.5 }}>
+              This link may be mistyped, or the deal may no longer be available. You can still sign in with your email to see the deals on your SafeDeal account.
+            </Typography>
+            <Link href={href(`/signin?next=${encodeURIComponent("/deals")}`)} style={{ textDecoration: "none" }} data-testid="sd-unavailable-signin">
+              <Button fullWidth variant="contained" size="large" sx={{ ...primaryBtn, py: 1.2 }} endIcon={<Icon icon="mdi:arrow-right" />}>
+                Sign in with email
+              </Button>
+            </Link>
+            <Link href={href("/")} style={{ textDecoration: "none" }}>
+              <Button fullWidth variant="text" sx={{ mt: 1, textTransform: "none", color: "#6B7280" }}>Go to SafeDeal home</Button>
+            </Link>
+          </Box>
+        )}
         {preview && (
           <Box sx={{ ...card, p: 3.5 }}>
             <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
