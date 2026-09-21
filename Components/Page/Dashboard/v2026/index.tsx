@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Box } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
 import { format } from "date-fns";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "next/router";
@@ -9,6 +9,7 @@ import { useDashboardDensity } from "@/hooks/useDashboardDensity";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import useIsMobile from "@/hooks/useIsMobile";
 import RecentTransactionsWidget from "../RecentTransactionsWidget";
+import BrandEscrowTotals from "@/Components/Page/Customers/BrandEscrowTotals";
 import GettingStartedHero from "@/Components/Page/GetStarted/GettingStartedHero";
 import DashboardPreview from "@/Components/Page/GetStarted/DashboardPreview";
 import { useSetupProgress } from "@/Components/Page/GetStarted/useSetupProgress";
@@ -40,6 +41,8 @@ const SETTLED = ["confirmed", "completed", "settled", "success", "successful", "
 const Dashboard2026: React.FC<{ onboarding?: boolean }> = ({ onboarding = true }) => {
   const { t } = useTranslation("dashboardLayout");
   const router = useRouter();
+  const theme = useTheme();
+  const cardBorder = theme.palette.mode === "dark" ? "rgba(255,255,255,0.08)" : "rgba(15,15,20,0.08)";
   const isPhone = useIsMobile("md");
   const { density, isCompact } = useDashboardDensity();
   const [range, setRange] = useState<RangeId>("30d");
@@ -204,6 +207,7 @@ const Dashboard2026: React.FC<{ onboarding?: boolean }> = ({ onboarding = true }
             onCustomClear={() => setCustom(null)}
           />
           <AttentionFeed items={attentionItems} onDismiss={dismiss} />
+          <BrandEscrowTotals companyId={selectedCompanyId} cardBorder={cardBorder} />
           {moneyRow}
           {trend}
           <Box
