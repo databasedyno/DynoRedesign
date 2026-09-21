@@ -307,14 +307,14 @@ async function authorizeOutcome(
   deal.dispute_resolution = outcome === "split" ? "split" : outcome;
   if (outcome === "split") deal.split_percent_seller = opts.splitPercentSeller ?? 50;
 
-  const summary = describeSettlement(amounts, deal.currency, true) + " (authorized)";
+  const summary = describeSettlement(amounts, deal.currency) + " (authorized)";
   deal.settlement_note = summary;
   deal.activity_log = appendActivity(deal.activity_log, {
     type: `outcome_${outcome}`,
     actor: opts.actorLabel,
     role: opts.actorRole,
     note: summary,
-    meta: { amounts, entitlement_stablecoin: deal.custody_stablecoin },
+    meta: { amounts, entitlement_stablecoin: deal.custody_stablecoin, simulated: !isLiveSettlementEnabled() },
   });
   await deal.save();
   return { summary };
@@ -351,7 +351,7 @@ async function attemptPayouts(deal: any, actorLabel = "system"): Promise<{ selle
         const where = `${w.payout_key} ${w.address.slice(0, 6)}…${w.address.slice(-4)}`;
         return w.status === "pending_approval"
           ? `${amount} USD payout to the ${who} (${where}) is queued for review — sent once approved.`
-          : `Paid ${amount} USDT to the ${who}'s address ${where}${w.simulated ? " (simulated)" : ""}.`;
+          : `Paid ${amount} USDT to the ${who}'s address ${where}.`;
       }
       if (r.mode === "kept") return `${amount} USD credited to the ${who}'s SafeDeal balance (auto-withdraw is off — it stays in custody until they withdraw).`;
       if (r.reason === "cooling") return `${amount} USD for the ${who} is held in their SafeDeal balance — their payout address is in its safety hold and will be paid automatically once usable.`;
@@ -363,7 +363,7 @@ async function attemptPayouts(deal: any, actorLabel = "system"): Promise<{ selle
       deal.seller_payout_state = "paid";
       deal.seller_paid_at = now;
       deal.seller_payout_tx = r?.mode === "sent" ? r.withdrawal.tx_hash || `WITHDRAWAL-${r.withdrawal.withdrawal_id}` : `WALLET-CREDIT-${deal.escrow_id}`;
-      deal.activity_log = appendActivity(deal.activity_log, { type: "payout_seller", actor: actorLabel, role: "system", note: r ? describe(r, amount, "seller") : `Nothing due to the seller.`, meta: r?.mode === "sent" ? { withdrawal_id: r.withdrawal.withdrawal_id } : undefined });
+      deal.activity_log = appendActivity(deal.activity_log, { type: "payout_seller", actor: actorLabel, role: "system", note: r ? describe(r, amount, "seller") : `Nothing due to the seller.`, meta: r?.mode === "sent" ? { withdrawal_id: r.withdrawal.withdrawal_id, simulated: !!r.withdrawal.simulated } : undefined });
       if (r?.mode === "kept") feeCreditTo = Number(sellerCid);
       sellerPaid = true;
     }
@@ -374,7 +374,7 @@ async function attemptPayouts(deal: any, actorLabel = "system"): Promise<{ selle
       deal.buyer_paid_at = now;
       deal.buyer_payout_tx = r?.mode === "sent" ? r.withdrawal.tx_hash || `WITHDRAWAL-${r.withdrawal.withdrawal_id}` : `WALLET-CREDIT-${deal.escrow_id}`;
       const keptNote = isCancellationRefund(deal) ? "Cancellation fee, network & exchange costs were kept." : "Fees & costs were kept.";
-      deal.activity_log = appendActivity(deal.activity_log, { type: "payout_buyer", actor: actorLabel, role: "system", note: r ? `Refund: ${describe(r, amount, "buyer")} ${keptNote}` : `Nothing refunded to the buyer (${isCancellationRefund(deal) ? "cancellation fee, network & exchange costs kept" : "fees & costs kept"}).`, meta: r?.mode === "sent" ? { withdrawal_id: r.withdrawal.withdrawal_id } : undefined });
+      deal.activity_log = appendActivity(deal.activity_log, { type: "payout_buyer", actor: actorLabel, role: "system", note: r ? `Refund: ${describe(r, amount, "buyer")} ${keptNote}` : `Nothing refunded to the buyer (${isCancellationRefund(deal) ? "cancellation fee, network & exchange costs kept" : "fees & costs kept"}).`, meta: r?.mode === "sent" ? { withdrawal_id: r.withdrawal.withdrawal_id, simulated: !!r.withdrawal.simulated } : undefined });
       if (r?.mode === "kept" && !feeCreditTo) feeCreditTo = Number(buyerCid);
       buyerPaid = true;
     }
@@ -412,7 +412,8 @@ async function attemptPayouts(deal: any, actorLabel = "system"): Promise<{ selle
       type: "payout_seller",
       actor: actorLabel,
       role: "system",
-      note: `[SIMULATED] Paid seller ${deal.seller_entitlement_stable} ${coin} to ${deal.seller_payout_address}.`,
+      note: `Paid seller ${deal.seller_entitlement_stable} ${coin} to ${deal.seller_payout_address}.`,
+      meta: { simulated: true },
     });
     sellerPaid = true;
   }
@@ -425,7 +426,8 @@ async function attemptPayouts(deal: any, actorLabel = "system"): Promise<{ selle
       type: "payout_buyer",
       actor: actorLabel,
       role: "system",
-      note: `[SIMULATED] Refunded buyer ${deal.buyer_entitlement_stable} ${coin} to ${deal.buyer_refund_address}.`,
+      note: `Refunded buyer ${deal.buyer_entitlement_stable} ${coin} to ${deal.buyer_refund_address}.`,
+      meta: { simulated: true },
     });
     buyerPaid = true;
   }
@@ -568,8 +570,8 @@ async function actFund(deal: any, actor: ActorInfo, coinIn?: string): Promise<an
     type: "funded",
     actor: actor.label,
     role: "buyer",
-    note: `[SIMULATED] Buyer funded ${breakdown.buyerPays} ${deal.currency} in ${coin}; converted to ${breakdown.buyerPays} ${CUSTODY_STABLECOIN} held in custody.`,
-    meta: { breakdown },
+    note: `Buyer funded ${breakdown.buyerPays} ${deal.currency} in ${coin}; ${breakdown.buyerPays} ${CUSTODY_STABLECOIN} held securely in escrow.`,
+    meta: { breakdown, simulated: true },
   });
   if (isSafeDeal(deal)) await recordFundingReceived(deal, breakdown.buyerPays, "simulated");
   await deal.save();
@@ -640,7 +642,7 @@ async function actFundFromCheckout(deal: any, paidUsd: number, coin: string, txH
     role: "buyer",
     note: isSafeDeal(deal)
       ? `Buyer paid ${paidUsd} ${deal.currency} in ${coin}${txHash ? ` (tx ${txHash})` : ""}; ${breakdown.buyerPays} ${CUSTODY_STABLECOIN} held securely in escrow.`
-      : `Buyer paid ${paidUsd} ${deal.currency} in ${coin} via Dynopay${txHash ? ` (tx ${txHash})` : ""}; ${breakdown.buyerPays} ${CUSTODY_STABLECOIN} held in custody on Binance.`,
+      : `Buyer paid ${paidUsd} ${deal.currency} in ${coin} via Dynopay${txHash ? ` (tx ${txHash})` : ""}; ${breakdown.buyerPays} ${CUSTODY_STABLECOIN} held securely in escrow.`,
     meta: { breakdown, paidUsd },
   });
   if (isSafeDeal(deal)) await recordFundingReceived(deal, breakdown.buyerPays, deal.funding_method);

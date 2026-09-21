@@ -22,7 +22,7 @@ interface Props {
 
 /**
  * Where this party's money goes when the deal closes: release → seller, refund → buyer.
- * Paid straight from custody at close (Binance withdrawal); no address yet → parked in their balance.
+ * Paid straight from custody at close (exchange withdrawal); no address yet → parked in their balance.
  */
 export default function PayoutDestinationCard({ deal, cfg, now, walletHref, onUpdated, onError }: Props) {
   const [open, setOpen] = useState(false);

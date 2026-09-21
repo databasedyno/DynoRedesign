@@ -344,8 +344,8 @@ export function computeFeeBreakdown(input: {
         note: locked
           ? "Exchange withdrawal fee reserved at funding — covers the payout to a saved address (or is credited back to whoever keeps the funds in their balance)."
           : payoutIsUsdc
-          ? "Binance withdrawal to this network, incl. the USDT→USDC conversion at cashout."
-          : "Binance withdrawal to pay the USDT out at cashout.",
+          ? "Exchange withdrawal to this network, incl. the USDT→USDC conversion at cashout."
+          : "Exchange withdrawal to pay the USDT out at cashout.",
       }
     );
   }
@@ -497,13 +497,8 @@ export function computeSettlementAmounts(
   };
 }
 
-/** A short, human-readable summary of a (simulated or live) settlement. */
-export function describeSettlement(
-  amounts: ReturnType<typeof computeSettlementAmounts>,
-  currency: string,
-  simulated: boolean
-): string {
-  const tag = simulated ? "[SIMULATED — no on-chain transaction]" : "[LIVE]";
+/** A short, human-readable summary of a settlement (simulated/live lives in activity meta, never in the text). */
+export function describeSettlement(amounts: ReturnType<typeof computeSettlementAmounts>, currency: string): string {
   const parts: string[] = [];
   if (amounts.sellerAmount > 0)
     parts.push(`seller +${amounts.sellerAmount} ${currency}`);
@@ -511,7 +506,13 @@ export function describeSettlement(
     parts.push(`buyer refund ${amounts.buyerRefund} ${currency}`);
   if (amounts.platformFee > 0)
     parts.push(`platform fee ${amounts.platformFee} ${currency}`);
-  return `${tag} ${amounts.outcome}: ${parts.join(", ")}`;
+  const outcome = String(amounts.outcome || "");
+  return `${outcome.charAt(0).toUpperCase()}${outcome.slice(1)}: ${parts.join(", ")}`;
+}
+
+/** Internal bookkeeping references (simulated payouts, exchange withdrawal ids, wallet credits) — never shown as a "tx". */
+export function isInternalTxRef(ref?: string | null): boolean {
+  return /^(SIMULATED-|BINANCE-|WALLET-CREDIT|WITHDRAWAL-)/i.test(String(ref || ""));
 }
 
 export { round2 };

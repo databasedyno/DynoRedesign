@@ -7,7 +7,7 @@ import PDFDocument from "pdfkit";
 import path from "path";
 import fs from "fs";
 import { INK } from "../pdf/invoiceChrome";
-import { dealFeeBreakdown } from "../../controller/escrow/escrowShared";
+import { dealFeeBreakdown, isInternalTxRef } from "../../controller/escrow/escrowShared";
 import type { AttachmentPublic } from "./safedealAttachments";
 
 // SafeDeal brand — gold + near-black (matches the app's sdTheme).
@@ -114,8 +114,9 @@ export function generateDealSummaryPdf({ deal: d, buyerEmail, sellerEmail, attac
   if (viewer) row("Your share of fees", fmt(viewer.role === "buyer" ? shares.buyer : shares.seller, d.currency), true);
   row(closed ? "Buyer paid into escrow" : "Buyer pays", fmt(d.funded_amount_usd ?? b.buyerPays, d.currency), true);
   row("Payment method", String(d.funding_method) === "balance" ? "Paid with SafeDeal wallet balance" : `Paid with crypto${d.funding_coin ? ` — ${d.funding_coin}` : ""}`);
-  if (d.funding_coin && String(d.funding_method) !== "balance") row("Funded in", `${d.funding_coin}${d.funding_crypto_amount ? ` · ${d.funding_crypto_amount}` : ""}${d.funding_tx_hash ? ` · tx ${String(d.funding_tx_hash).slice(0, 24)}…` : ""}`);
-  if (d.custody_amount_stable != null) row("Held in custody", `${fmt(d.custody_amount_stable, d.custody_stablecoin || "USDT")}${d.funding_method ? ` · via ${d.funding_method}` : ""}`);
+  if (d.funding_coin && String(d.funding_method) !== "balance") row("Funded in", `${d.funding_coin}${d.funding_crypto_amount ? ` · ${d.funding_crypto_amount}` : ""}${d.funding_tx_hash && !isInternalTxRef(d.funding_tx_hash) ? ` · tx ${String(d.funding_tx_hash).slice(0, 24)}…` : ""}`);
+  const viaLabel = String(d.funding_method) === "balance" ? " · via SafeDeal balance" : ["checkout", "dynopay_api"].includes(String(d.funding_method)) ? " · via crypto payment" : "";
+  if (d.custody_amount_stable != null) row("Held in custody", `${fmt(d.custody_amount_stable, d.custody_stablecoin || "USDT")}${viaLabel}`);
   if (closed) {
     row("Outcome", `${title(String(d.outcome))}${d.outcome === "split" && d.split_percent_seller != null ? ` · seller ${d.split_percent_seller}%` : ""} · ${when(d.outcome_authorized_at || d.completed_at || d.refunded_at)}`);
     if (Number(d.seller_entitlement_stable) > 0) row("Seller received", fmt(d.seller_entitlement_stable, d.custody_stablecoin || "USDT"), true);
@@ -127,7 +128,7 @@ export function generateDealSummaryPdf({ deal: d, buyerEmail, sellerEmail, attac
   if (d.settlement_note) row("Settlement", String(d.settlement_note));
   if (payouts.length) {
     section("Payouts from custody");
-    for (const p of payouts) row(`#${p.withdrawal_id} · ${p.payout_key} ${p.address.slice(0, 6)}…${p.address.slice(-4)} · ${title(p.status)}`, `${fmt(p.net_usd, "USDT")}${p.tx_hash ? ` · ${p.tx_hash.slice(0, 20)}…` : ""}`);
+    for (const p of payouts) row(`#${p.withdrawal_id} · ${p.payout_key} ${p.address.slice(0, 6)}…${p.address.slice(-4)} · ${title(p.status)}`, `${fmt(p.net_usd, "USDT")}${p.tx_hash && !isInternalTxRef(p.tx_hash) ? ` · ${p.tx_hash.slice(0, 20)}…` : ""}`);
     doc.font("Helvetica").fontSize(9).fillColor(INK.muted).text("Network fees on these payouts were already covered by the deal (withdrawal fee line above).", { width: W });
   }
 

@@ -185,7 +185,7 @@ async function creditTopup(row: TopupRow, txId: string | null, simulated: boolea
       type: "CREDIT",
       amount: credited,
       kind: "topup",
-      description: `Wallet top-up — you sent ${sentStr} (${toFixedStr(received, 2)} USD)${feeParts ? ` · ${feeParts} USD` : ""} · credited ${toFixedStr(credited, 2)} USD${simulated ? " [SIMULATED]" : ""}`,
+      description: `Wallet top-up — you sent ${sentStr} (${toFixedStr(received, 2)} USD)${feeParts ? ` · ${feeParts} USD` : ""} · credited ${toFixedStr(credited, 2)} USD`,
       reference: `topup:${row.topup_id}:credit`,
       source: "TOPUP",
       meta: {

@@ -153,7 +153,7 @@ function TopupPayment({ topup, live, onUpdate, onCredited, notify }: { topup: Sd
     <Box data-testid="sd-topup-payment" data-status={topup.status}>
       <Chip size="small" label={STATUS_LABEL[topup.status] || topup.status} data-testid="sd-topup-status" sx={{ fontWeight: 800, mb: 1.5, backgroundColor: topup.status === "credited" ? "#ECFDF5" : topup.status === "expired" ? "#FEF2F2" : SD_NOTE_BG, color: topup.status === "credited" ? "#047857" : topup.status === "expired" ? "#B91C1C" : SD_NOTE_FG }} />
       {topup.status === "credited" ? (
-        <Alert severity="success" data-testid="sd-topup-credited"><b>{money(Number(topup.amount_usd))}</b> is now in your available balance{topup.simulated ? " (simulated)" : ""}. You can fund deals from balance right away.</Alert>
+        <Alert severity="success" data-testid="sd-topup-credited"><b>{money(Number(topup.amount_usd))}</b> is now in your available balance. You can fund deals from balance right away.</Alert>
       ) : (
         <Stack direction={{ xs: "column", sm: "row" }} spacing={2} alignItems={{ sm: "flex-start" }}>
           <Box sx={{ flexShrink: 0, alignSelf: { xs: "center", sm: "flex-start" }, p: 1, borderRadius: 2.5, border: "1px solid #E5E7EB" }}>

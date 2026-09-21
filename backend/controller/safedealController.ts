@@ -724,7 +724,7 @@ const dealAction = async (req: express.Request, res: express.Response) => {
         if (isLiveSettlementEnabled()) fail(400, "Pay the deposit address shown on the deal page to fund this deal.");
         if (actor.role === "buyer") await lockPriceIfNeeded(deal, sess.email);
         await escrowEngine.actFund(deal, actor, body.coin || deal.funding_coin);
-        msg = "Escrow funded (simulated). The seller has been notified.";
+        msg = "Payment received — escrow funded. The seller has been notified.";
         break;
       case "fund-balance":
         if (actor.role === "buyer") await lockPriceIfNeeded(deal, sess.email);
@@ -1250,7 +1250,7 @@ const topupSimulate = async (req: express.Request, res: express.Response) => {
   try {
     const sess = session(res);
     const row = await simulateTopup(sess.customer_id, Number(req.params.id));
-    return successResponseHelper(res, 200, `[SIMULATED] ${toFixedStr(Number(row.amount_usd), 2)} USD credited to your balance.`, { topup: row, wallet: await getBalances(sess.customer_id) });
+    return successResponseHelper(res, 200, `${toFixedStr(Number(row.amount_usd), 2)} USD credited to your balance.`, { topup: row, wallet: await getBalances(sess.customer_id) });
   } catch (e) {
     return handle(res, e, "topupSimulate");
   }
@@ -1345,7 +1345,7 @@ const withdraw = async (req: express.Request, res: express.Response) => {
     const w = await requestWithdrawal(customer, { address_id: Number(req.body?.address_id), amount: Number(req.body?.amount) });
     const msg =
       w.status === "sent"
-        ? `Withdrawal sent${w.simulated ? " (simulated)" : ""}.`
+        ? "Withdrawal sent."
         : w.status === "pending_approval"
         ? `Withdrawals above $${APPROVAL_THRESHOLD_USD} are reviewed by our team first — you'll get an email once it's sent.`
         : "Withdrawal queued.";

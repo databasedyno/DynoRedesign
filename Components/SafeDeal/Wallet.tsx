@@ -34,6 +34,8 @@ const KIND_LABEL: Record<string, string> = {
 };
 
 const shortAddr = (a: string) => `${a.slice(0, 6)}…${a.slice(-4)}`;
+// Internal bookkeeping refs (simulated payouts, exchange withdrawal ids) are not on-chain transactions — never show them as one.
+const chainTx = (h?: string | null) => (h && !/^(SIMULATED-|BINANCE-|WALLET-CREDIT|WITHDRAWAL-)/i.test(h) ? h : null);
 
 /** Network/exchange fee in USD for a statement row, read from its stored meta (top-ups carry it). */
 const rowFeeUsd = (meta?: Record<string, unknown> | null): number => {
@@ -257,7 +259,7 @@ export default function Wallet() {
                         {x.source === "settlement" && <Chip size="small" label={x.escrow_id ? `Deal #${x.escrow_id} payout` : "Deal payout"} sx={{ mr: 0.8, fontSize: 10.5, fontWeight: 800, height: 20, backgroundColor: SD_NOTE_BG, color: SD_NOTE_FG }} />}
                         #{x.withdrawal_id} · {money(Number(x.amount_usd))} → {shortAddr(x.address)} <span style={{ color: "#6B7280", fontWeight: 500 }}>({x.payout_key})</span>
                       </Typography>
-                      <Typography sx={{ fontSize: 12, color: "#6B7280", ...TABULAR }}><Tooltip title={absTime(x.created_at)}><time dateTime={x.created_at}>{relTime(x.created_at, now)}</time></Tooltip> · {x.source === "settlement" ? "network fee covered by the deal" : `fee ${money(Number(x.fee_usd))}`} · you receive {money(Number(x.net_usd))}{x.tx_hash ? ` · ${x.tx_hash.slice(0, 22)}…` : ""}{x.rejected_reason ? ` · ${x.rejected_reason}` : ""}</Typography>
+                      <Typography sx={{ fontSize: 12, color: "#6B7280", ...TABULAR }}><Tooltip title={absTime(x.created_at)}><time dateTime={x.created_at}>{relTime(x.created_at, now)}</time></Tooltip> · {x.source === "settlement" ? "network fee covered by the deal" : `fee ${money(Number(x.fee_usd))}`} · you receive {money(Number(x.net_usd))}{chainTx(x.tx_hash) ? ` · ${chainTx(x.tx_hash)!.slice(0, 22)}…` : ""}{x.rejected_reason ? ` · ${x.rejected_reason}` : ""}</Typography>
                     </Box>
                     <Chip size="small" label={withdrawalStatusLabel(x.status)} data-testid={`sd-withdrawal-status-${x.withdrawal_id}`} data-status={x.status} sx={{ fontWeight: 800, fontSize: 11, backgroundColor: x.status === "sent" ? "#ECFDF5" : x.status === "rejected" ? "#FEF2F2" : "#FEF3C7", color: x.status === "sent" ? "#047857" : x.status === "rejected" ? "#B91C1C" : "#92400E" }} />
                   </Stack>

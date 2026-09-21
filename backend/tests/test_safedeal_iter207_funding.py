@@ -408,8 +408,11 @@ class TestBeforeFundingPath:
         assert (deal.get("seller_payout_tx") or "").startswith("SIMULATED-WITHDRAWAL-"), deal.get(
             "seller_payout_tx"
         )
-        notes = [a["note"] for a in deal["activity_log"] if a["type"] == "payout_seller"]
-        assert notes and "simulated" in notes[0].lower()
+        payouts = [a for a in deal["activity_log"] if a["type"] == "payout_seller"]
+        assert payouts and "paid" in payouts[0]["note"].lower(), payouts
+        # internal vocabulary never leaks into user-facing notes; the flag lives in meta only
+        assert "simulated" not in payouts[0]["note"].lower() and "binance" not in payouts[0]["note"].lower()
+        assert (payouts[0].get("meta") or {}).get("simulated") is True, payouts[0]
 
         # Wallet withdrawals list has settlement row
         rwd = requests.get(

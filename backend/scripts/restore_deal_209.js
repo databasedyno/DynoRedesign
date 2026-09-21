@@ -39,7 +39,7 @@ const breakdown = {
   buyerPays: 43.74, sellerReceives: 30, platformFee: 10,
 };
 const amounts = { outcome: "release", sellerAmount: 30, buyerRefund: 0, platformFee: 10 };
-const settlementNote = "[SIMULATED — no on-chain transaction] release: seller +30 USD, platform fee 10 USD (authorized)";
+const settlementNote = "Release: seller +30 USD, platform fee 10 USD (authorized)";
 
 const restoredAt = new Date().toISOString();
 const RESTORE_TAG = "[Restored record]";
@@ -50,7 +50,7 @@ const activity = [
   { at: T_FUNDED, type: "funded", actor: "dynopay", role: "buyer", note: `Buyer paid 44.5 USD in USDT-TRC20 (tx ${FUNDING_TX}); 43.74 USDT held securely in escrow.`, meta: { breakdown, paidUsd: 44.5, overpaid_usd: 0.76 } },
   { at: T_RELEASED, type: "outcome_release", actor: BUYER.email, role: "buyer", note: settlementNote, meta: { amounts, entitlement_stablecoin: "USDT" } },
   { at: T_RELEASED, type: "payout_seller", actor: "system", role: "system", note: "30 USD for the seller is held in their SafeDeal balance — their payout address is in its safety hold and will be paid automatically once usable." },
-  { at: T_PAYOUT_SENT, type: "payout_sent", actor: "system", role: "system", note: "Parked payout of 30 USD sent to USDT · Tron (TRC-20) TA53tt…fjBE (withdrawal #46, ref BINANCE-82493f38e55f4e1c838062c390883c53).", meta: { withdrawal_id: 46 } },
+  { at: T_PAYOUT_SENT, type: "payout_sent", actor: "system", role: "system", note: "Payout of 30 USD sent to USDT · Tron (TRC-20) TA53tt…fjBE (withdrawal #46).", meta: { withdrawal_id: 46, exchange_ref: "BINANCE-82493f38e55f4e1c838062c390883c53" } },
   { at: restoredAt, type: "restored", actor: "admin", role: "admin", note: "Deal record restored by SafeDeal support from surviving ledger, payment-journal and payout evidence after an accidental deletion. Timestamps before funding are approximate; money movements are exact.", meta: { evidence: { ledger_tx: 1246, payment_id: PAYMENT_ID, pool_tx: 533, user_tx: 1153, withdrawal_id: 46 } } },
 ];
 
