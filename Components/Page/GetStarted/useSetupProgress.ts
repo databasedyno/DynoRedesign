@@ -11,6 +11,9 @@ import { isSafeDealBrandId } from "@/helpers/safedealBrand";
 export type SetupStepKey = "secure" | "about" | "payouts" | "link" | "share";
 export const SETUP_STEPS: SetupStepKey[] = ["secure", "about", "payouts", "link", "share"];
 
+/** Any success-like transaction status counts as "a payment received" (source-agnostic). */
+const SETTLED_TX_STATUSES = ["confirmed", "completed", "settled", "success", "successful", "paid", "done"];
+
 /** Session guards shared by the dashboard redirect and the wizard's "Do this later". */
 export const GS_AUTO_OPEN_KEY = "gs_autoopen_seen";
 export const GS_SUPPRESS_KEY = "dyno_suppress_onboarding";
@@ -95,8 +98,21 @@ export const useSetupProgress = () => {
     () => (walletList ?? []).some((w: any) => Number(w?.amount_in_usd ?? 0) > 0),
     [walletList],
   );
+  // "A payment is a payment" — any settled transaction, regardless of how it
+  // arrived (payment link, API, product order, donation, tip…), graduates the
+  // brand out of onboarding. recentTransactions carries the raw status per row.
+  const recentSettled = useMemo(
+    () =>
+      ((dashboardState.recentTransactions as any[]) ?? []).some((tx) =>
+        SETTLED_TX_STATUSES.includes(String(tx?.status || "").toLowerCase()),
+      ),
+    [dashboardState.recentTransactions],
+  );
   const hasPayment =
-    Number(stats?.totalTransactions ?? 0) > 0 || Number(stats?.totalVolume ?? 0) > 0 || walletProcessed;
+    Number(stats?.totalTransactions ?? 0) > 0 ||
+    Number(stats?.totalVolume ?? 0) > 0 ||
+    walletProcessed ||
+    recentSettled;
   const hasShared = useHasShared(companyId);
 
   useEffect(() => {

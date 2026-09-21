@@ -1,0 +1,64 @@
+{
+  "summary": "Frontend-only verification of SafeDeal brand dashboard fix. Primary bug fixes (getting-started suppression + sidebar setup-progress hidden + brand avatar showing gold-shield logo) all PASS. Regression on The Dev Store (company 1) PASS. Secondary SafeDeal /safedeal landing SEO check: title/description/robots/OG-tag-presence/twitter tags all present; however canonical/og:url point to https://dynopay.com/safedeal (spec required https://safedeal.sh) and og:title/og:description/og:image/twitter:image are generic Dynopay defaults instead of SafeDeal-specific. /safedeal/signin robots=noindex,nofollow correctly set.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/safedeal (customer landing SEO)", "issues": [
+        "link rel=canonical is 'https://dynopay.com/safedeal' — spec requires 'https://safedeal.sh'",
+        "meta og:url is 'https://dynopay.com/safedeal' — spec expected safedeal.sh",
+        "og:title is generic 'Accept Crypto Payments — Get Paid Your Way · Dynopay' rather than SafeDeal-specific",
+        "og:description is generic Dynopay copy (not SafeDeal escrow copy)",
+        "og:image + twitter:image point to https://dynopay.com/og/dynopay-og.png?v=3 rather than a SafeDeal OG image"
+      ]}
+    ]
+  },
+  "verification_results": {
+    "safedeal_active_brand": {
+      "new-merchant-getting-started_present": false,
+      "gs-hero_present": false,
+      "dash2026-root_present": true,
+      "dash2026-activity_present": true,
+      "sidebar-setup-progress_present": false,
+      "almost_there_text_present": false,
+      "waiting_for_first_payment_text_present": false,
+      "company-selector-avatar_data-brand-avatar": "logo",
+      "company-selector-avatar_img_src": "/safedeal/favicon-192.png",
+      "company-avatar-262_data-brand-avatar": "logo",
+      "company-avatar-262_img_src": "/safedeal/favicon-192.png"
+    },
+    "dev_store_regression": {"dash2026-root_present": true, "new-merchant-getting-started_present": false, "errors": []},
+    "safedeal_landing_seo_/safedeal": {
+      "title": "SafeDeal — escrow for buying & selling online",
+      "title_contains_SafeDeal": true,
+      "description_present": true,
+      "canonical": "https://dynopay.com/safedeal",
+      "canonical_matches_spec": false,
+      "robots": "index, follow, max-image-preview:large",
+      "og_all_tags_present": true,
+      "og_title": "Accept Crypto Payments — Get Paid Your Way · Dynopay",
+      "og_url": "https://dynopay.com/safedeal",
+      "og_type": "website",
+      "og_site_name": "Dynopay",
+      "twitter_card": "summary_large_image",
+      "twitter_image": "https://dynopay.com/og/dynopay-og.png?v=3"
+    },
+    "safedeal_signin_robots": "noindex, nofollow"
+  },
+  "test_report_links": [],
+  "action_items": [
+    "PRIMARY BUG FIX VERIFIED — no action needed for onboarding suppression, sidebar progress ring, or SafeDeal brand logo avatar.",
+    "SEO (secondary): SafeDealShell must override canonical (→ https://safedeal.sh), og:url (→ https://safedeal.sh), og:title/og:description (SafeDeal-specific copy), and og:image + twitter:image (SafeDeal OG image). Currently the root Dynopay Helmet/head tags win over SafeDealShell head tags."
+  ],
+  "critical_code_review_comments": [
+    "Investigate Helmet/head tag priority: SafeDealShell head tags are being overridden by the root Dynopay defaults. Ensure SafeDealShell's Helmet is a descendant of HelmetProvider and mounts after the root Helmet, or use unique keys/prioritized rendering to override og:* and canonical."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "primary 100%, secondary SEO ~50%"},
+  "seed_data_creation": "None. Read-only verification in SAFE MODE.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Primary SafeDeal onboarding suppression + brand logo change fully verified on preview URL using owner_login.cjs token for user 1 → switched to company 262 SafeDeal via data-testid='company-option-262'. Dev Store (company 1) regression clean via data-testid='company-option-1'. Only outstanding items are on /safedeal public landing SEO (canonical + OG/Twitter tags still resolve to Dynopay defaults). /safedeal/signin robots noindex,nofollow is correct. No login needed for SEO retest.",
+  "rca of the issue": "PRIMARY: fix verified working — SafeDealShell hides onboarding checklist + sidebar progress ring for company 262 and BrandAvatar renders /safedeal/favicon-192.png with data-brand-avatar='logo'. SEO: SafeDealShell head tags do not override the root Dynopay head tags (Helmet ordering / dedup issue)."
+}

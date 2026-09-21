@@ -148,29 +148,27 @@ export default function SafeDealShell({
       <Head>
         <title>{fullTitle}</title>
         <meta name="description" content={metaDescription} />
-        <link rel="canonical" href={canonicalUrl} />
-        <meta name="robots" content={noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large"} />
         <meta name="theme-color" content={SD_GOLD} />
-        {/* SafeDeal gold favicon + PWA manifest (served from /public/safedeal on both hosts) */}
-        <link rel="icon" href="/safedeal/favicon.svg" type="image/svg+xml" />
-        <link rel="icon" href="/safedeal/favicon-32.png" sizes="32x32" type="image/png" />
-        <link rel="apple-touch-icon" href="/safedeal/apple-touch-icon.png" />
-        <link rel="manifest" href="/safedeal/site.webmanifest" />
+        {/* Canonical + OG/Twitter reuse the SAME keys as the global _app Head so
+            these SafeDeal values DEDUPE-OVERRIDE the Dynopay defaults (next/head
+            keeps the last-rendered tag per key; the page Head wins over _app). */}
+        <link key="canonical" rel="canonical" href={canonicalUrl} />
+        <meta key="robots" name="robots" content={noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large"} />
         {/* Open Graph (link previews on WhatsApp / Telegram / Slack / iMessage) */}
-        <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="SafeDeal" />
-        <meta property="og:title" content={fullTitle} />
-        <meta property="og:description" content={metaDescription} />
-        <meta property="og:url" content={canonicalUrl} />
-        <meta property="og:image" content={ogImageUrl} />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="SafeDeal — escrow for online deals" />
+        <meta key="og:type" property="og:type" content="website" />
+        <meta key="og:site_name" property="og:site_name" content="SafeDeal" />
+        <meta key="og:title" property="og:title" content={fullTitle} />
+        <meta key="og:description" property="og:description" content={metaDescription} />
+        <meta key="og:url" property="og:url" content={canonicalUrl} />
+        <meta key="og:image" property="og:image" content={ogImageUrl} />
+        <meta key="og:image:width" property="og:image:width" content="1200" />
+        <meta key="og:image:height" property="og:image:height" content="630" />
+        <meta key="og:image:alt" property="og:image:alt" content="SafeDeal — escrow for online deals" />
         {/* Twitter / X card */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={fullTitle} />
-        <meta name="twitter:description" content={metaDescription} />
-        <meta name="twitter:image" content={ogImageUrl} />
+        <meta key="twitter:card" name="twitter:card" content="summary_large_image" />
+        <meta key="twitter:title" name="twitter:title" content={fullTitle} />
+        <meta key="twitter:description" name="twitter:description" content={metaDescription} />
+        <meta key="twitter:image" name="twitter:image" content={ogImageUrl} />
         {/* Dialogs portal to <body>, outside this Box — set the ring var globally so they stay gold too. */}
         <style key="sd-focus-ring">{`:root{--dyno-focus-ring:${SD_GOLD};--dyno-focus-ring-shadow:0 0 0 3px rgba(255,198,26,0.35)}`}</style>
       </Head>
