@@ -1,0 +1,68 @@
+{
+  "summary": "Frontend-only re-verification after (a) hasPayment hardening (source/status-agnostic) and (b) SafeDeal SEO head keys aligned to _app.tsx defaults. All 4 scenarios PASS.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_details": {
+    "the_dev_store_company_1": {
+      "dash2026-root": true,
+      "dash2026-activity": true,
+      "new-merchant-getting-started": false,
+      "gs-hero": false,
+      "sidebar-setup-progress": false,
+      "almost_there_text": false,
+      "waiting_for_first_payment_text": false,
+      "verdict": "PASS - normal dashboard shown, no getting-started"
+    },
+    "smadav_company_71": {
+      "dash2026-root": true,
+      "dash2026-activity": true,
+      "new-merchant-getting-started": false,
+      "gs-hero": false,
+      "sidebar-setup-progress": false,
+      "almost_there_text": false,
+      "waiting_for_first_payment_text": false,
+      "verdict": "PASS - source-agnostic graduation confirmed"
+    },
+    "safedeal_company_262": {
+      "dash2026-root": true,
+      "new-merchant-getting-started": false,
+      "gs-hero": false,
+      "sidebar-setup-progress": false,
+      "company-selector-avatar.data-brand-avatar": "logo",
+      "avatar_img_src": "/safedeal/favicon-192.png",
+      "verdict": "PASS - suppressed getting-started, SafeDeal logo avatar renders as <img>"
+    },
+    "seo_safedeal_root": {
+      "canonicals": ["https://safedeal.sh/"],
+      "og_url": "https://safedeal.sh",
+      "og_site_name": "SafeDeal",
+      "og_title": "SafeDeal — escrow for buying & selling online",
+      "og_image": "https://safedeal.sh/safedeal/og-image.png",
+      "twitter_image": "https://safedeal.sh/safedeal/og-image.png",
+      "twitter_title": "SafeDeal — escrow for buying & selling online",
+      "robots": "index, follow, max-image-preview:large",
+      "no_dynopay_leftovers": true,
+      "verdict": "PASS - SafeDeal values fully override Dynopay defaults (single canonical, correct og:*, twitter:*, robots contains index)"
+    },
+    "seo_safedeal_signin": {
+      "canonicals": ["https://safedeal.sh/signin"],
+      "robots": "noindex, nofollow",
+      "og_url": "https://safedeal.sh/signin",
+      "verdict": "PASS - robots contains noindex on signin"
+    }
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped per request)", "frontend": "100%"},
+  "test_credentials": "Owner JWT minted via /app/scripts/qa/owner_login.cjs",
+  "seed_data_creation": "None (SAFE MODE, read-only)",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "All 4 verification points passed on iteration_212. hasPayment logic + SafeDeal SEO override + SafeDeal logo avatar all confirmed working. The Dev Store (1) and SMADAV (71) graduate out of Getting Started; SafeDeal (262) suppressed regardless. SEO on /safedeal now has exactly one canonical=https://safedeal.sh/, og:site_name=SafeDeal, no Dynopay leftovers; /safedeal/signin robots=noindex,nofollow."
+}
