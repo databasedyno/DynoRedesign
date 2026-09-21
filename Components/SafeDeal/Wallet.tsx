@@ -325,7 +325,7 @@ function AddAddressDialog({ wallet, onClose, onDone, onError }: { wallet: SdWall
 function WithdrawDialog({ wallet, onClose, onDone, onError }: { wallet: SdWallet; onClose: () => void; onDone: (m: string) => Promise<void>; onError: (m: string) => void }) {
   const [addressId, setAddressId] = useState<number | "">(wallet.addresses[0]?.address_id ?? "");
   const [amount, setAmount] = useState(String(wallet.wallet.available.toFixed(2)));
-  const [quote, setQuote] = useState<{ fee: number; fee_waived?: number; net: number; requires_approval: boolean } | null>(null);
+  const [quote, setQuote] = useState<{ fee: number; fee_waived?: number; net: number; requires_approval: boolean; below_min?: boolean } | null>(null);
   const amt = Number(amount);
   useEffect(() => {
     if (!addressId || !(amt > 0)) return setQuote(null);
@@ -363,6 +363,7 @@ function WithdrawDialog({ wallet, onClose, onDone, onError }: { wallet: SdWallet
                 </Typography>
               )}
               <Stack direction="row" justifyContent="space-between"><Typography sx={{ fontSize: 13, fontWeight: 800 }}>You receive</Typography><Typography sx={{ fontSize: 13, fontWeight: 900, color: "#047857" }} data-testid="sd-withdraw-net">{money(quote.net)}</Typography></Stack>
+              {quote.below_min && <Typography sx={{ fontSize: 12, color: "#B45309", mt: 0.6 }} data-testid="sd-withdraw-below-min">Minimum withdrawal is ${wallet.limits.min_withdrawal_usd}.</Typography>}
               {quote.requires_approval && <Typography sx={{ fontSize: 12, color: "#92400E", mt: 0.6 }}>Above ${wallet.limits.approval_threshold_usd.toLocaleString()} — reviewed by our team before it&apos;s sent (usually within a few hours).</Typography>}
             </Box>
           )}

@@ -220,3 +220,9 @@
 - Top-ups: tbl_safedeal_topup (migration 0042), service safedealTopup.ts, routes /api/safedeal/wallet/topup*, webhook meta.topup_id branch, CREDIT kind `topup` payment_mode `TOPUP`. Preview: POST /wallet/topup/:id/simulate.
 - Invoices: GET /api/safedeal/invoices + summary.pdf becomes "Invoice SD-<id>" for closed deals (viewer-addressed, final costs, payouts).
 - Tests: backend/tests/test_safedeal_iter208_wallet.py (25/25), scripts/safedeal_wallet_smoke.sh. Min deal is $30 (5% fee, $10 floor) — use amount>=30 in tests.
+
+## 2026-06 math audit follow-up — regression suites green (this fork)
+- Pre-funding quote assumes a STABLECOIN (exchange fee 0) by design; `nonStableSurchargeUsd` is the hint. Tests must NOT expect 2.00 exchange fee on fee-preview without a funding coin.
+- 24h address cooling-off is OFF (SAFEDEAL_ADDRESS_COOLING_HOURS default 0, commit 4cf6b0cbf). Auto-withdraw ON ⇒ release pays the address at once (simulated when live settlement is off). Tests branch on GET /api/safedeal/config `address_cooling_hours`.
+- Admin readiness api_key detail shows the CURRENT key prefix (`dpk_live_oA0S…` here) — never hard-code the suffix.
+- Withdraw quote now returns `below_min`.

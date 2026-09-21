@@ -1331,7 +1331,7 @@ const withdrawQuote = async (req: express.Request, res: express.Response) => {
     if (!key) return errorResponseHelper(res, 400, "Choose a payout address.");
     const [bal, feeCredit] = await Promise.all([getBalances(sess.customer_id), getWithdrawalFeeCredit(sess.customer_id)]);
     const q = quoteWithdrawal(String(key), Number(amount || 0), feeCredit);
-    return successResponseHelper(res, 200, "OK", { ...q, fee_credit_available: feeCredit, available: bal.available, requires_approval: q.amount > APPROVAL_THRESHOLD_USD });
+    return successResponseHelper(res, 200, "OK", { ...q, fee_credit_available: feeCredit, available: bal.available, below_min: q.amount < MIN_WITHDRAWAL_USD, requires_approval: q.amount > APPROVAL_THRESHOLD_USD });
   } catch (e) {
     return handle(res, e, "withdrawQuote");
   }
