@@ -21,7 +21,7 @@
 # ISSUE 4 (P1) — escrow "Held" display: backend held ledger is CORRECT in every preview-testable path. VERIFIED curl: fund-from-balance ($40 deal) → held $53.23 / available dropped / total conserved; simulated-crypto fund ($45 deal) → held $58.23 / available 0. Wallet.tsx renders `w.wallet.held` (data-testid=sd-wallet-held). The reported prod symptom is likely the LIVE crypto-funding customer-resolution/timing (not reproducible with live settlement OFF) — folded into the Issue 3 prod debug.
 # ISSUE 3 (P1, recurring) — prod dispatch HARDENING (diagnosis needs prod): dispatchWithdrawal now logs "dispatching LIVE (…) coin amount → address", surfaces a Binance submit error (try/catch + re-throw with error log), and WARNs "SIMULATED — live settlement is OFF (ESCROW_LIVE_SETTLEMENT)" whenever a settlement/auto withdrawal can't go live (the #1 prod cause). settlementPayout logs when a leg is "kept" (no address / auto-withdraw off). NEXT: user redeploys → run emergent__send_to_deployer intent=debug to confirm real Binance dispatch + inspect why prod payouts stalled.
 # FILES: backend services/safedeal/{safedealWithdrawals,safedealPdf,safedealCheckout}.ts, backend utils/emailTemplate.ts, backend controller/{safedealController,escrowController}.ts; Components/SafeDeal/{TopUpDialog,DealCards,sdFormat,sdTheme,SafeDealShell,LandingSections,NewDealReview,DealPage,FundPanel,Wallet,PayoutDestinationCard,Landing,DealActionsCard,SignIn,RequestChangesDialog,legalContent}.ts(x).
-# OPS: backend is ts-node WITHOUT hot reload → restarted. Preview: https://secure-passphrase.preview.emergentagent.com. Background jobs OFF in preview (hourly releaseParkedPayouts cron dispatches parked deal-proceeds in prod once the address clears its 24h hold AND ESCROW_LIVE_SETTLEMENT=true). COMMIT: uncommitted — user must "Save to GitHub". PAUSED (P2, resume after): Tatum.io marketing-homepage redesign (design_guidelines.json + Home/v6).
+# OPS: backend is ts-node WITHOUT hot reload → restarted. Preview: https://secure-passphrase-1.preview.emergentagent.com. Background jobs OFF in preview (hourly releaseParkedPayouts cron dispatches parked deal-proceeds in prod once the address clears its 24h hold AND ESCROW_LIVE_SETTLEMENT=true). COMMIT: uncommitted — user must "Save to GitHub". PAUSED (P2, resume after): Tatum.io marketing-homepage redesign (design_guidelines.json + Home/v6).
 # ============================================================================================
 
 
@@ -42,7 +42,7 @@
 #  (3) GUEST DEAL START: Landing.tsx cta is now href('/deals/new') for everyone (dropped the user? gate + useSdSession import). NewDeal.tsx: useRequireSdSession → useSdSession (no forced redirect); renders the form for guests. submit(): signed-in → doCreate(draft); guest → saves draft to sessionStorage 'sd_deal_draft' then router.push(/signin?next=<encoded /safedeal/deals/new?resume=1>). NEW useEffect on ?resume=1 && token restores the fields + auto-calls doCreate. SignIn.tsx already honours ?next. VERIFIED (iteration_210): guest filled 3-step form → Send invite → signin (preview code) → returned to ?resume=1 → deal auto-created → /safedeal/deal/<token>?created=1 shows "Guest test deal" $100.
 #  (4) FEES COLUMN: Wallet.tsx statement table has a new "Fees" column between Amount and Balance (cell testid sd-statement-fee-<kind>, value from rowFeeUsd(r.meta)= meta.total_fee_usd || sum(network+conversion+exchange), "—" when 0). safedealWallet.statementToCsv now emits a "Fees (USD)" column too. VERIFIED: top-up row shows $2.24; CSV header Date,Deal,Type,Description,Amount (USD),Fees (USD),Bucket,...
 # FILES: StatusChip.tsx, Components/SafeDeal/{SdStatusChip,Landing,NewDeal,Wallet}.tsx; backend services/email/{emailShared,safedealEmails}.ts, utils/mailTransporter.ts, services/safedeal/{safedealPdf,safedealTopup,safedealInvoiceEmail(NEW)}.ts, controller/escrowController.ts, services/safedeal/safedealWallet.ts.
-# NOTES: backend is ts-node WITHOUT hot reload → `sudo supervisorctl restart backend` after BE edits (done). Preview host: https://secure-passphrase.preview.emergentagent.com. COMMIT: all uncommitted — user must "Save to GitHub".
+# NOTES: backend is ts-node WITHOUT hot reload → `sudo supervisorctl restart backend` after BE edits (done). Preview host: https://secure-passphrase-1.preview.emergentagent.com. COMMIT: all uncommitted — user must "Save to GitHub".
 # ============================================================================================
 
 
@@ -90,7 +90,7 @@
 # USER ASK: "highest escrow per deal cant be more than 2999 euros equivalent USD, then test all after."
 # IMPLEMENTATION (env-driven, EUR-based cap resolved to USD at the live FX rate):
 #   • backend/.env: NEW ESCROW_MAX_DEAL_EUR=2999. ALSO fixed the recurring stale SAFEDEAL_URL → current preview host
-#     https://secure-passphrase.preview.emergentagent.com/safedeal (was b3e8a0ae…, dead).
+#     https://secure-passphrase-1.preview.emergentagent.com/safedeal (was b3e8a0ae…, dead).
 #   • controller/escrowController.ts: const ESCROW_MAX_DEAL_EUR = Number(envRaw("ESCROW_MAX_DEAL_EUR"))||2999; exported on escrowEngine.
 #   • controller/safedealController.ts: NEW async maxDealUsd() = convertToFiat("EUR","USD",2999) at live rate, FAILS OPEN to eur*1.15
 #     if FX momentarily down. maxDealMessage() helper. Enforced in createDeal (replaced dead >$1,000,000 check) AND amendDeal.
@@ -295,7 +295,7 @@
 #   success + confetti; deal detail progress + 5-network payout picker; public invite OTP → accept → fund → deliver
 #   → release with the progress ladder). At wrap-up the EXTERNAL preview host returned a transient Cloudflare 502
 #   (local was healthy) — just retry. Preview URL (source of truth = APP_URL in /etc/supervisor/conf.d/*.conf):
-#   https://secure-passphrase.preview.emergentagent.com  (older auth-config-8 URL is STALE).
+#   https://secure-passphrase-1.preview.emergentagent.com  (older auth-config-8 URL is STALE).
 #   Escrow invite OTP is a SINGLE TextField (escrow-invite-otp) — the "12 OTP inputs" E2E blocker was the login-2FA
 #   segmented input, NOT escrow. NOTE: backend invite_url is built from SERVER_URL/FRONTEND_URL (= b93492c2 host),
 #   so the QR/link resolve there. COMMIT: user must click "Save to GitHub" (all changes uncommitted).
@@ -412,7 +412,7 @@
 # VERIFY: FE tsc 0, BE tsc 0. iteration_197 all 9 checks pass (range switching refetches + updates summary,
 #   Manage switches brand + routes to /dashboard, "View all brands" navigates, sidebar item visible for 5 brands,
 #   no console errors, no overflow at 1920x800 / 390x844). Preview (THIS pod):
-#   https://secure-passphrase.preview.emergentagent.com/brands  (setup-vault-7 URL is STALE).
+#   https://secure-passphrase-1.preview.emergentagent.com/brands  (setup-vault-7 URL is STALE).
 #   COMMIT: user must click "Save to GitHub" (no local push from pod).
 # ============================================================================================
 
@@ -457,7 +457,7 @@
 #   viewer_is_ops=true, stuck_forwards=[tx883 $18.81 ETH]. ack with wrong brand (71) → 403; ack brand 1 → 200,
 #   DB shows ack cols set + updatedAt UNCHANGED (2026-09-06), item GONE from feed. Reverted ack cols to NULL →
 #   tx 883 back in feed. FE browser: button + dialog render for ops (cancelled, no write). FE tsc 0, BE tsc 0,
-#   all 6 common.json parse. Preview: https://secure-passphrase.preview.emergentagent.com  (route /payouts).
+#   all 6 common.json parse. Preview: https://secure-passphrase-1.preview.emergentagent.com  (route /payouts).
 # TO ACTUALLY CLEAR THE REAL $18.81: ops settles it by hand in the DEPLOYED prod (send ~$18.81 USDT-TRC20 to
 #   TTve8v6Y48ChsCTEiCjMRFSbjNtz4mAkxR), then clicks "Mark as resolved". testing_agent NOT used (acknowledge
 #   writes to a live prod row; verified via reversible curl e2e + browser instead). COMMIT: user must Save to GitHub.
@@ -575,7 +575,7 @@
 #   to 0 keys). tsc 0 (backend + frontend), eslint clean.
 #
 # TESTING METHOD: self-tested (Joi unit tests + real curl e2e for D incl. enforcement + Playwright UI screenshots).
-#   testing_agent NOT used. NOTE current preview URL = https://secure-passphrase.preview.emergentagent.com
+#   testing_agent NOT used. NOTE current preview URL = https://secure-passphrase-1.preview.emergentagent.com
 #   (test_credentials.md's 27632836 URL is STALE from a prior pod). COMMIT: all changes uncommitted — user must Save to GitHub.
 # ============================================================================================
 
