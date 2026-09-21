@@ -32,7 +32,7 @@ import TransactionsSkeleton from "./TransactionsSkeleton";
 import TransactionsFilterSheet from "./TransactionsFilterSheet";
 import useTableCardView from "@/hooks/useTableCardView";
 import { toFixedStr, toNumber } from "@/utils/money";
-import { SOURCE_OPTIONS, TxFilters, countActiveFilters, cryptoToWalletKey, hasDateRange, matchesBaseFilters, walletMapping } from "./txFilters";
+import { SOURCE_OPTIONS, TxFilters, countActiveFilters, cryptoToWalletKey, hasDateRange, hasSafeDealRows, matchesBaseFilters, walletMapping } from "./txFilters";
 import { DEFAULT_TX_RANGE, isTxRangePreset, rangeToDates } from "./txRange";
 
 /** Open states are actionable no matter how old — deep links to them default to "all time". */
@@ -167,6 +167,11 @@ const TransactionPage = () => {
         : n;
     }, 0);
   }, [transactionState?.customers_transactions]);
+
+  const showSafeDealSource = useMemo(
+    () => selectedSource === "safedeal" || hasSafeDealRows(transactionState?.customers_transactions || []),
+    [transactionState?.customers_transactions, selectedSource],
+  );
 
   useEffect(() => {
     if (!selectedCompanyId) return;
@@ -550,6 +555,7 @@ const TransactionPage = () => {
         onSourceChange={handleSourceChange}
         onOpenFilters={() => setFilterSheetOpen(true)}
         activeFilterCount={countActiveFilters(filtersForCount)}
+        showSafeDeal={showSafeDealSource}
         initialWallet={selectedWallet}
         initialSource={selectedSource}
         initialSearch={searchTerm}

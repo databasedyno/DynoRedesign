@@ -137,7 +137,8 @@ const userTransactionModel = sequelize.define(
         key: "customer_id",
       },
       onUpdate: "CASCADE",
-      onDelete: "CASCADE",
+      // Payment history must outlive the customer row (migration 0046).
+      onDelete: "SET NULL",
     },
     company_id: {
       type: DataTypes.INTEGER,

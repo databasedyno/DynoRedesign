@@ -9,7 +9,7 @@ import {
 } from "../helper";
 import { handleControllerError } from "../helper/controllerErrorHandler";
 import { formatAmountForDisplay, getCurrencyInfo, COMPANY_CURRENCY_QUERY, convertToFiat, getCompanyDisplayCurrency, getUserDisplayCurrency, SUPPORTED_DISPLAY_CURRENCIES, isSupportedDisplayCurrency } from "../utils/currencyUtils";
-import { resolveTransactionSource } from "../utils/transactionSource";
+import { resolveTransactionSource, SAFEDEAL_SOURCE_JOIN_SQL, SAFEDEAL_SOURCE_SELECT_SQL } from "../utils/transactionSource";
 import { deriveTxDisplayStatus } from "../utils/transactionDisplayStatus";
 import { validateBrandName } from "../utils/brandName";
 import jwt from "jsonwebtoken";
@@ -949,7 +949,8 @@ const getTransactions = async (req: express.Request, res: express.Response) => {
         parent_pl.title      as source_parent_title,
         parent_pl.is_tip_jar as source_parent_is_tip_jar,
         po.order_id          as source_order_id,
-        po.public_ref        as source_order_ref
+        po.public_ref        as source_order_ref,
+        ${SAFEDEAL_SOURCE_SELECT_SQL}
       from tbl_user_transaction ut 
       left join tbl_customer c on c.customer_id=ut.customer_id
       left join tbl_company cm on cm.company_id = coalesce(c.company_id, ut.company_id)
@@ -973,6 +974,7 @@ const getTransactions = async (req: express.Request, res: express.Response) => {
         and ut.transaction_reference is not null and ut.transaction_reference <> ''
       left join tbl_payment_link parent_pl on parent_pl.link_id = pl.parent_link_id
       left join tbl_product_order po on po.payment_link_id = pl.link_id
+      ${SAFEDEAL_SOURCE_JOIN_SQL}
       -- Session 54 fix (Bug E): filter by the transaction's OWNING company
       -- (coalesce customer's company, else ut.company_id). Previously the
       -- INNER JOIN to tbl_customer plus c.company_id = :company_id silently
@@ -1025,6 +1027,10 @@ const getTransactions = async (req: express.Request, res: express.Response) => {
         source_parent_is_tip_jar,
         source_order_id,
         source_order_ref,
+        source_safedeal_escrow_id,
+        source_safedeal_title,
+        source_safedeal_topup_id,
+        source_company_id,
         ...rest
       } = x;
       const baseAmount = Number(rest.base_amount || 0);
@@ -1044,6 +1050,10 @@ const getTransactions = async (req: express.Request, res: express.Response) => {
       // ── Derive `source` via the shared resolver (single source of truth
       // shared with walletController + dashboardController). ──────────────
       const source = resolveTransactionSource({
+        source_safedeal_escrow_id: source_safedeal_escrow_id as string | number | null,
+        source_safedeal_title: source_safedeal_title as string | null,
+        source_safedeal_topup_id: source_safedeal_topup_id as string | number | null,
+        source_company_id: source_company_id as string | number | null,
         source_order_id: source_order_id as string | number | null,
         source_order_ref: source_order_ref as string | null,
         source_link_id: source_link_id as string | number | null,

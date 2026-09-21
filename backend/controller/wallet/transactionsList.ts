@@ -32,7 +32,7 @@ import { handleControllerError, handleControllerErrorReturn, asyncController } f
 import { parseSortAndPagination } from "../../helper/queryHelpers";
 import { incrementAdminFee, incrementUserWallet } from "../../helper/walletHelpers";
 import { formatAmountForDisplay, getCurrencyInfo, COMPANY_CURRENCY_QUERY, convertToUSD, convertToFiat, convertToMultiple, getUserDisplayCurrency } from "../../utils/currencyUtils";
-import { resolveTransactionSource } from "../../utils/transactionSource";
+import { resolveTransactionSource, SAFEDEAL_SOURCE_JOIN_SQL, SAFEDEAL_SOURCE_SELECT_SQL } from "../../utils/transactionSource";
 import { deriveTxDisplayStatus, isPaymentDetected } from "../../utils/transactionDisplayStatus";
 import { PROCESSED_USD_EXPR, PROCESSED_STATUS_SQL } from "../../utils/processedVolume";
 import crypto from "crypto";
@@ -132,10 +132,11 @@ export const getAllTransactions = async (
         parent_pl.title      as source_parent_title,
         parent_pl.is_tip_jar as source_parent_is_tip_jar,
         po.order_id          as source_order_id,
-        po.public_ref        as source_order_ref
+        po.public_ref        as source_order_ref,
+        ${SAFEDEAL_SOURCE_SELECT_SQL}
       FROM tbl_user_transaction ut 
       LEFT JOIN tbl_customer c ON c.customer_id=ut.customer_id
-      LEFT JOIN tbl_company cm ON cm.company_id=c.company_id
+      LEFT JOIN tbl_company cm ON cm.company_id=COALESCE(c.company_id, ut.company_id)
       LEFT JOIN tbl_user_wallet uw ON uw.wallet_id=ut.wallet_id
       LEFT JOIN tbl_stablecoin_conversion sc ON sc.transaction_id=ut.transaction_id
       -- Bridge tbl_user_transaction -> tbl_payment_link via the shared settlement
@@ -152,6 +153,7 @@ export const getAllTransactions = async (
         AND ut.transaction_reference IS NOT NULL AND ut.transaction_reference <> ''
       LEFT JOIN tbl_payment_link parent_pl ON parent_pl.link_id = pl.parent_link_id
       LEFT JOIN tbl_product_order po ON po.payment_link_id = pl.link_id
+      ${SAFEDEAL_SOURCE_JOIN_SQL}
       WHERE ${whereConditions}
       ORDER BY ${sort.safeColumn} ${sort.safeSortType}`;
     if (sort.offset !== undefined && sort.limit) {
@@ -170,7 +172,7 @@ export const getAllTransactions = async (
       SELECT COUNT(*) as total
       FROM tbl_user_transaction ut 
       LEFT JOIN tbl_customer c ON c.customer_id=ut.customer_id
-      LEFT JOIN tbl_company cm ON cm.company_id=c.company_id
+      LEFT JOIN tbl_company cm ON cm.company_id=COALESCE(c.company_id, ut.company_id)
       WHERE ${whereConditions}
       `,
       { type: QueryTypes.SELECT, replacements }
@@ -188,6 +190,10 @@ export const getAllTransactions = async (
         source_parent_is_tip_jar,
         source_order_id,
         source_order_ref,
+        source_safedeal_escrow_id,
+        source_safedeal_title,
+        source_safedeal_topup_id,
+        source_company_id,
         ...restWithConvert
       } = x;
       const rest: Record<string, unknown> = { ...restWithConvert };
@@ -223,6 +229,10 @@ export const getAllTransactions = async (
       // company/getTransactions AND the dashboard all classify a transaction
       // identically (payment_link / api / tip / product / contribution / direct).
       const source = resolveTransactionSource({
+        source_safedeal_escrow_id: source_safedeal_escrow_id as string | number | null,
+        source_safedeal_title: source_safedeal_title as string | null,
+        source_safedeal_topup_id: source_safedeal_topup_id as string | number | null,
+        source_company_id: source_company_id as string | number | null,
         source_order_id: source_order_id as string | number | null,
         source_order_ref: source_order_ref as string | null,
         source_link_id: source_link_id as string | number | null,

@@ -169,6 +169,10 @@ const getCustomerDirectoryDetail = async (req: express.Request, res: express.Res
       channel: channelOf(row),
       title:
         resolveTransactionSource({
+          source_safedeal_escrow_id: row.source_safedeal_escrow_id,
+          source_safedeal_title: row.source_safedeal_title,
+          source_safedeal_topup_id: row.source_safedeal_topup_id,
+          source_company_id: row.source_company_id,
           source_order_id: row.source_order_id,
           source_order_ref: row.source_order_ref,
           source_link_id: row.source_link_id,

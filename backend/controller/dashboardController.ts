@@ -14,7 +14,7 @@ import { validateCompanyOwnership } from "../utils/validateCompanyOwnership";
 import sequelize from "../utils/dbInstance";
 import { getRedisItem, setRedisItem, setRedisItemWithTTL, setRedisTTL } from "../utils/redisInstance";
 import { getCurrencySymbol, getCurrencyInfo, formatAmountForDisplay, COMPANY_CURRENCY_QUERY, convertToFiat, convertToUSD, getUserDisplayCurrency } from "../utils/currencyUtils";
-import { resolveTransactionSource } from "../utils/transactionSource";
+import { resolveTransactionSource, SAFEDEAL_SOURCE_JOIN_SQL, SAFEDEAL_SOURCE_SELECT_SQL } from "../utils/transactionSource";
 import { PROCESSED_USD_EXPR, PROCESSED_STATUS_SQL } from "../utils/processedVolume";
 import { deriveTxDisplayStatus, isPaymentDetected, FRESH_PENDING_SQL } from "../utils/transactionDisplayStatus";
 import { getVolumeTiers } from "../utils/volumeTierUtils";
@@ -887,7 +887,8 @@ const getRecentTransactions = async (req: express.Request, res: express.Response
         parent_pl.title      as source_parent_title,
         parent_pl.is_tip_jar as source_parent_is_tip_jar,
         po.order_id          as source_order_id,
-        po.public_ref        as source_order_ref
+        po.public_ref        as source_order_ref,
+        ${SAFEDEAL_SOURCE_SELECT_SQL}
        FROM tbl_user_transaction ut
        LEFT JOIN tbl_user_wallet uw ON ut.wallet_id = uw.wallet_id
        LEFT JOIN tbl_customer c ON ut.customer_id = c.customer_id
@@ -901,6 +902,7 @@ const getRecentTransactions = async (req: express.Request, res: express.Response
          AND ut.transaction_reference IS NOT NULL AND ut.transaction_reference <> ''
        LEFT JOIN tbl_payment_link parent_pl ON parent_pl.link_id = pl.parent_link_id
        LEFT JOIN tbl_product_order po ON po.payment_link_id = pl.link_id
+       ${SAFEDEAL_SOURCE_JOIN_SQL}
        WHERE ut.user_id = :userId
          ${company_id ? 'AND (ut.company_id = :companyId OR c.company_id = :companyId)' : ''}
        ORDER BY ut."createdAt" DESC
@@ -915,6 +917,10 @@ const getRecentTransactions = async (req: express.Request, res: express.Response
     // gets) and strip the raw source_* helper columns from the payload.
     const recentTxMapped = (recentTransactions as Array<Record<string, unknown>>).map((row) => {
       const source = resolveTransactionSource({
+        source_safedeal_escrow_id: row.source_safedeal_escrow_id as string | number | null,
+        source_safedeal_title: row.source_safedeal_title as string | null,
+        source_safedeal_topup_id: row.source_safedeal_topup_id as string | number | null,
+        source_company_id: row.source_company_id as string | number | null,
         source_order_id: row.source_order_id as string | number | null,
         source_order_ref: row.source_order_ref as string | null,
         source_link_id: row.source_link_id as string | number | null,
@@ -929,6 +935,7 @@ const getRecentTransactions = async (req: express.Request, res: express.Response
         source_link_id, source_link_type, source_link_title,
         source_parent_link_id, source_is_tip_jar, source_parent_title,
         source_parent_is_tip_jar, source_order_id, source_order_ref,
+        source_safedeal_escrow_id, source_safedeal_title, source_safedeal_topup_id, source_company_id,
         ...clean
       } = row;
       return {

@@ -12,9 +12,13 @@ export interface RuntimeFlags {
   checkoutSwr: boolean;
   enableProductCatalog: boolean;
   enableCryptoRefunds: boolean;
+  /** The single SafeDeal operator brand (company_id); null when SafeDeal isn't configured. */
+  safedealCompanyId: number | null;
 }
 
-const FLAG_ENV: { [K in keyof RuntimeFlags]: [env: string, dflt: boolean] } = {
+type BoolFlag = Exclude<keyof RuntimeFlags, "safedealCompanyId">;
+
+const FLAG_ENV: { [K in BoolFlag]: [env: string, dflt: boolean] } = {
   showSocialLinks: ["NEXT_PUBLIC_SHOW_SOCIAL_LINKS", true],
   cleanCheckoutV2: ["NEXT_PUBLIC_CLEAN_CHECKOUT_V2", true],
   inlineTipCheckout: ["NEXT_PUBLIC_INLINE_TIP_CHECKOUT", true],
@@ -23,7 +27,7 @@ const FLAG_ENV: { [K in keyof RuntimeFlags]: [env: string, dflt: boolean] } = {
   enableCryptoRefunds: ["NEXT_PUBLIC_ENABLE_CRYPTO_REFUNDS", false],
 };
 
-const FLAG_KEYS = Object.keys(FLAG_ENV) as (keyof RuntimeFlags)[];
+const FLAG_KEYS = Object.keys(FLAG_ENV) as BoolFlag[];
 
 /** "true"/"false" (any case) win; anything else (unset, empty, typo) → the flag's default. */
 export const parseFlag = (raw: string | undefined, dflt: boolean): boolean => {
@@ -33,17 +37,22 @@ export const parseFlag = (raw: string | undefined, dflt: boolean): boolean => {
   return dflt;
 };
 
-const DEFAULTS = FLAG_KEYS.reduce(
-  (acc, k) => ({ ...acc, [k]: FLAG_ENV[k][1] }),
-  {} as RuntimeFlags,
-);
+const parseCompanyId = (raw: string | undefined): number | null => {
+  const n = Number(raw);
+  return Number.isFinite(n) && n > 0 ? n : null;
+};
+
+const DEFAULTS: RuntimeFlags = {
+  ...FLAG_KEYS.reduce((acc, k) => ({ ...acc, [k]: FLAG_ENV[k][1] }), {} as Record<BoolFlag, boolean>),
+  safedealCompanyId: null,
+};
 
 /** Server only. Dynamic `process.env[name]` is never inlined by Next, so this always reflects the RUNTIME env. */
 export const readServerFlags = (): RuntimeFlags => {
   const flags = FLAG_KEYS.reduce((acc, k) => {
     const [env, dflt] = FLAG_ENV[k];
     return { ...acc, [k]: parseFlag(process.env[env], dflt) };
-  }, {} as RuntimeFlags);
+  }, { ...DEFAULTS });
   // Social links surface on TWO places (landing footer + transactional email). Historically the
   // landing read NEXT_PUBLIC_SHOW_SOCIAL_LINKS while the email read SHOW_SOCIAL_LINKS, so setting
   // only one env var hid just that one surface (2026-06 bug: email hidden, landing still showed).
@@ -51,6 +60,10 @@ export const readServerFlags = (): RuntimeFlags => {
   flags.showSocialLinks =
     parseFlag(process.env.NEXT_PUBLIC_SHOW_SOCIAL_LINKS, true) &&
     parseFlag(process.env.SHOW_SOCIAL_LINKS, true);
+  // The SafeDeal brand id is read at REQUEST time (droplet .env is the source of truth) —
+  // either the public name or the backend's SAFEDEAL_COMPANY_ID works.
+  flags.safedealCompanyId =
+    parseCompanyId(process.env.NEXT_PUBLIC_SAFEDEAL_COMPANY_ID) ?? parseCompanyId(process.env.SAFEDEAL_COMPANY_ID);
   return flags;
 };
 

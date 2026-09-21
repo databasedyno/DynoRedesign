@@ -1041,6 +1041,20 @@ const deleteCustomer = async (req: express.Request, res: express.Response) => {
       return errorResponseHelper(res, 404, "Customer not found");
     }
 
+    // Payment history is immutable: tbl_user_transaction rows reference the
+    // customer, so a hard delete would silently drop every payment they made.
+    const [{ n: paymentCount }] = (await sequelize.query(
+      `SELECT COUNT(*)::int AS n FROM tbl_user_transaction WHERE customer_id = :customer_id`,
+      { replacements: { customer_id }, type: QueryTypes.SELECT }
+    )) as Array<{ n: number }>;
+    if (paymentCount > 0) {
+      return errorResponseHelper(
+        res,
+        409,
+        `This customer has ${paymentCount} payment${paymentCount === 1 ? "" : "s"} on record and can't be deleted — payment history must be preserved.`
+      );
+    }
+
     // Delete customer wallets first
     await customerWalletModel.destroy({
       where: { customer_id },

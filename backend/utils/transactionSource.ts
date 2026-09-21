@@ -4,6 +4,9 @@
  * (wallet/getAllTransactions -> /transactions page, company/getTransactions,
  * and dashboard/getRecentTransactions).
  *
+ * SafeDeal payments (escrow deal funding / wallet top-ups placed through the
+ * Direct API by the SafeDeal brand) resolve to `safedeal`.
+ *
  * Before this helper each surface derived "source" differently:
  *   - /transactions used relational data (link_id / order_id / link_type)
  *     and produced a rich {type,title} object, but had NO "api" concept
@@ -25,15 +28,42 @@
  *   direct        — a plain on-chain receive with no Dynopay object ("Direct")
  */
 
+import { raw as envRaw } from "./config";
+
+
 export type CanonicalTxSourceType =
   | "payment_link"
   | "api"
   | "tip"
   | "product"
   | "contribution"
+  | "safedeal"
   | "direct";
 
+/**
+ * SafeDeal (escrow product on the Dynopay engine) funds deals and wallet top-ups
+ * through the Direct API as its own brand — every such payment is a normal
+ * tbl_user_transaction row keyed back to the deal (funding_link_transaction_id)
+ * or the top-up (payment_id). Append these two fragments to a transaction query
+ * aliased `ut` so the resolver can label the row "SafeDeal · Deal #N / Wallet top-up".
+ */
+export const SAFEDEAL_SOURCE_SELECT_SQL = `
+        sd.escrow_id         as source_safedeal_escrow_id,
+        sd.title             as source_safedeal_title,
+        st.topup_id          as source_safedeal_topup_id,
+        ut.company_id        as source_company_id`;
+export const SAFEDEAL_SOURCE_JOIN_SQL = `
+      LEFT JOIN tbl_escrow_deal sd ON sd.source = 'safedeal' AND sd.funding_link_transaction_id = ut.id
+      LEFT JOIN tbl_safedeal_topup st ON st.payment_id = ut.id`;
+
+const SAFEDEAL_COMPANY_ID = Number(envRaw("SAFEDEAL_COMPANY_ID")) || 0;
+
 export interface TxSourceInput {
+  source_safedeal_escrow_id?: string | number | null;
+  source_safedeal_title?: string | null;
+  source_safedeal_topup_id?: string | number | null;
+  /** Owning brand — every payment on the SafeDeal brand is a SafeDeal payment. */
+  source_company_id?: string | number | null;
   source_order_id?: string | number | null;
   source_order_ref?: string | null;
   source_link_id?: string | number | null;
@@ -115,6 +145,10 @@ export const isValidBuyerEmail = (email?: string | null): boolean => {
  */
 export const resolveTransactionSource = (input: TxSourceInput): TxSource => {
   const {
+    source_safedeal_escrow_id,
+    source_safedeal_title,
+    source_safedeal_topup_id,
+    source_company_id,
     source_order_id,
     source_order_ref,
     source_link_id,
@@ -130,7 +164,19 @@ export const resolveTransactionSource = (input: TxSourceInput): TxSource => {
   let title: string | null = null;
   let ref: string | number | null = null;
 
-  if (source_order_id) {
+  if (source_safedeal_escrow_id) {
+    type = "safedeal";
+    const dealTitle = String(source_safedeal_title || "").trim();
+    title = `Deal #${source_safedeal_escrow_id}${dealTitle ? ` — ${dealTitle}` : ""}`;
+    ref = Number(source_safedeal_escrow_id);
+  } else if (source_safedeal_topup_id) {
+    type = "safedeal";
+    title = "Wallet top-up";
+    ref = `DEP-${source_safedeal_topup_id}`;
+  } else if (SAFEDEAL_COMPANY_ID && Number(source_company_id) === SAFEDEAL_COMPANY_ID) {
+    // A payment on the SafeDeal brand whose deal/top-up row no longer exists.
+    type = "safedeal";
+  } else if (source_order_id) {
     type = "product";
     title = source_link_title ? String(source_link_title) : "Store order";
     ref = String(source_order_ref || source_order_id);

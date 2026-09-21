@@ -25,6 +25,7 @@ export type TransactionSourceType =
   | "contribution"
   | "tip"
   | "product"
+  | "safedeal"
   | "direct";
 
 export interface TransactionSource {
@@ -177,6 +178,8 @@ export interface TransactionsTopBarProps {
   onWalletChange?: (wallet: string) => void;
   onSourceChange?: (source: TransactionSourceType | "all") => void;
   initialSource?: TransactionSourceType | "all";
+  /** Show the SafeDeal source chip (only when the brand has SafeDeal escrow payments). */
+  showSafeDeal?: boolean;
   /** Phone (<768px): opens the bottom-sheet filter; badge shows the active count. */
   onOpenFilters?: () => void;
   activeFilterCount?: number;

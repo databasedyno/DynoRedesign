@@ -13,7 +13,8 @@ name: Deploy to Droplet (Option C)
 #   NEXT_PUBLIC_CREATOR_BASE_URL, NEXT_PUBLIC_GOOGLE_CLIENT_SECRET
 # Optional repo VARIABLES (Settings → Variables; non-secret feature flags, may be unset):
 #   NEXT_PUBLIC_SHOW_SOCIAL_LINKS, NEXT_PUBLIC_ENABLE_PRODUCT_CATALOG,
-#   NEXT_PUBLIC_INLINE_TIP_CHECKOUT, NEXT_PUBLIC_CLEAN_CHECKOUT_V2, NEXT_PUBLIC_CHECKOUT_SWR
+#   NEXT_PUBLIC_INLINE_TIP_CHECKOUT, NEXT_PUBLIC_CLEAN_CHECKOUT_V2, NEXT_PUBLIC_CHECKOUT_SWR,
+#   NEXT_PUBLIC_SAFEDEAL_COMPANY_ID (=262; also honoured at runtime from the droplet .env)
 #   (the browser reads these flags from server-provided runtime config, so the droplet
 #   .env is the source of truth; build values only affect statically generated pages).
 # GHCR auth uses the built-in GITHUB_TOKEN (packages: write).
@@ -81,6 +82,7 @@ jobs:
             NEXT_PUBLIC_INLINE_TIP_CHECKOUT=${{ vars.NEXT_PUBLIC_INLINE_TIP_CHECKOUT }}
             NEXT_PUBLIC_CLEAN_CHECKOUT_V2=${{ vars.NEXT_PUBLIC_CLEAN_CHECKOUT_V2 }}
             NEXT_PUBLIC_CHECKOUT_SWR=${{ vars.NEXT_PUBLIC_CHECKOUT_SWR }}
+            NEXT_PUBLIC_SAFEDEAL_COMPANY_ID=${{ vars.NEXT_PUBLIC_SAFEDEAL_COMPANY_ID }}
             NEXT_PUBLIC_GOOGLE_CLIENT_SECRET=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_SECRET }}
             NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
             NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}

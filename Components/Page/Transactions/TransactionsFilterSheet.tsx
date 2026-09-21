@@ -12,7 +12,7 @@ import { Icon, MONO } from "@/styles/uiKit";
 import { ICustomerTransactions } from "@/utils/types";
 import { TxStatusFilter } from "@/utils/types/transaction";
 import { STATUS_FILTERS } from "./TransactionsToolbar";
-import { SOURCE_OPTIONS, TxFilters, EMPTY_TX_FILTERS, hasDateRange, matchesBaseFilters, matchesStatus } from "./txFilters";
+import { TxFilters, EMPTY_TX_FILTERS, hasDateRange, matchesBaseFilters, matchesStatus, visibleSourceOptions } from "./txFilters";
 
 const SHEET_STATUSES: Exclude<TxStatusFilter, "all">[] = ["needs_action", ...STATUS_FILTERS];
 
@@ -133,7 +133,7 @@ const TransactionsFilterSheet: React.FC<Props> = ({ open, onClose, filters, rows
         <Box data-testid="tx-filter-source">
           <Box sx={eyebrowSx}>{t("filterSheet.source", { defaultValue: "Source" })}</Box>
           <Box role="listbox" sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-            {SOURCE_OPTIONS.map((o) => (
+            {visibleSourceOptions(rows, draft.selectedSource).map((o) => (
               <OptionChip key={o.value} selected={draft.selectedSource === o.value} onClick={() => setDraft({ ...draft, selectedSource: o.value })} testId={`tx-filter-source-${o.value}`}>
                 {t(o.key, { defaultValue: o.fallback })}
               </OptionChip>

@@ -22,6 +22,7 @@ import FavoriteRounded from "@mui/icons-material/FavoriteRounded";
 import Inventory2Rounded from "@mui/icons-material/Inventory2Rounded";
 import LinkRounded from "@mui/icons-material/LinkRounded";
 import PublicRounded from "@mui/icons-material/PublicRounded";
+import VerifiedUserRounded from "@mui/icons-material/VerifiedUserRounded";
 import { Box, Typography, useTheme } from "@mui/material";
 import { format } from "date-fns";
 import Image from "next/image";
@@ -55,6 +56,7 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps & { initialWallet?: s
   onSourceChange,
   onOpenFilters,
   activeFilterCount = 0,
+  showSafeDeal = false,
   initialWallet,
   initialSource,
   initialSearch,
@@ -157,13 +159,20 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps & { initialWallet?: s
         label: tTransactions("sourceProducts", { defaultValue: "Store" }),
         icon: <Inventory2Rounded sx={{ fontSize: iconSize }} />,
       },
+      ...(showSafeDeal
+        ? [{
+            value: "safedeal" as const,
+            label: tTransactions("sourceSafeDeal", { defaultValue: "SafeDeal" }),
+            icon: <VerifiedUserRounded sx={{ fontSize: iconSize }} />,
+          }]
+        : []),
       {
         value: "direct",
         label: tTransactions("sourceDirect", { defaultValue: "Direct" }),
         icon: <DonutSmallRounded sx={{ fontSize: iconSize }} />,
       },
     ];
-  }, [tTransactions]);
+  }, [tTransactions, showSafeDeal]);
 
 
   const handleSearch = () => {

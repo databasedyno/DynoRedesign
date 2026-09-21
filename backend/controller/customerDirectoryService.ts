@@ -23,6 +23,8 @@ import {
   resolveTransactionSource,
   isApiBuyerEmail,
   CanonicalTxSourceType,
+  SAFEDEAL_SOURCE_JOIN_SQL,
+  SAFEDEAL_SOURCE_SELECT_SQL,
 } from "../utils/transactionSource";
 import { PROCESSED_STATUSES, PROCESSED_USD_EXPR } from "../utils/processedVolume";
 import { deriveTxDisplayStatus } from "../utils/transactionDisplayStatus";
@@ -115,6 +117,10 @@ export interface TxRow {
   pl_donor_name: string | null;
   source_order_id: number | null;
   source_order_ref: string | null;
+  source_safedeal_escrow_id: number | null;
+  source_safedeal_title: string | null;
+  source_safedeal_topup_id: number | null;
+  source_company_id: number | null;
   po_email: string | null;
   po_name: string | null;
   po_phone: string | null;
@@ -146,6 +152,10 @@ const identityNameOf = (row: TxRow): string | null =>
 
 export const channelOf = (row: TxRow): CanonicalTxSourceType =>
   resolveTransactionSource({
+    source_safedeal_escrow_id: row.source_safedeal_escrow_id,
+    source_safedeal_title: row.source_safedeal_title,
+    source_safedeal_topup_id: row.source_safedeal_topup_id,
+    source_company_id: row.source_company_id,
     source_order_id: row.source_order_id,
     source_order_ref: row.source_order_ref,
     source_link_id: row.source_link_id,
@@ -214,7 +224,8 @@ export const TX_QUERY = (companyScoped: boolean) => `
     parent_pl.title AS source_parent_title, parent_pl.is_tip_jar AS source_parent_is_tip_jar,
     pl.email AS pl_email, pl.customer_name AS pl_customer_name, pl.donor_name AS pl_donor_name,
     po.order_id AS source_order_id, po.public_ref AS source_order_ref,
-    po.buyer_email AS po_email, po.buyer_name AS po_name, po.buyer_phone AS po_phone
+    po.buyer_email AS po_email, po.buyer_name AS po_name, po.buyer_phone AS po_phone,
+    ${SAFEDEAL_SOURCE_SELECT_SQL}
   FROM tbl_user_transaction ut
   LEFT JOIN tbl_customer c ON ut.customer_id = c.customer_id
   LEFT JOIN (
@@ -228,6 +239,7 @@ export const TX_QUERY = (companyScoped: boolean) => `
     AND ut.transaction_reference IS NOT NULL AND ut.transaction_reference <> ''
   LEFT JOIN tbl_payment_link parent_pl ON parent_pl.link_id = pl.parent_link_id
   LEFT JOIN tbl_product_order po ON po.payment_link_id = pl.link_id
+  ${SAFEDEAL_SOURCE_JOIN_SQL}
   WHERE ut.user_id = :userId
     ${companyScoped ? "AND (ut.company_id = :companyId OR c.company_id = :companyId)" : ""}
   ORDER BY ut."createdAt" DESC

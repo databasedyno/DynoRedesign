@@ -860,6 +860,39 @@ const addSafeDealInviteLink = async (): Promise<void> => {
   await sequelize.query(`ALTER TABLE "tbl_escrow_deal" ALTER COLUMN "counterparty_email" DROP NOT NULL`);
 };
 
+/**
+ * 0046 — Payment history must outlive the customer row. tbl_user_transaction.customer_id
+ * was ON DELETE CASCADE, so deleting a tbl_customer (merchant "delete customer", purge
+ * scripts) silently wiped every payment the customer ever made — this is how the two
+ * real SafeDeal brand payments vanished from the merchant dashboard (2026-09). Re-point
+ * the FK to ON DELETE SET NULL. Idempotent: only rewrites when the rule is still CASCADE.
+ */
+const relaxTransactionCustomerCascade = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(`
+    DO $$
+    DECLARE fk RECORD;
+    BEGIN
+      FOR fk IN
+        SELECT c.conname
+        FROM pg_constraint c
+        JOIN pg_attribute a ON a.attrelid = c.conrelid AND a.attnum = ANY (c.conkey)
+        WHERE c.conrelid = 'tbl_user_transaction'::regclass
+          AND c.contype = 'f'
+          AND c.confrelid = 'tbl_customer'::regclass
+          AND a.attname = 'customer_id'
+          AND c.confdeltype = 'c'
+      LOOP
+        EXECUTE format('ALTER TABLE "tbl_user_transaction" DROP CONSTRAINT %I', fk.conname);
+        EXECUTE format(
+          'ALTER TABLE "tbl_user_transaction" ADD CONSTRAINT %I FOREIGN KEY ("customer_id") REFERENCES "tbl_customer"("customer_id") ON UPDATE CASCADE ON DELETE SET NULL',
+          fk.conname
+        );
+      END LOOP;
+    END $$;
+  `);
+};
+
 export async function buildBootMigrations(): Promise<Migration[]> {  const { v1, extra } = await loadBootModelGroups();  return [
     { version: "0001_boot_model_tables", up: syncGroup(v1) },
     { version: "0002_boot_model_tables_extra", up: syncGroup(extra) },
@@ -903,6 +936,7 @@ export async function buildBootMigrations(): Promise<Migration[]> {  const { v1,
     { version: "0043_customer_telegram_id", up: addCustomerTelegramId },
     { version: "0044_safedeal_deposit_reserve", up: addSafeDealDepositReserve },
     { version: "0045_safedeal_invite_link", up: addSafeDealInviteLink },
+    { version: "0046_txn_customer_fk_set_null", up: relaxTransactionCustomerCascade },
     ...perfMigrations,
     ...securityMigrations,
   ];

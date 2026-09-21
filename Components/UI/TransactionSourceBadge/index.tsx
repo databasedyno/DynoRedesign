@@ -6,6 +6,7 @@ import DonutSmallRounded from "@mui/icons-material/DonutSmallRounded";
 import FavoriteRounded from "@mui/icons-material/FavoriteRounded";
 import Inventory2Rounded from "@mui/icons-material/Inventory2Rounded";
 import LinkRounded from "@mui/icons-material/LinkRounded";
+import VerifiedUserRounded from "@mui/icons-material/VerifiedUserRounded";
 import { useTranslation } from "react-i18next";
 
 import { SourceBadge } from "@/Components/Page/Transactions/styled";
@@ -48,6 +49,8 @@ const iconFor = (type: string, size: number): React.ReactNode => {
       return <Inventory2Rounded sx={{ fontSize: size }} />;
     case "contribution":
       return <FavoriteRounded sx={{ fontSize: size }} />;
+    case "safedeal":
+      return <VerifiedUserRounded sx={{ fontSize: size }} />;
     default:
       return <DonutSmallRounded sx={{ fontSize: size }} />;
   }
@@ -60,8 +63,8 @@ const TransactionSourceBadge: React.FC<TransactionSourceBadgeProps> = ({
 }) => {
   const { t } = useTranslation("transactions");
   const rawType = (source?.type as string) || "direct";
-  // Only the 6 canonical types have a palette; anything else renders as direct.
-  const known = ["payment_link", "api", "tip", "product", "contribution", "direct"];
+  // Only the canonical types have a palette; anything else renders as direct.
+  const known = ["payment_link", "api", "tip", "product", "contribution", "safedeal", "direct"];
   const type = known.includes(rawType) ? rawType : "direct";
 
   const labels: Record<string, string> = {
@@ -70,6 +73,7 @@ const TransactionSourceBadge: React.FC<TransactionSourceBadgeProps> = ({
     tip: t("sourceTipShort", { defaultValue: "Tip" }),
     product: t("sourceProductShort", { defaultValue: "Store" }),
     contribution: t("sourceContributionShort", { defaultValue: "Donation" }),
+    safedeal: t("sourceSafeDealShort", { defaultValue: "SafeDeal" }),
     direct: t("sourceDirectShort", { defaultValue: "Direct" }),
   };
   const label = labels[type] || labels.direct;

@@ -56,8 +56,16 @@ export const SOURCE_OPTIONS: Array<{ value: TxSourceFilter; key: string; fallbac
   { value: "contribution", key: "sourceContributions", fallback: "Donations" },
   { value: "tip", key: "sourceTips", fallback: "Tips" },
   { value: "product", key: "sourceProducts", fallback: "Store" },
+  { value: "safedeal", key: "sourceSafeDeal", fallback: "SafeDeal" },
   { value: "direct", key: "sourceDirect", fallback: "Direct" },
 ];
+
+/** SafeDeal is a single escrow brand — only offer its chip when the loaded rows carry it. */
+export const hasSafeDealRows = (rows: ICustomerTransactions[]): boolean =>
+  rows.some((r) => ((r as any).source as TransactionSource | undefined)?.type === "safedeal");
+
+export const visibleSourceOptions = (rows: ICustomerTransactions[], selected: TxSourceFilter) =>
+  SOURCE_OPTIONS.filter((o) => o.value !== "safedeal" || selected === "safedeal" || hasSafeDealRows(rows));
 
 export const hasDateRange = (r: DateRange) => !!(r.startDate && r.endDate);
 
