@@ -7,7 +7,7 @@ import DealPage from "@/Components/SafeDeal/DealPage";
 const Page: NextPageWithLayout = () => {
   const { token } = useRouter().query;
   return (
-    <SafeDealShell title="Deal">
+    <SafeDealShell title="Deal" noindex>
       {token ? <DealPage token={String(token)} /> : null}
     </SafeDealShell>
   );

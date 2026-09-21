@@ -59,7 +59,7 @@ const BrandCard: React.FC<{ brand: BrandRow; currency: string; onManage: () => v
       }}
     >
       <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, minWidth: 0 }}>
-        <BrandAvatar name={brand.company_name} photo={brand.photo} size={40} />
+        <BrandAvatar name={brand.company_name} photo={brand.photo} companyId={brand.company_id} size={40} />
         <Box sx={{ minWidth: 0, flex: 1 }}>
           <Typography
             sx={{ fontFamily: "var(--font-sans)", fontWeight: 700, fontSize: 15, color: primary, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}

@@ -4,7 +4,7 @@ import SafeDealShell from "@/Components/SafeDeal/SafeDealShell";
 import SignIn from "@/Components/SafeDeal/SignIn";
 
 const Page: NextPageWithLayout = () => (
-  <SafeDealShell title="Sign in">
+  <SafeDealShell title="Sign in" noindex>
     <SignIn />
   </SafeDealShell>
 );

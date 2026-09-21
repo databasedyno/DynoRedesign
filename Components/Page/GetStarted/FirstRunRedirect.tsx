@@ -14,7 +14,7 @@ import { GS_AUTO_OPEN_KEY, GS_SUPPRESS_KEY, useSetupProgress } from "./useSetupP
 const FirstRunRedirect = (): null => {
   const router = useRouter();
   const { isMember } = useCompanyStore();
-  const { ready, companyCount, hasWallet, hasLink, hasPayment } = useSetupProgress();
+  const { ready, companyCount, hasWallet, hasLink, hasPayment, isSafeDealBrand } = useSetupProgress();
   const fired = useRef(false);
 
   useEffect(() => {
@@ -22,12 +22,12 @@ const FirstRunRedirect = (): null => {
     if (typeof window === "undefined") return;
     const ss = window.sessionStorage;
     if (ss.getItem(GS_SUPPRESS_KEY) === "1" || ss.getItem(GS_AUTO_OPEN_KEY) === "1") return;
-    if (companyCount !== 1 || hasWallet || hasLink || hasPayment) return;
+    if (companyCount !== 1 || hasWallet || hasLink || hasPayment || isSafeDealBrand) return;
     fired.current = true;
     ss.setItem(GS_AUTO_OPEN_KEY, "1");
     trackOnboarding({ event_type: "checklist_shown", metadata: { surface: "wizard_autoopen" } });
     router.replace("/get-started");
-  }, [ready, isMember, companyCount, hasWallet, hasLink, hasPayment, router]);
+  }, [ready, isMember, companyCount, hasWallet, hasLink, hasPayment, isSafeDealBrand, router]);
 
   return null;
 };

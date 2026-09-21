@@ -130,7 +130,8 @@ const Dashboard2026: React.FC<{ onboarding?: boolean }> = ({ onboarding = true }
     if (Number(stats?.totalTransactions ?? 0) > 0 || Number(stats?.totalVolume ?? 0) > 0) return true;
     return ((recentTransactions as any[]) || []).some((tx) => SETTLED.includes(String(tx?.status || "").toLowerCase()));
   }, [stats?.totalTransactions, stats?.totalVolume, recentTransactions]);
-  const showGettingStarted = onboarding && !loading && !!stats && setupProgress.coreReady && !hasPayment;
+  const showGettingStarted =
+    onboarding && !loading && !!stats && setupProgress.coreReady && !hasPayment && !setupProgress.isSafeDealBrand;
 
   const { items: attentionItems, dismiss } = useAttentionItems({ overview, onboarding });
 

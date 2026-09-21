@@ -47,7 +47,28 @@ const FOOTER_LINKS = [
   { label: "Privacy", to: "/privacy", testid: "sd-footer-privacy" },
 ];
 
-export default function SafeDealShell({ children, title, wide = false, dark = false }: { children: ReactNode; title?: string; wide?: boolean; dark?: boolean }) {
+/** Canonical production origin — SEO/OG URLs always point here, even from the preview host. */
+const SD_SITE = "https://safedeal.sh";
+const SD_DEFAULT_DESC =
+  "SafeDeal holds the buyer's payment in USDT escrow until the seller delivers, and steps in only if there's a dispute. 5% fee, no account to set up — both sides sign in with an email code.";
+
+export default function SafeDealShell({
+  children,
+  title,
+  description,
+  noindex = false,
+  ogImage,
+  wide = false,
+  dark = false,
+}: {
+  children: ReactNode;
+  title?: string;
+  description?: string;
+  noindex?: boolean;
+  ogImage?: string;
+  wide?: boolean;
+  dark?: boolean;
+}) {
   const href = useSdHref();
   const router = useRouter();
   // Inherit Dynopay's base theme but override ONLY the primary palette to
@@ -84,6 +105,12 @@ export default function SafeDealShell({ children, title, wide = false, dark = fa
   const { user, ready, signOut } = useSdSession();
   const [addEmailOpen, setAddEmailOpen] = useState(false);
   const path = router.asPath;
+  // SEO — titles/OG/canonical always resolve to the production SafeDeal origin.
+  const fullTitle = title ? `${title} · SafeDeal` : "SafeDeal — escrow for buying & selling online";
+  const metaDescription = description || SD_DEFAULT_DESC;
+  const cleanPath = path.split("?")[0].split("#")[0].replace(/^\/safedeal(?=\/|$)/, "") || "/";
+  const canonicalUrl = `${SD_SITE}${cleanPath === "/" ? "" : cleanPath}`;
+  const ogImageUrl = ogImage || `${SD_SITE}/safedeal/og-image.png`;
   const isActive = (p: string) => path.includes(p);
   // The deal-detail page renders a mobile-only fixed "Your move" action bar
   // (position:fixed, bottom:0). Reserve safe-area at the very bottom so that
@@ -119,8 +146,31 @@ export default function SafeDealShell({ children, title, wide = false, dark = fa
       }}
     >
       <Head>
-        <title>{title ? `${title} · SafeDeal` : "SafeDeal — escrow for buying & selling online"}</title>
-        <meta name="description" content="SafeDeal holds the buyer's payment in USDT escrow until the seller delivers, and steps in if there's a dispute. 5% fee, no account setup — sign in with your email." />
+        <title>{fullTitle}</title>
+        <meta name="description" content={metaDescription} />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta name="robots" content={noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large"} />
+        <meta name="theme-color" content={SD_GOLD} />
+        {/* SafeDeal gold favicon + PWA manifest (served from /public/safedeal on both hosts) */}
+        <link rel="icon" href="/safedeal/favicon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/safedeal/favicon-32.png" sizes="32x32" type="image/png" />
+        <link rel="apple-touch-icon" href="/safedeal/apple-touch-icon.png" />
+        <link rel="manifest" href="/safedeal/site.webmanifest" />
+        {/* Open Graph (link previews on WhatsApp / Telegram / Slack / iMessage) */}
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="SafeDeal" />
+        <meta property="og:title" content={fullTitle} />
+        <meta property="og:description" content={metaDescription} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:image" content={ogImageUrl} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="SafeDeal — escrow for online deals" />
+        {/* Twitter / X card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={fullTitle} />
+        <meta name="twitter:description" content={metaDescription} />
+        <meta name="twitter:image" content={ogImageUrl} />
         {/* Dialogs portal to <body>, outside this Box — set the ring var globally so they stay gold too. */}
         <style key="sd-focus-ring">{`:root{--dyno-focus-ring:${SD_GOLD};--dyno-focus-ring-shadow:0 0 0 3px rgba(255,198,26,0.35)}`}</style>
       </Head>

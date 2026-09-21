@@ -21,9 +21,9 @@ const SetupProgressItem: React.FC<{ collapsed: boolean }> = ({ collapsed }) => {
   const theme = useTheme();
   const { t } = useTranslation("dashboardLayout");
   const { isMember } = useCompanyStore();
-  const { ready, hasPayment, doneCount, total, firstIncomplete } = useSetupProgress();
+  const { ready, hasPayment, doneCount, total, firstIncomplete, isSafeDealBrand } = useSetupProgress();
 
-  if (isMember || !ready || hasPayment) return null;
+  if (isMember || !ready || hasPayment || isSafeDealBrand) return null;
 
   const isActive = router.pathname === "/get-started";
   const title = t("gs.sidebarTitle", { defaultValue: "Getting started" });

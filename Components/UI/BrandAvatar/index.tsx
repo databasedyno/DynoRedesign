@@ -3,10 +3,13 @@ import { useEffect, useState } from "react";
 import { avatarGradient } from "@/helpers/avatarGradient";
 import { resolveUserPhoto } from "@/Components/UI/UserAvatar";
 import { sanitizeBrandName } from "@/utils/brandName";
+import { isSafeDealBrandId, SAFEDEAL_BRAND_LOGO } from "@/helpers/safedealBrand";
 
 type Props = {
   name?: string | null;
   photo?: string | null;
+  /** When this is the SafeDeal operator brand and no logo was uploaded, its mark is used. */
+  companyId?: number | string | null;
   size?: number;
   radius?: number;
   "data-testid"?: string;
@@ -19,10 +22,10 @@ export const brandInitials = (name?: string | null) => {
 };
 
 /** Per-brand mark: the brand's own logo when uploaded, otherwise its initials on a stable gradient. */
-export default function BrandAvatar({ name = "", photo, size = 28, radius, ...rest }: Props) {
+export default function BrandAvatar({ name = "", photo, companyId, size = 28, radius, ...rest }: Props) {
   const theme = useTheme();
   const [broken, setBroken] = useState(false);
-  const src = resolveUserPhoto(photo || "");
+  const src = photo ? resolveUserPhoto(photo) : isSafeDealBrandId(companyId) ? SAFEDEAL_BRAND_LOGO : "";
   useEffect(() => setBroken(false), [src]);
   const showLogo = Boolean(src) && !broken;
 

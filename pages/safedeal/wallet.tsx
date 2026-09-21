@@ -4,7 +4,7 @@ import SafeDealShell from "@/Components/SafeDeal/SafeDealShell";
 import Wallet from "@/Components/SafeDeal/Wallet";
 
 const Page: NextPageWithLayout = () => (
-  <SafeDealShell title="Wallet">
+  <SafeDealShell title="Wallet" noindex>
     <Wallet />
   </SafeDealShell>
 );

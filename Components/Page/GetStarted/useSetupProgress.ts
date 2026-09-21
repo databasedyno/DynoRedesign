@@ -6,6 +6,7 @@ import useAccountProfile from "@/hooks/useAccountProfile";
 import { PaymentLinkAction, PAYLINK_FETCH } from "@/Redux/Actions/PaymentLinkAction";
 import { rootReducer } from "@/utils/types";
 import { useMfaEnforcement } from "@/Components/UI/MfaGate/useMfaEnforcement";
+import { isSafeDealBrandId } from "@/helpers/safedealBrand";
 
 export type SetupStepKey = "secure" | "about" | "payouts" | "link" | "share";
 export const SETUP_STEPS: SetupStepKey[] = ["secure", "about", "payouts", "link", "share"];
@@ -122,6 +123,11 @@ export const useSetupProgress = () => {
   const doneCount = steps.filter((s) => s.done).length;
   const firstIncomplete: SetupStepKey = steps.find((s) => !s.done)?.key ?? "share";
 
+  // The SafeDeal operator brand is an escrow product, not a payment-links
+  // merchant — its onboarding checklist never applies (its activity lives in
+  // the escrow ledger, not the merchant payment stats).
+  const isSafeDealBrand = isSafeDealBrandId(companyId);
+
   const coreReady = Boolean(companyState.fetched && walletState.fetched && mfaSettled);
   const linksSettled = Boolean(payLinkState.fetched) || (!hasAccount && coreReady);
 
@@ -140,6 +146,7 @@ export const useSetupProgress = () => {
     newestLink,
     hasPayment,
     hasShared,
+    isSafeDealBrand,
     steps,
     doneCount,
     total: steps.length,

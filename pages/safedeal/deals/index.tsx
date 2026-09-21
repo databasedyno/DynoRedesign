@@ -4,7 +4,7 @@ import SafeDealShell from "@/Components/SafeDeal/SafeDealShell";
 import DealsList from "@/Components/SafeDeal/DealsList";
 
 const Page: NextPageWithLayout = () => (
-  <SafeDealShell title="My deals">
+  <SafeDealShell title="My deals" noindex>
     <DealsList />
   </SafeDealShell>
 );

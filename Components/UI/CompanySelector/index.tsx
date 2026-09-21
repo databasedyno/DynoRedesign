@@ -239,6 +239,7 @@ export default function CompanySelector() {
             data-testid="company-selector-avatar"
             name={shown?.company_name}
             photo={shown?.photo}
+            companyId={shown?.company_id}
             size={isMobile ? 22 : 26}
           />
           <TriggerText
@@ -324,7 +325,7 @@ export default function CompanySelector() {
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <BrandAvatar name={shown?.company_name} photo={shown?.photo} size={isMobile ? 22 : 26} />
+              <BrandAvatar name={shown?.company_name} photo={shown?.photo} companyId={shown?.company_id} size={isMobile ? 22 : 26} />
               <TriggerText sx={{ color: brandFg(theme.palette.mode === "dark") }}>
                 {sanitizeBrandName(selected?.company_name || (companies.length > 0 ? companies[0].company_name : "Company")) || "Company"}
               </TriggerText>
@@ -381,6 +382,7 @@ export default function CompanySelector() {
                       data-testid={`company-avatar-${c.company_id}`}
                       name={c?.company_name}
                       photo={c?.photo}
+                      companyId={c?.company_id}
                       size={isMobile ? 22 : 26}
                     />
                     <TriggerText
