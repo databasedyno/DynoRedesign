@@ -336,6 +336,7 @@ const updateProfile = async (req: express.Request, res: express.Response) => {
 const config = async (_req: express.Request, res: express.Response) => {
   return successResponseHelper(res, 200, "OK", {
     fee_percent: escrowEngine.ESCROW_FEE_PERCENT,
+    cancellation_fee_percent: escrowEngine.CANCELLATION_FEE_PERCENT,
     fee_min_usd: escrowEngine.ESCROW_FEE_MIN_USD,
     min_deal_usd: escrowEngine.ESCROW_MIN_DEAL_USD,
     max_deal_eur: escrowEngine.ESCROW_MAX_DEAL_EUR,

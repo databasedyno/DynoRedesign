@@ -11,7 +11,7 @@
  * Money-safety: funding, stablecoin conversion, custody and payouts are
  * SIMULATED unless ESCROW_LIVE_SETTLEMENT=true.
  */
-import { raw as envRaw } from "../utils/config";
+import { raw as envRaw, num } from "../utils/config";
 import express from "express";
 import crypto from "crypto";
 import { Op } from "sequelize";
@@ -144,7 +144,7 @@ async function partyEmails(deal: any): Promise<{ buyerEmail: string; sellerEmail
 
 function serializeDeal(deal: any, includePrivate = true): Record<string, unknown> {
   const d = deal.dataValues ? deal.dataValues : deal;
-  const breakdown = computeFeeBreakdown({ amount: d.amount, currency: d.currency, feePercent: d.fee_percent, feeMinUsd: d.fee_min_usd, feePayer: d.fee_payer, payoutCoin: d.seller_payout_coin, fundingCoin: d.funding_coin, acceptedCoins: d.accepted_coins, waiveEscrowFee: isCancellationRefund(d) });
+  const breakdown = dealFeeBreakdown(d);
   const settlement = deriveSettlement(d);
   const base: Record<string, unknown> = {
     escrow_id: d.escrow_id,
@@ -257,12 +257,38 @@ function serializeDeal(deal: any, includePrivate = true): Record<string, unknown
 /** Phase 1 — authorize an outcome and lock entitlements in stable (no payout). */
 /**
  * A mutually-agreed cancellation (a `refund` proposal with kind `cancellation` that the
- * OTHER party accepted) waives the platform escrow fee — only the real network / exchange /
- * withdrawal costs are kept. A plain dispute-refund (or an admin ruling) still keeps the fee.
+ * OTHER party accepted) is charged a CANCELLATION FEE after funding — it is NOT waived.
+ * The fee percent is configurable via SAFEDEAL_CANCELLATION_FEE_PERCENT (default 5%); the
+ * buyer is refunded the rest of custody after the fee + real network/exchange/withdrawal
+ * costs. A plain dispute-refund (or an admin ruling) keeps the deal's normal escrow fee.
  */
 function isCancellationRefund(deal: any, outcome?: SettlementOutcome): boolean {
   const oc = String(outcome ?? deal?.outcome ?? "");
   return oc === "refund" && String(deal?.dispute_proposal?.kind || "") === "cancellation";
+}
+
+/** Cancellation fee percent charged on a mutually-agreed cancellation after funding.
+ *  Configurable via SAFEDEAL_CANCELLATION_FEE_PERCENT; defaults to 5% when unset/invalid. */
+function cancellationFeePercent(): number {
+  const p = num("SAFEDEAL_CANCELLATION_FEE_PERCENT", 5);
+  return Number.isFinite(p) && p >= 0 ? p : 5;
+}
+
+/** Fee breakdown for a deal. A mutually-agreed cancellation charges the cancellation fee
+ *  (cancellationFeePercent) instead of the deal's escrow fee; everything else is unchanged. */
+function dealFeeBreakdown(deal: any, outcome?: SettlementOutcome) {
+  const cancellation = isCancellationRefund(deal, outcome);
+  return computeFeeBreakdown({
+    amount: deal.amount,
+    currency: deal.currency,
+    feePercent: cancellation ? cancellationFeePercent() : deal.fee_percent,
+    feeMinUsd: deal.fee_min_usd,
+    feePayer: deal.fee_payer,
+    payoutCoin: deal.seller_payout_coin,
+    fundingCoin: deal.funding_coin,
+    acceptedCoins: deal.accepted_coins,
+    cancellationFee: cancellation,
+  });
 }
 
 async function authorizeOutcome(
@@ -274,14 +300,11 @@ async function authorizeOutcome(
   // withdrawal/network estimates baked into sellerReceives/buyerPays match the
   // quote the parties saw and the coin funded (consistent with serializeDeal
   // and actFund). Falls back to defaults when not yet set.
-  const waiveFee = isCancellationRefund(deal, outcome);
-  const breakdown = computeFeeBreakdown({ amount: deal.amount, currency: deal.currency, feePercent: deal.fee_percent, feeMinUsd: deal.fee_min_usd, feePayer: deal.fee_payer, payoutCoin: deal.seller_payout_coin, fundingCoin: deal.funding_coin, acceptedCoins: deal.accepted_coins, waiveEscrowFee: waiveFee });
-  // Mutually-agreed cancellation: refund the buyer everything held in custody except the
-  // real (unavoidable) network/exchange/withdrawal costs — the platform escrow fee is waived.
-  const held = round2(Number(deal.custody_amount_stable ?? deal.funded_amount_usd ?? breakdown.buyerPays));
-  const amounts = waiveFee
-    ? { outcome, sellerAmount: 0, buyerRefund: round2(Math.max(0, held - breakdown.totalCost)), platformFee: 0 }
-    : computeSettlementAmounts(breakdown, outcome, opts.splitPercentSeller);
+  // A mutually-agreed cancellation after funding is charged a cancellation fee
+  // (SAFEDEAL_CANCELLATION_FEE_PERCENT, default 5%) and settled exactly like a refund:
+  // the buyer is refunded the net pool, and the platform keeps the fee + real costs.
+  const breakdown = dealFeeBreakdown(deal, outcome);
+  const amounts = computeSettlementAmounts(breakdown, outcome, opts.splitPercentSeller);
   const nextStatus = outcomeToStatus(outcome);
   assertTransition(deal.status, nextStatus as any);
 
@@ -333,7 +356,7 @@ async function attemptPayouts(deal: any, actorLabel = "system"): Promise<{ selle
   if (isSafeDeal(deal)) {
     const legsPending = deal.seller_payout_state === "pending" || deal.buyer_payout_state === "pending";
     if (!legsPending) return { sellerPaid, buyerPaid };
-    const breakdown = computeFeeBreakdown({ amount: deal.amount, currency: deal.currency, feePercent: deal.fee_percent, feeMinUsd: deal.fee_min_usd, feePayer: deal.fee_payer, payoutCoin: deal.seller_payout_coin, fundingCoin: deal.funding_coin, acceptedCoins: deal.accepted_coins, waiveEscrowFee: isCancellationRefund(deal) });
+    const breakdown = dealFeeBreakdown(deal);
     const amounts = { sellerAmount: Number(deal.seller_entitlement_stable || 0), buyerRefund: Number(deal.buyer_entitlement_stable || 0) };
     try {
       await settleToWallets(deal, amounts, breakdown);
@@ -374,8 +397,8 @@ async function attemptPayouts(deal: any, actorLabel = "system"): Promise<{ selle
       deal.buyer_payout_state = "paid";
       deal.buyer_paid_at = now;
       deal.buyer_payout_tx = r?.mode === "sent" ? r.withdrawal.tx_hash || `WITHDRAWAL-${r.withdrawal.withdrawal_id}` : `WALLET-CREDIT-${deal.escrow_id}`;
-      const keptNote = isCancellationRefund(deal) ? "Escrow fee waived; only network & exchange costs were kept." : "Fees & costs were kept.";
-      deal.activity_log = appendActivity(deal.activity_log, { type: "payout_buyer", actor: actorLabel, role: "system", note: r ? `Refund: ${describe(r, amount, "buyer")} ${keptNote}` : `Nothing refunded to the buyer (${isCancellationRefund(deal) ? "escrow fee waived; only network & exchange costs kept" : "fees & costs kept"}).`, meta: r?.mode === "sent" ? { withdrawal_id: r.withdrawal.withdrawal_id } : undefined });
+      const keptNote = isCancellationRefund(deal) ? "Cancellation fee, network & exchange costs were kept." : "Fees & costs were kept.";
+      deal.activity_log = appendActivity(deal.activity_log, { type: "payout_buyer", actor: actorLabel, role: "system", note: r ? `Refund: ${describe(r, amount, "buyer")} ${keptNote}` : `Nothing refunded to the buyer (${isCancellationRefund(deal) ? "cancellation fee, network & exchange costs kept" : "fees & costs kept"}).`, meta: r?.mode === "sent" ? { withdrawal_id: r.withdrawal.withdrawal_id } : undefined });
       buyerPaid = true;
     }
     deal.fully_paid_at = now;
@@ -742,7 +765,7 @@ function appendDisputeThread(deal: any, entry: Record<string, unknown>): void {
 }
 
 function describeProposalShort(outcome: SettlementOutcome, splitPct?: number | null, kind?: string | null): string {
-  if (kind === "cancellation") return "cancel the deal — refund to the buyer, escrow fee waived (only real network/exchange costs kept)";
+  if (kind === "cancellation") return "cancel the deal — refund to the buyer, minus a cancellation fee and real network/exchange costs";
   if (outcome === "release") return "full release to the seller";
   if (outcome === "refund") return "full refund to the buyer";
   const s = Number(splitPct ?? 50);
@@ -849,7 +872,7 @@ async function actAcceptDispute(deal: any, actor: ActorInfo): Promise<any> {
     actor: actor.label,
     role: actor.role,
     note: kind === "cancellation"
-      ? "Agreed to cancel the deal — buyer refunded (escrow fee waived; only real network/exchange costs kept)."
+      ? "Agreed to cancel the deal — buyer refunded (cancellation fee and real network/exchange costs kept)."
       : `Accepted ${describeProposalShort(outcome, splitPct)} — resolved by agreement.`,
   });
   const { summary } = await settleOutcome(deal, outcome, { splitPercentSeller: splitPct, actorLabel: actor.label, actorRole: actor.role });
@@ -1136,6 +1159,7 @@ export const escrowEngine = {
   EscrowError,
   fail,
   ESCROW_FEE_PERCENT,
+  CANCELLATION_FEE_PERCENT: cancellationFeePercent(),
   ESCROW_FEE_MIN_USD,
   ESCROW_MIN_DEAL_USD,
   ESCROW_MAX_DEAL_EUR,

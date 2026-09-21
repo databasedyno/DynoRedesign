@@ -64,6 +64,7 @@ export const sdError = (e: any): string => e?.response?.data?.message || e?.mess
 
 export interface SdConfig {
   fee_percent: number;
+  cancellation_fee_percent?: number;
   fee_min_usd: number;
   min_deal_usd: number;
   max_deal_eur?: number;

@@ -192,6 +192,40 @@ async function dispatchWithdrawal(w: WithdrawalRow): Promise<WithdrawalRow> {
   return rows[0];
 }
 
+/**
+ * A queued withdrawal whose live dispatch threw (Binance rejected / network error) must NOT be
+ * left stranded in 'queued' with the customer's balance already debited. Mark it 'failed', credit
+ * the debited amount back to the wallet, and log an admin-visible alert. For auto/settlement
+ * sources the caller keeps parked_payout_usd intact so the next hourly release retries cleanly.
+ */
+async function failWithdrawalAndRefund(w: WithdrawalRow, customer: CustomerRow, reason: string): Promise<void> {
+  const msg = String(reason || "").slice(0, 500) || "dispatch failed";
+  try {
+    await sequelize.query(
+      `UPDATE tbl_customer_withdrawal SET status = 'failed', rejected_reason = :reason, updated_at = NOW()
+        WHERE withdrawal_id = :id AND status IN ('queued', 'pending_approval')`,
+      { replacements: { reason: msg, id: w.withdrawal_id }, type: QueryTypes.UPDATE }
+    );
+    await applyEntries([
+      {
+        customer,
+        type: "CREDIT",
+        amount: Number(w.amount_usd),
+        kind: "withdrawal_reversed",
+        description: `Withdrawal #${w.withdrawal_id} could not be sent — funds returned to your balance.`,
+        reference: `${w.ledger_reference || `withdrawal:${w.withdrawal_id}`}:reversal`,
+        source: "WITHDRAWAL",
+        meta: { withdrawal_id: w.withdrawal_id, failed: true, reason: msg },
+      },
+    ]);
+  } catch (e) {
+    apiLogger.error(`[SafeDeal] failWithdrawalAndRefund bookkeeping error for withdrawal ${w.withdrawal_id}: ${(e as Error).message}`);
+  }
+  apiLogger.error(
+    `[SafeDeal] ⚠️ ADMIN ALERT: withdrawal ${w.withdrawal_id} (${w.source}) FAILED to dispatch and was refunded ${w.amount_usd} USD to customer ${customer.customer_id}. Reason: ${msg}`
+  );
+}
+
 export async function requestWithdrawal(
   customer: CustomerRow,
   input: { address_id: number; amount: number; source?: "manual" | "auto" | "settlement"; escrow_id?: number | null; fee_covered?: boolean; skip_cooling?: boolean; deal_title?: string | null }
@@ -252,7 +286,15 @@ export async function requestWithdrawal(
     },
   ]);
   await clampDepositReserve(customer.customer_id); // funds left the wallet — release any now-unbacked deposit protection
-  if (!requiresApproval) w = await dispatchWithdrawal(w);
+  if (!requiresApproval) {
+    try {
+      w = await dispatchWithdrawal(w);
+    } catch (err) {
+      // Live send failed — don't strand it in 'queued' with the balance debited: fail + refund.
+      await failWithdrawalAndRefund(w, customer, (err as Error).message);
+      throw err;
+    }
+  }
   if (customer.email) void sendSafeDealWithdrawalEmail(customer.email, w, opt?.label || w.payout_key);
   return w;
 }
@@ -301,7 +343,14 @@ export async function approveWithdrawal(id: number, adminLabel: string): Promise
     `UPDATE tbl_customer_withdrawal SET status = 'queued', approved_by = :by, approved_at = NOW(), updated_at = NOW() WHERE withdrawal_id = :id`,
     { replacements: { by: adminLabel, id }, type: QueryTypes.UPDATE }
   );
-  const sent = await dispatchWithdrawal({ ...w, status: "queued" });
+  let sent: WithdrawalRow;
+  try {
+    sent = await dispatchWithdrawal({ ...w, status: "queued" });
+  } catch (err) {
+    const cust = await customerById(w.customer_id);
+    if (cust) await failWithdrawalAndRefund(w, cust, (err as Error).message);
+    throw err;
+  }
   const customer = await customerById(w.customer_id);
   const opt = ESCROW_PAYOUT_OPTIONS.find((o) => o.key === w.payout_key);
   if (customer?.email) void sendSafeDealWithdrawalEmail(customer.email, sent, opt?.label || w.payout_key);

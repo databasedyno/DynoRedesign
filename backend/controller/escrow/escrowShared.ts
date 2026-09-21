@@ -180,6 +180,8 @@ export function computeFeeBreakdown(input: {
   acceptedCoins?: string | null;
   includeCosts?: boolean;
   waiveEscrowFee?: boolean;
+  /** Relabels the escrow-fee line as a "Cancellation fee" (fee is still charged, not waived). */
+  cancellationFee?: boolean;
 }): FeeBreakdown {
   const amount = round2(Number(input.amount) || 0);
   const currency = (input.currency || "USD").toUpperCase();
@@ -234,16 +236,26 @@ export function computeFeeBreakdown(input: {
     sellerReceives = round2(Math.max(0, amount - (totalCost - half)));
   }
 
+  const isCancel = input.cancellationFee === true && !waiveFee;
+  const feeKind = isCancel ? "Cancellation fee" : "Escrow fee";
+  const feeLabel = waiveFee
+    ? "Escrow fee (waived)"
+    : feeFloorApplied
+    ? `${feeKind} (min $${feeMinUsd})`
+    : `${feeKind} (${feePercent}%)`;
+  const feeNote = waiveFee
+    ? "Escrow fee waived for this mutually-agreed cancellation — only real network/exchange costs are kept."
+    : isCancel
+    ? `Cancellation fee (${feePercent}%) is kept on this cancelled deal; the buyer is refunded the rest after real network/exchange costs.`
+    : feeFloorApplied
+    ? `${feePercent}% of ${amount} is below the $${feeMinUsd} minimum escrow fee, so the minimum applies.`
+    : "";
   const costItems: CostItem[] = [
     {
       key: "escrow_fee",
-      label: waiveFee ? "Escrow fee (waived)" : feeFloorApplied ? `Escrow fee (min $${feeMinUsd})` : `Escrow fee (${feePercent}%)`,
+      label: feeLabel,
       amount: escrowFee,
-      ...(waiveFee
-        ? { note: "Escrow fee waived for this mutually-agreed cancellation — only real network/exchange costs are kept." }
-        : feeFloorApplied
-        ? { note: `${feePercent}% of ${amount} is below the $${feeMinUsd} minimum escrow fee, so the minimum applies.` }
-        : {}),
+      ...(feeNote ? { note: feeNote } : {}),
     },
   ];
   if (includeCosts) {

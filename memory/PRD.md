@@ -67,7 +67,7 @@
 # MECHANISM: Telegram Login Widget (core.telegram.org/widgets/login). integration_expert returned a generic bot-messaging playbook
 #   (wrong stack/flow) so implemented the OFFICIAL widget verification directly (web-search confirmed algo).
 # BACKEND:
-#   • backend/.env: SAFEDEAL_TELEGRAM_BOT_TOKEN=8783384934:AAG… , SAFEDEAL_TELEGRAM_BOT_USERNAME=SafeDealAlert_bot.
+#   • backend/.env: SAFEDEAL_TELEGRAM_BOT_TOKEN=<REDACTED> , SAFEDEAL_TELEGRAM_BOT_USERNAME=SafeDealAlert_bot.
 #   • controller/safedealController.ts: verifyTelegramAuth() = data-check-string (all fields except hash, sorted, k=v joined \n) →
 #     HMAC-SHA256(secret = SHA256(bot_token)) hex, timing-safe compare vs hash + auth_date freshness ≤ 86400s. NEW handler telegramAuth
 #     mints the SAME SafeDeal JWT ({kind:safedeal,cid,coid,email}, 7d) as verify-code. config() now returns telegram_bot (username|null).

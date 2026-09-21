@@ -1,3 +1,17 @@
+## 2026-09-20 SESSION — cancellation-fee reversal + withdrawal resilience + brand-262 purge + telegram env
+## - ADMIN (SafeDeal / Dynopay): moxxcompany@gmail.com / Katiekendra123@  (also the vault passphrase).
+## - SafeDeal sign-in (customers): any email; one-time code shown in UI (data-testid=sd-signin-preview-code)
+##   and returned by POST /api/safedeal/auth/send-code -> data.preview_code (outbound email OFF in preview).
+## - TELEGRAM LOGIN: now wired. backend/.env SAFEDEAL_TELEGRAM_BOT_USERNAME=SafeDealAlert_bot,
+##   SAFEDEAL_TELEGRAM_BOT_TOKEN=<REDACTED — real value only in gitignored backend/.env + encrypted env.vault.enc> (re-sealed).
+##   Widget renders only on a BotFather /setdomain-registered host; on preview it shows "Bot domain invalid"
+##   (expected). PRODUCTION must set these two env vars + register its domain in BotFather.
+## - CANCELLATION FEE: mutually-agreed cancellation now CHARGES a fee (SAFEDEAL_CANCELLATION_FEE_PERCENT,
+##   default 5% when unset) instead of waiving it. Config GET /api/safedeal/config -> cancellation_fee_percent.
+## - BRAND 262 PURGED to only the real account moxxcompany@gmail.com (customer_id 696, wallet $50).
+##   Backup: /tmp/safedeal_262_backup_1789948530136.json. Deleted 110 test customers + all deals/children.
+
+
 ## 2026-06 fork — SafeDeal rebrand-finish + email receipts + guest-deal + fees column (VERIFIED iteration_210 FE 100%)
 ## - No new passwords. SafeDeal sign-in = any email; one-time code shown in UI (data-testid=sd-signin-preview-code) AND API POST /api/safedeal/auth/send-code -> data.preview_code (outbound email OFF in preview).
 ## - Signin code input = segmented: first box data-testid=sd-signin-code, rest sd-signin-code-2..6; verify btn sd-signin-verify.
