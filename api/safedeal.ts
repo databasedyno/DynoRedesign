@@ -19,7 +19,19 @@ export interface SdUser {
   email: string;
   customer_id: number;
   display_name?: string | null;
+  /** Telegram-only accounts carry a synthetic email until the user adds a real one. */
+  email_is_placeholder?: boolean;
 }
+
+/** Telegram sign-ins get a non-routable synthetic address; treat these as "no real email yet". */
+export const isPlaceholderSdEmail = (email?: string | null): boolean => /@telegram\.safedeal$/i.test(String(email ?? ""));
+
+/** A friendly label for a party — real emails show as-is; Telegram placeholders read as a person, not tg123@…. */
+export const prettyParty = (email?: string | null, fallback = "the other party"): string => {
+  const e = String(email ?? "").trim();
+  if (!e) return fallback;
+  return isPlaceholderSdEmail(e) ? "a Telegram user" : e;
+};
 
 export const sdSession = {
   token: (): string | null => (typeof window === "undefined" ? null : window.localStorage.getItem(SD_TOKEN_KEY)),
@@ -265,6 +277,9 @@ export interface SdDeal extends EscrowDeal {
   creator_email?: string | null;
   buyer_email?: string;
   seller_email?: string;
+  // Invitation model: 'email' (addressed) | 'link' (open seat claimed by the first visitor).
+  invite_kind?: "email" | "link";
+  counterparty_claimed_at?: string | null;
   funding_method?: string | null;
   funding_link_ref?: string | null;
   checkout_url?: string | null;
@@ -305,10 +320,14 @@ export interface SdDealPreview {
   creator_role: "buyer" | "seller";
   fee_payer: string;
   auto_release_days: number;
+  // Invitation model (link deals have an open, claimable seat).
+  invite_kind?: "email" | "link";
+  open_seat?: boolean;
+  claimed?: boolean;
   buyer_email_masked: string;
   seller_email_masked: string;
   counterparty_email_masked: string;
-  counterparty_email_hint: string;
+  counterparty_email_hint: string | null;
   buyer_pays: number;
   seller_receives: number;
   created_at: string;
@@ -376,7 +395,7 @@ export interface SdWallet extends Partial<SdBalances> {
 
 export type SdDealAction =
   | "accept" | "decline" | "cancel" | "fund" | "fund-balance" | "deliver" | "release"
-  | "request-changes" | "amend" | "resend-invite"
+  | "request-changes" | "amend" | "resend-invite" | "regenerate-link"
   | "dispute" | "dispute-counter" | "dispute-accept" | "dispute-message" | "dispute-escalate";
 
 export interface SdCreateDealBody {
@@ -384,7 +403,9 @@ export interface SdCreateDealBody {
   amount: number;
   price_currency?: string;
   my_role: "buyer" | "seller";
-  counterparty_email: string;
+  /** Omit (with invite_by_link) to create an open-seat shareable link deal. */
+  counterparty_email?: string;
+  invite_by_link?: boolean;
   fee_payer: "buyer" | "seller" | "split";
   auto_release_days: number;
   deal_type?: SdDealType;
@@ -405,10 +426,16 @@ export const safedealApi = {
   me: async (): Promise<{ user: SdUser; wallet: SdBalances; profile: SdWallet["profile"]; addresses_count: number }> => unwrap(await client.get("/me")),
   updateProfile: async (body: { auto_withdraw?: boolean; auto_withdraw_address_id?: number | null; display_name?: string }) => unwrap(await client.post("/profile", body)),
 
+  /** Add a real email to the signed-in account (Telegram users, or anyone who wants email login). */
+  addEmailStart: async (email: string): Promise<{ email: string; preview_code?: string }> => unwrap(await client.post("/account/email/start", { email })),
+  addEmailVerify: async (code: string): Promise<{ token: string; user: SdUser; connected_deals: number }> => unwrap(await client.post("/account/email/verify", { code })),
+
   listDeals: async (status?: string, role?: string): Promise<SdDeal[]> => unwrap(await client.get("/deals", { params: { status, role } })),
   createDeal: async (body: SdCreateDealBody): Promise<SdDeal> => unwrap(await client.post("/deals", body)),
   previewDeal: async (token: string): Promise<SdDealPreview> => unwrap(await client.get(`/deals/${token}/preview`)),
   getDeal: async (token: string): Promise<SdDeal> => unwrap(await client.get(`/deals/${token}`)),
+  /** Claim the open counterparty seat on a shareable-link deal (first signed-in visitor wins). */
+  claimDeal: async (token: string): Promise<SdDeal> => unwrap(await client.post(`/deals/${token}/claim`, {})),
   act: async (token: string, body: { action: SdDealAction } & Record<string, unknown>): Promise<{ deal: SdDeal; message: string }> => {
     const res = await client.post(`/deals/${token}/action`, body);
     return { deal: res.data.data as SdDeal, message: res.data.message as string };

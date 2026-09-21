@@ -37,10 +37,13 @@ r.post("/safedeal/webhooks/dynopay", safedealController.dynopayWebhook);
 // ── signed-in SafeDeal user (x-safedeal-token) ───────────────────────────────
 r.get("/safedeal/me", safedealAuth, safedealController.me);
 r.post("/safedeal/profile", safedealAuth, safedealController.updateProfile);
+r.post("/safedeal/account/email/start", safedealAuth, safedealController.addEmailStart);
+r.post("/safedeal/account/email/verify", safedealAuth, safedealController.addEmailVerify);
 r.post("/safedeal/auth/step-up", safedealAuth, safedealController.sendStepUp);
 r.get("/safedeal/deals", safedealAuth, safedealController.listDeals);
 r.post("/safedeal/deals", safedealAuth, safedealController.createDeal);
 r.get("/safedeal/deals/:token", safedealAuth, safedealController.getDeal);
+r.post("/safedeal/deals/:token/claim", safedealAuth, safedealController.claimDeal);
 r.post("/safedeal/deals/:token/action", safedealAuth, safedealController.dealAction);
 r.get("/safedeal/deals/:token/funding", safedealAuth, safedealController.getFunding);
 r.post("/safedeal/deals/:token/funding", safedealAuth, safedealController.createFunding);

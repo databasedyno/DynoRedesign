@@ -63,7 +63,18 @@ const escrowDealModel = sequelize.define(
     },
     counterparty_email: {
       type: DataTypes.STRING(255),
+      allowNull: true, // null for an open-seat 'link' invite until someone claims it (0045)
+    },
+    // How the counterparty was invited: 'email' (addressed, default) | 'link' (open seat).
+    invite_kind: {
+      type: DataTypes.STRING(16),
       allowNull: false,
+      defaultValue: "email",
+    },
+    // When an open-seat 'link' invite was claimed by the first signed-in visitor.
+    counterparty_claimed_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
     },
     // Linked once the counterparty acts while logged in (optional).
     counterparty_user_id: {

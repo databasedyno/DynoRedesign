@@ -3,11 +3,12 @@ import Link from "next/link";
 import { Box, Button, Chip, Container, Skeleton, Stack, Tooltip, Typography } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { SD_ACCENT, SD_GOLD, SD_GOLD_DARK, SD_INK, SD_NOTE_BG, SD_NOTE_FG, SD_NOTE_BORDER } from "./sdTheme";
-import safedealApi, { SdDeal, sdError } from "@/api/safedeal";
+import safedealApi, { SdDeal, sdError, isPlaceholderSdEmail, prettyParty } from "@/api/safedeal";
 import { money } from "@/Components/Page/Escrow/escrowUtils";
 import { useRequireSdSession, useSdHref } from "./sdRouting";
 import SdStatusChip from "./SdStatusChip";
 import DeadlinePill from "./DeadlinePill";
+import AddEmailDialog from "./AddEmailDialog";
 import { TABULAR, absTime, nextStep, relTime, useNow } from "./sdFormat";
 
 const FILTERS: { key: string; label: string }[] = [
@@ -42,6 +43,7 @@ export default function DealsList() {
   const [filter, setFilter] = useState("all");
   const [role, setRole] = useState("all");
   const [error, setError] = useState<string | null>(null);
+  const [addEmailOpen, setAddEmailOpen] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -70,6 +72,17 @@ export default function DealsList() {
           </Button>
         </Link>
       </Stack>
+
+      {user && isPlaceholderSdEmail(user.email) && (
+        <Box sx={{ mb: 2.5, p: { xs: 1.8, sm: 2 }, borderRadius: 3, backgroundColor: SD_NOTE_BG, border: `1px solid ${SD_NOTE_BORDER}`, display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }} data-testid="sd-add-email-banner">
+          <Icon icon="mdi:email-plus-outline" width={26} color={SD_GOLD_DARK} aria-hidden />
+          <Box sx={{ flex: 1, minWidth: 200 }}>
+            <Typography sx={{ fontWeight: 800, fontSize: 14.5 }}>Add an email to your account</Typography>
+            <Typography sx={{ fontSize: 13, color: SD_NOTE_FG }}>You signed in with Telegram. Add an email so others can invite you to deals, and so you can sign in by email too.</Typography>
+          </Box>
+          <Button variant="contained" onClick={() => setAddEmailOpen(true)} data-testid="sd-banner-add-email" startIcon={<Icon icon="mdi:plus" />} sx={{ textTransform: "none", fontWeight: 800, borderRadius: 99, color: SD_INK, backgroundColor: SD_GOLD, "&:hover": { backgroundColor: SD_GOLD_DARK }, flexShrink: 0 }}>Add email</Button>
+        </Box>
+      )}
 
       <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mb: 2 }} role="tablist" aria-label="Filter deals">
         {FILTERS.map((f) => (
@@ -102,6 +115,7 @@ export default function DealsList() {
             const todo = todoLabel(d);
             const isBuyer = d.my_role === "buyer";
             const other = isBuyer ? d.seller_email : d.buyer_email;
+            const otherDisplay = other ? prettyParty(other) : (d.invite_kind === "link" ? "Shareable link · not joined yet" : "the other party");
             const updated = d.updated_at || d.created_at;
             return (
               <Link key={d.escrow_id} href={href(`/deal/${d.deal_token}`)} style={{ textDecoration: "none", color: "inherit" }} data-testid={`sd-deal-row-${d.escrow_id}`} aria-label={`${d.title}, ${money(d.amount, d.currency)}`}>
@@ -117,7 +131,7 @@ export default function DealsList() {
                     </Stack>
                     <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap sx={{ mt: 0.5 }}>
                       <Typography sx={{ fontSize: 12.5, color: "#6B7280", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {isBuyer ? "Buying from" : "Selling to"} <b>{other}</b> · #{d.escrow_id}
+                        {isBuyer ? "Buying from" : "Selling to"} <b>{otherDisplay}</b> · #{d.escrow_id}
                       </Typography>
                       <DeadlinePill deal={d} testId={`sd-deal-deadline-${d.escrow_id}`} />
                       <Tooltip title={absTime(updated)} arrow>
@@ -138,6 +152,7 @@ export default function DealsList() {
           })}
         </Stack>
       )}
+      <AddEmailDialog open={addEmailOpen} onClose={() => setAddEmailOpen(false)} onDone={() => void load()} />
     </Container>
   );
 }

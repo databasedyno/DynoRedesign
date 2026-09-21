@@ -8,6 +8,7 @@ import { useSdHref } from "./sdRouting";
 import { SD_INK, SD_INK_MUTED } from "./SafeDealShell";
 import { SD_GOLD, SD_GOLD_SOFT, SD_GOLD_DEEP, SD_TEXT_MUTED, SD_BORDER, goldAlpha, sdPrimaryBtn, sdGhostBtnDark } from "./sdTheme";
 import Hero3D from "./Hero3D";
+import LandingStartDeal from "./LandingStartDeal";
 import FeeCalculator from "./FeeCalculator";
 import { Faq, ForBuyersSellers } from "./LandingSections";
 
@@ -101,6 +102,35 @@ export default function Landing() {
             </Grid>
             <Grid item xs={12} md={6}>
               <Hero3D />
+            </Grid>
+          </Grid>
+        </Container>
+      </Box>
+
+      {/* ===== Quick start — begin a deal right here ===== */}
+      <Box sx={{ backgroundColor: "#FAFAF6", borderBottom: `1px solid ${SD_BORDER}` }} id="start">
+        <Container maxWidth="lg" sx={{ py: { xs: 6, md: 8 } }}>
+          <Grid container spacing={{ xs: 4, md: 6 }} alignItems="center">
+            <Grid item xs={12} md={6}>
+              <Typography component="h2" sx={{ fontSize: { xs: 26, md: 34 }, fontWeight: 900, letterSpacing: -0.8, mb: 1.2 }}>No forms, no accounts to set up</Typography>
+              <Typography sx={{ fontSize: 15.5, color: SD_TEXT_MUTED, mb: 2.5, lineHeight: 1.6 }}>Give the deal a name and a price, choose how to invite the other side, and you&apos;re moving. Both of you sign in with a one-time code — or with Telegram.</Typography>
+              <Stack spacing={1.4}>
+                {[
+                  ["mdi:email-fast-outline", "Invite by email, or a link you can send over Telegram or WhatsApp"],
+                  ["mdi:shield-lock-outline", "The buyer's money is held in USDT escrow until the work is done"],
+                  ["mdi:cash-refund", "Clear, upfront fees — see the exact breakdown before anyone pays"],
+                ].map(([ic, t]) => (
+                  <Stack key={t} direction="row" spacing={1.2} alignItems="flex-start">
+                    <Icon icon={ic} width={20} color={SD_GOLD_DEEP} style={{ flexShrink: 0, marginTop: 2 }} aria-hidden />
+                    <Typography sx={{ fontSize: 14, color: "#374151" }}>{t}</Typography>
+                  </Stack>
+                ))}
+              </Stack>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Reveal>
+                <LandingStartDeal cfg={cfg} />
+              </Reveal>
             </Grid>
           </Grid>
         </Container>

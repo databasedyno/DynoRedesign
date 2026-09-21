@@ -29,6 +29,7 @@ export default function NewDeal() {
   const [currency, setCurrency] = useState("USD");
   const [role, setRole] = useState<Role>("seller");
   const [email, setEmail] = useState("");
+  const [inviteBy, setInviteBy] = useState<"email" | "link">("email");
   const [feePayer, setFeePayer] = useState<FeePayer>("buyer");
   const [days, setDays] = useState<number>(3);
   const [dealType, setDealType] = useState<SdDealType | null>(null);
@@ -53,7 +54,9 @@ export default function NewDeal() {
   const belowMin = amountNum > 0 && (fiat ? !!preview && usdEquivalent < minDeal : amountNum < minDeal);
   const aboveMax = amountNum > 0 && (preview?.aboveMaximum === true || (!fiat && maxDealUsd != null && amountNum > maxDealUsd));
   const emailValid = /.+@.+\..+/.test(email.trim());
-  const selfInvite = !!user && email.trim().toLowerCase() === user.email.toLowerCase();
+  const byLink = inviteBy === "link";
+  const selfInvite = !byLink && !!user && email.trim().toLowerCase() === user.email.toLowerCase();
+  const contactOk = byLink || (emailValid && !selfInvite);
 
   useEffect(() => {
     if (!(amountNum > 0) || (!fiat && amountNum < minDeal)) return setPreview(null);
@@ -63,9 +66,9 @@ export default function NewDeal() {
     return () => clearTimeout(t);
   }, [amountNum, feePayer, minDeal, currency, fiat]);
 
-  const step0Ok = title.trim().length >= 2 && amountNum > 0 && !belowMin && !aboveMax && emailValid && !selfInvite;
+  const step0Ok = title.trim().length >= 2 && amountNum > 0 && !belowMin && !aboveMax && contactOk;
   const canSubmit = step0Ok && !!preview && !busy;
-  const draft = useMemo<NewDealDraft>(() => ({ title: title.trim(), amount: amountNum, currency, role, email: email.trim(), feePayer, days, dealType, due, terms }), [title, amountNum, currency, role, email, feePayer, days, dealType, due, terms]);
+  const draft = useMemo<NewDealDraft>(() => ({ title: title.trim(), amount: amountNum, currency, role, email: byLink ? "" : email.trim(), inviteByLink: byLink, feePayer, days, dealType, due, terms }), [title, amountNum, currency, role, email, byLink, feePayer, days, dealType, due, terms]);
 
   const applyTemplate = () => {
     const tpl = TERMS_TEMPLATES[dealType || "other"];
@@ -78,7 +81,8 @@ export default function NewDeal() {
     setBusy(true);
     try {
       const deal = await safedealApi.createDeal({
-        title: d.title, amount: d.amount, price_currency: d.currency, my_role: d.role, counterparty_email: d.email, fee_payer: d.feePayer, auto_release_days: d.days,
+        title: d.title, amount: d.amount, price_currency: d.currency, my_role: d.role, fee_payer: d.feePayer, auto_release_days: d.days,
+        ...(d.inviteByLink ? { invite_by_link: true } : { counterparty_email: d.email }),
         ...(d.dealType ? { deal_type: d.dealType as SdDealType } : {}), ...(d.due ? { delivery_due_at: d.due } : {}), ...(d.terms.trim() ? { terms: d.terms.trim() } : {}),
       });
       try { sessionStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
@@ -114,6 +118,7 @@ export default function NewDeal() {
       setCurrency(d.currency || "USD");
       setRole(d.role || "seller");
       setEmail(d.email || "");
+      setInviteBy(d.inviteByLink ? "link" : "email");
       setFeePayer(d.feePayer || "buyer");
       setDays(d.days || 3);
       setDealType((d.dealType as SdDealType) ?? null);
@@ -179,7 +184,21 @@ export default function NewDeal() {
                     { v: "buyer", label: "Buyer", sub: "I pay and receive", icon: "mdi:cart-outline" },
                   ]} />
                 </Box>
-                <TextField label={role === "seller" ? "Buyer's email" : "Seller's email"} type="email" value={email} onChange={(e) => setEmail(e.target.value)} fullWidth error={selfInvite} helperText={selfInvite ? "That's you — enter the other party's email." : "They'll receive an invite link. No account needed."} inputProps={{ "data-testid": "sd-new-email" }} />
+                <Box>
+                  <Typography sx={{ fontSize: 13, fontWeight: 800, mb: 0.8 }}>How do you want to invite them?</Typography>
+                  <SdChoice value={inviteBy} onChange={setInviteBy} testid="sd-new-invite-by" options={[
+                    { v: "email", label: "By email", sub: "We email them an invite", icon: "mdi:email-outline" },
+                    { v: "link", label: "By shareable link", sub: "Send it over Telegram, WhatsApp…", icon: "mdi:link-variant" },
+                  ]} />
+                </Box>
+                {byLink ? (
+                  <Box sx={{ p: 1.6, borderRadius: 2.5, backgroundColor: "#F9FAFB", border: "1px solid #E5E7EB", display: "flex", gap: 1.2, alignItems: "flex-start" }} data-testid="sd-new-link-note">
+                    <Icon icon="mdi:information-outline" width={20} color="#6B7280" style={{ flexShrink: 0, marginTop: 2 }} aria-hidden />
+                    <Typography sx={{ fontSize: 13, color: "#4B5563" }}>You&apos;ll get a link to share anywhere. The first person who opens it and signs in joins as the <b>{role === "seller" ? "buyer" : "seller"}</b> — and you&apos;ll see who joined before any money moves.</Typography>
+                  </Box>
+                ) : (
+                  <TextField label={role === "seller" ? "Buyer's email" : "Seller's email"} type="email" value={email} onChange={(e) => setEmail(e.target.value)} fullWidth error={selfInvite} helperText={selfInvite ? "That's you — enter the other party's email." : "They'll receive an invite link. No account needed."} inputProps={{ "data-testid": "sd-new-email" }} />
+                )}
               </>
             )}
 
@@ -216,7 +235,7 @@ export default function NewDeal() {
               {step < 2 ? (
                 <Button variant="contained" disabled={step === 0 && !step0Ok} onClick={() => setStep((s) => s + 1)} data-testid="sd-new-continue" sx={primaryBtn} endIcon={<Icon icon="mdi:arrow-right" />}>Continue</Button>
               ) : (
-                <Button variant="contained" size="large" disabled={!canSubmit} onClick={() => void submit()} data-testid="sd-new-submit" endIcon={<Icon icon="mdi:send" />} sx={primaryBtn}>{busy ? "Creating…" : "Send invite"}</Button>
+                <Button variant="contained" size="large" disabled={!canSubmit} onClick={() => void submit()} data-testid="sd-new-submit" endIcon={<Icon icon="mdi:send" />} sx={primaryBtn}>{busy ? "Creating…" : byLink ? "Create invite link" : "Send invite"}</Button>
               )}
             </Stack>
           </Stack>

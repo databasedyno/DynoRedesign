@@ -81,6 +81,9 @@ const OTP_TTL = 600; // 10 min
 const SESSION_DAYS = 7;
 const norm = (s: unknown): string => String(s ?? "").trim().toLowerCase();
 const emailOk = (e: string) => /.+@.+\..+/.test(e);
+/** Telegram sign-ins get a non-routable synthetic address (tg<id>@telegram.safedeal).
+ *  Such users can't receive email invites or log in by email until they add a real one. */
+const isPlaceholderEmail = (e: unknown): boolean => /@telegram\.safedeal$/i.test(String(e ?? ""));
 const emailDisabled = () => String(envRaw("DISABLE_OUTBOUND_EMAIL") || "").toLowerCase() === "true";
 const companyId = (): number => {
   const id = Number(envRaw("SAFEDEAL_COMPANY_ID"));
@@ -285,7 +288,7 @@ const me = async (_req: express.Request, res: express.Response) => {
     const customer = await customerFor(sess);
     const [profile, balances, addresses] = await Promise.all([loadProfile(customer.customer_id), getBalances(customer.customer_id), listAddresses(customer.customer_id)]);
     return successResponseHelper(res, 200, "OK", {
-      user: { email: customer.email, customer_id: customer.customer_id, display_name: profile?.display_name || null },
+      user: { email: customer.email, customer_id: customer.customer_id, display_name: profile?.display_name || null, email_is_placeholder: isPlaceholderEmail(customer.email) },
       wallet: balances,
       profile: {
         auto_withdraw: !!profile?.auto_withdraw,
@@ -579,7 +582,9 @@ const createDeal = async (req: express.Request, res: express.Response) => {
     const {
       title, description, amount, terms, counterparty_email, my_role = "seller",
       fee_payer = "buyer", auto_release_days = escrowEngine.ESCROW_AUTO_RELEASE_DEFAULT, price_currency, deal_type, delivery_due_at,
+      invite_by_link,
     } = req.body || {};
+    const byLink = invite_by_link === true || invite_by_link === "true" || invite_by_link === 1;
     if (!title || String(title).trim().length < 2) return errorResponseHelper(res, 400, "Give the deal a short title.");
     if (amount == null || Number(amount) <= 0) return errorResponseHelper(res, 400, "Enter the deal amount.");
     const dueAt = parseDueDate(delivery_due_at) ?? null;
@@ -590,10 +595,11 @@ const createDeal = async (req: express.Request, res: express.Response) => {
     }
     const maxUsd = await maxDealUsd();
     if (usdAmount > maxUsd) return errorResponseHelper(res, 400, maxDealMessage(maxUsd, priceCur, Number(amount), usdAmount));
-    if (!counterparty_email || !emailOk(String(counterparty_email))) return errorResponseHelper(res, 400, "Enter the other party's email.");
+    if (!byLink && (!counterparty_email || !emailOk(String(counterparty_email)))) return errorResponseHelper(res, 400, "Enter the other party's email.");
+    if (!byLink && isPlaceholderEmail(counterparty_email)) return errorResponseHelper(res, 400, "Enter a real email address for the other party, or invite them by shareable link instead.");
     if (!["buyer", "seller"].includes(String(my_role))) return errorResponseHelper(res, 400, "Your role must be buyer or seller.");
     if (!["buyer", "seller", "split"].includes(String(fee_payer))) return errorResponseHelper(res, 400, "fee_payer must be buyer, seller or split.");
-    if (norm(counterparty_email) === norm(sess.email)) return errorResponseHelper(res, 400, "You can't invite yourself as the other party.");
+    if (!byLink && norm(counterparty_email) === norm(sess.email)) return errorResponseHelper(res, 400, "You can't invite yourself as the other party.");
 
     const customer = await customerFor(sess);
     const now = new Date();
@@ -605,7 +611,8 @@ const createDeal = async (req: express.Request, res: express.Response) => {
       creator_email: customer.email || sess.email,
       creator_customer_id: customer.customer_id,
       creator_role: my_role,
-      counterparty_email: String(counterparty_email).trim(),
+      counterparty_email: byLink ? null : String(counterparty_email).trim(),
+      invite_kind: byLink ? "link" : "email",
       title: String(title).trim().slice(0, 255),
       description: description ? String(description).slice(0, 5000) : null,
       amount: usdAmount,
@@ -624,17 +631,19 @@ const createDeal = async (req: express.Request, res: express.Response) => {
       auto_release_days: escrowEngine.clampAutoReleaseDays(auto_release_days),
       status: "invited",
       invited_at: now,
-      activity_log: appendActivity([], { type: "created", actor: sess.email, role: my_role, note: "Deal created on SafeDeal and the other party invited." }),
+      activity_log: appendActivity([], { type: "created", actor: sess.email, role: my_role, note: byLink ? "Deal created on SafeDeal — shareable invite link generated." : "Deal created on SafeDeal and the other party invited." }),
     } as any);
-    // If the counterparty already has a SafeDeal account, link them right away.
-    try {
-      const cp = await resolveCustomerForBrand({ companyId: sess.company_id, email: deal.counterparty_email, createIfMissing: false });
-      deal.counterparty_customer_id = cp.customer_id;
-      await deal.save();
-    } catch { /* not a customer yet — linked on first sign-in */ }
-    const { counterparty } = resolveRoles(my_role as EscrowRole);
-    void sendEscrowInviteEmail(deal.counterparty_email, deal.counterparty_email, deal, sess.email, counterparty, escrowEngine.dealUrl(deal));
-    return successResponseHelper(res, 201, "Deal created — invite sent.", view(deal, actorFor(deal, sess)!));
+    if (!byLink) {
+      // If the counterparty already has a SafeDeal account, link them right away.
+      try {
+        const cp = await resolveCustomerForBrand({ companyId: sess.company_id, email: deal.counterparty_email, createIfMissing: false });
+        deal.counterparty_customer_id = cp.customer_id;
+        await deal.save();
+      } catch { /* not a customer yet — linked on first sign-in */ }
+      const { counterparty } = resolveRoles(my_role as EscrowRole);
+      void sendEscrowInviteEmail(deal.counterparty_email, deal.counterparty_email, deal, sess.email, counterparty, escrowEngine.dealUrl(deal));
+    }
+    return successResponseHelper(res, 201, byLink ? "Deal created — share the invite link with the other party." : "Deal created — invite sent.", view(deal, actorFor(deal, sess)!));
   } catch (e) {
     return handle(res, e, "createDeal");
   }
@@ -647,6 +656,7 @@ const previewDeal = async (req: express.Request, res: express.Response) => {
     if (!deal) return errorResponseHelper(res, 404, "Deal not found.");
     const { buyerEmail, sellerEmail } = partiesOf(deal);
     const breakdown = computeFeeBreakdown({ amount: deal.amount, currency: deal.currency, feePercent: deal.fee_percent, feeMinUsd: deal.fee_min_usd, feePayer: deal.fee_payer, payoutCoin: deal.seller_payout_coin });
+    const isLink = (deal.invite_kind || "email") === "link";
     return successResponseHelper(res, 200, "OK", {
       deal_token: deal.deal_token,
       title: deal.title,
@@ -656,10 +666,15 @@ const previewDeal = async (req: express.Request, res: express.Response) => {
       creator_role: deal.creator_role,
       fee_payer: deal.fee_payer,
       auto_release_days: deal.auto_release_days,
+      invite_kind: isLink ? "link" : "email",
+      // An open-seat link that anyone can still claim (nobody has yet, and it's pre-funding).
+      open_seat: isLink && !deal.counterparty_customer_id && deal.status === "invited",
+      claimed: !!deal.counterparty_customer_id,
       buyer_email_masked: maskEmail(buyerEmail),
       seller_email_masked: maskEmail(sellerEmail),
       counterparty_email_masked: maskEmail(deal.counterparty_email),
-      counterparty_email_hint: deal.counterparty_email, // the invite is a bearer link — the invitee needs to know which inbox to use
+      // Email invites are a bearer link to a specific inbox; link invites have no addressed inbox.
+      counterparty_email_hint: isLink ? null : deal.counterparty_email,
       buyer_pays: breakdown.buyerPays,
       seller_receives: breakdown.sellerReceives,
       created_at: deal.created_at,
@@ -734,6 +749,20 @@ const dealAction = async (req: express.Request, res: express.Response) => {
         await escrowEngine.actResendInvite(deal, actor);
         msg = `Invite re-sent to ${deal.counterparty_email}.`;
         break;
+      case "regenerate-link": {
+        if (!actor.isCreator) fail(403, "Only the deal creator can regenerate the invite link.");
+        if ((deal.invite_kind || "email") !== "link") fail(400, "This deal wasn't created as a shareable link.");
+        if (deal.status !== "invited") fail(409, "The invite link can only be changed before the escrow is funded.");
+        deal.deal_token = crypto.randomBytes(24).toString("hex");
+        deal.counterparty_customer_id = null;
+        deal.counterparty_email = null;
+        deal.counterparty_claimed_at = null;
+        deal.counterparty_verified_at = null;
+        deal.activity_log = appendActivity(deal.activity_log, { type: "link_regenerated", actor: sess.email, role: actor.role, note: "Invite link regenerated — the previous link no longer works." });
+        await deal.save();
+        msg = "New invite link generated — the old link no longer works.";
+        break;
+      }
       case "amend":
         msg = await amendDeal(deal, actor, body, sess.email);
         break;
@@ -1519,6 +1548,113 @@ const brandCustomerStatement = async (req: express.Request, res: express.Respons
   }
 };
 
+// ── account: add / verify an email (Telegram users, or anyone who wants email login) ──
+
+/** Start adding an email to the signed-in account: validate + collision-check, then email a code. */
+const addEmailStart = async (req: express.Request, res: express.Response) => {
+  try {
+    const sess = session(res);
+    const email = norm(req.body?.email);
+    if (!emailOk(email)) return errorResponseHelper(res, 400, "Enter a valid email address.");
+    if (isPlaceholderEmail(email)) return errorResponseHelper(res, 400, "Enter a real email address.");
+    const customer = await customerFor(sess);
+    if (!isPlaceholderEmail(customer.email) && norm(customer.email) === email) {
+      return errorResponseHelper(res, 400, "That's already the email on your account.");
+    }
+    // Decision 1: on collision we BLOCK (never merge two accounts on live money).
+    const clash = await sequelize.query<{ customer_id: number }>(
+      `SELECT customer_id FROM tbl_customer WHERE company_id = :cid AND LOWER(email) = :email AND customer_id != :self LIMIT 1`,
+      { replacements: { cid: sess.company_id, email, self: sess.customer_id }, type: QueryTypes.SELECT }
+    );
+    if (clash.length) return errorResponseHelper(res, 409, "That email already belongs to another SafeDeal account. Please sign in with that email instead.");
+    const code = genCode();
+    await setRedisItemWithTTL(otpKey("addemail", String(sess.customer_id)), { code, email, attempts: 0 }, OTP_TTL);
+    void sendSafeDealCodeEmail(email, code, "signin");
+    const payload: Record<string, unknown> = { email, expires_in: OTP_TTL };
+    if (emailDisabled()) payload.preview_code = code; // preview only (outbound email disabled)
+    return successResponseHelper(res, 200, "We emailed a code to confirm this address.", payload);
+  } catch (e) {
+    return handle(res, e, "addEmailStart");
+  }
+};
+
+/** Verify the code, set the real email, connect pending email invitations, re-issue the session. */
+const addEmailVerify = async (req: express.Request, res: express.Response) => {
+  try {
+    const sess = session(res);
+    const code = String(req.body?.code || "").trim();
+    if (!code) return errorResponseHelper(res, 400, "Enter the code we emailed you.");
+    const key = otpKey("addemail", String(sess.customer_id));
+    const stored: any = await getRedisItem(key);
+    if (!stored || !stored.email) return errorResponseHelper(res, 400, "That code has expired. Request a new one.");
+    if (String(stored.code) !== code) {
+      const attempts = Number(stored.attempts || 0) + 1;
+      if (attempts >= 5) await deleteRedisItem(key);
+      else await setRedisItemWithTTL(key, { ...stored, attempts }, OTP_TTL);
+      return errorResponseHelper(res, 400, "Incorrect code. Please check and try again.");
+    }
+    await deleteRedisItem(key);
+    const email = norm(stored.email);
+    // Re-check the collision at verify time (someone may have claimed it since start).
+    const clash = await sequelize.query<{ customer_id: number }>(
+      `SELECT customer_id FROM tbl_customer WHERE company_id = :cid AND LOWER(email) = :email AND customer_id != :self LIMIT 1`,
+      { replacements: { cid: sess.company_id, email, self: sess.customer_id }, type: QueryTypes.SELECT }
+    );
+    if (clash.length) return errorResponseHelper(res, 409, "That email already belongs to another SafeDeal account. Please sign in with that email instead.");
+    await sequelize.query(`UPDATE tbl_customer SET email = :email, "updatedAt" = NOW() WHERE customer_id = :self AND company_id = :cid`, {
+      replacements: { email, self: sess.customer_id, cid: sess.company_id },
+      type: QueryTypes.UPDATE,
+    });
+    // Connect any pending email invitations addressed to this account.
+    const result: any = await escrowDealModel.update(
+      { counterparty_customer_id: sess.customer_id, counterparty_verified_at: new Date() } as any,
+      { where: { source: "safedeal", counterparty_email: { [Op.iLike]: email }, counterparty_customer_id: null } as any }
+    );
+    const connected = Array.isArray(result) ? Number(result[0] || 0) : 0;
+    const profile = await loadProfile(sess.customer_id);
+    // Re-issue the session carrying the real email so future requests also match by email.
+    const token = jwt.sign({ kind: "safedeal", cid: sess.customer_id, coid: sess.company_id, email }, secret(), { expiresIn: `${SESSION_DAYS}d` });
+    return successResponseHelper(res, 200, "Email added. You can now log in with it too.", {
+      token,
+      user: { email, customer_id: sess.customer_id, display_name: profile?.display_name || null, email_is_placeholder: false },
+      connected_deals: connected,
+    });
+  } catch (e) {
+    return handle(res, e, "addEmailVerify");
+  }
+};
+
+/** Claim the open counterparty seat on a shareable-link deal (the first signed-in visitor wins). */
+const claimDeal = async (req: express.Request, res: express.Response) => {
+  try {
+    const sess = session(res);
+    const deal: any = await escrowDealModel.findOne({ where: { deal_token: String(req.params.token), source: "safedeal" } });
+    if (!deal) return errorResponseHelper(res, 404, "Deal not found.");
+    if ((deal.invite_kind || "email") !== "link") return errorResponseHelper(res, 400, "This invite is addressed to a specific email — sign in with that email to open it.");
+    const isCreator = (deal.creator_customer_id && Number(deal.creator_customer_id) === sess.customer_id) || norm(deal.creator_email) === norm(sess.email);
+    if (isCreator) return errorResponseHelper(res, 400, "You created this deal — share the link with the other party.");
+    if (deal.counterparty_customer_id) {
+      if (Number(deal.counterparty_customer_id) === sess.customer_id) {
+        return successResponseHelper(res, 200, "You're already on this deal.", await viewFull(deal, actorFor(deal, sess)!));
+      }
+      return errorResponseHelper(res, 409, "Someone has already joined this deal from the invite link.");
+    }
+    if (deal.status !== "invited") return errorResponseHelper(res, 409, "This deal can no longer be joined.");
+    const customer = await customerFor(sess);
+    await ensureProfile(customer);
+    const { counterparty } = resolveRoles(deal.creator_role as EscrowRole);
+    deal.counterparty_customer_id = sess.customer_id;
+    deal.counterparty_email = customer.email || sess.email;
+    deal.counterparty_claimed_at = new Date();
+    deal.counterparty_verified_at = deal.counterparty_verified_at || new Date();
+    deal.activity_log = appendActivity(deal.activity_log, { type: "claimed", actor: customer.email || sess.email, role: counterparty, note: "Joined the deal via the shareable invite link." });
+    await deal.save();
+    return successResponseHelper(res, 200, "You've joined the deal.", await viewFull(deal, actorFor(deal, sess)!));
+  } catch (e) {
+    return handle(res, e, "claimDeal");
+  }
+};
+
 export default {
   sendCode,
   verifyCode,
@@ -1526,12 +1662,15 @@ export default {
   sendStepUp,
   me,
   updateProfile,
+  addEmailStart,
+  addEmailVerify,
   config,
   feePreview,
   listDeals,
   createDeal,
   previewDeal,
   getDeal,
+  claimDeal,
   dealAction,
   getFunding,
   createFunding,

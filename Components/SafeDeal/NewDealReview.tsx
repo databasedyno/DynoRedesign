@@ -14,6 +14,7 @@ export interface NewDealDraft {
   currency: string;
   role: "buyer" | "seller";
   email: string;
+  inviteByLink?: boolean;
   feePayer: "buyer" | "seller" | "split";
   days: number;
   dealType: string | null;
@@ -25,9 +26,14 @@ export interface NewDealDraft {
 export function NewDealReview({ d, preview, minDeal }: { d: NewDealDraft; preview: SdFeePreview | null; minDeal: number }) {
   const t = dealTypeMeta(d.dealType);
   const fiat = d.currency !== "USD";
+  const otherRole = d.role === "seller" ? "buyer" : "seller";
   return (
     <Stack spacing={1.2} data-testid="sd-new-review">
-      <Typography sx={{ fontSize: 13.5, color: "#4B5563" }}>Check the details — <b>{d.email}</b> will get an email invite to accept these terms as the <b>{d.role === "seller" ? "buyer" : "seller"}</b>.</Typography>
+      <Typography sx={{ fontSize: 13.5, color: "#4B5563" }}>
+        {d.inviteByLink
+          ? <>Check the details — you&apos;ll get a <b>shareable link</b> to send the <b>{otherRole}</b>. The first person who opens it and signs in joins the deal.</>
+          : <>Check the details — <b>{d.email}</b> will get an email invite to accept these terms as the <b>{otherRole}</b>.</>}
+      </Typography>
       <Box sx={{ p: 2, borderRadius: 2.5, backgroundColor: "#F9FAFB", border: "1px solid #E5E7EB" }}>
         <Typography sx={{ fontSize: 18, fontWeight: 900, letterSpacing: -0.4 }} data-testid="sd-review-title">{d.title}</Typography>
         <Typography sx={{ fontSize: 24, fontWeight: 900, mt: 0.3, ...TABULAR }} data-testid="sd-review-amount">
@@ -37,7 +43,7 @@ export function NewDealReview({ d, preview, minDeal }: { d: NewDealDraft; previe
         <Divider sx={{ my: 1.2 }} />
         <Fact icon={t?.icon || "mdi:handshake-outline"} label="Deal type" value={t?.label || "Not specified"} testid="sd-review-type" />
         <Fact icon="mdi:account-arrow-right-outline" label="You are the" value={d.role} testid="sd-review-role" />
-        <Fact icon="mdi:email-outline" label={d.role === "seller" ? "Buyer" : "Seller"} value={d.email} testid="sd-review-email" />
+        <Fact icon="mdi:email-outline" label={d.role === "seller" ? "Buyer" : "Seller"} value={d.inviteByLink ? "Shareable link (anyone with the link)" : d.email} testid="sd-review-email" />
         <Fact icon="mdi:percent-outline" label="Escrow fee paid by" value={d.feePayer === "split" ? "Split 50/50" : d.feePayer} testid="sd-review-fee" />
         <Fact icon="mdi:timer-sand" label="Inspection period" value={`${d.days} days after delivery`} testid="sd-review-days" />
         <Fact icon="mdi:calendar-clock" label="Delivery due" value={d.due ? new Date(d.due).toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" }) : "No fixed date"} testid="sd-review-due" />

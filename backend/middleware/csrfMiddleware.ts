@@ -129,6 +129,7 @@ const EXEMPT_PATHS = [
   "/api/safedeal/deals",
   "/api/safedeal/wallet",
   "/api/safedeal/profile",
+  "/api/safedeal/account/",
 ];
 
 /**

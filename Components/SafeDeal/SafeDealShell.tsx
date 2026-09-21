@@ -4,9 +4,10 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { Box, Button, Container, Stack, Typography, ThemeProvider, createTheme, useTheme } from "@mui/material";
 import { Icon } from "@iconify/react";
-import safedealApi from "@/api/safedeal";
+import safedealApi, { isPlaceholderSdEmail } from "@/api/safedeal";
 import { useSdHref, useSdSession } from "./sdRouting";
 import SafeDealMark from "./SafeDealMark";
+import AddEmailDialog from "./AddEmailDialog";
 import {
   SD_GOLD,
   SD_GOLD_DARK,
@@ -81,6 +82,7 @@ export default function SafeDealShell({ children, title, wide = false, dark = fa
     [parentTheme],
   );
   const { user, ready, signOut } = useSdSession();
+  const [addEmailOpen, setAddEmailOpen] = useState(false);
   const path = router.asPath;
   const isActive = (p: string) => path.includes(p);
   // The deal-detail page renders a mobile-only fixed "Your move" action bar
@@ -137,9 +139,22 @@ export default function SafeDealShell({ children, title, wide = false, dark = fa
             ))}
             {ready && user ? (
               <Stack direction="row" spacing={1} alignItems="center">
-                <Typography sx={{ fontSize: 12.5, color: muted, display: { xs: "none", sm: "block" } }} data-testid="sd-nav-user">
-                  {user.email}
-                </Typography>
+                {isPlaceholderSdEmail(user.email) ? (
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    onClick={() => setAddEmailOpen(true)}
+                    data-testid="sd-nav-add-email"
+                    startIcon={<Icon icon="mdi:email-plus-outline" width={16} />}
+                    sx={{ textTransform: "none", fontWeight: 800, borderRadius: 99, whiteSpace: "nowrap", minWidth: 0, borderColor: SD_GOLD, color: fg, "&:hover": { borderColor: SD_GOLD_DEEP, backgroundColor: SD_GOLD_SOFT } }}
+                  >
+                    Add email
+                  </Button>
+                ) : (
+                  <Typography sx={{ fontSize: 12.5, color: muted, display: { xs: "none", sm: "block" } }} data-testid="sd-nav-user">
+                    {user.email}
+                  </Typography>
+                )}
                 <Button
                   size="small"
                   variant="outlined"
@@ -195,6 +210,7 @@ export default function SafeDealShell({ children, title, wide = false, dark = fa
         </Container>
       </Box>
       {isDealPage && <Box aria-hidden data-testid="sd-mobile-sticky-safearea" sx={{ display: { xs: "block", md: "none" }, height: 84 }} />}
+      {user && <AddEmailDialog open={addEmailOpen} onClose={() => setAddEmailOpen(false)} onDone={(connected) => { if (connected > 0) router.reload(); }} />}
     </Box>
     </ThemeProvider>
   );

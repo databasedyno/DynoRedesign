@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Alert, Box, Button, Divider, Stack, TextField, Tooltip, Typography } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { SD_ACCENT } from "./sdTheme";
+import { prettyParty } from "@/api/safedeal";
 import type { SdDeal, SdDealAction } from "@/api/safedeal";
 import { money } from "@/Components/Page/Escrow/escrowUtils";
 import { absTime, relTime } from "./sdFormat";
@@ -56,19 +57,42 @@ export default function DealActionsCard({ deal, busy, live, now, walletHref, new
         </>
       )}
       {status === "invited" && deal.is_creator && (
-        <>
-          <Typography sx={{ fontWeight: 800, fontSize: 16, mb: 0.5 }}>Waiting for {other} to accept</Typography>
-          <Typography sx={{ fontSize: 13.5, color: "#4B5563", mb: 1.5 }}>We emailed them an invite. You can also send them this link directly:</Typography>
-          <Stack direction={{ xs: "column", sm: "row" }} spacing={1} alignItems={{ sm: "center" }}>
-            <TextField size="small" value={deal.invite_url || ""} fullWidth InputProps={{ readOnly: true }} inputProps={{ "data-testid": "sd-invite-link" }} />
-            <Button variant="outlined" onClick={copyInvite} data-testid="sd-copy-invite" sx={{ ...ghostBtn, flexShrink: 0 }} startIcon={<Icon icon="mdi:content-copy" />}>Copy</Button>
-            <Tooltip title={resendWait > 0 ? `You can resend again in ${Math.ceil(resendWait / 60000)} min` : "Send the invite email again"}>
-              <span>
-                <Button variant="outlined" disabled={!!busy || resendWait > 0} onClick={() => act("resend-invite")} data-testid="sd-resend-invite" sx={{ ...ghostBtn, flexShrink: 0, whiteSpace: "nowrap" }} startIcon={<Icon icon="mdi:email-sync-outline" />}>Resend email</Button>
-              </span>
-            </Tooltip>
-          </Stack>
-        </>
+        deal.invite_kind === "link" ? (
+          deal.counterparty_claimed_at ? (
+            <>
+              <Typography sx={{ fontWeight: 800, fontSize: 16, mb: 0.5 }} data-testid="sd-link-joined">{prettyParty(other)} joined — waiting for them to accept</Typography>
+              <Typography sx={{ fontSize: 13.5, color: "#4B5563", mb: 1.5 }}>Someone joined this deal from your link. They accept the terms next — nothing is charged until the buyer funds the escrow.</Typography>
+            </>
+          ) : (
+            <>
+              <Typography sx={{ fontWeight: 800, fontSize: 16, mb: 0.5 }}>Share this link to invite the {isBuyer ? "seller" : "buyer"}</Typography>
+              <Typography sx={{ fontSize: 13.5, color: "#4B5563", mb: 1.5 }}>Send it over Telegram, WhatsApp or anywhere. The first person who opens it and signs in joins as the {isBuyer ? "seller" : "buyer"} — you&apos;ll see them here before any money moves.</Typography>
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={1} alignItems={{ sm: "center" }}>
+                <TextField size="small" value={deal.invite_url || ""} fullWidth InputProps={{ readOnly: true }} inputProps={{ "data-testid": "sd-invite-link" }} />
+                <Button variant="outlined" onClick={copyInvite} data-testid="sd-copy-invite" sx={{ ...ghostBtn, flexShrink: 0 }} startIcon={<Icon icon="mdi:content-copy" />}>Copy</Button>
+                <Tooltip title="Create a fresh link — the current one stops working immediately">
+                  <span>
+                    <Button variant="outlined" disabled={!!busy} onClick={() => act("regenerate-link")} data-testid="sd-regenerate-link" sx={{ ...ghostBtn, flexShrink: 0, whiteSpace: "nowrap" }} startIcon={<Icon icon="mdi:refresh" />}>New link</Button>
+                  </span>
+                </Tooltip>
+              </Stack>
+            </>
+          )
+        ) : (
+          <>
+            <Typography sx={{ fontWeight: 800, fontSize: 16, mb: 0.5 }}>Waiting for {other} to accept</Typography>
+            <Typography sx={{ fontSize: 13.5, color: "#4B5563", mb: 1.5 }}>We emailed them an invite. You can also send them this link directly:</Typography>
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={1} alignItems={{ sm: "center" }}>
+              <TextField size="small" value={deal.invite_url || ""} fullWidth InputProps={{ readOnly: true }} inputProps={{ "data-testid": "sd-invite-link" }} />
+              <Button variant="outlined" onClick={copyInvite} data-testid="sd-copy-invite" sx={{ ...ghostBtn, flexShrink: 0 }} startIcon={<Icon icon="mdi:content-copy" />}>Copy</Button>
+              <Tooltip title={resendWait > 0 ? `You can resend again in ${Math.ceil(resendWait / 60000)} min` : "Send the invite email again"}>
+                <span>
+                  <Button variant="outlined" disabled={!!busy || resendWait > 0} onClick={() => act("resend-invite")} data-testid="sd-resend-invite" sx={{ ...ghostBtn, flexShrink: 0, whiteSpace: "nowrap" }} startIcon={<Icon icon="mdi:email-sync-outline" />}>Resend email</Button>
+                </span>
+              </Tooltip>
+            </Stack>
+          </>
+        )
       )}
       {status === "awaiting_payment" && isBuyer && (
         <Box id="sd-fund" data-testid="sd-fund-section">

@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { Alert, Box, Button, Chip, Container, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Grid, Skeleton, Snackbar, Stack, TextField, Tooltip, Typography } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { SD_ACCENT } from "./sdTheme";
-import safedealApi, { SdConfig, SdDeal, SdDealPreview, SdDealAction, sdError } from "@/api/safedeal";
+import safedealApi, { SdConfig, SdDeal, SdDealPreview, SdDealAction, sdError, prettyParty } from "@/api/safedeal";
 import DisputePanel from "@/Components/Page/Escrow/DisputePanel";
 import EscrowProgress from "@/Components/Page/Escrow/EscrowProgress";
 import { money } from "@/Components/Page/Escrow/escrowUtils";
@@ -82,6 +82,20 @@ export default function DealPage({ token }: { token: string }) {
     }
   };
 
+  const claim = async () => {
+    setBusy("claim");
+    try {
+      const d = await safedealApi.claimDeal(token);
+      setDeal(d);
+      setForbidden(null);
+      notify("You've joined the deal.");
+    } catch (e) {
+      notify(sdError(e), "error");
+    } finally {
+      setBusy(null);
+    }
+  };
+
   const openFile = (id: number) => safedealApi.openFile(token, id).catch((e) => notify(sdError(e), "error"));
   const downloadPdf = async () => {
     setBusy("pdf");
@@ -103,6 +117,9 @@ export default function DealPage({ token }: { token: string }) {
   // ── unauthenticated / non-participant preview ──────────────────────────────
   if (ready && (!session || forbidden)) {
     const signinHref = href(`/signin?next=${encodeURIComponent(`/deal/${token}`)}${preview?.counterparty_email_hint ? `&email=${encodeURIComponent(preview.counterparty_email_hint)}` : ""}`);
+    const isLink = preview?.invite_kind === "link";
+    const openSeat = !!preview?.open_seat;
+    const invitedRole = preview ? (preview.creator_role === "buyer" ? "seller" : "buyer") : "";
     return (
       <Container maxWidth="sm" sx={{ py: { xs: 5, md: 8 } }} data-testid="sd-deal-preview">
         {error && !preview && (
@@ -129,27 +146,50 @@ export default function DealPage({ token }: { token: string }) {
           <Box sx={{ ...card, p: 3.5 }}>
             <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
               <Icon icon="mdi:shield-check" width={22} color={SD_ACCENT} />
-              <Typography sx={{ fontSize: 12.5, fontWeight: 800, color: SD_ACCENT, letterSpacing: 0.6, textTransform: "uppercase" }}>You&apos;re invited to an escrow deal</Typography>
+              <Typography sx={{ fontSize: 12.5, fontWeight: 800, color: SD_ACCENT, letterSpacing: 0.6, textTransform: "uppercase" }}>{isLink ? "You're invited to join an escrow deal" : "You're invited to an escrow deal"}</Typography>
             </Stack>
             <Typography component="h1" sx={{ fontSize: 26, fontWeight: 900, letterSpacing: -0.6 }} data-testid="sd-preview-title">{preview.title}</Typography>
             <Typography sx={{ fontSize: 30, fontWeight: 900, my: 1 }}>{money(preview.amount, preview.currency)}</Typography>
             <Stack spacing={0.5} sx={{ mb: 2.5 }}>
-              <Typography sx={{ fontSize: 13.5, color: "#4B5563" }}>Buyer: <b>{preview.buyer_email_masked}</b> · pays {money(preview.buyer_pays, preview.currency)}</Typography>
-              <Typography sx={{ fontSize: 13.5, color: "#4B5563" }}>Seller: <b>{preview.seller_email_masked}</b> · receives {money(preview.seller_receives, preview.currency)}</Typography>
+              <Typography sx={{ fontSize: 13.5, color: "#4B5563" }}>Buyer: <b>{preview.buyer_email_masked || (invitedRole === "buyer" ? "you (joining)" : "—")}</b> · pays {money(preview.buyer_pays, preview.currency)}</Typography>
+              <Typography sx={{ fontSize: 13.5, color: "#4B5563" }}>Seller: <b>{preview.seller_email_masked || (invitedRole === "seller" ? "you (joining)" : "—")}</b> · receives {money(preview.seller_receives, preview.currency)}</Typography>
               <Typography sx={{ fontSize: 13.5, color: "#4B5563" }}>Inspection period {preview.auto_release_days} days · status: {preview.status.replace("_", " ")}</Typography>
             </Stack>
-            {forbidden ? (
-              <Alert severity="warning" sx={{ mb: 2 }} data-testid="sd-preview-forbidden">{forbidden}</Alert>
+            {isLink ? (
+              openSeat ? (
+                <>
+                  <Typography sx={{ fontSize: 13.5, color: "#6B7280", mb: 2 }}>
+                    You&apos;d join as the <b>{invitedRole}</b>. {session ? "Join to accept, fund and follow this deal." : "Sign in to join — it creates your SafeDeal wallet, no password needed."}
+                  </Typography>
+                  {session ? (
+                    <Button fullWidth variant="contained" size="large" disabled={busy === "claim"} onClick={() => void claim()} data-testid="sd-preview-join" sx={{ ...primaryBtn, py: 1.2 }} endIcon={<Icon icon="mdi:account-plus-outline" />}>
+                      {busy === "claim" ? "Joining…" : `Join this deal as the ${invitedRole}`}
+                    </Button>
+                  ) : (
+                    <Link href={signinHref} style={{ textDecoration: "none" }} data-testid="sd-preview-signin">
+                      <Button fullWidth variant="contained" size="large" sx={{ ...primaryBtn, py: 1.2 }} endIcon={<Icon icon="mdi:arrow-right" />}>Sign in to join</Button>
+                    </Link>
+                  )}
+                </>
+              ) : (
+                <Alert severity="warning" data-testid="sd-preview-link-taken">{forbidden || "This deal has already been joined by someone else, so its spot is taken."}</Alert>
+              )
             ) : (
-              <Typography sx={{ fontSize: 13.5, color: "#6B7280", mb: 2 }}>
-                Sign in with <b>{preview.counterparty_email_hint}</b> to accept, decline, fund or follow this deal. Signing in creates your SafeDeal wallet — no password needed.
-              </Typography>
+              <>
+                {forbidden ? (
+                  <Alert severity="warning" sx={{ mb: 2 }} data-testid="sd-preview-forbidden">{forbidden}</Alert>
+                ) : (
+                  <Typography sx={{ fontSize: 13.5, color: "#6B7280", mb: 2 }}>
+                    Sign in with <b>{preview.counterparty_email_hint}</b> to accept, decline, fund or follow this deal. Signing in creates your SafeDeal wallet — no password needed.
+                  </Typography>
+                )}
+                <Link href={signinHref} style={{ textDecoration: "none" }} data-testid="sd-preview-signin">
+                  <Button fullWidth variant="contained" size="large" sx={{ ...primaryBtn, py: 1.2 }} endIcon={<Icon icon="mdi:arrow-right" />}>
+                    {forbidden ? "Sign in with a different email" : "Sign in to respond"}
+                  </Button>
+                </Link>
+              </>
             )}
-            <Link href={signinHref} style={{ textDecoration: "none" }} data-testid="sd-preview-signin">
-              <Button fullWidth variant="contained" size="large" sx={{ ...primaryBtn, py: 1.2 }} endIcon={<Icon icon="mdi:arrow-right" />}>
-                {forbidden ? "Sign in with a different email" : "Sign in to respond"}
-              </Button>
-            </Link>
           </Box>
         )}
         {!preview && !error && <Skeleton variant="rounded" height={260} />}
@@ -168,6 +208,8 @@ export default function DealPage({ token }: { token: string }) {
   const me = deal.my_role as "buyer" | "seller";
   const isBuyer = me === "buyer";
   const other = isBuyer ? deal.seller_email : deal.buyer_email;
+  const otherDisplay = prettyParty(other);
+  const isLinkDeal = deal.invite_kind === "link";
   const b = deal.breakdown;
   const status = deal.status;
   const live = !!cfg?.live_settlement;
@@ -214,7 +256,7 @@ export default function DealPage({ token }: { token: string }) {
         </Button>
       </Stack>
 
-      {created && <Alert severity="success" sx={{ mb: 2 }} data-testid="sd-deal-created-banner">Deal created — we emailed {other} an invite. You can also share the link below.</Alert>}
+      {created && <Alert severity="success" sx={{ mb: 2 }} data-testid="sd-deal-created-banner">{isLinkDeal ? "Deal created — copy the invite link below and send it to the other party over Telegram, WhatsApp or anywhere." : `Deal created — we emailed ${other} an invite. You can also share the link below.`}</Alert>}
       {funded && status !== "awaiting_payment" && <Alert severity="success" sx={{ mb: 2 }}>Payment received — the escrow is funded.</Alert>}
 
       <Stack direction={{ xs: "column", md: "row" }} justifyContent="space-between" alignItems={{ xs: "flex-start", md: "flex-start" }} spacing={1.5} sx={{ mb: 2.5 }}>
@@ -224,7 +266,7 @@ export default function DealPage({ token }: { token: string }) {
             <SdStatusChip deal={deal} testId="sd-deal-status" />
           </Stack>
           <Typography sx={{ fontSize: 13.5, color: "#6B7280", mt: 0.4 }} data-testid="sd-deal-parties">
-            Deal #{deal.escrow_id} · You are the <b>{me}</b> · {isBuyer ? "Seller" : "Buyer"}: <b>{other}</b>
+            Deal #{deal.escrow_id} · You are the <b>{me}</b> · {isBuyer ? "Seller" : "Buyer"}: <b>{otherDisplay}</b>
           </Typography>
           <DealFacts deal={deal} />
         </Box>

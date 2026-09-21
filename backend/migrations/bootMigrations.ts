@@ -842,6 +842,24 @@ const addSafeDealDepositReserve = async (): Promise<void> => {
   await sequelize.query(`ALTER TABLE "tbl_safedeal_profile" ADD COLUMN IF NOT EXISTS "deposit_reserved_usd" DOUBLE PRECISION NOT NULL DEFAULT 0`);
 };
 
+/**
+ * 0045 — SafeDeal shareable "invite by link" deals + Telegram-friendly invitations.
+ *  - tbl_escrow_deal.invite_kind: 'email' (addressed invite, default) | 'link' (open seat,
+ *    the first signed-in person who opens the link claims the counterparty seat).
+ *  - tbl_escrow_deal.counterparty_claimed_at: when an open-seat link was claimed.
+ *  - counterparty_email becomes nullable: an open-seat link has no addressed inbox until claimed.
+ * Additive + idempotent, safe on live prod (relaxing NOT NULL never touches existing rows).
+ */
+const addSafeDealInviteLink = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `ALTER TABLE "tbl_escrow_deal"
+       ADD COLUMN IF NOT EXISTS "invite_kind" VARCHAR(16) NOT NULL DEFAULT 'email',
+       ADD COLUMN IF NOT EXISTS "counterparty_claimed_at" TIMESTAMPTZ`
+  );
+  await sequelize.query(`ALTER TABLE "tbl_escrow_deal" ALTER COLUMN "counterparty_email" DROP NOT NULL`);
+};
+
 export async function buildBootMigrations(): Promise<Migration[]> {  const { v1, extra } = await loadBootModelGroups();  return [
     { version: "0001_boot_model_tables", up: syncGroup(v1) },
     { version: "0002_boot_model_tables_extra", up: syncGroup(extra) },
@@ -884,6 +902,7 @@ export async function buildBootMigrations(): Promise<Migration[]> {  const { v1,
     { version: "0042_safedeal_topups", up: addSafeDealTopups },
     { version: "0043_customer_telegram_id", up: addCustomerTelegramId },
     { version: "0044_safedeal_deposit_reserve", up: addSafeDealDepositReserve },
+    { version: "0045_safedeal_invite_link", up: addSafeDealInviteLink },
     ...perfMigrations,
     ...securityMigrations,
   ];

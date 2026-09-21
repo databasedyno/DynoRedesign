@@ -166,3 +166,19 @@ Preview URL (THIS pod): https://secure-passphrase-1.preview.emergentagent.com  (
 ##   Then run a full deal (seller creates my_role:seller, buyer accepts+fund(sim)+seller deliver+buyer release) -> GET /wallet expect parked = deal-proceeds ONLY (e.g. 60), available = 50+60.
 ## - Wallet UI: data-testid sd-wallet-held (Held in escrow), sd-parked-payout (banner shows deal-proceeds only), sd-deposit-reserved.
 ## - Brand scrub: ONLY remaining "Dynopay" allowed = the footer/PDF/email legal-entity line "Operated by Dynopay Payments Ltd." (EMAIL_LEGAL_NAME). No "Binance" anywhere user-facing. No "held by Dynopay/Binance".
+
+
+## 2026-09-21 — SafeDeal Telegram-friendly invitations + invite-by-link + add-email (BACKEND VERIFIED 14/14)
+## - Vault/admin pass = Katiekendra123@ ; admin (Dynopay) = moxxcompany@gmail.com / Katiekendra123@.
+## - SafeDeal sign-in unchanged: POST /api/safedeal/auth/send-code {email} -> data.preview_code (SAFE MODE) ->
+##   POST /api/safedeal/auth/verify-code {email,code} -> data.token ; header x-safedeal-token=<token>.
+## - NEW endpoints (all CSRF-exempt under /api/safedeal/account/ and /deals/:token/claim):
+##   * POST /api/safedeal/deals {..., invite_by_link:true}  -> open-seat LINK deal (counterparty_email null, invite_kind='link', invite_url set).
+##   * GET  /api/safedeal/deals/:token/preview              -> invite_kind, open_seat, claimed, counterparty_email_hint(null for link).
+##   * POST /api/safedeal/deals/:token/claim                -> first signed-in non-creator claims the counterparty seat (409 if taken, 400 if creator).
+##   * POST /api/safedeal/deals/:token/action {action:'regenerate-link'} -> creator-only, pre-funding; new deal_token, old dies.
+##   * POST /api/safedeal/account/email/start {email} + /verify {code} -> add a real email to a (Telegram) account; 409 on collision (BLOCK, no merge);
+##       verify re-issues token + connects pending email invites (returns connected_deals). me().user.email_is_placeholder tells UI if a real email is missing.
+## - Migration 0045_safedeal_invite_link applied on live DB (invite_kind, counterparty_claimed_at, counterparty_email now nullable).
+## - Frontend UI built (AddEmailDialog, shell "Add email" for Telegram users, DealsList banner, NewDeal invite-method choice,
+##   DealPage claim/open-seat + creator link card + regenerate, Landing inline "Start a deal" quick form). FE testing NOT yet run.

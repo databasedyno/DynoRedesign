@@ -155,6 +155,9 @@ function serializeDeal(deal: any, includePrivate = true): Record<string, unknown
     creator_role: d.creator_role,
     counterparty_email: d.counterparty_email,
     counterparty_verified: !!d.counterparty_verified_at,
+    // Invitation model (0045): 'email' (addressed) | 'link' (open seat claimed by first visitor).
+    invite_kind: d.invite_kind || "email",
+    counterparty_claimed_at: d.counterparty_claimed_at || null,
     funding_method: d.funding_method || null,
     funding_link_ref: d.funding_link_ref || null,
     checkout_url: d.funding_link_ref ? `${(envRaw("CHECKOUT_URL") || frontendBase()).trim().replace(/\/$/, "")}/pay?d=${d.funding_link_ref}` : null,
