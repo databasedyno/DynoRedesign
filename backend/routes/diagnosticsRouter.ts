@@ -911,6 +911,24 @@ router.post("/replay-webhook", adminAuthMiddleware, async (req: express.Request,
  * 3. Re-funds gas if needed (energy-aware)
  * 4. Re-triggers the transfer to merchant wallet
  */
+/**
+ * POST /diagnostics/wrong-asset-recovery
+ * Scan native-coin pool addresses (TRX/ETH/POLYGON) for TOKEN deposits the buyer sent by
+ * mistake (USDT-TRC20 / USDT-ERC20 / USDC-ERC20 / USDT-POLYGON) and settle them to the
+ * brand's saved wallet for that token. Body: { dry_run?: boolean (default true), address?: string, force?: boolean }
+ */
+router.post("/wrong-asset-recovery", adminAuthMiddleware, async (req: express.Request, res: express.Response) => {
+  const dryRun = req.body?.dry_run !== false;
+  const onlyAddress = typeof req.body?.address === "string" && req.body.address.trim() ? req.body.address.trim() : undefined;
+  try {
+    const { recoverWrongAssetDeposits } = await import("../services/merchantPool/wrongAssetRecovery");
+    const result = await recoverWrongAssetDeposits({ dryRun, onlyAddress, force: req.body?.force === true });
+    return res.json({ success: true, data: result });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: (error as Error).message });
+  }
+});
+
 router.post("/recover-stuck-payment", adminAuthMiddleware, async (req: express.Request, res: express.Response) => {
   const { payment_id, temp_address, merchant_wallet: overrideMerchantWallet, merchant_amount: overrideMerchantAmount } = req.body;
   

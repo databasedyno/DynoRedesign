@@ -86,7 +86,7 @@ import { checkTipGoalMilestone } from "../../../services/tipGoalMilestoneService
 
 import { settleCryptoTransaction } from "./settleTransaction";
 import { D, add, div, mul, roundTo, sub, toFixedStr, toNumber } from "../../../utils/money";
-import { onPaymentLinkPaid as onEscrowPaymentLinkPaid } from "../../../services/safedeal/safedealCheckout";
+import { onPaymentLinkPaid as onEscrowPaymentLinkPaid, onOverpaymentCredited as onSafeDealOverpaymentCredited } from "../../../services/safedeal/safedealCheckout";
 
 export const cryptoVerification = async (address, webhook = true, overrideRedisKey?: string) => {
   const transaction = await sequelize.transaction();
@@ -1502,6 +1502,13 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
             customerName: customerData?.customer_name || customerData?.name || null,
             customerLang: customerData?.language || tempData?.language || null,
           }).catch(() => { /* notifier never throws; guard for safety */ });
+          // SafeDeal is its own Dynopay merchant: hand the excess back to the paying buyer's balance.
+          void onSafeDealOverpaymentCredited({
+            paymentId: overpaidPaymentId,
+            companyId: Number(customerData?.company_id || tempData?.company_id) || null,
+            excessUsd: excessBase,
+            txId: transactionId || null,
+          });
         }
 
         // ── Referral fee-credit consumption (Option 1.a) ──
@@ -1648,6 +1655,15 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
                 settlement_tx_id: outgoingMerchantTxHash,
                 meta_data: settledMeta,
                 ...(autoConvertEnabled ? { auto_convert_currency: autoConvertTargetCurrency } : {}),
+                ...(String(tempData?.wrong_asset) === "true"
+                  ? {
+                      recovered: true,
+                      recovery_type: "wrong_asset",
+                      expected_currency: tempData?.expected_currency || null,
+                      expected_amount: tempData?.expected_crypto_amount ? Number(tempData.expected_crypto_amount) : null,
+                      note: `Buyer sent ${tempCurrency} to a ${tempData?.expected_currency || "native-coin"} payment address; the ${tempCurrency} actually received was settled to your ${tempCurrency} payout wallet.`,
+                    }
+                  : {}),
                 created_at: new Date().toISOString(),
                 settled_at: new Date().toISOString(),
               } as Record<string, unknown>);

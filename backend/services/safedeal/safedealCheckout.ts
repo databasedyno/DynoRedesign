@@ -15,7 +15,7 @@ import { apiLogger } from "../../utils/loggers";
 import { userWalletModel } from "../../models";
 import escrowDealModel from "../../models/escrowDealModel";
 import { hashApiKey } from "../../helper/apiKeyToken";
-import { appendActivity, computeFeeBreakdown } from "../../controller/escrow/escrowShared";
+import { appendActivity, computeFeeBreakdown, dealFeeBreakdown } from "../../controller/escrow/escrowShared";
 import { awaitFreshRates } from "../escrow/escrowCosts";
 
 /** A routable, non-synthetic email we can safely attribute a Dynopay payment to. */
@@ -81,13 +81,15 @@ export async function configuredFundingCoins(companyId: number): Promise<string[
 }
 
 /** Coin picker payload: what the buyer would pay in each coin the brand accepts. */
-export async function fundingCoins(deal: any): Promise<{ coin: string; label: string; network: string; stable: boolean; cheap: boolean; buyer_pays: number; network_fee: number; conversion_fee: number; exchange_fee: number }[]> {
+export async function fundingCoins(deal: any): Promise<{ coin: string; label: string; network: string; stable: boolean; cheap: boolean; buyer_pays: number; network_fee: number; conversion_fee: number; exchange_fee: number; surcharge: number }[]> {
   await awaitFreshRates();
   const coins = await configuredFundingCoins(Number(deal.company_id));
+  // The deal page quotes a stablecoin total; each tile shows how far it deviates from that quote.
+  const quoted = computeFeeBreakdown({ amount: deal.amount, currency: deal.currency, feePercent: deal.fee_percent, feeMinUsd: deal.fee_min_usd, feePayer: deal.fee_payer, payoutCoin: deal.seller_payout_coin, acceptedCoins: deal.accepted_coins }).buyerPays;
   return coins.map((coin) => {
     const b = computeFeeBreakdown({ amount: deal.amount, currency: deal.currency, feePercent: deal.fee_percent, feeMinUsd: deal.fee_min_usd, feePayer: deal.fee_payer, payoutCoin: deal.seller_payout_coin, fundingCoin: coin, acceptedCoins: deal.accepted_coins });
     const m = FUNDING_COIN_META[coin];
-    return { coin, label: m.label, network: m.network, stable: !!m.stable, cheap: !!m.cheap, buyer_pays: b.buyerPays, network_fee: b.networkFeeUsd, conversion_fee: b.conversionFeeUsd, exchange_fee: b.exchangeFeeUsd };
+    return { coin, label: m.label, network: m.network, stable: !!m.stable, cheap: !!m.cheap, buyer_pays: b.buyerPays, network_fee: b.networkFeeUsd, conversion_fee: b.conversionFeeUsd, exchange_fee: b.exchangeFeeUsd, surcharge: Math.round((b.buyerPays - quoted) * 100) / 100 };
   });
 }
 
@@ -291,7 +293,7 @@ export async function onCustodyConverted(conv: { conversion_id: number; transact
     deal.custody_realized_usd = realized;
     deal.custody_realized_at = new Date();
     const held = Number(deal.custody_amount_stable || 0);
-    const b = computeFeeBreakdown({ amount: deal.amount, currency: deal.currency, feePercent: deal.fee_percent, feeMinUsd: deal.fee_min_usd, feePayer: deal.fee_payer, payoutCoin: deal.seller_payout_coin, fundingCoin: deal.funding_coin, acceptedCoins: deal.accepted_coins });
+    const b = dealFeeBreakdown(deal);
     const shortfall = Math.round((held - realized) * 100) / 100;
     const buffer = b.passThroughCosts + b.exchangeFeeUsd;
     if (shortfall > buffer) deal.needs_admin_review = true;
@@ -306,6 +308,70 @@ export async function onCustodyConverted(conv: { conversion_id: number; transact
     apiLogger.info(`[SafeDeal] custody reconciled for escrow ${deal.escrow_id}: realised ${realized} ${conv.target_currency} (held ${held})`);
   } catch (err) {
     apiLogger.error(`[SafeDeal] onCustodyConverted failed for conversion ${conv.conversion_id}: ${(err as Error).message}`);
+  }
+}
+
+// ── Overpayment (buyer sent more than the quote) ─────────────────────────────
+
+/**
+ * Dynopay credits any excess a payer sends to the MERCHANT — for SafeDeal that merchant is the
+ * SafeDeal brand itself, so without this hook the buyer would simply lose the excess. Credit it to
+ * the buyer's SafeDeal balance instead (deal funding or wallet top-up). Idempotent per payment.
+ */
+export async function onOverpaymentCredited(info: { paymentId: string; companyId?: number | null; excessUsd: number; txId?: string | null }): Promise<void> {
+  try {
+    if (!isSafeDealCompany(info.companyId)) return;
+    const excess = Math.round((Number(info.excessUsd) + Number.EPSILON) * 100) / 100;
+    if (!(excess >= 0.01) || !info.paymentId) return;
+    const { applyEntries } = await import("./safedealWallet");
+    const { resolveCustomerForBrand } = await import("../customerWalletService");
+    const deal: any = await escrowDealModel.findOne({ where: { source: "safedeal", funding_link_transaction_id: String(info.paymentId) } as any });
+    if (deal) {
+      const buyerEmail = String(deal.creator_role) === "buyer" ? deal.creator_email : deal.counterparty_email;
+      const buyerCid = String(deal.creator_role) === "buyer" ? deal.creator_customer_id : deal.counterparty_customer_id;
+      const buyer = await resolveCustomerForBrand({ companyId: Number(deal.company_id), customerId: buyerCid || null, email: buyerEmail, createIfMissing: true });
+      const applied = await applyEntries([
+        {
+          customer: buyer,
+          type: "CREDIT",
+          amount: excess,
+          kind: "overpayment_credit",
+          description: `Overpayment returned — you sent ${excess.toFixed(2)} USD more than the quote for deal #${deal.escrow_id} "${deal.title}"; credited to your balance`,
+          reference: `escrow:${deal.escrow_id}:overpaid`,
+          escrowId: deal.escrow_id,
+          dealTitle: deal.title,
+          meta: { bucket: "available", payment_id: info.paymentId, tx: info.txId || null },
+        },
+      ]);
+      if (applied) {
+        deal.activity_log = appendActivity(deal.activity_log, { type: "overpayment_credited", actor: "system", role: "system", note: `Buyer overpaid by ${excess.toFixed(2)} USD — the excess was credited to their SafeDeal balance.`, meta: { excess_usd: excess, payment_id: info.paymentId } });
+        await deal.save();
+        apiLogger.info(`[SafeDeal] overpayment ${excess} USD credited to buyer of escrow ${deal.escrow_id}`);
+      }
+      return;
+    }
+    const topups = await sequelize.query<{ topup_id: number; customer_id: number; company_id: number }>(
+      `SELECT topup_id, customer_id, company_id FROM tbl_safedeal_topup WHERE payment_id = :pid LIMIT 1`,
+      { replacements: { pid: String(info.paymentId) }, type: QueryTypes.SELECT }
+    );
+    const t = topups[0];
+    if (!t) return;
+    const customer = await resolveCustomerForBrand({ companyId: Number(t.company_id), customerId: t.customer_id, createIfMissing: false });
+    await applyEntries([
+      {
+        customer,
+        type: "CREDIT",
+        amount: excess,
+        kind: "overpayment_credit",
+        description: `Overpayment on wallet top-up DEP-${t.topup_id} — ${excess.toFixed(2)} USD more than quoted was received and credited to your balance`,
+        reference: `topup:${t.topup_id}:overpaid`,
+        source: "TOPUP",
+        meta: { bucket: "available", topup_id: t.topup_id, payment_id: info.paymentId, tx: info.txId || null },
+      },
+    ]);
+    apiLogger.info(`[SafeDeal] overpayment ${excess} USD credited on top-up ${t.topup_id}`);
+  } catch (err) {
+    apiLogger.error(`[SafeDeal] onOverpaymentCredited failed for ${info.paymentId}: ${(err as Error).message}`);
   }
 }
 

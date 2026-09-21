@@ -893,6 +893,20 @@ const relaxTransactionCustomerCascade = async (): Promise<void> => {
   `);
 };
 
+/**
+ * 0047 — SafeDeal money audit.
+ *  - tbl_escrow_deal.fee_breakdown_locked: fee/cost lines frozen at funding so the amounts
+ *    the buyer actually paid drive settlement, invoices and PDFs (not the live rate table).
+ *  - tbl_safedeal_profile.withdrawal_fee_credit_usd: the exchange-withdrawal fee reserved
+ *    in a deal quote that was never spent (funds kept in balance) — waives the fee on the
+ *    party's next manual withdrawal instead of charging it twice.
+ */
+const addSafeDealMoneyAudit = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(`ALTER TABLE "tbl_escrow_deal" ADD COLUMN IF NOT EXISTS "fee_breakdown_locked" JSONB`);
+  await sequelize.query(`ALTER TABLE "tbl_safedeal_profile" ADD COLUMN IF NOT EXISTS "withdrawal_fee_credit_usd" DOUBLE PRECISION NOT NULL DEFAULT 0`);
+};
+
 export async function buildBootMigrations(): Promise<Migration[]> {  const { v1, extra } = await loadBootModelGroups();  return [
     { version: "0001_boot_model_tables", up: syncGroup(v1) },
     { version: "0002_boot_model_tables_extra", up: syncGroup(extra) },
@@ -937,6 +951,7 @@ export async function buildBootMigrations(): Promise<Migration[]> {  const { v1,
     { version: "0044_safedeal_deposit_reserve", up: addSafeDealDepositReserve },
     { version: "0045_safedeal_invite_link", up: addSafeDealInviteLink },
     { version: "0046_txn_customer_fk_set_null", up: relaxTransactionCustomerCascade },
+    { version: "0047_safedeal_money_audit", up: addSafeDealMoneyAudit },
     ...perfMigrations,
     ...securityMigrations,
   ];

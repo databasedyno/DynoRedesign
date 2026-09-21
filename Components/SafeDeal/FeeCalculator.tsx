@@ -84,6 +84,9 @@ export default function FeeCalculator({ minDeal, autoReleaseDefault, maxDealUsd,
             <Line l="Buyer pays" v={money(q.buyerPays)} strong color={SD_GOLD} testid="sd-calc-buyer-pays" />
             <Line l="Seller receives" v={money(q.sellerReceives)} strong color="#6EE7B7" testid="sd-calc-seller-receives" />
           </Box>
+          {q.fundingCoinAssumed && (q.nonStableSurchargeUsd || 0) > 0 && (
+            <Typography sx={{ fontSize: 12, color: muted }} data-testid="sd-calc-surcharge-note">Priced for a stablecoin payment (USDT/USDC) · paying with BTC, ETH or another non-stablecoin adds ≈ {money(q.nonStableSurchargeUsd || 0)}.</Typography>
+          )}
           <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 0.5 }}>
             <Icon icon="mdi:timer-sand" width={16} color={SD_AMBER} aria-hidden />
             <Typography sx={{ fontSize: 12.5, color: muted }}>Held in USDT escrow by SafeDeal · releases {autoReleaseDefault} days after delivery unless the buyer objects</Typography>

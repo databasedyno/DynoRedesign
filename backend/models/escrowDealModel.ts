@@ -193,6 +193,9 @@ const escrowDealModel = sequelize.define(
     // Dynopay Merchant-API payment issued for this deal: { payment_id, coin, address, crypto_amount, qr_code, status, ... }.
     funding_payment: { type: DataTypes.JSONB, allowNull: true },
     funding_settled_at: { type: DataTypes.DATE, allowNull: true },
+    // Fee/cost breakdown frozen at funding (network, conversion, withdrawal, exchange lines):
+    // every later view, settlement and invoice uses these numbers so quote == charged.
+    fee_breakdown_locked: { type: DataTypes.JSONB, allowNull: true },
     // Per-party payout destination: { seller?: { address_id, set_at, before_funding }, buyer?: {...} }.
     payout_prefs: { type: DataTypes.JSONB, allowNull: true },
     // USDT actually realised on Binance after auto-convert (custody stays there).

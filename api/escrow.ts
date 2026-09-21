@@ -34,6 +34,10 @@ export interface FeeBreakdown {
   totalCost?: number;
   payoutCoin?: string;
   costsEstimated?: boolean;
+  // Pre-funding quote is priced for a stablecoin; this is the extra a BTC/ETH… payer adds.
+  quotedFundingCoin?: string;
+  fundingCoinAssumed?: boolean;
+  nonStableSurchargeUsd?: number;
   costItems?: CostItem[];
   buyerPays: number;
   sellerReceives: number;

@@ -325,7 +325,7 @@ function AddAddressDialog({ wallet, onClose, onDone, onError }: { wallet: SdWall
 function WithdrawDialog({ wallet, onClose, onDone, onError }: { wallet: SdWallet; onClose: () => void; onDone: (m: string) => Promise<void>; onError: (m: string) => void }) {
   const [addressId, setAddressId] = useState<number | "">(wallet.addresses[0]?.address_id ?? "");
   const [amount, setAmount] = useState(String(wallet.wallet.available.toFixed(2)));
-  const [quote, setQuote] = useState<{ fee: number; net: number; requires_approval: boolean } | null>(null);
+  const [quote, setQuote] = useState<{ fee: number; fee_waived?: number; net: number; requires_approval: boolean } | null>(null);
   const amt = Number(amount);
   useEffect(() => {
     if (!addressId || !(amt > 0)) return setQuote(null);
@@ -356,7 +356,12 @@ function WithdrawDialog({ wallet, onClose, onDone, onError }: { wallet: SdWallet
           <TextField size="small" fullWidth label="Amount (USD)" value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ""))} helperText={`Available ${money(wallet.wallet.available)} · min $${wallet.limits.min_withdrawal_usd}`} inputProps={{ "data-testid": "sd-withdraw-amount", inputMode: "decimal" }} />
           {quote && (
             <Box sx={{ p: 1.4, borderRadius: 2, backgroundColor: "#F9FAFB", border: "1px solid #E5E7EB" }} data-testid="sd-withdraw-quote">
-              <Stack direction="row" justifyContent="space-between"><Typography sx={{ fontSize: 13 }}>Network fee</Typography><Typography sx={{ fontSize: 13, fontWeight: 700 }}>{money(quote.fee)}</Typography></Stack>
+              <Stack direction="row" justifyContent="space-between"><Typography sx={{ fontSize: 13 }}>Network fee</Typography><Typography sx={{ fontSize: 13, fontWeight: 700 }} data-testid="sd-withdraw-fee">{money(quote.fee)}</Typography></Stack>
+              {Number(quote.fee_waived) > 0 && (
+                <Typography sx={{ fontSize: 12, color: "#047857", mb: 0.4 }} data-testid="sd-withdraw-fee-credit">
+                  {money(Number(quote.fee_waived))} covered by the withdrawal fee already reserved in your closed deal — not charged twice.
+                </Typography>
+              )}
               <Stack direction="row" justifyContent="space-between"><Typography sx={{ fontSize: 13, fontWeight: 800 }}>You receive</Typography><Typography sx={{ fontSize: 13, fontWeight: 900, color: "#047857" }} data-testid="sd-withdraw-net">{money(quote.net)}</Typography></Stack>
               {quote.requires_approval && <Typography sx={{ fontSize: 12, color: "#92400E", mt: 0.6 }}>Above ${wallet.limits.approval_threshold_usd.toLocaleString()} — reviewed by our team before it&apos;s sent (usually within a few hours).</Typography>}
             </Box>

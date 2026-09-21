@@ -2,14 +2,14 @@
 SafeDeal iteration 208: Wallet top-ups, pay-from-balance, exchange fee, auto-withdraw semantics, invoices.
 
 Covers per review request:
-- Fee preview: exchange fee 2% for unknown/non-stable funding coin
+- Fee preview: pre-funding quote priced for a stablecoin (exchange fee 0, 2% surcharge hint)
 - Top-up quotes list: stablecoins have 0 exchange fee, non-stables 2.00
 - Top-up create: idempotent, below-min 400, unsupported coin 400
 - Top-up simulate: credits wallet exactly, 409 on 2nd, statement row appears
 - Top-up list/get and cross-user 404
 - Deal funded FROM BALANCE: buyer 'fund-balance' → funded, wallet debited
 - Auto-withdraw OFF (default): release → WALLET-CREDIT-, parked=0, balance grows
-- Auto-withdraw ON: add address → within 24h cooling-off → parked_payout_usd
+- Auto-withdraw ON: add address → release pays it (parks only if SAFEDEAL_ADDRESS_COOLING_HOURS>0)
 - Auto-withdraw ON w/o address → 400
 - Deal-level payout destination BEFORE funding → settlement withdrawal on release
 - Invoices endpoint returns closed deals only, with cost_items + exchange_fee
@@ -96,12 +96,17 @@ def parties():
 
 
 class TestFeePreview:
-    def test_exchange_fee_charged_for_unknown_funding(self):
+    def test_exchange_fee_for_unknown_funding(self):
+        # Math audit: before the buyer picks a coin the quote is priced for a STABLECOIN
+        # (exchange fee 0) and carries the non-stablecoin surcharge (2% + conversion + network) as a hint.
         r = _req("POST", f"{API}/safedeal/fee-preview", json={"amount": 100, "fee_payer": "buyer"})
         assert r.status_code == 200, r.text[:200]
         d = r.json()["data"]
         assert d["exchangeFeePercent"] == 2
-        assert float(d["exchangeFeeUsd"]) == 2.0
+        assert float(d["exchangeFeeUsd"]) == 0.0
+        assert d["fundingCoinAssumed"] is True
+        assert d["quotedFundingCoin"].startswith(("USDT-", "USDC-"))
+        assert float(d["nonStableSurchargeUsd"]) >= 2.0  # 2% exchange fee on $100 + conversion + network delta
         keys = {c["key"] for c in d["costItems"]}
         assert "exchange_fee" in keys
         # totalCost = escrow + exchange + network + conversion + withdrawal
@@ -330,9 +335,13 @@ class TestAutoWithdrawOn:
         r = _req("POST", f"{API}/safedeal/profile", headers=_h(outsider_tok), json={"auto_withdraw": True})
         assert r.status_code == 400
 
-    def test_release_with_cooling_off_parks(self, parties, seller_address):
+    def test_release_with_auto_withdraw_on(self, parties, seller_address):
+        """Auto-withdraw ON → release pays the seller's saved address. With the 24h address
+        cooling-off enabled (SAFEDEAL_ADDRESS_COOLING_HOURS>0) a fresh address parks instead;
+        the owner disabled the hold (default 0), so the payout is sent immediately."""
         seller_tok, buyer_tok = parties["seller_tok"], parties["buyer_tok"]
         aid = seller_address.get("address_id") or seller_address.get("id")
+        cooling_hours = float(_req("GET", f"{API}/safedeal/config").json()["data"].get("address_cooling_hours") or 0)
         rprof = _req("POST", f"{API}/safedeal/profile", headers=_h(seller_tok),
                      json={"auto_withdraw": True, "auto_withdraw_address_id": aid})
         assert rprof.status_code == 200, rprof.text[:300]
@@ -346,11 +355,22 @@ class TestAutoWithdrawOn:
         rr = _act(buyer_tok, tok, {"action": "release"})
         assert rr.status_code == 200
         deal = rr.json()["data"]
+        assert deal["status"] == "completed"
         notes = [a["note"] for a in deal["activity_log"] if a["type"] == "payout_seller"]
-        assert notes and "safety hold" in notes[0].lower(), notes
+        assert notes, deal["activity_log"]
 
         rw = _req("GET", f"{API}/safedeal/wallet", headers=_h(seller_tok)).json()["data"]
-        assert float(rw["profile"]["parked_payout_usd"]) >= 30 - 0.01
+        if cooling_hours > 0:
+            assert "safety hold" in notes[0].lower(), notes
+            assert float(rw["profile"]["parked_payout_usd"]) >= 30 - 0.01
+            return
+        assert "paid 30" in notes[0].lower() and "address" in notes[0].lower(), notes
+        assert float(rw["profile"]["parked_payout_usd"]) == 0.0
+        rwd = _req("GET", f"{API}/safedeal/wallet/withdrawals", headers=_h(seller_tok)).json()["data"]
+        settlement = [w for w in rwd if w.get("source") == "settlement" and w.get("escrow_id") == d["escrow_id"]]
+        assert settlement, rwd
+        assert abs(float(settlement[0]["net_usd"]) - 30) < 0.01
+        assert float(settlement[0].get("fee_usd") or 0) == 0.0  # fee reserved in the deal quote, not charged twice
 
     def test_toggle_off_clears_parked(self, parties):
         seller_tok = parties["seller_tok"]

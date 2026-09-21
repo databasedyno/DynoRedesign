@@ -7,7 +7,7 @@ import PDFDocument from "pdfkit";
 import path from "path";
 import fs from "fs";
 import { INK } from "../pdf/invoiceChrome";
-import { computeFeeBreakdown } from "../../controller/escrow/escrowShared";
+import { dealFeeBreakdown } from "../../controller/escrow/escrowShared";
 import type { AttachmentPublic } from "./safedealAttachments";
 
 // SafeDeal brand — gold + near-black (matches the app's sdTheme).
@@ -62,7 +62,7 @@ export function generateDealSummaryPdf({ deal: d, buyerEmail, sellerEmail, attac
   const closed = CLOSED.includes(String(d.status)) && !!d.outcome;
   const docTitle = closed ? `SafeDeal invoice SD-${d.escrow_id}` : `SafeDeal #${d.escrow_id} — ${d.title}`;
   const doc = new PDFDocument({ size: "A4", margin: 48, info: { Title: docTitle } });
-  const b = computeFeeBreakdown({ amount: d.amount, currency: d.currency, feePercent: d.fee_percent, feeMinUsd: d.fee_min_usd, feePayer: d.fee_payer, payoutCoin: d.seller_payout_coin, fundingCoin: d.funding_coin, acceptedCoins: d.accepted_coins });
+  const b = dealFeeBreakdown(d);
   const W = doc.page.width - 96;
 
   // Brand bar + header

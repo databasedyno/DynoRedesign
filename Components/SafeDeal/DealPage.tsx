@@ -332,12 +332,17 @@ export default function DealPage({ token }: { token: string }) {
                 <Row l="Buyer pays" v={money(b.buyerPays, deal.currency)} strong hi={isBuyer} testid="sd-amt-buyer-pays" />
                 <Row l="Seller receives" v={money(b.sellerReceives, deal.currency)} strong hi={!isBuyer} testid="sd-amt-seller-receives" />
               </Stack>
+              {b.fundingCoinAssumed && (b.nonStableSurchargeUsd || 0) > 0 && (
+                <Typography sx={{ fontSize: 11.5, color: "#92400E", mt: 1, p: 1, borderRadius: 1.5, backgroundColor: "#FFFBEB", border: "1px solid #FDE68A" }} data-testid="sd-amt-surcharge-note">
+                  Priced for a stablecoin payment (USDT/USDC). Paying with BTC, ETH or another non-stablecoin adds ≈ {money(b.nonStableSurchargeUsd || 0, deal.currency)} ({b.exchangeFeePercent ?? 2}% exchange fee, conversion and network costs){deal.fee_payer === "buyer" ? " to what the buyer pays" : deal.fee_payer === "seller" ? " to the costs deducted from the seller" : ", shared per the fee split"} — the exact total is shown per coin at checkout.
+                </Typography>
+              )}
               <Typography sx={{ fontSize: 11.5, color: "#6B7280", mt: 1.2 }}>
                 Fee payer: <b>{deal.fee_payer}</b>. {cancellationInBreakdown
                   ? `This mutually-agreed cancellation is charged a ${cancelFeePct}% cancellation fee — the buyer is refunded the held amount minus that fee and the real network and exchange costs.`
                   : cancellationProposed
                   ? `If you both agree to cancel, a ${cancelFeePct}% cancellation fee applies — the buyer is refunded the held amount minus that fee and the real network and exchange costs.`
-                  : `Fees & costs are charged on release, refund and split; a ${cancelFeePct}% cancellation fee applies on a mutually-agreed cancellation.`} {b.costsEstimated ? "Costs are estimates until funded." : ""}
+                  : `Fees & costs are charged on release, refund and split; a ${cancelFeePct}% cancellation fee applies on a mutually-agreed cancellation.`} {b.costsEstimated ? "Costs are estimates until funded." : deal.custody_amount_stable != null ? "Costs were fixed when the deal was funded — exactly what was paid." : ""}
                 {price.secondary && !price.locked ? ` The ${deal.price_currency} price converts to USD at the live rate when the buyer funds.` : ""}
                 {price.locked && deal.fx_rate && deal.price_currency !== "USD" ? ` Locked rate: 1 ${deal.price_currency} = ${Number(deal.fx_rate).toFixed(4)} USD.` : ""}
               </Typography>

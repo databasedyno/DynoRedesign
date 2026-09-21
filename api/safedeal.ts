@@ -160,6 +160,8 @@ export interface SdFundingCoin {
   network_fee: number;
   conversion_fee: number;
   exchange_fee: number;
+  /** Difference vs the stablecoin quote shown on the deal page (0 for USDT/USDC). */
+  surcharge?: number;
 }
 
 export interface SdTopupQuote {
@@ -492,7 +494,7 @@ export const safedealApi = {
   },
   addAddress: async (body: { payout_key: string; address: string; label?: string; code: string }): Promise<SdAddress> => unwrap(await client.post("/wallet/addresses", body)),
   removeAddress: async (id: number, code: string): Promise<SdAddress> => unwrap(await client.post(`/wallet/addresses/${id}/remove`, { code })),
-  withdrawQuote: async (body: { address_id: number; amount: number }): Promise<{ amount: number; fee: number; net: number; available: number; requires_approval: boolean; min: number }> =>
+  withdrawQuote: async (body: { address_id: number; amount: number }): Promise<{ amount: number; fee: number; fee_waived: number; fee_credit_available: number; net: number; available: number; requires_approval: boolean; min: number }> =>
     unwrap(await client.post("/wallet/withdraw/quote", body)),
   withdraw: async (body: { address_id: number; amount: number; code: string }): Promise<{ withdrawal: SdWithdrawal; wallet: SdBalances; message?: string }> => {
     const res = await client.post("/wallet/withdraw", body);

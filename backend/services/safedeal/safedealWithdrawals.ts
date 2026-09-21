@@ -133,11 +133,42 @@ export async function removeAddress(customerId: number, addressId: number): Prom
   return rows[0];
 }
 
-export function quoteWithdrawal(payoutKey: string, amountUsd: number): { amount: number; fee: number; net: number; payout_key: string; min: number; approval_threshold: number } {
+export function quoteWithdrawal(payoutKey: string, amountUsd: number, feeCreditUsd = 0): { amount: number; fee: number; fee_waived: number; net: number; payout_key: string; min: number; approval_threshold: number } {
   const payout_key = normalizePayoutKey(payoutKey);
   const amount = round2(amountUsd);
-  const fee = round2(withdrawFeeUsdFor(payout_key));
-  return { amount, fee, net: round2(amount - fee), payout_key, min: MIN_WITHDRAWAL_USD, approval_threshold: APPROVAL_THRESHOLD_USD };
+  const listFee = round2(withdrawFeeUsdFor(payout_key));
+  // A fee reserved by an earlier deal quote (funds kept in balance) pays for this withdrawal.
+  const fee_waived = round2(Math.min(listFee, Math.max(0, Number(feeCreditUsd) || 0)));
+  const fee = round2(listFee - fee_waived);
+  return { amount, fee, fee_waived, net: round2(amount - fee), payout_key, min: MIN_WITHDRAWAL_USD, approval_threshold: APPROVAL_THRESHOLD_USD };
+}
+
+// ── withdrawal-fee credit (reserved in a deal quote, never spent) ─────────────
+
+export async function getWithdrawalFeeCredit(customerId: number): Promise<number> {
+  const rows = await sequelize.query<{ withdrawal_fee_credit_usd: string | number }>(
+    `SELECT withdrawal_fee_credit_usd FROM tbl_safedeal_profile WHERE customer_id = :id LIMIT 1`,
+    { replacements: { id: customerId }, type: QueryTypes.SELECT }
+  );
+  return round2(Number(rows[0]?.withdrawal_fee_credit_usd || 0));
+}
+
+export async function addWithdrawalFeeCredit(customerId: number, amount: number): Promise<void> {
+  if (!(Number(amount) > 0)) return;
+  await sequelize.query(
+    `INSERT INTO tbl_safedeal_profile (customer_id, company_id, withdrawal_fee_credit_usd)
+       SELECT c.customer_id, c.company_id, :amt FROM tbl_customer c WHERE c.customer_id = :id
+     ON CONFLICT (customer_id) DO UPDATE SET withdrawal_fee_credit_usd = COALESCE(tbl_safedeal_profile.withdrawal_fee_credit_usd, 0) + :amt, updated_at = NOW()`,
+    { replacements: { id: customerId, amt: toFixedStr(Number(amount), 2) }, type: QueryTypes.INSERT }
+  );
+}
+
+async function consumeWithdrawalFeeCredit(customerId: number, amount: number): Promise<void> {
+  if (!(Number(amount) > 0)) return;
+  await sequelize.query(
+    `UPDATE tbl_safedeal_profile SET withdrawal_fee_credit_usd = GREATEST(COALESCE(withdrawal_fee_credit_usd, 0) - :amt, 0), updated_at = NOW() WHERE customer_id = :id`,
+    { replacements: { id: customerId, amt: toFixedStr(Number(amount), 2) }, type: QueryTypes.UPDATE }
+  );
 }
 
 async function loadAddress(customerId: number, addressId: number): Promise<PayoutAddressRow> {
@@ -164,9 +195,10 @@ async function dispatchWithdrawal(w: WithdrawalRow): Promise<WithdrawalRow> {
   let simulated = true;
   if (isLiveSettlementEnabled() && opt) {
     const { submitWithdrawal } = await import("../binanceService");
-    // The exchange deducts its network fee FROM the submitted amount. Manual: submit the gross (user receives net).
-    // Settlement payout: the fee was reserved in the deal quote, so submit net + fee (recipient receives the full net).
-    const submitAmount = w.source === "settlement" ? round2(Number(w.net_usd) + withdrawFeeUsdFor(w.payout_key)) : Number(w.amount_usd);
+    // The exchange deducts its network fee FROM the submitted amount, so submit net + the live fee:
+    // the recipient always receives exactly the net they were quoted. For a plain manual withdrawal
+    // net + fee == the amount debited; for settlement / fee-credit withdrawals the fee was reserved earlier.
+    const submitAmount = round2(Number(w.net_usd) + withdrawFeeUsdFor(w.payout_key));
     apiLogger.info(`[SafeDeal] withdrawal ${w.withdrawal_id} dispatching LIVE (${w.source}): ${opt.coin} ${submitAmount} on ${opt.chain} → ${w.address}`);
     try {
       const r = await submitWithdrawal({ coin: opt.coin, address: w.address, amount: submitAmount, network: opt.chain, withdrawOrderId: `sd-wd-${w.withdrawal_id}` });
@@ -232,10 +264,12 @@ export async function requestWithdrawal(
 ): Promise<WithdrawalRow> {
   const addr = await loadAddress(customer.customer_id, Number(input.address_id));
   if (!input.skip_cooling) assertAddressUsable(addr);
-  const q = quoteWithdrawal(addr.payout_key, Number(input.amount));
-  // Escrow payouts: the withdrawal fee was already collected in the deal quote (cost reserve) — never charge it twice.
-  if (input.fee_covered) { q.fee = 0; q.net = q.amount; }
   const isSettlement = input.source === "settlement";
+  // Manual withdrawals can spend a fee reserved by an earlier deal quote (funds kept in balance).
+  const feeCredit = input.source && input.source !== "manual" ? 0 : await getWithdrawalFeeCredit(customer.customer_id);
+  const q = quoteWithdrawal(addr.payout_key, Number(input.amount), feeCredit);
+  // Escrow payouts: the withdrawal fee was already collected in the deal quote (cost reserve) — never charge it twice.
+  if (input.fee_covered) { q.fee = 0; q.fee_waived = 0; q.net = q.amount; }
   if (!Number.isFinite(q.amount) || (!isSettlement && q.amount < MIN_WITHDRAWAL_USD)) throw new CustomerWalletError(400, `Minimum withdrawal is $${MIN_WITHDRAWAL_USD}.`);
   if (q.net <= 0) throw new CustomerWalletError(400, `Amount must exceed the ${toFixedStr(q.fee, 2)} USD network fee.`);
   const bal = await getBalances(customer.customer_id);
@@ -269,6 +303,9 @@ export async function requestWithdrawal(
   let w = rows[0];
   const opt = ESCROW_PAYOUT_OPTIONS.find((o) => o.key === w.payout_key);
   const short = `${w.address.slice(0, 6)}…${w.address.slice(-4)}`;
+  const feeText = q.fee_waived > 0
+    ? (q.fee > 0 ? `fee ${toFixedStr(q.fee, 2)} USD after ${toFixedStr(q.fee_waived, 2)} USD deal fee credit` : `fee 0.00 USD — covered by your deal fee credit`)
+    : `fee ${toFixedStr(q.fee, 2)} USD`;
   await applyEntries([
     {
       customer,
@@ -277,14 +314,15 @@ export async function requestWithdrawal(
       kind: isSettlement ? "payout" : "withdrawal",
       description: isSettlement
         ? `Deal payout${input.deal_title ? ` — ${input.deal_title}` : ""} sent to ${opt?.label || w.payout_key} ${short} (network fee covered by the deal)${requiresApproval ? " — awaiting approval" : ""}`
-        : `Withdrawal to ${opt?.label || w.payout_key} ${short} (fee ${toFixedStr(q.fee, 2)} USD, you receive ${toFixedStr(q.net, 2)} ${opt?.coin || "USDT"})${requiresApproval ? " — awaiting approval" : ""}`,
+        : `Withdrawal to ${opt?.label || w.payout_key} ${short} (${feeText}, you receive ${toFixedStr(q.net, 2)} ${opt?.coin || "USDT"})${requiresApproval ? " — awaiting approval" : ""}`,
       reference: ledgerRef,
       source: "WITHDRAWAL",
       escrowId: input.escrow_id ?? undefined,
       dealTitle: input.deal_title ?? undefined,
-      meta: { withdrawal_id: w.withdrawal_id, payout_key: w.payout_key, fee: q.fee, net: q.net, source: input.source || "manual", escrow_id: input.escrow_id ?? null },
+      meta: { withdrawal_id: w.withdrawal_id, payout_key: w.payout_key, fee: q.fee, fee_waived: q.fee_waived, net: q.net, source: input.source || "manual", escrow_id: input.escrow_id ?? null },
     },
   ]);
+  if (q.fee_waived > 0) await consumeWithdrawalFeeCredit(customer.customer_id, q.fee_waived);
   await clampDepositReserve(customer.customer_id); // funds left the wallet — release any now-unbacked deposit protection
   if (!requiresApproval) {
     try {

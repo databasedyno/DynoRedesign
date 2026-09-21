@@ -90,7 +90,11 @@ export function QuoteBody({ preview }: { preview: SdFeePreview }) {
         <Row l="Seller receives" v={money(preview.sellerReceives, "USD")} strong color="#6EE7B7" testid="sd-quote-seller-receives" />
       </Box>
       <Typography sx={{ fontSize: 11.5, color: SD_INK_MUTED, mt: 0.5 }}>
-        {preview.price ? "Indicative — the USD amount locks at the live rate when the buyer funds. " : ""}Network, conversion & withdrawal costs are estimates and depend on the coin the buyer pays with. Fees are set by SafeDeal and charged on release, refund and split; the escrow fee is waived on a mutually-agreed cancellation.
+        {preview.price ? "Indicative — the USD amount locks at the live rate when the buyer funds. " : ""}
+        {preview.fundingCoinAssumed && (preview.nonStableSurchargeUsd || 0) > 0
+          ? <span data-testid="sd-quote-surcharge-note">Priced for a stablecoin payment (USDT/USDC). Paying with BTC, ETH or another non-stablecoin adds ≈ {money(preview.nonStableSurchargeUsd || 0, "USD")} ({preview.exchangeFeePercent ?? 2}% exchange fee, conversion and network costs) — the exact total is shown per coin at checkout. </span>
+          : "Network, conversion & withdrawal costs are estimates and depend on the coin the buyer pays with. "}
+        Fees are set by SafeDeal and charged on release, refund and split; a cancellation fee applies on a mutually-agreed cancellation.
       </Typography>
     </Stack>
   );

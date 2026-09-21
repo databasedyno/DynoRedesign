@@ -287,7 +287,7 @@ export async function brandWalletTotals(companyId: number): Promise<{
   const [f] = await sequelize.query<Record<string, string>>(
     `SELECT COALESCE(SUM(CASE WHEN meta->>'kind' IN ('escrow_fee','exchange_fee') THEN paid_amount ELSE 0 END),0) AS fees_earned,
             COALESCE(SUM(CASE WHEN meta->>'kind' = 'escrow_costs' THEN paid_amount ELSE 0 END),0) AS costs_retained,
-            COALESCE(SUM(CASE WHEN meta->>'kind' = 'withdrawal' THEN paid_amount ELSE 0 END),0) AS withdrawals_paid
+            COALESCE(SUM(CASE WHEN meta->>'kind' IN ('withdrawal','payout') THEN paid_amount ELSE 0 END),0) AS withdrawals_paid
        FROM tbl_customer_transaction WHERE company_id = :companyId AND payment_mode IN ('ESCROW','WITHDRAWAL')`,
     { replacements: { companyId }, type: QueryTypes.SELECT }
   );

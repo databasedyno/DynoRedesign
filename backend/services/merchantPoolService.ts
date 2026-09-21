@@ -72,6 +72,7 @@ export {
   checkMissedPayments,
   detectOrphanPayments,
 } from "./merchantPool/merchantPoolMonitoring";
+export { recoverWrongAssetDeposits, WRONG_ASSET_TOKENS } from "./merchantPool/wrongAssetRecovery";
 
 // Default export for backward compatibility with `import merchantPoolService from ...`
 import { POOL_CONFIG, UTXO_CHAINS, NATIVE_CURRENCIES, TOKEN_CHAINS, FEE_WALLETS, ADMIN_WALLETS, TOKEN_CONTRACTS, getSweepConfig } from "./merchantPool/merchantPoolConfig";
@@ -80,6 +81,7 @@ import { reserveAddress, getAvailableAddress, markPaymentReceived, handlePartial
 import { fundGasIfNeeded, reclaimExcessGas, sweepPoolAddress, sweepByThreshold, sweepByTime, performScheduledSweeps } from "./merchantPool/merchantPoolSweep";
 import { recordPoolTransaction, getPoolStatus, findByWalletAddress } from "./merchantPool/merchantPoolTransaction";
 import { ensurePoolSubscriptions, checkMissedPayments, detectOrphanPayments } from "./merchantPool/merchantPoolMonitoring";
+import { recoverWrongAssetDeposits } from "./merchantPool/wrongAssetRecovery";
 
 export default {
   getOrCreateMerchantWallet,
@@ -109,6 +111,7 @@ export default {
   ensurePoolSubscriptions,
   checkMissedPayments,
   detectOrphanPayments,
+  recoverWrongAssetDeposits,
   POOL_CONFIG,
   UTXO_CHAINS,
   NATIVE_CURRENCIES,

@@ -11,7 +11,7 @@
  * Money-safety: funding, stablecoin conversion, custody and payouts are
  * SIMULATED unless ESCROW_LIVE_SETTLEMENT=true.
  */
-import { raw as envRaw, num } from "../utils/config";
+import { raw as envRaw } from "../utils/config";
 import express from "express";
 import crypto from "crypto";
 import { Op } from "sequelize";
@@ -36,11 +36,14 @@ import {
   isLiveSettlementEnabled,
   outcomeToStatus,
   resolveRoles,
+  dealFeeBreakdown,
+  isCancellationRefund,
+  cancellationFeePercent,
 } from "./escrow/escrowShared";
 import { refreshEscrowCostRates } from "../services/escrow/escrowCosts";
 import { recordFundingReceived, fundFromBalance, settleToWallets } from "../services/safedeal/safedealEscrowLedger";
 import { getBalances } from "../services/safedeal/safedealWallet";
-import { settlementPayout, type SettlementPayoutResult } from "../services/safedeal/safedealWithdrawals";
+import { settlementPayout, addWithdrawalFeeCredit, type SettlementPayoutResult } from "../services/safedeal/safedealWithdrawals";
 import {
   sendEscrowInviteEmail,
   sendEscrowAcceptedEmail,
@@ -237,6 +240,7 @@ function serializeDeal(deal: any, includePrivate = true): Record<string, unknown
     invite_url: dealUrl(d),
     stablecoins: ESCROW_STABLECOINS,
     breakdown,
+    fee_locked: !!d.fee_breakdown_locked,
     created_at: d.created_at,
     updated_at: d.updated_at,
   };
@@ -256,44 +260,11 @@ function serializeDeal(deal: any, includePrivate = true): Record<string, unknown
 }
 
 // ── two-phase settlement ─────────────────────────────────────────────────────
+// Fee math for a deal row lives in escrowShared.dealFeeBreakdown(): after funding it is
+// pinned to `fee_breakdown_locked` (quote == charged); a mutually-agreed cancellation
+// charges the cancellation fee (SAFEDEAL_CANCELLATION_FEE_PERCENT) instead of the escrow fee.
 
 /** Phase 1 — authorize an outcome and lock entitlements in stable (no payout). */
-/**
- * A mutually-agreed cancellation (a `refund` proposal with kind `cancellation` that the
- * OTHER party accepted) is charged a CANCELLATION FEE after funding — it is NOT waived.
- * The fee percent is configurable via SAFEDEAL_CANCELLATION_FEE_PERCENT (default 5%); the
- * buyer is refunded the rest of custody after the fee + real network/exchange/withdrawal
- * costs. A plain dispute-refund (or an admin ruling) keeps the deal's normal escrow fee.
- */
-function isCancellationRefund(deal: any, outcome?: SettlementOutcome): boolean {
-  const oc = String(outcome ?? deal?.outcome ?? "");
-  return oc === "refund" && String(deal?.dispute_proposal?.kind || "") === "cancellation";
-}
-
-/** Cancellation fee percent charged on a mutually-agreed cancellation after funding.
- *  Configurable via SAFEDEAL_CANCELLATION_FEE_PERCENT; defaults to 5% when unset/invalid. */
-function cancellationFeePercent(): number {
-  const p = num("SAFEDEAL_CANCELLATION_FEE_PERCENT", 5);
-  return Number.isFinite(p) && p >= 0 ? p : 5;
-}
-
-/** Fee breakdown for a deal. A mutually-agreed cancellation charges the cancellation fee
- *  (cancellationFeePercent) instead of the deal's escrow fee; everything else is unchanged. */
-function dealFeeBreakdown(deal: any, outcome?: SettlementOutcome) {
-  const cancellation = isCancellationRefund(deal, outcome);
-  return computeFeeBreakdown({
-    amount: deal.amount,
-    currency: deal.currency,
-    feePercent: cancellation ? cancellationFeePercent() : deal.fee_percent,
-    feeMinUsd: deal.fee_min_usd,
-    feePayer: deal.fee_payer,
-    payoutCoin: deal.seller_payout_coin,
-    fundingCoin: deal.funding_coin,
-    acceptedCoins: deal.accepted_coins,
-    cancellationFee: cancellation,
-  });
-}
-
 async function authorizeOutcome(
   deal: any,
   outcome: SettlementOutcome,
@@ -373,6 +344,7 @@ async function attemptPayouts(deal: any, actorLabel = "system"): Promise<{ selle
     const prefs = (deal.payout_prefs || {}) as Record<string, any>;
     const sellerCid = deal.creator_role === "seller" ? deal.creator_customer_id : deal.counterparty_customer_id;
     const buyerCid = deal.creator_role === "buyer" ? deal.creator_customer_id : deal.counterparty_customer_id;
+    let feeCreditTo: number | null = null;
     const describe = (r: SettlementPayoutResult, amount: number, who: string): string => {
       if (r.mode === "sent") {
         const w = r.withdrawal;
@@ -392,6 +364,7 @@ async function attemptPayouts(deal: any, actorLabel = "system"): Promise<{ selle
       deal.seller_paid_at = now;
       deal.seller_payout_tx = r?.mode === "sent" ? r.withdrawal.tx_hash || `WITHDRAWAL-${r.withdrawal.withdrawal_id}` : `WALLET-CREDIT-${deal.escrow_id}`;
       deal.activity_log = appendActivity(deal.activity_log, { type: "payout_seller", actor: actorLabel, role: "system", note: r ? describe(r, amount, "seller") : `Nothing due to the seller.`, meta: r?.mode === "sent" ? { withdrawal_id: r.withdrawal.withdrawal_id } : undefined });
+      if (r?.mode === "kept") feeCreditTo = Number(sellerCid);
       sellerPaid = true;
     }
     if (deal.buyer_payout_state === "pending") {
@@ -402,7 +375,22 @@ async function attemptPayouts(deal: any, actorLabel = "system"): Promise<{ selle
       deal.buyer_payout_tx = r?.mode === "sent" ? r.withdrawal.tx_hash || `WITHDRAWAL-${r.withdrawal.withdrawal_id}` : `WALLET-CREDIT-${deal.escrow_id}`;
       const keptNote = isCancellationRefund(deal) ? "Cancellation fee, network & exchange costs were kept." : "Fees & costs were kept.";
       deal.activity_log = appendActivity(deal.activity_log, { type: "payout_buyer", actor: actorLabel, role: "system", note: r ? `Refund: ${describe(r, amount, "buyer")} ${keptNote}` : `Nothing refunded to the buyer (${isCancellationRefund(deal) ? "cancellation fee, network & exchange costs kept" : "fees & costs kept"}).`, meta: r?.mode === "sent" ? { withdrawal_id: r.withdrawal.withdrawal_id } : undefined });
+      if (r?.mode === "kept" && !feeCreditTo) feeCreditTo = Number(buyerCid);
       buyerPaid = true;
+    }
+    // The quote reserved ONE exchange-withdrawal fee. When the money stays in a SafeDeal
+    // balance instead of being paid out, that fee was never spent — credit it to that party so
+    // their later manual withdrawal isn't charged twice.
+    const reservedWithdrawalFee = round2(Number(breakdown.withdrawalFeeUsd || 0));
+    if (feeCreditTo && reservedWithdrawalFee > 0) {
+      await addWithdrawalFeeCredit(feeCreditTo, reservedWithdrawalFee);
+      deal.activity_log = appendActivity(deal.activity_log, {
+        type: "withdrawal_fee_credit",
+        actor: actorLabel,
+        role: "system",
+        note: `${reservedWithdrawalFee.toFixed(2)} USD withdrawal fee reserved in the quote was not needed (funds kept in balance) — credited towards that party's next withdrawal.`,
+        meta: { customer_id: feeCreditTo, amount: reservedWithdrawalFee },
+      });
     }
     deal.fully_paid_at = now;
     deal.needs_admin_review = false;
@@ -575,6 +563,7 @@ async function actFund(deal: any, actor: ActorInfo, coinIn?: string): Promise<an
   deal.custody_stablecoin = CUSTODY_STABLECOIN;
   deal.custody_amount_stable = breakdown.buyerPays;
   deal.converted_at = now;
+  deal.fee_breakdown_locked = breakdown;
   deal.activity_log = appendActivity(deal.activity_log, {
     type: "funded",
     actor: actor.label,
@@ -614,6 +603,7 @@ async function actFundFromBalance(deal: any, actor: ActorInfo): Promise<any> {
   deal.custody_stablecoin = CUSTODY_STABLECOIN;
   deal.custody_amount_stable = breakdown.buyerPays;
   deal.converted_at = now;
+  deal.fee_breakdown_locked = breakdown;
   deal.activity_log = appendActivity(deal.activity_log, {
     type: "funded",
     actor: actor.label,
@@ -643,6 +633,7 @@ async function actFundFromCheckout(deal: any, paidUsd: number, coin: string, txH
   deal.custody_stablecoin = CUSTODY_STABLECOIN;
   deal.custody_amount_stable = breakdown.buyerPays;
   deal.converted_at = now;
+  deal.fee_breakdown_locked = breakdown;
   deal.activity_log = appendActivity(deal.activity_log, {
     type: "funded",
     actor: "dynopay",

@@ -333,16 +333,30 @@ class TestPayoutAndClose:
         payout_notes = [
             a["note"] for a in deal["activity_log"] if a["type"] == "payout_seller"
         ]
-        assert payout_notes and "safety hold" in payout_notes[0].lower(), payout_notes
-        assert (deal.get("seller_payout_tx") or "").startswith("WALLET-CREDIT-")
-
-        # wallet parked
+        assert payout_notes, deal["activity_log"]
         rw = requests.get(
             f"{API}/safedeal/wallet", headers=_h(seller_tok), timeout=TIMEOUT
         )
         wd = rw.json()["data"]
-        assert float(wd["profile"]["parked_payout_usd"]) >= 450 - 0.01
-        assert float(wd["wallet"]["available"]) >= 450 - 0.01
+        cooling_hours = float(
+            requests.get(f"{API}/safedeal/config", timeout=TIMEOUT).json()["data"].get("address_cooling_hours") or 0
+        )
+        if cooling_hours > 0:
+            # 24h hold enabled → payout parks in the wallet balance
+            assert "safety hold" in payout_notes[0].lower(), payout_notes
+            assert (deal.get("seller_payout_tx") or "").startswith("WALLET-CREDIT-")
+            assert float(wd["profile"]["parked_payout_usd"]) >= 450 - 0.01
+            assert float(wd["wallet"]["available"]) >= 450 - 0.01
+            return
+        # Hold disabled by the owner (SAFEDEAL_ADDRESS_COOLING_HOURS=0) → paid to the address at once
+        assert "paid" in payout_notes[0].lower() and "address" in payout_notes[0].lower(), payout_notes
+        assert (deal.get("seller_payout_tx") or "").startswith(("WITHDRAWAL-", "SIMULATED-WITHDRAWAL-", "BINANCE-"))
+        assert float(wd["profile"]["parked_payout_usd"]) == 0.0
+        rwd = requests.get(f"{API}/safedeal/wallet/withdrawals", headers=_h(seller_tok), timeout=TIMEOUT).json()["data"]
+        settlement = [w for w in rwd if w.get("source") == "settlement" and w.get("escrow_id") == funded_deal["escrow_id"]]
+        assert settlement, rwd
+        assert float(settlement[0]["net_usd"]) >= 450 - 0.01
+        assert float(settlement[0].get("fee_usd") or 0) == 0.0
 
 
 class TestBeforeFundingPath:
@@ -457,7 +471,7 @@ class TestRegressionAndReadiness:
         assert required.issubset(keys), f"missing: {required - keys}"
         by = {c["key"]: c for c in data["checks"]}
         assert by["api_key"]["ok"] is True
-        assert "dpk_live_UA63" in by["api_key"]["detail"]
+        assert "dpk_live_" in by["api_key"]["detail"]  # key rotates per environment — only the prefix is stable
         assert "262" in by["api_key"]["detail"]
         assert by["webhook"]["ok"] is True
         assert by["fee_exempt"]["ok"] is True

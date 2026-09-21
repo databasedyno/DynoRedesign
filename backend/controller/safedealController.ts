@@ -17,7 +17,7 @@ import { validateCompanyOwnership } from "../utils/validateCompanyOwnership";
 import { PaymentUserJwtPayload } from "../utils/types";
 import escrowDealModel from "../models/escrowDealModel";
 import { escrowEngine, ActorInfo, DEAL_TYPES, normalizeDealType } from "./escrowController";
-import { EscrowRole, appendActivity, computeFeeBreakdown, isLiveSettlementEnabled, resolveRoles } from "./escrow/escrowShared";
+import { EscrowRole, appendActivity, computeFeeBreakdown, dealFeeBreakdown, isLiveSettlementEnabled, resolveRoles } from "./escrow/escrowShared";
 import { ESCROW_PAYOUT_OPTIONS, refreshEscrowCostRates } from "../services/escrow/escrowCosts";
 import { resolveCustomerForBrand, resolveCustomerByTelegram, CustomerRow, CustomerWalletError } from "../services/customerWalletService";
 import { getBalances, getStatement, statementToCsv, brandWalletTotals } from "../services/safedeal/safedealWallet";
@@ -39,6 +39,7 @@ import {
   clearParked,
   payoutEligibleUsd,
   listDealPayouts,
+  getWithdrawalFeeCredit,
   type PayoutPref,
 } from "../services/safedeal/safedealWithdrawals";
 import { MIN_TOPUP_USD, MAX_TOPUP_USD, createTopup, getTopup, listTopups, simulateTopup, topupQuotes } from "../services/safedeal/safedealTopup";
@@ -655,7 +656,7 @@ const previewDeal = async (req: express.Request, res: express.Response) => {
     const deal: any = await escrowDealModel.findOne({ where: { deal_token: String(req.params.token), source: "safedeal" } });
     if (!deal) return errorResponseHelper(res, 404, "Deal not found.");
     const { buyerEmail, sellerEmail } = partiesOf(deal);
-    const breakdown = computeFeeBreakdown({ amount: deal.amount, currency: deal.currency, feePercent: deal.fee_percent, feeMinUsd: deal.fee_min_usd, feePayer: deal.fee_payer, payoutCoin: deal.seller_payout_coin });
+    const breakdown = dealFeeBreakdown(deal);
     const isLink = (deal.invite_kind || "email") === "link";
     return successResponseHelper(res, 200, "OK", {
       deal_token: deal.deal_token,
@@ -1048,7 +1049,7 @@ const invoices = async (_req: express.Request, res: express.Response) => {
         const actor = actorFor(d, sess);
         if (!actor) return null;
         const closed = CLOSED.includes(String(d.status)) && !!d.outcome;
-        const b = computeFeeBreakdown({ amount: d.amount, currency: d.currency, feePercent: d.fee_percent, feeMinUsd: d.fee_min_usd, feePayer: d.fee_payer, payoutCoin: d.seller_payout_coin, fundingCoin: d.funding_coin, acceptedCoins: d.accepted_coins });
+        const b = dealFeeBreakdown(d);
         const shares = feeShares(b.totalCost, String(d.fee_payer));
         const mine = actor.role === "buyer" ? Number(d.buyer_entitlement_stable || 0) : Number(d.seller_entitlement_stable || 0);
         const p = payouts.find((x) => Number(x.escrow_id) === Number(d.escrow_id));
@@ -1188,7 +1189,7 @@ const wallet = async (_req: express.Request, res: express.Response) => {
       addresses,
       withdrawals,
       topups,
-      profile: { auto_withdraw: !!profile?.auto_withdraw, auto_withdraw_address_id: profile?.auto_withdraw_address_id || null, parked_payout_usd: Math.min(Number(profile?.parked_payout_usd || 0), eligible), deposit_reserved_usd: Number(profile?.deposit_reserved_usd || 0) },
+      profile: { auto_withdraw: !!profile?.auto_withdraw, auto_withdraw_address_id: profile?.auto_withdraw_address_id || null, parked_payout_usd: Math.min(Number(profile?.parked_payout_usd || 0), eligible), deposit_reserved_usd: Number(profile?.deposit_reserved_usd || 0), withdrawal_fee_credit_usd: round2(Number(profile?.withdrawal_fee_credit_usd || 0)) },
       limits: { min_withdrawal_usd: MIN_WITHDRAWAL_USD, approval_threshold_usd: APPROVAL_THRESHOLD_USD, min_topup_usd: MIN_TOPUP_USD, max_topup_usd: MAX_TOPUP_USD },
       payout_options: ESCROW_PAYOUT_OPTIONS,
       live: isLiveSettlementEnabled(),
@@ -1328,9 +1329,9 @@ const withdrawQuote = async (req: express.Request, res: express.Response) => {
       key = addrs.find((a) => a.address_id === Number(address_id))?.payout_key || key;
     }
     if (!key) return errorResponseHelper(res, 400, "Choose a payout address.");
-    const q = quoteWithdrawal(String(key), Number(amount || 0));
-    const bal = await getBalances(sess.customer_id);
-    return successResponseHelper(res, 200, "OK", { ...q, available: bal.available, requires_approval: q.amount > APPROVAL_THRESHOLD_USD });
+    const [bal, feeCredit] = await Promise.all([getBalances(sess.customer_id), getWithdrawalFeeCredit(sess.customer_id)]);
+    const q = quoteWithdrawal(String(key), Number(amount || 0), feeCredit);
+    return successResponseHelper(res, 200, "OK", { ...q, fee_credit_available: feeCredit, available: bal.available, requires_approval: q.amount > APPROVAL_THRESHOLD_USD });
   } catch (e) {
     return handle(res, e, "withdrawQuote");
   }

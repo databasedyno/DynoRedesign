@@ -1188,6 +1188,26 @@ leaderCron.schedule("0 */6 * * *", async function () {
   }
 });
 
+// Wrong-asset deposits (token sent to a native-coin address, e.g. USDT-TRC20 → TRX slot):
+// detect via direct contract balance and settle to the brand's saved wallet for that token.
+// Runs 2 minutes after the leader starts (so a deploy settles stuck funds promptly), then every 30 min.
+const runWrongAssetRecovery = async () => {
+  const lockAcquired = await acquireLock("cron:wrongAssetRecovery", 1500, 1, 100, true);
+  if (!lockAcquired) { log("Cron: wrongAssetRecovery skipped (already running)", "info"); return; }
+  try {
+    log("Cron: wrongAssetRecovery running", "info");
+    const r = await merchantPoolService.recoverWrongAssetDeposits();
+    if (r.recovered || r.feeSwept || r.errors.length) log(`Cron: wrongAssetRecovery — recovered ${r.recovered}, fee sweeps ${r.feeSwept}, errors ${r.errors.length}`, r.errors.length ? "error" : "info");
+  } catch (err) {
+    log(`Cron: wrongAssetRecovery failed: ${getErrorMessage(err)}`, "error");
+    captureError(err as Error, 'cron', { extraContext: 'wrongAssetRecovery' });
+  } finally {
+    await releaseLock("cron:wrongAssetRecovery");
+  }
+};
+setTimeout(() => { runWrongAssetRecovery().catch(() => {}); }, 2 * 60 * 1000);
+leaderCron.schedule("*/30 * * * *", runWrongAssetRecovery);
+
 // Merchant Pool: Pre-warm pool addresses every 30 minutes
 // Ensures each active merchant has AVAILABLE addresses ready for instant reservation
 // Eliminates ~3-4s Tatum API call bottleneck during payment creation

@@ -2482,7 +2482,14 @@ const getAddressBalance = async (address: string, currency: string, skipCache: b
     } catch (e: unknown) {
       const err = e as { message?: string };
       if ((err.message || '').includes('account.not.found') || (err.message || '').includes('not.found')) {
-        res = { balance: '0' };
+        // A never-activated Tron account can still HOLD USDT (the balance lives in the token
+        // contract). Read it straight from the contract instead of reporting a false 0.
+        try {
+          const { tokenBalanceOnChain } = await import("../services/merchantPool/wrongAssetRecovery");
+          res = { balance: String(await tokenBalanceOnChain(address, "USDT-TRC20")) };
+        } catch {
+          res = { balance: '0' };
+        }
       } else { throw e; }
     }
   } else if (currency === "LTC") {

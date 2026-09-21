@@ -7,7 +7,7 @@
  * amounts are computed and recorded and the deal advances state, but NO crypto is
  * moved. This lets the full lifecycle be exercised without touching real funds.
  */
-import { raw as envRaw } from "../../utils/config";
+import { raw as envRaw, num as envNum } from "../../utils/config";
 import {
   getEscrowCostRates,
   sweepFeeUsdFor,
@@ -131,6 +131,9 @@ export interface FeeBreakdown {
   totalCost: number; // escrowFee + exchangeFee + passThroughCosts (what the fee_payer bears beyond `amount`)
   payoutCoin: string; // stablecoin the withdrawal fee was estimated for
   costsEstimated: boolean; // true — refined at funding when the real coin is known
+  quotedFundingCoin: string; // coin the network/exchange/conversion lines were priced for
+  fundingCoinAssumed: boolean; // true until the buyer picks a coin (quote assumes a stablecoin)
+  nonStableSurchargeUsd: number; // extra the buyer pays if they fund with BTC/ETH… instead (0 once coin is known)
   costItems: CostItem[]; // itemised, for UI
   buyerPays: number; // what the buyer funds into escrow
   sellerReceives: number; // net to seller after their share of costs
@@ -158,6 +161,30 @@ function estimateInboundFee(fundingCoin?: string | null, acceptedCoins?: string 
   return Math.min(...coins.map((c) => sweepFeeUsdFor(c)));
 }
 
+/** Stablecoin the pre-funding quote assumes the buyer will pay with (USDT on Tron). */
+export const QUOTE_ASSUMED_FUNDING_COIN = "USDT-TRC20";
+/** Representative non-stablecoin used to size the "pay with BTC/ETH…" surcharge hint. */
+const SURCHARGE_REFERENCE_COIN = "ETH";
+
+/**
+ * Resolve the coin the fee math should price. Once the buyer has picked a coin it is used
+ * as-is. Before that, the quote assumes STABLECOIN funding (no exchange / conversion fee):
+ * the cheapest stablecoin the seller accepts, or USDT-TRC20 when there is no restriction.
+ * Only when the seller accepts no stablecoin at all does the quote fall back to the cheapest
+ * accepted (volatile) coin — and then the exchange + conversion fees are included.
+ */
+function resolveQuoteCoin(fundingCoin?: string | null, acceptedCoins?: string | null): { coin: string; assumed: boolean } {
+  if (fundingCoin) return { coin: String(fundingCoin), assumed: false };
+  const coins = String(acceptedCoins || "")
+    .split(",")
+    .map((c) => c.trim())
+    .filter(Boolean);
+  if (!coins.length) return { coin: QUOTE_ASSUMED_FUNDING_COIN, assumed: true };
+  const stable = coins.filter((c) => isStableFundingCoin(c));
+  const pool = (stable.length ? stable : coins).slice().sort((a, b) => sweepFeeUsdFor(a) - sweepFeeUsdFor(b));
+  return { coin: pool[0], assumed: true };
+}
+
 /**
  * Compute the itemised escrow fee + settlement-cost breakdown for a deal.
  * - escrow fee: max(amount * feePercent/100, feeMinUsd), default 5% floor $1.
@@ -169,6 +196,29 @@ function estimateInboundFee(fundingCoin?: string | null, acceptedCoins?: string 
  *     split  -> 50/50.
  * Costs are refined at funding time once the real funding coin is known.
  */
+/** Pass-through cost lines frozen at funding time (what the buyer actually paid for). */
+export interface LockedCosts {
+  networkFeeUsd: number;
+  conversionFeeUsd: number;
+  withdrawalFeeUsd: number;
+  exchangeFeeUsd: number;
+  exchangeFeePercent?: number;
+  payoutCoin?: string;
+  quotedFundingCoin?: string;
+}
+
+export function lockedCostsFrom(b: FeeBreakdown): LockedCosts {
+  return {
+    networkFeeUsd: b.networkFeeUsd,
+    conversionFeeUsd: b.conversionFeeUsd,
+    withdrawalFeeUsd: b.withdrawalFeeUsd,
+    exchangeFeeUsd: b.exchangeFeeUsd,
+    exchangeFeePercent: b.exchangeFeePercent,
+    payoutCoin: b.payoutCoin,
+    quotedFundingCoin: b.quotedFundingCoin,
+  };
+}
+
 export function computeFeeBreakdown(input: {
   amount: number | string;
   currency?: string;
@@ -182,6 +232,8 @@ export function computeFeeBreakdown(input: {
   waiveEscrowFee?: boolean;
   /** Relabels the escrow-fee line as a "Cancellation fee" (fee is still charged, not waived). */
   cancellationFee?: boolean;
+  /** Costs frozen at funding — used instead of the live rate table so quote == charged. */
+  lockedCosts?: LockedCosts | null;
 }): FeeBreakdown {
   const amount = round2(Number(input.amount) || 0);
   const currency = (input.currency || "USD").toUpperCase();
@@ -202,23 +254,36 @@ export function computeFeeBreakdown(input: {
 
   // ── settlement cost estimate (all via Binance; custody held in USDT) ────────
   const includeCosts = input.includeCosts !== false;
-  const payoutKey = normalizePayoutKey(input.payoutCoin || DEFAULT_PAYOUT_KEY);
+  const locked = input.lockedCosts || null;
+  const payoutKey = normalizePayoutKey(input.payoutCoin || locked?.payoutCoin || DEFAULT_PAYOUT_KEY);
   const rates = getEscrowCostRates();
   const convPct = rates.conversionPct || 0;
-  const exchangePct = rates.exchangePct || 0;
+  const exchangePct = locked?.exchangeFeePercent ?? (rates.exchangePct || 0);
   // Inbound: sweep the funded crypto to Binance + convert it to USDT (custody).
   // The conversion is skipped when the buyer already funds in USDT (any network).
   // The exchange fee (SafeDeal margin) applies to any non-stablecoin funding.
-  const fundedIsUsdt = isUsdtCoin(input.fundingCoin);
-  const fundedIsStable = isStableFundingCoin(input.fundingCoin);
-  const networkFeeUsd = includeCosts ? round2(estimateInboundFee(input.fundingCoin, input.acceptedCoins)) : 0;
-  const conversionFeeUsd = includeCosts && !fundedIsUsdt ? round2((amount * convPct) / 100) : 0;
-  const exchangeFeeUsd = includeCosts && !fundedIsStable ? round2((amount * exchangePct) / 100) : 0;
+  // Before the buyer picks a coin the quote prices a STABLECOIN (see resolveQuoteCoin), so
+  // "Buyer pays" on the deal page equals the USDT tile in the coin picker.
+  const quoteCoin = resolveQuoteCoin(input.fundingCoin || locked?.quotedFundingCoin, input.acceptedCoins);
+  const fundedIsUsdt = isUsdtCoin(quoteCoin.coin);
+  const fundedIsStable = isStableFundingCoin(quoteCoin.coin);
+  const networkFeeUsd = !includeCosts ? 0 : locked ? round2(locked.networkFeeUsd) : round2(estimateInboundFee(quoteCoin.coin, input.acceptedCoins));
+  const conversionFeeUsd = !includeCosts ? 0 : locked ? round2(locked.conversionFeeUsd) : !fundedIsUsdt ? round2((amount * convPct) / 100) : 0;
+  const exchangeFeeUsd = !includeCosts ? 0 : locked ? round2(locked.exchangeFeeUsd) : !fundedIsStable ? round2((amount * exchangePct) / 100) : 0;
+  // What a volatile-coin payer would add on top of the stablecoin quote (hint for the UI).
+  const nonStableSurchargeUsd =
+    includeCosts && !locked && quoteCoin.assumed && fundedIsStable
+      ? round2(
+          (amount * exchangePct) / 100 +
+            (amount * convPct) / 100 +
+            Math.max(0, sweepFeeUsdFor(SURCHARGE_REFERENCE_COIN) - networkFeeUsd)
+        )
+      : 0;
   // Outbound: withdraw USDT to the payout network. A USDC cash-out needs an extra
   // USDT->USDC conversion on Binance — merged into the single withdrawal figure.
   const payoutIsUsdc = payoutKey.startsWith("USDC");
-  const payoutConversionUsd = includeCosts && payoutIsUsdc ? round2((amount * convPct) / 100) : 0;
-  const withdrawalFeeUsd = includeCosts ? round2(withdrawFeeUsdFor(payoutKey) + payoutConversionUsd) : 0;
+  const payoutConversionUsd = includeCosts && !locked && payoutIsUsdc ? round2((amount * convPct) / 100) : 0;
+  const withdrawalFeeUsd = !includeCosts ? 0 : locked ? round2(locked.withdrawalFeeUsd) : round2(withdrawFeeUsdFor(payoutKey) + payoutConversionUsd);
   const passThroughCosts = round2(networkFeeUsd + conversionFeeUsd + withdrawalFeeUsd);
   const totalCost = round2(escrowFee + exchangeFeeUsd + passThroughCosts);
 
@@ -259,20 +324,26 @@ export function computeFeeBreakdown(input: {
     },
   ];
   if (includeCosts) {
+    const est = locked ? "" : " (est.)";
+    const stableNote = quoteCoin.assumed
+      ? `No exchange fee when paying with a stablecoin (USDT/USDC). Paying with BTC, ETH or another non-stablecoin adds SafeDeal's ${exchangePct}% exchange fee at checkout.`
+      : "No exchange fee — funded in a stablecoin.";
     costItems.push(
       {
         key: "exchange_fee",
         label: `Exchange fee (${exchangePct}%)`,
         amount: exchangeFeeUsd,
-        note: fundedIsStable ? "No exchange fee — funded in a stablecoin." : `SafeDeal's ${exchangePct}% fee for exchanging non-stablecoin funding into USDT (covers spread and slippage).`,
+        note: exchangeFeeUsd <= 0 ? stableNote : `SafeDeal's ${exchangePct}% fee for exchanging non-stablecoin funding into USDT (covers spread and slippage).`,
       },
-      { key: "network_fee", label: "Network fee (est.)", amount: networkFeeUsd, note: "On-chain fee to move the funded crypto to the exchange (custody)." },
-      { key: "conversion_fee", label: "Conversion fee (est.)", amount: conversionFeeUsd, note: fundedIsUsdt ? "No conversion — funded directly in USDT." : "Converting the funded crypto to USDT on the exchange." },
+      { key: "network_fee", label: `Network fee${est}`, amount: networkFeeUsd, note: locked ? "On-chain fee to move the funded crypto to the exchange (custody) — fixed at funding." : quoteCoin.assumed ? `On-chain fee to move the funded crypto to the exchange (custody) — estimated for ${quoteCoin.coin}; the exact fee depends on the coin the buyer picks.` : "On-chain fee to move the funded crypto to the exchange (custody)." },
+      { key: "conversion_fee", label: `Conversion fee${est}`, amount: conversionFeeUsd, note: conversionFeeUsd <= 0 ? (quoteCoin.assumed && !locked ? "No conversion when funded in USDT; other coins are converted on the exchange at checkout." : "No conversion — funded directly in USDT.") : "Converting the funded crypto to USDT on the exchange." },
       {
         key: "withdrawal_fee",
-        label: `Withdrawal fee (est., ${payoutKey})`,
+        label: locked ? `Withdrawal fee (${payoutKey})` : `Withdrawal fee (est., ${payoutKey})`,
         amount: withdrawalFeeUsd,
-        note: payoutIsUsdc
+        note: locked
+          ? "Exchange withdrawal fee reserved at funding — covers the payout to a saved address (or is credited back to whoever keeps the funds in their balance)."
+          : payoutIsUsdc
           ? "Binance withdrawal to this network, incl. the USDT→USDC conversion at cashout."
           : "Binance withdrawal to pay the USDT out at cashout.",
       }
@@ -294,19 +365,63 @@ export function computeFeeBreakdown(input: {
     passThroughCosts,
     totalCost,
     payoutCoin: payoutKey,
-    costsEstimated: includeCosts,
+    costsEstimated: includeCosts && !locked,
+    quotedFundingCoin: quoteCoin.coin,
+    fundingCoinAssumed: quoteCoin.assumed && !locked,
+    nonStableSurchargeUsd,
     costItems,
     buyerPays,
     sellerReceives,
     platformFee: escrowFee,
-    networkNote:
-      "Network, conversion and withdrawal costs are estimates folded into the price and settled from the funded amount; the exact withdrawal fee depends on the payout coin/network chosen at cashout.",
+    networkNote: locked
+      ? "Network, conversion and withdrawal costs were fixed when the deal was funded and are settled from the funded amount."
+      : quoteCoin.assumed && fundedIsStable
+      ? `Priced for a stablecoin payment (${quoteCoin.coin}). Paying with a non-stablecoin adds ≈ $${nonStableSurchargeUsd.toFixed(2)} (${exchangePct}% exchange fee, conversion and network costs); the exact total is shown per coin at checkout.`
+      : "Network, conversion and withdrawal costs are estimates folded into the price and settled from the funded amount; the exact withdrawal fee depends on the payout coin/network chosen at cashout.",
   };
 }
 
 /** Whether live on-chain settlement is enabled. Default OFF (simulated). */
 export function isLiveSettlementEnabled(): boolean {
   return String(envRaw("ESCROW_LIVE_SETTLEMENT") || "").toLowerCase() === "true";
+}
+
+/**
+ * A mutually-agreed cancellation (a `refund` proposal with kind `cancellation` that the
+ * OTHER party accepted) is charged a CANCELLATION FEE after funding — it is NOT waived.
+ */
+export function isCancellationRefund(deal: any, outcome?: SettlementOutcome): boolean {
+  const oc = String(outcome ?? deal?.outcome ?? "");
+  return oc === "refund" && String(deal?.dispute_proposal?.kind || "") === "cancellation";
+}
+
+/** Cancellation fee percent (SAFEDEAL_CANCELLATION_FEE_PERCENT, default 5%). */
+export function cancellationFeePercent(): number {
+  const p = envNum("SAFEDEAL_CANCELLATION_FEE_PERCENT", 5);
+  return Number.isFinite(p) && p >= 0 ? p : 5;
+}
+
+/**
+ * THE fee breakdown for a deal row. After funding it is pinned to the costs frozen in
+ * `fee_breakdown_locked` (quote == charged); before funding it is the live estimate.
+ * A mutually-agreed cancellation swaps the escrow-fee line for the cancellation fee while
+ * keeping the frozen pass-through costs.
+ */
+export function dealFeeBreakdown(deal: any, outcome?: SettlementOutcome): FeeBreakdown {
+  const cancellation = isCancellationRefund(deal, outcome);
+  const locked = (deal?.fee_breakdown_locked || null) as FeeBreakdown | null;
+  return computeFeeBreakdown({
+    amount: deal.amount,
+    currency: deal.currency,
+    feePercent: cancellation ? cancellationFeePercent() : deal.fee_percent,
+    feeMinUsd: deal.fee_min_usd,
+    feePayer: deal.fee_payer,
+    payoutCoin: deal.seller_payout_coin,
+    fundingCoin: deal.funding_coin,
+    acceptedCoins: deal.accepted_coins,
+    cancellationFee: cancellation,
+    lockedCosts: locked ? lockedCostsFrom(locked) : null,
+  });
 }
 
 export interface ActivityEntry {
