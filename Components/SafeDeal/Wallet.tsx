@@ -253,7 +253,7 @@ export default function Wallet() {
                 {w.withdrawals.map((x) => (
                   <Stack key={x.withdrawal_id} direction="row" spacing={1.5} alignItems="center" data-testid={`sd-withdrawal-${x.withdrawal_id}`} data-source={x.source || "manual"} sx={{ py: 0.8, borderBottom: "1px solid #F3F4F6" }}>
                     <Box sx={{ flex: 1 }}>
-                      <Typography sx={{ fontSize: 13.5, fontWeight: 700, ...TABULAR }}>
+                      <Typography component="div" sx={{ fontSize: 13.5, fontWeight: 700, ...TABULAR }}>
                         {x.source === "settlement" && <Chip size="small" label={x.escrow_id ? `Deal #${x.escrow_id} payout` : "Deal payout"} sx={{ mr: 0.8, fontSize: 10.5, fontWeight: 800, height: 20, backgroundColor: SD_NOTE_BG, color: SD_NOTE_FG }} />}
                         #{x.withdrawal_id} · {money(Number(x.amount_usd))} → {shortAddr(x.address)} <span style={{ color: "#6B7280", fontWeight: 500 }}>({x.payout_key})</span>
                       </Typography>

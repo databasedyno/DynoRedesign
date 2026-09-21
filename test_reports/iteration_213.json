@@ -1,0 +1,49 @@
+{
+  "summary": "Frontend UI verified for the SafeDeal brand escrow panel + moxxcompany customer history. All 3 requested flows PASS.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "SafeDeal /safedeal/wallet", "issues": ["React validateDOMNesting warning: <div> cannot appear as descendant of <p> — MUI Chip rendered inside Typography inside Components/SafeDeal/Wallet.tsx (~line 82). Non-blocking but should be fixed."]}
+    ]
+  },
+  "test_results": {
+    "TEST1_safedeal_brand_262_dashboard": {
+      "dash2026-root": "present",
+      "onboarding_hidden": true,
+      "brand-escrow-totals": "present",
+      "brand-escrow-available": "20.00 USD",
+      "brand-escrow-held": "0.00 USD",
+      "brand-escrow-fees": "0.00 USD",
+      "brand-escrow-withdrawals": "30.00 USD",
+      "brand-escrow-deals": "12 · 855 USD",
+      "status": "PASS"
+    },
+    "TEST2_dev_store_1_regression": {
+      "dash2026-root": "present",
+      "dash2026-activity": "present",
+      "brand-escrow-totals": "hidden (as expected)",
+      "status": "PASS"
+    },
+    "TEST3_safedeal_customer_moxxcompany": {
+      "signin": "OTP shown at sd-signin-preview-code-value and verify succeeded",
+      "wallet_available": "$20.00",
+      "held_in_escrow": "$0.00",
+      "statement_entries": ["Withdrawal -$30 → $20", "Deal payout sent -$30 → $50", "Release received (#20930) +$30 → $80", "Top-up +$50 → $50"],
+      "deals": "Business #246 Cancelled listed",
+      "status": "PASS"
+    }
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Optional: fix DOM nesting warning in Components/SafeDeal/Wallet.tsx (~line 82) — MUI Chip inside Typography renders <div> inside <p>."
+  ],
+  "critical_code_review_comments": [],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped)", "frontend": "100%"},
+  "seed_data_creation": "None (read-only + benign moxxcompany OTP sign-in only)",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "SafeDeal brand (company_id=262) dashboard now shows BrandEscrowTotals with correct numbers. Panel self-hides on non-escrow brand (Dev Store, company_id=1). moxxcompany@gmail.com SafeDeal customer history intact: wallet $20 available + 4 statement rows + deal Business #246. Owner token via node /app/scripts/qa/owner_login.cjs <BASE>."
+}
