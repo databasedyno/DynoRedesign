@@ -1072,11 +1072,20 @@ export const sweepPoolAddress = async (tempAddressId: number, options: SweepPool
           const merchantAmount = parseFloat(latestPoolTx.dataValues.merchant_amount || '0');
           const paymentAmount = add(merchantAmount, latestPoolTx.dataValues.admin_fee_amount).toNumber();
 
+          // DB-backed dedup (shared across instances, unlike Redis): a notification row for this
+          // tx hash proves the settlement path already told the merchant — never re-send.
+          const notifiedTypes = new Set(
+            ((await sequelize.query(
+              `SELECT DISTINCT type FROM tbl_notification WHERE (data->>'tx_id' = $1 OR data->>'transaction_id' = $1) AND type IN ('payment_pending','payment_received')`,
+              { bind: [incomingTxId], type: QueryTypes.SELECT }
+            )) as Array<{ type: string }>).map((r) => r.type)
+          );
+
           // Check and recover "Payment Pending" notification
           const pendingKey = `pending-notif-${incomingTxId}`;
           const pendingSent = await getRedisItem(pendingKey);
 
-          if (!pendingSent || !pendingSent.sent) {
+          if (notifiedTypes.size === 0 && (!pendingSent || !pendingSent.sent)) {
             try {
               const { sendPendingPaymentNotification } = await import("../pendingPaymentService");
               await sendPendingPaymentNotification(
@@ -1099,7 +1108,7 @@ export const sweepPoolAddress = async (tempAddressId: number, options: SweepPool
           const emailKey = `payment-received-email-${incomingTxId}`;
           const emailSent = await getRedisItem(emailKey);
 
-          if (!emailSent || !emailSent.sent) {
+          if (!notifiedTypes.has('payment_received') && (!emailSent || !emailSent.sent)) {
             try {
               const { userModel, companyModel } = await import("../../models");
               const userData = (await userModel.findOne({ where: { user_id: ownerUserId } }))?.dataValues;
