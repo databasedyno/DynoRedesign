@@ -13,7 +13,7 @@ import { useRouter } from "next/router";
 import { useTheme } from "@mui/material/styles";
 import AddWalletModal from "../AddWalletModal";
 import CreateApiModel from "../ApiKeysModel/CreateApiModel";
-import { brandFg } from "@/constants/theme";
+import { brandFg, BRAND_ON_ACCENT } from "@/constants/theme";
 
 type PageName = "transactions" | "wallet" | "apiKey" | "payment-links";
 
@@ -191,7 +191,7 @@ const EmptyDataModel = ({
                         height: isMobile ? 34 : 40,
                         px: isMobile ? 1.5 : 2.5,
                         fontSize: isMobile ? 13 : 15,
-                        color: "#FFFFFF",
+                        color: BRAND_ON_ACCENT,
                     }}
                 />
 

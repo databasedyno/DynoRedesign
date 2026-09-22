@@ -15,7 +15,7 @@ import { Stagger, StaggerItem } from "@/Components/Page/Home/motion/Stagger";
 import { FramedImage, PhoneFrame } from "@/Components/Page/Home/v5/DeviceFrame";
 
 import type { SEOPageContent, SEOPageIndexEntry } from "@/utils/seoContent";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { BRAND_ACCENT, BRAND_ON_ACCENT } from "@/constants/theme";
 import SEOIllustration from "./SEOIllustration";
 import { useTranslation } from 'react-i18next';
 import { useVerticalAccent, type Vertical } from "@/Components/UI/_shared";
@@ -335,7 +335,7 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
           {content.how_it_works.map((step, idx) => (
             <StaggerItem key={idx} i={idx} y={14}>
               <Box component="li" data-testid={`seo-step-${idx}`} sx={{ ...cardSx(s, { hover: false }), display: "flex", gap: 2.5, alignItems: "flex-start", p: { xs: 2.5, md: 3 } }}>
-                <Box sx={{ flexShrink: 0, display: "grid", placeItems: "center", width: 36, height: 36, borderRadius: "50%", bgcolor: BRAND_ACCENT, color: "#fff", fontFamily: FONT_TECH, fontWeight: 700, fontSize: 14 }}>
+                <Box sx={{ flexShrink: 0, display: "grid", placeItems: "center", width: 36, height: 36, borderRadius: "50%", bgcolor: BRAND_ACCENT, color: BRAND_ON_ACCENT, fontFamily: FONT_TECH, fontWeight: 700, fontSize: 14 }}>
                   {idx + 1}
                 </Box>
                 <Typography component="p" sx={{ fontFamily: FONT_BODY, fontSize: { xs: 15, md: 16.5 }, lineHeight: 1.6, color: s.ink, pt: 0.5 }}>

@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import PopupModal from "@/Components/UI/PopupModal";
 import CustomButton from "@/Components/UI/Buttons";
-import { brandFg } from "@/constants/theme";
+import { brandFg, BRAND_ON_ACCENT } from "@/constants/theme";
 
 /**
  * FirstPaymentCelebrationModal — a one-time, per-brand celebration shown on the
@@ -104,7 +104,7 @@ const FirstPaymentCelebrationModal: React.FC<Props> = ({
               boxShadow: "0 0 44px rgba(255,209,0,0.45)",
             }}
           >
-            <CelebrationRounded sx={{ color: "#fff", fontSize: 52 }} />
+            <CelebrationRounded sx={{ color: BRAND_ON_ACCENT, fontSize: 52 }} />
           </Box>
         </motion.div>
 

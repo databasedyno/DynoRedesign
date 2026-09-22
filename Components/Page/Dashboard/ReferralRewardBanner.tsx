@@ -3,7 +3,7 @@ import { Box, Button, IconButton, Typography, useTheme } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { BRAND_ACCENT, BRAND_ON_ACCENT } from "@/constants/theme";
 
 const DISMISS_KEY = "dynopay.referral-reward-banner.dismissed";
 const INK = "#0A0A0B";
@@ -69,7 +69,7 @@ const ReferralRewardBanner: React.FC = () => {
             height: 40,
             borderRadius: "10px",
             backgroundColor: BRAND_ACCENT,
-            color: "#FFFFFF",
+            color: BRAND_ON_ACCENT,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -105,7 +105,7 @@ const ReferralRewardBanner: React.FC = () => {
             px: 2,
             py: 0.85,
             backgroundColor: BRAND_ACCENT,
-            color: "#FFFFFF",
+            color: BRAND_ON_ACCENT,
             "&:hover": { backgroundColor: BRAND_ACCENT, filter: "brightness(1.08)" },
           }}
         >

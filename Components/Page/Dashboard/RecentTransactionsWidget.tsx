@@ -1,4 +1,4 @@
-import { brandFg } from "@/constants/theme";
+import { brandFg, BRAND_ON_ACCENT } from "@/constants/theme";
 import PanelCard from "@/Components/UI/PanelCard";
 import { getCurrencySymbol } from "@/helpers";
 import { formatCryptoAmount, formatDisplayAmount, isCryptoCurrency } from "@/utils/currencyFormat";
@@ -446,7 +446,7 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                         borderRadius: "50%",
                         fontSize: "10px",
                         fontWeight: 700,
-                        color: "#fff",
+                        color: BRAND_ON_ACCENT,
                         bgcolor: theme.palette.primary.main,
                         display: "flex",
                         alignItems: "center",

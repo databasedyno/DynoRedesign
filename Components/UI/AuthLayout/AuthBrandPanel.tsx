@@ -6,7 +6,7 @@ import LockRoundedIcon from "@mui/icons-material/LockRounded";
 import ContentCopyRounded from "@mui/icons-material/ContentCopyRounded";
 import BoltRounded from "@mui/icons-material/BoltRounded";
 import ArrowUpwardRounded from "@mui/icons-material/ArrowUpwardRounded";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { BRAND_ACCENT, BRAND_ON_ACCENT } from "@/constants/theme";
 
 const FONT_DISPLAY = "var(--font-hero), sans-serif";
 const FONT_BODY = "var(--font-body), sans-serif";
@@ -127,7 +127,7 @@ const AuthBrandPanel = () => {
               borderRadius: "11px",
               py: "11px",
               background: BRAND_ACCENT,
-              color: "#fff",
+              color: BRAND_ON_ACCENT,
               fontFamily: FONT_BODY,
               fontWeight: 600,
               fontSize: "13.5px",

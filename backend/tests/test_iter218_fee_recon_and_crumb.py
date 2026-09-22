@@ -8,7 +8,7 @@ import time
 import pytest
 import requests
 
-BASE_URL = "https://fe5ddcc0-56d8-44b9-a955-f0c58072b938.preview.emergentagent.com"
+BASE_URL = "https://katiekendra-branch.preview.emergentagent.com"
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/120 Safari/537.36"
 CREDS = {"email": "moxxcompany@gmail.com", "password": "Katiekendra123@"}
 

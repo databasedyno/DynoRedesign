@@ -18,7 +18,7 @@ import SentimentSatisfiedAltRoundedIcon from "@mui/icons-material/SentimentSatis
 import InsertDriveFileRoundedIcon from "@mui/icons-material/InsertDriveFileRounded";
 import { useTranslation } from "react-i18next";
 import axiosBaseApi from "@/axiosConfig";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { BRAND_ACCENT, BRAND_ON_ACCENT } from "@/constants/theme";
 import { formatDateTimeI18n } from "@/utils/formatDate";
 
 /**
@@ -729,7 +729,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
                   justifyContent: "center",
                 }}
               >
-                <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 15, fontWeight: 700, color: "#FFFFFF", lineHeight: 1 }}>
+                <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 15, fontWeight: 700, color: BRAND_ON_ACCENT, lineHeight: 1 }}>
                   E
                 </Typography>
               </Box>
@@ -774,7 +774,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
                 fontWeight: 600,
                 lineHeight: 1,
                 whiteSpace: "nowrap",
-                color: "#FFFFFF",
+                color: escalateOpen ? BRAND_ON_ACCENT : "#FFFFFF",
                 background: escalateOpen ? BRAND_ACCENT : "rgba(255,255,255,0.12)",
                 border: `1px solid ${escalateOpen ? BRAND_ACCENT : "rgba(255,255,255,0.20)"}`,
                 borderRadius: "999px",
@@ -1017,7 +1017,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
                     padding: "9px 12px",
                     cursor: escalating ? "wait" : "pointer",
                     background: BRAND_ACCENT,
-                    color: "#FFFFFF",
+                    color: BRAND_ON_ACCENT,
                     opacity: escalating ? 0.6 : 1,
                   }}
                 >
@@ -1217,7 +1217,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
             height: 56,
             borderRadius: "50%",
             background: BRAND_ACCENT,
-            color: "#FFFFFF",
+            color: BRAND_ON_ACCENT,
             boxShadow: "0 8px 24px rgba(0,0,0,0.35)",
             border: isDark ? "1px solid rgba(255,255,255,0.14)" : "none",
             // Smooth slide-out tuck when overlapping a CTA. transform is

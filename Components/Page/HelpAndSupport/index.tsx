@@ -1,4 +1,4 @@
-import { brandFg } from "@/constants/theme";
+import { brandFg, BRAND_ON_ACCENT } from "@/constants/theme";
 import useIsMobile from "@/hooks/useIsMobile";
 import { Box, Button, CircularProgress, useTheme } from "@mui/material";
 import { useTranslation } from "react-i18next";
@@ -407,7 +407,7 @@ const HelpAndSupport = () => {
                                 pointerEvents: "none",
                             }}
                         >
-                            <ChatBubbleOutlineRoundedIcon sx={{ color: "#fff", fontSize: 24 }} />
+                            <ChatBubbleOutlineRoundedIcon sx={{ color: BRAND_ON_ACCENT, fontSize: 24 }} />
                         </FooterIconButton>
                         <TextDecoration sx={{ fontSize: "15px", fontWeight: 600, color: theme.palette.text.primary }}>
                             {t("chatUs")}

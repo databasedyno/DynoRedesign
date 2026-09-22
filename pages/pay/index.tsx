@@ -1,5 +1,5 @@
 import copyToClipboard from "@/helpers/copyToClipboard";
-import { BRAND_ACCENT, brandFg } from "@/constants/theme";
+import { BRAND_ACCENT, brandFg, BRAND_ON_ACCENT } from "@/constants/theme";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import axiosBaseApi from '@/axiosConfig'
 import { clearCheckoutToken, setCheckoutToken } from '@/helpers/checkoutSession'
@@ -1724,7 +1724,7 @@ const Payment = () => {
                       data-testid="crypto-payment-btn"
                       sx={{
                         backgroundColor: BRAND_ACCENT,
-                        color: '#FFFFFF',
+                        color: BRAND_ON_ACCENT,
                         textTransform: 'none',
                         borderRadius: '12px',
                         fontWeight: 800,

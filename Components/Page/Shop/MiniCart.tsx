@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { MIN_ORDER_CENTS } from "./types";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { BRAND_ACCENT, BRAND_ON_ACCENT } from "@/constants/theme";
 import { useCart } from "@/contexts/CartContext";
 import { toFixedStr } from "@/utils/money";
 
@@ -155,7 +155,7 @@ const MiniCart: React.FC<Props> = ({ handle }) => {
             bottom: { xs: "calc(var(--dp-lang-bar, 0px) + 88px)", md: "calc(var(--dp-lang-bar, 0px) + 24px)" },
             display: "flex", alignItems: "center", gap: 1,
             px: 2, py: 1.25, borderRadius: "999px", cursor: "pointer",
-            backgroundColor: BRAND_ACCENT, color: "#fff",
+            backgroundColor: BRAND_ACCENT, color: BRAND_ON_ACCENT,
             boxShadow: "0 10px 30px rgba(0,0,0,0.28)",
             transition: "transform .18s ease, box-shadow .18s ease",
             "&:hover": { transform: "translateY(-2px)", boxShadow: "0 14px 36px rgba(0,0,0,0.34)" },

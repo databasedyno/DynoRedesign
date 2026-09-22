@@ -888,7 +888,7 @@
 
 # ============================================================================
 # >>> CURRENT FRONTEND TEST REQUEST (fee-copy + currency-selector) <<<
-#   Preview URL (THIS pod): https://dynopay-fee-audit.preview.emergentagent.com
+#   Preview URL (THIS pod): https://katiekendra-branch.preview.emergentagent.com
 #   SafeDeal sign-in = email + one-time code; outbound email OFF in preview so the code is shown
 #   in the UI (data-testid=sd-signin-preview-code) and returned as data.preview_code. Any email
 #   works (creates a customer under brand 262). Use throwaway sd_qa_*@example.com.
@@ -1229,7 +1229,7 @@
 
 # ============================================================================
 # >>> CURRENT TASK (2026-09-20) — SAFEDEAL BUYER<->SELLER E2E (fund -> deliver -> release) <<<
-#   Preview URL (THIS pod): https://dynopay-fee-audit.preview.emergentagent.com
+#   Preview URL (THIS pod): https://katiekendra-branch.preview.emergentagent.com
 #   Prepared deal (LIVE prod DB, SAFE MODE, money SIMULATED, ESCROW_LIVE_SETTLEMENT off):
 #     token=e79888ff5e7e15c0657539d6c83f4242006f90db8846daa0  escrow_id=164  $250 USD  USDT-TRC20
 #     status=awaiting_payment  company_id=262 (SafeDeal brand)  seller=cid607  buyer=cid608
@@ -1254,7 +1254,7 @@
 #   Tested by: testing_agent (auto_frontend_testing_agent)
 #   Test date: 2026-09-20
 #   Test method: Python Playwright browser automation
-#   Preview URL: https://dynopay-fee-audit.preview.emergentagent.com
+#   Preview URL: https://katiekendra-branch.preview.emergentagent.com
 #   Deal token: e79888ff5e7e15c0657539d6c83f4242006f90db8846daa0
 #   Deal amount: $250 USD (USDT-TRC20)
 #   Parties: Seller cid607 (sd-audit-1789847049@example.com) / Buyer cid608 (sd-buyer-e2e-1789849169@example.com)
@@ -1505,7 +1505,7 @@
 #   Tested by: testing_agent (auto_frontend_testing_agent)
 #   Test date: 2026-09-19
 #   Test method: Python Playwright browser automation
-#   Base URL: https://dynopay-fee-audit.preview.emergentagent.com
+#   Base URL: https://katiekendra-branch.preview.emergentagent.com
 #
 #   TEST RESULTS SUMMARY: ALL PRIMARY TESTS PASSED (100% success rate)
 #
@@ -1642,7 +1642,7 @@
 #   Tested by: testing_agent (auto_frontend_testing_agent)
 #   Test date: 2026-09-19
 #   Test method: Python Playwright browser automation
-#   Base URL: https://dynopay-fee-audit.preview.emergentagent.com
+#   Base URL: https://katiekendra-branch.preview.emergentagent.com
 #
 #   TEST RESULTS SUMMARY: 2/2 TESTS PASSED (100% success rate)
 #
@@ -1954,7 +1954,7 @@
 #   Tested by: testing_agent (deep_testing_backend_v2)
 #   Test date: 2026-09-18
 #   Test method: Python backend test (backend_test_escrow.py)
-#   Base URL: https://dynopay-fee-audit.preview.emergentagent.com/api
+#   Base URL: https://katiekendra-branch.preview.emergentagent.com/api
 #   Auth: Merchant owner (onarrival21@gmail.com) + Super-admin (moxxcompany@gmail.com)
 #
 #   CONTEXT: Verified the NEW email-OTP flow, custody conversion, two-phase settlement
@@ -8483,7 +8483,7 @@ Test Data Cleaned: Attempted (deletion blocked by OTP requirement)
 #   Tested by: testing_agent
 #   Test date: 2026-09-17
 #   Test method: Python backend test (backend_test.py)
-#   Backend URL: https://dynopay-fee-audit.preview.emergentagent.com/api
+#   Backend URL: https://katiekendra-branch.preview.emergentagent.com/api
 #   Admin login: moxxcompany@gmail.com / Katiekendra123@
 #
 #   CONTEXT: Verified the payment email rendering fix via the new diagnostics endpoint
@@ -8808,7 +8808,7 @@ Test Data Cleaned: Attempted (deletion blocked by OTP requirement)
 #   Tested by: testing_agent (auto_frontend_testing_agent)
 #   Test date: 2026-09-18 18:12 UTC
 #   Test method: Python Playwright browser automation
-#   Base URL: https://dynopay-fee-audit.preview.emergentagent.com
+#   Base URL: https://katiekendra-branch.preview.emergentagent.com
 #   Auth: Merchant owner (onarrival21@gmail.com) + TOTP 2FA
 #
 #   CONTEXT: Attempted comprehensive E2E testing of the DynoPay ESCROW UI covering:
@@ -8818,7 +8818,7 @@ Test Data Cleaned: Attempted (deletion blocked by OTP requirement)
 #   - TEST D: Admin (best-effort, dispute queue, run-escalations)
 #
 #   CRITICAL BLOCKER: Preview URL returned 502 Bad Gateway (Cloudflare error)
-#   - The preview URL https://dynopay-fee-audit.preview.emergentagent.com
+#   - The preview URL https://katiekendra-branch.preview.emergentagent.com
 #     is showing "Bad gateway - Error code 502" from Cloudflare
 #   - This appears to be a Kubernetes ingress or preview environment issue
 #   - Local services are HEALTHY:

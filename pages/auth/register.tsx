@@ -35,7 +35,7 @@ import {
 import { ArrowBack, CheckCircleOutline, InfoOutlined, MailOutline, SmartphoneOutlined } from "@mui/icons-material";
 import Head from "next/head";
 import Script from "next/script";
-import { BRAND_ACCENT, brandFg } from "@/constants/theme";
+import { BRAND_ACCENT, brandFg, BRAND_ON_ACCENT } from "@/constants/theme";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import Spinner from "@/Components/UI/Spinner";
 
@@ -944,9 +944,9 @@ const Register = () => {
                       }}
                     >
                       {method === "email" ? (
-                        <MailOutline sx={{ fontSize: 28, color: "#fff" }} />
+                        <MailOutline sx={{ fontSize: 28, color: BRAND_ON_ACCENT }} />
                       ) : (
-                        <SmartphoneOutlined sx={{ fontSize: 28, color: "#fff" }} />
+                        <SmartphoneOutlined sx={{ fontSize: 28, color: BRAND_ON_ACCENT }} />
                       )}
                     </Box>
                     <Typography sx={{ fontWeight: 700, fontSize: "22px", color: "text.primary", fontFamily: "var(--font-sans)" }} data-testid="register-otp-title">
