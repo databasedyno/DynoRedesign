@@ -528,7 +528,7 @@ const ApiKeyCard = ({ title, apiRow, revealedKey, onCopy, onDelete, onRegenerate
                 alignItems: "center",
                 gap: 0.75,
                 border: `1px solid ${theme.palette.primary.main}`,
-                background: theme.palette.mode === "dark" ? "rgba(43,212,196,0.10)" : "#E6F7F5",
+                background: theme.palette.mode === "dark" ? "rgba(255,209,0,0.10)" : "#FFF6CC",
                 color: brandFg(theme.palette.mode === "dark"),
                 borderRadius: "8px",
                 px: 1.5,
@@ -539,7 +539,7 @@ const ApiKeyCard = ({ title, apiRow, revealedKey, onCopy, onDelete, onRegenerate
                 fontFamily: "var(--font-sans)",
                 transition: "background-color .2s ease",
                 "&:hover": {
-                  background: theme.palette.mode === "dark" ? "rgba(43,212,196,0.18)" : "#CDEDE9",
+                  background: theme.palette.mode === "dark" ? "rgba(255,209,0,0.18)" : "#CDEDE9",
                 },
               }}
               aria-label={t("keys.copySandboxKeyAria", { defaultValue: "Copy your sandbox API key" })}
@@ -815,7 +815,7 @@ Dynopay.openCheckout({ fetchClientSecret, onComplete });`;
           p: 1.5,
           borderRadius: "10px",
           border: `1px solid ${theme.palette.border.main}`,
-          background: theme.palette.mode === "dark" ? "rgba(43,212,196,0.08)" : "#F0FAF9",
+          background: theme.palette.mode === "dark" ? "rgba(255,209,0,0.08)" : "#F0FAF9",
         }}
       >
         <Typography sx={{ fontSize: 13, lineHeight: 1.65, color: theme.palette.text.secondary }}>
@@ -847,7 +847,7 @@ Dynopay.openCheckout({ fetchClientSecret, onComplete });`;
             borderColor: theme.palette.primary.main,
             color: brandFg(theme.palette.mode === "dark"),
             "&:hover": {
-              background: theme.palette.mode === "dark" ? "rgba(43,212,196,0.10)" : "#E6F7F5",
+              background: theme.palette.mode === "dark" ? "rgba(255,209,0,0.10)" : "#FFF6CC",
               borderColor: theme.palette.primary.main,
             },
           }}
@@ -910,7 +910,7 @@ const ElementsWidgetCard = ({
     `<script>\n` +
     `  const dp = Dynopay("${pk}");\n` +
     `  const elements = dp.elements({\n` +
-    `    appearance: { theme: "auto", preset: "default", accent: "#0F8F86" },\n` +
+    `    appearance: { theme: "auto", preset: "default", accent: "#8B5E00" },\n` +
     `    // locale: "en",   // optional — auto-detected from navigator.language\n` +
     `  });\n` +
     `  const el = elements.create("crypto", { amount: 5 });\n` +
@@ -988,7 +988,7 @@ export function DynopayCryptoElement({ amount = 5 }: { amount?: number }) {
           appearance: {
             theme: theme.palette.mode === "dark" ? "dark" : "light",
             preset: "default",
-            accent: theme.palette.primary.main || "#0F8F86",
+            accent: theme.palette.primary.main || "#8B5E00",
           },
         })
         .create("crypto", { amount: 5 });
@@ -1108,7 +1108,7 @@ export function DynopayCryptoElement({ amount = 5 }: { amount?: number }) {
             borderColor: theme.palette.primary.main,
             color: brandFg(theme.palette.mode === "dark"),
             "&:hover": {
-              background: theme.palette.mode === "dark" ? "rgba(43,212,196,0.10)" : "#E6F7F5",
+              background: theme.palette.mode === "dark" ? "rgba(255,209,0,0.10)" : "#FFF6CC",
               borderColor: theme.palette.primary.main,
             },
           }}
@@ -1478,7 +1478,7 @@ Content-Type: application/json
             borderColor: theme.palette.primary.main,
             color: brandFg(theme.palette.mode === "dark"),
             "&:hover": {
-              background: theme.palette.mode === "dark" ? "rgba(43,212,196,0.10)" : "#E6F7F5",
+              background: theme.palette.mode === "dark" ? "rgba(255,209,0,0.10)" : "#FFF6CC",
               borderColor: theme.palette.primary.main,
             },
           }}
@@ -1628,7 +1628,7 @@ const ApiKeysPage = ({
             sx={{
               borderColor: theme.palette.primary.main,
               color: brandFg(theme.palette.mode === "dark"),
-              "&:hover": { background: theme.palette.mode === "dark" ? "rgba(43,212,196,0.10)" : "#E6F7F5", borderColor: theme.palette.primary.main },
+              "&:hover": { background: theme.palette.mode === "dark" ? "rgba(255,209,0,0.10)" : "#FFF6CC", borderColor: theme.palette.primary.main },
             }}
             onClick={() => {
               window.open(docsUrl, "_blank", "noopener,noreferrer");

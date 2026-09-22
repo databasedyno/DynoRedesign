@@ -114,7 +114,7 @@ const AttentionFeed: React.FC<Props> = ({ items, onDismiss }) => {
                     minHeight: 32,
                     whiteSpace: "nowrap",
                     color: isDark ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light,
-                    borderColor: isDark ? "rgba(43,212,196,0.45)" : "rgba(15,143,134,0.35)",
+                    borderColor: isDark ? "rgba(255,209,0,0.45)" : "rgba(139,94,0,0.35)",
                     "&:hover": { borderColor: isDark ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light, backgroundColor: isDark ? CB_TOKENS.indigo.darkGlow : CB_TOKENS.indigo.lightGlow },
                   }}
                 >

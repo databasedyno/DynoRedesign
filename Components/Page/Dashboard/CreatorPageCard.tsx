@@ -20,7 +20,7 @@ import { useApiSWR } from "@/hooks/useApiSWR";
 import { DASH_PANEL_SX, DASH_PANEL_HEADER_SX } from "./v2026/styled";
 
 const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace';
-// Session 82: LIME const preserves the name but now holds aurora indigo #0F8F86
+// Session 82: LIME const preserves the name but now holds aurora indigo #8B5E00
 const LIME = BRAND_ACCENT;
 const INK = "#0A0A0B";
 const HANDLE_RE = /^[a-z0-9][a-z0-9_-]{2,29}$/;

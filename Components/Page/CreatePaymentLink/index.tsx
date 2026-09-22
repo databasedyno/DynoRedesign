@@ -1666,8 +1666,8 @@ const CreatePaymentLinkPage = ({
               p: "12px 14px",
               mb: 2,
               borderRadius: "10px",
-              border: `1px solid ${theme.palette.mode === "dark" ? "rgba(43,212,196,0.32)" : "rgba(15,143,134,0.35)"}`,
-              backgroundColor: theme.palette.mode === "dark" ? "rgba(43,212,196,0.08)" : "rgba(15,143,134,0.08)",
+              border: `1px solid ${theme.palette.mode === "dark" ? "rgba(255,209,0,0.32)" : "rgba(139,94,0,0.35)"}`,
+              backgroundColor: theme.palette.mode === "dark" ? "rgba(255,209,0,0.08)" : "rgba(139,94,0,0.08)",
             }}
           >
             <Icon icon="mdi:coffee-outline" width={18} style={{ flexShrink: 0, marginTop: 1, color: brandFg(theme.palette.mode === "dark") }} aria-hidden />

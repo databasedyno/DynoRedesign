@@ -43,7 +43,7 @@ interface Props {
 const TYPE_COLOR: Record<string, { light: string; dark: string; label: string }> = {
   digital: { light: "#2563EB", dark: "#93C5FD", label: "Digital" },
   physical: { light: "#B03A76", dark: "#F9A8D4", label: "Physical" },
-  service: { light: "#0F8F86", dark: "#2BD4C4", label: "Service" },
+  service: { light: "#8B5E00", dark: "#FFD100", label: "Service" },
 };
 
 export default function ProductCard({
@@ -96,9 +96,9 @@ export default function ProductCard({
         "&:hover": {
           transform: "translateY(-4px)",
           boxShadow: isDark
-            ? "0 18px 44px rgba(0,0,0,0.55), 0 0 0 1px rgba(43,212,196,0.35)"
-            : "0 18px 44px rgba(15,143,134,0.16), 0 0 0 1px rgba(15,143,134,0.25)",
-          borderColor: isDark ? "rgba(43,212,196,0.45)" : "rgba(15,143,134,0.35)",
+            ? "0 18px 44px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,209,0,0.35)"
+            : "0 18px 44px rgba(139,94,0,0.16), 0 0 0 1px rgba(139,94,0,0.25)",
+          borderColor: isDark ? "rgba(255,209,0,0.45)" : "rgba(139,94,0,0.35)",
           "& .product-cover-img": {
             transform: "scale(1.05)",
           },

@@ -116,7 +116,7 @@ function ConfettiCanvas({ trigger }: { trigger: boolean }) {
     canvas.style.height = `${parent.clientHeight}px`;
     ctx.scale(dpr, dpr);
 
-    const colors = ["#3FD98A", "#2BD4C4", BRAND_ACCENT, "#2BD4C4", "#FFFFFF"];
+    const colors = ["#3FD98A", "#FFD100", BRAND_ACCENT, "#FFD100", "#FFFFFF"];
     const particles: Particle[] = [];
     const originX = parent.clientWidth / 2;
     const originY = parent.clientHeight / 3.2;
@@ -287,16 +287,16 @@ export default function CheckoutShell({ state, children, title, caption, ...rest
             backgroundColor:
               state === "settled" ? "rgba(5,177,105,0.16)"
               : state === "failed" ? "rgba(255,91,73,0.14)"
-              : state === "confirmed" ? "rgba(43,212,196,0.14)"
-              : "rgba(15,143,134,0.10)",
+              : state === "confirmed" ? "rgba(255,209,0,0.14)"
+              : "rgba(139,94,0,0.10)",
             color:
               state === "settled" ? (dark ? "#3FD98A" : "#05936A")
               : state === "failed" ? (dark ? "#FF7A6B" : "#B91C1C")
-              : state === "confirmed" ? (dark ? "#2BD4C4" : BRAND_ACCENT)
-              : (dark ? "#2BD4C4" : accent.color),
+              : state === "confirmed" ? (dark ? "#FFD100" : "#8B5E00")
+              : (dark ? "#FFD100" : accent.color),
           }}
         >
-          {/* Sky-blue spinning ring during confirming */}
+          {/* Gold spinning ring during confirming */}
           {state === "confirming" && (
             <Box
               aria-hidden
@@ -305,8 +305,8 @@ export default function CheckoutShell({ state, children, title, caption, ...rest
                 inset: -3,
                 borderRadius: "13px",
                 border: "2px solid transparent",
-                borderTopColor: "#2BD4C4",
-                borderRightColor: "#2BD4C4",
+                borderTopColor: "#FFD100",
+                borderRightColor: "#FFD100",
                 animation: `${skySpin} 1.1s linear infinite`,
                 "@media (prefers-reduced-motion: reduce)": { animation: "none", borderColor: "#FFD100" },
               }}

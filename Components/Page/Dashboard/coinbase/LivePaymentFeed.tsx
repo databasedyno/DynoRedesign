@@ -38,12 +38,12 @@ const flashIn = keyframes`
   from {
     opacity: 0;
     transform: translateX(-8px);
-    box-shadow: 0 0 0 6px rgba(43,212,196,0.28);
+    box-shadow: 0 0 0 6px rgba(255,209,0,0.28);
   }
   to {
     opacity: 1;
     transform: translateX(0);
-    box-shadow: 0 0 0 0 rgba(43,212,196,0);
+    box-shadow: 0 0 0 0 rgba(255,209,0,0);
   }
 `;
 

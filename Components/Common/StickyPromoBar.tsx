@@ -65,7 +65,7 @@ const StickyPromoBar: React.FC = () => {
         width: '100%',
         background: 'linear-gradient(90deg, #E6F4EA 0%, #D1FAE5 50%, #E6F4EA 100%)',
         borderBottom: '1px solid rgba(15,118,110,0.16)',
-        color: '#0F766E',
+        color: '#8B5E00',
         px: { xs: 2, md: 3 },
         display: 'flex',
         alignItems: 'center',
@@ -91,7 +91,7 @@ const StickyPromoBar: React.FC = () => {
           minWidth: 0,
         }}
       >
-        <CardGiftcardRounded sx={{ fontSize: 18, color: '#0F766E' }} aria-hidden />
+        <CardGiftcardRounded sx={{ fontSize: 18, color: '#8B5E00' }} aria-hidden />
         {/* Shorter copy on mobile so the whole bar fits in one line at 375px iPhone width. */}
         <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
           {t("promoBar.desktop")}
@@ -111,8 +111,8 @@ const StickyPromoBar: React.FC = () => {
           gap: 0.4,
           border: 'none',
           cursor: 'pointer',
-          bgcolor: '#0F766E',
-          color: '#fff',
+          bgcolor: '#FFD100',
+          color: '#2B1D14',
           fontFamily: 'var(--font-sans)',
           fontWeight: 600,
           fontSize: { xs: 12, md: 12.5 },
@@ -120,7 +120,7 @@ const StickyPromoBar: React.FC = () => {
           py: { xs: 0.3, md: 0.4 },
           borderRadius: '999px',
           transition: 'background 0.2s ease, transform 0.15s ease',
-          '&:hover': { bgcolor: '#0D5C56', transform: 'translateY(-1px)' },
+          '&:hover': { bgcolor: '#F0C300', transform: 'translateY(-1px)' },
         }}
       >
         {t("promoBar.claim")} <ArrowForward sx={{ fontSize: 14 }} />
@@ -132,11 +132,11 @@ const StickyPromoBar: React.FC = () => {
         onClick={onDismiss}
         data-testid="promo-bar-dismiss"
         sx={{
-          color: 'rgba(15,118,110,0.7)',
+          color: 'rgba(43,29,20,0.6)',
           p: 0.4,
           position: { xs: 'static', md: 'absolute' },
           right: { md: 12 },
-          '&:hover': { color: '#0F766E', bgcolor: 'rgba(15,118,110,0.10)' },
+          '&:hover': { color: '#2B1D14', bgcolor: 'rgba(43,29,20,0.08)' },
         }}
       >
         <Close sx={{ fontSize: 16 }} />

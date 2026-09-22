@@ -36,7 +36,7 @@ const TONES: Record<StatusTone, ToneSpec> = {
   underpaid: { dot: "#F97316", light: "#C2410C", dark: "#FB923C" }, // orange — partial payment
   failed: { dot: "#F43F5E", light: "#BE123C", dark: "#FB7185" }, // rose
   overdue: { dot: "#F43F5E", light: "#BE123C", dark: "#FB7185" }, // rose
-  info: { dot: "#2BD4C4", light: "#0F8F86", dark: "#2BD4C4" }, // indigo
+  info: { dot: "#FFD100", light: "#8B5E00", dark: "#FFD100" }, // gold
   draft: { dot: "#94A3B8", light: "#475569", dark: "#A1A1AA" }, // slate
   neutral: { dot: "#94A3B8", light: "#475569", dark: "#A1A1AA" }, // slate
   unpaid: { dot: "#94A3B8", light: "#475569", dark: "#A1A1AA", hollow: true }, // hollow slate

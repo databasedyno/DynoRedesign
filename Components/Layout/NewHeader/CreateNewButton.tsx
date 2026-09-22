@@ -1,4 +1,4 @@
-import { AQUA, AQUA_DEEP, BRAND_ACCENT, BRAND_ACCENT_HOVER, BRAND_ON_ACCENT } from "@/constants/theme";
+import { GOLD, GOLD_DEEP, BRAND_ACCENT, BRAND_ACCENT_HOVER, BRAND_ON_ACCENT } from "@/constants/theme";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
@@ -125,7 +125,7 @@ const CreateNewButton: React.FC<Props> = ({ variant = "header" }) => {
             "&:hover": { backgroundColor: BRAND_ACCENT_HOVER },
             "&:active": { transform: "scale(0.94)" },
             "&:focus-visible": {
-              outline: `2px solid ${isDark ? AQUA : AQUA_DEEP}`,
+              outline: `2px solid ${isDark ? GOLD : GOLD_DEEP}`,
               outlineOffset: 2,
             },
           }}
@@ -160,7 +160,7 @@ const CreateNewButton: React.FC<Props> = ({ variant = "header" }) => {
           "&:hover": { backgroundColor: BRAND_ACCENT_HOVER },
           "&:active": { transform: "scale(0.97)" },
           "&:focus-visible": {
-            outline: `2px solid ${isDark ? AQUA : AQUA_DEEP}`,
+            outline: `2px solid ${isDark ? GOLD : GOLD_DEEP}`,
             outlineOffset: 2,
           },
         }}

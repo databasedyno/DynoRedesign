@@ -74,7 +74,7 @@ const HeroCheckoutDemo: React.FC = () => {
       data-testid="hero-checkout-demo"
       data-phase={phase}
       data-coin={coin.code}
-      sx={{ ...card, position: "relative", width: "100%", maxWidth: 430, borderRadius: "22px", p: { xs: 2.5, sm: 3 }, boxShadow: s.dark ? "0 40px 80px -40px rgba(0,0,0,0.8)" : "0 40px 80px -36px rgba(10,10,10,0.28), 0 12px 24px -14px rgba(15,143,134,0.18)" }}
+      sx={{ ...card, position: "relative", width: "100%", maxWidth: 430, borderRadius: "22px", p: { xs: 2.5, sm: 3 }, boxShadow: s.dark ? "0 40px 80px -40px rgba(0,0,0,0.8)" : "0 40px 80px -36px rgba(10,10,10,0.28), 0 12px 24px -14px rgba(139,94,0,0.18)" }}
     >
       {/* status strip */}
       <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, mb: 2, px: 1.5, py: 0.9, borderRadius: "10px", border: `1px solid ${s.line}`, background: s.dark ? "rgba(255,255,255,0.03)" : "rgba(10,10,10,0.025)" }}>
@@ -133,7 +133,7 @@ const HeroCheckoutDemo: React.FC = () => {
                   data-testid={`hero-demo-coin-${c.code}`}
                   onClick={() => pick(i)}
                   disabled={busy}
-                  sx={{ all: "unset", cursor: busy ? "default" : "pointer", display: "inline-flex", alignItems: "center", gap: 0.6, px: 1.1, py: 0.55, borderRadius: "999px", border: `1px solid ${active ? BRAND_ACCENT : s.line}`, background: active ? (s.dark ? "rgba(43,212,196,0.16)" : "rgba(15,143,134,0.09)") : "transparent", color: active ? (s.dark ? "#FFD100" : "#FFD100") : s.ink2, fontFamily: FONT_TECH, fontSize: 12.5, fontWeight: 600, transition: "border-color 160ms ease, background-color 160ms ease, color 160ms ease", "&:focus-visible": { outline: `2px solid ${BRAND_ACCENT}`, outlineOffset: 2 } }}
+                  sx={{ all: "unset", cursor: busy ? "default" : "pointer", display: "inline-flex", alignItems: "center", gap: 0.6, px: 1.1, py: 0.55, borderRadius: "999px", border: `1px solid ${active ? BRAND_ACCENT : s.line}`, background: active ? (s.dark ? "rgba(255,209,0,0.16)" : "rgba(139,94,0,0.09)") : "transparent", color: active ? (s.dark ? "#FFD100" : "#FFD100") : s.ink2, fontFamily: FONT_TECH, fontSize: 12.5, fontWeight: 600, transition: "border-color 160ms ease, background-color 160ms ease, color 160ms ease", "&:focus-visible": { outline: `2px solid ${BRAND_ACCENT}`, outlineOffset: 2 } }}
                 >
                   <Icon icon={ci.icon} width={15} height={15} color={ci.iconColor} />
                   {c.ticker}
@@ -171,7 +171,7 @@ const HeroCheckoutDemo: React.FC = () => {
             onClick={pay}
             disabled={busy}
             data-testid="hero-demo-pay"
-            sx={{ all: "unset", boxSizing: "border-box", mt: 2.5, width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 1, borderRadius: "12px", py: 1.35, fontFamily: FONT_BODY, fontSize: 15, fontWeight: 600, color: "#2B1D14", background: busy ? (s.dark ? "rgba(43,212,196,0.4)" : "rgba(15,143,134,0.55)") : BRAND_ACCENT, cursor: busy ? "default" : "pointer", transition: "background-color 180ms ease", "&:hover": { background: busy ? undefined : "#F0C300" }, "&:focus-visible": { outline: `2px solid ${BRAND_ACCENT}`, outlineOffset: 3 } }}
+            sx={{ all: "unset", boxSizing: "border-box", mt: 2.5, width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 1, borderRadius: "12px", py: 1.35, fontFamily: FONT_BODY, fontSize: 15, fontWeight: 600, color: "#2B1D14", background: busy ? "rgba(255,209,0,0.45)" : "#FFD100", cursor: busy ? "default" : "pointer", transition: "background-color 180ms ease", "&:hover": { background: busy ? undefined : "#F0C300" }, "&:focus-visible": { outline: `2px solid ${BRAND_ACCENT}`, outlineOffset: 3 } }}
           >
             {busy ? (phase === "waiting" ? t("v5.demo.waiting") : t("v5.demo.confirming", { network })) : t("v5.demo.payBtn", { amount: fmt(DEMO_ORDER_USD) })}
           </Box>

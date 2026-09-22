@@ -217,7 +217,7 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: (crypto?: string) => void }) =>
           const accent = getAssetColor(wallet.walletTitle);
           const lit = isHighlighted(wallet);
           const dimmed = !!highlightAddr && !lit;
-          const ring = dark ? "#2BD4C4" : "#0F8F86";
+          const ring = dark ? "#FFD100" : "#8B5E00";
           return (
           <Grid
             item
@@ -253,7 +253,7 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: (crypto?: string) => void }) =>
                 backgroundColor: dark ? CB_TOKENS.surface.dark : CB_TOKENS.surface.light,
                 border: `1px solid ${lit ? ring : dark ? CB_TOKENS.border.dark : CB_TOKENS.border.light}`,
                 // Shared-address highlight: siblings get an accent ring, the rest fade back.
-                boxShadow: lit ? `0 0 0 2px ${ring}, 0 10px 28px ${dark ? "rgba(43,212,196,0.28)" : "rgba(15,143,134,0.22)"}` : "none",
+                boxShadow: lit ? `0 0 0 2px ${ring}, 0 10px 28px ${dark ? "rgba(255,209,0,0.28)" : "rgba(139,94,0,0.22)"}` : "none",
                 opacity: dimmed ? 0.38 : 1,
                 transition: "opacity 220ms ease, box-shadow 220ms ease, border-color 220ms ease",
                 // Coin brand-colour top accent — identifies each chain at a glance.

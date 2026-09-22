@@ -17,7 +17,7 @@ export function navAccent(icon: string, isDark: boolean): string {
     creator: isDark ? "#C084FC" : "#9333EA",
     wallets: isDark ? S.positive.dark : S.positive.light,
     customers: isDark ? "#94A3B8" : "#64748B",
-    api: isDark ? "#2DD4BF" : "#0D9488",
+    api: isDark ? "#FFD100" : "#8B5E00",
     referrals: isDark ? "#F472B6" : "#DB2777",
     notifications: isDark ? S.negative.dark : S.negative.light,
     settings: isDark ? "#94A3B8" : "#64748B",

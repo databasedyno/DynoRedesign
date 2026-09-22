@@ -94,23 +94,23 @@ export default function ShopToolbar({
     fontWeight: active ? 700 : 500,
     bgcolor: active
       ? isDark
-        ? "rgba(43,212,196,0.18)"
-        : "rgba(15,143,134,0.10)"
+        ? "rgba(255,209,0,0.18)"
+        : "rgba(139,94,0,0.10)"
       : isDark
         ? "rgba(255,255,255,0.06)"
         : "rgba(0,0,0,0.04)",
     color: active
       ? isDark
-        ? "#2BD4C4"
-        : "#0F8F86"
+        ? "#FFD100"
+        : "#8B5E00"
       : isDark
         ? "rgba(255,255,255,0.85)"
         : "rgba(0,0,0,0.75)",
     border: `1px solid ${
       active
         ? isDark
-          ? "rgba(43,212,196,0.35)"
-          : "rgba(15,143,134,0.28)"
+          ? "rgba(255,209,0,0.35)"
+          : "rgba(139,94,0,0.28)"
         : isDark
           ? "rgba(255,255,255,0.10)"
           : "rgba(0,0,0,0.08)"
@@ -120,8 +120,8 @@ export default function ShopToolbar({
     "&:hover": {
       bgcolor: active
         ? isDark
-          ? "rgba(43,212,196,0.26)"
-          : "rgba(15,143,134,0.16)"
+          ? "rgba(255,209,0,0.26)"
+          : "rgba(139,94,0,0.16)"
         : isDark
           ? "rgba(255,255,255,0.1)"
           : "rgba(0,0,0,0.07)",

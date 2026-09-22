@@ -35,12 +35,12 @@ const MethodCard: React.FC<{ icon: React.ReactNode; title: string; body: string;
         flex: 1, minWidth: 0, p: "16px", borderRadius: "12px", cursor: "pointer",
         border: `1px solid ${theme.palette.border.main}`, backgroundColor: isDark ? "rgba(255,255,255,0.02)" : "#FFFFFF",
         transition: "border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease",
-        "&:hover": { borderColor: brandFg(isDark), transform: "translateY(-1px)", boxShadow: isDark ? "0 8px 24px rgba(0,0,0,0.35)" : "0 8px 24px rgba(15,143,134,0.10)" },
+        "&:hover": { borderColor: brandFg(isDark), transform: "translateY(-1px)", boxShadow: isDark ? "0 8px 24px rgba(0,0,0,0.35)" : "0 8px 24px rgba(139,94,0,0.10)" },
         "&:focus-visible": { outline: `2px solid ${brandFg(isDark)}`, outlineOffset: 2 },
       }}
     >
       <Box sx={{ display: "flex", alignItems: "center", gap: "10px", mb: "8px" }}>
-        <Box sx={{ width: 36, height: 36, borderRadius: "10px", backgroundColor: isDark ? "rgba(43,212,196,0.18)" : "#E6F7F5", display: "flex", alignItems: "center", justifyContent: "center", color: brandFg(isDark) }}>{icon}</Box>
+        <Box sx={{ width: 36, height: 36, borderRadius: "10px", backgroundColor: isDark ? "rgba(255,209,0,0.18)" : "#FFF6CC", display: "flex", alignItems: "center", justifyContent: "center", color: brandFg(isDark) }}>{icon}</Box>
         <Typography sx={{ fontWeight: 600, fontSize: "14.5px", fontFamily: "var(--font-sans)" }}>{title}</Typography>
         {badge && (
           <Typography component="span" sx={{ ml: "auto", fontSize: "10.5px", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "#16A34A", backgroundColor: isDark ? "rgba(22,163,74,0.16)" : "#DCFCE7", px: "7px", py: "2px", borderRadius: "999px" }}>{badge}</Typography>

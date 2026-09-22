@@ -115,7 +115,7 @@ const Register = () => {
         spread: 60,
         startVelocity: 35,
         origin: { x: 0.3, y: 0.5 },
-        colors: ["#FFD100", "#2BD4C4", "#10B981", "#FFB300"],
+        colors: ["#FFD100", "#FFD100", "#10B981", "#FFB300"],
         scalar: 0.9,
         ticks: 200,
       });
@@ -124,7 +124,7 @@ const Register = () => {
         spread: 60,
         startVelocity: 35,
         origin: { x: 0.7, y: 0.5 },
-        colors: ["#FFD100", "#2BD4C4", "#10B981", "#FFB300"],
+        colors: ["#FFD100", "#FFD100", "#10B981", "#FFB300"],
         scalar: 0.9,
         ticks: 200,
       });
@@ -711,13 +711,13 @@ const Register = () => {
                         borderRadius: "12px",
                         border: `1px solid ${
                           theme.palette.mode === "dark"
-                            ? "rgba(15,143,134,0.4)"
-                            : "rgba(15,143,134,0.25)"
+                            ? "rgba(139,94,0,0.4)"
+                            : "rgba(139,94,0,0.25)"
                         }`,
                         background:
                           theme.palette.mode === "dark"
-                            ? "rgba(15,143,134,0.14)"
-                            : "rgba(15,143,134,0.06)",
+                            ? "rgba(139,94,0,0.14)"
+                            : "rgba(139,94,0,0.06)",
                       }}
                     >
                       <CheckCircleOutline

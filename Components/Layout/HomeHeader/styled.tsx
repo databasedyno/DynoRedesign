@@ -16,12 +16,15 @@ import {
 
 // Aurora tokens (kept inline here to avoid pulling the whole theme.v3 into
 // the header — one source of truth is theme.v3.ts, we duplicate 4 constants).
-const CORAL = "#0F766E";
-const CORAL_DEEP = "#0D5C56";
-const VIOLET = "#0D9488";
+const CORAL = "#8B5E00"; // deep gold (text / borders / icons on light)
+const CORAL_DEEP = "#6B4800";
+const VIOLET = "#FFD100";
 const VOLT = "#22C55E";
+const YELLOW = "#FFD100";
+const YELLOW_HOVER = "#F0C300";
+const ESPRESSO = "#2B1D14";
 const AURORA_GRADIENT =
-  `linear-gradient(90deg, #05B875 0%, #00D084 55%, #2DD4BF 100%)`;
+  `linear-gradient(90deg, #FFB300 0%, #FFD100 100%)`;
 // Below this the desktop nav + inline auth CTAs give way to the hamburger drawer.
 // 1100 (not 1024): five nav items + actions cannot fit the 1026–1100 band in ES/NL/FR.
 const HAMBURGER_BP = "@media (max-width: 1100px)";
@@ -433,8 +436,8 @@ export const MobileDrawer = styled(Box)(({ theme }) => {
     padding: "24px 20px",
     // Subtle aurora bloom in the corners (dimmer in light mode).
     backgroundImage: dark
-      ? "radial-gradient(circle at 90% -10%, rgba(15,143,134,0.20) 0%, rgba(11,11,15,0) 55%), radial-gradient(circle at -10% 100%, rgba(43,212,196,0.18) 0%, rgba(11,11,15,0) 55%)"
-      : "radial-gradient(circle at 92% -8%, rgba(15,143,134,0.07) 0%, rgba(255,255,255,0) 55%)",
+      ? "radial-gradient(circle at 90% -10%, rgba(139,94,0,0.20) 0%, rgba(11,11,15,0) 55%), radial-gradient(circle at -10% 100%, rgba(255,209,0,0.18) 0%, rgba(11,11,15,0) 55%)"
+      : "radial-gradient(circle at 92% -8%, rgba(139,94,0,0.07) 0%, rgba(255,255,255,0) 55%)",
   };
 });
 
@@ -545,10 +548,10 @@ export const StyledGetStartedButton = styled(Box)({
   },
   // `&&` doubles the wrapper class to reliably outrank MUI's own
   // primary.main rule in BOTH light and dark themes — keeps the pill an
-  // exact indigo (#0F8F86) that darkens to #0F8F86 on hover/press.
+  // exact brand yellow (#FFD100, dark-brown label) that deepens to #F0C300 on hover/press.
   "&& button, && a": {
-    background: CORAL,
-    color: "#FFFFFF",
+    background: YELLOW,
+    color: ESPRESSO,
     fontFamily: "var(--font-body)",
     fontWeight: 600,
     borderRadius: "999px",
@@ -559,11 +562,13 @@ export const StyledGetStartedButton = styled(Box)({
       "background-color 200ms ease, transform 150ms cubic-bezier(0.16,1,0.3,1)",
   },
   "&& button:hover, && a:hover": {
-    background: CORAL_DEEP,
+    background: YELLOW_HOVER,
+    color: ESPRESSO,
     boxShadow: "none",
   },
   "&& button:active, && a:active": {
-    background: CORAL_DEEP,
+    background: YELLOW_HOVER,
+    color: ESPRESSO,
     transform: "scale(0.97)",
   },
 });
@@ -667,8 +672,8 @@ export const MegaItemLink = styled(Box)<BoxProps & { component?: React.ElementTy
     cursor: "pointer",
     textDecoration: "none",
     transition: "background 160ms ease",
-    "&:hover": { background: dark ? "rgba(255,255,255,0.05)" : "rgba(15,143,134,0.05)" },
-    "&:hover .mega-icon": { color: "#FFFFFF", background: CORAL, borderColor: CORAL },
+    "&:hover": { background: dark ? "rgba(255,255,255,0.05)" : "rgba(139,94,0,0.05)" },
+    "&:hover .mega-icon": { color: ESPRESSO, background: YELLOW, borderColor: YELLOW },
     "&:hover .mega-title": { color: CORAL },
   };
 });
@@ -683,8 +688,8 @@ export const MegaItemIcon = styled(Box)(({ theme }) => {
     display: "grid",
     placeItems: "center",
     color: CORAL,
-    background: dark ? "rgba(15,143,134,0.16)" : "rgba(15,143,134,0.08)",
-    border: `1px solid ${dark ? "rgba(43,212,196,0.28)" : "rgba(15,143,134,0.16)"}`,
+    background: dark ? "rgba(139,94,0,0.16)" : "rgba(139,94,0,0.08)",
+    border: `1px solid ${dark ? "rgba(255,209,0,0.28)" : "rgba(139,94,0,0.16)"}`,
     transition: "all 160ms ease",
     "& svg": { fontSize: 20 },
   };
@@ -740,7 +745,7 @@ export const LangGlobeButton = styled(IconButton)(({ theme }) => {
     "&:hover": {
       borderColor: CORAL,
       color: dark ? "#fff" : "#0A0A0A",
-      background: dark ? "rgba(255,255,255,0.06)" : "rgba(15,143,134,0.05)",
+      background: dark ? "rgba(255,255,255,0.06)" : "rgba(139,94,0,0.05)",
     },
     // Header instance only: globe-only (code in aria-label/tooltip) so the five-item nav
     // + actions fit the 1280 cap in every language.
@@ -789,9 +794,9 @@ export const LangOption = styled(Box)(({ theme }) => {
     borderRadius: 10,
     cursor: "pointer",
     transition: "background 150ms ease",
-    "&:hover": { background: dark ? "rgba(255,255,255,0.05)" : "rgba(15,143,134,0.05)" },
+    "&:hover": { background: dark ? "rgba(255,255,255,0.05)" : "rgba(139,94,0,0.05)" },
     "&[data-selected='true']": {
-      background: dark ? "rgba(15,143,134,0.16)" : "rgba(15,143,134,0.08)",
+      background: dark ? "rgba(139,94,0,0.16)" : "rgba(139,94,0,0.08)",
     },
   };
 });
@@ -859,8 +864,8 @@ export const MobileSubItem = styled(Box)<BoxProps & { component?: React.ElementT
       display: "grid",
       placeItems: "center",
       color: CORAL,
-      background: dark ? "rgba(15,143,134,0.16)" : "rgba(15,143,134,0.08)",
-      border: `1px solid ${dark ? "rgba(43,212,196,0.26)" : "rgba(15,143,134,0.16)"}`,
+      background: dark ? "rgba(139,94,0,0.16)" : "rgba(139,94,0,0.08)",
+      border: `1px solid ${dark ? "rgba(255,209,0,0.26)" : "rgba(139,94,0,0.16)"}`,
       flexShrink: 0,
     },
     "& .msub-icon svg": { fontSize: 18 },
@@ -882,11 +887,11 @@ export const FeaturedTile = styled(Box)<BoxProps & { component?: React.ElementTy
   flexDirection: "column",
   gap: 10,
   textDecoration: "none",
-  color: "#FFFFFF",
-  background: `linear-gradient(150deg, ${CORAL} 0%, ${VIOLET} 100%)`,
-  boxShadow: "0 12px 30px -12px rgba(15,143,134,0.55)",
+  color: "#FAF6EF",
+  background: `linear-gradient(150deg, ${ESPRESSO} 0%, #3A2A1F 100%)`,
+  boxShadow: "0 12px 30px -12px rgba(43,29,20,0.55)",
   transition: "transform 200ms cubic-bezier(0.16,1,0.3,1), box-shadow 200ms ease",
-  "&:hover": { transform: "translateY(-2px)", boxShadow: "0 18px 42px -14px rgba(15,143,134,0.6)" },
+  "&:hover": { transform: "translateY(-2px)", boxShadow: "0 18px 42px -14px rgba(139,94,0,0.6)" },
   "&:hover .feat-arrow": { transform: "translateX(3px)" },
   "&::after": {
     content: '""',
@@ -942,7 +947,7 @@ export const SearchButton = styled(IconButton)(({ theme }) => {
     "&:hover": {
       borderColor: CORAL,
       color: dark ? "#fff" : "#0A0A0A",
-      background: dark ? "rgba(255,255,255,0.06)" : "rgba(15,143,134,0.05)",
+      background: dark ? "rgba(255,255,255,0.06)" : "rgba(139,94,0,0.05)",
     },
   };
 });
@@ -1038,8 +1043,8 @@ export const CmdItem = styled(Box)(({ theme }) => {
       display: "grid",
       placeItems: "center",
       color: CORAL,
-      background: dark ? "rgba(15,143,134,0.16)" : "rgba(15,143,134,0.08)",
-      border: `1px solid ${dark ? "rgba(43,212,196,0.26)" : "rgba(15,143,134,0.16)"}`,
+      background: dark ? "rgba(139,94,0,0.16)" : "rgba(139,94,0,0.08)",
+      border: `1px solid ${dark ? "rgba(255,209,0,0.26)" : "rgba(139,94,0,0.16)"}`,
       flexShrink: 0,
     },
     "& .cmd-ic svg": { fontSize: 18 },
@@ -1050,8 +1055,8 @@ export const CmdItem = styled(Box)(({ theme }) => {
       fontSize: 12,
       color: dark ? "rgba(255,255,255,0.4)" : "#A1A1AA",
     },
-    "&[data-active='true']": { background: dark ? "rgba(255,255,255,0.06)" : "rgba(15,143,134,0.07)" },
-    "&:hover": { background: dark ? "rgba(255,255,255,0.06)" : "rgba(15,143,134,0.07)" },
+    "&[data-active='true']": { background: dark ? "rgba(255,255,255,0.06)" : "rgba(139,94,0,0.07)" },
+    "&:hover": { background: dark ? "rgba(255,255,255,0.06)" : "rgba(139,94,0,0.07)" },
   };
 });
 

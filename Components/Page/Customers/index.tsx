@@ -233,7 +233,7 @@ const CustomersPage: React.FC = () => {
     transition: "box-shadow 160ms ease",
   };
   const softBg = isDark ? "rgba(255,255,255,0.05)" : "#F6F7F9";
-  const accent = isDark ? "#2BD4C4" : "#0F8F86";
+  const accent = isDark ? "#FFD100" : "#8B5E00";
 
   const eyebrowSx = {
     fontSize: "11px",
@@ -486,7 +486,7 @@ const CustomersPage: React.FC = () => {
             key={tag}
             label={tag}
             size="small"
-            sx={{ height: 18, fontSize: "10.5px", fontWeight: 600, ...sansSx, bgcolor: isDark ? "rgba(43,212,196,0.15)" : "rgba(15,143,134,0.08)", color: accent, "& .MuiChip-label": { px: 0.75 } }}
+            sx={{ height: 18, fontSize: "10.5px", fontWeight: 600, ...sansSx, bgcolor: isDark ? "rgba(255,209,0,0.15)" : "rgba(139,94,0,0.08)", color: accent, "& .MuiChip-label": { px: 0.75 } }}
           />
         ))}
         {tg.length > max && (
@@ -749,7 +749,7 @@ const CustomersPage: React.FC = () => {
               sx={{
                 appearance: "none",
                 border: `1px solid ${active ? accent : cardBorder}`,
-                bgcolor: active ? (isDark ? "rgba(43,212,196,0.15)" : "rgba(15,143,134,0.07)") : cardBg,
+                bgcolor: active ? (isDark ? "rgba(255,209,0,0.15)" : "rgba(139,94,0,0.07)") : cardBg,
                 color: active ? accent : theme.palette.text.secondary,
                 borderRadius: "999px",
                 px: 1.5,
@@ -1223,7 +1223,7 @@ const DetailPanel: React.FC<{
   const c = detail.profile;
   const sansSx = { fontFamily: "var(--font-sans)" };
   const isPerson = c.kind === "person";
-  const accent = theme.palette.mode === "dark" ? "#2BD4C4" : "#0F8F86";
+  const accent = theme.palette.mode === "dark" ? "#FFD100" : "#8B5E00";
   const [annNotes, setAnnNotes] = useState<string>(c.notes || "");
   const [annTags, setAnnTags] = useState<string[]>(c.tags || []);
   const [savingAnn, setSavingAnn] = useState(false);
@@ -1678,7 +1678,7 @@ const TagsEditor: React.FC<{
               size="small"
               onDelete={disabled ? undefined : () => onChange(tags.filter((x) => x !== tag))}
               data-testid={`${testIdPrefix}-tag-${tag.replace(/[^a-z0-9]/gi, "-").toLowerCase()}`}
-              sx={{ ...sansSx, fontSize: "12px", fontWeight: 600, bgcolor: isDark ? "rgba(43,212,196,0.15)" : "rgba(15,143,134,0.08)", color: accent }}
+              sx={{ ...sansSx, fontSize: "12px", fontWeight: 600, bgcolor: isDark ? "rgba(255,209,0,0.15)" : "rgba(139,94,0,0.08)", color: accent }}
             />
           ))}
         </Box>

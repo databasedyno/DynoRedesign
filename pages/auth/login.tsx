@@ -1672,8 +1672,8 @@ export default function Login() {
                           loginMethod === "email"
                             ? (t2: any) =>
                                 t2.palette.mode === "dark"
-                                  ? "rgba(43,212,196,0.12)"
-                                  : "rgba(15,143,134,0.08)"
+                                  ? "rgba(255,209,0,0.12)"
+                                  : "rgba(139,94,0,0.08)"
                             : "transparent",
                         color:
                           loginMethod === "email"
@@ -1715,8 +1715,8 @@ export default function Login() {
                           loginMethod === "sms"
                             ? (t2: any) =>
                                 t2.palette.mode === "dark"
-                                  ? "rgba(43,212,196,0.12)"
-                                  : "rgba(15,143,134,0.08)"
+                                  ? "rgba(255,209,0,0.12)"
+                                  : "rgba(139,94,0,0.08)"
                             : "transparent",
                         color:
                           loginMethod === "sms"

@@ -376,9 +376,9 @@ export const AssetNetworkChip: React.FC<{
       lineHeight: 1.2,
       letterSpacing: '0.01em',
       whiteSpace: 'nowrap',
-      color: isDark ? '#2BD4C4' : '#0F8F86',
-      backgroundColor: isDark ? 'rgba(43,212,196,0.14)' : 'rgba(15,143,134,0.08)',
-      border: `1px solid ${isDark ? 'rgba(43,212,196,0.25)' : 'rgba(15,143,134,0.20)'}`,
+      color: isDark ? '#FFD100' : '#8B5E00',
+      backgroundColor: isDark ? 'rgba(255,209,0,0.14)' : 'rgba(139,94,0,0.08)',
+      border: `1px solid ${isDark ? 'rgba(255,209,0,0.25)' : 'rgba(139,94,0,0.20)'}`,
     }}
   >
     {symbol} · {networkLabel}

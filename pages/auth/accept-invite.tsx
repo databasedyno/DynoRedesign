@@ -163,7 +163,7 @@ const AcceptInvitePage = () => {
         />
       ) : info ? (
         <Box data-testid="accept-invite-form" sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          <Box aria-hidden sx={{ width: 48, height: 48, borderRadius: "14px", display: "flex", alignItems: "center", justifyContent: "center", color: brandFg(theme.palette.mode === "dark"), backgroundColor: theme.palette.mode === "dark" ? "rgba(43,212,196,0.16)" : "rgba(15,143,134,0.08)" }}>
+          <Box aria-hidden sx={{ width: 48, height: 48, borderRadius: "14px", display: "flex", alignItems: "center", justifyContent: "center", color: brandFg(theme.palette.mode === "dark"), backgroundColor: theme.palette.mode === "dark" ? "rgba(255,209,0,0.16)" : "rgba(139,94,0,0.08)" }}>
             <GroupAddRounded fontSize="medium" />
           </Box>
           <TitleDescription

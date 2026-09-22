@@ -41,54 +41,6 @@
       "consoleErrors": []
     },
     {
-      "route": "/create-pay-link",
-      "status": 200,
-      "finalUrl": "/create-pay-link",
-      "blue": [
-        {
-          "prop": "background",
-          "value": "rgb(98, 126, 234)",
-          "el": "div.MuiBox-root.mui-1qbm3a0"
-        },
-        {
-          "prop": "background",
-          "value": "rgb(52, 93, 157)",
-          "el": "div.MuiBox-root.mui-1qgtw46"
-        }
-      ],
-      "blueCount": 2,
-      "whiteOnYellow": [],
-      "navBg": "rgb(43, 29, 20)",
-      "cellBg": "rgb(43, 29, 20)",
-      "title": "Create a payment link · Dynopay",
-      "url": "/create-pay-link",
-      "consoleErrors": []
-    },
-    {
-      "route": "/storefront",
-      "status": 200,
-      "finalUrl": "/storefront",
-      "blue": [
-        {
-          "prop": "background",
-          "value": "rgb(139, 92, 246)",
-          "el": "div[testid=accent-swatch-purple].MuiBox-root.mui-e1776"
-        },
-        {
-          "prop": "background-image",
-          "value": "rgba(124, 58, 237, 0.5)",
-          "el": "div.MuiBox-root.mui-1mak1o5"
-        }
-      ],
-      "blueCount": 2,
-      "whiteOnYellow": [],
-      "navBg": "rgb(43, 29, 20)",
-      "cellBg": "rgb(43, 29, 20)",
-      "title": "Storefront · Dynopay",
-      "url": "/storefront",
-      "consoleErrors": []
-    },
-    {
       "route": "/payouts",
       "status": 200,
       "finalUrl": "/payouts",
@@ -175,19 +127,39 @@
       "route": "/customers",
       "status": 200,
       "finalUrl": "/customers",
-      "blue": [
-        {
-          "prop": "background",
-          "value": "rgb(98, 126, 234)",
-          "el": "div.MuiBox-root.mui-1qbm3a0"
-        }
-      ],
-      "blueCount": 1,
+      "blue": [],
+      "blueCount": 0,
       "whiteOnYellow": [],
       "navBg": "rgb(43, 29, 20)",
       "cellBg": "rgb(43, 29, 20)",
       "title": "Customers · Dynopay",
       "url": "/customers",
+      "consoleErrors": []
+    },
+    {
+      "route": "/settings",
+      "status": 200,
+      "finalUrl": "/settings",
+      "blue": [],
+      "blueCount": 0,
+      "whiteOnYellow": [],
+      "navBg": "rgb(43, 29, 20)",
+      "cellBg": "rgb(43, 29, 20)",
+      "title": "Settings · Dynopay",
+      "url": "/settings",
+      "consoleErrors": []
+    },
+    {
+      "route": "/notifications",
+      "status": 200,
+      "finalUrl": "/notifications",
+      "blue": [],
+      "blueCount": 0,
+      "whiteOnYellow": [],
+      "navBg": "rgb(43, 29, 20)",
+      "cellBg": "rgb(43, 29, 20)",
+      "title": "Notifications · Dynopay",
+      "url": "/notifications",
       "consoleErrors": []
     },
     {
@@ -204,18 +176,25 @@
       "consoleErrors": []
     },
     {
-      "route": "/settings",
+      "route": "/developer-keys",
       "status": 200,
-      "finalUrl": "/settings",
+      "finalUrl": "/developer-keys",
       "blue": [],
       "blueCount": 0,
       "whiteOnYellow": [],
       "navBg": "rgb(43, 29, 20)",
       "cellBg": "rgb(43, 29, 20)",
-      "title": "Settings · Dynopay",
-      "url": "/settings",
-      "consoleErrors": []
+      "title": "Developers · Dynopay",
+      "url": "/developer-keys",
+      "consoleErrors": [
+        "Warning: validateDOMNesting(...): %s cannot appear as a descendant of <%s>.%s <div> p \n    at div\n    at eval (webpack-internal:///(pages-dir-browser)/./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.d"
+      ]
     }
   ],
-  "consoleErrors": []
+  "consoleErrors": [
+    {
+      "url": "https://fe5ddcc0-56d8-44b9-a955-f0c58072b938.preview.emergentagent.com/developer-keys",
+      "text": "Warning: validateDOMNesting(...): %s cannot appear as a descendant of <%s>.%s <div> p \n    at div\n    at eval (webpack-internal:///(pages-dir-browser)/./node_modules/@emotion/react/dist/emotion-element-489459f2.browser.d"
+    }
+  ]
 }

@@ -25,7 +25,7 @@ const ResourcesV6: React.FC = () => {
   const s = useAurora();
   const { t } = useTranslation("landing");
   const track = useRef<HTMLDivElement>(null);
-  const accent = s.dark ? "#2BD4C4" : BRAND_ACCENT;
+  const accent = s.dark ? "#FFD100" : "#8B5E00";
   const posts: Card[] = [...blogPosts]
     .sort((a, b) => (a.publishedAt < b.publishedAt ? 1 : -1))
     .map((p) => ({ id: p.slug, kind: p.category, title: p.title, excerpt: p.excerpt, meta: p.readTime, href: `/blog/${p.slug}`, cover: getBlogCover(p) }));

@@ -139,7 +139,7 @@ const HowToPage = () => {
                   : "linear-gradient(160deg,#FFFFFF 0%,#F3EFEA 100%)",
                 boxShadow: s.dark
                   ? "0 30px 80px -40px rgba(0,0,0,0.8)"
-                  : "0 30px 80px -40px rgba(15,143,134,0.35)",
+                  : "0 30px 80px -40px rgba(139,94,0,0.35)",
                 minHeight: { xs: 380, md: 460 },
                 display: "flex",
                 flexDirection: "column",
@@ -274,7 +274,7 @@ const HowToPage = () => {
                       p: 2,
                       cursor: "pointer",
                       border: `1px solid ${isActive ? s.indigo : s.line}`,
-                      background: isActive ? (s.dark ? "rgba(43,212,196,0.08)" : "rgba(15,143,134,0.05)") : s.surface,
+                      background: isActive ? (s.dark ? "rgba(255,209,0,0.08)" : "rgba(139,94,0,0.05)") : s.surface,
                       transition: "border-color 0.25s ease, background 0.25s ease",
                       "&:hover": { borderColor: s.lineStrong },
                     }}

@@ -15,7 +15,7 @@ export { ctaButton, formatPercent };
 // email chip, so it is pixel-identical to the site header. The version suffix is
 // REQUIRED: Gmail/Outlook proxy-cache remote images by URL, so reusing the old
 // filename kept serving the stale logo even after the image bytes changed.
-const EMAIL_LOGO_FILE = "dynopay-email-logo-v3.png";
+const EMAIL_LOGO_FILE = "dynopay-email-logo-v4.png";
 
 // Last-resort absolute base used only if NO url env is configured (e.g. a worker
 // booted without SERVER_URL — the exact case that made admin emails fall back to
@@ -127,10 +127,10 @@ export const baseEmailTemplate = (
   const { showButton = false, buttonText = '', buttonLink = '', lang, hero, audience = 'merchant', brand = 'dynopay' } = options || {};
   const isSafeDeal = brand === 'safedeal';
   // Brand accent palette — SafeDeal reskins the shared chrome to gold-on-ink;
-  // Dynopay keeps its Aurora Indigo. (btnText is black on gold, white on indigo.)
+  // Dynopay is signal yellow on dark brown (btnText is dark brown on yellow, black on gold).
   const bc = isSafeDeal
     ? { bar: '#FFC61A', btnBg: '#FFC61A', btnText: '#0A0A0B', accentDark: '#F5C451', linkDark: '#F5C451', taglineLight: '#B77E00', taglineDark: '#F5C451', otpDark: '#FFD874', pillBgDark: '#3A2E08', pillTextDark: '#FCE7A6' }
-    : { bar: '#4338CA', btnBg: '#4338CA', btnText: '#FFFFFF', accentDark: '#a5b4fc', linkDark: '#818CF8', taglineLight: '#818CF8', taglineDark: '#a5b4fc', otpDark: '#818CF8', pillBgDark: '#312e81', pillTextDark: '#c7d2fe' };
+    : { bar: '#FFD100', btnBg: '#FFD100', btnText: '#2B1D14', accentDark: '#FFD100', linkDark: '#FFD100', taglineLight: '#FFD100', taglineDark: '#FFD100', otpDark: '#FFD100', pillBgDark: '#3A2A1F', pillTextDark: '#FFE680' };
   // Preheader: never let the client fall back to "Hey Alex," — use the heading when none given.
   const preheader = (options?.preheader || '').trim() || heading.replace(/<[^>]+>/g, '').trim();
   const legal = legalEntity();
@@ -175,18 +175,18 @@ export const baseEmailTemplate = (
     : `<img src="${LOGO_URL}" alt="Dynopay" width="90" height="30" style="display: inline-block; max-width: 90px; height: auto; opacity: 0.8;" />`;
   const ftrFont = "font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;";
   const whyBlock = `<tr>
-                  <td align="center" class="ftr-text" style="color: #a1a1aa; font-size: 11px; line-height: 1.6; ${ftrFont} padding: 0 8px 12px;">
-                    ${chrome.why}${audience === 'merchant' && !isSafeDeal ? ` <a class="ftr-link" href="${frontendUrl}/settings?section=notifications" style="color: #d4d4d8; text-decoration: underline; font-size: 11px;">${chrome.managePrefs}</a>` : ''}
+                  <td align="center" class="ftr-text" style="color: #C9B9A6; font-size: 11px; line-height: 1.6; ${ftrFont} padding: 0 8px 12px;">
+                    ${chrome.why}${audience === 'merchant' && !isSafeDeal ? ` <a class="ftr-link" href="${frontendUrl}/settings?section=notifications" style="color: #EFE4D2; text-decoration: underline; font-size: 11px;">${chrome.managePrefs}</a>` : ''}
                   </td>
                 </tr>`;
   // The From mailbox is send-only (no inbox) — say so, and point at the help centre instead.
   const noReplyBlock = `<tr>
-                  <td align="center" class="ftr-text" style="color: #a1a1aa; font-size: 11px; line-height: 1.6; ${ftrFont} padding: 0 8px 12px;">
-                    ${chrome.noReply} <a class="ftr-link" href="${links.help}" style="color: #d4d4d8; text-decoration: underline; font-size: 11px;">${chrome.noReplyHelp}</a>
+                  <td align="center" class="ftr-text" style="color: #C9B9A6; font-size: 11px; line-height: 1.6; ${ftrFont} padding: 0 8px 12px;">
+                    ${chrome.noReply} <a class="ftr-link" href="${links.help}" style="color: #EFE4D2; text-decoration: underline; font-size: 11px;">${chrome.noReplyHelp}</a>
                   </td>
                 </tr>`;
   const legalBlock = `<tr>
-                  <td align="center" class="ftr-text" style="color: #a1a1aa; font-size: 11px; ${ftrFont} padding-bottom: 12px; line-height: 1.6;">
+                  <td align="center" class="ftr-text" style="color: #C9B9A6; font-size: 11px; ${ftrFont} padding-bottom: 12px; line-height: 1.6;">
                     ${chrome.rights}${legal.address ? `<br />${legal.address}` : ''}
                   </td>
                 </tr>`;
@@ -214,7 +214,7 @@ export const baseEmailTemplate = (
     const icon = getEmailIconUrl(s.name);
     const inner = icon
       ? `<img src="${icon}" alt="${s.label}" width="24" height="24" style="display: block; border: 0; outline: none; text-decoration: none; opacity: 0.75;" />`
-      : `<span style="color: #818CF8; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${s.label}</span>`;
+      : `<span style="color: #FFD100; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${s.label}</span>`;
     return `<td style="padding: 0 8px;"><a href="${s.url}" target="_blank" style="display: inline-block; text-decoration: none;">${inner}</a></td>`;
   }).join('');
   const socialIconsBlock = showSocialLinks ? `<tr>
@@ -259,11 +259,11 @@ export const baseEmailTemplate = (
       .ftr { padding: 24px 20px !important; }
     }
     @media (prefers-color-scheme: dark) {
-      body, .bg { background-color: #0a0a0a !important; }
-      .card { background-color: #18181b !important; }
-      .hdr-bar { background-color: #050505 !important; }
+      body, .bg { background-color: #0B0908 !important; }
+      .card { background-color: #1A120D !important; }
+      .hdr-bar { background-color: #2B1D14 !important; }
       h1.hdg { color: #fafafa !important; }
-      /* CTA button: same indigo bg + white text in BOTH modes (inversion-proof) */
+      /* CTA button: same brand bg + dark label in BOTH modes (inversion-proof) */
       .btn { background-color: ${bc.btnBg} !important; color: ${bc.btnText} !important; -webkit-text-fill-color: ${bc.btnText} !important; }
       .btn span { color: ${bc.btnText} !important; -webkit-text-fill-color: ${bc.btnText} !important; }
       /* Content area: override ALL child elements */
@@ -291,10 +291,10 @@ export const baseEmailTemplate = (
       .sign strong { color: #d4d4d8 !important; }
       .sep { border-top-color: #33333a !important; }
       /* Footer */
-      .ftr-bg { background-color: #050505 !important; }
-      .ftr-text { color: #a1a1aa !important; }
+      .ftr-bg { background-color: #2B1D14 !important; }
+      .ftr-text { color: #C9B9A6 !important; }
       .ftr-tagline { color: ${bc.taglineDark} !important; }
-      .ftr-link { color: #d4d4d8 !important; }
+      .ftr-link { color: #EFE4D2 !important; }
       /* Colored accent boxes */
       .alert-box { background-color: #2b2108 !important; border-left-color: #f59e0b !important; }
       .alert-box td, .alert-box p, .alert-box span { color: #fcd34d !important; }
@@ -314,7 +314,7 @@ export const baseEmailTemplate = (
       .stat-card .stat-value { color: #fafafa !important; }
       .stat-card .stat-value-green { color: #4ADE80 !important; }
       /* OTP code block (already dark by design — brighten the frame) */
-      .otp-code { background-color: #0a0a0a !important; border-color: ${bc.otpDark} !important; color: ${bc.otpDark} !important; }
+      .otp-code { background-color: #2B1D14 !important; border-color: ${bc.otpDark} !important; color: ${bc.otpDark} !important; }
       /* Warning/security text */
       .warn-text, .warn-text p, .msg strong.warn-text { color: #fca5a5 !important; }
       .warn-text strong { color: #fee2e2 !important; }
@@ -342,23 +342,23 @@ export const baseEmailTemplate = (
       .amt-hero-value { color: #fafafa !important; }
       .amt-hero-sub { color: #a1a1aa !important; }
       /* Gmail workaround */
-      u + .body .bg { background-color: #0a0a0a !important; }
+      u + .body .bg { background-color: #0B0908 !important; }
     }
   </style>
 </head>
-<body class="body" style="margin: 0; padding: 0; background-color: #f5f5f4;">
-  ${preheader ? `<div style="display:none;font-size:1px;color:#f5f5f4;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">${preheader}</div>` : ''}
-  <table role="presentation" class="bg" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f4; table-layout: fixed;">
+<body class="body" style="margin: 0; padding: 0; background-color: #FAF6EF;">
+  ${preheader ? `<div style="display:none;font-size:1px;color:#FAF6EF;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">${preheader}</div>` : ''}
+  <table role="presentation" class="bg" width="100%" cellpadding="0" cellspacing="0" style="background-color: #FAF6EF; table-layout: fixed;">
     <tr>
       <td align="center" style="padding: 32px 16px;">
-        <table role="presentation" class="outer card" width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border: 1px solid #ededf0; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 2px rgba(16,24,40,0.04);">
+        <table role="presentation" class="outer card" width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; width: 100%; background-color: #FFFDF7; border: 1px solid #E8DFD2; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 2px rgba(16,24,40,0.04);">
           <!-- Neon accent bar -->
           <tr>
             <td style="background-color: ${bc.bar}; height: 5px; line-height: 5px; font-size: 5px;">&nbsp;</td>
           </tr>
           <!-- Logo Header -->
           <tr>
-            <td class="hdr hdr-bar" style="background-color: #050505; padding: 26px 32px; text-align: center;">
+            <td class="hdr hdr-bar" style="background-color: #2B1D14; padding: 26px 32px; text-align: center;">
               <a href="${brandHome}" style="text-decoration: none;">
                 ${headerMark}
               </a>
@@ -383,7 +383,7 @@ export const baseEmailTemplate = (
           </tr>
           <!-- Footer -->
           <tr>
-            <td class="ftr ftr-bg" style="background-color: #050505; padding: 28px 32px; text-align: center; border-radius: 0 0 16px 16px;">
+            <td class="ftr ftr-bg" style="background-color: #2B1D14; padding: 28px 32px; text-align: center; border-radius: 0 0 16px 16px;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td align="center" style="padding-bottom: 16px;">
@@ -403,11 +403,11 @@ export const baseEmailTemplate = (
                   <td align="center">
                     <table role="presentation" cellpadding="0" cellspacing="0">
                       <tr>
-                        <td style="padding: 0 10px;"><a class="ftr-link" href="${links.privacy}" style="color: #d4d4d8; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${chrome.privacy}</a></td>
-                        <td class="ftr-text" style="color: #71717a; font-size: 11px;">|</td>
-                        <td style="padding: 0 10px;"><a class="ftr-link" href="${links.terms}" style="color: #d4d4d8; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${chrome.terms}</a></td>
-                        <td class="ftr-text" style="color: #71717a; font-size: 11px;">|</td>
-                        <td style="padding: 0 10px;"><a class="ftr-link" href="${links.help}" style="color: #d4d4d8; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${chrome.support}</a></td>
+                        <td style="padding: 0 10px;"><a class="ftr-link" href="${links.privacy}" style="color: #EFE4D2; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${chrome.privacy}</a></td>
+                        <td class="ftr-text" style="color: #7A6656; font-size: 11px;">|</td>
+                        <td style="padding: 0 10px;"><a class="ftr-link" href="${links.terms}" style="color: #EFE4D2; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${chrome.terms}</a></td>
+                        <td class="ftr-text" style="color: #7A6656; font-size: 11px;">|</td>
+                        <td style="padding: 0 10px;"><a class="ftr-link" href="${links.help}" style="color: #EFE4D2; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${chrome.support}</a></td>
                       </tr>
                     </table>
                   </td>
@@ -427,7 +427,7 @@ export const baseEmailTemplate = (
  * Reusable email component: Info/data box
  * Used for payment details, transaction info, etc.
  */
-export const infoBox = (content: string, borderColor: string = '#4338CA'): string => {
+export const infoBox = (content: string, borderColor: string = '#8B5E00'): string => {
   return `<table role="presentation" class="info-box" width="100%" cellpadding="0" cellspacing="0" style="background-color: #fbfbfb; border: 1px solid #ececee; border-radius: 14px; border-left: 3px solid ${borderColor}; margin: 22px 0;">
     <tr><td style="padding: 8px 20px;">${content}</td></tr>
   </table>`;
@@ -452,7 +452,7 @@ export const statusBadge = (label: string, type: 'success' | 'pending' | 'error'
     success: { bg: '#e7f8ef', color: '#067647', cls: 'status-success' },
     pending: { bg: '#fef6e7', color: '#b25e09', cls: 'status-pending' },
     error: { bg: '#feecec', color: '#b42318', cls: 'status-error' },
-    info: { bg: '#eef0ff', color: '#4338ca', cls: 'status-success' },
+    info: { bg: '#FFF6CC', color: '#6B4800', cls: 'status-success' },
   };
   const s = styles[type];
   return `<span class="${s.cls}" style="display: inline-block; background: ${s.bg}; color: ${s.color}; padding: 4px 12px; border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${label}</span>`;
@@ -468,10 +468,10 @@ export const p = (text: string, extra: string = ''): string => {
 /**
  * OTP code display
  */
-export const otpBlock = (code: string, accent: string = '#818CF8'): string => {
+export const otpBlock = (code: string, accent: string = '#FFD100'): string => {
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin: 24px 0;">
     <tr><td align="center">
-      <div class="otp-code" style="display: inline-block; background-color: #050505; border: 1px solid #050505; border-radius: 14px; padding: 18px 44px; font-size: 32px; font-weight: 700; color: ${accent}; letter-spacing: 10px; font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;">${code}</div>
+      <div class="otp-code" style="display: inline-block; background-color: #2B1D14; border: 1px solid #2B1D14; border-radius: 14px; padding: 18px 44px; font-size: 32px; font-weight: 700; color: ${accent}; letter-spacing: 10px; font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;">${code}</div>
     </td></tr>
   </table>`;
 };

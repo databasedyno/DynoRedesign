@@ -597,7 +597,7 @@ const HomeHeader = memo(function HomeHeader() {
                 endIcon={<ArrowForwardRounded />}
                 sx={{
                   background: BRAND_ACCENT,
-                  color: "#FFFFFF",
+                  color: "#2B1D14",
                   fontFamily: "var(--font-body)",
                   fontSize: 15,
                   fontWeight: 600,

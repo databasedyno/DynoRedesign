@@ -14,7 +14,7 @@ const brand = {
   border: "rgba(255,255,255,0.08)",
   text: "#F4F4F6",
   sub: "#A1A1AA",
-  indigo: "#2BD4C4",
+  indigo: "#FFD100",
   emerald: "#34D399",
   rose: "#FB7185",
 };

@@ -53,7 +53,7 @@ const voice = (deal: DealLike): BrandVoice => {
     name: sd ? "SafeDeal" : "Dynopay",
     reviewer: sd ? "the SafeDeal team" : "a Dynopay admin",
     held: sd ? "held securely in SafeDeal escrow" : "held by Dynopay",
-    accent: sd ? "#FFC61A" : "#4338CA",
+    accent: sd ? "#FFC61A" : "#FFD100",
     opts: (hero, cta) => ({ brand: sd ? "safedeal" : "dynopay", audience: sd ? "buyer" : "merchant", hero, cta }),
   };
 };

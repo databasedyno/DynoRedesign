@@ -171,7 +171,7 @@ export const Scene = ({ id, s, reduce }: { id: string; s: Tokens; reduce: boolea
                     borderRadius: 1.5,
                     textAlign: "center",
                     border: `1px solid ${i === 1 ? s.indigo : s.line}`,
-                    background: i === 1 ? (s.dark ? "rgba(43,212,196,0.1)" : "rgba(15,143,134,0.06)") : "transparent",
+                    background: i === 1 ? (s.dark ? "rgba(255,209,0,0.1)" : "rgba(139,94,0,0.06)") : "transparent",
                   }}
                 >
                   <Box sx={{ width: 16, height: 16, borderRadius: "50%", background: c.c, mx: "auto", mb: 0.5 }} />

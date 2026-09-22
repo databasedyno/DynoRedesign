@@ -24,7 +24,7 @@ const TwoFactorSetupDialog: React.FC<TwoFactorSetupDialogProps> = ({ open, onClo
 
   const header = (icon: React.ReactNode, title: string) => (
     <Box sx={{ display: "flex", alignItems: "center", gap: "10px", mb: 1.5 }}>
-      <Box sx={{ width: 40, height: 40, borderRadius: "10px", backgroundColor: theme.palette.mode === "dark" ? "rgba(43,212,196,0.18)" : "#E6F7F5", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <Box sx={{ width: 40, height: 40, borderRadius: "10px", backgroundColor: theme.palette.mode === "dark" ? "rgba(255,209,0,0.18)" : "#FFF6CC", display: "flex", alignItems: "center", justifyContent: "center" }}>
         {icon}
       </Box>
       <Typography sx={{ fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: "18px", lineHeight: "100%" }}>{title}</Typography>

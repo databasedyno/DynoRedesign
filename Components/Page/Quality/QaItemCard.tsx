@@ -30,7 +30,7 @@ export const STATUS_META: Record<QaStatus, { label: string; color: string }> = {
   pass: { label: "Pass", color: "#22C55E" },
   fail: { label: "Fail", color: "#EF4444" },
   blocked: { label: "Blocked", color: "#F59E0B" },
-  awaiting_retest: { label: "Awaiting retest", color: "#2BD4C4" },
+  awaiting_retest: { label: "Awaiting retest", color: "#FFD100" },
   not_tested: { label: "Not tested", color: "#9CA3AF" },
 };
 
@@ -62,8 +62,8 @@ export const QaWhereLine = ({ where, isDark }: { where: QaWhere; isDark: boolean
       flexWrap: "wrap",
       p: 1,
       borderRadius: 1.5,
-      bgcolor: isDark ? "rgba(43,212,196,0.10)" : "#E6F7F5",
-      border: `1px solid ${isDark ? "rgba(43,212,196,0.35)" : "#FFD100"}`,
+      bgcolor: isDark ? "rgba(255,209,0,0.10)" : "#FFF6CC",
+      border: `1px solid ${isDark ? "rgba(255,209,0,0.35)" : "#FFD100"}`,
     }}
   >
     <PlaceOutlinedIcon sx={{ fontSize: 16, color: "#FFD100", mt: "1px" }} />

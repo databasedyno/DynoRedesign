@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Label, VigFrame } from "./primitives";
 
 const mono = { fontFamily: "var(--font-tech)", fontSize: 12, lineHeight: 1.7, color: "#D4D4D8", whiteSpace: "pre" as const, m: 0, overflow: "hidden" };
-const K = ({ c }: { c: string }) => <Box component="span" sx={{ color: "#2BD4C4" }}>{c}</Box>;
+const K = ({ c }: { c: string }) => <Box component="span" sx={{ color: "#FFD100" }}>{c}</Box>;
 const S = ({ c }: { c: string }) => <Box component="span" sx={{ color: "#6EE7B7" }}>{c}</Box>;
 const N = ({ c }: { c: string }) => <Box component="span" sx={{ color: "#FCD34D" }}>{c}</Box>;
 

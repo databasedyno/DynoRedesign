@@ -118,16 +118,16 @@ export const sendCustomerPaymentConfirmationEmail = async (
         ${description ? dataRow(t('labels.description', L), description) : ''}
         ${dataRow(t('labels.transactionId', L), `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`)}
         ${transactionReference ? dataRow(t('labels.reference', L), explorerUrl
-          ? `<a href="${explorerUrl}" style="font-family: monospace; font-size: 12px; color: #4F46E5; word-break: break-all; text-decoration: underline;" target="_blank" rel="noopener">${transactionReference}</a> <span style="font-size:12px;color:#6b7280;">&nbsp;${t('customerPaymentConfirmation.viewOnExplorer', L)} &#8599;</span>`
+          ? `<a href="${explorerUrl}" style="font-family: monospace; font-size: 12px; color: #8B5E00; word-break: break-all; text-decoration: underline;" target="_blank" rel="noopener">${transactionReference}</a> <span style="font-size:12px;color:#6b7280;">&nbsp;${t('customerPaymentConfirmation.viewOnExplorer', L)} &#8599;</span>`
           : `<span style="font-family: monospace; font-size: 12px; word-break: break-all;">${transactionReference}</span>`) : ''}
         ${dataRow(t('labels.date', L), `${date} · ${time}`, true)}
       </table>
     `, '#12B76A')}
-    ${buyAgain ? `<table role="presentation" class="hl-box" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f5f3ff;border:1px solid #e0e7ff;border-radius:12px;margin:20px 0;">
+    ${buyAgain ? `<table role="presentation" class="hl-box" width="100%" cellpadding="0" cellspacing="0" style="background-color:#FFF9E0;border:1px solid #F2E3A6;border-radius:12px;margin:20px 0;">
       <tr><td style="padding:18px 20px;">
         <p style="font-size:15px;font-weight:700;color:#1f2937;margin:0 0 6px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">${buyAgain.kind === 'donation' ? t('buyAgainReceipt.titleDonation', L, { brand: companyName }) : t('buyAgainReceipt.title', L, { brand: companyName })}</p>
         <p style="font-size:14px;color:#4b5563;line-height:1.6;margin:0 0 14px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">${buyAgain.kind === 'donation' ? t('buyAgainReceipt.bodyDonation', L) : t('buyAgainReceipt.body', L)}</p>
-        <a href="${buyAgain.url}" class="btn" style="display:inline-block;background-color:#4338CA;color:#FFFFFF;-webkit-text-fill-color:#FFFFFF;text-decoration:none;padding:11px 26px;border-radius:10px;font-weight:700;font-size:14px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;" target="_blank" rel="noopener"><span style="color:#FFFFFF;-webkit-text-fill-color:#FFFFFF;">${buyAgain.kind === 'donation' ? t('buyAgainReceipt.ctaDonation', L, { brand: companyName }) : t('buyAgainReceipt.cta', L, { brand: companyName })}</span></a>
+        <a href="${buyAgain.url}" class="btn" style="display:inline-block;background-color:#FFD100;color:#2B1D14;-webkit-text-fill-color:#2B1D14;text-decoration:none;padding:11px 26px;border-radius:10px;font-weight:700;font-size:14px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;" target="_blank" rel="noopener"><span style="color:#FFFFFF;-webkit-text-fill-color:#FFFFFF;">${buyAgain.kind === 'donation' ? t('buyAgainReceipt.ctaDonation', L, { brand: companyName }) : t('buyAgainReceipt.cta', L, { brand: companyName })}</span></a>
       </td></tr>
     </table>` : ''}
     ${pdfAttachment ? p(t('customerPaymentConfirmation.pdfAttached', L)) : ''}

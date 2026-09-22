@@ -922,7 +922,7 @@ export default function TransferExpectedCard({
               py: 1.5,
               fontWeight: 500,
               '&:hover': {
-                backgroundColor: isDark ? 'rgba(15,143,134, 0.1)' : '#E6F7F5',
+                backgroundColor: isDark ? 'rgba(139,94,0, 0.1)' : '#FFF6CC',
                 borderColor: theme.palette.primary.main
               }
             }}

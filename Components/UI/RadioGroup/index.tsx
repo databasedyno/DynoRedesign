@@ -7,7 +7,7 @@ export interface CustomRadioProps extends Omit<RadioProps, "sx"> {
 
 /**
  * Custom Radio Button Component with consistent styling
- * - Selected: Blue inner circle (#0F8F86) with light grey border (#E9ECF2)
+ * - Selected: Blue inner circle (#8B5E00) with light grey border (#E9ECF2)
  * - Unselected: White inner circle with light grey border (#E9ECF2)
  * - Hover effects with light blue background
  * - Fully customizable via sx prop

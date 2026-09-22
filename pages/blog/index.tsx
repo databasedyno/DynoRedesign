@@ -18,7 +18,7 @@ const categoryColors: Record<string, string> = {
   "Integration Guide": "#5865F2",
   "Business Strategy": "#10B981",
   "Cost Analysis": "#F59E0B",
-  "Developer Guide": "#2BD4C4",
+  "Developer Guide": "#FFD100",
 };
 
 const BlogPage = () => {

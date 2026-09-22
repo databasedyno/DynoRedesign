@@ -22,8 +22,8 @@
   56%, 100% { opacity: 0; }
 }
 @keyframes swiss-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(43, 212, 196, 0.5); }
-  50% { box-shadow: 0 0 0 5px rgba(43, 212, 196, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,209,0, 0.5); }
+  50% { box-shadow: 0 0 0 5px rgba(255,209,0, 0); }
 }
 @media (prefers-reduced-motion: reduce) {
   .swiss-marquee-track { animation: none !important; }
@@ -392,7 +392,7 @@ a {
 html[data-theme="dark"] .themed-icon {
   filter: brightness(0) saturate(100%) invert(85%) sepia(0%) saturate(0%) brightness(105%) contrast(85%);
 }
-/* Brand-accent icons (aqua #0F8F86 in the SVG): lift to bright aqua in dark mode */
+/* Brand-accent icons (aqua #8B5E00 in the SVG): lift to bright aqua in dark mode */
 .themed-icon-primary {
   transition: filter 0.2s ease;
 }
@@ -464,7 +464,7 @@ html[data-theme="light"] {
 html[data-theme="dark"] {
   --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 240, 210, 0.06);
   --shadow-card-hover: 0 12px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 240, 210, 0.1),
-    0 0 48px rgba(43, 212, 196, 0.1);
+    0 0 48px rgba(255,209,0, 0.1);
   --shadow-pop: 0 16px 48px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 240, 210, 0.06);
 }
 
@@ -532,12 +532,12 @@ html[data-theme="light"] .MuiSkeleton-root {
    focus (`:focus-visible`) so mouse clicks stay clean. Applies to all
    interactive elements everywhere. */
 :root {
-  --dyno-focus-ring: #2BD4C4;
-  --dyno-focus-ring-shadow: 0 0 0 3px rgba(43, 212, 196, 0.40);
+  --dyno-focus-ring: #FFD100;
+  --dyno-focus-ring-shadow: 0 0 0 3px rgba(255,209,0, 0.40);
 }
 html[data-theme="light"] {
-  --dyno-focus-ring: #0F8F86;
-  --dyno-focus-ring-shadow: 0 0 0 3px rgba(15, 143, 134, 0.30);
+  --dyno-focus-ring: #8B5E00;
+  --dyno-focus-ring-shadow: 0 0 0 3px rgba(139,94,0, 0.30);
 }
 
 :focus-visible {

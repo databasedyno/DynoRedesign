@@ -45,11 +45,11 @@ export const PrimaryBtn: React.FC<ButtonProps & { small?: boolean }> = ({ small,
       px: small ? 2.5 : 3.5,
       py: small ? 1.1 : 1.5,
       fontSize: small ? 14.5 : 16,
-      color: "#fff",
-      background: BRAND_ACCENT,
-      boxShadow: "0 12px 30px -12px rgba(15,118,110,0.5)",
+      color: "#2B1D14",
+      background: "#FFD100",
+      boxShadow: "0 12px 30px -12px rgba(255,209,0,0.55)",
       transition: "background-color 180ms ease, transform 180ms ease, box-shadow 180ms ease",
-      "&:hover": { background: "#0D5C56", transform: "translateY(-1px)", boxShadow: "0 16px 34px -12px rgba(15,118,110,0.6)" },
+      "&:hover": { background: "#F0C300", color: "#2B1D14", transform: "translateY(-1px)", boxShadow: "0 16px 34px -12px rgba(255,209,0,0.6)" },
       "&:active": { transform: "translateY(0) scale(0.99)" },
       ...sx,
     }}
@@ -67,13 +67,13 @@ export const SecondaryBtn: React.FC<ButtonProps & { small?: boolean; onDark?: bo
         px: small ? 2.25 : 3,
         py: small ? 1.05 : 1.45,
         fontSize: small ? 14.5 : 15.5,
-        color: onDark ? "#F5F5F5" : s.ink,
-        border: `1px solid ${onDark ? "rgba(255,255,255,0.28)" : s.lineStrong}`,
+        color: onDark ? "#FAF6EF" : s.ink,
+        border: `1px solid ${onDark ? "rgba(255,240,210,0.30)" : s.lineStrong}`,
         background: "transparent",
         transition: "border-color 180ms ease, color 180ms ease, background-color 180ms ease",
         "&:hover": onDark
-          ? { background: "rgba(255,255,255,0.07)", borderColor: "rgba(255,255,255,0.5)" }
-          : { borderColor: BRAND_ACCENT, color: s.dark ? "#FFD100" : BRAND_ACCENT, background: "transparent" },
+          ? { background: "rgba(255,240,210,0.08)", borderColor: "rgba(255,240,210,0.55)" }
+          : { borderColor: BRAND_ACCENT, color: s.dark ? "#FFD100" : "#8B5E00", background: "transparent" },
         ...sx,
       }}
     />

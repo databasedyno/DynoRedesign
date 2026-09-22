@@ -31,7 +31,7 @@ export default function WalletSetupNudge(): React.ReactElement | null {
   // While either store is still loading we render nothing (avoids a flash).
   if (!ready || !hasCompany || hasWallet) return null;
 
-  const accent = "#0F8F86";
+  const accent = "#8B5E00";
 
   // Best-effort onboarding funnel tracking — must never break the dashboard.
   const track = (event_type: string): void => {

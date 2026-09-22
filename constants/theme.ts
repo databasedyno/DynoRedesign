@@ -1,25 +1,29 @@
 /**
- * Central brand + design tokens — Dynopay 2026-09 rebrand.
+ * Central brand + design tokens — Dynopay 2026-09 rebrand (gold / dark brown / black).
  *
- * Palette: yellow (primary fills) · dark brown (dominant dark) · black (deepest
- * layers) · aqua (secondary: links, focus, status, charts) · warm cream neutrals.
+ * Palette: gold (primary fills, brand text on dark) · dark brown (dominant dark)
+ * · black (deepest layers) · warm cream neutrals. Aqua survives ONLY as a
+ * micro-accent: the logo spark and small "live" dots.
  *
- * `BRAND_ACCENT` is the signal yellow used for solid fills (primary buttons,
- * active nav, selected states). Yellow ALWAYS carries dark-brown text —
+ * `BRAND_ACCENT` is the signal gold used for solid fills (primary buttons,
+ * active nav, selected states). Gold ALWAYS carries dark-brown text —
  * pair it with `BRAND_ON_ACCENT`, never white. Brand-tinted TEXT / icons /
- * thin borders use aqua via `brandFg(isDark)`.
+ * thin borders use `brandFg(isDark)` (gold on dark, deep gold on light).
  */
 export const BRAND_ACCENT = "#FFD100";
-/** Pressed / hover yellow. */
+/** Pressed / hover gold. */
 export const BRAND_ACCENT_DARK = "#F0C300";
-/** Brand-tinted text on dark surfaces (aqua). */
-export const BRAND_ACCENT_LIGHT = "#2BD4C4";
+/** Brand-tinted text on dark surfaces (gold). */
+export const BRAND_ACCENT_LIGHT = "#FFD100";
 /** Hover fill. */
 export const BRAND_ACCENT_HOVER = "#F0C300";
-/** Text / icon colour that sits ON a yellow fill. */
+/** Text / icon colour that sits ON a gold fill. */
 export const BRAND_ON_ACCENT = "#2B1D14";
 
-/** Aqua — secondary accent. `AQUA` on dark grounds, `AQUA_DEEP` for readable text/links on light. */
+/** Gold — `GOLD` on dark grounds, `GOLD_DEEP` for readable brand text on light (≈5.3:1 on cream). */
+export const GOLD = "#FFD100";
+export const GOLD_DEEP = "#8B5E00";
+/** Aqua — micro-accent ONLY (logo spark, live dots). Never for links / focus / fills. */
 export const AQUA = "#2BD4C4";
 export const AQUA_DEEP = "#0F8F86";
 /** Dark brown grounds. */
@@ -36,17 +40,19 @@ export const INK = "#1F140D";
 
 /**
  * Theme-aware brand FOREGROUND colour — for brand-coloured TEXT / ICONS / thin
- * borders that sit on a surface. Aqua: `AQUA` (dark) / `AQUA_DEEP` (light) —
- * both clear WCAG AA for text on their grounds. Never use yellow for text on
- * light surfaces.
+ * borders that sit on a surface. Gold on dark, deep gold on light (AA for text).
+ * Never use bright gold for text on light surfaces.
  *
  * NOTE: Do NOT use this for solid button/pill BACKGROUNDS — those keep the full
- * `BRAND_ACCENT` yellow in both modes (they pair with `BRAND_ON_ACCENT`).
+ * `BRAND_ACCENT` gold in both modes (they pair with `BRAND_ON_ACCENT`).
  */
-export const brandFg = (isDark: boolean): string => (isDark ? AQUA : AQUA_DEEP);
+export const brandFg = (isDark: boolean): string => (isDark ? GOLD : GOLD_DEEP);
+
+/** Hyperlink colour — dark brown on light (underlined), gold on dark. */
+export const linkFg = (isDark: boolean): string => (isDark ? GOLD : INK);
 
 /**
- * Returns the brand yellow with an alpha channel appended as hex
+ * Returns the brand gold with an alpha channel appended as hex
  * (e.g. brandAlpha(0.1) -> "#FFD1001A"). `a` is clamped to [0, 1].
  */
 export const brandAlpha = (a: number): string => {
@@ -55,15 +61,18 @@ export const brandAlpha = (a: number): string => {
   return `${BRAND_ACCENT}${hex}`;
 };
 
-/** Aqua with alpha — glows, focus rings, soft tints. */
+/** Gold with alpha — glows, focus rings, soft tints. */
+export const goldAlpha = (a: number): string => `rgba(255,209,0,${Math.min(Math.max(a, 0), 1)})`;
+/** Deep gold with alpha — soft tints on light surfaces. */
+export const goldDeepAlpha = (a: number): string => `rgba(139,94,0,${Math.min(Math.max(a, 0), 1)})`;
+/** Aqua with alpha — live-dot halos only. */
 export const aquaAlpha = (a: number): string => `rgba(43,212,196,${Math.min(Math.max(a, 0), 1)})`;
 
 /**
  * Semantic status palette — single source of truth for success / error /
  * warning states across checkout, dashboards, and (mirrored server-side in
  * `backend/utils/brandTokens.ts`) transactional emails. Money semantics stay
- * conventional: green = received / up, red = failed / down. Aqua is a brand
- * accent, not a success colour.
+ * conventional: green = received / up, red = failed / down.
  */
 /** Paid / settled / success. */
 export const SUCCESS_GREEN = "#12B76A";
@@ -80,7 +89,7 @@ export const WARNING_AMBER_LIGHT = "#FBBF24";
 
 /**
  * Dark-mode surface system — warm dark. Black canvas → dark-brown cards →
- * espresso raised → lighter espresso active. Yellow fills, aqua text accents.
+ * espresso raised → lighter espresso active. Gold fills + gold text accents.
  */
 export const DARK = {
   canvas: BLACK,
@@ -95,13 +104,14 @@ export const DARK = {
   /** Solid fills (buttons, active nav) — pairs with `BRAND_ON_ACCENT`. */
   accent: BRAND_ACCENT,
   accentHover: BRAND_ACCENT_HOVER,
-  /** Brand-tinted TEXT / icons on dark surfaces (aqua). */
-  accentText: AQUA,
+  /** Brand-tinted TEXT / icons on dark surfaces (gold). */
+  accentText: GOLD,
   accentSoft: "rgba(255,209,0,0.14)",
   success: "#4ADE80",
   warning: "#FBBF24",
   error: "#F87171",
-  info: AQUA,
+  /** Info = brown-neutral on dark (cream text, gold icon). */
+  info: "#D9CFC2",
   /** Hairline light-tint borders. */
   hairline: "rgba(255,240,210,0.08)",
   hairlineStrong: "rgba(255,240,210,0.15)",
@@ -109,12 +119,12 @@ export const DARK = {
   shadowSoft: "0 2px 12px rgba(0,0,0,0.35)",
   shadow: "0 6px 28px rgba(0,0,0,0.48)",
   cardShadow: "0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,240,210,0.06)",
-  cardShadowHover: "0 12px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,240,210,0.10), 0 0 48px rgba(43,212,196,0.10)",
+  cardShadowHover: "0 12px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,240,210,0.10), 0 0 48px rgba(255,209,0,0.08)",
   /** Accent glow for focused inputs / primary CTAs / active elements. */
   glowAccent: "0 0 40px rgba(255,209,0,0.14)",
   glowAccentStrong: "0 0 24px rgba(255,209,0,0.36)",
   glowSuccess: "0 0 16px rgba(74,222,128,0.32)",
-  focusRing: "0 0 0 3px rgba(43,212,196,0.40)",
+  focusRing: "0 0 0 3px rgba(255,209,0,0.40)",
   /** Gradients — hero / primary surfaces only. */
   gradient: "linear-gradient(135deg, #FFD100 0%, #FFB300 100%)",
   gradientHover: "linear-gradient(135deg, #FFDA33 0%, #FFBE2E 100%)",
@@ -138,7 +148,8 @@ export const LIGHT = {
   success: "#15803D",
   warning: "#B45309",
   error: "#B91C1C",
-  info: AQUA_DEEP,
+  /** Info = brown-neutral on light (deep gold icon). */
+  info: GOLD_DEEP,
   /** Hairline warm borders. */
   hairline: "rgba(43,29,20,0.08)",
   hairlineStrong: "rgba(43,29,20,0.14)",
@@ -147,7 +158,7 @@ export const LIGHT = {
   shadow: "0 4px 16px rgba(43,29,20,0.10)",
   cardShadow: "0 1px 2px rgba(43,29,20,0.06)",
   cardShadowHover: "0 6px 20px rgba(43,29,20,0.10)",
-  focusRing: "0 0 0 3px rgba(15,143,134,0.30)",
+  focusRing: "0 0 0 3px rgba(255,209,0,0.55)",
 } as const;
 
 /**

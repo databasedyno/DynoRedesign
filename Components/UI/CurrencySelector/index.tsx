@@ -90,7 +90,7 @@ const CurrencyGlyph: React.FC<{ currency: CurrencyOption; size: number }> = ({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "linear-gradient(135deg, #2B1D14 0%, #0F8F86 100%)",
+        background: "linear-gradient(135deg, #2B1D14 0%, #8B5E00 100%)",
         color: "#fff",
         fontFamily: "var(--font-sans)",
         fontWeight: 700,

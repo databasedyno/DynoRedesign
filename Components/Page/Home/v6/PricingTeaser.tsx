@@ -13,7 +13,7 @@ import { FeeCalculator, TierLadder } from "../v5/pricingParts";
 const PricingTeaser: React.FC = () => {
   const s = useAurora();
   const { t } = useTranslation("landing");
-  const accent = s.dark ? "#2BD4C4" : BRAND_ACCENT;
+  const accent = s.dark ? "#FFD100" : "#8B5E00";
   return (
     <Section id="pricing" alt testId="pricing">
       <Box sx={{ display: "grid", gridTemplateColumns: { xs: "minmax(0,1fr)", lg: "minmax(0,1.1fr) minmax(0,0.9fr)" }, gap: { xs: 5, lg: 7 }, alignItems: "start" }}>

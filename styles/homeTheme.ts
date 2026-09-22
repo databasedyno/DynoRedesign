@@ -1,9 +1,10 @@
 import { createTheme } from "@mui/material";
+import { BRAND_ACCENT, BRAND_ACCENT_HOVER, BRAND_ON_ACCENT, DARK, GOLD, GOLD_DEEP, INK, LIGHT } from "@/constants/theme";
 
 /**
  * homeTheme — Dynopay marketing surface (landing, fees, blog, docs, legal,
- * system-status, hosted checkout). 2026-06 Tatum-inspired reskin: mint/teal-green
- * leads; indigo dropped as a brand colour. SafeDeal keeps its own gold/black theme
+ * system-status, hosted checkout default chrome). 2026-09 rebrand: gold leads,
+ * dark brown / black grounds, cream neutrals. SafeDeal keeps its own theme
  * (Components/SafeDeal/SafeDealShell) and the signed-in dashboard keeps its own.
  *
  * NOTE: `background.paper` is kept OPAQUE on purpose so shared MUI surfaces that
@@ -13,99 +14,153 @@ import { createTheme } from "@mui/material";
  * CustomButton / HomeButton with safe fallbacks.
  */
 
-// Marketing accent (deep teal — white-text safe). Kept name for back-compat.
-export const HOME_LIME = "#0F766E";
+// Marketing accent — signal gold (pairs with dark-brown text). Kept name for back-compat.
+export const HOME_LIME = BRAND_ACCENT;
+
+/** Links: dark brown on light, gold on dark. Text/outlined buttons never render gold text on cream. */
+const homeComponents = (isDark: boolean) => {
+  const link = isDark ? GOLD : INK;
+  const fg = isDark ? GOLD : GOLD_DEEP;
+  return {
+    MuiLink: {
+      styleOverrides: {
+        root: { color: link, textDecorationColor: isDark ? "rgba(255,209,0,0.45)" : "rgba(43,29,20,0.35)" },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: { textTransform: "none" as const, fontWeight: 600 },
+        containedPrimary: {
+          color: BRAND_ON_ACCENT,
+          backgroundColor: BRAND_ACCENT,
+          "&:hover": { backgroundColor: BRAND_ACCENT_HOVER },
+        },
+        outlinedPrimary: {
+          color: fg,
+          borderColor: isDark ? "rgba(255,209,0,0.5)" : "rgba(139,94,0,0.45)",
+          "&:hover": { borderColor: fg, backgroundColor: isDark ? "rgba(255,209,0,0.10)" : "rgba(139,94,0,0.08)" },
+        },
+        textPrimary: {
+          color: fg,
+          "&:hover": { backgroundColor: isDark ? "rgba(255,209,0,0.10)" : "rgba(139,94,0,0.08)" },
+        },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        colorPrimary: { backgroundColor: BRAND_ACCENT, color: BRAND_ON_ACCENT },
+        outlinedPrimary: { color: fg, borderColor: fg },
+      },
+    },
+    MuiCheckbox: { styleOverrides: { root: { "&.Mui-checked": { color: isDark ? GOLD : INK } } } },
+    MuiRadio: { styleOverrides: { root: { "&.Mui-checked": { color: isDark ? GOLD : INK } } } },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: fg },
+        },
+      },
+    },
+    MuiInputLabel: { styleOverrides: { root: { "&.Mui-focused": { color: fg } } } },
+    MuiTabs: { styleOverrides: { indicator: { backgroundColor: BRAND_ACCENT } } },
+    MuiTab: { styleOverrides: { root: { "&.Mui-selected": { color: isDark ? DARK.text : LIGHT.text } } } },
+  };
+};
 
 export const homeTheme = createTheme({
   palette: {
     mode: "light",
     primary: {
-      main: "#0F766E",
-      dark: "#0D5C56",
-      light: "rgba(0,208,132,0.10)",
-      contrastText: "#FFFFFF",
-      hover: "#0D5C56",
+      main: BRAND_ACCENT,
+      dark: BRAND_ACCENT_HOVER,
+      light: "rgba(255,209,0,0.16)",
+      contrastText: BRAND_ON_ACCENT,
+      hover: BRAND_ACCENT_HOVER,
     } as any,
+    // Secondary = dark brown (solid "ink" buttons / chips on the marketing site).
     secondary: {
-      main: "#00D084",
-      dark: "#05B875",
-      light: "rgba(0,208,132,0.12)",
-      contrastText: "#08231C",
+      main: "#2B1D14",
+      dark: "#0B0908",
+      light: "rgba(43,29,20,0.08)",
+      contrastText: "#FFFDF7",
     },
     success: {
-      main: "#16A34A",
+      main: "#15803D",
     },
     text: {
-      primary: "#0A0F1D",
-      secondary: "#334155",
+      primary: LIGHT.text,
+      secondary: LIGHT.textSecondary,
       // ~4.6:1 muted (WCAG AA) for badge subtitles, footnotes, section eyebrows.
-      disabled: "#64748B",
+      disabled: LIGHT.textMuted,
     },
     background: {
-      default: "#F8FAFC",
-      paper: "#FFFFFF",
+      default: LIGHT.canvas,
+      paper: LIGHT.surface,
     },
-    divider: "rgba(10,10,10,0.10)",
+    divider: "rgba(43,29,20,0.10)",
     border: {
-      main: "rgba(10,10,10,0.12)",
-      focus: "#0F766E",
+      main: "rgba(43,29,20,0.12)",
+      focus: GOLD_DEEP,
     } as any,
     // Custom `surface` palette used by the checkout (pay) page. Must exist in
     // BOTH light and dark or `theme.palette.surface.border` throws in dark mode.
     surface: {
-      main: "#F4F6FA",
-      paper: "#FFFFFF",
-      border: "#E9ECF2",
+      main: LIGHT.raised,
+      paper: LIGHT.surface,
+      border: LIGHT.border,
     } as any,
     action: {
-      hover: "rgba(10,10,10,0.04)",
-      selected: "rgba(10,10,10,0.06)",
+      hover: "rgba(43,29,20,0.04)",
+      selected: "rgba(255,209,0,0.16)",
     },
   },
+  components: homeComponents(false),
 });
 
 export const homeThemeDark = createTheme({
   palette: {
     mode: "dark",
     primary: {
-      main: "#2DD4BF",
-      dark: "#0F766E",
-      light: "rgba(0,208,132,0.16)",
-      contrastText: "#04231C",
-      hover: "#5EEAD4",
+      main: BRAND_ACCENT,
+      dark: BRAND_ACCENT_HOVER,
+      light: "rgba(255,209,0,0.16)",
+      contrastText: BRAND_ON_ACCENT,
+      hover: "#FFDA33",
     } as any,
+    // Secondary = cream "ink-inverse" for solid neutral buttons on dark.
     secondary: {
-      main: "#00D084",
-      dark: "#05B875",
-      light: "rgba(0,208,132,0.16)",
-      contrastText: "#04231C",
+      main: "#F3EDE2",
+      dark: "#D9CFC2",
+      light: "rgba(255,240,210,0.10)",
+      contrastText: "#2B1D14",
     },
     success: {
       main: "#22C55E",
     },
     text: {
-      primary: "#FAFAFA",
-      secondary: "#C9C9D1",
-      disabled: "#86868F",
+      primary: DARK.text,
+      secondary: DARK.textSecondary,
+      disabled: DARK.textMuted,
     },
     background: {
-      default: "#0B0908",
-      paper: "#1A120D",
+      default: DARK.canvas,
+      paper: DARK.surface,
     },
-    divider: "rgba(255,255,255,0.10)",
+    divider: "rgba(255,240,210,0.10)",
     border: {
-      main: "rgba(255,255,255,0.14)",
-      focus: "#2DD4BF",
+      main: "rgba(255,240,210,0.14)",
+      focus: GOLD,
     } as any,
     // Custom `surface` palette used by the checkout (pay) page — see light theme note.
     surface: {
-      main: "#0B0908",
-      paper: "#1A120D",
-      border: "#1F2D47",
+      main: DARK.canvas,
+      paper: DARK.surface,
+      border: DARK.border,
     } as any,
     action: {
-      hover: "rgba(255,255,255,0.06)",
-      selected: "rgba(0,208,132,0.12)",
+      hover: "rgba(255,240,210,0.06)",
+      selected: "rgba(255,209,0,0.14)",
     },
   },
+  components: homeComponents(true),
 });

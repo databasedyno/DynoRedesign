@@ -200,7 +200,7 @@ const TransactionPage = () => {
     setFirstPaymentCelebrationOpen(true);
     // canvas-confetti loaded lazily so it stays out of the dashboard bundle.
     void import("canvas-confetti").then(({ default: confetti }) => {
-      const colors = ["#3FD98A", "#05936A", "#10B981", "#F59E0B", "#2BD4C4"];
+      const colors = ["#3FD98A", "#05936A", "#10B981", "#F59E0B", "#FFD100"];
       confetti({ disableForReducedMotion: true, particleCount: 90, spread: 70, startVelocity: 45, origin: { x: 0.2, y: 0.6 }, colors, scalar: 1 });
       confetti({ disableForReducedMotion: true, particleCount: 90, spread: 70, startVelocity: 45, origin: { x: 0.8, y: 0.6 }, colors, scalar: 1 });
       setTimeout(() => {

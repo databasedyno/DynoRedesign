@@ -30,7 +30,7 @@ export const FooterWrapper = styled("footer")(({ theme }) => {
           width: 720,
           height: 300,
           borderRadius: "50%",
-          background: "radial-gradient(closest-side, rgba(15,143,134,0.18), transparent)",
+          background: "radial-gradient(closest-side, rgba(139,94,0,0.18), transparent)",
           pointerEvents: "none",
         }
       : {},
@@ -84,7 +84,7 @@ export const SocialItem = styled(Box)(({ theme }) => {
       transition: "filter 0.2s ease",
     },
     "&:hover": {
-      background: dark ? "rgba(15,143,134,0.22)" : "rgba(15,143,134,0.10)",
+      background: dark ? "rgba(139,94,0,0.22)" : "rgba(139,94,0,0.10)",
       borderColor: INDIGO,
       transform: "translateY(-2px)",
       "& img": { filter: dark ? "none" : "brightness(0) saturate(100%) opacity(0.9)" },

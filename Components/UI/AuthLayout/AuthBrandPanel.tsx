@@ -37,8 +37,8 @@ const AuthBrandPanel = () => {
   const { t } = useTranslation("auth");
   const theme = useTheme();
   const dark = theme.palette.mode === "dark";
-  const accent = dark ? "#2BD4C4" : BRAND_ACCENT;
-  const accentPulse = dark ? "rgba(43,212,196,0.55)" : "rgba(15,143,134,0.5)";
+  const accent = dark ? "#FFD100" : "#8B5E00";
+  const accentPulse = dark ? "rgba(255,209,0,0.55)" : "rgba(139,94,0,0.5)";
   const sub = dark ? "rgba(255,255,255,0.62)" : "rgba(10,10,10,0.6)";
   const ink = theme.palette.text.primary;
 
@@ -54,12 +54,12 @@ const AuthBrandPanel = () => {
 
   // Panel surface — kept subtle in light so the dark headline/body stays AA.
   const panelBg = dark
-    ? "radial-gradient(135% 120% at 100% 0%, rgba(43,212,196,0.22) 0%, transparent 46%), radial-gradient(120% 120% at 0% 100%, rgba(43,212,196,0.24) 0%, transparent 52%), linear-gradient(158deg, #1A120D 0%, #0B0908 100%)"
-    : "radial-gradient(135% 120% at 100% 0%, rgba(43,212,196,0.13) 0%, transparent 46%), radial-gradient(120% 120% at 0% 100%, rgba(43,212,196,0.14) 0%, transparent 52%), linear-gradient(158deg, #FAF6EF 0%, #F3EDE2 100%)";
-  const panelBorder = dark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(15,143,134,0.12)";
+    ? "radial-gradient(135% 120% at 100% 0%, rgba(255,209,0,0.22) 0%, transparent 46%), radial-gradient(120% 120% at 0% 100%, rgba(255,209,0,0.24) 0%, transparent 52%), linear-gradient(158deg, #1A120D 0%, #0B0908 100%)"
+    : "radial-gradient(135% 120% at 100% 0%, rgba(255,209,0,0.13) 0%, transparent 46%), radial-gradient(120% 120% at 0% 100%, rgba(255,209,0,0.14) 0%, transparent 52%), linear-gradient(158deg, #FAF6EF 0%, #F3EDE2 100%)";
+  const panelBorder = dark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(139,94,0,0.12)";
   const panelShadow = dark
     ? "0 40px 90px -50px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.05)"
-    : "0 46px 100px -56px rgba(15,143,134,0.4), inset 0 1px 0 rgba(255,255,255,0.9)";
+    : "0 46px 100px -56px rgba(139,94,0,0.4), inset 0 1px 0 rgba(255,255,255,0.9)";
 
   // Device-mockup screen tokens.
   const frameBg = dark ? "#0C1020" : "#FFFFFF";
@@ -86,7 +86,7 @@ const AuthBrandPanel = () => {
         py: "5px",
         borderRadius: "999px",
         border: `1px solid ${active ? accent : line}`,
-        background: active ? (dark ? "rgba(43,212,196,0.16)" : "rgba(15,143,134,0.09)") : "transparent",
+        background: active ? (dark ? "rgba(255,209,0,0.16)" : "rgba(139,94,0,0.09)") : "transparent",
         color: active ? accent : sub,
         fontFamily: FONT_MONO,
         fontSize: "11px",
@@ -131,7 +131,7 @@ const AuthBrandPanel = () => {
               fontFamily: FONT_BODY,
               fontWeight: 600,
               fontSize: "13.5px",
-              boxShadow: "0 10px 24px -12px rgba(15,143,134,0.7)",
+              boxShadow: "0 10px 24px -12px rgba(139,94,0,0.7)",
             }}
           >
             {t("brandSlidePayBtn", { defaultValue: "Pay $42.00" })}
@@ -159,7 +159,7 @@ const AuthBrandPanel = () => {
                   flex: 1,
                   height: `${h}%`,
                   borderRadius: "5px 5px 3px 3px",
-                  background: i === BARS.length - 1 ? accent : dark ? "rgba(43,212,196,0.28)" : "rgba(15,143,134,0.22)",
+                  background: i === BARS.length - 1 ? accent : dark ? "rgba(255,209,0,0.28)" : "rgba(139,94,0,0.22)",
                 }}
               />
             ))}
@@ -233,7 +233,7 @@ const AuthBrandPanel = () => {
           width: 300,
           height: 300,
           borderRadius: "50%",
-          background: `radial-gradient(circle, ${dark ? "rgba(43,212,196,0.4)" : "rgba(43,212,196,0.18)"} 0%, transparent 68%)`,
+          background: `radial-gradient(circle, ${dark ? "rgba(255,209,0,0.4)" : "rgba(255,209,0,0.18)"} 0%, transparent 68%)`,
           filter: "blur(14px)",
           pointerEvents: "none",
           animation: "auroraA 16s ease-in-out infinite alternate",
@@ -252,7 +252,7 @@ const AuthBrandPanel = () => {
           width: 320,
           height: 320,
           borderRadius: "50%",
-          background: `radial-gradient(circle, ${dark ? "rgba(43,212,196,0.34)" : "rgba(43,212,196,0.16)"} 0%, transparent 68%)`,
+          background: `radial-gradient(circle, ${dark ? "rgba(255,209,0,0.34)" : "rgba(255,209,0,0.16)"} 0%, transparent 68%)`,
           filter: "blur(16px)",
           pointerEvents: "none",
           animation: "auroraB 20s ease-in-out infinite alternate",
@@ -292,7 +292,7 @@ const AuthBrandPanel = () => {
               animation: "badgePulse 2.2s ease-in-out infinite",
               "@keyframes badgePulse": {
                 "0%,100%": { boxShadow: `0 0 0 0 ${accentPulse}` },
-                "50%": { boxShadow: "0 0 0 6px rgba(43,212,196,0)" },
+                "50%": { boxShadow: "0 0 0 6px rgba(255,209,0,0)" },
               },
             }}
           />
@@ -320,7 +320,7 @@ const AuthBrandPanel = () => {
               lineHeight: 1.12,
               letterSpacing: "-0.03em",
               color: ink,
-              textShadow: dark ? "0 0 44px rgba(43,212,196,0.28)" : "none",
+              textShadow: dark ? "0 0 44px rgba(255,209,0,0.28)" : "none",
             }}
           >
             {t("brandHeadlineLine1")}{" "}

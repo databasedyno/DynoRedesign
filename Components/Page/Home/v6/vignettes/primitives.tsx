@@ -10,7 +10,7 @@ export const useVig = () => {
     s,
     panel: s.dark ? "#15151B" : "#FFFFFF",
     shadow: s.dark ? "0 30px 60px -30px rgba(0,0,0,0.8)" : "0 30px 60px -34px rgba(30,27,75,0.35)",
-    frame: s.dark ? "linear-gradient(160deg, rgba(15,143,134,0.18), rgba(52,211,153,0.06))" : "linear-gradient(160deg, rgba(15,143,134,0.09), rgba(52,211,153,0.10))",
+    frame: s.dark ? "linear-gradient(160deg, rgba(139,94,0,0.18), rgba(52,211,153,0.06))" : "linear-gradient(160deg, rgba(139,94,0,0.09), rgba(52,211,153,0.10))",
     lift: { transition: "transform 500ms cubic-bezier(0.16,1,0.3,1)", ".bento:hover &": { transform: "translateY(-6px)" } },
   };
 };
@@ -56,7 +56,7 @@ export const CoinDot: React.FC<{ icon: string; size?: number }> = ({ icon, size 
 export const Pill: React.FC<React.PropsWithChildren<{ active?: boolean; sx?: object }>> = ({ children, active, sx }) => {
   const v = useVig();
   return (
-    <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.6, px: 1.1, py: 0.45, borderRadius: 999, fontFamily: FONT_BODY, fontSize: 12, fontWeight: 600, color: active ? (v.s.dark ? "#FFD100" : "#FFD100") : v.s.ink2, background: active ? (v.s.dark ? "rgba(43,212,196,0.22)" : "rgba(15,143,134,0.10)") : v.s.dark ? "rgba(255,255,255,0.05)" : "#F4F4F5", border: `1px solid ${active ? "rgba(15,143,134,0.45)" : v.s.line}`, ...sx }}>
+    <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.6, px: 1.1, py: 0.45, borderRadius: 999, fontFamily: FONT_BODY, fontSize: 12, fontWeight: 600, color: active ? (v.s.dark ? "#FFD100" : "#FFD100") : v.s.ink2, background: active ? (v.s.dark ? "rgba(255,209,0,0.22)" : "rgba(139,94,0,0.10)") : v.s.dark ? "rgba(255,255,255,0.05)" : "#F4F4F5", border: `1px solid ${active ? "rgba(139,94,0,0.45)" : v.s.line}`, ...sx }}>
       {children}
     </Box>
   );

@@ -68,13 +68,13 @@ const VERTICAL_ICON_MAP: Record<string, React.FC> = {
 // purple for SaaS, etc.). Countries get a hash-rotation across the same pool
 // so all 8 look distinct.
 const GRADIENTS: readonly [string, string][] = [
-  ["#2BD4C4", "#2BD4C4"], // indigo → violet
+  ["#FFD100", "#FFD100"], // indigo → violet
   ["#0EA5E9", "#22D3EE"], // sky → cyan
   ["#10B981", "#34D399"], // emerald
   ["#F59E0B", "#F97316"], // amber → orange
   ["#EC4899", "#F43F5E"], // pink → rose
-  ["#2BD4C4", "#EC4899"], // violet → pink
-  ["#14B8A6", "#0EA5E9"], // teal → sky
+  ["#FFD100", "#EC4899"], // violet → pink
+  ["#FFD100", "#0EA5E9"], // teal → sky
   ["#F97316", "#EF4444"], // orange → red
 ] as const;
 
@@ -83,8 +83,8 @@ const GRADIENTS: readonly [string, string][] = [
  * hints at the vertical (green = money, purple = SaaS/cloud, etc.).
  */
 const VERTICAL_GRADIENT_MAP: Record<string, [string, string]> = {
-  ecommerce: ["#2BD4C4", "#2BD4C4"],           // indigo → violet (shopping cart)
-  saas: ["#2BD4C4", "#A855F7"],                // violet → purple (cloud / SaaS)
+  ecommerce: ["#FFD100", "#FFD100"],           // indigo → violet (shopping cart)
+  saas: ["#FFD100", "#A855F7"],                // violet → purple (cloud / SaaS)
   freelancers: ["#0EA5E9", "#22D3EE"],         // sky → cyan (professional / laptop)
   gaming: ["#EC4899", "#F43F5E"],              // pink → rose (vibrant gaming)
   remittance: ["#10B981", "#34D399"],          // emerald (money / cross-border)

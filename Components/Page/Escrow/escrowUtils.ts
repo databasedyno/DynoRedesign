@@ -17,10 +17,10 @@ import type { EscrowDeal } from "@/api/escrow";
 
 export type Tone = "neutral" | "brand" | "info" | "success" | "warning" | "error" | "purple";
 
-const PURPLE = "#2BD4C4";
-const PURPLE_LIGHT = "#2BD4C4";
-const INFO_BLUE = "#0F8F86";
-const INFO_BLUE_LIGHT = "#2BD4C4";
+const PURPLE = "#FFD100";
+const PURPLE_LIGHT = "#FFD100";
+const INFO_BLUE = "#8B5E00";
+const INFO_BLUE_LIGHT = "#FFD100";
 
 export const STATUS_TONE: Record<string, Tone> = {
   draft: "neutral",
@@ -41,9 +41,9 @@ export function toneColors(tone: Tone, isDark: boolean): { fg: string; bg: strin
   const pick = (light: string, dark: string) => (isDark ? dark : light);
   switch (tone) {
     case "brand":
-      return { fg: pick(BRAND_ACCENT, BRAND_ACCENT_LIGHT), bg: pick("#E6F7F5", "rgba(43,212,196,0.14)"), border: pick("#FFD100", "rgba(43,212,196,0.35)") };
+      return { fg: pick(BRAND_ACCENT, BRAND_ACCENT_LIGHT), bg: pick("#FFF6CC", "rgba(255,209,0,0.14)"), border: pick("#FFD100", "rgba(255,209,0,0.35)") };
     case "info":
-      return { fg: pick(INFO_BLUE, INFO_BLUE_LIGHT), bg: pick("#E6F7F5", "rgba(43,212,196,0.14)"), border: pick("#9FE3DC", "rgba(43,212,196,0.35)") };
+      return { fg: pick(INFO_BLUE, INFO_BLUE_LIGHT), bg: pick("#FFF6CC", "rgba(255,209,0,0.14)"), border: pick("#9FE3DC", "rgba(255,209,0,0.35)") };
     case "success":
       return { fg: pick(SUCCESS_GREEN, SUCCESS_GREEN_LIGHT), bg: pick("#ECFDF3", "rgba(63,217,138,0.14)"), border: pick("#A6F4C5", "rgba(63,217,138,0.35)") };
     case "warning":

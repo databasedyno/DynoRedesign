@@ -38,8 +38,8 @@ export interface RefundRow {
 
 export const STATUS_COLORS: Record<string, { bg: string; fg: string }> = {
   awaiting_deposit: { bg: "#FEF3C7", fg: "#92400E" },
-  deposit_detected: { bg: "#E6F7F5", fg: "#0B6F68" },
-  forwarding: { bg: "#E6F7F5", fg: "#0B6F68" },
+  deposit_detected: { bg: "#FFF6CC", fg: "#6B4800" },
+  forwarding: { bg: "#FFF6CC", fg: "#6B4800" },
   completed: { bg: "#DCFCE7", fg: "#166534" },
   cancelled: { bg: "#E5E7EB", fg: "#4B5563" },
   failed: { bg: "#FEE2E2", fg: "#991B1B" },

@@ -1,5 +1,5 @@
 import { createTheme } from "@mui/material";
-import { AQUA, AQUA_DEEP, BRAND_ACCENT, BRAND_ON_ACCENT, DARK, LIGHT } from "@/constants/theme";
+import { GOLD, GOLD_DEEP, BRAND_ACCENT, BRAND_ON_ACCENT, DARK, LIGHT } from "@/constants/theme";
 
 declare module "@mui/material/Button" {
   interface ButtonPropsVariantOverrides {
@@ -83,7 +83,7 @@ export const theme = createTheme({
     },
     border: {
       main: LIGHT.border,
-      focus: AQUA_DEEP,
+      focus: GOLD_DEEP,
       success: "#1C993D",
       error: "#E8484A",
     },
@@ -266,7 +266,7 @@ export const theme = createTheme({
           style: {
             border: "1px solid",
             padding: "10px 30px",
-            color: AQUA_DEEP,
+            color: GOLD_DEEP,
             fontWeight: 600,
             borderRadius: "15px",
             fontSize: "16px",
@@ -327,7 +327,7 @@ export const theme = createTheme({
       },
       styleOverrides: {
         outlined: {
-          color: AQUA_DEEP,
+          color: GOLD_DEEP,
           padding: "10px 15px",
           borderRadius: "20px",
           [tempTheme.breakpoints.down("md")]: {
@@ -449,7 +449,7 @@ const getCheckoutComponentStyles = (isDark: boolean) => ({
         style: {
           border: "1px solid",
           padding: "10px 30px",
-          color: AQUA_DEEP,
+          color: GOLD_DEEP,
           fontWeight: 600,
           borderRadius: "15px",
           fontSize: "16px",
@@ -510,7 +510,7 @@ const getCheckoutComponentStyles = (isDark: boolean) => ({
     },
     styleOverrides: {
       outlined: {
-        color: AQUA_DEEP,
+        color: GOLD_DEEP,
         padding: "10px 15px",
         borderRadius: "20px",
         [tempTheme.breakpoints.down("md")]: {
@@ -588,14 +588,14 @@ export const lightTheme = createTheme({
     mode: "light",
     common: { black: "#0B0908", white: "#fff" },
     primary: { main: BRAND_ACCENT, dark: "#F0C300", light: LIGHT.accentSoft, contrastText: BRAND_ON_ACCENT },
-    secondary: { main: AQUA_DEEP, dark: "#0B6F68", light: "#E6F7F5", contrastText: "#fff" },
+    secondary: { main: GOLD_DEEP, dark: "#6B4800", light: "#FFF6CC", contrastText: "#fff" },
     text: { primary: LIGHT.text, secondary: LIGHT.textSecondary },
     background: { default: LIGHT.canvas, paper: LIGHT.surface },
     surface: { main: LIGHT.canvas, paper: LIGHT.surface, border: LIGHT.border },
     // Mirror of `surface.border` so that components that use `palette.border.main`
     // (the convention used in the rest of the app's theme tokens) keep working
     // when rendered inside the /pay route's lightTheme.
-    border: { main: LIGHT.border, focus: AQUA_DEEP, success: "#10B981", error: "#E8484A" },
+    border: { main: LIGHT.border, focus: GOLD_DEEP, success: "#10B981", error: "#E8484A" },
   },
   typography: {
     fontFamily: "var(--font-sans), 'Manrope', sans-serif",
@@ -612,11 +612,11 @@ export const darkTheme = createTheme({
     mode: "dark",
     common: { black: "#0B0908", white: "#fff" },
     primary: { main: DARK.accent, dark: "#F0C300", light: DARK.accentSoft, contrastText: BRAND_ON_ACCENT },
-    secondary: { main: AQUA, dark: AQUA_DEEP, light: "rgba(43,212,196,0.16)", contrastText: "#0B0908" },
+    secondary: { main: GOLD, dark: GOLD_DEEP, light: "rgba(255,209,0,0.16)", contrastText: "#0B0908" },
     text: { primary: DARK.text, secondary: DARK.textSecondary, disabled: DARK.textMuted },
     background: { default: DARK.canvas, paper: DARK.surface },
     surface: { main: DARK.canvas, paper: DARK.surface, border: DARK.border },
-    border: { main: DARK.border, focus: AQUA, success: DARK.success, error: DARK.error },
+    border: { main: DARK.border, focus: GOLD, success: DARK.success, error: DARK.error },
     divider: DARK.border,
   },
   typography: {
@@ -658,7 +658,7 @@ export const themeDark = createTheme({
     },
     border: {
       main: DARK.border,
-      focus: AQUA,
+      focus: GOLD,
       success: DARK.success,
       error: DARK.error,
     },
@@ -846,7 +846,7 @@ export const themeDark = createTheme({
           style: {
             border: "1px solid",
             padding: "10px 30px",
-            color: AQUA,
+            color: GOLD,
             fontWeight: 600,
             borderRadius: "15px",
             fontSize: "16px",
@@ -913,7 +913,7 @@ export const themeDark = createTheme({
       },
       styleOverrides: {
         outlined: {
-          color: AQUA,
+          color: GOLD,
           padding: "10px 15px",
           borderRadius: "20px",
         },
@@ -978,7 +978,7 @@ export const themeDark = createTheme({
       styleOverrides: {
         root: {
           "&:hover": {
-            backgroundColor: "rgba(43,212,196,0.08)",
+            backgroundColor: "rgba(255,209,0,0.08)",
           },
         },
       },
@@ -988,13 +988,13 @@ export const themeDark = createTheme({
         root: {
           color: "#E2E8F0",
           "&:hover": {
-            backgroundColor: "rgba(43,212,196,0.10)",
+            backgroundColor: "rgba(255,209,0,0.10)",
           },
           "&.Mui-selected": {
-            backgroundColor: "rgba(43,212,196,0.14)",
+            backgroundColor: "rgba(255,209,0,0.14)",
             color: "#E2E8F0",
             "&:hover": {
-              backgroundColor: "rgba(43,212,196,0.18)",
+              backgroundColor: "rgba(255,209,0,0.18)",
             },
           },
         },

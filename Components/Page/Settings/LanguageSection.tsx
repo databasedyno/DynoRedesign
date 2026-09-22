@@ -64,7 +64,7 @@ const LanguageSection: React.FC = () => {
                 sx={{
                   display: "flex", alignItems: "center", gap: 1.25, px: 1.5, py: 1.25, borderRadius: "12px", cursor: active ? "default" : "pointer",
                   border: `1px solid ${active ? indigo : "transparent"}`,
-                  backgroundColor: active ? (isDark ? "rgba(43,212,196,0.12)" : "rgba(15,143,134,0.06)") : "transparent",
+                  backgroundColor: active ? (isDark ? "rgba(255,209,0,0.12)" : "rgba(139,94,0,0.06)") : "transparent",
                   transition: "background-color 120ms ease, border-color 120ms ease",
                   "&:hover": { backgroundColor: active ? undefined : theme.palette.action.hover },
                   "&:focus-visible": { outline: `2px solid ${indigo}`, outlineOffset: 2 },

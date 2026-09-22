@@ -132,7 +132,7 @@ export default function GoalProgressBar({
               display: "inline-flex",
               alignItems: "center",
               gap: 0.5,
-              boxShadow: goalReached ? `0 4px 14px ${success}66` : "0 6px 18px rgba(15,143,134,0.35)",
+              boxShadow: goalReached ? `0 4px 14px ${success}66` : "0 6px 18px rgba(139,94,0,0.35)",
               animation: goalReached ? `${pulse} 1.8s ease-in-out infinite` : "none",
             }}
           >
@@ -190,7 +190,7 @@ export default function GoalProgressBar({
               width: `${barValue}%`,
               background: fillGradient,
               borderRadius: 999,
-              boxShadow: goalReached ? `0 0 14px ${success}80` : "0 0 14px rgba(43,212,196,0.55)",
+              boxShadow: goalReached ? `0 0 14px ${success}80` : "0 0 14px rgba(255,209,0,0.55)",
               transition: "width 900ms cubic-bezier(0.16,1,0.3,1)",
               zIndex: 2,
               overflow: "hidden",

@@ -222,7 +222,7 @@ const ReceiptPage = ({ receipt, siteUrl }: Props) => {
                   {logoOk ? (
                     <Box component="img" src={receipt.merchant.logo as string} alt="" sx={{ width: 40, height: 40, borderRadius: '10px', objectFit: 'cover', border: `1px solid ${border}` }} />
                   ) : (
-                    <Box sx={{ width: 40, height: 40, borderRadius: '10px', display: 'grid', placeItems: 'center', bgcolor: isDark ? 'rgba(43,212,196,0.14)' : 'rgba(15,143,134,0.08)', color: brandFg(isDark), fontWeight: 700, fontSize: 18, border: `1px solid ${border}` }}>
+                    <Box sx={{ width: 40, height: 40, borderRadius: '10px', display: 'grid', placeItems: 'center', bgcolor: isDark ? 'rgba(255,209,0,0.14)' : 'rgba(139,94,0,0.08)', color: brandFg(isDark), fontWeight: 700, fontSize: 18, border: `1px solid ${border}` }}>
                       {monogram}
                     </Box>
                   )}

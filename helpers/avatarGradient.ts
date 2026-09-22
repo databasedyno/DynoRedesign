@@ -6,14 +6,14 @@
  * still colourful + full of personality (à la Linear / the Emergent panel).
  */
 const AVATAR_GRADIENTS: Array<[string, string]> = [
-  ["#2B1D14", "#0F8F86"], // espresso → deep aqua (brand)
-  ["#0F8F86", "#2BD4C4"], // deep aqua → aqua
+  ["#2B1D14", "#B8860B"], // espresso → dark gold (brand)
+  ["#8B5E00", "#FFD100"], // deep gold → gold
   ["#B8860B", "#2B1D14"], // dark gold → espresso
   ["#3A2A1F", "#8A6A1F"], // raised brown → bronze
-  ["#0B6F68", "#3A2A1F"], // teal → brown
+  ["#6B4800", "#3A2A1F"], // bronze → brown
   ["#C2410C", "#2B1D14"], // burnt orange → espresso
-  ["#1F140D", "#0F8F86"], // ink → deep aqua
-  ["#0F766E", "#0B0908"], // teal → black
+  ["#1F140D", "#8B5E00"], // ink → deep gold
+  ["#B8860B", "#0B0908"], // dark gold → black
 ];
 
 export function avatarGradient(seed?: string | null): string {

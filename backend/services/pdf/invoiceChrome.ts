@@ -8,14 +8,15 @@ import path from "path";
 import fs from "fs";
 import { t } from "../../utils/emailI18n";
 
-/** Brand palette — aligned with the PDF receipt + email chrome (indigo / greys). */
+/** Brand palette — aligned with the PDF receipt + email chrome (gold · dark brown · black). */
 export const INK = {
-  brand: "#4338CA",   // indigo accent (links, top bar)
-  text: "#111827",    // primary text
-  body: "#374151",    // secondary text
-  muted: "#6B7280",   // eyebrows / notes
-  faint: "#9CA3AF",   // footer meta
-  hairline: "#E5E7EB",
+  brand: "#FFD100",   // yellow accent (top bar)
+  link: "#8B5E00",    // deep gold for links / brand line on white
+  text: "#2B1D14",    // primary text (dark brown)
+  body: "#3A2A1F",    // secondary text
+  muted: "#7A6656",   // eyebrows / notes
+  faint: "#A89684",   // footer meta
+  hairline: "#E8DFD2",
   paidBg: "#ECFDF5",
   paidInk: "#047857",
   paidLine: "#10B981",
@@ -104,7 +105,7 @@ export const drawInvoiceProvider = (doc: PDFKit.PDFDocument, L: string, startY: 
     .text("Dynopay Innovations, LTD", 50, startY + 20)
     .fontSize(9)
     .font("Helvetica-Bold")
-    .fillColor(INK.brand)
+    .fillColor(INK.link)
     .text("dynopay.com", 50, startY + 35, { link: "https://dynopay.com" })
     .fillColor(INK.text);
 };
@@ -121,7 +122,7 @@ export const drawInvoiceFooter = (doc: PDFKit.PDFDocument, L: string, transactio
     .fillColor("#333333")
     .text(t("invoice.thankYou", L), 50, footerY + 20, { align: "center" })
     .fontSize(8)
-    .fillColor(INK.brand)
+    .fillColor(INK.link)
     .text("Dynopay \u00B7 dynopay.com", 50, footerY + 35, { align: "center", link: "https://dynopay.com" })
     .fillColor("#000000");
 };

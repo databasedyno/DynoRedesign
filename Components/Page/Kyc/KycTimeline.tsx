@@ -74,7 +74,7 @@ const KycTimeline = ({ view, status, latest }: Props) => {
           return (
             <Box component="li" key={s.id} data-testid={`kyc-step-${s.id}`} data-state={s.state} aria-current={s.state === "current" || s.state === "failed" ? "step" : undefined} sx={{ display: "grid", gridTemplateColumns: "28px 1fr", columnGap: 1.5, position: "relative", pb: last ? 0 : 2.5 }}>
               <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                <Box sx={{ width: 28, height: 28, borderRadius: "50%", display: "grid", placeItems: "center", flexShrink: 0, color: s.state === "done" || s.state === "failed" ? "#fff" : c, backgroundColor: s.state === "done" || s.state === "failed" ? c : "transparent", border: `2px solid ${c}`, boxShadow: s.state === "current" ? `0 0 0 4px ${isDark ? "rgba(43,212,196,0.25)" : "rgba(15,143,134,0.14)"}` : "none" }}>
+                <Box sx={{ width: 28, height: 28, borderRadius: "50%", display: "grid", placeItems: "center", flexShrink: 0, color: s.state === "done" || s.state === "failed" ? "#fff" : c, backgroundColor: s.state === "done" || s.state === "failed" ? c : "transparent", border: `2px solid ${c}`, boxShadow: s.state === "current" ? `0 0 0 4px ${isDark ? "rgba(255,209,0,0.25)" : "rgba(139,94,0,0.14)"}` : "none" }}>
                   <Icon icon={icon(s.state)} width={s.state === "current" ? 22 : 15} />
                 </Box>
                 {!last && <Box sx={{ flex: 1, width: 2, mt: 0.5, borderRadius: 1, backgroundColor: s.state === "done" ? colour("done") : line }} />}

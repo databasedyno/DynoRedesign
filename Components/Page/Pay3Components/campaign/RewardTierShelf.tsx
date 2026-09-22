@@ -155,8 +155,8 @@ export default function RewardTierShelf({
                 backgroundColor: isDark ? "rgba(255,255,255,0.02)" : "background.paper",
                 boxShadow: isPopular
                   ? isDark
-                    ? "0 8px 24px rgba(15,143,134,0.10)"
-                    : "0 8px 24px rgba(15,143,134,0.20)"
+                    ? "0 8px 24px rgba(139,94,0,0.10)"
+                    : "0 8px 24px rgba(139,94,0,0.20)"
                   : "none",
                 scrollSnapAlign: "start",
                 transition: "transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s",
@@ -228,7 +228,7 @@ export default function RewardTierShelf({
                       width: 56,
                       height: 56,
                       borderRadius: "50%",
-                      bgcolor: isDark ? "rgba(15,143,134,0.15)" : "rgba(15,143,134,0.22)",
+                      bgcolor: isDark ? "rgba(139,94,0,0.15)" : "rgba(139,94,0,0.22)",
                     }}
                   >
                     <Icon icon="mdi:gift-outline" width={32} color={accent} />

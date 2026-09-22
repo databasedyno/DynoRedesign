@@ -264,7 +264,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
       .then((mod) => {
         if (cancelled) return
         const confetti = mod.default
-        const colors = ['#2BD4C4', '#2BD4C4', '#2BD4C4', '#3FD98A', '#FFFFFF']
+        const colors = ['#FFD100', '#FFD100', '#FFD100', '#3FD98A', '#FFFFFF']
         const fire = (particleRatio: number, opts: Record<string, unknown>) => {
           confetti({
             origin: { y: 0.7 },
@@ -847,11 +847,11 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
         ? {
             animation: 'checkoutCopyPulse 1.6s ease-out 1',
             '@keyframes checkoutCopyPulse': {
-              '0%': { boxShadow: `0 0 0 0 ${isDark ? 'rgba(43,212,196,0.55)' : 'rgba(15,143,134,0.40)'}`, backgroundColor: isDark ? 'rgba(43,212,196,0.16)' : 'rgba(15,143,134,0.10)' },
-              '60%': { boxShadow: `0 0 0 8px ${isDark ? 'rgba(43,212,196,0)' : 'rgba(15,143,134,0)'}`, backgroundColor: isDark ? 'rgba(43,212,196,0.08)' : 'rgba(15,143,134,0.05)' },
-              '100%': { boxShadow: `0 0 0 0 ${isDark ? 'rgba(43,212,196,0)' : 'rgba(15,143,134,0)'}`, backgroundColor: 'transparent' },
+              '0%': { boxShadow: `0 0 0 0 ${isDark ? 'rgba(255,209,0,0.55)' : 'rgba(139,94,0,0.40)'}`, backgroundColor: isDark ? 'rgba(255,209,0,0.16)' : 'rgba(139,94,0,0.10)' },
+              '60%': { boxShadow: `0 0 0 8px ${isDark ? 'rgba(255,209,0,0)' : 'rgba(139,94,0,0)'}`, backgroundColor: isDark ? 'rgba(255,209,0,0.08)' : 'rgba(139,94,0,0.05)' },
+              '100%': { boxShadow: `0 0 0 0 ${isDark ? 'rgba(255,209,0,0)' : 'rgba(139,94,0,0)'}`, backgroundColor: 'transparent' },
             },
-            '@media (prefers-reduced-motion: reduce)': { animation: 'none', backgroundColor: isDark ? 'rgba(43,212,196,0.10)' : 'rgba(15,143,134,0.06)' },
+            '@media (prefers-reduced-motion: reduce)': { animation: 'none', backgroundColor: isDark ? 'rgba(255,209,0,0.10)' : 'rgba(139,94,0,0.06)' },
           }
         : {}),
     }
@@ -1177,9 +1177,9 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
               mb: 2,
               animation: 'checkoutSuccessPop 520ms cubic-bezier(0.22, 1.2, 0.36, 1) 1 both',
               '@keyframes checkoutSuccessPop': {
-                '0%': { transform: 'scale(0.55)', opacity: 0, boxShadow: `0 0 0 0 ${isDark ? 'rgba(43,212,196,0.45)' : 'rgba(15,143,134,0.35)'}` },
+                '0%': { transform: 'scale(0.55)', opacity: 0, boxShadow: `0 0 0 0 ${isDark ? 'rgba(255,209,0,0.45)' : 'rgba(139,94,0,0.35)'}` },
                 '60%': { transform: 'scale(1.06)', opacity: 1 },
-                '100%': { transform: 'scale(1)', opacity: 1, boxShadow: `0 0 0 12px ${isDark ? 'rgba(43,212,196,0)' : 'rgba(15,143,134,0)'}` },
+                '100%': { transform: 'scale(1)', opacity: 1, boxShadow: `0 0 0 12px ${isDark ? 'rgba(255,209,0,0)' : 'rgba(139,94,0,0)'}` },
               },
               '& .check-path': {
                 strokeDasharray: 40,
@@ -1710,7 +1710,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
                       display: 'inline-flex', alignItems: 'center', gap: 0.75,
                       px: 1.5, minHeight: 40, borderRadius: '999px', cursor: 'pointer',
                       border: `1.5px solid ${active ? LIME : border}`,
-                      backgroundColor: active ? (isDark ? 'rgba(43,212,196,0.12)' : 'rgba(15,143,134,0.06)') : 'transparent',
+                      backgroundColor: active ? (isDark ? 'rgba(255,209,0,0.12)' : 'rgba(139,94,0,0.06)') : 'transparent',
                       color: theme.palette.text.primary, fontSize: 13, fontWeight: active ? 700 : 600,
                       transition: 'border-color 150ms ease, background-color 150ms ease',
                       '&:hover': { borderColor: LIME },
@@ -2099,7 +2099,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
               width: '100%', minHeight: 48, borderRadius: '999px',
               border: `1px solid ${LIME}`, color: LIME, textDecoration: 'none',
               fontSize: 14, fontWeight: 700,
-              backgroundColor: isDark ? 'rgba(15,143,134,0.06)' : 'rgba(15,143,134,0.05)',
+              backgroundColor: isDark ? 'rgba(139,94,0,0.06)' : 'rgba(139,94,0,0.05)',
               transition: 'filter .15s ease, transform .05s ease',
               '&:hover': { filter: 'brightness(1.06)' },
               '&:active': { transform: 'scale(0.99)' },

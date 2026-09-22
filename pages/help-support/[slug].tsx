@@ -205,7 +205,7 @@ const HelpDetail = ({ article, stub, setPageName, setPageDescription }: HelpDeta
                   "& p": { fontFamily: "var(--font-sans)", fontSize: isMobile ? "13px" : "15px", color: theme.palette.text.secondary, lineHeight: 1.7, marginBottom: "12px" },
                   "& ul, & ol": { paddingLeft: "24px", marginBottom: "12px" },
                   "& li": { fontFamily: "var(--font-sans)", fontSize: isMobile ? "13px" : "15px", color: theme.palette.text.secondary, lineHeight: 1.7, marginBottom: "6px" },
-                  "& a": { color: BRAND_ACCENT, textDecoration: "none", "&:hover": { textDecoration: "underline" } },
+                  "& a": { color: "inherit", fontWeight: 600, textDecoration: "underline", textDecorationColor: "rgba(139,94,0,0.6)", "&:hover": { color: "#8B5E00" } },
                 }}
                 dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.content) }}
               />

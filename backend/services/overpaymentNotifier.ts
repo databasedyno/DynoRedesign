@@ -83,7 +83,7 @@ export const buildOverpaidBuyerEmail = (
 ): { subject: string; html: string } => {
   const BL = normalizeLang(info.customerLang);
   const { excessCrypto, excessFiat, receivedCrypto, expectedCrypto, networkLabel } = overpayAmounts(info);
-  const contact = info.merchantContactEmail ? ` (<a href="mailto:${info.merchantContactEmail}" style="color:#4338CA;">${info.merchantContactEmail}</a>)` : "";
+  const contact = info.merchantContactEmail ? ` (<a href="mailto:${info.merchantContactEmail}" style="color:#8B5E00;">${info.merchantContactEmail}</a>)` : "";
   const detail = `
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
       ${dataRow(t("overpayment.amountDue", BL), expectedCrypto)}

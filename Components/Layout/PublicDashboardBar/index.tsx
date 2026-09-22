@@ -28,7 +28,7 @@ const PublicDashboardBar: FC = () => {
   if (!visible) return null;
 
   const dark = theme.palette.mode === "dark";
-  const accent = dark ? "#2BD4C4" : "#0F8F86";
+  const accent = dark ? "#FFD100" : "#8B5E00";
 
   return (
     <Box

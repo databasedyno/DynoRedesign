@@ -167,13 +167,13 @@ const FeeTierCard: React.FC = () => {
                       borderRadius: 999,
                       backgroundColor: isCurrent
                         ? isDark
-                          ? "rgba(43,212,196,0.16)"
-                          : "rgba(15,143,134,0.10)"
+                          ? "rgba(255,209,0,0.16)"
+                          : "rgba(139,94,0,0.10)"
                         : trackBg,
                       overflow: "hidden",
                       transition: "height 200ms ease",
                       boxShadow: isCurrent
-                        ? `0 0 0 1px ${isDark ? "rgba(43,212,196,0.35)" : "rgba(15,143,134,0.25)"}`
+                        ? `0 0 0 1px ${isDark ? "rgba(255,209,0,0.35)" : "rgba(139,94,0,0.25)"}`
                         : "none",
                     }}
                   >

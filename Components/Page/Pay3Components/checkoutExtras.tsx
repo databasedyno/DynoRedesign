@@ -23,7 +23,7 @@ export const ReceiptEmailField: React.FC<{
   muted: string
   border: string
   accent?: string
-}> = ({ value, onChange, onSave, saved, invalid, label, helper, savedLabel, invalidLabel, muted, border, accent = '#0F8F86' }) => (
+}> = ({ value, onChange, onSave, saved, invalid, label, helper, savedLabel, invalidLabel, muted, border, accent = '#8B5E00' }) => (
   <Box sx={{ mb: 2.5 }} data-testid="checkout-receipt-email-field">
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.75 }}>
       <Icon icon="mdi:email-fast-outline" width={15} color={muted} />

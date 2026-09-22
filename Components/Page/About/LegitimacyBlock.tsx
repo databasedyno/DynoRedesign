@@ -42,7 +42,7 @@ const DOCS = [
 const AboutLegitimacyBlock = () => {
   const { t } = useTranslation("landing");
   const s = useAurora();
-  const accent = s.dark ? "#2BD4C4" : BRAND_ACCENT;
+  const accent = s.dark ? "#FFD100" : "#8B5E00";
 
   const facts: Fact[] = [
     { Icon: BusinessRoundedIcon, label: t("about.legit.entity", { defaultValue: "Legal entity" }), value: LEGAL_NAME, testId: "about-legit-entity" },
@@ -62,7 +62,7 @@ const AboutLegitimacyBlock = () => {
         <Box sx={{ borderRadius: "20px", background: s.surface, border: `1px solid ${s.line}`, p: { xs: 2.5, md: 3.5 } }} data-testid="about-legit-facts">
           {facts.map(({ Icon, label, value, href, onClick, testId }, i) => (
             <Box key={testId} data-testid={testId} sx={{ display: "flex", gap: 2, alignItems: "flex-start", py: 1.75, borderTop: i ? `1px dashed ${s.line}` : "none" }}>
-              <Box sx={{ flexShrink: 0, width: 38, height: 38, borderRadius: "11px", display: "grid", placeItems: "center", background: s.dark ? "rgba(43,212,196,0.14)" : "rgba(15,143,134,0.09)", color: accent }}>
+              <Box sx={{ flexShrink: 0, width: 38, height: 38, borderRadius: "11px", display: "grid", placeItems: "center", background: s.dark ? "rgba(255,209,0,0.14)" : "rgba(139,94,0,0.09)", color: accent }}>
                 <Icon sx={{ fontSize: 20 }} />
               </Box>
               <Box sx={{ minWidth: 0 }}>

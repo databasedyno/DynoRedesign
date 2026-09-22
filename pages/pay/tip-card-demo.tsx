@@ -7,7 +7,7 @@ const TipCardDemo = () => {
   const [name, setName] = useState('The Dev Store')
   const [amount, setAmount] = useState('$25.00')
   const [message, setMessage] = useState('Thanks for the amazing tutorials — keep going!')
-  const [accent, setAccent] = useState('#0F8F86')
+  const [accent, setAccent] = useState('#8B5E00')
   return (
     <Box sx={{ maxWidth: 420, mx: 'auto', p: 3 }} data-testid="tip-card-demo">
       <Typography sx={{ fontWeight: 800, fontSize: 18, mb: 2 }}>Tip thank-you card — demo</Typography>
@@ -21,7 +21,7 @@ const TipCardDemo = () => {
         creatorName={name}
         handle="devhub"
         avatarUrl={null}
-        accent={/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(accent) ? accent : '#0F8F86'}
+        accent={/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(accent) ? accent : '#8B5E00'}
         amountLabel={amount}
         message={message}
         pageUrl="https://dynopay.com/devhub"

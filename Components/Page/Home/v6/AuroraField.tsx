@@ -1,18 +1,15 @@
 import React, { memo } from "react";
 import { Box } from "@mui/material";
 import { keyframes } from "@mui/system";
-import { useAurora } from "../v3/theme.v3";
 
 /* Slow, transform-only drift (GPU-cheap; no filter:blur — iOS paint stall). */
-const driftA = keyframes`0%{transform:translate3d(0,0,0) scale(1)}100%{transform:translate3d(6%,-4%,0) scale(1.12)}`;
-const driftB = keyframes`0%{transform:translate3d(0,0,0) scale(1.05)}100%{transform:translate3d(-7%,6%,0) scale(0.94)}`;
-const driftC = keyframes`0%{transform:translate3d(0,0,0) scale(0.96)}100%{transform:translate3d(4%,7%,0) scale(1.1)}`;
-const driftD = keyframes`0%{transform:translate3d(0,0,0) scale(1)}100%{transform:translate3d(-5%,-6%,0) scale(1.08)}`;
+const driftA = keyframes`0%{transform:translate3d(0,0,0) scale(1)}100%{transform:translate3d(-4%,4%,0) scale(1.08)}`;
+const driftB = keyframes`0%{transform:translate3d(0,0,0) scale(1)}100%{transform:translate3d(3%,-3%,0) scale(1.06)}`;
 
 const NOISE =
-  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")";
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")";
 
-const blob = (bg: string, anim: ReturnType<typeof keyframes>, dur: number, pos: object, size: object) => ({
+const glow = (bg: string, anim: ReturnType<typeof keyframes>, dur: number, pos: object, size: object) => ({
   position: "absolute" as const,
   borderRadius: "50%",
   background: bg,
@@ -24,37 +21,26 @@ const blob = (bg: string, anim: ReturnType<typeof keyframes>, dur: number, pos: 
 });
 
 /**
- * Signature "conversion" gradient: brand indigo → deep navy → a mint accent
- * (settled). Full-bleed, diagonally cut at the bottom (Stripe), dimmed in dark
- * mode, static under reduced motion.
+ * Hero ground — solid dark brown in BOTH themes (the brand anchor), one subtle
+ * gold glow bleeding in from the top-right corner, and a fine grain.
+ * No tiles, squares or grids; static under reduced motion.
  */
-const AuroraField: React.FC<{ testId?: string }> = ({ testId = "aurora-field" }) => {
-  const s = useAurora();
-  const a = s.dark ? 0.58 : 0.6;
-  return (
-    <Box
-      aria-hidden
-      data-testid={testId}
-      sx={{
-        position: "absolute",
-        inset: 0,
-        overflow: "hidden",
-        pointerEvents: "none",
-        background: s.dark
-          ? "linear-gradient(180deg, #0B1015 0%, #0D1A1A 60%, #0B1015 100%)"
-          : "linear-gradient(180deg, #FFFFFF 0%, #F2FBF7 55%, #FFFFFF 100%)",
-        clipPath: { xs: "polygon(0 0, 100% 0, 100% 96%, 0 100%)", md: "polygon(0 0, 100% 0, 100% 72%, 0 88%)" },
-      }}
-    >
-      <Box sx={blob(`radial-gradient(circle, rgba(0,208,132,${a}) 0%, rgba(0,208,132,${a * 0.5}) 32%, transparent 68%)`, driftA, 26, { top: "-38%", right: "-6%" }, { width: { xs: 760, md: 1200 }, height: { xs: 760, md: 1200 } })} />
-      <Box sx={blob(`radial-gradient(circle, rgba(13,148,136,${s.dark ? 0.7 : 0.32}) 0%, rgba(13,148,136,${s.dark ? 0.4 : 0.15}) 34%, transparent 70%)`, driftB, 32, { top: "-10%", right: "18%" }, { width: { xs: 620, md: 980 }, height: { xs: 620, md: 980 } })} />
-      <Box sx={blob(`radial-gradient(circle, rgba(45,212,191,${a * 0.78}) 0%, rgba(45,212,191,${a * 0.36}) 36%, transparent 70%)`, driftC, 30, { bottom: "-30%", left: "-14%" }, { width: { xs: 640, md: 1000 }, height: { xs: 640, md: 1000 } })} />
-      <Box sx={blob(`radial-gradient(circle, rgba(5,184,117,${s.dark ? 0.4 : 0.42}) 0%, rgba(5,184,117,${s.dark ? 0.18 : 0.18}) 30%, transparent 66%)`, driftD, 24, { bottom: "-8%", right: "8%" }, { width: { xs: 420, md: 720 }, height: { xs: 420, md: 720 } })} />
-      {/* faint grid + grain: texture without a raster */}
-      <Box sx={{ position: "absolute", inset: 0, backgroundImage: s.dark ? "linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px)" : "linear-gradient(rgba(10,10,10,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(10,10,10,0.035) 1px, transparent 1px)", backgroundSize: "72px 72px", maskImage: "radial-gradient(ellipse 80% 70% at 60% 20%, black 0%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse 80% 70% at 60% 20%, black 0%, transparent 80%)" }} />
-      <Box sx={{ position: "absolute", inset: 0, opacity: s.dark ? 0.07 : 0.045, mixBlendMode: s.dark ? "screen" : "multiply", backgroundImage: NOISE }} />
-    </Box>
-  );
-};
+const AuroraField: React.FC<{ testId?: string }> = ({ testId = "aurora-field" }) => (
+  <Box
+    aria-hidden
+    data-testid={testId}
+    sx={{
+      position: "absolute",
+      inset: 0,
+      overflow: "hidden",
+      pointerEvents: "none",
+      background: "linear-gradient(180deg, #2B1D14 0%, #22170F 70%, #1A120D 100%)",
+    }}
+  >
+    <Box sx={glow("radial-gradient(circle, rgba(255,209,0,0.34) 0%, rgba(255,209,0,0.14) 32%, transparent 66%)", driftA, 28, { top: "-42%", right: "-14%" }, { width: { xs: 720, md: 1180 }, height: { xs: 720, md: 1180 } })} />
+    <Box sx={glow("radial-gradient(circle, rgba(255,179,0,0.26) 0%, rgba(255,179,0,0.10) 34%, transparent 68%)", driftB, 34, { top: "-18%", right: "10%" }, { width: { xs: 520, md: 860 }, height: { xs: 520, md: 860 } })} />
+    <Box sx={{ position: "absolute", inset: 0, opacity: 0.085, mixBlendMode: "screen", backgroundImage: NOISE }} />
+  </Box>
+);
 
 export default memo(AuroraField);

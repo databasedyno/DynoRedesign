@@ -35,7 +35,7 @@ import { formatDateTimeI18n } from "@/utils/formatDate";
  *   POST support/chat/upload   multipart "file" → { data: { url, name, type, size } }
  */
 
-const LIME = "#0F8F86";
+const LIME = "#8B5E00";
 const INK = "#0A0A0B";
 const GREEN = "#22C55E";
 const SESSION_KEY = "support_chat_sid";
@@ -424,7 +424,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
   const panelBg = isDark ? "#101014" : "#FFFFFF";
   const panelBorder = isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.10)";
   const assistantBubbleBg = isDark ? "rgba(255,255,255,0.07)" : "#F2F3F5";
-  const userBubbleBg = isDark ? "#2BD4C4" : BRAND_ACCENT;
+  const userBubbleBg = isDark ? "#FFD100" : "#8B5E00";
   const userBubbleColor = "#FFFFFF";
   // Keep clear of the in-app floating mobile nav pill.
   // F1: On mobile in the client shell, lift the FAB further so it no longer
@@ -1133,7 +1133,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
                 data-testid="support-chat-emoji"
                 onClick={() => setEmojiOpen((v) => !v)}
                 aria-label={t("supportChat.insertEmoji", { defaultValue: "Insert emoji" })}
-                sx={{ ...composerIconSx, color: emojiOpen ? (isDark ? "#2BD4C4" : BRAND_ACCENT) : theme.palette.text.secondary }}
+                sx={{ ...composerIconSx, color: emojiOpen ? (isDark ? "#FFD100" : "#8B5E00") : theme.palette.text.secondary }}
               >
                 <SentimentSatisfiedAltRoundedIcon sx={{ fontSize: 20 }} />
               </IconButton>

@@ -230,7 +230,7 @@ export default function CheckoutStatusStrip({ state, title, caption, secondsRema
     : 0;
 
   const coral = dark ? "#FF7A6B" : "#B91C1C";
-  const indigo = dark ? "#2BD4C4" : BRAND_ACCENT;
+  const indigo = dark ? "#FFD100" : "#8B5E00";
   const hairline = dark ? "rgba(255,255,255,0.10)" : "rgba(10,10,15,0.08)";
   const quietSurface = dark ? "rgba(255,255,255,0.03)" : "#FAFAFC";
 
@@ -285,7 +285,7 @@ export default function CheckoutStatusStrip({ state, title, caption, secondsRema
           backgroundColor:
             isUrgent ? "rgba(255,91,73,0.14)"
             : state === "failed" ? "rgba(255,91,73,0.14)"
-            : (dark ? "rgba(43,212,196,0.14)" : "rgba(15,143,134,0.10)"),
+            : (dark ? "rgba(255,209,0,0.14)" : "rgba(139,94,0,0.10)"),
           color: isUrgent || state === "failed" ? coral : indigo,
         }}
       >

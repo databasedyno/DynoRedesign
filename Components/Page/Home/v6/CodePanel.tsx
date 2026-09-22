@@ -80,9 +80,9 @@ const CodePanel: React.FC = () => {
         </Box>
       </StaggerItem>
       <StaggerItem i={1} y={20}>
-        <Box sx={{ ...panel, mt: 1.5, border: "1px solid rgba(43,212,196,0.28)" }}>
+        <Box sx={{ ...panel, mt: 1.5, border: "1px solid rgba(255,209,0,0.28)" }}>
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", px: 2, py: 1, borderBottom: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,208,132,0.08)" }}>
-            <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase", color: "#2BD4C4", fontWeight: 700 }}>{t("v5.dev.response")}</Typography>
+            <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase", color: "#FFD100", fontWeight: 700 }}>{t("v5.dev.response")}</Typography>
             <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, color: "rgba(255,255,255,0.45)" }}>~300 ms</Typography>
           </Box>
           <Box component="pre" data-testid="response-block" sx={pre}>{RESPONSE}</Box>

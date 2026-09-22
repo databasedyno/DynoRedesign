@@ -41,11 +41,11 @@ const ChainBars: React.FC = () => {
           return (
             <StaggerItem key={r.chain} i={i} y={8}>
               <Box data-testid={`chain-bar-${r.chain.toLowerCase().replace(/\s+/g, "-")}`} sx={{ display: "grid", gridTemplateColumns: "26px 1fr 48px", alignItems: "center", gap: 1.5 }}>
-                <Box sx={{ width: 26, height: 26, borderRadius: "50%", background: "#fff", display: "grid", placeItems: "center" }}>{icon ? <Icon icon={icon} width={16} height={16} /> : <Box sx={{ width: 10, height: 10, borderRadius: "50%", background: "#2DD4BF" }} />}</Box>
+                <Box sx={{ width: 26, height: 26, borderRadius: "50%", background: "#fff", display: "grid", placeItems: "center" }}>{icon ? <Icon icon={icon} width={16} height={16} /> : <Box sx={{ width: 10, height: 10, borderRadius: "50%", background: "#FFD100" }} />}</Box>
                 <Box sx={{ minWidth: 0 }}>
                   <Typography sx={{ fontFamily: FONT_BODY, fontSize: 13.5, fontWeight: 600, color: INK, mb: 0.6 }}>{r.chain === "Other" ? t("v6.numbers.other") : r.chain}</Typography>
                   <Box sx={{ height: 8, borderRadius: 999, background: "rgba(255,255,255,0.08)", overflow: "hidden" }}>
-                    <Box sx={{ height: "100%", width: `${Math.max(3, (r.count / max) * 100)}%`, borderRadius: 999, background: i === 0 ? "linear-gradient(90deg, #2DD4BF, #34D399)" : "linear-gradient(90deg, #05B875, #2DD4BF)" }} />
+                    <Box sx={{ height: "100%", width: `${Math.max(3, (r.count / max) * 100)}%`, borderRadius: 999, background: i === 0 ? "linear-gradient(90deg, #FFD100, #34D399)" : "linear-gradient(90deg, #05B875, #FFD100)" }} />
                   </Box>
                 </Box>
                 <Typography className="tabular-nums" sx={{ fontFamily: FONT_TECH, fontSize: 13, fontWeight: 700, color: INK, textAlign: "right" }}>{share}%</Typography>
@@ -78,7 +78,7 @@ const NumbersBand: React.FC = () => {
       <Box sx={{ position: "relative", maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 }, display: "grid", gridTemplateColumns: { xs: "1fr", lg: "1.05fr 0.95fr" }, gap: { xs: 6, lg: 8 }, alignItems: "center" }}>
         <Box>
           <Stagger step={0.09} sx={{ maxWidth: 560, mb: { xs: 5, md: 6 } }}>
-            <StaggerItem i={0} y={12}><Typography component="p" sx={{ fontFamily: FONT_TECH, fontSize: 11, letterSpacing: "0.28em", textTransform: "uppercase", color: "#2DD4BF", mb: 2 }}>{t("v6.numbers.eyebrow")}</Typography></StaggerItem>
+            <StaggerItem i={0} y={12}><Typography component="p" sx={{ fontFamily: FONT_TECH, fontSize: 11, letterSpacing: "0.28em", textTransform: "uppercase", color: "#FFD100", mb: 2 }}>{t("v6.numbers.eyebrow")}</Typography></StaggerItem>
             <StaggerItem i={1} y={16}><Typography component="h2" sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: "clamp(30px, 4vw, 52px)", lineHeight: 1.02, letterSpacing: "-0.03em", color: INK }}>{t("v6.numbers.headline")}</Typography></StaggerItem>
             <StaggerItem i={2} y={14}><Typography sx={{ fontFamily: FONT_BODY, fontSize: { xs: 16, md: 17.5 }, lineHeight: 1.55, color: INK2, mt: 2.5 }}>{t("v6.numbers.body")}</Typography></StaggerItem>
           </Stagger>
@@ -95,7 +95,7 @@ const NumbersBand: React.FC = () => {
               </StaggerItem>
             ))}
           </Stagger>
-          <Box component="a" href="/system-status" data-testid="numbers-status-link" sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, mt: { xs: 4, md: 5 }, fontFamily: FONT_BODY, fontSize: 14.5, fontWeight: 600, color: "#2DD4BF", textDecoration: "none", "&:hover": { color: INK } }}>
+          <Box component="a" href="/system-status" data-testid="numbers-status-link" sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, mt: { xs: 4, md: 5 }, fontFamily: FONT_BODY, fontSize: 14.5, fontWeight: 600, color: "#FFD100", textDecoration: "none", "&:hover": { color: INK } }}>
             {t("v5.open.statusCta")} <ArrowOutwardRoundedIcon sx={{ fontSize: 16 }} />
           </Box>
         </Box>

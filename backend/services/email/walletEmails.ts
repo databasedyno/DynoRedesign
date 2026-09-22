@@ -201,7 +201,7 @@ export const sendWithdrawalSuccessEmail = async (
         ${dataRow(t('labels.amount', L), `<strong>${formatMoneyForEmail(amount, currency)} ${currency}</strong>`)}
         ${dataRow(t('labels.status', L), statusBadge(t('merchant.badges.inProgress', L), 'pending'))}
         ${dataRow(t('merchant.labels.toAddress', L), `<span style="font-family: monospace; font-size: 13px;">${destinationAddress}</span>`)}
-        ${dataRow(t('labels.reference', L), (() => { const x = explorerTxUrl(currency, transactionReference); return x ? `<a href="${x}" style="font-family: monospace; font-size: 12px; color: #4F46E5; word-break: break-all; text-decoration: underline;" target="_blank" rel="noopener">${transactionReference}</a>` : `<span style="font-family: monospace; font-size: 13px; word-break: break-all;">${transactionReference}</span>`; })())}
+        ${dataRow(t('labels.reference', L), (() => { const x = explorerTxUrl(currency, transactionReference); return x ? `<a href="${x}" style="font-family: monospace; font-size: 12px; color: #8B5E00; word-break: break-all; text-decoration: underline;" target="_blank" rel="noopener">${transactionReference}</a>` : `<span style="font-family: monospace; font-size: 13px; word-break: break-all;">${transactionReference}</span>`; })())}
         ${dataRow(t('labels.network', L), assetNetworkLabel(currency))}
         ${dataRow(t('labels.date', L), `${dateStr} · ${timeStr}`, true)}
       </table>

@@ -1,6 +1,6 @@
 import { createTheme } from "@mui/material";
 import { theme, themeDark } from "./theme";
-import { AQUA, AQUA_DEEP, BRAND_ACCENT, BRAND_ACCENT_HOVER, BRAND_ON_ACCENT } from "@/constants/theme";
+import { GOLD, GOLD_DEEP, BRAND_ACCENT, BRAND_ACCENT_HOVER, BRAND_ON_ACCENT } from "@/constants/theme";
 
 /**
  * Auth-suite theme — "Aurora Glass" (2026-07-28 indigo migration).
@@ -10,7 +10,7 @@ import { AQUA, AQUA_DEEP, BRAND_ACCENT, BRAND_ACCENT_HOVER, BRAND_ON_ACCENT } fr
  *
  * Migration note (Session 82):
  *   Was:  cyber-lime (#CCFF00) neon accent, black CTA with lime text.
- *   Now:  indigo (#0F8F86) — SAME palette as Landing v3 (Aurora), so the
+ *   Now:  indigo (#8B5E00) — SAME palette as Landing v3 (Aurora), so the
  *         sign-in / sign-up screens finally feel like the same product as
  *         the marketing site the user just came from.
  *
@@ -24,9 +24,9 @@ import { AQUA, AQUA_DEEP, BRAND_ACCENT, BRAND_ACCENT_HOVER, BRAND_ON_ACCENT } fr
 // 2026-09 rebrand: names kept for the ~20 importers; values are now the brand yellow / aqua.
 export const AUTH_INDIGO = BRAND_ACCENT; // signal yellow — solid CTA fills (dark-brown text)
 export const AUTH_INDIGO_DARK = BRAND_ACCENT; // same yellow on dark grounds
-/** Aqua text/link accent for the auth screens (theme-aware). */
-export const AUTH_ACCENT_TEXT = AQUA_DEEP;
-export const AUTH_ACCENT_TEXT_DARK = AQUA;
+/** Gold text/link accent for the auth screens (theme-aware). */
+export const AUTH_ACCENT_TEXT = GOLD_DEEP;
+export const AUTH_ACCENT_TEXT_DARK = GOLD;
 const INDIGO_HOVER_LIGHT = BRAND_ACCENT_HOVER;
 const INDIGO_HOVER_DARK = BRAND_ACCENT_HOVER;
 
@@ -67,18 +67,18 @@ export const authThemeDark = createTheme(themeDark, {
       hover: INDIGO_HOVER_DARK,
     } as any,
     secondary: {
-      main: AQUA, // aqua accent
-      dark: AQUA_DEEP,
-      light: "rgba(43,212,196,0.16)",
+      main: GOLD, // gold accent
+      dark: GOLD_DEEP,
+      light: "rgba(255,209,0,0.16)",
       contrastText: "#0B0908",
     },
-    info: { main: AQUA, dark: AQUA_DEEP, light: "rgba(43,212,196,0.16)", contrastText: "#0B0908" },
+    info: { main: GOLD, dark: GOLD_DEEP, light: "rgba(255,209,0,0.16)", contrastText: "#0B0908" },
     background: { default: "#0B0908", paper: "#1A120D" },
     text: { primary: "#FAF6EF", secondary: "#D9CFC2", disabled: "#A99A8A" },
     divider: "rgba(255,240,210,0.10)",
     border: {
       main: "rgba(255,240,210,0.14)",
-      focus: AQUA,
+      focus: GOLD,
       success: "#00E676",
       error: "#FF6B5D",
     },
@@ -136,18 +136,18 @@ export const authThemeLight = createTheme(theme, {
       hover: INDIGO_HOVER_LIGHT,
     } as any,
     secondary: {
-      main: AQUA_DEEP, // aqua accent (readable on light)
-      dark: "#0B6F68",
-      light: "rgba(15,143,134,0.10)",
+      main: GOLD_DEEP, // deep gold (readable on light)
+      dark: "#6B4800",
+      light: "rgba(139,94,0,0.10)",
       contrastText: "#FFFFFF",
     },
-    info: { main: AQUA_DEEP, dark: "#0B6F68", light: "#E6F7F5", contrastText: "#fff" },
+    info: { main: GOLD_DEEP, dark: "#6B4800", light: "#FFF6CC", contrastText: "#fff" },
     background: { default: "#FAF6EF", paper: "rgba(255,253,247,0.78)" },
     text: { primary: "#1F140D", secondary: "#5C4B3E", disabled: "#7A6A5C" },
     divider: "rgba(43,29,20,0.10)",
     border: {
       main: "rgba(43,29,20,0.14)",
-      focus: AQUA_DEEP,
+      focus: GOLD_DEEP,
       success: "#00A651",
       error: "#E8484A",
     },

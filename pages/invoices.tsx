@@ -624,11 +624,11 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                             // Month group header row
                             <TableRow key={`grp-${grp.key}`} sx={{
                               backgroundColor: muiTheme.palette.mode === "dark"
-                                ? "rgba(43,212,196,0.06)"
-                                : "rgba(15,143,134,0.04)",
+                                ? "rgba(255,209,0,0.06)"
+                                : "rgba(139,94,0,0.04)",
                               "&:hover": { backgroundColor: muiTheme.palette.mode === "dark"
-                                ? "rgba(43,212,196,0.06)"
-                                : "rgba(15,143,134,0.04)" },
+                                ? "rgba(255,209,0,0.06)"
+                                : "rgba(139,94,0,0.04)" },
                             }}>
                               <TableCell colSpan={6} sx={{ py: 1.25, borderBottom: `1px solid ${muiTheme.palette.divider}` }}>
                                 <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
@@ -639,7 +639,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                                       fontWeight: 700,
                                       letterSpacing: "0.24em",
                                       textTransform: "uppercase",
-                                      color: muiTheme.palette.mode === "dark" ? "#2BD4C4" : BRAND_ACCENT,
+                                      color: muiTheme.palette.mode === "dark" ? "#FFD100" : BRAND_ACCENT,
                                     }}
                                   >
                                     {grp.label}

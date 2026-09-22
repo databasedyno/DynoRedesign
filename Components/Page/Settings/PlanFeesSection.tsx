@@ -90,8 +90,8 @@ const PlanFeesSection: React.FC = () => {
           display: "flex",
           gap: 1.5,
           alignItems: "flex-start",
-          bgcolor: isDark ? "rgba(43,212,196,0.06)" : "#F0FAF9",
-          border: `1px solid ${isDark ? "rgba(43,212,196,0.20)" : "#CDEDE9"}`,
+          bgcolor: isDark ? "rgba(255,209,0,0.06)" : "#F0FAF9",
+          border: `1px solid ${isDark ? "rgba(255,209,0,0.20)" : "#CDEDE9"}`,
         }}
       >
         <PercentRounded sx={{ fontSize: 20, color: theme.palette.text.secondary, mt: "1px" }} />

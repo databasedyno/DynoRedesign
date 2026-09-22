@@ -28,7 +28,7 @@ const PressPage: React.FC = () => {
   const { t } = useTranslation("landing");
   const { t: tCommon } = useTranslation("common");
   const s = useAurora();
-  const accent = s.dark ? "#2BD4C4" : BRAND_ACCENT;
+  const accent = s.dark ? "#FFD100" : "#8B5E00";
   const [copied, setCopied] = useState(false);
 
   const copyBoilerplate = useCallback(async () => {
@@ -136,7 +136,7 @@ const PressPage: React.FC = () => {
                       download
                       size="small"
                       startIcon={<DownloadRoundedIcon sx={{ fontSize: 16 }} />}
-                      sx={{ textTransform: "none", fontFamily: FONT_BODY, fontWeight: 600, fontSize: 13.5, color: accent, borderRadius: "999px", px: 1.75, "&:hover": { background: s.dark ? "rgba(43,212,196,0.10)" : "rgba(15,143,134,0.06)" } }}
+                      sx={{ textTransform: "none", fontFamily: FONT_BODY, fontWeight: 600, fontSize: 13.5, color: accent, borderRadius: "999px", px: 1.75, "&:hover": { background: s.dark ? "rgba(255,209,0,0.10)" : "rgba(139,94,0,0.06)" } }}
                     >
                       {t(asset.downloadKey)}
                     </Button>

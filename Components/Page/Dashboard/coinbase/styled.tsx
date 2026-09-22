@@ -1,11 +1,11 @@
 import { Box, Button, styled } from "@mui/material";
-import { AQUA, AQUA_DEEP, BRAND_ACCENT, BRAND_ACCENT_HOVER, BRAND_ON_ACCENT, DARK, LIGHT, RADIUS } from "@/constants/theme";
+import { GOLD, GOLD_DEEP, BRAND_ACCENT, BRAND_ACCENT_HOVER, BRAND_ON_ACCENT, DARK, LIGHT, RADIUS } from "@/constants/theme";
 
 /**
  * Coinbase-style dashboard tokens (theme-aware).
  * Both light & dark modes render the same visual system — only surfaces flip.
  *
- * 2026-09 rebrand: `indigo` now carries the AQUA text/icon accent (deep aqua on light,
+ * 2026-09 rebrand: `indigo` now carries the GOLD text/icon accent (deep aqua on light,
  * bright aqua on dark) — the name is kept so 120+ call sites keep compiling. Solid
  * fills use `yellow` (always with dark-brown text).
  */
@@ -30,10 +30,10 @@ export const CB_TOKENS = {
   },
   /** Aqua text / icon accent (name kept for compatibility). */
   indigo: {
-    light: AQUA_DEEP,
-    dark: AQUA,
-    lightGlow: "rgba(15,143,134,0.10)",
-    darkGlow: "rgba(43,212,196,0.14)",
+    light: GOLD_DEEP,
+    dark: GOLD,
+    lightGlow: "rgba(139,94,0,0.10)",
+    darkGlow: "rgba(255,209,0,0.14)",
   },
   /** Yellow solid fills — pair with `onFill` text. */
   yellow: {

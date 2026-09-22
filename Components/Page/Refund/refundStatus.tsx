@@ -13,8 +13,8 @@ import { brandFg } from "@/constants/theme";
 export const REFUND_STATUS_COLORS: Record<string, { bg: string; fg: string }> = {
   created: { bg: "#E5E7EB", fg: "#4B5563" },
   awaiting_deposit: { bg: "#FEF3C7", fg: "#92400E" },
-  deposit_detected: { bg: "#E6F7F5", fg: "#0B6F68" },
-  forwarding: { bg: "#E6F7F5", fg: "#0B6F68" },
+  deposit_detected: { bg: "#FFF6CC", fg: "#6B4800" },
+  forwarding: { bg: "#FFF6CC", fg: "#6B4800" },
   completed: { bg: "#DCFCE7", fg: "#166534" },
   cancelled: { bg: "#E5E7EB", fg: "#4B5563" },
   failed: { bg: "#FEE2E2", fg: "#991B1B" },
@@ -83,7 +83,7 @@ export const RefundStatusTimeline: React.FC<{ status: string }> = ({ status }) =
       {FLOW.map((s, i) => {
         const done = isCompleted || i < idx;
         const active = !isCompleted && i === idx;
-        const dotColor = done ? "#16A34A" : active ? "#0F8F86" : "#D1D5DB";
+        const dotColor = done ? "#16A34A" : active ? "#8B5E00" : "#D1D5DB";
         return (
           <React.Fragment key={s.key}>
             <Stack alignItems="center" spacing={0.5} sx={{ flex: "0 0 auto", width: 78 }}>
@@ -94,7 +94,7 @@ export const RefundStatusTimeline: React.FC<{ status: string }> = ({ status }) =
                   borderRadius: "50%",
                   bgcolor: done || active ? dotColor : "transparent",
                   border: `2px solid ${dotColor}`,
-                  boxShadow: active ? "0 0 0 4px rgba(43,212,196,0.22)" : "none",
+                  boxShadow: active ? "0 0 0 4px rgba(255,209,0,0.22)" : "none",
                   transition: "background-color 200ms, box-shadow 200ms",
                 }}
                 data-testid={`refund-step-${s.key}`}

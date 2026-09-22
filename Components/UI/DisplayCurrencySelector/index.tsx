@@ -113,8 +113,8 @@ const DisplayCurrencySelector = ({ companyId }: { companyId: number | null }) =>
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            bgcolor: isDark ? "rgba(43,212,196,0.16)" : "#F2F4F0",
-            color: isDark ? "#2BD4C4" : "#4B5563",
+            bgcolor: isDark ? "rgba(255,209,0,0.16)" : "#F2F4F0",
+            color: isDark ? "#FFD100" : "#4B5563",
             flexShrink: 0,
           }}
         >
@@ -142,9 +142,9 @@ const DisplayCurrencySelector = ({ companyId }: { companyId: number | null }) =>
             letterSpacing: "0.05em",
             textTransform: "uppercase",
             fontFamily: "var(--font-sans)",
-            color: isDark ? "#2BD4C4" : "#4B5563",
-            bgcolor: isDark ? "rgba(43,212,196,0.14)" : "#EEF0F4",
-            border: `1px solid ${isDark ? "rgba(43,212,196,0.3)" : "#D8DCE4"}`,
+            color: isDark ? "#FFD100" : "#4B5563",
+            bgcolor: isDark ? "rgba(255,209,0,0.14)" : "#EEF0F4",
+            border: `1px solid ${isDark ? "rgba(255,209,0,0.3)" : "#D8DCE4"}`,
             whiteSpace: "nowrap",
           }}
         >

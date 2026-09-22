@@ -28,7 +28,7 @@ interface WalletReuseSelectorProps {
   onCopied?: (count: number) => void;
 }
 
-const LIME = "#0F8F86";
+const LIME = "#8B5E00";
 
 /**
  * "Reuse payout addresses from an existing company" card.
@@ -142,8 +142,8 @@ const WalletReuseSelector: React.FC<WalletReuseSelectorProps> = ({
   if (loading || dismissed || companies.length === 0 || !activeCompany) return null;
 
   const rowBorder = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)";
-  const cardBg = isDark ? "rgba(43,212,196,0.08)" : "rgba(15,143,134,0.06)";
-  const cardBorder = isDark ? "rgba(43,212,196,0.35)" : "rgba(15,143,134,0.30)";
+  const cardBg = isDark ? "rgba(255,209,0,0.08)" : "rgba(139,94,0,0.06)";
+  const cardBorder = isDark ? "rgba(255,209,0,0.35)" : "rgba(139,94,0,0.30)";
 
   return (
     <Box

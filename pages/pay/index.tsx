@@ -1421,10 +1421,10 @@ const Payment = () => {
                             onClick={handleCopyInvoice}
                             data-testid="copy-invoice-btn"
                             sx={{
-                              bgcolor: isDark ? 'rgba(15,143,134,0.16)' : theme.palette.action.hover,
+                              bgcolor: isDark ? 'rgba(139,94,0,0.16)' : theme.palette.action.hover,
                               p: 0.75,
                               borderRadius: '6px',
-                              '&:hover': { bgcolor: isDark ? 'rgba(15,143,134,0.24)' : theme.palette.action.selected }
+                              '&:hover': { bgcolor: isDark ? 'rgba(139,94,0,0.24)' : theme.palette.action.selected }
                             }}
                           >
                             <CopyIcon />
@@ -1526,7 +1526,7 @@ const Payment = () => {
                     alignItems='center'
                     mb={1.5}
                     sx={{
-                      backgroundColor: isDark ? 'rgba(15,143,134,0.08)' : 'rgba(10,10,10,0.04)',
+                      backgroundColor: isDark ? 'rgba(139,94,0,0.08)' : 'rgba(10,10,10,0.04)',
                       borderRadius: '8px',
                       mx: -0.75,
                       px: 0.75,
@@ -1732,17 +1732,17 @@ const Payment = () => {
                         fontSize: '14px',
                         minHeight: 46,
                         letterSpacing: '0.1px',
-                        boxShadow: '0 4px 14px rgba(15,143,134,0.28)',
+                        boxShadow: '0 4px 14px rgba(139,94,0,0.28)',
                         transition: 'filter 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease',
                         '&:hover': {
                           backgroundColor: BRAND_ACCENT,
                           filter: 'brightness(1.05)',
-                          boxShadow: '0 6px 20px rgba(15,143,134,0.4)',
+                          boxShadow: '0 6px 20px rgba(139,94,0,0.4)',
                           transform: 'translateY(-1px)',
                         },
                         '&:active': {
                           transform: 'translateY(0)',
-                          boxShadow: '0 2px 8px rgba(15,143,134,0.3)',
+                          boxShadow: '0 2px 8px rgba(139,94,0,0.3)',
                         },
                       }}
                     >

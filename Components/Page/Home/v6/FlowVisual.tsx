@@ -37,7 +37,7 @@ const Rail: React.FC<{ active: boolean; icon: string; vertical: boolean; testId:
     if (!active || !ref.current) return;
     setLen((vertical ? ref.current.offsetHeight : ref.current.offsetWidth) - 30);
   }, [active, vertical]);
-  const line = active ? (s.dark ? "rgba(94,234,212,0.9)" : "#0F766E") : s.lineStrong;
+  const line = active ? (s.dark ? "rgba(94,234,212,0.9)" : "#8B5E00") : s.lineStrong;
   return (
     <Box ref={ref} data-testid={testId} data-active={active ? "true" : "false"} sx={{ position: "relative", flex: vertical ? "0 0 44px" : "1 1 0", minWidth: vertical ? 0 : 28, height: vertical ? 44 : 30, alignSelf: "center", width: vertical ? 30 : "auto" }}>
       <Box sx={{ position: "absolute", ...(vertical ? { left: 14, top: 0, bottom: 0, width: 2 } : { top: 14, left: 0, right: 0, height: 2 }), backgroundImage: `repeating-linear-gradient(${vertical ? "180deg" : "90deg"}, ${line} 0 6px, transparent 6px 12px)`, opacity: active ? 1 : 0.6, transition: "opacity 300ms ease" }} />
@@ -141,7 +141,7 @@ const FlowVisual: React.FC = () => {
               <Logo width={34} height={34} />
             </Box>
             <Box data-testid="flow-status" sx={{ display: "inline-flex", alignItems: "center", gap: 0.7, mt: 1.5, px: 1.2, py: 0.45, borderRadius: 999, background: confirmed ? (s.dark ? "rgba(16,185,129,0.16)" : "rgba(16,185,129,0.10)") : s.bgAlt, border: `1px solid ${confirmed ? "rgba(16,185,129,0.45)" : s.line}`, fontFamily: FONT_TECH, fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", color: confirmed ? green : s.ink2, transition: "background-color 300ms ease, color 300ms ease" }}>
-              {confirmed ? <CheckRoundedIcon sx={{ fontSize: 13 }} /> : <LiveDot color="#0F766E" size={6} />}
+              {confirmed ? <CheckRoundedIcon sx={{ fontSize: 13 }} /> : <LiveDot color="#8B5E00" size={6} />}
               {confirmed ? t("v6.story.confirmed") : t("v6.story.detected")}
             </Box>
             <Box data-testid="flow-convert" sx={{ mt: 1.5, display: "flex", alignItems: "center", justifyContent: "center", gap: 0.8 }}>

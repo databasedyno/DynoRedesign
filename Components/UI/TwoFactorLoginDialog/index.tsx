@@ -66,7 +66,7 @@ const TwoFactorLoginDialog: React.FC<TwoFactorLoginDialogProps> = ({
     <Dialog open={open} onClose={loading || verified ? undefined : onClose} fullWidth maxWidth="xs" PaperProps={{ sx: { borderRadius: "12px" } }} data-testid="login-2fa-dialog">
       <DialogContent sx={{ px: "28px", pt: "28px", pb: "12px" }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: "10px", mb: 2 }}>
-          <Box sx={{ width: 40, height: 40, borderRadius: "10px", backgroundColor: isDark ? "rgba(43,212,196,0.18)" : "#E6F7F5", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <Box sx={{ width: 40, height: 40, borderRadius: "10px", backgroundColor: isDark ? "rgba(255,209,0,0.18)" : "#FFF6CC", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <Icon sx={{ color: brandFg(isDark), fontSize: 22 }} />
           </Box>
           <Typography sx={{ fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: "18px", lineHeight: "100%" }} data-testid="login-2fa-title">

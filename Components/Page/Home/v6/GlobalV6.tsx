@@ -34,12 +34,12 @@ const GlobalV6: React.FC = () => {
   return (
     <Box component="section" id="coins" data-testid="global" sx={{ position: "relative", overflow: "hidden", background: "#0B0908", py: { xs: 9, md: 13 }, scrollMarginTop: "88px" }}>
       <Box aria-hidden sx={{ position: "absolute", inset: 0, backgroundImage: "url(/landing/world-map-dark.jpg)", backgroundSize: "cover", backgroundPosition: "center 30%", opacity: 0.45, maskImage: "radial-gradient(ellipse 80% 90% at 70% 30%, black 10%, transparent 75%)", WebkitMaskImage: "radial-gradient(ellipse 80% 90% at 70% 30%, black 10%, transparent 75%)", pointerEvents: "none" }} />
-      <Box aria-hidden sx={{ position: "absolute", top: "-20%", left: "-10%", width: 700, height: 700, borderRadius: "50%", background: "radial-gradient(circle, rgba(15,143,134,0.45) 0%, transparent 65%)", pointerEvents: "none" }} />
+      <Box aria-hidden sx={{ position: "absolute", top: "-20%", left: "-10%", width: 700, height: 700, borderRadius: "50%", background: "radial-gradient(circle, rgba(139,94,0,0.45) 0%, transparent 65%)", pointerEvents: "none" }} />
       <Box sx={{ position: "relative", maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 } }}>
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "1fr 1fr" }, gap: { xs: 6, lg: 8 }, alignItems: "end" }}>
           <Stagger step={0.09} sx={{ maxWidth: 560 }}>
             <StaggerItem i={0} y={12}>
-              <Typography component="p" sx={{ display: "inline-flex", alignItems: "center", gap: 1, fontFamily: FONT_TECH, fontSize: 11, letterSpacing: "0.28em", textTransform: "uppercase", color: "#2BD4C4", mb: 2.5 }}><PublicRoundedIcon sx={{ fontSize: 15 }} /> {t("v5.global.eyebrow")}</Typography>
+              <Typography component="p" sx={{ display: "inline-flex", alignItems: "center", gap: 1, fontFamily: FONT_TECH, fontSize: 11, letterSpacing: "0.28em", textTransform: "uppercase", color: "#FFD100", mb: 2.5 }}><PublicRoundedIcon sx={{ fontSize: 15 }} /> {t("v5.global.eyebrow")}</Typography>
             </StaggerItem>
             <StaggerItem i={1} y={16}>
               <Typography component="h2" className="tabular-nums" data-testid="global-headline" sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: { xs: 34, sm: 44, md: 56 }, letterSpacing: "-0.03em", lineHeight: 1.02, color: INK }}>
@@ -97,7 +97,7 @@ const GlobalV6: React.FC = () => {
               </Box>
             ))}
           </Box>
-          <Box component="a" href="/fees" data-testid="coins-fees-link" sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, fontFamily: FONT_BODY, fontSize: 14.5, fontWeight: 600, color: "#2BD4C4", textDecoration: "none", whiteSpace: "nowrap", "&:hover": { color: INK } }}>
+          <Box component="a" href="/fees" data-testid="coins-fees-link" sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, fontFamily: FONT_BODY, fontSize: 14.5, fontWeight: 600, color: "#FFD100", textDecoration: "none", whiteSpace: "nowrap", "&:hover": { color: INK } }}>
             {t("v5.coins.cta")} <ArrowForwardIcon sx={{ fontSize: 16 }} />
           </Box>
         </Box>

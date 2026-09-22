@@ -191,10 +191,10 @@ const HandleClaimNudge: React.FC = () => {
       sx={{
         position: "relative",
         borderRadius: "16px",
-        border: `1px solid ${isDark ? "rgba(43,212,196,0.4)" : "rgba(15,143,134,0.35)"}`,
+        border: `1px solid ${isDark ? "rgba(255,209,0,0.4)" : "rgba(139,94,0,0.35)"}`,
         background: isDark
-          ? "linear-gradient(135deg, rgba(15,143,134,0.14) 0%, rgba(34,197,94,0.06) 100%)"
-          : "linear-gradient(135deg, rgba(15,143,134,0.06) 0%, rgba(34,197,94,0.04) 100%)",
+          ? "linear-gradient(135deg, rgba(139,94,0,0.14) 0%, rgba(34,197,94,0.06) 100%)"
+          : "linear-gradient(135deg, rgba(139,94,0,0.06) 0%, rgba(34,197,94,0.04) 100%)",
         p: { xs: 2, sm: 2.5 },
         mb: 2.5,
         display: "flex",
@@ -355,7 +355,7 @@ const HandleClaimNudge: React.FC = () => {
             color: "#2B1D14",
             "&:hover": { backgroundColor: "#F0C300" },
             "&.Mui-disabled": {
-              backgroundColor: isDark ? "rgba(43,212,196,0.35)" : "rgba(15,143,134,0.35)",
+              backgroundColor: isDark ? "rgba(255,209,0,0.35)" : "rgba(139,94,0,0.35)",
               color: "rgba(255,255,255,0.85)",
             },
           }}

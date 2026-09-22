@@ -39,7 +39,7 @@ export const RowActionButton = styled("button", {
     height: 36,
     padding: 0,
     borderRadius: 10,
-    border: `1px solid ${tone === "primary" ? (isDark ? "rgba(43,212,196,0.45)" : "rgba(15,143,134,0.35)") : hairline(theme)}`,
+    border: `1px solid ${tone === "primary" ? (isDark ? "rgba(255,209,0,0.45)" : "rgba(139,94,0,0.35)") : hairline(theme)}`,
     backgroundColor: tone === "primary" ? (isDark ? CB_TOKENS.indigo.darkGlow : CB_TOKENS.indigo.lightGlow) : "transparent",
     color: accent,
     cursor: "pointer",
@@ -49,7 +49,7 @@ export const RowActionButton = styled("button", {
       borderColor: accent,
       backgroundColor:
         tone === "primary"
-          ? isDark ? "rgba(43,212,196,0.22)" : "rgba(15,143,134,0.14)"
+          ? isDark ? "rgba(255,209,0,0.22)" : "rgba(139,94,0,0.14)"
           : tone === "danger"
             ? isDark ? "rgba(251,113,133,0.14)" : "rgba(225,29,72,0.08)"
             : isDark ? "rgba(255,255,255,0.05)" : "rgba(10,10,15,0.04)",
@@ -153,7 +153,7 @@ export const ActionButton = styled(Box)(({ theme }) => ({
   transition: "all 0.2s ease",
 
   "&:hover": {
-    backgroundColor: "#E6F7F5",
+    backgroundColor: "#FFF6CC",
   },
 }));
 

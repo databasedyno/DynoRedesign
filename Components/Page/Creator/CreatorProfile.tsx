@@ -449,7 +449,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
               backgroundColor: alpha(accent, isDark ? 0.12 : 0.07),
             }}
           >
-            <Typography sx={{ fontFamily: MONO, fontSize: 13.5, fontWeight: 600, color: isDark ? '#2BD4C4' : (readableOn(accent) === '#FFFFFF' ? accent : darken(accent, 0.35)) }}>
+            <Typography sx={{ fontFamily: MONO, fontSize: 13.5, fontWeight: 600, color: isDark ? '#FFD100' : (readableOn(accent) === '#FFFFFF' ? accent : darken(accent, 0.35)) }}>
               @{creator.handle}
             </Typography>
           </Box>
@@ -532,7 +532,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
               WebkitBackdropFilter: 'blur(20px)',
               boxShadow: isDark
                 ? '0 24px 70px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06)'
-                : '0 24px 70px rgba(15,143,134,0.10), inset 0 1px 0 rgba(255,255,255,0.9)',
+                : '0 24px 70px rgba(139,94,0,0.10), inset 0 1px 0 rgba(255,255,255,0.9)',
             }}
           >
             <Typography sx={{ fontFamily: MONO, fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: theme.palette.text.secondary, mb: 1 }}>

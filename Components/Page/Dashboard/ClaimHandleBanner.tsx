@@ -11,7 +11,7 @@ import useStorefrontProfile from "@/hooks/useStorefrontProfile";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 
 const DISMISS_KEY = "dynopay.claim-handle-banner.dismissed";
-// Session 82: LIME const preserves the name but now holds aurora indigo #0F8F86
+// Session 82: LIME const preserves the name but now holds aurora indigo #8B5E00
 const LIME = BRAND_ACCENT;
 const INK = "#0A0A0B";
 
@@ -78,8 +78,8 @@ const ClaimHandleBanner: React.FC = () => {
 
   const isDark = theme.palette.mode === "dark";
   const bg = isDark
-    ? "linear-gradient(90deg, rgba(15,143,134,0.12) 0%, rgba(0,229,255,0.10) 100%)"
-    : "linear-gradient(90deg, rgba(43,212,196,0.22) 0%, rgba(0,229,255,0.16) 100%)";
+    ? "linear-gradient(90deg, rgba(139,94,0,0.12) 0%, rgba(0,229,255,0.10) 100%)"
+    : "linear-gradient(90deg, rgba(255,209,0,0.22) 0%, rgba(0,229,255,0.16) 100%)";
 
   return (
     <Box

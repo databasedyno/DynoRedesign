@@ -30,7 +30,7 @@ export const LiveDot: FC<{ color?: string; size?: number; sx?: BoxProps["sx"]; "
 /** Slow-drifting aurora gradient on a statement word (Hostinger `--gradient-angle` title line). */
 export const GradientInk: FC<{ children: ReactNode }> = ({ children }) => {
   const s = useAurora();
-  const a = s.dark ? "#5EEAD4" : "#00D084";
+  const a = s.dark ? "#FFDA33" : "#8B5E00";
   return (
     <Box
       component="span"

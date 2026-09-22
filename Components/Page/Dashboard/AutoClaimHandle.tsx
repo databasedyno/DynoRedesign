@@ -18,7 +18,7 @@ const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Men
 /** Two-burst brand-colored confetti — tasteful, ~200ms. Client-only. */
 const fireConfetti = () => {
   void import("canvas-confetti").then(({ default: confetti }) => {
-    const colors = [BRAND_ACCENT, "#2BD4C4", "#10B981", "#F59E0B"];
+    const colors = [BRAND_ACCENT, "#FFD100", "#10B981", "#F59E0B"];
     confetti({ disableForReducedMotion: true, particleCount: 70, spread: 62, startVelocity: 38, origin: { x: 0.35, y: 0.4 }, colors, scalar: 0.95, ticks: 220 });
     confetti({ disableForReducedMotion: true, particleCount: 70, spread: 62, startVelocity: 38, origin: { x: 0.65, y: 0.4 }, colors, scalar: 0.95, ticks: 220 });
   }).catch(() => { /* client-only, safe to ignore */ });
@@ -124,7 +124,7 @@ const AutoClaimHandle: React.FC = () => {
             alignItems: "center",
             justifyContent: "center",
             background: `linear-gradient(135deg, ${BRAND_ACCENT} 0%, #FFB300 100%)`,
-            boxShadow: "0 10px 28px rgba(15,143,134,0.35)",
+            boxShadow: "0 10px 28px rgba(139,94,0,0.35)",
           }}
         >
           <Icon icon="mdi:party-popper" width={34} color="#FFFFFF" />
@@ -147,7 +147,7 @@ const AutoClaimHandle: React.FC = () => {
             py: 0.85,
             borderRadius: "999px",
             border: `1px solid ${theme.palette.divider}`,
-            backgroundColor: isDark ? "rgba(15,143,134,0.14)" : "rgba(15,143,134,0.06)",
+            backgroundColor: isDark ? "rgba(139,94,0,0.14)" : "rgba(139,94,0,0.06)",
           }}
         >
           <Icon icon="mdi:link-variant" width={16} color={theme.palette.text.secondary} />

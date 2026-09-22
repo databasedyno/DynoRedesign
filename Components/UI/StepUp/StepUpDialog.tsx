@@ -127,7 +127,7 @@ const StepUpDialog: React.FC<Props> = ({ open, scope, onVerified, onCancel }) =>
     >
       <DialogContent sx={{ px: "28px", pt: "28px", pb: "12px" }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: "10px", mb: 1.5 }}>
-          <Box sx={{ width: 40, height: 40, borderRadius: "10px", flexShrink: 0, backgroundColor: dark ? "rgba(43,212,196,0.16)" : "#E6F7F5", display: "grid", placeItems: "center" }}>
+          <Box sx={{ width: 40, height: 40, borderRadius: "10px", flexShrink: 0, backgroundColor: dark ? "rgba(255,209,0,0.16)" : "#FFF6CC", display: "grid", placeItems: "center" }}>
             <Icon name="shield-check" size={20} color={brandFg(dark)} />
           </Box>
           <Typography component="h2" data-testid="stepup-title" sx={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 18, letterSpacing: -0.2, lineHeight: 1.2 }}>

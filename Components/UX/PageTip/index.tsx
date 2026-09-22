@@ -92,8 +92,8 @@ const PageTip: React.FC<PageTipProps> = ({ tipKey }) => {
         border: `1px solid ${theme.palette.border.main}`,
         borderLeft: `3px solid ${accent}`,
         backgroundColor: isDark
-          ? "rgba(43,212,196,0.08)"
-          : "rgba(15,143,134,0.05)",
+          ? "rgba(255,209,0,0.08)"
+          : "rgba(139,94,0,0.05)",
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(4px)",
         transition: "opacity 200ms ease-out, transform 200ms ease-out",
@@ -117,8 +117,8 @@ const PageTip: React.FC<PageTipProps> = ({ tipKey }) => {
           justifyContent: "center",
           color: accent,
           backgroundColor: isDark
-            ? "rgba(43,212,196,0.16)"
-            : "rgba(15,143,134,0.10)",
+            ? "rgba(255,209,0,0.16)"
+            : "rgba(139,94,0,0.10)",
         }}
       >
         <Icon name="lightbulb" size={16} />
@@ -184,8 +184,8 @@ const PageTip: React.FC<PageTipProps> = ({ tipKey }) => {
           transition: "background-color 150ms ease",
           "&:hover": {
             backgroundColor: isDark
-              ? "rgba(43,212,196,0.12)"
-              : "rgba(15,143,134,0.08)",
+              ? "rgba(255,209,0,0.12)"
+              : "rgba(139,94,0,0.08)",
           },
           "&:focus-visible": {
             outline: `2px solid ${accent}`,

@@ -20,7 +20,7 @@ const categoryColors: Record<string, string> = {
   "Integration Guide": "#5865F2",
   "Business Strategy": "#10B981",
   "Cost Analysis": "#F59E0B",
-  "Developer Guide": "#2BD4C4",
+  "Developer Guide": "#FFD100",
 };
 
 interface BlogPostPageProps {
@@ -632,7 +632,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
             bgcolor: isDark ? "rgba(255,255,255,0.045)" : "rgba(255,255,255,0.72)",
             backdropFilter: "blur(14px)",
             WebkitBackdropFilter: "blur(14px)",
-            border: `1px solid ${isDark ? "rgba(43,212,196,0.20)" : "rgba(15,143,134,0.15)"}`,
+            border: `1px solid ${isDark ? "rgba(255,209,0,0.20)" : "rgba(139,94,0,0.15)"}`,
           }}
         >
           <HeadlineS
@@ -668,7 +668,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
               transition: "all 0.2s ease",
               "&:hover": {
                 transform: "translateY(-2px)",
-                boxShadow: isDark ? "0 8px 24px rgba(43,212,196,0.3)" : "0 8px 24px rgba(15,143,134,0.25)",
+                boxShadow: isDark ? "0 8px 24px rgba(255,209,0,0.3)" : "0 8px 24px rgba(139,94,0,0.25)",
               },
             }}
           >

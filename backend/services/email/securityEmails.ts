@@ -60,7 +60,7 @@ export const send2FABackupCodesRegeneratedEmail = async (email: string, name: st
     const content = `${greeting(name, L)}
     ${p(t("security.backupCodes.intro", L))}
     ${successBox(t("security.backupCodes.tip", L))}
-    ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${whenRow(L)}</table>`, "#4338CA")}
+    ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${whenRow(L)}</table>`, "#8B5E00")}
     ${warnText(t("security.didntDoThis", L))}`;
     const html = dynoPayEmailTemplate(t("security.backupCodes.heading", L), content, true, t("security.reviewCta", L), SECURITY_URL, t("security.backupCodes.preheader", L), L, "key");
     await send(email, name, t("security.backupCodes.subject", L), html, "2FA backup codes regenerated");
@@ -160,7 +160,7 @@ export const sendPaymentRequestEmail = async (
     ].join("");
     const content = `${p(t("common.greetingDefault", L))}
     ${p(t("paymentRequest.intro", L, vars))}
-    ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows}</table>`, "#4338CA")}
+    ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows}</table>`, "#8B5E00")}
     ${p(t("paymentRequest.outro", L))}`;
     const html = dynoPayEmailTemplate(t("paymentRequest.heading", L, vars), content, true, t("paymentRequest.cta", L), data.payUrl, t("paymentRequest.preheader", L, vars), L, "link", "buyer");
     await send(email, email.split("@")[0] || "Customer", t("paymentRequest.subject", L, vars), html, "Payment request");

@@ -106,7 +106,7 @@ const CreatorThemePicker: React.FC<Props> = ({ value, onChange, hasCoverImage })
           background: previewBg,
           position: "relative",
           overflow: "hidden",
-          boxShadow: isDark ? "0 10px 30px rgba(0,0,0,0.35)" : "0 10px 30px rgba(15,143,134,0.10)",
+          boxShadow: isDark ? "0 10px 30px rgba(0,0,0,0.35)" : "0 10px 30px rgba(139,94,0,0.10)",
         }}
         data-testid="theme-preview"
       >
@@ -269,7 +269,7 @@ const CreatorThemePicker: React.FC<Props> = ({ value, onChange, hasCoverImage })
                     borderRadius: "12px", overflow: "hidden",
                     boxShadow: active ? `0 0 0 3px ${currentAccent}33, 0 10px 24px rgba(0,0,0,0.18)` : "none",
                     transition: "transform 120ms, box-shadow 120ms, border-color 120ms",
-                    "&:hover": { transform: "translateY(-2px)", boxShadow: `0 10px 24px ${isDark ? "rgba(0,0,0,0.4)" : "rgba(15,143,134,0.14)"}` },
+                    "&:hover": { transform: "translateY(-2px)", boxShadow: `0 10px 24px ${isDark ? "rgba(0,0,0,0.4)" : "rgba(139,94,0,0.14)"}` },
                   }}
                 >
                   {/* Live mini-cover: gradient + hero scrim + avatar dot straddling the edge */}

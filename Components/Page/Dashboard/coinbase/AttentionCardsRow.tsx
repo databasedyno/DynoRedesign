@@ -113,7 +113,7 @@ const AttentionCardsRow: React.FC = () => {
           cta: t("attnAddWalletCta", { defaultValue: "Add payout address" }),
           icon: <AccountBalanceWalletRounded sx={{ fontSize: 22 }} />,
           href: "/wallet",
-          gradient: ["#2BD4C4", "#2BD4C4"],
+          gradient: ["#FFD100", "#FFD100"],
         }
       : !hasHandle
         ? {

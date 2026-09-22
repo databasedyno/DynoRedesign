@@ -37,8 +37,8 @@ const ReferralEarningsCalculator: React.FC = () => {
         py: { xs: 2.5, md: 3 },
         px: 2,
         borderRadius: "16px",
-        background: accent ? "rgba(15,143,134,0.10)" : s.bgAlt,
-        border: `1px solid ${accent ? "rgba(15,143,134,0.35)" : s.line}`,
+        background: accent ? "rgba(139,94,0,0.10)" : s.bgAlt,
+        border: `1px solid ${accent ? "rgba(139,94,0,0.35)" : s.line}`,
       }}
     >
       <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase", color: s.ink3, mb: 1 }}>
@@ -126,7 +126,7 @@ const ReferralEarningsCalculator: React.FC = () => {
           sx={{
             color: s.indigo,
             height: 6,
-            "& .MuiSlider-thumb": { width: 22, height: 22, boxShadow: "0 4px 12px -2px rgba(15,143,134,0.5)" },
+            "& .MuiSlider-thumb": { width: 22, height: 22, boxShadow: "0 4px 12px -2px rgba(139,94,0,0.5)" },
             "& .MuiSlider-rail": { opacity: 0.2 },
           }}
         />

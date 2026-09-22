@@ -125,7 +125,7 @@ export const renderMoneyPath = (L: string, mp: PaymentMoneyPath): string => {
     : dataRow(
         t("paymentSettled.forwardTx", L),
         mp.forwardTxHash
-          ? `${mono(maskAddress(mp.forwardTxHash))}${mp.explorerUrl ? ` · <a href="${escapeHtml(mp.explorerUrl)}" style="color:#4338CA;font-weight:600;text-decoration:none;">${t("paymentSettled.viewOnExplorer", L)}</a>` : ""}`
+          ? `${mono(maskAddress(mp.forwardTxHash))}${mp.explorerUrl ? ` · <a href="${escapeHtml(mp.explorerUrl)}" style="color:#8B5E00;font-weight:600;text-decoration:none;">${t("paymentSettled.viewOnExplorer", L)}</a>` : ""}`
           : `<span style="color:#b45309;">${t("paymentSettled.forwarding", L)}</span>`,
       );
   const rows = [

@@ -1,12 +1,12 @@
 import { createTheme } from "@mui/material";
 import { theme, themeDark } from "./theme";
-import { AQUA, AQUA_DEEP, BRAND_ACCENT, BRAND_ACCENT_HOVER, BRAND_ON_ACCENT, DARK, LIGHT, RADIUS, brandFg } from "@/constants/theme";
+import { BRAND_ACCENT, BRAND_ACCENT_HOVER, BRAND_ON_ACCENT, DARK, GOLD, GOLD_DEEP, LIGHT, RADIUS, brandFg, linkFg } from "@/constants/theme";
 
 /**
- * App / dashboard theme — Dynopay 2026-09 rebrand.
- * Yellow primary fills (always with dark-brown text), aqua for links / outlined
- * buttons / focus rings / status, warm cream (light) or black + dark-brown (dark)
- * grounds. Built on top of the base dashboard theme (styles/theme.ts) so all
+ * App / dashboard theme — Dynopay 2026-09 rebrand (gold / dark brown / black).
+ * Gold primary fills (always with dark-brown text), gold (dark) / deep-gold (light)
+ * for outlined buttons / focus rings, dark-brown links on light, warm cream (light)
+ * or black + dark-brown (dark) grounds. Built on top of the base dashboard theme (styles/theme.ts) so all
  * component sizing / spacing survives — only colour changes.
  *
  * Scoped to the dashboard + in-app pages via _app.tsx `activeTheme`.
@@ -77,11 +77,11 @@ const buttonVariants = (fillBg: string, fillText: string, fillHoverBg: string, g
     },
   },
   {
-    // Outlined brand button — aqua (yellow text on light would fail contrast).
+    // Outlined brand button — gold on dark, deep gold on light (bright gold text on cream fails contrast).
     props: { variant: "pills" as const },
     style: {
       border: "1px solid",
-      borderColor: isDark ? "rgba(43,212,196,0.55)" : "rgba(15,143,134,0.5)",
+      borderColor: isDark ? "rgba(255,209,0,0.55)" : "rgba(139,94,0,0.5)",
       padding: "9px 22px",
       color: brandFg(isDark),
       fontWeight: 600,
@@ -118,8 +118,8 @@ const alertOverrides = (isDark: boolean) => ({
         ? { color: "#BBF7D0", backgroundColor: "#10331F", "& .MuiAlert-icon": { color: "#4ADE80" } }
         : { color: "#065F46", backgroundColor: "#ECFDF5", "& .MuiAlert-icon": { color: "#059669" } },
       standardInfo: isDark
-        ? { color: "#CFF5F1", backgroundColor: "#123632", "& .MuiAlert-icon": { color: AQUA } }
-        : { color: "#0E4F4A", backgroundColor: "#E6F7F5", "& .MuiAlert-icon": { color: AQUA_DEEP } },
+        ? { color: "#F3EDE2", backgroundColor: "#3A2A1F", "& .MuiAlert-icon": { color: GOLD } }
+        : { color: "#3A2A1F", backgroundColor: "#F3EDE2", "& .MuiAlert-icon": { color: GOLD_DEEP } },
       standardWarning: isDark
         ? { color: "#FDE68A", backgroundColor: "#3A2A0A", "& .MuiAlert-icon": { color: "#FBBF24" } }
         : { color: "#7A4B00", backgroundColor: "#FFF6CC", "& .MuiAlert-icon": { color: "#B45309" } },
@@ -130,11 +130,12 @@ const alertOverrides = (isDark: boolean) => ({
   },
 });
 
-/** Shared component overrides: yellow CTAs, aqua links/outlines/focus, hairline cards, 8px inputs. */
+/** Shared component overrides: gold CTAs, gold/deep-gold outlines + focus, dark-brown links on light, hairline cards, 8px inputs. */
 const sharedComponents = (isDark: boolean) => {
   const T = isDark ? DARK : LIGHT;
   const fg = brandFg(isDark);
-  const fgSoft = isDark ? "rgba(43,212,196,0.10)" : "rgba(15,143,134,0.08)";
+  const link = linkFg(isDark);
+  const fgSoft = isDark ? "rgba(255,209,0,0.10)" : "rgba(139,94,0,0.08)";
   return {
     MuiButton: {
       styleOverrides: {
@@ -156,7 +157,7 @@ const sharedComponents = (isDark: boolean) => {
         },
         outlinedPrimary: {
           color: fg,
-          borderColor: isDark ? "rgba(43,212,196,0.5)" : "rgba(15,143,134,0.45)",
+          borderColor: isDark ? "rgba(255,209,0,0.5)" : "rgba(139,94,0,0.45)",
           "&:hover": { borderColor: fg, backgroundColor: fgSoft },
         },
         textPrimary: {
@@ -168,7 +169,7 @@ const sharedComponents = (isDark: boolean) => {
     },
     MuiLink: {
       styleOverrides: {
-        root: { color: fg, textDecorationColor: isDark ? "rgba(43,212,196,0.4)" : "rgba(15,143,134,0.35)" },
+        root: { color: link, textDecorationColor: isDark ? "rgba(255,209,0,0.4)" : "rgba(43,29,20,0.35)" },
       },
     },
     MuiCard: {
@@ -211,8 +212,8 @@ const sharedComponents = (isDark: boolean) => {
         outlinedPrimary: { color: fg, borderColor: fg },
       },
     },
-    MuiCheckbox: { styleOverrides: { root: { "&.Mui-checked": { color: isDark ? YELLOW : AQUA_DEEP } } } },
-    MuiRadio: { styleOverrides: { root: { "&.Mui-checked": { color: isDark ? YELLOW : AQUA_DEEP } } } },
+    MuiCheckbox: { styleOverrides: { root: { "&.Mui-checked": { color: isDark ? YELLOW : BRAND_ON_ACCENT } } } },
+    MuiRadio: { styleOverrides: { root: { "&.Mui-checked": { color: isDark ? YELLOW : BRAND_ON_ACCENT } } } },
     MuiSwitch: {
       styleOverrides: {
         switchBase: {
@@ -258,14 +259,14 @@ export const appThemeDark = createTheme(themeDark, {
     divider: DARK.border,
     border: {
       main: DARK.border,
-      focus: AQUA,
+      focus: GOLD,
       success: DARK.success,
       error: DARK.error,
     },
     success: { main: DARK.success, dark: "#22C55E", light: "rgba(34,197,94,0.14)" },
     error: { main: DARK.error },
     warning: { main: DARK.warning },
-    info: { main: AQUA, dark: AQUA_DEEP, light: "rgba(43,212,196,0.16)", contrastText: "#0B0908" },
+    info: { main: GOLD, dark: BRAND_ACCENT_HOVER, light: "rgba(255,209,0,0.16)", contrastText: "#0B0908" },
     action: {
       hover: "rgba(255,240,210,0.06)",
       selected: "rgba(255,209,0,0.14)",
@@ -296,14 +297,14 @@ export const appThemeLight = createTheme(theme, {
     divider: LIGHT.border,
     border: {
       main: LIGHT.border,
-      focus: AQUA_DEEP,
+      focus: GOLD_DEEP,
       success: "#059669",
       error: "#E11D48",
     },
     success: { main: "#059669", dark: "#047857", light: "#ECFDF5" },
     error: { main: "#E11D48", light: "#FEF2F2" },
     warning: { main: "#B45309", light: "#FFF6CC" },
-    info: { main: AQUA_DEEP, dark: "#0B6F68", light: "#E6F7F5", contrastText: "#fff" },
+    info: { main: GOLD_DEEP, dark: "#6B4800", light: "#F3EDE2", contrastText: "#fff" },
     action: {
       hover: LIGHT.raised,
       selected: "rgba(255,209,0,0.16)",
@@ -323,7 +324,7 @@ export const sidebarTheme = createTheme(appThemeDark, {
     background: { default: DARK.raised, paper: DARK.raised },
     secondary: { main: DARK.active, dark: DARK.borderStrong, light: DARK.active, contrastText: DARK.textSecondary },
     divider: "rgba(255,240,210,0.10)",
-    border: { main: "rgba(255,240,210,0.12)", focus: AQUA, success: DARK.success, error: DARK.error },
+    border: { main: "rgba(255,240,210,0.12)", focus: GOLD, success: DARK.success, error: DARK.error },
     action: { hover: "rgba(255,240,210,0.07)", selected: "rgba(255,209,0,0.16)" },
   } as any,
 });

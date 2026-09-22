@@ -45,25 +45,25 @@ export interface VerticalAccent {
 const ACCENTS: Record<Vertical, VerticalAccent> = {
   merchants: {
     vertical: "merchants",
-    color: INDIGO,          // #0F8F86
-    colorDeep: "#0F8F86",
-    tint: "rgba(15,143,134,0.10)",
+    color: INDIGO,          // #8B5E00 deep gold
+    colorDeep: "#6B4800",
+    tint: "rgba(139,94,0,0.10)",
     gradient: AURORA_GRADIENT,
     onColor: "#FFFFFF",
   },
   fundraisers: {
     vertical: "fundraisers",
-    color: VIOLET,          // #2BD4C4
-    colorDeep: "#5A3EFF",
-    tint: "rgba(43,212,196,0.10)",
+    color: VIOLET,          // #F0C300 gold
+    colorDeep: "#B89600",
+    tint: "rgba(255,209,0,0.10)",
     gradient: AURORA_GRADIENT,
-    onColor: "#FFFFFF",
+    onColor: "#2B1D14",
   },
   creators: {
     vertical: "creators",
-    color: INDIGO,          // unified indigo look (was VOLT #CCFF00)
-    colorDeep: "#0F8F86",
-    tint: "rgba(15,143,134,0.10)",
+    color: INDIGO,          // unified deep-gold look
+    colorDeep: "#6B4800",
+    tint: "rgba(139,94,0,0.10)",
     gradient: AURORA_GRADIENT,
     onColor: "#FFFFFF",
   },

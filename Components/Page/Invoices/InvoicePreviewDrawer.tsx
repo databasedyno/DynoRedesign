@@ -308,7 +308,7 @@ export default function InvoicePreviewDrawer({ open, invoice, onClose }: Props) 
                   backgroundColor: dark ? "#0B0908" : "#F4F4F7",
                 }}
               >
-                <CircularProgress size={26} sx={{ color: dark ? "#2BD4C4" : BRAND_ACCENT }} />
+                <CircularProgress size={26} sx={{ color: dark ? "#FFD100" : "#8B5E00" }} />
                 <Typography sx={{ fontFamily: "var(--font-body)", fontSize: 12, color: theme.palette.text.secondary }}>
                   {t("invoices.preview.rendering")}
                 </Typography>

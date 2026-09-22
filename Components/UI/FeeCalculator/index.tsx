@@ -159,8 +159,8 @@ const ResultValue = styled(Typography)(({ theme }) => ({
 const HighlightBox = styled(Box)(({ theme }) => {
   const isDark = theme.palette.mode === "dark";
   return {
-    background: isDark ? "rgba(43,212,196,0.12)" : "#0A0A0A08",
-    border: `1px solid ${isDark ? "rgba(43,212,196,0.24)" : "#0A0A0A1A"}`,
+    background: isDark ? "rgba(255,209,0,0.12)" : "#0A0A0A08",
+    border: `1px solid ${isDark ? "rgba(255,209,0,0.24)" : "#0A0A0A1A"}`,
     borderRadius: "12px",
     padding: "16px",
     marginTop: "16px",

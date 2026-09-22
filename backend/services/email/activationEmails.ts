@@ -49,7 +49,7 @@ export const sendActivationEmail = async (a: ActivationEmailArgs): Promise<boole
 
     const videoBlock = `<p style="margin:20px 0 4px;font-size:15px;">
       <a href="${videoUrl}" target="_blank" rel="noopener" class="pill"
-         style="display:inline-block;padding:11px 18px;border-radius:999px;background:#EEF2FF;color:#4338CA;text-decoration:none;font-weight:700;font-size:14px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">
+         style="display:inline-block;padding:11px 18px;border-radius:999px;background:#FFF4B8;color:#2B1D14;text-decoration:none;font-weight:700;font-size:14px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">
         ${escapeHtml(videoLabel)}
       </a></p>`;
 
