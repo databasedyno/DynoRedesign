@@ -1,0 +1,25 @@
+{
+  "summary": "Frontend-only QA of the new SafeDeal 'Telegram Cashout Push Notice' feature on /safedeal/deals Overview tab. Created throwaway account via preview_code, exercised unlinked → linked → test → unlink flows on desktop, plus mobile layout regression. All 7 acceptance criteria pass; no bugs found.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/test_reports/iteration_217.json"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "TelegramAlertsCard.tsx (57 lines) is clean, small, and correctly returns null when backend reports configured=false — no additional refactor needed.",
+    "Card correctly uses safedealApi (which reads REACT_APP_BACKEND_URL) and MUI theme tokens; no hardcoded URLs.",
+    "Toast/loading/error states all present (busy state 'Sending…', disabled-while-busy, error via sdError helper, success snackbars).",
+    "data-testids on every interactive element (sd-telegram-card, -state, -test, -unlink, -hint, -link-widget) — testable."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped per request)", "frontend": "100%"},
+  "test_credentials": "Throwaway SafeDeal email account created at runtime via /api/safedeal/auth/send-code + verify-code (preview_code flow). No shared/populated account was used.",
+  "seed_data_creation": "One throwaway SafeDeal account (sd-tg-qa-1790082916@example.com, customer_id=949) was created and linked to a fake Telegram id via /app/backend/scripts/telegram_alerts_smoke.js --link, then unlinked at the end of the test. Left in unlinked state.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Feature verified end-to-end on preview URL. All testids match spec. Detailed observations: (1) Unlinked state on /safedeal/deals shows sd-telegram-card with data-linked='false', chip 'Off', sd-telegram-link-widget renders an iframe (widget shows 'Bot domain invalid' inside — expected on preview host, BotFather /setdomain is elsewhere), and hint contains '@SafeDealAlert_bot'. (2) Card is absent on Deals/Activity/Documents tab panels — Overview only. (3) After scripted link, card flips to data-linked='true', chip 'On', shows sd-telegram-test + sd-telegram-unlink buttons, widget hidden. (4) 'Send test' triggers backend 409 → toast text: \"Telegram won't let us message you yet — open @SafeDealAlert_bot in Telegram, press Start, then try again.\" (contains 'press Start' ✓). Button shows 'Sending…' while busy then re-enables. (5) 'Unlink' → success toast 'Telegram unlinked.', chip → 'Off', widget re-renders. (6) Mobile 390x844: telegram card is full-width (x=16, w=358) below Payout Settings; scrollWidth == clientWidth == 390 (no horizontal overflow). (7) Zero non-Telegram JS console errors; only expected 409 network log for the test-send.",
+  "rca of the issue": "No issues found — feature works as designed."
+}
