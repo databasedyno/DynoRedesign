@@ -19,6 +19,7 @@ import DealsSection, { sortDeals, yourMove } from "./DealsSection";
 import DocumentsList from "./DocumentsList";
 import CashoutsList from "./CashoutsList";
 import PayoutSettings from "./PayoutSettings";
+import TelegramAlertsCard from "./TelegramAlertsCard";
 import { AddAddressDialog, WithdrawDialog, shortAddr } from "./WalletDialogs";
 
 export type HomeTab = "overview" | "deals" | "activity" | "documents";
@@ -34,12 +35,12 @@ type Dialog = null | "address" | "withdraw" | "topup" | { remove: SdAddress } | 
 
 function TabBar({ tab, onChange, badge }: { tab: HomeTab; onChange: (t: HomeTab) => void; badge: number }) {
   return (
-    <Box role="tablist" aria-label="SafeDeal home" data-testid="sd-home-tabs" sx={{ display: "inline-grid", gridTemplateColumns: "repeat(4, auto)", gap: 0.4, p: 0.5, borderRadius: 99, backgroundColor: "#fff", border: `1px solid ${SD_BORDER}`, maxWidth: "100%", overflowX: "auto" }}>
+    <Box role="tablist" aria-label="SafeDeal home" data-testid="sd-home-tabs" sx={{ display: "inline-flex", gap: 0.4, p: 0.5, borderRadius: 99, backgroundColor: "#fff", border: `1px solid ${SD_BORDER}`, maxWidth: "100%", overflowX: "auto" }}>
       {TABS.map((t) => {
         const on = t.key === tab;
         return (
           <Box key={t.key} component="button" type="button" role="tab" aria-selected={on} aria-controls={`sd-home-panel-${t.key}`} data-testid={`sd-home-tab-${t.key}`} onClick={() => onChange(t.key)}
-            sx={{ border: 0, cursor: "pointer", borderRadius: 99, py: 0.85, px: { xs: 1.4, sm: 1.8 }, display: "flex", alignItems: "center", gap: 0.7, fontWeight: 800, fontSize: 13, fontFamily: "inherit", whiteSpace: "nowrap", color: on ? SD_INK : SD_TEXT_MUTED, backgroundColor: on ? SD_GOLD : "transparent", transition: "background-color .18s, color .18s", "&:hover": { color: SD_INK, backgroundColor: on ? SD_GOLD : SD_PAGE } }}>
+            sx={{ border: 0, cursor: "pointer", borderRadius: 99, py: 0.85, px: { xs: 1.3, sm: 1.8 }, display: "flex", alignItems: "center", gap: 0.7, fontWeight: 800, fontSize: 13, fontFamily: "inherit", whiteSpace: "nowrap", flexShrink: 0, "& svg": { display: { xs: "none", sm: "block" } }, color: on ? SD_INK : SD_TEXT_MUTED, backgroundColor: on ? SD_GOLD : "transparent", transition: "background-color .18s, color .18s", "&:hover": { color: SD_INK, backgroundColor: on ? SD_GOLD : SD_PAGE } }}>
             <Icon icon={t.icon} width={16} aria-hidden />
             {t.label}
             {t.key === "deals" && badge > 0 && <Box component="span" data-testid="sd-home-your-move-count" sx={{ ml: 0.3, minWidth: 18, height: 18, px: 0.5, borderRadius: 99, fontSize: 10.5, fontWeight: 900, display: "grid", placeItems: "center", backgroundColor: on ? SD_INK : SD_GOLD, color: on ? SD_GOLD : SD_INK }}>{badge}</Box>}
@@ -225,7 +226,7 @@ export default function SafeDealHome({ initialTab = "overview" }: { initialTab?:
               <Typography color="error" data-testid="sd-deals-error">{dealsError}</Typography>
             ) : featured.length === 0 ? (
               <Box data-testid="sd-home-deals-empty" sx={{ p: { xs: 3, md: 4 }, borderRadius: 4, backgroundColor: SD_INK, color: "#fff", display: "flex", alignItems: "center", gap: 2.5, flexWrap: "wrap", position: "relative", overflow: "hidden" }}>
-                <Box aria-hidden sx={{ position: "absolute", inset: 0, background: `radial-gradient(420px 220px at 100% 0%, ${goldAlpha(0.22)}, transparent 70%)` }} />
+                <Box aria-hidden sx={{ position: "absolute", inset: 0, pointerEvents: "none", background: `radial-gradient(420px 220px at 100% 0%, ${goldAlpha(0.22)}, transparent 70%)` }} />
                 <Box sx={{ position: "relative", flex: 1, minWidth: 220 }}>
                   <Typography sx={{ fontWeight: 900, fontSize: 20, letterSpacing: -0.4 }}>{deals && deals.length > 0 ? "Nothing open right now" : "Start your first deal"}</Typography>
                   <Typography sx={{ fontSize: 13.5, color: "rgba(255,255,255,0.72)", mt: 0.5 }}>Name it, set the price, invite the other side by email or link — they don&apos;t need an account.</Typography>
@@ -243,7 +244,10 @@ export default function SafeDealHome({ initialTab = "overview" }: { initialTab?:
 
           <Box sx={{ display: "grid", gap: 2.5, gridTemplateColumns: { xs: "1fr", lg: "1.6fr 1fr" }, alignItems: "start" }}>
             <ActivityFeed rows={rows} from={from} to={to} onRange={(f, t) => { setFrom(f); setTo(t); }} onCsv={() => void exportCsv()} compact={6} onSeeAll={() => changeTab("activity")} />
-            {w ? <PayoutSettings wallet={w} onAdd={() => setDialog("address")} onRemove={(a) => setDialog({ remove: a })} onToggleAuto={(on) => void toggleAutoWithdraw(on)} onAutoAddress={(id) => void setAutoAddress(id)} /> : <Skeleton variant="rounded" height={200} />}
+            <Stack spacing={2.5}>
+              {w ? <PayoutSettings wallet={w} onAdd={() => setDialog("address")} onRemove={(a) => setDialog({ remove: a })} onToggleAuto={(on) => void toggleAutoWithdraw(on)} onAutoAddress={(id) => void setAutoAddress(id)} /> : <Skeleton variant="rounded" height={200} />}
+              <TelegramAlertsCard notify={notify} />
+            </Stack>
           </Box>
         </Stack>
       )}

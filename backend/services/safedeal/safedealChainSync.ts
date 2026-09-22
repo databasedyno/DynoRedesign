@@ -26,6 +26,7 @@ import { sendSafeDealCashoutConfirmedEmail } from "../email/safedealEmails";
 import { cashoutEmailOptions, payoutKeyToCryptoCode, type WithdrawalRow } from "./safedealWithdrawals";
 import { ESCROW_PAYOUT_OPTIONS } from "../escrow/escrowCosts";
 import { isRealCustomerEmail } from "./safedealCheckout";
+import { notifyCashoutConfirmed, notifyPendingCashouts } from "./safedealTelegram";
 
 const MAX_ATTEMPTS = 300;              // ~25h at a 5-min cadence, then we stop asking (row keeps the exchange ref)
 const LOOKBACK_DAYS = 14;
@@ -99,6 +100,7 @@ async function markConfirmed(w: PendingRow, found: { txId: string; completedAt: 
   }
   apiLogger.info(`[SafeDealChainSync] ✅ ${w.source === "settlement" ? "deal payout" : "cashout"} #${w.withdrawal_id} confirmed on-chain via ${via}: ${found.txId}`);
   await emailConfirmation({ ...w, chain_tx_hash: found.txId, chain_confirmed_at: found.completedAt });
+  await notifyCashoutConfirmed({ ...w, chain_tx_hash: found.txId, chain_confirmed_at: found.completedAt });
 }
 
 /** Send the "confirmed on-chain" email; stamps chain_hash_emailed_at only when the mail really left. */
@@ -193,6 +195,11 @@ export async function syncCashoutChainHashes(limit = 50): Promise<ChainSyncResul
     await emailPendingConfirmations();
   } catch (e) {
     apiLogger.warn(`[SafeDealChainSync] catch-up emails failed: ${(e as Error).message}`);
+  }
+  try {
+    await notifyPendingCashouts();
+  } catch (e) {
+    apiLogger.warn(`[SafeDealChainSync] catch-up Telegram notices failed: ${(e as Error).message}`);
   }
   if (result.scanned) apiLogger.info(`[SafeDealChainSync] scanned ${result.scanned} · confirmed ${result.confirmed} · still pending ${result.pending} · errors ${result.errors}`);
   return result;

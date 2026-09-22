@@ -12,6 +12,7 @@ import {
   HomeRounded,
   InsertDriveFileRounded,
   InsightsRounded,
+  LocalGasStationRounded,
   MonetizationOnRounded,
   PhotoLibraryRounded,
   ReceiptLongRounded,
@@ -102,6 +103,11 @@ const adminMenus = [
     icon: <ReceiptLongRounded color="inherit" />,
     name: "Transactions",
     link: "/admin/transactions",
+  },
+  {
+    icon: <LocalGasStationRounded color="inherit" />,
+    name: "Fee Reconciliation",
+    link: "/admin/fee-reconciliation",
   },
   {
     icon: <RssFeedRounded color="inherit" />,

@@ -431,6 +431,10 @@ export const safedealApi = {
   sendCode: async (email: string): Promise<{ email: string; preview_code?: string }> => unwrap(await client.post("/auth/send-code", { email })),
   verifyCode: async (email: string, code: string): Promise<{ token: string; user: SdUser }> => unwrap(await client.post("/auth/verify-code", { email, code })),
   telegramAuth: async (data: Record<string, unknown>): Promise<{ token: string; user: SdUser }> => unwrap(await client.post("/auth/telegram", data)),
+  telegramStatus: async (): Promise<{ linked: boolean; bot: string | null; configured: boolean }> => unwrap(await client.get("/telegram")),
+  telegramLink: async (data: Record<string, unknown>): Promise<{ linked: boolean; message_sent: boolean; bot: string | null }> => unwrap(await client.post("/telegram/link", data)),
+  telegramTest: async (): Promise<{ sent: boolean }> => unwrap(await client.post("/telegram/test", {})),
+  telegramUnlink: async (): Promise<{ linked: boolean }> => unwrap(await client.post("/telegram/unlink", {})),
   /** Fresh one-time code for a sensitive wallet change. `action` shapes the email ("Confirm your cashout"). */
   stepUp: async (action?: StepUpAction): Promise<{ preview_code?: string }> => unwrap(await client.post("/auth/step-up", action ? { action } : {})),
   me: async (): Promise<{ user: SdUser; wallet: SdBalances; profile: SdWallet["profile"]; addresses_count: number }> => unwrap(await client.get("/me")),

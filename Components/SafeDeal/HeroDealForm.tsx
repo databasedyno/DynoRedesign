@@ -95,7 +95,7 @@ export default function HeroDealForm({ cfg }: { cfg: SdConfig | null }) {
       data-testid="sd-landing-start"
       sx={{ p: { xs: 2.2, sm: 3 }, borderRadius: 5, backgroundColor: "rgba(20,20,23,0.72)", backdropFilter: "blur(18px)", border: `1px solid rgba(255,255,255,0.10)`, boxShadow: `0 30px 80px rgba(0,0,0,0.55), 0 0 0 1px ${goldAlpha(0.12)}`, color: "#fff", position: "relative" }}
     >
-      <Box aria-hidden sx={{ position: "absolute", top: -1, left: 28, right: 28, height: 1, background: `linear-gradient(90deg, transparent, ${goldAlpha(0.8)}, transparent)` }} />
+      <Box aria-hidden sx={{ position: "absolute", top: -1, left: 28, right: 28, height: "1px", pointerEvents: "none", background: `linear-gradient(90deg, transparent, ${goldAlpha(0.8)}, transparent)` }} />
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
         <Typography component="h2" sx={{ fontSize: { xs: 18, md: 20 }, fontWeight: 900, letterSpacing: -0.4 }}>Start a deal</Typography>
         <Typography sx={{ fontSize: 12, color: "rgba(255,255,255,0.55)", fontWeight: 700 }}>under a minute · no account needed</Typography>

@@ -58,7 +58,7 @@ export default function EscrowScene() {
 
   return (
     <Box data-testid="sd-escrow-scene" data-mode={use3d ? "webgl" : "static"} sx={{ position: "relative", width: "100%", height: { xs: 320, md: 480, lg: 520 } }}>
-      <Box aria-hidden sx={{ position: "absolute", inset: "10% 5%", background: `radial-gradient(closest-side, ${goldAlpha(0.22)}, transparent 75%)`, filter: "blur(18px)" }} />
+      <Box aria-hidden sx={{ position: "absolute", inset: "10% 5%", pointerEvents: "none", background: `radial-gradient(closest-side, ${goldAlpha(0.22)}, transparent 75%)`, filter: "blur(18px)" }} />
       {use3d ? (
         <>
           <Box sx={{ position: "absolute", inset: "0 0 46px 0" }}>
@@ -76,7 +76,7 @@ export default function EscrowScene() {
       ) : (
         <StaticEscrowDiagram animate={!reduce} />
       )}
-      <Typography component="p" sx={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)" }}>
+      <Typography component="p" sx={{ position: "absolute", width: "1px", height: "1px", overflow: "hidden", clip: "rect(0 0 0 0)", pointerEvents: "none" }}>
         How SafeDeal works: the buyer pays into the SafeDeal vault, the money is held in USDT, and it is released to the seller once the work is delivered.
       </Typography>
     </Box>

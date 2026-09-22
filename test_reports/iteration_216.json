@@ -1,0 +1,115 @@
+{
+  "summary": "Full frontend QA of the SafeDeal redesign (short landing + unified home + tabs) on the preview host. Landing desktop/mobile, hero form validation, guest->signin->auto-create-deal, unified home (Overview/Deals/Activity/Documents) both routes /safedeal/deals and /safedeal/wallet, populated moxxcompany@gmail.com read-only scenario, mobile home, and regression paths all pass. Found 1 HIGH interaction bug on the landing hero form (a decorative overlay intercepts pointer events on the 'Share a link' toggle) and 1 minor mobile-tab truncation.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "HeroDealForm (Components/SafeDeal/HeroDealForm.tsx)",
+        "issue": "A decorative overlay <div class='MuiBox-root mui-q4ld7j' aria-hidden='true'> has computed pointer-events:auto and covers the form card. document.elementFromPoint at the center of [data-testid=sd-ls-invite-by-link] returns THAT overlay div instead of the button, so a normal user click on 'Share a link' hits the overlay and the toggle never fires. Playwright .click() (even with force=True) failed the same way; only calling element.click() via JS bypassed it. Same overlay sits over sd-ls-submit y-range; submit currently works probably because MUI Button has its own click surface higher in the paint order at that exact spot. Fix: set pointer-events:none on that decorative box (it is aria-hidden anyway).",
+        "selector": "[data-testid=sd-ls-invite-by-link] (overlay: div.MuiBox-root.mui-q4ld7j)",
+        "priority": "HIGH"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "Unified home on mobile 390x844",
+        "issues": ["Horizontal tab bar truncates the 'Documents' label to 'Docu…' — either shrink the icon/label spacing, allow horizontal scroll, or drop icons on <430px. No page-level horizontal overflow (scrollWidth==innerWidth==390)."]
+      }
+    ]
+  },
+  "test_results": {
+    "LANDING_desktop_1920x800": {
+      "all_testids_present": true,
+      "sd-escrow-scene[data-mode]": "webgl",
+      "sd-escrow-canvas": "present",
+      "sd-hero-fee-line": "5% escrow fee · min $10 · deals from $30",
+      "3_step_cards": "sd-step-1..3 all present",
+      "faq_heading": "'Questions people ask first' present",
+      "sd-footer": "present",
+      "horizontal_overflow": "none (sw=iw=1920)",
+      "console_errors": "none (only WebGL perf warnings)"
+    },
+    "LANDING_mobile_390x844": {
+      "sd-escrow-scene[data-mode]": "static",
+      "sd-escrow-static": "present",
+      "sd-escrow-canvas": "absent (correct)",
+      "horizontal_overflow": "none"
+    },
+    "HERO_form_validation": {
+      "empty_submit_shows_sd-landing-start-error": true,
+      "error_text": "Add a title, amount and the other party's email.",
+      "share_a_link_toggle_via_JS": "PASS — email field hidden, submit label becomes 'Create invite link'",
+      "share_a_link_toggle_via_real_click": "FAIL — overlay intercepts (bug above)"
+    },
+    "GUEST_signin_autocreate": {
+      "sessionStorage_draft": "used",
+      "redirect_to_signin": "/safedeal/signin?next=%2Fsafedeal%2Fdeals%2Fnew%3Fresume%3D1",
+      "preview_code_visible_at_sd-signin-preview-code-value": true,
+      "segmented_code_input_sd-signin-code..code-6": "present and accepts digits",
+      "sd-signin-verify": "worked",
+      "redirect_to_deal": "/safedeal/deal/<token>?created=1",
+      "created_deal_title": "QA hero deal 1790080026 shown, amount $120.00",
+      "deal_id": "#344"
+    },
+    "UNIFIED_HOME_seller_fresh": {
+      "route_/safedeal/deals": "sd-home data-tab='overview'",
+      "route_/safedeal/wallet": "sd-home data-tab='activity'",
+      "route_/safedeal/deals?tab=documents": "sd-home data-tab='documents'",
+      "tab_click_url_sync": "shallow ?tab=deals|activity|documents (no full reload)",
+      "sd-wallet-available": "$0.00",
+      "sd-wallet-held": "$0.00",
+      "sd-wallet-paid-out": "$0.00",
+      "sd-withdraw-open_disabled_at_$0": true,
+      "sd-nav-deals": "text='Home' href='/safedeal/deals' aria-current='page'",
+      "sd-nav-wallet": "text='Wallet' href='/safedeal/wallet' aria-current=none",
+      "your_move_badge_false_positive_check": "sd-home-your-move-count absent (seller waiting on buyer) — correct",
+      "new_deal_card": "sd-deal-row-344 + sd-deal-tracker-344 + sd-deal-status-344 all rendered on Overview",
+      "empty_states_seen": "sd-statement-empty (Overview), sd-invoices-empty (Documents), sd-deals-empty[data-filter=closed] (Deals filtered)",
+      "payout_settings": "sd-addresses + sd-address-add-open + sd-auto-withdraw-toggle present"
+    },
+    "POPULATED_moxxcompany_readonly": {
+      "sd-wallet-paid-out": "$77.00 (expected)",
+      "overview_deals_empty": "sd-home-deals-empty present ('Nothing open right now')",
+      "sd-home-see-deals_button_text": "All deals · 3",
+      "activity_rows_all_filter": 5,
+      "sd-activity-month-2026-09_header": "present, '+$0.00 net'",
+      "row_types_seen": ["withdrawal","withdrawal","payout","release_received","topup"],
+      "activity_filter_cashouts_rows": 3,
+      "activity_filter_topups_rows": 1,
+      "sd-activity-deal-filter_present": true,
+      "withdrawals_card": "sd-withdrawals present, 3 sd-withdrawal-status-* chips, 3 sd-withdrawal-tx-* explorer links",
+      "documents_rows": 2,
+      "invoice_types": ["deal (SD-209)","deposit (DEP-15)"],
+      "sd-invoice-open-209": "present",
+      "sd-invoice-pdf_buttons": 2,
+      "docs_filter_deposit_rows": 1,
+      "closed_deals_tab_rows": 3
+    },
+    "RESPONSIVE_HOME_mobile": {
+      "route_/safedeal/deals": "loads, no horizontal overflow (sw=iw=390)",
+      "tabs_clickable": true,
+      "activity_readable": true
+    },
+    "REGRESSION": {
+      "/safedeal/deals/new_sd-new-title": "present (full 3-step form)",
+      "/safedeal/deal/<token>": "renders (verified via created flow)",
+      "sd-nav-signout": "returns to /safedeal landing (sd-landing present)"
+    }
+  },
+  "test_report_links": [],
+  "action_items": [
+    "HIGH: In HeroDealForm (Components/SafeDeal/HeroDealForm.tsx), set pointer-events:none on the decorative gradient/glow overlay (currently rendered as div.MuiBox-root.mui-q4ld7j, aria-hidden='true'). It has computed pointer-events:auto and intercepts real user clicks on the 'Share a link' toggle (sd-ls-invite-by-link). Verification: on the landing page in DevTools, running document.elementFromPoint at the center of the Share-a-link button should return the <button>, not the overlay div.",
+    "Minor: On mobile (<=430px) the SafeDeal home tab bar truncates 'Documents' to 'Docu…'. Consider icon-only labels below ~430px, or make the tab strip horizontally scrollable."
+  ],
+  "critical_code_review_comments": [
+    "Decorative overlays that don't need clicks should always be pointer-events:none (aria-hidden alone doesn't stop hit-testing). The current .mui-q4ld7j pattern in HeroDealForm is a latent trap for any button placed under it.",
+    "sd-activity-deal-filter appears to be a MUI Select (options only exist in the popover portal); a native <select> would be simpler for testability but that's optional. Not a bug."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (frontend-only per task)", "frontend": "~95% (all functional checks pass except the Share-a-link overlay bug)"},
+  "seed_data_creation": "Created 1 SafeDeal customer sd-qa-seller-1790079572@example.com (sign-in only, no data) and 1 customer sd-qa-seller-1790080026@example.com plus deal #344 ('QA hero deal 1790080026', $120, buyer sd-qa-buyer-1790080026@example.com, status Invited). Deal token: 6ef76bc2ae94362defe6edb9df318bf9af7c76b902aeae8a. No money moved. moxxcompany@gmail.com only had a benign preview-code sign-in, no state changes.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Preview base URL: https://fe5ddcc0-56d8-44b9-a955-f0c58072b938.preview.emergentagent.com. Sign-in is passwordless: enter email at /safedeal/signin, read code from data-testid=sd-signin-preview-code-value, fill segmented input sd-signin-code + sd-signin-code-2..6, click sd-signin-verify. IMPORTANT: two overlays intercept Playwright clicks — .mui-q4ld7j on the landing hero form and route-transition-loader across route changes. Bypass with page.evaluate('document.querySelector(...).click()'). The Share-a-link toggle bug is REAL for humans too (elementFromPoint returned the overlay). Populated read-only account: moxxcompany@gmail.com (paid_out $77, 3 closed deals #209/#246/#247, 5 statement rows in Sep 2026, 2 documents SD-209 + DEP-15). Do NOT top up / cash out / add addresses / toggle auto-cashout on it."
+}

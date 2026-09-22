@@ -37,6 +37,10 @@ r.post("/safedeal/webhooks/dynopay", safedealController.dynopayWebhook);
 // ── signed-in SafeDeal user (x-safedeal-token) ───────────────────────────────
 r.get("/safedeal/me", safedealAuth, safedealController.me);
 r.post("/safedeal/profile", safedealAuth, safedealController.updateProfile);
+r.get("/safedeal/telegram", safedealAuth, safedealController.telegramStatus);
+r.post("/safedeal/telegram/link", safedealAuth, safedealController.telegramLink);
+r.post("/safedeal/telegram/test", safedealAuth, safedealController.telegramTest);
+r.post("/safedeal/telegram/unlink", safedealAuth, safedealController.telegramUnlink);
 r.post("/safedeal/account/email/start", safedealAuth, safedealController.addEmailStart);
 r.post("/safedeal/account/email/verify", safedealAuth, safedealController.addEmailVerify);
 r.post("/safedeal/auth/step-up", safedealAuth, safedealController.sendStepUp);

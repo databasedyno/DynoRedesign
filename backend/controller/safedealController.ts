@@ -64,6 +64,7 @@ import { companyModel, userWalletModel } from "../models";
 import { getAdminWalletAddress } from "../utils/adminUtils";
 import sequelize from "../utils/dbInstance";
 import { QueryTypes } from "sequelize";
+import { botUsername as telegramBotUsername, telegramConfigured, telegramIdFor, sendTelegramTest, linkTelegram, unlinkTelegram } from "../services/safedeal/safedealTelegram";
 import { SUPPORTED_BASE_CURRENCIES, convertToFiat } from "../utils/currencyUtils";
 import {
   AttachmentError,
@@ -266,6 +267,60 @@ const telegramAuth = async (req: express.Request, res: express.Response) => {
     });
   } catch (e) {
     return handle(res, e, "telegramAuth");
+  }
+};
+
+// ── Telegram alerts (link an existing account, test, unlink) ─────────────────
+const telegramStatus = async (_req: express.Request, res: express.Response) => {
+  try {
+    const sess = session(res);
+    const tg = await telegramIdFor(sess.customer_id);
+    return successResponseHelper(res, 200, "OK", { linked: Boolean(tg), bot: telegramConfigured() ? telegramBotUsername() : null, configured: telegramConfigured() });
+  } catch (e) {
+    return handle(res, e, "telegramStatus");
+  }
+};
+
+const telegramLink = async (req: express.Request, res: express.Response) => {
+  try {
+    if (!telegramBotToken()) return errorResponseHelper(res, 503, "Telegram alerts aren't configured.");
+    const sess = session(res);
+    const data = { ...(req.body || {}) } as Record<string, any>;
+    const check = verifyTelegramAuth(data);
+    if (!check.ok) return errorResponseHelper(res, 401, check.reason === "expired" ? "This Telegram confirmation has expired. Please try again." : "Telegram verification failed. Please try again.");
+    const telegramId = String(data.id || "").trim();
+    if (!telegramId) return errorResponseHelper(res, 400, "Telegram didn't return a user id.");
+    const r = await linkTelegram(sess.customer_id, telegramId);
+    if (!r.ok) return errorResponseHelper(res, 409, "That Telegram account is already linked to another SafeDeal account.");
+    const test = await sendTelegramTest(sess.customer_id);
+    return successResponseHelper(res, 200, "Telegram linked.", { linked: true, message_sent: test.ok, bot: telegramBotUsername() });
+  } catch (e) {
+    return handle(res, e, "telegramLink");
+  }
+};
+
+const telegramTest = async (_req: express.Request, res: express.Response) => {
+  try {
+    const sess = session(res);
+    const r = await sendTelegramTest(sess.customer_id);
+    if (r.ok) return successResponseHelper(res, 200, "Test message sent.", { sent: true });
+    if (r.error === "not_linked") return errorResponseHelper(res, 400, "Link your Telegram account first.");
+    if (r.unreachable) return errorResponseHelper(res, 409, `Telegram won't let us message you yet — open @${telegramBotUsername() || "the bot"} in Telegram, press Start, then try again.`);
+    return errorResponseHelper(res, 502, "Telegram didn't accept the message. Please try again in a moment.");
+  } catch (e) {
+    return handle(res, e, "telegramTest");
+  }
+};
+
+const telegramUnlink = async (_req: express.Request, res: express.Response) => {
+  try {
+    const sess = session(res);
+    const customer = await customerFor(sess);
+    if (isPlaceholderEmail(customer.email)) return errorResponseHelper(res, 400, "Add an email to your account before unlinking Telegram — it's your only way to sign in.");
+    await unlinkTelegram(sess.customer_id);
+    return successResponseHelper(res, 200, "Telegram unlinked.", { linked: false });
+  } catch (e) {
+    return handle(res, e, "telegramUnlink");
   }
 };
 
@@ -1666,6 +1721,10 @@ export default {
   sendCode,
   verifyCode,
   telegramAuth,
+  telegramStatus,
+  telegramLink,
+  telegramTest,
+  telegramUnlink,
   sendStepUp,
   me,
   updateProfile,

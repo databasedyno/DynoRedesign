@@ -81,6 +81,7 @@ export interface WithdrawalRow {
   chain_confirmed_at?: string | Date | null;
   chain_hash_emailed_at?: string | Date | null;
   chain_sync_attempts?: number;
+  telegram_notified_at?: string | Date | null;
   simulated: boolean;
   sent_at: string | null;
   ledger_reference?: string | null;

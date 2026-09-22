@@ -915,6 +915,11 @@ const addSafeDealMoneyAudit = async (): Promise<void> => {
  *  "confirmed on-chain" receipt with an explorer link (chain_hash_emailed_at prevents dupes).
  *  Additive + idempotent, safe on live prod.
  */
+const addWithdrawalTelegramNotified = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(`ALTER TABLE "tbl_customer_withdrawal" ADD COLUMN IF NOT EXISTS "telegram_notified_at" TIMESTAMPTZ`);
+};
+
 const addSafeDealChainTxHash = async (): Promise<void> => {
   const { default: sequelize } = await import("../utils/dbInstance");
   await sequelize.query(
@@ -982,6 +987,7 @@ export async function buildBootMigrations(): Promise<Migration[]> {  const { v1,
     { version: "0047_safedeal_money_audit", up: addSafeDealMoneyAudit },
     { version: "0048_safedeal_chain_tx_hash", up: addSafeDealChainTxHash },
     { version: "0049_payout_gas_audit", up: createPayoutGasAuditTable },
+    { version: "0050_withdrawal_telegram_notified", up: addWithdrawalTelegramNotified },
     ...perfMigrations,
     ...securityMigrations,
   ];

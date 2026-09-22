@@ -200,7 +200,7 @@ export default function ActivityFeed({ rows, from, to, onRange, onCsv, compact, 
             <Box key={m.key} data-testid={`sd-activity-month-${m.key}`}>
               <Stack direction="row" alignItems="center" spacing={1.5} sx={{ px: { xs: 1, md: 1.5 }, py: 0.6, position: "sticky", top: 0, backgroundColor: "#fff", zIndex: 1 }}>
                 <Typography sx={{ fontSize: 11.5, fontWeight: 900, letterSpacing: 0.8, textTransform: "uppercase", color: SD_TEXT_MUTED }}>{monthLabel(m.key)}</Typography>
-                <Box sx={{ flex: 1, height: 1, backgroundColor: SD_BORDER }} />
+                <Box sx={{ flex: 1, height: "1px", backgroundColor: SD_BORDER }} />
                 <Typography sx={{ fontSize: 12, fontWeight: 800, ...TABULAR, color: m.net >= 0 ? "#047857" : SD_TEXT_MUTED }}>{m.net >= 0 ? "+" : "−"}{money(Math.abs(m.net))} net</Typography>
               </Stack>
               {m.rows.map((r, i) => <Row key={r.id || r.reference} r={r} i={i} reduce={reduce} />)}

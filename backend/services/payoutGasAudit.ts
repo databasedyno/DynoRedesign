@@ -174,6 +174,49 @@ export const reconcilePendingAudits = async (limit = 50): Promise<{ reconciled: 
  * last N days. Charged fee is derived: payment − merchant − admin fee + referral credit
  * (the credit refunds the platform fee, never the gas).
  */
+/**
+ * Network fee withheld from the merchant (asset units) for a pool payout. Token chains deduct the
+ * platform fee on-chain (merchant = payment − admin − gas); native chains collect it off-ledger
+ * (merchant = payment − gas) — detect which by whether the gap can contain the admin fee.
+ */
+export const chargedFeeFromPool = (payment: number, merchant: number, admin: number, creditAsset = 0): number => {
+  const gap = toNumber(payment - merchant + creditAsset, 10);
+  const adminDeducted = admin > 0 && gap >= admin * 0.9;
+  return Math.max(0, toNumber(adminDeducted ? gap - admin : gap, 10));
+};
+
+/** Re-derive charged_fee for existing backfill rows with the current heuristic (keeps reconciled actuals). */
+export const repairBackfillCharges = async (): Promise<{ scanned: number; updated: number }> => {
+  const rows = (await sequelize.query(
+    `SELECT a.audit_id, a.wallet_type, a.status, a.actual_gas_usd, a.charged_fee_asset, a.charged_fee_usd,
+            pt.payment_amount, pt.merchant_amount, pt.admin_fee_amount, ut.usd_value, ut.crypto_amount, ut.referral_credit_applied_usd
+       FROM tbl_payout_gas_audit a
+       JOIN tbl_merchant_pool_transaction pt ON pt.pool_tx_id = a.pool_tx_id
+       LEFT JOIN tbl_user_transaction ut ON ut.transaction_id = a.transaction_id
+      WHERE a.source = 'backfill'`,
+    { type: QueryTypes.SELECT }
+  )) as Array<Record<string, any>>;
+  let updated = 0;
+  for (const r of rows) {
+    const usdValue = Number(r.usd_value) || 0;
+    const cryptoAmount = Number(r.crypto_amount) || 0;
+    const impliedPrice = isStable(r.wallet_type) ? 1 : (usdValue > 0 && cryptoAmount > 0 ? usdValue / cryptoAmount : 0);
+    const creditAsset = impliedPrice > 0 ? (Number(r.referral_credit_applied_usd) || 0) / impliedPrice : 0;
+    const charged = chargedFeeFromPool(Number(r.payment_amount) || 0, Number(r.merchant_amount) || 0, Number(r.admin_fee_amount) || 0, creditAsset);
+    if (Math.abs(charged - (Number(r.charged_fee_asset) || 0)) < 1e-12) continue;
+    const price = impliedPrice > 0 ? impliedPrice : await assetPriceUsd(r.wallet_type);
+    const chargedUsd = toNumber(charged * price, 6);
+    const actualUsd = r.actual_gas_usd === null ? null : Number(r.actual_gas_usd);
+    await payoutGasAuditModel.update(
+      { charged_fee_asset: charged, charged_fee_usd: chargedUsd, ...(r.status === "reconciled" && actualUsd !== null ? { variance_usd: toNumber(chargedUsd - actualUsd, 6) } : {}) },
+      { where: { audit_id: r.audit_id } }
+    );
+    updated++;
+  }
+  cronLogger.info(`${LOG} repair backfill charges: scanned ${rows.length}, updated ${updated}`);
+  return { scanned: rows.length, updated };
+};
+
 export const backfillPayoutGasAudit = async (days = 90): Promise<{ scanned: number; inserted: number }> => {
   const rows = (await sequelize.query(
     `SELECT pt.pool_tx_id, pt.owner_user_id, pt.company_id, pt.wallet_type, pt.payment_amount, pt.merchant_amount,
@@ -202,7 +245,7 @@ export const backfillPayoutGasAudit = async (days = 90): Promise<{ scanned: numb
     const cryptoAmount = Number(r.crypto_amount) || 0;
     const impliedPrice = isStable(r.wallet_type) ? 1 : (usdValue > 0 && cryptoAmount > 0 ? usdValue / cryptoAmount : 0);
     const creditAsset = impliedPrice > 0 ? (Number(r.referral_credit_applied_usd) || 0) / impliedPrice : 0;
-    const charged = Math.max(0, toNumber(payment - merchant - admin + creditAsset, 10));
+    const charged = chargedFeeFromPool(payment, merchant, admin, creditAsset);
     await recordPayoutGasAudit({
       poolTxId: r.pool_tx_id,
       transactionId: r.transaction_id ?? null,

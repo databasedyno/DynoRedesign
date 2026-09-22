@@ -14,7 +14,15 @@ const CALLBACK = "onSafeDealTelegramAuth";
  * NOTE: the widget only renders on the domain registered for this bot in @BotFather
  * (/setdomain). On a mismatched domain Telegram shows "Bot domain invalid".
  */
-export default function TelegramLoginButton({ bot, onSuccess, onError }: { bot: string; onSuccess: () => void; onError: (msg: string) => void }) {
+interface Props {
+  bot: string;
+  onSuccess: () => void;
+  onError: (msg: string) => void;
+  /** "signin" (default) mints a session; "link" attaches Telegram to the signed-in account for alerts. */
+  mode?: "signin" | "link";
+}
+
+export default function TelegramLoginButton({ bot, onSuccess, onError, mode = "signin" }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const [busy, setBusy] = useState(false);
 
@@ -22,8 +30,12 @@ export default function TelegramLoginButton({ bot, onSuccess, onError }: { bot: 
     (window as any)[CALLBACK] = async (user: Record<string, unknown>) => {
       setBusy(true);
       try {
-        const r = await safedealApi.telegramAuth(user);
-        sdSession.set(r.token, r.user);
+        if (mode === "link") {
+          await safedealApi.telegramLink(user);
+        } else {
+          const r = await safedealApi.telegramAuth(user);
+          sdSession.set(r.token, r.user);
+        }
         onSuccess();
       } catch (e) {
         onError(sdError(e));
@@ -51,15 +63,15 @@ export default function TelegramLoginButton({ bot, onSuccess, onError }: { bot: 
         /* noop */
       }
     };
-  }, [bot, onSuccess, onError]);
+  }, [bot, onSuccess, onError, mode]);
 
   return (
-    <Box data-testid="sd-signin-telegram">
+    <Box data-testid={mode === "link" ? "sd-telegram-link-widget" : "sd-signin-telegram"}>
       <Stack direction="row" spacing={1} alignItems="center" justifyContent="center" sx={{ minHeight: 48 }}>
         {busy ? (
           <Stack direction="row" spacing={1} alignItems="center" data-testid="sd-signin-telegram-busy">
             <CircularProgress size={18} sx={{ color: "#229ED9" }} />
-            <Typography sx={{ fontSize: 13.5, color: "#6B7280", fontWeight: 700 }}>Signing you in with Telegram…</Typography>
+            <Typography sx={{ fontSize: 13.5, color: "#6B7280", fontWeight: 700 }}>{mode === "link" ? "Linking your Telegram…" : "Signing you in with Telegram…"}</Typography>
           </Stack>
         ) : (
           <Box ref={ref} sx={{ display: "flex", justifyContent: "center" }} aria-label="Log in with Telegram" />
@@ -68,7 +80,7 @@ export default function TelegramLoginButton({ bot, onSuccess, onError }: { bot: 
       {!busy && (
         <Stack direction="row" spacing={0.6} alignItems="center" justifyContent="center" sx={{ mt: 0.8 }}>
           <Icon icon="mdi:shield-check-outline" width={14} color="#229ED9" aria-hidden />
-          <Typography sx={{ fontSize: 12, color: "#6B7280" }}>No email or password — sign in with your Telegram account.</Typography>
+          <Typography sx={{ fontSize: 12, color: "#6B7280" }}>{mode === "link" ? "Telegram only shares your id and name — we never see your phone number." : "No email or password — sign in with your Telegram account."}</Typography>
         </Stack>
       )}
     </Box>

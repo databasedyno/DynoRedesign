@@ -25,7 +25,7 @@ export default function BalanceStrip(p: Props) {
   return (
     <Box data-testid="sd-balance-strip" sx={{ display: "grid", gap: 2, gridTemplateColumns: { xs: "1fr", md: "1.35fr 1fr 1fr" } }}>
       <Box data-testid="sd-wallet-balance" sx={{ ...tile, backgroundColor: SD_INK, color: "#fff", border: "none" }}>
-        <Box aria-hidden sx={{ position: "absolute", inset: 0, background: `radial-gradient(360px 200px at 100% 0%, ${goldAlpha(0.22)}, transparent 70%)` }} />
+        <Box aria-hidden sx={{ position: "absolute", inset: 0, pointerEvents: "none", background: `radial-gradient(360px 200px at 100% 0%, ${goldAlpha(0.22)}, transparent 70%)` }} />
         <Box sx={{ position: "relative" }}>
           <Typography sx={{ ...label, color: SD_INK_MUTED }}>Available to use</Typography>
           <Typography sx={{ fontSize: { xs: 34, md: 40 }, fontWeight: 900, letterSpacing: -1.2, lineHeight: 1.1, mt: 0.6, ...TABULAR }} data-testid="sd-wallet-available">{money(p.available)}</Typography>

@@ -41,8 +41,8 @@ export default function Landing() {
     <Box data-testid="sd-landing">
       {/* ===== Hero: form + 3D flow ===== */}
       <Box sx={{ backgroundColor: SD_INK, color: "#fff", position: "relative", overflow: "hidden" }} id="how">
-        <Box aria-hidden sx={{ position: "absolute", inset: 0, background: `radial-gradient(900px 480px at 8% -10%, ${goldAlpha(0.18)}, transparent 60%), radial-gradient(700px 420px at 100% 110%, ${goldAlpha(0.10)}, transparent 60%)` }} />
-        <Box aria-hidden sx={{ position: "absolute", inset: 0, opacity: 0.05, backgroundImage: "linear-gradient(rgba(255,255,255,0.7) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.7) 1px, transparent 1px)", backgroundSize: "52px 52px", maskImage: "radial-gradient(circle at 60% 40%, black, transparent 78%)" }} />
+        <Box aria-hidden sx={{ position: "absolute", inset: 0, pointerEvents: "none", background: `radial-gradient(900px 480px at 8% -10%, ${goldAlpha(0.18)}, transparent 60%), radial-gradient(700px 420px at 100% 110%, ${goldAlpha(0.10)}, transparent 60%)` }} />
+        <Box aria-hidden sx={{ position: "absolute", inset: 0, pointerEvents: "none", opacity: 0.05, backgroundImage: "linear-gradient(rgba(255,255,255,0.7) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.7) 1px, transparent 1px)", backgroundSize: "52px 52px", maskImage: "radial-gradient(circle at 60% 40%, black, transparent 78%)" }} />
         <Container maxWidth="lg" sx={{ position: "relative", pt: { xs: 5, md: 7 }, pb: { xs: 6, md: 8 } }}>
           <Reveal>
             <Stack direction="row" spacing={1.2} alignItems="center" sx={{ mb: 2 }} flexWrap="wrap" useFlexGap>
