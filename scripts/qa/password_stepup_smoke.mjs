@@ -1,0 +1,23 @@
+// Smoke: Settings → Security → Update password opens the step-up dialog (no 404).
+import { chromium } from "playwright";
+const [BASE, TOKEN, OUT] = process.argv.slice(2);
+const browser = await chromium.launch({ executablePath: process.env.PLAYWRIGHT_CHROME_EXECUTABLE_PATH || "/usr/bin/google-chrome", args: ["--no-sandbox"] });
+const page = await (await browser.newContext({ viewport: { width: 1500, height: 900 } })).newPage();
+const errors = [];
+page.on("console", (m) => m.type() === "error" && errors.push(m.text().slice(0, 160)));
+page.on("response", (r) => r.status() === 404 && r.url().includes("/api/") && errors.push("404 " + r.url()));
+await page.goto(`${BASE}/auth/login`, { waitUntil: "commit", timeout: 90000 });
+await page.waitForTimeout(1500);
+await page.evaluate((t) => { localStorage.setItem("token", t); sessionStorage.setItem("mfa_interstitial_seen", "1"); }, TOKEN);
+await page.goto(`${BASE}/settings?section=security`, { waitUntil: "networkidle", timeout: 90000 });
+await page.waitForTimeout(1500);
+const btn = page.locator('[data-testid="request-password-otp-btn"]');
+console.log("button visible", await btn.isVisible());
+await btn.click();
+await page.waitForTimeout(2500);
+const dlg = page.locator('[data-testid="stepup-method-tabs"], [role="dialog"]').first();
+console.log("stepup dialog visible", await dlg.isVisible().catch(() => false));
+console.log("totp tab", await page.locator('[data-testid="stepup-method-totp"]').isVisible().catch(() => false));
+await page.screenshot({ path: `${OUT}/password_stepup.jpg`, type: "jpeg", quality: 55 });
+console.log("errors", JSON.stringify(errors));
+await browser.close();
