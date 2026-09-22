@@ -171,6 +171,81 @@ export function isDirectEvmSupported(walletType: string): boolean {
   return walletType in CHAIN_CONFIG;
 }
 
+/** True for native-coin wallet types (ETH / POLYGON) — gas is paid from the swept balance itself. */
+export function isDirectEvmNative(walletType: string): boolean {
+  const config = CHAIN_CONFIG[walletType];
+  return !!config && !config.isToken;
+}
+
+export interface NativeSweepQuote {
+  balance: number;
+  /** Max amount that can leave the address once gasLimit × maxFeePerGas is reserved (8 dp, floored). */
+  maxSendable: number;
+  /** maxFeePerGas the quote assumed — pass as `gasPriceGwei` cap so the signed TX cannot exceed it. */
+  maxFeeGwei: number;
+  gasCost: number;
+  baseFeeGwei: string;
+}
+
+/**
+ * Quote a full-balance native sweep against the REAL maxFeePerGas the TX will be signed with.
+ *
+ * Nodes check `value + gasLimit × maxFeePerGas ≤ balance` (not the eventual effective price),
+ * so reserving only the market estimate makes every full-balance ETH/POL sweep fail with
+ * "insufficient funds for intrinsic transaction cost". Returns null if every RPC is down.
+ */
+export async function quoteNativeSweep(params: {
+  fromAddress: string;
+  walletType: string;
+  gasLimit?: number;
+}): Promise<NativeSweepQuote | null> {
+  const config = CHAIN_CONFIG[params.walletType];
+  if (!config || config.isToken) return null;
+  const gasLimit = BigInt(params.gasLimit || config.defaultGasLimit);
+
+  for (const rpcUrl of getRpcUrls(config.chain)) {
+    try {
+      const provider = createProvider(rpcUrl, config.chain);
+      const [balance, fees] = await Promise.all([
+        provider.getBalance(params.fromAddress, "latest"),
+        computeEip1559Fees(provider, config),
+      ]);
+      const gasCost = gasLimit * fees.maxFeePerGas;
+      const sendable = balance - gasCost;
+      return {
+        balance: toNumber(ethers.formatEther(balance), 8, "down"),
+        maxSendable: sendable > 0n ? toNumber(ethers.formatEther(sendable), 8, "down") : 0,
+        maxFeeGwei: Number(ethers.formatUnits(fees.maxFeePerGas, "gwei")),
+        gasCost: toNumber(ethers.formatEther(gasCost), 10, "up"),
+        baseFeeGwei: ethers.formatUnits(fees.baseFee, "gwei"),
+      };
+    } catch (error) {
+      cronLogger.warn(`${LOG_PREFIX} quote via ${rpcUrl.substring(0, 50)} failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+  return null;
+}
+
+/** Market EIP-1559 fees: priority = max(node suggestion, chain floor); maxFee = 2 × baseFee + priority, capped per chain. */
+async function computeEip1559Fees(
+  provider: ethers.JsonRpcProvider,
+  config: ChainConfig
+): Promise<{ baseFee: bigint; maxPriorityFeePerGas: bigint; maxFeePerGas: bigint }> {
+  const isPolygon = config.chain === "POLYGON";
+  const minPriorityFee = ethers.parseUnits(isPolygon ? "30" : "0.05", "gwei");
+  const [latestBlock, feeData] = await Promise.all([provider.getBlock("latest"), provider.getFeeData()]);
+  const baseFee = latestBlock?.baseFeePerGas ?? 0n;
+  const suggestedPriority = feeData.maxPriorityFeePerGas ?? 0n;
+  let maxPriorityFeePerGas = suggestedPriority > minPriorityFee ? suggestedPriority : minPriorityFee;
+  let maxFeePerGas = baseFee * 2n + maxPriorityFeePerGas;
+  const maxAllowed = ethers.parseUnits(config.maxGasPriceGwei.toString(), "gwei");
+  if (maxFeePerGas > maxAllowed) {
+    maxFeePerGas = maxAllowed;
+    if (maxPriorityFeePerGas > maxFeePerGas) maxPriorityFeePerGas = maxFeePerGas;
+  }
+  return { baseFee, maxPriorityFeePerGas, maxFeePerGas };
+}
+
 /**
  * Build, sign, and broadcast a sweep transaction using ethers.js directly.
  *
@@ -219,14 +294,10 @@ export async function directEvmSweep(params: {
       const isPolygon = config.chain === "POLYGON";
       const minPriorityFee = ethers.parseUnits(isPolygon ? "30" : "0.05", "gwei");
 
-      const [latestBlock, feeData] = await Promise.all([
-        provider.getBlock("latest"),
-        provider.getFeeData(),
-      ]);
-      const baseFee = latestBlock?.baseFeePerGas ?? 0n;
-      const suggestedPriority = feeData.maxPriorityFeePerGas ?? 0n;
-      let maxPriorityFeePerGas = suggestedPriority > minPriorityFee ? suggestedPriority : minPriorityFee;
-      let maxFeePerGas = baseFee * 2n + maxPriorityFeePerGas;
+      const fees = await computeEip1559Fees(provider, config);
+      const baseFee = fees.baseFee;
+      let maxPriorityFeePerGas = fees.maxPriorityFeePerGas;
+      let maxFeePerGas = fees.maxFeePerGas;
 
       if (params.gasPriceGwei && params.gasPriceGwei > 0) {
         const cap = ethers.parseUnits(params.gasPriceGwei.toFixed(9), "gwei");

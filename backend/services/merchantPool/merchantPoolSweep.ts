@@ -44,7 +44,7 @@ import {
   withRetry,
   Op,
 } from "./merchantPoolConfig";
-import { directEvmSweep, isDirectEvmSupported } from "./directEvmTransfer";
+import { directEvmSweep, isDirectEvmSupported, isDirectEvmNative, quoteNativeSweep } from "./directEvmTransfer";
 import sequelize from "../../utils/dbInstance";
 import { add, mul, sub, toFixedStr, toNumber } from "../../utils/money";
 
@@ -773,6 +773,7 @@ export const sweepPoolAddress = async (tempAddressId: number, options: SweepPool
     const isAccountChain = ACCOUNT_CHAINS.includes(walletType);
     const isUTXOChain = ["BTC", "LTC", "DOGE", "BCH"].includes(walletType);
     let amountToSend = actualBalance;
+    let evmFeeCapGwei: number | undefined;
     
     if (isUTXOChain) {
       // UTXO chains: fee is separate from amount but must fit within total balance
@@ -853,6 +854,26 @@ export const sweepPoolAddress = async (tempAddressId: number, options: SweepPool
       
       const reserveLog = accountReserve > 0 ? ` - ${accountReserve} (reserve)` : '';
       cronLogger.info(`[MerchantPool] Account chain sweep: ${actualBalance} - ${gasFee} (gas)${reserveLog} = ${amountToSend} ${walletType}`);
+
+      // Native EVM (ETH/POL): nodes require value + gasLimit × maxFeePerGas ≤ balance, and maxFee
+      // carries 2× base-fee headroom — so re-quote the sendable amount against the real maxFee
+      // and pin the signed TX to that fee. Otherwise every full-balance sweep fails with
+      // "insufficient funds for intrinsic transaction cost" (seen on dust ETH pool addresses).
+      if (isDirectEvmNative(walletType)) {
+        const quote = await quoteNativeSweep({ fromAddress: poolAddress.dataValues.wallet_address, walletType });
+        if (quote) {
+          if (quote.maxSendable <= 0) {
+            cronLogger.warn(`[MerchantPool] ⚠️ ${walletType} balance ${quote.balance} is below the gas cost ${quote.gasCost} (maxFee ${quote.maxFeeGwei} Gwei) — dust, nothing to sweep`);
+            await poolAddress.update({ status: "AVAILABLE" });
+            return { success: false, skipped: true, reason: `${walletType} dust below gas cost` };
+          }
+          if (amountToSend > quote.maxSendable) {
+            cronLogger.info(`[MerchantPool] Native EVM sweep clamped to fee-inclusive max: ${amountToSend} → ${quote.maxSendable} ${walletType} (gas ${quote.gasCost} @ maxFee ${quote.maxFeeGwei} Gwei, base ${quote.baseFeeGwei} Gwei)`);
+            amountToSend = quote.maxSendable;
+          }
+          evmFeeCapGwei = quote.maxFeeGwei;
+        }
+      }
     }
 
     // Sweep strategy: Use direct ethers.js for EVM chains (ETH, POLYGON) to avoid
@@ -886,6 +907,7 @@ export const sweepPoolAddress = async (tempAddressId: number, options: SweepPool
                   privateKey,
                   walletType,
                   amount: amountToSend,
+                  gasPriceGwei: evmFeeCapGwei,
                 });
               },
               `Direct EVM sweep for ${poolAddress.dataValues.wallet_address}`,

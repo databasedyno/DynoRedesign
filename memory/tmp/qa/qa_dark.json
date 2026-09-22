@@ -92,8 +92,39 @@
       "route": "/payouts",
       "status": 200,
       "finalUrl": "/payouts",
-      "blue": [],
-      "blueCount": 0,
+      "blue": [
+        {
+          "prop": "background",
+          "value": "rgb(98, 126, 234)",
+          "el": "div.MuiBox-root.mui-1mv3qpp"
+        },
+        {
+          "prop": "background",
+          "value": "rgb(98, 126, 234)",
+          "el": "div.MuiBox-root.mui-mjcjvb"
+        },
+        {
+          "prop": "background",
+          "value": "rgb(52, 93, 157)",
+          "el": "div.MuiBox-root.mui-1hos4qk"
+        },
+        {
+          "prop": "background",
+          "value": "rgb(52, 93, 157)",
+          "el": "div.MuiBox-root.mui-qcm4vg"
+        },
+        {
+          "prop": "background",
+          "value": "rgb(98, 126, 234)",
+          "el": "div.MuiBox-root.mui-g3iv86"
+        },
+        {
+          "prop": "background",
+          "value": "rgb(98, 126, 234)",
+          "el": "div.MuiBox-root.mui-g3iv86"
+        }
+      ],
+      "blueCount": 6,
       "whiteOnYellow": [],
       "navBg": "rgb(43, 29, 20)",
       "cellBg": "rgb(43, 29, 20)",
@@ -170,6 +201,19 @@
       "cellBg": "rgb(43, 29, 20)",
       "title": "Referral Program · Dynopay",
       "url": "/referrals",
+      "consoleErrors": []
+    },
+    {
+      "route": "/settings",
+      "status": 200,
+      "finalUrl": "/settings",
+      "blue": [],
+      "blueCount": 0,
+      "whiteOnYellow": [],
+      "navBg": "rgb(43, 29, 20)",
+      "cellBg": "rgb(43, 29, 20)",
+      "title": "Settings · Dynopay",
+      "url": "/settings",
       "consoleErrors": []
     }
   ],
