@@ -25,5 +25,16 @@ export const setupSafeDealMaintenanceCron = () => {
       captureError(e, "cron", { extraContext: "setupSafeDealMaintenanceCron" });
     }
   });
-  log("SafeDeal Maintenance Cron Job scheduled hourly (auto-release, auto-escalate, reminders)", "info");
+  // Every 5 min: turn exchange withdrawal refs ("BINANCE-<id>") into real blockchain hashes and
+  // email the user the on-chain confirmation (cashouts + deal payouts).
+  cron.schedule("*/5 * * * *", async () => {
+    try {
+      const { syncCashoutChainHashes } = await import("../../services/safedeal/safedealChainSync");
+      await syncCashoutChainHashes();
+    } catch (e) {
+      log(`SafeDeal chain-hash sync error: ${e}`, "error");
+      captureError(e, "cron", { extraContext: "safedealChainSync" });
+    }
+  });
+  log("SafeDeal Maintenance Cron Job scheduled hourly (auto-release, auto-escalate, reminders) + chain-hash sync every 5 min", "info");
 };

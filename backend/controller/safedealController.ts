@@ -269,12 +269,18 @@ const telegramAuth = async (req: express.Request, res: express.Response) => {
   }
 };
 
-const sendStepUp = async (_req: express.Request, res: express.Response) => {
+const STEP_UP_ACTIONS = new Set(["cashout", "address_add", "address_remove", "payout_destination"]);
+
+const sendStepUp = async (req: express.Request, res: express.Response) => {
   try {
     const sess = session(res);
     const code = genCode();
+    // Optional `action` tells the email what the user is confirming ("Confirm your cashout"
+    // instead of a vague "wallet action").
+    const rawAction = String(req.body?.action || "").trim();
+    const action = STEP_UP_ACTIONS.has(rawAction) ? rawAction : null;
     await setRedisItemWithTTL(otpKey("stepup", String(sess.customer_id)), { code }, OTP_TTL);
-    void sendSafeDealCodeEmail(sess.email, code, "stepup");
+    void sendSafeDealCodeEmail(sess.email, code, "stepup", action);
     const payload: Record<string, unknown> = { expires_in: OTP_TTL };
     if (emailDisabled()) payload.preview_code = code;
     return successResponseHelper(res, 200, "Confirmation code sent to your email.", payload);
@@ -310,7 +316,7 @@ const updateProfile = async (req: express.Request, res: express.Response) => {
     if (auto_withdraw) {
       addrId = Number(auto_withdraw_address_id);
       const addrs = await listAddresses(sess.customer_id);
-      if (!addrs.some((a) => a.address_id === addrId)) return errorResponseHelper(res, 400, "Pick a saved payout address for auto-withdraw.");
+      if (!addrs.some((a) => a.address_id === addrId)) return errorResponseHelper(res, 400, "Pick a saved payout address for auto-cashout.");
     }
     await sequelize.query(
       `UPDATE tbl_safedeal_profile SET auto_withdraw = :aw, auto_withdraw_address_id = :addr,
@@ -1345,10 +1351,10 @@ const withdraw = async (req: express.Request, res: express.Response) => {
     const w = await requestWithdrawal(customer, { address_id: Number(req.body?.address_id), amount: Number(req.body?.amount) });
     const msg =
       w.status === "sent"
-        ? "Withdrawal sent."
+        ? "Cashout sent."
         : w.status === "pending_approval"
-        ? `Withdrawals above $${APPROVAL_THRESHOLD_USD} are reviewed by our team first — you'll get an email once it's sent.`
-        : "Withdrawal queued.";
+        ? `Cashouts above $${APPROVAL_THRESHOLD_USD} are reviewed by our team first — you'll get an email once it's sent.`
+        : "Cashout queued.";
     return successResponseHelper(res, 201, msg, { withdrawal: w, wallet: await getBalances(sess.customer_id) });
   } catch (e) {
     return handle(res, e, "withdraw");
@@ -1380,7 +1386,7 @@ const adminApproveWithdrawal = async (req: express.Request, res: express.Respons
   try {
     const admin = (res.locals.user as any)?.email || "admin";
     const w = await approveWithdrawal(Number(req.params.id), String(admin));
-    return successResponseHelper(res, 200, "Withdrawal approved and sent.", w);
+    return successResponseHelper(res, 200, "Cashout approved and sent.", w);
   } catch (e) {
     return handle(res, e, "adminApproveWithdrawal");
   }
@@ -1390,7 +1396,7 @@ const adminRejectWithdrawal = async (req: express.Request, res: express.Response
   try {
     const admin = (res.locals.user as any)?.email || "admin";
     const w = await rejectWithdrawal(Number(req.params.id), String(admin), String(req.body?.reason || ""));
-    return successResponseHelper(res, 200, "Withdrawal rejected — funds returned to the customer.", w);
+    return successResponseHelper(res, 200, "Cashout rejected — funds returned to the customer.", w);
   } catch (e) {
     return handle(res, e, "adminRejectWithdrawal");
   }

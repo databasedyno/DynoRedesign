@@ -93,7 +93,7 @@ export function QuoteBody({ preview }: { preview: SdFeePreview }) {
         {preview.price ? "Indicative — the USD amount locks at the live rate when the buyer funds. " : ""}
         {preview.fundingCoinAssumed && (preview.nonStableSurchargeUsd || 0) > 0
           ? <span data-testid="sd-quote-surcharge-note">Priced for a stablecoin payment (USDT/USDC). Paying with BTC, ETH or another non-stablecoin adds ≈ {money(preview.nonStableSurchargeUsd || 0, "USD")} ({preview.exchangeFeePercent ?? 2}% exchange fee, conversion and network costs) — the exact total is shown per coin at checkout. </span>
-          : "Network, conversion & withdrawal costs are estimates and depend on the coin the buyer pays with. "}
+          : "Network, conversion & cashout costs are estimates and depend on the coin the buyer pays with. "}
         Fees are set by SafeDeal and charged on release, refund and split; a cancellation fee applies on a mutually-agreed cancellation.
       </Typography>
     </Stack>

@@ -5,6 +5,7 @@ import adminBaseApi from "@/axiosAdmin";
 import { BRAND_ACCENT } from "@/constants/theme";
 import { money, shortDate } from "@/Components/Page/Escrow/escrowUtils";
 import { tabSx } from "./tabSx";
+import { explorerTxUrl, shortHash } from "@/helpers/explorerUrl";
 
 interface Withdrawal {
   withdrawal_id: number;
@@ -19,6 +20,8 @@ interface Withdrawal {
   requires_approval: boolean;
   approved_by: string | null;
   tx_hash: string | null;
+  /** Real blockchain hash (backfilled by the chain-hash sync a few minutes after dispatch). */
+  chain_tx_hash?: string | null;
   simulated: boolean;
   rejected_reason: string | null;
   source: string;
@@ -109,7 +112,7 @@ export default function AdminWithdrawals() {
                   {w.customer_email || `customer ${w.customer_id}`} · {w.payout_key} · <span style={{ fontFamily: "monospace" }}>{w.address}</span>
                 </Typography>
                 <Typography sx={{ fontSize: 12, color: "text.secondary" }}>
-                  {shortDate(w.created_at)} · fee {money(Number(w.fee_usd))} · net {money(Number(w.net_usd))}{w.tx_hash ? ` · ${w.tx_hash}` : ""}{w.approved_by ? ` · by ${w.approved_by}` : ""}{w.rejected_reason ? ` · ${w.rejected_reason}` : ""}
+                  {shortDate(w.created_at)} · fee {money(Number(w.fee_usd))} · net {money(Number(w.net_usd))}{w.chain_tx_hash ? <> · <a href={explorerTxUrl(w.payout_key.replace(/-TRON$/i, "-TRC20"), w.chain_tx_hash)} target="_blank" rel="noopener noreferrer" style={{ fontFamily: "monospace", fontWeight: 700 }}>tx {shortHash(w.chain_tx_hash, 10, 8)}</a></> : w.tx_hash ? ` · ref ${w.tx_hash}` : ""}{w.approved_by ? ` · by ${w.approved_by}` : ""}{w.rejected_reason ? ` · ${w.rejected_reason}` : ""}
                 </Typography>
               </Box>
               {w.status === "pending_approval" && (

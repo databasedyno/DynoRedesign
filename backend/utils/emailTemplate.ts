@@ -76,7 +76,14 @@ export const getEmailHeroUrl = (icon: string, safeDeal = false): string => {
  * Renders the outer shell: header, content area, footer
  */
 /** Who the email is for — drives the footer "why you received this" line. */
-export type EmailAudience = 'merchant' | 'buyer' | 'admin';
+/**
+ * Footer "why you received this" variant.
+ *  merchant / buyer / admin — Dynopay chrome.
+ *  For the SafeDeal chrome: 'buyer' (default) = party to a deal; 'account' = wallet /
+ *  security emails (sign-in codes, cashouts, top-ups, payout addresses) that have nothing to
+ *  do with a specific deal — the escrow sentence would be irrelevant there.
+ */
+export type EmailAudience = 'merchant' | 'buyer' | 'admin' | 'account';
 
 /** Which product the email speaks for. SafeDeal reuses the Dynopay chrome with its own wordmark + copy. */
 export type EmailBrand = 'dynopay' | 'safedeal';
@@ -141,7 +148,9 @@ export const baseEmailTemplate = (
     terms: tr('chrome.terms', lang),
     support: tr('chrome.support', lang),
     why: isSafeDeal
-      ? `You're receiving this because ${TO_EMAIL_TOKEN} is a party to a deal on SafeDeal. Funds are held securely in escrow until both sides complete the deal.`
+      ? (audience === 'account'
+          ? `You're receiving this because you have a SafeDeal account (${TO_EMAIL_TOKEN}). Security and wallet notices can't be switched off.`
+          : `You're receiving this because ${TO_EMAIL_TOKEN} is a party to a deal on SafeDeal. Funds are held securely in escrow until both sides complete the deal.`)
       : audience === 'buyer'
       ? tr('chrome.whyBuyer', lang)
       : audience === 'admin'
@@ -152,6 +161,11 @@ export const baseEmailTemplate = (
     noReplyHelp: tr('chrome.noReplyHelp', lang),
   };
   const brandHome = isSafeDeal ? safedealBaseUrl() : 'https://dynopay.com';
+  // Footer legal/help links follow the brand: SafeDeal has its own /privacy, /terms and /help
+  // pages — pointing its users at dynopay.com pages was wrong (2026-09 email audit).
+  const links = isSafeDeal
+    ? { privacy: `${brandHome}/privacy`, terms: `${brandHome}/terms`, help: `${brandHome}/help` }
+    : { privacy: `${frontendUrl}/privacy-policy`, terms: `${frontendUrl}/terms-conditions`, help: `${frontendUrl}/help-support` };
   const brandTitle = isSafeDeal ? 'SafeDeal' : 'Dynopay';
   const headerMark = isSafeDeal
     ? safedealWordmark(24)
@@ -168,7 +182,7 @@ export const baseEmailTemplate = (
   // The From mailbox is send-only (no inbox) — say so, and point at the help centre instead.
   const noReplyBlock = `<tr>
                   <td align="center" class="ftr-text" style="color: #a1a1aa; font-size: 11px; line-height: 1.6; ${ftrFont} padding: 0 8px 12px;">
-                    ${chrome.noReply} <a class="ftr-link" href="${frontendUrl}/help-support" style="color: #d4d4d8; text-decoration: underline; font-size: 11px;">${chrome.noReplyHelp}</a>
+                    ${chrome.noReply} <a class="ftr-link" href="${links.help}" style="color: #d4d4d8; text-decoration: underline; font-size: 11px;">${chrome.noReplyHelp}</a>
                   </td>
                 </tr>`;
   const legalBlock = `<tr>
@@ -389,11 +403,11 @@ export const baseEmailTemplate = (
                   <td align="center">
                     <table role="presentation" cellpadding="0" cellspacing="0">
                       <tr>
-                        <td style="padding: 0 10px;"><a class="ftr-link" href="${frontendUrl}/privacy-policy" style="color: #d4d4d8; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${chrome.privacy}</a></td>
+                        <td style="padding: 0 10px;"><a class="ftr-link" href="${links.privacy}" style="color: #d4d4d8; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${chrome.privacy}</a></td>
                         <td class="ftr-text" style="color: #71717a; font-size: 11px;">|</td>
-                        <td style="padding: 0 10px;"><a class="ftr-link" href="${frontendUrl}/terms-conditions" style="color: #d4d4d8; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${chrome.terms}</a></td>
+                        <td style="padding: 0 10px;"><a class="ftr-link" href="${links.terms}" style="color: #d4d4d8; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${chrome.terms}</a></td>
                         <td class="ftr-text" style="color: #71717a; font-size: 11px;">|</td>
-                        <td style="padding: 0 10px;"><a class="ftr-link" href="${frontendUrl}/help-support" style="color: #d4d4d8; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${chrome.support}</a></td>
+                        <td style="padding: 0 10px;"><a class="ftr-link" href="${links.help}" style="color: #d4d4d8; text-decoration: none; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${chrome.support}</a></td>
                       </tr>
                     </table>
                   </td>

@@ -11,6 +11,7 @@ import { generateDealSummaryPdf, generateTopupReceiptPdf, pdfToBuffer } from "./
 import { listAttachments } from "./safedealAttachments";
 import { listDealPayouts } from "./safedealWithdrawals";
 import { isRealCustomerEmail, FUNDING_COIN_META } from "./safedealCheckout";
+import { explorerTxUrl } from "../receiptLinkService";
 import { sendSafeDealDepositReceiptEmail, sendSafeDealDealInvoiceEmail } from "../email/safedealEmails";
 import type { TopupRow } from "./safedealTopup";
 
@@ -42,12 +43,15 @@ export async function emailSafeDealDepositReceipt(row: TopupRow, customerEmail: 
       legalName: legalName(),
     });
     const pdf = await pdfToBuffer(doc);
+    // Include the funding transaction so the user can verify the deposit on the explorer.
+    const seenTx = row.seen_tx && !/^(SIMULATED-|WALLET-CREDIT|BINANCE-)/i.test(String(row.seen_tx)) ? String(row.seen_tx) : null;
     await sendSafeDealDepositReceiptEmail(
       customerEmail,
-      { topup_id: row.topup_id, amount_usd: row.amount_usd, pays_usd: row.pays_usd },
+      { topup_id: row.topup_id, amount_usd: row.amount_usd, pays_usd: row.pays_usd, seen_tx: seenTx },
       m?.label || row.coin,
       m?.network || row.coin,
-      pdf
+      pdf,
+      seenTx ? { txHash: seenTx, explorerUrl: explorerTxUrl(row.coin, seenTx) } : undefined
     );
   } catch (e) {
     apiLogger.warn(`[SafeDeal] deposit receipt email failed for topup ${row.topup_id}: ${(e as Error).message}`);

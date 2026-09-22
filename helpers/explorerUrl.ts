@@ -17,7 +17,7 @@ export const explorerTxUrl = (crypto: string, txHash: string): string => {
   if (!hash) return "";
 
   // Tron (TRX + TRC-20 tokens)
-  if (upper === "TRX" || upper.includes("TRC20")) return `https://tronscan.org/#/transaction/${hash}`;
+  if (upper === "TRX" || upper.includes("TRC20") || upper.includes("TRON")) return `https://tronscan.org/#/transaction/${hash}`;
   // XRP Ledger (native XRP + RLUSD issued on XRPL — NOT the ERC-20 variant)
   if (upper === "XRP" || upper === "RLUSD") return `https://xrpscan.com/tx/${hash}`;
   // Solana

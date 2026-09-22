@@ -44,12 +44,15 @@ import { refreshEscrowCostRates } from "../services/escrow/escrowCosts";
 import { recordFundingReceived, fundFromBalance, settleToWallets } from "../services/safedeal/safedealEscrowLedger";
 import { getBalances } from "../services/safedeal/safedealWallet";
 import { settlementPayout, addWithdrawalFeeCredit, type SettlementPayoutResult } from "../services/safedeal/safedealWithdrawals";
+import { explorerTxUrl } from "../services/receiptLinkService";
+import { FUNDING_COIN_META } from "../services/safedeal/safedealCheckout";
 import {
   sendEscrowInviteEmail,
   sendEscrowAcceptedEmail,
   sendEscrowDeclinedEmail,
   sendEscrowCancelledEmail,
   sendEscrowFundedEmail,
+  sendEscrowFundingReceiptEmail,
   sendEscrowDeliveredEmail,
   sendEscrowReleasedEmail,
   sendEscrowRefundedEmail,
@@ -351,9 +354,9 @@ async function attemptPayouts(deal: any, actorLabel = "system"): Promise<{ selle
         const where = `${w.payout_key} ${w.address.slice(0, 6)}…${w.address.slice(-4)}`;
         return w.status === "pending_approval"
           ? `${amount} USD payout to the ${who} (${where}) is queued for review — sent once approved.`
-          : `Paid ${amount} USDT to the ${who}'s address ${where}.`;
+          : `${amount} USDT is on its way to the ${who}'s address ${where} — the blockchain transaction hash follows by email once the network confirms it.`;
       }
-      if (r.mode === "kept") return `${amount} USD credited to the ${who}'s SafeDeal balance (auto-withdraw is off — it stays in custody until they withdraw).`;
+      if (r.mode === "kept") return `${amount} USD credited to the ${who}'s SafeDeal balance (auto-cashout is off — it stays there until they cash out).`;
       if (r.reason === "cooling") return `${amount} USD for the ${who} is held in their SafeDeal balance — their payout address is in its safety hold and will be paid automatically once usable.`;
       return `${amount} USD credited to the ${who}'s SafeDeal balance (automatic payout failed: ${r.detail || "unknown"}).`;
     };
@@ -388,7 +391,7 @@ async function attemptPayouts(deal: any, actorLabel = "system"): Promise<{ selle
         type: "withdrawal_fee_credit",
         actor: actorLabel,
         role: "system",
-        note: `${reservedWithdrawalFee.toFixed(2)} USD withdrawal fee reserved in the quote was not needed (funds kept in balance) — credited towards that party's next withdrawal.`,
+        note: `${reservedWithdrawalFee.toFixed(2)} USD cashout fee reserved in the quote was not needed (funds kept in balance) — credited towards that party's next cashout.`,
         meta: { customer_id: feeCreditTo, amount: reservedWithdrawalFee },
       });
     }
@@ -614,8 +617,11 @@ async function actFundFromBalance(deal: any, actor: ActorInfo): Promise<any> {
     meta: { breakdown },
   });
   await deal.save();
-  const { sellerEmail } = await partyEmails(deal);
-  if (sellerEmail) void sendEscrowFundedEmail(sellerEmail, sellerEmail, deal);
+  {
+    const { sellerEmail, buyerEmail } = await partyEmails(deal);
+    if (sellerEmail) void sendEscrowFundedEmail(sellerEmail, sellerEmail, deal);
+    if (buyerEmail) void sendEscrowFundingReceiptEmail(buyerEmail, buyerEmail, deal, { paidUsd: breakdown.buyerPays, method: "balance" }, dealUrl(deal));
+  }
   return deal;
 }
 
@@ -647,8 +653,21 @@ async function actFundFromCheckout(deal: any, paidUsd: number, coin: string, txH
   });
   if (isSafeDeal(deal)) await recordFundingReceived(deal, breakdown.buyerPays, deal.funding_method);
   await deal.save();
-  const { sellerEmail } = await partyEmails(deal);
-  if (sellerEmail) void sendEscrowFundedEmail(sellerEmail, sellerEmail, deal);
+  {
+    const { sellerEmail, buyerEmail } = await partyEmails(deal);
+    if (sellerEmail) void sendEscrowFundedEmail(sellerEmail, sellerEmail, deal);
+    // The buyer just sent crypto — confirm it landed, with the on-chain transaction.
+    if (buyerEmail) {
+      const realHash = txHash && !/^(SIMULATED-|WALLET-CREDIT|BINANCE-)/i.test(txHash) ? txHash : null;
+      const meta = FUNDING_COIN_META[String(coin || "").toUpperCase()];
+      const coinLabel = meta ? `${meta.label} on ${meta.network}` : coin;
+      void sendEscrowFundingReceiptEmail(
+        buyerEmail, buyerEmail, deal,
+        { paidUsd, coin: coinLabel, txHash: realHash, explorerUrl: realHash ? explorerTxUrl(coin, realHash) : null, method: deal.funding_method },
+        dealUrl(deal)
+      );
+    }
+  }
   return deal;
 }
 

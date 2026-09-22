@@ -114,6 +114,7 @@ function AddDealAddress({ deal, cfg, onClose, onDone, onError }: { deal: SdDeal;
       body="Stablecoins only. Double-check the network — funds sent to the wrong network can't be recovered."
       confirmLabel="Save & use for this deal"
       testid="sd-payout-address"
+      action="payout_destination"
       onClose={onClose}
       disabled={address.trim().length < 20}
       onError={onError}

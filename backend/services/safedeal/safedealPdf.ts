@@ -129,7 +129,7 @@ export function generateDealSummaryPdf({ deal: d, buyerEmail, sellerEmail, attac
   if (payouts.length) {
     section("Payouts from custody");
     for (const p of payouts) row(`#${p.withdrawal_id} · ${p.payout_key} ${p.address.slice(0, 6)}…${p.address.slice(-4)} · ${title(p.status)}`, `${fmt(p.net_usd, "USDT")}${p.tx_hash && !isInternalTxRef(p.tx_hash) ? ` · ${p.tx_hash.slice(0, 20)}…` : ""}`);
-    doc.font("Helvetica").fontSize(9).fillColor(INK.muted).text("Network fees on these payouts were already covered by the deal (withdrawal fee line above).", { width: W });
+    doc.font("Helvetica").fontSize(9).fillColor(INK.muted).text("Network fees on these payouts were already covered by the deal (cashout fee line above).", { width: W });
   }
 
   const proof = d.delivery_proof || null;

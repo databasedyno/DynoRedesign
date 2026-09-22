@@ -14,7 +14,7 @@
  * are logged rather than actually delivered.
  */
 import { sendEmail, SendEmailOptions } from "./emailShared";
-import { p, otpBlock, infoBox, dataRow, amountHero, type EmailHero } from "../../utils/emailTemplate";
+import { p, otpBlock, infoBox, dataRow, amountHero, mono, type EmailHero } from "../../utils/emailTemplate";
 
 interface DealLike {
   title: string;
@@ -125,6 +125,37 @@ export async function sendEscrowFundedEmail(toEmail: string, toName: string, dea
     dealCard(deal, v.accent, [["Next step", "Deliver, then mark it delivered"]]) +
     `<p>Go ahead and deliver, then mark the deal as delivered on ${v.name} — that starts the buyer's inspection window.</p>`;
   await sendEmail(toEmail, toName || toEmail, `Funded — you're clear to start: ${deal.title}`, message, false, v.opts("lock"));
+}
+
+/**
+ * Buyer-side receipt when THEIR payment lands in escrow. Previously only the seller was
+ * told ("Funded — you're clear to start"); the buyer who just sent crypto got nothing —
+ * no confirmation, no transaction hash. Now they get both (hash + explorer link for
+ * on-chain funding; a plain confirmation for balance funding).
+ */
+export async function sendEscrowFundingReceiptEmail(
+  toEmail: string,
+  toName: string,
+  deal: DealLike,
+  funding: { paidUsd?: number | string | null; coin?: string | null; txHash?: string | null; explorerUrl?: string | null; method?: "checkout" | "dynopay_api" | "balance" | string | null },
+  url: string
+): Promise<void> {
+  const v = voice(deal);
+  const fromBalance = funding.method === "balance" || (!funding.txHash && !funding.coin);
+  const paid = funding.paidUsd != null ? `${fmt(funding.paidUsd)} ${deal.currency}` : money(deal);
+  const how = fromBalance
+    ? `from your ${v.name} balance`
+    : `in ${esc(funding.coin || "crypto")}`;
+  const txBlock = funding.txHash
+    ? p(`Transaction: ${mono(esc(funding.txHash))}${funding.explorerUrl ? ` &nbsp;<a href="${esc(funding.explorerUrl)}" style="color:${v.accent === "#FFC61A" ? "#B77E00" : v.accent};font-weight:700;text-decoration:underline;">View on explorer</a>` : ""}`)
+    : "";
+  const message =
+    `<p>We've received your payment ${how} — it's now ${v.held} until you confirm the deal is complete.</p>` +
+    amountHero(paid, { pill: "IN ESCROW", pillType: "success", sublabel: cap(v.held) + " (in USDT)" }) +
+    dealCard(deal, v.accent, [["Next step", "The seller delivers"]]) +
+    txBlock +
+    `<p>Nothing reaches the seller until you release it (or the inspection timer runs out after delivery). Something wrong? You can raise an issue on the deal page at any time.</p>`;
+  await sendEmail(toEmail, toName || toEmail, `Payment received — held in escrow: ${deal.title}`, message, false, v.opts("lock", { text: "Open the deal", link: url }));
 }
 
 export async function sendEscrowDeliveredEmail(toEmail: string, toName: string, deal: DealLike, autoReleaseDays: number): Promise<void> {

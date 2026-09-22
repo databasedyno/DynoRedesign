@@ -16,7 +16,7 @@ const STEPS = [
   { icon: "mdi:email-fast-outline", title: "Invite", body: "Describe the deal, set the price and invite the other party by email. They accept the terms in one click." },
   { icon: "mdi:lock-outline", title: "Fund", body: "The buyer pays in any supported coin. SafeDeal converts it to USDT and holds it safely in escrow." },
   { icon: "mdi:package-variant-closed-check", title: "Deliver", body: "The seller delivers and marks the deal done. The buyer has a set number of days to check the work." },
-  { icon: "mdi:cash-check", title: "Release", body: "The buyer releases — or the timer does. SafeDeal credits the seller's wallet instantly. Withdraw any time." },
+  { icon: "mdi:cash-check", title: "Release", body: "The buyer releases — or the timer does. SafeDeal credits the seller's wallet instantly. Cash out any time." },
 ];
 
 /** Scroll-reveal wrapper (disabled under prefers-reduced-motion). */

@@ -1,4 +1,55 @@
 # ============================================================================
+# >>> HANDOFF (2026-09-22, later) — PHASE 2: SAFEDEAL CASHOUT VOCABULARY, REAL TX HASHES, EMAIL AUDIT <<<
+# ============================================================================
+#   Same safety rules as the block below (LIVE prod DB, SAFE MODE, no money
+#   movement, no git, no source edits). Backend + frontend changed.
+#
+#   BACKEND
+#   1. migrations/bootMigrations.ts 0048: tbl_customer_withdrawal +chain_tx_hash,
+#      chain_confirmed_at, chain_hash_emailed_at, chain_sync_attempts (APPLIED on
+#      the live DB at 09:56 by the preview boot).
+#   2. services/safedeal/safedealChainSync.ts (NEW): syncCashoutChainHashes()
+#      → Binance withdraw history (withdrawOrderId sd-wd-<id>) → TronGrid
+#      fallback after 3 attempts → stores chain hash, mirrors onto
+#      tbl_escrow_deal.*_payout_tx, emails "confirmed on-chain" (stamp only if
+#      mail really left; catch-up query for un-emailed rows). Cron */5 in
+#      utils/crons/safedealMaintenance.ts (leader-gated, OFF in preview).
+#      Already ran once from preview: withdrawals #95/#51/#46 now have real
+#      hashes and 3 emails went to moxxcompany@gmail.com (allow-listed for that run).
+#   3. services/email/safedealEmails.ts rewritten: "cashout"/"deal payout"
+#      wording, step-up email copy per action (cashout/address_add/address_remove/
+#      payout_destination), NEW sendSafeDealCashoutConfirmedEmail, tx hash +
+#      explorer link in cashout/top-up emails, audience 'account'.
+#      services/email/escrowEmails.ts NEW sendEscrowFundingReceiptEmail (buyer
+#      gets a receipt with the funding tx — previously only the seller was told).
+#      utils/emailTemplate.ts: EmailAudience +'account' (footer why-line without the
+#      escrow sentence), SafeDeal footer links now safedeal.sh/privacy|terms|help.
+#   4. controller/safedealController.ts POST /api/safedeal/auth/step-up accepts
+#      optional body.action; API messages say "Cashout …". escrowController wires
+#      funding receipt (balance + on-chain) and payout summary wording.
+#      escrowShared quote labels "Cashout fee", PDF footnote, ledger "Cashout to …".
+#   5. scripts/render_safedeal_emails.ts renders 25 emails (EMAIL_DUMP_DIR=/tmp/x).
+#
+#   FRONTEND (Next.js): api/safedeal.ts stepUp(action), SdWithdrawal.chain_tx_hash;
+#   Components/SafeDeal/Wallet.tsx "Cash out" button/dialog, "Cashouts & payouts",
+#   real tx link (data-testid sd-withdrawal-tx-<id>) or pending text
+#   (sd-withdrawal-tx-pending-<id>), KIND_LABEL Cashout; StepUpDialog action prop;
+#   PayoutDestinationCard action; DealActionsCard tx link (sd-settled-tx-link /
+#   sd-settled-tx-pending); helpers/explorerUrl handles "-TRON"; Landing/Legal copy;
+#   Admin/Escrow/AdminWithdrawals shows real tx link.
+#
+#   HOW TO VERIFY (backend): tsc exit 0; jest (webhookProcessor, blockchainFeeService,
+#   evmChainGasFee, settlementModuleResolution) pass; render script exits 0 and
+#   cashout_sent.html contains "Cashout sent" and no "Withdrawal"/"wallet action";
+#   stepup_code_cashout.html contains "Confirm your cashout"; footer links contain
+#   "/safedeal/privacy" (preview base) not "help-support"; read-only SQL:
+#   SELECT withdrawal_id, chain_tx_hash FROM tbl_customer_withdrawal WHERE tx_hash
+#   LIKE 'BINANCE-%' → 3 rows with 64-hex hashes. POST /api/safedeal/auth/step-up
+#   requires a SafeDeal session (401 without) — do not brute-force sign-in.
+#   Frontend testing only with explicit user permission (SafeDeal sign-in uses
+#   email codes; preview_code is returned in the API response in preview).
+# ============================================================================
+# ============================================================================
 # >>> HANDOFF (2026-09-22) — FEE ACCURACY + DUST-LOOP FIX (PHASE 1, BACKEND) <<<
 # ============================================================================
 #   Env: LIVE prod DB + shared Redis (preview uses Redis DB /1), SAFE MODE

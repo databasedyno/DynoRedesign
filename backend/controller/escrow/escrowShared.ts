@@ -339,13 +339,13 @@ export function computeFeeBreakdown(input: {
       { key: "conversion_fee", label: `Conversion fee${est}`, amount: conversionFeeUsd, note: conversionFeeUsd <= 0 ? (quoteCoin.assumed && !locked ? "No conversion when funded in USDT; other coins are converted on the exchange at checkout." : "No conversion — funded directly in USDT.") : "Converting the funded crypto to USDT on the exchange." },
       {
         key: "withdrawal_fee",
-        label: locked ? `Withdrawal fee (${payoutKey})` : `Withdrawal fee (est., ${payoutKey})`,
+        label: locked ? `Cashout fee (${payoutKey})` : `Cashout fee (est., ${payoutKey})`,
         amount: withdrawalFeeUsd,
         note: locked
-          ? "Exchange withdrawal fee reserved at funding — covers the payout to a saved address (or is credited back to whoever keeps the funds in their balance)."
+          ? "Cashout network fee reserved at funding — covers the payout to a saved address (or is credited back to whoever keeps the funds in their balance)."
           : payoutIsUsdc
-          ? "Exchange withdrawal to this network, incl. the USDT→USDC conversion at cashout."
-          : "Exchange withdrawal to pay the USDT out at cashout.",
+          ? "Network fee for the cashout to this network, incl. the USDT→USDC conversion."
+          : "Network fee for the USDT cashout to this network.",
       }
     );
   }

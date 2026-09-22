@@ -14,10 +14,31 @@ import { CustomerRow, CustomerWalletError } from "../customerWalletService";
 import { ESCROW_PAYOUT_OPTIONS, normalizePayoutKey, withdrawFeeUsdFor } from "../escrow/escrowCosts";
 import { isLiveSettlementEnabled } from "../../controller/escrow/escrowShared";
 import { applyEntries, getBalances } from "./safedealWallet";
-import { sendSafeDealWithdrawalEmail, sendSafeDealWithdrawalRejectedEmail } from "../email/safedealEmails";
+import { sendSafeDealWithdrawalEmail, sendSafeDealWithdrawalRejectedEmail, type CashoutEmailOptions } from "../email/safedealEmails";
+import { explorerTxUrl } from "../receiptLinkService";
 
 export const MIN_WITHDRAWAL_USD = Number(envRaw("SAFEDEAL_MIN_WITHDRAWAL_USD")) || 10;
 export const APPROVAL_THRESHOLD_USD = Number(envRaw("SAFEDEAL_WITHDRAWAL_APPROVAL_USD")) || 1000;
+
+/** payout_key ("USDT-TRON") → Dynopay crypto code understood by explorerTxUrl ("USDT-TRC20"). */
+export const payoutKeyToCryptoCode = (payoutKey: string): string => {
+  const k = String(payoutKey || "").toUpperCase();
+  if (k.endsWith("-TRON")) return k.replace("-TRON", "-TRC20");
+  return k;
+};
+
+/** Everything the cashout emails need beyond the row itself (threshold, deal title, explorer link). */
+export async function cashoutEmailOptions(w: { source?: string | null; escrow_id?: number | null; payout_key: string; chain_tx_hash?: string | null }): Promise<CashoutEmailOptions> {
+  const opts: CashoutEmailOptions = { approvalThresholdUsd: APPROVAL_THRESHOLD_USD };
+  if (w.source === "settlement" && w.escrow_id) {
+    try {
+      const rows = await sequelize.query<{ title: string }>(`SELECT title FROM tbl_escrow_deal WHERE escrow_id = :id LIMIT 1`, { replacements: { id: w.escrow_id }, type: QueryTypes.SELECT });
+      opts.dealTitle = rows[0]?.title || null;
+    } catch { /* title is decorative */ }
+  }
+  if (w.chain_tx_hash) opts.explorerUrl = explorerTxUrl(payoutKeyToCryptoCode(w.payout_key), w.chain_tx_hash);
+  return opts;
+}
 // New-address cooling-off: hours before a freshly saved payout address can receive a withdrawal.
 // Default 0 = disabled (owner turned the 24h hold off). Set SAFEDEAL_ADDRESS_COOLING_HOURS=24 to re-enable.
 export const ADDRESS_COOLING_HOURS = num("SAFEDEAL_ADDRESS_COOLING_HOURS", 0);
@@ -55,6 +76,11 @@ export interface WithdrawalRow {
   approved_at: string | null;
   rejected_reason: string | null;
   tx_hash: string | null;
+  /** Real blockchain hash (backfilled by safedealChainSync once the exchange broadcasts). */
+  chain_tx_hash?: string | null;
+  chain_confirmed_at?: string | Date | null;
+  chain_hash_emailed_at?: string | Date | null;
+  chain_sync_attempts?: number;
   simulated: boolean;
   sent_at: string | null;
   ledger_reference?: string | null;
@@ -270,7 +296,7 @@ export async function requestWithdrawal(
   const q = quoteWithdrawal(addr.payout_key, Number(input.amount), feeCredit);
   // Escrow payouts: the withdrawal fee was already collected in the deal quote (cost reserve) — never charge it twice.
   if (input.fee_covered) { q.fee = 0; q.fee_waived = 0; q.net = q.amount; }
-  if (!Number.isFinite(q.amount) || (!isSettlement && q.amount < MIN_WITHDRAWAL_USD)) throw new CustomerWalletError(400, `Minimum withdrawal is $${MIN_WITHDRAWAL_USD}.`);
+  if (!Number.isFinite(q.amount) || (!isSettlement && q.amount < MIN_WITHDRAWAL_USD)) throw new CustomerWalletError(400, `Minimum cashout is $${MIN_WITHDRAWAL_USD}.`);
   if (q.net <= 0) throw new CustomerWalletError(400, `Amount must exceed the ${toFixedStr(q.fee, 2)} USD network fee.`);
   const bal = await getBalances(customer.customer_id);
   if (bal.available < q.amount) throw new CustomerWalletError(400, `Insufficient available balance (${toFixedStr(bal.available, 2)} USD).`);
@@ -314,7 +340,7 @@ export async function requestWithdrawal(
       kind: isSettlement ? "payout" : "withdrawal",
       description: isSettlement
         ? `Deal payout${input.deal_title ? ` — ${input.deal_title}` : ""} sent to ${opt?.label || w.payout_key} ${short} (network fee covered by the deal)${requiresApproval ? " — awaiting approval" : ""}`
-        : `Withdrawal to ${opt?.label || w.payout_key} ${short} (${feeText}, you receive ${toFixedStr(q.net, 2)} ${opt?.coin || "USDT"})${requiresApproval ? " — awaiting approval" : ""}`,
+        : `Cashout to ${opt?.label || w.payout_key} ${short} (${feeText}, you receive ${toFixedStr(q.net, 2)} ${opt?.coin || "USDT"})${requiresApproval ? " — awaiting approval" : ""}`,
       reference: ledgerRef,
       source: "WITHDRAWAL",
       escrowId: input.escrow_id ?? undefined,
@@ -333,7 +359,7 @@ export async function requestWithdrawal(
       throw err;
     }
   }
-  if (customer.email) void sendSafeDealWithdrawalEmail(customer.email, w, opt?.label || w.payout_key);
+  if (customer.email) void cashoutEmailOptions(w).then((o) => sendSafeDealWithdrawalEmail(customer.email as string, w, opt?.label || w.payout_key, o));
   return w;
 }
 
@@ -375,8 +401,8 @@ async function customerById(id: number): Promise<CustomerRow | null> {
 
 export async function approveWithdrawal(id: number, adminLabel: string): Promise<WithdrawalRow> {
   const w = await getWithdrawal(id);
-  if (!w) throw new CustomerWalletError(404, "Withdrawal not found.");
-  if (w.status !== "pending_approval") throw new CustomerWalletError(409, `Withdrawal is '${w.status}', not awaiting approval.`);
+  if (!w) throw new CustomerWalletError(404, "Cashout not found.");
+  if (w.status !== "pending_approval") throw new CustomerWalletError(409, `Cashout is '${w.status}', not awaiting approval.`);
   await sequelize.query(
     `UPDATE tbl_customer_withdrawal SET status = 'queued', approved_by = :by, approved_at = NOW(), updated_at = NOW() WHERE withdrawal_id = :id`,
     { replacements: { by: adminLabel, id }, type: QueryTypes.UPDATE }
@@ -391,14 +417,14 @@ export async function approveWithdrawal(id: number, adminLabel: string): Promise
   }
   const customer = await customerById(w.customer_id);
   const opt = ESCROW_PAYOUT_OPTIONS.find((o) => o.key === w.payout_key);
-  if (customer?.email) void sendSafeDealWithdrawalEmail(customer.email, sent, opt?.label || w.payout_key);
+  if (customer?.email) void cashoutEmailOptions(sent).then((o) => sendSafeDealWithdrawalEmail(customer.email as string, sent, opt?.label || w.payout_key, o));
   return sent;
 }
 
 export async function rejectWithdrawal(id: number, adminLabel: string, reason: string): Promise<WithdrawalRow> {
   const w = await getWithdrawal(id);
-  if (!w) throw new CustomerWalletError(404, "Withdrawal not found.");
-  if (!["pending_approval", "queued"].includes(w.status)) throw new CustomerWalletError(409, `Withdrawal is '${w.status}' and can no longer be rejected.`);
+  if (!w) throw new CustomerWalletError(404, "Cashout not found.");
+  if (!["pending_approval", "queued"].includes(w.status)) throw new CustomerWalletError(409, `Cashout is '${w.status}' and can no longer be rejected.`);
   const rows = await sequelize.query<WithdrawalRow>(
     `UPDATE tbl_customer_withdrawal SET status = 'rejected', approved_by = :by, approved_at = NOW(), rejected_reason = :reason, updated_at = NOW()
       WHERE withdrawal_id = :id RETURNING *`,
@@ -419,7 +445,7 @@ export async function rejectWithdrawal(id: number, adminLabel: string, reason: s
       },
     ]);
     const opt = ESCROW_PAYOUT_OPTIONS.find((o) => o.key === w.payout_key);
-    if (customer.email) void sendSafeDealWithdrawalRejectedEmail(customer.email, rows[0], opt?.label || w.payout_key);
+    if (customer.email) void cashoutEmailOptions(rows[0]).then((o) => sendSafeDealWithdrawalRejectedEmail(customer.email as string, rows[0], opt?.label || w.payout_key, o));
   }
   return rows[0];
 }

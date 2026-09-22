@@ -13,7 +13,7 @@ const BUYER = [
 const SELLER = [
   { icon: "mdi:shield-check-outline", t: "Start only when it's funded", b: "You see 'Funded' before you lift a finger. The money is already in escrow — no chasing invoices." },
   { icon: "mdi:timer-check-outline", t: "Silence means you get paid", b: "If the buyer does nothing during the inspection period, the funds release to you automatically." },
-  { icon: "mdi:bank-transfer-out", t: "Withdraw in stablecoin", b: "Your wallet is credited in USD value, paid out as USDT or USDC on Tron, Ethereum or Polygon." },
+  { icon: "mdi:bank-transfer-out", t: "Cash out in stablecoin", b: "Your wallet is credited in USD value, paid out as USDT or USDC on Tron, Ethereum or Polygon." },
 ];
 
 export function ForBuyersSellers() {

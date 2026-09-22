@@ -9,6 +9,7 @@ import { money } from "@/Components/Page/Escrow/escrowUtils";
 import { absTime, relTime } from "./sdFormat";
 import FundPanel from "./FundPanel";
 import { ghostBtn, primaryBtn } from "./sdStyles";
+import { explorerTxUrl, shortHash } from "@/helpers/explorerUrl";
 
 export { ghostBtn, primaryBtn };
 export type DealDialog = "decline" | "cancel" | "deliver" | "release" | "changes" | "amend";
@@ -168,11 +169,19 @@ export default function DealActionsCard({ deal, busy, live, now, walletHref, new
             const amount = isBuyer ? deal.buyer_entitlement_stable : deal.seller_entitlement_stable;
             const tx = isBuyer ? deal.buyer_payout_tx : deal.seller_payout_tx;
             const sent = !!tx && !String(tx).startsWith("WALLET-CREDIT");
+            // Exchange/internal refs (BINANCE-…, WITHDRAWAL-…, SIMULATED-…) are not blockchain hashes;
+            // the real hash is backfilled a few minutes after dispatch.
+            const chainHash = tx && !/^(SIMULATED-|BINANCE-|WALLET-CREDIT|WITHDRAWAL-)/i.test(String(tx)) ? String(tx) : null;
             const dest = deal.my_payout_pref?.address;
             return (
               <Alert severity="success" icon={<Icon icon={sent ? "mdi:bank-transfer-out" : "mdi:wallet-plus-outline"} />} data-testid="sd-settled-credit" data-mode={sent ? "sent" : "balance"}>
                 {sent ? (
-                  <><b>{money(amount, deal.currency)}</b> {isBuyer ? "refund" : "payout"} sent to {dest ? `${dest.payout_key} ${dest.address.slice(0, 6)}…${dest.address.slice(-4)}` : "your payout address"} — network fee covered by the deal.{" "}</>
+                  <><b>{money(amount, deal.currency)}</b> {isBuyer ? "refund" : "payout"} sent to {dest ? `${dest.payout_key} ${dest.address.slice(0, 6)}…${dest.address.slice(-4)}` : "your payout address"} — network fee covered by the deal.{" "}
+                    {chainHash ? (
+                      <a href={explorerTxUrl((dest?.payout_key || "USDT-TRON").replace(/-TRON$/i, "-TRC20"), chainHash)} target="_blank" rel="noopener noreferrer" data-testid="sd-settled-tx-link" style={{ fontWeight: 800, color: SD_ACCENT, fontFamily: "monospace" }}>tx {shortHash(chainHash, 8, 6)} ↗</a>
+                    ) : (
+                      <span data-testid="sd-settled-tx-pending" style={{ color: "#6B7280" }}>Blockchain transaction follows by email in a few minutes.</span>
+                    )}{" "}</>
                 ) : (
                   <><b>{money(amount, deal.currency)}</b> is in your SafeDeal balance{deal.my_addresses?.length ? " and goes out automatically to your payout address" : " — add a payout address and it's sent automatically"}.{" "}</>
                 )}

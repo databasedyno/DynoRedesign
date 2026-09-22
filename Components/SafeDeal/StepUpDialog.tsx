@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import { Alert, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, Typography } from "@mui/material";
 import { Icon } from "@iconify/react";
-import safedealApi, { sdError } from "@/api/safedeal";
+import safedealApi, { sdError, type StepUpAction } from "@/api/safedeal";
 import { primaryBtn } from "./sdStyles";
 
 /** Reusable "request code → enter code → confirm" dialog for sensitive actions. */
-export function StepUpDialog({ title, body, confirmLabel, testid, onClose, onConfirm, onError, children, disabled }: {
+export function StepUpDialog({ title, body, confirmLabel, testid, onClose, onConfirm, onError, children, disabled, action }: {
   title: string; body?: string; confirmLabel: string; testid: string; onClose: () => void;
   onConfirm: (code: string) => Promise<void>; onError: (m: string) => void; children?: React.ReactNode; disabled?: boolean;
+  /** What the code confirms — makes the email say "Confirm your cashout" instead of a vague wallet change. */
+  action?: StepUpAction;
 }) {
   const [code, setCode] = useState("");
   const [preview, setPreview] = useState<string | null>(null);
@@ -16,7 +18,7 @@ export function StepUpDialog({ title, body, confirmLabel, testid, onClose, onCon
   const send = async () => {
     setBusy(true);
     try {
-      const r = await safedealApi.stepUp();
+      const r = await safedealApi.stepUp(action);
       setPreview(r.preview_code || null);
       setSent(true);
     } catch (e) {

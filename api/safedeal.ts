@@ -365,6 +365,9 @@ export interface SdAddress {
   usable_at?: string;
 }
 
+/** What the user is confirming with a step-up code — drives the email copy. */
+export type StepUpAction = "cashout" | "address_add" | "address_remove" | "payout_destination";
+
 export interface SdWithdrawal {
   withdrawal_id: number;
   payout_key: string;
@@ -374,7 +377,11 @@ export interface SdWithdrawal {
   net_usd: number | string;
   status: string;
   requires_approval: boolean;
+  /** Exchange order ref at dispatch ("BINANCE-<id>") — never shown to users. */
   tx_hash: string | null;
+  /** Real blockchain hash once the network confirmed (backfilled a few minutes after sending). */
+  chain_tx_hash?: string | null;
+  chain_confirmed_at?: string | null;
   simulated: boolean;
   sent_at: string | null;
   rejected_reason: string | null;
@@ -424,7 +431,8 @@ export const safedealApi = {
   sendCode: async (email: string): Promise<{ email: string; preview_code?: string }> => unwrap(await client.post("/auth/send-code", { email })),
   verifyCode: async (email: string, code: string): Promise<{ token: string; user: SdUser }> => unwrap(await client.post("/auth/verify-code", { email, code })),
   telegramAuth: async (data: Record<string, unknown>): Promise<{ token: string; user: SdUser }> => unwrap(await client.post("/auth/telegram", data)),
-  stepUp: async (): Promise<{ preview_code?: string }> => unwrap(await client.post("/auth/step-up", {})),
+  /** Fresh one-time code for a sensitive wallet change. `action` shapes the email ("Confirm your cashout"). */
+  stepUp: async (action?: StepUpAction): Promise<{ preview_code?: string }> => unwrap(await client.post("/auth/step-up", action ? { action } : {})),
   me: async (): Promise<{ user: SdUser; wallet: SdBalances; profile: SdWallet["profile"]; addresses_count: number }> => unwrap(await client.get("/me")),
   updateProfile: async (body: { auto_withdraw?: boolean; auto_withdraw_address_id?: number | null; display_name?: string }) => unwrap(await client.post("/profile", body)),
 

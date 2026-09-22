@@ -79,7 +79,7 @@ export const STATUS_GLOSSARY: Record<string, { meaning: string; next: (role: Rol
   disputed: { meaning: "The deal is paused. The parties negotiate first; the SafeDeal team decides only if they can't agree.", next: () => "Whoever received the latest proposal responds." },
   completed: { meaning: "Funds were released and paid out to the seller.", next: () => "Nothing — the payout went to the seller's address (or their balance if none was set)." },
   refunded: { meaning: "Funds went back to the buyer (minus fees and costs).", next: () => "Nothing — the refund went to the buyer's address (or their balance if none was set)." },
-  split: { meaning: "The held amount was divided between buyer and seller as agreed or decided.", next: () => "Nothing — both can withdraw their share." },
+  split: { meaning: "The held amount was divided between buyer and seller as agreed or decided.", next: () => "Nothing — both can cash out their share." },
   cancelled: { meaning: "Cancelled before any money moved.", next: () => "Nothing." },
   expired: { meaning: "The invite or payment window ran out.", next: () => "Nothing — start a new deal." },
 };
