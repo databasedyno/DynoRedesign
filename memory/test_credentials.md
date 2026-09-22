@@ -1,3 +1,10 @@
+## 2026-09-22 — SafeDeal TELEGRAM ALERTS (link/test/unlink + cashout push) — VERIFIED (BE smoke 14/14, iteration_217 FE, iteration_218 deferred QA)
+## - No new passwords. Bot @SafeDealAlert_bot; token in backend/.env SAFEDEAL_TELEGRAM_BOT_TOKEN (valid). Preview widget shows 'Bot domain invalid' (expected).
+## - Endpoints (hdr x-safedeal-token): GET /api/safedeal/telegram ; POST /telegram/link {signed widget payload} ; POST /telegram/test ; POST /telegram/unlink.
+## - Link a throwaway account WITHOUT the widget: cd /app/backend && node -r dotenv/config scripts/telegram_alerts_smoke.js <baseUrl> --link <sd_token>  (full smoke: omit --link).
+## - UI: /safedeal/deals Overview → card sd-telegram-card (sd-telegram-state On/Off, sd-telegram-test, sd-telegram-unlink). Fake chat → 'Send test' shows 409 'press Start' toast (by design).
+## - Admin fee reconciliation QA pytest: /app/backend/tests/test_iter218_fee_recon_and_crumb.py (crumb sweeper DRY RUN only — never POST consolidate-crumbs without dry_run:true).
+
 ## 2026-09-20 SESSION — cancellation-fee reversal + withdrawal resilience + brand-262 purge + telegram env
 ## - ADMIN (SafeDeal / Dynopay): moxxcompany@gmail.com / Katiekendra123@  (also the vault passphrase).
 ## - SafeDeal sign-in (customers): any email; one-time code shown in UI (data-testid=sd-signin-preview-code)

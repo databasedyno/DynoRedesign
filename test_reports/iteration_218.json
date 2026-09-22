@@ -1,0 +1,84 @@
+{
+  "summary": "Iteration 218 — Deferred backend testing for (1) TRON pool crumb sweeper, (2) fractional-gwei EVM broadcast, (3) fee reconciliation API + admin page, plus SafeDeal landing + unified-home retest after two fixes. 12/12 pytest (test_iter218_fee_recon_and_crumb.py) PASS, 9/9 jest (evmChainGasFee.test.ts) PASS, all FE testids and behaviours verified. Crumb sweeper POSTs used dry_run:true only; fee-crumb-confirm-run was NEVER clicked (cancel path only).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_iter218_fee_recon_and_crumb.py",
+    "/app/test_reports/pytest/iter218.xml",
+    "/app/backend/__tests__/evmChainGasFee.test.ts"
+  ],
+  "backend_verified": {
+    "crumb_sweeper": {
+      "GET /api/admin/pool/crumbs-report unauth": "403 as expected",
+      "GET report shape": "running:false, report:{dryRun,thresholdUsd,totals:{sweptUsdt,reclaimedTrx,strandedUsdt,strandedTrx},swept[],skipped[]} present",
+      "POST /api/admin/pool/consolidate-crumbs dry_run=true": "202 {started:true, dry_run:true}",
+      "Concurrent second POST": "either 409 or started:false — conflict guard fires (also visually confirmed: FE crumb card entered 'Running…' and both Dry-run/Sweep-now buttons went disabled)",
+      "Final report after dry run": "dryRun:true, swept:[], skipped[].reason strings present, totals.sweptUsdt=0"
+    },
+    "fractional_gwei": {
+      "jest suite": "9/9 pass — decimal 0.12 gwei preserved, 21000 native gasLimit, 0.05 gwei floor, ×1.15 buffer without integer rounding, polygon 25 gwei floor honoured, maxGas cap works",
+      "code_review": "evmChain.ts calculateEvmGasFee: EVM_MIN_GWEI=0.05, effectiveGasLimit uses NATIVE_GAS=21000 unless (>21000 && <PADDED_DEFAULT), decimal gwei preserved via ethers parseUnits — no rounding artefacts"
+    },
+    "fee_reconciliation_GET": {
+      "shape": "summary + rows[] + page/limit/total present",
+      "live figures": "payouts=261, reconciled=209, pending=52, over=2, under=136, ok=71 (fee_recovery 31%)",
+      "invariant reconciled == over+under+ok": "PASS (209)",
+      "invariant total == payouts (no filter)": "PASS",
+      "verdict=ok filter": "PASS — every |variance|<=0.05 and total == summary.ok",
+      "verdict=under filter": "PASS — every variance < -0.05",
+      "chain=USDT_TRC20 filter": "PASS — all rows wallet_type=USDT_TRC20",
+      "status=pending filter": "PASS — all rows verdict=pending",
+      "pagination page1 vs page2": "PASS — disjoint audit_ids"
+    },
+    "fee_reconciliation_writes": {
+      "POST /reconcile {limit:5}": "200 {reconciled,pending,unavailable} ints returned",
+      "POST /backfill {days:30}": "200 {days:30, scanned, inserted (0 — idempotent), reconciled, pending, unavailable}; summary.payouts did not decrease; page-1 audit_ids unique"
+    }
+  },
+  "frontend_verified": {
+    "admin_fee_reconciliation_page": {
+      "route": "/admin/fee-reconciliation",
+      "testids_present": ["fee-reconciliation-page","fee-kpis","fee-filters","fee-rows-total","fee-rows-pagination","fee-reconcile-btn","fee-backfill-btn","fee-crumb-state","fee-crumb-when","fee-crumb-dry-run","fee-crumb-run"],
+      "fee-kpis": "'Payouts audited 261 · 209 reconciled · 52 pending · 0 no hash', Charged $87.79, Actual $280.21, Net −$192.42 (2 over · 136 under · 71 within band), Fee recovery 31%",
+      "fee-chain-rows": ["fee-chain-row-BTC","fee-chain-row-USDT-TRC20","fee-chain-row-ETH","fee-chain-row-LTC","fee-chain-row-USDT-ERC20","fee-chain-row-TRX"],
+      "fee-rows-total": "261 rows",
+      "first_row_tx_link": "https://tronscan.org/#/transaction/b5228205… (correct explorer for TRC20)",
+      "fee-row-variance-*": "coloured per verdict (Under red, OK green, Over red-plus)",
+      "fee-rows-pagination": "Rows per page:50 · 1–50 of 261",
+      "fee-crumb-dry-run": "click → state flipped from 'Last run: dry run' to 'Running…' (async job kicked off, buttons disabled — conflict guard works)",
+      "fee-crumb-run": "click opened fee-crumb-confirm dialog → clicked fee-crumb-confirm-cancel (fee-crumb-confirm-run was NEVER clicked — safety rule honoured)",
+      "fee-reconcile-btn": "click triggered POST reconcile (see network); page state ok",
+      "fee-backfill-btn": "present + labelled 'Backfill 90d'"
+    },
+    "safedeal_landing_desktop_1920x800": {
+      "sd-ls-invite-by-link overlay": "elementFromPoint at button centre resolves to the button itself — no decorative overlay intercept (fix confirmed)",
+      "selecting Share a link": "sd-ls-email hidden; sd-ls-submit label = 'Create invite link'",
+      "selecting By email": "sd-ls-email visible again; sd-ls-submit label = 'Continue'"
+    },
+    "safedeal_landing_mobile_390x844": {
+      "no horizontal overflow": "documentElement scrollWidth == clientWidth == 390",
+      "sd-landing renders": "YES"
+    },
+    "safedeal_home_mobile_390x844": {
+      "sd-home-tabs full labels": "Overview / Deals / Activity / Documents — no ellipsis/truncation (mobile-truncation fix confirmed)",
+      "tab bar no overflow": "scrollWidth == clientWidth == 318",
+      "/safedeal/wallet routing": "data-tab=activity",
+      "/safedeal/deals?tab=documents routing": "data-tab=documents",
+      "/safedeal/deals default routing": "data-tab=overview"
+    }
+  },
+  "action_items": [],
+  "critical_code_review_comments": [
+    "evmChain.ts: correct decimal-gwei plumbing; NATIVE_GAS gate is a tight (min<x<padded_default) window that hard-caps EOA transfers at 21000 — good.",
+    "poolCrumbSweeper.ts dry-run branches (lines 177/213/227) all short-circuit the on-chain send paths — verified via live dry run producing swept=[] and skipped[].reason populated.",
+    "feeReconciliationController: consider caching /api/admin/fee-reconciliation for the KPI/by-chain aggregates (payouts=261 query with 50-row page returned in <2s but full backfill of 90d is heavy) — non-blocking."
+  ],
+  "updated_files": ["/app/backend/tests/test_iter218_fee_recon_and_crumb.py"],
+  "success_rate": {"backend": "100% (12/12 pytest + 9/9 jest)", "frontend": "100% (all target testids + flows verified)"},
+  "test_credentials": "Admin: moxxcompany@gmail.com / Katiekendra123@ ; SafeDeal throwaway used sd-qa-1790084065@example.com (customer_id 950, no funds — safe).",
+  "seed_data_creation": "None persistent — dry-run crumb sweep + safe reconcile/backfill on audit table only.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "All three deferred features are green and the SafeDeal landing + home fixes are re-verified. When re-running the pytest, allow up to ~3 min for TestCrumbSweeper::test_dry_run_start_and_conflict (reads live TronGrid balances). Preview host cold-starts return 503 'Backend starting, please retry' on first call — retry after ~10s. If the crumb sweeper is already running (someone kicked another dry-run), the test polls up to 3 min for completion.",
+  "rca of the issue": "N/A — no bugs found."
+}
