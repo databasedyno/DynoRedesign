@@ -1,3 +1,8 @@
+# ═══ NEXT SESSION — DYNOPAY REBRAND STEP 2/3 (2026-09-22) ═══
+#  P0 — Landing/public: remove hero square + all decorative tiles (no replacement shape); aqua→yellow corner glow + fine grain on dark-brown hero; new logo in HomeHeader/HomeFooter; fees/marketing pages; recolour assets/Images/home/*.svg (10 indigo files); hosted checkout (Dynopay default theme only), receipts web/PDF, public receipt page.
+#  P0 — QA: dark-mode DOM colour scan + interactions (rail collapse, theme toggle, paylink detail, 2FA dialog open/cancel) via scripts/qa/rebrand_qa.mjs, or testing_agent if it stops timing out.
+#  P1 — Step 3: transactional email templates (buttons/footers/header chip v4), admin panel accents.
+#  P2 — pages/QA.tsx + documentation.tsx semantic blue badges.
 # ══════════════════════════════════════════════════════════════════════════════
 # NEXT SESSION — BRAND SOFT-DELETE FOLLOW-UPS + NEW ACCOUNT-DELETE FEATURE (2026-06, pod 7f90e7ef)
 # Full detail: memory/SESSION_HANDOFF_BRAND_SOFT_DELETE.md

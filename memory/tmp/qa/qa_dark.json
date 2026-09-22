@@ -1,0 +1,176 @@
+{
+  "mode": "dark",
+  "results": [
+    {
+      "route": "/dashboard",
+      "status": 200,
+      "finalUrl": "/dashboard",
+      "blue": [],
+      "blueCount": 0,
+      "whiteOnYellow": [],
+      "navBg": "rgb(43, 29, 20)",
+      "cellBg": "rgb(43, 29, 20)",
+      "title": "Dashboard · Dynopay",
+      "url": "/dashboard",
+      "consoleErrors": []
+    },
+    {
+      "route": "/brands",
+      "status": 200,
+      "finalUrl": "/brands",
+      "blue": [],
+      "blueCount": 0,
+      "whiteOnYellow": [],
+      "navBg": "rgb(43, 29, 20)",
+      "cellBg": "rgb(43, 29, 20)",
+      "title": "Accept Crypto Payments — Get Paid Your Way · Dynopay",
+      "url": "/brands",
+      "consoleErrors": []
+    },
+    {
+      "route": "/pay-links",
+      "status": 200,
+      "finalUrl": "/pay-links",
+      "blue": [],
+      "blueCount": 0,
+      "whiteOnYellow": [],
+      "navBg": "rgb(43, 29, 20)",
+      "cellBg": "rgb(43, 29, 20)",
+      "title": "Payment Links · Dynopay",
+      "url": "/pay-links",
+      "consoleErrors": []
+    },
+    {
+      "route": "/create-pay-link",
+      "status": 200,
+      "finalUrl": "/create-pay-link",
+      "blue": [
+        {
+          "prop": "background",
+          "value": "rgb(98, 126, 234)",
+          "el": "div.MuiBox-root.mui-1qbm3a0"
+        },
+        {
+          "prop": "background",
+          "value": "rgb(52, 93, 157)",
+          "el": "div.MuiBox-root.mui-1qgtw46"
+        }
+      ],
+      "blueCount": 2,
+      "whiteOnYellow": [],
+      "navBg": "rgb(43, 29, 20)",
+      "cellBg": "rgb(43, 29, 20)",
+      "title": "Create a payment link · Dynopay",
+      "url": "/create-pay-link",
+      "consoleErrors": []
+    },
+    {
+      "route": "/storefront",
+      "status": 200,
+      "finalUrl": "/storefront",
+      "blue": [
+        {
+          "prop": "background",
+          "value": "rgb(139, 92, 246)",
+          "el": "div[testid=accent-swatch-purple].MuiBox-root.mui-e1776"
+        },
+        {
+          "prop": "background-image",
+          "value": "rgba(124, 58, 237, 0.5)",
+          "el": "div.MuiBox-root.mui-1mak1o5"
+        }
+      ],
+      "blueCount": 2,
+      "whiteOnYellow": [],
+      "navBg": "rgb(43, 29, 20)",
+      "cellBg": "rgb(43, 29, 20)",
+      "title": "Storefront · Dynopay",
+      "url": "/storefront",
+      "consoleErrors": []
+    },
+    {
+      "route": "/payouts",
+      "status": 200,
+      "finalUrl": "/payouts",
+      "blue": [
+        {
+          "prop": "background",
+          "value": "rgb(98, 126, 234)",
+          "el": "div.MuiBox-root.mui-1mv3qpp"
+        },
+        {
+          "prop": "background",
+          "value": "rgb(98, 126, 234)",
+          "el": "div.MuiBox-root.mui-mjcjvb"
+        },
+        {
+          "prop": "background",
+          "value": "rgb(52, 93, 157)",
+          "el": "div.MuiBox-root.mui-1hos4qk"
+        },
+        {
+          "prop": "background",
+          "value": "rgb(52, 93, 157)",
+          "el": "div.MuiBox-root.mui-qcm4vg"
+        },
+        {
+          "prop": "background",
+          "value": "rgb(98, 126, 234)",
+          "el": "div.MuiBox-root.mui-g3iv86"
+        },
+        {
+          "prop": "background",
+          "value": "rgb(98, 126, 234)",
+          "el": "div.MuiBox-root.mui-g3iv86"
+        }
+      ],
+      "blueCount": 6,
+      "whiteOnYellow": [],
+      "navBg": "rgb(43, 29, 20)",
+      "cellBg": "rgb(43, 29, 20)",
+      "title": "Accept Crypto Payments — Get Paid Your Way · Dynopay",
+      "url": "/payouts",
+      "consoleErrors": []
+    },
+    {
+      "route": "/transactions",
+      "status": 200,
+      "finalUrl": "/transactions",
+      "blue": [],
+      "blueCount": 0,
+      "whiteOnYellow": [],
+      "navBg": "rgb(43, 29, 20)",
+      "cellBg": "rgb(43, 29, 20)",
+      "title": "Transactions · Dynopay",
+      "url": "/transactions",
+      "consoleErrors": []
+    },
+    {
+      "route": "/invoices",
+      "status": 200,
+      "finalUrl": "/invoices",
+      "blue": [],
+      "blueCount": 0,
+      "whiteOnYellow": [],
+      "navBg": "rgb(43, 29, 20)",
+      "cellBg": "rgb(43, 29, 20)",
+      "title": "Receipts & Tax — Dynopay",
+      "url": "/invoices",
+      "consoleErrors": []
+    },
+    {
+      "route": "/wallet",
+      "status": 200,
+      "finalUrl": "/wallet",
+      "blue": [],
+      "blueCount": 0,
+      "whiteOnYellow": [],
+      "navBg": "rgb(43, 29, 20)",
+      "cellBg": "rgb(43, 29, 20)",
+      "title": "Payout addresses · Dynopay",
+      "url": "/wallet",
+      "consoleErrors": []
+    }
+  ],
+  "consoleErrors": []
+}
