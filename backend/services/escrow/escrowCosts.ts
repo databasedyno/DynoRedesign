@@ -74,13 +74,16 @@ const DEFAULT_WITHDRAW_FEE_USD: Record<string, number> = {
 // These values also act as a SAFETY FLOOR: the live refresh only ever raises a fee
 // above its default (a momentarily near-zero live gas quote must never let the platform
 // under-collect the real sweep cost).
+// Floors re-based 2026-09 on real receipts: a USDT-TRC20 transfer burns ~130k energy (TRON
+// Dynamic Energy Model penalty) ≈ 13 TRX ≈ $4+, while Ethereum has traded far below 1 gwei
+// since Dencun (a $3 floor was a 10× over-charge to buyers funding with ETH/ERC-20).
 const DEFAULT_NETWORK_FEE_USD: Record<string, number> = {
-  BTC: 2,
-  ETH: 3,
-  "USDT-ERC20": 3,
-  "USDC-ERC20": 3,
-  "USDT-TRON": 2,
-  "USDT-TRC20": 2,
+  BTC: 1,
+  ETH: 0.5,
+  "USDT-ERC20": 0.75,
+  "USDC-ERC20": 0.75,
+  "USDT-TRON": 4,
+  "USDT-TRC20": 4,
   TRX: 0.5,
   "USDT-POLYGON": 0.1,
   "USDC-POLYGON": 0.1,

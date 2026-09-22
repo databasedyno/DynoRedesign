@@ -38,6 +38,7 @@ jest.mock('../controller', () => ({
 
 jest.mock('../services/pendingPaymentService', () => ({
   sendPendingPaymentNotification: jest.fn().mockResolvedValue(undefined),
+  sendBuyerUnderpaidNudge: jest.fn().mockResolvedValue(undefined),
 }));
 
 jest.mock('../apis/tatumApi', () => ({
@@ -196,7 +197,7 @@ describe('Webhook Processor — processWebhookJob', () => {
     it('reconciliation source bypasses dedup, clears stale key, and re-settles a failed payment (LTC payment link)', async () => {
       seedRedis('processed-tx-ltc-tx-1', { processed: true, status: 'settlement_in_progress' });
       seedRedis('crypto-ltc1qFailedAddr', createRedisPaymentData({
-        currency: 'LTC', status: 'failed', txId: 'ltc-tx-1', retryCount: '1',
+        currency: 'LTC', amount: '0.5', status: 'failed', txId: 'ltc-tx-1', retryCount: '1',
         lastError: 'UTXO fee mismatch', link_id: 'link-abc', payment_id: 'pay-ltc-1',
       }));
 
@@ -391,8 +392,27 @@ describe('Webhook Processor — processWebhookJob', () => {
     });
 
     it('processes valid small amounts', async () => {
+      // A small invoice paid in full — small is fine, dust relative to the invoice is not (see below)
+      seedRedis('crypto-0xTestAddress', createRedisPaymentData({ amount: '0.0001' }));
       await processWebhookJob(createJobData({ amount: '0.0001' }));
       expect(paymentController.cryptoVerification).toHaveBeenCalled();
+    });
+
+    it('ignores a dust transfer (< 1% of the expected amount) without touching payment state', async () => {
+      // Real incident 2026-09-22: 0.000002 TRX sprayed at a settled pool address expecting 363.75 TRX
+      seedRedis('crypto-0xTestAddress', createRedisPaymentData({ amount: '363.75', currency: 'TRX' }));
+      await processWebhookJob(createJobData({ amount: '0.000002', asset: 'TRX' }));
+      expect(paymentController.cryptoVerification).not.toHaveBeenCalled();
+      expect(mockStore['processed-tx-tx-test-123']).toMatchObject({ ignored: true, reason: 'dust_transfer' });
+      // Invoice untouched — still pending, no txId, not underpaid
+      expect(mockStore['crypto-0xTestAddress'].status).toBe('pending');
+      expect(mockStore['crypto-0xTestAddress'].txId).toBeUndefined();
+    });
+
+    it('still processes a genuine partial payment (≥ 1% of expected)', async () => {
+      seedRedis('crypto-0xTestAddress', createRedisPaymentData({ amount: '100' }));
+      await processWebhookJob(createJobData({ amount: '60' }));
+      expect(mockStore['processed-tx-tx-test-123']?.reason).not.toBe('dust_transfer');
     });
   });
 
@@ -429,6 +449,41 @@ describe('Webhook Processor — processWebhookJob', () => {
       }));
 
       await processWebhookJob(createJobData({ amount: '50' }));
+
+      expect(paymentController.cryptoVerification).toHaveBeenCalled();
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Stage 6b: Failed-payment recovery — terminal "already settled elsewhere"
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe('Stage 6b — Failed payment already settled by another tx', () => {
+    it('closes the record as completed and never retries (no infinite reconciliation loop)', async () => {
+      // Real incident 2026-09-22: settlement journal said "already_settled" for a dust tx
+      // on an address whose payment had settled via a different incoming tx.
+      seedRedis('crypto-0xTestAddress', createRedisPaymentData({
+        status: 'failed', txId: 'tx-test-123', retryCount: '1', payment_id: 'pay-4cce47b7',
+        lastError: 'Settlement idempotency returned "already_settled" but TX tx-test-123 did not transfer funds',
+      }));
+
+      await processWebhookJob(createJobData());
+
+      expect(paymentController.cryptoVerification).not.toHaveBeenCalled();
+      expect(mockStore['crypto-0xTestAddress']).toMatchObject({
+        status: 'completed',
+        permanentFailReason: 'already_settled_other_tx',
+        ignoredTxId: 'tx-test-123',
+      });
+      expect(mockStore['processed-tx-tx-test-123']).toMatchObject({ ignored: true, reason: 'already_settled_other_tx' });
+    });
+
+    it('still retries ordinary failures (e.g. fee mismatch) below the retry cap', async () => {
+      seedRedis('crypto-0xTestAddress', createRedisPaymentData({
+        status: 'failed', txId: 'tx-test-123', retryCount: '1', lastError: 'UTXO fee mismatch',
+      }));
+
+      await processWebhookJob(createJobData());
 
       expect(paymentController.cryptoVerification).toHaveBeenCalled();
     });

@@ -907,6 +907,29 @@ const addSafeDealMoneyAudit = async (): Promise<void> => {
   await sequelize.query(`ALTER TABLE "tbl_safedeal_profile" ADD COLUMN IF NOT EXISTS "withdrawal_fee_credit_usd" DOUBLE PRECISION NOT NULL DEFAULT 0`);
 };
 
+/**
+ * 0048 — SafeDeal cashouts: real blockchain transaction hash.
+ *  tbl_customer_withdrawal.tx_hash holds the exchange's withdrawal ORDER id ("BINANCE-<id>")
+ *  at dispatch time — not something a user can look up. The hourly/5-min sync fetches the
+ *  on-chain hash once the exchange has broadcast, stores it here and emails the user a
+ *  "confirmed on-chain" receipt with an explorer link (chain_hash_emailed_at prevents dupes).
+ *  Additive + idempotent, safe on live prod.
+ */
+const addSafeDealChainTxHash = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `ALTER TABLE "tbl_customer_withdrawal"
+       ADD COLUMN IF NOT EXISTS "chain_tx_hash" VARCHAR(160),
+       ADD COLUMN IF NOT EXISTS "chain_confirmed_at" TIMESTAMPTZ,
+       ADD COLUMN IF NOT EXISTS "chain_hash_emailed_at" TIMESTAMPTZ,
+       ADD COLUMN IF NOT EXISTS "chain_sync_attempts" INTEGER NOT NULL DEFAULT 0`
+  );
+  await sequelize.query(
+    `CREATE INDEX IF NOT EXISTS "idx_customer_withdrawal_chain_pending"
+       ON "tbl_customer_withdrawal" ("status") WHERE "chain_tx_hash" IS NULL AND "simulated" = false`
+  );
+};
+
 export async function buildBootMigrations(): Promise<Migration[]> {  const { v1, extra } = await loadBootModelGroups();  return [
     { version: "0001_boot_model_tables", up: syncGroup(v1) },
     { version: "0002_boot_model_tables_extra", up: syncGroup(extra) },
@@ -952,6 +975,7 @@ export async function buildBootMigrations(): Promise<Migration[]> {  const { v1,
     { version: "0045_safedeal_invite_link", up: addSafeDealInviteLink },
     { version: "0046_txn_customer_fk_set_null", up: relaxTransactionCustomerCascade },
     { version: "0047_safedeal_money_audit", up: addSafeDealMoneyAudit },
+    { version: "0048_safedeal_chain_tx_hash", up: addSafeDealChainTxHash },
     ...perfMigrations,
     ...securityMigrations,
   ];

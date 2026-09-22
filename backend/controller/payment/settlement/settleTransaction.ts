@@ -235,6 +235,13 @@ export const settleCryptoTransaction = async ({
     let totalBlockchainFee = 0;
     let merchantSendAmount = 0;
     let gasFundingResult: { funded: boolean; amount: number; txId?: string; reason?: string } = { funded: false, amount: 0 };
+    // Network fee actually taken off the merchant payout, in the SETTLED asset's units
+    // (token chains: USD-equivalent of the native gas; native/UTXO chains: the coin itself).
+    // Surfaced to the "Payment settled" email + bookkeeping so the merchant sees the real
+    // deduction instead of a back-computed guess.
+    let networkFeeDeductedToken = 0;
+    // Real on-chain fee of the forward tx (native coin), filled best-effort after broadcast.
+    let actualNetworkFeeNative: number | null = null;
 
     // NEW APPROACH: Single transfer to merchant, admin fee stays in temp address for later sweep
     // This eliminates nonce collision issues for account-based chains (ETH, TRX, BSC)
@@ -412,46 +419,70 @@ export const settleCryptoTransaction = async ({
         contractAddress
       );
 
-      // Deduct gas cost from merchant's token payout (consistent with UTXO/native chains)
-      // TWO gas costs: (1) merchant transfer gas + (2) estimated sweep gas for admin fee collection
-      // OPTIMIZATIONS:
-      //   - Same-wallet mode: skip sweep gas (admin fees go to same wallet as merchant)
-      //   - Fee-free (receivedAmount=0): skip sweep gas (no admin fee to sweep)
-      // Gas is in native currency (ETH/TRX/XRP/POL), so convert to USD equivalent for stablecoin deduction
-      const noAdminFeeToSweep = !receivedAmount || receivedAmount <= 0;
-      let merchantTransferGasUSD = 0;
-      let estimatedSweepGasUSD = 0;
+      // ── NETWORK FEE POLICY (founder decision 2026-09-22): the merchant is charged
+      // exactly ONE network fee = the real cost of THEIR forward transaction.
+      // Gas for Dynopay's own fee-collection sweep is Dynopay's cost of business
+      // (covered by the platform fee) and is NO LONGER deducted from the payout.
+      //
+      // Previously two fees were deducted (transfer + sweep) and the TRC20 estimate
+      // ignored TRON's Dynamic Energy Model penalty (6.5 TRX quoted vs ~13 TRX real).
+      // In customer-pays mode the customer was quoted ONE buffer while the merchant
+      // lost TWO → merchants were short one network fee on every token payout.
+      //
+      // Gas is paid in the native coin (TRX/ETH/POL) by the fee wallet; the merchant's
+      // share is deducted from the token payout as its USD equivalent.
+      let networkFeeUSD = 0;
+      let networkFeeNative = 0;
+      let networkFeeSource = "estimate";
+      const nativeSymbol = wallet_type === "POLYGON" ? "POL" : wallet_type;
       try {
-        const networkFee = await getBlockchainNetworkFee(currency);
-        merchantTransferGasUSD = Number(networkFee.feeInUSD) || 0;
-        // Skip sweep gas when: (a) admin=merchant wallet, or (b) no admin fee to sweep (fee-free)
-        if (isSameWallet) {
-          estimatedSweepGasUSD = 0;
-          cronLogger.info(`[settleCryptoTransaction] Token ${currency}: Same-wallet mode — sweep gas SKIPPED (admin=merchant wallet). Transfer gas only ≈ $${toFixedStr(merchantTransferGasUSD, 4)}`);
-        } else if (noAdminFeeToSweep) {
-          estimatedSweepGasUSD = 0;
-          cronLogger.info(`[settleCryptoTransaction] Token ${currency}: Fee-free — sweep gas SKIPPED (no admin fee to sweep). Transfer gas only ≈ $${toFixedStr(merchantTransferGasUSD, 4)}`);
-        } else {
-          // Sweep is same type of token transfer on same chain → same gas estimate
-          estimatedSweepGasUSD = merchantTransferGasUSD;
-          cronLogger.info(`[settleCryptoTransaction] Token ${currency}: Transfer gas ≈ $${toFixedStr(merchantTransferGasUSD, 4)}, Sweep gas ≈ $${toFixedStr(estimatedSweepGasUSD, 4)} (both deducted from merchant)`);
+        if (currency === "USDT-TRC20" && contractAddress) {
+          // Exact per-transaction simulation (energy_used incl. DEM penalty) priced at the live TRX rate.
+          const { estimateTrc20TransferCost } = require("../../../services/tronEnergyService");
+          const { getCryptoPrice } = require("../../../services/blockchainFeeService");
+          const real = await estimateTrc20TransferCost({
+            senderAddress: fromAddress,
+            recipientAddress: userAddress,
+            contractAddress,
+            amountBaseUnits: BigInt(Math.round(Number(userAmount) * 1_000_000)),
+          });
+          const trxPrice = Number(await getCryptoPrice("TRX")) || 0;
+          if (real.totalTRX > 0 && trxPrice > 0) {
+            networkFeeNative = real.totalTRX;
+            networkFeeUSD = toNumber(mul(real.totalTRX, trxPrice), 6);
+            networkFeeSource = `trc20-${real.source}`;
+          }
+        }
+        if (!(networkFeeUSD > 0) && (wallet_type === "ETH" || wallet_type === "POLYGON") && Number(fees?.fast) > 0) {
+          // EVM tokens: charge what THIS broadcast will pay — the integer-gwei price we
+          // actually sign with × the SDK gas estimate — not an oracle quote at a lower,
+          // un-broadcastable price (that under-recovered ~10× when gas sat below 1 gwei).
+          const { getCryptoPrice } = require("../../../services/blockchainFeeService");
+          const nativePrice = Number(await getCryptoPrice(nativeSymbol)) || 0;
+          if (nativePrice > 0) {
+            networkFeeNative = Number(fees.fast);
+            networkFeeUSD = toNumber(mul(networkFeeNative, nativePrice), 6);
+            networkFeeSource = "evm-broadcast-estimate";
+          }
+        }
+        if (!(networkFeeUSD > 0)) {
+          const networkFee = await getBlockchainNetworkFee(currency);
+          networkFeeUSD = Number(networkFee.feeInUSD) || 0;
+          networkFeeNative = Number(networkFee.feeInNative) || 0;
+          networkFeeSource = "network-fee-service";
         }
       } catch (feeErr) {
-        // Fallback: convert raw native fee to USD using price lookup
+        // Fallback: convert the raw native fee estimate to USD with a static price table
         const rawFee = Number(fees?.fast ?? fees?.slow ?? 0);
-        try {
-          const nativePrices: Record<string, number> = { ETH: 2300, TRX: 0.25, XRP: 2.5, POLYGON: 0.5 };
-          const nativePrice = nativePrices[wallet_type] || 1;
-          merchantTransferGasUSD = toNumber(mul(rawFee, nativePrice), 8);
-          // Only charge sweep gas if there's admin fee to sweep
-          estimatedSweepGasUSD = (isSameWallet || noAdminFeeToSweep) ? 0 : merchantTransferGasUSD;
-          cronLogger.warn(`[settleCryptoTransaction] Token ${currency}: Fallback gas: ${rawFee} ${wallet_type} × $${nativePrice} = $${toFixedStr(merchantTransferGasUSD, 4)} per tx${estimatedSweepGasUSD > 0 ? ' (×2 for transfer + sweep)' : ' (transfer only, no sweep needed)'}`);
-        } catch {
-          merchantTransferGasUSD = rawFee;
-          estimatedSweepGasUSD = (isSameWallet || noAdminFeeToSweep) ? 0 : rawFee;
-          cronLogger.warn(`[settleCryptoTransaction] Token ${currency}: Using raw native fee ${rawFee} as token deduction (price lookup failed)`);
-        }
+        const nativePrices: Record<string, number> = { ETH: 2300, TRX: 0.25, XRP: 2.5, POLYGON: 0.5 };
+        networkFeeNative = rawFee;
+        networkFeeUSD = toNumber(mul(rawFee, nativePrices[wallet_type] || 1), 8);
+        networkFeeSource = "static-fallback";
+        cronLogger.warn(`[settleCryptoTransaction] Token ${currency}: network fee lookup failed (${getErrorMessage(feeErr)}) — fallback ${rawFee} ${wallet_type} ≈ $${toFixedStr(networkFeeUSD, 4)}`);
       }
+      // Kept for the log line below + result payload (sweep gas is intentionally 0 now).
+      const merchantTransferGasUSD = networkFeeUSD;
+      const estimatedSweepGasUSD = 0;
 
       const totalGasDeductionToken = add(merchantTransferGasUSD, estimatedSweepGasUSD).toNumber();
 
@@ -469,10 +500,12 @@ export const settleCryptoTransaction = async ({
 
       merchantSendAmount = toNumber(sub(effectiveSendBase, totalGasDeductionToken), 6, "down");
       if (merchantSendAmount <= 0) {
-        throw new Error(`Merchant token amount after gas deduction is non-positive. Amount: ${effectiveSendBase}, TransferGas: ${merchantTransferGasUSD}, SweepGas: ${estimatedSweepGasUSD}`);
+        throw new Error(`Merchant token amount after gas deduction is non-positive. Amount: ${effectiveSendBase}, NetworkFee: ${merchantTransferGasUSD}`);
       }
+      // What was really taken off the token payout (6-dp floor can shave sub-cent dust).
+      networkFeeDeductedToken = toNumber(sub(effectiveSendBase, merchantSendAmount), 6);
 
-      cronLogger.info(`[settleCryptoTransaction] Token ${currency}: Merchant gets ${merchantSendAmount} (was ${effectiveSendBase}${isSameWallet ? ' [combined]' : ''}, transfer gas $${toFixedStr(merchantTransferGasUSD, 4)} + sweep gas $${toFixedStr(estimatedSweepGasUSD, 4)} = $${toFixedStr(totalGasDeductionToken, 4)} total)`);
+      cronLogger.info(`[settleCryptoTransaction] Token ${currency}: Merchant gets ${merchantSendAmount} (was ${effectiveSendBase}${isSameWallet ? ' [combined]' : ''}, ONE network fee $${toFixedStr(merchantTransferGasUSD, 4)} ≈ ${networkFeeNative} ${nativeSymbol} [${networkFeeSource}]; sweep gas NOT charged to merchant)`);
 
       // === SmartGas: Fund gas (TRX/ETH) to temp address BEFORE token transfer ===
       try {
@@ -714,6 +747,7 @@ export const settleCryptoTransaction = async ({
 
           totalBlockchainFee = sameWalletFee;
           merchantSendAmount = combinedAmount;
+          networkFeeDeductedToken = Number(sameWalletFee) || 0;
 
           cronLogger.info(`[settleCryptoTransaction] ✅ UTXO same-wallet TX sent: ${combinedAmount} ${currency} → ${userAddress} (fee: ${sameWalletFee}, utxoIndex: ${resolvedUtxoIndex})`);
         } else if (adminSats <= 0) {
@@ -750,6 +784,7 @@ export const settleCryptoTransaction = async ({
 
           totalBlockchainFee = exactFeeResolved;
           merchantSendAmount = feeFreeSendAmount;
+          networkFeeDeductedToken = Number(exactFeeResolved) || 0;
 
           cronLogger.info(`[settleCryptoTransaction] UTXO chain ${currency}: Fee-free single output — merchant gets ${feeFreeSendAmount} (fee: ${exactFeeResolved}, utxoIndex: ${resolvedUtxoIndex})`);
         } else {
@@ -785,6 +820,7 @@ export const settleCryptoTransaction = async ({
 
           totalBlockchainFee = exactFeeResolved;
           merchantSendAmount = finalMerchantSendAmount;
+          networkFeeDeductedToken = Number(exactFeeResolved) || 0;
           
           cronLogger.info(`[settleCryptoTransaction] UTXO chain ${currency}: Single TX with merchant ${finalMerchantSendAmount} + admin ${adminAmount} (fee: ${exactFeeResolved}, utxoIndex: ${resolvedUtxoIndex})`);
         }
@@ -817,21 +853,20 @@ export const settleCryptoTransaction = async ({
 
         // Use `fast` tier for gas deduction — this is the actual gas cost the transaction will incur.
         const merchantTransferGas = Number(fees?.fast ?? fees?.slow ?? 0);
-        // Sweep gas estimate: same chain, same type of native transfer → approximately same gas
-        // Skip sweep gas when: (a) same-wallet mode, or (b) no admin fee to sweep (fee-free)
-        const skipSweepGas = isSameWallet || !receivedAmount || receivedAmount <= 0;
-        const estimatedSweepGas = skipSweepGas ? 0 : merchantTransferGas;
+        // NETWORK FEE POLICY (2026-09-22): ONE network fee only — the merchant's own
+        // forward tx. Dynopay's later fee-sweep gas is Dynopay's cost, never the merchant's.
+        const estimatedSweepGas = 0;
         const totalGasDeduction = add(merchantTransferGas, estimatedSweepGas).toNumber();
 
-        // Deduct both gas costs from merchant payout — merchant pays for gas (consistent with UTXO)
+        // Deduct the forward gas from merchant payout — merchant pays for their own transaction
         merchantSendAmount = toNumber(sub(effectiveNativeBase, totalGasDeduction), 8, "down");
 
         if (merchantSendAmount <= 0) {
-          throw new Error(`Merchant amount after gas deduction is non-positive. Amount: ${effectiveNativeBase}, TransferGas: ${merchantTransferGas}, SweepGas: ${estimatedSweepGas}`);
+          throw new Error(`Merchant amount after gas deduction is non-positive. Amount: ${effectiveNativeBase}, TransferGas: ${merchantTransferGas}`);
         }
+        networkFeeDeductedToken = toNumber(sub(effectiveNativeBase, merchantSendAmount), 8);
 
-        const sweepGasReason = isSameWallet ? 'same-wallet' : (!receivedAmount || receivedAmount <= 0) ? 'fee-free (no admin fee)' : '';
-        cronLogger.info(`[settleCryptoTransaction] Account chain ${currency}: Merchant gets ${merchantSendAmount} ${currency}${isSameWallet ? ' [combined]' : ''} (transfer gas ${merchantTransferGas}${skipSweepGas ? ` [sweep gas SKIPPED — ${sweepGasReason}]` : ` + sweep gas ${estimatedSweepGas}`} = ${totalGasDeduction} deducted from ${effectiveNativeBase})`);
+        cronLogger.info(`[settleCryptoTransaction] Account chain ${currency}: Merchant gets ${merchantSendAmount} ${currency}${isSameWallet ? ' [combined]' : ''} (ONE network fee ${merchantTransferGas} ${currency} deducted from ${effectiveNativeBase}; sweep gas NOT charged to merchant)`);
 
         // Retry merchant transfer for account chains (ETH, TRX, SOL, XRP, POLYGON)
         merchantTransactionDetails = await withRetry(
@@ -848,7 +883,7 @@ export const settleCryptoTransaction = async ({
         );
 
         totalBlockchainFee = totalGasDeduction;
-        cronLogger.info(`[settleCryptoTransaction] Account chain ${currency}: totalBlockchainFee = ${totalBlockchainFee}${estimatedSweepGas > 0 ? ' (includes sweep gas estimate)' : ' (transfer only, no sweep gas)'}`);
+        cronLogger.info(`[settleCryptoTransaction] Account chain ${currency}: totalBlockchainFee = ${totalBlockchainFee} (transfer only, no sweep gas)`);
       }
     }
 
@@ -1082,11 +1117,37 @@ export const settleCryptoTransaction = async ({
       }
     }
 
+    // Best-effort: read the REAL fee the forward tx burned (TRON receipts are available
+    // ~3s after broadcast). Used for bookkeeping/email accuracy only — never blocks.
+    if (merchantTransactionDetails?.txId && (currency === "USDT-TRC20" || currency === "TRX")) {
+      try {
+        const { getTronTxActualFeeTRX } = require("../../../services/tronEnergyService");
+        for (let attempt = 0; attempt < 3 && actualNetworkFeeNative === null; attempt++) {
+          if (attempt > 0) await new Promise((r) => setTimeout(r, 3000));
+          const info = await getTronTxActualFeeTRX(merchantTransactionDetails.txId);
+          if (info) {
+            actualNetworkFeeNative = info.feeTRX;
+            cronLogger.info(`[settleCryptoTransaction] ⛽ Real on-chain fee for ${merchantTransactionDetails.txId}: ${info.feeTRX} TRX (${info.energyUsed} energy, penalty ${info.energyPenalty}, bandwidth ${info.netUsage})`);
+          }
+        }
+      } catch (_e) { /* non-critical */ }
+    }
+
     return {
       transactionDetails: merchantTransactionDetails,  // Now this is merchant tx, not admin
       userTransactionDetails: null,  // No separate user tx needed
       sendAmount: merchantSendAmount,
       blockchainFee: totalBlockchainFee,
+      // Network fee really deducted from the merchant payout, in the settled asset's units
+      // (token chains: USD-equivalent of the gas; native chains: the coin). Feeds the
+      // "Payment settled" email + tbl_user_transaction.blockchain_buffer_fee.
+      networkFeeDeducted: networkFeeDeductedToken,
+      // Real fee burned on-chain by the forward tx (native coin), when already indexed.
+      actualNetworkFeeNative,
+      // Admin wallet === merchant wallet: the platform fee travelled in the SAME transfer,
+      // so the email must not present it as a separate deduction.
+      sameWallet: isSameWallet,
+      combinedAdminFee: (isSameWallet && receivedAmount && receivedAmount > 0) ? Number(receivedAmount) : 0,
       // FIX (2026-04-10): In same-wallet combined mode, admin fee is included in the single TX
       // → nothing left on temp address to sweep. Otherwise, admin fee stays for sweep as before.
       adminFeeRetained: (isSameWallet && receivedAmount && receivedAmount > 0) ? 0 : Number(receivedAmount),

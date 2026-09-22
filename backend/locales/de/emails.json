@@ -1635,7 +1635,10 @@
   "heroSubConverting": "Wird in {{target}} umgewandelt — erscheint nach Abschluss unter Auszahlungen",
   "referralCreditRow": "Empfehlungsguthaben",
   "referralCreditNote": "Gebühr gedeckt",
-  "overpaidNote": "Ein Käufer hat {{excess}} (≈ {{excessFiat}}) zu viel gezahlt. Der Mehrbetrag ist in dieser Auszahlung enthalten — Sie können die Differenz bei Bedarf aus der Transaktion erstatten."
+  "overpaidNote": "Ein Käufer hat {{excess}} (≈ {{excessFiat}}) zu viel gezahlt. Der Mehrbetrag ist in dieser Auszahlung enthalten — Sie können die Differenz bei Bedarf aus der Transaktion erstatten.",
+  "networkFeeOnChain": "on-chain",
+  "forwardedSameWallet": "An dich weitergeleitet",
+  "sameWalletNote": "Enthält die Dynopay-Gebühr von {{fee}} — deine Auszahlungs-Wallet ist die Dynopay-Wallet, daher wurde die Gebühr in derselben Überweisung mitgesendet statt abgezogen."
  },
  "payoutDelayed": {
   "amountWaiting": "Wartet auf Auszahlung",

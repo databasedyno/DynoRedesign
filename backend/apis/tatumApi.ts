@@ -1079,7 +1079,10 @@ const feeEstimation = async (
     BTC: 60, LTC: 60, DOGE: 60, BCH: 60,
     ETH: 15, 'USDT-ERC20': 15, 'USDC-ERC20': 15, 'RLUSD-ERC20': 15,
     POLYGON: 15, 'USDT-POLYGON': 15,
-    TRX: 30, 'USDT-TRC20': 30,
+    // USDT-TRC20 intentionally NOT cached: its estimate depends on the recipient
+    // (activated vs new holder) and on the fee wallet balance — a cached value for
+    // one payout could under-fund the next one.
+    TRX: 30,
     SOL: 10,
   };
   
@@ -1087,10 +1090,12 @@ const feeEstimation = async (
   if (cacheTTL) {
     const cacheKey = `fee-cache:${currency}`;
     try {
-      const cached = await getRedisItem(cacheKey);
-      if (cached) {
+      // getRedisItem returns the parsed object (or {} when missing) — never a JSON string.
+      // The old `JSON.parse(cached)` always threw, so this cache never hit (2026-09 audit).
+      const cached = await getRedisItem(cacheKey) as Record<string, unknown> | null;
+      if (cached && typeof cached === "object" && ("fast" in cached || "slow" in cached || "medium" in cached)) {
         cronLogger.info(`[feeEstimation] ⚡ Cache hit for ${currency}`);
-        return JSON.parse(cached);
+        return cached;
       }
     } catch (_cacheErr) {
       // Cache miss or error — proceed with live estimation
@@ -1373,7 +1378,9 @@ const feeEstimation = async (
   // Cache the result for subsequent calls
   if (fees && cacheTTL) {
     try {
-      await setRedisItemWithTTL(`fee-cache:${currency}`, JSON.stringify(fees), cacheTTL);
+      // Store the OBJECT: setRedisItemWithTTL JSON-encodes objects itself; passing a string made
+      // it hSet every character as a hash field (garbage keys, zero cache hits).
+      await setRedisItemWithTTL(`fee-cache:${currency}`, fees, cacheTTL);
     } catch (_cacheWriteErr) {
       // Non-critical — proceed without caching
     }

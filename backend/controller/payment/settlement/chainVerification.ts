@@ -1144,7 +1144,10 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
             merchantAmount: actualMerchantAmount,
             adminFeeAmount: Number(adminAmountToSend),
             gasFunded: adminTransferResult.gasFunded || 0,  // SmartGas: actual TRX/ETH funded
-            gasUsed: adminTransferResult.blockchainFee || 0,
+            // Prefer the REAL on-chain fee (receipt) over the pre-broadcast estimate.
+            gasUsed: Number((adminTransferResult as any)?.actualNetworkFeeNative) > 0
+              ? Number((adminTransferResult as any).actualNetworkFeeNative)
+              : (adminTransferResult.blockchainFee || 0),
             incomingTxId: transactionId,
             merchantTxId: adminTransferResult.transactionDetails?.txId,
             status: "completed",
@@ -1259,6 +1262,11 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
             crypto_amount: Number(totalAmountReceived),
             crypto_currency: tempCurrency,
             ...splitFeeCrypto(adminAmountToSend),
+            // Network fee really deducted from the merchant payout (settled asset units).
+            // Was always 0 before — the ledger/email had no record of the real gas charge.
+            ...(Number((adminTransferResult as any)?.networkFeeDeducted) > 0
+              ? { blockchain_buffer_fee: toFixedStr(Number((adminTransferResult as any).networkFeeDeducted), 8) }
+              : {}),
             // Referral fee-credit (Option 1.a): USD of the platform fee that was
             // covered by the merchant's own referral revenue-share balance on THIS
             // payment (0 when not applicable). Powers the merchant email + UI badge.
@@ -1795,8 +1803,12 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
           const { date: paymentDateStr, time: paymentTimeStr } = emailDateParts(paymentDateTime);
           
           // When auto-convert is ON, show the original merchant amount (before redirect to admin)
-          // Merchant will receive USDT equivalent, not 0 ETH
-          const emailAmount = autoConvertEnabled ? toFixedStr(originalUserAmount, 8) : toFixedStr(userAmountToSend, 8);
+          // Merchant will receive USDT equivalent, not 0 ETH.
+          // Otherwise the headline is what was ACTUALLY forwarded (net of the network fee) so the
+          // hero figure, the "Net forwarded" row and the on-chain transfer all agree.
+          const emailAmount = autoConvertEnabled
+            ? toFixedStr(originalUserAmount, 8)
+            : toFixedStr(Number(actualMerchantAmount) > 0 ? actualMerchantAmount : userAmountToSend, 8);
 
           // Issue #6: show the amount in the merchant's fiat currency (primary) with
           // the crypto amount received as a secondary line. Fall back to crypto-primary
@@ -1826,20 +1838,50 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
           const mrCryptoAmount = mrDisplay.cryptoAmount;
           const mrCryptoCurrency = mrDisplay.cryptoCurrency;
 
+          // The "≈ fiat" shown next to "Received (gross)" must be the fiat value of the GROSS
+          // crypto, not of the merchant's net share (bug: "125 USDT ≈ 122.75 USD").
+          let grossFiat: { amount: string; currency: string } | null = null;
+          try {
+            const grossDisplay = await buildPaymentReceivedDisplay({
+              companyId: company_data?.company_id,
+              cryptoAmount: toFixedStr(totalAmountReceived, 8),
+              cryptoCurrency: tempCurrency,
+            });
+            if (Number(grossDisplay.fiatAmount) > 0) grossFiat = { amount: grossDisplay.fiatAmount, currency: grossDisplay.fiatCurrency };
+          } catch (_e) { /* fall back to omitting the ≈ figure rather than showing a wrong one */ }
+
           // Full money path for the "Payment settled" email (gross → fee → gas → net → destination).
           // Payments ≥ $1,000 get a "Large payment" badge instead of a second, thinner alert email.
           const mpLarge = parseFloat(customerData?.base_amount || tempData?.base_amount || 0) >= 1000;
-          const mpGas = Math.max(0, Number(userAmountToSend) - Number(actualMerchantAmount));
+          // Network fee = what settlement REALLY deducted from the payout (reported by
+          // settleCryptoTransaction). The old back-computation `merchantShare − sent` broke in
+          // same-wallet mode (fee rode along in the same transfer → showed 0.02 instead of 2.27)
+          // and printed "covered by Dynopay" whenever the subtraction went ≤ 0.
+          const settlementNetworkFee = Number((adminTransferResult as any)?.networkFeeDeducted);
+          const mpSameWallet = !!(adminTransferResult as any)?.sameWallet && Number((adminTransferResult as any)?.combinedAdminFee) > 0;
+          const mpGas = Number.isFinite(settlementNetworkFee) && settlementNetworkFee > 0
+            ? settlementNetworkFee
+            : (mpSameWallet ? 0 : Math.max(0, Number(userAmountToSend) - Number(actualMerchantAmount)));
+          const mpActualNative = Number((adminTransferResult as any)?.actualNetworkFeeNative);
+          const mpNativeSymbol = tempCurrency === "USDT-TRC20" || tempCurrency === "TRX" ? "TRX" : null;
+          const mpNetworkFeeNative = mpNativeSymbol && Number.isFinite(mpActualNative) && mpActualNative > 0
+            ? `${toFixedStr(mpActualNative, 2)} ${mpNativeSymbol}`
+            : null;
           const mpForwardHash = autoConvertEnabled ? null : outgoingMerchantTxHash;
           const moneyPath = {
             grossCrypto: toFixedStr(totalAmountReceived, 8),
             asset: tempCurrency,
-            fiatAtDetection: Number(mrPrimaryAmount) > 0 ? { amount: mrPrimaryAmount, currency: mrPrimaryCurrency } : null,
+            fiatAtDetection: grossFiat ?? (Number(mrPrimaryAmount) > 0 ? { amount: mrPrimaryAmount, currency: mrPrimaryCurrency } : null),
             feePercent: feePercentage * 100,
             feeCrypto: toFixedStr(adminAmountToSend, 8),
             feePayer: fee_payer,
             belowMinimum: Number(userAmountToSend) <= 0,
             networkFeeCrypto: mpGas > 0 ? toFixedStr(mpGas, 8) : null,
+            networkFeeNative: mpNetworkFeeNative,
+            // Only claim "covered by Dynopay" for auto-convert (gas comes off the conversion sweep,
+            // not the merchant's forward) or below-minimum retentions — never as a default.
+            networkFeeCovered: mpGas <= 0 && (autoConvertEnabled || Number(userAmountToSend) <= 0),
+            sameWallet: mpSameWallet,
             netCrypto: autoConvertEnabled ? toFixedStr(originalUserAmount, 8) : toFixedStr(actualMerchantAmount, 8),
             destinationAddress: autoConvertEnabled ? null : (walletData?.dataValues?.wallet_address ?? null),
             destinationTag: autoConvertEnabled ? null : (walletData?.dataValues?.destination_tag ?? null),

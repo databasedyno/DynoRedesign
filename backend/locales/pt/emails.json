@@ -1635,7 +1635,10 @@
   "heroSubConverting": "A converter para {{target}} — aparece em Pagamentos quando concluir",
   "referralCreditRow": "Crédito de indicação",
   "referralCreditNote": "taxa coberta",
-  "overpaidNote": "Um comprador pagou {{excess}} (≈ {{excessFiat}}) a mais. O valor extra está incluído neste pagamento — pode reembolsar a diferença na transação, se ele solicitar."
+  "overpaidNote": "Um comprador pagou {{excess}} (≈ {{excessFiat}}) a mais. O valor extra está incluído neste pagamento — pode reembolsar a diferença na transação, se ele solicitar.",
+  "networkFeeOnChain": "on-chain",
+  "forwardedSameWallet": "Encaminhado para você",
+  "sameWalletNote": "Inclui a taxa Dynopay de {{fee}} — sua carteira de recebimento é a carteira da Dynopay, então a taxa seguiu na mesma transferência em vez de ser descontada."
  },
  "payoutDelayed": {
   "amountWaiting": "A aguardar pagamento",

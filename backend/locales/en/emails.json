@@ -1635,7 +1635,10 @@
   "heroSubConverting": "Converting to {{target}} — appears in Payouts once done",
   "referralCreditRow": "Referral credit",
   "referralCreditNote": "fee covered",
-  "overpaidNote": "A buyer overpaid by {{excess}} (≈ {{excessFiat}}). The extra is included in this payout — you can refund the difference from the transaction if they ask."
+  "overpaidNote": "A buyer overpaid by {{excess}} (≈ {{excessFiat}}). The extra is included in this payout — you can refund the difference from the transaction if they ask.",
+  "networkFeeOnChain": "on-chain",
+  "forwardedSameWallet": "Forwarded to you",
+  "sameWalletNote": "Includes the {{fee}} Dynopay fee — your payout wallet is the Dynopay wallet, so the fee travelled in the same transfer instead of being deducted."
  },
  "payoutDelayed": {
   "amountWaiting": "Waiting to be paid out",

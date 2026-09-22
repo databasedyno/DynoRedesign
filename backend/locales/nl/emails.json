@@ -1635,7 +1635,10 @@
   "heroSubConverting": "Wordt omgezet naar {{target}} — verschijnt in Uitbetalingen zodra klaar",
   "referralCreditRow": "Referral-tegoed",
   "referralCreditNote": "kosten gedekt",
-  "overpaidNote": "Een koper heeft {{excess}} (≈ {{excessFiat}}) te veel betaald. Het extra bedrag is in deze uitbetaling opgenomen — je kunt het verschil vanuit de transactie terugbetalen als erom wordt gevraagd."
+  "overpaidNote": "Een koper heeft {{excess}} (≈ {{excessFiat}}) te veel betaald. Het extra bedrag is in deze uitbetaling opgenomen — je kunt het verschil vanuit de transactie terugbetalen als erom wordt gevraagd.",
+  "networkFeeOnChain": "on-chain",
+  "forwardedSameWallet": "Naar jou doorgestuurd",
+  "sameWalletNote": "Inclusief de Dynopay-fee van {{fee}} — je uitbetalingswallet is de Dynopay-wallet, dus de fee reisde mee in dezelfde overboeking in plaats van te worden ingehouden."
  },
  "payoutDelayed": {
   "amountWaiting": "Wacht op uitbetaling",

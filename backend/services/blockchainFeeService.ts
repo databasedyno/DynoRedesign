@@ -9,7 +9,7 @@
 import axios from "../utils/tatumHttp";
 import { cronLogger } from "../utils/loggers";
 import { getRedisItem, setRedisItem } from "../utils/redisInstance";
-import { getTronNetworkParams } from "./tronEnergyService";
+import { getTronNetworkParams, estimateTrc20TransferCost } from "./tronEnergyService";
 import { getPrice as getBinancePrice } from "./binanceWebSocketService";
 import { TATUM_V3_URL, getTatumApiKey } from "../utils/tatumAuth";
 
@@ -54,6 +54,10 @@ const TX_SIZES = {
   BCH: 250,
 };
 
+// Minimum gas price (gwei) the EVM settlement path will ever broadcast with — must match
+// calculateEvmGasFee's minGas in services/chains/evmChain.ts.
+const EVM_MIN_BROADCAST_GWEI = 1;
+
 // Gas limits for EVM chains
 const GAS_LIMITS = {
   ETH: 21000,           // Simple ETH transfer
@@ -74,7 +78,7 @@ const BCH_SAT_PER_BYTE = 1;
 // These are fallback values — live data is fetched from tronEnergyService
 const TRON_COSTS = {
   TRX: { bandwidth: 300 },           // Simple TRX transfer
-  USDT_TRC20: { energy: 65000 },     // TRC20 transfer uses energy
+  USDT_TRC20: { energy: 130000 },    // TRC20 transfer energy incl. DEM penalty (fallback only)
 };
 
 interface BlockchainFeeResult {
@@ -193,7 +197,7 @@ const fetchTronFee = async (): Promise<unknown> => {
 /**
  * Get current crypto price in USD
  */
-const getCryptoPrice = async (symbol: string): Promise<number> => {
+export const getCryptoPrice = async (symbol: string): Promise<number> => {
   const cacheKey = `price_${symbol}`;
   const cached = await getRedisItem(cacheKey) as { price?: string | number; timestamp?: string | number } | null;
   
@@ -431,7 +435,11 @@ const calculateEvmFee = async (
   }
 
   const feeData = await fetchTatumFee(chain) as { fast?: number; medium?: number; slow?: number };
-  const gasPriceWei = feeData[speed] || feeData.fast || 0;
+  const oracleGasPriceWei = feeData[speed] || feeData.fast || 0;
+  // Settlement broadcasts at INTEGER gwei with a 1 gwei floor (services/chains/evmChain.ts).
+  // Quote the same floor so a customer-pays buffer / merchant deduction can never be below
+  // what the payout transaction really pays (mainnet often trades at 0.1–0.3 gwei now).
+  const gasPriceWei = Math.max(oracleGasPriceWei, EVM_MIN_BROADCAST_GWEI * 1e9);
   const gasPriceGwei = gasPriceWei / 1e9;
   
   // Determine gas limit based on transaction type
@@ -489,10 +497,17 @@ const calculateTronFee = async (
     const bandwidthPrice = tronData.bandwidthPrice || 1000; // Sun per bandwidth
     feeInTRX = (bandwidth * bandwidthPrice) / 1e6; // Convert Sun to TRX
   } else {
-    // TRC20 transfer - uses energy
-    const energy = TRON_COSTS.USDT_TRC20.energy;
-    const energyPrice = tronData.energyPrice || 100; // Sun per energy (post Proposal #104, was 420)
-    feeInTRX = (energy * energyPrice) / 1e6; // Convert Sun to TRX
+    // TRC20 transfer — uses energy. Must include TRON's Dynamic Energy Model
+    // penalty on the USDT contract: real receipts burn ~130k energy (≈13 TRX),
+    // not the 65k "base" figure the old estimate used (2026-09 fee audit).
+    try {
+      const real = await estimateTrc20TransferCost({});
+      feeInTRX = real.totalTRX;
+    } catch (_e) {
+      const energy = TRON_COSTS.USDT_TRC20.energy;
+      const energyPrice = tronData.energyPrice || 100; // Sun per energy (post Proposal #104, was 420)
+      feeInTRX = (energy * energyPrice) / 1e6; // Convert Sun to TRX
+    }
   }
 
   const trxPrice = await getCryptoPrice('TRX');

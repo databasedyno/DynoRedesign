@@ -14,7 +14,17 @@ export interface PaymentMoneyPath {
   feeCrypto?: string | null;
   feePayer?: "company" | "customer" | string | null;
   belowMinimum?: boolean;
+  /** Network fee actually deducted from the merchant payout, in `asset` units (null/0 = unknown or not deducted). */
   networkFeeCrypto?: string | null;
+  /** Human label of the real on-chain gas, e.g. "13.03 TRX" — shown next to the deducted amount. */
+  networkFeeNative?: string | null;
+  /** True ONLY when Dynopay genuinely paid the network fee (nothing deducted from the merchant). */
+  networkFeeCovered?: boolean;
+  /**
+   * Admin wallet === merchant payout wallet (first-party brands). The platform fee travelled
+   * in the SAME forward transfer, so it must not be presented as a separate deduction.
+   */
+  sameWallet?: boolean;
   netCrypto?: string | null;
   destinationAddress?: string | null;
   destinationTag?: string | number | null;
@@ -53,7 +63,8 @@ const fmt = (v: string | number | null | undefined, asset: string) => `${formatC
 export const renderMoneyPath = (L: string, mp: PaymentMoneyPath): string => {
   const fee = num(mp.feeCrypto);
   const gas = num(mp.networkFeeCrypto);
-  const net = mp.netCrypto != null ? num(mp.netCrypto) : Math.max(0, num(mp.grossCrypto) - fee - gas);
+  const sameWallet = !!mp.sameWallet && fee > 0 && !mp.autoConvertTarget && !mp.belowMinimum;
+  const net = mp.netCrypto != null ? num(mp.netCrypto) : Math.max(0, num(mp.grossCrypto) - (sameWallet ? 0 : fee) - gas);
   const gross = num(mp.grossCrypto);
   // The platform fee is priced as "tier% + a flat $1 per payment". Rendering it as
   // a single effective % (fee ÷ amount) made small payments look like 5–6% and made
@@ -77,14 +88,32 @@ export const renderMoneyPath = (L: string, mp: PaymentMoneyPath): string => {
       )
     : "";
 
+  // Network fee row — three honest states:
+  //   deducted  → "−X USDT · 13.03 TRX on-chain"   (what really left the merchant's payout)
+  //   covered   → "covered by Dynopay"              (ONLY when nothing was deducted, flag set by settlement)
+  //   unknown   → row omitted                       (never claim Dynopay paid when we simply don't know)
+  const nativeNote = mp.networkFeeNative
+    ? ` <span style="color:#6b7280;font-weight:400;font-size:12px;">· ${escapeHtml(mp.networkFeeNative)} ${t("paymentSettled.networkFeeOnChain", L)}</span>`
+    : "";
+  const networkRow = gas > 0
+    ? feeRow(`${t("paymentSettled.networkFee", L)} <span style="color:#6b7280;font-weight:400;">· ${t("paymentSettled.networkFeeMerchant", L)}</span>`, `−${fmt(gas, mp.asset)}${nativeNote}`, true)
+    : mp.networkFeeCovered
+      ? feeRow(t("paymentSettled.networkFee", L), `<span style="color:#6b7280;font-weight:400;">${t("paymentSettled.networkFeeDynopay", L)}</span>`)
+      : "";
+
+  // Same-wallet (first-party brand): gross → network fee → forwarded (fee rides along, noted under the total).
+  const feeRowHtml = sameWallet ? "" : feeRow(feeLabel, `−${fmt(fee, mp.asset)}`, true);
+  const totalRow = sameWallet
+    ? feeTotalRow(t("paymentSettled.forwardedSameWallet", L), fmt(net, mp.asset)) +
+      `<tr><td colspan="2" style="padding:6px 0 0;font-size:12px;color:#6b7280;line-height:1.5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">${t("paymentSettled.sameWalletNote", L, { fee: fmt(fee, mp.asset) })}</td></tr>`
+    : feeTotalRow(netLabel, fmt(net, mp.asset));
+
   const money = feeTable(
     feeRow(t("paymentSettled.received", L), `<strong>${fmt(mp.grossCrypto, mp.asset)}</strong>${fiat}`) +
-    feeRow(feeLabel, `−${fmt(fee, mp.asset)}`, true) +
+    feeRowHtml +
     referralRow +
-    (gas > 0
-      ? feeRow(`${t("paymentSettled.networkFee", L)} <span style="color:#6b7280;font-weight:400;">· ${t("paymentSettled.networkFeeMerchant", L)}</span>`, `−${fmt(gas, mp.asset)}`, true)
-      : feeRow(t("paymentSettled.networkFee", L), `<span style="color:#6b7280;font-weight:400;">${t("paymentSettled.networkFeeDynopay", L)}</span>`)) +
-    feeTotalRow(netLabel, fmt(net, mp.asset)),
+    networkRow +
+    totalRow,
     t("paymentSettled.moneyPath", L),
   );
 

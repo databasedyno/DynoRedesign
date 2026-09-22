@@ -10,6 +10,7 @@
  *   5. Stuck Payment Watchdog — real-time alerting for stuck payments
  */
 
+import { tronGridHeaders } from "./tronEnergyService";
 import { raw as envRaw } from "../utils/config";
 import PaymentJournal from "../models/paymentJournalModel";
 import { cronLogger, webhookLogs } from "../utils/loggers";
@@ -126,7 +127,7 @@ async function verifyTronSettlement(
   // Step 1: Check current USDT balance on pool address
   const accountResp = await axios.get(
     `https://api.trongrid.io/v1/accounts/${poolAddress}`,
-    { timeout: 10000, headers: { Accept: "application/json" } }
+    { timeout: 10000, headers: { Accept: "application/json", ...tronGridHeaders() } }
   );
 
   let currentUsdtBalance = 0;
@@ -157,7 +158,7 @@ async function verifyTronSettlement(
         order_by: "block_timestamp,desc",
       },
       timeout: 10000,
-      headers: { Accept: "application/json" },
+      headers: { Accept: "application/json", ...tronGridHeaders() },
     }
   );
 

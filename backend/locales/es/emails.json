@@ -1635,7 +1635,10 @@
   "heroSubConverting": "Convirtiendo a {{target}} — aparecerá en Pagos al finalizar",
   "referralCreditRow": "Crédito por referidos",
   "referralCreditNote": "comisión cubierta",
-  "overpaidNote": "Un comprador pagó {{excess}} (≈ {{excessFiat}}) de más. El excedente está incluido en este pago; puedes reembolsar la diferencia desde la transacción si lo solicita."
+  "overpaidNote": "Un comprador pagó {{excess}} (≈ {{excessFiat}}) de más. El excedente está incluido en este pago; puedes reembolsar la diferencia desde la transacción si lo solicita.",
+  "networkFeeOnChain": "en cadena",
+  "forwardedSameWallet": "Enviado a ti",
+  "sameWalletNote": "Incluye la comisión de Dynopay de {{fee}} — tu monedero de pago es el monedero de Dynopay, así que la comisión viajó en la misma transferencia en lugar de descontarse."
  },
  "payoutDelayed": {
   "amountWaiting": "Pendiente de pago",

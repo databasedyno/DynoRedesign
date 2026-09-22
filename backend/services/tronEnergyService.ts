@@ -25,11 +25,32 @@ import { toFixedStr, toNumber } from "../utils/money";
 // TronGrid public API (no key required for basic queries)
 const TRONGRID_API = envRaw("TRONGRID_API_URL") || "https://api.trongrid.io";
 
+/**
+ * TronGrid request headers. When TRONGRID_API_KEY is set (free key from
+ * https://www.trongrid.io) every call is authenticated → higher rate limits and
+ * far fewer 429s during sweep / settlement bursts. Falls back to anonymous access.
+ */
+export const tronGridHeaders = (): Record<string, string> => {
+  const key = envRaw("TRONGRID_API_KEY");
+  return key ? { "TRON-PRO-API-KEY": key } : {};
+};
+
+// USDT (TRC20) mainnet contract — the token every TRC20 flow in Dynopay settles.
+export const DEFAULT_TRC20_CONTRACT = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
+
+/**
+ * Observed BASE energy of a USDT transfer (before the Dynamic Energy Model
+ * penalty). Verified against mainnet receipts (2026-09): energy_usage_total
+ * 130,285 = 29,650 base + 100,635 penalty at energy_factor 3.4x.
+ */
+export const TRC20_BASE_ENERGY = 29650;
+
 // Redis cache keys
 const CACHE_KEYS = {
   NETWORK_PARAMS: "tron:network_params",
   ACCOUNT_RESOURCES_PREFIX: "tron:resources:",
   ACCOUNT_ACTIVATED_PREFIX: "tron:activated:",
+  CONTRACT_ENERGY_FACTOR_PREFIX: "tron:energy_factor:",
 };
 
 // Cache TTLs (seconds)
@@ -117,7 +138,7 @@ export const getTronNetworkParams = async (): Promise<TronNetworkParams> => {
     const chainParamsRes = await axios.post(
       `${TRONGRID_API}/wallet/getchainparameters`,
       {},
-      { timeout: 8000, idempotent: true } as any
+      { timeout: 8000, idempotent: true, headers: tronGridHeaders() } as any
     );
 
     let energyPriceSun = FALLBACK.ENERGY_PRICE_SUN;
@@ -213,7 +234,7 @@ export const getAccountResources = async (address: string): Promise<AccountResou
       const response = await axios.post(
         `${TRONGRID_API}/wallet/getaccountresource`,
         { address, visible: true },
-        { timeout: 8000 }
+        { timeout: 8000, headers: tronGridHeaders() }
       );
 
       const data = response.data;
@@ -350,7 +371,7 @@ export const isRecipientActivatedForToken = async (
       try {
         const response = await axios.get(
           `${TRONGRID_API}/v1/accounts/${recipientAddress}`,
-          { timeout: 10000 }
+          { timeout: 10000, headers: tronGridHeaders() }
         );
 
         const account = response.data?.data?.[0];
@@ -714,6 +735,206 @@ export const markRecipientActivated = async (
   }
 };
 
+// ─── Real per-transaction TRC20 cost (Dynamic Energy Model aware) ────────────
+//
+// WHY: the old estimate (65,000 energy × base price ≈ 6.5 TRX) ignored TRON's
+// Dynamic Energy Model penalty on the USDT contract. Real mainnet receipts burn
+// ~130,000 energy (≈13 TRX) per transfer — the merchant's network fee was
+// under-quoted by ~50% on every USDT-TRC20 payout (2026-09 audit).
+
+/**
+ * Current DEM `energy_factor` of a TRC20 contract as a multiplier (34000 → 3.4).
+ * Cached 5 min. Falls back to the chain's max factor (conservative).
+ */
+export const getTrc20EnergyFactor = async (contractAddress: string = DEFAULT_TRC20_CONTRACT): Promise<number> => {
+  const cacheKey = `${CACHE_KEYS.CONTRACT_ENERGY_FACTOR_PREFIX}${contractAddress}`;
+  try {
+    const cached = await getRedisItem(cacheKey) as { factor?: number; timestamp?: number } | null;
+    if (cached?.factor && cached.timestamp && Date.now() - Number(cached.timestamp) < CACHE_TTL.NETWORK_PARAMS * 1000) {
+      return Number(cached.factor);
+    }
+  } catch (_e) { /* cache miss */ }
+
+  try {
+    const res = await axios.post(
+      `${TRONGRID_API}/wallet/getcontractinfo`,
+      { value: contractAddress, visible: true },
+      { timeout: 8000, idempotent: true, headers: tronGridHeaders() } as any
+    );
+    const raw = Number(res.data?.contract_state?.energy_factor);
+    if (Number.isFinite(raw) && raw >= 0) {
+      const factor = raw / 10000;
+      try { await setRedisItem(cacheKey, { factor, timestamp: Date.now() }); } catch (_e) { /* non-critical */ }
+      return factor;
+    }
+  } catch (error: unknown) {
+    cronLogger.warn(`[TronEnergy] ⚠️ getcontractinfo failed for ${contractAddress}: ${(error as Error)?.message} — using DEM max factor`);
+  }
+  const params = await getTronNetworkParams();
+  return Math.max(0, (params.dynamicEnergyMaxFactor || 3.4) - 1);
+};
+
+export interface Trc20TransferCost {
+  /** Total energy the transfer will burn (DEM penalty included). */
+  energy: number;
+  /** Energy cost in TRX at the current energy price. */
+  energyTRX: number;
+  /** Bandwidth cost in TRX (0 when the sender still has free bandwidth). */
+  bandwidthTRX: number;
+  /** energyTRX + bandwidthTRX — what the network actually charges for ONE transfer. */
+  totalTRX: number;
+  energyPriceSun: number;
+  /** "simulation" = triggerconstantcontract for the exact from/to/amount; "factor" = base × (1+DEM); "static" = constant. */
+  source: "simulation" | "factor" | "static";
+}
+
+/** ABI-encode transfer(address,uint256) parameters for triggerconstantcontract. */
+const encodeTransferParams = (recipientHex41: string, amountBaseUnits: bigint): string => {
+  const addr20 = recipientHex41.replace(/^0x/, "").replace(/^41/, "").toLowerCase().padStart(64, "0");
+  const amt = amountBaseUnits.toString(16).padStart(64, "0");
+  return addr20 + amt;
+};
+
+/** Base58 TRON address → 41-prefixed hex (no external dependency on TronWeb). */
+const tronBase58ToHex = (address: string): string | null => {
+  if (/^41[0-9a-fA-F]{40}$/.test(address)) return address.toLowerCase();
+  try {
+    const ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+    let num = BigInt(0);
+    for (const ch of address) {
+      const idx = ALPHABET.indexOf(ch);
+      if (idx < 0) return null;
+      num = num * BigInt(58) + BigInt(idx);
+    }
+    let hex = num.toString(16);
+    if (hex.length % 2) hex = "0" + hex;
+    // leading '1's encode leading zero bytes
+    let leading = 0;
+    for (const ch of address) { if (ch === "1") leading++; else break; }
+    hex = "00".repeat(leading) + hex;
+    // strip 4-byte checksum
+    const payload = hex.slice(0, hex.length - 8);
+    return /^41[0-9a-f]{40}$/.test(payload) ? payload : null;
+  } catch { return null; }
+};
+
+/**
+ * What ONE TRC20 transfer really costs on TRON right now.
+ *
+ * 1. Preferred: `triggerconstantcontract` simulation of the exact transfer —
+ *    returns `energy_used` including the DEM penalty (verified equal to the
+ *    on-chain `energy_usage_total` of the real receipt).
+ * 2. Fallback: TRC20_BASE_ENERGY × (1 + contract energy_factor).
+ * 3. Last resort: TRC20_ENERGY.NEW_RECIPIENT (130k) static.
+ *
+ * Bandwidth (~345 points) is charged only when the sender has no free bandwidth
+ * left; we include it whenever the account resources say so (best effort).
+ */
+export const estimateTrc20TransferCost = async (opts: {
+  senderAddress?: string;
+  recipientAddress?: string;
+  contractAddress?: string;
+  /** Token amount in base units (USDT has 6 decimals). Defaults to 1 USDT. */
+  amountBaseUnits?: bigint | number | string;
+}): Promise<Trc20TransferCost> => {
+  const contract = opts.contractAddress || DEFAULT_TRC20_CONTRACT;
+  const params = await getTronNetworkParams();
+  const energyPriceSun = params.energyPriceSun || FALLBACK.ENERGY_PRICE_SUN;
+
+  let energy = 0;
+  let source: Trc20TransferCost["source"] = "static";
+
+  // 1. Exact simulation
+  if (opts.senderAddress && opts.recipientAddress) {
+    try {
+      const toHex = tronBase58ToHex(opts.recipientAddress);
+      if (toHex) {
+        const amount = BigInt(String(opts.amountBaseUnits ?? 1_000_000));
+        const res = await axios.post(
+          `${TRONGRID_API}/wallet/triggerconstantcontract`,
+          {
+            owner_address: opts.senderAddress,
+            contract_address: contract,
+            function_selector: "transfer(address,uint256)",
+            parameter: encodeTransferParams(toHex, amount),
+            visible: true,
+          },
+          { timeout: 8000, idempotent: true, headers: tronGridHeaders() } as any
+        );
+        const used = Number(res.data?.energy_used);
+        const reverted = String(res.data?.result?.message || "").toUpperCase().includes("REVERT");
+        // A reverted simulation (e.g. balance not yet visible) burns a tiny amount — not representative.
+        if (Number.isFinite(used) && used > 20000 && !reverted) {
+          energy = used;
+          source = "simulation";
+        }
+      }
+    } catch (error: unknown) {
+      cronLogger.warn(`[TronEnergy] ⚠️ TRC20 transfer simulation failed: ${(error as Error)?.message} — falling back to energy factor`);
+    }
+  }
+
+  // 2. Base × (1 + DEM factor)
+  if (!energy) {
+    try {
+      const factor = await getTrc20EnergyFactor(contract);
+      energy = Math.ceil(TRC20_BASE_ENERGY * (1 + factor));
+      source = "factor";
+    } catch (_e) { /* fall through */ }
+  }
+
+  // 3. Static
+  if (!energy) {
+    energy = TRC20_ENERGY.NEW_RECIPIENT;
+    source = "static";
+  }
+
+  const energyTRX = (energy * energyPriceSun) / 1_000_000;
+
+  // Bandwidth: free 600/day per account — charge only when exhausted.
+  let bandwidthTRX = 0;
+  if (opts.senderAddress) {
+    try {
+      const resources = await getAccountResources(opts.senderAddress);
+      if (resources.availableBandwidth < TRC20_BANDWIDTH) {
+        bandwidthTRX = (TRC20_BANDWIDTH * (params.bandwidthPriceSun || FALLBACK.BANDWIDTH_PRICE_SUN)) / 1_000_000;
+      }
+    } catch (_e) { /* assume free bandwidth */ }
+  }
+
+  const totalTRX = toNumber(energyTRX + bandwidthTRX, 6);
+  cronLogger.info(
+    `[TronEnergy] 💸 Real TRC20 transfer cost: ${totalTRX} TRX (${energy} energy @ ${energyPriceSun} SUN [${source}]` +
+    `${bandwidthTRX > 0 ? ` + ${toFixedStr(bandwidthTRX, 3)} TRX bandwidth` : ""})`
+  );
+  return { energy, energyTRX: toNumber(energyTRX, 6), bandwidthTRX, totalTRX, energyPriceSun, source };
+};
+
+/**
+ * Actual fee a confirmed TRON transaction burned (TRX), from its on-chain receipt.
+ * Returns null while the tx is not yet confirmed / indexed. Never throws.
+ */
+export const getTronTxActualFeeTRX = async (txId: string): Promise<{ feeTRX: number; energyUsed: number; energyPenalty: number; netUsage: number } | null> => {
+  try {
+    const res = await axios.post(
+      `${TRONGRID_API}/wallet/gettransactioninfobyid`,
+      { value: txId },
+      { timeout: 8000, idempotent: true, headers: tronGridHeaders() } as any
+    );
+    const d = res.data || {};
+    if (!d.id && !d.receipt) return null;
+    const receipt = d.receipt || {};
+    return {
+      feeTRX: (Number(d.fee) || 0) / 1_000_000,
+      energyUsed: Number(receipt.energy_usage_total) || 0,
+      energyPenalty: Number(receipt.energy_penalty_total) || 0,
+      netUsage: Number(receipt.net_usage) || 0,
+    };
+  } catch (_e) {
+    return null;
+  }
+};
+
 export default {
   getTronNetworkParams,
   getAccountResources,
@@ -724,7 +945,12 @@ export default {
   calculateDynamicTRXNativeFee,
   getOptimizationDiagnostics,
   logCostSavings,
+  getTrc20EnergyFactor,
+  estimateTrc20TransferCost,
+  getTronTxActualFeeTRX,
+  tronGridHeaders,
   TRC20_ENERGY,
   TRC20_BANDWIDTH,
+  TRC20_BASE_ENERGY,
   FALLBACK,
 };

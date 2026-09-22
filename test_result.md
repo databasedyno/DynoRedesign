@@ -1,4 +1,54 @@
 # ============================================================================
+# >>> HANDOFF (2026-09-22) — FEE ACCURACY + DUST-LOOP FIX (PHASE 1, BACKEND) <<<
+# ============================================================================
+#   Env: LIVE prod DB + shared Redis (preview uses Redis DB /1), SAFE MODE
+#   (background jobs OFF). HARD RULES for testing_agent: do NOT move funds,
+#   do NOT confirm/settle payments, do NOT create SafeDeal money movements,
+#   no git commands, no source modifications. Read-only DB queries are fine.
+#
+#   WHAT CHANGED (backend only):
+#   1. Network-fee policy: merchant is charged exactly ONE network fee = real
+#      cost of THEIR forward tx. Sweep gas is no longer deducted (token AND
+#      native chains). controller/payment/settlement/settleTransaction.ts
+#      → result now also returns networkFeeDeducted, actualNetworkFeeNative,
+#        sameWallet, combinedAdminFee.
+#   2. USDT-TRC20 fee is DEM-aware: services/tronEnergyService.ts adds
+#      tronGridHeaders(), getTrc20EnergyFactor(), estimateTrc20TransferCost()
+#      (triggerconstantcontract simulation → factor → static), getTronTxActualFeeTRX().
+#      services/blockchainFeeService.ts calculateTronFee(USDT_TRC20) uses it
+#      (≈13 TRX ≈ $4.5 instead of 6.5 TRX ≈ $2.2). getCryptoPrice exported.
+#   3. "Payment settled" email (services/email/paymentSettled.ts +
+#      chainVerification.ts): network fee row = real deduction (+ "13.03 TRX
+#      on-chain"), "covered by Dynopay" ONLY when networkFeeCovered flag is
+#      true (auto-convert / below-minimum), same-wallet mode renders
+#      gross → network fee → "Forwarded to you" + note that the Dynopay fee
+#      rode along; gross "≈ fiat" now = fiat of GROSS; hero = actual net.
+#      New i18n keys in all 6 locales: paymentSettled.networkFeeOnChain,
+#      forwardedSameWallet, sameWalletNote. blockchain_buffer_fee now stored.
+#   4. Dust / infinite-retry loop (prod incident payment 4cce47b7, 0.000002
+#      TRX dust): services/webhookProcessor.ts ignores incoming transfers
+#      < 1% of expected (marks processed-tx ignored, state untouched) and
+#      treats lastError /already_settled/ as terminal (status completed,
+#      permanentFailReason already_settled_other_tx). services/reconciliation.ts
+#      Strategy 4 never resurrects that reason and its DB guard also matches
+#      on the payment row id. Prod Redis record + DB row already fixed by hand.
+#   5. apis/tatumApi.ts feeEstimation cache actually works now (object, not
+#      string); USDT-TRC20 excluded from that cache. TronGrid API key header
+#      added (TRONGRID_API_KEY in .env, also on the droplet).
+#
+#   HOW TO VERIFY (testing_agent, backend):
+#   - cd /app/backend && npx tsc --noEmit -p tsconfig.json  → exit 0
+#   - npx jest __tests__/webhookProcessor.test.ts __tests__/blockchainFeeService.test.ts
+#     __tests__/settlementModuleResolution.test.ts → all pass (67 + 21 + n)
+#   - npx ts-node -T scripts/verify_network_fee.ts → prints estimate within 5%
+#     of the on-chain receipt, exit 0
+#   - GET http://localhost:8001/health → 200 healthy, database+redis connected
+#   - Optional read-only: node scripts/_pgq.js "SELECT id,status,received_amount
+#     FROM tbl_user_transaction WHERE id='4cce47b7-e462-4148-a395-c3a4fed576d1'"
+#     → status successful, received_amount null
+#   Frontend: untouched in this phase (do NOT run frontend tests).
+# ============================================================================
+# ============================================================================
 # >>> TESTING AGENT RE-VERIFICATION (2026-09-21) — ADD-EMAIL AFTER CSRF FIX <<<
 # ============================================================================
 #   Tested by: testing_agent (deep_testing_backend_v2)

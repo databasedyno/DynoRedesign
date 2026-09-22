@@ -683,17 +683,29 @@ export async function processWebhookJob(data: WebhookJobData): Promise<void> {
       const lastError = items.lastError || "";
       const isGasRaceCondition = GAS_RACE_RETRYABLE_PATTERNS.some((p) => lastError.toLowerCase().includes(p.toLowerCase()));
       const isBalanceZero = !isGasRaceCondition && /balance \[0\]|token balance \[0\]/i.test(lastError);
-      const isPermanentlyFailed = retryCount >= MAX_RECOVERY_RETRIES || isBalanceZero;
+      // The payment was ALREADY settled by a different incoming tx (settlement journal says
+      // "already_settled"). Typical cause: an external dust transfer (e.g. 0.000002 TRX) hitting
+      // the pool address after settlement, or the buyer switching coin on a shared TRON address.
+      // Retrying can never succeed — and reconciliation must not resurrect it (2026-09-22 prod loop).
+      const isAlreadySettledElsewhere = /already_settled/i.test(lastError);
+      const isPermanentlyFailed = retryCount >= MAX_RECOVERY_RETRIES || isBalanceZero || isAlreadySettledElsewhere;
 
       if (isPermanentlyFailed) {
-        webhookLogs.info(`[WebhookProcessor] PERMANENTLY FAILED: Payment ${items.payment_id || items.ref} — retryCount=${retryCount}, balanceZero=${isBalanceZero}, error: ${lastError.slice(0, 150)}`);
+        webhookLogs.info(`[WebhookProcessor] PERMANENTLY FAILED: Payment ${items.payment_id || items.ref} — retryCount=${retryCount}, balanceZero=${isBalanceZero}, alreadySettledElsewhere=${isAlreadySettledElsewhere}, error: ${lastError.slice(0, 150)}`);
         // Mark as permanently_failed to stop all future retry attempts
         await setRedisItem(redisKey, {
           ...items,
-          status: "permanently_failed",
+          status: isAlreadySettledElsewhere ? "completed" : "permanently_failed",
           permanentlyFailedAt: new Date().toISOString(),
-          permanentFailReason: isBalanceZero ? "temp_address_balance_zero" : "max_retries_exceeded",
+          permanentFailReason: isAlreadySettledElsewhere
+            ? "already_settled_other_tx"
+            : isBalanceZero ? "temp_address_balance_zero" : "max_retries_exceeded",
+          ...(isAlreadySettledElsewhere ? { reconciledAt: new Date().toISOString(), reconciledFrom: "already_settled_other_tx", ignoredTxId: payload.txId } : {}),
         });
+        if (isAlreadySettledElsewhere) {
+          await setRedisItem(processedTxKey, { processedAt: new Date().toISOString(), ignored: true, reason: "already_settled_other_tx", paymentId: items.payment_id || items.ref });
+          await setRedisTTL(processedTxKey, 30 * 24 * 3600);
+        }
         return; // Do NOT retry — this payment is dead
       }
 
@@ -877,6 +889,25 @@ async function handleNewTransaction(
     webhookLogs.warn(`[WebhookProcessor] DB duplicate check failed (non-blocking): ${(dbCheckErr as Error).message}`);
   }
 
+
+  // ── Incoming dust guard ──────────────────────────────────────────────────────
+  // External bots spray micro-transfers (e.g. 0.000002 TRX) at addresses that just moved
+  // funds. Such a transfer is NOT a payment attempt: it must not flip the invoice to
+  // "underpaid", fire payment.underpaid webhooks, nor (Direct API) start a settlement for
+  // a worthless amount. Anything below 1% of the expected amount is ignored outright;
+  // the funds simply stay on the address. Real partial payments are far above 1%.
+  const INCOMING_DUST_RATIO = 0.01;
+  const expectedForDust = parseFloat(items?.amount || "0");
+  if (expectedForDust > 0 && incomingAmount > 0 && !isCompletionPayment && incomingAmount < expectedForDust * INCOMING_DUST_RATIO) {
+    webhookLogs.warn(
+      `[WebhookProcessor] 🧹 Ignoring dust transfer: ${incomingAmount} ${items?.currency || payload.asset} received vs ${expectedForDust} expected ` +
+      `(${((incomingAmount / expectedForDust) * 100).toFixed(4)}%) on ${address}, tx ${payload.txId} — not a payment attempt`
+    );
+    await setRedisItem(`processed-tx-${payload.txId}`, { processedAt: new Date().toISOString(), ignored: true, reason: "dust_transfer", amount: String(incomingAmount) });
+    await setRedisTTL(`processed-tx-${payload.txId}`, 30 * 24 * 3600);
+    return;
+  }
+
   // Get customer data
   let customerData = await getRedisItem(items?.ref);
   if (!customerData || Object.keys(customerData).length === 0) {
@@ -953,6 +984,7 @@ async function handleNewTransaction(
     totalReceivedAmount = previousAmount + incomingAmount;
     expectedAmount = parseFloat(items?.originalExpectedAmount || "0") || (expectedAmount + previousAmount);
   }
+
 
   // Dust threshold: if the shortfall is ≤ 0.1% of the expected amount OR ≤ 100 base units
   // (satoshis/litoshis/etc.), treat as fully paid. Tiny differences are caused by

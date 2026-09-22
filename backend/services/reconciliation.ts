@@ -315,6 +315,13 @@ export async function reconcileFailedStatePayments(): Promise<number> {
           // doesn't immediately reject the re-queued job.
           const pfReason = data.permanentFailReason || "";
           const pfAge = data.permanentlyFailedAt ? Date.now() - new Date(data.permanentlyFailedAt).getTime() : 0;
+          // Never resurrect a payment that was settled by ANOTHER incoming tx (dust /
+          // coin-switch on a shared address) — retrying it is the infinite loop seen
+          // in production on 2026-09-22 (payment 4cce47b7, 0.000002 TRX dust).
+          if (pfReason === "already_settled_other_tx" || pfReason === "temp_address_balance_zero") {
+            skippedPermanent++;
+            continue;
+          }
           // Only retry if permanently failed > 5 min ago (avoid tight loops) and < 7 days
           if (pfAge < 300000 || pfAge > 7 * 86400000) {
             skippedPermanent++;
@@ -375,10 +382,16 @@ export async function reconcileFailedStatePayments(): Promise<number> {
         try {
           const { default: sequelize } = await import("../utils/dbInstance");
           const { QueryTypes } = await import("sequelize");
+          // Match on the incoming tx hash OR on the payment row itself: a later, unrelated
+          // transfer (dust) to the same address carries a different txId but belongs to a
+          // payment that is already settled — it must be closed out, not re-queued.
+          const settledPaymentId = String(data.payment_id || data.paymentId || data.user_tx_id || data.unique_tx_id || "").trim();
           const already = (await sequelize.query(
             `SELECT 1 FROM tbl_user_transaction
-             WHERE incoming_tx_hash = :txid AND status IN ('successful','completed') LIMIT 1`,
-            { replacements: { txid: data.txId }, type: QueryTypes.SELECT }
+             WHERE status IN ('successful','completed')
+               AND (incoming_tx_hash = :txid OR (:pid <> '' AND id::text = :pid))
+             LIMIT 1`,
+            { replacements: { txid: data.txId, pid: settledPaymentId }, type: QueryTypes.SELECT }
           )) as unknown[];
           if (Array.isArray(already) && already.length > 0) {
             const baseKey2 = key.endsWith(":json") ? key.slice(0, -5) : key;

@@ -1635,7 +1635,10 @@
   "heroSubConverting": "Conversion en {{target}} — apparaîtra dans Versements une fois terminé",
   "referralCreditRow": "Crédit de parrainage",
   "referralCreditNote": "frais couverts",
-  "overpaidNote": "Un acheteur a payé {{excess}} (≈ {{excessFiat}}) de trop. Le surplus est inclus dans ce versement — vous pouvez rembourser la différence depuis la transaction s'il le demande."
+  "overpaidNote": "Un acheteur a payé {{excess}} (≈ {{excessFiat}}) de trop. Le surplus est inclus dans ce versement — vous pouvez rembourser la différence depuis la transaction s'il le demande.",
+  "networkFeeOnChain": "on-chain",
+  "forwardedSameWallet": "Transféré vers vous",
+  "sameWalletNote": "Inclut les frais Dynopay de {{fee}} — votre portefeuille de paiement est le portefeuille Dynopay, les frais ont donc voyagé dans le même transfert au lieu d'être déduits."
  },
  "payoutDelayed": {
   "amountWaiting": "En attente de versement",

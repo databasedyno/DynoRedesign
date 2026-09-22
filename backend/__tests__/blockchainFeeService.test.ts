@@ -23,6 +23,10 @@ jest.mock('../services/tronEnergyService', () => ({
     energyPriceSun: 100,
     bandwidthPriceSun: 1000,
   }),
+  // DEM-aware real cost of one USDT-TRC20 transfer (130,285 energy @ 100 SUN ≈ 13.03 TRX)
+  estimateTrc20TransferCost: jest.fn().mockResolvedValue({
+    energy: 130285, energyTRX: 13.0285, bandwidthTRX: 0, totalTRX: 13.0285, energyPriceSun: 100, source: 'factor',
+  }),
 }));
 
 // Mock axios for Tatum/CoinGecko calls
@@ -274,13 +278,13 @@ describe('Blockchain Fee Service', () => {
       expect(result.feeInNative).toBeCloseTo(0.3, 1);
     });
 
-    it('calculates USDT_TRC20 fee using energy', async () => {
+    it('calculates USDT_TRC20 fee from the REAL DEM-aware energy cost (not the old 65k base figure)', async () => {
       const result = await getBlockchainNetworkFee('USDT_TRC20');
 
-      // USDT_TRC20: 65000 energy × 100 sun/energy = 6500000 sun = 6.5 TRX
-      expect(result.feeInNative).toBeCloseTo(6.5, 1);
-      // USD: 6.5 * 0.25 ≈ $1.625
-      expect(result.feeInUSD).toBeCloseTo(1.625, 1);
+      // 130,285 energy × 100 sun/energy ≈ 13.03 TRX (matches mainnet receipts)
+      expect(result.feeInNative).toBeCloseTo(13.03, 1);
+      // USD: 13.03 * 0.25 ≈ $3.26
+      expect(result.feeInUSD).toBeCloseTo(3.26, 1);
     });
   });
 
