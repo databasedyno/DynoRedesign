@@ -1,186 +1,135 @@
 {
-  "theme": "Light",
-  "brand_identity": {
-    "name": "Dynopay (Tatum.io-Inspired Light Redesign)",
-    "archetype": "The Performance Pro & High-Contrast Swiss Tech",
-    "dominant_color_family": "Mint / Teal-Green",
-    "background_philosophy": "Clean pure white (#FFFFFF), ultra-airy whitespace, light slate surfaces (#F8FAFC), zero purple/indigo washes",
-    "safedeal_exemption": "SafeDeal remains gold/black; this Tatum mint/teal-green reskin is strictly for the Dynopay marketing homepage landing page"
+  "typography": {
+    "headings": {
+      "fontFamily": "var(--font-cabinet-grotesk, 'Inter', sans-serif)",
+      "weights": {
+        "h1": "800",
+        "h2": "700",
+        "h3": "600"
+      },
+      "letterSpacing": "-0.02em"
+    },
+    "body": {
+      "fontFamily": "var(--font-satoshi, 'Inter', sans-serif)",
+      "weights": {
+        "regular": "400",
+        "medium": "500",
+        "bold": "600"
+      },
+      "lineHeight": "1.6"
+    },
+    "labels": {
+      "textTransform": "uppercase",
+      "letterSpacing": "0.05em",
+      "fontSize": "0.75rem",
+      "fontWeight": "600"
+    },
+    "hierarchy_rules": "H1 up to 3.75rem (60px) on desktop. Keep contrast tight. Avoid large gaps in text hierarchy."
   },
   "colors": {
-    "primary_mint": "#00D084",
-    "primary_emerald": "#05B875",
-    "deep_teal": "#0F766E",
-    "dark_teal_active": "#0D5C56",
-    "light_mint_subtle": "#E6F4EA",
-    "light_mint_border": "#D1FAE5",
-    "canvas_white": "#FFFFFF",
-    "surface_slate_light": "#F8FAFC",
-    "surface_card": "#FFFFFF",
-    "border_neutral": "#E2E8F0",
-    "border_hover_mint": "#10B981",
-    "text_ink_primary": "#0A0F1D",
-    "text_slate_secondary": "#334155",
-    "text_muted": "#64748B",
-    "success": "#10B981",
-    "warning": "#F59E0B",
-    "error": "#EF4444",
-    "css_variables": {
-      "--bg-canvas": "#FFFFFF",
-      "--bg-surface": "#F8FAFC",
-      "--brand-mint": "#00D084",
-      "--brand-emerald": "#05B875",
-      "--brand-teal-deep": "#0F766E",
-      "--text-primary": "#0A0F1D",
-      "--text-secondary": "#334155",
-      "--border-subtle": "#E2E8F0",
-      "--border-mint": "#D1FAE5",
-      "--glow-mint": "rgba(0, 208, 132, 0.12)"
+    "brand": {
+      "primary": "#FFC61A",
+      "primaryHover": "#E5A500",
+      "primaryDeep": "#B77E00",
+      "primarySoft": "#FFF3CE"
     },
-    "gradient_recipes": {
-      "headline_gradient": "linear-gradient(135deg, #059669 0%, #00D084 50%, #0D9488 100%)",
-      "announcement_bar": "linear-gradient(90deg, #E6F4EA 0%, #D1FAE5 50%, #E6F4EA 100%)",
-      "hero_radial_glow": "radial-gradient(circle at 50% 30%, rgba(0,208,132,0.14) 0%, rgba(255,255,255,0) 70%)",
-      "card_accent_glow": "linear-gradient(180deg, rgba(209,250,229,0.5) 0%, rgba(255,255,255,0) 100%)"
+    "surface": {
+      "pageLight": "#FAFAF6",
+      "cardLight": "#FFFFFF",
+      "dark1": "#0A0A0B",
+      "dark2": "#141417",
+      "dark3": "#1C1C21"
+    },
+    "border": {
+      "light": "#ECE9E1",
+      "dark": "rgba(255, 255, 255, 0.1)"
+    },
+    "text": {
+      "mainLight": "#0A0A0B",
+      "mutedLight": "#6B6B72",
+      "mainDark": "#FFFFFF",
+      "mutedDark": "#A1A1AA"
+    },
+    "status": {
+      "success": "#12B76A",
+      "successSoft": "rgba(18, 183, 106, 0.1)",
+      "warning": "#FF9F0A",
+      "error": "#FF3B30"
+    },
+    "rules": "Landing Page: Dark theme hero (SD_INK) transitioning to warm Light page (FAFAF6). Dashboard: Unified light theme for clarity. Use Gold (#FFC61A) strictly for primary CTA."
+  },
+  "visual_enhancers": {
+    "glassmorphism": "Use sparingly for sticky elements. Light: bg-white/70, backdrop-blur-xl, border-white/40. Dark: bg-black/60, backdrop-blur-xl, border-white/10.",
+    "shadows": {
+      "card": "0px 4px 12px rgba(10, 10, 11, 0.05)",
+      "floating": "0px 16px 32px rgba(10, 10, 11, 0.1)"
+    },
+    "borders": "1px solid #ECE9E1 on light cards to define boundaries clearly on the warm background."
+  },
+  "components": {
+    "buttons": "Pill-shaped (borderRadius: 9999px). Primary: Gold bg, Black text. Secondary: Outline with light/dark border based on theme.",
+    "cards": "MUI Paper with borderRadius: 16px. Flat with 1px border. Drop shadow only on hover.",
+    "inputs": "MUI TextField customized: 12px borderRadius, solid bg (white/dark2), 1px border. Focus state must use Gold ring.",
+    "chips": "Status indicators: Success (#12B76A/10 bg, #12B76A text), Warning (#FF9F0A/10 bg, #FF9F0A text), Pending (Gold/10 bg, GoldDeep text).",
+    "icons": "Use @iconify/react with Material Design Icons (mdi). Size 20-24px standard."
+  },
+  "grids_layouts": {
+    "landing_page": {
+      "hero": "Split screen (grid lg:grid-cols-2). Left: Create Deal Form inside a glass/dark card. Right: 3D WebGL scene.",
+      "how_it_works": "3-step horizontal strip below hero. Minimalist icons and brief text.",
+      "fee_line": "Compact banner. Text: '5% escrow fee · min $10 · deals from $30'.",
+      "faq": "Collapsed accordion list, clean borders, minimal padding."
+    },
+    "dashboard_home": {
+      "container": "Max-width: xl, padding: 24px to 48px depending on breakpoint.",
+      "balance_strip": "Top row: 3 identical width cards. Available (with top-up/cash-out CTA), In Escrow, Paid out.",
+      "active_deals": "Horizontal scroll or bento grid. Each card shows: Role, Counterparty, Amount, Deadline, and a 5-step progress tracker.",
+      "activity_feed": "Flex rows instead of traditional table. Grouped by Month. Columns: Icon, Title/Deal Ref, Amount, Fee, Running Balance. Includes filters.",
+      "documents": "Month-grouped compact list with status chips and a PDF download button per row."
     }
   },
-  "typography": {
-    "font_family_heading": "Poppins, sans-serif",
-    "font_family_body": "Inter, DM Sans, sans-serif",
-    "font_family_mono": "JetBrains Mono, Source Code Pro, monospace",
-    "scale": {
-      "hero_h1": "text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-[#0A0F1D]",
-      "section_h2": "text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-[#0A0F1D]",
-      "subsection_h3": "text-xl sm:text-2xl font-semibold text-[#0A0F1D]",
-      "card_h4": "text-lg sm:text-xl font-semibold text-[#0A0F1D]",
-      "body_lg": "text-base sm:text-lg text-[#334155] leading-relaxed",
-      "body": "text-sm sm:text-base text-[#334155] leading-relaxed",
-      "caption": "text-xs sm:text-sm font-medium text-[#64748B]"
+  "motion": {
+    "framer_motion": {
+      "hover": "Scale cards to 1.01, subtle lift.",
+      "transitions": "Page load fade-in and slide-up (y: 10 -> 0).",
+      "feed": "Staggered entrance for Activity Feed rows."
+    },
+    "3d_scene": {
+      "description": "Escrow flow visualization: Buyer node (left), SafeDeal Vault (center), Seller node (right). Golden USDT tokens animate flowing into the vault, pausing (locked state), then flowing to the seller.",
+      "fallback": "Static premium 3D render image or a CSS-based glowing node diagram for devices with reduced motion."
     }
   },
-  "layout_and_spacing": {
-    "max_width": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
-    "section_padding": "py-16 sm:py-24 lg:py-32",
-    "card_padding": "p-6 sm:p-8",
-    "border_radius": {
-      "button_primary": "rounded-[3px]",
-      "card": "rounded-xl",
-      "badge": "rounded-full",
-      "code_panel": "rounded-lg"
-    },
-    "bento_grid": {
-      "base": "grid grid-cols-1 md:grid-cols-3 lg:grid-cols-12 gap-6 lg:gap-8",
-      "span_hero": "lg:col-span-8",
-      "span_side": "lg:col-span-4"
-    }
+  "accessibility": {
+    "contrast": "Text on Gold (#FFC61A) must be #0A0A0B to meet WCAG AA.",
+    "reduced_motion": "Wrap 3D canvas and Framer animations in prefers-reduced-motion checks.",
+    "aria": "All icon buttons must have aria-labels."
   },
-  "buttons_and_controls": {
-    "primary_cta": {
-      "bg": "bg-[#00D084] hover:bg-[#05B875]",
-      "text": "text-white font-semibold",
-      "shape": "rounded-[3px] px-6 py-3 text-base shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5",
-      "data_testid": "primary-cta-btn"
-    },
-    "secondary_cta": {
-      "bg": "bg-transparent hover:bg-slate-100 border border-[#E2E8F0]",
-      "text": "text-[#0A0F1D] font-semibold",
-      "shape": "rounded-[3px] px-6 py-3 text-base transition-all duration-200",
-      "data_testid": "secondary-cta-btn"
-    },
-    "text_link_arrow": {
-      "style": "inline-flex items-center gap-1.5 text-sm font-semibold text-[#0F766E] hover:text-[#0D5C56] transition-colors"
-    }
-  },
-  "homepage_section_structure": [
-    {
-      "step": 1,
-      "name": "Announcement Bar & Sticky Header",
-      "description": "Thin mint-green gradient promo bar above white sticky header with backdrop blur, logo left, centered nav items (Products, Solutions, Developers, Resources, Pricing), right side search/locale/theme + Login + solid mint 'Start free' CTA button."
-    },
-    {
-      "step": 2,
-      "name": "Centered Hero + Sandbox Checkout + Live Settlement Strip + Trust Badges",
-      "description": "Big centered Poppins headline with mint gradient accent, two primary CTAs ('Start now →', 'Try live checkout'), live interactive coin checkout card with real prices and instant coin selection, live settlement feed ticker, and trust badges row."
-    },
-    {
-      "step": 3,
-      "name": "Partner & Customer Logo Wall",
-      "description": "Clean white background row featuring monochrome and mint-accented partner logos, showing ecosystem integration and volume trust."
-    },
-    {
-      "step": 4,
-      "name": "'One Platform - All the Tools' Products Bento Grid",
-      "description": "7 product surfaces rendered as sleek vignette cards (Payment Links, Hosted Checkout, Storefront, Donations, API, Subscriptions, Escrow)."
-    },
-    {
-      "step": 5,
-      "name": "Interactive Code & RPC Demo Panel + Conversion Story",
-      "description": "Dark code editor panel with language tabs (cURL, Node.js, Python, Go) showing real payment link API creation alongside the 3-step conversion flow (BTC -> USDC -> Wallet)."
-    },
-    {
-      "step": 6,
-      "name": "Supported Blockchains & Coins Grid",
-      "description": "Interactive grid displaying 15 supported cryptocurrencies across 9 chains with real-time network confirmation ETAs and settlement speed metrics."
-    },
-    {
-      "step": 7,
-      "name": "Dashboard Showcase & Live Stats Band",
-      "description": "High-fidelity light-themed dashboard preview showcasing real-time merchant analytics, revenue charts, and a 4-metric stats band."
-    },
-    {
-      "step": 8,
-      "name": "Proof, Security Controls & Pricing Teaser",
-      "description": "On-chain settlements verifier, grid of 9 security controls (non-custodial, key isolation, 2FA, rate limits, webhooks), and volume tier pricing fee calculator."
-    },
-    {
-      "step": 9,
-      "name": "Resources & Published Insights Carousel",
-      "description": "Carousel of published blog posts, developer guides, and integration docs with mint category tags."
-    },
-    {
-      "step": 10,
-      "name": "Contact / Get-in-Touch + FAQ Accordion + Final CTA",
-      "description": "Accordion FAQ with structured JSON-LD schema, contact support trigger, and final dual-card CTA ('See pricing' / 'Start building')."
-    },
-    {
-      "step": 11,
-      "name": "Footer",
-      "description": "Comprehensive footer with high-contrast type, language picker, legal links, status indicator, and social links."
-    }
-  ],
-  "preserved_functionalities": [
-    "Sticky top landing nav + mobile drawer + sticky mobile CTA",
-    "Hero live sandbox checkout widget with real crypto prices and QR code generation",
-    "Live settlement feed ticker with real-time on-chain confirmation updates",
-    "Products bento (7 product surfaces as vignette cards)",
-    "Conversion story animation (Buyer pays crypto -> Auto-convert to USDC -> Straight to wallet)",
-    "Numbers band with 4 live metrics + settlement distribution by chain",
-    "Global reach section with interactive map and supported chains grid",
-    "Developers live request/response code snippet box with cURL / JS / Python / Go tabs",
-    "Pricing tier ladder and interactive volume fee calculator",
-    "Trust & Security 9-point controls grid",
-    "Published blog posts carousel and FAQ accordion with JSON-LD schema",
-    "Final Dual CTA section"
-  ],
-  "image_urls": {
-    "hero_crypto_coins": "https://images.pexels.com/photos/14832157/pexels-photo-14832157.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-    "developer_code_screen": "https://images.unsplash.com/photo-1652533625932-25d5104161a1?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2MzR8MHwxfHNlYXJjaHwyfHxjcnlwdG8lMjBwYXltZW50JTIwZGFzaGJvYXJkJTIwY29kZSUyMGRldmVsb3BlcnxlbnwwfHx8fDE3ODk5MjMyNzN8MA&ixlib=rb-4.1.0&q=85",
-    "crypto_trading_chart": "https://images.pexels.com/photos/6770774/pexels-photo-6770774.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
-  },
-  "testing_attributes": {
-    "require_data_testid": true,
-    "convention": "kebab-case",
-    "examples": [
-      "data-testid=\"homepage-hero-heading\"",
-      "data-testid=\"start-now-button\"",
-      "data-testid=\"code-tab-node\"",
-      "data-testid=\"sandbox-checkout-card\""
+  "3d_libraries_and_steps": {
+    "libraries": "three, @react-three/fiber, @react-three/drei",
+    "implementation": [
+      "1. Render Canvas in right column of Hero.",
+      "2. Setup lighting using <Environment preset='city' />.",
+      "3. Build 3 nodes: Buyer, Vault (shield/lock motif), Seller.",
+      "4. Animate spheres (coins) using useFrame along a Bezier curve path.",
+      "5. Implement a static fallback component for unsupported/mobile devices."
     ]
   },
   "instructions_to_main_agent": [
-    "Apply this Tatum.io-inspired light theme exclusively to the Dynopay marketing homepage landing page.",
-    "Do NOT touch SafeDeal styling - SafeDeal must retain its gold/black visual identity.",
-    "Ensure all purple/indigo aurora washes are completely replaced with crisp mint-green accents and light slate background surfaces.",
-    "Preserve all existing dynamic components, SWR hooks, and interactive payment sandbox handlers in /app/Components/Page/Home/v6/*."
+    "Strictly use MUI v5 (sx props) for styling components to match the Dynopay/SafeDeal codebase. Tailwind classes are only allowed if already prevalent for layout, but default to MUI.",
+    "Implement the single-screen landing hero. The left side must be the fully functional 'Create Deal' form that pushes state to /deals/new.",
+    "Merge /deals and /wallet into a unified Dashboard home view.",
+    "Replace the ever-growing statement table with a modern Activity Feed using flexbox rows, grouped by month.",
+    "Use data-testid attributes on all interactive elements (e.g., data-testid='deal-create-btn').",
+    "Do not use generic centered text for forms and feeds. Keep them left-aligned.",
+    "Maintain the SafeDeal color tokens precisely (SD_GOLD, SD_INK).",
+    "Include empty states with CTAs for the Activity Feed and Active Deals."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "You tend to converge toward generic outputs. Make creative, distinctive frontends that surprise and delight.",
+    "Do not make generic centered layouts. Create depth through layered design elements with z-index hierarchy.",
+    "Never apply universal transition (transition: all). Target specific properties.",
+    "Do not center align the app container. Respect natural reading flow.",
+    "Every interaction needs micro-animations - hover states, transitions.",
+    "Use 2-3x more spacing than feels comfortable. Cramped designs look cheap."
   ]
 }

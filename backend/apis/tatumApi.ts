@@ -1191,14 +1191,14 @@ const feeEstimation = async (
     cronLogger.info(gasFees);
 
     // Use EVM chain strategy utility for gas fee calculation
-    const { calculateEvmGasFee } = require('../services/chains/evmChain');
+    const { calculateEvmGasFee, EVM_MIN_GWEI } = require('../services/chains/evmChain');
     const isPolygon = ["POLYGON", "USDT-POLYGON"].includes(currency);
-    fees = calculateEvmGasFee(gasFees?.gasPrice || 1, gasFees?.gasLimit || 21000, isERC20, {
-      minGas: isPolygon ? 25 : 1,
+    fees = calculateEvmGasFee(gasFees?.gasPrice || EVM_MIN_GWEI, gasFees?.gasLimit || 21000, isERC20, {
+      minGas: isPolygon ? 25 : EVM_MIN_GWEI,
       maxGas: isPolygon ? 1000 : 50,
     });
     const usedGasPrice = fees.gasPrice;
-    cronLogger.info(`[EVM Gas] ⛽ Price: raw=${Math.ceil(gasFees?.gasPrice || 1)}, capped=${usedGasPrice}, chain=${currency}`);
+    cronLogger.info(`[EVM Gas] ⛽ Price: raw=${Number(gasFees?.gasPrice || 0)} gwei, quoted=${usedGasPrice} gwei (decimal, EIP-1559), chain=${currency}`);
   } else if (currency === "BCH") {
     const headers = await getTatumHeaders();
     const {
@@ -1592,44 +1592,30 @@ const assetToOtherAddress = async ({
       fee: btcFeeStr,
       changeAddress: toUTXO.length > 0 ? fromAddress : (fromMaster ? fromAddress : toAddress),
     });
-  } else if (currency === "ETH" || currency === "USDT-ERC20" || currency === "USDC-ERC20" || currency === "RLUSD-ERC20") {
-    // DEPRECATION WARNING: For sweep operations, use directEvmSweep() from directEvmTransfer.ts instead.
-    // This Tatum SDK path is retained only for non-sweep operations (merchant payouts, admin transfers).
-    // Tatum SDK's ethBlockchainTransfer has known ghost TX issues — never use for sweep/pool operations.
-    cronLogger.warn(`[assetToOtherAddress] ⚠️ DEPRECATION: Using Tatum SDK for ${currency} transfer. For sweeps, use directEvmSweep().`);
-    // USDT/USDC ERC-20 have 6 decimals; ETH has 18 — truncate accordingly
-    const isERC20Token = currency === "USDT-ERC20" || currency === "USDC-ERC20" || currency === "RLUSD-ERC20";
-    const decimals = isERC20Token ? 6 : 8;
-    const safeAmount = toAmountStr(amount, decimals);
-    if (isERC20Token) {
-      cronLogger.info(`[assetToOtherAddress] ${currency} amount: ${amount} → truncated to ${decimals} decimals: ${safeAmount}`);
-    }
-    if (currency === "RLUSD-ERC20") {
-      // RLUSD is a custom ERC-20 not in Tatum's predefined list — use generic erc20Transfer
-      transaction = await tatumSdk.fungibleToken.erc20Transfer({
-        chain: "ETH",
-        to: toAddress,
-        contractAddress: process.env.RLUSD_ERC20_CONTRACT || "0x8292Bb45bf1Ee4d140127049757C2E0fF06317eD",
-        amount: safeAmount,
-        digits: 6,
-        fromPrivateKey: privateKey,
-        fee: {
-          gasPrice: Math.ceil(fee?.gasPrice).toString(),
-          gasLimit: fee?.gasLimit.toString(),
-        },
-      });
-    } else {
-      transaction = await tatumSdk.blockchain.eth.ethBlockchainTransfer({
-        fromPrivateKey: privateKey,
-        to: toAddress,
-        amount: safeAmount,
-        fee: {
-          gasPrice: Math.ceil(fee?.gasPrice).toString(),
-          gasLimit: fee?.gasLimit.toString(),
-        },
-        currency: currency === "ETH" ? "ETH" : (currency === "USDC-ERC20" ? "USDC" : "USDT"),
-      });
-    }
+  } else if (["ETH", "USDT-ERC20", "USDC-ERC20", "RLUSD-ERC20", "POLYGON", "USDT-POLYGON"].includes(currency)) {
+    // EVM chains: sign + broadcast locally with ethers.js (EIP-1559, decimal gwei at market
+    // price). Tatum's ethBlockchainTransfer rounded gasPrice to integer gwei (≈10× market
+    // post-Dencun) and had ghost-TX issues; it also shipped the private key to Tatum.
+    const { directEvmSweep } = require("../services/merchantPool/directEvmTransfer");
+    const feeObj = (typeof fee === "object" && fee !== null ? fee : {}) as { gasPrice?: number | string; gasLimit?: number | string };
+    const capGwei = Number(feeObj.gasPrice) > 0 ? Number(feeObj.gasPrice) : undefined;
+    const requestedLimit = Number(feeObj.gasLimit) || 0;
+    const isNative = currency === "ETH" || currency === "POLYGON";
+    // Native EOA transfer burns 21000; keep a genuine contract-recipient estimate, drop the padded 100000.
+    const gasLimit = isNative
+      ? (requestedLimit > 21000 && requestedLimit < 100000 ? requestedLimit : 21000)
+      : (requestedLimit > 0 ? requestedLimit : undefined);
+    const evm = await directEvmSweep({
+      fromAddress,
+      toAddress,
+      privateKey,
+      walletType: currency,
+      amount: Number(amount),
+      gasPriceGwei: capGwei,
+      gasLimit,
+    });
+    cronLogger.info(`[assetToOtherAddress] ✅ ${currency} via ethers.js: ${evm.txHash} (maxFee ${evm.gasPriceGwei} gwei, tip ${evm.priorityFeeGwei} gwei, base ${evm.baseFeeGwei} gwei, gasLimit ${evm.gasLimit})`);
+    transaction = { txId: evm.txHash, nonce: evm.nonce, gasPriceGwei: evm.gasPriceGwei, priorityFeeGwei: evm.priorityFeeGwei, baseFeeGwei: evm.baseFeeGwei, gasLimit: evm.gasLimit };
   } else if (currency === "TRX") {
     transaction = await tatumSdk.blockchain.tron.tronTransfer({
       fromPrivateKey: privateKey,
@@ -1810,54 +1796,6 @@ const assetToOtherAddress = async ({
       token: rlusdCurrencyHex,
       ...(resolvedDestTag !== undefined && { destinationTag: resolvedDestTag }),
     } as any);
-  } else if (currency === "POLYGON") {
-    // DEPRECATION WARNING: For sweep operations, use directEvmSweep() from directEvmTransfer.ts instead.
-    cronLogger.warn(`[assetToOtherAddress] ⚠️ DEPRECATION: Using Tatum SDK for POLYGON transfer. For sweeps, use directEvmSweep().`);
-    // Polygon native transfer (POL)
-    transaction = await tatumSdk.blockchain.polygon.polygonBlockchainTransfer({
-      fromPrivateKey: privateKey,
-      to: toAddress,
-      amount: toAmountStr(amount, 8),
-      currency: "MATIC",
-      fee: fee ? {
-        gasPrice: Math.ceil(fee?.gasPrice).toString(),
-        gasLimit: fee?.gasLimit.toString(),
-      } : undefined,
-    });
-  } else if (currency === "USDT-POLYGON") {
-    cronLogger.warn(`[assetToOtherAddress] ⚠️ DEPRECATION: Using Tatum SDK for USDT-POLYGON transfer. For sweeps, use directEvmSweep().`);
-    // USDT on Polygon — use contract-address-based smart contract invocation
-    // This is more reliable than currency-name-based transfer (no dependency on SDK naming)
-    const usdtPolygonContract = process.env.USDT_POLYGON_CONTRACT || "0xc2132D05D31c914a87C6611C10748AEb04B58e8F";
-    const truncatedAmount = toAmountStr(amount, 6);
-    // USDT on Polygon has 6 decimals
-    const amountInSmallestUnit = toBaseUnits(truncatedAmount, 6).toString();
-    
-    try {
-      transaction = await tatumSdk.blockchain.polygon.polygonBlockchainSmartContractInvocation({
-        fromPrivateKey: privateKey,
-        contractAddress: usdtPolygonContract,
-        methodName: "transfer",
-        methodABI: {
-          inputs: [
-            { name: "recipient", type: "address" },
-            { name: "amount", type: "uint256" },
-          ],
-          name: "transfer",
-          outputs: [{ name: "", type: "bool" }],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        params: [toAddress, amountInSmallestUnit],
-        fee: fee ? {
-          gasPrice: Math.ceil(fee?.gasPrice).toString(),
-          gasLimit: (fee?.gasLimit || 65000).toString(),
-        } : undefined,
-      });
-    } catch (polyTokenErr) {
-      cronLogger.error(`[assetToOtherAddress] USDT-POLYGON transfer failed:`, polyTokenErr?.message);
-      throw polyTokenErr;
-    }
   }
   return transaction;
 };

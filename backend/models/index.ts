@@ -66,6 +66,7 @@ import signupAttributionModel from "./signupAttributionModel";
 import teamMemberModel from "./teamMemberModel"; // Team Members / RBAC
 import teamActivityModel from "./teamActivityModel"; // Team Activity Log (audit trail)
 import paymentReceiptModel from "./paymentReceiptModel"; // Shareable receipt snapshots (/receipt/<token>)
+import payoutGasAuditModel from "./payoutGasAuditModel"; // Estimated vs on-chain gas per payout (/admin/fee-reconciliation)
 
 // Publishable Keys (Phase 2 — Buy Button)
 import publishableKeyModel from "./publishableKeyModel";
@@ -98,6 +99,7 @@ import {
 export {
   apiModel,
   adminFeeModel,
+  payoutGasAuditModel,
   planModel,
   feesModel,
   subscriptionModel,

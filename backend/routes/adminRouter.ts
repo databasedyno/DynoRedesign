@@ -2,6 +2,7 @@ import express from "express";
 import adminController from "../controller/adminController";
 import supportInboxController from "../controller/supportInboxController";
 import adminSecurityController from "../controller/adminSecurityController";
+import feeReconciliationController from "../controller/admin/feeReconciliationController";
 import { adminAuthMiddleware } from "../middleware";
 import adminOrApiKeyMiddleware from "../middleware/adminOrApiKeyMiddleware";
 import { loginRateLimiter } from "../middleware/rateLimitMiddleware";
@@ -20,6 +21,13 @@ adminRouter.post(
   adminController.withdrawAssets
 );
 adminRouter.get("/getWallets", adminAuthMiddleware, adminController.getWallets);
+
+// Fee reconciliation (estimated vs on-chain gas per payout) + pool crumb consolidation
+adminRouter.get("/fee-reconciliation", adminAuthMiddleware, feeReconciliationController.getReport);
+adminRouter.post("/fee-reconciliation/backfill", adminAuthMiddleware, feeReconciliationController.backfill);
+adminRouter.post("/fee-reconciliation/reconcile", adminAuthMiddleware, feeReconciliationController.reconcile);
+adminRouter.post("/pool/consolidate-crumbs", adminAuthMiddleware, feeReconciliationController.startCrumbSweep);
+adminRouter.get("/pool/crumbs-report", adminAuthMiddleware, feeReconciliationController.crumbReport);
 adminRouter.get(
   "/getAllTransactions",
   adminAuthMiddleware,

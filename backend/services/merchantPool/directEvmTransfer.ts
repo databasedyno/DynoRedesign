@@ -156,7 +156,12 @@ function isNonRetryable(errMsg: string): boolean {
 export interface DirectEvmSweepResult {
   txHash: string;
   nonce: number;
+  /** maxFeePerGas actually signed (decimal gwei). */
   gasPriceGwei: string;
+  /** maxPriorityFeePerGas actually signed (decimal gwei). */
+  priorityFeeGwei: string;
+  baseFeeGwei: string;
+  gasLimit: number;
 }
 
 /**
@@ -203,51 +208,42 @@ export async function directEvmSweep(params: {
 
       // 2. Determine EIP-1559 fee parameters (ETH & POLYGON are both EIP-1559 chains)
       //
-      //    The old code used legacy `gasPrice` from `feeData.gasPrice`, which on
-      //    Ethereum mainnet is often BELOW the current block's baseFee — the RPC
-      //    accepts the TX, returns a valid hash, but the TX is then silently
-      //    dropped from mempool because maxFeePerGas < baseFee. Classic ghost TX.
+      //    Market-based, decimal gwei — no integer rounding, no artificial 1.5/3 gwei floors
+      //    (those made every low-gas payout pay ~10× market). What the sender actually pays
+      //    is baseFee + priority; maxFee only needs headroom for base-fee spikes.
       //
-      //    Floors:
-      //      priority >= 1.5 Gwei on ETH / 30 Gwei on POLYGON (reliable inclusion)
-      //      maxFee   >= baseFee * 2 + priority, with absolute minimums of
-      //                  3 Gwei on ETH and 50 Gwei on POLYGON
+      //    priority = max(node suggestion, floor)  floor: 0.05 gwei ETH / 30 gwei POLYGON
+      //    maxFee   = baseFee × 2 + priority
+      //    A caller-supplied `gasPriceGwei` (the amount already deducted from the merchant
+      //    for gas) caps maxFee so a full-balance native transfer never exceeds the balance.
       const isPolygon = config.chain === "POLYGON";
-      const minPriorityFee = ethers.parseUnits(isPolygon ? "30" : "1.5", "gwei");
-      const minMaxFee = ethers.parseUnits(isPolygon ? "50" : "3", "gwei");
+      const minPriorityFee = ethers.parseUnits(isPolygon ? "30" : "0.05", "gwei");
 
-      let maxPriorityFeePerGas: bigint;
-      let maxFeePerGas: bigint;
+      const [latestBlock, feeData] = await Promise.all([
+        provider.getBlock("latest"),
+        provider.getFeeData(),
+      ]);
+      const baseFee = latestBlock?.baseFeePerGas ?? 0n;
+      const suggestedPriority = feeData.maxPriorityFeePerGas ?? 0n;
+      let maxPriorityFeePerGas = suggestedPriority > minPriorityFee ? suggestedPriority : minPriorityFee;
+      let maxFeePerGas = baseFee * 2n + maxPriorityFeePerGas;
 
       if (params.gasPriceGwei && params.gasPriceGwei > 0) {
-        // Caller-supplied override: interpret as maxFeePerGas with default priority
-        maxFeePerGas = ethers.parseUnits(
-          Math.ceil(params.gasPriceGwei).toString(),
-          "gwei"
-        );
-        maxPriorityFeePerGas = minPriorityFee < maxFeePerGas
-          ? minPriorityFee
-          : maxFeePerGas;
-      } else {
-        // Read live baseFee + priority suggestion from the node
-        const [latestBlock, feeData] = await Promise.all([
-          provider.getBlock("latest"),
-          provider.getFeeData(),
-        ]);
-        const baseFee = latestBlock?.baseFeePerGas ?? 0n;
-
-        const suggestedPriority = feeData.maxPriorityFeePerGas ?? 0n;
-        maxPriorityFeePerGas =
-          suggestedPriority > minPriorityFee ? suggestedPriority : minPriorityFee;
-
-        // 2x baseFee headroom covers several blocks of base-fee spikes
-        const computedMaxFee = baseFee * 2n + maxPriorityFeePerGas;
-        maxFeePerGas = computedMaxFee > minMaxFee ? computedMaxFee : minMaxFee;
-
-        cronLogger.info(
-          `${LOG_PREFIX} baseFee=${ethers.formatUnits(baseFee, "gwei")} Gwei, priority=${ethers.formatUnits(maxPriorityFeePerGas, "gwei")} Gwei, maxFee=${ethers.formatUnits(maxFeePerGas, "gwei")} Gwei`
-        );
+        const cap = ethers.parseUnits(params.gasPriceGwei.toFixed(9), "gwei");
+        if (cap < maxFeePerGas) {
+          if (cap < baseFee + minPriorityFee) {
+            cronLogger.warn(
+              `${LOG_PREFIX} fee cap ${params.gasPriceGwei} Gwei is below baseFee ${ethers.formatUnits(baseFee, "gwei")} + tip — TX may wait for the base fee to drop`
+            );
+          }
+          maxFeePerGas = cap;
+          if (maxPriorityFeePerGas > maxFeePerGas) maxPriorityFeePerGas = maxFeePerGas;
+        }
       }
+
+      cronLogger.info(
+        `${LOG_PREFIX} baseFee=${ethers.formatUnits(baseFee, "gwei")} Gwei, priority=${ethers.formatUnits(maxPriorityFeePerGas, "gwei")} Gwei, maxFee=${ethers.formatUnits(maxFeePerGas, "gwei")} Gwei${params.gasPriceGwei ? ` (cap ${params.gasPriceGwei} Gwei)` : ""}`
+      );
 
       // Cap to prevent overpaying during spikes
       const maxAllowed = ethers.parseUnits(
@@ -361,6 +357,9 @@ export async function directEvmSweep(params: {
         txHash: txResponse.hash,
         nonce,
         gasPriceGwei: gasPriceStr,
+        priorityFeeGwei: ethers.formatUnits(maxPriorityFeePerGas, "gwei"),
+        baseFeeGwei: ethers.formatUnits(baseFee, "gwei"),
+        gasLimit,
       };
     } catch (error) {
       const errMsg = error instanceof Error ? error.message : String(error);

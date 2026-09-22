@@ -19,6 +19,14 @@ const getContractAddress = (currency: string): string | undefined => {
 };
 
 /**
+ * Lowest gas price (gwei) an EVM payout is ever quoted/broadcast at. Post-Dencun mainnet
+ * often trades at 0.1–0.3 gwei; the broadcast path (directEvmTransfer) signs EIP-1559
+ * transactions at decimal gwei, so this is a real floor — not an integer rounding artefact.
+ */
+export const EVM_MIN_GWEI = 0.05;
+const roundGwei = (g: number): number => Math.round(g * 10000) / 10000;
+
+/**
  * Calculate EVM gas fee from raw parameters.
  * Consolidates the gasPrice capping + buffer logic that was duplicated.
  */
@@ -28,21 +36,17 @@ export const calculateEvmGasFee = (
   isToken: boolean,
   options: { minGas?: number; maxGas?: number; bufferMultiplier?: number; priorityTip?: number } = {}
 ): { fast: string; medium?: string; slow?: string; gasPrice: number; gasLimit: number } => {
-  const minGas = options.minGas ?? 1;
+  const minGas = options.minGas ?? EVM_MIN_GWEI;
   const maxGas = options.maxGas ?? 50;
   const bufferMultiplier = options.bufferMultiplier ?? 1.15;
-  const priorityTip = options.priorityTip ?? 0.5;
+  const priorityTip = options.priorityTip ?? EVM_MIN_GWEI;
 
-  // Gas price is broadcast as INTEGER gwei (Tatum fee.gasPrice). Post-Dencun mainnet often
-  // sits at 0.1–0.3 gwei, so the integer floor (1 gwei) alone is already a 3–10× safety
-  // margin — do NOT pile the ×1.15 + 0.5 tip on top (that made every low-gas payout pay
-  // 2 gwei, ~10× market, and over-deducted merchants). Buffer only when the market is
-  // genuinely at/above the floor.
+  // Decimal gwei end-to-end: the estimate is what the merchant is charged AND the maxFeePerGas
+  // cap the ethers.js broadcast signs with. Actual cost on-chain = baseFee + priority tip
+  // (EIP-1559 refunds the rest), so a ×1.15 buffer + a tip-sized allowance is enough headroom.
   const raw = Number(rawGasPrice) || 0;
-  const gasPrice = Math.max(minGas, Math.min(maxGas, Math.ceil(raw)));
-  const bufferedGasPrice = raw < minGas
-    ? gasPrice
-    : Math.ceil(gasPrice * bufferMultiplier + priorityTip);
+  const gasPrice = roundGwei(Math.max(minGas, Math.min(maxGas, raw)));
+  const bufferedGasPrice = roundGwei(gasPrice * bufferMultiplier + priorityTip);
 
   // For native transfers (ETH, POL): an EOA→EOA transfer burns exactly 21000 gas. The SDK's
   // fee estimate is requested as TRANSFER_NFT (there is no "native" type) and comes back with
@@ -67,8 +71,8 @@ export const calculateEvmGasFee = (
 
   if (!isToken) {
     // Speed tiers: vary gas price buffer (not gas limit) for native transfers
-    const mediumGasPrice = Math.max(minGas, Math.ceil(gasPrice * 1.0 + (raw < minGas ? 0 : priorityTip * 0.5))); // Base price + half tip
-    const slowGasPrice = Math.max(minGas, Math.ceil(gasPrice * 0.9)); // 10% below market, no tip
+    const mediumGasPrice = roundGwei(Math.max(minGas, gasPrice + priorityTip * 0.5));
+    const slowGasPrice = roundGwei(Math.max(minGas, gasPrice * 0.9));
     result.medium = toFixedStr(Number((mediumGasPrice * burnGasLimit) / 1e9), 8);
     result.slow = toFixedStr(Number((slowGasPrice * burnGasLimit) / 1e9), 8);
   }

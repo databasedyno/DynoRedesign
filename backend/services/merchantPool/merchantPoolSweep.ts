@@ -338,7 +338,7 @@ export const reclaimExcessGas = async (
       where: { wallet_address: poolAddress },
     });
 
-    if (!poolRecord?.dataValues?.privateKey) {
+    if (!poolRecord?.dataValues?.private_key) {
       cronLogger.warn(`[GasReclaim] No private key found for ${poolAddress.substring(0, 12)}...`);
       return { reclaimed: false, amount: 0 };
     }
@@ -347,7 +347,7 @@ export const reclaimExcessGas = async (
 
     // MEMORY HARDENING: plaintext pool key exists only inside this callback.
     const txId: string | undefined = await keyCustody.withPrivateKey(
-      poolRecord.dataValues.privateKey,
+      poolRecord.dataValues.private_key,
       envRaw("TEMP_KEY_ID"),
       { purpose: "gas_reclaim", actor: "worker", walletType: gasToken, walletAddress: poolAddress },
       async (privateKey) => {
@@ -466,6 +466,8 @@ const checkSweepProfitability = async (
 export interface SweepPoolAddressOptions {
   /** Ignore + clear a stale "unprofitable" deferral (fresh funds just arrived). */
   force?: boolean;
+  /** Caller already decided the sweep is worth it (crumb consolidation using stranded gas). */
+  skipProfitabilityCheck?: boolean;
 }
 
 export interface SweepPoolAddressResult {
@@ -647,7 +649,7 @@ export const sweepPoolAddress = async (tempAddressId: number, options: SweepPool
       );
     }
 
-    const profitabilityResult = __loadtest.isLoadtestNoBroadcast()
+    const profitabilityResult = __loadtest.isLoadtestNoBroadcast() || options.skipProfitabilityCheck
       ? { profitable: true, balanceUSD: 0, feeUSD: 0, estimatedFee: 0 }
       : await checkSweepProfitability(walletType, actualBalance, feeData);
     
@@ -1059,7 +1061,12 @@ export const sweepPoolAddress = async (tempAddressId: number, options: SweepPool
           order: [['created_at', 'DESC']],
         });
 
-        if (latestPoolTx?.dataValues?.incoming_tx_id) {
+        // Only "recover" notifications for a RECENT payment. Older ones had their Redis
+        // dedup keys expire (30d TTL), which made every later sweep re-send stale emails.
+        const RECOVERY_WINDOW_MS = 48 * 3600 * 1000;
+        const poolTxAge = latestPoolTx ? Date.now() - new Date(latestPoolTx.dataValues.created_at).getTime() : Infinity;
+
+        if (latestPoolTx?.dataValues?.incoming_tx_id && poolTxAge <= RECOVERY_WINDOW_MS) {
           const incomingTxId = latestPoolTx.dataValues.incoming_tx_id;
           const ownerUserId = poolAddress.dataValues.owner_user_id;
           const merchantAmount = parseFloat(latestPoolTx.dataValues.merchant_amount || '0');

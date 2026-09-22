@@ -123,7 +123,7 @@ export default function SafeDealShell({
 
   const nav = user
     ? [
-        { label: "My deals", to: "/deals", key: "/deals", testid: "sd-nav-deals" },
+        { label: "Home", to: "/deals", key: "/deals", testid: "sd-nav-deals" },
         { label: "Wallet", to: "/wallet", key: "/wallet", testid: "sd-nav-wallet" },
       ]
     : [{ label: "How it works", to: "/#how", key: "#how", testid: "sd-nav-how" }, { label: "Fees", to: "/#fees", key: "#fees", testid: "sd-nav-fees" }];

@@ -930,6 +930,11 @@ const addSafeDealChainTxHash = async (): Promise<void> => {
   );
 };
 
+const createPayoutGasAuditTable = async (): Promise<void> => {
+  const { default: payoutGasAuditModel } = await import("../models/payoutGasAuditModel");
+  if (isSyncable(payoutGasAuditModel)) await payoutGasAuditModel.sync();
+};
+
 export async function buildBootMigrations(): Promise<Migration[]> {  const { v1, extra } = await loadBootModelGroups();  return [
     { version: "0001_boot_model_tables", up: syncGroup(v1) },
     { version: "0002_boot_model_tables_extra", up: syncGroup(extra) },
@@ -976,6 +981,7 @@ export async function buildBootMigrations(): Promise<Migration[]> {  const { v1,
     { version: "0046_txn_customer_fk_set_null", up: relaxTransactionCustomerCascade },
     { version: "0047_safedeal_money_audit", up: addSafeDealMoneyAudit },
     { version: "0048_safedeal_chain_tx_hash", up: addSafeDealChainTxHash },
+    { version: "0049_payout_gas_audit", up: createPayoutGasAuditTable },
     ...perfMigrations,
     ...securityMigrations,
   ];

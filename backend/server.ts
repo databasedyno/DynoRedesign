@@ -1076,6 +1076,37 @@ leaderCron.schedule("*/30 * * * *", async function () {
   }
 });
 
+// Merchant Pool: weekly crumb consolidation (Sunday 03:15 UTC) — sweeps stranded
+// USDT-TRC20 fees using the TRX already on the pool addresses, reclaims leftover TRX.
+leaderCron.schedule("15 3 * * 0", async function () {
+  const lockAcquired = await acquireLock("cron:consolidatePoolCrumbs", 1800, 1, 100, true);
+  if (!lockAcquired) return;
+  try {
+    const { consolidatePoolCrumbs } = await import("./services/merchantPool/poolCrumbSweeper");
+    await consolidatePoolCrumbs();
+  } catch (err) {
+    log(`Cron: consolidatePoolCrumbs failed: ${(err as Error).message}`, "error");
+    captureError(err as Error, 'cron', { extraContext: 'consolidatePoolCrumbs' });
+  } finally {
+    await releaseLock("cron:consolidatePoolCrumbs");
+  }
+});
+
+// Fee reconciliation: read the real on-chain gas of recent payouts every 30 minutes.
+leaderCron.schedule("7,37 * * * *", async function () {
+  const lockAcquired = await acquireLock("cron:reconcilePayoutGas", 600, 1, 100, true);
+  if (!lockAcquired) return;
+  try {
+    const { reconcilePendingAudits } = await import("./services/payoutGasAudit");
+    await reconcilePendingAudits(50);
+  } catch (err) {
+    log(`Cron: reconcilePayoutGas failed: ${(err as Error).message}`, "error");
+    captureError(err as Error, 'cron', { extraContext: 'reconcilePayoutGas' });
+  } finally {
+    await releaseLock("cron:reconcilePayoutGas");
+  }
+});
+
 // Merchant Pool: Release expired reservations every 15 minutes
 // PERF: Increased from 5min to 15min — reservations have 30min TTL, 15min check is safe
 leaderCron.schedule("*/15 * * * *", async function () {

@@ -1133,7 +1133,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
           // Record pool transaction for audit
           // Use actualMerchantAmount (computed above) — the actual post-gas on-chain amount
           
-          await merchantPoolService.recordPoolTransaction({
+          const poolTxRecord = await merchantPoolService.recordPoolTransaction({
             tempAddressId: tempAddressData.temp_address_id,
             ownerUserId: tempAddressData.owner_user_id,
             companyId: Number(customerData.company_id),
@@ -1152,6 +1152,29 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
             merchantTxId: adminTransferResult.transactionDetails?.txId,
             status: "completed",
           });
+
+          // Fee reconciliation: estimated / charged gas vs what the payout really burns on-chain.
+          if (adminTransferResult.transactionDetails?.txId) {
+            const { recordPayoutGasAudit } = await import("../../../services/payoutGasAudit");
+            const auditTxRef = tempData.user_tx_id || tempData.unique_tx_id || tempData.payment_id;
+            const auditTx = auditTxRef
+              ? await userTransactionModel.findOne({ where: { id: auditTxRef }, attributes: ["transaction_id"] }).catch(() => null)
+              : null;
+            await recordPayoutGasAudit({
+              poolTxId: (poolTxRecord as any)?.dataValues?.pool_tx_id ?? null,
+              transactionId: auditTx?.dataValues?.transaction_id ?? null,
+              companyId: Number(customerData.company_id) || null,
+              userId: tempAddressData.owner_user_id,
+              walletType: tempCurrency,
+              payoutTxHash: adminTransferResult.transactionDetails.txId,
+              payoutAmount: actualMerchantAmount,
+              estimatedGasNative: adminTransferResult.blockchainFee || 0,
+              gasFundedNative: adminTransferResult.gasFunded || 0,
+              chargedFeeAsset: Number((adminTransferResult as any)?.networkFeeDeducted) || 0,
+              actualGasNative: Number((adminTransferResult as any)?.actualNetworkFeeNative) || null,
+              source: "settlement",
+            });
+          }
 
           // AUTO-CONVERT OPTIMIZATION: Trigger immediate sweep instead of waiting for cron
           // This eliminates the 3-5 min delay (ETH_SWEEP=time:3 + 2-min cron interval)

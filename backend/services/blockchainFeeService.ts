@@ -10,6 +10,7 @@ import axios from "../utils/tatumHttp";
 import { cronLogger } from "../utils/loggers";
 import { getRedisItem, setRedisItem } from "../utils/redisInstance";
 import { getTronNetworkParams, estimateTrc20TransferCost } from "./tronEnergyService";
+import { EVM_MIN_GWEI } from "./chains/evmChain";
 import { getPrice as getBinancePrice } from "./binanceWebSocketService";
 import { TATUM_V3_URL, getTatumApiKey } from "../utils/tatumAuth";
 
@@ -54,9 +55,9 @@ const TX_SIZES = {
   BCH: 250,
 };
 
-// Minimum gas price (gwei) the EVM settlement path will ever broadcast with — must match
-// calculateEvmGasFee's minGas in services/chains/evmChain.ts.
-const EVM_MIN_BROADCAST_GWEI = 1;
+// Minimum gas price (gwei) the EVM settlement path will ever broadcast with (shared with
+// calculateEvmGasFee — decimal gwei, EIP-1559 via ethers.js).
+const EVM_MIN_BROADCAST_GWEI = EVM_MIN_GWEI;
 
 // Gas limits for EVM chains
 const GAS_LIMITS = {
@@ -436,9 +437,8 @@ const calculateEvmFee = async (
 
   const feeData = await fetchTatumFee(chain) as { fast?: number; medium?: number; slow?: number };
   const oracleGasPriceWei = feeData[speed] || feeData.fast || 0;
-  // Settlement broadcasts at INTEGER gwei with a 1 gwei floor (services/chains/evmChain.ts).
-  // Quote the same floor so a customer-pays buffer / merchant deduction can never be below
-  // what the payout transaction really pays (mainnet often trades at 0.1–0.3 gwei now).
+  // Settlement signs EIP-1559 at decimal gwei (directEvmTransfer) with the same floor as
+  // calculateEvmGasFee, so the quote tracks what the payout transaction really pays.
   const gasPriceWei = Math.max(oracleGasPriceWei, EVM_MIN_BROADCAST_GWEI * 1e9);
   const gasPriceGwei = gasPriceWei / 1e9;
   

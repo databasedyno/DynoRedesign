@@ -1,11 +1,11 @@
 import React from "react";
 import type { NextPageWithLayout } from "@/pages/_app";
 import SafeDealShell from "@/Components/SafeDeal/SafeDealShell";
-import DealsList from "@/Components/SafeDeal/DealsList";
+import SafeDealHome from "@/Components/SafeDeal/Home/SafeDealHome";
 
 const Page: NextPageWithLayout = () => (
-  <SafeDealShell title="My deals" noindex>
-    <DealsList />
+  <SafeDealShell title="Home" noindex>
+    <SafeDealHome initialTab="overview" />
   </SafeDealShell>
 );
 Page.layout = "none";
