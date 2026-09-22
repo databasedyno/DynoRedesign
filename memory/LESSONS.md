@@ -16,3 +16,7 @@
 - New public auth endpoints must be added to the CSRF exemption list in `backend/middleware/csrfMiddleware.ts` or they fail with "CSRF token validation failed".
 - `otpRateLimiter`/`strictRateLimiter` bite during repeated QA loops (3-min lockouts) — pace browser runs.
 - FirstRunRedirect (once per session) can yank a fresh new-merchant login to /get-started mid-test; set `sessionStorage.gs_autoopen_seen=1` before login when testing dashboard dialogs.
+
+## 2026-06 — the preview pod talks to the PRODUCTION DB
+- Every pytest / testing-agent run leaves SafeDeal customers, deals, ledger rows and pending Dynopay checkouts (RESERVED pool addresses) behind, and they show up on the owner's real dashboards.
+- Always use @example.com identities in tests and finish the session with `node /app/backend/scripts/purge_test_data.js --apply` (dry-run first). Real SafeDeal accounts: moxxcompany@gmail.com, gidimeter@gmail.com, gidineter@gmail.com.
