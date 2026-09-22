@@ -1,26 +1,44 @@
 {
-  "summary": "Frontend-only test of the new interactive Earnings Calculator on /referral-program (public preview URL, SAFE MODE — no forms submitted, no accounts touched). Verified DOM-text rendering of referral-example container, slider, volume readout and all three stat cards; default values; keyboard (Home/End/Arrow) and mouse-drag reactivity across 5 slider positions covering all 4 fee tiers; 12x relation; mobile 390x844 overflow; dark-mode colors; console/page errors. Results: default $50,000/mo -> their fees $500, you/mo $125, 12mo $1,500 (exact match). MAX (End) -> $500,000/mo, $2,500 / $625 / $7,500 (0.5% tier, correct). MIN (Home) -> $1,000/mo, $15 / $4 / $45 (1.5% tier). +5 ArrowRight -> $6,000/mo, $90 / $23 / $270. Drag to ~20% track -> exactly $100,000/mo, $700 / $175 / $2,100 (0.7% tier, correct). All four testids update reactively on both keyboard and drag. No console errors, no page errors. No horizontal overflow at 390x844 (scrollWidth == clientWidth == 390; card 342px inside 24px gutters). Dark mode readable (card bg rgb(21,21,27), values rgb(245,245,245) and accent rgb(129,140,248) — good contrast). Only defect: rounding makes the 12-month total not exactly 12x the DISPLAYED monthly figure at low volumes.",
+  "summary": "SafeDeal iteration 101 — user-facing copy scrub verification. Wrote /app/backend/tests/test_safedeal_iter101_copy_scrub.py (9 tests, all PASS). Regression suites test_safedeal_iter207_funding.py (9) and test_safedeal_math_audit.py (11) all PASS (20/20). Frontend Wallet + Deal #209 pages verified clean via Playwright.",
   "backend_issues": { "critical": [], "minor": [] },
   "frontend_issues": {
-    "ui_bugs": [
-      {"component": "ReferralEarningsCalculator", "issue": "12-month total is not 12 x the DISPLAYED you-earn/month at low volumes because each value is rounded independently. At $1,000/mo: you/mo shows $4 (3.75 rounded) but 12mo shows $45 (should read $48 if consistent with the displayed monthly). At $6,000/mo: you/mo $23 (22.5) vs 12mo $270 (23x12=276). Underlying math is right; only the display is internally inconsistent. Fix by computing you12mo from the rounded monthly (Math.round(youMonthly)*12) or by rounding the monthly up/using no sub-dollar tiers.", "selector": "[data-testid=\"referral-calc-monthly\"] / [data-testid=\"referral-calc-total\"]", "priority": "LOW"}
-    ],
+    "ui_bugs": [],
     "integration_issues": [],
     "design_issues": []
   },
-  "test_report_links": [],
-  "action_items": [
-    "OPTIONAL/LOW: make the 12-month total consistent with the rounded monthly figure (currently $1,000/mo shows $4/mo but $45 total)."
+  "test_report_links": [
+    "/app/backend/tests/test_safedeal_iter101_copy_scrub.py",
+    "/app/test_reports/pytest/iter101.xml"
   ],
+  "checks_performed": [
+    "DB backfill: activity_log entry notes matching /(simulated|binance|[LIVE])/i → 0",
+    "DB backfill: tbl_escrow_deal.settlement_note matching /(simulated|binance)/i → 0",
+    "DB backfill: tbl_customer_transaction.transaction_details matching /(simulated|binance)/i → 0",
+    "scripts/scrub_internal_terms.js dry-run: 0 rows / 0 activity entries / 0 statement rows would change",
+    "Deal #209 (seller moxxcompany@gmail.com): activity_log[].note + settlement_note contain no forbidden terms",
+    "Fresh simulated deal lifecycle (fund → deliver → release): settlement_note == 'Release: seller +30 USD, platform fee 10 USD (authorized)'; funded entry note contains 'held securely in escrow' with meta.simulated=true; outcome_release entry has meta.simulated=true; no note contains 'simulated'/'binance'",
+    "Top-up simulate response.message starts with '100.00 USD credited…' with no [SIMULATED] prefix",
+    "Auto-withdraw payout entry note starts with 'Paid 30 USDT to' with no '(simulated)' suffix, meta.simulated=true, meta.withdrawal_id present",
+    "Seller wallet withdrawals[].tx_hash is internal 'SIMULATED-WITHDRAWAL-…' (acceptable — hidden by frontend)",
+    "Manual withdrawal response.message == 'Withdrawal sent.' (endpoint returned 201)",
+    "Fee-preview costItems[].note/label do not contain 'Binance'; withdrawal_fee note contains 'Exchange withdrawal'",
+    "Deal summary PDF: no 'simulated'/'binance'/'BINANCE-'/'[live]'/'via simulated' anywhere (extracted via pypdf)",
+    "Frontend UI: /safedeal/wallet page — no SIMULATED-/BINANCE-/WALLET-CREDIT-/[SIMULATED]/(simulated) visible; withdrawal row hides internal tx_hash and shows friendly text",
+    "Frontend UI: /safedeal/deal/<209 token> Activity card (data-testid sd-deal-timeline) contains no forbidden terms"
+  ],
+  "action_items": [],
   "critical_code_review_comments": [
-    "ReferralEarningsCalculator.tsx: youMonthly/you12mo are each rounded independently in fmtUSD, so the displayed 12mo total can differ from 12 x displayed monthly (rounding drift at low volumes). Derive the total from the rounded monthly.",
-    "Component is small, memoized, no API calls, all four key values carry data-testid — no other issues found."
+    "Manual withdraw endpoint returns 201 (not 200) — minor inconsistency with other write endpoints that return 200; not user-visible.",
+    "Wallet response uses 'available' rather than the more common 'balance'/'balance_usd' — worth documenting in API docs for consumers."
   ],
-  "updated_files": [],
-  "success_rate": {"backend": "N/A (skipped per request)", "frontend": "95% (all functional/reactivity/tier/overflow/dark-mode checks pass; 1 low-severity rounding display inconsistency)"},
-  "seed_data_creation": "None — read-only interaction with public marketing page only.",
-  "should_call_test_agent_after_fix": false,
-  "should_main_agent_self_test": true,
-  "context_for_next_testing_agent": "Calculator verified working end-to-end via DOM inner_text (screenshots of this preview are unreliable/blank on full-page). To drive the slider: focus '[data-testid=\"referral-calc-slider\"] input' then press End/Home/ArrowRight (step 1000), or drag '.MuiSlider-thumb'. Only open item is the low-severity rounding drift between referral-calc-monthly and referral-calc-total at volumes where 25% of fees is not a whole dollar (e.g. $1,000/mo and $6,000/mo).",
-  "rca_of_the_issue": "fmtUSD applies Math.round() separately to youMonthly and you12mo. you12mo is computed from the unrounded youMonthly, so at $1,000/mo youMonthly = 3.75 -> displays $4 while you12mo = 45 -> displays $45, breaking the stated invariant total = 12 x displayed monthly."
+  "updated_files": [
+    "/app/backend/tests/test_safedeal_iter101_copy_scrub.py (new)"
+  ],
+  "success_rate": { "backend": "100%", "frontend": "100%" },
+  "test_credentials": "SafeDeal passwordless: POST /api/safedeal/auth/send-code {email} → data.preview_code → verify-code → x-safedeal-token. Deal #209 seller: moxxcompany@gmail.com",
+  "seed_data_creation": "Fresh timestamped SafeDeal customers (sd-qa-scrub-<ts>-seller/buyer@example.com) created via passwordless auth; each got a $100 topup used for lifecycle/payout/manual-withdraw tests. Deal #209 was NOT modified.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Iteration 101 verifies removal of internal vocabulary from all user-facing SafeDeal surfaces. DB backfill clean (0 rows). Fresh lifecycle + auto-withdraw + manual-withdraw + fee-preview + PDF + frontend all clean. Regression 207+math_audit = 20/20 pass. If future changes touch escrowShared.describeSettlement, attemptPayouts, actFund/actFundFromCheckout notes, topupSimulate/withdraw messages, fee-preview cost notes, or safedealPdf, re-run /app/backend/tests/test_safedeal_iter101_copy_scrub.py.",
+  "rca_of_the_issue": "Root cause: internal debug vocabulary ('[SIMULATED]', '(simulated)', 'Binance', 'BINANCE-<txref>') was written directly into user-facing activity notes, settlement_note, statement descriptions, toast messages and invoice PDF. Fix applied by main agent: (a) code cleanup in escrowShared.describeSettlement/isInternalTxRef, escrowController.attemptPayouts+actFund+actFundFromCheckout, safedealController fund/topupSimulate/withdraw messages, safedealTopup ledger description, safedealPdf funding_method mapping; (b) DB backfill via scripts/scrub_internal_terms.js rewriting 70 deals / 120 activity entries + 17 statement rows; internal simulation flag preserved only in activity meta.simulated and internal API fields (withdrawals[].tx_hash) which the frontend hides. This iteration confirms 0 forbidden strings remain in any user-facing surface."
 }
