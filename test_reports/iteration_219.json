@@ -1,0 +1,32 @@
+{
+  "summary": "Verified merchantPool native-EVM full-balance sweep fix (dust ETH pool addresses). Ran the two targeted Jest suites (evmNativeSweepQuote.test.ts + evmChainGasFee.test.ts), tsc typecheck, an optional live read-only quoteNativeSweep against the real prod dust address, and a static review of directEvmTransfer.ts + merchantPoolSweep.ts. All pass; the reported 'insufficient funds for intrinsic transaction cost' loop is properly closed. No frontend testing (backend-only scope).",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "services/merchantPool/directEvmTransfer.ts::quoteNativeSweep", "issue": "maxFeeGwei is returned as a JS Number (Number(formatUnits(bigint,'gwei'))). For extreme fee values this could theoretically lose subwei precision when re-parsed via parseUnits(gwei.toFixed(9)). In practice the error is sub-wei and the 8-dp floor on maxSendable reserves ~1e7 wei of headroom, so value + gas ≤ balance still holds; noted for awareness only."}
+    ]
+  },
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/__tests__/evmNativeSweepQuote.test.ts",
+    "/app/backend/__tests__/evmChainGasFee.test.ts"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "directEvmTransfer.ts: quoteNativeSweep and directEvmSweep now both derive fees from the shared computeEip1559Fees() helper (baseFee×2 + priority, capped at chain max). Reservation and signing use identical formula. ✓",
+    "quoteNativeSweep floors maxSendable at 8 dp using toNumber(..., 'down'); directEvmSweep truncates the passed value with the same toNumber(..., 8, 'down') before parseEther, so value + gas ≤ balance holds after truncation. ✓",
+    "quoteNativeSweep returns null for ERC20 wallet types (config.isToken) and when every RPC in getRpcUrls() throws — caller in merchantPoolSweep.ts falls through to legacy behaviour (no clamp, no cap). ✓",
+    "merchantPoolSweep.ts (lines 858-876): quote only applied when isDirectEvmNative(walletType) is true — ERC20 token path and non-EVM Tatum SDK path are untouched. ✓",
+    "Dust branch (quote.maxSendable <= 0) returns {success:false, skipped:true, reason:'<TYPE> dust below gas cost'} + sets status AVAILABLE via poolAddress.update. Uses cronLogger.warn (not error), so the every-30-min error-log noise on the two dust addresses is eliminated. ✓",
+    "directEvmSweep call at line 910 passes gasPriceGwei: evmFeeCapGwei — the signed maxFeePerGas is capped by params.gasPriceGwei (cap = parseUnits(gwei.toFixed(9),'gwei')) whenever it is < computed maxFeePerGas, so signed maxFee ≤ quote-time maxFee even under a subsequent baseFee spike. ✓",
+    "Minor: NativeSweepQuote.maxFeeGwei is a JS Number rebuilt from a bigint — see minor issue note. Not a functional bug given the 8-dp floor headroom."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "n/a"},
+  "test_credentials": "n/a",
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Fix scope: backend/services/merchantPool/directEvmTransfer.ts (new quoteNativeSweep, isDirectEvmNative, shared computeEip1559Fees) + merchantPoolSweep.ts account-chain branch clamp/skip. Jest: 12/12 pass in ~0.7s. tsc: exit 0. Live read-only quote against 0x77f0342d… returned {balance:0.00022543, maxSendable:0.00022202, maxFeeGwei:0.16247424, gasCost:0.000003412} — 0.00022202 + 0.00000341 ≈ 0.00022543 ✓. No cron/server was started; no keys touched.",
+  "rca of the issue": "Node validates EIP-1559 TX with value + gasLimit × maxFeePerGas ≤ balance. Previous sweep computed amountToSend = balance − (baseFee × gasLimit) (market estimate) but directEvmSweep signed with maxFeePerGas = 2×baseFee + priority, so full-balance native sweeps always overshot by ~(baseFee + priority) × 21000 wei → 'insufficient funds for intrinsic transaction cost'. Fix reserves the SIGNED maxFeePerGas in the quote and pins the signer to that same maxFee via gasPriceGwei cap; for balances that can't cover the reserved gas, the pool is marked AVAILABLE with a warn (no more error-loop every 30 min)."
+}
