@@ -97,6 +97,7 @@ const TwoFactorAuth = () => {
               display: "flex",
               alignItems: isMobile ? "flex-start" : "center",
               flexDirection: isMobile ? "column" : "row",
+              flexWrap: isMobile ? "nowrap" : "wrap",
               gap: isMobile ? "12px" : "16px",
               p: isMobile ? "12px 14px" : "14px 16px",
               borderRadius: "10px",
@@ -109,7 +110,7 @@ const TwoFactorAuth = () => {
               <Icon name={isTotp ? "lucide:shield-check" : isEmail ? "lucide:mail-check" : "lucide:shield-off"} size={18} color={enabled ? (isDark ? "#4ade80" : "#16a34a") : theme.palette.text.secondary} />
             </Box>
 
-            <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Box sx={{ flex: "1 1 240px", minWidth: 0 }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
                 <Typography sx={{ fontSize: "14px", fontWeight: 600, fontFamily: "var(--font-sans)", color: theme.palette.text.primary }} data-testid="twofa-method-label">
                   {isEmail
@@ -141,7 +142,7 @@ const TwoFactorAuth = () => {
               )}
             </Box>
 
-            <Box sx={{ display: "flex", gap: "8px", flexShrink: 0, width: isMobile ? "100%" : "auto", flexWrap: "wrap" }}>
+            <Box sx={{ display: "flex", gap: "8px", flexShrink: 0, width: isMobile ? "100%" : "auto", flexWrap: "wrap", ml: isMobile ? 0 : "auto" }}>
               {enabled ? (
                 <>
                   {isEmail && (
