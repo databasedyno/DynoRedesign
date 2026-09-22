@@ -1,0 +1,16 @@
+{
+  "summary": "Read-only confirmation of the deal #209 fees_earned fix on SafeDeal brand 262. All checks green: pytest iter103 (15/15 passed), DB ledger has 6 escrow:209:* rows with the 4 restored=true buyer-side rows and correct amounts, wallets 696=20/0 & 753=0/0, invariants issues=[], purge dry-run all 0, brand totals API returns fees_earned=10, costs_retained=3.74, available_total=20, held_total=0, withdrawals_paid=60, deals_total=3, deals_volume=160, customers=3, is_safedeal_brand=true. UI card on /dashboard and /customers renders '[data-testid=brand-escrow-fees]'='10.00 USD', 'Customer balances 20.00 USD', 'Deals 3 · 160 USD', no '@example.com' text present.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": ["/app/backend/tests/test_safedeal_iter103_fees_earned.py"],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "merchant Bearer token from /app/memory/tmp/merchant_token.txt used for API + UI localStorage injection",
+  "seed_data_creation": "none (strictly read-only on production DB)",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Deal #209 buyer-side ledger fully restored via backend/scripts/restore_deal_209_ledger.ts. Brand 262 totals card shows fees_earned=10.00 USD across dashboard and customers. Screenshots saved at /app/test_reports/iter215_dashboard.png and iter215_customers.png.",
+  "rca of the issue": "Buyer-side wallet ledger rows for deal #209 (funding, unhold, paid_to_seller, escrow_fee, costs) were lost in an earlier cascade delete; brandWalletTotals sums escrow_fee+exchange_fee ledger rows, so fees_earned computed as 0. Fix: idempotent re-post via safedealEscrowLedger service (escrow:209:funding + 4 settle:* rows marked meta.restored=true). Verified: 4 restored rows present + 2 existing (settle:release CREDIT 30 to seller 696, settle:unhold on buyer). Wallet balances and invariants confirm integrity."
+}
