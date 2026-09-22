@@ -13,7 +13,7 @@ import pytest
 import requests
 
 BASE_URL = (os.environ.get("REACT_APP_BACKEND_URL")
-            or "https://4050ac3b-e21b-479e-a755-bb797b479340.preview.emergentagent.com").rstrip("/")
+            or "https://dynopay-fee-audit.preview.emergentagent.com").rstrip("/")
 API = f"{BASE_URL}/api"
 TIMEOUT = 30
 

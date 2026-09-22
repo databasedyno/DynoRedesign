@@ -17,7 +17,7 @@ import requests
 from typing import Dict, Any, Optional
 
 # Base URL from supervisor conf
-BASE_URL = os.getenv("BASE_URL", "https://vault-config-1.preview.emergentagent.com")
+BASE_URL = os.getenv("BASE_URL", "https://dynopay-fee-audit.preview.emergentagent.com")
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials
