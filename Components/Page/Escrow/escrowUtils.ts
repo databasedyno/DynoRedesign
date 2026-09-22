@@ -17,10 +17,10 @@ import type { EscrowDeal } from "@/api/escrow";
 
 export type Tone = "neutral" | "brand" | "info" | "success" | "warning" | "error" | "purple";
 
-const PURPLE = "#7C3AED";
-const PURPLE_LIGHT = "#A78BFA";
-const INFO_BLUE = "#2563EB";
-const INFO_BLUE_LIGHT = "#60A5FA";
+const PURPLE = "#2BD4C4";
+const PURPLE_LIGHT = "#2BD4C4";
+const INFO_BLUE = "#0F8F86";
+const INFO_BLUE_LIGHT = "#2BD4C4";
 
 export const STATUS_TONE: Record<string, Tone> = {
   draft: "neutral",
@@ -41,9 +41,9 @@ export function toneColors(tone: Tone, isDark: boolean): { fg: string; bg: strin
   const pick = (light: string, dark: string) => (isDark ? dark : light);
   switch (tone) {
     case "brand":
-      return { fg: pick(BRAND_ACCENT, BRAND_ACCENT_LIGHT), bg: pick("#EEF2FF", "rgba(129,140,248,0.14)"), border: pick("#C7D2FE", "rgba(129,140,248,0.35)") };
+      return { fg: pick(BRAND_ACCENT, BRAND_ACCENT_LIGHT), bg: pick("#E6F7F5", "rgba(43,212,196,0.14)"), border: pick("#FFD100", "rgba(43,212,196,0.35)") };
     case "info":
-      return { fg: pick(INFO_BLUE, INFO_BLUE_LIGHT), bg: pick("#EFF6FF", "rgba(96,165,250,0.14)"), border: pick("#BFDBFE", "rgba(96,165,250,0.35)") };
+      return { fg: pick(INFO_BLUE, INFO_BLUE_LIGHT), bg: pick("#E6F7F5", "rgba(43,212,196,0.14)"), border: pick("#9FE3DC", "rgba(43,212,196,0.35)") };
     case "success":
       return { fg: pick(SUCCESS_GREEN, SUCCESS_GREEN_LIGHT), bg: pick("#ECFDF3", "rgba(63,217,138,0.14)"), border: pick("#A6F4C5", "rgba(63,217,138,0.35)") };
     case "warning":
@@ -51,7 +51,7 @@ export function toneColors(tone: Tone, isDark: boolean): { fg: string; bg: strin
     case "error":
       return { fg: pick(ERROR_RED, ERROR_RED_LIGHT), bg: pick("#FEF3F2", "rgba(255,107,107,0.14)"), border: pick("#FECDCA", "rgba(255,107,107,0.35)") };
     case "purple":
-      return { fg: pick(PURPLE, PURPLE_LIGHT), bg: pick("#F5F3FF", "rgba(167,139,250,0.14)"), border: pick("#DDD6FE", "rgba(167,139,250,0.35)") };
+      return { fg: pick(PURPLE, PURPLE_LIGHT), bg: pick("#F0FAF9", "rgba(167,139,250,0.14)"), border: pick("#CDEDE9", "rgba(167,139,250,0.35)") };
     case "neutral":
     default:
       return { fg: pick("#475467", "#98A2B3"), bg: pick("#F2F4F7", "rgba(152,162,179,0.12)"), border: pick("#E4E7EC", "rgba(152,162,179,0.3)") };

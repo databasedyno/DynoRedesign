@@ -1,107 +1,61 @@
-# SafeDeal — Telegram sign‑in + invitations + landing‑page deal creation
+# Dynopay rebrand — yellow · dark brown · black · aqua, new logo, cleaner landing
+**Starting point: the merchant dashboard (per user).** Landing page follows after.
 
-This plan covers three connected changes to SafeDeal:
-1. Make Telegram sign‑in work sensibly alongside invitations.
-2. Let a person who started with Telegram add an email later and use it to log in.
-3. Let people start a deal directly on the SafeDeal landing page.
+## Goal
+Give Dynopay (the merchant crypto-payments product — NOT SafeDeal) a new visual identity built on yellow, dark brown, black and turquoise/aqua, replace the current indigo look everywhere a customer or merchant sees it, ship a new logo that fits the palette, and remove the decorative square that sits behind the landing-page hero.
 
----
+## 1. Brand palette
+| Role | Colour | Where it is used |
+|---|---|---|
+| Yellow (primary) | bright signal yellow `#FFD100`, hover `#F0C300` | primary buttons, key numbers, active nav item, selected states, logo mark, highlights |
+| Dark brown (dominant dark) | espresso `#2B1D14`, raised surfaces `#3A2A1F` | sidebar, hero/footer grounds, dark-mode page background, headings/text on light surfaces (`#1F140D`) |
+| Black | near-black `#0B0908` | deepest backgrounds in dark mode, code/QR/address blocks, logo on light |
+| Aqua (secondary) | `#2BD4C4` on dark, `#0F8F86` on light (for readable text/links) | links, secondary/outlined buttons, focus rings, "live on-chain"/status indicators, chart lines, hover glows, progress steps |
+| Light neutrals | cream page `#FAF6EF`, card `#FFFDF7`, hairline `#E8DFD2` | light-mode backgrounds and borders (warm, never blue-grey) |
 
-## How it works today (so the changes make sense)
+Rules:
+- Yellow always carries dark-brown text (never white-on-yellow).
+- Money semantics stay conventional: green for received/up, red for failed/down. Aqua is a brand accent, not a "success" colour.
+- Both light and dark modes ship. Dark mode = dark brown/black grounds with yellow + aqua accents; light mode = cream grounds with dark-brown text.
+- Standard alert/notice boxes get solid, readable backgrounds in the new palette (fixes the faint-alert problem that already exists in the shared theme).
+- Typography is unchanged; only colour, texture, shapes and the logo change.
 
-- People sign in to SafeDeal two ways: **email one‑time code**, or **Telegram**.
-- A deal has one creator and one **counterparty invited by email address**. When the
-  invited person signs in **with that same email**, they are automatically connected to
-  the deal and can accept, fund, deliver, etc.
-- **Telegram sign‑in is currently a dead end for invitations.** A Telegram account has no
-  real email (the system stores a placeholder like `tg12345@telegram.safedeal`). Because
-  invitations are matched on the invited email, a Telegram‑only person who was invited by
-  email cannot open or act on that deal — they are turned away with a "sign in with the
-  invited email" message.
-- There is **no screen today to add or change the email** on an account. So a Telegram
-  user has no way to receive email invitations or to log in by email.
-- Starting a deal happens on a **separate page** (`/safedeal/deals/new`). The landing page
-  has a fee calculator and a "Start a deal" button that sends people to that separate page.
+## 2. Logo
+- The current indigo logo does not fit the palette, so a new one is made.
+- Direction: a geometric "D" monogram whose inner counter is cut like a coin edge, with a single small aqua spark/dot marking the on-chain moment; yellow mark on dark brown, with a clean "Dynopay" wordmark beside it.
+- Delivered as scalable vector so it renders crisp everywhere, in four variants: full colour on dark, full colour on light, single-colour dark, single-colour light.
+- Derived assets: favicon set, browser/app icon, social-share (Open Graph) image, email header image, and the small square mark used in the dashboard sidebar and hosted checkout.
+- Checkpoint: two or three rendered logo concepts are shown for a pick before the chosen one is rolled out. Because the dashboard sidebar carries the logo, this pick happens at the very start.
 
----
+## 3. Delivery order
+**Step 1 — Dashboard first (start here)**
+1. Logo concepts → pick.
+2. Merchant dashboard and every in-app page: sidebar + top bar, company selector, overview/command-centre cards, charts, tables, chips/status badges, buttons, dialogs, forms, settings, wallets, payment links, invoices, customers, transactions, get-started wizard, 2FA banners/interstitial. Light and dark mode.
+3. Sign-in / sign-up / password / 2FA screens (they share the app shell).
 
-## Proposed model: how Telegram and invitations fit together
+**Step 2 — Public surfaces**
+4. Marketing landing page: the large geometric square/tile behind the hero is removed (nothing geometric replaces it); the hero gets a soft aqua→yellow glow bleeding from one corner over the dark-brown ground plus a fine grain texture. Other decorative squares/tiles down the page are removed the same way. Whole page recoloured to the palette, new logo in header/footer.
+5. Fees page and other marketing pages sharing the landing layout.
+6. Hosted checkout (`/pay`), payment receipts (web + PDF) and the public receipt page.
 
-**Email stays the way people are addressed in an invitation. Telegram is just a convenient
-way to log in.** Concretely, there will be two clear ways to invite someone:
+**Step 3 — Comms and internal**
+7. Transactional emails (header, buttons, footer) for the Dynopay brand.
+8. Admin panel accents (low priority; functional, not a redesign).
 
-### A. Invite by email (existing, made to work with Telegram)
-- The creator enters the counterparty's email, exactly as today.
-- The invited person can now sign in **either by that email or by Telegram** — as long as
-  their account carries that email. A Telegram user simply **adds that email to their
-  account once** (see change 2); from then on the invite connects automatically and all
-  future invitations to that email reach them too.
+Explicitly unchanged:
+- SafeDeal keeps its own gold/black identity, logo and pages. Only the tiny legal line that mentions Dynopay stays as is.
+- Merchant storefront/checkout pages that are branded with the merchant's own colours/logo keep the merchant's branding.
+- Layout, navigation, copy and features do not change — this is colour, texture and logo only (except the removed landing squares).
 
-### B. Invite by shareable link ("send it over Telegram/WhatsApp/anywhere") — new
-- The creator can create a deal **without typing an email**, getting a **shareable invite
-  link** instead. They send that link to the other person through any channel (Telegram
-  chat, WhatsApp, etc.).
-- The first person who opens the link and signs in (Telegram **or** email) **claims the
-  counterparty seat** on that deal. The creator sees who claimed it (their name / masked
-  email) before any money is funded.
-- This is what makes "Telegram invitations" actually work for people who only use Telegram
-  and have no email to be addressed by.
+## 4. What "done" looks like (per step)
+- Dashboard: no indigo/violet/blue brand colour remains on any in-app page in light or dark mode; the new logo sits in the sidebar; active nav item, primary buttons and key numbers are yellow-on-brown; links/focus/status use aqua; charts use aqua/yellow lines; alerts are solid and readable.
+- Landing: no geometric background shapes; hero uses the glow + grain treatment; new logo in header, footer, favicon and social-share preview.
+- Everywhere: yellow buttons carry dark-brown text; aqua text uses the darker shade on light backgrounds; contrast meets accessibility norms.
 
-> Note: a shareable link is a **bearer link** — whoever holds it can claim the seat. This is
-> the same trust model the current email link already uses. Mitigation: the creator can see
-> the claimant before funding, and can regenerate/cancel the link if the wrong person claims
-> it. (See decision 2.)
-
----
-
-## Change 1 — Telegram sign‑in works alongside invitations
-Outcome: a Telegram user is no longer a dead end. Once they have an email on their account
-(change 2) email invitations connect to them automatically, and they can also participate in
-shareable‑link deals (model B) without any email at all.
-
-## Change 2 — Add an email to a Telegram account and log in with it
-- A signed‑in user (typically one who joined via Telegram) can **add an email** to their
-  account from a profile/settings screen.
-- Adding it requires a **one‑time code sent to that email** to prove ownership.
-- After it's verified: the account's real email is set, any **pending email invitations to
-  that address are connected**, and the person can afterwards **log in by email** as well as
-  by Telegram — both routes reach the same account, wallet and deals.
-- **Collision handling** (decision 1): if that email is already used by another SafeDeal
-  account, the default is to **stop and ask them to log in with that email instead**, rather
-  than merging two accounts (merging balances/deals is risky on live money).
-
-## Change 3 — Start a deal on the landing page
-- The SafeDeal landing page gets an **inline "start a deal" form** (title, amount, and either
-  the counterparty email **or** "invite by link"), so people can begin a deal without first
-  navigating to a separate page.
-- If the person isn't signed in yet, their entries are **kept** while they sign in (Telegram
-  or email), and the deal is created right after — nothing is retyped.
-- The separate `/safedeal/deals/new` page is kept as the fuller form (for extra options like
-  terms, due date, fee payer, currency); the landing form is the fast start (decision 4).
-
----
-
-## Decisions to confirm
-
-1. **Email collision when adding an email to a Telegram account** — default: **block** and
-   tell them to sign in with that email (no automatic account merge). Alternative: attempt to
-   merge the two accounts (more convenient, but riskier because it moves wallet balance and
-   deal history).
-
-2. **Shareable "invite by link" deals** — default: **include them** (this is what enables true
-   Telegram invitations). They are bearer links; the creator sees who claimed the seat before
-   funding and can cancel/regenerate. If you'd rather not have bearer links at all, we can keep
-   invitations email‑only and rely solely on "add email" (change 2) to make Telegram work.
-
-3. **Which landing page** — default: the **SafeDeal landing page** (`/safedeal`). Confirm this
-   is the page you mean by "first landing page" (as opposed to the top‑level Dynopay homepage).
-
-4. **Keep the separate full new‑deal page** — default: **yes**, as the advanced form, with the
-   landing form as the quick start. Alternative: fold everything into the landing form only.
-
-## Out of scope (unless you ask)
-- Sending invitations as **Telegram bot messages** to the other person (the bot can only
-  message people who have already started it, and the creator rarely knows the other person's
-  Telegram ID). "Telegram invitations" here means the shareable link sent over Telegram, not a
-  bot DM.
-- Changing how funding, payouts, fees, disputes or the wallet work.
+## Assumptions (change if wrong)
+- Full-product rebrand is wanted; the dashboard ships first, then landing/checkout, then emails/admin.
+- Dynopay's yellow is deliberately a touch brighter/cooler than SafeDeal's gold so the two products stay recognisably related but distinct.
+- The dark-brown sidebar is the dashboard's anchor in both light and dark mode (light mode = brown sidebar on cream page; dark mode = brown sidebar on black page).
+- The landing square is removed outright rather than swapped for another shape.
+- Existing fonts stay; the logo wordmark is drawn as vector, not dependent on a new web font.
+- Dark brown (not pure black) is the dominant dark; black is reserved for the deepest layers so the UI feels warm rather than stark.

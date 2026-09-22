@@ -14,7 +14,9 @@ import useIsMobile from "@/hooks/useIsMobile";
 import { useSidebarCollapsed } from "@/hooks/useSidebarCollapsed";
 import { LayoutProps, rootReducer } from "@/utils/types";
 import { recordShortcutVisit } from "@/helpers/shortcutUsage";
-import { Box, SxProps, Theme, useMediaQuery, useTheme } from "@mui/material";
+import { Box, SxProps, Theme, ThemeProvider, useMediaQuery, useTheme } from "@mui/material";
+import { sidebarTheme } from "@/styles/appTheme";
+import { DARK } from "@/constants/theme";
 import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
 import React, { useEffect, useRef } from "react";
@@ -216,7 +218,8 @@ const ClientLayout = ({
                 overflow: "hidden",
               }}
             >
-              {/* ================= SIDEBAR ================= */}
+              {/* ================= SIDEBAR (dark-brown rail in both modes) ================= */}
+              <ThemeProvider theme={sidebarTheme}>
               <Box
                 component="nav"
                 aria-label={t("mainNavigation", { ns: "common", defaultValue: "Main navigation" })}
@@ -224,8 +227,8 @@ const ClientLayout = ({
                   width: "var(--dp-sidebar-w)",
                   height: "100%",
                   overflow: "hidden",
-                  backgroundColor: theme.palette.background.paper,
-                  borderRight: `1px solid ${theme.palette.border.main}`,
+                  backgroundColor: DARK.raised,
+                  borderRight: `1px solid ${theme.palette.mode === "dark" ? "rgba(255,240,210,0.08)" : "rgba(43,29,20,0.18)"}`,
                   // Desktop sidebar shows at ≥768 (icon rail in 768–1024, full ≥1024).
                   display: "none",
                   "@media (min-width:768px)": { display: "block" },
@@ -236,6 +239,7 @@ const ClientLayout = ({
               >
                 <NewSidebar forceCollapsed={isTabletRail} />
               </Box>
+              </ThemeProvider>
 
               {/* ================= MAIN CONTENT ================= */}
               <Box

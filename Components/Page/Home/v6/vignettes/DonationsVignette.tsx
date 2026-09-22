@@ -12,7 +12,7 @@ const DonationsVignette: React.FC = () => {
     <VigFrame testId="vignette-donations">
       <Panel sx={{ left: 18, right: 18, top: 18, bottom: -30, p: 1.75, borderRadius: "18px" }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
-          <Box sx={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg,#F472B6,#7C5CFF)" }} />
+          <Box sx={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg,#F472B6,#FFB300)" }} />
           <Box sx={{ flex: 1 }}>
             <Strong size={14}>{t("v6.vig.support", { name: "Maya" })}</Strong>
             <Label sx={{ textTransform: "none", letterSpacing: 0, fontSize: 11 }}>{t("v6.vig.donors", { n: 128 })}</Label>
@@ -28,7 +28,7 @@ const DonationsVignette: React.FC = () => {
             <Label sx={{ textTransform: "none", letterSpacing: 0 }}>$340 / $500</Label>
           </Box>
           <Box sx={{ height: 8, borderRadius: 999, background: v.s.dark ? "rgba(255,255,255,0.08)" : "#EEEEF2", overflow: "hidden" }}>
-            <Box sx={{ width: "68%", height: "100%", borderRadius: 999, background: "linear-gradient(90deg,#4F46E5,#34D399)", transition: "width 900ms cubic-bezier(0.16,1,0.3,1)", ".bento:hover &": { width: "74%" } }} />
+            <Box sx={{ width: "68%", height: "100%", borderRadius: 999, background: "linear-gradient(90deg,#F0C300,#34D399)", transition: "width 900ms cubic-bezier(0.16,1,0.3,1)", ".bento:hover &": { width: "74%" } }} />
           </Box>
         </Box>
         <Box sx={{ mt: 1.75, py: 1, borderRadius: 999, textAlign: "center", background: v.s.ink, color: v.s.dark ? "#0A0A0A" : "#fff", fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 13 }}>{t("v6.vig.tip")} $25</Box>

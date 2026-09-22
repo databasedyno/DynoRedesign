@@ -24,7 +24,7 @@ const AuthStatus: React.FC<AuthStatusProps> = ({ tone = "neutral", icon, title, 
   const toneColor =
     tone === "success" ? (dark ? "#34D399" : "#059669") : tone === "error" ? (dark ? "#FB7185" : "#BE123C") : theme.palette.primary.main;
   const toneBg =
-    tone === "success" ? (dark ? "rgba(52,211,153,0.14)" : "rgba(5,150,105,0.10)") : tone === "error" ? (dark ? "rgba(251,113,133,0.14)" : "rgba(190,18,60,0.08)") : dark ? "rgba(129,140,248,0.16)" : "rgba(79,70,229,0.08)";
+    tone === "success" ? (dark ? "rgba(52,211,153,0.14)" : "rgba(5,150,105,0.10)") : tone === "error" ? (dark ? "rgba(251,113,133,0.14)" : "rgba(190,18,60,0.08)") : dark ? "rgba(43,212,196,0.16)" : "rgba(15,143,134,0.08)";
 
   return (
     <Box data-testid={testId} sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 1.5 }}>

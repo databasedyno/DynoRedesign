@@ -68,7 +68,7 @@ interface Props {
 }
 
 const INDIGO_LIGHT = BRAND_ACCENT
-const INDIGO_DARK = '#818CF8'
+const INDIGO_DARK = '#2BD4C4'
 
 const formatDayLabel = (ymd: string) => {
   // "2026-08-05" → "Aug 5" (follows the app language, not the browser locale)
@@ -118,7 +118,7 @@ const AnalyticsWidget: React.FC<Props> = ({
   const indigo = isDark ? INDIGO_DARK : INDIGO_LIGHT
   const barColor = accentColor || indigo
   // Neutral fill so ANY accent colour reads well underneath the line
-  const areaFill = isDark ? 'rgba(129,140,248,0.18)' : 'rgba(79,70,229,0.12)'
+  const areaFill = isDark ? 'rgba(43,212,196,0.18)' : 'rgba(15,143,134,0.12)'
   const border = theme.palette.divider
   const cardBg = isDark ? 'rgba(255,255,255,0.02)' : 'rgba(10,10,15,0.02)'
 
@@ -165,7 +165,7 @@ const AnalyticsWidget: React.FC<Props> = ({
           WebkitBackdropFilter: 'blur(16px)',
           boxShadow: isDark
             ? '0 16px 44px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05)'
-            : '0 16px 44px rgba(67,56,202,0.08), inset 0 1px 0 rgba(255,255,255,0.9)',
+            : '0 16px 44px rgba(15,143,134,0.08), inset 0 1px 0 rgba(255,255,255,0.9)',
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
@@ -239,8 +239,8 @@ const AnalyticsWidget: React.FC<Props> = ({
                 }
                 sx={{
                   borderRadius: '999px',
-                  backgroundColor: isDark ? 'rgba(129,140,248,0.10)' : 'rgba(79,70,229,0.08)',
-                  border: `1px solid ${isDark ? 'rgba(129,140,248,0.24)' : 'rgba(79,70,229,0.22)'}`,
+                  backgroundColor: isDark ? 'rgba(43,212,196,0.10)' : 'rgba(15,143,134,0.08)',
+                  border: `1px solid ${isDark ? 'rgba(43,212,196,0.24)' : 'rgba(15,143,134,0.22)'}`,
                   '.MuiChip-label': { px: 1.25 },
                 }}
               />
@@ -379,7 +379,7 @@ const AnalyticsWidget: React.FC<Props> = ({
                     width: 26, height: 26, borderRadius: '50%',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: 11.5, fontWeight: 800,
-                    backgroundColor: isDark ? 'rgba(129,140,248,0.16)' : 'rgba(79,70,229,0.10)',
+                    backgroundColor: isDark ? 'rgba(43,212,196,0.16)' : 'rgba(15,143,134,0.10)',
                     color: indigo,
                   }}
                 >

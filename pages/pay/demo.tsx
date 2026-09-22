@@ -394,8 +394,8 @@ const PaymentDemo = () => {
                 data-testid="demo-simulate-btn"
                 sx={{
                   mt: 1, textTransform: 'none', borderRadius: '999px', fontWeight: 700, minHeight: 46,
-                  backgroundColor: LIME, color: '#fff', boxShadow: 'none',
-                  '&:hover': { backgroundColor: '#4338CA', boxShadow: 'none' },
+                  backgroundColor: LIME, color: '#2B1D14', boxShadow: 'none',
+                  '&:hover': { backgroundColor: '#F0C300', boxShadow: 'none' },
                   '&:active': { transform: 'scale(0.99)' },
                 }}
               >

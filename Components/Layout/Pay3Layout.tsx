@@ -27,7 +27,7 @@ export default function Pay3Layout({
                 flexDirection: 'column',
                 // Quiet Money: flat pale-grey canvas (no decorative orbs) so the
                 // single white checkout card is the only thing that reads.
-                background: isDark ? '#0B0F19' : '#F4F5F9',
+                background: isDark ? '#0B0908' : '#F4F5F9',
                 transition: 'background 0.3s ease',
                 position: 'relative',
                 // `clip` keeps stray decorations contained WITHOUT creating a scroll

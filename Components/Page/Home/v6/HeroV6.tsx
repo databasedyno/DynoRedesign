@@ -44,11 +44,11 @@ const HeroV6: React.FC = () => {
       <Box sx={{ position: "relative", zIndex: 1, maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 } }}>
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1.22fr 0.78fr" }, alignItems: "center", gap: { xs: 5, md: 8 } }}>
           <Box>
-            <Typography component="p" sx={{ display: "inline-flex", alignItems: "center", gap: 1, fontFamily: FONT_TECH, fontSize: 11.5, letterSpacing: "0.26em", textTransform: "uppercase", color: s.dark ? "#A5B4FC" : "#4338CA", mb: 3.5, ...enter(0) }}>
+            <Typography component="p" sx={{ display: "inline-flex", alignItems: "center", gap: 1, fontFamily: FONT_TECH, fontSize: 11.5, letterSpacing: "0.26em", textTransform: "uppercase", color: s.dark ? "#2BD4C4" : "#0F8F86", mb: 3.5, ...enter(0) }}>
               <LiveDot data-testid="hero-live-dot" /> {t("v5.hero.eyebrow")}
             </Typography>
             <Typography component="h1" data-testid="hero-headline" sx={{ fontFamily: FONT_HERO, fontWeight: 800, fontSize: "clamp(40px, 4.9vw, 68px)", lineHeight: 0.98, letterSpacing: "-0.042em", color: s.ink, mb: 3.5, ...enter(0.08) }}>
-              <Box component="span" sx={{ display: "block", background: s.dark ? "linear-gradient(92deg, #A5B4FC 0%, #C4B5FD 48%, #6EE7B7 100%)" : "linear-gradient(92deg, #4338CA 0%, #6D28D9 48%, #059669 100%)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent", pb: "0.06em" }}>
+              <Box component="span" sx={{ display: "block", background: s.dark ? "linear-gradient(92deg, #FFD100 0%, #FFB300 48%, #6EE7B7 100%)" : "linear-gradient(92deg, #FFD100 0%, #FFB300 48%, #059669 100%)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent", pb: "0.06em" }}>
                 {t("v6.hero.h1a")}
               </Box>
               {t("v6.hero.h1b")}

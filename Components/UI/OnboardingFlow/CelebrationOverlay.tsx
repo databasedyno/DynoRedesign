@@ -51,14 +51,14 @@ const CelebrationOverlay: React.FC<CelebrationOverlayProps> = ({
         angle: 60,
         spread: 55,
         origin: { x: 0, y: 0.65 },
-        colors: ["#10B981", "#34D399", "#4338CA", "#818CF8", "#FFD700"],
+        colors: ["#10B981", "#34D399", "#FFD100", "#2BD4C4", "#FFB300"],
       });
       confetti({ disableForReducedMotion: true,
         particleCount: 3,
         angle: 120,
         spread: 55,
         origin: { x: 1, y: 0.65 },
-        colors: ["#10B981", "#34D399", "#4338CA", "#818CF8", "#FFD700"],
+        colors: ["#10B981", "#34D399", "#FFD100", "#2BD4C4", "#FFB300"],
       });
       if (Date.now() < end) requestAnimationFrame(burst);
     };
@@ -67,7 +67,7 @@ const CelebrationOverlay: React.FC<CelebrationOverlayProps> = ({
       particleCount: 100,
       spread: 70,
       origin: { y: 0.6 },
-      colors: ["#10B981", "#34D399", "#4338CA", "#818CF8", "#FFD700"],
+      colors: ["#10B981", "#34D399", "#FFD100", "#2BD4C4", "#FFB300"],
     });
 
     burst();

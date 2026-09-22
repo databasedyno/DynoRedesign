@@ -80,9 +80,8 @@ export const MenuItem = styled("div", {
 })<{ active?: boolean }>(
   ({ active, theme }) => {
     const isDark = theme.palette.mode === "dark";
-    // Quiet Money (Blueprint §3): the active row is a calm 3px indigo left-bar +
-    // faint tint + indigo text/icon — NOT a filled high-contrast pill with a glow.
-    const activeTint = isDark ? "rgba(99,102,241,0.14)" : "rgba(67,56,202,0.07)";
+    // Active row: yellow text/icon + 3px yellow left-bar + faint yellow tint on the brown rail.
+    const activeTint = "rgba(255,209,0,0.12)";
     return {
       display: "flex",
       alignItems: "center",
@@ -95,7 +94,7 @@ export const MenuItem = styled("div", {
       background: active ? activeTint : "transparent",
       fontSize: "14px",
       fontWeight: active ? 600 : 500,
-      color: active ? brandFg(isDark) : theme.palette.text.secondary,
+      color: active ? theme.palette.primary.main : theme.palette.text.secondary,
       boxShadow: "none",
       transition: "background 0.16s ease, color 0.16s ease, transform 0.16s ease",
       position: "relative",
@@ -115,9 +114,9 @@ export const MenuItem = styled("div", {
         background: active
           ? activeTint
           : isDark
-            ? "rgba(148,163,184,0.08)"
-            : "rgba(15,23,42,0.04)",
-        color: active ? brandFg(isDark) : theme.palette.text.primary,
+            ? "rgba(255,240,210,0.07)"
+            : "rgba(255,240,210,0.07)",
+        color: active ? theme.palette.primary.main : theme.palette.text.primary,
       },
       "&:active": {
         transform: "scale(0.99)",

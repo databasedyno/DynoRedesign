@@ -22,8 +22,8 @@
   56%, 100% { opacity: 0; }
 }
 @keyframes swiss-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.5); }
-  50% { box-shadow: 0 0 0 5px rgba(99, 102, 241, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(43, 212, 196, 0.5); }
+  50% { box-shadow: 0 0 0 5px rgba(43, 212, 196, 0); }
 }
 @media (prefers-reduced-motion: reduce) {
   .swiss-marquee-track { animation: none !important; }
@@ -32,11 +32,11 @@
 
 /* ── Instant theme background (set by blocking script in _document, before React) ── */
 html[data-theme="dark"] {
-  background-color: #07090F;
+  background-color: #0B0908;
   color-scheme: dark;
 }
 html[data-theme="light"] {
-  background-color: #F2F3F8;
+  background-color: #FAF6EF;
   color-scheme: light;
 }
 
@@ -378,11 +378,11 @@ a {
 }
 /* NProgress bar styling */
 #nprogress .bar {
-  background: #6C5CE7 !important;
+  background: #FFD100 !important;
   height: 3px !important;
 }
 #nprogress .peg {
-  box-shadow: 0 0 10px #6C5CE7, 0 0 5px #6C5CE7 !important;
+  box-shadow: 0 0 10px #FFD100, 0 0 5px #FFD100 !important;
 }
 
 /* ── Themed SVG icon handling for dark/light mode ── */
@@ -392,12 +392,12 @@ a {
 html[data-theme="dark"] .themed-icon {
   filter: brightness(0) saturate(100%) invert(85%) sepia(0%) saturate(0%) brightness(105%) contrast(85%);
 }
-/* Blue-accent icons: remap brand blue to lighter blue in dark mode */
+/* Brand-accent icons (aqua #0F8F86 in the SVG): lift to bright aqua in dark mode */
 .themed-icon-primary {
   transition: filter 0.2s ease;
 }
 html[data-theme="dark"] .themed-icon-primary {
-  filter: brightness(0) saturate(100%) invert(55%) sepia(60%) saturate(3000%) hue-rotate(220deg) brightness(105%) contrast(100%);
+  filter: brightness(1.6) saturate(1.1);
 }
 
 /* ============================================================
@@ -437,14 +437,14 @@ code {
 
 /* Improved dark-mode text contrast baseline (WCAG AAA on #09090B). */
 html[data-theme="dark"] {
-  --text-primary: #FAFAFA;
-  --text-secondary: #C2C8D2;
-  --text-tertiary: #8C9199;
+  --text-primary: #FAF6EF;
+  --text-secondary: #D9CFC2;
+  --text-tertiary: #A99A8A;
 }
 html[data-theme="light"] {
-  --text-primary: #18181B;
-  --text-secondary: #71717A;
-  --text-tertiary: #A1A1AA;
+  --text-primary: #1F140D;
+  --text-secondary: #5C4B3E;
+  --text-tertiary: #9A8B7C;
 }
 
 /* ── Phase 3: canonical radius + elevation scale (2026-09) ───────────────────
@@ -457,15 +457,15 @@ html[data-theme="light"] {
   --radius-card: 12px;
   --radius-chip: 100px;
   --radius-pill: 9999px;
-  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.05);
-  --shadow-card-hover: 0 6px 20px rgba(15, 23, 42, 0.1);
-  --shadow-pop: 0 10px 30px rgba(15, 23, 42, 0.12);
+  --shadow-card: 0 1px 2px rgba(43, 29, 20, 0.06);
+  --shadow-card-hover: 0 6px 20px rgba(43, 29, 20, 0.1);
+  --shadow-pop: 0 10px 30px rgba(43, 29, 20, 0.12);
 }
 html[data-theme="dark"] {
-  --shadow-card: 0 8px 32px rgba(3, 6, 15, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.06);
-  --shadow-card-hover: 0 12px 40px rgba(3, 6, 15, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.1),
-    0 0 48px rgba(99, 102, 241, 0.14);
-  --shadow-pop: 0 16px 48px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 240, 210, 0.06);
+  --shadow-card-hover: 0 12px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 240, 210, 0.1),
+    0 0 48px rgba(43, 212, 196, 0.1);
+  --shadow-pop: 0 16px 48px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 240, 210, 0.06);
 }
 
 /* ── Phase 3: dark-tuned loading skeletons ───────────────────────────────────
@@ -532,12 +532,12 @@ html[data-theme="light"] .MuiSkeleton-root {
    focus (`:focus-visible`) so mouse clicks stay clean. Applies to all
    interactive elements everywhere. */
 :root {
-  --dyno-focus-ring: #6366F1;
-  --dyno-focus-ring-shadow: 0 0 0 3px rgba(99, 102, 241, 0.40);
+  --dyno-focus-ring: #2BD4C4;
+  --dyno-focus-ring-shadow: 0 0 0 3px rgba(43, 212, 196, 0.40);
 }
 html[data-theme="light"] {
-  --dyno-focus-ring: #0A0A0A;
-  --dyno-focus-ring-shadow: 0 0 0 2px rgba(10, 10, 10, 0.25);
+  --dyno-focus-ring: #0F8F86;
+  --dyno-focus-ring-shadow: 0 0 0 3px rgba(15, 143, 134, 0.30);
 }
 
 :focus-visible {

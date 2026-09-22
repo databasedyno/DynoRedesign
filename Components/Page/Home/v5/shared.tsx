@@ -73,7 +73,7 @@ export const SecondaryBtn: React.FC<ButtonProps & { small?: boolean; onDark?: bo
         transition: "border-color 180ms ease, color 180ms ease, background-color 180ms ease",
         "&:hover": onDark
           ? { background: "rgba(255,255,255,0.07)", borderColor: "rgba(255,255,255,0.5)" }
-          : { borderColor: BRAND_ACCENT, color: s.dark ? "#A5B4FC" : BRAND_ACCENT, background: "transparent" },
+          : { borderColor: BRAND_ACCENT, color: s.dark ? "#FFD100" : BRAND_ACCENT, background: "transparent" },
         ...sx,
       }}
     />

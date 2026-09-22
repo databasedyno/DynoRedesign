@@ -198,7 +198,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
   const isDark = theme.palette.mode === 'dark'
   const border = theme.palette.divider
   const surface = isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'
-  const limeTint = isDark ? 'rgba(79,70,229,0.10)' : 'rgba(79,70,229,0.16)'
+  const limeTint = isDark ? 'rgba(15,143,134,0.10)' : 'rgba(15,143,134,0.16)'
   const warnTint = isDark ? 'rgba(255,190,50,0.10)' : 'rgba(255,190,50,0.18)'
   const errTint = isDark ? 'rgba(255,80,80,0.10)' : 'rgba(255,80,80,0.14)'
   const meta = STYLE_META[style] || STYLE_META.coffee

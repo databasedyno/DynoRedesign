@@ -333,7 +333,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
         aria-hidden
         sx={{
           position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0,
-          background: `radial-gradient(46% 34% at 50% 0%, ${alpha(accent, isDark ? 0.22 : 0.10)} 0%, transparent 70%), radial-gradient(38% 30% at 12% 42%, ${alpha('#7C3AED', isDark ? 0.14 : 0.06)} 0%, transparent 70%), radial-gradient(38% 30% at 88% 68%, ${alpha('#0EA5E9', isDark ? 0.11 : 0.05)} 0%, transparent 70%)`,
+          background: `radial-gradient(46% 34% at 50% 0%, ${alpha(accent, isDark ? 0.22 : 0.10)} 0%, transparent 70%), radial-gradient(38% 30% at 12% 42%, ${alpha('#FFB300', isDark ? 0.14 : 0.06)} 0%, transparent 70%), radial-gradient(38% 30% at 88% 68%, ${alpha('#0EA5E9', isDark ? 0.11 : 0.05)} 0%, transparent 70%)`,
         }}
       />
       <Box sx={{ width: '100%', maxWidth: 620, position: 'relative', zIndex: 1 }}>
@@ -395,7 +395,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
               width: { xs: 104, sm: 120 }, height: { xs: 104, sm: 120 },
               borderRadius: '50%',
               p: '3.5px',
-              background: `linear-gradient(135deg, ${accent} 0%, #7C3AED 55%, ${alpha('#0EA5E9', 0.85)} 100%)`,
+              background: `linear-gradient(135deg, ${accent} 0%, #FFB300 55%, ${alpha('#0EA5E9', 0.85)} 100%)`,
               boxShadow: `0 16px 48px ${alpha(accent, isDark ? 0.4 : 0.28)}`,
               position: 'relative', zIndex: 1,
             }}
@@ -449,7 +449,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
               backgroundColor: alpha(accent, isDark ? 0.12 : 0.07),
             }}
           >
-            <Typography sx={{ fontFamily: MONO, fontSize: 13.5, fontWeight: 600, color: isDark ? '#A5B4FC' : (readableOn(accent) === '#FFFFFF' ? accent : darken(accent, 0.35)) }}>
+            <Typography sx={{ fontFamily: MONO, fontSize: 13.5, fontWeight: 600, color: isDark ? '#2BD4C4' : (readableOn(accent) === '#FFFFFF' ? accent : darken(accent, 0.35)) }}>
               @{creator.handle}
             </Typography>
           </Box>
@@ -532,7 +532,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
               WebkitBackdropFilter: 'blur(20px)',
               boxShadow: isDark
                 ? '0 24px 70px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06)'
-                : '0 24px 70px rgba(67,56,202,0.10), inset 0 1px 0 rgba(255,255,255,0.9)',
+                : '0 24px 70px rgba(15,143,134,0.10), inset 0 1px 0 rgba(255,255,255,0.9)',
             }}
           >
             <Typography sx={{ fontFamily: MONO, fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: theme.palette.text.secondary, mb: 1 }}>
@@ -565,7 +565,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
                     sx={{
                       width: `${Math.min(100, featured.progress_percent)}%`,
                       height: '100%', borderRadius: 999,
-                      background: `linear-gradient(90deg, ${accent} 0%, #7C3AED 100%)`,
+                      background: `linear-gradient(90deg, ${accent} 0%, #FFB300 100%)`,
                       boxShadow: `0 0 12px ${alpha(accent, 0.55)}`,
                       transition: 'width 600ms cubic-bezier(0.22,1,0.36,1)',
                     }}
@@ -595,10 +595,10 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
                 : {
                     mt: 2, py: 1.5, borderRadius: '14px', textTransform: 'none',
                     fontWeight: 800, fontSize: 15.5, letterSpacing: '-0.01em',
-                    background: `linear-gradient(135deg, ${accent} 0%, #7C3AED 100%)`, color: readableOn(accent),
+                    background: `linear-gradient(135deg, ${accent} 0%, #FFB300 100%)`, color: readableOn(accent),
                     boxShadow: `0 12px 30px ${alpha(accent, 0.35)}`,
                     transition: 'transform 140ms ease, box-shadow 140ms ease, filter 140ms ease',
-                    '&:hover': { background: `linear-gradient(135deg, ${accent} 0%, #7C3AED 100%)`, filter: 'brightness(1.07)', transform: 'translateY(-1px)', boxShadow: `0 16px 38px ${alpha(accent, 0.45)}` },
+                    '&:hover': { background: `linear-gradient(135deg, ${accent} 0%, #FFB300 100%)`, filter: 'brightness(1.07)', transform: 'translateY(-1px)', boxShadow: `0 16px 38px ${alpha(accent, 0.45)}` },
                   }}
             >
               {t('creator.card.supportCampaign')}

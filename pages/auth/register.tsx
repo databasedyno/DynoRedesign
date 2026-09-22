@@ -115,7 +115,7 @@ const Register = () => {
         spread: 60,
         startVelocity: 35,
         origin: { x: 0.3, y: 0.5 },
-        colors: ["#4338CA", "#818CF8", "#10B981", "#F59E0B"],
+        colors: ["#FFD100", "#2BD4C4", "#10B981", "#FFB300"],
         scalar: 0.9,
         ticks: 200,
       });
@@ -124,7 +124,7 @@ const Register = () => {
         spread: 60,
         startVelocity: 35,
         origin: { x: 0.7, y: 0.5 },
-        colors: ["#4338CA", "#818CF8", "#10B981", "#F59E0B"],
+        colors: ["#FFD100", "#2BD4C4", "#10B981", "#FFB300"],
         scalar: 0.9,
         ticks: 200,
       });
@@ -711,13 +711,13 @@ const Register = () => {
                         borderRadius: "12px",
                         border: `1px solid ${
                           theme.palette.mode === "dark"
-                            ? "rgba(79,70,229,0.4)"
-                            : "rgba(79,70,229,0.25)"
+                            ? "rgba(15,143,134,0.4)"
+                            : "rgba(15,143,134,0.25)"
                         }`,
                         background:
                           theme.palette.mode === "dark"
-                            ? "rgba(79,70,229,0.14)"
-                            : "rgba(79,70,229,0.06)",
+                            ? "rgba(15,143,134,0.14)"
+                            : "rgba(15,143,134,0.06)",
                       }}
                     >
                       <CheckCircleOutline
@@ -938,7 +938,7 @@ const Register = () => {
                     <Box
                       sx={{
                         width: 56, height: 56, borderRadius: "12px",
-                        background: `linear-gradient(135deg, ${BRAND_ACCENT}, #7C3AED)`,
+                        background: `linear-gradient(135deg, ${BRAND_ACCENT}, #FFB300)`,
                         display: "flex", alignItems: "center", justifyContent: "center",
                         margin: "0 auto 12px",
                       }}

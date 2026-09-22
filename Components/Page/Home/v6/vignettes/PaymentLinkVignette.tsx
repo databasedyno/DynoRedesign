@@ -16,7 +16,7 @@ const PaymentLinkVignette: React.FC = () => {
     <VigFrame height={300} testId="vignette-links">
       <Panel sx={{ left: 22, top: 22, width: 318, p: 2 }}>
         <Box sx={{ display: "flex", gap: 1.5, alignItems: "center" }}>
-          <Box sx={{ width: 44, height: 44, borderRadius: "12px", background: "linear-gradient(135deg, #4F46E5, #7C5CFF 60%, #34D399)", flexShrink: 0 }} />
+          <Box sx={{ width: 44, height: 44, borderRadius: "12px", background: "linear-gradient(135deg, #FFD100, #FFB300 60%, #34D399)", flexShrink: 0 }} />
           <Box sx={{ flex: 1, minWidth: 0 }}>
             <Strong size={14.5}>Design sprint</Strong>
             <Label sx={{ letterSpacing: "0.02em", textTransform: "none", fontSize: 11.5, mt: 0.3 }}>Studio Nord · {t("v6.vig.oneTime")}</Label>

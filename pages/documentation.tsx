@@ -88,10 +88,10 @@ const ProductCard = styled(Box)(({ theme }) => {
     display: "flex",
     flexDirection: "column" as const,
     "&:hover": {
-      borderColor: dk ? "#818CF8" : BRAND_ACCENT,
+      borderColor: dk ? "#FFD100" : BRAND_ACCENT,
       transform: "translateY(-2px)",
       boxShadow: dk
-        ? "0 8px 32px rgba(129,140,248,0.15)"
+        ? "0 8px 32px rgba(43,212,196,0.15)"
         : "0 8px 32px rgba(10,10,10,0.08)",
     },
   };
@@ -106,8 +106,8 @@ const ProductIcon = styled(Box)(({ theme }) => {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    background: dk ? "rgba(129,140,248,0.1)" : "#0A0A0A0D",
-    color: dk ? "#818CF8" : BRAND_ACCENT,
+    background: dk ? "rgba(43,212,196,0.1)" : "#0A0A0A0D",
+    color: dk ? "#2BD4C4" : BRAND_ACCENT,
     marginBottom: "16px",
     "& svg": { fontSize: 24 },
   };
@@ -144,13 +144,13 @@ const SidebarItem = styled(Box, {
     fontSize: "14px",
     fontFamily: "var(--font-sans)",
     fontWeight: active ? 600 : 400,
-    color: active ? (dk ? "#818CF8" : BRAND_ACCENT) : theme.palette.text.secondary,
-    background: active ? (dk ? "rgba(129,140,248,0.1)" : "#0A0A0A08") : "transparent",
+    color: active ? (dk ? "#2BD4C4" : BRAND_ACCENT) : theme.palette.text.secondary,
+    background: active ? (dk ? "rgba(43,212,196,0.1)" : "#0A0A0A08") : "transparent",
     cursor: "pointer",
     transition: "all 0.15s",
     "&:hover": {
-      background: dk ? "rgba(129,140,248,0.06)" : "#F8F9FC",
-      color: dk ? "#818CF8" : BRAND_ACCENT,
+      background: dk ? "rgba(43,212,196,0.06)" : "#F8F9FC",
+      color: dk ? "#2BD4C4" : BRAND_ACCENT,
     },
   };
 });
@@ -181,7 +181,7 @@ const EndpointCardWrapper = styled(Box)(({ theme }) => {
     scrollMarginTop: "100px",
     "&:hover": {
       boxShadow: dk
-        ? "0 4px 20px rgba(129,140,248,0.08)"
+        ? "0 4px 20px rgba(43,212,196,0.08)"
         : "0 4px 20px rgba(10,10,10,0.04)",
     },
   };
@@ -198,11 +198,11 @@ const EndpointHeader = styled(Box, {
     padding: "16px 20px",
     cursor: "pointer",
     background: expanded
-      ? dk ? "rgba(129,140,248,0.04)" : "#FAFBFF"
+      ? dk ? "rgba(43,212,196,0.04)" : "#FAFBFF"
       : dk ? "rgba(255,255,255,0.045)" : "#FFFFFF",
     transition: "background 0.15s",
     "&:hover": {
-      background: dk ? "rgba(129,140,248,0.06)" : "#F5F7FF",
+      background: dk ? "rgba(43,212,196,0.06)" : "#F0FAF9",
     },
   };
 });
@@ -219,8 +219,8 @@ const MethodBadgeStyled = styled("span", {
   fontWeight: 700,
   letterSpacing: "0.5px",
   fontFamily: "var(--font-tech), monospace",
-  color: "#FFFFFF",
-  background: isGet ? "#15803D" : "#4F46E5", // AA white-on-colour (was #22C55E ≈ 2.3:1)
+  color: isGet ? "#FFFFFF" : "#2B1D14",
+  background: isGet ? "#15803D" : "#FFD100",
   minWidth: 44,
 }));
 
@@ -242,8 +242,8 @@ const AuthBadge = styled("span", {
       ? dk ? "rgba(245,158,11,0.15)" : "#FEF3C7"
       : (isApiOnly || isOptionalBearer)
         ? dk ? "rgba(29,78,216,0.15)" : "#DBEAFE"
-        : dk ? "rgba(109,40,217,0.15)" : "#EDE9FE",
-    color: isPublishable ? (dk ? "#FBBF24" : "#B45309") : (isApiOnly || isOptionalBearer) ? (dk ? "#93C5FD" : "#1D4ED8") : (dk ? "#C4B5FD" : "#6D28D9"),
+        : dk ? "rgba(109,40,217,0.15)" : "#E6F7F5",
+    color: isPublishable ? (dk ? "#FBBF24" : "#B45309") : (isApiOnly || isOptionalBearer) ? (dk ? "#93C5FD" : "#1D4ED8") : (dk ? "#2BD4C4" : "#2BD4C4"),
   };
 });
 
@@ -320,7 +320,7 @@ const StepNumber = styled(Box)(({ theme }) => {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    background: dk ? "rgba(129,140,248,0.15)" : "#0A0A0A",
+    background: dk ? "rgba(43,212,196,0.15)" : "#0A0A0A",
     color: "#FFFFFF",
     fontWeight: 700,
     fontSize: "15px",
@@ -342,13 +342,13 @@ const AuthCard = styled(Box, {
         ? dk ? "rgba(29,78,216,0.3)" : "#BFDBFE"
         : isGreen
           ? dk ? "rgba(5,150,105,0.3)" : "#A7F3D0"
-          : dk ? "rgba(109,40,217,0.3)" : "#DDD6FE"
+          : dk ? "rgba(109,40,217,0.3)" : "#CDEDE9"
     }`,
     background: isBlue
       ? dk ? "rgba(29,78,216,0.06)" : "#EFF6FF"
       : isGreen
         ? dk ? "rgba(5,150,105,0.06)" : "#ECFDF5"
-        : dk ? "rgba(109,40,217,0.06)" : "#F5F3FF",
+        : dk ? "rgba(109,40,217,0.06)" : "#F0FAF9",
     height: "100%",
   };
 });
@@ -359,8 +359,8 @@ const InfoBox = styled(Box)(({ theme }) => {
     padding: "20px",
     borderRadius: "14px",
     background: dk
-      ? "linear-gradient(135deg, rgba(129,140,248,0.06) 0%, rgba(109,40,217,0.06) 100%)"
-      : "linear-gradient(135deg, #F0F5FF 0%, #F5F3FF 100%)",
+      ? "linear-gradient(135deg, rgba(43,212,196,0.06) 0%, rgba(109,40,217,0.06) 100%)"
+      : "linear-gradient(135deg, #E6F7F5 0%, #F0FAF9 100%)",
     border: `1px solid ${dk ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}`,
   };
 });
@@ -1197,7 +1197,7 @@ const ParamTable = memo(({ title, params }: { title: string; params: { name: str
   const theme = useTheme();
   const dk = theme.palette.mode === "dark";
   const borderClr = dk ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)";
-  const headBg = dk ? "rgba(129,140,248,0.04)" : "#F8F9FC";
+  const headBg = dk ? "rgba(43,212,196,0.04)" : "#F8F9FC";
   return (
     <Box sx={{ mb: 2.5 }}>
       <Typography sx={{ fontSize: 13, fontWeight: 600, fontFamily: "var(--font-hero), var(--font-sans)", color: "text.primary", mb: 1 }}>{title}</Typography>
@@ -1214,7 +1214,7 @@ const ParamTable = memo(({ title, params }: { title: string; params: { name: str
             {params.map((p, i) => (
               <tr key={p.name} style={{ borderBottom: i < params.length - 1 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
                 <td style={{ padding: "10px 16px" }}>
-                  <code style={{ color: dk ? "#818CF8" : BRAND_ACCENT, fontWeight: 600, fontSize: 13, fontFamily: "var(--font-tech), monospace" }}>{p.name}</code>
+                  <code style={{ color: dk ? "#2BD4C4" : BRAND_ACCENT, fontWeight: 600, fontSize: 13, fontFamily: "var(--font-tech), monospace" }}>{p.name}</code>
                   {"required" in p && p.required && <span style={{ color: dk ? "#F87171" : "#B91C1C", fontSize: 11, marginLeft: 6, fontFamily: "var(--font-sans)" }}>required</span>}
                 </td>
                 <td style={{ padding: "10px 16px" }}><code style={{ fontSize: 12, color: dk ? "#8B8FA0" : "#4B5563" }}>{p.type}</code></td>
@@ -1250,7 +1250,7 @@ const EndpointCard = memo(({ ep }: { ep: Endpoint }) => {
         <Box sx={{ px: 2.5, py: 2.5, borderTop: `1px solid ${dk ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)"}` }}>
           <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", mb: 2, lineHeight: 1.7 }}>{ep.description}</Typography>
           {/* Full production URL — so the correct host + /api prefix is visible where it matters */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2.5, px: 1.5, py: 1, borderRadius: "8px", background: dk ? "rgba(129,140,248,0.05)" : "#F5F6FA", border: `1px solid ${dk ? "rgba(255,255,255,0.10)" : "rgba(10,10,10,0.08)"}`, overflowX: "auto" }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2.5, px: 1.5, py: 1, borderRadius: "8px", background: dk ? "rgba(43,212,196,0.05)" : "#F5F6FA", border: `1px solid ${dk ? "rgba(255,255,255,0.10)" : "rgba(10,10,10,0.08)"}`, overflowX: "auto" }}>
             <Typography component="span" sx={{ fontSize: 11, fontWeight: 700, fontFamily: "var(--font-sans)", color: "text.secondary", flexShrink: 0 }}>{ep.method}</Typography>
             <Typography component="code" sx={{ fontFamily: "var(--font-tech), monospace", fontSize: 12.5, color: "text.primary", whiteSpace: "nowrap" }}>
               {`https://dynopay.com${ep.path.startsWith("/api/") ? ep.path : `${BASE_URL}${ep.path}`}`}
@@ -1358,7 +1358,7 @@ const DocumentationPage = () => {
   }, []);
 
   const borderClr = dk ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)";
-  const headBg = dk ? "rgba(129,140,248,0.04)" : "#F8F9FC";
+  const headBg = dk ? "rgba(43,212,196,0.04)" : "#F8F9FC";
 
   const productCards = [
     { title: "Checkout Payments", desc: "Hosted payment page — redirect customers to complete crypto payments in a few clicks.", icon: <PaymentIcon />, section: "payments" },
@@ -1407,7 +1407,7 @@ const DocumentationPage = () => {
                   <Typography sx={{ fontSize: "13px", fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: "20px", flex: 1 }}>
                     {card.desc}
                   </Typography>
-                  <Typography sx={{ fontSize: "13px", fontFamily: "var(--font-sans)", color: dk ? "#818CF8" : BRAND_ACCENT, mt: 2 }}>
+                  <Typography sx={{ fontSize: "13px", fontFamily: "var(--font-sans)", color: dk ? "#2BD4C4" : BRAND_ACCENT, mt: 2 }}>
                     Learn more →
                   </Typography>
                 </ProductCard>
@@ -1547,8 +1547,8 @@ const DocumentationPage = () => {
                               aria-current={on ? "true" : undefined}
                               sx={{
                                 width: "100%", display: "flex", alignItems: "center", gap: 1.25, px: 1.25, py: 1.1, borderRadius: "10px", border: "none", cursor: "pointer", textAlign: "left",
-                                background: on ? (dk ? "rgba(129,140,248,0.16)" : "rgba(79,70,229,0.08)") : "transparent",
-                                color: on ? (dk ? "#A5B4FC" : "#4338CA") : theme.palette.text.primary,
+                                background: on ? (dk ? "rgba(43,212,196,0.16)" : "rgba(15,143,134,0.08)") : "transparent",
+                                color: on ? (dk ? "#2BD4C4" : "#0F8F86") : theme.palette.text.primary,
                                 fontFamily: "var(--font-sans)", fontSize: 15, fontWeight: on ? 700 : 500,
                                 "& svg": { fontSize: 18, color: on ? "inherit" : theme.palette.text.secondary },
                               }}
@@ -1700,8 +1700,8 @@ const DocumentationPage = () => {
                         onClick={() => setGsLang(tab.key)}
                         sx={{
                           cursor: "pointer",
-                          border: `1px solid ${active ? (dk ? "#818CF8" : BRAND_ACCENT) : borderClr}`,
-                          background: active ? (dk ? "rgba(129,140,248,0.12)" : "#0A0A0A") : "transparent",
+                          border: `1px solid ${active ? (dk ? "#FFD100" : BRAND_ACCENT) : borderClr}`,
+                          background: active ? (dk ? "rgba(43,212,196,0.12)" : "#0A0A0A") : "transparent",
                           color: active ? ("#FFFFFF") : "text.secondary",
                           fontFamily: "var(--font-sans)",
                           fontSize: 12.5,
@@ -1767,7 +1767,7 @@ const DocumentationPage = () => {
                   </Grid>
                   <Grid item xs={12} md={4}>
                     <AuthCard variant="purple">
-                      <Typography sx={{ fontWeight: 500, fontFamily: "var(--font-sans)", fontSize: 15, color: dk ? "#A78BFA" : "#6D28D9", mb: 1 }}>Publishable Key (browser)</Typography>
+                      <Typography sx={{ fontWeight: 500, fontFamily: "var(--font-sans)", fontSize: 15, color: dk ? "#2BD4C4" : "#2BD4C4", mb: 1 }}>Publishable Key (browser)</Typography>
                       <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mb: 2 }}>
                         Only for Embedded Checkout and Elements, which run in your customer&apos;s browser. Use your domain-restricted publishable key (<code style={{ background: dk ? "#1E2030" : "#E5E7EB", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>pk_live_…</code>) there — never your secret API key.
                       </Typography>
@@ -1838,7 +1838,7 @@ const DocumentationPage = () => {
                             : (status === "failed" || status === "expired") ? (dk ? "#EF4444" : "#B91C1C")
                               : status === "underpaid" ? (dk ? "#F59E0B" : "#92400E")
                                 : status === "refunded" ? (dk ? "#C8CAD5" : "#4B5563")
-                                  : (dk ? "#818CF8" : BRAND_ACCENT);
+                                  : (dk ? "#2BD4C4" : BRAND_ACCENT);
                         return (
                           <tr key={status} style={{ borderBottom: i < arr.length - 1 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
                             <td style={{ padding: "10px 16px", whiteSpace: "nowrap" }}>
@@ -1885,7 +1885,7 @@ const DocumentationPage = () => {
                         return (
                           <tr key={field} style={{ borderBottom: i < arr.length - 1 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
                             <td style={{ padding: "10px 16px", whiteSpace: "nowrap" }}>
-                              <code style={{ fontWeight: 700, color: dk ? "#818CF8" : BRAND_ACCENT, fontFamily: "var(--font-tech), monospace", fontSize: 12.5 }}>{field}</code>
+                              <code style={{ fontWeight: 700, color: dk ? "#2BD4C4" : BRAND_ACCENT, fontFamily: "var(--font-tech), monospace", fontSize: 12.5 }}>{field}</code>
                             </td>
                             <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)" }}>{meaning}</td>
                           </tr>
@@ -1963,7 +1963,7 @@ const DocumentationPage = () => {
                       ].map(([attr, req, desc], i) => (
                         <tr key={attr as string} style={{ borderBottom: i < 5 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
                           <td style={{ padding: "10px 16px" }}>
-                            <code style={{ fontWeight: 700, color: dk ? "#818CF8" : BRAND_ACCENT, fontFamily: "var(--font-tech), monospace", fontSize: 12 }}>{attr}</code>
+                            <code style={{ fontWeight: 700, color: dk ? "#2BD4C4" : BRAND_ACCENT, fontFamily: "var(--font-tech), monospace", fontSize: 12 }}>{attr}</code>
                           </td>
                           <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)", fontSize: 12 }}>{req}</td>
                           <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)" }}>{desc}</td>
@@ -2014,7 +2014,7 @@ const DocumentationPage = () => {
                       ].map(([event, desc, action], i) => (
                         <tr key={event} style={{ borderBottom: i < 2 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
                           <td style={{ padding: "10px 16px" }}>
-                            <code style={{ fontWeight: 700, color: dk ? "#818CF8" : BRAND_ACCENT, fontFamily: "var(--font-tech), monospace", fontSize: 12 }}>{event}</code>
+                            <code style={{ fontWeight: 700, color: dk ? "#2BD4C4" : BRAND_ACCENT, fontFamily: "var(--font-tech), monospace", fontSize: 12 }}>{event}</code>
                           </td>
                           <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)" }}>{desc}</td>
                           <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)", fontSize: 12 }}>{action}</td>
@@ -2071,7 +2071,7 @@ const DocumentationPage = () => {
                       ].map(([header, desc], i) => (
                         <tr key={header} style={{ borderBottom: i < 5 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
                           <td style={{ padding: "10px 16px" }}>
-                            <code style={{ fontWeight: 600, color: dk ? "#818CF8" : BRAND_ACCENT, fontFamily: "var(--font-tech), monospace", fontSize: 12 }}>{header}</code>
+                            <code style={{ fontWeight: 600, color: dk ? "#2BD4C4" : BRAND_ACCENT, fontFamily: "var(--font-tech), monospace", fontSize: 12 }}>{header}</code>
                           </td>
                           <td style={{ padding: "10px 16px", color: dk ? "#A0A3B1" : "#374151", fontFamily: "var(--font-sans)" }}>{desc}</td>
                         </tr>
@@ -2225,7 +2225,7 @@ app.post('/webhooks/dynopay', (req, res) => {
                         <tr key={cat} style={{ borderBottom: i < 3 ? `1px solid ${dk ? "#1E2030" : "#F3F4F6"}` : "none" }}>
                           <td style={{ padding: "10px 16px", fontFamily: "var(--font-sans)", color: dk ? "#A0A3B1" : "#374151" }}>{cat}</td>
                           <td style={{ padding: "10px 16px" }}>
-                            <code style={{ fontWeight: 600, color: dk ? "#818CF8" : BRAND_ACCENT, fontFamily: "var(--font-tech), monospace", fontSize: 12 }}>{limit}</code>
+                            <code style={{ fontWeight: 600, color: dk ? "#2BD4C4" : BRAND_ACCENT, fontFamily: "var(--font-tech), monospace", fontSize: 12 }}>{limit}</code>
                           </td>
                           <td style={{ padding: "10px 16px", fontFamily: "var(--font-sans)", color: dk ? "#A0A3B1" : "#374151" }}>{window}</td>
                         </tr>

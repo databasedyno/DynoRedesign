@@ -19,7 +19,7 @@ interface Props {
 /** Stripe-style bento product card: copy on top, a real UI vignette below, whole card is the link. */
 export const BentoCard: React.FC<Props> = ({ eyebrow, title, body, cta, href, span = 6, testId, children }) => {
   const s = useAurora();
-  const accent = s.dark ? "#A5B4FC" : BRAND_ACCENT;
+  const accent = s.dark ? "#2BD4C4" : BRAND_ACCENT;
   return (
     <Box
       component="a"

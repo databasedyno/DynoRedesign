@@ -35,7 +35,7 @@ export const Badge = styled(Box)(({ theme }) => ({
   textTransform: "uppercase",
   fontWeight: 500,
   fontFamily: "var(--font-tech), monospace",
-  color: theme.palette.mode === "dark" ? "#818CF8" : BRAND_ACCENT,
+  color: theme.palette.mode === "dark" ? "#2BD4C4" : BRAND_ACCENT,
   backgroundColor: "transparent",
   padding: 0,
   borderRadius: 0,
@@ -131,7 +131,7 @@ export const SubText = styled(Typography)<TypographyProps>(({ theme }) => ({
  * every section title read as marketing noise.
  */
 export const HighlightText = styled("span")(({ theme }) => ({
-  color: theme.palette.mode === "dark" ? "#818CF8" : BRAND_ACCENT,
+  color: theme.palette.mode === "dark" ? "#2BD4C4" : BRAND_ACCENT,
   fontWeight: 500,
   // Keep the following overrides so any lingering global background-clip
   // rules from the old gradient don't leak through:

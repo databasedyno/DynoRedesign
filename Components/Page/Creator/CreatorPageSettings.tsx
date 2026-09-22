@@ -533,7 +533,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
         <Box
           sx={{
             p: 2, borderRadius: "14px", border: `1px solid ${border}`,
-            backgroundColor: theme.palette.mode === "dark" ? "rgba(79,70,229,0.06)" : "rgba(79,70,229,0.10)",
+            backgroundColor: theme.palette.mode === "dark" ? "rgba(15,143,134,0.06)" : "rgba(15,143,134,0.10)",
             display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1.5, flexWrap: "wrap",
           }}
         >
@@ -618,13 +618,13 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
                 py: 0.35,
                 borderRadius: 999,
                 border: `1px solid ${theme.palette.divider}`,
-                backgroundColor: theme.palette.mode === "dark" ? "rgba(129,140,248,0.08)" : "rgba(79,70,229,0.06)",
+                backgroundColor: theme.palette.mode === "dark" ? "rgba(43,212,196,0.08)" : "rgba(15,143,134,0.06)",
               }}
             >
               <Icon
                 icon="mdi:storefront-outline"
                 width={12}
-                color={theme.palette.mode === "dark" ? "#818CF8" : "#4F46E5"}
+                color={theme.palette.mode === "dark" ? "#2BD4C4" : "#0F8F86"}
               />
               <Typography sx={{ fontSize: 11, fontWeight: 700, color: theme.palette.text.secondary, letterSpacing: 0.2 }}>
                 {t("appliesToThisCompanyOnly", { defaultValue: "Applies to this brand only" })}
@@ -880,7 +880,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
                       sx={{
                         display: "flex", alignItems: "center", gap: 1, p: 1.25, borderRadius: "10px", cursor: "pointer",
                         border: `1.5px solid ${active ? theme.palette.primary.main : border}`,
-                        backgroundColor: active ? (theme.palette.mode === "dark" ? "rgba(79,70,229,0.08)" : "rgba(79,70,229,0.12)") : theme.palette.background.default,
+                        backgroundColor: active ? (theme.palette.mode === "dark" ? "rgba(15,143,134,0.08)" : "rgba(15,143,134,0.12)") : theme.palette.background.default,
                         transition: "border-color 140ms ease",
                       }}
                     >

@@ -546,7 +546,7 @@ export default function TransferExpectedCard({
                         bgcolor: isDark ? '#2a2a4a' : '#E9ECF2',
                         p: 0.75,
                         borderRadius: '6px',
-                        '&:hover': { bgcolor: isDark ? '#3a3a5a' : '#E0E7FF' }
+                        '&:hover': { bgcolor: isDark ? '#3A2A1F' : '#CDEDE9' }
                       }}
                     >
                       <CopyIcon />
@@ -899,7 +899,7 @@ export default function TransferExpectedCard({
                       bgcolor: isDark ? '#2a2a4a' : '#E9ECF2',
                       p: 0.75,
                       borderRadius: '6px',
-                      '&:hover': { bgcolor: isDark ? '#3a3a5a' : '#E0E7FF' }
+                      '&:hover': { bgcolor: isDark ? '#3A2A1F' : '#CDEDE9' }
                     }}
                   >
                     <CopyIcon />
@@ -922,7 +922,7 @@ export default function TransferExpectedCard({
               py: 1.5,
               fontWeight: 500,
               '&:hover': {
-                backgroundColor: isDark ? 'rgba(79, 70, 229, 0.1)' : '#EEF2FF',
+                backgroundColor: isDark ? 'rgba(15,143,134, 0.1)' : '#E6F7F5',
                 borderColor: theme.palette.primary.main
               }
             }}

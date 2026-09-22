@@ -172,11 +172,11 @@ export default function ShopEmpty({ merchant, isOwner }: Props) {
               bgcolor: isDark ? "rgba(255,255,255,0.02)" : "background.paper",
               transition: "border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease",
               "&:hover": {
-                borderColor: isDark ? "rgba(99,102,241,0.5)" : "rgba(79,70,229,0.4)",
+                borderColor: isDark ? "rgba(43,212,196,0.5)" : "rgba(15,143,134,0.4)",
                 transform: "translateY(-3px)",
                 boxShadow: isDark
                   ? "0 14px 34px rgba(0,0,0,0.45)"
-                  : "0 14px 34px rgba(67,56,202,0.14)",
+                  : "0 14px 34px rgba(15,143,134,0.14)",
               },
             }}
           >
@@ -191,9 +191,9 @@ export default function ShopEmpty({ merchant, isOwner }: Props) {
                 justifyContent: "center",
                 borderRadius: "14px",
                 background: isDark
-                  ? "linear-gradient(135deg, rgba(79,70,229,0.25) 0%, rgba(124,58,237,0.18) 100%)"
-                  : "linear-gradient(135deg, rgba(79,70,229,0.10) 0%, rgba(124,58,237,0.08) 100%)",
-                border: `1px solid ${isDark ? "rgba(99,102,241,0.3)" : "rgba(79,70,229,0.18)"}`,
+                  ? "linear-gradient(135deg, rgba(15,143,134,0.25) 0%, rgba(124,58,237,0.18) 100%)"
+                  : "linear-gradient(135deg, rgba(15,143,134,0.10) 0%, rgba(124,58,237,0.08) 100%)",
+                border: `1px solid ${isDark ? "rgba(43,212,196,0.3)" : "rgba(15,143,134,0.18)"}`,
               }}
               aria-hidden
             >
@@ -232,8 +232,8 @@ export default function ShopEmpty({ merchant, isOwner }: Props) {
                 borderColor: isDark ? "rgba(255,255,255,0.24)" : "rgba(0,0,0,0.24)",
                 color: isDark ? "rgba(255,255,255,0.9)" : "rgba(0,0,0,0.85)",
                 "&:hover": {
-                  borderColor: isDark ? "#818CF8" : "#4F46E5",
-                  bgcolor: isDark ? "rgba(129,140,248,0.10)" : "rgba(79,70,229,0.06)",
+                  borderColor: isDark ? "#FFD100" : "#FFD100",
+                  bgcolor: isDark ? "rgba(43,212,196,0.10)" : "rgba(15,143,134,0.06)",
                   color: brandFg(isDark),
                 },
               }}

@@ -1,49 +1,59 @@
 import { Box, Button, styled } from "@mui/material";
-import { BRAND_ACCENT, DARK, RADIUS } from "@/constants/theme";
+import { AQUA, AQUA_DEEP, BRAND_ACCENT, BRAND_ACCENT_HOVER, BRAND_ON_ACCENT, DARK, LIGHT, RADIUS } from "@/constants/theme";
 
 /**
  * Coinbase-style dashboard tokens (theme-aware).
  * Both light & dark modes render the same visual system — only surfaces flip.
  *
- * Indigo brand accent is preserved from Dynopay's session-82 Aurora Indigo migration
- * (#4F46E5 light / #818CF8 dark). Coinbase uses royal blue for primary interactions;
- * we keep Dynopay indigo which is functionally identical at these alpha levels.
+ * 2026-09 rebrand: `indigo` now carries the AQUA text/icon accent (deep aqua on light,
+ * bright aqua on dark) — the name is kept so 120+ call sites keep compiling. Solid
+ * fills use `yellow` (always with dark-brown text).
  */
+const CREAM_INK = "#FAF6EF";
 export const CB_TOKENS = {
   /** Canonical radius scale (Phase 3) — one geometry across the dashboard. */
   radius: RADIUS,
   bg: {
     dark: DARK.canvas,
-    light: "#F8FAFC",
+    light: LIGHT.canvas,
   },
   surface: {
-    // Solid steps (design_guidelines 2026-06): canvas → surface → raised.
+    // Solid steps: canvas → surface → raised.
     dark: DARK.surface,
     darkElevated: DARK.raised,
-    light: "#FFFFFF",
-    lightElevated: "#F1F5F9",
+    light: LIGHT.surface,
+    lightElevated: LIGHT.raised,
   },
   border: {
     dark: DARK.border,
-    light: "#E2E8F0",
+    light: LIGHT.border,
   },
+  /** Aqua text / icon accent (name kept for compatibility). */
   indigo: {
-    light: BRAND_ACCENT,
-    dark: DARK.accentText,
-    lightGlow: "rgba(79,70,229,0.10)",
-    darkGlow: "rgba(129,140,248,0.14)",
+    light: AQUA_DEEP,
+    dark: AQUA,
+    lightGlow: "rgba(15,143,134,0.10)",
+    darkGlow: "rgba(43,212,196,0.14)",
+  },
+  /** Yellow solid fills — pair with `onFill` text. */
+  yellow: {
+    fill: BRAND_ACCENT,
+    hover: BRAND_ACCENT_HOVER,
+    onFill: BRAND_ON_ACCENT,
+    glowLight: "0 4px 14px rgba(255,209,0,0.28)",
+    glowDark: DARK.glowAccentStrong,
   },
   ink: {
-    primaryDark: "#FFFFFF",
-    primaryLight: "#0A0A0F",
+    primaryDark: CREAM_INK,
+    primaryLight: LIGHT.text,
     // Contrast-tuned for WCAG AA (>=4.5:1 for small text) on the CB surfaces.
     // Previous muted values (0.38 dark / 0.44 light) rendered labels like
     // "Payments", "Active payout addresses", "Tax collected" and the "vs previous
     // period" caption nearly invisible in dark mode (~3.4:1).
     secondaryDark: DARK.textSecondary,
-    secondaryLight: "#475569",
+    secondaryLight: LIGHT.textSecondary,
     mutedDark: DARK.textMuted,
-    mutedLight: "#5B6779", // AA on #F1F5F9 surfaces (was #64748B ≈ 4.3:1)
+    mutedLight: LIGHT.textMuted,
   },
   /**
    * Semantic accents — used sparingly, "colour in the right places":
@@ -100,27 +110,19 @@ export const PillButton = styled(Button, {
   lineHeight: 1,
   letterSpacing: 0.1,
   color: active
-    ? theme.palette.mode === "dark"
-      ? "#FFFFFF"
-      : "#FFFFFF"
+    ? CB_TOKENS.yellow.onFill
     : theme.palette.mode === "dark"
       ? CB_TOKENS.ink.secondaryDark
       : CB_TOKENS.ink.secondaryLight,
-  backgroundColor: active
-    ? theme.palette.mode === "dark"
-      ? CB_TOKENS.indigo.dark
-      : CB_TOKENS.indigo.light
-    : "transparent",
+  backgroundColor: active ? CB_TOKENS.yellow.fill : "transparent",
   border: "1px solid transparent",
   transition: "background-color 150ms ease, color 150ms ease",
   "&:hover": {
     backgroundColor: active
-      ? theme.palette.mode === "dark"
-        ? CB_TOKENS.indigo.dark
-        : CB_TOKENS.indigo.light
+      ? CB_TOKENS.yellow.hover
       : theme.palette.mode === "dark"
-        ? "rgba(255,255,255,0.05)"
-        : "rgba(10,10,15,0.04)",
+        ? "rgba(255,240,210,0.06)"
+        : "rgba(43,29,20,0.05)",
   },
   "&:focus-visible": {
     outline: `2px solid ${
@@ -249,20 +251,18 @@ export const PrimaryCTA = styled(Button)(({ theme }) => ({
   fontWeight: 600,
   textTransform: "none",
   letterSpacing: 0.2,
-  color: "#FFFFFF",
-  backgroundColor:
-    theme.palette.mode === "dark" ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light,
-  boxShadow: theme.palette.mode === "dark" ? DARK.glowAccentStrong : "0 4px 14px rgba(67,56,202,0.22)",
+  color: CB_TOKENS.yellow.onFill,
+  backgroundColor: CB_TOKENS.yellow.fill,
+  boxShadow: theme.palette.mode === "dark" ? CB_TOKENS.yellow.glowDark : CB_TOKENS.yellow.glowLight,
   transition: "transform 150ms ease, opacity 150ms ease, box-shadow 150ms ease",
   "&:hover": {
-    backgroundColor:
-      theme.palette.mode === "dark" ? "#6D74E8" : "#4338CA",
-    boxShadow: theme.palette.mode === "dark" ? DARK.glowAccentStrong : "0 6px 18px rgba(67,56,202,0.30)",
+    backgroundColor: CB_TOKENS.yellow.hover,
+    boxShadow: theme.palette.mode === "dark" ? CB_TOKENS.yellow.glowDark : "0 6px 18px rgba(255,209,0,0.36)",
     transform: "translateY(-1px)",
   },
   "&:disabled": {
     opacity: 0.55,
-    color: "#FFFFFF",
+    color: CB_TOKENS.yellow.onFill,
   },
 }));
 
@@ -280,24 +280,18 @@ export const TabPill = styled(Button, {
   fontWeight: 600,
   textTransform: "none",
   color: active
-    ? theme.palette.mode === "dark"
-      ? "#0A0A0F"
-      : "#0A0A0F"
+    ? CB_TOKENS.yellow.onFill
     : theme.palette.mode === "dark"
       ? CB_TOKENS.ink.secondaryDark
       : CB_TOKENS.ink.secondaryLight,
-  backgroundColor: active
-    ? theme.palette.mode === "dark"
-      ? "#FFFFFF"
-      : "#FFFFFF"
-    : "transparent",
-  boxShadow: active ? "0 1px 3px rgba(10,10,15,0.10)" : "none",
+  backgroundColor: active ? CB_TOKENS.yellow.fill : "transparent",
+  boxShadow: active ? "0 1px 3px rgba(43,29,20,0.12)" : "none",
   transition: "background-color 150ms ease, color 150ms ease",
   "&:hover": {
     backgroundColor: active
-      ? "#FFFFFF"
+      ? CB_TOKENS.yellow.hover
       : theme.palette.mode === "dark"
-        ? "rgba(255,255,255,0.04)"
-        : "rgba(10,10,15,0.03)",
+        ? "rgba(255,240,210,0.05)"
+        : "rgba(43,29,20,0.04)",
   },
 }));

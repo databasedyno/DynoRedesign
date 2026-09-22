@@ -309,7 +309,7 @@ const QAPage = () => {
                 <Chip
                   label="15 wallets"
                   size="small"
-                  sx={{ fontSize: 11, fontFamily: "var(--font-sans)", bgcolor: alpha("#8B5CF6", 0.12), color: "#8B5CF6", mr: 1 }}
+                  sx={{ fontSize: 11, fontFamily: "var(--font-sans)", bgcolor: alpha("#FFB300", 0.12), color: "#FFB300", mr: 1 }}
                 />
               </Box>
             </AccordionSummary>

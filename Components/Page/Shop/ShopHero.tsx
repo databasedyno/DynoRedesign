@@ -90,11 +90,11 @@ export default function ShopHero({ merchant, products, shopUrl }: Props) {
   };
 
   const coverGradient = isDark
-    ? `radial-gradient(1100px 420px at 15% 0%, rgba(99,102,241,0.5) 0%, transparent 60%),
-       radial-gradient(900px 340px at 85% 25%, rgba(139,92,246,0.4) 0%, transparent 58%),
+    ? `radial-gradient(1100px 420px at 15% 0%, rgba(43,212,196,0.5) 0%, transparent 60%),
+       radial-gradient(900px 340px at 85% 25%, rgba(43,212,196,0.4) 0%, transparent 58%),
        radial-gradient(760px 300px at 55% 115%, hsla(${hue},70%,55%,0.28) 0%, transparent 60%),
        linear-gradient(180deg, rgba(2,6,23,0.45) 0%, rgba(2,6,23,0.82) 100%)`
-    : `radial-gradient(1100px 420px at 15% 0%, rgba(79,70,229,0.26) 0%, transparent 60%),
+    : `radial-gradient(1100px 420px at 15% 0%, rgba(15,143,134,0.26) 0%, transparent 60%),
        radial-gradient(900px 340px at 85% 25%, rgba(124,58,237,0.20) 0%, transparent 58%),
        radial-gradient(760px 300px at 55% 115%, hsla(${hue},80%,68%,0.38) 0%, transparent 60%),
        linear-gradient(180deg, rgba(255,255,255,0.0) 0%, rgba(255,255,255,0.4) 100%)`;
@@ -147,8 +147,8 @@ export default function ShopHero({ merchant, products, shopUrl }: Props) {
             width: { xs: 72, md: 96 },
             height: { xs: 72, md: 96 },
             border: `3px solid ${isDark ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.98)"}`,
-            boxShadow: "0 12px 40px rgba(79,70,229,0.35), 0 8px 32px rgba(0,0,0,0.25)",
-            background: merchant.accent || `linear-gradient(135deg, #4338CA 0%, #7C3AED 60%, hsl(${hue}, 70%, 55%) 120%)`,
+            boxShadow: "0 12px 40px rgba(15,143,134,0.35), 0 8px 32px rgba(0,0,0,0.25)",
+            background: merchant.accent || `linear-gradient(135deg, #FFD100 0%, #FFB300 60%, hsl(${hue}, 70%, 55%) 120%)`,
             fontSize: { xs: 28, md: 36 },
             fontWeight: 700,
           }}

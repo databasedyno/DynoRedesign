@@ -43,7 +43,7 @@ const SavedMerchantsPage = () => {
               {t("saved.emptyBody", { defaultValue: "After you pay a merchant with Dynopay, tap “Save for next time” on the receipt screen and they'll show up here." })}
             </Typography>
             <Button component={Link} href="/" variant="contained" disableElevation endIcon={<ArrowForwardRounded />} data-testid="saved-empty-home-btn"
-              sx={{ textTransform: "none", borderRadius: 999, px: 3, py: 1.1, fontWeight: 700, background: BRAND_ACCENT, "&:hover": { background: "#4338CA" } }}>
+              sx={{ textTransform: "none", borderRadius: 999, px: 3, py: 1.1, fontWeight: 700, background: BRAND_ACCENT, "&:hover": { background: "#F0C300" } }}>
               {t("saved.browse", { defaultValue: "Back to home" })}
             </Button>
           </Stack>

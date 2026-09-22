@@ -57,7 +57,7 @@ export const StepUpMethodTabs: React.FC<Props> = ({ methods, value, onChange, di
               fontFamily: "var(--font-sans)",
               color: active ? accent : theme.palette.text.secondary,
               border: `1px solid ${active ? accent : theme.palette.border?.main || theme.palette.divider}`,
-              backgroundColor: active ? (dark ? "rgba(129,140,248,0.12)" : "rgba(67,56,202,0.08)") : "transparent",
+              backgroundColor: active ? (dark ? "rgba(43,212,196,0.12)" : "rgba(15,143,134,0.08)") : "transparent",
               transition: "background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease",
               "&:hover": { borderColor: accent },
             }}

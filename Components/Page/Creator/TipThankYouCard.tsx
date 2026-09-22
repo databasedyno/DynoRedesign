@@ -108,7 +108,7 @@ const TipThankYouCard = ({ creatorName, handle, avatarUrl, accent, amountLabel, 
       ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic'
       ctx.fillStyle = '#6B7280'; ctx.font = '600 34px system-ui, -apple-system, Segoe UI, Roboto, sans-serif'
       ctx.fillText(t('creator.card.iSupported', { defaultValue: 'I just supported' }), cx, 430)
-      ctx.fillStyle = '#111827'; ctx.font = '800 72px system-ui, -apple-system, Segoe UI, Roboto, sans-serif'
+      ctx.fillStyle = '#1A120D'; ctx.font = '800 72px system-ui, -apple-system, Segoe UI, Roboto, sans-serif'
       const nameLines = wrap(ctx, creatorName, SIZE - 300, 2)
       nameLines.forEach((l, i) => ctx.fillText(l, cx, 520 + i * 80))
       const afterName = 520 + (nameLines.length - 1) * 80
@@ -129,7 +129,7 @@ const TipThankYouCard = ({ creatorName, handle, avatarUrl, accent, amountLabel, 
       const qrSize = 150, qrX = 140, qrY = SIZE - 80 - 60 - qrSize
       if (qr) { ctx.drawImage(qr, qrX, qrY, qrSize, qrSize) }
       ctx.textAlign = 'left'
-      ctx.fillStyle = '#111827'; ctx.font = '700 36px system-ui, -apple-system, Segoe UI, Roboto, sans-serif'
+      ctx.fillStyle = '#1A120D'; ctx.font = '700 36px system-ui, -apple-system, Segoe UI, Roboto, sans-serif'
       ctx.fillText(prettyUrl.length > 34 ? `${prettyUrl.slice(0, 33)}…` : prettyUrl, qrX + qrSize + 36, qrY + 62)
       ctx.fillStyle = '#6B7280'; ctx.font = '600 26px system-ui, -apple-system, Segoe UI, Roboto, sans-serif'
       ctx.fillText(t('creator.card.poweredBy', { defaultValue: 'Powered by Dynopay · non-custodial crypto payments' }), qrX + qrSize + 36, qrY + 112)
@@ -188,7 +188,7 @@ const TipThankYouCard = ({ creatorName, handle, avatarUrl, accent, amountLabel, 
       </Typography>
       <canvas ref={canvasRef} width={SIZE} height={SIZE} style={{ display: 'none' }} aria-hidden />
       <Box sx={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden' }} aria-hidden>
-        <QRCodeCanvas ref={qrRef} value={pageUrl} size={300} level="M" marginSize={1} bgColor="#FFFFFF" fgColor="#111827" />
+        <QRCodeCanvas ref={qrRef} value={pageUrl} size={300} level="M" marginSize={1} bgColor="#FFFFFF" fgColor="#1A120D" />
       </Box>
       {dataUrl ? (
         <Box component="img" src={dataUrl} alt={t('creator.card.alt', { name: creatorName, defaultValue: 'I supported {{name}} card' })} data-testid="tip-thankyou-card-preview" sx={{ width: '100%', maxWidth: 320, mx: 'auto', display: 'block', borderRadius: '14px', boxShadow: '0 12px 32px rgba(0,0,0,0.18)' }} />

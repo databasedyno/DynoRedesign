@@ -26,7 +26,7 @@ export default function MyDocument({ emotionStyleTags, lang }: MyDocumentProps) 
         {/* iOS safe area and mobile optimization — viewport is set via next.config or _app */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="theme-color" content="#0A0A0A" />
+        <meta name="theme-color" content="#2B1D14" />
         <link rel="alternate" type="application/rss+xml" title="Dynopay Blog" href="https://dynopay.com/blog/rss.xml" />
         {/* Poppins — display face for the Tatum-inspired marketing homepage headings. */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -165,7 +165,7 @@ export default function MyDocument({ emotionStyleTags, lang }: MyDocumentProps) 
   try {
     document.documentElement.dataset.theme = mode;
     document.documentElement.style.colorScheme = mode;
-    document.documentElement.style.backgroundColor = mode === 'light' ? '#F2F3F8' : '#0B0D17';
+    document.documentElement.style.backgroundColor = mode === 'light' ? '#FAF6EF' : '#0B0908';
   } catch (e) {}
   try {
     // Never auto-persist the theme cookie on /help-support (see ThemeContext):

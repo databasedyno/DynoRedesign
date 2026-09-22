@@ -51,7 +51,7 @@ const JourneyCard = memo(function JourneyCard({ caseData, sectionId, sectionTitl
 
   const rollupLabel = failed > 0 ? "Has failures" : total && passed === total ? "All steps passed" : passed > 0 ? "In progress" : "Not started";
   const rollupColor = failed > 0 ? "#EF4444" : total && passed === total ? "#22C55E" : passed > 0 ? "#F59E0B" : "#9CA3AF";
-  const barColor = failed > 0 ? "#EF4444" : passed === total && total ? "#22C55E" : "#6366F1";
+  const barColor = failed > 0 ? "#EF4444" : passed === total && total ? "#22C55E" : "#2BD4C4";
 
   const setStep = (stepId: string, status: QaStatus) =>
     qc.quickAction({ item_key: stepKey(stepId), section_id: sectionId, section_title: sectionTitle, case_title: caseData.title }, status);

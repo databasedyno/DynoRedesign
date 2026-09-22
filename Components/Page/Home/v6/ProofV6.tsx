@@ -28,7 +28,7 @@ const ProofV6: React.FC = () => {
   const { t } = useTranslation("landing");
   const proofs = useOnchainProof(4) ?? [];
   const m = useLandingMetrics();
-  const accent = s.dark ? "#A5B4FC" : BRAND_ACCENT;
+  const accent = s.dark ? "#2BD4C4" : BRAND_ACCENT;
   const OPEN = [
     { id: "status", Icon: MonitorHeartRoundedIcon, title: t("v5.open.statusT"), desc: t("v5.open.statusD"), cta: t("v5.open.statusCta"), href: "/system-status", meta: m ? `${m.uptime_90d_pct.toFixed(2)}% · 90d` : null },
     { id: "docs", Icon: MenuBookRoundedIcon, title: t("v5.open.docsT"), desc: t("v5.open.docsD"), cta: t("v5.open.docsCta"), href: "/documentation", meta: "GET /api/docs" },
@@ -68,7 +68,7 @@ const ProofV6: React.FC = () => {
         {OPEN.map((tile, i) => (
           <StaggerItem key={tile.id} i={i} y={14}>
             <Box component="a" href={tile.href} data-testid={`proof-tile-${tile.id}`} sx={{ ...cardSx(s, { radius: 20 }), display: "flex", gap: 2, alignItems: "flex-start", textDecoration: "none", p: { xs: 2.5, md: 2.75 }, height: "100%", "&:focus-visible": { outline: `2px solid ${BRAND_ACCENT}`, outlineOffset: 3 } }}>
-              <Box sx={{ width: 42, height: 42, borderRadius: "12px", display: "grid", placeItems: "center", background: s.dark ? "rgba(129,140,248,0.14)" : "rgba(79,70,229,0.09)", color: accent, flexShrink: 0 }}><tile.Icon sx={{ fontSize: 22 }} /></Box>
+              <Box sx={{ width: 42, height: 42, borderRadius: "12px", display: "grid", placeItems: "center", background: s.dark ? "rgba(43,212,196,0.14)" : "rgba(15,143,134,0.09)", color: accent, flexShrink: 0 }}><tile.Icon sx={{ fontSize: 22 }} /></Box>
               <Box sx={{ minWidth: 0, display: "flex", flexDirection: "column", flex: 1 }}>
                 <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 16.5, letterSpacing: "-0.015em", color: s.ink }}>{tile.title}</Typography>
                 <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14, lineHeight: 1.55, color: s.ink2, mt: 0.75, mb: 1.75 }}>{tile.desc}</Typography>

@@ -34,7 +34,7 @@ export const Eyebrow = styled(Typography)<TypographyProps & { tone?: "indigo" | 
       tone === "ink"
         ? theme.palette.text.secondary
         : theme.palette.mode === "dark"
-          ? "#818CF8"
+          ? "#2BD4C4"
           : BRAND_ACCENT,
   })
 );
@@ -90,5 +90,5 @@ export const Body = styled(Typography)<TypographyProps>(({ theme }) => ({
 // Emphasis ink — a single indigo statement word (single-accent doctrine).
 // Brightens on dark so the accent word stays vivid.
 export const AuroraInk = styled("span")(({ theme }) => ({
-  color: theme.palette.mode === "dark" ? "#818CF8" : BRAND_ACCENT,
+  color: theme.palette.mode === "dark" ? "#2BD4C4" : BRAND_ACCENT,
 }));

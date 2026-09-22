@@ -27,7 +27,7 @@ export const TierLadder: React.FC = () => {
     <Stagger step={0.08} data-testid="pricing-ladder" sx={{ display: "grid", gridTemplateColumns: { xs: "1fr 1fr", md: "repeat(4, 1fr)" }, gap: { xs: 1.5, md: 2 } }}>
       {TIERS.map((tier, i) => (
         <StaggerItem key={tier.id} i={i} y={20}>
-        <Box data-testid={`tier-${tier.id}`} sx={{ borderRadius: "18px", p: { xs: 2.25, md: 2.75 }, background: i === 0 ? (s.dark ? "rgba(129,140,248,0.12)" : "rgba(79,70,229,0.07)") : s.surface, border: `1px solid ${i === 0 ? `${BRAND_ACCENT}55` : s.line}`, transition: "transform 240ms cubic-bezier(0.16,1,0.3,1), border-color 240ms ease", "&:hover": { transform: "translateY(-3px)", borderColor: `${BRAND_ACCENT}88` } }}>
+        <Box data-testid={`tier-${tier.id}`} sx={{ borderRadius: "18px", p: { xs: 2.25, md: 2.75 }, background: i === 0 ? (s.dark ? "rgba(43,212,196,0.12)" : "rgba(15,143,134,0.07)") : s.surface, border: `1px solid ${i === 0 ? `${BRAND_ACCENT}55` : s.line}`, transition: "transform 240ms cubic-bezier(0.16,1,0.3,1), border-color 240ms ease", "&:hover": { transform: "translateY(-3px)", borderColor: `${BRAND_ACCENT}88` } }}>
           <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: s.ink3 }}>{t(`v5.pricing.tier.${tier.id}`)}</Typography>
           <Typography className="tabular-nums" sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: { xs: 30, md: 38 }, letterSpacing: "-0.03em", lineHeight: 1, color: s.ink, mt: 1 }}>{tier.pct}%</Typography>
           <Typography sx={{ fontFamily: FONT_BODY, fontSize: 12.5, color: s.ink3, mt: 1.25 }}>
@@ -61,9 +61,9 @@ export const WhoPaysToggle: React.FC = () => {
           <Typography sx={{ fontFamily: FONT_TECH, fontSize: 10.5, letterSpacing: "0.1em", textTransform: "uppercase", color: s.ink3 }}>{t("v3.whopays.customerPaysLabel")}</Typography>
           <Typography data-testid="whopays-customer-pays" className="tabular-nums" sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 26, letterSpacing: "-0.03em", color: s.ink, mt: 0.5 }}>{merchant ? "$100.00" : "$102.50"}</Typography>
         </Box>
-        <Box sx={{ p: 2, background: s.dark ? "rgba(129,140,248,0.08)" : "rgba(79,70,229,0.06)" }}>
+        <Box sx={{ p: 2, background: s.dark ? "rgba(43,212,196,0.08)" : "rgba(15,143,134,0.06)" }}>
           <Typography sx={{ fontFamily: FONT_TECH, fontSize: 10.5, letterSpacing: "0.1em", textTransform: "uppercase", color: s.ink3 }}>{t("v3.whopays.youReceiveLabel")}</Typography>
-          <Typography data-testid="whopays-you-receive" className="tabular-nums" sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 26, letterSpacing: "-0.03em", color: s.dark ? "#818CF8" : BRAND_ACCENT, mt: 0.5 }}>{merchant ? "$97.50" : "$100.00"}</Typography>
+          <Typography data-testid="whopays-you-receive" className="tabular-nums" sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 26, letterSpacing: "-0.03em", color: s.dark ? "#2BD4C4" : BRAND_ACCENT, mt: 0.5 }}>{merchant ? "$97.50" : "$100.00"}</Typography>
         </Box>
       </Box>
       <Typography sx={{ fontFamily: FONT_BODY, fontSize: 13, color: s.ink2, mt: 1.5, lineHeight: 1.5 }}>{merchant ? t("v3.whopays.merchantNote") : t("v3.whopays.customerNote")}</Typography>
@@ -86,7 +86,7 @@ export const FeeCalculator: React.FC = () => {
   const row = (label: string, value: string, strong?: boolean, testId?: string) => (
     <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", py: 1.1, borderBottom: `1px solid ${s.line}` }}>
       <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14, color: s.ink2 }}>{label}</Typography>
-      <Typography data-testid={testId} className="tabular-nums" sx={{ fontFamily: FONT_TECH, fontSize: strong ? 18 : 15, fontWeight: strong ? 700 : 600, color: strong ? (s.dark ? "#818CF8" : BRAND_ACCENT) : s.ink }}>{value}</Typography>
+      <Typography data-testid={testId} className="tabular-nums" sx={{ fontFamily: FONT_TECH, fontSize: strong ? 18 : 15, fontWeight: strong ? 700 : 600, color: strong ? (s.dark ? "#2BD4C4" : BRAND_ACCENT) : s.ink }}>{value}</Typography>
     </Box>
   );
   const sliderSx = { color: BRAND_ACCENT, "& .MuiSlider-thumb": { width: 18, height: 18 } };

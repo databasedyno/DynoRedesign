@@ -5,5 +5,5 @@ export const tabSx = (active: boolean) => ({
   fontWeight: 600,
   backgroundColor: active ? BRAND_ACCENT : "transparent",
   color: active ? "#fff" : "text.primary",
-  "&:hover, &.Mui-focusVisible": { backgroundColor: active ? "#3730A3" : undefined },
+  "&:hover, &.Mui-focusVisible": { backgroundColor: active ? "#F0C300" : undefined },
 });

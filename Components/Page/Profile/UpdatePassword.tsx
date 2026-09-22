@@ -220,7 +220,7 @@ const UpdatePassword = () => {
                 p: "12px 16px", borderRadius: "10px", cursor: "pointer",
                 border: "1px solid", borderColor: "divider",
                 transition: "all 0.15s",
-                "&:hover": { borderColor: theme.palette.primary.main, backgroundColor: theme.palette.mode === "dark" ? "rgba(59,130,246,0.06)" : "rgba(59,130,246,0.04)" },
+                "&:hover": { borderColor: theme.palette.primary.main, backgroundColor: theme.palette.mode === "dark" ? "rgba(255,209,0,0.08)" : "rgba(255,209,0,0.10)" },
               }}
             >
               <Icon name="mail" size={20} color={brandFg(theme.palette.mode === "dark")} />
@@ -237,7 +237,7 @@ const UpdatePassword = () => {
                 p: "12px 16px", borderRadius: "10px", cursor: "pointer",
                 border: "1px solid", borderColor: "divider",
                 transition: "all 0.15s",
-                "&:hover": { borderColor: theme.palette.primary.main, backgroundColor: theme.palette.mode === "dark" ? "rgba(59,130,246,0.06)" : "rgba(59,130,246,0.04)" },
+                "&:hover": { borderColor: theme.palette.primary.main, backgroundColor: theme.palette.mode === "dark" ? "rgba(255,209,0,0.08)" : "rgba(255,209,0,0.10)" },
               }}
             >
               <Icon name="smartphone" size={20} color={brandFg(theme.palette.mode === "dark")} />

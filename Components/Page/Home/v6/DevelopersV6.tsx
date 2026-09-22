@@ -24,7 +24,7 @@ const PATHS = [
 const DevelopersV6: React.FC = () => {
   const s = useAurora();
   const { t } = useTranslation("landing");
-  const accent = s.dark ? "#A5B4FC" : BRAND_ACCENT;
+  const accent = s.dark ? "#2BD4C4" : BRAND_ACCENT;
   const BULLETS = [
     { Icon: WebhookRoundedIcon, text: t("v5.dev.b1") },
     { Icon: ScienceRoundedIcon, text: t("v5.dev.b2") },
@@ -38,7 +38,7 @@ const DevelopersV6: React.FC = () => {
           <StaggerItem key={p.id} i={i} y={18}>
             <Box component="a" href={p.href} data-testid={`dev-path-${p.id}`} sx={{ ...cardSx(s, { radius: 22 }), display: "flex", flexDirection: "column", height: "100%", textDecoration: "none", p: { xs: 2.75, md: 3.25 }, "&:focus-visible": { outline: `2px solid ${BRAND_ACCENT}`, outlineOffset: 3 } }}>
               <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2.5 }}>
-                <Box sx={{ width: 44, height: 44, borderRadius: "13px", display: "grid", placeItems: "center", background: s.dark ? "rgba(129,140,248,0.14)" : "rgba(79,70,229,0.09)", color: accent }}><p.Icon sx={{ fontSize: 22 }} /></Box>
+                <Box sx={{ width: 44, height: 44, borderRadius: "13px", display: "grid", placeItems: "center", background: s.dark ? "rgba(43,212,196,0.14)" : "rgba(15,143,134,0.09)", color: accent }}><p.Icon sx={{ fontSize: 22 }} /></Box>
                 <Typography sx={{ fontFamily: FONT_TECH, fontSize: 10.5, letterSpacing: "0.2em", textTransform: "uppercase", color: s.ink3 }}>{t(`v6.dev.${p.id}.eyebrow`)}</Typography>
               </Box>
               <Typography component="h3" sx={{ fontFamily: FONT_HERO, fontWeight: 800, fontSize: { xs: 20, md: 22 }, letterSpacing: "-0.02em", lineHeight: 1.15, color: s.ink, mb: 1 }}>{t(`v6.dev.${p.id}.t`)}</Typography>
@@ -59,7 +59,7 @@ const DevelopersV6: React.FC = () => {
             {BULLETS.map((b, i) => (
               <StaggerItem key={i} i={i} y={12}>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                  <Box sx={{ width: 32, height: 32, borderRadius: "9px", display: "grid", placeItems: "center", background: s.dark ? "rgba(129,140,248,0.14)" : "rgba(79,70,229,0.09)", color: accent, flexShrink: 0 }}><b.Icon sx={{ fontSize: 17 }} /></Box>
+                  <Box sx={{ width: 32, height: 32, borderRadius: "9px", display: "grid", placeItems: "center", background: s.dark ? "rgba(43,212,196,0.14)" : "rgba(15,143,134,0.09)", color: accent, flexShrink: 0 }}><b.Icon sx={{ fontSize: 17 }} /></Box>
                   <Typography sx={{ fontFamily: FONT_BODY, fontSize: 15, color: s.ink }}>{b.text}</Typography>
                 </Box>
               </StaggerItem>

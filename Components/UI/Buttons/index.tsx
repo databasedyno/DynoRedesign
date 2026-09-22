@@ -220,16 +220,16 @@ const CustomButton: React.FC<CustomButtonProps> = ({
           ...(variant === "primary" && !isBlockedForClicks && {
             boxShadow:
               theme.palette.mode === "dark"
-                ? "0 8px 26px -8px rgba(99,102,241,0.6), 0 0 0 1px rgba(129,140,248,0.22)"
-                : "0 12px 28px -10px rgba(67,56,202,0.5)",
+                ? "0 8px 26px -8px rgba(255,209,0,0.55), 0 0 0 1px rgba(255,209,0,0.22)"
+                : "0 12px 28px -10px rgba(255,209,0,0.5)",
             "&:hover": {
               backgroundColor: (theme.palette.primary as any).hover || `${BRAND_ACCENT}99`,
               color: (theme.palette.primary as any).contrastText || theme.palette.common.white,
               transform: "translateY(-1px)",
               boxShadow:
                 theme.palette.mode === "dark"
-                  ? "0 12px 34px -6px rgba(99,102,241,0.8), 0 0 0 1px rgba(129,140,248,0.4), 0 0 40px rgba(99,102,241,0.34)"
-                  : "0 16px 34px -10px rgba(67,56,202,0.6)",
+                  ? "0 12px 34px -6px rgba(255,209,0,0.7), 0 0 0 1px rgba(255,209,0,0.4), 0 0 40px rgba(255,209,0,0.3)"
+                  : "0 16px 34px -10px rgba(255,209,0,0.6)",
             },
           }),
         }),

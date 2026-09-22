@@ -353,7 +353,7 @@ export default function DisputePanel({ deal, myRole, api, onUpdated, notify }: P
               disabled={busy || !threadMsg.trim()}
               onClick={sendThreadMsg}
               data-testid="escrow-dispute-thread-send"
-              sx={{ minWidth: 0, px: 1.6, backgroundColor: BRAND_ACCENT, "&:hover": { backgroundColor: "#3730A3" } }}
+              sx={{ minWidth: 0, px: 1.6, backgroundColor: BRAND_ACCENT, "&:hover": { backgroundColor: "#F0C300" } }}
             >
               <SendRounded fontSize="small" />
             </Button>
@@ -504,7 +504,7 @@ export default function DisputePanel({ deal, myRole, api, onUpdated, notify }: P
             disabled={busy}
             onClick={submitProposal}
             data-testid="escrow-dispute-submit"
-            sx={{ textTransform: "none", fontWeight: 700, backgroundColor: BRAND_ACCENT, "&:hover": { backgroundColor: "#3730A3" } }}
+            sx={{ textTransform: "none", fontWeight: 700, backgroundColor: BRAND_ACCENT, "&:hover": { backgroundColor: "#F0C300" } }}
           >
             {busy ? "Sending…" : dialog === "raise" ? "Open dispute" : "Send counter-offer"}
           </Button>

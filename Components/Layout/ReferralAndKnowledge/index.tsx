@@ -29,8 +29,8 @@ const ReferralAndKnowledge = ({ isMobile }: { isMobile: boolean }) => {
         data-testid="sidebar-refer-earn"
         style={{
           borderColor: theme.palette.mode === "dark"
-            ? "rgba(129,140,248,0.35)"
-            : "rgba(79,70,229,0.28)",
+            ? "rgba(43,212,196,0.35)"
+            : "rgba(15,143,134,0.28)",
         }}
       >
         <CardGiftcardRounded

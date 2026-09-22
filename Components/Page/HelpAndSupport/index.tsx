@@ -384,14 +384,14 @@ const HelpAndSupport = () => {
                             gap: "12px",
                             textAlign: "center",
                             backgroundColor: theme.palette.mode === "dark"
-                                ? "rgba(99,102,241,0.08)"
-                                : "rgba(99,102,241,0.04)",
+                                ? "rgba(43,212,196,0.08)"
+                                : "rgba(43,212,196,0.04)",
                             borderRadius: "16px",
                             cursor: "pointer",
                             transition: "transform 0.18s ease, box-shadow 0.18s ease",
                             "&:hover": {
                                 transform: "translateY(-2px)",
-                                boxShadow: `0 8px 24px ${theme.palette.mode === "dark" ? "rgba(0,0,0,0.4)" : "rgba(79,70,229,0.16)"}`,
+                                boxShadow: `0 8px 24px ${theme.palette.mode === "dark" ? "rgba(0,0,0,0.4)" : "rgba(15,143,134,0.16)"}`,
                             },
                         }}
                     >

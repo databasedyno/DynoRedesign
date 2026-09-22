@@ -335,7 +335,7 @@ export default function CompanyDetailsSection({
                         transition: "border-color 0.15s ease, background-color 0.15s ease",
                         border: `1.5px solid ${
                           selected
-                            ? "#4F46E5"
+                            ? "#0F8F86"
                             : theme.palette.mode === "dark"
                               ? "rgba(255,255,255,0.12)"
                               : "rgba(15,15,20,0.10)"
@@ -343,7 +343,7 @@ export default function CompanyDetailsSection({
                         backgroundColor: selected
                           ? theme.palette.mode === "dark"
                             ? "rgba(120,140,248,0.10)"
-                            : "rgba(79,70,229,0.05)"
+                            : "rgba(15,143,134,0.05)"
                           : "transparent",
                       }}
                     >
@@ -420,12 +420,12 @@ export default function CompanyDetailsSection({
                 border: `1px solid ${
                   theme.palette.mode === "dark"
                     ? "rgba(120,140,248,0.30)"
-                    : "rgba(79,70,229,0.22)"
+                    : "rgba(15,143,134,0.22)"
                 }`,
                 backgroundColor:
                   theme.palette.mode === "dark"
                     ? "rgba(120,140,248,0.08)"
-                    : "rgba(79,70,229,0.04)",
+                    : "rgba(15,143,134,0.04)",
               }}
             >
               <StorefrontRounded sx={{ fontSize: 18, color: brandFg(theme.palette.mode === "dark") }} />

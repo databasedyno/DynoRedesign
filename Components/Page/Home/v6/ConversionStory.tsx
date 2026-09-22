@@ -15,7 +15,7 @@ const ConversionStory: React.FC = () => {
   const s = useAurora();
   const router = useRouter();
   const { t } = useTranslation("landing");
-  const accent = s.dark ? "#A5B4FC" : BRAND_ACCENT;
+  const accent = s.dark ? "#2BD4C4" : BRAND_ACCENT;
   const STEPS = [1, 2, 3].map((n) => ({ n, title: t(`v5.how.s${n}t`), desc: t(`v5.how.s${n}d`) }));
   return (
     <Section id="how-it-works" testId="how-it-works">

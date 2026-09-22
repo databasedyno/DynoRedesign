@@ -17,7 +17,7 @@ export async function fireConfetti(): Promise<void> {
     const mod = await import("canvas-confetti");
     const confetti = mod.default;
     // Brand aurora + success green + white.
-    const colors = ["#5A6BEF", "#7C5CFF", "#4FD1FF", "#3FD98A", "#FFFFFF"];
+    const colors = ["#FFD100", "#2BD4C4", "#FFB300", "#3FD98A", "#FAF6EF"];
     const fire = (particleRatio: number, opts: Record<string, unknown>) =>
       confetti({
         origin: { y: 0.7 },

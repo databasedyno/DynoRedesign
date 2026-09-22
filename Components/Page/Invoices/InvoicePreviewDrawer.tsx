@@ -233,15 +233,15 @@ export default function InvoicePreviewDrawer({ open, invoice, onClose }: Props) 
               display: "inline-flex", alignItems: "center", gap: 0.75,
               padding: "8px 14px",
               borderRadius: "10px",
-              backgroundColor: dark ? "#818CF8" : BRAND_ACCENT,
-              color: "#FFFFFF",
+              backgroundColor: BRAND_ACCENT,
+              color: "#2B1D14",
               fontFamily: "var(--font-body)",
               fontSize: 13,
               fontWeight: 600,
               border: "none",
               cursor: blobUrl ? "pointer" : "not-allowed",
               opacity: blobUrl ? 1 : 0.55,
-              "&:hover": { backgroundColor: dark ? "#7075E8" : "#4338CA" },
+              "&:hover": { backgroundColor: "#F0C300" },
             }}
           >
             <DownloadRounded fontSize="small" />
@@ -274,7 +274,7 @@ export default function InvoicePreviewDrawer({ open, invoice, onClose }: Props) 
       </Box>
 
       {/* PDF preview */}
-      <Box sx={{ flex: 1, backgroundColor: dark ? "#0B0F19" : "#F4F4F7", position: "relative", overflow: "hidden" }}>
+      <Box sx={{ flex: 1, backgroundColor: dark ? "#0B0908" : "#F4F4F7", position: "relative", overflow: "hidden" }}>
         {loading && (
           <Box sx={{ p: 3 }}>
             <Skeleton variant="rectangular" width="100%" height={80} sx={{ borderRadius: 1, mb: 2 }} />
@@ -305,10 +305,10 @@ export default function InvoicePreviewDrawer({ open, invoice, onClose }: Props) 
                   justifyContent: "center",
                   gap: 1.25,
                   zIndex: 1,
-                  backgroundColor: dark ? "#0B0F19" : "#F4F4F7",
+                  backgroundColor: dark ? "#0B0908" : "#F4F4F7",
                 }}
               >
-                <CircularProgress size={26} sx={{ color: dark ? "#818CF8" : BRAND_ACCENT }} />
+                <CircularProgress size={26} sx={{ color: dark ? "#2BD4C4" : BRAND_ACCENT }} />
                 <Typography sx={{ fontFamily: "var(--font-body)", fontSize: 12, color: theme.palette.text.secondary }}>
                   {t("invoices.preview.rendering")}
                 </Typography>

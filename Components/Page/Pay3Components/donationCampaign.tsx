@@ -206,10 +206,10 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
   const accent = BRAND_ACCENT // aurora indigo — Landing v3 (Session 82 migration; was: #CCFF00 brand lime)
   const onAccent = '#FFFFFF'
   // Premium gradient pair — shared with the creator Support widget
-  const GRAD = `linear-gradient(135deg, ${BRAND_ACCENT} 0%, #7C3AED 100%)`
+  const GRAD = `linear-gradient(135deg, ${BRAND_ACCENT} 0%, #FFB300 100%)`
   const surfaceGlass = isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'
   const border = theme.palette.border.main
-  const limeTint = isDark ? 'rgba(79,70,229,0.10)' : 'rgba(79,70,229,0.16)'
+  const limeTint = isDark ? 'rgba(15,143,134,0.10)' : 'rgba(15,143,134,0.16)'
 
   const progressPct = donation.progress_percent
   const hasGoal = donation.goal_amount != null && donation.goal_amount > 0
@@ -341,7 +341,7 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
         WebkitBackdropFilter: 'blur(20px)',
         boxShadow: isDark
           ? '0 20px 55px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)'
-          : '0 20px 55px rgba(67,56,202,0.10), inset 0 1px 0 rgba(255,255,255,0.9)',
+          : '0 20px 55px rgba(15,143,134,0.10), inset 0 1px 0 rgba(255,255,255,0.9)',
         '&::before': {
           content: '""',
           position: 'absolute',
@@ -350,7 +350,7 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
           transform: 'translateX(-50%)',
           width: 380,
           height: 200,
-          background: `radial-gradient(50% 50% at 50% 50%, ${isDark ? 'rgba(99,102,241,0.2)' : 'rgba(79,70,229,0.12)'} 0%, transparent 70%)`,
+          background: `radial-gradient(50% 50% at 50% 50%, ${isDark ? 'rgba(43,212,196,0.2)' : 'rgba(15,143,134,0.12)'} 0%, transparent 70%)`,
           pointerEvents: 'none',
         },
         p: { xs: 2, sm: 2.5 },
@@ -391,7 +391,7 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
                   border: `1.5px solid ${active ? 'transparent' : border}`,
                   color: active ? onAccent : theme.palette.text.primary,
                   background: active ? GRAD : 'transparent',
-                  boxShadow: active ? '0 8px 22px rgba(79,70,229,0.35)' : 'none',
+                  boxShadow: active ? '0 8px 22px rgba(15,143,134,0.35)' : 'none',
                   transition: 'border-color 120ms ease, background-color 120ms ease, transform 120ms ease, box-shadow 120ms ease',
                   '&:hover': { borderColor: accent, transform: 'translateY(-2px)' },
                   '&:active': { transform: 'scale(0.98)' },
@@ -526,9 +526,9 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
           letterSpacing: '-0.01em',
           background: GRAD,
           color: onAccent,
-          boxShadow: '0 12px 30px rgba(79,70,229,0.35)',
+          boxShadow: '0 12px 30px rgba(15,143,134,0.35)',
           transition: 'filter 140ms ease, transform 120ms ease, box-shadow 140ms ease',
-          '&:hover': { background: GRAD, filter: 'brightness(1.07)', transform: 'translateY(-1px)', boxShadow: '0 16px 38px rgba(79,70,229,0.45)' },
+          '&:hover': { background: GRAD, filter: 'brightness(1.07)', transform: 'translateY(-1px)', boxShadow: '0 16px 38px rgba(15,143,134,0.45)' },
           '&:active': { transform: 'scale(0.99)' },
           '&.Mui-disabled': {
             background: isDark ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.10)',
@@ -596,7 +596,7 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
           backgroundColor: theme.palette.background.paper,
           boxShadow: isDark
             ? '0 30px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)'
-            : '0 30px 80px rgba(67,56,202,0.12), 0 4px 16px rgba(10,10,10,0.05)',
+            : '0 30px 80px rgba(15,143,134,0.12), 0 4px 16px rgba(10,10,10,0.05)',
         }}
       >
         {/* ── Hero: cover + title + progress ── */}
@@ -617,7 +617,7 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
               sx={{
                 height: { xs: 130, sm: 170 },
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: `radial-gradient(90% 130% at 15% 0%, rgba(79,70,229,0.5) 0%, transparent 55%), radial-gradient(80% 110% at 88% 15%, rgba(124,58,237,0.42) 0%, transparent 58%), radial-gradient(70% 90% at 55% 105%, rgba(14,165,233,0.22) 0%, transparent 60%), #0A0A14`,
+                background: `radial-gradient(90% 130% at 15% 0%, rgba(15,143,134,0.5) 0%, transparent 55%), radial-gradient(80% 110% at 88% 15%, rgba(124,58,237,0.42) 0%, transparent 58%), radial-gradient(70% 90% at 55% 105%, rgba(14,165,233,0.22) 0%, transparent 60%), #0A0A14`,
               }}
             >
               <Logo width={44} height={52} />
@@ -1053,7 +1053,7 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
               fontWeight: 800,
               background: GRAD,
               color: onAccent,
-              boxShadow: '0 10px 26px rgba(79,70,229,0.4)',
+              boxShadow: '0 10px 26px rgba(15,143,134,0.4)',
               '&:hover': { background: GRAD, filter: 'brightness(1.07)' },
               '&:active': { transform: 'scale(0.99)' },
               '&.Mui-disabled': {

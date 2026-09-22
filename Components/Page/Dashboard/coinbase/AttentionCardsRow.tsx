@@ -101,7 +101,7 @@ const AttentionCardsRow: React.FC = () => {
         cta: t("attnAddCompanyCta", { defaultValue: "Add brand" }),
         icon: <BusinessRounded sx={{ fontSize: 22 }} />,
         href: "/profile",
-        gradient: ["#0EA5E9", "#0284C7"],
+        gradient: ["#FFD100", "#F0C300"],
       }
     : !hasWallet
       ? {
@@ -113,7 +113,7 @@ const AttentionCardsRow: React.FC = () => {
           cta: t("attnAddWalletCta", { defaultValue: "Add payout address" }),
           icon: <AccountBalanceWalletRounded sx={{ fontSize: 22 }} />,
           href: "/wallet",
-          gradient: ["#8B5CF6", "#7C3AED"],
+          gradient: ["#2BD4C4", "#2BD4C4"],
         }
       : !hasHandle
         ? {

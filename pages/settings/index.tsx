@@ -825,15 +825,15 @@ const SettingsPageInner = ({
                 border: `1px solid ${
                   activeMeta.scope === "company"
                     ? isDark
-                      ? "rgba(129,140,248,0.35)"
-                      : "rgba(79,70,229,0.28)"
+                      ? "rgba(43,212,196,0.35)"
+                      : "rgba(15,143,134,0.28)"
                     : theme.palette.divider
                 }`,
                 backgroundColor:
                   activeMeta.scope === "company"
                     ? isDark
-                      ? "rgba(129,140,248,0.10)"
-                      : "rgba(79,70,229,0.06)"
+                      ? "rgba(43,212,196,0.10)"
+                      : "rgba(15,143,134,0.06)"
                     : "transparent",
               }}
             >

@@ -120,7 +120,7 @@ const AdminFeeReconciliation: React.FC = () => {
         <StatCard label="Charged (reconciled)" value={s ? formatUSD(s.charged_usd) : "—"} sub="Network fee deducted from merchants" icon={<PaidRounded fontSize="small" />} testid="fee-kpi-charged" />
         <StatCard label="Actual gas burned" value={s ? formatUSD(s.actual_usd) : "—"} sub="From on-chain receipts, priced at settlement" icon={<LocalGasStationRounded fontSize="small" />} testid="fee-kpi-actual" />
         <StatCard label="Net variance" value={s ? <Box component="span" sx={{ color: varianceColor(s.variance_usd) }}>{signed(s.variance_usd)}</Box> : "—"} sub={s ? `${s.over} over · ${s.under} under · ${s.ok} within band` : undefined} icon={s && s.variance_usd < 0 ? <TrendingDownRounded fontSize="small" /> : <TrendingUpRounded fontSize="small" />} accent={s && s.variance_usd < -0.05 ? "#DC2626" : undefined} testid="fee-kpi-variance" />
-        <StatCard label="Fee recovery" value={recoveryPct === null ? "—" : `${recoveryPct.toFixed(0)}%`} sub="Charged ÷ actual gas · 100% = break-even" accent={recoveryPct !== null && recoveryPct < 90 ? "#DC2626" : recoveryPct !== null && recoveryPct > 150 ? "#2563EB" : undefined} testid="fee-kpi-recovery" />
+        <StatCard label="Fee recovery" value={recoveryPct === null ? "—" : `${recoveryPct.toFixed(0)}%`} sub="Charged ÷ actual gas · 100% = break-even" accent={recoveryPct !== null && recoveryPct < 90 ? "#DC2626" : recoveryPct !== null && recoveryPct > 150 ? "#0F8F86" : undefined} testid="fee-kpi-recovery" />
       </Box>
 
       <Box sx={{ display: "grid", gap: 3, gridTemplateColumns: { xs: "1fr", lg: "1.2fr 1fr" }, alignItems: "start" }}>

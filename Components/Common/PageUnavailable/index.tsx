@@ -41,7 +41,7 @@ const PageUnavailable = ({
   const faint = isDark ? "rgba(245,245,245,0.62)" : "rgba(10,10,10,0.6)"; // AA (was 0.42 ≈ 2.9:1)
   const surface = isDark ? "rgba(255,255,255,0.04)" : "rgba(10,10,10,0.03)";
   const border = isDark ? "rgba(255,255,255,0.10)" : "rgba(10,10,10,0.10)";
-  const accent = theme.palette.primary?.main || "#5A6BEF";
+  const accent = theme.palette.primary?.main || "#2BD4C4";
   const bg = theme.palette.background?.default || (isDark ? "#08080A" : "#FAFAFA");
 
   return (

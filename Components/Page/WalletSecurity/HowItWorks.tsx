@@ -25,7 +25,7 @@ const HowItWorks: React.FC<{ alertEmail?: string }> = ({ alertEmail }) => {
       <Box data-testid="wallet-security-how" sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" }, gap: { xs: 1.5, md: 2 } }}>
         {steps.map((s, i) => (
           <Box key={s.icon} sx={{ display: "flex", gap: 1.5, p: 2, borderRadius: "14px", border: `1px solid ${border}` }}>
-            <Box sx={{ width: 36, height: 36, borderRadius: "10px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", color: indigo, backgroundColor: isDark ? "rgba(129,140,248,0.12)" : "rgba(79,70,229,0.08)" }}>
+            <Box sx={{ width: 36, height: 36, borderRadius: "10px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", color: indigo, backgroundColor: isDark ? "rgba(43,212,196,0.12)" : "rgba(15,143,134,0.08)" }}>
               <Icon name={s.icon} size={18} />
             </Box>
             <Box sx={{ minWidth: 0 }}>

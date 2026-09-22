@@ -66,7 +66,7 @@ const HomeFooter: FC = () => {
   const logoSrc = dark ? WhiteLogo : BlackLogo;
 
   const linkColor = dark ? "rgba(255,255,255,0.66)" : "#3F3F46";
-  const linkHover = dark ? "#A5B4FC" : BRAND_ACCENT;
+  const linkHover = dark ? "#2BD4C4" : BRAND_ACCENT;
   const headingColor = dark ? "rgba(255,255,255,0.62)" : "#66666F";
   const descColor = dark ? "rgba(255,255,255,0.58)" : "#52525B";
   const trustBorder = dark ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)";

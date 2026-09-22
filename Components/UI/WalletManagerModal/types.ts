@@ -18,8 +18,8 @@ export const uid = () => `${Date.now()}_${Math.random().toString(36).slice(2, 7)
 export const tone = (dark: boolean) => ({
   surface: dark ? "rgba(255,255,255,0.03)" : "#FAFAFC",
   surfaceHover: dark ? "rgba(255,255,255,0.05)" : "#F1F5F9",
-  indigo: dark ? "#818CF8" : "#4338CA",
-  indigoSoft: dark ? "rgba(129,140,248,0.14)" : "rgba(67,56,202,0.08)",
+  indigo: dark ? "#2BD4C4" : "#0F8F86",
+  indigoSoft: dark ? "rgba(43,212,196,0.14)" : "rgba(15,143,134,0.08)",
   emerald: dark ? "#34D399" : "#047857",
   emeraldSoft: dark ? "rgba(52,211,153,0.12)" : "rgba(16,185,129,0.10)",
   amber: dark ? "#FBBF24" : "#B45309",

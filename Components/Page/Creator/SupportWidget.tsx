@@ -58,13 +58,13 @@ const SupportWidget = ({
   const theme = useTheme()
   const isDark = theme.palette.mode === 'dark'
   const border = theme.palette.divider
-  const limeTint = isDark ? 'rgba(79,70,229,0.10)' : 'rgba(79,70,229,0.16)'
+  const limeTint = isDark ? 'rgba(15,143,134,0.10)' : 'rgba(15,143,134,0.16)'
   const surface = isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'
 
   const meta = STYLE_META[widget.style] || STYLE_META.coffee
   const title = (widget.label && widget.label.trim()) || meta.title
   // Premium gradient pair — Aurora indigo → violet (Quiet Money public surfaces)
-  const GRAD = `linear-gradient(135deg, ${LIME} 0%, #7C3AED 100%)`
+  const GRAD = `linear-gradient(135deg, ${LIME} 0%, #FFB300 100%)`
   // Platform floor: the minimum supportable amount is $10 everywhere
   // (tip / coffee / support / donation / store), regardless of the stored
   // per-creator setting. Guarantees the floor even for legacy widgets saved
@@ -115,9 +115,9 @@ const SupportWidget = ({
     fontFamily: MONO,
     cursor: 'pointer',
     textAlign: 'center' as const,
-    boxShadow: active ? '0 8px 22px rgba(79,70,229,0.35)' : 'none',
+    boxShadow: active ? '0 8px 22px rgba(15,143,134,0.35)' : 'none',
     transition: 'border-color 140ms ease, transform 140ms ease, box-shadow 140ms ease',
-    '&:hover': { borderColor: LIME, transform: 'translateY(-2px)', boxShadow: active ? '0 10px 26px rgba(79,70,229,0.42)' : `0 6px 18px ${isDark ? 'rgba(0,0,0,0.35)' : 'rgba(67,56,202,0.12)'}` },
+    '&:hover': { borderColor: LIME, transform: 'translateY(-2px)', boxShadow: active ? '0 10px 26px rgba(15,143,134,0.42)' : `0 6px 18px ${isDark ? 'rgba(0,0,0,0.35)' : 'rgba(15,143,134,0.12)'}` },
   })
 
   const fieldSx = {
@@ -133,7 +133,7 @@ const SupportWidget = ({
     boxSizing: 'border-box' as const,
     transition: 'border-color 140ms ease, box-shadow 140ms ease',
     '&::placeholder': { color: theme.palette.text.disabled },
-    '&:focus': { borderColor: LIME, boxShadow: `0 0 0 3px ${isDark ? 'rgba(99,102,241,0.25)' : 'rgba(67,56,202,0.14)'}` },
+    '&:focus': { borderColor: LIME, boxShadow: `0 0 0 3px ${isDark ? 'rgba(43,212,196,0.25)' : 'rgba(15,143,134,0.14)'}` },
   }
 
   const submit = async () => {
@@ -216,7 +216,7 @@ const SupportWidget = ({
         WebkitBackdropFilter: 'blur(20px)',
         boxShadow: isDark
           ? '0 24px 70px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06)'
-          : '0 24px 70px rgba(67,56,202,0.10), inset 0 1px 0 rgba(255,255,255,0.9)',
+          : '0 24px 70px rgba(15,143,134,0.10), inset 0 1px 0 rgba(255,255,255,0.9)',
         // Soft accent aurora bleeding in from the top edge
         '&::before': {
           content: '""',
@@ -226,7 +226,7 @@ const SupportWidget = ({
           transform: 'translateX(-50%)',
           width: 420,
           height: 220,
-          background: `radial-gradient(50% 50% at 50% 50%, ${isDark ? 'rgba(99,102,241,0.22)' : 'rgba(79,70,229,0.14)'} 0%, transparent 70%)`,
+          background: `radial-gradient(50% 50% at 50% 50%, ${isDark ? 'rgba(43,212,196,0.22)' : 'rgba(15,143,134,0.14)'} 0%, transparent 70%)`,
           pointerEvents: 'none',
         },
       }}
@@ -243,7 +243,7 @@ const SupportWidget = ({
             alignItems: 'center',
             justifyContent: 'center',
             background: GRAD,
-            boxShadow: '0 10px 24px rgba(79,70,229,0.38)',
+            boxShadow: '0 10px 24px rgba(15,143,134,0.38)',
           }}
         >
           <Icon icon={meta.icon} width={23} color={INK} />
@@ -265,8 +265,8 @@ const SupportWidget = ({
       )}
 
       {hasStats && (
-        <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75, mt: 1.25, px: 1.25, py: 0.5, borderRadius: '999px', border: `1px solid ${border}`, backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(67,56,202,0.05)' }}>
-          <Box sx={{ width: 6, height: 6, borderRadius: '50%', background: GRAD, boxShadow: '0 0 8px rgba(99,102,241,0.8)' }} />
+        <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75, mt: 1.25, px: 1.25, py: 0.5, borderRadius: '999px', border: `1px solid ${border}`, backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(15,143,134,0.05)' }}>
+          <Box sx={{ width: 6, height: 6, borderRadius: '50%', background: GRAD, boxShadow: '0 0 8px rgba(43,212,196,0.8)' }} />
           <Typography sx={{ fontFamily: MONO, fontSize: 12, fontWeight: 600, color: theme.palette.text.secondary }}>
             {t(widget.supporters_count === 1 ? 'creator.support.statsOne' : 'creator.support.statsOther', { count: widget.supporters_count, raised: fmtMoney(widget.raised_amount), defaultValue: `${widget.supporters_count} supporters · ${fmtMoney(widget.raised_amount)} raised` })}
           </Typography>
@@ -494,9 +494,9 @@ const SupportWidget = ({
           letterSpacing: '-0.01em',
           background: GRAD,
           color: INK,
-          boxShadow: '0 12px 30px rgba(79,70,229,0.35)',
+          boxShadow: '0 12px 30px rgba(15,143,134,0.35)',
           transition: 'transform 140ms ease, box-shadow 140ms ease, filter 140ms ease',
-          '&:hover': { background: GRAD, filter: 'brightness(1.07)', transform: 'translateY(-1px)', boxShadow: '0 16px 38px rgba(79,70,229,0.45)' },
+          '&:hover': { background: GRAD, filter: 'brightness(1.07)', transform: 'translateY(-1px)', boxShadow: '0 16px 38px rgba(15,143,134,0.45)' },
           '&:active': { transform: 'translateY(0)' },
           '&.Mui-disabled': { background: GRAD, opacity: 0.45, color: INK, boxShadow: 'none' },
         }}

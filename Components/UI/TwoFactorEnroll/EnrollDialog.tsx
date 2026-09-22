@@ -39,7 +39,7 @@ const EnrollDialog: React.FC<Props> = ({
     >
       <DialogContent sx={{ px: { xs: "20px", sm: "28px" }, pt: "28px", pb: "24px" }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: "10px", mb: 1 }}>
-          <Box sx={{ width: 40, height: 40, borderRadius: "10px", backgroundColor: isDark ? "rgba(99,102,241,0.18)" : "#EEF2FF", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <Box sx={{ width: 40, height: 40, borderRadius: "10px", backgroundColor: isDark ? "rgba(43,212,196,0.18)" : "#E6F7F5", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <ShieldOutlined sx={{ color: brandFg(isDark), fontSize: 22 }} />
           </Box>
           <Typography sx={{ fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: "18px", lineHeight: "100%" }} data-testid={`${testId}-title`}>

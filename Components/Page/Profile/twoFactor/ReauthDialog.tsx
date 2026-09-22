@@ -70,7 +70,7 @@ const ReauthDialog: React.FC<ReauthDialogProps> = ({ open, intent, onClose, onCo
     <Dialog open={open} onClose={loading ? undefined : onClose} fullWidth maxWidth="xs" PaperProps={{ sx: { borderRadius: "12px" } }} data-testid={`twofa-reauth-dialog-${intent}`}>
       <DialogContent sx={{ px: "28px", pt: "28px", pb: "12px" }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: "10px", mb: 1.5 }}>
-          <Box sx={{ width: 40, height: 40, borderRadius: "10px", backgroundColor: isDisable ? "#FEE2E2" : (theme.palette.mode === "dark" ? "rgba(99,102,241,0.18)" : "#EEF2FF"), display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <Box sx={{ width: 40, height: 40, borderRadius: "10px", backgroundColor: isDisable ? "#FEE2E2" : (theme.palette.mode === "dark" ? "rgba(43,212,196,0.18)" : "#E6F7F5"), display: "flex", alignItems: "center", justifyContent: "center" }}>
             <LockOutlined sx={{ color: isDisable ? "#DC2626" : brandFg(theme.palette.mode === "dark"), fontSize: 22 }} />
           </Box>
           <Typography sx={{ fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: "18px", lineHeight: "100%" }}>{title}</Typography>
@@ -101,7 +101,7 @@ const ReauthDialog: React.FC<ReauthDialogProps> = ({ open, intent, onClose, onCo
             fullWidth
             onClick={onClose}
             data-testid="twofa-reauth-done"
-            sx={{ fontWeight: 600, fontSize: "14px", color: "#FFFFFF", backgroundColor: "#4F46E5", py: "10px", borderRadius: "8px", textTransform: "none", "&:hover": { backgroundColor: "#4338CA" } }}
+            sx={{ fontWeight: 600, fontSize: "14px", color: "#2B1D14", backgroundColor: "#F0C300", py: "10px", borderRadius: "8px", textTransform: "none", "&:hover": { backgroundColor: "#F0C300" } }}
           >
             {t("twoFactor.savedCodes", { defaultValue: "I've saved my codes" })}
           </Button>
@@ -122,13 +122,13 @@ const ReauthDialog: React.FC<ReauthDialogProps> = ({ open, intent, onClose, onCo
               disabled={loading}
               data-testid="twofa-reauth-confirm"
               sx={{
-                fontWeight: 600, fontSize: "14px", color: "#FFFFFF", py: "10px", borderRadius: "8px", textTransform: "none",
-                backgroundColor: isDisable ? "#DC2626" : "#4F46E5",
-                "&:hover": { backgroundColor: isDisable ? "#B91C1C" : "#4338CA" },
-                "&:disabled": { backgroundColor: isDisable ? "#FCA5A5" : "#A5B4FC", color: "#FFF" },
+                fontWeight: 600, fontSize: "14px", color: isDisable ? "#FFFFFF" : "#2B1D14", py: "10px", borderRadius: "8px", textTransform: "none",
+                backgroundColor: isDisable ? "#DC2626" : "#FFD100",
+                "&:hover": { backgroundColor: isDisable ? "#B91C1C" : "#F0C300" },
+                "&:disabled": { backgroundColor: isDisable ? "#FCA5A5" : "#FFD100", color: isDisable ? "#FFF" : "#2B1D14", opacity: 0.6 },
               }}
             >
-              {loading ? <CircularProgress size={20} sx={{ color: "#FFF" }} /> : isDisable
+              {loading ? <CircularProgress size={20} sx={{ color: isDisable ? "#FFF" : "#2B1D14" }} /> : isDisable
                 ? t("twoFactor.disableCta", { defaultValue: "Turn off 2FA" })
                 : t("twoFactor.regenerateCta", { defaultValue: "Generate new codes" })}
             </Button>

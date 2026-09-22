@@ -34,7 +34,7 @@ const TrustSecurityV5: React.FC = () => {
   const s = useAurora();
   const { t } = useTranslation("landing");
   const m = useLandingMetrics();
-  const accent = s.dark ? "#818CF8" : BRAND_ACCENT;
+  const accent = s.dark ? "#2BD4C4" : BRAND_ACCENT;
   return (
     <Section id="security" testId="security">
       <SectionHead eyebrow={t("v5.security.eyebrow")} headline={t("v5.security.headline")} body={t("v5.security.body")} />
@@ -43,7 +43,7 @@ const TrustSecurityV5: React.FC = () => {
           <StaggerItem key={it.id} i={i} y={16}>
           <Box component="a" href={it.href} data-testid={`security-${it.id}`} sx={{ position: "relative", display: "flex", gap: 1.5, alignItems: "flex-start", height: "100%", textDecoration: "none", borderRadius: "16px", background: s.surface, border: `1px solid ${s.line}`, p: { xs: 2, md: 2.25 }, transition: "border-color 220ms ease, transform 220ms cubic-bezier(0.16,1,0.3,1), box-shadow 220ms ease", "&:hover": { borderColor: `${BRAND_ACCENT}55`, transform: "translateY(-2px)", boxShadow: `0 22px 44px -32px ${BRAND_ACCENT}66` }, "&:hover .sec-arrow": { opacity: 1, transform: "translate(0,0)" }, "&:focus-visible": { outline: `2px solid ${BRAND_ACCENT}`, outlineOffset: 3 } }}>
             <ArrowOutwardRoundedIcon className="sec-arrow" sx={{ position: "absolute", top: 12, right: 12, fontSize: 14, color: accent, opacity: 0, transform: "translate(-2px,2px)", transition: "opacity 200ms ease, transform 200ms ease" }} />
-            <Box sx={{ flexShrink: 0, width: 34, height: 34, borderRadius: "10px", display: "grid", placeItems: "center", background: s.dark ? "rgba(129,140,248,0.14)" : "rgba(79,70,229,0.09)", color: accent }}>
+            <Box sx={{ flexShrink: 0, width: 34, height: 34, borderRadius: "10px", display: "grid", placeItems: "center", background: s.dark ? "rgba(43,212,196,0.14)" : "rgba(15,143,134,0.09)", color: accent }}>
               <it.Icon sx={{ fontSize: 18 }} />
             </Box>
             <Box sx={{ minWidth: 0 }}>

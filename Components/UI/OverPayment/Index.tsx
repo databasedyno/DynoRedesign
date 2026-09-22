@@ -236,7 +236,7 @@ const OverPayment = ({
                       bgcolor: isDark ? '#2a2a4a' : '#E9ECF2',
                       p: 0.75,
                       borderRadius: '6px',
-                      '&:hover': { bgcolor: isDark ? '#3a3a5a' : '#E0E7FF' }
+                      '&:hover': { bgcolor: isDark ? '#3A2A1F' : '#CDEDE9' }
                     }}
                   >
                     <CopyIcon />

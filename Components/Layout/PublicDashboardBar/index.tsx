@@ -28,7 +28,7 @@ const PublicDashboardBar: FC = () => {
   if (!visible) return null;
 
   const dark = theme.palette.mode === "dark";
-  const accent = dark ? "#6366F1" : "#4338CA";
+  const accent = dark ? "#2BD4C4" : "#0F8F86";
 
   return (
     <Box
@@ -84,9 +84,9 @@ const PublicDashboardBar: FC = () => {
           borderRadius: 999,
           px: 2,
           minHeight: 40,
-          color: "#fff",
+          color: "#2B1D14",
           bgcolor: accent,
-          "&:hover": { bgcolor: dark ? "#4F46E5" : "#3730A3" },
+          "&:hover": { bgcolor: "#F0C300" },
         }}
       >
         {t("goToDashboard")}

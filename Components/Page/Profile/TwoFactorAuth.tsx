@@ -151,7 +151,7 @@ const TwoFactorAuth = () => {
                       disableElevation
                       onClick={() => setSetupOpen(true)}
                       data-testid="twofa-upgrade-btn"
-                      sx={{ textTransform: "none", fontSize: "12.5px", fontFamily: "var(--font-sans)", borderRadius: "8px", backgroundColor: "#4F46E5", "&:hover": { backgroundColor: "#4338CA" }, flex: isMobile ? 1 : "none" }}
+                      sx={{ textTransform: "none", fontSize: "12.5px", fontFamily: "var(--font-sans)", borderRadius: "8px", backgroundColor: "#F0C300", "&:hover": { backgroundColor: "#F0C300" }, flex: isMobile ? 1 : "none" }}
                     >
                       {t("twoFactor.upgradeToApp", { defaultValue: "Use an authenticator app" })}
                     </Button>
@@ -186,7 +186,7 @@ const TwoFactorAuth = () => {
                   onClick={() => setEnrollOpen(true)}
                   data-testid="twofa-enable-btn"
                   startIcon={isLoading ? <CircularProgress size={13} color="inherit" /> : undefined}
-                  sx={{ textTransform: "none", fontSize: "12.5px", fontFamily: "var(--font-sans)", borderRadius: "8px", backgroundColor: "#4F46E5", "&:hover": { backgroundColor: "#4338CA" }, width: isMobile ? "100%" : "auto" }}
+                  sx={{ textTransform: "none", fontSize: "12.5px", fontFamily: "var(--font-sans)", borderRadius: "8px", backgroundColor: "#F0C300", "&:hover": { backgroundColor: "#F0C300" }, width: isMobile ? "100%" : "auto" }}
                 >
                   {t("twoFactor.turnOn", { defaultValue: "Turn on 2FA" })}
                 </Button>

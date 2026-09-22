@@ -11,7 +11,7 @@ import { BRAND_ACCENT } from "@/constants/theme";
  */
 
 // Session 82: HOME_LIME preserves its name for backward compat, but
-// the actual value is now aurora indigo #4F46E5 (Landing v3 canonical).
+// the actual value is now aurora indigo #0F8F86 (Landing v3 canonical).
 export const HOME_LIME = BRAND_ACCENT;
 
 /** Display font for big headings (Geist Sans via next/font, exposed as --font-sans). */

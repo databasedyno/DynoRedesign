@@ -329,8 +329,8 @@ export const FormSectionHeader = styled(Box)(({ theme }) => ({
     fontSize: 11.5,
     fontWeight: 700,
     letterSpacing: "0.08em",
-    color: theme.palette.mode === "dark" ? "#C7D2FE" : "#4338CA",
-    backgroundColor: theme.palette.mode === "dark" ? "rgba(129,140,248,0.16)" : "#EEF0FD",
+    color: theme.palette.mode === "dark" ? "#2BD4C4" : "#0F8F86",
+    backgroundColor: theme.palette.mode === "dark" ? "rgba(43,212,196,0.16)" : "#E6F7F5",
   },
   "& .title": {
     fontFamily: "var(--font-sans)",
@@ -374,10 +374,10 @@ export const OptionCard = styled(Box, {
   cursor: disabled ? "not-allowed" : "pointer",
   opacity: disabled ? 0.6 : 1,
   border: `1px solid ${selected ? theme.palette.primary.main : theme.palette.border?.main || theme.palette.divider}`,
-  boxShadow: selected ? `0 0 0 3px ${theme.palette.mode === "dark" ? "rgba(129,140,248,0.22)" : "rgba(79,70,229,0.12)"}` : "none",
+  boxShadow: selected ? `0 0 0 3px ${theme.palette.mode === "dark" ? "rgba(43,212,196,0.22)" : "rgba(15,143,134,0.12)"}` : "none",
   backgroundColor: selected
     ? theme.palette.mode === "dark"
-      ? "rgba(129,140,248,0.08)"
+      ? "rgba(43,212,196,0.08)"
       : "#F7F7FE"
     : "transparent",
   transition: "border-color .15s ease, box-shadow .15s ease, background-color .15s ease",

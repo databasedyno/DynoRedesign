@@ -34,7 +34,7 @@ const FinalCTAV6: React.FC = () => {
                   <StaggerItem i={1} y={12}><Typography sx={{ fontFamily: FONT_TECH, fontSize: 11.5, letterSpacing: "0.28em", textTransform: "uppercase", color: "rgba(255,255,255,0.65)", mb: 2.5 }}>{t("v5.final.eyebrow")}</Typography></StaggerItem>
                   <StaggerItem i={2} y={18}>
                     <Typography component="h2" sx={{ fontFamily: FONT_HERO, fontWeight: 800, fontSize: { xs: 34, sm: 44, md: 56 }, lineHeight: 1, letterSpacing: "-0.035em", color: "#F5F5F5", mb: 2.5 }}>
-                      {t("v5.final.headline1")} <Box component="span" sx={{ color: "#A5B4FC" }}>{t("v5.final.headline2")}</Box>
+                      {t("v5.final.headline1")} <Box component="span" sx={{ color: "#2BD4C4" }}>{t("v5.final.headline2")}</Box>
                     </Typography>
                   </StaggerItem>
                   <StaggerItem i={3} y={14}><Typography sx={{ fontFamily: FONT_BODY, color: "rgba(255,255,255,0.7)", fontSize: { xs: 16, md: 17.5 }, maxWidth: 480, mb: 4, lineHeight: 1.55 }}>{t("v5.final.body")}</Typography></StaggerItem>
@@ -48,12 +48,12 @@ const FinalCTAV6: React.FC = () => {
                 <Box sx={{ display: "grid", gap: 1.5 }}>
                   {CARDS.map((c, i) => (
                     <StaggerItem key={c.id} i={3 + i} y={16}>
-                      <Box component="a" href={c.href} data-testid={`final-card-${c.id}`} sx={{ display: "flex", gap: 2, alignItems: "flex-start", textDecoration: "none", borderRadius: "20px", p: { xs: 2.5, md: 3 }, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)", backdropFilter: "blur(12px)", transition: "transform 260ms cubic-bezier(0.16,1,0.3,1), background-color 200ms ease, border-color 200ms ease", "&:hover": { transform: "translateY(-3px)", background: "rgba(255,255,255,0.09)", borderColor: "rgba(165,180,252,0.55)" }, "&:hover .fc-arrow": { transform: "translate(2px,-2px)" }, "&:focus-visible": { outline: "2px solid #A5B4FC", outlineOffset: 3 } }}>
-                        <Box sx={{ width: 42, height: 42, borderRadius: "12px", display: "grid", placeItems: "center", background: "rgba(165,180,252,0.16)", color: "#A5B4FC", flexShrink: 0 }}><c.Icon sx={{ fontSize: 21 }} /></Box>
+                      <Box component="a" href={c.href} data-testid={`final-card-${c.id}`} sx={{ display: "flex", gap: 2, alignItems: "flex-start", textDecoration: "none", borderRadius: "20px", p: { xs: 2.5, md: 3 }, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)", backdropFilter: "blur(12px)", transition: "transform 260ms cubic-bezier(0.16,1,0.3,1), background-color 200ms ease, border-color 200ms ease", "&:hover": { transform: "translateY(-3px)", background: "rgba(255,255,255,0.09)", borderColor: "rgba(43,212,196,0.55)" }, "&:hover .fc-arrow": { transform: "translate(2px,-2px)" }, "&:focus-visible": { outline: "2px solid #FFD100", outlineOffset: 3 } }}>
+                        <Box sx={{ width: 42, height: 42, borderRadius: "12px", display: "grid", placeItems: "center", background: "rgba(43,212,196,0.16)", color: "#FFD100", flexShrink: 0 }}><c.Icon sx={{ fontSize: 21 }} /></Box>
                         <Box sx={{ flex: 1, minWidth: 0 }}>
                           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 1 }}>
                             <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 18, letterSpacing: "-0.02em", color: "#F5F5F5" }}>{t(`v6.final.${c.id}T`)}</Typography>
-                            <ArrowOutwardRoundedIcon className="fc-arrow" sx={{ fontSize: 18, color: "#A5B4FC", transition: "transform 220ms cubic-bezier(0.2,0.8,0.2,1)" }} />
+                            <ArrowOutwardRoundedIcon className="fc-arrow" sx={{ fontSize: 18, color: "#2BD4C4", transition: "transform 220ms cubic-bezier(0.2,0.8,0.2,1)" }} />
                           </Box>
                           <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14, lineHeight: 1.5, color: "rgba(255,255,255,0.68)", mt: 0.75 }}>{t(`v6.final.${c.id}D`)}</Typography>
                         </Box>

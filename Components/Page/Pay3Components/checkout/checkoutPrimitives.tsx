@@ -188,8 +188,8 @@ export const PanelShell: React.FC<{
   outerSx?: SxProps<Theme>
 }> = ({ children, isDark, border, muted, summary, summaryBar, stickyTop = 0, outerSx }) => {
   const [summaryOpen, setSummaryOpen] = React.useState(false)
-  const surface = isDark ? '#111827' : '#FFFFFF'
-  const canvasTint = isDark ? '#0B0F19' : '#F8FAFC'
+  const surface = isDark ? '#1A120D' : '#FFFFFF'
+  const canvasTint = isDark ? '#0B0908' : '#F8FAFC'
   const ink = isDark ? '#F8FAFC' : '#0F172A'
 
   if (!summary) {
@@ -376,9 +376,9 @@ export const AssetNetworkChip: React.FC<{
       lineHeight: 1.2,
       letterSpacing: '0.01em',
       whiteSpace: 'nowrap',
-      color: isDark ? '#818CF8' : '#4338CA',
-      backgroundColor: isDark ? 'rgba(129,140,248,0.14)' : 'rgba(67,56,202,0.08)',
-      border: `1px solid ${isDark ? 'rgba(129,140,248,0.25)' : 'rgba(67,56,202,0.20)'}`,
+      color: isDark ? '#2BD4C4' : '#0F8F86',
+      backgroundColor: isDark ? 'rgba(43,212,196,0.14)' : 'rgba(15,143,134,0.08)',
+      border: `1px solid ${isDark ? 'rgba(43,212,196,0.25)' : 'rgba(15,143,134,0.20)'}`,
     }}
   >
     {symbol} · {networkLabel}

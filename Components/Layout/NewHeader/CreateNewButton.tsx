@@ -1,3 +1,4 @@
+import { AQUA, AQUA_DEEP, BRAND_ACCENT, BRAND_ACCENT_HOVER, BRAND_ON_ACCENT } from "@/constants/theme";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
@@ -116,15 +117,15 @@ const CreateNewButton: React.FC<Props> = ({ variant = "header" }) => {
             borderRadius: "50%",
             display: "grid",
             placeItems: "center",
-            backgroundColor: isDark ? "#818CF8" : "#4F46E5",
-            color: isDark ? "#0A0A0B" : "#FFFFFF",
-            boxShadow: isDark ? "0 6px 16px rgba(129,140,248,0.35)" : "0 6px 16px rgba(79,70,229,0.35)",
+            backgroundColor: BRAND_ACCENT,
+            color: BRAND_ON_ACCENT,
+            boxShadow: "0 6px 16px rgba(255,209,0,0.35)",
             WebkitTapHighlightColor: "transparent",
             transition: "background-color 150ms ease, transform 100ms ease",
-            "&:hover": { backgroundColor: isDark ? "#A5B4FC" : "#4338CA" },
+            "&:hover": { backgroundColor: BRAND_ACCENT_HOVER },
             "&:active": { transform: "scale(0.94)" },
             "&:focus-visible": {
-              outline: `2px solid ${isDark ? "#A5B4FC" : "#4F46E5"}`,
+              outline: `2px solid ${isDark ? AQUA : AQUA_DEEP}`,
               outlineOffset: 2,
             },
           }}
@@ -153,13 +154,13 @@ const CreateNewButton: React.FC<Props> = ({ variant = "header" }) => {
           minHeight: 44,
           gap: 0.25,
           lineHeight: 1.2,
-          backgroundColor: isDark ? "#818CF8" : "#4F46E5",
-          color: isDark ? "#0A0A0B" : "#FFFFFF",
+          backgroundColor: BRAND_ACCENT,
+          color: BRAND_ON_ACCENT,
           transition: "background-color 150ms ease, transform 100ms ease",
-          "&:hover": { backgroundColor: isDark ? "#A5B4FC" : "#4338CA" },
+          "&:hover": { backgroundColor: BRAND_ACCENT_HOVER },
           "&:active": { transform: "scale(0.97)" },
           "&:focus-visible": {
-            outline: `2px solid ${isDark ? "#A5B4FC" : "#4F46E5"}`,
+            outline: `2px solid ${isDark ? AQUA : AQUA_DEEP}`,
             outlineOffset: 2,
           },
         }}

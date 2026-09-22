@@ -30,7 +30,7 @@ const PublicFinalCta: React.FC<Props> = ({ attributionRef, title, body, actions,
           <>
             {t("v5.final.headline1")}
             <br />
-            <span style={{ color: "#A5B4FC" }}>{t("v5.final.headline2")}</span>
+            <span style={{ color: "#2BD4C4" }}>{t("v5.final.headline2")}</span>
           </>
         )
       }

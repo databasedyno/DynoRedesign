@@ -1,4 +1,5 @@
 import { styled } from "@mui/material";
+import { DARK } from "@/constants/theme";
 
 export const HeaderContainer = styled("div")(({ theme }) => ({
   height: "100%",
@@ -26,9 +27,12 @@ export const LogoContainer = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "flex-start",
-  padding: "0 24px",
+  padding: "0 20px",
   overflow: "hidden",
-  borderRight: `1px solid ${theme.palette.border.main}`,
+  // The brand cell is the top of the dark-brown rail (both modes) — on-dark lockup only.
+  background: DARK.raised,
+  borderRight: `1px solid ${theme.palette.mode === "dark" ? "rgba(255,240,210,0.08)" : "rgba(43,29,20,0.18)"}`,
+  marginBottom: -1,
   transition: "width 220ms cubic-bezier(0.16, 1, 0.3, 1)",
 
   [theme.breakpoints.down("lg")]: {
@@ -38,13 +42,19 @@ export const LogoContainer = styled("div")(({ theme }) => ({
   ".logo": {
     cursor: "pointer",
     userSelect: "none",
-    height: 26,
+    height: 34,
     width: "auto",
+  },
+  ".logo-mark": {
+    display: "none",
+    cursor: "pointer",
+    lineHeight: 0,
   },
   '[data-sidebar-collapsed="true"] &, &[data-rail="true"]': {
     padding: 0,
     justifyContent: "center",
-    ".logo": { height: 20 },
+    ".logo": { display: "none" },
+    ".logo-mark": { display: "block" },
   },
 }));
 

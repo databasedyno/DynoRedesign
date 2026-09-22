@@ -1,35 +1,21 @@
 import { createTheme } from "@mui/material";
 import { theme, themeDark } from "./theme";
-import { DARK, RADIUS } from "@/constants/theme";
+import { AQUA, AQUA_DEEP, BRAND_ACCENT, BRAND_ACCENT_HOVER, BRAND_ON_ACCENT, DARK, LIGHT, RADIUS, brandFg } from "@/constants/theme";
 
 /**
- * App / dashboard theme — "Quiet Money" (UI Redesign Blueprint 2026-08, Phase 1).
- * Applied on the `client` (dashboard) layout via _app.tsx `activeTheme`. Built on
- * top of the existing dashboard theme (styles/theme.ts) so all component sizing /
- * spacing survives — Phase 1 re-skins the palette to a single deep-indigo accent
- * on calm slate/zinc canvases, consolidates the heading font to Manrope, and
- * squares off the CTA radius (pill → 8px) per the "restraint" system.
+ * App / dashboard theme — Dynopay 2026-09 rebrand.
+ * Yellow primary fills (always with dark-brown text), aqua for links / outlined
+ * buttons / focus rings / status, warm cream (light) or black + dark-brown (dark)
+ * grounds. Built on top of the base dashboard theme (styles/theme.ts) so all
+ * component sizing / spacing survives — only colour changes.
  *
- * Light → white/near-white canvas, slate-200 hairlines, indigo-700 accent.
- * Dark  → zinc-950 canvas, zinc-900 surfaces, indigo-500 accent.
- *
- * Scoped to the dashboard only — the auth (/auth/*) and landing (home) themes
- * are untouched (they get reskinned in later phases).
+ * Scoped to the dashboard + in-app pages via _app.tsx `activeTheme`.
  */
 
-// Brand accent (Blueprint §1.2): deepened indigo-700 for trust on white (light),
-// indigo-500 for legibility on the dark canvas.
-const INDIGO_LIGHT = "#4338CA"; // indigo-700
-const INDIGO_LIGHT_HOVER = "#4F46E5"; // indigo-600
-const INDIGO_DARK = DARK.accent;
-const INDIGO_DARK_HOVER = DARK.accentHover;
+const YELLOW = BRAND_ACCENT;
+const YELLOW_HOVER = BRAND_ACCENT_HOVER;
 
-/**
- * Heading font (Blueprint §1.3): consolidate 5+ families → Manrope for all
- * H1–H6 (page titles + section/card headers). Body / tables / forms stay on the
- * body sans (var(--font-body) = IBM Plex Sans) and money on IBM Plex Mono.
- * Manrope is self-hosted (@font-face in globals.css) so there is no new font cost.
- */
+/** Heading font: Manrope for H1–H6; body on IBM Plex Sans; money on IBM Plex Mono. */
 const HEADING_FONT = "'Manrope', 'Manrope Fallback', var(--font-hero), var(--font-sans), system-ui, sans-serif";
 const BODY_FONT = "var(--font-body), 'IBM Plex Sans', var(--font-sans), system-ui, sans-serif";
 const headingTypography = {
@@ -42,13 +28,8 @@ const headingTypography = {
   h6: { fontFamily: HEADING_FONT },
 };
 
-/**
- * Re-declares the custom Button variants with the indigo accent + an 8px radius
- * (Blueprint §3: primary = solid indigo, 8px, medium weight — pills retired for
- * standard CTAs). Full style is included (not just color) so it's correct
- * whether MUI replaces or concatenates the `variants` array.
- */
-const buttonVariants = (fillBg: string, fillText: string, fillHoverBg: string, glow?: string) => [
+/** Custom Button variants: solid yellow + dark-brown text, 8px radius. */
+const buttonVariants = (fillBg: string, fillText: string, fillHoverBg: string, glow: string, isDark: boolean) => [
   {
     props: { variant: "rounded" as const },
     style: {
@@ -56,13 +37,13 @@ const buttonVariants = (fillBg: string, fillText: string, fillHoverBg: string, g
       color: fillText,
       padding: "10px 22px",
       background: fillBg,
-      fontWeight: 500,
+      fontWeight: 600,
       borderRadius: "8px",
       textTransform: "none" as const,
       cursor: "pointer",
-      boxShadow: glow || "none",
+      boxShadow: glow,
       transition: "background .18s ease, box-shadow .18s ease, transform .12s ease",
-      "&:hover": { color: fillText, background: fillHoverBg, boxShadow: glow || "none", transform: glow ? "translateY(-1px)" : "none" },
+      "&:hover": { color: fillText, background: fillHoverBg, boxShadow: glow, transform: "translateY(-1px)" },
       "&.Mui-disabled": {
         background: fillBg,
         color: fillText,
@@ -84,27 +65,30 @@ const buttonVariants = (fillBg: string, fillText: string, fillHoverBg: string, g
         background: "transparent",
         color: "inherit",
         border: "1px solid",
-        "&:hover": { background: "rgba(100,116,139,0.08)" },
+        boxShadow: "none",
+        "&:hover": { background: isDark ? "rgba(255,240,210,0.08)" : "rgba(43,29,20,0.06)", boxShadow: "none" },
       },
       "&.MuiButton-roundedWhite": {
         background: "#fff",
-        color: "#0F172A",
-        "&:hover": { color: "#fff", background: "#0F172A" },
+        color: BRAND_ON_ACCENT,
+        boxShadow: "none",
+        "&:hover": { color: "#fff", background: BRAND_ON_ACCENT, boxShadow: "none" },
       },
     },
   },
   {
+    // Outlined brand button — aqua (yellow text on light would fail contrast).
     props: { variant: "pills" as const },
     style: {
       border: "1px solid",
-      borderColor: fillBg,
+      borderColor: isDark ? "rgba(43,212,196,0.55)" : "rgba(15,143,134,0.5)",
       padding: "9px 22px",
-      color: fillBg,
-      fontWeight: 500,
+      color: brandFg(isDark),
+      fontWeight: 600,
       borderRadius: "8px",
       fontSize: "15px",
       textTransform: "none" as const,
-      "&:hover": { color: fillText, background: fillBg },
+      "&:hover": { color: isDark ? "#0B0908" : "#fff", background: brandFg(isDark), borderColor: brandFg(isDark) },
     },
   },
   {
@@ -114,122 +98,153 @@ const buttonVariants = (fillBg: string, fillText: string, fillHoverBg: string, g
       padding: "9px 22px",
       color: fillText,
       background: fillBg,
-      fontWeight: 500,
+      fontWeight: 600,
       borderRadius: "8px",
       fontSize: "15px",
       textTransform: "none" as const,
-      boxShadow: glow || "none",
+      boxShadow: glow,
       transition: "background .18s ease, box-shadow .18s ease, transform .12s ease",
-      "&:hover": { color: fillText, background: fillHoverBg, boxShadow: glow || "none", transform: glow ? "translateY(-1px)" : "none" },
+      "&:hover": { color: fillText, background: fillHoverBg, boxShadow: glow, transform: "translateY(-1px)" },
       "&.Mui-disabled": { background: fillBg, color: fillText, opacity: 0.45 },
     },
   },
 ];
 
-/** Shared component overrides (Blueprint §3): calm buttons, hairline cards, 8px inputs. */
-const sharedComponents = (isDark: boolean) => ({
-  MuiButton: {
+/** Solid, readable standard Alerts (the shared base theme's translucent `.light` tints made them fade). */
+const alertOverrides = (isDark: boolean) => ({
+  MuiAlert: {
     styleOverrides: {
-      root: {
-        textTransform: "none" as const,
-        borderRadius: 8,
-        fontWeight: 500,
-        boxShadow: "none",
-        transition: "background-color .18s ease, box-shadow .2s ease, transform .18s ease, border-color .18s ease",
-        "&:hover": { boxShadow: "none" },
-        // Consistent, gentle lift on real (contained/outlined) buttons — inline
-        // text buttons stay flat so they read as links (Adoption Plan Phase 1).
-        "&.MuiButton-contained:hover, &.MuiButton-outlined:hover": { transform: "translateY(-1px)" },
-        "&.Mui-disabled:hover": { transform: "none" },
-      },
-      ...(isDark
-        ? {
-            outlinedPrimary: {
-              color: INDIGO_DARK_HOVER,
-              borderColor: "rgba(129,140,248,0.45)",
-              "&:hover": {
-                borderColor: INDIGO_DARK_HOVER,
-                backgroundColor: "rgba(129,140,248,0.08)",
-              },
-            },
-            textPrimary: {
-              color: INDIGO_DARK_HOVER,
-              "&:hover": { backgroundColor: "rgba(129,140,248,0.08)" },
-            },
-          }
-        : {}),
-    },
-    variants: isDark
-      ? buttonVariants(INDIGO_DARK, "#FFFFFF", INDIGO_DARK_HOVER, DARK.glowAccentStrong)
-      : buttonVariants(INDIGO_LIGHT, "#FFFFFF", INDIGO_LIGHT_HOVER, "0 4px 14px rgba(67,56,202,0.22)"),
-  },
-  // Cards: solid raised surface + hairline; layered shadow + accent bloom in
-  // dark for real depth (§ Aurora Dark). Light keeps a whisper-soft shadow.
-  MuiCard: {
-    styleOverrides: {
-      root: {
-        backgroundImage: "none",
-        border: `1px solid ${isDark ? DARK.hairline : "#E2E8F0"}`,
-        boxShadow: isDark ? DARK.cardShadow : "0 1px 2px rgba(15,23,42,0.05)",
-        borderRadius: RADIUS.card,
-        transition: "box-shadow .25s ease, border-color .25s ease, transform .25s ease",
-        // Match the dark hover lift in light too: soft shadow + hairline + a
-        // 1px rise (Adoption Plan Phase 1 — consistent, subtle hover feel).
-        "&:hover": isDark
-          ? { boxShadow: DARK.cardShadowHover, borderColor: DARK.hairlineStrong, transform: "translateY(-1px)" }
-          : { boxShadow: "0 6px 20px rgba(15,23,42,0.10)", borderColor: "#CBD5E1", transform: "translateY(-1px)" },
-      },
+      standardSuccess: isDark
+        ? { color: "#BBF7D0", backgroundColor: "#10331F", "& .MuiAlert-icon": { color: "#4ADE80" } }
+        : { color: "#065F46", backgroundColor: "#ECFDF5", "& .MuiAlert-icon": { color: "#059669" } },
+      standardInfo: isDark
+        ? { color: "#CFF5F1", backgroundColor: "#123632", "& .MuiAlert-icon": { color: AQUA } }
+        : { color: "#0E4F4A", backgroundColor: "#E6F7F5", "& .MuiAlert-icon": { color: AQUA_DEEP } },
+      standardWarning: isDark
+        ? { color: "#FDE68A", backgroundColor: "#3A2A0A", "& .MuiAlert-icon": { color: "#FBBF24" } }
+        : { color: "#7A4B00", backgroundColor: "#FFF6CC", "& .MuiAlert-icon": { color: "#B45309" } },
+      standardError: isDark
+        ? { color: "#FECACA", backgroundColor: "#3B1212", "& .MuiAlert-icon": { color: "#F87171" } }
+        : { color: "#B91C1C", backgroundColor: "#FEF2F2", "& .MuiAlert-icon": { color: "#DC2626" } },
     },
   },
-  // Inputs: 1px border, 8px radius, indigo focus ring + glow (§3).
-  MuiOutlinedInput: {
-    styleOverrides: {
-      root: {
-        borderRadius: 8,
-        ...(isDark ? { backgroundColor: DARK.raised } : {}),
-        transition: "box-shadow .18s ease, border-color .18s ease",
-        "& .MuiOutlinedInput-notchedOutline": {
-          borderColor: isDark ? DARK.hairlineStrong : "#E2E8F0",
+});
+
+/** Shared component overrides: yellow CTAs, aqua links/outlines/focus, hairline cards, 8px inputs. */
+const sharedComponents = (isDark: boolean) => {
+  const T = isDark ? DARK : LIGHT;
+  const fg = brandFg(isDark);
+  const fgSoft = isDark ? "rgba(43,212,196,0.10)" : "rgba(15,143,134,0.08)";
+  return {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          textTransform: "none" as const,
+          borderRadius: 8,
+          fontWeight: 600,
+          boxShadow: "none",
+          transition: "background-color .18s ease, box-shadow .2s ease, transform .18s ease, border-color .18s ease",
+          "&:hover": { boxShadow: "none" },
+          "&.MuiButton-contained:hover, &.MuiButton-outlined:hover": { transform: "translateY(-1px)" },
+          "&.Mui-disabled:hover": { transform: "none" },
         },
-        "&:hover .MuiOutlinedInput-notchedOutline": {
-          borderColor: isDark ? DARK.borderStrong : "#CBD5E1",
+        containedPrimary: {
+          color: BRAND_ON_ACCENT,
+          backgroundColor: YELLOW,
+          "&:hover": { backgroundColor: YELLOW_HOVER },
+          "&.Mui-disabled": { backgroundColor: YELLOW, color: BRAND_ON_ACCENT, opacity: 0.45 },
         },
-        "&.Mui-focused": {
-          boxShadow: isDark ? DARK.focusRing : "none",
+        outlinedPrimary: {
+          color: fg,
+          borderColor: isDark ? "rgba(43,212,196,0.5)" : "rgba(15,143,134,0.45)",
+          "&:hover": { borderColor: fg, backgroundColor: fgSoft },
         },
-        "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-          borderColor: isDark ? INDIGO_DARK : INDIGO_LIGHT,
-          borderWidth: 2,
+        textPrimary: {
+          color: fg,
+          "&:hover": { backgroundColor: fgSoft },
+        },
+      },
+      variants: buttonVariants(YELLOW, BRAND_ON_ACCENT, YELLOW_HOVER, isDark ? DARK.glowAccentStrong : "0 4px 14px rgba(255,209,0,0.28)", isDark),
+    },
+    MuiLink: {
+      styleOverrides: {
+        root: { color: fg, textDecorationColor: isDark ? "rgba(43,212,196,0.4)" : "rgba(15,143,134,0.35)" },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          backgroundImage: "none",
+          border: `1px solid ${isDark ? DARK.hairline : LIGHT.border}`,
+          boxShadow: T.cardShadow,
+          borderRadius: RADIUS.card,
+          transition: "box-shadow .25s ease, border-color .25s ease, transform .25s ease",
+          "&:hover": { boxShadow: T.cardShadowHover, borderColor: isDark ? DARK.hairlineStrong : LIGHT.borderStrong, transform: "translateY(-1px)" },
         },
       },
     },
-  },
-  ...(isDark
-    ? {
-        // a11y: disabled/read-only inputs were gray-on-gray in dark mode.
-        MuiInputBase: {
-          styleOverrides: {
-            input: {
-              "&.Mui-disabled": {
-                WebkitTextFillColor: "rgba(255,255,255,0.62)",
-                color: "rgba(255,255,255,0.62)",
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          ...(isDark ? { backgroundColor: DARK.raised } : {}),
+          transition: "box-shadow .18s ease, border-color .18s ease",
+          "& .MuiOutlinedInput-notchedOutline": { borderColor: isDark ? DARK.hairlineStrong : LIGHT.border },
+          "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: isDark ? DARK.borderStrong : LIGHT.borderStrong },
+          "&.Mui-focused": { boxShadow: T.focusRing },
+          "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: fg, borderWidth: 2 },
+        },
+      },
+    },
+    MuiInputLabel: {
+      styleOverrides: { root: { "&.Mui-focused": { color: fg } } },
+    },
+    MuiTabs: {
+      styleOverrides: { indicator: { backgroundColor: YELLOW, height: 3, borderRadius: 3 } },
+    },
+    MuiTab: {
+      styleOverrides: { root: { "&.Mui-selected": { color: T.text } } },
+    },
+    MuiChip: {
+      styleOverrides: {
+        colorPrimary: { backgroundColor: YELLOW, color: BRAND_ON_ACCENT },
+        outlinedPrimary: { color: fg, borderColor: fg },
+      },
+    },
+    MuiCheckbox: { styleOverrides: { root: { "&.Mui-checked": { color: isDark ? YELLOW : AQUA_DEEP } } } },
+    MuiRadio: { styleOverrides: { root: { "&.Mui-checked": { color: isDark ? YELLOW : AQUA_DEEP } } } },
+    MuiSwitch: {
+      styleOverrides: {
+        switchBase: {
+          "&.Mui-checked": { color: YELLOW },
+          "&.Mui-checked + .MuiSwitch-track": { backgroundColor: YELLOW, opacity: isDark ? 0.55 : 0.7 },
+        },
+      },
+    },
+    ...alertOverrides(isDark),
+    ...(isDark
+      ? {
+          MuiInputBase: {
+            styleOverrides: {
+              input: {
+                "&.Mui-disabled": { WebkitTextFillColor: "rgba(250,246,239,0.62)", color: "rgba(250,246,239,0.62)" },
               },
             },
           },
-        },
-      }
-    : {}),
-});
+        }
+      : {}),
+  };
+};
 
 export const appThemeDark = createTheme(themeDark, {
   palette: {
     mode: "dark",
     primary: {
-      main: INDIGO_DARK,
-      dark: INDIGO_LIGHT_HOVER,
-      light: "rgba(99,102,241,0.16)",
-      contrastText: "#FFFFFF",
-      hover: INDIGO_DARK_HOVER,
+      main: YELLOW,
+      dark: YELLOW_HOVER,
+      light: DARK.accentSoft,
+      contrastText: BRAND_ON_ACCENT,
+      hover: YELLOW_HOVER,
     } as any,
     // Canvas (page bg) is `secondary.main` app-wide; cards are `background.paper`.
     secondary: {
@@ -243,17 +258,17 @@ export const appThemeDark = createTheme(themeDark, {
     divider: DARK.border,
     border: {
       main: DARK.border,
-      focus: INDIGO_DARK,
+      focus: AQUA,
       success: DARK.success,
       error: DARK.error,
     },
     success: { main: DARK.success, dark: "#22C55E", light: "rgba(34,197,94,0.14)" },
     error: { main: DARK.error },
     warning: { main: DARK.warning },
-    info: { main: DARK.info },
+    info: { main: AQUA, dark: AQUA_DEEP, light: "rgba(43,212,196,0.16)", contrastText: "#0B0908" },
     action: {
-      hover: "rgba(148,163,184,0.08)",
-      selected: "rgba(99,102,241,0.14)",
+      hover: "rgba(255,240,210,0.06)",
+      selected: "rgba(255,209,0,0.14)",
     },
   } as any,
   typography: headingTypography,
@@ -264,34 +279,51 @@ export const appThemeLight = createTheme(theme, {
   palette: {
     mode: "light",
     primary: {
-      main: INDIGO_LIGHT,
-      dark: "#3730A3",
-      light: "rgba(67,56,202,0.08)",
-      contrastText: "#FFFFFF",
-      hover: INDIGO_LIGHT_HOVER,
+      main: YELLOW,
+      dark: YELLOW_HOVER,
+      light: LIGHT.accentSoft,
+      contrastText: BRAND_ON_ACCENT,
+      hover: YELLOW_HOVER,
     } as any,
     secondary: {
-      main: "#F1F5F9",
-      dark: "#E2E8F0",
-      light: "#F8FAFC",
-      contrastText: "#52525B",
+      main: LIGHT.raised,
+      dark: LIGHT.border,
+      light: LIGHT.canvas,
+      contrastText: LIGHT.textSecondary,
     },
-    background: { default: "#FAFAFC", paper: "#FFFFFF" },
-    text: { primary: "#18181B", secondary: "#52525B", disabled: "#A1A1AA" },
-    divider: "#E2E8F0",
+    background: { default: LIGHT.canvas, paper: LIGHT.surface },
+    text: { primary: LIGHT.text, secondary: LIGHT.textSecondary, disabled: "#9A8B7C" },
+    divider: LIGHT.border,
     border: {
-      main: "#E2E8F0",
-      focus: INDIGO_LIGHT,
+      main: LIGHT.border,
+      focus: AQUA_DEEP,
       success: "#059669",
       error: "#E11D48",
     },
-    success: { main: "#059669", dark: "#047857", light: "rgba(5,150,105,0.10)" },
-    error: { main: "#E11D48" },
+    success: { main: "#059669", dark: "#047857", light: "#ECFDF5" },
+    error: { main: "#E11D48", light: "#FEF2F2" },
+    warning: { main: "#B45309", light: "#FFF6CC" },
+    info: { main: AQUA_DEEP, dark: "#0B6F68", light: "#E6F7F5", contrastText: "#fff" },
     action: {
-      hover: "#F1F5F9",
-      selected: "rgba(67,56,202,0.06)",
+      hover: LIGHT.raised,
+      selected: "rgba(255,209,0,0.16)",
     },
   } as any,
   typography: headingTypography,
   components: sharedComponents(false),
+});
+
+/**
+ * Sidebar theme — the dark-brown rail is the dashboard's anchor in BOTH modes
+ * (espresso on cream in light, espresso on black in dark), so it always renders
+ * with dark-mode text tokens.
+ */
+export const sidebarTheme = createTheme(appThemeDark, {
+  palette: {
+    background: { default: DARK.raised, paper: DARK.raised },
+    secondary: { main: DARK.active, dark: DARK.borderStrong, light: DARK.active, contrastText: DARK.textSecondary },
+    divider: "rgba(255,240,210,0.10)",
+    border: { main: "rgba(255,240,210,0.12)", focus: AQUA, success: DARK.success, error: DARK.error },
+    action: { hover: "rgba(255,240,210,0.07)", selected: "rgba(255,209,0,0.16)" },
+  } as any,
 });

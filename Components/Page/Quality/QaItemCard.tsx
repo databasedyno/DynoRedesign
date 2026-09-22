@@ -30,7 +30,7 @@ export const STATUS_META: Record<QaStatus, { label: string; color: string }> = {
   pass: { label: "Pass", color: "#22C55E" },
   fail: { label: "Fail", color: "#EF4444" },
   blocked: { label: "Blocked", color: "#F59E0B" },
-  awaiting_retest: { label: "Awaiting retest", color: "#8B5CF6" },
+  awaiting_retest: { label: "Awaiting retest", color: "#2BD4C4" },
   not_tested: { label: "Not tested", color: "#9CA3AF" },
 };
 
@@ -62,11 +62,11 @@ export const QaWhereLine = ({ where, isDark }: { where: QaWhere; isDark: boolean
       flexWrap: "wrap",
       p: 1,
       borderRadius: 1.5,
-      bgcolor: isDark ? "rgba(99,102,241,0.10)" : "#EEF2FF",
-      border: `1px solid ${isDark ? "rgba(99,102,241,0.35)" : "#C7D2FE"}`,
+      bgcolor: isDark ? "rgba(43,212,196,0.10)" : "#E6F7F5",
+      border: `1px solid ${isDark ? "rgba(43,212,196,0.35)" : "#FFD100"}`,
     }}
   >
-    <PlaceOutlinedIcon sx={{ fontSize: 16, color: "#6366F1", mt: "1px" }} />
+    <PlaceOutlinedIcon sx={{ fontSize: 16, color: "#FFD100", mt: "1px" }} />
     <Box sx={{ flex: 1, minWidth: 200 }}>
       <Typography sx={{ fontSize: 12.5, lineHeight: 1.45 }}>
         <b>Where:</b> {where.menu}

@@ -19,7 +19,7 @@ export const SharedAddressTag: React.FC<Props> = ({ networks, testId, size = "md
   const { t } = useTranslation("walletScreen");
   if (networks.length === 0) return null;
   const dark = theme.palette.mode === "dark";
-  const indigo = dark ? "#818CF8" : "#4338CA";
+  const indigo = dark ? "#2BD4C4" : "#0F8F86";
   const onIndigo = dark ? "#0A0A0B" : "#FFFFFF";
   const n = networks.length + 1;
   const sm = size === "sm";
@@ -68,11 +68,11 @@ export const SharedAddressTag: React.FC<Props> = ({ networks, testId, size = "md
           lineHeight: 1,
           whiteSpace: "nowrap",
           color: active ? onIndigo : indigo,
-          backgroundColor: active ? indigo : dark ? "rgba(129,140,248,0.14)" : "rgba(67,56,202,0.08)",
-          border: `1px solid ${active ? indigo : dark ? "rgba(129,140,248,0.35)" : "rgba(67,56,202,0.22)"}`,
+          backgroundColor: active ? indigo : dark ? "rgba(43,212,196,0.14)" : "rgba(15,143,134,0.08)",
+          border: `1px solid ${active ? indigo : dark ? "rgba(43,212,196,0.35)" : "rgba(15,143,134,0.22)"}`,
           transition: "background-color 150ms ease, color 150ms ease, transform 100ms ease",
           ...(clickable && {
-            "&:hover": { backgroundColor: active ? indigo : dark ? "rgba(129,140,248,0.24)" : "rgba(67,56,202,0.14)" },
+            "&:hover": { backgroundColor: active ? indigo : dark ? "rgba(43,212,196,0.24)" : "rgba(15,143,134,0.14)" },
             "&:active": { transform: "scale(0.96)" },
             "&:focus-visible": { outline: `2px solid ${indigo}`, outlineOffset: 1 },
           }),

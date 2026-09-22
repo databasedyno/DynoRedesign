@@ -106,7 +106,7 @@ const CreatorThemePicker: React.FC<Props> = ({ value, onChange, hasCoverImage })
           background: previewBg,
           position: "relative",
           overflow: "hidden",
-          boxShadow: isDark ? "0 10px 30px rgba(0,0,0,0.35)" : "0 10px 30px rgba(67,56,202,0.10)",
+          boxShadow: isDark ? "0 10px 30px rgba(0,0,0,0.35)" : "0 10px 30px rgba(15,143,134,0.10)",
         }}
         data-testid="theme-preview"
       >
@@ -124,7 +124,7 @@ const CreatorThemePicker: React.FC<Props> = ({ value, onChange, hasCoverImage })
             sx={{
               width: 36, height: 36, borderRadius: "50%",
               p: "2px",
-              background: `linear-gradient(135deg, ${currentAccent} 0%, #7C3AED 100%)`,
+              background: `linear-gradient(135deg, ${currentAccent} 0%, #FFB300 100%)`,
               boxShadow: "0 6px 16px rgba(0,0,0,0.3)",
             }}
           >
@@ -139,7 +139,7 @@ const CreatorThemePicker: React.FC<Props> = ({ value, onChange, hasCoverImage })
           sx={{
             position: "absolute", right: 12, bottom: 12,
             px: 1.25, py: 0.5, borderRadius: "999px",
-            background: `linear-gradient(135deg, ${currentAccent} 0%, #7C3AED 100%)`,
+            background: `linear-gradient(135deg, ${currentAccent} 0%, #FFB300 100%)`,
             color: readableOnAccent,
             fontWeight: 700, fontSize: 12,
             boxShadow: "0 6px 16px rgba(0,0,0,0.25)",
@@ -269,7 +269,7 @@ const CreatorThemePicker: React.FC<Props> = ({ value, onChange, hasCoverImage })
                     borderRadius: "12px", overflow: "hidden",
                     boxShadow: active ? `0 0 0 3px ${currentAccent}33, 0 10px 24px rgba(0,0,0,0.18)` : "none",
                     transition: "transform 120ms, box-shadow 120ms, border-color 120ms",
-                    "&:hover": { transform: "translateY(-2px)", boxShadow: `0 10px 24px ${isDark ? "rgba(0,0,0,0.4)" : "rgba(67,56,202,0.14)"}` },
+                    "&:hover": { transform: "translateY(-2px)", boxShadow: `0 10px 24px ${isDark ? "rgba(0,0,0,0.4)" : "rgba(15,143,134,0.14)"}` },
                   }}
                 >
                   {/* Live mini-cover: gradient + hero scrim + avatar dot straddling the edge */}

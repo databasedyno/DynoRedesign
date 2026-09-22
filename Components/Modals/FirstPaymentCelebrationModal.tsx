@@ -100,8 +100,8 @@ const FirstPaymentCelebrationModal: React.FC<Props> = ({
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              background: "linear-gradient(135deg, #5A6BEF 0%, #7C5CFF 55%, #4FD1FF 100%)",
-              boxShadow: "0 0 44px rgba(124,92,255,0.45)",
+              background: "linear-gradient(135deg, #FFD100 0%, #FFB300 55%, #FFD100 100%)",
+              boxShadow: "0 0 44px rgba(43,212,196,0.45)",
             }}
           >
             <CelebrationRounded sx={{ color: "#fff", fontSize: 52 }} />

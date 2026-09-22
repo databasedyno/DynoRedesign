@@ -179,7 +179,7 @@ const NewSidebar = ({
   // and indigo when active — NO per-item "rainbow" accents. Keeps the nav calm
   // and high-trust, consistent across desktop sidebar + mobile drawer/bottom bar.
   const iconColor = (isActive: boolean) =>
-    isActive ? brandFg(theme.palette.mode === "dark") : theme.palette.text.secondary;
+    isActive ? theme.palette.primary.main : theme.palette.text.secondary;
 
   return (
     <SidebarWrapper data-collapsed={isCollapsed ? "true" : "false"} sx={isCollapsed ? { padding: "12px 8px" } : undefined}>

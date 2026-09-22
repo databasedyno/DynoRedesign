@@ -607,8 +607,8 @@ const HomeHeader = memo(function HomeHeader() {
                   height: 48,
                   boxShadow: "none",
                   transition: "background-color 200ms ease, transform 150ms cubic-bezier(0.16,1,0.3,1)",
-                  "&:hover": { background: "#4338CA", boxShadow: "none" },
-                  "&:active": { transform: "scale(0.98)", background: "#4338CA" },
+                  "&:hover": { background: "#F0C300", boxShadow: "none" },
+                  "&:active": { transform: "scale(0.98)", background: "#FFD100" },
                 }}
               >
                 {authed ? t("goToDashboard") : t("getStarted")}

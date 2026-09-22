@@ -18,7 +18,7 @@ export const BrowserFrame: React.FC<React.PropsWithChildren<{ url: string; sx?: 
         border: `1px solid ${s.lineStrong}`,
         boxShadow: s.dark
           ? "0 0 0 1px rgba(255,255,255,0.04), 0 40px 80px -40px rgba(0,0,0,0.9), 0 18px 40px -30px rgba(0,0,0,0.7)"
-          : "0 0 0 1px rgba(255,255,255,0.6), 0 40px 80px -40px rgba(10,10,10,0.4), 0 18px 40px -30px rgba(79,70,229,0.25)",
+          : "0 0 0 1px rgba(255,255,255,0.6), 0 40px 80px -40px rgba(10,10,10,0.4), 0 18px 40px -30px rgba(15,143,134,0.25)",
         ...sx,
       }}
     >
@@ -65,7 +65,7 @@ export const PhoneFrame: React.FC<React.PropsWithChildren<{ width?: number | Rec
       <Box aria-hidden sx={{ position: "absolute", right: "-1.2%", top: "22%", width: "1.2%", height: "9%", borderRadius: "0 2px 2px 0", background: "#1B1B21" }} />
       <Box aria-hidden sx={{ position: "absolute", left: "-1.2%", top: "18%", width: "1.2%", height: "5%", borderRadius: "2px 0 0 2px", background: "#1B1B21" }} />
       <Box aria-hidden sx={{ position: "absolute", left: "-1.2%", top: "26%", width: "1.2%", height: "9%", borderRadius: "2px 0 0 2px", background: "#1B1B21" }} />
-      <Box sx={{ position: "relative", width: "100%", height: "100%", borderRadius: "11%/5%", overflow: "hidden", background: s.dark ? "#0B0F19" : "#FFFFFF" }}>
+      <Box sx={{ position: "relative", width: "100%", height: "100%", borderRadius: "11%/5%", overflow: "hidden", background: s.dark ? "#0B0908" : "#FFFFFF" }}>
         {children}
         <Box aria-hidden sx={{ position: "absolute", top: "2.2%", left: "50%", transform: "translateX(-50%)", width: "30%", height: "3.4%", borderRadius: "999px", background: "#0A0A0A" }} />
       </Box>

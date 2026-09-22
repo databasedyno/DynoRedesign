@@ -318,8 +318,8 @@ const CryptocurrencySelector: React.FC<CryptocurrencySelectorProps> = ({
                     background:
                       crypto.code === value
                         ? theme.palette.mode === "dark"
-                          ? "rgba(129,140,248,0.16)"
-                          : "rgba(79,70,229,0.08)"
+                          ? "rgba(43,212,196,0.16)"
+                          : "rgba(15,143,134,0.08)"
                         : "transparent",
                     "&.Mui-disabled": {
                       opacity: 0.45,
@@ -327,8 +327,8 @@ const CryptocurrencySelector: React.FC<CryptocurrencySelectorProps> = ({
                     "&:hover": {
                       background:
                         theme.palette.mode === "dark"
-                          ? "rgba(129,140,248,0.16)"
-                          : "rgba(79,70,229,0.08)",
+                          ? "rgba(43,212,196,0.16)"
+                          : "rgba(15,143,134,0.08)",
                     },
                   }}
                 >

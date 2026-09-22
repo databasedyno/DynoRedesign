@@ -144,7 +144,7 @@ export const LanguageSuggestBanner = () => {
   if (!suggest) return null;
 
   const dark = theme.palette.mode === "dark";
-  const accent = dark ? "#6366F1" : "#4338CA";
+  const accent = dark ? "#2BD4C4" : "#0F8F86";
   const langName = NATIVE[suggest].label;
 
   return (
@@ -190,7 +190,7 @@ export const LanguageSuggestBanner = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          bgcolor: dark ? "rgba(99,102,241,0.14)" : "rgba(67,56,202,0.08)",
+          bgcolor: dark ? "rgba(43,212,196,0.14)" : "rgba(15,143,134,0.08)",
           position: "relative",
         }}
       >

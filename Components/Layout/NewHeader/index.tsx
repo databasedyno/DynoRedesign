@@ -2,6 +2,7 @@ import useOnboardingStatus from "@/hooks/useOnboardingStatus";
 import useAccountProfile from "@/hooks/useAccountProfile";
 import Logo from "@/assets/Icons/home/dynopay-blackLogo.svg";
 import LogoDark from "@/assets/Icons/home/dynopay-whiteLogo.svg";
+import DynopayMark from "@/assets/Icons/Logo";
 import CompanySelector from "@/Components/UI/CompanySelector";
 import ThemeToggle from "@/Components/UI/ThemeToggle";
 import UserMenu from "@/Components/UI/UserMenu";
@@ -130,13 +131,16 @@ const NewHeader = () => {
         <LogoContainer data-rail={sidebarCollapsed ? "true" : "false"} data-testid="app-brand-cell">
           <Image
             onClick={() => router.push("/dashboard")}
-            src={muiTheme.palette.mode === "dark" ? LogoDark : Logo}
-            alt="logo"
-            width={114}
-            height={39}
+            src={LogoDark}
+            alt="Dynopay"
+            width={134}
+            height={45}
             draggable={false}
             className="logo"
           />
+          <Box className="logo-mark" onClick={() => router.push("/dashboard")} data-testid="app-brand-mark">
+            <DynopayMark width={32} height={32} variant="onDark" />
+          </Box>
         </LogoContainer>
 
         <Box
@@ -159,7 +163,7 @@ const NewHeader = () => {
             height={39}
             draggable={false}
             priority
-            style={{ width: "auto", height: "22px" }}
+            style={{ width: "auto", height: "30px" }}
           />
         </Box>
       </Box>

@@ -89,8 +89,8 @@ export const homeThemeDark = createTheme({
       disabled: "#86868F",
     },
     background: {
-      default: "#0B0F19",
-      paper: "#111827",
+      default: "#0B0908",
+      paper: "#1A120D",
     },
     divider: "rgba(255,255,255,0.10)",
     border: {
@@ -99,8 +99,8 @@ export const homeThemeDark = createTheme({
     } as any,
     // Custom `surface` palette used by the checkout (pay) page — see light theme note.
     surface: {
-      main: "#0B0F19",
-      paper: "#111827",
+      main: "#0B0908",
+      paper: "#1A120D",
       border: "#1F2D47",
     } as any,
     action: {

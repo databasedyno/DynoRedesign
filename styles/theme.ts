@@ -1,5 +1,5 @@
 import { createTheme } from "@mui/material";
-import { BRAND_ACCENT, DARK } from "@/constants/theme";
+import { AQUA, AQUA_DEEP, BRAND_ACCENT, BRAND_ON_ACCENT, DARK, LIGHT } from "@/constants/theme";
 
 declare module "@mui/material/Button" {
   interface ButtonPropsVariantOverrides {
@@ -70,7 +70,7 @@ export const theme = createTheme({
   },
   palette: {
     common: {
-      black: "#12131C",
+      black: "#0B0908",
       white: "#fff",
     },
     success: {
@@ -82,28 +82,27 @@ export const theme = createTheme({
       main: "#E8484A",
     },
     border: {
-      main: "#E9ECF2",
-      focus: "#A3A6AC",
+      main: LIGHT.border,
+      focus: AQUA_DEEP,
       success: "#1C993D",
       error: "#E8484A",
     },
     primary: {
-      main: BRAND_ACCENT, //Dark Blue
-      dark: "#000000",
-      light: "#EEF2FF", //Light Blue
-      contrastText: "#fff",
+      main: BRAND_ACCENT, // signal yellow — always with dark-brown text
+      dark: "#F0C300",
+      light: LIGHT.accentSoft,
+      contrastText: BRAND_ON_ACCENT,
     },
     secondary: {
-      main: "#f4f6fa", //background color
-      dark: "#E9ECF2",
-      light: "#F4F6FA",
-      contrastText: "#D9D9D9",
+      main: LIGHT.raised, //background color
+      dark: LIGHT.border,
+      light: LIGHT.canvas,
+      contrastText: LIGHT.textSecondary,
     },
     text: {
-      primary: "#18181B",
-      secondary: "#71717A",
-      // FIX (2026-07-10): raised from #A1A1AA (~2.3:1) for legible tertiary text
-      disabled: "#73737C",
+      primary: LIGHT.text,
+      secondary: LIGHT.textSecondary,
+      disabled: LIGHT.textMuted,
     },
   },
   typography: {
@@ -213,21 +212,21 @@ export const theme = createTheme({
         {
           props: { variant: "rounded" },
           style: {
-            border: "1px solid",
-            color: "#fff",
+            border: "1px solid transparent",
+            color: BRAND_ON_ACCENT,
             padding: "12px 30px",
             background: BRAND_ACCENT,
-            fontWeight: 400,
+            fontWeight: 600,
             borderRadius: "50px",
             textTransform: "none",
             cursor: "pointer",
             "&:hover": {
-              color: BRAND_ACCENT,
-              background: "#fff",
+              color: BRAND_ON_ACCENT,
+              background: "#F0C300",
             },
             "&.Mui-disabled": {
               background: `${BRAND_ACCENT}88`,
-              color: "#fff",
+              color: BRAND_ON_ACCENT,
               pointerEvents: "auto",
               cursor: "not-allowed",
             },
@@ -246,18 +245,18 @@ export const theme = createTheme({
               },
             },
             "&.MuiButton-roundedSecondary": {
-              background: "#12131C",
+              background: "#2B1D14",
               "&:hover": {
-                color: "#12131C",
+                color: "#2B1D14",
                 background: "#fff",
               },
             },
             "&.MuiButton-roundedWhite": {
               background: "#fff",
-              color: "#12131C",
+              color: "#2B1D14",
               "&:hover": {
                 color: "#fff",
-                background: "#12131C",
+                background: "#2B1D14",
               },
             },
           },
@@ -267,12 +266,12 @@ export const theme = createTheme({
           style: {
             border: "1px solid",
             padding: "10px 30px",
-            color: BRAND_ACCENT,
+            color: AQUA_DEEP,
             fontWeight: 600,
             borderRadius: "15px",
             fontSize: "16px",
             "&:hover": {
-              color: "#fff",
+              color: BRAND_ON_ACCENT,
               background: BRAND_ACCENT,
             },
           },
@@ -282,18 +281,18 @@ export const theme = createTheme({
           style: {
             border: "1px solid",
             padding: "10px 30px",
-            color: "#fff",
+            color: BRAND_ON_ACCENT,
             background: BRAND_ACCENT,
             fontWeight: 600,
             borderRadius: "15px",
             fontSize: "16px",
             "&:hover": {
-              color: BRAND_ACCENT,
-              background: "#fff",
+              color: BRAND_ON_ACCENT,
+              background: "#F0C300",
             },
             "&.Mui-disabled": {
-              background: `${BRAND_ACCENT}99`,
-              color: "#fff",
+              background: `${BRAND_ACCENT}88`,
+              color: BRAND_ON_ACCENT,
             },
           },
         },
@@ -328,7 +327,7 @@ export const theme = createTheme({
       },
       styleOverrides: {
         outlined: {
-          color: "#1034A6",
+          color: AQUA_DEEP,
           padding: "10px 15px",
           borderRadius: "20px",
           [tempTheme.breakpoints.down("md")]: {
@@ -357,7 +356,7 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           "& .MuiOutlinedInput-root": {
-            background: "#F8F8F8",
+            background: "#F3EDE2",
           },
 
           borderRadius: "20px",
@@ -397,7 +396,7 @@ const getCheckoutComponentStyles = (isDark: boolean) => ({
         props: { variant: "rounded" as const },
         style: {
           border: "1px solid",
-          color: "#fff",
+          color: BRAND_ON_ACCENT,
           padding: "12px 30px",
           background: BRAND_ACCENT,
           fontWeight: 400,
@@ -405,12 +404,12 @@ const getCheckoutComponentStyles = (isDark: boolean) => ({
           textTransform: "none" as const,
           cursor: "pointer",
           "&:hover": {
-            color: BRAND_ACCENT,
-            background: isDark ? DARK.raised : "#fff",
+            color: BRAND_ON_ACCENT,
+            background: "#F0C300",
           },
           "&.Mui-disabled": {
             background: `${BRAND_ACCENT}88`,
-            color: "#fff",
+            color: BRAND_ON_ACCENT,
             pointerEvents: "auto" as const,
             cursor: "not-allowed",
           },
@@ -429,18 +428,18 @@ const getCheckoutComponentStyles = (isDark: boolean) => ({
             },
           },
           "&.MuiButton-roundedSecondary": {
-            background: isDark ? DARK.active : "#12131C",
+            background: isDark ? DARK.active : "#2B1D14",
             "&:hover": {
-              color: isDark ? "#fff" : "#12131C",
+              color: isDark ? "#fff" : "#2B1D14",
               background: isDark ? DARK.raised : "#fff",
             },
           },
           "&.MuiButton-roundedWhite": {
             background: isDark ? DARK.active : "#fff",
-            color: isDark ? "#fff" : "#12131C",
+            color: isDark ? "#fff" : "#2B1D14",
             "&:hover": {
-              color: isDark ? "#12131C" : "#fff",
-              background: isDark ? "#fff" : "#12131C",
+              color: isDark ? "#2B1D14" : "#fff",
+              background: isDark ? "#fff" : "#2B1D14",
             },
           },
         },
@@ -450,12 +449,12 @@ const getCheckoutComponentStyles = (isDark: boolean) => ({
         style: {
           border: "1px solid",
           padding: "10px 30px",
-          color: "#1034A6",
+          color: AQUA_DEEP,
           fontWeight: 600,
           borderRadius: "15px",
           fontSize: "16px",
           "&:hover": {
-            color: "#fff",
+            color: BRAND_ON_ACCENT,
             background: BRAND_ACCENT,
           },
         },
@@ -465,18 +464,18 @@ const getCheckoutComponentStyles = (isDark: boolean) => ({
         style: {
           border: "1px solid",
           padding: "10px 30px",
-          color: "#fff",
+          color: BRAND_ON_ACCENT,
           background: BRAND_ACCENT,
           fontWeight: 600,
           borderRadius: "15px",
           fontSize: "16px",
           "&:hover": {
-            color: BRAND_ACCENT,
-            background: isDark ? DARK.raised : "#fff",
+            color: BRAND_ON_ACCENT,
+            background: "#F0C300",
           },
           "&.Mui-disabled": {
-            background: `${BRAND_ACCENT}99`,
-            color: "#fff",
+            background: `${BRAND_ACCENT}88`,
+            color: BRAND_ON_ACCENT,
           },
         },
       },
@@ -511,7 +510,7 @@ const getCheckoutComponentStyles = (isDark: boolean) => ({
     },
     styleOverrides: {
       outlined: {
-        color: "#1034A6",
+        color: AQUA_DEEP,
         padding: "10px 15px",
         borderRadius: "20px",
         [tempTheme.breakpoints.down("md")]: {
@@ -540,7 +539,7 @@ const getCheckoutComponentStyles = (isDark: boolean) => ({
     styleOverrides: {
       root: {
         "& .MuiOutlinedInput-root": {
-          background: isDark ? DARK.raised : "#F8F8F8",
+          background: isDark ? DARK.raised : "#F3EDE2",
         },
         borderRadius: "20px",
       },
@@ -574,7 +573,7 @@ const getCheckoutComponentStyles = (isDark: boolean) => ({
     styleOverrides: {
       root: {
         "&:hover": {
-          backgroundColor: isDark ? DARK.active : "#F5F8FF",
+          backgroundColor: isDark ? DARK.active : "#FFF6CC",
         },
       },
     },
@@ -587,16 +586,16 @@ export const lightTheme = createTheme({
   },
   palette: {
     mode: "light",
-    common: { black: "#242428", white: "#fff" },
-    primary: { main: BRAND_ACCENT, dark: "#4338CA", light: "#EEF2FF", contrastText: "#fff" },
-    secondary: { main: BRAND_ACCENT, dark: "#4338CA", light: "#EEF2FF" },
-    text: { primary: "#18181B", secondary: "#71717A" },
-    background: { default: "#F4F6FA", paper: "#FFFFFF" },
-    surface: { main: "#F4F6FA", paper: "#FFFFFF", border: "#E9ECF2" },
+    common: { black: "#0B0908", white: "#fff" },
+    primary: { main: BRAND_ACCENT, dark: "#F0C300", light: LIGHT.accentSoft, contrastText: BRAND_ON_ACCENT },
+    secondary: { main: AQUA_DEEP, dark: "#0B6F68", light: "#E6F7F5", contrastText: "#fff" },
+    text: { primary: LIGHT.text, secondary: LIGHT.textSecondary },
+    background: { default: LIGHT.canvas, paper: LIGHT.surface },
+    surface: { main: LIGHT.canvas, paper: LIGHT.surface, border: LIGHT.border },
     // Mirror of `surface.border` so that components that use `palette.border.main`
     // (the convention used in the rest of the app's theme tokens) keep working
     // when rendered inside the /pay route's lightTheme.
-    border: { main: "#E9ECF2", focus: BRAND_ACCENT, success: "#10B981", error: "#E8484A" },
+    border: { main: LIGHT.border, focus: AQUA_DEEP, success: "#10B981", error: "#E8484A" },
   },
   typography: {
     fontFamily: "var(--font-sans), 'Manrope', sans-serif",
@@ -611,13 +610,13 @@ export const darkTheme = createTheme({
   },
   palette: {
     mode: "dark",
-    common: { black: "#242428", white: "#fff" },
-    primary: { main: DARK.accent, dark: "#4F46E5", light: "#A5B4FC", contrastText: "#fff" },
-    secondary: { main: DARK.accent, dark: "#4F46E5", light: "#A5B4FC" },
+    common: { black: "#0B0908", white: "#fff" },
+    primary: { main: DARK.accent, dark: "#F0C300", light: DARK.accentSoft, contrastText: BRAND_ON_ACCENT },
+    secondary: { main: AQUA, dark: AQUA_DEEP, light: "rgba(43,212,196,0.16)", contrastText: "#0B0908" },
     text: { primary: DARK.text, secondary: DARK.textSecondary, disabled: DARK.textMuted },
     background: { default: DARK.canvas, paper: DARK.surface },
     surface: { main: DARK.canvas, paper: DARK.surface, border: DARK.border },
-    border: { main: DARK.border, focus: DARK.accent, success: DARK.success, error: DARK.error },
+    border: { main: DARK.border, focus: AQUA, success: DARK.success, error: DARK.error },
     divider: DARK.border,
   },
   typography: {
@@ -643,7 +642,7 @@ export const themeDark = createTheme({
   palette: {
     mode: "dark",
     common: {
-      black: "#12131C",
+      black: "#0B0908",
       white: "#fff",
     },
     success: {
@@ -659,16 +658,16 @@ export const themeDark = createTheme({
     },
     border: {
       main: DARK.border,
-      focus: DARK.accent,
+      focus: AQUA,
       success: DARK.success,
       error: DARK.error,
     },
     divider: DARK.border,
     primary: {
       main: DARK.accent,
-      dark: "#4F46E5",
+      dark: "#F0C300",
       light: DARK.accentSoft,
-      contrastText: "#FFFFFF",
+      contrastText: BRAND_ON_ACCENT,
     },
     secondary: {
       main: DARK.canvas,
@@ -794,7 +793,7 @@ export const themeDark = createTheme({
           props: { variant: "rounded" },
           style: {
             border: "1px solid",
-            color: "#fff",
+            color: BRAND_ON_ACCENT,
             padding: "12px 30px",
             background: BRAND_ACCENT,
             fontWeight: 400,
@@ -802,12 +801,12 @@ export const themeDark = createTheme({
             textTransform: "none",
             cursor: "pointer",
             "&:hover": {
-              color: BRAND_ACCENT,
-              background: DARK.raised,
+              color: BRAND_ON_ACCENT,
+              background: "#F0C300",
             },
             "&.Mui-disabled": {
-              background: "rgba(79,70,229,0.53)",
-              color: "#fff",
+              background: `${BRAND_ACCENT}88`,
+              color: BRAND_ON_ACCENT,
               pointerEvents: "auto",
               cursor: "not-allowed",
             },
@@ -836,7 +835,7 @@ export const themeDark = createTheme({
               background: DARK.active,
               color: "#fff",
               "&:hover": {
-                color: "#12131C",
+                color: "#2B1D14",
                 background: "#fff",
               },
             },
@@ -847,12 +846,12 @@ export const themeDark = createTheme({
           style: {
             border: "1px solid",
             padding: "10px 30px",
-            color: BRAND_ACCENT,
+            color: AQUA,
             fontWeight: 600,
             borderRadius: "15px",
             fontSize: "16px",
             "&:hover": {
-              color: "#fff",
+              color: BRAND_ON_ACCENT,
               background: BRAND_ACCENT,
             },
           },
@@ -862,18 +861,18 @@ export const themeDark = createTheme({
           style: {
             border: "1px solid",
             padding: "10px 30px",
-            color: "#fff",
+            color: BRAND_ON_ACCENT,
             background: BRAND_ACCENT,
             fontWeight: 600,
             borderRadius: "15px",
             fontSize: "16px",
             "&:hover": {
-              color: BRAND_ACCENT,
-              background: DARK.raised,
+              color: BRAND_ON_ACCENT,
+              background: "#F0C300",
             },
             "&.Mui-disabled": {
-              background: "rgba(79,70,229,0.6)",
-              color: "#fff",
+              background: `${BRAND_ACCENT}88`,
+              color: BRAND_ON_ACCENT,
             },
           },
         },
@@ -914,7 +913,7 @@ export const themeDark = createTheme({
       },
       styleOverrides: {
         outlined: {
-          color: BRAND_ACCENT,
+          color: AQUA,
           padding: "10px 15px",
           borderRadius: "20px",
         },
@@ -979,7 +978,7 @@ export const themeDark = createTheme({
       styleOverrides: {
         root: {
           "&:hover": {
-            backgroundColor: "rgba(129,140,248,0.08)",
+            backgroundColor: "rgba(43,212,196,0.08)",
           },
         },
       },
@@ -989,13 +988,13 @@ export const themeDark = createTheme({
         root: {
           color: "#E2E8F0",
           "&:hover": {
-            backgroundColor: "rgba(129,140,248,0.10)",
+            backgroundColor: "rgba(43,212,196,0.10)",
           },
           "&.Mui-selected": {
-            backgroundColor: "rgba(129,140,248,0.14)",
+            backgroundColor: "rgba(43,212,196,0.14)",
             color: "#E2E8F0",
             "&:hover": {
-              backgroundColor: "rgba(129,140,248,0.18)",
+              backgroundColor: "rgba(43,212,196,0.18)",
             },
           },
         },

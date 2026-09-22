@@ -30,7 +30,7 @@ export const QualityToolbar: React.FC<Props> = ({ qc, cardBg, border }) => {
           label={`Total: ${stats.total}`}
           onClick={() => setStatusFilter("all")}
           data-testid="qa-filter-all"
-          sx={{ fontWeight: 600, cursor: "pointer", boxShadow: statusFilter === "all" ? "0 0 0 3px rgba(99,102,241,0.55)" : "none" }}
+          sx={{ fontWeight: 600, cursor: "pointer", boxShadow: statusFilter === "all" ? "0 0 0 3px rgba(43,212,196,0.55)" : "none" }}
         />
         {(["pass", "fail", "blocked", "awaiting_retest", "not_tested"] as QaStatus[]).map((st) => (
           <Chip

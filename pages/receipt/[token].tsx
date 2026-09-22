@@ -222,7 +222,7 @@ const ReceiptPage = ({ receipt, siteUrl }: Props) => {
                   {logoOk ? (
                     <Box component="img" src={receipt.merchant.logo as string} alt="" sx={{ width: 40, height: 40, borderRadius: '10px', objectFit: 'cover', border: `1px solid ${border}` }} />
                   ) : (
-                    <Box sx={{ width: 40, height: 40, borderRadius: '10px', display: 'grid', placeItems: 'center', bgcolor: isDark ? 'rgba(129,140,248,0.14)' : 'rgba(67,56,202,0.08)', color: brandFg(isDark), fontWeight: 700, fontSize: 18, border: `1px solid ${border}` }}>
+                    <Box sx={{ width: 40, height: 40, borderRadius: '10px', display: 'grid', placeItems: 'center', bgcolor: isDark ? 'rgba(43,212,196,0.14)' : 'rgba(15,143,134,0.08)', color: brandFg(isDark), fontWeight: 700, fontSize: 18, border: `1px solid ${border}` }}>
                       {monogram}
                     </Box>
                   )}
@@ -324,7 +324,7 @@ const ReceiptPage = ({ receipt, siteUrl }: Props) => {
                 disableElevation
                 data-testid="public-receipt-download-pdf"
                 startIcon={<Icon icon="mdi:file-download-outline" width={18} />}
-                sx={{ textTransform: 'none', borderRadius: '999px', fontWeight: 700, fontSize: 13.5, px: 2.5, minHeight: 40, bgcolor: BRAND_ACCENT, '&:hover': { bgcolor: '#3730A3' } }}
+                sx={{ textTransform: 'none', borderRadius: '999px', fontWeight: 700, fontSize: 13.5, px: 2.5, minHeight: 40, bgcolor: BRAND_ACCENT, '&:hover': { bgcolor: '#F0C300' } }}
               >
                 {L.downloadPdf}
               </Button>

@@ -1299,7 +1299,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId, onDraftC
               borderRadius: "10px",
               border: `1px solid ${theme.palette.divider}`,
               bgcolor: taxEffectiveOn
-                ? (theme.palette.mode === "dark" ? "rgba(129,140,248,0.08)" : "rgba(79,70,229,0.06)")
+                ? (theme.palette.mode === "dark" ? "rgba(43,212,196,0.08)" : "rgba(15,143,134,0.06)")
                 : (theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)"),
             }}
           >

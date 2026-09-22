@@ -69,7 +69,7 @@ const ImageDropTarget: React.FC<Props> = ({ onFile, disabled, radius = 12, testI
             gap: 1,
             borderRadius: radius,
             border: `2px dashed ${theme.palette.primary.main}`,
-            backgroundColor: isDark ? "rgba(99,102,241,0.14)" : "rgba(67,56,202,0.08)",
+            backgroundColor: isDark ? "rgba(43,212,196,0.14)" : "rgba(15,143,134,0.08)",
             backdropFilter: "blur(2px)",
             pointerEvents: "none",
             fontFamily: "var(--font-sans)",

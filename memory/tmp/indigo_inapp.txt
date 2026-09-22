@@ -1,0 +1,254 @@
+Components/Layout/MobileNavigationBar/index.tsx:439:                            boxShadow: "0 0 6px rgba(129,140,248,0.75)",
+Components/Layout/MobileNavigationBar/index.tsx:518:                              boxShadow: "0 0 6px rgba(129,140,248,0.75)",
+Components/Layout/NewHeader/CreateNewButton.tsx:119:            backgroundColor: isDark ? "#818CF8" : "#4F46E5",
+Components/Layout/NewHeader/CreateNewButton.tsx:121:            boxShadow: isDark ? "0 6px 16px rgba(129,140,248,0.35)" : "0 6px 16px rgba(79,70,229,0.35)",
+Components/Layout/NewHeader/CreateNewButton.tsx:124:            "&:hover": { backgroundColor: isDark ? "#A5B4FC" : "#4338CA" },
+Components/Layout/NewHeader/CreateNewButton.tsx:127:              outline: `2px solid ${isDark ? "#A5B4FC" : "#4F46E5"}`,
+Components/Layout/NewHeader/CreateNewButton.tsx:156:          backgroundColor: isDark ? "#818CF8" : "#4F46E5",
+Components/Layout/NewHeader/CreateNewButton.tsx:159:          "&:hover": { backgroundColor: isDark ? "#A5B4FC" : "#4338CA" },
+Components/Layout/NewHeader/CreateNewButton.tsx:162:            outline: `2px solid ${isDark ? "#A5B4FC" : "#4F46E5"}`,
+Components/Layout/ReferralAndKnowledge/index.tsx:32:            ? "rgba(129,140,248,0.35)"
+Components/Layout/ReferralAndKnowledge/index.tsx:33:            : "rgba(79,70,229,0.28)",
+Components/Common/SupportChatWidget/index.tsx:38:const LIME = "#4F46E5";
+Components/Common/SupportChatWidget/index.tsx:427:  const userBubbleBg = isDark ? "#6366F1" : BRAND_ACCENT;
+Components/Common/SupportChatWidget/index.tsx:784:                "&:hover": { background: escalateOpen ? "#4338CA" : "rgba(255,255,255,0.22)" },
+Components/Common/SupportChatWidget/index.tsx:1136:                sx={{ ...composerIconSx, color: emojiOpen ? (isDark ? "#818CF8" : BRAND_ACCENT) : theme.palette.text.secondary }}
+Components/Common/SupportChatWidget/index.tsx:1187:                "&:hover": { background: "#4338CA" },
+Components/Common/SupportChatWidget/index.tsx:1229:            "&:hover": { background: "#4338CA", transform: occluding ? "translateX(96px) scale(0.9)" : "translateY(-2px)" },
+Components/Common/CommandPalette/index.tsx:378:                      idx === active ? (isDark ? "rgba(129,140,248,0.14)" : "rgba(79,70,229,0.08)") : "transparent",
+Components/UX/PageTip/index.tsx:95:          ? "rgba(129,140,248,0.08)"
+Components/UX/PageTip/index.tsx:96:          : "rgba(79,70,229,0.05)",
+Components/UX/PageTip/index.tsx:120:            ? "rgba(129,140,248,0.16)"
+Components/UX/PageTip/index.tsx:121:            : "rgba(79,70,229,0.10)",
+Components/UX/PageTip/index.tsx:187:              ? "rgba(129,140,248,0.12)"
+Components/UX/PageTip/index.tsx:188:              : "rgba(79,70,229,0.08)",
+Components/Modals/FirstPaymentCelebrationModal.tsx:103:              background: "linear-gradient(135deg, #5A6BEF 0%, #7C5CFF 55%, #4FD1FF 100%)",
+Components/Modals/FirstPaymentCelebrationModal.tsx:104:              boxShadow: "0 0 44px rgba(124,92,255,0.45)",
+Components/Modals/DemoVideoModal.tsx:45:    color: '#7C3AED',
+Components/Modals/DemoVideoModal.tsx:46:    accent: '#A78BFA',
+Components/Page/Kyc/KycRequirements.tsx:40:                  <Box sx={{ width: 36, height: 36, borderRadius: "10px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", color: indigo, backgroundColor: isDark ? "rgba(129,140,248,0.12)" : "rgba(79,70,229,0.08)" }}>
+Components/Page/Kyc/KycTimeline.tsx:77:                <Box sx={{ width: 28, height: 28, borderRadius: "50%", display: "grid", placeItems: "center", flexShrink: 0, color: s.state === "done" || s.state === "failed" ? "#fff" : c, backgroundColor: s.state === "done" || s.state === "failed" ? c : "transparent", border: `2px solid ${c}`, boxShadow: s.state === "current" ? `0 0 0 4px ${isDark ? "rgba(99,102,241,0.25)" : "rgba(79,70,229,0.14)"}` : "none" }}>
+Components/Page/Profile/twoFactor/ReauthDialog.tsx:73:          <Box sx={{ width: 40, height: 40, borderRadius: "10px", backgroundColor: isDisable ? "#FEE2E2" : (theme.palette.mode === "dark" ? "rgba(99,102,241,0.18)" : "#EEF2FF"), display: "flex", alignItems: "center", justifyContent: "center" }}>
+Components/Page/Profile/twoFactor/ReauthDialog.tsx:104:            sx={{ fontWeight: 600, fontSize: "14px", color: "#FFFFFF", backgroundColor: "#4F46E5", py: "10px", borderRadius: "8px", textTransform: "none", "&:hover": { backgroundColor: "#4338CA" } }}
+Components/Page/Profile/twoFactor/ReauthDialog.tsx:126:                backgroundColor: isDisable ? "#DC2626" : "#4F46E5",
+Components/Page/Profile/twoFactor/ReauthDialog.tsx:127:                "&:hover": { backgroundColor: isDisable ? "#B91C1C" : "#4338CA" },
+Components/Page/Profile/twoFactor/ReauthDialog.tsx:128:                "&:disabled": { backgroundColor: isDisable ? "#FCA5A5" : "#A5B4FC", color: "#FFF" },
+Components/Page/Profile/twoFactor/TwoFactorSetupDialog.tsx:27:      <Box sx={{ width: 40, height: 40, borderRadius: "10px", backgroundColor: theme.palette.mode === "dark" ? "rgba(99,102,241,0.18)" : "#EEF2FF", display: "flex", alignItems: "center", justifyContent: "center" }}>
+Components/Page/Profile/twoFactor/TwoFactorSetupDialog.tsx:69:            sx={{ fontWeight: 600, fontSize: "14px", color: "#FFFFFF", backgroundColor: "#4F46E5", py: "10px", borderRadius: "8px", textTransform: "none", "&:hover": { backgroundColor: "#4338CA" } }}
+Components/Page/Profile/TwoFactorAuth.tsx:154:                      sx={{ textTransform: "none", fontSize: "12.5px", fontFamily: "var(--font-sans)", borderRadius: "8px", backgroundColor: "#4F46E5", "&:hover": { backgroundColor: "#4338CA" }, flex: isMobile ? 1 : "none" }}
+Components/Page/Profile/TwoFactorAuth.tsx:189:                  sx={{ textTransform: "none", fontSize: "12.5px", fontFamily: "var(--font-sans)", borderRadius: "8px", backgroundColor: "#4F46E5", "&:hover": { backgroundColor: "#4338CA" }, width: isMobile ? "100%" : "auto" }}
+Components/Page/CreatePaymentLink/index.tsx:1669:              border: `1px solid ${theme.palette.mode === "dark" ? "rgba(129,140,248,0.32)" : "rgba(79,70,229,0.35)"}`,
+Components/Page/CreatePaymentLink/index.tsx:1670:              backgroundColor: theme.palette.mode === "dark" ? "rgba(129,140,248,0.08)" : "rgba(79,70,229,0.08)",
+Components/Page/CreatePaymentLink/styled.tsx:332:    color: theme.palette.mode === "dark" ? "#C7D2FE" : "#4338CA",
+Components/Page/CreatePaymentLink/styled.tsx:333:    backgroundColor: theme.palette.mode === "dark" ? "rgba(129,140,248,0.16)" : "#EEF0FD",
+Components/Page/CreatePaymentLink/styled.tsx:377:  boxShadow: selected ? `0 0 0 3px ${theme.palette.mode === "dark" ? "rgba(129,140,248,0.22)" : "rgba(79,70,229,0.12)"}` : "none",
+Components/Page/CreatePaymentLink/styled.tsx:380:      ? "rgba(129,140,248,0.08)"
+Components/Page/Notification/NotificationInbox.tsx:254:                    border: `1px solid ${unread ? (isDark ? "rgba(129,140,248,0.35)" : "rgba(79,70,229,0.28)") : border}`,
+Components/Page/Notification/NotificationInbox.tsx:255:                    backgroundColor: unread ? (isDark ? "rgba(129,140,248,0.06)" : "rgba(79,70,229,0.035)") : theme.palette.background.paper,
+Components/Page/Dashboard/coinbase/AttentionCardsRow.tsx:116:          gradient: ["#8B5CF6", "#7C3AED"],
+Components/Page/Dashboard/coinbase/LivePaymentFeed.tsx:41:    box-shadow: 0 0 0 6px rgba(129,140,248,0.28);
+Components/Page/Dashboard/coinbase/LivePaymentFeed.tsx:46:    box-shadow: 0 0 0 0 rgba(129,140,248,0);
+Components/Page/Dashboard/WalletSetupNudge.tsx:34:  const accent = "#4338CA";
+Components/Page/Dashboard/ReferralRewardBanner.tsx:44:    ? "linear-gradient(90deg, rgba(79,70,229,0.16) 0%, rgba(129,140,248,0.10) 100%)"
+Components/Page/Dashboard/ReferralRewardBanner.tsx:45:    : "linear-gradient(90deg, rgba(79,70,229,0.10) 0%, rgba(129,140,248,0.16) 100%)";
+Components/Page/Dashboard/ClaimHandleBanner.tsx:14:// Session 82: LIME const preserves the name but now holds aurora indigo #4F46E5
+Components/Page/Dashboard/ClaimHandleBanner.tsx:81:    ? "linear-gradient(90deg, rgba(79,70,229,0.12) 0%, rgba(0,229,255,0.10) 100%)"
+Components/Page/Dashboard/ClaimHandleBanner.tsx:82:    : "linear-gradient(90deg, rgba(129,140,248,0.22) 0%, rgba(0,229,255,0.16) 100%)";
+Components/Page/Dashboard/CreatorPageCard.tsx:23:// Session 82: LIME const preserves the name but now holds aurora indigo #4F46E5
+Components/Page/Dashboard/AutoClaimHandle.tsx:21:    const colors = [BRAND_ACCENT, "#7C5CFF", "#10B981", "#F59E0B"];
+Components/Page/Dashboard/AutoClaimHandle.tsx:126:            background: `linear-gradient(135deg, ${BRAND_ACCENT} 0%, #7C5CFF 100%)`,
+Components/Page/Dashboard/AutoClaimHandle.tsx:127:            boxShadow: "0 10px 28px rgba(79,70,229,0.35)",
+Components/Page/Dashboard/AutoClaimHandle.tsx:150:            backgroundColor: isDark ? "rgba(79,70,229,0.14)" : "rgba(79,70,229,0.06)",
+Components/Page/Dashboard/AutoClaimHandle.tsx:181:            background: `linear-gradient(135deg, ${BRAND_ACCENT} 0%, #4338CA 100%)`,
+Components/Page/Dashboard/AutoClaimHandle.tsx:183:            "&:hover": { background: "linear-gradient(135deg, #4338CA 0%, #3730A3 100%)" },
+Components/Page/Dashboard/v2026/command/AttentionFeed.tsx:117:                    borderColor: isDark ? "rgba(129,140,248,0.45)" : "rgba(79,70,229,0.35)",
+Components/Page/Dashboard/v2026/FeeTierCard.tsx:170:                          ? "rgba(99,102,241,0.16)"
+Components/Page/Dashboard/v2026/FeeTierCard.tsx:171:                          : "rgba(67,56,202,0.10)"
+Components/Page/Dashboard/v2026/FeeTierCard.tsx:176:                        ? `0 0 0 1px ${isDark ? "rgba(99,102,241,0.35)" : "rgba(67,56,202,0.25)"}`
+Components/Page/Payment-link/styled.tsx:42:    border: `1px solid ${tone === "primary" ? (isDark ? "rgba(129,140,248,0.45)" : "rgba(67,56,202,0.35)") : hairline(theme)}`,
+Components/Page/Payment-link/styled.tsx:52:          ? isDark ? "rgba(129,140,248,0.22)" : "rgba(67,56,202,0.14)"
+Components/Page/Payment-link/styled.tsx:148:  border: "1px solid #E0E7FF",
+Components/Page/Payment-link/styled.tsx:156:    backgroundColor: "#EEF2FF",
+Components/Page/HelpAndSupport/index.tsx:387:                                ? "rgba(99,102,241,0.08)"
+Components/Page/HelpAndSupport/index.tsx:388:                                : "rgba(99,102,241,0.04)",
+Components/Page/HelpAndSupport/index.tsx:394:                                boxShadow: `0 8px 24px ${theme.palette.mode === "dark" ? "rgba(0,0,0,0.4)" : "rgba(79,70,229,0.16)"}`,
+Components/Page/Referrals/ReferralEarningsCalculator.tsx:40:        background: accent ? "rgba(79,70,229,0.10)" : s.bgAlt,
+Components/Page/Referrals/ReferralEarningsCalculator.tsx:41:        border: `1px solid ${accent ? "rgba(79,70,229,0.35)" : s.line}`,
+Components/Page/Referrals/ReferralEarningsCalculator.tsx:129:            "& .MuiSlider-thumb": { width: 22, height: 22, boxShadow: "0 4px 12px -2px rgba(79,70,229,0.5)" },
+Components/Page/ProductEditor/index.tsx:1302:                ? (theme.palette.mode === "dark" ? "rgba(129,140,248,0.08)" : "rgba(79,70,229,0.06)")
+Components/Page/Invoices/InvoicePreviewDrawer.tsx:236:              backgroundColor: dark ? "#818CF8" : BRAND_ACCENT,
+Components/Page/Invoices/InvoicePreviewDrawer.tsx:244:              "&:hover": { backgroundColor: dark ? "#7075E8" : "#4338CA" },
+Components/Page/Invoices/InvoicePreviewDrawer.tsx:311:                <CircularProgress size={26} sx={{ color: dark ? "#818CF8" : BRAND_ACCENT }} />
+Components/Page/API/ApiKeysPage.tsx:531:                background: theme.palette.mode === "dark" ? "rgba(129,140,248,0.10)" : "#f0f5ff",
+Components/Page/API/ApiKeysPage.tsx:542:                  background: theme.palette.mode === "dark" ? "rgba(129,140,248,0.18)" : "#e6eeff",
+Components/Page/API/ApiKeysPage.tsx:818:          background: theme.palette.mode === "dark" ? "rgba(129,140,248,0.08)" : "#f5f7ff",
+Components/Page/API/ApiKeysPage.tsx:850:              background: theme.palette.mode === "dark" ? "rgba(129,140,248,0.10)" : "#f0f5ff",
+Components/Page/API/ApiKeysPage.tsx:913:    `    appearance: { theme: "auto", preset: "default", accent: "#4F46E5" },\n` +
+Components/Page/API/ApiKeysPage.tsx:991:            accent: theme.palette.primary.main || "#4F46E5",
+Components/Page/API/ApiKeysPage.tsx:1111:              background: theme.palette.mode === "dark" ? "rgba(129,140,248,0.10)" : "#f0f5ff",
+Components/Page/API/ApiKeysPage.tsx:1481:              background: theme.palette.mode === "dark" ? "rgba(129,140,248,0.10)" : "#f0f5ff",
+Components/Page/API/ApiKeysPage.tsx:1631:              "&:hover": { background: theme.palette.mode === "dark" ? "rgba(129,140,248,0.10)" : "#f0f5ff", borderColor: theme.palette.primary.main },
+Components/Page/Settings/TaxSettingsSection.tsx:260:          bgcolor: isDark ? "rgba(129,140,248,0.06)" : "#F5F6FE",
+Components/Page/Settings/TaxSettingsSection.tsx:261:          border: `1px solid ${isDark ? "rgba(129,140,248,0.20)" : "#E0E3F7"}`,
+Components/Page/Settings/PlanFeesSection.tsx:93:          bgcolor: isDark ? "rgba(129,140,248,0.06)" : "#F5F6FE",
+Components/Page/Settings/PlanFeesSection.tsx:94:          border: `1px solid ${isDark ? "rgba(129,140,248,0.20)" : "#E0E3F7"}`,
+Components/Page/Settings/LanguageSection.tsx:67:                  backgroundColor: active ? (isDark ? "rgba(129,140,248,0.12)" : "rgba(79,70,229,0.06)") : "transparent",
+Components/Page/WalletSecurity/HowItWorks.tsx:28:            <Box sx={{ width: 36, height: 36, borderRadius: "10px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", color: indigo, backgroundColor: isDark ? "rgba(129,140,248,0.12)" : "rgba(79,70,229,0.08)" }}>
+Components/Page/Refund/RefundInvoiceView.tsx:32:            <Chip size="small" label="DRY-RUN" sx={{ bgcolor: "#EDE9FE", color: "#5B21B6", fontWeight: 700 }} />
+Components/Page/Wallet/index.tsx:220:          const ring = dark ? "#818CF8" : "#4338CA";
+Components/Page/Wallet/index.tsx:256:                boxShadow: lit ? `0 0 0 2px ${ring}, 0 10px 28px ${dark ? "rgba(129,140,248,0.28)" : "rgba(67,56,202,0.22)"}` : "none",
+Components/Page/Wallet/SharedHighlightBar.tsx:19:  const indigo = dark ? "#818CF8" : "#4338CA";
+Components/Page/Wallet/SharedHighlightBar.tsx:41:        border: `1px solid ${dark ? "rgba(129,140,248,0.45)" : "rgba(67,56,202,0.35)"}`,
+Components/Page/Wallet/SharedHighlightBar.tsx:65:            sx={{ appearance: "none", m: 0, cursor: "pointer", height: 24, px: 1, borderRadius: 999, border: `1px solid ${indigo}`, backgroundColor: dark ? "rgba(129,140,248,0.14)" : "rgba(67,56,202,0.08)", color: indigo, fontFamily: MONO, fontSize: 11, fontWeight: 600, whiteSpace: "nowrap", "&:hover": { backgroundColor: indigo, color: dark ? "#0A0A0B" : "#fff" } }}
+Components/Page/Customers/index.tsx:236:  const accent = isDark ? "#818CF8" : "#4F46E5";
+Components/Page/Customers/index.tsx:489:            sx={{ height: 18, fontSize: "10.5px", fontWeight: 600, ...sansSx, bgcolor: isDark ? "rgba(129,140,248,0.15)" : "rgba(79,70,229,0.08)", color: accent, "& .MuiChip-label": { px: 0.75 } }}
+Components/Page/Customers/index.tsx:752:                bgcolor: active ? (isDark ? "rgba(99,102,241,0.15)" : "rgba(79,70,229,0.07)") : cardBg,
+Components/Page/Customers/index.tsx:1226:  const accent = theme.palette.mode === "dark" ? "#818CF8" : "#4F46E5";
+Components/Page/Customers/index.tsx:1681:              sx={{ ...sansSx, fontSize: "12px", fontWeight: 600, bgcolor: isDark ? "rgba(129,140,248,0.15)" : "rgba(79,70,229,0.08)", color: accent }}
+Components/Page/Transactions/index.tsx:203:      const colors = ["#3FD98A", "#05936A", "#10B981", "#F59E0B", "#7C5CFF"];
+Components/UI/ImageDropTarget.tsx:72:            backgroundColor: isDark ? "rgba(99,102,241,0.14)" : "rgba(67,56,202,0.08)",
+Components/UI/TransferExpectedCard/Index.tsx:549:                        '&:hover': { bgcolor: isDark ? '#3a3a5a' : '#E0E7FF' }
+Components/UI/TransferExpectedCard/Index.tsx:902:                      '&:hover': { bgcolor: isDark ? '#3a3a5a' : '#E0E7FF' }
+Components/UI/TransferExpectedCard/Index.tsx:925:                backgroundColor: isDark ? 'rgba(79, 70, 229, 0.1)' : '#EEF2FF',
+Components/UI/StatusDot.tsx:39:  info: { dot: "#6366F1", light: "#4338CA", dark: "#818CF8" }, // indigo
+Components/UI/TwoFactorEnroll/EnrollDialog.tsx:42:          <Box sx={{ width: 40, height: 40, borderRadius: "10px", backgroundColor: isDark ? "rgba(99,102,241,0.18)" : "#EEF2FF", display: "flex", alignItems: "center", justifyContent: "center" }}>
+Components/UI/TwoFactorEnroll/EnrollPanel.tsx:38:        "&:hover": { borderColor: brandFg(isDark), transform: "translateY(-1px)", boxShadow: isDark ? "0 8px 24px rgba(0,0,0,0.35)" : "0 8px 24px rgba(79,70,229,0.10)" },
+Components/UI/TwoFactorEnroll/EnrollPanel.tsx:43:        <Box sx={{ width: 36, height: 36, borderRadius: "10px", backgroundColor: isDark ? "rgba(99,102,241,0.18)" : "#EEF2FF", display: "flex", alignItems: "center", justifyContent: "center", color: brandFg(isDark) }}>{icon}</Box>
+Components/UI/TwoFactorEnroll/EnrollPanel.tsx:85:          sx={{ mt: 2, fontWeight: 600, fontSize: "14px", color: "#FFFFFF", backgroundColor: "#4F46E5", py: "10px", borderRadius: "8px", textTransform: "none", "&:hover": { backgroundColor: "#4338CA" } }}
+Components/UI/StepUp/StepUpDialog.tsx:130:          <Box sx={{ width: 40, height: 40, borderRadius: "10px", flexShrink: 0, backgroundColor: dark ? "rgba(129,140,248,0.16)" : "#EEF2FF", display: "grid", placeItems: "center" }}>
+Components/UI/StepUp/StepUpMethodTabs.tsx:60:              backgroundColor: active ? (dark ? "rgba(129,140,248,0.12)" : "rgba(67,56,202,0.08)") : "transparent",
+Components/UI/CompanySettingsDialog/CompanyDetailsSection.tsx:338:                            ? "#4F46E5"
+Components/UI/CompanySettingsDialog/CompanyDetailsSection.tsx:346:                            : "rgba(79,70,229,0.05)"
+Components/UI/CompanySettingsDialog/CompanyDetailsSection.tsx:423:                    : "rgba(79,70,229,0.22)"
+Components/UI/CompanySettingsDialog/CompanyDetailsSection.tsx:428:                    : "rgba(79,70,229,0.04)",
+Components/UI/UnderPayment/Index.tsx:272:                      '&:hover': { bgcolor: isDark ? '#3a3a5a' : '#E0E7FF' }
+Components/UI/SharedAddressTag.tsx:22:  const indigo = dark ? "#818CF8" : "#4338CA";
+Components/UI/SharedAddressTag.tsx:71:          backgroundColor: active ? indigo : dark ? "rgba(129,140,248,0.14)" : "rgba(67,56,202,0.08)",
+Components/UI/SharedAddressTag.tsx:72:          border: `1px solid ${active ? indigo : dark ? "rgba(129,140,248,0.35)" : "rgba(67,56,202,0.22)"}`,
+Components/UI/SharedAddressTag.tsx:75:            "&:hover": { backgroundColor: active ? indigo : dark ? "rgba(129,140,248,0.24)" : "rgba(67,56,202,0.14)" },
+Components/UI/ProgressBar/index.tsx:59:    ? (theme.palette.mode === 'dark' ? '0 0 0 4px rgba(129,140,248,0.22)' : '0 0 0 4px rgba(10,10,10,0.12)')
+Components/UI/Buttons/index.tsx:223:                ? "0 8px 26px -8px rgba(99,102,241,0.6), 0 0 0 1px rgba(129,140,248,0.22)"
+Components/UI/Buttons/index.tsx:224:                : "0 12px 28px -10px rgba(67,56,202,0.5)",
+Components/UI/Buttons/index.tsx:231:                  ? "0 12px 34px -6px rgba(99,102,241,0.8), 0 0 0 1px rgba(129,140,248,0.4), 0 0 40px rgba(99,102,241,0.34)"
+Components/UI/Buttons/index.tsx:232:                  : "0 16px 34px -10px rgba(67,56,202,0.6)",
+Components/UI/HomeCard/styled.tsx:102:  color: theme.palette.mode === "dark" ? "#A5B4FC" : BRAND_ACCENT,
+Components/UI/HomeCard/styled.tsx:163:  color: theme.palette.mode === "dark" ? "#A5B4FC" : BRAND_ACCENT,
+Components/UI/OnboardingFlow/CreateCompanyModal.tsx:470:                        ? "#4F46E5"
+Components/UI/OnboardingFlow/CreateCompanyModal.tsx:478:                        : "rgba(79,70,229,0.05)"
+Components/UI/OnboardingFlow/HandleClaimNudge.tsx:194:        border: `1px solid ${isDark ? "rgba(129,140,248,0.4)" : "rgba(79,70,229,0.35)"}`,
+Components/UI/OnboardingFlow/HandleClaimNudge.tsx:196:          ? "linear-gradient(135deg, rgba(79,70,229,0.14) 0%, rgba(34,197,94,0.06) 100%)"
+Components/UI/OnboardingFlow/HandleClaimNudge.tsx:197:          : "linear-gradient(135deg, rgba(79,70,229,0.06) 0%, rgba(34,197,94,0.04) 100%)",
+Components/UI/OnboardingFlow/HandleClaimNudge.tsx:231:            backgroundColor: isDark ? "#818CF8" : "#4F46E5",
+Components/UI/OnboardingFlow/HandleClaimNudge.tsx:354:            backgroundColor: isDark ? "#818CF8" : "#4F46E5",
+Components/UI/OnboardingFlow/HandleClaimNudge.tsx:356:            "&:hover": { backgroundColor: isDark ? "#6D74E8" : "#4338CA" },
+Components/UI/OnboardingFlow/HandleClaimNudge.tsx:358:              backgroundColor: isDark ? "rgba(129,140,248,0.35)" : "rgba(79,70,229,0.35)",
+Components/UI/OnboardingFlow/CelebrationOverlay.tsx:54:        colors: ["#10B981", "#34D399", "#4338CA", "#818CF8", "#FFD700"],
+Components/UI/OnboardingFlow/CelebrationOverlay.tsx:61:        colors: ["#10B981", "#34D399", "#4338CA", "#818CF8", "#FFD700"],
+Components/UI/OnboardingFlow/CelebrationOverlay.tsx:70:      colors: ["#10B981", "#34D399", "#4338CA", "#818CF8", "#FFD700"],
+Components/UI/_shared/SurfaceCard.tsx:25:        ? "#7C5CFF"
+Components/UI/_shared/SurfaceCard.tsx:30:            : (dark ? "#818CF8" : BRAND_ACCENT); // indigo default
+Components/UI/_shared/useVerticalAccent.ts:48:    color: INDIGO,          // #4F46E5
+Components/UI/_shared/useVerticalAccent.ts:49:    colorDeep: "#4338CA",
+Components/UI/_shared/useVerticalAccent.ts:50:    tint: "rgba(79,70,229,0.10)",
+Components/UI/_shared/useVerticalAccent.ts:56:    color: VIOLET,          // #7C5CFF
+Components/UI/_shared/useVerticalAccent.ts:58:    tint: "rgba(124,92,255,0.10)",
+Components/UI/_shared/useVerticalAccent.ts:65:    colorDeep: "#4338CA",
+Components/UI/_shared/useVerticalAccent.ts:66:    tint: "rgba(79,70,229,0.10)",
+Components/UI/SectionTitle/styled.tsx:38:  color: theme.palette.mode === "dark" ? "#818CF8" : BRAND_ACCENT,
+Components/UI/SectionTitle/styled.tsx:134:  color: theme.palette.mode === "dark" ? "#818CF8" : BRAND_ACCENT,
+Components/UI/AuthLayout/AuthBrandPanel.tsx:40:  const accent = dark ? "#818CF8" : BRAND_ACCENT;
+Components/UI/AuthLayout/AuthBrandPanel.tsx:41:  const accentPulse = dark ? "rgba(129,140,248,0.55)" : "rgba(79,70,229,0.5)";
+Components/UI/AuthLayout/AuthBrandPanel.tsx:57:    ? "radial-gradient(135% 120% at 100% 0%, rgba(139,92,246,0.22) 0%, transparent 46%), radial-gradient(120% 120% at 0% 100%, rgba(99,102,241,0.24) 0%, transparent 52%), linear-gradient(158deg, #0C1022 0%, #090C16 100%)"
+Components/UI/AuthLayout/AuthBrandPanel.tsx:58:    : "radial-gradient(135% 120% at 100% 0%, rgba(139,92,246,0.13) 0%, transparent 46%), radial-gradient(120% 120% at 0% 100%, rgba(99,102,241,0.14) 0%, transparent 52%), linear-gradient(158deg, #FBFAFF 0%, #F0F1FE 100%)";
+Components/UI/AuthLayout/AuthBrandPanel.tsx:59:  const panelBorder = dark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(67,56,202,0.12)";
+Components/UI/AuthLayout/AuthBrandPanel.tsx:62:    : "0 46px 100px -56px rgba(67,56,202,0.4), inset 0 1px 0 rgba(255,255,255,0.9)";
+Components/UI/AuthLayout/AuthBrandPanel.tsx:89:        background: active ? (dark ? "rgba(129,140,248,0.16)" : "rgba(79,70,229,0.09)") : "transparent",
+Components/UI/AuthLayout/AuthBrandPanel.tsx:134:              boxShadow: "0 10px 24px -12px rgba(79,70,229,0.7)",
+Components/UI/AuthLayout/AuthBrandPanel.tsx:162:                  background: i === BARS.length - 1 ? accent : dark ? "rgba(129,140,248,0.28)" : "rgba(79,70,229,0.22)",
+Components/UI/AuthLayout/AuthBrandPanel.tsx:236:          background: `radial-gradient(circle, ${dark ? "rgba(129,140,248,0.4)" : "rgba(99,102,241,0.18)"} 0%, transparent 68%)`,
+Components/UI/AuthLayout/AuthBrandPanel.tsx:255:          background: `radial-gradient(circle, ${dark ? "rgba(139,92,246,0.34)" : "rgba(139,92,246,0.16)"} 0%, transparent 68%)`,
+Components/UI/AuthLayout/AuthBrandPanel.tsx:295:                "50%": { boxShadow: "0 0 0 6px rgba(129,140,248,0)" },
+Components/UI/AuthLayout/AuthBrandPanel.tsx:323:              textShadow: dark ? "0 0 44px rgba(129,140,248,0.28)" : "none",
+Components/UI/AuthLayout/BrandContent/LiveBrandContent.tsx:129:      <StatCard label="ACTIVE LINKS" value="24" accent="#c4b5fd" />
+Components/UI/AuthLayout/BrandContent/LiveBrandContent.tsx:136:        <Typography sx={{ fontSize: "10px", fontWeight: 700, color: "#c4b5fd", fontFamily: "var(--font-sans), sans-serif" }}>Payment #2847</Typography>
+Components/UI/AuthLayout/BrandContent/LiveBrandContent.tsx:156:      <StatCard label="CURRENCIES" value="6" accent="#c4b5fd" />
+Components/UI/AuthLayout/BrandContent/LiveBrandContent.tsx:172:      <StatCard label="SUCCESS" value="99.9%" accent="#c4b5fd" />
+Components/UI/AuthLayout/BrandContent/LiveBrandContent.tsx:199:      <StatCard label="TXNS" value="1,847" accent="#c4b5fd" />
+Components/UI/AuthLayout/BrandContent/LiveBrandContent.tsx:233:                ? "linear-gradient(180deg, #a78bfa 0%, #6C5CE7 100%)"
+Components/UI/AuthLayout/BrandContent/LiveBrandContent.tsx:234:                : `rgba(139,92,246,${0.25 + (h / 100) * 0.4})`,
+Components/UI/AuthLayout/BrandContent/LiveBrandContent.tsx:255:      <StatCard label="SAVED" value="$2.1K" accent="#c4b5fd" />
+Components/UI/AuthLayout/BrandContent/LiveBrandContent.tsx:260:      { name: "Dynopay", pct: 1.5, width: "15%", gradient: "linear-gradient(90deg, #6C5CE7 0%, #a78bfa 100%)", highlight: true },
+Components/UI/AuthLayout/BrandContent/LiveBrandContent.tsx:289:      <Typography sx={{ fontSize: "22px", fontWeight: 700, color: "#c4b5fd", fontFamily: "var(--font-sans), sans-serif", my: "4px" }}>$250.00</Typography>
+Components/UI/AuthLayout/BrandContent/LiveBrandContent.tsx:314:          <Typography sx={{ fontSize: "8px", fontWeight: 600, color: c.active ? "#c4b5fd" : "rgba(255,255,255,0.5)", fontFamily: "var(--font-sans), sans-serif", mt: "2px" }}>
+Components/UI/AuthLayout/BrandContent/LiveBrandContent.tsx:327:    <Box sx={{ background: "linear-gradient(135deg, #6C5CE7, #a78bfa)", borderRadius: "8px", py: "10px", textAlign: "center", mb: "12px", boxShadow: "0 4px 12px rgba(108,92,231,0.35)" }}>
+Components/UI/AuthLayout/BrandContent/LiveBrandContent.tsx:450:        background: "linear-gradient(160deg, #4c1d95 0%, #5b21b6 25%, #6C5CE7 50%, #4338ca 75%, #312e81 100%)",
+Components/UI/AuthLayout/BrandContent/LiveBrandContent.tsx:475:          background: "radial-gradient(circle, rgba(99,102,241,0.2) 0%, transparent 70%)",
+Components/UI/AuthLayout/AuthStatus.tsx:27:    tone === "success" ? (dark ? "rgba(52,211,153,0.14)" : "rgba(5,150,105,0.10)") : tone === "error" ? (dark ? "rgba(251,113,133,0.14)" : "rgba(190,18,60,0.08)") : dark ? "rgba(129,140,248,0.16)" : "rgba(79,70,229,0.08)";
+Components/UI/AuthLayout/PurposePicker.tsx:118:    merchants:   { color: dark ? "#818CF8" : BRAND_ACCENT, tint: dark ? "rgba(129,140,248,0.14)" : "rgba(79,70,229,0.10)", contrast: "#FFFFFF" },
+Components/UI/AuthLayout/PurposePicker.tsx:119:    fundraisers: { color: "#7C5CFF",                    tint: "rgba(124,92,255,0.14)",                                   contrast: "#FFFFFF" },
+Components/UI/AuthLayout/PurposePicker.tsx:120:    creators:    { color: dark ? "#818CF8" : BRAND_ACCENT, tint: dark ? "rgba(129,140,248,0.14)" : "rgba(79,70,229,0.10)", contrast: "#FFFFFF" },
+Components/UI/AreaChart/index.tsx:263:  const lineColor = isDark ? "#818CF8" : "#4F46E5";
+Components/UI/AreaChart/index.tsx:264:  const dotColor = isDark ? "#818CF8" : "#4F46E5";
+Components/UI/AreaChart/index.tsx:270:  const gradientStartColor = isDark ? "rgba(129,140,248,0.30)" : "rgba(79,70,229,0.16)";
+Components/UI/AreaChart/index.tsx:271:  const gradientEndColor = isDark ? "rgba(129,140,248,0)" : "rgba(79,70,229,0)";
+Components/UI/LanguageSuggestBanner/index.tsx:147:  const accent = dark ? "#6366F1" : "#4338CA";
+Components/UI/LanguageSuggestBanner/index.tsx:193:          bgcolor: dark ? "rgba(99,102,241,0.14)" : "rgba(67,56,202,0.08)",
+Components/UI/Sparkline.tsx:44:  const strokeColor = color || (theme.palette.mode === "dark" ? "#818CF8" : "#4F46E5");
+Components/UI/LanguageSwitcher/styled.tsx:100:    background: theme.palette.mode === "dark" ? "rgba(129,140,248,0.16)" : "rgba(10,10,10,0.07)",
+Components/UI/LanguageSwitcher/styled.tsx:104:    background: theme.palette.mode === "dark" ? "rgba(129,140,248,0.12)" : "rgba(10,10,10,0.045)",
+Components/UI/CompanySelector/styled.tsx:72:      background: theme.palette.mode === "dark" ? "rgba(129,140,248,0.10)" : "#eef2ff",
+Components/UI/CompanySelector/styled.tsx:125:      background: active ? theme.palette.primary.light : (theme.palette.mode === "dark" ? "rgba(129,140,248,0.08)" : "#f4f6f9"),
+Components/UI/WalletReuseSelector/index.tsx:31:const LIME = "#4F46E5";
+Components/UI/WalletReuseSelector/index.tsx:145:  const cardBg = isDark ? "rgba(129,140,248,0.08)" : "rgba(79,70,229,0.06)";
+Components/UI/WalletReuseSelector/index.tsx:146:  const cardBorder = isDark ? "rgba(129,140,248,0.35)" : "rgba(79,70,229,0.30)";
+Components/UI/OverPayment/Index.tsx:239:                      '&:hover': { bgcolor: isDark ? '#3a3a5a' : '#E0E7FF' }
+Components/UI/CryptocurrencySelector/index.tsx:321:                          ? "rgba(129,140,248,0.16)"
+Components/UI/CryptocurrencySelector/index.tsx:322:                          : "rgba(79,70,229,0.08)"
+Components/UI/CryptocurrencySelector/index.tsx:330:                          ? "rgba(129,140,248,0.16)"
+Components/UI/CryptocurrencySelector/index.tsx:331:                          : "rgba(79,70,229,0.08)",
+Components/UI/CryptocurrencySelector/styled.tsx:11:  mode === "dark" ? "rgba(129,140,248,0.12)" : "rgba(10,10,10,0.05)";
+Components/UI/CryptocurrencySelector/styled.tsx:55:        ? "0 0 0 3px rgba(129,140,248,0.25)"
+Components/UI/DisplayCurrencySelector/index.tsx:116:            bgcolor: isDark ? "rgba(129,140,248,0.16)" : "#F2F4F0",
+Components/UI/DisplayCurrencySelector/index.tsx:117:            color: isDark ? "#818CF8" : "#4B5563",
+Components/UI/DisplayCurrencySelector/index.tsx:145:            color: isDark ? "#A5B4FC" : "#4B5563",
+Components/UI/DisplayCurrencySelector/index.tsx:146:            bgcolor: isDark ? "rgba(129,140,248,0.14)" : "#EEF0F4",
+Components/UI/DisplayCurrencySelector/index.tsx:147:            border: `1px solid ${isDark ? "rgba(129,140,248,0.3)" : "#D8DCE4"}`,
+Components/UI/LanguageOnboardingBar/index.tsx:105:  const accent = dark ? "#6366F1" : "#4338CA";
+Components/UI/RadioGroup/index.tsx:10: * - Selected: Blue inner circle (#4F46E5) with light grey border (#E9ECF2)
+Components/UI/WalletManagerModal/types.ts:21:  indigo: dark ? "#818CF8" : "#4338CA",
+Components/UI/WalletManagerModal/types.ts:22:  indigoSoft: dark ? "rgba(129,140,248,0.14)" : "rgba(67,56,202,0.08)",
+Components/UI/TwoFactorLoginDialog/index.tsx:69:          <Box sx={{ width: 40, height: 40, borderRadius: "10px", backgroundColor: isDark ? "rgba(99,102,241,0.18)" : "#EEF2FF", display: "flex", alignItems: "center", justifyContent: "center" }}>
+Components/UI/FeeCalculator/index.tsx:122:      background: `radial-gradient(at center bottom, ${isDark ? "#818CF83D" : "#4F46E51A"}, transparent)`,
+Components/UI/FeeCalculator/index.tsx:162:    background: isDark ? "rgba(129,140,248,0.12)" : "#0A0A0A08",
+Components/UI/FeeCalculator/index.tsx:163:    border: `1px solid ${isDark ? "rgba(129,140,248,0.24)" : "#0A0A0A1A"}`,
+pages/settings/index.tsx:828:                      ? "rgba(129,140,248,0.35)"
+pages/settings/index.tsx:829:                      : "rgba(79,70,229,0.28)"
+pages/settings/index.tsx:835:                      ? "rgba(129,140,248,0.10)"
+pages/settings/index.tsx:836:                      : "rgba(79,70,229,0.06)"
+pages/auth/accept-invite.tsx:166:          <Box aria-hidden sx={{ width: 48, height: 48, borderRadius: "14px", display: "flex", alignItems: "center", justifyContent: "center", color: brandFg(theme.palette.mode === "dark"), backgroundColor: theme.palette.mode === "dark" ? "rgba(129,140,248,0.16)" : "rgba(79,70,229,0.08)" }}>
+pages/auth/register.tsx:118:        colors: ["#4338CA", "#818CF8", "#10B981", "#F59E0B"],
+pages/auth/register.tsx:127:        colors: ["#4338CA", "#818CF8", "#10B981", "#F59E0B"],
+pages/auth/register.tsx:714:                            ? "rgba(79,70,229,0.4)"
+pages/auth/register.tsx:715:                            : "rgba(79,70,229,0.25)"
+pages/auth/register.tsx:719:                            ? "rgba(79,70,229,0.14)"
+pages/auth/register.tsx:720:                            : "rgba(79,70,229,0.06)",
+pages/auth/register.tsx:941:                        background: `linear-gradient(135deg, ${BRAND_ACCENT}, #7C3AED)`,
+pages/auth/login.tsx:1675:                                  ? "rgba(129,140,248,0.12)"
+pages/auth/login.tsx:1676:                                  : "rgba(79,70,229,0.08)"
+pages/auth/login.tsx:1718:                                  ? "rgba(129,140,248,0.12)"
+pages/auth/login.tsx:1719:                                  : "rgba(79,70,229,0.08)"
+pages/invoices.tsx:627:                                ? "rgba(129,140,248,0.06)"
+pages/invoices.tsx:628:                                : "rgba(79,70,229,0.04)",
+pages/invoices.tsx:630:                                ? "rgba(129,140,248,0.06)"
+pages/invoices.tsx:631:                                : "rgba(79,70,229,0.04)" },
+pages/invoices.tsx:642:                                      color: muiTheme.palette.mode === "dark" ? "#A5B4FC" : BRAND_ACCENT,
+helpers/fireConfetti.ts:20:    const colors = ["#5A6BEF", "#7C5CFF", "#4FD1FF", "#3FD98A", "#FFFFFF"];
+helpers/avatarGradient.ts:9:  ["#7C5CFF", "#4FD1FF"], // violet → cyan (brand aurora)
+helpers/avatarGradient.ts:10:  ["#F472B6", "#7C5CFF"], // pink → violet
+helpers/avatarGradient.ts:13:  ["#22D3EE", "#6366F1"], // cyan → indigo
+utils/confettiBurst.ts:25:const BRAND_COLORS = ['#6366F1', '#7C3AED', '#A5B4FC', '#34D399', '#FCD34D']
+styles/authTheme.ts:13: *   Now:  indigo (#4F46E5) — SAME palette as Landing v3 (Aurora), so the
+styles/theme.ts:981:            backgroundColor: "rgba(129,140,248,0.08)",
+styles/theme.ts:991:            backgroundColor: "rgba(129,140,248,0.10)",
+styles/theme.ts:994:            backgroundColor: "rgba(129,140,248,0.14)",
+styles/theme.ts:997:              backgroundColor: "rgba(129,140,248,0.18)",

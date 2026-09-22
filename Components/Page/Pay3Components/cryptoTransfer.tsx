@@ -248,7 +248,7 @@ const CryptoTransfer = ({
   // ONLY for payment-detected/confirmed states (universal "success" signal).
   const ACCENT = BRAND_ACCENT;
   const ON_ACCENT = '#FFFFFF';
-  const ACCENT_SOFT = isDark ? 'rgba(79,70,229,0.12)' : 'rgba(79,70,229,0.16)';
+  const ACCENT_SOFT = isDark ? 'rgba(15,143,134,0.12)' : 'rgba(15,143,134,0.16)';
   const [selectedCrypto, setSelectedCrypto] = useState("");
   const [selectedNetwork, setSelectedNetwork] = useState<
     "" | "TRC20" | "ERC20" | "POLYGON" | "XRPL"

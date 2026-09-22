@@ -22,12 +22,12 @@ export const SurfaceCard = styled(Box, {
     const dark = theme.palette.mode === "dark";
     const accentColor =
       accent === "violet"
-        ? "#7C5CFF"
+        ? "#2BD4C4"
         : accent === "volt"
           ? (dark ? "#3FD98A" : "#05936A")
           : accent === "coral"
             ? "#FF5B49"
-            : (dark ? "#818CF8" : BRAND_ACCENT); // indigo default
+            : (dark ? "#2BD4C4" : BRAND_ACCENT); // indigo default
 
     return {
       position: "relative",

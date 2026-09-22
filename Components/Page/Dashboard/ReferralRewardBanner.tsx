@@ -41,8 +41,8 @@ const ReferralRewardBanner: React.FC = () => {
 
   const isDark = theme.palette.mode === "dark";
   const bg = isDark
-    ? "linear-gradient(90deg, rgba(79,70,229,0.16) 0%, rgba(129,140,248,0.10) 100%)"
-    : "linear-gradient(90deg, rgba(79,70,229,0.10) 0%, rgba(129,140,248,0.16) 100%)";
+    ? "linear-gradient(90deg, rgba(15,143,134,0.16) 0%, rgba(43,212,196,0.10) 100%)"
+    : "linear-gradient(90deg, rgba(15,143,134,0.10) 0%, rgba(43,212,196,0.16) 100%)";
 
   return (
     <Box

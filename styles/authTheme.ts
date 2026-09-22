@@ -1,6 +1,6 @@
 import { createTheme } from "@mui/material";
 import { theme, themeDark } from "./theme";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { AQUA, AQUA_DEEP, BRAND_ACCENT, BRAND_ACCENT_HOVER, BRAND_ON_ACCENT } from "@/constants/theme";
 
 /**
  * Auth-suite theme — "Aurora Glass" (2026-07-28 indigo migration).
@@ -10,7 +10,7 @@ import { BRAND_ACCENT } from "@/constants/theme";
  *
  * Migration note (Session 82):
  *   Was:  cyber-lime (#CCFF00) neon accent, black CTA with lime text.
- *   Now:  indigo (#4F46E5) — SAME palette as Landing v3 (Aurora), so the
+ *   Now:  indigo (#0F8F86) — SAME palette as Landing v3 (Aurora), so the
  *         sign-in / sign-up screens finally feel like the same product as
  *         the marketing site the user just came from.
  *
@@ -21,10 +21,14 @@ import { BRAND_ACCENT } from "@/constants/theme";
  * a safe fallback) so the primary CTA hover matches the accent.
  */
 
-export const AUTH_INDIGO = BRAND_ACCENT; // Landing v3 canonical indigo
-export const AUTH_INDIGO_DARK = "#818CF8"; // dark-mode variant (softer, higher lightness)
-const INDIGO_HOVER_LIGHT = "#4338CA"; // slightly darker on hover in light mode
-const INDIGO_HOVER_DARK = "#6366F1"; // slightly darker on hover in dark mode
+// 2026-09 rebrand: names kept for the ~20 importers; values are now the brand yellow / aqua.
+export const AUTH_INDIGO = BRAND_ACCENT; // signal yellow — solid CTA fills (dark-brown text)
+export const AUTH_INDIGO_DARK = BRAND_ACCENT; // same yellow on dark grounds
+/** Aqua text/link accent for the auth screens (theme-aware). */
+export const AUTH_ACCENT_TEXT = AQUA_DEEP;
+export const AUTH_ACCENT_TEXT_DARK = AQUA;
+const INDIGO_HOVER_LIGHT = BRAND_ACCENT_HOVER;
+const INDIGO_HOVER_DARK = BRAND_ACCENT_HOVER;
 
 /**
  * Legacy export kept so any code that still imports `AUTH_LIME` doesn't
@@ -57,31 +61,32 @@ export const authThemeDark = createTheme(themeDark, {
     primary: {
       main: AUTH_INDIGO_DARK,
       dark: INDIGO_HOVER_DARK,
-      light: "rgba(129,140,248,0.14)",
-      contrastText: "#FFFFFF",
+      light: "rgba(255,209,0,0.14)",
+      contrastText: BRAND_ON_ACCENT,
       // custom token consumed by CustomButton (safe fallback elsewhere)
       hover: INDIGO_HOVER_DARK,
     } as any,
     secondary: {
-      main: "#7C5CFF", // aurora violet (matches Landing v3)
-      dark: "#6748E6",
-      light: "rgba(124,92,255,0.16)",
-      contrastText: "#FFFFFF",
+      main: AQUA, // aqua accent
+      dark: AQUA_DEEP,
+      light: "rgba(43,212,196,0.16)",
+      contrastText: "#0B0908",
     },
-    background: { default: "#0B0F19", paper: "#111827" },
-    text: { primary: "#F8FAFC", secondary: "#A1A1AA", disabled: "#8B8B93" },
-    divider: "rgba(255,255,255,0.10)",
+    info: { main: AQUA, dark: AQUA_DEEP, light: "rgba(43,212,196,0.16)", contrastText: "#0B0908" },
+    background: { default: "#0B0908", paper: "#1A120D" },
+    text: { primary: "#FAF6EF", secondary: "#D9CFC2", disabled: "#A99A8A" },
+    divider: "rgba(255,240,210,0.10)",
     border: {
-      main: "rgba(255,255,255,0.14)",
-      focus: AUTH_INDIGO_DARK,
+      main: "rgba(255,240,210,0.14)",
+      focus: AQUA,
       success: "#00E676",
       error: "#FF6B5D",
     },
     error: { main: "#FF6B5D" },
     success: { main: "#0F2A1B", dark: "#00E676", light: "#0F2A1B" },
     action: {
-      hover: "rgba(255,255,255,0.06)",
-      selected: "rgba(129,140,248,0.14)",
+      hover: "rgba(255,240,210,0.06)",
+      selected: "rgba(255,209,0,0.14)",
     },
   },
   components: {
@@ -94,16 +99,16 @@ export const authThemeDark = createTheme(themeDark, {
     MuiMenu: {
       styleOverrides: {
         paper: {
-          backgroundColor: "#111827",
+          backgroundColor: "#1A120D",
           backgroundImage: "none",
-          border: "1px solid rgba(255,255,255,0.10)",
+          border: "1px solid rgba(255,240,210,0.10)",
         },
       },
     },
     MuiPopover: {
       styleOverrides: {
         paper: {
-          backgroundColor: "#111827",
+          backgroundColor: "#1A120D",
           backgroundImage: "none",
         },
       },
@@ -111,7 +116,7 @@ export const authThemeDark = createTheme(themeDark, {
     MuiAutocomplete: {
       styleOverrides: {
         paper: {
-          backgroundColor: "#111827",
+          backgroundColor: "#1A120D",
           backgroundImage: "none",
         },
       },
@@ -126,29 +131,30 @@ export const authThemeLight = createTheme(theme, {
     primary: {
       main: AUTH_INDIGO,
       dark: INDIGO_HOVER_LIGHT,
-      light: "rgba(79,70,229,0.10)",
-      contrastText: "#FFFFFF",
+      light: "rgba(255,209,0,0.16)",
+      contrastText: BRAND_ON_ACCENT,
       hover: INDIGO_HOVER_LIGHT,
     } as any,
     secondary: {
-      main: "#7C5CFF", // aurora violet
-      dark: "#6748E6",
-      light: "rgba(124,92,255,0.12)",
+      main: AQUA_DEEP, // aqua accent (readable on light)
+      dark: "#0B6F68",
+      light: "rgba(15,143,134,0.10)",
       contrastText: "#FFFFFF",
     },
-    background: { default: "#FAFAF7", paper: "rgba(255,255,255,0.72)" },
-    text: { primary: "#0A0A0A", secondary: "#3F3F46", disabled: "#73737C" },
-    divider: "rgba(10,10,10,0.10)",
+    info: { main: AQUA_DEEP, dark: "#0B6F68", light: "#E6F7F5", contrastText: "#fff" },
+    background: { default: "#FAF6EF", paper: "rgba(255,253,247,0.78)" },
+    text: { primary: "#1F140D", secondary: "#5C4B3E", disabled: "#7A6A5C" },
+    divider: "rgba(43,29,20,0.10)",
     border: {
-      main: "rgba(10,10,10,0.12)",
-      focus: AUTH_INDIGO,
+      main: "rgba(43,29,20,0.14)",
+      focus: AQUA_DEEP,
       success: "#00A651",
       error: "#E8484A",
     },
     error: { main: "#E8484A" },
     action: {
-      hover: "rgba(79,70,229,0.06)",
-      selected: "rgba(79,70,229,0.10)",
+      hover: "rgba(43,29,20,0.05)",
+      selected: "rgba(255,209,0,0.16)",
     },
   },
   components: {
@@ -158,16 +164,16 @@ export const authThemeLight = createTheme(theme, {
     MuiMenu: {
       styleOverrides: {
         paper: {
-          backgroundColor: "#FFFFFF",
+          backgroundColor: "#FFFDF7",
           backgroundImage: "none",
-          border: "1px solid rgba(10,10,10,0.08)",
+          border: "1px solid rgba(43,29,20,0.10)",
         },
       },
     },
     MuiPopover: {
       styleOverrides: {
         paper: {
-          backgroundColor: "#FFFFFF",
+          backgroundColor: "#FFFDF7",
           backgroundImage: "none",
         },
       },
@@ -175,7 +181,7 @@ export const authThemeLight = createTheme(theme, {
     MuiAutocomplete: {
       styleOverrides: {
         paper: {
-          backgroundColor: "#FFFFFF",
+          backgroundColor: "#FFFDF7",
           backgroundImage: "none",
         },
       },

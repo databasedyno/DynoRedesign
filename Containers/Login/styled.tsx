@@ -27,7 +27,7 @@ export const AuthPageBackground = styled(Box)(({ theme }) => {
     justifyContent: "center",
     padding: "40px 24px",
     boxSizing: "border-box",
-    background: dark ? "#0B0F19" : "#FFFFFF",
+    background: dark ? "#0B0908" : "#FAF6EF",
     // Mobile: top-align the logo+form block (was center) so content sits near
     // the top like a native app login, instead of floating in the middle of a
     // tall viewport with a large empty gap above the logo.
@@ -102,11 +102,11 @@ export const FormPanel = styled(Box)(({ theme }) => {
     boxSizing: "border-box",
     padding: "40px 40px 32px",
     borderRadius: 16,
-    background: dark ? "#141419" : "#FFFFFF",
-    border: `1px solid ${dark ? "rgba(255,255,255,0.08)" : "rgba(15,15,20,0.08)"}`,
+    background: dark ? "#1A120D" : "#FFFDF7",
+    border: `1px solid ${dark ? "rgba(255,240,210,0.10)" : "rgba(43,29,20,0.10)"}`,
     boxShadow: dark
       ? "0 1px 2px rgba(0,0,0,0.4)"
-      : "0 1px 2px rgba(15,15,20,0.04)",
+      : "0 1px 2px rgba(43,29,20,0.05)",
     [theme.breakpoints.down("sm")]: {
       padding: "28px 22px 24px",
       borderRadius: 14,
@@ -136,7 +136,7 @@ export const AuthContainer = styled(Box)(({ theme }) => {
     gap: "20px",
     padding: "48px 24px",
     boxSizing: "border-box",
-    background: dark ? "#0B0F19" : "#FFFFFF",
+    background: dark ? "#0B0908" : "#FAF6EF",
     [theme.breakpoints.down("sm")]: { gap: "16px", padding: "32px 16px" },
   };
 });
@@ -150,12 +150,12 @@ export const CardWrapper = styled(Card)(({ theme }) => {
     height: "fit-content",
     borderRadius: 16,
     padding: "12px",
-    background: dark ? "#141419" : "#FFFFFF",
+    background: dark ? "#1A120D" : "#FFFDF7",
     textAlign: "center",
-    border: `1px solid ${dark ? "rgba(255,255,255,0.08)" : "rgba(15,15,20,0.08)"}`,
+    border: `1px solid ${dark ? "rgba(255,240,210,0.10)" : "rgba(43,29,20,0.10)"}`,
     boxShadow: dark
       ? "0 1px 2px rgba(0,0,0,0.4)"
-      : "0 1px 2px rgba(15,15,20,0.04)",
+      : "0 1px 2px rgba(43,29,20,0.05)",
     [theme.breakpoints.down("sm")]: {
       padding: "10px",
       borderRadius: 14,
@@ -177,7 +177,7 @@ export const ImageCenter = styled(Box)(() => ({
 
 /* ── Legacy exports (kept so older imports never break) ──────── */
 export const LoginWrapper = styled(Box)(({ theme }) => ({
-  background: theme.palette.mode === "dark" ? "#0B0F19" : "#FFFFFF",
+  background: theme.palette.mode === "dark" ? "#0B0908" : "#FAF6EF",
   width: "100%",
   minHeight: "100dvh",
   position: "relative",

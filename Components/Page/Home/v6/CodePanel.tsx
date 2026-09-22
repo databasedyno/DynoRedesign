@@ -54,7 +54,7 @@ const CodePanel: React.FC = () => {
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(() => setCopied(false), 1600);
   };
-  const panel = { background: "#0B0F19", border: "1px solid #1F2D47", borderRadius: "18px", overflow: "hidden" } as const;
+  const panel = { background: "#0B0908", border: "1px solid #1F2D47", borderRadius: "18px", overflow: "hidden" } as const;
   const pre = { m: 0, p: { xs: 2, md: 2.5 }, fontFamily: FONT_TECH, fontSize: { xs: 12, md: 13 }, lineHeight: 1.7, color: "#E5E7EB", whiteSpace: "pre", overflowX: "auto" } as const;
   return (
     <Stagger step={0.12} sx={{ minWidth: 0, display: "grid" }}>
@@ -69,7 +69,7 @@ const CodePanel: React.FC = () => {
                 </Box>
               ))}
             </Box>
-            <Box component="button" type="button" onClick={onCopy} data-testid="code-copy" data-copied={copied} sx={{ all: "unset", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 0.6, px: 1.2, py: 0.6, borderRadius: "8px", fontFamily: FONT_TECH, fontSize: 12, color: copied ? "#A5B4FC" : "rgba(255,255,255,0.7)", transition: "color 160ms ease, background-color 160ms ease", "&:hover": { background: "rgba(255,255,255,0.06)" } }}>
+            <Box component="button" type="button" onClick={onCopy} data-testid="code-copy" data-copied={copied} sx={{ all: "unset", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 0.6, px: 1.2, py: 0.6, borderRadius: "8px", fontFamily: FONT_TECH, fontSize: 12, color: copied ? "#FFD100" : "rgba(255,255,255,0.7)", transition: "color 160ms ease, background-color 160ms ease", "&:hover": { background: "rgba(255,255,255,0.06)" } }}>
               {copied ? <CheckIcon sx={{ fontSize: 14 }} /> : <ContentCopyIcon sx={{ fontSize: 13 }} />}
               {copied ? t("v5.dev.copied") : t("v5.dev.copy")}
             </Box>
@@ -80,9 +80,9 @@ const CodePanel: React.FC = () => {
         </Box>
       </StaggerItem>
       <StaggerItem i={1} y={20}>
-        <Box sx={{ ...panel, mt: 1.5, border: "1px solid rgba(129,140,248,0.28)" }}>
+        <Box sx={{ ...panel, mt: 1.5, border: "1px solid rgba(43,212,196,0.28)" }}>
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", px: 2, py: 1, borderBottom: "1px solid rgba(255,255,255,0.08)", background: "rgba(0,208,132,0.08)" }}>
-            <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase", color: "#A5B4FC", fontWeight: 700 }}>{t("v5.dev.response")}</Typography>
+            <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase", color: "#2BD4C4", fontWeight: 700 }}>{t("v5.dev.response")}</Typography>
             <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, color: "rgba(255,255,255,0.45)" }}>~300 ms</Typography>
           </Box>
           <Box component="pre" data-testid="response-block" sx={pre}>{RESPONSE}</Box>

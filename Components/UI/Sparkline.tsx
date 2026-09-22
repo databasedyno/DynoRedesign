@@ -41,7 +41,7 @@ const Sparkline: React.FC<SparklineProps> = ({
     return arr.map((v) => (Number.isFinite(Number(v)) ? Number(v) : 0));
   }, [points]);
 
-  const strokeColor = color || (theme.palette.mode === "dark" ? "#818CF8" : "#4F46E5");
+  const strokeColor = color || (theme.palette.mode === "dark" ? "#2BD4C4" : "#0F8F86");
   const emptyColor = theme.palette.divider;
 
   const { path, area, max, allZero } = useMemo(() => {

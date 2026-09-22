@@ -29,7 +29,7 @@ export const RefundInvoiceView: React.FC<Props> = ({ r, copied, onCopy, simulati
             data-testid="refund-status-chip"
           />
           {r.is_dry_run && (
-            <Chip size="small" label="DRY-RUN" sx={{ bgcolor: "#EDE9FE", color: "#5B21B6", fontWeight: 700 }} />
+            <Chip size="small" label="DRY-RUN" sx={{ bgcolor: "#E6F7F5", color: "#FFD100", fontWeight: 700 }} />
           )}
         </Stack>
 

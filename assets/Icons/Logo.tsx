@@ -1,19 +1,33 @@
 import React from 'react'
 import { useTheme } from '@mui/material'
-import { LOGO_MARK_ARROWS, LOGO_MARK_COIN, LOGO_MARK_VIEWBOX } from './logoMarkPaths'
+import { AQUA, BLACK, BRAND_ACCENT } from '@/constants/theme'
+import {
+  LOGO_MARK_SPARK,
+  LOGO_MARK_STROKES,
+  LOGO_MARK_STROKE_WIDTH,
+  LOGO_MARK_TICKS,
+  LOGO_MARK_TICK_DASH,
+  LOGO_MARK_TICK_WIDTH,
+  LOGO_MARK_VIEWBOX,
+} from './logoMarkPaths'
 
 interface LogoProps {
   width?: number
   height?: number
+  /** Monochrome: every part (D, coin edge, spark) in this colour. */
   color?: string
+  /** Force the ground the mark sits on; defaults to the current theme mode. */
+  variant?: 'onDark' | 'onLight'
 }
 
-// Dynopay mark — the indigo "conversion coin" (crypto in → stablecoin out).
-// Default: indigo coin with white arrows in both themes. `color` switches to a
-// monochrome coin whose arrows are cut out (e.g. white on the dark checkout bar).
-const Logo = ({ width = 64, height = 64, color }: LogoProps) => {
+// Dynopay mark — the "coin-arc D": two concentric outlined D's, a reeded coin edge,
+// a slot through the stem and one aqua spark for the on-chain moment.
+// Yellow on dark grounds, black on light; `color` renders a single-colour cut.
+const Logo = ({ width = 64, height = 64, color, variant }: LogoProps) => {
   const theme = useTheme()
-  const coin = color || (theme.palette.mode === 'dark' ? '#6366F1' : '#4338CA')
+  const onDark = variant ? variant === 'onDark' : theme.palette.mode === 'dark'
+  const body = color || (onDark ? BRAND_ACCENT : BLACK)
+  const spark = color || AQUA
 
   return (
     <svg
@@ -24,14 +38,9 @@ const Logo = ({ width = 64, height = 64, color }: LogoProps) => {
       xmlns="http://www.w3.org/2000/svg"
       data-testid="dynopay-logo"
     >
-      {color ? (
-        <path d={`${LOGO_MARK_COIN}${LOGO_MARK_ARROWS}`} fill={coin} fillRule="evenodd" />
-      ) : (
-        <>
-          <path d={LOGO_MARK_COIN} fill={coin} />
-          <path d={LOGO_MARK_ARROWS} fill="#FFFFFF" />
-        </>
-      )}
+      <path d={LOGO_MARK_STROKES} stroke={body} strokeWidth={LOGO_MARK_STROKE_WIDTH} strokeLinejoin="miter" fill="none" />
+      <path d={LOGO_MARK_TICKS} stroke={body} strokeWidth={LOGO_MARK_TICK_WIDTH} strokeDasharray={LOGO_MARK_TICK_DASH} fill="none" />
+      <path d={LOGO_MARK_SPARK} fill={spark} />
     </svg>
   )
 }

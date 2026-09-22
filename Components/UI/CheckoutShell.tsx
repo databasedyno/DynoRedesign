@@ -116,7 +116,7 @@ function ConfettiCanvas({ trigger }: { trigger: boolean }) {
     canvas.style.height = `${parent.clientHeight}px`;
     ctx.scale(dpr, dpr);
 
-    const colors = ["#3FD98A", "#7C5CFF", BRAND_ACCENT, "#4FD1FF", "#FFFFFF"];
+    const colors = ["#3FD98A", "#2BD4C4", BRAND_ACCENT, "#2BD4C4", "#FFFFFF"];
     const particles: Particle[] = [];
     const originX = parent.clientWidth / 2;
     const originY = parent.clientHeight / 3.2;
@@ -287,13 +287,13 @@ export default function CheckoutShell({ state, children, title, caption, ...rest
             backgroundColor:
               state === "settled" ? "rgba(5,177,105,0.16)"
               : state === "failed" ? "rgba(255,91,73,0.14)"
-              : state === "confirmed" ? "rgba(129,140,248,0.14)"
-              : "rgba(79,70,229,0.10)",
+              : state === "confirmed" ? "rgba(43,212,196,0.14)"
+              : "rgba(15,143,134,0.10)",
             color:
               state === "settled" ? (dark ? "#3FD98A" : "#05936A")
               : state === "failed" ? (dark ? "#FF7A6B" : "#B91C1C")
-              : state === "confirmed" ? (dark ? "#818CF8" : BRAND_ACCENT)
-              : (dark ? "#818CF8" : accent.color),
+              : state === "confirmed" ? (dark ? "#2BD4C4" : BRAND_ACCENT)
+              : (dark ? "#2BD4C4" : accent.color),
           }}
         >
           {/* Sky-blue spinning ring during confirming */}
@@ -305,10 +305,10 @@ export default function CheckoutShell({ state, children, title, caption, ...rest
                 inset: -3,
                 borderRadius: "13px",
                 border: "2px solid transparent",
-                borderTopColor: "#4FD1FF",
-                borderRightColor: "#4FD1FF",
+                borderTopColor: "#2BD4C4",
+                borderRightColor: "#2BD4C4",
                 animation: `${skySpin} 1.1s linear infinite`,
-                "@media (prefers-reduced-motion: reduce)": { animation: "none", borderColor: "#4FD1FF" },
+                "@media (prefers-reduced-motion: reduce)": { animation: "none", borderColor: "#FFD100" },
               }}
             />
           )}

@@ -24,7 +24,7 @@ const TwoFactorSetupDialog: React.FC<TwoFactorSetupDialogProps> = ({ open, onClo
 
   const header = (icon: React.ReactNode, title: string) => (
     <Box sx={{ display: "flex", alignItems: "center", gap: "10px", mb: 1.5 }}>
-      <Box sx={{ width: 40, height: 40, borderRadius: "10px", backgroundColor: theme.palette.mode === "dark" ? "rgba(99,102,241,0.18)" : "#EEF2FF", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <Box sx={{ width: 40, height: 40, borderRadius: "10px", backgroundColor: theme.palette.mode === "dark" ? "rgba(43,212,196,0.18)" : "#E6F7F5", display: "flex", alignItems: "center", justifyContent: "center" }}>
         {icon}
       </Box>
       <Typography sx={{ fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: "18px", lineHeight: "100%" }}>{title}</Typography>
@@ -66,7 +66,7 @@ const TwoFactorSetupDialog: React.FC<TwoFactorSetupDialogProps> = ({ open, onClo
             fullWidth
             onClick={onClose}
             data-testid="twofa-setup-done"
-            sx={{ fontWeight: 600, fontSize: "14px", color: "#FFFFFF", backgroundColor: "#4F46E5", py: "10px", borderRadius: "8px", textTransform: "none", "&:hover": { backgroundColor: "#4338CA" } }}
+            sx={{ fontWeight: 600, fontSize: "14px", color: "#2B1D14", backgroundColor: "#F0C300", py: "10px", borderRadius: "8px", textTransform: "none", "&:hover": { backgroundColor: "#F0C300" } }}
           >
             {t("twoFactor.savedCodes", { defaultValue: "I've saved my codes" })}
           </Button>

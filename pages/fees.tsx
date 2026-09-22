@@ -24,10 +24,10 @@ import FeesWorkedExample from "@/Components/Page/Fees/WorkedExample";
 const PageWrapper = styled(Box)({ width: "100%" });
 
 const TIERS = [
-  { name: "Starter", min: 0, max: 10000, pct: 1.5, accent: "#6366F1", accentSoft: "rgba(99,102,241,0.10)" },
-  { name: "Growth", min: 10000, max: 100000, pct: 1.0, accent: BRAND_ACCENT, accentSoft: "rgba(79,70,229,0.10)" },
-  { name: "Scale", min: 100000, max: 500000, pct: 0.7, accent: "#4338CA", accentSoft: "rgba(67,56,202,0.12)" },
-  { name: "Enterprise", min: 500000, max: null, pct: 0.5, accent: "#3730A3", accentSoft: "rgba(55,48,163,0.14)" },
+  { name: "Starter", min: 0, max: 10000, pct: 1.5, accent: "#2BD4C4", accentSoft: "rgba(43,212,196,0.10)" },
+  { name: "Growth", min: 10000, max: 100000, pct: 1.0, accent: BRAND_ACCENT, accentSoft: "rgba(15,143,134,0.10)" },
+  { name: "Scale", min: 100000, max: 500000, pct: 0.7, accent: "#0F8F86", accentSoft: "rgba(15,143,134,0.12)" },
+  { name: "Enterprise", min: 500000, max: null, pct: 0.5, accent: "#0F8F86", accentSoft: "rgba(15,143,134,0.14)" },
 ];
 
 const getTier = (v: number) => {
@@ -550,8 +550,8 @@ const FeesPage = () => {
                 <Box key={idx} sx={{ display: "grid", gridTemplateColumns: { xs: "1.5fr 1fr 1fr", sm: "2fr 1fr 1fr" }, alignItems: "center", px: { xs: 2, sm: 3 }, py: 2, "&:not(:last-child)": { borderBottom: `1px solid ${s.line}` } }}>
                   <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14.5, color: s.ink2 }}>{row.feature}</Typography>
                   <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5 }}>
-                    {row.dynopay ? <CheckIcon sx={{ fontSize: 16, color: s.dark ? "#818CF8" : BRAND_ACCENT }} /> : <CloseIcon sx={{ fontSize: 16, color: s.dark ? "#818CF8" : BRAND_ACCENT }} />}
-                    <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12.5, fontWeight: 600, color: s.dark ? "#818CF8" : BRAND_ACCENT }}>
+                    {row.dynopay ? <CheckIcon sx={{ fontSize: 16, color: s.dark ? "#2BD4C4" : BRAND_ACCENT }} /> : <CloseIcon sx={{ fontSize: 16, color: s.dark ? "#2BD4C4" : BRAND_ACCENT }} />}
+                    <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12.5, fontWeight: 600, color: s.dark ? "#2BD4C4" : BRAND_ACCENT }}>
                       {row.dynoText}
                     </Typography>
                   </Box>
@@ -625,13 +625,13 @@ const FeesPage = () => {
                       width: 26,
                       height: 26,
                       borderRadius: "50%",
-                      background: s.dark ? "rgba(129,140,248,0.16)" : "rgba(79,70,229,0.1)",
+                      background: s.dark ? "rgba(43,212,196,0.16)" : "rgba(15,143,134,0.1)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                     }}
                   >
-                    <CheckIcon sx={{ fontSize: 16, color: s.dark ? "#818CF8" : BRAND_ACCENT }} />
+                    <CheckIcon sx={{ fontSize: 16, color: s.dark ? "#2BD4C4" : BRAND_ACCENT }} />
                   </Box>
                   <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14.5, color: s.ink, lineHeight: 1.4 }}>
                     {t(`v3.${k}`)}
@@ -662,7 +662,7 @@ const FeesPage = () => {
                     gap: 1.5,
                   }}
                 >
-                  <Box sx={{ width: 44, height: 44, borderRadius: "12px", display: "grid", placeItems: "center", background: s.dark ? "rgba(129,140,248,0.14)" : "rgba(79,70,229,0.09)", color: s.dark ? "#818CF8" : BRAND_ACCENT }}>
+                  <Box sx={{ width: 44, height: 44, borderRadius: "12px", display: "grid", placeItems: "center", background: s.dark ? "rgba(43,212,196,0.14)" : "rgba(15,143,134,0.09)", color: s.dark ? "#FFD100" : BRAND_ACCENT }}>
                     <ShieldOutlinedIcon sx={{ fontSize: 22 }} />
                   </Box>
                   <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 18, color: s.ink, letterSpacing: "-0.01em" }}>{item.title}</Typography>

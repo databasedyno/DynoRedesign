@@ -72,7 +72,7 @@ const highlight = (title: string, part: string, color: string): React.ReactNode 
 const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages = [], localeAlternates }) => {
   const { t } = useTranslation('landing');
   const s = useAurora();
-  const accentInk = s.dark ? "#818CF8" : BRAND_ACCENT;
+  const accentInk = s.dark ? "#2BD4C4" : BRAND_ACCENT;
 
   // ─── Vertical-specific accent (design audit 2026-08-05, Phase 4) ────
   // /for/{slug} pages inherit the accent of the matching vertical so a
@@ -313,7 +313,7 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
           {content.features.map((f, idx) => (
             <StaggerItem key={idx} i={idx} y={16}>
               <Box data-testid={`seo-feature-${idx}`} sx={{ ...cardSx(s), height: "100%", p: { xs: 2.75, md: 3.25 }, display: "flex", flexDirection: "column" }}>
-                <Box sx={{ width: 40, height: 40, borderRadius: "12px", display: "grid", placeItems: "center", background: s.dark ? "rgba(129,140,248,0.14)" : "rgba(79,70,229,0.09)", color: accentInk, fontFamily: FONT_TECH, fontWeight: 700, fontSize: 15, mb: 2 }}>
+                <Box sx={{ width: 40, height: 40, borderRadius: "12px", display: "grid", placeItems: "center", background: s.dark ? "rgba(43,212,196,0.14)" : "rgba(15,143,134,0.09)", color: accentInk, fontFamily: FONT_TECH, fontWeight: 700, fontSize: 15, mb: 2 }}>
                   {String(idx + 1).padStart(2, "0")}
                 </Box>
                 <Typography component="h3" sx={{ fontFamily: FONT_HERO, fontSize: { xs: 17, md: 18.5 }, fontWeight: 700, color: s.ink, mb: 1, lineHeight: 1.3, letterSpacing: "-0.015em" }}>

@@ -119,7 +119,7 @@ const CalculatorCard = styled(Box)(({ theme }) => {
       transform: "translateX(-50%)",
       width: "80%",
       height: "60%",
-      background: `radial-gradient(at center bottom, ${isDark ? "#818CF83D" : "#4F46E51A"}, transparent)`,
+      background: `radial-gradient(at center bottom, ${isDark ? "#FFD1003D" : "#FFD1002E"}, transparent)`,
       filter: "blur(80px)",
       opacity: 0.5,
       zIndex: 0,
@@ -159,8 +159,8 @@ const ResultValue = styled(Typography)(({ theme }) => ({
 const HighlightBox = styled(Box)(({ theme }) => {
   const isDark = theme.palette.mode === "dark";
   return {
-    background: isDark ? "rgba(129,140,248,0.12)" : "#0A0A0A08",
-    border: `1px solid ${isDark ? "rgba(129,140,248,0.24)" : "#0A0A0A1A"}`,
+    background: isDark ? "rgba(43,212,196,0.12)" : "#0A0A0A08",
+    border: `1px solid ${isDark ? "rgba(43,212,196,0.24)" : "#0A0A0A1A"}`,
     borderRadius: "12px",
     padding: "16px",
     marginTop: "16px",

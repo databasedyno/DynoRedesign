@@ -18,7 +18,7 @@ const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Men
 /** Two-burst brand-colored confetti — tasteful, ~200ms. Client-only. */
 const fireConfetti = () => {
   void import("canvas-confetti").then(({ default: confetti }) => {
-    const colors = [BRAND_ACCENT, "#7C5CFF", "#10B981", "#F59E0B"];
+    const colors = [BRAND_ACCENT, "#2BD4C4", "#10B981", "#F59E0B"];
     confetti({ disableForReducedMotion: true, particleCount: 70, spread: 62, startVelocity: 38, origin: { x: 0.35, y: 0.4 }, colors, scalar: 0.95, ticks: 220 });
     confetti({ disableForReducedMotion: true, particleCount: 70, spread: 62, startVelocity: 38, origin: { x: 0.65, y: 0.4 }, colors, scalar: 0.95, ticks: 220 });
   }).catch(() => { /* client-only, safe to ignore */ });
@@ -123,8 +123,8 @@ const AutoClaimHandle: React.FC = () => {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            background: `linear-gradient(135deg, ${BRAND_ACCENT} 0%, #7C5CFF 100%)`,
-            boxShadow: "0 10px 28px rgba(79,70,229,0.35)",
+            background: `linear-gradient(135deg, ${BRAND_ACCENT} 0%, #FFB300 100%)`,
+            boxShadow: "0 10px 28px rgba(15,143,134,0.35)",
           }}
         >
           <Icon icon="mdi:party-popper" width={34} color="#FFFFFF" />
@@ -147,7 +147,7 @@ const AutoClaimHandle: React.FC = () => {
             py: 0.85,
             borderRadius: "999px",
             border: `1px solid ${theme.palette.divider}`,
-            backgroundColor: isDark ? "rgba(79,70,229,0.14)" : "rgba(79,70,229,0.06)",
+            backgroundColor: isDark ? "rgba(15,143,134,0.14)" : "rgba(15,143,134,0.06)",
           }}
         >
           <Icon icon="mdi:link-variant" width={16} color={theme.palette.text.secondary} />
@@ -178,9 +178,9 @@ const AutoClaimHandle: React.FC = () => {
             fontSize: 15,
             borderRadius: "12px",
             py: 1.15,
-            background: `linear-gradient(135deg, ${BRAND_ACCENT} 0%, #4338CA 100%)`,
-            color: "#FFFFFF",
-            "&:hover": { background: "linear-gradient(135deg, #4338CA 0%, #3730A3 100%)" },
+            background: `linear-gradient(135deg, ${BRAND_ACCENT} 0%, #FFB300 100%)`,
+            color: "#2B1D14",
+            "&:hover": { background: "linear-gradient(135deg, #F0C300 0%, #F0A800 100%)" },
           }}
         >
           {t("autoClaim.publish", { defaultValue: "Publish my page" })}

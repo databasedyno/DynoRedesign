@@ -35,7 +35,7 @@ import { formatDateTimeI18n } from "@/utils/formatDate";
  *   POST support/chat/upload   multipart "file" → { data: { url, name, type, size } }
  */
 
-const LIME = "#4F46E5";
+const LIME = "#0F8F86";
 const INK = "#0A0A0B";
 const GREEN = "#22C55E";
 const SESSION_KEY = "support_chat_sid";
@@ -424,7 +424,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
   const panelBg = isDark ? "#101014" : "#FFFFFF";
   const panelBorder = isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.10)";
   const assistantBubbleBg = isDark ? "rgba(255,255,255,0.07)" : "#F2F3F5";
-  const userBubbleBg = isDark ? "#6366F1" : BRAND_ACCENT;
+  const userBubbleBg = isDark ? "#2BD4C4" : BRAND_ACCENT;
   const userBubbleColor = "#FFFFFF";
   // Keep clear of the in-app floating mobile nav pill.
   // F1: On mobile in the client shell, lift the FAB further so it no longer
@@ -781,7 +781,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
                 px: 1.1,
                 py: 0.7,
                 transition: "background-color 0.15s ease, border-color 0.15s ease",
-                "&:hover": { background: escalateOpen ? "#4338CA" : "rgba(255,255,255,0.22)" },
+                "&:hover": { background: escalateOpen ? "#F0C300" : "rgba(255,255,255,0.22)" },
               }}
             >
               <SupportAgentRoundedIcon sx={{ fontSize: 15 }} />
@@ -1133,7 +1133,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
                 data-testid="support-chat-emoji"
                 onClick={() => setEmojiOpen((v) => !v)}
                 aria-label={t("supportChat.insertEmoji", { defaultValue: "Insert emoji" })}
-                sx={{ ...composerIconSx, color: emojiOpen ? (isDark ? "#818CF8" : BRAND_ACCENT) : theme.palette.text.secondary }}
+                sx={{ ...composerIconSx, color: emojiOpen ? (isDark ? "#2BD4C4" : BRAND_ACCENT) : theme.palette.text.secondary }}
               >
                 <SentimentSatisfiedAltRoundedIcon sx={{ fontSize: 20 }} />
               </IconButton>
@@ -1182,9 +1182,9 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
                 height: 40,
                 borderRadius: "10px",
                 background: BRAND_ACCENT,
-                color: "#FFFFFF",
+                color: "#2B1D14",
                 flexShrink: 0,
-                "&:hover": { background: "#4338CA" },
+                "&:hover": { background: "#F0C300" },
                 "&.Mui-disabled": { background: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)", color: theme.palette.text.disabled },
               }}
             >
@@ -1226,7 +1226,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
             opacity: occluding ? 0 : 1,
             pointerEvents: occluding ? "none" : "auto",
             transition: "transform 0.22s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.22s ease, background 0.2s ease",
-            "&:hover": { background: "#4338CA", transform: occluding ? "translateX(96px) scale(0.9)" : "translateY(-2px)" },
+            "&:hover": { background: "#F0C300", transform: occluding ? "translateX(96px) scale(0.9)" : "translateY(-2px)" },
           }}
         >
           {open ? <CloseRoundedIcon sx={{ fontSize: 26 }} /> : <ChatRoundedIcon sx={{ fontSize: 26 }} />}

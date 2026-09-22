@@ -375,7 +375,7 @@ const CommandPaletteDialog = ({ open, onClose }: { open: boolean; onClose: () =>
                     borderRadius: "10px",
                     cursor: "pointer",
                     backgroundColor:
-                      idx === active ? (isDark ? "rgba(129,140,248,0.14)" : "rgba(79,70,229,0.08)") : "transparent",
+                      idx === active ? (isDark ? "rgba(43,212,196,0.14)" : "rgba(15,143,134,0.08)") : "transparent",
                   }}
                 >
                   <Box sx={{ flex: 1, minWidth: 0 }}>

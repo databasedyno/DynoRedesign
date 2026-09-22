@@ -126,14 +126,14 @@ const ListRow = ({ icon, label, value, sub, color }: { icon: string; label: stri
 const PaymentLinksMockup = () => (
   <MockBrowserChrome>
     <Box sx={{ display: "flex", gap: "10px", mb: "12px" }}>
-      <StatCard label="ACTIVE LINKS" value="24" accent="#c4b5fd" />
+      <StatCard label="ACTIVE LINKS" value="24" accent="#2BD4C4" />
       <StatCard label="RECEIVED" value="$12.4K" accent="#6ee7b7" />
       <StatCard label="TODAY" value="$840" accent="#93c5fd" />
     </Box>
     {/* Payment link card */}
-    <Box sx={{ background: "rgba(124,92,231,0.18)", border: "1px solid rgba(124,92,231,0.35)", borderRadius: "10px", p: "12px", mb: "10px" }}>
+    <Box sx={{ background: "rgba(43,212,196,0.18)", border: "1px solid rgba(43,212,196,0.35)", borderRadius: "10px", p: "12px", mb: "10px" }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: "6px" }}>
-        <Typography sx={{ fontSize: "10px", fontWeight: 700, color: "#c4b5fd", fontFamily: "var(--font-sans), sans-serif" }}>Payment #2847</Typography>
+        <Typography sx={{ fontSize: "10px", fontWeight: 700, color: "#2BD4C4", fontFamily: "var(--font-sans), sans-serif" }}>Payment #2847</Typography>
         <Box sx={{ px: "6px", py: "2px", borderRadius: "4px", background: "rgba(52,211,153,0.2)", border: "1px solid rgba(52,211,153,0.4)" }}>
           <Typography sx={{ fontSize: "7px", fontWeight: 600, color: "#6ee7b7", fontFamily: "var(--font-sans), sans-serif" }}>ACTIVE</Typography>
         </Box>
@@ -153,7 +153,7 @@ const MultiCurrencyMockup = () => (
   <MockBrowserChrome>
     <Box sx={{ display: "flex", gap: "10px", mb: "12px" }}>
       <StatCard label="IN YOUR WALLET" value="$47.2K" accent="#fff" />
-      <StatCard label="CURRENCIES" value="6" accent="#c4b5fd" />
+      <StatCard label="CURRENCIES" value="6" accent="#2BD4C4" />
     </Box>
     <ListRow icon="₿" label="Bitcoin" value="0.812 BTC" sub="$38,420.50" color="rgba(247,147,26,0.25)" />
     <ListRow icon="Ξ" label="Ethereum" value="2.45 ETH" sub="$5,103.20" color="rgba(98,126,234,0.25)" />
@@ -169,7 +169,7 @@ const InstantSettlementMockup = () => (
     <Box sx={{ display: "flex", gap: "10px", mb: "12px" }}>
       <StatCard label="AVG. SPEED" value="< 30s" accent="#6ee7b7" />
       <StatCard label="SETTLED TODAY" value="$6.8K" accent="#93c5fd" />
-      <StatCard label="SUCCESS" value="99.9%" accent="#c4b5fd" />
+      <StatCard label="SUCCESS" value="99.9%" accent="#2BD4C4" />
     </Box>
     {/* Transaction timeline */}
     {[
@@ -196,7 +196,7 @@ const DashboardMockup = () => (
   <MockBrowserChrome>
     <Box sx={{ display: "flex", gap: "10px", mb: "12px" }}>
       <StatCard label="REVENUE" value="$124K" accent="#6ee7b7" />
-      <StatCard label="TXNS" value="1,847" accent="#c4b5fd" />
+      <StatCard label="TXNS" value="1,847" accent="#2BD4C4" />
       <StatCard label="GROWTH" value="+18%" accent="#93c5fd" />
     </Box>
     {/* Chart */}
@@ -230,8 +230,8 @@ const DashboardMockup = () => (
               height: `${h}%`,
               borderRadius: "2px 2px 0 0",
               background: i === 11
-                ? "linear-gradient(180deg, #a78bfa 0%, #6C5CE7 100%)"
-                : `rgba(139,92,246,${0.25 + (h / 100) * 0.4})`,
+                ? "linear-gradient(180deg, #FFB300 0%, #FFD100 100%)"
+                : `rgba(43,212,196,${0.25 + (h / 100) * 0.4})`,
               boxShadow: i === 11 ? "0 0 8px rgba(167,139,250,0.4)" : "none",
             }}
           />
@@ -252,12 +252,12 @@ const LowFeesMockup = () => (
   <MockBrowserChrome>
     <Box sx={{ display: "flex", gap: "10px", mb: "12px" }}>
       <StatCard label="YOUR FEE" value="1.5%" accent="#6ee7b7" />
-      <StatCard label="SAVED" value="$2.1K" accent="#c4b5fd" />
+      <StatCard label="SAVED" value="$2.1K" accent="#2BD4C4" />
       <StatCard label="VS STRIPE" value="-50%" accent="#93c5fd" />
     </Box>
     {/* Comparison */}
     {[
-      { name: "Dynopay", pct: 1.5, width: "15%", gradient: "linear-gradient(90deg, #6C5CE7 0%, #a78bfa 100%)", highlight: true },
+      { name: "Dynopay", pct: 1.5, width: "15%", gradient: "linear-gradient(90deg, #FFD100 0%, #FFB300 100%)", highlight: true },
       { name: "Stripe", pct: 2.9, width: "29%", gradient: "rgba(255,255,255,0.2)", highlight: false },
       { name: "PayPal", pct: 3.5, width: "35%", gradient: "rgba(255,255,255,0.15)", highlight: false },
       { name: "Coinbase Commerce", pct: 2.0, width: "20%", gradient: "rgba(255,255,255,0.18)", highlight: false },
@@ -272,7 +272,7 @@ const LowFeesMockup = () => (
           </Typography>
         </Box>
         <Box sx={{ height: "7px", borderRadius: "4px", background: "rgba(255,255,255,0.06)" }}>
-          <Box sx={{ height: "100%", borderRadius: "4px", width: item.width, background: item.gradient, boxShadow: item.highlight ? "0 0 8px rgba(108,92,231,0.4)" : "none" }} />
+          <Box sx={{ height: "100%", borderRadius: "4px", width: item.width, background: item.gradient, boxShadow: item.highlight ? "0 0 8px rgba(43,212,196,0.4)" : "none" }} />
         </Box>
       </Box>
     ))}
@@ -286,7 +286,7 @@ const CheckoutMockup = () => (
     {/* Checkout form */}
     <Box sx={{ textAlign: "center", mb: "10px" }}>
       <Typography sx={{ fontSize: "11px", fontWeight: 700, color: "#fff", fontFamily: "var(--font-sans), sans-serif" }}>Pay Invoice #4821</Typography>
-      <Typography sx={{ fontSize: "22px", fontWeight: 700, color: "#c4b5fd", fontFamily: "var(--font-sans), sans-serif", my: "4px" }}>$250.00</Typography>
+      <Typography sx={{ fontSize: "22px", fontWeight: 700, color: "#2BD4C4", fontFamily: "var(--font-sans), sans-serif", my: "4px" }}>$250.00</Typography>
       <Typography sx={{ fontSize: "9px", color: "rgba(255,255,255,0.5)", fontFamily: "var(--font-sans), sans-serif" }}>to Acme Corp</Typography>
     </Box>
     {/* Currency selection */}
@@ -304,14 +304,14 @@ const CheckoutMockup = () => (
             py: "8px",
             borderRadius: "8px",
             textAlign: "center",
-            background: c.active ? "rgba(108,92,231,0.3)" : "rgba(255,255,255,0.05)",
-            border: `1px solid ${c.active ? "rgba(108,92,231,0.5)" : "rgba(255,255,255,0.08)"}`,
+            background: c.active ? "rgba(43,212,196,0.3)" : "rgba(255,255,255,0.05)",
+            border: `1px solid ${c.active ? "rgba(43,212,196,0.5)" : "rgba(255,255,255,0.08)"}`,
             cursor: "pointer",
-            boxShadow: c.active ? "0 0 12px rgba(108,92,231,0.2)" : "none",
+            boxShadow: c.active ? "0 0 12px rgba(43,212,196,0.2)" : "none",
           }}
         >
           <Typography sx={{ fontSize: "13px", lineHeight: 1 }}>{c.s}</Typography>
-          <Typography sx={{ fontSize: "8px", fontWeight: 600, color: c.active ? "#c4b5fd" : "rgba(255,255,255,0.5)", fontFamily: "var(--font-sans), sans-serif", mt: "2px" }}>
+          <Typography sx={{ fontSize: "8px", fontWeight: 600, color: c.active ? "#2BD4C4" : "rgba(255,255,255,0.5)", fontFamily: "var(--font-sans), sans-serif", mt: "2px" }}>
             {c.l}
           </Typography>
         </Box>
@@ -324,7 +324,7 @@ const CheckoutMockup = () => (
       <Typography sx={{ fontSize: "8px", color: "rgba(255,255,255,0.4)", fontFamily: "monospace", mt: "2px" }}>≈ $250.00 USD</Typography>
     </Box>
     {/* CTA */}
-    <Box sx={{ background: "linear-gradient(135deg, #6C5CE7, #a78bfa)", borderRadius: "8px", py: "10px", textAlign: "center", mb: "12px", boxShadow: "0 4px 12px rgba(108,92,231,0.35)" }}>
+    <Box sx={{ background: "linear-gradient(135deg, #FFD100, #FFB300)", borderRadius: "8px", py: "10px", textAlign: "center", mb: "12px", boxShadow: "0 4px 12px rgba(43,212,196,0.35)" }}>
       <Typography sx={{ fontSize: "11px", fontWeight: 700, color: "#fff", fontFamily: "var(--font-sans), sans-serif" }}>{i18n.t("liveBrand.payNow", { ns: "common", defaultValue: "Pay Now" })}</Typography>
     </Box>
   </MockBrowserChrome>
@@ -447,7 +447,7 @@ const LiveBrandContent = () => {
         height: "100%",
         position: "relative",
         overflow: "hidden",
-        background: "linear-gradient(160deg, #4c1d95 0%, #5b21b6 25%, #6C5CE7 50%, #4338ca 75%, #312e81 100%)",
+        background: "linear-gradient(160deg, #FFD100 0%, #FFD100 25%, #FFD100 50%, #FFD100 75%, #FFD100 100%)",
       }}
     >
       {/* Decorative background glow */}
@@ -472,7 +472,7 @@ const LiveBrandContent = () => {
           width: "250px",
           height: "250px",
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(99,102,241,0.2) 0%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(43,212,196,0.2) 0%, transparent 70%)",
           pointerEvents: "none",
           zIndex: 1,
         }}

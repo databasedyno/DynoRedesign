@@ -16,7 +16,7 @@ const SharedHighlightBar: React.FC<Props> = ({ wallets, onJump, onClear }) => {
   const theme = useTheme();
   const { t } = useTranslation("walletScreen");
   const dark = theme.palette.mode === "dark";
-  const indigo = dark ? "#818CF8" : "#4338CA";
+  const indigo = dark ? "#2BD4C4" : "#0F8F86";
   if (wallets.length === 0) return null;
 
   return (
@@ -38,7 +38,7 @@ const SharedHighlightBar: React.FC<Props> = ({ wallets, onJump, onClear }) => {
         py: 0.75,
         borderRadius: 999,
         backgroundColor: theme.palette.background.paper,
-        border: `1px solid ${dark ? "rgba(129,140,248,0.45)" : "rgba(67,56,202,0.35)"}`,
+        border: `1px solid ${dark ? "rgba(43,212,196,0.45)" : "rgba(15,143,134,0.35)"}`,
         boxShadow: dark ? "0 12px 32px rgba(0,0,0,0.5)" : "0 12px 32px rgba(15,23,42,0.18)",
         animation: "sharedBarIn 220ms cubic-bezier(0.16, 1, 0.3, 1)",
         "@keyframes sharedBarIn": {
@@ -62,7 +62,7 @@ const SharedHighlightBar: React.FC<Props> = ({ wallets, onJump, onClear }) => {
             type="button"
             onClick={() => onJump(w.id)}
             data-testid={`wallet-highlight-jump-${w.id}`}
-            sx={{ appearance: "none", m: 0, cursor: "pointer", height: 24, px: 1, borderRadius: 999, border: `1px solid ${indigo}`, backgroundColor: dark ? "rgba(129,140,248,0.14)" : "rgba(67,56,202,0.08)", color: indigo, fontFamily: MONO, fontSize: 11, fontWeight: 600, whiteSpace: "nowrap", "&:hover": { backgroundColor: indigo, color: dark ? "#0A0A0B" : "#fff" } }}
+            sx={{ appearance: "none", m: 0, cursor: "pointer", height: 24, px: 1, borderRadius: 999, border: `1px solid ${indigo}`, backgroundColor: dark ? "rgba(43,212,196,0.14)" : "rgba(15,143,134,0.08)", color: indigo, fontFamily: MONO, fontSize: 11, fontWeight: 600, whiteSpace: "nowrap", "&:hover": { backgroundColor: indigo, color: dark ? "#0A0A0B" : "#fff" } }}
           >
             {w.walletTitle}
           </Box>

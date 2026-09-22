@@ -8,7 +8,7 @@ const Code: React.FC<{ lines: React.ReactNode[] }> = ({ lines }) => (
     {lines.map((l, i) => <Box key={i} component="span" sx={{ display: "block" }}>{l}</Box>)}
   </Box>
 );
-const K = ({ c }: { c: string }) => <Box component="span" sx={{ color: "#A5B4FC" }}>{c}</Box>;
+const K = ({ c }: { c: string }) => <Box component="span" sx={{ color: "#2BD4C4" }}>{c}</Box>;
 const S = ({ c }: { c: string }) => <Box component="span" sx={{ color: "#6EE7B7" }}>{c}</Box>;
 const A = ({ c }: { c: string }) => <Box component="span" sx={{ color: "#FCD34D" }}>{c}</Box>;
 
@@ -29,10 +29,10 @@ const EmbedVignette: React.FC = () => {
         <Label sx={{ mt: 1.5, color: "rgba(255,255,255,0.45)", textTransform: "none", letterSpacing: 0 }}>{t("v6.vig.oneLine")}</Label>
       </Box>
       <Panel sx={{ right: 18, top: "50%", width: "34%", transform: "translateY(-50%)", p: 1.75, textAlign: "center", ".bento:hover &": { transform: "translateY(calc(-50% - 6px))" } }}>
-        <Box sx={{ height: 54, borderRadius: "10px", background: "linear-gradient(135deg,#4F46E5,#34D399)", mb: 1.25 }} />
+        <Box sx={{ height: 54, borderRadius: "10px", background: "linear-gradient(135deg,#FFD100,#34D399)", mb: 1.25 }} />
         <Strong size={13}>Icon pack · 240</Strong>
         <Text size={11.5} sx={{ mb: 1.25 }}>SVG + Figma</Text>
-        <Box sx={{ py: 0.9, borderRadius: 999, background: "#4F46E5", color: "#fff", fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 12.5, boxShadow: "0 10px 24px -12px rgba(79,70,229,0.8)" }}>{t("v6.vig.buyNow")} · $29</Box>
+        <Box sx={{ py: 0.9, borderRadius: 999, background: "#FFD100", color: "#2B1D14", fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 12.5, boxShadow: "0 10px 24px -12px rgba(15,143,134,0.8)" }}>{t("v6.vig.buyNow")} · $29</Box>
       </Panel>
     </VigFrame>
   );

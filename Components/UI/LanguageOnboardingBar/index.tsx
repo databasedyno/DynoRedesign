@@ -102,7 +102,7 @@ export const LanguageOnboardingBar = () => {
   if (!visible) return null;
 
   const dark = theme.palette.mode === "dark";
-  const accent = dark ? "#6366F1" : "#4338CA";
+  const accent = dark ? "#2BD4C4" : "#0F8F86";
 
   return (
     <Box

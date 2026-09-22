@@ -97,14 +97,14 @@ const ReferralProgramPage = () => {
                       borderRadius: "12px",
                       display: "grid",
                       placeItems: "center",
-                      background: s.dark ? "rgba(129,140,248,0.14)" : "rgba(79,70,229,0.09)",
-                      color: s.dark ? "#818CF8" : s.indigo,
+                      background: s.dark ? "rgba(43,212,196,0.14)" : "rgba(15,143,134,0.09)",
+                      color: s.dark ? "#2BD4C4" : s.indigo,
                       mb: 0.5,
                     }}
                   >
                     <step.Icon />
                   </Box>
-                  <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11.5, color: s.dark ? "#818CF8" : s.indigo, letterSpacing: "0.14em" }}>
+                  <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11.5, color: s.dark ? "#2BD4C4" : s.indigo, letterSpacing: "0.14em" }}>
                     {`0${i + 1}`}
                   </Typography>
                   <Typography sx={{ fontFamily: FONT_HERO, fontSize: 19, fontWeight: 700, color: s.ink, letterSpacing: "-0.015em" }}>
@@ -154,7 +154,7 @@ const ReferralProgramPage = () => {
                         fontFamily: FONT_TECH,
                         fontWeight: 700,
                         color: i < 3 ? s.indigo : s.ink2,
-                        background: i < 3 ? "rgba(79,70,229,0.12)" : s.bgAlt,
+                        background: i < 3 ? "rgba(15,143,134,0.12)" : s.bgAlt,
                       }}
                     >
                       {i < 3 ? medals[i] : `#${entry.rank}`}

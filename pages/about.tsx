@@ -42,7 +42,7 @@ const AboutPage: React.FC = () => {
   const router = useRouter();
   const { t } = useTranslation("landing");
   const s = useAurora();
-  const accent = s.dark ? "#818CF8" : BRAND_ACCENT;
+  const accent = s.dark ? "#2BD4C4" : BRAND_ACCENT;
 
   return (
     <>
@@ -91,7 +91,7 @@ const AboutPage: React.FC = () => {
             {VALUES.map(({ Icon, key }, i) => (
               <StaggerItem key={key} i={i} y={16}>
                 <Box sx={{ height: "100%", display: "flex", gap: 2, alignItems: "flex-start", borderRadius: "18px", background: s.surface, border: `1px solid ${s.line}`, p: { xs: 2.75, md: 3.25 }, transition: "border-color 220ms ease, transform 220ms cubic-bezier(0.16,1,0.3,1), box-shadow 220ms ease", "&:hover": { borderColor: `${BRAND_ACCENT}55`, transform: "translateY(-3px)", boxShadow: `0 24px 48px -32px ${BRAND_ACCENT}66` } }}>
-                  <Box sx={{ flexShrink: 0, width: 44, height: 44, borderRadius: "12px", display: "grid", placeItems: "center", background: s.dark ? "rgba(129,140,248,0.14)" : "rgba(79,70,229,0.09)", color: accent }}>
+                  <Box sx={{ flexShrink: 0, width: 44, height: 44, borderRadius: "12px", display: "grid", placeItems: "center", background: s.dark ? "rgba(43,212,196,0.14)" : "rgba(15,143,134,0.09)", color: accent }}>
                     <Icon sx={{ fontSize: 22 }} />
                   </Box>
                   <Box>
