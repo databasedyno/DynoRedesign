@@ -30,7 +30,7 @@ const ResourcesV6: React.FC = () => {
     .sort((a, b) => (a.publishedAt < b.publishedAt ? 1 : -1))
     .map((p) => ({ id: p.slug, kind: p.category, title: p.title, excerpt: p.excerpt, meta: p.readTime, href: `/blog/${p.slug}`, cover: getBlogCover(p) }));
   const guides: Card[] = [
-    { id: "howto", kind: t("v6.resources.guide"), title: t("v6.resources.howtoT"), excerpt: t("v6.resources.howtoD"), meta: "dynopay.com/how-to", href: "/how-to", cover: "/og/how-to.png" },
+    { id: "howto", kind: t("v6.resources.guide"), title: t("v6.resources.howtoT"), excerpt: t("v6.resources.howtoD"), meta: "dynopay.com/how-to", href: "/how-to", cover: "/og/how-to.png?v=2" },
     { id: "docs", kind: t("v6.resources.docs"), title: t("v6.resources.docsT"), excerpt: t("v6.resources.docsD"), meta: "dynopay.com/documentation", href: "/documentation", cover: "/og/fees.png" },
   ];
   const cards = [...posts, ...guides];

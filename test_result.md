@@ -9201,3 +9201,8 @@ Test Data Cleaned: Attempted (deletion blocked by OTP requirement)
 #   Main agent can now re-purge to leave brand 262 in clean state (0 deals, 0 customers).
 # ============================================================================
 
+
+## 2026-09-23 (fork) — Brand/SEO asset audit — main agent notes (NO testing_agent run this session; user ended it)
+- Changed: scripts/generate-og-images.py (+40 regenerated public/og/*.png), backend/controller/payment/campaignOgImage.ts, backend/scripts/generate_email_hero_icons.mjs (+86 regenerated hero PNGs), scripts/brand/generate-logo.mjs (+public/dynopay-icon-192.png, dynopay-badge-72.png), backend/swagger/index.ts (customfavIcon), og URL `?v=2` in pages/_app.tsx, Components/Page/SEO/SEOLandingPage.tsx, pages/blog/[slug].tsx, pages/press.tsx, utils/blogData.ts, Components/Page/Home/v6/ResourcesV6.tsx; re-captured public/landing/products/checkout-phone-*.webp.
+- Self-verified: FE tsc 0, BE tsc 0, /api/pay/og-image?demo=1 200 on-brand, unknown shop → 302 /og/dynopay-og.png, /api/docs favicon href, phone shots + og cards + hero icons eyeballed.
+- Suggested scoped testing_agent pass (frontend+backend, read-only): og:image/twitter:image on / /fees /about /blog /blog/<slug> /press /crypto-payments-for/<vertical> carry `?v=2` and the PNG loads 200; GET /api/pay/og-image?demo=1 → image/png 1200×630; GET /dynopay-icon-192.png & /dynopay-badge-72.png → 200; GET /api/docs contains favicon-32.png; landing Resources card + blog index covers render (no broken images); SEO page phone mockup shows gold header.

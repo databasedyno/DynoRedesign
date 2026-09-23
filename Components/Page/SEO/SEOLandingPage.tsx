@@ -99,7 +99,7 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
 
   // Pre-rendered branded share image (public/og/, built by
   // scripts/generate-og-images.py). Absolute URL required by OG scrapers.
-  const ogImageUrl = `${SITE_ORIGIN}/og/${content._kind}-${content._slug}.png`;
+  const ogImageUrl = `${SITE_ORIGIN}/og/${content._kind}-${content._slug}.png?v=2`;
 
   const breadcrumbLabel = breadcrumbLabelFor(content._kind, t);
   const breadcrumbParentPath =

@@ -18,9 +18,9 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const OUT = join(HERE, "..", "public", "email", "hero");
 const MUI_ICONS = join(HERE, "..", "..", "node_modules", "@mui", "icons-material");
 
-// Mirrors utils/brandTokens.ts (indigo / green / amber / red)
+// Mirrors utils/brandTokens.ts (deep gold on light / green / amber / red)
 const ACCENT = {
-  indigo: { fg: "#4338CA", bg: "#EEF2FF" },
+  indigo: { fg: "#8B5E00", bg: "#FFF3CE" }, // brand-neutral slot — deep gold since the 2026-09 gold/brown rebrand (name kept for the map below)
   green: { fg: "#05936A", bg: "#F0FDF4" },
   amber: { fg: "#B45309", bg: "#FFFBEB" },
   red: { fg: "#DC2626", bg: "#FEF2F2" },

@@ -26,7 +26,7 @@ for (const theme of THEMES) {
     await page.goto(`${base}${s.path}`, { waitUntil: "networkidle" });
     await page.waitForTimeout(s.settle);
     // hide floating chrome (chat FAB, language bar, scroll-top) so the shot is just the product
-    await page.addStyleTag({ content: `[data-testid="support-chat-fab"],[data-testid="lang-onboarding-bar"],[data-testid="scroll-to-top"],.dp-support-fab{display:none!important}` });
+    await page.addStyleTag({ content: `[data-testid="support-chat-fab"],[data-testid="lang-onboarding-bar"],[data-testid="scroll-to-top"],.dp-support-fab,nextjs-portal{display:none!important}` });
     const png = await page.screenshot({ fullPage: false, type: "png" });
     const out = `${OUT}/${s.id}-phone-${theme}.webp`;
     await sharp(png).webp({ quality: 82 }).toFile(out);

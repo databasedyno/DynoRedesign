@@ -221,6 +221,9 @@ async function main() {
   await png("public/pwa-512.png", tile(64, 64 * 0.22), { width: 512, height: 512 });
   await png("public/dynopay-favicon.png", tile(64), { width: 180, height: 180 });
   await png("public/dynopay-favicon-light.png", tile(64), { width: 180, height: 180 });
+  /* Web push (public/sw-push.js + services/webPushService.ts): icon tile + monochrome badge (OS masks it) */
+  await png("public/dynopay-icon-192.png", tile(64, 64 * 0.22), { width: 192, height: 192 });
+  await png("public/dynopay-badge-72.png", markSvg(64, WHITE, WHITE), { width: 72, height: 72 });
   const icoParts = [];
   for (const size of [16, 32, 48]) {
     const buf = await sharp(Buffer.from(tile(64, 64 * 0.22)), { density: 600 }).resize(size, size).png().toBuffer();

@@ -18,6 +18,8 @@
  * GET /api/pay/og-image?demo=1             (sample donation card, for the demo)
  */
 import express from "express";
+import fs from "fs";
+import path from "path";
 import sharp from "sharp";
 import type { OverlayOptions } from "sharp";
 import axios from "axios";
@@ -35,6 +37,14 @@ const W = 1200;
 const H = 630;
 const FALLBACK_OG = "/og/dynopay-og.png";
 const FONT = "Arial, 'Helvetica Neue', Helvetica, sans-serif";
+// 2026-09 brand: gold on dark brown (mirrors utils/brandTokens.ts)
+const GOLD = "#FFD100";
+const ESPRESSO = "#2B1D14";
+const BLACK = "#0B0908";
+const CREAM = "#FAF6EF";
+const CREAM_SOFT = "#E8DFD2";
+const LOGO_H = 52;
+const LOGO_TOP = 58;
 const DEMO_COVER =
   "https://images.unsplash.com/photo-1591522810850-58128c5fb089?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODF8MHwxfHNlYXJjaHwxfHxjaGFyaXR5JTIwZG9uYXRpb24lMjBhYnN0cmFjdHxlbnwwfHx8fDE3ODM3OTQyMDR8MA&ixlib=rb-4.1.0&q=85";
 
@@ -76,6 +86,36 @@ function hexClamp(v?: string | null): string | null {
   return v && /^#[0-9a-fA-F]{6}$/.test(v) ? v : null;
 }
 
+/** Dark-brown text on light accents (yellow never carries white text), white on dark ones. */
+function onAccent(hex: string): string {
+  const n = parseInt(hex.slice(1), 16);
+  const lum = (0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255)) / 255;
+  return lum > 0.55 ? ESPRESSO : "#FFFFFF";
+}
+
+// On-dark Dynopay lockup (yellow coin-D + cream wordmark), resized once and cached.
+type Logo = { buf: Buffer; width: number };
+let logoPromise: Promise<Logo | null> | null = null;
+function loadLogo(): Promise<Logo | null> {
+  if (!logoPromise) {
+    logoPromise = (async () => {
+      const candidates = [
+        path.join(__dirname, "../../assets/dynopay-white-logo.png"),
+        path.resolve("/app/backend/assets/dynopay-white-logo.png"),
+      ];
+      const src = candidates.find((p) => fs.existsSync(p));
+      if (!src) return null;
+      try {
+        const { data, info } = await sharp(src).resize({ height: LOGO_H }).png().toBuffer({ resolveWithObject: true });
+        return { buf: data, width: info.width };
+      } catch {
+        return null;
+      }
+    })();
+  }
+  return logoPromise;
+}
+
 function oneLine(s: string, max: number): string {
   const clean = String(s || "").trim().replace(/\s+/g, " ");
   return clean.length > max ? clean.slice(0, max - 1).replace(/[\s.]+$/, "") + "…" : clean;
@@ -111,17 +151,18 @@ function wrapTitle(title: string, maxChars: number, maxLines: number): string[] 
 }
 
 function gradientSvg(accent?: string | null): string {
-  const a = hexClamp(accent) || "#7C3AED";
+  // Dynopay espresso ground fading to near-black; the merchant accent (or brand gold) is only a soft corner glow.
+  const a = hexClamp(accent) || GOLD;
   return `<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#312E81"/>
-        <stop offset="55%" stop-color="${a}"/>
-        <stop offset="100%" stop-color="#0EA5E9"/>
+      <linearGradient id="g" x1="1" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${ESPRESSO}"/>
+        <stop offset="100%" stop-color="${BLACK}"/>
       </linearGradient>
-      <radialGradient id="hi" cx="18%" cy="12%" r="80%">
-        <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.16"/>
-        <stop offset="60%" stop-color="#FFFFFF" stop-opacity="0"/>
+      <radialGradient id="hi" cx="100%" cy="0%" r="85%">
+        <stop offset="0%" stop-color="${a}" stop-opacity="0.42"/>
+        <stop offset="45%" stop-color="${a}" stop-opacity="0.12"/>
+        <stop offset="100%" stop-color="${a}" stop-opacity="0"/>
       </radialGradient>
     </defs>
     <rect width="${W}" height="${H}" fill="url(#g)"/>
@@ -184,23 +225,22 @@ function donationSvg(d: CardData): string {
   return `
   <defs>
     <linearGradient id="scrim" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#0A0A14" stop-opacity="0.05"/>
-      <stop offset="45%" stop-color="#0A0A14" stop-opacity="0.45"/>
-      <stop offset="100%" stop-color="#08080F" stop-opacity="0.93"/>
+      <stop offset="0%" stop-color="${BLACK}" stop-opacity="0.05"/>
+      <stop offset="45%" stop-color="${BLACK}" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="${BLACK}" stop-opacity="0.93"/>
     </linearGradient>
   </defs>
   <rect x="0" y="0" width="${W}" height="${H}" fill="url(#scrim)"/>
-  <text x="64" y="88" font-family="${FONT}" font-size="30" font-weight="700" letter-spacing="3" fill="#FFFFFF">DYNOPAY</text>
-  <text x="64" y="${firstY - 46}" font-family="${FONT}" font-size="22" font-weight="700" letter-spacing="5" fill="#C7D2FE">${eyebrow}</text>
-  <text font-family="${FONT}" font-size="56" font-weight="800" fill="#FFFFFF">${tspans}</text>
+  <text x="64" y="${firstY - 46}" font-family="${FONT}" font-size="22" font-weight="700" letter-spacing="5" fill="${GOLD}">${eyebrow}</text>
+  <text font-family="${FONT}" font-size="56" font-weight="800" fill="${CREAM}">${tspans}</text>
   ${
     d.hasGoal
       ? `<rect x="${barX}" y="${barY}" width="${barW}" height="${barH}" rx="10" fill="#FFFFFF" fill-opacity="0.22"/>
-  <rect x="${barX}" y="${barY}" width="${fillW}" height="${barH}" rx="10" fill="#818CF8"/>`
+  <rect x="${barX}" y="${barY}" width="${fillW}" height="${barH}" rx="10" fill="${GOLD}"/>`
       : ""
   }
-  <text x="64" y="565" font-family="${FONT}" font-size="28" font-weight="800" fill="#FFFFFF">${esc(pctLabel)}</text>
-  <text x="${W - 64}" y="565" text-anchor="end" font-family="${FONT}" font-size="26" font-weight="500" fill="#E5E7EB">${esc(raisedLabel)}</text>`;
+  <text x="64" y="565" font-family="${FONT}" font-size="28" font-weight="800" fill="${CREAM}">${esc(pctLabel)}</text>
+  <text x="${W - 64}" y="565" text-anchor="end" font-family="${FONT}" font-size="26" font-weight="500" fill="${CREAM_SOFT}">${esc(raisedLabel)}</text>`;
 }
 
 function standardSvg(d: CardData): string {
@@ -209,19 +249,18 @@ function standardSvg(d: CardData): string {
   const firstY = 420 - (lines.length - 1) * LINE_H;
   const tspans = lines.map((ln, i) => `<tspan x="64" y="${firstY + i * LINE_H}">${esc(ln)}</tspan>`).join("");
   return `
-  <text x="64" y="88" font-family="${FONT}" font-size="30" font-weight="700" letter-spacing="3" fill="#FFFFFF">DYNOPAY</text>
-  <text x="64" y="${firstY - 48}" font-family="${FONT}" font-size="22" font-weight="700" letter-spacing="5" fill="#C7D2FE">SECURE CHECKOUT</text>
-  <text font-family="${FONT}" font-size="56" font-weight="800" fill="#FFFFFF">${tspans}</text>
-  <text x="64" y="566" font-family="${FONT}" font-size="26" font-weight="600" fill="#E5E7EB">Bitcoin · Ethereum · USDT and more — no account needed</text>`;
+  <text x="64" y="${firstY - 48}" font-family="${FONT}" font-size="22" font-weight="700" letter-spacing="5" fill="${GOLD}">SECURE CHECKOUT</text>
+  <text font-family="${FONT}" font-size="56" font-weight="800" fill="${CREAM}">${tspans}</text>
+  <text x="64" y="566" font-family="${FONT}" font-size="26" font-weight="600" fill="${CREAM_SOFT}">Bitcoin · Ethereum · USDT and more — no account needed</text>`;
 }
 
 function shopSvg(d: CardData, hasAvatar: boolean): string {
   const initial = (d.title || "?").trim().charAt(0).toUpperCase() || "?";
-  const accent = hexClamp(d.accent) || "#818CF8";
+  const accent = hexClamp(d.accent) || GOLD;
   const monogram = hasAvatar
     ? ""
     : `<circle cx="134" cy="266" r="70" fill="${accent}"/>
-       <text x="134" y="292" text-anchor="middle" font-family="${FONT}" font-size="64" font-weight="800" fill="#FFFFFF">${esc(initial)}</text>`;
+       <text x="134" y="292" text-anchor="middle" font-family="${FONT}" font-size="64" font-weight="800" fill="${onAccent(accent)}">${esc(initial)}</text>`;
   const verified = d.verified
     ? `<circle cx="244" cy="300" r="12" fill="#22C55E"/>
        <path d="M238 300 l4 4 l8 -9" stroke="#FFFFFF" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
@@ -229,16 +268,15 @@ function shopSvg(d: CardData, hasAvatar: boolean): string {
     : "";
   const taglineY = d.verified ? 352 : 330;
   const tagline = d.subtitle
-    ? `<text x="232" y="${taglineY}" font-family="${FONT}" font-size="26" font-weight="500" fill="#E5E7EB">${esc(oneLine(d.subtitle, 46))}</text>`
+    ? `<text x="232" y="${taglineY}" font-family="${FONT}" font-size="26" font-weight="500" fill="${CREAM_SOFT}">${esc(oneLine(d.subtitle, 46))}</text>`
     : "";
   return `
-  <text x="64" y="88" font-family="${FONT}" font-size="30" font-weight="700" letter-spacing="3" fill="#FFFFFF">DYNOPAY</text>
   ${monogram}
-  <text x="232" y="222" font-family="${FONT}" font-size="22" font-weight="700" letter-spacing="5" fill="#C7D2FE">STOREFRONT</text>
-  <text x="232" y="278" font-family="${FONT}" font-size="52" font-weight="800" fill="#FFFFFF">${esc(oneLine(d.title, 22))}</text>
+  <text x="232" y="222" font-family="${FONT}" font-size="22" font-weight="700" letter-spacing="5" fill="${GOLD}">STOREFRONT</text>
+  <text x="232" y="278" font-family="${FONT}" font-size="52" font-weight="800" fill="${CREAM}">${esc(oneLine(d.title, 22))}</text>
   ${verified}
   ${tagline}
-  <text x="64" y="566" font-family="${FONT}" font-size="28" font-weight="800" fill="#FFFFFF">Shop with crypto — pay in Bitcoin, Ethereum, USDT &amp; more</text>`;
+  <text x="64" y="566" font-family="${FONT}" font-size="28" font-weight="800" fill="${CREAM}">Shop with crypto — pay in Bitcoin, Ethereum, USDT &amp; more</text>`;
 }
 
 function buildOverlaySvg(d: CardData, hasAvatar: boolean): Buffer {
@@ -395,6 +433,15 @@ export const getCampaignOgImage = async (req: express.Request, res: express.Resp
       }
     }
     layers.push({ input: buildOverlaySvg(card, hasAvatar), top: 0, left: 0 });
+    const logo = await loadLogo();
+    if (logo) {
+      if (card.kind === "donation" && card.cover) {
+        // Photo covers vary — give the lockup a soft dark plate so it stays legible.
+        const plate = `<svg width="${logo.width + 40}" height="${LOGO_H + 32}" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" rx="18" fill="${BLACK}" fill-opacity="0.55"/></svg>`;
+        layers.push({ input: Buffer.from(plate), top: LOGO_TOP - 16, left: 44 });
+      }
+      layers.push({ input: logo.buf, top: LOGO_TOP, left: 64 });
+    }
 
     const png = await sharp(base).composite(layers).png().toBuffer();
     res.setHeader("Content-Type", "image/png");

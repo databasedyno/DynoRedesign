@@ -355,12 +355,12 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
 
   const SITE_URL = "https://dynopay.com";
   const DEFAULT_OG_IMAGE = `${SITE_URL}/og/dynopay-og.png?v=3`;
-  // Per-page branded share cards (public/og/, built by scripts/generate-og-images.py)
+  // Per-page branded share cards (public/og/, built by scripts/generate-og-images.py). ?v bumps on re-render so crawlers re-fetch.
   const ROUTE_OG_IMAGE: Record<string, string> = {
-    "/fees": `${SITE_URL}/og/fees.png`,
-    "/about": `${SITE_URL}/og/about.png`,
-    "/how-to": `${SITE_URL}/og/how-to.png`,
-    "/blog": `${SITE_URL}/og/blog.png`,
+    "/fees": `${SITE_URL}/og/fees.png?v=2`,
+    "/about": `${SITE_URL}/og/about.png?v=2`,
+    "/how-to": `${SITE_URL}/og/how-to.png?v=2`,
+    "/blog": `${SITE_URL}/og/blog.png?v=2`,
   };
   const OG_IMAGE = ROUTE_OG_IMAGE[pathname] || DEFAULT_OG_IMAGE;
   const LOGO_IMAGE = `${SITE_URL}/favicon-512.png`;
