@@ -157,8 +157,8 @@ const EmptyStatePanel: React.FC<EmptyStatePanelProps> = ({
                     borderRadius: "6px",
                   },
                 }}
-                onClick={() => router.push("/help/getting-started")}
-                onKeyDown={(e: React.KeyboardEvent) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push("/help/getting-started"); } }}
+                onClick={() => router.push("/help-support/getting-started-with-dynopay")}
+                onKeyDown={(e: React.KeyboardEvent) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); router.push("/help-support/getting-started-with-dynopay"); } }}
                 data-testid="empty-state-watch-demo"
               >
                 <PlayCircleFilledRounded sx={{ fontSize: 20 }} />

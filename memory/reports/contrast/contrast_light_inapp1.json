@@ -1,0 +1,47 @@
+{
+  "mode": "light",
+  "base": "http://localhost:3000",
+  "results": [
+    {
+      "route": "/dashboard",
+      "status": 200,
+      "whiteOnGold": [],
+      "lowContrast": [],
+      "blue": [],
+      "title": "Dashboard · Dynopay",
+      "url": "/dashboard",
+      "ms": 4900
+    },
+    {
+      "route": "/pay-links",
+      "status": 200,
+      "whiteOnGold": [],
+      "lowContrast": [],
+      "blue": [],
+      "title": "Payment Links · Dynopay",
+      "url": "/pay-links",
+      "ms": 45748
+    },
+    {
+      "route": "/create-pay-link",
+      "status": 200,
+      "whiteOnGold": [],
+      "lowContrast": [],
+      "blue": [],
+      "title": "Create a payment link · Dynopay",
+      "url": "/create-pay-link",
+      "ms": 35762
+    },
+    {
+      "route": "/transactions",
+      "status": 200,
+      "whiteOnGold": [],
+      "lowContrast": [],
+      "blue": [],
+      "title": "Transactions · Dynopay",
+      "url": "/transactions",
+      "ms": 11249
+    }
+  ],
+  "errors": []
+}

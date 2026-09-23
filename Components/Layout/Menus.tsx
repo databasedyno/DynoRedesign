@@ -226,7 +226,7 @@ const Menus = ({ type = "user" }: { type: string }) => {
                 px: 2.5,
                 minHeight: 7,
                 justifyContent: "center",
-                color: "#88898D",
+                color: "rgba(250,246,239,0.62)",
                 lineHeight: 0,
               }}
               selected={item.link === router.pathname}

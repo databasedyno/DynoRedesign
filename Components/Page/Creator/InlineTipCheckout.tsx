@@ -27,7 +27,7 @@ import fireConfettiBurst from '@/utils/confettiBurst'
 // Shared checkout tokens/types (extracted from CleanCheckoutV2) — single source
 // of truth. The MONO/LIME/INK values and the `Phase` union are identical to the
 // local copies they replace, so this is a zero-behaviour-change de-dup.
-import { MONO, LIME, INK, CRYPTO_INFO as SHARED_INFO, networkEta } from '@/Components/Page/Pay3Components/checkout/checkoutConstants'
+import { MONO, LIME, INK, ON_BRAND, CRYPTO_INFO as SHARED_INFO, networkEta } from '@/Components/Page/Pay3Components/checkout/checkoutConstants'
 import { buildPaymentUri } from '@/Components/Page/Pay3Components/checkout/checkoutHelpers'
 import { CheckoutStatusTimeline, AssetNetworkChip } from '@/Components/Page/Pay3Components/checkout/checkoutPrimitives'
 import type { Phase, CryptoInfo } from '@/Components/Page/Pay3Components/checkout/checkoutTypes'
@@ -1253,7 +1253,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
               endIcon={<Icon icon="mdi:arrow-right" width={18} />}
               sx={{
                 backgroundColor: LIME,
-                color: '#FFFFFF',
+                color: ON_BRAND,
                 textTransform: 'none',
                 borderRadius: '10px',
                 fontWeight: 800,
@@ -1489,7 +1489,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
             sx={{
               ...(successHref
                 ? {}
-                : { backgroundColor: LIME, color: '#FFFFFF', '&:hover': { backgroundColor: LIME, filter: 'brightness(1.05)' } }),
+                : { backgroundColor: LIME, color: ON_BRAND, '&:hover': { backgroundColor: LIME, filter: 'brightness(1.05)' } }),
               textTransform: 'none',
               borderRadius: '10px',
               fontWeight: 800,
@@ -1535,7 +1535,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
             sx={{
               mt: 2,
               backgroundColor: LIME,
-              color: '#FFFFFF',
+              color: ON_BRAND,
               textTransform: 'none',
               borderRadius: '10px',
               fontWeight: 800,
@@ -1564,7 +1564,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
               ? { textTransform: 'none', borderRadius: '10px', fontWeight: 700 }
               : {
                   backgroundColor: LIME,
-                  color: '#FFFFFF',
+                  color: ON_BRAND,
                   textTransform: 'none',
                   borderRadius: '10px',
                   fontWeight: 800,

@@ -1,0 +1,65 @@
+{
+  "mode": "light",
+  "base": "http://localhost:3000",
+  "results": [
+    {
+      "route": "/pay?d=rNtQRX",
+      "status": 200,
+      "whiteOnGold": [],
+      "lowContrast": [],
+      "blue": [],
+      "title": "Pay 15 USD to The Dev Store · Dynopay",
+      "url": "/pay?d=rNtQRX",
+      "ms": 4986
+    },
+    {
+      "route": "/pay/demo",
+      "status": 200,
+      "whiteOnGold": [],
+      "lowContrast": [],
+      "blue": [],
+      "title": "Checkout demo · Dynopay",
+      "url": "/pay/demo",
+      "ms": 13209
+    },
+    {
+      "route": "/pay/donation-demo",
+      "status": 200,
+      "whiteOnGold": [
+        {
+          "el": "div[testid=goal-percent-pill].MuiBox-root.mui-n6hrvt \"65% funded\"",
+          "fg": "rgb(255, 255, 255)",
+          "bg": "{\"r\":255,\"g\":209,\"b\":0,\"a\":1}",
+          "via": "div[testid=goal-percent-pill].MuiBox-root.mui-n6hrvt \"65% funded\"",
+          "contrast": 1.46
+        }
+      ],
+      "lowContrast": [],
+      "blue": [],
+      "title": "Donation checkout demo · Dynopay",
+      "url": "/pay/donation-demo",
+      "ms": 11601
+    },
+    {
+      "route": "/auth/login",
+      "status": 200,
+      "whiteOnGold": [],
+      "lowContrast": [],
+      "blue": [],
+      "title": "Log in · Dynopay",
+      "url": "/auth/login",
+      "ms": 4222
+    },
+    {
+      "route": "/auth/register",
+      "status": 200,
+      "whiteOnGold": [],
+      "lowContrast": [],
+      "blue": [],
+      "title": "Create your free account · Dynopay",
+      "url": "/auth/register",
+      "ms": 16698
+    }
+  ],
+  "errors": []
+}

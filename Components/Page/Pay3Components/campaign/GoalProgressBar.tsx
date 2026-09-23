@@ -13,7 +13,7 @@
  */
 import React, { useEffect, useState } from "react";
 import { Box, Typography, useTheme, keyframes } from "@mui/material";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { BRAND_ACCENT, BRAND_ON_ACCENT } from "@/constants/theme";
 import fireConfettiBurst from "@/utils/confettiBurst";
 
 interface Props {
@@ -76,7 +76,8 @@ export default function GoalProgressBar({
   const pillBg = goalReached
     ? `linear-gradient(135deg, #34D399 0%, ${success} 100%)`
     : `linear-gradient(135deg, ${accent} 0%, #FFB300 100%)`;
-  const pillFg = "#FFFFFF";
+  // Gold pill carries dark-brown text; the green "goal reached" pill keeps white.
+  const pillFg = goalReached ? "#FFFFFF" : BRAND_ON_ACCENT;
   const fillGradient = goalReached
     ? `linear-gradient(90deg, #34D399 0%, ${success} 100%)`
     : `linear-gradient(90deg, ${accent} 0%, #FFB300 100%)`;

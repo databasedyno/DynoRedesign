@@ -1,0 +1,139 @@
+{
+  "mode": "light",
+  "base": "http://localhost:3000",
+  "results": [
+    {
+      "route": "/admin",
+      "status": 200,
+      "whiteOnGold": [
+        {
+          "el": "svg[testid=dynopay-logo]",
+          "fg": "rgb(255, 255, 255)",
+          "bg": "{\"r\":255,\"g\":209,\"b\":0,\"a\":1}",
+          "via": "div.MuiPaper-root.MuiPaper-elevation \"OverviewSupport InboxMerchantsEscrowTran\"",
+          "contrast": 1.46
+        },
+        {
+          "el": "svg[testid=HomeRoundedIcon]",
+          "fg": "rgb(255, 255, 255)",
+          "bg": "{\"r\":255,\"g\":209,\"b\":0,\"a\":1}",
+          "via": "div.MuiPaper-root.MuiPaper-elevation \"OverviewSupport InboxMerchantsEscrowTran\"",
+          "contrast": 1.46
+        }
+      ],
+      "lowContrast": [],
+      "blue": [],
+      "title": "Admin Dashboard · Dynopay",
+      "url": "/admin",
+      "ms": 33234
+    },
+    {
+      "route": "/admin/merchants",
+      "status": 200,
+      "whiteOnGold": [
+        {
+          "el": "svg[testid=dynopay-logo]",
+          "fg": "rgb(255, 255, 255)",
+          "bg": "{\"r\":255,\"g\":209,\"b\":0,\"a\":1}",
+          "via": "div.MuiPaper-root.MuiPaper-elevation \"OverviewSupport InboxMerchantsEscrowTran\"",
+          "contrast": 1.46
+        },
+        {
+          "el": "svg[testid=GroupsRoundedIcon]",
+          "fg": "rgb(255, 255, 255)",
+          "bg": "{\"r\":255,\"g\":209,\"b\":0,\"a\":1}",
+          "via": "div.MuiPaper-root.MuiPaper-elevation \"OverviewSupport InboxMerchantsEscrowTran\"",
+          "contrast": 1.46
+        }
+      ],
+      "lowContrast": [],
+      "blue": [],
+      "title": "Admin Dashboard · Dynopay",
+      "url": "/admin/merchants",
+      "ms": 21494
+    },
+    {
+      "route": "/admin/transactions",
+      "status": 200,
+      "whiteOnGold": [
+        {
+          "el": "svg[testid=dynopay-logo]",
+          "fg": "rgb(255, 255, 255)",
+          "bg": "{\"r\":255,\"g\":209,\"b\":0,\"a\":1}",
+          "via": "div.MuiPaper-root.MuiPaper-elevation \"OverviewSupport InboxMerchantsEscrowTran\"",
+          "contrast": 1.46
+        },
+        {
+          "el": "svg[testid=ReceiptLongRoundedIcon]",
+          "fg": "rgb(255, 255, 255)",
+          "bg": "{\"r\":255,\"g\":209,\"b\":0,\"a\":1}",
+          "via": "div.MuiPaper-root.MuiPaper-elevation \"OverviewSupport InboxMerchantsEscrowTran\"",
+          "contrast": 1.46
+        }
+      ],
+      "lowContrast": [],
+      "blue": [],
+      "title": "Admin Dashboard · Dynopay",
+      "url": "/admin/transactions",
+      "ms": 7999
+    },
+    {
+      "route": "/admin/escrow",
+      "status": 200,
+      "whiteOnGold": [
+        {
+          "el": "svg[testid=dynopay-logo]",
+          "fg": "rgb(255, 255, 255)",
+          "bg": "{\"r\":255,\"g\":209,\"b\":0,\"a\":1}",
+          "via": "div.MuiPaper-root.MuiPaper-elevation \"OverviewSupport InboxMerchantsEscrowTran\"",
+          "contrast": 1.46
+        },
+        {
+          "el": "svg[testid=HandshakeRoundedIcon]",
+          "fg": "rgb(255, 255, 255)",
+          "bg": "{\"r\":255,\"g\":209,\"b\":0,\"a\":1}",
+          "via": "div.MuiPaper-root.MuiPaper-elevation \"OverviewSupport InboxMerchantsEscrowTran\"",
+          "contrast": 1.46
+        },
+        {
+          "el": "span.MuiChip-label.MuiChip-labelMedium \"Dispute queue\"",
+          "fg": "rgb(255, 255, 255)",
+          "bg": "{\"r\":255,\"g\":209,\"b\":0,\"a\":1}",
+          "via": "div[testid=escrow-admin-tab-disputes].MuiButtonBase-root.MuiChip-root \"Dispute queue\"",
+          "contrast": 1.46
+        }
+      ],
+      "lowContrast": [],
+      "blue": [],
+      "title": "Escrow · Admin · Dynopay",
+      "url": "/admin/escrow",
+      "ms": 13159
+    },
+    {
+      "route": "/admin/support",
+      "status": 200,
+      "whiteOnGold": [
+        {
+          "el": "svg[testid=dynopay-logo]",
+          "fg": "rgb(255, 255, 255)",
+          "bg": "{\"r\":255,\"g\":209,\"b\":0,\"a\":1}",
+          "via": "div.MuiPaper-root.MuiPaper-elevation \"OverviewSupport InboxMerchantsEscrowTran\"",
+          "contrast": 1.46
+        },
+        {
+          "el": "svg[testid=SmsRoundedIcon]",
+          "fg": "rgb(255, 255, 255)",
+          "bg": "{\"r\":255,\"g\":209,\"b\":0,\"a\":1}",
+          "via": "div.MuiPaper-root.MuiPaper-elevation \"OverviewSupport InboxMerchantsEscrowTran\"",
+          "contrast": 1.46
+        }
+      ],
+      "lowContrast": [],
+      "blue": [],
+      "title": "Admin Dashboard · Dynopay",
+      "url": "/admin/support",
+      "ms": 7741
+    }
+  ],
+  "errors": []
+}

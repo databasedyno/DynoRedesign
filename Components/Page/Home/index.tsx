@@ -13,6 +13,7 @@ const ProductsBento = dynamic(() => import("./v6/ProductsBento"));
 const ConversionStory = dynamic(() => import("./v6/ConversionStory"));
 const NumbersBand = dynamic(() => import("./v6/NumbersBand"));
 const ProofV6 = dynamic(() => import("./v6/ProofV6"));
+const MerchantStoriesV6 = dynamic(() => import("./v6/MerchantStoriesV6"));
 const GlobalV6 = dynamic(() => import("./v6/GlobalV6"));
 const DevelopersV6 = dynamic(() => import("./v6/DevelopersV6"));
 const PricingTeaser = dynamic(() => import("./v6/PricingTeaser"));
@@ -31,7 +32,8 @@ const StickyMobileCta = dynamic(() => import("./v5/StickyMobileCta"), { ssr: fal
  *   2. ProductsBento    — seven surfaces as a bento grid, each a UI vignette built from the product
  *   3. ConversionStory  — buyer pays BTC → you receive USDC → your wallet (animated), three steps + network ETAs
  *   4. NumbersBand      — four live stats + settlements by chain (30d), server-rendered
- *   5. ProofV6          — verify it yourself: real on-chain settlements + status/docs/languages (merchant stories hidden — no content yet)
+ *   5. ProofV6          — verify it yourself: real on-chain settlements + status/docs/languages
+ *   5b. MerchantStoriesV6 — three live merchants (The Dev Store · SafeDeal · Nameword) in their own words
  *   6. GlobalV6         — world map, live country count, coins & chains grid, wallets strip
  *   7. DevelopersV6     — No-code · Pre-built · Build your own + live request/response
  *   8. PricingTeaser    — tier ladder + calculator (comparison table lives on /fees)
@@ -69,6 +71,7 @@ const HomePage: FC<{ landingMetrics?: LandingMetrics | null }> = ({ landingMetri
       <ConversionStory />
       <NumbersBand />
       <ProofV6 />
+      <MerchantStoriesV6 />
       <GlobalV6 />
       <DevelopersV6 />
       <PricingTeaser />

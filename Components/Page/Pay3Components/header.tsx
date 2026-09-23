@@ -17,6 +17,7 @@ import BedtimeIcon from '@mui/icons-material/Bedtime';
 import Logo from "@/assets/Icons/Logo";
 import LanguageSwitcher from "@/Components/UI/LanguageSwitcher";
 import Link from "next/link";
+import { ESPRESSO, ESPRESSO_RAISED } from "@/constants/theme";
 
 const Header = ({
   darkMode,
@@ -89,9 +90,12 @@ const Header = ({
         position='static'
         elevation={0}
         sx={{
+          // Brand chrome: dark brown in light mode (mirrors the in-app header cell) so the
+          // white lockup + controls always read — yellow never carries white text/icons.
           background: darkMode
             ? `linear-gradient(90deg, ${theme.palette.background.default} 0%, ${theme.palette.background.paper} 100%)`
-            : `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark || theme.palette.primary.main} 100%)`,
+            : `linear-gradient(90deg, ${ESPRESSO} 0%, ${ESPRESSO_RAISED} 100%)`,
+          borderBottom: darkMode ? '1px solid rgba(255,255,255,0.06)' : 'none',
           height: '60px',
           justifyContent: 'center',
         }}

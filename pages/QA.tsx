@@ -111,7 +111,7 @@ const NOMADLY1_WALLETS: WalletTestData[] = [
 const PRIORITY_COLORS: Record<string, string> = {
   Critical: "#EF4444",
   High: "#F59E0B",
-  Medium: "#3B82F6",
+  Medium: "#8B5E00",
   Low: "#6B7280",
 };
 
@@ -235,7 +235,7 @@ const QAPage = () => {
                     borderRadius: 4,
                     background: failedSteps > 0
                       ? "linear-gradient(90deg, #22C55E, #F59E0B)"
-                      : "linear-gradient(90deg, #22C55E, #3B82F6)",
+                      : "linear-gradient(90deg, #22C55E, #FFD100)",
                   },
                 }}
               />
@@ -405,8 +405,8 @@ const QAPage = () => {
                   )}
                 </Box>
               ))}
-              <Box sx={{ mt: 2, p: 1.5, borderRadius: 2, bgcolor: isDark ? alpha("#3B82F6", 0.06) : alpha("#3B82F6", 0.04), border: `1px solid ${alpha("#3B82F6", 0.12)}` }}>
-                <Typography sx={{ fontSize: 12, color: "#3B82F6", fontFamily: "var(--font-sans)" }}>
+              <Box sx={{ mt: 2, p: 1.5, borderRadius: 2, bgcolor: isDark ? alpha("#FFD100", 0.08) : alpha("#8B5E00", 0.05), border: `1px solid ${alpha(isDark ? "#FFD100" : "#8B5E00", 0.18)}` }}>
+                <Typography sx={{ fontSize: 12, color: isDark ? "#FFD100" : "#8B5E00", fontFamily: "var(--font-sans)" }}>
                   💡 Click any address to copy it. Green balances indicate wallets with funds available for transaction testing.
                   Shared EVM addresses (ETH, USDT-ERC20, USDC-ERC20, POLYGON, USDT-POLYGON, RLUSD-ERC20) all use the same address: 0x9a72...b38f
                 </Typography>
@@ -451,8 +451,8 @@ const QAPage = () => {
                         sx={{
                           fontSize: 11,
                           fontFamily: "var(--font-sans)",
-                          bgcolor: sectionPassed === sectionSteps.length ? alpha("#22C55E", 0.15) : alpha("#3B82F6", 0.1),
-                          color: sectionPassed === sectionSteps.length ? "#22C55E" : "#3B82F6",
+                          bgcolor: sectionPassed === sectionSteps.length ? alpha("#22C55E", 0.15) : alpha(isDark ? "#FFD100" : "#8B5E00", 0.12),
+                          color: sectionPassed === sectionSteps.length ? "#22C55E" : isDark ? "#FFD100" : "#8B5E00",
                           mr: 1,
                         }}
                       />

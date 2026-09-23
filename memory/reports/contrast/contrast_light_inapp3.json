@@ -1,0 +1,55 @@
+{
+  "mode": "light",
+  "base": "http://localhost:3000",
+  "results": [
+    {
+      "route": "/brands",
+      "status": 200,
+      "whiteOnGold": [],
+      "lowContrast": [],
+      "blue": [],
+      "title": "Accept Crypto Payments — Get Paid Your Way · Dynopay",
+      "url": "/brands",
+      "ms": 24070
+    },
+    {
+      "route": "/storefront",
+      "status": 200,
+      "whiteOnGold": [
+        {
+          "el": "p.MuiTypography-root.MuiTypography-body1 \"Y\"",
+          "fg": "rgb(255, 255, 255)",
+          "bg": "{\"r\":255,\"g\":209,\"b\":0,\"a\":1}",
+          "via": "div[testid=creator-preview-avatar].MuiBox-root.mui-am6mut \"Y\"",
+          "contrast": 1.46
+        }
+      ],
+      "lowContrast": [],
+      "blue": [],
+      "title": "Storefront · Dynopay",
+      "url": "/storefront",
+      "ms": 21499
+    },
+    {
+      "route": "/settings",
+      "status": 200,
+      "whiteOnGold": [],
+      "lowContrast": [],
+      "blue": [],
+      "title": "Settings · Dynopay",
+      "url": "/settings",
+      "ms": 26332
+    },
+    {
+      "route": "/profile",
+      "status": 200,
+      "whiteOnGold": [],
+      "lowContrast": [],
+      "blue": [],
+      "title": "Settings · Dynopay",
+      "url": "/settings?section=profile",
+      "ms": 8900
+    }
+  ],
+  "errors": []
+}

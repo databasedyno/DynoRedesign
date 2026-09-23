@@ -4,7 +4,7 @@ import SafeDealShell from "@/Components/SafeDeal/SafeDealShell";
 import SafeDealHome from "@/Components/SafeDeal/Home/SafeDealHome";
 
 const Page: NextPageWithLayout = () => (
-  <SafeDealShell title="Wallet" noindex>
+  <SafeDealShell title="Wallet" description="Your SafeDeal balance, escrow holds, cashouts and statement — funds held as USDT, released only when a deal completes." noindex>
     <SafeDealHome initialTab="activity" />
   </SafeDealShell>
 );

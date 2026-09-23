@@ -35,7 +35,7 @@ const SideBar = ({ handleDrawerToggle, type = "user" }: SideBarProps) => {
       }}
     >
       <Box>
-        <BrandLogo redirect={false} />
+        <BrandLogo redirect={false} variant="onDark" />
         <Menus type={type} />
       </Box>
       {type === "user" && (

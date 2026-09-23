@@ -1,0 +1,398 @@
+{
+  "generatedAt": "2026-09-23T02:14:04.175Z",
+  "routes": 99,
+  "staticFrontend": {
+    "scanned": 146,
+    "broken": [
+      {
+        "href": "/embed/session",
+        "where": [
+          "pages/documentation.tsx:499"
+        ]
+      },
+      {
+        "href": "/getSingleTransaction/:id",
+        "where": [
+          "pages/documentation.tsx:816"
+        ]
+      },
+      {
+        "href": "/getCryptoTransaction/:address",
+        "where": [
+          "pages/documentation.tsx:840"
+        ]
+      },
+      {
+        "href": "/getPaymentStatus/:payment_id",
+        "where": [
+          "pages/documentation.tsx:857"
+        ]
+      },
+      {
+        "href": "/customers/:customerId/credit",
+        "where": [
+          "pages/documentation.tsx:927"
+        ]
+      },
+      {
+        "href": "/customers/:customerId/debit",
+        "where": [
+          "pages/documentation.tsx:960"
+        ]
+      },
+      {
+        "href": "/events/:id/resend",
+        "where": [
+          "pages/documentation.tsx:1029"
+        ]
+      }
+    ]
+  },
+  "backendLinks": {
+    "scanned": 56,
+    "all": [
+      "/${String",
+      "/X",
+      "/X.txt",
+      "/X/shop",
+      "/X/web3/X",
+      "/admin/merchants",
+      "/auth/accept-invite",
+      "/auth/login",
+      "/auth/reset-2fa",
+      "/blockchain/fee/X",
+      "/company",
+      "/create-pay-link",
+      "/dashboard",
+      "/dashboards/address/X",
+      "/deal/X",
+      "/developer-keys",
+      "/escrow/invite/X",
+      "/ethereum/web3/X",
+      "/help-support",
+      "/how-to",
+      "/invoices",
+      "/kyc",
+      "/kyc/complete",
+      "/ms/X/vat/X",
+      "/order/X",
+      "/pay",
+      "/pay-links",
+      "/pay/...X",
+      "/pay/demo",
+      "/payment/verify",
+      "/payouts",
+      "/polygon/web3/X",
+      "/privacy-policy",
+      "/profile",
+      "/receipt/X",
+      "/referrals",
+      "/safedeal",
+      "/settings",
+      "/signup",
+      "/sitemap.xml",
+      "/storefront",
+      "/stream",
+      "/subscription/X",
+      "/subscription/webhook",
+      "/tatum/rate/X",
+      "/tax_rates",
+      "/terms-conditions",
+      "/transactions",
+      "/tron/account/X",
+      "/tron/info",
+      "/unsubscribe",
+      "/v1/accounts/X/transactions",
+      "/v1/accounts/X/transactions/trc20",
+      "/validate",
+      "/wallet",
+      "/wallet-security"
+    ],
+    "broken": [
+      {
+        "href": "/dashboards/address/X",
+        "where": [
+          "backend/apis/blockchairApi.ts:34"
+        ]
+      },
+      {
+        "href": "/escrow/invite/X",
+        "where": [
+          "backend/controller/escrowController.ts:110"
+        ]
+      },
+      {
+        "href": "/deal/X",
+        "where": [
+          "backend/controller/escrowController.ts:113",
+          "backend/services/email/safedealEmails.ts:225"
+        ]
+      },
+      {
+        "href": "/ms/X/vat/X",
+        "where": [
+          "backend/controller/payment/taxService.ts:171"
+        ]
+      },
+      {
+        "href": "/tatum/rate/X",
+        "where": [
+          "backend/helper/currencyConvert.ts:255"
+        ]
+      },
+      {
+        "href": "/blockchain/fee/X",
+        "where": [
+          "backend/services/blockchainFeeService.ts:141"
+        ]
+      },
+      {
+        "href": "/tron/info",
+        "where": [
+          "backend/services/blockchainFeeService.ts:176"
+        ]
+      },
+      {
+        "href": "/pay/...X",
+        "where": [
+          "backend/services/email/linkCampaignEmails.ts:67",
+          "backend/services/email/linkCampaignEmails.ts:126"
+        ]
+      },
+      {
+        "href": "/v1/accounts/X/transactions/trc20",
+        "where": [
+          "backend/services/mempoolProbe.ts:85"
+        ]
+      },
+      {
+        "href": "/v1/accounts/X/transactions",
+        "where": [
+          "backend/services/mempoolProbe.ts:93"
+        ]
+      },
+      {
+        "href": "/polygon/web3/X",
+        "where": [
+          "backend/services/merchantPool/directEvmTransfer.ts:100"
+        ]
+      },
+      {
+        "href": "/ethereum/web3/X",
+        "where": [
+          "backend/services/merchantPool/directEvmTransfer.ts:110"
+        ]
+      },
+      {
+        "href": "/subscription/X",
+        "where": [
+          "backend/services/migrateWebhookUrls.ts:149"
+        ]
+      },
+      {
+        "href": "/subscription/webhook",
+        "where": [
+          "backend/services/reconciliation.ts:554",
+          "backend/services/reconciliation.ts:689"
+        ]
+      },
+      {
+        "href": "/tron/account/X",
+        "where": [
+          "backend/services/tronEnergyService.ts:393"
+        ]
+      },
+      {
+        "href": "/sitemap.xml",
+        "where": [
+          "backend/utils/indexNowSubmitter.ts:26"
+        ]
+      },
+      {
+        "href": "/X.txt",
+        "where": [
+          "backend/utils/indexNowSubmitter.ts:53"
+        ]
+      },
+      {
+        "href": "/X/web3/X",
+        "where": [
+          "backend/utils/tatumAuth.ts:56"
+        ]
+      }
+    ]
+  },
+  "live": {
+    "base": null,
+    "prod": {
+      "origin": "https://dynopay.com",
+      "pages": [
+        {
+          "page": "/",
+          "status": 200,
+          "finalUrl": "https://dynopay.com/"
+        },
+        {
+          "page": "/fees",
+          "status": 200,
+          "finalUrl": "https://dynopay.com/fees"
+        },
+        {
+          "page": "/documentation",
+          "status": 200,
+          "finalUrl": "https://dynopay.com/documentation"
+        },
+        {
+          "page": "/about",
+          "status": 200,
+          "finalUrl": "https://dynopay.com/about"
+        },
+        {
+          "page": "/press",
+          "status": 200,
+          "finalUrl": "https://dynopay.com/press"
+        },
+        {
+          "page": "/blog",
+          "status": 200,
+          "finalUrl": "https://dynopay.com/blog"
+        },
+        {
+          "page": "/how-to",
+          "status": 200,
+          "finalUrl": "https://dynopay.com/how-to"
+        },
+        {
+          "page": "/referral-program",
+          "status": 200,
+          "finalUrl": "https://dynopay.com/referral-program"
+        },
+        {
+          "page": "/system-status",
+          "status": 200,
+          "finalUrl": "https://dynopay.com/system-status"
+        },
+        {
+          "page": "/help-support",
+          "status": 200,
+          "finalUrl": "https://dynopay.com/help-support"
+        },
+        {
+          "page": "/terms-conditions",
+          "status": 200,
+          "finalUrl": "https://dynopay.com/terms-conditions"
+        },
+        {
+          "page": "/privacy-policy",
+          "status": 200,
+          "finalUrl": "https://dynopay.com/privacy-policy"
+        },
+        {
+          "page": "/aml-policy",
+          "status": 200,
+          "finalUrl": "https://dynopay.com/aml-policy"
+        },
+        {
+          "page": "/for/creators",
+          "status": 200,
+          "finalUrl": "https://dynopay.com/for/creators"
+        },
+        {
+          "page": "/for/ecommerce",
+          "status": 200,
+          "finalUrl": "https://dynopay.com/for/ecommerce"
+        },
+        {
+          "page": "/for/saas",
+          "status": 200,
+          "finalUrl": "https://dynopay.com/for/saas"
+        },
+        {
+          "page": "/for/nonprofits",
+          "status": 200,
+          "finalUrl": "https://dynopay.com/for/nonprofits"
+        },
+        {
+          "page": "/compare/dynopay-vs-coinbase-commerce",
+          "status": 404,
+          "finalUrl": "https://dynopay.com/compare/dynopay-vs-coinbase-commerce"
+        },
+        {
+          "page": "/auth/login",
+          "status": 200,
+          "finalUrl": "https://dynopay.com/auth/login"
+        },
+        {
+          "page": "/auth/register",
+          "status": 200,
+          "finalUrl": "https://dynopay.com/auth/register"
+        },
+        {
+          "page": "/pay/demo",
+          "status": 404,
+          "finalUrl": "https://dynopay.com/pay/demo"
+        },
+        {
+          "page": "/pay/donation-demo",
+          "status": 404,
+          "finalUrl": "https://dynopay.com/pay/donation-demo"
+        },
+        {
+          "page": "/safedeal",
+          "status": 200,
+          "finalUrl": "https://dynopay.com/safedeal"
+        },
+        {
+          "page": "/safedeal/help",
+          "status": 200,
+          "finalUrl": "https://dynopay.com/safedeal/help"
+        },
+        {
+          "page": "/safedeal/terms",
+          "status": 200,
+          "finalUrl": "https://dynopay.com/safedeal/terms"
+        },
+        {
+          "page": "/safedeal/privacy",
+          "status": 200,
+          "finalUrl": "https://dynopay.com/safedeal/privacy"
+        },
+        {
+          "page": "/safedeal/deals/new",
+          "status": 200,
+          "finalUrl": "https://dynopay.com/safedeal/deals/new"
+        },
+        {
+          "page": "/safedeal/signin",
+          "status": 200,
+          "finalUrl": "https://dynopay.com/safedeal/signin"
+        }
+      ],
+      "uniqueLinks": 62,
+      "broken": [
+        {
+          "href": "/pay/demo",
+          "status": 404,
+          "finalUrl": "https://dynopay.com/pay/demo",
+          "from": [
+            "/",
+            "/fees",
+            "/documentation",
+            "/about"
+          ]
+        },
+        {
+          "href": "/pay/donation-demo",
+          "status": 404,
+          "finalUrl": "https://dynopay.com/pay/donation-demo",
+          "from": [
+            "/",
+            "/fees",
+            "/documentation",
+            "/about"
+          ]
+        }
+      ]
+    }
+  }
+}

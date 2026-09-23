@@ -1,0 +1,27 @@
+{
+  "mode": "light",
+  "base": "http://localhost:3000",
+  "results": [
+    {
+      "route": "/",
+      "status": 200,
+      "whiteOnGold": [],
+      "lowContrast": [],
+      "blue": [],
+      "title": "Dashboard · Dynopay",
+      "url": "/dashboard",
+      "ms": 85854
+    },
+    {
+      "route": "/fees",
+      "status": 200,
+      "whiteOnGold": [],
+      "lowContrast": [],
+      "blue": [],
+      "title": "Pricing — 1.5% down to 0.5%, no monthly fee · Dynopay",
+      "url": "/fees",
+      "ms": 29373
+    }
+  ],
+  "errors": []
+}

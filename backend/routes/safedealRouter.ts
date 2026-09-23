@@ -1,6 +1,7 @@
 import express from "express";
 import multer from "multer";
 import safedealController, { safedealAuth } from "../controller/safedealController";
+import { getSafeDealOgImage } from "../controller/safedeal/safedealOgImage";
 import authMiddleware from "../middleware/authMiddleware";
 import { adminAuthMiddleware } from "../middleware";
 import { ATTACH_ALLOWED, ATTACH_MAX_BYTES } from "../services/safedeal/safedealAttachments";
@@ -31,6 +32,8 @@ r.post("/safedeal/auth/send-code", safedealController.sendCode);
 r.post("/safedeal/auth/verify-code", safedealController.verifyCode);
 r.post("/safedeal/auth/telegram", safedealController.telegramAuth);
 r.get("/safedeal/deals/:token/preview", safedealController.previewDeal);
+// Rendered share card for chat/social unfurls of a deal link (public, read-only)
+r.get("/safedeal/og-image", getSafeDealOgImage);
 // Dynopay → SafeDeal payment events (HMAC-signed; SafeDeal is an API-key merchant of Dynopay)
 r.post("/safedeal/webhooks/dynopay", safedealController.dynopayWebhook);
 

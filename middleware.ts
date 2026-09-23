@@ -6,17 +6,22 @@ import type { NextRequest } from "next/server";
  *
  * WHY THIS EXISTS
  * ---------------
- * A real `next build` of this repo confirmed that six QA/demo pages ship to the
- * production domain and are publicly routable:
+ * A real `next build` of this repo confirmed that the internal QA/fake-state
+ * pages ship to the production domain and are publicly routable:
  *
  *   /QA                        /pay/state-demo
- *   /pay/demo                  /pay/success-demo
- *   /pay/donation-demo         /pay/payment-states-demo
+ *   /pay/success-demo          /pay/payment-states-demo
+ *   /pay/tip-card-demo
  *
- * Five of them render *fake payment states* ("payment received", "pending",
- * success screens). For a payments company, a customer or a search engine
- * finding a convincing fake "payment successful" page on dynopay.com is a
- * trust problem, not a cosmetic one.
+ * They render *fake payment states* ("payment received", "pending", success
+ * screens). For a payments company, a customer or a search engine finding a
+ * convincing fake "payment successful" page on dynopay.com is a trust problem,
+ * not a cosmetic one.
+ *
+ * NOT blocked: /pay/demo and /pay/donation-demo. Those are the public product
+ * demos every landing CTA (hero, products bento, footer, SEO pages, docs) links
+ * to — blocking them 404'd ~12 CTAs on production (2026-09). They carry their
+ * own noindex meta + a visible "Sandbox demo" label instead.
  *
  * Middleware is used instead of per-page `getServerSideProps` because none of
  * these six pages export any data-fetching function — they are pure client
@@ -34,8 +39,6 @@ import type { NextRequest } from "next/server";
 
 const DEV_ONLY_PATHS = new Set([
   "/QA",
-  "/pay/demo",
-  "/pay/donation-demo",
   "/pay/payment-states-demo",
   "/pay/state-demo",
   "/pay/success-demo",

@@ -413,7 +413,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
               {creator.photo ? (
                 <Box component='img' src={creator.photo} alt={creator.name} sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               ) : (
-                <Typography sx={{ fontFamily: MONO, fontWeight: 800, fontSize: { xs: 42, sm: 48 }, lineHeight: 1, color: '#FFFFFF' }}>
+                <Typography sx={{ fontFamily: MONO, fontWeight: 800, fontSize: { xs: 42, sm: 48 }, lineHeight: 1, color: theme.palette.getContrastText(accent) }}>
                   {initial}
                 </Typography>
               )}

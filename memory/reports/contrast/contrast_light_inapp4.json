@@ -1,0 +1,37 @@
+{
+  "mode": "light",
+  "base": "http://localhost:3000",
+  "results": [
+    {
+      "route": "/notifications",
+      "status": 200,
+      "whiteOnGold": [],
+      "lowContrast": [],
+      "blue": [],
+      "title": "Notifications · Dynopay",
+      "url": "/notifications",
+      "ms": 29468
+    },
+    {
+      "route": "/developer-keys",
+      "status": 200,
+      "whiteOnGold": [],
+      "lowContrast": [],
+      "blue": [],
+      "title": "Developers · Dynopay",
+      "url": "/developer-keys",
+      "ms": 37335
+    },
+    {
+      "route": "/referrals",
+      "status": 200,
+      "whiteOnGold": [],
+      "lowContrast": [],
+      "blue": [],
+      "title": "Referral Program · Dynopay",
+      "url": "/referrals",
+      "ms": 16048
+    }
+  ],
+  "errors": []
+}

@@ -58,6 +58,7 @@ export default function SafeDealShell({
   description,
   noindex = false,
   ogImage,
+  ogImageAlt,
   wide = false,
   dark = false,
 }: {
@@ -66,6 +67,7 @@ export default function SafeDealShell({
   description?: string;
   noindex?: boolean;
   ogImage?: string;
+  ogImageAlt?: string;
   wide?: boolean;
   dark?: boolean;
 }) {
@@ -163,7 +165,7 @@ export default function SafeDealShell({
         <meta key="og:image" property="og:image" content={ogImageUrl} />
         <meta key="og:image:width" property="og:image:width" content="1200" />
         <meta key="og:image:height" property="og:image:height" content="630" />
-        <meta key="og:image:alt" property="og:image:alt" content="SafeDeal — escrow for online deals" />
+        <meta key="og:image:alt" property="og:image:alt" content={ogImageAlt || "SafeDeal — escrow for online deals"} />
         {/* Twitter / X card */}
         <meta key="twitter:card" name="twitter:card" content="summary_large_image" />
         <meta key="twitter:title" name="twitter:title" content={fullTitle} />

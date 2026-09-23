@@ -1,0 +1,47 @@
+{
+  "mode": "light",
+  "base": "http://localhost:3000",
+  "results": [
+    {
+      "route": "/invoices",
+      "status": 200,
+      "whiteOnGold": [],
+      "lowContrast": [],
+      "blue": [],
+      "title": "Receipts & Tax — Dynopay",
+      "url": "/invoices",
+      "ms": 25000
+    },
+    {
+      "route": "/wallet",
+      "status": 200,
+      "whiteOnGold": [],
+      "lowContrast": [],
+      "blue": [],
+      "title": "Payout addresses · Dynopay",
+      "url": "/wallet",
+      "ms": 31658
+    },
+    {
+      "route": "/payouts",
+      "status": 200,
+      "whiteOnGold": [],
+      "lowContrast": [],
+      "blue": [],
+      "title": "Accept Crypto Payments — Get Paid Your Way · Dynopay",
+      "url": "/payouts",
+      "ms": 9069
+    },
+    {
+      "route": "/customers",
+      "status": 200,
+      "whiteOnGold": [],
+      "lowContrast": [],
+      "blue": [],
+      "title": "Customers · Dynopay",
+      "url": "/customers",
+      "ms": 16064
+    }
+  ],
+  "errors": []
+}

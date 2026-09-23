@@ -3,7 +3,7 @@ import { Box } from "@mui/material";
 import { useRouter } from "next/router";
 import Logo from "@/assets/Icons/Logo";
 
-const BrandLogo = ({ redirect = true }: { redirect?: boolean }) => {
+const BrandLogo = ({ redirect = true, variant }: { redirect?: boolean; variant?: "onDark" | "onLight" }) => {
   const router = useRouter();
   return (
     <>
@@ -16,7 +16,7 @@ const BrandLogo = ({ redirect = true }: { redirect?: boolean }) => {
         }}
         onClick={() => redirect && router.push("/")}
       >
-        <Logo width={40} height={40} />
+        <Logo width={40} height={40} variant={variant} />
       </Box>
     </>
   );

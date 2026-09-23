@@ -210,6 +210,9 @@ const FeesPage = () => {
           <Stagger step={0.07} sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", lg: "repeat(4, 1fr)" }, gap: 2 }}>
               {TIERS.map((tr, ti) => {
                 const isCurrent = tr.name === tier.name;
+                // Yellow fills always carry dark-brown text; deep-gold fills carry cream.
+                const onTier = tr.accent === "#FFD100" ? "#2B1D14" : "#fff";
+                const onTierA = (a: number) => (tr.accent === "#FFD100" ? `rgba(43,29,20,${a})` : `rgba(255,255,255,${a})`);
                 return (
                   <StaggerItem key={tr.name} i={ti} y={16}>
                   <Box
@@ -219,7 +222,7 @@ const FeesPage = () => {
                       position: "relative",
                       height: "100%",
                       background: isCurrent ? tr.accent : s.surface,
-                      color: isCurrent ? "#fff" : s.ink,
+                      color: isCurrent ? onTier : s.ink,
                       border: `1px solid ${isCurrent ? tr.accent : s.line}`,
                       p: { xs: 3, md: 3.5 },
                       minHeight: 260,
@@ -231,21 +234,21 @@ const FeesPage = () => {
                     }}
                   >
                     <Box>
-                      <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11.5, letterSpacing: "0.22em", textTransform: "uppercase", color: isCurrent ? "rgba(255,255,255,0.85)" : tr.accent, fontWeight: 600, mb: 1.5 }}>
+                      <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11.5, letterSpacing: "0.22em", textTransform: "uppercase", color: isCurrent ? onTierA(0.85) : tr.accent, fontWeight: 600, mb: 1.5 }}>
                         {tr.name}
                       </Typography>
                       <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 52, letterSpacing: "-0.035em", lineHeight: 1, mb: 1 }}>
                         {tr.pct}%
                       </Typography>
-                      <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14.5, color: isCurrent ? "rgba(255,255,255,0.9)" : s.ink3 }}>
+                      <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14.5, color: isCurrent ? onTierA(0.9) : s.ink3 }}>
                         {t("v3.perPayment")}
                       </Typography>
                     </Box>
-                    <Box sx={{ mt: 3, pt: 2, borderTop: `1px dashed ${isCurrent ? "rgba(255,255,255,0.35)" : s.line}` }}>
-                      <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11.5, letterSpacing: "0.08em", color: isCurrent ? "rgba(255,255,255,0.9)" : s.ink3, textTransform: "uppercase" }}>
+                    <Box sx={{ mt: 3, pt: 2, borderTop: `1px dashed ${isCurrent ? onTierA(0.35) : s.line}` }}>
+                      <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11.5, letterSpacing: "0.08em", color: isCurrent ? onTierA(0.9) : s.ink3, textTransform: "uppercase" }}>
                         {t("v3.vol30d")}
                       </Typography>
-                      <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 600, fontSize: 15, mt: 0.5, color: isCurrent ? "#fff" : s.ink }}>
+                      <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 600, fontSize: 15, mt: 0.5, color: isCurrent ? onTier : s.ink }}>
                         {formatUSD(tr.min)}{tr.max ? ` – ${formatUSD(tr.max)}` : "+"}
                       </Typography>
                     </Box>
@@ -255,9 +258,9 @@ const FeesPage = () => {
                           position: "absolute",
                           top: 12,
                           right: 12,
-                          background: "rgba(255,255,255,0.18)",
-                          border: "1px solid rgba(255,255,255,0.4)",
-                          color: "#fff",
+                          background: onTierA(0.14),
+                          border: `1px solid ${onTierA(0.4)}`,
+                          color: onTier,
                           fontFamily: FONT_TECH,
                           fontSize: 10.5,
                           fontWeight: 700,
@@ -581,16 +584,16 @@ const FeesPage = () => {
                   sx={{
                     ...cardSx(s),
                     height: "100%",
-                    background: c.highlight ? BRAND_ACCENT : s.surface,
-                    color: c.highlight ? "#fff" : s.ink,
-                    border: `1px solid ${c.highlight ? BRAND_ACCENT : s.line}`,
+                    background: c.highlight ? "#2B1D14" : s.surface,
+                    color: c.highlight ? "#FAF6EF" : s.ink,
+                    border: `1px solid ${c.highlight ? "#2B1D14" : s.line}`,
                     p: { xs: 3, md: 4 },
                   }}
                 >
                   <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 21, letterSpacing: "-0.02em", mb: 1.5 }}>
                     {c.title}
                   </Typography>
-                  <Typography sx={{ fontFamily: FONT_BODY, fontSize: 15, lineHeight: 1.65, color: c.highlight ? "rgba(255,255,255,0.9)" : s.ink2 }}>
+                  <Typography sx={{ fontFamily: FONT_BODY, fontSize: 15, lineHeight: 1.65, color: c.highlight ? "rgba(250,246,239,0.88)" : s.ink2 }}>
                     {c.desc}
                   </Typography>
                 </Box>

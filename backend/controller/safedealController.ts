@@ -7,6 +7,7 @@
  */
 import { raw as envRaw } from "../utils/config";
 import express from "express";
+import { shareCopyFor } from "./safedeal/safedealOgImage";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { Op } from "sequelize";
@@ -740,6 +741,11 @@ const previewDeal = async (req: express.Request, res: express.Response) => {
       buyer_pays: breakdown.buyerPays,
       seller_receives: breakdown.sellerReceives,
       created_at: deal.created_at,
+      // Link-preview copy (OG title/description) — same source as the rendered share card.
+      share: (() => {
+        const c = shareCopyFor({ title: deal.title, amount: Number(deal.amount), currency: deal.currency, status: deal.status, creator_role: deal.creator_role, invite_kind: deal.invite_kind });
+        return { title: c.title, description: c.description, state: c.state };
+      })(),
     });
   } catch (e) {
     return handle(res, e, "previewDeal");

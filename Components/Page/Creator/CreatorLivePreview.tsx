@@ -174,7 +174,7 @@ const CreatorLivePreview: React.FC<Props> = ({ state }) => {
           {photo ? (
             <Box component="img" src={photo} alt={name} sx={{ width: "100%", height: "100%", objectFit: "cover" }} />
           ) : (
-            <Typography sx={{ fontFamily: MONO, fontWeight: 800, fontSize: 32, lineHeight: 1, color: "#FFFFFF" }}>
+            <Typography sx={{ fontFamily: MONO, fontWeight: 800, fontSize: 32, lineHeight: 1, color: theme.palette.getContrastText(accent) }}>
               {initial}
             </Typography>
           )}

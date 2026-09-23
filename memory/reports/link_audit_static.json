@@ -1,0 +1,236 @@
+{
+  "generatedAt": "2026-09-23T01:52:29.330Z",
+  "routes": 99,
+  "staticFrontend": {
+    "scanned": 146,
+    "broken": [
+      {
+        "href": "/help/getting-started",
+        "where": [
+          "Components/Page/Dashboard/EmptyStatePanel.tsx:160",
+          "Components/Page/Dashboard/EmptyStatePanel.tsx:161"
+        ]
+      },
+      {
+        "href": "/embed/session",
+        "where": [
+          "pages/documentation.tsx:499"
+        ]
+      },
+      {
+        "href": "/getSingleTransaction/:id",
+        "where": [
+          "pages/documentation.tsx:816"
+        ]
+      },
+      {
+        "href": "/getCryptoTransaction/:address",
+        "where": [
+          "pages/documentation.tsx:840"
+        ]
+      },
+      {
+        "href": "/getPaymentStatus/:payment_id",
+        "where": [
+          "pages/documentation.tsx:857"
+        ]
+      },
+      {
+        "href": "/customers/:customerId/credit",
+        "where": [
+          "pages/documentation.tsx:927"
+        ]
+      },
+      {
+        "href": "/customers/:customerId/debit",
+        "where": [
+          "pages/documentation.tsx:960"
+        ]
+      },
+      {
+        "href": "/events/:id/resend",
+        "where": [
+          "pages/documentation.tsx:1029"
+        ]
+      }
+    ]
+  },
+  "backendLinks": {
+    "scanned": 56,
+    "all": [
+      "/${String",
+      "/X",
+      "/X.txt",
+      "/X/shop",
+      "/X/web3/X",
+      "/admin/merchants",
+      "/auth/accept-invite",
+      "/auth/login",
+      "/auth/reset-2fa",
+      "/blockchain/fee/X",
+      "/company",
+      "/create-pay-link",
+      "/dashboard",
+      "/dashboards/address/X",
+      "/deal/X",
+      "/developer-keys",
+      "/escrow/invite/X",
+      "/ethereum/web3/X",
+      "/help-support",
+      "/how-to",
+      "/invoices",
+      "/kyc",
+      "/kyc/complete",
+      "/ms/X/vat/X",
+      "/order/X",
+      "/pay",
+      "/pay-links",
+      "/pay/...X",
+      "/pay/demo",
+      "/payment/verify",
+      "/payouts",
+      "/polygon/web3/X",
+      "/privacy-policy",
+      "/profile",
+      "/receipt/X",
+      "/referrals",
+      "/safedeal",
+      "/settings",
+      "/signup",
+      "/sitemap.xml",
+      "/storefront",
+      "/stream",
+      "/subscription/X",
+      "/subscription/webhook",
+      "/tatum/rate/X",
+      "/tax_rates",
+      "/terms-conditions",
+      "/transactions",
+      "/tron/account/X",
+      "/tron/info",
+      "/unsubscribe",
+      "/v1/accounts/X/transactions",
+      "/v1/accounts/X/transactions/trc20",
+      "/validate",
+      "/wallet",
+      "/wallet-security"
+    ],
+    "broken": [
+      {
+        "href": "/dashboards/address/X",
+        "where": [
+          "backend/apis/blockchairApi.ts:34"
+        ]
+      },
+      {
+        "href": "/escrow/invite/X",
+        "where": [
+          "backend/controller/escrowController.ts:110"
+        ]
+      },
+      {
+        "href": "/deal/X",
+        "where": [
+          "backend/controller/escrowController.ts:113",
+          "backend/services/email/safedealEmails.ts:225"
+        ]
+      },
+      {
+        "href": "/ms/X/vat/X",
+        "where": [
+          "backend/controller/payment/taxService.ts:171"
+        ]
+      },
+      {
+        "href": "/tatum/rate/X",
+        "where": [
+          "backend/helper/currencyConvert.ts:255"
+        ]
+      },
+      {
+        "href": "/blockchain/fee/X",
+        "where": [
+          "backend/services/blockchainFeeService.ts:141"
+        ]
+      },
+      {
+        "href": "/tron/info",
+        "where": [
+          "backend/services/blockchainFeeService.ts:176"
+        ]
+      },
+      {
+        "href": "/pay/...X",
+        "where": [
+          "backend/services/email/linkCampaignEmails.ts:67",
+          "backend/services/email/linkCampaignEmails.ts:126"
+        ]
+      },
+      {
+        "href": "/v1/accounts/X/transactions/trc20",
+        "where": [
+          "backend/services/mempoolProbe.ts:85"
+        ]
+      },
+      {
+        "href": "/v1/accounts/X/transactions",
+        "where": [
+          "backend/services/mempoolProbe.ts:93"
+        ]
+      },
+      {
+        "href": "/polygon/web3/X",
+        "where": [
+          "backend/services/merchantPool/directEvmTransfer.ts:100"
+        ]
+      },
+      {
+        "href": "/ethereum/web3/X",
+        "where": [
+          "backend/services/merchantPool/directEvmTransfer.ts:110"
+        ]
+      },
+      {
+        "href": "/subscription/X",
+        "where": [
+          "backend/services/migrateWebhookUrls.ts:149"
+        ]
+      },
+      {
+        "href": "/subscription/webhook",
+        "where": [
+          "backend/services/reconciliation.ts:554",
+          "backend/services/reconciliation.ts:689"
+        ]
+      },
+      {
+        "href": "/tron/account/X",
+        "where": [
+          "backend/services/tronEnergyService.ts:393"
+        ]
+      },
+      {
+        "href": "/sitemap.xml",
+        "where": [
+          "backend/utils/indexNowSubmitter.ts:26"
+        ]
+      },
+      {
+        "href": "/X.txt",
+        "where": [
+          "backend/utils/indexNowSubmitter.ts:53"
+        ]
+      },
+      {
+        "href": "/X/web3/X",
+        "where": [
+          "backend/utils/tatumAuth.ts:56"
+        ]
+      }
+    ]
+  },
+  "live": {
+    "base": null,
+    "prod": null
+  }
+}

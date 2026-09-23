@@ -216,7 +216,7 @@ const HowToPage = () => {
                     height: 40,
                     borderRadius: "50%",
                     p: 0,
-                    color: "#fff",
+                    color: "#2B1D14",
                     background: s.aurora,
                     "&:hover": { background: s.aurora, filter: "brightness(1.05)" },
                   }}
@@ -287,7 +287,7 @@ const HowToPage = () => {
                         borderRadius: 2,
                         display: "grid",
                         placeItems: "center",
-                        color: isActive ? "#fff" : s.ink2,
+                        color: isActive ? "#2B1D14" : s.ink2,
                         background: isActive ? s.aurora : s.bgAlt,
                       }}
                     >

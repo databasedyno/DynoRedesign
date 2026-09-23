@@ -10,6 +10,7 @@ import {
   useTheme,
 } from '@mui/material'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { Icon } from '@iconify/react'
 import { QRCodeSVG } from 'qrcode.react'
@@ -165,6 +166,11 @@ const PaymentDemo = () => {
 
   return (
     <Pay3Layout embed={isEmbed}>
+      <Head>
+        <title>Checkout demo · Dynopay</title>
+        <meta name="description" content="Try the Dynopay hosted crypto checkout — a sandbox demo. No real payment is created." />
+        <meta key="robots" name="robots" content="noindex, nofollow" />
+      </Head>
       <Box
         sx={{
           minHeight: '70vh',
@@ -187,6 +193,21 @@ const PaymentDemo = () => {
             boxShadow: isDark ? 'none' : '0 1px 2px rgba(10,10,15,0.04)',
           }}
         >
+          {/* Always-visible sandbox badge — this page is a demo, never a real payment */}
+          <Box
+            data-testid="demo-sandbox-badge"
+            sx={{
+              display: 'inline-flex', alignItems: 'center', gap: 0.6, mb: 2,
+              px: 1.25, py: 0.4, borderRadius: '999px',
+              border: `1px solid ${isDark ? 'rgba(255,209,0,0.45)' : 'rgba(139,94,0,0.35)'}`,
+              backgroundColor: isDark ? 'rgba(255,209,0,0.10)' : '#FFF3CE',
+              color: isDark ? '#FFD100' : '#8B5E00',
+              fontFamily: MONO, fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
+            }}
+          >
+            <Icon icon="mdi:flask-outline" width={13} />
+            Sandbox demo · no real payment
+          </Box>
           {/* ═══ CONFIRMED (success) ═══════════════════════════════════ */}
           {phase === 'confirmed' ? (
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', py: 2 }} data-testid="demo-confirmed">
@@ -197,7 +218,7 @@ const PaymentDemo = () => {
                   backgroundColor: LIME,
                 }}
               >
-                <Icon icon="mdi:check-bold" width={32} color="#fff" />
+                <Icon icon="mdi:check-bold" width={32} color="#2B1D14" />
               </Box>
               <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: '-0.02em', color: theme.palette.text.primary }}>
                 Payment successful

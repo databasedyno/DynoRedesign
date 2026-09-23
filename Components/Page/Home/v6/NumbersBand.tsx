@@ -10,11 +10,11 @@ import { LiveDot } from "../motion/accents";
 import { floor5, formatInt, useLandingMetrics } from "../v5/useLandingMetrics";
 import { CHAINS } from "./LiveStrip";
 
-const BAND = "#1E1B4B";
-const INK = "#F5F5FF";
-const INK2 = "rgba(245,245,255,0.72)";
-const INK3 = "rgba(245,245,255,0.55)";
-const LINE = "rgba(255,255,255,0.12)";
+const BAND = "#2B1D14"; // espresso brand band (2026-09 rebrand — was navy)
+const INK = "#FAF6EF";
+const INK2 = "rgba(250,246,239,0.74)";
+const INK3 = "rgba(250,246,239,0.58)";
+const LINE = "rgba(255,240,210,0.12)";
 
 const chainIcon = (label: string) => CHAINS.find((c) => c.label === label)?.icon;
 
@@ -60,7 +60,7 @@ const ChainBars: React.FC = () => {
   );
 };
 
-/** §2.3-5 Numbers band — four live stats + settlements-by-chain, on the deep-navy brand band. Every number is server-rendered. */
+/** §2.3-5 Numbers band — four live stats + settlements-by-chain, on the espresso brand band. Every number is server-rendered. */
 const NumbersBand: React.FC = () => {
   const { t, i18n } = useTranslation("landing");
   const m = useLandingMetrics();
@@ -73,8 +73,8 @@ const NumbersBand: React.FC = () => {
   ];
   return (
     <Box component="section" id="numbers" data-testid="numbers-band" sx={{ position: "relative", overflow: "hidden", background: BAND, py: { xs: 9, md: 13 } }}>
-      <Box aria-hidden sx={{ position: "absolute", top: "-40%", right: "-10%", width: 900, height: 900, borderRadius: "50%", background: "radial-gradient(circle, rgba(0,208,132,0.5) 0%, rgba(0,208,132,0.18) 35%, transparent 70%)", pointerEvents: "none" }} />
-      <Box aria-hidden sx={{ position: "absolute", bottom: "-50%", left: "-10%", width: 800, height: 800, borderRadius: "50%", background: "radial-gradient(circle, rgba(52,211,153,0.22) 0%, transparent 65%)", pointerEvents: "none" }} />
+      <Box aria-hidden sx={{ position: "absolute", top: "-40%", right: "-10%", width: 900, height: 900, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,209,0,0.30) 0%, rgba(255,209,0,0.10) 35%, transparent 70%)", pointerEvents: "none" }} />
+      <Box aria-hidden sx={{ position: "absolute", bottom: "-50%", left: "-10%", width: 800, height: 800, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,209,0,0.10) 0%, transparent 65%)", pointerEvents: "none" }} />
       <Box sx={{ position: "relative", maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 }, display: "grid", gridTemplateColumns: { xs: "1fr", lg: "1.05fr 0.95fr" }, gap: { xs: 6, lg: 8 }, alignItems: "center" }}>
         <Box>
           <Stagger step={0.09} sx={{ maxWidth: 560, mb: { xs: 5, md: 6 } }}>

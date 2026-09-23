@@ -55,7 +55,8 @@ const DonationDemo = () => {
     <>
       <Head>
         <title>{t("payDonationDemo_title", { defaultValue: "Donation checkout demo · Dynopay" })}</title>
-        <meta name="description" content="A live crypto donation & crowdfunding checkout — goal bar, reward tiers and donor wall." />
+        <meta name="description" content="A live crypto donation & crowdfunding checkout demo — goal bar, reward tiers and donor wall. Sandbox only, no real payment is created." />
+        <meta key="robots" name="robots" content="noindex, nofollow" />
         <meta key="og:title" property="og:title" content="Help rebuild the Riverside Community Library" />
         <meta key="og:description" property="og:description" content="$16,240 raised of $25,000 goal — 65% funded. Fundraise or take tips in crypto with Dynopay." />
         <meta key="og:image" property="og:image" content={OG_IMAGE} />
@@ -66,8 +67,8 @@ const DonationDemo = () => {
       </Head>
     <Pay3Layout>
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, py: 2 }}>
-        <Typography sx={{ fontSize: 12, color: 'text.secondary', fontFamily: 'monospace', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-          Donation checkout — preview
+        <Typography data-testid="donation-demo-sandbox-badge" sx={{ fontSize: 12, color: 'text.secondary', fontFamily: 'monospace', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+          Donation checkout — sandbox demo · no real payment
         </Typography>
         <ToggleButtonGroup
           size='small'

@@ -177,7 +177,7 @@ const HandleQrCode: React.FC<Props> = ({ handle, size = "full", accentColor }) =
           sx={{
             textTransform: "none", fontSize: 12.5, fontWeight: 700, borderRadius: "10px",
             backgroundColor: accentColor || BRAND_ACCENT,
-            color: "#FFFFFF",
+            color: theme.palette.getContrastText(accentColor || BRAND_ACCENT),
             "&:hover": { backgroundColor: accentColor || BRAND_ACCENT, filter: "brightness(1.05)" },
           }}
         >

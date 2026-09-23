@@ -1829,6 +1829,28 @@
         "desc": "Tip jars, storefronts and donation pages that settle straight to your wallet.",
         "cta": "See creator pages"
       }
+    },
+    "stories": {
+      "eyebrow": "Merchant stories",
+      "headline": "Live on Dynopay. In their own words.",
+      "body": "Three businesses that take crypto payments with Dynopay every day — a developer store, an escrow service and a hosting platform.",
+      "visit": "Visit",
+      "live": "Live on Dynopay",
+      "devstore": {
+        "quote": "We sell developer tools to customers in 40+ countries. Dynopay's checkout settles straight to our own wallet — no chargebacks, no holds, and buyers pay in whatever coin they already hold.",
+        "who": "The Dev Store",
+        "what": "Developer tools · storefront & payment links"
+      },
+      "safedeal": {
+        "quote": "SafeDeal runs its whole escrow flow on Dynopay — funding addresses, confirmations and payouts. We shipped a full escrow product in weeks without running a single node.",
+        "who": "SafeDeal",
+        "what": "Escrow for online deals · Dynopay API"
+      },
+      "nameword": {
+        "quote": "Hosting customers expect to pay in crypto and stay private. With Dynopay's hosted checkout and webhooks, a domain or server goes live the moment the payment confirms.",
+        "who": "Nameword",
+        "what": "Offshore web hosting · hosted checkout & webhooks"
+      }
     }
   },
   "howTo": {

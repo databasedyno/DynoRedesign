@@ -2,18 +2,17 @@
  * Checkout design tokens + the canonical crypto catalogue — extracted from
  * CleanCheckoutV2 (Session refactor). Pure constants, no runtime side-effects.
  */
-import { BRAND_ACCENT } from '@/constants/theme'
+import { BRAND_ACCENT, BRAND_ON_ACCENT } from '@/constants/theme'
 
-// ─── Design tokens (Stripe-adjacent monochrome + indigo accent) ──────────
+// ─── Design tokens (Stripe-adjacent monochrome + gold accent) ──────────
 // IBM Plex Mono first (Blueprint §1.3: the single money/figure typeface) so the
 // checkout figures match the merchant dashboard; robust system fallbacks after.
 export const MONO = 'var(--font-tech), "IBM Plex Mono", ui-monospace, "Roboto Mono", SFMono-Regular, Menlo, monospace'
-// Aurora indigo — Landing v3 canonical accent (Session 82 migration).
-// Constant name stays "LIME" for minimal-diff safety; only the value changed.
+// Brand gold. Constant name stays "LIME" for minimal-diff safety; only the value changed.
 export const LIME = BRAND_ACCENT
 export const INK = '#0A0A0B'
-// Text/icon colour for content sitting ON the LIME (indigo) brand buttons.
-export const ON_BRAND = '#FFFFFF'
+// Text/icon colour for content sitting ON the LIME (gold) brand buttons — never white on yellow.
+export const ON_BRAND = BRAND_ON_ACCENT
 
 // ── Customer checkout preferences (per-device, mirrors the language switcher) ──
 export const PREF_NET_KEY = 'checkout_pref_network'
