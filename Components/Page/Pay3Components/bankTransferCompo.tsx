@@ -399,7 +399,7 @@ const BankTransferCompo = ({
                 fontSize={"18px"}
                 fontFamily="var(--font-sans)"
               >
-                Dynopay Payments Ltd.
+                Dynopay
               </Typography>
             </Box>
 

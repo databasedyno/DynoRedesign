@@ -1,4 +1,51 @@
 # ============================================================================
+# >>> HANDOFF (2026-09-23) — LEGAL-ENTITY COPY REMOVAL + REBRAND WHITE-ON-GOLD FIX <<<
+# ============================================================================
+#   Env: LIVE prod DB + shared Redis, SAFE MODE (background jobs OFF). HARD RULES
+#   for testing_agent: do NOT move funds, confirm/settle payments, or create any
+#   SafeDeal money movement; no git; no source edits; read-only DB only.
+#
+#   WHAT CHANGED (this session):
+#   A) Legal-entity name removed everywhere the user asked (user-approved "change
+#      all"). "Dynopay Innovations, LTD" and "Dynopay Payments Ltd." → "Dynopay";
+#      email footer now the localized "© Dynopay {year}. All Rights reserved."
+#      - Invoice PDF From block: backend/services/pdf/invoiceChrome.ts (+model/
+#        controller defaults + render_pdf_previews). Verified render: From = "Dynopay".
+#      - Email footer: backend/utils/emailTemplate.ts now uses chrome.rights key
+#        (all 6 langs). Verified render: "© Dynopay 2026. All Rights reserved.",
+#        0 "Payments Ltd"/"Innovations".
+#      - SafeDeal PDFs/emails: safedealController.ts, safedealInvoiceEmail.ts →
+#        "SafeDeal is operated by Dynopay."
+#      - Frontend copy: Components/SafeDeal/SafeDealShell.tsx footer ("Operated by
+#        Dynopay"), Components/Page/About/LegitimacyBlock.tsx (Legal entity =
+#        "Dynopay"), Components/Page/Pay3Components/bankTransferCompo.tsx
+#        (beneficiary "Dynopay"), langs/locales/*/landing.json companyName.
+#   B) Rebrand white-on-gold contrast fix (18 spots / 14 files): every solid gold
+#      fill now carries dark-brown text/icons (BRAND_ON_ACCENT #2B1D14) instead of
+#      white — pay-links "Create Payment Link" CTA, login "Pay $42.00" mock,
+#      checkout crypto-pay btn, ReferralRewardBanner, SupportChatWidget FAB/buttons,
+#      FirstPaymentCelebrationModal, register OTP icons, ScrollToTopButton, etc.
+#
+#   VERIFICATION DONE BY MAIN AGENT: frontend tsc 0, backend tsc 0, ESLint clean;
+#   PDFs + emails re-rendered and eyeballed (all clean, on-brand). NOT yet deployed
+#   (working tree only until "Save to GitHub").
+#
+#   WHAT TESTING_AGENT SHOULD VERIFY (FRONTEND, scoped — user approved):
+#   1. Legal-entity copy (no "Dynopay Payments Ltd." / "Innovations" anywhere):
+#      - /about → data-testid=about-legit-entity shows "Dynopay".
+#      - /safedeal (public) → footer reads "... Operated by Dynopay. Not a bank ...".
+#   2. Rebrand + white-on-gold, light AND dark, on /, /fees, /auth/login,
+#      /dashboard, /pay-links, /settings: every yellow/gold button, chip, badge or
+#      icon-on-gold uses DARK text (no white/near-white on gold). Spot-check the
+#      pay-links empty-state "Create Payment Link" CTA and the login "Pay $42.00"
+#      mock. No leftover aqua/teal except the logo spark; no white-on-yellow.
+#   AUTH (see /app/memory/test_credentials.md): merchant qa_minorder_p1b@example.com
+#   / QaMinOrder123@ (2-step login: email → Continue → password; may hit an email
+#   2FA challenge whose preview_otp is in the login API response). Public routes
+#   (/, /fees, /about, /safedeal, /auth/login) need no auth.
+# ============================================================================
+
+# ============================================================================
 # >>> HANDOFF (2026-09-22, later) — PHASE 2: SAFEDEAL CASHOUT VOCABULARY, REAL TX HASHES, EMAIL AUDIT <<<
 # ============================================================================
 #   Same safety rules as the block below (LIVE prod DB, SAFE MODE, no money

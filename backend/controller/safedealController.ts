@@ -416,7 +416,7 @@ const config = async (_req: express.Request, res: express.Response) => {
     withdrawal_approval_usd: APPROVAL_THRESHOLD_USD,
     live_settlement: isLiveSettlementEnabled(),
     dispute_auto_escalate_hours: Number(envRaw("ESCROW_DISPUTE_AUTO_ESCALATE_HOURS")) || 72,
-    legal_name: (envRaw("EMAIL_LEGAL_NAME") || "Dynopay Payments Ltd.").trim(),
+    legal_name: (envRaw("EMAIL_LEGAL_NAME") || "Dynopay").trim(),
     price_currencies: PRICE_CURRENCIES,
     attachment_limits: { max_files: 5, max_mb: 10, types: ["PNG", "JPG", "WEBP", "GIF", "PDF"] },
     deal_types: DEAL_TYPES,
@@ -1052,7 +1052,7 @@ const dealPdf = async (req: express.Request, res: express.Response) => {
       buyerEmail,
       sellerEmail,
       attachments,
-      legalName: (envRaw("EMAIL_LEGAL_NAME") || "Dynopay Payments Ltd.").trim(),
+      legalName: (envRaw("EMAIL_LEGAL_NAME") || "Dynopay").trim(),
       viewer: { role: actor.role, email: sess.email },
       payouts: payouts.filter((p) => p.customer_id === sess.customer_id),
     });
@@ -1075,7 +1075,7 @@ const topupReceiptPdf = async (req: express.Request, res: express.Response) => {
       coinLabel: m?.label || row.coin,
       network: m?.network || row.coin,
       customerEmail: sess.email,
-      legalName: (envRaw("EMAIL_LEGAL_NAME") || "Dynopay Payments Ltd.").trim(),
+      legalName: (envRaw("EMAIL_LEGAL_NAME") || "Dynopay").trim(),
     });
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename="safedeal-deposit-${row.topup_id}.pdf"`);

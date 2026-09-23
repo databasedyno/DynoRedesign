@@ -102,7 +102,7 @@ export const drawInvoiceProvider = (doc: PDFKit.PDFDocument, L: string, startY: 
     .text(t("invoice.from", L), 50, startY)
     .fontSize(10)
     .font("Helvetica-Bold")
-    .text("Dynopay Innovations, LTD", 50, startY + 20)
+    .text("Dynopay", 50, startY + 20)
     .fontSize(9)
     .font("Helvetica-Bold")
     .fillColor(INK.link)

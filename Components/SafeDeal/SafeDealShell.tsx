@@ -116,7 +116,7 @@ export default function SafeDealShell({
   // (position:fixed, bottom:0). Reserve safe-area at the very bottom so that
   // bar never covers the footer's legal line on small screens.
   const isDealPage = path.includes("/deal/");
-  const [legalName, setLegalName] = useState("Dynopay Payments Ltd.");
+  const [legalName, setLegalName] = useState("Dynopay");
   useEffect(() => {
     safedealApi.config().then((c) => c.legal_name && setLegalName(c.legal_name)).catch(() => undefined);
   }, []);

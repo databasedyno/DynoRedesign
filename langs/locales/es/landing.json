@@ -599,7 +599,7 @@
     },
     "qrAlt": "Código QR de pago",
     "bank": {
-      "companyName": "Dynopay Payments Ltd."
+      "companyName": "Dynopay"
     },
     "amount": "Importe",
     "tax": "Impuesto",

@@ -11,7 +11,7 @@ import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "@/Components/Page/Ho
 import { BRAND_ACCENT } from "@/constants/theme";
 import { Section, SectionHead } from "@/Components/Page/Home/v5/shared";
 
-const LEGAL_NAME = "Dynopay Payments Ltd.";
+const LEGAL_NAME = "Dynopay";
 const SINCE = "2024";
 
 // Opens the global in-app support chat (mounted in _app.tsx) via a window

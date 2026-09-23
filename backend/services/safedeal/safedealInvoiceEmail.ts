@@ -15,7 +15,7 @@ import { explorerTxUrl } from "../receiptLinkService";
 import { sendSafeDealDepositReceiptEmail, sendSafeDealDealInvoiceEmail } from "../email/safedealEmails";
 import type { TopupRow } from "./safedealTopup";
 
-const legalName = (): string => (envRaw("EMAIL_LEGAL_NAME") || "Dynopay Payments Ltd.").trim();
+const legalName = (): string => (envRaw("EMAIL_LEGAL_NAME") || "Dynopay").trim();
 
 /** Email the customer their branded deposit receipt for a credited wallet top-up. */
 export async function emailSafeDealDepositReceipt(row: TopupRow, customerEmail: string): Promise<void> {

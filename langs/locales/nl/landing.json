@@ -599,7 +599,7 @@
     },
     "qrAlt": "QR-code voor betaling",
     "bank": {
-      "companyName": "Dynopay Payments Ltd."
+      "companyName": "Dynopay"
     },
     "amount": "Bedrag",
     "tax": "Belasting",

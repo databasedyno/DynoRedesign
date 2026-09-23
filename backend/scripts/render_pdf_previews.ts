@@ -62,7 +62,7 @@ const streamToBuffer = (doc: PDFKit.PDFDocument): Promise<Buffer> =>
     const inv = generateInvoicePDF({
       invoice_number: "DP-2026-000214",
       invoice_date: when,
-      provider_name: "Dynopay Innovations, LTD",
+      provider_name: "Dynopay",
       provider_address: "",
       provider_vat_id: "",
       customer_name: "The Dev Store Ltd",

@@ -1,0 +1,13 @@
+import { chromium } from "playwright";
+const [BASE, ROUTE, MODE, OUT] = process.argv.slice(2);
+const exe = process.env.PLAYWRIGHT_CHROME_EXECUTABLE_PATH || "/usr/bin/google-chrome";
+const b = await chromium.launch({ executablePath: exe, args: ["--no-sandbox"] });
+const c = await b.newContext({ viewport: { width: 1400, height: 1000 }, colorScheme: MODE === "dark" ? "dark" : "light" });
+const p = await c.newPage();
+await p.goto(`${BASE}/auth/login`, { waitUntil: "domcontentloaded", timeout: 60000 });
+await p.evaluate((m) => { localStorage.setItem("theme-mode-inapp", m); localStorage.setItem("theme-mode-public", m); localStorage.setItem("theme-mode", m); document.cookie = `theme-mode-inapp=${m}; path=/`; }, MODE);
+await p.goto(`${BASE}${ROUTE}`, { waitUntil: "networkidle", timeout: 90000 }).catch(() => {});
+await p.waitForTimeout(2000);
+await p.screenshot({ path: OUT, type: "jpeg", quality: 50, fullPage: true });
+console.log("shot", OUT);
+await b.close();

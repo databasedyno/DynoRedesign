@@ -360,7 +360,7 @@ export const autoGenerateInvoice = async (
     // Provider details (Dynopay Innovations, LTD) — street address/VAT ID intentionally
     // omitted from customer-facing receipts/invoices per brand/privacy requirement.
     const providerInfo = {
-      provider_name: "Dynopay Innovations, LTD",
+      provider_name: "Dynopay",
       provider_address: "",
       provider_vat_id: "",
     };

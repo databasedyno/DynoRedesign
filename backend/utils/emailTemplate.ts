@@ -100,7 +100,7 @@ export const TO_EMAIL_TOKEN = '%%TO_EMAIL%%';
 
 /** Legal footer line: entity from env (address optional, omitted when unset). */
 export const legalEntity = (): { name: string; address: string } => ({
-  name: (process.env.EMAIL_LEGAL_NAME || 'Dynopay Payments Ltd.').trim(),
+  name: (process.env.EMAIL_LEGAL_NAME || 'Dynopay').trim(),
   address: (process.env.EMAIL_LEGAL_ADDRESS || '').trim(),
 });
 
@@ -143,7 +143,7 @@ export const baseEmailTemplate = (
     bestRegards: tr('chrome.bestRegards', lang),
     team: isSafeDeal ? 'The SafeDeal team' : tr('chrome.teamSignature', lang),
     tagline: isSafeDeal ? 'Escrow for online deals' : tr('chrome.tagline', lang),
-    rights: tr('chrome.legal', lang, { year, legalName: legal.name }),
+    rights: tr('chrome.rights', lang, { year }),
     privacy: tr('chrome.privacy', lang),
     terms: tr('chrome.terms', lang),
     support: tr('chrome.support', lang),
