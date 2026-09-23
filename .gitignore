@@ -95,3 +95,6 @@ backend/scripts/audit/.tok
 # Runtime email dumps (SAFE MODE) — transient, long-line HTML, never commit
 memory/email_outbox/
 public/audit/
+
+# scratch tokens/screens written by QA scripts — never commit
+memory/tmp_*

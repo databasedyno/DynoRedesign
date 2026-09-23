@@ -1,3 +1,34 @@
+# === 2026-09-23 (fork) PROD CTA 404s + WHITE-ON-GOLD SWEEP + TESTIMONIALS + SAFEDEAL RICH PREVIEWS — SHIPPED, testing_agent iteration_221 PASS (backend 100%, frontend 100%, 13/13) ===
+# User asks (this fork): (1) "Checkout and donation CTA under products are not working on production… check all public, in-app and email CTA";
+#   (2) "White text over yellow appear invisible for this checkout page and logo as well… analyze all UI for similar issues";
+#   (3) "implement rich link preview for safedeal.sh and other links and the escrow shareable deal links… good copies";
+#   (4) "add The Dev Store, SafeDeal and Nameword (logos) to testimonial on the landing page"; (5) finish REBRAND_TASKS leftovers.
+# ROOT CAUSE (1): middleware.ts DEV_ONLY_PATHS blocked /pay/demo + /pay/donation-demo under NODE_ENV=production → 404 on dynopay.com,
+#   while hero/bento/footer/SEO/docs/sticky CTAs (~12) link there. FIX: removed those two from the blocklist (QA/state/success demos stay
+#   blocked); pages now carry <meta robots noindex,nofollow> + visible "Sandbox demo · no real payment" badge (data-testid demo-sandbox-badge /
+#   donation-demo-sandbox-badge). Verified with BLOCK_DEV_PAGES=true in preview (demos 200, /QA + /pay/state-demo 404), then flag removed.
+# CTA AUDIT (scripts/qa/link_audit.mjs — static FE hrefs vs pages/, backend/email `${base}/path` literals, live crawl of 28 public pages):
+#   prod dynopay.com: only /pay/demo + /pay/donation-demo broken (ships on deploy). In-app: /help/getting-started (Dashboard EmptyStatePanel)
+#   → fixed to /help-support/getting-started-with-dynopay. Emails: all built paths resolve; /escrow/invite/<t> is dead code (all deals are SafeDeal).
+#   Reports: memory/reports/link_audit_prod.json, link_audit_static.json.
+# CONTRAST (2): scripts/qa/contrast_sweep.mjs (Playwright DOM scan, effective bg incl. gradients + SVG fills) over public/checkout/in-app/admin.
+#   Fixed: checkoutConstants ON_BRAND #FFFFFF→BRAND_ON_ACCENT (all gold checkout/tip buttons), Pay3 header light-mode bar → espresso gradient
+#   (white lockup readable), demo success check icon, InlineTipCheckout ×4, CreatorProfile/CreatorLivePreview/HandleQrCode monograms →
+#   theme.palette.getContrastText(accent) (merchant accents untouched), GoalProgressBar pill, fees.tsx tier cards (onTier/onTierA) + highlight card,
+#   how-to.tsx + HowToScene chips, admin legacy Sidebar/Drawers (yellow → #2B1D14; active gold, inactive cream; BrandLogo variant onDark),
+#   NumbersBand navy #1E1B4B → espresso, QA.tsx blue badges → gold/brown. Post-fix scan: 0 white-on-gold, 0 indigo on /, /fees, /how-to, admin.
+# TESTIMONIALS (4): Components/Page/Home/v6/MerchantStoriesV6.tsx (after ProofV6), i18n v6.stories.* in langs/locales/en/landing.json (quotes are
+#   agent-written — user may edit), logos: public/landing/logos/devstore-mark.png (from merchant photo, inverted in dark), /safedeal/favicon-192.png,
+#   inline Nameword SVG (repo servicedyno/Nameword, indigo kept — third-party mark). Links: /devhub, https://safedeal.sh, https://nameword.com.
+# SAFEDEAL RICH PREVIEWS (3): backend/controller/safedeal/safedealOgImage.ts — GET /api/safedeal/og-image?d=<token>|demo=1 renders 1200×630 PNG
+#   (sharp; shield + SafeDeal lockup, eyebrow, title, amount, state pill, footer), 302 → /safedeal/og-image.png on miss; shareCopyFor(status)
+#   = single source for card + OG copy (invited/awaiting_payment/funded/delivered/completed/refunded/disputed/closed). previewDeal now returns
+#   data.share{title,description,state}. pages/safedeal/deal/[token].tsx getServerSideProps → SafeDealShell title/description/ogImage/ogImageAlt
+#   (image host = request host: safedeal.sh in prod). signin/deals/wallet got share descriptions. Dynopay pay links/storefront/receipt already SSR OG.
+# REBRAND LEFTOVERS (5): assets/Images/home/Dashboard.png re-captured (scripts/qa/capture_dashboard_png.mjs — routes localhost /api → :8001);
+#   QA.tsx badges recolored. ETH sweep fix + everything above ship on next "Save to GitHub". Password step-up stays one-factor (user choice).
+# HYGIENE: .gitignore memory/tmp_* (scratch JWTs were briefly written to memory/ and are now deleted; they expire). memory/reports/contrast/*.jpg removed.
+# ============================================================================================
 # === 2026-09-23 (fork) REBRAND AUDIT: "is the latest logo/icon/branding updated everywhere incl. SEO?" — 7 GAPS FOUND, 6 FIXED, 1 OPEN (user asked to wrap up; NO testing_agent run — self-verified only) ===
 # AUDIT RESULT — already on-brand: favicons/ico/svg, apple-touch, PWA icons + manifest, default OG og/dynopay-og.png, press-kit SVG/PNG, header/footer/sidebar/auth logos, email chip v4, PDF logos, JSON-LD Organization logo (favicon-512), theme-color.
 # FIXED (tsc FE 0 / BE 0; backend restarted — ts-node has NO hot reload):

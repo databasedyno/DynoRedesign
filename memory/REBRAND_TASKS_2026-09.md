@@ -1,6 +1,6 @@
 # Dynopay Rebrand — Task Register (2026-09)
 
-_Last updated: 2026-09-23 (fork #2 — brand/SEO asset audit, session ended by user). Working tree only — nothing deploys
+_Last updated: 2026-09-23 (fork #3 — CTA 404 fix, white-on-gold sweep, testimonials, SafeDeal rich previews; testing_agent iteration_221 PASS). Working tree only — nothing deploys
 until "Save to GitHub"._
 
 ## Brand direction (user-approved, latest wins)
@@ -70,6 +70,17 @@ until "Save to GitHub"._
 - Still stale but unused: `assets/Images/home/*.svg` (10 indigo), `backend/public/dynopay-email-logo{,-v2,-v3}.png`.
 - Pending: scoped testing_agent run for the above; item 6; "Save to GitHub" (nothing deployed).
 
+
+
+## 2026-09-23 (fork #3) — CTA 404s, white-on-gold sweep, testimonials, SafeDeal previews — DONE (iteration_221 PASS)
+- Prod CTA bug: middleware no longer blocks `/pay/demo` + `/pay/donation-demo`; both noindex + "Sandbox demo" badge. 5 QA/state demos still blocked.
+- Link audit tooling: `scripts/qa/link_audit.mjs` (static + email + live). Prod: only the two demos were broken. In-app `/help/getting-started` fixed.
+- Contrast tooling: `scripts/qa/contrast_sweep.mjs`. Fixed checkout ON_BRAND, Pay3 header (espresso bar in light), fees tier cards, how-to chips,
+  goal pill, creator monograms (getContrastText), admin legacy sidebar (brown/gold), NumbersBand navy→espresso, QA.tsx badges.
+- `Dashboard.png` re-captured (gold brand, real data) via `scripts/qa/capture_dashboard_png.mjs`.
+- Landing: new Merchant stories section (The Dev Store · SafeDeal · Nameword). Copy in `langs/locales/en/landing.json` → `v6.stories`.
+- SafeDeal: rich unfurls for deal links (`/api/safedeal/og-image?d=`, SSR OG on `/safedeal/deal/[token]`).
+- Still pending (user decisions): logo concept-B final vector sign-off; ETH sweep fix + all of the above deploy on next "Save to GitHub".
 
 ## Carried-over pending items (from previous forks)
 ### Rebrand

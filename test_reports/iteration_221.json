@@ -1,0 +1,73 @@
+{
+  "summary": "Verified all 13 features from the Dynopay review request against preview BASE URL (534abecb...). Result: 12/13 fully passing, 1 partial (demo simulate flow reached QR/Confirming state — no separate 'Simulate payment received' button surfaced in this preview run, but sandbox badge + noindex are correct). All backend, SSR meta and UI contrast checks pass. No blocker bugs.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "verified_results": {
+    "public_ctas": {
+      "/pay/demo": "200, data-testid=demo-sandbox-badge present with text 'Sandbox demo · no real payment', <meta robots noindex,nofollow> present",
+      "/pay/donation-demo": "200, data-testid=donation-demo-sandbox-badge present, noindex present",
+      "guard_still_active_404s": ["/QA","/pay/state-demo","/pay/success-demo","/pay/payment-states-demo","/pay/tip-card-demo"]
+    },
+    "checkout_contrast_light_/pay?d=rNtQRX": {
+      "MuiAppBar_backgroundImage": "linear-gradient(90deg, rgb(43,29,20) 0%, rgb(58,42,31) 100%) — espresso dark-brown (not yellow)",
+      "primary_button_text": "rgb(43,29,20) #2B1D14 on gold rgb(255,209,0) #FFD100 — DARK text on gold, no white-on-yellow"
+    },
+    "checkout_dark": "Button colors preserved rgb(43,29,20) on rgb(255,209,0)",
+    "demo_flow": "Coin/network selectable, Continue transitions to waiting/QR state. Sandbox badge displayed. Screenshot captured. Note: preview build showed Confirming state / QR (no visible 'Simulate payment received' button in this coin path). Did not observe success-check icon color live, but code review of /pages/pay/demo.tsx per files_of_reference sets check icon color #2B1D14.",
+    "merchant_stories": {
+      "section": "[data-testid=merchant-stories] present",
+      "three_cards": ["story-devstore","story-safedeal","story-nameword"],
+      "links": {"devstore":"/devhub (200)", "safedeal":"https://safedeal.sh/", "nameword":"https://nameword.com/"},
+      "live_badges_count": 17,
+      "dark_mode_devstore_filter": "invert(1) — logo inverted for visibility",
+      "mobile_390px_overflow": false
+    },
+    "numbers_band_and_blue_scan": {"bandBg":"rgb(43,29,20) espresso","blue_indigo_on_/":0,"on_/fees":0,"on_/how-to":0},
+    "white_on_gold_regression": {"/":0, "/fees":0, "/how-to":0},
+    "admin_sidebar": {"drawer_bg":"rgb(43,29,20) dark-brown","active_color":"rgb(255,209,0) gold","active_bg":"rgba(255,209,0,0.08)","logo_visible":true, "escrow_tabs":"readable"},
+    "safedeal_backend": {
+      "og-image_real_token": "200 image/png 1200x630 RGBA 128969 bytes",
+      "og-image_demo": "200 image/png 1200x630 130654 bytes",
+      "og-image_invalid_token": "302 → /safedeal/og-image.png",
+      "preview_share": {"title_has_amount":"'QA hero deal 1790080026 — $120 USD escrow deal'","description":"non-empty (invited-buyer copy)","state":"Awaiting acceptance"}
+    },
+    "safedeal_ssr_deal_page": {
+      "og:title":"'QA hero deal 1790080026 — $120 USD escrow deal · SafeDeal'",
+      "og:description":"contains 'escrow'",
+      "og:image":"https://<BASE>/api/safedeal/og-image?d=<token>",
+      "og:image:width/height":"1200/630",
+      "twitter:card":"summary_large_image",
+      "robots":"noindex, nofollow",
+      "og:url":"https://safedeal.sh/deal/<token>"
+    },
+    "safedeal_ssr_invalid_token": "HTTP 200, generic 'Deal · SafeDeal' meta, no 500",
+    "safedeal_other_pages": {"/safedeal/signin":"non-empty description, og:image safedeal/og-image.png","/safedeal/deals":"OK","/safedeal/wallet":"OK","/safedeal":"OK"},
+    "in_app_cta_fix": "/help-support/getting-started-with-dynopay → 200, img alt='Dashboard' src=/_next/static/media/Dashboard.afd8abed.png (new gold/brown dashboard rendered — dark-brown sidebar, gold accents confirmed via screenshot)",
+    "console_errors_on_/_/pay/demo_/fees": "0 pageerrors"
+  },
+  "screenshots": [
+    "/app/test_reports/checkout_light.png",
+    "/app/test_reports/pay_demo_badge.png",
+    "/app/test_reports/pay_demo_success.png",
+    "/app/test_reports/stories_light.png",
+    "/app/test_reports/stories_dark.png",
+    "/app/test_reports/fees_light.png",
+    "/app/test_reports/admin_sidebar.png",
+    "/app/test_reports/admin_escrow.png",
+    "/app/test_reports/getting_started.png",
+    "/tmp/og_real.png",
+    "/tmp/og_demo.png"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Minor: /pay/demo simulate flow — during preview run, the LTC path did not surface a labeled 'Simulate payment received' button; page transitioned to Confirming state after Continue. Consider verifying the demo-simulate-btn data-testid is always mounted on all coin paths.",
+    "SafeDeal OG image on non-safedeal.sh preview domain uses BASE preview URL for og:image (correct for QA); on production, ensure og:image URL host is https://safedeal.sh/api/safedeal/og-image?d=... to match og:url host."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "Admin: moxxcompany@gmail.com / Katiekendra123@ → /api/admin/login returns accessToken (tested).",
+  "seed_data_creation": "None (DB read-only; only GET flows exercised).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Everything the main agent shipped for this batch (unblocked demo CTAs, dark-brown Pay3 header, dark text on gold buttons, MerchantStories section, NumbersBand espresso, SafeDeal SSR OG + PNG endpoint, admin sidebar, new gold Dashboard.png, getting-started slug fix) is verified passing on the preview URL. If retesting later, use BASE=$(grep NEXT_PUBLIC_SERVER_URL /app/.env.local | cut -d= -f2) and TOKEN=6ef76bc2ae94362defe6edb9df318bf9af7c76b902aeae8a. Admin JWT valid until exp 1792750323."
+}
