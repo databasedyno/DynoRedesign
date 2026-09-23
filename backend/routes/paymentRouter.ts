@@ -8,6 +8,7 @@ import {
   uploadImage,
 } from "../middleware";
 import { paymentRateLimiter } from "../middleware/rateLimitMiddleware";
+import { walletTxSubmitted } from "../controller/payment/walletTxHint";
 
 const paymentRouter = express.Router();
 
@@ -83,6 +84,15 @@ paymentRouter.post(
   paymentRateLimiter,
   customerAuthMiddleware,
   paymentController.setCustomerEmail
+);
+
+// "Pay with wallet" (Reown AppKit) broadcast a tx from the buyer's wallet — record the
+// hash as a support hint. Detection/confirmation still come from the chain listeners.
+paymentRouter.post(
+  "/walletTxSubmitted",
+  paymentRateLimiter,
+  customerAuthMiddleware,
+  walletTxSubmitted
 );
 
 paymentRouter.post(

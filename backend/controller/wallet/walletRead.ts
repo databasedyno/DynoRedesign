@@ -96,7 +96,7 @@ export const getWallet = async (req: express.Request, res: express.Response) => 
     }
     
     // Check cache first (120 second TTL) - include currency in cache key
-    const cacheKey = `wallet:${effectiveUserId}:${company_id || 'all'}:${preferredCurrency}:v5`;
+    const cacheKey = `wallet:${effectiveUserId}:${company_id || 'all'}:${preferredCurrency}:v6`;
     const cached = await getRedisItem(cacheKey);
     if (cached && Object.keys(cached).length > 0) {
       walletLogger.info(`[Wallet] Cache hit for user ${effectiveUserId}`);

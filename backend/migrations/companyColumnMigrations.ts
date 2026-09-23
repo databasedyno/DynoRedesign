@@ -66,3 +66,22 @@ export const addSupportWidgetMonthlyGoal = async (): Promise<void> => {
     );
   }
 };
+
+/**
+ * 0051 — wallet ownership verification ("Verify with wallet" via Reown AppKit).
+ * Additive, nullable stamps on merchant payout addresses and SafeDeal cashout
+ * addresses: when + which wallet app signed the ownership message.
+ */
+export const addWalletOwnershipVerification = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `ALTER TABLE "tbl_user_wallet"
+       ADD COLUMN IF NOT EXISTS "ownership_verified_at" TIMESTAMPTZ DEFAULT NULL,
+       ADD COLUMN IF NOT EXISTS "ownership_verified_via" VARCHAR(60) DEFAULT NULL`
+  );
+  await sequelize.query(
+    `ALTER TABLE "tbl_customer_payout_address"
+       ADD COLUMN IF NOT EXISTS "ownership_verified_at" TIMESTAMPTZ DEFAULT NULL,
+       ADD COLUMN IF NOT EXISTS "ownership_verified_via" VARCHAR(60) DEFAULT NULL`
+  );
+};

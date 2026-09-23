@@ -58,6 +58,8 @@ export interface PayoutAddressRow {
   created_at: string;
   /** created_at + cooling-off window; withdrawals to this address are blocked before then. */
   usable_at?: string;
+  ownership_verified_at?: string | null;
+  ownership_verified_via?: string | null;
 }
 
 export interface WithdrawalRow {

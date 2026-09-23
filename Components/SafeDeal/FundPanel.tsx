@@ -3,6 +3,7 @@ import { Alert, Box, Button, Chip, CircularProgress, Divider, IconButton, Stack,
 import { Icon } from "@iconify/react";
 import { SD_ACCENT, SD_NOTE_BG, SD_NOTE_FG, SD_NOTE_BORDER, SD_ACCENT_GLOW } from "./sdTheme";
 import safedealApi, { SdDeal, SdFunding, SdFundingCoin, SdFundingPayment, sdError } from "@/api/safedeal";
+import WalletActionButton, { SAFEDEAL_WALLET_BRAND } from "@/Components/Wallet/WalletActionButton";
 import { money } from "@/Components/Page/Escrow/escrowUtils";
 import { TABULAR, relTime } from "./sdFormat";
 import { ghostBtn, primaryBtn } from "./sdStyles";
@@ -175,6 +176,21 @@ function PaymentView({ deal, payment, coin, now, live, busy, copied, onCopy, onS
             <Typography sx={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", fontSize: 12.5, wordBreak: "break-all", flex: 1 }} data-testid="sd-fund-address">{payment.address}</Typography>
             <CopyBtn k="address" v={payment.address} copied={copied} onCopy={onCopy} />
           </Box>
+          {payment.status === "waiting" && (
+            <Box sx={{ mt: 1.4 }} data-testid="sd-fund-wallet-wrap">
+              <WalletActionButton
+                mode="pay"
+                brand={SAFEDEAL_WALLET_BRAND}
+                code={payment.coin}
+                address={payment.address}
+                amount={payment.crypto_amount}
+                labels={{ pay: `Pay ${payment.crypto_amount} ${label} with wallet` }}
+                hint="Connect MetaMask, Trust, TronLink, Phantom or 600+ wallets — exact amount and network pre-filled."
+                testId="sd-fund-pay-with-wallet"
+                onSubmitted={({ hash, from, wallet_name }) => void safedealApi.fundingWalletTx(deal.deal_token, { tx_hash: hash, coin: payment.coin, address: payment.address, from_address: from, wallet_name }).catch(() => undefined)}
+              />
+            </Box>
+          )}
           {payment.destination_tag != null && (
             <Stack direction="row" spacing={0.6} alignItems="center" sx={{ mt: 0.8 }}>
               <Typography sx={{ fontSize: 12.5, color: "#B45309", fontWeight: 700 }} data-testid="sd-fund-tag">Destination tag / memo: {payment.destination_tag} — required</Typography>

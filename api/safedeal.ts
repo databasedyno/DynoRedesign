@@ -363,6 +363,9 @@ export interface SdAddress {
   created_at: string;
   /** created_at + cooling-off window; withdrawals to this address are blocked before then. */
   usable_at?: string;
+  /** "Verify with wallet": when the owner signed for this address (null = unverified). */
+  ownership_verified_at?: string | null;
+  ownership_verified_via?: string | null;
 }
 
 /** What the user is confirming with a step-up code — drives the email copy. */
@@ -486,6 +489,14 @@ export const safedealApi = {
 
   /** Funding via Dynopay's Merchant API: coin list + current payment (buyer only). */
   funding: async (token: string): Promise<SdFunding> => unwrap(await client.get(`/deals/${token}/funding`)),
+  /** Buyer paid from a connected wallet — record the tx hash next to the funding address (support hint). */
+  fundingWalletTx: async (token: string, body: { tx_hash: string; coin: string; address: string; from_address?: string; wallet_name?: string }): Promise<{ tx_hash: string }> =>
+    unwrap(await client.post(`/deals/${token}/funding/wallet-tx`, body)),
+  /** "Verify with wallet" for a saved cashout address: nonce → sign → verify. */
+  addressVerifyNonce: async (id: number): Promise<{ nonce: string; message: string; address: string; code: string; family: string; expires_at: string }> =>
+    unwrap(await client.post(`/wallet/addresses/${id}/verify-nonce`, {})),
+  addressVerify: async (id: number, body: { nonce: string; signature: string; wallet_name?: string }): Promise<SdAddress> =>
+    unwrap(await client.post(`/wallet/addresses/${id}/verify`, body)),
   createFunding: async (token: string, coin: string): Promise<{ funding: SdFunding; message: string }> => {
     const res = await client.post(`/deals/${token}/funding`, { coin });
     return { funding: res.data.data as SdFunding, message: res.data.message as string };

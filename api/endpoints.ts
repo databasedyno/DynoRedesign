@@ -54,6 +54,8 @@ export const API_ENDPOINTS = {
     batch: "/wallet/batch",
     // Pre-save address sanity (network-mismatch + never-received warning)
     addressSanity: "/wallet/address-sanity",
+    ownershipNonce: "/wallet/ownership/nonce",
+    ownershipVerify: "/wallet/ownership/verify",
   },
 
   walletSecurity: {

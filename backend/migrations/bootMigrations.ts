@@ -2,7 +2,7 @@ import type { Migration } from "../utils/migrationRunner";
 import { perfMigrations } from "./perfMigrations";
 import { securityMigrations } from "./securityMigrations";
 import { referralMigrations } from "./referralMigrations";
-import { addCompanyMinOrderUsd, addCompanyWebhookSecretRotation, addSupportWidgetShowWall, addSupportWidgetMonthlyGoal } from "./companyColumnMigrations";
+import { addCompanyMinOrderUsd, addCompanyWebhookSecretRotation, addSupportWidgetShowWall, addSupportWidgetMonthlyGoal, addWalletOwnershipVerification } from "./companyColumnMigrations";
 
 /**
  * Refactor Item #1 — the tables historically created by ad-hoc `model.sync()`
@@ -988,6 +988,7 @@ export async function buildBootMigrations(): Promise<Migration[]> {  const { v1,
     { version: "0048_safedeal_chain_tx_hash", up: addSafeDealChainTxHash },
     { version: "0049_payout_gas_audit", up: createPayoutGasAuditTable },
     { version: "0050_withdrawal_telegram_notified", up: addWithdrawalTelegramNotified },
+    { version: "0051_wallet_ownership_verification", up: addWalletOwnershipVerification },
     ...perfMigrations,
     ...securityMigrations,
   ];

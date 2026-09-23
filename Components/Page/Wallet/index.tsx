@@ -31,6 +31,7 @@ import WalletReuseNudge from "./WalletReuseNudge";
 import CoverageStrip from "./CoverageStrip";
 import WalletSecurityStrip from "./WalletSecurityStrip";
 import { AddressFormatBadge, LastForwardRow } from "./WalletCardMeta";
+import WalletOwnershipRow from "./WalletOwnershipRow";
 import { useDashboardPayouts } from "@/Components/Page/Payouts/useDashboardPayouts";
 import CopyInline from "@/Components/UX/CopyInline";
 import { maskAddress } from "@/helpers/maskAddress";
@@ -412,6 +413,7 @@ const Wallet = ({ onAddWallet }: { onAddWallet?: (crypto?: string) => void }) =>
                     >
                       {isRevealed(wallet.id) ? wallet.walletAddress : maskAddress(wallet.walletAddress)}
                     </Typography>
+                    <WalletOwnershipRow wallet={wallet} onVerified={() => void refetchWallets()} />
                   </Box>
                   <Tooltip
                     title={

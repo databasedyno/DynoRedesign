@@ -56,6 +56,17 @@ const userWalletModel = sequelize.define(
       type: DataTypes.ENUM("FIAT", "CRYPTO"),
       defaultValue: "FIAT",
     },
+    // "Verify with wallet": when the owner signed the ownership message + which wallet app.
+    ownership_verified_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: null,
+    },
+    ownership_verified_via: {
+      type: DataTypes.STRING(60),
+      allowNull: true,
+      defaultValue: null,
+    },
   },
   {
     tableName: "tbl_user_wallet",

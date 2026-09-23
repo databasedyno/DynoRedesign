@@ -156,6 +156,8 @@ export const useWalletData = () => {
           walletName: wallet.wallet_name || "",
           destinationTag: wallet.destination_tag != null ? String(wallet.destination_tag) : "",
           totalProcessed: Number(wallet.amount_in_usd) || 0,
+          ownershipVerifiedAt: wallet.ownership_verified_at || null,
+          ownershipVerifiedVia: wallet.ownership_verified_via || null,
         };
       });
   }, [walletState?.walletList]);

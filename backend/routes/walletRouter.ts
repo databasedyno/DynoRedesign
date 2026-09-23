@@ -5,6 +5,7 @@ import { requireStepUp } from "../middleware/requireStepUp";
 import { auditMutations } from "../utils/activityLog";
 import { userWalletModel } from "../models";
 import { checkAddressSanity, getWalletSecurityStatus } from "../controller/wallet/walletSecurity";
+import { issueWalletOwnershipNonce, verifyWalletOwnership } from "../controller/wallet/walletOwnership";
 import { validate, withdrawAssetsSchema } from "../middleware/validateRequest";
 import idempotencyMiddleware from "../middleware/idempotencyMiddleware";
 
@@ -49,6 +50,10 @@ walletRouter.post("/copyWalletAddresses", walletController.copyWalletAddresses);
 walletRouter.post("/address-sanity", checkAddressSanity);
 // Read-only: wallet-change freeze state (plan 3.4 Wallet security page).
 walletRouter.get("/security/status", getWalletSecurityStatus);
+
+// "Verify with wallet" (Reown AppKit): owner signs an ownership message for a saved payout address.
+walletRouter.post("/ownership/nonce", requireCompanyOwnerBy(resolveWalletCompany), issueWalletOwnershipNonce);
+walletRouter.post("/ownership/verify", requireCompanyOwnerBy(resolveWalletCompany), auditWallet, verifyWalletOwnership);
 
 // CREATE - Add wallet address (2-step: validate on-chain, then save)
 walletRouter.post("/validateWalletAddress", stepUp, walletController.validateWallet);

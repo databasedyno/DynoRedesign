@@ -5,6 +5,7 @@ import { SdAddress, SdWallet } from "@/api/safedeal";
 import { CoinBadge } from "../PayoutOptionLabel";
 import { SD_BORDER, SD_GOLD_DEEP, SD_NOTE_BG, SD_NOTE_FG, SD_PAGE, SD_TEXT_MUTED } from "../sdTheme";
 import { shortAddr } from "./WalletDialogs";
+import { AddressVerifyAction, AddressVerifyChip } from "./AddressVerify";
 
 interface Props {
   wallet: SdWallet;
@@ -12,10 +13,11 @@ interface Props {
   onRemove: (a: SdAddress) => void;
   onToggleAuto: (on: boolean) => void;
   onAutoAddress: (id: number) => void;
+  onVerified: () => void;
 }
 
 /** Where cashouts go: saved payout addresses + the auto-cashout switch. */
-export default function PayoutSettings({ wallet: w, onAdd, onRemove, onToggleAuto, onAutoAddress }: Props) {
+export default function PayoutSettings({ wallet: w, onAdd, onRemove, onToggleAuto, onAutoAddress, onVerified }: Props) {
   return (
     <Box data-testid="sd-addresses" sx={{ p: { xs: 2, md: 2.2 }, borderRadius: 4, backgroundColor: "#fff", border: `1px solid ${SD_BORDER}` }}>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.2 }}>
@@ -30,17 +32,21 @@ export default function PayoutSettings({ wallet: w, onAdd, onRemove, onToggleAut
       ) : (
         <Stack spacing={1}>
           {w.addresses.map((a) => (
-            <Stack key={a.address_id} direction="row" spacing={1.2} alignItems="center" data-testid={`sd-address-${a.address_id}`} sx={{ p: 1.2, borderRadius: 3, border: `1px solid ${SD_BORDER}`, backgroundColor: SD_PAGE }}>
-              <CoinBadge coin={a.coin} network={a.network} size={30} />
-              <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Typography sx={{ fontSize: 13.5, fontWeight: 800 }} noWrap>{a.label || `${a.coin} · ${a.network}`}</Typography>
-                <Typography sx={{ fontSize: 12, color: SD_TEXT_MUTED, fontFamily: "monospace" }} noWrap>{shortAddr(a.address)} · {a.network}</Typography>
-              </Box>
-              {w.profile.auto_withdraw && w.profile.auto_withdraw_address_id === a.address_id && <Chip size="small" label="Auto" sx={{ fontWeight: 800, fontSize: 10.5, backgroundColor: SD_NOTE_BG, color: SD_NOTE_FG }} />}
-              <Tooltip title="Remove">
-                <IconButton size="small" onClick={() => onRemove(a)} data-testid={`sd-address-remove-${a.address_id}`} aria-label={`Remove address ${a.label || a.coin}`}><Icon icon="mdi:trash-can-outline" width={18} /></IconButton>
-              </Tooltip>
-            </Stack>
+            <Box key={a.address_id} data-testid={`sd-address-${a.address_id}`} sx={{ p: 1.2, borderRadius: 3, border: `1px solid ${SD_BORDER}`, backgroundColor: SD_PAGE }}>
+              <Stack direction="row" spacing={1.2} alignItems="center">
+                <CoinBadge coin={a.coin} network={a.network} size={30} />
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography sx={{ fontSize: 13.5, fontWeight: 800 }} noWrap>{a.label || `${a.coin} · ${a.network}`}</Typography>
+                  <Typography sx={{ fontSize: 12, color: SD_TEXT_MUTED, fontFamily: "monospace" }} noWrap>{shortAddr(a.address)} · {a.network}</Typography>
+                </Box>
+                <AddressVerifyChip address={a} />
+                {w.profile.auto_withdraw && w.profile.auto_withdraw_address_id === a.address_id && <Chip size="small" label="Auto" sx={{ fontWeight: 800, fontSize: 10.5, backgroundColor: SD_NOTE_BG, color: SD_NOTE_FG }} />}
+                <Tooltip title="Remove">
+                  <IconButton size="small" onClick={() => onRemove(a)} data-testid={`sd-address-remove-${a.address_id}`} aria-label={`Remove address ${a.label || a.coin}`}><Icon icon="mdi:trash-can-outline" width={18} /></IconButton>
+                </Tooltip>
+              </Stack>
+              <AddressVerifyAction address={a} onVerified={onVerified} />
+            </Box>
           ))}
         </Stack>
       )}

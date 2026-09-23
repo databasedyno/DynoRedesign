@@ -28,6 +28,15 @@ const nextConfig = {
   },
   transpilePackages: ["mui-tel-input", "geist"],
 
+  // Reown AppKit / WalletConnect pull optional Node-only loggers; mark them external
+  // so the client bundle doesn't try (and fail) to resolve them.
+  webpack: (config) => {
+    config.externals = [...(config.externals || []), "pino-pretty", "lokijs", "encoding"];
+    // MetaMask SDK (via wagmi connectors) probes for React-Native storage; not a web dependency.
+    config.resolve.alias = { ...(config.resolve.alias || {}), "@react-native-async-storage/async-storage": false };
+    return config;
+  },
+
   // ─── Performance: tree-shake heavy barrel-file libraries ───
   experimental: {
     // Restore scroll position on browser back/forward navigation (QA #35).

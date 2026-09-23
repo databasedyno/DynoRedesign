@@ -245,7 +245,7 @@ export default function SafeDealHome({ initialTab = "overview" }: { initialTab?:
           <Box sx={{ display: "grid", gap: 2.5, gridTemplateColumns: { xs: "1fr", lg: "1.6fr 1fr" }, alignItems: "start" }}>
             <ActivityFeed rows={rows} from={from} to={to} onRange={(f, t) => { setFrom(f); setTo(t); }} onCsv={() => void exportCsv()} compact={6} onSeeAll={() => changeTab("activity")} />
             <Stack spacing={2.5}>
-              {w ? <PayoutSettings wallet={w} onAdd={() => setDialog("address")} onRemove={(a) => setDialog({ remove: a })} onToggleAuto={(on) => void toggleAutoWithdraw(on)} onAutoAddress={(id) => void setAutoAddress(id)} /> : <Skeleton variant="rounded" height={200} />}
+              {w ? <PayoutSettings wallet={w} onAdd={() => setDialog("address")} onRemove={(a) => setDialog({ remove: a })} onToggleAuto={(on) => void toggleAutoWithdraw(on)} onAutoAddress={(id) => void setAutoAddress(id)} onVerified={() => void load()} /> : <Skeleton variant="rounded" height={200} />}
               <TelegramAlertsCard notify={notify} />
             </Stack>
           </Box>

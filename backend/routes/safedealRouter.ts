@@ -2,6 +2,7 @@ import express from "express";
 import multer from "multer";
 import safedealController, { safedealAuth } from "../controller/safedealController";
 import { getSafeDealOgImage } from "../controller/safedeal/safedealOgImage";
+import { sdAddressVerify, sdAddressVerifyNonce, sdFundingWalletTx } from "../controller/safedeal/safedealWallet";
 import authMiddleware from "../middleware/authMiddleware";
 import { adminAuthMiddleware } from "../middleware";
 import { ATTACH_ALLOWED, ATTACH_MAX_BYTES } from "../services/safedeal/safedealAttachments";
@@ -54,6 +55,8 @@ r.post("/safedeal/deals/:token/claim", safedealAuth, safedealController.claimDea
 r.post("/safedeal/deals/:token/action", safedealAuth, safedealController.dealAction);
 r.get("/safedeal/deals/:token/funding", safedealAuth, safedealController.getFunding);
 r.post("/safedeal/deals/:token/funding", safedealAuth, safedealController.createFunding);
+// Buyer paid from a connected wallet — tx-hash hint for support (ledger stays authoritative)
+r.post("/safedeal/deals/:token/funding/wallet-tx", safedealAuth, sdFundingWalletTx);
 r.post("/safedeal/deals/:token/payout-destination", safedealAuth, safedealController.setPayoutDestination);
 r.get("/safedeal/deals/:token/summary.pdf", safedealAuth, safedealController.dealPdf);
 r.post("/safedeal/deals/:token/files", safedealAuth, uploadSingle, safedealController.uploadAttachment);
@@ -64,6 +67,9 @@ r.get("/safedeal/wallet/statement.csv", safedealAuth, safedealController.stateme
 r.get("/safedeal/wallet/addresses", safedealAuth, safedealController.addresses);
 r.post("/safedeal/wallet/addresses", safedealAuth, safedealController.createAddress);
 r.post("/safedeal/wallet/addresses/:id/remove", safedealAuth, safedealController.deleteAddress);
+// "Verify with wallet" — prove control of a saved cashout address by signing (no funds move)
+r.post("/safedeal/wallet/addresses/:id/verify-nonce", safedealAuth, sdAddressVerifyNonce);
+r.post("/safedeal/wallet/addresses/:id/verify", safedealAuth, sdAddressVerify);
 r.post("/safedeal/wallet/withdraw/quote", safedealAuth, safedealController.withdrawQuote);
 r.post("/safedeal/wallet/withdraw", safedealAuth, safedealController.withdraw);
 r.get("/safedeal/wallet/withdrawals", safedealAuth, safedealController.withdrawals);

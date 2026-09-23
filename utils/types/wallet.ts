@@ -100,6 +100,9 @@ export interface WalletDataType {
   walletName?: string;
   destinationTag?: string;
   totalProcessed: number;
+  /** "Verify with wallet" — owner signed an ownership message for this address. */
+  ownershipVerifiedAt?: string | null;
+  ownershipVerifiedVia?: string | null;
 }
 
 export interface Cryptocurrency {
