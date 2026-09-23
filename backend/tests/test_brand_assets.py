@@ -10,7 +10,7 @@ import re
 import pytest
 import requests
 
-BASE = "https://katiekendra-branch.preview.emergentagent.com"
+BASE = "https://vault-setup-9.preview.emergentagent.com"
 
 
 def _head_or_get(path, expect_ct_startswith):
