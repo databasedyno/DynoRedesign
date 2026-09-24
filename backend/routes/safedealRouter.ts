@@ -5,8 +5,18 @@ import { getSafeDealOgImage } from "../controller/safedeal/safedealOgImage";
 import { sdAddressVerify, sdAddressVerifyNonce, sdFundingWalletTx } from "../controller/safedeal/safedealWallet";
 import authMiddleware from "../middleware/authMiddleware";
 import { adminAuthMiddleware } from "../middleware";
-import { otpRateLimiter, strictRateLimiter } from "../middleware/rateLimitMiddleware";
+import { clientIp, createRateLimiter, otpRateLimiter } from "../middleware/rateLimitMiddleware";
 import { ATTACH_ALLOWED, ATTACH_MAX_BYTES } from "../services/safedeal/safedealAttachments";
+
+// Per-route limiter keys (NOT the shared `strict:<ip>` bucket) so one noisy endpoint can't lock
+// out cashouts for everyone behind the same NAT.
+const sdLimiter = (name: string, maxRequests: number, windowMin = 15) =>
+  createRateLimiter((req) => `sd:${name}:${clientIp(req)}`, async () => ({ windowMs: windowMin * 60 * 1000, maxRequests }));
+const telegramLimiter = sdLimiter("telegram", 20);
+const stepUpLimiter = sdLimiter("stepup", 10);
+const addressLimiter = sdLimiter("address", 20);
+const withdrawLimiter = sdLimiter("withdraw", 20);
+const simulateLimiter = sdLimiter("simulate", 20);
 
 const r = express.Router();
 
@@ -32,7 +42,7 @@ r.get("/safedeal/config", safedealController.config);
 r.post("/safedeal/fee-preview", safedealController.feePreview);
 r.post("/safedeal/auth/send-code", otpRateLimiter, safedealController.sendCode);
 r.post("/safedeal/auth/verify-code", otpRateLimiter, safedealController.verifyCode);
-r.post("/safedeal/auth/telegram", strictRateLimiter, safedealController.telegramAuth);
+r.post("/safedeal/auth/telegram", telegramLimiter, safedealController.telegramAuth);
 r.get("/safedeal/deals/:token/preview", safedealController.previewDeal);
 // Rendered share card for chat/social unfurls of a deal link (public, read-only)
 r.get("/safedeal/og-image", getSafeDealOgImage);
@@ -47,8 +57,8 @@ r.post("/safedeal/telegram/link", safedealAuth, safedealController.telegramLink)
 r.post("/safedeal/telegram/test", safedealAuth, safedealController.telegramTest);
 r.post("/safedeal/telegram/unlink", safedealAuth, safedealController.telegramUnlink);
 r.post("/safedeal/account/email/start", safedealAuth, otpRateLimiter, safedealController.addEmailStart);
-r.post("/safedeal/account/email/verify", safedealAuth, strictRateLimiter, safedealController.addEmailVerify);
-r.post("/safedeal/auth/step-up", safedealAuth, strictRateLimiter, safedealController.sendStepUp);
+r.post("/safedeal/account/email/verify", safedealAuth, stepUpLimiter, safedealController.addEmailVerify);
+r.post("/safedeal/auth/step-up", safedealAuth, stepUpLimiter, safedealController.sendStepUp);
 r.get("/safedeal/deals", safedealAuth, safedealController.listDeals);
 r.post("/safedeal/deals", safedealAuth, safedealController.createDeal);
 r.get("/safedeal/deals/:token", safedealAuth, safedealController.getDeal);
@@ -66,19 +76,19 @@ r.get("/safedeal/wallet", safedealAuth, safedealController.wallet);
 r.get("/safedeal/wallet/statement", safedealAuth, safedealController.statement);
 r.get("/safedeal/wallet/statement.csv", safedealAuth, safedealController.statementCsv);
 r.get("/safedeal/wallet/addresses", safedealAuth, safedealController.addresses);
-r.post("/safedeal/wallet/addresses", safedealAuth, strictRateLimiter, safedealController.createAddress);
-r.post("/safedeal/wallet/addresses/:id/remove", safedealAuth, strictRateLimiter, safedealController.deleteAddress);
+r.post("/safedeal/wallet/addresses", safedealAuth, addressLimiter, safedealController.createAddress);
+r.post("/safedeal/wallet/addresses/:id/remove", safedealAuth, addressLimiter, safedealController.deleteAddress);
 // "Verify with wallet" — prove control of a saved cashout address by signing (no funds move)
 r.post("/safedeal/wallet/addresses/:id/verify-nonce", safedealAuth, sdAddressVerifyNonce);
 r.post("/safedeal/wallet/addresses/:id/verify", safedealAuth, sdAddressVerify);
 r.post("/safedeal/wallet/withdraw/quote", safedealAuth, safedealController.withdrawQuote);
-r.post("/safedeal/wallet/withdraw", safedealAuth, strictRateLimiter, safedealController.withdraw);
+r.post("/safedeal/wallet/withdraw", safedealAuth, withdrawLimiter, safedealController.withdraw);
 r.get("/safedeal/wallet/withdrawals", safedealAuth, safedealController.withdrawals);
 r.get("/safedeal/wallet/topup/coins", safedealAuth, safedealController.topupCoins);
 r.get("/safedeal/wallet/topup", safedealAuth, safedealController.topupList);
 r.post("/safedeal/wallet/topup", safedealAuth, safedealController.topupCreate);
 r.get("/safedeal/wallet/topup/:id", safedealAuth, safedealController.topupGet);
-r.post("/safedeal/wallet/topup/:id/simulate", safedealAuth, strictRateLimiter, safedealController.topupSimulate);
+r.post("/safedeal/wallet/topup/:id/simulate", safedealAuth, simulateLimiter, safedealController.topupSimulate);
 r.get("/safedeal/wallet/topup/:id/receipt.pdf", safedealAuth, safedealController.topupReceiptPdf);
 r.get("/safedeal/invoices", safedealAuth, safedealController.invoices);
 
