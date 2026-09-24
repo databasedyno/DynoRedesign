@@ -57,7 +57,7 @@ const ACCENTS: Record<Vertical, VerticalAccent> = {
     colorDeep: "#B89600",
     tint: "rgba(255,209,0,0.10)",
     gradient: AURORA_GRADIENT,
-    onColor: "#2B1D14",
+    onColor: "#121214",
   },
   creators: {
     vertical: "creators",

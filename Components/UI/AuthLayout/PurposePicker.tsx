@@ -115,9 +115,9 @@ export default function PurposePicker({ onSelect, onDetected, routerQuery }: Pur
   if (!mounted || hidden) return null;
 
   const accents: Record<Vertical, { color: string; tint: string; contrast: string }> = {
-    merchants:   { color: BRAND_ACCENT, tint: "rgba(255,209,0,0.16)", contrast: "#2B1D14" },
-    fundraisers: { color: dark ? "#FFD100" : "#8B5E00", tint: dark ? "rgba(255,209,0,0.14)" : "rgba(139,94,0,0.10)", contrast: dark ? "#0B0908" : "#FFFFFF" },
-    creators:    { color: BRAND_ACCENT, tint: "rgba(255,209,0,0.16)", contrast: "#2B1D14" },
+    merchants:   { color: BRAND_ACCENT, tint: "rgba(255,209,0,0.16)", contrast: "#121214" },
+    fundraisers: { color: dark ? "#FFD100" : "#8B5E00", tint: dark ? "rgba(255,209,0,0.14)" : "rgba(139,94,0,0.10)", contrast: dark ? "#0A0A0D" : "#FFFFFF" },
+    creators:    { color: BRAND_ACCENT, tint: "rgba(255,209,0,0.16)", contrast: "#121214" },
     developers:  { color: dark ? "#F5F5F5" : "#0B0B0F", tint: dark ? "rgba(255,255,255,0.10)" : "rgba(11,11,15,0.06)",   contrast: dark ? "#0B0B0F" : "#FFFFFF" },
   };
 

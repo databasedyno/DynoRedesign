@@ -33,7 +33,7 @@ const AdminLayout = ({ children, pageName, pageDescription, }: LayoutProps) => {
               boxSizing: "border-box",
               width: drawerWidth,
               overflow: "hidden",
-              background: "#2B1D14", // brand sidebar: dark brown (yellow never carries white icons)
+              background: "#121214", // brand sidebar: dark brown (yellow never carries white icons)
               "&::-webkit-scrollbar": {
                 width: 0,
               },

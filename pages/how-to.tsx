@@ -136,7 +136,7 @@ const HowToPage = () => {
                 border: `1px solid ${s.lineStrong}`,
                 background: s.dark
                   ? "linear-gradient(160deg,#17171F 0%,#101015 100%)"
-                  : "linear-gradient(160deg,#FFFFFF 0%,#F3EFEA 100%)",
+                  : "linear-gradient(160deg,#FFFFFF 0%,#F3F5F7 100%)",
                 boxShadow: s.dark
                   ? "0 30px 80px -40px rgba(0,0,0,0.8)"
                   : "0 30px 80px -40px rgba(139,94,0,0.35)",
@@ -216,7 +216,7 @@ const HowToPage = () => {
                     height: 40,
                     borderRadius: "50%",
                     p: 0,
-                    color: "#2B1D14",
+                    color: "#121214",
                     background: s.aurora,
                     "&:hover": { background: s.aurora, filter: "brightness(1.05)" },
                   }}
@@ -287,7 +287,7 @@ const HowToPage = () => {
                         borderRadius: 2,
                         display: "grid",
                         placeItems: "center",
-                        color: isActive ? "#2B1D14" : s.ink2,
+                        color: isActive ? "#121214" : s.ink2,
                         background: isActive ? s.aurora : s.bgAlt,
                       }}
                     >

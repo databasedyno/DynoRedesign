@@ -35,7 +35,7 @@ const ParallaxCard: React.FC<React.PropsWithChildren> = ({ children }) => {
 };
 
 /** On-dark copy tokens — the hero ground is dark brown in both themes. */
-const H = { ink: "#FAF6EF", ink2: "rgba(250,246,239,0.80)", ink3: "rgba(250,246,239,0.60)" };
+const H = { ink: "#F5F7FA", ink2: "rgba(250,246,239,0.80)", ink3: "rgba(250,246,239,0.60)" };
 
 /** v6 hero — statement headline over the dark-brown ground (gold corner glow + grain); the real sandbox checkout as a floating device card. */
 const HeroV6: React.FC = () => {
@@ -43,7 +43,7 @@ const HeroV6: React.FC = () => {
   const { t } = useTranslation("landing");
   return (
     <ThemeProvider theme={themeDark}>
-    <Box component="section" data-testid="hero-v6" sx={{ position: "relative", overflow: "hidden", background: "#1A120D", pt: { xs: 9, md: 14 }, pb: { xs: 6, md: 8 }, colorScheme: "dark" }}>
+    <Box component="section" data-testid="hero-v6" sx={{ position: "relative", overflow: "hidden", background: "#101014", pt: { xs: 9, md: 14 }, pb: { xs: 6, md: 8 }, colorScheme: "dark" }}>
       <AuroraField />
       <Box sx={{ position: "relative", zIndex: 1, maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 } }}>
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1.22fr 0.78fr" }, alignItems: "center", gap: { xs: 5, md: 8 } }}>
@@ -63,7 +63,7 @@ const HeroV6: React.FC = () => {
                 {t("v6.hero.primary")}
               </PrimaryBtn>
               <SecondaryBtn data-testid="hero-secondary-cta" onDark href="/pay/demo" startIcon={<PlayArrowRounded sx={{ fontSize: 20 }} />}>{t("v5.hero.secondary")}</SecondaryBtn>
-              <SecondaryBtn data-testid="hero-google-cta" onDark href="/auth/register?ref=hero_google" startIcon={<GoogleG />} sx={{ border: "none", px: 2, "&:hover": { background: "rgba(255,240,210,0.08)", border: "none" } }}>{t("v6.hero.google")}</SecondaryBtn>
+              <SecondaryBtn data-testid="hero-google-cta" onDark href="/auth/register?ref=hero_google" startIcon={<GoogleG />} sx={{ border: "none", px: 2, "&:hover": { background: "rgba(255,255,255,0.08)", border: "none" } }}>{t("v6.hero.google")}</SecondaryBtn>
             </Box>
             <Typography data-testid="hero-primary-helper" sx={{ fontFamily: FONT_TECH, fontSize: 12, letterSpacing: "0.08em", textTransform: "uppercase", color: H.ink3, mt: 2.5, ...enter(0.3) }}>{t("v5.hero.primaryHelper")}</Typography>
           </Box>
@@ -83,7 +83,7 @@ const HeroV6: React.FC = () => {
                   "& > .hero-demo": { filter: "drop-shadow(0 60px 90px rgba(0,0,0,0.55))" },
                 }}
               >
-                <Box data-testid="hero-sandbox-tag" sx={{ position: "absolute", top: -14, left: 18, zIndex: 2, display: "inline-flex", alignItems: "center", gap: 0.8, px: 1.4, py: 0.5, borderRadius: 999, background: "#FFD100", color: "#2B1D14", fontFamily: FONT_TECH, fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase" }}>
+                <Box data-testid="hero-sandbox-tag" sx={{ position: "absolute", top: -14, left: 18, zIndex: 2, display: "inline-flex", alignItems: "center", gap: 0.8, px: 1.4, py: 0.5, borderRadius: 999, background: "#FFD100", color: "#121214", fontFamily: FONT_TECH, fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase" }}>
                   <LiveDot color="#2BD4C4" /> {t("v6.hero.sandboxTag")}
                 </Box>
                 <Box className="hero-demo"><HeroCheckoutDemo /></Box>

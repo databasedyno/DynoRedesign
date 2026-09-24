@@ -437,13 +437,13 @@ code {
 
 /* Improved dark-mode text contrast baseline (WCAG AAA on #09090B). */
 html[data-theme="dark"] {
-  --text-primary: #FAF6EF;
-  --text-secondary: #D9CFC2;
-  --text-tertiary: #A99A8A;
+  --text-primary: #F5F7FA;
+  --text-secondary: #ADB1B8;
+  --text-tertiary: #81858C;
 }
 html[data-theme="light"] {
-  --text-primary: #1F140D;
-  --text-secondary: #5C4B3E;
+  --text-primary: #121214;
+  --text-secondary: #6A6E73;
   --text-tertiary: #9A8B7C;
 }
 
@@ -457,15 +457,15 @@ html[data-theme="light"] {
   --radius-card: 12px;
   --radius-chip: 100px;
   --radius-pill: 9999px;
-  --shadow-card: 0 1px 2px rgba(43, 29, 20, 0.06);
-  --shadow-card-hover: 0 6px 20px rgba(43, 29, 20, 0.1);
-  --shadow-pop: 0 10px 30px rgba(43, 29, 20, 0.12);
+  --shadow-card: 0 1px 2px rgba(18,18,20, 0.06);
+  --shadow-card-hover: 0 6px 20px rgba(18,18,20, 0.1);
+  --shadow-pop: 0 10px 30px rgba(18,18,20, 0.12);
 }
 html[data-theme="dark"] {
-  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 240, 210, 0.06);
-  --shadow-card-hover: 0 12px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 240, 210, 0.1),
+  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255,255,255, 0.06);
+  --shadow-card-hover: 0 12px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255,255,255, 0.1),
     0 0 48px rgba(255,209,0, 0.1);
-  --shadow-pop: 0 16px 48px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 240, 210, 0.06);
+  --shadow-pop: 0 16px 48px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255,255,255, 0.06);
 }
 
 /* ── Phase 3: dark-tuned loading skeletons ───────────────────────────────────

@@ -79,7 +79,7 @@ const ScrollToTopButton = () => {
         data-testid="scroll-to-top-button"
         sx={{
           backgroundColor: theme.palette.primary.main,
-          color: "#2B1D14",
+          color: "#121214",
           width: 40,
           height: 40,
           borderRadius: "12px",

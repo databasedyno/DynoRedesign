@@ -228,7 +228,7 @@ const ClientLayout = ({
                   height: "100%",
                   overflow: "hidden",
                   backgroundColor: DARK.raised,
-                  borderRight: `1px solid ${theme.palette.mode === "dark" ? "rgba(255,240,210,0.08)" : "rgba(43,29,20,0.18)"}`,
+                  borderRight: `1px solid ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.08)" : "rgba(18,18,20,0.18)"}`,
                   // Desktop sidebar shows at ≥768 (icon rail in 768–1024, full ≥1024).
                   display: "none",
                   "@media (min-width:768px)": { display: "block" },

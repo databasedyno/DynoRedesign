@@ -54,7 +54,7 @@ const CodePanel: React.FC = () => {
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(() => setCopied(false), 1600);
   };
-  const panel = { background: "#0B0908", border: "1px solid #1F2D47", borderRadius: "18px", overflow: "hidden" } as const;
+  const panel = { background: "#0A0A0D", border: "1px solid #1F2D47", borderRadius: "18px", overflow: "hidden" } as const;
   const pre = { m: 0, p: { xs: 2, md: 2.5 }, fontFamily: FONT_TECH, fontSize: { xs: 12, md: 13 }, lineHeight: 1.7, color: "#E5E7EB", whiteSpace: "pre", overflowX: "auto" } as const;
   return (
     <Stagger step={0.12} sx={{ minWidth: 0, display: "grid" }}>

@@ -114,8 +114,8 @@ export const MenuItem = styled("div", {
         background: active
           ? activeTint
           : isDark
-            ? "rgba(255,240,210,0.07)"
-            : "rgba(255,240,210,0.07)",
+            ? "rgba(255,255,255,0.07)"
+            : "rgba(255,255,255,0.07)",
         color: active ? theme.palette.primary.main : theme.palette.text.primary,
       },
       "&:active": {

@@ -32,7 +32,7 @@ const GlobalV6: React.FC = () => {
   const codes = Object.keys(CRYPTO_INFO);
   const claims = [t("v6.global.noList"), t("v6.global.noBank"), t("v6.global.anyWallet"), t("v5.global.walletLabel")];
   return (
-    <Box component="section" id="coins" data-testid="global" sx={{ position: "relative", overflow: "hidden", background: "#0B0908", py: { xs: 9, md: 13 }, scrollMarginTop: "88px" }}>
+    <Box component="section" id="coins" data-testid="global" sx={{ position: "relative", overflow: "hidden", background: "#0A0A0D", py: { xs: 9, md: 13 }, scrollMarginTop: "88px" }}>
       <Box aria-hidden sx={{ position: "absolute", inset: 0, backgroundImage: "url(/landing/world-map-dark.jpg)", backgroundSize: "cover", backgroundPosition: "center 30%", opacity: 0.45, maskImage: "radial-gradient(ellipse 80% 90% at 70% 30%, black 10%, transparent 75%)", WebkitMaskImage: "radial-gradient(ellipse 80% 90% at 70% 30%, black 10%, transparent 75%)", pointerEvents: "none" }} />
       <Box aria-hidden sx={{ position: "absolute", top: "-20%", left: "-10%", width: 700, height: 700, borderRadius: "50%", background: "radial-gradient(circle, rgba(139,94,0,0.45) 0%, transparent 65%)", pointerEvents: "none" }} />
       <Box sx={{ position: "relative", maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 } }}>

@@ -65,7 +65,7 @@ export const PhoneFrame: React.FC<React.PropsWithChildren<{ width?: number | Rec
       <Box aria-hidden sx={{ position: "absolute", right: "-1.2%", top: "22%", width: "1.2%", height: "9%", borderRadius: "0 2px 2px 0", background: "#1B1B21" }} />
       <Box aria-hidden sx={{ position: "absolute", left: "-1.2%", top: "18%", width: "1.2%", height: "5%", borderRadius: "2px 0 0 2px", background: "#1B1B21" }} />
       <Box aria-hidden sx={{ position: "absolute", left: "-1.2%", top: "26%", width: "1.2%", height: "9%", borderRadius: "2px 0 0 2px", background: "#1B1B21" }} />
-      <Box sx={{ position: "relative", width: "100%", height: "100%", borderRadius: "11%/5%", overflow: "hidden", background: s.dark ? "#0B0908" : "#FFFFFF" }}>
+      <Box sx={{ position: "relative", width: "100%", height: "100%", borderRadius: "11%/5%", overflow: "hidden", background: s.dark ? "#0A0A0D" : "#FFFFFF" }}>
         {children}
         <Box aria-hidden sx={{ position: "absolute", top: "2.2%", left: "50%", transform: "translateX(-50%)", width: "30%", height: "3.4%", borderRadius: "999px", background: "#0A0A0A" }} />
       </Box>

@@ -66,7 +66,7 @@ const TwoFactorSetupDialog: React.FC<TwoFactorSetupDialogProps> = ({ open, onClo
             fullWidth
             onClick={onClose}
             data-testid="twofa-setup-done"
-            sx={{ fontWeight: 600, fontSize: "14px", color: "#2B1D14", backgroundColor: "#F0C300", py: "10px", borderRadius: "8px", textTransform: "none", "&:hover": { backgroundColor: "#F0C300" } }}
+            sx={{ fontWeight: 600, fontSize: "14px", color: "#121214", backgroundColor: "#F0C300", py: "10px", borderRadius: "8px", textTransform: "none", "&:hover": { backgroundColor: "#F0C300" } }}
           >
             {t("twoFactor.savedCodes", { defaultValue: "I've saved my codes" })}
           </Button>

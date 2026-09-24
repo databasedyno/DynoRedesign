@@ -22,7 +22,7 @@ export interface ConfettiBurstOptions {
 }
 
 // Brand palette: aurora indigo → violet + periwinkle, with emerald + gold accents.
-const BRAND_COLORS = ['#FFD100', '#FFD100', '#FFB300', '#34D399', '#FAF6EF']
+const BRAND_COLORS = ['#FFD100', '#FFD100', '#FFB300', '#34D399', '#F5F7FA']
 
 export async function fireConfettiBurst(opts?: ConfettiBurstOptions): Promise<void> {
   if (typeof window === 'undefined') return

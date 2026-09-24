@@ -3,10 +3,10 @@ import { theme, themeDark } from "./theme";
 import { BRAND_ACCENT, BRAND_ACCENT_HOVER, BRAND_ON_ACCENT, DARK, GOLD, GOLD_DEEP, LIGHT, RADIUS, brandFg, linkFg } from "@/constants/theme";
 
 /**
- * App / dashboard theme — Dynopay 2026-09 rebrand (gold / dark brown / black).
- * Gold primary fills (always with dark-brown text), gold (dark) / deep-gold (light)
- * for outlined buttons / focus rings, dark-brown links on light, warm cream (light)
- * or black + dark-brown (dark) grounds. Built on top of the base dashboard theme (styles/theme.ts) so all
+ * App / dashboard theme — Dynopay 2026-09 rebrand (signal yellow / Bybit black).
+ * Gold primary fills (always with Bybit-black text), gold (dark) / deep-gold (light)
+ * for outlined buttons / focus rings, Bybit-black links on light, cool neutral (light)
+ * or black + graphite (dark) grounds. Built on top of the base dashboard theme (styles/theme.ts) so all
  * component sizing / spacing survives — only colour changes.
  *
  * Scoped to the dashboard + in-app pages via _app.tsx `activeTheme`.
@@ -28,7 +28,7 @@ const headingTypography = {
   h6: { fontFamily: HEADING_FONT },
 };
 
-/** Custom Button variants: solid yellow + dark-brown text, 8px radius. */
+/** Custom Button variants: solid yellow + Bybit-black text, 8px radius. */
 const buttonVariants = (fillBg: string, fillText: string, fillHoverBg: string, glow: string, isDark: boolean) => [
   {
     props: { variant: "rounded" as const },
@@ -66,7 +66,7 @@ const buttonVariants = (fillBg: string, fillText: string, fillHoverBg: string, g
         color: "inherit",
         border: "1px solid",
         boxShadow: "none",
-        "&:hover": { background: isDark ? "rgba(255,240,210,0.08)" : "rgba(43,29,20,0.06)", boxShadow: "none" },
+        "&:hover": { background: isDark ? "rgba(255,255,255,0.08)" : "rgba(18,18,20,0.06)", boxShadow: "none" },
       },
       "&.MuiButton-roundedWhite": {
         background: "#fff",
@@ -88,7 +88,7 @@ const buttonVariants = (fillBg: string, fillText: string, fillHoverBg: string, g
       borderRadius: "8px",
       fontSize: "15px",
       textTransform: "none" as const,
-      "&:hover": { color: isDark ? "#0B0908" : "#fff", background: brandFg(isDark), borderColor: brandFg(isDark) },
+      "&:hover": { color: isDark ? "#0A0A0D" : "#fff", background: brandFg(isDark), borderColor: brandFg(isDark) },
     },
   },
   {
@@ -118,8 +118,8 @@ const alertOverrides = (isDark: boolean) => ({
         ? { color: "#BBF7D0", backgroundColor: "#10331F", "& .MuiAlert-icon": { color: "#4ADE80" } }
         : { color: "#065F46", backgroundColor: "#ECFDF5", "& .MuiAlert-icon": { color: "#059669" } },
       standardInfo: isDark
-        ? { color: "#F3EDE2", backgroundColor: "#3A2A1F", "& .MuiAlert-icon": { color: GOLD } }
-        : { color: "#3A2A1F", backgroundColor: "#F3EDE2", "& .MuiAlert-icon": { color: GOLD_DEEP } },
+        ? { color: "#E9ECF0", backgroundColor: "#222227", "& .MuiAlert-icon": { color: GOLD } }
+        : { color: "#222227", backgroundColor: "#E9ECF0", "& .MuiAlert-icon": { color: GOLD_DEEP } },
       standardWarning: isDark
         ? { color: "#FDE68A", backgroundColor: "#3A2A0A", "& .MuiAlert-icon": { color: "#FBBF24" } }
         : { color: "#7A4B00", backgroundColor: "#FFF6CC", "& .MuiAlert-icon": { color: "#B45309" } },
@@ -169,7 +169,7 @@ const sharedComponents = (isDark: boolean) => {
     },
     MuiLink: {
       styleOverrides: {
-        root: { color: link, textDecorationColor: isDark ? "rgba(255,209,0,0.4)" : "rgba(43,29,20,0.35)" },
+        root: { color: link, textDecorationColor: isDark ? "rgba(255,209,0,0.4)" : "rgba(18,18,20,0.35)" },
       },
     },
     MuiCard: {
@@ -266,9 +266,9 @@ export const appThemeDark = createTheme(themeDark, {
     success: { main: DARK.success, dark: "#22C55E", light: "rgba(34,197,94,0.14)" },
     error: { main: DARK.error },
     warning: { main: DARK.warning },
-    info: { main: GOLD, dark: BRAND_ACCENT_HOVER, light: "rgba(255,209,0,0.16)", contrastText: "#0B0908" },
+    info: { main: GOLD, dark: BRAND_ACCENT_HOVER, light: "rgba(255,209,0,0.16)", contrastText: "#0A0A0D" },
     action: {
-      hover: "rgba(255,240,210,0.06)",
+      hover: "rgba(255,255,255,0.06)",
       selected: "rgba(255,209,0,0.14)",
     },
   } as any,
@@ -304,7 +304,7 @@ export const appThemeLight = createTheme(theme, {
     success: { main: "#059669", dark: "#047857", light: "#ECFDF5" },
     error: { main: "#E11D48", light: "#FEF2F2" },
     warning: { main: "#B45309", light: "#FFF6CC" },
-    info: { main: GOLD_DEEP, dark: "#6B4800", light: "#F3EDE2", contrastText: "#fff" },
+    info: { main: GOLD_DEEP, dark: "#6B4800", light: "#E9ECF0", contrastText: "#fff" },
     action: {
       hover: LIGHT.raised,
       selected: "rgba(255,209,0,0.16)",
@@ -315,16 +315,16 @@ export const appThemeLight = createTheme(theme, {
 });
 
 /**
- * Sidebar theme — the dark-brown rail is the dashboard's anchor in BOTH modes
- * (espresso on cream in light, espresso on black in dark), so it always renders
+ * Sidebar theme — the Bybit-black rail is the dashboard's anchor in BOTH modes
+ * (black on light neutral in light, black on black in dark), so it always renders
  * with dark-mode text tokens.
  */
 export const sidebarTheme = createTheme(appThemeDark, {
   palette: {
     background: { default: DARK.raised, paper: DARK.raised },
     secondary: { main: DARK.active, dark: DARK.borderStrong, light: DARK.active, contrastText: DARK.textSecondary },
-    divider: "rgba(255,240,210,0.10)",
-    border: { main: "rgba(255,240,210,0.12)", focus: GOLD, success: DARK.success, error: DARK.error },
-    action: { hover: "rgba(255,240,210,0.07)", selected: "rgba(255,209,0,0.16)" },
+    divider: "rgba(255,255,255,0.10)",
+    border: { main: "rgba(255,255,255,0.12)", focus: GOLD, success: DARK.success, error: DARK.error },
+    action: { hover: "rgba(255,255,255,0.07)", selected: "rgba(255,209,0,0.16)" },
   } as any,
 });

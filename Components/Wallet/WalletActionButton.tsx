@@ -15,10 +15,10 @@ const WalletAction = lazy(() => import("./WalletAction"));
 
 export const DYNOPAY_WALLET_BRAND = (dark: boolean): WalletActionBrand => ({
   accent: "#FFD100",
-  onAccent: "#2B1D14",
-  ink: dark ? "#FAF6EF" : "#1F140D",
-  muted: dark ? "rgba(250,246,239,0.66)" : "#6B5E52",
-  border: dark ? "rgba(255,255,255,0.14)" : "#E8DFD2",
+  onAccent: "#121214",
+  ink: dark ? "#F5F7FA" : "#121214",
+  muted: dark ? "rgba(250,246,239,0.66)" : "#6A6E73",
+  border: dark ? "rgba(255,255,255,0.14)" : "#E1E5EA",
   surface: dark ? "#111114" : "#FFFFFF",
   success: "#10B981",
   danger: dark ? "#F87171" : "#B42318",

@@ -70,7 +70,7 @@ export const theme = createTheme({
   },
   palette: {
     common: {
-      black: "#0B0908",
+      black: "#0A0A0D",
       white: "#fff",
     },
     success: {
@@ -245,18 +245,18 @@ export const theme = createTheme({
               },
             },
             "&.MuiButton-roundedSecondary": {
-              background: "#2B1D14",
+              background: "#121214",
               "&:hover": {
-                color: "#2B1D14",
+                color: "#121214",
                 background: "#fff",
               },
             },
             "&.MuiButton-roundedWhite": {
               background: "#fff",
-              color: "#2B1D14",
+              color: "#121214",
               "&:hover": {
                 color: "#fff",
-                background: "#2B1D14",
+                background: "#121214",
               },
             },
           },
@@ -356,7 +356,7 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           "& .MuiOutlinedInput-root": {
-            background: "#F3EDE2",
+            background: "#E9ECF0",
           },
 
           borderRadius: "20px",
@@ -428,18 +428,18 @@ const getCheckoutComponentStyles = (isDark: boolean) => ({
             },
           },
           "&.MuiButton-roundedSecondary": {
-            background: isDark ? DARK.active : "#2B1D14",
+            background: isDark ? DARK.active : "#121214",
             "&:hover": {
-              color: isDark ? "#fff" : "#2B1D14",
+              color: isDark ? "#fff" : "#121214",
               background: isDark ? DARK.raised : "#fff",
             },
           },
           "&.MuiButton-roundedWhite": {
             background: isDark ? DARK.active : "#fff",
-            color: isDark ? "#fff" : "#2B1D14",
+            color: isDark ? "#fff" : "#121214",
             "&:hover": {
-              color: isDark ? "#2B1D14" : "#fff",
-              background: isDark ? "#fff" : "#2B1D14",
+              color: isDark ? "#121214" : "#fff",
+              background: isDark ? "#fff" : "#121214",
             },
           },
         },
@@ -539,7 +539,7 @@ const getCheckoutComponentStyles = (isDark: boolean) => ({
     styleOverrides: {
       root: {
         "& .MuiOutlinedInput-root": {
-          background: isDark ? DARK.raised : "#F3EDE2",
+          background: isDark ? DARK.raised : "#E9ECF0",
         },
         borderRadius: "20px",
       },
@@ -586,7 +586,7 @@ export const lightTheme = createTheme({
   },
   palette: {
     mode: "light",
-    common: { black: "#0B0908", white: "#fff" },
+    common: { black: "#0A0A0D", white: "#fff" },
     primary: { main: BRAND_ACCENT, dark: "#F0C300", light: LIGHT.accentSoft, contrastText: BRAND_ON_ACCENT },
     secondary: { main: GOLD_DEEP, dark: "#6B4800", light: "#FFF6CC", contrastText: "#fff" },
     text: { primary: LIGHT.text, secondary: LIGHT.textSecondary },
@@ -610,9 +610,9 @@ export const darkTheme = createTheme({
   },
   palette: {
     mode: "dark",
-    common: { black: "#0B0908", white: "#fff" },
+    common: { black: "#0A0A0D", white: "#fff" },
     primary: { main: DARK.accent, dark: "#F0C300", light: DARK.accentSoft, contrastText: BRAND_ON_ACCENT },
-    secondary: { main: GOLD, dark: GOLD_DEEP, light: "rgba(255,209,0,0.16)", contrastText: "#0B0908" },
+    secondary: { main: GOLD, dark: GOLD_DEEP, light: "rgba(255,209,0,0.16)", contrastText: "#0A0A0D" },
     text: { primary: DARK.text, secondary: DARK.textSecondary, disabled: DARK.textMuted },
     background: { default: DARK.canvas, paper: DARK.surface },
     surface: { main: DARK.canvas, paper: DARK.surface, border: DARK.border },
@@ -642,7 +642,7 @@ export const themeDark = createTheme({
   palette: {
     mode: "dark",
     common: {
-      black: "#0B0908",
+      black: "#0A0A0D",
       white: "#fff",
     },
     success: {
@@ -835,7 +835,7 @@ export const themeDark = createTheme({
               background: DARK.active,
               color: "#fff",
               "&:hover": {
-                color: "#2B1D14",
+                color: "#121214",
                 background: "#fff",
               },
             },

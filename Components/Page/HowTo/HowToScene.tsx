@@ -70,7 +70,7 @@ export const Scene = ({ id, s, reduce }: { id: string; s: Tokens; reduce: boolea
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                color: "#2B1D14",
+                color: "#121214",
                 fontWeight: 700,
                 fontFamily: FONT_BODY,
                 background: s.aurora,

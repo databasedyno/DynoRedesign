@@ -325,7 +325,7 @@ const CheckoutMockup = () => (
     </Box>
     {/* CTA */}
     <Box sx={{ background: "linear-gradient(135deg, #FFD100, #FFB300)", borderRadius: "8px", py: "10px", textAlign: "center", mb: "12px", boxShadow: "0 4px 12px rgba(255,209,0,0.35)" }}>
-      <Typography sx={{ fontSize: "11px", fontWeight: 700, color: "#2B1D14", fontFamily: "var(--font-sans), sans-serif" }}>{i18n.t("liveBrand.payNow", { ns: "common", defaultValue: "Pay Now" })}</Typography>
+      <Typography sx={{ fontSize: "11px", fontWeight: 700, color: "#121214", fontFamily: "var(--font-sans), sans-serif" }}>{i18n.t("liveBrand.payNow", { ns: "common", defaultValue: "Pay Now" })}</Typography>
     </Box>
   </MockBrowserChrome>
 );

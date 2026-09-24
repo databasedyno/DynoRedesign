@@ -1182,7 +1182,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
                 height: 40,
                 borderRadius: "10px",
                 background: BRAND_ACCENT,
-                color: "#2B1D14",
+                color: "#121214",
                 flexShrink: 0,
                 "&:hover": { background: "#F0C300" },
                 "&.Mui-disabled": { background: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)", color: theme.palette.text.disabled },

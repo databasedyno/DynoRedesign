@@ -82,7 +82,7 @@ const EnrollPanel: React.FC<Props> = ({ initialMethod = null, allowEmail = true,
           fullWidth
           onClick={onDone}
           data-testid="twofa-enroll-saved-codes"
-          sx={{ mt: 2, fontWeight: 600, fontSize: "14px", color: "#2B1D14", backgroundColor: "#F0C300", py: "10px", borderRadius: "8px", textTransform: "none", "&:hover": { backgroundColor: "#F0C300" } }}
+          sx={{ mt: 2, fontWeight: 600, fontSize: "14px", color: "#121214", backgroundColor: "#F0C300", py: "10px", borderRadius: "8px", textTransform: "none", "&:hover": { backgroundColor: "#F0C300" } }}
         >
           {doneLabel || t("twoFactor.savedCodes", { defaultValue: "I've saved my codes" })}
         </Button>

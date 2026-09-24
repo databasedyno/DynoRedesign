@@ -192,7 +192,7 @@ const Menus = ({ type = "user" }: { type: string }) => {
               ml: 1,
               background: (theme) => theme.palette.primary.main,
               borderRadius: "4px",
-              color: "#2B1D14",
+              color: "#121214",
             }}
           >
             {popOverItem}

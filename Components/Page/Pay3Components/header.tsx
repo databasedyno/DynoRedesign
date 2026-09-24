@@ -90,7 +90,7 @@ const Header = ({
         position='static'
         elevation={0}
         sx={{
-          // Brand chrome: dark brown in light mode (mirrors the in-app header cell) so the
+          // Brand chrome: Bybit black in light mode (mirrors the in-app header cell) so the
           // white lockup + controls always read — yellow never carries white text/icons.
           background: darkMode
             ? `linear-gradient(90deg, ${theme.palette.background.default} 0%, ${theme.palette.background.paper} 100%)`

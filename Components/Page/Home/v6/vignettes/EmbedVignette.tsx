@@ -32,7 +32,7 @@ const EmbedVignette: React.FC = () => {
         <Box sx={{ height: 54, borderRadius: "10px", background: "linear-gradient(135deg,#FFD100,#34D399)", mb: 1.25 }} />
         <Strong size={13}>Icon pack · 240</Strong>
         <Text size={11.5} sx={{ mb: 1.25 }}>SVG + Figma</Text>
-        <Box sx={{ py: 0.9, borderRadius: 999, background: "#FFD100", color: "#2B1D14", fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 12.5, boxShadow: "0 10px 24px -12px rgba(139,94,0,0.8)" }}>{t("v6.vig.buyNow")} · $29</Box>
+        <Box sx={{ py: 0.9, borderRadius: 999, background: "#FFD100", color: "#121214", fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 12.5, boxShadow: "0 10px 24px -12px rgba(139,94,0,0.8)" }}>{t("v6.vig.buyNow")} · $29</Box>
       </Panel>
     </VigFrame>
   );

@@ -35,7 +35,7 @@ const ProductLivePreview = ({ draft, brandName }: { draft: ProductDraft; brandNa
         <Box component="span" sx={{ width: 7, height: 7, borderRadius: "50%", bgcolor: "#22C55E", boxShadow: "0 0 0 3px rgba(34,197,94,0.18)" }} />
         {t("productEditor.preview.label", { defaultValue: "Live preview" })}
       </Typography>
-      <Box sx={{ width: "100%", maxWidth: 320, mx: { xs: "auto", lg: 0 }, borderRadius: "28px", border: `8px solid ${dark ? "#1F2430" : "#1A120D"}`, bgcolor: theme.palette.background.paper, overflow: "hidden", boxShadow: "0 24px 60px -24px rgba(0,0,0,0.45)" }}>
+      <Box sx={{ width: "100%", maxWidth: 320, mx: { xs: "auto", lg: 0 }, borderRadius: "28px", border: `8px solid ${dark ? "#1F2430" : "#101014"}`, bgcolor: theme.palette.background.paper, overflow: "hidden", boxShadow: "0 24px 60px -24px rgba(0,0,0,0.45)" }}>
         <Box sx={{ height: 18, display: "flex", justifyContent: "center", alignItems: "center" }}>
           <Box sx={{ width: 64, height: 5, borderRadius: 3, bgcolor: dark ? "#2A3040" : "#E5E7EB" }} />
         </Box>

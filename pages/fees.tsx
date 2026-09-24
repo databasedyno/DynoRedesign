@@ -210,8 +210,8 @@ const FeesPage = () => {
               {TIERS.map((tr, ti) => {
                 const isCurrent = tr.name === tier.name;
                 // Yellow fills always carry dark-brown text; deep-gold fills carry cream.
-                const onTier = tr.accent === "#FFD100" ? "#2B1D14" : "#fff";
-                const onTierA = (a: number) => (tr.accent === "#FFD100" ? `rgba(43,29,20,${a})` : `rgba(255,255,255,${a})`);
+                const onTier = tr.accent === "#FFD100" ? "#121214" : "#fff";
+                const onTierA = (a: number) => (tr.accent === "#FFD100" ? `rgba(18,18,20,${a})` : `rgba(255,255,255,${a})`);
                 return (
                   <StaggerItem key={tr.name} i={ti} y={16}>
                   <Box
@@ -572,9 +572,9 @@ const FeesPage = () => {
                   sx={{
                     ...cardSx(s),
                     height: "100%",
-                    background: c.highlight ? "#2B1D14" : s.surface,
-                    color: c.highlight ? "#FAF6EF" : s.ink,
-                    border: `1px solid ${c.highlight ? "#2B1D14" : s.line}`,
+                    background: c.highlight ? "#121214" : s.surface,
+                    color: c.highlight ? "#F5F7FA" : s.ink,
+                    border: `1px solid ${c.highlight ? "#121214" : s.line}`,
                     p: { xs: 3, md: 4 },
                   }}
                 >

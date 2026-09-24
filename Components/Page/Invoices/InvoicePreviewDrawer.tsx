@@ -234,7 +234,7 @@ export default function InvoicePreviewDrawer({ open, invoice, onClose }: Props) 
               padding: "8px 14px",
               borderRadius: "10px",
               backgroundColor: BRAND_ACCENT,
-              color: "#2B1D14",
+              color: "#121214",
               fontFamily: "var(--font-body)",
               fontSize: 13,
               fontWeight: 600,
@@ -274,7 +274,7 @@ export default function InvoicePreviewDrawer({ open, invoice, onClose }: Props) 
       </Box>
 
       {/* PDF preview */}
-      <Box sx={{ flex: 1, backgroundColor: dark ? "#0B0908" : "#F4F4F7", position: "relative", overflow: "hidden" }}>
+      <Box sx={{ flex: 1, backgroundColor: dark ? "#0A0A0D" : "#F4F4F7", position: "relative", overflow: "hidden" }}>
         {loading && (
           <Box sx={{ p: 3 }}>
             <Skeleton variant="rectangular" width="100%" height={80} sx={{ borderRadius: 1, mb: 2 }} />
@@ -305,7 +305,7 @@ export default function InvoicePreviewDrawer({ open, invoice, onClose }: Props) 
                   justifyContent: "center",
                   gap: 1.25,
                   zIndex: 1,
-                  backgroundColor: dark ? "#0B0908" : "#F4F4F7",
+                  backgroundColor: dark ? "#0A0A0D" : "#F4F4F7",
                 }}
               >
                 <CircularProgress size={26} sx={{ color: dark ? "#FFD100" : "#8B5E00" }} />

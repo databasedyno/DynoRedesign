@@ -31,7 +31,7 @@ export const LogoContainer = styled("div")(({ theme }) => ({
   overflow: "hidden",
   // The brand cell is the top of the dark-brown rail (both modes) — on-dark lockup only.
   background: DARK.raised,
-  borderRight: `1px solid ${theme.palette.mode === "dark" ? "rgba(255,240,210,0.08)" : "rgba(43,29,20,0.18)"}`,
+  borderRight: `1px solid ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.08)" : "rgba(18,18,20,0.18)"}`,
   marginBottom: -1,
   transition: "width 220ms cubic-bezier(0.16, 1, 0.3, 1)",
 

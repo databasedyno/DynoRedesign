@@ -70,14 +70,14 @@ export const authThemeDark = createTheme(themeDark, {
       main: GOLD, // gold accent
       dark: GOLD_DEEP,
       light: "rgba(255,209,0,0.16)",
-      contrastText: "#0B0908",
+      contrastText: "#0A0A0D",
     },
-    info: { main: GOLD, dark: GOLD_DEEP, light: "rgba(255,209,0,0.16)", contrastText: "#0B0908" },
-    background: { default: "#0B0908", paper: "#1A120D" },
-    text: { primary: "#FAF6EF", secondary: "#D9CFC2", disabled: "#A99A8A" },
-    divider: "rgba(255,240,210,0.10)",
+    info: { main: GOLD, dark: GOLD_DEEP, light: "rgba(255,209,0,0.16)", contrastText: "#0A0A0D" },
+    background: { default: "#0A0A0D", paper: "#101014" },
+    text: { primary: "#F5F7FA", secondary: "#ADB1B8", disabled: "#81858C" },
+    divider: "rgba(255,255,255,0.10)",
     border: {
-      main: "rgba(255,240,210,0.14)",
+      main: "rgba(255,255,255,0.14)",
       focus: GOLD,
       success: "#00E676",
       error: "#FF6B5D",
@@ -85,7 +85,7 @@ export const authThemeDark = createTheme(themeDark, {
     error: { main: "#FF6B5D" },
     success: { main: "#0F2A1B", dark: "#00E676", light: "#0F2A1B" },
     action: {
-      hover: "rgba(255,240,210,0.06)",
+      hover: "rgba(255,255,255,0.06)",
       selected: "rgba(255,209,0,0.14)",
     },
   },
@@ -99,16 +99,16 @@ export const authThemeDark = createTheme(themeDark, {
     MuiMenu: {
       styleOverrides: {
         paper: {
-          backgroundColor: "#1A120D",
+          backgroundColor: "#101014",
           backgroundImage: "none",
-          border: "1px solid rgba(255,240,210,0.10)",
+          border: "1px solid rgba(255,255,255,0.10)",
         },
       },
     },
     MuiPopover: {
       styleOverrides: {
         paper: {
-          backgroundColor: "#1A120D",
+          backgroundColor: "#101014",
           backgroundImage: "none",
         },
       },
@@ -116,7 +116,7 @@ export const authThemeDark = createTheme(themeDark, {
     MuiAutocomplete: {
       styleOverrides: {
         paper: {
-          backgroundColor: "#1A120D",
+          backgroundColor: "#101014",
           backgroundImage: "none",
         },
       },
@@ -142,18 +142,18 @@ export const authThemeLight = createTheme(theme, {
       contrastText: "#FFFFFF",
     },
     info: { main: GOLD_DEEP, dark: "#6B4800", light: "#FFF6CC", contrastText: "#fff" },
-    background: { default: "#FAF6EF", paper: "rgba(255,253,247,0.78)" },
-    text: { primary: "#1F140D", secondary: "#5C4B3E", disabled: "#7A6A5C" },
-    divider: "rgba(43,29,20,0.10)",
+    background: { default: "#F5F7FA", paper: "rgba(255,255,255,0.78)" },
+    text: { primary: "#121214", secondary: "#6A6E73", disabled: "#81858C" },
+    divider: "rgba(18,18,20,0.10)",
     border: {
-      main: "rgba(43,29,20,0.14)",
+      main: "rgba(18,18,20,0.14)",
       focus: GOLD_DEEP,
       success: "#00A651",
       error: "#E8484A",
     },
     error: { main: "#E8484A" },
     action: {
-      hover: "rgba(43,29,20,0.05)",
+      hover: "rgba(18,18,20,0.05)",
       selected: "rgba(255,209,0,0.16)",
     },
   },
@@ -164,16 +164,16 @@ export const authThemeLight = createTheme(theme, {
     MuiMenu: {
       styleOverrides: {
         paper: {
-          backgroundColor: "#FFFDF7",
+          backgroundColor: "#FFFFFF",
           backgroundImage: "none",
-          border: "1px solid rgba(43,29,20,0.10)",
+          border: "1px solid rgba(18,18,20,0.10)",
         },
       },
     },
     MuiPopover: {
       styleOverrides: {
         paper: {
-          backgroundColor: "#FFFDF7",
+          backgroundColor: "#FFFFFF",
           backgroundImage: "none",
         },
       },
@@ -181,7 +181,7 @@ export const authThemeLight = createTheme(theme, {
     MuiAutocomplete: {
       styleOverrides: {
         paper: {
-          backgroundColor: "#FFFDF7",
+          backgroundColor: "#FFFFFF",
           backgroundImage: "none",
         },
       },

@@ -31,13 +31,13 @@ const CheckoutVignette: React.FC = () => {
           </Box>
           <Box sx={{ p: 0.5, borderRadius: "10px", background: "#fff", lineHeight: 0 }}><QRCodeSVG value="https://dynopay.com/pay/demo" size={46} level="L" fgColor="#0A0A0A" /></Box>
         </Box>
-        <Box sx={{ mt: 1.75, py: 1.1, borderRadius: 999, textAlign: "center", background: "#FFD100", color: "#2B1D14", fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 13.5 }}>{t("v6.vig.pay")} $49.00</Box>
+        <Box sx={{ mt: 1.75, py: 1.1, borderRadius: 999, textAlign: "center", background: "#FFD100", color: "#121214", fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 13.5 }}>{t("v6.vig.pay")} $49.00</Box>
       </Panel>
       {/* status timeline */}
       <Panel lift={false} sx={{ left: 248, right: 18, top: 34, p: 1.5, transition: "transform 600ms cubic-bezier(0.16,1,0.3,1)", ".bento:hover &": { transform: "translateY(-8px)" } }}>
         {steps.map((st, i) => (
           <Box key={st} sx={{ display: "flex", alignItems: "center", gap: 1.1, py: 0.6 }}>
-            <Box sx={{ width: 18, height: 18, borderRadius: "50%", display: "grid", placeItems: "center", background: i < 2 ? "#10B981" : v.s.dark ? "rgba(255,255,255,0.1)" : "#E4E4E7", color: "#2B1D14", border: i === 2 ? "2px solid #FFD100" : "none", boxSizing: "border-box" }}>
+            <Box sx={{ width: 18, height: 18, borderRadius: "50%", display: "grid", placeItems: "center", background: i < 2 ? "#10B981" : v.s.dark ? "rgba(255,255,255,0.1)" : "#E4E4E7", color: "#121214", border: i === 2 ? "2px solid #FFD100" : "none", boxSizing: "border-box" }}>
               {i < 2 ? <CheckRoundedIcon sx={{ fontSize: 12 }} /> : null}
             </Box>
             <Text size={12.5} sx={{ color: i === 2 ? v.s.ink : v.s.ink2, fontWeight: i === 2 ? 600 : 400 }}>{st}</Text>

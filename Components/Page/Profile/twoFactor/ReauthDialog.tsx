@@ -101,7 +101,7 @@ const ReauthDialog: React.FC<ReauthDialogProps> = ({ open, intent, onClose, onCo
             fullWidth
             onClick={onClose}
             data-testid="twofa-reauth-done"
-            sx={{ fontWeight: 600, fontSize: "14px", color: "#2B1D14", backgroundColor: "#F0C300", py: "10px", borderRadius: "8px", textTransform: "none", "&:hover": { backgroundColor: "#F0C300" } }}
+            sx={{ fontWeight: 600, fontSize: "14px", color: "#121214", backgroundColor: "#F0C300", py: "10px", borderRadius: "8px", textTransform: "none", "&:hover": { backgroundColor: "#F0C300" } }}
           >
             {t("twoFactor.savedCodes", { defaultValue: "I've saved my codes" })}
           </Button>
@@ -122,13 +122,13 @@ const ReauthDialog: React.FC<ReauthDialogProps> = ({ open, intent, onClose, onCo
               disabled={loading}
               data-testid="twofa-reauth-confirm"
               sx={{
-                fontWeight: 600, fontSize: "14px", color: isDisable ? "#FFFFFF" : "#2B1D14", py: "10px", borderRadius: "8px", textTransform: "none",
+                fontWeight: 600, fontSize: "14px", color: isDisable ? "#FFFFFF" : "#121214", py: "10px", borderRadius: "8px", textTransform: "none",
                 backgroundColor: isDisable ? "#DC2626" : "#FFD100",
                 "&:hover": { backgroundColor: isDisable ? "#B91C1C" : "#F0C300" },
-                "&:disabled": { backgroundColor: isDisable ? "#FCA5A5" : "#FFD100", color: isDisable ? "#FFF" : "#2B1D14", opacity: 0.6 },
+                "&:disabled": { backgroundColor: isDisable ? "#FCA5A5" : "#FFD100", color: isDisable ? "#FFF" : "#121214", opacity: 0.6 },
               }}
             >
-              {loading ? <CircularProgress size={20} sx={{ color: isDisable ? "#FFF" : "#2B1D14" }} /> : isDisable
+              {loading ? <CircularProgress size={20} sx={{ color: isDisable ? "#FFF" : "#121214" }} /> : isDisable
                 ? t("twoFactor.disableCta", { defaultValue: "Turn off 2FA" })
                 : t("twoFactor.regenerateCta", { defaultValue: "Generate new codes" })}
             </Button>

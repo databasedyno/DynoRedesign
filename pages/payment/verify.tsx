@@ -47,7 +47,7 @@ const Verify = () => {
   const linkSx = { color: "primary.main", fontWeight: 600 } as const;
 
   return (
-    <Box data-testid="payment-verify-page" sx={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", px: 2, backgroundColor: isDark ? "#0B0908" : "#f6f7fb" }}>
+    <Box data-testid="payment-verify-page" sx={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", px: 2, backgroundColor: isDark ? "#0A0A0D" : "#f6f7fb" }}>
       <Box sx={{ width: "100%", maxWidth: 480, textAlign: "center", p: { xs: 3, sm: 5 }, borderRadius: 3, background: theme.palette.background.paper, border: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "rgba(10,10,10,0.08)"}` }}>
         <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}><BrandLogo redirect={false} /></Box>
 

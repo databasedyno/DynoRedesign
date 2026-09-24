@@ -34,7 +34,7 @@ const AuroraField: React.FC<{ testId?: string }> = ({ testId = "aurora-field" })
       inset: 0,
       overflow: "hidden",
       pointerEvents: "none",
-      background: "linear-gradient(180deg, #2B1D14 0%, #22170F 70%, #1A120D 100%)",
+      background: "linear-gradient(180deg, #121214 0%, #0F1013 70%, #101014 100%)",
     }}
   >
     <Box sx={glow("radial-gradient(circle, rgba(255,209,0,0.34) 0%, rgba(255,209,0,0.14) 32%, transparent 66%)", driftA, 28, { top: "-42%", right: "-14%" }, { width: { xs: 720, md: 1180 }, height: { xs: 720, md: 1180 } })} />

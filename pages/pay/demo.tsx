@@ -218,7 +218,7 @@ const PaymentDemo = () => {
                   backgroundColor: LIME,
                 }}
               >
-                <Icon icon="mdi:check-bold" width={32} color="#2B1D14" />
+                <Icon icon="mdi:check-bold" width={32} color="#121214" />
               </Box>
               <Typography sx={{ fontSize: 22, fontWeight: 700, letterSpacing: '-0.02em', color: theme.palette.text.primary }}>
                 Payment successful
@@ -415,7 +415,7 @@ const PaymentDemo = () => {
                 data-testid="demo-simulate-btn"
                 sx={{
                   mt: 1, textTransform: 'none', borderRadius: '999px', fontWeight: 700, minHeight: 46,
-                  backgroundColor: LIME, color: '#2B1D14', boxShadow: 'none',
+                  backgroundColor: LIME, color: '#121214', boxShadow: 'none',
                   '&:hover': { backgroundColor: '#F0C300', boxShadow: 'none' },
                   '&:active': { transform: 'scale(0.99)' },
                 }}

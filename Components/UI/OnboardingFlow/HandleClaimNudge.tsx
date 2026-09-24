@@ -229,7 +229,7 @@ const HandleClaimNudge: React.FC = () => {
             alignItems: "center",
             justifyContent: "center",
             backgroundColor: "#FFD100",
-            color: "#2B1D14",
+            color: "#121214",
             flexShrink: 0,
           }}
         >
@@ -352,7 +352,7 @@ const HandleClaimNudge: React.FC = () => {
             px: 2.5,
             py: 1,
             backgroundColor: "#FFD100",
-            color: "#2B1D14",
+            color: "#121214",
             "&:hover": { backgroundColor: "#F0C300" },
             "&.Mui-disabled": {
               backgroundColor: isDark ? "rgba(255,209,0,0.35)" : "rgba(139,94,0,0.35)",

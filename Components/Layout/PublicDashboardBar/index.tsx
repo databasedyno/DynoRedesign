@@ -84,7 +84,7 @@ const PublicDashboardBar: FC = () => {
           borderRadius: 999,
           px: 2,
           minHeight: 40,
-          color: "#2B1D14",
+          color: "#121214",
           bgcolor: accent,
           "&:hover": { bgcolor: "#F0C300" },
         }}

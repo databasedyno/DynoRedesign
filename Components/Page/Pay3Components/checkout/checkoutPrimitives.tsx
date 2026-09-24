@@ -188,8 +188,8 @@ export const PanelShell: React.FC<{
   outerSx?: SxProps<Theme>
 }> = ({ children, isDark, border, muted, summary, summaryBar, stickyTop = 0, outerSx }) => {
   const [summaryOpen, setSummaryOpen] = React.useState(false)
-  const surface = isDark ? '#1A120D' : '#FFFFFF'
-  const canvasTint = isDark ? '#0B0908' : '#F8FAFC'
+  const surface = isDark ? '#101014' : '#FFFFFF'
+  const canvasTint = isDark ? '#0A0A0D' : '#F8FAFC'
   const ink = isDark ? '#F8FAFC' : '#0F172A'
 
   if (!summary) {

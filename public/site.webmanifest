@@ -7,8 +7,8 @@
     { "src": "/pwa-512.png?v=6", "sizes": "512x512", "type": "image/png", "purpose": "any" },
     { "src": "/pwa-maskable-512.png?v=6", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
-  "theme_color": "#2B1D14",
-  "background_color": "#0B0908",
+  "theme_color": "#121214",
+  "background_color": "#0A0A0D",
   "display": "standalone",
   "start_url": "/"
 }

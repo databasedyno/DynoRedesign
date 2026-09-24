@@ -112,7 +112,7 @@ const StickyPromoBar: React.FC = () => {
           border: 'none',
           cursor: 'pointer',
           bgcolor: '#FFD100',
-          color: '#2B1D14',
+          color: '#121214',
           fontFamily: 'var(--font-sans)',
           fontWeight: 600,
           fontSize: { xs: 12, md: 12.5 },
@@ -132,11 +132,11 @@ const StickyPromoBar: React.FC = () => {
         onClick={onDismiss}
         data-testid="promo-bar-dismiss"
         sx={{
-          color: 'rgba(43,29,20,0.6)',
+          color: 'rgba(18,18,20,0.6)',
           p: 0.4,
           position: { xs: 'static', md: 'absolute' },
           right: { md: 12 },
-          '&:hover': { color: '#2B1D14', bgcolor: 'rgba(43,29,20,0.08)' },
+          '&:hover': { color: '#121214', bgcolor: 'rgba(18,18,20,0.08)' },
         }}
       >
         <Close sx={{ fontSize: 16 }} />

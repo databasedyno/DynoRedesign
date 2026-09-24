@@ -179,7 +179,7 @@ const AutoClaimHandle: React.FC = () => {
             borderRadius: "12px",
             py: 1.15,
             background: `linear-gradient(135deg, ${BRAND_ACCENT} 0%, #FFB300 100%)`,
-            color: "#2B1D14",
+            color: "#121214",
             "&:hover": { background: "linear-gradient(135deg, #F0C300 0%, #F0A800 100%)" },
           }}
         >

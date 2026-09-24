@@ -10,11 +10,11 @@ import { LiveDot } from "../motion/accents";
 import { floor5, formatInt, useLandingMetrics } from "../v5/useLandingMetrics";
 import { CHAINS } from "./LiveStrip";
 
-const BAND = "#2B1D14"; // espresso brand band (2026-09 rebrand — was navy)
-const INK = "#FAF6EF";
+const BAND = "#121214"; // espresso brand band (2026-09 rebrand — was navy)
+const INK = "#F5F7FA";
 const INK2 = "rgba(250,246,239,0.74)";
 const INK3 = "rgba(250,246,239,0.58)";
-const LINE = "rgba(255,240,210,0.12)";
+const LINE = "rgba(255,255,255,0.12)";
 
 const chainIcon = (label: string) => CHAINS.find((c) => c.label === label)?.icon;
 

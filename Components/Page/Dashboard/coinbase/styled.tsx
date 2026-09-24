@@ -9,7 +9,7 @@ import { GOLD, GOLD_DEEP, BRAND_ACCENT, BRAND_ACCENT_HOVER, BRAND_ON_ACCENT, DAR
  * bright aqua on dark) — the name is kept so 120+ call sites keep compiling. Solid
  * fills use `yellow` (always with dark-brown text).
  */
-const CREAM_INK = "#FAF6EF";
+const CREAM_INK = "#F5F7FA";
 export const CB_TOKENS = {
   /** Canonical radius scale (Phase 3) — one geometry across the dashboard. */
   radius: RADIUS,
@@ -121,8 +121,8 @@ export const PillButton = styled(Button, {
     backgroundColor: active
       ? CB_TOKENS.yellow.hover
       : theme.palette.mode === "dark"
-        ? "rgba(255,240,210,0.06)"
-        : "rgba(43,29,20,0.05)",
+        ? "rgba(255,255,255,0.06)"
+        : "rgba(18,18,20,0.05)",
   },
   "&:focus-visible": {
     outline: `2px solid ${
@@ -285,13 +285,13 @@ export const TabPill = styled(Button, {
       ? CB_TOKENS.ink.secondaryDark
       : CB_TOKENS.ink.secondaryLight,
   backgroundColor: active ? CB_TOKENS.yellow.fill : "transparent",
-  boxShadow: active ? "0 1px 3px rgba(43,29,20,0.12)" : "none",
+  boxShadow: active ? "0 1px 3px rgba(18,18,20,0.12)" : "none",
   transition: "background-color 150ms ease, color 150ms ease",
   "&:hover": {
     backgroundColor: active
       ? CB_TOKENS.yellow.hover
       : theme.palette.mode === "dark"
-        ? "rgba(255,240,210,0.05)"
-        : "rgba(43,29,20,0.04)",
+        ? "rgba(255,255,255,0.05)"
+        : "rgba(18,18,20,0.04)",
   },
 }));

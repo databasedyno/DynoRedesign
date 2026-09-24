@@ -171,7 +171,7 @@ const HeroCheckoutDemo: React.FC = () => {
             onClick={pay}
             disabled={busy}
             data-testid="hero-demo-pay"
-            sx={{ all: "unset", boxSizing: "border-box", mt: 2.5, width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 1, borderRadius: "12px", py: 1.35, fontFamily: FONT_BODY, fontSize: 15, fontWeight: 600, color: "#2B1D14", background: busy ? "rgba(255,209,0,0.45)" : "#FFD100", cursor: busy ? "default" : "pointer", transition: "background-color 180ms ease", "&:hover": { background: busy ? undefined : "#F0C300" }, "&:focus-visible": { outline: `2px solid ${BRAND_ACCENT}`, outlineOffset: 3 } }}
+            sx={{ all: "unset", boxSizing: "border-box", mt: 2.5, width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 1, borderRadius: "12px", py: 1.35, fontFamily: FONT_BODY, fontSize: 15, fontWeight: 600, color: "#121214", background: busy ? "rgba(255,209,0,0.45)" : "#FFD100", cursor: busy ? "default" : "pointer", transition: "background-color 180ms ease", "&:hover": { background: busy ? undefined : "#F0C300" }, "&:focus-visible": { outline: `2px solid ${BRAND_ACCENT}`, outlineOffset: 3 } }}
           >
             {busy ? (phase === "waiting" ? t("v5.demo.waiting") : t("v5.demo.confirming", { network })) : t("v5.demo.payBtn", { amount: fmt(DEMO_ORDER_USD) })}
           </Box>

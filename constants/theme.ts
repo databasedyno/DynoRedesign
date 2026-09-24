@@ -1,9 +1,10 @@
 /**
- * Central brand + design tokens — Dynopay 2026-09 rebrand (gold / dark brown / black).
+ * Central brand + design tokens — Dynopay 2026-09 rebrand (signal yellow / Bybit black).
  *
- * Palette: gold (primary fills, brand text on dark) · dark brown (dominant dark)
- * · black (deepest layers) · warm cream neutrals. Aqua survives ONLY as a
- * micro-accent: the logo spark and small "live" dots.
+ * Palette: yellow (primary fills, brand text on dark) · Bybit black + neutral
+ * graphite greys (dark grounds, mirrors constants/publicTheme PUB_DARK) · cool
+ * light neutrals (PUB_LIGHT). Aqua survives ONLY as a micro-accent: the logo
+ * spark and small "live" dots. Brown/cream tokens were retired 2026-09-24.
  *
  * `BRAND_ACCENT` is the signal gold used for solid fills (primary buttons,
  * active nav, selected states). Gold ALWAYS carries dark-brown text —
@@ -18,7 +19,7 @@ export const BRAND_ACCENT_LIGHT = "#FFD100";
 /** Hover fill. */
 export const BRAND_ACCENT_HOVER = "#F0C300";
 /** Text / icon colour that sits ON a gold fill. */
-export const BRAND_ON_ACCENT = "#2B1D14";
+export const BRAND_ON_ACCENT = "#121214";
 
 /** Gold — `GOLD` on dark grounds, `GOLD_DEEP` for readable brand text on light (≈5.3:1 on cream). */
 export const GOLD = "#FFD100";
@@ -26,17 +27,17 @@ export const GOLD_DEEP = "#8B5E00";
 /** Aqua — micro-accent ONLY (logo spark, live dots). Never for links / focus / fills. */
 export const AQUA = "#2BD4C4";
 export const AQUA_DEEP = "#0F8F86";
-/** Dark brown grounds. */
-export const ESPRESSO = "#2B1D14";
-export const ESPRESSO_RAISED = "#3A2A1F";
+/** Bybit black grounds (legacy names kept for imports). */
+export const ESPRESSO = "#121214";
+export const ESPRESSO_RAISED = "#222227";
 /** Deepest layer / code-QR-address blocks. */
-export const BLACK = "#0B0908";
-/** Warm light neutrals. */
-export const CREAM = "#FAF6EF";
-export const CARD = "#FFFDF7";
-export const HAIRLINE = "#E8DFD2";
+export const BLACK = "#0A0A0D";
+/** Light neutrals. */
+export const CREAM = "#F5F7FA";
+export const CARD = "#FFFFFF";
+export const HAIRLINE = "#E1E5EA";
 /** Headings / body text on light surfaces. */
-export const INK = "#1F140D";
+export const INK = "#121214";
 
 /**
  * Theme-aware brand FOREGROUND colour — for brand-coloured TEXT / ICONS / thin
@@ -93,14 +94,14 @@ export const WARNING_AMBER_LIGHT = "#FBBF24";
  */
 export const DARK = {
   canvas: BLACK,
-  surface: "#1A120D",
+  surface: "#101014",
   raised: ESPRESSO,
   active: ESPRESSO_RAISED,
   border: ESPRESSO_RAISED,
-  borderStrong: "#4E3B2E",
+  borderStrong: "#404347",
   text: CREAM,
-  textSecondary: "#D9CFC2",
-  textMuted: "#A99A8A",
+  textSecondary: "#ADB1B8",
+  textMuted: "#81858C",
   /** Solid fills (buttons, active nav) — pairs with `BRAND_ON_ACCENT`. */
   accent: BRAND_ACCENT,
   accentHover: BRAND_ACCENT_HOVER,
@@ -111,15 +112,15 @@ export const DARK = {
   warning: "#FBBF24",
   error: "#F87171",
   /** Info = brown-neutral on dark (cream text, gold icon). */
-  info: "#D9CFC2",
+  info: "#ADB1B8",
   /** Hairline light-tint borders. */
-  hairline: "rgba(255,240,210,0.08)",
-  hairlineStrong: "rgba(255,240,210,0.15)",
+  hairline: "rgba(255,255,255,0.08)",
+  hairlineStrong: "rgba(255,255,255,0.15)",
   /** Elevation shadows for layered surfaces. */
   shadowSoft: "0 2px 12px rgba(0,0,0,0.35)",
   shadow: "0 6px 28px rgba(0,0,0,0.48)",
-  cardShadow: "0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,240,210,0.06)",
-  cardShadowHover: "0 12px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,240,210,0.10), 0 0 48px rgba(255,209,0,0.08)",
+  cardShadow: "0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06)",
+  cardShadowHover: "0 12px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.10), 0 0 48px rgba(255,209,0,0.08)",
   /** Accent glow for focused inputs / primary CTAs / active elements. */
   glowAccent: "0 0 40px rgba(255,209,0,0.14)",
   glowAccentStrong: "0 0 24px rgba(255,209,0,0.36)",
@@ -131,17 +132,17 @@ export const DARK = {
   gradientWarm: "linear-gradient(135deg, #F59E0B 0%, #F43F5E 100%)",
 } as const;
 
-/** Light-mode counterparts — cream grounds, dark-brown text, warm hairlines. */
+/** Light-mode counterparts — cool neutral grounds, Bybit-black text. */
 export const LIGHT = {
   canvas: CREAM,
   surface: CARD,
-  raised: "#F3EDE2",
-  active: "#EAE1D3",
+  raised: "#E9ECF0",
+  active: "#E1E5EA",
   border: HAIRLINE,
-  borderStrong: "#D6C9B6",
+  borderStrong: "#D5DAE0",
   text: INK,
-  textSecondary: "#5C4B3E",
-  textMuted: "#7A6A5C",
+  textSecondary: "#6A6E73",
+  textMuted: "#81858C",
   accent: BRAND_ACCENT,
   accentHover: BRAND_ACCENT_HOVER,
   accentSoft: "#FFF6CC",
@@ -151,13 +152,13 @@ export const LIGHT = {
   /** Info = brown-neutral on light (deep gold icon). */
   info: GOLD_DEEP,
   /** Hairline warm borders. */
-  hairline: "rgba(43,29,20,0.08)",
-  hairlineStrong: "rgba(43,29,20,0.14)",
+  hairline: "rgba(18,18,20,0.08)",
+  hairlineStrong: "rgba(18,18,20,0.14)",
   /** Elevation shadows — light parity with the DARK scale. */
-  shadowSoft: "0 1px 2px rgba(43,29,20,0.06)",
-  shadow: "0 4px 16px rgba(43,29,20,0.10)",
-  cardShadow: "0 1px 2px rgba(43,29,20,0.06)",
-  cardShadowHover: "0 6px 20px rgba(43,29,20,0.10)",
+  shadowSoft: "0 1px 2px rgba(18,18,20,0.06)",
+  shadow: "0 4px 16px rgba(18,18,20,0.10)",
+  cardShadow: "0 1px 2px rgba(18,18,20,0.06)",
+  cardShadowHover: "0 6px 20px rgba(18,18,20,0.10)",
   focusRing: "0 0 0 3px rgba(255,209,0,0.55)",
 } as const;
 

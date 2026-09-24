@@ -219,7 +219,7 @@ const MethodBadgeStyled = styled("span", {
   fontWeight: 700,
   letterSpacing: "0.5px",
   fontFamily: "var(--font-tech), monospace",
-  color: isGet ? "#FFFFFF" : "#2B1D14",
+  color: isGet ? "#FFFFFF" : "#121214",
   background: isGet ? "#15803D" : "#FFD100",
   minWidth: 44,
 }));

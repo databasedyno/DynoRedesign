@@ -54,8 +54,8 @@ const AuthBrandPanel = () => {
 
   // Panel surface — kept subtle in light so the dark headline/body stays AA.
   const panelBg = dark
-    ? "radial-gradient(135% 120% at 100% 0%, rgba(255,209,0,0.22) 0%, transparent 46%), radial-gradient(120% 120% at 0% 100%, rgba(255,209,0,0.24) 0%, transparent 52%), linear-gradient(158deg, #1A120D 0%, #0B0908 100%)"
-    : "radial-gradient(135% 120% at 100% 0%, rgba(255,209,0,0.13) 0%, transparent 46%), radial-gradient(120% 120% at 0% 100%, rgba(255,209,0,0.14) 0%, transparent 52%), linear-gradient(158deg, #FAF6EF 0%, #F3EDE2 100%)";
+    ? "radial-gradient(135% 120% at 100% 0%, rgba(255,209,0,0.22) 0%, transparent 46%), radial-gradient(120% 120% at 0% 100%, rgba(255,209,0,0.24) 0%, transparent 52%), linear-gradient(158deg, #101014 0%, #0A0A0D 100%)"
+    : "radial-gradient(135% 120% at 100% 0%, rgba(255,209,0,0.13) 0%, transparent 46%), radial-gradient(120% 120% at 0% 100%, rgba(255,209,0,0.14) 0%, transparent 52%), linear-gradient(158deg, #F5F7FA 0%, #E9ECF0 100%)";
   const panelBorder = dark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(139,94,0,0.12)";
   const panelShadow = dark
     ? "0 40px 90px -50px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.05)"
