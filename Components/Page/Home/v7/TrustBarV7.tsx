@@ -39,21 +39,24 @@ const TrustBarV7: React.FC = () => {
           display: "flex",
           flexDirection: { xs: "column", md: "row" },
           alignItems: "center",
-          justifyContent: "space-between",
-          gap: { xs: 3, md: 2 },
+          justifyContent: { xs: "center", md: "space-between" },
+          gap: { xs: 3, md: 4 },
         }}
       >
         <Box
           sx={{
-            display: "grid",
+            // Mobile: a centered 3-up grid. Desktop: `display:contents` dissolves
+            // this wrapper so the three stats become direct flex children of the
+            // row above and share the space-between distribution WITH the link —
+            // no more single large gap between the stats and "View live status".
+            display: { xs: "grid", md: "contents" },
             gridTemplateColumns: "repeat(3, 1fr)",
-            gap: { xs: 2, md: 6 },
+            gap: { xs: 2 },
             width: { xs: "100%", md: "auto" },
-            textAlign: { xs: "center", md: "left" },
           }}
         >
           {stats.map((st) => (
-            <Box key={st.label} data-testid="trust-stat">
+            <Box key={st.label} data-testid="trust-stat" sx={{ textAlign: { xs: "center", md: "left" } }}>
               <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 600, fontSize: { xs: 23, md: 34 }, letterSpacing: "-0.02em", color: s.ink, lineHeight: 1 }}>
                 {st.value}
               </Typography>
