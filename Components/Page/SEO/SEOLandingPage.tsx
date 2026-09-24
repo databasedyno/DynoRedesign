@@ -12,7 +12,9 @@ import PublicPageHero from "@/Components/Page/Home/v5/PublicPageHero";
 import PublicFinalCta from "@/Components/Page/Home/v5/PublicFinalCta";
 import { Section, SectionHead, PrimaryBtn, SecondaryBtn, cardSx } from "@/Components/Page/Home/v5/shared";
 import { Stagger, StaggerItem } from "@/Components/Page/Home/motion/Stagger";
-import { FramedImage, PhoneFrame } from "@/Components/Page/Home/v5/DeviceFrame";
+import CheckoutMock from "@/Components/Page/Home/v7/mock/CheckoutMock";
+import { MockPlinth } from "@/Components/Page/Home/v7/mock/MockPlinth";
+import { VERTICAL_PAYMENTS } from "@/Components/Page/Home/v7/mock/payments";
 
 import type { SEOPageContent, SEOPageIndexEntry } from "@/utils/seoContent";
 import { BRAND_ACCENT, BRAND_ON_ACCENT } from "@/constants/theme";
@@ -275,14 +277,12 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
           </>
         }
         aside={
-          <Box data-testid="seo-hero-illustration" sx={{ display: { xs: "none", md: "flex" }, justifyContent: "flex-end", pr: { md: 4 } }}>
-            <Box sx={{ position: "relative" }}>
-              <PhoneFrame testId="seo-hero-phone" width={250}>
-                <FramedImage src={`/landing/products/checkout-phone-${s.dark ? "dark" : "light"}.webp`} alt={t('v5.hero.secondary')} position="top center" />
-              </PhoneFrame>
-              <Box sx={{ position: "absolute", left: -56, bottom: 36, p: 1.5, borderRadius: "24px", background: s.surface, border: `1px solid ${s.line}`, boxShadow: s.dark ? "0 24px 48px -28px rgba(0,0,0,0.9)" : "0 24px 48px -28px rgba(10,10,10,0.35)" }}>
-                <SEOIllustration slug={content._slug || ""} kind={content._kind} flag={content._flag} size={88} hero />
-              </Box>
+          <Box data-testid="seo-hero-illustration" sx={{ display: { xs: "none", md: "block" }, position: "relative", pr: { md: 2 } }}>
+            <MockPlinth compact>
+              <CheckoutMock payments={[VERTICAL_PAYMENTS[content._slug || ""] || VERTICAL_PAYMENTS.ecommerce]} compact />
+            </MockPlinth>
+            <Box sx={{ position: "absolute", left: -28, bottom: -24, p: 1.25, borderRadius: "20px", background: s.surface, border: `1px solid ${s.line}`, boxShadow: s.dark ? "0 24px 48px -28px rgba(0,0,0,0.9)" : "0 24px 48px -28px rgba(10,10,10,0.35)" }}>
+              <SEOIllustration slug={content._slug || ""} kind={content._kind} flag={content._flag} size={64} hero />
             </Box>
           </Box>
         }

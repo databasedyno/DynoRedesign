@@ -4,7 +4,25 @@ import LinkRoundedIcon from "@mui/icons-material/LinkRounded";
 import { AMOUNT_COIN, AMOUNT_USD, GREEN, M, labelSx, miniBtnSx, monoSx, screenSx } from "./shared";
 
 const Shell: React.FC<React.PropsWithChildren<{ testId: string }>> = ({ testId, children }) => (
-  <Box aria-hidden data-testid={testId} sx={{ ...screenSx, height: 116, p: 1.75, display: "flex", flexDirection: "column", justifyContent: "center", gap: 1.25, mb: 2.5, background: "linear-gradient(180deg, #16171B 0%, #0F1013 100%)" }}>
+  <Box
+    aria-hidden
+    data-testid={testId}
+    className="way-vignette"
+    sx={{
+      ...screenSx,
+      height: 116,
+      p: 1.75,
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      gap: 1.25,
+      mb: 2.5,
+      background: "linear-gradient(180deg, #16171B 0%, #0F1013 100%)",
+      transition: "border-color 260ms ease, box-shadow 260ms ease, transform 260ms cubic-bezier(0.16,1,0.3,1)",
+      "& .mock-cta": { transition: "box-shadow 260ms ease, filter 260ms ease" },
+      "@media (prefers-reduced-motion: reduce)": { transition: "none", "& .mock-cta": { transition: "none" } },
+    }}
+  >
     {children}
   </Box>
 );
@@ -15,7 +33,7 @@ export const LinkVignette: React.FC = () => (
     <Box sx={{ display: "flex", alignItems: "center", gap: 1, px: 1.25, py: 0.8, borderRadius: "8px", border: `1px solid ${M.lineStrong}`, background: M.bg }}>
       <LinkRoundedIcon sx={{ fontSize: 15, color: M.yellow, flexShrink: 0 }} />
       <Typography sx={{ ...monoSx, fontSize: 11.5, color: M.ink, flex: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>dynopay.com/pay/northwind</Typography>
-      <Box sx={{ ...miniBtnSx, px: 1.1, py: 0.4, fontSize: 11 }}>Copy</Box>
+      <Box className="mock-cta" sx={{ ...miniBtnSx, px: 1.1, py: 0.4, fontSize: 11 }}>Copy</Box>
     </Box>
     <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
       <Box sx={{ width: 6, height: 6, borderRadius: "50%", background: GREEN, boxShadow: `0 0 8px ${GREEN}` }} />
@@ -41,7 +59,7 @@ export const CheckoutVignette: React.FC = () => (
         ))}
       </Box>
     </Box>
-    <Box sx={{ ...miniBtnSx, width: "100%" }}>Pay {AMOUNT_COIN}</Box>
+    <Box className="mock-cta" sx={{ ...miniBtnSx, width: "100%" }}>Pay {AMOUNT_COIN}</Box>
   </Shell>
 );
 
@@ -50,7 +68,7 @@ export const ApiVignette: React.FC = () => (
   <Shell testId="vignette-api">
     <Box sx={{ ...monoSx, fontSize: 11.5, lineHeight: 1.75, color: M.ink2, whiteSpace: "nowrap", overflow: "hidden" }}>
       <Box>
-        <Box component="span" sx={{ color: M.yellow, fontWeight: 600 }}>POST</Box> <Box component="span" sx={{ color: M.ink }}>/v1/payments</Box>
+        <Box component="span" className="mock-cta" sx={{ color: M.yellow, fontWeight: 600, borderRadius: "4px" }}>POST</Box> <Box component="span" sx={{ color: M.ink }}>/v1/payments</Box>
       </Box>
       <Box>{"{ "}<Box component="span" sx={{ color: M.ink }}>amount</Box>: 148.00, <Box component="span" sx={{ color: M.ink }}>currency</Box>: &quot;USD&quot;{" }"}</Box>
       <Box sx={{ color: M.ink3 }}>

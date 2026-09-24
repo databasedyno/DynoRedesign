@@ -7,6 +7,8 @@ import { FONT_BODY, FONT_TECH, useAurora, BRAND_ACCENT } from "../v3/theme.v3";
 import { HeadlineXL, AuroraInk, Body, Eyebrow } from "../v3/styled.v3";
 import { PrimaryBtn, SecondaryBtn, goStart } from "../v5/shared";
 import CheckoutMock from "./mock/CheckoutMock";
+import { MockPlinth } from "./mock/MockPlinth";
+import { HOME_PAYMENTS } from "./mock/payments";
 
 /**
  * Section 1 of 9 — HERO (answers: "What is it?").
@@ -80,7 +82,9 @@ const HeroV7: React.FC = () => {
             }}
           />
           <Box sx={{ position: "relative", transform: { md: "perspective(1800px) rotateX(3deg)" }, transformOrigin: "top center" }}>
-            <CheckoutMock />
+            <MockPlinth>
+              <CheckoutMock payments={HOME_PAYMENTS} />
+            </MockPlinth>
           </Box>
         </Box>
       </Box>

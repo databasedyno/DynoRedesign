@@ -28,7 +28,26 @@ const ThreeWaysV7: React.FC = () => {
       <Stagger step={0.1} sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" }, gap: { xs: 2.5, md: 3 } }}>
         {WAYS.map(({ Vignette, title, body, cta, href }, i) => (
           <StaggerItem key={title} i={i} y={18}>
-            <Box component="a" href={href} data-testid={`way-${title.toLowerCase().replace(/\s+/g, "-")}`} sx={{ ...cardSx(s), display: "flex", flexDirection: "column", p: { xs: 3, md: 4 }, height: "100%", textDecoration: "none" }}>
+            <Box
+              component="a"
+              href={href}
+              data-testid={`way-${title.toLowerCase().replace(/\s+/g, "-")}`}
+              sx={{
+                ...cardSx(s),
+                display: "flex",
+                flexDirection: "column",
+                p: { xs: 3, md: 4 },
+                height: "100%",
+                textDecoration: "none",
+                "&:hover .way-vignette": {
+                  borderColor: "rgba(255,209,0,0.45)",
+                  boxShadow: "0 0 0 1px rgba(255,209,0,0.12), 0 22px 44px -22px rgba(255,209,0,0.45), inset 0 1px 0 rgba(255,255,255,0.08)",
+                  transform: "translateY(-3px)",
+                },
+                "&:hover .mock-cta": { boxShadow: "0 0 0 3px rgba(255,209,0,0.18), 0 8px 20px -6px rgba(255,209,0,0.6)", filter: "brightness(1.06)" },
+                "@media (prefers-reduced-motion: reduce)": { "&:hover .way-vignette": { transform: "none" } },
+              }}
+            >
               <Vignette />
               <Typography component="h3" sx={{ fontFamily: FONT_HERO, fontWeight: 600, fontSize: { xs: 19, md: 21 }, letterSpacing: "-0.01em", color: s.ink, mb: 1.25 }}>
                 {title}

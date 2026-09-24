@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
-import { AMOUNT_COIN, GREEN, M, labelSx, monoSx, textSx } from "./shared";
+import { GREEN, M, labelSx, monoSx, textSx } from "./shared";
 
 type CardProps = { icon: React.ReactNode; accent: string; title: string; amount: string; meta: string; testId?: string };
 
@@ -35,7 +35,7 @@ export const NotifyCard: React.FC<CardProps> = ({ icon, accent, title, amount, m
 );
 
 /** Slides in over the hero mock once the payment is confirmed. */
-export const PaidToast: React.FC<{ show: boolean }> = ({ show }) => (
+export const PaidToast: React.FC<{ show: boolean; amount: string; meta: string }> = ({ show, amount, meta }) => (
   <Box
     aria-hidden={!show}
     data-testid="mock-paid-toast"
@@ -53,6 +53,6 @@ export const PaidToast: React.FC<{ show: boolean }> = ({ show }) => (
       "@media (prefers-reduced-motion: reduce)": { transition: "none" },
     }}
   >
-    <NotifyCard icon={<CheckRoundedIcon sx={{ fontSize: 22 }} />} accent={GREEN} title="Payment received" amount={`+${AMOUNT_COIN}`} meta="Settled to USD balance" />
+    <NotifyCard icon={<CheckRoundedIcon sx={{ fontSize: 22 }} />} accent={GREEN} title="Payment received" amount={amount} meta={meta} />
   </Box>
 );
