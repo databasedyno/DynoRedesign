@@ -35,6 +35,9 @@ COPY assets/ ./assets/
 COPY public/ ./public/
 COPY Redux/ ./Redux/
 COPY helpers/ ./helpers/
+# Wallet integration: lib/wallet/* imported via the `@/lib/*` alias — must be
+# copied or `next build` fails with "Cannot find module '@/lib/wallet/rails'".
+COPY lib/ ./lib/
 # SEO landing-page content — required at build time (getStaticPaths) and
 # runtime (sitemap.xml). Omitting it ships zero SEO pages (production 404s).
 COPY data/ ./data/
