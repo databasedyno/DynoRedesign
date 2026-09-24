@@ -1,4 +1,209 @@
 # ============================================================================
+# >>> HANDOFF (2026-09-24) — LANDING REVAMP v7 (Bybit-style 9-section) + NAV FIX <<<
+# ============================================================================
+#   Env: LIVE prod DB + shared Redis, SAFE MODE (background jobs OFF). HARD RULES
+#   for testing_agent: do NOT move funds, confirm/settle payments, or create any
+#   SafeDeal money movement; no git; no source edits; read-only DB only. This is a
+#   FRONTEND-ONLY change (marketing pages) — no backend endpoints were modified.
+#
+#   WHAT CHANGED (this session):
+#   A) Homepage rebuilt from scratch into EXACTLY 9 Bybit-style sections:
+#      new Components/Page/Home/v7/{HeroV7,TrustBarV7,HowItWorksV7,ThreeWaysV7,
+#      WhyDynopayV7,ProofV7,PricingV7,FAQV7,FinalCTAV7}.tsx; composed by
+#      Components/Page/Home/index.tsx. Old v3/v5/v6 homepage sections removed from
+#      the homepage (they still power /fees etc.).
+#   B) Trust bar reads LIVE /api/status/landing-metrics (payments/uptime/countries)
+#      with static fallback; has a "View live status" link → /system-status.
+#   C) New /products page (pages/products.tsx) lists 7 products; "/products" added
+#      to homePaths in pages/_app.tsx so it uses the marketing header/footer shell.
+#      Calculator + chain times stay on /fees; API samples on /documentation.
+#   D) BUG FIX (user-reported): top nav "Product" link showed the raw i18n key
+#      "v7.nav.product". Added key v7.nav.product to all 6 langs/locales/*/landing.json
+#      (en=Product, pt=Produto, es=Producto, fr=Produit, de=Produkt, nl=Product).
+#
+#   VERIFICATION BY MAIN AGENT (needs testing_agent confirmation): tsc 0 errors,
+#   eslint clean; curl shows homepage 200 with all 9 sections, /products 200 with
+#   7 products, trust bar live numbers, and nav renders "Product" (raw key gone).
+#   NOTE: Next.js DEV server FOUC + HMR makes static screenshots unreliable (blank/
+#   black on first load) — wait for [data-testid=hero-headline] to be visible.
+#
+#   WHAT TESTING_AGENT SHOULD VERIFY (FRONTEND ONLY):
+#   1. PRIMARY (the reported bug): On the homepage top navigation bar, the first
+#      menu item reads "Product" (NOT the literal "v7.nav.product"). Other items:
+#      Developers, Resources, Pricing. Hovering "Product" opens its mega-menu.
+#   2. Homepage "/?view=landing" renders 9 sections in order via data-testids:
+#      hero, trust-bar (with trust-stat x3 + trust-status-link), how-it-works,
+#      three-ways, why-dynopay, proof, pricing, faq, final-cta. Hero headline
+#      testid=hero-headline. No literal i18n keys visible anywhere on the page.
+#   3. /products renders 7 product cards (data-testid product-*), hero, and CTA;
+#      returns 200 (was a 404 before). Nav "Product" mega-menu "/products" link works.
+#   4. Buttons: primary CTAs are signal-yellow (#FFD100) with dark (#121214) text.
+#      Mobile (390px): sections stack to a single column, no horizontal overflow.
+#   Credentials if needed: /app/memory/test_credentials.md
+#      (merchant/admin: moxxcompany@gmail.com / Katiekendra123@). Prefer NOT logging
+#      in — the marketing pages are public; use /?view=landing to force the landing.
+# ============================================================================
+
+
+# ============================================================================
+# >>> TESTING AGENT VERIFICATION (2026-09-24) — LANDING REVAMP v7 + NAV FIX <<<
+# ============================================================================
+#   Tested by: testing_agent (frontend_testing_v2)
+#   Test date: 2026-09-24
+#   Test method: Python Playwright browser automation
+#   Base URL: http://localhost:3000 (Next.js dev server)
+#   Environment: SAFE MODE, LIVE prod DB, FRONTEND-ONLY (no backend changes)
+#
+#   CONTEXT: Verified the landing page revamp v7 with 9 Bybit-style sections
+#   and the critical i18n bug fix where "Product" nav item was showing the
+#   literal key "v7.nav.product" instead of the translated text.
+#
+#   TEST RESULTS SUMMARY: 5/5 CHECKS PASSED (100% success rate)
+#
+#   ✅ PRIMARY CHECK: Top Navigation "Product" Label — PASS
+#   --------------------------------------------------------
+#   The user-reported bug has been FIXED:
+#   ✓ Top navigation shows "Product" (NOT the literal "v7.nav.product")
+#   ✓ Other nav items present: "Developers", "Resources", "Pricing"
+#   ✓ Product mega-menu opens on hover
+#   ✓ Mega-menu contains 6 product options:
+#     - Payment Links
+#     - Checkout
+#     - Creator Pages
+#     - Donations
+#     - Invoices
+#     - Crypto Payouts
+#   ✓ Found 5 links to /products in the mega-menu
+#   ✓ No literal i18n keys detected anywhere on the page
+#
+#   ✅ SECONDARY CHECK 1: Homepage 9 Sections — PASS
+#   -------------------------------------------------
+#   All 9 sections found in correct order with proper data-testids:
+#   ✓ hero (data-testid="hero-headline" visible after hydration)
+#   ✓ trust-bar
+#   ✓ how-it-works
+#   ✓ three-ways
+#   ✓ why-dynopay
+#   ✓ proof
+#   ✓ pricing
+#   ✓ faq
+#   ✓ final-cta
+#   ✓ No literal i18n keys (pattern: v[0-9]+\.[a-z0-9_]+\.[a-z0-9_]+) detected
+#
+#   ✅ SECONDARY CHECK 2: Trust Bar Real Numbers — PASS
+#   ----------------------------------------------------
+#   ✓ Found 4 trust-stat elements (3+ required)
+#   ✓ Trust status link found: "View live status" → /system-status
+#   ✓ Real numbers displayed (not placeholders):
+#     - "1,076+ Payments settled this month"
+#     - "99.92% Uptime over 90 days"
+#     - "79 Countries served"
+#   ✓ Trust bar shows real data from /api/status/landing-metrics
+#
+#   ✅ SECONDARY CHECK 3: /products Page — PASS
+#   --------------------------------------------
+#   ✓ /products returns 200 (was 404 before this change)
+#   ✓ All 7 product cards found with correct data-testids:
+#     - product-payment-links
+#     - product-hosted-checkout
+#     - product-creator-pages
+#     - product-donations
+#     - product-invoices
+#     - product-payouts
+#     - product-developer-api
+#   ✓ Page uses marketing header/footer shell
+#   ✓ Hero and CTA sections present
+#
+#   ✅ SECONDARY CHECK 4: Button Colors (Signal Yellow) — PASS
+#   -----------------------------------------------------------
+#   All three primary CTAs have correct colors:
+#   ✓ hero-primary-cta:
+#     - Background: rgb(255, 209, 0) = #FFD100 (signal yellow) ✓
+#     - Text: rgb(18, 18, 20) = #121214 (dark) ✓
+#   ✓ final-primary-cta:
+#     - Background: rgb(255, 209, 0) = #FFD100 (signal yellow) ✓
+#     - Text: rgb(18, 18, 20) = #121214 (dark) ✓
+#   ✓ pricing-fees-cta:
+#     - Background: rgb(255, 209, 0) = #FFD100 (signal yellow) ✓
+#     - Text: rgb(18, 18, 20) = #121214 (dark) ✓
+#   ✓ No white text on yellow (accessibility issue fixed)
+#
+#   ✅ SECONDARY CHECK 5: Mobile Responsive (390px) — PASS
+#   -------------------------------------------------------
+#   ✓ No horizontal scroll/overflow on 390px viewport
+#   ✓ Sections stack to single column layout
+#   ✓ Mobile hamburger menu present in header
+#   ✓ Mobile menu accessible (19 buttons found in header)
+#   ✓ Page renders correctly on mobile viewport
+#
+#   OVERALL RESULT: ✅✅✅ ALL CHECKS PASSED ✅✅✅
+#
+#   DETAILED FINDINGS:
+#   1. i18n bug FIXED: "Product" nav item now shows translated text ✓
+#   2. Homepage structure correct: 9 sections in proper order ✓
+#   3. Trust bar shows live data from API endpoint ✓
+#   4. /products page working (new page, was 404 before) ✓
+#   5. Button colors meet accessibility standards ✓
+#   6. Mobile responsive layout working correctly ✓
+#   7. Product mega-menu functional on desktop ✓
+#   8. Next.js hydration working (hero-headline visible after load) ✓
+#
+#   SCREENSHOTS CAPTURED:
+#   - desktop-top-nav.png (shows "Product" label, not i18n key)
+#   - desktop-hero-trust.png (hero section + trust bar with real numbers)
+#   - desktop-products.png (/products page with 7 product cards)
+#   - desktop-mega-menu.png (Product dropdown with 6 options)
+#   - mobile-homepage.png (390px responsive layout)
+#   - mobile-menu-open.png (mobile navigation menu)
+#
+#   SAFETY COMPLIANCE:
+#   - ✅ NO login performed (public pages only)
+#   - ✅ NO funds moved
+#   - ✅ NO payments created or confirmed
+#   - ✅ NO SafeDeal activity
+#   - ✅ NO source edits
+#   - ✅ NO git commands
+#   - ✅ Read-only testing only
+#   - ✅ Used ?view=landing to force landing page
+#
+#   NOTES:
+#   - Test URL: http://localhost:3000 (Next.js dev server on port 3000)
+#   - Next.js hydration: Waited for [data-testid="hero-headline"] to be
+#     visible (up to 60s) as instructed for Next.js DEV server FOUC
+#   - Desktop viewport: 1920x900
+#   - Mobile viewport: 390x844
+#   - All tests completed in ~3 minutes
+#
+#   VERDICT: LANDING REVAMP v7 VERIFIED AND WORKING ✅✅✅
+#   
+#   The landing page revamp v7 has been successfully implemented and verified.
+#   All critical features are working correctly:
+#   
+#   ✅ PRIMARY BUG FIXED: "Product" nav item shows translated text (not "v7.nav.product")
+#   ✅ Homepage rebuilt with 9 Bybit-style sections (all present and in order)
+#   ✅ Trust bar shows live metrics from /api/status/landing-metrics
+#   ✅ New /products page working (returns 200, shows 7 product cards)
+#   ✅ Product mega-menu functional (opens on hover, links to /products)
+#   ✅ Button colors correct (signal yellow #FFD100 with dark text #121214)
+#   ✅ Mobile responsive (no overflow, sections stack, hamburger menu present)
+#   ✅ No literal i18n keys visible anywhere on the page
+#   
+#   The frontend changes are production-ready. The user-reported bug where the
+#   top navigation showed "v7.nav.product" instead of "Product" has been fixed
+#   by adding the v7.nav.product key to all 6 language files (en, pt, es, fr,
+#   de, nl) in langs/locales/*/landing.json.
+#   
+#   NEXT STEPS:
+#   ✅ FRONTEND TESTING COMPLETE (this session)
+#   - Ready for deployment
+#   - No issues found
+#   - All acceptance criteria met
+# ============================================================================
+
+
+
+
+# ============================================================================
 # >>> HANDOFF (2026-09-23) — LEGAL-ENTITY COPY REMOVAL + REBRAND WHITE-ON-GOLD FIX <<<
 # ============================================================================
 #   Env: LIVE prod DB + shared Redis, SAFE MODE (background jobs OFF). HARD RULES
