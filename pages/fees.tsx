@@ -636,28 +636,24 @@ const FeesPage = () => {
         {/* ===== SECURITY ===== */}
         <Section testId="fees-security">
           <SectionHead center maxWidth={720} eyebrow={t("v3.secEyebrow")} headline={t("v3.secTitle")} />
-          <Stagger step={0.08} sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" }, gap: 2 }}>
-              {[
-                { title: t("v3.sec1Title"), body: t("v3.sec1Body") },
-                { title: t("v3.sec2Title"), body: t("v3.sec2Body") },
-                { title: t("v3.sec3Title"), body: t("v3.sec3Body") },
-              ].map((item, ii) => (
-                <StaggerItem key={item.title} i={ii} y={16}>
+          <Stagger step={0.08} sx={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: { xs: 1.25, md: 2 }, maxWidth: 860, mx: "auto" }}>
+              {[t("v3.sec1Title"), t("v3.sec2Title"), t("v3.sec3Title")].map((title, ii) => (
+                <StaggerItem key={title} i={ii} y={12}>
                 <Box
                   sx={{
-                    ...cardSx(s),
-                    height: "100%",
-                    p: 3,
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 1.5,
+                    ...cardSx(s, { hover: false }),
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 1.25,
+                    px: { xs: 2, md: 2.5 },
+                    py: 1.25,
+                    borderRadius: "999px",
                   }}
                 >
-                  <Box sx={{ width: 44, height: 44, borderRadius: "12px", display: "grid", placeItems: "center", background: s.dark ? "rgba(255,209,0,0.14)" : "rgba(139,94,0,0.09)", color: s.dark ? "#FFD100" : "#8B5E00" }}>
-                    <ShieldOutlinedIcon sx={{ fontSize: 22 }} />
+                  <Box sx={{ width: 30, height: 30, borderRadius: "9px", display: "grid", placeItems: "center", background: s.dark ? "rgba(255,209,0,0.14)" : "rgba(139,94,0,0.09)", color: s.dark ? "#FFD100" : "#8B5E00", flexShrink: 0 }}>
+                    <ShieldOutlinedIcon sx={{ fontSize: 17 }} />
                   </Box>
-                  <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 18, color: s.ink, letterSpacing: "-0.01em" }}>{item.title}</Typography>
-                  <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14.5, color: s.ink2, lineHeight: 1.6 }}>{item.body}</Typography>
+                  <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 600, fontSize: 14.5, color: s.ink, letterSpacing: "-0.01em" }}>{title}</Typography>
                 </Box>
                 </StaggerItem>
               ))}

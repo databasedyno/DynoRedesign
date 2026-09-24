@@ -6,6 +6,36 @@ import helpArticles from "@/hooks/useHelpAndSupportData";
 const SITE_URL = "https://dynopay.com";
 const LOCALE_LANGS = ["en", "pt", "fr", "es", "de", "nl"];
 
+/**
+ * SafeDeal (safedeal.sh) is a separate brand served by this same app from
+ * /safedeal/* (see middleware.ts host rewrite). Requests to safedeal.sh/sitemap.xml
+ * land here because dotted paths bypass the middleware, so we detect the host and
+ * emit a dedicated SafeDeal sitemap rooted at https://safedeal.sh with only its
+ * public, indexable pages. Private deal/wallet/signin routes are intentionally left out.
+ */
+const SAFEDEAL_HOSTS = new Set(["safedeal.sh", "www.safedeal.sh"]);
+const SAFEDEAL_URL = "https://safedeal.sh";
+const SAFEDEAL_PAGES: SitemapEntry[] = [
+  { path: "/",        changefreq: "weekly",  priority: 1.0 },
+  { path: "/help",    changefreq: "monthly", priority: 0.6 },
+  { path: "/terms",   changefreq: "yearly",  priority: 0.4 },
+  { path: "/privacy", changefreq: "yearly",  priority: 0.4 },
+];
+
+function generateSafeDealSitemap(): string {
+  const urls = SAFEDEAL_PAGES.map(
+    (e) => `  <url>
+    <loc>${SAFEDEAL_URL}${e.path}</loc>
+    <changefreq>${e.changefreq}</changefreq>
+    <priority>${e.priority}</priority>
+  </url>`,
+  ).join("\n");
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls}
+</urlset>`;
+}
+
 /** Fully i18n-driven pages get real per-locale ?lang= hreflang alternates. */
 const isLocalizable = (p: string): boolean =>
   p === "/" ||
@@ -214,12 +244,20 @@ async function fetchHelpArticleEntries(): Promise<SitemapEntry[]> {
   return [...bySlug.values()];
 }
 
-export const getServerSideProps: GetServerSideProps = async ({ res }) => {
-  const [storefrontEntries, helpEntries] = await Promise.all([
-    fetchStorefrontEntries(),
-    fetchHelpArticleEntries(),
-  ]);
-  const sitemap = generateSitemap([...staticEntries(), ...helpEntries, ...storefrontEntries]);
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+  const host = (req.headers.host || "").toLowerCase().split(":")[0];
+
+  let sitemap: string;
+  if (SAFEDEAL_HOSTS.has(host)) {
+    // SafeDeal brand (safedeal.sh) → its own compact sitemap.
+    sitemap = generateSafeDealSitemap();
+  } else {
+    const [storefrontEntries, helpEntries] = await Promise.all([
+      fetchStorefrontEntries(),
+      fetchHelpArticleEntries(),
+    ]);
+    sitemap = generateSitemap([...staticEntries(), ...helpEntries, ...storefrontEntries]);
+  }
 
   res.setHeader("Content-Type", "text/xml; charset=utf-8");
   res.setHeader("Cache-Control", "public, s-maxage=3600, stale-while-revalidate=86400");

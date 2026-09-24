@@ -1,4 +1,29 @@
 # ============================================================================
+# >>> HANDOFF (2026-09-24 pt3) — 3 POLISH ITEMS + SAFEDEAL SITEMAP <<<
+# ============================================================================
+#   FRONTEND-ONLY. SAFE MODE, live prod DB: NO login, NO money movement, read-only.
+#   Frontend = Next.js DEV (hot reload). Pages paint black until hydration —
+#   navigate domcontentloaded, then wait for the first heading VISIBLE (up to 60s).
+#   Offline gates GREEN: tsc 0 errors, ESLint clean on changed files.
+#   VISUALLY verify (desktop 1920 + mobile 390), report pass/fail:
+#   1) HOMEPAGE "/": the coins marquee (data-testid="coins-strip" +
+#      "coins-marquee-track") is now LIVE from GET /api/public/tickers. It must
+#      render >=8 coin tickers incl. USDT & USDC first, animate horizontally, sit
+#      under the hero + above the trust bar, and cause NO horizontal page overflow.
+#   2) /fees: the "security" section (data-testid="fees-security") is now a COMPACT
+#      centered pill ROW of 3 short items (shield icon + label: "Your keys, your
+#      coins.", "KYC / AML where required.", "Encrypted, GDPR ready.") — NOT the old
+#      3 big body-text cards. The worked-example (fees-worked) must still be GONE and
+#      the calculator (fees-calculator) still present + interactive. No overflow.
+#   3) On mobile 390 the fees pills wrap/stack cleanly and the coins strip does not
+#      cause a horizontal scrollbar.
+#   (SafeDeal sitemap/robots are host-header driven — already verified via curl, not
+#   part of this visual pass.)
+# ============================================================================
+
+
+
+# ============================================================================
 # >>> TESTING AGENT VERIFICATION (2026-09-24 pt2) — LANDING PAGE COINS MARQUEE + SEO PAGES + FEES + i18n <<<
 # ============================================================================
 #   Tested by: testing_agent (frontend_testing_v2)

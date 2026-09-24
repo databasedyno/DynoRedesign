@@ -136,8 +136,29 @@ REMAINING WORK FOR NEXT AGENT (in order):
     keys; /fees worked-example block (fees-worked) GONE, fees-calculator present + interactive,
     who-pays/faq centered; i18n ?lang=de & ?lang=fr show no raw dotted keys. => REVAMP TRACK COMPLETE.
  b) [DONE] All pass → revamp track complete. Deploy only on explicit user ask.
- c) OPTIONAL polish not requested yet: further trim /fees "security" section; add coin
-    count/logos to CoinsStripV7 from live /api/public/tickers instead of a static list.
+ c) [DONE 2026-09-24 pt3] Optional polish: (1) /fees "security" section CONDENSED from 3
+    big body-text cards → one compact centered 3-pill trust row (icon + short label);
+    (2) CoinsStripV7 now LIVE from GET /api/public/tickers (symbols→cryptocurrency-color
+    icons, USDT/USDC always surfaced first, static fallback if feed empty). Verified by
+    frontend testing agent (desktop + mobile, no overflow, calculator still interactive).
+
+---
+## Session 2026-09-24 (part 3) — SEO: SAFEDEAL XML SITEMAP + host-aware robots
+SafeDeal (safedeal.sh) is a separate brand served by the same app (middleware host
+rewrite). Dotted paths (/sitemap.xml, /robots.txt) bypass middleware, so both are now
+HOST-AWARE server routes:
+ - pages/sitemap.xml.tsx: safedeal.sh/www.safedeal.sh → dedicated SafeDeal sitemap
+   (base https://safedeal.sh; pages /, /help, /terms, /privacy; private deal/wallet/
+   signin excluded). Dynopay sitemap unchanged (0 safedeal leakage).
+ - pages/robots.txt.tsx (NEW; replaces static public/robots.txt): serves brand-specific
+   robots per Host — Dynopay content verbatim + Sitemap: dynopay.com/sitemap.xml;
+   SafeDeal → Allow /, Disallow /api/, Sitemap: https://safedeal.sh/sitemap.xml.
+ - IndexNow key (public/b5fb5f8e0c8b43f68b67dfcd54210d7a.txt) resolves on safedeal.sh too.
+ - scripts/ping-search-engines-safedeal.sh (NEW): submits the SafeDeal sitemap URLs to
+   Bing/IndexNow (Google needs no ping — submit sitemap once in Search Console).
+ Verified via curl with Host headers (both hosts correct). Google/Bing domain
+ verification tokens intentionally NOT embedded (user chose to verify later / by DNS).
+ Gates GREEN: tsc 0 errors, ESLint clean.
 
 CHANGED FILES (this whole revamp, for review):
  - NEW: Components/Page/Home/v7/{HeroV7,CoinsStripV7,TrustBarV7,HowItWorksV7,ThreeWaysV7,
