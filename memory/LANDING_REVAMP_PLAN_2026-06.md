@@ -128,12 +128,14 @@ STATUS PER ITEM:
    all 6 langs — reconfirmed after the JSON reformat.)
 
 REMAINING WORK FOR NEXT AGENT (in order):
- a) Run the frontend testing agent (SAFE MODE: no login, no money movement, read-only) to
-    VISUALLY verify: homepage coins-strip renders + marquee animates + no layout shift and
-    trust bar still below it; /for/ecommerce (+ /for/saas) section heads centered, no leaked
-    i18n keys; /fees no longer shows the worked-example block, calculator still interactive,
-    who-pays/faq centered. Desktop 1920 + mobile 390. Report pass/fail.
- b) If all pass → this revamp track is complete; summarize + (only on user ask) deploy.
+ a) [DONE — VERIFIED 2026-09-24 pt3] Frontend testing agent ran the SAFE-MODE read-only
+    visual verification (desktop 1920 + mobile 390): 12/12 PASSED (100%). Confirmed:
+    homepage coins-strip renders under hero / above trust bar + marquee animates + no
+    horizontal overflow / layout shift + all 9 sections present; /for/ecommerce & /for/saas
+    seo-features/seo-how-it-works/seo-faq/seo-related-pages headings centered, no leaked i18n
+    keys; /fees worked-example block (fees-worked) GONE, fees-calculator present + interactive,
+    who-pays/faq centered; i18n ?lang=de & ?lang=fr show no raw dotted keys. => REVAMP TRACK COMPLETE.
+ b) [DONE] All pass → revamp track complete. Deploy only on explicit user ask.
  c) OPTIONAL polish not requested yet: further trim /fees "security" section; add coin
     count/logos to CoinsStripV7 from live /api/public/tickers instead of a static list.
 

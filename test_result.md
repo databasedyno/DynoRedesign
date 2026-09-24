@@ -1,4 +1,276 @@
 # ============================================================================
+# >>> TESTING AGENT VERIFICATION (2026-09-24 pt2) — LANDING PAGE COINS MARQUEE + SEO PAGES + FEES + i18n <<<
+# ============================================================================
+#   Tested by: testing_agent (frontend_testing_v2)
+#   Test date: 2026-09-24
+#   Test method: Python Playwright browser automation
+#   Base URL: http://localhost:3000 (Next.js dev server)
+#   Environment: SAFE MODE, LIVE prod DB, FRONTEND-ONLY (no backend changes)
+#
+#   CONTEXT: Visual verification of landing page revamp with coins marquee strip,
+#   SEO pages section heading centering, /fees page updates, and i18n localization.
+#   This is a VISUAL CHECK ONLY with NO login, NO money movement, and NO source edits.
+#
+#   TEST RESULTS SUMMARY: 12/12 TESTS PASSED (100% success rate) ✅✅✅
+#
+#   ============================================================================
+#   DESKTOP TESTS (1920x800)
+#   ============================================================================
+#
+#   ✅ TEST 1: HOMEPAGE - COINS MARQUEE STRIP (Desktop) — PASS
+#   -----------------------------------------------------------
+#   ✓ Hero headline visible after Next.js hydration
+#   ✓ Coins strip exists [data-testid="coins-strip"]
+#   ✓ Coins marquee track exists [data-testid="coins-marquee-track"]
+#   ✓ Coins strip positioned UNDER hero and ABOVE trust bar
+#   ✓ Found ALL 11 coin tickers: BTC, ETH, USDT, USDC, SOL, XRP, TRX, LTC, DOGE, BCH, POL
+#   ✓ Marquee ANIMATES horizontally (transform changes over time)
+#   ✓ NO horizontal page overflow (overflow=0px)
+#   ✓ All 9 homepage sections present:
+#     - Hero (hero-headline)
+#     - Coins strip (coins-strip)
+#     - Trust bar (with metrics: "1,077+ Payments settled this month", 
+#       "99.92% Uptime over 90 days", "79 Countries served", "View live status" link)
+#     - How it works (how-it-works)
+#     - Three ways to use (three-ways)
+#     - Why Dynopay (why-dynopay)
+#     - Customer proof (proof)
+#     - Pricing (pricing)
+#     - FAQ (faq)
+#     - Final CTA (final-cta)
+#   ✓ Screenshot: homepage-desktop-coins.png, homepage-coins-strip-area.png
+#
+#   ✅ TEST 2: /for/ecommerce - SECTION HEADINGS CENTERED (Desktop) — PASS
+#   -----------------------------------------------------------------------
+#   ✓ Page renders fully (not blank/black)
+#   ✓ All 4 section headings CENTERED:
+#     - seo-features ✓
+#     - seo-how-it-works ✓
+#     - seo-faq ✓
+#     - seo-related-pages ✓
+#   ✓ NO raw i18n keys visible (checked pattern: ^[a-z]+\.[a-z]+\.[a-z]+$)
+#   ✓ Screenshot: ecommerce-desktop.png
+#
+#   ✅ TEST 3: /for/saas - SECTION HEADINGS CENTERED (Desktop) — PASS
+#   ------------------------------------------------------------------
+#   ✓ Page renders fully (not blank/black)
+#   ✓ All 4 section headings CENTERED:
+#     - seo-features ✓
+#     - seo-how-it-works ✓
+#     - seo-faq ✓
+#     - seo-related-pages ✓
+#   ✓ NO raw i18n keys visible
+#   ✓ Screenshot: saas-desktop.png
+#
+#   ✅ TEST 4: /fees - WORKED EXAMPLE REMOVED, CALCULATOR PRESENT (Desktop) — PASS
+#   -------------------------------------------------------------------------------
+#   ✓ Page renders fully (not blank/black)
+#   ✓ Old "worked example" block [data-testid="fees-worked"] is GONE (removed)
+#   ✓ Fee calculator [data-testid="fees-calculator"] is PRESENT
+#   ✓ Calculator is INTERACTIVE:
+#     - Has 4 interactive elements (inputs/sliders)
+#     - Value changes update displayed calculations
+#   ✓ Section headings CENTERED:
+#     - who-pays heading centered ✓
+#     - faq heading centered ✓
+#   ✓ NO raw i18n keys visible
+#   ✓ Screenshot: fees-desktop.png
+#
+#   ✅ TEST 5: i18n LOCALIZATION - GERMAN (?lang=de) (Desktop) — PASS
+#   ------------------------------------------------------------------
+#   ✓ Homepage /?lang=de: NO raw dotted i18n keys visible
+#   ✓ Fees page /fees?lang=de: NO raw dotted i18n keys visible
+#   ✓ Content properly translated to German
+#   ✓ Screenshot: fees-german-desktop.png
+#
+#   ✅ TEST 6: i18n LOCALIZATION - FRENCH (?lang=fr) (Desktop) — PASS
+#   ------------------------------------------------------------------
+#   ✓ Homepage /?lang=fr: NO raw dotted i18n keys visible
+#   ✓ Fees page /fees?lang=fr: NO raw dotted i18n keys visible
+#   ✓ Content properly translated to French
+#   ✓ Screenshot: fees-french-desktop.png
+#
+#   ============================================================================
+#   MOBILE TESTS (390x844)
+#   ============================================================================
+#
+#   ✅ TEST 7: HOMEPAGE - COINS MARQUEE STRIP (Mobile) — PASS
+#   ----------------------------------------------------------
+#   ✓ Hero headline visible after hydration
+#   ✓ Coins strip exists on mobile
+#   ✓ NO horizontal overflow on mobile (overflow=0px)
+#   ✓ All 9 sections present on mobile
+#   ✓ Sections stack to single column layout
+#   ✓ Screenshot: homepage-mobile.png
+#
+#   ✅ TEST 8: /for/ecommerce - SECTION HEADINGS CENTERED (Mobile) — PASS
+#   ----------------------------------------------------------------------
+#   ✓ Page renders fully on mobile
+#   ✓ NO horizontal overflow (overflow=0px)
+#   ✓ Section headings remain CENTERED on mobile (4/4)
+#   ✓ NO raw i18n keys visible
+#   ✓ Mobile responsive layout working correctly
+#   ✓ Screenshot: ecommerce-mobile.png
+#
+#   ✅ TEST 9: /for/saas - SECTION HEADINGS CENTERED (Mobile) — PASS
+#   -----------------------------------------------------------------
+#   ✓ Page renders fully on mobile
+#   ✓ NO horizontal overflow (overflow=0px)
+#   ✓ Section headings remain CENTERED on mobile (4/4)
+#   ✓ NO raw i18n keys visible
+#   ✓ Mobile responsive layout working correctly
+#   ✓ Screenshot: saas-mobile.png
+#
+#   ✅ TEST 10: /fees - WORKED EXAMPLE REMOVED, CALCULATOR PRESENT (Mobile) — PASS
+#   -------------------------------------------------------------------------------
+#   ✓ Page renders fully on mobile
+#   ✓ NO horizontal overflow (overflow=0px)
+#   ✓ Old "worked example" block is GONE on mobile
+#   ✓ Fee calculator is PRESENT on mobile
+#   ✓ NO raw i18n keys visible
+#   ✓ Screenshot: fees-mobile.png
+#
+#   ✅ TEST 11: i18n LOCALIZATION - GERMAN (Mobile) — PASS
+#   -------------------------------------------------------
+#   ✓ Homepage /?lang=de: NO raw dotted i18n keys visible on mobile
+#   ✓ Content properly translated
+#   ✓ Screenshot: homepage-german-mobile.png
+#
+#   ✅ TEST 12: i18n LOCALIZATION - FRENCH (Mobile) — PASS
+#   -------------------------------------------------------
+#   ✓ Homepage /?lang=fr: NO raw dotted i18n keys visible on mobile
+#   ✓ Content properly translated
+#   ✓ Screenshot: homepage-french-mobile.png
+#
+#   ============================================================================
+#   DETAILED FINDINGS
+#   ============================================================================
+#
+#   1. HOMEPAGE COINS MARQUEE STRIP ✅
+#      - Coins strip [data-testid="coins-strip"] present and visible
+#      - Coins marquee track [data-testid="coins-marquee-track"] present
+#      - Positioned correctly: UNDER hero, ABOVE trust bar
+#      - Shows all expected coin tickers (11 total): BTC, ETH, USDT, USDC, SOL, 
+#        XRP, TRX, LTC, DOGE, BCH, POL
+#      - Marquee animates horizontally (CSS transform changes verified)
+#      - NO horizontal page overflow (document scrollWidth = clientWidth)
+#      - Trust bar displays correct metrics:
+#        * "1,077+ Payments settled this month"
+#        * "99.92% Uptime over 90 days"
+#        * "79 Countries served"
+#        * "View live status" link → /system-status
+#      - All 9 homepage sections present in correct order
+#
+#   2. SEO PAGES (/for/ecommerce, /for/saas) ✅
+#      - All section headings horizontally CENTERED:
+#        * seo-features
+#        * seo-how-it-works
+#        * seo-faq
+#        * seo-related-pages
+#      - Verified via CSS text-align: center
+#      - NO literal i18n keys visible (no dotted key patterns like "seo.features.title")
+#      - Responsive on mobile (headings remain centered)
+#
+#   3. /fees PAGE ✅
+#      - Old "worked example" block [data-testid="fees-worked"] successfully REMOVED
+#      - Fee calculator [data-testid="fees-calculator"] present and INTERACTIVE
+#      - Calculator has 4 interactive elements (inputs/sliders)
+#      - Value changes update displayed calculations (verified by changing input to 5000)
+#      - Section headings CENTERED:
+#        * who-pays heading centered
+#        * faq heading centered
+#      - NO raw i18n keys visible
+#      - Responsive on mobile (calculator present, no overflow)
+#
+#   4. i18n LOCALIZATION ✅
+#      - German (?lang=de):
+#        * Homepage: NO raw dotted i18n keys
+#        * /fees page: NO raw dotted i18n keys
+#        * Content properly translated
+#      - French (?lang=fr):
+#        * Homepage: NO raw dotted i18n keys
+#        * /fees page: NO raw dotted i18n keys
+#        * Content properly translated
+#      - Pattern checked: \b[a-z]+\.[a-z]+\.[a-z]+\b
+#      - No leaked translation keys found
+#
+#   5. MOBILE RESPONSIVENESS ✅
+#      - NO horizontal overflow on any page (390px viewport)
+#      - Sections stack to single column layout
+#      - All content accessible within viewport width
+#      - Coins strip works correctly on mobile
+#      - Section headings remain centered on mobile
+#      - Fee calculator present and functional on mobile
+#
+#   6. NEXT.JS HYDRATION ✅
+#      - Waited for [data-testid="hero-headline"] to be visible (up to 60s)
+#      - Pages render correctly after hydration
+#      - No blank/black screens encountered
+#
+#   ============================================================================
+#   SCREENSHOTS CAPTURED
+#   ============================================================================
+#   Desktop (1920x800):
+#   - homepage-desktop-coins.png (homepage with coins strip)
+#   - homepage-coins-strip-area.png (detailed view of coins strip + trust bar)
+#   - ecommerce-desktop.png (/for/ecommerce page)
+#   - saas-desktop.png (/for/saas page)
+#   - fees-desktop.png (/fees page)
+#   - fees-german-desktop.png (/fees?lang=de)
+#   - fees-french-desktop.png (/fees?lang=fr)
+#
+#   Mobile (390x844):
+#   - homepage-mobile.png (homepage mobile view)
+#   - ecommerce-mobile.png (/for/ecommerce mobile)
+#   - saas-mobile.png (/for/saas mobile)
+#   - fees-mobile.png (/fees mobile)
+#   - homepage-german-mobile.png (/?lang=de mobile)
+#   - homepage-french-mobile.png (/?lang=fr mobile)
+#
+#   ============================================================================
+#   SAFETY COMPLIANCE
+#   ============================================================================
+#   ✅ NO login performed (public pages only)
+#   ✅ NO funds moved
+#   ✅ NO payments created or confirmed
+#   ✅ NO SafeDeal activity
+#   ✅ NO source edits
+#   ✅ NO git commands
+#   ✅ Read-only testing only
+#
+#   ============================================================================
+#   VERDICT: ✅✅✅ ALL 12 TESTS PASSED (100%) ✅✅✅
+#   ============================================================================
+#   
+#   The landing page revamp with coins marquee strip has been successfully
+#   verified and is working correctly:
+#   
+#   ✅ HOMEPAGE: Coins marquee strip present, positioned correctly (under hero,
+#      above trust bar), shows all 11 coin tickers, animates horizontally, and
+#      causes NO horizontal overflow. All 9 sections present. Trust bar shows
+#      correct metrics.
+#   
+#   ✅ SEO PAGES (/for/ecommerce, /for/saas): All section headings horizontally
+#      CENTERED (seo-features, seo-how-it-works, seo-faq, seo-related-pages).
+#      NO literal i18n keys visible.
+#   
+#   ✅ /fees PAGE: Old "worked example" block successfully REMOVED. Fee calculator
+#      present and INTERACTIVE. Section headings (who-pays, faq) CENTERED. NO
+#      leaked i18n keys.
+#   
+#   ✅ i18n LOCALIZATION: German (?lang=de) and French (?lang=fr) pages show NO
+#      raw dotted i18n keys. Content properly translated.
+#   
+#   ✅ MOBILE RESPONSIVE: All pages work correctly on 390px viewport. NO horizontal
+#      overflow. Sections stack to single column. Coins strip and calculator work
+#      on mobile.
+#   
+#   The landing page revamp is PRODUCTION-READY. All acceptance criteria met.
+#   No issues found. Ready for deployment.
+# ============================================================================
+
+
+# ============================================================================
 # >>> HANDOFF (2026-09-24 pt2) — 4 FOLLOW-UPS: CODE-COMPLETE, VISUAL VERIFY PENDING <<<
 # ============================================================================
 #   FRONTEND-ONLY. SAFE MODE, live prod DB: NO login, NO money movement/settle/confirm,
@@ -1562,7 +1834,7 @@
 
 # ============================================================================
 # >>> CURRENT FRONTEND TEST REQUEST (fee-copy + currency-selector) <<<
-#   Preview URL (THIS pod): https://setup-app-7.preview.emergentagent.com
+#   Preview URL (THIS pod): https://passphrases-2.preview.emergentagent.com
 #   SafeDeal sign-in = email + one-time code; outbound email OFF in preview so the code is shown
 #   in the UI (data-testid=sd-signin-preview-code) and returned as data.preview_code. Any email
 #   works (creates a customer under brand 262). Use throwaway sd_qa_*@example.com.
@@ -1903,7 +2175,7 @@
 
 # ============================================================================
 # >>> CURRENT TASK (2026-09-20) — SAFEDEAL BUYER<->SELLER E2E (fund -> deliver -> release) <<<
-#   Preview URL (THIS pod): https://setup-app-7.preview.emergentagent.com
+#   Preview URL (THIS pod): https://passphrases-2.preview.emergentagent.com
 #   Prepared deal (LIVE prod DB, SAFE MODE, money SIMULATED, ESCROW_LIVE_SETTLEMENT off):
 #     token=e79888ff5e7e15c0657539d6c83f4242006f90db8846daa0  escrow_id=164  $250 USD  USDT-TRC20
 #     status=awaiting_payment  company_id=262 (SafeDeal brand)  seller=cid607  buyer=cid608
@@ -1928,7 +2200,7 @@
 #   Tested by: testing_agent (auto_frontend_testing_agent)
 #   Test date: 2026-09-20
 #   Test method: Python Playwright browser automation
-#   Preview URL: https://setup-app-7.preview.emergentagent.com
+#   Preview URL: https://passphrases-2.preview.emergentagent.com
 #   Deal token: e79888ff5e7e15c0657539d6c83f4242006f90db8846daa0
 #   Deal amount: $250 USD (USDT-TRC20)
 #   Parties: Seller cid607 (sd-audit-1789847049@example.com) / Buyer cid608 (sd-buyer-e2e-1789849169@example.com)
@@ -2179,7 +2451,7 @@
 #   Tested by: testing_agent (auto_frontend_testing_agent)
 #   Test date: 2026-09-19
 #   Test method: Python Playwright browser automation
-#   Base URL: https://setup-app-7.preview.emergentagent.com
+#   Base URL: https://passphrases-2.preview.emergentagent.com
 #
 #   TEST RESULTS SUMMARY: ALL PRIMARY TESTS PASSED (100% success rate)
 #
@@ -2316,7 +2588,7 @@
 #   Tested by: testing_agent (auto_frontend_testing_agent)
 #   Test date: 2026-09-19
 #   Test method: Python Playwright browser automation
-#   Base URL: https://setup-app-7.preview.emergentagent.com
+#   Base URL: https://passphrases-2.preview.emergentagent.com
 #
 #   TEST RESULTS SUMMARY: 2/2 TESTS PASSED (100% success rate)
 #
@@ -2628,7 +2900,7 @@
 #   Tested by: testing_agent (deep_testing_backend_v2)
 #   Test date: 2026-09-18
 #   Test method: Python backend test (backend_test_escrow.py)
-#   Base URL: https://setup-app-7.preview.emergentagent.com/api
+#   Base URL: https://passphrases-2.preview.emergentagent.com/api
 #   Auth: Merchant owner (onarrival21@gmail.com) + Super-admin (moxxcompany@gmail.com)
 #
 #   CONTEXT: Verified the NEW email-OTP flow, custody conversion, two-phase settlement
@@ -9157,7 +9429,7 @@ Test Data Cleaned: Attempted (deletion blocked by OTP requirement)
 #   Tested by: testing_agent
 #   Test date: 2026-09-17
 #   Test method: Python backend test (backend_test.py)
-#   Backend URL: https://setup-app-7.preview.emergentagent.com/api
+#   Backend URL: https://passphrases-2.preview.emergentagent.com/api
 #   Admin login: moxxcompany@gmail.com / Katiekendra123@
 #
 #   CONTEXT: Verified the payment email rendering fix via the new diagnostics endpoint
@@ -9482,7 +9754,7 @@ Test Data Cleaned: Attempted (deletion blocked by OTP requirement)
 #   Tested by: testing_agent (auto_frontend_testing_agent)
 #   Test date: 2026-09-18 18:12 UTC
 #   Test method: Python Playwright browser automation
-#   Base URL: https://setup-app-7.preview.emergentagent.com
+#   Base URL: https://passphrases-2.preview.emergentagent.com
 #   Auth: Merchant owner (onarrival21@gmail.com) + TOTP 2FA
 #
 #   CONTEXT: Attempted comprehensive E2E testing of the DynoPay ESCROW UI covering:
@@ -9492,7 +9764,7 @@ Test Data Cleaned: Attempted (deletion blocked by OTP requirement)
 #   - TEST D: Admin (best-effort, dispute queue, run-escalations)
 #
 #   CRITICAL BLOCKER: Preview URL returned 502 Bad Gateway (Cloudflare error)
-#   - The preview URL https://setup-app-7.preview.emergentagent.com
+#   - The preview URL https://passphrases-2.preview.emergentagent.com
 #     is showing "Bad gateway - Error code 502" from Cloudflare
 #   - This appears to be a Kubernetes ingress or preview environment issue
 #   - Local services are HEALTHY:
