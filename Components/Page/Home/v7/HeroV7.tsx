@@ -6,11 +6,13 @@ import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import { FONT_BODY, FONT_TECH, useAurora, BRAND_ACCENT } from "../v3/theme.v3";
 import { HeadlineXL, AuroraInk, Body, Eyebrow } from "../v3/styled.v3";
 import { PrimaryBtn, SecondaryBtn, goStart } from "../v5/shared";
+import CheckoutMock from "./mock/CheckoutMock";
 
 /**
  * Section 1 of 9 — HERO (answers: "What is it?").
- * Centered statement headline on the dark Bybit ground with a soft yellow glow
- * + faint grid. Two CTAs: Start free (yellow) and See how it works (ghost).
+ * Centered statement headline on the dark Bybit ground with a soft yellow glow,
+ * two CTAs (Start free / See how it works) and, below them, the real hosted
+ * checkout as a glossy product mockup cycling through a payment being received.
  */
 const HeroV7: React.FC = () => {
   const s = useAurora();
@@ -20,7 +22,7 @@ const HeroV7: React.FC = () => {
       component="section"
       id="hero"
       data-testid="hero"
-      sx={{ position: "relative", overflow: "hidden", background: s.bg, pt: { xs: 12, md: 18 }, pb: { xs: 9, md: 13 } }}
+      sx={{ position: "relative", overflow: "hidden", background: s.bg, pt: { xs: 12, md: 18 }, pb: { xs: 8, md: 11 } }}
     >
       <Box
         aria-hidden
@@ -34,20 +36,6 @@ const HeroV7: React.FC = () => {
           borderRadius: "50%",
           background: `radial-gradient(circle, ${BRAND_ACCENT} 0%, ${BRAND_ACCENT}88 26%, transparent 68%)`,
           opacity: s.dark ? 0.16 : 0.08,
-          pointerEvents: "none",
-        }}
-      />
-      <Box
-        aria-hidden
-        sx={{
-          position: "absolute",
-          inset: 0,
-          backgroundImage: s.dark
-            ? "linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px)"
-            : "linear-gradient(rgba(10,10,10,0.028) 1px, transparent 1px), linear-gradient(90deg, rgba(10,10,10,0.028) 1px, transparent 1px)",
-          backgroundSize: "72px 72px",
-          maskImage: "radial-gradient(ellipse 80% 70% at 50% 12%, black 10%, transparent 72%)",
-          WebkitMaskImage: "radial-gradient(ellipse 80% 70% at 50% 12%, black 10%, transparent 72%)",
           pointerEvents: "none",
         }}
       />
@@ -75,6 +63,26 @@ const HeroV7: React.FC = () => {
         <Body sx={{ fontFamily: FONT_TECH, fontSize: 12.5, letterSpacing: "0.06em", textTransform: "uppercase", color: s.ink3, mt: 3 }}>
           No credit card · Your first payment is free
         </Body>
+        <Box data-testid="hero-mock-wrap" sx={{ position: "relative", mt: { xs: 7, md: 9 }, mx: "auto", maxWidth: 760, textAlign: "left" }}>
+          <Box
+            aria-hidden
+            sx={{
+              position: "absolute",
+              left: "8%",
+              right: "8%",
+              bottom: "-18%",
+              height: "55%",
+              borderRadius: "50%",
+              background: `radial-gradient(ellipse at center, ${BRAND_ACCENT}66 0%, transparent 70%)`,
+              filter: "blur(36px)",
+              opacity: s.dark ? 0.55 : 0.35,
+              pointerEvents: "none",
+            }}
+          />
+          <Box sx={{ position: "relative", transform: { md: "perspective(1800px) rotateX(3deg)" }, transformOrigin: "top center" }}>
+            <CheckoutMock />
+          </Box>
+        </Box>
       </Box>
     </Box>
   );

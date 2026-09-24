@@ -1,61 +1,87 @@
-# Dynopay rebrand — yellow · dark brown · black · aqua, new logo, cleaner landing
-**Starting point: the merchant dashboard (per user).** Landing page follows after.
+# 3D Imagery on the Landing Page — Placement Plan
 
-## Goal
-Give Dynopay (the merchant crypto-payments product — NOT SafeDeal) a new visual identity built on yellow, dark brown, black and turquoise/aqua, replace the current indigo look everywhere a customer or merchant sees it, ship a new logo that fits the palette, and remove the decorative square that sits behind the landing-page hero.
+## Objective
+Add a small, curated set of 3D visuals to the homepage so it feels more premium and
+"crypto‑product", without breaking the clean, decluttered, dark Bybit‑style look that was
+just shipped. The guiding rule: 3D should support the message and fill existing empty
+space — never crowd it. Fewer, consistent, high‑quality renders beat many scattered ones.
 
-## 1. Brand palette
-| Role | Colour | Where it is used |
-|---|---|---|
-| Yellow (primary) | bright signal yellow `#FFD100`, hover `#F0C300` | primary buttons, key numbers, active nav item, selected states, logo mark, highlights |
-| Dark brown (dominant dark) | espresso `#2B1D14`, raised surfaces `#3A2A1F` | sidebar, hero/footer grounds, dark-mode page background, headings/text on light surfaces (`#1F140D`) |
-| Black | near-black `#0B0908` | deepest backgrounds in dark mode, code/QR/address blocks, logo on light |
-| Aqua (secondary) | `#2BD4C4` on dark, `#0F8F86` on light (for readable text/links) | links, secondary/outlined buttons, focus rings, "live on-chain"/status indicators, chart lines, hover glows, progress steps |
-| Light neutrals | cream page `#FAF6EF`, card `#FFFDF7`, hairline `#E8DFD2` | light-mode backgrounds and borders (warm, never blue-grey) |
+## What "clean" means here (the rules the visuals must follow)
+- One consistent art style across every render (same lighting, perspective, materials).
+- Brand palette only: dark charcoal surfaces, signal yellow `#FFD100` as the accent
+  material/glow, Bybit‑black. No rainbow gradients or stock‑crypto clichés.
+- Transparent backgrounds so objects sit seamlessly on the dark sections.
+- Restrained scale and generous whitespace — the 3D is a supporting accent, not a hero
+  takeover.
+- Motion (if any) is subtle and respects "reduce motion" preferences.
 
-Rules:
-- Yellow always carries dark-brown text (never white-on-yellow).
-- Money semantics stay conventional: green for received/up, red for failed/down. Aqua is a brand accent, not a "success" colour.
-- Both light and dark modes ship. Dark mode = dark brown/black grounds with yellow + aqua accents; light mode = cream grounds with dark-brown text.
-- Standard alert/notice boxes get solid, readable backgrounds in the new palette (fixes the faint-alert problem that already exists in the shared theme).
-- Typography is unchanged; only colour, texture, shapes and the logo change.
+## Recommended placements (the core proposal)
+The homepage has 9 sections (Hero → Coins strip → Trust bar → How it works → Three ways to
+use → Why Dynopay → Customer proof → Pricing → FAQ → Final CTA). 3D is proposed in only
+**three** of them:
 
-## 2. Logo
-- The current indigo logo does not fit the palette, so a new one is made.
-- Direction: a geometric "D" monogram whose inner counter is cut like a coin edge, with a single small aqua spark/dot marking the on-chain moment; yellow mark on dark brown, with a clean "Dynopay" wordmark beside it.
-- Delivered as scalable vector so it renders crisp everywhere, in four variants: full colour on dark, full colour on light, single-colour dark, single-colour light.
-- Derived assets: favicon set, browser/app icon, social-share (Open Graph) image, email header image, and the small square mark used in the dashboard sidebar and hosted checkout.
-- Checkpoint: two or three rendered logo concepts are shown for a pick before the chosen one is rolled out. Because the dashboard sidebar carries the logo, this pick happens at the very start.
+1. **Hero (primary, highest impact).**
+   Today the hero is centered text with large empty space on either side at desktop width.
+   Proposal: a single 3D focal object that visually says "accept crypto → settle your way"
+   (e.g. a stylised cluster of coins/tokens resolving into a payment card or wallet).
+   Two layout options — see Decision 2.
 
-## 3. Delivery order
-**Step 1 — Dashboard first (start here)**
-1. Logo concepts → pick.
-2. Merchant dashboard and every in-app page: sidebar + top bar, company selector, overview/command-centre cards, charts, tables, chips/status badges, buttons, dialogs, forms, settings, wallets, payment links, invoices, customers, transactions, get-started wizard, 2FA banners/interstitial. Light and dark mode.
-3. Sign-in / sign-up / password / 2FA screens (they share the app shell).
+2. **"Three ways to use" (No‑code · Checkout · API).**
+   One small, matching 3D vignette per card: a phone showing a checkout, a no‑code/pay‑link
+   tile, and an API/code cube. This is natural product storytelling and the section already
+   has three side‑by‑side slots.
 
-**Step 2 — Public surfaces**
-4. Marketing landing page: the large geometric square/tile behind the hero is removed (nothing geometric replaces it); the hero gets a soft aqua→yellow glow bleeding from one corner over the dark-brown ground plus a fine grain texture. Other decorative squares/tiles down the page are removed the same way. Whole page recoloured to the palette, new logo in header/footer.
-5. Fees page and other marketing pages sharing the landing layout.
-6. Hosted checkout (`/pay`), payment receipts (web + PDF) and the public receipt page.
+3. **Final CTA (closing accent).**
+   A single 3D object echoing the hero motif to bookend the page.
 
-**Step 3 — Comms and internal**
-7. Transactional emails (header, buttons, footer) for the Dynopay brand.
-8. Admin panel accents (low priority; functional, not a redesign).
+That's **5 renders total** in one consistent style. Recommended to stop there.
 
-Explicitly unchanged:
-- SafeDeal keeps its own gold/black identity, logo and pages. Only the tiny legal line that mentions Dynopay stays as is.
-- Merchant storefront/checkout pages that are branded with the merchant's own colours/logo keep the merchant's branding.
-- Layout, navigation, copy and features do not change — this is colour, texture and logo only (except the removed landing squares).
+Deliberately left text‑only to protect the clean feel: Coins strip, Trust bar, Why Dynopay,
+Customer proof, Pricing, FAQ. (Optional add‑on available — see Decision 4.)
 
-## 4. What "done" looks like (per step)
-- Dashboard: no indigo/violet/blue brand colour remains on any in-app page in light or dark mode; the new logo sits in the sidebar; active nav item, primary buttons and key numbers are yellow-on-brown; links/focus/status use aqua; charts use aqua/yellow lines; alerts are solid and readable.
-- Landing: no geometric background shapes; hero uses the glow + grain treatment; new logo in header, footer, favicon and social-share preview.
-- Everywhere: yellow buttons carry dark-brown text; aqua text uses the darker shade on light backgrounds; contrast meets accessibility norms.
+## Visual style direction
+Soft "studio" 3D: matte objects, gentle rim‑light in signal yellow, soft contact shadows,
+slight top‑down 3/4 angle, transparent background. Same camera and lighting on all five so
+they read as one set.
 
-## Assumptions (change if wrong)
-- Full-product rebrand is wanted; the dashboard ships first, then landing/checkout, then emails/admin.
-- Dynopay's yellow is deliberately a touch brighter/cooler than SafeDeal's gold so the two products stay recognisably related but distinct.
-- The dark-brown sidebar is the dashboard's anchor in both light and dark mode (light mode = brown sidebar on cream page; dark mode = brown sidebar on black page).
-- The landing square is removed outright rather than swapped for another shape.
-- Existing fonts stay; the logo wordmark is drawn as vector, not dependent on a new web font.
-- Dark brown (not pure black) is the dominant dark; black is reserved for the deepest layers so the UI feels warm rather than stark.
+## How the 3D art is produced
+The renders would be created once and saved as static image files, so the live page loads
+plain images — no 3D engine and no per‑visit API calls (keeps it fast and clean). Options
+for producing them (Decision 3):
+- **AI‑generated to brand (recommended).** Generate custom, palette‑matched renders on
+  transparent backgrounds. Verified model options: **OpenAI `gpt-image-1`** (recommended;
+  supports transparent output) or **Google Gemini "nano‑banana"** image model. This needs
+  a key: the Emergent **universal key** (credits draw from your balance) or your own
+  provider key.
+- **You supply the assets.** If you already have or will commission 3D renders, we place
+  them and skip generation.
+- **Licensed stock 3D.** Use ready‑made 3D asset packs (less on‑brand, palette may differ).
+
+## Motion
+Recommended: a slow, subtle float/parallax on the hero object only; all other renders
+static. Everything honours "reduce motion". (Decision 5 if you'd rather it be fully static.)
+
+## Out of scope (to keep it clean and fast)
+- No interactive/heavy WebGL (e.g. Spline/three.js) by default — static renders only.
+- No 3D in every section; no autoplaying 3D video.
+
+## Decisions needed before build
+1. **Placement scope** — approve the curated set (Hero + 3 "ways to use" vignettes + Final
+   CTA)? Or a subset (e.g. Hero only)?
+2. **Hero layout** — (a) asymmetric hero: text stays left, 3D object on the right, stacks
+   on mobile (recommended, uses the empty space); or (b) keep the current centered hero and
+   place the 3D as a subtle low‑opacity backdrop behind the headline.
+3. **Art production** — AI‑generate (which model: `gpt-image-1` recommended, or Gemini
+   nano‑banana) vs. you supply assets vs. stock. If AI‑generated: universal key or your own
+   key?
+4. **Optional extra** — also add tiny 3D spot‑icons to "How it works" (3) and "Why Dynopay"
+   (4)? Default is **no**, to stay clean.
+5. **Motion** — subtle float on the hero (recommended) or fully static?
+
+## Assumptions (chosen unless you say otherwise)
+- Static image renders, transparent WebP/PNG, generated once and committed as files — no
+  live 3D/API calls on the page.
+- Dark palette + `#FFD100` accent; reduced‑motion respected; images below the fold are
+  lazy‑loaded, hero image is prioritised.
+- Consistent single art style across all renders; scope capped at the 5 placements above
+  unless the optional extra is approved.
