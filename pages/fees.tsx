@@ -206,7 +206,7 @@ const FeesPage = () => {
 
         {/* ===== TIER CARDS ===== */}
         <Section alt testId="fees-tiers">
-          <SectionHead eyebrow={t("v3.tiersEyebrow")} headline={t("v3.tiersTitle")} />
+          <SectionHead center maxWidth={720} eyebrow={t("v3.tiersEyebrow")} headline={t("v3.tiersTitle")} />
           <Stagger step={0.07} sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", lg: "repeat(4, 1fr)" }, gap: 2 }}>
               {TIERS.map((tr, ti) => {
                 const isCurrent = tr.name === tier.name;
@@ -294,7 +294,7 @@ const FeesPage = () => {
 
         {/* ===== FEE CALCULATOR ===== */}
         <Section id="fee-calculator" testId="fees-calculator">
-          <SectionHead eyebrow={t("v3.calcEyebrow")} headline={t("v3.calcTitle")} />
+          <SectionHead center maxWidth={720} eyebrow={t("v3.calcEyebrow")} headline={t("v3.calcTitle")} />
           <Stagger step={0.1} sx={{ display: "grid" }}>
           <StaggerItem i={0} y={20}>
             <Box
@@ -538,7 +538,7 @@ const FeesPage = () => {
 
         {/* ===== COMPARISON ===== */}
         <Section alt testId="fees-compare">
-          <SectionHead eyebrow={t("v3.compareEyebrow")} headline={t("v3.compareTitle")} />
+          <SectionHead center maxWidth={720} eyebrow={t("v3.compareEyebrow")} headline={t("v3.compareTitle")} />
           <Stagger step={0.1} sx={{ display: "grid" }}>
           <StaggerItem i={0} y={20}>
             <Box sx={{ ...cardSx(s, { hover: false }), maxWidth: 900, mx: "auto", overflow: "hidden" }}>
@@ -573,7 +573,7 @@ const FeesPage = () => {
 
         {/* ===== WHO PAYS THE FEE? ===== */}
         <Section testId="fees-who-pays">
-          <SectionHead eyebrow={t("v3.whoPaysEyebrow")} headline={t("v3.whoPaysTitle")} body={t("v3.whoPaysBody")} />
+          <SectionHead center maxWidth={720} eyebrow={t("v3.whoPaysEyebrow")} headline={t("v3.whoPaysTitle")} body={t("v3.whoPaysBody")} />
           <Stagger step={0.08} sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 2, maxWidth: 900 }}>
               {[
                 { title: t("v3.wpMerchantTitle"), desc: t("v3.wpMerchantDesc"), highlight: false },
@@ -607,7 +607,7 @@ const FeesPage = () => {
 
         {/* ===== EVERYTHING INCLUDED FREE ===== */}
         <Section alt testId="fees-included">
-          <SectionHead eyebrow={t("v3.includedEyebrow")} headline={t("v3.includedTitle")} body={t("v3.includedBody")} />
+          <SectionHead center maxWidth={720} eyebrow={t("v3.includedEyebrow")} headline={t("v3.includedTitle")} body={t("v3.includedBody")} />
           <Stagger step={0.05} sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", lg: "1fr 1fr 1fr" }, gap: 1.5 }}>
               {["inc1", "inc2", "inc3", "inc4", "inc5", "inc6", "inc7", "inc8", "inc9"].map((k, ki) => (
                 <StaggerItem key={k} i={ki} y={12}>
@@ -647,7 +647,7 @@ const FeesPage = () => {
 
         {/* ===== SECURITY ===== */}
         <Section testId="fees-security">
-          <SectionHead eyebrow={t("v3.secEyebrow")} headline={t("v3.secTitle")} />
+          <SectionHead center maxWidth={720} eyebrow={t("v3.secEyebrow")} headline={t("v3.secTitle")} />
           <Stagger step={0.08} sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" }, gap: 2 }}>
               {[
                 { title: t("v3.sec1Title"), body: t("v3.sec1Body") },
@@ -678,7 +678,7 @@ const FeesPage = () => {
 
         {/* ===== FAQ ===== */}
         <Section alt testId="fees-faq-section">
-          <SectionHead eyebrow={t("v3.faqEyebrow")} headline={t("v3.faqTitle")} />
+          <SectionHead center maxWidth={720} eyebrow={t("v3.faqEyebrow")} headline={t("v3.faqTitle")} />
           <Stagger step={0.05} sx={{ display: "flex", flexDirection: "column", gap: 1.5, maxWidth: 900 }}>
               {faqs.map((f, i) => (
                 <StaggerItem key={i} i={i} y={12}>

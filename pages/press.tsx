@@ -100,7 +100,7 @@ const PressPage: React.FC = () => {
 
         {/* Fast facts */}
         <Section testId="press-facts">
-          <SectionHead eyebrow={t("press.eyebrow")} headline={t("press.factsTitle")} />
+          <SectionHead center maxWidth={720} eyebrow={t("press.eyebrow")} headline={t("press.factsTitle")} />
           <Stagger step={0.05} sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: { xs: 1.75, md: 2 } }}>
             {FACTS.map((key, i) => (
               <StaggerItem key={key} i={i} y={16}>
@@ -119,7 +119,7 @@ const PressPage: React.FC = () => {
 
         {/* Logos & assets */}
         <Section alt testId="press-logos">
-          <SectionHead eyebrow={t("press.eyebrow")} headline={t("press.logosTitle")} body={t("press.logosBody")} />
+          <SectionHead center maxWidth={720} eyebrow={t("press.eyebrow")} headline={t("press.logosTitle")} body={t("press.logosBody")} />
           <Stagger step={0.06} sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", md: "repeat(3, 1fr)" }, gap: { xs: 2, md: 2.5 } }}>
             {ASSETS.map((asset, i) => (
               <StaggerItem key={asset.key} i={i} y={16}>

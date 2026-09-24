@@ -9,8 +9,7 @@ import PublicRoundedIcon from "@mui/icons-material/PublicRounded";
 import ReceiptLongRoundedIcon from "@mui/icons-material/ReceiptLongRounded";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "@/Components/Page/Home/v3/theme.v3";
-import { BRAND_ACCENT } from "@/constants/theme";
-import { Section, SectionHead, PrimaryBtn, SecondaryBtn } from "@/Components/Page/Home/v5/shared";
+import { Section, SectionHead, PrimaryBtn, SecondaryBtn, cardSx } from "@/Components/Page/Home/v5/shared";
 import { Stagger, StaggerItem } from "@/Components/Page/Home/motion/Stagger";
 import PublicPageHero from "@/Components/Page/Home/v5/PublicPageHero";
 import CtaBand from "@/Components/Page/Home/v5/CtaBand";
@@ -86,11 +85,11 @@ const AboutPage: React.FC = () => {
 
         {/* What we build / values */}
         <Section testId="about-values">
-          <SectionHead eyebrow={t("about.eyebrow")} headline={t("about.buildTitle")} body={t("about.buildBody")} />
-          <Stagger step={0.06} sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: { xs: 1.75, md: 2 } }}>
+          <SectionHead center maxWidth={720} eyebrow={t("about.eyebrow")} headline={t("about.buildTitle")} body={t("about.buildBody")} />
+          <Stagger step={0.06} sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: { xs: 2, md: 2.5 } }}>
             {VALUES.map(({ Icon, key }, i) => (
               <StaggerItem key={key} i={i} y={16}>
-                <Box sx={{ height: "100%", display: "flex", gap: 2, alignItems: "flex-start", borderRadius: "18px", background: s.surface, border: `1px solid ${s.line}`, p: { xs: 2.75, md: 3.25 }, transition: "border-color 220ms ease, transform 220ms cubic-bezier(0.16,1,0.3,1), box-shadow 220ms ease", "&:hover": { borderColor: `${BRAND_ACCENT}55`, transform: "translateY(-3px)", boxShadow: `0 24px 48px -32px ${BRAND_ACCENT}66` } }}>
+                <Box sx={{ ...cardSx(s), height: "100%", display: "flex", gap: 2, alignItems: "flex-start", p: { xs: 3, md: 3.5 } }}>
                   <Box sx={{ flexShrink: 0, width: 44, height: 44, borderRadius: "12px", display: "grid", placeItems: "center", background: s.dark ? "rgba(255,209,0,0.14)" : "rgba(139,94,0,0.09)", color: accent }}>
                     <Icon sx={{ fontSize: 22 }} />
                   </Box>

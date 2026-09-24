@@ -83,3 +83,19 @@ Remove all extraneous cards/tables/versions. Max 3 cards side-by-side desktop, s
 
 ## Credentials (merchant/admin)
 - `moxxcompany@gmail.com` / `Katiekendra123@` (see /app/memory/test_credentials.md)
+
+---
+## Follow-up (2026-09-24) — PUBLIC MARKETING PAGES DECLUTTER (matches clean v7 landing)
+User feedback: theme color was already consistent, but the public pages "looked too busy."
+Applied a non-destructive "simple like the landing" recipe (no content removed):
+centered SectionHeads (center + maxWidth 720) + centered content containers + calm
+cardSx cards (removed aggressive translateY/glow hovers). Pages updated & VERIFIED by
+frontend testing agent (desktop + mobile, no leaked i18n keys, no overflow):
+  - /about (values cards calmed + centered head)
+  - /referral-program (steps/leaderboard/faq heads centered, content centered)
+  - /press (facts + logos heads centered)
+  - /fees (all 7 section heads centered; interactive fee calculator confirmed intact)
+Left intentionally: /documentation (API reference), /system-status (live dashboard),
+/how-to (already minimal), /products (already v7-clean). NOT yet touched: /for/[vertical]
+SEO pages (render via Components/Page/SEO/SEOLandingPage) — optional next pass.
+tsc 0 errors, eslint clean.

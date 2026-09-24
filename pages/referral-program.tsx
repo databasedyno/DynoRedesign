@@ -75,7 +75,7 @@ const ReferralProgramPage = () => {
 
         {/* ===== HOW IT WORKS ===== */}
         <Section alt testId="referral-steps">
-          <SectionHead headline={t("public.stepsTitle")} />
+          <SectionHead center maxWidth={720} headline={t("public.stepsTitle")} />
           <Stagger step={0.08} sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" }, gap: 2 }}>
               {steps.map((step, i) => (
                 <StaggerItem key={i} i={i} y={16}>
@@ -127,8 +127,8 @@ const ReferralProgramPage = () => {
         {/* ===== TOP REFERRERS (public, count-only) ===== */}
         {leaderboard.length > 0 && (
           <Section alt testId="referral-leaderboard-section">
-              <SectionHead headline={t("public.leaderboardTitle")} body={t("public.leaderboardSubtitle")} />
-              <Box sx={{ maxWidth: 640, display: "flex", flexDirection: "column", gap: 1.5 }}>
+              <SectionHead center maxWidth={720} headline={t("public.leaderboardTitle")} body={t("public.leaderboardSubtitle")} />
+              <Box sx={{ maxWidth: 640, mx: "auto", display: "flex", flexDirection: "column", gap: 1.5 }}>
                 {leaderboard.map((entry, i) => (
                   <Box
                     key={entry.rank}
@@ -173,8 +173,8 @@ const ReferralProgramPage = () => {
 
         {/* ===== FAQ ===== */}
         <Section alt testId="referral-faq">
-          <SectionHead headline={t("public.faqTitle")} />
-          <Stagger step={0.05} sx={{ maxWidth: 900, display: "flex", flexDirection: "column", gap: 1.5 }}>
+          <SectionHead center maxWidth={720} headline={t("public.faqTitle")} />
+          <Stagger step={0.05} sx={{ maxWidth: 820, mx: "auto", display: "flex", flexDirection: "column", gap: 1.5 }}>
               {faqs.map((f, i) => (
                 <StaggerItem key={i} i={i} y={12}>
                 <Box
