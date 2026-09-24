@@ -73,6 +73,7 @@ const Inter = localFont({
     { path: "../fonts/Inter-400.woff2", weight: "400", style: "normal" },
     { path: "../fonts/Inter-500.woff2", weight: "500", style: "normal" },
     { path: "../fonts/Inter-600.woff2", weight: "600", style: "normal" },
+    { path: "../fonts/Inter-700.woff2", weight: "700", style: "normal" },
   ],
   display: "swap",
   fallback: ["-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica", "Arial", "sans-serif"],
@@ -893,6 +894,9 @@ App.getInitialProps = async (appContext: AppContext) => {
   // blocking script also handle their own migration paths).
   const legacyMatch = /(?:^|;\s*)theme-mode=(light|dark)/.exec(cookieHeader || "");
   const legacyValue = legacyMatch ? (legacyMatch[1] as "light" | "dark") : null;
+  // Legacy single-key cookie only applies to the in-app context — the public
+  // marketing default moved to dark (2026-09) and must not be pinned by it.
+  const legacyForContext = routeCtx === "inapp" ? legacyValue : null;
 
   // Auth-path inheritance: on /auth/* and /reset-password, if the user has
   // NOT set an explicit public cookie AND has an explicit in-app DARK
@@ -909,10 +913,9 @@ App.getInitialProps = async (appContext: AppContext) => {
   const initialThemeMode: "light" | "dark" =
     contextCookieValue ||
     inheritedMode ||
-    legacyValue ||
-    (isHelpSupportPath(pathname)
-      ? getDefaultThemeForPath(pathname)
-      : getDefaultThemeForContext(routeCtx));
+    legacyForContext ||
+    getDefaultThemeForPath(pathname);
+  void getDefaultThemeForContext;
   // ── 3B: server-side locale for ?lang= (renders translated HTML per request) ──
   const I18N_LANGS = ["en", "pt", "fr", "es", "de", "nl"];
   const qLang = appContext.ctx.query?.lang;

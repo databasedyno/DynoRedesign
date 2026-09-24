@@ -52,7 +52,6 @@ const INAPP_PREFIXES = [
   "/referrals",
   "/developer-keys",
   "/company",
-  "/fees",
   "/admin",
   "/creator",
   "/storefront",
@@ -122,15 +121,49 @@ export function getStorageKeyForPath(pathname: string | undefined | null): strin
 
 /** Default theme for a given PATH. Help & Support keeps the LIGHT public
  *  default so logged-out visitors see the clean marketing look. */
+/**
+ * Marketing pages (2026-09 Bybit-style restyle) default to DARK like bybit.com.
+ * Buyer-facing surfaces (/pay, receipts, storefronts), auth and Help & Support
+ * keep the LIGHT default. Keep IN SYNC with the blocking script in _document.tsx.
+ */
+const MARKETING_PREFIXES = [
+  "/products",
+  "/fees",
+  "/blog",
+  "/about",
+  "/press",
+  "/for",
+  "/documentation",
+  "/system-status",
+  "/referral-program",
+  "/how-to",
+  "/terms-conditions",
+  "/privacy-policy",
+  "/aml-policy",
+  "/wallet-security",
+  "/compare",
+  "/accept-crypto-payments-in",
+];
+
+export function isMarketingPath(pathname: string | undefined | null): boolean {
+  if (!pathname) return false;
+  const path = pathname.split(/[?#]/)[0].replace(/\/+$/, "") || "/";
+  if (path === "/") return true;
+  for (const prefix of MARKETING_PREFIXES) {
+    if (path === prefix || path.startsWith(`${prefix}/`)) return true;
+  }
+  return false;
+}
+
 export function getDefaultThemeForPath(pathname: string | undefined | null): ThemeMode {
   if (isHelpSupportPath(pathname)) return "light";
+  if (isMarketingPath(pathname)) return "dark";
   return getDefaultThemeForContext(getRouteContext(pathname));
 }
 
 export function getDefaultThemeForContext(_context: ThemeContext): ThemeMode {
-  // 2026-06 (user decision): LIGHT is the default everywhere — landing, auth
-  // and the in-app dashboard. A merchant/visitor who explicitly toggles keeps
-  // their choice via the saved localStorage preference (readPreferredMode).
+  // LIGHT is the default for the in-app dashboard, auth and buyer checkout.
+  // Marketing paths override to DARK via getDefaultThemeForPath.
   return "light";
 }
 
@@ -138,6 +171,8 @@ export function getStorageKeyForContext(context: ThemeContext): string {
   return context === "inapp" ? "theme-mode-inapp" : "theme-mode-public";
 }
 
+/** Public cookie was bumped to `-v2` with the dark marketing default: the old
+ *  cookie was auto-written with the light default for every visitor. */
 export function getCookieNameForContext(context: ThemeContext): string {
-  return context === "inapp" ? "theme-mode-inapp" : "theme-mode-public";
+  return context === "inapp" ? "theme-mode-inapp" : "theme-mode-public-v2";
 }

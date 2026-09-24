@@ -16,15 +16,16 @@ import {
 
 // Aurora tokens (kept inline here to avoid pulling the whole theme.v3 into
 // the header — one source of truth is theme.v3.ts, we duplicate 4 constants).
-const CORAL = "#8B5E00"; // deep gold (text / borders / icons on light)
-const CORAL_DEEP = "#6B4800";
+const CORAL = "#A67C00"; // brand-tinted text / icons on light surfaces
+const accent = (dark: boolean) => (dark ? YELLOW : CORAL);
+const CORAL_DEEP = "#8A6600";
 const VIOLET = "#FFD100";
 const VOLT = "#22C55E";
 const YELLOW = "#FFD100";
-const YELLOW_HOVER = "#F0C300";
-const ESPRESSO = "#2B1D14";
+const YELLOW_HOVER = "#FFDC3D";
+const ESPRESSO = "#121214"; // Bybit black — text on yellow
 const AURORA_GRADIENT =
-  `linear-gradient(90deg, #FFB300 0%, #FFD100 100%)`;
+  `linear-gradient(90deg, #FFE066 0%, #FFD100 100%)`;
 // Below this the desktop nav + inline auth CTAs give way to the hamburger drawer.
 // 1100 (not 1024): five nav items + actions cannot fit the 1026–1100 band in ES/NL/FR.
 const HAMBURGER_BP = "@media (max-width: 1100px)";
@@ -43,7 +44,7 @@ export const FixedHeader = styled("header")(({ theme }) => {
     // took several seconds to open").
     //
     // Root cause: this header was zIndex 1400, but MobileMenuDrawer is 1500,
-    // so when the drawer opened its backdrop (rgba(11,11,15,0.6)) sat OVER
+    // so when the drawer opened its backdrop (rgba(0,0,0,0.6)) sat OVER
     // the hamburger button. The "dark shade on the menu icon" WAS the
     // backdrop overlaying the button. Any tap on the hamburger to close hit
     // the backdrop (which calls onClose), not the button — requiring a
@@ -56,7 +57,7 @@ export const FixedHeader = styled("header")(({ theme }) => {
     // backdrop discolouration on the icon.
     zIndex: 1600,
     // Frosted glass: paper (light) / obsidian (dark) at 78% alpha with blur.
-    backgroundColor: dark ? "rgba(11,11,15,0.72)" : "rgba(250,250,247,0.85)",
+    backgroundColor: dark ? "rgba(0,0,0,0.72)" : "rgba(255,255,255,0.85)",
     backdropFilter: "blur(14px) saturate(1.2)",
     WebkitBackdropFilter: "blur(14px) saturate(1.2)",
     borderBottom: `1px solid ${dark ? "rgba(255,255,255,0.08)" : "rgba(10,10,10,0.08)"}`,
@@ -86,7 +87,7 @@ export const FixedHeader = styled("header")(({ theme }) => {
     [HAMBURGER_BP]: {
       backdropFilter: "none",
       WebkitBackdropFilter: "none",
-      backgroundColor: dark ? "rgba(11,11,15,0.96)" : "rgba(250,250,247,0.98)",
+      backgroundColor: dark ? "rgba(0,0,0,0.96)" : "rgba(255,255,255,0.98)",
     },
   };
 });
@@ -219,7 +220,7 @@ export const NavLinks = styled("nav")(({ theme }) => ({
 
     "&:hover": {
       background: "transparent",
-      color: theme.palette.mode === "dark" ? "#F5F5F5" : "#0A0A0A",
+      color: theme.palette.mode === "dark" ? "#FFFFFF" : "#121214",
     },
   },
 }));
@@ -313,12 +314,12 @@ export const MobileMenuButton = styled(IconButton)(({ theme }) => {
 });
 
 export const MenuOpenIcon = styled(MenuRounded)(({ theme }) => ({
-  color: theme.palette.mode === "dark" ? "#F5F5F5" : "#0A0A0A",
+  color: theme.palette.mode === "dark" ? "#FFFFFF" : "#121214",
   fontSize: 26,
 }));
 
 export const MenuCloseIcon = styled(CloseRoundedIcon)(({ theme }) => ({
-  color: theme.palette.mode === "dark" ? "#F5F5F5" : "#0A0A0A",
+  color: theme.palette.mode === "dark" ? "#FFFFFF" : "#121214",
   fontSize: 26,
 }));
 
@@ -339,7 +340,7 @@ export const MobilePanelBackdrop = styled("div")({
   top: 64,
   zIndex: 1499,
   display: "none",
-  backgroundColor: "rgba(11,11,15,0.6)",
+  backgroundColor: "rgba(0,0,0,0.6)",
   opacity: 0,
   pointerEvents: "none",
   transition: "opacity 160ms ease",
@@ -411,7 +412,7 @@ export const MobileMenuDrawer = styled(Drawer)(() => ({
     // re-blurred the whole viewport twice, pinning the compositor and delaying
     // the next tap. A plain dark overlay is visually near-identical (the
     // frosted header is still visible behind it) and composites instantly.
-    backgroundColor: "rgba(11,11,15,0.6)",
+    backgroundColor: "rgba(0,0,0,0.6)",
     // Promote to its own layer so the fade composites cheaply.
     transform: "translateZ(0)",
     willChange: "opacity",
@@ -428,16 +429,16 @@ export const MobileDrawer = styled(Box)(({ theme }) => {
   const dark = theme.palette.mode === "dark";
   return {
     height: "100%",
-    backgroundColor: dark ? "#0B0908" : "#FFFFFF",
-    color: dark ? "#F5F5F5" : "#0A0A0A",
+    backgroundColor: dark ? "#000000" : "#FFFFFF",
+    color: dark ? "#FFFFFF" : "#121214",
     display: "flex",
     flexDirection: "column",
     overflow: "hidden",
     padding: "24px 20px",
     // Subtle aurora bloom in the corners (dimmer in light mode).
     backgroundImage: dark
-      ? "radial-gradient(circle at 90% -10%, rgba(139,94,0,0.20) 0%, rgba(11,11,15,0) 55%), radial-gradient(circle at -10% 100%, rgba(255,209,0,0.18) 0%, rgba(11,11,15,0) 55%)"
-      : "radial-gradient(circle at 92% -8%, rgba(139,94,0,0.07) 0%, rgba(255,255,255,0) 55%)",
+      ? "radial-gradient(circle at 90% -10%, rgba(255,209,0,0.10) 0%, rgba(0,0,0,0) 55%), radial-gradient(circle at -10% 100%, rgba(255,209,0,0.18) 0%, rgba(0,0,0,0) 55%)"
+      : "radial-gradient(circle at 92% -8%, rgba(255,209,0,0.06) 0%, rgba(255,255,255,0) 55%)",
   };
 });
 
@@ -457,9 +458,9 @@ export const MobileNavItem = styled(Typography)(({ theme }) => {
     fontSize: "22px",
     fontWeight: 600,
     lineHeight: "30px",
-    fontFamily: "var(--font-hero)", // Unbounded, big presence
+    fontFamily: "var(--font-inter)", // Unbounded, big presence
     letterSpacing: "-0.01em",
-    color: dark ? "#F5F5F5" : "#0A0A0A",
+    color: dark ? "#FFFFFF" : "#121214",
     cursor: "pointer",
     transition: "color 200ms ease, transform 200ms ease",
     textAlign: "left",
@@ -468,7 +469,7 @@ export const MobileNavItem = styled(Typography)(({ theme }) => {
     borderBottom: `1px solid ${dark ? "rgba(255,255,255,0.06)" : "rgba(10,10,10,0.08)"}`,
 
     "&:hover, &:active": {
-      color: CORAL,
+      color: accent(dark),
       transform: "translateX(4px)",
     },
   };
@@ -513,7 +514,7 @@ export const StyledSignInButton = styled(Button)(({ theme }) => ({
   fontWeight: 500,
   lineHeight: "22px",
   fontFamily: "var(--font-body)",
-  color: theme.palette.mode === "dark" ? "#F5F5F5" : "#0A0A0A",
+  color: theme.palette.mode === "dark" ? "#FFFFFF" : "#121214",
   whiteSpace: "nowrap",
   flexShrink: 0,
   padding: "8px 12px",
@@ -529,7 +530,7 @@ export const StyledSignInButton = styled(Button)(({ theme }) => ({
 
   "&:hover": {
     background: theme.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(10,10,10,0.05)",
-    color: CORAL,
+    color: accent(theme.palette.mode === "dark"),
   },
 }));
 
@@ -537,7 +538,7 @@ export const StyledSignInButton = styled(Button)(({ theme }) => ({
 // highlight, no heavy colored drop-shadow. Solid indigo that simply darkens
 // on hover and nudges down on press.
 export const StyledGetStartedButton = styled(Box)({
-  borderRadius: 999,
+  borderRadius: 8,
   // Never let the flex row compress this pill — long translated CTAs
   // (FR "Commencer gratuitement", DE "Kostenlos starten") must not clip (QA #10).
   flexShrink: 0,
@@ -554,7 +555,7 @@ export const StyledGetStartedButton = styled(Box)({
     color: ESPRESSO,
     fontFamily: "var(--font-body)",
     fontWeight: 600,
-    borderRadius: "999px",
+    borderRadius: "8px",
     boxShadow: "none",
     whiteSpace: "nowrap",
     overflow: "visible",
@@ -623,9 +624,9 @@ export const MegaTriggerButton = styled(Button)(({ theme }) => {
     gap: 2,
     transition: "color 200ms ease",
     "& .chev": { transition: "transform 220ms cubic-bezier(0.16,1,0.3,1)", fontSize: 18, marginTop: 1 },
-    "&:hover": { background: "transparent", color: dark ? "#F5F5F5" : "#0A0A0A" },
-    "&[data-open='true']": { color: dark ? "#F5F5F5" : "#0A0A0A" },
-    "&[data-open='true'] .chev": { transform: "rotate(180deg)", color: CORAL },
+    "&:hover": { background: "transparent", color: dark ? "#FFFFFF" : "#121214" },
+    "&[data-open='true']": { color: dark ? "#FFFFFF" : "#121214" },
+    "&[data-open='true'] .chev": { transform: "rotate(180deg)", color: accent(dark) },
   };
 });
 
@@ -651,7 +652,7 @@ export const MegaCard = styled(Box)(({ theme }) => {
     display: "flex",
     flexDirection: "column",
     gap: 2,
-    backgroundColor: dark ? "rgba(18,18,24,0.98)" : "#FFFFFF",
+    backgroundColor: dark ? "rgba(16,16,20,0.98)" : "#FFFFFF",
     border: `1px solid ${dark ? "rgba(255,255,255,0.10)" : "rgba(10,10,10,0.08)"}`,
     boxShadow: dark
       ? "0 24px 60px -14px rgba(0,0,0,0.72)"
@@ -672,9 +673,9 @@ export const MegaItemLink = styled(Box)<BoxProps & { component?: React.ElementTy
     cursor: "pointer",
     textDecoration: "none",
     transition: "background 160ms ease",
-    "&:hover": { background: dark ? "rgba(255,255,255,0.05)" : "rgba(139,94,0,0.05)" },
+    "&:hover": { background: dark ? "rgba(255,255,255,0.05)" : "rgba(255,209,0,0.10)" },
     "&:hover .mega-icon": { color: ESPRESSO, background: YELLOW, borderColor: YELLOW },
-    "&:hover .mega-title": { color: CORAL },
+    "&:hover .mega-title": { color: accent(dark) },
   };
 });
 
@@ -687,9 +688,9 @@ export const MegaItemIcon = styled(Box)(({ theme }) => {
     borderRadius: 10,
     display: "grid",
     placeItems: "center",
-    color: CORAL,
-    background: dark ? "rgba(139,94,0,0.16)" : "rgba(139,94,0,0.08)",
-    border: `1px solid ${dark ? "rgba(255,209,0,0.28)" : "rgba(139,94,0,0.16)"}`,
+    color: accent(dark),
+    background: dark ? "rgba(255,209,0,0.12)" : "rgba(255,209,0,0.16)",
+    border: `1px solid ${dark ? "rgba(255,209,0,0.22)" : "rgba(255,209,0,0.12)"}`,
     transition: "all 160ms ease",
     "& svg": { fontSize: 20 },
   };
@@ -700,7 +701,7 @@ export const MegaItemTitle = styled(Typography)(({ theme }) => ({
   fontSize: 14.5,
   fontWeight: 600,
   lineHeight: "20px",
-  color: theme.palette.mode === "dark" ? "#F5F5F5" : "#0A0A0A",
+  color: theme.palette.mode === "dark" ? "#FFFFFF" : "#121214",
   transition: "color 160ms ease",
 }));
 
@@ -743,9 +744,9 @@ export const LangGlobeButton = styled(IconButton)(({ theme }) => {
     touchAction: "manipulation",
     "& svg": { fontSize: 19 },
     "&:hover": {
-      borderColor: CORAL,
-      color: dark ? "#fff" : "#0A0A0A",
-      background: dark ? "rgba(255,255,255,0.06)" : "rgba(139,94,0,0.05)",
+      borderColor: accent(dark),
+      color: dark ? "#fff" : "#121214",
+      background: dark ? "rgba(255,255,255,0.06)" : "rgba(255,209,0,0.10)",
     },
     // Header instance only: globe-only (code in aria-label/tooltip) so the five-item nav
     // + actions fit the 1280 cap in every language.
@@ -771,7 +772,7 @@ export const LangPanel = styled(Box)(({ theme }) => {
     // otherwise the footer instance (opens upward, right into the bar) gets
     // covered by it. The auth/checkout LanguageSwitcher already uses 2000.
     zIndex: 1600,
-    backgroundColor: dark ? "rgba(18,18,24,0.98)" : "#FFFFFF",
+    backgroundColor: dark ? "rgba(16,16,20,0.98)" : "#FFFFFF",
     border: `1px solid ${dark ? "rgba(255,255,255,0.10)" : "rgba(10,10,10,0.08)"}`,
     boxShadow: dark
       ? "0 24px 60px -14px rgba(0,0,0,0.72)"
@@ -794,9 +795,9 @@ export const LangOption = styled(Box)(({ theme }) => {
     borderRadius: 10,
     cursor: "pointer",
     transition: "background 150ms ease",
-    "&:hover": { background: dark ? "rgba(255,255,255,0.05)" : "rgba(139,94,0,0.05)" },
+    "&:hover": { background: dark ? "rgba(255,255,255,0.05)" : "rgba(255,209,0,0.10)" },
     "&[data-selected='true']": {
-      background: dark ? "rgba(139,94,0,0.16)" : "rgba(139,94,0,0.08)",
+      background: dark ? "rgba(255,209,0,0.12)" : "rgba(255,209,0,0.16)",
     },
   };
 });
@@ -805,7 +806,7 @@ export const LangOptionLabel = styled(Typography)(({ theme }) => ({
   fontFamily: "var(--font-body)",
   fontSize: 13.5,
   fontWeight: 500,
-  color: theme.palette.mode === "dark" ? "#F5F5F5" : "#18181B",
+  color: theme.palette.mode === "dark" ? "#FFFFFF" : "#121214",
 }));
 
 /* ================= MOBILE ACCORDION ================= */
@@ -827,8 +828,8 @@ export const MobileSectionButton = styled("button")(({ theme }) => {
     alignItems: "center",
     justifyContent: "space-between",
     padding: "15px 2px",
-    color: dark ? "#F5F5F5" : "#0A0A0A",
-    fontFamily: "var(--font-hero)",
+    color: dark ? "#FFFFFF" : "#121214",
+    fontFamily: "var(--font-inter)",
     fontSize: 20,
     fontWeight: 600,
     letterSpacing: "-0.01em",
@@ -840,7 +841,7 @@ export const MobileSectionButton = styled("button")(({ theme }) => {
       fontSize: 24,
       color: dark ? "rgba(255,255,255,0.6)" : "rgba(10,10,10,0.5)",
     },
-    "&[data-open='true'] .chev": { transform: "rotate(180deg)", color: CORAL },
+    "&[data-open='true'] .chev": { transform: "rotate(180deg)", color: accent(dark) },
   };
 });
 
@@ -863,14 +864,14 @@ export const MobileSubItem = styled(Box)<BoxProps & { component?: React.ElementT
       borderRadius: 9,
       display: "grid",
       placeItems: "center",
-      color: CORAL,
-      background: dark ? "rgba(139,94,0,0.16)" : "rgba(139,94,0,0.08)",
-      border: `1px solid ${dark ? "rgba(255,209,0,0.26)" : "rgba(139,94,0,0.16)"}`,
+      color: accent(dark),
+      background: dark ? "rgba(255,209,0,0.12)" : "rgba(255,209,0,0.16)",
+      border: `1px solid ${dark ? "rgba(255,209,0,0.22)" : "rgba(255,209,0,0.12)"}`,
       flexShrink: 0,
     },
     "& .msub-icon svg": { fontSize: 18 },
     "& .msub-title": { fontFamily: "var(--font-body)", fontSize: 15.5, fontWeight: 500 },
-    "&:active": { color: CORAL, transform: "translateX(3px)" },
+    "&:active": { color: accent(dark), transform: "translateX(3px)" },
   };
 });
 
@@ -887,11 +888,11 @@ export const FeaturedTile = styled(Box)<BoxProps & { component?: React.ElementTy
   flexDirection: "column",
   gap: 10,
   textDecoration: "none",
-  color: "#FAF6EF",
-  background: `linear-gradient(150deg, ${ESPRESSO} 0%, #3A2A1F 100%)`,
-  boxShadow: "0 12px 30px -12px rgba(43,29,20,0.55)",
+  color: "#FFFFFF",
+  background: `linear-gradient(150deg, #101014 0%, #1E1F24 100%)`,
+  boxShadow: "0 12px 30px -12px rgba(0,0,0,0.5)",
   transition: "transform 200ms cubic-bezier(0.16,1,0.3,1), box-shadow 200ms ease",
-  "&:hover": { transform: "translateY(-2px)", boxShadow: "0 18px 42px -14px rgba(139,94,0,0.6)" },
+  "&:hover": { transform: "translateY(-2px)", boxShadow: "0 18px 42px -14px rgba(0,0,0,0.6)" },
   "&:hover .feat-arrow": { transform: "translateX(3px)" },
   "&::after": {
     content: '""',
@@ -945,9 +946,9 @@ export const SearchButton = styled(IconButton)(({ theme }) => {
     touchAction: "manipulation",
     "& svg": { fontSize: 19 },
     "&:hover": {
-      borderColor: CORAL,
-      color: dark ? "#fff" : "#0A0A0A",
-      background: dark ? "rgba(255,255,255,0.06)" : "rgba(139,94,0,0.05)",
+      borderColor: accent(dark),
+      color: dark ? "#fff" : "#121214",
+      background: dark ? "rgba(255,255,255,0.06)" : "rgba(255,209,0,0.10)",
     },
   };
 });
@@ -961,7 +962,7 @@ export const CmdCard = styled(Box)(({ theme }) => {
     flexDirection: "column",
     borderRadius: 18,
     overflow: "hidden",
-    backgroundColor: dark ? "rgba(18,18,24,0.98)" : "#FFFFFF",
+    backgroundColor: dark ? "rgba(16,16,20,0.98)" : "#FFFFFF",
     border: `1px solid ${dark ? "rgba(255,255,255,0.10)" : "rgba(10,10,10,0.08)"}`,
     boxShadow: dark
       ? "0 40px 90px -20px rgba(0,0,0,0.75)"
@@ -1001,7 +1002,7 @@ export const CmdInput = styled("input")(({ theme }) => {
     fontFamily: "var(--font-body)",
     fontSize: 16,
     fontWeight: 400,
-    color: dark ? "#F5F5F5" : "#0A0A0A",
+    color: dark ? "#FFFFFF" : "#121214",
     "&::placeholder": { color: dark ? "rgba(255,255,255,0.4)" : "#A1A1AA" },
   };
 });
@@ -1042,9 +1043,9 @@ export const CmdItem = styled(Box)(({ theme }) => {
       borderRadius: 9,
       display: "grid",
       placeItems: "center",
-      color: CORAL,
-      background: dark ? "rgba(139,94,0,0.16)" : "rgba(139,94,0,0.08)",
-      border: `1px solid ${dark ? "rgba(255,209,0,0.26)" : "rgba(139,94,0,0.16)"}`,
+      color: accent(dark),
+      background: dark ? "rgba(255,209,0,0.12)" : "rgba(255,209,0,0.16)",
+      border: `1px solid ${dark ? "rgba(255,209,0,0.22)" : "rgba(255,209,0,0.12)"}`,
       flexShrink: 0,
     },
     "& .cmd-ic svg": { fontSize: 18 },
@@ -1055,8 +1056,8 @@ export const CmdItem = styled(Box)(({ theme }) => {
       fontSize: 12,
       color: dark ? "rgba(255,255,255,0.4)" : "#A1A1AA",
     },
-    "&[data-active='true']": { background: dark ? "rgba(255,255,255,0.06)" : "rgba(139,94,0,0.07)" },
-    "&:hover": { background: dark ? "rgba(255,255,255,0.06)" : "rgba(139,94,0,0.07)" },
+    "&[data-active='true']": { background: dark ? "rgba(255,255,255,0.06)" : "rgba(255,209,0,0.06)" },
+    "&:hover": { background: dark ? "rgba(255,255,255,0.06)" : "rgba(255,209,0,0.06)" },
   };
 });
 

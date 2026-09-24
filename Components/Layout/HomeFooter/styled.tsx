@@ -1,5 +1,5 @@
 import { Box, Typography, styled } from "@mui/material";
-import { BRAND_ACCENT } from "@/constants/theme";
+import { YELLOW as BRAND_ACCENT } from "@/constants/publicTheme";
 
 const INDIGO = BRAND_ACCENT;
 
@@ -16,7 +16,7 @@ export const FooterWrapper = styled("footer")(({ theme }) => {
     paddingBottom: "calc(40px + var(--dp-lang-bar, 0px))",
     display: "flex",
     justifyContent: "center",
-    backgroundColor: dark ? "#0B0908" : "#F6F6F8",
+    backgroundColor: dark ? "#000000" : "#F5F7FA",
     borderTop: `1px solid ${dark ? "rgba(255,255,255,0.08)" : "rgba(10,10,10,0.07)"}`,
 
     // Subtle indigo bloom at the top edge (dark mode only) to echo the header.
@@ -30,7 +30,7 @@ export const FooterWrapper = styled("footer")(({ theme }) => {
           width: 720,
           height: 300,
           borderRadius: "50%",
-          background: "radial-gradient(closest-side, rgba(139,94,0,0.18), transparent)",
+          background: "radial-gradient(closest-side, rgba(255,209,0,0.10), transparent)",
           pointerEvents: "none",
         }
       : {},
@@ -84,7 +84,7 @@ export const SocialItem = styled(Box)(({ theme }) => {
       transition: "filter 0.2s ease",
     },
     "&:hover": {
-      background: dark ? "rgba(139,94,0,0.22)" : "rgba(139,94,0,0.10)",
+      background: dark ? "rgba(255,209,0,0.16)" : "rgba(255,209,0,0.14)",
       borderColor: INDIGO,
       transform: "translateY(-2px)",
       "& img": { filter: dark ? "none" : "brightness(0) saturate(100%) opacity(0.9)" },
@@ -111,7 +111,7 @@ export const BottomSection = styled(Box)(({ theme }) => {
 });
 
 export const CopyrightText = styled(Typography)(({ theme }) => ({
-  color: theme.palette.mode === "dark" ? "rgba(255,255,255,0.62)" : "#6B6B74",
+  color: theme.palette.mode === "dark" ? "#81858C" : "#6A6E73",
   fontSize: 13.5,
   fontFamily: "var(--font-body)",
 }));

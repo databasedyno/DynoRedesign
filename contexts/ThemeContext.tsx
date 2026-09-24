@@ -105,9 +105,9 @@ function readPreferredMode(ctx: ThemeCtxKind, pathname?: string): ThemeMode {
       const inappSaved = window.localStorage.getItem('theme-mode-inapp');
       if (inappSaved === 'dark') return 'dark';
     }
-    // One-time migration from the legacy single-key 'theme-mode'. Only
-    // seeds the CURRENT context so we don't overwrite the other one.
-    const legacy = window.localStorage.getItem('theme-mode');
+    // One-time migration from the legacy single-key 'theme-mode' — in-app only
+    // (the public marketing default moved to dark in 2026-09).
+    const legacy = ctx === 'inapp' ? window.localStorage.getItem('theme-mode') : null;
     if (legacy === 'light' || legacy === 'dark') {
       try { window.localStorage.setItem(key, legacy); } catch { /* ignore */ }
       return legacy;
@@ -115,7 +115,7 @@ function readPreferredMode(ctx: ThemeCtxKind, pathname?: string): ThemeMode {
   } catch {
     /* ignore quota / privacy-mode failures */
   }
-  return getDefaultThemeForContext(ctx);
+  return getDefaultThemeForPath(resolvedPath);
 }
 
 export const useThemeMode = () => {

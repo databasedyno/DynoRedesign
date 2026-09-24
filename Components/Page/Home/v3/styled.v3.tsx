@@ -1,7 +1,7 @@
 import { Box, Typography, TypographyProps } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { FONT_HERO, FONT_TECH, FONT_BODY } from "./theme.v3";
-import { BRAND_ACCENT } from "./theme.v3";
+import { BRAND_ACCENT, YELLOW } from "./theme.v3";
 
 // Common section shell — max-width 1280, generous side padding on desktop.
 export const SectionShell = styled(Box)(({ theme }) => ({
@@ -34,7 +34,7 @@ export const Eyebrow = styled(Typography)<TypographyProps & { tone?: "indigo" | 
       tone === "ink"
         ? theme.palette.text.secondary
         : theme.palette.mode === "dark"
-          ? "#FFD100"
+          ? YELLOW
           : BRAND_ACCENT,
   })
 );
@@ -45,10 +45,10 @@ export const Eyebrow = styled(Typography)<TypographyProps & { tone?: "indigo" | 
 // the polymorphic type and TS rejects `component` on the resulting component.
 export const HeadlineXL = styled(Typography)<TypographyProps>(({ theme }) => ({
   fontFamily: FONT_HERO,
-  fontWeight: 700,
-  fontSize: "clamp(40px, 6.5vw, 88px)",
-  lineHeight: 0.98,
-  letterSpacing: "-0.035em",
+  fontWeight: 600,
+  fontSize: "clamp(40px, 5.5vw, 72px)",
+  lineHeight: 1.08,
+  letterSpacing: "-0.02em",
   color: theme.palette.text.primary,
   [theme.breakpoints.down("sm")]: {
     fontSize: "clamp(36px, 10vw, 56px)",
@@ -58,10 +58,10 @@ export const HeadlineXL = styled(Typography)<TypographyProps>(({ theme }) => ({
 // Section headline — 40-56px range. Theme-aware.
 export const HeadlineL = styled(Typography)<TypographyProps>(({ theme }) => ({
   fontFamily: FONT_HERO,
-  fontWeight: 700,
-  fontSize: "clamp(30px, 4vw, 52px)",
-  lineHeight: 1.02,
-  letterSpacing: "-0.03em",
+  fontWeight: 600,
+  fontSize: "clamp(30px, 3.6vw, 48px)",
+  lineHeight: 1.15,
+  letterSpacing: "-0.02em",
   color: theme.palette.text.primary,
   [theme.breakpoints.down("sm")]: {
     fontSize: "clamp(28px, 8vw, 40px)",
@@ -72,7 +72,7 @@ export const HeadlineL = styled(Typography)<TypographyProps>(({ theme }) => ({
 // blog post subheadings, QA category labels. Theme-aware.
 export const HeadlineS = styled(Typography)<TypographyProps>(({ theme }) => ({
   fontFamily: FONT_HERO,
-  fontWeight: 700,
+  fontWeight: 600,
   fontSize: "clamp(20px, 2vw, 24px)",
   lineHeight: 1.2,
   letterSpacing: "-0.015em",
@@ -90,5 +90,5 @@ export const Body = styled(Typography)<TypographyProps>(({ theme }) => ({
 // Emphasis ink — a single indigo statement word (single-accent doctrine).
 // Brightens on dark so the accent word stays vivid.
 export const AuroraInk = styled("span")(({ theme }) => ({
-  color: theme.palette.mode === "dark" ? "#FFD100" : BRAND_ACCENT,
+  color: theme.palette.mode === "dark" ? YELLOW : BRAND_ACCENT,
 }));

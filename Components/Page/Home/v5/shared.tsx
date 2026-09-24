@@ -2,10 +2,10 @@ import React from "react";
 import { Box, Button, ButtonProps, Typography } from "@mui/material";
 import { FONT_BODY, useAurora, type AuroraTokens } from "../v3/theme.v3";
 import { Eyebrow, HeadlineL } from "../v3/styled.v3";
-import { BRAND_ACCENT } from "../v3/theme.v3";
+import { BTN_RADIUS, CARD_RADIUS, ON_YELLOW, YELLOW, YELLOW_HOVER, YELLOW_PRESSED } from "@/constants/publicTheme";
 import { Stagger, StaggerItem } from "../motion/Stagger";
 
-/** One section grammar for the whole landing: eyebrow → h2 → one body line, left-aligned. Cascades in on scroll. */
+/** One section grammar for the whole landing: eyebrow → h2 → one body line. Cascades in on scroll. */
 export const SectionHead: React.FC<{ eyebrow?: string; headline: React.ReactNode; body?: string; center?: boolean; maxWidth?: number; testId?: string }> = ({
   eyebrow,
   headline,
@@ -28,8 +28,8 @@ export const SectionHead: React.FC<{ eyebrow?: string; headline: React.ReactNode
   );
 };
 
-const pill = { borderRadius: "999px", textTransform: "none", fontFamily: FONT_BODY, fontWeight: 600, letterSpacing: 0 } as const;
-// Arrow nudges right on hover (Hostinger CTA micro-interaction).
+/* Bybit button grammar: 8px radius, 11×24 padding, semibold 16, flat (no glow). */
+const base = { borderRadius: `${BTN_RADIUS}px`, textTransform: "none", fontFamily: FONT_BODY, fontWeight: 600, letterSpacing: 0, lineHeight: 1.5, boxShadow: "none" } as const;
 const iconNudge = {
   "& .MuiButton-endIcon": { transition: "transform 220ms cubic-bezier(0.2,0.8,0.2,1)" },
   "&:hover .MuiButton-endIcon": { transform: "translateX(3px)" },
@@ -40,17 +40,16 @@ export const PrimaryBtn: React.FC<ButtonProps & { small?: boolean }> = ({ small,
   <Button
     {...rest}
     sx={{
-      ...pill,
+      ...base,
       ...iconNudge,
-      px: small ? 2.5 : 3.5,
-      py: small ? 1.1 : 1.5,
+      px: small ? 2.25 : 3,
+      py: small ? 1 : 1.375,
       fontSize: small ? 14.5 : 16,
-      color: "#2B1D14",
-      background: "#FFD100",
-      boxShadow: "0 12px 30px -12px rgba(255,209,0,0.55)",
-      transition: "background-color 180ms ease, transform 180ms ease, box-shadow 180ms ease",
-      "&:hover": { background: "#F0C300", color: "#2B1D14", transform: "translateY(-1px)", boxShadow: "0 16px 34px -12px rgba(255,209,0,0.6)" },
-      "&:active": { transform: "translateY(0) scale(0.99)" },
+      color: ON_YELLOW,
+      background: YELLOW,
+      transition: "background-color 160ms ease, transform 160ms ease",
+      "&:hover": { background: YELLOW_HOVER, color: ON_YELLOW, boxShadow: "none" },
+      "&:active": { background: YELLOW_PRESSED, transform: "scale(0.99)" },
       ...sx,
     }}
   />
@@ -58,22 +57,21 @@ export const PrimaryBtn: React.FC<ButtonProps & { small?: boolean }> = ({ small,
 
 export const SecondaryBtn: React.FC<ButtonProps & { small?: boolean; onDark?: boolean }> = ({ small, onDark, sx, ...rest }) => {
   const s = useAurora();
+  const dark = onDark || s.dark;
   return (
     <Button
       {...rest}
       sx={{
-        ...pill,
-        fontWeight: 500,
+        ...base,
+        fontWeight: 600,
         px: small ? 2.25 : 3,
-        py: small ? 1.05 : 1.45,
-        fontSize: small ? 14.5 : 15.5,
-        color: onDark ? "#FAF6EF" : s.ink,
-        border: `1px solid ${onDark ? "rgba(255,240,210,0.30)" : s.lineStrong}`,
+        py: small ? 1 : 1.375,
+        fontSize: small ? 14.5 : 16,
+        color: dark ? "#FFFFFF" : s.ink,
+        border: `1px solid ${dark ? "#404347" : s.lineStrong}`,
         background: "transparent",
-        transition: "border-color 180ms ease, color 180ms ease, background-color 180ms ease",
-        "&:hover": onDark
-          ? { background: "rgba(255,240,210,0.08)", borderColor: "rgba(255,240,210,0.55)" }
-          : { borderColor: BRAND_ACCENT, color: s.dark ? "#FFD100" : "#8B5E00", background: "transparent" },
+        transition: "border-color 160ms ease, color 160ms ease, background-color 160ms ease",
+        "&:hover": { background: dark ? "rgba(255,255,255,0.06)" : "rgba(18,18,20,0.04)", borderColor: dark ? "#595D61" : s.ink3 },
         ...sx,
       }}
     />
@@ -90,16 +88,16 @@ export const Section: React.FC<React.PropsWithChildren<{ id?: string; alt?: bool
   );
 };
 
-/** One card recipe for every public page: 18px radius, surface + hairline, lifts on hover. */
+/** One card recipe for every public page: 16px radius, card surface + hairline, quiet lift on hover. */
 export const cardSx = (s: AuroraTokens, opts?: { hover?: boolean; radius?: number }) => ({
   background: s.surface,
   border: `1px solid ${s.line}`,
-  borderRadius: `${opts?.radius ?? 18}px`,
+  borderRadius: `${opts?.radius ?? CARD_RADIUS}px`,
   ...(opts?.hover === false
     ? {}
     : {
-        transition: "border-color 220ms ease, transform 220ms cubic-bezier(0.16,1,0.3,1), box-shadow 220ms ease",
-        "&:hover": { borderColor: `${BRAND_ACCENT}55`, transform: "translateY(-3px)", boxShadow: `0 24px 48px -32px ${BRAND_ACCENT}66` },
+        transition: "border-color 200ms ease, transform 220ms cubic-bezier(0.16,1,0.3,1)",
+        "&:hover": { borderColor: s.lineStrong, transform: "translateY(-2px)" },
         "@media (prefers-reduced-motion: reduce)": { transition: "none", "&:hover": { transform: "none" } },
       }),
 });

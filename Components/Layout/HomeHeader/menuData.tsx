@@ -61,12 +61,12 @@ export interface MegaSection {
 export const MENU_SECTIONS: readonly MegaSection[] = [
   {
     key: "products",
-    labelKey: "nav.products",
+    labelKey: "v7.nav.product",
     items: [
       {
         titleKey: "nav.mega.paymentLinks.title",
         descKey: "nav.mega.paymentLinks.desc",
-        href: "/#products",
+        href: "/products",
         Icon: LinkRoundedIcon,
       },
       {
@@ -90,7 +90,7 @@ export const MENU_SECTIONS: readonly MegaSection[] = [
       {
         titleKey: "v5.products.invoices.tab",
         descKey: "v6.nav.invoicesDesc",
-        href: "/#products",
+        href: "/products",
         Icon: ReceiptLongRoundedIcon,
       },
       {
@@ -111,6 +111,7 @@ export const MENU_SECTIONS: readonly MegaSection[] = [
   {
     key: "solutions",
     labelKey: "v6.nav.solutions",
+    desktopHidden: true,
     items: [
       { titleKey: "footerNav.verticals.ecommerce", descKey: "v6.nav.vert.ecommerce", href: "/for/ecommerce", Icon: ShoppingBagRoundedIcon },
       { titleKey: "footerNav.verticals.saas", descKey: "v6.nav.vert.saas", href: "/for/saas", Icon: CloudRoundedIcon },

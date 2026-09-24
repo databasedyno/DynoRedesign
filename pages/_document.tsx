@@ -26,7 +26,7 @@ export default function MyDocument({ emotionStyleTags, lang }: MyDocumentProps) 
         {/* iOS safe area and mobile optimization — viewport is set via next.config or _app */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="theme-color" content="#2B1D14" />
+        <meta name="theme-color" content="#121214" />
         <link rel="alternate" type="application/rss+xml" title="Dynopay Blog" href="https://dynopay.com/blog/rss.xml" />
         {/* Poppins — display face for the Tatum-inspired marketing homepage headings. */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -112,9 +112,10 @@ export default function MyDocument({ emotionStyleTags, lang }: MyDocumentProps) 
     }
     return false;
   }
-  var INAPP = ['/dashboard','/transactions','/wallet','/wallets','/customers','/invoices','/notifications','/settings','/profile','/create-pay-link','/pay-links','/referrals','/developer-keys','/company','/fees','/admin','/creator','/storefront','/payouts','/get-started','/kyc'];
+  var INAPP = ['/dashboard','/transactions','/wallet','/wallets','/customers','/invoices','/notifications','/settings','/profile','/create-pay-link','/pay-links','/referrals','/developer-keys','/company','/admin','/creator','/storefront','/payouts','/get-started','/kyc'];
   var AUTH  = ['/auth','/reset-password'];
   var HELP  = ['/help-support'];
+  var MARKETING = ['/products','/fees','/blog','/about','/press','/for','/documentation','/system-status','/referral-program','/how-to','/terms-conditions','/privacy-policy','/aml-policy','/wallet-security','/compare','/accept-crypto-payments-in'];
   function readCk(name){ try { var m = document.cookie.match(new RegExp('(?:^|;\\\\s*)' + name + '=([^;]+)')); return m ? m[1] : null; } catch(e){ return null; } }
   var path = stripPath();
   var context = matchPrefix(path, INAPP) ? 'inapp' : 'public';
@@ -123,9 +124,11 @@ export default function MyDocument({ emotionStyleTags, lang }: MyDocumentProps) 
   // Help & Support is dual-purpose: FOLLOW the in-app theme preference (so a
   // dark merchant keeps dark) but DEFAULT to light for logged-out visitors.
   var storageKey = (context === 'inapp' || isHelp) ? 'theme-mode-inapp' : 'theme-mode-public';
-  // 2026-06: LIGHT is the default everywhere (landing + auth + app); an
-  // explicit saved preference (localStorage) still wins below.
-  var defaultMode = 'light';
+  var cookieKey = (context === 'inapp' || isHelp) ? 'theme-mode-inapp' : 'theme-mode-public-v2';
+  // 2026-09: marketing pages default to DARK (Bybit-style); auth, checkout and
+  // the app default to LIGHT. An explicit saved preference still wins below.
+  var isMarketing = path === '/' || matchPrefix(path, MARKETING);
+  var defaultMode = (context === 'public' && isMarketing && !isAuth && !isHelp) ? 'dark' : 'light';
 
   // Start from the ROUTE default. Only a stored preference (or auth-path
   // inheritance) may override it — and reading storage is isolated so its
@@ -141,8 +144,8 @@ export default function MyDocument({ emotionStyleTags, lang }: MyDocumentProps) 
       if (hSaved === 'light' || hSaved === 'dark') mode = hSaved;
     } else {
       var saved = localStorage.getItem(storageKey);
-      // One-time migration from the legacy single 'theme-mode' key.
-      if (saved !== 'light' && saved !== 'dark') {
+      // One-time migration from the legacy single 'theme-mode' key (in-app only).
+      if (saved !== 'light' && saved !== 'dark' && context === 'inapp') {
         var legacy = localStorage.getItem('theme-mode');
         if (legacy === 'light' || legacy === 'dark') {
           saved = legacy;
@@ -165,14 +168,14 @@ export default function MyDocument({ emotionStyleTags, lang }: MyDocumentProps) 
   try {
     document.documentElement.dataset.theme = mode;
     document.documentElement.style.colorScheme = mode;
-    document.documentElement.style.backgroundColor = mode === 'light' ? '#FAF6EF' : '#0B0908';
+    document.documentElement.style.backgroundColor = mode === 'light' ? '#FFFFFF' : '#000000';
   } catch (e) {}
   try {
     // Never auto-persist the theme cookie on /help-support (see ThemeContext):
     // it would pollute either the public cookie (dark bleeds onto marketing)
     // or the in-app cookie (a visitor's light default bleeds into the app).
     if (!isHelp) {
-      document.cookie = storageKey + '=' + mode + '; path=/; max-age=31536000; samesite=lax';
+      document.cookie = cookieKey + '=' + mode + '; path=/; max-age=31536000; samesite=lax';
     }
   } catch (e) {}
 })();

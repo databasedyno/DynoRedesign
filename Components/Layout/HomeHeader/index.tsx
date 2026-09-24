@@ -597,18 +597,18 @@ const HomeHeader = memo(function HomeHeader() {
                 endIcon={<ArrowForwardRounded />}
                 sx={{
                   background: BRAND_ACCENT,
-                  color: "#2B1D14",
+                  color: "#121214",
                   fontFamily: "var(--font-body)",
                   fontSize: 15,
                   fontWeight: 600,
                   textTransform: "none",
-                  borderRadius: 999,
+                  borderRadius: 8,
                   padding: "12px 22px",
                   height: 48,
                   boxShadow: "none",
                   transition: "background-color 200ms ease, transform 150ms cubic-bezier(0.16,1,0.3,1)",
-                  "&:hover": { background: "#F0C300", boxShadow: "none" },
-                  "&:active": { transform: "scale(0.98)", background: "#FFD100" },
+                  "&:hover": { background: "#FFDC3D", boxShadow: "none" },
+                  "&:active": { transform: "scale(0.98)", background: "#E6BC00" },
                 }}
               >
                 {authed ? t("goToDashboard") : t("getStarted")}
@@ -621,12 +621,12 @@ const HomeHeader = memo(function HomeHeader() {
                   void router.push("/auth/login");
                 }}
                 sx={{
-                  color: isDark ? "#F5F5F5" : "#0A0A0A",
+                  color: isDark ? "#FFFFFF" : "#121214",
                   fontFamily: "var(--font-body)",
                   fontSize: 14,
                   fontWeight: 500,
                   textTransform: "none",
-                  borderRadius: 999,
+                  borderRadius: 8,
                   height: 44,
                   border: `1px solid ${isDark ? "rgba(255,255,255,0.14)" : "rgba(10,10,10,0.12)"}`,
                   transition: "background-color 200ms ease, border-color 200ms ease",

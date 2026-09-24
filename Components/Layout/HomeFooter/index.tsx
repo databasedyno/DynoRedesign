@@ -15,7 +15,6 @@ import { useRouter } from "next/router";
 import { FC, memo, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import HeaderLangMenu from "../HomeHeader/HeaderLangMenu";
-import { BRAND_ACCENT } from "@/constants/theme";
 import {
   BottomSection,
   CopyrightText,
@@ -66,7 +65,7 @@ const HomeFooter: FC = () => {
   const logoSrc = dark ? WhiteLogo : BlackLogo;
 
   const linkColor = dark ? "rgba(255,255,255,0.66)" : "#3F3F46";
-  const linkHover = dark ? "#FFD100" : "#1F140D";
+  const linkHover = dark ? "#FFD100" : "#121214";
   const headingColor = dark ? "rgba(255,255,255,0.62)" : "#66666F";
   const descColor = dark ? "rgba(255,255,255,0.58)" : "#52525B";
   const trustBorder = dark ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)";
@@ -80,11 +79,11 @@ const HomeFooter: FC = () => {
       {
         heading: t("v6.footer.products"),
         links: [
-          { label: t("v6.footer.links"), link: "/#products" },
+          { label: t("v6.footer.links"), link: "/products" },
           { label: t("v6.footer.checkout"), link: "/pay/demo" },
           { label: t("v6.footer.storefront"), link: "/for/creators" },
           { label: t("v6.footer.donations"), link: "/pay/donation-demo" },
-          { label: t("v6.footer.invoices"), link: "/#products" },
+          { label: t("v6.footer.invoices"), link: "/products" },
           { label: t("headerFees"), link: "/fees" },
         ],
       },
@@ -269,7 +268,7 @@ const HomeFooter: FC = () => {
                 fontSize: 13,
                 fontFamily: "var(--font-body)",
                 transition: "color 0.18s ease",
-                "&:hover": { color: dark ? "rgba(255,255,255,0.9)" : "#0A0A0A" },
+                "&:hover": { color: dark ? "rgba(255,255,255,0.9)" : "#121214" },
               }}
             >
               <Box
