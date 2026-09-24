@@ -1,0 +1,249 @@
+{
+ "at": "2026-09-23T17:25:48.061Z",
+ "company_id": 262,
+ "keep": [
+  "moxxcompany@gmail.com",
+  "gidimeter@gmail.com",
+  "gidineter@gmail.com"
+ ],
+ "testCustomers": [
+  {
+   "customer_id": 942,
+   "email": "sd-qa-seller-1790079616@example.com"
+  },
+  {
+   "customer_id": 943,
+   "email": "sd-qa-seller-1790080026@example.com"
+  },
+  {
+   "customer_id": 946,
+   "email": "sd-tg-smoke-1790082708535@example.com"
+  },
+  {
+   "customer_id": 947,
+   "email": "sd-tg-smoke2-1790082715268@example.com"
+  },
+  {
+   "customer_id": 948,
+   "email": "sd-tg-ui-1790082742@example.com"
+  },
+  {
+   "customer_id": 949,
+   "email": "sd-tg-qa-1790082916@example.com"
+  },
+  {
+   "customer_id": 950,
+   "email": "sd-qa-1790084065@example.com"
+  },
+  {
+   "customer_id": 956,
+   "email": "sd-wallet-smoke-1790180454@example.com"
+  }
+ ],
+ "deals": [
+  {
+   "escrow_id": 344,
+   "source": "safedeal",
+   "company_id": 262,
+   "title": "QA hero deal 1790080026",
+   "creator_email": "sd-qa-seller-1790080026@example.com",
+   "counterparty_email": "sd-qa-buyer-1790080026@example.com",
+   "status": "invited"
+  }
+ ],
+ "attachments": [],
+ "ledger": [],
+ "topups": [],
+ "withdrawals": [],
+ "addresses": [
+  {
+   "address_id": 98,
+   "company_id": 262,
+   "customer_id": 956,
+   "payout_key": "USDT-POLYGON",
+   "coin": "USDT",
+   "network": "POLYGON",
+   "address": "0xeccBE59ce85b9c73431BFd811b7d4C8763FE854b",
+   "label": "smoke-evm",
+   "last_used_at": null,
+   "removed_at": "2026-09-23T16:21:16.017Z",
+   "created_at": "2026-09-23T16:21:07.774Z",
+   "ownership_verified_at": "2026-09-23T16:21:11.113Z",
+   "ownership_verified_via": "MetaMask"
+  },
+  {
+   "address_id": 99,
+   "company_id": 262,
+   "customer_id": 956,
+   "payout_key": "USDT-TRON",
+   "coin": "USDT",
+   "network": "TRC20",
+   "address": "TCiSy6RX4gaDLi7aaiXccvoTLHDzwpDjxe",
+   "label": "smoke-tron",
+   "last_used_at": null,
+   "removed_at": "2026-09-23T16:21:17.246Z",
+   "created_at": "2026-09-23T16:21:13.168Z",
+   "ownership_verified_at": "2026-09-23T16:21:14.617Z",
+   "ownership_verified_via": "TronLink"
+  },
+  {
+   "address_id": 100,
+   "company_id": 262,
+   "customer_id": 956,
+   "payout_key": "USDT-POLYGON",
+   "coin": "USDT",
+   "network": "POLYGON",
+   "address": "0xF854A532Db4FdF24C4000fA74980e0e1760Ed873",
+   "label": "smoke-evm",
+   "last_used_at": null,
+   "removed_at": "2026-09-23T16:22:42.392Z",
+   "created_at": "2026-09-23T16:22:33.877Z",
+   "ownership_verified_at": "2026-09-23T16:22:37.321Z",
+   "ownership_verified_via": "MetaMask"
+  },
+  {
+   "address_id": 101,
+   "company_id": 262,
+   "customer_id": 956,
+   "payout_key": "USDT-TRON",
+   "coin": "USDT",
+   "network": "TRC20",
+   "address": "TLBqMU3PCRzsvMQfBMjjHaTFBpT3pm2K1p",
+   "label": "smoke-tron",
+   "last_used_at": null,
+   "removed_at": "2026-09-23T16:22:43.686Z",
+   "created_at": "2026-09-23T16:22:39.487Z",
+   "ownership_verified_at": "2026-09-23T16:22:40.938Z",
+   "ownership_verified_via": "TronLink"
+  },
+  {
+   "address_id": 102,
+   "company_id": 262,
+   "customer_id": 956,
+   "payout_key": "USDT-POLYGON",
+   "coin": "USDT",
+   "network": "POLYGON",
+   "address": "0x908aa323E9fAB54dC5FD2Cb355AC33e38d693e7f",
+   "label": "QA wallet-verify",
+   "last_used_at": null,
+   "removed_at": null,
+   "created_at": "2026-09-23T16:23:16.720Z",
+   "ownership_verified_at": "2026-09-23T17:14:02.799Z",
+   "ownership_verified_via": "MetaMask"
+  }
+ ],
+ "profiles": [
+  {
+   "customer_id": 943,
+   "company_id": 262,
+   "display_name": null,
+   "auto_withdraw": false,
+   "auto_withdraw_address_id": null,
+   "last_login_at": "2026-09-22T12:27:34.327Z",
+   "created_at": "2026-09-22T12:27:34.327Z",
+   "updated_at": "2026-09-22T12:27:34.327Z",
+   "parked_payout_usd": "0.00",
+   "deposit_reserved_usd": 0,
+   "withdrawal_fee_credit_usd": 0
+  },
+  {
+   "customer_id": 949,
+   "company_id": 262,
+   "display_name": null,
+   "auto_withdraw": false,
+   "auto_withdraw_address_id": null,
+   "last_login_at": "2026-09-22T13:15:18.044Z",
+   "created_at": "2026-09-22T13:15:18.044Z",
+   "updated_at": "2026-09-22T13:15:18.044Z",
+   "parked_payout_usd": "0.00",
+   "deposit_reserved_usd": 0,
+   "withdrawal_fee_credit_usd": 0
+  },
+  {
+   "customer_id": 942,
+   "company_id": 262,
+   "display_name": null,
+   "auto_withdraw": false,
+   "auto_withdraw_address_id": null,
+   "last_login_at": "2026-09-22T12:20:31.921Z",
+   "created_at": "2026-09-22T12:20:31.921Z",
+   "updated_at": "2026-09-22T12:20:31.921Z",
+   "parked_payout_usd": "0.00",
+   "deposit_reserved_usd": 0,
+   "withdrawal_fee_credit_usd": 0
+  },
+  {
+   "customer_id": 946,
+   "company_id": 262,
+   "display_name": null,
+   "auto_withdraw": false,
+   "auto_withdraw_address_id": null,
+   "last_login_at": "2026-09-22T13:11:50.266Z",
+   "created_at": "2026-09-22T13:11:50.266Z",
+   "updated_at": "2026-09-22T13:11:50.266Z",
+   "parked_payout_usd": "0.00",
+   "deposit_reserved_usd": 0,
+   "withdrawal_fee_credit_usd": 0
+  },
+  {
+   "customer_id": 947,
+   "company_id": 262,
+   "display_name": null,
+   "auto_withdraw": false,
+   "auto_withdraw_address_id": null,
+   "last_login_at": "2026-09-22T13:11:56.629Z",
+   "created_at": "2026-09-22T13:11:56.629Z",
+   "updated_at": "2026-09-22T13:11:56.629Z",
+   "parked_payout_usd": "0.00",
+   "deposit_reserved_usd": 0,
+   "withdrawal_fee_credit_usd": 0
+  },
+  {
+   "customer_id": 948,
+   "company_id": 262,
+   "display_name": null,
+   "auto_withdraw": false,
+   "auto_withdraw_address_id": null,
+   "last_login_at": "2026-09-22T13:12:23.774Z",
+   "created_at": "2026-09-22T13:12:23.774Z",
+   "updated_at": "2026-09-22T13:12:23.774Z",
+   "parked_payout_usd": "0.00",
+   "deposit_reserved_usd": 0,
+   "withdrawal_fee_credit_usd": 0
+  },
+  {
+   "customer_id": 950,
+   "company_id": 262,
+   "display_name": null,
+   "auto_withdraw": false,
+   "auto_withdraw_address_id": null,
+   "last_login_at": "2026-09-22T13:34:27.113Z",
+   "created_at": "2026-09-22T13:34:27.113Z",
+   "updated_at": "2026-09-22T13:34:27.113Z",
+   "parked_payout_usd": "0.00",
+   "deposit_reserved_usd": 0,
+   "withdrawal_fee_credit_usd": 0
+  },
+  {
+   "customer_id": 956,
+   "company_id": 262,
+   "display_name": null,
+   "auto_withdraw": false,
+   "auto_withdraw_address_id": null,
+   "last_login_at": "2026-09-23T16:37:38.815Z",
+   "created_at": "2026-09-23T16:20:56.041Z",
+   "updated_at": "2026-09-23T16:37:38.815Z",
+   "parked_payout_usd": "0.00",
+   "deposit_reserved_usd": 0,
+   "withdrawal_fee_credit_usd": 0
+  }
+ ],
+ "wallets": [],
+ "checkouts": [],
+ "poolAddresses": [],
+ "realCids": [
+  696,
+  847,
+  753
+ ]
+}

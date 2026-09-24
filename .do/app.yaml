@@ -68,6 +68,9 @@ services:
       - { key: NEXT_PUBLIC_CYPHER_KEY, value: "REPLACE_ME", scope: BUILD_TIME, type: SECRET }
       - { key: NEXT_PUBLIC_GOOGLE_CLIENT_ID, value: "REPLACE_ME", scope: BUILD_TIME }
       - { key: NEXT_PUBLIC_GOOGLE_CLIENT_SECRET, value: "REPLACE_ME", scope: BUILD_TIME, type: SECRET }
+      # Reown AppKit / WalletConnect project id (public client id) — enables "Pay with wallet" +
+      # "Verify ownership by signing". Allow-list your domains in the Reown dashboard.
+      - { key: NEXT_PUBLIC_REOWN_PROJECT_ID, value: "REPLACE_ME", scope: BUILD_TIME }
       - { key: NEXTAUTH_URL, value: "https://REPLACE_ME.ondigitalocean.app", scope: BUILD_TIME }
       - { key: NEXTAUTH_SECRET, value: "REPLACE_ME", scope: BUILD_TIME, type: SECRET }
 

@@ -1,15 +1,13 @@
-## 2026-09-23 — Reown AppKit / WalletConnect (Pay with wallet + Verify ownership) — BACKEND SMOKE 20/20, FE pending testing agent
+## 2026-09-23 — Reown AppKit / WalletConnect (Pay with wallet + Verify ownership) — VERIFIED (BE smoke 20/20; FE iteration_222 SafeDeal T1/T2 pass; checkout + merchant /wallet verified via Playwright)
 ## - Reown Project ID lives in /app/.env.local NEXT_PUBLIC_REOWN_PROJECT_ID (public client id; allow-listed for dynopay.com + safedeal.sh only — preview shows the modal but WalletConnect relay may reject on preview).
 ## - Backend smoke (EVM + Tron sign/verify, nonce single-use, wrong signer 400, merchant owner guard): cd /app/backend && node -r dotenv/config scripts/wallet_ownership_smoke.js <baseUrl> <sd_token> [merchant_email] [merchant_password]
 ## - Endpoints: POST /api/wallet/ownership/nonce {wallet_id} ; POST /api/wallet/ownership/verify {wallet_id,nonce,signature,wallet_name} (Bearer, owner-only)
 ##              POST /api/safedeal/wallet/addresses/:id/verify-nonce ; POST .../:id/verify (x-safedeal-token + CSRF cookie/header)
 ##              POST /api/pay/walletTxSubmitted (checkout customer token) ; POST /api/safedeal/deals/:token/funding/wallet-tx — hints only (Redis 48h), never mark paid.
-## - SafeDeal QA session (cid 956, sd-wallet-smoke-1790180454@example.com), token valid ~7 days from 2026-09-23:
-##     sd_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJraW5kIjoic2FmZWRlYWwiLCJjaWQiOjk1NiwiY29pZCI6MjYyLCJlbWFpbCI6InNkLXdhbGxldC1zbW9rZS0xNzkwMTgwNDU0QGV4YW1wbGUuY29tIiwiaWF0IjoxNzkwMTgxNDU5LCJleHAiOjE3OTA3ODYyNTl9.A3GjzhIRtlXrI2rYU-5pPpbxtCZ6jfqIua9kNEfJYw4
-##   Saved USDT-POLYGON payout address_id=102 = 0x908aa323E9fAB54dC5FD2Cb355AC33e38d693e7f (private key 0x908178c7bdfbef96c0823cb4ebee85d8994f7e4724b4e4194ac042ef3a587260 — throwaway, for signing tests only)
+## - SafeDeal QA session (cid 956) WAS PURGED at end of session per workflow rule — re-mint: POST /api/safedeal/auth/send-code {email:"sd-wallet-smoke-<ts>@example.com"} → preview_code → verify-code, then add a USDT-POLYGON address via step-up (see backend/scripts/wallet_ownership_smoke.js which does all of this).
 ##   Overview page with Payout addresses card = /safedeal/deals (testids: sd-address-102, sd-address-verify-open-102, sd-address-verify-102-btn, sd-address-verified-102 once verified).
 ## - Merchant Wallets page /wallet: per card wallet-ownership-verify-open-<wallet_id> → wallet-ownership-verify-<wallet_id>-btn (opens AppKit modal <w3m-modal>) ; verified chip wallet-ownership-verified-<wallet_id>. ETH wallet_id=2 on company 1.
-## - Hosted checkout: active link /pay?d=pTQPn4 (company 1). After picking an EVM/Tron/SOL coin the awaiting-payment step shows clean-checkout-wallet-pay-wrap + clean-checkout-pay-with-wallet-btn; QR/copy stay as fallback. BTC/LTC/XRP etc. show NO wallet button by design.
+## - Hosted checkout: QA link /pay?d=jgQQzL "QA wallet pay (EVM+Tron)" $12, all coins, no expiry (company 1). (pTQPn4 is expired.) After picking an EVM/Tron/SOL coin the awaiting-payment step shows clean-checkout-wallet-pay-wrap + clean-checkout-pay-with-wallet-btn; QR/copy stay as fallback. BTC/LTC/XRP etc. show NO wallet button by design.
 
 ## 2026-09-22 — SafeDeal TELEGRAM ALERTS (link/test/unlink + cashout push) — VERIFIED (BE smoke 14/14, iteration_217 FE, iteration_218 deferred QA)
 ## - No new passwords. Bot @SafeDealAlert_bot; token in backend/.env SAFEDEAL_TELEGRAM_BOT_TOKEN (valid). Preview widget shows 'Bot domain invalid' (expected).
