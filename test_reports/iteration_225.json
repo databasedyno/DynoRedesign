@@ -1,0 +1,58 @@
+{
+  "summary": "SafeDeal security RETEST iteration 225 — all previously 429-blocked cases (R1..R6) now PASS with the new per-route rate-limit buckets. 11/11 pytest tests passed; throwaway rows purged (R7).",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/safedeal_security_retest_r225.py",
+    "/app/test_reports/pytest/safedeal_r225.xml",
+    "/app/backend/scripts/cleanup_r225.js"
+  ],
+  "detailed_results": {
+    "R1_stepup_bruteforce_lockout": "PASS — POST /auth/step-up {action:'address_add'} → 200 with 6-digit preview_code. 5 wrong codes on POST /wallet/addresses → 5×400 'Invalid or expired confirmation code'; correct code afterwards also → 400 (code invalidated after 5 failed attempts).",
+    "R2_stepup_single_use": "PASS — first save with correct code → 201, address_id=104 saved. Same code reused with a different address (0x1111...) → 400 (single-use).",
+    "R3_topup_simulate_403": "PASS — GET /wallet/topup/coins?amount=10 → coin USDT-TRC20. POST /wallet/topup {amount:10,coin:'USDT-TRC20'} → 201, topup_id=95. POST /wallet/topup/95/simulate → 403 body contains 'disabled on this server'. GET /wallet → available=0.",
+    "R4_withdraw_zero_balance_no_row": "PASS — fresh step-up cashout, POST /wallet/withdraw {address_id:104, amount:10, code} → 400 'Insufficient available balance'. RO SQL count(tbl_customer_withdrawal WHERE customer_id=966)=0 → no orphan row.",
+    "R5_per_route_rate_limits_independent": "PASS — Telegram bucket: 21 hits → 21st = 429; IMMEDIATELY afterwards authed POST /auth/step-up → 200 (independent bucket). Step-up bucket exhausts on the 7th extra attempt (>10 used counting bootstrap/R1/R2/R4/R5 warmups) → 429 confirmed.",
+    "R6_regression_quick": "PASS — send-code for real gmail → 200, NO preview_code in data. GET /config → live_settlement=false, simulation_allowed=false.",
+    "R7_cleanup": "DONE — customer_ids purged: [964, 965, 966] (964 & 965 from bootstrap-503-retries; 966 was the surviving bootstrap that ran the tests). Deleted rows: tbl_customer_payout_address=1, tbl_safedeal_topup=1, tbl_safedeal_profile=3, tbl_customer=3 (transactions/withdrawals/wallet had 0). Final SELECT count(*) FROM tbl_customer WHERE customer_id IN (964,965,966) = 0.",
+    "R8_report_written": "This file (/app/test_reports/iteration_225.json)."
+  },
+  "throwaway_customer_ids": [964, 965, 966],
+  "throwaway_emails": [
+    "sd-sec2-1790237505@example.com",
+    "sd-sec2-1790237565@example.com",
+    "sd-sec2-1790237603@example.com"
+  ],
+  "cleanup_counts": {
+    "tbl_customer_transaction": 0,
+    "tbl_customer_withdrawal": 0,
+    "tbl_customer_payout_address": 1,
+    "tbl_safedeal_topup": 1,
+    "tbl_safedeal_profile": 3,
+    "tbl_customer_wallet": 0,
+    "tbl_customer": 3,
+    "final_customer_count": 0
+  },
+  "action_items": [],
+  "critical_code_review_comments": [
+    "GET /api/safedeal/wallet does not include customer_id in response body — testing had to look it up via DB. Consider surfacing customer_id (or wallet.customer_id) to reduce test/tooling coupling to the DB. Non-blocking."
+  ],
+  "updated_files": [
+    "/app/backend/tests/safedeal_security_retest_r225.py (new)",
+    "/app/backend/scripts/cleanup_r225.js (new)"
+  ],
+  "success_rate": {"backend": "100% (11/11)", "frontend": "N/A (backend-only run)"},
+  "test_credentials": "None required; throwaway example.com identities self-generated.",
+  "seed_data_creation": "3 throwaway example.com customers created and fully purged in R7.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Per-route rate-limit buckets are confirmed independent (telegramLimiter, stepUpLimiter, addressLimiter, withdrawLimiter, simulateLimiter all isolated). Step-up preview_code is 6 digits, single-use, and invalidates after 5 wrong attempts. Top-up simulate always 403 with 'disabled on this server' (gate runs before lookup — verified via successful topup_id 95). Zero-balance withdraw is fully transactional (no orphan row). Real-domain send-code never leaks preview_code. /config reports live_settlement=false, simulation_allowed=false. Cleanup helper: /app/backend/scripts/cleanup_r225.js. RO SQL helper: /app/backend/scripts/ro_query.js. Note tbl_customer email column is `email` (not `customer_email`).",
+  "rca of the issue": "N/A — this was a green retest confirming the previous fix (shared 'strict' bucket → per-route buckets). Only pre-test flakiness: preview pod occasionally returns 503 'Backend starting' for a few seconds on cold connections; the test suite handles this via a post_retry/get_retry wrapper (up to 20×3s)."
+}

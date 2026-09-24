@@ -1,3 +1,10 @@
+## 2026-09-24 — SafeDeal SECURITY HARDENING (read before any SafeDeal QA)
+## - Sign-in `preview_code` is ONLY returned for reserved test domains (`*@example.com|.net|.org`, `*.test`, `*.invalid`, `*.localhost`) while DISABLE_OUTBOUND_EMAIL=true. Real mailboxes (gmail etc.) never get a code in the response — even on preview (shared prod DB).
+## - Step-up codes: single use, 5 wrong attempts invalidate. Rate limits: send-code/verify-code 10 per 15 min per IP+email; step-up 10/15m per IP; telegram/address/withdraw/simulate 20/15m per IP (Redis keys ratelimit:otp:*, ratelimit:sd:*).
+## - Simulated funding (deal action `fund`) and `POST /wallet/topup/:id/simulate` return 403 unless SAFEDEAL_ALLOW_SIMULATION=true AND live settlement is off. NEVER set that flag on this pod (it writes to the production DB). Balances can no longer be fabricated for QA — test cashout math with unit tests / mocks instead.
+## - Cleanup helper for throwaway SafeDeal identities: node /app/backend/scripts/cleanup_r225.js (edit ids) ; RO SQL: node /app/backend/scripts/ro_query.js "<sql>".
+## - Reown prod QA: checkout.dynopay.com is now allow-listed; 24h QA link /pay?d=Cf1ngm (link 536) self-expires 2026-09-25T06:36Z. Always mock **/api/pay/addPayment + **/api/pay/verifyCryptoPayment* (recipe below) — never reserve a real pool address.
+
 ## 2026-09-23 — Reown AppKit / WalletConnect (Pay with wallet + Verify ownership) — VERIFIED (BE smoke 20/20; FE iteration_222 SafeDeal T1/T2 pass; checkout + merchant /wallet verified via Playwright)
 ## - Reown Project ID lives in /app/.env.local NEXT_PUBLIC_REOWN_PROJECT_ID (public client id; allow-listed for dynopay.com + safedeal.sh only — preview shows the modal but WalletConnect relay may reject on preview).
 ## - Backend smoke (EVM + Tron sign/verify, nonce single-use, wrong signer 400, merchant owner guard): cd /app/backend && node -r dotenv/config scripts/wallet_ownership_smoke.js <baseUrl> <sd_token> [merchant_email] [merchant_password]
