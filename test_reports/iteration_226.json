@@ -1,0 +1,27 @@
+{
+  "summary": "Frontend-only Playwright verification of the DynoPay landing revamp (HeroV7 checkout mock, ThreeWaysV7 vignettes, FinalCTAV7 paid stack) at 1920x1080 and 390x844. All 9 hero-to-faq sections render; no grid/checker pattern found under [data-testid=hero]; hero-primary-cta is a BUTTON with onClick (registers/dashboard nav), hero-secondary-cta href=/pay/demo; hero-checkout-mock cycles waiting -> confirming -> confirmed -> settled -> waiting within ~11s, mock-status pill text updates accordingly, mock-qr shows on waiting/confirming, mock-paid shows on confirmed/settled, mock-track renders (13 children). Three-ways cards have correct anchors (/products, /pay/demo, /documentation) and each vignette shows expected text ('dynopay.com/pay/northwind + Copy', '$148.00 / Pay 148.00 USDT', 'POST /v1/payments'). Final CTA paid stack visible at 1920 with 'Payment received +0.0021 BTC' + 'Auto-settled $148.00', hidden at 390. No horizontal overflow at 1920 or 390 (sw==cw==viewport). Regression pages /fees, /products, /pay/demo all return 200. No console pageerrors. Only warnings: next/head <script> deprecation (pre-existing).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "PaidToast (mock-paid-toast)", "issue": "Element remains opacity=1, display=flex, visibility=visible across ALL steps including 'waiting' and 'confirming'. Spec requires it to become visible only at confirmed/settled. Visually it likely lives inside the confirmed/settled panel so users may not notice, but the DOM/opacity gating specified in the task is not enforced.", "selector": "[data-testid=mock-paid-toast]", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Optional: gate [data-testid=mock-paid-toast] opacity/visibility on step in {confirmed, settled} to match the spec (currently always opacity 1)."
+  ],
+  "critical_code_review_comments": [
+    "hero-primary-cta is a <button> without an href attribute – acceptable because it uses onClick routing, but for SEO/right-click open-in-new-tab it would be better as a <Link>.",
+    "next/head inline <script> warnings are pre-existing and should be migrated to next/script when time permits."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "~97% (10/10 spec items pass; 1 minor toast gating deviation)"},
+  "test_credentials": "N/A (public marketing pages only)",
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Landing revamp v7 verified. If retesting the toast gating, poll [data-testid=mock-paid-toast] computed opacity while data-step of [data-testid=hero-checkout-mock] cycles; today opacity is stuck at 1. Cycle length ~11s. Preview URL requires ~60-90s cold compile; wait for [data-testid=hero-headline].",
+  "rca of the issue": "PaidToast: likely rendered unconditionally inside CheckoutMock instead of being wrapped in a motion element whose animate={{opacity: step==='confirmed'||step==='settled' ? 1 : 0}}. Fix in /app/Components/Page/Home/v7/mock/PaidToast.tsx (or the parent PayPanel that mounts it) by conditioning opacity on step."
+}

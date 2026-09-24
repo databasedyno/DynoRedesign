@@ -166,3 +166,20 @@ CHANGED FILES (this whole revamp, for review):
  - EDIT: Components/Page/Home/index.tsx ; pages/_app.tsx (homePaths + /products) ;
          pages/{about,referral-program,press,fees}.tsx ; Components/Page/SEO/SEOLandingPage.tsx ;
          langs/locales/{en,de,es,fr,nl,pt}/landing.json
+
+---
+## Session 2026-09-24 (part 4) — PRODUCT MOCKUPS replace the 3D-imagery plan — DONE (testing_agent iteration_226: 10/10, toast gating fixed after)
+User REJECTED AI 3D renders (two rounds of concepts, A–L) → "3D itself isn't the right device".
+Final choices: Bybit black-glossy aesthetic, REAL checkout UI mockup, "merchant getting paid",
+and REMOVE the faint checker/grid pattern from the hero background. No image assets, no API
+keys — everything is coded React/MUI (always dark, regardless of page theme):
+ - Components/Page/Home/v7/mock/shared.ts — tokens (M.*), glossFrameSx bezel, screenSx, pills, mini button, demo data (Northwind Studio · $148.00 · 148.00 USDT · INV-2026-0412).
+ - mock/useCycle.ts — framer-motion useInView + useReducedMotion loop (pauses off-screen, holds last step under reduced-motion).
+ - mock/QrMock.tsx — deterministic pseudo-QR as one SVG data-URI (single DOM node).
+ - mock/CheckoutMock.tsx — HERO mock: browser bar + real checkout copy (landing.json checkout.strip.*) cycling WAITING→CONFIRMING→CONFIRMED→SETTLED (DWELL 3.0/2.2/1.8/4.4 s), Waiting·Detected·Confirmed track, QR→green check panel. `data-testid=hero-checkout-mock data-step=<pill>`.
+ - mock/PaidToast.tsx — NotifyCard (merchant notification) + PaidToast (`mock-paid-toast data-visible`) sliding in at confirmed/settled.
+ - mock/WayVignettes.tsx — vignette-nocode / vignette-checkout / vignette-api (116px shells) replacing the icon tiles in ThreeWaysV7.
+ - mock/PaidStack.tsx — FinalCTAV7 `final-cta-paid-stack`: two drifting cards ("Payment received +0.0021 BTC", "Auto-settled $148.00") at left: calc(50% + 340px), lg+ only.
+ - HeroV7: grid overlay REMOVED; mock mounted in `hero-mock-wrap` (maxWidth 760, perspective(1800px) rotateX(3deg) on md+, yellow glow beneath); pb reduced to 8/11.
+Gates: tsc 0, eslint clean. Known intentional overflow offenders (not bugs): coins-marquee-track, off-canvas mobile-menu-panel.
+Removed again: Render3D.tsx, public/landing/3d/*, scripts/landing-3d-cutout.py (rembg pip pkgs remain installed in the pod only).

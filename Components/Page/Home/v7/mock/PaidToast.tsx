@@ -38,6 +38,8 @@ export const NotifyCard: React.FC<CardProps> = ({ icon, accent, title, amount, m
 export const PaidToast: React.FC<{ show: boolean }> = ({ show }) => (
   <Box
     aria-hidden={!show}
+    data-testid="mock-paid-toast"
+    data-visible={show ? "true" : "false"}
     sx={{
       position: "absolute",
       zIndex: 2,
@@ -51,6 +53,6 @@ export const PaidToast: React.FC<{ show: boolean }> = ({ show }) => (
       "@media (prefers-reduced-motion: reduce)": { transition: "none" },
     }}
   >
-    <NotifyCard testId="mock-paid-toast" icon={<CheckRoundedIcon sx={{ fontSize: 22 }} />} accent={GREEN} title="Payment received" amount={`+${AMOUNT_COIN}`} meta="Settled to USD balance" />
+    <NotifyCard icon={<CheckRoundedIcon sx={{ fontSize: 22 }} />} accent={GREEN} title="Payment received" amount={`+${AMOUNT_COIN}`} meta="Settled to USD balance" />
   </Box>
 );
