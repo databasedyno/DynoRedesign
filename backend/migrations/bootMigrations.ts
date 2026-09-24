@@ -940,6 +940,21 @@ const createPayoutGasAuditTable = async (): Promise<void> => {
   if (isSyncable(payoutGasAuditModel)) await payoutGasAuditModel.sync();
 };
 
+/**
+ * 0052 — SafeDeal ledger: the idempotency key (transaction_reference) is enforced by the
+ * database, not only by the pre-insert lookup, so a concurrent retry can never double-credit
+ * or double-debit a wallet. Scoped to the SafeDeal ledger modes (other Dynopay customer
+ * transactions reuse chain tx ids as references and are untouched).
+ */
+const addSafeDealLedgerUniqueReference = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `CREATE UNIQUE INDEX IF NOT EXISTS "uq_customer_transaction_safedeal_reference"
+       ON "tbl_customer_transaction" ("transaction_reference")
+       WHERE "transaction_reference" IS NOT NULL AND "payment_mode" IN ('ESCROW', 'WITHDRAWAL', 'ADJUSTMENT', 'TOPUP')`
+  );
+};
+
 export async function buildBootMigrations(): Promise<Migration[]> {  const { v1, extra } = await loadBootModelGroups();  return [
     { version: "0001_boot_model_tables", up: syncGroup(v1) },
     { version: "0002_boot_model_tables_extra", up: syncGroup(extra) },
@@ -989,6 +1004,7 @@ export async function buildBootMigrations(): Promise<Migration[]> {  const { v1,
     { version: "0049_payout_gas_audit", up: createPayoutGasAuditTable },
     { version: "0050_withdrawal_telegram_notified", up: addWithdrawalTelegramNotified },
     { version: "0051_wallet_ownership_verification", up: addWalletOwnershipVerification },
+    { version: "0052_safedeal_ledger_unique_reference", up: addSafeDealLedgerUniqueReference },
     ...perfMigrations,
     ...securityMigrations,
   ];

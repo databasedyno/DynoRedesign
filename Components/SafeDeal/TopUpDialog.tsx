@@ -64,7 +64,7 @@ export default function TopUpDialog({ wallet, resume, onClose, onCredited, notif
             {quotes && <CoinQuotes quotes={quotes} creating={creating} onPick={(c) => void pick(c)} />}
           </Stack>
         ) : (
-          <TopupPayment topup={topup} live={wallet.live} onUpdate={setTopup} onCredited={onCredited} notify={notify} />
+          <TopupPayment topup={topup} live={wallet.live || wallet.simulation_allowed === false} onUpdate={setTopup} onCredited={onCredited} notify={notify} />
         )}
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>

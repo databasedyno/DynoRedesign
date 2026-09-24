@@ -1,0 +1,51 @@
+{
+  "summary": "Independently verified on PRODUCTION (https://checkout.dynopay.com/pay?d=Cf1ngm) that the Reown allowlist fix works. Ran two flows (desktop 1440x900 + mobile emulation 390x844 iPhone Safari UA, is_mobile=True, has_touch=True) with Playwright route mocks on /api/pay/addPayment and /api/pay/verifyCryptoPayment* so NO real address was reserved. Selected USDT → Polygon → Continue → Pay-with-wallet → w3m-modal → Binance Wallet.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verification_evidence": {
+    "desktop": {
+      "relay_websocket_opened": "wss://relay.walletconnect.org/?...&projectId=f83ed4e19b1bf8e6b381f6485b191ae1&ua=wc-2/js-2.23.7/...browser:checkout.dynopay.com",
+      "relay_frame_received": "{\"id\":1790232313529493760,\"jsonrpc\":\"2.0\",\"result\":true}",
+      "relay_had_result_true": true,
+      "relay_had_origin_not_allowed_or_code_3000": false,
+      "pulse_status": 202,
+      "pulse_url": "https://pulse.walletconnect.org/batch?projectId=f83ed4e19b1bf8e6b381f6485b191ae1&st=appkit&sv=react-wagmi,solana,tron-1.8.24",
+      "qr_code_present": true,
+      "qr_uri_starts_with_wc": true,
+      "qr_uri_prefix": "wc:67a1e10c7816f23a434147429fc5947c93dba...",
+      "copy_link_visible": true,
+      "console_errors": 0,
+      "screenshot": "/app/test_reports/desktop_modal.png"
+    },
+    "mobile": {
+      "viewport": "390x844 is_mobile=True has_touch=True",
+      "user_agent": "iPhone 17 Safari",
+      "relay_websocket_opened": true,
+      "pulse_status": 202,
+      "binance_click_registered": true,
+      "open_button_visible": true,
+      "open_button_element": "wui-button text=Open",
+      "copy_link_visible": true,
+      "copy_link_element": "wui-link text='Copy link'",
+      "spinner_elements_in_modal_after_10s": 0,
+      "spinner_persisted_indefinitely": false,
+      "no_deep_link_followed": true,
+      "screenshot_note": "mobile screenshot call threw options.quality unsupported for PNG (harmless test-script issue, verification not affected)"
+    },
+    "negative_control_skipped": "Tron/wallet button re-check skipped for time; core fix independently verified twice (desktop + mobile) which is what the bug report was about."
+  },
+  "test_report_links": ["/app/test_reports/desktop_modal.png"],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skip backend)", "frontend": "100% (2/2 flows PASS)"},
+  "seed_data_creation": "None. addPayment + verifyCryptoPayment were Playwright-mocked so no live DB rows / pool addresses were reserved.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Reown WalletConnect allowlist fix for https://checkout.dynopay.com is confirmed live. Relay accepts the origin (result:true, no code:3000), Pulse returns 202, pairing URI (wc:...) is generated on both desktop QR view and mobile Open/Copy-link view. Project ID in use: f83ed4e19b1bf8e6b381f6485b191ae1. Use route mocks in /app/memory/test_credentials.md when re-testing this flow on production.",
+  "rca of the issue": "Reown project's Verify/allowlist did not include https://checkout.dynopay.com (only dynopay.com + safedeal.sh). The relay handshake was rejected with {code:3000, 'Unauthorized: origin not allowed'} so no pairing URI was generated, causing QR to be blank on desktop and the mobile 'Open' button never to appear. Fix: adding checkout.dynopay.com to the Reown dashboard allowlist. Verification (this run): relay now returns result:true, pulse 202, wc: URI present, mobile 'Open Binance Wallet' button rendered."
+}

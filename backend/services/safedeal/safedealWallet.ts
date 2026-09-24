@@ -93,13 +93,15 @@ export interface EntryInput {
 export async function applyEntry(input: EntryInput, t: Transaction): Promise<boolean> {
   const amount = round2(input.amount);
   if (!Number.isFinite(amount) || amount <= 0) return false;
+  // Lock the wallet row FIRST so two concurrent requests carrying the same reference
+  // serialise here — the duplicate check below then sees the first one's insert.
+  const wallet = await lockOrCreateWallet(input.customer.customer_id, t);
   const dup = await sequelize.query<{ transaction_id: number }>(
     `SELECT transaction_id FROM tbl_customer_transaction WHERE transaction_reference = :ref LIMIT 1`,
     { replacements: { ref: input.reference }, type: QueryTypes.SELECT, transaction: t }
   );
   if (dup[0]) return false;
 
-  const wallet = await lockOrCreateWallet(input.customer.customer_id, t);
   let available = round2(Number(wallet.amount || 0));
   let held = round2(Number(wallet.held_amount || 0));
   let bucket: StatementRow["bucket"] = "available";
@@ -123,11 +125,15 @@ export async function applyEntry(input: EntryInput, t: Transaction): Promise<boo
       held = round2(held + amount);
       bucket = "transfer";
       break;
-    case "UNHOLD":
-      held = round2(Math.max(0, held - amount));
-      available = round2(available + amount);
+    case "UNHOLD": {
+      // Never release more than is actually held — an oversized UNHOLD must not mint balance.
+      const move = round2(Math.min(amount, held));
+      if (move < amount) apiLogger.warn(`[SafeDealWallet] UNHOLD ${toFixedStr(amount, 2)} exceeds held ${toFixedStr(held, 2)} for customer ${input.customer.customer_id} (${input.reference}) — capped`);
+      held = round2(held - move);
+      available = round2(available + move);
       bucket = "transfer";
       break;
+    }
   }
   await sequelize.query(
     `UPDATE tbl_customer_wallet SET amount = :available, held_amount = :held, "updatedAt" = NOW() WHERE wallet_id = :walletId`,
@@ -177,6 +183,20 @@ export async function applyEntries(entries: EntryInput[]): Promise<number> {
     for (const e of entries) if (await applyEntry(e, t)) applied += 1;
     return applied;
   });
+}
+
+/**
+ * Total of CREDITs that came from simulated money (fake deposits / fake deal funding and their
+ * settlements). Such balance may move between SafeDeal wallets but must never be paid out for real.
+ */
+export async function simulatedCreditsUsd(customerId: number): Promise<number> {
+  const rows = await sequelize.query<{ total: string | null }>(
+    `SELECT COALESCE(SUM(paid_amount), 0) AS total FROM tbl_customer_transaction
+      WHERE customer_id = :id AND transaction_type = 'CREDIT' AND payment_mode IN (:modes)
+        AND (meta->>'simulated' = 'true' OR meta->>'method' = 'simulated')`,
+    { replacements: { id: customerId, modes: LEDGER_MODES }, type: QueryTypes.SELECT }
+  );
+  return round2(Number(rows[0]?.total || 0));
 }
 
 const sign = (type: string): number => (type === "CREDIT" ? 1 : type === "DEBIT" ? -1 : 0);

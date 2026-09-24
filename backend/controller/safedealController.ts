@@ -18,7 +18,7 @@ import { validateCompanyOwnership } from "../utils/validateCompanyOwnership";
 import { PaymentUserJwtPayload } from "../utils/types";
 import escrowDealModel from "../models/escrowDealModel";
 import { escrowEngine, ActorInfo, DEAL_TYPES, normalizeDealType } from "./escrowController";
-import { EscrowRole, appendActivity, computeFeeBreakdown, dealFeeBreakdown, isLiveSettlementEnabled, resolveRoles } from "./escrow/escrowShared";
+import { EscrowRole, appendActivity, computeFeeBreakdown, dealFeeBreakdown, isLiveSettlementEnabled, isSimulationAllowed, resolveRoles } from "./escrow/escrowShared";
 import { ESCROW_PAYOUT_OPTIONS, refreshEscrowCostRates } from "../services/escrow/escrowCosts";
 import { resolveCustomerForBrand, resolveCustomerByTelegram, CustomerRow, CustomerWalletError } from "../services/customerWalletService";
 import { getBalances, getStatement, statementToCsv, brandWalletTotals } from "../services/safedeal/safedealWallet";
@@ -88,6 +88,24 @@ const emailOk = (e: string) => /.+@.+\..+/.test(e);
  *  Such users can't receive email invites or log in by email until they add a real one. */
 const isPlaceholderEmail = (e: unknown): boolean => /@telegram\.safedeal$/i.test(String(e ?? ""));
 const emailDisabled = () => String(envRaw("DISABLE_OUTBOUND_EMAIL") || "").toLowerCase() === "true";
+/**
+ * One-time codes are only ever echoed back in the API response for RFC 2606/6761 reserved
+ * (non-routable) test addresses, and only while outbound email is off. A real mailbox never
+ * gets its code in a response — even on a preview pod that shares the production database —
+ * so nobody can sign in as (or step-up for) an existing customer without reading their email.
+ */
+const TEST_EMAIL_DOMAIN = /(^|\.)(example\.(com|net|org)|example|test|invalid|localhost)$/i;
+const isTestEmail = (email: unknown): boolean => {
+  const domain = String(email ?? "").split("@")[1] || "";
+  return !!domain && TEST_EMAIL_DOMAIN.test(domain);
+};
+const previewCodeFor = (email: unknown, code: string): string | undefined => (emailDisabled() && isTestEmail(email) ? code : undefined);
+const codeMatches = (stored: unknown, given: unknown): boolean => {
+  const a = Buffer.from(String(stored ?? ""));
+  const b = Buffer.from(String(given ?? ""));
+  return a.length > 0 && a.length === b.length && crypto.timingSafeEqual(a, b);
+};
+const MAX_CODE_ATTEMPTS = 5;
 const companyId = (): number => {
   const id = Number(envRaw("SAFEDEAL_COMPANY_ID"));
   if (!id) throw new EscrowError(503, "SafeDeal is not configured (SAFEDEAL_COMPANY_ID).");
@@ -99,7 +117,7 @@ const secret = (): string => {
   return s;
 };
 const otpKey = (purpose: string, key: string) => `safedeal:${purpose}:${norm(key)}`;
-const genCode = () => String(Math.floor(100000 + Math.random() * 900000));
+const genCode = () => String(crypto.randomInt(100000, 1000000));
 
 export interface SafeDealSession {
   customer_id: number;
@@ -155,11 +173,18 @@ async function loadProfile(customerId: number): Promise<Record<string, any> | nu
   return rows[0] || null;
 }
 
-/** Step-up: sensitive wallet actions need a fresh one-time code. */
+/** Step-up: sensitive wallet actions need a fresh one-time code (single use, 5 attempts). */
 async function requireStepUp(sess: SafeDealSession, code: unknown): Promise<void> {
-  const stored: any = await getRedisItem(otpKey("stepup", String(sess.customer_id)));
-  if (!stored || String(stored.code) !== String(code || "")) fail(400, "Invalid or expired confirmation code. Request a new one.");
-  await deleteRedisItem(otpKey("stepup", String(sess.customer_id)));
+  const key = otpKey("stepup", String(sess.customer_id));
+  const stored: any = await getRedisItem(key);
+  if (!stored) fail(400, "Invalid or expired confirmation code. Request a new one.");
+  if (!codeMatches(stored.code, code)) {
+    const attempts = Number(stored.attempts || 0) + 1;
+    if (attempts >= MAX_CODE_ATTEMPTS) await deleteRedisItem(key);
+    else await setRedisItemWithTTL(key, { ...stored, attempts }, OTP_TTL);
+    fail(400, "Invalid or expired confirmation code. Request a new one.");
+  }
+  await deleteRedisItem(key);
 }
 
 // ── auth ─────────────────────────────────────────────────────────────────────
@@ -173,7 +198,8 @@ const sendCode = async (req: express.Request, res: express.Response) => {
     await setRedisItemWithTTL(otpKey("signin", email), { code, attempts: 0 }, OTP_TTL);
     void sendSafeDealCodeEmail(email, code, "signin");
     const payload: Record<string, unknown> = { email, expires_in: OTP_TTL };
-    if (emailDisabled()) payload.preview_code = code; // preview only (outbound email disabled)
+    const preview = previewCodeFor(email, code);
+    if (preview) payload.preview_code = preview; // reserved test domains only, outbound email off
     return successResponseHelper(res, 200, "We emailed you a sign-in code.", payload);
   } catch (e) {
     return handle(res, e, "sendCode");
@@ -188,9 +214,9 @@ const verifyCode = async (req: express.Request, res: express.Response) => {
     const key = otpKey("signin", email);
     const stored: any = await getRedisItem(key);
     if (!stored) return errorResponseHelper(res, 400, "That code has expired. Request a new one.");
-    if (String(stored.code) !== code) {
+    if (!codeMatches(stored.code, code)) {
       const attempts = Number(stored.attempts || 0) + 1;
-      if (attempts >= 5) await deleteRedisItem(key);
+      if (attempts >= MAX_CODE_ATTEMPTS) await deleteRedisItem(key);
       else await setRedisItemWithTTL(key, { ...stored, attempts }, OTP_TTL);
       return errorResponseHelper(res, 400, "Incorrect code. Please check and try again.");
     }
@@ -335,10 +361,11 @@ const sendStepUp = async (req: express.Request, res: express.Response) => {
     // instead of a vague "wallet action").
     const rawAction = String(req.body?.action || "").trim();
     const action = STEP_UP_ACTIONS.has(rawAction) ? rawAction : null;
-    await setRedisItemWithTTL(otpKey("stepup", String(sess.customer_id)), { code }, OTP_TTL);
+    await setRedisItemWithTTL(otpKey("stepup", String(sess.customer_id)), { code, attempts: 0 }, OTP_TTL);
     void sendSafeDealCodeEmail(sess.email, code, "stepup", action);
     const payload: Record<string, unknown> = { expires_in: OTP_TTL };
-    if (emailDisabled()) payload.preview_code = code;
+    const preview = previewCodeFor(sess.email, code);
+    if (preview) payload.preview_code = preview;
     return successResponseHelper(res, 200, "Confirmation code sent to your email.", payload);
   } catch (e) {
     return handle(res, e, "sendStepUp");
@@ -416,6 +443,7 @@ const config = async (_req: express.Request, res: express.Response) => {
     max_topup_usd: MAX_TOPUP_USD,
     withdrawal_approval_usd: APPROVAL_THRESHOLD_USD,
     live_settlement: isLiveSettlementEnabled(),
+    simulation_allowed: isSimulationAllowed(),
     dispute_auto_escalate_hours: Number(envRaw("ESCROW_DISPUTE_AUTO_ESCALATE_HOURS")) || 72,
     legal_name: (envRaw("EMAIL_LEGAL_NAME") || "Dynopay").trim(),
     price_currencies: PRICE_CURRENCIES,
@@ -1260,6 +1288,7 @@ const wallet = async (_req: express.Request, res: express.Response) => {
       limits: { min_withdrawal_usd: MIN_WITHDRAWAL_USD, approval_threshold_usd: APPROVAL_THRESHOLD_USD, min_topup_usd: MIN_TOPUP_USD, max_topup_usd: MAX_TOPUP_USD },
       payout_options: ESCROW_PAYOUT_OPTIONS,
       live: isLiveSettlementEnabled(),
+      simulation_allowed: isSimulationAllowed(),
     });
   } catch (e) {
     return handle(res, e, "wallet");
@@ -1639,7 +1668,8 @@ const addEmailStart = async (req: express.Request, res: express.Response) => {
     await setRedisItemWithTTL(otpKey("addemail", String(sess.customer_id)), { code, email, attempts: 0 }, OTP_TTL);
     void sendSafeDealCodeEmail(email, code, "signin");
     const payload: Record<string, unknown> = { email, expires_in: OTP_TTL };
-    if (emailDisabled()) payload.preview_code = code; // preview only (outbound email disabled)
+    const preview = previewCodeFor(email, code);
+    if (preview) payload.preview_code = preview; // reserved test domains only, outbound email off
     return successResponseHelper(res, 200, "We emailed a code to confirm this address.", payload);
   } catch (e) {
     return handle(res, e, "addEmailStart");
@@ -1655,9 +1685,9 @@ const addEmailVerify = async (req: express.Request, res: express.Response) => {
     const key = otpKey("addemail", String(sess.customer_id));
     const stored: any = await getRedisItem(key);
     if (!stored || !stored.email) return errorResponseHelper(res, 400, "That code has expired. Request a new one.");
-    if (String(stored.code) !== code) {
+    if (!codeMatches(stored.code, code)) {
       const attempts = Number(stored.attempts || 0) + 1;
-      if (attempts >= 5) await deleteRedisItem(key);
+      if (attempts >= MAX_CODE_ATTEMPTS) await deleteRedisItem(key);
       else await setRedisItemWithTTL(key, { ...stored, attempts }, OTP_TTL);
       return errorResponseHelper(res, 400, "Incorrect code. Please check and try again.");
     }

@@ -34,6 +34,7 @@ import {
   describeSettlement,
   deriveSettlement,
   isLiveSettlementEnabled,
+  isSimulationAllowed,
   outcomeToStatus,
   resolveRoles,
   dealFeeBreakdown,
@@ -549,6 +550,7 @@ async function actCancel(deal: any, actor: ActorInfo, body: any): Promise<{ deal
 
 async function actFund(deal: any, actor: ActorInfo, coinIn?: string): Promise<any> {
   if (isLiveSettlementEnabled()) fail(403, "Simulated funding is disabled when live settlement is on. Fund via the hosted checkout.");
+  if (!isSimulationAllowed()) fail(403, "Simulated funding is disabled on this server. Fund via the deposit address shown on the deal page.");
   if (actor.role !== "buyer") fail(403, "Only the buyer funds the escrow.");
   if (deal.status !== "awaiting_payment") fail(409, `Cannot fund from status '${deal.status}'.`);
   const coin = (coinIn ? String(coinIn) : (deal.accepted_coins || "USDT-TRC20").split(",")[0]).trim();

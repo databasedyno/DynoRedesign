@@ -13,7 +13,7 @@ import { apiLogger } from "../../utils/loggers";
 import { toFixedStr } from "../../utils/money";
 import { CustomerRow, CustomerWalletError } from "../customerWalletService";
 import { getEscrowCostRates, isStableFundingCoin, sweepFeeUsdFor, awaitFreshRates } from "../escrow/escrowCosts";
-import { isLiveSettlementEnabled } from "../../controller/escrow/escrowShared";
+import { isLiveSettlementEnabled, isSimulationAllowed } from "../../controller/escrow/escrowShared";
 import { applyEntries } from "./safedealWallet";
 import { FUNDING_COIN_META, configuredFundingCoins, requestDynopayPayment } from "./safedealCheckout";
 
@@ -245,9 +245,10 @@ export async function syncTopupFromLedger(row: TopupRow): Promise<TopupRow> {
   return row;
 }
 
-/** Preview only — live settlement OFF: mark the deposit as received and credit the wallet. */
+/** Preview only — live settlement OFF and SAFEDEAL_ALLOW_SIMULATION=true: mark the deposit as received and credit the wallet. */
 export async function simulateTopup(customerId: number, id: number): Promise<TopupRow> {
   if (isLiveSettlementEnabled()) throw new CustomerWalletError(403, "Simulated top-ups are disabled when live settlement is on.");
+  if (!isSimulationAllowed()) throw new CustomerWalletError(403, "Simulated top-ups are disabled on this server.");
   const row = await getTopup(customerId, id);
   if (!["waiting", "pending", "underpaid"].includes(row.status)) throw new CustomerWalletError(409, `Top-up is already ${row.status}.`);
   return creditTopup(row, `SIMULATED-TOPUP-${crypto.randomBytes(8).toString("hex")}`, true);

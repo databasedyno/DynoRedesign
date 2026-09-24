@@ -13,7 +13,7 @@ import { toFixedStr } from "../../utils/money";
 import { CustomerRow, CustomerWalletError } from "../customerWalletService";
 import { ESCROW_PAYOUT_OPTIONS, normalizePayoutKey, withdrawFeeUsdFor } from "../escrow/escrowCosts";
 import { isLiveSettlementEnabled } from "../../controller/escrow/escrowShared";
-import { applyEntries, getBalances } from "./safedealWallet";
+import { applyEntry, applyEntries, getBalances, simulatedCreditsUsd } from "./safedealWallet";
 import { sendSafeDealWithdrawalEmail, sendSafeDealWithdrawalRejectedEmail, type CashoutEmailOptions } from "../email/safedealEmails";
 import { explorerTxUrl } from "../receiptLinkService";
 
@@ -217,12 +217,27 @@ async function getWithdrawal(id: number): Promise<WithdrawalRow | null> {
   return rows[0] || null;
 }
 
+/**
+ * Real money must never leave for balance that was created by simulation (fake deposits /
+ * fake deal funding on a preview pod that shares this database). Enforced whenever a payout
+ * would be dispatched for real.
+ */
+async function assertNoSimulatedFunds(customerId: number): Promise<void> {
+  if (!isLiveSettlementEnabled()) return;
+  const simulated = await simulatedCreditsUsd(customerId);
+  if (simulated > 0) {
+    apiLogger.error(`[SafeDeal] ⚠️ ADMIN ALERT: cashout blocked — customer ${customerId} holds ${toFixedStr(simulated, 2)} USD of SIMULATED credits.`);
+    throw new CustomerWalletError(403, "This balance includes test funds and can't be cashed out. Contact support.");
+  }
+}
+
 /** Execute the send for a queued withdrawal (simulated in safe mode). */
 async function dispatchWithdrawal(w: WithdrawalRow): Promise<WithdrawalRow> {
   const opt = ESCROW_PAYOUT_OPTIONS.find((o) => o.key === w.payout_key);
   let txHash = `SIMULATED-WITHDRAWAL-${crypto.randomBytes(10).toString("hex")}`;
   let simulated = true;
   if (isLiveSettlementEnabled() && opt) {
+    await assertNoSimulatedFunds(w.customer_id);
     const { submitWithdrawal } = await import("../binanceService");
     // The exchange deducts its network fee FROM the submitted amount, so submit net + the live fee:
     // the recipient always receives exactly the net they were quoted. For a plain manual withdrawal
@@ -301,56 +316,67 @@ export async function requestWithdrawal(
   if (input.fee_covered) { q.fee = 0; q.fee_waived = 0; q.net = q.amount; }
   if (!Number.isFinite(q.amount) || (!isSettlement && q.amount < MIN_WITHDRAWAL_USD)) throw new CustomerWalletError(400, `Minimum cashout is $${MIN_WITHDRAWAL_USD}.`);
   if (q.net <= 0) throw new CustomerWalletError(400, `Amount must exceed the ${toFixedStr(q.fee, 2)} USD network fee.`);
+  await assertNoSimulatedFunds(customer.customer_id);
   const bal = await getBalances(customer.customer_id);
   if (bal.available < q.amount) throw new CustomerWalletError(400, `Insufficient available balance (${toFixedStr(bal.available, 2)} USD).`);
   const requiresApproval = q.amount > APPROVAL_THRESHOLD_USD;
-  const ledgerRef = `withdrawal:${crypto.randomUUID()}`;
-  const rows = await sequelize.query<WithdrawalRow>(
-    `INSERT INTO tbl_customer_withdrawal
-       (company_id, customer_id, address_id, payout_key, address, amount_usd, fee_usd, net_usd, status, requires_approval, ledger_reference, source, escrow_id)
-     VALUES (:companyId, :customerId, :addressId, :payoutKey, :address, :amount, :fee, :net, :status, :requiresApproval, :ledgerRef, :source, :escrowId)
-     RETURNING *`,
-    {
-      replacements: {
-        companyId: customer.company_id,
-        customerId: customer.customer_id,
-        addressId: addr.address_id,
-        payoutKey: addr.payout_key,
-        address: addr.address,
-        amount: toFixedStr(q.amount, 2),
-        fee: toFixedStr(q.fee, 2),
-        net: toFixedStr(q.net, 2),
-        status: requiresApproval ? "pending_approval" : "queued",
-        requiresApproval,
-        ledgerRef,
-        source: input.source || "manual",
-        escrowId: input.escrow_id ?? null,
-      },
-      type: QueryTypes.SELECT,
-    }
-  );
-  let w = rows[0];
-  const opt = ESCROW_PAYOUT_OPTIONS.find((o) => o.key === w.payout_key);
-  const short = `${w.address.slice(0, 6)}…${w.address.slice(-4)}`;
+  // Settlement payouts are keyed per deal + party so a retried/concurrent settlement can never pay twice.
+  const ledgerRef = isSettlement && input.escrow_id ? `escrow:${input.escrow_id}:payout:${customer.customer_id}` : `withdrawal:${crypto.randomUUID()}`;
+  const opt = ESCROW_PAYOUT_OPTIONS.find((o) => o.key === addr.payout_key);
+  const short = `${addr.address.slice(0, 6)}…${addr.address.slice(-4)}`;
   const feeText = q.fee_waived > 0
     ? (q.fee > 0 ? `fee ${toFixedStr(q.fee, 2)} USD after ${toFixedStr(q.fee_waived, 2)} USD deal fee credit` : `fee 0.00 USD — covered by your deal fee credit`)
     : `fee ${toFixedStr(q.fee, 2)} USD`;
-  await applyEntries([
-    {
-      customer,
-      type: "DEBIT",
-      amount: q.amount,
-      kind: isSettlement ? "payout" : "withdrawal",
-      description: isSettlement
-        ? `Deal payout${input.deal_title ? ` — ${input.deal_title}` : ""} sent to ${opt?.label || w.payout_key} ${short} (network fee covered by the deal)${requiresApproval ? " — awaiting approval" : ""}`
-        : `Cashout to ${opt?.label || w.payout_key} ${short} (${feeText}, you receive ${toFixedStr(q.net, 2)} ${opt?.coin || "USDT"})${requiresApproval ? " — awaiting approval" : ""}`,
-      reference: ledgerRef,
-      source: "WITHDRAWAL",
-      escrowId: input.escrow_id ?? undefined,
-      dealTitle: input.deal_title ?? undefined,
-      meta: { withdrawal_id: w.withdrawal_id, payout_key: w.payout_key, fee: q.fee, fee_waived: q.fee_waived, net: q.net, source: input.source || "manual", escrow_id: input.escrow_id ?? null },
-    },
-  ]);
+  // The withdrawal row and the balance debit commit together: a failed debit (insufficient
+  // funds under concurrency, duplicate settlement) leaves no orphan row that could later be
+  // "rejected" and refunded money that was never taken.
+  let w = await sequelize.transaction(async (t) => {
+    const rows = await sequelize.query<WithdrawalRow>(
+      `INSERT INTO tbl_customer_withdrawal
+         (company_id, customer_id, address_id, payout_key, address, amount_usd, fee_usd, net_usd, status, requires_approval, ledger_reference, source, escrow_id)
+       VALUES (:companyId, :customerId, :addressId, :payoutKey, :address, :amount, :fee, :net, :status, :requiresApproval, :ledgerRef, :source, :escrowId)
+       RETURNING *`,
+      {
+        replacements: {
+          companyId: customer.company_id,
+          customerId: customer.customer_id,
+          addressId: addr.address_id,
+          payoutKey: addr.payout_key,
+          address: addr.address,
+          amount: toFixedStr(q.amount, 2),
+          fee: toFixedStr(q.fee, 2),
+          net: toFixedStr(q.net, 2),
+          status: requiresApproval ? "pending_approval" : "queued",
+          requiresApproval,
+          ledgerRef,
+          source: input.source || "manual",
+          escrowId: input.escrow_id ?? null,
+        },
+        type: QueryTypes.SELECT,
+        transaction: t,
+      }
+    );
+    const row = rows[0];
+    const debited = await applyEntry(
+      {
+        customer,
+        type: "DEBIT",
+        amount: q.amount,
+        kind: isSettlement ? "payout" : "withdrawal",
+        description: isSettlement
+          ? `Deal payout${input.deal_title ? ` — ${input.deal_title}` : ""} sent to ${opt?.label || row.payout_key} ${short} (network fee covered by the deal)${requiresApproval ? " — awaiting approval" : ""}`
+          : `Cashout to ${opt?.label || row.payout_key} ${short} (${feeText}, you receive ${toFixedStr(q.net, 2)} ${opt?.coin || "USDT"})${requiresApproval ? " — awaiting approval" : ""}`,
+        reference: ledgerRef,
+        source: "WITHDRAWAL",
+        escrowId: input.escrow_id ?? undefined,
+        dealTitle: input.deal_title ?? undefined,
+        meta: { withdrawal_id: row.withdrawal_id, payout_key: row.payout_key, fee: q.fee, fee_waived: q.fee_waived, net: q.net, source: input.source || "manual", escrow_id: input.escrow_id ?? null },
+      },
+      t
+    );
+    if (!debited) throw new CustomerWalletError(409, "This payout was already processed.");
+    return row;
+  });
   if (q.fee_waived > 0) await consumeWithdrawalFeeCredit(customer.customer_id, q.fee_waived);
   await clampDepositReserve(customer.customer_id); // funds left the wallet — release any now-unbacked deposit protection
   if (!requiresApproval) {
@@ -406,16 +432,19 @@ export async function approveWithdrawal(id: number, adminLabel: string): Promise
   const w = await getWithdrawal(id);
   if (!w) throw new CustomerWalletError(404, "Cashout not found.");
   if (w.status !== "pending_approval") throw new CustomerWalletError(409, `Cashout is '${w.status}', not awaiting approval.`);
-  await sequelize.query(
-    `UPDATE tbl_customer_withdrawal SET status = 'queued', approved_by = :by, approved_at = NOW(), updated_at = NOW() WHERE withdrawal_id = :id`,
-    { replacements: { by: adminLabel, id }, type: QueryTypes.UPDATE }
+  // Atomic claim: only ONE concurrent approve (or reject) can move the row out of pending_approval.
+  const claimed = await sequelize.query<WithdrawalRow>(
+    `UPDATE tbl_customer_withdrawal SET status = 'queued', approved_by = :by, approved_at = NOW(), updated_at = NOW()
+      WHERE withdrawal_id = :id AND status = 'pending_approval' RETURNING *`,
+    { replacements: { by: adminLabel, id }, type: QueryTypes.SELECT }
   );
+  if (!claimed[0]) throw new CustomerWalletError(409, "Cashout is no longer awaiting approval.");
   let sent: WithdrawalRow;
   try {
-    sent = await dispatchWithdrawal({ ...w, status: "queued" });
+    sent = await dispatchWithdrawal(claimed[0]);
   } catch (err) {
     const cust = await customerById(w.customer_id);
-    if (cust) await failWithdrawalAndRefund(w, cust, (err as Error).message);
+    if (cust) await failWithdrawalAndRefund(claimed[0], cust, (err as Error).message);
     throw err;
   }
   const customer = await customerById(w.customer_id);
@@ -428,11 +457,16 @@ export async function rejectWithdrawal(id: number, adminLabel: string, reason: s
   const w = await getWithdrawal(id);
   if (!w) throw new CustomerWalletError(404, "Cashout not found.");
   if (!["pending_approval", "queued"].includes(w.status)) throw new CustomerWalletError(409, `Cashout is '${w.status}' and can no longer be rejected.`);
+  // Atomic: a 'queued' row is normally mid-dispatch — only reject it once it has clearly stalled,
+  // so a concurrent approve+dispatch can never be refunded as well.
   const rows = await sequelize.query<WithdrawalRow>(
     `UPDATE tbl_customer_withdrawal SET status = 'rejected', approved_by = :by, approved_at = NOW(), rejected_reason = :reason, updated_at = NOW()
-      WHERE withdrawal_id = :id RETURNING *`,
+      WHERE withdrawal_id = :id
+        AND (status = 'pending_approval' OR (status = 'queued' AND updated_at < NOW() - INTERVAL '10 minutes'))
+      RETURNING *`,
     { replacements: { by: adminLabel, reason: String(reason || "").slice(0, 500) || null, id }, type: QueryTypes.SELECT }
   );
+  if (!rows[0]) throw new CustomerWalletError(409, w.status === "queued" ? "This cashout is being dispatched right now — try again in a few minutes if it stalls." : "Cashout can no longer be rejected.");
   const customer = await customerById(w.customer_id);
   if (customer) {
     await applyEntries([
@@ -503,6 +537,11 @@ export async function settlementPayout(customerId: number, amount: number, deal:
     return { mode: "sent", withdrawal: w };
   } catch (err) {
     const msg = (err as Error).message || "";
+    // A duplicate settlement payout (concurrent/retried settlement) must not be parked and paid later.
+    if (err instanceof CustomerWalletError && err.statusCode === 409) {
+      apiLogger.warn(`[SafeDeal] duplicate settlement payout suppressed for customer ${customerId} on deal ${deal.escrow_id}`);
+      return { mode: "parked", reason: "error", detail: "duplicate payout suppressed" };
+    }
     await parkPayout(customerId, amount);
     if (/added recently/i.test(msg)) return { mode: "parked", reason: "cooling", usable_at: dest.addr.usable_at || null };
     apiLogger.error(`[SafeDeal] settlement payout failed for customer ${customerId}: ${msg}`);

@@ -48,7 +48,7 @@ export async function recordFundingReceived(deal: any, amountUsd: number, method
       reference: `escrow:${deal.escrow_id}:funding`,
       escrowId: deal.escrow_id,
       dealTitle: deal.title,
-      meta: { bucket: "held", method },
+      meta: { bucket: "held", method, simulated: method === "simulated" || !!deal.simulated },
     },
   ]);
 }
@@ -92,6 +92,8 @@ export async function settleToWallets(
   const exchangeFee = round2(Number(breakdown.exchangeFeeUsd || 0));
   const ref = (k: string) => `escrow:${deal.escrow_id}:settle:${k}`;
   const title = `deal ${dealRef(deal)} "${deal.title}"`;
+  // Money that entered escrow as a simulated payment stays flagged all the way through settlement.
+  const simulated = !!deal.simulated || String(deal.funding_method || "") === "simulated";
   const entries: EntryInput[] = [
     {
       customer: buyer,
@@ -107,7 +109,7 @@ export async function settleToWallets(
       reference: ref("unhold"),
       escrowId: deal.escrow_id,
       dealTitle: deal.title,
-      meta: { outcome },
+      meta: { outcome, simulated },
     },
   ];
   if (amounts.sellerAmount > 0) {
@@ -182,6 +184,7 @@ export async function settleToWallets(
       escrowId: deal.escrow_id,
       dealTitle: deal.title,
       allowNegative: true,
+      meta: { outcome, simulated },
     });
   }
   if (amounts.sellerAmount > 0) {
@@ -196,7 +199,7 @@ export async function settleToWallets(
       reference: ref("release"),
       escrowId: deal.escrow_id,
       dealTitle: deal.title,
-      meta: { outcome, counterparty: buyer.email, gross: toFixedStr(deal.amount, 2) },
+      meta: { outcome, counterparty: buyer.email, gross: toFixedStr(deal.amount, 2), simulated },
     });
   }
   await applyEntries(entries);

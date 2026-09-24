@@ -212,7 +212,8 @@ export default function DealPage({ token }: { token: string }) {
   const isLinkDeal = deal.invite_kind === "link";
   const b = deal.breakdown;
   const status = deal.status;
-  const live = !!cfg?.live_settlement;
+  // No simulation on this server ⇒ behave exactly like live (no "simulate payment" affordances).
+  const live = !!cfg?.live_settlement || cfg?.simulation_allowed === false;
   // A mutually-agreed cancellation after funding is charged a cancellation fee (configurable,
   // default 5%). Settled: the backend labels the escrow-fee line "Cancellation fee". Pending: a
   // cancellation is still being negotiated (dispute_proposal.kind === "cancellation").

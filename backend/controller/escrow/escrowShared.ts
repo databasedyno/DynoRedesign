@@ -387,6 +387,15 @@ export function isLiveSettlementEnabled(): boolean {
 }
 
 /**
+ * Simulated money (fake deal funding, fake deposits) is an explicit opt-in: live settlement
+ * must be OFF **and** SAFEDEAL_ALLOW_SIMULATION=true. Never set it on a pod that shares the
+ * production database — simulated credits land in real wallets.
+ */
+export function isSimulationAllowed(): boolean {
+  return !isLiveSettlementEnabled() && String(envRaw("SAFEDEAL_ALLOW_SIMULATION") || "").toLowerCase() === "true";
+}
+
+/**
  * A mutually-agreed cancellation (a `refund` proposal with kind `cancellation` that the
  * OTHER party accepted) is charged a CANCELLATION FEE after funding — it is NOT waived.
  */

@@ -87,6 +87,8 @@ export interface SdConfig {
   min_withdrawal_usd: number;
   withdrawal_approval_usd: number;
   live_settlement: boolean;
+  /** Simulated funding/deposits are enabled on this server (preview opt-in). */
+  simulation_allowed?: boolean;
   dispute_auto_escalate_hours: number;
   legal_name?: string;
   price_currencies?: string[];
@@ -403,6 +405,7 @@ export interface SdWallet extends Partial<SdBalances> {
   limits: { min_withdrawal_usd: number; approval_threshold_usd: number; min_topup_usd: number; max_topup_usd: number };
   payout_options: SdConfig["payout_options"];
   live: boolean;
+  simulation_allowed?: boolean;
 }
 
 export type SdDealAction =
