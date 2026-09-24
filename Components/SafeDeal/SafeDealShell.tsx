@@ -141,7 +141,7 @@ export default function SafeDealShell({
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
-        backgroundColor: dark ? SD_INK : "#FAFAF6",
+        backgroundColor: dark ? SD_INK : "#F5F7FA",
         color: fg,
         "--dyno-focus-ring": SD_GOLD,
         "--dyno-focus-ring-shadow": "0 0 0 3px rgba(255,198,26,0.35)",
@@ -174,7 +174,7 @@ export default function SafeDealShell({
         {/* Dialogs portal to <body>, outside this Box — set the ring var globally so they stay gold too. */}
         <style key="sd-focus-ring">{`:root{--dyno-focus-ring:${SD_GOLD};--dyno-focus-ring-shadow:0 0 0 3px rgba(255,198,26,0.35)}`}</style>
       </Head>
-      <Box component="header" sx={{ borderBottom: dark ? "1px solid rgba(255,255,255,0.08)" : "1px solid #ECE9E1", backgroundColor: dark ? "rgba(10,10,11,0.85)" : "rgba(255,255,255,0.85)", backdropFilter: "blur(12px)", position: "sticky", top: 0, zIndex: 20 }}>
+      <Box component="header" sx={{ borderBottom: dark ? "1px solid rgba(255,255,255,0.08)" : "1px solid #E1E5EA", backgroundColor: dark ? "rgba(10,10,11,0.85)" : "rgba(255,255,255,0.85)", backdropFilter: "blur(12px)", position: "sticky", top: 0, zIndex: 20 }}>
         <Container maxWidth={wide ? "xl" : "lg"} sx={{ py: 1.4, display: "flex", alignItems: "center", justifyContent: "space-between", gap: { xs: 1, sm: 2 } }}>
           <Link href={href(user ? "/deals" : "/")} style={{ textDecoration: "none" }} aria-label="SafeDeal home">
             <SafeDealLogo light={dark} />
@@ -213,7 +213,7 @@ export default function SafeDealShell({
                     void router.push(href("/"));
                   }}
                   data-testid="sd-nav-signout"
-                  sx={{ textTransform: "none", fontWeight: 700, borderRadius: 99, whiteSpace: "nowrap", minWidth: 0, borderColor: dark ? "rgba(255,255,255,0.25)" : "#D8D3C6", color: fg, "&:hover": { borderColor: SD_GOLD_DEEP } }}
+                  sx={{ textTransform: "none", fontWeight: 700, borderRadius: 99, whiteSpace: "nowrap", minWidth: 0, borderColor: dark ? "rgba(255,255,255,0.25)" : "#D5DAE0", color: fg, "&:hover": { borderColor: SD_GOLD_DEEP } }}
                 >
                   Sign out
                 </Button>
@@ -231,7 +231,7 @@ export default function SafeDealShell({
 
       <Box component="main" sx={{ flex: 1 }}>{children}</Box>
 
-      <Box component="footer" sx={{ borderTop: dark ? "1px solid rgba(255,255,255,0.08)" : "1px solid #ECE9E1", py: 4, mt: 6 }} data-testid="sd-footer">
+      <Box component="footer" sx={{ borderTop: dark ? "1px solid rgba(255,255,255,0.08)" : "1px solid #E1E5EA", py: 4, mt: 6 }} data-testid="sd-footer">
         <Container maxWidth={wide ? "xl" : "lg"}>
           <Stack direction={{ xs: "column", md: "row" }} justifyContent="space-between" alignItems={{ xs: "flex-start", md: "flex-start" }} spacing={3}>
             <Box sx={{ maxWidth: 400 }}>

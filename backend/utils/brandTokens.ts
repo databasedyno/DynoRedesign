@@ -3,7 +3,7 @@
  * Dynopay — Central Brand Tokens (backend / email single source of truth)
  * ============================================================================
  *
- * Mirrors the frontend palette in `constants/theme.ts` (gold · dark brown · black brand)
+ * Mirrors the frontend palette in `constants/theme.ts` (signal yellow · Bybit black brand)
  * and `helpers/assetColor.ts` (coin brand colours) so that every server-side
  * surface — transactional emails, PDF receipts, digests — stays on-palette
  * automatically. Import from here instead of hardcoding hex values.
@@ -13,13 +13,13 @@
  */
 
 export const EMAIL_TOKENS = {
-  // ---- Brand — signal yellow on dark brown (2026-09 rebrand) ----
-  brand: "#FFD100",        // BRAND_ACCENT — aligned with frontend constants/theme.ts (always dark-brown text on it)
-  brandDeep: "#2B1D14",    // dark brown — headings / chrome
+  // ---- Brand — signal yellow on Bybit black (2026-09 rebrand) ----
+  brand: "#FFD100",        // BRAND_ACCENT — aligned with frontend constants/theme.ts (always Bybit-black text on it)
+  brandDeep: "#121214",    // Bybit black — headings / chrome
   brandLight: "#FFD100",   // gold — dark-mode accent text / links
   brandHover: "#F0C300",   // yellow hover
   aqua: "#8B5E00",         // deep gold on light surfaces (links / info) — name kept for importers
-  onBrand: "#2B1D14",      // text colour on yellow
+  onBrand: "#121214",      // text colour on yellow
 
   // ---- Success / paid — green ----
   green: "#12B76A",        // primary success
@@ -53,7 +53,7 @@ export const EMAIL_TOKENS = {
 
 /**
  * Canonical crypto brand colours (mirror of frontend `helpers/assetColor.ts`).
- * RLUSD uses the Dynopay dark-brown brand tone.
+ * RLUSD uses the Dynopay Bybit-black brand tone.
  */
 export const EMAIL_COIN_COLOR: Record<string, string> = {
   BTC: "#F7931A",

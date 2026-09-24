@@ -68,15 +68,15 @@ const loadImageBuffer = async (src?: string | null): Promise<Buffer | null> => {
   return null;
 };
 
-// Brand colors — aligned with the email chrome (gold · dark brown · black, 2026-09 rebrand)
+// Brand colors — aligned with the email chrome (yellow · Bybit black, 2026-09 rebrand)
 const BRAND_COLORS = {
   primary: "#FFD100",      // Signal yellow (accent bar, wordmark "pay", monogram tile text is dark)
   accent: "#FFD100",       // Gold (wordmark "pay" on dark bands)
-  dark: "#2B1D14",         // Header/footer dark brown (matches email header/footer)
-  text: "#3A2A1F",         // Body text
+  dark: "#121214",         // Header/footer Bybit black (matches email header/footer)
+  text: "#222227",         // Body text
   lightBg: "#FFF9E0",      // Soft yellow tint for the amount card
-  border: "#E8DFD2",       // Border color / hairlines
-  ink: "#2B1D14",          // Big numbers / merchant name on light surfaces
+  border: "#E1E5EA",       // Border color / hairlines
+  ink: "#121214",          // Big numbers / merchant name on light surfaces
 };
 
 export interface ReceiptData {
@@ -205,7 +205,7 @@ export const generatePaymentReceipt = async (data: ReceiptData): Promise<Buffer>
       };
 
       // ============================================
-      // HEADER — yellow accent bar + dark-brown band (matches the email chrome)
+      // HEADER — yellow accent bar + Bybit-black band (matches the email chrome)
       // ============================================
       doc.rect(0, 0, PAGE_W, 6).fill(BRAND_COLORS.primary);
       doc.rect(0, 6, PAGE_W, 98).fill(BRAND_COLORS.dark);

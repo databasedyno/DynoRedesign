@@ -35,7 +35,7 @@ export default function CashoutsList({ withdrawals, now }: { withdrawals: SdWith
           const st = STATUS_STYLE[x.status] || { bg: SD_NOTE_BG, fg: SD_NOTE_FG };
           return (
             <Stack key={x.withdrawal_id} direction="row" spacing={1.2} alignItems="center" data-testid={`sd-withdrawal-${x.withdrawal_id}`} data-source={x.source || "manual"} sx={{ px: { xs: 1, md: 1.5 }, py: 1.1, borderRadius: 3, "&:hover": { backgroundColor: SD_PAGE } }}>
-              <Box sx={{ width: 36, height: 36, borderRadius: "50%", display: "grid", placeItems: "center", backgroundColor: "#F4F1E8", flexShrink: 0 }} aria-hidden>
+              <Box sx={{ width: 36, height: 36, borderRadius: "50%", display: "grid", placeItems: "center", backgroundColor: "#F3F5F7", flexShrink: 0 }} aria-hidden>
                 <Icon icon="mdi:bank-transfer-out" width={19} />
               </Box>
               <Box sx={{ flex: 1, minWidth: 0 }}>

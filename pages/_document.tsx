@@ -130,39 +130,47 @@ export default function MyDocument({ emotionStyleTags, lang }: MyDocumentProps) 
   var isMarketing = path === '/' || matchPrefix(path, MARKETING);
   var defaultMode = (context === 'public' && isMarketing && !isAuth && !isHelp) ? 'dark' : 'light';
 
-  // Start from the ROUTE default. Only a stored preference (or auth-path
+  // Start from the ROUTE default. Only a stored preference (or cross-context
   // inheritance) may override it — and reading storage is isolated so its
   // failure leaves the correct route default intact.
+  // Theme Memory (2026-09): the resolved theme is persisted to localStorage AND
+  // the cookie, so the first public page a visitor sees pins their theme across
+  // marketing, checkout and auth, and carries into the app on first sign-in.
   var mode = defaultMode;
+  function savedFor(lsKey, ckKey){
+    var v = null;
+    try { v = localStorage.getItem(lsKey); } catch (e) {}
+    if (v !== 'light' && v !== 'dark') v = readCk(ckKey);
+    return (v === 'light' || v === 'dark') ? v : null;
+  }
   try {
     if (isHelp) {
       // Follow the in-app preference: localStorage first, then the cookie
       // (covers default-dark merchants who never manually toggled). Otherwise
       // keep the light marketing default for logged-out visitors.
-      var hSaved = localStorage.getItem('theme-mode-inapp');
-      if (hSaved !== 'light' && hSaved !== 'dark') hSaved = readCk('theme-mode-inapp');
-      if (hSaved === 'light' || hSaved === 'dark') mode = hSaved;
+      var hSaved = savedFor('theme-mode-inapp', 'theme-mode-inapp');
+      if (hSaved) mode = hSaved;
     } else {
-      var saved = localStorage.getItem(storageKey);
+      var saved = savedFor(storageKey, cookieKey);
       // One-time migration from the legacy single 'theme-mode' key (in-app only).
-      if (saved !== 'light' && saved !== 'dark' && context === 'inapp') {
+      if (!saved && context === 'inapp') {
         var legacy = localStorage.getItem('theme-mode');
-        if (legacy === 'light' || legacy === 'dark') {
-          saved = legacy;
-          try { localStorage.setItem(storageKey, legacy); } catch (e) {}
-        }
+        if (legacy === 'light' || legacy === 'dark') saved = legacy;
       }
-      if (saved === 'light' || saved === 'dark') {
+      if (saved) {
         mode = saved;
       } else if (isAuth) {
         // Auth-path inheritance: mirror an explicit in-app DARK preference so a
         // link from a dark email doesn't jarringly flash the login card white.
-        var inappSaved = localStorage.getItem('theme-mode-inapp');
-        if (inappSaved === 'dark') mode = 'dark';
+        if (savedFor('theme-mode-inapp', 'theme-mode-inapp') === 'dark') mode = 'dark';
+      } else if (context === 'inapp') {
+        // First sign-in: carry the visitor's public theme into the dashboard.
+        var pub = savedFor('theme-mode-public', 'theme-mode-public-v2');
+        if (pub) mode = pub;
       }
     }
   } catch (e) {
-    // Storage unavailable/blocked — keep the route default (light).
+    // Storage unavailable/blocked — keep the route default.
   }
 
   try {
@@ -171,10 +179,11 @@ export default function MyDocument({ emotionStyleTags, lang }: MyDocumentProps) 
     document.documentElement.style.backgroundColor = mode === 'light' ? '#FFFFFF' : '#000000';
   } catch (e) {}
   try {
-    // Never auto-persist the theme cookie on /help-support (see ThemeContext):
-    // it would pollute either the public cookie (dark bleeds onto marketing)
-    // or the in-app cookie (a visitor's light default bleeds into the app).
+    // Never auto-persist the theme on /help-support (see ThemeContext):
+    // it would pollute either the public preference (dark bleeds onto marketing)
+    // or the in-app one (a visitor's light default bleeds into the app).
     if (!isHelp) {
+      try { localStorage.setItem(storageKey, mode); } catch (e) {}
       document.cookie = cookieKey + '=' + mode + '; path=/; max-age=31536000; samesite=lax';
     }
   } catch (e) {}

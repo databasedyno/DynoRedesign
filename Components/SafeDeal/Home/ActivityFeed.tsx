@@ -90,7 +90,7 @@ function Row({ r, i, reduce }: { r: SdStatementRow; i: number; reduce: boolean }
   const positive = r.signed > 0;
   const content = (
     <Box data-testid={`sd-statement-row-${r.kind}`} sx={{ display: "grid", gridTemplateColumns: { xs: "36px 1fr auto", md: "44px 1fr 120px 120px" }, alignItems: "center", gap: { xs: 1.2, md: 2 }, px: { xs: 1, md: 1.5 }, py: 1.25, borderRadius: 3, transition: "background-color .15s", "&:hover": { backgroundColor: SD_PAGE } }}>
-      <Box sx={{ width: { xs: 36, md: 40 }, height: { xs: 36, md: 40 }, borderRadius: "50%", display: "grid", placeItems: "center", backgroundColor: positive ? "rgba(18,183,106,0.12)" : transfer ? SD_NOTE_BG : "#F4F1E8", color: positive ? "#0E9F5C" : transfer ? SD_GOLD_DEEP : SD_INK }} aria-hidden>
+      <Box sx={{ width: { xs: 36, md: 40 }, height: { xs: 36, md: 40 }, borderRadius: "50%", display: "grid", placeItems: "center", backgroundColor: positive ? "rgba(18,183,106,0.12)" : transfer ? SD_NOTE_BG : "#F3F5F7", color: positive ? "#0E9F5C" : transfer ? SD_GOLD_DEEP : SD_INK }} aria-hidden>
         <Icon icon={KIND_ICON[r.kind] || "mdi:circle-small"} width={19} />
       </Box>
       <Box sx={{ minWidth: 0 }}>

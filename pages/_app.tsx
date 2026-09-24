@@ -910,6 +910,11 @@ App.getInitialProps = async (appContext: AppContext) => {
     );
     if (inappMatch && inappMatch[1] === "dark") inheritedMode = "dark";
   }
+  // Theme Memory: first sign-in carries the visitor's public theme into the app.
+  if (routeCtx === "inapp" && !contextCookieValue && !legacyForContext && !isHelpSupportPath(pathname)) {
+    const pubMatch = /(?:^|;\s*)theme-mode-public-v2=(light|dark)/.exec(cookieHeader || "");
+    if (pubMatch) inheritedMode = pubMatch[1] as "light" | "dark";
+  }
 
   const initialThemeMode: "light" | "dark" =
     contextCookieValue ||

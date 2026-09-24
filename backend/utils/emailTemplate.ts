@@ -127,10 +127,10 @@ export const baseEmailTemplate = (
   const { showButton = false, buttonText = '', buttonLink = '', lang, hero, audience = 'merchant', brand = 'dynopay' } = options || {};
   const isSafeDeal = brand === 'safedeal';
   // Brand accent palette — SafeDeal reskins the shared chrome to gold-on-ink;
-  // Dynopay is signal yellow on dark brown (btnText is dark brown on yellow, black on gold).
+  // Dynopay is signal yellow on Bybit black (btnText is Bybit black on yellow).
   const bc = isSafeDeal
     ? { bar: '#FFC61A', btnBg: '#FFC61A', btnText: '#0A0A0B', accentDark: '#F5C451', linkDark: '#F5C451', taglineLight: '#B77E00', taglineDark: '#F5C451', otpDark: '#FFD874', pillBgDark: '#3A2E08', pillTextDark: '#FCE7A6' }
-    : { bar: '#FFD100', btnBg: '#FFD100', btnText: '#2B1D14', accentDark: '#FFD100', linkDark: '#FFD100', taglineLight: '#FFD100', taglineDark: '#FFD100', otpDark: '#FFD100', pillBgDark: '#3A2A1F', pillTextDark: '#FFE680' };
+    : { bar: '#FFD100', btnBg: '#FFD100', btnText: '#121214', accentDark: '#FFD100', linkDark: '#FFD100', taglineLight: '#FFD100', taglineDark: '#FFD100', otpDark: '#FFD100', pillBgDark: '#222227', pillTextDark: '#FFE680' };
   // Preheader: never let the client fall back to "Hey Alex," — use the heading when none given.
   const preheader = (options?.preheader || '').trim() || heading.replace(/<[^>]+>/g, '').trim();
   const legal = legalEntity();
@@ -259,9 +259,9 @@ export const baseEmailTemplate = (
       .ftr { padding: 24px 20px !important; }
     }
     @media (prefers-color-scheme: dark) {
-      body, .bg { background-color: #0B0908 !important; }
-      .card { background-color: #1A120D !important; }
-      .hdr-bar { background-color: #2B1D14 !important; }
+      body, .bg { background-color: #0A0A0D !important; }
+      .card { background-color: #101014 !important; }
+      .hdr-bar { background-color: #121214 !important; }
       h1.hdg { color: #fafafa !important; }
       /* CTA button: same brand bg + dark label in BOTH modes (inversion-proof) */
       .btn { background-color: ${bc.btnBg} !important; color: ${bc.btnText} !important; -webkit-text-fill-color: ${bc.btnText} !important; }
@@ -291,7 +291,7 @@ export const baseEmailTemplate = (
       .sign strong { color: #d4d4d8 !important; }
       .sep { border-top-color: #33333a !important; }
       /* Footer */
-      .ftr-bg { background-color: #2B1D14 !important; }
+      .ftr-bg { background-color: #121214 !important; }
       .ftr-text { color: #C9B9A6 !important; }
       .ftr-tagline { color: ${bc.taglineDark} !important; }
       .ftr-link { color: #EFE4D2 !important; }
@@ -314,7 +314,7 @@ export const baseEmailTemplate = (
       .stat-card .stat-value { color: #fafafa !important; }
       .stat-card .stat-value-green { color: #4ADE80 !important; }
       /* OTP code block (already dark by design — brighten the frame) */
-      .otp-code { background-color: #2B1D14 !important; border-color: ${bc.otpDark} !important; color: ${bc.otpDark} !important; }
+      .otp-code { background-color: #121214 !important; border-color: ${bc.otpDark} !important; color: ${bc.otpDark} !important; }
       /* Warning/security text */
       .warn-text, .warn-text p, .msg strong.warn-text { color: #fca5a5 !important; }
       .warn-text strong { color: #fee2e2 !important; }
@@ -342,23 +342,23 @@ export const baseEmailTemplate = (
       .amt-hero-value { color: #fafafa !important; }
       .amt-hero-sub { color: #a1a1aa !important; }
       /* Gmail workaround */
-      u + .body .bg { background-color: #0B0908 !important; }
+      u + .body .bg { background-color: #0A0A0D !important; }
     }
   </style>
 </head>
-<body class="body" style="margin: 0; padding: 0; background-color: #FAF6EF;">
-  ${preheader ? `<div style="display:none;font-size:1px;color:#FAF6EF;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">${preheader}</div>` : ''}
-  <table role="presentation" class="bg" width="100%" cellpadding="0" cellspacing="0" style="background-color: #FAF6EF; table-layout: fixed;">
+<body class="body" style="margin: 0; padding: 0; background-color: #F5F7FA;">
+  ${preheader ? `<div style="display:none;font-size:1px;color:#F5F7FA;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">${preheader}</div>` : ''}
+  <table role="presentation" class="bg" width="100%" cellpadding="0" cellspacing="0" style="background-color: #F5F7FA; table-layout: fixed;">
     <tr>
       <td align="center" style="padding: 32px 16px;">
-        <table role="presentation" class="outer card" width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; width: 100%; background-color: #FFFDF7; border: 1px solid #E8DFD2; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 2px rgba(16,24,40,0.04);">
+        <table role="presentation" class="outer card" width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; width: 100%; background-color: #FFFFFF; border: 1px solid #E1E5EA; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 2px rgba(16,24,40,0.04);">
           <!-- Neon accent bar -->
           <tr>
             <td style="background-color: ${bc.bar}; height: 5px; line-height: 5px; font-size: 5px;">&nbsp;</td>
           </tr>
           <!-- Logo Header -->
           <tr>
-            <td class="hdr hdr-bar" style="background-color: #2B1D14; padding: 26px 32px; text-align: center;">
+            <td class="hdr hdr-bar" style="background-color: #121214; padding: 26px 32px; text-align: center;">
               <a href="${brandHome}" style="text-decoration: none;">
                 ${headerMark}
               </a>
@@ -383,7 +383,7 @@ export const baseEmailTemplate = (
           </tr>
           <!-- Footer -->
           <tr>
-            <td class="ftr ftr-bg" style="background-color: #2B1D14; padding: 28px 32px; text-align: center; border-radius: 0 0 16px 16px;">
+            <td class="ftr ftr-bg" style="background-color: #121214; padding: 28px 32px; text-align: center; border-radius: 0 0 16px 16px;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td align="center" style="padding-bottom: 16px;">
@@ -471,7 +471,7 @@ export const p = (text: string, extra: string = ''): string => {
 export const otpBlock = (code: string, accent: string = '#FFD100'): string => {
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin: 24px 0;">
     <tr><td align="center">
-      <div class="otp-code" style="display: inline-block; background-color: #2B1D14; border: 1px solid #2B1D14; border-radius: 14px; padding: 18px 44px; font-size: 32px; font-weight: 700; color: ${accent}; letter-spacing: 10px; font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;">${code}</div>
+      <div class="otp-code" style="display: inline-block; background-color: #121214; border: 1px solid #121214; border-radius: 14px; padding: 18px 44px; font-size: 32px; font-weight: 700; color: ${accent}; letter-spacing: 10px; font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;">${code}</div>
     </td></tr>
   </table>`;
 };

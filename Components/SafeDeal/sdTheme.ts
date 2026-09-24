@@ -24,9 +24,9 @@ export const SD_INK_LINE = "rgba(255,255,255,0.10)"; // hairline border on ink
 export const SD_INK_MUTED = "rgba(255,255,255,0.72)"; // muted text on ink (AA)
 
 /* ---- Light surfaces ---- */
-export const SD_PAGE = "#FAFAF6"; // warm off-white page background
+export const SD_PAGE = "#F5F7FA"; // neutral off-white page background (shared with Dynopay PUB_LIGHT)
 export const SD_CARD = "#FFFFFF";
-export const SD_BORDER = "#ECE9E1"; // warm hairline on light
+export const SD_BORDER = "#E1E5EA"; // neutral hairline on light
 export const SD_TEXT = "#0A0A0B";
 export const SD_TEXT_MUTED = "#6B6B72";
 

@@ -37,12 +37,12 @@ const W = 1200;
 const H = 630;
 const FALLBACK_OG = "/og/dynopay-og.png";
 const FONT = "Arial, 'Helvetica Neue', Helvetica, sans-serif";
-// 2026-09 brand: gold on dark brown (mirrors utils/brandTokens.ts)
+// 2026-09 brand: yellow on Bybit black (mirrors utils/brandTokens.ts)
 const GOLD = "#FFD100";
-const ESPRESSO = "#2B1D14";
-const BLACK = "#0B0908";
-const CREAM = "#FAF6EF";
-const CREAM_SOFT = "#E8DFD2";
+const ESPRESSO = "#121214";
+const BLACK = "#0A0A0D";
+const CREAM = "#F5F7FA";
+const CREAM_SOFT = "#E1E5EA";
 const LOGO_H = 52;
 const LOGO_TOP = 58;
 const DEMO_COVER =
@@ -86,7 +86,7 @@ function hexClamp(v?: string | null): string | null {
   return v && /^#[0-9a-fA-F]{6}$/.test(v) ? v : null;
 }
 
-/** Dark-brown text on light accents (yellow never carries white text), white on dark ones. */
+/** Bybit-black text on light accents (yellow never carries white text), white on dark ones. */
 function onAccent(hex: string): string {
   const n = parseInt(hex.slice(1), 16);
   const lum = (0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255)) / 255;

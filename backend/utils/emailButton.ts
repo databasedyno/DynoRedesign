@@ -5,13 +5,13 @@
 /**
  * Inversion-proof CTA button. SOLID brand background (never a gradient — Gmail's
  * dark mode cannot recolour gradients, so it lightens the label and leaves the
- * box as-is → unreadable) + dark-brown label pinned with -webkit-text-fill-color and
+ * box as-is → unreadable) + Bybit-black label pinned with -webkit-text-fill-color and
  * the `.btn` dark-mode rule. Use this for ANY button inside an email body.
  */
 export const ctaButton = (text: string, link: string, opts?: { padding?: string; bg?: string; color?: string }): string => {
   const padding = opts?.padding || '24px 0 8px 0';
   const bg = opts?.bg || '#FFD100';
-  const color = opts?.color || '#2B1D14';
+  const color = opts?.color || '#121214';
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding: ${padding};">
         <a href="${link}" class="btn" style="display: inline-block; background-color: ${bg}; color: ${color}; -webkit-text-fill-color: ${color}; text-decoration: none; padding: 14px 40px; border-radius: 12px; font-weight: 700; font-size: 15px; letter-spacing: 0.2px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; mso-padding-alt: 0; text-align: center;">
           <!--[if mso]><i style="mso-font-width: 150%; mso-text-raise: 26pt;">&nbsp;</i><![endif]-->

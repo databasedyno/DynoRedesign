@@ -6,7 +6,8 @@ import re
 import sys
 
 ROOTS = ["Components", "Containers", "Redux", "api", "helpers", "pages", "styles", "constants", "contexts", "hooks", "utils", "lib", "public/site.webmanifest"]
-EXT = (".ts", ".tsx", ".css", ".scss", ".js", ".jsx", ".webmanifest")
+EXT = (".ts", ".tsx", ".css", ".scss", ".js", ".jsx", ".webmanifest", ".html", ".hbs", ".ejs")
+BACKEND_ROOTS = ["backend/utils", "backend/services", "backend/controller", "backend/templates", "backend/views"]
 SKIP = ("Components/SafeDeal/sdTheme.ts",)
 
 HEX = {
@@ -57,12 +58,16 @@ def walk():
             yield root
             continue
         for dp, _, fn in os.walk(root):
+            if "node_modules" in dp or "/dist" in dp:
+                continue
             for f in fn:
                 if f.endswith(EXT):
                     yield os.path.join(dp, f)
 
 
 apply = "--apply" in sys.argv
+if "--backend" in sys.argv:
+    ROOTS = [r for r in BACKEND_ROOTS if os.path.exists(r)]
 changed = 0
 for p in walk():
     if p in SKIP:

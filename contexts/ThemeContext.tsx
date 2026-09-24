@@ -79,11 +79,34 @@ function readInappPreference(): ThemeMode | null {
   return null;
 }
 
-/** Read the preferred mode for a context — localStorage first, else route default.
- *  Auth paths additionally inherit an explicit in-app DARK preference when
- *  they don't have their own public preference stored yet, so a merchant
- *  who's chosen dark on the dashboard doesn't get a jarring white flash
- *  when clicking a link back to the login card. */
+/** Persist a resolved theme for a context to BOTH localStorage and the cookie, so
+ *  the first public page a visitor sees becomes their remembered theme across
+ *  marketing, checkout and auth (no route-default flips) and SSR agrees. */
+function persistTheme(ctx: ThemeCtxKind, mode: ThemeMode) {
+  try {
+    window.localStorage.setItem(getStorageKeyForContext(ctx), mode);
+  } catch {
+    /* ignore */
+  }
+  writeThemeCookie(ctx, mode);
+}
+
+/** Saved preference for a context: localStorage first, then its cookie. */
+function readSavedMode(ctx: ThemeCtxKind): ThemeMode | null {
+  try {
+    const ls = window.localStorage.getItem(getStorageKeyForContext(ctx));
+    if (ls === 'light' || ls === 'dark') return ls;
+  } catch {
+    /* ignore */
+  }
+  const ck = readCookie(getCookieNameForContext(ctx));
+  return ck === 'light' || ck === 'dark' ? ck : null;
+}
+
+/** Read the preferred mode for a context — saved preference (storage → cookie),
+ *  else inherit the OTHER context's saved theme on first visit, else route default.
+ *  Theme Memory (2026-09): the visitor's theme is sticky across every public
+ *  surface and carries into the dashboard the first time they sign in. */
 function readPreferredMode(ctx: ThemeCtxKind, pathname?: string): ThemeMode {
   if (typeof window === 'undefined') return getDefaultThemeForContext(ctx);
   const resolvedPath = pathname ?? window.location.pathname;
@@ -97,20 +120,21 @@ function readPreferredMode(ctx: ThemeCtxKind, pathname?: string): ThemeMode {
     return getDefaultThemeForPath(resolvedPath); // light
   }
   try {
-    const key = getStorageKeyForContext(ctx);
-    const saved = window.localStorage.getItem(key);
-    if (saved === 'light' || saved === 'dark') return saved;
-    // Auth-path inheritance (Public Auth Card feature, 2025-07 pass).
-    if (ctx === 'public' && isAuthPath(resolvedPath)) {
-      const inappSaved = window.localStorage.getItem('theme-mode-inapp');
-      if (inappSaved === 'dark') return 'dark';
-    }
-    // One-time migration from the legacy single-key 'theme-mode' — in-app only
-    // (the public marketing default moved to dark in 2026-09).
-    const legacy = ctx === 'inapp' ? window.localStorage.getItem('theme-mode') : null;
-    if (legacy === 'light' || legacy === 'dark') {
-      try { window.localStorage.setItem(key, legacy); } catch { /* ignore */ }
-      return legacy;
+    const saved = readSavedMode(ctx);
+    if (saved) return saved;
+    if (ctx === 'public') {
+      // Auth-path inheritance (Public Auth Card feature, 2025-07 pass).
+      if (isAuthPath(resolvedPath) && readSavedMode('inapp') === 'dark') return 'dark';
+    } else {
+      // One-time migration from the legacy single-key 'theme-mode' (in-app only).
+      const legacy = window.localStorage.getItem('theme-mode');
+      if (legacy === 'light' || legacy === 'dark') {
+        try { window.localStorage.setItem(getStorageKeyForContext(ctx), legacy); } catch { /* ignore */ }
+        return legacy;
+      }
+      // First sign-in: carry the visitor's public theme into the dashboard.
+      const pub = readSavedMode('public');
+      if (pub) return pub;
     }
   } catch {
     /* ignore quota / privacy-mode failures */
@@ -166,7 +190,7 @@ export const ThemeProvider: React.FC<{
     // marketing site, and writing the in-app cookie would bleed a visitor's
     // light default into the merchant app. It only persists on explicit toggle.
     if (!isHelpSupportPath(window.location.pathname)) {
-      writeThemeCookie(ctx, resolved);
+      persistTheme(ctx, resolved);
     }
     // Record whether we picked up an explicit override.
     try {
@@ -195,7 +219,7 @@ export const ThemeProvider: React.FC<{
       setMode((prev) => (prev === resolved ? prev : resolved));
       // See mount-effect note: never auto-persist the theme cookie on /help-support.
       if (!isHelpSupportPath(window.location.pathname)) {
-        writeThemeCookie(ctx, resolved);
+        persistTheme(ctx, resolved);
       }
     };
 

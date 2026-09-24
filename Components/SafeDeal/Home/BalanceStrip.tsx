@@ -31,7 +31,7 @@ export default function BalanceStrip(p: Props) {
           <Typography sx={{ fontSize: { xs: 34, md: 40 }, fontWeight: 900, letterSpacing: -1.2, lineHeight: 1.1, mt: 0.6, ...TABULAR }} data-testid="sd-wallet-available">{money(p.available)}</Typography>
         </Box>
         <Stack direction="row" spacing={1} sx={{ position: "relative", mt: 2 }}>
-          <Button fullWidth variant="contained" onClick={p.onTopUp} data-testid="sd-topup-open" startIcon={<Icon icon="mdi:plus-circle-outline" />} sx={{ textTransform: "none", fontWeight: 800, borderRadius: 99, color: SD_INK, backgroundColor: "#fff", "&:hover": { backgroundColor: "#E8E8E4" } }}>Top up</Button>
+          <Button fullWidth variant="contained" onClick={p.onTopUp} data-testid="sd-topup-open" startIcon={<Icon icon="mdi:plus-circle-outline" />} sx={{ textTransform: "none", fontWeight: 800, borderRadius: 99, color: SD_INK, backgroundColor: "#fff", "&:hover": { backgroundColor: "#E1E5EA" } }}>Top up</Button>
           <Button fullWidth variant="contained" disabled={p.available < p.minWithdraw} onClick={p.onCashOut} data-testid="sd-withdraw-open" startIcon={<Icon icon="mdi:bank-transfer-out" />} sx={{ textTransform: "none", fontWeight: 800, borderRadius: 99, color: SD_INK, backgroundColor: SD_GOLD, "&:hover": { backgroundColor: SD_GOLD_DARK }, "&.Mui-disabled": { backgroundColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.45)" } }}>Cash out</Button>
         </Stack>
         <Typography sx={{ position: "relative", fontSize: 11.5, color: SD_INK_MUTED, mt: 1.2 }}>Top up from ${p.minTopup} · cash out from ${p.minWithdraw} · above ${p.approvalThreshold.toLocaleString()} reviewed first</Typography>

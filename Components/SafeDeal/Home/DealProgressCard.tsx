@@ -32,7 +32,7 @@ function Tracker({ deal }: { deal: SdDeal }) {
       {STAGES.map((s, i) => {
         const done = i < reached || (i === reached && deal.status === "completed");
         const current = i === reached && deal.status !== "completed";
-        const color = closedEarly ? "#C7C4BA" : disputed && current ? "#FF9F0A" : done || current ? SD_GOLD : "#E6E3DA";
+        const color = closedEarly ? "#C7C4BA" : disputed && current ? "#FF9F0A" : done || current ? SD_GOLD : "#E1E5EA";
         return (
           <Box key={s}>
             <Box sx={{ height: 5, borderRadius: 99, backgroundColor: color, position: "relative", overflow: "hidden" }}>

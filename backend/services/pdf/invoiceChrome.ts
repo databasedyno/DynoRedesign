@@ -8,15 +8,15 @@ import path from "path";
 import fs from "fs";
 import { t } from "../../utils/emailI18n";
 
-/** Brand palette — aligned with the PDF receipt + email chrome (gold · dark brown · black). */
+/** Brand palette — aligned with the PDF receipt + email chrome (yellow · Bybit black). */
 export const INK = {
   brand: "#FFD100",   // yellow accent (top bar)
   link: "#8B5E00",    // deep gold for links / brand line on white
-  text: "#2B1D14",    // primary text (dark brown)
-  body: "#3A2A1F",    // secondary text
+  text: "#121214",    // primary text (Bybit black)
+  body: "#222227",    // secondary text
   muted: "#7A6656",   // eyebrows / notes
   faint: "#A89684",   // footer meta
-  hairline: "#E8DFD2",
+  hairline: "#E1E5EA",
   paidBg: "#ECFDF5",
   paidInk: "#047857",
   paidLine: "#10B981",

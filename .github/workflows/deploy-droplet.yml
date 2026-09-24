@@ -114,6 +114,16 @@ jobs:
               caddy validate --config /etc/caddy/Caddyfile && systemctl reload caddy
             fi
             echo "${GHCR_TOKEN}" | docker login ghcr.io -u "${GITHUB_ACTOR}" --password-stdin
+            # Free disk BEFORE pulling: every deploy pins a new immutable SHA tag, so old
+            # tagged images pile up (~1 GB each) and `docker image prune -f` (dangling only)
+            # never reclaimed them → "no space left on device" mid-pull (2026-09-24).
+            # `-a` removes every image not used by a running container; the live one stays.
+            echo "=== disk before cleanup ==="; df -h / | tail -1
+            docker image prune -af >/dev/null 2>&1 || true
+            docker builder prune -af >/dev/null 2>&1 || true
+            docker container prune -f >/dev/null 2>&1 || true
+            journalctl --vacuum-size=200M >/dev/null 2>&1 || true
+            echo "=== disk after cleanup ==="; df -h / | tail -1
             # Pin the immutable commit SHA (NOT the mutable :latest) so Compose sees a
             # changed image reference every deploy and actually recreates the container.
             # With :latest the digest changed but Compose reported "Running" and skipped
@@ -121,7 +131,9 @@ jobs:
             sed -i "s|image: .*|image: ghcr.io/databasedyno/dynopay:${GITHUB_SHA}|" docker-compose.yml
             docker compose pull
             docker compose up -d --force-recreate
-            docker image prune -f
+            # Drop the previous image now that the new container is up.
+            docker image prune -af >/dev/null 2>&1 || true
+            echo "=== disk after deploy ==="; df -h / | tail -1
             # Self-verify in the run log which image the container is actually running.
             echo "=== deployed (expect tag ${GITHUB_SHA}) ==="
             docker compose images
