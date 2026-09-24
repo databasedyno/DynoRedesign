@@ -2,6 +2,12 @@
 
 > Status: IN PROGRESS — handed off. Theme/header/footer done; homepage body + content migration NOT started.
 
+## ⭐ NEXT ACTION ITEMS (execute in this order)
+1. **Homepage Rebuild** — Rebuild `pages/index.tsx` into the exact 9 sections (below) and delete the sprawling v3/v5/v6 clutter in `Components/Page/Home/`.
+2. **Trust Bar** — Add the 3-metric trust bar: **1,076+ payments · 99.92% uptime · 75+ countries** with a **"View live status"** link.
+3. **Content Migration** — Move the **7 products → `/products`**, **fee calculator → `/fees`**, **API code → `/documentation`**; Resources → footer.
+4. **Button Polish** — Make **every marketing button signal-yellow `#FFD100` with Bybit-black `#121214` text**, and **verify mobile stacking** (max 3 cards desktop / stacked on mobile).
+
 ## Goal (user-approved, verbatim intent)
 Major revamp of the Dynopay landing page + ALL public marketing pages to reduce cognitive load and adopt a Bybit-style aesthetic.
 - User approval: "Scope: Landing page + all public marketing pages... Dark by default like Bybit... Keep current signal yellow #FFD100... Switch to Inter... implement ideal structure exactly... Yes, go exactly like that"
