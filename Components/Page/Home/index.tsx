@@ -7,6 +7,7 @@ import { LandingMetricsContext, type LandingMetrics } from "./v5/useLandingMetri
  * HTML for SEO. The old v3/v5/v6 sprawl is retired from the homepage (those
  * components still power other marketing pages like /fees). */
 import HeroV7 from "./v7/HeroV7";
+import CoinsStripV7 from "./v7/CoinsStripV7";
 import TrustBarV7 from "./v7/TrustBarV7";
 import HowItWorksV7 from "./v7/HowItWorksV7";
 import ThreeWaysV7 from "./v7/ThreeWaysV7";
@@ -54,6 +55,7 @@ const HomePage: FC<{ landingMetrics?: LandingMetrics | null }> = ({ landingMetri
     <LandingMetricsContext.Provider value={landingMetrics}>
     <HomeWrapper>
       <HeroV7 />
+      <CoinsStripV7 />
       <TrustBarV7 />
       <HowItWorksV7 />
       <ThreeWaysV7 />

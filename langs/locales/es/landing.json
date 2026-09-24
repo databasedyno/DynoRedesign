@@ -1,5 +1,9 @@
 {
-  "v7": { "nav": { "product": "Producto" } },
+  "v7": {
+    "nav": {
+      "product": "Producto"
+    }
+  },
   "howItWorks": "Cómo funciona",
   "features": "Funciones",
   "documentation": "Documentación",
@@ -1829,6 +1833,28 @@
         "title": "Para creadores",
         "desc": "Botes de propinas, tiendas y páginas de donación que liquidan directamente en tu wallet.",
         "cta": "Ver páginas de creador"
+      }
+    },
+    "stories": {
+      "eyebrow": "Historias de comercios",
+      "headline": "En vivo en Dynopay. En sus propias palabras.",
+      "body": "Tres negocios que aceptan pagos en cripto con Dynopay cada día: una tienda para desarrolladores, un servicio de custodia y una plataforma de hosting.",
+      "visit": "Visitar",
+      "live": "En vivo en Dynopay",
+      "devstore": {
+        "quote": "Vendemos herramientas para desarrolladores a clientes en más de 40 países. El checkout de Dynopay liquida directamente en nuestra propia wallet, sin contracargos ni retenciones, y los compradores pagan con la moneda que ya tienen.",
+        "who": "The Dev Store",
+        "what": "Herramientas para desarrolladores · tienda y enlaces de pago"
+      },
+      "safedeal": {
+        "quote": "SafeDeal gestiona todo su flujo de custodia en Dynopay: direcciones de financiación, confirmaciones y pagos. Lanzamos un producto de custodia completo en semanas sin operar un solo nodo.",
+        "who": "SafeDeal",
+        "what": "Custodia para acuerdos en línea · API de Dynopay"
+      },
+      "nameword": {
+        "quote": "Los clientes de hosting esperan pagar en cripto y mantener su privacidad. Con el checkout alojado y los webhooks de Dynopay, un dominio o servidor se activa en el momento en que se confirma el pago.",
+        "who": "Nameword",
+        "what": "Hosting web offshore · checkout alojado y webhooks"
       }
     }
   },

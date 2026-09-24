@@ -1,5 +1,9 @@
 {
-  "v7": { "nav": { "product": "Product" } },
+  "v7": {
+    "nav": {
+      "product": "Product"
+    }
+  },
   "howItWorks": "Hoe het werkt",
   "features": "Functies",
   "documentation": "Documentatie",
@@ -1829,6 +1833,28 @@
         "title": "Voor creators",
         "desc": "Fooienpotten, winkels en donatiepagina's die rechtstreeks naar je wallet afrekenen.",
         "cta": "Bekijk creatorpagina's"
+      }
+    },
+    "stories": {
+      "eyebrow": "Verhalen van verkopers",
+      "headline": "Live op Dynopay. In hun eigen woorden.",
+      "body": "Drie bedrijven die elke dag cryptobetalingen accepteren met Dynopay — een developer-winkel, een escrow-dienst en een hostingplatform.",
+      "visit": "Bezoeken",
+      "live": "Live op Dynopay",
+      "devstore": {
+        "quote": "We verkopen developer-tools aan klanten in meer dan 40 landen. De checkout van Dynopay betaalt rechtstreeks uit naar onze eigen wallet — geen chargebacks, geen blokkades, en kopers betalen met de coin die ze al hebben.",
+        "who": "The Dev Store",
+        "what": "Developer-tools · winkel en betaallinks"
+      },
+      "safedeal": {
+        "quote": "SafeDeal draait zijn volledige escrow-flow op Dynopay — stortingsadressen, bevestigingen en uitbetalingen. We lanceerden een volledig escrow-product in weken zonder ook maar één node te draaien.",
+        "who": "SafeDeal",
+        "what": "Escrow voor online deals · Dynopay-API"
+      },
+      "nameword": {
+        "quote": "Hostingklanten willen in crypto betalen en privé blijven. Met de gehoste checkout en webhooks van Dynopay gaat een domein of server live zodra de betaling is bevestigd.",
+        "who": "Nameword",
+        "what": "Offshore webhosting · gehoste checkout en webhooks"
       }
     }
   },

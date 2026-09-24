@@ -17,7 +17,6 @@ import { Section, SectionHead, PrimaryBtn, SecondaryBtn, cardSx } from "@/Compon
 import { Stagger, StaggerItem } from "@/Components/Page/Home/motion/Stagger";
 import { BRAND_ACCENT } from "@/constants/theme";
 import { toFixedStr } from "@/utils/money";
-import FeesWorkedExample from "@/Components/Page/Fees/WorkedExample";
 
 /* ── Aurora restyle of the public /fees page (2026-07-18) ── */
 
@@ -279,17 +278,6 @@ const FeesPage = () => {
                 );
               })}
           </Stagger>
-        </Section>
-
-        {/* ===== WORKED EXAMPLE — "$100 sale → you receive $X" (Wave 7) ===== */}
-        <Section testId="fees-worked" sx={{ pb: { xs: 0, md: 0 } }}>
-          <FeesWorkedExample
-            tiers={TIERS}
-            currentTierName={tier.name}
-            currencies={SETTLE_CURRENCIES}
-            feeFor={(c) => feeFor(c as (typeof SETTLE_CURRENCIES)[number])}
-            live={!!liveFees}
-          />
         </Section>
 
         {/* ===== FEE CALCULATOR ===== */}
@@ -574,7 +562,7 @@ const FeesPage = () => {
         {/* ===== WHO PAYS THE FEE? ===== */}
         <Section testId="fees-who-pays">
           <SectionHead center maxWidth={720} eyebrow={t("v3.whoPaysEyebrow")} headline={t("v3.whoPaysTitle")} body={t("v3.whoPaysBody")} />
-          <Stagger step={0.08} sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 2, maxWidth: 900 }}>
+          <Stagger step={0.08} sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 2, maxWidth: 900, mx: "auto" }}>
               {[
                 { title: t("v3.wpMerchantTitle"), desc: t("v3.wpMerchantDesc"), highlight: false },
                 { title: t("v3.wpCustomerTitle"), desc: t("v3.wpCustomerDesc"), highlight: true },
@@ -600,7 +588,7 @@ const FeesPage = () => {
                 </StaggerItem>
               ))}
           </Stagger>
-          <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12, color: s.ink3, mt: 3, maxWidth: 900, lineHeight: 1.5 }}>
+          <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12, color: s.ink3, mt: 3, maxWidth: 900, mx: "auto", lineHeight: 1.5, textAlign: "center" }}>
             {t("v3.wpFootnote")}
           </Typography>
         </Section>
@@ -679,7 +667,7 @@ const FeesPage = () => {
         {/* ===== FAQ ===== */}
         <Section alt testId="fees-faq-section">
           <SectionHead center maxWidth={720} eyebrow={t("v3.faqEyebrow")} headline={t("v3.faqTitle")} />
-          <Stagger step={0.05} sx={{ display: "flex", flexDirection: "column", gap: 1.5, maxWidth: 900 }}>
+          <Stagger step={0.05} sx={{ display: "flex", flexDirection: "column", gap: 1.5, maxWidth: 820, mx: "auto" }}>
               {faqs.map((f, i) => (
                 <StaggerItem key={i} i={i} y={12}>
                 <Box

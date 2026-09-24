@@ -1,5 +1,9 @@
 {
-  "v7": { "nav": { "product": "Produkt" } },
+  "v7": {
+    "nav": {
+      "product": "Produkt"
+    }
+  },
   "howItWorks": "So funktioniert's",
   "features": "Funktionen",
   "documentation": "Dokumentation",
@@ -1829,6 +1833,28 @@
         "title": "Für Creator",
         "desc": "Trinkgeldkassen, Shops und Spendenseiten, die direkt in deine Wallet abrechnen.",
         "cta": "Creator-Seiten ansehen"
+      }
+    },
+    "stories": {
+      "eyebrow": "Kundengeschichten",
+      "headline": "Live auf Dynopay. In ihren eigenen Worten.",
+      "body": "Drei Unternehmen, die täglich Krypto-Zahlungen mit Dynopay annehmen – ein Entwickler-Shop, ein Treuhanddienst und eine Hosting-Plattform.",
+      "visit": "Besuchen",
+      "live": "Live auf Dynopay",
+      "devstore": {
+        "quote": "Wir verkaufen Entwickler-Tools an Kunden in über 40 Ländern. Dynopays Checkout zahlt direkt auf unsere eigene Wallet aus – keine Rückbuchungen, keine Sperren, und Käufer zahlen mit der Coin, die sie ohnehin besitzen.",
+        "who": "The Dev Store",
+        "what": "Entwickler-Tools · Storefront & Zahlungslinks"
+      },
+      "safedeal": {
+        "quote": "SafeDeal wickelt seinen gesamten Treuhand-Ablauf über Dynopay ab – Einzahlungsadressen, Bestätigungen und Auszahlungen. Wir haben ein komplettes Treuhandprodukt in Wochen ausgeliefert, ohne einen einzigen Node zu betreiben.",
+        "who": "SafeDeal",
+        "what": "Treuhand für Online-Deals · Dynopay-API"
+      },
+      "nameword": {
+        "quote": "Hosting-Kunden erwarten, mit Krypto zu bezahlen und privat zu bleiben. Mit Dynopays gehostetem Checkout und Webhooks geht eine Domain oder ein Server live, sobald die Zahlung bestätigt ist.",
+        "who": "Nameword",
+        "what": "Offshore-Webhosting · gehosteter Checkout & Webhooks"
       }
     }
   },

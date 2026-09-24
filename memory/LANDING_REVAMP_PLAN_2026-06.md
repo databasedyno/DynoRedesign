@@ -99,3 +99,47 @@ Left intentionally: /documentation (API reference), /system-status (live dashboa
 /how-to (already minimal), /products (already v7-clean). NOT yet touched: /for/[vertical]
 SEO pages (render via Components/Page/SEO/SEOLandingPage) — optional next pass.
 tsc 0 errors, eslint clean.
+
+---
+## Session 2026-09-24 (part 2) — 4 FOLLOW-UP ITEMS (CODE-COMPLETE, VERIFY PENDING)
+Offline gates ALL GREEN: `node_modules/.bin/tsc --noEmit` = 0 errors, ESLint clean on all
+changed files, `node scripts/check-i18n.mjs` = passed (all 5 locales complete vs en).
+NOT yet run: frontend testing agent (visual). Frontend is Next.js DEV (hot-reload) — no
+restart needed (no .env change). DEV screenshots go black until hydration; wait for
+[data-testid="hero-headline"] visible.
+
+STATUS PER ITEM:
+1) VERTICAL SEO PAGES (/for/[vertical]) — DONE (code). Centered the 4 SectionHeads in
+   Components/Page/SEO/SEOLandingPage.tsx (features, how-it-works, faq, related) via
+   `center maxWidth={720}`. Affects every /for/* page (ecommerce, saas, creators, ...).
+   TESTIDS: seo-features, seo-how-it-works, seo-faq, seo-related-pages.
+2) FEES TRIM — DONE (code) in pages/fees.tsx. Removed the redundant "worked example"
+   section (fees-worked) + its `FeesWorkedExample` import (calculator supersedes it);
+   centered the who-pays grid, its footnote, and the FAQ list (mx:auto). Interactive
+   fee calculator (fees-calculator) LEFT INTACT — must stay working.
+3) LIVE COINS STRIP — DONE (code). New Components/Page/Home/v7/CoinsStripV7.tsx (subtle
+   Iconify `cryptocurrency-color:*` marquee, 11 coins, dup-track loop, pauses on hover,
+   respects prefers-reduced-motion). Wired into Components/Page/Home/index.tsx directly
+   under HeroV7 (before TrustBarV7). TESTIDS: coins-strip, coins-marquee-track.
+   NOTE: Iconify icons load from the Iconify CDN at runtime (same as ProofV6/
+   LiveSettlementFeed); if the sandbox is offline the glyphs may not paint but layout holds.
+4) LANGUAGE CLEANUP — DONE + VERIFIED offline. Backfilled v6.stories.* into de/es/fr/nl/pt
+   (brand names kept). check-i18n now passes. (v7.nav.product from part 1 still present in
+   all 6 langs — reconfirmed after the JSON reformat.)
+
+REMAINING WORK FOR NEXT AGENT (in order):
+ a) Run the frontend testing agent (SAFE MODE: no login, no money movement, read-only) to
+    VISUALLY verify: homepage coins-strip renders + marquee animates + no layout shift and
+    trust bar still below it; /for/ecommerce (+ /for/saas) section heads centered, no leaked
+    i18n keys; /fees no longer shows the worked-example block, calculator still interactive,
+    who-pays/faq centered. Desktop 1920 + mobile 390. Report pass/fail.
+ b) If all pass → this revamp track is complete; summarize + (only on user ask) deploy.
+ c) OPTIONAL polish not requested yet: further trim /fees "security" section; add coin
+    count/logos to CoinsStripV7 from live /api/public/tickers instead of a static list.
+
+CHANGED FILES (this whole revamp, for review):
+ - NEW: Components/Page/Home/v7/{HeroV7,CoinsStripV7,TrustBarV7,HowItWorksV7,ThreeWaysV7,
+        WhyDynopayV7,ProofV7,PricingV7,FAQV7,FinalCTAV7}.tsx ; pages/products.tsx
+ - EDIT: Components/Page/Home/index.tsx ; pages/_app.tsx (homePaths + /products) ;
+         pages/{about,referral-program,press,fees}.tsx ; Components/Page/SEO/SEOLandingPage.tsx ;
+         langs/locales/{en,de,es,fr,nl,pt}/landing.json

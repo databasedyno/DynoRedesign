@@ -308,7 +308,7 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
 
       {/* ── Features grid ─────────────────────────────────────────────── */}
       <Section testId="seo-features">
-        <SectionHead eyebrow={t('seo.whyDynopayBadge')} headline={highlight(t('seo.whyDynopayTitle'), t('seo.whyDynopayHighlight'), accentInk)} body={t('seo.whyDynopaySubtitle')} />
+        <SectionHead center maxWidth={720} eyebrow={t('seo.whyDynopayBadge')} headline={highlight(t('seo.whyDynopayTitle'), t('seo.whyDynopayHighlight'), accentInk)} body={t('seo.whyDynopaySubtitle')} />
         <Stagger step={0.07} sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", lg: "repeat(3, 1fr)" }, gap: 2 }}>
           {content.features.map((f, idx) => (
             <StaggerItem key={idx} i={idx} y={16}>
@@ -330,7 +330,7 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
 
       {/* ── How it works ──────────────────────────────────────────────── */}
       <Section alt testId="seo-how-it-works" narrow>
-        <SectionHead eyebrow={t('seo.howItWorksBadge')} headline={highlight(t('seo.howItWorksTitle'), t('seo.howItWorksHighlight'), accentInk)} body={t('seo.howItWorksSubtitle')} />
+        <SectionHead center maxWidth={720} eyebrow={t('seo.howItWorksBadge')} headline={highlight(t('seo.howItWorksTitle'), t('seo.howItWorksHighlight'), accentInk)} body={t('seo.howItWorksSubtitle')} />
         <Stagger step={0.08} component="ol" sx={{ listStyle: "none", p: 0, m: 0, display: "flex", flexDirection: "column", gap: 1.5 }}>
           {content.how_it_works.map((step, idx) => (
             <StaggerItem key={idx} i={idx} y={14}>
@@ -349,7 +349,7 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
 
       {/* ── FAQ ───────────────────────────────────────────────────────── */}
       <Section testId="seo-faq" narrow>
-        <SectionHead eyebrow={t('seo.faqBadge')} headline={highlight(t('seo.faqTitle'), t('seo.faqHighlight'), accentInk)} body={t('seo.faqSubtitle')} />
+        <SectionHead center maxWidth={720} eyebrow={t('seo.faqBadge')} headline={highlight(t('seo.faqTitle'), t('seo.faqHighlight'), accentInk)} body={t('seo.faqSubtitle')} />
         <Stagger step={0.05} sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
           {content.faqs.map((faq, idx) => (
             <StaggerItem key={idx} i={idx} y={12}>
@@ -387,7 +387,7 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
       {relatedPages.length > 0 ? (
         <Section alt testId="seo-related-pages">
           <Box component="div" aria-labelledby="seo-related-pages-heading">
-            <SectionHead eyebrow={t('seo.exploreMoreBadge')} headline={<span id="seo-related-pages-heading">{highlight(t('seo.exploreMoreTitle'), t('seo.whyDynopayHighlight'), accentInk)}</span>} body={t('seo.exploreMoreSubtitle')} />
+            <SectionHead center maxWidth={720} eyebrow={t('seo.exploreMoreBadge')} headline={<span id="seo-related-pages-heading">{highlight(t('seo.exploreMoreTitle'), t('seo.whyDynopayHighlight'), accentInk)}</span>} body={t('seo.exploreMoreSubtitle')} />
             <Stagger step={0.07} sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", lg: "repeat(3, 1fr)" }, gap: 2 }}>
               {relatedPages.map((rp, idx) => (
                 <StaggerItem key={rp.slug} i={idx} y={16}>

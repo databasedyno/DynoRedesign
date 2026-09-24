@@ -1,4 +1,29 @@
 # ============================================================================
+# >>> HANDOFF (2026-09-24 pt2) — 4 FOLLOW-UPS: CODE-COMPLETE, VISUAL VERIFY PENDING <<<
+# ============================================================================
+#   FRONTEND-ONLY. SAFE MODE, live prod DB: NO login, NO money movement/settle/confirm,
+#   read-only, no source edits, no git. Frontend = Next.js DEV (hot-reload, no restart
+#   needed). DEV pages paint black until hydration — navigate domcontentloaded, then wait
+#   for the page's hero/first heading to be VISIBLE (up to 60s), retry if blank.
+#
+#   Offline gates already GREEN: tsc 0 errors, ESLint clean, scripts/check-i18n.mjs passed.
+#   testing_agent should VISUALLY verify (desktop 1920 + mobile 390), report pass/fail:
+#   1) HOMEPAGE ("/?view=landing"): a coins marquee (data-testid="coins-strip",
+#      "coins-marquee-track") sits directly UNDER the hero and ABOVE the trust bar, shows
+#      coin tickers (BTC/ETH/USDT/USDC/SOL/XRP/TRX/LTC/DOGE/BCH/POL), animates horizontally,
+#      and causes NO horizontal overflow / layout shift. All 9 sections still present.
+#   2) /for/ecommerce and /for/saas : section headings for seo-features, seo-how-it-works,
+#      seo-faq, seo-related-pages are horizontally CENTERED; no literal i18n keys visible.
+#   3) /fees : the old "worked example" block (data-testid="fees-worked") is GONE; the fee
+#      calculator (data-testid="fees-calculator") is still present + interactive; who-pays
+#      and faq blocks are centered. No leaked i18n keys.
+#   4) i18n: on non-English (?lang=de or ?lang=fr) the public pages show NO raw dotted keys.
+#   Creds if ever needed (prefer NOT to use): /app/memory/test_credentials.md.
+#   Full status + changed-file list: /app/memory/LANDING_REVAMP_PLAN_2026-06.md (Session pt2).
+# ============================================================================
+
+
+# ============================================================================
 # ============================================================================
 # >>> TESTING AGENT VERIFICATION (2026-09-24) — /fees & /press DECLUTTER RESTYLE <<<
 # ============================================================================

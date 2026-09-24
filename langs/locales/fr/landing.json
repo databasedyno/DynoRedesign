@@ -1,5 +1,9 @@
 {
-  "v7": { "nav": { "product": "Produit" } },
+  "v7": {
+    "nav": {
+      "product": "Produit"
+    }
+  },
   "howItWorks": "Comment ça marche",
   "features": "Fonctionnalités",
   "documentation": "Documentation",
@@ -1829,6 +1833,28 @@
         "title": "Pour les créateurs",
         "desc": "Pots à pourboires, boutiques et pages de dons réglés directement dans votre wallet.",
         "cta": "Voir les pages créateur"
+      }
+    },
+    "stories": {
+      "eyebrow": "Témoignages de marchands",
+      "headline": "En direct sur Dynopay. Dans leurs propres mots.",
+      "body": "Trois entreprises qui acceptent les paiements en crypto avec Dynopay chaque jour : une boutique pour développeurs, un service d'entiercement et une plateforme d'hébergement.",
+      "visit": "Visiter",
+      "live": "En direct sur Dynopay",
+      "devstore": {
+        "quote": "Nous vendons des outils pour développeurs à des clients dans plus de 40 pays. Le checkout de Dynopay règle directement sur notre propre wallet — aucun rejet de paiement, aucun blocage, et les acheteurs paient avec la crypto qu'ils possèdent déjà.",
+        "who": "The Dev Store",
+        "what": "Outils pour développeurs · boutique et liens de paiement"
+      },
+      "safedeal": {
+        "quote": "SafeDeal gère tout son processus d'entiercement sur Dynopay — adresses de dépôt, confirmations et versements. Nous avons livré un produit d'entiercement complet en quelques semaines sans exploiter le moindre nœud.",
+        "who": "SafeDeal",
+        "what": "Entiercement pour transactions en ligne · API Dynopay"
+      },
+      "nameword": {
+        "quote": "Les clients d'hébergement veulent payer en crypto tout en restant discrets. Avec le checkout hébergé et les webhooks de Dynopay, un domaine ou un serveur est actif dès que le paiement est confirmé.",
+        "who": "Nameword",
+        "what": "Hébergement web offshore · checkout hébergé et webhooks"
       }
     }
   },
