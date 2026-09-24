@@ -23,7 +23,6 @@ import { usePaymentNotification } from '@/hooks/usePaymentNotification'
 import { ReceiptEmailField, NotifyMeInline } from '@/Components/Page/Pay3Components/checkoutExtras'
 import { formatCryptoAmount, formatWithSeparators, getCurrencySymbolFromFormat } from '@/utils/currencyFormat'
 import copyToClipboard from '@/helpers/copyToClipboard'
-import fireConfettiBurst from '@/utils/confettiBurst'
 // Shared checkout tokens/types (extracted from CleanCheckoutV2) — single source
 // of truth. The MONO/LIME/INK values and the `Phase` union are identical to the
 // local copies they replace, so this is a zero-behaviour-change de-dup.
@@ -458,10 +457,8 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
 
   // ─── Step 3: poll verifyCryptoPayment ────────────────────────────────
   useEffect(() => {
-    // Celebration burst the moment the supporter's payment is CONFIRMED.
-    // Decorative only (never throws), skipped for reduced-motion users.
     if (phase === 'confirmed') {
-      fireConfettiBurst(); onConfirmed?.()
+      onConfirmed?.()
       if (!notifiedRef.current) {
         notifiedRef.current = true
         notif.notify(

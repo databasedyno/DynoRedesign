@@ -39,7 +39,7 @@ export const CheckoutBrandHeader: React.FC<{
           <Typography component="h1" sx={{ fontWeight: 800, fontSize: { xs: "1.25rem", md: "1.5rem" }, lineHeight: 1.2, letterSpacing: "-0.02em" }} data-testid="checkout-merchant-name">
             {merchant?.name || `@${handle}`}
           </Typography>
-          <PublicVerifiedBadge handle={handle} showLabel size={16} ml={0} />
+          <PublicVerifiedBadge handle={handle} size={16} ml={0} />
         </Box>
       </Box>
     </Box>

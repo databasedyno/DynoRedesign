@@ -248,50 +248,6 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
     }
   }, [])
 
-  // ─── Celebration: confetti burst when payment / contribution confirms ──
-  // Fires exactly once (ref-guarded) the moment the checkout reaches the
-  // 'confirmed' phase — covers both standard crypto payments AND donation
-  // contributions (both land on this success view). On-brand palette
-  // (lime + white + ink) and fully skipped for reduced-motion users.
-  // canvas-confetti is loaded lazily so it never touches the SSR bundle.
-  const confettiFiredRef = useRef(false)
-  useEffect(() => {
-    if (phase !== 'confirmed' || confettiFiredRef.current) return
-    if (typeof window === 'undefined') return
-    const prefersReduced =
-      window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches
-    if (prefersReduced) return
-    confettiFiredRef.current = true
-    let cancelled = false
-    void import('canvas-confetti')
-      .then((mod) => {
-        if (cancelled) return
-        const confetti = mod.default
-        const colors = ['#FFD100', '#FFD100', '#FFD100', '#3FD98A', '#FFFFFF']
-        const fire = (particleRatio: number, opts: Record<string, unknown>) => {
-          confetti({
-            origin: { y: 0.7 },
-            colors,
-            disableForReducedMotion: true,
-            zIndex: 2000,
-            particleCount: Math.floor(200 * particleRatio),
-            ...opts,
-          })
-        }
-        // Staggered multi-burst — lively but tasteful.
-        fire(0.25, { spread: 26, startVelocity: 55 })
-        fire(0.2, { spread: 60 })
-        fire(0.35, { spread: 100, decay: 0.91, scalar: 0.9 })
-        fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 })
-        fire(0.1, { spread: 120, startVelocity: 45 })
-      })
-      .catch(() => {
-        /* confetti is non-critical — ignore load failures */
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [phase])
 
   // ─── Step 1: fetch meta via /pay/getData ──────────────────────────
   // Shared result handler — BOTH the legacy manual fetch AND the SWR path
@@ -1211,13 +1167,11 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
           <Typography fontWeight={700} fontSize={22} letterSpacing="-0.5px" color={theme.palette.text.primary}>
             {isContribution ? t('checkout.success.titleContribution', { defaultValue: 'Thank you for contributing!' }) : t('checkout.success.title', { defaultValue: 'Payment successful' })}
           </Typography>
-          <Typography fontSize={14} color={muted} mt={1}>
-            {isContribution ? campaignTitle || merchantName : t('checkout.success.paidTo', { defaultValue: 'Paid to {{name}}', name: merchantName })} — {feePayerIsCustomer ? fmtFiat(totalAmt) : `${fiatSymbol}${fiatAmount}`}
+          <Typography fontSize={14} color={muted} mt={1} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap', justifyContent: 'center' }}>
+            <span>{isContribution ? campaignTitle || merchantName : t('checkout.success.paidTo', { defaultValue: 'Paid to {{name}}', name: merchantName })}</span>
+            <PublicVerifiedBadge linkRef={d} size={15} ml={0} />
+            <span>— {feePayerIsCustomer ? fmtFiat(totalAmt) : `${fiatSymbol}${fiatAmount}`}</span>
           </Typography>
-          {/* Identity-verified merchant trust signal on the on-screen receipt */}
-          <Box sx={{ mt: 1 }}>
-            <PublicVerifiedBadge linkRef={d} showLabel size={15} ml={0} />
-          </Box>
           {/* What was sent — the crypto amount behind the fiat total above */}
           <Typography data-testid="clean-checkout-success-paid" sx={{ fontFamily: MONO, fontSize: 12.5, color: muted, mt: 0.5 }}>
             {formatCryptoAmount(confirmedAmount.crypto, cryptoInfo?.crypto_base || 'BTC')} {cryptoInfo?.crypto_base}
@@ -1424,7 +1378,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
   //   awaiting_payment (detected)   → confirming (sky-blue spinning ring)
   //   underpaid                     → confirming (funds arrived, partial)
   //   confirmed                     → HANDLED IN THE EARLIER `phase === 'confirmed'` BRANCH
-  //                                   (own success view + canvas-confetti)
+  //                                   (own success view)
   //   expired | failed | error      → HANDLED IN EARLIER RETURN BRANCHES so
   //                                   TypeScript's control-flow narrowing
   //                                   confirms they're unreachable here.
@@ -1464,27 +1418,26 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
         </Box>
       )}
 
-      {/* H1: Merchant / Campaign name */}
+      {/* H1: Merchant / Campaign name — the verified check sits inline after the
+          name (tooltip carries the explanation); renders nothing when unverified. */}
       <Typography
         component="h1"
         data-testid="clean-checkout-h1"
         sx={{
-          fontSize: { xs: 26, sm: 32 },
+          fontSize: { xs: 20, sm: 24 },
           fontWeight: 700,
-          letterSpacing: '-0.03em',
-          lineHeight: 1.15,
+          letterSpacing: '-0.02em',
+          lineHeight: 1.2,
           color: theme.palette.text.primary,
+          display: 'flex',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 0.75,
         }}
       >
-        {headline}
+        <span>{headline}</span>
+        <PublicVerifiedBadge linkRef={d} size={18} ml={0} />
       </Typography>
-
-      {/* Identity-verified badge — buyer-trust signal shown when the merchant
-          behind this payment link is KYC-approved (resolved by the link ref).
-          Renders nothing for unverified/unknown merchants. */}
-      <Box sx={{ mt: 0.75 }}>
-        <PublicVerifiedBadge linkRef={d} showLabel size={16} ml={0} />
-      </Box>
 
       {/* Amount hero — the total the buyer pays is the mono headline. An order
           summary (Amount [+ Tax] [+ Processing fee]) appears beneath it only when

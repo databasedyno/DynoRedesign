@@ -63,32 +63,6 @@ const Dashboard2026: React.FC<{ onboarding?: boolean }> = ({ onboarding = true }
     else fetchChartData(range);
   }, [range, custom, fetchChartData]);
 
-  // ── Confetti when a NEW payment settled since the last visit ──────────────
-  const confettiFiredRef = useRef(false);
-  useEffect(() => {
-    if (confettiFiredRef.current) return;
-    const list = (recentTransactions as any[]) || [];
-    const topSettled = list.find((tx) => SETTLED.includes(String(tx?.status || "").toLowerCase()));
-    if (!topSettled) return;
-    const id = String(topSettled.id ?? topSettled.transaction_id ?? topSettled.reference ?? topSettled.createdAt ?? "");
-    if (!id) return;
-    let last: string | null = null;
-    try {
-      last = window.localStorage.getItem("dyno_last_settled_txn");
-    } catch {
-      /* storage unavailable */
-    }
-    if (last && last !== id) {
-      confettiFiredRef.current = true;
-      void import("@/helpers/fireConfetti").then((m) => m.default()).catch(() => {});
-    }
-    try {
-      window.localStorage.setItem("dyno_last_settled_txn", id);
-    } catch {
-      /* ignore */
-    }
-  }, [recentTransactions]);
-
   // ── One-time first-payment celebration (per brand) ────────────────────────
   const { selectedCompanyId, companyList } = useCompanyStore();
   const [firstPaymentModalOpen, setFirstPaymentModalOpen] = useState(false);
@@ -136,7 +110,7 @@ const Dashboard2026: React.FC<{ onboarding?: boolean }> = ({ onboarding = true }
   const showGettingStarted =
     onboarding && !loading && !!stats && setupProgress.coreReady && !hasPayment && !setupProgress.isSafeDealBrand;
 
-  const { items: attentionItems, dismiss } = useAttentionItems({ overview, onboarding });
+  const { items: attentionItems, dismiss, acknowledge } = useAttentionItems({ overview, onboarding });
 
   const stackGap = isCompact ? { xs: 1.25, md: 2 } : { xs: 2, md: 3 };
   const riseSx = {
@@ -180,7 +154,7 @@ const Dashboard2026: React.FC<{ onboarding?: boolean }> = ({ onboarding = true }
       {showGettingStarted ? (
         <Box data-testid="new-merchant-getting-started" sx={{ display: "flex", flexDirection: "column", gap: stackGap }}>
           <GettingStartedHero progress={setupProgress} />
-          <AttentionFeed items={attentionItems.filter((i) => i.group === "security")} onDismiss={dismiss} />
+          <AttentionFeed items={attentionItems.filter((i) => i.group === "security")} onDismiss={dismiss} onAcknowledge={acknowledge} />
           <Box data-testid="new-merchant-faded-preview">
             <DashboardPreview>
               {moneyRow}
@@ -206,7 +180,7 @@ const Dashboard2026: React.FC<{ onboarding?: boolean }> = ({ onboarding = true }
             }}
             onCustomClear={() => setCustom(null)}
           />
-          <AttentionFeed items={attentionItems} onDismiss={dismiss} />
+          <AttentionFeed items={attentionItems} onDismiss={dismiss} onAcknowledge={acknowledge} />
           <BrandEscrowTotals companyId={selectedCompanyId} cardBorder={cardBorder} />
           {moneyRow}
           {trend}

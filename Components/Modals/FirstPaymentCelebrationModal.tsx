@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Box, Typography, useTheme } from "@mui/material";
 import { CelebrationRounded } from "@mui/icons-material";
 import { motion } from "framer-motion";
@@ -38,14 +38,6 @@ const FirstPaymentCelebrationModal: React.FC<Props> = ({
   const theme = useTheme();
   const dark = theme.palette.mode === "dark";
   const { t } = useTranslation("dashboardLayout");
-
-  // Full-screen brand confetti burst on open (lazy — never in the SSR bundle).
-  useEffect(() => {
-    if (!open) return;
-    void import("@/helpers/fireConfetti")
-      .then((m) => m.default())
-      .catch(() => {});
-  }, [open]);
 
   if (!open) return null;
 

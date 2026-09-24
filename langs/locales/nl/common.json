@@ -1253,7 +1253,7 @@
   },
   "verifiedBadge": {
     "label": "Identiteit geverifieerd",
-    "tooltip": "Dynopay heeft de identiteit van deze verkoper gecontroleerd (KYC). Dit gaat over de verkoper die je betaalt — niet over jou.",
+    "tooltip": "Geverifieerde verkoper — identiteit gecontroleerd door Dynopay",
     "securedBy": "Betalingen beveiligd door Dynopay",
     "merchantLabel": "Geverifieerde verkoper"
   },

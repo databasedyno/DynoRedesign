@@ -1253,7 +1253,7 @@
   },
   "verifiedBadge": {
     "label": "Identidade verificada",
-    "tooltip": "A Dynopay verificou a identidade deste vendedor (KYC). Isto diz respeito ao comerciante que você está pagando — não a você.",
+    "tooltip": "Comerciante verificado — identidade verificada pela Dynopay",
     "securedBy": "Pagamentos protegidos pela Dynopay",
     "merchantLabel": "Comerciante verificado"
   },

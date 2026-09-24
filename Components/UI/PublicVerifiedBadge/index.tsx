@@ -42,7 +42,7 @@ const PublicVerifiedBadge: React.FC<PublicVerifiedBadgeProps> = ({
 
   const label = t("verifiedBadge.merchantLabel", { defaultValue: "Verified merchant" });
   const tooltip = t("verifiedBadge.tooltip", {
-    defaultValue: "Dynopay has checked this seller's identity (KYC). This is about the merchant you are paying — not about you.",
+    defaultValue: "Verified merchant — identity checked by Dynopay",
   });
 
   return (

@@ -14,7 +14,6 @@
 import React, { useEffect, useState } from "react";
 import { Box, Typography, useTheme, keyframes } from "@mui/material";
 import { BRAND_ACCENT, BRAND_ON_ACCENT } from "@/constants/theme";
-import fireConfettiBurst from "@/utils/confettiBurst";
 
 interface Props {
   /** Actual percent, uncapped for display but capped visually at 100. */
@@ -60,15 +59,6 @@ export default function GoalProgressBar({
     return () => clearTimeout(t);
   }, [target]);
 
-  // Celebration burst when the campaign is seen in its GOAL-REACHED state.
-  // Fires once per mount; decorative only (reduced-motion users are skipped).
-  useEffect(() => {
-    if (goalReached) {
-      const t = setTimeout(() => fireConfettiBurst({ origin: { x: 0.5, y: 0.35 } }), 350);
-      return () => clearTimeout(t);
-    }
-    return undefined;
-  }, [goalReached]);
 
   const accent = BRAND_ACCENT;
   const success = "#10B981";

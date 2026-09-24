@@ -26,8 +26,29 @@ export interface AttentionItem {
   dismissKey?: string;
   /** Only with `includeDismissed`: the row is currently hidden on the dashboard. */
   dismissed?: boolean;
+  /** Changes when the underlying data changes — an acknowledged row comes back when its facts change. */
+  fingerprint?: string;
   testId: string;
 }
+
+/* "View"-acknowledgement: a non-critical row the merchant has opened is hidden for
+ * 24h unless its fingerprint (count/amount) changes. Stored as one JSON map. */
+const ACK_KEY = "dyno_attention_ack";
+const ACK_TTL_MS = 24 * 60 * 60 * 1000;
+type AckMap = Record<string, { fp: string; at: number }>;
+const readAck = (): AckMap => {
+  try {
+    const raw = window.localStorage.getItem(ACK_KEY);
+    const parsed = raw ? (JSON.parse(raw) as AckMap) : {};
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+};
+const isAcked = (ack: AckMap, item: AttentionItem) => {
+  const a = ack[item.id];
+  return !!a && a.fp === (item.fingerprint || item.id) && Date.now() - a.at < ACK_TTL_MS;
+};
 
 const readDismissed = (keys: string[]): Record<string, boolean> => {
   const out: Record<string, boolean> = {};
@@ -69,6 +90,10 @@ export const useAttentionItems = ({ overview, onboarding, includeDismissed = fal
     { select: (raw) => raw?.data ?? null, dedupingInterval: 60_000, refreshInterval: 120_000 },
   );
 
+  const [ack, setAck] = useState<AckMap>({});
+  useEffect(() => {
+    setAck(readAck());
+  }, []);
   const [dismissed, setDismissed] = useState<Record<string, boolean>>({});
   useEffect(() => {
     setDismissed(readDismissed(DISMISS_KEYS));
@@ -84,12 +109,29 @@ export const useAttentionItems = ({ overview, onboarding, includeDismissed = fal
   const restore = useCallback((key: string) => {
     try {
       window.localStorage.removeItem(key);
+      const ack = readAck();
+      if (ack[key]) {
+        delete ack[key];
+        window.localStorage.setItem(ACK_KEY, JSON.stringify(ack));
+        setAck(ack);
+      }
     } catch {
       /* ignore */
     }
     setDismissed((d) => ({ ...d, [key]: false }));
   }, []);
   const show = (key: string) => includeDismissed || !dismissed[key];
+
+  const acknowledge = useCallback((item: AttentionItem) => {
+    if (item.severity === "critical") return;
+    const next = { ...readAck(), [item.id]: { fp: item.fingerprint || item.id, at: Date.now() } };
+    try {
+      window.localStorage.setItem(ACK_KEY, JSON.stringify(next));
+    } catch {
+      /* ignore */
+    }
+    setAck(next);
+  }, []);
 
   const items = useMemo<AttentionItem[]>(() => {
     const list: AttentionItem[] = [];
@@ -170,6 +212,7 @@ export const useAttentionItems = ({ overview, onboarding, includeDismissed = fal
           text: t("command.underpaid", { count: a.underpaid_open, defaultValue: "{{count}} underpaid payments are waiting for your decision" }),
           actionLabel: t("command.review", { defaultValue: "Review" }),
           href: "/transactions?status=underpaid",
+          fingerprint: `underpaid:${a.underpaid_open}`,
           testId: "attention-underpaid",
         });
       }
@@ -182,6 +225,7 @@ export const useAttentionItems = ({ overview, onboarding, includeDismissed = fal
           text: t("command.confirmingStale", { count: a.confirming_stale, defaultValue: "{{count}} payments have been confirming for over an hour" }),
           actionLabel: t("command.view", { defaultValue: "View" }),
           href: "/transactions?status=needs_action",
+          fingerprint: `stale:${a.confirming_stale}`,
           testId: "attention-confirming-stale",
         });
       }
@@ -198,6 +242,7 @@ export const useAttentionItems = ({ overview, onboarding, includeDismissed = fal
           }),
           actionLabel: t("command.view", { defaultValue: "View" }),
           href: "/transactions?status=unpaid&range=today",
+          fingerprint: `expired:${a.expired_today.count}:${a.expired_today.amount}`,
           testId: "attention-expired-today",
         });
       }
@@ -212,6 +257,7 @@ export const useAttentionItems = ({ overview, onboarding, includeDismissed = fal
           text: t("command.coinsNoWallet", { coins: a.coins_without_wallet.join(", "), defaultValue: "Live links accept {{coins}} but you have no payout address for them" }),
           actionLabel: t("command.addWallet", { defaultValue: "Add payout address" }),
           href: "/wallet",
+          fingerprint: `coins:${a.coins_without_wallet.join(",")}`,
           testId: "attention-coins-no-wallet",
         });
       }
@@ -224,6 +270,7 @@ export const useAttentionItems = ({ overview, onboarding, includeDismissed = fal
           text: t("command.webhookFailures", { count: a.webhook_failures_24h, defaultValue: "{{count}} webhook deliveries failed in the last 24 hours" }),
           actionLabel: t("command.inspect", { defaultValue: "Inspect" }),
           href: "/developer-keys",
+          fingerprint: `webhooks:${a.webhook_failures_24h}`,
           testId: "attention-webhooks",
         });
       }
@@ -237,6 +284,7 @@ export const useAttentionItems = ({ overview, onboarding, includeDismissed = fal
           text: t("command.staleApiKey", { hint: k.hint ? `…${k.hint}` : k.name || "", months: Math.floor(k.age_days / 30), defaultValue: "API key {{hint}} is {{months}} months old — rotate it" }),
           actionLabel: t("command.rotate", { defaultValue: "Rotate" }),
           href: "/developer-keys",
+          fingerprint: `apikey:${k.hint || k.name || ""}`,
           testId: "attention-api-key",
         });
       }
@@ -249,6 +297,7 @@ export const useAttentionItems = ({ overview, onboarding, includeDismissed = fal
           text: t("command.outOfStock", { count: counts!.products_out_of_stock, defaultValue: "{{count}} live products are out of stock" }),
           actionLabel: t("command.restock", { defaultValue: "Restock" }),
           href: "/pay-links/products",
+          fingerprint: `stock:${counts!.products_out_of_stock}`,
           testId: "attention-out-of-stock",
         });
       }
@@ -261,6 +310,7 @@ export const useAttentionItems = ({ overview, onboarding, includeDismissed = fal
           text: t("command.linksExpiring", { count: a.paylinks_expiring_48h, defaultValue: "{{count}} payment links expire within 48 hours, still unpaid" }),
           actionLabel: t("command.view", { defaultValue: "View" }),
           href: "/pay-links",
+          fingerprint: `expiring:${a.paylinks_expiring_48h}`,
           testId: "attention-links-expiring",
         });
       }
@@ -291,6 +341,7 @@ export const useAttentionItems = ({ overview, onboarding, includeDismissed = fal
         text: t("command.referralPending", { count: counts!.referrals_pending, defaultValue: "{{count}} referral rewards are on their way to you" }),
         actionLabel: t("command.view", { defaultValue: "View" }),
         href: "/referrals",
+        fingerprint: `referral:${counts!.referrals_pending}`,
         testId: "attention-referral",
       });
     }
@@ -311,11 +362,13 @@ export const useAttentionItems = ({ overview, onboarding, includeDismissed = fal
     }
     if (includeDismissed) list.push(...growth);
     else if (growth[0]) list.push(growth[0]);
-    return list;
+    // Rows the merchant already opened ("View") stay hidden for 24h unless their facts change.
+    if (includeDismissed) return list.map((it) => (isAcked(ack, it) ? { ...it, dismissed: true, dismissKey: it.dismissKey || it.id } : it));
+    return list.filter((it) => !isAcked(ack, it));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [overview, onboarding, includeDismissed, kyc.required, kyc.blocked, kyc.daysRemaining, kyc.hasSession, enforcement, freeze, profile, dismissed, counts, storefront, t, i18n.language]);
+  }, [overview, onboarding, includeDismissed, kyc.required, kyc.blocked, kyc.daysRemaining, kyc.hasSession, enforcement, freeze, profile, dismissed, ack, counts, storefront, t, i18n.language]);
 
-  return { items, dismiss, restore };
+  return { items, dismiss, restore, acknowledge };
 };
 
 export default useAttentionItems;

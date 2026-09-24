@@ -1253,7 +1253,7 @@
   },
   "verifiedBadge": {
     "label": "Identité vérifiée",
-    "tooltip": "Dynopay a vérifié l'identité de ce vendeur (KYC). Cela concerne le marchand que vous payez, pas vous.",
+    "tooltip": "Marchand vérifié — identité contrôlée par Dynopay",
     "securedBy": "Paiements sécurisés par Dynopay",
     "merchantLabel": "Marchand vérifié"
   },

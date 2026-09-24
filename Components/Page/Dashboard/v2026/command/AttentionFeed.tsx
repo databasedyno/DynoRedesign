@@ -12,6 +12,8 @@ const MAX_VISIBLE = 5;
 interface Props {
   items: AttentionItem[];
   onDismiss: (key: string) => void;
+  /** Called when the merchant opens a row ("View") — hides it until its facts change. */
+  onAcknowledge?: (item: AttentionItem) => void;
 }
 
 const severityColor = (severity: AttentionSeverity, isDark: boolean) => {
@@ -21,7 +23,7 @@ const severityColor = (severity: AttentionSeverity, isDark: boolean) => {
 };
 
 /** Zone 2 — one ordered task feed. Renders nothing when there is nothing to do. */
-const AttentionFeed: React.FC<Props> = ({ items, onDismiss }) => {
+const AttentionFeed: React.FC<Props> = ({ items, onDismiss, onAcknowledge }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const router = useRouter();
@@ -103,7 +105,10 @@ const AttentionFeed: React.FC<Props> = ({ items, onDismiss }) => {
                   variant="outlined"
                   data-testid="attention-feed-action-btn"
                   data-action={item.testId}
-                  onClick={() => router.push(item.href)}
+                  onClick={() => {
+                    onAcknowledge?.(item);
+                    router.push(item.href);
+                  }}
                   sx={{
                     textTransform: "none",
                     fontFamily: "var(--font-sans)",
