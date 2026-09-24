@@ -348,7 +348,7 @@ payment links, in‑app chat, referral invites, NGN cash‑out.
    escrow-preview-total; on submit assert escrow-created-qr + invite url). Deal detail: escrow-detail-progress renders,
    payout network picker escrow-address-coin shows 5 options. Public invite: escrow-invite-progress + escrow-invite-total
    + OTP (single field escrow-invite-otp, preview_otp returned) → accept → fund → deliver → release.
-   Preview URL: https://vault-setup-10.preview.emergentagent.com (retry if Cloudflare 502 —
+   Preview URL: https://setup-app-7.preview.emergentagent.com (retry if Cloudflare 502 —
    transient at wrap-up). To create a public-invite test deal, POST /api/escrow (merchant token) then use returned deal_token.
 2. Optional: expand FUNDING_COINS chip set / add per-network sub-labels if desired; wire payout_coin into the
    create quote (currently the quote uses default USDT-TRON withdrawal fee; seller picks the real network later).
