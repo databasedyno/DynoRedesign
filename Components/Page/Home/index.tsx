@@ -1,48 +1,36 @@
 import { FC, memo, useEffect } from "react";
-import dynamic from "next/dynamic";
-import HeroV6 from "./v6/HeroV6";
 import { HomeWrapper } from "./styled";
 import { LandingMetricsContext, type LandingMetrics } from "./v5/useLandingMetrics";
 
-/* HYDRATION BUDGET (2026-08 — "hamburger tap does nothing on mobile"):
- * everything below the hero is code-split. next/dynamic keeps the
- * server-rendered HTML (SEO unchanged) but moves the JS into lazy chunks, so
- * the header + hero hydrate first and become interactive almost immediately.
- * Do NOT convert these back to static imports. ssr:true (default) is required. */
-const ProductsBento = dynamic(() => import("./v6/ProductsBento"));
-const ConversionStory = dynamic(() => import("./v6/ConversionStory"));
-const NumbersBand = dynamic(() => import("./v6/NumbersBand"));
-const ProofV6 = dynamic(() => import("./v6/ProofV6"));
-const MerchantStoriesV6 = dynamic(() => import("./v6/MerchantStoriesV6"));
-const GlobalV6 = dynamic(() => import("./v6/GlobalV6"));
-const DevelopersV6 = dynamic(() => import("./v6/DevelopersV6"));
-const PricingTeaser = dynamic(() => import("./v6/PricingTeaser"));
-const TrustSecurityV5 = dynamic(() => import("./v5/TrustSecurityV5"));
-const ResourcesV6 = dynamic(() => import("./v6/ResourcesV6"));
-const FAQV5 = dynamic(() => import("./v5/FAQV5"));
-const FinalCTAV6 = dynamic(() => import("./v6/FinalCTAV6"));
-// Scroll-driven navigators — client-only by nature.
-const LandingNav = dynamic(() => import("./v3/LandingNav"), { ssr: false });
-const StickyMobileCta = dynamic(() => import("./v5/StickyMobileCta"), { ssr: false });
+/* Landing v7 (2026-06 Bybit-style revamp): exactly nine sections, each answering
+ * one visitor question. Static imports keep it simple and SSR renders the full
+ * HTML for SEO. The old v3/v5/v6 sprawl is retired from the homepage (those
+ * components still power other marketing pages like /fees). */
+import HeroV7 from "./v7/HeroV7";
+import TrustBarV7 from "./v7/TrustBarV7";
+import HowItWorksV7 from "./v7/HowItWorksV7";
+import ThreeWaysV7 from "./v7/ThreeWaysV7";
+import WhyDynopayV7 from "./v7/WhyDynopayV7";
+import ProofV7 from "./v7/ProofV7";
+import PricingV7 from "./v7/PricingV7";
+import FAQV7 from "./v7/FAQV7";
+import FinalCTAV7 from "./v7/FinalCTAV7";
 
 /**
- * HomePage v6 — "Stripe quality" structure (plan/plan.md §2.3):
+ * HomePage v7 — Bybit-style, exactly nine sections (LANDING_REVAMP_PLAN_2026-06):
  *
- *   1. HeroV6           — statement headline over the animated conversion gradient, floating sandbox checkout, live strip
- *   2. ProductsBento    — seven surfaces as a bento grid, each a UI vignette built from the product
- *   3. ConversionStory  — buyer pays BTC → you receive USDC → your wallet (animated), three steps + network ETAs
- *   4. NumbersBand      — four live stats + settlements by chain (30d), server-rendered
- *   5. ProofV6          — verify it yourself: real on-chain settlements + status/docs/languages
- *   5b. MerchantStoriesV6 — three live merchants (The Dev Store · SafeDeal · Nameword) in their own words
- *   6. GlobalV6         — world map, live country count, coins & chains grid, wallets strip
- *   7. DevelopersV6     — No-code · Pre-built · Build your own + live request/response
- *   8. PricingTeaser    — tier ladder + calculator (comparison table lives on /fees)
- *   9. TrustSecurityV5  — the nine shipped controls, tight grid
- *  10. ResourcesV6      — published posts + guides carousel
- *  11. FAQV5            — eight highest-intent questions + FAQPage JSON-LD
- *  12. FinalCTAV6       — headline + two cards (See pricing · Start building)
+ *   1. HeroV7        — What is it?            (headline + two CTAs)
+ *   2. TrustBarV7    — Can I trust it?        (3 live metrics + View live status)
+ *   3. HowItWorksV7  — How does it work?      (3 steps)
+ *   4. ThreeWaysV7   — How can I use it?      (No code · Checkout · API)
+ *   5. WhyDynopayV7  — Why use it?            (4 points)
+ *   6. ProofV7       — Do others trust it?    (2 merchant stories)
+ *   7. PricingV7     — What does it cost?     (from 1.5% → /fees)
+ *   8. FAQV7         — What if…?              (4 questions + FAQPage JSON-LD)
+ *   9. FinalCTAV7    — How do I get started?  (headline + Start free)
  *
- * Section anchor ids match LANDING_SECTIONS (chip bar + header/footer hash links).
+ * Products → /products · calculator & chain times → /fees · API → /documentation.
+ * Anchor ids (#how-it-works, #products, #pricing, #faq) keep header/footer hash links working.
  */
 const HomePage: FC<{ landingMetrics?: LandingMetrics | null }> = ({ landingMetrics = null }) => {
   useEffect(() => {
@@ -65,21 +53,15 @@ const HomePage: FC<{ landingMetrics?: LandingMetrics | null }> = ({ landingMetri
   return (
     <LandingMetricsContext.Provider value={landingMetrics}>
     <HomeWrapper>
-      <HeroV6 />
-      <LandingNav />
-      <ProductsBento />
-      <ConversionStory />
-      <NumbersBand />
-      <ProofV6 />
-      <MerchantStoriesV6 />
-      <GlobalV6 />
-      <DevelopersV6 />
-      <PricingTeaser />
-      <TrustSecurityV5 />
-      <ResourcesV6 />
-      <FAQV5 />
-      <FinalCTAV6 />
-      <StickyMobileCta />
+      <HeroV7 />
+      <TrustBarV7 />
+      <HowItWorksV7 />
+      <ThreeWaysV7 />
+      <WhyDynopayV7 />
+      <ProofV7 />
+      <PricingV7 />
+      <FAQV7 />
+      <FinalCTAV7 />
     </HomeWrapper>
     </LandingMetricsContext.Provider>
   );

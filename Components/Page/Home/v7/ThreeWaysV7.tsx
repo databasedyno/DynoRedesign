@@ -1,0 +1,52 @@
+import React, { memo } from "react";
+import { Box, Typography } from "@mui/material";
+import LinkRoundedIcon from "@mui/icons-material/LinkRounded";
+import ShoppingCartCheckoutRoundedIcon from "@mui/icons-material/ShoppingCartCheckoutRounded";
+import CodeRoundedIcon from "@mui/icons-material/CodeRounded";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import { FONT_BODY, FONT_HERO, useAurora } from "../v3/theme.v3";
+import { Section, SectionHead, cardSx } from "../v5/shared";
+import { Stagger, StaggerItem } from "../motion/Stagger";
+
+/** Section 4 of 9 — THREE WAYS TO USE (answers: "How can I use it?"). */
+const WAYS = [
+  { Icon: LinkRoundedIcon, title: "No code", body: "Create a payment link or creator page and share it anywhere. Nothing to build.", cta: "Explore no-code", href: "/products" },
+  { Icon: ShoppingCartCheckoutRoundedIcon, title: "Hosted checkout", body: "A drop-in checkout that handles coins, live rates and confirmations for you.", cta: "See the demo", href: "/pay/demo" },
+  { Icon: CodeRoundedIcon, title: "Developer API", body: "One REST API to create payments and receive webhooks. Ship in an afternoon.", cta: "Read the docs", href: "/documentation" },
+];
+
+const ThreeWaysV7: React.FC = () => {
+  const s = useAurora();
+  return (
+    <Section id="products" alt testId="three-ways">
+      <SectionHead
+        center
+        eyebrow="Three ways to use"
+        headline="Whether you code or not"
+        body="Start with a link today, add a hosted checkout tomorrow, or build directly on the API."
+        maxWidth={720}
+        testId="ways-head"
+      />
+      <Stagger step={0.1} sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" }, gap: { xs: 2.5, md: 3 } }}>
+        {WAYS.map(({ Icon, title, body, cta, href }, i) => (
+          <StaggerItem key={title} i={i} y={18}>
+            <Box component="a" href={href} data-testid={`way-${title.toLowerCase().replace(/\s+/g, "-")}`} sx={{ ...cardSx(s), display: "flex", flexDirection: "column", p: { xs: 3, md: 4 }, height: "100%", textDecoration: "none" }}>
+              <Box sx={{ width: 48, height: 48, borderRadius: "12px", display: "grid", placeItems: "center", background: s.accentSoft, color: s.accent, mb: 2.5 }}>
+                <Icon sx={{ fontSize: 24 }} />
+              </Box>
+              <Typography component="h3" sx={{ fontFamily: FONT_HERO, fontWeight: 600, fontSize: { xs: 19, md: 21 }, letterSpacing: "-0.01em", color: s.ink, mb: 1.25 }}>
+                {title}
+              </Typography>
+              <Typography sx={{ fontFamily: FONT_BODY, fontSize: 15.5, lineHeight: 1.6, color: s.ink2, flexGrow: 1 }}>{body}</Typography>
+              <Typography sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, mt: 2.5, fontFamily: FONT_BODY, fontSize: 14.5, fontWeight: 600, color: s.accent }}>
+                {cta} <ArrowForwardIcon sx={{ fontSize: 16 }} />
+              </Typography>
+            </Box>
+          </StaggerItem>
+        ))}
+      </Stagger>
+    </Section>
+  );
+};
+
+export default memo(ThreeWaysV7);

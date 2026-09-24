@@ -1,6 +1,12 @@
 # Landing Page Revamp Plan — Bybit-Style (2026-06)
 
-> Status: IN PROGRESS — handed off. Theme/header/footer done; homepage body + content migration NOT started.
+> Status: DONE (2026-09-24). Homepage rebuilt from scratch into the strict 9-section
+> Bybit-style layout (`Components/Page/Home/v7/*` + recomposed `Components/Page/Home/index.tsx`).
+> Trust bar wired to LIVE `/api/status/landing-metrics` (1,076+ · 99.92% · 79). Products migrated
+> to new `/products` page (registered in `_app.tsx` homePaths); fees/documentation already host the
+> calculator + API samples; Resources live in footer. All marketing buttons use PrimaryBtn
+> (#FFD100 bg / #121214 text); grids stack on mobile. tsc 0 errors, eslint clean. Old v3/v5/v6
+> sections retired from homepage (still power other marketing pages).
 
 ## ⭐ NEXT ACTION ITEMS (execute in this order)
 1. **Homepage Rebuild** — Rebuild `pages/index.tsx` into the exact 9 sections (below) and delete the sprawling v3/v5/v6 clutter in `Components/Page/Home/`.

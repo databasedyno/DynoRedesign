@@ -292,6 +292,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
       "/system-status",
       "/documentation",
       "/fees",
+      "/products",
       "/blog",
       "/about",
       "/press",
