@@ -1,0 +1,29 @@
+{
+  "summary": "Frontend-only verification of 4 follow-ups (hover highlights, live ticker toast, light-theme plinth, vertical page compact mocks) + regression of the reported CheckoutMock runtime TypeError. All 10 requested checks pass with no page errors, no console errors, no horizontal overflow.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verification_details": {
+    "bug_fix_homepage_loads": "PASS — no pageerror; hero-checkout-mock renders with data-step='waiting' and data-merchant set (e.g. 'Voidrunner Games' on one load, 'Metricly' on another confirming random start).",
+    "hero_rotation": "PASS — over ~15s while in view, states cycled through {waiting, confirming, confirmed, settled}; merchants rotated (Voidrunner Games -> Metricly). mock-url is checkout.dynopay.com/pay/<slugified-merchant> (e.g. /pay/voidrunner-games, /pay/metricly). mock-network / mock-currency match payment.",
+    "toast_content": "PASS — at confirmed/settled data-visible='true' with text 'Payment received +79.00 USDC Metricly · settled to USD balance' matching mock-coin-amount and data-merchant.",
+    "coin_amount_realism": "PASS — BTC payment ($59.99) shows '0.000711 BTC' (not equal); USDC payment ($79.00) shows '79.00 USDC'. GET /api/public/tickers → status 200 with {status:'success', data:[...]}.",
+    "hover_highlights": "PASS — way-hosted-checkout / way-no-code / way-developer-api: .way-vignette border-color goes rgba(255,255,255,0.08) -> rgba(255,209,0,0.45); card transform none -> matrix(1,0,0,1,0,-2) (translateY -2/-3px); box-shadow gains rgba(255,209,0,0.45) glow.",
+    "light_theme_plinth": "PASS — after theme-toggle-button click, [data-testid=mock-plinth] count=1 and body bg=rgb(255,255,255); after toggling back to dark, mock-plinth count=0.",
+    "vertical_pages_desktop": "PASS — /for/saas Metricly $79.00 USDC Polygon; /for/ecommerce Northwind Studio $148.00 USDT Tron; /for/creators Mia Draws $25.00 SOL Solana; /for/gaming Voidrunner Games $19.99 LTC Litecoin. Mock cycles states on /for/saas ({waiting,confirming,confirmed,settled}). seo-hero-cta and seo-hero-fees present on all. No 72px grid overlay found in seo-hero.",
+    "vertical_pages_mobile_390": "PASS — /for/saas hero-checkout-mock present in DOM but is_visible=False (aside hidden md+ only); scrollWidth==390; hero CTA visible.",
+    "regression": "PASS — homepage scrollWidth==1920 (desktop) and ==390 (mobile). Homepage sections hero-checkout-mock, way-hosted-checkout, way-no-code, way-developer-api all present. /fees loads with pricing heading. /pay/demo loads (title 'Checkout demo · Dynopay')."
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped per request)", "frontend": "100%"},
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "All 4 follow-ups verified. Hero mock in Next.js dev takes 60-90s first compile; wait for [data-testid=hero-checkout-mock] before assertions. Cycling only advances when scrolled into view (framer-motion useInView). Merchant order is randomized per load — compare before/after rather than expecting a specific first merchant. In mock-network / mock-currency text, the coin/network icon glyph precedes the label (e.g. text is 'BBitcoin' where the leading 'B' is the icon), so use 'in' / endsWith checks not exact equality."
+}

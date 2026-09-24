@@ -183,3 +183,11 @@ keys — everything is coded React/MUI (always dark, regardless of page theme):
  - HeroV7: grid overlay REMOVED; mock mounted in `hero-mock-wrap` (maxWidth 760, perspective(1800px) rotateX(3deg) on md+, yellow glow beneath); pb reduced to 8/11.
 Gates: tsc 0, eslint clean. Known intentional overflow offenders (not bugs): coins-marquee-track, off-canvas mobile-menu-panel.
 Removed again: Render3D.tsx, public/landing/3d/*, scripts/landing-3d-cutout.py (rembg pip pkgs remain installed in the pod only).
+
+---
+## Session 2026-09-24 (part 5) — 4 mock follow-ups — DONE (testing_agent iteration_227: 10/10, 100%)
+1) HOVER HIGHLIGHTS — ThreeWaysV7 card sx `&:hover .way-vignette` (yellow border + glow + translateY(-3px)) and `&:hover .mock-cta`; WayVignettes Shell has className way-vignette, buttons/POST token className mock-cta; reduced-motion respected.
+2) LIVE TICKER TOAST — mock/payments.ts: HOME_PAYMENTS (8) + VERTICAL_PAYMENTS (20 slugs), COIN_META/NETWORK_META, fmtUsd/fmtCoin, usePrices() (module-cached GET /api/public/tickers, fallback spot prices). CheckoutMock takes `payments` (+`compact`), random start index (client effect), advances one payment per completed loop (useCycle now returns {step, loops}); toast text follows the paid payment (`data-merchant` on hero-checkout-mock; testids mock-url/mock-merchant/mock-usd-amount/mock-coin-amount/mock-network/mock-currency).
+3) LIGHT THEME — mock/MockPlinth.tsx renders a graphite plinth (`mock-plinth`) only when theme is light; used in HeroV7 and SEO hero.
+4) VERTICAL PAGES — SEOLandingPage aside: PhoneFrame static image → `<MockPlinth compact><CheckoutMock compact payments=[VERTICAL_PAYMENTS[slug] || ecommerce]/>` + SEOIllustration badge (64). md+ only. Also REMOVED the 72px grid overlay from v5/PublicPageHero (all /for/* + other marketing heroes).
+User-reported runtime TypeError (CheckoutMock 'pill'/'length' undefined) was a mid-refactor state (callers not yet passing `payments`); resolved and verified.
