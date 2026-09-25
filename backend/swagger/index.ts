@@ -1339,7 +1339,7 @@ const swaggerSetupOptions = (title: string): SwaggerSetupOptions => ({
   customCss: SWAGGER_CSS,
   customJsStr: SWAGGER_COPY_JS,
   customSiteTitle: title,
-  customfavIcon: "/favicon-32.png?v=6",
+  customfavIcon: "/favicon-32.png?v=7",
   swaggerOptions: SWAGGER_OPTIONS,
 });
 const SWAGGER_OPTIONS = {

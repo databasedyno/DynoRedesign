@@ -9,7 +9,7 @@ const COVER =
   'https://images.unsplash.com/photo-1591522810850-58128c5fb089?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODF8MHwxfHNlYXJjaHwxfHxjaGFyaXR5JTIwZG9uYXRpb24lMjBhYnN0cmFjdHxlbnwwfHx8fDE3ODM3OTQyMDR8MA&ixlib=rb-4.1.0&q=85'
 
 const OG_BASE = (process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SERVER_URL || '').replace(/\/+$/, '')
-const OG_IMAGE = `${OG_BASE}/api/pay/og-image?demo=1`
+const OG_IMAGE = `${OG_BASE}/api/pay/og-image?demo=1&v=4`
 
 const SUPPORTERS = [
   { name: 'Amara Okafor', message: 'Rooting for you all the way! 💪', amount: 250, currency: 'USD', at: new Date(Date.now() - 130 * 1000).toISOString() },

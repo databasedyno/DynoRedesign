@@ -145,4 +145,34 @@ const createManualCustomer = async (req: express.Request, res: express.Response)
   }
 };
 
-export default { upsertAnnotation, createManualCustomer };
+/**
+ * DELETE /api/userApi/customers/manual
+ * Body: { company_id, email }
+ * Removes a manually-added (prospect) contact. Only rows created manually can
+ * be deleted — transaction-derived customers keep their payment history.
+ */
+const deleteManualCustomer = async (req: express.Request, res: express.Response) => {
+  const userData = jwt.decode(res.locals.token) as IUserType;
+  try {
+    const scope = await resolveWriteScope(req, res, userData);
+    if (!scope) return;
+    const email = emailKey(req.body?.email ?? req.query?.email);
+    if (!email) return errorResponseHelper(res, 400, "A valid customer email is required");
+
+    const existing = (await customerAnnotationModel.findOne({
+      where: { company_id: scope.companyId, email },
+    })) as unknown as { created_manually?: boolean } | null;
+
+    if (!existing || !existing.created_manually) {
+      return errorResponseHelper(res, 400, "Only manually-added customers can be deleted");
+    }
+
+    await customerAnnotationModel.destroy({ where: { company_id: scope.companyId, email } });
+    await bustCache(scope.ownerUserId, scope.companyId);
+    return successResponseHelper(res, 200, "Customer removed", { key: email, email, deleted: true });
+  } catch (e) {
+    handleControllerError(res, e, apiLogger, { user_id: userData.user_id, email: userData.email });
+  }
+};
+
+export default { upsertAnnotation, createManualCustomer, deleteManualCustomer };

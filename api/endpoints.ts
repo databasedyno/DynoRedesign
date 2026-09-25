@@ -191,6 +191,7 @@ export const API_ENDPOINTS = {
     list: "/notifications",
     readAll: "/notifications/read-all",
     markRead: (id: PathId) => `/notifications/${id}/read`,
+    remove: (id: PathId) => `/notifications/${id}`,
   },
 
   products: {

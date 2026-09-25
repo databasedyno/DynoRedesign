@@ -23,6 +23,8 @@ interface Props {
   onOpen: (notif: any) => void;
   targetFor: (notif: any) => NotifTarget;
   formatTimeAgo: (iso: string) => string;
+  /** Delete a notification row (calls DELETE /api/notifications/:id). */
+  onDelete?: (id: number, wasUnread: boolean) => void;
   /** Wave 3g — dashboard "Needs attention" rows mirrored here (incl. dismissed ones). */
   attention?: AttentionItem[];
   onRestoreAttention?: (key: string) => void;
@@ -55,7 +57,7 @@ const familyOf = (type: string): { icon: string; tone: "positive" | "negative" |
 };
 
 /** Grouped inbox (plan 3.9): Today / Yesterday / This week / Earlier, unread emphasis, every row taps through. */
-const NotificationInbox: React.FC<Props> = ({ notifications, loading, unreadCount, markingAllRead, onMarkAllRead, onOpen, targetFor, formatTimeAgo, attention = [], onRestoreAttention }) => {
+const NotificationInbox: React.FC<Props> = ({ notifications, loading, unreadCount, markingAllRead, onMarkAllRead, onOpen, targetFor, formatTimeAgo, attention = [], onRestoreAttention, onDelete }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const router = useRouter();
@@ -271,9 +273,24 @@ const NotificationInbox: React.FC<Props> = ({ notifications, loading, unreadCoun
                       <Typography sx={{ fontSize: { xs: "13.5px", md: "15px" }, fontWeight: unread ? 700 : 500, fontFamily: "var(--font-sans)", color: theme.palette.text.primary, lineHeight: 1.3 }}>
                         {notif.title}
                       </Typography>
-                      <Typography sx={{ fontSize: "12px", color: muted, fontFamily: "var(--font-sans)", whiteSpace: "nowrap", flexShrink: 0 }}>
-                        {formatTimeAgo(notif.created_at)}
-                      </Typography>
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, flexShrink: 0 }}>
+                        <Typography sx={{ fontSize: "12px", color: muted, fontFamily: "var(--font-sans)", whiteSpace: "nowrap" }}>
+                          {formatTimeAgo(notif.created_at)}
+                        </Typography>
+                        {onDelete && (
+                          <Box
+                            component="button"
+                            type="button"
+                            data-testid={`notification-delete-${notif.notification_id}`}
+                            aria-label={t("delete", { defaultValue: "Delete notification" })}
+                            title={t("delete", { defaultValue: "Delete notification" })}
+                            onClick={(e: React.MouseEvent) => { e.stopPropagation(); onDelete(notif.notification_id, unread); }}
+                            sx={{ all: "unset", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", color: muted, p: 0.25, borderRadius: "6px", transition: "color 150ms ease, background-color 150ms ease", "&:hover": { color: theme.palette.error.main, backgroundColor: isDark ? "rgba(239,68,68,0.12)" : "rgba(239,68,68,0.08)" } }}
+                          >
+                            <Icon name="trash-2" size={15} />
+                          </Box>
+                        )}
+                      </Box>
                     </Box>
                     <Typography sx={{ mt: 0.35, fontSize: { xs: "12.5px", md: "13px" }, color: theme.palette.text.secondary, fontFamily: "var(--font-sans)", lineHeight: 1.45, overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", wordBreak: "break-word" }}>
                       {roundLongDecimalsInText(notif.message)}

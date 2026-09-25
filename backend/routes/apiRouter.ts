@@ -82,6 +82,7 @@ apiRouter.get("/customers/directory/detail", authMiddleware, customerDirectoryCo
 // inside the controller (resolveWriteScope) and bust the directory cache.
 apiRouter.post("/customers/annotation", authMiddleware, customerAnnotationController.upsertAnnotation);
 apiRouter.post("/customers/manual", authMiddleware, customerAnnotationController.createManualCustomer);
+apiRouter.delete("/customers/manual", authMiddleware, customerAnnotationController.deleteManualCustomer);
 // In-app customer wallet (store credit): ledger + credit/debit, brand-scoped.
 apiRouter.get("/customers/wallet/ledger", authMiddleware, customerWalletController.getLedger);
 apiRouter.post("/customers/wallet/adjust", authMiddleware, customerWalletController.adjust);

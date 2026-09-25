@@ -1101,6 +1101,7 @@ const CustomersPage: React.FC = () => {
             onWalletChanged={() => { if (detailKey) void openDetail(detailKey); }}
             notify={notify}
             onAnnotationSaved={() => { void mutate(); if (detailKey) void openDetail(detailKey); }}
+            onDeleted={() => { setDetailKey(null); void mutate(); }}
           />
         )}
       </Drawer>
@@ -1199,6 +1200,7 @@ const DetailPanel: React.FC<{
   onWalletChanged?: () => void;
   notify?: (text: string, kind?: "ok" | "err") => void;
   onAnnotationSaved?: () => void;
+  onDeleted?: () => void;
 }> = ({
   detail,
   t,
@@ -1219,6 +1221,7 @@ const DetailPanel: React.FC<{
   onWalletChanged,
   notify,
   onAnnotationSaved,
+  onDeleted,
 }) => {
   const c = detail.profile;
   const sansSx = { fontFamily: "var(--font-sans)" };
@@ -1227,6 +1230,25 @@ const DetailPanel: React.FC<{
   const [annNotes, setAnnNotes] = useState<string>(c.notes || "");
   const [annTags, setAnnTags] = useState<string[]>(c.tags || []);
   const [savingAnn, setSavingAnn] = useState(false);
+  const [deletingCustomer, setDeletingCustomer] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const handleDeleteCustomer = async () => {
+    if (!confirmDelete) { setConfirmDelete(true); return; }
+    if (!companyId || !c.email) return;
+    setDeletingCustomer(true);
+    try {
+      await axiosBaseApi.delete(API_ENDPOINTS.userApi.customersManual, { data: { company_id: companyId, email: c.email } });
+      notify?.(t("customers.deleted", { defaultValue: "Customer removed" }), "ok");
+      onClose();
+      onDeleted?.();
+    } catch (e: unknown) {
+      const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      notify?.(msg || t("customers.deleteFailed", { defaultValue: "Couldn't remove customer" }), "err");
+    } finally {
+      setDeletingCustomer(false);
+      setConfirmDelete(false);
+    }
+  };
   useEffect(() => {
     setAnnNotes(c.notes || "");
     setAnnTags(c.tags || []);
@@ -1379,6 +1401,16 @@ const DetailPanel: React.FC<{
             onClick={() => onRequestPayment(c)}
             data-testid="customer-detail-request-payment"
           />
+          {c.manual && companyId && (
+            <CustomButton
+              label={deletingCustomer ? t("customers.deleting", { defaultValue: "Removing…" }) : confirmDelete ? t("customers.confirmRemove", { defaultValue: "Confirm remove" }) : t("customers.remove", { defaultValue: "Remove" })}
+              variant="outlined"
+              size="small"
+              onClick={handleDeleteCustomer}
+              disabled={deletingCustomer}
+              data-testid="customer-detail-delete"
+            />
+          )}
         </Box>
       )}
 

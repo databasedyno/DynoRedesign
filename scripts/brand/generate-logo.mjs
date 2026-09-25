@@ -14,10 +14,11 @@ const sharp = createRequire(path.join(ROOT, "package.json"))("sharp");
 
 export const YELLOW = "#FFD100";
 export const AQUA = "#2BD4C4";
-export const ESPRESSO = "#2B1D14";
-export const BLACK = "#0B0908";
-export const CREAM = "#FAF6EF";
-export const INK = "#1F140D";
+// 2026-09 Bybit-neutral rebrand: dark grounds are graphite/near-black (was warm brown).
+export const ESPRESSO = "#121214";
+export const BLACK = "#0A0A0D";
+export const CREAM = "#F5F7FA";
+export const INK = "#121214";
 const WHITE = "#FFFFFF";
 
 const font = fontkit.openSync(path.join(ROOT, "public/fonts/Manrope-Bold.woff"));

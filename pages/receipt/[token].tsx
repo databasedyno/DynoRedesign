@@ -155,7 +155,7 @@ const ReceiptPage = ({ receipt, siteUrl }: Props) => {
         <meta key="og:title" property="og:title" content={ogTitle} />
         <meta key="og:description" property="og:description" content={ogDesc} />
         <meta key="og:url" property="og:url" content={shareUrl} />
-        <meta key="og:image" property="og:image" content={`${siteUrl}/og/dynopay-og.png?v=2`} />
+        <meta key="og:image" property="og:image" content={`${siteUrl}/og/dynopay-og.png?v=4`} />
         <meta key="twitter:card" name="twitter:card" content="summary_large_image" />
         <meta key="twitter:title" name="twitter:title" content={ogTitle} />
         <meta key="twitter:description" name="twitter:description" content={ogDesc} />

@@ -35,7 +35,7 @@ import { apiLogger } from "../../utils/loggers";
 
 const W = 1200;
 const H = 630;
-const FALLBACK_OG = "/og/dynopay-og.png";
+const FALLBACK_OG = "/og/dynopay-og.png?v=4";
 const FONT = "Arial, 'Helvetica Neue', Helvetica, sans-serif";
 // 2026-09 brand: yellow on Bybit black (mirrors utils/brandTokens.ts)
 const GOLD = "#FFD100";

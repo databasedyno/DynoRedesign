@@ -1850,7 +1850,7 @@ interface PayOgMeta {
 // Wrap with dynamic OG/link-preview tags rendered server-side so crawlers
 // (WhatsApp, X, Slack, iMessage…) show the actual payment/campaign details.
 const PayRoute = ({ ogMeta, siteUrl }: { ogMeta: PayOgMeta | null; siteUrl: string }) => {
-  const defaultImg = `${siteUrl}/og/dynopay-og.png`
+  const defaultImg = `${siteUrl}/og/dynopay-og.png?v=4`
   return (
     <>
       {ogMeta && (
@@ -1903,7 +1903,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
             description: m.summary ? `${m.description} — ${m.summary}` : m.description,
             // Every payment link (donation or standard) gets a rich rendered
             // share card (cover + goal bar, or "Pay {amount}") from the backend.
-            image: `${siteUrl}/api/pay/og-image?d=${encodeURIComponent(d)}`,
+            image: `${siteUrl}/api/pay/og-image?d=${encodeURIComponent(d)}&v=4`,
             summary: m.summary || null,
           }
         }

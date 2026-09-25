@@ -44,7 +44,7 @@ const ShopPage: NextPageWithLayout<ShopPageProps> = ({ merchant, products, siteU
   const socialTitle = verified ? `✅ ${title}` : title;
   const socialDescription = verified ? `${seo.verifiedPrefix} · ${description}` : description;
   const url = `${siteUrl}/${merchant.handle}/shop`;
-  const ogImage = `${siteUrl}/api/pay/og-image?shop=${encodeURIComponent(merchant.handle)}`;
+  const ogImage = `${siteUrl}/api/pay/og-image?shop=${encodeURIComponent(merchant.handle)}&v=4`;
   // canonical: English is the single indexable version. Non-English is a
   // client-side ?lang= translation, not a distinct URL — so no hreflang cluster.
   const canonical = url;

@@ -23,7 +23,7 @@ const CreatorPage = ({ creator, links, siteUrl, supportWidget, analytics, produc
   const description =
     creator.bio || `Support ${creator.name} with crypto — donate or pay securely via Dynopay.`
   const url = `${siteUrl}/${creator.handle}`
-  const image = `${siteUrl}/api/pay/og-image?shop=${encodeURIComponent(creator.handle)}`
+  const image = `${siteUrl}/api/pay/og-image?shop=${encodeURIComponent(creator.handle)}&v=4`
 
   React.useEffect(() => {
     sendCreatorVisitBeacon(creator.handle, 'page')

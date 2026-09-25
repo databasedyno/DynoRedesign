@@ -21,13 +21,13 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT_DIR = os.path.join(ROOT, "public", "og")
 W, H = 1200, 630
 
-# 2026-09 rebrand palette (mirrors scripts/brand/generate-logo.mjs)
-ESPRESSO = (43, 29, 20)
-BLACK = (11, 9, 8)
+# 2026-09 Bybit-neutral rebrand palette (mirrors scripts/brand/generate-logo.mjs)
+ESPRESSO = (18, 18, 20)  # #121214 graphite ground (was warm brown 43,29,20)
+BLACK = (10, 10, 13)  # #0A0A0D near-black
 YELLOW = (255, 209, 0)
 AQUA = (43, 212, 196)
-CREAM = (250, 246, 239)
-CREAM_SOFT = (232, 223, 210)
+CREAM = (245, 247, 250)  # #F5F7FA cool near-white (was warm cream)
+CREAM_SOFT = (225, 229, 234)  # #E1E5EA
 WHITE = (255, 255, 255)
 
 

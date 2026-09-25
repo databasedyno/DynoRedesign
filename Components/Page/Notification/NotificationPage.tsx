@@ -405,6 +405,20 @@ const NotificationPage = ({ initialTab = "inbox" }: { initialTab?: "inbox" | "se
     }
   };
 
+  const deleteOne = async (id: number, wasUnread: boolean) => {
+    // Optimistic remove; the 30s poll reconciles on any failure.
+    mutateNotifs((prev) => (prev || []).filter((n: any) => n.notification_id !== id), { revalidate: false });
+    if (wasUnread) {
+      setUnreadCount((prev) => Math.max(0, prev - 1));
+      decrementUnreadCount(effectiveCompanyId, 1);
+    }
+    try {
+      await axiosBaseApi.delete(API_ENDPOINTS.notifications.remove(id));
+    } catch {
+      mutateNotifs();
+    }
+  };
+
   const formatTimeAgo = (dateStr: string) => {
     const diff = Date.now() - new Date(dateStr).getTime();
     const days = Math.floor(diff / 86400000);
@@ -485,6 +499,7 @@ const NotificationPage = ({ initialTab = "inbox" }: { initialTab?: "inbox" | "se
           onOpen={handleNotificationClick}
           targetFor={targetFor}
           formatTimeAgo={formatTimeAgo}
+          onDelete={deleteOne}
           attention={attentionItems}
           onRestoreAttention={restoreAttention}
         />
