@@ -43,7 +43,7 @@ import { brandFg } from "@/constants/theme";
 const NewHeader = () => {
   const router = useRouter();
   const muiTheme = useMuiTheme();
-  const { name: drawerUserName } = useDisplayIdentity();
+  const { name: drawerUserName, photo: drawerUserPhoto } = useDisplayIdentity();
   const reduceMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
   const namespaces = ["dashboardLayout", "walletScreen"];
   const { t } = useTranslation(namespaces);
@@ -331,6 +331,7 @@ const NewHeader = () => {
           >
             <UserAvatar
               name={drawerUserName}
+              photo={drawerUserPhoto}
               size={40}
               fontSize={15}
               data-testid="mobile-drawer-avatar"

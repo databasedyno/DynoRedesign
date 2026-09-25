@@ -2045,7 +2045,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
           pre-fills chain, token, exact amount and address, so no copy/paste or wrong-network
           sends. Purely additive: QR + copy stay as the fallback. */}
       {/* HIDDEN per request — WalletConnect "Pay with wallet" removed from checkout; QR + copy-address remain the payment path. */}
-      {false && cryptoInfo && (phase === 'awaiting_payment' || phase === 'underpaid') && isWalletPayable(cryptoInfo.crypto_display) && (
+      {(false as boolean) && cryptoInfo && (phase === 'awaiting_payment' || phase === 'underpaid') && isWalletPayable(cryptoInfo.crypto_display) && (
         <Box sx={{ mb: 2 }} data-testid="clean-checkout-wallet-pay-wrap">
           <WalletActionButton
             mode="pay"

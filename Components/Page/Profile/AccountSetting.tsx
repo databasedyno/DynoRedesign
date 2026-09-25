@@ -3,8 +3,8 @@ import CustomButton from "@/Components/UI/Buttons";
 import CountryPhoneInput from "@/Components/UI/CountryPhoneInput";
 import OtpDialog from "@/Components/UI/OtpDialog";
 import PanelCard from "@/Components/UI/PanelCard";
-import { avatarGradient } from "@/helpers/avatarGradient";
-import { getInitials } from "@/helpers";
+import { ProfilePhoto } from "@/Components/Page/Profile/ProfilePhoto";
+import useDisplayIdentity from "@/hooks/useDisplayIdentity";
 import useIsMobile from "@/hooks/useIsMobile";
 import useIdentityVerified from "@/hooks/useIdentityVerified";
 import { UserAction } from "@/Redux/Actions";
@@ -43,6 +43,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
   // legal name is locked and the merchant must contact support). Seeded from
   // the account name and re-synced whenever it changes upstream.
   const { verified: nameLocked } = useIdentityVerified();
+  const { photo: profilePhoto } = useDisplayIdentity();
   const seedParts = (tokenData.name || "").trim().split(" ").filter(Boolean);
   const [firstName, setFirstName] = useState(seedParts[0] || "");
   const [lastName, setLastName] = useState(seedParts.slice(1).join(" ") || "");
@@ -263,39 +264,9 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
       }
     >
       <Box>
-        {/* Account avatar — initials only. Logos live on brands (Settings → Brand),
-            so the account mark never conflicts with the active brand's logo. */}
-        <Box
-          data-testid="profile-avatar"
-          data-avatar-kind="initials"
-          sx={{
-            mx: "auto",
-            width: 70,
-            height: 70,
-            borderRadius: "50%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            background: avatarGradient(tokenData.name || tokenData.email),
-            boxShadow: theme.palette.mode === "dark" ? "0 2px 8px rgba(0,0,0,0.35)" : "0 2px 8px rgba(10,10,15,0.18)",
-          }}
-        >
-          <Typography
-            sx={{
-              fontSize: isMobile ? "24px" : "28px",
-              fontWeight: 700,
-              color: "#fff",
-              fontFamily: "var(--font-sans)",
-              textTransform: "uppercase",
-              lineHeight: 1,
-            }}
-          >
-            {getInitials(avatarInitialSource, lastName) || "?"}
-          </Typography>
-        </Box>
+        <ProfilePhoto name={[avatarInitialSource, lastName].filter(Boolean).join(" ")} photo={profilePhoto} />
         <Typography
-          data-testid="profile-avatar-hint"
-          sx={{ mt: 1, textAlign: "center", fontSize: "12px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}
+          sx={{ mt: 0.5, textAlign: "center", fontSize: "12px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}
         >
           {t("brandLogoHint", { ns: "profile", defaultValue: "Looking for your logo? Each brand has its own —" })}{" "}
           <Link

@@ -58,7 +58,7 @@ export default function UserMenu() {
   };
 
   const triggerWidth = anchorEl?.clientWidth || 180;
-  const { name: userName } = useDisplayIdentity();
+  const { name: userName, photo: userPhoto } = useDisplayIdentity();
   const router = useRouter();
   const customWindow = useWindow();
   const { t } = useTranslation("dashboardLayout");
@@ -144,6 +144,7 @@ export default function UserMenu() {
         <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
           <UserAvatar
             name={userName}
+            photo={userPhoto}
             size={isMobile ? 24 : 32}
             fontSize={isMobile ? 10 : 12}
             data-testid="user-menu-avatar"
@@ -208,6 +209,7 @@ export default function UserMenu() {
             <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
               <UserAvatar
                 name={userName}
+                photo={userPhoto}
                 size={isMobile ? 24 : 32}
                 fontSize={isMobile ? 10 : 12}
                 data-testid="user-menu-dropdown-avatar"

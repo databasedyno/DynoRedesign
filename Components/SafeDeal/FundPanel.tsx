@@ -177,7 +177,7 @@ function PaymentView({ deal, payment, coin, now, live, busy, copied, onCopy, onS
             <CopyBtn k="address" v={payment.address} copied={copied} onCopy={onCopy} />
           </Box>
           {/* HIDDEN per request — WalletConnect "Pay with wallet" removed; QR + copy-address remain the payment path. */}
-          {false && payment.status === "waiting" && (
+          {(false as boolean) && payment.status === "waiting" && (
             <Box sx={{ mt: 1.4 }} data-testid="sd-fund-wallet-wrap">
               <WalletActionButton
                 mode="pay"

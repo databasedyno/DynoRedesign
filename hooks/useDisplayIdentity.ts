@@ -5,11 +5,17 @@ import { UserAction } from "@/Redux/Actions";
 import { USER_PROFILE_FETCH } from "@/Redux/Actions/UserAction";
 import { rootReducer } from "@/utils/types";
 
-type ProfileLite = { user_id?: number | string; name?: string } | null | undefined;
+type ProfileLite = { user_id?: number | string; name?: string; photo?: string } | null | undefined;
 
 let profileRequested = false;
 
-/** Display name for the account avatar (initials only — brands carry their own logo): the server profile wins over the JWT snapshot. */
+/** Stored photo → usable URL; the legacy placeholder counts as "no photo". */
+export const realUserPhoto = (raw?: string | null) => {
+  const v = (raw || "").trim();
+  return v && !v.includes("user_image.png") ? v : "";
+};
+
+/** Display name + photo for the account avatar: the server profile wins over the JWT snapshot. */
 export default function useDisplayIdentity() {
   const dispatch = useDispatch();
   const tokenData = useTokenData();
@@ -24,6 +30,7 @@ export default function useDisplayIdentity() {
   const sameUser = Boolean(profile?.user_id && tokenData?.user_id && Number(profile.user_id) === Number(tokenData.user_id));
   return {
     name: (sameUser && profile?.name) || tokenData?.name || "",
+    photo: sameUser ? realUserPhoto(profile?.photo) : "",
     tokenData,
   };
 }
