@@ -5,7 +5,7 @@ rate limiting, ledger DB invariants, and no fake balance mutation.
 """
 import os, time, subprocess, json, requests, pytest
 
-BASE = "https://cross-page-theme-qa.preview.emergentagent.com"
+BASE = "https://dynopay-qa-fix.preview.emergentagent.com"
 API = f"{BASE}/api/safedeal"
 TS = str(int(time.time()))
 

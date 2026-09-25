@@ -1,6 +1,6 @@
 import asyncio
 
-BASE = "https://cross-page-theme-qa.preview.emergentagent.com"
+BASE = "https://dynopay-qa-fix.preview.emergentagent.com"
 
 MARKETING = ["/", "/fees", "/for/freelancers", "/products", "/blog", "/about",
              "/pay?d=jgQQzL", "/pay/demo", "/auth/login", "/auth/signup", "/reset-password"]

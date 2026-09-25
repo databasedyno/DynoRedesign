@@ -15,7 +15,7 @@
 #   OPEN: #2 webhook-settings padding (visual), #5 profile photo upload (currently intentional initials-only — needs product decision), #6 add-phone Telnyx OTP (provider/env-specific), #10 ultra-wide 2550px (visual).
 #   CLEANUP fixes to prior blind-edit dupes: NotificationInbox.tsx Props had onDelete×3 → 1; api/endpoints.ts notifications.remove×2 → 1; added setConfirmDelete(false) reset on customer change (Customers/index.tsx useEffect).
 # NOTE: search_replace tool in this pod FALSE-NEGATIVES (reports "old_str did not appear" but the edit APPLIED) — always re-read to confirm, DO NOT retry blindly (that's what created the earlier duplicates).
-# OPS: backend restarted (ts-node). Preview: https://cross-page-theme-qa.preview.emergentagent.com. COMMIT: all uncommitted — user must "Save to GitHub".
+# OPS: backend restarted (ts-node). Preview: https://dynopay-qa-fix.preview.emergentagent.com. COMMIT: all uncommitted — user must "Save to GitHub".
 # ============================================================================================
 
 
@@ -109,7 +109,7 @@
 # TEST HELPER: backend/scripts/telegram_alerts_smoke.js (node -r dotenv/config scripts/telegram_alerts_smoke.js <baseUrl> [--link <sd_token>]) — signs a fake widget payload with the bot token; full link/tamper/expired/dup/test/unlink flow.
 # DEFERRED QA (iteration_218, all green): crumb sweeper report + DRY-RUN via admin API/UI (never live), fractional-gwei jest 9/9 + code review, fee-reconciliation API invariants/filters/pagination + reconcile/backfill idempotent, admin page KPIs/filters/links, SafeDeal landing overlay fix + mobile tabs fix re-verified. New pytest backend/tests/test_iter218_fee_recon_and_crumb.py.
 # 💡 BUSINESS FINDING (fee reconciliation, live data): 209 reconciled payouts → charged $87.79 vs actual gas $280.21 → recovery 31%, 136 under / 71 ok / 2 over. Platform subsidises ~$192 of gas (partly sweep gas = Dynopay's cost by policy (a), partly under-quoted TRC20/ETH fees). Not acted on — surface to owner.
-# OPS: backend restarted (ts-node, no hot reload). Preview: https://cross-page-theme-qa.preview.emergentagent.com. COMMIT: Save to GitHub.
+# OPS: backend restarted (ts-node, no hot reload). Preview: https://dynopay-qa-fix.preview.emergentagent.com. COMMIT: Save to GitHub.
 # ============================================================================================
 
 # === 2026-09-22 (fork) FEE ACCURACY AUDIT + PROD ANOMALIES — PHASE 1 (BACKEND) DONE, PHASE 2 (SAFEDEAL EMAILS/UI) NEXT ===
@@ -145,7 +145,7 @@
 #   "PAYMENT IS PAYMENT": useSetupProgress.hasPayment hardened to be source/status-agnostic — now also true if any recentTransactions row has a settled-like status (confirmed/completed/settled/success/successful/paid/done), in addition to stats.totalTransactions/totalVolume>0 and a processed payout wallet. (Backend dashboard stats already COUNT every source in tbl_user_transaction; real statuses are only pending/successful/completed.) So a payment via payment link, API or any source graduates the brand out of Getting Started (Dashboard2026 already had the recent-tx fallback; this brings the sidebar ring + FirstRunRedirect to parity).
 #   ENV: added NEXT_PUBLIC_SAFEDEAL_COMPANY_ID=262 to /app/.env.local (frontend restarted). ⚠️ PROD MUST also set NEXT_PUBLIC_SAFEDEAL_COMPANY_ID=262 (build-time inlined) or the SafeDeal-brand suppression + logo won't apply on safedeal deploy.
 #   VERIFIED (testing_agent iter211+212, owner_login.cjs → user1 → switch brands): SafeDeal(262) no getting-started + no sidebar ring + logo avatar; The Dev Store(1) & SMADAV(71) [have payments] show normal dashboard (no onboarding) — source-agnostic graduation; regression clean. FE tsc 0, BE tsc 0.
-# OPS: backend ts-node no hot reload → restarted after email edit. Preview host: https://cross-page-theme-qa.preview.emergentagent.com. COMMIT: all uncommitted — user must "Save to GitHub". Note backend/.env SAFEDEAL_URL is STALE (b3e8a0ae host) — affects invite-link/email base only; not touched this fork.
+# OPS: backend ts-node no hot reload → restarted after email edit. Preview host: https://dynopay-qa-fix.preview.emergentagent.com. COMMIT: all uncommitted — user must "Save to GitHub". Note backend/.env SAFEDEAL_URL is STALE (b3e8a0ae host) — affects invite-link/email base only; not touched this fork.
 # ============================================================================================
 
 
@@ -172,7 +172,7 @@
 # ISSUE 4 (P1) — escrow "Held" display: backend held ledger is CORRECT in every preview-testable path. VERIFIED curl: fund-from-balance ($40 deal) → held $53.23 / available dropped / total conserved; simulated-crypto fund ($45 deal) → held $58.23 / available 0. Wallet.tsx renders `w.wallet.held` (data-testid=sd-wallet-held). The reported prod symptom is likely the LIVE crypto-funding customer-resolution/timing (not reproducible with live settlement OFF) — folded into the Issue 3 prod debug.
 # ISSUE 3 (P1, recurring) — prod dispatch HARDENING (diagnosis needs prod): dispatchWithdrawal now logs "dispatching LIVE (…) coin amount → address", surfaces a Binance submit error (try/catch + re-throw with error log), and WARNs "SIMULATED — live settlement is OFF (ESCROW_LIVE_SETTLEMENT)" whenever a settlement/auto withdrawal can't go live (the #1 prod cause). settlementPayout logs when a leg is "kept" (no address / auto-withdraw off). NEXT: user redeploys → run emergent__send_to_deployer intent=debug to confirm real Binance dispatch + inspect why prod payouts stalled.
 # FILES: backend services/safedeal/{safedealWithdrawals,safedealPdf,safedealCheckout}.ts, backend utils/emailTemplate.ts, backend controller/{safedealController,escrowController}.ts; Components/SafeDeal/{TopUpDialog,DealCards,sdFormat,sdTheme,SafeDealShell,LandingSections,NewDealReview,DealPage,FundPanel,Wallet,PayoutDestinationCard,Landing,DealActionsCard,SignIn,RequestChangesDialog,legalContent}.ts(x).
-# OPS: backend is ts-node WITHOUT hot reload → restarted. Preview: https://cross-page-theme-qa.preview.emergentagent.com. Background jobs OFF in preview (hourly releaseParkedPayouts cron dispatches parked deal-proceeds in prod once the address clears its 24h hold AND ESCROW_LIVE_SETTLEMENT=true). COMMIT: uncommitted — user must "Save to GitHub". PAUSED (P2, resume after): Tatum.io marketing-homepage redesign (design_guidelines.json + Home/v6).
+# OPS: backend is ts-node WITHOUT hot reload → restarted. Preview: https://dynopay-qa-fix.preview.emergentagent.com. Background jobs OFF in preview (hourly releaseParkedPayouts cron dispatches parked deal-proceeds in prod once the address clears its 24h hold AND ESCROW_LIVE_SETTLEMENT=true). COMMIT: uncommitted — user must "Save to GitHub". PAUSED (P2, resume after): Tatum.io marketing-homepage redesign (design_guidelines.json + Home/v6).
 # ============================================================================================
 
 
@@ -193,7 +193,7 @@
 #  (3) GUEST DEAL START: Landing.tsx cta is now href('/deals/new') for everyone (dropped the user? gate + useSdSession import). NewDeal.tsx: useRequireSdSession → useSdSession (no forced redirect); renders the form for guests. submit(): signed-in → doCreate(draft); guest → saves draft to sessionStorage 'sd_deal_draft' then router.push(/signin?next=<encoded /safedeal/deals/new?resume=1>). NEW useEffect on ?resume=1 && token restores the fields + auto-calls doCreate. SignIn.tsx already honours ?next. VERIFIED (iteration_210): guest filled 3-step form → Send invite → signin (preview code) → returned to ?resume=1 → deal auto-created → /safedeal/deal/<token>?created=1 shows "Guest test deal" $100.
 #  (4) FEES COLUMN: Wallet.tsx statement table has a new "Fees" column between Amount and Balance (cell testid sd-statement-fee-<kind>, value from rowFeeUsd(r.meta)= meta.total_fee_usd || sum(network+conversion+exchange), "—" when 0). safedealWallet.statementToCsv now emits a "Fees (USD)" column too. VERIFIED: top-up row shows $2.24; CSV header Date,Deal,Type,Description,Amount (USD),Fees (USD),Bucket,...
 # FILES: StatusChip.tsx, Components/SafeDeal/{SdStatusChip,Landing,NewDeal,Wallet}.tsx; backend services/email/{emailShared,safedealEmails}.ts, utils/mailTransporter.ts, services/safedeal/{safedealPdf,safedealTopup,safedealInvoiceEmail(NEW)}.ts, controller/escrowController.ts, services/safedeal/safedealWallet.ts.
-# NOTES: backend is ts-node WITHOUT hot reload → `sudo supervisorctl restart backend` after BE edits (done). Preview host: https://cross-page-theme-qa.preview.emergentagent.com. COMMIT: all uncommitted — user must "Save to GitHub".
+# NOTES: backend is ts-node WITHOUT hot reload → `sudo supervisorctl restart backend` after BE edits (done). Preview host: https://dynopay-qa-fix.preview.emergentagent.com. COMMIT: all uncommitted — user must "Save to GitHub".
 # ============================================================================================
 
 
@@ -241,7 +241,7 @@
 # USER ASK: "highest escrow per deal cant be more than 2999 euros equivalent USD, then test all after."
 # IMPLEMENTATION (env-driven, EUR-based cap resolved to USD at the live FX rate):
 #   • backend/.env: NEW ESCROW_MAX_DEAL_EUR=2999. ALSO fixed the recurring stale SAFEDEAL_URL → current preview host
-#     https://cross-page-theme-qa.preview.emergentagent.com/safedeal (was b3e8a0ae…, dead).
+#     https://dynopay-qa-fix.preview.emergentagent.com/safedeal (was b3e8a0ae…, dead).
 #   • controller/escrowController.ts: const ESCROW_MAX_DEAL_EUR = Number(envRaw("ESCROW_MAX_DEAL_EUR"))||2999; exported on escrowEngine.
 #   • controller/safedealController.ts: NEW async maxDealUsd() = convertToFiat("EUR","USD",2999) at live rate, FAILS OPEN to eur*1.15
 #     if FX momentarily down. maxDealMessage() helper. Enforced in createDeal (replaced dead >$1,000,000 check) AND amendDeal.
@@ -446,7 +446,7 @@
 #   success + confetti; deal detail progress + 5-network payout picker; public invite OTP → accept → fund → deliver
 #   → release with the progress ladder). At wrap-up the EXTERNAL preview host returned a transient Cloudflare 502
 #   (local was healthy) — just retry. Preview URL (source of truth = APP_URL in /etc/supervisor/conf.d/*.conf):
-#   https://cross-page-theme-qa.preview.emergentagent.com  (older auth-config-8 URL is STALE).
+#   https://dynopay-qa-fix.preview.emergentagent.com  (older auth-config-8 URL is STALE).
 #   Escrow invite OTP is a SINGLE TextField (escrow-invite-otp) — the "12 OTP inputs" E2E blocker was the login-2FA
 #   segmented input, NOT escrow. NOTE: backend invite_url is built from SERVER_URL/FRONTEND_URL (= b93492c2 host),
 #   so the QR/link resolve there. COMMIT: user must click "Save to GitHub" (all changes uncommitted).
@@ -563,7 +563,7 @@
 # VERIFY: FE tsc 0, BE tsc 0. iteration_197 all 9 checks pass (range switching refetches + updates summary,
 #   Manage switches brand + routes to /dashboard, "View all brands" navigates, sidebar item visible for 5 brands,
 #   no console errors, no overflow at 1920x800 / 390x844). Preview (THIS pod):
-#   https://cross-page-theme-qa.preview.emergentagent.com/brands  (setup-vault-7 URL is STALE).
+#   https://dynopay-qa-fix.preview.emergentagent.com/brands  (setup-vault-7 URL is STALE).
 #   COMMIT: user must click "Save to GitHub" (no local push from pod).
 # ============================================================================================
 
@@ -608,7 +608,7 @@
 #   viewer_is_ops=true, stuck_forwards=[tx883 $18.81 ETH]. ack with wrong brand (71) → 403; ack brand 1 → 200,
 #   DB shows ack cols set + updatedAt UNCHANGED (2026-09-06), item GONE from feed. Reverted ack cols to NULL →
 #   tx 883 back in feed. FE browser: button + dialog render for ops (cancelled, no write). FE tsc 0, BE tsc 0,
-#   all 6 common.json parse. Preview: https://cross-page-theme-qa.preview.emergentagent.com  (route /payouts).
+#   all 6 common.json parse. Preview: https://dynopay-qa-fix.preview.emergentagent.com  (route /payouts).
 # TO ACTUALLY CLEAR THE REAL $18.81: ops settles it by hand in the DEPLOYED prod (send ~$18.81 USDT-TRC20 to
 #   TTve8v6Y48ChsCTEiCjMRFSbjNtz4mAkxR), then clicks "Mark as resolved". testing_agent NOT used (acknowledge
 #   writes to a live prod row; verified via reversible curl e2e + browser instead). COMMIT: user must Save to GitHub.
@@ -726,7 +726,7 @@
 #   to 0 keys). tsc 0 (backend + frontend), eslint clean.
 #
 # TESTING METHOD: self-tested (Joi unit tests + real curl e2e for D incl. enforcement + Playwright UI screenshots).
-#   testing_agent NOT used. NOTE current preview URL = https://cross-page-theme-qa.preview.emergentagent.com
+#   testing_agent NOT used. NOTE current preview URL = https://dynopay-qa-fix.preview.emergentagent.com
 #   (test_credentials.md's 27632836 URL is STALE from a prior pod). COMMIT: all changes uncommitted — user must Save to GitHub.
 # ============================================================================================
 
@@ -4383,7 +4383,7 @@ Plan: /app/plan/emails_pages_audit_plan.md (§7 order). Report: /app/plan/audit_
 
 ## Reown "Open wallet" missing on checkout.dynopay.com — 2026-09-24 — FIXED (config, no code) (testing_agent iteration_223: desktop QR + mobile "Open Binance Wallet" PASS on production)
 - Root cause: Reown project allowlist had `dynopay.com` + `safedeal.sh` only; hostnames match exactly, so the hosted checkout origin `https://checkout.dynopay.com` was rejected by the relay (`wss://relay.walletconnect.org` → `{code:3000,"Unauthorized: origin not allowed"}`, `pulse.walletconnect.org` 403) → no pairing URI → grey QR / no "Open" button. Wallet icons still loaded because the Explorer API doesn't enforce the allowlist.
-- Fix: user added `https://checkout.dynopay.com` in dashboard.reown.com → project → Domains. Wildcard `https://*.dynopay.com` covers subdomains only (not the apex) — keep both entries. Optional for preview QA: `https://cross-page-theme-qa.preview.emergentagent.com`.
+- Fix: user added `https://checkout.dynopay.com` in dashboard.reown.com → project → Domains. Wildcard `https://*.dynopay.com` covers subdomains only (not the apex) — keep both entries. Optional for preview QA: `https://dynopay-qa-fix.preview.emergentagent.com`.
 - docs.walletconnect.com vs Reown: same company (WalletConnect Inc. → Reown, 2024). WalletConnect = protocol/network/relay; Reown AppKit (`@reown/appkit`) = the official app SDK; docs.walletconnect.com's own Next.js guide installs `@reown/appkit*`; dashboard.walletconnect.com == dashboard.reown.com. Current integration is correct.
 - Preview note: `NEXT_PUBLIC_REOWN_PROJECT_ID` is NOT in the vault/.env.local → wallet buttons hidden on preview by design (public id `f83ed4e19b1bf8e6b381f6485b191ae1`, prod has it as a DO build-time var). A 24h QA pay link (`/pay?d=Cf1ngm`, link_id 536, company 1) was created on prod for reproduction; it self-expires 2026-09-25T06:36Z.
 - Prod QA recipe: mock `**/api/pay/addPayment` + `**/api/pay/verifyCryptoPayment*` (see test_credentials.md) so no pool address is reserved; wallet list = `wui-list-wallet[name]`, QR = `w3m-modal wui-qr-code[uri^="wc:"]`.
@@ -4418,7 +4418,7 @@ Plan: /app/plan/emails_pages_audit_plan.md (§7 order). Report: /app/plan/audit_
 - Still pending user confirmation / not agent-tested: theme memory across checkout/login/marketing (smoke only); transactional email + OG Bybit-black refresh (render audit 151/151 only); deploy workflow disk-cleanup change in .github/workflows/deploy-droplet.yml (needs Save-to-GitHub + rerun; droplet disk was full).
 
 ## 2026-09-25 (fork) — Theme Memory verified · WalletConnect hidden on checkouts · SafeDeal SEO structured data · QA triage
-- ENV NOTE: this pod's live preview = `https://cross-page-theme-qa.preview.emergentagent.com` (env `preview_endpoint`). The parent-job URL `db6f1699-…preview.emergentagent.com` is STALE and now resolves to Cloudflare/Webflow prod — it 404s all `/api/*`. Backend runs under uvicorn `--reload` (WatchFiles) → transient 502/503 during reloads; QA fetch scripts must retry on 5xx.
+- ENV NOTE: this pod's live preview = `https://dynopay-qa-fix.preview.emergentagent.com` (env `preview_endpoint`). The parent-job URL `db6f1699-…preview.emergentagent.com` is STALE and now resolves to Cloudflare/Webflow prod — it 404s all `/api/*`. Backend runs under uvicorn `--reload` (WatchFiles) → transient 502/503 during reloads; QA fetch scripts must retry on 5xx.
 - Theme Memory Phase 1 = code-complete AND self-verified (screenshot spot-check, no testing_agent per user): fresh dark device→dark (no manual key); toggle persists `dyno-theme=light`; choice carries into /auth/login + /pay; /safedeal stays fixed-light without touching `dyno-theme`. Files: contexts/ThemeContext.tsx (unified key `dyno-theme`, cookie `dyno-theme-eff`, legacy migration dashboard>legacy>public), utils/theme/routeContext.ts, pages/_app.tsx, pages/_document.tsx. QA script hardened: scripts/qa/theme_memory_regression.mjs (browser UA, retry on 5xx up to ~120s). Phase 2 (Auto/Light/Dark 3-way) + Phase 3 (cross-origin/synced) still pending.
 - WalletConnect "Pay with wallet" HIDDEN on both payment checkouts (per user; QR+copy-address kept; merchant "verify wallet ownership" left untouched). Gated with `false &&` (imports kept used → no build break): Components/Page/Pay3Components/CleanCheckoutV2.tsx (clean-checkout-wallet-pay-wrap) verified via screenshot (WALLET_BTN 0 at awaiting-payment); Components/SafeDeal/FundPanel.tsx (sd-fund-wallet-wrap) code-symmetric (not live-screenshotted — needs a funded deal).
 - SafeDeal SEO (on-page structured data; no verification tokens yet). Added JSON-LD via SafeDealShell `jsonLd` prop: base Organization + WebSite on every indexable SafeDeal page; Service+Offer on /safedeal; FAQPage (7 Q&A from legalContent HELP) on /safedeal/help. Verified in SSR HTML. Sitemap/robots/IndexNow(Bing) already host-aware. TODO later: Google Search Console + Bing Webmaster verification meta tags when user provides tokens.

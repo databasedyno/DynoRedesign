@@ -5,7 +5,7 @@ Cleanup (R7) is performed separately via /app/backend/scripts/cleanup_r225.js.
 """
 import os, time, subprocess, json, requests, pytest
 
-BASE = "https://cross-page-theme-qa.preview.emergentagent.com"
+BASE = "https://dynopay-qa-fix.preview.emergentagent.com"
 API = f"{BASE}/api/safedeal"
 TS = str(int(time.time()))
 

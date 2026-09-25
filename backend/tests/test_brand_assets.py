@@ -10,7 +10,7 @@ import re
 import pytest
 import requests
 
-BASE = "https://cross-page-theme-qa.preview.emergentagent.com"
+BASE = "https://dynopay-qa-fix.preview.emergentagent.com"
 
 
 def _head_or_get(path, expect_ct_startswith):
