@@ -7,6 +7,24 @@ Distribution over 112 tracked items: **pass 61 · awaiting_retest 17 · blocked 
 
 Most notes authored by QA "Tuhin Hossain" (early–mid Sep 2026); awaiting_retest items are dev-fixed by E1 pending QA re-verify (several need production/Cloudflare).
 
+
+---
+
+## FAIL-BUCKET RESOLUTION UPDATE (2026-09-25, E1 fork) — 6 of 10 fixed/confirmed, 4 remain
+
+- **#1 Webhook delivery log** — RESOLVED (enhance). Detail modal (`WebhookConsoleSection.tsx`, `openDetail` → `GET /api/company/webhook-history/:id/detail/:logId`) already showed payload + HTTP response status + latency + retries + error. Added a **Request headers** block (testid `webhook-detail-headers`, copy btn `webhook-detail-copy-headers`) reconstructed from the deterministic outbound headers (`X-DynoPay-Event/-Webhook-Id/-Timestamp/-Signature`, Content-Type, User-Agent — see `backend/webhooks/index.ts` L344). No schema column for request headers/response body exists, so headers are reconstructed (accurate) and response body isn't stored. Code-verified + `/developer-keys` compiles 200. → mark **awaiting_retest**.
+- **#3 Customer delete** — FIXED + VERIFIED. `DELETE /api/userApi/customers/manual` (`customerAnnotationController.deleteManualCustomer`, manual-only guard) + UI Remove button (`customer-detail-delete`, gated on `c.manual`) with 2-click confirm. curl e2e (create→delete→404, non-manual→400) + testing_agent iteration_231 (4/4). → **pass**.
+- **#4 Notification delete** — FIXED + VERIFIED. Per-row trash (`notification-delete-<id>`) → optimistic remove + existing `DELETE /api/notifications/:id` (user-scoped). testing_agent iteration_231 (row removed, persists across reload). → **pass**.
+- **#7 Login history** — ALREADY WORKS (stale). `GET /api/user/login-activity` AND `/api/user/login-history` return real rows with ip/device/browser/os/location/login_at/method/status. → **awaiting_retest**.
+- **#8 Delete-account re-login** — GUARD EXISTS (stale). Soft-delete login gate in `authLogin.ts` L142 + `userShared.ts` L163 ("authoritative for ALL login paths"). Code-verified (not e2e — avoids soft-deleting a real account). → **awaiting_retest**.
+- **#9 KYC status/requirements** — ALREADY WORKS (stale). `/api/kyc/status`, `/requirements`, `/history` all return complete data (user 1 approved, threshold $10k, required_documents…). → **awaiting_retest**.
+
+STILL OPEN (need decision / provider / visual pass):
+- **#2 Webhook Settings padding/alignment** — visual polish, not started.
+- **#5 Profile photo upload** — currently INTENTIONALLY initials-only (`AccountSetting.tsx` L266 comment: "Account avatar — initials only. Logos live on brands"). Needs product decision: add upload (object storage) vs keep initials.
+- **#6 Add-Phone mobile OTP (Telnyx Verify)** — provider/env-specific; real SMS delivery not exercisable in preview.
+- **#10 Ultra-wide (2550px) wasted space** — responsive polish, not started.
+
 ---
 
 ## FAIL (10) — real defects to fix

@@ -885,6 +885,44 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
                   <Typography sx={{ fontSize: 12.5, color: "#DC2626", wordBreak: "break-word" }}>{detail.error_message}</Typography>
                 </Box>
               )}
+              {(() => {
+                const ts = detail.created_at ? Math.floor(new Date(detail.created_at as unknown as string).getTime() / 1000) : null;
+                const hdrs: Array<[string, string]> = [
+                  ["Content-Type", "application/json"],
+                  ["User-Agent", "Dynopay-Webhook/1.0"],
+                  ["X-DynoPay-Event", String(detail.event_type || "")],
+                  ["X-DynoPay-Webhook-Id", String(detail.webhook_id || "")],
+                ];
+                if (ts) hdrs.push(["X-DynoPay-Timestamp", String(ts)]);
+                hdrs.push(["X-DynoPay-Signature", tr("webhook.signaturePlaceholder", { defaultValue: "HMAC-SHA256 of the body, signed with your webhook secret" })]);
+                const headerText = hdrs.map(([k, v]) => `${k}: ${v}`).join("\n");
+                return (
+                  <>
+                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mt: 2, mb: 0.5 }}>
+                      <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: t.secondary }}>
+                        {tr("webhook.requestHeaders", { defaultValue: "Request headers" })}
+                      </Typography>
+                      <Tooltip title={tr("webhook.copyHeaders", { defaultValue: "Copy headers" })}>
+                        <IconButton size="small" onClick={() => copy(headerText, tr("webhook.requestHeaders", { defaultValue: "Request headers" }))} data-testid="webhook-detail-copy-headers">
+                          <Icon name="copy" size={15} />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+                    <Box
+                      component="pre"
+                      data-testid="webhook-detail-headers"
+                      sx={{
+                        m: 0, p: 1.5, borderRadius: 2, maxHeight: 160, overflow: "auto", fontSize: 11.5,
+                        fontFamily: "monospace", whiteSpace: "pre-wrap", wordBreak: "break-word",
+                        bgcolor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)",
+                        color: t.primary, border: `1px solid ${theme.palette.divider}`,
+                      }}
+                    >
+                      {headerText}
+                    </Box>
+                  </>
+                );
+              })()}
               <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: t.secondary, mt: 2, mb: 0.5 }}>
                 {tr("webhook.payloadSent", { defaultValue: "Payload sent" })}
               </Typography>

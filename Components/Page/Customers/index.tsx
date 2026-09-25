@@ -1252,6 +1252,7 @@ const DetailPanel: React.FC<{
   useEffect(() => {
     setAnnNotes(c.notes || "");
     setAnnTags(c.tags || []);
+    setConfirmDelete(false);
   }, [c.key, c.notes, c.tags]);
   const annDirty = annNotes !== (c.notes || "") || JSON.stringify(annTags) !== JSON.stringify(c.tags || []);
   const saveAnnotation = async () => {
