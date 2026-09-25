@@ -1,178 +1,66 @@
 /**
- * Theme route-context helper (2025-07 pass).
+ * Theme preference model (Theme Memory, 2026-09).
  *
- * Dynopay now runs TWO independent theme preferences:
- *  - "inapp"  — merchant admin surfaces (dashboard, transactions, wallets,
- *               settings, etc.)  → defaults to DARK, feels like a tool.
- *  - "public" — landing, marketing, buyer checkout, docs → defaults to
- *               LIGHT, feels like a trusted brand surface.
+ * ONE remembered light/dark choice per browser, shared by marketing, checkout,
+ * auth and the merchant dashboard:
+ *  - `dyno-theme`     — the visitor's MANUAL choice (localStorage + cookie).
+ *                       Only written by an explicit toggle (or the one-time
+ *                       migration from the legacy per-context keys below).
+ *  - `dyno-theme-eff` — cookie with the last EFFECTIVE mode (manual or device),
+ *                       written by the blocking script so SSR agrees with the
+ *                       client on the next request (no flash).
+ * When nothing is remembered the site follows `prefers-color-scheme` live.
  *
- * Auth surfaces (/auth/*, /reset-password) are a special third case: they
- * technically live under "public" (default light for a Coinbase-clean sign
- * in), BUT if a returning merchant has already toggled the in-app to dark,
- * the login card should inherit that so clicking a link from a dark email
- * doesn't feel jarring. That inheritance is implemented as a soft override
- * in `resolvePreferredTheme` (see ThemeContext.tsx): when the active
- * context is "public" AND the path is an auth path AND the user has an
- * explicit `theme-mode-inapp=dark` in storage, we use dark.
+ * SafeDeal (/safedeal/*) is a fixed-brand surface: always light, never persists.
  *
- * A single manual toggle only mutates the preference for the CURRENT
- * context, so flipping the dashboard to light doesn't also blow away
- * the landing page's clean white brand.
- *
- * This file is pure — no React, no window, no MUI — so it's safe to import
- * from _document.tsx blocking scripts (inlined), _app.tsx getInitialProps
- * (SSR), and the ThemeContext client provider.
+ * Pure module — no React / window / MUI — safe for _document.tsx (inlined
+ * logic must be kept IN SYNC by hand), _app.tsx getInitialProps and the client
+ * ThemeContext provider.
  */
 
 export type ThemeMode = "light" | "dark";
-export type ThemeContext = "inapp" | "public";
+export type ThemeSource = "manual" | "system" | "fixed";
 
-/**
- * Paths (prefix-matched) that render inside the authenticated merchant
- * shell. Everything else — landing, marketing, buyer checkout, auth,
- * static/legal, docs — is treated as PUBLIC and defaults to LIGHT.
- *
- * Keep this list conservative: adding a path here changes the DEFAULT for
- * users who have never toggled, so an over-broad match will silently flip
- * the landing page to dark for new visitors.
- */
-const INAPP_PREFIXES = [
-  "/dashboard",
-  "/transactions",
-  "/wallet",       // matches /wallet and /wallets
-  "/wallets",
-  "/customers",
-  "/invoices",
-  "/notifications",
-  "/settings",
-  "/profile",
-  "/create-pay-link",
-  "/pay-links",    // Pay Links list + nested /pay-links/products (Products) — merchant admin
-  "/referrals",
-  "/developer-keys",
-  "/company",
-  "/admin",
-  "/creator",
-  "/storefront",
-  "/payouts",
-  "/get-started",
-  "/kyc",
-];
+export const THEME_KEY = "dyno-theme";
+export const THEME_EFFECTIVE_COOKIE = "dyno-theme-eff";
 
-/**
- * Auth / password-reset paths — technically "public" (they can be visited
- * without a session) but styling-wise they mirror the in-app when the user
- * has already chosen dark on the dashboard. See `isAuthPath()` consumers
- * in ThemeContext and _document.tsx.
- */
-const AUTH_PREFIXES = ["/auth", "/reset-password"];
+/** Legacy per-context keys (2025-07 → 2026-09). Precedence on migration:
+ *  dashboard choice > legacy single key > public choice. */
+export const LEGACY_THEME_KEYS = [
+  "theme-mode-inapp",
+  "theme-mode",
+  "theme-mode-public",
+  "theme-mode-public-v2",
+] as const;
 
-export function getRouteContext(pathname: string | undefined | null): ThemeContext {
-  if (!pathname) return "public";
-  // Strip query string / hash / trailing slash before prefix matching.
-  const path = pathname.split(/[?#]/)[0].replace(/\/+$/, "") || "/";
-  for (const prefix of INAPP_PREFIXES) {
-    if (path === prefix || path.startsWith(`${prefix}/`)) return "inapp";
-  }
-  return "public";
+export function parseMode(value: unknown): ThemeMode | null {
+  return value === "light" || value === "dark" ? value : null;
 }
 
-/** True for `/auth/*` and `/reset-password` — used to trigger the "inherit
- *  the merchant's in-app dark preference" behaviour. */
-export function isAuthPath(pathname: string | undefined | null): boolean {
+export function isSafeDealPath(pathname: string | undefined | null): boolean {
   if (!pathname) return false;
   const path = pathname.split(/[?#]/)[0].replace(/\/+$/, "") || "/";
-  for (const prefix of AUTH_PREFIXES) {
-    if (path === prefix || path.startsWith(`${prefix}/`)) return true;
+  return path === "/safedeal" || path.startsWith("/safedeal/");
+}
+
+/** Read a cookie value from a raw `Cookie` header / `document.cookie` string. */
+export function readCookieValue(cookieHeader: string | undefined | null, name: string): string | null {
+  if (!cookieHeader) return null;
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const m = new RegExp(`(?:^|;\\s*)${escaped}=([^;]+)`).exec(cookieHeader);
+  if (!m) return null;
+  try {
+    return decodeURIComponent(m[1]);
+  } catch {
+    return m[1];
   }
-  return false;
 }
 
-/**
- * Help & Support is DUAL-PURPOSE: a public help centre when logged out, but
- * for signed-in merchants it lives inside the app shell. Its theme should
- * therefore FOLLOW the in-app preference (so a merchant on dark mode keeps
- * dark on /help-support instead of "flipping to light"), while still
- * DEFAULTING to light for first-time / logged-out visitors.
- *
- * Implemented by reading the in-app theme storage key ("theme-mode-inapp")
- * on these paths, but keeping the LIGHT default (see getDefaultThemeForPath).
- * We deliberately do NOT add /help-support to INAPP_PREFIXES so the route
- * *context* (and the shell resolver / everything else) is unaffected.
- */
-const HELP_SUPPORT_PREFIXES = ["/help-support"];
-
-export function isHelpSupportPath(pathname: string | undefined | null): boolean {
-  if (!pathname) return false;
-  const path = pathname.split(/[?#]/)[0].replace(/\/+$/, "") || "/";
-  for (const prefix of HELP_SUPPORT_PREFIXES) {
-    if (path === prefix || path.startsWith(`${prefix}/`)) return true;
+/** Resolve a legacy preference via a getter over storage/cookies (first hit wins). */
+export function resolveLegacyMode(get: (key: string) => string | null | undefined): ThemeMode | null {
+  for (const key of LEGACY_THEME_KEYS) {
+    const v = parseMode(get(key));
+    if (v) return v;
   }
-  return false;
-}
-
-/** Storage key to read the theme preference for a given PATH. Help & Support
- *  reads the in-app key so it inherits the merchant's dashboard theme. */
-export function getStorageKeyForPath(pathname: string | undefined | null): string {
-  if (isHelpSupportPath(pathname)) return "theme-mode-inapp";
-  return getStorageKeyForContext(getRouteContext(pathname));
-}
-
-/** Default theme for a given PATH. Help & Support keeps the LIGHT public
- *  default so logged-out visitors see the clean marketing look. */
-/**
- * Marketing pages (2026-09 Bybit-style restyle) default to DARK like bybit.com.
- * Buyer-facing surfaces (/pay, receipts, storefronts), auth and Help & Support
- * keep the LIGHT default. Keep IN SYNC with the blocking script in _document.tsx.
- */
-const MARKETING_PREFIXES = [
-  "/products",
-  "/fees",
-  "/blog",
-  "/about",
-  "/press",
-  "/for",
-  "/documentation",
-  "/system-status",
-  "/referral-program",
-  "/how-to",
-  "/terms-conditions",
-  "/privacy-policy",
-  "/aml-policy",
-  "/wallet-security",
-  "/compare",
-  "/accept-crypto-payments-in",
-];
-
-export function isMarketingPath(pathname: string | undefined | null): boolean {
-  if (!pathname) return false;
-  const path = pathname.split(/[?#]/)[0].replace(/\/+$/, "") || "/";
-  if (path === "/") return true;
-  for (const prefix of MARKETING_PREFIXES) {
-    if (path === prefix || path.startsWith(`${prefix}/`)) return true;
-  }
-  return false;
-}
-
-export function getDefaultThemeForPath(pathname: string | undefined | null): ThemeMode {
-  if (isHelpSupportPath(pathname)) return "light";
-  if (isMarketingPath(pathname)) return "dark";
-  return getDefaultThemeForContext(getRouteContext(pathname));
-}
-
-export function getDefaultThemeForContext(_context: ThemeContext): ThemeMode {
-  // LIGHT is the default for the in-app dashboard, auth and buyer checkout.
-  // Marketing paths override to DARK via getDefaultThemeForPath.
-  return "light";
-}
-
-export function getStorageKeyForContext(context: ThemeContext): string {
-  return context === "inapp" ? "theme-mode-inapp" : "theme-mode-public";
-}
-
-/** Public cookie was bumped to `-v2` with the dark marketing default: the old
- *  cookie was auto-written with the light default for every visitor. */
-export function getCookieNameForContext(context: ThemeContext): string {
-  return context === "inapp" ? "theme-mode-inapp" : "theme-mode-public-v2";
+  return null;
 }

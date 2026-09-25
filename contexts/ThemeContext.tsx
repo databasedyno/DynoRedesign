@@ -2,23 +2,28 @@
 
 import React, { createContext, useContext, useState, useEffect, useLayoutEffect, useMemo, useCallback, useRef } from 'react';
 import {
-  getRouteContext,
-  getDefaultThemeForContext,
-  getStorageKeyForContext,
-  getCookieNameForContext,
-  getDefaultThemeForPath,
-  isAuthPath,
-  isHelpSupportPath,
+  THEME_KEY,
+  THEME_EFFECTIVE_COOKIE,
+  LEGACY_THEME_KEYS,
+  parseMode,
+  readCookieValue,
+  resolveLegacyMode,
+  isSafeDealPath,
   type ThemeMode,
-  type ThemeContext as ThemeCtxKind,
+  type ThemeSource,
 } from '@/utils/theme/routeContext';
 
 interface ThemeContextType {
   mode: ThemeMode;
   toggleTheme: () => void;
   isDark: boolean;
-  /** Which context ("inapp" | "public") is currently active for this route. */
-  routeContext: ThemeCtxKind;
+  /** "manual" = remembered choice, "system" = following the device, "fixed" = SafeDeal. */
+  source: ThemeSource;
+}
+
+interface ThemeState {
+  mode: ThemeMode;
+  source: ThemeSource;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -28,118 +33,79 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 const useIsomorphicLayoutEffect =
   typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
-/** Persist the preference to the context-scoped cookie so the server can
- *  render the correct theme on the next request. */
-function writeThemeCookie(ctx: ThemeCtxKind, mode: ThemeMode) {
-  if (typeof document === 'undefined') return;
+const DARK_MQ = '(prefers-color-scheme: dark)';
+
+function writeCookie(name: string, value: string) {
   try {
-    const name = getCookieNameForContext(ctx);
-    document.cookie = `${name}=${mode}; path=/; max-age=31536000; samesite=lax`;
+    document.cookie = `${name}=${value}; path=/; max-age=31536000; samesite=lax`;
   } catch {
     /* ignore */
   }
 }
 
-/** Resolve the current context from window.location. Safe to call in effects. */
-function currentRouteContext(): ThemeCtxKind {
-  if (typeof window === 'undefined') return 'public';
-  return getRouteContext(window.location.pathname);
-}
-
-/** Read a cookie value by name (client only). Used as a fallback signal for
- *  the merchant's in-app theme on /help-support, since a default-DARK merchant
- *  who never manually toggled has no `theme-mode-inapp` in localStorage but
- *  DOES have the cookie (written on every in-app page visit). */
 function readCookie(name: string): string | null {
-  if (typeof document === 'undefined') return null;
   try {
-    const m = document.cookie.match(
-      new RegExp('(?:^|;\\s*)' + name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '=([^;]+)'),
-    );
-    return m ? decodeURIComponent(m[1]) : null;
+    return readCookieValue(document.cookie, name);
   } catch {
     return null;
   }
 }
 
-/** Read the merchant's in-app theme preference from localStorage first, then
- *  the cookie fallback. Returns null when there is no in-app signal at all
- *  (e.g. a first-time visitor who has never opened the dashboard). */
-function readInappPreference(): ThemeMode | null {
+function readStorage(key: string): string | null {
   try {
-    const ls = typeof window !== 'undefined'
-      ? window.localStorage.getItem('theme-mode-inapp')
-      : null;
-    if (ls === 'light' || ls === 'dark') return ls;
+    return window.localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function systemMode(): ThemeMode {
+  try {
+    return window.matchMedia(DARK_MQ).matches ? 'dark' : 'light';
+  } catch {
+    return 'light';
+  }
+}
+
+function persistManual(mode: ThemeMode) {
+  try {
+    window.localStorage.setItem(THEME_KEY, mode);
   } catch {
     /* ignore */
   }
-  const ck = readCookie('theme-mode-inapp');
-  if (ck === 'light' || ck === 'dark') return ck;
-  return null;
+  writeCookie(THEME_KEY, mode);
 }
 
-/** Persist a resolved theme for a context to BOTH localStorage and the cookie, so
- *  the first public page a visitor sees becomes their remembered theme across
- *  marketing, checkout and auth (no route-default flips) and SSR agrees. */
-function persistTheme(ctx: ThemeCtxKind, mode: ThemeMode) {
-  try {
-    window.localStorage.setItem(getStorageKeyForContext(ctx), mode);
-  } catch {
-    /* ignore */
-  }
-  writeThemeCookie(ctx, mode);
+/** The remembered choice: `dyno-theme` (storage → cookie), else a one-time
+ *  migration from the legacy per-context keys (dashboard > legacy > public). */
+function readManualChoice(): ThemeMode | null {
+  const direct = parseMode(readStorage(THEME_KEY)) ?? parseMode(readCookie(THEME_KEY));
+  if (direct) return direct;
+  const legacy = resolveLegacyMode((k) => readStorage(k) ?? readCookie(k));
+  if (legacy) persistManual(legacy);
+  return legacy;
 }
 
-/** Saved preference for a context: localStorage first, then its cookie. */
-function readSavedMode(ctx: ThemeCtxKind): ThemeMode | null {
-  try {
-    const ls = window.localStorage.getItem(getStorageKeyForContext(ctx));
-    if (ls === 'light' || ls === 'dark') return ls;
-  } catch {
-    /* ignore */
-  }
-  const ck = readCookie(getCookieNameForContext(ctx));
-  return ck === 'light' || ck === 'dark' ? ck : null;
-}
-
-/** Read the preferred mode for a context — saved preference (storage → cookie),
- *  else inherit the OTHER context's saved theme on first visit, else route default.
- *  Theme Memory (2026-09): the visitor's theme is sticky across every public
- *  surface and carries into the dashboard the first time they sign in. */
-function readPreferredMode(ctx: ThemeCtxKind, pathname?: string): ThemeMode {
-  if (typeof window === 'undefined') return getDefaultThemeForContext(ctx);
-  const resolvedPath = pathname ?? window.location.pathname;
-  // Help & Support (dual-purpose): FOLLOW the in-app theme preference so a
-  // signed-in merchant on dark keeps dark instead of flipping to light, but
-  // fall back to the LIGHT public default for first-time / logged-out visitors
-  // (who have no in-app signal at all).
-  if (isHelpSupportPath(resolvedPath)) {
-    const inapp = readInappPreference();
-    if (inapp) return inapp;
-    return getDefaultThemeForPath(resolvedPath); // light
-  }
-  try {
-    const saved = readSavedMode(ctx);
-    if (saved) return saved;
-    if (ctx === 'public') {
-      // Auth-path inheritance (Public Auth Card feature, 2025-07 pass).
-      if (isAuthPath(resolvedPath) && readSavedMode('inapp') === 'dark') return 'dark';
-    } else {
-      // One-time migration from the legacy single-key 'theme-mode' (in-app only).
-      const legacy = window.localStorage.getItem('theme-mode');
-      if (legacy === 'light' || legacy === 'dark') {
-        try { window.localStorage.setItem(getStorageKeyForContext(ctx), legacy); } catch { /* ignore */ }
-        return legacy;
-      }
-      // First sign-in: carry the visitor's public theme into the dashboard.
-      const pub = readSavedMode('public');
-      if (pub) return pub;
+function clearLegacyKeys() {
+  for (const key of LEGACY_THEME_KEYS) {
+    try {
+      window.localStorage.removeItem(key);
+    } catch {
+      /* ignore */
     }
-  } catch {
-    /* ignore quota / privacy-mode failures */
+    try {
+      document.cookie = `${key}=; path=/; max-age=0`;
+    } catch {
+      /* ignore */
+    }
   }
-  return getDefaultThemeForPath(resolvedPath);
+}
+
+function resolveTheme(): ThemeState {
+  if (isSafeDealPath(window.location.pathname)) return { mode: 'light', source: 'fixed' };
+  const manual = readManualChoice();
+  if (manual) return { mode: manual, source: 'manual' };
+  return { mode: systemMode(), source: 'system' };
 }
 
 export const useThemeMode = () => {
@@ -149,7 +115,7 @@ export const useThemeMode = () => {
       mode: 'light' as ThemeMode,
       toggleTheme: () => {},
       isDark: false,
-      routeContext: 'public' as ThemeCtxKind,
+      source: 'system' as ThemeSource,
     };
   }
   return context;
@@ -161,75 +127,34 @@ export const ThemeProvider: React.FC<{
    *  the server render so emotion doesn't hydrate-mismatch. */
   initialMode?: ThemeMode;
 }> = ({ children, initialMode }) => {
-  // Initial state mirrors the server-provided value. Identical on server +
-  // first client render → no hydration mismatch.
-  const [mode, setMode] = useState<ThemeMode>(initialMode ?? 'light');
-  const [routeCtx, setRouteCtx] = useState<ThemeCtxKind>(() =>
-    typeof window === 'undefined' ? 'public' : currentRouteContext(),
-  );
+  const [state, setState] = useState<ThemeState>({ mode: initialMode ?? 'light', source: 'system' });
+  const stateRef = useRef(state);
+  stateRef.current = state;
 
-  // Track whether the user has explicitly chosen a theme (manual toggle) —
-  // kept for parity with earlier sessions; no longer used for gating.
-  const userOverrideRef = useRef(false);
-
-  // ── On mount: reconcile with localStorage > route default, and persist
-  //    to the context cookie so the NEXT SSR renders the correct theme. ──
-  //    Runs in a LAYOUT effect (before the browser paints) so a visitor
-  //    whose SSR fell back to the route default (e.g. cookie absent while
-  //    localStorage says something else) never sees a one-frame flash of
-  //    the wrong theme. The first client render still matches SSR (mode =
-  //    initialMode) so there is no hydration mismatch — the switch to the
-  //    stored theme happens after hydration commits but before paint.
-  useIsomorphicLayoutEffect(() => {
-    const ctx = currentRouteContext();
-    const resolved = readPreferredMode(ctx);
-    if (resolved !== mode) setMode(resolved);
-    if (ctx !== routeCtx) setRouteCtx(ctx);
-    // Help & Support follows the in-app theme but must NOT auto-persist a
-    // cookie here: writing the public cookie would bleed dark onto the
-    // marketing site, and writing the in-app cookie would bleed a visitor's
-    // light default into the merchant app. It only persists on explicit toggle.
-    if (!isHelpSupportPath(window.location.pathname)) {
-      persistTheme(ctx, resolved);
-    }
-    // Record whether we picked up an explicit override.
-    try {
-      const stored = window.localStorage.getItem(getStorageKeyForContext(ctx));
-      if (stored === 'light' || stored === 'dark') userOverrideRef.current = true;
-    } catch { /* ignore */ }
+  // Re-resolve from storage / device and record the effective mode for SSR.
+  const apply = useCallback(() => {
+    const next = resolveTheme();
+    setState((prev) => (prev.mode === next.mode && prev.source === next.source ? prev : next));
+    if (next.source !== 'fixed') writeCookie(THEME_EFFECTIVE_COOKIE, next.mode);
   }, []);
 
-  // ── Watch for client-side navigations. Next.js pushes with history.pushState
-  //    → the History API doesn't emit a 'popstate' event, so we patch push
-  //    once at mount to detect route changes and re-evaluate the active
-  //    context/preference. Also listen to popstate for back/forward. ──
+  // Mount: reconcile before paint (SSR may have fallen back to a default).
+  useIsomorphicLayoutEffect(() => {
+    apply();
+    clearLegacyKeys();
+  }, [apply]);
+
+  // Client-side navigation (Next uses pushState, which emits no event — patch
+  // it once), back/forward, tab focus and cross-tab storage changes.
   useEffect(() => {
-    if (typeof window === 'undefined') return;
     let disposed = false;
-
     const reconcile = () => {
-      if (disposed) return;
-      const ctx = currentRouteContext();
-      const resolved = readPreferredMode(ctx);
-      // If ONLY the context changed but the current mode already matches the
-      // context's stored preference, we still update routeCtx so consumers
-      // (e.g. debug tooling) see the right value. Cheap set — React bails
-      // out when the value is referentially equal, but not for primitives.
-      setRouteCtx((prev) => (prev === ctx ? prev : ctx));
-      setMode((prev) => (prev === resolved ? prev : resolved));
-      // See mount-effect note: never auto-persist the theme cookie on /help-support.
-      if (!isHelpSupportPath(window.location.pathname)) {
-        persistTheme(ctx, resolved);
-      }
+      if (!disposed) apply();
     };
-
-    // Patch history.pushState / replaceState to fire an event on each call.
     const EVT = 'dynopay:routechange';
     type PatchedFn = typeof window.history.pushState & { __dynoPatched?: boolean };
     const patch = (name: 'pushState' | 'replaceState') => {
       const orig = window.history[name] as PatchedFn;
-      // Guard against double-patching (Fast Refresh) — the orig itself is
-      // stashed on the fn so subsequent mounts can detect + skip.
       if (orig.__dynoPatched) return;
       const wrapped = function (this: History, ...args: unknown[]) {
         const ret = orig.apply(this, args as Parameters<typeof orig>);
@@ -241,74 +166,65 @@ export const ThemeProvider: React.FC<{
     };
     try { patch('pushState'); patch('replaceState'); } catch { /* ignore */ }
 
+    const onStorage = (e: StorageEvent) => {
+      if (!e.key || e.key === THEME_KEY) reconcile();
+    };
     window.addEventListener(EVT, reconcile);
     window.addEventListener('popstate', reconcile);
-    // Also re-check when tab regains focus — user may have toggled on the
-    // other tab in the same context.
     window.addEventListener('focus', reconcile);
+    window.addEventListener('storage', onStorage);
     return () => {
       disposed = true;
       window.removeEventListener(EVT, reconcile);
       window.removeEventListener('popstate', reconcile);
       window.removeEventListener('focus', reconcile);
+      window.removeEventListener('storage', onStorage);
     };
-  }, []);
+  }, [apply]);
 
-  // ── Keep data-theme attribute + colorScheme in sync so CSS always matches ──
-  useIsomorphicLayoutEffect(() => {
-    if (typeof document !== 'undefined') {
-      document.documentElement.dataset.theme = mode;
-      document.documentElement.style.colorScheme = mode;
-      // Clear inline bg so MUI/CSS takes over (blocking script bg was just
-      // for first paint).
-      document.documentElement.style.backgroundColor = '';
-    }
-  }, [mode]);
-
-  // ── OS-preference listener neutralised (Session 44 legacy). Kept as a
-  //    no-op stub in case we ever add an "Auto — follow OS" mode. ──
+  // Follow the device live until the first manual toggle.
   useEffect(() => {
-    return;
-  }, []);
+    if (state.source !== 'system') return;
+    let mq: MediaQueryList;
+    try {
+      mq = window.matchMedia(DARK_MQ);
+    } catch {
+      return;
+    }
+    const onChange = () => apply();
+    if (typeof mq.addEventListener === 'function') {
+      mq.addEventListener('change', onChange);
+      return () => mq.removeEventListener('change', onChange);
+    }
+    mq.addListener(onChange);
+    return () => mq.removeListener(onChange);
+  }, [state.source, apply]);
 
-  // ── Manual toggle: mutates the CURRENT context's preference only. ──
+  // Keep data-theme + colorScheme in sync so CSS always matches.
+  useIsomorphicLayoutEffect(() => {
+    document.documentElement.dataset.theme = state.mode;
+    document.documentElement.style.colorScheme = state.mode;
+    // Clear the blocking script's first-paint bg so MUI/CSS takes over.
+    document.documentElement.style.backgroundColor = '';
+  }, [state.mode]);
+
+  // Manual toggle → becomes the single remembered choice everywhere.
   const toggleTheme = useCallback(() => {
-    setMode((prevMode) => {
-      const newMode: ThemeMode = prevMode === 'light' ? 'dark' : 'light';
-      userOverrideRef.current = true;
-      const ctx = currentRouteContext();
-      // On /help-support (dual-purpose) the theme follows the IN-APP
-      // preference, so an explicit toggle here persists to the in-app key +
-      // cookie — keeping Help & Support and the dashboard in lockstep.
-      const path = typeof window !== 'undefined' ? window.location.pathname : '';
-      const storageKey = isHelpSupportPath(path)
-        ? 'theme-mode-inapp'
-        : getStorageKeyForContext(ctx);
-      const cookieName = isHelpSupportPath(path)
-        ? ('theme-mode-inapp' as const)
-        : getCookieNameForContext(ctx);
-      try {
-        window.localStorage.setItem(storageKey, newMode);
-      } catch (e) {
-        console.log('Could not save theme preference');
-      }
-      try {
-        document.cookie = `${cookieName}=${newMode}; path=/; max-age=31536000; samesite=lax`;
-      } catch {
-        /* ignore */
-      }
-      return newMode;
-    });
+    if (stateRef.current.source === 'fixed') return;
+    const next: ThemeMode = stateRef.current.mode === 'light' ? 'dark' : 'light';
+    persistManual(next);
+    writeCookie(THEME_EFFECTIVE_COOKIE, next);
+    setState({ mode: next, source: 'manual' });
   }, []);
 
   const value = useMemo(
     () => ({
-      mode,
+      mode: state.mode,
       toggleTheme,
-      isDark: mode === 'dark',
-      routeContext: routeCtx,
+      isDark: state.mode === 'dark',
+      source: state.source,
     }),
-    [mode, toggleTheme, routeCtx],
+    [state.mode, state.source, toggleTheme],
   );
 
   return (

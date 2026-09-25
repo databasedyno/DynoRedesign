@@ -565,9 +565,10 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
       case "pay":
         return isDark ? homeThemeDark : homeTheme;
       default:
+        if (pathname.startsWith("/safedeal")) return appThemeLight;
         return isDark ? appThemeDark : appThemeLight;
     }
-  }, [resolvedLayout, isDark]);
+  }, [resolvedLayout, isDark, pathname]);
 
   const renderWithLayout = () => {
     switch (resolvedLayout) {
@@ -837,91 +838,37 @@ function App({
   );
 }
 
-// Read the theme preference server-side. Now route-context-aware (2025-07):
-//   - In-app surfaces (dashboard, transactions, wallets, settings, admin…)
-//     default to DARK when the user has never toggled there.
-//   - Public surfaces (landing, marketing, buyer checkout, auth, docs, legal)
-//     default to LIGHT.
-// Two independent cookies (`theme-mode-inapp`, `theme-mode-public`) hold the
-// user's explicit choice per context so a manual toggle on the dashboard
-// doesn't blow away the clean light landing page (or vice versa).
-//
-// Order of precedence for the initial mode:
-//   1. Context-scoped cookie (`theme-mode-{inapp|public}`)
-//   2. Legacy `theme-mode` cookie (single-preference migration, only if the
-//      context cookie is missing) — one-time carry-over.
-//   3. Route-context default: dark for in-app, light for public.
+// Read the theme preference server-side (Theme Memory, 2026-09):
+//   1. `dyno-theme` cookie — the visitor's remembered manual choice
+//   2. legacy per-context cookies (one-time migration: dashboard > legacy > public)
+//   3. `Sec-CH-Prefers-Color-Scheme` client hint (live device preference, Chromium)
+//   4. `dyno-theme-eff` cookie — last effective mode written by the blocking script
+//   5. light
+// SafeDeal (/safedeal/*) is always light.
 App.getInitialProps = async (appContext: AppContext) => {
   const appProps = await NextApp.getInitialProps(appContext);
   const req = appContext.ctx.req;
   const reqHeaders = req?.headers || {};
 
-  // Client hint kept for potential future analytics; NOT used for the mode
-  // decision (see Session 44 comment in ThemeContext).
   const clientHintRaw = reqHeaders["sec-ch-prefers-color-scheme"];
   const clientHint = Array.isArray(clientHintRaw) ? clientHintRaw[0] : clientHintRaw;
-  void (clientHint === "light" || clientHint === "dark" ? clientHint : null);
 
-  // Determine route context from the incoming URL.
   const rawUrl = (appContext.ctx.pathname || (req as any)?.url || "/") as string;
   const pathname = rawUrl.split(/[?#]/)[0] || "/";
-  const {
-    getRouteContext,
-    getDefaultThemeForContext,
-    getDefaultThemeForPath,
-    getCookieNameForContext,
-    isAuthPath,
-    isHelpSupportPath,
-  } = await import("@/utils/theme/routeContext");
-  const routeCtx = getRouteContext(pathname);
-  // Help & Support follows the in-app theme preference, so read its cookie.
-  const cookieName = isHelpSupportPath(pathname)
-    ? "theme-mode-inapp"
-    : getCookieNameForContext(routeCtx);
+  const { THEME_KEY, THEME_EFFECTIVE_COOKIE, parseMode, readCookieValue, resolveLegacyMode, isSafeDealPath } =
+    await import("@/utils/theme/routeContext");
 
   const cookieHeader =
     reqHeaders.cookie ||
     (typeof document !== "undefined" ? document.cookie : "");
 
-  const escaped = cookieName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const contextMatch = new RegExp(
-    `(?:^|;\\s*)${escaped}=(light|dark)`,
-  ).exec(cookieHeader || "");
-  const contextCookieValue = contextMatch
-    ? (contextMatch[1] as "light" | "dark")
-    : null;
-
-  // Legacy single-key migration (one-time; ThemeContext + _document
-  // blocking script also handle their own migration paths).
-  const legacyMatch = /(?:^|;\s*)theme-mode=(light|dark)/.exec(cookieHeader || "");
-  const legacyValue = legacyMatch ? (legacyMatch[1] as "light" | "dark") : null;
-  // Legacy single-key cookie only applies to the in-app context — the public
-  // marketing default moved to dark (2026-09) and must not be pinned by it.
-  const legacyForContext = routeCtx === "inapp" ? legacyValue : null;
-
-  // Auth-path inheritance: on /auth/* and /reset-password, if the user has
-  // NOT set an explicit public cookie AND has an explicit in-app DARK
-  // cookie, render dark so the login card feels connected to the
-  // merchant's dashboard.
-  let inheritedMode: "light" | "dark" | null = null;
-  if (isAuthPath(pathname) && !contextCookieValue) {
-    const inappMatch = /(?:^|;\s*)theme-mode-inapp=(light|dark)/.exec(
-      cookieHeader || "",
-    );
-    if (inappMatch && inappMatch[1] === "dark") inheritedMode = "dark";
-  }
-  // Theme Memory: first sign-in carries the visitor's public theme into the app.
-  if (routeCtx === "inapp" && !contextCookieValue && !legacyForContext && !isHelpSupportPath(pathname)) {
-    const pubMatch = /(?:^|;\s*)theme-mode-public-v2=(light|dark)/.exec(cookieHeader || "");
-    if (pubMatch) inheritedMode = pubMatch[1] as "light" | "dark";
-  }
-
-  const initialThemeMode: "light" | "dark" =
-    contextCookieValue ||
-    inheritedMode ||
-    legacyForContext ||
-    getDefaultThemeForPath(pathname);
-  void getDefaultThemeForContext;
+  const initialThemeMode: "light" | "dark" = isSafeDealPath(pathname)
+    ? "light"
+    : parseMode(readCookieValue(cookieHeader, THEME_KEY)) ??
+      resolveLegacyMode((k) => readCookieValue(cookieHeader, k)) ??
+      parseMode(clientHint) ??
+      parseMode(readCookieValue(cookieHeader, THEME_EFFECTIVE_COOKIE)) ??
+      "light";
   // ── 3B: server-side locale for ?lang= (renders translated HTML per request) ──
   const I18N_LANGS = ["en", "pt", "fr", "es", "de", "nl"];
   const qLang = appContext.ctx.query?.lang;

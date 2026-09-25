@@ -87,105 +87,44 @@ export default function MyDocument({ emotionStyleTags, lang }: MyDocumentProps) 
           }}
         />
         {/* ── Blocking theme script: runs BEFORE React hydrates to prevent flash.
-             Now route-context-aware (2025-07 pass): in-app surfaces default
-             to DARK (dashboard, transactions, wallets, settings, etc.),
-             public surfaces (landing, marketing, buyer checkout, auth,
-             docs) default to LIGHT. User toggles are scoped per context.
-             Auth paths additionally inherit the merchant's in-app dark
-             preference so a link from a dark email doesn't jarringly
-             flash light. ── */}
+             Theme Memory (2026-09): ONE remembered choice (`dyno-theme`) for the
+             whole site; with nothing remembered the device preference is used
+             (live). SafeDeal is always light. Keep IN SYNC with
+             utils/theme/routeContext.ts + contexts/ThemeContext.tsx. ── */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
 (function(){
-  // Compute the route context (in-app vs public) WITHOUT touching storage,
-  // so a blocked/throwing localStorage (e.g. iOS Safari private mode, or a
-  // browser with site-data disabled) can never downgrade an in-app surface
-  // to light. Keep INAPP/AUTH IN SYNC with utils/theme/routeContext.ts.
-  function stripPath(){
-    try { return ((location && location.pathname) || '/').replace(/\\/+$/, '') || '/'; }
-    catch (e) { return '/'; }
-  }
-  function matchPrefix(p, list){
-    for (var i = 0; i < list.length; i++) {
-      if (p === list[i] || p.indexOf(list[i] + '/') === 0) return true;
-    }
-    return false;
-  }
-  var INAPP = ['/dashboard','/transactions','/wallet','/wallets','/customers','/invoices','/notifications','/settings','/profile','/create-pay-link','/pay-links','/referrals','/developer-keys','/company','/admin','/creator','/storefront','/payouts','/get-started','/kyc'];
-  var AUTH  = ['/auth','/reset-password'];
-  var HELP  = ['/help-support'];
-  var MARKETING = ['/products','/fees','/blog','/about','/press','/for','/documentation','/system-status','/referral-program','/how-to','/terms-conditions','/privacy-policy','/aml-policy','/wallet-security','/compare','/accept-crypto-payments-in'];
-  function readCk(name){ try { var m = document.cookie.match(new RegExp('(?:^|;\\\\s*)' + name + '=([^;]+)')); return m ? m[1] : null; } catch(e){ return null; } }
-  var path = stripPath();
-  var context = matchPrefix(path, INAPP) ? 'inapp' : 'public';
-  var isAuth = matchPrefix(path, AUTH);
-  var isHelp = matchPrefix(path, HELP);
-  // Help & Support is dual-purpose: FOLLOW the in-app theme preference (so a
-  // dark merchant keeps dark) but DEFAULT to light for logged-out visitors.
-  var storageKey = (context === 'inapp' || isHelp) ? 'theme-mode-inapp' : 'theme-mode-public';
-  var cookieKey = (context === 'inapp' || isHelp) ? 'theme-mode-inapp' : 'theme-mode-public-v2';
-  // 2026-09: marketing pages default to DARK (Bybit-style); auth, checkout and
-  // the app default to LIGHT. An explicit saved preference still wins below.
-  var isMarketing = path === '/' || matchPrefix(path, MARKETING);
-  var defaultMode = (context === 'public' && isMarketing && !isAuth && !isHelp) ? 'dark' : 'light';
-
-  // Start from the ROUTE default. Only a stored preference (or cross-context
-  // inheritance) may override it — and reading storage is isolated so its
-  // failure leaves the correct route default intact.
-  // Theme Memory (2026-09): the resolved theme is persisted to localStorage AND
-  // the cookie, so the first public page a visitor sees pins their theme across
-  // marketing, checkout and auth, and carries into the app on first sign-in.
-  var mode = defaultMode;
-  function savedFor(lsKey, ckKey){
-    var v = null;
-    try { v = localStorage.getItem(lsKey); } catch (e) {}
-    if (v !== 'light' && v !== 'dark') v = readCk(ckKey);
-    return (v === 'light' || v === 'dark') ? v : null;
-  }
-  try {
-    if (isHelp) {
-      // Follow the in-app preference: localStorage first, then the cookie
-      // (covers default-dark merchants who never manually toggled). Otherwise
-      // keep the light marketing default for logged-out visitors.
-      var hSaved = savedFor('theme-mode-inapp', 'theme-mode-inapp');
-      if (hSaved) mode = hSaved;
-    } else {
-      var saved = savedFor(storageKey, cookieKey);
-      // One-time migration from the legacy single 'theme-mode' key (in-app only).
-      if (!saved && context === 'inapp') {
-        var legacy = localStorage.getItem('theme-mode');
-        if (legacy === 'light' || legacy === 'dark') saved = legacy;
-      }
-      if (saved) {
-        mode = saved;
-      } else if (isAuth) {
-        // Auth-path inheritance: mirror an explicit in-app DARK preference so a
-        // link from a dark email doesn't jarringly flash the login card white.
-        if (savedFor('theme-mode-inapp', 'theme-mode-inapp') === 'dark') mode = 'dark';
-      } else if (context === 'inapp') {
-        // First sign-in: carry the visitor's public theme into the dashboard.
-        var pub = savedFor('theme-mode-public', 'theme-mode-public-v2');
-        if (pub) mode = pub;
+  var KEY = 'dyno-theme', EFF = 'dyno-theme-eff';
+  function ck(n){ try { var m = document.cookie.match(new RegExp('(?:^|;\\s*)' + n + '=([^;]+)')); return m ? m[1] : null; } catch (e) { return null; } }
+  function ls(n){ try { return localStorage.getItem(n); } catch (e) { return null; } }
+  function ok(v){ return (v === 'light' || v === 'dark') ? v : null; }
+  var path = '/';
+  try { path = (location.pathname || '/').replace(/\/+$/, '') || '/'; } catch (e) {}
+  var fixed = path === '/safedeal' || path.indexOf('/safedeal/') === 0;
+  var mode = null;
+  if (fixed) {
+    mode = 'light';
+  } else {
+    mode = ok(ls(KEY)) || ok(ck(KEY));
+    if (!mode) {
+      // One-time migration: dashboard choice > legacy single key > public choice.
+      var legacy = ok(ls('theme-mode-inapp')) || ok(ck('theme-mode-inapp')) || ok(ls('theme-mode')) || ok(ck('theme-mode')) || ok(ls('theme-mode-public')) || ok(ck('theme-mode-public-v2'));
+      if (legacy) {
+        mode = legacy;
+        try { localStorage.setItem(KEY, legacy); } catch (e) {}
+        try { document.cookie = KEY + '=' + legacy + '; path=/; max-age=31536000; samesite=lax'; } catch (e) {}
       }
     }
-  } catch (e) {
-    // Storage unavailable/blocked — keep the route default.
+    if (!mode) {
+      try { mode = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; } catch (e) { mode = 'light'; }
+    }
+    try { document.cookie = EFF + '=' + mode + '; path=/; max-age=31536000; samesite=lax'; } catch (e) {}
   }
-
   try {
     document.documentElement.dataset.theme = mode;
     document.documentElement.style.colorScheme = mode;
     document.documentElement.style.backgroundColor = mode === 'light' ? '#FFFFFF' : '#000000';
-  } catch (e) {}
-  try {
-    // Never auto-persist the theme on /help-support (see ThemeContext):
-    // it would pollute either the public preference (dark bleeds onto marketing)
-    // or the in-app one (a visitor's light default bleeds into the app).
-    if (!isHelp) {
-      try { localStorage.setItem(storageKey, mode); } catch (e) {}
-      document.cookie = cookieKey + '=' + mode + '; path=/; max-age=31536000; samesite=lax';
-    }
   } catch (e) {}
 })();
 `,
