@@ -1,3 +1,8 @@
+## 2026-09-25 (fork) — POD PREVIEW URL + QA CENTER PASSCODE (read first)
+## - LIVE preview URL for THIS pod = https://cross-page-theme-qa.preview.emergentagent.com (env `preview_endpoint`). The parent-job URL db6f1699-…preview.emergentagent.com is STALE → resolves to Cloudflare/Webflow prod → 404s all /api/*. Never use it.
+## - Backend on this pod runs under uvicorn `--reload` (WatchFiles) → transient 502/503 "Backend starting" during reloads. Any fetch/curl/Playwright QA must send a browser User-Agent and retry on 5xx.
+## - Quality Center (/quality) passcode: header `x-qa-passcode: Dynopay123@` (backend routes/qualityRouter.ts, env QA_PASSCODE overrides; not set here). Read QA notes: curl -s $URL/api/quality/data -H "x-qa-passcode: Dynopay123@". Statuses per item = latest comment.
+
 ## 2026-09-24 — SafeDeal SECURITY HARDENING (read before any SafeDeal QA)
 ## - Sign-in `preview_code` is ONLY returned for reserved test domains (`*@example.com|.net|.org`, `*.test`, `*.invalid`, `*.localhost`) while DISABLE_OUTBOUND_EMAIL=true. Real mailboxes (gmail etc.) never get a code in the response — even on preview (shared prod DB).
 ## - Step-up codes: single use, 5 wrong attempts invalidate. Rate limits: send-code/verify-code 10 per 15 min per IP+email; step-up 10/15m per IP; telegram/address/withdraw/simulate 20/15m per IP (Redis keys ratelimit:otp:*, ratelimit:sd:*).
@@ -54,7 +59,7 @@
 ## - Network fees now realistic per coin (USDT-TRC20 ~2.24 live / 2 floor; ERC20 3; POLYGON 0.1) with a Math.max floor so live never under-quotes. Top-up credits the FULL requested amount; fee added on top (send amount+fee).
 ## - Self-heal test helper: from /app/backend → `node -r dotenv/config scripts/topup_selfheal_test.js seed <customer_id>` → GET the topup (auto-credits) → `... cleanup <topup_id> <payment_id> <customer_id>`.
 ## - Pytest: /app/backend/tests/test_safedeal_iter209_topup_orphan_fees.py (7 pass, 3 skip: reserve-vs-autowithdraw needs a payout address which CSRF-blocks curl; deal-funding orphan needs LIVE_SETTLEMENT; both covered by code+top-up path).
-## - Preview URL (this pod): https://passphrases-2.preview.emergentagent.com (older memory-safe-12 URL is STALE).
+## - Preview URL (this pod): https://cross-page-theme-qa.preview.emergentagent.com (older memory-safe-12 URL is STALE).
 
 
 ## Telegram Login (SafeDeal) — added & VERIFIED (2026-06). Bot @SafeDealAlert_bot, token in backend/.env SAFEDEAL_TELEGRAM_BOT_TOKEN.
@@ -85,7 +90,7 @@
 
 # Test credentials (current pod)
 
-Preview URL (THIS pod): https://passphrases-2.preview.emergentagent.com  (source of truth: APP_URL in /etc/supervisor/conf.d/*.conf; frontend env = /app/.env.local, NOT /app/.env)
+Preview URL (THIS pod): https://cross-page-theme-qa.preview.emergentagent.com  (source of truth: APP_URL in /etc/supervisor/conf.d/*.conf; frontend env = /app/.env.local, NOT /app/.env)
 # NOTE (2026-09): Next DEV heap raised to 8192 in scripts/start-frontend.sh to cut the memory-recycle 502s that intermittently hit the edge. If E2E hits a 502, it's a ~5s dev-server recycle — retry after ~15s.
 
 ## Brands on the owner account (company selector: data-testid=company-option-<id>)

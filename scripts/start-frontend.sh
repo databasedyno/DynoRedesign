@@ -107,7 +107,7 @@ else
       curl -sf -o /dev/null --max-time 90 http://localhost:3000/ && break
       sleep 2
     done
-    for route in /auth/login /dashboard /pay; do
+    for route in /auth/login /dashboard /pay /fees /safedeal /transactions /notifications; do
       curl -sf -o /dev/null --max-time 90 "http://localhost:3000$route" || true
     done
     echo "[start-frontend] prewarm complete (/, /auth/login, /dashboard, /pay compiled)"

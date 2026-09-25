@@ -96,11 +96,11 @@ export default function MyDocument({ emotionStyleTags, lang }: MyDocumentProps) 
             __html: `
 (function(){
   var KEY = 'dyno-theme', EFF = 'dyno-theme-eff';
-  function ck(n){ try { var m = document.cookie.match(new RegExp('(?:^|;\\s*)' + n + '=([^;]+)')); return m ? m[1] : null; } catch (e) { return null; } }
+  function ck(n){ try { var m = document.cookie.match(new RegExp('(?:^|; *)' + n + '=([^;]+)')); return m ? m[1] : null; } catch (e) { return null; } }
   function ls(n){ try { return localStorage.getItem(n); } catch (e) { return null; } }
   function ok(v){ return (v === 'light' || v === 'dark') ? v : null; }
   var path = '/';
-  try { path = (location.pathname || '/').replace(/\/+$/, '') || '/'; } catch (e) {}
+  try { path = (location.pathname || '/').replace(/[/]+$/, '') || '/'; } catch (e) {}
   var fixed = path === '/safedeal' || path.indexOf('/safedeal/') === 0;
   var mode = null;
   if (fixed) {

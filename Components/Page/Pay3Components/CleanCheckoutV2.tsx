@@ -2044,7 +2044,8 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
       {/* Pay with wallet (Reown AppKit) — EVM / Tron / Solana: connects 600+ wallets and
           pre-fills chain, token, exact amount and address, so no copy/paste or wrong-network
           sends. Purely additive: QR + copy stay as the fallback. */}
-      {cryptoInfo && (phase === 'awaiting_payment' || phase === 'underpaid') && isWalletPayable(cryptoInfo.crypto_display) && (
+      {/* HIDDEN per request — WalletConnect "Pay with wallet" removed from checkout; QR + copy-address remain the payment path. */}
+      {false && cryptoInfo && (phase === 'awaiting_payment' || phase === 'underpaid') && isWalletPayable(cryptoInfo.crypto_display) && (
         <Box sx={{ mb: 2 }} data-testid="clean-checkout-wallet-pay-wrap">
           <WalletActionButton
             mode="pay"

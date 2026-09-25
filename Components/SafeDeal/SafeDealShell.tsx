@@ -61,6 +61,7 @@ export default function SafeDealShell({
   ogImageAlt,
   wide = false,
   dark = false,
+  jsonLd,
 }: {
   children: ReactNode;
   title?: string;
@@ -70,6 +71,8 @@ export default function SafeDealShell({
   ogImageAlt?: string;
   wide?: boolean;
   dark?: boolean;
+  /** Page-specific schema.org structured data (FAQPage, Service, …). Merged with the base Organization + WebSite graph. */
+  jsonLd?: Record<string, unknown> | Array<Record<string, unknown>>;
 }) {
   const href = useSdHref();
   const router = useRouter();
@@ -113,6 +116,34 @@ export default function SafeDealShell({
   const cleanPath = path.split("?")[0].split("#")[0].replace(/^\/safedeal(?=\/|$)/, "") || "/";
   const canonicalUrl = `${SD_SITE}${cleanPath === "/" ? "" : cleanPath}`;
   const ogImageUrl = ogImage || `${SD_SITE}/safedeal/og-image.png`;
+  // Structured data (schema.org). Base Organization + WebSite graph on every
+  // indexable SafeDeal page so Google/Bing resolve the brand entity; pages may
+  // add their own (FAQPage on /help, Service on the landing).
+  const baseJsonLd: Array<Record<string, unknown>> = noindex
+    ? []
+    : [
+        {
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          "@id": `${SD_SITE}/#organization`,
+          name: "SafeDeal",
+          url: SD_SITE,
+          logo: `${SD_SITE}/safedeal/favicon-512.png`,
+          image: ogImageUrl,
+          description: SD_DEFAULT_DESC,
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "@id": `${SD_SITE}/#website`,
+          name: "SafeDeal",
+          url: SD_SITE,
+          inLanguage: "en",
+          publisher: { "@id": `${SD_SITE}/#organization` },
+        },
+      ];
+  const pageJsonLd = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
+  const allJsonLd = [...baseJsonLd, ...pageJsonLd];
   const isActive = (p: string) => path.includes(p);
   // The deal-detail page renders a mobile-only fixed "Your move" action bar
   // (position:fixed, bottom:0). Reserve safe-area at the very bottom so that
@@ -171,6 +202,14 @@ export default function SafeDealShell({
         <meta key="twitter:title" name="twitter:title" content={fullTitle} />
         <meta key="twitter:description" name="twitter:description" content={metaDescription} />
         <meta key="twitter:image" name="twitter:image" content={ogImageUrl} />
+        {/* schema.org structured data — Organization + WebSite (+ page-specific FAQPage/Service). */}
+        {allJsonLd.map((obj, i) => (
+          <script
+            key={`sd-jsonld-${i}`}
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(obj) }}
+          />
+        ))}
         {/* Dialogs portal to <body>, outside this Box — set the ring var globally so they stay gold too. */}
         <style key="sd-focus-ring">{`:root{--dyno-focus-ring:${SD_GOLD};--dyno-focus-ring-shadow:0 0 0 3px rgba(255,198,26,0.35)}`}</style>
       </Head>

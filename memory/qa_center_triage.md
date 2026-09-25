@@ -1,67 +1,50 @@
-## RESOLUTION (2026-06) — Bucket A fixed & verified (testing_agent iteration_199: backend 100% / frontend 100%, 0 issues)
-FIXED & VERIFIED (6):
-- custom::21 Settled-only → relabelled "Export settled only" + tooltip (TransactionsToolbar.tsx); list unaffected by toggle. i18n added to 6 transactions.json (exportSettledOnly/-Hint).
-- custom::20 View-on-Explorer → helpers/explorerUrl.ts rewritten with correct per-chain explorers (etherscan / tronscan / blockchair / xrpscan / solscan / polygonscan / bscscan) + empty-hash guard. Verified: ETH→etherscan, USDT-TRC20→tronscan, BTC→blockchair.
-- INV-002 invoice date off-by-one → forced timeZone:"UTC" in pages/invoices.tsx, InvoicePreviewDrawer.tsx and backend pdfService.ts. Verified INV-20260712-00004 shows "Jul 12" in both list + PDF/preview.
-- REF-002 referral double-count → referralService.ts now recomputes referral_count via syncReferralCount(distinct referred users) in both redeem paths (no blind +1). Leaderboard 200.
-- custom::22 short description → made OPTIONAL in the quick-create modal (QuickCreateLinkPanel.validate) to match the full page.
-- WAL-005 wallet address mismatch → walletOtp.validateWallet now rejects a wrong-network address (addressMatchesCurrency) with 400 ADDRESS_CURRENCY_MISMATCH before the Tatum call.
-ALREADY RESOLVED — NO CHANGE NEEDED (verified in code/UI):
-- COMP-006 company-delete OTP → DeleteBrandModal copy already says "We'll ask you to verify it's you first" (step-up is intentional).
-- custom::23 2FA/Security card → renders cleanly at 390px (component already rebuilt responsive).
-- PAY-003 pay-link edit → checkout → updatePaymentLink already syncs base_currency + accepted_currencies + available_currencies to DB AND the customer-<ref> Redis payload; not reproducible from code — needs a live edit→checkout retest only.
-Buckets B (feature gaps) and D (env/scope) remain product decisions — untouched.
---------------------------------------------------------------------------------------------
+# QA Center Triage — current state (regenerated 2026-09-25)
 
+Source: `tbl_qa_comment` via `GET /api/quality/data` (passcode `Dynopay123@`, header `x-qa-passcode`).
+Status = the **latest** comment per item_key. Statuses: pass | fail | blocked | awaiting_retest | not_tested.
 
-# Quality Center (/quality) — failure triage vs CURRENT codebase
-Source: tbl_qa_comment (DB-backed Quality Center, passcode-gated /quality page). Tester: Tuhin Hossain, Sept 2026.
-Method: took the LATEST status per item (a thread can go fail→…→pass). 99 items total → 40 pass, 20 fail, 17 blocked, 17 awaiting_retest, 5 not_tested.
-"Open" = latest status is fail/blocked (37 items). Below each is my assessment against the code as it stands now.
+Distribution over 112 tracked items: **pass 61 · awaiting_retest 17 · blocked 18 · fail 10 · not_tested 6**.
 
-## BUCKET A — TRUE BUGS, still applicable (recommend fixing)
-- **custom::21 — "Settled only" checkbox doesn't filter the list.** VERIFIED IN CODE. In Components/Page/Transactions/index.tsx the checkbox binds to `settledExport`/`setSettledExport` and only scopes the CSV export (`exportSettledHint` = "Exports only settled payments"); the visible table is filtered by the status chips. The label "Settled only" reads like a list filter → misleading. Fix: relabel/group it under Export ("Export settled only"), or make it actually filter the list.
-- **referrals::REF-002 — leaderboard/count shows 2 for a single referral.** LIKELY REAL. getReferralLeaderboard just reads the `referral_count` column; services/referralService.ts increments referral_count in TWO places (~L205 and ~L318). If both attribution paths fire for one referral, the count doubles. Fix: ensure only one increment per referral (trace both paths).
-- **custom::20 — "View on Explorer" → HTTP 400.** LIKELY REAL. TransactionDetailsModal calls explorerTxUrl(transaction.crypto, transaction.incomingTransactionId). helpers/explorerUrl.ts has no mapping for several assets (XRP uses blockchair "ripple" which 400s for many hashes; SOL/RLUSD/USDC/BNB/USDT variants fall through to bitcoin) and doesn't guard empty/again-internal ids. Fix: correct per-chain explorers (XRP→xrpscan, SOL→solscan, etc.), guard missing hash.
-- **invoices::INV-002 — invoice date off-by-one (list "Jul 13" vs PDF/preview "12 July").** LIKELY REAL (timezone). invoice_date is a DATE; one surface renders in local tz, the other in UTC. Fix: format invoice_date as a plain calendar date (UTC) everywhere (list, preview, PDF template).
-- **custom::22 — Pay-link "Short Description" required in modal but optional on full page.** Validation inconsistency between the two forms. Fix: unify the rule in both the modal and full-page create/edit forms.
-- **paylinks::PAY-003 — editing a pay-link's currency/accepted crypto not reflected on buyer checkout.** Stale checkout config after save. Needs verify of checkout data source/caching; fix so checkout reads latest config.
-- **custom::23 — 2FA / Security card layout breaks & wraps at some widths** ("Email codes" wraps, "On since"/date stack vertically, buttons misplaced). Components/Page/Profile/TwoFactorAuth.tsx + Settings/SecuritySection.tsx. Needs a screenshot at the affected width; fix responsive layout.
-- **company::COMP-006 — unexpected OTP step after confirming company delete.** UX friction / undocumented extra step. Decide: drop the OTP for delete, or surface it in the flow copy.
-- **wallet::WAL-005 — address-type mismatch shows a UI warning but POST /api/wallet/validateWalletAddress doesn't return valid:false.** API/UI inconsistency. Fix backend validator to return the mismatch.
+Most notes authored by QA "Tuhin Hossain" (early–mid Sep 2026); awaiting_retest items are dev-fixed by E1 pending QA re-verify (several need production/Cloudflare).
 
-## BUCKET B — FEATURE GAPS (scope/product decisions, not "broken")
-- invoices::INV-001 — invoice search field missing.
-- notifications::NOTIF-001 — delete-notification action missing.
-- devkeys::DEV-006 — delete-customer action missing.
-- settings::SET-007 — login history (date/ip/device) not shown.
-- settings::SET-003 — password-change control (VERIFY: may exist under Security).
-- company::COMP-004 — webhook delivery log lacks full request/headers/response body view.
-- checkout::CHK-001 — transaction detail shows a single "Fee", not Platform + Blockchain + Total breakdown. (No fee split found in TransactionDetailsModal.)
-- auth::AUTH-013 — email verification & unsubscribe (VERIFY: unsubscribe page exists at /unsubscribe).
+---
 
-## BUCKET C — LIKELY ALREADY RESOLVED (stale note → retest, do NOT re-fix)
-- **settings::SET-008 — "deleted account can still log in": FIXED.** authLogin.ts now gates soft-deleted users (`isUserSoftDeleted` → 403 ACCOUNT_DELETED_LOGIN_MESSAGE, L142-145) and finalizeLogin re-gates; verifyLoginOTP also routes through finalizeLogin.
-- **settings::SET-002 — "profile photo upload missing": EXISTS.** controller/user/profile.ts handles "Profile Photo: Updated/Removed"; UI in Components/Page/Profile/AccountSetting.tsx. May be a placement/discoverability nit only.
-- 17 awaiting_retest items already marked fixed-pending-verify by QA: auth::AUTH-003, AUTH-009; dashboard::DASH-001, DASH-003; public::PUB-001/002/004/005/007; custom::7,8,9,13,14,15,17,18. → schedule a retest pass, not new fixes.
+## FAIL (10) — real defects to fix
+1. **Webhook delivery log — full request/response not viewable** (`company::COMP-004`). Clicking a delivery in Events Log doesn't show payload/headers/response.
+2. **Webhook Settings UI — inconsistent left padding / title-label alignment** (`custom::19`). Layout polish.
+3. **Customers — Delete Customer missing** (`devkeys::DEV-006`). No UI to delete a customer.
+4. **Notifications — Delete Notification missing** (`notifications::NOTIF-001`). No per-notification delete.
+5. **Profile — Profile photo upload missing** (`settings::SET-002`). No upload/change avatar option.
+6. **Add Phone — mobile OTP send fails** (`settings::SET-005`). Email users can't add a phone; OTP not sent.
+7. **Login History not available** (`settings::SET-007`). Should list date/time, IP, device, location.
+8. **Delete Account — deleted account can still log in** (`settings::SET-008`). After DELETE /api/user/account, same creds still log in; brand-create then errors. Security-adjacent.
+9. **KYC status/requirements APIs return nothing** (`kyc::KYC-001`). GET /api/kyc/status + /api/kyc/requirements not returning expected data.
+10. **Responsive — wide desktop (2550px) wastes space** (`crosscut::CC-004`). Content stays narrow/fixed width on ultra-wide.
 
-## BUCKET D — ENVIRONMENT / TEST-HARNESS / OUT-OF-SCOPE (no product code fix)
-- auth::AUTH-011 (make token 10-min for testing) — test convenience, not a bug.
-- checkout::CHK-004, wallet::WAL-006 — "need a real crypto payment to test" — env.
-- company::COMP-005 (provide a failed-conversion test record) — test data request.
-- notifications::NOTIF-003 (web push not configured) — infra/scope.
-- paylinks::PAY-005 (no UI to create a referral discount to verify) — test data/scope.
-- settings::SET-004 / SET-005 — phone/SMS OTP send fails → SMS provider (Telnyx) likely not configured in this env; VERIFY before treating as a real bug.
-- settings::SET-006 (remove email/phone, "no way to test") — env.
-- auth::AUTH-002 (phone dup verify) — phone flow/env.
-- subscriptions::SUB-001 (/api/subscription not found) — feature may be unbuilt; scope VERIFY.
-- kyc::KYC-001 / KYC-003 — KYC status/requirements/resubmission incomplete; scope VERIFY.
-- auth::AUTH-006 (Facebook sign-in missing) — not implemented (app uses Google/GitHub); scope decision.
-- checkout::CHK-003 (bank-transfer option) — crypto gateway; likely out of scope.
-- paylinks::PAY-001 (auto-generated link name not surfaced) — minor UX.
-- invoices::INV-003 (/api/tax/rate not found) — replaced by /api/user/tax-settings; doc mismatch, not a bug.
+## BLOCKED (18) — couldn't test / feature-missing (needs decision or data)
+- Phone Registration duplicate-error check (`auth::AUTH-002`)
+- Facebook Sign-In missing (`auth::AUTH-006`)
+- Token refresh: 7-day access token; QA wants 10-min for testing (`auth::AUTH-011`) — test-config request
+- Email Verification & Unsubscribe missing (`auth::AUTH-013`)
+- Auto-Convert: need a way to simulate a failed conversion to test Retry (`company::COMP-005`) — test-data request
+- Network fees post-payment response (`wallet::WAL-006`) — needs a real payment
+- Payment Link: no link-name field / auto-name unclear (`paylinks::PAY-001`)
+- Referral-discount link creation UI missing (`paylinks::PAY-005`)
+- Bank Transfer option not visible/settable (`checkout::CHK-003`)
+- Payment verification needs real crypto (`checkout::CHK-004`) — mockable
+- Tax rate/lookup endpoints (`/api/tax/rate/:cc`, `/api/tax/lookup`) not found (`invoices::INV-003`)
+- Push notifications need Web Push config (`notifications::NOTIF-003`)
+- Password change missing (`settings::SET-003`)
+- Change/Add Email — phone-otp error blocks (`settings::SET-004`)
+- Remove Email/Phone — no way to test (`settings::SET-006`)
+- Subscription CRUD endpoint (`/api/subscription`) not found (`subscriptions::SUB-001`)
+- KYC resubmission endpoint blocked (`kyc::KYC-003`)
+- i18n Arabic/Hebrew (RTL) not available (`i18n::I18N-001`)
 
-## Recommended fix order (highest value, lowest risk first)
-1. custom::21 (Settled-only relabel)  2. custom::20 (explorer URLs)  3. invoices::INV-002 (date tz)
-4. referrals::REF-002 (double count)  5. custom::22 (short-desc validation)  6. custom::23 (2FA layout)
-7. wallet::WAL-005  8. company::COMP-006  9. paylinks::PAY-003
+## AWAITING_RETEST (17) — dev-fixed, pending QA re-verify (many production/Cloudflare-only)
+Landing hydration #418/#423 (PUB-001), homepage cards autosize (custom::7), /for/* clipping + help padding (custom::8), mobile hamburger blank (PUB-002), back scroll restore (custom::9), fee calculator breakdown (PUB-004), docs JSON example (PUB-005), blog category filter + help feedback (PUB-007), signup email subject (custom::13), email+password login OTP set-password (auth::AUTH-003), Google already-registered handling (custom::14), 2FA enable/disable (auth::AUTH-009 + custom::15), dashboard auto-convert control (dashboard::DASH-001), onboarding no-store 304 (dashboard::DASH-003), long brand name truncation (custom::17), brand logo save-confirm (custom::18).
+
+## NOT_TESTED (6) — no status yet (not enumerated here; see /quality).
+
+---
+Suggested fix order for the FAIL bucket (quick wins → bigger): #2 (UI padding), #5 (add-phone OTP), #7 (login history), #4 (notification delete), #3 (customer delete), #1 (webhook log details), #9 (KYC APIs), #8 (delete-account re-login — security), #6? , #10 (ultra-wide responsive).
