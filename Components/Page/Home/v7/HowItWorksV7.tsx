@@ -1,25 +1,27 @@
 import React, { memo } from "react";
 import { Box, Typography } from "@mui/material";
+import { useTranslation } from "react-i18next";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "../v3/theme.v3";
 import { Section, SectionHead, cardSx } from "../v5/shared";
 import { Stagger, StaggerItem } from "../motion/Stagger";
 
 /** Section 3 of 9 — HOW IT WORKS (answers: "How does it work?") — three steps. */
 const STEPS = [
-  { n: "01", title: "Create a payment", body: "Spin up a payment link, hosted checkout, or API charge in seconds." },
-  { n: "02", title: "Customer pays in any coin", body: "They pay with Bitcoin, Ethereum, USDT and 40+ assets from any wallet." },
-  { n: "03", title: "You get settled your way", body: "We auto-convert and settle to the currency or wallet you choose." },
+  { n: "01", key: "create" },
+  { n: "02", key: "pay" },
+  { n: "03", key: "settle" },
 ];
 
 const HowItWorksV7: React.FC = () => {
   const s = useAurora();
+  const { t } = useTranslation("landing");
   return (
     <Section id="how-it-works" testId="how-it-works">
       <SectionHead
         center
-        eyebrow="How it works"
-        headline="Get paid in three steps"
-        body="From zero to your first crypto payment — without touching a blockchain."
+        eyebrow={t("v7.how.eyebrow")}
+        headline={t("v7.how.headline")}
+        body={t("v7.how.body")}
         maxWidth={720}
         testId="how-head"
       />
@@ -45,9 +47,9 @@ const HowItWorksV7: React.FC = () => {
                 {step.n}
               </Box>
               <Typography component="h3" sx={{ fontFamily: FONT_HERO, fontWeight: 600, fontSize: { xs: 19, md: 21 }, letterSpacing: "-0.01em", color: s.ink, mb: 1.25 }}>
-                {step.title}
+                {t(`v7.how.steps.${step.key}.title`)}
               </Typography>
-              <Typography sx={{ fontFamily: FONT_BODY, fontSize: 15.5, lineHeight: 1.6, color: s.ink2 }}>{step.body}</Typography>
+              <Typography sx={{ fontFamily: FONT_BODY, fontSize: 15.5, lineHeight: 1.6, color: s.ink2 }}>{t(`v7.how.steps.${step.key}.body`)}</Typography>
             </Box>
           </StaggerItem>
         ))}

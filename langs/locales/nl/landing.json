@@ -2,6 +2,136 @@
   "v7": {
     "nav": {
       "product": "Product"
+    },
+    "hero": {
+      "eyebrow": "Cryptobetalingen, vereenvoudigd",
+      "headline1": "Accepteer cryptobetalingen.",
+      "headline2": "Word betaald zoals jij wilt.",
+      "body": "Ontvang Bitcoin, Ethereum, USDT en 40+ assets — en laat automatisch uitbetalen in de valuta of wallet die jij kiest. Geen terugboekingen, geen custody, binnen enkele minuten live.",
+      "primary": "Gratis starten",
+      "secondary": "Bekijk hoe het werkt",
+      "note": "Geen creditcard · Je eerste betaling is gratis"
+    },
+    "coins": {
+      "label": "Accepteer 40+ munten op elke grote blockchain"
+    },
+    "trust": {
+      "paymentsLabel": "Betalingen deze maand afgewikkeld",
+      "uptimeLabel": "Uptime over 90 dagen",
+      "countriesLabel": "Landen bediend",
+      "statusLink": "Bekijk live status"
+    },
+    "how": {
+      "eyebrow": "Hoe het werkt",
+      "headline": "Word betaald in drie stappen",
+      "body": "Van nul naar je eerste cryptobetaling — zonder ook maar één blockchain aan te raken.",
+      "steps": {
+        "create": {
+          "title": "Maak een betaling aan",
+          "body": "Zet in seconden een betaallink, gehoste checkout of API-transactie op."
+        },
+        "pay": {
+          "title": "Klant betaalt in elke munt",
+          "body": "Ze betalen met Bitcoin, Ethereum, USDT en 40+ assets vanuit elke wallet."
+        },
+        "settle": {
+          "title": "Jij ontvangt zoals jij wilt",
+          "body": "Wij zetten automatisch om en betalen uit in de valuta of wallet die jij kiest."
+        }
+      }
+    },
+    "ways": {
+      "eyebrow": "Drie manieren om te gebruiken",
+      "headline": "Of je nu codeert of niet",
+      "body": "Begin vandaag met een link, voeg morgen een gehoste checkout toe, of bouw rechtstreeks op de API.",
+      "nocode": {
+        "title": "Zonder code",
+        "body": "Maak een betaallink of creatorpagina en deel die overal. Niets te bouwen.",
+        "cta": "Ontdek no-code"
+      },
+      "checkout": {
+        "title": "Gehoste checkout",
+        "body": "Een kant-en-klare checkout die munten, live koersen en bevestigingen voor je regelt.",
+        "cta": "Bekijk de demo"
+      },
+      "api": {
+        "title": "Developer-API",
+        "body": "Eén REST-API om betalingen te maken en webhooks te ontvangen. Klaar in een middag.",
+        "cta": "Lees de documentatie"
+      }
+    },
+    "why": {
+      "eyebrow": "Waarom Dynopay",
+      "headline": "Gebouwd om betaald te worden, niet om crypto te beheren",
+      "convert": {
+        "title": "Automatisch omzetten naar jouw valuta",
+        "body": "Reken af in USD, EUR, GBP of stablecoins. Prijs in fiat en word betaald zonder de volatiliteit."
+      },
+      "custody": {
+        "title": "Non-custodial van nature",
+        "body": "Geld gaat rechtstreeks naar de wallet die jij beheert. Wij houden jouw geld nooit vast."
+      },
+      "fees": {
+        "title": "Lage, eerlijke kosten",
+        "body": "Vanaf 1,5% per betaling. Geen maandkosten, geen terugboekingen, geen verrassingen."
+      },
+      "global": {
+        "title": "Wereldwijde dekking",
+        "body": "40+ munten, tientallen landen en 6 talen, klaar vanaf dag één."
+      }
+    },
+    "proof": {
+      "eyebrow": "Klantbewijs",
+      "headline": "Verkopers die betaald worden op Dynopay",
+      "devstore": {
+        "quote": "We accepteerden crypto in één middag. Betalingen komen binnen in USDC en er zijn geen terugboekingen — het werkt gewoon.",
+        "role": "Verkoper van digitale producten"
+      },
+      "safedeal": {
+        "quote": "Dynopay betaalt rechtstreeks uit naar onze wallet, zonder custody ertussen. Precies dat vertrouwensmodel is waarom we erop bouwen.",
+        "role": "Escrow-marktplaats"
+      }
+    },
+    "pricing": {
+      "eyebrow": "Prijzen",
+      "headline": "Eenvoudige prijzen die met je meegroeien",
+      "body": "Eén transparant tarief per betaling. Geen opstartkosten, geen maandelijkse minima.",
+      "startsAt": "Vanaf",
+      "perPayment": "per afgewikkelde betaling · daalt met volume",
+      "perks": {
+        "free": "Je eerste betaling is gratis",
+        "noMonthly": "Geen maand- of opstartkosten",
+        "noChargebacks": "Nooit terugboekingen",
+        "volume": "Volumekortingen naarmate je groeit"
+      },
+      "cta": "Bekijk volledige prijzen"
+    },
+    "faq": {
+      "eyebrow": "Veelgestelde vragen",
+      "headline": "Vragen, beantwoord",
+      "cost": {
+        "q": "Hoeveel kost het?",
+        "a": "Vanaf 1,5% per afgewikkelde betaling, dalend met volume. Er zijn geen opstart- of maandkosten, en je eerste betaling is gratis."
+      },
+      "speed": {
+        "q": "Hoe snel word ik betaald?",
+        "a": "De meeste betalingen worden binnen enkele minuten na on-chain bevestiging afgewikkeld — de mediaan op snelle blockchains is zo'n 4 minuten — rechtstreeks naar de wallet of rekening die jij kiest."
+      },
+      "custody": {
+        "q": "Houden jullie mijn geld vast?",
+        "a": "Nee. Dynopay is non-custodial: afgewikkeld geld gaat rechtstreeks naar de wallet die jij beheert. Wij nemen jouw geld nooit in bewaring."
+      },
+      "coins": {
+        "q": "Met welke munten kunnen klanten betalen?",
+        "a": "Bitcoin, Ethereum, USDT, USDC en 40+ assets op grote blockchains. Jij kiest in welke valuta je wilt ontvangen."
+      }
+    },
+    "finalCta": {
+      "eyebrow": "Aan de slag",
+      "headline": "Begin vandaag met crypto accepteren",
+      "body": "Maak je eerste betaling in enkele minuten. Geen creditcard, geen contracten — gewoon betaald worden.",
+      "primary": "Gratis starten",
+      "secondary": "Lees de documentatie"
     }
   },
   "howItWorks": "Hoe het werkt",

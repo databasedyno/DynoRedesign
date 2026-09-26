@@ -1,6 +1,7 @@
 import React, { memo } from "react";
 import { Box } from "@mui/material";
 import { useRouter } from "next/router";
+import { useTranslation } from "react-i18next";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import { FONT_BODY, FONT_TECH, useAurora, BRAND_ACCENT } from "../v3/theme.v3";
@@ -19,6 +20,7 @@ import { HOME_PAYMENTS } from "./mock/payments";
 const HeroV7: React.FC = () => {
   const s = useAurora();
   const router = useRouter();
+  const { t } = useTranslation("landing");
   return (
     <Box
       component="section"
@@ -43,27 +45,26 @@ const HeroV7: React.FC = () => {
       />
       <Box sx={{ position: "relative", zIndex: 1, maxWidth: 900, mx: "auto", px: { xs: 3, md: 5 }, textAlign: "center" }}>
         <Eyebrow component="p" sx={{ mb: 3 }}>
-          Crypto payments, simplified
+          {t("v7.hero.eyebrow")}
         </Eyebrow>
         <HeadlineXL component="h1" data-testid="hero-headline" sx={{ color: s.ink }}>
-          Accept crypto payments.
+          {t("v7.hero.headline1")}
           <br />
-          <AuroraInk>Get paid your way.</AuroraInk>
+          <AuroraInk>{t("v7.hero.headline2")}</AuroraInk>
         </HeadlineXL>
         <Body sx={{ color: s.ink2, fontSize: { xs: 17, md: 20 }, mt: 3.5, mx: "auto", maxWidth: 640, fontFamily: FONT_BODY }}>
-          Take Bitcoin, Ethereum, USDT and 40+ assets — then settle automatically to the currency or wallet you choose. No
-          chargebacks, no custody, live in minutes.
+          {t("v7.hero.body")}
         </Body>
         <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 1.5, mt: 4.5 }}>
           <PrimaryBtn data-testid="hero-primary-cta" onClick={() => goStart(router, "hero")} endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}>
-            Start free
+            {t("v7.hero.primary")}
           </PrimaryBtn>
           <SecondaryBtn data-testid="hero-secondary-cta" onDark={s.dark} href="/pay/demo" startIcon={<PlayArrowRoundedIcon sx={{ fontSize: 20 }} />}>
-            See how it works
+            {t("v7.hero.secondary")}
           </SecondaryBtn>
         </Box>
         <Body sx={{ fontFamily: FONT_TECH, fontSize: 12.5, letterSpacing: "0.06em", textTransform: "uppercase", color: s.ink3, mt: 3 }}>
-          No credit card · Your first payment is free
+          {t("v7.hero.note")}
         </Body>
         <Box data-testid="hero-mock-wrap" sx={{ position: "relative", mt: { xs: 7, md: 9 }, mx: "auto", maxWidth: 760, textAlign: "left" }}>
           <Box

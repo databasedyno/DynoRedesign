@@ -4,8 +4,6 @@
  * for the false-alert bug on deal #347 (conversion #8).
  */
 import { Op } from "sequelize";
-
-// Heavy / side-effectful deps the watchdog does not exercise — stub so import is clean.
 jest.mock("../services/binanceService", () => ({}));
 jest.mock("../services/binanceWebSocketService", () => ({
   isConnected: () => false,
@@ -55,30 +53,43 @@ beforeEach(() => {
   (stablecoinConversionModel as any).update.mockResolvedValue([0]);
 });
 
-describe("payout watchdog treats HELD as terminal", () => {
-  test("PAYOUT_TERMINAL_STATUSES includes HELD alongside COMPLETED and FAILED", () => {
-    expect(__testables.PAYOUT_TERMINAL_STATUSES).toEqual(expect.arrayContaining(["COMPLETED", "FAILED", "HELD"]));
+describe("payout watchdog only alerts on genuinely in-flight conversions", () => {
+  test("PAYOUT_INFLIGHT_STATUSES is an allow-list that excludes every terminal state (COMPLETED/FAILED/HELD)", () => {
+    expect(__testables.PAYOUT_INFLIGHT_STATUSES).toEqual(
+      expect.arrayContaining(["PENDING_DEPOSIT", "DEPOSIT_CREDITED", "CONVERTING", "CONVERTED", "WITHDRAWING"]),
+    );
+    expect(__testables.PAYOUT_INFLIGHT_STATUSES).not.toContain("COMPLETED");
+    expect(__testables.PAYOUT_INFLIGHT_STATUSES).not.toContain("FAILED");
+    expect(__testables.PAYOUT_INFLIGHT_STATUSES).not.toContain("HELD");
   });
 
-  test("notifyStalledConversions query excludes HELD (settled SafeDeal custody)", async () => {
-    findAllMock.mockResolvedValueOnce([]); // DB returns nothing once HELD is filtered out
+  test("notifyStalledConversions only queries in-flight, not-yet-completed conversions (HELD & future terminal states can't leak in)", async () => {
+    findAllMock.mockResolvedValueOnce([]);
     await __testables.notifyStalledConversions();
 
     const where = findAllMock.mock.calls[0][0].where;
-    expect(where.status[Op.notIn]).toEqual(expect.arrayContaining(["COMPLETED", "FAILED", "HELD"]));
+    // Allow-list: only genuinely in-flight statuses are eligible.
+    expect(where.status[Op.in]).toEqual(
+      expect.arrayContaining(["PENDING_DEPOSIT", "DEPOSIT_CREDITED", "CONVERTING", "CONVERTED", "WITHDRAWING"]),
+    );
+    expect(where.status[Op.in]).not.toContain("HELD");
+    // Belt-and-suspenders: a record with a completion timestamp is never "late".
+    expect(where.completed_at[Op.is]).toBeNull();
     expect(sendMock).not.toHaveBeenCalled();
   });
 
-  test("markExhaustedAsFailed never flips a HELD record to FAILED", async () => {
+  test("markExhaustedAsFailed never flips a completed/HELD record to FAILED", async () => {
     findAllMock.mockResolvedValueOnce([]);
     await __testables.markExhaustedAsFailed();
 
     const snapshotWhere = findAllMock.mock.calls[0][0].where;
     const retryClause = snapshotWhere[Op.or][0];
-    expect(retryClause.status[Op.notIn]).toEqual(expect.arrayContaining(["COMPLETED", "FAILED", "HELD"]));
+    expect(retryClause.status[Op.in]).not.toContain("HELD");
+    expect(retryClause.completed_at[Op.is]).toBeNull();
 
     const updateWhere = (stablecoinConversionModel as any).update.mock.calls[0][1].where;
-    expect(updateWhere.status[Op.notIn]).toEqual(expect.arrayContaining(["HELD"]));
+    expect(updateWhere.status[Op.in]).not.toContain("HELD");
+    expect(updateWhere.completed_at[Op.is]).toBeNull();
   });
 
   test("a genuine >2h-old non-terminal conversion still sends the delayed email", async () => {

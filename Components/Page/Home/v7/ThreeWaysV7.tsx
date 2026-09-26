@@ -1,5 +1,6 @@
 import React, { memo } from "react";
 import { Box, Typography } from "@mui/material";
+import { useTranslation } from "react-i18next";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { FONT_BODY, FONT_HERO, useAurora } from "../v3/theme.v3";
 import { Section, SectionHead, cardSx } from "../v5/shared";
@@ -8,30 +9,35 @@ import { ApiVignette, CheckoutVignette, LinkVignette } from "./mock/WayVignettes
 
 /** Section 4 of 9 — THREE WAYS TO USE (answers: "How can I use it?"). Each card opens with a small product vignette. */
 const WAYS = [
-  { Vignette: LinkVignette, title: "No code", body: "Create a payment link or creator page and share it anywhere. Nothing to build.", cta: "Explore no-code", href: "/products" },
-  { Vignette: CheckoutVignette, title: "Hosted checkout", body: "A drop-in checkout that handles coins, live rates and confirmations for you.", cta: "See the demo", href: "/pay/demo" },
-  { Vignette: ApiVignette, title: "Developer API", body: "One REST API to create payments and receive webhooks. Ship in an afternoon.", cta: "Read the docs", href: "/documentation" },
+  { Vignette: LinkVignette, key: "nocode", href: "/products" },
+  { Vignette: CheckoutVignette, key: "checkout", href: "/pay/demo" },
+  { Vignette: ApiVignette, key: "api", href: "/documentation" },
 ];
 
 const ThreeWaysV7: React.FC = () => {
   const s = useAurora();
+  const { t } = useTranslation("landing");
   return (
     <Section id="products" alt testId="three-ways">
       <SectionHead
         center
-        eyebrow="Three ways to use"
-        headline="Whether you code or not"
-        body="Start with a link today, add a hosted checkout tomorrow, or build directly on the API."
+        eyebrow={t("v7.ways.eyebrow")}
+        headline={t("v7.ways.headline")}
+        body={t("v7.ways.body")}
         maxWidth={720}
         testId="ways-head"
       />
       <Stagger step={0.1} sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" }, gap: { xs: 2.5, md: 3 } }}>
-        {WAYS.map(({ Vignette, title, body, cta, href }, i) => (
-          <StaggerItem key={title} i={i} y={18}>
+        {WAYS.map(({ Vignette, key, href }, i) => {
+          const title = t(`v7.ways.${key}.title`);
+          const body = t(`v7.ways.${key}.body`);
+          const cta = t(`v7.ways.${key}.cta`);
+          return (
+          <StaggerItem key={key} i={i} y={18}>
             <Box
               component="a"
               href={href}
-              data-testid={`way-${title.toLowerCase().replace(/\s+/g, "-")}`}
+              data-testid={`way-${key}`}
               sx={{
                 ...cardSx(s),
                 display: "flex",
@@ -58,7 +64,8 @@ const ThreeWaysV7: React.FC = () => {
               </Typography>
             </Box>
           </StaggerItem>
-        ))}
+          );
+        })}
       </Stagger>
     </Section>
   );

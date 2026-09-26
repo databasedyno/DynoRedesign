@@ -1,3 +1,26 @@
+# 2026-06 (fork dynopay-qa-fix) LANDING V7 TRANSLATED (nl/de/es/fr/pt) + payout-alert accuracy sweep — preview-only (Save to GitHub to ship).
+#   TRANSLATION ROLLOUT (landing page first, per approved phased plan):
+#     • Root cause of the original bug: all 10 V7 body sections (Components/Page/Home/v7/*) were hardcoded English with ZERO
+#       useTranslation/t() calls, so switching language only re-rendered the shared header/footer. Body stayed English.
+#     • Wired all 10 components to useTranslation("landing") with versioned keys t("v7.<section>.<key>"), mirroring the existing v6
+#       convention: HeroV7, CoinsStripV7, TrustBarV7, HowItWorksV7, ThreeWaysV7, WhyDynopayV7, ProofV7, PricingV7, FAQV7, FinalCTAV7.
+#       Data arrays (STEPS/WAYS/POINTS/STORIES/PERKS/FAQ) now hold stable i18n keys and translate at render; brand names (The Dev Store,
+#       SafeDeal, Dynopay, coin tickers) left untranslated. ThreeWays testids changed to language-independent `way-${key}`.
+#     • Authored full v7 subtree (11 groups, ~70 strings) in all 6 locales: langs/locales/{en,nl,de,es,fr,pt}/landing.json.
+#     • VERIFIED live on preview: NL desktop — all 9 sections translate (hero/coins/trust/how/ways/why/proof/pricing/faq/finalCta),
+#       ZERO console/runtime errors; DE mobile (390px) hero wraps cleanly, no real overflow (only pre-existing aria-hidden glow boxes,
+#       clipped by overflow:hidden). All 6 locale JSONs validated parseable. Remaining app pages (dashboard/wallet/settings/etc.) are the
+#       next phases of the approved rollout — NOT yet translated.
+#   PAYOUT-ALERT ACCURACY SWEEP (future-proofing the HELD false-"running late" email fix):
+#     • Audited production tbl_stablecoin_conversion (read-only): 8 rows total — 4 COMPLETED, 3 FAILED, 1 HELD (deal #347). No rows in
+#       PENDING_DEPOSIT/DEPOSIT_CREDITED/CONVERTING/CONVERTED/WITHDRAWING. Enum has exactly those 8 states.
+#     • Hardened conversionService.ts watchdog from a block-list to an ALLOW-LIST: PAYOUT_INFLIGHT_STATUSES =
+#       [PENDING_DEPOSIT, DEPOSIT_CREDITED, CONVERTING, CONVERTED, WITHDRAWING]. notifyStalledConversions() and markExhaustedAsFailed()
+#       now query `status IN allowlist AND completed_at IS NULL`. Any terminal/settled state (COMPLETED/FAILED/HELD or a FUTURE one) can
+#       never trigger a "running late"/"failed" email again. conversionWatchdog.test.ts updated (4 tests pass).
+#   TESTS: backend unit project fully green — 32 suites / 650 tests.
+
+
 # 2026-06 (fork dynopay-qa-fix) SafeDeal false "payout running late" email FIXED + test-suite fully green — preview-only (Save to GitHub to ship).
 #   ROOT CAUSE: notifyStalledConversions() (backend/services/conversionService.ts) flagged any stablecoin conversion whose status
 #     was NOT in [COMPLETED, FAILED] and older than PAYOUT_STALL_HOURS (2h) as an in-flight late payout. But SafeDeal escrow-custody

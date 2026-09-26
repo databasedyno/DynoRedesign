@@ -1,5 +1,139 @@
 {
-  "v7": { "nav": { "product": "Product" } },
+  "v7": {
+    "nav": {
+      "product": "Product"
+    },
+    "hero": {
+      "eyebrow": "Crypto payments, simplified",
+      "headline1": "Accept crypto payments.",
+      "headline2": "Get paid your way.",
+      "body": "Take Bitcoin, Ethereum, USDT and 40+ assets — then settle automatically to the currency or wallet you choose. No chargebacks, no custody, live in minutes.",
+      "primary": "Start free",
+      "secondary": "See how it works",
+      "note": "No credit card · Your first payment is free"
+    },
+    "coins": {
+      "label": "Accept 40+ coins across every major chain"
+    },
+    "trust": {
+      "paymentsLabel": "Payments settled this month",
+      "uptimeLabel": "Uptime over 90 days",
+      "countriesLabel": "Countries served",
+      "statusLink": "View live status"
+    },
+    "how": {
+      "eyebrow": "How it works",
+      "headline": "Get paid in three steps",
+      "body": "From zero to your first crypto payment — without touching a blockchain.",
+      "steps": {
+        "create": {
+          "title": "Create a payment",
+          "body": "Spin up a payment link, hosted checkout, or API charge in seconds."
+        },
+        "pay": {
+          "title": "Customer pays in any coin",
+          "body": "They pay with Bitcoin, Ethereum, USDT and 40+ assets from any wallet."
+        },
+        "settle": {
+          "title": "You get settled your way",
+          "body": "We auto-convert and settle to the currency or wallet you choose."
+        }
+      }
+    },
+    "ways": {
+      "eyebrow": "Three ways to use",
+      "headline": "Whether you code or not",
+      "body": "Start with a link today, add a hosted checkout tomorrow, or build directly on the API.",
+      "nocode": {
+        "title": "No code",
+        "body": "Create a payment link or creator page and share it anywhere. Nothing to build.",
+        "cta": "Explore no-code"
+      },
+      "checkout": {
+        "title": "Hosted checkout",
+        "body": "A drop-in checkout that handles coins, live rates and confirmations for you.",
+        "cta": "See the demo"
+      },
+      "api": {
+        "title": "Developer API",
+        "body": "One REST API to create payments and receive webhooks. Ship in an afternoon.",
+        "cta": "Read the docs"
+      }
+    },
+    "why": {
+      "eyebrow": "Why Dynopay",
+      "headline": "Built for getting paid, not managing crypto",
+      "convert": {
+        "title": "Auto-convert to your currency",
+        "body": "Settle in USD, EUR, GBP or stablecoins. Price in fiat and get paid without the volatility."
+      },
+      "custody": {
+        "title": "Non-custodial by design",
+        "body": "Funds settle straight to the wallet you control. We never hold your money."
+      },
+      "fees": {
+        "title": "Low, honest fees",
+        "body": "From 1.5% per payment. No monthly fees, no chargebacks, no surprises."
+      },
+      "global": {
+        "title": "Global coverage",
+        "body": "40+ coins, dozens of countries and 6 languages, ready on day one."
+      }
+    },
+    "proof": {
+      "eyebrow": "Customer proof",
+      "headline": "Merchants getting paid on Dynopay",
+      "devstore": {
+        "quote": "We started taking crypto in an afternoon. Payments land in USDC and there are zero chargebacks — it just works.",
+        "role": "Digital goods merchant"
+      },
+      "safedeal": {
+        "quote": "Dynopay settles straight to our wallet with no custody in between. That trust model is exactly why we build on it.",
+        "role": "Escrow marketplace"
+      }
+    },
+    "pricing": {
+      "eyebrow": "Pricing",
+      "headline": "Simple pricing that scales with you",
+      "body": "One transparent per-payment fee. No setup costs, no monthly minimums.",
+      "startsAt": "Starts at",
+      "perPayment": "per settled payment · drops with volume",
+      "perks": {
+        "free": "Your first payment is free",
+        "noMonthly": "No monthly or setup fees",
+        "noChargebacks": "No chargebacks, ever",
+        "volume": "Volume discounts as you grow"
+      },
+      "cta": "See full pricing"
+    },
+    "faq": {
+      "eyebrow": "FAQ",
+      "headline": "Questions, answered",
+      "cost": {
+        "q": "How much does it cost?",
+        "a": "From 1.5% per settled payment, dropping with volume. There are no setup or monthly fees, and your first payment is free."
+      },
+      "speed": {
+        "q": "How fast do I get paid?",
+        "a": "Most payments settle within minutes of on-chain confirmation — the median on fast chains is around 4 minutes — straight to the wallet or account you choose."
+      },
+      "custody": {
+        "q": "Do you hold my funds?",
+        "a": "No. Dynopay is non-custodial: settled funds go directly to the wallet you control. We never take custody of your money."
+      },
+      "coins": {
+        "q": "Which coins can customers pay with?",
+        "a": "Bitcoin, Ethereum, USDT, USDC and 40+ assets across major chains. You choose which currency you want to receive."
+      }
+    },
+    "finalCta": {
+      "eyebrow": "Get started",
+      "headline": "Start accepting crypto today",
+      "body": "Create your first payment in minutes. No credit card, no contracts — just get paid.",
+      "primary": "Start free",
+      "secondary": "Read the docs"
+    }
+  },
   "howItWorks": "How it works",
   "features": "Features",
   "documentation": "Documentation",

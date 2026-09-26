@@ -3,6 +3,7 @@ import { Box, Typography } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "../v3/theme.v3";
 import { useLandingMetrics, formatInt } from "../v5/useLandingMetrics";
+import { useTranslation } from "react-i18next";
 
 /**
  * Section 2 of 9 — TRUST BAR (answers: "Can I trust it?").
@@ -12,15 +13,16 @@ import { useLandingMetrics, formatInt } from "../v5/useLandingMetrics";
  */
 const TrustBarV7: React.FC = () => {
   const s = useAurora();
+  const { t } = useTranslation("landing");
   const m = useLandingMetrics();
   const payments = m?.payments_settled_this_month ?? 1076;
   const uptime = m?.uptime_90d_pct ?? 99.92;
   const countries = m?.countries_served ?? 79;
 
   const stats = [
-    { value: `${formatInt(payments, "en")}+`, label: "Payments settled this month" },
-    { value: `${uptime.toFixed(2)}%`, label: "Uptime over 90 days" },
-    { value: `${countries}`, label: "Countries served" },
+    { value: `${formatInt(payments, "en")}+`, label: t("v7.trust.paymentsLabel") },
+    { value: `${uptime.toFixed(2)}%`, label: t("v7.trust.uptimeLabel") },
+    { value: `${countries}`, label: t("v7.trust.countriesLabel") },
   ];
 
   return (
@@ -83,7 +85,7 @@ const TrustBarV7: React.FC = () => {
             "&:hover": { textDecoration: "underline" },
           }}
         >
-          View live status <ArrowForwardIcon sx={{ fontSize: 16 }} />
+          {t("v7.trust.statusLink")} <ArrowForwardIcon sx={{ fontSize: 16 }} />
         </Box>
       </Box>
     </Box>

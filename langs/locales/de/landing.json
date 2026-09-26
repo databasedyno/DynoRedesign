@@ -2,6 +2,136 @@
   "v7": {
     "nav": {
       "product": "Produkt"
+    },
+    "hero": {
+      "eyebrow": "Krypto-Zahlungen, vereinfacht",
+      "headline1": "Krypto-Zahlungen akzeptieren.",
+      "headline2": "Werde bezahlt, wie du willst.",
+      "body": "Nimm Bitcoin, Ethereum, USDT und 40+ Assets an – und lass automatisch in die Währung oder Wallet deiner Wahl auszahlen. Keine Rückbuchungen, keine Verwahrung, in Minuten live.",
+      "primary": "Kostenlos starten",
+      "secondary": "So funktioniert's",
+      "note": "Keine Kreditkarte · Deine erste Zahlung ist kostenlos"
+    },
+    "coins": {
+      "label": "Akzeptiere 40+ Coins auf jeder großen Blockchain"
+    },
+    "trust": {
+      "paymentsLabel": "Diesen Monat abgewickelte Zahlungen",
+      "uptimeLabel": "Uptime über 90 Tage",
+      "countriesLabel": "Belieferte Länder",
+      "statusLink": "Live-Status ansehen"
+    },
+    "how": {
+      "eyebrow": "So funktioniert's",
+      "headline": "In drei Schritten bezahlt werden",
+      "body": "Von null zu deiner ersten Krypto-Zahlung – ganz ohne Blockchain-Berührung.",
+      "steps": {
+        "create": {
+          "title": "Zahlung erstellen",
+          "body": "Erstelle in Sekunden einen Zahlungslink, ein gehostetes Checkout oder eine API-Zahlung."
+        },
+        "pay": {
+          "title": "Kunde zahlt in jedem Coin",
+          "body": "Sie zahlen mit Bitcoin, Ethereum, USDT und 40+ Assets aus jeder Wallet."
+        },
+        "settle": {
+          "title": "Du wirst ausgezahlt, wie du willst",
+          "body": "Wir konvertieren automatisch und zahlen in die Währung oder Wallet deiner Wahl aus."
+        }
+      }
+    },
+    "ways": {
+      "eyebrow": "Drei Wege zur Nutzung",
+      "headline": "Ob du programmierst oder nicht",
+      "body": "Starte heute mit einem Link, füge morgen ein gehostetes Checkout hinzu oder baue direkt auf der API.",
+      "nocode": {
+        "title": "Ohne Code",
+        "body": "Erstelle einen Zahlungslink oder eine Creator-Seite und teile sie überall. Nichts zu bauen.",
+        "cta": "No-Code entdecken"
+      },
+      "checkout": {
+        "title": "Gehostetes Checkout",
+        "body": "Ein einsatzfertiges Checkout, das Coins, Live-Kurse und Bestätigungen für dich übernimmt.",
+        "cta": "Demo ansehen"
+      },
+      "api": {
+        "title": "Entwickler-API",
+        "body": "Eine REST-API, um Zahlungen zu erstellen und Webhooks zu empfangen. In einem Nachmittag fertig.",
+        "cta": "Doku lesen"
+      }
+    },
+    "why": {
+      "eyebrow": "Warum Dynopay",
+      "headline": "Gebaut fürs Bezahltwerden, nicht fürs Krypto-Verwalten",
+      "convert": {
+        "title": "Automatische Umwandlung in deine Währung",
+        "body": "Rechne in USD, EUR, GBP oder Stablecoins ab. Preise in Fiat und werde ohne Volatilität bezahlt."
+      },
+      "custody": {
+        "title": "Non-custodial by Design",
+        "body": "Gelder gehen direkt an die Wallet, die du kontrollierst. Wir verwahren dein Geld nie."
+      },
+      "fees": {
+        "title": "Niedrige, faire Gebühren",
+        "body": "Ab 1,5% pro Zahlung. Keine Monatsgebühren, keine Rückbuchungen, keine Überraschungen."
+      },
+      "global": {
+        "title": "Globale Abdeckung",
+        "body": "40+ Coins, Dutzende Länder und 6 Sprachen, ab Tag eins bereit."
+      }
+    },
+    "proof": {
+      "eyebrow": "Kundenstimmen",
+      "headline": "Händler, die auf Dynopay bezahlt werden",
+      "devstore": {
+        "quote": "Wir haben Krypto an einem Nachmittag eingeführt. Zahlungen kommen in USDC an und es gibt null Rückbuchungen – es funktioniert einfach.",
+        "role": "Händler für digitale Produkte"
+      },
+      "safedeal": {
+        "quote": "Dynopay zahlt direkt an unsere Wallet aus, ohne Verwahrung dazwischen. Genau dieses Vertrauensmodell ist der Grund, warum wir darauf bauen.",
+        "role": "Escrow-Marktplatz"
+      }
+    },
+    "pricing": {
+      "eyebrow": "Preise",
+      "headline": "Einfache Preise, die mit dir wachsen",
+      "body": "Eine transparente Gebühr pro Zahlung. Keine Einrichtungskosten, keine monatlichen Mindestbeträge.",
+      "startsAt": "Ab",
+      "perPayment": "pro abgewickelter Zahlung · sinkt mit dem Volumen",
+      "perks": {
+        "free": "Deine erste Zahlung ist kostenlos",
+        "noMonthly": "Keine Monats- oder Einrichtungsgebühren",
+        "noChargebacks": "Niemals Rückbuchungen",
+        "volume": "Mengenrabatte, wenn du wächst"
+      },
+      "cta": "Vollständige Preise ansehen"
+    },
+    "faq": {
+      "eyebrow": "FAQ",
+      "headline": "Fragen, beantwortet",
+      "cost": {
+        "q": "Was kostet es?",
+        "a": "Ab 1,5% pro abgewickelter Zahlung, sinkend mit dem Volumen. Es gibt keine Einrichtungs- oder Monatsgebühren, und deine erste Zahlung ist kostenlos."
+      },
+      "speed": {
+        "q": "Wie schnell werde ich bezahlt?",
+        "a": "Die meisten Zahlungen werden innerhalb von Minuten nach der On-Chain-Bestätigung abgewickelt – der Median auf schnellen Blockchains liegt bei etwa 4 Minuten – direkt an die Wallet oder das Konto deiner Wahl."
+      },
+      "custody": {
+        "q": "Verwahrt ihr mein Geld?",
+        "a": "Nein. Dynopay ist non-custodial: abgewickelte Gelder gehen direkt an die Wallet, die du kontrollierst. Wir nehmen dein Geld nie in Verwahrung."
+      },
+      "coins": {
+        "q": "Mit welchen Coins können Kunden zahlen?",
+        "a": "Bitcoin, Ethereum, USDT, USDC und 40+ Assets auf großen Blockchains. Du wählst, in welcher Währung du empfangen möchtest."
+      }
+    },
+    "finalCta": {
+      "eyebrow": "Loslegen",
+      "headline": "Beginne noch heute, Krypto zu akzeptieren",
+      "body": "Erstelle deine erste Zahlung in Minuten. Keine Kreditkarte, keine Verträge – einfach bezahlt werden.",
+      "primary": "Kostenlos starten",
+      "secondary": "Doku lesen"
     }
   },
   "howItWorks": "So funktioniert's",

@@ -1,5 +1,6 @@
 import React, { memo, useState } from "react";
 import { Box, Collapse, Typography } from "@mui/material";
+import { useTranslation } from "react-i18next";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { FONT_BODY, FONT_HERO, useAurora, BRAND_ACCENT } from "../v3/theme.v3";
@@ -7,16 +8,13 @@ import { Section, SectionHead } from "../v5/shared";
 import { Stagger, StaggerItem } from "../motion/Stagger";
 
 /** Section 8 of 9 — FAQ (answers: "What if…?") — four highest-intent questions. */
-const FAQS = [
-  { id: "cost", q: "How much does it cost?", a: "From 1.5% per settled payment, dropping with volume. There are no setup or monthly fees, and your first payment is free." },
-  { id: "speed", q: "How fast do I get paid?", a: "Most payments settle within minutes of on-chain confirmation — the median on fast chains is around 4 minutes — straight to the wallet or account you choose." },
-  { id: "custody", q: "Do you hold my funds?", a: "No. Dynopay is non-custodial: settled funds go directly to the wallet you control. We never take custody of your money." },
-  { id: "coins", q: "Which coins can customers pay with?", a: "Bitcoin, Ethereum, USDT, USDC and 40+ assets across major chains. You choose which currency you want to receive." },
-];
+const FAQ_IDS = ["cost", "speed", "custody", "coins"];
 
 const FAQV7: React.FC = () => {
   const s = useAurora();
+  const { t } = useTranslation("landing");
   const [open, setOpen] = useState<string | null>("cost");
+  const FAQS = FAQ_IDS.map((id) => ({ id, q: t(`v7.faq.${id}.q`), a: t(`v7.faq.${id}.a`) }));
   const jsonLd = JSON.stringify({
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -26,7 +24,7 @@ const FAQV7: React.FC = () => {
   return (
     <Section id="faq" testId="faq" alt narrow>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
-      <SectionHead center eyebrow="FAQ" headline="Questions, answered" maxWidth={680} testId="faq-head" />
+      <SectionHead center eyebrow={t("v7.faq.eyebrow")} headline={t("v7.faq.headline")} maxWidth={680} testId="faq-head" />
       <Stagger step={0.05} sx={{ maxWidth: 820, mx: "auto", border: `1px solid ${s.line}`, borderRadius: "20px", background: s.surface, overflow: "hidden" }}>
         {FAQS.map((f, i) => {
           const isOpen = open === f.id;

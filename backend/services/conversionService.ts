@@ -36,9 +36,14 @@ import { isSafeDealCompany, onCustodyConverted as onSafeDealCustodyConverted } f
 const PAYOUT_STALL_HOURS = 2;   // merchant "running late" email after this many hours in flight
 const MAX_RETRIES = 30;           // ~30 checks after 30-min age gate ≈ hours of patience for slow chains (BTC)
 
-// Terminal for payout alerting. HELD = SafeDeal escrow custody: conversion is fully settled,
-// funds held on Binance, no external payout pending — it must never trigger "running late"/"failed" emails.
-const PAYOUT_TERMINAL_STATUSES = ["COMPLETED", "FAILED", "HELD"];
+// A conversion is a "late payout" candidate ONLY while it is genuinely IN FLIGHT
+// toward the merchant. This is an ALLOW-LIST (not a block-list) on purpose: any
+// status not listed here — COMPLETED, FAILED, HELD (SafeDeal escrow custody), or
+// any FUTURE terminal state someone adds — can never trigger a "running late" /
+// "failed" alert, so the HELD false-positive class (deal #347) cannot recur.
+// Belt-and-suspenders: callers also require completed_at IS NULL, so a record
+// that has reached a completion timestamp is never called "late".
+const PAYOUT_INFLIGHT_STATUSES = ["PENDING_DEPOSIT", "DEPOSIT_CREDITED", "CONVERTING", "CONVERTED", "WITHDRAWING"];
 
 // Guard to prevent cascading fast-poll re-checks
 let fastPollScheduled = false;
@@ -67,7 +72,7 @@ const markExhaustedAsFailed = async (): Promise<number> => {
   const aboutToFail = (await stablecoinConversionModel.findAll({
     where: {
       [Op.or]: [
-        { status: { [Op.notIn]: PAYOUT_TERMINAL_STATUSES }, retry_count: { [Op.gte]: MAX_RETRIES } },
+        { status: { [Op.in]: PAYOUT_INFLIGHT_STATUSES }, completed_at: { [Op.is]: null }, retry_count: { [Op.gte]: MAX_RETRIES } },
         { status: "PENDING_DEPOSIT", createdAt: { [Op.lt]: ageThreshold } },
       ],
     },
@@ -82,7 +87,8 @@ const markExhaustedAsFailed = async (): Promise<number> => {
     },
     {
       where: {
-        status: { [Op.notIn]: PAYOUT_TERMINAL_STATUSES },
+        status: { [Op.in]: PAYOUT_INFLIGHT_STATUSES },
+        completed_at: { [Op.is]: null },
         retry_count: { [Op.gte]: MAX_RETRIES },
       },
     }
@@ -185,7 +191,7 @@ const notifyMerchantPayoutDelayed = async (row: Record<string, any>, stage: "del
 const notifyStalledConversions = async (): Promise<number> => {
   const threshold = new Date(Date.now() - PAYOUT_STALL_HOURS * 60 * 60 * 1000);
   const stalled = (await stablecoinConversionModel.findAll({
-    where: { status: { [Op.notIn]: PAYOUT_TERMINAL_STATUSES }, createdAt: { [Op.lt]: threshold } },
+    where: { status: { [Op.in]: PAYOUT_INFLIGHT_STATUSES }, completed_at: { [Op.is]: null }, createdAt: { [Op.lt]: threshold } },
     raw: true,
     limit: 50,
   })) as unknown as Array<Record<string, any>>;
@@ -1239,7 +1245,7 @@ export const sendWeeklyConversionSummaries = async (): Promise<number> => {
 };
 
 // Exposed for unit tests only — payout-alert watchdog internals.
-export const __testables = { notifyStalledConversions, markExhaustedAsFailed, PAYOUT_TERMINAL_STATUSES };
+export const __testables = { notifyStalledConversions, markExhaustedAsFailed, PAYOUT_INFLIGHT_STATUSES };
 
 export default {
   processStablecoinConversions,

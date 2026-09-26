@@ -1,6 +1,7 @@
 import React, { memo } from "react";
 import { Box } from "@mui/material";
 import { useRouter } from "next/router";
+import { useTranslation } from "react-i18next";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { FONT_BODY, useAurora, BRAND_ACCENT } from "../v3/theme.v3";
 import { HeadlineL, Body, Eyebrow } from "../v3/styled.v3";
@@ -11,6 +12,7 @@ import { PaidStack } from "./mock/PaidStack";
 const FinalCTAV7: React.FC = () => {
   const s = useAurora();
   const router = useRouter();
+  const { t } = useTranslation("landing");
   return (
     <Box component="section" id="get-started" data-testid="final-cta" sx={{ position: "relative", overflow: "hidden", background: s.bg, py: { xs: 10, md: 15 } }}>
       <Box
@@ -33,20 +35,20 @@ const FinalCTAV7: React.FC = () => {
       </Box>
       <Box sx={{ position: "relative", zIndex: 1, maxWidth: 760, mx: "auto", px: { xs: 3, md: 5 }, textAlign: "center" }}>
         <Eyebrow component="p" sx={{ mb: 2.5 }}>
-          Get started
+          {t("v7.finalCta.eyebrow")}
         </Eyebrow>
         <HeadlineL component="h2" sx={{ color: s.ink }}>
-          Start accepting crypto today
+          {t("v7.finalCta.headline")}
         </HeadlineL>
         <Body sx={{ color: s.ink2, fontSize: { xs: 16, md: 18.5 }, mt: 2.5, mx: "auto", maxWidth: 560, fontFamily: FONT_BODY }}>
-          Create your first payment in minutes. No credit card, no contracts — just get paid.
+          {t("v7.finalCta.body")}
         </Body>
         <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 1.5, mt: 4 }}>
           <PrimaryBtn data-testid="final-primary-cta" onClick={() => goStart(router, "final")} endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}>
-            Start free
+            {t("v7.finalCta.primary")}
           </PrimaryBtn>
           <SecondaryBtn data-testid="final-secondary-cta" onDark={s.dark} href="/documentation">
-            Read the docs
+            {t("v7.finalCta.secondary")}
           </SecondaryBtn>
         </Box>
       </Box>

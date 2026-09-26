@@ -2,6 +2,136 @@
   "v7": {
     "nav": {
       "product": "Producto"
+    },
+    "hero": {
+      "eyebrow": "Pagos con cripto, simplificados",
+      "headline1": "Acepta pagos con cripto.",
+      "headline2": "Cobra a tu manera.",
+      "body": "Acepta Bitcoin, Ethereum, USDT y más de 40 activos, y liquida automáticamente en la moneda o wallet que elijas. Sin contracargos, sin custodia, en marcha en minutos.",
+      "primary": "Empezar gratis",
+      "secondary": "Ver cómo funciona",
+      "note": "Sin tarjeta de crédito · Tu primer pago es gratis"
+    },
+    "coins": {
+      "label": "Acepta más de 40 monedas en todas las grandes redes"
+    },
+    "trust": {
+      "paymentsLabel": "Pagos liquidados este mes",
+      "uptimeLabel": "Disponibilidad en 90 días",
+      "countriesLabel": "Países atendidos",
+      "statusLink": "Ver estado en vivo"
+    },
+    "how": {
+      "eyebrow": "Cómo funciona",
+      "headline": "Cobra en tres pasos",
+      "body": "De cero a tu primer pago con cripto, sin tocar una sola blockchain.",
+      "steps": {
+        "create": {
+          "title": "Crea un pago",
+          "body": "Crea un enlace de pago, un checkout alojado o un cargo por API en segundos."
+        },
+        "pay": {
+          "title": "El cliente paga en cualquier moneda",
+          "body": "Pagan con Bitcoin, Ethereum, USDT y más de 40 activos desde cualquier wallet."
+        },
+        "settle": {
+          "title": "Recibes a tu manera",
+          "body": "Convertimos automáticamente y liquidamos en la moneda o wallet que elijas."
+        }
+      }
+    },
+    "ways": {
+      "eyebrow": "Tres formas de usarlo",
+      "headline": "Programes o no",
+      "body": "Empieza hoy con un enlace, añade mañana un checkout alojado o construye directamente sobre la API.",
+      "nocode": {
+        "title": "Sin código",
+        "body": "Crea un enlace de pago o una página de creador y compártelo donde quieras. Nada que programar.",
+        "cta": "Explorar sin código"
+      },
+      "checkout": {
+        "title": "Checkout alojado",
+        "body": "Un checkout listo para usar que gestiona monedas, tasas en vivo y confirmaciones por ti.",
+        "cta": "Ver la demo"
+      },
+      "api": {
+        "title": "API para desarrolladores",
+        "body": "Una sola API REST para crear pagos y recibir webhooks. Lista en una tarde.",
+        "cta": "Leer la documentación"
+      }
+    },
+    "why": {
+      "eyebrow": "Por qué Dynopay",
+      "headline": "Hecho para cobrar, no para gestionar cripto",
+      "convert": {
+        "title": "Conversión automática a tu moneda",
+        "body": "Liquida en USD, EUR, GBP o stablecoins. Fija precios en moneda fiat y cobra sin la volatilidad."
+      },
+      "custody": {
+        "title": "Sin custodia por diseño",
+        "body": "Los fondos van directo a la wallet que tú controlas. Nunca retenemos tu dinero."
+      },
+      "fees": {
+        "title": "Comisiones bajas y honestas",
+        "body": "Desde 1,5% por pago. Sin cuotas mensuales, sin contracargos, sin sorpresas."
+      },
+      "global": {
+        "title": "Cobertura global",
+        "body": "Más de 40 monedas, decenas de países y 6 idiomas, listos desde el primer día."
+      }
+    },
+    "proof": {
+      "eyebrow": "Opiniones de clientes",
+      "headline": "Comercios que cobran con Dynopay",
+      "devstore": {
+        "quote": "Empezamos a aceptar cripto en una tarde. Los pagos llegan en USDC y hay cero contracargos: simplemente funciona.",
+        "role": "Comercio de productos digitales"
+      },
+      "safedeal": {
+        "quote": "Dynopay liquida directo a nuestra wallet, sin custodia de por medio. Ese modelo de confianza es justo por lo que construimos sobre él.",
+        "role": "Mercado con depósito en garantía"
+      }
+    },
+    "pricing": {
+      "eyebrow": "Precios",
+      "headline": "Precios simples que crecen contigo",
+      "body": "Una comisión transparente por pago. Sin costes de configuración ni mínimos mensuales.",
+      "startsAt": "Desde",
+      "perPayment": "por pago liquidado · baja con el volumen",
+      "perks": {
+        "free": "Tu primer pago es gratis",
+        "noMonthly": "Sin cuotas mensuales ni de configuración",
+        "noChargebacks": "Nunca contracargos",
+        "volume": "Descuentos por volumen a medida que creces"
+      },
+      "cta": "Ver precios completos"
+    },
+    "faq": {
+      "eyebrow": "Preguntas frecuentes",
+      "headline": "Preguntas, respondidas",
+      "cost": {
+        "q": "¿Cuánto cuesta?",
+        "a": "Desde 1,5% por pago liquidado, bajando con el volumen. No hay costes de configuración ni mensuales, y tu primer pago es gratis."
+      },
+      "speed": {
+        "q": "¿Con qué rapidez cobro?",
+        "a": "La mayoría de los pagos se liquidan a los pocos minutos de la confirmación on-chain —la mediana en redes rápidas es de unos 4 minutos— directo a la wallet o cuenta que elijas."
+      },
+      "custody": {
+        "q": "¿Retienen mis fondos?",
+        "a": "No. Dynopay es sin custodia: los fondos liquidados van directo a la wallet que tú controlas. Nunca tomamos custodia de tu dinero."
+      },
+      "coins": {
+        "q": "¿Con qué monedas pueden pagar los clientes?",
+        "a": "Bitcoin, Ethereum, USDT, USDC y más de 40 activos en las grandes redes. Tú eliges en qué moneda quieres recibir."
+      }
+    },
+    "finalCta": {
+      "eyebrow": "Empezar",
+      "headline": "Empieza a aceptar cripto hoy",
+      "body": "Crea tu primer pago en minutos. Sin tarjeta de crédito, sin contratos: solo cobra.",
+      "primary": "Empezar gratis",
+      "secondary": "Leer la documentación"
     }
   },
   "howItWorks": "Cómo funciona",

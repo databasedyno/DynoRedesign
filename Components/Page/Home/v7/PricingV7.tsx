@@ -1,5 +1,6 @@
 import React, { memo } from "react";
 import { Box, Typography } from "@mui/material";
+import { useTranslation } from "react-i18next";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "../v3/theme.v3";
@@ -7,17 +8,18 @@ import { Section, SectionHead, PrimaryBtn, cardSx } from "../v5/shared";
 import { Stagger, StaggerItem } from "../motion/Stagger";
 
 /** Section 7 of 9 — PRICING (answers: "What does it cost?"). Full table lives on /fees. */
-const PERKS = ["Your first payment is free", "No monthly or setup fees", "No chargebacks, ever", "Volume discounts as you grow"];
+const PERKS = ["free", "noMonthly", "noChargebacks", "volume"];
 
 const PricingV7: React.FC = () => {
   const s = useAurora();
+  const { t } = useTranslation("landing");
   return (
     <Section id="pricing" testId="pricing">
       <SectionHead
         center
-        eyebrow="Pricing"
-        headline="Simple pricing that scales with you"
-        body="One transparent per-payment fee. No setup costs, no monthly minimums."
+        eyebrow={t("v7.pricing.eyebrow")}
+        headline={t("v7.pricing.headline")}
+        body={t("v7.pricing.body")}
         maxWidth={720}
         testId="pricing-head"
       />
@@ -25,22 +27,22 @@ const PricingV7: React.FC = () => {
         <StaggerItem i={0} y={18}>
           <Box sx={{ ...cardSx(s, { hover: false }), p: { xs: 3.5, md: 5 }, textAlign: "center" }}>
             <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12.5, letterSpacing: "0.14em", textTransform: "uppercase", color: s.ink3, mb: 1 }}>
-              Starts at
+              {t("v7.pricing.startsAt")}
             </Typography>
             <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 600, fontSize: { xs: 56, md: 72 }, lineHeight: 1, letterSpacing: "-0.03em", color: s.ink }}>
               1.5<Box component="span" sx={{ fontSize: { xs: 26, md: 32 }, color: s.accent }}>%</Box>
             </Typography>
-            <Typography sx={{ fontFamily: FONT_BODY, fontSize: 15.5, color: s.ink2, mt: 1.5 }}>per settled payment · drops with volume</Typography>
+            <Typography sx={{ fontFamily: FONT_BODY, fontSize: 15.5, color: s.ink2, mt: 1.5 }}>{t("v7.pricing.perPayment")}</Typography>
             <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 1.5, textAlign: "left", mt: 4, mb: 4 }}>
               {PERKS.map((p) => (
                 <Box key={p} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <CheckRoundedIcon sx={{ fontSize: 18, color: s.accent }} />
-                  <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14.5, color: s.ink }}>{p}</Typography>
+                  <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14.5, color: s.ink }}>{t(`v7.pricing.perks.${p}`)}</Typography>
                 </Box>
               ))}
             </Box>
             <PrimaryBtn href="/fees" data-testid="pricing-fees-cta" endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}>
-              See full pricing
+              {t("v7.pricing.cta")}
             </PrimaryBtn>
           </Box>
         </StaggerItem>

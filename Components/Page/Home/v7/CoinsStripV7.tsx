@@ -2,6 +2,7 @@ import React, { memo, useEffect, useState } from "react";
 import { Box, Typography } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { FONT_TECH, useAurora } from "../v3/theme.v3";
+import { useTranslation } from "react-i18next";
 
 /**
  * Subtle supported-coins marquee shown directly under the hero. Two identical
@@ -68,6 +69,7 @@ const buildCoins = (symbols: string[]): Coin[] => {
 
 const CoinsStripV7: React.FC = () => {
   const s = useAurora();
+  const { t } = useTranslation("landing");
   const [coins, setCoins] = useState<Coin[]>(FALLBACK);
 
   useEffect(() => {
@@ -111,7 +113,7 @@ const CoinsStripV7: React.FC = () => {
           mb: { xs: 2.5, md: 3 },
         }}
       >
-        Accept 40+ coins across every major chain
+        {t("v7.coins.label")}
       </Typography>
 
       <Box

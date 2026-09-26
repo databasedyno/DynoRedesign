@@ -2,6 +2,136 @@
   "v7": {
     "nav": {
       "product": "Produit"
+    },
+    "hero": {
+      "eyebrow": "Les paiements crypto, simplifiés",
+      "headline1": "Acceptez les paiements crypto.",
+      "headline2": "Soyez payé comme vous voulez.",
+      "body": "Acceptez Bitcoin, Ethereum, USDT et plus de 40 actifs, puis recevez automatiquement dans la devise ou le wallet de votre choix. Aucun rejet de paiement, aucune conservation, en ligne en quelques minutes.",
+      "primary": "Commencer gratuitement",
+      "secondary": "Voir comment ça marche",
+      "note": "Sans carte bancaire · Votre premier paiement est gratuit"
+    },
+    "coins": {
+      "label": "Acceptez plus de 40 cryptos sur toutes les grandes blockchains"
+    },
+    "trust": {
+      "paymentsLabel": "Paiements réglés ce mois-ci",
+      "uptimeLabel": "Disponibilité sur 90 jours",
+      "countriesLabel": "Pays desservis",
+      "statusLink": "Voir l'état en direct"
+    },
+    "how": {
+      "eyebrow": "Comment ça marche",
+      "headline": "Soyez payé en trois étapes",
+      "body": "De zéro à votre premier paiement crypto, sans jamais toucher à une blockchain.",
+      "steps": {
+        "create": {
+          "title": "Créez un paiement",
+          "body": "Générez un lien de paiement, un checkout hébergé ou une transaction via l'API en quelques secondes."
+        },
+        "pay": {
+          "title": "Le client paie dans n'importe quelle crypto",
+          "body": "Il paie avec Bitcoin, Ethereum, USDT et plus de 40 actifs depuis n'importe quel wallet."
+        },
+        "settle": {
+          "title": "Vous êtes réglé comme vous voulez",
+          "body": "Nous convertissons automatiquement et réglons dans la devise ou le wallet de votre choix."
+        }
+      }
+    },
+    "ways": {
+      "eyebrow": "Trois façons de l'utiliser",
+      "headline": "Que vous codiez ou non",
+      "body": "Commencez aujourd'hui avec un lien, ajoutez demain un checkout hébergé, ou construisez directement sur l'API.",
+      "nocode": {
+        "title": "Sans code",
+        "body": "Créez un lien de paiement ou une page créateur et partagez-le partout. Rien à développer.",
+        "cta": "Découvrir le no-code"
+      },
+      "checkout": {
+        "title": "Checkout hébergé",
+        "body": "Un checkout prêt à l'emploi qui gère les cryptos, les taux en direct et les confirmations pour vous.",
+        "cta": "Voir la démo"
+      },
+      "api": {
+        "title": "API développeur",
+        "body": "Une seule API REST pour créer des paiements et recevoir des webhooks. Prêt en une après-midi.",
+        "cta": "Lire la documentation"
+      }
+    },
+    "why": {
+      "eyebrow": "Pourquoi Dynopay",
+      "headline": "Conçu pour être payé, pas pour gérer de la crypto",
+      "convert": {
+        "title": "Conversion automatique dans votre devise",
+        "body": "Réglez en USD, EUR, GBP ou stablecoins. Fixez vos prix en monnaie fiat et soyez payé sans la volatilité."
+      },
+      "custody": {
+        "title": "Sans conservation par conception",
+        "body": "Les fonds arrivent directement sur le wallet que vous contrôlez. Nous ne détenons jamais votre argent."
+      },
+      "fees": {
+        "title": "Des frais bas et honnêtes",
+        "body": "À partir de 1,5% par paiement. Aucun frais mensuel, aucun rejet de paiement, aucune surprise."
+      },
+      "global": {
+        "title": "Couverture mondiale",
+        "body": "Plus de 40 cryptos, des dizaines de pays et 6 langues, prêts dès le premier jour."
+      }
+    },
+    "proof": {
+      "eyebrow": "Témoignages clients",
+      "headline": "Des marchands payés sur Dynopay",
+      "devstore": {
+        "quote": "Nous avons commencé à accepter la crypto en une après-midi. Les paiements arrivent en USDC et il n'y a aucun rejet de paiement — ça marche, tout simplement.",
+        "role": "Marchand de produits numériques"
+      },
+      "safedeal": {
+        "quote": "Dynopay règle directement sur notre wallet, sans conservation intermédiaire. C'est exactement ce modèle de confiance qui nous a fait construire dessus.",
+        "role": "Place de marché sous séquestre"
+      }
+    },
+    "pricing": {
+      "eyebrow": "Tarifs",
+      "headline": "Des tarifs simples qui évoluent avec vous",
+      "body": "Des frais transparents par paiement. Aucun frais d'installation, aucun minimum mensuel.",
+      "startsAt": "À partir de",
+      "perPayment": "par paiement réglé · diminue avec le volume",
+      "perks": {
+        "free": "Votre premier paiement est gratuit",
+        "noMonthly": "Aucun frais mensuel ni d'installation",
+        "noChargebacks": "Jamais de rejet de paiement",
+        "volume": "Des remises sur volume à mesure que vous grandissez"
+      },
+      "cta": "Voir tous les tarifs"
+    },
+    "faq": {
+      "eyebrow": "FAQ",
+      "headline": "Vos questions, nos réponses",
+      "cost": {
+        "q": "Combien ça coûte ?",
+        "a": "À partir de 1,5% par paiement réglé, en baisse avec le volume. Aucun frais d'installation ni mensuel, et votre premier paiement est gratuit."
+      },
+      "speed": {
+        "q": "En combien de temps suis-je payé ?",
+        "a": "La plupart des paiements sont réglés en quelques minutes après la confirmation on-chain — la médiane sur les blockchains rapides est d'environ 4 minutes — directement sur le wallet ou le compte de votre choix."
+      },
+      "custody": {
+        "q": "Détenez-vous mes fonds ?",
+        "a": "Non. Dynopay est sans conservation : les fonds réglés vont directement sur le wallet que vous contrôlez. Nous ne prenons jamais la garde de votre argent."
+      },
+      "coins": {
+        "q": "Avec quelles cryptos les clients peuvent-ils payer ?",
+        "a": "Bitcoin, Ethereum, USDT, USDC et plus de 40 actifs sur les grandes blockchains. Vous choisissez la devise dans laquelle vous voulez recevoir."
+      }
+    },
+    "finalCta": {
+      "eyebrow": "Commencer",
+      "headline": "Commencez à accepter la crypto dès aujourd'hui",
+      "body": "Créez votre premier paiement en quelques minutes. Sans carte bancaire, sans contrat — soyez simplement payé.",
+      "primary": "Commencer gratuitement",
+      "secondary": "Lire la documentation"
     }
   },
   "howItWorks": "Comment ça marche",
