@@ -207,24 +207,43 @@ if (!isServer) {
 }
 
 /**
- * Apply the user's SAVED language after React hydration completes.
+ * Apply the effective language after React hydration completes.
  * Called from `LanguageBootstrap` inside `useEffect`.
  *
- * English is the default. i18n initialises with "en" on BOTH server and client
- * (so SSR and the first client paint match — no hydration mismatch); once
- * hydrated we switch to the language the user previously CHOSE (persisted in
- * localStorage; its resources arrive as a lazy per-locale chunk right here).
- * There is NO browser/timezone/IP auto-detection: a non-English language only
- * appears because the user explicitly selected it.
+ * English is the default at init on BOTH server and client (so SSR and the first
+ * client paint match — no hydration mismatch). Once hydrated we resolve the
+ * effective language in this priority order:
+ *   1. `?lang=` in the URL           (explicit, per-locale SSR variant)
+ *   2. saved preference              (localStorage "lang" — what the user CHOSE)
+ *   3. browser locale (NEW VISITOR)  (navigator.languages, auto-detected once)
+ *   4. English default
+ *
+ * Auto-detection (step 3) only runs when the visitor has made NO explicit choice
+ * yet. Whatever language ends up applied is persisted to localStorage by the
+ * `languageChanged` listener, so on later visits it counts as a saved preference
+ * — and the language switcher (which also persists) always overrides it.
  */
 async function applyDetectedLanguage() {
   if (isServer) return;
-  // ?lang= in the URL wins (real per-locale SSR variant); else the saved pref.
+  // 1 + 2: ?lang= wins, else the saved preference captured at boot.
   let target = savedLangAtBoot;
   try {
     const m = window.location.search.match(/[?&]lang=([a-z]{2})/);
     if (m && SUPPORTED_LANGUAGES.includes(m[1])) target = m[1];
   } catch {}
+  // 3: NEW VISITOR (no ?lang= and no saved pref) → detect from the browser locale.
+  if (!target) {
+    try {
+      const navLangs = [navigator.language, ...(navigator.languages || [])].filter(Boolean);
+      for (const l of navLangs) {
+        const base = String(l).split("-")[0].toLowerCase();
+        if (SUPPORTED_LANGUAGES.includes(base)) {
+          if (base !== DEFAULT_LANGUAGE) target = base; // English needs no swap
+          break; // first supported browser locale decides
+        }
+      }
+    } catch {}
+  }
   if (target && target !== i18n.language) {
     if (!_loadedLanguages.has(target)) {
       await loadLanguageAsync(target);
