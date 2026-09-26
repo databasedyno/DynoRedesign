@@ -1,4 +1,5 @@
 import { brandFg } from "@/constants/theme";
+import { formatDateI18n } from "@/utils/formatDate";
 import {
   Box,
   Typography,
@@ -949,7 +950,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
                         color: theme.palette.text.secondary,
                       }}
                     >
-                      {[r.referred_name ? r.referred_email : null, r.created_at ? t("joinedOn", { date: new Date(r.created_at).toLocaleDateString(), defaultValue: "Joined {{date}}" }) : null]
+                      {[r.referred_name ? r.referred_email : null, r.created_at ? t("joinedOn", { date: formatDateI18n(r.created_at), defaultValue: "Joined {{date}}" }) : null]
                         .filter(Boolean)
                         .join(" · ")}
                     </Typography>

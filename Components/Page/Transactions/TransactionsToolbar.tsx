@@ -1,4 +1,5 @@
 import ExportIcon from "@/assets/Icons/export-icon.svg";
+import { formatLocaleInt } from "@/utils/locale";
 import CustomButton from "@/Components/UI/Buttons";
 import { StatusDot } from "@/Components/UI/StatusDot";
 import { txStatusTone } from "@/helpers/txStatus";
@@ -83,13 +84,13 @@ const TransactionsToolbar: React.FC<Props> = ({
   const exportLabel = scoped
     ? t("exportScoped", {
         defaultValue: "Export {{count}}",
-        count: counts[selected].toLocaleString(),
+        count: formatLocaleInt(counts[selected]),
       })
     : t("export");
   const exportHint = scoped
     ? t("exportScopedHint", {
         defaultValue: "Exports the {{count}} rows matching your filters and the active status chip.",
-        count: counts[selected].toLocaleString(),
+        count: formatLocaleInt(counts[selected]),
       })
     : settledOnly
       ? t("exportSettledHint", { defaultValue: "Exports only settled payments matching your filters." })
@@ -151,7 +152,7 @@ const TransactionsToolbar: React.FC<Props> = ({
                 className="chip-count"
                 data-testid={`transactions-status-count-${chip.value}`}
               >
-                {counts[chip.value].toLocaleString()}
+                {formatLocaleInt(counts[chip.value])}
               </span>
             </StatusChip>
           );

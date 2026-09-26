@@ -1,4 +1,5 @@
 import { brandFg } from "@/constants/theme";
+import { formatLocaleInt } from "@/utils/locale";
 import copyToClipboard from "@/helpers/copyToClipboard";
 import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import { 
@@ -456,10 +457,10 @@ export default function TransferExpectedCard({
                     </Box>
                     <Typography fontSize={11.5} color={theme.palette.text.secondary}>
                       {t('success.campaignRaised', {
-                        raised: (contributionInfo.raised_amount ?? 0).toLocaleString(),
-                        goal: (contributionInfo.goal_amount ?? 0).toLocaleString(),
+                        raised: formatLocaleInt(contributionInfo.raised_amount ?? 0),
+                        goal: formatLocaleInt(contributionInfo.goal_amount ?? 0),
                         currency: contributionInfo.campaign_currency || 'USD',
-                        defaultValue: `${(contributionInfo.raised_amount ?? 0).toLocaleString()} of ${(contributionInfo.goal_amount ?? 0).toLocaleString()} ${contributionInfo.campaign_currency || 'USD'} raised`,
+                        defaultValue: `${formatLocaleInt(contributionInfo.raised_amount ?? 0)} of ${formatLocaleInt(contributionInfo.goal_amount ?? 0)} ${contributionInfo.campaign_currency || 'USD'} raised`,
                       })}
                       {contributionInfo.show_supporters && contributionInfo.supporters_count
                         ? ` · ${t('success.campaignSupportersCount', {

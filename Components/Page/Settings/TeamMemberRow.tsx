@@ -1,4 +1,5 @@
 import React from "react";
+import { formatDateTimeI18n } from "@/utils/formatDate";
 import { Box, Chip, CircularProgress, IconButton, Stack, Tooltip, Typography } from "@mui/material";
 import { DeleteOutlineRounded, EditRounded, ScheduleRounded, SendRounded } from "@mui/icons-material";
 import { useTranslation } from "react-i18next";
@@ -23,7 +24,7 @@ export const TeamMemberRow: React.FC<Props> = ({ member: m, resending, onEdit, o
     const target = new Date(iso).getTime();
     if (Number.isNaN(target)) return null;
     const ms = target - Date.now();
-    const tooltip = t("team.expiresOn", { defaultValue: `Link expires ${new Date(iso).toLocaleString()}`, date: new Date(iso).toLocaleString() });
+    const tooltip = t("team.expiresOn", { defaultValue: `Link expires ${formatDateTimeI18n(iso)}`, date: formatDateTimeI18n(iso) });
     if (ms <= 0) return { label: t("team.expired", { defaultValue: "Expired" }), color: "error", tooltip };
     const days = Math.ceil(ms / (1000 * 60 * 60 * 24));
     const color: "warning" | "default" = days <= 2 ? "warning" : "default";

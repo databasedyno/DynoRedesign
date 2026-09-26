@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { formatLocaleNumber } from "@/utils/locale";
 import {
   Box,
   Typography,
@@ -106,7 +107,7 @@ const rangeToDates = (range: string): { start?: string; end?: string } => {
 };
 
 const fmt = (currency: string, n: number) =>
-  `${currency} ${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  `${currency} ${formatLocaleNumber(n, 2)}`;
 
 const CollectedTaxReport: React.FC = () => {
   const theme = useTheme();
@@ -227,11 +228,11 @@ const CollectedTaxReport: React.FC = () => {
           </Typography>
           <Typography sx={{ fontSize: 28, fontWeight: 700, fontVariantNumeric: "tabular-nums", lineHeight: 1.2 }} data-testid="collected-tax-total-value">
             {data!.summary.currency_symbol}
-            {data!.summary.converted_totals.tax_collected.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {formatLocaleNumber(data!.summary.converted_totals.tax_collected, 2)}
           </Typography>
           <Typography sx={{ fontSize: 12, color: sub, mt: 0.25 }}>
             on {data!.summary.currency_symbol}
-            {data!.summary.converted_totals.taxable_base.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} taxable
+            {formatLocaleNumber(data!.summary.converted_totals.taxable_base, 2)} taxable
             {data!.summary.by_currency.length > 1 ? ` · converted from ${data!.summary.by_currency.length} currencies` : ""}
           </Typography>
         </Box>

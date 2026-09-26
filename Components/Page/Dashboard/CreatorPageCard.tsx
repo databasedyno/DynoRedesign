@@ -1,4 +1,5 @@
 import { brandFg } from "@/constants/theme";
+import { formatLocaleInt } from "@/utils/locale";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Box, Button, InputBase, Typography, useTheme } from "@mui/material";
 import { Icon } from "@iconify/react";
@@ -282,7 +283,7 @@ const CreatorPageCard: React.FC = () => {
                   </Typography>
                 </Box>
                 <Typography sx={{ fontFamily: MONO, fontSize: 15, fontWeight: 800, color: theme.palette.text.primary, letterSpacing: "-0.01em" }}>
-                  {s.val.toLocaleString()}
+                  {formatLocaleInt(s.val)}
                 </Typography>
               </Box>
             ))}
@@ -350,7 +351,7 @@ const CreatorPageCard: React.FC = () => {
                     {r.domain}
                   </Typography>
                   <Typography sx={{ fontFamily: MONO, fontSize: 12, fontWeight: 700, color: theme.palette.text.primary }}>
-                    {r.clicks.toLocaleString()}
+                    {formatLocaleInt(r.clicks)}
                   </Typography>
                 </Box>
               ))}
@@ -427,11 +428,11 @@ const CreatorPageCard: React.FC = () => {
               <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1 }}>
                 <Box sx={{ p: 1.25, borderRadius: "10px", border: `1px solid ${border}` }}>
                   <Typography sx={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: theme.palette.text.secondary }}>{t("creatorCardTotalVisits", { defaultValue: "Total visits" })}</Typography>
-                  <Typography sx={{ fontFamily: MONO, fontSize: 22, fontWeight: 800 }}>{totalVisits.toLocaleString()}</Typography>
+                  <Typography sx={{ fontFamily: MONO, fontSize: 22, fontWeight: 800 }}>{formatLocaleInt(totalVisits)}</Typography>
                 </Box>
                 <Box sx={{ p: 1.25, borderRadius: "10px", border: `1px solid ${border}` }}>
                   <Typography sx={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: theme.palette.text.secondary }}>{t("creatorCardLast7Days", { defaultValue: "Last 7 days" })}</Typography>
-                  <Typography sx={{ fontFamily: MONO, fontSize: 22, fontWeight: 800 }}>{weekVisits.toLocaleString()}</Typography>
+                  <Typography sx={{ fontFamily: MONO, fontSize: 22, fontWeight: 800 }}>{formatLocaleInt(weekVisits)}</Typography>
                 </Box>
               </Box>
               <Box>
@@ -446,7 +447,7 @@ const CreatorPageCard: React.FC = () => {
                 {topReferrers.map((r) => (
                   <Box key={r.domain} sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", py: 0.5, borderBottom: `1px solid ${border}` }}>
                     <Typography sx={{ fontSize: 13, color: theme.palette.text.primary }}>{r.domain}</Typography>
-                    <Typography sx={{ fontFamily: MONO, fontSize: 13, fontWeight: 700 }}>{r.clicks.toLocaleString()}</Typography>
+                    <Typography sx={{ fontFamily: MONO, fontSize: 13, fontWeight: 700 }}>{formatLocaleInt(r.clicks)}</Typography>
                   </Box>
                 ))}
               </Box>

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { formatDateTimeI18n } from "@/utils/formatDate";
 import { Box, Button, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useRouter } from "next/router";
@@ -48,7 +49,7 @@ const Reset2FAPage = () => {
     }
   };
 
-  const untilLabel = freezeUntil ? new Date(freezeUntil).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }) : "";
+  const untilLabel = freezeUntil ? formatDateTimeI18n(freezeUntil, { dateStyle: "medium", timeStyle: "short" }) : "";
   const cfg: Record<Status, { tone: "loading" | "success" | "error" | "neutral"; icon: React.ReactNode; title: string; subtitle: string }> = {
     confirm: { tone: "neutral", icon: <LockResetIcon fontSize="medium" />, title: t("reset2fa.confirmTitle", { defaultValue: "Reset two-step verification?" }), subtitle: t("reset2fa.confirmSubtitle", { defaultValue: "Your authenticator app will be removed and email codes become your second step. For your safety this signs you out everywhere, forgets all trusted browsers and locks payout address changes for 24 hours." }) },
     loading: { tone: "loading", icon: null, title: t("reset2fa.loadingTitle", { defaultValue: "Resetting…" }), subtitle: t("reset2fa.loadingSubtitle", { defaultValue: "Signing out other sessions and updating your account." }) },

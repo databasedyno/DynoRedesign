@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { formatLocaleInt } from "@/utils/locale";
 import { Box, Drawer, IconButton, useTheme } from "@mui/material";
 import { format } from "date-fns";
 import { useTranslation } from "react-i18next";
@@ -156,7 +157,7 @@ const TransactionsFilterSheet: React.FC<Props> = ({ open, onClose, filters, rows
                       <StatusDot tone={txStatusTone(s)} sx={{ gap: 0, ...(selected ? { "& span": { backgroundColor: "#fff", borderColor: "#fff" } } : {}) }} />
                     ) : null}
                     <Box component="span" sx={{ textTransform: "capitalize" }}>{statusLabel(s)}</Box>
-                    <Box component="span" sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontSize: 12, fontWeight: 600, opacity: 0.75 }}>{statusCounts[s].toLocaleString()}</Box>
+                    <Box component="span" sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontSize: 12, fontWeight: 600, opacity: 0.75 }}>{formatLocaleInt(statusCounts[s])}</Box>
                   </OptionChip>
                 );
               })}

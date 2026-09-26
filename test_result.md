@@ -1,4 +1,39 @@
 # ============================================================================
+# >>> HANDOFF (2026-09-26 pt2) — VERIFY: IN-APP BRAND IS BLACK/YELLOW (NOT BROWN) + LANGUAGE SWITCHER <<<
+# ============================================================================
+#   USER REPORT: "landing page is black & yellow but the in-app still looks dark
+#   BROWN; same for email templates and the logo." Main-agent code audit found
+#   ZERO brown surface colors anywhere (constants/theme.ts, styles/theme.ts MUI
+#   dark theme, assets/Icons/Logo.tsx, backend/utils/brandTokens.ts all neutral
+#   graphite #0A0A0D/#101014/#121214 + yellow #FFD100). Hypothesis: user is seeing
+#   a STALE DEPLOYED build; the current preview build is fully black/yellow.
+#   Preview runs a PRODUCTION build now (FRONTEND_MODE=production).
+#
+#   PART A (PRIMARY — reproduce/verify the brand-color report on the PREVIEW):
+#   Log into the in-app as owner (recipe in /app/memory/test_credentials.md:
+#   /auth/login -> login-email-input=onarrival21@gmail.com -> "Continue" (exact) ->
+#   password-input=Katiekendra123@ -> signin-submit-btn -> 2FA dialog: TOTP from
+#   `node /app/backend/scripts/print_totp.cjs 1`. Set sessionStorage
+#   mfa_interstitial_seen='1' before login to skip interstitial).
+#   Then on the dashboard REPORT the computed background-color (rgb) of:
+#     (1) the left sidebar/drawer, (2) the top app bar/header, (3) the main
+#     dashboard canvas, (4) a content card. Also report the in-app logo
+#     [data-testid="dynopay-logo"] stroke/fill colors. Screenshot desktop 1920.
+#   PASS = grounds are near-black neutral graphite (R≈G≈B, e.g. rgb(10,10,13) /
+#   rgb(16,16,20)) with YELLOW accents — NOT warm brown (R>G>B, e.g. rgb(43,29,20)).
+#   Report the actual rgb values so main agent can judge objectively.
+#
+#   PART B (SECONDARY — language switcher polish, prior fork's item 4):
+#   Public /fees: header language trigger shows a FLAG + native name "English".
+#   Open it -> rows show flag + native name (Deutsch, Espanol, Portugues, Nederlands,
+#   Francais) + muted code. Pick Deutsch -> trigger shows German flag + "Deutsch",
+#   URL gets ?lang=de, and the fee/tier numbers render German style ("1.234,56"
+#   with comma decimals / dot thousands). Confirm the Espanol row shows a proper
+#   RED/YELLOW round Spain flag (not an empty white circle).
+# ============================================================================
+
+
+# ============================================================================
 # >>> HANDOFF (2026-09-24 pt4) — BUGFIX: TRUST BAR SPACING/ALIGNMENT <<<
 # ============================================================================
 #   USER BUG: on homepage "/", the trust bar (data-testid="trust-bar") had "too

@@ -8,7 +8,8 @@ import { useTranslation } from "react-i18next";
 import CoinChips from "@/Components/UI/CoinChips";
 import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
 import { Icon, MONO } from "@/styles/uiKit";
-import { getCurrencySymbolFromFormat, formatWithSeparators } from "@/utils/currencyFormat";
+import { getCurrencySymbolFromFormat, getCurrencyDecimals } from "@/utils/currencyFormat";
+import { formatWithSymbol } from "@/utils/locale";
 import type { DonationSettingsState } from "./DonationSettingsSection";
 import type { LinkKind } from "./LinkTypeSelector";
 
@@ -58,7 +59,7 @@ const LivePreviewPanel = ({
   const indigo = isDark ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light;
 
   const symbol = getCurrencySymbolFromFormat(currency || "USD");
-  const fmt = (n: number) => `${symbol}${formatWithSeparators(n, currency || "USD")}`;
+  const fmt = (n: number) => formatWithSymbol(n, symbol, getCurrencyDecimals(currency || "USD"));
   const amountNum = parseFloat(amount);
   const hasAmount = Number.isFinite(amountNum) && amountNum > 0;
   const goalNum = parseFloat(donation.goalAmount);

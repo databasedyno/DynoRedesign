@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { formatDateI18n } from "@/utils/formatDate";
 import { useRouter } from "next/router";
 import { Box, Button, Typography, useTheme } from "@mui/material";
 import { ShieldOutlined } from "@mui/icons-material";
@@ -48,7 +49,7 @@ const MfaGate: React.FC = () => {
   if (!pending) return null;
 
   const daysLeft = enforcement!.days_left ?? 0;
-  const deadline = enforcement!.deadline_at ? new Date(enforcement!.deadline_at).toLocaleDateString(undefined, { day: "numeric", month: "short" }) : "";
+  const deadline = enforcement!.deadline_at ? formatDateI18n(enforcement!.deadline_at, { day: "numeric", month: "short" }) : "";
   const finish = () => { setInterstitialOpen(false); setBannerDialogOpen(false); void refresh(); };
   const dismissInterstitial = () => { markSeen(); setInterstitialOpen(false); };
 

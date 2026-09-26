@@ -1,4 +1,5 @@
 import React from "react";
+import { formatDateI18n } from "@/utils/formatDate";
 import { Box, Typography, useTheme } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { Icon, MONO } from "@/styles/uiKit";
@@ -62,7 +63,7 @@ export const PayoutHistory: React.FC<HistoryProps> = ({ history, onDownload, pil
             h.status === "completed" ? theme.palette.success?.main || "#16A34A"
             : h.status === "failed" ? theme.palette.error?.main || "#DC2626"
             : "#F59E0B";
-          const when = h.completed_at ? new Date(h.completed_at).toLocaleDateString() : h.requested_at ? new Date(h.requested_at).toLocaleDateString() : "";
+          const when = h.completed_at ? formatDateI18n(h.completed_at) : h.requested_at ? formatDateI18n(h.requested_at) : "";
           return (
             <Box key={h.payout_id} data-testid={`payout-history-row-${h.payout_id}`} sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, p: 1.25, borderRadius: "8px", bgcolor: theme.palette.secondary.main }}>
               <Box sx={{ minWidth: 0 }}>

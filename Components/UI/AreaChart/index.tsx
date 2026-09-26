@@ -1,4 +1,5 @@
 import CalendarTodayIcon from "@/assets/Icons/calendar-icon.svg";
+import { formatLocaleInt } from "@/utils/locale";
 import { RoundedStackIcon } from "@/utils/customIcons";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -222,7 +223,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
             letterSpacing: 0,
           }}
         >
-          Volume: ${typeof value === "number" ? value.toLocaleString() : value}
+          Volume: ${typeof value === "number" ? formatLocaleInt(value) : value}
         </Typography>
       </div>
 

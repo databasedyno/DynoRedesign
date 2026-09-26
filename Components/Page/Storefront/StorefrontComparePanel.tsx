@@ -1,4 +1,5 @@
 import React from "react";
+import { formatLocaleCurrency, formatLocaleInt } from "@/utils/locale";
 import { useApiSWR } from "@/hooks/useApiSWR";
 import { Box, Typography, Skeleton, useTheme } from "@mui/material";
 import { Icon as Iconify } from "@iconify/react";
@@ -7,7 +8,6 @@ import PanelCard from "@/Components/UI/PanelCard";
 import Sparkline from "@/Components/UI/Sparkline";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { brandFg } from "@/constants/theme";
-import { toFixedStr } from "@/utils/money";
 
 const MONO = 'ui-monospace, "Roboto Mono", SFMono-Regular, Menlo, monospace';
 
@@ -50,17 +50,7 @@ const StorefrontComparePanel: React.FC = () => {
 
   if (companyList.length <= 1) return null;
 
-  const fmtMoney = (n: number) => {
-    try {
-      return n.toLocaleString(undefined, {
-        style: "currency",
-        currency: data?.currency || "USD",
-        maximumFractionDigits: 2,
-      });
-    } catch {
-      return `$${toFixedStr(n, 2)}`;
-    }
-  };
+  const fmtMoney = (n: number) => formatLocaleCurrency(n, data?.currency || "USD", 2);
 
   const HEAD_SX = {
     fontFamily: "var(--font-sans)",
@@ -177,7 +167,7 @@ const StorefrontComparePanel: React.FC = () => {
                         ariaLabel={`${row.company_name || "Company"} — 30 day views trend, total ${row.views_30d}`}
                       />
                       <Typography sx={{ ...NUM_SX, minWidth: 40 }}>
-                        {row.views_30d.toLocaleString()}
+                        {formatLocaleInt(row.views_30d)}
                       </Typography>
                     </Box>
                     <Box sx={{ textAlign: "right" }}>

@@ -12,6 +12,7 @@
  */
 import React, { useCallback, useEffect, useState } from "react";
 import { formatDateTimeI18n } from "@/utils/formatDate";
+import { formatLocaleInt } from "@/utils/locale";
 import {
   Box,
   Button,
@@ -731,7 +732,7 @@ const CampaignManager = ({ linkId, currency }: CampaignManagerProps) => {
                         {displayName}
                       </Typography>
                       <Typography sx={{ fontWeight: 700, fontSize: 13, color: green }}>
-                        {Number(s.amount).toLocaleString()} {s.currency}
+                        {formatLocaleInt(Number(s.amount))} {s.currency}
                       </Typography>
                     </Box>
                     {s.at && (
