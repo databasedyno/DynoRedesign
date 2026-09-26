@@ -1,6 +1,6 @@
 import asyncio
 
-BASE = "https://vault-auth-init.preview.emergentagent.com"
+BASE = "https://passphrase-auth.preview.emergentagent.com"
 
 MARKETING = ["/", "/fees", "/for/freelancers", "/products", "/blog", "/about",
              "/pay?d=jgQQzL", "/pay/demo", "/auth/login", "/auth/signup", "/reset-password"]

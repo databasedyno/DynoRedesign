@@ -10,7 +10,7 @@ import re
 import pytest
 import requests
 
-BASE = "https://vault-auth-init.preview.emergentagent.com"
+BASE = "https://passphrase-auth.preview.emergentagent.com"
 
 
 def _head_or_get(path, expect_ct_startswith):
