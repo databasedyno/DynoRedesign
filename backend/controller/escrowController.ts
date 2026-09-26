@@ -288,7 +288,9 @@ async function authorizeOutcome(
 
   const now = new Date();
   deal.status = nextStatus;
-  deal.simulated = true;
+  // Do NOT force `simulated` here: it must keep reflecting how the deal was FUNDED
+  // (set by actFund*/actFundFromCheckout). Forcing it true tainted real, on-chain-funded
+  // deals as "test funds" and blocked legitimate seller cashouts (deal #347).
   deal.outcome = outcome;
   deal.outcome_authorized_at = now;
   if (!deal.custody_stablecoin) deal.custody_stablecoin = CUSTODY_STABLECOIN;

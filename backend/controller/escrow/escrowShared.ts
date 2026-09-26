@@ -11,7 +11,7 @@ import { raw as envRaw, num as envNum } from "../../utils/config";
 import {
   getEscrowCostRates,
   sweepFeeUsdFor,
-  withdrawFeeUsdFor,
+  customerWithdrawFeeUsd,
   normalizePayoutKey,
   isStableFundingCoin,
   DEFAULT_PAYOUT_KEY,
@@ -283,7 +283,7 @@ export function computeFeeBreakdown(input: {
   // USDT->USDC conversion on Binance — merged into the single withdrawal figure.
   const payoutIsUsdc = payoutKey.startsWith("USDC");
   const payoutConversionUsd = includeCosts && !locked && payoutIsUsdc ? round2((amount * convPct) / 100) : 0;
-  const withdrawalFeeUsd = !includeCosts ? 0 : locked ? round2(locked.withdrawalFeeUsd) : round2(withdrawFeeUsdFor(payoutKey) + payoutConversionUsd);
+  const withdrawalFeeUsd = !includeCosts ? 0 : locked ? round2(locked.withdrawalFeeUsd) : round2(customerWithdrawFeeUsd(payoutKey) + payoutConversionUsd);
   const passThroughCosts = round2(networkFeeUsd + conversionFeeUsd + withdrawalFeeUsd);
   const totalCost = round2(escrowFee + exchangeFeeUsd + passThroughCosts);
 

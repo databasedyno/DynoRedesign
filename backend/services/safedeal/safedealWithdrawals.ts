@@ -11,7 +11,7 @@ import sequelize from "../../utils/dbInstance";
 import { apiLogger } from "../../utils/loggers";
 import { toFixedStr } from "../../utils/money";
 import { CustomerRow, CustomerWalletError } from "../customerWalletService";
-import { ESCROW_PAYOUT_OPTIONS, normalizePayoutKey, withdrawFeeUsdFor } from "../escrow/escrowCosts";
+import { ESCROW_PAYOUT_OPTIONS, normalizePayoutKey, withdrawFeeUsdFor, customerWithdrawFeeUsd } from "../escrow/escrowCosts";
 import { isLiveSettlementEnabled } from "../../controller/escrow/escrowShared";
 import { applyEntry, applyEntries, getBalances, simulatedCreditsUsd } from "./safedealWallet";
 import { sendSafeDealWithdrawalEmail, sendSafeDealWithdrawalRejectedEmail, type CashoutEmailOptions } from "../email/safedealEmails";
@@ -165,7 +165,7 @@ export async function removeAddress(customerId: number, addressId: number): Prom
 export function quoteWithdrawal(payoutKey: string, amountUsd: number, feeCreditUsd = 0): { amount: number; fee: number; fee_waived: number; net: number; payout_key: string; min: number; approval_threshold: number } {
   const payout_key = normalizePayoutKey(payoutKey);
   const amount = round2(amountUsd);
-  const listFee = round2(withdrawFeeUsdFor(payout_key));
+  const listFee = round2(customerWithdrawFeeUsd(payout_key));
   // A fee reserved by an earlier deal quote (funds kept in balance) pays for this withdrawal.
   const fee_waived = round2(Math.min(listFee, Math.max(0, Number(feeCreditUsd) || 0)));
   const fee = round2(listFee - fee_waived);

@@ -36,6 +36,10 @@ import { isSafeDealCompany, onCustodyConverted as onSafeDealCustodyConverted } f
 const PAYOUT_STALL_HOURS = 2;   // merchant "running late" email after this many hours in flight
 const MAX_RETRIES = 30;           // ~30 checks after 30-min age gate ≈ hours of patience for slow chains (BTC)
 
+// Terminal for payout alerting. HELD = SafeDeal escrow custody: conversion is fully settled,
+// funds held on Binance, no external payout pending — it must never trigger "running late"/"failed" emails.
+const PAYOUT_TERMINAL_STATUSES = ["COMPLETED", "FAILED", "HELD"];
+
 // Guard to prevent cascading fast-poll re-checks
 let fastPollScheduled = false;
 const MAX_API_ERROR_RETRIES = 60; // Transient Binance API failures — much higher since these aren't the deposit's fault
@@ -63,7 +67,7 @@ const markExhaustedAsFailed = async (): Promise<number> => {
   const aboutToFail = (await stablecoinConversionModel.findAll({
     where: {
       [Op.or]: [
-        { status: { [Op.notIn]: ["COMPLETED", "FAILED"] }, retry_count: { [Op.gte]: MAX_RETRIES } },
+        { status: { [Op.notIn]: PAYOUT_TERMINAL_STATUSES }, retry_count: { [Op.gte]: MAX_RETRIES } },
         { status: "PENDING_DEPOSIT", createdAt: { [Op.lt]: ageThreshold } },
       ],
     },
@@ -78,7 +82,7 @@ const markExhaustedAsFailed = async (): Promise<number> => {
     },
     {
       where: {
-        status: { [Op.notIn]: ["COMPLETED", "FAILED"] },
+        status: { [Op.notIn]: PAYOUT_TERMINAL_STATUSES },
         retry_count: { [Op.gte]: MAX_RETRIES },
       },
     }
@@ -181,7 +185,7 @@ const notifyMerchantPayoutDelayed = async (row: Record<string, any>, stage: "del
 const notifyStalledConversions = async (): Promise<number> => {
   const threshold = new Date(Date.now() - PAYOUT_STALL_HOURS * 60 * 60 * 1000);
   const stalled = (await stablecoinConversionModel.findAll({
-    where: { status: { [Op.notIn]: ["COMPLETED", "FAILED"] }, createdAt: { [Op.lt]: threshold } },
+    where: { status: { [Op.notIn]: PAYOUT_TERMINAL_STATUSES }, createdAt: { [Op.lt]: threshold } },
     raw: true,
     limit: 50,
   })) as unknown as Array<Record<string, any>>;
@@ -1233,6 +1237,9 @@ export const sendWeeklyConversionSummaries = async (): Promise<number> => {
   log(`📊 Weekly summaries sent: ${sent}/${companiesWithConversions.length}`);
   return sent;
 };
+
+// Exposed for unit tests only — payout-alert watchdog internals.
+export const __testables = { notifyStalledConversions, markExhaustedAsFailed, PAYOUT_TERMINAL_STATUSES };
 
 export default {
   processStablecoinConversions,

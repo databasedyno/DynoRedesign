@@ -13,6 +13,13 @@ jest.mock("../services/ledger/ledgerService", () => ({
   postDoubleEntry: (...args: unknown[]) => mockPostDoubleEntry(...args),
 }));
 
+// The transactional-outbox module initialises a Sequelize model at import time,
+// which the mock DB instance can't back. It's only used behind ENABLE_OUTBOX
+// (off by default) so stub it to keep this suite loadable.
+jest.mock("../services/outbox/outboxService", () => ({
+  enqueueOutbox: jest.fn().mockResolvedValue(undefined),
+}));
+
 import {
   recordSettlementCompleted,
   recordPaymentDetected,

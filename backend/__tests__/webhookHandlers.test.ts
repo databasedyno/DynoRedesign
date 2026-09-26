@@ -407,11 +407,13 @@ describe('callMerchantWebhook', () => {
     );
 
     expect(result.success).toBe(true);
-    expect(axios.post).toHaveBeenCalledWith(
-      'https://merchant.com/hook',
-      expect.objectContaining({ event: 'payment.confirmed' }),
-      expect.objectContaining({ timeout: 20000, maxRedirects: 0 })
-    );
+    // Body is serialized ONCE to raw JSON bytes (so the v2 signature can be
+    // verified against the exact request body), then delivered via
+    // postWithSafeRedirects → axios.post(url, rawBody, config).
+    const [calledUrl, calledBody, calledConfig] = (axios.post as jest.Mock).mock.calls[0];
+    expect(calledUrl).toBe('https://merchant.com/hook');
+    expect(JSON.parse(calledBody as string)).toMatchObject({ event: 'payment.confirmed' });
+    expect(calledConfig).toEqual(expect.objectContaining({ timeout: 20000, maxRedirects: 0 }));
   });
 
   it('skips when no webhook URL configured anywhere', async () => {
@@ -472,7 +474,7 @@ describe('callMerchantWebhook', () => {
     expect(headers['X-DynoPay-Timestamp']).toBeDefined();
   });
 
-  it('ALWAYS includes signature header (uses system default when no merchant secret)', async () => {
+  it('omits the signature header when no merchant secret is configured', async () => {
     (axios.post as jest.Mock).mockResolvedValueOnce({ status: 200 });
     mockSequelize.query.mockResolvedValue([]);
 
@@ -482,10 +484,11 @@ describe('callMerchantWebhook', () => {
     );
 
     const headers = (axios.post as jest.Mock).mock.calls[0][2].headers;
-    // BUG-A FIX: Signature is now ALWAYS included (system default when no merchant secret)
-    expect(headers['X-DynoPay-Signature']).toBeDefined();
-    expect(typeof headers['X-DynoPay-Signature']).toBe('string');
-    expect(headers['X-DynoPay-Signature'].length).toBeGreaterThan(0);
+    // Signatures are sent ONLY when the endpoint has a REAL configured secret
+    // (API review §5.1.2) — there is NO shared-default fallback, since signing
+    // under a guessable shared secret looks verified but isn't.
+    expect(headers['X-DynoPay-Signature']).toBeUndefined();
+    expect(headers['X-Dynopay-Signature-V2']).toBeUndefined();
   });
 
   it('does NOT retry on 4xx client errors', async () => {
@@ -515,7 +518,8 @@ describe('callMerchantWebhook', () => {
       { event: 'payment.confirmed', amount: '0.002', currency: 'BTC' }
     );
 
-    const sentPayload = (axios.post as jest.Mock).mock.calls[0][1];
+    // Body is delivered as a raw JSON string — parse before asserting.
+    const sentPayload = JSON.parse((axios.post as jest.Mock).mock.calls[0][1] as string);
     // Should include enriched fiat data from currencyUtils mock
     expect(sentPayload.base_amount).toBeDefined();
     expect(sentPayload.base_currency).toBeDefined();

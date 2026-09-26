@@ -144,10 +144,23 @@ export function sweepFeeUsdFor(coin?: string | null): number {
   return RATES.network[c] ?? DEFAULT_SWEEP_USD;
 }
 
-/** Outbound Binance withdrawal fee estimate (USD) for a payout stablecoin key. */
+/** Outbound Binance withdrawal fee estimate (USD) for a payout stablecoin key.
+ * This is the REAL network fee (used at dispatch to submit `net + realFee` so the
+ * recipient always receives exactly their quoted net). Customer-facing charging uses
+ * `customerWithdrawFeeUsd()` which applies the cashout-fee floor on top of this. */
 export function withdrawFeeUsdFor(payoutKey?: string | null): number {
   const key = normalizePayoutKey(payoutKey);
   return RATES.withdraw[key] ?? DEFAULT_WITHDRAW_FEE_USD[key] ?? 1;
+}
+
+// Customer-facing cashout fee FLOOR (USD). The platform never charges less than this to
+// cash out even when Binance's real fee is lower — the difference is retained as margin.
+// It rises above the floor when the real network fee exceeds it (never undercharge).
+const WITHDRAW_FEE_FLOOR_USD = envNum("ESCROW_WITHDRAW_FEE_FLOOR_USD", 5);
+
+/** Customer-facing cashout fee for a payout network: max(floor, real Binance fee). */
+export function customerWithdrawFeeUsd(payoutKey?: string | null): number {
+  return Math.max(WITHDRAW_FEE_FLOOR_USD, withdrawFeeUsdFor(payoutKey));
 }
 
 let refreshing = false;

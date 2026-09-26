@@ -49,6 +49,9 @@ const originalEnv = { ...process.env };
 
 function setDefaultFeeEnv() {
   process.env.TRANSACTION_FEE_PERCENT = '1.5';
+  // Isolate these unit tests from the live checkout-minimum (network) lookup so
+  // getBlockchainConfig is purely env-driven and deterministic (no 5s timeouts).
+  process.env.ALIGN_SETTLEMENT_MIN_TO_CHECKOUT = 'false';
   process.env.BTC_THRESHOLD = '5';
   process.env.ETH_THRESHOLD = '3';
   process.env.FEE_TIER_1_MIN = '1';

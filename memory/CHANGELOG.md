@@ -1,3 +1,30 @@
+# 2026-06 (fork dynopay-qa-fix) SafeDeal false "payout running late" email FIXED + test-suite fully green — preview-only (Save to GitHub to ship).
+#   ROOT CAUSE: notifyStalledConversions() (backend/services/conversionService.ts) flagged any stablecoin conversion whose status
+#     was NOT in [COMPLETED, FAILED] and older than PAYOUT_STALL_HOURS (2h) as an in-flight late payout. But SafeDeal escrow-custody
+#     conversions settle to status "HELD" (funds held on Binance as escrow, completed_at set, NO external payout pending). HELD was not
+#     excluded → deal #347 / conversion #8 (real BTC→USDT custody, completed 2026-09-25 23:20) triggered a false "running late" email
+#     that surfaced the SOURCE BTC amount, contradicting the correct "settled" email onarrival21@gmail.com received.
+#   FIX: added PAYOUT_TERMINAL_STATUSES = ["COMPLETED","FAILED","HELD"] and used it in notifyStalledConversions() (stops the false
+#     "running late" email) AND markExhaustedAsFailed() snapshot+update where clauses (a settled HELD row can no longer be flipped to
+#     FAILED → no false "payout failed" email either). No settlement/conversion logic touched — alerting predicates only.
+#   TEST: new __tests__/conversionWatchdog.test.ts (4 tests, all pass) — HELD excluded from stalled query; HELD never flipped to FAILED;
+#     a genuine >2h non-terminal conversion still sends the delayed email. Exposed watchdog internals via `export const __testables`.
+#   ALSO fixed 3 pre-existing failing/flaky unit suites so `yarn test` (unit project) is 32 suites / 650 tests GREEN:
+#     • webhookHandlers.test.ts (3 stale assertions): callMerchantWebhook now serialises the body to a raw JSON string and delivers via
+#       postWithSafeRedirects → axios.post(url, rawBody, cfg); signatures are sent ONLY with a real merchant secret (no shared-default).
+#       Updated tests to JSON.parse the body and assert signature-absent when no secret.
+#     • ledgerPaymentMapper.test.ts (suite failed to load): outboxService imports outboxEventModel which calls OutboxEvent.init() at
+#       import time — the mock DB instance can't back it. Stubbed ../services/outbox/outboxService (only used behind ENABLE_OUTBOX, off).
+#     • feeService.test.ts (flaky 5s timeout in getBlockchainConfig): the test hit the unmocked live getCoinMinimumUsd() network lookup.
+#       Set ALIGN_SETTLEMENT_MIN_TO_CHECKOUT='false' in the test env so config is env-driven/deterministic (verified stable ×3 runs).
+#   VERIFICATION NOTE: cashout/settlement fixes are validated by unit tests by design — this pod is wired to the PRODUCTION DB and
+#     SafeDeal simulation is disabled here (test_credentials.md §2026-09-24: "balances can no longer be fabricated for QA — test cashout
+#     math with unit tests/mocks"), so a browser QA can neither safely nor meaningfully exercise a real escrow cashout/withdrawal.
+#   PRIOR (same fork, already applied, unit-verified): escrowController.authorizeOutcome() no longer force-sets deal.simulated=true
+#     (tainted real deal #347, blocked seller cashout — repaired via scripts/repair_deal_347_simulated.js, committed); customer cashout
+#     fee floor customerWithdrawFeeUsd() = max($5, real network fee) in services/escrow/escrowCosts.ts (deposit cost unchanged).
+
+
 # 2026-09-22 DYNOPAY REBRAND STEP 1 (in-app dashboard + auth) SHIPPED — self-tested (tsc 0; DOM colour scan 0 brand-indigo on 9 light routes; light+dark screenshots). Logo concept B vector tuned to user's image; all favicon/PWA/OG/email/press assets regenerated (scripts/brand/generate-logo.mjs). Brown brand cell + rail mark; auth canvas cream/near-black; static icon SVGs indigo→aqua. testing_agent timed out twice → user asked to self-test and wrap up. Step 2 (landing) NOT started. See PRD.md top entry.
 # 2026-09-19 (pod 7d9ebf94) PROD DROPLET: SafeDeal connected + LIVE settlement ON — applied directly on droplet 134.209.94.115:/opt/dynopay/.env via SSH.
 #   Symptoms (prod): SafeDeal top-up (USDT) → "SafeDeal is not connected to Dynopay yet (SAFEDEAL_API_KEY missing)"; crypto escrow funding → "something went wrong".
