@@ -1,6 +1,6 @@
 import asyncio
 
-BASE = "https://dynopay-qa-fix.preview.emergentagent.com"
+BASE = "https://vault-auth-init.preview.emergentagent.com"
 
 MARKETING = ["/", "/fees", "/for/freelancers", "/products", "/blog", "/about",
              "/pay?d=jgQQzL", "/pay/demo", "/auth/login", "/auth/signup", "/reset-password"]

@@ -114,7 +114,7 @@ def patch(path, keys, cors_key=None, forced=None):
 
 patch('/app/.env.local',
       {'NEXTAUTH_URL', 'NEXT_PUBLIC_SERVER_URL', 'NEXT_PUBLIC_CREATOR_BASE_URL'},
-      forced={'FRONTEND_MODE': 'dev', 'INTERNAL_API_URL': 'http://localhost:8001'})
+      forced={'FRONTEND_MODE': 'production', 'INTERNAL_API_URL': 'http://localhost:8001'})
 
 patch('/app/backend/.env',
       {'SERVER_URL', 'FRONTEND_URL', 'CHECKOUT_URL', 'NEXTAUTH_URL', 'NEXT_PUBLIC_BASE_URL'},
@@ -182,12 +182,12 @@ else
 fi
 
 FRONT_CODE=""
-for i in $(seq 1 40); do
+for i in $(seq 1 120); do
   FRONT_CODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 http://localhost:3000/ 2>/dev/null)
   [ "$FRONT_CODE" = "200" ] && break
   sleep 3
 done
-[ "$FRONT_CODE" = "200" ] && ok "frontend 200 on :3000 (dev server compiled + warm)" || bad "frontend returned $FRONT_CODE"
+[ "$FRONT_CODE" = "200" ] && ok "frontend 200 on :3000 (production build served by next start)" || bad "frontend returned $FRONT_CODE"
 
 if [ -n "$PREVIEW_URL" ]; then
   EXT=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 "$PREVIEW_URL/" 2>/dev/null)

@@ -1,7 +1,7 @@
 // T2 SafeDeal address 102 verify via signed message
 const { Wallet } = require('ethers');
 
-const BASE = 'https://dynopay-qa-fix.preview.emergentagent.com';
+const BASE = 'https://vault-auth-init.preview.emergentagent.com';
 const SD_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJraW5kIjoic2FmZWRlYWwiLCJjaWQiOjk1NiwiY29pZCI6MjYyLCJlbWFpbCI6InNkLXdhbGxldC1zbW9rZS0xNzkwMTgwNDU0QGV4YW1wbGUuY29tIiwiaWF0IjoxNzkwMTgxNDU5LCJleHAiOjE3OTA3ODYyNTl9.A3GjzhIRtlXrI2rYU-5pPpbxtCZ6jfqIua9kNEfJYw4';
 const PRIV = '0x908178c7bdfbef96c0823cb4ebee85d8994f7e4724b4e4194ac042ef3a587260';
 

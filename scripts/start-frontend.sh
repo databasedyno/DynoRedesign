@@ -11,8 +11,11 @@
 #   (see railway-frontend.json / Dockerfile.frontend / start-all.sh)
 #
 # Mode selection (env var wins, then /app/.env.local, then default):
-#   FRONTEND_MODE=dev         -> `next dev`   (hot reload, no build step) [default]
-#   FRONTEND_MODE=production  -> `next start` (builds first if no BUILD_ID)
+#   FRONTEND_MODE=dev         -> `next dev`   (hot reload, no build step)
+#   FRONTEND_MODE=production  -> `next start` (builds first if no BUILD_ID) [preview default since 2026-09]
+#   Preview pods run production: `next dev` cold-compiles (~6GB RAM, 15-35s/route)
+#   made the Cloudflare ingress time out (502 / blank page). After a code change
+#   in production mode: rm -rf /app/.next-prod && sudo supervisorctl restart frontend.
 #
 # ROOT-LEVEL `.env` AND `.next` MUST NOT EXIST IN THE POD (2026-09):
 #   Emergent's commit tool stages with `git add -A ':(exclude).env' ':(exclude).next/*' …`

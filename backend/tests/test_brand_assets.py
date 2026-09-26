@@ -10,7 +10,7 @@ import re
 import pytest
 import requests
 
-BASE = "https://dynopay-qa-fix.preview.emergentagent.com"
+BASE = "https://vault-auth-init.preview.emergentagent.com"
 
 
 def _head_or_get(path, expect_ct_startswith):
