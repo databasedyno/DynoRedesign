@@ -1,72 +1,63 @@
-# Theme Memory — one remembered light/dark choice, verified end to end
+# SafeDeal Landing Page — Visual Redesign (3 Mockups to Choose From)
 
-A visitor's light/dark choice is remembered once and honoured everywhere on the site — marketing pages, checkout, sign-in and the merchant dashboard — with no surprise flips between pages. A full regression run proves it, and anything found broken is fixed in the same pass.
+A refreshed, more visually striking SafeDeal landing page that borrows the polish of Dynopay.com and leads with custom AI-generated 3D artwork.
+The first round delivers three full-page design directions on a private preview so one can be picked before anything goes live.
 
 ## Who it's for
-- Buyers landing on a checkout or storefront who should not be blinded by a theme flip mid-payment.
-- Merchants who move between the marketing site, sign-in and the dashboard many times a day and expect one consistent look.
-- The team, who needs a written, repeatable pass/fail record of theme behaviour across every surface.
+
+People arriving at SafeDeal to run an escrow deal — buyers and sellers doing online transactions who need to trust that money is held safely until delivery. The page has to feel premium and reassuring within seconds, on both desktop and phone.
 
 ## Core features and experience
-- **First visit follows the device.** With nothing remembered yet, every page (marketing, checkout, sign-in, dashboard) starts in the mode the visitor's device is set to. If the device switches (e.g. dark at sunset) before any manual toggle, the site follows.
-- **One choice, remembered everywhere.** The first manual toggle — wherever it happens — becomes the single remembered choice for that browser. Marketing, checkout, auth and dashboard all read and update the same choice. The old separate "dashboard theme" and "public theme" are folded into one.
-- **No flash.** The correct mode is applied before the first paint on every load, including hard reloads and new tabs.
-- **Stable across navigation.** Client-side navigation, back/forward, reload, new tab, sign-in and sign-out never change the mode on their own.
-- **SafeDeal stays SafeDeal.** SafeDeal pages keep their fixed yellow-and-black look regardless of the remembered Dynopay choice, and visiting them never alters that choice.
-- **Documented boundaries.** `dynopay.com`, `checkout.dynopay.com` and `safedeal.sh` are separate origins, so each remembers independently. This is recorded in the report as expected behaviour, not a defect.
-- **Regression report.** A pass/fail matrix over surfaces × scenarios × desktop/mobile, with failures fixed and re-run until green.
 
-### Regression matrix (what gets exercised)
-Surfaces
-- Marketing: home, /fees, /for/* verticals, /products, /blog, /about, legal pages.
-- Checkout: hosted payment link (/pay), demo checkout, storefront checkout, order/receipt page.
-- Auth: sign-in, sign-up, password reset.
-- Dashboard (signed in): overview, transactions, settings, notifications, Help & Support.
-- SafeDeal: landing, sign-in, deals list, new deal, deal page, wallet, help/legal.
+- **Three complete landing-page mockups**, each a full restyle of the SafeDeal page (hero, how-it-works, fees, trust/testimonial, FAQ, closing call-to-action) — not just the hero. All three keep the same message and the same working "start a deal" form; they differ in art direction, layout rhythm, and the 3D artwork.
+- **Custom AI-generated 3D illustrations** as the centerpiece art (glossy gold-and-black vault, shield, and deal/handshake motifs), generated once and used as crisp static images.
+- **Dynopay-inspired sections**, adapted to escrow rather than copied: a scrolling row of supported coins, a compact stats/trust strip, floating status "pills" and notification cards (e.g. *Funded → In escrow → Released*), numbered step cards, a testimonial, and a clean fees block.
+- **A private compare page** where all three mockups can be scrolled through and viewed side by side, so a direction can be chosen. The current live SafeDeal page is left exactly as-is until a choice is made.
+- **Gold + black SafeDeal identity preserved** throughout, kept visually distinct from Dynopay's own brand.
 
-Scenarios (each on desktop and mobile widths)
-1. Fresh visitor, device set to dark → every surface starts dark.
-2. Fresh visitor, device set to light → every surface starts light.
-3. Device preference changes with nothing remembered → site follows live.
-4. Toggle on a marketing page → checkout, sign-in and (after login) dashboard all show the new mode.
-5. Toggle on checkout → marketing and sign-in follow.
-6. Toggle inside the dashboard → sign-out, marketing and checkout follow; toggling back inside the dashboard is respected everywhere.
-7. Reload, open in new tab, back/forward → mode unchanged, no flash of the wrong theme on first paint.
-8. Returning merchant who previously had a dashboard choice → that choice is honoured everywhere on first load after the change.
-9. SafeDeal pages look identical whether the remembered Dynopay choice is light or dark; visiting them leaves the choice untouched.
-10. Toggling never triggers unrelated effects (no confetti, no brand switch, no data reload loops).
+### The three directions (all full-page, all on-brand)
+
+- **A — "The Vault" (dark & premium):** Dark hero built around a glowing 3D glass-and-gold vault, floating escrow status pills, a coin marquee, and a tight stats strip. The most dramatic, closest in spirit to the current look but far more polished.
+- **B — "The Handshake" (light & editorial):** Brighter, airier layout with generous whitespace, a 3D "sealed deal / handshake-shield" illustration, soft gradients, and card-based sections. Friendlier and more approachable.
+- **C — "The Flow" (Dynopay-style product mockup):** Hero pairs a realistic SafeDeal "deal card" UI mockup (a deal moving through funded → held → released) with a 3D accent illustration and floating notification cards — the most direct nod to Dynopay's checkout-mockup hero.
 
 ## User flow
-1. A new visitor opens any Dynopay page → it appears in their device's mode.
-2. They tap the sun/moon toggle in the header (or the dashboard's toggle) → the page switches instantly and the choice is saved.
-3. They continue to checkout, sign in, land in the dashboard → same mode throughout, no flicker.
-4. They close the browser and return days later → same mode.
-5. They switch again from anywhere → the new choice applies everywhere on the next page they open.
+
+1. A private preview link opens the compare page showing the three mockups stacked, each clearly labelled A / B / C.
+2. Each mockup can be scrolled top-to-bottom as a real, full landing page and viewed on desktop and mobile widths.
+3. A direction is chosen (whole design, or "A's hero with B's steps" style mix-and-match feedback is welcome).
+4. In the next round, the chosen direction is applied to the real SafeDeal landing page and refined.
 
 ## UI/UX feel
-- Toggle placement and iconography stay as they are today; nothing new to learn.
-- Mode changes are immediate on the current page and silent elsewhere — no toasts, no banners.
-- First paint is already in the right mode; there is no light-then-dark blink.
+
+Premium, trustworthy, modern fintech. Gold (#FFC61A) accents on near-black ink for drama, balanced with clean light sections. Big confident headlines, soft depth and glow behind the 3D art, subtle motion on reveal, floating glassy status/notification cards for a sense of a live product. Fast, uncluttered, and fully legible on a phone. The 3D artwork is the hero — polished renders rather than flat icons.
 
 ## Implementation phases
 
-### Phase 1 — now (MVP)
-- Single remembered choice per browser shared by marketing, checkout, auth and dashboard; existing dashboard choice migrated and honoured.
-- Device preference as the starting mode when nothing is remembered, followed live until the first manual toggle.
-- Full regression run over the matrix above; every failure fixed and re-verified; written pass/fail report including the cross-origin note.
+### Phase 1 — MVP (built now)
+- Generate the custom 3D illustration assets with Nano Banana (Gemini 2.5 Flash Image) via the Emergent universal key.
+- Build all three full-page mockups (A, B, C) and place them on a private compare page for review.
+- Keep the working "start a deal" form and real fee/config values inside the mockups.
+- Leave the live SafeDeal landing page untouched.
+- Deliver the preview link so a direction can be chosen.
 
-### Phase 2 — later
-- Explicit three-way control (Auto / Light / Dark) in the dashboard settings and marketing footer, so a user can return to "follow my device" after having toggled.
+### Phase 2 — Promote the winner
+- Apply the chosen direction (including any mix-and-match feedback) to the real SafeDeal landing page.
+- Full responsive and accessibility polish; wire the new copy into the site's language system; retire the compare page.
 
-### Phase 3 — later
-- Carry the current mode across origins: checkout links and SafeDeal hand-offs opened from a Dynopay page start in the sender's mode; signed-in merchants get their choice synced across devices.
+### Phase 3 — Extended polish
+- Richer scroll/motion, animated coin marquee, live stats and a testimonial carousel where real data exists.
+- Refreshed share/preview (social) images, and carrying the new visual language into adjacent SafeDeal pages (sign-in, help) for consistency.
 
 ## Assumptions
-- The remembered choice is per browser (this browser, this origin), not tied to the merchant account; account-level sync is Phase 3.
-- The current route-based starting modes (marketing dark, checkout/auth/dashboard light) are replaced by the device preference for first-time visitors. A visitor whose device is set to light will see the marketing site in light until they toggle.
-- Until a manual toggle happens the site follows device changes live; after the first toggle the manual choice wins permanently (Phase 2 adds a way back to "Auto").
-- Where a browser already holds both an old dashboard choice and an old public choice, the dashboard choice wins, because dashboard toggles were always deliberate.
-- Help & Support follows the same single choice like every other page.
-- SafeDeal has no light/dark toggle and keeps its fixed brand look; it is covered only for "unaffected and non-interfering".
-- `checkout.dynopay.com`, `dynopay.com` and `safedeal.sh` each remember independently; recorded as expected, not fixed.
-- Any defect found during the run is fixed in the same pass and the affected scenarios re-run until they pass.
+
+- **Scope now** is producing three mockups to choose from; going live with the winner is Phase 2, not part of this round.
+- **Full-page** restyle (not hero-only), per the choice made.
+- **3D art is AI-generated** with Nano Banana (Gemini 2.5 Flash Image), billed to the Emergent universal key; images are produced once and stored as static files, so there are no per-visit generation costs or waits.
+- **Brand stays gold + black**, distinct from Dynopay's brand, even while borrowing Dynopay's layout ideas.
+- **The offer/copy is not being rewritten** — same escrow value proposition (money held in USDT until delivery, ~5% fee, email-code sign-in, no account setup). This is a visual redesign; any new section copy (stats, testimonial) will be written to fit SafeDeal, and illustrative figures will be clearly reasonable placeholders unless real numbers are available.
+- **The three mockups share the same content and sections**, differing in art direction and layout so the comparison is about look and feel.
+- **The compare page is private/unlinked** (not added to navigation, kept out of search engines).
+- **The existing working deal form is reused** inside the mockups rather than rebuilt.
+- **English first**; new copy is added in English and slotted into the existing translation system, with full multi-language translation handled as later polish.
+- **Number of mockups: three**, viewed on one compare page.
