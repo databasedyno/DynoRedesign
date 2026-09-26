@@ -1,3 +1,22 @@
+# 2026-06 (fork dynopay-qa-fix) AUTO-LOCALE DETECTION + i18n coverage for Dashboard/Wallet/Transactions/Settings — preview-only (Save to GitHub to ship).
+#   AUTO-LOCALE DETECTION (i18n.js applyDetectedLanguage, ~L209-253): NEW-visitor auto-detect added. Priority chain is now
+#     ?lang= URL param > saved localStorage 'lang' (savedLangAtBoot, captured pre-init) > BROWSER navigator locale (NEW — new visitors
+#     only) > English default. English browsers stay English. Whatever applies is persisted, and an explicit switch always overrides.
+#     VERIFIED by testing_agent (iteration_232.json) — 4/4 PASS (100%): de browser→German+lang='de'; saved 'en' beats de browser;
+#     fr browser→French+lang='fr'; en browser→English. No issues.
+#   TRANSLATION COVERAGE (Dashboard/Wallet/Transactions/Settings): AUDIT showed these pages were already ~fully i18n'd — every namespace
+#     (dashboardLayout 721 keys, walletScreen 180, transactions 134→138, companySettings, profile, common 1596, etc.) has 0 missing keys
+#     across all 5 non-English locales, and most components already use useTranslation. A static hardcoded-string scan of the 4 page trees
+#     found only 3 VISIBLE hardcoded strings (rest were aria-labels); all fixed:
+#       • Components/Page/Transactions/index.tsx — first-payment celebration modal title/body + CTA → tTx('firstPaymentTitle'|'firstPaymentBody'|'viewMyTransactions')
+#       • Components/Page/Transactions/TransactionDetailsModal.tsx — 'Invoice' button → tTransactions('invoice')
+#       • Components/Page/Settings/AccountDangerZone.tsx — whole 'Delete account' danger-zone card (was NOT using i18n) → useTranslation('profile') + t('dangerZone.*')
+#     New keys added to all 6 locales: transactions.{firstPaymentTitle,firstPaymentBody,viewMyTransactions,invoice} and profile.dangerZone.{title,body,bodyStrong,button}.
+#   Frontend compiles clean (all routes ✓, homepage 200). NOTE: live authenticated visual check of the German Settings danger zone was
+#     NOT completed — the owner TOTP login + preview cold-compile were too flaky for a scripted screenshot (same reason the authenticated
+#     testing_agent sweep timed out twice). The 3 fixes are mechanical string→t() swaps with keys confirmed present in every locale.
+
+
 # 2026-06 (fork dynopay-qa-fix) LANDING V7 TRANSLATED (nl/de/es/fr/pt) + payout-alert accuracy sweep — preview-only (Save to GitHub to ship).
 #   TRANSLATION ROLLOUT (landing page first, per approved phased plan):
 #     • Root cause of the original bug: all 10 V7 body sections (Components/Page/Home/v7/*) were hardcoded English with ZERO
