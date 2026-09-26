@@ -197,5 +197,11 @@
     "expires": "vertrouwd tot",
     "forget": "Vergeet"
   },
-  "today": "vandaag"
+  "today": "vandaag",
+  "dangerZone": {
+    "title": "Account verwijderen",
+    "button": "Account verwijderen",
+    "body": "Deactiveer je Dynopay-account en alles erin — alle merken, wallets, betaallinks en geschiedenis. Je wordt onmiddellijk op elk apparaat afgemeld. Om juridische/compliance-redenen worden sommige gegevens",
+    "bodyStrong": "daarna veilig bewaard en alleen support kan het account herstellen"
+  }
 }

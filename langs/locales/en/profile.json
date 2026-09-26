@@ -197,5 +197,11 @@
     "expires": "trusted until",
     "forget": "Forget"
   },
-  "today": "today"
+  "today": "today",
+  "dangerZone": {
+    "title": "Delete account",
+    "button": "Delete account",
+    "body": "Deactivate your Dynopay account and everything in it — all brands, wallets, payment links and history. You'll be signed out of every device immediately. For legal/compliance reasons some records are",
+    "bodyStrong": "retained securely afterwards and only support can restore the account"
+  }
 }

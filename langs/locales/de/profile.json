@@ -197,5 +197,11 @@
     "expires": "vertrauenswürdig bis",
     "forget": "Vergessen"
   },
-  "today": "heute"
+  "today": "heute",
+  "dangerZone": {
+    "title": "Konto löschen",
+    "button": "Konto löschen",
+    "body": "Deaktiviere dein Dynopay-Konto und alles darin — alle Marken, Wallets, Zahlungslinks und den Verlauf. Du wirst sofort auf allen Geräten abgemeldet. Aus rechtlichen/Compliance-Gründen werden einige Daten",
+    "bodyStrong": "danach sicher aufbewahrt, und nur der Support kann das Konto wiederherstellen"
+  }
 }

@@ -826,7 +826,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
             />
             {(transaction?.status === "settled" || transaction?.status === "confirmed") && (
               <CustomButton
-                label="Invoice"
+                label={tTransactions("invoice")}
                 startIcon={<Icon name="download" size={16} />}
                 variant="outlined"
                 size="medium"

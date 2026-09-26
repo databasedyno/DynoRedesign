@@ -671,7 +671,7 @@ const TransactionPage = () => {
               mb: 1,
             }}
           >
-            First payment landed! 🎉
+            {tTx("firstPaymentTitle")}
           </Typography>
           <Typography
             sx={{
@@ -682,12 +682,11 @@ const TransactionPage = () => {
               mb: 3,
             }}
           >
-            You&apos;re officially a Dynopay merchant. This is a big one — your first
-            real payment is settled in your dashboard.
+            {tTx("firstPaymentBody")}
           </Typography>
           <CustomButton
             data-testid="first-payment-celebration-cta"
-            label="View my transactions"
+            label={tTx("viewMyTransactions")}
             variant="primary"
             size="medium"
             fullWidth

@@ -143,5 +143,9 @@
   "topupSent": "Lembrete enviado para {{email}}",
   "topupFailed": "Não foi possível enviar o lembrete.",
   "refund": "Reembolsar",
-  "viaApi": "via API"
+  "viaApi": "via API",
+  "firstPaymentTitle": "Primeiro pagamento recebido! 🎉",
+  "firstPaymentBody": "Você agora é oficialmente um lojista Dynopay. Este é importante — seu primeiro pagamento real está liquidado no seu painel.",
+  "viewMyTransactions": "Ver minhas transações",
+  "invoice": "Fatura"
 }

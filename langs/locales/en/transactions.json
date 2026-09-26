@@ -143,5 +143,9 @@
   "topupSent": "Reminder sent to {{email}}",
   "topupFailed": "Couldn't send the reminder.",
   "refund": "Refund",
-  "viaApi": "via API"
+  "viaApi": "via API",
+  "firstPaymentTitle": "First payment landed! 🎉",
+  "firstPaymentBody": "You're officially a Dynopay merchant. This is a big one — your first real payment is settled in your dashboard.",
+  "viewMyTransactions": "View my transactions",
+  "invoice": "Invoice"
 }

@@ -1,0 +1,14 @@
+{
+  "a_new_visitor_de": {
+    "hero": "Krypto-Zahlungen akzeptieren.Werde bezahlt, wie du willst.",
+    "lang_ls": "de"
+  },
+  "b_override_en": {
+    "hero": "Accept crypto payments.Get paid your way.",
+    "lang_ls": "en"
+  },
+  "c_new_visitor_en": {
+    "hero": "Accept crypto payments.Get paid your way.",
+    "lang_ls": "en"
+  }
+}

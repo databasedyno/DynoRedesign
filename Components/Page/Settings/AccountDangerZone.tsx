@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Box, Typography, useTheme } from "@mui/material";
 import { WarningAmberRounded } from "@mui/icons-material";
 import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import dynamic from "next/dynamic";
 import CustomButton from "@/Components/UI/Buttons";
 import useTokenData from "@/hooks/useTokenData";
@@ -18,6 +19,7 @@ const DeleteAccountModal = dynamic(() => import("@/Components/UI/DeleteAccountMo
 const AccountDangerZone: React.FC = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+  const { t } = useTranslation("profile");
   const tokenData = useTokenData();
   const profile = useSelector((state: rootReducer) => state.userReducer?.profile);
   const email = (profile?.email || (tokenData as { email?: string } | undefined)?.email || "").trim();
@@ -37,16 +39,14 @@ const AccountDangerZone: React.FC = () => {
       <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.75 }}>
         <WarningAmberRounded sx={{ color: theme.palette.error.main, fontSize: 20 }} />
         <Typography sx={{ fontSize: 15, fontWeight: 700, fontFamily: "var(--font-sans)", color: theme.palette.error.main }}>
-          Delete account
+          {t("dangerZone.title")}
         </Typography>
       </Box>
       <Typography sx={{ fontSize: 13.5, lineHeight: 1.6, color: theme.palette.text.secondary, fontFamily: "var(--font-sans)", mb: 2, maxWidth: 560 }}>
-        Deactivate your Dynopay account and everything in it — all brands, wallets, payment links and
-        history. You&apos;ll be signed out of every device immediately. For legal/compliance reasons some records are
-        {" "}<strong>retained securely afterwards and only support can restore the account</strong>.
+        {t("dangerZone.body")}{" "}<strong>{t("dangerZone.bodyStrong")}</strong>.
       </Typography>
       <CustomButton
-        label="Delete account"
+        label={t("dangerZone.button")}
         data-testid="open-delete-account-btn"
         variant="outlined"
         size="small"

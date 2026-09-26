@@ -197,5 +197,11 @@
     "expires": "de confiance jusqu'à",
     "forget": "Oublier"
   },
-  "today": "aujourd'hui"
+  "today": "aujourd'hui",
+  "dangerZone": {
+    "title": "Supprimer le compte",
+    "button": "Supprimer le compte",
+    "body": "Désactivez votre compte Dynopay et tout ce qu'il contient — toutes les marques, wallets, liens de paiement et l'historique. Vous serez déconnecté de tous vos appareils immédiatement. Pour des raisons légales/de conformité, certaines données sont",
+    "bodyStrong": "conservées de manière sécurisée par la suite et seul le support peut restaurer le compte"
+  }
 }

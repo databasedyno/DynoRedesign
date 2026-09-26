@@ -143,5 +143,9 @@
   "topupSent": "Erinnerung an {{email}} gesendet",
   "topupFailed": "Erinnerung konnte nicht gesendet werden.",
   "refund": "Rückerstattung",
-  "viaApi": "über API"
+  "viaApi": "über API",
+  "firstPaymentTitle": "Erste Zahlung ist da! 🎉",
+  "firstPaymentBody": "Du bist jetzt offiziell ein Dynopay-Händler. Das ist ein großer Moment – deine erste echte Zahlung ist in deinem Dashboard abgewickelt.",
+  "viewMyTransactions": "Meine Transaktionen ansehen",
+  "invoice": "Rechnung"
 }

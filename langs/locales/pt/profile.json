@@ -197,5 +197,11 @@
     "expires": "confiável até",
     "forget": "Esquecer"
   },
-  "today": "hoje"
+  "today": "hoje",
+  "dangerZone": {
+    "title": "Excluir conta",
+    "button": "Excluir conta",
+    "body": "Desative sua conta Dynopay e tudo nela — todas as marcas, carteiras, links de pagamento e histórico. Você será desconectado de todos os dispositivos imediatamente. Por motivos legais/de conformidade, alguns registros são",
+    "bodyStrong": "mantidos com segurança depois e apenas o suporte pode restaurar a conta"
+  }
 }

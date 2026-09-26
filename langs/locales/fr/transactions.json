@@ -143,5 +143,9 @@
   "topupSent": "Rappel envoyé à {{email}}",
   "topupFailed": "Impossible d’envoyer le rappel.",
   "refund": "Rembourser",
-  "viaApi": "via l'API"
+  "viaApi": "via l'API",
+  "firstPaymentTitle": "Premier paiement reçu ! 🎉",
+  "firstPaymentBody": "Vous êtes désormais officiellement un marchand Dynopay. C'est un grand moment — votre premier vrai paiement est réglé dans votre tableau de bord.",
+  "viewMyTransactions": "Voir mes transactions",
+  "invoice": "Facture"
 }
