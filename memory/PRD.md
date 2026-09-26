@@ -1,3 +1,14 @@
+# === 2026-09-26 (fork) PREVIEW BLANK PAGE / 502 — FIXED: preview now runs a PRODUCTION build (testing_agent iteration_233 PASS, all routes <1s) ===
+# USER: "set the app up using vault passphrase" → vault opened + pod bootstrapped (prev session), then "its not showing in preview" → "fix issue" → chose (a) production build.
+# ROOT CAUSE: preview ran `next dev` — on-demand route compilation (~6.6GB RAM, 147% CPU, 14–20s per cold route) → Cloudflare ingress timed out → 502 / blank page. `allowedDevOrigins` warning was a red herring (do NOT configure it).
+# FIX: /app/.env.local FRONTEND_MODE=dev → production (scripts/start-frontend.sh already had the branch: `next build` into .next-prod then `next start -p 3000`). scripts/pod-bootstrap.sh now forces FRONTEND_MODE=production for future pods (+ longer frontend wait, 120×3s, since first boot builds ≈3–4 min). Build: compiled 75s, total ≈3.5 min; ESLint "Invalid Options: useEslintrc, extensions" line in build log is Next 15.5 + ESLint 9 noise — build still succeeds.
+# VERIFIED: local `/` 0.24s; external /, /auth/login, /pay/demo, /fees, /safedeal, /dashboard all 200 in 0.1–0.4s; testing_agent iter233: 7 routes 200 <1s, 3× reload 0.62/0.19/0.19s, client nav Log in/Start free OK, static chunks 200, mobile 390 no overflow, /api/public/tickers via frontend origin 200, 0 console errors.
+# ⚠️ WORKFLOW CHANGE: NO frontend hot reload in preview now. After ANY frontend code change: `rm -rf /app/.next-prod && sudo supervisorctl restart frontend` (≈3.5 min rebuild). To go back to hot reload temporarily: set FRONTEND_MODE=dev in /app/.env.local + restart frontend.
+# NOTE: /app/yarn.lock shows a large uncommitted diff (+4211/−435) with mtime 09:03 UTC = produced by the previous session's pod-bootstrap `yarn install --prefer-offline`, NOT by this fix. Build succeeded against it. Review before "Save to GitHub" (prod Dockerfile installs from this lock).
+# Preview: https://45939925-7ea0-48ff-b6fe-f4f6059841e6.preview.emergentagent.com . SAFE MODE still on (ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary — preview shares the LIVE DB).
+# ============================================================================================
+
+
 # === 2026-06 (fork) QA CLOSE-OUT: #5 profile photo · #7 login activity · #9 KYC — ALL VERIFIED (self-test: local Playwright + localhost:8001 API) ===
 # CONTEXT: forked to finish QA #5 (real profile-photo upload UI visual verification — code was already complete last session), and close out #7 (login history) + #9 (KYC) which prior forks flagged as likely-stale.
 # QA #5 (profile photo) — VERIFIED (backend verified last session; frontend UI now visually confirmed BOTH states):

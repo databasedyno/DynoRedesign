@@ -1,0 +1,46 @@
+{
+  "summary": "Verified production-build preview fix for Dynopay/SafeDeal Next.js frontend. All 7 public routes return HTTP 200 in <1s, no 502s, no cold-compile stalls. Landing page reloaded 3x consecutively with load times 0.62s / 0.19s / 0.19s — well under the 5s regression threshold. Static /_next/static/*.js chunks and logo images serve 200. Client-side nav from `/` (Log in -> /auth/login, Start free -> /auth/register) works in the production bundle. Login card renders email input + Continue button + Google/GitHub SSO. Mobile 390x844 viewport: no horizontal overflow (docW=winW=390), hero visible above fold. Backend proxy through frontend origin: GET /api/public/tickers returns 200 JSON with 10 symbols. Console clean — 0 error-level messages captured on landing.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "route_load_matrix": {
+    "/": {"http": 200, "title": "Accept Crypto Payments — Get Paid Your Way · Dynopay", "load_s": 0.39, "body_chars": 4356},
+    "/auth/login": {"http": 200, "title": "Log in · Dynopay", "load_s": 0.30, "email_input": true, "continue_button": true},
+    "/pay/demo": {"http": 200, "title": "Checkout demo · Dynopay", "load_s": 0.27},
+    "/fees": {"http": 200, "title": "Pricing — 1.5% down to 0.5%, no monthly fee · Dynopay", "load_s": 0.45},
+    "/safedeal": {"http": 200, "title": "SafeDeal — escrow for buying & selling online", "load_s": 0.28},
+    "/how-to": {"http": 200, "title": "How Dynopay works — accept crypto in about 2 minutes", "load_s": 0.52},
+    "/about": {"http": 200, "title": "About Dynopay — making crypto payments simple for every business", "load_s": 0.28}
+  },
+  "landing_reload_times_s": [0.62, 0.19, 0.19],
+  "navigation_checks": {
+    "landing_to_login": "PASS - Log in button (rendered as <button>) navigates to /auth/login",
+    "landing_to_signup": "PASS - Start free navigates to /auth/register"
+  },
+  "static_assets": {
+    "next_static_js_first_chunk": "200 (/_next/static/chunks/polyfills-42372ed130431b0a.js)",
+    "logo_image_loaded": "OK (dynopay-blackLogo.b307f1b2.svg naturalWidth=134)",
+    "total_script_tags": 22
+  },
+  "mobile_viewport_390x844": {"horizontal_overflow": false, "hero_visible": true, "hero_text": "Accept crypto payments."},
+  "backend_proxy_api": {"endpoint": "/api/public/tickers", "http": 200, "sample": "10 tickers returned (BTC, ETH, LTC, DOGE, SOL, XRP, BCH, BNB, TRX, POL)"},
+  "console_noise_observed": [
+    "cdn-cgi/rum ERR_ABORTED (Cloudflare RUM beacon aborted on navigation — benign)",
+    "In-flight requests aborted when navigating between routes (ERR_ABORTED on /_next chunks & /api/* while page unloads — expected)"
+  ],
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Nav items 'Log in' and 'Start free' are rendered as <button> elements with onClick handlers instead of <a href> anchors. This works but hurts accessibility, right-click open-in-new-tab, and prefetch. Consider using Next.js <Link> anchors for header nav (minor)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "100%"},
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Preview is now on production Next.js build (FRONTEND_MODE=production, next start on distDir .next-prod). All public routes serve in <1s. The Log in / Start free header entries are <button> not <a>, so future Playwright scripts should use get_by_text('Log in', exact=True) or get_by_role('button', name='Log in') rather than link/href selectors.",
+  "rca of the issue": "Original issue: Next.js was running in `next dev` mode, which lazy-compiles each route on first hit (~14-20s, ~6GB RAM). Cloudflare/K8s ingress timed out => 502 Bad Gateway / blank page. Fix (already applied by main agent): scripts/start-frontend.sh now runs `next build` then `next start` when FRONTEND_MODE=production, producing prebuilt bundles in .next-prod. Verified: routes now respond in 0.2-0.6s and stay stable across repeated hits."
+}
