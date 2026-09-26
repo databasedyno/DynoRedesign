@@ -8,6 +8,7 @@ import useIsMobile from "@/hooks/useIsMobile";
 import type { GetStaticPaths, GetStaticProps } from "next";
 import { sanitizeHtml } from "@/utils/sanitizeHtml";
 import { useTranslation } from 'react-i18next';
+import { formatDateI18n } from "@/utils/formatDate";
 import { brandFg } from "@/constants/theme";
 import CodeCopyButton from "@/Components/UI/CodeCopyButton";
 import {
@@ -519,7 +520,7 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
               color: theme.palette.text.secondary,
             }}
           >
-            {new Date(post.publishedAt).toLocaleDateString("en-US", {
+            {formatDateI18n(post.publishedAt, {
               month: "long",
               day: "numeric",
               year: "numeric",

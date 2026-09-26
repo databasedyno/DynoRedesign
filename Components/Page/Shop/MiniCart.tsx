@@ -18,6 +18,7 @@ import { MIN_ORDER_CENTS } from "./types";
 import { BRAND_ACCENT, BRAND_ON_ACCENT } from "@/constants/theme";
 import { useCart } from "@/contexts/CartContext";
 import { toFixedStr } from "@/utils/money";
+import { formatLocaleCurrency } from "@/utils/locale";
 
 interface Props { handle: string }
 
@@ -37,7 +38,7 @@ interface Line {
 
 function fmt(cents: number, ccy: string): string {
   try {
-    return new Intl.NumberFormat("en-US", { style: "currency", currency: ccy }).format((cents || 0) / 100);
+    return formatLocaleCurrency((cents || 0) / 100, ccy, 2);
   } catch { return `${toFixedStr(((cents || 0) / 100), 2)} ${ccy}`; }
 }
 

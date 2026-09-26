@@ -1,6 +1,7 @@
 import React, { memo, useMemo, useState } from "react";
 import { Box, Slider, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
+import { formatWithSymbol } from "@/utils/locale";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "../v3/theme.v3";
 import { BRAND_ACCENT } from "../v3/theme.v3";
@@ -17,7 +18,7 @@ export const FIXED_FEE_USD = 1;
 const CARD_PCT = 2.9;
 const CARD_FIXED = 0.3;
 
-export const usd = (n: number, digits = 0) => `$${n.toLocaleString("en-US", { minimumFractionDigits: digits, maximumFractionDigits: digits })}`;
+export const usd = (n: number, digits = 0) => formatWithSymbol(n, "$", digits);
 export const tierFor = (volume: number) => TIERS.find((t) => volume >= t.min && (t.max === null || volume < t.max)) ?? TIERS[TIERS.length - 1];
 
 export const TierLadder: React.FC = () => {

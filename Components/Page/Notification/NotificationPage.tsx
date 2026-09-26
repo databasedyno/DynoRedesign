@@ -1,6 +1,7 @@
 import { brandFg } from "@/constants/theme";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { formatWithSeparators, formatDisplayAmount } from "@/utils/currencyFormat";
+import { formatWithSymbol } from "@/utils/locale";
 import { formatDateI18n, formatDateTimeI18n } from "@/utils/formatDate";
 import CustomButton from "@/Components/UI/Buttons";
 import CustomSwitch from "@/Components/UI/CustomSwitch";
@@ -242,7 +243,7 @@ const NotificationPage = ({ initialTab = "inbox" }: { initialTab?: "inbox" | "se
         crypto,
         amount: `${formatDisplayAmount(amountRaw, crypto)} ${crypto}`,
         cryptoAmountRaw: amountRaw,
-        usdValue: usdRaw > 0 ? `$${formatWithSeparators(usdRaw, undefined, 2)}` : "—",
+        usdValue: usdRaw > 0 ? formatWithSymbol(usdRaw, "$", 2) : "—",
         usdValueRaw: usdRaw,
         dateTime: fmtDateTime(d.date_time),
         createdAtTs: d.date_time ? new Date(d.date_time).getTime() || 0 : 0,
@@ -302,7 +303,7 @@ const NotificationPage = ({ initialTab = "inbox" }: { initialTab?: "inbox" | "se
         crypto: txCurrency,
         amount: txAmount ? `${formatDisplayAmount(Number(txAmount) || 0, txCurrency)} ${txCurrency}` : "",
         cryptoAmountRaw: Number(txAmount) || 0,
-        usdValue: meta.usd_value ? `$${formatWithSeparators(Number(meta.usd_value), undefined, 2)}` : "—",
+        usdValue: meta.usd_value ? formatWithSymbol(Number(meta.usd_value), "$", 2) : "—",
         usdValueRaw: Number(meta.usd_value) || 0,
         dateTime: fmtDateTime(notif.created_at),
         createdAtTs: notif.created_at ? new Date(notif.created_at).getTime() || 0 : 0,

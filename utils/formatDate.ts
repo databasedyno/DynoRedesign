@@ -1,31 +1,7 @@
-import i18n from "@/i18n";
-
-/**
- * Map an app UI language code (en, pt, es, fr, de, nl — optionally with a region
- * suffix) to a BCP-47 locale suitable for Intl date formatting. Falls back to
- * en-US so we NEVER silently inherit the browser's locale.
- */
-const localeFromLang = (lang?: string): string => {
-  const base = (lang || "").split("-")[0].toLowerCase();
-  const map: Record<string, string> = {
-    en: "en-US",
-    pt: "pt-BR",
-    es: "es-ES",
-    fr: "fr-FR",
-    de: "de-DE",
-    nl: "nl-NL",
-  };
-  return map[base] || "en-US";
-};
+import { appLocale } from "@/utils/locale";
 
 /** The current app UI language as a BCP-47 locale (never the browser default). */
-export const currentDateLocale = (): string => {
-  try {
-    return localeFromLang(i18n?.language);
-  } catch {
-    return "en-US";
-  }
-};
+export const currentDateLocale = (): string => appLocale();
 
 /**
  * Format a DATE in the app's SELECTED language.

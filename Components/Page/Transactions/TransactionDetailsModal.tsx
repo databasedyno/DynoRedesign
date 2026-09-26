@@ -48,6 +48,7 @@ import { explorerTxUrl } from "@/helpers/explorerUrl";
 import CopyInline from "@/Components/UX/CopyInline";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import { toFixedStr } from "@/utils/money";
+import { formatLocaleNumber } from "@/utils/locale";
 import { isSyntheticCustomer } from "@/utils/txDisplay";
 
 const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
@@ -450,10 +451,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                     }`}
                   </TitleLabel>
                   <TitleValue>
-                    {Number(transaction.taxAmount).toLocaleString("en-US", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
+                    {formatLocaleNumber(Number(transaction.taxAmount), 2)}
                   </TitleValue>
                 </DetailRow>
               ) : null}

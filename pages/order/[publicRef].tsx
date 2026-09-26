@@ -15,6 +15,7 @@ import ProductImage from "@/Components/UI/ProductImage";
 import PublicVerifiedBadge from "@/Components/UI/PublicVerifiedBadge";
 import MerchantTrustRow from "@/Components/UI/MerchantTrustRow";
 import { formatDateTimeI18n } from "@/utils/formatDate";
+import { formatLocaleCurrency } from "@/utils/locale";
 import { GetServerSideProps } from "next";
 import {
   Box, Container, Typography, Stack, Chip, Divider, Alert, Button, LinearProgress, useTheme,
@@ -74,7 +75,7 @@ interface OrderPageProps { order: Order | null; siteUrl: string }
 function formatPrice(cents: number, ccy: string): string {
   const n = (cents || 0) / 100;
   try {
-    return new Intl.NumberFormat("en-US", { style: "currency", currency: ccy, maximumFractionDigits: 2 }).format(n);
+    return formatLocaleCurrency(n, ccy, 2);
   } catch { return `${toFixedStr(n, 2)} ${ccy}`; }
 }
 

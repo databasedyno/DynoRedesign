@@ -1,6 +1,7 @@
 import { Box, Typography, useTheme } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useMemo } from "react";
+import { formatLocaleNumber } from "@/utils/locale";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { useWalletData } from "@/hooks/useWalletData";
@@ -61,12 +62,7 @@ export default function WalletTotalHero() {
     return { totalUsd, activeWallets, coverage, totalChains: allCryptocurrencies.length };
   }, [walletData, allCryptocurrencies]);
 
-  const formatted = useMemo(() => {
-    return new Intl.NumberFormat("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(stats.totalUsd);
-  }, [stats.totalUsd]);
+  const formatted = useMemo(() => formatLocaleNumber(stats.totalUsd, 2), [stats.totalUsd]);
 
   return (
     <Box

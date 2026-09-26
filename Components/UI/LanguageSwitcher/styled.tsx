@@ -158,3 +158,11 @@ export const CheckIconBox = styled(Box)(() => ({
   minWidth: 11,
   justifyContent: "flex-end",
 }));
+
+export const LangCode = styled("span")(({ theme }) => ({
+  fontFamily: "var(--font-sans)",
+  fontSize: 11,
+  fontWeight: 600,
+  letterSpacing: "0.08em",
+  color: theme.palette.text.disabled,
+}));

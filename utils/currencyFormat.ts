@@ -1,10 +1,13 @@
 import { formatExact, toFixedStr, trimZeros } from "@/utils/money";
+import { appLocale, localizeDecimal } from "@/utils/locale";
 interface CurrencyFormat {
   symbol: string;
   decimals: number;
   locale: string;
 }
 
+// `locale` here is the currency's HOME locale — kept for reference/fallbacks only.
+// Display formatting follows the user's UI language (utils/locale appLocale()).
 const currencyFormats: Record<string, CurrencyFormat> = {
   // International
   USD: { symbol: '$', decimals: 2, locale: 'en-US' },
@@ -58,8 +61,9 @@ export const formatCurrency = (amount: number | string, currency: string): strin
   const format = currencyFormats[currency?.toUpperCase()] || { symbol: '', decimals: 2, locale: 'en-US' };
   
   try {
-    // Exact decimal rounding first (see utils/money) so Intl never rounds a double
-    return formatExact(amount, format.decimals, { style: 'currency', currency }, format.locale);
+    // Exact decimal rounding first (see utils/money) so Intl never rounds a double.
+    // Locale = the UI language, so "1.234,56 €" for de/es and "€1,234.56" for en.
+    return formatExact(amount, format.decimals, { style: 'currency', currency }, appLocale());
   } catch {
     // Fallback for unsupported currencies
     return `${format.symbol} ${toFixedStr(amount, format.decimals)}`;
@@ -75,11 +79,11 @@ export const getCurrencySymbolFromFormat = (currency: string): string => {
 };
 
 /**
- * Format a number with thousand separators based on currency locale
+ * Format a number with thousand separators in the app's UI language
  * @param amount - The amount to format
- * @param currency - Currency code to determine locale (optional, defaults to en-US)
+ * @param currency - Currency code used only to pick the default decimals
  * @param decimals - Number of decimal places (optional, auto-detected from currency or defaults to 2)
- * @returns Formatted string with thousand separators (e.g., "10,000.00" or "10.000,00")
+ * @returns Formatted string with locale separators (e.g., "10,000.00" en / "10.000,00" de)
  */
 export const formatWithSeparators = (
   amount: number | string,
@@ -91,10 +95,9 @@ export const formatWithSeparators = (
   if (isNaN(numAmount)) return '0';
   
   const format = currency ? currencyFormats[currency.toUpperCase()] : null;
-  const locale = format?.locale || 'en-US';
   const fractionDigits = decimals ?? format?.decimals ?? 2;
   
-  return formatExact(amount, fractionDigits, {}, locale);
+  return formatExact(amount, fractionDigits, {}, appLocale());
 };
 
 /**
@@ -150,13 +153,8 @@ export const formatCryptoAmount = (amount: number | string, currency: string): s
 
   if (isCryptoCurrency(currency)) {
     // Exact 8-dp rounding on the decimal string, then trim trailing zeros:
-    // "25.00000000" → "25", "0.00100000" → "0.001"
-    const trimmed = trimZeros(toFixedStr(amount, 8));
-
-    // Add thousand separators to the integer part (locale-neutral en-US style)
-    const parts = trimmed.split('.');
-    parts[0] = parseInt(parts[0], 10).toLocaleString('en-US');
-    return parts.join('.');
+    // "25.00000000" → "25", "0.00100000" → "0.001"; separators follow the UI language.
+    return localizeDecimal(trimZeros(toFixedStr(amount, 8)));
   }
 
   // For fiat currencies in crypto context, use the fiat helper (2 decimals + locale separators)
@@ -189,18 +187,12 @@ export const formatDisplayAmount = (amount: number | string, currency: string): 
   if (isNaN(numAmount)) return '0';
 
   if (isStablecoin(currency) || !isCryptoCurrency(currency)) {
-    // Money style: exactly 2 decimals + separators.
-    const fixed = toFixedStr(numAmount, 2);
-    const parts = fixed.split('.');
-    parts[0] = parseInt(parts[0], 10).toLocaleString('en-US');
-    return parts.join('.');
+    // Money style: exactly 2 decimals + locale separators.
+    return localizeDecimal(toFixedStr(numAmount, 2));
   }
 
-  // Non-stable crypto: trim to significant decimals (max 8) + separators.
-  const trimmed = trimZeros(toFixedStr(amount, 8));
-  const parts = trimmed.split('.');
-  parts[0] = parseInt(parts[0], 10).toLocaleString('en-US');
-  return parts.join('.');
+  // Non-stable crypto: trim to significant decimals (max 8) + locale separators.
+  return localizeDecimal(trimZeros(toFixedStr(amount, 8)));
 };
 
 /**

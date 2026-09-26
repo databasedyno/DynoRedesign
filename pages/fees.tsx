@@ -17,6 +17,7 @@ import { Section, SectionHead, PrimaryBtn, SecondaryBtn, cardSx } from "@/Compon
 import { Stagger, StaggerItem } from "@/Components/Page/Home/motion/Stagger";
 import { BRAND_ACCENT } from "@/constants/theme";
 import { toFixedStr } from "@/utils/money";
+import { formatLocaleInt, formatWithSymbol } from "@/utils/locale";
 
 /* ── Aurora restyle of the public /fees page (2026-07-18) ── */
 
@@ -37,13 +38,10 @@ const getTier = (v: number) => {
 };
 
 const formatUSD = (n: number) =>
-  n >= 1000
-    ? `$${(n / 1000).toLocaleString("en-US", { maximumFractionDigits: 1 })}k`
-    : `$${n.toLocaleString("en-US")}`;
+  n >= 1000 ? formatWithSymbol(n / 1000, "$", Number.isInteger(n / 1000) ? 0 : 1, "k") : formatWithSymbol(n, "$", 0);
 
 // Exact 2dp currency for the per-payment breakdown (QA #47).
-const fmtMoney = (n: number) =>
-  `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const fmtMoney = (n: number) => formatWithSymbol(n, "$", 2);
 
 // Representative settlement assets + their typical flat on-chain (network) fee
 // in USD terms. Used by the per-payment breakdown so merchants see the real
@@ -350,7 +348,7 @@ const FeesPage = () => {
                   {t("v3.paymentsLabel")}
                 </Typography>
                 <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: { xs: 28, md: 34 }, letterSpacing: "-0.02em", color: s.ink, lineHeight: 1 }}>
-                  {payments.toLocaleString("en-US")}
+                  {formatLocaleInt(payments)}
                 </Typography>
                 <Slider
                   value={payments}
@@ -402,7 +400,7 @@ const FeesPage = () => {
                       {t("v3.youdPay")}
                     </Typography>
                     <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 22, color: s.ink }}>
-                      ${allIn.toLocaleString("en-US", { maximumFractionDigits: 2 })}
+                      {formatWithSymbol(allIn, "$", 2)}
                     </Typography>
                     <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, color: tier.accent, mt: 0.25 }}>
                       ≈ {toFixedStr(effectiveRate, 2)}% {t("v3.effectiveRate")}

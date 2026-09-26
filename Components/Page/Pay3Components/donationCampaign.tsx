@@ -27,8 +27,10 @@ import { useRelativeTime } from '@/hooks/useRelativeTime'
 import useStickyCtaFootprint from '@/hooks/useStickyCtaFootprint'
 import {
   formatWithSeparators,
+  getCurrencyDecimals,
   getCurrencySymbolFromFormat,
 } from '@/utils/currencyFormat'
+import { formatWithSymbol } from '@/utils/locale'
 import {
   GoalProgressBar,
   CountdownPill,
@@ -201,7 +203,7 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
   // Ref to the donate form card so tier "Pledge" CTAs can scroll it into view.
   const donateFormRef = useRef<HTMLDivElement | null>(null)
 
-  const fmt = (n: number) => `${symbol}${formatWithSeparators(n, currency)}`
+  const fmt = (n: number) => formatWithSymbol(n, symbol, getCurrencyDecimals(currency))
 
   const accent = BRAND_ACCENT // aurora indigo — Landing v3 (Session 82 migration; was: #CCFF00 brand lime)
   const onAccent = '#FFFFFF'

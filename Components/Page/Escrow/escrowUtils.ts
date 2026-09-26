@@ -3,6 +3,7 @@
  * coin lists and small role/derivation utilities. Kept framework-light so both
  * the merchant, public-invite and admin surfaces reuse the exact same rules.
  */
+import { formatLocaleCurrency } from "@/utils/locale";
 import {
   BRAND_ACCENT,
   BRAND_ACCENT_LIGHT,
@@ -94,14 +95,10 @@ export function titleize(s?: string): string {
     .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-/** Format a fiat amount for the deal's display currency. */
+/** Format a fiat amount for the deal's display currency (symbol placed per the UI locale). */
 export function money(amount?: number | null, currency = "USD"): string {
   if (amount == null || Number.isNaN(Number(amount))) return "—";
-  try {
-    return new Intl.NumberFormat("en-US", { style: "currency", currency: (currency || "USD").toUpperCase() }).format(Number(amount));
-  } catch {
-    return `${Number(amount).toFixed(2)} ${(currency || "USD").toUpperCase()}`;
-  }
+  return formatLocaleCurrency(Number(amount), (currency || "USD").toUpperCase(), 2);
 }
 
 /** Stablecoin amount (no fiat symbol) with the coin suffix. */

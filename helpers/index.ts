@@ -1,6 +1,7 @@
 import checkTouched from "./checkTouchedHelper";
 import checkValidation from "./checkValidationHelper";
 import createEncryption from "./createEncryption";
+import { formatLocaleNumber } from "@/utils/locale";
 
 import getRandomColor from "./getRandomColor";
 import getRandomNumber from "./getRandomNumber";
@@ -110,6 +111,7 @@ const stringShorten = (string: string, startChars = 10, endChars = 5) => {
   return firstString + "••••••••••••••••••••" + lastString;
 };
 
+
 const formatNumberWithComma = (number: number): string => {
   const numStr = number.toString();
   const decimalIndex = numStr.indexOf(".");
@@ -117,11 +119,7 @@ const formatNumberWithComma = (number: number): string => {
     decimalIndex === -1
       ? 0
       : Math.min(numStr.length - decimalIndex - 1, 2);
-  return number
-    .toLocaleString("en-US", {
-      minimumFractionDigits: decimalPlaces,
-      maximumFractionDigits: 2,
-    });
+  return formatLocaleNumber(number, decimalPlaces);
 };
 
 export {

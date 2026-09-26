@@ -8,6 +8,7 @@
  */
 import React, { useMemo } from "react";
 import { Box, Typography, useTheme } from "@mui/material";
+import { formatLocaleCurrency } from "@/utils/locale";
 import {
   PercentRounded,
   ArrowOutwardRounded,
@@ -27,8 +28,7 @@ import {
 } from "@/constants/feeTiers";
 import { MONO } from "@/styles/uiKit";
 
-const fmtUsd = (v: number) =>
-  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 2 }).format(v);
+const fmtUsd = (v: number) => formatLocaleCurrency(v, "USD", 2);
 
 const PlanFeesSection: React.FC = () => {
   const theme = useTheme();

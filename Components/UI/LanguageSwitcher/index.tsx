@@ -1,7 +1,7 @@
 import useIsMobile from "@/hooks/useIsMobile";
 import { Box } from "@mui/material";
 import i18n from "i18next";
-import Image, { StaticImageData } from "next/image";
+import Image from "next/image";
 import {
   KeyboardEvent,
   MouseEvent as ReactMouseEvent,
@@ -23,6 +23,7 @@ import {
   HeaderDivider,
   HeaderRight,
   HeaderSelectedLeft,
+  LangCode,
   LangTextDesktop,
   LangTextMobile,
   ListItemLeft,
@@ -36,37 +37,13 @@ import {
 import ExpandLessIcon from "@/assets/Icons/ExpendLess-Arrow.svg";
 import ExpandMoreIcon from "@/assets/Icons/ExpendMore-Arrow.svg";
 import CheckIcon from "@/assets/Icons/true-icon.svg";
-import portugalFlag from "@/assets/Images/Icons/flags/portugal-flag.png";
-import unitedStatesFlag from "@/assets/Images/Icons/flags/united-states-flag.png";
-import franceFlag from "@/assets/Images/Icons/flags/france-flag.png";
-import spainFlag from "@/assets/Images/Icons/flags/spain-flag.png";
-import germanyFlag from "@/assets/Images/Icons/flags/germany-flag.png";
-import netherlandsFlag from "@/assets/Images/Icons/flags/netherlands-flag.png";
+import { LANGUAGES, languageFor, type AppLanguage, type LanguageCode } from "@/helpers/languages";
 
 /* ===================== TYPES ===================== */
-
-type LanguageCode = "pt" | "en" | "fr" | "es" | "de" | "nl";
-
-type Language = Readonly<{
-  code: LanguageCode;
-  label: string;
-  flag: StaticImageData;
-}>;
 
 type Props = Readonly<{
   showBig?: boolean;
 }>;
-
-/* ===================== CONSTANTS ===================== */
-
-const LANGUAGES: readonly Language[] = [
-  { code: "en", label: "English", flag: unitedStatesFlag },
-  { code: "pt", label: "Português", flag: portugalFlag },
-  { code: "fr", label: "Français", flag: franceFlag },
-  { code: "es", label: "Español", flag: spainFlag },
-  { code: "de", label: "Deutsch", flag: germanyFlag },
-  { code: "nl", label: "Nederlands", flag: netherlandsFlag },
-] as const;
 
 /* ===================== COMPONENT ===================== */
 
@@ -117,10 +94,10 @@ function LanguageSwitcher({ showBig = false }: Props) {
     setAlignRight(fitsRight || !fitsLeft);
   }, []);
 
-  const current = i18nInstance.language || i18n.language || "en";
-  const selected = useMemo<Language>(() => {
-    return LANGUAGES.find((l) => l.code === current) ?? LANGUAGES[1];
-  }, [current]);
+  const current = (i18nInstance.language || i18n.language || "en").split("-")[0];
+  const selected = useMemo<AppLanguage>(() => languageFor(current), [current]);
+  // Desktop / big: flag + the language's own name. Tight mobile chrome: flag + code.
+  const compact = isMobile && !showBig;
 
   const Text = showBig
     ? LangTextDesktop
@@ -192,11 +169,13 @@ function LanguageSwitcher({ showBig = false }: Props) {
         tabIndex={0}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
+        aria-label={`${t("language.change")} · ${selected.name}`}
+        title={selected.name}
         data-testid="language-trigger"
         data-current-lang={selected.code}
         sx={{
           height: showBig ? 40 : isMobile ? 28 : 40,
-          width: showBig ? 111 : isMobile ? 78 : 111,
+          minWidth: compact ? 78 : 111,
           padding: showBig ? "10px 13px" : isMobile ? "7px 8px" : "10px 13px",
           gap: showBig ? "14px" : isMobile ? "10px" : "14px",
         }}
@@ -204,12 +183,15 @@ function LanguageSwitcher({ showBig = false }: Props) {
         <TriggerLeft>
           <Image
             src={selected.flag}
-            alt="flag"
+            alt=""
             width={showBig ? 20 : isMobile ? 14 : 20}
             height={showBig ? 20 : isMobile ? 14 : 20}
             draggable={false}
+            style={{ borderRadius: "50%" }}
           />
-          <Text>{selected.code.toUpperCase()}</Text>
+          <Text data-testid="language-trigger-label" sx={{ whiteSpace: "nowrap" }}>
+            {compact ? selected.code.toUpperCase() : selected.name}
+          </Text>
         </TriggerLeft>
 
         <TriggerRight>
@@ -245,13 +227,14 @@ function LanguageSwitcher({ showBig = false }: Props) {
             <HeaderSelectedLeft>
               <Image
                 src={selected.flag}
-                alt="flag"
+                alt=""
                 width={16}
                 height={16}
                 draggable={false}
                 unoptimized
+                style={{ borderRadius: "50%" }}
               />
-              <LangTextDesktop>{selected.code.toUpperCase()}</LangTextDesktop>
+              <LangTextDesktop sx={{ whiteSpace: "nowrap" }}>{selected.name}</LangTextDesktop>
             </HeaderSelectedLeft>
 
             <HeaderRight>
@@ -278,6 +261,7 @@ function LanguageSwitcher({ showBig = false }: Props) {
                   role="option"
                   tabIndex={0}
                   aria-selected={isSelected}
+                  aria-label={`${lng.name} (${lng.english})`}
                   data-selected={isSelected ? "true" : "false"}
                   data-testid={`language-option-${lng.code}`}
                   data-lang={lng.code}
@@ -297,19 +281,18 @@ function LanguageSwitcher({ showBig = false }: Props) {
                   <ListItemLeft>
                     <Image
                       src={lng.flag}
-                      alt="flag"
+                      alt=""
                       width={18}
                       height={18}
                       draggable={false}
                       unoptimized
+                      style={{ borderRadius: "50%" }}
                     />
-                    <LangTextDesktop>
-                      {lng.code.toUpperCase()} - {lng.label}
-                    </LangTextDesktop>
+                    <LangTextDesktop>{lng.name}</LangTextDesktop>
                   </ListItemLeft>
 
                   <CheckIconBox>
-                    {isSelected && (
+                    {isSelected ? (
                       <Image
                         src={CheckIcon}
                         alt="check"
@@ -317,6 +300,8 @@ function LanguageSwitcher({ showBig = false }: Props) {
                         height={8}
                         draggable={false}
                       />
+                    ) : (
+                      <LangCode>{lng.code.toUpperCase()}</LangCode>
                     )}
                   </CheckIconBox>
                 </DropdownListItem>

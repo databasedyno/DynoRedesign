@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import useApiSWR from "@/hooks/useApiSWR";
-import { toFixedStr } from "@/utils/money";
+import { toFixedStr, trimZeros } from "@/utils/money";
+import { formatWithSymbol } from "@/utils/locale";
 
 /**
  * useDisplayFx — resolves the merchant's chosen DISPLAY currency
@@ -70,17 +71,12 @@ export function useDisplayFx() {
       const val = n * state.rate;
       const sym = state.symbol || "";
       const abs = Math.abs(val);
-      if (abs === 0) return `${sym}0.00`;
-      if (abs >= 1) {
-        return `${sym}${val.toLocaleString("en-US", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })}`;
-      }
-      if (abs >= 0.01) {
-        return `${sym}${toFixedStr(val, 4).replace(/0+$/, "").replace(/\.$/, ".00")}`;
-      }
-      return `${sym}${toFixedStr(val, 6).replace(/0+$/, "").replace(/\.$/, ".00")}`;
+      if (abs === 0) return formatWithSymbol(0, sym, 2);
+      if (abs >= 1) return formatWithSymbol(val, sym, 2);
+      // Sub-unit values keep extra precision (trimmed) so they don't collapse to 0.00.
+      const trimmed = trimZeros(toFixedStr(val, abs >= 0.01 ? 4 : 6));
+      const frac = (trimmed.split(".")[1] || "").length;
+      return formatWithSymbol(trimmed, sym, Math.max(2, frac));
     },
     [state.rate, state.symbol],
   );

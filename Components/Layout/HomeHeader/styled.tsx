@@ -743,18 +743,23 @@ export const LangGlobeButton = styled(IconButton)(({ theme }) => {
     transition: "all 180ms ease",
     touchAction: "manipulation",
     "& svg": { fontSize: 19 },
+    "& .lang-flag": { borderRadius: "50%", flexShrink: 0 },
+    "& .lang-name": { whiteSpace: "nowrap" },
     "&:hover": {
       borderColor: accent(dark),
       color: dark ? "#fff" : "#121214",
       background: dark ? "rgba(255,255,255,0.06)" : "rgba(255,209,0,0.10)",
     },
-    // Header instance only: globe-only (code in aria-label/tooltip) so the five-item nav
-    // + actions fit the 1280 cap in every language.
+    // Header instance: flag + native name on wide screens; below `lg` the five-item
+    // nav + actions must fit the 1280 cap, so collapse to the flag only (name in title).
     "&[data-compact='true']": {
-      padding: 0,
-      width: 40,
-      minWidth: 40,
-      "& .lang-code, & .lang-chev": { display: "none" },
+      [theme.breakpoints.down("lg")]: {
+        padding: 0,
+        width: 40,
+        minWidth: 40,
+        justifyContent: "center",
+        "& .lang-name, & .lang-chev": { display: "none" },
+      },
     },
   };
 });
@@ -807,6 +812,14 @@ export const LangOptionLabel = styled(Typography)(({ theme }) => ({
   fontSize: 13.5,
   fontWeight: 500,
   color: theme.palette.mode === "dark" ? "#FFFFFF" : "#121214",
+}));
+
+export const LangOptionCode = styled("span")(({ theme }) => ({
+  fontFamily: "var(--font-body)",
+  fontSize: 11,
+  fontWeight: 600,
+  letterSpacing: "0.08em",
+  color: theme.palette.mode === "dark" ? "rgba(255,255,255,0.45)" : "rgba(18,18,20,0.45)",
 }));
 
 /* ================= MOBILE ACCORDION ================= */

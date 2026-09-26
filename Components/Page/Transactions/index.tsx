@@ -30,7 +30,8 @@ import TransactionsToolbar, { STATUS_FILTERS } from "./TransactionsToolbar";
 import TransactionsSkeleton from "./TransactionsSkeleton";
 import TransactionsFilterSheet from "./TransactionsFilterSheet";
 import useTableCardView from "@/hooks/useTableCardView";
-import { toFixedStr, toNumber } from "@/utils/money";
+import { toFixedStr, toNumber, trimZeros } from "@/utils/money";
+import { formatWithSymbol } from "@/utils/locale";
 import { SOURCE_OPTIONS, TxFilters, countActiveFilters, cryptoToWalletKey, hasDateRange, hasSafeDealRows, matchesBaseFilters, walletMapping } from "./txFilters";
 import { DEFAULT_TX_RANGE, isTxRangePreset, rangeToDates } from "./txRange";
 
@@ -232,9 +233,9 @@ const TransactionPage = () => {
             // dollars — and we never do a slow live conversion for them.
             const raw = Number((item as any).usd_value) || 0;
             if (raw <= 0) return "—";
-            if (raw >= 1) return `$${formatWithSeparators(raw, undefined, 2)}`;
-            if (raw >= 0.01) return `$${toFixedStr(raw, 4).replace(/0+$/, "").replace(/\.$/, ".00")}`;
-            return `$${toFixedStr(raw, 6).replace(/0+$/, "").replace(/\.$/, ".00")}`;
+            if (raw >= 1) return formatWithSymbol(raw, "$", 2);
+            const trimmed = trimZeros(toFixedStr(raw, raw >= 0.01 ? 4 : 6));
+            return formatWithSymbol(trimmed, "$", Math.max(2, (trimmed.split(".")[1] || "").length));
           })(),
           usdValueRaw: Number((item as any).usd_value) || 0,
           dateTime: formatDateTime(item.createdAt),

@@ -1,6 +1,7 @@
 import React, { memo, useState } from "react";
 import { Box, Typography, Slider } from "@mui/material";
 import { useTranslation } from "react-i18next";
+import { formatWithSymbol } from "@/utils/locale";
 import { FONT_BODY, FONT_TECH, useAurora } from "@/Components/Page/Home/v3/theme.v3";
 import { AuroraInk, Eyebrow } from "@/Components/Page/Home/v3/styled.v3";
 
@@ -11,8 +12,7 @@ import { AuroraInk, Eyebrow } from "@/Components/Page/Home/v3/styled.v3";
 const tierPct = (v: number): number =>
   v < 10000 ? 1.5 : v < 100000 ? 1.0 : v < 500000 ? 0.7 : 0.5;
 
-const fmtUSD = (n: number): string =>
-  `$${Math.round(n).toLocaleString("en-US")}`;
+const fmtUSD = (n: number): string => formatWithSymbol(Math.round(n), "$", 0);
 
 const REV_SHARE = 0.25;
 

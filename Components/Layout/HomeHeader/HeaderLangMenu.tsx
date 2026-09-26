@@ -7,46 +7,24 @@
 // signed in AND not on a checkout surface).
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
-import LanguageRoundedIcon from "@mui/icons-material/LanguageRounded";
 import { Box } from "@mui/material";
 import i18n from "i18next";
-import Image, { StaticImageData } from "next/image";
+import Image from "next/image";
 import { useRouter } from "next/router";
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
-import germanyFlag from "@/assets/Images/Icons/flags/germany-flag.png";
-import franceFlag from "@/assets/Images/Icons/flags/france-flag.png";
-import netherlandsFlag from "@/assets/Images/Icons/flags/netherlands-flag.png";
-import portugalFlag from "@/assets/Images/Icons/flags/portugal-flag.png";
-import spainFlag from "@/assets/Images/Icons/flags/spain-flag.png";
-import unitedStatesFlag from "@/assets/Images/Icons/flags/united-states-flag.png";
+import { LANGUAGES, languageFor, type AppLanguage, type LanguageCode } from "@/helpers/languages";
 
 import {
   CORAL,
   LangGlobeButton,
   LangOption,
+  LangOptionCode,
   LangOptionLabel,
   LangPanel,
   LangWrap,
 } from "./styled";
-
-type LanguageCode = "en" | "pt" | "fr" | "es" | "de" | "nl";
-
-interface Language {
-  readonly code: LanguageCode;
-  readonly label: string;
-  readonly flag: StaticImageData;
-}
-
-const LANGUAGES: readonly Language[] = [
-  { code: "en", label: "English", flag: unitedStatesFlag },
-  { code: "pt", label: "Português", flag: portugalFlag },
-  { code: "fr", label: "Français", flag: franceFlag },
-  { code: "es", label: "Español", flag: spainFlag },
-  { code: "de", label: "Deutsch", flag: germanyFlag },
-  { code: "nl", label: "Nederlands", flag: netherlandsFlag },
-] as const;
 
 interface HeaderLangMenuProps {
   /** "bottom" (header, default) opens the panel downward; "top" (footer) upward. */
@@ -71,10 +49,7 @@ function HeaderLangMenu({
   const [isOpen, setIsOpen] = useState(false);
 
   const current = (i18nInstance.language || i18n.language || "en").split("-")[0];
-  const selected = useMemo<Language>(
-    () => LANGUAGES.find((l) => l.code === current) ?? LANGUAGES[0],
-    [current],
-  );
+  const selected = useMemo<AppLanguage>(() => languageFor(current), [current]);
 
   const close = useCallback(() => setIsOpen(false), []);
 
@@ -136,14 +111,24 @@ function HeaderLangMenu({
         disableRipple
         aria-haspopup="listbox"
         aria-expanded={isOpen}
-        aria-label={t("language.change")}
+        aria-label={`${t("language.change")} · ${selected.name}`}
+        title={selected.name}
         data-testid={`${idPrefix}-language-globe`}
         data-current-lang={selected.code}
         data-compact={hideOnMobile ? "true" : undefined}
         onClick={() => setIsOpen((v) => !v)}
       >
-        <LanguageRoundedIcon />
-        <span className="lang-code">{selected.code.toUpperCase()}</span>
+        <Image
+          className="lang-flag"
+          src={selected.flag}
+          alt=""
+          width={20}
+          height={20}
+          draggable={false}
+          unoptimized
+          data-testid={`${idPrefix}-language-flag`}
+        />
+        <span className="lang-name" data-testid={`${idPrefix}-language-name`}>{selected.name}</span>
         <KeyboardArrowDownRoundedIcon
           className="lang-chev"
           sx={{
@@ -163,6 +148,7 @@ function HeaderLangMenu({
                 key={lng.code}
                 role="option"
                 aria-selected={isSelected}
+                aria-label={`${lng.name} (${lng.english})`}
                 data-selected={isSelected ? "true" : "false"}
                 data-testid={`${idPrefix}-lang-${lng.code}`}
                 data-lang={lng.code}
@@ -176,10 +162,14 @@ function HeaderLangMenu({
                 }}
               >
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
-                  <Image src={lng.flag} alt="" width={18} height={18} draggable={false} unoptimized />
-                  <LangOptionLabel>{lng.label}</LangOptionLabel>
+                  <Image src={lng.flag} alt="" width={20} height={20} draggable={false} unoptimized />
+                  <LangOptionLabel>{lng.name}</LangOptionLabel>
                 </Box>
-                {isSelected && <CheckRoundedIcon sx={{ fontSize: 17, color: CORAL }} />}
+                {isSelected ? (
+                  <CheckRoundedIcon sx={{ fontSize: 17, color: CORAL }} />
+                ) : (
+                  <LangOptionCode>{lng.code.toUpperCase()}</LangOptionCode>
+                )}
               </LangOption>
             );
           })}

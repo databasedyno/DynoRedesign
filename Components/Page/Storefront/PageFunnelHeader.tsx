@@ -8,7 +8,7 @@ import { useSelectedCompanyId } from "@/contexts/CompanyDataContext";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import { buildCreatorUrl } from "@/helpers/creatorUrl";
 import { copyToClipboard } from "@/helpers/copyToClipboard";
-import { formatWithSeparators } from "@/utils/currencyFormat";
+import { formatLocaleInt, formatWithSymbol } from "@/utils/locale";
 import CreatorLivePreview from "@/Components/Page/Creator/CreatorLivePreview";
 import type { CreatorFormState } from "@/Components/Page/Creator/CreatorPageSettings";
 import type { StorefrontProfile } from "@/hooks/useStorefrontProfile";
@@ -57,7 +57,7 @@ const FunnelStep: React.FC<{ testId: string; icon: string; label: string; value:
         <Skeleton width={56} height={30} />
       ) : (
         <Typography data-testid={`${testId}-value`} sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontSize: { xs: 20, sm: 24 }, fontWeight: 700, lineHeight: 1.1, letterSpacing: "-0.02em", color: theme.palette.text.primary }}>
-          {(value ?? 0).toLocaleString()}
+          {formatLocaleInt(value ?? 0)}
         </Typography>
       )}
       {sub && <Typography sx={{ fontFamily: MONO, fontSize: 11.5, color: theme.palette.text.secondary, whiteSpace: "nowrap" }}>{sub}</Typography>}
@@ -219,7 +219,7 @@ const PageFunnelHeader: React.FC<Props> = ({ storefront, formState, mounted, onE
               label={t("storefront.funnel.paid", { defaultValue: "Paid" })}
               value={paid}
               loading={isLoading}
-              sub={data ? `$${formatWithSeparators(data.paid_usd, "USD", 2)}` : undefined}
+              sub={data ? formatWithSymbol(data.paid_usd, "$", 2) : undefined}
             />
           </Box>
           <Box data-testid="your-page-range" role="tablist" sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, p: 0.5, borderRadius: 999, backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "rgba(10,10,15,0.05)", alignSelf: "center" }}>

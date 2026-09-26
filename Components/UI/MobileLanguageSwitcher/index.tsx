@@ -80,10 +80,16 @@ const LanguageSwitcherModal: React.FC<Props> = ({
                         fontSize: "15px",
                       },
                     }}
-                    primary={`${lng.code.toUpperCase()} – ${lng.label}`}
+                    primary={lng.label}
                   />
 
-                  {active && <CheckIcon sx={{color: (theme: any) => theme.palette.text.secondary}} />}
+                  {active ? (
+                    <CheckIcon sx={{color: (theme: any) => theme.palette.text.secondary}} />
+                  ) : (
+                    <Box component="span" sx={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", color: theme.palette.text.disabled }}>
+                      {lng.code.toUpperCase()}
+                    </Box>
+                  )}
                 </ListItemButton>
               );
             })}

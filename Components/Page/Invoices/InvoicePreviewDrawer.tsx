@@ -15,6 +15,7 @@ import { getInvoicePdf } from "@/helpers/invoicePdfCache";
 import { StatusPill } from "@/Components/UI/_shared";
 import { BRAND_ACCENT } from "@/constants/theme";
 import { formatDateI18n } from "@/utils/formatDate";
+import { formatLocaleCurrency } from "@/utils/locale";
 
 /**
  * InvoicePreviewDrawer — live PDF preview slide-out for the invoices list.
@@ -65,8 +66,7 @@ const formatDate = (isoStr: string) => {
   return formatDateI18n(isoStr, { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" }) || isoStr;
 };
 
-const formatUSD = (n: number) =>
-  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(Number(n) || 0);
+const formatUSD = (n: number) => formatLocaleCurrency(Number(n) || 0, "USD", 2);
 
 export default function InvoicePreviewDrawer({ open, invoice, onClose }: Props) {
   const { t } = useTranslation("common");

@@ -5,6 +5,7 @@ import Head from "next/head";
 import { blogPosts, getBlogCover } from "@/utils/blogData";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useTranslation } from 'react-i18next';
+import { formatDateI18n } from "@/utils/formatDate";
 import { brandFg } from "@/constants/theme";
 import { AuroraInk } from "@/Components/Page/Home/v3/styled.v3";
 import { useAurora } from "@/Components/Page/Home/v3/theme.v3";
@@ -277,7 +278,7 @@ const BlogPage = () => {
                             color: theme.palette.text.secondary,
                           }}
                         >
-                          {new Date(post.publishedAt).toLocaleDateString("en-US", {
+                          {formatDateI18n(post.publishedAt, {
                             month: "short",
                             day: "numeric",
                             year: "numeric",

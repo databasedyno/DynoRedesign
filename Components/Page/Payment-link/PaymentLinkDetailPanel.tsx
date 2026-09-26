@@ -18,6 +18,8 @@ import { downloadQrPng } from "@/helpers/downloadQrPng";
 import { formatDisplayDateTime } from "@/helpers/displayDate";
 import { extractPayRef, toShortPayLink } from "@/helpers/payLinkUrl";
 import { formatWithSeparators } from "@/utils/currencyFormat";
+import { toFixedStr, trimZeros } from "@/utils/money";
+import { formatWithSymbol, localizeDecimal } from "@/utils/locale";
 import useIsMobile from "@/hooks/useIsMobile";
 import type { PaymentLinkData } from "@/utils/types/paymentLink";
 import EmbedSnippet from "./EmbedSnippet";
@@ -111,7 +113,7 @@ const PaymentLinkDetailPanel: React.FC<Props> = ({ open, link, onClose, onEdit, 
 
   const collectedLabel = isDonation && link?.donation
     ? `${formatWithSeparators(Number(link.donation.raisedAmount || 0), undefined, 2)} USD`
-    : `$${formatWithSeparators(collectedUsd, undefined, 2)} USD`;
+    : `${formatWithSymbol(collectedUsd, "$", 2)} USD`;
 
   const stats = [
     { key: "received", label: t("detail.statPayments", { defaultValue: "Payments received" }), value: String(Math.max(Number(link?.timesUsed ?? 0), payments.length)), mono: true },
@@ -277,8 +279,8 @@ const PaymentLinkDetailPanel: React.FC<Props> = ({ open, link, onClose, onEdit, 
                     <Box key={p.id} data-testid="paylink-payment-row" sx={{ display: "flex", alignItems: "center", gap: 1.5, px: 1.75, py: 1.25, borderTop: i ? `1px solid ${border}` : 0 }}>
                       <Box sx={{ flex: 1, minWidth: 0 }}>
                         <Box sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontSize: 13.5, fontWeight: 600, color: ink }}>
-                          {formatWithSeparators(p.cryptoAmount, undefined, 8).replace(/\.?0+$/, "")} {p.cryptoCurrency}
-                          {p.usdValue != null && <Box component="span" sx={{ color: muted, fontWeight: 500 }}> · ${formatWithSeparators(p.usdValue, undefined, 2)}</Box>}
+                          {localizeDecimal(trimZeros(toFixedStr(p.cryptoAmount, 8)))} {p.cryptoCurrency}
+                          {p.usdValue != null && <Box component="span" sx={{ color: muted, fontWeight: 500 }}> · {formatWithSymbol(p.usdValue, "$", 2)}</Box>}
                         </Box>
                         <Box sx={{ mt: 0.25, fontFamily: "var(--font-sans)", fontSize: 12, color: muted, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                           {displayDate(p.createdAt)}{p.customer ? ` · ${p.customer}` : ""}

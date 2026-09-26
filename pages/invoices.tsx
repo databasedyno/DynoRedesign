@@ -49,6 +49,7 @@ import { BRAND_ACCENT, brandFg } from "@/constants/theme";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import { useEdgeFades, EdgeFades } from "@/Components/Common/ScrollHint";
 import { formatDateI18n } from "@/utils/formatDate";
+import { formatWithSymbol } from "@/utils/locale";
 import { toFixedStr } from "@/utils/money";
 
 interface Invoice {
@@ -200,11 +201,8 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
 
   const formatTaxAmount = (raw: number | string) => {
     const n = Number(raw);
-    if (!Number.isFinite(n)) return `${taxSymbol}0.00`;
-    return `${taxSymbol}${n.toLocaleString("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })}`;
+    if (!Number.isFinite(n)) return formatWithSymbol(0, taxSymbol, 2);
+    return formatWithSymbol(n, taxSymbol, 2);
   };
 
   // Invoices list totals are USD-canonical (`total_usd` column). Convert them
@@ -214,11 +212,8 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
     const converted = fx.formatFromUsd(usd);
     if (converted) return converted;
     const n = Number(usd);
-    if (!Number.isFinite(n)) return "$0.00";
-    return `$${n.toLocaleString("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })}`;
+    if (!Number.isFinite(n)) return formatWithSymbol(0, "$", 2);
+    return formatWithSymbol(n, "$", 2);
   };
 
   // "Fiat Everywhere" — resolve the merchant's chosen DISPLAY currency

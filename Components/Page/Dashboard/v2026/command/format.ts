@@ -1,17 +1,17 @@
-import { formatWithSeparators } from "@/utils/currencyFormat";
+import { formatWithSymbol } from "@/utils/locale";
 
 type TFn = (key: string, opts?: Record<string, unknown>) => string;
 
-/** "$1,234.56" in the merchant's display currency. */
+/** "$1,234.56" (en) · "1.234,56 $" (de) in the merchant's display currency. */
 export const money = (amount: number, symbol: string, currency = "USD", decimals = 2): string =>
-  `${symbol}${formatWithSeparators(Number(amount) || 0, currency, decimals)}`;
+  formatWithSymbol(Number(amount) || 0, symbol, decimals);
 
-/** Compact money for tight tiles: $1.2k · $3.4M. */
+/** Compact money for tight tiles: $1.2k · $3.4M (symbol placed per locale). */
 export const moneyCompact = (amount: number, symbol: string, currency = "USD"): string => {
   const v = Number(amount) || 0;
   const abs = Math.abs(v);
-  if (abs >= 1_000_000) return `${symbol}${(v / 1_000_000).toFixed(2)}M`;
-  if (abs >= 10_000) return `${symbol}${(v / 1_000).toFixed(1)}k`;
+  if (abs >= 1_000_000) return formatWithSymbol(v / 1_000_000, symbol, 2, "M");
+  if (abs >= 10_000) return formatWithSymbol(v / 1_000, symbol, 1, "k");
   return money(v, symbol, currency);
 };
 

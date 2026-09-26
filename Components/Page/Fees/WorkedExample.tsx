@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { formatWithSymbol } from "@/utils/locale";
 import { Box, Typography, MenuItem, TextField } from "@mui/material";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "@/Components/Page/Home/v3/theme.v3";
 import { cardSx } from "@/Components/Page/Home/v5/shared";
@@ -16,8 +17,8 @@ interface Props {
 }
 
 const SALE = 100;
-const money = (n: number) => `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-const fee = (n: number) => (n > 0 && n < 0.01 ? "< $0.01" : money(n));
+const money = (n: number) => formatWithSymbol(n, "$", 2);
+const fee = (n: number) => (n > 0 && n < 0.01 ? `< ${formatWithSymbol(0.01, "$", 2)}` : money(n));
 
 /** "$100 sale → you receive $X" — tier % + live network fee for the chosen payout coin. */
 const FeesWorkedExample = ({ tiers, currentTierName, currencies, feeFor, live }: Props) => {

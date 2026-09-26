@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import { useLivePayments, LivePaymentItem } from "@/hooks/useLivePayments";
 import { useRelativeTime } from "@/hooks/useRelativeTime";
 import { formatCryptoAmount, isCryptoCurrency } from "@/utils/currencyFormat";
+import { formatLocaleNumber, formatWithSymbol } from "@/utils/locale";
 import { CB_TOKENS, SurfaceCard, Eyebrow } from "./styled";
 import { BRAND_ACCENT } from "@/constants/theme";
 
@@ -99,13 +100,10 @@ function formatAmount(n: unknown, currency?: string | null): string {
         : currency === "GBP"
           ? "£"
           : "";
-  const withComma = val.toLocaleString("en-US", {
-    minimumFractionDigits: val < 10 ? 2 : 0,
-    maximumFractionDigits: 2,
-  });
+  const dp = val < 10 || !Number.isInteger(Math.round(val * 100) / 100) ? 2 : 0;
   return symbol
-    ? `${symbol}${withComma}`
-    : `${withComma} ${String(currency).toUpperCase()}`;
+    ? formatWithSymbol(val, symbol, dp)
+    : `${formatLocaleNumber(val, dp)} ${String(currency).toUpperCase()}`;
 }
 
 function txShortId(tx: LivePaymentItem): string {

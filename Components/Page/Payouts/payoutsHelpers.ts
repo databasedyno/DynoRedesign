@@ -1,6 +1,7 @@
 import { formatDateI18n } from "@/utils/formatDate";
 import { SUCCESS_GREEN, WARNING_AMBER, ERROR_RED } from "@/constants/theme";
-import { toFixedStr } from "@/utils/money";
+import { toFixedStr, trimZeros } from "@/utils/money";
+import { formatWithSymbol } from "@/utils/locale";
 
 export interface SettlementOption {
   currency?: string;
@@ -87,10 +88,9 @@ export const amountLabel = (tx: any, fallbackSym: string): string => {
 export const fiatLabel = (tx: any): string | null => {
   const v = Number(tx?.usd_value) || 0;
   if (v <= 0) return null;
-  if (v >= 1)
-    return `$${v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  if (v >= 0.01) return `$${toFixedStr(v, 4).replace(/0+$/, "").replace(/\.$/, ".00")}`;
-  return `$${toFixedStr(v, 6).replace(/0+$/, "").replace(/\.$/, ".00")}`;
+  if (v >= 1) return formatWithSymbol(v, "$", 2);
+  const trimmed = trimZeros(toFixedStr(v, v >= 0.01 ? 4 : 6));
+  return formatWithSymbol(trimmed, "$", Math.max(2, (trimmed.split(".")[1] || "").length));
 };
 
 // Coin code a settlement row belongs to → deep-link into /transactions?wallet=CODE (plan 2.6).
@@ -140,8 +140,4 @@ export const RANGE_PRESETS: { value: string; label: string }[] = [
   { value: "custom", label: "Custom range\u2026" },
 ];
 
-export const fmtUsd = (n: number) =>
-  `$${(Number(n) || 0).toLocaleString("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
+export const fmtUsd = (n: number) => formatWithSymbol(Number(n) || 0, "$", 2);

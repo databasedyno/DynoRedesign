@@ -62,7 +62,8 @@ import RateFreshness from '@/Components/UI/RateFreshness'
 import PublicVerifiedBadge from '@/Components/UI/PublicVerifiedBadge'
 import MerchantTrustRow from '@/Components/UI/MerchantTrustRow'
 import type { CheckoutState } from '@/Components/UI/CheckoutShell'
-import { formatWithSeparators, getCurrencySymbolFromFormat } from '@/utils/currencyFormat'
+import { formatWithSeparators, getCurrencySymbolFromFormat, getCurrencyDecimals } from '@/utils/currencyFormat'
+import { formatWithSymbol } from '@/utils/locale'
 // ─── Extracted checkout modules (Session refactor) ───────────────────────
 import type { Meta, CryptoInfo, Phase, CryptoSplit } from './checkout/checkoutTypes'
 import { PriceBreakdown } from './checkout/PriceBreakdown'
@@ -935,7 +936,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
     ? (feeExact ? feeExact.total : (baseAmt + taxAmt + feeAmt))
     : baseAmt + taxAmt
   const feeIsEstimate = feePayerIsCustomer && !feeExact
-  const fmtFiat = (n: number) => `${fiatSymbol}${formatWithSeparators(n, meta_?.base_currency || 'USD')}`
+  const fmtFiat = (n: number) => formatWithSymbol(n, fiatSymbol, getCurrencyDecimals(meta_?.base_currency || 'USD'))
   const fiatRows = meta_
     ? buildFiatRows({ t, fmtFiat, baseAmt, taxAmt, feePayerIsCustomer, feeFiat: platformFeeAmt, networkFeeFiat: networkFeeAmt, feeIsEstimate, totalFiat: totalAmt, split, code: cryptoInfo?.crypto_base })
     : []
