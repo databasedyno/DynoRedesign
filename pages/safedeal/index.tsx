@@ -1,7 +1,7 @@
 import React from "react";
 import type { NextPageWithLayout } from "@/pages/_app";
 import SafeDealShell from "@/Components/SafeDeal/SafeDealShell";
-import Landing from "@/Components/SafeDeal/Landing";
+import FlowLanding from "@/Components/SafeDeal/FlowLanding";
 
 // Service structured data — describes SafeDeal's escrow offering so search
 // engines understand the landing page's core product (provider = the base
@@ -26,7 +26,7 @@ const serviceJsonLd = {
 
 const Page: NextPageWithLayout = () => (
   <SafeDealShell jsonLd={serviceJsonLd}>
-    <Landing />
+    <FlowLanding />
   </SafeDealShell>
 );
 Page.layout = "none";
