@@ -11,12 +11,15 @@
  */
 
 import { tronGridHeaders } from "./tronEnergyService";
+import { Op } from "sequelize";
 import { raw as envRaw } from "../utils/config";
 import PaymentJournal from "../models/paymentJournalModel";
 import { cronLogger, webhookLogs } from "../utils/loggers";
 import { getRedisItem, setRedisItem, setRedisTTL, deleteRedisItem } from "../utils/redisInstance";
 import { captureError } from "./errorMonitoringService";
 import { getQueueHealth } from "./webhookQueue";
+import { EVM_NATIVE, EVM_TOKEN, parseEvmNative, parseEvmToken } from "./chainTxVerifier";
+import { TOKEN_CONTRACTS } from "./merchantPool/merchantPoolConfig";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 0. BLOCKCHAIN SETTLEMENT VERIFICATION — Auto-detect completed settlements
@@ -49,11 +52,8 @@ export async function verifySettlementOnChain(
       return await verifyTronSettlement(poolAddress, currency, expectedMerchantWallet, paymentId);
     } else if (isUtxo) {
       return await verifyUtxoSettlement(poolAddress, currency, expectedMerchantWallet, paymentId, incomingTxId);
-    } else if (isEthBased) {
-      // For ETH-based, use Tatum API to check recent outgoing TRC20/ERC20 transfers
-      // Less critical since ETH settlements rarely have this issue, but still covered
-      cronLogger.info(`[SettlementVerify] ETH-based verification not yet implemented for ${currency}, skipping`);
-      return { settled: false, outgoingTxId: null, amount: 0 };
+    } else if (isEthBased || currency === "BSC") {
+      return await verifyEvmSettlement(poolAddress, currency, expectedMerchantWallet, paymentId, incomingTxId);
     }
 
     return { settled: false, outgoingTxId: null, amount: 0 };
@@ -61,6 +61,89 @@ export async function verifySettlementOnChain(
     cronLogger.warn(`[SettlementVerify] On-chain verification failed for ${paymentId}: ${(err as Error).message}`);
     return { settled: false, outgoingTxId: null, amount: 0 };
   }
+}
+
+/**
+ * EVM chains (ETH / POLYGON / BSC natives, ERC-20 & Polygon tokens).
+ * Two passes: (1) the exact hash we journaled at broadcast time (`settlement_tx_broadcast`),
+ * (2) a scan of the pool address' outgoing txs mined at/after the incoming deposit — pool
+ * addresses are recycled, so anything older than the deposit is a previous payment's payout.
+ * Real-world case (2026-09-27, payment f8e1ca0e): the payout was mined, the container was
+ * swapped mid-confirmation, and the payment looped in reconciliation for 5h because this
+ * branch used to return "not implemented".
+ */
+async function verifyEvmSettlement(
+  poolAddress: string,
+  currency: string,
+  expectedMerchantWallet: string | null,
+  paymentId: string,
+  incomingTxId: string | null,
+): Promise<{ settled: boolean; outgoingTxId: string | null; amount: number }> {
+  const chain = EVM_NATIVE[currency] || EVM_TOKEN[currency]?.chain;
+  if (!chain) return { settled: false, outgoingTxId: null, amount: 0 };
+  const token = EVM_TOKEN[currency] ? { contract: TOKEN_CONTRACTS[currency], decimals: EVM_TOKEN[currency].decimals } : null;
+  if (EVM_TOKEN[currency] && !token?.contract) return { settled: false, outgoingTxId: null, amount: 0 };
+
+  const tatumApi = (await import("../apis/tatumApi")).default as any;
+  const sdk = await tatumApi.getTatumSDK();
+  const svc = chain === "eth" ? sdk.blockchain.eth : chain === "polygon" ? sdk.blockchain.polygon : sdk.blockchain.bsc;
+  const getTx = (h: string) => chain === "eth" ? svc.ethGetTransaction(h) : chain === "polygon" ? svc.polygonGetTransaction(h) : svc.bscGetTransaction(h);
+  const listTxs = (from?: number) => chain === "eth" ? svc.ethGetTransactionByAddress(poolAddress, 50, 0, from, undefined, "DESC")
+    : chain === "polygon" ? svc.polygonGetTransactionByAddress(poolAddress, 50, 0, from, undefined, "DESC")
+    : svc.bscGetTransactionByAddress(poolAddress, 50, 0, from, undefined, "DESC");
+  const same = (a?: string | null, b?: string | null) => !!a && !!b && a.toLowerCase() === b.toLowerCase();
+
+  // Amount this tx pays OUT of the pool (to the merchant when known). 0 = not a payout.
+  const payoutAmount = (tx: any): number => {
+    if (!tx || !same(tx.from, poolAddress) || tx.status === false || tx.blockNumber == null) return 0;
+    if (token) {
+      if (expectedMerchantWallet) return parseEvmToken(tx, expectedMerchantWallet, token.contract, token.decimals).amount;
+      let total = 0;
+      for (const log of tx.logs || []) {
+        if (!same(log?.address, token.contract) || (log?.topics || []).length < 3) continue;
+        const from = "0x" + String(log.topics[1]).slice(-40), to = "0x" + String(log.topics[2]).slice(-40);
+        if (same(from, poolAddress) && !same(to, poolAddress)) total += parseEvmToken({ ...tx, logs: [log] }, to, token.contract, token.decimals).amount;
+      }
+      return total;
+    }
+    if (expectedMerchantWallet) return parseEvmNative(tx, expectedMerchantWallet).amount;
+    return same(tx.to, poolAddress) ? 0 : Number(BigInt(String(tx.value || "0"))) / 1e18;
+  };
+
+  // Pass 1 — the hash we broadcast (journaled before confirmation).
+  const broadcast = await PaymentJournal.findOne({ where: { payment_id: paymentId, event: "settlement_tx_broadcast" }, order: [["created_at", "DESC"]] }).catch(() => null);
+  const journaledHash = (broadcast as any)?.metadata?.settlementTxHash as string | undefined;
+  if (journaledHash) {
+    try {
+      const tx = await getTx(journaledHash);
+      const amount = payoutAmount(tx);
+      if (amount > 0) {
+        cronLogger.info(`[SettlementVerify] ✅ Journaled ${currency} payout ${journaledHash} for payment ${paymentId} is mined: ${amount} ${currency} → ${expectedMerchantWallet || tx.to}`);
+        return { settled: true, outgoingTxId: journaledHash, amount };
+      }
+    } catch (e) {
+      cronLogger.info(`[SettlementVerify] Journaled payout ${journaledHash} not found/mined yet: ${(e as Error).message}`);
+    }
+  }
+
+  // Pass 2 — scan outgoing txs mined at/after the incoming deposit.
+  if (!incomingTxId) {
+    cronLogger.info(`[SettlementVerify] ${currency} scan for ${paymentId} skipped — no incoming txId to bound the search`);
+    return { settled: false, outgoingTxId: null, amount: 0 };
+  }
+  const incoming = await getTx(incomingTxId);
+  const fromBlock = Number(incoming?.blockNumber);
+  if (!Number.isFinite(fromBlock) || fromBlock <= 0) return { settled: false, outgoingTxId: null, amount: 0 };
+  const txs: any[] = (await listTxs(fromBlock)) || [];
+  for (const tx of txs) {
+    if (same(tx.hash, incomingTxId) || Number(tx.blockNumber) < fromBlock) continue;
+    const amount = payoutAmount(tx);
+    if (amount <= 0) continue;
+    cronLogger.info(`[SettlementVerify] ✅ Found on-chain ${currency} payout for payment ${paymentId}: ${amount} ${currency} from ${poolAddress} in block ${tx.blockNumber} (deposit block ${fromBlock}) TX: ${tx.hash}`);
+    return { settled: true, outgoingTxId: tx.hash, amount };
+  }
+  cronLogger.info(`[SettlementVerify] No ${currency} payout from ${poolAddress} after block ${fromBlock} for payment ${paymentId}`);
+  return { settled: false, outgoingTxId: null, amount: 0 };
 }
 
 /**
@@ -211,7 +294,8 @@ export async function checkSettlementIdempotency(
   paymentId: string,
   address: string,
   currency: string,
-  incomingTxId: string | null = null
+  incomingTxId: string | null = null,
+  expectedMerchantWallet: string | null = null
 ): Promise<{ alreadySettled: boolean; existingTxId: string | null }> {
   // Fast path: Redis check
   const redisKey = `settlement-lock-${paymentId}`;
@@ -245,46 +329,9 @@ export async function checkSettlementIdempotency(
       // executed but the DB/Redis update failed (crash, timeout, etc).
       // Without this check, the system endlessly retries a payment that's already settled.
       try {
-        const onChainResult = await verifySettlementOnChain(address, currency, null, paymentId, incomingTxId);
+        const onChainResult = await verifySettlementOnChain(address, currency, expectedMerchantWallet, paymentId, incomingTxId);
         if (onChainResult.settled && onChainResult.outgoingTxId) {
-          cronLogger.warn(
-            `[SettlementIdempotency] 🔄 AUTO-RECOVERY: Settlement for ${paymentId} was already completed on-chain! ` +
-            `TX: ${onChainResult.outgoingTxId}, amount: ${onChainResult.amount}. ` +
-            `Marking as completed and blocking retry.`
-          );
-          // Auto-complete: update Redis + journal to reflect the real on-chain state
-          await setRedisItem(redisKey, {
-            status: 'completed',
-            settlementTxId: onChainResult.outgoingTxId,
-            completedAt: Date.now(),
-            autoRecovered: true,
-            recoveredFrom: 'stale_in_progress',
-          });
-          await setRedisTTL(redisKey, 86400 * 7);
-
-          // Record in journal
-          try {
-            await PaymentJournal.create({
-              payment_id: paymentId,
-              tx_id: null,
-              address,
-              currency,
-              event: 'settlement_auto_recovered',
-              from_state: 'stale_in_progress',
-              to_state: 'completed',
-              amount: onChainResult.amount,
-              settlement_tx_id: onChainResult.outgoingTxId,
-              company_id: null,
-              metadata: {
-                source: 'idempotency_auto_recovery',
-                reason: 'Settlement TX found on-chain but DB was never updated',
-                elapsedMs: elapsed,
-              },
-            });
-          } catch (journalErr) {
-            cronLogger.warn(`[SettlementIdempotency] Journal write failed during auto-recovery: ${(journalErr as Error).message}`);
-          }
-
+          await recordAutoRecoveredSettlement(paymentId, address, currency, onChainResult, 'stale_in_progress', { elapsedMs: elapsed });
           return { alreadySettled: true, existingTxId: onChainResult.outgoingTxId };
         }
       } catch (verifyErr) {
@@ -390,6 +437,26 @@ export async function checkSettlementIdempotency(
     cronLogger.warn(`[SettlementIdempotency] DB check failed for ${paymentId}: ${(dbErr as Error).message}`);
   }
 
+  // ── RETRY-TIME ON-CHAIN CHECK: a previous attempt already started/broadcast a payout
+  // for this payment but never reached markSettlementCompleted (process killed mid-
+  // confirmation, Tatum timeout, …). Before claiming and paying AGAIN, look at the chain.
+  // Never blocks a first attempt (no prior settlement_* journal → no lookup).
+  try {
+    const prior = await PaymentJournal.findOne({
+      where: { payment_id: paymentId, event: { [Op.in]: ['settlement_started', 'settlement_tx_broadcast'] } },
+      attributes: ['id'],
+    });
+    if (prior) {
+      const onChainResult = await verifySettlementOnChain(address, currency, expectedMerchantWallet, paymentId, incomingTxId);
+      if (onChainResult.settled && onChainResult.outgoingTxId) {
+        await recordAutoRecoveredSettlement(paymentId, address, currency, onChainResult, 'retry_after_broadcast', {});
+        return { alreadySettled: true, existingTxId: onChainResult.outgoingTxId };
+      }
+    }
+  } catch (priorErr) {
+    cronLogger.warn(`[SettlementIdempotency] Retry-time on-chain check failed for ${paymentId}: ${(priorErr as Error).message}. Continuing.`);
+  }
+
   // ── FIX: Atomic claim via SETNX to prevent TOCTOU race ──────────────────
   // With BullMQ concurrency=5, multiple webhook workers can pass the checks above
   // simultaneously. Use Redis NX (set-if-not-exists) for atomic mutual exclusion.
@@ -403,6 +470,47 @@ export async function checkSettlementIdempotency(
   }
 
   return { alreadySettled: false, existingTxId: null };
+}
+
+/** A payout already mined on-chain is the truth — persist it (Redis + journal) so retries stop. */
+async function recordAutoRecoveredSettlement(
+  paymentId: string,
+  address: string,
+  currency: string,
+  onChain: { outgoingTxId: string | null; amount: number },
+  recoveredFrom: string,
+  extraMeta: Record<string, unknown>
+): Promise<void> {
+  cronLogger.warn(
+    `[SettlementIdempotency] 🔄 AUTO-RECOVERY (${recoveredFrom}): Settlement for ${paymentId} was already completed on-chain! ` +
+    `TX: ${onChain.outgoingTxId}, amount: ${onChain.amount}. Marking as completed and blocking retry.`
+  );
+  const redisKey = `settlement-lock-${paymentId}`;
+  await setRedisItem(redisKey, {
+    status: 'completed',
+    settlementTxId: onChain.outgoingTxId,
+    completedAt: Date.now(),
+    autoRecovered: true,
+    recoveredFrom,
+  });
+  await setRedisTTL(redisKey, 86400 * 7);
+  try {
+    await PaymentJournal.create({
+      payment_id: paymentId,
+      tx_id: null,
+      address,
+      currency,
+      event: 'settlement_auto_recovered',
+      from_state: recoveredFrom,
+      to_state: 'completed',
+      amount: onChain.amount,
+      settlement_tx_id: onChain.outgoingTxId,
+      company_id: null,
+      metadata: { source: 'idempotency_auto_recovery', reason: 'Settlement TX found on-chain but DB was never updated', ...extraMeta },
+    });
+  } catch (journalErr) {
+    cronLogger.warn(`[SettlementIdempotency] Journal write failed during auto-recovery: ${(journalErr as Error).message}`);
+  }
 }
 
 /**

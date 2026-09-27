@@ -63,8 +63,8 @@ const unsupportedPolicy = (): "allow" | "reject" =>
   String(envRaw("CHAIN_TX_VERIFY_UNSUPPORTED") || "allow").toLowerCase() === "reject" ? "reject" : "allow";
 
 const UTXO = new Set(["BTC", "LTC", "DOGE", "BCH"]);
-const EVM_NATIVE: Record<string, "eth" | "polygon" | "bsc"> = { ETH: "eth", POLYGON: "polygon", BSC: "bsc" };
-const EVM_TOKEN: Record<string, { chain: "eth" | "polygon"; decimals: number }> = {
+export const EVM_NATIVE: Record<string, "eth" | "polygon" | "bsc"> = { ETH: "eth", POLYGON: "polygon", BSC: "bsc" };
+export const EVM_TOKEN: Record<string, { chain: "eth" | "polygon"; decimals: number }> = {
   "USDT-ERC20": { chain: "eth", decimals: 6 },
   "USDC-ERC20": { chain: "eth", decimals: 6 },
   "RLUSD-ERC20": { chain: "eth", decimals: 18 },
