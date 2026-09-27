@@ -1,3 +1,7 @@
+# === 2026-09-27 (fork) SAFEDEAL ADMIN NEW-USER EMAIL — Telegram @username + ID as separate fields (SHIPPED) ===
+# backend/services/email/safedealEmails.ts sendSafeDealNewUserAdminEmail(info + telegramId?, telegramUsername?): body now has Name / Email (or "— (not added yet)" for tg_*@telegram.safedeal placeholders) / [Telegram only] Telegram username (@handle linked to https://t.me/<handle>, or "— (none set)") + Telegram ID / Sign-up method / Customer ID / When. Subject "New SafeDeal user: <email | @handle | name | customer #id>". backend/controller/safedealController.ts telegramAuth passes telegramId + data.username. Render-verified via backend/scripts/render_safedeal_emails.ts (3 new cases: admin_new_user_email / _telegram / _telegram_no_username). Backend tsc 0.
+# ============================================================================================
+
 # LIVE VERIFIED 17:06Z after deploy f68006b8f (run 36334877919, canary→swap OK): https://safedeal.sh/signin in dark mode → data-theme=light, typed email rgb(18,18,20) visible.
 # ============================================================================================
 

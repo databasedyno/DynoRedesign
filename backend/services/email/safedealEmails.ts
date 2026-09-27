@@ -243,16 +243,31 @@ export async function sendSafeDealDealInvoiceEmail(
  */
 export async function sendSafeDealNewUserAdminEmail(
   adminEmail: string,
-  info: { email?: string | null; name?: string | null; customerId: number; method: "email" | "telegram"; brandName?: string | null }
+  info: {
+    email?: string | null;
+    name?: string | null;
+    customerId: number;
+    method: "email" | "telegram";
+    brandName?: string | null;
+    telegramId?: string | null;
+    telegramUsername?: string | null;
+  }
 ): Promise<void> {
   const isPlaceholderEmail = !!info.email && info.email.endsWith("@telegram.safedeal");
-  const contact = info.email && !isPlaceholderEmail ? esc(info.email) : (info.name ? esc(info.name) : `customer #${info.customerId}`);
+  const tgHandle = info.telegramUsername ? `@${String(info.telegramUsername).replace(/^@/, "")}` : null;
+  const contact = info.email && !isPlaceholderEmail ? esc(info.email) : tgHandle ? esc(tgHandle) : (info.name ? esc(info.name) : `customer #${info.customerId}`);
   const methodLabel = info.method === "telegram" ? "Telegram" : "Email + one-time code";
   const when = new Date().toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" }) + " UTC";
+  const telegramLines =
+    info.method === "telegram"
+      ? p(`Telegram username: <b>${tgHandle ? `<a href="https://t.me/${esc(tgHandle.slice(1))}" style="color:inherit;">${esc(tgHandle)}</a>` : "— (none set)"}</b>`) +
+        p(`Telegram ID: <b>${info.telegramId ? esc(String(info.telegramId)) : "—"}</b>`)
+      : "";
   const message =
     p(`A new user just onboarded on <b>SafeDeal</b>${info.brandName ? ` (${esc(info.brandName)})` : ""}.`) +
     p(`Name: <b>${info.name ? esc(info.name) : "—"}</b>`) +
-    p(`Contact: <b>${contact}</b>`) +
+    p(`Email: <b>${info.email && !isPlaceholderEmail ? esc(info.email) : "— (not added yet)"}</b>`) +
+    telegramLines +
     p(`Sign-up method: <b>${methodLabel}</b>`) +
     p(`Customer ID: <b>#${info.customerId}</b>`) +
     p(`When: ${esc(when)}`) +

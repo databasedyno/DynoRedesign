@@ -120,7 +120,14 @@ const otpKey = (purpose: string, key: string) => `safedeal:${purpose}:${norm(key
 const genCode = () => String(crypto.randomInt(100000, 1000000));
 
 /** Fire-and-forget: alert the operator (ADMIN_EMAIL) that a new user just onboarded on SafeDeal. */
-const notifyAdminNewSafeDealUser = (info: { email?: string | null; name?: string | null; customerId: number; method: "email" | "telegram" }): void => {
+const notifyAdminNewSafeDealUser = (info: {
+  email?: string | null;
+  name?: string | null;
+  customerId: number;
+  method: "email" | "telegram";
+  telegramId?: string | null;
+  telegramUsername?: string | null;
+}): void => {
   const adminEmail = (envRaw("ADMIN_EMAIL") || "").trim();
   if (!adminEmail) {
     apiLogger.warn("[SafeDeal] new user onboarded but ADMIN_EMAIL is not set — skipping admin notification");
@@ -296,7 +303,15 @@ const telegramAuth = async (req: express.Request, res: express.Response) => {
     let isNewTgCustomer = false;
     const customer = await resolveCustomerByTelegram({ companyId: companyId(), telegramId, name, onCreate: () => { isNewTgCustomer = true; } });
     const profile = await ensureProfile(customer);
-    if (isNewTgCustomer) notifyAdminNewSafeDealUser({ email: customer.email, name, customerId: customer.customer_id, method: "telegram" });
+    if (isNewTgCustomer)
+      notifyAdminNewSafeDealUser({
+        email: customer.email,
+        name,
+        customerId: customer.customer_id,
+        method: "telegram",
+        telegramId,
+        telegramUsername: data.username ? String(data.username) : null,
+      });
     // First Telegram sign-in: stamp a friendly display name (never overwrite one the user chose).
     if (!profile?.display_name && name) {
       await sequelize.query(

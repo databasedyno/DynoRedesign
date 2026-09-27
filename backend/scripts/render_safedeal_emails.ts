@@ -48,6 +48,9 @@ const main = async () => {
     ["escalated", () => es.sendEscrowDisputeEscalatedEmail(buyer, buyer, deal, "system")],
     ["agreed", () => es.sendEscrowDisputeAgreedEmail(buyer, buyer, deal, "Seller keeps 60%, buyer refunded 40%.")],
     ["legacy_invite_dynopay", () => es.sendEscrowInviteEmail(buyer, buyer, legacy, "The Dev Store", "buyer", "https://dynopay.com/escrow/invite/abc123")],
+    ["admin_new_user_email", () => sd.sendSafeDealNewUserAdminEmail("admin@example.com", { email: "newbie@example.com", name: "Newbie", customerId: 9101, method: "email" })],
+    ["admin_new_user_telegram", () => sd.sendSafeDealNewUserAdminEmail("admin@example.com", { email: "tg_123456789@telegram.safedeal", name: "Ada Lovelace", customerId: 9102, method: "telegram", telegramId: "123456789", telegramUsername: "ada_l" })],
+    ["admin_new_user_telegram_no_username", () => sd.sendSafeDealNewUserAdminEmail("admin@example.com", { email: "tg_987@telegram.safedeal", name: "Telegram 987", customerId: 9103, method: "telegram", telegramId: "987", telegramUsername: null })],
   ];
   for (const [name, fn] of steps) {
     const before = new Set(fs.readdirSync(OUT));
