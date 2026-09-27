@@ -1569,11 +1569,11 @@ const DocumentationPage = () => {
                 ) : (
                   filteredSections.map((sec) => (
                     <Box key={sec.id}>
-                      <SidebarItem active={activeSection === sec.id} onClick={() => scrollTo(sec.id)}>
+                      <SidebarItem active={activeSection === sec.id} onClick={() => scrollTo(sec.id)} data-testid={`docs-sidebar-${sec.id}`}>
                         {sec.title}
                       </SidebarItem>
                       {sec.endpoints?.map((epId) => (
-                        <SubItem key={epId} onClick={() => scrollTo(epId)}>
+                        <SubItem key={epId} onClick={() => scrollTo(epId)} data-testid={`docs-sidebar-sub-${epId}`}>
                           {endpointMap[epId]?.title}
                         </SubItem>
                       ))}

@@ -79,7 +79,11 @@ html[data-theme="dark"] input:-webkit-autofill:active {
 }
 
 html {
+  /* `clip` avoids turning <html> into a scroll container, which silently
+     disables `scrollIntoView`/smooth scrolling and `position: sticky` for
+     descendants; older browsers fall back to `hidden`. */
   overflow-x: hidden;
+  overflow-x: clip;
 }
 
 body {
