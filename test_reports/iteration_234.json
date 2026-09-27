@@ -1,0 +1,19 @@
+{
+  "summary": "Verified fix for 'live/test API key remains copyable after regenerate + navigate away'. Tested on Test API Key card only (Live untouched). All three flows pass: (1) Regenerate reveals copy-now notice + copy button + plaintext key; (2) Switching to Webhooks tab and back to Keys clears the revealed key (copy-now-notice 1->0, copy 1->0, shown-once notice returns); (3) Navigating away to /dashboard and back to /developer-keys also clears the revealed key. Regenerate remains fully functional across the cycle. Live API Key card was never revealed or regenerated at any point.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Fix works correctly: useEffect cleanup dispatch {type: API_CLEAR_REVEALED} on ApiKeysPage unmount reliably clears state.apiReducer.revealedKeys. Unmount occurs on both tab change (ApiKeysPage conditionally rendered per active tab) and route change.",
+    "Consider also clearing revealedKeys on window beforeunload/route change through auth logout for defense in depth (currently only on ApiKeysPage unmount). This is a nice-to-have, not a blocker."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "100%"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (TOTP via node /app/backend/scripts/print_totp.cjs 1)",
+  "seed_data_creation": "None. Test API key (api_id 92) was regenerated 3 times as authorized. Live API key (api_id 233) was NOT touched.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Key testids: developers-tab-keys/webhooks, api-regenerate-btn (2 on page — disambiguate by parent card text 'Test API Key' vs 'Live API Key'), api-key-copy-now-notice (only when revealed), api-key-shown-once-notice (masked state), api-key-copy, api-key-display, stepup-dialog (10-min TOTP grant for API-key management). After clicking Regenerate a stepup-dialog appears requiring current TOTP; then a confirm 'Regenerate' button. The company auto-selected on this fork was 'SMADAV' (company_id=1 display name may differ from 'The Dev Store' mentioned in review); the two-key layout still matched (Live + Test with Auto-Created·Sandbox chip), and both keys started masked. Final observed counts (initial=0/2/0/2, after regen=1/1/1/2, after leave+return=0/2/0/2) proves the fix.",
+  "rca of the issue": "Root cause per problem statement: freshly regenerated plaintext keys were kept in Redux state.apiReducer.revealedKeys and never cleared on view exit. Fix: API_CLEAR_REVEALED action + ApiKeysPage useEffect cleanup dispatch. Verified working."
+}
