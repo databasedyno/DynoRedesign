@@ -462,6 +462,7 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
               : tr("webhook.allSubtitle", { defaultValue: "Receive real-time events and inspect recent delivery attempts" })
         }
         headerIcon={<Icon name={view === "events" ? "list" : "webhook"} color={brandFg(theme.palette.mode === "dark")} />}
+        bodyPadding={isMobile ? theme.spacing(2, 2, 2, 2) : theme.spacing(2.25, 2.5, 2.5, 2.5)}
         headerAction={
           <Tooltip title={tr("webhook.refresh", { defaultValue: "Refresh" })}>
             <IconButton onClick={refreshAll} size="small" data-testid="webhook-refresh">

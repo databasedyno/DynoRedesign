@@ -236,6 +236,43 @@ export async function sendSafeDealDealInvoiceEmail(
  * admin panel (/admin/escrow). Fired for manual + auto cashouts of the threshold or more;
  * deal settlement payouts are always automatic and never trigger this.
  */
+/**
+ * Internal alert to the Dynopay/SafeDeal admin that a NEW user just onboarded on
+ * SafeDeal (first email sign-in or first Telegram sign-in creates the customer).
+ * Informational only — the user is active immediately.
+ */
+export async function sendSafeDealNewUserAdminEmail(
+  adminEmail: string,
+  info: { email?: string | null; name?: string | null; customerId: number; method: "email" | "telegram"; brandName?: string | null }
+): Promise<void> {
+  const isPlaceholderEmail = !!info.email && info.email.endsWith("@telegram.safedeal");
+  const contact = info.email && !isPlaceholderEmail ? esc(info.email) : (info.name ? esc(info.name) : `customer #${info.customerId}`);
+  const methodLabel = info.method === "telegram" ? "Telegram" : "Email + one-time code";
+  const when = new Date().toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" }) + " UTC";
+  const message =
+    p(`A new user just onboarded on <b>SafeDeal</b>${info.brandName ? ` (${esc(info.brandName)})` : ""}.`) +
+    p(`Name: <b>${info.name ? esc(info.name) : "—"}</b>`) +
+    p(`Contact: <b>${contact}</b>`) +
+    p(`Sign-up method: <b>${methodLabel}</b>`) +
+    p(`Customer ID: <b>#${info.customerId}</b>`) +
+    p(`When: ${esc(when)}`) +
+    p(`This is an informational notice — the account is active and no action is required.`, "color:#6b7280;font-size:13px;");
+  await sendEmail(
+    adminEmail,
+    "Dynopay Admin",
+    `New SafeDeal user: ${contact}`,
+    message,
+    false,
+    {
+      brand: "safedeal",
+      audience: "admin",
+      hero: "person",
+      heading: "New SafeDeal user",
+      cta: { text: "Open SafeDeal admin", link: safedealBaseUrl() },
+    }
+  );
+}
+
 export async function sendSafeDealAdminCashoutApprovalEmail(
   adminEmail: string,
   w: WithdrawalLike,

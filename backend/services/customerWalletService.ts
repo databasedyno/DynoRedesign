@@ -52,6 +52,7 @@ export const resolveCustomerForBrand = async (params: {
   email?: string | null;
   name?: string | null;
   createIfMissing?: boolean;
+  onCreate?: (customer: CustomerRow) => void;
 }): Promise<CustomerRow> => {
   const { companyId } = params;
   if (params.customerId) {
@@ -82,6 +83,7 @@ export const resolveCustomerForBrand = async (params: {
     }
   );
   apiLogger.info(`[CustomerWallet] Created customer ${created[0].customer_id} (${email}) for company ${companyId}`);
+  try { params.onCreate?.(created[0]); } catch { /* notification hook must never block sign-in */ }
   return created[0];
 };
 
@@ -91,6 +93,7 @@ export const resolveCustomerByTelegram = async (params: {
   companyId: number;
   telegramId: string;
   name?: string | null;
+  onCreate?: (customer: CustomerRow) => void;
 }): Promise<CustomerRow> => {
   const { companyId } = params;
   const telegramId = String(params.telegramId || "").trim();
@@ -113,6 +116,7 @@ export const resolveCustomerByTelegram = async (params: {
     }
   );
   apiLogger.info(`[CustomerWallet] Created Telegram customer ${created[0].customer_id} (tg:${telegramId}) for company ${companyId}`);
+  try { params.onCreate?.(created[0]); } catch { /* notification hook must never block sign-in */ }
   return created[0];
 };
 

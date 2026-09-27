@@ -56,7 +56,7 @@ import {
   webhookUrl as safedealWebhookUrl,
 } from "../services/safedeal/safedealCheckout";
 import { isPlatformFeeExemptCompany } from "../services/feeService";
-import { sendSafeDealCodeEmail, sendSafeDealAddressAlertEmail } from "../services/email/safedealEmails";
+import { sendSafeDealCodeEmail, sendSafeDealAddressAlertEmail, sendSafeDealNewUserAdminEmail } from "../services/email/safedealEmails";
 import { sendEscrowInviteEmail, sendEscrowAmendedEmail } from "../services/email/escrowEmails";
 import { runSafeDealReminders } from "../services/safedeal/safedealReminders";
 import { generateDealSummaryPdf, feeShares, generateTopupReceiptPdf } from "../services/safedeal/safedealPdf";
@@ -118,6 +118,18 @@ const secret = (): string => {
 };
 const otpKey = (purpose: string, key: string) => `safedeal:${purpose}:${norm(key)}`;
 const genCode = () => String(crypto.randomInt(100000, 1000000));
+
+/** Fire-and-forget: alert the operator (ADMIN_EMAIL) that a new user just onboarded on SafeDeal. */
+const notifyAdminNewSafeDealUser = (info: { email?: string | null; name?: string | null; customerId: number; method: "email" | "telegram" }): void => {
+  const adminEmail = (envRaw("ADMIN_EMAIL") || "").trim();
+  if (!adminEmail) {
+    apiLogger.warn("[SafeDeal] new user onboarded but ADMIN_EMAIL is not set — skipping admin notification");
+    return;
+  }
+  void sendSafeDealNewUserAdminEmail(adminEmail, info).catch((err) =>
+    apiLogger.error(`[SafeDeal] new-user admin email failed: ${(err as Error)?.message || err}`)
+  );
+};
 
 export interface SafeDealSession {
   customer_id: number;
@@ -221,8 +233,11 @@ const verifyCode = async (req: express.Request, res: express.Response) => {
       return errorResponseHelper(res, 400, "Incorrect code. Please check and try again.");
     }
     await deleteRedisItem(key);
-    const customer = await resolveCustomerForBrand({ companyId: companyId(), email, createIfMissing: true });
+    let isNewCustomer = false;
+    const customer = await resolveCustomerForBrand({ companyId: companyId(), email, createIfMissing: true, onCreate: () => { isNewCustomer = true; } });
     const profile = await ensureProfile(customer);
+    // First-ever sign-in for this email → tell the operator a new SafeDeal user onboarded.
+    if (isNewCustomer) notifyAdminNewSafeDealUser({ email, name: customer.customer_name, customerId: customer.customer_id, method: "email" });
     // Link any deals this email was invited to / created.
     await escrowDealModel.update(
       { counterparty_customer_id: customer.customer_id, counterparty_verified_at: new Date() } as any,
@@ -278,8 +293,10 @@ const telegramAuth = async (req: express.Request, res: express.Response) => {
     const telegramId = String(data.id || "").trim();
     if (!telegramId) return errorResponseHelper(res, 400, "Telegram didn't return a user id.");
     const name = [data.first_name, data.last_name].filter(Boolean).join(" ").trim() || (data.username ? `@${data.username}` : `Telegram ${telegramId}`);
-    const customer = await resolveCustomerByTelegram({ companyId: companyId(), telegramId, name });
+    let isNewTgCustomer = false;
+    const customer = await resolveCustomerByTelegram({ companyId: companyId(), telegramId, name, onCreate: () => { isNewTgCustomer = true; } });
     const profile = await ensureProfile(customer);
+    if (isNewTgCustomer) notifyAdminNewSafeDealUser({ email: customer.email, name, customerId: customer.customer_id, method: "telegram" });
     // First Telegram sign-in: stamp a friendly display name (never overwrite one the user chose).
     if (!profile?.display_name && name) {
       await sequelize.query(

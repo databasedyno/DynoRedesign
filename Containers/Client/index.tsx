@@ -255,14 +255,23 @@ const ClientLayout = ({
                   overflowX: "hidden",
                   display: "flex",
                   flexDirection: "column",
-                  // Content column: 1440px max, 32px gutters on desktop, 16px on
-                  // phones (dashboard-style pages own their phone gutters).
+                  // Content column: 1440px max on typical desktops, growing on
+                  // ultra-wide (≥2000px) screens so pages don't leave a large
+                  // blank gutter on the right (QA CC-004). 32px gutters on
+                  // desktop, 16px on phones (dashboard-style pages own their
+                  // phone gutters).
                   px: { xs: isDashboard ? 0 : 2, md: 4 },
                   // When a sticky page header is present IT carries the top
                   // padding (so its background covers the gap while scrolling
                   // and nothing bleeds through between the top bar and title).
                   pt: { xs: isDashboard || hasPageHeader ? 0 : 1.5, md: hasPageHeader ? 0 : 3 },
-                  "& > *": { width: "100%", maxWidth: 1440, mx: "auto" },
+                  "& > *": {
+                    width: "100%",
+                    maxWidth: 1440,
+                    mx: "auto",
+                    "@media (min-width:2000px)": { maxWidth: 1720 },
+                    "@media (min-width:2400px)": { maxWidth: 2040 },
+                  },
                   // Mobile: clear (a) the fixed bottom nav pill (~74px tall incl.
                   // its own offset) AND (b) the "Emily" support-chat FAB above
                   // it. Note: this outer container-level padding only helps
