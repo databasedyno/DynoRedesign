@@ -1304,6 +1304,96 @@ const EndpointCard = memo(({ ep }: { ep: Endpoint }) => {
 EndpointCard.displayName = "EndpointCard";
 
 /* ================================================================
+   NARRATIVE GUIDES (module scope — injected into their nav sections)
+   ================================================================ */
+const chip = (dk: boolean) => ({ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 });
+
+// Gap 1 — Test vs Live environments + the sandbox test loop.
+const TestingGuide = ({ dk }: { dk: boolean }) => (
+  <Box sx={{ mb: 3 }}>
+    <Typography sx={{ fontSize: 15, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1, mt: 1 }}>Test vs live</Typography>
+    <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mb: 2 }}>
+      Your key prefix decides the environment — nothing else in your integration changes. A <code style={chip(dk)}>dpk_test_</code> key creates <strong>sandbox</strong> payments (no real crypto, no on-chain settlement); a <code style={chip(dk)}>dpk_live_</code> key creates real ones. Test and live payments, webhook secrets and event logs are fully isolated.
+    </Typography>
+    <Typography sx={{ fontSize: 15, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1, mt: 2 }}>The test loop</Typography>
+    <Box component="ol" sx={{ pl: 2.5, mb: 2, "& li": { fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.9 } }}>
+      <li>Create a payment with your <code style={chip(dk)}>dpk_test_</code> key (e.g. <code style={chip(dk)}>POST /cryptoPayment</code>). It starts in <code style={chip(dk)}>pending</code>.</li>
+      <li>Advance it: call <code style={chip(dk)}>POST /simulatePayment/:payment_id</code> (below), or click <strong>Simulate</strong> in Developer › API keys. It walks <code style={chip(dk)}>pending → confirmed → settled</code>.</li>
+      <li>Your endpoint receives the real, <strong>signed</strong> <code style={chip(dk)}>payment.pending / payment.confirmed / payment.settled</code> webhooks — the same <code style={chip(dk)}>whsec_</code> secret and V2 signature spec as live.</li>
+    </Box>
+    <InfoBox>
+      <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1 }}>Sandbox limits</Typography>
+      <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7 }}>
+        Test keys can be capped for safety — an optional <strong>max amount</strong> and an <strong>allowed-currency</strong> list. A request above the cap, or a currency outside the list, is rejected with <code style={chip(dk)}>400 sandbox_restriction</code>. Raise the limits on the key, or use a <code style={chip(dk)}>dpk_live_</code> key for production amounts.
+      </Typography>
+    </InfoBox>
+    <Typography sx={{ fontSize: 15, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1, mt: 2 }}>Going live</Typography>
+    <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mb: 2 }}>
+      Swap your <code style={chip(dk)}>dpk_test_</code> key for a <code style={chip(dk)}>dpk_live_</code> key from Developer › API keys — the request shape and endpoints are identical. Live payments can never be advanced with Simulate (it returns <code style={chip(dk)}>403</code>).
+    </Typography>
+  </Box>
+);
+
+// Gap 2a — Embedded Checkout client integration.
+const EmbedGuide = ({ dk }: { dk: boolean }) => (
+  <Box sx={{ mb: 3 }}>
+    <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mb: 2 }}>
+      Embedded Checkout mounts the Dynopay payment UI inside your page. Two steps: create the session on your <strong>server</strong> (your secret key stays server-side), then mount it in the <strong>browser</strong> with the returned <code style={chip(dk)}>client_secret</code>.
+    </Typography>
+    <CodeBlock lang="javascript" code={`// 1) SERVER — create a session with your SECRET api key
+const r = await fetch('https://dynopay.com/api/user/embed/session', {
+  method: 'POST',
+  headers: { 'x-api-key': process.env.DYNOPAY_API_KEY, 'Content-Type': 'application/json' },
+  body: JSON.stringify({ amount: 49.99, currency: 'USD', webhook_url: 'https://you.com/webhooks/dynopay' }),
+});
+const { client_secret } = (await r.json()).data;   // safe to send to the browser
+
+// 2) BROWSER — load embed.js from your checkout origin, then mount inline
+Dynopay.initEmbeddedCheckout({
+  fetchClientSecret: async () => client_secret,
+}).then((checkout) => checkout.mount('#dynopay-checkout'));
+// ...or Dynopay.openCheckout({ fetchClientSecret }) to open it as a modal.`} />
+    <InfoBox>
+      <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1 }}>Confirm on the webhook, not the browser</Typography>
+      <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7 }}>
+        The <code style={chip(dk)}>onComplete</code> event is UX only — a customer can close the tab. Fulfil the order from the <code style={chip(dk)}>payment.settled</code> webhook. Sessions expire after <strong>24h</strong>; the <code style={chip(dk)}>client_secret</code> is safe for the browser, your <code style={chip(dk)}>x-api-key</code> is not.
+      </Typography>
+    </InfoBox>
+  </Box>
+);
+
+// Gap 2b — Elements inline widget client integration.
+const ElementsGuide = ({ dk }: { dk: boolean }) => (
+  <Box sx={{ mb: 3 }}>
+    <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mb: 2 }}>
+      Elements is an inline widget you style into your own checkout. Flow: create an <strong>intent</strong> on your server, mount the widget in the browser with your <strong>publishable</strong> key (<code style={chip(dk)}>pk_live_…</code>), and the customer picks a currency — which reserves a deposit address (<code style={chip(dk)}>select-currency</code>, idempotent). The SDK polls <code style={chip(dk)}>elements/status</code> roughly every 5s; the intent expires after <strong>24h</strong>.
+    </Typography>
+    <InfoBox>
+      <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1 }}>Publishable key in the browser</Typography>
+      <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7 }}>
+        Mount Elements with your domain-restricted <code style={chip(dk)}>pk_live_…</code> publishable key — never your secret <code style={chip(dk)}>x-api-key</code>. As always, confirm fulfilment from the <code style={chip(dk)}>payment.settled</code> webhook, not the widget completion event.
+      </Typography>
+    </InfoBox>
+  </Box>
+);
+
+// Gap 3 — Crypto payment lifecycle (confirmations, TTL, under/overpaid).
+const CryptoLifecycle = ({ dk }: { dk: boolean }) => (
+  <Box sx={{ mb: 3 }}>
+    <Typography sx={{ fontSize: 15, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1, mt: 1 }}>Payment lifecycle</Typography>
+    <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mb: 2 }}>
+      A crypto payment returns a single-use deposit address (and QR). The customer sends the crypto; once the network reaches the required confirmations for that asset the payment moves <code style={chip(dk)}>pending → confirmed → settled</code> and funds are forwarded to your wallet. The deposit window is <strong>24h</strong> — after that an unpaid payment goes <code style={chip(dk)}>expired</code>.
+    </Typography>
+    <Box component="ul" sx={{ pl: 2.5, mb: 2, "& li": { fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.9 } }}>
+      <li><strong>Underpaid</strong> — the address stays open for the remainder; <code style={chip(dk)}>payment.underpaid</code> reports how much arrived and how much is still owed.</li>
+      <li><strong>Overpaid</strong> — the payment settles and the <strong>entire excess is credited to you</strong> (the fee is charged once, on the expected amount).</li>
+      <li><strong>XRP / RLUSD</strong> — you must display the <code style={chip(dk)}>destination_tag</code> alongside the address, or the deposit cannot be credited.</li>
+      <li>Confirm fulfilment from the <code style={chip(dk)}>payment.settled</code> webhook (or re-verify with <code style={chip(dk)}>GET /getPaymentStatus/:payment_id</code>) — never the browser redirect.</li>
+    </Box>
+  </Box>
+);
+
+/* ================================================================
    MAIN PAGE
    ================================================================ */
 
@@ -1819,6 +1909,10 @@ const DocumentationPage = () => {
                   <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 2.5 }}>
                     {section.title}
                   </Typography>
+                  {section.id === "testing" && <TestingGuide dk={dk} />}
+                  {section.id === "embed" && <EmbedGuide dk={dk} />}
+                  {section.id === "elements" && <ElementsGuide dk={dk} />}
+                  {section.id === "payments" && <CryptoLifecycle dk={dk} />}
                   {section.endpoints!.map((epId) => {
                     const ep = endpointMap[epId];
                     return ep ? <EndpointCard key={ep.id} ep={ep} /> : null;
