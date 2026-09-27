@@ -53,6 +53,13 @@ All backend TS typechecks clean (`cd /app/backend && npx tsc --noEmit` → exit 
 2. **#2 one-off unblock** for customer **ahzraelsound@gmail.com**: their stuck sandbox checkout predates the `environment` stamp (`null`) → the new simulator REFUSES it → needs a manual DB drive or one-off. New sandbox checkouts (post-deploy) simulate cleanly via the endpoint.
 3. **E2E test the simulator** — controlled `dpk_test_` run + cleanup, or staging, or post-deploy smoke test.
 4. **Optional:** dashboard "Simulate payment" button (endpoint already covers ahzraelsound's API-only case).
+   - ✅ DONE (2026-09-27 pt2): shipped as a "Simulate a sandbox payment" card on Developers → API keys
+     (Components/Page/API/SandboxSimulatorCard.tsx in ApiKeysPage keys tab, shown when an active dpk_test_
+     key exists). New session-authed wrapper POST /api/userApi/transactions/:id/simulate
+     (apiController.simulateTransaction + apiRouter) reuses runSandboxSimulation with Gate 2 as the guard.
+     Verified read-only/fail-closed: BE tsc 0, FE tsc 0, ESLint 0, next build OK; endpoint 404/400/403(Gate2)/
+     403(owner) all correct; frontend UI+wiring confirmed by testing agent. Happy path still needs a real
+     sandbox txn (prod write) → verify post-deploy. NOT yet deployed to the droplet.
 5. **Deploy** via Save to GitHub → droplet; migration `0053` runs on boot.
 
 ## Git / rules

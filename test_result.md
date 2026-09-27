@@ -1,4 +1,36 @@
 # ============================================================================
+# >>> HANDOFF (2026-09-27 pt2) — MERCHANT DASHBOARD "SIMULATE PAYMENT" TESTING HELPER <<<
+# ============================================================================
+#   FEATURE (from memory/AGENT_HANDOFF.md pending item #4): a merchant-facing
+#   "Simulate a sandbox payment" card on the Developers → API keys page that walks
+#   a TEST-MODE payment pending→confirmed→settled and fires the signed webhooks.
+#
+#   BACKEND (new, session-authed wrapper around the existing simulator):
+#     POST /api/userApi/transactions/:id/simulate   body { company_id }
+#     - routes/apiRouter.ts (authMiddleware) -> controller/apiController.ts
+#       simulateTransaction() -> validateCompanyOwnership(...,"manage_api_keys")
+#       -> runSandboxSimulation({company_id, environment:'development'}, id).
+#     - Gate 2 (target txn must be environment='development') is the REAL guard:
+#       a live/legacy(null) payment is ALWAYS refused 403 -> can never touch real money.
+#   FRONTEND: Components/Page/API/SandboxSimulatorCard.tsx, rendered in
+#     Components/Page/API/ApiKeysPage.tsx (keys tab) when an active dpk_test_ key exists.
+#     testids: sandbox-simulator-card, sandbox-sim-payment-id-input,
+#              sandbox-sim-submit-btn, sandbox-sim-result, sandbox-sim-error.
+#
+#   VERIFIED (main agent, READ-ONLY / fail-closed, NO prod writes):
+#     BE tsc 0, FE tsc 0, ESLint 0, next build OK. Endpoint (merchant Bearer, user 1 / company 1):
+#       no-auth->403 CSRF; unknown id->404; missing company_id->400;
+#       real PRODUCTION txn->403 Gate2; real null-env txn->403 Gate2;
+#       company not owned (company_id 2)->403 access denied.
+#   NOT E2E-tested: the happy path (needs a real sandbox txn, which writes prod DB) — deferred to post-deploy.
+#
+#   ⚠️ SAFE MODE / LIVE PROD DB: do NOT create payments/keys/any data. The ONLY safe
+#   simulate call is with a BOGUS payment_id (returns 404, no write). Merchant login:
+#   onarrival21@gmail.com / Katiekendra123@ (2FA TOTP: node /app/backend/scripts/print_totp.cjs 1).
+# ============================================================================
+
+
+# ============================================================================
 # >>> HANDOFF (2026-09-27) — SAFEDEAL CASHOUT APPROVAL THRESHOLD = $200 + ADMIN EMAIL <<<
 # ============================================================================
 #   USER REQUEST: cashouts of $200 OR MORE (MANUAL user cashouts AND AUTO-cashouts)

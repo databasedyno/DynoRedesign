@@ -60,6 +60,12 @@ apiRouter.delete("/deleteApi/:id", authMiddleware, requireCompanyOwnerBy(resolve
 // Currency Configuration
 apiRouter.get("/availableCurrencies/:company_id", authMiddleware, apiController.getAvailableCurrencies);
 
+// Sandbox testing helper (Developers → API keys). Session-authed wrapper around
+// the test-mode simulator: drives a SANDBOX payment pending→confirmed→settled and
+// fires signed webhooks. Server-side Gate 2 refuses any non-sandbox transaction,
+// so this can never touch a live payment regardless of the caller.
+apiRouter.post("/transactions/:id/simulate", authMiddleware, apiController.simulateTransaction);
+
 // API Usage & Monitoring (NEW)
 apiRouter.get("/usage/:id", authMiddleware, apiController.getApiUsageStats);
 apiRouter.get("/logs/:id", authMiddleware, apiController.getApiLogs);

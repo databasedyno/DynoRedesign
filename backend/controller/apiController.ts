@@ -32,6 +32,7 @@ import { Op, QueryTypes } from "sequelize";
 import flw from "../apis/flutterwaveApi";
 import { emailDateParts } from "../utils/emailI18n";
 import { assertSafeOutboundUrl } from "../utils/outboundUrlGuard";
+import { runSandboxSimulation } from "./payment/simulateSandboxPayment";
 
 const addApi = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
@@ -1636,6 +1637,66 @@ const getAvailableCurrencies = async (req: express.Request, res: express.Respons
   }
 };
 
+/**
+ * Sandbox "Simulate payment" — session-authed dashboard wrapper.
+ *
+ * Lets the merchant dashboard (Developers → API keys → sandbox testing helper)
+ * drive a SANDBOX (test-mode) payment through pending → confirmed → settled and
+ * fire the signed payment.pending / .confirmed / .settled webhooks, WITHOUT any
+ * real crypto, custody or on-chain broadcast.
+ *
+ * Auth here is the normal dashboard session (authMiddleware) rather than a
+ * dpk_test_ API key, so we validate the caller's access to the company and then
+ * hand runSandboxSimulation a synthetic development context. The REAL safety net
+ * is Gate 2 inside runSandboxSimulation: it refuses any transaction that is not
+ * itself stamped environment='development', so a live payment can never be
+ * simulated here regardless of who calls it (fails closed).
+ */
+const simulateTransaction = async (req: express.Request, res: express.Response) => {
+  const userData = jwt.decode(res.locals.token) as IUserType;
+  try {
+    const paymentId = String(req.params.id || "").trim();
+    const companyId = (req.body && req.body.company_id) ?? req.query?.company_id;
+    if (!companyId) {
+      return errorResponseHelper(res, 400, "company_id is required.");
+    }
+    if (!paymentId) {
+      return errorResponseHelper(res, 400, "Please provide a valid payment_id.");
+    }
+
+    // Owner OR a team member with manage_api_keys may run sandbox simulations.
+    const companyData = await validateCompanyOwnership(
+      res,
+      String(companyId),
+      userData.user_id,
+      "manage_api_keys",
+    );
+    if (!companyData) return; // 403 already sent
+    const resolvedCompanyId =
+      Number((companyData as { company_id: number }).company_id) || Number(companyId);
+
+    const result = await runSandboxSimulation(
+      { company_id: resolvedCompanyId, environment: "development" },
+      paymentId,
+    );
+
+    if (result.error) {
+      return errorResponseHelper(res, result.status || 400, result.error);
+    }
+    return successResponseHelper(
+      res,
+      result.status || 200,
+      "Sandbox payment simulated",
+      result.data,
+    );
+  } catch (e) {
+    handleControllerError(res, e, apiLogger, {
+      user_id: userData?.user_id,
+      email: userData?.email,
+    });
+  }
+};
+
 export default {
   addApi,
   getApi,
@@ -1658,4 +1719,5 @@ export default {
   getApiLogs,
   updateRateLimit,
   getAvailableCurrencies,
+  simulateTransaction,
 };

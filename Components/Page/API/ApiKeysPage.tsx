@@ -28,6 +28,7 @@ import DeleteModel from "@/Components/UI/DeleteModel";
 import EmptyDataModel from "@/Components/UI/EmptyDataModel";
 import PublishableKeysSection from "./PublishableKeysSection";
 import BuyButtonsSection from "./BuyButtonsSection";
+import SandboxSimulatorCard from "./SandboxSimulatorCard";
 import WebhookConsoleSection from "./WebhookConsoleSection";
 import UnitedStatesFlag from "@/assets/Images/Icons/flags/united-states-flag.png";
 import { stringShorten } from "@/helpers";
@@ -1922,6 +1923,30 @@ const ApiKeysPage = ({
               keyHint={(sandboxKey as any)?.key_hint || ""}
               onRegenerate={() => handleRegenerate((sandboxKey as any).api_id)}
             />
+          </Box>
+        );
+      })()}
+
+      {(() => {
+        // Sandbox testing helper — drive a test-mode payment to settled + fire
+        // the signed webhooks. Only shown once an active development (dpk_test_)
+        // key exists, so the merchant has something to create a sandbox payment with.
+        if (!showKeys) return null;
+        const list: IApi[] = Array.isArray(apiState?.apiList) ? apiState.apiList : [];
+        const hasDevKey = list.some(
+          (k) => (k as { environment?: string })?.environment === "development" && k?.status === "active",
+        );
+        if (!hasDevKey) return null;
+        return (
+          <Box
+            sx={{
+              mb: isMobile ? 2 : 2.5,
+              opacity: 0,
+              animation: "fadeSlideIn 0.5s ease forwards",
+              ...itemAnimation,
+            }}
+          >
+            <SandboxSimulatorCard />
           </Box>
         );
       })()}
