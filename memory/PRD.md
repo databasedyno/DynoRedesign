@@ -1,3 +1,6 @@
+# LIVE VERIFIED 17:06Z after deploy f68006b8f (run 36334877919, canary→swap OK): https://safedeal.sh/signin in dark mode → data-theme=light, typed email rgb(18,18,20) visible.
+# ============================================================================================
+
 # === 2026-09-27 (fork) SAFEDEAL INPUT TEXT INVISIBLE ON DARK-MODE PHONES (safedeal.sh) — FIXED & VERIFIED (local Playwright vs prod build) ===
 # USER: "email typed is not visible on auth page. this issue persist everywhere" (iOS dark mode, safedeal.sh/signin: white text on the light field).
 # ROOT CAUSE: on the safedeal.sh HOST the middleware rewrites "/signin" → "/safedeal/signin" server-side, so the BROWSER path is "/signin". Both client-side "SafeDeal is always light" checks keyed on location.pathname (pages/_document.tsx blocking theme script + contexts/ThemeContext.tsx resolveTheme → isSafeDealPath) never matched there → device preference won → html[data-theme="dark"] → styles/globals.css dark safety net `html[data-theme="dark"] input { color:#FAFAFA }` applied while the SafeDeal MUI theme (forced appThemeLight by router pathname in _app) kept surfaces light → white text on light inputs on EVERY SafeDeal page for dark-mode devices. Preview (/safedeal/* path) never showed it.
