@@ -22,6 +22,7 @@ import {
   customerWalletModel,
   planModel,
   userWalletModel,
+  userTransactionModel,
 } from "../models";
 import { validateCompanyOwnership } from "../utils/validateCompanyOwnership";
 import { resolveMembership, membershipCan } from "../utils/permissions";
@@ -33,6 +34,7 @@ import flw from "../apis/flutterwaveApi";
 import { emailDateParts } from "../utils/emailI18n";
 import { assertSafeOutboundUrl } from "../utils/outboundUrlGuard";
 import { runSandboxSimulation } from "./payment/simulateSandboxPayment";
+import { parseState, toExternalStatus } from "../services/paymentStateMachine";
 
 const addApi = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
@@ -1697,6 +1699,179 @@ const simulateTransaction = async (req: express.Request, res: express.Response) 
   }
 };
 
+/**
+ * Create a SANDBOX (test-mode) payment — dashboard testing helper.
+ *
+ * Inserts a minimal test-mode transaction (environment='development', status
+ * 'pending') so the merchant can immediately "Simulate payment" on it. This is a
+ * pure synthetic row: it NEVER reserves a real merchant-pool address, starts a
+ * chain watcher, or moves any crypto (unlike the live /cryptoPayment flow). The
+ * merchant's active test (dpk_test_) key must exist; its webhook url/secret are
+ * copied onto the row so a later simulation fires the merchant's real webhooks.
+ */
+const createSandboxPayment = async (req: express.Request, res: express.Response) => {
+  const userData = jwt.decode(res.locals.token) as IUserType;
+  try {
+    const body = (req.body || {}) as Record<string, unknown>;
+    const companyId = body.company_id ?? req.query?.company_id;
+    if (!companyId) {
+      return errorResponseHelper(res, 400, "company_id is required.");
+    }
+
+    const companyData = await validateCompanyOwnership(
+      res,
+      String(companyId),
+      userData.user_id,
+      "manage_api_keys",
+    );
+    if (!companyData) return; // 403 already sent
+    const resolvedCompanyId =
+      Number((companyData as { company_id: number }).company_id) || Number(companyId);
+    const ownerUserId = Number((companyData as { user_id: number }).user_id);
+
+    // Require an active test key — a sandbox payment is meaningless without one,
+    // and we copy its webhook config so the simulation can fire real webhooks.
+    const devKeyRows = await sequelize.query<Record<string, unknown>>(
+      `SELECT webhook_url, webhook_secret, base_currency
+         FROM tbl_api
+        WHERE company_id = :cid AND environment = 'development' AND status = 'active'
+        ORDER BY "createdAt" DESC
+        LIMIT 1`,
+      { replacements: { cid: resolvedCompanyId }, type: QueryTypes.SELECT },
+    );
+    const devKey = devKeyRows[0];
+    if (!devKey) {
+      return errorResponseHelper(
+        res,
+        400,
+        "No active test key found. Create a test (dpk_test_) API key first.",
+      );
+    }
+
+    // Sanitise inputs — sandbox only, so a rough 1:1 crypto amount is fine.
+    let amount = Number(body.amount);
+    if (!Number.isFinite(amount) || amount <= 0) amount = 19.99;
+    amount = Math.min(Math.max(amount, 0.5), 1_000_000);
+    amount = Math.round(amount * 100) / 100;
+
+    const baseCurrency = String(
+      body.base_currency || (devKey.base_currency as string) || "USD",
+    )
+      .toUpperCase()
+      .replace(/[^A-Z]/g, "")
+      .slice(0, 6) || "USD";
+    const cryptoCurrency = String(body.crypto_currency || "USDT")
+      .toUpperCase()
+      .replace(/[^A-Z0-9]/g, "")
+      .slice(0, 12) || "USDT";
+
+    const paymentId = crypto.randomBytes(16).toString("hex");
+    const txRef = "sandbox_" + crypto.randomBytes(8).toString("hex");
+
+    await userTransactionModel.create({
+      id: paymentId,
+      user_id: ownerUserId,
+      company_id: resolvedCompanyId,
+      customer_id: null,
+      environment: "development",
+      status: "pending",
+      payment_mode: "CRYPTO",
+      transaction_type: "CREDIT",
+      base_amount: amount,
+      base_currency: baseCurrency,
+      usd_value: baseCurrency === "USD" ? amount : 0,
+      crypto_amount: amount,
+      crypto_currency: cryptoCurrency,
+      transaction_reference: txRef,
+      transaction_details: "Sandbox test payment (created from dashboard)",
+      webhook_url: (devKey.webhook_url as string) || null,
+      webhook_secret: (devKey.webhook_secret as string) || null,
+    } as never);
+
+    apiLogger.info(
+      `[SandboxCreate] Created sandbox payment ${paymentId} (company ${resolvedCompanyId}, ${amount} ${baseCurrency} / ${cryptoCurrency}).`,
+    );
+
+    return successResponseHelper(res, 201, "Sandbox payment created", {
+      payment_id: paymentId,
+      status: "pending",
+      environment: "development",
+      base_amount: amount,
+      base_currency: baseCurrency,
+      crypto_amount: amount,
+      crypto_currency: cryptoCurrency,
+      transaction_reference: txRef,
+    });
+  } catch (e) {
+    handleControllerError(res, e, apiLogger, {
+      user_id: userData?.user_id,
+      email: userData?.email,
+    });
+  }
+};
+
+/**
+ * List the merchant's recent SANDBOX (test-mode) payments so the dashboard can
+ * offer a one-click Simulate on each — no copy-pasting payment ids. Read-only;
+ * scoped to the caller's company and environment='development' only.
+ */
+const getRecentSandboxPayments = async (req: express.Request, res: express.Response) => {
+  const userData = jwt.decode(res.locals.token) as IUserType;
+  try {
+    const companyId = req.query?.company_id;
+    if (!companyId) {
+      return errorResponseHelper(res, 400, "company_id is required.");
+    }
+    const companyData = await validateCompanyOwnership(
+      res,
+      String(companyId),
+      userData.user_id,
+      "manage_api_keys",
+    );
+    if (!companyData) return; // 403 already sent
+    const resolvedCompanyId =
+      Number((companyData as { company_id: number }).company_id) || Number(companyId);
+
+    let limit = parseInt(String(req.query?.limit ?? "10"), 10);
+    if (!Number.isFinite(limit) || limit <= 0) limit = 10;
+    limit = Math.min(limit, 25);
+
+    const rows = await sequelize.query<Record<string, unknown>>(
+      `SELECT id, status, base_amount, base_currency, crypto_amount, crypto_currency,
+              transaction_reference, "createdAt"
+         FROM tbl_user_transaction
+        WHERE company_id = :cid AND environment = 'development'
+        ORDER BY "createdAt" DESC
+        LIMIT :limit`,
+      { replacements: { cid: resolvedCompanyId, limit }, type: QueryTypes.SELECT },
+    );
+
+    const payments = rows.map((r) => {
+      const raw = String(r.status || "");
+      const parsed = parseState(raw);
+      const external = parsed ? toExternalStatus(parsed) : raw;
+      return {
+        payment_id: r.id,
+        status: external,
+        base_amount: r.base_amount,
+        base_currency: r.base_currency,
+        crypto_amount: r.crypto_amount,
+        crypto_currency: r.crypto_currency,
+        transaction_reference: r.transaction_reference,
+        created_at: r.createdAt,
+        can_simulate: external !== "settled",
+      };
+    });
+
+    return successResponseHelper(res, 200, "Recent sandbox payments", { payments });
+  } catch (e) {
+    handleControllerError(res, e, apiLogger, {
+      user_id: userData?.user_id,
+      email: userData?.email,
+    });
+  }
+};
+
 export default {
   addApi,
   getApi,
@@ -1720,4 +1895,6 @@ export default {
   updateRateLimit,
   getAvailableCurrencies,
   simulateTransaction,
+  createSandboxPayment,
+  getRecentSandboxPayments,
 };

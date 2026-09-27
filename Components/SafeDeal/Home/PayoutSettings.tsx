@@ -5,7 +5,7 @@ import { SdAddress, SdWallet } from "@/api/safedeal";
 import { CoinBadge } from "../PayoutOptionLabel";
 import { SD_BORDER, SD_GOLD_DEEP, SD_NOTE_BG, SD_NOTE_FG, SD_PAGE, SD_TEXT_MUTED } from "../sdTheme";
 import { shortAddr } from "./WalletDialogs";
-import { AddressVerifyAction, AddressVerifyChip } from "./AddressVerify";
+import { AddressVerifyChip } from "./AddressVerify";
 
 interface Props {
   wallet: SdWallet;
@@ -45,7 +45,10 @@ export default function PayoutSettings({ wallet: w, onAdd, onRemove, onToggleAut
                   <IconButton size="small" onClick={() => onRemove(a)} data-testid={`sd-address-remove-${a.address_id}`} aria-label={`Remove address ${a.label || a.coin}`}><Icon icon="mdi:trash-can-outline" width={18} /></IconButton>
                 </Tooltip>
               </Stack>
-              <AddressVerifyAction address={a} onVerified={onVerified} />
+              {/* HIDDEN per request — WalletConnect "Verify it's yours" ownership check removed.
+                  Payout addresses are verified by the OTP step-up on add + address-format
+                  validation; on-chain wallet-signature verification is no longer required. */}
+              {/* <AddressVerifyAction address={a} onVerified={onVerified} /> */}
             </Box>
           ))}
         </Stack>

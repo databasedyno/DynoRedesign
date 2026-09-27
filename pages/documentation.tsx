@@ -2120,13 +2120,20 @@ const DocumentationPage = () => {
 
 // Verify against the RAW request body. Reject anything older than ±300s (replay).
 function verifyWebhookV2(rawBody, headerV2, secret, toleranceSec = 300) {
-  const parts = Object.fromEntries(String(headerV2).split(',').map((kv) => kv.split('=')));
-  const t = Number(parts.t);
+  const tokens = String(headerV2).split(',').map((s) => s.trim());
+  const t = Number((tokens.find((p) => p.startsWith('t=')) || '').slice(2));
   if (!t || Math.abs(Date.now() / 1000 - t) > toleranceSec) return false;
   const expected = crypto.createHmac('sha256', secret).update(\`\${t}.\${rawBody}\`).digest('hex');
-  const got = Buffer.from(parts.v1 || '', 'hex');
   const exp = Buffer.from(expected, 'hex');
-  return got.length === exp.length && crypto.timingSafeEqual(got, exp);
+  // During a secret rotation DynoPay sends MULTIPLE v1= values (current +
+  // previous, ~24h grace). Match if ANY verifies — always scan them all,
+  // never just parse a single v1 (Object.fromEntries would drop all but the last).
+  return tokens
+    .filter((p) => p.startsWith('v1='))
+    .some((p) => {
+      const got = Buffer.from(p.slice(3), 'hex');
+      return got.length === exp.length && crypto.timingSafeEqual(got, exp);
+    });
 }
 
 // Express — capture the raw body so the bytes are byte-identical to what was signed.
