@@ -705,6 +705,31 @@ const ENDPOINTS: Endpoint[] = [
 }`,
   },
   {
+    id: "simulate-payment",
+    method: "POST",
+    path: "/simulatePayment/:payment_id",
+    title: "Simulate Payment (test mode only)",
+    description:
+      "Test-mode only. Drives a sandbox payment through pending → confirmed → settled and fires the signed payment.pending / payment.confirmed / payment.settled webhooks — without any real crypto, custody, or on-chain settlement. Requires a test (dpk_test_) API key, and only works on payments created with a test key (live payments are always refused). Flow: create a sandbox checkout with your dpk_test_ key (e.g. via /cryptoPayment), take the returned payment_id, then call this endpoint to walk it to settled. Idempotent — a payment already settled is a no-op.",
+    auth: "api-key",
+    headers: [
+      { name: "x-api-key", value: "dpk_test_your_key", description: "Your test (sandbox) API key. Live (dpk_live_) keys are rejected with 403." },
+    ],
+    pathParams: [{ name: "payment_id", type: "string", description: "The payment_id from the sandbox cryptoPayment / checkout response" }],
+    responseExample: `{
+  "success": true,
+  "message": "Sandbox payment simulated",
+  "data": {
+    "payment_id": "0f3a89a2-27bc-4729-898c-d03492854540",
+    "simulated": true,
+    "final_status": "settled",
+    "settlement_tx_id": "SIMULATED-9f3c8b1a...",
+    "events_fired": ["payment.pending", "payment.confirmed", "payment.settled"],
+    "note": "Sandbox payment advanced to settled and webhooks were dispatched (signed when a webhook secret is configured)."
+  }
+}`,
+  },
+  {
     id: "add-funds",
     method: "POST",
     path: "/addFunds",
@@ -1058,6 +1083,7 @@ const SECTIONS: Section[] = [
   { id: "elements", title: "Elements Inline Widget", icon: <CodeIcon />, endpoints: ["elements-intent", "elements-select-currency", "elements-status"] },
   { id: "wallets", title: "Wallets", icon: <AccountBalanceWalletIcon />, endpoints: ["add-funds", "use-wallet", "get-balance"] },
   { id: "transactions", title: "Transactions", icon: <ReceiptLongIcon />, endpoints: ["get-transactions", "get-single-transaction", "get-crypto-transaction", "get-payment-status"] },
+  { id: "testing", title: "Testing (Sandbox)", icon: <CodeIcon />, endpoints: ["simulate-payment"] },
   { id: "events", title: "Webhook Events", icon: <NotificationsActiveIcon />, endpoints: ["get-events", "resend-event"] },
   { id: "currencies", title: "Currencies", icon: <CurrencyExchangeIcon />, endpoints: ["get-supported-currency"] },
   { id: "wallet-management", title: "Customer Wallet Adjustments", icon: <AccountBalanceWalletIcon />, endpoints: ["admin-credit-wallet", "admin-debit-wallet"] },
@@ -2085,7 +2111,7 @@ const DocumentationPage = () => {
                   Signature Verification
                 </Typography>
                 <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mb: 2 }}>
-                  Verify the signature header to ensure webhook requests are authentic and haven&apos;t been tampered with. Prefer <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>X-Dynopay-Signature-V2</code>: it is signed over the <strong>exact bytes on the wire</strong>, so you can verify it in any language without re-serialising the parsed JSON. Both headers are sent while you migrate; the legacy <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>X-DynoPay-Signature</code> will be removed after the migration window closes. Signatures are sent <strong>only when your endpoint has a signing secret</strong> — saving a webhook URL auto-generates a <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>whsec_…</code> secret (shown once); endpoints without one receive the payload unsigned.
+                  Verify the signature header to ensure webhook requests are authentic and haven&apos;t been tampered with. Prefer <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>X-Dynopay-Signature-V2</code>: it is signed over the <strong>exact bytes on the wire</strong>, so you can verify it in any language without re-serialising the parsed JSON. Both headers are sent while you migrate; the legacy <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>X-DynoPay-Signature</code> will be removed after the migration window closes. Signatures are sent <strong>only when your endpoint has a signing secret</strong> — saving a webhook URL (or creating an API key) auto-generates a <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>whsec_…</code> secret (shown once); endpoints without one receive the payload unsigned.
                 </Typography>
                 <Typography sx={{ fontSize: 15, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1, mt: 2 }}>
                   V2 (recommended)
