@@ -12,7 +12,7 @@ import CustomButton from "@/Components/UI/Buttons";
 import PanelCard from "@/Components/UI/PanelCard";
 
 import { ApiAction } from "@/Redux/Actions";
-import { API_DELETE, API_FETCH, API_REGENERATE, API_TOGGLE_STATUS } from "@/Redux/Actions/ApiAction";
+import { API_DELETE, API_FETCH, API_REGENERATE, API_TOGGLE_STATUS, API_CLEAR_REVEALED } from "@/Redux/Actions/ApiAction";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import CopyIcon from "@/assets/Icons/copy-icon.svg";
 import CopyInline from "@/Components/UX/CopyInline";
@@ -1539,6 +1539,15 @@ const ApiKeysPage = ({
     const payload = selectedCompanyId ? { company_id: selectedCompanyId } : undefined;
     dispatch(ApiAction(API_FETCH, payload));
   }, [selectedCompanyId]);
+
+  // Honor the "won't be shown again once you leave this page" promise: freshly
+  // generated/regenerated plaintext keys live only in-memory (Redux), so wipe
+  // them when the keys view unmounts (tab switch or navigation away).
+  useEffect(() => {
+    return () => {
+      dispatch({ type: API_CLEAR_REVEALED });
+    };
+  }, [dispatch]);
 
   const handleCopy = (value: string) => {
     if (!value) return;

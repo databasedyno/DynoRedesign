@@ -9,6 +9,7 @@ import {
   API_UPDATE,
   API_REGENERATE,
   API_TOGGLE_STATUS,
+  API_CLEAR_REVEALED,
 } from "../Actions/ApiAction";
 
 const apiInitialState: IApiReducer = {
@@ -84,6 +85,12 @@ const apiReducer = (state = apiInitialState, action: ReducerAction) => {
             ? { ...api, status: payload.status }
             : api
         ),
+      };
+
+    case API_CLEAR_REVEALED:
+      return {
+        ...state,
+        revealedKeys: {},
       };
 
     case API_ERROR:

@@ -6,6 +6,7 @@ export const API_ERROR = "API_ERROR";
 export const API_UPDATE = "API_UPDATE";
 export const API_REGENERATE = "API_REGENERATE";
 export const API_TOGGLE_STATUS = "API_TOGGLE_STATUS";
+export const API_CLEAR_REVEALED = "API_CLEAR_REVEALED";
 
 export const ApiAction = (type?: string, data?: any) => {
   return { type: API_INIT, payload: data, crudType: type };
