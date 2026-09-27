@@ -1498,7 +1498,6 @@ const testWebhook = async (req: express.Request, res: express.Response) => {
   try {
     const company_id = req.params.id;
     const crypto = require('crypto');
-    const axios = require('axios');
 
     // Get company webhook settings
     const queryResult = await sequelize.query<{ webhook_url?: string; webhook_secret?: string; company_name?: string }>(
@@ -1517,6 +1516,24 @@ const testWebhook = async (req: express.Request, res: express.Response) => {
 
     if (!result.webhook_url) {
       return errorResponseHelper(res, 400, "No webhook URL configured. Please set a webhook URL first.");
+    }
+
+    // SSRF guard (parity with live delivery in webhooks/index.ts): reject
+    // metadata/loopback/RFC1918/*.internal targets — as literals and after DNS
+    // resolution — before we ever open a connection. Prevents the "send test
+    // webhook" button from being used to probe the internal network.
+    try {
+      await assertSafeOutboundUrl(result.webhook_url);
+    } catch (guardErr) {
+      companyLogger.warn(
+        `Blocked unsafe test webhook URL: ${result.webhook_url}`,
+        { user_id: userData.user_id, company_id }
+      );
+      return errorResponseHelper(
+        res,
+        400,
+        guardErr instanceof Error ? guardErr.message : "Webhook URL is not allowed."
+      );
     }
 
     // Create test payload
@@ -1557,13 +1574,11 @@ const testWebhook = async (req: express.Request, res: express.Response) => {
       { user_id: userData.user_id, company_id }
     );
 
-    // Send test webhook
+    // Send test webhook — SSRF-safe: follows redirects manually and re-runs the
+    // guard on every hop (blocks redirect-based SSRF to internal hosts).
     const startTime = Date.now();
     try {
-      const response = await axios.post(result.webhook_url, testRawBody, {
-        timeout: 10000,
-        headers,
-      });
+      const { response } = await postWithSafeRedirects(result.webhook_url, testRawBody, headers, 10000);
 
       const responseTime = Date.now() - startTime;
 
@@ -1934,6 +1949,7 @@ import {
 } from "./company/autoConvert";
 import { getConversionSavings } from "./company/conversionSavings";
 import { assertSafeOutboundUrl } from "../utils/outboundUrlGuard";
+import { postWithSafeRedirects } from "../utils/webhookRedirect";
 
 
 // ── Fee-Free Status ─────────────────────────────────────────────────────────

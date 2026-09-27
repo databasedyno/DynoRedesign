@@ -31,6 +31,7 @@ import sequelize from "../utils/dbInstance";
 import { Op, QueryTypes } from "sequelize";
 import flw from "../apis/flutterwaveApi";
 import { emailDateParts } from "../utils/emailI18n";
+import { assertSafeOutboundUrl } from "../utils/outboundUrlGuard";
 
 const addApi = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
@@ -44,6 +45,8 @@ const addApi = async (req: express.Request, res: express.Response) => {
       environment = 'production', // Default to production
       expires_in_days,
       expires_at,
+      webhook_url,
+      webhook_secret,
     } = req.body;
 
     // Validate environment
@@ -224,6 +227,27 @@ const addApi = async (req: express.Request, res: express.Response) => {
       expiresAtValue = new Date(Date.now() + Number(expires_in_days) * 24 * 60 * 60 * 1000);
     }
 
+    // Auto-provision a webhook signing secret so API-only merchants get SIGNED
+    // webhooks BY DEFAULT (parity with the dashboard "generate" flow). The
+    // secret lives on tbl_api.webhook_secret and is used to compute
+    // X-Dynopay-Signature-V2 for payments created with this key. A merchant may
+    // supply their own; otherwise we mint a Stripe-style secret revealed ONCE
+    // in this response (never retrievable again).
+    let effectiveWebhookUrl: string | null = webhook_url || null;
+    if (effectiveWebhookUrl) {
+      try {
+        await assertSafeOutboundUrl(effectiveWebhookUrl);
+      } catch (e) {
+        return errorResponseHelper(res, 400, e instanceof Error ? e.message : "Invalid webhook URL");
+      }
+    }
+    const merchantSuppliedSecret =
+      typeof webhook_secret === 'string' && webhook_secret && webhook_secret !== 'generate'
+        ? webhook_secret
+        : null;
+    const effectiveWebhookSecret: string =
+      merchantSuppliedSecret || ('whsec_' + crypto.randomBytes(24).toString('hex'));
+
     const resData = await apiModel.create({
       company_id,
       base_currency: finalCurrency,
@@ -241,6 +265,8 @@ const addApi = async (req: express.Request, res: express.Response) => {
       status: 'active',
       test_mode_restrictions: testModeRestrictions,
       expires_at: expiresAtValue,
+      webhook_url: effectiveWebhookUrl,
+      webhook_secret: effectiveWebhookSecret,
       request_count: 0,
       rate_limit_per_minute: 60,
       rate_limit_per_hour: 3600,
@@ -264,6 +290,11 @@ const addApi = async (req: express.Request, res: express.Response) => {
       key_hint: keyHint,
       permissions: apiPermissions,
       environment,
+      // Webhook signing secret — revealed ONCE here (placed after the spreads so
+      // it can't be shadowed by the company row's own secret). Store it now.
+      webhook_secret: effectiveWebhookSecret,
+      webhook_secret_auto_generated: !merchantSuppliedSecret,
+      webhook_note: 'Store this webhook signing secret now — it is shown only once and verifies X-Dynopay-Signature-V2 on your webhooks.',
       currency_synced: devKeyUpdated,
       ...(devKeyUpdated && { 
         sync_info: `Development key updated from ${existingDevKey?.dataValues.base_currency} to ${finalCurrency}` 
@@ -337,7 +368,7 @@ const getApi = async (req: express.Request, res: express.Response) => {
     // The credential itself is never returned: legacy rows may still carry the
     // pre-0025 ciphertext until the prod wipe job runs, so strip it explicitly.
     const formattedData = resData.map((row: Record<string, unknown>) => {
-      const { apiKey: _omitKey, key_hash: _omitHash, ...api } = row;
+      const { apiKey: _omitKey, key_hash: _omitHash, webhook_secret: _whSecret, ...api } = row;
       return {
         ...api,
         permissions: api.permissions ? JSON.parse(String(api.permissions)) : ["payments", "transactions", "webhooks", "wallets"],
@@ -345,6 +376,9 @@ const getApi = async (req: express.Request, res: express.Response) => {
         // Normalize: newer rows store the admin token in `admin_token`; legacy rows in `adminToken`.
         adminToken: api.admin_token || api.adminToken || null,
         apiKey_masked: api.key_hint || null,
+        // Signing secret is never echoed in full on read — only a masked hint.
+        webhook_secret_set: !!_whSecret,
+        webhook_secret: _whSecret ? '***' + String(_whSecret).slice(-8) : null,
         environment: api.environment,
       };
     });
@@ -621,11 +655,14 @@ const getApiById = async (req: express.Request, res: express.Response) => {
       return errorResponseHelper(res, 404, "API key not found");
     }
 
-    const { apiKey: _omitKey, key_hash: _omitHash, ...api } = resData[0] as Record<string, unknown>;
+    const { apiKey: _omitKey, key_hash: _omitHash, webhook_secret: _whSecret, ...api } = resData[0] as Record<string, unknown>;
     const formattedData = {
       ...api,
       apiKey_masked: api.key_hint || null,
       permissions: api.permissions ? JSON.parse(String(api.permissions)) : ["payments", "transactions", "webhooks", "wallets"],
+      // Signing secret is never echoed in full on read — only a masked hint.
+      webhook_secret_set: !!_whSecret,
+      webhook_secret: _whSecret ? '***' + String(_whSecret).slice(-8) : null,
     };
 
     successResponseHelper(res, 200, "API retrieved successfully", formattedData);
@@ -711,11 +748,27 @@ const updateApi = async (req: express.Request, res: express.Response) => {
     }
     
     if (webhook_url !== undefined) {
+      if (webhook_url) {
+        try {
+          await assertSafeOutboundUrl(webhook_url);
+        } catch (e) {
+          return errorResponseHelper(res, 400, e instanceof Error ? e.message : "Invalid webhook URL");
+        }
+      }
       updateData.webhook_url = webhook_url || null;
     }
     
+    // "generate" mints a fresh Stripe-style signing secret, revealed ONCE below —
+    // lets existing API-only merchants opt into signed webhooks without
+    // recreating the key. Any other value is stored verbatim; masked on read.
+    let revealSecret: string | null = null;
     if (webhook_secret !== undefined) {
-      updateData.webhook_secret = webhook_secret || null;
+      if (webhook_secret === 'generate') {
+        revealSecret = 'whsec_' + crypto.randomBytes(24).toString('hex');
+        updateData.webhook_secret = revealSecret;
+      } else {
+        updateData.webhook_secret = webhook_secret || null;
+      }
     }
     
     if (notes !== undefined) {
@@ -752,11 +805,21 @@ const updateApi = async (req: express.Request, res: express.Response) => {
       attributes: { exclude: ["apiKey", "key_hash"] },
     });
 
+    // Never echo the stored signing secret in plaintext. Reveal the full value
+    // ONLY when it was just generated; otherwise return a masked hint.
+    const { webhook_secret: _storedSecret, ...safeApiValues } = (updatedApi?.dataValues || {}) as Record<string, unknown>;
     const responseData = {
-      ...updatedApi?.dataValues,
+      ...safeApiValues,
       permissions: updatedApi?.dataValues.permissions 
         ? JSON.parse(updatedApi.dataValues.permissions) 
         : ["payments", "transactions", "webhooks", "wallets"],
+      webhook_secret: revealSecret
+        ? revealSecret
+        : (_storedSecret ? '***' + String(_storedSecret).slice(-8) : null),
+      ...(revealSecret && {
+        webhook_secret_generated: true,
+        webhook_note: 'Store this webhook signing secret now — it is shown only once.',
+      }),
     };
 
     apiLogger.info(`API ${api_id} updated by user ${userData.user_id}`);

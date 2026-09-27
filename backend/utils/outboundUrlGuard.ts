@@ -23,14 +23,62 @@ const v4Private = (ip: string): boolean => {
   );
 };
 
+/** Expand any textual IPv6 into its 8 16-bit groups; null if unparseable. */
+const parseV6Groups = (ip: string): number[] | null => {
+  let s = ip;
+  const pct = s.indexOf("%");
+  if (pct >= 0) s = s.slice(0, pct); // drop zone id
+  // Convert a trailing embedded IPv4 (e.g. ::ffff:1.2.3.4) into two hextets.
+  const v4 = s.match(/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/);
+  if (v4 && v4.index !== undefined) {
+    const p = v4[1].split(".").map(Number);
+    if (p.some((n) => n > 255)) return null;
+    const hex =
+      (((p[0] << 8) | p[1]) >>> 0).toString(16) + ":" + (((p[2] << 8) | p[3]) >>> 0).toString(16);
+    s = s.slice(0, v4.index) + hex;
+  }
+  const halves = s.split("::");
+  if (halves.length > 2) return null;
+  const toGroups = (part: string): number[] =>
+    part === "" ? [] : part.split(":").map((h) => parseInt(h, 16));
+  const head = toGroups(halves[0]);
+  const tail = halves.length === 2 ? toGroups(halves[1]) : [];
+  let groups: number[];
+  if (halves.length === 1) {
+    groups = head;
+  } else {
+    const missing = 8 - head.length - tail.length;
+    if (missing < 0) return null;
+    groups = [...head, ...Array(missing).fill(0), ...tail];
+  }
+  if (groups.length !== 8 || groups.some((g) => Number.isNaN(g) || g < 0 || g > 0xffff)) return null;
+  return groups;
+};
+
+/** Embedded IPv4 (dotted) if `ip` is an IPv4-mapped/compatible IPv6, else null. */
+const mappedV4FromV6 = (ip: string): string | null => {
+  const g = parseV6Groups(ip);
+  if (!g) return null;
+  const firstFourZero = g[0] === 0 && g[1] === 0 && g[2] === 0 && g[3] === 0 && g[4] === 0;
+  // ::ffff:a.b.c.d (mapped, g5=0xffff) and ::a.b.c.d (compat, g5=0).
+  if (firstFourZero && (g[5] === 0xffff || g[5] === 0)) {
+    const hi = g[6], lo = g[7];
+    if (g[5] === 0 && hi === 0 && (lo === 0 || lo === 1)) return null; // :: / ::1 → caller handles
+    return `${(hi >> 8) & 0xff}.${hi & 0xff}.${(lo >> 8) & 0xff}.${lo & 0xff}`;
+  }
+  return null;
+};
+
 export const isPrivateIp = (ip: string): boolean => {
   const kind = net.isIP(ip);
   if (kind === 4) return v4Private(ip);
   if (kind !== 6) return true;
   const lower = ip.toLowerCase();
   if (lower === "::" || lower === "::1") return true;
-  const mapped = lower.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/);
-  if (mapped) return v4Private(mapped[1]);
+  // IPv4-mapped/compatible IPv6 in ANY textual form (::ffff:7f00:1,
+  // 0:0:0:0:0:ffff:7f00:1, ::ffff:127.0.0.1, …) → judge by embedded IPv4.
+  const mapped = mappedV4FromV6(lower);
+  if (mapped) return v4Private(mapped);
   return /^(fc|fd|fe[89ab]|ff)/.test(lower);
 };
 
