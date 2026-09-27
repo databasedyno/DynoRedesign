@@ -50,6 +50,15 @@ jest.mock('../webhooks', () => ({
   callMerchantWebhook: jest.fn().mockResolvedValue({ success: true }),
 }));
 
+// On-chain verification gate (Stage 6b). Default = verified; individual tests override.
+jest.mock('../services/chainTxVerifier', () => {
+  class ChainVerifyRetry extends Error {}
+  return {
+    ChainVerifyRetry,
+    gateIncomingTx: jest.fn().mockResolvedValue({ decision: 'ok', result: { status: 'verified' }, note: 'verified' }),
+  };
+});
+
 jest.mock('../services/merchantPool/merchantPoolConfig', () => ({
   ADMIN_WALLETS: { BTC: '0xAdminBTC', ETH: '0xAdminETH' },
   FEE_WALLETS: { TRX: '0xFeeTRX', ETH: '0xFeeETH' },
@@ -76,6 +85,7 @@ import { paymentController } from '../controller';
 import tatumApi from '../apis/tatumApi';
 import { callMerchantWebhook } from '../webhooks';
 import { sendPendingPaymentNotification } from '../services/pendingPaymentService';
+import { gateIncomingTx, ChainVerifyRetry } from '../services/chainTxVerifier';
 import { companyModel, merchantPoolTransactionModel } from '../models';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -159,6 +169,7 @@ describe('Webhook Processor — processWebhookJob', () => {
     (sendPendingPaymentNotification as jest.Mock).mockResolvedValue(undefined);
     (tatumApi.getXrpDestinationTag as jest.Mock).mockResolvedValue(null);
     (companyModel.findOne as jest.Mock).mockResolvedValue(null);
+    (gateIncomingTx as jest.Mock).mockResolvedValue({ decision: 'ok', result: { status: 'verified' }, note: 'verified' });
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1143,6 +1154,93 @@ describe('Webhook Processor — processWebhookJob', () => {
       );
       // Must NOT try to acquire main lock or call cryptoVerification
       expect(paymentController.cryptoVerification).not.toHaveBeenCalled();
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Stage 6b: On-chain verification gate (forged-webhook defence, 2026-09-27)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe('Stage 6b — On-chain verification gate', () => {
+    it('calls the gate with the resolved address, currency, amount and payment id before any state change', async () => {
+      seedRedis('crypto-0xTestAddress', createRedisPaymentData({ currency: 'ETH', payment_id: 'pay-gate-1' }));
+
+      await processWebhookJob(createJobData({ amount: '1.5', txId: 'tx-gate-1', asset: 'ETH' }));
+
+      expect(gateIncomingTx).toHaveBeenCalledTimes(1);
+      expect(gateIncomingTx).toHaveBeenCalledWith(expect.objectContaining({
+        txId: 'tx-gate-1', address: '0xTestAddress', currency: 'ETH', amount: 1.5, paymentId: 'pay-gate-1',
+      }));
+      expect(paymentController.cryptoVerification).toHaveBeenCalled();
+    });
+
+    it('FORGED webhook (chain says mismatch) → dropped, marked processed for 48h, nothing settled, no merchant webhook, no notification', async () => {
+      seedRedis('crypto-0xTestAddress', createRedisPaymentData({ status: 'pending' }));
+      (gateIncomingTx as jest.Mock).mockResolvedValue({ decision: 'rejected', result: { status: 'mismatch', reason: 'not found on chain' }, note: 'tx pays nothing to 0xTestAddress' });
+
+      await processWebhookJob(createJobData({ txId: 'tx-forged-1', amount: '100' }));
+
+      expect(paymentController.cryptoVerification).not.toHaveBeenCalled();
+      expect(callMerchantWebhook).not.toHaveBeenCalled();
+      expect(sendPendingPaymentNotification).not.toHaveBeenCalled();
+      expect(mockStore['crypto-0xTestAddress'].status).toBe('pending');
+      expect(mockStore['crypto-0xTestAddress'].txId).toBeUndefined();
+      expect(setRedisItem).toHaveBeenCalledWith('processed-tx-tx-forged-1', expect.objectContaining({ processed: true, type: 'onchain_rejected' }));
+      expect(setRedisTTL).toHaveBeenCalledWith('processed-tx-tx-forged-1', 172800);
+      expect(releaseLock).toHaveBeenCalledWith('tatum-webhook-tx-forged-1');
+    });
+
+    it('tx not indexed yet (ChainVerifyRetry) → job rethrows for BullMQ retry, lock released, no dedup key written, state untouched', async () => {
+      seedRedis('crypto-0xTestAddress', createRedisPaymentData({ status: 'pending' }));
+      (gateIncomingTx as jest.Mock).mockRejectedValue(new ChainVerifyRetry('CHAIN_VERIFY_RETRY not_found: tx not indexed'));
+
+      await expect(processWebhookJob(createJobData({ txId: 'tx-late-1' }))).rejects.toBeInstanceOf(ChainVerifyRetry);
+
+      expect(paymentController.cryptoVerification).not.toHaveBeenCalled();
+      expect(mockStore['processed-tx-tx-late-1']).toBeUndefined();
+      expect(mockStore['crypto-0xTestAddress'].status).toBe('pending');
+      expect(releaseLock).toHaveBeenCalledWith('tatum-webhook-tx-late-1');
+    });
+
+    it('a rejected forged tx is NOT re-processed on redelivery (dedup key honoured)', async () => {
+      seedRedis('crypto-0xTestAddress', createRedisPaymentData());
+      (gateIncomingTx as jest.Mock).mockResolvedValue({ decision: 'rejected', result: { status: 'mismatch', reason: 'x' }, note: 'x' });
+
+      await processWebhookJob(createJobData({ txId: 'tx-forged-2' }));
+      jest.clearAllMocks();
+      (getRedisItem as jest.Mock).mockImplementation((key: string) => Promise.resolve(mockStore[key] ?? null));
+      await processWebhookJob(createJobData({ txId: 'tx-forged-2' }));
+
+      expect(gateIncomingTx).not.toHaveBeenCalled();
+      expect(acquireLock).not.toHaveBeenCalled();
+    });
+
+    it('gate runs AFTER the cheap guards: already-successful payment never hits the chain', async () => {
+      seedRedis('crypto-0xTestAddress', createRedisPaymentData({ status: 'successful', txId: 'tx-old' }));
+
+      await processWebhookJob(createJobData({ txId: 'tx-new' }));
+
+      expect(gateIncomingTx).not.toHaveBeenCalled();
+    });
+
+    it('gate runs AFTER asset validation: wrong-asset spam never hits the chain', async () => {
+      seedRedis('crypto-0xTestAddress', createRedisPaymentData({ currency: 'ETH' }));
+
+      await processWebhookJob(createJobData({ asset: '0xSomeSpamTokenContract000000000000000000' }));
+
+      expect(gateIncomingTx).not.toHaveBeenCalled();
+      expect(paymentController.cryptoVerification).not.toHaveBeenCalled();
+    });
+
+    it('passes the XRP destination tag resolved from the master address to the gate', async () => {
+      (tatumApi.getXrpDestinationTag as jest.Mock).mockResolvedValue(777);
+      const { getCryptoRedisKey } = require('../services/merchantPool/merchantPoolConfig');
+      (getCryptoRedisKey as jest.Mock).mockReturnValue('crypto-rMasterXRP123-tag-777');
+      seedRedis('crypto-rMasterXRP123-tag-777', createRedisPaymentData({ currency: 'XRP', amount: '25', payment_id: 'pay-xrp-1' }));
+
+      await processWebhookJob(createJobData({ address: 'rMasterXRP123', txId: 'tx-xrp-1', asset: 'XRP', amount: '25' }));
+
+      expect(gateIncomingTx).toHaveBeenCalledWith(expect.objectContaining({ address: 'rMasterXRP123', currency: 'XRP', destinationTag: 777, amount: 25 }));
     });
   });
 });

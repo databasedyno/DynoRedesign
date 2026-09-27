@@ -638,6 +638,37 @@ export async function processWebhookJob(data: WebhookJobData): Promise<void> {
       return;
     }
 
+    // ── 6b. ON-CHAIN VERIFICATION (2026-09-27) ───────────────────────────────
+    // The notification is NOT the source of truth — the chain is. Before ANY state
+    // change, fetch payload.txId from the blockchain and require it to pay `address`
+    // in the expected asset for ≥ the claimed amount, mined, not a replay. Unsigned
+    // Tatum webhooks are accepted upstream, so without this a forged payload would
+    // emit payment.confirmed (and fund SafeDeal escrow) with no money on chain.
+    // Retryable outcomes (not indexed yet / pending / API error) throw so BullMQ
+    // retries with backoff; definitive mismatches drop the webhook for good.
+    {
+      const { gateIncomingTx } = require("./chainTxVerifier");
+      // Throws ChainVerifyRetry when the chain hasn't caught up yet → BullMQ retry (lock released in finally).
+      const gate: { decision: "ok" | "rejected"; note: string } = await gateIncomingTx({
+        txId: payload.txId,
+        address,
+        currency: expectedCurrency || items.currency,
+        amount: incomingAmount,
+        destinationTag: resolvedDestinationTag,
+        paymentId: items.payment_id || items.unique_tx_id || null,
+      });
+      if (gate.decision === "rejected") {
+        log(`[WebhookProcessor] ⛔ ON-CHAIN VERIFICATION FAILED — dropping webhook tx=${payload.txId} addr=${address} amount=${incomingAmount} ${expectedCurrency}: ${gate.note}`, "error");
+        try {
+          const { logWebhookValidationFailure } = require("../utils/securityLogger");
+          logWebhookValidationFailure("chain", address, `tx ${payload.txId}: ${gate.note}`);
+        } catch { /* audit log is best-effort */ }
+        await setRedisItem(processedTxKey, { processed: true, type: "onchain_rejected", reason: gate.note, timestamp: new Date().toISOString() });
+        await setRedisTTL(processedTxKey, 172800); // 48h — don't re-queue a forged tx on every restart
+        return;
+      }
+    }
+
     // ── RELIABILITY (deferred from earlier): Journal payment_detected ──
     // Now that amount is > 0 AND the payment is not already terminal, it is safe
     // to record `payment_detected` in the durable journal. Doing this earlier

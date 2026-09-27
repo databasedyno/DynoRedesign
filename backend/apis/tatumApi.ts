@@ -4124,4 +4124,5 @@ export default {
   getXrpDestinationTag,
   tatumXrpRpc,
   getTatumHeaders,
+  getTatumSDK,
 };
