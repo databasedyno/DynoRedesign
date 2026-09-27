@@ -1,0 +1,56 @@
+name: Droplet Rollback (pin image tag)
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Image tag (commit SHA) to pin on the droplet"
+        required: true
+        default: "4f8b522eec96c2d45d4a42d3c9ed425e0edcee1e"
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: SSH rollback
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: root
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          command_timeout: 8m
+          envs: GITHUB_ACTOR,GHCR_TOKEN,TAG
+          script: |
+            set -e
+            cd /opt/dynopay
+            echo "=== BEFORE ==="; grep -n 'image:' docker-compose.yml; docker ps -a
+            echo "${GHCR_TOKEN}" | docker login ghcr.io -u "${GITHUB_ACTOR}" --password-stdin
+            sed -i "s|image: .*|image: ghcr.io/databasedyno/dynopay:${TAG}|" docker-compose.yml
+            docker compose pull
+            docker compose up -d --force-recreate
+            ok=0
+            for i in $(seq 1 40); do
+              if curl -sf -m 5 -o /dev/null http://127.0.0.1:8001/health; then echo "healthy after $((i*5))s"; ok=1; break; fi
+              sleep 5
+            done
+            echo "=== AFTER ==="; docker compose ps; docker logs dynopay --tail 40 2>&1
+            echo "=== COMPOSE FILE ==="; cat docker-compose.yml
+            echo "=== ENV KEYS (names only) ==="; cut -d= -f1 .env | sort | tr '\n' ' '; echo
+            echo "=== CADDYFILE ==="; cat /etc/caddy/Caddyfile
+            echo "=== IMAGES ==="; docker images --format '{{.Repository}}:{{.Tag}} {{.Size}} {{.CreatedSince}}'
+            [ "$ok" = "1" ] || { echo "::error::rollback container not healthy"; exit 1; }
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ inputs.image_tag }}
+
+      - name: Public health
+        run: |
+          for i in $(seq 1 12); do
+            if curl -fsS --max-time 10 https://dynopay.com/health >/dev/null; then echo "dynopay.com healthy"; exit 0; fi
+            sleep 5
+          done
+          echo "::error::https://dynopay.com/health still failing"; exit 1
