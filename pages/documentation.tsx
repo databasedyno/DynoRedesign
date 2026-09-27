@@ -2114,6 +2114,31 @@ const DocumentationPage = () => {
                   Verify the signature header to ensure webhook requests are authentic and haven&apos;t been tampered with. Prefer <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>X-Dynopay-Signature-V2</code>: it is signed over the <strong>exact bytes on the wire</strong>, so you can verify it in any language without re-serialising the parsed JSON. Both headers are sent while you migrate; the legacy <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>X-DynoPay-Signature</code> will be removed after the migration window closes. Signatures are sent <strong>only when your endpoint has a signing secret</strong> — saving a webhook URL (or creating an API key) auto-generates a <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>whsec_…</code> secret (shown once); endpoints without one receive the payload unsigned.
                 </Typography>
                 <Typography sx={{ fontSize: 15, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1, mt: 2 }}>
+                  Signing spec
+                </Typography>
+                <Box component="ul" sx={{ pl: 2.5, mt: 0, mb: 2, "& li": { fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.9 } }}>
+                  <li><strong>Signed message</strong> — the exact string <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>{"{t}.{rawBody}"}</code>: the timestamp, a literal dot, then the raw request-body bytes. No webhook id, no re-serialisation.</li>
+                  <li><strong>HMAC key</strong> — your signing secret used <strong>verbatim</strong>: the full <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>whsec_…</code> string (its UTF-8 bytes). Do <strong>not</strong> strip the <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>whsec_</code> prefix and do <strong>not</strong> base64-decode it.</li>
+                  <li><strong>Algorithm</strong> — HMAC-SHA256.</li>
+                  <li><strong>Encoding</strong> — lowercase hex (this is the <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>v1=</code> value).</li>
+                  <li><strong>Timestamp <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>t</code></strong> — Unix <strong>seconds</strong> (the same value as the <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>X-DynoPay-Timestamp</code> header). Reject anything outside ±300s to stop replays.</li>
+                </Box>
+
+                <Typography sx={{ fontSize: 15, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1, mt: 2 }}>
+                  Which secret signs which endpoint
+                </Typography>
+                <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mb: 2 }}>
+                  Each endpoint is signed with its own secret. Your <strong>account / dashboard</strong> endpoint is signed with your account webhook secret (the <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>whsec_…</code> shown once when you save the URL). A <strong>per-payment</strong> <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>webhook_url</code> is signed with the secret in effect on that payment. Always verify a request with the secret that belongs to the endpoint receiving it.
+                </Typography>
+
+                <InfoBox>
+                  <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1 }}>Secret rotation &amp; multiple signatures</Typography>
+                  <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7 }}>
+                    When you rotate a signing secret we co-sign each webhook with both the <strong>new</strong> and the <strong>previous</strong> secret for a ~24-hour grace window, so one delivery&apos;s <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>X-Dynopay-Signature-V2</code> header can carry <strong>several</strong> <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>v1=</code> values, e.g. <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>{"t=…,v1=<new>,v1=<previous>"}</code>. Your verifier must <strong>scan every <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>v1=</code> token and accept if any one matches</strong> — never parse just one (a naive <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>Object.fromEntries</code> on the comma-split keeps only the last, which is the old secret, and fails every webhook). The first <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>v1=</code> is always the current secret.
+                  </Typography>
+                </InfoBox>
+
+                <Typography sx={{ fontSize: 15, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1, mt: 2 }}>
                   V2 (recommended)
                 </Typography>
                 <CodeBlock lang="javascript" code={`const crypto = require('crypto');
@@ -2149,6 +2174,25 @@ app.post('/webhooks/dynopay', express.raw({ type: 'application/json' }), (req, r
   // Fulfill based on event.event (payment.confirmed, payment.pending, ...)
   res.status(200).json({ received: true });
 });`} />
+
+                <Typography sx={{ fontSize: 15, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1, mt: 3 }}>
+                  Test vector
+                </Typography>
+                <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mb: 1 }}>
+                  Feed these exact inputs to your HMAC routine — if you get the same <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>v1</code>, your signing is byte-correct and any remaining failure is header parsing (see rotation note above).
+                </Typography>
+                <CodeBlock lang="text" code={`secret        = whsec_test_secret_example
+t             = 1700000000
+raw_body      = {"event":"payment.settled","payment_id":"pay_123","amount":19.99}
+signed string = 1700000000.{"event":"payment.settled","payment_id":"pay_123","amount":19.99}
+v1 (hex)      = f49a2735cfb74e9d7a03537ff1af830cf6876f25cd1cb42fe4143bf2e5cb1c66`} />
+
+                <InfoBox>
+                  <Typography sx={{ fontSize: 14, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1 }}>Replay &amp; idempotency</Typography>
+                  <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7 }}>
+                    Reject any delivery whose <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>t</code> is more than ±300s from now to block replays. The same event can also arrive more than once (delivery retries, or a manual resend), so treat <code style={{ background: dk ? "#1E2030" : "#F3F4F6", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>X-DynoPay-Webhook-Id</code> as an idempotency key: record the ids you have processed and skip duplicates.
+                  </Typography>
+                </InfoBox>
 
                 <Typography sx={{ fontSize: 15, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1, mt: 3 }}>
                   V1 (legacy)
