@@ -34,6 +34,8 @@
     ".next-dev",
     ".next-prod",
     "backend",
-    "_archive"
+    "_archive",
+    "backend_test.ts",
+    "test_phase1b_minimums.ts"
   ]
 }

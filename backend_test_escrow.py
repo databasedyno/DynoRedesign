@@ -12,7 +12,7 @@ import sys
 from typing import Dict, Any, Optional
 
 # Base URL - external preview URL
-BASE_URL = "https://secure-passphrase-6.preview.emergentagent.com/api"
+BASE_URL = "https://passphrase-init-1.preview.emergentagent.com/api"
 
 # Test credentials
 MERCHANT_EMAIL = "onarrival21@gmail.com"
