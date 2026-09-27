@@ -1110,6 +1110,13 @@ const Crypto = async (
       // FIX: Populate crypto fields at creation time so records are complete even if verification fails
       crypto_currency: currency,
       crypto_amount: isNaN(Number(data.amount)) ? 0 : Number(data.amount),
+      // Sandbox marker (gates the "Simulate payment" flow so a test key can never
+      // settle real money) + durable per-request webhook routing so it survives
+      // Redis session expiry (resolveWebhookTargets reads these back as a fallback).
+      environment: ((tokenData as unknown as Record<string, unknown>).environment as string) || "production",
+      webhook_url: ((tokenData as unknown as Record<string, unknown>).webhook_url as string) || null,
+      webhook_secret: ((tokenData as unknown as Record<string, unknown>).webhook_secret as string) || null,
+      callback_url: ((tokenData as unknown as Record<string, unknown>).callback_url as string) || null,
     };
     cronLogger.info("[Crypto] Merchant pool userPayload:", JSON.stringify(userPayload));
     

@@ -35,6 +35,7 @@ import idempotencyMiddleware from "../middleware/idempotencyMiddleware";
 import { setRedisItem } from "../utils/redisInstance";
 import { convertToMultiple } from "../utils/currencyUtils";
 import { paymentController } from "../controller";
+import { runSandboxSimulation } from "../controller/payment/simulateSandboxPayment";
 import { parseState, toExternalStatus, toConversionDisplayStatus } from "../services/paymentStateMachine";
 import { sendSuccess, sendError, asyncHandler } from "../helper/apiResponse";
 import config from "../utils/config";
@@ -382,6 +383,9 @@ router.post("/cryptoPayment", legacyApiAuthMiddleware, idempotencyMiddleware, as
     webhook_url: effectiveWebhookUrl,
     webhook_secret: effectiveWebhookSecret,
     callback_url: callback_url || null,
+    // Sandbox marker (dpk_test_ => 'development') carried onto the transaction so
+    // the "Simulate payment" flow can only ever fire on test-mode payments.
+    environment: data.environment || "production",
     // Cached exchange rate avoids redundant ~100-300ms FastForex call in createCryptoPayment
     cached_transfer_rate: cryptoRates[0]?.transferRate || null,
     cached_crypto_amount: cryptoRates[0]?.amount || null,
@@ -1169,6 +1173,17 @@ router.get("/getCryptoTransaction/:address", legacyApiAuthMiddleware, asyncHandl
 }, { logger: apiLogger, label: "[MerchantAPI] getCryptoTransaction" }));
 
 // ============================================================
+// POST /api/user/simulatePayment/:payment_id
+// TEST-MODE ONLY — drives a SANDBOX payment through pending → confirmed → settled
+// and fires the signed merchant webhooks, WITHOUT any real crypto/broadcast.
+// Hard-gated to test (dpk_test_) keys AND transactions stamped environment=
+// 'development' (see runSandboxSimulation). No funds ever move.
+router.post("/simulatePayment/:payment_id", legacyApiAuthMiddleware, asyncHandler(async (req, res) => {
+  const r = await runSandboxSimulation(res.locals.apiKeyData, req.params.payment_id);
+  if (r.error) return sendError(res, { status: r.status, message: r.error });
+  return sendSuccess(res, { status: 200, message: "Sandbox payment simulated", data: r.data });
+}, { logger: apiLogger, label: "[MerchantAPI] simulatePayment" }));
+
 // GET /api/user/getPaymentStatus/:payment_id
 // Verify a payment by its Dynopay payment_id (the id returned when the payment
 // was created). Unlike getCryptoTransaction/:address, this is keyed on the

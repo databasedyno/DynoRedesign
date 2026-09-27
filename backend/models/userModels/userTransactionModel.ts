@@ -112,6 +112,13 @@ const userTransactionModel = sequelize.define(
       type: DataTypes.STRING,
       defaultValue: "failed",
     },
+    // Environment that created this payment ('development' = sandbox / dpk_test_,
+    // 'production' = live). Stamped at creation; NULL for legacy rows. Gates the
+    // sandbox "Simulate payment" flow so a test key can never settle real money.
+    environment: {
+      type: DataTypes.STRING(12),
+      allowNull: true,
+    },
     // Callback/Webhook
     callback_url: {
       type: DataTypes.STRING,

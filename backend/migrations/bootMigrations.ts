@@ -955,6 +955,22 @@ const addSafeDealLedgerUniqueReference = async (): Promise<void> => {
   );
 };
 
+/**
+ * 0053 — sandbox marker on payments. Adds the additive, nullable `environment`
+ * column to tbl_user_transaction ('development' = sandbox / dpk_test_,
+ * 'production' = live). Stamped at creation; the sandbox "Simulate payment"
+ * flow hard-gates on it so a test key can never settle a real payment. Legacy
+ * rows stay NULL (treated as non-sandbox → refused). Additive / metadata-only
+ * => idempotent, safe on live prod.
+ */
+const addTransactionEnvironment = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `ALTER TABLE "tbl_user_transaction"
+       ADD COLUMN IF NOT EXISTS "environment" VARCHAR(12)`
+  );
+};
+
 export async function buildBootMigrations(): Promise<Migration[]> {  const { v1, extra } = await loadBootModelGroups();  return [
     { version: "0001_boot_model_tables", up: syncGroup(v1) },
     { version: "0002_boot_model_tables_extra", up: syncGroup(extra) },
@@ -1005,6 +1021,7 @@ export async function buildBootMigrations(): Promise<Migration[]> {  const { v1,
     { version: "0050_withdrawal_telegram_notified", up: addWithdrawalTelegramNotified },
     { version: "0051_wallet_ownership_verification", up: addWalletOwnershipVerification },
     { version: "0052_safedeal_ledger_unique_reference", up: addSafeDealLedgerUniqueReference },
+    { version: "0053_txn_environment", up: addTransactionEnvironment },
     ...perfMigrations,
     ...securityMigrations,
   ];
