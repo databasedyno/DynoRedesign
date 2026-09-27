@@ -1,0 +1,61 @@
+{
+  "summary": "Frontend-only verification of two cosmetic layout fixes on authed pages (custom::19 Webhooks left padding, and CC-004 ultra-wide content cap). Logged in as merchant owner (onarrival21@gmail.com) with TOTP 2FA. Both fixes verified via getBoundingClientRect measurements and screenshots. No data mutations performed.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verification_results": {
+    "custom::19_webhooks_padding": {
+      "status": "PASS",
+      "page": "/developer-keys (Webhooks tab)",
+      "measurements": {
+        "card_left": 272,
+        "card_right": 1408,
+        "card_width": 1136,
+        "webhook_console_left": 293,
+        "webhook_console_right": 1387,
+        "webhook_console_width": 1094,
+        "left_inset_px": 21,
+        "right_inset_px": 21
+      },
+      "notes": "webhook-console body is inset 21px on both sides from the enclosing MuiCard-root. Matches expected 16-24px gutter. Header title 'Webhooks', description, and endpoint URL field are consistently left-aligned. bodyPadding fix confirmed working."
+    },
+    "CC-004_ultrawide": {
+      "status": "PASS",
+      "page": "/transactions at viewport 2560x1080",
+      "measurements": {
+        "window_width": 2560,
+        "main_content_width": 2320,
+        "child_width": 2040,
+        "child_left": 380,
+        "child_right": 2420,
+        "document_scroll_width": 2560
+      },
+      "notes": "#main-content > * width is 2040px (>1440 threshold), exactly matching the ~2040 target at >=2400px viewport. No horizontal overflow. Right-side blank gutter reduced from ~1100px to ~140px (2560-2420)."
+    },
+    "regression_1440": {
+      "status": "PASS",
+      "page": "/transactions at viewport 1440x900",
+      "measurements": {
+        "window_width": 1440,
+        "child_width": 1136,
+        "document_scroll_width": 1440,
+        "has_horizontal_scroll": false
+      },
+      "notes": "Content column contained within available main area (sidebar ~240px + content). No overflow, no horizontal scroll. Layout unchanged for standard desktop."
+    }
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "100%"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ with TOTP via /app/backend/scripts/print_totp.cjs 1",
+  "seed_data_creation": "None - read-only visual verification on live prod DB (safe mode).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Login flow verified working: set sessionStorage mfa_interstitial_seen=1 before login; TOTP 2FA required (6 separate digit inputs); auto-submits after 6th digit. Both CSS fixes are live in the production build.",
+  "rca of the issue": "Not applicable - both were pre-fixed CSS/layout issues. Verified: (a) PanelCard now receives bodyPadding from WebhookConsoleSection giving 21px inset; (b) Containers/Client main-content maxWidth media queries widen to 2040px at >=2400px viewport."
+}

@@ -1,3 +1,25 @@
+# === 2026-09-27 (fork) QA 3 OPEN ITEMS + SAFEDEAL NEW-USER ADMIN EMAIL ===
+# CONTEXT: after the QA-Center audit (61 pass / 10 fail / 17 awaiting_retest / 18 blocked / 6 not_tested), 7 of the 10 "fail" were already fixed in code (stale QA); 3 were genuinely open. User: "check the 3 open ones and fix" + "admin receives email when a new user onboarded on SafeDeal".
+#
+# (1) custom::19 — Webhooks settings inconsistent left padding — FIXED & VERIFIED (testing_agent iter235, FE 100%).
+#     ROOT CAUSE: Components/UI/PanelCard CardBody has NO default padding; WebhookConsoleSection's PanelCard never passed bodyPadding → body content sat flush at 0px while the header had a 20px gutter.
+#     FIX: Components/Page/API/WebhookConsoleSection.tsx PanelCard now bodyPadding={isMobile? spacing(2,2,2,2) : spacing(2.25,2.5,2.5,2.5)}. Verified: webhook-console body inset 21px both sides, title/description/fields consistently aligned.
+#
+# (2) CC-004 — pages waste space on 2550px ultra-wide desktops — FIXED & VERIFIED (iter235).
+#     ROOT CAUSE: Containers/Client/index.tsx main-content child hard-capped at maxWidth:1440 → ~1100px blank right gutter at 2560px.
+#     FIX: "& > *" maxWidth now responsive — 1440 default, 1720 @≥2000px, 2040 @≥2400px. Verified at 2560px: child width 2040 (was 1440), gutter ~140px, no overflow; 1440px regression unchanged.
+#
+# (3) SET-005 — Add-phone mobile OTP "not sent" — INVESTIGATED, NOT a code/config bug (needs a live number to close).
+#     Telnyx creds VALID (GET /v2/verify_profiles 200, KEY01A0…), configured verify profile 4900019f… EXISTS with SMS enabled + a very broad country whitelist. Send path (services/customerWalletService? no — controller/user/contactPhone.ts addPhone → userShared.sendTelnyxVerification → POST /v2/verifications/sms) is correct and already maps unsupported_destination / invalid_number / 503 to actionable messages. The QA failure was most likely a specific destination/number or a transient Telnyx issue at test time. TRUE confirmation requires ONE live OTP send to a real number → ASK USER for a phone number. No code change made.
+#
+# (4) SafeDeal new-user → ADMIN email — IMPLEMENTED & VERIFIED E2E (curl signup + backend log; throwaway customer 1015 created then fully deleted — 0 residue).
+#     services/email/safedealEmails.ts: NEW sendSafeDealNewUserAdminEmail(adminEmail, {email,name,customerId,method}) — SafeDeal-branded admin-audience email, hero "person", subject "New SafeDeal user: <contact>", telegram placeholder emails (…@telegram.safedeal) show the name instead.
+#     services/customerWalletService.ts: resolveCustomerForBrand + resolveCustomerByTelegram now accept an optional onCreate(customer) callback that fires ONLY in the INSERT branch (return type unchanged; existing callers unaffected).
+#     controller/safedealController.ts: NEW notifyAdminNewSafeDealUser() (reads ADMIN_EMAIL via envRaw, fire-and-forget, warns if ADMIN_EMAIL unset). Wired into verifyCode (email sign-in, method:"email") and telegramAuth (method:"telegram") — fires only when isNew. VERIFIED: first sign-in of sd-newuser-…@example.com → "[CustomerWallet] Created customer 1015 … company 262" + "[Email] SUPPRESSED … to=moxxcompany@gmail.com | subject=New SafeDeal user: …"; 2nd sign-in of same email did NOT re-fire (idempotent, onCreate only on insert). Backend tsc 0.
+# OPS: FE rebuilt (production, no hot reload). Backend restarted (ts-node). Preview: https://98833a95-b9ce-46fb-9178-8dc77fc8a7dc.preview.emergentagent.com . ADMIN_EMAIL=moxxcompany@gmail.com; DISABLE_OUTBOUND_EMAIL=true in preview (emails suppressed+logged) → on prod (outbound ON) the operator will actually receive them. COMMIT: uncommitted — user must "Save to GitHub".
+# ============================================================================================
+
+
 # === 2026-09-27 (fork) API KEY STAYS COPYABLE AFTER REGENERATE — FIXED & VERIFIED (testing_agent iteration_234, frontend 100%) ===
 # USER BUG: "the live api keys remains available for copy after regeneration despite warning 'Copy this key now — for security it will not be shown again once you leave this page.'"
 # ROOT CAUSE: freshly created/regenerated plaintext keys live only in the in-memory Redux store (state.apiReducer.revealedKeys, keyed by api_id). Nothing cleared them when the user left the Keys view, so navigating away (tab switch or route change) and RETURNING re-showed the key as copyable — contradicting the "won't be shown again once you leave this page" warning. Store is NOT redux-persist'd, so only a full reload cleared it before.
