@@ -25,15 +25,30 @@ name: Deploy to Droplet (Option C)
 # (#418/#423 = server HTML ≠ client render → whole-page client re-render → blank
 # landing page on slow phones, 2026-09). Production-only class of bug, so it is
 # checked against production.
+#
+# SAFE DEPLOY (2026-09-27, after the sharp/libvips crash-loop outage):
+#   1. CANARY  — the new image is booted as a throw-away container beside the live
+#                one (127.0.0.1:8002, background jobs OFF). If it never answers
+#                /health the run fails, logs are printed, and the LIVE container is
+#                never touched — the previous deployment keeps serving.
+#   2. SWAP    — only a healthy canary is promoted: compose is re-pinned and the
+#                live container recreated.
+#   3. ROLLBACK— if the promoted container is not healthy within 180s the previous
+#                image is re-pinned and recreated automatically, then the run fails.
+#   The previous image is kept on disk so a manual rollback is instant
+#   (workflow: droplet-rollback.yml).
 
 on:
   push:
     branches: [Improvement]
   workflow_dispatch: {}
 
+# Never cancel a deploy mid-flight (a killed SSH session during the swap would
+# leave the droplet half-switched with nobody left to roll it back). Newer pushes
+# queue behind the running deploy instead.
 concurrency:
   group: deploy-droplet
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build-and-deploy:
@@ -89,12 +104,13 @@ jobs:
             NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
             NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
 
-      - name: Deploy over SSH
+      - name: Deploy over SSH (canary → swap → auto-rollback)
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: root
           key: ${{ secrets.DEPLOY_SSH_KEY }}
+          command_timeout: 20m
           envs: GITHUB_ACTOR,GHCR_TOKEN,GITHUB_SHA,SAFEDEAL_API_KEY,SAFEDEAL_WEBHOOK_SECRET
           script: |
             set -e
@@ -114,25 +130,99 @@ jobs:
               caddy validate --config /etc/caddy/Caddyfile && systemctl reload caddy
             fi
             echo "${GHCR_TOKEN}" | docker login ghcr.io -u "${GITHUB_ACTOR}" --password-stdin
+
+            NEW_IMAGE="ghcr.io/databasedyno/dynopay:${GITHUB_SHA}"
+            PREV_IMAGE="$(grep -E '^\s*image:' docker-compose.yml | head -1 | awk '{print $2}')"
+            echo "previous image: ${PREV_IMAGE}"
+            echo "new image:      ${NEW_IMAGE}"
+            if [ "${PREV_IMAGE}" = "${NEW_IMAGE}" ] && curl -sf -m 5 -o /dev/null http://127.0.0.1:8001/health; then
+              echo "already running a healthy ${NEW_IMAGE} — nothing to do"; docker compose ps; exit 0
+            fi
+
             # Free disk BEFORE pulling: every deploy pins a new immutable SHA tag, so old
-            # tagged images pile up (~1 GB each) and `docker image prune -f` (dangling only)
-            # never reclaimed them → "no space left on device" mid-pull (2026-09-24).
-            # `-a` removes every image not used by a running container; the live one stays.
+            # tagged images pile up (~1 GB each) → "no space left on device" mid-pull
+            # (2026-09-24). `-a` removes every image not used by a running container;
+            # the live one stays.
             echo "=== disk before cleanup ==="; df -h / | tail -1
+            docker rm -f dynopay-canary >/dev/null 2>&1 || true
             docker image prune -af >/dev/null 2>&1 || true
             docker builder prune -af >/dev/null 2>&1 || true
             docker container prune -f >/dev/null 2>&1 || true
             journalctl --vacuum-size=200M >/dev/null 2>&1 || true
             echo "=== disk after cleanup ==="; df -h / | tail -1
+
+            docker pull "${NEW_IMAGE}"
+
+            # ── 1. CANARY ─────────────────────────────────────────────────────────
+            # Boot the new image beside the live container. Same .env (via compose,
+            # so quoting rules match production), but background jobs OFF so it can
+            # never run sweeps/crons/leader election against the live DB. Health is
+            # answered only after the backend finished booting (DB, migrations, ledger).
+            cat > docker-compose.canary.yml <<EOF
+            services:
+              app:
+                image: ${NEW_IMAGE}
+                container_name: dynopay-canary
+                env_file: .env
+                environment:
+                  ENABLE_BACKGROUND_JOBS: "false"
+                  WORKER_ROLE: secondary
+                  INDEXNOW_DISABLED: "true"
+                ports:
+                  - "127.0.0.1:8002:8001"
+                restart: "no"
+            EOF
+            canary() { docker compose -p dynopay-canary -f docker-compose.canary.yml "$@"; }
+            canary up -d
+            canary_ok=0
+            for i in $(seq 1 36); do
+              if curl -sf -m 5 -o /dev/null http://127.0.0.1:8002/health; then canary_ok=1; echo "canary healthy after $((i*5))s"; break; fi
+              if [ "$(docker inspect -f '{{.State.Running}}' dynopay-canary 2>/dev/null)" != "true" ]; then echo "canary process exited"; break; fi
+              sleep 5
+            done
+            if [ "$canary_ok" != "1" ]; then
+              echo "::error::Canary of ${NEW_IMAGE} never became healthy — live container NOT touched (still ${PREV_IMAGE})"
+              echo "=== canary logs (tail 200) ==="; docker logs dynopay-canary --tail 200 2>&1 || true
+              canary down --remove-orphans >/dev/null 2>&1 || true
+              rm -f docker-compose.canary.yml
+              docker rmi "${NEW_IMAGE}" >/dev/null 2>&1 || true
+              docker compose ps
+              exit 1
+            fi
+            canary down --remove-orphans >/dev/null 2>&1 || true
+            rm -f docker-compose.canary.yml
+
+            # ── 2. SWAP ───────────────────────────────────────────────────────────
             # Pin the immutable commit SHA (NOT the mutable :latest) so Compose sees a
-            # changed image reference every deploy and actually recreates the container.
-            # With :latest the digest changed but Compose reported "Running" and skipped
-            # the swap, leaving the droplet on the old image.
-            sed -i "s|image: .*|image: ghcr.io/databasedyno/dynopay:${GITHUB_SHA}|" docker-compose.yml
-            docker compose pull
+            # changed image reference and actually recreates the container.
+            cp docker-compose.yml docker-compose.yml.prev
+            sed -i "s|image: .*|image: ${NEW_IMAGE}|" docker-compose.yml
             docker compose up -d --force-recreate
-            # Drop the previous image now that the new container is up.
-            docker image prune -af >/dev/null 2>&1 || true
+            live_ok=0
+            for i in $(seq 1 36); do
+              if curl -sf -m 5 -o /dev/null http://127.0.0.1:8001/health; then live_ok=1; echo "live healthy after $((i*5))s"; break; fi
+              sleep 5
+            done
+
+            # ── 3. ROLLBACK ───────────────────────────────────────────────────────
+            if [ "$live_ok" != "1" ]; then
+              echo "::error::Live container on ${NEW_IMAGE} not healthy after 180s — rolling back to ${PREV_IMAGE}"
+              echo "=== failed container logs (tail 200) ==="; docker logs dynopay --tail 200 2>&1 || true
+              sed -i "s|image: .*|image: ${PREV_IMAGE}|" docker-compose.yml
+              docker compose pull >/dev/null 2>&1 || true
+              docker compose up -d --force-recreate
+              for i in $(seq 1 36); do
+                if curl -sf -m 5 -o /dev/null http://127.0.0.1:8001/health; then echo "rollback healthy after $((i*5))s"; break; fi
+                sleep 5
+              done
+              docker compose ps
+              exit 1
+            fi
+
+            # Keep exactly the new + previous image (instant rollback); drop older tags.
+            docker images --format '{{.Repository}}:{{.Tag}}' | grep '^ghcr.io/databasedyno/dynopay:' \
+              | grep -vxF -e "${NEW_IMAGE}" -e "${PREV_IMAGE}" | xargs -r docker rmi >/dev/null 2>&1 || true
+            docker image prune -f >/dev/null 2>&1 || true
             echo "=== disk after deploy ==="; df -h / | tail -1
             # Self-verify in the run log which image the container is actually running.
             echo "=== deployed (expect tag ${GITHUB_SHA}) ==="

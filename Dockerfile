@@ -234,6 +234,7 @@ RUN ( yarn install --ignore-engines --production=false --frozen-lockfile \
         && echo "## resolve. Fix: run  yarn install  in ./backend and commit.  ##" \
         && echo "################################################################" \
         && yarn install --ignore-engines --production=false ) ) \
+ && cp yarn.lock /tmp/yarn.lock.resolved \
  && yarn cache clean
 
 # Cap the tsc heap too — this stage runs concurrently with nothing, but a
@@ -246,8 +247,19 @@ COPY backend/ .
 # Build TypeScript -> dist/
 RUN yarn build
 
-# Prune to production-only deps
-RUN yarn install --ignore-engines --production=true && yarn cache clean
+# Prune to production-only deps.
+# MUST install against the EXACT lockfile the install step above resolved:
+# `COPY backend/ .` re-copies the repo's yarn.lock over the resolved one, and an
+# unpinned `yarn install --production` here re-resolves any pattern missing
+# from that (possibly stale) lockfile from the live registry. That is how the
+# 2026-09-27 outage happened: sharp@^0.35.4 was absent from the committed lock,
+# sharp 0.35.5 had been published 1h earlier, so this step pulled 0.35.5 next to
+# the locked 0.34.4/0.35.4 → two sharp versions → the wrong @img/sharp-libvips
+# got hoisted → "Could not load the sharp module" → backend crash-loop → 502.
+# Restoring the resolved lock + --frozen-lockfile makes this step a pure prune.
+RUN cp /tmp/yarn.lock.resolved yarn.lock \
+ && yarn install --ignore-engines --production=true --frozen-lockfile \
+ && yarn cache clean
 
 ##############################################
 # Stage 4: Runner — combined production image
