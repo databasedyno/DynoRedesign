@@ -58,3 +58,59 @@ All backend TS typechecks clean (`cd /app/backend && npx tsc --noEmit` → exit 
 ## Git / rules
 - Do NOT run git write commands or touch `.git`/`.emergent`. User deploys via "Save to Github".
 - `yarn.lock` / `.emergent/cron` show as modified from pod boot (yarn install) — environment noise, not code changes.
+
+## Webhook signature verification — merchant integration (from Fix #3)
+
+**How the auto-minted secret works:**
+- `createApiKey` response returns `webhook_secret: "whsec_…"` ONCE (`webhook_secret_auto_generated: true`, `webhook_note`). Reads are masked to `***last8` afterward.
+- Existing key with no secret → call update-API-key with `{"webhook_secret": "generate"}` (reveals once).
+- Store server-side, e.g. `DYNOPAY_WEBHOOK_SECRET=whsec_…`.
+
+**Headers DynoPay sends (only when a secret is configured)** — see `backend/webhooks/index.ts:347-387`:
+- `X-Dynopay-Signature-V2: t=<unix>,v1=<hmac>` ← recommended. `v1 = HMAC_SHA256(secret, "<t>.<rawBody>")` hex over the EXACT bytes on the wire. Multiple `v1=` during rotation (current + `webhook_secret_previous`) — match any.
+- `X-DynoPay-Timestamp: <unix seconds>`
+- `X-DynoPay-Signature: <hmac>` (legacy v1 — HMAC over re-serialised body; being deprecated).
+
+**Node / Express verifier (verify RAW body, not parsed JSON):**
+```js
+const express = require("express");
+const crypto = require("crypto");
+const app = express();
+const SECRET = process.env.DYNOPAY_WEBHOOK_SECRET; // whsec_…
+
+function verifyV2(rawBody, header, secret, toleranceSec = 300) {
+  if (!header) return false;
+  const parts = Object.fromEntries(header.split(",").map(kv => kv.split("=")));
+  const t = Number(parts.t);
+  if (!t || Math.abs(Math.floor(Date.now() / 1000) - t) > toleranceSec) return false; // replay guard
+  const expected = crypto.createHmac("sha256", secret).update(`${t}.${rawBody}`).digest("hex");
+  return header.split(",").filter(p => p.startsWith("v1=")).some(p => {
+    const got = Buffer.from(p.slice(3), "hex");
+    const exp = Buffer.from(expected, "hex");
+    return got.length === exp.length && crypto.timingSafeEqual(got, exp);
+  });
+}
+
+// IMPORTANT: raw body, not express.json()
+app.post("/webhooks/dynopay", express.raw({ type: "*/*" }), (req, res) => {
+  const rawBody = req.body.toString("utf8");
+  if (!verifyV2(rawBody, req.get("X-Dynopay-Signature-V2"), SECRET)) {
+    return res.status(400).send("bad signature");
+  }
+  const event = JSON.parse(rawBody);
+  res.sendStatus(200); // ack fast, then process async
+  // event.event = payment.pending | payment.confirmed | payment.settled | payment.underpaid …
+  // Fulfil only on "settled"; re-verify via GET /api/user/getPaymentStatus/{event.payment_id}
+});
+```
+
+**Python (Flask):** read `request.get_data()` (raw bytes); `hmac.new(secret.encode(), f"{t}.{raw}".encode(), hashlib.sha256).hexdigest()`; compare with `hmac.compare_digest`.
+
+**Integration checklist:**
+1. Create API key → store the `whsec_` (or `{"webhook_secret":"generate"}` on an existing key).
+2. Set webhook URL (per API key, per company, or `webhook_url` on each `/cryptoPayment`).
+3. Raw-body route → verify `X-Dynopay-Signature-V2` → reject on mismatch / stale timestamp.
+4. Ack 200 fast, process async, re-verify amount/status via `GET /getPaymentStatus/:payment_id` (don't trust body amount blindly).
+5. Be idempotent — dedupe on `webhook_id`/`payment_id` (retries redeliver).
+
+NOTE: the docs page (`pages/documentation.tsx` ~line 2096, `verifyWebhookV2`) already has the verify helper; the "get your secret / raw-body / re-verify" walkthrough above could still be added there if the user wants.
