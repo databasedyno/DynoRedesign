@@ -274,3 +274,59 @@ export const send2FAResetDoneEmail = async (email: string, name: string, freezeU
     apiLogger.error("2FA reset done email error:", e);
   }
 };
+
+
+/**
+ * Security alert: a customer wallet was manually credited/debited from the admin path.
+ * Sent to the platform ADMIN_EMAIL so no manual balance adjustment can happen silently
+ * (added after an unattributed credit was found in a security review, 2026-09-27).
+ */
+export const sendAdminWalletAdjustmentAlertEmail = async (
+  toEmail: string,
+  data: {
+    action: "credit" | "debit";
+    amount: string;
+    currency: string;
+    customerEmail?: string | null;
+    customerId: number | string;
+    companyName?: string | null;
+    companyId?: number | string | null;
+    newBalance?: string | null;
+    description?: string | null;
+    actor: string;
+    authType: string;
+    ip?: string | null;
+  },
+) => {
+  try {
+    const isCredit = data.action === "credit";
+    const rows = [
+      dataRow("Action", statusBadge(isCredit ? "Wallet credited" : "Wallet debited", isCredit ? "success" : "pending"), true),
+      dataRow("Amount", `<strong>${escapeHtml(data.amount)} ${escapeHtml(data.currency)}</strong>`),
+      dataRow("Customer", `${escapeHtml(data.customerEmail || "—")} (#${escapeHtml(String(data.customerId))})`),
+      data.companyName ? dataRow("Brand", `${escapeHtml(data.companyName)}${data.companyId ? ` (#${escapeHtml(String(data.companyId))})` : ""}`) : "",
+      data.newBalance != null ? dataRow("New balance", `${escapeHtml(data.newBalance)} ${escapeHtml(data.currency)}`) : "",
+      data.description ? dataRow("Note", escapeHtml(data.description)) : "",
+      dataRow("Performed by", `${escapeHtml(data.actor)} (${escapeHtml(data.authType)})`),
+      data.ip ? dataRow("IP address", escapeHtml(data.ip)) : "",
+      whenRow("en"),
+    ].join("");
+    const content = `${p("Hey there,")}
+    ${p(`A customer wallet was <strong>${isCredit ? "credited" : "debited"}</strong> on your platform. Review the details below — if this wasn't you or an authorised team member, secure your admin account immediately.`)}
+    ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows}</table>`, isCredit ? "#8B5E00" : "#ef4444")}
+    ${warnText("If you didn't authorise this, change your admin password and revoke your API keys right away, then contact support.")}`;
+    const html = dynoPayEmailTemplate(
+      `Customer wallet ${isCredit ? "credited" : "debited"}`,
+      content,
+      false,
+      "",
+      "",
+      `A customer wallet was ${isCredit ? "credited" : "debited"} (${data.amount} ${data.currency}) by ${data.actor}.`,
+      null,
+      "lock-red",
+    );
+    await send(toEmail, "Dynopay Admin", `Security alert — customer wallet ${isCredit ? "credited" : "debited"} (${data.amount} ${data.currency})`, html, `Wallet ${data.action} alert`);
+  } catch (e) {
+    apiLogger.error("Admin wallet adjustment alert email error:", e);
+  }
+};

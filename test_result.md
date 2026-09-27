@@ -1,4 +1,61 @@
 # ============================================================================
+# >>> HANDOFF (2026-09-27) — SAFEDEAL CASHOUT APPROVAL THRESHOLD = $200 + ADMIN EMAIL <<<
+# ============================================================================
+#   USER REQUEST: cashouts of $200 OR MORE (MANUAL user cashouts AND AUTO-cashouts)
+#   must be held for admin approval; the admin gets an email and approves from the
+#   admin panel (/admin/escrow). DEAL SETTLEMENT payouts stay AUTOMATIC (never gated).
+#   CRITICAL: the CUSTOMER must see NO indication approval is needed — their experience
+#   is identical to a normal queued cashout (approval is invisible to them).
+#
+#   CHANGES (backend Node/TS + Next.js frontend; SAFE MODE, live settlement OFF):
+#   - backend/.env  SAFEDEAL_WITHDRAWAL_APPROVAL_USD=200  (was 1000).
+#   - services/safedeal/safedealWithdrawals.ts requestWithdrawal():
+#       requiresApproval = source !== 'settlement' && amount >= APPROVAL_THRESHOLD_USD.
+#       Approval-needed -> row stays 'pending_approval' (NOT dispatched); ADMIN email
+#       sendSafeDealAdminCashoutApprovalEmail -> ADMIN_EMAIL (moxxcompany@gmail.com),
+#       CTA -> <SERVER_URL>/admin/escrow; the CUSTOMER email is the normal 'queued'
+#       variant (status masked to 'queued'); ledger text no longer says 'awaiting approval'.
+#   - controller/safedealController.ts maskWithdrawalForCustomer(): pending_approval->queued
+#       + requires_approval=false on ALL customer responses (withdraw() response, withdrawals()
+#       list) and the withdraw QUOTE now returns requires_approval:false ALWAYS.
+#   - Frontend removed the 2 customer approval hints (Components/SafeDeal/Home/WalletDialogs.tsx
+#       + BalanceStrip.tsx). Admin panel /admin/escrow (AdminWithdrawals) approve/reject unchanged
+#       (POST /api/safedeal/admin/withdrawals/:id/approve|reject).
+#
+#   TEST PLAN (BACKEND, API-level; PROD DB + SAFE MODE — read-only bias, THROWAWAY rows only):
+#   CONSTRAINT: SAFEDEAL_ALLOW_SIMULATION is OFF and MUST NOT be enabled (it writes prod DB).
+#   Fund a THROWAWAY SafeDeal customer (email sd_qa_*@example.com; brand company_id=262) via the
+#   admin wallet-credit endpoint POST /api/admin/customers/:customerId/credit {amount,description}
+#   (real, un-simulated balance -> assertNoSimulatedFunds passes; safe because live settlement is
+#   OFF so dispatch is simulated, no real crypto moves). Create the customer via SafeDeal auth:
+#   POST /api/safedeal/auth/send-code {email:"sd_qa_<ts>@example.com"} -> data.preview_code ->
+#   POST /api/safedeal/auth/verify-code {email,code} -> {token} (header x-safedeal-token). Add a
+#   USDT payout address (needs a step-up email code, also preview_code for @example.com). ADMIN
+#   auth for credit/approve = POST /api/admin/login {email:"moxxcompany@gmail.com",
+#   password:"Katiekendra123@"} -> admin JWT (role ADMIN); if it demands 2FA use TOTP
+#   node /app/backend/scripts/print_totp.cjs <admin user_id>. Send JWT as Authorization: Bearer.
+#   VERIFY:
+#   T1  MANUAL cashout $250 (>= $200): tbl_customer_withdrawal.status='pending_approval',
+#       requires_approval=true, NOT dispatched. Admin email sent (DISABLE_OUTBOUND_EMAIL=true ->
+#       look for suppressed-email log/outbox subject "Action needed — SafeDeal cashout #.. ($250.00)
+#       awaiting approval"). The CUSTOMER surfaces (POST /api/safedeal/wallet/withdraw response +
+#       GET /api/safedeal/wallet/withdrawals) show status='queued', requires_approval=false — NEVER
+#       'pending_approval'/'under review'.
+#   T2  MANUAL cashout $199 (< $200): dispatched normally (status sent/queued), NO admin email,
+#       requires_approval=false.
+#   T3  QUOTE POST /api/safedeal/wallet/withdraw/quote for $250 -> requires_approval:false.
+#   T4  Admin approves the T1 row: POST /api/safedeal/admin/withdrawals/:id/approve -> status
+#       leaves pending_approval (queued/sent), approved_by set; customer gets the normal 'sent' email.
+#   T5  Deal-settlement payout of >= $200 is NOT gated (source='settlement' excluded). If a full deal
+#       cannot run without simulation, assert via the code exclusion + a small settlement if feasible.
+#   CONFIG: GET /api/safedeal/config -> withdrawal_approval_usd == 200.
+#   CLEANUP: zero/debit the throwaway wallet + remove throwaway customers you created
+#       (reads: node /app/backend/scripts/ro_query.js "<sql>"; helper cleanup_r225.js).
+# ============================================================================
+
+
+
+# ============================================================================
 # >>> HANDOFF (2026-09-26 pt2) — VERIFY: IN-APP BRAND IS BLACK/YELLOW (NOT BROWN) + LANGUAGE SWITCHER <<<
 # ============================================================================
 #   USER REPORT: "landing page is black & yellow but the in-app still looks dark

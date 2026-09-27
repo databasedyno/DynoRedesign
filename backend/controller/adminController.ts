@@ -31,6 +31,7 @@ import { IAdminWallet } from "../utils/types";
 import { QueryTypes } from "sequelize";
 import { sendBrandRestoredEmail } from "../services/emailService";
 import { sendAccountRestoredEmail } from "../services/email/securityEmails";
+import { sendAdminWalletAdjustmentAlertEmail } from "../services/email/securityEmails";
 import { purgeBrand } from "../services/brandPurgeService";
 import { restoreAccount, purgeAccount } from "../services/accountPurgeService";
 import sha256 from "crypto-js/sha256";
@@ -1101,6 +1102,24 @@ const getUserDetail = async (req: express.Request, res: express.Response) => {
   }
 };
 
+/** Who performed an admin/API wallet adjustment — attributed on the ledger + in alerts so
+ *  no manual balance change is ever anonymous (added after a security review, 2026-09-27). */
+const adminActor = (req: express.Request, res: express.Response) => {
+  const authType = String(res.locals.authType || "unknown");
+  const apiKeyData = res.locals.apiKeyData as { api_id?: unknown; id?: unknown; api_name?: unknown; name?: unknown; company_id?: unknown; adm_id?: unknown } | undefined;
+  const user = res.locals.user as { email?: string; role?: string } | undefined;
+  const actor =
+    authType === "api_key"
+      ? { type: "api_key", api_id: apiKeyData?.api_id ?? apiKeyData?.id ?? null, api_name: apiKeyData?.api_name ?? apiKeyData?.name ?? null, company_id: res.locals.company_id ?? apiKeyData?.company_id ?? null, user_id: res.locals.user_id ?? apiKeyData?.adm_id ?? null }
+      : { type: authType, email: user?.email ?? null, role: user?.role ?? null };
+  const actorIp = String((req.headers["x-forwarded-for"] as string) || req.socket?.remoteAddress || "").split(",")[0].trim() || null;
+  const actorLabel =
+    authType === "api_key"
+      ? `API key ${(actor as { api_name?: unknown }).api_name || (actor as { api_id?: unknown }).api_id || `company ${res.locals.company_id ?? "?"}`}`
+      : ((actor as { email?: string }).email || "admin");
+  return { authType, actor, actorIp, actorLabel };
+};
+
 /**
  * Credit customer wallet (admin or API)
  * POST /api/admin/customers/:customerId/credit
@@ -1112,7 +1131,7 @@ const creditCustomerWallet = async (
   try {
     const { customerId } = req.params;
     const { amount, description } = req.body;
-    const authType = res.locals.authType;
+    const { authType, actor, actorIp, actorLabel } = adminActor(req, res);
 
     // Validation
     if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
@@ -1196,8 +1215,8 @@ const creditCustomerWallet = async (
         `INSERT INTO tbl_customer_transaction 
          (id, company_id, customer_id, payment_mode, base_amount, base_currency,
           paid_amount, paid_currency, transaction_type, transaction_details,
-          transaction_reference, status, "createdAt", "updatedAt")
-         VALUES ($1, $2, $3, 'ADMIN', $4, $5, $4, $5, 'CREDIT', $6, $7, 'successful', NOW(), NOW())`,
+          transaction_reference, status, meta, "createdAt", "updatedAt")
+         VALUES ($1, $2, $3, 'ADMIN', $4, $5, $4, $5, 'CREDIT', $6, $7, 'successful', $8::jsonb, NOW(), NOW())`,
         {
           bind: [
             txId,
@@ -1207,6 +1226,7 @@ const creditCustomerWallet = async (
             wallet.wallet_type,
             description.trim(),
             txRef,
+            JSON.stringify({ kind: "admin_credit", actor, ip: actorIp, at: new Date().toISOString(), note: description.trim() }),
           ],
           type: QueryTypes.INSERT,
           transaction: t,
@@ -1215,8 +1235,29 @@ const creditCustomerWallet = async (
     });
 
     adminLogger.info(
-      `[CustomerWallet] Credited ${creditAmount} ${wallet.wallet_type} to customer ${customerId} (${customer.email}). Auth: ${authType}`
+      `[CustomerWallet] CREDIT ${creditAmount} ${wallet.wallet_type} -> customer ${customerId} (${customer.email}) by ${actorLabel} [${authType}] ip=${actorIp}`
     );
+    // Security alert: notify the platform owner of any admin-path manual credit so it can't
+    // happen silently (API-key/self-service store-credit is attributed in meta but not emailed).
+    if (authType === "admin_jwt") {
+      const adminEmail = (envRaw("ADMIN_EMAIL") || "").trim();
+      if (adminEmail) {
+        void sendAdminWalletAdjustmentAlertEmail(adminEmail, {
+          action: "credit",
+          amount: toFixedStr(creditAmount, 2),
+          currency: wallet.wallet_type,
+          customerEmail: customer.email,
+          customerId,
+          companyName: customer.company_name,
+          companyId: customer.company_id,
+          newBalance: toFixedStr(newBalance, 2),
+          description: description.trim(),
+          actor: actorLabel,
+          authType,
+          ip: actorIp,
+        });
+      }
+    }
 
     successResponseHelper(res, 200, "Wallet credited successfully", {
       customer_id: customerId,
@@ -1241,7 +1282,7 @@ const debitCustomerWallet = async (
   try {
     const { customerId } = req.params;
     const { amount, description } = req.body;
-    const authType = res.locals.authType;
+    const { authType, actor, actorIp, actorLabel } = adminActor(req, res);
 
     // Validation
     if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
@@ -1335,8 +1376,8 @@ const debitCustomerWallet = async (
         `INSERT INTO tbl_customer_transaction 
          (id, company_id, customer_id, payment_mode, base_amount, base_currency,
           paid_amount, paid_currency, transaction_type, transaction_details,
-          transaction_reference, status, "createdAt", "updatedAt")
-         VALUES ($1, $2, $3, 'ADMIN', $4, $5, $4, $5, 'DEBIT', $6, $7, 'successful', NOW(), NOW())`,
+          transaction_reference, status, meta, "createdAt", "updatedAt")
+         VALUES ($1, $2, $3, 'ADMIN', $4, $5, $4, $5, 'DEBIT', $6, $7, 'successful', $8::jsonb, NOW(), NOW())`,
         {
           bind: [
             txId,
@@ -1346,6 +1387,7 @@ const debitCustomerWallet = async (
             wallet.wallet_type,
             description.trim(),
             txRef,
+            JSON.stringify({ kind: "admin_debit", actor, ip: actorIp, at: new Date().toISOString(), note: description.trim() }),
           ],
           type: QueryTypes.INSERT,
           transaction: t,
@@ -1354,8 +1396,27 @@ const debitCustomerWallet = async (
     });
 
     adminLogger.info(
-      `[CustomerWallet] Debited ${debitAmount} ${wallet.wallet_type} from customer ${customerId} (${customer.email}). Auth: ${authType}`
+      `[CustomerWallet] DEBIT ${debitAmount} ${wallet.wallet_type} <- customer ${customerId} (${customer.email}) by ${actorLabel} [${authType}] ip=${actorIp}`
     );
+    if (authType === "admin_jwt") {
+      const adminEmail = (envRaw("ADMIN_EMAIL") || "").trim();
+      if (adminEmail) {
+        void sendAdminWalletAdjustmentAlertEmail(adminEmail, {
+          action: "debit",
+          amount: toFixedStr(debitAmount, 2),
+          currency: wallet.wallet_type,
+          customerEmail: customer.email,
+          customerId,
+          companyName: customer.company_name,
+          companyId: customer.company_id,
+          newBalance: toFixedStr(newBalance, 2),
+          description: description.trim(),
+          actor: actorLabel,
+          authType,
+          ip: actorIp,
+        });
+      }
+    }
 
     successResponseHelper(res, 200, "Wallet debited successfully", {
       customer_id: customerId,

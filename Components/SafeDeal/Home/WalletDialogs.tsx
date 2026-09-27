@@ -89,7 +89,6 @@ export function WithdrawDialog({ wallet, onClose, onDone, onError }: DialogProps
               )}
               <Stack direction="row" justifyContent="space-between"><Typography sx={{ fontSize: 13, fontWeight: 800 }}>You receive</Typography><Typography sx={{ fontSize: 13, fontWeight: 900, color: "#047857" }} data-testid="sd-withdraw-net">{money(quote.net)}</Typography></Stack>
               {quote.below_min && <Typography sx={{ fontSize: 12, color: "#B45309", mt: 0.6 }} data-testid="sd-withdraw-below-min">Minimum cashout is ${wallet.limits.min_withdrawal_usd}.</Typography>}
-              {quote.requires_approval && <Typography sx={{ fontSize: 12, color: "#92400E", mt: 0.6 }}>Above ${wallet.limits.approval_threshold_usd.toLocaleString()} — reviewed by our team before it&apos;s sent (usually within a few hours).</Typography>}
             </Box>
           )}
         </Stack>

@@ -34,7 +34,7 @@ export default function BalanceStrip(p: Props) {
           <Button fullWidth variant="contained" onClick={p.onTopUp} data-testid="sd-topup-open" startIcon={<Icon icon="mdi:plus-circle-outline" />} sx={{ textTransform: "none", fontWeight: 800, borderRadius: 99, color: SD_INK, backgroundColor: "#fff", "&:hover": { backgroundColor: "#E1E5EA" } }}>Top up</Button>
           <Button fullWidth variant="contained" disabled={p.available < p.minWithdraw} onClick={p.onCashOut} data-testid="sd-withdraw-open" startIcon={<Icon icon="mdi:bank-transfer-out" />} sx={{ textTransform: "none", fontWeight: 800, borderRadius: 99, color: SD_INK, backgroundColor: SD_GOLD, "&:hover": { backgroundColor: SD_GOLD_DARK }, "&.Mui-disabled": { backgroundColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.45)" } }}>Cash out</Button>
         </Stack>
-        <Typography sx={{ position: "relative", fontSize: 11.5, color: SD_INK_MUTED, mt: 1.2 }}>Top up from ${p.minTopup} · cash out from ${p.minWithdraw} · above ${p.approvalThreshold.toLocaleString()} reviewed first</Typography>
+        <Typography sx={{ position: "relative", fontSize: 11.5, color: SD_INK_MUTED, mt: 1.2 }}>Top up from ${p.minTopup} · cash out from ${p.minWithdraw}</Typography>
       </Box>
 
       <Box data-testid="sd-balance-held" sx={tile}>

@@ -14,7 +14,7 @@ import { CustomerRow, CustomerWalletError } from "../customerWalletService";
 import { ESCROW_PAYOUT_OPTIONS, normalizePayoutKey, withdrawFeeUsdFor, customerWithdrawFeeUsd } from "../escrow/escrowCosts";
 import { isLiveSettlementEnabled } from "../../controller/escrow/escrowShared";
 import { applyEntry, applyEntries, getBalances, simulatedCreditsUsd } from "./safedealWallet";
-import { sendSafeDealWithdrawalEmail, sendSafeDealWithdrawalRejectedEmail, type CashoutEmailOptions } from "../email/safedealEmails";
+import { sendSafeDealWithdrawalEmail, sendSafeDealWithdrawalRejectedEmail, sendSafeDealAdminCashoutApprovalEmail, type CashoutEmailOptions } from "../email/safedealEmails";
 import { explorerTxUrl } from "../receiptLinkService";
 
 export const MIN_WITHDRAWAL_USD = Number(envRaw("SAFEDEAL_MIN_WITHDRAWAL_USD")) || 10;
@@ -319,7 +319,11 @@ export async function requestWithdrawal(
   await assertNoSimulatedFunds(customer.customer_id);
   const bal = await getBalances(customer.customer_id);
   if (bal.available < q.amount) throw new CustomerWalletError(400, `Insufficient available balance (${toFixedStr(bal.available, 2)} USD).`);
-  const requiresApproval = q.amount > APPROVAL_THRESHOLD_USD;
+  // Manual + auto cashouts of the approval threshold or more are held for admin approval;
+  // deal settlement payouts are ALWAYS automatic (never gated). Approval is invisible to the
+  // customer — the row sits in 'pending_approval' but every customer-facing surface presents
+  // it as a normal queued cashout (see maskWithdrawalForCustomer + the masked customer email).
+  const requiresApproval = input.source !== "settlement" && q.amount >= APPROVAL_THRESHOLD_USD;
   // Settlement payouts are keyed per deal + party so a retried/concurrent settlement can never pay twice.
   const ledgerRef = isSettlement && input.escrow_id ? `escrow:${input.escrow_id}:payout:${customer.customer_id}` : `withdrawal:${crypto.randomUUID()}`;
   const opt = ESCROW_PAYOUT_OPTIONS.find((o) => o.key === addr.payout_key);
@@ -364,8 +368,8 @@ export async function requestWithdrawal(
         amount: q.amount,
         kind: isSettlement ? "payout" : "withdrawal",
         description: isSettlement
-          ? `Deal payout${input.deal_title ? ` — ${input.deal_title}` : ""} sent to ${opt?.label || row.payout_key} ${short} (network fee covered by the deal)${requiresApproval ? " — awaiting approval" : ""}`
-          : `Cashout to ${opt?.label || row.payout_key} ${short} (${feeText}, you receive ${toFixedStr(q.net, 2)} ${opt?.coin || "USDT"})${requiresApproval ? " — awaiting approval" : ""}`,
+          ? `Deal payout${input.deal_title ? ` — ${input.deal_title}` : ""} sent to ${opt?.label || row.payout_key} ${short} (network fee covered by the deal)`
+          : `Cashout to ${opt?.label || row.payout_key} ${short} (${feeText}, you receive ${toFixedStr(q.net, 2)} ${opt?.coin || "USDT"})`,
         reference: ledgerRef,
         source: "WITHDRAWAL",
         escrowId: input.escrow_id ?? undefined,
@@ -387,8 +391,32 @@ export async function requestWithdrawal(
       await failWithdrawalAndRefund(w, customer, (err as Error).message);
       throw err;
     }
+  } else {
+    // Held for admin approval. The customer is NOT told (their experience stays identical to a
+    // normal queued cashout) — the admin is emailed so they can approve it from the admin panel.
+    const adminEmail = (envRaw("ADMIN_EMAIL") || "").trim();
+    if (adminEmail) {
+      const base = (envRaw("SERVER_URL") || envRaw("FRONTEND_URL") || "").trim().replace(/\/+$/, "");
+      const adminPanelUrl = `${base}/admin/escrow`;
+      void cashoutEmailOptions(w).then((o) =>
+        sendSafeDealAdminCashoutApprovalEmail(
+          adminEmail,
+          w,
+          opt?.label || w.payout_key,
+          { customer_id: customer.customer_id, email: customer.email ?? null, name: (customer as { customer_name?: string | null }).customer_name ?? null },
+          { adminPanelUrl, approvalThresholdUsd: APPROVAL_THRESHOLD_USD, source: input.source || "manual", dealTitle: o.dealTitle ?? null }
+        )
+      );
+    } else {
+      apiLogger.warn(`[SafeDealWithdrawals] cashout #${w.withdrawal_id} needs approval but ADMIN_EMAIL is not set — no admin alert sent`);
+    }
   }
-  if (customer.email) void cashoutEmailOptions(w).then((o) => sendSafeDealWithdrawalEmail(customer.email as string, w, opt?.label || w.payout_key, o));
+  // Customer-facing email: a held-for-approval cashout is shown as a normal 'queued' cashout
+  // (never "under review") so the approval stays invisible to the customer.
+  if (customer.email) {
+    const customerView = requiresApproval ? { ...w, status: "queued", requires_approval: false } : w;
+    void cashoutEmailOptions(w).then((o) => sendSafeDealWithdrawalEmail(customer.email as string, customerView, opt?.label || w.payout_key, o));
+  }
   return w;
 }
 

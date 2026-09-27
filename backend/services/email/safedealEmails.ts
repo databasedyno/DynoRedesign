@@ -225,3 +225,49 @@ export async function sendSafeDealDealInvoiceEmail(
     sd("receipt", { heading: `Invoice SD-${deal.escrow_id}`, cta: { text: "Open the deal", link: `${safedealBaseUrl()}/deal/${deal.deal_token}` }, attachments: [pdfAttachment(`safedeal-invoice-${deal.escrow_id}.pdf`, pdf)] })
   );
 }
+
+
+// ─── Admin: cashout awaiting approval (internal, never seen by the customer) ──
+
+/**
+ * Internal alert to the Dynopay/SafeDeal admin that a cashout is held for manual approval.
+ * The CUSTOMER is never told their cashout is under review — to them it looks like a normal
+ * queued cashout — so this email is the only signal. The admin approves/rejects it from the
+ * admin panel (/admin/escrow). Fired for manual + auto cashouts of the threshold or more;
+ * deal settlement payouts are always automatic and never trigger this.
+ */
+export async function sendSafeDealAdminCashoutApprovalEmail(
+  adminEmail: string,
+  w: WithdrawalLike,
+  networkLabel: string,
+  customer: { customer_id: number; email?: string | null; name?: string | null },
+  opts: { adminPanelUrl?: string; approvalThresholdUsd?: number; source?: string | null; dealTitle?: string | null } = {}
+): Promise<void> {
+  const who = customer.email ? esc(customer.email) : `customer #${customer.customer_id}`;
+  const kind = opts.source === "auto" ? "auto-cashout" : "cashout";
+  const threshold = opts.approvalThresholdUsd ? usd(opts.approvalThresholdUsd) : null;
+  const message =
+    amountHero(usd(w.amount_usd), {
+      pill: "NEEDS APPROVAL",
+      pillType: "pending",
+      sublabel: `${kind} · customer receives ${usd(w.net_usd)} via ${esc(networkLabel)} (network fee ${usd(w.fee_usd)})`,
+    }) +
+    p(`A SafeDeal ${kind} of <b>${usd(w.amount_usd)}</b> is held for your approval${threshold ? ` — cashouts of ${threshold} or more are reviewed before they're sent` : ""}.`) +
+    p(`Customer: <b>${who}</b> (#${customer.customer_id})`) +
+    p(`Cashout: <b>#${w.withdrawal_id}</b> · to ${mono(esc(w.address))}`) +
+    p(`Approve or reject it in the admin panel. The customer hasn't been told it's under review — to them it looks like a normal queued cashout.`);
+  await sendEmail(
+    adminEmail,
+    "Dynopay Admin",
+    `Action needed — SafeDeal ${kind} #${w.withdrawal_id} (${usd(w.amount_usd)}) awaiting approval`,
+    message,
+    false,
+    {
+      brand: "safedeal",
+      audience: "admin",
+      hero: "payout",
+      heading: "Cashout awaiting approval",
+      cta: { text: "Review in admin panel", link: opts.adminPanelUrl || safedealBaseUrl() },
+    }
+  );
+}

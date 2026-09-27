@@ -1415,6 +1415,12 @@ const deleteAddress = async (req: express.Request, res: express.Response) => {
   }
 };
 
+// A cashout held for admin approval (status 'pending_approval') must look like a normal queued
+// cashout to the CUSTOMER — approval is invisible to them (admin-only concern). Admin endpoints
+// use the raw row; every customer-facing response passes it through this masker first.
+const maskWithdrawalForCustomer = <T extends { status?: string; requires_approval?: boolean }>(w: T): T =>
+  w && w.status === "pending_approval" ? { ...w, status: "queued", requires_approval: false } : w;
+
 const withdrawQuote = async (req: express.Request, res: express.Response) => {
   try {
     const sess = session(res);
@@ -1427,7 +1433,7 @@ const withdrawQuote = async (req: express.Request, res: express.Response) => {
     if (!key) return errorResponseHelper(res, 400, "Choose a payout address.");
     const [bal, feeCredit] = await Promise.all([getBalances(sess.customer_id), getWithdrawalFeeCredit(sess.customer_id)]);
     const q = quoteWithdrawal(String(key), Number(amount || 0), feeCredit);
-    return successResponseHelper(res, 200, "OK", { ...q, fee_credit_available: feeCredit, available: bal.available, below_min: q.amount < MIN_WITHDRAWAL_USD, requires_approval: q.amount > APPROVAL_THRESHOLD_USD });
+    return successResponseHelper(res, 200, "OK", { ...q, fee_credit_available: feeCredit, available: bal.available, below_min: q.amount < MIN_WITHDRAWAL_USD, requires_approval: false });
   } catch (e) {
     return handle(res, e, "withdrawQuote");
   }
@@ -1439,13 +1445,10 @@ const withdraw = async (req: express.Request, res: express.Response) => {
     await requireStepUp(sess, req.body?.code);
     const customer = await customerFor(sess);
     const w = await requestWithdrawal(customer, { address_id: Number(req.body?.address_id), amount: Number(req.body?.amount) });
-    const msg =
-      w.status === "sent"
-        ? "Cashout sent."
-        : w.status === "pending_approval"
-        ? `Cashouts above $${APPROVAL_THRESHOLD_USD} are reviewed by our team first — you'll get an email once it's sent.`
-        : "Cashout queued.";
-    return successResponseHelper(res, 201, msg, { withdrawal: w, wallet: await getBalances(sess.customer_id) });
+    // 'pending_approval' is masked to a normal 'queued' cashout — the customer is never told
+    // their cashout is under review (the admin is emailed to approve it behind the scenes).
+    const msg = w.status === "sent" ? "Cashout sent." : "Cashout queued.";
+    return successResponseHelper(res, 201, msg, { withdrawal: maskWithdrawalForCustomer(w), wallet: await getBalances(sess.customer_id) });
   } catch (e) {
     return handle(res, e, "withdraw");
   }
@@ -1454,7 +1457,7 @@ const withdraw = async (req: express.Request, res: express.Response) => {
 const withdrawals = async (_req: express.Request, res: express.Response) => {
   try {
     const rows = await listWithdrawals(session(res).customer_id, 100);
-    return successResponseHelper(res, 200, "OK", rows, rows.length);
+    return successResponseHelper(res, 200, "OK", rows.map(maskWithdrawalForCustomer), rows.length);
   } catch (e) {
     return handle(res, e, "withdrawals");
   }
