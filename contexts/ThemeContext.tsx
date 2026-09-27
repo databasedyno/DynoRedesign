@@ -8,7 +8,7 @@ import {
   parseMode,
   readCookieValue,
   resolveLegacyMode,
-  isSafeDealPath,
+  isSafeDealLocation,
   type ThemeMode,
   type ThemeSource,
 } from '@/utils/theme/routeContext';
@@ -102,7 +102,7 @@ function clearLegacyKeys() {
 }
 
 function resolveTheme(): ThemeState {
-  if (isSafeDealPath(window.location.pathname)) return { mode: 'light', source: 'fixed' };
+  if (isSafeDealLocation(window.location)) return { mode: 'light', source: 'fixed' };
   const manual = readManualChoice();
   if (manual) return { mode: manual, source: 'manual' };
   return { mode: systemMode(), source: 'system' };

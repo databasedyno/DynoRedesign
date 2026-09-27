@@ -43,6 +43,18 @@ export function isSafeDealPath(pathname: string | undefined | null): boolean {
   return path === "/safedeal" || path.startsWith("/safedeal/");
 }
 
+/** safedeal.sh serves /safedeal/* via a host rewrite, so the browser URL is "/signin", not "/safedeal/signin". */
+export function isSafeDealHost(host: string | undefined | null): boolean {
+  const h = String(host || "").toLowerCase().split(":")[0];
+  return h === "safedeal.sh" || h.endsWith(".safedeal.sh");
+}
+
+/** True when the current browser location is a SafeDeal surface (by path OR by host). Keep IN SYNC with the _document blocking script. */
+export function isSafeDealLocation(loc: { pathname?: string | null; hostname?: string | null } | undefined | null): boolean {
+  if (!loc) return false;
+  return isSafeDealPath(loc.pathname) || isSafeDealHost(loc.hostname);
+}
+
 /** Read a cookie value from a raw `Cookie` header / `document.cookie` string. */
 export function readCookieValue(cookieHeader: string | undefined | null, name: string): string | null {
   if (!cookieHeader) return null;

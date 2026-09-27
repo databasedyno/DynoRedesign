@@ -855,14 +855,16 @@ App.getInitialProps = async (appContext: AppContext) => {
 
   const rawUrl = (appContext.ctx.pathname || (req as any)?.url || "/") as string;
   const pathname = rawUrl.split(/[?#]/)[0] || "/";
-  const { THEME_KEY, THEME_EFFECTIVE_COOKIE, parseMode, readCookieValue, resolveLegacyMode, isSafeDealPath } =
+  const { THEME_KEY, THEME_EFFECTIVE_COOKIE, parseMode, readCookieValue, resolveLegacyMode, isSafeDealPath, isSafeDealHost } =
     await import("@/utils/theme/routeContext");
 
   const cookieHeader =
     reqHeaders.cookie ||
     (typeof document !== "undefined" ? document.cookie : "");
 
-  const initialThemeMode: "light" | "dark" = isSafeDealPath(pathname)
+  const hostHeaderRaw = reqHeaders.host;
+  const hostHeader = Array.isArray(hostHeaderRaw) ? hostHeaderRaw[0] : hostHeaderRaw;
+  const initialThemeMode: "light" | "dark" = isSafeDealPath(pathname) || isSafeDealHost(hostHeader)
     ? "light"
     : parseMode(readCookieValue(cookieHeader, THEME_KEY)) ??
       resolveLegacyMode((k) => readCookieValue(cookieHeader, k)) ??
