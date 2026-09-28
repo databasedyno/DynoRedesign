@@ -12,7 +12,7 @@ import time
 import pytest
 import requests
 
-BASE_URL = os.environ.get("NEXT_PUBLIC_BASE_URL", "https://448b4989-9678-4eeb-8d37-7be2ef8c6464.preview.emergentagent.com").rstrip("/")
+BASE_URL = os.environ.get("NEXT_PUBLIC_BASE_URL", "https://vault-auth-8.preview.emergentagent.com").rstrip("/")
 EMAIL = "onarrival21@gmail.com"
 PASSWORD = "Katiekendra123@"
 COMPANY_ID = 1

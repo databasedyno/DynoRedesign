@@ -1,7 +1,7 @@
 # ============================================================================
 # >>> 2026-09-28 (fork, pt8) — HANDOFF FOR TESTING: payment-link "created" date — 6 GAPS CLOSED, FRONTEND TEST PENDING <<<
 # ============================================================================
-#  POD: https://448b4989-9678-4eeb-8d37-7be2ef8c6464.preview.emergentagent.com (= SERVER_URL in
+#  POD: https://vault-auth-8.preview.emergentagent.com (= SERVER_URL in
 #  /app/backend/.env; the vault-setup-12 URL above is STALE). SAFE MODE, LIVE prod DB. Next.js PROD
 #  build (no hot reload) — REBUILT this session and contains testid tx-detail-link-created.
 #  Owner login: onarrival21@gmail.com / Katiekendra123@ (user_id 1, company_id 1 "The Dev Store";
@@ -54,7 +54,7 @@
 #  Tested by: testing_agent (deep_testing_backend_v2)
 #  Test date: 2026-09-28
 #  Test method: Python backend API testing (READ-ONLY on LIVE PRODUCTION DB)
-#  Base URL: https://vault-setup-12.preview.emergentagent.com
+#  Base URL: https://vault-auth-8.preview.emergentagent.com
 #  Environment: SAFE MODE, LIVE prod DB, Node/TypeScript backend
 #
 #  CONTEXT: Verified the backend change for POST /api/wallet/getAllTransactions
@@ -193,7 +193,7 @@
 # ============================================================================
 # >>> 2026-09-28 (fork, pt6) — MAIN AGENT CHANGES FOR TESTING <<<
 # ============================================================================
-#  POD: https://vault-setup-12.preview.emergentagent.com
+#  POD: https://vault-auth-8.preview.emergentagent.com
 #  (the older vault-setup-11 / db6f1699 URLs in this file are STALE — use the one above)
 #  SAFE MODE, LIVE prod DB, Node/TypeScript backend on :8001, Next.js prod build on :3000.
 #  Admin login: moxxcompany@gmail.com / Katiekendra123@
@@ -254,7 +254,7 @@
 #   Tested by: testing_agent (deep_testing_backend_v2)
 #   Test date: 2026-09-28
 #   Test method: Python backend API testing (READ-ONLY on LIVE PRODUCTION DB)
-#   Base URL: https://vault-setup-12.preview.emergentagent.com
+#   Base URL: https://vault-auth-8.preview.emergentagent.com
 #   Environment: SAFE MODE, LIVE prod DB, Node/TypeScript backend
 #
 #   CONTEXT: Verified the bugfix for "Weekly Summary" notification volume bug where
@@ -482,7 +482,7 @@
 #      finish. Credentials: owner onarrival21@gmail.com / Katiekendra123@ (user_id 1, TOTP 2FA:
 #      `node backend/scripts/print_totp.cjs 1`). Login: POST /api/user/login → challenge_token →
 #      POST /api/user/2fa/validate {challenge_token, token} → accessToken. Bearer bypasses CSRF on
-#      /api/notifications/*. Preview: https://vault-setup-12.preview.emergentagent.com
+#      /api/notifications/*. Preview: https://vault-auth-8.preview.emergentagent.com
 #      OPS: preview FE = PRODUCTION next build (NO hot reload) — after FE edits `rm -rf /app/.next-prod
 #      && sudo supervisorctl restart frontend` (~3.5m). Backend ts-node: `sudo supervisorctl restart backend`.
 # ============================================================================
@@ -495,7 +495,7 @@
 #   Tested by: testing_agent (deep_testing_backend_v2)
 #   Test date: 2026-09-28
 #   Test method: Python backend API testing with read-only DB query validation
-#   Base URL: https://vault-setup-12.preview.emergentagent.com
+#   Base URL: https://vault-auth-8.preview.emergentagent.com
 #   Environment: SAFE MODE, LIVE prod DB, Node/TypeScript backend
 #
 #   CONTEXT: Verified the bug fix for merchant "Weekly Summary" notification where
@@ -714,7 +714,7 @@
 #   OPS: preview = PRODUCTION next build (NO hot reload). After FE edits:
 #     rm -rf /app/.next-prod && sudo supervisorctl restart frontend (~3.5 min).
 #     Backend Node/ts-node: sudo supervisorctl restart backend.
-#     Preview URL: https://vault-setup-12.preview.emergentagent.com
+#     Preview URL: https://vault-auth-8.preview.emergentagent.com
 # ============================================================================
 
 
@@ -724,7 +724,7 @@
 #   Tested by: testing_agent (frontend_testing_v2)
 #   Test date: 2026-09-28
 #   Test method: Python Playwright browser automation
-#   Base URL: https://vault-setup-12.preview.emergentagent.com
+#   Base URL: https://vault-auth-8.preview.emergentagent.com
 #   Environment: SAFE MODE, LIVE prod DB, PRODUCTION Next.js build
 #
 #   CONTEXT: E2E verification of SafeDeal UX Audit Batch 3 findings (SD-01 through SD-06)
@@ -3158,7 +3158,7 @@
 
 # ============================================================================
 # >>> CURRENT FRONTEND TEST REQUEST (fee-copy + currency-selector) <<<
-#   Preview URL (THIS pod): https://vault-setup-12.preview.emergentagent.com
+#   Preview URL (THIS pod): https://vault-auth-8.preview.emergentagent.com
 #   SafeDeal sign-in = email + one-time code; outbound email OFF in preview so the code is shown
 #   in the UI (data-testid=sd-signin-preview-code) and returned as data.preview_code. Any email
 #   works (creates a customer under brand 262). Use throwaway sd_qa_*@example.com.
@@ -3499,7 +3499,7 @@
 
 # ============================================================================
 # >>> CURRENT TASK (2026-09-20) — SAFEDEAL BUYER<->SELLER E2E (fund -> deliver -> release) <<<
-#   Preview URL (THIS pod): https://vault-setup-12.preview.emergentagent.com
+#   Preview URL (THIS pod): https://vault-auth-8.preview.emergentagent.com
 #   Prepared deal (LIVE prod DB, SAFE MODE, money SIMULATED, ESCROW_LIVE_SETTLEMENT off):
 #     token=e79888ff5e7e15c0657539d6c83f4242006f90db8846daa0  escrow_id=164  $250 USD  USDT-TRC20
 #     status=awaiting_payment  company_id=262 (SafeDeal brand)  seller=cid607  buyer=cid608
@@ -3524,7 +3524,7 @@
 #   Tested by: testing_agent (auto_frontend_testing_agent)
 #   Test date: 2026-09-20
 #   Test method: Python Playwright browser automation
-#   Preview URL: https://vault-setup-12.preview.emergentagent.com
+#   Preview URL: https://vault-auth-8.preview.emergentagent.com
 #   Deal token: e79888ff5e7e15c0657539d6c83f4242006f90db8846daa0
 #   Deal amount: $250 USD (USDT-TRC20)
 #   Parties: Seller cid607 (sd-audit-1789847049@example.com) / Buyer cid608 (sd-buyer-e2e-1789849169@example.com)
@@ -3775,7 +3775,7 @@
 #   Tested by: testing_agent (auto_frontend_testing_agent)
 #   Test date: 2026-09-19
 #   Test method: Python Playwright browser automation
-#   Base URL: https://vault-setup-12.preview.emergentagent.com
+#   Base URL: https://vault-auth-8.preview.emergentagent.com
 #
 #   TEST RESULTS SUMMARY: ALL PRIMARY TESTS PASSED (100% success rate)
 #
@@ -3912,7 +3912,7 @@
 #   Tested by: testing_agent (auto_frontend_testing_agent)
 #   Test date: 2026-09-19
 #   Test method: Python Playwright browser automation
-#   Base URL: https://vault-setup-12.preview.emergentagent.com
+#   Base URL: https://vault-auth-8.preview.emergentagent.com
 #
 #   TEST RESULTS SUMMARY: 2/2 TESTS PASSED (100% success rate)
 #
@@ -4224,7 +4224,7 @@
 #   Tested by: testing_agent (deep_testing_backend_v2)
 #   Test date: 2026-09-18
 #   Test method: Python backend test (backend_test_escrow.py)
-#   Base URL: https://vault-setup-12.preview.emergentagent.com/api
+#   Base URL: https://vault-auth-8.preview.emergentagent.com/api
 #   Auth: Merchant owner (onarrival21@gmail.com) + Super-admin (moxxcompany@gmail.com)
 #
 #   CONTEXT: Verified the NEW email-OTP flow, custody conversion, two-phase settlement
@@ -10753,7 +10753,7 @@ Test Data Cleaned: Attempted (deletion blocked by OTP requirement)
 #   Tested by: testing_agent
 #   Test date: 2026-09-17
 #   Test method: Python backend test (backend_test.py)
-#   Backend URL: https://vault-setup-12.preview.emergentagent.com/api
+#   Backend URL: https://vault-auth-8.preview.emergentagent.com/api
 #   Admin login: moxxcompany@gmail.com / Katiekendra123@
 #
 #   CONTEXT: Verified the payment email rendering fix via the new diagnostics endpoint
@@ -11078,7 +11078,7 @@ Test Data Cleaned: Attempted (deletion blocked by OTP requirement)
 #   Tested by: testing_agent (auto_frontend_testing_agent)
 #   Test date: 2026-09-18 18:12 UTC
 #   Test method: Python Playwright browser automation
-#   Base URL: https://vault-setup-12.preview.emergentagent.com
+#   Base URL: https://vault-auth-8.preview.emergentagent.com
 #   Auth: Merchant owner (onarrival21@gmail.com) + TOTP 2FA
 #
 #   CONTEXT: Attempted comprehensive E2E testing of the DynoPay ESCROW UI covering:
@@ -11088,7 +11088,7 @@ Test Data Cleaned: Attempted (deletion blocked by OTP requirement)
 #   - TEST D: Admin (best-effort, dispute queue, run-escalations)
 #
 #   CRITICAL BLOCKER: Preview URL returned 502 Bad Gateway (Cloudflare error)
-#   - The preview URL https://vault-setup-12.preview.emergentagent.com
+#   - The preview URL https://vault-auth-8.preview.emergentagent.com
 #     is showing "Bad gateway - Error code 502" from Cloudflare
 #   - This appears to be a Kubernetes ingress or preview environment issue
 #   - Local services are HEALTHY:
@@ -11438,7 +11438,7 @@ Test Data Cleaned: Attempted (deletion blocked by OTP requirement)
 #   Tested by: testing_agent (frontend_testing_v2)
 #   Test date: 2026-09-27
 #   Test method: Python Playwright browser automation
-#   Base URL: https://vault-setup-12.preview.emergentagent.com
+#   Base URL: https://vault-auth-8.preview.emergentagent.com
 #   Environment: SAFE MODE, LIVE prod DB (test-mode payments only, no real crypto)
 #
 #   CONTEXT: Verified the enhanced "Sandbox testing" card on the Developers → 
@@ -11678,7 +11678,7 @@ Test Data Cleaned: Attempted (deletion blocked by OTP requirement)
 #   Tested by: testing_agent (backend_testing)
 #   Test date: 2026-09-28
 #   Test method: Python requests API testing
-#   Base URL: https://vault-setup-12.preview.emergentagent.com
+#   Base URL: https://vault-auth-8.preview.emergentagent.com
 #   Environment: SAFE MODE, LIVE prod DB, BACKEND-ONLY (public endpoint, no auth)
 #
 #   CONTEXT: Verified the SafeDeal deal preview endpoint for E2E UX Audit Batch 3
@@ -11959,7 +11959,7 @@ Test Data Cleaned: Attempted (deletion blocked by OTP requirement)
 #   Test date: 2026-09-28
 #   Test method: Python backend API testing (READ-ONLY on LIVE PRODUCTION DB)
 #   Base URL: http://localhost:8001
-#   External URL: https://vault-setup-12.preview.emergentagent.com
+#   External URL: https://vault-auth-8.preview.emergentagent.com
 #   Environment: SAFE MODE, LIVE prod DB, Node/TypeScript backend
 #
 #   CONTEXT: Verified two backend changes on the Dynopay/SafeDeal app:
