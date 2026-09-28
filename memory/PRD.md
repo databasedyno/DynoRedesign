@@ -1,3 +1,23 @@
+# === 2026-09-28 (fork) E2E UX AUDIT PHASE 1 — BATCH 3 (SafeDeal SD-01…SD-06) VERIFIED ✅ — SD-05 wizard finished + full testing_agent + main-agent verification ===
+# WHAT CHANGED THIS SESSION: finished the only genuinely-incomplete Batch 3 item, SD-05 (create-deal wizard), in Components/SafeDeal/NewDeal.tsx:
+#   - invite method now DEFAULTS to "By shareable link" and it is listed FIRST (was "By email" first/default). state `inviteBy` default "link".
+#   - wizard collapsed 3 steps → 2: STEPS = ["The basics", "Terms (optional)"]. The old "Terms" + "Review & send" steps are merged into step 1 (fee payer / inspection / due / terms fields + <NewDealReview/> + submit on ONE screen). Nav: step<1 = Continue, step==1 = submit. Resume-from-signin lands on step 1.
+#   - mobile live-quote is now an INLINE card (const mobileQuote, testid sd-new-quote-inline, toggle sd-new-quote-bar-toggle, collapse id sd-quote-details) rendered directly UNDER the amount field (and again under the review); the old fixed bottom bar that COVERED the form (sd-new-quote-bar) was REMOVED. Desktop keeps the sticky right-column quote (sd-new-quote).
+#   - amount range copy fixed to same-currency `const rangeCopy` → "$30 – $3,415 (≈ €2,999)" (was mixed "$30 and €2,999"). $3,415 = Math.round(cfg.max_deal_usd).
+#   - header subtitle now "Invite the other party by shareable link or email…". Divider added to MUI import.
+# SD-01/03/06 (pure FE, prior session) + SD-02/04 (FE+BE, prior session) unchanged — see the older Batch-3 entry below.
+# VERIFICATION (all GREEN):
+#   BACKEND (deep_testing_backend_v2, 19/19): GET /api/safedeal/deals/:token/preview on both fixtures — SD-02 cost_items[5] {key,label,amount}, total_cost 19.36, costs_estimated true, fee_percent 5, buyer_pays/seller_receives present; SD-04 counterparty_email_hint===null on BOTH, counterparty_email_masked "sd•••@example.com", full email absent; bogus token → 404.
+#   FRONTEND (auto_frontend_testing_agent, guest 4/4): SD-02 preview cost sentence "Buyer pays $139.36 = $120.00 price + $19.36 SafeDeal costs" + expandable breakdown; SD-03 sd-how-strip + sd-preview-after-signin + humanised sd-preview-inspection; SD-04 full email absent, masked shown, signin link has no ?email=; SD-05 2 steps, link preselected/first, inline quote under amount, range copy exact, no 390px overflow.
+#   MAIN AGENT (Playwright, the 2 authed cases the FE agent couldn't reach): SD-06 buyer/invitee on deal #348 @390px — inline Accept hidden + sticky bar "Accept deal" visible (ONE primary CTA), only Decline inline, "Cancel deal" ABSENT for the invitee while status=invited. SD-01 seller /safedeal/deals @390px — Deals tab row "Selling to sd-audit-buyer-1…" ellipsized, scrollWidth==clientWidth==390 (no sideways scroll).
+# FIXTURES USED (prod DB, read-only / no funding): seller sd-audit-seller-1790570923@example.com (cid 1022), buyer sd-audit-buyer-1790570923@example.com (cid 1023); email deal token bfdd8f76429be0ef77804ea6f7038917a3caaec3b35f641e (#348), link deal 98d9f2ba0ccd4188c66f9c9e7e030a7c39c172a41b27e61f. SafeDeal sign-in = email OTP (code shown for *@example.com).
+# STILL NOT DONE (deliberately out of scope this session): SD-05 post-create share sheet is covered by the existing ShareInviteButtons on the created deal page (redirect /deal/:token?created=1); SD-02 landing-page "+ network & cashout costs" footnote still not done.
+# NEXT: user "Save to GitHub" (deploy = Improvement branch → droplet canary→swap). Then Batch 4 (AD-01 admin "Needs attention" panel, AD-03), Batch 5 (P2 polish). Cleanup fixtures after program: brand 345, SafeDeal cids 1022/1023 + deal #348.
+# OPS: preview = PRODUCTION next build (NO hot reload): after FE edits `rm -rf /app/.next-prod && sudo supervisorctl restart frontend` (~3.5 min; this session's build = 77s compile). Backend Node/ts-node: `sudo supervisorctl restart backend`. Preview: https://cd0a12df-8cd2-4301-a8cf-d89e2699ae29.preview.emergentagent.com
+# ============================================================================================
+
+
+
 # === 2026-06 (fork) E2E UX AUDIT PHASE 1 — BATCH 3 (P1 SafeDeal SD-01…SD-06) CODE ~90% DONE, tsc FE 0 / BE 0, NOT TESTED (user: "wrap up, update doc for next agent, end session") ===
 # GOAL: "Fix the six SafeDeal P1 audit findings (SD-01…SD-06) so buyers and sellers never get stuck mid-deal." Source of truth for findings + statuses = memory/UX_AUDIT_E2E_2026-09.md section C.
 # STATUS PER FINDING (all uncommitted; NONE verified by testing_agent or screenshot yet — the frontend prod build was rebuilt at wrap-up but not visually checked):

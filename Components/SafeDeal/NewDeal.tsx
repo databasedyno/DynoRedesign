@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
-import { Alert, Box, Button, Collapse, Container, Grid, InputAdornment, MenuItem, Stack, TextField, Typography } from "@mui/material";
+import { Alert, Box, Button, Collapse, Container, Divider, Grid, InputAdornment, MenuItem, Stack, TextField, Typography } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { SD_GOLD, SD_GOLD_DARK, SD_INK } from "./sdTheme";
 import safedealApi, { SdConfig, SdDealType, SdFeePreview, sdError } from "@/api/safedeal";
@@ -14,7 +14,7 @@ import { NewDealDraft, NewDealReview, QuoteBody, stepDot } from "./NewDealReview
 
 type Role = "buyer" | "seller";
 type FeePayer = "buyer" | "seller" | "split";
-const STEPS = ["The basics", "Terms", "Review & send"];
+const STEPS = ["The basics", "Terms (optional)"];
 const primaryBtn = { textTransform: "none", fontWeight: 900, borderRadius: 99, py: 1.2, px: 3, color: SD_INK, backgroundColor: SD_GOLD, "&:hover": { backgroundColor: SD_GOLD_DARK } } as const;
 const DRAFT_KEY = "sd_deal_draft";
 
@@ -29,7 +29,7 @@ export default function NewDeal() {
   const [currency, setCurrency] = useState("USD");
   const [role, setRole] = useState<Role>("seller");
   const [email, setEmail] = useState("");
-  const [inviteBy, setInviteBy] = useState<"email" | "link">("email");
+  const [inviteBy, setInviteBy] = useState<"email" | "link">("link");
   const [feePayer, setFeePayer] = useState<FeePayer>("buyer");
   const [days, setDays] = useState<number>(3);
   const [dealType, setDealType] = useState<SdDealType | null>(null);
@@ -48,6 +48,11 @@ export default function NewDeal() {
   const minDeal = cfg?.min_deal_usd ?? 30;
   const maxDealUsd = cfg?.max_deal_usd ?? null;
   const maxDealEur = cfg?.max_deal_eur ?? 2999;
+  // SD-05: same-currency range copy ("$30 – $3,416 (≈ €2,999)") instead of the
+  // confusing mixed "$30 and €2,999".
+  const rangeCopy = maxDealUsd
+    ? `$${minDeal} – $${Math.round(maxDealUsd).toLocaleString()} (≈ €${maxDealEur.toLocaleString()})`
+    : `$${minDeal} – €${maxDealEur.toLocaleString()} equivalent`;
   const amountNum = Number(amount);
   const fiat = currency !== "USD";
   const usdEquivalent = preview?.price ? preview.price.usd : amountNum;
@@ -124,7 +129,7 @@ export default function NewDeal() {
       setDealType((d.dealType as SdDealType) ?? null);
       setDue(d.due || "");
       setTerms(d.terms || "");
-      setStep(2);
+      setStep(1);
       void doCreate(d);
     } catch { /* ignore malformed draft */ }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -133,10 +138,26 @@ export default function NewDeal() {
   if (!ready) return null;
   const today = new Date().toISOString().slice(0, 10);
 
+  // SD-05: inline live quote shown directly under the amount (and on review) on
+  // phones — replaces the old fixed bottom bar that covered the form.
+  const mobileQuote = (
+    <Box sx={{ display: { xs: "block", md: "none" }, borderRadius: 2.5, backgroundColor: "#0B1020", color: "#fff", overflow: "hidden" }} data-testid="sd-new-quote-inline">
+      <Box role="button" tabIndex={0} aria-expanded={quoteOpen} aria-controls="sd-quote-details" onClick={() => setQuoteOpen((o) => !o)} onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setQuoteOpen((o) => !o)} data-testid="sd-new-quote-bar-toggle" sx={{ px: 1.8, py: 1.3, display: "flex", alignItems: "center", justifyContent: "space-between", cursor: preview ? "pointer" : "default" }}>
+        {preview ? (
+          <Typography sx={{ fontSize: 14, fontWeight: 800, ...TABULAR }}>Buyer pays <span style={{ color: SD_GOLD }}>{money(preview.buyerPays, "USD")}</span> · Seller gets <span style={{ color: "#6EE7B7" }}>{money(preview.sellerReceives, "USD")}</span></Typography>
+        ) : (
+          <Typography sx={{ fontSize: 13.5, color: SD_INK_MUTED }}>Live quote appears once the amount is ${minDeal} or more</Typography>
+        )}
+        {preview && <Icon icon={quoteOpen ? "mdi:chevron-up" : "mdi:chevron-down"} width={22} aria-hidden />}
+      </Box>
+      <Collapse in={quoteOpen && !!preview} id="sd-quote-details"><Box sx={{ px: 1.8, pb: 1.8 }}>{preview && <QuoteBody preview={preview} />}</Box></Collapse>
+    </Box>
+  );
+
   return (
     <Container maxWidth="lg" sx={{ py: { xs: 3, md: 5 } }} data-testid="sd-new-deal-page" data-step={step}>
       <Typography component="h1" sx={{ fontSize: { xs: 26, md: 32 }, fontWeight: 900, letterSpacing: -0.8, mb: 0.5 }}>Create a deal</Typography>
-      <Typography sx={{ fontSize: 14, color: "#6B7280", mb: 2.5 }}>The other party gets an email invite. Nothing is charged until the buyer funds the escrow.</Typography>
+      <Typography sx={{ fontSize: 14, color: "#6B7280", mb: 2.5 }}>Invite the other party by shareable link or email. Nothing is charged until the buyer funds the escrow.</Typography>
 
       {/* Stepper */}
       <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 2.5 }} role="list" aria-label="Steps" data-testid="sd-new-steps">
@@ -168,7 +189,7 @@ export default function NewDeal() {
                     onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ""))}
                     fullWidth
                     error={belowMin || aboveMax}
-                    helperText={aboveMax ? `Maximum deal is €${maxDealEur.toLocaleString()}${maxDealUsd ? ` (≈ ${money(maxDealUsd)})` : ""}${fiat ? ` — your amount ≈ ${money(usdEquivalent)}` : ""}` : belowMin ? `Minimum deal amount is $${minDeal}${fiat ? ` (≈ ${money(usdEquivalent)} today)` : ""}` : fiat && preview?.price ? `≈ ${money(preview.price.usd)} today · USD locked when the buyer funds` : `Between $${minDeal} and €${maxDealEur.toLocaleString()}${fiat ? " equivalent" : ""}`}
+                    helperText={aboveMax ? `Maximum deal is €${maxDealEur.toLocaleString()}${maxDealUsd ? ` (≈ ${money(maxDealUsd)})` : ""}${fiat ? ` — your amount ≈ ${money(usdEquivalent)}` : ""}` : belowMin ? `Minimum deal amount is $${minDeal}${fiat ? ` (≈ ${money(usdEquivalent)} today)` : ""}` : fiat && preview?.price ? `≈ ${money(preview.price.usd)} today · USD locked when the buyer funds` : rangeCopy}
                     FormHelperTextProps={{ "data-testid": "sd-new-amount-helper" } as any}
                     InputProps={{ startAdornment: <InputAdornment position="start">{currency === "USD" ? "$" : currency}</InputAdornment> }}
                     inputProps={{ "data-testid": "sd-new-amount", inputMode: "decimal" }}
@@ -177,6 +198,7 @@ export default function NewDeal() {
                     {(cfg?.price_currencies || ["USD"]).map((c) => <MenuItem key={c} value={c} data-testid={`sd-new-currency-${c}`}>{c}</MenuItem>)}
                   </TextField>
                 </Stack>
+                {mobileQuote}
                 <Box>
                   <Typography sx={{ fontSize: 13, fontWeight: 800, mb: 0.8 }}>I am the…</Typography>
                   <SdChoice value={role} onChange={setRole} testid="sd-new-role" options={[
@@ -187,8 +209,8 @@ export default function NewDeal() {
                 <Box>
                   <Typography sx={{ fontSize: 13, fontWeight: 800, mb: 0.8 }}>How do you want to invite them?</Typography>
                   <SdChoice value={inviteBy} onChange={setInviteBy} testid="sd-new-invite-by" options={[
-                    { v: "email", label: "By email", sub: "We email them an invite", icon: "mdi:email-outline" },
                     { v: "link", label: "By shareable link", sub: "Send it over Telegram, WhatsApp…", icon: "mdi:link-variant" },
+                    { v: "email", label: "By email", sub: "We email them an invite", icon: "mdi:email-outline" },
                   ]} />
                 </Box>
                 {byLink ? (
@@ -225,14 +247,17 @@ export default function NewDeal() {
                   </Stack>
                   <TextField placeholder="What exactly is being delivered, by when, and what counts as done…" value={terms} onChange={(e) => setTerms(e.target.value)} fullWidth multiline minRows={5} inputProps={{ "data-testid": "sd-new-terms", maxLength: 10000 }} helperText="Clear terms are what a dispute gets judged against." />
                 </Box>
+
+                <Divider sx={{ my: 0.5 }} />
+                <Typography sx={{ fontSize: 13, fontWeight: 800 }} data-testid="sd-new-review-heading">Review & send</Typography>
+                <NewDealReview d={draft} preview={preview} minDeal={minDeal} />
+                {mobileQuote}
               </>
             )}
 
-            {step === 2 && <NewDealReview d={draft} preview={preview} minDeal={minDeal} />}
-
             <Stack direction="row" spacing={1} justifyContent="space-between" sx={{ pt: 0.5 }}>
               <Button disabled={step === 0 || busy} onClick={() => setStep((s) => s - 1)} data-testid="sd-new-back" sx={{ textTransform: "none", fontWeight: 700, borderRadius: 99, visibility: step === 0 ? "hidden" : "visible" }} startIcon={<Icon icon="mdi:arrow-left" />}>Back</Button>
-              {step < 2 ? (
+              {step < 1 ? (
                 <Button variant="contained" disabled={step === 0 && !step0Ok} onClick={() => setStep((s) => s + 1)} data-testid="sd-new-continue" sx={primaryBtn} endIcon={<Icon icon="mdi:arrow-right" />}>Continue</Button>
               ) : (
                 <Button variant="contained" size="large" disabled={!canSubmit} onClick={() => void submit()} data-testid="sd-new-submit" endIcon={<Icon icon="mdi:send" />} sx={primaryBtn}>{busy ? "Creating…" : byLink ? "Create invite link" : "Send invite"}</Button>
@@ -248,20 +273,6 @@ export default function NewDeal() {
           </Box>
         </Grid>
       </Grid>
-
-      {/* Mobile: collapsed sticky quote bar */}
-      <Box sx={{ display: { xs: "block", md: "none" }, position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 30, backgroundColor: "#0B1020", color: "#fff", borderTop: "1px solid rgba(255,255,255,0.12)", boxShadow: "0 -10px 30px rgba(0,0,0,0.25)" }} data-testid="sd-new-quote-bar">
-        <Box role="button" tabIndex={0} aria-expanded={quoteOpen} aria-controls="sd-quote-details" onClick={() => setQuoteOpen((o) => !o)} onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setQuoteOpen((o) => !o)} data-testid="sd-new-quote-bar-toggle" sx={{ px: 2, py: 1.3, display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}>
-          {preview ? (
-            <Typography sx={{ fontSize: 14, fontWeight: 800, ...TABULAR }}>Buyer pays <span style={{ color: SD_GOLD }}>{money(preview.buyerPays, "USD")}</span> · Seller gets <span style={{ color: "#6EE7B7" }}>{money(preview.sellerReceives, "USD")}</span></Typography>
-          ) : (
-            <Typography sx={{ fontSize: 13.5, color: SD_INK_MUTED }}>Live quote appears once the amount is ${minDeal} or more</Typography>
-          )}
-          <Icon icon={quoteOpen ? "mdi:chevron-down" : "mdi:chevron-up"} width={22} aria-hidden />
-        </Box>
-        <Collapse in={quoteOpen && !!preview} id="sd-quote-details"><Box sx={{ px: 2, pb: 2 }}>{preview && <QuoteBody preview={preview} />}</Box></Collapse>
-      </Box>
-      <Box sx={{ display: { xs: "block", md: "none" }, height: 64 }} aria-hidden />
     </Container>
   );
 }
