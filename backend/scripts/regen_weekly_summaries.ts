@@ -109,13 +109,23 @@ async function main() {
 
     if (!APPLY) continue;
 
-    // Remove this morning's (buggy) weekly-summary row(s) for this user before recreating.
+    // Remove this morning's (buggy) weekly-summary row(s) for THIS (user, company) pair
+    // before recreating. Scope by company too — a user with multiple companies gets one
+    // row per company, and a user-level delete would wipe a sibling company's fresh row.
+    const companyId =
+      user.company_id === null || user.company_id === undefined ? null : Number(user.company_id);
     const del = (await sequelize.query(
       `DELETE FROM tbl_notification
        WHERE user_id = :userId AND type = :type AND created_at >= :since
+       AND ((:companyId::int IS NULL AND company_id IS NULL) OR company_id = :companyId)
        RETURNING notification_id`,
       {
-        replacements: { userId: Number(user.user_id), type: NOTIFICATION_TYPES.WEEKLY_SUMMARY, since: startOfTodayUtc.toISOString() },
+        replacements: {
+          userId: Number(user.user_id),
+          type: NOTIFICATION_TYPES.WEEKLY_SUMMARY,
+          since: startOfTodayUtc.toISOString(),
+          companyId,
+        },
         type: QueryTypes.SELECT,
       }
     )) as Array<Record<string, unknown>>;

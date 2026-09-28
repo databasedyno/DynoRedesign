@@ -1,3 +1,28 @@
+# === 2026-09-28 (fork, pt5) WEEKLY SUMMARY AMOUNT BUGFIX — FINISHED & VERIFIED (backend testing_agent 4/4) ===
+# Pod set up from encrypted vault (scripts/pod-bootstrap.sh --pass '<vault>'): env restored, URLs synced to
+# this pod, SAFE MODE on (bg jobs OFF), backend healthy (db+redis connected), frontend 200.
+# Completed the 2 pending follow-ups the prior session (pt4) left for the next agent:
+#  A. KYC reminder fix — controller/kycController.ts checkVolumeAndTriggerKYC now delegates to the
+#     authoritative checkKycEnforcement() (SUCCESSFUL USD tbl_customer_transaction) for
+#     totalVolume/kycStatus/daysRemaining, instead of summing raw tbl_user_transaction base_amount
+#     (native crypto units). Uses KYC_THRESHOLD_USD + KYC_GRACE_PERIOD_DAYS. Does NOT change payment
+#     blocking (already correct). tsc --noEmit = 0; backend restarted.
+#  B. Regenerated this-week WEEKLY_SUMMARY notifications with corrected USD volume via
+#     backend/scripts/regen_weekly_summaries.ts --apply (PROD DB write, user-authorised option "b").
+#     Result: 9 rows, one per eligible (user,company). u1/c1 "34 transactions ... $974.54" (was buggy
+#     $21.63), u1/c262 $115.67. Fixed a real bug in the script first: its DELETE was per-user and wiped a
+#     sibling company's freshly-recreated row for multi-company user 1 — now scoped per (user_id,
+#     company_id incl. NULL). Verified final DB = exactly 9 rows, both u1 rows present & correct.
+# VERIFICATION (deep_testing_backend_v2, READ-ONLY, 4/4 PASS): /health healthy; GET /api/kyc/status 200
+# total_volume $43,513.76 (USD, no crash); POST /api/notifications/trigger-weekly-summary {user_id:1,
+# dry_run:true} 200 total_volume $1,631.61 (USD, NOT the buggy raw-crypto $21.63/$542.87); no new err logs.
+# admin analytics services/analyticsService.ts intentionally NOT touched (user did not choose option d).
+# Uncommitted (working tree): controller/kycController.ts + scripts/regen_weekly_summaries.ts. Deploy =
+# user "Save to GitHub" -> droplet pipeline (NOT Emergent). Preview: 6a6233ec-...preview.emergentagent.com
+# ============================================================================================
+
+
+
 # === 2026-09-28 (fork) E2E UX AUDIT PHASE 1 — BATCH 3 (SafeDeal SD-01…SD-06) VERIFIED ✅ — SD-05 wizard finished + full testing_agent + main-agent verification ===
 # WHAT CHANGED THIS SESSION: finished the only genuinely-incomplete Batch 3 item, SD-05 (create-deal wizard), in Components/SafeDeal/NewDeal.tsx:
 #   - invite method now DEFAULTS to "By shareable link" and it is listed FIRST (was "By email" first/default). state `inviteBy` default "link".

@@ -438,30 +438,19 @@ export const checkVolumeAndTriggerKYC = async (
     if (isKycExempt(userId, companyId)) {
       return;
     }
-    // Calculate total volume
-    const volumeQuery = companyId
-      ? `SELECT COALESCE(SUM(base_amount), 0) as total_volume
-         FROM tbl_user_transaction 
-         WHERE user_id = :userId AND company_id = :companyId AND status = 'done'`
-      : `SELECT COALESCE(SUM(base_amount), 0) as total_volume
-         FROM tbl_user_transaction 
-         WHERE user_id = :userId AND status = 'done'`;
-
-    const volumeResult = await sequelize.query<{ total_volume: string }>(volumeQuery, {
-      replacements: { userId, companyId },
-      type: QueryTypes.SELECT,
-    });
-
-    const totalVolume = parseFloat(String(volumeResult[0]?.total_volume || "0"));
-    const volumeThreshold = 10000; // $10,000 USD threshold
-    const gracePeriodDays = 90; // 90-day grace period
+    // Use the SAME authoritative volume/threshold/grace source that actually gates
+    // payments (checkKycEnforcement sums successful USD tbl_customer_transaction).
+    // Previously this summed raw tbl_user_transaction base_amount (native crypto units),
+    // so the reminder almost never fired for non-stablecoin crypto merchants.
+    const enforcement = await checkKycEnforcement(userId, companyId, "[KYC volume-trigger]");
+    const totalVolume = enforcement.totalVolume;
+    const volumeThreshold = KYC_THRESHOLD_USD; // $10,000 USD threshold
+    const gracePeriodDays = KYC_GRACE_PERIOD_DAYS; // 90-day grace period
 
     // Check if KYC is required
     if (totalVolume >= volumeThreshold) {
-      // Check if KYC already exists (account-level: approved anywhere counts)
-      const kycRecord = await findEffectiveKycRecord(userId, companyId);
-
-      const kycStatus = kycRecord ? kycRecord.get("status") as string : "not_started";
+      // Status already resolved by the enforcement check (approved under any brand counts).
+      const kycStatus = enforcement.kycStatus;
       
       // If KYC not approved, send notifications
       if (kycStatus !== "approved") {
@@ -478,42 +467,10 @@ export const checkVolumeAndTriggerKYC = async (
         const userEmail = user?.email || '';
         const userName = user?.name || '';
 
-        // Calculate days since threshold was reached for grace period tracking
-        const thresholdReachedQuery = companyId
-          ? `SELECT MIN("createdAt") as threshold_date
-             FROM (
-               SELECT "createdAt", 
-                      SUM(CAST(base_amount AS DECIMAL)) OVER (ORDER BY "createdAt") as running_total
-               FROM tbl_customer_transaction 
-               WHERE company_id = :companyId AND status = 'successful'
-             ) sub
-             WHERE running_total >= :threshold`
-          : `SELECT MIN("createdAt") as threshold_date
-             FROM (
-               SELECT "createdAt", 
-                      SUM(CAST(base_amount AS DECIMAL)) OVER (ORDER BY "createdAt") as running_total
-               FROM tbl_user_transaction 
-               WHERE user_id = :userId AND status = 'done'
-             ) sub
-             WHERE running_total >= :threshold`;
-        
-        let daysRemaining = gracePeriodDays;
-        try {
-          const thresholdResult = await sequelize.query<{ threshold_date: string }>(
-            thresholdReachedQuery,
-            {
-              replacements: { userId, companyId, threshold: volumeThreshold },
-              type: QueryTypes.SELECT,
-            }
-          );
-          
-          const thresholdDate = thresholdResult[0]?.threshold_date ? new Date(thresholdResult[0].threshold_date) : new Date();
-          const gracePeriodEnd = new Date(thresholdDate);
-          gracePeriodEnd.setDate(gracePeriodEnd.getDate() + gracePeriodDays);
-          daysRemaining = Math.max(0, Math.ceil((gracePeriodEnd.getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
-        } catch (e) {
-          apiLogger.warn("[KYC] Could not calculate grace period, using default");
-        }
+        // Grace-period days come from the same authoritative enforcement check.
+        const daysRemaining = typeof enforcement.daysRemaining === "number"
+          ? Math.max(0, enforcement.daysRemaining)
+          : gracePeriodDays;
 
         // MONTHLY NOTIFICATION: Send reminder every 30 days until KYC is approved
         // Check for existing notification in the last 30 days (monthly)
