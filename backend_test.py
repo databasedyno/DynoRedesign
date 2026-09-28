@@ -11,7 +11,7 @@ import sys
 from typing import Dict, Any, Optional
 
 # Base URL for the preview pod
-BASE_URL = "https://6a6233ec-6bfc-417d-be21-dcf71faaed06.preview.emergentagent.com"
+BASE_URL = "https://vault-setup-11.preview.emergentagent.com"
 
 # Test credentials (owner account)
 TEST_EMAIL = "onarrival21@gmail.com"
