@@ -4,19 +4,27 @@ import { useTranslation } from "react-i18next";
 import CustomButton from "@/Components/UI/Buttons";
 import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
 
+const HERO = "var(--font-hero), var(--font-sans)";
+const MONO = "var(--font-tech), var(--font-mono, monospace)";
+const GOLD = "#FFD100";
+
 export const StepHeader: React.FC<{ eyebrow: string; title: string; subtitle: string }> = ({ eyebrow, title, subtitle }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   return (
-    <Box sx={{ mb: { xs: 2.5, md: 3 } }}>
+    <Box sx={{ mb: { xs: 2.5, md: 3.5 } }}>
       <Box
         sx={{
-          fontFamily: "var(--font-sans)",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 1,
+          fontFamily: MONO,
           fontSize: 11,
           fontWeight: 700,
-          letterSpacing: "0.08em",
+          letterSpacing: "0.16em",
           textTransform: "uppercase",
           color: isDark ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light,
+          "&::before": { content: '""', width: 6, height: 6, borderRadius: "50%", backgroundColor: GOLD, boxShadow: `0 0 10px ${GOLD}` },
         }}
       >
         {eyebrow}
@@ -26,12 +34,12 @@ export const StepHeader: React.FC<{ eyebrow: string; title: string; subtitle: st
         data-testid="gs-step-title"
         sx={{
           m: 0,
-          mt: 0.75,
-          fontFamily: "var(--font-sans)",
-          fontWeight: 700,
-          letterSpacing: "-0.02em",
-          fontSize: { xs: 20, md: 24 },
-          lineHeight: 1.2,
+          mt: 1,
+          fontFamily: HERO,
+          fontWeight: 800,
+          letterSpacing: "-0.03em",
+          fontSize: { xs: 22, md: 28 },
+          lineHeight: 1.15,
           color: isDark ? CB_TOKENS.ink.primaryDark : CB_TOKENS.ink.primaryLight,
         }}
       >
@@ -39,11 +47,11 @@ export const StepHeader: React.FC<{ eyebrow: string; title: string; subtitle: st
       </Box>
       <Box
         sx={{
-          mt: 0.75,
+          mt: 1,
           maxWidth: 620,
           fontFamily: "var(--font-sans)",
           fontSize: { xs: 13.5, md: 14.5 },
-          lineHeight: 1.55,
+          lineHeight: 1.6,
           color: isDark ? CB_TOKENS.ink.secondaryDark : CB_TOKENS.ink.secondaryLight,
         }}
       >
@@ -86,7 +94,7 @@ export const StepFooter: React.FC<FooterProps> = ({
       sx={{
         mt: { xs: 3, md: 4 },
         pt: { xs: 2.5, md: 3 },
-        borderTop: `1px solid ${isDark ? CB_TOKENS.border.dark : CB_TOKENS.border.light}`,
+        borderTop: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "rgba(18,18,20,0.07)"}`,
         display: "flex",
         flexDirection: { xs: "column-reverse", sm: "row" },
         alignItems: { xs: "stretch", sm: "center" },
@@ -103,8 +111,8 @@ export const StepFooter: React.FC<FooterProps> = ({
             onClick={onBack}
             sx={{
               minHeight: 44,
-              px: 1.5,
-              border: 0,
+              px: 1.75,
+              border: `1px solid ${isDark ? "rgba(255,255,255,0.09)" : "rgba(18,18,20,0.08)"}`,
               borderRadius: 999,
               background: "transparent",
               cursor: "pointer",
@@ -112,10 +120,13 @@ export const StepFooter: React.FC<FooterProps> = ({
               fontSize: 14,
               fontWeight: 600,
               color: isDark ? CB_TOKENS.ink.secondaryDark : CB_TOKENS.ink.secondaryLight,
-              "&:hover, &:focus-visible": {
-                backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "rgba(10,10,15,0.035)",
-                outline: "none",
+              transition: "background-color 160ms ease, border-color 160ms ease, transform 160ms ease",
+              "&:hover": {
+                backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "rgba(18,18,20,0.035)",
+                borderColor: isDark ? "rgba(255,255,255,0.16)" : "rgba(18,18,20,0.16)",
+                transform: "translateY(-1px)",
               },
+              "&:focus-visible": { outline: `2px solid ${GOLD}`, outlineOffset: 2 },
             }}
           >
             ← {t("gs.back", { defaultValue: "Back" })}
@@ -127,17 +138,19 @@ export const StepFooter: React.FC<FooterProps> = ({
           </Box>
         )}
       </Box>
-      <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 1.25, "& button": { minHeight: 46 } }}>
+      <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 1.25, "& button": { minHeight: 48 } }}>
         {secondaryLabel && onSecondary && (
-          <CustomButton label={secondaryLabel} variant="secondary" onClick={onSecondary} data-testid={secondaryTestId} />
+          <CustomButton label={secondaryLabel} variant="secondary" pill onClick={onSecondary} data-testid={secondaryTestId} sx={{ height: 48, minHeight: 48, px: 3 }} />
         )}
         <CustomButton
           label={primaryLabel}
           variant="primary"
+          pill
           onClick={onPrimary}
           disabled={primaryDisabled}
           loading={primaryLoading}
           data-testid={primaryTestId}
+          sx={{ height: 48, minHeight: 48, px: 3.5 }}
         />
       </Box>
     </Box>

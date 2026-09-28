@@ -58,14 +58,14 @@ const TitleDescription: React.FC<TitleDescriptionProps> = ({
              still override via `titleVariant` if they use it as a subtitle. */
           component={(titleVariant as any) || "h1"}
           sx={{
-            fontSize: "19px",
+            fontSize: "26px",
             fontFamily: "var(--font-hero), var(--font-sans)",
-            fontWeight: 500,
+            fontWeight: 800,
             color: "text.primary",
-            lineHeight: "1.25",
-            letterSpacing: "-0.01em",
+            lineHeight: "1.15",
+            letterSpacing: "-0.03em",
             m: 0,
-            ...(isMobile && { fontSize: "18px" }),
+            ...(isMobile && { fontSize: "23px" }),
           }}
         >
           {title}
@@ -78,7 +78,7 @@ const TitleDescription: React.FC<TitleDescriptionProps> = ({
             fontSize: "14.5px",
             fontFamily: "var(--font-body), var(--font-sans)",
             color: "text.secondary",
-            lineHeight: "1.5",
+            lineHeight: "1.55",
             letterSpacing: 0,
             ...(isMobile && { fontSize: "14px" }),
           }}

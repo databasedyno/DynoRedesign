@@ -602,14 +602,14 @@ const Register = () => {
               {step !== "success" && step !== "name" && (
                 <Box
                   data-testid="register-progress"
-                  sx={{ display: "flex", alignItems: "center", gap: 1.25, mb: 1.5 }}
+                  sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2 }}
                 >
                   <Typography
                     sx={{
-                      fontFamily: "var(--font-body)",
-                      fontSize: 11.5,
+                      fontFamily: "var(--font-tech), var(--font-mono, monospace)",
+                      fontSize: 11,
                       fontWeight: 700,
-                      letterSpacing: "0.14em",
+                      letterSpacing: "0.16em",
                       textTransform: "uppercase",
                       color: theme.palette.text.secondary,
                     }}
@@ -620,20 +620,26 @@ const Register = () => {
                       total: 3,
                     })}
                   </Typography>
-                  <Box sx={{ display: "flex", gap: 0.5 }}>
+                  <Box sx={{ display: "flex", gap: 0.625, flex: 1, maxWidth: 120 }}>
                     {[1, 2, 3].map((i) => {
                       const current = step === "purpose" ? 1 : step === "input" ? 2 : 3;
+                      const reached = i <= current;
                       return (
                         <Box
                           key={i}
+                          data-testid={`register-progress-seg-${i}`}
+                          data-reached={reached}
                           sx={{
-                            width: 18,
-                            height: 4,
-                            borderRadius: 2,
-                            backgroundColor:
-                              i <= current
-                                ? theme.palette.primary.main
-                                : theme.palette.action.selected,
+                            flex: 1,
+                            height: 5,
+                            borderRadius: 999,
+                            background: reached
+                              ? `linear-gradient(90deg, ${BRAND_ACCENT} 0%, #FFE566 100%)`
+                              : theme.palette.mode === "dark"
+                                ? "rgba(255,255,255,0.10)"
+                                : "rgba(18,18,20,0.10)",
+                            boxShadow: i === current ? `0 0 12px ${BRAND_ACCENT}99` : "none",
+                            transition: "background-color 300ms ease, box-shadow 300ms ease",
                           }}
                         />
                       );
