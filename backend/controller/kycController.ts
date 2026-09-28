@@ -201,21 +201,12 @@ const startKYCVerification = async (req: express.Request, res: express.Response)
       return errorResponseHelper(res, 404, "User not found");
     }
 
-    // Calculate current volume
-    const volumeQuery = company_id
-      ? `SELECT COALESCE(SUM(base_amount), 0) as total_volume
-         FROM tbl_user_transaction 
-         WHERE user_id = :userId AND company_id = :companyId AND status = 'done'`
-      : `SELECT COALESCE(SUM(base_amount), 0) as total_volume
-         FROM tbl_user_transaction 
-         WHERE user_id = :userId AND status = 'done'`;
-
-    const volumeResult = await sequelize.query<{ total_volume: string }>(volumeQuery, {
-      replacements: { userId, companyId: company_id },
-      type: QueryTypes.SELECT,
-    });
-
-    const totalVolume = parseFloat(String(volumeResult[0]?.total_volume || "0"));
+    // Current volume from the AUTHORITATIVE source (checkKycEnforcement sums
+    // successful USD tbl_customer_transaction) — NOT raw tbl_user_transaction
+    // base_amount (native crypto units). Keeps the stored volume_threshold and
+    // the notification in agreement with what actually gates payments.
+    const startEnforcement = await checkKycEnforcement(userId, company_id || null, "[KYC start]");
+    const totalVolume = startEnforcement.totalVolume;
 
     // Initialize Veriff service and create session
     const veriffService = getVeriffService();

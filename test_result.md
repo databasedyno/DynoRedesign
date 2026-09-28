@@ -1,4 +1,102 @@
 # ============================================================================
+# >>> HANDOFF (2026-09-28 pt4) — AMOUNTS BUGFIX IN PROGRESS — 2 items DONE+VERIFIED, 2 items PENDING <<<
+# ============================================================================
+#   USER REPORT: notifications page "Your Weekly Summary" volume was wrong ("34 transactions,
+#   total volume $21.63"). User asked to "investigate all and fix". User then chose:
+#     (b) regenerate ALL merchants' current weekly summaries so the on-screen number is fixed now
+#     (e) also review/fix the KYC threshold volume ("show the exact change first")
+#     (admin analytics 'd' was NOT chosen — DO NOT touch services/analyticsService.ts)
+#
+#   ── DONE + VERIFIED ──────────────────────────────────────────────────────
+#   1. utils/processedVolume.ts — added processedUsdExpr(alias="ut") (parametric version of the
+#      canonical USD expr = COALESCE(NULLIF(usd_value,0), stablecoin base_amount)); PROCESSED_USD_EXPR
+#      now = processedUsdExpr("ut") (unchanged value, back-compat). [applied]
+#   2. utils/cronJobs.ts — both weekly-summary SQLs (scheduled cron ~line50 + triggerWeeklySummary
+#      ~line182) now SUM(CASE WHEN <processed> THEN processedUsdExpr("") ELSE 0) instead of raw
+#      base_amount. Root cause of $21.63: it summed native crypto units (e.g. 0.0003 BTC as $). [applied]
+#      ✅ VERIFIED by deep_testing_backend_v2 (6/6): dry-run POST /api/notifications/trigger-weekly-summary
+#      {user_id:1,dry_run:true} returned total_volume $1631.61 (matches corrected DB) NOT old $542.87.
+#      Backend was restarted for this; it is HEALTHY (200).
+#   3. controller/kycController.ts — startKYCVerification: replaced its tbl_user_transaction base_amount
+#      volume query with `const startEnforcement = await checkKycEnforcement(userId, company_id||null,
+#      "[KYC start]"); const totalVolume = startEnforcement.totalVolume;` (now line ~208). [applied,
+#      file COMPILES, but backend NOT yet restarted with it — restart after item B below].
+#
+#   ── KEY FINDING (so we do NOT "fix" correct code) ─────────────────────────
+#   The AUTHORITATIVE KYC gate that actually blocks payments — helper/kycEnforcement.ts
+#   checkKycEnforcement() — sums tbl_customer_transaction where status='successful'. On that table
+#   ALL successful rows are base_currency='USD' and base_amount = the fiat invoice $ (avg $76.88).
+#   So the gate is ALREADY CORRECT and there is NO usd_value column on tbl_customer_transaction.
+#   DO NOT change kycEnforcement.ts. The ONLY KYC bug is that kycController read the WRONG table
+#   (tbl_user_transaction, crypto units) for the reminder-trigger + a display field. Fixing it only
+#   makes the KYC *reminder* fire on real USD volume + shows the right $; it does NOT change blocking.
+#   Also verified NOT bugs: "N checkouts expired unpaid (≈ $84.74)" (unlockedAmountsByCurrency +
+#   sumUnlockedUsd = per-currency crypto→live-price USD, correct); dashboardController chart/currency
+#   queries (group by base_currency, expose usd_volume separately, UI uses usd_volume).
+#
+#   ── PENDING (next agent, do these) ────────────────────────────────────────
+#   A. FINISH KYC fix — controller/kycController.ts, function checkVolumeAndTriggerKYC (~line 432).
+#      Delegate to the authoritative source (checkKycEnforcement is ALREADY imported, line 14, along
+#      with KYC_THRESHOLD_USD + KYC_GRACE_PERIOD_DAYS). Make THREE search_replace edits. ⚠️ The old
+#      blocks contain TRAILING SPACES — run `sed -n '441,516p' controller/kycController.ts | cat -A`
+#      first and match exactly (trailing space after `FROM tbl_user_transaction`, after
+#      `SELECT "createdAt",`, after `FROM tbl_customer_transaction`, and on the blank lines 465/499/509).
+#
+#      B1 — replace the volume-query block (currently lines ~441-457, from "    // Calculate total volume"
+#           through '    const gracePeriodDays = 90; // 90-day grace period') WITH:
+#             // Use the SAME authoritative volume/threshold/grace source that actually gates
+#             // payments (checkKycEnforcement sums successful USD tbl_customer_transaction).
+#             // Previously this summed raw tbl_user_transaction base_amount (native crypto units),
+#             // so the reminder almost never fired for non-stablecoin crypto merchants.
+#             const enforcement = await checkKycEnforcement(userId, companyId, "[KYC volume-trigger]");
+#             const totalVolume = enforcement.totalVolume;
+#             const volumeThreshold = KYC_THRESHOLD_USD; // $10,000 USD threshold
+#             const gracePeriodDays = KYC_GRACE_PERIOD_DAYS; // 90-day grace period
+#
+#      B2 — replace the kyc-record/status block (currently ~lines 461-464:
+#             "      // Check if KYC already exists (account-level: approved anywhere counts)\n
+#              "      const kycRecord = await findEffectiveKycRecord(userId, companyId);\n\n
+#              "      const kycStatus = kycRecord ? kycRecord.get(\"status\") as string : \"not_started\";)
+#           WITH:
+#             // Status already resolved by the enforcement check (approved under any brand counts).
+#             const kycStatus = enforcement.kycStatus;
+#
+#      B3 — replace the thresholdReachedQuery + grace-calc block (currently ~lines 481-516, from
+#           "        // Calculate days since threshold was reached for grace period tracking" through
+#           the closing "        }" of the try/catch) WITH:
+#             // Grace-period days come from the same authoritative enforcement check.
+#             const daysRemaining = typeof enforcement.daysRemaining === "number"
+#               ? Math.max(0, enforcement.daysRemaining)
+#               : gracePeriodDays;
+#           (The tail that follows — the 30-day existingNotification check, urgencyMessage,
+#            createNotification KYC_REQUIRED, sendKYCRequiredEmail — stays as-is; it uses
+#            totalVolume/volumeThreshold/daysRemaining/gracePeriodDays/userEmail/userName which all
+#            still exist. `findEffectiveKycRecord` import stays — still used by getKYCStatus.)
+#      Then: `sudo supervisorctl restart backend`; wait for /health=200; check backend.err.log clean.
+#
+#   B. REGENERATE stale weekly summaries (user option b). Script ALREADY WRITTEN:
+#        backend/scripts/regen_weekly_summaries.ts (dry-run default, --apply to write; company-scoped,
+#        replicates the FIXED cron exactly, deletes today's WEEKLY_SUMMARY rows then recreates).
+#      Run: cd /app/backend
+#           npx ts-node --transpile-only scripts/regen_weekly_summaries.ts            # dry run, eyeball
+#           npx ts-node --transpile-only scripts/regen_weekly_summaries.ts --apply    # writes (prod DB)
+#      Expect user_id=1/company_1 row to change from "$21.63" to ~"$974.54" (34 txn/15 done/19 pending).
+#      ⚠️ prod DB write — only deletes WEEKLY_SUMMARY rows created >= 00:00 UTC today (this morning's
+#      buggy run), never historical. Verify after: the notification message shows the corrected $.
+#
+#   C. TEST + FINISH: after A+B, run deep_testing_backend_v2 to (i) confirm KYC getKYCStatus /
+#      trigger still work & reminder volume is USD, (ii) re-confirm weekly-summary dry-run. Then
+#      finish. Credentials: owner onarrival21@gmail.com / Katiekendra123@ (user_id 1, TOTP 2FA:
+#      `node backend/scripts/print_totp.cjs 1`). Login: POST /api/user/login → challenge_token →
+#      POST /api/user/2fa/validate {challenge_token, token} → accessToken. Bearer bypasses CSRF on
+#      /api/notifications/*. Preview: https://cd0a12df-8cd2-4301-a8cf-d89e2699ae29.preview.emergentagent.com
+#      OPS: preview FE = PRODUCTION next build (NO hot reload) — after FE edits `rm -rf /app/.next-prod
+#      && sudo supervisorctl restart frontend` (~3.5m). Backend ts-node: `sudo supervisorctl restart backend`.
+# ============================================================================
+
+
+
+# ============================================================================
 # >>> TESTING AGENT VERIFICATION (2026-09-28 pt3) — BUGFIX: Weekly Summary "total volume" VERIFIED ✅ <<<
 # ============================================================================
 #   Tested by: testing_agent (deep_testing_backend_v2)
