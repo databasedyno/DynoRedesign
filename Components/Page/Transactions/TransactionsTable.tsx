@@ -14,6 +14,7 @@ import PolygonIcon from "@/assets/cryptocurrency/Polygon-icon.svg";
 import RLUSDIcon from "@/assets/cryptocurrency/RLUSD-icon.svg";
 import { Icon, MONO } from "@/styles/uiKit";
 import TransactionStatusBadge from "@/Components/UI/TransactionStatusBadge";
+import SandboxChip from "@/Components/UI/SandboxChip";
 import { getAssetColor } from "@/helpers/assetColor";
 import { getAssetTicker } from "@/utils/networkLabels";
 import { isSyntheticCustomer } from "@/utils/txDisplay";
@@ -463,6 +464,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                       autoConverted={transaction.autoConverted}
                       data-testid="tx-card-status"
                     />
+                    {transaction.sandbox && <Box sx={{ mt: 0.5 }}><SandboxChip data-testid="tx-card-sandbox" /></Box>}
                     <Typography sx={{ mt: 0.5, fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, whiteSpace: "nowrap" }}>
                       {transaction.dateTime}
                     </Typography>
@@ -848,6 +850,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                         autoConverted={transaction.autoConverted}
                         data-testid="tx-row-status"
                       />
+                      {transaction.sandbox && <SandboxChip data-testid="tx-row-sandbox" />}
                       {(transaction.status === "processing" || transaction.status === "confirmed" || transaction.status === "pending") && transaction.confirmations && (
                         <Typography
                           component="span"

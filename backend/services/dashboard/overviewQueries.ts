@@ -37,10 +37,13 @@ export const IN_RANGE = `(ut."createdAt" >= :start AND ut."createdAt" <= :end)`;
 const IN_PREV = `(ut."createdAt" >= :prevStart AND ut."createdAt" < :start)`;
 const SETTLE_MINUTES = `EXTRACT(EPOCH FROM (ut."updatedAt" - ut."createdAt")) / 60`;
 
+/** Sandbox (simulated) payments never count as money. */
+export const LIVE_ONLY = `COALESCE(ut.environment, 'production') <> 'development'`;
+
 export const fromClause = (s: OverviewScope) =>
   `FROM tbl_user_transaction ut
    ${s.companyId ? "LEFT JOIN tbl_customer c ON ut.customer_id = c.customer_id" : ""}
-   WHERE ut.user_id = :userId
+   WHERE ut.user_id = :userId AND ${LIVE_ONLY}
    ${s.companyId ? "AND (ut.company_id = :companyId OR c.company_id = :companyId)" : ""}`;
 
 const replacements = (s: OverviewScope) => ({
@@ -141,7 +144,7 @@ export const topLinks = (s: OverviewScope) =>
      ) pl ON pl.transaction_reference = ut.transaction_reference
      LEFT JOIN tbl_payment_link parent_pl ON parent_pl.link_id = pl.parent_link_id
      ${s.companyId ? "LEFT JOIN tbl_customer c ON ut.customer_id = c.customer_id" : ""}
-     WHERE ut.user_id = :userId
+     WHERE ut.user_id = :userId AND ${LIVE_ONLY}
      ${s.companyId ? "AND (ut.company_id = :companyId OR c.company_id = :companyId)" : ""}
      AND ${PROCESSED_STATUS_SQL} AND ${IN_RANGE}
      GROUP BY 1, 2, 3, 4 ORDER BY amount DESC LIMIT 6`,

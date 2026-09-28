@@ -23,6 +23,7 @@ import { useRouter } from "next/router";
 import adminBaseApi from "@/axiosAdmin";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { AdminStatusChip, formatDateTime, formatCrypto, formatUSD } from "../adminUi";
+import SandboxChip from "@/Components/UI/SandboxChip";
 
 interface CustomerTx {
   id?: string;
@@ -292,7 +293,10 @@ const AdminTransactions: React.FC = () => {
                           {renderUsdValue(t)}
                         </TableCell>
                         <TableCell>
-                          <AdminStatusChip status={t.status} />
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
+                            <AdminStatusChip status={t.status} />
+                            {(t as any).environment === "development" && <SandboxChip data-testid={`tx-sandbox-${t.id || i}`} />}
+                          </Box>
                         </TableCell>
                       </TableRow>
                     ))}

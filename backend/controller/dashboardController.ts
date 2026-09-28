@@ -173,7 +173,7 @@ const getDashboard = async (req: express.Request, res: express.Response) => {
         COUNT(*) FILTER (WHERE ut."createdAt" >= :startOfYesterday AND ut."createdAt" < :startOfToday AND ${PROCESSED_STATUS_SQL}) as yesterday_count
       FROM tbl_user_transaction ut
       ${companyJoin}
-      WHERE ut.user_id = :userId ${companyFilter}
+      WHERE ut.user_id = :userId AND COALESCE(ut.environment, 'production') <> 'development' ${companyFilter}
     `;
 
     // ── 2. Volume: SETTLED transactions only, using stored usd_value with
@@ -191,7 +191,7 @@ const getDashboard = async (req: express.Request, res: express.Response) => {
         COALESCE(SUM(ut.tax_amount) FILTER (WHERE ut."createdAt" >= :startOfMonth), 0) as current_month_tax
       FROM tbl_user_transaction ut
       ${companyJoin}
-      WHERE ut.user_id = :userId AND ${PROCESSED_STATUS_SQL} ${companyFilter}
+      WHERE ut.user_id = :userId AND COALESCE(ut.environment, 'production') <> 'development' AND ${PROCESSED_STATUS_SQL} ${companyFilter}
     `;
 
     // ── 3. Self-transactions count ──
@@ -446,7 +446,7 @@ const getChartData = async (req: express.Request, res: express.Response) => {
         COALESCE(SUM(${USD_FALLBACK_EXPR_CHART}), 0) as usd_volume
       FROM tbl_user_transaction ut
       ${companyJoinChart}
-      WHERE ut.user_id = :userId 
+      WHERE ut.user_id = :userId AND COALESCE(ut.environment, 'production') <> 'development' 
       AND ${PROCESSED_STATUS_SQL}
       AND ut."createdAt" >= :startDate
       AND ut."createdAt" <= :endDate
@@ -464,7 +464,7 @@ const getChartData = async (req: express.Request, res: express.Response) => {
         COALESCE(SUM(${USD_FALLBACK_EXPR_CHART}), 0) as usd_volume
        FROM tbl_user_transaction ut
        ${companyJoinChart}
-       WHERE ut.user_id = :userId 
+       WHERE ut.user_id = :userId AND COALESCE(ut.environment, 'production') <> 'development' 
        AND ${PROCESSED_STATUS_SQL}
        AND ut."createdAt" >= :startDate
        AND ut."createdAt" <= :endDate
@@ -479,7 +479,7 @@ const getChartData = async (req: express.Request, res: express.Response) => {
         COUNT(*) as count
        FROM tbl_user_transaction ut
        ${companyJoinChart}
-       WHERE ut.user_id = :userId 
+       WHERE ut.user_id = :userId AND COALESCE(ut.environment, 'production') <> 'development' 
        AND ut."createdAt" >= :startDate
        AND ut."createdAt" <= :endDate
        ${companyFilterChart}
@@ -496,7 +496,7 @@ const getChartData = async (req: express.Request, res: express.Response) => {
         COALESCE(SUM(${USD_FALLBACK_EXPR_CHART}), 0) as usd_volume
        FROM tbl_user_transaction ut
        ${companyJoinChart}
-       WHERE ut.user_id = :userId
+       WHERE ut.user_id = :userId AND COALESCE(ut.environment, 'production') <> 'development'
        AND ${PROCESSED_STATUS_SQL}
        AND ut."createdAt" >= :prevStart
        AND ut."createdAt" < :prevEnd
@@ -758,7 +758,7 @@ const getFeeTiers = async (req: express.Request, res: express.Response) => {
       `SELECT COALESCE(SUM(${feeUsdFallback}), 0) as total_usd_volume
        FROM tbl_user_transaction ut
        ${companyJoinFee}
-       WHERE ut.user_id = :userId 
+       WHERE ut.user_id = :userId AND COALESCE(ut.environment, 'production') <> 'development' 
        AND ${PROCESSED_STATUS_SQL}
        ${companyFilterFee}`,
       {
@@ -903,7 +903,7 @@ const getRecentTransactions = async (req: express.Request, res: express.Response
        LEFT JOIN tbl_payment_link parent_pl ON parent_pl.link_id = pl.parent_link_id
        LEFT JOIN tbl_product_order po ON po.payment_link_id = pl.link_id
        ${SAFEDEAL_SOURCE_JOIN_SQL}
-       WHERE ut.user_id = :userId
+       WHERE ut.user_id = :userId AND COALESCE(ut.environment, 'production') <> 'development'
          ${company_id ? 'AND (ut.company_id = :companyId OR c.company_id = :companyId)' : ''}
        ORDER BY ut."createdAt" DESC
        LIMIT :limit`,
@@ -1263,7 +1263,7 @@ const getActionCounts = async (req: express.Request, res: express.Response) => {
         (SELECT COUNT(*)::int
            FROM tbl_user_transaction ut
            LEFT JOIN tbl_customer c ON ut.customer_id = c.customer_id
-          WHERE ut.user_id = :userId
+          WHERE ut.user_id = :userId AND COALESCE(ut.environment, 'production') <> 'development'
             AND ${FRESH_PENDING_SQL}
             ${txCompanyFilterSql}
         ) AS transactions_pending,
@@ -1333,7 +1333,7 @@ const getActionCounts = async (req: express.Request, res: express.Response) => {
            SELECT 1
              FROM tbl_user_transaction ut
              LEFT JOIN tbl_customer c ON ut.customer_id = c.customer_id
-            WHERE ut.user_id = :userId
+            WHERE ut.user_id = :userId AND COALESCE(ut.environment, 'production') <> 'development'
               AND ${PROCESSED_STATUS_SQL}
               ${txCompanyFilterSql}
         )) AS has_settlement,
@@ -1427,7 +1427,7 @@ const getPendingSummary = async (req: express.Request, res: express.Response) =>
        FROM tbl_user_transaction ut
        LEFT JOIN tbl_user_wallet uw ON ut.wallet_id = uw.wallet_id
        LEFT JOIN tbl_customer c ON ut.customer_id = c.customer_id
-       WHERE ut.user_id = :userId
+       WHERE ut.user_id = :userId AND COALESCE(ut.environment, 'production') <> 'development'
          ${company_id ? 'AND (ut.company_id = :companyId OR c.company_id = :companyId)' : ''}
          AND ${FRESH_PENDING_SQL}
        ORDER BY ut."createdAt" DESC

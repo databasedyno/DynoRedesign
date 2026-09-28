@@ -18,6 +18,7 @@ export default function EditPaymentLink() {
   const muiTheme = useTheme();
   const [paymentLinkData, setPaymentLinkData] = useState<PaymentLink | {}>({});
   const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -85,6 +86,7 @@ export default function EditPaymentLink() {
         }
       } catch (err) {
         console.error("Failed to fetch payment link:", err);
+        setNotFound(true);
       } finally {
         setLoading(false);
       }
@@ -97,6 +99,28 @@ export default function EditPaymentLink() {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
         <CircularProgress size={32} />
+      </Box>
+    );
+  }
+
+  if (notFound) {
+    return (
+      <Box data-testid="paylink-not-found" sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1.5, py: 10, textAlign: "center" }}>
+        <Text sx={{ fontSize: "20px", fontWeight: 700, color: muiTheme.palette.text.primary }}>
+          {t("linkNotFoundTitle", { defaultValue: "This payment link isn't available" })}
+        </Text>
+        <Text sx={{ fontSize: "14px", color: muiTheme.palette.text.secondary, maxWidth: 420 }}>
+          {t("linkNotFoundBody", { defaultValue: "It may have been deleted, or the address is wrong. Your other links are safe." })}
+        </Text>
+        <Box
+          component="button"
+          type="button"
+          data-testid="paylink-not-found-back"
+          onClick={() => router.push("/pay-links")}
+          sx={{ mt: 1, px: 2.5, minHeight: 40, borderRadius: "999px", border: "none", cursor: "pointer", fontWeight: 700, fontSize: 14, backgroundColor: muiTheme.palette.primary.main, color: muiTheme.palette.getContrastText(muiTheme.palette.primary.main) }}
+        >
+          {t("backToPaymentLinks")}
+        </Box>
       </Box>
     );
   }

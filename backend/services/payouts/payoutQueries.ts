@@ -5,6 +5,7 @@ import {
   OverviewScope,
   companyScopeSql,
   fromClause,
+  LIVE_ONLY,
   many,
   one,
 } from "../dashboard/overviewQueries";
@@ -97,7 +98,7 @@ export const recentForwards = (s: OverviewScope) =>
        ORDER BY x."updatedAt" DESC LIMIT 1
      ) sc ON TRUE
      LEFT JOIN tbl_user_wallet uw ON uw.wallet_id = ut.wallet_id
-     WHERE ut.user_id = :userId
+     WHERE ut.user_id = :userId AND ${LIVE_ONLY}
      ${s.companyId ? "AND (ut.company_id = :companyId OR c.company_id = :companyId)" : ""}
      AND ${PROCESSED_STATUS_SQL} AND ${FORWARDED_ANY}
      ORDER BY forwarded_at DESC

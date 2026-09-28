@@ -1,0 +1,87 @@
+# Dynopay + SafeDeal — End-to-End Experience Audit (Phase 1) · living report
+
+**Date:** 2026-09-28 · **Build:** production build on this pod (same code as `Improvement` branch) · **Harness:** `scripts/qa/e2e_audit_shots.mjs` (Playwright vs localhost:3000 → /api proxied to :8001; 390×844 iPhone + 1440×900; light + dark) · screenshots `/tmp/e2e_audit/<set>/*.jpg`, DOM audit `/tmp/e2e_audit/results_<set>.json`.
+**Personas:** guest buyer (link `jgQQzL` $12, `addPayment`/`verifyCryptoPayment` mocked per state), merchant owner (brand 1 rich · throwaway brand 345 empty), SafeDeal buyer cid 1023 / seller cid 1022 (`sd-audit-*@example.com`, deals #348 email-invite + link-invite), super-admin.
+**Severity:** P0 = broken/blocked flow or misleading money state · P1 = confusing/high friction · P2 = polish · ENG = engagement/activation gap.
+**Status:** open · fixed (code) · shipped (deployed).
+
+---
+
+## A. Hosted checkout (`/pay`, CleanCheckoutV2)
+
+| ID | Sev | Where (persona · viewport) | Finding | Fix | Status |
+|---|---|---|---|---|---|
+| CK-01 | **P0** | buyer · 390+1440 · detected/confirming, underpaid | Once the tx is **detected** ("Broadcasting on-chain / Confirmed on Polygon — finalizing") the page still shows the coin + network pickers, "Send exactly 12 USDT", QR, address, amount rows and the sticky **Copy address** CTA → buyer can send a second payment. Pickers also stay live during *underpaid* (switching coin mid top-up). | After `detected`: hide pickers, QR/address/amount + sticky CTA; show a "Payment detected — don't send again" card with the timeline. In *underpaid* lock the coin/network (read-only chip "Paying with USDT · Polygon"). | open |
+| CK-02 | **P0** | buyer · any | Link whose DB row was deleted but whose Redis session is alive (`/pay?d=rNtQRX`) renders a full payable checkout; Continue then fails with "We couldn't prepare this payment · Link does not exist or has been deleted" (403 from customerAuthMiddleware). | `getData`: when `item.link_id` is set, verify the `tbl_payment_link` row exists → otherwise treat as no session (404 "link not available") so the buyer sees the proper unavailable card immediately. | open |
+| CK-03 | **P1** | buyer · 390 · overpaid | Success card says "Paid to The Dev Store — **$12.00** · 15 USDT" while the note says "You sent 3 USDT more than needed (≈ $3.00)". Fiat shown is the price, not the amount paid. | Show paid fiat (`paidAmountUsd`) as the headline and "price $12.00 + $3.00 extra" in the note. | open |
+| CK-04 | **P1** | buyer · 390 · awaiting | Above the fold = brand row + status card + Pay-with + Network chips; QR, address and amount are all below the fold. Bottom language bar (60px, persistent until ✕) + sticky CTA (≈70px) eat ~130px of an 844px screen. | On phones in `awaiting_payment` collapse pickers into one row ("USDT · Polygon · Change") and render Send-exactly → QR/Open-wallet → address first. Auto-hide the language bar after first interaction / when the sticky CTA is present. | open |
+| CK-05 | **P1** | buyer · 1440 · awaiting | Status is shown twice (top card "WAITING · Waiting for your payment" + bottom "Waiting for payment" + timeline). Timeline is at the very bottom, below refund + email fields. | Keep ONE status surface: move the timeline into the top status card; drop the bottom duplicate. | open |
+| CK-06 | **P2** | buyer · any | Unknown ref (`?d=zzzzzz`) says "This payment link has **expired**" — misleading for a typo/removed link. | Copy: "This payment link isn't available — it may have expired or been removed. Ask the merchant for a new one." (keep generic for security). | open |
+| CK-07 | **P2** | buyer · 390 | Network chip shows a yellow "selected" ring on both Polygon and Tron after tap (focus ring stuck on the tapped chip). 12 tap targets < 36px (language bar chips, copy buttons). | `&:focus:not(:focus-visible){outline:none}` on chips; enlarge copy buttons to ≥36px on xs. | open |
+| CK-08 | **P2** | buyer · 1440 | Create-link live preview says "You cover the network fee", checkout says "No Dynopay fee is added — merchant covers it. Your wallet adds its own network fee". Same fee described two ways. | One copy source: "No Dynopay fee added — {merchant} covers it" in the preview. | open |
+| CK-09 | ENG | buyer · confirmed | Receipt-email capture works, but there's no "Pay {merchant} again / save merchant" nudge before the redirect countdown on links with `redirect_url`; "Share that you paid with crypto" is a tiny text link. | Keep as is for P1; consider making the share row a button in Phase 2. | backlog |
+| ✔ | — | — | **Good:** expired card (Refresh quote / Start over / reference), underpaid copy (received / send X more / second network fee explained), confirmed card (receipt PDF, copy receipt link, save merchant, email catch), dark mode, fee disclosure lines, rate freshness. | | |
+
+## B. Merchant dashboard & core pages
+
+| ID | Sev | Where | Finding | Fix | Status |
+|---|---|---|---|---|---|
+| MD-01 | **P0** | merchant · Transactions, Payouts, Dashboard, Admin | **Sandbox (simulated) payments look like real money.** tx 1280 (`environment=development`, `incoming_tx_hash=SIMULATED-…`) shows as "Settled $20.00" in Transactions (with crypto "USD" + Bitcoin icon), as a real payout "20.00 USDT ≈ $20.00 · to (blank) · SIMULATED-…" on Payouts, is included in "Forwarded to your wallets" per-coin bars (USDT $20.00), in dashboard Settled/volume totals and in admin Volume-by-currency ("USD 20"). | Backend: exclude `environment='development'` from all money aggregates (dashboard overview/stats, payouts, admin analytics) or return them separately; Transactions/Payouts list: `Sandbox` chip + muted row; fix crypto label/icon (USDT). Admin transactions: same chip. | open |
+| MD-02 | **P1** | merchant · Pay links · 1440 | Table has **no status column** — expired links (Sep 27 01:33) look like live ones, paid links aren't marked, "payments received" isn't shown (mobile cards DO show Active/Expired + "none in 30d"). Storefront order rows ("Order A7C7D16A — 1 item", view-only) are mixed into the list. Pagination footer overlaps the 9th/10th row. | Add Status + Collected columns to the desktop table (reuse `linkStatus.ts` + `useLinkPayments`); segment "Links | Orders"; fix the footer overlap (no inner scroll or reserve footer height). | open |
+| MD-03 | **P1** | merchant · Receipts & Tax | Header says "Collected $33,666 · 506 settled payments" and the tip says "A receipt is created for every settled payment", but the table is "Receipts (10)" listing Dynopay **fee invoices** (INV-…, customer = the merchant itself, $1.29). Two different documents under one label. | Rename tab/list to "Dynopay fee invoices" (or "Your Dynopay invoices") and add a "Customer receipts" entry point (per-transaction receipts already exist). Tip copy to match. | open |
+| MD-04 | **P1** | merchant · 390 | Chat FAB overlaps list rows' status/amount on Transactions ("Un…paid" hidden) and Payouts. (Old F1 still present.) | Dock the FAB above the bottom tab bar and shrink to 44px on xs, or hide while a list is scrolled. | open |
+| MD-05 | **P1** | merchant · Dashboard vs Payouts | Same 30-day range: dashboard "Forwarded to your wallets $4,824.24" vs Payouts "Forwarded $4,912.27 · 82 payouts". Wallet page "Total processed $32,682.57" vs Receipts "Collected $33,666". Numbers that should agree don't. | Single source per metric (overview endpoint); document what each includes; show the same number or label the difference (e.g. "incl. sandbox", "net of fees"). Sandbox exclusion (MD-01) removes $20 of the gap; rest = fee/net basis. | open |
+| MD-06 | **P1** | merchant · Pay-link detail | `/pay-links/rNtQRX` (deleted link) → API 500 `GET /api/pay/links/rNtQRX`, page renders empty header (h1 ""). | Return 404 + show "This link was deleted" state with back-to-list. | open |
+| MD-07 | ENG | new merchant · Dashboard | Getting-started checklist (Secure → About → Payouts → First link → Share) has **no sandbox step** and no "first payment" finish line; the Developers page has a sandbox simulator card but nothing points a new merchant there. Header chip reads "ⓘ payout address setup" (cryptic). | Add step "Try a test payment" (sandbox simulator) between Share and done, plus a "Waiting for your first payment" row with pulse; rename chip "Add payout address". | open |
+| MD-08 | ENG | merchant · Pay links / success modal | One-click sharing = Copy / native Share (mobile only) / Open / Download QR. On desktop there is no Telegram / WhatsApp / Email / X target; rows have icon-only copy/QR/share. | Add a channel share tray (Telegram, WhatsApp, Email, X, copy, QR) to the success modal, link detail panel and row "Share" action (reuse CampaignShareTray pattern). | open |
+| MD-09 | **P1** | merchant · Transactions | Awaiting-payment rows show USD value "—" although the expected fiat is known; "Direct" rows with no customer. | Show expected fiat in muted style for pending rows. | open |
+| MD-10 | **P2** | merchant · Dashboard 390 | Pluralisation: "1 checkouts open", "1 checkouts expired unpaid today". Money cards horizontally scroll with the 2nd card clipped and no indicator. Progress ring "1/5" arc clipped at the card edge. | i18n plural forms; add scroll-snap + dots or stack cards; ring padding. | open |
+| MD-11 | **P2** | merchant · Dashboard 1440 | Trend chart has no Y-axis/gridline values. Settled $4,931 vs Forwarded $4,824 with no explanation of the $106 gap. | Add compact Y ticks; tooltip/footnote "difference = pending forwards / fees". | open |
+| MD-12 | **P2** | merchant · Wallet (Payout addresses) | Page "Payout addresses" has a "Manage payout addresses" button (self-referential). 13 icon-only buttons. | Rename to "Address book" / remove; add tooltips. | open |
+| MD-13 | **P2** | merchant · Payment links 390 | Card action row = 6 icon-only buttons crammed beside a wrapped date. | Primary labelled "Share" + overflow menu. | open |
+| ✔ | — | — | **Good:** rich dashboard (pulse, needs-attention feed, money row, trend, health line), getting-started hero + faded preview for empty brands, empty states with CTAs + templates on Pay links, page tips, dark mode, mobile bottom nav, first-payment celebration (exists, one-shot per brand). | | |
+
+## C. SafeDeal (buyer + seller)
+
+| ID | Sev | Where | Finding | Fix | Status |
+|---|---|---|---|---|---|
+| SD-01 | **P1** | buyer · 390 · `/safedeal/deals` (Overview) | **Horizontal overflow on phones**: "Deals in progress" row ("Logo design package · Selling to sd-audit-buyer-…@example.com") pushes the page to 545px → whole page scrolls sideways. | `minWidth:0` + ellipsis on the row title/subtitle; wrap counterparty as masked handle. | open |
+| SD-02 | **P1** | guest · deal invite page | Fee is invisible: "Buyer pays **$139.00** · Seller receives $120.00" with no breakdown (escrow $10 min + network $4 + cashout $5). Link-invite variant: "pays $89.50 / receives $70.50" for $80, unexplained. Landing promises "5% escrow fee". | Add a one-line "includes $19 SafeDeal costs — see breakdown" (expandable; reuse `/fee-preview` items) on guest preview, deal page header and the funding step; landing footnote "+ network & cashout costs shown before you pay". | open |
+| SD-03 | **P1** | guest · deal invite page | No explanation of what an escrow deal is / how it works before sign-in (only nav "How it works"). Copy "Inspection period 3 days · status: invited" is jargon. | Add a 3-step strip (Buyer funds → Seller delivers → Buyer releases, money held in USDT by SafeDeal) + "What happens after you sign in" on the guest card; humanise "You have 3 days to inspect after delivery". | open |
+| SD-04 | **P1** | guest · deal invite page | Counterparty email masked in the header (`sd•••@example.com`) but printed in full one paragraph later ("Sign in with sd-audit-buyer-1790570923@example.com"). Anyone holding the link learns the invitee's email. | Mask consistently ("Sign in with the email this invite was sent to — sd•••@example.com"). | open |
+| SD-05 | **P1** | seller/buyer · create deal | 3-step wizard; "By email" is the default invite method, "By shareable link" (Telegram/WhatsApp) is secondary; sticky "Live quote appears once the amount is $30 or more" bar covers the form on phones; "Between $30 and €2,999" mixes currencies. | Default to shareable link when the user has no counterparty email yet (or make both equal, link first); collapse steps 2–3 into "Terms (optional)"; move quote bar under the amount field; "$30 – $3,416 (≈ €2,999)". After create → share sheet with Telegram first. | open |
+| SD-06 | **P1** | buyer · deal page | Three ways to act on an invite: inline Accept/Decline, "Cancel deal" link, sticky "Accept deal"; the invitee also sees "Cancel deal" (creator action). | One primary per state per party: sticky CTA only on phones, inline on desktop; hide "Cancel deal" for the invitee. | open |
+| SD-07 | **P2** | seller · Overview | Invited deal row shows "Invited · 47m ago" with no next step (remind / share link again). | Add "Waiting for buyer — Remind / Copy invite" inline actions (Phase 2 reminders). | backlog |
+| SD-08 | **P2** | any · deal page | Full counterparty email shown 3× (title line, invite card, seller card, truncated). Nav "Wallet" opens the "Activity" tab. Link-claim copy "Join to accept, fund and follow" also for sellers. | Show name/handle with masked email once; rename nav or tab; role-aware copy. | open |
+| SD-09 | **P2** | any · Overview | Balance card only shows Available / In escrow / Paid out; "Parked for payout" and "Pending cashout" appear only when non-zero (fine) but there's no one-line explainer per balance. | Add helper text under each figure. | open |
+| ✔ | — | — | **Good:** "YOUR MOVE" banner + sticky CTA on the deal page, Money breakdown card (escrow/exchange/network/conversion/cashout fee lines), timeline (Invited→Paid out), seller trust card, link-invite claim flow, guest deal creation, Telegram alerts card, dark-mode input fix, PDF summary. | | |
+
+## D. Admin console
+
+| ID | Sev | Where | Finding | Fix | Status |
+|---|---|---|---|---|---|
+| AD-01 | **P1** | admin · Overview | No operational view. Live data shows what it should surface: **3 payments stuck** in `pending` after `payment_detected` for 3–12 days (tx 1241 BTC co 1, 1057 BTC co 71, 1053 USDT-TRC20 co 1), **6 `settlement_deferred_critical_low_gas`** journal events in 14 days, **2,183 failed webhook deliveries vs 197 ok** in 7 days (mostly co 1 SSRF-test URLs), **14 failed + 1 stuck-processing outbox events**. None is visible anywhere in admin. | New `GET /api/admin/ops/attention` (read-only SQL, thresholds: stuck = pending >30 min with detected/settlement journal; failing webhook = ≥3 failures/24h per endpoint; withdrawal pending >1h) + "Needs attention" panel on Overview with age, last error, deep links (transaction drawer, merchant, Escrow → Withdrawals) and a nav badge count. | open |
+| AD-02 | **P1** | admin · Overview / Transactions | Sandbox tx counted in "Volume by currency" (USD 20) and listed as "Completed" next to real "Successful" rows (two labels for one terminal state). | Exclude/flag sandbox (MD-01); normalise status label. | open |
+| AD-03 | **P2** | admin · Transactions | Brand "—" and Customer "—" for checkout/API rows; internal synthetic emails `legacy-api-1-…@dynopay.internal` shown as customers; USD value column shows a "Pending" chip for ETH rows but "≈ $10.00" for USDT rows. | Resolve brand via company_id; show "API customer" label; consistent ≈ fiat. | open |
+| AD-04 | **P2** | admin · Overview | "Pending 650" in Payment outcomes = mostly abandoned checkouts (Failed 0); Payments-created chart Y labels clipped ("5 / 0 / 5"). Sidebar is icon-only without tooltips. | Rename "Unpaid / abandoned"; widen Y axis; tooltips. | open |
+
+## E. Cross-cutting
+
+| ID | Sev | Finding | Fix | Status |
+|---|---|---|---|---|
+| XC-01 | **P1** | Preview/prod edge: browsing ~15 pages in a minute triggers Cloudflare "Performing security verification" (429) on **static chunks** → pages render blank/partial with "Refused to execute script" and the app shows its empty states, not an error. Backend `ipRateLimiter` is 60 req/min/IP; a dashboard page fires 8–12 API calls. | App-level: distinguish fetch **error** from **empty** (retry banner) in the shared list/dashboard reducers; raise `ipRateLimiter` for authenticated merchant routes (per-user key) or exempt read endpoints. Edge: confirm Cloudflare rate rule for static assets on prod. | open |
+| XC-02 | **P2** | Label consistency: "Company" (API, wizard) vs "Brand" (UI); "Payout addresses" vs "wallets" (API); "Settled/Completed/Successful" for the same terminal state; "Receipts" = fee invoices. | Glossary + sweep (Phase 3 copy audit). | backlog |
+
+---
+
+## Fix batches (by severity, across surfaces)
+
+1. **Batch 1 — P0 money/blocked flows:** CK-01, CK-02, MD-01 (+AD-02 side effect), MD-06.
+2. **Batch 2 — P1 checkout + merchant:** CK-03, CK-04, CK-05, MD-02, MD-03, MD-04, MD-05, MD-09, XC-01 (error ≠ empty + rate-limit key).
+3. **Batch 3 — P1 SafeDeal:** SD-01…SD-06.
+4. **Batch 4 — Admin visibility:** AD-01, AD-03.
+5. **Batch 5 — Activation/engagement + P2 polish:** MD-07, MD-08, CK-06…CK-08, MD-10…MD-13, SD-08, SD-09, AD-04.
+
+## Test fixtures to clean up after the program
+- Brand 345 "QA Audit Empty Brand" (user 1) — delete via OTP flow.
+- SafeDeal customers 1022 / 1023 + deals #348 (email) and link deal `98d9f2ba…` — `node backend/scripts/cleanup_r225.js` (edit ids).

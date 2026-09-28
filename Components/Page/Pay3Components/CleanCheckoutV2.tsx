@@ -831,7 +831,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
 
   // Portal-mount guard for the mobile sticky pay bar (SSR-safe).
   useEffect(() => setPortalReady(true), [])
-  useStickyCtaFootprint(portalReady && !!cryptoInfo && phase !== 'confirmed', 72)
+  useStickyCtaFootprint(portalReady && !!cryptoInfo && phase !== 'confirmed' && !(detected && phase === 'awaiting_payment'), 72)
 
   // Share the checkout/campaign link — Web Share API with clipboard fallback.
   // Helps a happy buyer/contributor pull more people in ("I just supported …").
@@ -1171,7 +1171,13 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
           <Typography fontSize={14} color={muted} mt={1} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap', justifyContent: 'center' }}>
             <span>{isContribution ? campaignTitle || merchantName : t('checkout.success.paidTo', { defaultValue: 'Paid to {{name}}', name: merchantName })}</span>
             <PublicVerifiedBadge linkRef={d} size={15} ml={0} />
-            <span>— {feePayerIsCustomer ? fmtFiat(totalAmt) : `${fiatSymbol}${fiatAmount}`}</span>
+            <span>— {(() => {
+              const priced = feePayerIsCustomer ? totalAmt : Number(meta_?.amount || 0)
+              const paidFiat = confirmedAmount.excess != null && confirmedAmount.excess > 0 && confirmedAmount.fiat > priced ? confirmedAmount.fiat : null
+              return paidFiat != null
+                ? <span data-testid="clean-checkout-success-fiat-paid">{fmtFiat(paidFiat)} <Box component="span" sx={{ fontSize: 12 }}>({t('checkout.success.priceWas', { defaultValue: 'price {{price}}', price: fmtFiat(priced) })})</Box></span>
+                : (feePayerIsCustomer ? fmtFiat(totalAmt) : `${fiatSymbol}${fiatAmount}`)
+            })()}</span>
           </Typography>
           {/* What was sent — the crypto amount behind the fiat total above */}
           <Typography data-testid="clean-checkout-success-paid" sx={{ fontFamily: MONO, fontSize: 12.5, color: muted, mt: 0.5 }}>
@@ -1394,6 +1400,21 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
     return null;
   })();
 
+  // Once an address is reserved the coin/network choice is locked behind a
+  // compact summary row (a picker mid-payment invites wrong-network sends).
+  // Once the tx is DETECTED nothing more must be sent: every "send" surface
+  // (QR, address, amount, sticky CTA) is replaced by a don't-send-again notice.
+  const paying = phase === 'awaiting_payment' || phase === 'underpaid'
+  const pickersLocked = !!cryptoInfo && paying
+  const sendLocked = detected && phase === 'awaiting_payment'
+  const changeCoin = () => {
+    setCryptoInfo(null)
+    setSplit(null)
+    setFeeExact(null)
+    setPhase('currency_select')
+  }
+  const shortAddr = (a: string) => (a.length > 14 ? `${a.slice(0, 8)}…${a.slice(-6)}` : a)
+
   // ─── ORDER SUMMARY (left panel ≥1024px · collapsible bar below) ───
   const summaryNode = (
     <>
@@ -1558,7 +1579,38 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
         />
       )}
 
-      {/* Coin-first picker (B3): pick the coin, then a network only if needed */}
+      {/* Coin-first picker (B3): pick the coin, then a network only if needed.
+          Locked into a one-line summary once an address is reserved. */}
+      {pickersLocked && cryptoInfo ? (
+        <Box
+          data-testid="clean-checkout-paying-with"
+          sx={{
+            mb: 2, display: 'flex', alignItems: 'center', gap: 1, px: 1.5, minHeight: 46,
+            borderRadius: '10px', border: `1px solid ${border}`, backgroundColor: surface,
+          }}
+        >
+          <Typography sx={{ ...labelSx, mb: 0, mr: 0.5 }}>
+            {t('checkout.payingWith', { defaultValue: 'PAYING WITH' })}
+          </Typography>
+          {CRYPTO_INFO[cryptoInfo.crypto_display] && (
+            <Icon icon={CRYPTO_INFO[cryptoInfo.crypto_display].icon} width={18} color={CRYPTO_INFO[cryptoInfo.crypto_display].iconColor} />
+          )}
+          <Box component="span" sx={{ fontWeight: 700, fontSize: 14, color: theme.palette.text.primary }}>{cryptoInfo.crypto_base}</Box>
+          <Box component="span" sx={{ color: muted, fontSize: 12.5, fontWeight: 500, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            · {CRYPTO_INFO[cryptoInfo.crypto_display]?.networkLabel || cryptoInfo.network}
+          </Box>
+          {!detected && (
+            <Button
+              size="small"
+              onClick={changeCoin}
+              data-testid="clean-checkout-change-coin"
+              sx={{ ml: 'auto', textTransform: 'none', fontWeight: 700, fontSize: 12.5, color: theme.palette.text.primary, minHeight: 36, borderRadius: '999px', px: 1.25 }}
+            >
+              {t('checkout.changeCoin', { defaultValue: 'Change' })}
+            </Button>
+          )}
+        </Box>
+      ) : (
       <Box sx={{ mb: 2.5 }} data-testid="clean-checkout-coin-picker">
         <Typography sx={labelSx}>
           {t('checkout.payWithLabel', { defaultValue: 'PAY WITH' })}
@@ -1738,6 +1790,33 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
           </Typography>
         )}
       </Box>
+      )}
+
+      {/* Payment detected → nothing more to send. Replaces QR / address / amount
+          so a buyer coming back to the tab can't pay twice. */}
+      {sendLocked && cryptoInfo && (
+        <Box
+          data-testid="clean-checkout-detected-lock"
+          sx={{
+            display: 'flex', alignItems: 'flex-start', gap: 1.25, p: 1.75, mb: 2,
+            borderRadius: '12px', border: `1px solid ${LIME}66`,
+            backgroundColor: isDark ? 'rgba(255,209,0,0.08)' : 'rgba(139,94,0,0.05)',
+          }}
+        >
+          <Icon icon="mdi:check-decagram-outline" width={22} color={LIME} style={{ flexShrink: 0, marginTop: 1 }} />
+          <Box sx={{ minWidth: 0 }}>
+            <Typography sx={{ fontSize: 14, fontWeight: 700, color: theme.palette.text.primary, mb: 0.25 }}>
+              {t('checkout.detectedLock.title', { defaultValue: 'Payment received — nothing more to send' })}
+            </Typography>
+            <Typography sx={{ fontSize: 12.5, color: theme.palette.text.primary, lineHeight: 1.5 }}>
+              {t('checkout.detectedLock.body', { defaultValue: 'We can see {{amount}} {{coin}} on its way to the payment address. Please don’t send another payment. You can keep this page open or close it — the receipt arrives the moment the network confirms.', amount: formatCryptoAmount(cryptoInfo.expected_amount, cryptoInfo.crypto_base), coin: cryptoInfo.crypto_base })}
+            </Typography>
+            <Typography sx={{ mt: 0.75, fontSize: 11.5, color: muted, fontFamily: MONO }} data-testid="clean-checkout-detected-lock-address">
+              {t('checkout.detectedLock.addressLabel', { defaultValue: 'Address' })} {shortAddr(cryptoInfo.address)}
+            </Typography>
+          </Box>
+        </Box>
+      )}
 
       {/* B2: recoverable error — brand, amount and selects stay mounted above */}
       {inlineError && (
@@ -1834,7 +1913,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
       )}
 
       {/* Instruction sentence */}
-      {cryptoInfo && (
+      {cryptoInfo && !sendLocked && (
         <Box data-testid="clean-checkout-instruction" sx={{ textAlign: { xs: 'center', sm: 'left' }, mb: 2, mt: 0.5 }}>
           <Typography sx={{ ...labelSx, mb: 0.5 }}>
             {t('checkout.sendExactly', { defaultValue: 'Send exactly' })}
@@ -1871,7 +1950,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
 
       {/* Pay grid — QR on the left, address / amount / wallet deep-link on the
           right (≥600px) so the whole payment step fits without scrolling. */}
-      {cryptoInfo && (
+      {cryptoInfo && !sendLocked && (
         <Box
           data-testid="clean-checkout-pay-grid"
           sx={{
@@ -2097,7 +2176,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
       )}
 
       {/* Warning callout */}
-      {cryptoInfo && (
+      {cryptoInfo && !sendLocked && (
         <Box
           sx={{
             display: 'flex', alignItems: 'flex-start', gap: 1, p: 1.5, mb: 2,
@@ -2211,13 +2290,13 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
       )}
 
       {/* Spacer so the mobile sticky pay bar never covers the footer/content */}
-      {cryptoInfo && <Box sx={{ display: { xs: 'block', md: 'none' }, height: 'calc(92px + var(--dp-lang-bar, 0px))' }} />}
+      {cryptoInfo && !sendLocked && <Box sx={{ display: { xs: 'block', md: 'none' }, height: 'calc(92px + var(--dp-lang-bar, 0px))' }} />}
     </PanelShell>
 
       {/* ── Mobile sticky pay bar — amount + copy-address always in thumb reach.
           Rendered as a FRAGMENT sibling of PanelShell (not a Box child) so the
           portal node never trips MUI Box's PropTypes `children` check. ── */}
-      {portalReady && cryptoInfo && phase !== 'confirmed' && createPortal(
+      {portalReady && cryptoInfo && phase !== 'confirmed' && !sendLocked && createPortal(
         <Box
           data-testid="checkout-sticky-bar"
           sx={{

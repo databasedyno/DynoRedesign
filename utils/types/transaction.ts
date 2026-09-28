@@ -118,6 +118,8 @@ export interface ExtendedTransaction {
     confirmations: number;
   };
   autoConverted?: boolean;
+  /** Simulated sandbox payment (environment='development') — never real money. */
+  sandbox?: boolean;
   autoConvertTarget?: string;
   autoConvertDisplayStatus?: string;
   /** Full auto-convert payout details (Binance → merchant), when the payment was converted. */

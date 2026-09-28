@@ -260,6 +260,14 @@ const getData = async (req: express.Request, res: express.Response) => {
           { replacements: { linkId: item.link_id }, type: QueryTypes.SELECT }
         ) as any[];
 
+        if (!dbLink) {
+          // Link row deleted while the Redis session is still alive: the
+          // checkout would render payable, then fail at addPayment (403 from
+          // customerAuthMiddleware). Surface the unavailable card up front.
+          cronLogger.info('[getData] Session references a deleted link', { link_id: item.link_id, dataRef: String(data).slice(0, 10) });
+          return errorResponseHelper(res, 404, "Payment link not found or expired");
+        }
+
         // Treat the link as "completed" for the checkout page once the customer's
         // payment has been confirmed on-chain — regardless of the exact status
         // string persisted. Legacy flows store "successful"/"completed" while the

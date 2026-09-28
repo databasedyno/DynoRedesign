@@ -732,7 +732,7 @@ const getAllTransactions = async (
     let adminQuery = `
       select ut.*,c.customer_name,c.email,cm.company_name,cm.company_id from tbl_user_transaction ut 
       left join tbl_customer c on c.customer_id=ut.customer_id
-      left join tbl_company cm on cm.company_id=c.company_id
+      left join tbl_company cm on cm.company_id=COALESCE(c.company_id, ut.company_id)
       order by ${safeCol} ${safeSort}`;
     const adminReplacements: Record<string, unknown> = {};
     if (offset !== -1 && limit) {
@@ -863,9 +863,10 @@ const getAdminAnalytics = async (
     // Volume must reflect money actually settled — exclude pending/unpaid
     // intents. Use the usd_value captured at settlement time (accurate to the
     // tx date) rather than re-converting base_amount at today's rate.
+    // Sandbox (simulated) payments are never revenue.
     const settledWhere = where
-      ? `${where} and ut.status in (:settledStatuses)`
-      : `where ut.status in (:settledStatuses)`;
+      ? `${where} and ut.status in (:settledStatuses) and COALESCE(ut.environment, 'production') <> 'development'`
+      : `where ut.status in (:settledStatuses) and COALESCE(ut.environment, 'production') <> 'development'`;
     const totalIncome = await sequelize.query<{ base_currency: string; amount: number; amount_in_usd: number }>(
       `select base_currency, sum(base_amount) as amount, sum(usd_value) as amount_in_usd
        from tbl_user_transaction ut ${settledWhere} group by base_currency`,

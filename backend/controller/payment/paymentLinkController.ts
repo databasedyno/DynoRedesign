@@ -1510,6 +1510,9 @@ export const getPaymentLinks = async (req: express.Request, res: express.Respons
 export const getPaymentLinkById = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as PaymentUserJwtPayload;
   const link_id = req.params.id;
+  if (!/^\d+$/.test(String(link_id))) {
+    return errorResponseHelper(res, 404, "Payment link not found!");
+  }
   
   try {
     // Find by link_id; access is verified below so a granted team member (with

@@ -218,3 +218,4 @@ Preview URL (THIS pod): https://passphrase-init-1.preview.emergentagent.com  (so
 ## - Migration 0045_safedeal_invite_link applied on live DB (invite_kind, counterparty_claimed_at, counterparty_email now nullable).
 ## - Frontend UI built (AddEmailDialog, shell "Add email" for Telegram users, DealsList banner, NewDeal invite-method choice,
 ##   DealPage claim/open-seat + creator link card + regenerate, Landing inline "Start a deal" quick form). FE testing NOT yet run.
+- Throwaway brand 345 'QA Audit Empty Brand' created on user 1 for the E2E audit (2026-09-28) — DELETE after audit (POST /api/company/deleteCompany/345/send-otp → DELETE /api/company/deleteCompany/345 {otp})

@@ -120,7 +120,7 @@ export const getAllTransactions = async (
         c.email,
         cm.company_name,
         cm.company_id,
-        uw.wallet_type as crypto_currency,
+        COALESCE(uw.wallet_type, ut.crypto_currency) as crypto_currency,
         uw.wallet_address as settlement_address,
         ${AUTO_CONVERT_SELECT_SQL},
         -- Source metadata (payment link / contribution / tip / product order)

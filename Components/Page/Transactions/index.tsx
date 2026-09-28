@@ -246,6 +246,7 @@ const TransactionPage = () => {
           status: toTxStatusBucket(item.status),
           customerName: (item as any).customer_name || null,
           customerEmail: (item as any).email || null,
+          sandbox: (item as any).environment === 'development',
           network: getNetworkLabel(cryptoCurrency),
           receivedAmountRaw: (item as any).received_amount != null ? Number((item as any).received_amount) : null,
           remainingAmountRaw: (item as any).remaining_amount != null ? Number((item as any).remaining_amount) : null,
