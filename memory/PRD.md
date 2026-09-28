@@ -13,7 +13,7 @@
 # FIXTURES USED (prod DB, read-only / no funding): seller sd-audit-seller-1790570923@example.com (cid 1022), buyer sd-audit-buyer-1790570923@example.com (cid 1023); email deal token bfdd8f76429be0ef77804ea6f7038917a3caaec3b35f641e (#348), link deal 98d9f2ba0ccd4188c66f9c9e7e030a7c39c172a41b27e61f. SafeDeal sign-in = email OTP (code shown for *@example.com).
 # STILL NOT DONE (deliberately out of scope this session): SD-05 post-create share sheet is covered by the existing ShareInviteButtons on the created deal page (redirect /deal/:token?created=1); SD-02 landing-page "+ network & cashout costs" footnote still not done.
 # NEXT: user "Save to GitHub" (deploy = Improvement branch → droplet canary→swap). Then Batch 4 (AD-01 admin "Needs attention" panel, AD-03), Batch 5 (P2 polish). Cleanup fixtures after program: brand 345, SafeDeal cids 1022/1023 + deal #348.
-# OPS: preview = PRODUCTION next build (NO hot reload): after FE edits `rm -rf /app/.next-prod && sudo supervisorctl restart frontend` (~3.5 min; this session's build = 77s compile). Backend Node/ts-node: `sudo supervisorctl restart backend`. Preview: https://cd0a12df-8cd2-4301-a8cf-d89e2699ae29.preview.emergentagent.com
+# OPS: preview = PRODUCTION next build (NO hot reload): after FE edits `rm -rf /app/.next-prod && sudo supervisorctl restart frontend` (~3.5 min; this session's build = 77s compile). Backend Node/ts-node: `sudo supervisorctl restart backend`. Preview: https://passphrase-check.preview.emergentagent.com
 # ============================================================================================
 
 
@@ -42,7 +42,7 @@
 # SCOPE SHIPPED (code, uncommitted → user must "Save to GitHub"): CK-04 language-onboarding bar auto-hides once a phone sticky CTA flags <html data-dp-sticky-cta> (hooks/useStickyCtaFootprint.ts + Components/UI/LanguageOnboardingBar); CK-05 ONE checkout status surface — CheckoutStatusTimeline `compact` rendered under the top strip, bottom duplicate removed (CleanCheckoutV2.tsx / checkoutPrimitives.tsx, testid checkout-status data-compact=1); MD-02 pay-links desktop table: Status + "Last 30 days" cols, stacked Created/Expires col, row ⋯ menu (paylink-more-<id> → paylink-row-menu → paylink-menu-qr/edit/delete), Links|Orders segment (paylinks-kind-segment / -links / -orders, hidden when no storefront orders), pagination footer no longer clips rows 9/10 (styled.tsx overflowY visible); MD-04 phones: SupportChatWidget launcher hidden on merchant (layout=client) pages, docked as "Chat with support" in MobileNavigationBar More sheet (mobile-nav-support-chat → window event dynopay:open-support-chat); MD-05 ONE definition of "forwarded" — overviewQueries.ts exports FORWARDED_ANY (pool sweep OR completed auto-convert), payoutQueries.ts re-exports it; verified dashboard.forwarded == payouts.forwarded = 82 / $4,995.54; walletRead.ts processed_usd excludes environment='development'; MD-01 leak: adminController getAdminAnalytics LIVE_ONLY applied to popularCurrency/per-day/status counts (was only on revenue); MD-09 transactions USD column shows muted "≈ $x" estimate (tx-fiat-estimate + tooltip) for open rows via useUsdRates.toUsd — tester found BTC/ETH rows still "—" because Transactions/index.tsx stores the BUCKET (toTxStatusBucket → 'unpaid') while the check used raw statuses → added helpers/txStatus.ts isOpenForFiatEstimate(bucket) (awaiting_payment|unpaid|underpaid|pending|processing|confirmed) and used it in TransactionsTable.displayValue; self-verified after rebuild: 5 estimates (≈ $79.78 BTC, ≈ $4.98 ETH …) + tooltip on brand 1 Unpaid tab; XC-01 app-level: EmptyDataModel variant="error" (fetch-error-<page> + fetch-error-retry), paymentLinkReducer/transactionReducer fetchError flag set by sagas' PAYLINK_ERROR/TRANSACTION_ERROR payload {fetch:true}; Pay links + Transactions render Retry instead of the empty state on 5xx; Retry recovers.
 # NOT DONE from Batch 2 plan: MD-03 (Receipts & Tax → "Dynopay fee invoices" relabel + customer-receipts entry), XC-01 backend part (per-user rate-limit key / exempt authed reads in middleware/rateLimitMiddleware.ts — 60 req/min/IP unchanged), CK-04 picker-collapse/QR-first reorder on phones (only the language-bar part shipped). Audit table statuses updated in memory/UX_AUDIT_E2E_2026-09.md.
 # NEXT: user "Save to GitHub" (deploy = Improvement branch → droplet canary→swap) → then Batch 3 (SD-01…SD-06 SafeDeal P1) per the audit doc; then Batch 4 (AD-01, AD-03), Batch 5 (engagement + P2). Cleanup fixtures after program: brand 345, SafeDeal cids 1022/1023 + deal #348.
-# OPS: preview = PRODUCTION Next build (no hot reload): after FE edits `rm -rf /app/.next-prod && sudo supervisorctl restart frontend` (~3.5 min). Backend Node under ts-node: `sudo supervisorctl restart backend`. Tests: backend/tests/test_iter237_batch2.py (4 pass), reports test_reports/iteration_237.json. Preview: https://passphrase-config-1.preview.emergentagent.com
+# OPS: preview = PRODUCTION Next build (no hot reload): after FE edits `rm -rf /app/.next-prod && sudo supervisorctl restart frontend` (~3.5 min). Backend Node under ts-node: `sudo supervisorctl restart backend`. Tests: backend/tests/test_iter237_batch2.py (4 pass), reports test_reports/iteration_237.json. Preview: https://passphrase-check.preview.emergentagent.com
 # ============================================================================================
 
 # === 2026-09-27 (fork) STUCK ETH DEPOSIT #1279 (SMADAV) — ROOT-CAUSED, SELF-HEALED VIA CODE FIX (c0f3d6af6), WEBHOOKS DELIVERED ===
@@ -108,7 +108,7 @@
 #     services/email/safedealEmails.ts: NEW sendSafeDealNewUserAdminEmail(adminEmail, {email,name,customerId,method}) — SafeDeal-branded admin-audience email, hero "person", subject "New SafeDeal user: <contact>", telegram placeholder emails (…@telegram.safedeal) show the name instead.
 #     services/customerWalletService.ts: resolveCustomerForBrand + resolveCustomerByTelegram now accept an optional onCreate(customer) callback that fires ONLY in the INSERT branch (return type unchanged; existing callers unaffected).
 #     controller/safedealController.ts: NEW notifyAdminNewSafeDealUser() (reads ADMIN_EMAIL via envRaw, fire-and-forget, warns if ADMIN_EMAIL unset). Wired into verifyCode (email sign-in, method:"email") and telegramAuth (method:"telegram") — fires only when isNew. VERIFIED: first sign-in of sd-newuser-…@example.com → "[CustomerWallet] Created customer 1015 … company 262" + "[Email] SUPPRESSED … to=moxxcompany@gmail.com | subject=New SafeDeal user: …"; 2nd sign-in of same email did NOT re-fire (idempotent, onCreate only on insert). Backend tsc 0.
-# OPS: FE rebuilt (production, no hot reload). Backend restarted (ts-node). Preview: https://passphrase-config-1.preview.emergentagent.com . ADMIN_EMAIL=moxxcompany@gmail.com; DISABLE_OUTBOUND_EMAIL=true in preview (emails suppressed+logged) → on prod (outbound ON) the operator will actually receive them. COMMIT: uncommitted — user must "Save to GitHub".
+# OPS: FE rebuilt (production, no hot reload). Backend restarted (ts-node). Preview: https://passphrase-check.preview.emergentagent.com . ADMIN_EMAIL=moxxcompany@gmail.com; DISABLE_OUTBOUND_EMAIL=true in preview (emails suppressed+logged) → on prod (outbound ON) the operator will actually receive them. COMMIT: uncommitted — user must "Save to GitHub".
 # ============================================================================================
 
 
@@ -119,14 +119,14 @@
 # VERIFIED (testing_agent iter234, frontend 100%, Test/sandbox key ONLY per user auth — Live key api_id 233 never touched): counts copy-now-notice/shown-once/copy-btn/regen-btn = initial 0/2/0/2 → after Regenerate Test key 1/1/1/2 → after leave+return (both Webhooks-tab switch AND /dashboard route nav) 0/2/0/2. Regenerate stays fully functional across cycles. NOTE: regenerating a key first requires the existing step-up TOTP dialog (10-min grant) then a confirm — unchanged, works.
 # NICE-TO-HAVE (tester, non-blocking): also clear revealedKeys on logout/beforeunload for defense-in-depth. Not done (out of the reported bug's scope; in-memory store already clears on reload).
 # QA SIDE-EFFECT: the company-1 TEST/sandbox key (api_id 92, dpk_test_) was regenerated 3× during this QA (authorized). Live key untouched. Sandbox keys are hashed/not stored in plaintext → no credential file update needed.
-# OPS: preview runs a PRODUCTION build (NO hot reload) — rebuilt via `rm -rf /app/.next-prod && sudo supervisorctl restart frontend`. Preview: https://passphrase-config-1.preview.emergentagent.com . COMMIT: uncommitted — user must "Save to GitHub" to ship to the droplet. SAFE MODE still on (LIVE Railway prod DB, background jobs OFF).
+# OPS: preview runs a PRODUCTION build (NO hot reload) — rebuilt via `rm -rf /app/.next-prod && sudo supervisorctl restart frontend`. Preview: https://passphrase-check.preview.emergentagent.com . COMMIT: uncommitted — user must "Save to GitHub" to ship to the droplet. SAFE MODE still on (LIVE Railway prod DB, background jobs OFF).
 # ============================================================================================
 
 
 # === 2026-06-27 (fork) DOCUMENTATION SIDEBAR NAV BUG — FIXED & SELF-VERIFIED (user skipped testing_agent, requested self smoke-test) ===
 # USER BUG: "/documentation — click a sidebar option and the page won't change/scroll to the section." ROOT CAUSE: scrollTo() → el.scrollIntoView() was broken because styles/globals.css had `html { overflow-x: hidden }` which turns <html> into a scroll container and silently disables scrollIntoView/smooth-scroll + position:sticky. <body> was already `overflow-x: clip` (with hidden fallback) but <html> was missed.
 # FIX (1-line, global, harmless): styles/globals.css `html { overflow-x: hidden }` → `overflow-x: hidden; overflow-x: clip;` (clip does NOT establish a scroll container; hidden kept as old-browser fallback). Also added data-testids to the desktop docs sidebar items: docs-sidebar-<sectionId> + docs-sidebar-sub-<endpointId> (pages/documentation.tsx ~line 1570).
-# VERIFIED (screenshot_tool smoke, prod build, preview https://passphrase-config-1.preview.emergentagent.com): click docs-sidebar-errors → scrollY 0→17020, #errors rect.top=100 (== scrollMarginTop) ✅; click docs-sidebar-webhooks → scrollY 12067, #webhooks rect.top=100 ✅; active sidebar highlight follows. REGRESSION: / and /fees both scrollWidth==clientWidth (no horizontal overflow), scroll works, layouts clean.
+# VERIFIED (screenshot_tool smoke, prod build, preview https://passphrase-check.preview.emergentagent.com): click docs-sidebar-errors → scrollY 0→17020, #errors rect.top=100 (== scrollMarginTop) ✅; click docs-sidebar-webhooks → scrollY 12067, #webhooks rect.top=100 ✅; active sidebar highlight follows. REGRESSION: / and /fees both scrollWidth==clientWidth (no horizontal overflow), scroll works, layouts clean.
 # OPS: preview runs a PRODUCTION build (NO hot reload) — after this edit ran `rm -rf /app/.next-prod && sudo supervisorctl restart frontend` (~3.5 min). testing_agent NOT run (user: "skip"). COMMIT: uncommitted — user must "Save to GitHub" to ship to the droplet. SAFE MODE still on (preview shares LIVE prod DB, background jobs OFF).
 # ============================================================================================
 
@@ -162,7 +162,7 @@
 # VERIFIED: local `/` 0.24s; external /, /auth/login, /pay/demo, /fees, /safedeal, /dashboard all 200 in 0.1–0.4s; testing_agent iter233: 7 routes 200 <1s, 3× reload 0.62/0.19/0.19s, client nav Log in/Start free OK, static chunks 200, mobile 390 no overflow, /api/public/tickers via frontend origin 200, 0 console errors.
 # ⚠️ WORKFLOW CHANGE: NO frontend hot reload in preview now. After ANY frontend code change: `rm -rf /app/.next-prod && sudo supervisorctl restart frontend` (≈3.5 min rebuild). To go back to hot reload temporarily: set FRONTEND_MODE=dev in /app/.env.local + restart frontend.
 # NOTE: /app/yarn.lock shows a large uncommitted diff (+4211/−435) with mtime 09:03 UTC = produced by the previous session's pod-bootstrap `yarn install --prefer-offline`, NOT by this fix. Build succeeded against it. Review before "Save to GitHub" (prod Dockerfile installs from this lock).
-# Preview: https://passphrase-config-1.preview.emergentagent.com . SAFE MODE still on (ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary — preview shares the LIVE DB).
+# Preview: https://passphrase-check.preview.emergentagent.com . SAFE MODE still on (ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary — preview shares the LIVE DB).
 # ============================================================================================
 
 
@@ -179,7 +179,7 @@
 #   2. From INSIDE the pod, curl to the external preview host (cross-page-theme-qa.preview.emergentagent.com) 404s/502s on /api — pod-internal DNS artifact, NOT a real outage (real browsers get 200; Node log shows external IP 87.210.111.72 → 200). Test APIs against localhost:8001; the platform screenshot_tool hits the Emergent "Wake up servers" gate for this app → use the repo's local Playwright + /pw-browsers/chromium_headless_shell-1208 against localhost:3000 instead (as prior forks noted).
 #   3. axios baseURL = NEXT_PUBLIC_BASE_URL('')+"/api/" = relative; localhost:3000 has NO Next /api rewrite (only /images + 6-char checkout code) so client /api 404s on localhost → mock/proxy in local Playwright.
 # USER ACTION STILL PENDING (I cannot do it): "Save to GitHub" to trigger CI/CD and confirm the strict-TS build fix from last session deploys (deploy #179+). Owner self-hosts on the DO droplet.
-# OPS: no code changes this fork (verification only) + added scripts/qa/qa5_profile_photo.mjs helper. Preview: https://passphrase-config-1.preview.emergentagent.com. Owner login onarrival21@gmail.com / Katiekendra123@ (TOTP: node backend/scripts/print_totp.cjs 1).
+# OPS: no code changes this fork (verification only) + added scripts/qa/qa5_profile_photo.mjs helper. Preview: https://passphrase-check.preview.emergentagent.com. Owner login onarrival21@gmail.com / Katiekendra123@ (TOTP: node backend/scripts/print_totp.cjs 1).
 # ============================================================================================
 
 
@@ -200,7 +200,7 @@
 #   OPEN: #2 webhook-settings padding (visual), #5 profile photo upload (currently intentional initials-only — needs product decision), #6 add-phone Telnyx OTP (provider/env-specific), #10 ultra-wide 2550px (visual).
 #   CLEANUP fixes to prior blind-edit dupes: NotificationInbox.tsx Props had onDelete×3 → 1; api/endpoints.ts notifications.remove×2 → 1; added setConfirmDelete(false) reset on customer change (Customers/index.tsx useEffect).
 # NOTE: search_replace tool in this pod FALSE-NEGATIVES (reports "old_str did not appear" but the edit APPLIED) — always re-read to confirm, DO NOT retry blindly (that's what created the earlier duplicates).
-# OPS: backend restarted (ts-node). Preview: https://passphrase-config-1.preview.emergentagent.com. COMMIT: all uncommitted — user must "Save to GitHub".
+# OPS: backend restarted (ts-node). Preview: https://passphrase-check.preview.emergentagent.com. COMMIT: all uncommitted — user must "Save to GitHub".
 # ============================================================================================
 
 
@@ -294,7 +294,7 @@
 # TEST HELPER: backend/scripts/telegram_alerts_smoke.js (node -r dotenv/config scripts/telegram_alerts_smoke.js <baseUrl> [--link <sd_token>]) — signs a fake widget payload with the bot token; full link/tamper/expired/dup/test/unlink flow.
 # DEFERRED QA (iteration_218, all green): crumb sweeper report + DRY-RUN via admin API/UI (never live), fractional-gwei jest 9/9 + code review, fee-reconciliation API invariants/filters/pagination + reconcile/backfill idempotent, admin page KPIs/filters/links, SafeDeal landing overlay fix + mobile tabs fix re-verified. New pytest backend/tests/test_iter218_fee_recon_and_crumb.py.
 # 💡 BUSINESS FINDING (fee reconciliation, live data): 209 reconciled payouts → charged $87.79 vs actual gas $280.21 → recovery 31%, 136 under / 71 ok / 2 over. Platform subsidises ~$192 of gas (partly sweep gas = Dynopay's cost by policy (a), partly under-quoted TRC20/ETH fees). Not acted on — surface to owner.
-# OPS: backend restarted (ts-node, no hot reload). Preview: https://passphrase-config-1.preview.emergentagent.com. COMMIT: Save to GitHub.
+# OPS: backend restarted (ts-node, no hot reload). Preview: https://passphrase-check.preview.emergentagent.com. COMMIT: Save to GitHub.
 # ============================================================================================
 
 # === 2026-09-22 (fork) FEE ACCURACY AUDIT + PROD ANOMALIES — PHASE 1 (BACKEND) DONE, PHASE 2 (SAFEDEAL EMAILS/UI) NEXT ===
@@ -330,7 +330,7 @@
 #   "PAYMENT IS PAYMENT": useSetupProgress.hasPayment hardened to be source/status-agnostic — now also true if any recentTransactions row has a settled-like status (confirmed/completed/settled/success/successful/paid/done), in addition to stats.totalTransactions/totalVolume>0 and a processed payout wallet. (Backend dashboard stats already COUNT every source in tbl_user_transaction; real statuses are only pending/successful/completed.) So a payment via payment link, API or any source graduates the brand out of Getting Started (Dashboard2026 already had the recent-tx fallback; this brings the sidebar ring + FirstRunRedirect to parity).
 #   ENV: added NEXT_PUBLIC_SAFEDEAL_COMPANY_ID=262 to /app/.env.local (frontend restarted). ⚠️ PROD MUST also set NEXT_PUBLIC_SAFEDEAL_COMPANY_ID=262 (build-time inlined) or the SafeDeal-brand suppression + logo won't apply on safedeal deploy.
 #   VERIFIED (testing_agent iter211+212, owner_login.cjs → user1 → switch brands): SafeDeal(262) no getting-started + no sidebar ring + logo avatar; The Dev Store(1) & SMADAV(71) [have payments] show normal dashboard (no onboarding) — source-agnostic graduation; regression clean. FE tsc 0, BE tsc 0.
-# OPS: backend ts-node no hot reload → restarted after email edit. Preview host: https://passphrase-config-1.preview.emergentagent.com. COMMIT: all uncommitted — user must "Save to GitHub". Note backend/.env SAFEDEAL_URL is STALE (b3e8a0ae host) — affects invite-link/email base only; not touched this fork.
+# OPS: backend ts-node no hot reload → restarted after email edit. Preview host: https://passphrase-check.preview.emergentagent.com. COMMIT: all uncommitted — user must "Save to GitHub". Note backend/.env SAFEDEAL_URL is STALE (b3e8a0ae host) — affects invite-link/email base only; not touched this fork.
 # ============================================================================================
 
 
@@ -357,7 +357,7 @@
 # ISSUE 4 (P1) — escrow "Held" display: backend held ledger is CORRECT in every preview-testable path. VERIFIED curl: fund-from-balance ($40 deal) → held $53.23 / available dropped / total conserved; simulated-crypto fund ($45 deal) → held $58.23 / available 0. Wallet.tsx renders `w.wallet.held` (data-testid=sd-wallet-held). The reported prod symptom is likely the LIVE crypto-funding customer-resolution/timing (not reproducible with live settlement OFF) — folded into the Issue 3 prod debug.
 # ISSUE 3 (P1, recurring) — prod dispatch HARDENING (diagnosis needs prod): dispatchWithdrawal now logs "dispatching LIVE (…) coin amount → address", surfaces a Binance submit error (try/catch + re-throw with error log), and WARNs "SIMULATED — live settlement is OFF (ESCROW_LIVE_SETTLEMENT)" whenever a settlement/auto withdrawal can't go live (the #1 prod cause). settlementPayout logs when a leg is "kept" (no address / auto-withdraw off). NEXT: user redeploys → run emergent__send_to_deployer intent=debug to confirm real Binance dispatch + inspect why prod payouts stalled.
 # FILES: backend services/safedeal/{safedealWithdrawals,safedealPdf,safedealCheckout}.ts, backend utils/emailTemplate.ts, backend controller/{safedealController,escrowController}.ts; Components/SafeDeal/{TopUpDialog,DealCards,sdFormat,sdTheme,SafeDealShell,LandingSections,NewDealReview,DealPage,FundPanel,Wallet,PayoutDestinationCard,Landing,DealActionsCard,SignIn,RequestChangesDialog,legalContent}.ts(x).
-# OPS: backend is ts-node WITHOUT hot reload → restarted. Preview: https://passphrase-config-1.preview.emergentagent.com. Background jobs OFF in preview (hourly releaseParkedPayouts cron dispatches parked deal-proceeds in prod once the address clears its 24h hold AND ESCROW_LIVE_SETTLEMENT=true). COMMIT: uncommitted — user must "Save to GitHub". PAUSED (P2, resume after): Tatum.io marketing-homepage redesign (design_guidelines.json + Home/v6).
+# OPS: backend is ts-node WITHOUT hot reload → restarted. Preview: https://passphrase-check.preview.emergentagent.com. Background jobs OFF in preview (hourly releaseParkedPayouts cron dispatches parked deal-proceeds in prod once the address clears its 24h hold AND ESCROW_LIVE_SETTLEMENT=true). COMMIT: uncommitted — user must "Save to GitHub". PAUSED (P2, resume after): Tatum.io marketing-homepage redesign (design_guidelines.json + Home/v6).
 # ============================================================================================
 
 
@@ -378,7 +378,7 @@
 #  (3) GUEST DEAL START: Landing.tsx cta is now href('/deals/new') for everyone (dropped the user? gate + useSdSession import). NewDeal.tsx: useRequireSdSession → useSdSession (no forced redirect); renders the form for guests. submit(): signed-in → doCreate(draft); guest → saves draft to sessionStorage 'sd_deal_draft' then router.push(/signin?next=<encoded /safedeal/deals/new?resume=1>). NEW useEffect on ?resume=1 && token restores the fields + auto-calls doCreate. SignIn.tsx already honours ?next. VERIFIED (iteration_210): guest filled 3-step form → Send invite → signin (preview code) → returned to ?resume=1 → deal auto-created → /safedeal/deal/<token>?created=1 shows "Guest test deal" $100.
 #  (4) FEES COLUMN: Wallet.tsx statement table has a new "Fees" column between Amount and Balance (cell testid sd-statement-fee-<kind>, value from rowFeeUsd(r.meta)= meta.total_fee_usd || sum(network+conversion+exchange), "—" when 0). safedealWallet.statementToCsv now emits a "Fees (USD)" column too. VERIFIED: top-up row shows $2.24; CSV header Date,Deal,Type,Description,Amount (USD),Fees (USD),Bucket,...
 # FILES: StatusChip.tsx, Components/SafeDeal/{SdStatusChip,Landing,NewDeal,Wallet}.tsx; backend services/email/{emailShared,safedealEmails}.ts, utils/mailTransporter.ts, services/safedeal/{safedealPdf,safedealTopup,safedealInvoiceEmail(NEW)}.ts, controller/escrowController.ts, services/safedeal/safedealWallet.ts.
-# NOTES: backend is ts-node WITHOUT hot reload → `sudo supervisorctl restart backend` after BE edits (done). Preview host: https://passphrase-config-1.preview.emergentagent.com. COMMIT: all uncommitted — user must "Save to GitHub".
+# NOTES: backend is ts-node WITHOUT hot reload → `sudo supervisorctl restart backend` after BE edits (done). Preview host: https://passphrase-check.preview.emergentagent.com. COMMIT: all uncommitted — user must "Save to GitHub".
 # ============================================================================================
 
 
@@ -426,7 +426,7 @@
 # USER ASK: "highest escrow per deal cant be more than 2999 euros equivalent USD, then test all after."
 # IMPLEMENTATION (env-driven, EUR-based cap resolved to USD at the live FX rate):
 #   • backend/.env: NEW ESCROW_MAX_DEAL_EUR=2999. ALSO fixed the recurring stale SAFEDEAL_URL → current preview host
-#     https://passphrase-config-1.preview.emergentagent.com/safedeal (was b3e8a0ae…, dead).
+#     https://passphrase-check.preview.emergentagent.com/safedeal (was b3e8a0ae…, dead).
 #   • controller/escrowController.ts: const ESCROW_MAX_DEAL_EUR = Number(envRaw("ESCROW_MAX_DEAL_EUR"))||2999; exported on escrowEngine.
 #   • controller/safedealController.ts: NEW async maxDealUsd() = convertToFiat("EUR","USD",2999) at live rate, FAILS OPEN to eur*1.15
 #     if FX momentarily down. maxDealMessage() helper. Enforced in createDeal (replaced dead >$1,000,000 check) AND amendDeal.
@@ -631,7 +631,7 @@
 #   success + confetti; deal detail progress + 5-network payout picker; public invite OTP → accept → fund → deliver
 #   → release with the progress ladder). At wrap-up the EXTERNAL preview host returned a transient Cloudflare 502
 #   (local was healthy) — just retry. Preview URL (source of truth = APP_URL in /etc/supervisor/conf.d/*.conf):
-#   https://passphrase-config-1.preview.emergentagent.com  (older auth-config-8 URL is STALE).
+#   https://passphrase-check.preview.emergentagent.com  (older auth-config-8 URL is STALE).
 #   Escrow invite OTP is a SINGLE TextField (escrow-invite-otp) — the "12 OTP inputs" E2E blocker was the login-2FA
 #   segmented input, NOT escrow. NOTE: backend invite_url is built from SERVER_URL/FRONTEND_URL (= b93492c2 host),
 #   so the QR/link resolve there. COMMIT: user must click "Save to GitHub" (all changes uncommitted).
@@ -748,7 +748,7 @@
 # VERIFY: FE tsc 0, BE tsc 0. iteration_197 all 9 checks pass (range switching refetches + updates summary,
 #   Manage switches brand + routes to /dashboard, "View all brands" navigates, sidebar item visible for 5 brands,
 #   no console errors, no overflow at 1920x800 / 390x844). Preview (THIS pod):
-#   https://passphrase-config-1.preview.emergentagent.com/brands  (setup-vault-7 URL is STALE).
+#   https://passphrase-check.preview.emergentagent.com/brands  (setup-vault-7 URL is STALE).
 #   COMMIT: user must click "Save to GitHub" (no local push from pod).
 # ============================================================================================
 
@@ -793,7 +793,7 @@
 #   viewer_is_ops=true, stuck_forwards=[tx883 $18.81 ETH]. ack with wrong brand (71) → 403; ack brand 1 → 200,
 #   DB shows ack cols set + updatedAt UNCHANGED (2026-09-06), item GONE from feed. Reverted ack cols to NULL →
 #   tx 883 back in feed. FE browser: button + dialog render for ops (cancelled, no write). FE tsc 0, BE tsc 0,
-#   all 6 common.json parse. Preview: https://passphrase-config-1.preview.emergentagent.com  (route /payouts).
+#   all 6 common.json parse. Preview: https://passphrase-check.preview.emergentagent.com  (route /payouts).
 # TO ACTUALLY CLEAR THE REAL $18.81: ops settles it by hand in the DEPLOYED prod (send ~$18.81 USDT-TRC20 to
 #   TTve8v6Y48ChsCTEiCjMRFSbjNtz4mAkxR), then clicks "Mark as resolved". testing_agent NOT used (acknowledge
 #   writes to a live prod row; verified via reversible curl e2e + browser instead). COMMIT: user must Save to GitHub.
@@ -911,7 +911,7 @@
 #   to 0 keys). tsc 0 (backend + frontend), eslint clean.
 #
 # TESTING METHOD: self-tested (Joi unit tests + real curl e2e for D incl. enforcement + Playwright UI screenshots).
-#   testing_agent NOT used. NOTE current preview URL = https://passphrase-config-1.preview.emergentagent.com
+#   testing_agent NOT used. NOTE current preview URL = https://passphrase-check.preview.emergentagent.com
 #   (test_credentials.md's 27632836 URL is STALE from a prior pod). COMMIT: all changes uncommitted — user must Save to GitHub.
 # ============================================================================================
 
@@ -4568,7 +4568,7 @@ Plan: /app/plan/emails_pages_audit_plan.md (§7 order). Report: /app/plan/audit_
 
 ## Reown "Open wallet" missing on checkout.dynopay.com — 2026-09-24 — FIXED (config, no code) (testing_agent iteration_223: desktop QR + mobile "Open Binance Wallet" PASS on production)
 - Root cause: Reown project allowlist had `dynopay.com` + `safedeal.sh` only; hostnames match exactly, so the hosted checkout origin `https://checkout.dynopay.com` was rejected by the relay (`wss://relay.walletconnect.org` → `{code:3000,"Unauthorized: origin not allowed"}`, `pulse.walletconnect.org` 403) → no pairing URI → grey QR / no "Open" button. Wallet icons still loaded because the Explorer API doesn't enforce the allowlist.
-- Fix: user added `https://checkout.dynopay.com` in dashboard.reown.com → project → Domains. Wildcard `https://*.dynopay.com` covers subdomains only (not the apex) — keep both entries. Optional for preview QA: `https://passphrase-config-1.preview.emergentagent.com`.
+- Fix: user added `https://checkout.dynopay.com` in dashboard.reown.com → project → Domains. Wildcard `https://*.dynopay.com` covers subdomains only (not the apex) — keep both entries. Optional for preview QA: `https://passphrase-check.preview.emergentagent.com`.
 - docs.walletconnect.com vs Reown: same company (WalletConnect Inc. → Reown, 2024). WalletConnect = protocol/network/relay; Reown AppKit (`@reown/appkit`) = the official app SDK; docs.walletconnect.com's own Next.js guide installs `@reown/appkit*`; dashboard.walletconnect.com == dashboard.reown.com. Current integration is correct.
 - Preview note: `NEXT_PUBLIC_REOWN_PROJECT_ID` is NOT in the vault/.env.local → wallet buttons hidden on preview by design (public id `f83ed4e19b1bf8e6b381f6485b191ae1`, prod has it as a DO build-time var). A 24h QA pay link (`/pay?d=Cf1ngm`, link_id 536, company 1) was created on prod for reproduction; it self-expires 2026-09-25T06:36Z.
 - Prod QA recipe: mock `**/api/pay/addPayment` + `**/api/pay/verifyCryptoPayment*` (see test_credentials.md) so no pool address is reserved; wallet list = `wui-list-wallet[name]`, QR = `w3m-modal wui-qr-code[uri^="wc:"]`.
@@ -4603,7 +4603,7 @@ Plan: /app/plan/emails_pages_audit_plan.md (§7 order). Report: /app/plan/audit_
 - Still pending user confirmation / not agent-tested: theme memory across checkout/login/marketing (smoke only); transactional email + OG Bybit-black refresh (render audit 151/151 only); deploy workflow disk-cleanup change in .github/workflows/deploy-droplet.yml (needs Save-to-GitHub + rerun; droplet disk was full).
 
 ## 2026-09-25 (fork) — Theme Memory verified · WalletConnect hidden on checkouts · SafeDeal SEO structured data · QA triage
-- ENV NOTE: this pod's live preview = `https://passphrase-config-1.preview.emergentagent.com` (env `preview_endpoint`). The parent-job URL `db6f1699-…preview.emergentagent.com` is STALE and now resolves to Cloudflare/Webflow prod — it 404s all `/api/*`. Backend runs under uvicorn `--reload` (WatchFiles) → transient 502/503 during reloads; QA fetch scripts must retry on 5xx.
+- ENV NOTE: this pod's live preview = `https://passphrase-check.preview.emergentagent.com` (env `preview_endpoint`). The parent-job URL `db6f1699-…preview.emergentagent.com` is STALE and now resolves to Cloudflare/Webflow prod — it 404s all `/api/*`. Backend runs under uvicorn `--reload` (WatchFiles) → transient 502/503 during reloads; QA fetch scripts must retry on 5xx.
 - Theme Memory Phase 1 = code-complete AND self-verified (screenshot spot-check, no testing_agent per user): fresh dark device→dark (no manual key); toggle persists `dyno-theme=light`; choice carries into /auth/login + /pay; /safedeal stays fixed-light without touching `dyno-theme`. Files: contexts/ThemeContext.tsx (unified key `dyno-theme`, cookie `dyno-theme-eff`, legacy migration dashboard>legacy>public), utils/theme/routeContext.ts, pages/_app.tsx, pages/_document.tsx. QA script hardened: scripts/qa/theme_memory_regression.mjs (browser UA, retry on 5xx up to ~120s). Phase 2 (Auto/Light/Dark 3-way) + Phase 3 (cross-origin/synced) still pending.
 - WalletConnect "Pay with wallet" HIDDEN on both payment checkouts (per user; QR+copy-address kept; merchant "verify wallet ownership" left untouched). Gated with `false &&` (imports kept used → no build break): Components/Page/Pay3Components/CleanCheckoutV2.tsx (clean-checkout-wallet-pay-wrap) verified via screenshot (WALLET_BTN 0 at awaiting-payment); Components/SafeDeal/FundPanel.tsx (sd-fund-wallet-wrap) code-symmetric (not live-screenshotted — needs a funded deal).
 - SafeDeal SEO (on-page structured data; no verification tokens yet). Added JSON-LD via SafeDealShell `jsonLd` prop: base Organization + WebSite on every indexable SafeDeal page; Service+Offer on /safedeal; FAQPage (7 Q&A from legalContent HELP) on /safedeal/help. Verified in SSR HTML. Sitemap/robots/IndexNow(Bing) already host-aware. TODO later: Google Search Console + Bing Webmaster verification meta tags when user provides tokens.

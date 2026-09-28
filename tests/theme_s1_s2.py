@@ -1,6 +1,6 @@
 import asyncio
 
-BASE = "https://passphrase-config-1.preview.emergentagent.com"
+BASE = "https://passphrase-check.preview.emergentagent.com"
 
 MARKETING = ["/", "/fees", "/for/freelancers", "/products", "/blog", "/about",
              "/pay?d=jgQQzL", "/pay/demo", "/auth/login", "/auth/signup", "/reset-password"]
