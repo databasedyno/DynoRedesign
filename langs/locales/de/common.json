@@ -175,7 +175,7 @@
     "reference": "Referenz",
     "linkExpiredAsk": "Bitte den Händler um einen neuen Zahlungslink und nenne die oben angegebene Referenz.",
     "aboutDynopay": "Was ist Dynopay?",
-    "incompletePaymentDesc": "Du hast eine ausstehende Zahlung von ${incompletePayment.pending_amount} ${incompletePayment.currency}. Bitte schließe sie innerhalb von ${incompletePayment.remaining_minutes} Minuten ab oder warte, bis sie abläuft."
+    "incompletePaymentDesc": "Du hast eine ausstehende Zahlung von {{amount}} {{currency}}. Bitte schließe sie innerhalb von {{minutes}} Minuten ab oder warte, bis sie abläuft."
   },
   "crypto": {
     "title": "Kryptowährung",
@@ -887,20 +887,20 @@
     "acceptedCoins": "Zahle mit deiner Lieblings-Krypto — 12 Coins akzeptiert",
     "theOrganizer": "der Organisator",
     "fundHandlingTitle": "Wohin dein Geschenk geht",
-    "fundHandlingBody": "Dein Geschenk geht direkt an ${organizer}. Je nach deren Einstellungen wird es als Krypto empfangen oder automatisch in einen Stablecoin umgewandelt. DynoPay verarbeitet nur die Zahlung — es hält oder investiert dein Geschenk niemals.",
+    "fundHandlingBody": "Dein Geschenk geht direkt an {{organizer}}. Je nach deren Einstellungen wird es als Krypto empfangen oder automatisch in einen Stablecoin umgewandelt. DynoPay verarbeitet nur die Zahlung — es hält oder investiert dein Geschenk niemals.",
     "taxNoteTitle": "Gut zu wissen",
     "taxNoteBody": "In vielen Ländern wird Krypto als Eigentum behandelt, also führe eigene Aufzeichnungen für größere Geschenke und überprüfe die Steuervorschriften an deinem Wohnort — dies ist keine finanzielle oder steuerliche Beratung. Krypto-Zahlungen sind endgültig und können in der Regel nicht rückgängig gemacht werden, also überprüfe bitte den Betrag, bevor du sendest. Für eine Rückerstattung kontaktiere direkt den Organisator.",
     "faqTitle": "Häufig gefragt",
     "faqMinimumQ": "Gibt es eine Mindestspende?",
-    "faqMinimumA": "Ja — die Mindestspende für diese Kampagne beträgt ${minAmountLabel}. Du kannst jeden Betrag ab diesem Wert spenden.",
+    "faqMinimumA": "Ja — die Mindestspende für diese Kampagne beträgt {{amount}}. Du kannst jeden Betrag ab diesem Wert spenden.",
     "faqConfirmQ": "Wie lange dauert die Bestätigung?",
     "faqConfirmA": "Die meisten Zahlungen werden innerhalb weniger Minuten bestätigt, sobald das Netzwerk deine Transaktion verarbeitet. Schnellere Chains und Stablecoins sind in der Regel am schnellsten; Bitcoin kann etwas länger dauern.",
     "faqAnonQ": "Kann ich anonym spenden?",
     "faqAnonA": "Ja. Setze ein Häkchen bei „Anonym spenden“ und dein Name wird nicht auf der öffentlichen Unterstützerliste angezeigt. Wenn du eine E-Mail hinterlässt, senden wir dir trotzdem eine private Quittung.",
     "faqRefundQ": "Kann ich eine Rückerstattung erhalten?",
-    "faqRefundA": "Krypto-Zahlungen sind endgültig, daher sind Rückerstattungen nicht automatisch. Wenn etwas schiefgelaufen ist, kontaktiere ${organizer} direkt, und sie können eine Rückerstattung arrangieren.",
+    "faqRefundA": "Krypto-Zahlungen sind endgültig, daher sind Rückerstattungen nicht automatisch. Wenn etwas schiefgelaufen ist, kontaktiere {{organizer}} direkt, und sie können eine Rückerstattung arrangieren.",
     "faqContactQ": "Wen kontaktiere ich für Hilfe?",
-    "faqContactA": "Wende dich an ${organizer} für alles, was diese Kampagne betrifft. Bei Zahlungsproblemen kannst du auch den DynoPay-Support über deine Quittung kontaktieren.",
+    "faqContactA": "Wende dich an {{organizer}} für alles, was diese Kampagne betrifft. Bei Zahlungsproblemen kannst du auch den DynoPay-Support über deine Quittung kontaktieren.",
     "securedByFooter": "Zahlungen gesichert & verarbeitet von DynoPay"
   },
   "taxSettings": {

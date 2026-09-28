@@ -23,6 +23,7 @@ interface Props {
   title: string;
   url: string;
   ariaLabel?: string;
+  accent?: string;
 }
 
 const X_ICON = (
@@ -49,7 +50,7 @@ const LINKEDIN_ICON = (
   </svg>
 );
 
-export default function CampaignShareTray({ title, url, ariaLabel }: Props) {
+export default function CampaignShareTray({ title, url, ariaLabel, accent }: Props) {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const [copied, setCopied] = useState(false);
@@ -78,15 +79,17 @@ export default function CampaignShareTray({ title, url, ariaLabel }: Props) {
 
   const btnSx = {
     color: isDark ? "rgba(255,255,255,0.85)" : "rgba(0,0,0,0.72)",
-    bgcolor: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.03)",
-    border: `1px solid ${isDark ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.08)"}`,
-    width: 32,
-    height: 32,
+    bgcolor: isDark ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.8)",
+    border: `1px solid ${isDark ? "rgba(255,255,255,0.10)" : "rgba(18,18,20,0.08)"}`,
+    width: 38,
+    height: 38,
     "&:hover": {
-      bgcolor: isDark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.06)",
+      bgcolor: isDark ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,1)",
+      borderColor: accent || (isDark ? "rgba(255,255,255,0.3)" : "rgba(18,18,20,0.2)"),
       transform: "translateY(-1px)",
     },
-    transition: "all 0.15s ease",
+    "&:active": { transform: "translateY(0) scale(0.97)" },
+    transition: "background-color 140ms ease, border-color 140ms ease, transform 140ms ease",
   };
 
   return (

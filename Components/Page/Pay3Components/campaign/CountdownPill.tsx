@@ -19,6 +19,8 @@ import { useTranslation } from "react-i18next";
 
 interface Props {
   endsAt: string; // ISO date string
+  /** `onCover` renders a dark glass pill readable on top of a photo. */
+  variant?: "default" | "onCover";
 }
 
 type Severity = "calm" | "notice" | "urgent" | "critical";
@@ -47,9 +49,10 @@ function computeParts(endsAt: string) {
   return { days, hours, minutes, severity };
 }
 
-export default function CountdownPill({ endsAt }: Props) {
+export default function CountdownPill({ endsAt, variant = "default" }: Props) {
   const theme = useTheme();
-  const isDark = theme.palette.mode === "dark";
+  const onCover = variant === "onCover";
+  const isDark = onCover || theme.palette.mode === "dark";
   const { t } = useTranslation("common");
   const [tick, setTick] = useState(0);
 
@@ -121,15 +124,18 @@ export default function CountdownPill({ endsAt }: Props) {
         display: "inline-flex",
         alignItems: "center",
         gap: 0.5,
-        px: 1,
+        px: onCover ? 1.25 : 1,
         py: 0.35,
+        minHeight: onCover ? 30 : undefined,
         borderRadius: "999px",
         fontSize: 11.5,
         fontWeight: 700,
         letterSpacing: "0.02em",
         color: p.fg,
-        backgroundColor: p.bg,
-        border: `1px solid ${p.border}`,
+        backgroundColor: onCover ? "rgba(10,10,13,0.62)" : p.bg,
+        border: `1px solid ${onCover ? "rgba(255,255,255,0.14)" : p.border}`,
+        backdropFilter: onCover ? "blur(8px)" : undefined,
+        WebkitBackdropFilter: onCover ? "blur(8px)" : undefined,
         animation: p.animate ? `${pulse} 1.6s ease-in-out infinite` : "none",
       }}
     >

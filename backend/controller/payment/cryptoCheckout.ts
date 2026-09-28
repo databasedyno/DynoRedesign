@@ -343,6 +343,7 @@ const getData = async (req: express.Request, res: express.Response) => {
       handle?: string;
       creator_page_enabled?: boolean | null;
       photo?: string;
+      theme_accent_color?: string | null;
       show_fee_split_to_customers?: boolean | null;
       grace_period_minutes?: number | string;
       overpayment_threshold_usd?: number | string;
@@ -360,6 +361,8 @@ const getData = async (req: express.Request, res: express.Response) => {
             // Public page handle (only when the creator page is live) — lets the
             // buyer save / revisit the merchant from the success screen.
             handle: companyData.creator_page_enabled && companyData.handle ? String(companyData.handle) : null,
+            // Merchant-chosen accent (creator theme) so public checkout/campaign pages match their brand.
+            accent_color: companyData.theme_accent_color || null,
             // B12: whether the buyer sees "Merchant receives / Dynopay fee" rows.
             show_fee_split: shouldShowFeeSplit(companyData, item.fee_payer),
           };

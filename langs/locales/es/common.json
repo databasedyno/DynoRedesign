@@ -202,7 +202,7 @@
     "reference": "Referencia",
     "linkExpiredAsk": "Pide al comerciante un nuevo enlace de pago y cita la referencia anterior.",
     "aboutDynopay": "¿Qué es Dynopay?",
-    "incompletePaymentDesc": "Tienes un pago pendiente de ${incompletePayment.pending_amount} ${incompletePayment.currency}. Por favor, complétalo dentro de ${incompletePayment.remaining_minutes} minutos o espera a que expire."
+    "incompletePaymentDesc": "Tienes un pago pendiente de {{amount}} {{currency}}. Por favor, complétalo dentro de {{minutes}} minutos o espera a que expire."
   },
   "crypto": {
     "title": "Criptomoneda",
@@ -887,20 +887,20 @@
     "acceptedCoins": "Paga con tu criptomoneda favorita — 12 monedas aceptadas",
     "theOrganizer": "el organizador",
     "fundHandlingTitle": "A dónde va tu regalo",
-    "fundHandlingBody": "Tu regalo va directamente a ${organizer}. Dependiendo de su configuración, se recibe como criptomoneda o se convierte automáticamente en una stablecoin. DynoPay solo procesa el pago — nunca retiene ni invierte tu donación.",
+    "fundHandlingBody": "Tu regalo va directamente a {{organizer}}. Dependiendo de su configuración, se recibe como criptomoneda o se convierte automáticamente en una stablecoin. DynoPay solo procesa el pago — nunca retiene ni invierte tu donación.",
     "taxNoteTitle": "Bueno saber",
     "taxNoteBody": "En muchos lugares, las criptomonedas se consideran propiedad, así que lleva tus propios registros para regalos más grandes y verifica las reglas fiscales donde vives — esto no es asesoramiento financiero ni fiscal. Los pagos en criptomonedas son finales y generalmente no se pueden revertir, así que verifica el monto antes de enviar. Para un reembolso, contacta directamente al organizador.",
     "faqTitle": "Preguntas frecuentes",
     "faqMinimumQ": "¿Hay una donación mínima?",
-    "faqMinimumA": "Sí — la mínima para esta campaña es ${minAmountLabel}. Puedes donar cualquier cantidad igual o superior a eso.",
+    "faqMinimumA": "Sí — la mínima para esta campaña es {{amount}}. Puedes donar cualquier cantidad igual o superior a eso.",
     "faqConfirmQ": "¿Cuánto tiempo tarda la confirmación?",
     "faqConfirmA": "La mayoría de los pagos se confirman en unos minutos una vez que la red procesa tu transacción. Las cadenas más rápidas y las stablecoins suelen ser las más rápidas; Bitcoin puede tardar un poco más.",
     "faqAnonQ": "¿Puedo donar de forma anónima?",
     "faqAnonA": "Sí. Marca “Donar de forma anónima” y tu nombre no aparecerá en la lista pública de supporters. Si dejas un correo electrónico, aún te enviaremos un recibo privado.",
     "faqRefundQ": "¿Puedo obtener un reembolso?",
-    "faqRefundA": "Los pagos en criptomonedas son finales, por lo que los reembolsos no son automáticos. Si algo salió mal, contacta directamente a ${organizer} y ellos pueden organizar uno.",
+    "faqRefundA": "Los pagos en criptomonedas son finales, por lo que los reembolsos no son automáticos. Si algo salió mal, contacta directamente a {{organizer}} y ellos pueden organizar uno.",
     "faqContactQ": "¿A quién contacto para obtener ayuda?",
-    "faqContactA": "Contacta a ${organizer} para cualquier cosa relacionada con esta campaña. Para problemas de pago, también puedes contactar al soporte de DynoPay desde tu recibo.",
+    "faqContactA": "Contacta a {{organizer}} para cualquier cosa relacionada con esta campaña. Para problemas de pago, también puedes contactar al soporte de DynoPay desde tu recibo.",
     "securedByFooter": "Pagos asegurados y procesados por DynoPay"
   },
   "taxSettings": {

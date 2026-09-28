@@ -203,7 +203,7 @@
     "reference": "Reference",
     "linkExpiredAsk": "Ask the merchant for a new payment link and quote the reference above.",
     "aboutDynopay": "What is Dynopay?",
-    "incompletePaymentDesc": "You have a pending payment of ${incompletePayment.pending_amount} ${incompletePayment.currency}. Please complete it within ${incompletePayment.remaining_minutes} minutes or wait for it to expire."
+    "incompletePaymentDesc": "You have a pending payment of {{amount}} {{currency}}. Please complete it within {{minutes}} minutes or wait for it to expire."
   },
   "crypto": {
     "title": "Cryptocurrency",
@@ -887,20 +887,20 @@
     "acceptedCoins": "Pay with your favourite crypto — 12 coins accepted",
     "theOrganizer": "the organizer",
     "fundHandlingTitle": "Where your gift goes",
-    "fundHandlingBody": "Your gift goes directly to ${organizer}. Depending on their settings it's received as crypto or automatically converted to a stablecoin. DynoPay only processes the payment — it never holds or invests your donation.",
+    "fundHandlingBody": "Your gift goes directly to {{organizer}}. Depending on their settings it's received as crypto or automatically converted to a stablecoin. DynoPay only processes the payment — it never holds or invests your donation.",
     "taxNoteTitle": "Good to know",
     "taxNoteBody": "In many places crypto is treated as property, so keep your own records for larger gifts and check the tax rules where you live — this isn't financial or tax advice. Crypto payments are final and generally can't be reversed, so please double-check the amount before you send. For a refund, contact the organizer directly.",
     "faqTitle": "Frequently asked",
     "faqMinimumQ": "Is there a minimum donation?",
-    "faqMinimumA": "Yes — the minimum for this campaign is ${minAmountLabel}. You can give any amount at or above that.",
+    "faqMinimumA": "Yes — the minimum for this campaign is {{amount}}. You can give any amount at or above that.",
     "faqConfirmQ": "How long does confirmation take?",
     "faqConfirmA": "Most payments confirm within a few minutes once the network processes your transaction. Faster chains and stablecoins are usually quickest; Bitcoin can take a little longer.",
     "faqAnonQ": "Can I give anonymously?",
     "faqAnonA": "Yes. Tick “Donate anonymously” and your name won't be shown on the public supporters list. If you leave an email we'll still send you a private receipt.",
     "faqRefundQ": "Can I get a refund?",
-    "faqRefundA": "Crypto payments are final, so refunds aren't automatic. If something went wrong, contact ${organizer} directly and they can arrange one.",
+    "faqRefundA": "Crypto payments are final, so refunds aren't automatic. If something went wrong, contact {{organizer}} directly and they can arrange one.",
     "faqContactQ": "Who do I contact for help?",
-    "faqContactA": "Reach out to ${organizer} for anything about this campaign. For payment issues you can also contact DynoPay support from your receipt.",
+    "faqContactA": "Reach out to {{organizer}} for anything about this campaign. For payment issues you can also contact DynoPay support from your receipt.",
     "securedByFooter": "Payments secured & processed by DynoPay"
   },
   "taxSettings": {

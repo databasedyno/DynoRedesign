@@ -13,6 +13,7 @@
  */
 import React, { useEffect, useState } from "react";
 import { Box, Typography, useTheme, keyframes } from "@mui/material";
+import { Icon } from "@iconify/react";
 import { BRAND_ACCENT, BRAND_ON_ACCENT } from "@/constants/theme";
 
 interface Props {
@@ -24,9 +25,13 @@ interface Props {
   /** Label under the raised number, e.g. "raised of $10,000 goal". */
   raisedLabel?: string;
   goalReached?: boolean;
+  /** Merchant accent — drives the fill gradient start (defaults to Dynopay gold). */
+  accent?: string;
+  /** Localized "funded" word for the percent pill. */
+  fundedLabel?: string;
 }
 
-const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace';
+const MONO = 'var(--font-tech), ui-monospace, "JetBrains Mono", SFMono-Regular, Menlo, monospace';
 
 const shimmer = keyframes`
   0%   { transform: translateX(-100%); opacity: 0.0; }
@@ -48,6 +53,8 @@ export default function GoalProgressBar({
   formatCurrency,
   raisedLabel,
   goalReached,
+  accent: accentProp,
+  fundedLabel = "funded",
 }: Props) {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
@@ -60,13 +67,13 @@ export default function GoalProgressBar({
   }, [target]);
 
 
-  const accent = BRAND_ACCENT;
+  const accent = accentProp || BRAND_ACCENT;
   const success = "#10B981";
   const trackBg = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.07)";
   const pillBg = goalReached
     ? `linear-gradient(135deg, #34D399 0%, ${success} 100%)`
-    : `linear-gradient(135deg, ${accent} 0%, #FFB300 100%)`;
-  // Gold pill carries dark-brown text; the green "goal reached" pill keeps white.
+    : `linear-gradient(135deg, ${BRAND_ACCENT} 0%, #FFB300 100%)`;
+  // Gold pill carries dark ink; the green "goal reached" pill keeps white.
   const pillFg = goalReached ? "#FFFFFF" : BRAND_ON_ACCENT;
   const fillGradient = goalReached
     ? `linear-gradient(90deg, #34D399 0%, ${success} 100%)`
@@ -89,10 +96,13 @@ export default function GoalProgressBar({
             sx={{
               fontFamily: MONO,
               fontWeight: 800,
-              fontSize: { xs: 26, sm: 32 },
+              fontSize: { xs: 30, sm: 40 },
               lineHeight: 1,
+              letterSpacing: "-0.03em",
+              fontVariantNumeric: "tabular-nums",
               color: theme.palette.text.primary,
             }}
+            data-testid="goal-raised-amount"
           >
             {formatCurrency(raised)}
           </Typography>
@@ -127,8 +137,8 @@ export default function GoalProgressBar({
               animation: goalReached ? `${pulse} 1.8s ease-in-out infinite` : "none",
             }}
           >
-            {goalReached ? "🏆" : ""}
-            {Math.round(percent)}% funded
+            {goalReached && <Icon icon="mdi:trophy" width={14} />}
+            {Math.round(percent)}% {fundedLabel}
           </Box>
         )}
       </Box>

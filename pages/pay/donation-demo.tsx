@@ -85,7 +85,7 @@ const DonationDemo = () => {
 
         <DonationCampaign
           donation={scenarios[key]}
-          merchant={{ name: 'Riverside Community', company_logo: null }}
+          merchant={{ name: 'Riverside Community', company_logo: null, accent_color: '#0FCFA0' }}
           submitting={false}
           onDonate={() => {}}
         />

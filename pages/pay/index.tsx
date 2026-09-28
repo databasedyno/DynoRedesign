@@ -136,6 +136,8 @@ interface ExpiryInfo {
 interface MerchantInfo {
   name: string
   company_logo: string | null
+  accent_color?: string | null
+  handle?: string | null
 }
 
 export const currencyOptions = [
@@ -533,7 +535,9 @@ const Payment = () => {
         if (data.merchant) {
           setMerchantInfo({
             name: data.merchant.name || data.merchant.company_name || '',
-            company_logo: data.merchant.company_logo || null
+            company_logo: data.merchant.company_logo || null,
+            accent_color: data.merchant.accent_color || null,
+            handle: data.merchant.handle || null,
           })
         }
         // A fresh campaign visit invalidates any stale per-payment stepper state

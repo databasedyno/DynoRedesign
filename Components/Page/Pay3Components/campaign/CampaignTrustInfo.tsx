@@ -15,10 +15,13 @@
  */
 import React, { useState } from "react";
 import { Box, Typography, Collapse, useTheme, type Theme } from "@mui/material";
+import { alpha, darken } from "@mui/material/styles";
 import { Icon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
+import { BRAND_ACCENT } from "@/constants/theme";
+import { readableOn } from "@/constants/creatorTheme";
 
-const MONO = 'ui-monospace, "Roboto Mono", "JetBrains Mono", SFMono-Regular, Menlo, monospace';
+const MONO = 'var(--font-tech), ui-monospace, "JetBrains Mono", SFMono-Regular, Menlo, monospace';
 
 /** The 12 assets the checkout accepts (mirrors checkout/checkoutConstants). */
 const ACCEPTED_COINS: Array<{ icon: string; label: string; color?: string }> = [
@@ -38,7 +41,7 @@ const ACCEPTED_COINS: Array<{ icon: string; label: string; color?: string }> = [
 
 const overlineSx = (theme: Theme) => ({
   fontFamily: MONO,
-  fontWeight: 600,
+  fontWeight: 700,
   fontSize: 11,
   letterSpacing: "0.14em",
   textTransform: "uppercase" as const,
@@ -52,16 +55,16 @@ export const AcceptedCoinsStrip: React.FC = () => {
   const isDark = theme.palette.mode === "dark";
   const { t } = useTranslation("common");
   return (
-    <Box mt={1.5} data-testid="donation-accepted-coins">
+    <Box mt={2} pt={2} data-testid="donation-accepted-coins" sx={{ borderTop: `1px solid ${theme.palette.divider}` }}>
       <Typography
         component="span"
         sx={{
           display: "block",
-          fontSize: 11,
+          fontSize: 11.5,
           fontWeight: 600,
           letterSpacing: "0.02em",
           color: theme.palette.text.secondary,
-          mb: 0.75,
+          mb: 1,
         }}
       >
         {t("donation.acceptedCoins", { defaultValue: "Pay with your favourite crypto — 12 coins accepted" })}
@@ -75,11 +78,11 @@ export const AcceptedCoinsStrip: React.FC = () => {
               display: "inline-flex",
               alignItems: "center",
               gap: 0.5,
-              px: 0.9,
-              py: 0.4,
+              px: 1,
+              minHeight: 28,
               borderRadius: "999px",
               border: `1px solid ${theme.palette.divider}`,
-              backgroundColor: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)",
+              backgroundColor: isDark ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.7)",
             }}
           >
             <Icon icon={c.icon} width={15} height={15} color={c.color} />
@@ -97,8 +100,9 @@ interface FaqItemProps {
   q: string;
   a: string;
   testid: string;
+  accent: string;
 }
-const FaqItem: React.FC<FaqItemProps> = ({ q, a, testid }) => {
+const FaqItem: React.FC<FaqItemProps> = ({ q, a, testid, accent }) => {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
   return (
@@ -111,6 +115,7 @@ const FaqItem: React.FC<FaqItemProps> = ({ q, a, testid }) => {
       <Box
         role="button"
         tabIndex={0}
+        aria-expanded={open}
         data-testid={`${testid}-toggle`}
         onClick={() => setOpen((v) => !v)}
         onKeyDown={(e: React.KeyboardEvent) => {
@@ -126,15 +131,28 @@ const FaqItem: React.FC<FaqItemProps> = ({ q, a, testid }) => {
           gap: 1,
           cursor: "pointer",
           userSelect: "none",
-          py: 1.5,
+          minHeight: 52,
+          py: 1.25,
+          transition: "color 140ms ease",
+          "&:hover": { color: accent },
+          "&:focus-visible": { outline: `2px solid ${accent}`, outlineOffset: 2, borderRadius: "8px" },
         }}
       >
-        <Typography sx={{ fontSize: 14, fontWeight: 700, color: theme.palette.text.primary }}>{q}</Typography>
-        <Icon
-          icon="mdi:chevron-down"
-          width={20}
-          style={{ transform: open ? "rotate(180deg)" : "none", transition: "transform 160ms ease", color: theme.palette.text.secondary, flexShrink: 0 }}
-        />
+        <Typography sx={{ fontSize: 14.5, fontWeight: 700, color: theme.palette.text.primary }}>{q}</Typography>
+        <Box
+          sx={{
+            width: 28, height: 28, borderRadius: "50%", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center",
+            bgcolor: open ? alpha(accent, 0.16) : (theme.palette.mode === "dark" ? "rgba(255,255,255,0.05)" : "rgba(18,18,20,0.04)"),
+            color: theme.palette.text.secondary,
+            transition: "background-color 160ms ease",
+          }}
+        >
+          <Icon
+            icon="mdi:chevron-down"
+            width={18}
+            style={{ transform: open ? "rotate(180deg)" : "none", transition: "transform 160ms ease" }}
+          />
+        </Box>
       </Box>
       <Collapse in={open} timeout={180} unmountOnExit>
         <Typography
@@ -151,53 +169,72 @@ const FaqItem: React.FC<FaqItemProps> = ({ q, a, testid }) => {
 interface CampaignTrustInfoProps {
   merchantName?: string | null;
   minAmountLabel: string;
+  accent?: string;
 }
 
-export const CampaignTrustInfo: React.FC<CampaignTrustInfoProps> = ({ merchantName, minAmountLabel }) => {
+export const CampaignTrustInfo: React.FC<CampaignTrustInfoProps> = ({ merchantName, minAmountLabel, accent: accentProp }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const { t } = useTranslation("common");
+  const accent = accentProp || BRAND_ACCENT;
+  const accentText = isDark ? accent : (readableOn(accent) === "#FFFFFF" ? accent : darken(accent, 0.38));
   const organizer = merchantName && merchantName.trim() ? merchantName.trim() : t("donation.theOrganizer", { defaultValue: "the organizer" });
 
   const cardSx = {
-    p: { xs: 1.75, sm: 2.25 },
-    borderRadius: "16px",
-    border: `1px solid ${theme.palette.divider}`,
-    backgroundColor: isDark ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.015)",
+    position: "relative" as const,
+    overflow: "hidden",
+    p: { xs: 2.25, sm: 3 },
+    borderRadius: "24px",
+    border: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "rgba(18,18,20,0.06)"}`,
+    background: isDark
+      ? "linear-gradient(180deg, rgba(24,24,31,0.86) 0%, rgba(18,18,22,0.82) 100%)"
+      : "linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.84) 100%)",
+    backdropFilter: "blur(20px)",
+    WebkitBackdropFilter: "blur(20px)",
+    boxShadow: isDark
+      ? "0 24px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)"
+      : `0 20px 50px ${alpha(accent, 0.10)}, inset 0 1px 0 rgba(255,255,255,0.9)`,
   };
+  const iconTile = (icon: string, color: string) => (
+    <Box sx={{ width: 36, height: 36, borderRadius: "12px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", bgcolor: alpha(color, isDark ? 0.16 : 0.12), color }}>
+      <Icon icon={icon} width={19} />
+    </Box>
+  );
 
   return (
-    <Box mt={3.5} data-testid="donation-trust-info" sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      {/* Fund-handling statement */}
-      <Box sx={cardSx} data-testid="donation-fund-handling">
-        <Box display="flex" alignItems="center" gap={0.75} mb={0.75}>
-          <Icon icon="mdi:shield-check-outline" width={17} color={theme.palette.success.main} />
-          <Typography sx={{ fontSize: 13, fontWeight: 800, color: theme.palette.text.primary }}>
-            {t("donation.fundHandlingTitle", { defaultValue: "Where your gift goes" })}
+    <Box data-testid="donation-trust-info" sx={{ display: "flex", flexDirection: "column", gap: { xs: 2, md: 3 } }}>
+      <Box sx={{ display: "grid", gap: { xs: 2, md: 3 }, gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" } }}>
+        {/* Fund-handling statement */}
+        <Box sx={cardSx} data-testid="donation-fund-handling">
+          <Box display="flex" alignItems="center" gap={1.25} mb={1.25}>
+            {iconTile("mdi:shield-check-outline", theme.palette.success.main)}
+            <Typography sx={{ fontFamily: "var(--font-hero), var(--font-sans)", fontSize: 16, fontWeight: 800, letterSpacing: "-0.01em", color: theme.palette.text.primary }}>
+              {t("donation.fundHandlingTitle", { defaultValue: "Where your gift goes" })}
+            </Typography>
+          </Box>
+          <Typography sx={{ fontSize: 13.5, lineHeight: 1.65, color: theme.palette.text.secondary }} data-testid="donation-fund-handling-body">
+            {t("donation.fundHandlingBody", {
+              defaultValue: `Your gift goes directly to ${organizer}. Depending on their settings it's received as crypto or automatically converted to a stablecoin. Dynopay only processes the payment — it never holds or invests your donation.`,
+              organizer,
+            })}
           </Typography>
         </Box>
-        <Typography sx={{ fontSize: 13.5, lineHeight: 1.65, color: theme.palette.text.secondary }}>
-          {t("donation.fundHandlingBody", {
-            defaultValue: `Your gift goes directly to ${organizer}. Depending on their settings it's received as crypto or automatically converted to a stablecoin. Dynopay only processes the payment — it never holds or invests your donation.`,
-            organizer,
-          })}
-        </Typography>
-      </Box>
 
-      {/* Tax / not-financial-advice / refund note */}
-      <Box sx={cardSx} data-testid="donation-tax-note">
-        <Box display="flex" alignItems="center" gap={0.75} mb={0.75}>
-          <Icon icon="mdi:information-outline" width={17} color={theme.palette.text.secondary} />
-          <Typography sx={{ fontSize: 13, fontWeight: 800, color: theme.palette.text.primary }}>
-            {t("donation.taxNoteTitle", { defaultValue: "Good to know" })}
+        {/* Tax / not-financial-advice / refund note */}
+        <Box sx={cardSx} data-testid="donation-tax-note">
+          <Box display="flex" alignItems="center" gap={1.25} mb={1.25}>
+            {iconTile("mdi:information-outline", accentText)}
+            <Typography sx={{ fontFamily: "var(--font-hero), var(--font-sans)", fontSize: 16, fontWeight: 800, letterSpacing: "-0.01em", color: theme.palette.text.primary }}>
+              {t("donation.taxNoteTitle", { defaultValue: "Good to know" })}
+            </Typography>
+          </Box>
+          <Typography sx={{ fontSize: 13.5, lineHeight: 1.65, color: theme.palette.text.secondary }}>
+            {t("donation.taxNoteBody", {
+              defaultValue:
+                "In many places crypto is treated as property, so keep your own records for larger gifts and check the tax rules where you live — this isn't financial or tax advice. Crypto payments are final and generally can't be reversed, so please double-check the amount before you send. For a refund, contact the organizer directly.",
+            })}
           </Typography>
         </Box>
-        <Typography sx={{ fontSize: 13.5, lineHeight: 1.65, color: theme.palette.text.secondary }}>
-          {t("donation.taxNoteBody", {
-            defaultValue:
-              "In many places crypto is treated as property, so keep your own records for larger gifts and check the tax rules where you live — this isn't financial or tax advice. Crypto payments are final and generally can't be reversed, so please double-check the amount before you send. For a refund, contact the organizer directly.",
-          })}
-        </Typography>
       </Box>
 
       {/* FAQ */}
@@ -207,6 +244,7 @@ export const CampaignTrustInfo: React.FC<CampaignTrustInfoProps> = ({ merchantNa
         </Typography>
         <Box>
           <FaqItem
+            accent={accent}
             testid="donation-faq-minimum"
             q={t("donation.faqMinimumQ", { defaultValue: "Is there a minimum donation?" })}
             a={t("donation.faqMinimumA", {
@@ -215,6 +253,7 @@ export const CampaignTrustInfo: React.FC<CampaignTrustInfoProps> = ({ merchantNa
             })}
           />
           <FaqItem
+            accent={accent}
             testid="donation-faq-confirm"
             q={t("donation.faqConfirmQ", { defaultValue: "How long does confirmation take?" })}
             a={t("donation.faqConfirmA", {
@@ -223,6 +262,7 @@ export const CampaignTrustInfo: React.FC<CampaignTrustInfoProps> = ({ merchantNa
             })}
           />
           <FaqItem
+            accent={accent}
             testid="donation-faq-anon"
             q={t("donation.faqAnonQ", { defaultValue: "Can I give anonymously?" })}
             a={t("donation.faqAnonA", {
@@ -231,6 +271,7 @@ export const CampaignTrustInfo: React.FC<CampaignTrustInfoProps> = ({ merchantNa
             })}
           />
           <FaqItem
+            accent={accent}
             testid="donation-faq-refund"
             q={t("donation.faqRefundQ", { defaultValue: "Can I get a refund?" })}
             a={t("donation.faqRefundA", {
@@ -239,6 +280,7 @@ export const CampaignTrustInfo: React.FC<CampaignTrustInfoProps> = ({ merchantNa
             })}
           />
           <FaqItem
+            accent={accent}
             testid="donation-faq-contact"
             q={t("donation.faqContactQ", { defaultValue: "Who do I contact for help?" })}
             a={t("donation.faqContactA", {
@@ -249,7 +291,7 @@ export const CampaignTrustInfo: React.FC<CampaignTrustInfoProps> = ({ merchantNa
         </Box>
       </Box>
 
-      <Typography sx={{ fontSize: 11, color: theme.palette.text.disabled, textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5 }}>
+      <Typography sx={{ fontSize: 11.5, color: theme.palette.text.secondary, textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5 }}>
         <Icon icon="mdi:lock-outline" width={12} />
         {t("donation.securedByFooter", { defaultValue: "Payments secured & processed by Dynopay" })}
       </Typography>
