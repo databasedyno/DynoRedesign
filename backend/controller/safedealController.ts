@@ -540,7 +540,8 @@ async function loadDealActor(token: string, sess: SafeDealSession): Promise<{ de
 const maskEmail = (e: string) => {
   const [u, d] = String(e || "").split("@");
   if (!d) return "";
-  return `${u.slice(0, 2)}${"•".repeat(Math.max(2, u.length - 2))}@${d}`;
+  // Short, readable handle ("sd•••@example.com") — never leaks the local-part length.
+  return `${u.slice(0, 2)}•••@${d}`;
 };
 
 // ── Multi-fiat pricing ───────────────────────────────────────────────────────
@@ -796,10 +797,15 @@ const previewDeal = async (req: express.Request, res: express.Response) => {
       buyer_email_masked: maskEmail(buyerEmail),
       seller_email_masked: maskEmail(sellerEmail),
       counterparty_email_masked: maskEmail(deal.counterparty_email),
-      // Email invites are a bearer link to a specific inbox; link invites have no addressed inbox.
-      counterparty_email_hint: isLink ? null : deal.counterparty_email,
+      // Never the full invitee address: anyone holding the link could read it (E2E audit SD-04).
+      counterparty_email_hint: null,
       buyer_pays: breakdown.buyerPays,
       seller_receives: breakdown.sellerReceives,
+      // Itemised SafeDeal costs so the guest sees WHY buyer_pays ≠ amount (audit SD-02).
+      cost_items: breakdown.costItems,
+      total_cost: breakdown.totalCost,
+      costs_estimated: breakdown.costsEstimated,
+      fee_percent: Number(deal.fee_percent),
       created_at: deal.created_at,
       // Link-preview copy (OG title/description) — same source as the rendered share card.
       share: (() => {

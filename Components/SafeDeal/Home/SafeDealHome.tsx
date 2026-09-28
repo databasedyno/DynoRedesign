@@ -221,7 +221,7 @@ export default function SafeDealHome({ initialTab = "overview" }: { initialTab?:
               action={deals && deals.length > 0 ? <Button size="small" onClick={() => changeTab("deals")} data-testid="sd-home-see-deals" endIcon={<Icon icon="mdi:arrow-right" width={16} />} sx={seeAllBtn}>All deals · {deals.length}</Button> : undefined}
             />
             {!deals && !dealsError ? (
-              <Box sx={{ display: "grid", gap: 2, gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" } }}>{[0, 1].map((i) => <Skeleton key={i} variant="rounded" height={150} />)}</Box>
+              <Box sx={{ display: "grid", gap: 2, gridTemplateColumns: { xs: "minmax(0, 1fr)", md: "repeat(2, minmax(0, 1fr))" } }}>{[0, 1].map((i) => <Skeleton key={i} variant="rounded" height={150} />)}</Box>
             ) : dealsError ? (
               <Typography color="error" data-testid="sd-deals-error">{dealsError}</Typography>
             ) : featured.length === 0 ? (
@@ -236,7 +236,7 @@ export default function SafeDealHome({ initialTab = "overview" }: { initialTab?:
                 </Link>
               </Box>
             ) : (
-              <Box sx={{ display: "grid", gap: 2, gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" } }}>
+              <Box sx={{ display: "grid", gap: 2, gridTemplateColumns: { xs: "minmax(0, 1fr)", md: "repeat(2, minmax(0, 1fr))" } }}>
                 {featured.map((d) => <DealProgressCard key={d.escrow_id} deal={d} href={href(`/deal/${d.deal_token}`)} now={now} />)}
               </Box>
             )}

@@ -55,8 +55,9 @@ export default function DealProgressCard({ deal, href, now }: { deal: SdDeal; hr
   const yourMove = step.who === "you";
   const updated = deal.updated_at || deal.created_at;
   return (
-    <Link href={href} style={{ textDecoration: "none", color: "inherit", display: "block", height: "100%" }} data-testid={`sd-deal-row-${deal.escrow_id}`} aria-label={`${deal.title}, ${money(deal.amount, deal.currency)}`}>
-      <Box sx={{ p: { xs: 1.8, md: 2.2 }, height: "100%", borderRadius: 4, backgroundColor: "#fff", border: `1px solid ${yourMove ? SD_NOTE_BORDER : SD_BORDER}`, boxShadow: yourMove ? `0 0 0 3px ${goldAlpha(0.12)}` : "none", transition: "transform .18s, box-shadow .18s, border-color .18s", "&:hover": { transform: "translateY(-2px)", boxShadow: "0 16px 32px rgba(10,10,11,0.10)", borderColor: goldAlpha(0.6) } }}>
+    <Link href={href} style={{ textDecoration: "none", color: "inherit", display: "block", height: "100%", minWidth: 0 }} data-testid={`sd-deal-row-${deal.escrow_id}`} aria-label={`${deal.title}, ${money(deal.amount, deal.currency)}`}>
+      {/* minWidth 0 + minmax(0,1fr) grid tracks: a long counterparty email must ellipsize, not widen the page (audit SD-01). */}
+      <Box sx={{ p: { xs: 1.8, md: 2.2 }, height: "100%", minWidth: 0, borderRadius: 4, backgroundColor: "#fff", border: `1px solid ${yourMove ? SD_NOTE_BORDER : SD_BORDER}`, boxShadow: yourMove ? `0 0 0 3px ${goldAlpha(0.12)}` : "none", transition: "transform .18s, box-shadow .18s, border-color .18s", "&:hover": { transform: "translateY(-2px)", boxShadow: "0 16px 32px rgba(10,10,11,0.10)", borderColor: goldAlpha(0.6) } }}>
         <Stack direction="row" spacing={1.2} alignItems="flex-start">
           <Box sx={{ width: 40, height: 40, borderRadius: 2.5, flexShrink: 0, display: "grid", placeItems: "center", backgroundColor: isBuyer ? SD_NOTE_BG : "rgba(18,183,106,0.12)", color: isBuyer ? SD_GOLD_DEEP : "#0E9F5C" }} aria-hidden>
             <Icon icon={isBuyer ? "mdi:cart-outline" : "mdi:storefront-outline"} width={21} />

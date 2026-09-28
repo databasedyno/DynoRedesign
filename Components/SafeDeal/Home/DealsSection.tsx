@@ -63,7 +63,7 @@ export default function DealsSection({ deals, error, href, now }: Props) {
       {error && <Typography color="error" sx={{ mb: 2 }} data-testid="sd-deals-error">{error}</Typography>}
 
       {!deals ? (
-        <Box sx={{ display: "grid", gap: 2, gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" } }}>{[0, 1, 2, 3].map((i) => <Skeleton key={i} variant="rounded" height={150} />)}</Box>
+        <Box sx={{ display: "grid", gap: 2, gridTemplateColumns: { xs: "minmax(0, 1fr)", md: "repeat(2, minmax(0, 1fr))" } }}>{[0, 1, 2, 3].map((i) => <Skeleton key={i} variant="rounded" height={150} />)}</Box>
       ) : list.length === 0 ? (
         <Box sx={{ p: 5, textAlign: "center", borderRadius: 4, backgroundColor: "#fff", border: `1px dashed ${SD_BORDER}` }} data-testid="sd-deals-empty" data-filter={filter}>
           <Icon icon={empty.icon} width={40} color="#C9C6BC" aria-hidden />
@@ -76,7 +76,7 @@ export default function DealsSection({ deals, error, href, now }: Props) {
           )}
         </Box>
       ) : (
-        <Box data-testid="sd-deals-list" sx={{ display: "grid", gap: 2, gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" } }}>
+        <Box data-testid="sd-deals-list" sx={{ display: "grid", gap: 2, gridTemplateColumns: { xs: "minmax(0, 1fr)", md: "repeat(2, minmax(0, 1fr))" } }}>
           {list.map((d) => <DealProgressCard key={d.escrow_id} deal={d} href={href(`/deal/${d.deal_token}`)} now={now} />)}
         </Box>
       )}

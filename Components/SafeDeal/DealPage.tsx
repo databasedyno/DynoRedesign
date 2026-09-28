@@ -20,8 +20,23 @@ import RequestChangesDialog from "./RequestChangesDialog";
 import AmendDialog from "./AmendDialog";
 import { CounterpartyCard, DealFacts, DeliveryProofCard } from "./DealCards";
 import { dealPrice } from "./sdDealTypes";
+import DealCostLine, { HowEscrowWorksStrip } from "./DealCostLine";
 
 const card = { p: { xs: 2, md: 2.5 }, borderRadius: 3, backgroundColor: "#fff", border: "1px solid #E5E7EB" } as const;
+
+const PREVIEW_STATUS: Record<string, string> = {
+  invited: "Waiting for a reply to the invite",
+  awaiting_payment: "Accepted — waiting for the buyer's payment",
+  funded: "Funded — money is held in escrow",
+  delivered: "Delivered — the buyer is inspecting",
+  disputed: "Paused while an issue is resolved",
+  completed: "Completed — the seller has been paid",
+  refunded: "Refunded to the buyer",
+  cancelled: "Cancelled before any money moved",
+  declined: "The invite was declined",
+  expired: "The invite expired",
+};
+const humanPreviewStatus = (s: string) => PREVIEW_STATUS[s] || s.replace(/_/g, " ");
 
 export default function DealPage({ token }: { token: string }) {
   const router = useRouter();
@@ -116,10 +131,16 @@ export default function DealPage({ token }: { token: string }) {
 
   // ── unauthenticated / non-participant preview ──────────────────────────────
   if (ready && (!session || forbidden)) {
-    const signinHref = href(`/signin?next=${encodeURIComponent(`/deal/${token}`)}${preview?.counterparty_email_hint ? `&email=${encodeURIComponent(preview.counterparty_email_hint)}` : ""}`);
+    // Never pass the invitee's address around — the guest signs in with their own inbox (audit SD-04).
+    const signinHref = href(`/signin?next=${encodeURIComponent(`/deal/${token}`)}`);
     const isLink = preview?.invite_kind === "link";
     const openSeat = !!preview?.open_seat;
     const invitedRole = preview ? (preview.creator_role === "buyer" ? "seller" : "buyer") : "";
+    const totalCost = preview ? Number(preview.total_cost ?? Math.max(0, preview.buyer_pays - preview.seller_receives)) : 0;
+    const statusHuman = preview ? humanPreviewStatus(preview.status) : "";
+    const afterSignIn = invitedRole === "buyer"
+      ? [`Accept the terms (or decline)`, `Fund ${preview ? money(preview.buyer_pays, preview.currency) : ""} into escrow — held as USDT by SafeDeal`, `Release the money once you've received what you paid for`]
+      : [`Accept the terms (or decline)`, `Wait for the buyer to fund — don't start before the deal shows Funded`, `Deliver, mark it delivered, and get ${preview ? money(preview.seller_receives, preview.currency) : ""} when the buyer releases`];
     return (
       <Container maxWidth="sm" sx={{ py: { xs: 5, md: 8 } }} data-testid="sd-deal-preview">
         {error && !preview && (
@@ -149,12 +170,25 @@ export default function DealPage({ token }: { token: string }) {
               <Typography sx={{ fontSize: 12.5, fontWeight: 800, color: SD_ACCENT, letterSpacing: 0.6, textTransform: "uppercase" }}>{isLink ? "You're invited to join an escrow deal" : "You're invited to an escrow deal"}</Typography>
             </Stack>
             <Typography component="h1" sx={{ fontSize: 26, fontWeight: 900, letterSpacing: -0.6 }} data-testid="sd-preview-title">{preview.title}</Typography>
-            <Typography sx={{ fontSize: 30, fontWeight: 900, my: 1 }}>{money(preview.amount, preview.currency)}</Typography>
-            <Stack spacing={0.5} sx={{ mb: 2.5 }}>
-              <Typography sx={{ fontSize: 13.5, color: "#4B5563" }}>Buyer: <b>{preview.buyer_email_masked || (invitedRole === "buyer" ? "you (joining)" : "—")}</b> · pays {money(preview.buyer_pays, preview.currency)}</Typography>
-              <Typography sx={{ fontSize: 13.5, color: "#4B5563" }}>Seller: <b>{preview.seller_email_masked || (invitedRole === "seller" ? "you (joining)" : "—")}</b> · receives {money(preview.seller_receives, preview.currency)}</Typography>
-              <Typography sx={{ fontSize: 13.5, color: "#4B5563" }}>Inspection period {preview.auto_release_days} days · status: {preview.status.replace("_", " ")}</Typography>
+            <Typography sx={{ fontSize: 30, fontWeight: 900, my: 1, ...TABULAR }}>{money(preview.amount, preview.currency)}</Typography>
+            <Stack spacing={0.5} sx={{ mb: 1.5 }}>
+              <Typography sx={{ fontSize: 13.5, color: "#4B5563" }} data-testid="sd-preview-buyer">Buyer: <b>{preview.buyer_email_masked || (invitedRole === "buyer" ? "you (joining)" : "—")}</b> · pays {money(preview.buyer_pays, preview.currency)}</Typography>
+              <Typography sx={{ fontSize: 13.5, color: "#4B5563" }} data-testid="sd-preview-seller">Seller: <b>{preview.seller_email_masked || (invitedRole === "seller" ? "you (joining)" : "—")}</b> · receives {money(preview.seller_receives, preview.currency)}</Typography>
             </Stack>
+            <Box sx={{ mb: 1.5 }}>
+              <DealCostLine amount={preview.amount} buyerPays={preview.buyer_pays} sellerReceives={preview.seller_receives} totalCost={totalCost} feePayer={preview.fee_payer} currency={preview.currency} items={preview.cost_items} estimated={preview.costs_estimated !== false} testid="sd-preview-costs" />
+            </Box>
+            <Typography sx={{ fontSize: 13.5, color: "#4B5563", mb: 2 }} data-testid="sd-preview-inspection">
+              {invitedRole === "buyer" ? `You'd have ${preview.auto_release_days} days to inspect after delivery before the money releases.` : `The buyer has ${preview.auto_release_days} days to inspect after delivery before the money releases.`}{statusHuman ? ` · ${statusHuman}` : ""}
+            </Typography>
+            <Typography sx={{ fontSize: 12, fontWeight: 800, letterSpacing: 0.8, textTransform: "uppercase", color: "#9CA3AF", mb: 0.8 }}>How an escrow deal works</Typography>
+            <HowEscrowWorksStrip />
+            <Box sx={{ mt: 2, mb: 2.2, p: 1.4, borderRadius: 2.5, backgroundColor: "#FFFBEB", border: "1px solid #FDE68A" }} data-testid="sd-preview-after-signin">
+              <Typography sx={{ fontSize: 12.5, fontWeight: 900, color: "#92400E", mb: 0.5 }}>What happens after you sign in</Typography>
+              <Stack component="ol" spacing={0.3} sx={{ m: 0, pl: 2.2 }}>
+                {afterSignIn.map((s) => <Typography key={s} component="li" sx={{ fontSize: 12.5, color: "#78350F" }}>{s}</Typography>)}
+              </Stack>
+            </Box>
             {isLink ? (
               openSeat ? (
                 <>
@@ -179,8 +213,8 @@ export default function DealPage({ token }: { token: string }) {
                 {forbidden ? (
                   <Alert severity="warning" sx={{ mb: 2 }} data-testid="sd-preview-forbidden">{forbidden}</Alert>
                 ) : (
-                  <Typography sx={{ fontSize: 13.5, color: "#6B7280", mb: 2 }}>
-                    Sign in with <b>{preview.counterparty_email_hint}</b> to accept, decline, fund or follow this deal. Signing in creates your SafeDeal wallet — no password needed.
+                  <Typography sx={{ fontSize: 13.5, color: "#6B7280", mb: 2 }} data-testid="sd-preview-signin-hint">
+                    Sign in with the email this invite was sent to{preview.counterparty_email_masked ? <> — <b>{preview.counterparty_email_masked}</b></> : ""} — to accept, decline, fund or follow this deal. Signing in creates your SafeDeal wallet — no password needed.
                   </Typography>
                 )}
                 <Link href={signinHref} style={{ textDecoration: "none" }} data-testid="sd-preview-signin">
@@ -271,9 +305,19 @@ export default function DealPage({ token }: { token: string }) {
           </Typography>
           <DealFacts deal={deal} />
         </Box>
-        <Box sx={{ textAlign: { md: "right" }, flexShrink: 0 }}>
+        <Box sx={{ textAlign: { md: "right" }, flexShrink: 0, minWidth: 0 }}>
           <Typography sx={{ fontSize: { xs: 26, md: 32 }, fontWeight: 900, ...TABULAR }} data-testid="sd-deal-amount">{price.primary}</Typography>
           {price.secondary && <Typography sx={{ fontSize: 12.5, color: "#6B7280", ...TABULAR }} data-testid="sd-deal-amount-usd">{price.secondary}</Typography>}
+          {/* Why "you pay" ≠ the price, right where the price is (audit SD-02). Full itemisation lives in the Money card. */}
+          {(b.totalCost ?? 0) > 0 && (
+            <Typography sx={{ fontSize: 12.5, color: "#4B5563", mt: 0.4, ...TABULAR }} data-testid="sd-deal-header-costs">
+              {isBuyer ? <>You pay <b>{money(b.buyerPays, deal.currency)}</b></> : <>You receive <b>{money(b.sellerReceives, deal.currency)}</b></>} · incl. {money(b.totalCost ?? 0, deal.currency)} SafeDeal costs ·{" "}
+              <Box component="button" type="button" onClick={() => document.getElementById("sd-deal-amounts")?.scrollIntoView({ behavior: "smooth", block: "start" })} data-testid="sd-deal-header-costs-link"
+                sx={{ border: 0, background: "none", p: 0, cursor: "pointer", fontFamily: "inherit", fontSize: "inherit", fontWeight: 800, color: SD_ACCENT, "&:hover": { textDecoration: "underline" } }}>
+                see breakdown
+              </Box>
+            </Typography>
+          )}
         </Box>
       </Stack>
 
@@ -287,7 +331,7 @@ export default function DealPage({ token }: { token: string }) {
         <Grid item xs={12} md={7}>
           <Stack spacing={2.5}>
             <Box sx={card} data-testid="sd-deal-actions">
-              <DealActionsCard deal={deal} busy={busy} live={live} now={now} walletHref={href("/wallet")} newDealHref={href("/deals/new")} act={(a, x) => void act(a, x)} openDialog={setDialog} copyInvite={() => void copyInvite()} reload={() => void load()} notify={notify} />
+              <DealActionsCard deal={deal} busy={busy} live={live} now={now} stickyOnPhone={!!primary} walletHref={href("/wallet")} newDealHref={href("/deals/new")} act={(a, x) => void act(a, x)} openDialog={setDialog} copyInvite={() => void copyInvite()} reload={() => void load()} notify={notify} />
             </Box>
 
             <DeliveryProofCard deal={deal} isBuyer={isBuyer} onOpenFile={(id) => void openFile(id)} />
@@ -323,7 +367,7 @@ export default function DealPage({ token }: { token: string }) {
 
         <Grid item xs={12} md={5}>
           <Stack spacing={2.5} sx={{ position: { md: "sticky" }, top: 84 }}>
-            <Box sx={card} data-testid="sd-deal-amounts">
+            <Box sx={card} data-testid="sd-deal-amounts" id="sd-deal-amounts">
               <Typography sx={{ fontSize: 12, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: "#9CA3AF", mb: 1.2 }}>Money</Typography>
               <Stack spacing={0.8}>
                 {price.secondary && <Row l={`Agreed price (${deal.price_currency})`} v={price.primary} testid="sd-amt-fiat" />}

@@ -331,9 +331,14 @@ export interface SdDealPreview {
   buyer_email_masked: string;
   seller_email_masked: string;
   counterparty_email_masked: string;
+  /** Always null since the SD-04 fix — kept for older clients. */
   counterparty_email_hint: string | null;
   buyer_pays: number;
   seller_receives: number;
+  cost_items?: CostItem[];
+  total_cost?: number;
+  costs_estimated?: boolean;
+  fee_percent?: number;
   created_at: string;
 }
 

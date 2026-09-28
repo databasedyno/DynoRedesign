@@ -10,6 +10,8 @@ import { absTime, relTime } from "./sdFormat";
 import FundPanel from "./FundPanel";
 import { ghostBtn, primaryBtn } from "./sdStyles";
 import { explorerTxUrl, shortHash } from "@/helpers/explorerUrl";
+import ShareInviteButtons from "./ShareInviteButtons";
+import DealCostLine from "./DealCostLine";
 
 export { ghostBtn, primaryBtn };
 export type DealDialog = "decline" | "cancel" | "deliver" | "release" | "changes" | "amend";
@@ -19,6 +21,8 @@ interface Props {
   busy: string | null;
   live: boolean;
   now: number;
+  /** The page shows a sticky primary CTA on phones → hide the duplicate inline primary there (audit SD-06). */
+  stickyOnPhone?: boolean;
   walletHref: string;
   newDealHref: string;
   act: (a: SdDealAction, extra?: Record<string, unknown>) => void;
@@ -29,7 +33,7 @@ interface Props {
 }
 
 /** The status-driven "what you can do now" card. */
-export default function DealActionsCard({ deal, busy, live, now, walletHref, newDealHref, act, openDialog, copyInvite, reload, notify }: Props) {
+export default function DealActionsCard({ deal, busy, live, now, stickyOnPhone = false, walletHref, newDealHref, act, openDialog, copyInvite, reload, notify }: Props) {
   const me = deal.my_role as "buyer" | "seller";
   const isBuyer = me === "buyer";
   const other = isBuyer ? deal.seller_email : deal.buyer_email;
@@ -41,6 +45,10 @@ export default function DealActionsCard({ deal, busy, live, now, walletHref, new
   const maxRounds = Number(deal.max_revision_rounds || 2);
   const canRequestChanges = status === "delivered" && isBuyer && round < maxRounds;
   const resendWait = deal.invite_resent_at ? 10 * 60000 - (now - new Date(deal.invite_resent_at).getTime()) : 0;
+  // One primary per state per party: on phones the sticky bar carries it, so the inline twin steps aside.
+  const inlinePrimary = stickyOnPhone ? { ...primaryBtn, display: { xs: "none", md: "inline-flex" } } : primaryBtn;
+  const inviteSummary = `${deal.title} · ${money(b.amount, deal.currency)}`;
+  const inviteUrl = deal.invite_url || (typeof window !== "undefined" ? window.location.href : "");
 
   return (
     <>
@@ -52,7 +60,7 @@ export default function DealActionsCard({ deal, busy, live, now, walletHref, new
             {isBuyer ? `If you accept, you'll be asked to fund ${money(b.buyerPays, deal.currency)} into escrow.` : `If you accept, the buyer funds ${money(b.buyerPays, deal.currency)} and you receive ${money(b.sellerReceives, deal.currency)} once the deal completes.`}
           </Typography>
           <Stack direction="row" spacing={1}>
-            <Button variant="contained" disabled={!!busy} onClick={() => act("accept")} data-testid="sd-act-accept" sx={primaryBtn} startIcon={<Icon icon="mdi:check" />}>Accept deal</Button>
+            <Button variant="contained" disabled={!!busy} onClick={() => act("accept")} data-testid="sd-act-accept" sx={inlinePrimary} startIcon={<Icon icon="mdi:check" />}>Accept deal</Button>
             <Button variant="outlined" disabled={!!busy} onClick={() => openDialog("decline")} data-testid="sd-act-decline-open" sx={ghostBtn}>Decline</Button>
           </Stack>
         </>
@@ -67,37 +75,40 @@ export default function DealActionsCard({ deal, busy, live, now, walletHref, new
           ) : (
             <>
               <Typography sx={{ fontWeight: 800, fontSize: 16, mb: 0.5 }}>Share this link to invite the {isBuyer ? "seller" : "buyer"}</Typography>
-              <Typography sx={{ fontSize: 13.5, color: "#4B5563", mb: 1.5 }}>Send it over Telegram, WhatsApp or anywhere. The first person who opens it and signs in joins as the {isBuyer ? "seller" : "buyer"} — you&apos;ll see them here before any money moves.</Typography>
-              <Stack direction={{ xs: "column", sm: "row" }} spacing={1} alignItems={{ sm: "center" }}>
-                <TextField size="small" value={deal.invite_url || ""} fullWidth InputProps={{ readOnly: true }} inputProps={{ "data-testid": "sd-invite-link" }} />
-                <Button variant="outlined" onClick={copyInvite} data-testid="sd-copy-invite" sx={{ ...ghostBtn, flexShrink: 0 }} startIcon={<Icon icon="mdi:content-copy" />}>Copy</Button>
+              <Typography sx={{ fontSize: 13.5, color: "#4B5563", mb: 1.5 }}>The first person who opens it and signs in joins as the {isBuyer ? "seller" : "buyer"} — you&apos;ll see them here before any money moves.</Typography>
+              <ShareInviteButtons url={inviteUrl} summary={inviteSummary} onCopy={copyInvite}>
                 <Tooltip title="Create a fresh link — the current one stops working immediately">
                   <span>
-                    <Button variant="outlined" disabled={!!busy} onClick={() => act("regenerate-link")} data-testid="sd-regenerate-link" sx={{ ...ghostBtn, flexShrink: 0, whiteSpace: "nowrap" }} startIcon={<Icon icon="mdi:refresh" />}>New link</Button>
+                    <Button variant="text" disabled={!!busy} onClick={() => act("regenerate-link")} data-testid="sd-regenerate-link" sx={{ ...ghostBtn, color: "#6B7280", whiteSpace: "nowrap" }} startIcon={<Icon icon="mdi:refresh" />}>New link</Button>
                   </span>
                 </Tooltip>
-              </Stack>
+              </ShareInviteButtons>
+              <TextField size="small" value={deal.invite_url || ""} fullWidth InputProps={{ readOnly: true }} inputProps={{ "data-testid": "sd-invite-link" }} sx={{ mt: 1.2 }} onFocus={(e) => e.target.select()} />
             </>
           )
         ) : (
           <>
             <Typography sx={{ fontWeight: 800, fontSize: 16, mb: 0.5 }}>Waiting for {other} to accept</Typography>
-            <Typography sx={{ fontSize: 13.5, color: "#4B5563", mb: 1.5 }}>We emailed them an invite. You can also send them this link directly:</Typography>
-            <Stack direction={{ xs: "column", sm: "row" }} spacing={1} alignItems={{ sm: "center" }}>
-              <TextField size="small" value={deal.invite_url || ""} fullWidth InputProps={{ readOnly: true }} inputProps={{ "data-testid": "sd-invite-link" }} />
-              <Button variant="outlined" onClick={copyInvite} data-testid="sd-copy-invite" sx={{ ...ghostBtn, flexShrink: 0 }} startIcon={<Icon icon="mdi:content-copy" />}>Copy</Button>
+            <Typography sx={{ fontSize: 13.5, color: "#4B5563", mb: 1.5 }}>We emailed them an invite. Nudge them on Telegram or WhatsApp with the same link:</Typography>
+            <ShareInviteButtons url={inviteUrl} summary={inviteSummary} onCopy={copyInvite}>
               <Tooltip title={resendWait > 0 ? `You can resend again in ${Math.ceil(resendWait / 60000)} min` : "Send the invite email again"}>
                 <span>
-                  <Button variant="outlined" disabled={!!busy || resendWait > 0} onClick={() => act("resend-invite")} data-testid="sd-resend-invite" sx={{ ...ghostBtn, flexShrink: 0, whiteSpace: "nowrap" }} startIcon={<Icon icon="mdi:email-sync-outline" />}>Resend email</Button>
+                  <Button variant="text" disabled={!!busy || resendWait > 0} onClick={() => act("resend-invite")} data-testid="sd-resend-invite" sx={{ ...ghostBtn, color: "#6B7280", whiteSpace: "nowrap" }} startIcon={<Icon icon="mdi:email-sync-outline" />}>Resend email</Button>
                 </span>
               </Tooltip>
-            </Stack>
+            </ShareInviteButtons>
+            <TextField size="small" value={deal.invite_url || ""} fullWidth InputProps={{ readOnly: true }} inputProps={{ "data-testid": "sd-invite-link" }} sx={{ mt: 1.2 }} onFocus={(e) => e.target.select()} />
           </>
         )
       )}
       {status === "awaiting_payment" && isBuyer && (
         <Box id="sd-fund" data-testid="sd-fund-section">
           <Typography sx={{ fontWeight: 800, fontSize: 16, mb: 0.5 }}>Fund the escrow — {money(b.buyerPays, deal.currency)}</Typography>
+          {(b.totalCost ?? 0) > 0 && (
+            <Box sx={{ mb: 1.2 }}>
+              <DealCostLine amount={b.amount} buyerPays={b.buyerPays} sellerReceives={b.sellerReceives} totalCost={b.totalCost ?? 0} feePayer={deal.fee_payer} currency={deal.currency} items={b.costItems} estimated={!!b.costsEstimated} testid="sd-fund-costs" />
+            </Box>
+          )}
           <Typography sx={{ fontSize: 13.5, color: "#4B5563", mb: 1.8 }}>
             {deal.price_currency && deal.price_currency !== "USD" ? `The ${deal.price_currency} price converts to USD at the live rate the moment you pay. ` : ""}Your payment is held securely in escrow as USDT until you release it (or the inspection timer runs out after delivery). Nothing reaches the seller before that.
           </Typography>
@@ -124,7 +135,7 @@ export default function DealActionsCard({ deal, busy, live, now, walletHref, new
           <Typography sx={{ fontSize: 13.5, color: "#4B5563", mb: 2 }}>
             {round > 0 ? "Update the delivery to match what they asked for, then mark it delivered again. The money stays held." : `Deliver the work, then mark it delivered with proof. The buyer then has a ${deal.auto_release_days}-day inspection period before funds release automatically.`}
           </Typography>
-          <Button variant="contained" disabled={!!busy} onClick={() => openDialog("deliver")} data-testid="sd-act-deliver-open" sx={primaryBtn} startIcon={<Icon icon="mdi:package-variant-closed-check" />}>{round > 0 ? "Deliver the changes" : "Mark as delivered"}</Button>
+          <Button variant="contained" disabled={!!busy} onClick={() => openDialog("deliver")} data-testid="sd-act-deliver-open" sx={inlinePrimary} startIcon={<Icon icon="mdi:package-variant-closed-check" />}>{round > 0 ? "Deliver the changes" : "Mark as delivered"}</Button>
         </>
       )}
       {status === "funded" && isBuyer && (
@@ -141,7 +152,7 @@ export default function DealActionsCard({ deal, busy, live, now, walletHref, new
             Your inspection period ends <b>{relTime(deal.auto_release_at, now)}</b> ({absTime(deal.auto_release_at)}). If you do nothing, the funds release then. Not quite right? Ask for changes first — a dispute is the last resort.
           </Typography>
           <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
-            <Button variant="contained" disabled={!!busy} onClick={() => openDialog("release")} data-testid="sd-act-release-open" sx={primaryBtn} startIcon={<Icon icon="mdi:cash-check" />}>Confirm &amp; release</Button>
+            <Button variant="contained" disabled={!!busy} onClick={() => openDialog("release")} data-testid="sd-act-release-open" sx={inlinePrimary} startIcon={<Icon icon="mdi:cash-check" />}>Confirm &amp; release</Button>
             <Tooltip title={canRequestChanges ? `Round ${round + 1} of ${maxRounds}` : `You've used all ${maxRounds} rounds of changes`}>
               <span>
                 <Button variant="outlined" disabled={!!busy || !canRequestChanges} onClick={() => openDialog("changes")} data-testid="sd-act-changes-open" sx={ghostBtn} startIcon={<Icon icon="mdi:undo-variant" />}>Request changes</Button>
@@ -197,7 +208,8 @@ export default function DealActionsCard({ deal, busy, live, now, walletHref, new
         </Typography>
       )}
 
-      {preFunding && (
+      {/* Invitees answer with Accept/Decline — "Cancel deal" is the creator's tool until both have agreed (audit SD-06). */}
+      {preFunding && (deal.is_creator || status !== "invited") && (
         <>
           <Divider sx={{ my: 2 }} />
           <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between" flexWrap="wrap" useFlexGap>
