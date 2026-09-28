@@ -47,6 +47,8 @@ export interface PaymentLinkState {
   /** Monotonically incremented on each new create error so effects can react even
    *  when the message/field are identical to a previous error. */
   createErrorNonce: number;
+  /** The list fetch itself failed (network / 5xx / edge 429) — NOT "no links yet". */
+  fetchError: boolean;
 }
 
 const paymentLinkInitialState: PaymentLinkState = {
@@ -59,6 +61,7 @@ const paymentLinkInitialState: PaymentLinkState = {
   createError: null,
   createErrorField: null,
   createErrorNonce: 0,
+  fetchError: false,
 };
 
 const paymentLinkReducer = (
@@ -78,6 +81,7 @@ const paymentLinkReducer = (
       return {
         ...state,
         loading: state.paymentLinks.length === 0,
+        ...((action as any).crudType === PAYLINK_FETCH && { fetchError: false }),
         // Clear any previous create error on a NEW create attempt so stale
         // "Amount is required" inline hints disappear the moment the user retries.
         ...((action as any).crudType === PAYLINK_CREATE && {
@@ -100,6 +104,7 @@ const paymentLinkReducer = (
         ...state,
         loading: false,
         fetched: true,
+        fetchError: false,
         paymentLinks: payload.paymentLinks || [],
       };
 
@@ -158,6 +163,7 @@ const paymentLinkReducer = (
         loading: false,
         createLoading: false,
         fetched: true,
+        fetchError: payload?.fetch === true ? true : state.fetchError,
       };
 
     case PAYLINK_FEE_PREVIEW:

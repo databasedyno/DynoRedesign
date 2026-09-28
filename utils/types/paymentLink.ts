@@ -78,7 +78,8 @@ export interface PaymentLinkData {
   paidTotalCount?: number;
   lastPaidAt?: string | null;
   paymentUrl: string;
-  linkType?: "standard" | "donation";
+  /** "cart" = storefront order checkout (view-only, auto-created) — segmented away from hand-made links. */
+  linkType?: "standard" | "donation" | "cart";
   donation?: {
     title: string | null;
     goalAmount: number | null;

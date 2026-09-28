@@ -28,8 +28,11 @@ export const CheckoutStatusTimeline: React.FC<{
   hideBar?: boolean
   /** Per-network confirmation ETA, e.g. "under a minute" (B7). */
   etaLabel?: string
+  /** Rendered directly under the top status strip: the strip already carries the
+   *  pill + countdown, so only the human explanation + step rail are shown. */
+  compact?: boolean
   t: (key: string, opts?: Record<string, unknown>) => string
-}> = ({ phase, detected, detectStage = 'confirming', timerLabel, secondsRemaining = 0, totalSeconds = 0, isDark, hideBar = false, etaLabel, t }) => {
+}> = ({ phase, detected, detectStage = 'confirming', timerLabel, secondsRemaining = 0, totalSeconds = 0, isDark, hideBar = false, etaLabel, compact = false, t }) => {
   const theme = useTheme()
   const border = isDark ? 'rgba(255,255,255,0.10)' : '#E4E4E7'
   const muted = isDark ? '#A1A1AA' : '#71717A'
@@ -56,7 +59,8 @@ export const CheckoutStatusTimeline: React.FC<{
     t('checkout.step.confirmed', { defaultValue: 'Confirmed' }),
   ]
   return (
-    <Box sx={{ mt: 2 }} data-testid="checkout-status">
+    <Box sx={{ mt: compact ? -1 : 2, mb: compact ? 2.5 : 0 }} data-testid="checkout-status" data-compact={compact ? '1' : '0'}>
+      {!compact && (
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
         <Box sx={{
           display: 'inline-flex', alignItems: 'center', gap: 0.5,
@@ -80,6 +84,7 @@ export const CheckoutStatusTimeline: React.FC<{
           </Typography>
         )}
       </Box>
+      )}
       {detected && !isUnderpaid && phase !== 'confirmed' && (
         <Typography data-testid="checkout-human-confirming" data-detect-stage={detectStage} sx={{ fontSize: 12, color: muted, mb: 1.25 }}>
           {detectStage === 'mempool'

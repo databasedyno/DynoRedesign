@@ -61,10 +61,36 @@ interface QrShareProps {
   link: PaymentLinkData;
   onToast: (message: string, severity: "success" | "error") => void;
   compact?: boolean;
+  /** Desktop table moves the QR action into the row's overflow menu. */
+  hideQr?: boolean;
 }
 
+/** Stand-alone QR popover (used by the desktop overflow menu). */
+export const RowQrPopover: React.FC<{ link: PaymentLinkData; anchor: HTMLElement | null; onClose: () => void }> = ({ link, anchor, onClose }) => {
+  const theme = useTheme();
+  const url = toShortPayLink(link.paymentUrl);
+  return (
+    <Popover
+      open={!!anchor}
+      anchorEl={anchor}
+      onClose={onClose}
+      anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      transformOrigin={{ vertical: "top", horizontal: "center" }}
+      slotProps={{ paper: { sx: { p: 1.5, borderRadius: "14px", backgroundImage: "none", border: `1px solid ${theme.palette.divider}` } } }}
+      data-testid={`paylink-qr-popover-${link.id}`}
+    >
+      <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }} onClick={(e) => e.stopPropagation()}>
+        <Box sx={{ p: 1, borderRadius: "10px", backgroundColor: "#FFFFFF" }}>
+          <QRCodeCanvas value={url} size={148} />
+        </Box>
+        <Typography sx={{ fontFamily: MONO, fontSize: 11.5, color: theme.palette.text.secondary, maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{url}</Typography>
+      </Box>
+    </Popover>
+  );
+};
+
 /** Inline QR (popover) + share (native share sheet, clipboard fallback) row actions. */
-export const QrShareActions: React.FC<QrShareProps> = ({ link, onToast, compact }) => {
+export const QrShareActions: React.FC<QrShareProps> = ({ link, onToast, compact, hideQr }) => {
   const theme = useTheme();
   const { t } = useTranslation(["paymentLinks", "common"]);
   const [qrAnchor, setQrAnchor] = useState<HTMLElement | null>(null);
@@ -88,11 +114,13 @@ export const QrShareActions: React.FC<QrShareProps> = ({ link, onToast, compact 
   if (disabled) return null;
   return (
     <>
-      <Tooltip title={t("paymentLinks:qrTooltip", { defaultValue: "Show QR code" })} arrow>
-        <RowActionButton aria-label={t("paymentLinks:qrTooltip", { defaultValue: "Show QR code" }) as string} data-testid={`paylink-qr-${link.id}`} onClick={(e) => setQrAnchor(e.currentTarget)} sx={btnSx}>
-          <Icon name="qr-code" size={compact ? 14 : 16} />
-        </RowActionButton>
-      </Tooltip>
+      {!hideQr && (
+        <Tooltip title={t("paymentLinks:qrTooltip", { defaultValue: "Show QR code" })} arrow>
+          <RowActionButton aria-label={t("paymentLinks:qrTooltip", { defaultValue: "Show QR code" }) as string} data-testid={`paylink-qr-${link.id}`} onClick={(e) => setQrAnchor(e.currentTarget)} sx={btnSx}>
+            <Icon name="qr-code" size={compact ? 14 : 16} />
+          </RowActionButton>
+        </Tooltip>
+      )}
       <Tooltip title={t("paymentLinks:shareTooltip", { defaultValue: "Share link" })} arrow>
         <RowActionButton aria-label={t("paymentLinks:shareTooltip", { defaultValue: "Share link" }) as string} data-testid={`paylink-share-${link.id}`} onClick={share} sx={btnSx}>
           <Icon name="share-2" size={compact ? 14 : 16} />

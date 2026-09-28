@@ -52,7 +52,7 @@ export function* getAllTransactions(payload?: any): unknown {
         },
       });
     } else {
-      yield put({ type: TRANSACTION_ERROR });
+      yield put({ type: TRANSACTION_ERROR, payload: { fetch: true } });
     }
   } catch (e: any) {
     const message = e?.response?.data?.message ?? e?.message ?? "Failed to fetch transactions";
@@ -65,6 +65,7 @@ export function* getAllTransactions(payload?: any): unknown {
     });
     yield put({
       type: TRANSACTION_ERROR,
+      payload: { fetch: true },
     });
   }
 }

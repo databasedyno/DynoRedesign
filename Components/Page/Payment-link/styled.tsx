@@ -210,15 +210,11 @@ export const TransactionsTableScrollWrapper = styled(Box)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   minHeight: 0,
-  // Desktop: grow to fit the page's rows (never collapse to 1–2 rows), capped
-  // to the viewport so the sticky header keeps a single scroll container.
-  // (Mirrors the /transactions table fix — the old `flex: 1` inside a
-  // `height: 100%` container collapsed the table on short flex layouts.)
-  [theme.breakpoints.up("md")]: {
-    maxHeight: "calc(100dvh - 260px)",
-  },
+  // Desktop: the table grows with its rows and the PAGE scrolls — an inner
+  // vertical cap clipped the 9th/10th row under the pagination footer
+  // (E2E audit MD-02). Horizontal overflow still scrolls inside.
   overflowX: "auto",
-  overflowY: "auto",
+  overflowY: "visible",
   // §4.2 — thin visible scrollbar so it's obvious the table scrolls sideways.
   scrollbarWidth: "thin",
   scrollbarColor:

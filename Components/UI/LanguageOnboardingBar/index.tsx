@@ -94,6 +94,20 @@ export const LanguageOnboardingBar = () => {
     window.setTimeout(() => setVisible(false), 260);
   };
 
+  // A phone-only sticky CTA (checkout pay bar, campaign Support bar) flags
+  // <html data-dp-sticky-cta>. The buyer has clearly started their task by
+  // then — step aside for good instead of stacking two bottom bars.
+  useEffect(() => {
+    if (!visible || typeof document === "undefined") return;
+    const el = document.documentElement;
+    const check = () => { if (el.hasAttribute("data-dp-sticky-cta")) hide(); };
+    check();
+    const obs = new MutationObserver(check);
+    obs.observe(el, { attributes: true, attributeFilter: ["data-dp-sticky-cta"] });
+    return () => obs.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible]);
+
   const pick = async (code: string) => {
     hide();
     await setAppLanguage(code);

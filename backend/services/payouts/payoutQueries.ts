@@ -1,26 +1,23 @@
 import {
-  FORWARDED,
+  FORWARDED_ANY,
   IN_RANGE,
+  LIVE_ONLY,
   NET_USD,
   OverviewScope,
   companyScopeSql,
   fromClause,
-  LIVE_ONLY,
   many,
   one,
 } from "../dashboard/overviewQueries";
 import { PROCESSED_STATUS_SQL } from "../../utils/processedVolume";
 
-/** A payment counts as forwarded when the pool swept it to the merchant wallet OR an auto-convert withdrawal completed. */
-const CONV_DONE = `EXISTS (SELECT 1 FROM tbl_stablecoin_conversion sc
-  WHERE sc.transaction_id = ut.transaction_id AND UPPER(sc.status::text) = 'COMPLETED')`;
+export { FORWARDED_ANY };
 /** An auto-convert that is still ACTIVELY processing (not yet COMPLETED, not FAILED).
  *  Money in this state is genuinely in-flight and belongs in the conversions feed —
  *  NOT in "stuck". A FAILED conversion, by contrast, is dead money the merchant must
  *  see (surfaced by stuckForwards → "contact support"), so it is NOT active here. */
 const CONV_ACTIVE = `EXISTS (SELECT 1 FROM tbl_stablecoin_conversion sc
   WHERE sc.transaction_id = ut.transaction_id AND UPPER(sc.status::text) NOT IN ('COMPLETED', 'FAILED'))`;
-export const FORWARDED_ANY = `(${FORWARDED} OR ${CONV_DONE})`;
 const FORWARDED_AT = `COALESCE((SELECT MAX(COALESCE(sc.completed_at, sc.withdrawn_at, sc."updatedAt"))
   FROM tbl_stablecoin_conversion sc
   WHERE sc.transaction_id = ut.transaction_id AND UPPER(sc.status::text) = 'COMPLETED'), ut."updatedAt")`;

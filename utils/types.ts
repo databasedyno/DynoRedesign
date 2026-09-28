@@ -70,6 +70,8 @@ export interface transactionReducer {
   transactionDetail?: any;
   detailLoading?: boolean;
   exportLoading?: boolean;
+  /** The list fetch failed (network / 5xx) — distinct from "no transactions yet". */
+  fetchError?: boolean;
 }
 
 export interface walletReducerState {

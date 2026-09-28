@@ -10,7 +10,7 @@ import { PaymentLinkAction } from "@/Redux/Actions";
 import { PAYLINK_FETCH } from "@/Redux/Actions/PaymentLinkAction";
 import { rootReducer } from "@/utils/types";
 import PaymentLinksTable from "./PaymentLinksTable";
-import PaymentLinksTopBar, { PaymentLinkStatusFilter } from "./PaymentLinksTopBar";
+import PaymentLinksTopBar, { PaymentLinkStatusFilter, PaymentLinkKind } from "./PaymentLinksTopBar";
 import { isExpiringSoon } from "./linkStatus";
 
 const PaymentLinksPage = ({
@@ -21,6 +21,9 @@ const PaymentLinksPage = ({
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<PaymentLinkStatusFilter>("all");
+  // Storefront order checkouts ("cart" links) are auto-created and view-only —
+  // keep them out of the hand-made links list unless the merchant asks for them.
+  const [kind, setKind] = useState<PaymentLinkKind>("links");
   const [dateStart, setDateStart] = useState("");
   const [dateEnd, setDateEnd] = useState("");
   // Bumped by "Clear filters" — remounts the top bar so its internal search box
@@ -81,7 +84,7 @@ const PaymentLinksPage = ({
       paidTotalCount: Number(link.stats?.paid_total_count || 0),
       lastPaidAt: link.stats?.last_paid_at || null,
       paymentUrl: link.payment_link || link.paymentUrl || link.payment_url || "",
-      linkType: isDonation ? ("donation" as const) : ("standard" as const),
+      linkType: isDonation ? ("donation" as const) : link.link_type === "cart" ? ("cart" as const) : ("standard" as const),
       donation: link.donation
         ? {
             title: link.donation.title || null,
@@ -96,8 +99,9 @@ const PaymentLinksPage = ({
   }, [paymentLinkState.paymentLinks]);
 
   // Filter by search, status, and date range
+  const orderCount = useMemo(() => paymentLinks.filter((l) => l.linkType === "cart").length, [paymentLinks]);
   const filteredLinks = useMemo(() => {
-    let result = paymentLinks;
+    let result = paymentLinks.filter((link) => (kind === "orders" ? link.linkType === "cart" : link.linkType !== "cart"));
 
     // Search filter
     if (searchQuery) {
@@ -140,7 +144,7 @@ const PaymentLinksPage = ({
     }
 
     return result;
-  }, [paymentLinks, searchQuery, statusFilter, dateStart, dateEnd]);
+  }, [paymentLinks, kind, searchQuery, statusFilter, dateStart, dateEnd]);
 
   const handleSearch = (value: string) => {
     setSearchQuery(value);
@@ -163,7 +167,7 @@ const PaymentLinksPage = ({
   // A filtered-to-zero list is NOT the same thing as "no payment links yet" —
   // showing the first-run "create your first link" nudge there is misleading.
   const filtersActive =
-    !!searchQuery || statusFilter !== "all" || !!dateStart || !!dateEnd;
+    !!searchQuery || statusFilter !== "all" || !!dateStart || !!dateEnd || kind === "orders";
   const showNoResults =
     filtersActive && (paymentLinks?.length ?? 0) > 0;
   const clearFilters = () => {
@@ -171,8 +175,11 @@ const PaymentLinksPage = ({
     setStatusFilter("all");
     setDateStart("");
     setDateEnd("");
+    setKind("links");
     setFilterResetKey((k) => k + 1);
   };
+  const refetch = () =>
+    dispatch(PaymentLinkAction(PAYLINK_FETCH, selectedCompanyId ? { company_id: selectedCompanyId } : undefined));
 
   return (
     <Box
@@ -192,10 +199,15 @@ const PaymentLinksPage = ({
         onStatusFilter={handleStatusFilter}
         onDateFilter={handleDateFilter}
         statusFilter={statusFilter}
+        kind={kind}
+        onKindChange={setKind}
+        orderCount={orderCount}
       />
 
       {!isLoading && filteredLinks?.length === 0 ? (
-        showNoResults ? (
+        paymentLinkState.fetchError && (paymentLinks?.length ?? 0) === 0 ? (
+          <EmptyDataModel pageName="payment-links" variant="error" onRetry={refetch} />
+        ) : showNoResults ? (
           <EmptyDataModel
             pageName="payment-links"
             variant="no-results"

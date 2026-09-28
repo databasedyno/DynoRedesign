@@ -1578,6 +1578,23 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
           data-detect-stage={detected ? detectStage : 'none'}
         />
       )}
+      {/* ONE status surface (audit CK-05): the step rail sits directly under the
+          strip instead of duplicating "Waiting for payment" at the page bottom. */}
+      {stripState && cryptoInfo && (
+        <CheckoutStatusTimeline
+          compact
+          phase={phase}
+          detected={detected}
+          detectStage={detectStage}
+          timerLabel={timerLabel}
+          secondsRemaining={timeLeft}
+          totalSeconds={totalSeconds}
+          isDark={isDark}
+          hideBar
+          etaLabel={networkEta(cryptoInfo.crypto_display)}
+          t={t}
+        />
+      )}
 
       {/* Coin-first picker (B3): pick the coin, then a network only if needed.
           Locked into a one-line summary once an address is reserved. */}
@@ -2273,8 +2290,8 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
         </Box>
       )}
 
-      {/* Live status: Waiting → Detected → Confirmed timeline + pill + timer */}
-      {cryptoInfo && (
+      {/* Live status for phases WITHOUT a top strip (underpaid): pill + timer + rail */}
+      {cryptoInfo && !stripState && (
         <CheckoutStatusTimeline
           phase={phase}
           detected={detected}

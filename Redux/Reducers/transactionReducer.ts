@@ -17,6 +17,7 @@ const transactionInitialState: ITransactionReducer = {
   transactionDetail: null,
   detailLoading: false,
   exportLoading: false,
+  fetchError: false,
 };
 
 const transactionReducer = (
@@ -31,13 +32,14 @@ const transactionReducer = (
         ...state,
         ...(action.crudType === TRANSACTION_DETAIL_FETCH && { detailLoading: true }),
         ...(action.crudType === TRANSACTION_EXPORT && { exportLoading: true }),
-        ...(action.crudType === TRANSACTION_FETCH && { loading: true }),
+        ...(action.crudType === TRANSACTION_FETCH && { loading: true, fetchError: false }),
       };
 
     case TRANSACTION_FETCH:
       return {
         ...state,
         loading: false,
+        fetchError: false,
         customers_transactions: payload.customers_transactions,
         self_transactions: payload.self_transactions,
         loaded_company_id: payload.company_id ?? null,
@@ -62,6 +64,7 @@ const transactionReducer = (
         loading: false,
         detailLoading: false,
         exportLoading: false,
+        fetchError: payload?.fetch === true ? true : state.fetchError,
       };
 
     default:

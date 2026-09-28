@@ -24,9 +24,12 @@ interface EmptyDataModelProps {
      * "empty"      → the merchant genuinely has no data yet (first-run nudge)
      * "no-results" → they DO have data, but the active filters/search match none.
      *                Telling them to "create their first link" here would be wrong.
+     * "error"      → the fetch itself failed (network / server / edge rate-limit).
+     *                Never show this as an empty state — offer a Retry instead.
      */
-    variant?: "empty" | "no-results";
+    variant?: "empty" | "no-results" | "error";
     onClearFilters?: () => void;
+    onRetry?: () => void;
 }
 
 const EmptyDataModel = ({
@@ -34,6 +37,7 @@ const EmptyDataModel = ({
     onAddWallet,
     variant = "empty",
     onClearFilters,
+    onRetry,
 }: EmptyDataModelProps) => {
     const isMobile = useIsMobile("md");
     const router = useRouter();
@@ -85,20 +89,33 @@ const EmptyDataModel = ({
 
     const data = pageData[pageName];
     const isNoResults = variant === "no-results";
+    const isError = variant === "error";
 
-    const title = isNoResults
+    const title = isError
+        ? t("EmptyErrorTitle", { defaultValue: "We couldn't load this page" })
+        : isNoResults
         ? t("EmptyNoResultsTitle", { defaultValue: "Nothing matches those filters" })
         : data.title;
-    const description = isNoResults
+    const description = isError
+        ? t("EmptyErrorDescription", {
+              defaultValue: "Your data is safe — the request just didn't get through. Check your connection and try again.",
+          })
+        : isNoResults
         ? t("EmptyNoResultsDescription", {
               defaultValue: "Try a different search term, status or date range.",
           })
         : data.description;
-    const buttonLabel = isNoResults
+    const buttonLabel = isError
+        ? t("EmptyErrorCta", { defaultValue: "Retry" })
+        : isNoResults
         ? t("EmptyNoResultsCta", { defaultValue: "Clear filters" })
         : data.buttonLabel;
 
     const handleButtonClick = () => {
+        if (isError) {
+            onRetry?.();
+            return;
+        }
         if (isNoResults) {
             onClearFilters?.();
             return;
@@ -114,7 +131,7 @@ const EmptyDataModel = ({
         <>
             <Box
                 data-testid={
-                    isNoResults ? `no-results-${pageName}` : `empty-state-${pageName}`
+                    isError ? `fetch-error-${pageName}` : isNoResults ? `no-results-${pageName}` : `empty-state-${pageName}`
                 }
                 sx={{
                     display: "flex",
@@ -175,14 +192,16 @@ const EmptyDataModel = ({
                 <CustomButton
                     label={buttonLabel}
                     data-testid={
-                        isNoResults
+                        isError
+                            ? "fetch-error-retry"
+                            : isNoResults
                             ? "empty-state-clear-filters"
                             : `empty-state-cta-${pageName}`
                     }
                     variant="primary"
                     size="medium"
                     endIcon={
-                        isNoResults ? undefined : (
+                        isNoResults || isError ? undefined : (
                             <AddRounded sx={{ fontSize: isMobile ? 18 : 20 }} />
                         )
                     }
@@ -198,7 +217,7 @@ const EmptyDataModel = ({
                 {/* UX-2026-07-08: Use-case chips on the payment-links empty state
                     so first-time merchants understand *what* a payment link is
                     good for and get a starting template.  */}
-                {pageName === "payment-links" && !isNoResults && (
+                {pageName === "payment-links" && !isNoResults && !isError && (
                     <Box
                         sx={{
                             display: "flex",
@@ -271,7 +290,7 @@ const EmptyDataModel = ({
                     revenue streams a merchant can enable — Creator page,
                     Products, Crowdfunding — so an empty ledger becomes an
                     invitation to activate a stream instead of a dead end. */}
-                {pageName === "transactions" && (
+                {pageName === "transactions" && !isError && (
                     <Box
                         sx={{
                             display: "flex",

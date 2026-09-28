@@ -523,6 +523,15 @@ const TransactionPage = () => {
     transactionState?.customers_transactions?.length === 0 &&
     !transactionState.loading
   ) {
+    if (transactionState.fetchError) {
+      return (
+        <EmptyDataModel
+          pageName="transactions"
+          variant="error"
+          onRetry={() => dispatch(TransactionAction(TRANSACTION_FETCH, selectedCompanyId ? { company_id: selectedCompanyId } : undefined))}
+        />
+      );
+    }
     return <EmptyDataModel pageName="transactions" />;
   }
 

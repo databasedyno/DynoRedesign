@@ -141,7 +141,7 @@ export const getWallet = async (req: express.Request, res: express.Response) => 
         `SELECT ut.wallet_id AS wallet_id, COALESCE(SUM(${USD_FALLBACK_EXPR}), 0) AS processed_usd
          FROM tbl_user_transaction ut
          ${volCompanyJoin}
-         WHERE ut.user_id = :userId AND ${PROCESSED_STATUS_SQL} ${volCompanyFilter}
+         WHERE ut.user_id = :userId AND ${PROCESSED_STATUS_SQL} AND COALESCE(ut.environment, 'production') <> 'development' ${volCompanyFilter}
          GROUP BY ut.wallet_id`,
         {
           replacements: { userId: effectiveUserId, companyId: company_id },

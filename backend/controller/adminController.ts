@@ -808,16 +808,18 @@ const getAdminAnalytics = async (
       where = "";
     }
 
+    // Sandbox (simulated) payments never count — not in volume, not in counts.
+    const LIVE_ONLY = `COALESCE(ut.environment, 'production') <> 'development'`;
     const popularCurrency = await sequelize.query(
       `select aw.wallet_type,count(ut.base_currency) as transaction_count,aw.currency_type from tbl_admin_wallet aw 
-      left join tbl_user_transaction ut on  aw.wallet_type=ut.base_currency
+      left join tbl_user_transaction ut on aw.wallet_type=ut.base_currency and ${LIVE_ONLY}
       ${where} group by ut.base_currency,aw.wallet_type,aw.currency_type order by transaction_count desc`,
       { type: QueryTypes.SELECT }
     );
 
     const invoicesCreatedIn30Days = await sequelize.query(
-      `select date_trunc('day', "createdAt") as date_temp, count(*) as invoices_created
-    from tbl_user_transaction group by date_temp order by date_temp desc limit 30`,
+      `select date_trunc('day', ut."createdAt") as date_temp, count(*) as invoices_created
+    from tbl_user_transaction ut where ${LIVE_ONLY} group by date_temp order by date_temp desc limit 30`,
       { type: QueryTypes.SELECT }
     );
 
@@ -825,7 +827,7 @@ const getAdminAnalytics = async (
       `select count(*) filter (where status='successful') as successful_payments,
       count(*) filter (where status = 'failed') as failed_payments,
 	  count(*) filter (where status = 'pending') as pending_payments
-    from tbl_user_transaction ut ${where}`,
+    from tbl_user_transaction ut ${where ? `${where} and ${LIVE_ONLY}` : `where ${LIVE_ONLY}`}`,
       {
         type: QueryTypes.SELECT,
       }
@@ -865,8 +867,8 @@ const getAdminAnalytics = async (
     // tx date) rather than re-converting base_amount at today's rate.
     // Sandbox (simulated) payments are never revenue.
     const settledWhere = where
-      ? `${where} and ut.status in (:settledStatuses) and COALESCE(ut.environment, 'production') <> 'development'`
-      : `where ut.status in (:settledStatuses) and COALESCE(ut.environment, 'production') <> 'development'`;
+      ? `${where} and ut.status in (:settledStatuses) and ${LIVE_ONLY}`
+      : `where ut.status in (:settledStatuses) and ${LIVE_ONLY}`;
     const totalIncome = await sequelize.query<{ base_currency: string; amount: number; amount_in_usd: number }>(
       `select base_currency, sum(base_amount) as amount, sum(usd_value) as amount_in_usd
        from tbl_user_transaction ut ${settledWhere} group by base_currency`,

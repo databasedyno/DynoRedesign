@@ -1,6 +1,7 @@
 import BitcoinIcon from "@/assets/cryptocurrency/Bitcoin-icon.svg";
 import { rowKeyProps } from "@/helpers/a11y";
 import { formatWithSeparators } from "@/utils/currencyFormat";
+import { formatWithSymbol } from "@/utils/locale";
 import BitcoinCashIcon from "@/assets/cryptocurrency/BitcoinCash-icon.svg";
 import DogecoinIcon from "@/assets/cryptocurrency/Dogecoin-icon.svg";
 import EthereumIcon from "@/assets/cryptocurrency/Ethereum-icon.svg";
@@ -19,7 +20,8 @@ import { getAssetColor } from "@/helpers/assetColor";
 import { getAssetTicker } from "@/utils/networkLabels";
 import { isSyntheticCustomer } from "@/utils/txDisplay";
 import TransactionSourceBadge from "@/Components/UI/TransactionSourceBadge";
-import { Box, Typography, useTheme } from "@mui/material";
+import { Box, Tooltip, Typography, useTheme } from "@mui/material";
+import useUsdRates from "@/hooks/useUsdRates";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -104,17 +106,30 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
 
   const isMobile = useTableCardView();
   const fx = useDisplayFx();
+  const { toUsd } = useUsdRates();
 
   /** Fiat value in the merchant's display currency (falls back to the raw
-   *  USD string until the FX rate resolves / if it's USD anyway). */
+   *  USD string until the FX rate resolves / if it's USD anyway). Rows with
+   *  no stored value yet (awaiting / pending) show a muted "≈" estimate at
+   *  today's rate so the column is never a wall of dashes; the estimate is
+   *  clearly marked and replaced by the locked-in value at settlement. */
   const displayValue = useCallback(
-    (tx: ExtendedTransaction): string => {
-      // No stored USD value (pending / unvalued) → show "—", never a converted
-      // crypto amount masquerading as dollars.
-      if (!tx.usdValueRaw || tx.usdValueRaw <= 0) return "—";
+    (tx: ExtendedTransaction): React.ReactNode => {
+      if (!tx.usdValueRaw || tx.usdValueRaw <= 0) {
+        const open = tx.status === "awaiting_payment" || tx.status === "pending" || tx.status === "processing" || tx.status === "confirmed";
+        const est = open && tx.cryptoAmountRaw > 0 ? toUsd(tx.cryptoAmountRaw, tx.crypto) : null;
+        if (est == null || est <= 0) return "—";
+        return (
+          <Tooltip arrow title={tTransactions("fiatEstimateTip", { defaultValue: "Estimated at today's rate — the final value is locked in when the payment settles." })}>
+            <Box component="span" data-testid="tx-fiat-estimate" sx={{ color: theme.palette.text.secondary, fontWeight: 500 }}>
+              ≈ {fx.formatFromUsd(est) ?? formatWithSymbol(est, "$", 2)}
+            </Box>
+          </Tooltip>
+        );
+      }
       return fx.formatFromUsd(tx.usdValueRaw) ?? tx.usdValue;
     },
-    [fx],
+    [fx, toUsd, tTransactions, theme.palette.text.secondary],
   );
 
   const totalPages = Math.ceil(transactions.length / rowsPerPage);

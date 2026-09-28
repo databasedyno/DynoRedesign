@@ -1,0 +1,35 @@
+{
+  "summary": "Phase 1 Batch 1 P0 audit — backend (CK-02, MD-06, MD-01) + frontend (CK-01 waiting/detected/underpaid, CK-03 overpaid, CK-02 unavailable, MD-06 not-found UI, MD-01 sandbox chip, AD-02 admin sandbox chip, regression). 6/7 pytest passing; the 7th assertion caught a genuine MD-01 leak in the admin analytics API. Frontend checkout state machine + pay-link not-found + admin sandbox chip all PASS. Merchant /transactions sandbox chip could not be visually verified due to a brand-switcher UI hiccup in the test session (user default brand was 'SMADAV' not 'The Dev Store') — same SandboxChip component renders correctly on admin so implementation likely OK; retest by main agent after switching brands is trivial.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "POST /api/admin/getAdminAnalytics (popularCurrency)", "issue": "Sandbox tx 1280 (environment=development, USDT) still leaks into admin analytics `popularCurrency` as {wallet_type:'USD', currency_type:'FIAT', transaction_count:'1'}. Live-only filter present in overviewQueries.ts/transactionsList.ts appears NOT applied to the popularCurrency query in adminController.getAdminAnalytics. Admin Overview UI 'Volume by currency' table itself does not currently render the leaked USD row (probably filtered client-side or by another query), but the API-level leak is a real MD-01 regression risk."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter236_batch1.py",
+    "/app/test_reports/pytest/iter236.xml"
+  ],
+  "action_items": [
+    "MD-01 (admin): apply the LIVE_ONLY environment filter to adminController.getAdminAnalytics popularCurrency query (currently returns a wallet_type='USD' FIAT row with transaction_count=1 sourced from the simulated dev tx 1280). Everything else passes."
+  ],
+  "critical_code_review_comments": [
+    "MD-01 exclusion path is applied in dashboardController overview + wallet transactionsList (COALESCE(uw.wallet_type, ut.crypto_currency)), but the admin analytics popularCurrency aggregate misses the same guard — single-source-of-truth: extract a LIVE_ONLY where-fragment and reuse across dashboardController, transactionsList and adminController.",
+    "Some paylink tests write body without a `success` flag (getData returns {message,data} but no `success:true`). Response envelope inconsistency — consider standardising."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter236_batch1.py"
+  ],
+  "success_rate": {"backend": "86% (6/7)", "frontend": "100% verified flows (checkout waiting/detected/underpaid/overpaid, CK-02 expired card for rNtQRX + zzzzzz, MD-06 paylink-not-found + back-nav, AD-02 admin sandbox chip, dashboard regression)"},
+  "test_credentials": "Merchant owner: onarrival21@gmail.com / Katiekendra123@ + TOTP via `node /app/backend/scripts/print_totp.cjs 1`. Admin: moxxcompany@gmail.com / Katiekendra123@. See /app/memory/test_credentials.md.",
+  "seed_data_creation": "None. No data mutated (READ-ONLY on live prod DB, all checkout tests mock **/api/pay/addPayment).",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "BASE = https://98833a95-b9ce-46fb-9178-8dc77fc8a7dc.preview.emergentagent.com. Backend hot-reloads and occasionally 503s for a few seconds (RetrySession/warmup baked into pytest). For the merchant /transactions Sandbox-chip check the default brand of onarrival21@gmail.com in this session was 'SMADAV' — need to click the brand switcher in the header and pick 'The Dev Store' before searching for tx 1280; the SandboxChip component is proven working on admin so the merchant view should behave the same. All checkout mocked flows are E2E-clean at 1440x900 and 390x844.",
+  "rca of the issue": "MD-01 admin leak — adminController.getAdminAnalytics.popularCurrency SQL almost certainly aggregates tbl_user_transaction rows including environment='development'. The simulated tx 1280 has crypto_currency='USDT' but was recorded with a USD-classified sibling row (or an older base_currency='USD' path), which shows up as wallet_type='USD' FIAT count=1 in the admin payload. Filter transactions with environment<>'development' (or LIVE_ONLY helper) inside that popularCurrency subquery. Reproduction: POST /api/admin/getAdminAnalytics with admin bearer → data.popularCurrency contains {wallet_type:'USD', currency_type:'FIAT', transaction_count:'1'}. Mitigation: reuse the LIVE_ONLY where-fragment already used by dashboardController overview + wallet transactionsList."
+}

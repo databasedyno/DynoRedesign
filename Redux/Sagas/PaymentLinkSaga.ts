@@ -39,7 +39,7 @@ export function* PaymentLinkSaga(action: PaymentLinkSagaAction): Generator<any, 
             },
           });
         } else {
-          yield put({ type: PAYLINK_ERROR });
+          yield put({ type: PAYLINK_ERROR, payload: { fetch: true } });
         }
         break;
       }
@@ -191,7 +191,7 @@ export function* PaymentLinkSaga(action: PaymentLinkSagaAction): Generator<any, 
         payload: { message: mapped.friendly, field: mapped.field },
       });
     } else {
-      yield put({ type: PAYLINK_ERROR });
+      yield put({ type: PAYLINK_ERROR, payload: { fetch: crudType === PAYLINK_FETCH } });
     }
     yield put({
       type: TOAST_SHOW,

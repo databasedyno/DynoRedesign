@@ -28,6 +28,11 @@ const GROSS_USD = `CASE WHEN COALESCE(ut.crypto_amount, 0) > 0
   ELSE (${NET_USD}) END`;
 export { GROSS_USD };
 export const FORWARDED = `(NULLIF(ut.outgoing_tx_hash, '') IS NOT NULL)`;
+/** Auto-convert (Binance → stablecoin wallet) that completed — money reached the merchant without a pool sweep. */
+export const CONV_DONE = `EXISTS (SELECT 1 FROM tbl_stablecoin_conversion sc
+  WHERE sc.transaction_id = ut.transaction_id AND UPPER(sc.status::text) = 'COMPLETED')`;
+/** ONE definition of "forwarded" shared by the dashboard overview and the Payouts page. */
+export const FORWARDED_ANY = `(${FORWARDED} OR ${CONV_DONE})`;
 const DETECTED = `(NULLIF(ut.incoming_tx_hash, '') IS NOT NULL OR COALESCE(ut.confirmations, 0) > 0)`;
 const CONFIRMING = `(ut.status IN ('processing', 'confirmed') OR (ut.status = 'pending' AND ${DETECTED}))`;
 const WINDOW = `INTERVAL '${UNPAID_AFTER_MINUTES} minutes'`;
@@ -71,9 +76,9 @@ export const settledAggregate = (s: OverviewScope) =>
       COALESCE(SUM(${GROSS_USD}) FILTER (WHERE ${IN_RANGE}), 0) AS gross,
       COUNT(*) FILTER (WHERE ${IN_PREV}) AS prev_count,
       COALESCE(SUM(${NET_USD}) FILTER (WHERE ${IN_PREV}), 0) AS prev_net,
-      COUNT(*) FILTER (WHERE ${IN_RANGE} AND ${FORWARDED}) AS fwd_count,
-      COALESCE(SUM(${NET_USD}) FILTER (WHERE ${IN_RANGE} AND ${FORWARDED}), 0) AS fwd_net,
-      MAX(ut."updatedAt") FILTER (WHERE ${FORWARDED}) AS last_forward_at,
+      COUNT(*) FILTER (WHERE ${IN_RANGE} AND ${FORWARDED_ANY}) AS fwd_count,
+      COALESCE(SUM(${NET_USD}) FILTER (WHERE ${IN_RANGE} AND ${FORWARDED_ANY}), 0) AS fwd_net,
+      MAX(ut."updatedAt") FILTER (WHERE ${FORWARDED_ANY}) AS last_forward_at,
       MAX(ut."updatedAt") AS last_paid_at,
       percentile_cont(0.5) WITHIN GROUP (ORDER BY ${SETTLE_MINUTES}) FILTER (WHERE ${IN_RANGE}) AS median_settle_min,
       percentile_cont(0.5) WITHIN GROUP (ORDER BY ${SETTLE_MINUTES}) FILTER (WHERE ${IN_PREV}) AS prev_median_settle_min
@@ -89,7 +94,7 @@ export const forwardedByAsset = (s: OverviewScope) =>
             COUNT(*) AS count,
             COALESCE(SUM(${NET_USD}), 0) AS amount
      ${fromClause(s)}
-     AND ${PROCESSED_STATUS_SQL} AND ${FORWARDED} AND ${IN_RANGE}
+     AND ${PROCESSED_STATUS_SQL} AND ${FORWARDED_ANY} AND ${IN_RANGE}
      GROUP BY 1 ORDER BY amount DESC`,
     s,
   );

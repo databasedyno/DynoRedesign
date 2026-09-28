@@ -232,6 +232,13 @@ const MobileNavigationBar = () => {
       path: "/help-support",
       id: "help-support",
     },
+    // Phones: the floating chat launcher is docked here (it covered list rows).
+    {
+      label: t("chatWithSupport", { defaultValue: "Chat with support" }),
+      icon: "chat",
+      path: null,
+      id: "support-chat",
+    },
   ];
 
   const isActiveRoute = (path: string | null) => {
@@ -271,6 +278,9 @@ const MobileNavigationBar = () => {
     } else if (item.id === "language") {
       setOpenLang((prev) => !prev);
       // setIsExpanded(false);
+    } else if (item.id === "support-chat") {
+      setIsExpanded(false);
+      window.dispatchEvent(new CustomEvent("dynopay:open-support-chat"));
     }
   };
 

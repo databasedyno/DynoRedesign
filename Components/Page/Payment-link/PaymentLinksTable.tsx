@@ -5,6 +5,10 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
   Skeleton,
   Table,
   TableBody,
@@ -16,6 +20,8 @@ import {
   useTheme,
 } from "@mui/material";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import MoreHorizRoundedIcon from "@mui/icons-material/MoreHorizRounded";
+import QrCode2RoundedIcon from "@mui/icons-material/QrCode2Rounded";
 import React, { useCallback, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
@@ -39,7 +45,7 @@ import KeyboardArrowRightRoundedIcon from "@mui/icons-material/KeyboardArrowRigh
 
 import CopyIcon from "@/assets/Icons/copy-icon.svg";
 import LinkCoinsBadge from "./LinkCoinsBadge";
-import { ExpiringSoonBadge, Last30Cell, QrShareActions } from "./LinkRowExtras";
+import { ExpiringSoonBadge, Last30Cell, QrShareActions, RowQrPopover } from "./LinkRowExtras";
 import { StatusDot } from "@/Components/UI/StatusDot";
 import { formatDisplayDateTime } from "@/helpers/displayDate";
 import TransactionSourceBadge from "@/Components/UI/TransactionSourceBadge";
@@ -172,6 +178,15 @@ const PaymentLinksTable = ({
   const [cryptoRefundLinkId, setCryptoRefundLinkId] = useState<string | null>(null);
   const { refundMap, mutateRefunds } = useRefundMap("payment_link");
   const [deleteId, setDeletId] = useState<string>("");
+  // Desktop row overflow ("⋯") menu + its QR popover — keeps the actions
+  // column to 4 controls so Status / Last 30 days are visible without a
+  // horizontal scroll.
+  const [rowMenu, setRowMenu] = useState<{ anchor: HTMLElement; row: PaymentLinkData } | null>(null);
+  const [qrRow, setQrRow] = useState<{ anchor: HTMLElement; row: PaymentLinkData } | null>(null);
+
+  const orderChip = (
+    <TransactionSourceBadge source={{ type: "product", title: null }} />
+  );
 
   const total = paymentLinks.length;
   const start = page * rows;
@@ -347,6 +362,7 @@ const PaymentLinksTable = ({
                         {row.description || t("paymentLinkFallback", { defaultValue: "Payment Link" })}
                       </Typography>
                       {row.linkType === "donation" && donationChip}
+                      {row.linkType === "cart" && orderChip}
                     </Box>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flexWrap: "wrap", justifyContent: "flex-end" }}>
                       <StatusDot
@@ -406,7 +422,7 @@ const PaymentLinksTable = ({
                           <Image src={EyeIcon} alt="" width={14} height={14} draggable={false} className="themed-icon" />
                         </RowActionButton>
                       </Tooltip>
-                      {row.status !== "expired" && row.status !== "paid" && row.status !== "completed" && (
+                      {row.status !== "expired" && row.status !== "paid" && row.status !== "completed" && row.linkType !== "cart" && (
                         <Tooltip title={t("editLinkTooltip", { defaultValue: "Edit link" })} arrow>
                           <RowActionButton
                             aria-label={t("editLinkTooltip", { defaultValue: "Edit link" })}
@@ -417,7 +433,7 @@ const PaymentLinksTable = ({
                           </RowActionButton>
                         </Tooltip>
                       )}
-                      {row.status !== "expired" && row.status !== "paid" && row.status !== "completed" && (
+                      {row.status !== "expired" && row.status !== "paid" && row.status !== "completed" && row.linkType !== "cart" && (
                         <Tooltip title={t("deleteLinkTooltip", { defaultValue: "Delete link" })} arrow>
                           <RowActionButton
                             tone="danger"
@@ -545,9 +561,6 @@ const PaymentLinksTable = ({
                   <TableCell>
                     <Header label="createdHeader" />
                   </TableCell>
-                  <TableCell>
-                    <Header label="expiresHeader" />
-                  </TableCell>
                   <TableCell sx={{ minWidth: 108 }}>
                     <Header label="statusHeader" />
                   </TableCell>
@@ -590,11 +603,11 @@ const PaymentLinksTable = ({
                           borderTop: i === 0 ? "none" : `1px solid ${rowDivider(theme)}`,
                         }}
                       >
-                        {Array.from({ length: 9 }).map((__, colIdx) => (
+                        {Array.from({ length: 8 }).map((__, colIdx) => (
                           <TableBodyCell key={colIdx} sx={{ pl: colIdx === 0 ? "15px" : undefined }}>
                             <Skeleton
                               variant="text"
-                              width={colIdx === 0 ? 30 : colIdx === 8 ? 92 : 90}
+                              width={colIdx === 0 ? 30 : colIdx === 7 ? 92 : 90}
                               height={16}
                               sx={{ bgcolor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" }}
                             />
@@ -630,16 +643,23 @@ const PaymentLinksTable = ({
                           {donationProgressBar(row)}
                         </Box>
                       ) : (
-                        <Box component="span" sx={{ display: "block", overflow: "hidden", textOverflow: "ellipsis" }}>{row.description || "—"}</Box>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: "6px", minWidth: 0 }}>
+                          <Box component="span" sx={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{row.description || "—"}</Box>
+                          {row.linkType === "cart" && orderChip}
+                        </Box>
                       )}
                     </TableBodyCell>
                     <TableBodyCell sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", textAlign: "right" }}>{row.usdValue}</TableBodyCell>
                     <TableBodyCell><LinkCoinsBadge value={row.cryptoValue} /></TableBodyCell>
-                    <TableBodyCell>
-                      {formatUtcToDisplay(row.createdAt)}
-                    </TableBodyCell>
-                    <TableBodyCell>
-                      {formatUtcToDisplay(row.expiresAt)}
+                    {/* Created + expiry stacked in ONE column — frees ~150px so
+                        Status and Last 30 days fit without a horizontal scroll. */}
+                    <TableBodyCell sx={{ whiteSpace: "nowrap" }} data-testid={`paylink-dates-${row.id}`}>
+                      <Box component="span" sx={{ display: "block", lineHeight: 1.3 }}>{formatUtcToDisplay(row.createdAt)}</Box>
+                      <Box component="span" sx={{ display: "block", fontSize: "11.5px", lineHeight: 1.3, color: theme.palette.text.secondary }}>
+                        {row.expiresAt && row.expiresAt !== "Never"
+                          ? t("expiresInline", { defaultValue: "Expires {{date}}", date: formatUtcToDisplay(row.expiresAt) })
+                          : t("neverExpires", { defaultValue: "No expiry" })}
+                      </Box>
                     </TableBodyCell>
 
                     <TableBodyCell sx={{ minWidth: 108 }}>
@@ -715,7 +735,7 @@ const PaymentLinksTable = ({
                           </RowActionButton>
                         </Tooltip>
                       )}
-                      <QrShareActions link={row} onToast={fireToast} />
+                      <QrShareActions link={row} onToast={fireToast} hideQr />
                       <Tooltip title={t("viewLinkTooltip", { defaultValue: "View details" })} arrow>
                         <RowActionButton
                           aria-label={t("viewLinkTooltip", { defaultValue: "View details" })}
@@ -732,61 +752,21 @@ const PaymentLinksTable = ({
                           />
                         </RowActionButton>
                       </Tooltip>
-                      {row.status !== "expired" && row.status !== "paid" && row.status !== "completed" && (
-                        <Tooltip title={t("editLinkTooltip", { defaultValue: "Edit link" })} arrow>
-                          <RowActionButton
-                            aria-label={t("editLinkTooltip", { defaultValue: "Edit link" })}
-                            onClick={() => router.push(`/pay-links/${row?.id}`)}
-                          >
-                            <Image
-                              src={EditIcon}
-                              alt=""
-                              width={16}
-                              height={16}
-                              draggable={false}
-                              className="themed-icon"
-                            />
-                          </RowActionButton>
-                        </Tooltip>
-                      )}
-                      {row.status !== "expired" && row.status !== "paid" && row.status !== "completed" && (
-                        <Tooltip title={t("deleteLinkTooltip", { defaultValue: "Delete link" })} arrow>
-                          <RowActionButton
-                            tone="danger"
-                            aria-label={t("deleteLinkTooltip", { defaultValue: "Delete link" })}
-                            onClick={() => {
-                              setDeleteModel(true);
-                              setDeletId(row.id);
-                            }}
-                          >
-                            <Image
-                              src={TrashIcon}
-                              alt=""
-                              width={16}
-                              height={16}
-                              draggable={false}
-                              style={{
-                                filter: "brightness(0) saturate(100%) invert(27%) sepia(86%) saturate(5000%) hue-rotate(355deg) brightness(97%) contrast(120%)",
-                              }}
-                            />
-                          </RowActionButton>
-                        </Tooltip>
-                      )}
                       {CRYPTO_REFUNDS_ENABLED && refundMap[String(row.id)] && (
                         <RefundStatusChip
                           status={refundMap[String(row.id)].status}
                           testid={`paylink-refund-status-${row.id}`}
                         />
                       )}
-                      {CRYPTO_REFUNDS_ENABLED && isRefundableLinkStatus(row.status) && (
-                        <Tooltip title={t("cryptoRefundTooltip", { defaultValue: "Crypto refund" })} arrow>
+                      {(row.status !== "expired" || (CRYPTO_REFUNDS_ENABLED && isRefundableLinkStatus(row.status))) && (
+                        <Tooltip title={t("moreActionsTooltip", { defaultValue: "More actions" })} arrow>
                           <RowActionButton
-                            tone="primary"
-                            aria-label={t("cryptoRefundTooltip", { defaultValue: "Crypto refund" })}
-                            data-testid={`paylink-crypto-refund-${row.id}`}
-                            onClick={() => setCryptoRefundLinkId(String(row.id))}
+                            aria-label={t("moreActionsTooltip", { defaultValue: "More actions" })}
+                            aria-haspopup="menu"
+                            data-testid={`paylink-more-${row.id}`}
+                            onClick={(e) => setRowMenu({ anchor: e.currentTarget, row })}
                           >
-                            <CurrencyExchangeRounded sx={{ fontSize: 18 }} />
+                            <MoreHorizRoundedIcon sx={{ fontSize: 18 }} />
                           </RowActionButton>
                         </Tooltip>
                       )}
@@ -923,6 +903,48 @@ const PaymentLinksTable = ({
         message={toastMessage || tCommon("copiedToClipboard")}
         severity={toastSeverity}
       />
+
+      {/* Desktop row overflow menu — QR · Edit · Delete · Refund */}
+      <Menu
+        open={!!rowMenu}
+        anchorEl={rowMenu?.anchor ?? null}
+        onClose={() => setRowMenu(null)}
+        data-testid="paylink-row-menu"
+        slotProps={{ paper: { sx: { minWidth: 200, borderRadius: "12px", backgroundImage: "none", border: `1px solid ${hairline(theme)}` } } }}
+      >
+        {rowMenu && rowMenu.row.status !== "expired" && (
+          <MenuItem
+            data-testid="paylink-menu-qr"
+            onClick={() => { setQrRow({ anchor: rowMenu.anchor, row: rowMenu.row }); setRowMenu(null); }}
+          >
+            <ListItemIcon><QrCode2RoundedIcon sx={{ fontSize: 18 }} /></ListItemIcon>
+            <ListItemText primaryTypographyProps={{ fontSize: 13.5, fontFamily: "var(--font-sans)" }}>{t("qrTooltip", { defaultValue: "Show QR code" })}</ListItemText>
+          </MenuItem>
+        )}
+        {rowMenu && rowMenu.row.status !== "expired" && rowMenu.row.status !== "paid" && rowMenu.row.status !== "completed" && rowMenu.row.linkType !== "cart" && (
+          <MenuItem data-testid="paylink-menu-edit" onClick={() => { const id = rowMenu.row.id; setRowMenu(null); router.push(`/pay-links/${id}`); }}>
+            <ListItemIcon><Image src={EditIcon} alt="" width={16} height={16} draggable={false} className="themed-icon" /></ListItemIcon>
+            <ListItemText primaryTypographyProps={{ fontSize: 13.5, fontFamily: "var(--font-sans)" }}>{t("editLinkTooltip", { defaultValue: "Edit link" })}</ListItemText>
+          </MenuItem>
+        )}
+        {rowMenu && CRYPTO_REFUNDS_ENABLED && isRefundableLinkStatus(rowMenu.row.status) && (
+          <MenuItem data-testid={`paylink-crypto-refund-${rowMenu.row.id}`} onClick={() => { const id = String(rowMenu.row.id); setRowMenu(null); setCryptoRefundLinkId(id); }}>
+            <ListItemIcon><CurrencyExchangeRounded sx={{ fontSize: 18 }} /></ListItemIcon>
+            <ListItemText primaryTypographyProps={{ fontSize: 13.5, fontFamily: "var(--font-sans)" }}>{t("cryptoRefundTooltip", { defaultValue: "Crypto refund" })}</ListItemText>
+          </MenuItem>
+        )}
+        {rowMenu && rowMenu.row.status !== "expired" && rowMenu.row.status !== "paid" && rowMenu.row.status !== "completed" && rowMenu.row.linkType !== "cart" && (
+          <MenuItem
+            data-testid="paylink-menu-delete"
+            onClick={() => { const id = rowMenu.row.id; setRowMenu(null); setDeleteModel(true); setDeletId(id); }}
+            sx={{ color: theme.palette.error.main }}
+          >
+            <ListItemIcon><Image src={TrashIcon} alt="" width={16} height={16} draggable={false} style={{ filter: "brightness(0) saturate(100%) invert(27%) sepia(86%) saturate(5000%) hue-rotate(355deg) brightness(97%) contrast(120%)" }} /></ListItemIcon>
+            <ListItemText primaryTypographyProps={{ fontSize: 13.5, fontFamily: "var(--font-sans)", color: theme.palette.error.main }}>{t("deleteLinkTooltip", { defaultValue: "Delete link" })}</ListItemText>
+          </MenuItem>
+        )}
+      </Menu>
+      {qrRow && <RowQrPopover link={qrRow.row} anchor={qrRow.anchor} onClose={() => setQrRow(null)} />}
 
       <Dialog
         open={deleteModel}

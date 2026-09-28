@@ -17,12 +17,18 @@ import {
 import { brandFg } from "@/constants/theme";
 
 export type PaymentLinkStatusFilter = "all" | "active" | "earning" | "expiring" | "completed" | "expired" | "pending";
+/** "links" = hand-made pay links & campaigns · "orders" = storefront order checkouts (auto-created, view-only). */
+export type PaymentLinkKind = "links" | "orders";
 
 interface PaymentLinksTopBarProps {
   onSearch: (value: string) => void;
   onStatusFilter: (status: PaymentLinkStatusFilter) => void;
   onDateFilter: (start: string, end: string) => void;
   statusFilter: PaymentLinkStatusFilter;
+  kind: PaymentLinkKind;
+  onKindChange: (kind: PaymentLinkKind) => void;
+  /** Number of storefront order links — the segment is hidden when there are none. */
+  orderCount: number;
 }
 
 /**
@@ -40,6 +46,9 @@ const PaymentLinksTopBar = ({
   onStatusFilter,
   onDateFilter,
   statusFilter,
+  kind,
+  onKindChange,
+  orderCount,
 }: PaymentLinksTopBarProps) => {
   const { t } = useTranslation("paymentLinks");
   const isMobile = useIsMobile("md");
@@ -108,6 +117,38 @@ const PaymentLinksTopBar = ({
     },
   };
 
+  const segBtn = (value: PaymentLinkKind, label: string) => {
+    const active = kind === value;
+    return (
+      <Box
+        key={value}
+        component="button"
+        type="button"
+        role="tab"
+        aria-selected={active}
+        data-testid={`paylinks-kind-${value}`}
+        onClick={() => onKindChange(value)}
+        sx={{
+          border: "none",
+          cursor: "pointer",
+          borderRadius: "999px",
+          px: 1.5,
+          height: isMobile ? 28 : 32,
+          fontFamily: "var(--font-sans)",
+          fontSize: isMobile ? 12 : 13,
+          fontWeight: 700,
+          whiteSpace: "nowrap",
+          color: active ? theme.palette.getContrastText(theme.palette.primary.main) : theme.palette.text.secondary,
+          backgroundColor: active ? theme.palette.primary.main : "transparent",
+          transition: "background-color 140ms ease, color 140ms ease",
+          "&:hover": { color: active ? undefined : theme.palette.text.primary },
+        }}
+      >
+        {label}
+      </Box>
+    );
+  };
+
   return (
     <Box
       sx={{
@@ -119,6 +160,28 @@ const PaymentLinksTopBar = ({
         flexWrap: "wrap",
       }}
     >
+      {/* Links | Orders segment — storefront order checkouts are auto-created
+          and view-only, so they no longer masquerade as hand-made links. */}
+      {orderCount > 0 && (
+        <Box
+          role="tablist"
+          data-testid="paylinks-kind-segment"
+          sx={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 0.25,
+            p: "3px",
+            borderRadius: "999px",
+            border: `1px solid ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.12)" : "#E9ECF2"}`,
+            backgroundColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.05)" : "#FFFFFF",
+            alignSelf: isMobile ? "flex-start" : "center",
+          }}
+        >
+          {segBtn("links", t("kindLinks", { defaultValue: "Links" }))}
+          {segBtn("orders", t("kindOrders", { defaultValue: "Orders ({{count}})", count: orderCount }))}
+        </Box>
+      )}
+
       {/* Search */}
       <Box
         sx={{

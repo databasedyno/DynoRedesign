@@ -6,6 +6,7 @@ import {
   InputBase,
   Tooltip,
   Typography,
+  useMediaQuery,
   useTheme,
 } from "@mui/material";
 import ChatRoundedIcon from "@mui/icons-material/ChatRounded";
@@ -108,6 +109,11 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
   const theme = useTheme();
   const { t } = useTranslation("helpAndSupport");
   const isDark = theme.palette.mode === "dark";
+  // Phones in the merchant app: the floating launcher sat on top of list rows'
+  // status / amount (E2E audit MD-04). There it lives in the bottom nav's
+  // "More" sheet instead ("Chat with support" → dynopay:open-support-chat).
+  const isPhone = useMediaQuery(theme.breakpoints.down("sm"));
+  const dockedInNav = layout === "client" && isPhone;
 
   const GREETING = t("supportChat.greeting", {
     defaultValue:
@@ -1200,7 +1206,7 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
           off-screen with a 220ms transition. Result: FAB smoothly "tucks"
           away as the user scrolls a Save/CTA button under it, and slides
           back in once the button leaves the FAB region. */}
-      {!suppressed && (
+      {!suppressed && !(dockedInNav && !open) && (
       <Tooltip title={open ? t("supportChat.closeSupportChat", { defaultValue: "Close support chat" }) : t("supportChat.chatWithSupport", { defaultValue: "Chat with support" })}>
         <IconButton
           data-testid="support-chat-button"
