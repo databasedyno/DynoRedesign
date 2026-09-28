@@ -74,26 +74,69 @@ function Fact({ icon, label, value, testid }: { icon: string; label: string; val
   );
 }
 
-/** Itemised live quote (dark panel + mobile bar). */
-export function QuoteBody({ preview }: { preview: SdFeePreview }) {
+/** Itemised live quote (dark panel + mobile bar), tailored to the viewer's role.
+ *  `showFees=false` renders a limited quote (deal amount + hint) for the early step,
+ *  before the buyer/seller/split fee-payer choice is made. */
+export function QuoteBody({ preview, role = "seller", showFees = true }: { preview: SdFeePreview; role?: "buyer" | "seller"; showFees?: boolean }) {
+  const isSeller = role === "seller";
+  if (!showFees) {
+    return (
+      <Stack spacing={1} data-testid="sd-quote-body" data-role={role} data-fees="0">
+        {preview.price && (
+          <Row l={`Priced in ${preview.price.currency}`} v={`${fiatMoney(preview.price.amount, preview.price.currency)} ≈ ${money(preview.price.usd)}`} soft testid="sd-quote-fiat" />
+        )}
+        <Row l="Deal amount (USD)" v={money(preview.amount, "USD")} strong />
+        <Typography sx={{ fontSize: 11.5, color: SD_INK_MUTED, mt: 0.5 }} data-testid="sd-quote-fees-hint">
+          Escrow, network & cashout fees are shown on the next step, once you choose who covers them.
+        </Typography>
+      </Stack>
+    );
+  }
+  const items = preview.costItems || [];
+  // How much of a cost line THIS side bears (cashout is always the seller's; the rest
+  // follow the fee_payer selector; a 50/50 split shows half on each side).
+  const shareFor = (c: { amount: number; borneBy?: "buyer" | "seller" | "split" }, side: "buyer" | "seller") => {
+    const b = c.borneBy || "buyer";
+    if (b === "split") return c.amount / 2;
+    return b === side ? c.amount : 0;
+  };
+  const mine = items
+    .map((c) => ({ ...c, share: shareFor(c, role) }))
+    .filter((c) => c.share > 0);
+  const youValue = isSeller ? preview.sellerReceives : preview.buyerPays;
+  const youLabel = isSeller ? "You receive" : "You pay";
+  const youColor = isSeller ? "#6EE7B7" : SD_GOLD;
+  const youTestid = isSeller ? "sd-quote-seller-receives" : "sd-quote-buyer-pays";
+  const otherValue = isSeller ? preview.buyerPays : preview.sellerReceives;
+  const otherLabel = isSeller ? "Buyer pays" : "Seller receives";
+  const otherTestid = isSeller ? "sd-quote-buyer-pays" : "sd-quote-seller-receives";
   return (
-    <Stack spacing={1}>
+    <Stack spacing={1} data-testid="sd-quote-body" data-role={role}>
       {preview.price && (
         <Row l={`Priced in ${preview.price.currency}`} v={`${fiatMoney(preview.price.amount, preview.price.currency)} ≈ ${money(preview.price.usd)}`} soft testid="sd-quote-fiat" />
       )}
       <Row l="Deal amount (USD)" v={money(preview.amount, "USD")} />
-      {(preview.costItems || []).map((c) => (
-        <Row key={c.key} l={c.label} v={money(c.amount, "USD")} soft testid={`sd-quote-${c.key}`} />
+      {mine.map((c) => (
+        <Row
+          key={c.key}
+          l={`${c.label}${c.borneBy === "split" ? " · your ½" : ""}`}
+          v={`${isSeller ? "−" : "+"}${money(c.share, "USD")}`}
+          soft
+          testid={`sd-quote-${c.key}`}
+        />
       ))}
       <Box sx={{ borderTop: "1px solid rgba(255,255,255,0.12)", pt: 1 }}>
-        <Row l="Buyer pays" v={money(preview.buyerPays, "USD")} strong color={SD_GOLD} testid="sd-quote-buyer-pays" />
-        <Row l="Seller receives" v={money(preview.sellerReceives, "USD")} strong color="#6EE7B7" testid="sd-quote-seller-receives" />
+        <Row l={youLabel} v={money(youValue, "USD")} strong color={youColor} testid={youTestid} />
+        <Row l={otherLabel} v={money(otherValue, "USD")} soft testid={otherTestid} />
       </Box>
       <Typography sx={{ fontSize: 11.5, color: SD_INK_MUTED, mt: 0.5 }}>
+        {isSeller
+          ? "The cashout fee is your cost to withdraw — it's deducted from your payout, not added to what the buyer pays. "
+          : "You never pay the seller's cashout fee. "}
         {preview.price ? "Indicative — the USD amount locks at the live rate when the buyer funds. " : ""}
         {preview.fundingCoinAssumed && (preview.nonStableSurchargeUsd || 0) > 0
           ? <span data-testid="sd-quote-surcharge-note">Priced for a stablecoin payment (USDT/USDC). Paying with BTC, ETH or another non-stablecoin adds ≈ {money(preview.nonStableSurchargeUsd || 0, "USD")} ({preview.exchangeFeePercent ?? 2}% exchange fee, conversion and network costs) — the exact total is shown per coin at checkout. </span>
-          : "Network, conversion & cashout costs are estimates and depend on the coin the buyer pays with. "}
+          : "Network, conversion & cashout costs are estimates and depend on the coin used. "}
         Fees are set by SafeDeal and charged on release, refund and split; a cancellation fee applies on a mutually-agreed cancellation.
       </Typography>
     </Stack>

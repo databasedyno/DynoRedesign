@@ -1958,6 +1958,16 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
         // Get company name for notifications (used below) — buyer-facing, so
         // never a generated placeholder (A1).
         const companyName = (await resolvePublicCompanyName(company_data)) ?? (company_data?.company_name ?? "");
+        // MERCHANT-facing notification ("Your company X received …"): show the
+        // merchant's OWN brand exactly as stored (e.g. "SMADAV"), matching the
+        // overpayment notifier. resolvePublicCompanyName() is placeholder-safe for
+        // BUYER surfaces, but it degrades a real brand to the owner's personal name
+        // ("John Davis") whenever the brand happens to equal the account-email local
+        // part — wrong on the merchant's own dashboard, where there is no leak risk.
+        const merchantBrandName =
+          (company_data?.company_name && String(company_data.company_name).trim()) ||
+          companyName ||
+          "your company";
 
         // Create in-app notification for payment received.
         // When auto-convert is ON the merchant receives the settlement stablecoin
@@ -1977,11 +1987,11 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
             : 0;
           mrNotifAmount = merchantUsdApprox;
           mrNotifCurrency = autoConvertTargetCurrency;
-          mrNotifMessage = `Your company ${companyName} received ≈ $${toFixedStr(merchantUsdApprox, 2)} — auto-converting to ${autoConvertTargetCurrency}${sourceSuffix}`;
+          mrNotifMessage = `Your company ${merchantBrandName} received ≈ $${toFixedStr(merchantUsdApprox, 2)} — auto-converting to ${autoConvertTargetCurrency}${sourceSuffix}`;
         } else {
           mrNotifAmount = userAmountToSend;
           mrNotifCurrency = tempCurrency;
-          mrNotifMessage = `Your company ${companyName} received ${formatCryptoAmount(userAmountToSend, tempCurrency)} ${tempCurrency}${sourceSuffix}`;
+          mrNotifMessage = `Your company ${merchantBrandName} received ${formatCryptoAmount(userAmountToSend, tempCurrency)} ${tempCurrency}${sourceSuffix}`;
         }
         await createNotification(
           customerData.adm_id,
@@ -1995,7 +2005,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
               ? { auto_converting: true, gross_crypto: originalUserAmount, gross_crypto_currency: tempCurrency }
               : {}),
             transaction_id: transactionId,
-            company_name: companyName,
+            company_name: merchantBrandName,
             company_id: company_data?.company_id,
             payment_source: paymentSourceKey,
           },

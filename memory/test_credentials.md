@@ -1,3 +1,10 @@
+## 2026-09-28 (fork, pt6) — CURRENT POD URL (use this, others below are stale)
+## - LIVE preview URL for THIS pod = https://16c830c7-de19-4f07-b1e0-2d29adca8264.preview.emergentagent.com
+## - Admin (SafeDeal / Dynopay) login: moxxcompany@gmail.com / Katiekendra123@ (also the vault passphrase)
+## - SafeDeal customer sign-in: any *@example.com email → one-time code in UI (sd-signin-preview-code) and POST /api/safedeal/auth/send-code → data.preview_code.
+## - Simulated funding is DISABLED on this pod (SAFEDEAL_ALLOW_SIMULATION unset) — cannot fund deals; test fee math via /api/safedeal/fee-preview and the create-deal quote UI.
+
+
 ## 2026-09-25 (fork) — POD PREVIEW URL + QA CENTER PASSCODE (read first)
 ## - LIVE preview URL for THIS pod = https://vault-setup-11.preview.emergentagent.com (env `preview_endpoint`). The parent-job URL db6f1699-…preview.emergentagent.com is STALE → resolves to Cloudflare/Webflow prod → 404s all /api/*. Never use it.
 ## - Backend on this pod runs under uvicorn `--reload` (WatchFiles) → transient 502/503 "Backend starting" during reloads. Any fetch/curl/Playwright QA must send a browser User-Agent and retry on 5xx.

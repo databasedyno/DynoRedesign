@@ -15,6 +15,9 @@ export interface CostItem {
   label: string;
   amount: number;
   note?: string;
+  // Which side the cost is charged to (role-aware breakdowns). Cashout is always
+  // "seller" under the current fee model; the rest follow the fee_payer selector.
+  borneBy?: "buyer" | "seller" | "split";
 }
 
 export interface FeeBreakdown {
@@ -43,6 +46,8 @@ export interface FeeBreakdown {
   sellerReceives: number;
   platformFee: number;
   networkNote: string;
+  // Frozen fee-allocation model (v2 = cashout is the seller's cost; v1 = legacy).
+  feeModel?: "v1" | "v2";
   // fee-preview extras (admin policy)
   minDealUsd?: number;
   belowMinimum?: boolean;

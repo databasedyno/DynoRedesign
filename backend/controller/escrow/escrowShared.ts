@@ -112,6 +112,9 @@ export interface CostItem {
   label: string;
   amount: number; // USD
   note?: string;
+  // Which side this cost is charged to (for role-aware breakdowns). The cashout
+  // (withdrawal) fee is always "seller" under fee model v2; the rest follow fee_payer.
+  borneBy: "buyer" | "seller" | "split";
 }
 
 export interface FeeBreakdown {
@@ -139,6 +142,13 @@ export interface FeeBreakdown {
   sellerReceives: number; // net to seller after their share of costs
   platformFee: number; // == escrowFee (kept by platform)
   networkNote: string;
+  // Fee-allocation model, FROZEN at funding so already-funded deals never re-split:
+  //   v2 (current) — the cashout/withdrawal fee is ALWAYS the seller's cost (the seller
+  //                  cashes out); the buyer never funds it. Escrow + inbound funding costs
+  //                  are still allocated by fee_payer.
+  //   v1 (legacy)  — every cost (incl. cashout) is allocated by fee_payer.
+  // Live quotes and new fundings are v2; deals funded before this change stay v1.
+  feeModel: "v1" | "v2";
 }
 
 function round2(n: number): number {
@@ -205,6 +215,9 @@ export interface LockedCosts {
   exchangeFeePercent?: number;
   payoutCoin?: string;
   quotedFundingCoin?: string;
+  // Frozen fee-allocation model (see FeeBreakdown.feeModel). Absent on deals funded
+  // before the model existed → treated as v1 so their split never changes.
+  feeModel?: "v1" | "v2";
 }
 
 export function lockedCostsFrom(b: FeeBreakdown): LockedCosts {
@@ -216,6 +229,7 @@ export function lockedCostsFrom(b: FeeBreakdown): LockedCosts {
     exchangeFeePercent: b.exchangeFeePercent,
     payoutCoin: b.payoutCoin,
     quotedFundingCoin: b.quotedFundingCoin,
+    feeModel: b.feeModel,
   };
 }
 
@@ -287,18 +301,34 @@ export function computeFeeBreakdown(input: {
   const passThroughCosts = round2(networkFeeUsd + conversionFeeUsd + withdrawalFeeUsd);
   const totalCost = round2(escrowFee + exchangeFeeUsd + passThroughCosts);
 
+  // Fee-allocation model (frozen at funding via lockedCosts; live quotes use v2).
+  // v2: the cashout (withdrawal) fee is ALWAYS the seller's cost — the seller is the
+  //     party who cashes out — so it is deducted from the seller and the buyer never
+  //     funds it. Escrow fee + inbound funding costs (network/conversion/exchange) are
+  //     still allocated by fee_payer.
+  // v1: legacy — every cost, incl. cashout, is allocated by fee_payer.
+  const feeModel: "v1" | "v2" = input.lockedCosts
+    ? input.lockedCosts.feeModel === "v2"
+      ? "v2"
+      : "v1"
+    : "v2";
+
+  // Costs shared per the fee_payer selector, and the seller-only cashout cost.
+  const feePayerCost = feeModel === "v2" ? round2(escrowFee + exchangeFeeUsd + networkFeeUsd + conversionFeeUsd) : totalCost;
+  const sellerOnlyCost = feeModel === "v2" ? withdrawalFeeUsd : 0;
+
   let buyerPays = amount;
   let sellerReceives = amount;
   if (feePayer === "buyer") {
-    buyerPays = round2(amount + totalCost);
-    sellerReceives = amount;
+    buyerPays = round2(amount + feePayerCost);
+    sellerReceives = round2(Math.max(0, amount - sellerOnlyCost));
   } else if (feePayer === "seller") {
     buyerPays = amount;
-    sellerReceives = round2(Math.max(0, amount - totalCost));
+    sellerReceives = round2(Math.max(0, amount - feePayerCost - sellerOnlyCost));
   } else {
-    const half = round2(totalCost / 2);
+    const half = round2(feePayerCost / 2);
     buyerPays = round2(amount + half);
-    sellerReceives = round2(Math.max(0, amount - (totalCost - half)));
+    sellerReceives = round2(Math.max(0, amount - (feePayerCost - half) - sellerOnlyCost));
   }
 
   const isCancel = input.cancellationFee === true && !waiveFee;
@@ -315,11 +345,13 @@ export function computeFeeBreakdown(input: {
     : feeFloorApplied
     ? `${feePercent}% of ${amount} is below the $${feeMinUsd} minimum escrow fee, so the minimum applies.`
     : "";
+  const cashoutBorneBy: "buyer" | "seller" | "split" = feeModel === "v2" ? "seller" : feePayer;
   const costItems: CostItem[] = [
     {
       key: "escrow_fee",
       label: feeLabel,
       amount: escrowFee,
+      borneBy: feePayer,
       ...(feeNote ? { note: feeNote } : {}),
     },
   ];
@@ -333,19 +365,21 @@ export function computeFeeBreakdown(input: {
         key: "exchange_fee",
         label: `Exchange fee (${exchangePct}%)`,
         amount: exchangeFeeUsd,
+        borneBy: feePayer,
         note: exchangeFeeUsd <= 0 ? stableNote : `SafeDeal's ${exchangePct}% fee for exchanging non-stablecoin funding into USDT (covers spread and slippage).`,
       },
-      { key: "network_fee", label: `Network fee${est}`, amount: networkFeeUsd, note: locked ? "On-chain fee to move the funded crypto to the exchange (custody) — fixed at funding." : quoteCoin.assumed ? `On-chain fee to move the funded crypto to the exchange (custody) — estimated for ${quoteCoin.coin}; the exact fee depends on the coin the buyer picks.` : "On-chain fee to move the funded crypto to the exchange (custody)." },
-      { key: "conversion_fee", label: `Conversion fee${est}`, amount: conversionFeeUsd, note: conversionFeeUsd <= 0 ? (quoteCoin.assumed && !locked ? "No conversion when funded in USDT; other coins are converted on the exchange at checkout." : "No conversion — funded directly in USDT.") : "Converting the funded crypto to USDT on the exchange." },
+      { key: "network_fee", label: `Network fee${est}`, amount: networkFeeUsd, borneBy: feePayer, note: locked ? "On-chain fee to move the funded crypto to the exchange (custody) — fixed at funding." : quoteCoin.assumed ? `On-chain fee to move the funded crypto to the exchange (custody) — estimated for ${quoteCoin.coin}; the exact fee depends on the coin the buyer picks.` : "On-chain fee to move the funded crypto to the exchange (custody)." },
+      { key: "conversion_fee", label: `Conversion fee${est}`, amount: conversionFeeUsd, borneBy: feePayer, note: conversionFeeUsd <= 0 ? (quoteCoin.assumed && !locked ? "No conversion when funded in USDT; other coins are converted on the exchange at checkout." : "No conversion — funded directly in USDT.") : "Converting the funded crypto to USDT on the exchange." },
       {
         key: "withdrawal_fee",
         label: locked ? `Cashout fee (${payoutKey})` : `Cashout fee (est., ${payoutKey})`,
         amount: withdrawalFeeUsd,
+        borneBy: cashoutBorneBy,
         note: locked
-          ? "Cashout network fee reserved at funding — covers the payout to a saved address (or is credited back to whoever keeps the funds in their balance)."
+          ? "Cashout network fee — the seller's cost to cash out; reserved at funding and covered on payout (or credited back if the funds stay in the balance)."
           : payoutIsUsdc
-          ? "Network fee for the cashout to this network, incl. the USDT→USDC conversion."
-          : "Network fee for the USDT cashout to this network.",
+          ? "The seller's cashout to this network, incl. the USDT→USDC conversion — deducted from the seller's payout."
+          : "The seller's cashout to this network — deducted from the seller's payout.",
       }
     );
   }
@@ -373,6 +407,7 @@ export function computeFeeBreakdown(input: {
     buyerPays,
     sellerReceives,
     platformFee: escrowFee,
+    feeModel,
     networkNote: locked
       ? "Network, conversion and withdrawal costs were fixed when the deal was funded and are settled from the funded amount."
       : quoteCoin.assumed && fundedIsStable

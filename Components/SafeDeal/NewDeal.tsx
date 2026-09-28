@@ -140,17 +140,30 @@ export default function NewDeal() {
 
   // SD-05: inline live quote shown directly under the amount (and on review) on
   // phones — replaces the old fixed bottom bar that covered the form.
+  // Fees only appear from the fee-payer step (step >= 1); before that the quote is
+  // limited to the deal amount so we don't imply a fee split the user hasn't chosen.
+  const feesVisible = step >= 1;
   const mobileQuote = (
     <Box sx={{ display: { xs: "block", md: "none" }, borderRadius: 2.5, backgroundColor: "#0B1020", color: "#fff", overflow: "hidden" }} data-testid="sd-new-quote-inline">
-      <Box role="button" tabIndex={0} aria-expanded={quoteOpen} aria-controls="sd-quote-details" onClick={() => setQuoteOpen((o) => !o)} onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setQuoteOpen((o) => !o)} data-testid="sd-new-quote-bar-toggle" sx={{ px: 1.8, py: 1.3, display: "flex", alignItems: "center", justifyContent: "space-between", cursor: preview ? "pointer" : "default" }}>
+      <Box role="button" tabIndex={0} aria-expanded={feesVisible ? quoteOpen : undefined} aria-controls="sd-quote-details" onClick={() => feesVisible && setQuoteOpen((o) => !o)} onKeyDown={(e) => feesVisible && (e.key === "Enter" || e.key === " ") && setQuoteOpen((o) => !o)} data-testid="sd-new-quote-bar-toggle" sx={{ px: 1.8, py: 1.3, display: "flex", alignItems: "center", justifyContent: "space-between", cursor: preview && feesVisible ? "pointer" : "default" }}>
         {preview ? (
-          <Typography sx={{ fontSize: 14, fontWeight: 800, ...TABULAR }}>Buyer pays <span style={{ color: SD_GOLD }}>{money(preview.buyerPays, "USD")}</span> · Seller gets <span style={{ color: "#6EE7B7" }}>{money(preview.sellerReceives, "USD")}</span></Typography>
+          feesVisible ? (
+            <Typography sx={{ fontSize: 14, fontWeight: 800, ...TABULAR }} data-testid="sd-new-quote-summary" data-role={role} data-fees="1">
+              {role === "seller"
+                ? <>You receive <span style={{ color: "#6EE7B7" }}>{money(preview.sellerReceives, "USD")}</span> · Buyer pays <span style={{ color: SD_INK_MUTED }}>{money(preview.buyerPays, "USD")}</span></>
+                : <>You pay <span style={{ color: SD_GOLD }}>{money(preview.buyerPays, "USD")}</span> · Seller gets <span style={{ color: SD_INK_MUTED }}>{money(preview.sellerReceives, "USD")}</span></>}
+            </Typography>
+          ) : (
+            <Typography sx={{ fontSize: 14, fontWeight: 800, ...TABULAR }} data-testid="sd-new-quote-summary" data-fees="0">
+              Deal amount <span style={{ color: SD_GOLD }}>{money(preview.amount, "USD")}</span> <span style={{ color: SD_INK_MUTED, fontWeight: 600 }}>· fees shown next step</span>
+            </Typography>
+          )
         ) : (
           <Typography sx={{ fontSize: 13.5, color: SD_INK_MUTED }}>Live quote appears once the amount is ${minDeal} or more</Typography>
         )}
-        {preview && <Icon icon={quoteOpen ? "mdi:chevron-up" : "mdi:chevron-down"} width={22} aria-hidden />}
+        {preview && feesVisible && <Icon icon={quoteOpen ? "mdi:chevron-up" : "mdi:chevron-down"} width={22} aria-hidden />}
       </Box>
-      <Collapse in={quoteOpen && !!preview} id="sd-quote-details"><Box sx={{ px: 1.8, pb: 1.8 }}>{preview && <QuoteBody preview={preview} />}</Box></Collapse>
+      <Collapse in={quoteOpen && !!preview && feesVisible} id="sd-quote-details"><Box sx={{ px: 1.8, pb: 1.8 }}>{preview && <QuoteBody preview={preview} role={role} showFees={feesVisible} />}</Box></Collapse>
     </Box>
   );
 
@@ -269,7 +282,7 @@ export default function NewDeal() {
         <Grid item xs={12} md={5} sx={{ display: { xs: "none", md: "block" } }}>
           <Box sx={{ p: 2.5, borderRadius: 3, backgroundColor: "#0B1020", color: "#fff", position: "sticky", top: 84 }} data-testid="sd-new-quote">
             <Typography sx={{ fontSize: 12, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: SD_INK_MUTED, mb: 1.2 }}>Live quote</Typography>
-            {!preview ? <Typography sx={{ fontSize: 14, color: SD_INK_MUTED }}>Enter an amount of ${minDeal} or more to see the itemised quote.</Typography> : <QuoteBody preview={preview} />}
+            {!preview ? <Typography sx={{ fontSize: 14, color: SD_INK_MUTED }}>Enter an amount of ${minDeal} or more to see the itemised quote.</Typography> : <QuoteBody preview={preview} role={role} showFees={feesVisible} />}
           </Box>
         </Grid>
       </Grid>

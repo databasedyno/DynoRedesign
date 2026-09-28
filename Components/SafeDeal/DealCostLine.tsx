@@ -8,13 +8,22 @@ import { TABULAR } from "./sdFormat";
 
 type FeePayer = "buyer" | "seller" | "split" | string;
 
-/** "Buyer pays $139 = $120 price + $19 SafeDeal costs" — one sentence that explains the gap. */
+/** "Buyer pays $139 = $120 price + $19 costs. Seller receives $115 = $120 − $5 cashout." */
 export function costSentence(p: { amount: number; buyerPays: number; sellerReceives: number; totalCost: number; feePayer: FeePayer; currency: string }): string {
   const c = p.currency;
-  if (p.totalCost <= 0) return `Buyer pays ${money(p.buyerPays, c)} · seller receives ${money(p.sellerReceives, c)} — no SafeDeal costs on this deal.`;
-  if (p.feePayer === "buyer") return `Buyer pays ${money(p.buyerPays, c)} = ${money(p.amount, c)} price + ${money(p.totalCost, c)} SafeDeal costs. Seller receives the full ${money(p.sellerReceives, c)}.`;
-  if (p.feePayer === "seller") return `Buyer pays exactly ${money(p.buyerPays, c)}. Seller receives ${money(p.sellerReceives, c)} = ${money(p.amount, c)} − ${money(p.totalCost, c)} SafeDeal costs.`;
-  return `${money(p.totalCost, c)} SafeDeal costs are split: buyer pays ${money(p.buyerPays, c)}, seller receives ${money(p.sellerReceives, c)}.`;
+  const r2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
+  // Derive each side's SafeDeal cost from the authoritative amounts — works for any
+  // fee model (cashout on the seller) and any fee_payer without re-deriving the split.
+  const buyerCost = Math.max(0, r2(p.buyerPays - p.amount));
+  const sellerCost = Math.max(0, r2(p.amount - p.sellerReceives));
+  if (buyerCost <= 0 && sellerCost <= 0) return `Buyer pays ${money(p.buyerPays, c)} · seller receives ${money(p.sellerReceives, c)} — no SafeDeal costs on this deal.`;
+  const buyerPart = buyerCost > 0
+    ? `Buyer pays ${money(p.buyerPays, c)} = ${money(p.amount, c)} price + ${money(buyerCost, c)} SafeDeal costs`
+    : `Buyer pays ${money(p.buyerPays, c)} (the deal price)`;
+  const sellerPart = sellerCost > 0
+    ? `seller receives ${money(p.sellerReceives, c)} = ${money(p.amount, c)} − ${money(sellerCost, c)} SafeDeal costs`
+    : `seller receives the full ${money(p.sellerReceives, c)}`;
+  return `${buyerPart}. ${sellerPart.charAt(0).toUpperCase()}${sellerPart.slice(1)}.`;
 }
 
 interface LineProps {
