@@ -9,7 +9,7 @@ import time
 import requests
 import pytest
 
-BASE_URL = "https://98833a95-b9ce-46fb-9178-8dc77fc8a7dc.preview.emergentagent.com"
+BASE_URL = "https://passphrase-config-1.preview.emergentagent.com"
 UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
 
 MERCHANT_EMAIL = "onarrival21@gmail.com"

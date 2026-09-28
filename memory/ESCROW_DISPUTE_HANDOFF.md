@@ -21,7 +21,7 @@
 - Health check: `curl -s localhost:8001/health` → expect `status:healthy, db/redis connected,
   tatum operational, background_jobs eligible=false` (SAFE MODE). Frontend: `curl -I localhost:3000`.
 - **Preview URL** (source of truth = `APP_URL` in `/etc/supervisor/conf.d/*.conf`):
-  `https://passphrase-init-1.preview.emergentagent.com`
+  `https://passphrase-config-1.preview.emergentagent.com`
 
 ### Known preview gotcha (already mitigated)
 Next **dev** server recycles under memory pressure → a ~5s edge **502** occasionally. We raised the
