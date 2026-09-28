@@ -2160,3 +2160,8 @@ User approved scope (a): ALL customer-facing UI (auth, checkout, landing, chrome
 - NOTE: SAFE MODE active (ENABLE_BACKGROUND_JOBS=false) — pod connected to LIVE production DB. No destructive tests.
 - BLOCKED (unchanged): Phase 0 API architecture (spec hygiene, Idempotency-Key middleware, webhook signature v2
   dual-signing) awaiting user confirmation — see docs/API_ARCHITECTURE_REVIEW_2026-09.md.
+
+## 2026-09-28 (pt10) — Creator/Tip/Storefront redesign verified; SSR rate-limit 404 fixed
+- Fixed: public creator/shop/product pages intermittently 404'd — SSR self-fetches were rate-limited as one IP (127.0.0.1, 30/min). SSR now forwards visitor IP (helpers/ssrFetchHeaders.ts); public read GETs use publicReadRateLimiter (120/min).
+- Verified redesigned CreatorProfile / SupportWidget+InlineTipCheckout / ShopHero+ProductCard+ShopToolbar / product detail page via testing_agent (iteration_238, all pass, desktop+mobile+dark).
+- Added data-testid inline-tip-change-amount.

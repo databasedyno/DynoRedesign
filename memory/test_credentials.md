@@ -1,3 +1,7 @@
+## 2026-09-28 (fork, pt10) — CURRENT POD URL (supersedes ALL lines below)
+## - LIVE preview URL for THIS pod = https://f76a7948-40c4-425c-b700-24152c271b32.preview.emergentagent.com (= SERVER_URL in /app/backend/.env). Public pages: /devhub, /devhub/shop, /devhub/p/talk-to-a-developer. Inline tip QA: mock **/api/pay/addPayment → {success:true,data:{address:'LbnAP43Ty8vvzxzTwJcocfytbCrX6GrGx4',qr_code:'',remaining_minutes:30,transaction_id:'qa-mock'}} + **/api/pay/verifyCryptoPayment* → {success:true,data:{status:'waiting',remaining_seconds:1790}}; coin tiles inline-tip-currency-<CODE>, back = inline-tip-change-amount.
+
+
 ## 2026-09-28 (fork, pt9) — CURRENT POD URL (supersedes ALL lines below)
 ## - LIVE preview URL for THIS pod = https://83b861f3-f41f-4c81-87f0-b183977110ef.preview.emergentagent.com (read SERVER_URL in /app/backend/.env). The vault-auth-8 URL below is STALE.
 ## - Owner/merchant: onarrival21@gmail.com / Katiekendra123@ (user_id 1, company_id 1 "The Dev Store", TOTP: node /app/backend/scripts/print_totp.cjs 1). Admin: moxxcompany@gmail.com / Katiekendra123@.

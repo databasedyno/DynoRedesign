@@ -1,0 +1,45 @@
+{
+  "summary": "Frontend-only verification of the redesigned public Creator page, Shop page, Product page, and inline tip checkout for merchant handle 'devhub'. All critical flows PASS: /devhub returns HTTP 200 on 5x sequential loads AND 10x rapid hammer loads (rate-limit regression fix confirmed), all requested data-testids render on desktop 1920x800 and mobile 390x844, no console/pageerror errors on any page, no horizontal overflow (scrollWidth == 390 on mobile for all 3 pages), dark mode renders correctly. Tip checkout flow works with Playwright mocks for /api/pay/addPayment + /api/pay/verifyCryptoPayment: preset $10 -> submit -> currency picker (LTC/ETH etc.) -> awaiting state shows QR panel, address (LbnAP43Ty8vvzxzTwJcocfytbCrX6GrGx4), copy button, waiting timer, refund block. Custom amount validation correct: $5 -> submit disabled + hint '$10.00 minimum'; $15 -> submit enabled with text 'Buy a $15.00 coffee'. Shop page renders hero/merchant-name/handle/stats/toolbar/sort/result-count/share-copy/back-to-page and product 'Talk to a Developer' at $100.00. Product page renders title/price/image/service-badge (no qty selector because hide_quantity)/add-to-cart/buy-now (both enabled)/trust strip/description/back-to-shop/merchant-chip. Mobile sticky-buy-bar + sticky-price render. Add to cart shows 'Added to cart. View cart ->' alert and clicking view-cart opens the MiniCart drawer (verified via screenshot; drawer shows Talk to a Developer qty 1 $100.00 subtotal $100.00 with Pay with crypto button — NOT clicked, per SAFE MODE). Navigation: creator-shop-view-all -> /devhub/shop OK; product-detail-back-to-shop -> /devhub/shop OK.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "InlineTipCheckout close button", "issue": "Spec asks for data-testid 'creator-link-inline-close' to close the inline checkout and return to widget, but this testid does NOT exist in the DOM. Only testids present after awaiting state: inline-tip-awaiting, inline-tip-fiat-line, inline-tip-address, inline-tip-copy, inline-tip-qr-panel, inline-tip-qr-svg, inline-tip-qr-toggle, inline-tip-open-wallet, inline-tip-network-warning, inline-refund-block/toggle/input, inline-tip-fallback-fullpage. A '← Change amount' link is visible on screen and likely restarts the flow, but it is missing the requested testid. Not a functional regression (the flow works), but a testability gap.", "selector": "[data-testid=\"creator-link-inline-close\"]", "priority": "LOW"},
+      {"component": "InlineTipCheckout wrapper", "issue": "data-testid 'creator-link-inline-checkout' exists in DOM (query_selector finds it) but wait_for_selector(state=visible) times out. The wrapper root likely has display:none/visibility:hidden while its children (currency picker, awaiting panel) render. Consider marking the outer wrapper visible or moving the testid to the actually-rendered container. Non-blocking.", "selector": "[data-testid=\"creator-link-inline-checkout\"]", "priority": "LOW"},
+      {"component": "Shop product card testid", "issue": "Spec references 'product card(s) rendered' — a card is visually present with title 'Talk to a Developer' and price $100.00 (confirmed), but no data-testid starting with 'product-card' was found. Cards use a different (or missing) testid prefix. Minor testability gap.", "selector": "[data-testid^=\"product-card\"]", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Shop hero (desktop 1920)", "issues": ["Merchant name 'The Dev Store' is vertically centered over the cover art bottom edge; the name and @devhub handle overlap slightly with the ASCII cover image (see shop_desktop.png). Legibility is still fine because the name is dark on a lighter overlay area, but on covers with more contrast this could clash. Consider a solid backdrop or gradient scrim behind the name row."]},
+      {"screen": "All mobile pages", "issues": ["Language bar at bottom (English/Português/Français) is expected per spec — reported informationally, not a bug."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/test_reports/creator_desktop.png",
+    "/app/test_reports/creator_mobile.png",
+    "/app/test_reports/creator_dark.png",
+    "/app/test_reports/tip_awaiting.png",
+    "/app/test_reports/shop_desktop.png",
+    "/app/test_reports/shop_mobile.png",
+    "/app/test_reports/product_cart_drawer.png",
+    "/app/test_reports/product_mobile.png"
+  ],
+  "action_items": [
+    "OPTIONAL/LOW: Add data-testid='creator-link-inline-close' to the '← Change amount' (or dedicated close) button on the inline tip checkout so QA can programmatically dismiss to the widget.",
+    "OPTIONAL/LOW: Ensure the wrapper element carrying data-testid='creator-link-inline-checkout' is visible when the checkout is active (or move the testid to the rendered child container).",
+    "OPTIONAL/LOW: Add a stable data-testid (e.g., product-card-<slug>) to the shop grid product cards."
+  ],
+  "critical_code_review_comments": [
+    "Rate-limit fix verified end-to-end: 10 consecutive /devhub loads through the preview URL all returned HTTP 200 — the previously reported 4th-8th 404 due to shared 30/min bucket no longer reproduces.",
+    "SSR + client rendering yields zero console/page errors across creator/shop/product pages in both light and dark themes, and on desktop + mobile viewports.",
+    "Mobile layouts respect the 390px viewport — no horizontal overflow anywhere.",
+    "Playwright route mocks for addPayment/verifyCryptoPayment worked as intended; awaiting UI populated with the mocked LTC address without hitting real pool allocation. SAFE MODE preserved (no 'Pay with crypto' clicked)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not tested (skipped per request)", "frontend": "100% functional, ~92% testid coverage (3 testid gaps noted)"},
+  "test_credentials": "None required — public pages",
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Preview base URL: https://f76a7948-40c4-425c-b700-24152c271b32.preview.emergentagent.com. Handle 'devhub' is a public creator with 1 product ('Talk to a Developer', slug talk-to-a-developer, $100). Always MOCK /api/pay/addPayment and /api/pay/verifyCryptoPayment* in Playwright before selecting a coin (SAFE MODE — do not reserve real pool addresses, never click 'Pay with crypto'). Inline tip close/reset button lacks the 'creator-link-inline-close' testid — use text '← Change amount' selector instead until fixed. Product card lacks a 'product-card' testid — locate by title text.",
+  "rca of the issue": "N/A — no functional bugs; only minor testability gaps (missing testids) that do not block the user flow."
+}

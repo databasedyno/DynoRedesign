@@ -709,6 +709,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
       <Box
         component="button"
         onClick={onCancel}
+        data-testid="inline-tip-change-amount"
         sx={{
           background: 'none',
           border: 'none',
