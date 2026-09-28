@@ -17,6 +17,7 @@ import { Icon, MONO } from "@/styles/uiKit";
 import TransactionStatusBadge from "@/Components/UI/TransactionStatusBadge";
 import SandboxChip from "@/Components/UI/SandboxChip";
 import { getAssetColor } from "@/helpers/assetColor";
+import { isOpenForFiatEstimate, toTxStatusBucket } from "@/helpers/txStatus";
 import { getAssetTicker } from "@/utils/networkLabels";
 import { isSyntheticCustomer } from "@/utils/txDisplay";
 import TransactionSourceBadge from "@/Components/UI/TransactionSourceBadge";
@@ -116,7 +117,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
   const displayValue = useCallback(
     (tx: ExtendedTransaction): React.ReactNode => {
       if (!tx.usdValueRaw || tx.usdValueRaw <= 0) {
-        const open = tx.status === "awaiting_payment" || tx.status === "pending" || tx.status === "processing" || tx.status === "confirmed";
+        const open = isOpenForFiatEstimate(toTxStatusBucket(tx.status));
         const est = open && tx.cryptoAmountRaw > 0 ? toUsd(tx.cryptoAmountRaw, tx.crypto) : null;
         if (est == null || est <= 0) return "—";
         return (

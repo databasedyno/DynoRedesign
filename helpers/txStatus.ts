@@ -67,3 +67,9 @@ export const isNeedsAction = (bucket: TxStatusBucket, createdAtTs: number, now =
   if (bucket !== "processing" && bucket !== "confirmed" && bucket !== "pending") return false;
   return createdAtTs > 0 && now - createdAtTs > NEEDS_ACTION_AFTER_MS;
 };
+
+
+/** Not settled yet (no locked-in fiat value) → the list may show a "≈" estimate at today's rate. */
+export const isOpenForFiatEstimate = (bucket: TxStatusBucket): boolean =>
+  bucket === "awaiting_payment" || bucket === "unpaid" || bucket === "underpaid" ||
+  bucket === "pending" || bucket === "processing" || bucket === "confirmed";
