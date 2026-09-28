@@ -1,3 +1,47 @@
+# === 2026-09-28 (fork, pt6) — SMADAV NOTIFICATION NAME + SAFEDEAL CASHOUT-FEE MODEL + ROLE-AWARE QUOTE — DONE & VERIFIED ===
+# Pod set up from encrypted vault (scripts/pod-bootstrap.sh --pass 'Katiekendra123@'; the first-tried 'Katikendra123@' was a typo).
+# Preview: https://16c830c7-de19-4f07-b1e0-2d29adca8264.preview.emergentagent.com  SAFE MODE, LIVE prod DB, backend healthy.
+#
+# TASK 1 (backend) — merchant "Payment Received" in-app notification showed the OWNER's personal name ("Your company John Davis
+#   received…") instead of the brand ("SMADAV"). FILE backend/controller/payment/settlement/chainVerification.ts (~1960-2003):
+#   added local `merchantBrandName = company_data.company_name || resolved || "your company"` and used it in the notification
+#   message + metadata company_name (was resolvePublicCompanyName(), which demotes a real brand to the owner's name when the brand
+#   equals the account-email local part — the "smadav" case). Buyer-facing customer email STILL uses the placeholder-safe resolver.
+#   Verified: backend healthy, no chainVerification errors. Cannot be triggered E2E on this pod (needs a real settlement; simulation off).
+#
+# TASK 2 (backend + frontend) — SafeDeal create-deal live quote.
+#   Product decision (user-confirmed): the cashout (withdrawal) fee is ALWAYS the SELLER's cost — deducted from sellerReceives,
+#   REMOVED from buyerPays. Escrow + network/conversion/exchange still follow the fee_payer selector. Role-aware quote + fees only
+#   from the fee-payer step.
+#   BACKEND backend/controller/escrow/escrowShared.ts (computeFeeBreakdown):
+#     - NEW frozen `feeModel` on FeeBreakdown ("v2"=cashout on seller for live quotes + NEW fundings; "v1"=legacy, used when a
+#       funded deal's stored fee_breakdown_locked has no feeModel → already-funded deals KEEP their old split). LockedCosts +
+#       lockedCostsFrom carry feeModel so dealFeeBreakdown()/settlement stay frozen per deal.
+#     - Allocation: feePayerCost = escrow+exchange+network+conversion (by fee_payer); sellerOnlyCost = withdrawal (v2). Invariant
+#       buyerPays − sellerReceives == totalCost preserved for ALL fee_payer/model combos → pool=sellerReceives & platform-retains-
+#       totalCost settlement math unchanged; old deals unaffected.
+#     - Each CostItem now has `borneBy` ("buyer"|"seller"|"split"); withdrawal_fee→"seller" in v2.
+#   FRONTEND: Components/SafeDeal/NewDealReview.tsx (QuoteBody now role-aware + `showFees` limited mode), NewDeal.tsx (role passed to
+#     QuoteBody, role-aware summary bar, feesVisible = step>=1 → step-0 quote is limited "Deal amount $50 · fees shown next step"),
+#     DealCostLine.tsx (costSentence now derives each side's cost from buyerPays/sellerReceives — model-agnostic). api/escrow.ts types
+#     (CostItem.borneBy?, FeeBreakdown.feeModel?).
+#   VERIFIED: deep_testing_backend_v2 7/7 (fee-preview: amount50 buyer→ buyerPays64/seller45/withdrawal5 borneBy seller/feeModel v2;
+#     seller→50/31; split invariant holds; amount120 & 1000 relationships hold). auto_frontend_testing_agent Priority-1 GREEN at
+#     desktop+mobile: step0 limited (data-fees=0), step1 role-aware (seller "You receive $45" / buyer "You pay $64.36"), cashout never
+#     in buyer total, no 390px overflow. tsc backend+frontend 0. Prod build rebuilt (rm -rf .next-prod && restart frontend).
+#
+# TASK 3 (frontend testing SD-01…SD-06 + Phase-2) — create-deal wizard (SD-05 area) verified via Priority-1. SD-01/02/03/04/06 could
+#   NOT be re-exercised: the prior fixtures (deal tokens bfdd8f76…, 98d9f2ba…) were PURGED → "Deal not found"; SafeDeal sign-in code
+#   entry gave the tester trouble; deals can't be funded (simulation off). SD-01…SD-06 were already VERIFIED GREEN last session. Phase-2
+#   (Telegram/chain-sync) is environment-limited on preview (bot domain invalid; no funding) — not failures. To fully re-test, create
+#   fresh *@example.com throwaway deals and clean up after.
+#
+# UNCOMMITTED. "Save to GitHub" push FAILED with a GitHub-side HTTP 500 (remote: Internal Server Error, Request ID 8040:16CF70:…) —
+#   commit fce78b0df was created locally OK; the contrast + email-dark-mode hook messages were warn-only and did NOT block. Retry Save
+#   to GitHub (transient GitHub 500); if it persists check githubstatus.com or reconnect GitHub.
+# ============================================================================================
+
+
 # === 2026-09-28 (fork, pt5) WEEKLY SUMMARY AMOUNT BUGFIX — FINISHED & VERIFIED (backend testing_agent 4/4) ===
 # Pod set up from encrypted vault (scripts/pod-bootstrap.sh --pass '<vault>'): env restored, URLs synced to
 # this pod, SAFE MODE on (bg jobs OFF), backend healthy (db+redis connected), frontend 200.
