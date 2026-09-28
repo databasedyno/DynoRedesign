@@ -1838,5 +1838,12 @@
   "developers": "Ontwikkelaars",
   "sidebarSectionSell": "Verkopen",
   "sidebarSectionMoney": "Geld",
-  "sidebarSectionGrow": "Groeien"
+  "sidebarSectionGrow": "Groeien",
+  "pwa": {
+    "installTitle": "Zet {{brand}} op je beginscherm",
+    "installBodyAndroid": "Eén tik naar je betalingen — zonder app store.",
+    "installBodyIos": "Tik in Safari op Delen en daarna op ‘Zet op beginscherm’.",
+    "install": "Installeren",
+    "dismiss": "Niet nu"
+  }
 }

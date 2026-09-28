@@ -414,7 +414,7 @@ export default function DealPage({ token }: { token: string }) {
 
       {primary && (
         <>
-          <Box sx={{ display: { xs: "block", md: "none" }, position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 30, p: 1.4, backgroundColor: "rgba(255,255,255,0.96)", backdropFilter: "blur(10px)", borderTop: "1px solid #E5E7EB", boxShadow: "0 -8px 24px rgba(15,23,42,0.08)" }} data-testid="sd-sticky-bar">
+          <Box sx={{ display: { xs: "block", md: "none" }, position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 30, p: 1.4, pb: "calc(11.2px + env(safe-area-inset-bottom, 0px))", backgroundColor: "rgba(255,255,255,0.96)", backdropFilter: "blur(10px)", borderTop: "1px solid #E5E7EB", boxShadow: "0 -8px 24px rgba(15,23,42,0.08)" }} data-testid="sd-sticky-bar">
             <Stack direction="row" spacing={1.2} alignItems="center">
               <Box sx={{ minWidth: 0, flex: 1 }}>
                 <Typography sx={{ fontSize: 11, fontWeight: 900, letterSpacing: 0.6, textTransform: "uppercase", color: SD_ACCENT }}>Your move</Typography>
@@ -425,7 +425,7 @@ export default function DealPage({ token }: { token: string }) {
               </Button>
             </Stack>
           </Box>
-          <Box sx={{ display: { xs: "block", md: "none" }, height: 76 }} aria-hidden />
+          <Box sx={{ display: { xs: "block", md: "none" }, height: "calc(76px + env(safe-area-inset-bottom, 0px))" }} aria-hidden />
         </>
       )}
 

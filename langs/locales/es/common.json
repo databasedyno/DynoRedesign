@@ -1838,5 +1838,12 @@
   "developers": "Desarrolladores",
   "sidebarSectionSell": "Vender",
   "sidebarSectionMoney": "Dinero",
-  "sidebarSectionGrow": "Crecer"
+  "sidebarSectionGrow": "Crecer",
+  "pwa": {
+    "installTitle": "Añade {{brand}} a tu pantalla de inicio",
+    "installBodyAndroid": "Un toque para tus pagos — sin tienda de apps.",
+    "installBodyIos": "En Safari, toca Compartir y luego “Añadir a pantalla de inicio”.",
+    "install": "Instalar",
+    "dismiss": "Ahora no"
+  }
 }

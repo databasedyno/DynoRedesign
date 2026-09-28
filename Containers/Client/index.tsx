@@ -9,6 +9,7 @@ import MfaGate from "@/Components/UI/MfaGate";
 import FeeFreeWelcomeModal from "@/Components/Modals/FeeFreeWelcomeModal";
 import NameGate from "@/Components/UI/NameGate";
 import FeeFreeBanner from "@/Components/UI/FeeFreeBanner";
+import InstallAppPrompt from "@/Components/UI/InstallAppPrompt";
 import Toast from "@/Components/UI/Toast";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useSidebarCollapsed } from "@/hooks/useSidebarCollapsed";
@@ -128,14 +129,15 @@ const ClientLayout = ({
         <Box
           data-testid="app-shell"
           sx={{
-            height: "100dvh",
             width: "100%",
             // Flush shell (design_guidelines 2026-06): a 64px top bar spanning
             // the full width, a 240px sidebar (72px rail) and the page on the
             // canvas — hairline borders separate the three, no floating cards.
             "--dp-sidebar-w": railed ? "72px" : "240px",
             "--dp-topbar-h": isMobile ? "56px" : "64px",
-            pt: "env(safe-area-inset-top, 0px)",
+            // The status-bar inset is padded once on <body> (globals.css); the
+            // shell just gives it back so nothing overflows in standalone mode.
+            height: "calc(100dvh - env(safe-area-inset-top, 0px))",
             display: "flex",
             overflow: "hidden",
             flexDirection: "column",
@@ -287,6 +289,7 @@ const ClientLayout = ({
                   "@media (min-width:768px)": { pb: 4 },
                 }}
               >
+                <InstallAppPrompt brand="dynopay" wrapSx={{ px: 2, pt: 1.5 }} />
                 {hasPageHeader && (
                   <MainPageHeader
                     ref={pageHeaderRef}

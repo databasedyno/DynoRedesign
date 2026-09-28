@@ -661,6 +661,14 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
         {/* ─── Viewport ─── */}
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" />
 
+        {/* ─── Mobile / PWA chrome — route- and theme-aware. theme-color tints the
+             Android address bar + the iOS standalone status bar; SafeDeal's shell
+             overrides it (same `name` → next/head dedupes) with the brand gold.
+             apple-mobile-web-app-title = the label under the home-screen icon. */}
+        <meta key="theme-color" name="theme-color" content={pathname.startsWith("/safedeal") ? "#FFC61A" : resolvedLayout === "pay" ? "#121214" : isDark ? "#0A0A0D" : "#FFFFFF"} />
+        <meta key="apple-title" name="apple-mobile-web-app-title" content={pathname.startsWith("/safedeal") ? "SafeDeal" : "Dynopay"} />
+        <meta key="app-name" name="application-name" content={pathname.startsWith("/safedeal") ? "SafeDeal" : "Dynopay"} />
+
         {/* ─── Favicon (route-aware, next/head-managed) ───
              SafeDeal (/safedeal/*) is a separate brand served by this same app, so
              it gets its own yellow/black mark in the tab, bookmarks & home-screen
@@ -674,7 +682,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
             <link key="fav-48" rel="icon" type="image/png" sizes="48x48" href="/safedeal/favicon-48.png?v=1" />
             <link key="fav-192" rel="icon" type="image/png" sizes="192x192" href="/safedeal/favicon-192.png?v=1" />
             <link key="fav-apple" rel="apple-touch-icon" sizes="180x180" href="/safedeal/apple-touch-icon.png?v=1" />
-            <link key="fav-manifest" rel="manifest" href="/safedeal/site.webmanifest?v=1" />
+            <link key="fav-manifest" rel="manifest" href="/safedeal/manifest.webmanifest" />
           </>
         ) : (
           <>

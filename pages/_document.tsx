@@ -23,10 +23,11 @@ export default function MyDocument({ emotionStyleTags, lang }: MyDocumentProps) 
             the yellow/black SafeDeal mark, every other route keeps Dynopay's coin.
             Kept out of _document because _document only renders on the initial SSR
             and cannot re-assert the icon when the SPA navigates between pages. */}
-        {/* iOS safe area and mobile optimization — viewport is set via next.config or _app */}
+        {/* iOS home-screen app: fullscreen web app (theme-color + title are route-aware in _app.tsx) */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="theme-color" content="#121214" />
+        <meta name="format-detection" content="telephone=no" />
         <link rel="alternate" type="application/rss+xml" title="Dynopay Blog" href="https://dynopay.com/blog/rss.xml" />
         {/* Poppins — display face for the Tatum-inspired marketing homepage headings. */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />

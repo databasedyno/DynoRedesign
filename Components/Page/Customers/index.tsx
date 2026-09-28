@@ -754,6 +754,7 @@ const CustomersPage: React.FC = () => {
                 borderRadius: "999px",
                 px: 1.5,
                 py: 0.6,
+                minHeight: { xs: 36, md: 0 },
                 fontSize: "12.5px",
                 fontWeight: 600,
                 ...sansSx,

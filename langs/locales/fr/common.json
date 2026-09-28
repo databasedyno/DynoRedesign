@@ -1838,5 +1838,12 @@
   "developers": "Développeurs",
   "sidebarSectionSell": "Vendre",
   "sidebarSectionMoney": "Argent",
-  "sidebarSectionGrow": "Croître"
+  "sidebarSectionGrow": "Croître",
+  "pwa": {
+    "installTitle": "Ajoutez {{brand}} à votre écran d’accueil",
+    "installBodyAndroid": "Vos paiements en un geste — sans App Store.",
+    "installBodyIos": "Dans Safari, touchez Partager puis « Sur l’écran d’accueil ».",
+    "install": "Installer",
+    "dismiss": "Pas maintenant"
+  }
 }

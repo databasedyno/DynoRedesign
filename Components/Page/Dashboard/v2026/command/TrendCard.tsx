@@ -74,7 +74,7 @@ const TrendCard: React.FC<Props> = ({ chartData, chartAssets, loading, currencyS
         <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
           <Box role="tablist" sx={{ display: "flex", gap: 0.5, p: 0.5, borderRadius: 999, backgroundColor: isDark ? "rgba(255,255,255,0.05)" : "rgba(10,10,15,0.05)" }}>
             {metrics.map((m) => (
-              <PillButton key={m.id} role="tab" aria-selected={metric === m.id} active={metric === m.id} onClick={() => setMetric(m.id)} data-testid={m.testId} sx={{ padding: "5px 12px", fontSize: 12.5 }}>
+              <PillButton key={m.id} role="tab" aria-selected={metric === m.id} active={metric === m.id} onClick={() => setMetric(m.id)} data-testid={m.testId} sx={{ padding: "5px 12px", fontSize: 12.5, minHeight: { xs: 34, md: 0 } }}>
                 {m.label}
               </PillButton>
             ))}
@@ -84,7 +84,7 @@ const TrendCard: React.FC<Props> = ({ chartData, chartAssets, loading, currencyS
             onClick={() => setShowAssets((v) => !v)}
             data-testid="trend-toggle-assets"
             aria-pressed={showAssets}
-            sx={{ padding: "5px 12px", fontSize: 12.5, display: "inline-flex", gap: 0.5, border: `1px solid ${isDark ? CB_TOKENS.border.dark : CB_TOKENS.border.light}` }}
+            sx={{ padding: "5px 12px", fontSize: 12.5, minHeight: { xs: 34, md: 0 }, display: "inline-flex", gap: 0.5, border: `1px solid ${isDark ? CB_TOKENS.border.dark : CB_TOKENS.border.light}` }}
           >
             <Icon name="coins" size={13} />
             {t("command.assetMix", { defaultValue: "Asset mix" })}

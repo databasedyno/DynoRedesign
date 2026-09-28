@@ -65,7 +65,7 @@ const LinkBtn: React.FC<{ testId: string; onClick: () => void; children: React.R
   const isDark = theme.palette.mode === "dark";
   const indigo = isDark ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light;
   return (
-    <Box component="button" type="button" data-testid={testId} onClick={onClick} disabled={busy} sx={{ all: "unset", cursor: busy ? "progress" : "pointer", display: "inline-flex", alignItems: "center", gap: 0.5, fontFamily: "var(--font-sans)", fontSize: 12.5, fontWeight: 700, color: indigo, opacity: busy ? 0.6 : 1, "&:hover": { textDecoration: "underline" } }}>
+    <Box component="button" type="button" data-testid={testId} onClick={onClick} disabled={busy} sx={{ all: "unset", cursor: busy ? "progress" : "pointer", display: "inline-flex", alignItems: "center", gap: 0.5, minHeight: { xs: 36, md: 0 }, fontFamily: "var(--font-sans)", fontSize: 12.5, fontWeight: 700, color: indigo, opacity: busy ? 0.6 : 1, "&:hover": { textDecoration: "underline" } }}>
       {icon && <Icon name={icon} size={13} />}
       {children}
     </Box>

@@ -1838,5 +1838,12 @@
   "developers": "Desenvolvedores",
   "sidebarSectionSell": "Vender",
   "sidebarSectionMoney": "Dinheiro",
-  "sidebarSectionGrow": "Crescer"
+  "sidebarSectionGrow": "Crescer",
+  "pwa": {
+    "installTitle": "Adicione o {{brand}} ao ecrã principal",
+    "installBodyAndroid": "Um toque para os seus pagamentos — sem loja de apps.",
+    "installBodyIos": "No Safari, toque em Partilhar e depois em “Adicionar ao ecrã principal”.",
+    "install": "Instalar",
+    "dismiss": "Agora não"
+  }
 }

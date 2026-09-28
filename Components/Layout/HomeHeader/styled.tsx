@@ -36,7 +36,8 @@ export const FixedHeader = styled("header")(({ theme }) => {
   const dark = theme.palette.mode === "dark";
   return {
     position: "fixed",
-    top: "var(--dyno-promo-h, 0px)",
+    // + status-bar inset so the installed (standalone) app never tucks the bar under the notch
+    top: "calc(var(--dyno-promo-h, 0px) + env(safe-area-inset-top, 0px))",
     left: 0,
     right: 0,
     // MOBILE BUG FIX (2025-07, iPhone 14 user report — "menu opened first tap
@@ -337,7 +338,7 @@ export const MenuCloseIcon = styled(CloseRoundedIcon)(({ theme }) => ({
 export const MobilePanelBackdrop = styled("div")({
   position: "fixed",
   inset: 0,
-  top: 64,
+  top: "calc(64px + env(safe-area-inset-top, 0px))",
   zIndex: 1499,
   display: "none",
   backgroundColor: "rgba(0,0,0,0.6)",
@@ -360,9 +361,9 @@ export const MobilePanelBackdrop = styled("div")({
 
 export const MobilePanel = styled("div")({
   position: "fixed",
-  top: 64,
+  top: "calc(64px + env(safe-area-inset-top, 0px))",
   right: 0,
-  height: "calc(100dvh - 64px)",
+  height: "calc(100dvh - 64px - env(safe-area-inset-top, 0px))",
   width: "100%",
   // Coinbase-style: effectively full-screen on phones, comfortable panel on
   // tablets. width:100% + this cap = full-bleed under ~420px viewports.

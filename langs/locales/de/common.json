@@ -1838,5 +1838,12 @@
   "developers": "Entwickler",
   "sidebarSectionSell": "Verkaufen",
   "sidebarSectionMoney": "Geld",
-  "sidebarSectionGrow": "Wachsen"
+  "sidebarSectionGrow": "Wachsen",
+  "pwa": {
+    "installTitle": "{{brand}} zum Home-Bildschirm hinzufügen",
+    "installBodyAndroid": "Ein Tipp zu deinen Zahlungen — ganz ohne App Store.",
+    "installBodyIos": "In Safari auf Teilen und dann „Zum Home-Bildschirm“ tippen.",
+    "install": "Installieren",
+    "dismiss": "Nicht jetzt"
+  }
 }

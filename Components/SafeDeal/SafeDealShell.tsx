@@ -8,6 +8,7 @@ import safedealApi, { isPlaceholderSdEmail } from "@/api/safedeal";
 import { useSdHref, useSdSession } from "./sdRouting";
 import SafeDealMark from "./SafeDealMark";
 import AddEmailDialog from "./AddEmailDialog";
+import InstallAppPrompt from "@/Components/UI/InstallAppPrompt";
 import {
   SD_GOLD,
   SD_GOLD_DARK,
@@ -181,7 +182,7 @@ export default function SafeDealShell({
       <Head>
         <title>{fullTitle}</title>
         <meta name="description" content={metaDescription} />
-        <meta name="theme-color" content={SD_GOLD} />
+        {/* theme-color / apple title are route-aware in _app.tsx (gold on /safedeal). */}
         {/* Canonical + OG/Twitter reuse the SAME keys as the global _app Head so
             these SafeDeal values DEDUPE-OVERRIDE the Dynopay defaults (next/head
             keeps the last-rendered tag per key; the page Head wins over _app). */}
@@ -213,15 +214,16 @@ export default function SafeDealShell({
         {/* Dialogs portal to <body>, outside this Box — set the ring var globally so they stay gold too. */}
         <style key="sd-focus-ring">{`:root{--dyno-focus-ring:${SD_GOLD};--dyno-focus-ring-shadow:0 0 0 3px rgba(255,198,26,0.35)}`}</style>
       </Head>
-      <Box component="header" sx={{ borderBottom: dark ? "1px solid rgba(255,255,255,0.08)" : "1px solid #E1E5EA", backgroundColor: dark ? "rgba(10,10,11,0.85)" : "rgba(255,255,255,0.85)", backdropFilter: "blur(12px)", position: "sticky", top: 0, zIndex: 20 }}>
+      <Box component="header" sx={{ borderBottom: dark ? "1px solid rgba(255,255,255,0.08)" : "1px solid #E1E5EA", backgroundColor: dark ? "rgba(10,10,11,0.85)" : "rgba(255,255,255,0.85)", backdropFilter: "blur(12px)", position: "sticky", top: "env(safe-area-inset-top, 0px)", zIndex: 20 }}>
         <Container maxWidth={wide ? "xl" : "lg"} sx={{ py: 1.4, display: "flex", alignItems: "center", justifyContent: "space-between", gap: { xs: 1, sm: 2 } }}>
           <Link href={href(user ? "/deals" : "/")} style={{ textDecoration: "none" }} aria-label="SafeDeal home">
             <SafeDealLogo light={dark} />
           </Link>
           <Stack component="nav" aria-label="Main" direction="row" spacing={{ xs: 1, sm: 2.5 }} alignItems="center">
             {nav.map((n) => (
-              <Link key={n.key} href={href(n.to)} data-testid={n.testid} style={{ textDecoration: "none" }} aria-current={isActive(n.key) ? "page" : undefined}>
-                <Typography component="span" sx={{ fontSize: { xs: 13, sm: 14 }, fontWeight: 700, whiteSpace: "nowrap", color: isActive(n.key) ? navActive : dark ? "rgba(255,255,255,0.8)" : "#4B4B52", "&:hover": { color: navActive }, transition: "color .15s" }}>
+              <Link key={n.key} href={href(n.to)} data-testid={n.testid} style={{ textDecoration: "none", display: "inline-flex" }} aria-current={isActive(n.key) ? "page" : undefined}>
+                {/* ≥44px tap target on phones (was a bare 26px text run) */}
+                <Typography component="span" sx={{ display: "inline-flex", alignItems: "center", minHeight: 44, px: { xs: 0.75, sm: 0.5 }, borderRadius: 2, fontSize: { xs: 13.5, sm: 14 }, fontWeight: 700, whiteSpace: "nowrap", color: isActive(n.key) ? navActive : dark ? "rgba(255,255,255,0.8)" : "#4B4B52", "&:hover": { color: navActive }, "&:active": { backgroundColor: dark ? "rgba(255,255,255,0.06)" : "rgba(18,18,20,0.05)" }, transition: "color .15s, background-color .15s" }}>
                   {n.label}
                 </Typography>
               </Link>
@@ -235,7 +237,7 @@ export default function SafeDealShell({
                     onClick={() => setAddEmailOpen(true)}
                     data-testid="sd-nav-add-email"
                     startIcon={<Icon icon="mdi:email-plus-outline" width={16} />}
-                    sx={{ textTransform: "none", fontWeight: 800, borderRadius: 99, whiteSpace: "nowrap", minWidth: 0, borderColor: SD_GOLD, color: fg, "&:hover": { borderColor: SD_GOLD_DEEP, backgroundColor: SD_GOLD_SOFT } }}
+                    sx={{ textTransform: "none", fontWeight: 800, borderRadius: 99, whiteSpace: "nowrap", minWidth: 0, minHeight: 36, borderColor: SD_GOLD, color: fg, "&:hover": { borderColor: SD_GOLD_DEEP, backgroundColor: SD_GOLD_SOFT } }}
                   >
                     Add email
                   </Button>
@@ -252,14 +254,14 @@ export default function SafeDealShell({
                     void router.push(href("/"));
                   }}
                   data-testid="sd-nav-signout"
-                  sx={{ textTransform: "none", fontWeight: 700, borderRadius: 99, whiteSpace: "nowrap", minWidth: 0, borderColor: dark ? "rgba(255,255,255,0.25)" : "#D5DAE0", color: fg, "&:hover": { borderColor: SD_GOLD_DEEP } }}
+                  sx={{ textTransform: "none", fontWeight: 700, borderRadius: 99, whiteSpace: "nowrap", minWidth: 0, minHeight: 36, px: 1.5, borderColor: dark ? "rgba(255,255,255,0.25)" : "#D5DAE0", color: fg, "&:hover": { borderColor: SD_GOLD_DEEP } }}
                 >
                   Sign out
                 </Button>
               </Stack>
             ) : ready ? (
               <Link href={href("/signin")} data-testid="sd-nav-signin" style={{ textDecoration: "none" }}>
-                <Button size="small" variant="contained" sx={{ textTransform: "none", fontWeight: 800, borderRadius: 99, px: 2, color: SD_INK, backgroundColor: SD_GOLD, "&:hover": { backgroundColor: SD_GOLD_DARK } }}>
+                <Button size="small" variant="contained" sx={{ textTransform: "none", fontWeight: 800, borderRadius: 99, px: 2, minHeight: 36, color: SD_INK, backgroundColor: SD_GOLD, "&:hover": { backgroundColor: SD_GOLD_DARK } }}>
                   Sign in
                 </Button>
               </Link>
@@ -268,7 +270,14 @@ export default function SafeDealShell({
         </Container>
       </Box>
 
-      <Box component="main" sx={{ flex: 1 }}>{children}</Box>
+      <Box component="main" sx={{ flex: 1 }}>
+        {ready && user && !dark && (
+          <Container maxWidth={wide ? "xl" : "lg"} sx={{ pt: 1.5, pb: 0, "&:empty": { display: "none" } }}>
+            <InstallAppPrompt brand="safedeal" body="Track your deals and cash out in one tap." />
+          </Container>
+        )}
+        {children}
+      </Box>
 
       <Box component="footer" sx={{ borderTop: dark ? "1px solid rgba(255,255,255,0.08)" : "1px solid #E1E5EA", py: 4, mt: 6 }} data-testid="sd-footer">
         <Container maxWidth={wide ? "xl" : "lg"}>

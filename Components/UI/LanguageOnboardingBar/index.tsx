@@ -82,7 +82,7 @@ export const LanguageOnboardingBar = () => {
   // mini-cart pill) can lift itself clear of the bar instead of being covered.
   useEffect(() => {
     const el = document.documentElement;
-    el.style.setProperty("--dp-lang-bar", visible ? "76px" : "0px");
+    el.style.setProperty("--dp-lang-bar", visible ? "calc(84px + env(safe-area-inset-bottom, 0px))" : "0px");
     return () => { el.style.setProperty("--dp-lang-bar", "0px"); };
   }, [visible]);
 
@@ -134,6 +134,8 @@ export const LanguageOnboardingBar = () => {
         gap: { xs: 1, sm: 1.5 },
         px: { xs: 1.5, sm: 3 },
         py: { xs: 1.25, sm: 1.5 },
+        // Clear the iOS home indicator / Android gesture bar
+        pb: { xs: "calc(10px + env(safe-area-inset-bottom, 0px))", sm: "calc(12px + env(safe-area-inset-bottom, 0px))" },
         bgcolor: dark ? "rgba(17,19,26,0.97)" : "rgba(255,255,255,0.98)",
         "@media (min-width: 1026px)": {
           bgcolor: dark ? "rgba(17,19,26,0.92)" : "rgba(255,255,255,0.94)",
@@ -205,6 +207,7 @@ export const LanguageOnboardingBar = () => {
               color: theme.palette.text.primary,
               px: 1.5,
               py: 0.75,
+              minHeight: 40,
               fontSize: 13,
               fontWeight: 600,
               fontFamily: "var(--font-sans)",
@@ -228,7 +231,7 @@ export const LanguageOnboardingBar = () => {
         aria-label={t("language.dismissChooser")}
         onClick={hide}
         size="small"
-        sx={{ flexShrink: 0, color: theme.palette.text.secondary }}
+        sx={{ flexShrink: 0, width: 40, height: 40, color: theme.palette.text.secondary }}
       >
         <CloseRoundedIcon sx={{ fontSize: 18 }} />
       </IconButton>

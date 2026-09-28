@@ -54,3 +54,8 @@ in the working tree only — nothing is deployed until **"Save to GitHub"** trig
 ### 5. (Spark) Reply-To on SafeDeal emails
 - Add a `replyTo` (e.g. support@safedeal.sh) so recipients can reach support instead of the no-reply
   mailbox. Extend `mailTransporter` payload with `replyTo` and set it for brand `safedeal`.
+
+## 2026-09-28 — NEXT: finish mobile/PWA rollout
+1. Rebuild prod frontend + swap `.next-prod` (PRD "State of the build").
+2. `node scripts/qa/mobile_pwa_check.mjs --base=<preview>`; fix any FAIL.
+3. testing_agent frontend pass on phone viewports; then purge SafeDeal test identities.

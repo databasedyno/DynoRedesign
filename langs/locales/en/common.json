@@ -1838,5 +1838,12 @@
   "developers": "Developers",
   "sidebarSectionSell": "Sell",
   "sidebarSectionMoney": "Money",
-  "sidebarSectionGrow": "Grow"
+  "sidebarSectionGrow": "Grow",
+  "pwa": {
+    "installTitle": "Add {{brand}} to your Home Screen",
+    "installBodyAndroid": "One tap to your payments — no app store needed.",
+    "installBodyIos": "In Safari, tap Share, then “Add to Home Screen”.",
+    "install": "Install",
+    "dismiss": "Not now"
+  }
 }

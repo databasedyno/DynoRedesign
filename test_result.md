@@ -11695,3 +11695,8 @@ Test Data Cleaned: Attempted (deletion blocked by OTP requirement)
 #   - All acceptance criteria met
 # ============================================================================
 
+
+## 2026-09-28 — Mobile (iOS/Android) optimisation: PWA + touch/safe-area (session ended early by user — NOT agent-tested yet)
+- Built: host-aware SafeDeal manifest page, enriched Dynopay manifest (shortcuts/maskable/scope), route+theme-aware theme-color + apple titles, InstallAppPrompt (Dynopay dashboard + SafeDeal signed-in; iOS hint / Android native prompt; 2nd visit; 30-day snooze), 44px touch hit-areas (pointer:coarse), safe-area fixes (lang bar, SafeDeal sticky bar, shell double inset, fixed headers), SafeDeal nav/tab tap targets, i18n common.pwa.* ×6.
+- Verified by curl only: manifests (both hosts), maskable icon, SSR theme-color/titles. tsc clean.
+- TODO next agent: rebuild prod (`.next-prod`, see PRD "State of the build"), run `node scripts/qa/mobile_pwa_check.mjs --base=<preview>` then testing_agent (frontend, phone viewports 390/360: dashboard, transactions, safedeal/deals, /fees lang bar, /pay/demo). Test creds: onarrival21@gmail.com / Katiekendra123@ + TOTP `node backend/scripts/print_totp.cjs 1`; seed localStorage dp_pwa:visits=2 / sd_pwa:visits=2 to force the install banner.
