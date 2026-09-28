@@ -2165,3 +2165,8 @@ User approved scope (a): ALL customer-facing UI (auth, checkout, landing, chrome
 - Fixed: public creator/shop/product pages intermittently 404'd — SSR self-fetches were rate-limited as one IP (127.0.0.1, 30/min). SSR now forwards visitor IP (helpers/ssrFetchHeaders.ts); public read GETs use publicReadRateLimiter (120/min).
 - Verified redesigned CreatorProfile / SupportWidget+InlineTipCheckout / ShopHero+ProductCard+ShopToolbar / product detail page via testing_agent (iteration_238, all pass, desktop+mobile+dark).
 - Added data-testid inline-tip-change-amount.
+
+## 2026-09-28 (pt10b) — Donation campaign public page redesigned; interpolation + medal-overlap bugs fixed
+- Rewrote Components/Page/Pay3Components/donationCampaign.tsx + campaign/* (hero cover, glass cards, accent-driven progress, sticky donate box, 2-col trust cards). Merchant accent now returned by getData (merchant.accent_color).
+- Fixed `${organizer}`-style placeholders in 6 locale files → `{{organizer}}`/`{{amount}}`/`{{currency}}`/`{{minutes}}`; DonorWallV2 medal moved inline; story markdown decodes xss-escaped entities.
+- Verified via testing_agent iteration_239 (100%) on /pay?d=zEJtCe (QA campaign, link 611) + /pay/donation-demo.

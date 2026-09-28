@@ -1,3 +1,5 @@
+## 2026-09-28 (pt10b) — Donation page QA fixture: /pay?d=zEJtCe = throwaway campaign link 611 (The Dev Store, min $10, presets 25/50/100). Donate creates a pending child contribution link each time (expected) — ALWAYS mock **/api/pay/addPayment + **/api/pay/verifyCryptoPayment* before picking a coin. Prod-created campaigns (e.g. d=AGlM2I) show 'expired' on this pod (prod Redis ≠ pod Redis) — not a bug. Sandbox demo: /pay/donation-demo (toggles demo-scenario-campaign/endingsoon/nogoal/closed).
+
 ## 2026-09-28 (fork, pt10) — CURRENT POD URL (supersedes ALL lines below)
 ## - LIVE preview URL for THIS pod = https://f76a7948-40c4-425c-b700-24152c271b32.preview.emergentagent.com (= SERVER_URL in /app/backend/.env). Public pages: /devhub, /devhub/shop, /devhub/p/talk-to-a-developer. Inline tip QA: mock **/api/pay/addPayment → {success:true,data:{address:'LbnAP43Ty8vvzxzTwJcocfytbCrX6GrGx4',qr_code:'',remaining_minutes:30,transaction_id:'qa-mock'}} + **/api/pay/verifyCryptoPayment* → {success:true,data:{status:'waiting',remaining_seconds:1790}}; coin tiles inline-tip-currency-<CODE>, back = inline-tip-change-amount.
 

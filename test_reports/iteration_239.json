@@ -1,0 +1,96 @@
+{
+  "summary": "Full frontend QA of the redesigned donation/crowdfunding page — real campaign /pay?d=zEJtCe (The Dev Store) + sandbox /pay/donation-demo. Verified all requested testids, bug fixes (interpolation + supporter-wall medal/amount overlap), form validation, donate→checkout hand-off with mocked APIs, mobile layout, dark mode, and all 4 sandbox scenarios. Everything passes with zero console/page errors.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verified_flows": {
+    "real_campaign_desktop": {
+      "title": "QA · Open-source dev tooling fund",
+      "all_testids_present": true,
+      "missing_testids": [],
+      "organizer": "The Dev Store",
+      "category": "community",
+      "beneficiary": "The Dev Store OSS collective",
+      "raised": "$0.00",
+      "percent": "0% funded",
+      "togo": "$5,000.00",
+      "story_markdown_h2_ul_blockquote": true,
+      "story_no_literal_gt": true,
+      "console_errors": 0,
+      "page_errors": 0
+    },
+    "bug_fix_1_interpolation": {
+      "fund_handling_body": "Your gift goes directly to The Dev Store. Depending on their settings it's received as crypto or automatically converted to a stablecoin. DynoPay only processes the payment — it never holds or invests your donation.",
+      "contains_dollar_brace": false,
+      "faq_refund_mentions_org": true,
+      "faq_contact_mentions_org": true,
+      "faq_minimum_amount": "$10.00",
+      "demo_organizer_riverside": true,
+      "demo_min_amount": "$5.00"
+    },
+    "form_validation": {
+      "initial_disabled": true,
+      "preset_25_enabled_text": "Donate $25.00",
+      "amount_5_disabled": true,
+      "hint_after_5": "Minimum $10.00",
+      "amount_15_enabled_text": "Donate $15.00",
+      "invalid_email_error": "Please enter a valid email address, or leave it blank.",
+      "no_navigation_on_invalid_email": true
+    },
+    "checkout_handoff": {
+      "startDonation_status": 200,
+      "url_before": "/pay?d=zEJtCe",
+      "url_after": "/pay?d=hnKv05",
+      "new_child_ref": "hnKv05",
+      "campaign_card_disappeared": true,
+      "amount_shown": "$25.00 USD",
+      "coin_selection_ui": "Network chips (Polygon/Ethereum/Tron) + 'Continue with USDT on Polygon' button (no clean-checkout-coin-ETH testid — different UI)",
+      "waiting_state_rendered": true,
+      "mocked_address_visible": "LbnAP43Ty8vvzxzTwJcocfytbCrX6GrGx4"
+    },
+    "mobile_390": {
+      "scrollWidth": 390,
+      "no_horizontal_overflow": true,
+      "sticky_cta_visible": true,
+      "sticky_donate_btn_visible": true,
+      "sticky_amount_visible": true,
+      "stat_tiles_side_by_side": true,
+      "stat_tiles_same_top_y": 696.5,
+      "form_before_story": true,
+      "sticky_click_no_crash": true
+    },
+    "sandbox_demo": {
+      "campaign": {
+        "wall_rows": 5,
+        "amara_amount": "$250.00",
+        "medal_amount_intersect_row0": false,
+        "medal_amount_intersect_row1": false,
+        "medal_amount_intersect_row3": false
+      },
+      "endingSoon": {"urgency_banner": true, "countdown_pill": true},
+      "nogoal": {"raised_nogoal": true, "no_progress_bar": true},
+      "closed": {"banner_text": "Goal reached — thank you!", "form_hidden": true}
+    },
+    "dark_mode": {
+      "real_page_loaded": true,
+      "demo_page_loaded": true,
+      "console_errors": 0,
+      "title_visible": true,
+      "text_legible": true
+    }
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Coin selection UI on checkout no longer exposes per-coin testids like 'clean-checkout-coin-ETH' as stated in the review request. The current checkout renders a coin dropdown + network chips + single 'Continue with USDT on Polygon' button. Not a bug — flagging so testids in future specs align with current UI (or add data-testid on each network chip like 'clean-checkout-network-Polygon' / on the continue button 'clean-checkout-continue-btn')."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped)", "frontend": "100%"},
+  "seed_data_creation": "Donate click on QA campaign created 1 expected pending child link: new ref = hnKv05 (link_id ~= 612). All /api/pay/addPayment and verifyCryptoPayment calls were mocked — no real pool address was reserved.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Donation page redesign fully verified. If retesting, use route mocks for /api/pay/addPayment and /api/pay/verifyCryptoPayment* before clicking donate on zEJtCe to avoid reserving real addresses. Every donate click creates a new child link (ref rotates) — that is expected."
+}
