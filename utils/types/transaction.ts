@@ -37,6 +37,8 @@ export interface TransactionSource {
   parent_link_id: number | null;
   order_id: number | null;
   order_ref: string | null;
+  /** ISO timestamp of when the originating payment link was created (null if not link-backed). */
+  link_created_at?: string | null;
 }
 
 /** Auto-convert (Binance) payout details, mirrored from the API `auto_convert` object. */

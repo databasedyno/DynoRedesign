@@ -72,6 +72,8 @@ export interface TxSourceInput {
   source_parent_link_id?: string | number | null;
   source_parent_title?: string | null;
   source_parent_is_tip_jar?: boolean | number | null;
+  /** When the originating payment link was created (tbl_payment_link.createdAt). */
+  source_link_created_at?: string | Date | null;
   /** Customer email — used ONLY as the fallback signal for API payments. */
   customer_email?: string | null;
 }
@@ -85,6 +87,8 @@ export interface TxSource {
   parent_link_id: number | null;
   order_id: number | null;
   order_ref: string | null;
+  /** ISO timestamp of when the originating payment link was created (null if not link-backed). */
+  link_created_at: string | null;
 }
 
 /**
@@ -157,6 +161,7 @@ export const resolveTransactionSource = (input: TxSourceInput): TxSource => {
     source_parent_link_id,
     source_parent_title,
     source_parent_is_tip_jar,
+    source_link_created_at,
     customer_email,
   } = input;
 
@@ -213,6 +218,11 @@ export const resolveTransactionSource = (input: TxSourceInput): TxSource => {
     parent_link_id: source_parent_link_id ? Number(source_parent_link_id) : null,
     order_id: source_order_id ? Number(source_order_id) : null,
     order_ref: source_order_ref ? String(source_order_ref) : null,
+    link_created_at: (() => {
+      if (!source_link_created_at) return null;
+      const d = new Date(source_link_created_at as string | Date);
+      return isNaN(d.getTime()) ? null : d.toISOString();
+    })(),
   };
 };
 

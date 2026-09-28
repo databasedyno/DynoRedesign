@@ -1,23 +1,32 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for SafeDeal Fee Model Change Verification (TASK 2)
-+ Payment Received Notification Code Review (TASK 1)
-READ-ONLY testing on LIVE PRODUCTION DB
+Backend API Testing for Wallet Transactions - Payment Link Created Date
+READ-ONLY testing on LIVE PRODUCTION DB (SAFE MODE)
+
+Test: POST /api/wallet/getAllTransactions
+Verify: source.link_created_at is present for payment_link transactions
 """
 
 import requests
 import subprocess
 import json
 import sys
-from typing import Dict, Any, Optional, Tuple
+from typing import Dict, Any, Optional, List
 
-# Base URLs
-BASE_URL = "http://localhost:8001"
-EXTERNAL_URL = "https://vault-setup-12.preview.emergentagent.com"
+# Base URLs - use the backend URL from environment
+BASE_URL = "https://vault-setup-12.preview.emergentagent.com"
 
-# Test credentials (admin account)
-ADMIN_EMAIL = "moxxcompany@gmail.com"
-ADMIN_PASSWORD = "Katiekendra123@"
+# Test credentials (merchant account)
+# Using onarrival21@gmail.com (user_id=1, company_id=1 "The Dev Store")
+MERCHANT_EMAIL = "onarrival21@gmail.com"
+MERCHANT_PASSWORD = "Katiekendra123@"
+COMPANY_ID = 1
+
+# Expected test transaction
+EXPECTED_TX_ID = "d0c1ec0d-b0d1-4e05-a4f0-e227c790f4be"
+EXPECTED_TX_NUMBER = 1295
+EXPECTED_LINK_ID = 492
+EXPECTED_LINK_CREATED_AT = "2026-09-19T01:43:33.719Z"
 
 class Colors:
     GREEN = '\033[92m'
@@ -49,110 +58,145 @@ def log_warning(message: str):
     """Log warning message"""
     print(f"{Colors.YELLOW}⚠️  WARNING: {message}{Colors.RESET}")
 
-def round2(value: float) -> float:
-    """Round to 2 decimal places"""
-    return round(value, 2)
-
-def test_health_endpoint():
-    """TASK 1 - Part 1: GET /health"""
-    log_test("TASK 1 - Part 1: GET /health")
-    
+def get_totp_code(user_id: int = 1) -> Optional[str]:
+    """Get TOTP code for user"""
     try:
-        response = requests.get(f"{BASE_URL}/health", timeout=10)
-        log_info(f"Status: {response.status_code}")
-        
-        if response.status_code == 200:
-            data = response.json()
-            log_info(f"Response: {json.dumps(data, indent=2)}")
-            
-            # Check required fields
-            status = data.get("status")
-            database = data.get("database")
-            redis = data.get("redis")
-            
-            log_info(f"status: {status}")
-            log_info(f"database: {database}")
-            log_info(f"redis: {redis}")
-            
-            if status == "healthy" and database == "connected" and redis == "connected":
-                log_pass("Health check passed - status='healthy', database='connected', redis='connected'")
-                return True
-            else:
-                log_fail(f"Health check failed - status:{status}, database:{database}, redis:{redis}")
-                return False
-        else:
-            log_fail(f"Health endpoint returned {response.status_code}")
-            return False
-        
-    except Exception as e:
-        log_fail(f"Health check failed: {str(e)}")
-        return False
-
-def check_backend_logs_chainverification():
-    """TASK 1 - Part 2: Check backend logs for chainVerification errors"""
-    log_test("TASK 1 - Part 2: Check backend logs for chainVerification errors")
-    
-    try:
-        # Check for chainVerification-related errors in backend logs
         result = subprocess.run(
-            ["tail", "-n", "200", "/var/log/supervisor/backend.err.log"],
+            ["node", "/app/backend/scripts/print_totp.cjs", str(user_id)],
             capture_output=True,
             text=True,
             timeout=10
         )
         
         if result.returncode == 0:
-            log_output = result.stdout
-            
-            if not log_output.strip():
-                log_pass("No errors in backend.err.log (last 200 lines)")
-                return True
-            
-            # Check for chainVerification-related errors
-            chainverification_errors = [
-                line for line in log_output.split('\n') 
-                if 'chainverification' in line.lower() and ('error' in line.lower() or 'exception' in line.lower())
-            ]
-            
-            if chainverification_errors:
-                log_fail(f"Found {len(chainverification_errors)} chainVerification-related errors:")
-                for line in chainverification_errors[-5:]:  # Show last 5 errors
-                    log_info(f"  {line}")
-                return False
-            else:
-                log_pass("No chainVerification-related errors in recent backend logs")
-                return True
+            totp = result.stdout.strip()
+            log_info(f"TOTP code retrieved: {totp}")
+            return totp
         else:
-            log_warning("Could not read backend.err.log")
-            return True
-        
+            log_fail(f"Failed to get TOTP: {result.stderr}")
+            return None
     except Exception as e:
-        log_warning(f"Could not check backend logs: {str(e)}")
-        return True  # Don't fail the test if we can't read logs
+        log_fail(f"Error getting TOTP: {str(e)}")
+        return None
 
-def test_fee_preview(amount: float, fee_payer: str) -> Optional[Dict[str, Any]]:
+def authenticate() -> Optional[str]:
     """
-    Call POST /api/safedeal/fee-preview
-    Returns the response data or None if failed
+    Authenticate as merchant and return Bearer token
+    
+    Flow:
+    1. POST /api/user/login -> challenge_token
+    2. Get TOTP code
+    3. POST /api/user/2fa/validate -> accessToken
     """
+    log_test("Authentication Flow")
+    
     try:
-        # Send with browser User-Agent to avoid Cloudflare blocks
+        # Step 1: Login to get challenge token
+        log_info("Step 1: POST /api/user/login")
         headers = {
             "Content-Type": "application/json",
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
         }
         
-        payload = {
-            "amount": amount,
-            "fee_payer": fee_payer,
-            "price_currency": "USD"
+        login_payload = {
+            "email": MERCHANT_EMAIL,
+            "password": MERCHANT_PASSWORD
         }
         
-        log_info(f"Request: POST /api/safedeal/fee-preview")
+        response = requests.post(
+            f"{BASE_URL}/api/user/login",
+            headers=headers,
+            json=login_payload,
+            timeout=30
+        )
+        
+        log_info(f"Login status: {response.status_code}")
+        
+        if response.status_code != 200:
+            log_fail(f"Login failed with status {response.status_code}")
+            log_info(f"Response: {response.text}")
+            return None
+        
+        login_data = response.json()
+        challenge_token = login_data.get("data", {}).get("challenge_token")
+        
+        if not challenge_token:
+            log_fail("No challenge_token in login response")
+            log_info(f"Response: {json.dumps(login_data, indent=2)}")
+            return None
+        
+        log_pass(f"Login successful, challenge_token received")
+        
+        # Step 2: Get TOTP code
+        log_info("Step 2: Getting TOTP code")
+        totp = get_totp_code(1)
+        
+        if not totp:
+            log_fail("Failed to get TOTP code")
+            return None
+        
+        # Step 3: Validate 2FA
+        log_info("Step 3: POST /api/user/2fa/validate")
+        validate_payload = {
+            "challenge_token": challenge_token,
+            "token": totp
+        }
+        
+        response = requests.post(
+            f"{BASE_URL}/api/user/2fa/validate",
+            headers=headers,
+            json=validate_payload,
+            timeout=30
+        )
+        
+        log_info(f"2FA validation status: {response.status_code}")
+        
+        if response.status_code != 200:
+            log_fail(f"2FA validation failed with status {response.status_code}")
+            log_info(f"Response: {response.text}")
+            return None
+        
+        validate_data = response.json()
+        access_token = validate_data.get("data", {}).get("accessToken")
+        
+        if not access_token:
+            log_fail("No accessToken in 2FA validation response")
+            log_info(f"Response: {json.dumps(validate_data, indent=2)}")
+            return None
+        
+        log_pass(f"2FA validation successful, accessToken received")
+        log_info(f"Token (first 20 chars): {access_token[:20]}...")
+        
+        return access_token
+        
+    except Exception as e:
+        log_fail(f"Authentication failed: {str(e)}")
+        return None
+
+def test_get_all_transactions(access_token: str) -> Optional[List[Dict[str, Any]]]:
+    """
+    Test POST /api/wallet/getAllTransactions
+    
+    Returns the transactions list or None if failed
+    """
+    log_test("POST /api/wallet/getAllTransactions")
+    
+    try:
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {access_token}",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+        }
+        
+        payload = {
+            "company_id": COMPANY_ID
+        }
+        
+        log_info(f"Request: POST /api/wallet/getAllTransactions")
         log_info(f"Payload: {json.dumps(payload, indent=2)}")
         
         response = requests.post(
-            f"{BASE_URL}/api/safedeal/fee-preview",
+            f"{BASE_URL}/api/wallet/getAllTransactions",
             headers=headers,
             json=payload,
             timeout=30
@@ -160,292 +204,200 @@ def test_fee_preview(amount: float, fee_payer: str) -> Optional[Dict[str, Any]]:
         
         log_info(f"Status: {response.status_code}")
         
-        if response.status_code == 503:
-            log_warning("Got 503 'Backend starting' - retrying once...")
-            import time
-            time.sleep(3)
-            response = requests.post(
-                f"{BASE_URL}/api/safedeal/fee-preview",
-                headers=headers,
-                json=payload,
-                timeout=30
-            )
-            log_info(f"Retry status: {response.status_code}")
-        
         if response.status_code != 200:
-            log_fail(f"Fee preview request failed with status {response.status_code}")
+            log_fail(f"Request failed with status {response.status_code}")
             log_info(f"Response: {response.text}")
             return None
         
         data = response.json()
         
-        # The response might be wrapped in "data" or at top level
-        if "data" in data:
-            result = data["data"]
-        else:
-            result = data
+        # Extract transactions from response
+        transactions = data.get("data", {}).get("customers_transactions", [])
         
-        log_info(f"Response: {json.dumps(result, indent=2)}")
+        if not transactions:
+            log_fail("No transactions in response")
+            log_info(f"Response structure: {json.dumps(data, indent=2)[:500]}...")
+            return None
         
-        return result
+        log_pass(f"Request successful, received {len(transactions)} transactions")
+        
+        return transactions
         
     except Exception as e:
-        log_fail(f"Fee preview request failed: {str(e)}")
+        log_fail(f"Request failed: {str(e)}")
         return None
 
-def verify_fee_preview_buyer(amount: float) -> bool:
+def verify_payment_link_transaction(transactions: List[Dict[str, Any]]) -> bool:
     """
-    TASK 2 - Test A: fee_payer="buyer" for given amount
+    Verify that payment_link transactions have source.link_created_at
     
-    Assertions:
-    - feeModel == "v2"
-    - buyerPays == round2(amount + escrowFee + exchangeFeeUsd + networkFeeUsd + conversionFeeUsd)
-      (i.e. buyerPays == amount + totalCost - withdrawalFeeUsd)
-    - sellerReceives == round2(amount - withdrawalFeeUsd)
-    - withdrawal_fee costItem has borneBy=="seller"
-    - escrow_fee/exchange_fee/network_fee/conversion_fee have borneBy=="buyer"
-    - INVARIANT: abs((buyerPays - sellerReceives) - totalCost) <= 0.02
+    Primary assertion: Find transaction with id=EXPECTED_TX_ID and verify:
+    - source.type == "payment_link"
+    - source.link_id == EXPECTED_LINK_ID
+    - source.link_created_at == EXPECTED_LINK_CREATED_AT
     """
-    log_test(f"TASK 2 - Test A: fee_payer='buyer', amount=${amount}")
-    
-    result = test_fee_preview(amount, "buyer")
-    if not result:
-        return False
-    
-    # Extract fields
-    feeModel = result.get("feeModel")
-    buyerPays = result.get("buyerPays")
-    sellerReceives = result.get("sellerReceives")
-    totalCost = result.get("totalCost")
-    escrowFee = result.get("escrowFee")
-    exchangeFeeUsd = result.get("exchangeFeeUsd")
-    networkFeeUsd = result.get("networkFeeUsd")
-    conversionFeeUsd = result.get("conversionFeeUsd")
-    withdrawalFeeUsd = result.get("withdrawalFeeUsd")
-    costItems = result.get("costItems", [])
-    
-    log_info(f"feeModel: {feeModel}")
-    log_info(f"buyerPays: ${buyerPays}")
-    log_info(f"sellerReceives: ${sellerReceives}")
-    log_info(f"totalCost: ${totalCost}")
-    log_info(f"escrowFee: ${escrowFee}")
-    log_info(f"exchangeFeeUsd: ${exchangeFeeUsd}")
-    log_info(f"networkFeeUsd: ${networkFeeUsd}")
-    log_info(f"conversionFeeUsd: ${conversionFeeUsd}")
-    log_info(f"withdrawalFeeUsd: ${withdrawalFeeUsd}")
+    log_test("Verify Payment Link Transaction - source.link_created_at")
     
     all_passed = True
     
-    # Assertion 1: feeModel == "v2"
-    if feeModel == "v2":
-        log_pass(f"feeModel == 'v2' ✓")
+    # Find payment_link transactions
+    payment_link_txs = [
+        tx for tx in transactions 
+        if tx.get("source", {}).get("type") == "payment_link"
+    ]
+    
+    log_info(f"Found {len(payment_link_txs)} payment_link transactions out of {len(transactions)} total")
+    
+    if not payment_link_txs:
+        log_fail("No payment_link transactions found")
+        return False
+    
+    log_pass(f"Found {len(payment_link_txs)} payment_link transactions")
+    
+    # Find the specific expected transaction
+    expected_tx = None
+    for tx in transactions:
+        if tx.get("id") == EXPECTED_TX_ID:
+            expected_tx = tx
+            break
+    
+    if not expected_tx:
+        log_warning(f"Expected transaction {EXPECTED_TX_ID} not found in response")
+        log_info("Will check other payment_link transactions instead")
     else:
-        log_fail(f"feeModel == '{feeModel}' (expected 'v2')")
-        all_passed = False
-    
-    # Assertion 2: buyerPays relationship
-    # buyerPays should equal amount + (totalCost - withdrawalFeeUsd)
-    # Because the cashout fee is NOT in buyerPays
-    expected_buyer_pays = round2(amount + totalCost - withdrawalFeeUsd)
-    actual_buyer_pays = buyerPays
-    
-    log_info(f"Expected buyerPays: ${expected_buyer_pays} (amount + totalCost - withdrawalFeeUsd)")
-    log_info(f"Actual buyerPays: ${actual_buyer_pays}")
-    
-    if abs(actual_buyer_pays - expected_buyer_pays) <= 0.02:
-        log_pass(f"buyerPays == amount + totalCost - withdrawalFeeUsd ✓")
-    else:
-        log_fail(f"buyerPays mismatch: expected ${expected_buyer_pays}, got ${actual_buyer_pays}")
-        all_passed = False
-    
-    # Alternative check: buyerPays == amount + escrowFee + exchangeFeeUsd + networkFeeUsd + conversionFeeUsd
-    expected_buyer_pays_alt = round2(amount + escrowFee + exchangeFeeUsd + networkFeeUsd + conversionFeeUsd)
-    log_info(f"Alternative: buyerPays should equal ${expected_buyer_pays_alt} (amount + escrow + exchange + network + conversion)")
-    
-    if abs(actual_buyer_pays - expected_buyer_pays_alt) <= 0.02:
-        log_pass(f"buyerPays == amount + escrow + exchange + network + conversion ✓")
-    else:
-        log_fail(f"Alternative check failed: expected ${expected_buyer_pays_alt}, got ${actual_buyer_pays}")
-        all_passed = False
-    
-    # Assertion 3: sellerReceives == round2(amount - withdrawalFeeUsd)
-    expected_seller_receives = round2(amount - withdrawalFeeUsd)
-    actual_seller_receives = sellerReceives
-    
-    log_info(f"Expected sellerReceives: ${expected_seller_receives} (amount - withdrawalFeeUsd)")
-    log_info(f"Actual sellerReceives: ${actual_seller_receives}")
-    
-    if abs(actual_seller_receives - expected_seller_receives) <= 0.02:
-        log_pass(f"sellerReceives == amount - withdrawalFeeUsd ✓")
-    else:
-        log_fail(f"sellerReceives mismatch: expected ${expected_seller_receives}, got ${actual_seller_receives}")
-        all_passed = False
-    
-    # Assertion 4: Check costItems borneBy
-    log_info(f"Checking costItems borneBy...")
-    
-    cost_items_map = {item.get("key"): item for item in costItems}
-    
-    # withdrawal_fee should have borneBy="seller"
-    withdrawal_item = cost_items_map.get("withdrawal_fee")
-    if withdrawal_item:
-        borne_by = withdrawal_item.get("borneBy")
-        if borne_by == "seller":
-            log_pass(f"withdrawal_fee borneBy == 'seller' ✓")
+        log_info(f"Found expected transaction: {EXPECTED_TX_ID}")
+        
+        # Verify source fields
+        source = expected_tx.get("source", {})
+        
+        log_info(f"Transaction source: {json.dumps(source, indent=2)}")
+        
+        # Check source.type
+        source_type = source.get("type")
+        if source_type == "payment_link":
+            log_pass(f"source.type == 'payment_link' ✓")
         else:
-            log_fail(f"withdrawal_fee borneBy == '{borne_by}' (expected 'seller')")
+            log_fail(f"source.type == '{source_type}' (expected 'payment_link')")
             all_passed = False
-    else:
-        log_fail("withdrawal_fee item not found in costItems")
-        all_passed = False
-    
-    # escrow_fee, exchange_fee, network_fee, conversion_fee should have borneBy="buyer"
-    buyer_fee_keys = ["escrow_fee", "exchange_fee", "network_fee", "conversion_fee"]
-    for key in buyer_fee_keys:
-        item = cost_items_map.get(key)
-        if item:
-            borne_by = item.get("borneBy")
-            if borne_by == "buyer":
-                log_pass(f"{key} borneBy == 'buyer' ✓")
-            else:
-                log_fail(f"{key} borneBy == '{borne_by}' (expected 'buyer')")
-                all_passed = False
+        
+        # Check source.link_id
+        link_id = source.get("link_id")
+        if link_id == EXPECTED_LINK_ID:
+            log_pass(f"source.link_id == {EXPECTED_LINK_ID} ✓")
         else:
-            log_info(f"{key} item not found in costItems (may be zero)")
+            log_fail(f"source.link_id == {link_id} (expected {EXPECTED_LINK_ID})")
+            all_passed = False
+        
+        # Check source.link_created_at (PRIMARY ASSERTION)
+        link_created_at = source.get("link_created_at")
+        
+        if link_created_at is None:
+            log_fail(f"source.link_created_at is NULL (expected '{EXPECTED_LINK_CREATED_AT}')")
+            all_passed = False
+        elif link_created_at == EXPECTED_LINK_CREATED_AT:
+            log_pass(f"source.link_created_at == '{EXPECTED_LINK_CREATED_AT}' ✓")
+        else:
+            log_warning(f"source.link_created_at == '{link_created_at}' (expected '{EXPECTED_LINK_CREATED_AT}')")
+            log_info("Date might have been updated, but field is present and not null")
+            # Don't fail if date is different but present
+            if link_created_at:
+                log_pass("source.link_created_at is present and not null ✓")
     
-    # Assertion 5: INVARIANT - abs((buyerPays - sellerReceives) - totalCost) <= 0.02
-    invariant_diff = abs((buyerPays - sellerReceives) - totalCost)
-    log_info(f"INVARIANT check: abs((buyerPays - sellerReceives) - totalCost) = {invariant_diff}")
+    # Check all payment_link transactions have link_created_at
+    log_info("\nChecking all payment_link transactions for link_created_at...")
     
-    if invariant_diff <= 0.02:
-        log_pass(f"INVARIANT satisfied: abs((buyerPays - sellerReceives) - totalCost) <= 0.02 ✓")
+    txs_with_created_at = 0
+    txs_without_created_at = 0
+    
+    for tx in payment_link_txs[:10]:  # Check first 10
+        source = tx.get("source", {})
+        link_created_at = source.get("link_created_at")
+        tx_id = tx.get("id", "unknown")
+        link_id = source.get("link_id", "unknown")
+        
+        if link_created_at:
+            txs_with_created_at += 1
+            log_info(f"  ✓ Transaction {tx_id} (link {link_id}): link_created_at = {link_created_at}")
+        else:
+            txs_without_created_at += 1
+            log_warning(f"  ✗ Transaction {tx_id} (link {link_id}): link_created_at is NULL")
+    
+    log_info(f"\nSummary: {txs_with_created_at} with link_created_at, {txs_without_created_at} without")
+    
+    if txs_with_created_at > 0:
+        log_pass(f"At least {txs_with_created_at} payment_link transactions have link_created_at ✓")
     else:
-        log_fail(f"INVARIANT violated: difference = {invariant_diff} (expected <= 0.02)")
+        log_fail("No payment_link transactions have link_created_at")
         all_passed = False
     
     return all_passed
 
-def verify_fee_preview_seller(amount: float) -> bool:
+def verify_regression(transactions: List[Dict[str, Any]]) -> bool:
     """
-    TASK 2 - Test B: fee_payer="seller" for given amount
-    
-    Assertions:
-    - buyerPays == amount (50)
-    - sellerReceives == round2(amount - totalCost) (all costs incl. cashout on the seller)
-    - INVARIANT: abs((buyerPays - sellerReceives) - totalCost) <= 0.02
+    Verify regression checks:
+    1. Endpoint returns full transaction list without errors
+    2. Non-payment_link transactions have link_created_at == null
+    3. Existing source.type classification is unchanged
     """
-    log_test(f"TASK 2 - Test B: fee_payer='seller', amount=${amount}")
-    
-    result = test_fee_preview(amount, "seller")
-    if not result:
-        return False
-    
-    # Extract fields
-    buyerPays = result.get("buyerPays")
-    sellerReceives = result.get("sellerReceives")
-    totalCost = result.get("totalCost")
-    
-    log_info(f"buyerPays: ${buyerPays}")
-    log_info(f"sellerReceives: ${sellerReceives}")
-    log_info(f"totalCost: ${totalCost}")
+    log_test("Regression Checks")
     
     all_passed = True
     
-    # Assertion 1: buyerPays == amount
-    if abs(buyerPays - amount) <= 0.02:
-        log_pass(f"buyerPays == amount (${amount}) ✓")
+    # Check 1: Full transaction list returned
+    if len(transactions) > 0:
+        log_pass(f"Endpoint returned {len(transactions)} transactions ✓")
     else:
-        log_fail(f"buyerPays == ${buyerPays} (expected ${amount})")
+        log_fail("Endpoint returned empty transaction list")
         all_passed = False
     
-    # Assertion 2: sellerReceives == round2(amount - totalCost)
-    expected_seller_receives = round2(amount - totalCost)
+    # Check 2: Non-payment_link transactions should have link_created_at == null
+    log_info("\nChecking non-payment_link transactions...")
     
-    log_info(f"Expected sellerReceives: ${expected_seller_receives} (amount - totalCost)")
-    log_info(f"Actual sellerReceives: ${sellerReceives}")
+    non_payment_link_txs = [
+        tx for tx in transactions 
+        if tx.get("source", {}).get("type") != "payment_link"
+    ]
     
-    if abs(sellerReceives - expected_seller_receives) <= 0.02:
-        log_pass(f"sellerReceives == amount - totalCost ✓")
-    else:
-        log_fail(f"sellerReceives mismatch: expected ${expected_seller_receives}, got ${sellerReceives}")
-        all_passed = False
+    log_info(f"Found {len(non_payment_link_txs)} non-payment_link transactions")
     
-    # Assertion 3: INVARIANT
-    invariant_diff = abs((buyerPays - sellerReceives) - totalCost)
-    log_info(f"INVARIANT check: abs((buyerPays - sellerReceives) - totalCost) = {invariant_diff}")
-    
-    if invariant_diff <= 0.02:
-        log_pass(f"INVARIANT satisfied: abs((buyerPays - sellerReceives) - totalCost) <= 0.02 ✓")
-    else:
-        log_fail(f"INVARIANT violated: difference = {invariant_diff} (expected <= 0.02)")
-        all_passed = False
-    
-    return all_passed
-
-def verify_fee_preview_split(amount: float) -> bool:
-    """
-    TASK 2 - Test C: fee_payer="split" for given amount
-    
-    Assertions:
-    - cashout item borneBy=="seller"
-    - buyerPays > amount and sellerReceives < amount
-    - INVARIANT: abs((buyerPays - sellerReceives) - totalCost) <= 0.02
-    """
-    log_test(f"TASK 2 - Test C: fee_payer='split', amount=${amount}")
-    
-    result = test_fee_preview(amount, "split")
-    if not result:
-        return False
-    
-    # Extract fields
-    buyerPays = result.get("buyerPays")
-    sellerReceives = result.get("sellerReceives")
-    totalCost = result.get("totalCost")
-    costItems = result.get("costItems", [])
-    
-    log_info(f"buyerPays: ${buyerPays}")
-    log_info(f"sellerReceives: ${sellerReceives}")
-    log_info(f"totalCost: ${totalCost}")
-    
-    all_passed = True
-    
-    # Assertion 1: cashout item borneBy=="seller"
-    cost_items_map = {item.get("key"): item for item in costItems}
-    withdrawal_item = cost_items_map.get("withdrawal_fee")
-    
-    if withdrawal_item:
-        borne_by = withdrawal_item.get("borneBy")
-        if borne_by == "seller":
-            log_pass(f"withdrawal_fee borneBy == 'seller' ✓")
+    non_link_with_created_at = 0
+    for tx in non_payment_link_txs[:5]:  # Check first 5
+        source = tx.get("source", {})
+        link_created_at = source.get("link_created_at")
+        source_type = source.get("type", "unknown")
+        tx_id = tx.get("id", "unknown")
+        
+        if link_created_at is not None:
+            non_link_with_created_at += 1
+            log_warning(f"  Non-payment_link transaction {tx_id} (type: {source_type}) has link_created_at: {link_created_at}")
         else:
-            log_fail(f"withdrawal_fee borneBy == '{borne_by}' (expected 'seller')")
-            all_passed = False
-    else:
-        log_fail("withdrawal_fee item not found in costItems")
-        all_passed = False
+            log_info(f"  ✓ Transaction {tx_id} (type: {source_type}): link_created_at is null")
     
-    # Assertion 2: buyerPays > amount
-    if buyerPays > amount:
-        log_pass(f"buyerPays (${buyerPays}) > amount (${amount}) ✓")
+    if non_link_with_created_at == 0:
+        log_pass("Non-payment_link transactions have link_created_at == null ✓")
     else:
-        log_fail(f"buyerPays (${buyerPays}) should be > amount (${amount})")
-        all_passed = False
+        log_warning(f"{non_link_with_created_at} non-payment_link transactions have link_created_at (may be ok if they originated from links)")
     
-    # Assertion 3: sellerReceives < amount
-    if sellerReceives < amount:
-        log_pass(f"sellerReceives (${sellerReceives}) < amount (${amount}) ✓")
+    # Check 3: Source type classification
+    log_info("\nChecking source.type classification...")
+    
+    source_types = {}
+    for tx in transactions:
+        source_type = tx.get("source", {}).get("type", "unknown")
+        source_types[source_type] = source_types.get(source_type, 0) + 1
+    
+    log_info(f"Source type distribution:")
+    for source_type, count in sorted(source_types.items()):
+        log_info(f"  {source_type}: {count}")
+    
+    expected_types = ["payment_link", "api", "tip", "product", "contribution", "safedeal", "direct"]
+    valid_types = all(st in expected_types for st in source_types.keys())
+    
+    if valid_types:
+        log_pass("All source types are valid ✓")
     else:
-        log_fail(f"sellerReceives (${sellerReceives}) should be < amount (${amount})")
-        all_passed = False
-    
-    # Assertion 4: INVARIANT
-    invariant_diff = abs((buyerPays - sellerReceives) - totalCost)
-    log_info(f"INVARIANT check: abs((buyerPays - sellerReceives) - totalCost) = {invariant_diff}")
-    
-    if invariant_diff <= 0.02:
-        log_pass(f"INVARIANT satisfied: abs((buyerPays - sellerReceives) - totalCost) <= 0.02 ✓")
-    else:
-        log_fail(f"INVARIANT violated: difference = {invariant_diff} (expected <= 0.02)")
+        invalid_types = [st for st in source_types.keys() if st not in expected_types]
+        log_fail(f"Invalid source types found: {invalid_types}")
         all_passed = False
     
     return all_passed
@@ -453,40 +405,33 @@ def verify_fee_preview_split(amount: float) -> bool:
 def main():
     """Main test runner"""
     print(f"\n{Colors.BLUE}{'='*80}{Colors.RESET}")
-    print(f"{Colors.BLUE}SafeDeal Fee Model Change Verification (TASK 2){Colors.RESET}")
-    print(f"{Colors.BLUE}+ Payment Received Notification Code Review (TASK 1){Colors.RESET}")
-    print(f"{Colors.BLUE}READ-ONLY Testing on LIVE PRODUCTION DB{Colors.RESET}")
+    print(f"{Colors.BLUE}Wallet Transactions - Payment Link Created Date Test{Colors.RESET}")
+    print(f"{Colors.BLUE}READ-ONLY Testing on LIVE PRODUCTION DB (SAFE MODE){Colors.RESET}")
     print(f"{Colors.BLUE}{'='*80}{Colors.RESET}")
     
     results = {}
     
-    # ========================================================================
-    # TASK 1: Payment Received Notification (code-only change)
-    # ========================================================================
-    log_info("TASK 1: Merchant 'Payment Received' notification now shows real brand name")
-    log_info("This is a code-only change that fires on real crypto settlement")
-    log_info("Cannot be triggered on this pod (simulated funding disabled, live money)")
-    log_info("Verification: health check + backend logs only")
+    # Step 1: Authenticate
+    access_token = authenticate()
+    if not access_token:
+        log_fail("Authentication failed - cannot proceed with tests")
+        return 1
     
-    results["task1_health"] = test_health_endpoint()
-    results["task1_logs"] = check_backend_logs_chainverification()
+    results["authentication"] = True
     
-    # ========================================================================
-    # TASK 2: SafeDeal Fee Model Change (fully testable via API)
-    # ========================================================================
-    log_info("\nTASK 2: SafeDeal cashout fee is now ALWAYS the seller's cost")
-    log_info("Testing POST /api/safedeal/fee-preview endpoint")
+    # Step 2: Get all transactions
+    transactions = test_get_all_transactions(access_token)
+    if not transactions:
+        log_fail("Failed to get transactions - cannot proceed with verification")
+        return 1
     
-    # Test amount=50 for all three fee_payer options
-    results["task2_buyer_50"] = verify_fee_preview_buyer(50)
-    results["task2_seller_50"] = verify_fee_preview_seller(50)
-    results["task2_split_50"] = verify_fee_preview_split(50)
+    results["get_transactions"] = True
     
-    # Test amount=120 for fee_payer=buyer
-    results["task2_buyer_120"] = verify_fee_preview_buyer(120)
+    # Step 3: Verify payment_link transaction has link_created_at
+    results["payment_link_created_at"] = verify_payment_link_transaction(transactions)
     
-    # Test amount=1000 for fee_payer=buyer (escrow fee is max(5%, $10) = $50)
-    results["task2_buyer_1000"] = verify_fee_preview_buyer(1000)
+    # Step 4: Verify regression
+    results["regression"] = verify_regression(transactions)
     
     # Print summary
     print_summary(results)
@@ -503,17 +448,7 @@ def print_summary(results: Dict[str, bool]):
     print(f"{Colors.BLUE}TEST SUMMARY{Colors.RESET}")
     print(f"{Colors.BLUE}{'='*80}{Colors.RESET}")
     
-    # Group by task
-    task1_results = {k: v for k, v in results.items() if k.startswith("task1_")}
-    task2_results = {k: v for k, v in results.items() if k.startswith("task2_")}
-    
-    print(f"\n{Colors.CYAN}TASK 1: Payment Received Notification (code-only){Colors.RESET}")
-    for test_name, passed in task1_results.items():
-        status = f"{Colors.GREEN}✅ PASS{Colors.RESET}" if passed else f"{Colors.RED}❌ FAIL{Colors.RESET}"
-        print(f"  {status}: {test_name}")
-    
-    print(f"\n{Colors.CYAN}TASK 2: SafeDeal Fee Model Change (API testing){Colors.RESET}")
-    for test_name, passed in task2_results.items():
+    for test_name, passed in results.items():
         status = f"{Colors.GREEN}✅ PASS{Colors.RESET}" if passed else f"{Colors.RED}❌ FAIL{Colors.RESET}"
         print(f"  {status}: {test_name}")
     

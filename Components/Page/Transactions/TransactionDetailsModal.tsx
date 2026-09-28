@@ -49,6 +49,7 @@ import CopyInline from "@/Components/UX/CopyInline";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import { toFixedStr } from "@/utils/money";
 import { formatLocaleNumber } from "@/utils/locale";
+import { formatDisplayDateTime } from "@/helpers/displayDate";
 import { isSyntheticCustomer } from "@/utils/txDisplay";
 
 const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
@@ -305,6 +306,26 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
               </TitleColumn>
             </HeaderTitleRow>
           </Box>
+          {/* Trace which payment link produced this payment, and when that link
+              was created. Shown only for link-backed sources (payment link /
+              tip / donation) — see resolveTransactionSource.link_created_at. */}
+          {transaction.source?.link_created_at &&
+            ["payment_link", "tip", "contribution"].includes(
+              transaction.source.type,
+            ) && (
+              <DetailRow data-testid="tx-detail-link-created" sx={{ mt: isMobile ? 1.25 : 1.75 }}>
+                <TitleLabel>
+                  {transaction.source.type === "tip"
+                    ? tTransactions("tipLinkCreated", { defaultValue: "Tip link created" })
+                    : transaction.source.type === "contribution"
+                      ? tTransactions("donationLinkCreated", { defaultValue: "Donation link created" })
+                      : tTransactions("paymentLinkCreated", { defaultValue: "Payment link created" })}
+                </TitleLabel>
+                <TitleValue data-testid="tx-detail-link-created-value">
+                  {formatDisplayDateTime(transaction.source.link_created_at)}
+                </TitleValue>
+              </DetailRow>
+            )}
           <SectionDivider />
 
           {/* Awaiting-payment notice: pending intent with no on-chain receipt.

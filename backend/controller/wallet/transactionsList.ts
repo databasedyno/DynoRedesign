@@ -129,6 +129,7 @@ export const getAllTransactions = async (
         pl.title             as source_link_title,
         pl.parent_link_id    as source_parent_link_id,
         pl.is_tip_jar        as source_is_tip_jar,
+        pl.link_created_at   as source_link_created_at,
         parent_pl.title      as source_parent_title,
         parent_pl.is_tip_jar as source_parent_is_tip_jar,
         po.order_id          as source_order_id,
@@ -145,7 +146,8 @@ export const getAllTransactions = async (
       -- so the /transactions page source filter (payment_link/tip/product/…) works.
       LEFT JOIN (
         SELECT DISTINCT ON (transaction_reference)
-          transaction_reference, link_id, link_type, title, parent_link_id, is_tip_jar
+          transaction_reference, link_id, link_type, title, parent_link_id, is_tip_jar,
+          "createdAt" AS link_created_at
         FROM tbl_payment_link
         WHERE transaction_reference IS NOT NULL AND transaction_reference <> ''
         ORDER BY transaction_reference, link_id DESC
@@ -188,6 +190,7 @@ export const getAllTransactions = async (
         source_is_tip_jar,
         source_parent_title,
         source_parent_is_tip_jar,
+        source_link_created_at,
         source_order_id,
         source_order_ref,
         source_safedeal_escrow_id,
@@ -241,6 +244,7 @@ export const getAllTransactions = async (
         source_parent_link_id: source_parent_link_id as string | number | null,
         source_parent_title: source_parent_title as string | null,
         source_parent_is_tip_jar: source_parent_is_tip_jar as boolean | number | null,
+        source_link_created_at: source_link_created_at as string | Date | null,
         customer_email: (x.email as string) ?? null,
       });
 
