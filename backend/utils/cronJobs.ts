@@ -5,7 +5,7 @@ import { createNotification, NOTIFICATION_TYPES } from "../controller";
 import { notificationPreferencesModel, userTransactionModel } from "../models";
 import { cronLogger, log } from "./loggers";
 import { captureError } from "../services/errorMonitoringService";
-import { processedStatusSql } from "./processedVolume";
+import { processedStatusSql, processedUsdExpr } from "./processedVolume";
 // Unused imports removed from top level - dynamically imported where needed
 
 /**
@@ -47,7 +47,7 @@ export const setupWeeklySummaryCron = () => {
           const summary = await sequelize.query(
             `SELECT 
               COUNT(*) as transaction_count,
-              COALESCE(SUM(CASE WHEN ${processedStatusSql("")} THEN base_amount ELSE 0 END), 0) as total_volume,
+              COALESCE(SUM(CASE WHEN ${processedStatusSql("")} THEN ${processedUsdExpr("")} ELSE 0 END), 0) as total_volume,
               COALESCE(SUM(CASE WHEN ${processedStatusSql("")} THEN 1 ELSE 0 END), 0) as completed_count,
               COALESCE(SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END), 0) as pending_count,
               COALESCE(SUM(CASE WHEN status IN ('failed', 'expired') THEN 1 ELSE 0 END), 0) as failed_count,
@@ -179,7 +179,7 @@ export const triggerWeeklySummary = async (userId?: number, options?: { dryRun?:
       const summary = await sequelize.query(
         `SELECT 
           COUNT(*) as transaction_count,
-          COALESCE(SUM(CASE WHEN ${processedStatusSql("")} THEN base_amount ELSE 0 END), 0) as total_volume,
+          COALESCE(SUM(CASE WHEN ${processedStatusSql("")} THEN ${processedUsdExpr("")} ELSE 0 END), 0) as total_volume,
           COALESCE(SUM(CASE WHEN ${processedStatusSql("")} THEN 1 ELSE 0 END), 0) as completed_count,
           COALESCE(SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END), 0) as pending_count,
           COALESCE(SUM(CASE WHEN status IN ('failed', 'expired') THEN 1 ELSE 0 END), 0) as failed_count,

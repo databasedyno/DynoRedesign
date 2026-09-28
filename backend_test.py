@@ -1,304 +1,416 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for SafeDeal Deal Preview Endpoint
-E2E UX Audit Batch 3: SD-02 (itemised costs) and SD-04 (no email leak)
+Backend Test: Weekly Summary Notification Bug Fix Verification
+Bug: total_volume was summing RAW base_amount instead of USD values
+Fix: now sums COALESCE(NULLIF(usd_value,0), stablecoin base_amount)
 """
 
 import requests
+import subprocess
 import json
 import sys
+from typing import Dict, Any, Optional
 
-# Base URL from the review request
+# Base URL
 BASE_URL = "https://cd0a12df-8cd2-4301-a8cf-d89e2699ae29.preview.emergentagent.com"
 
-# Test fixtures (already exist in DB)
-EMAIL_INVITE_TOKEN = "bfdd8f76429be0ef77804ea6f7038917a3caaec3b35f641e"
-LINK_INVITE_TOKEN = "98d9f2ba0ccd4188c66f9c9e7e030a7c39c172a41b27e61f"
+# Test credentials
+MERCHANT_EMAIL = "onarrival21@gmail.com"
+MERCHANT_PASSWORD = "Katiekendra123@"
+USER_ID = 1
 
-# Expected values
-EXPECTED_FEE_PERCENT = 5
-EXPECTED_EMAIL_MASKED = "sd•••@example.com"
-FULL_EMAIL_SHOULD_NOT_APPEAR = "sd-audit-buyer-1790570923@example.com"
+# Headers with browser User-Agent (required for Cloudflare)
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Content-Type": "application/json"
+}
 
-def print_section(title):
-    """Print a section header"""
-    print(f"\n{'='*80}")
-    print(f"  {title}")
-    print(f"{'='*80}\n")
+class Colors:
+    GREEN = '\033[92m'
+    RED = '\033[91m'
+    YELLOW = '\033[93m'
+    BLUE = '\033[94m'
+    BOLD = '\033[1m'
+    END = '\033[0m'
 
-def test_preview_endpoint(token, token_name):
-    """Test the deal preview endpoint for a given token"""
-    print_section(f"Testing {token_name}")
+def print_header(text: str):
+    print(f"\n{Colors.BOLD}{Colors.BLUE}{'='*80}{Colors.END}")
+    print(f"{Colors.BOLD}{Colors.BLUE}{text}{Colors.END}")
+    print(f"{Colors.BOLD}{Colors.BLUE}{'='*80}{Colors.END}\n")
+
+def print_success(text: str):
+    print(f"{Colors.GREEN}✅ {text}{Colors.END}")
+
+def print_error(text: str):
+    print(f"{Colors.RED}❌ {text}{Colors.END}")
+
+def print_info(text: str):
+    print(f"{Colors.YELLOW}ℹ️  {text}{Colors.END}")
+
+def get_totp() -> Optional[str]:
+    """Get current TOTP code for user_id 1"""
+    try:
+        result = subprocess.run(
+            ["node", "/app/backend/scripts/print_totp.cjs", str(USER_ID)],
+            capture_output=True,
+            text=True,
+            timeout=10
+        )
+        if result.returncode == 0:
+            totp = result.stdout.strip()
+            print_info(f"TOTP retrieved: {totp}")
+            return totp
+        else:
+            print_error(f"Failed to get TOTP: {result.stderr}")
+            return None
+    except Exception as e:
+        print_error(f"Exception getting TOTP: {e}")
+        return None
+
+def login_step1() -> Optional[str]:
+    """Step 1: Login with email/password to get challenge_token"""
+    print_header("STEP 1: Login with Email/Password")
     
-    url = f"{BASE_URL}/api/safedeal/deals/{token}/preview"
-    print(f"URL: {url}")
+    url = f"{BASE_URL}/api/user/login"
+    payload = {
+        "email": MERCHANT_EMAIL,
+        "password": MERCHANT_PASSWORD
+    }
     
     try:
-        response = requests.get(url, timeout=30)
-        print(f"Status Code: {response.status_code}")
+        response = requests.post(url, json=payload, headers=HEADERS, timeout=30)
+        print_info(f"Status: {response.status_code}")
         
-        if response.status_code != 200:
-            print(f"❌ FAIL: Expected 200, got {response.status_code}")
-            print(f"Response: {response.text[:500]}")
-            return False
-        
-        # Parse response
-        response_json = response.json()
-        print(f"\nResponse structure keys: {list(response_json.keys())}")
-        
-        # The response is wrapped by app's success helper (data is under "data" key)
-        if "data" not in response_json:
-            print(f"❌ FAIL: Response missing 'data' key")
-            print(f"Full response: {json.dumps(response_json, indent=2)[:1000]}")
-            return False
-        
-        data = response_json["data"]
-        print(f"Data keys: {list(data.keys())}")
-        
-        # Store results
-        results = []
-        
-        # SD-02: Itemised costs assertions
-        print(f"\n--- SD-02: Itemised Costs Assertions ---")
-        
-        # Check cost_items is a non-empty array
-        if "cost_items" not in data:
-            print(f"❌ FAIL: Missing 'cost_items' field")
-            results.append(False)
-        elif not isinstance(data["cost_items"], list):
-            print(f"❌ FAIL: 'cost_items' is not an array, got {type(data['cost_items'])}")
-            results.append(False)
-        elif len(data["cost_items"]) == 0:
-            print(f"❌ FAIL: 'cost_items' is empty")
-            results.append(False)
-        else:
-            print(f"✅ PASS: cost_items is a non-empty array with {len(data['cost_items'])} items")
-            
-            # Check each item has key, label, amount
-            all_items_valid = True
-            for i, item in enumerate(data["cost_items"]):
-                if not isinstance(item, dict):
-                    print(f"  ❌ Item {i}: Not a dict")
-                    all_items_valid = False
-                    continue
-                
-                has_key = "key" in item and isinstance(item["key"], str)
-                has_label = "label" in item and isinstance(item["label"], str)
-                has_amount = "amount" in item and isinstance(item["amount"], (int, float))
-                
-                if has_key and has_label and has_amount:
-                    print(f"  ✅ Item {i}: key='{item['key']}', label='{item['label']}', amount={item['amount']}")
+        if response.status_code == 200:
+            data = response.json()
+            # Check if we have data with challenge_token (2FA required)
+            if "data" in data and data["data"].get("challenge_token"):
+                challenge_token = data["data"].get("challenge_token")
+                print_success(f"Login successful, challenge_token received (2FA required)")
+                return challenge_token
+            elif data.get("success") and "data" in data:
+                challenge_token = data["data"].get("challenge_token")
+                if challenge_token:
+                    print_success(f"Login successful, challenge_token received")
+                    return challenge_token
                 else:
-                    print(f"  ❌ Item {i}: Missing required fields - has_key={has_key}, has_label={has_label}, has_amount={has_amount}")
-                    all_items_valid = False
-            
-            results.append(all_items_valid)
-        
-        # Check total_cost is a number > 0
-        if "total_cost" not in data:
-            print(f"❌ FAIL: Missing 'total_cost' field")
-            results.append(False)
-        elif not isinstance(data["total_cost"], (int, float)):
-            print(f"❌ FAIL: 'total_cost' is not a number, got {type(data['total_cost'])}")
-            results.append(False)
-        elif data["total_cost"] <= 0:
-            print(f"❌ FAIL: 'total_cost' is not > 0, got {data['total_cost']}")
-            results.append(False)
-        else:
-            print(f"✅ PASS: total_cost is a number > 0: {data['total_cost']}")
-            results.append(True)
-        
-        # Check costs_estimated is a boolean
-        if "costs_estimated" not in data:
-            print(f"❌ FAIL: Missing 'costs_estimated' field")
-            results.append(False)
-        elif not isinstance(data["costs_estimated"], bool):
-            print(f"❌ FAIL: 'costs_estimated' is not a boolean, got {type(data['costs_estimated'])}")
-            results.append(False)
-        else:
-            print(f"✅ PASS: costs_estimated is a boolean: {data['costs_estimated']}")
-            results.append(True)
-        
-        # Check fee_percent === 5
-        if "fee_percent" not in data:
-            print(f"❌ FAIL: Missing 'fee_percent' field")
-            results.append(False)
-        elif data["fee_percent"] != EXPECTED_FEE_PERCENT:
-            print(f"❌ FAIL: fee_percent is {data['fee_percent']}, expected {EXPECTED_FEE_PERCENT}")
-            results.append(False)
-        else:
-            print(f"✅ PASS: fee_percent === {EXPECTED_FEE_PERCENT}")
-            results.append(True)
-        
-        # Check buyer_pays and seller_receives are numbers
-        if "buyer_pays" not in data:
-            print(f"❌ FAIL: Missing 'buyer_pays' field")
-            results.append(False)
-        elif not isinstance(data["buyer_pays"], (int, float)):
-            print(f"❌ FAIL: 'buyer_pays' is not a number, got {type(data['buyer_pays'])}")
-            results.append(False)
-        else:
-            print(f"✅ PASS: buyer_pays is a number: {data['buyer_pays']}")
-            results.append(True)
-        
-        if "seller_receives" not in data:
-            print(f"❌ FAIL: Missing 'seller_receives' field")
-            results.append(False)
-        elif not isinstance(data["seller_receives"], (int, float)):
-            print(f"❌ FAIL: 'seller_receives' is not a number, got {type(data['seller_receives'])}")
-            results.append(False)
-        else:
-            print(f"✅ PASS: seller_receives is a number: {data['seller_receives']}")
-            results.append(True)
-        
-        # SD-04: Email leak prevention assertions
-        print(f"\n--- SD-04: Email Leak Prevention Assertions ---")
-        
-        # Check counterparty_email_hint === null
-        if "counterparty_email_hint" not in data:
-            print(f"❌ FAIL: Missing 'counterparty_email_hint' field")
-            results.append(False)
-        elif data["counterparty_email_hint"] is not None:
-            print(f"❌ FAIL: counterparty_email_hint is not null, got {data['counterparty_email_hint']}")
-            results.append(False)
-        else:
-            print(f"✅ PASS: counterparty_email_hint === null")
-            results.append(True)
-        
-        # For EMAIL deal: check counterparty_email_masked
-        if token_name == "EMAIL-invite deal":
-            if "counterparty_email_masked" not in data:
-                print(f"❌ FAIL: Missing 'counterparty_email_masked' field")
-                results.append(False)
-            elif data["counterparty_email_masked"] != EXPECTED_EMAIL_MASKED:
-                print(f"❌ FAIL: counterparty_email_masked is '{data['counterparty_email_masked']}', expected '{EXPECTED_EMAIL_MASKED}'")
-                results.append(False)
+                    print_error("No challenge_token in response")
+                    print_info(f"Response: {json.dumps(data, indent=2)}")
             else:
-                print(f"✅ PASS: counterparty_email_masked === '{EXPECTED_EMAIL_MASKED}'")
-                results.append(True)
-            
-            # Check full email does NOT appear anywhere in response
-            response_text = json.dumps(response_json)
-            if FULL_EMAIL_SHOULD_NOT_APPEAR in response_text:
-                print(f"❌ FAIL: Full email '{FULL_EMAIL_SHOULD_NOT_APPEAR}' found in response!")
-                results.append(False)
-            else:
-                print(f"✅ PASS: Full email '{FULL_EMAIL_SHOULD_NOT_APPEAR}' does NOT appear in response")
-                results.append(True)
-        
-        # Print raw data object for email-invite token
-        if token_name == "EMAIL-invite deal":
-            print(f"\n--- Raw Data Object for {token_name} ---")
-            print(json.dumps(data, indent=2))
-        
-        # Summary
-        all_passed = all(results)
-        print(f"\n--- Summary for {token_name} ---")
-        print(f"Total assertions: {len(results)}")
-        print(f"Passed: {sum(results)}")
-        print(f"Failed: {len(results) - sum(results)}")
-        
-        if all_passed:
-            print(f"✅✅✅ ALL ASSERTIONS PASSED for {token_name} ✅✅✅")
+                print_error(f"Login failed: {data}")
         else:
-            print(f"❌❌❌ SOME ASSERTIONS FAILED for {token_name} ❌❌❌")
+            print_error(f"HTTP {response.status_code}: {response.text}")
         
-        return all_passed
-        
-    except requests.exceptions.RequestException as e:
-        print(f"❌ FAIL: Request error: {e}")
-        return False
+        return None
     except Exception as e:
-        print(f"❌ FAIL: Unexpected error: {e}")
-        import traceback
-        traceback.print_exc()
-        return False
+        print_error(f"Exception during login: {e}")
+        return None
 
-def test_bogus_token():
-    """Test that a bogus token returns 404"""
-    print_section("Testing Bogus Token (should return 404)")
+def login_step2(challenge_token: str, totp: str) -> Optional[str]:
+    """Step 2: Validate 2FA with TOTP to get accessToken"""
+    print_header("STEP 2: Validate 2FA with TOTP")
     
-    bogus_token = "deadbeef"
-    url = f"{BASE_URL}/api/safedeal/deals/{bogus_token}/preview"
-    print(f"URL: {url}")
+    url = f"{BASE_URL}/api/user/2fa/validate"
+    payload = {
+        "challenge_token": challenge_token,
+        "token": totp
+    }
     
     try:
-        response = requests.get(url, timeout=30)
-        print(f"Status Code: {response.status_code}")
+        response = requests.post(url, json=payload, headers=HEADERS, timeout=30)
+        print_info(f"Status: {response.status_code}")
         
-        if response.status_code == 404:
-            print(f"✅ PASS: Bogus token returns 404")
-            
-            # Check for "Deal not found" style message
-            try:
-                response_json = response.json()
-                response_text = json.dumps(response_json).lower()
-                if "deal" in response_text and ("not found" in response_text or "not exist" in response_text):
-                    print(f"✅ PASS: Response contains 'Deal not found' style message")
-                    print(f"Response: {json.dumps(response_json, indent=2)}")
-                    return True
+        if response.status_code == 200:
+            data = response.json()
+            # Check if we have data with accessToken
+            if "data" in data and data["data"].get("accessToken"):
+                access_token = data["data"].get("accessToken")
+                print_success(f"2FA validation successful, accessToken received")
+                return access_token
+            elif data.get("success") and "data" in data:
+                access_token = data["data"].get("accessToken")
+                if access_token:
+                    print_success(f"2FA validation successful, accessToken received")
+                    return access_token
                 else:
-                    print(f"⚠️  WARNING: Response doesn't contain clear 'Deal not found' message")
-                    print(f"Response: {json.dumps(response_json, indent=2)}")
-                    return True  # Still pass if 404 is returned
-            except:
-                print(f"Response text: {response.text[:200]}")
-                return True
-        elif response.status_code == 500:
-            print(f"❌ FAIL: Bogus token returns 500 (should be 404)")
-            print(f"Response: {response.text[:500]}")
-            return False
+                    print_error("No accessToken in response")
+                    print_info(f"Response: {json.dumps(data, indent=2)}")
+            else:
+                print_error(f"2FA validation failed: {data}")
         else:
-            print(f"❌ FAIL: Bogus token returns {response.status_code} (should be 404)")
-            print(f"Response: {response.text[:500]}")
-            return False
-            
-    except requests.exceptions.RequestException as e:
-        print(f"❌ FAIL: Request error: {e}")
-        return False
+            print_error(f"HTTP {response.status_code}: {response.text}")
+        
+        return None
     except Exception as e:
-        print(f"❌ FAIL: Unexpected error: {e}")
-        import traceback
-        traceback.print_exc()
+        print_error(f"Exception during 2FA validation: {e}")
+        return None
+
+def get_db_truth() -> Optional[Dict[str, Any]]:
+    """Get the truth from database using read-only query"""
+    print_header("STEP 3: Get Database Truth (Read-Only Query)")
+    
+    query = """
+    SELECT 
+        ROUND(SUM(CASE WHEN status IN ('successful','done','completed') THEN base_amount ELSE 0 END)::numeric,2) AS old_vol,
+        ROUND(SUM(CASE WHEN status IN ('successful','done','completed') THEN 
+            COALESCE(NULLIF(usd_value,0), 
+                CASE WHEN UPPER(base_currency) IN ('USD','USDT','USDC','USDT-TRC20','USDT-ERC20','USDC-ERC20','BUSD','DAI','USDT_TRC20','USDT_ERC20','USDC_ERC20','USDT-POLYGON') 
+                THEN base_amount ELSE 0 END) 
+        ELSE 0 END)::numeric,2) AS new_vol_usd,
+        COUNT(*) AS txn,
+        SUM(CASE WHEN status IN ('successful','done','completed') THEN 1 ELSE 0 END) AS completed,
+        SUM(CASE WHEN status='pending' THEN 1 ELSE 0 END) AS pending
+    FROM tbl_user_transaction 
+    WHERE user_id = '1' 
+    AND "createdAt" >= now() - interval '7 days'
+    """
+    
+    try:
+        result = subprocess.run(
+            ["node", "/app/backend/scripts/ro_query.js", query],
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
+        
+        if result.returncode == 0:
+            output = result.stdout.strip()
+            print_info(f"Query output:\n{output}")
+            
+            # Parse the output - it should be a table format
+            lines = output.split('\n')
+            if len(lines) >= 3:
+                # Find the data line (skip header and separator)
+                for line in lines[2:]:
+                    if line.strip() and not line.startswith('-'):
+                        parts = [p.strip() for p in line.split('|')]
+                        if len(parts) >= 5:
+                            try:
+                                db_data = {
+                                    "old_vol": float(parts[0]) if parts[0] else 0.0,
+                                    "new_vol_usd": float(parts[1]) if parts[1] else 0.0,
+                                    "txn": int(parts[2]) if parts[2] else 0,
+                                    "completed": int(parts[3]) if parts[3] else 0,
+                                    "pending": int(parts[4]) if parts[4] else 0
+                                }
+                                print_success(f"Database truth retrieved:")
+                                print_info(f"  old_vol (buggy): ${db_data['old_vol']}")
+                                print_info(f"  new_vol_usd (fixed): ${db_data['new_vol_usd']}")
+                                print_info(f"  transaction_count: {db_data['txn']}")
+                                print_info(f"  completed_count: {db_data['completed']}")
+                                print_info(f"  pending_count: {db_data['pending']}")
+                                return db_data
+                            except (ValueError, IndexError) as e:
+                                print_error(f"Failed to parse query result: {e}")
+            
+            print_error("Could not parse query output")
+            return None
+        else:
+            print_error(f"Query failed: {result.stderr}")
+            return None
+    except Exception as e:
+        print_error(f"Exception running query: {e}")
+        return None
+
+def trigger_weekly_summary(access_token: str) -> Optional[Dict[str, Any]]:
+    """Trigger weekly summary with dry_run=true"""
+    print_header("STEP 4: Trigger Weekly Summary (Dry Run)")
+    
+    url = f"{BASE_URL}/api/notifications/trigger-weekly-summary"
+    headers = {
+        **HEADERS,
+        "Authorization": f"Bearer {access_token}"
+    }
+    payload = {
+        "user_id": USER_ID,
+        "dry_run": True
+    }
+    
+    try:
+        response = requests.post(url, json=payload, headers=headers, timeout=30)
+        print_info(f"Status: {response.status_code}")
+        
+        if response.status_code == 200:
+            data = response.json()
+            print_success("Weekly summary trigger successful")
+            print_info(f"Response:\n{json.dumps(data, indent=2)}")
+            return data
+        else:
+            print_error(f"HTTP {response.status_code}: {response.text}")
+            return None
+    except Exception as e:
+        print_error(f"Exception triggering weekly summary: {e}")
+        return None
+
+def verify_assertions(api_response: Dict[str, Any], db_truth: Dict[str, Any]) -> bool:
+    """Verify all assertions"""
+    print_header("STEP 5: Verify Assertions")
+    
+    all_passed = True
+    
+    # Extract summary from API response
+    if not api_response.get("data") or not api_response["data"].get("results"):
+        print_error("ASSERTION FAILED: No data.results in API response")
         return False
+    
+    results = api_response["data"]["results"]
+    if not results or len(results) == 0:
+        print_error("ASSERTION FAILED: results array is empty")
+        return False
+    
+    result = results[0]
+    
+    # Assertion 2: dry_run=true, notification=null
+    print("\n" + Colors.BOLD + "Assertion 2: Dry run verification" + Colors.END)
+    if result.get("dry_run") == True:
+        print_success("dry_run is true")
+    else:
+        print_error(f"ASSERTION FAILED: dry_run is {result.get('dry_run')}, expected true")
+        all_passed = False
+    
+    if result.get("notification") is None:
+        print_success("notification is null (no DB write)")
+    else:
+        print_error(f"ASSERTION FAILED: notification is {result.get('notification')}, expected null")
+        all_passed = False
+    
+    # Check summary exists
+    if not result.get("summary"):
+        print_error("ASSERTION FAILED: No summary in results[0]")
+        return False
+    
+    summary = result["summary"]
+    print_info(f"\nAPI Summary:\n{json.dumps(summary, indent=2)}")
+    
+    # Assertion 3: total_volume ≈ new_vol_usd (within ±1.00)
+    print("\n" + Colors.BOLD + "Assertion 3: total_volume matches new_vol_usd" + Colors.END)
+    api_total_volume = float(summary.get("total_volume", 0))
+    db_new_vol = db_truth["new_vol_usd"]
+    volume_diff = abs(api_total_volume - db_new_vol)
+    
+    print_info(f"API total_volume: ${api_total_volume}")
+    print_info(f"DB new_vol_usd: ${db_new_vol}")
+    print_info(f"Difference: ${volume_diff}")
+    
+    if volume_diff <= 1.00:
+        print_success(f"total_volume matches new_vol_usd (within ±$1.00)")
+    else:
+        print_error(f"ASSERTION FAILED: total_volume differs by ${volume_diff} (> $1.00)")
+        all_passed = False
+    
+    # Assertion 4: total_volume is NOT equal to old_vol
+    print("\n" + Colors.BOLD + "Assertion 4: Bug fix verification (NOT using old buggy calculation)" + Colors.END)
+    db_old_vol = db_truth["old_vol"]
+    print_info(f"API total_volume: ${api_total_volume}")
+    print_info(f"DB old_vol (buggy): ${db_old_vol}")
+    
+    if abs(api_total_volume - db_old_vol) > 1.00:
+        print_success(f"total_volume is NOT equal to old_vol (bug is fixed)")
+    else:
+        print_error(f"ASSERTION FAILED: total_volume ≈ old_vol (bug NOT fixed!)")
+        all_passed = False
+    
+    # Assertion 5: total_volume > 1000 (realistic USD figure)
+    print("\n" + Colors.BOLD + "Assertion 5: Realistic USD figure" + Colors.END)
+    if api_total_volume > 1000:
+        print_success(f"total_volume ${api_total_volume} > $1000 (realistic)")
+    else:
+        print_error(f"ASSERTION FAILED: total_volume ${api_total_volume} <= $1000 (unrealistic)")
+        all_passed = False
+    
+    # Assertion 6: transaction counts match
+    print("\n" + Colors.BOLD + "Assertion 6: Transaction counts match" + Colors.END)
+    
+    api_txn_count = summary.get("transaction_count", 0)
+    db_txn_count = db_truth["txn"]
+    if api_txn_count == db_txn_count:
+        print_success(f"transaction_count matches: {api_txn_count}")
+    else:
+        print_error(f"ASSERTION FAILED: transaction_count {api_txn_count} != {db_txn_count}")
+        all_passed = False
+    
+    api_completed = summary.get("completed_count", 0)
+    db_completed = db_truth["completed"]
+    if api_completed == db_completed:
+        print_success(f"completed_count matches: {api_completed}")
+    else:
+        print_error(f"ASSERTION FAILED: completed_count {api_completed} != {db_completed}")
+        all_passed = False
+    
+    api_pending = summary.get("pending_count", 0)
+    db_pending = db_truth["pending"]
+    if api_pending == db_pending:
+        print_success(f"pending_count matches: {api_pending}")
+    else:
+        print_error(f"ASSERTION FAILED: pending_count {api_pending} != {db_pending}")
+        all_passed = False
+    
+    return all_passed
 
 def main():
-    """Main test runner"""
-    print_section("SafeDeal Deal Preview Endpoint Testing")
-    print(f"Base URL: {BASE_URL}")
-    print(f"Endpoint: GET /api/safedeal/deals/:token/preview")
-    print(f"\nTest Scope:")
-    print(f"  - SD-02: Itemised costs (cost_items, total_cost, costs_estimated, fee_percent)")
-    print(f"  - SD-04: Email leak prevention (counterparty_email_hint, counterparty_email_masked)")
-    print(f"\nConstraints: READ-ONLY, no auth required (public endpoint)")
+    print_header("Weekly Summary Notification Bug Fix Verification")
+    print_info(f"Base URL: {BASE_URL}")
+    print_info(f"User: {MERCHANT_EMAIL} (user_id={USER_ID})")
     
-    results = {}
+    # Step 1: Get TOTP
+    totp = get_totp()
+    if not totp:
+        print_error("Failed to get TOTP. Aborting.")
+        sys.exit(1)
     
-    # Test EMAIL-invite deal
-    results["email_invite"] = test_preview_endpoint(EMAIL_INVITE_TOKEN, "EMAIL-invite deal")
+    # Step 2: Login (email/password)
+    challenge_token = login_step1()
+    if not challenge_token:
+        print_error("Login step 1 failed. Aborting.")
+        sys.exit(1)
     
-    # Test LINK-invite deal
-    results["link_invite"] = test_preview_endpoint(LINK_INVITE_TOKEN, "LINK-invite deal")
+    # Step 3: Validate 2FA
+    access_token = login_step2(challenge_token, totp)
+    if not access_token:
+        print_error("2FA validation failed. Aborting.")
+        # Try getting fresh TOTP and retry once
+        print_info("Retrying with fresh TOTP...")
+        totp = get_totp()
+        if totp:
+            access_token = login_step2(challenge_token, totp)
+        if not access_token:
+            print_error("2FA validation failed after retry. Aborting.")
+            sys.exit(1)
     
-    # Test bogus token
-    results["bogus_token"] = test_bogus_token()
+    print_success("✅ ASSERTION 1 PASSED: Login + 2FA succeeded, accessToken obtained")
+    
+    # Step 4: Get database truth
+    db_truth = get_db_truth()
+    if not db_truth:
+        print_error("Failed to get database truth. Aborting.")
+        sys.exit(1)
+    
+    # Step 5: Trigger weekly summary (dry run)
+    api_response = trigger_weekly_summary(access_token)
+    if not api_response:
+        print_error("Failed to trigger weekly summary. Aborting.")
+        sys.exit(1)
+    
+    # Step 6: Verify all assertions
+    all_passed = verify_assertions(api_response, db_truth)
     
     # Final summary
-    print_section("FINAL TEST SUMMARY")
-    print(f"EMAIL-invite deal: {'✅ PASS' if results['email_invite'] else '❌ FAIL'}")
-    print(f"LINK-invite deal:  {'✅ PASS' if results['link_invite'] else '❌ FAIL'}")
-    print(f"Bogus token (404): {'✅ PASS' if results['bogus_token'] else '❌ FAIL'}")
+    print_header("FINAL SUMMARY")
     
-    all_passed = all(results.values())
-    print(f"\n{'='*80}")
     if all_passed:
-        print("✅✅✅ ALL TESTS PASSED ✅✅✅")
-        print("="*80)
-        return 0
+        print_success("✅✅✅ ALL ASSERTIONS PASSED ✅✅✅")
+        print_success("\nBug fix VERIFIED:")
+        print_success("  - Weekly summary now correctly sums USD values")
+        print_success("  - NOT using buggy raw base_amount calculation")
+        print_success("  - Total volume is realistic (> $1000)")
+        print_success("  - Transaction counts match database")
+        print_success("  - Dry run works correctly (no DB write)")
+        print("\n" + Colors.GREEN + Colors.BOLD + "🎉 BUG FIX CONFIRMED - READY FOR PRODUCTION 🎉" + Colors.END + "\n")
+        sys.exit(0)
     else:
-        print("❌❌❌ SOME TESTS FAILED ❌❌❌")
-        print("="*80)
-        return 1
+        print_error("❌❌❌ SOME ASSERTIONS FAILED ❌❌❌")
+        print_error("\nPlease review the failures above.")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

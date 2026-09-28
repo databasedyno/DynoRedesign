@@ -33,4 +33,16 @@ export const processedStatusSql = (alias = "ut"): string =>
 // Back-compat: default `ut`-aliased fragment used by the dashboard/wallet queries.
 export const PROCESSED_STATUS_SQL = processedStatusSql("ut");
 
-export const PROCESSED_USD_EXPR = `COALESCE(NULLIF(ut.usd_value, 0), CASE WHEN UPPER(ut.base_currency) IN ('USD','USDT','USDC','USDT-TRC20','USDT-ERC20','USDC-ERC20','BUSD','DAI','USDT_TRC20','USDT_ERC20','USDC_ERC20','USDT-POLYGON') THEN ut.base_amount ELSE 0 END)`;
+/**
+ * The USD value of a transaction for any table alias. Pass "" for an unaliased
+ * column (e.g. a single-table query with no alias). Uses the value LOCKED IN at
+ * settlement time (usd_value) with a fallback to base_amount for USD-pegged
+ * stablecoins — NEVER sum raw base_amount across currencies (that adds crypto
+ * quantities like 0.0003 BTC as if they were dollars).
+ */
+export const processedUsdExpr = (alias = "ut"): string => {
+  const p = alias ? `${alias}.` : "";
+  return `COALESCE(NULLIF(${p}usd_value, 0), CASE WHEN UPPER(${p}base_currency) IN ('USD','USDT','USDC','USDT-TRC20','USDT-ERC20','USDC-ERC20','BUSD','DAI','USDT_TRC20','USDT_ERC20','USDC_ERC20','USDT-POLYGON') THEN ${p}base_amount ELSE 0 END)`;
+};
+
+export const PROCESSED_USD_EXPR = processedUsdExpr("ut");

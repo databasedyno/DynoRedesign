@@ -1,5 +1,181 @@
 # ============================================================================
-# >>> HANDOFF (2026-09-28 pt2) — E2E UX AUDIT BATCH 3 (SafeDeal SD-01..SD-06) — SD-05 FINISHED, ALL VERIFIED ✅ <<<
+# >>> TESTING AGENT VERIFICATION (2026-09-28 pt3) — BUGFIX: Weekly Summary "total volume" VERIFIED ✅ <<<
+# ============================================================================
+#   Tested by: testing_agent (deep_testing_backend_v2)
+#   Test date: 2026-09-28
+#   Test method: Python backend API testing with read-only DB query validation
+#   Base URL: https://cd0a12df-8cd2-4301-a8cf-d89e2699ae29.preview.emergentagent.com
+#   Environment: SAFE MODE, LIVE prod DB, Node/TypeScript backend
+#
+#   CONTEXT: Verified the bug fix for merchant "Weekly Summary" notification where
+#   total_volume was incorrectly summing RAW base_amount (native crypto units like
+#   0.0003 BTC counted as $0.0003) instead of the locked USD value.
+#
+#   BUG FIX: utils/cronJobs.ts now uses processedUsdExpr() which sums
+#   COALESCE(NULLIF(usd_value,0), stablecoin base_amount) for the correct USD volume.
+#
+#   TEST RESULTS: ✅✅✅ ALL 6 ASSERTIONS PASSED ✅✅✅
+#
+#   ✅ ASSERTION 1: Login + 2FA Authentication — PASS
+#   --------------------------------------------------
+#   ✓ POST /api/user/login with email/password → challenge_token received
+#   ✓ TOTP retrieved via `node /app/backend/scripts/print_totp.cjs 1`
+#   ✓ POST /api/user/2fa/validate with challenge_token + TOTP → accessToken received
+#   ✓ Authentication flow working correctly
+#
+#   ✅ ASSERTION 2: Dry Run Verification — PASS
+#   --------------------------------------------
+#   ✓ POST /api/notifications/trigger-weekly-summary with Bearer token
+#   ✓ Request: {"user_id": 1, "dry_run": true}
+#   ✓ Response: HTTP 200
+#   ✓ results[0].dry_run === true
+#   ✓ results[0].notification === null (NO DB write, as expected)
+#   ✓ results[0].summary present with all required fields
+#
+#   ✅ ASSERTION 3: total_volume Matches new_vol_usd — PASS
+#   --------------------------------------------------------
+#   Database truth (read-only query):
+#   - old_vol (buggy raw base_amount): $542.87
+#   - new_vol_usd (fixed USD values): $1631.61
+#   - transaction_count: 62
+#   - completed_count: 21
+#   - pending_count: 41
+#
+#   API response summary:
+#   - total_volume: $1631.61
+#   - Difference from DB new_vol_usd: $0.00 (within ±$1.00 threshold)
+#   ✓ total_volume correctly matches the fixed USD calculation
+#
+#   ✅ ASSERTION 4: Bug Fix Verification (NOT using old calculation) — PASS
+#   ------------------------------------------------------------------------
+#   ✓ API total_volume ($1631.61) is NOT equal to old_vol ($542.87)
+#   ✓ Difference: $1088.74 (>> $1.00 threshold)
+#   ✓ Bug is FIXED — no longer using raw base_amount sum
+#
+#   ✅ ASSERTION 5: Realistic USD Figure — PASS
+#   --------------------------------------------
+#   ✓ total_volume $1631.61 > $1000 (realistic USD figure)
+#   ✓ NOT in the buggy range of $21-$543
+#   ✓ Reflects actual USD value of transactions
+#
+#   ✅ ASSERTION 6: Transaction Counts Match — PASS
+#   ------------------------------------------------
+#   ✓ transaction_count: 62 (matches DB)
+#   ✓ completed_count: 21 (matches DB)
+#   ✓ pending_count: 41 (matches DB)
+#   ✓ failed_count: 0
+#   ✓ top_currency: BTC
+#   ✓ period: 2026-09-21 to 2026-09-28 (7 days)
+#
+#   ============================================================================
+#   DETAILED COMPARISON
+#   ============================================================================
+#
+#   Database Query (Self-Validating Reference):
+#   SELECT 
+#     ROUND(SUM(CASE WHEN status IN ('successful','done','completed') 
+#       THEN base_amount ELSE 0 END)::numeric,2) AS old_vol,
+#     ROUND(SUM(CASE WHEN status IN ('successful','done','completed') THEN 
+#       COALESCE(NULLIF(usd_value,0), 
+#         CASE WHEN UPPER(base_currency) IN ('USD','USDT','USDC',...stablecoins) 
+#         THEN base_amount ELSE 0 END) 
+#     ELSE 0 END)::numeric,2) AS new_vol_usd,
+#     COUNT(*) AS txn,
+#     SUM(CASE WHEN status IN ('successful','done','completed') THEN 1 ELSE 0 END) AS completed,
+#     SUM(CASE WHEN status='pending' THEN 1 ELSE 0 END) AS pending
+#   FROM tbl_user_transaction 
+#   WHERE user_id = '1' AND "createdAt" >= now() - interval '7 days'
+#
+#   Result:
+#   old_vol | new_vol_usd | txn | completed | pending
+#   --------+-------------+-----+-----------+--------
+#   542.87  | 1631.61     | 62  | 21        | 41
+#
+#   API Response (POST /api/notifications/trigger-weekly-summary):
+#   {
+#     "data": {
+#       "results": [{
+#         "user_id": 1,
+#         "dry_run": true,
+#         "notification": null,
+#         "summary": {
+#           "period_start": "2026-09-21",
+#           "period_end": "2026-09-28",
+#           "transaction_count": 62,
+#           "total_volume": 1631.61,
+#           "completed_count": 21,
+#           "pending_count": 41,
+#           "failed_count": 0,
+#           "top_currency": "BTC"
+#         }
+#       }]
+#     }
+#   }
+#
+#   ============================================================================
+#   SAFETY COMPLIANCE
+#   ============================================================================
+#   ✅ dry_run=true used (NO DB write)
+#   ✅ Read-only database query for validation
+#   ✅ NO notifications created
+#   ✅ NO production data modified
+#   ✅ Bearer token authentication (bypasses CSRF as documented)
+#
+#   ============================================================================
+#   VERDICT: ✅✅✅ BUG FIX VERIFIED — READY FOR PRODUCTION ✅✅✅
+#   ============================================================================
+#
+#   The weekly summary notification bug fix has been SUCCESSFULLY VERIFIED:
+#
+#   ✅ Bug was: summing raw base_amount (native crypto units) → absurdly low $ values
+#   ✅ Fix is: summing COALESCE(NULLIF(usd_value,0), stablecoin base_amount) → correct USD
+#   ✅ API now returns realistic USD volume ($1631.61 vs buggy $542.87)
+#   ✅ All transaction counts match database exactly
+#   ✅ Dry run works correctly (no DB write)
+#   ✅ Authentication flow working (login + 2FA)
+#
+#   The fix correctly implements the canonical processedUsdExpr calculation:
+#   - Uses locked usd_value when available (non-zero)
+#   - Falls back to base_amount for stablecoins (USD, USDT, USDC, etc.)
+#   - Ignores raw crypto amounts (BTC, ETH, etc.) when usd_value is missing
+#
+#   This ensures the weekly summary shows the actual USD value of transactions,
+#   not the raw crypto amounts which would be absurdly low (e.g., 0.0003 BTC
+#   would show as $0.0003 instead of the correct ~$30).
+#
+#   NO ISSUES FOUND. Bug fix is production-ready.
+# ============================================================================
+
+
+# ============================================================================
+# >>> HANDOFF (2026-09-28 pt3) — BUGFIX: Weekly Summary "total volume" was WRONG (summed raw base_amount) <<<
+# ============================================================================
+#   USER REPORT: notifications page "Your Weekly Summary" showed "34 transactions with a total
+#   volume of $21.63" — the $ was absurdly low. Root cause: utils/cronJobs.ts summed RAW
+#   base_amount (native crypto units, e.g. 0.0003 BTC added as if $) for the volume, instead of
+#   the locked USD value. Fix: utils/processedVolume.ts now exports processedUsdExpr(alias)
+#   (parametric version of PROCESSED_USD_EXPR = COALESCE(NULLIF(usd_value,0), stablecoin
+#   base_amount)); both weekly-summary queries in cronJobs.ts (scheduled cron line ~50 +
+#   triggerWeeklySummary line ~182) now SUM(CASE WHEN <processed> THEN processedUsdExpr("") ELSE 0).
+#   VALIDATED via read-only SQL: company_id=1 old $21.63 → new $974.54 (34 txn/15 done);
+#   user_id=1 old $542.87 → new $1631.61 (62 txn/21 done/41 pending).
+#   NOT a bug (verified, left as-is): "N checkouts expired unpaid today (≈ $84.74)" uses
+#   unlockedAmountsByCurrency + sumUnlockedUsd (per-currency crypto → live-price USD, correct
+#   because expired/unpaid txns never lock usd_value). dashboardController chart/currency queries
+#   (line 445/463) group by base_currency and expose usd_volume separately — correct.
+#   STILL SUSPECT (same base_amount pattern, NOT yet changed — pending user decision, different
+#   surfaces): services/analyticsService.ts (ADMIN revenue analytics total_volume + fees),
+#   controller/kycController.ts (KYC threshold volume). paymentLink raised_amount reads
+#   tbl_payment_link (single-currency tip jars) — left as-is.
+#   BACKEND TEST: login owner onarrival21@gmail.com / Katiekendra123@ (user_id 1, TOTP 2FA:
+#   `node backend/scripts/print_totp.cjs 1`). API: POST /api/user/login → challenge_token →
+#   POST /api/user/2fa/validate {challenge_token, token} → accessToken. Then
+#   POST /api/notifications/trigger-weekly-summary {user_id:1, dry_run:true} with
+#   Authorization: Bearer <token> (Bearer bypasses CSRF). dry_run => NO DB write.
+# ============================================================================
+
+
+ — E2E UX AUDIT BATCH 3 (SafeDeal SD-01..SD-06) — SD-05 FINISHED, ALL VERIFIED ✅ <<<
 #   RESULT: backend 19/19 (deep_testing_backend_v2), frontend guest 4/4 (auto_frontend_testing_agent:
 #   SD-02/03/04/05), and main-agent Playwright for the 2 authed cases (SD-01 no 390px scroll +
 #   ellipsized email; SD-06 invitee = one CTA + "Cancel deal" hidden). Batch 3 is GREEN → user "Save to GitHub".
