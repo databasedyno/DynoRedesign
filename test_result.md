@@ -1,4 +1,32 @@
 # ============================================================================
+# >>> 2026-09-28 (fork, pt9c) — CI DEPLOY FIX: "Deploy to Droplet" build failed
+#     after the WalletConnect removal — Dockerfile `COPY lib/` on an empty dir <<<
+# ============================================================================
+#  Failing run: GitHub Actions "Deploy to Droplet (Option C)" run 36462934788,
+#  branch Improvement, commit 9ae492f (the pt9/pt9b WalletConnect-removal push).
+#  Job build-and-deploy → step 5 "Build and push image" FAILED (deploy/canary/
+#  hydration steps skipped). Error:
+#    ERROR: failed to solve: failed to compute cache key: failed to calculate
+#    checksum of ref ...: "/lib": not found
+#  ROOT CAUSE: retiring WalletConnect deleted lib/wallet/{appkit,actions,rails}.ts,
+#  leaving lib/ EMPTY. Git doesn't commit empty dirs, so CI's checkout had no lib/,
+#  and Dockerfile `COPY lib/ ./lib/` (present in BOTH Dockerfile:98 and
+#  Dockerfile.frontend:40, added originally so `@/lib/wallet/*` resolved during
+#  `next build`) failed before next build even ran.
+#  FIX: removed the `COPY lib/ ./lib/` line (+ its wallet comment) from Dockerfile
+#  and Dockerfile.frontend. Nothing imports `@/lib/*` anymore (grep clean), so the
+#  copy is unnecessary. Verified every other individually-COPY'd dir in Dockerfile
+#  still has tracked files (pages/Components/styles/.../backend) — lib was the only
+#  emptied one. Components/Wallet also emptied but Components/ is COPY'd wholesale.
+#  VESTIGIAL (left as-is, harmless): Dockerfile ARG/ENV NEXT_PUBLIC_REOWN_PROJECT_ID
+#  (147-148) + workflow build-arg (deploy-droplet.yml:96) + the GitHub secret — no
+#  code reads it now; an unconsumed build-arg only warns. Optional user cleanup.
+#  NEXT: user must "Save to GitHub" again to push this Dockerfile fix and re-trigger
+#  the deploy. (Main agent can't push; git writes go through the chat "Save to GitHub".)
+# ============================================================================
+
+
+# ============================================================================
 # >>> 2026-09-28 (fork, pt9b) — RETIRE WalletConnect FULLY (remove Reown keys +
 #     wallet SDK deps, trim bundle) — DONE & SMOKE-VERIFIED ✅ <<<
 # ============================================================================

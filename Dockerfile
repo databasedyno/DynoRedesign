@@ -91,11 +91,10 @@ COPY assets/ ./assets/
 COPY --from=srcguard /src/public/ ./public/
 COPY Redux/ ./Redux/
 COPY helpers/ ./helpers/
-# Wallet integration (Reown AppKit / WalletConnect): lib/wallet/* is imported via
-# the `@/lib/*` alias by checkout + SafeDeal + merchant wallet UIs. Without this
-# COPY, `next build` type-check fails with "Cannot find module '@/lib/wallet/rails'"
-# (root cause of the 2026-09-24 droplet build failure — run 35958512977).
-COPY lib/ ./lib/
+# NOTE: `COPY lib/ ./lib/` was removed here when WalletConnect/Reown was retired.
+# lib/ formerly held lib/wallet/* (imported via the `@/lib/*` alias); nothing
+# imports `@/lib/*` anymore, so the dir is empty — and an empty dir isn't
+# committed to git, which made this COPY fail in CI ("/lib": not found).
 # SEO landing-page content — read by getStaticPaths/getStaticProps at build
 # time AND by sitemap.xml getServerSideProps at runtime. Omitting this ships
 # zero /accept-crypto-payments-in/* and /for/* pages (production 404s).
