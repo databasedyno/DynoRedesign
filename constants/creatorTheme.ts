@@ -53,6 +53,35 @@ export const GRADIENT_STOPS: Record<string, string> = GRADIENT_PRESETS.reduce(
   {} as Record<string, string>,
 );
 
+/** Readable text colour to sit ON a solid accent fill (light accents → ink, dark → white). */
+export const readableOn = (hex: string): string => {
+  const m = /^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.exec((hex || "").trim());
+  if (!m) return "#FFFFFF";
+  let h = m[1];
+  if (h.length === 3) h = h.split("").map((c) => c + c).join("");
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  const L = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+  return L > 0.6 ? "#0A0A0B" : "#FFFFFF";
+};
+
+/** Fine film-grain overlay (SVG noise) — layer at 4–8% opacity over covers/glass. */
+export const GRAIN_URL =
+  "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.9 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>\")";
+
+/** Shared entrance motion for public creator/store surfaces (reduced-motion safe). */
+export const RISE_KEYFRAMES = {
+  "@keyframes dpRise": {
+    from: { opacity: 0, transform: "translateY(14px)" },
+    to: { opacity: 1, transform: "translateY(0)" },
+  },
+};
+export const rise = (delayMs = 0) => ({
+  animation: `dpRise 560ms cubic-bezier(0.22, 1, 0.36, 1) ${delayMs}ms both`,
+  "@media (prefers-reduced-motion: reduce)": { animation: "none" },
+});
+
 /** Returns a CSS background string for a given cover style + accent + gradient. */
 export const buildCoverBackground = (theme: CreatorTheme, coverImageUrl?: string | null): string => {
   const accent = theme.accentColor || BRAND_ACCENT;

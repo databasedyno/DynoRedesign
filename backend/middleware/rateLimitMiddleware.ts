@@ -217,6 +217,15 @@ export const paymentRateLimiter = createRateLimiter(
 );
 
 /**
+ * Public read rate limiter — read-only storefront/creator GETs that SSR fires
+ * several of per page view (profile, analytics, shop, product). 120/min per IP.
+ */
+export const publicReadRateLimiter = createRateLimiter(
+  (req) => `pubread:${clientIp(req)}`,
+  fixedWindow(60 * 1000, 120)
+);
+
+/**
  * Sandbox rate limiter — for the public homepage playground endpoints
  * (POST /api/public/sandbox/*). 10 requests per minute per IP.
  * These endpoints never touch the DB — they return in-memory stub responses.

@@ -20,6 +20,7 @@ import ShopToolbar from "./ShopToolbar";
 import ProductCard from "./ProductCard";
 import ShopEmpty from "./ShopEmpty";
 import MiniCart from "./MiniCart";
+import { RISE_KEYFRAMES, rise } from "@/constants/creatorTheme";
 import type { ShopMerchant, ShopProduct, SortKey } from "./types";
 
 interface Props {
@@ -87,27 +88,32 @@ export default function ShopClient({ merchant, products, shopUrl, isOwner }: Pro
   const featured: ShopProduct | null =
     canPromote && sorted.length > 3 && (sorted[0].sold_count || 0) >= 1 ? sorted[0] : null;
   const rest: ShopProduct[] = featured ? sorted.slice(1) : sorted;
+  const accent = merchant.theme?.accent_color || merchant.accent || null;
+  // Staggered entrance — capped so long grids don't feel slow.
+  const stagger = (i: number) => rise(120 + Math.min(i, 8) * 50);
 
   return (
-    <Box data-testid="shop-client">
+    <Box data-testid="shop-client" sx={RISE_KEYFRAMES}>
       <ShopHero merchant={merchant} products={products} shopUrl={shopUrl} />
 
       {products.length === 0 ? (
         <ShopEmpty merchant={merchant} isOwner={isOwner} />
       ) : (
         <>
-          <ShopToolbar
-            products={products}
-            activeType={type}
-            onTypeChange={setType}
-            activeCategory={category}
-            onCategoryChange={setCategory}
-            sort={sort}
-            onSortChange={setSort}
-            visibleCount={sorted.length}
-            query={query}
-            onQueryChange={setQuery}
-          />
+          <Box sx={rise(80)}>
+            <ShopToolbar
+              products={products}
+              activeType={type}
+              onTypeChange={setType}
+              activeCategory={category}
+              onCategoryChange={setCategory}
+              sort={sort}
+              onSortChange={setSort}
+              visibleCount={sorted.length}
+              query={query}
+              onQueryChange={setQuery}
+            />
+          </Box>
 
           {sorted.length === 0 ? (
             <Box
@@ -124,11 +130,11 @@ export default function ShopClient({ merchant, products, shopUrl, isOwner }: Pro
           ) : (
             <Grid container spacing={{ xs: 2.5, md: 3 }} data-testid="shop-grid">
               {featured && (
-                <Grid item xs={12} md={8} data-testid="shop-featured-slot">
+                <Grid item xs={12} md={8} data-testid="shop-featured-slot" sx={stagger(0)}>
                   <ProductCard
                     product={featured}
                     merchantHandle={merchant.handle}
-                    accent={merchant.accent}
+                    accent={accent}
                     variant="featured"
                     isTrending={(featured.sold_count || 0) >= FEATURED_THRESHOLD}
                   />
@@ -145,11 +151,12 @@ export default function ShopClient({ merchant, products, shopUrl, isOwner }: Pro
                   sm={6}
                   md={4}
                   data-testid="shop-featured-companion"
+                  sx={stagger(1)}
                 >
                   <ProductCard
                     product={rest[0]}
                     merchantHandle={merchant.handle}
-                    accent={merchant.accent}
+                    accent={accent}
                     variant="regular"
                     isTrending={(rest[0].sold_count || 0) >= FEATURED_THRESHOLD}
                   />
@@ -158,12 +165,12 @@ export default function ShopClient({ merchant, products, shopUrl, isOwner }: Pro
 
               {/* All remaining products flow as a standard grid. When we have
                   a featured card we've already surfaced rest[0], so start from index 1. */}
-              {(featured ? rest.slice(1) : rest).map((p) => (
-                <Grid key={p.product_id} item xs={12} sm={6} md={4} lg={featured ? 4 : 3}>
+              {(featured ? rest.slice(1) : rest).map((p, i) => (
+                <Grid key={p.product_id} item xs={12} sm={6} md={4} lg={featured ? 4 : 3} sx={stagger(i + (featured ? 2 : 0))}>
                   <ProductCard
                     product={p}
                     merchantHandle={merchant.handle}
-                    accent={merchant.accent}
+                    accent={accent}
                     variant="regular"
                     isTrending={(p.sold_count || 0) >= FEATURED_THRESHOLD}
                   />

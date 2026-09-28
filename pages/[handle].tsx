@@ -8,6 +8,7 @@ import { CreatorAnalyticsData } from '@/Components/Page/Creator/AnalyticsWidget'
 import { getCreatorBaseUrl } from '@/helpers/creatorUrl'
 import { getRuntimeFlags } from '@/helpers/runtimeFlags'
 import { sendCreatorVisitBeacon } from '@/helpers/creatorVisitBeacon'
+import { ssrFetchHeaders } from '@/helpers/ssrFetchHeaders'
 
 interface CreatorPageProps {
   creator: CreatorData
@@ -65,6 +66,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   let creatorHost = ''
   try { creatorHost = creatorBase ? new URL(creatorBase).host.toLowerCase() : '' } catch { creatorHost = '' }
   const reqHost = String(ctx.req.headers['x-forwarded-host'] || ctx.req.headers.host || '').split(',')[0].trim().toLowerCase()
+  const headers = ssrFetchHeaders(ctx.req)
 
   // ─── Branded short payment links: dynopay.com/<code> ───
   // A single 6-char base62 segment MAY be a payment link. Payment codes take
@@ -73,7 +75,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const codeSegment = String(ctx.params?.handle || '')
   if (/^[A-Za-z0-9]{6}$/.test(codeSegment)) {
     try {
-      const er = await fetch(`${base}/api/pay/link-exists/${codeSegment}`, { headers: { Accept: 'application/json' } })
+      const er = await fetch(`${base}/api/pay/link-exists/${codeSegment}`, { headers })
       if (er.ok) {
         const ej = await er.json()
         if (ej?.data?.exists) {
@@ -97,8 +99,8 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     // the page render. If the endpoint 404s (older creator, network hiccup),
     // we just render without the momentum widget.
     const [r, ar] = await Promise.all([
-      fetch(`${base}/api/pay/creator/${encodeURIComponent(handle)}`, { headers: { Accept: 'application/json' } }),
-      fetch(`${base}/api/pay/creator/${encodeURIComponent(handle)}/analytics`, { headers: { Accept: 'application/json' } }).catch(() => null),
+      fetch(`${base}/api/pay/creator/${encodeURIComponent(handle)}`, { headers }),
+      fetch(`${base}/api/pay/creator/${encodeURIComponent(handle)}/analytics`, { headers }).catch(() => null),
     ])
     if (!r.ok) {
       console.error(`[SSR /[handle]] creator fetch "${handle}" -> HTTP ${r.status} (base=${base})`)
@@ -125,7 +127,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       data.creator?.creator_page_show_products !== false
     if (showProductsOnPage && getRuntimeFlags().enableProductCatalog) {
       try {
-        const sr = await fetch(`${base}/api/shop/${encodeURIComponent(handle)}`, { headers: { Accept: 'application/json' } })
+        const sr = await fetch(`${base}/api/shop/${encodeURIComponent(handle)}`, { headers })
         if (sr.ok) {
           const sj = await sr.json()
           const list = sj?.data?.products

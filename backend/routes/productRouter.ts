@@ -12,7 +12,7 @@
 import { raw as envRaw } from "../utils/config";
 import express, { RequestHandler } from "express";
 import { authMiddleware } from "../middleware";
-import { paymentRateLimiter } from "../middleware/rateLimitMiddleware";
+import { paymentRateLimiter, publicReadRateLimiter } from "../middleware/rateLimitMiddleware";
 import uploadProductAsset from "../middleware/uploadProductAsset";
 import * as productCtrl from "../controller/product/productController";
 import * as shopCtrl from "../controller/product/shopController";
@@ -72,8 +72,8 @@ productRouter.post("/products/orders/:orderId/refund", authMiddleware, orderCtrl
 // ── Public shop (rate-limited) ────────────────────────────────────────
 // Sitemap feed FIRST so it can't be shadowed by the /shop/:handle param route.
 productRouter.get("/shop-sitemap", paymentRateLimiter, shopCtrl.getSitemapEntries);
-productRouter.get("/shop/:handle", paymentRateLimiter, shopCtrl.getShopByHandle);
-productRouter.get("/shop/:handle/products/:slug", paymentRateLimiter, shopCtrl.getShopProductBySlug);
+productRouter.get("/shop/:handle", publicReadRateLimiter, shopCtrl.getShopByHandle);
+productRouter.get("/shop/:handle/products/:slug", publicReadRateLimiter, shopCtrl.getShopProductBySlug);
 
 // ── Cart / Checkout (public, rate-limited) ────────────────────────────
 productRouter.post("/cart", paymentRateLimiter, cartCtrl.validateCartApi);

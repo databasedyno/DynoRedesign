@@ -18,6 +18,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import useSWR from 'swr'
 import { useTranslation } from 'react-i18next'
 import { Box, Button, CircularProgress, Collapse, TextField, Typography, useTheme } from '@mui/material'
+import { alpha } from '@mui/material/styles'
 import { Icon } from '@iconify/react'
 import { usePaymentNotification } from '@/hooks/usePaymentNotification'
 import { ReceiptEmailField, NotifyMeInline } from '@/Components/Page/Pay3Components/checkoutExtras'
@@ -200,6 +201,9 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
   const limeTint = isDark ? 'rgba(139,94,0,0.10)' : 'rgba(139,94,0,0.16)'
   const warnTint = isDark ? 'rgba(255,190,50,0.10)' : 'rgba(255,190,50,0.18)'
   const errTint = isDark ? 'rgba(255,80,80,0.10)' : 'rgba(255,80,80,0.14)'
+  // Merchant accent — hover/focus rings + glows; gold stays the primary fill.
+  const accent = accentColor || LIME
+  const HERO_FONT = 'var(--font-hero), var(--font-sans)'
   const meta = STYLE_META[style] || STYLE_META.coffee
   const md = MODE_DEFAULTS[mode] || MODE_DEFAULTS.tip
   const mc = (key: keyof typeof md, vars: Record<string, unknown> = {}) =>
@@ -679,6 +683,25 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
   const donorMessage = meta_?.contribution?.donor_message || ''
   const isAnon = !!meta_?.contribution?.is_anonymous
 
+  // Celebrate a confirmed payment once (lazy-loaded, reduced-motion safe).
+  const confettiFiredRef = useRef<boolean>(false)
+  useEffect(() => {
+    if (phase !== 'confirmed' || confettiFiredRef.current || typeof window === 'undefined') return
+    confettiFiredRef.current = true
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
+    void import('canvas-confetti').then(({ default: confetti }) => {
+      confetti({
+        particleCount: 110,
+        spread: 75,
+        startVelocity: 38,
+        scalar: 0.95,
+        origin: { y: 0.55 },
+        colors: [accent, '#FFD100', '#FFB300', '#12B76A', '#FFFFFF'],
+        disableForReducedMotion: true,
+      })
+    }).catch(() => { /* confetti is decorative */ })
+  }, [phase, accent])
+
   // ─── Render helpers ──────────────────────────────────────────────────
 
   const backLink = (label = 'Cancel') => (
@@ -757,11 +780,11 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
   if (phase === 'currency_select' && meta_) {
     const currencies = meta_.available_currencies.filter((c) => CRYPTO_INFO[c])
     return (
-      <Box>
-        <Typography fontWeight={800} fontSize={16} color={theme.palette.text.primary}>
+      <Box data-testid="inline-tip-currency-step">
+        <Typography fontWeight={800} fontSize={{ xs: 18, sm: 20 }} color={theme.palette.text.primary} sx={{ fontFamily: HERO_FONT, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
           {t('creator.inline.pickCrypto', { amount: `${sym}${formatWithSeparators(meta_.amount, meta_.base_currency)}`, defaultValue: `Pick a crypto to pay ${sym}${formatWithSeparators(meta_.amount, meta_.base_currency)}` })}
         </Typography>
-        <Typography fontSize={12.5} color={theme.palette.text.secondary} mt={0.5}>
+        <Typography fontSize={13} color={theme.palette.text.secondary} mt={0.75}>
           {creatorName
             ? t('creator.inline.accepts', { name: creatorName, defaultValue: `${creatorName} accepts:` })
             : (mode === 'link'
@@ -770,10 +793,11 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
         </Typography>
         <Box
           data-testid="inline-tip-currency-picker"
-          sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr 1fr', sm: '1fr 1fr 1fr' }, gap: 1, mt: 1.75 }}
+          sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr 1fr', sm: '1fr 1fr 1fr' }, gap: 1.25, mt: 2 }}
         >
           {currencies.map((code) => {
             const info = CRYPTO_INFO[code]
+            const netLabel = SHARED_INFO[code]?.networkLabel || info.network || ''
             return (
               <Box
                 key={code}
@@ -790,22 +814,29 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
                 sx={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 0.9,
-                  px: 1.25,
-                  py: 1.1,
-                  borderRadius: '12px',
+                  gap: 1.1,
+                  px: 1.5,
+                  minHeight: 60,
+                  borderRadius: '16px',
                   border: `1.5px solid ${border}`,
-                  backgroundColor: surface,
+                  backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.85)',
                   color: theme.palette.text.primary,
                   cursor: 'pointer',
-                  transition: 'border-color 140ms ease, transform 140ms ease',
-                  '&:hover': { borderColor: LIME, transform: 'translateY(-1px)' },
+                  transition: 'border-color 140ms ease, transform 140ms ease, box-shadow 140ms ease, background-color 140ms ease',
+                  '&:hover': { borderColor: accent, transform: 'translateY(-2px)', boxShadow: isDark ? '0 12px 28px rgba(0,0,0,0.4)' : `0 12px 28px ${alpha(accent, 0.16)}` },
+                  '&:active': { transform: 'translateY(0) scale(0.98)' },
+                  '&:focus-visible': { outline: 'none', borderColor: accent, boxShadow: `0 0 0 3px ${alpha(accent, 0.3)}` },
                 }}
               >
-                <Icon icon={info.icon} width={22} color={info.iconColor} />
+                <Box sx={{ width: 40, height: 40, borderRadius: '12px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(18,18,20,0.04)' }}>
+                  <Icon icon={info.icon} width={26} color={info.iconColor} />
+                </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-                  <Typography fontSize={13.5} fontWeight={800} lineHeight={1.15} noWrap>
-                    {info.label}
+                  <Typography fontSize={14} fontWeight={800} lineHeight={1.15} noWrap>
+                    {info.symbol}
+                  </Typography>
+                  <Typography sx={{ fontFamily: MONO, fontSize: 11, color: theme.palette.text.secondary, lineHeight: 1.3 }} noWrap>
+                    {netLabel || info.label}
                   </Typography>
                 </Box>
               </Box>
@@ -855,11 +886,13 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
     const feePayerIsCustomer = (meta_.fee_payer || 'company') === 'customer'
     const fiatShown = totalFiat ?? meta_.amount
     return (
-      <Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-            <Icon icon={info?.icon || 'mdi:coin'} width={22} color={info?.iconColor} />
-            <Typography fontWeight={800} fontSize={15}>
+      <Box data-testid="inline-tip-awaiting">
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, mb: 0.75, flexWrap: 'wrap' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box sx={{ width: 40, height: 40, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(18,18,20,0.04)' }}>
+              <Icon icon={info?.icon || 'mdi:coin'} width={26} color={info?.iconColor} />
+            </Box>
+            <Typography fontWeight={800} fontSize={{ xs: 17, sm: 19 }} sx={{ fontFamily: MONO, letterSpacing: '-0.02em' }}>
               {t('creator.inline.sendAmount', { amount: formatCryptoAmount(cryptoInfo.expected_amount, cryptoInfo.crypto_base), coin: cryptoInfo.crypto_base, defaultValue: `Send ${formatCryptoAmount(cryptoInfo.expected_amount, cryptoInfo.crypto_base)} ${cryptoInfo.crypto_base}` })}
             </Typography>
           </Box>
@@ -871,7 +904,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
             />
           )}
         </Box>
-        <Typography fontSize={12} color={theme.palette.text.secondary} mb={1.5} data-testid="inline-tip-fiat-line">
+        <Typography fontSize={12.5} color={theme.palette.text.secondary} mb={2} data-testid="inline-tip-fiat-line">
           ≈ {sym}{formatWithSeparators(fiatShown, meta_.base_currency)}
           {feePayerIsCustomer && totalFiat != null && totalFiat > meta_.amount
             ? ` · ${t('creator.inline.includesFee', { defaultValue: 'includes network fee' })}`
@@ -885,16 +918,16 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            gap: 1,
-            p: 1.25,
-            borderRadius: '10px',
+            gap: 1.25,
+            p: 1.5,
+            borderRadius: '16px',
             border: `1px solid ${border}`,
-            backgroundColor: surface,
+            backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(18,18,20,0.03)',
           }}
         >
           <Typography
             data-testid="inline-tip-address"
-            sx={{ fontFamily: MONO, fontSize: 12.5, flex: 1, minWidth: 0, wordBreak: 'break-all' }}
+            sx={{ fontFamily: MONO, fontSize: 13, lineHeight: 1.5, flex: 1, minWidth: 0, wordBreak: 'break-all' }}
           >
             {cryptoInfo.address}
           </Typography>
@@ -903,22 +936,25 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
             onClick={() => doCopy(cryptoInfo.address, 'addr')}
             data-testid="inline-tip-copy"
             sx={{
-              background: 'none',
-              border: `1px solid ${border}`,
-              borderRadius: '8px',
-              px: 1,
-              py: 0.5,
+              background: copiedFlag === 'addr' ? alpha(accent, 0.14) : (isDark ? 'rgba(255,255,255,0.05)' : '#FFFFFF'),
+              border: `1px solid ${copiedFlag === 'addr' ? accent : border}`,
+              borderRadius: '12px',
+              px: 1.5,
+              minHeight: 44,
               cursor: 'pointer',
               color: theme.palette.text.primary,
-              fontSize: 12,
+              fontSize: 13,
               fontWeight: 700,
               flexShrink: 0,
               display: 'flex',
               alignItems: 'center',
-              gap: 0.4,
+              gap: 0.6,
+              transition: 'border-color 140ms ease, background-color 140ms ease, transform 140ms ease',
+              '&:hover': { borderColor: accent },
+              '&:active': { transform: 'scale(0.97)' },
             }}
           >
-            <Icon icon={copiedFlag === 'addr' ? 'mdi:check' : 'mdi:content-copy'} width={13} />
+            <Icon icon={copiedFlag === 'addr' ? 'mdi:check' : 'mdi:content-copy'} width={15} />
             {copiedFlag === 'addr' ? t('creator.inline.copied', { defaultValue: 'Copied' }) : t('creator.inline.copy', { defaultValue: 'Copy' })}
           </Box>
         </Box>
@@ -945,7 +981,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
             wallet scan pre-fills address + amount; collapsible for buyers who
             prefer copy/paste. */}
         {(cryptoInfo.qr_code || uri) && (
-          <Box sx={{ mt: 1.5, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             {qrExpanded && (
               <Box
                 component="button"
@@ -953,7 +989,15 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
                 onClick={() => doCopy(cryptoInfo.address, 'addr')}
                 aria-label={t('checkout.tapToCopyAddress', { defaultValue: 'Tap to copy payment address' })}
                 data-testid="inline-tip-qr-panel"
-                sx={{ mb: 1, p: 1.25, borderRadius: '12px', backgroundColor: '#FFFFFF', border: `1px solid ${border}`, cursor: 'pointer', display: 'flex' }}
+                sx={{
+                  mb: 1, p: 1.5, borderRadius: '20px', backgroundColor: '#FFFFFF',
+                  border: `1px solid ${alpha(accent, 0.35)}`,
+                  boxShadow: `0 0 0 6px ${alpha(accent, isDark ? 0.14 : 0.1)}, 0 18px 40px ${isDark ? 'rgba(0,0,0,0.45)' : alpha(accent, 0.16)}`,
+                  cursor: 'pointer', display: 'flex',
+                  transition: 'transform 140ms ease, box-shadow 140ms ease',
+                  '&:hover': { transform: 'translateY(-1px)' },
+                  '&:active': { transform: 'scale(0.98)' },
+                }}
               >
                 {uri ? (
                   <QRCodeSVG value={uri.uri} size={176} level="M" bgColor="#FFFFFF" fgColor="#000000" data-testid="inline-tip-qr-svg" />
@@ -997,9 +1041,11 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
             href={uri.uri}
             data-testid="inline-tip-open-wallet"
             sx={{
-              mt: 1.25, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.6,
-              width: '100%', minHeight: 44, borderRadius: '10px',
-              border: `1px solid ${LIME}`, color: LIME, textDecoration: 'none', fontSize: 13.5, fontWeight: 700,
+              mt: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.75,
+              width: '100%', minHeight: 48, borderRadius: '14px',
+              border: `1.5px solid ${alpha(accent, 0.6)}`, color: theme.palette.text.primary, textDecoration: 'none', fontSize: 14, fontWeight: 700,
+              transition: 'background-color 140ms ease, border-color 140ms ease',
+              '&:hover': { backgroundColor: alpha(accent, 0.08), borderColor: accent },
             }}
           >
             <Icon icon="mdi:wallet-outline" width={18} />
@@ -1197,25 +1243,29 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
           <Box
             sx={{
-              width: 52,
-              height: 52,
+              width: 72,
+              height: 72,
               borderRadius: '50%',
-              backgroundColor: LIME,
+              background: 'linear-gradient(135deg, #3FD98A 0%, #12B76A 100%)',
+              boxShadow: '0 0 0 10px rgba(18,183,106,0.14), 0 18px 40px rgba(18,183,106,0.35)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              mb: 1.25,
+              mb: 2,
+              animation: 'dpPop 560ms cubic-bezier(0.22,1,0.36,1) both',
+              '@keyframes dpPop': { from: { opacity: 0, transform: 'scale(0.6)' }, to: { opacity: 1, transform: 'scale(1)' } },
+              '@media (prefers-reduced-motion: reduce)': { animation: 'none' },
             }}
           >
-            <Icon icon="mdi:check-bold" width={30} color="#FFFFFF" />
+            <Icon icon="mdi:check-bold" width={38} color="#FFFFFF" />
           </Box>
-          <Typography fontWeight={800} fontSize={19} color={theme.palette.text.primary}>
+          <Typography fontWeight={800} fontSize={{ xs: 22, sm: 26 }} color={theme.palette.text.primary} sx={{ fontFamily: HERO_FONT, letterSpacing: '-0.025em', lineHeight: 1.15 }}>
             {mc('successTitle', { name: thanksName })}
           </Typography>
-          <Typography fontSize={13} color={theme.palette.text.secondary} mt={0.5}>
-            {mc('successSubject', { target: effectiveTarget, verb: successVerb })} — {fiatStr}.
+          <Typography fontSize={14} color={theme.palette.text.secondary} mt={1}>
+            {mc('successSubject', { target: effectiveTarget, verb: successVerb })} — <Box component="span" sx={{ fontFamily: MONO, fontWeight: 800, color: theme.palette.text.primary }}>{fiatStr}</Box>
           </Typography>
-          <Typography sx={{ fontFamily: MONO, fontSize: 12, color: theme.palette.text.secondary, mt: 0.5 }}>
+          <Typography sx={{ fontFamily: MONO, fontSize: 12.5, color: theme.palette.text.secondary, mt: 0.5 }}>
             {formatCryptoAmount(confirmedAmount.crypto, cryptoInfo?.crypto_base || 'BTC')}{' '}
             {cryptoInfo?.crypto_base || confirmedAmount.cryptoLabel}
           </Typography>
@@ -1396,8 +1446,8 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
               display: 'flex',
               alignItems: 'center',
               gap: 0.5,
-              px: 1.1,
-              py: 0.55,
+              px: 1.5,
+              minHeight: 40,
               borderRadius: '999px',
               border: `1px solid ${border}`,
               color: theme.palette.text.primary,
@@ -1418,8 +1468,8 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
               display: 'flex',
               alignItems: 'center',
               gap: 0.5,
-              px: 1.1,
-              py: 0.55,
+              px: 1.5,
+              minHeight: 40,
               borderRadius: '999px',
               border: `1px solid ${border}`,
               color: theme.palette.text.primary,
@@ -1438,8 +1488,8 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
               display: 'flex',
               alignItems: 'center',
               gap: 0.5,
-              px: 1.1,
-              py: 0.55,
+              px: 1.5,
+              minHeight: 40,
               borderRadius: '999px',
               border: `1px solid ${border}`,
               background: 'none',
@@ -1460,20 +1510,20 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
             creatorName={meta_.merchant?.name || meta_.merchant?.company_name || creatorName || `@${handle}`}
             handle={meta_.merchant?.handle || handle}
             avatarUrl={meta_.merchant?.company_logo || null}
-            accent={accentColor || LIME}
+            accent={accent}
             amountLabel={fiatStr}
             message={showDonorMsg ? donorMessage : null}
             pageUrl={shareUrl}
           />
         )}
 
-        <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
+        <Box sx={{ display: 'flex', gap: 1, mt: 2.5 }}>
           <Button
             fullWidth
             variant="outlined"
             data-testid="inline-tip-success-back-btn"
             onClick={onCancel}
-            sx={{ textTransform: 'none', borderRadius: '10px', fontWeight: 700, fontSize: 13.5 }}
+            sx={{ textTransform: 'none', borderRadius: '14px', minHeight: 48, fontWeight: 700, fontSize: 14, color: theme.palette.text.primary, borderColor: border, '&:hover': { borderColor: theme.palette.text.primary, backgroundColor: 'transparent' } }}
           >
             {mc('backLabel', { target: mode === 'tip' ? `@${handle}` : (creatorName || `@${handle}`) })}
           </Button>
@@ -1485,12 +1535,13 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
             onClick={onNewTip}
             sx={{
               ...(successHref
-                ? {}
-                : { backgroundColor: LIME, color: ON_BRAND, '&:hover': { backgroundColor: LIME, filter: 'brightness(1.05)' } }),
+                ? { color: theme.palette.text.primary, borderColor: border }
+                : { background: `linear-gradient(135deg, ${LIME} 0%, #FFB300 100%)`, color: ON_BRAND, boxShadow: '0 12px 28px rgba(255,179,0,0.32)', '&:hover': { background: `linear-gradient(135deg, ${LIME} 0%, #FFB300 100%)`, filter: 'brightness(1.05)' } }),
               textTransform: 'none',
-              borderRadius: '10px',
+              borderRadius: '14px',
+              minHeight: 48,
               fontWeight: 800,
-              fontSize: 13.5,
+              fontSize: 14,
             }}
           >
             {mc('againLabel')}

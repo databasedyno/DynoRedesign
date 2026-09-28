@@ -117,6 +117,7 @@ export default function ShopToolbar({
     }`,
     borderRadius: 999,
     px: 0.5,
+    minHeight: 34,
     "&:hover": {
       bgcolor: active
         ? isDark
@@ -126,7 +127,7 @@ export default function ShopToolbar({
           ? "rgba(255,255,255,0.1)"
           : "rgba(0,0,0,0.07)",
     },
-    transition: "all 0.15s ease",
+    transition: "background-color 150ms ease, border-color 150ms ease, color 150ms ease",
   });
 
   return (
@@ -138,9 +139,10 @@ export default function ShopToolbar({
         alignItems: { xs: "stretch", md: "center" },
         justifyContent: "space-between",
         gap: 2,
-        mb: 3,
-        pb: 2,
-        borderBottom: `1px solid ${isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}`,
+        mb: 3.5,
+        px: { xs: 0, md: 0.5 },
+        pb: 2.5,
+        borderBottom: `1px solid ${isDark ? "rgba(255,255,255,0.06)" : "rgba(18,18,20,0.06)"}`,
       }}
     >
       {/* LEFT: type chips + category chips */}
@@ -222,8 +224,12 @@ export default function ShopToolbar({
           variant="body2"
           sx={{
             color: isDark ? "rgba(255,255,255,0.65)" : "rgba(0,0,0,0.55)",
+            fontFamily: 'var(--font-tech), ui-monospace, monospace',
+            fontSize: 12.5,
             fontVariantNumeric: "tabular-nums",
-            fontWeight: 500,
+            fontWeight: 600,
+            letterSpacing: "0.04em",
+            textTransform: "uppercase",
             whiteSpace: "nowrap",
           }}
           data-testid="shop-result-count"
@@ -231,7 +237,7 @@ export default function ShopToolbar({
           {t(visibleCount === 1 ? "shop.resultOne" : "shop.resultOther", { count: visibleCount, defaultValue: `${visibleCount} ${visibleCount === 1 ? "result" : "results"}` })}
         </Typography>
 
-        <FormControl size="small" sx={{ minWidth: 180 }}>
+        <FormControl size="small" sx={{ minWidth: 190 }}>
           <Select
             value={sort}
             onChange={(e) => onSortChange(e.target.value as SortKey)}
@@ -239,10 +245,13 @@ export default function ShopToolbar({
             inputProps={{ "aria-label": t("shop.sortLabel", { defaultValue: "Sort" }) }}
             renderValue={(v) => `${t("shop.sortLabel", { defaultValue: "Sort" })}: ${t(SORT_I18N[v as SortKey], { defaultValue: SORT_LABELS[v as SortKey] })}`}
             sx={{
-              borderRadius: 2,
-              fontWeight: 500,
+              borderRadius: 999,
+              fontWeight: 600,
+              fontSize: 14,
+              minHeight: 44,
+              bgcolor: isDark ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.8)",
               "& .MuiOutlinedInput-notchedOutline": {
-                borderColor: isDark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.15)",
+                borderColor: isDark ? "rgba(255,255,255,0.14)" : "rgba(18,18,20,0.12)",
               },
             }}
           >

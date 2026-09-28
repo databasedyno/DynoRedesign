@@ -1,38 +1,31 @@
 /**
  * ShopHero — brand banner for /{handle}/shop.
  *
- * Displays:
- *   • Gradient cover derived from merchant's avatar (with subtle noise / mesh)
- *   • Ring-bordered avatar + name + @handle + bio
- *   • Live stats: product count, total sold, currency
- *   • Share tray (X, Threads, WhatsApp, Copy link)
- *
- * Theme-aware (light + dark). No external image dependencies —
- * cover is a CSS gradient so we can't hit a broken asset.
+ * Mirrors the merchant's creator-page theme 1:1 (cover image / gradient /
+ * pattern / aurora + accent) so the shop and the profile read as ONE brand,
+ * then layers the identity row (ring avatar, name, @handle, bio, live stats)
+ * and a share tray over it.
  */
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  Box,
-  Typography,
-  Avatar,
-  IconButton,
-  Tooltip,
-  Snackbar,
-  Chip,
-  Stack,
-  useTheme,
-} from "@mui/material";
+import { Box, Typography, Avatar, IconButton, Tooltip, Snackbar, useTheme } from "@mui/material";
+import { alpha, darken } from "@mui/material/styles";
 import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
+import { Icon } from "@iconify/react";
 import type { ShopMerchant, ShopProduct } from "./types";
 import copyToClipboard from "@/helpers/copyToClipboard";
 import PublicVerifiedBadge from "@/Components/UI/PublicVerifiedBadge";
+import { BRAND_ACCENT } from "@/constants/theme";
+import { buildCoverBackground, GRAIN_URL, readableOn, rise, type CoverStyle } from "@/constants/creatorTheme";
 
 interface Props {
   merchant: ShopMerchant;
   products: ShopProduct[];
   shopUrl: string;
 }
+
+const MONO = 'var(--font-tech), ui-monospace, "JetBrains Mono", SFMono-Regular, Menlo, monospace';
+const HERO = "var(--font-hero), var(--font-sans)";
 
 const X_ICON = (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
@@ -55,16 +48,20 @@ const WHATSAPP_ICON = (
 export default function ShopHero({ merchant, products, shopUrl }: Props) {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+  const canvas = theme.palette.background.default;
   const { t } = useTranslation("landing");
   const [copied, setCopied] = useState(false);
 
-  // Derive brand tint from merchant name (deterministic hue).
-  const hue = useMemo(() => {
-    const s = merchant.name || merchant.handle || "dynopay";
-    let h = 0;
-    for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 360;
-    return h;
-  }, [merchant.name, merchant.handle]);
+  // Merchant theme — the same source of truth as the creator page.
+  const accent = merchant.theme?.accent_color || merchant.accent || BRAND_ACCENT;
+  const accentText = isDark ? accent : (readableOn(accent) === "#FFFFFF" ? accent : darken(accent, 0.38));
+  const coverBackground = useMemo(() => {
+    const style = (merchant.theme?.cover_style || (merchant.cover_image ? "image" : "solid")) as CoverStyle;
+    return buildCoverBackground(
+      { accentColor: merchant.theme?.accent_color || merchant.accent || null, coverStyle: style, coverGradient: merchant.theme?.cover_gradient || null },
+      merchant.cover_image || null,
+    );
+  }, [merchant.theme, merchant.accent, merchant.cover_image]);
 
   const totalSold = useMemo(
     () => products.reduce((n, p) => n + (p.sold_count || 0), 0),
@@ -89,86 +86,110 @@ export default function ShopHero({ merchant, products, shopUrl }: Props) {
     }
   };
 
-  const coverGradient = isDark
-    ? `radial-gradient(1100px 420px at 15% 0%, rgba(255,209,0,0.5) 0%, transparent 60%),
-       radial-gradient(900px 340px at 85% 25%, rgba(255,209,0,0.4) 0%, transparent 58%),
-       radial-gradient(760px 300px at 55% 115%, hsla(${hue},70%,55%,0.28) 0%, transparent 60%),
-       linear-gradient(180deg, rgba(2,6,23,0.45) 0%, rgba(2,6,23,0.82) 100%)`
-    : `radial-gradient(1100px 420px at 15% 0%, rgba(139,94,0,0.26) 0%, transparent 60%),
-       radial-gradient(900px 340px at 85% 25%, rgba(124,58,237,0.20) 0%, transparent 58%),
-       radial-gradient(760px 300px at 55% 115%, hsla(${hue},80%,68%,0.38) 0%, transparent 60%),
-       linear-gradient(180deg, rgba(255,255,255,0.0) 0%, rgba(255,255,255,0.4) 100%)`;
-
   const shareBtnSx = {
-    color: isDark ? "rgba(255,255,255,0.9)" : "rgba(0,0,0,0.75)",
-    bgcolor: isDark ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.7)",
-    border: `1px solid ${isDark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.08)"}`,
+    width: 42,
+    height: 42,
+    color: theme.palette.text.primary,
+    bgcolor: isDark ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.8)",
+    border: `1px solid ${theme.palette.divider}`,
+    backdropFilter: "blur(10px)",
+    WebkitBackdropFilter: "blur(10px)",
+    transition: "border-color 160ms ease, transform 160ms ease, background-color 160ms ease",
     "&:hover": {
-      bgcolor: isDark ? "rgba(255,255,255,0.16)" : "rgba(255,255,255,0.95)",
-      transform: "translateY(-1px)",
+      bgcolor: alpha(accent, 0.1),
+      borderColor: accent,
+      transform: "translateY(-2px)",
     },
-    transition: "all 0.15s ease",
+    "&:active": { transform: "translateY(0) scale(0.96)" },
+  };
+
+  const statChipSx = {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 0.6,
+    px: 1.4,
+    minHeight: 32,
+    borderRadius: "999px",
+    fontFamily: MONO,
+    fontSize: 12,
+    fontWeight: 700,
+    letterSpacing: "0.02em",
+    border: `1px solid ${theme.palette.divider}`,
+    bgcolor: isDark ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.8)",
+    color: theme.palette.text.primary,
   };
 
   return (
-    <Box
-      data-testid="shop-hero"
-      sx={{
-        position: "relative",
-        borderRadius: { xs: 0, md: 3 },
-        overflow: "hidden",
-        mb: { xs: 3, md: 5 },
-        background: coverGradient,
-        backgroundColor: isDark ? "#0b0f14" : "#f5f6f9",
-        border: `1px solid ${isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)"}`,
-        px: { xs: 3, md: 5 },
-        py: { xs: 4, md: 6 },
-      }}
-    >
-      {/* Noise overlay for texture */}
+    <Box data-testid="shop-hero" sx={{ position: "relative", mb: { xs: 4, md: 6 }, ...rise(0) }}>
+      {/* Cover band — merchant theme */}
       <Box
-        aria-hidden
         sx={{
-          position: "absolute",
-          inset: 0,
-          pointerEvents: "none",
-          opacity: isDark ? 0.06 : 0.04,
-          backgroundImage:
-            "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/></svg>\")",
+          position: "relative",
+          height: { xs: 156, sm: 196, md: 232 },
+          borderRadius: { xs: "20px", md: "28px" },
+          overflow: "hidden",
+          background: coverBackground,
+          boxShadow: isDark ? "0 30px 70px rgba(0,0,0,0.5)" : `0 30px 70px ${alpha(accent, 0.16)}`,
         }}
-      />
+      >
+        <Box aria-hidden sx={{ position: "absolute", inset: 0, backgroundImage: GRAIN_URL, opacity: 0.09, mixBlendMode: "overlay", pointerEvents: "none" }} />
+        <Box aria-hidden sx={{ position: "absolute", inset: 0, background: `linear-gradient(to bottom, ${alpha(canvas, 0)} 45%, ${alpha(canvas, 0.35)} 80%, ${alpha(canvas, 0.7)} 100%)` }} />
+      </Box>
 
-      <Box sx={{ position: "relative", display: "flex", flexDirection: { xs: "column", sm: "row" }, alignItems: { xs: "flex-start", sm: "center" }, gap: { xs: 2, sm: 3 } }}>
-        <Avatar
-          src={merchant.avatar || undefined}
-          alt={merchant.name}
-          data-testid="shop-merchant-avatar"
+      {/* Identity row — straddles the cover */}
+      <Box
+        sx={{
+          position: "relative",
+          display: "flex",
+          flexDirection: { xs: "column", sm: "row" },
+          alignItems: { xs: "flex-start", sm: "flex-end" },
+          gap: { xs: 1.5, sm: 3 },
+          mt: { xs: -6, sm: -7 },
+          px: { xs: 2, sm: 3, md: 4 },
+        }}
+      >
+        <Box
           sx={{
-            width: { xs: 72, md: 96 },
-            height: { xs: 72, md: 96 },
-            border: `3px solid ${isDark ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.98)"}`,
-            boxShadow: "0 12px 40px rgba(139,94,0,0.35), 0 8px 32px rgba(0,0,0,0.25)",
-            background: merchant.accent || `linear-gradient(135deg, #FFD100 0%, #FFB300 60%, hsl(${hue}, 70%, 55%) 120%)`,
-            fontSize: { xs: 28, md: 36 },
-            fontWeight: 700,
+            p: "4px",
+            borderRadius: "50%",
+            flexShrink: 0,
+            background: `conic-gradient(from 210deg, ${accent} 0%, #FFB300 42%, ${alpha("#0EA5E9", 0.9)} 70%, ${accent} 100%)`,
+            boxShadow: `0 16px 44px ${alpha(accent, isDark ? 0.4 : 0.28)}`,
           }}
         >
-          {(merchant.name || merchant.handle || "?").slice(0, 1).toUpperCase()}
-        </Avatar>
+          <Avatar
+            src={merchant.avatar || undefined}
+            alt={merchant.name}
+            data-testid="shop-merchant-avatar"
+            sx={{
+              width: { xs: 96, md: 112 },
+              height: { xs: 96, md: 112 },
+              border: `4px solid ${canvas}`,
+              bgcolor: theme.palette.background.paper,
+              background: merchant.avatar ? undefined : `linear-gradient(135deg, ${accent} 0%, ${darken(accent, 0.28)} 100%)`,
+              color: readableOn(accent),
+              fontFamily: HERO,
+              fontSize: { xs: 36, md: 44 },
+              fontWeight: 800,
+            }}
+          >
+            {(merchant.name || merchant.handle || "?").slice(0, 1).toUpperCase()}
+          </Avatar>
+        </Box>
 
-        <Box sx={{ flex: 1, minWidth: 0 }}>
+        <Box sx={{ flex: 1, minWidth: 0, pb: { sm: 0.5 } }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
             <Typography
               variant="h3"
               component="h1"
               sx={{
                 fontWeight: 800,
-                fontSize: { xs: "1.75rem", md: "2.5rem" },
-                lineHeight: 1.12,
+                fontSize: { xs: "1.7rem", md: "2.3rem" },
+                lineHeight: 1.1,
                 letterSpacing: "-0.03em",
-                fontFamily: "var(--font-hero), var(--font-sans)",
-                color: isDark ? "rgba(255,255,255,0.98)" : "rgba(0,0,0,0.92)",
-                wordBreak: "break-word",
+                fontFamily: HERO,
+                color: theme.palette.text.primary,
+                overflowWrap: "anywhere",
               }}
               data-testid="shop-merchant-name"
             >
@@ -177,161 +198,89 @@ export default function ShopHero({ merchant, products, shopUrl }: Props) {
             <PublicVerifiedBadge handle={merchant.handle} size={22} ml={0} />
           </Box>
 
-          <Typography
-            variant="body2"
-            sx={{
-              mt: 0.5,
-              color: isDark ? "rgba(255,255,255,0.65)" : "rgba(0,0,0,0.55)",
-              fontWeight: 500,
-              fontVariantNumeric: "tabular-nums",
-            }}
-            data-testid="shop-merchant-handle"
-          >
-            @{merchant.handle}
-          </Typography>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.25, mt: 0.75, flexWrap: "wrap" }}>
+            <Box
+              sx={{
+                display: "inline-flex", alignItems: "center", px: 1.25, py: 0.35, borderRadius: "999px",
+                border: `1px solid ${alpha(accent, 0.38)}`, bgcolor: alpha(accent, isDark ? 0.12 : 0.08),
+              }}
+            >
+              <Typography sx={{ fontFamily: MONO, fontSize: 13, fontWeight: 600, color: accentText }} data-testid="shop-merchant-handle">
+                @{merchant.handle}
+              </Typography>
+            </Box>
+            <Box
+              component="a"
+              href={`/${merchant.handle}`}
+              data-testid="shop-back-to-page"
+              sx={{ display: "inline-flex", alignItems: "center", gap: 0.4, fontSize: 13, fontWeight: 700, color: theme.palette.text.secondary, textDecoration: "none", minHeight: 32, "&:hover": { color: accentText } }}
+            >
+              <Icon icon="mdi:account-circle-outline" width={16} />
+              {t("shop.viewPage", { defaultValue: "View page" })}
+            </Box>
+          </Box>
 
           {merchant.bio && (
             <Typography
-              variant="body1"
               sx={{
                 mt: 1.5,
                 maxWidth: 640,
-                color: isDark ? "rgba(255,255,255,0.85)" : "rgba(0,0,0,0.75)",
-                lineHeight: 1.5,
+                fontSize: { xs: 14.5, md: 15.5 },
+                color: theme.palette.text.secondary,
+                lineHeight: 1.6,
+                whiteSpace: "pre-line",
               }}
               data-testid="shop-merchant-bio"
             >
               {merchant.bio}
             </Typography>
           )}
-
-          {/* Stats row */}
-          <Stack
-            direction="row"
-            spacing={1}
-            sx={{ mt: 2, flexWrap: "wrap", gap: 1 }}
-            data-testid="shop-stats"
-          >
-            <Chip
-              size="small"
-              label={t(productCount === 1 ? "shop.productOne" : "shop.productOther", { count: productCount, defaultValue: `${productCount} ${productCount === 1 ? "product" : "products"}` })}
-              sx={{
-                bgcolor: isDark ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.85)",
-                color: isDark ? "rgba(255,255,255,0.92)" : "rgba(0,0,0,0.85)",
-                fontWeight: 600,
-                border: `1px solid ${isDark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.06)"}`,
-              }}
-              data-testid="shop-stat-products"
-            />
-            {totalSold > 0 && (
-              <Chip
-                size="small"
-                label={t("shop.soldCount", { count: totalSold, defaultValue: `${totalSold} sold` })}
-                sx={{
-                  bgcolor: isDark ? "rgba(5,177,105,0.16)" : "rgba(5,177,105,0.10)",
-                  color: isDark ? "#3FD98A" : "#05936A",
-                  fontWeight: 700,
-                  border: `1px solid ${isDark ? "rgba(63,217,138,0.35)" : "rgba(5,147,106,0.28)"}`,
-                }}
-                data-testid="shop-stat-sold"
-              />
-            )}
-            <Chip
-              size="small"
-              icon={
-                <Box component="span" sx={{ fontSize: 12, ml: "8px !important" }}>
-                  {"\u26A1"}
-                </Box>
-              }
-              label={t("shop.instantCheckout", { defaultValue: "Instant crypto checkout" })}
-              sx={{
-                bgcolor: isDark ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.75)",
-                color: isDark ? "rgba(255,255,255,0.85)" : "rgba(0,0,0,0.75)",
-                fontWeight: 500,
-                border: `1px solid ${isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.05)"}`,
-              }}
-              data-testid="shop-stat-crypto"
-            />
-          </Stack>
         </Box>
 
         {/* Share tray — right side on desktop, wraps under on mobile */}
-        <Stack
-          direction="row"
-          spacing={1}
-          sx={{
-            alignItems: "center",
-            mt: { xs: 1, sm: 0 },
-            flexShrink: 0,
-          }}
-          data-testid="shop-share-tray"
-        >
-          <Typography
-            variant="caption"
-            sx={{
-              mr: 0.5,
-              fontWeight: 700,
-              letterSpacing: "0.06em",
-              textTransform: "uppercase",
-              color: isDark ? "rgba(255,255,255,0.55)" : "rgba(0,0,0,0.5)",
-            }}
-          >
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexShrink: 0, pb: { sm: 0.5 } }} data-testid="shop-share-tray">
+          <Typography sx={{ mr: 0.5, fontFamily: MONO, fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: theme.palette.text.secondary }}>
             {t("shop.share", { defaultValue: "Share" })}
           </Typography>
           <Tooltip title={t("shop.shareOnX", { defaultValue: "Share on X" })}>
-            <IconButton
-              size="small"
-              component="a"
-              href={shareLinks.x}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={t("shop.shareOnX", { defaultValue: "Share on X" })}
-              sx={shareBtnSx}
-              data-testid="shop-share-x"
-            >
+            <IconButton component="a" href={shareLinks.x} target="_blank" rel="noopener noreferrer" aria-label={t("shop.shareOnX", { defaultValue: "Share on X" })} sx={shareBtnSx} data-testid="shop-share-x">
               {X_ICON}
             </IconButton>
           </Tooltip>
           <Tooltip title={t("shop.shareOnThreads", { defaultValue: "Share on Threads" })}>
-            <IconButton
-              size="small"
-              component="a"
-              href={shareLinks.threads}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={t("shop.shareOnThreads", { defaultValue: "Share on Threads" })}
-              sx={shareBtnSx}
-              data-testid="shop-share-threads"
-            >
+            <IconButton component="a" href={shareLinks.threads} target="_blank" rel="noopener noreferrer" aria-label={t("shop.shareOnThreads", { defaultValue: "Share on Threads" })} sx={shareBtnSx} data-testid="shop-share-threads">
               {THREADS_ICON}
             </IconButton>
           </Tooltip>
           <Tooltip title={t("shop.shareOnWhatsApp", { defaultValue: "Share on WhatsApp" })}>
-            <IconButton
-              size="small"
-              component="a"
-              href={shareLinks.whatsapp}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={t("shop.shareOnWhatsApp", { defaultValue: "Share on WhatsApp" })}
-              sx={shareBtnSx}
-              data-testid="shop-share-whatsapp"
-            >
+            <IconButton component="a" href={shareLinks.whatsapp} target="_blank" rel="noopener noreferrer" aria-label={t("shop.shareOnWhatsApp", { defaultValue: "Share on WhatsApp" })} sx={shareBtnSx} data-testid="shop-share-whatsapp">
               {WHATSAPP_ICON}
             </IconButton>
           </Tooltip>
           <Tooltip title={t("shop.copyLink", { defaultValue: "Copy link" })}>
-            <IconButton
-              size="small"
-              onClick={handleCopy}
-              aria-label={t("shop.copyShopLink", { defaultValue: "Copy shop link" })}
-              sx={shareBtnSx}
-              data-testid="shop-share-copy"
-            >
-              <ContentCopyRoundedIcon sx={{ fontSize: 18 }} />
+            <IconButton onClick={handleCopy} aria-label={t("shop.copyShopLink", { defaultValue: "Copy shop link" })} sx={{ ...shareBtnSx, ...(copied ? { borderColor: accent, bgcolor: alpha(accent, 0.12) } : {}) }} data-testid="shop-share-copy">
+              {copied ? <Icon icon="mdi:check" width={18} /> : <ContentCopyRoundedIcon sx={{ fontSize: 18 }} />}
             </IconButton>
           </Tooltip>
-        </Stack>
+        </Box>
+      </Box>
+
+      {/* Stats row */}
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 2.5, px: { xs: 2, sm: 3, md: 4 } }} data-testid="shop-stats">
+        <Box sx={statChipSx} data-testid="shop-stat-products">
+          <Icon icon="mdi:shopping-outline" width={15} color={accentText} />
+          {t(productCount === 1 ? "shop.productOne" : "shop.productOther", { count: productCount, defaultValue: `${productCount} ${productCount === 1 ? "product" : "products"}` })}
+        </Box>
+        {totalSold > 0 && (
+          <Box sx={{ ...statChipSx, color: isDark ? "#3FD98A" : "#05936A", borderColor: isDark ? "rgba(63,217,138,0.35)" : "rgba(5,147,106,0.28)", bgcolor: isDark ? "rgba(5,177,105,0.12)" : "rgba(5,177,105,0.08)" }} data-testid="shop-stat-sold">
+            <Icon icon="mdi:fire" width={15} />
+            {t("shop.soldCount", { count: totalSold, defaultValue: `${totalSold} sold` })}
+          </Box>
+        )}
+        <Box sx={statChipSx} data-testid="shop-stat-crypto">
+          <Icon icon="mdi:lightning-bolt" width={15} color="#FFB300" />
+          {t("shop.instantCheckout", { defaultValue: "Instant crypto checkout" })}
+        </Box>
       </Box>
 
       <Snackbar

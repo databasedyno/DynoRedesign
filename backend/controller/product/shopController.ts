@@ -130,6 +130,12 @@ export const getShopByHandle = async (
         avatar: owner.photo || null,
         bio: owner.bio || null,
         accent: owner.theme_accent_color || null,
+        cover_image: owner.cover_image || null,
+        theme: {
+          accent_color: owner.theme_accent_color || null,
+          cover_style: owner.theme_cover_style || null,
+          cover_gradient: owner.theme_cover_gradient || null,
+        },
       },
       products: items,
     });
@@ -178,6 +184,12 @@ export const getShopProductBySlug = async (
         name: owner.name || owner.handle,
         avatar: owner.photo || null,
         accent: owner.theme_accent_color || null,
+        cover_image: owner.cover_image || null,
+        theme: {
+          accent_color: owner.theme_accent_color || null,
+          cover_style: owner.theme_cover_style || null,
+          cover_gradient: owner.theme_cover_gradient || null,
+        },
       },
       product: publicProductProjection(product.dataValues),
       variants: variants.map((v: any) => publicVariantProjection(v.dataValues)),

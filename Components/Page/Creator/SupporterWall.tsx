@@ -1,8 +1,10 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Box, Typography, useTheme } from '@mui/material'
+import { alpha, darken } from '@mui/material/styles'
 import { Icon } from '@iconify/react'
 import { formatWithSeparators, getCurrencySymbolFromFormat } from '@/utils/currencyFormat'
+import { readableOn } from '@/constants/creatorTheme'
 
 export interface RecentSupporter {
   name: string | null
@@ -28,31 +30,32 @@ const SupporterWall = ({ supporters, accent }: { supporters: RecentSupporter[]; 
   const { t } = useTranslation('landing')
   const theme = useTheme()
   const isDark = theme.palette.mode === 'dark'
+  const accentText = isDark ? accent : (readableOn(accent) === '#FFFFFF' ? accent : darken(accent, 0.38))
   if (!supporters.length) return null
   return (
-    <Box data-testid="creator-supporter-wall" sx={{ mt: 2.5, pt: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
-      <Typography sx={{ fontFamily: MONO, fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: theme.palette.text.secondary, mb: 1.25 }}>
+    <Box data-testid="creator-supporter-wall" sx={{ mt: 3, pt: 2.5, borderTop: `1px solid ${theme.palette.divider}`, position: 'relative' }}>
+      <Typography sx={{ fontFamily: MONO, fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: theme.palette.text.secondary, mb: 1.5 }}>
         {t('creator.wall.title', { defaultValue: 'Recent supporters' })}
       </Typography>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
         {supporters.map((s, i) => {
           const name = s.name || t('creator.wall.anonymous', { defaultValue: 'Someone' })
           return (
-            <Box key={`${s.at}-${i}`} data-testid="creator-supporter-row" sx={{ display: 'flex', gap: 1.25, alignItems: 'flex-start' }}>
-              <Box sx={{ width: 30, height: 30, borderRadius: '10px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)', color: accent }}>
-                {s.name ? <Typography sx={{ fontWeight: 800, fontSize: 13 }}>{s.name.charAt(0).toUpperCase()}</Typography> : <Icon icon="mdi:heart" width={15} />}
+            <Box key={`${s.at}-${i}`} data-testid="creator-supporter-row" sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start', p: 1.25, borderRadius: '16px', backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(18,18,20,0.025)', transition: 'background-color 140ms ease', '&:hover': { backgroundColor: alpha(accent, isDark ? 0.08 : 0.06) } }}>
+              <Box sx={{ width: 36, height: 36, borderRadius: '12px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: `linear-gradient(135deg, ${alpha(accent, 0.3)} 0%, ${alpha(accent, 0.1)} 100%)`, color: accentText }}>
+                {s.name ? <Typography sx={{ fontWeight: 800, fontSize: 14 }}>{s.name.charAt(0).toUpperCase()}</Typography> : <Icon icon="mdi:heart" width={16} />}
               </Box>
               <Box sx={{ minWidth: 0, flex: 1 }}>
                 <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 0.75, flexWrap: 'wrap' }}>
-                  <Typography sx={{ fontSize: 13.5, fontWeight: 700, color: theme.palette.text.primary }} noWrap>{name}</Typography>
-                  <Typography sx={{ fontFamily: MONO, fontSize: 12.5, fontWeight: 700, color: accent }}>
+                  <Typography sx={{ fontSize: 14, fontWeight: 700, color: theme.palette.text.primary }} noWrap>{name}</Typography>
+                  <Typography sx={{ fontFamily: MONO, fontSize: 13, fontWeight: 700, color: accentText }}>
                     {getCurrencySymbolFromFormat(s.currency)}{formatWithSeparators(s.amount, s.currency)}
                   </Typography>
                   <Typography sx={{ fontSize: 11.5, color: theme.palette.text.disabled, ml: 'auto' }}>{relTime(s.at, t)}</Typography>
                 </Box>
                 {s.message && (
-                  <Typography sx={{ fontSize: 13, color: theme.palette.text.secondary, lineHeight: 1.45, mt: 0.25, overflowWrap: 'anywhere' }}>
-                    {s.message}
+                  <Typography sx={{ fontSize: 13.5, color: theme.palette.text.secondary, lineHeight: 1.5, mt: 0.35, overflowWrap: 'anywhere' }}>
+                    &ldquo;{s.message}&rdquo;
                   </Typography>
                 )}
               </Box>

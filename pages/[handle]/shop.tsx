@@ -14,7 +14,9 @@ import React from "react";
 import Head from "next/head";
 import { GetServerSideProps } from "next";
 import { getCreatorBaseUrl } from "@/helpers/creatorUrl";
-import { Container } from "@mui/material";
+import { Box, Container, useTheme } from "@mui/material";
+import { alpha } from "@mui/material/styles";
+import { BRAND_ACCENT } from "@/constants/theme";
 import { NextPageWithLayout } from "@/pages/_app";
 import { ShopClient } from "@/Components/Page/Shop";
 import type { ShopMerchant, ShopProduct } from "@/Components/Page/Shop/types";
@@ -23,6 +25,7 @@ import { resolveMetaLang, shopSeoStrings } from "@/helpers/shopSeoMeta";
 import { toFixedStr } from "@/utils/money";
 import { getRuntimeFlags } from "@/helpers/runtimeFlags";
 import { sendCreatorVisitBeacon } from "@/helpers/creatorVisitBeacon";
+import { ssrFetchHeaders } from "@/helpers/ssrFetchHeaders";
 
 interface ShopPageProps {
   merchant: ShopMerchant;
@@ -33,6 +36,9 @@ interface ShopPageProps {
 }
 
 const ShopPage: NextPageWithLayout<ShopPageProps> = ({ merchant, products, siteUrl, metaLang, verified }) => {
+  const theme = useTheme();
+  const isDarkMode = theme.palette.mode === "dark";
+  const pageAccent = merchant.theme?.accent_color || merchant.accent || BRAND_ACCENT;
   const seo = shopSeoStrings(metaLang);
   const title = `${merchant.name} — ${seo.shopSuffix} · Dynopay`;
   const description =
@@ -129,20 +135,30 @@ const ShopPage: NextPageWithLayout<ShopPageProps> = ({ merchant, products, siteU
         )}
       </Head>
 
-      <Container
-        component="main"
-        maxWidth="lg"
-        sx={{ pt: { xs: "80px", md: "96px" }, pb: { xs: 6, md: 8 } }}
-        data-testid="shop-page"
-      >
-        <ShopClient
-          merchant={merchant}
-          products={products}
-          shopUrl={url}
+      <Box sx={{ position: "relative", overflow: "hidden" }}>
+        {/* Ambient accent glow — the merchant's colour bleeds softly into the canvas */}
+        <Box
+          aria-hidden
+          sx={{
+            position: "absolute", inset: 0, pointerEvents: "none",
+            background: `radial-gradient(55% 32% at 50% 0%, ${alpha(pageAccent, isDarkMode ? 0.22 : 0.13)} 0%, transparent 70%), radial-gradient(34% 26% at 92% 62%, ${alpha("#0EA5E9", isDarkMode ? 0.08 : 0.05)} 0%, transparent 70%)`,
+          }}
         />
-        {/* Trust row — buyer reassurance at the foot of the storefront. */}
-        <MerchantTrustRow handle={merchant.handle} sx={{ mt: { xs: 5, md: 7 } }} />
-      </Container>
+        <Container
+          component="main"
+          maxWidth="lg"
+          sx={{ position: "relative", pt: { xs: "80px", md: "100px" }, pb: { xs: 6, md: 10 } }}
+          data-testid="shop-page"
+        >
+          <ShopClient
+            merchant={merchant}
+            products={products}
+            shopUrl={url}
+          />
+          {/* Trust row — buyer reassurance at the foot of the storefront. */}
+          <MerchantTrustRow handle={merchant.handle} sx={{ mt: { xs: 5, md: 7 } }} />
+        </Container>
+      </Box>
     </>
   );
 };
@@ -167,10 +183,9 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   let creatorHost = "";
   try { creatorHost = siteUrl ? new URL(siteUrl).host.toLowerCase() : ""; } catch { creatorHost = ""; }
   const reqHost = String(ctx.req.headers["x-forwarded-host"] || ctx.req.headers.host || "").split(",")[0].trim().toLowerCase();
+  const headers = ssrFetchHeaders(ctx.req);
   try {
-    const r = await fetch(`${base}/api/shop/${encodeURIComponent(handle)}`, {
-      headers: { Accept: "application/json" },
-    });
+    const r = await fetch(`${base}/api/shop/${encodeURIComponent(handle)}`, { headers });
     if (!r.ok) {
       console.error(`[SSR /[handle]/shop] shop fetch "${handle}" -> HTTP ${r.status} (base=${base})`);
       return { notFound: true };
@@ -197,7 +212,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     try {
       const vr = await fetch(
         `${base}/api/public/merchant-verification?handle=${encodeURIComponent(handle)}`,
-        { headers: { Accept: "application/json" } }
+        { headers }
       );
       if (vr.ok) {
         const vj = await vr.json();

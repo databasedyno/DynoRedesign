@@ -18,6 +18,12 @@ export interface ShopMerchant {
   bio?: string | null;
   /** Creator theme accent — keeps the shop avatar the same colour as /[handle]. */
   accent?: string | null;
+  cover_image?: string | null;
+  theme?: {
+    accent_color?: string | null;
+    cover_style?: string | null;
+    cover_gradient?: string | null;
+  } | null;
 }
 
 export interface ShopProduct {

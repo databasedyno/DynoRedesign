@@ -7,7 +7,7 @@ import {
   linkMiddleware,
   uploadImage,
 } from "../middleware";
-import { paymentRateLimiter } from "../middleware/rateLimitMiddleware";
+import { paymentRateLimiter, publicReadRateLimiter } from "../middleware/rateLimitMiddleware";
 import { walletTxSubmitted } from "../controller/payment/walletTxHint";
 
 const paymentRouter = express.Router();
@@ -29,15 +29,15 @@ paymentRouter.get("/og-image", paymentRateLimiter, paymentController.getCampaign
 // Short-link resolver: is this 6-char code a payment link? (read-only, public)
 // Used by the main-domain catch-all to distinguish payment codes from creator
 // handles before rendering dynopay.com/<segment>.
-paymentRouter.get("/link-exists/:code", paymentRateLimiter, paymentController.checkPaymentLinkExists);
+paymentRouter.get("/link-exists/:code", publicReadRateLimiter, paymentController.checkPaymentLinkExists);
 
 // Public creator vanity page profile (dynopay.com/{handle} → SSR fetch)
-paymentRouter.get("/creator/:handle", paymentRateLimiter, paymentController.getCreatorProfile);
+paymentRouter.get("/creator/:handle", publicReadRateLimiter, paymentController.getCreatorProfile);
 
 // Public creator page analytics (30-day tip chart + top supporters).
 // Honours the creator's public_analytics_enabled toggle — returns enabled:false
 // with empty data if hidden. Session 2026-08-05.
-paymentRouter.get("/creator/:handle/analytics", paymentRateLimiter, paymentController.getCreatorPublicAnalytics);
+paymentRouter.get("/creator/:handle/analytics", publicReadRateLimiter, paymentController.getCreatorPublicAnalytics);
 
 // Browser beacon that records a storefront / creator-page visit with the REAL
 // visitor IP + UA + referrer (SSR fetches can't). Always 200.
