@@ -1,13 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import { Box, Tooltip, useTheme } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import axiosBaseApi from "@/axiosConfig";
-import { API_ENDPOINTS } from "@/api/endpoints";
 import { Icon } from "@/styles/uiKit";
 import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
-import WalletActionButton from "@/Components/Wallet/WalletActionButton";
-import { isWalletPayable } from "@/lib/wallet/rails";
-import { isWalletKitConfigured } from "@/lib/wallet/appkit";
 import type { WalletDataType } from "@/utils/types/wallet";
 
 interface Props {
@@ -15,15 +10,14 @@ interface Props {
   onVerified: () => void;
 }
 
-/** "Verified with MetaMask" chip, or a small "Verify ownership" action (EVM / Tron / Solana). */
-const WalletOwnershipRow: React.FC<Props> = ({ wallet: w, onVerified }) => {
+/** "Verified with a wallet" chip for addresses verified historically. The active
+ *  "Verify ownership by signing" (WalletConnect / Reown AppKit) action has been
+ *  removed per request — see the note in the render below. */
+const WalletOwnershipRow: React.FC<Props> = ({ wallet: w }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const { t, i18n } = useTranslation("walletScreen");
-  const [open, setOpen] = useState(false);
   const id = String(w.id);
-
-  if (!isWalletKitConfigured() || !isWalletPayable(w.walletTitle)) return null;
 
   if (w.ownershipVerifiedAt) {
     const when = new Date(w.ownershipVerifiedAt).toLocaleDateString(i18n.language, { day: "numeric", month: "short", year: "numeric" });
@@ -43,42 +37,12 @@ const WalletOwnershipRow: React.FC<Props> = ({ wallet: w, onVerified }) => {
     );
   }
 
-  if (!open) {
-    return (
-      <Box
-        component="button"
-        type="button"
-        onClick={() => setOpen(true)}
-        data-testid={`wallet-ownership-verify-open-${id}`}
-        sx={{ all: "unset", alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 0.5, cursor: "pointer", fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 600, color: isDark ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light, "&:hover": { textDecoration: "underline" } }}
-      >
-        <Icon name="shield" size={13} />
-        {t("ownershipVerifyCta", { defaultValue: "Verify ownership by signing" })}
-      </Box>
-    );
-  }
-
-  return (
-    <Box sx={{ maxWidth: 360 }} data-testid={`wallet-ownership-verify-wrap-${id}`}>
-      <WalletActionButton
-        mode="verify"
-        compact
-        code={w.walletTitle}
-        address={w.walletAddress}
-        testId={`wallet-ownership-verify-${id}`}
-        hint={t("ownershipVerifyHint", { defaultValue: "Free — signing a message never moves funds." })}
-        labels={{ verify: t("ownershipVerifyBtn", { defaultValue: "Connect wallet & sign" }) }}
-        requestNonce={async () => {
-          const res: any = await axiosBaseApi.post(API_ENDPOINTS.wallet.ownershipNonce, { wallet_id: w.id });
-          return { nonce: res?.data?.data?.nonce, message: res?.data?.data?.message };
-        }}
-        submitSignature={async ({ nonce, signature, wallet_name }) => {
-          await axiosBaseApi.post(API_ENDPOINTS.wallet.ownershipVerify, { wallet_id: w.id, nonce, signature, wallet_name });
-        }}
-        onVerified={onVerified}
-      />
-    </Box>
-  );
+  // HIDDEN per request — WalletConnect "Verify ownership by signing" / "Connect
+  // wallet & sign" ownership check removed. Payout addresses are secured by the
+  // OTP step-up on add + address-format validation; on-chain wallet-signature
+  // verification is no longer required. (Matches SafeDeal PayoutSettings and the
+  // checkout / SafeDeal "Pay with wallet" removals.)
+  return null;
 };
 
 export default WalletOwnershipRow;

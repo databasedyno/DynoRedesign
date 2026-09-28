@@ -1,4 +1,42 @@
 # ============================================================================
+# >>> 2026-09-28 (fork, pt9) — BUGFIX: remove WalletConnect "Verify ownership by
+#     signing" from merchant Payout addresses (/wallet) — DONE & VERIFIED ✅ <<<
+# ============================================================================
+#  POD: https://83b861f3-f41f-4c81-87f0-b183977110ef.preview.emergentagent.com
+#  (= SERVER_URL in /app/backend/.env; the vault-auth-8 URL below is STALE).
+#  SAFE MODE, LIVE prod DB. Next.js PROD build (no hot reload) — REBUILT this fork.
+#
+#  USER REPORT: the merchant /wallet "Payout addresses" page still asked to
+#  "Verify ownership by signing" → "Connect wallet & sign" (WalletConnect), even
+#  though WalletConnect was already removed elsewhere. Fix + sweep for similar.
+#
+#  ROOT CAUSE: Components/Page/Wallet/WalletOwnershipRow.tsx rendered the Reown
+#  AppKit "verify ownership" action, gated only by isWalletKitConfigured() (true
+#  because NEXT_PUBLIC_REOWN_PROJECT_ID is set from the vault). It was the LAST
+#  live wallet-connect entry point — checkout "Pay with wallet" (CleanCheckoutV2),
+#  SafeDeal fund "Pay with wallet" (FundPanel) were already hard-disabled via
+#  {(false as boolean) && …}, and SafeDeal AddressVerifyAction was commented out
+#  in PayoutSettings (AddressVerifyChip only shows a benign "Verified" chip).
+#
+#  FIX (frontend only, uncommitted): WalletOwnershipRow.tsx now returns null for
+#  the verify action (removed the "Verify ownership by signing" link + "Connect
+#  wallet & sign" WalletActionButton + nonce/verify API calls + unused imports).
+#  KEPT the historical "Ownership verified · <via>" chip for already-verified
+#  addresses (mirrors SafeDeal AddressVerifyChip). tsc frontend 0, lint clean,
+#  .next-prod rebuilt, frontend 200. Served bundle no longer contains the strings.
+#
+#  VERIFIED by auto_frontend_testing_agent (READ-ONLY, LIVE prod DB, login
+#  onarrival21@gmail.com + TOTP): on /wallet at BOTH desktop (1920) and mobile
+#  (390) — (A) no "Verify ownership by signing" text, (B) no "Connect wallet &
+#  sign" text, (C) 0 wallet-ownership-verify-open-* / -*-btn testids, (D) no
+#  <w3m-modal> can be triggered, (E) regression OK (cards render, Add payout
+#  address present, copy/reveal/View Transactions/edit/delete controls present),
+#  (F) "Ownership verified" chip acceptable. ALL PASS.
+#  NEXT: user "Save to GitHub" — everything uncommitted.
+# ============================================================================
+
+
+# ============================================================================
 # >>> 2026-09-28 (fork, pt8) — HANDOFF FOR TESTING: payment-link "created" date — 6 GAPS CLOSED, FRONTEND TEST PENDING <<<
 # ============================================================================
 #  POD: https://vault-auth-8.preview.emergentagent.com (= SERVER_URL in

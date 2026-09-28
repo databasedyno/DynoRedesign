@@ -1,3 +1,9 @@
+## 2026-09-28 (fork, pt9) — CURRENT POD URL (supersedes ALL lines below)
+## - LIVE preview URL for THIS pod = https://83b861f3-f41f-4c81-87f0-b183977110ef.preview.emergentagent.com (read SERVER_URL in /app/backend/.env). The vault-auth-8 URL below is STALE.
+## - Owner/merchant: onarrival21@gmail.com / Katiekendra123@ (user_id 1, company_id 1 "The Dev Store", TOTP: node /app/backend/scripts/print_totp.cjs 1). Admin: moxxcompany@gmail.com / Katiekendra123@.
+## - CHANGE THIS FORK: removed the WalletConnect "Verify ownership by signing / Connect wallet & sign" action from the merchant /wallet Payout addresses page (Components/Page/Wallet/WalletOwnershipRow.tsx). The historical "Ownership verified" chip still renders for already-verified addresses.
+
+
 ## 2026-09-28 (fork, pt8) — CURRENT POD URL (supersedes the pt6 line below)
 ## - LIVE preview URL for THIS pod = https://vault-auth-8.preview.emergentagent.com (read SERVER_URL in /app/backend/.env; there is NO /app/frontend/.env — Next.js app lives at repo root).
 ## - Owner/merchant: onarrival21@gmail.com / Katiekendra123@ (user_id 1, company_id 1 "The Dev Store", TOTP: node /app/backend/scripts/print_totp.cjs 1). Admin: moxxcompany@gmail.com / Katiekendra123@.
