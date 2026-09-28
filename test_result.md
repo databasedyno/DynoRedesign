@@ -1,4 +1,34 @@
 # ============================================================================
+# >>> 2026-09-28 (fork, pt9b) — RETIRE WalletConnect FULLY (remove Reown keys +
+#     wallet SDK deps, trim bundle) — DONE & SMOKE-VERIFIED ✅ <<<
+# ============================================================================
+#  POD: https://83b861f3-f41f-4c81-87f0-b183977110ef.preview.emergentagent.com
+#  SAFE MODE, LIVE prod DB. Next.js PROD build (no hot reload) — REBUILT this fork.
+#
+#  WHAT: fully retired the (already UI-disabled) WalletConnect/Reown stack.
+#  DELETED lib/wallet/{appkit,actions,rails}.ts + Components/Wallet/{WalletActionButton,
+#  WalletAction}.tsx (+ empty dirs). Cleaned consumers CleanCheckoutV2.tsx,
+#  SafeDeal/FundPanel.tsx, SafeDeal/Home/AddressVerify.tsx (kept AddressVerifyChip
+#  = historical "Verified" chip). package.json: removed @reown/appkit(+3 adapters),
+#  wagmi, @wagmi/connectors, viem, @solana/web3.js, @tanstack/react-query,
+#  3x @tronweb3/*, and 5 wallet-only resolutions. KEPT tronweb (backend Tron SDK).
+#  Backend confirmed independent (no imports of any removed pkg).
+#  RESULT: node_modules pruned (7 pkgs), .next-prod/static/chunks 25M -> 19M (~24%
+#  JS reduction), 0 reown/wagmi/appkit refs in served bundle. tsc 0, ESLint clean.
+#
+#  VERIFIED by auto_frontend_testing_agent (READ-ONLY, LIVE prod DB): OVERALL PASS —
+#  0 runtime/console errors and NO wallet-connect UI (no "Pay with wallet", no
+#  "Verify ownership by signing"/"Connect wallet & sign", no <w3m-modal>) on
+#  hosted checkout, /safedeal, and /wallet. (/wallet also fully verified logged-in
+#  in pt9; this session hit a 2FA-timing hiccup on re-login only — not a code issue.
+#  Checkout awaiting-payment step not forced open — would reserve a real pool
+#  address on the LIVE DB.)
+#  NEXT: user "Save to GitHub" (uncommitted). On redeploy, drop NEXT_PUBLIC_REOWN_PROJECT_ID
+#  from the PRODUCTION env (it's not set in any pod env file, only in prod).
+# ============================================================================
+
+
+# ============================================================================
 # >>> 2026-09-28 (fork, pt9) — BUGFIX: remove WalletConnect "Verify ownership by
 #     signing" from merchant Payout addresses (/wallet) — DONE & VERIFIED ✅ <<<
 # ============================================================================

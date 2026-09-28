@@ -1,3 +1,15 @@
+# === 2026-09-28 (fork, pt9b) — RETIRE WalletConnect FULLY (remove Reown keys + wallet SDK deps, trim bundle) — DONE (tsc 0, lint clean, prod build; FE smoke pending user OK) ===
+# Follows pt9 (removed the last WalletConnect UI entry point on /wallet). This fork rips out the now-dead WalletConnect/Reown stack entirely to shrink the JS bundle.
+# DELETED: lib/wallet/appkit.ts, lib/wallet/actions.ts, Components/Wallet/WalletActionButton.tsx, Components/Wallet/WalletAction.tsx, lib/wallet/rails.ts (now zero importers) + the empty lib/wallet & Components/Wallet dirs.
+# EDITED consumers (all their wallet UI was already hard-disabled `{(false as boolean) && …}` / commented): Components/Page/Pay3Components/CleanCheckoutV2.tsx (dropped WalletActionButton + rails imports + the dead pay-with-wallet block), Components/SafeDeal/FundPanel.tsx (same), Components/SafeDeal/Home/AddressVerify.tsx (removed AddressVerifyAction + Props + wallet imports; KEPT AddressVerifyChip = historical "Verified" chip only). PayoutSettings.tsx already only imports AddressVerifyChip (its AddressVerifyAction ref is a comment).
+# package.json deps removed: @reown/appkit(+adapter-solana/-tron/-wagmi), @solana/web3.js, @tanstack/react-query, @tronweb3/tronwallet-adapter-{okxwallet,tronlink,trust}, viem, wagmi. resolutions removed: @wagmi/connectors, @wallet-standard/base, @wallet-standard/features, @solana/wallet-standard-{features,chains}. KEPT tronweb (backend Tron SDK) + postcss resolution. Backend confirmed independent (no imports of any removed pkg; backend/package.json has none).
+# ENV/next.config: NEXT_PUBLIC_REOWN_PROJECT_ID is NOT set in any pod env file (was only set in prod → that's why the merchant saw the row live). next.config.mjs webpack externals (pino-pretty/lokijs/encoding + async-storage alias) LEFT as-is (now harmless no-ops).
+# RESULT: node_modules pruned (7 pkgs gone), .next-prod/static/chunks 25M → 19M (~24% JS reduction), no createAppKit/WagmiAdapter/reown/w3m-modal in served bundle. tsc -p tsconfig.json --noEmit = 0 errors; ESLint on edited files clean; prod build OK; localhost:3000 / , /auth/login , /safedeal all 200.
+# OPS: FE = PRODUCTION Next build (no hot reload) → after edits `rm -rf /app/.next-prod && sudo supervisorctl restart frontend`. COMMIT: uncommitted — user "Save to GitHub".
+# TODO: frontend smoke (checkout QR/copy renders w/o wallet btn; SafeDeal fund panel; /wallet; SafeDeal payout chip) — awaiting user OK per test protocol.
+# ============================================================================================
+
+
 # === 2026-09-28 (fork, pt9) — BUGFIX: WalletConnect "Verify ownership by signing" removed from merchant /wallet — DONE & VERIFIED (auto_frontend_testing_agent, desktop+mobile) ===
 # Pod: preview = SERVER_URL in /app/backend/.env = https://83b861f3-f41f-4c81-87f0-b183977110ef.preview.emergentagent.com. SAFE MODE, LIVE prod DB. Next.js PROD build (no hot reload).
 # USER: merchant Payout addresses (/wallet) still showed "Verify ownership by signing" → "Connect wallet & sign" (WalletConnect) though WC was already removed elsewhere → fix + find/sweep any similar surface.

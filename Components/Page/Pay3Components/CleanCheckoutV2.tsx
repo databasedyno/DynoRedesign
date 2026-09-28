@@ -78,8 +78,7 @@ import {
   formatCryptoAmount, buildPaymentUri, copyToClipboard, readCheckoutPref, writeCheckoutPref,
 } from './checkout/checkoutHelpers'
 import { checkoutApi as api, fetchReceiptBlob, fetchReceiptLink, checkoutStreamUrl } from './checkout/checkoutApi'
-import WalletActionButton from '@/Components/Wallet/WalletActionButton'
-import { isWalletPayable, walletRailFor } from '@/lib/wallet/rails'
+// WalletConnect "Pay with wallet" retired — hosted checkout uses QR + copy-address only.
 import { toFixedStr } from '@/utils/money'
 import { clearCheckoutToken } from '@/helpers/checkoutSession'
 import useStickyCtaFootprint from '@/hooks/useStickyCtaFootprint'
@@ -2138,27 +2137,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
         </Box>
       )}
 
-      {/* Pay with wallet (Reown AppKit) — EVM / Tron / Solana: connects 600+ wallets and
-          pre-fills chain, token, exact amount and address, so no copy/paste or wrong-network
-          sends. Purely additive: QR + copy stay as the fallback. */}
-      {/* HIDDEN per request — WalletConnect "Pay with wallet" removed from checkout; QR + copy-address remain the payment path. */}
-      {(false as boolean) && cryptoInfo && (phase === 'awaiting_payment' || phase === 'underpaid') && isWalletPayable(cryptoInfo.crypto_display) && (
-        <Box sx={{ mb: 2 }} data-testid="clean-checkout-wallet-pay-wrap">
-          <WalletActionButton
-            mode="pay"
-            code={cryptoInfo.crypto_display}
-            address={cryptoInfo.address}
-            amount={toFixedStr(amountToSend, walletRailFor(cryptoInfo.crypto_display)?.decimals ?? 8).replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '')}
-            labels={{ pay: t('checkout.payWithWallet', { defaultValue: 'Pay {{amount}} {{coin}} with wallet', amount: formatCryptoAmount(amountToSend, cryptoInfo.crypto_base), coin: cryptoInfo.crypto_base }) }}
-            hint={t('checkout.payWithWalletHint', { defaultValue: 'MetaMask, Trust, Binance Web3, Phantom, TronLink and 600+ wallets — exact amount and network pre-filled.' })}
-            testId="clean-checkout-pay-with-wallet"
-            onSubmitted={({ hash, from, wallet_name }) => {
-              if (!meta_?.token) return
-              void api('/pay/walletTxSubmitted', { data: d, payment_id: paymentIdRef.current || undefined, tx_hash: hash, address: cryptoInfo.address, coin: cryptoInfo.crypto_display, from_address: from, wallet_name }, meta_.token).catch(() => {})
-            }}
-          />
-        </Box>
-      )}
+      {/* WalletConnect "Pay with wallet" retired — hosted checkout uses QR + copy-address only. */}
 
       {/* Open in wallet app — one-tap deep link (BIP-21 / Solana Pay). Only
           shown for native-coin chains where the amount is unambiguously
