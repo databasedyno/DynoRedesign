@@ -1,12 +1,12 @@
 ## 2026-09-28 (fork, pt6) — CURRENT POD URL (use this, others below are stale)
-## - LIVE preview URL for THIS pod = https://16c830c7-de19-4f07-b1e0-2d29adca8264.preview.emergentagent.com
+## - LIVE preview URL for THIS pod = https://vault-setup-12.preview.emergentagent.com
 ## - Admin (SafeDeal / Dynopay) login: moxxcompany@gmail.com / Katiekendra123@ (also the vault passphrase)
 ## - SafeDeal customer sign-in: any *@example.com email → one-time code in UI (sd-signin-preview-code) and POST /api/safedeal/auth/send-code → data.preview_code.
 ## - Simulated funding is DISABLED on this pod (SAFEDEAL_ALLOW_SIMULATION unset) — cannot fund deals; test fee math via /api/safedeal/fee-preview and the create-deal quote UI.
 
 
 ## 2026-09-25 (fork) — POD PREVIEW URL + QA CENTER PASSCODE (read first)
-## - LIVE preview URL for THIS pod = https://vault-setup-11.preview.emergentagent.com (env `preview_endpoint`). The parent-job URL db6f1699-…preview.emergentagent.com is STALE → resolves to Cloudflare/Webflow prod → 404s all /api/*. Never use it.
+## - LIVE preview URL for THIS pod = https://vault-setup-12.preview.emergentagent.com (env `preview_endpoint`). The parent-job URL db6f1699-…preview.emergentagent.com is STALE → resolves to Cloudflare/Webflow prod → 404s all /api/*. Never use it.
 ## - Backend on this pod runs under uvicorn `--reload` (WatchFiles) → transient 502/503 "Backend starting" during reloads. Any fetch/curl/Playwright QA must send a browser User-Agent and retry on 5xx.
 ## - Quality Center (/quality) passcode: header `x-qa-passcode: Dynopay123@` (backend routes/qualityRouter.ts, env QA_PASSCODE overrides; not set here). Read QA notes: curl -s $URL/api/quality/data -H "x-qa-passcode: Dynopay123@". Statuses per item = latest comment.
 
@@ -72,7 +72,7 @@
 ## - Network fees now realistic per coin (USDT-TRC20 ~2.24 live / 2 floor; ERC20 3; POLYGON 0.1) with a Math.max floor so live never under-quotes. Top-up credits the FULL requested amount; fee added on top (send amount+fee).
 ## - Self-heal test helper: from /app/backend → `node -r dotenv/config scripts/topup_selfheal_test.js seed <customer_id>` → GET the topup (auto-credits) → `... cleanup <topup_id> <payment_id> <customer_id>`.
 ## - Pytest: /app/backend/tests/test_safedeal_iter209_topup_orphan_fees.py (7 pass, 3 skip: reserve-vs-autowithdraw needs a payout address which CSRF-blocks curl; deal-funding orphan needs LIVE_SETTLEMENT; both covered by code+top-up path).
-## - Preview URL (this pod): https://vault-setup-11.preview.emergentagent.com (older memory-safe-12 URL is STALE).
+## - Preview URL (this pod): https://vault-setup-12.preview.emergentagent.com (older memory-safe-12 URL is STALE).
 
 
 ## Telegram Login (SafeDeal) — added & VERIFIED (2026-06). Bot @SafeDealAlert_bot, token in backend/.env SAFEDEAL_TELEGRAM_BOT_TOKEN.
@@ -103,7 +103,7 @@
 
 # Test credentials (current pod)
 
-Preview URL (THIS pod): https://vault-setup-11.preview.emergentagent.com  (source of truth: APP_URL in /etc/supervisor/conf.d/*.conf; frontend env = /app/.env.local, NOT /app/.env)
+Preview URL (THIS pod): https://vault-setup-12.preview.emergentagent.com  (source of truth: APP_URL in /etc/supervisor/conf.d/*.conf; frontend env = /app/.env.local, NOT /app/.env)
 # NOTE (2026-09): Next DEV heap raised to 8192 in scripts/start-frontend.sh to cut the memory-recycle 502s that intermittently hit the edge. If E2E hits a 502, it's a ~5s dev-server recycle — retry after ~15s.
 
 ## Brands on the owner account (company selector: data-testid=company-option-<id>)

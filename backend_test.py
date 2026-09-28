@@ -13,7 +13,7 @@ from typing import Dict, Any, Optional, Tuple
 
 # Base URLs
 BASE_URL = "http://localhost:8001"
-EXTERNAL_URL = "https://16c830c7-de19-4f07-b1e0-2d29adca8264.preview.emergentagent.com"
+EXTERNAL_URL = "https://vault-setup-12.preview.emergentagent.com"
 
 # Test credentials (admin account)
 ADMIN_EMAIL = "moxxcompany@gmail.com"
