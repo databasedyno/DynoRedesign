@@ -37,7 +37,7 @@ import {
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import NotificationsOffIcon from "@mui/icons-material/NotificationsOff";
 import TransactionDetailsModal from "@/Components/Page/Transactions/TransactionDetailsModal";
-import { ExtendedTransaction, toAutoConvertInfo } from "@/utils/types/transaction";
+import { ExtendedTransaction, TransactionSource, toAutoConvertInfo } from "@/utils/types/transaction";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
 import { useReportDirty } from "@/Components/Page/Settings/settingsDirty";
@@ -260,6 +260,7 @@ const NotificationPage = ({ initialTab = "inbox" }: { initialTab?: "inbox" | "se
         autoConverted: d.auto_converted === true,
         autoConvertTarget: d.auto_convert?.target_currency || undefined,
         autoConvert: toAutoConvertInfo(d.auto_convert),
+        source: d.source && typeof d.source === "object" ? (d.source as TransactionSource) : undefined,
       };
     } catch {
       return null;

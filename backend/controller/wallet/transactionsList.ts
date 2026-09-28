@@ -132,6 +132,7 @@ export const getAllTransactions = async (
         pl.link_created_at   as source_link_created_at,
         parent_pl.title      as source_parent_title,
         parent_pl.is_tip_jar as source_parent_is_tip_jar,
+        parent_pl."createdAt" as source_parent_link_created_at,
         po.order_id          as source_order_id,
         po.public_ref        as source_order_ref,
         ${SAFEDEAL_SOURCE_SELECT_SQL}
@@ -191,6 +192,7 @@ export const getAllTransactions = async (
         source_parent_title,
         source_parent_is_tip_jar,
         source_link_created_at,
+        source_parent_link_created_at,
         source_order_id,
         source_order_ref,
         source_safedeal_escrow_id,
@@ -245,6 +247,7 @@ export const getAllTransactions = async (
         source_parent_title: source_parent_title as string | null,
         source_parent_is_tip_jar: source_parent_is_tip_jar as boolean | number | null,
         source_link_created_at: source_link_created_at as string | Date | null,
+        source_parent_link_created_at: source_parent_link_created_at as string | Date | null,
         customer_email: (x.email as string) ?? null,
       });
 

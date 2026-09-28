@@ -884,8 +884,10 @@ const getRecentTransactions = async (req: express.Request, res: express.Response
         pl.title             as source_link_title,
         pl.parent_link_id    as source_parent_link_id,
         pl.is_tip_jar        as source_is_tip_jar,
+        pl.link_created_at   as source_link_created_at,
         parent_pl.title      as source_parent_title,
         parent_pl.is_tip_jar as source_parent_is_tip_jar,
+        parent_pl."createdAt" as source_parent_link_created_at,
         po.order_id          as source_order_id,
         po.public_ref        as source_order_ref,
         ${SAFEDEAL_SOURCE_SELECT_SQL}
@@ -894,7 +896,8 @@ const getRecentTransactions = async (req: express.Request, res: express.Response
        LEFT JOIN tbl_customer c ON ut.customer_id = c.customer_id
        LEFT JOIN (
          SELECT DISTINCT ON (transaction_reference)
-           transaction_reference, link_id, link_type, title, parent_link_id, is_tip_jar
+           transaction_reference, link_id, link_type, title, parent_link_id, is_tip_jar,
+           "createdAt" AS link_created_at
          FROM tbl_payment_link
          WHERE transaction_reference IS NOT NULL AND transaction_reference <> ''
          ORDER BY transaction_reference, link_id DESC
@@ -929,12 +932,15 @@ const getRecentTransactions = async (req: express.Request, res: express.Response
         source_parent_link_id: row.source_parent_link_id as string | number | null,
         source_parent_title: row.source_parent_title as string | null,
         source_parent_is_tip_jar: row.source_parent_is_tip_jar as boolean | number | null,
+        source_link_created_at: row.source_link_created_at as string | Date | null,
+        source_parent_link_created_at: row.source_parent_link_created_at as string | Date | null,
         customer_email: row.customer_email as string | null,
       });
       const {
         source_link_id, source_link_type, source_link_title,
         source_parent_link_id, source_is_tip_jar, source_parent_title,
         source_parent_is_tip_jar, source_order_id, source_order_ref,
+        source_link_created_at, source_parent_link_created_at,
         source_safedeal_escrow_id, source_safedeal_title, source_safedeal_topup_id, source_company_id,
         ...clean
       } = row;

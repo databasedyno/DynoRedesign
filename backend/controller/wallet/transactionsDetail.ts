@@ -119,12 +119,35 @@ export const getTransactionDetails = async (req: express.Request, res: express.R
         cm.company_id as tx_company_id,
         uw.wallet_type,
         uw.wallet_address,
-        ${AUTO_CONVERT_SELECT_SQL}
+        ${AUTO_CONVERT_SELECT_SQL},
+        pl.link_id           as source_link_id,
+        pl.link_type         as source_link_type,
+        pl.title             as source_link_title,
+        pl.parent_link_id    as source_parent_link_id,
+        pl.link_created_at   as source_link_created_at,
+        parent_pl.title      as source_parent_title,
+        parent_pl.is_tip_jar as source_parent_is_tip_jar,
+        parent_pl."createdAt" as source_parent_link_created_at,
+        po.order_id          as source_order_id,
+        po.public_ref        as source_order_ref,
+        ${SAFEDEAL_SOURCE_SELECT_SQL}
       FROM tbl_user_transaction ut 
       LEFT JOIN tbl_customer c ON c.customer_id = ut.customer_id
       LEFT JOIN tbl_company cm ON cm.company_id = ut.company_id
       LEFT JOIN tbl_user_wallet uw ON uw.wallet_id = ut.wallet_id
       LEFT JOIN tbl_stablecoin_conversion sc ON sc.transaction_id = ut.transaction_id
+      LEFT JOIN (
+        SELECT DISTINCT ON (transaction_reference)
+          transaction_reference, link_id, link_type, title, parent_link_id, is_tip_jar,
+          "createdAt" AS link_created_at
+        FROM tbl_payment_link
+        WHERE transaction_reference IS NOT NULL AND transaction_reference <> ''
+        ORDER BY transaction_reference, link_id DESC
+      ) pl ON pl.transaction_reference = ut.transaction_reference
+        AND ut.transaction_reference IS NOT NULL AND ut.transaction_reference <> ''
+      LEFT JOIN tbl_payment_link parent_pl ON parent_pl.link_id = pl.parent_link_id
+      LEFT JOIN tbl_product_order po ON po.payment_link_id = pl.link_id
+      ${SAFEDEAL_SOURCE_JOIN_SQL}
       WHERE ut.user_id = :user_id 
         AND (ut.id = :id_str OR ut.transaction_id = :id_num
              OR ut.incoming_tx_hash = :id_str OR ut.transaction_reference = :id_str)
@@ -141,6 +164,25 @@ export const getTransactionDetails = async (req: express.Request, res: express.R
 
     const txData = transaction[0] as Record<string, unknown>;
     const autoConvert = buildAutoConvertInfo(txData);
+    // Same canonical source object the /transactions list returns, so the
+    // details modal renders identically when opened from a notification.
+    const source = resolveTransactionSource({
+      source_safedeal_escrow_id: txData.source_safedeal_escrow_id as string | number | null,
+      source_safedeal_title: txData.source_safedeal_title as string | null,
+      source_safedeal_topup_id: txData.source_safedeal_topup_id as string | number | null,
+      source_company_id: txData.source_company_id as string | number | null,
+      source_order_id: txData.source_order_id as string | number | null,
+      source_order_ref: txData.source_order_ref as string | null,
+      source_link_id: txData.source_link_id as string | number | null,
+      source_link_type: txData.source_link_type as string | null,
+      source_link_title: txData.source_link_title as string | null,
+      source_parent_link_id: txData.source_parent_link_id as string | number | null,
+      source_parent_title: txData.source_parent_title as string | null,
+      source_parent_is_tip_jar: txData.source_parent_is_tip_jar as boolean | number | null,
+      source_link_created_at: txData.source_link_created_at as string | Date | null,
+      source_parent_link_created_at: txData.source_parent_link_created_at as string | Date | null,
+      customer_email: (txData.customer_email as string) ?? null,
+    });
 
     // Calculate total fees
     const totalFees = Number(txData.transaction_fee || 0) + Number(txData.fixed_fee || 0) + Number(txData.blockchain_buffer_fee || 0);
@@ -217,6 +259,9 @@ export const getTransactionDetails = async (req: express.Request, res: express.R
       transaction_reference: txData.transaction_reference,  // Backward compatible
       auto_converted: !!autoConvert,
       auto_convert: autoConvert,
+      // Where the payment came from (payment link / tip / donation / API / …)
+      // incl. link_created_at for link-backed sources.
+      source,
       
       // Callback Information
       callback_url: txData.callback_url || null,

@@ -74,6 +74,8 @@ export interface TxSourceInput {
   source_parent_is_tip_jar?: boolean | number | null;
   /** When the originating payment link was created (tbl_payment_link.createdAt). */
   source_link_created_at?: string | Date | null;
+  /** Parent (tip jar / campaign) createdAt — a contribution row's own link is a per-payment child. */
+  source_parent_link_created_at?: string | Date | null;
   /** Customer email — used ONLY as the fallback signal for API payments. */
   customer_email?: string | null;
 }
@@ -162,12 +164,20 @@ export const resolveTransactionSource = (input: TxSourceInput): TxSource => {
     source_parent_title,
     source_parent_is_tip_jar,
     source_link_created_at,
+    source_parent_link_created_at,
     customer_email,
   } = input;
+
+  const toIso = (v: string | Date | null | undefined): string | null => {
+    if (!v) return null;
+    const d = new Date(v);
+    return isNaN(d.getTime()) ? null : d.toISOString();
+  };
 
   let type: CanonicalTxSourceType = "direct";
   let title: string | null = null;
   let ref: string | number | null = null;
+  let link_created_at: string | null = toIso(source_link_created_at);
 
   if (source_safedeal_escrow_id) {
     type = "safedeal";
@@ -186,6 +196,9 @@ export const resolveTransactionSource = (input: TxSourceInput): TxSource => {
     title = source_link_title ? String(source_link_title) : "Store order";
     ref = String(source_order_ref || source_order_id);
   } else if (source_link_type === "contribution") {
+    // The contribution row's own link is a per-payment child created at checkout;
+    // "when was the tip jar / campaign created" is the PARENT link's createdAt.
+    if (source_parent_link_id) link_created_at = toIso(source_parent_link_created_at);
     if (source_parent_is_tip_jar) {
       type = "tip";
       title = source_parent_title ? String(source_parent_title) : "Tip";
@@ -218,11 +231,7 @@ export const resolveTransactionSource = (input: TxSourceInput): TxSource => {
     parent_link_id: source_parent_link_id ? Number(source_parent_link_id) : null,
     order_id: source_order_id ? Number(source_order_id) : null,
     order_ref: source_order_ref ? String(source_order_ref) : null,
-    link_created_at: (() => {
-      if (!source_link_created_at) return null;
-      const d = new Date(source_link_created_at as string | Date);
-      return isNaN(d.getTime()) ? null : d.toISOString();
-    })(),
+    link_created_at,
   };
 };
 

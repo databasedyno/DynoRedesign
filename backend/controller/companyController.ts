@@ -946,8 +946,10 @@ const getTransactions = async (req: express.Request, res: express.Response) => {
         pl.title             as source_link_title,
         pl.parent_link_id    as source_parent_link_id,
         pl.is_tip_jar        as source_is_tip_jar,
+        pl.link_created_at   as source_link_created_at,
         parent_pl.title      as source_parent_title,
         parent_pl.is_tip_jar as source_parent_is_tip_jar,
+        parent_pl."createdAt" as source_parent_link_created_at,
         po.order_id          as source_order_id,
         po.public_ref        as source_order_ref,
         ${SAFEDEAL_SOURCE_SELECT_SQL}
@@ -966,7 +968,8 @@ const getTransactions = async (req: express.Request, res: express.Response) => {
       -- if two links ever shared a reference.
       left join (
         select distinct on (transaction_reference)
-          transaction_reference, link_id, link_type, title, parent_link_id, is_tip_jar
+          transaction_reference, link_id, link_type, title, parent_link_id, is_tip_jar,
+          "createdAt" as link_created_at
         from tbl_payment_link
         where transaction_reference is not null and transaction_reference <> ''
         order by transaction_reference, link_id desc
@@ -1023,8 +1026,10 @@ const getTransactions = async (req: express.Request, res: express.Response) => {
         source_link_title,
         source_parent_link_id,
         source_is_tip_jar,
+        source_link_created_at,
         source_parent_title,
         source_parent_is_tip_jar,
+        source_parent_link_created_at,
         source_order_id,
         source_order_ref,
         source_safedeal_escrow_id,
@@ -1062,6 +1067,8 @@ const getTransactions = async (req: express.Request, res: express.Response) => {
         source_parent_link_id: source_parent_link_id as string | number | null,
         source_parent_title: source_parent_title as string | null,
         source_parent_is_tip_jar: source_parent_is_tip_jar as boolean | number | null,
+        source_link_created_at: source_link_created_at as string | Date | null,
+        source_parent_link_created_at: source_parent_link_created_at as string | Date | null,
         customer_email: (x.email as string) ?? null,
       });
 
