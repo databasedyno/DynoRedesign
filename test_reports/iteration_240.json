@@ -1,0 +1,33 @@
+{
+  "summary": "Frontend-only QA of the AUTH + ONBOARDING presentation refactor on live prod (SAFE / read-only). Verified login regression E2E (email → Continue → password → signin → 2FA dialog → /dashboard with valid TOTP), auth shell visuals in both themes at desktop 1920x1080 and mobile 390x844, register purpose-picker advance, three simple auth screens, and the /get-started wizard structure. All primary flows work; all data-testids are present; no horizontal overflow at 390px; no functional/console errors attributable to the refactor.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verification_matrix": {
+    "login_regression_e2e": "PASS — onarrival21@gmail.com/Katiekendra123@ + TOTP 137700 landed on /dashboard; token stored in localStorage; switch-to-phone-login & switch-to-email-login toggle correctly.",
+    "login_visuals_desktop_light": "PASS — glass card backdrop-filter=blur(24px), 'Log in' heading, gold Continue button, auth-brand-panel + auth-brand-carousel[data-scene='tip'] + auth-brand-wallet + auth-brand-balance ($1,198.50) render; auth-trust-strip present but hidden ≥lg (correct).",
+    "login_visuals_desktop_dark": "PASS — with theme-mode-public + theme-mode-public-v2 = 'dark' body bg=rgb(10,10,13), html[data-theme=dark], gold glow visible; header theme-toggle-button data-testid confirmed.",
+    "login_visuals_mobile_light_dark": "PASS at 390x844 — brand panel hidden, auth-trust-strip visible, scrollWidth==clientWidth (390) in both themes.",
+    "brand_carousel_scene_switch": "PASS — click auth-brand-dot-1 → data-scene changed 'tip'→'order', balance changed $1,198.50 → $1,236.92 (count-up ran).",
+    "register_page": "PASS — register-progress with 3 segments, seg-1 data-reached=true initially; all 4 purpose-pill-* tiles render; clicking purpose-pill-merchants advances progress (seg-2 data-reached=true) and reveals email input (STEP 2 OF 3). No overflow mobile dark. Did NOT submit any OTP (safe mode).",
+    "simple_auth_screens": "PASS — /reset-password, /auth/accept-invite, /auth/reset-2fa all return 200 at 390px, render auth-shell-logo + auth-header-controls + auth-trust-strip, no overflow.",
+    "get_started_wizard": "PASS — gs-wizard renders; gs-wizard-title='Set up Dynopay'; gs-rail + gs-rail-ring visible on desktop; all 5 gs-rail-step-{secure,about,payouts,link,share} testids present; ?step=about → 'Tell us about you'; ?step=payouts → 'Where should your money go?' with gs-step-back button; mobile shows gs-stepper (rail hidden), no overflow.",
+    "console_errors_from_refactor": "None — 429 rate-limit + MIME text/html errors on subsequent /dashboard prefetches are Cloudflare rate limiting under heavy Playwright churn, not caused by the auth refactor."
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Theme persistence uses two keys ('theme-mode-public' + 'theme-mode-public-v2'); setting only the legacy key is silently ignored (v2 wins). Not a bug for users (the header theme-toggle-button writes both) but worth documenting in test notes so future automation uses v2."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "100%"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ + TOTP via `node /app/backend/scripts/print_totp.cjs 1`",
+  "seed_data_creation": "None — SAFE MODE, read-only against live prod PostgreSQL.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Auth+onboarding presentation refactor verified. Header theme toggle is data-testid=theme-toggle-button (NOT the language trigger — that has data-testid=auth-lang-trigger). For dark mode via localStorage you MUST set BOTH 'theme-mode-public' and 'theme-mode-public-v2' to 'dark' before load (v2 supersedes). Register auto-skips picker if localStorage dyno_purpose_vertical/dyno_seo_attr exist — clear localStorage first. Under heavy Playwright load the preview hits Cloudflare 429 and JS chunks 429 → MIME errors; ignore.",
+  "rca of the issue": "n/a — no bugs found"
+}

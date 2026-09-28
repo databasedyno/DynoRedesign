@@ -3,6 +3,7 @@
  * Only used for deals with source = 'safedeal'.
  */
 import { resolveCustomerForBrand, CustomerRow } from "../customerWalletService";
+import { adminNotifyOnCreate } from "./safedealAdminNotify";
 import { applyEntries, EntryInput } from "./safedealWallet";
 import { toFixedStr } from "../../utils/money";
 
@@ -16,17 +17,20 @@ export interface DealParties {
 export async function resolveDealParties(deal: any): Promise<DealParties> {
   const companyId = Number(deal.company_id);
   const creatorIsBuyer = deal.creator_role === "buyer";
+  const onCreate = adminNotifyOnCreate("deal", `deal #${deal.escrow_id}`);
   const creator = await resolveCustomerForBrand({
     companyId,
     customerId: deal.creator_customer_id || null,
     email: deal.creator_email,
     createIfMissing: true,
+    onCreate,
   });
   const counterparty = await resolveCustomerForBrand({
     companyId,
     customerId: deal.counterparty_customer_id || null,
     email: deal.counterparty_email,
     createIfMissing: true,
+    onCreate,
   });
   if (!deal.creator_customer_id) deal.creator_customer_id = creator.customer_id;
   if (!deal.counterparty_customer_id) deal.counterparty_customer_id = counterparty.customer_id;

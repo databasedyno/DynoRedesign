@@ -247,16 +247,24 @@ export async function sendSafeDealNewUserAdminEmail(
     email?: string | null;
     name?: string | null;
     customerId: number;
-    method: "email" | "telegram";
+    method: "email" | "telegram" | "checkout" | "deal";
     brandName?: string | null;
     telegramId?: string | null;
     telegramUsername?: string | null;
+    dealRef?: string | null;
   }
 ): Promise<void> {
   const isPlaceholderEmail = !!info.email && info.email.endsWith("@telegram.safedeal");
   const tgHandle = info.telegramUsername ? `@${String(info.telegramUsername).replace(/^@/, "")}` : null;
   const contact = info.email && !isPlaceholderEmail ? esc(info.email) : tgHandle ? esc(tgHandle) : (info.name ? esc(info.name) : `customer #${info.customerId}`);
-  const methodLabel = info.method === "telegram" ? "Telegram" : "Email + one-time code";
+  const methodLabel =
+    info.method === "telegram"
+      ? "Telegram"
+      : info.method === "checkout"
+        ? `Guest checkout — funded a deal${info.dealRef ? ` (${esc(info.dealRef)})` : ""} before signing in`
+        : info.method === "deal"
+          ? `Added as a deal party${info.dealRef ? ` (${esc(info.dealRef)})` : ""} — hasn't signed in yet`
+          : "Email + one-time code";
   const when = new Date().toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" }) + " UTC";
   const telegramLines =
     info.method === "telegram"

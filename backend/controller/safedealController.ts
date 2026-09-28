@@ -56,7 +56,8 @@ import {
   webhookUrl as safedealWebhookUrl,
 } from "../services/safedeal/safedealCheckout";
 import { isPlatformFeeExemptCompany } from "../services/feeService";
-import { sendSafeDealCodeEmail, sendSafeDealAddressAlertEmail, sendSafeDealNewUserAdminEmail } from "../services/email/safedealEmails";
+import { sendSafeDealCodeEmail, sendSafeDealAddressAlertEmail } from "../services/email/safedealEmails";
+import { notifyAdminNewSafeDealUser } from "../services/safedeal/safedealAdminNotify";
 import { sendEscrowInviteEmail, sendEscrowAmendedEmail } from "../services/email/escrowEmails";
 import { runSafeDealReminders } from "../services/safedeal/safedealReminders";
 import { generateDealSummaryPdf, feeShares, generateTopupReceiptPdf } from "../services/safedeal/safedealPdf";
@@ -118,25 +119,6 @@ const secret = (): string => {
 };
 const otpKey = (purpose: string, key: string) => `safedeal:${purpose}:${norm(key)}`;
 const genCode = () => String(crypto.randomInt(100000, 1000000));
-
-/** Fire-and-forget: alert the operator (ADMIN_EMAIL) that a new user just onboarded on SafeDeal. */
-const notifyAdminNewSafeDealUser = (info: {
-  email?: string | null;
-  name?: string | null;
-  customerId: number;
-  method: "email" | "telegram";
-  telegramId?: string | null;
-  telegramUsername?: string | null;
-}): void => {
-  const adminEmail = (envRaw("ADMIN_EMAIL") || "").trim();
-  if (!adminEmail) {
-    apiLogger.warn("[SafeDeal] new user onboarded but ADMIN_EMAIL is not set — skipping admin notification");
-    return;
-  }
-  void sendSafeDealNewUserAdminEmail(adminEmail, info).catch((err) =>
-    apiLogger.error(`[SafeDeal] new-user admin email failed: ${(err as Error)?.message || err}`)
-  );
-};
 
 export interface SafeDealSession {
   customer_id: number;

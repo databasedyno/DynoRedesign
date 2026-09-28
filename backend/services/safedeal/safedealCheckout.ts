@@ -329,7 +329,8 @@ export async function onOverpaymentCredited(info: { paymentId: string; companyId
     if (deal) {
       const buyerEmail = String(deal.creator_role) === "buyer" ? deal.creator_email : deal.counterparty_email;
       const buyerCid = String(deal.creator_role) === "buyer" ? deal.creator_customer_id : deal.counterparty_customer_id;
-      const buyer = await resolveCustomerForBrand({ companyId: Number(deal.company_id), customerId: buyerCid || null, email: buyerEmail, createIfMissing: true });
+      const { adminNotifyOnCreate } = await import("./safedealAdminNotify");
+      const buyer = await resolveCustomerForBrand({ companyId: Number(deal.company_id), customerId: buyerCid || null, email: buyerEmail, createIfMissing: true, onCreate: adminNotifyOnCreate("checkout", `deal #${deal.escrow_id}`) });
       const applied = await applyEntries([
         {
           customer: buyer,
