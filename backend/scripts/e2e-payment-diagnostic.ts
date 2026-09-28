@@ -940,7 +940,7 @@ async function checkReconciliation() {
     `SELECT COUNT(*) as cnt FROM tbl_merchant_pool_transaction mpt
      WHERE NOT EXISTS (
        SELECT 1 FROM tbl_customer_transaction ct 
-       WHERE ct.transaction_id = mpt.payment_reference
+       WHERE ct.transaction_id::text = mpt.payment_reference
      )
      AND mpt.status != 'completed'
      AND mpt.created_at > NOW() - INTERVAL '7 days'`
