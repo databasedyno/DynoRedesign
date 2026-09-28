@@ -1,4 +1,54 @@
 # ============================================================================
+# >>> 2026-09-28 (fork, pt8) — HANDOFF FOR TESTING: payment-link "created" date — 6 GAPS CLOSED, FRONTEND TEST PENDING <<<
+# ============================================================================
+#  POD: https://448b4989-9678-4eeb-8d37-7be2ef8c6464.preview.emergentagent.com (= SERVER_URL in
+#  /app/backend/.env; the vault-setup-12 URL above is STALE). SAFE MODE, LIVE prod DB. Next.js PROD
+#  build (no hot reload) — REBUILT this session and contains testid tx-detail-link-created.
+#  Owner login: onarrival21@gmail.com / Katiekendra123@ (user_id 1, company_id 1 "The Dev Store";
+#  TOTP: node /app/backend/scripts/print_totp.cjs 1). UI login recipe: memory/test_credentials.md.
+#
+#  WHAT CHANGED (all uncommitted — user must "Save to GitHub"):
+#   BACKEND
+#   - backend/utils/transactionSource.ts: new input source_parent_link_created_at; for
+#     link_type=contribution rows WITH a parent, source.link_created_at = PARENT (tip jar /
+#     campaign) createdAt — the row's own link is a per-payment child created at checkout.
+#   - backend/controller/wallet/transactionsDetail.ts getTransactionDetails
+#     (GET /api/wallet/transaction/:id?company_id=): added the tbl_payment_link DISTINCT-ON bridge
+#     + parent_pl + tbl_product_order + SafeDeal joins; response now has `source` (same shape as
+#     the list endpoint) incl. link_created_at.
+#   - backend/controller/wallet/transactionsList.ts, companyController.getTransactions,
+#     dashboardController.getRecentTransactions: select + pass link_created_at AND the parent's
+#     createdAt to the resolver; raw source_* columns stripped from payloads.
+#   FRONTEND
+#   - Components/Page/Notification/NotificationPage.tsx fetchTransactionForNotification maps
+#     d.source → ExtendedTransaction.source (so the modal opened from a notification shows the row).
+#   - langs/locales/{de,es,fr,nl,pt}/transactions.json: paymentLinkCreated / tipLinkCreated /
+#     donationLinkCreated added.
+#
+#  ALREADY SELF-VERIFIED (curl, localhost:8001, Bearer):
+#   ✓ GET /api/wallet/transaction/1295?company_id=1 → source.type payment_link, link_id 492,
+#     link_created_at "2026-09-19T01:43:33.719Z"
+#   ✓ POST /api/wallet/getAllTransactions {company_id:1} → 833 rows; 13 payment_link rows all
+#     carry link_created_at; TIP tx 557 (child link 173 created 2026-08-12) now reports the PARENT
+#     link 59 date 2026-07-13T11:44:42Z
+#   ✓ GET /api/dashboard/recent-transactions?limit=40&company_id=1 → source.link_created_at
+#     present on tx 1295; no source_* leak
+#   ✓ tsc backend 0 / frontend 0; backend /health healthy; frontend 200
+#
+#  FRONTEND TEST TO RUN (read-only; do NOT create/settle payments):
+#   1. Log in (2FA) → /transactions (company 1). Open the row for tx 1295 (ETH 0.073909, source
+#      badge "Payment Link") → drawer shows [data-testid=tx-detail-link-created] label
+#      "Payment link created" + [tx-detail-link-created-value] = 19 Sep 2026 (local time render).
+#   2. Open a row with badge "Tip" (tx 557, 2026-08-12) → label "Tip link created", value = 13 Jul
+#      2026 (parent tip jar date, NOT the payment date).
+#   3. Open a row with badge "API" or "Direct" → NO tx-detail-link-created row.
+#   4. /notifications → click a payment notification that references tx 1295 (or any payment-link
+#      payment) → same modal opens and shows the row.
+#   5. Switch UI language to Deutsch → label reads "Zahlungslink erstellt".
+#   6. Mobile 390px: row fits, no horizontal overflow in the drawer.
+# ============================================================================
+
+# ============================================================================
 # >>> 2026-09-28 (fork, pt7) — TESTING AGENT VERIFICATION: payment-link "created" date ✅✅✅ <<<
 # ============================================================================
 #  Tested by: testing_agent (deep_testing_backend_v2)

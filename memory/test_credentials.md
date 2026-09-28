@@ -1,3 +1,8 @@
+## 2026-09-28 (fork, pt8) — CURRENT POD URL (supersedes the pt6 line below)
+## - LIVE preview URL for THIS pod = https://448b4989-9678-4eeb-8d37-7be2ef8c6464.preview.emergentagent.com (read SERVER_URL in /app/backend/.env; there is NO /app/frontend/.env — Next.js app lives at repo root).
+## - Owner/merchant: onarrival21@gmail.com / Katiekendra123@ (user_id 1, company_id 1 "The Dev Store", TOTP: node /app/backend/scripts/print_totp.cjs 1). Admin: moxxcompany@gmail.com / Katiekendra123@.
+## - Payment-link-created-date fixtures (read-only): tx 1295 = payment_link (link 492 created 2026-09-19); tx 557 = tip (child link 173, parent tip jar 59 created 2026-07-13).
+
 ## 2026-09-28 (fork, pt6) — CURRENT POD URL (use this, others below are stale)
 ## - LIVE preview URL for THIS pod = https://vault-setup-12.preview.emergentagent.com
 ## - Admin (SafeDeal / Dynopay) login: moxxcompany@gmail.com / Katiekendra123@ (also the vault passphrase)
