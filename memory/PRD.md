@@ -1,3 +1,27 @@
+# === 2026-09-28 (fork, pt8) — PAYMENT-LINK "CREATED" DATE: 6 GAPS CLOSED — BACKEND SELF-VERIFIED, FRONTEND REBUILT, testing_agent NOT RUN (user: "wrap up, end session") ===
+# Pod: preview URL = SERVER_URL in /app/backend/.env (https://448b4989-9678-4eeb-8d37-7be2ef8c6464.preview.emergentagent.com). SAFE MODE, LIVE prod DB. No /app/frontend/.env (Next.js app at repo root; FRONTEND_MODE=production in /app/.env.local).
+# CONTEXT: prior session added source.link_created_at to POST /api/wallet/getAllTransactions + "Payment link created" DetailRow in
+#   Components/Page/Transactions/TransactionDetailsModal.tsx (testids tx-detail-link-created / tx-detail-link-created-value). This session audited it and fixed:
+#  1. STALE PREVIEW BUILD — modal edited 15:54 but .next-prod built 15:26 → rebuilt (rm -rf .next-prod + restart frontend). NOW LIVE: chunk 40690-….js contains tx-detail-link-created.
+#  2. TRANSLATIONS — langs/locales/{de,es,fr,nl,pt}/transactions.json now have paymentLinkCreated / tipLinkCreated / donationLinkCreated (were EN fallback).
+#  3+5. NOTIFICATIONS ENTRY POINT — GET /api/wallet/transaction/:id (backend/controller/wallet/transactionsDetail.ts getTransactionDetails) had NO payment-link join → no `source`.
+#     Added the same DISTINCT-ON tbl_payment_link bridge + parent_pl + po + SafeDeal joins and a `source` object (resolveTransactionSource) to the response.
+#     Components/Page/Notification/NotificationPage.tsx fetchTransactionForNotification now maps d.source → ExtendedTransaction.source (import TransactionSource added).
+#     VERIFIED: GET /api/wallet/transaction/1295?company_id=1 → source {type payment_link, link_id 492, link_created_at "2026-09-19T01:43:33.719Z"}.
+#  4. TIP/DONATION DATE SEMANTICS — for link_type=contribution the joined `pl` is the per-payment CHILD link (created at checkout). backend/utils/transactionSource.ts:
+#     new input source_parent_link_created_at; for contribution rows with a parent, link_created_at = PARENT (tip jar / campaign) createdAt.
+#     VERIFIED: tip tx 557 (child link 173 created 2026-08-12 13:42 ≈ payment) now reports parent 59's 2026-07-13T11:44:42Z.
+#  6. CONSISTENCY — companyController.getTransactions + dashboardController.getRecentTransactions subqueries now select "createdAt" AS link_created_at + parent_pl."createdAt",
+#     pass both to the resolver, and strip the raw columns. VERIFIED: GET /api/dashboard/recent-transactions?limit=40&company_id=1 → tx 1295 source.link_created_at present, no source_* leak.
+#     customerDirectoryService/Controller intentionally untouched — they consume only source.type/title (no date surface).
+#  tsc backend 0 / frontend 0; all 6 locale JSONs parse; backend restarted + healthy; frontend prod build rebuilt and serving 200.
+# ⏳ NOT DONE (next agent): (a) testing_agent frontend pass — /transactions → open tx 1295 (or any "Payment Link" badge row) → modal shows "Payment link created 19 Sep 2026 …" row
+#   (tx-detail-link-created); /notifications → click a payment notification → same modal shows the row; check a Tip row shows the tip-jar (parent) date. Login recipe in memory/test_credentials.md
+#   (owner onarrival21@gmail.com / Katiekendra123@, TOTP node backend/scripts/print_totp.cjs 1). (b) user "Save to GitHub" — everything uncommitted.
+# STILL-OPEN OPS BACKLOG from the diagnostic audit (untouched, need owner OK): Redis checkout-session keys without TTL (77+ orphans hoarding pool addresses), expired payment-link cleanup job,
+#   TRX + Polygon fee wallets critically low on gas (owner deposit).
+# ============================================================================================
+
 # === 2026-09-28 (fork, pt6) — SMADAV NOTIFICATION NAME + SAFEDEAL CASHOUT-FEE MODEL + ROLE-AWARE QUOTE — DONE & VERIFIED ===
 # Pod set up from encrypted vault (scripts/pod-bootstrap.sh --pass 'Katiekendra123@'; the first-tried 'Katikendra123@' was a typo).
 # Preview: https://vault-setup-12.preview.emergentagent.com  SAFE MODE, LIVE prod DB, backend healthy.
