@@ -449,18 +449,21 @@ export const calculateCheckoutFees = async (
   try {
     const { amount, cryptocurrency, currency = 'USD', paymentLinkId, linkId } = req.body;
 
-    // Validate required fields
-    if (!amount || amount <= 0) {
+    // Validate required fields (public endpoint — reject non-numeric / non-string input with 400, never 500)
+    if (!Number.isFinite(Number(amount)) || Number(amount) <= 0) {
       return errorResponseHelper(res, 400, "Valid payment amount is required");
     }
 
-    if (!cryptocurrency) {
+    if (!cryptocurrency || typeof cryptocurrency !== "string") {
       return errorResponseHelper(res, 400, "Cryptocurrency selection is required");
+    }
+    if (currency != null && typeof currency !== "string") {
+      return errorResponseHelper(res, 400, "currency must be a string");
     }
 
     const paymentAmount = parseFloat(amount);
     let crypto = cryptocurrency.toUpperCase();
-    const fiatCurrency = currency.toUpperCase();
+    const fiatCurrency = (currency || 'USD').toUpperCase();
 
     // Normalize checkout currency aliases to internal wallet types
     if (crypto === 'USDC') crypto = 'USDC-ERC20';

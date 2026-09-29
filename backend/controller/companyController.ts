@@ -1759,6 +1759,9 @@ const getWebhookDetail = async (req: express.Request, res: express.Response) => 
   try {
     const company_id = req.params.id;
     const log_id = req.params.logId;
+    if (!/^\d+$/.test(String(log_id))) {
+      return errorResponseHelper(res, 400, "logId must be numeric");
+    }
 
     // Verify company belongs to user
     const company = await companyModel.findOne({

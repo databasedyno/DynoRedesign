@@ -28,7 +28,7 @@ export const getRevenueAnalytics = async (period: "7d" | "30d" | "90d" | "1y" = 
     `SELECT 
        COALESCE(SUM(base_amount), 0) as total_volume,
        COUNT(*) as total_transactions,
-       COALESCE(SUM(fee_amount), 0) as total_fees
+       COALESCE(SUM(COALESCE(transaction_fee, 0) + COALESCE(fixed_fee, 0)), 0) as total_fees
      FROM tbl_user_transaction
      WHERE "createdAt" >= NOW() - INTERVAL '${days} days'
        AND ${processedStatusSql("")}`,
@@ -53,7 +53,7 @@ export const getRevenueAnalytics = async (period: "7d" | "30d" | "90d" | "1y" = 
        DATE("createdAt") as date,
        COALESCE(SUM(base_amount), 0) as volume,
        COUNT(*) as transactions,
-       COALESCE(SUM(fee_amount), 0) as fees
+       COALESCE(SUM(COALESCE(transaction_fee, 0) + COALESCE(fixed_fee, 0)), 0) as fees
      FROM tbl_user_transaction
      WHERE "createdAt" >= NOW() - INTERVAL '${days} days'
        AND ${processedStatusSql("")}

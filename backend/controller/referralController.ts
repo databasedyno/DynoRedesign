@@ -567,7 +567,7 @@ const validateRefereeCode = async (req: Request, res: Response) => {
   try {
     const { code } = req.body;
 
-    if (!code) {
+    if (!code || typeof code !== "string") {
       return res.status(400).json({
         message: "Referee code is required",
         valid: false,
@@ -634,7 +634,7 @@ const redeemRefereeCode = async (req: Request, res: Response) => {
     const user_id = Number(authUser?.user_id) || null;
     const email = authUser?.email || req.body?.email;
 
-    if (!code) {
+    if (!code || typeof code !== "string") {
       return res.status(400).json({
         success: false,
         message: "Referee code is required",

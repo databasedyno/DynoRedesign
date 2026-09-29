@@ -781,7 +781,7 @@ const NotificationPage = ({ initialTab = "inbox" }: { initialTab?: "inbox" | "se
                       {pushSubscribed && (
                         <StatusDot tone="settled">{tNotifications("pushActive", { defaultValue: "Active" })}</StatusDot>
                       )}
-                      {pushPermission === "denied" && (
+                      {pushPermission === "denied" && pushSupported && (
                         <StatusDot tone="failed">{tNotifications("pushBlocked", { defaultValue: "Blocked" })}</StatusDot>
                       )}
                     </Box>
@@ -795,7 +795,7 @@ const NotificationPage = ({ initialTab = "inbox" }: { initialTab?: "inbox" | "se
                     >
                       {pushSubscribed
                         ? tNotifications("pushSubscribedDesc", { defaultValue: "You'll receive instant push notifications even when this tab is in the background." })
-                        : pushPermission === "denied"
+                        : pushPermission === "denied" && pushSupported
                         ? tNotifications("pushBlockedDesc", { defaultValue: "Push notifications are blocked. Please enable them in your browser settings." })
                         : tNotifications("browserNotificationsDescription")}
                     </Typography>
@@ -838,6 +838,9 @@ const NotificationPage = ({ initialTab = "inbox" }: { initialTab?: "inbox" | "se
                         fontSize: "13px",
                         color: theme.palette.text.secondary,
                         fontStyle: "italic",
+                        maxWidth: { xs: "45%", md: 260 },
+                        textAlign: "right",
+                        flexShrink: 0,
                       }}
                     >
                       {pushBrowserSupported && pushServerEnabled === false

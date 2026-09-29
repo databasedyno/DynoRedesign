@@ -1,0 +1,34 @@
+{
+  "summary": "Audit/hardening pass verification. Backend: all 8 security guards verified via curl (status/check admin-only 403, referral leaderboard auth-required with 25-cap & 'First L.' masking + is_current_user, public leaderboard rank/count-only, referral apply/redeem require auth and ignore body user_id (404 on bogus code), rate-limit headers X-RateLimit-Limit: 30 on tax + 120 on encrypt-payload, notification triggers scoped to caller user_id 1 despite body user_id:305, invalid x-api-key returns clean JSON 401 envelope on useWallet & cryptoPayment). Frontend: login OK; developer-keys renders w/o console/API errors; referrals leaderboard uses authed endpoint (200, no 401); regression sweep across 15 protected + 8 public pages — most 200 with no 5xx. FOUND ONE REGRESSION: /notifications Settings tab does NOT render data-testid='push-unavailable-note' even though /api/notifications/push/vapid-key returns 503 (Web Push not configured). Instead the 'Blocked' CustomButton is rendered, which means the pushSupported gate evaluates truthy — contradicting the hook's supported=(browser && serverEnabled===true) contract. Spec-required note is missing on this pod.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "NotificationPage / usePushNotifications",
+        "issue": "Spec required data-testid='push-unavailable-note' NOT rendered when VAPID endpoint returns 503. DOM query confirms element absent. However the CustomButton labelled 'Blocked' at line 803 (guarded by {pushSupported && ...}) IS rendered — proving pushSupported resolves truthy, inconsistent with serverEnabled=false from the 503 probe. Browser fetch of /api/notifications/push/vapid-key returns HTTP 503 body {\"success\":false,\"message\":\"Web Push not configured\"}. Likely cause: deployed .next production build predates the current hook's `supported: supported && serverEnabled === true` wiring — rebuild needed. Alternative: axiosBaseApi swallowing 503 as success.",
+        "selector": "[data-testid=push-unavailable-note]",
+        "priority": "HIGH"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/backend/tests/audit_security_test.sh"],
+  "action_items": [
+    "Investigate why NotificationPage renders the pushSupported=true branch when /api/notifications/push/vapid-key returns 503. Verify deployed Next.js bundle contains current usePushNotifications hook — do a fresh `yarn build` / production rebuild; hot-reload doesn't affect prod builds. Confirm push-unavailable-note testid renders after fix.",
+    "All other spec items pass — backend security fixes correctly enforced end-to-end."
+  ],
+  "critical_code_review_comments": [
+    "usePushNotifications.ts: if vapid-key probe returns 200 with no vapid_public_key field, serverEnabled becomes false but NotificationPage's `null` branch (line 847-848) renders '…' indefinitely. Minor UX polish.",
+    "NotificationPage.tsx: shared header (StatusDot + description) renders regardless of pushSupported branch — on this pod the 'Push notifications are blocked' description + 'Blocked' StatusDot render while the required unavailable-note is absent, creating mixed messaging. Consider gating the entire card on pushBrowserSupported.",
+    "audit_security_test.sh doubles as a regression harness for the 8 security guards — 100% pass (backend hardening is solid)."
+  ],
+  "updated_files": ["/app/backend/tests/audit_security_test.sh"],
+  "success_rate": {"backend": "100% (8/8 guards)", "frontend": "~93% (1 spec regression on notifications push note)"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (TOTP: node /app/backend/scripts/print_totp.cjs 1). sessionStorage.mfa_interstitial_seen='1' before login to skip interstitial.",
+  "seed_data_creation": "None — read-only against prod DB per instructions.",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend security guards pass — regression bash at /app/backend/tests/audit_security_test.sh (last run 8/8 PASS). Frontend outstanding: /notifications Settings tab missing data-testid='push-unavailable-note' despite VAPID 503. Likely stale Next.js prod bundle — rebuild required. Do NOT re-run destructive endpoints (payments/payouts/refunds/status/check with admin) — DB is prod.",
+  "rca of the issue": "Symptom: push-unavailable-note absent. Reproduction: login → /notifications → Settings tab → wait 3s → element not in DOM. Evidence: (1) fetch /api/notifications/push/vapid-key → 503; (2) 'Blocked' CustomButton at line 803 (gated by pushSupported) rendered → pushSupported truthy; (3) hook contract says supported=(browser && serverEnabled===true) → should be false. Hypotheses: (A) HIGH: deployed .next bundle built before hook wiring — production build not regenerated after commit; (B) LOW: axios interceptor swallowing 503; (C) LOW: stale destructure. Mitigation: rebuild Next.js production bundle (yarn build, restart), grep any built chunk for `serverEnabled === true` to confirm."
+}
