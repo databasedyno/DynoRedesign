@@ -106,6 +106,12 @@ jobs:
           yarn install --ignore-engines --production=false --frozen-lockfile \
             || yarn install --ignore-engines --production=false
 
+      # next-env.d.ts is gitignored (Next regenerates it on every build). Without it
+      # tsc has no `next/image-types/global` and every `.svg`/`.png` import fails with
+      # TS2307 (273 errors on 2026-09-29). `next build` writes it itself — bare tsc must too.
+      - name: Generate next-env.d.ts
+        run: printf '/// <reference types="next" />\n/// <reference types="next/image-types/global" />\n' > next-env.d.ts
+
       - name: Run tsc --noEmit (strict — zero errors allowed)
         run: ./node_modules/.bin/tsc --noEmit
 
