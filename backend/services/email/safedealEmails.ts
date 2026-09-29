@@ -29,13 +29,14 @@ export const txHashBlock = (label: string, txHash: string, explorerUrl?: string 
 // ─── Codes ───────────────────────────────────────────────────────────────────
 
 /** What the user is about to do when a step-up code is requested (drives the email copy). */
-export type StepUpAction = "cashout" | "address_add" | "address_remove" | "payout_destination";
+export type StepUpAction = "cashout" | "address_add" | "address_remove" | "payout_destination" | "change_email";
 
 const STEP_UP_COPY: Record<StepUpAction, { heading: string; what: string; subject: string }> = {
   cashout: { heading: "Confirm your cashout", what: "confirm your cashout from SafeDeal", subject: "confirm your SafeDeal cashout" },
   address_add: { heading: "Confirm your new payout address", what: "confirm adding a payout address to your SafeDeal wallet", subject: "confirm your new SafeDeal payout address" },
   address_remove: { heading: "Confirm removing a payout address", what: "confirm removing a payout address from your SafeDeal wallet", subject: "confirm removing a SafeDeal payout address" },
   payout_destination: { heading: "Confirm your payout destination", what: "confirm where this deal pays you out", subject: "confirm your SafeDeal payout destination" },
+  change_email: { heading: "Confirm your email change", what: "confirm changing the email on your SafeDeal account", subject: "confirm your SafeDeal email change" },
 };
 
 export async function sendSafeDealCodeEmail(
@@ -71,6 +72,28 @@ export async function sendSafeDealAddressAlertEmail(toEmail: string, action: "ad
     p(`<b>${esc(label)}</b><br/>${mono(esc(address))}`) +
     p(`<b>This wasn't you?</b> Sign in and ${action === "added" ? "remove the address" : "review your addresses"} straight away, then contact us through the help centre — we'll freeze cashouts on your wallet while we check.`);
   await sendEmail(toEmail, toEmail, `Payout address ${action} on your SafeDeal wallet`, message, false, sdAccount(action === "added" ? "wallet" : "trash", { cta: { text: "Review my wallet", link: walletUrl() } }));
+}
+
+/** Alert the OLD mailbox that the account email was changed (account-takeover tripwire). */
+export async function sendSafeDealEmailChangedAlertEmail(oldEmail: string, newEmail: string): Promise<void> {
+  const message =
+    p(`The email address on your SafeDeal account was just changed to <b>${esc(newEmail)}</b>.`) +
+    p(`For your security we've <b>signed out every other session</b> and <b>paused cashouts for 24 hours</b>.`) +
+    p(`<b>This wasn't you?</b> Contact us through the help centre immediately — while cashouts are paused we can lock the account and reverse the change.`);
+  await sendEmail(oldEmail, oldEmail, "Your SafeDeal email address was changed", message, false, sdAccount("key", { heading: "Email address changed" }));
+}
+
+/** Ops-only AML tripwire: a customer is cashing out with no funded deals (deposit → withdraw pattern). */
+export async function sendSafeDealAmlAlertEmail(
+  adminEmail: string,
+  info: { customerId: number; email: string | null; amountUsd: number; payoutLabel: string; address: string }
+): Promise<void> {
+  const message =
+    p(`A SafeDeal customer is cashing out with <b>no funded deals</b> — review for possible money-laundering (deposit → withdraw).`) +
+    p(`Customer: <b>#${info.customerId}</b> ${info.email ? `(${esc(info.email)})` : ""}`) +
+    p(`Amount: <b>${usd(info.amountUsd)}</b> → ${esc(info.payoutLabel)} ${mono(esc(info.address))}`) +
+    p(`If it also tripped a limit it has been routed to admin approval; otherwise review the customer's ledger before it settles.`);
+  await sendEmail(adminEmail, adminEmail, `⚠️ SafeDeal AML review: customer #${info.customerId} cashing out with no deals`, message, false, sdAccount("wallet", { heading: "AML review needed" }));
 }
 
 // ─── Cashouts & deal payouts ─────────────────────────────────────────────────

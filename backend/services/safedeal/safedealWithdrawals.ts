@@ -13,12 +13,71 @@ import { toFixedStr } from "../../utils/money";
 import { CustomerRow, CustomerWalletError } from "../customerWalletService";
 import { ESCROW_PAYOUT_OPTIONS, normalizePayoutKey, withdrawFeeUsdFor, customerWithdrawFeeUsd } from "../escrow/escrowCosts";
 import { isLiveSettlementEnabled } from "../../controller/escrow/escrowShared";
-import { applyEntry, applyEntries, getBalances, simulatedCreditsUsd } from "./safedealWallet";
-import { sendSafeDealWithdrawalEmail, sendSafeDealWithdrawalRejectedEmail, sendSafeDealAdminCashoutApprovalEmail, type CashoutEmailOptions } from "../email/safedealEmails";
+import { applyEntry, applyEntries, getBalances, simulatedCreditsUsd, DEAL_FUNDED_SQL } from "./safedealWallet";
+import { sendSafeDealWithdrawalEmail, sendSafeDealWithdrawalRejectedEmail, sendSafeDealAdminCashoutApprovalEmail, sendSafeDealAmlAlertEmail, type CashoutEmailOptions } from "../email/safedealEmails";
 import { explorerTxUrl } from "../receiptLinkService";
+import { redis } from "../../utils/redisInstance";
 
 export const MIN_WITHDRAWAL_USD = Number(envRaw("SAFEDEAL_MIN_WITHDRAWAL_USD")) || 10;
 export const APPROVAL_THRESHOLD_USD = Number(envRaw("SAFEDEAL_WITHDRAWAL_APPROVAL_USD")) || 1000;
+// AML velocity cap: rolling 24h cashout total (across ALL sources incl. settlement payouts).
+// Anything that would push the trailing-24h total above this routes to admin approval.
+export const VELOCITY_CAP_USD = Number(envRaw("SAFEDEAL_VELOCITY_CAP_USD")) || 1000;
+
+/** Trailing-24h sum of money that has left / is committed to leave (queued, awaiting approval, or sent). */
+async function rolling24hCashoutUsd(customerId: number): Promise<number> {
+  const rows = await sequelize.query<{ total: string | null }>(
+    `SELECT COALESCE(SUM(amount_usd), 0) AS total
+       FROM tbl_customer_withdrawal
+      WHERE customer_id = :id
+        AND status IN ('queued', 'pending_approval', 'sent')
+        AND created_at >= NOW() - INTERVAL '24 hours'`,
+    { replacements: { id: customerId }, type: QueryTypes.SELECT }
+  );
+  return round2(Number(rows[0]?.total || 0));
+}
+
+/** True while a 24h cashout hold is active (set right after an email change). */
+async function cashoutHeld(customerId: number): Promise<boolean> {
+  const rows = await sequelize.query<{ held: boolean }>(
+    `SELECT (cashout_hold_until IS NOT NULL AND cashout_hold_until > NOW()) AS held
+       FROM tbl_safedeal_profile WHERE customer_id = :id LIMIT 1`,
+    { replacements: { id: customerId }, type: QueryTypes.SELECT }
+  );
+  return !!rows[0]?.held;
+}
+
+/** How many real (non-simulated) funded deals this customer has been a party to. */
+async function fundedDealCount(customerId: number): Promise<number> {
+  const rows = await sequelize.query<{ n: string }>(
+    `SELECT COUNT(*) AS n FROM tbl_escrow_deal
+       WHERE source = 'safedeal' AND ${DEAL_FUNDED_SQL}
+         AND (creator_customer_id = :id OR counterparty_customer_id = :id)`,
+    { replacements: { id: customerId }, type: QueryTypes.SELECT }
+  );
+  return Number(rows[0]?.n || 0);
+}
+
+/**
+ * AML tripwire: a customer cashing out with ZERO funded deals is the classic deposit→withdraw
+ * (mixer) pattern. Log it and email ADMIN_EMAIL. Throttled to one alert per customer per 24h so
+ * a burst of cashouts can't flood the admin inbox.
+ */
+async function flagNoDealCashout(customer: CustomerRow, amountUsd: number, addr: PayoutAddressRow): Promise<void> {
+  try {
+    if ((await fundedDealCount(customer.customer_id)) > 0) return;
+    apiLogger.error(
+      `[SafeDeal] ⚠️ AML ALERT: customer ${customer.customer_id} (${customer.email || "no email"}) cashing out ${toFixedStr(amountUsd, 2)} USD with ZERO funded deals — possible deposit→withdraw laundering.`
+    );
+    let firstToday = true;
+    try { firstToday = (await redis.set(`safedeal:aml:nodeal:${customer.customer_id}`, "1", { NX: true, EX: 86400 })) === "OK"; } catch { /* Redis down — still alert */ }
+    if (!firstToday) return;
+    const adminEmail = (envRaw("ADMIN_EMAIL") || "").trim();
+    if (adminEmail) await sendSafeDealAmlAlertEmail(adminEmail, { customerId: customer.customer_id, email: customer.email ?? null, amountUsd, payoutLabel: addr.payout_key, address: addr.address });
+  } catch (e) {
+    apiLogger.warn(`[SafeDeal] flagNoDealCashout error: ${(e as Error).message}`);
+  }
+}
 
 /** payout_key ("USDT-TRON") → Dynopay crypto code understood by explorerTxUrl ("USDT-TRC20"). */
 export const payoutKeyToCryptoCode = (payoutKey: string): string => {
@@ -77,6 +136,8 @@ export interface WithdrawalRow {
   approved_by: string | null;
   approved_at: string | null;
   rejected_reason: string | null;
+  /** Why it was routed to approval (single-large / velocity / 24h email-change hold). */
+  approval_reason?: string | null;
   tx_hash: string | null;
   /** Real blockchain hash (backfilled by safedealChainSync once the exchange broadcasts). */
   chain_tx_hash?: string | null;
@@ -319,11 +380,24 @@ export async function requestWithdrawal(
   await assertNoSimulatedFunds(customer.customer_id);
   const bal = await getBalances(customer.customer_id);
   if (bal.available < q.amount) throw new CustomerWalletError(400, `Insufficient available balance (${toFixedStr(bal.available, 2)} USD).`);
-  // Manual + auto cashouts of the approval threshold or more are held for admin approval;
-  // deal settlement payouts are ALWAYS automatic (never gated). Approval is invisible to the
-  // customer — the row sits in 'pending_approval' but every customer-facing surface presents
-  // it as a normal queued cashout (see maskWithdrawalForCustomer + the masked customer email).
-  const requiresApproval = input.source !== "settlement" && q.amount >= APPROVAL_THRESHOLD_USD;
+  // Anti-fraud / AML gating — a cashout routes to (invisible) admin approval when ANY trips:
+  //   1. a single manual/auto cashout ≥ the approval threshold (settlement is exempt from THIS rule);
+  //   2. a 24h hold is active after a recent email change (applies to EVERY source); or
+  //   3. it would push the trailing-24h cashout total over the velocity cap (EVERY source, incl. settlement).
+  const held = await cashoutHeld(customer.customer_id);
+  const rolling24h = await rolling24hCashoutUsd(customer.customer_id);
+  const overVelocity = round2(rolling24h + q.amount) > VELOCITY_CAP_USD;
+  const requiresApproval =
+    (input.source !== "settlement" && q.amount >= APPROVAL_THRESHOLD_USD) || held || overVelocity;
+  const approvalReason = [
+    input.source !== "settlement" && q.amount >= APPROVAL_THRESHOLD_USD ? `single cashout ≥ $${APPROVAL_THRESHOLD_USD}` : null,
+    held ? "24h hold after a recent email change" : null,
+    overVelocity ? `24h velocity over $${VELOCITY_CAP_USD} (rolling ${toFixedStr(rolling24h, 2)} + ${toFixedStr(q.amount, 2)} USD)` : null,
+  ].filter(Boolean).join("; ");
+  // AML tripwire on owner-initiated cashouts: deposit→withdraw with no deals ever done.
+  if (input.source == null || input.source === "manual" || input.source === "auto") {
+    void flagNoDealCashout(customer, q.amount, addr);
+  }
   // Settlement payouts are keyed per deal + party so a retried/concurrent settlement can never pay twice.
   const ledgerRef = isSettlement && input.escrow_id ? `escrow:${input.escrow_id}:payout:${customer.customer_id}` : `withdrawal:${crypto.randomUUID()}`;
   const opt = ESCROW_PAYOUT_OPTIONS.find((o) => o.key === addr.payout_key);
@@ -337,8 +411,8 @@ export async function requestWithdrawal(
   let w = await sequelize.transaction(async (t) => {
     const rows = await sequelize.query<WithdrawalRow>(
       `INSERT INTO tbl_customer_withdrawal
-         (company_id, customer_id, address_id, payout_key, address, amount_usd, fee_usd, net_usd, status, requires_approval, ledger_reference, source, escrow_id)
-       VALUES (:companyId, :customerId, :addressId, :payoutKey, :address, :amount, :fee, :net, :status, :requiresApproval, :ledgerRef, :source, :escrowId)
+         (company_id, customer_id, address_id, payout_key, address, amount_usd, fee_usd, net_usd, status, requires_approval, approval_reason, ledger_reference, source, escrow_id)
+       VALUES (:companyId, :customerId, :addressId, :payoutKey, :address, :amount, :fee, :net, :status, :requiresApproval, :approvalReason, :ledgerRef, :source, :escrowId)
        RETURNING *`,
       {
         replacements: {
@@ -352,6 +426,7 @@ export async function requestWithdrawal(
           net: toFixedStr(q.net, 2),
           status: requiresApproval ? "pending_approval" : "queued",
           requiresApproval,
+          approvalReason: requiresApproval ? (approvalReason || null) : null,
           ledgerRef,
           source: input.source || "manual",
           escrowId: input.escrow_id ?? null,
@@ -394,6 +469,7 @@ export async function requestWithdrawal(
   } else {
     // Held for admin approval. The customer is NOT told (their experience stays identical to a
     // normal queued cashout) — the admin is emailed so they can approve it from the admin panel.
+    apiLogger.warn(`[SafeDealWithdrawals] cashout #${w.withdrawal_id} (${input.source || "manual"}) HELD for admin approval — ${approvalReason}.`);
     const adminEmail = (envRaw("ADMIN_EMAIL") || "").trim();
     if (adminEmail) {
       const base = (envRaw("SERVER_URL") || envRaw("FRONTEND_URL") || "").trim().replace(/\/+$/, "");

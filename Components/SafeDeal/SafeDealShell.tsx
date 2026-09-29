@@ -242,9 +242,16 @@ export default function SafeDealShell({
                     Add email
                   </Button>
                 ) : (
-                  <Typography sx={{ fontSize: 12.5, color: muted, display: { xs: "none", sm: "block" } }} data-testid="sd-nav-user">
+                  <Button
+                    size="small"
+                    variant="text"
+                    onClick={() => setAddEmailOpen(true)}
+                    data-testid="sd-nav-user"
+                    endIcon={<Icon icon="mdi:pencil-outline" width={13} />}
+                    sx={{ textTransform: "none", fontWeight: 700, fontSize: 12.5, color: muted, display: { xs: "none", sm: "inline-flex" }, minWidth: 0, px: 0.75, "&:hover": { color: fg, backgroundColor: "transparent" } }}
+                  >
                     {user.email}
-                  </Typography>
+                  </Button>
                 )}
                 <Button
                   size="small"

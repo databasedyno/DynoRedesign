@@ -427,6 +427,28 @@ const addUserTokensValidAfter = async (): Promise<void> => {
 };
 
 /**
+ * 0054 — SafeDeal session security (account-takeover hardening).
+ *  - tbl_safedeal_profile.tokens_valid_after: any SafeDeal JWT with iat before this is rejected
+ *    (global "sign out everywhere" after a sensitive change such as an email change).
+ *  - tbl_safedeal_profile.cashout_hold_until: cashouts route to admin approval until this instant
+ *    (24h hold applied after an email change).
+ * Additive + idempotent (nullable, no rewrite) — safe on live prod.
+ */
+const addSafeDealSessionSecurity = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `ALTER TABLE "tbl_safedeal_profile"
+       ADD COLUMN IF NOT EXISTS "tokens_valid_after" TIMESTAMPTZ,
+       ADD COLUMN IF NOT EXISTS "cashout_hold_until" TIMESTAMPTZ`
+  );
+  // Why a cashout was routed to admin approval (single-large / velocity / email-change hold),
+  // shown in the admin cashouts panel so ops can triage at a glance.
+  await sequelize.query(
+    `ALTER TABLE "tbl_customer_withdrawal" ADD COLUMN IF NOT EXISTS "approval_reason" TEXT`
+  );
+};
+
+/**
  * 0025 — merchant API keys become one-way hashed (Stripe/Coinbase model).
  * Adds key_hash / key_hint / key_version / key_rotated_at, relaxes the legacy
  * NOT NULL on "apiKey", and backfills sha256("apiKey") for every existing row in
@@ -1022,6 +1044,7 @@ export async function buildBootMigrations(): Promise<Migration[]> {  const { v1,
     { version: "0051_wallet_ownership_verification", up: addWalletOwnershipVerification },
     { version: "0052_safedeal_ledger_unique_reference", up: addSafeDealLedgerUniqueReference },
     { version: "0053_txn_environment", up: addTransactionEnvironment },
+    { version: "0054_safedeal_session_security", up: addSafeDealSessionSecurity },
     ...perfMigrations,
     ...securityMigrations,
   ];

@@ -267,6 +267,39 @@ export const getAccountInfo = async (): Promise<{
   return data;
 };
 
+export interface BinanceApiKeyPermissions {
+  ipRestrict: boolean;
+  enableWithdrawals: boolean;
+  enableReading: boolean;
+  enableSpotAndMarginTrading: boolean;
+  enableInternalTransfer: boolean;
+  permitsUniversalTransfer: boolean;
+  enableMargin: boolean;
+  enableFutures: boolean;
+  createTime: number | null;
+}
+
+/**
+ * Read-only diagnostic: what this API key is permitted to do and whether access is
+ * restricted to an IP allowlist. Never changes anything on Binance. Used by the SafeDeal
+ * admin readiness check to surface a missing IP allowlist or accidental withdrawal perms.
+ * Endpoint: GET /sapi/v1/account/apiRestrictions (SIGNED).
+ */
+export const getApiKeyPermissions = async (): Promise<BinanceApiKeyPermissions> => {
+  const data = (await makeSignedRequest("GET", "/sapi/v1/account/apiRestrictions")) as Record<string, unknown>;
+  return {
+    ipRestrict: !!data.ipRestrict,
+    enableWithdrawals: !!data.enableWithdrawals,
+    enableReading: !!data.enableReading,
+    enableSpotAndMarginTrading: !!data.enableSpotAndMarginTrading,
+    enableInternalTransfer: !!data.enableInternalTransfer,
+    permitsUniversalTransfer: !!data.permitsUniversalTransfer,
+    enableMargin: !!data.enableMargin,
+    enableFutures: !!data.enableFutures,
+    createTime: typeof data.createTime === "number" ? data.createTime : null,
+  };
+};
+
 /** Get balance for a specific asset */
 export const getAssetBalance = async (asset: string): Promise<{ free: number; locked: number }> => {
   const account = await getAccountInfo();
@@ -969,6 +1002,7 @@ export default {
   ping,
   getServerTime,
   getAccountInfo,
+  getApiKeyPermissions,
   getAssetBalance,
   getOrderBookDepth,
   placeLimitIOCSell,

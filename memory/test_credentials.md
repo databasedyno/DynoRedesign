@@ -258,3 +258,14 @@ Preview URL (THIS pod): https://vault-auth-8.preview.emergentagent.com  (source 
 ## - Frontend UI built (AddEmailDialog, shell "Add email" for Telegram users, DealsList banner, NewDeal invite-method choice,
 ##   DealPage claim/open-seat + creator link card + regenerate, Landing inline "Start a deal" quick form). FE testing NOT yet run.
 - Throwaway brand 345 'QA Audit Empty Brand' created on user 1 for the E2E audit (2026-09-28) — DELETE after audit (POST /api/company/deleteCompany/345/send-otp → DELETE /api/company/deleteCompany/345 {otp})
+
+
+## 2026-09-29 (fork, pt14) — SafeDeal account-takeover + AML hardening (SHIPPED, verified on LIVE prod DB)
+- Migration 0054_safedeal_session_security (APPLIED to prod): tbl_safedeal_profile.tokens_valid_after + cashout_hold_until; tbl_customer_withdrawal.approval_reason.
+- EMAIL CHANGE now needs step-up to the CURRENT mailbox (backend controller/safedealController.ts addEmailStart requires requireStepUp when email is not placeholder). On change: sessions invalidated (tokens_valid_after=NOW, enforced in async safedealAuth via isTokenIssuedBeforeCutoff, Redis-cached 5min key safedeal:tva:<cid>), 24h cashout hold, alert to OLD email (sendSafeDealEmailChangedAlertEmail). Verified e2e via curl + UI.
+- VELOCITY: services/safedeal/safedealWithdrawals.ts requestWithdrawal now routes to pending_approval when (a) single manual/auto >= APPROVAL_THRESHOLD_USD ($200 in prod env), OR (b) cashout_hold active (ALL sources incl settlement), OR (c) rolling 24h sum + amount > VELOCITY_CAP_USD ($1000 default). approval_reason persisted + shown in admin panel. USER CONFIRMED: keep $200 single + $1000 rolling (USD).
+- AML: flagNoDealCashout() logs + emails ADMIN_EMAIL (moxxcompany@gmail.com) when a manual/auto cashout happens with ZERO funded deals; throttled 1/24h/customer via redis safedeal:aml:nodeal:<cid>.
+- BINANCE read-only diagnostic: binanceService.getApiKeyPermissions() (GET /sapi/v1/account/apiRestrictions) surfaced in /api/safedeal/admin/readiness check key=binance_key (only runs when live settlement ON). NOTE: preview pod is GEO-BLOCKED by Binance (HTTP 451 even via proxy) so live key values can only be read from the prod droplet.
+- Admin cashouts panel (Components/Page/Admin/Escrow/AdminWithdrawals.tsx) shows "Held: <reason>" + a "deal payout" chip for settlement source. Approve & send / Reject & refund already existed.
+- Test scripts (throwaway, self-cleanup): backend/scripts/sd_sectest_email.sh, sd_sectest_aml.sh + sd_sectest_withdraw.ts, sd_sectest_db.cjs, sd_sectest_seed_wd.cjs. Reserved test domain @example.com yields preview OTP codes (DISABLE_OUTBOUND_EMAIL=true).
+- Admin API login: POST /api/admin/login {moxxcompany@gmail.com/Katiekendra123@} -> data.accessToken (NOT data.token). Admin FE token: localStorage.admin_token.

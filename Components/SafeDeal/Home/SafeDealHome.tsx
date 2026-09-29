@@ -165,7 +165,18 @@ export default function SafeDealHome({ initialTab = "overview" }: { initialTab?:
           <Typography component="h1" sx={{ fontSize: { xs: 28, md: 36 }, fontWeight: 900, letterSpacing: -1, lineHeight: 1.05 }} data-testid="sd-home-greeting">
             {firstName ? `Hi ${firstName}` : "Your deals & money"}
           </Typography>
-          <Typography sx={{ fontSize: 13.5, color: SD_TEXT_MUTED, mt: 0.4 }} data-testid="sd-home-user">{user?.email && !isPlaceholderSdEmail(user.email) ? user.email : "Signed in with Telegram"} · shown in USD, held as USDT</Typography>
+          <Typography sx={{ fontSize: 13.5, color: SD_TEXT_MUTED, mt: 0.4 }} data-testid="sd-home-user">
+            {user?.email && !isPlaceholderSdEmail(user.email) ? (
+              <>
+                {user.email}
+                <Box component="button" type="button" onClick={() => setAddEmailOpen(true)} data-testid="sd-change-email"
+                  sx={{ ml: 1, p: 0, border: 0, background: "none", cursor: "pointer", font: "inherit", fontWeight: 800, color: SD_GOLD_DEEP, textDecoration: "underline" }}>
+                  Change
+                </Box>
+              </>
+            ) : "Signed in with Telegram"}
+            {" · shown in USD, held as USDT"}
+          </Typography>
         </Box>
         <Link href={href("/deals/new")} data-testid="sd-new-deal" style={{ textDecoration: "none" }}>
           <Button variant="contained" startIcon={<Icon icon="mdi:plus" />} sx={{ textTransform: "none", fontWeight: 900, borderRadius: 99, px: 2.6, py: 1.1, color: SD_INK, backgroundColor: SD_GOLD, boxShadow: `0 10px 24px ${goldAlpha(0.3)}`, "&:hover": { backgroundColor: SD_GOLD_DARK } }}>

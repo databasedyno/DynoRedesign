@@ -35,6 +35,7 @@ node_modules/
 /.next/
 /.next-dev/
 /.next-prod/
+/.next-prod-*/
 /out/
 next-env.d.ts
 *.tsbuildinfo

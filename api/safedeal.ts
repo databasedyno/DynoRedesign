@@ -376,7 +376,7 @@ export interface SdAddress {
 }
 
 /** What the user is confirming with a step-up code — drives the email copy. */
-export type StepUpAction = "cashout" | "address_add" | "address_remove" | "payout_destination";
+export type StepUpAction = "cashout" | "address_add" | "address_remove" | "payout_destination" | "change_email";
 
 export interface SdWithdrawal {
   withdrawal_id: number;
@@ -452,7 +452,7 @@ export const safedealApi = {
   updateProfile: async (body: { auto_withdraw?: boolean; auto_withdraw_address_id?: number | null; display_name?: string }) => unwrap(await client.post("/profile", body)),
 
   /** Add a real email to the signed-in account (Telegram users, or anyone who wants email login). */
-  addEmailStart: async (email: string): Promise<{ email: string; preview_code?: string }> => unwrap(await client.post("/account/email/start", { email })),
+  addEmailStart: async (email: string, code?: string): Promise<{ email: string; preview_code?: string }> => unwrap(await client.post("/account/email/start", code ? { email, code } : { email })),
   addEmailVerify: async (code: string): Promise<{ token: string; user: SdUser; connected_deals: number }> => unwrap(await client.post("/account/email/verify", { code })),
 
   listDeals: async (status?: string, role?: string): Promise<SdDeal[]> => unwrap(await client.get("/deals", { params: { status, role } })),

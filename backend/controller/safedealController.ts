@@ -57,8 +57,9 @@ import {
   webhookUrl as safedealWebhookUrl,
 } from "../services/safedeal/safedealCheckout";
 import { isPlatformFeeExemptCompany } from "../services/feeService";
-import { sendSafeDealCodeEmail, sendSafeDealAddressAlertEmail } from "../services/email/safedealEmails";
+import { sendSafeDealCodeEmail, sendSafeDealAddressAlertEmail, sendSafeDealEmailChangedAlertEmail } from "../services/email/safedealEmails";
 import { notifyAdminNewSafeDealUser } from "../services/safedeal/safedealAdminNotify";
+import { isTokenIssuedBeforeCutoff } from "../middleware/authMiddleware";
 import { sendEscrowInviteEmail, sendEscrowAmendedEmail } from "../services/email/escrowEmails";
 import { runSafeDealReminders } from "../services/safedeal/safedealReminders";
 import { generateDealSummaryPdf, feeShares, generateTopupReceiptPdf } from "../services/safedeal/safedealPdf";
@@ -137,13 +138,52 @@ const handle = (res: express.Response, e: unknown, context: string) => {
 
 // ── session middleware ───────────────────────────────────────────────────────
 
-export const safedealAuth = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+// Global session invalidation ("sign out everywhere"): a per-customer cutoff stored on
+// tbl_safedeal_profile.tokens_valid_after. Any SafeDeal JWT issued before it is dead. Set on
+// a sensitive change (email change) so a stolen session token is killed the moment the real
+// owner (or the flow) rotates the account. Redis-cached (5 min) with the DB as source of truth.
+const SESSION_EPOCH_TTL = 300;
+const sessionEpochKey = (cid: number) => `safedeal:tva:${cid}`;
+
+async function sdTokensValidAfter(customerId: number): Promise<string | null> {
+  if (!customerId) return null;
+  const key = sessionEpochKey(customerId);
+  try {
+    const cached: any = await getRedisItem(key);
+    if (cached && "iso" in cached) return cached.iso ?? null;
+  } catch { /* Redis down — fall through to the authoritative DB read */ }
+  try {
+    const rows = await sequelize.query<{ tokens_valid_after: string | null }>(
+      `SELECT tokens_valid_after FROM tbl_safedeal_profile WHERE customer_id = :id LIMIT 1`,
+      { replacements: { id: customerId }, type: QueryTypes.SELECT }
+    );
+    const iso = rows[0]?.tokens_valid_after ? new Date(rows[0].tokens_valid_after).toISOString() : null;
+    try { await setRedisItemWithTTL(key, { iso }, SESSION_EPOCH_TTL); } catch { /* non-critical */ }
+    return iso;
+  } catch (e) {
+    // Infra failure: don't lock every SafeDeal user out. Money can't move during a DB outage
+    // anyway (every cashout query needs the DB), so allowing read requests through is safe.
+    apiLogger.warn(`[safedeal] tokens_valid_after lookup failed for customer ${customerId}: ${(e as Error).message}`);
+    return null;
+  }
+}
+
+async function invalidateSdSessionEpochCache(customerId: number): Promise<void> {
+  try { await deleteRedisItem(sessionEpochKey(customerId)); } catch { /* non-critical */ }
+}
+
+export const safedealAuth = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
   try {
     const header = (req.headers["x-safedeal-token"] as string) || String(req.headers.authorization || "").replace(/^Bearer\s+/i, "");
     if (!header) return errorResponseHelper(res, 401, "Please sign in to continue.");
     const payload = jwt.verify(header, secret()) as any;
     if (!payload || payload.kind !== "safedeal") return errorResponseHelper(res, 401, "Please sign in to continue.");
-    res.locals.sd = { customer_id: Number(payload.cid), company_id: Number(payload.coid), email: String(payload.email) } as SafeDealSession;
+    const customerId = Number(payload.cid);
+    const cutoff = await sdTokensValidAfter(customerId);
+    if (isTokenIssuedBeforeCutoff(payload.iat, cutoff)) {
+      return errorResponseHelper(res, 401, "Your session was signed out for your security. Please sign in again.");
+    }
+    res.locals.sd = { customer_id: customerId, company_id: Number(payload.coid), email: String(payload.email) } as SafeDealSession;
     return next();
   } catch {
     return errorResponseHelper(res, 401, "Your session has expired. Please sign in again.");
@@ -366,7 +406,7 @@ const telegramUnlink = async (_req: express.Request, res: express.Response) => {
   }
 };
 
-const STEP_UP_ACTIONS = new Set(["cashout", "address_add", "address_remove", "payout_destination"]);
+const STEP_UP_ACTIONS = new Set(["cashout", "address_add", "address_remove", "payout_destination", "change_email"]);
 
 const sendStepUp = async (req: express.Request, res: express.Response) => {
   try {
@@ -1561,6 +1601,20 @@ const adminReadiness = async (_req: express.Request, res: express.Response) => {
     const coinsWithoutPool = configured.filter((w) => !(poolByCoin[w.coin] > 0)).map((w) => w.coin);
     const feeExempt = isPlatformFeeExemptCompany(cid);
     const secretSet = !!(envRaw("SAFEDEAL_WEBHOOK_SECRET") || "").trim();
+    // Read-only Binance API key diagnostic (never mutates Binance). Only when live settlement is
+    // on — and time-boxed so a blocked network can't hang the admin dashboard.
+    let binancePerms: import("../services/binanceService").BinanceApiKeyPermissions | null = null;
+    let binancePermsError: string | null = null;
+    if (live) {
+      try {
+        const { getApiKeyPermissions } = await import("../services/binanceService");
+        const withTimeout = <T,>(p: Promise<T>, ms: number): Promise<T> =>
+          Promise.race([p, new Promise<T>((_, rej) => setTimeout(() => rej(new Error("timeout")), ms))]);
+        binancePerms = await withTimeout(getApiKeyPermissions(), 8000);
+      } catch (e) {
+        binancePermsError = (e as Error).message;
+      }
+    }
     const checks = [
       { key: "brand", ok: !!b, label: "SafeDeal brand configured", detail: b ? `SAFEDEAL_COMPANY_ID=${cid} → "${b.company_name}" (owner user ${b.user_id})` : "Set SAFEDEAL_COMPANY_ID to the SafeDeal brand's company_id." },
       {
@@ -1597,6 +1651,19 @@ const adminReadiness = async (_req: express.Request, res: express.Response) => {
       { key: "autoconvert", ok: !!b?.auto_convert_enabled, warn: !b?.auto_convert_enabled, label: "Auto-convert volatile coins to USDT on Binance (held, not withdrawn)", detail: b?.auto_convert_enabled ? `${b.settlement_currency} on ${b.settlement_chain} · converted USDT is HELD on Binance as escrow custody (Phase 3 withdrawal skipped for this brand)` : "Off — BTC/ETH funding would stay volatile. Enable auto-convert on the brand (Settings → Payouts); any settlement address works, it's never used for SafeDeal." },
       { key: "fees", ok: escrowEngine.ESCROW_FEE_PERCENT > 0 && escrowEngine.ESCROW_FEE_MIN_USD > 0 && escrowEngine.ESCROW_MIN_DEAL_USD >= escrowEngine.ESCROW_FEE_MIN_USD, label: "Escrow fee & minimums", detail: `fee ${escrowEngine.ESCROW_FEE_PERCENT}% (min $${escrowEngine.ESCROW_FEE_MIN_USD}) · min deal $${escrowEngine.ESCROW_MIN_DEAL_USD} · min withdrawal $${MIN_WITHDRAWAL_USD} · approval above $${APPROVAL_THRESHOLD_USD} · payouts at close via Binance to the party's address` },
       { key: "email", ok: true, warn: emailDisabled(), label: emailDisabled() ? "Outbound email OFF — codes are shown in the UI instead" : "Outbound email ON", detail: `DISABLE_OUTBOUND_EMAIL=${emailDisabled() ? "true" : "false"}` },
+      {
+        key: "binance_key",
+        ok: live ? (!!binancePerms && binancePerms.ipRestrict && binancePerms.enableWithdrawals) : true,
+        warn: live && (!binancePerms || !binancePerms.ipRestrict),
+        label: "Binance API key — IP allowlist + withdrawals enabled",
+        detail: binancePerms
+          ? `ipRestrict=${binancePerms.ipRestrict} · withdrawals=${binancePerms.enableWithdrawals} · reading=${binancePerms.enableReading} · spot/margin=${binancePerms.enableSpotAndMarginTrading}`
+            + (binancePerms.ipRestrict ? "" : " · ⚠️ NO IP allowlist — restrict the key to your server IP(s) in Binance → API Management")
+            + (binancePerms.enableWithdrawals ? "" : " · ⚠️ withdrawals DISABLED — cashouts will fail until enabled")
+          : live
+            ? `Couldn't read Binance API key restrictions${binancePermsError ? ` (${binancePermsError})` : ""} — check BINANCE_API_KEY/SECRET and that this server's IP is allowed on the key.`
+            : "Live settlement OFF — Binance key check skipped.",
+      },
     ];
     return successResponseHelper(res, 200, "OK", {
       ready: checks.every((c) => c.ok),
@@ -1604,6 +1671,7 @@ const adminReadiness = async (_req: express.Request, res: express.Response) => {
       safedeal_url: safedealUrl || null,
       brand: b ? { company_id: cid, name: b.company_name, owner_user_id: Number(b.user_id), auto_convert: { enabled: !!b.auto_convert_enabled, currency: b.settlement_currency || null, chain: b.settlement_chain || null, address: maskAddr(b.settlement_wallet_address) || null } } : null,
       api_key: { ...keyStatus, webhook_url: safedealWebhookUrl() },
+      binance_key: binancePerms ? { ...binancePerms, error: null } : { error: binancePermsError, checked: live },
       wallets: configured.map((w) => ({ coin: w.coin, address: maskAddr(w.address), custody: custodyCoins.some((c) => c.coin === w.coin), pool_ready: poolByCoin[w.coin] || 0 })),
       totals: totals ? { ...totals, pending_approvals: pending.length } : null,
       deals: stats
@@ -1684,8 +1752,16 @@ const addEmailStart = async (req: express.Request, res: express.Response) => {
     if (!emailOk(email)) return errorResponseHelper(res, 400, "Enter a valid email address.");
     if (isPlaceholderEmail(email)) return errorResponseHelper(res, 400, "Enter a real email address.");
     const customer = await customerFor(sess);
-    if (!isPlaceholderEmail(customer.email) && norm(customer.email) === email) {
+    const isFirstEmail = isPlaceholderEmail(customer.email);
+    if (!isFirstEmail && norm(customer.email) === email) {
       return errorResponseHelper(res, 400, "That's already the email on your account.");
+    }
+    // ACCOUNT-TAKEOVER GUARD: changing an EXISTING real email requires a step-up code that was
+    // emailed to the CURRENT address. A stolen session token alone can't complete this — the
+    // attacker would need to read the victim's current mailbox. (First-time email add by a
+    // Telegram-only account has no current mailbox to prove, so it's exempt.)
+    if (!isFirstEmail) {
+      await requireStepUp(sess, String(req.body?.code || ""));
     }
     // Decision 1: on collision we BLOCK (never merge two accounts on live money).
     const clash = await sequelize.query<{ customer_id: number }>(
@@ -1722,6 +1798,9 @@ const addEmailVerify = async (req: express.Request, res: express.Response) => {
     }
     await deleteRedisItem(key);
     const email = norm(stored.email);
+    const oldEmail = norm(sess.email);
+    // A genuine change of an existing real email (not a Telegram-only first-time add).
+    const wasRealEmailChange = !isPlaceholderEmail(oldEmail) && oldEmail !== email;
     // Re-check the collision at verify time (someone may have claimed it since start).
     const clash = await sequelize.query<{ customer_id: number }>(
       `SELECT customer_id FROM tbl_customer WHERE company_id = :cid AND LOWER(email) = :email AND customer_id != :self LIMIT 1`,
@@ -1738,6 +1817,19 @@ const addEmailVerify = async (req: express.Request, res: express.Response) => {
       { where: { source: "safedeal", counterparty_email: { [Op.iLike]: email }, counterparty_customer_id: null } as any }
     );
     const connected = Array.isArray(result) ? Number(result[0] || 0) : 0;
+    if (wasRealEmailChange) {
+      // Account-takeover containment: kill every previously issued session token and pause all
+      // cashouts for 24h (routed to admin approval). The real owner is alerted on the OLD mailbox.
+      await sequelize.query(
+        `UPDATE tbl_safedeal_profile
+            SET tokens_valid_after = NOW(), cashout_hold_until = NOW() + INTERVAL '24 hours', updated_at = NOW()
+          WHERE customer_id = :cid`,
+        { replacements: { cid: sess.customer_id }, type: QueryTypes.UPDATE }
+      );
+      await invalidateSdSessionEpochCache(sess.customer_id);
+      void sendSafeDealEmailChangedAlertEmail(oldEmail, email);
+      apiLogger.warn(`[SafeDeal] email changed for customer ${sess.customer_id}: sessions invalidated + 24h cashout hold applied.`);
+    }
     const profile = await loadProfile(sess.customer_id);
     // Re-issue the session carrying the real email so future requests also match by email.
     const token = jwt.sign({ kind: "safedeal", cid: sess.customer_id, coid: sess.company_id, email }, secret(), { expiresIn: `${SESSION_DAYS}d` });

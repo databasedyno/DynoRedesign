@@ -24,6 +24,7 @@ interface Withdrawal {
   chain_tx_hash?: string | null;
   simulated: boolean;
   rejected_reason: string | null;
+  approval_reason?: string | null;
   source: string;
   created_at: string;
 }
@@ -106,8 +107,14 @@ export default function AdminWithdrawals() {
                   <Typography sx={{ fontWeight: 700 }}>#{w.withdrawal_id} · {money(Number(w.amount_usd))}</Typography>
                   <Chip size="small" label={w.status.replace("_", " ")} data-testid={`escrow-admin-wd-status-${w.withdrawal_id}`} sx={{ fontWeight: 700, fontSize: 11, textTransform: "capitalize", backgroundColor: w.status === "sent" ? "#ECFDF5" : w.status === "rejected" ? "#FEF2F2" : "#FEF3C7", color: w.status === "sent" ? "#047857" : w.status === "rejected" ? "#B91C1C" : "#92400E" }} />
                   {w.source === "auto" && <Chip size="small" label="auto-withdraw" sx={{ fontSize: 11 }} />}
+                  {w.source === "settlement" && <Chip size="small" label="deal payout" sx={{ fontSize: 11, backgroundColor: "#EEF2FF", color: "#3730A3", fontWeight: 700 }} />}
                   {w.simulated && <Chip size="small" label="simulated" sx={{ fontSize: 11 }} />}
                 </Stack>
+                {w.status === "pending_approval" && w.approval_reason && (
+                  <Typography sx={{ fontSize: 12, color: "#92400E", fontWeight: 700, mt: 0.4 }} data-testid={`escrow-admin-wd-holdreason-${w.withdrawal_id}`}>
+                    Held: {w.approval_reason}
+                  </Typography>
+                )}
                 <Typography sx={{ fontSize: 12.5, color: "text.secondary", mt: 0.3 }}>
                   {w.customer_email || `customer ${w.customer_id}`} · {w.payout_key} · <span style={{ fontFamily: "monospace" }}>{w.address}</span>
                 </Typography>
