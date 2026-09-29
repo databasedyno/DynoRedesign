@@ -118,6 +118,9 @@ jobs:
             # SafeDeal (safedeal.sh) runs in the SAME container — Next middleware routes by Host.
             # Idempotently ensure env + a Caddy site block exist (Caddy auto-issues the LE cert once DNS resolves).
             [ -z "$(tail -c1 .env)" ] || echo >> .env
+            # Crypto-only since 2026-09: the Flutterwave code is gone, so prune its retired
+            # FLW_* keys from the droplet env (idempotent; keeps a timestamped backup once).
+            if grep -q '^FLW_' .env; then cp .env ".env.bak.$(date +%s)" && sed -i '/^FLW_/d' .env; fi
             grep -q '^SAFEDEAL_COMPANY_ID=' .env || echo 'SAFEDEAL_COMPANY_ID=262' >> .env
             grep -q '^SAFEDEAL_URL=' .env || echo 'SAFEDEAL_URL=https://safedeal.sh' >> .env
             # SafeDeal is an API-key merchant of Dynopay (funding via /api/user/cryptoPayment + signed webhooks).

@@ -1,4 +1,4 @@
-name: Preflight — TypeScript type-check (backend + frontend)
+name: Preflight — type-check + exact Dockerfile build
 
 # Belt-and-braces companion to the local Husky pre-commit hook
 # (scripts/preflight-tsc.sh, which is WARN-only so Save-to-GitHub keeps
@@ -6,7 +6,7 @@ name: Preflight — TypeScript type-check (backend + frontend)
 # uses Save-to-GitHub (which may not run local hooks), or pushes from a
 # fresh clone without running `yarn install`, this GitHub Action still
 # catches the exact same errors and marks the commit as failed —
-# before DigitalOcean burns ~7½ min on it.
+# before the droplet deploy burns ~8 min on it.
 #
 # History
 #   2026-07-13 — created after 5 back-to-back DO deploys failed on tsc
@@ -14,22 +14,24 @@ name: Preflight — TypeScript type-check (backend + frontend)
 #     after a TS2554 error on `latest` slipped through (previous CI only
 #     watched `main` + `New-Onboarding2`). `latest` IS the DO deploy
 #     branch on the `databasedyno/DynoRedesign` repo, so it MUST be gated.
+#   2026-09-29 — now runs on EVERY push + PR (the deploy branch moved to
+#     `Improvement`, which this workflow never watched), and gained the
+#     `docker-build` job: the REAL `docker build` of ./Dockerfile (no push).
+#     tsc on a full checkout cannot catch what the Dockerfile's selective
+#     COPY list leaves out, nor a stale package that only exists in a
+#     developer's node_modules — the 2026-09-29 deploy failure was exactly
+#     that (`react-credit-cards-2` removed from package.json but still
+#     imported; local tsc green, Docker `yarn build` red).
 #
-# Runs in <60s on a warm cache (yarn cache + node_modules cache).
-# Runs in ~2m on a cold cache. Either way, orders of magnitude
-# faster than a failed DO build.
+# tsc jobs run in <60s on a warm cache. docker-build is ~8–10 min cold and
+# ~2–4 min on a warm GHA layer cache — and that cache is SHARED with
+# deploy-droplet.yml (same build-args), so a green preflight makes the
+# following deploy build mostly cache hits.
 
 on:
   push:
-    branches:
-      - latest       # DigitalOcean auto-deploys this branch — MUST gate
-      - main
-      - New-Onboarding2
-  pull_request:
-    branches:
-      - latest
-      - main
-      - New-Onboarding2
+    branches: ["**"]
+  pull_request: {}
   workflow_dispatch: {}
 
 concurrency:
@@ -106,3 +108,53 @@ jobs:
 
       - name: Run tsc --noEmit (strict — zero errors allowed)
         run: ./node_modules/.bin/tsc --noEmit
+
+  # ─────────────────────────────────────────────────────────────────────
+  # Exact Dockerfile build — the same `docker build` the deploy runs,
+  # minus the push. Fails on anything tsc-on-a-checkout cannot see:
+  # Dockerfile COPY omissions, lockfile drift, deps that only exist in a
+  # developer's node_modules, `next build` prerender errors, backend tsc.
+  # build-args mirror deploy-droplet.yml so the GHA layer cache is shared.
+  # ─────────────────────────────────────────────────────────────────────
+  docker-build:
+    name: docker build ./Dockerfile (no push)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build image (exact deploy context, not pushed)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NEXT_BUILD_CPUS=4
+            NEXT_PUBLIC_BASE_URL=${{ secrets.NEXT_PUBLIC_BASE_URL }}
+            NEXT_PUBLIC_SERVER_URL=${{ secrets.NEXT_PUBLIC_SERVER_URL }}
+            NEXT_PUBLIC_API_DOCS_URL=${{ secrets.NEXT_PUBLIC_API_DOCS_URL }}
+            NEXT_PUBLIC_CYPHER_KEY=${{ secrets.NEXT_PUBLIC_CYPHER_KEY }}
+            NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
+            NEXT_PUBLIC_ENABLE_GOOGLE_AUTH=${{ secrets.NEXT_PUBLIC_ENABLE_GOOGLE_AUTH }}
+            NEXT_PUBLIC_ENABLE_GITHUB_AUTH=${{ secrets.NEXT_PUBLIC_ENABLE_GITHUB_AUTH }}
+            NEXT_PUBLIC_GITHUB_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GITHUB_CLIENT_ID }}
+            NEXT_PUBLIC_ENABLE_CRYPTO_REFUNDS=${{ secrets.NEXT_PUBLIC_ENABLE_CRYPTO_REFUNDS }}
+            NEXT_PUBLIC_CREATOR_BASE_URL=${{ secrets.NEXT_PUBLIC_CREATOR_BASE_URL }}
+            NEXT_PUBLIC_REOWN_PROJECT_ID=${{ secrets.NEXT_PUBLIC_REOWN_PROJECT_ID }}
+            NEXT_PUBLIC_SHOW_SOCIAL_LINKS=${{ vars.NEXT_PUBLIC_SHOW_SOCIAL_LINKS }}
+            NEXT_PUBLIC_ENABLE_PRODUCT_CATALOG=${{ vars.NEXT_PUBLIC_ENABLE_PRODUCT_CATALOG }}
+            NEXT_PUBLIC_INLINE_TIP_CHECKOUT=${{ vars.NEXT_PUBLIC_INLINE_TIP_CHECKOUT }}
+            NEXT_PUBLIC_CLEAN_CHECKOUT_V2=${{ vars.NEXT_PUBLIC_CLEAN_CHECKOUT_V2 }}
+            NEXT_PUBLIC_CHECKOUT_SWR=${{ vars.NEXT_PUBLIC_CHECKOUT_SWR }}
+            NEXT_PUBLIC_SAFEDEAL_COMPANY_ID=${{ vars.NEXT_PUBLIC_SAFEDEAL_COMPANY_ID }}
+            NEXT_PUBLIC_GOOGLE_CLIENT_SECRET=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_SECRET }}
+            NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
+            NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
