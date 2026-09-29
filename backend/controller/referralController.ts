@@ -196,7 +196,9 @@ export const listMyReferrals = async (req: Request, res: Response) => {
  */
 export const applyReferralCode = async (req: Request, res: Response) => {
   try {
-    const { referral_code, user_id } = req.body;
+    const { referral_code } = req.body;
+    // Always the caller's own account (authMiddleware) — a body user_id is ignored.
+    const user_id = Number((res.locals as { user?: { user_id?: number } })?.user?.user_id) || null;
 
     if (!referral_code || !user_id) {
       return res.status(400).json({
@@ -470,40 +472,48 @@ export const processReferralReward = async (userId: number, transactionAmount: n
 };
 
 /**
- * Get referral leaderboard (top referrers)
- * GET /api/referral/leaderboard
+ * Get referral leaderboard (top referrers) — merchant dashboard (/referrals).
+ * Auth-gated: names are shown as "First L." for other merchants (never ids or
+ * earnings), and `is_current_user` marks the caller's own row.
+ * GET /api/referral/leaderboard?limit=10
  */
 export const getReferralLeaderboard = async (req: Request, res: Response) => {
   try {
-    const { limit = 10 } = req.query;
+    const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 25);
+    const me = Number((res.locals as { user?: { user_id?: number } })?.user?.user_id) || null;
 
     const leaderboard = await User.findAll({
-      attributes: [
-        'user_id',
-        'name',
-        'referral_code',
-        'referral_count',
-        'referral_bonus_earned',
-      ],
+      attributes: ['user_id', 'name', 'referral_count'],
       where: {
         referral_count: {
           [Op.gt]: 0,
         },
       },
       order: [['referral_count', 'DESC']],
-      limit: Number(limit),
+      limit,
     });
+
+    const displayName = (raw: unknown, mine: boolean): string => {
+      const full = String(raw || '').trim();
+      if (mine || !full) return full || 'Merchant';
+      const [first, ...rest] = full.split(/\s+/);
+      const lastInitial = rest.length ? ` ${rest[rest.length - 1][0].toUpperCase()}.` : '';
+      return `${first}${lastInitial}`;
+    };
 
     return res.status(200).json({
       message: "Leaderboard retrieved successfully",
       data: {
-        leaderboard: leaderboard.map((user, index) => ({
-          rank: index + 1,
-          user_id: (user as unknown as Record<string, unknown>).user_id,
-          name: (user as unknown as Record<string, unknown>).name,
-          referral_count: (user as unknown as Record<string, unknown>).referral_count,
-          total_earnings: (user as unknown as Record<string, unknown>).referral_bonus_earned,
-        })),
+        leaderboard: leaderboard.map((user, index) => {
+          const row = user as unknown as Record<string, unknown>;
+          const mine = me !== null && Number(row.user_id) === me;
+          return {
+            rank: index + 1,
+            name: displayName(row.name, mine),
+            referral_count: Number(row.referral_count) || 0,
+            is_current_user: mine,
+          };
+        }),
       },
     });
   } catch (error) {
@@ -618,7 +628,11 @@ const validateRefereeCode = async (req: Request, res: Response) => {
  */
 const redeemRefereeCode = async (req: Request, res: Response) => {
   try {
-    const { code, user_id, email } = req.body;
+    const { code } = req.body;
+    // Bound to the authenticated account (authMiddleware) — never trust a body user_id.
+    const authUser = (res.locals as { user?: { user_id?: number; email?: string } })?.user;
+    const user_id = Number(authUser?.user_id) || null;
+    const email = authUser?.email || req.body?.email;
 
     if (!code) {
       return res.status(400).json({

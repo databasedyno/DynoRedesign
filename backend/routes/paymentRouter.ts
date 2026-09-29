@@ -14,7 +14,7 @@ const paymentRouter = express.Router();
 
 // Public encrypt-payload endpoint for checkout flow (no auth required)
 // Moved from /wallet/encrypt-payload which was behind authMiddleware
-paymentRouter.post("/encrypt-payload", walletController.encryptPayload);
+paymentRouter.post("/encrypt-payload", publicReadRateLimiter, walletController.encryptPayload);
 
 paymentRouter.post("/getData", paymentRateLimiter, paymentController.getData);
 
@@ -172,6 +172,7 @@ paymentRouter.get(
 // Public endpoint to calculate payment amount with fees
 paymentRouter.post(
   "/calculate-payment",
+  publicReadRateLimiter,
   paymentController.calculatePaymentAmount
 );
 
@@ -181,6 +182,7 @@ paymentRouter.post(
 // Returns: platform_fee, blockchain_fee, total_fees, net_to_merchant
 paymentRouter.post(
   "/calculateFees",
+  publicReadRateLimiter,
   paymentController.calculateCheckoutFees
 );
 

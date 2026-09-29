@@ -8,6 +8,24 @@ export const usePushNotifications = () => {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [supported, setSupported] = useState(false);
+  // null = unknown (probing), false = server has no VAPID key → push cannot work
+  const [serverEnabled, setServerEnabled] = useState<boolean | null>(null);
+  const [lastError, setLastError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    axiosBaseApi
+      .get("/notifications/push/vapid-key")
+      .then((r) => {
+        if (!cancelled) setServerEnabled(!!r?.data?.data?.vapid_public_key);
+      })
+      .catch(() => {
+        if (!cancelled) setServerEnabled(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     // Check if push notifications are supported
@@ -37,6 +55,7 @@ export const usePushNotifications = () => {
 
   const subscribe = useCallback(async (): Promise<boolean> => {
     if (!supported) return false;
+    setLastError(null);
 
     setLoading(true);
     try {
@@ -59,6 +78,8 @@ export const usePushNotifications = () => {
 
       if (!vapidPublicKey) {
         console.error("[Push] No VAPID key from server");
+        setServerEnabled(false);
+        setLastError("push_not_configured");
         setLoading(false);
         return false;
       }
@@ -83,10 +104,12 @@ export const usePushNotifications = () => {
         return true;
       }
 
+      setLastError("subscribe_failed");
       setLoading(false);
       return false;
     } catch (err) {
       console.error("[Push] Subscribe error:", err);
+      setLastError("subscribe_failed");
       setLoading(false);
       return false;
     }
@@ -124,7 +147,11 @@ export const usePushNotifications = () => {
     permission,
     isSubscribed,
     loading,
-    supported,
+    // Browser support AND the server has push configured (false while probing → hidden until known)
+    supported: supported && serverEnabled === true,
+    browserSupported: supported,
+    serverEnabled,
+    lastError,
     subscribe,
     unsubscribe,
   };

@@ -19,7 +19,7 @@
 import { DataTypes, Model } from "sequelize";
 import sequelize from "../utils/dbInstance";
 
-export type InboundEventStatus = "received" | "processed" | "failed";
+export type InboundEventStatus = "received" | "processed" | "failed" | "skipped";
 
 export interface InboundEventAttributes {
   id?: number;

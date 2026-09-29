@@ -209,6 +209,15 @@ const CryptoRefundModal: React.FC<Props> = ({ open, onClose, sourceType, sourceR
           </>
         ) : preview ? (
           <Stack spacing={2} sx={{ pt: 1 }}>
+            {preview.live_available === false && (
+              <Alert severity="warning" sx={{ fontSize: 13 }} data-testid="refund-live-unavailable">
+                {preview.unavailable_reason ||
+                  t("refund.liveUnavailable", {
+                    defaultValue:
+                      "On-chain refunds are not available yet. No deposit address is created and no funds move — please refund the customer directly from your own wallet for now.",
+                  })}
+              </Alert>
+            )}
             <Alert severity="info" sx={{ fontSize: 13 }}>
               <Trans t={t} i18nKey="refund.intro" values={{ chain: preview.chain }} components={{ b: <b /> }} />
             </Alert>
@@ -377,6 +386,7 @@ const CryptoRefundModal: React.FC<Props> = ({ open, onClose, sourceType, sourceR
             onClick={submit}
             disabled={
               submitting ||
+              preview.live_available === false ||
               !addrConfirmed ||
               (!!preview.needs_address && !isValidAddressFor(preview.chain, addrInput))
             }

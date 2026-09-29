@@ -1,0 +1,188 @@
+== FRONTEND CALLS WITH NO BACKEND ROUTE (75) ==
+?      /api/admin/escrow
+      Components/Layout/Menus.tsx:100
+?      /api/admin/live-console
+      pages/_app.tsx:471; Components/Layout/Menus.tsx:115
+?      /api/admin/merchants
+      pages/_app.tsx:469; Components/Layout/Menus.tsx:95
+?      /api/admin/profile
+      pages/_app.tsx:467; Components/Layout/Sidebar/index.tsx:73; Components/Layout/AdminHeader/index.tsx:342
+?      /api/admin/support
+      pages/_app.tsx:468; Components/Layout/Menus.tsx:90; Components/Layout/Menus.tsx:235; contexts/AdminSupportAlertContext.tsx:48 ...
+?      /api/admin/support/sessions/P/P
+      Components/Page/Admin/SupportInbox/index.tsx:105
+?      /api/admin/transactions
+      pages/_app.tsx:470; Components/Layout/Menus.tsx:105; Components/Page/Admin/Transactions/index.tsx:130
+?      /api/checkout/getData
+      Components/Page/Creator/InlineTipCheckout.tsx:350; Components/Page/Pay3Components/CleanCheckoutV2.tsx:325
+?      /api/checkout/verify
+      Components/Page/Creator/InlineTipCheckout.tsx:578; Components/Page/Pay3Components/CleanCheckoutV2.tsx:676
+?      /api/company/updateCompany
+      contexts/CompanyDataContext.tsx:223
+?      /api/dashboard
+      pages/auth/login.tsx:264
+?      /api/dashboard/kpis
+      hooks/useApiSWR.ts:20
+?      /api/embed/session
+      pages/documentation.tsx:499
+?      /api/events/:id/resend
+      pages/documentation.tsx:1054
+?      /api/order
+      Components/UI/LanguageSuggestBanner/index.tsx:49; helpers/LanguageBootstrap.tsx:23
+?      /api/pay
+      pages/_app.tsx:334; Components/UI/LanguageSuggestBanner/index.tsx:45; Components/UI/FeeFreeBanner/index.tsx:39; helpers/LanguageBootstrap.tsx:19 ...
+?      /api/pay/[id]
+      Components/UI/CheckoutStatusStrip.tsx:24
+?      /api/pay/aml-policy
+      pages/_app.tsx:454; Components/UI/Footer/index.tsx:45
+?      /api/pay/demo
+      pages/documentation.tsx:1857; pages/products.tsx:38; pages/_app.tsx:453; pages/pay/state-demo.tsx:14 ...
+?      /api/pay/donation-demo
+      pages/products.tsx:52; pages/pay/state-demo.tsx:14; Components/Layout/HomeHeader/menuData.tsx:87; Components/Layout/HomeFooter/index.tsx:85 ...
+?      /api/pay/index.tsx
+      Components/UI/CheckoutShell.tsx:31
+?      /api/pay/payment-states-demo
+      pages/_app.tsx:456; pages/pay/state-demo.tsx:14; middleware.ts:42
+?      /api/pay/state-demo
+      middleware.ts:43
+?      /api/pay/success-demo
+      pages/_app.tsx:457; pages/pay/state-demo.tsx:14; middleware.ts:44
+?      /api/pay/terms-of-service
+      pages/_app.tsx:455; Components/UI/Footer/index.tsx:28; Components/Page/Pay3Components/CleanCheckoutV2.tsx:1539
+?      /api/pay/tip-card-demo
+      pages/_app.tsx:458; middleware.ts:45
+?      /api/safedeal
+      pages/_document.tsx:109; utils/theme/routeContext.ts:43
+?      /api/safedeal/apple-touch-icon.png
+      pages/_app.tsx:684
+?      /api/safedeal/deal
+      pages/_app.tsx:381
+?      /api/safedeal/favicon-192.png
+      pages/_app.tsx:683; pages/safedeal/manifest.webmanifest.tsx:32; pages/safedeal/manifest.webmanifest.tsx:37; pages/safedeal/manifest.webmanifest.tsx:38 ...
+?      /api/safedeal/favicon-48.png
+      pages/_app.tsx:681; pages/_app.tsx:682
+?      /api/safedeal/favicon-512.png
+      pages/safedeal/manifest.webmanifest.tsx:33
+?      /api/safedeal/favicon-maskable-512.png
+      pages/safedeal/manifest.webmanifest.tsx:34
+?      /api/safedeal/favicon.svg
+      pages/_app.tsx:680
+?      /api/safedeal/manifest.webmanifest
+      pages/_app.tsx:685
+?      /api/safedeal/redesign/flow-accent.jpg
+      Components/SafeDeal/redesign/shared.tsx:26
+?      /api/safedeal/redesign/handshake.jpg
+      Components/SafeDeal/redesign/shared.tsx:25
+?      /api/safedeal/redesign/shield.jpg
+      Components/SafeDeal/redesign/shared.tsx:27
+?      /api/safedeal/redesign/vault.jpg
+      Components/SafeDeal/redesign/shared.tsx:24
+?      /api/safedeal/signin
+      pages/_app.tsx:381; pages/_document.tsx:107; utils/theme/routeContext.ts:46
+?      /api/safedeal/x
+      Components/SafeDeal/sdRouting.ts:3
+?      /api/user
+      pages/documentation.tsx:372
+?      /api/user/forgot
+      axiosConfig.ts:34
+?      /api/user/register
+      axiosConfig.ts:34
+?      /api/user/reset
+      axiosConfig.ts:34
+?      /api/userApi/deleteApi
+      Redux/Sagas/ApiSaga.ts:116
+?      /api/wallet/addresses
+      api/safedeal.ts:526
+?      /api/wallet/addresses/P/remove
+      api/safedeal.ts:527
+?      /api/wallet/addresses/P/verify
+      api/safedeal.ts:507
+?      /api/wallet/addresses/P/verify-nonce
+      api/safedeal.ts:505
+?      /api/wallet/security
+      pages/_app.tsx:438; Components/UX/pageTips.ts:27
+?      /api/wallet/statement
+      api/safedeal.ts:520
+?      /api/wallet/statement.csv
+      api/safedeal.ts:523
+?      /api/wallet/topup
+      api/safedeal.ts:539
+?      /api/wallet/topup/P
+      api/safedeal.ts:542
+?      /api/wallet/topup/P/receipt.pdf
+      api/safedeal.ts:550
+?      /api/wallet/topup/P/simulate
+      api/safedeal.ts:544
+?      /api/wallet/topup/coins
+      api/safedeal.ts:537
+?      /api/wallet/withdraw
+      api/safedeal.ts:531
+?      /api/wallet/withdraw/quote
+      api/safedeal.ts:529
+GET    /api/wallet
+      api/safedeal.ts:518
+GET    /api/wallet/statement
+      api/safedeal.ts:520
+GET    /api/wallet/statement.csv
+      api/safedeal.ts:523
+GET    /api/wallet/topup/P
+      api/safedeal.ts:542
+GET    /api/wallet/topup/P/receipt.pdf
+      api/safedeal.ts:550
+GET    /api/wallet/topup/coins
+      api/safedeal.ts:537
+POST   /api/wallet/addresses
+      api/safedeal.ts:526
+POST   /api/wallet/addresses/P/remove
+      api/safedeal.ts:527
+POST   /api/wallet/addresses/P/verify
+      api/safedeal.ts:507
+POST   /api/wallet/addresses/P/verify-nonce
+      api/safedeal.ts:505
+POST   /api/wallet/topup
+      api/safedeal.ts:539
+POST   /api/wallet/topup/P/simulate
+      api/safedeal.ts:544
+POST   /api/wallet/withdraw
+      api/safedeal.ts:531
+POST   /api/wallet/withdraw/quote
+      api/safedeal.ts:529
+PUT    /api/company/updateCompany
+      contexts/CompanyDataContext.tsx:223
+
+== BACKEND ROUTES NEVER REFERENCED BY FRONTEND (252 of 586) ==
+[] GET /api/
+[__paytest] POST /api/__paytest/confirm-email
+[admin] GET /api/admin/alerts/health | GET /api/admin/analytics/attribution | GET /api/admin/analytics/cohorts | GET /api/admin/analytics/funnel | GET /api/admin/analytics/onboarding | GET /api/admin/analytics/revenue | GET /api/admin/analytics/users | GET /api/admin/getFeeWalletBalance | GET /api/admin/getTransactionFee | GET /api/admin/getTransferFees | GET /api/admin/getWallets | GET /api/admin/logs/health | GET /api/admin/tunnel/status | POST /api/admin/alerts/test | POST /api/admin/createWallets | POST /api/admin/customers/:customerId/credit | POST /api/admin/customers/:customerId/debit | POST /api/admin/newTransactionFee | POST /api/admin/referral-invites/backfill | POST /api/admin/referral/share-nudge | POST /api/admin/support/sessions/:session_id/close | POST /api/admin/support/sessions/:session_id/handback | POST /api/admin/support/sessions/:session_id/reopen | POST /api/admin/support/sessions/:session_id/takeover | POST /api/admin/withdrawAssets | PUT /api/admin/updateFeeLimits | PUT /api/admin/updateTransferFees
+[buy-buttons] GET /api/buy-buttons/ | POST /api/buy-buttons/
+[company] GET /api/company/conversion-history/:id | GET /api/company/conversion/:conversionId | GET /api/company/getCompany/:id | GET /api/company/getTransactions/:id | PUT /api/company/updateCompany/:id
+[dashboard] GET /api/dashboard/ | GET /api/dashboard/brands | GET /api/dashboard/conversions | GET /api/dashboard/conversions/:id | GET /api/dashboard/overview | GET /api/dashboard/payouts | GET /api/dashboard/pending-summary
+[diagnostics] GET /api/diagnostics/binance-account | GET /api/diagnostics/binance-balances | GET /api/diagnostics/binance-exchange-info | GET /api/diagnostics/binance-info | GET /api/diagnostics/binance-orderbook | GET /api/diagnostics/binance-ping | GET /api/diagnostics/binance-quote | GET /api/diagnostics/binance-time | GET /api/diagnostics/conversion-email-preview | GET /api/diagnostics/email-preview | GET /api/diagnostics/payment-email-preview | GET /api/diagnostics/reliability/health | GET /api/diagnostics/reliability/journal | GET /api/diagnostics/storage-selftest | GET /api/diagnostics/tier2-health | GET /api/diagnostics/tunnel-status | GET /api/diagnostics/weekly-conversion-email-preview | POST /api/diagnostics/binance-sell | POST /api/diagnostics/force-resolve-payment | POST /api/diagnostics/recover-excess-trx | POST /api/diagnostics/recover-stuck-payment | POST /api/diagnostics/replay-webhook | POST /api/diagnostics/sweep-expired-payments | POST /api/diagnostics/wrong-asset-recovery
+[embed] POST /api/embed/public/session
+[escrow] GET /api/escrow/admin/deals | GET /api/escrow/admin/disputes
+[events] GET /api/events/push-stats | GET /api/events/stats | POST /api/events/admin-event | POST /api/events/broadcast | POST /api/events/push
+[failed_webhook] POST /api/failed_webhook
+[kb] DELETE /api/kb/admin/articles/:id | GET /api/kb/categories | GET /api/kb/popular | POST /api/kb/admin/articles | PUT /api/kb/admin/articles/:id
+[kyc] POST /api/kyc/webhook
+[ledger] GET /api/ledger/balances | GET /api/ledger/health | GET /api/ledger/invariants/latest | GET /api/ledger/payment/:paymentId | POST /api/ledger/backfill | POST /api/ledger/invariants/run
+[notifications] GET /api/notifications/ | GET /api/notifications/recipients-preview | GET /api/notifications/types | POST /api/notifications/trigger-wallet-reminder | POST /api/notifications/trigger-weekly-summary
+[order] GET /api/order/:publicRef/download/:assetId | POST /api/order/:publicRef/_test/mark-paid
+[pay] GET /api/pay/company-currencies/:company_id | GET /api/pay/fee-preview | GET /api/pay/getBalance | GET /api/pay/og-image | GET /api/pay/receipt/:token/pdf | GET /api/pay/stream | POST /api/pay/authStep | POST /api/pay/calculate-payment | POST /api/pay/createCryptoPayment | POST /api/pay/walletTxSubmitted
+[products] GET /api/products | GET /api/products/categories | GET /api/products/orders/all | POST /api/products
+[public] GET /api/public/sandbox/info | GET /api/public/sandbox/payment-links/:id | POST /api/public/sandbox/payment-links
+[publishable-keys] GET /api/publishable-keys/ | POST /api/publishable-keys/
+[quality] DELETE /api/quality/comment/:id | DELETE /api/quality/custom/:id | GET /api/quality/data | GET /api/quality/export | POST /api/quality/auth | POST /api/quality/comment | POST /api/quality/custom | PUT /api/quality/meta
+[referral] POST /api/referral/apply | POST /api/referral/referee/redeem | POST /api/referral/referee/validate | POST /api/referral/validate
+[refunds] GET /api/refunds/ | POST /api/refunds/ | POST /api/refunds/capture-address
+[safedeal] GET /api/safedeal/config | GET /api/safedeal/deals/:token | GET /api/safedeal/deals/:token/files/:id | GET /api/safedeal/deals/:token/funding | GET /api/safedeal/deals/:token/summary.pdf | GET /api/safedeal/invoices | GET /api/safedeal/me | GET /api/safedeal/og-image | GET /api/safedeal/telegram | GET /api/safedeal/wallet/addresses | GET /api/safedeal/wallet/statement | GET /api/safedeal/wallet/statement.csv | GET /api/safedeal/wallet/topup | GET /api/safedeal/wallet/topup/:id | GET /api/safedeal/wallet/topup/:id/receipt.pdf | GET /api/safedeal/wallet/topup/coins | GET /api/safedeal/wallet/withdrawals | POST /api/safedeal/account/email/start | POST /api/safedeal/account/email/verify | POST /api/safedeal/auth/send-code | POST /api/safedeal/auth/step-up | POST /api/safedeal/auth/telegram | POST /api/safedeal/auth/verify-code | POST /api/safedeal/deals/:token/action | POST /api/safedeal/deals/:token/claim | POST /api/safedeal/deals/:token/files | POST /api/safedeal/deals/:token/funding | POST /api/safedeal/deals/:token/funding/wallet-tx | POST /api/safedeal/deals/:token/payout-destination | POST /api/safedeal/fee-preview | POST /api/safedeal/profile | POST /api/safedeal/telegram/link | POST /api/safedeal/telegram/test | POST /api/safedeal/telegram/unlink | POST /api/safedeal/wallet/addresses | POST /api/safedeal/wallet/addresses/:id/remove | POST /api/safedeal/wallet/addresses/:id/verify | POST /api/safedeal/wallet/addresses/:id/verify-nonce | POST /api/safedeal/wallet/topup | POST /api/safedeal/wallet/topup/:id/simulate | POST /api/safedeal/wallet/withdraw | POST /api/safedeal/wallet/withdraw/quote | POST /api/safedeal/webhooks/dynopay
+[status] GET /api/status/ | GET /api/status/health | GET /api/status/incidents/:id | GET /api/status/service/:serviceId | GET /api/status/service/:serviceId/uptime | GET /api/status/services/uptime | POST /api/status/check
+[subscriptions] DELETE /api/subscriptions/:id | GET /api/subscriptions/ | GET /api/subscriptions/:id | POST /api/subscriptions/ | PUT /api/subscriptions/:id
+[tatum-crypto-webhook] POST /api/tatum-crypto-webhook
+[tatum-webhook] POST /api/tatum-webhook
+[tax] GET /api/tax/acronyms | GET /api/tax/lookup | GET /api/tax/rate/:countryCode | POST /api/tax/validate
+[track] GET /api/track/activation-unsubscribe
+[transactions] GET /api/transactions/:id/invoice-preview | GET /api/transactions/:id/payment-email-preview
+[user] DELETE /api/user/email | DELETE /api/user/phone | GET /api/user/events | GET /api/user/getBalance | GET /api/user/getCryptoTransaction/:address | GET /api/user/getPaymentStatus/:payment_id | GET /api/user/getSingleTransaction/:id | GET /api/user/getSupportedCurrency | GET /api/user/getTransactions | GET /api/user/security/signout-everywhere | GET /api/user/unsubscribe-payment-reminders/:token | POST /api/user/addFunds | POST /api/user/createUser | POST /api/user/customers/:customerId/credit | POST /api/user/customers/:customerId/debit | POST /api/user/events/:id/resend | POST /api/user/facebook-signin | POST /api/user/resend-login-otp | POST /api/user/security/signout-everywhere | POST /api/user/simulatePayment/:payment_id | POST /api/user/unsubscribe-payment-reminders | POST /api/user/unsubscribe-reminders | POST /api/user/useWallet | POST /api/user/verify-login-otp | PUT /api/user/dashboard-quick-actions | PUT /api/user/email | PUT /api/user/phone
+[userApi] DELETE /api/userApi/deleteApi/:id | DELETE /api/userApi/deleteCustomer/:id | DELETE /api/userApi/deletePlan/:id | GET /api/userApi/availableCurrencies/:company_id | GET /api/userApi/getApi/:id | GET /api/userApi/getPlans/:id | GET /api/userApi/logs/:id | GET /api/userApi/usage/:id | POST /api/userApi/createPlan | POST /api/userApi/getApiCustomers | POST /api/userApi/regenerateApi/:id | POST /api/userApi/revoke/:id | PUT /api/userApi/rateLimit/:id | PUT /api/userApi/updateCustomer/:id | PUT /api/userApi/updatePlan/:id
+[wallet] GET /api/wallet/configured-currencies | GET /api/wallet/getExchange | GET /api/wallet/getWalletAddresses | GET /api/wallet/network-fees | POST /api/wallet/addWalletAddress | POST /api/wallet/calculate-payment | POST /api/wallet/confirmExchange | POST /api/wallet/encrypt-payload | POST /api/wallet/estimateFees | POST /api/wallet/exchangeCreate | POST /api/wallet/getUserAnalytics | POST /api/wallet/getWalletTransactions/:id | POST /api/wallet/sendConfirmationOTP | POST /api/wallet/transactions/:id/request-topup | POST /api/wallet/verifyCode | POST /api/wallet/withdrawAssets
+[webhook] POST /api/webhook

@@ -277,7 +277,7 @@ router.post("/cryptoPayment", legacyApiAuthMiddleware, idempotencyMiddleware, as
 
   apiLogger.info(`[MerchantAPI] cryptoPayment body keys: ${Object.keys(req.body).join(', ')}`);
 
-  if (!amount || amount <= 0) {
+  if (!Number.isFinite(Number(amount)) || Number(amount) <= 0) {
     return sendError(res, {
       status: 400,
       message: "Valid payment amount is required",
@@ -489,7 +489,7 @@ router.post("/createPayment", legacyApiAuthMiddleware, idempotencyMiddleware, as
   } = req.body;
 
   const apiMinUsd = getEffectiveMinOrderUsd("api");
-  if (!amount || amount < apiMinUsd) {
+  if (!Number.isFinite(Number(amount)) || Number(amount) < apiMinUsd) {
     return sendError(res, {
       status: 400,
       message: `Amount must be greater than or equal to ${apiMinUsd}`,
@@ -615,7 +615,7 @@ router.post("/embed/session", legacyApiAuthMiddleware, idempotencyMiddleware, as
     allowed_origins,
   } = req.body;
 
-  if (!amount || amount < 5) {
+  if (!Number.isFinite(Number(amount)) || Number(amount) < 5) {
     return sendError(res, {
       status: 400,
       message: "Amount must be greater than or equal to 5",
@@ -716,7 +716,7 @@ router.post("/addFunds", legacyApiAuthMiddleware, idempotencyMiddleware, asyncHa
 
   const { amount, redirect_uri, fee_payer } = req.body;
 
-  if (!amount || amount < 5) {
+  if (!Number.isFinite(Number(amount)) || Number(amount) < 5) {
     return sendError(res, {
       status: 400,
       message: "Amount must be greater than or equal to 5",
@@ -780,9 +780,10 @@ router.post("/addFunds", legacyApiAuthMiddleware, idempotencyMiddleware, asyncHa
 router.post("/useWallet", legacyApiAuthMiddleware, idempotencyMiddleware, asyncHandler(async (req, res) => {
   const userData = res.locals.user;
   const data = res.locals.apiKeyData;
-  const { amount } = req.body;
+  const { amount: rawAmount } = req.body;
+  const amount = Number(rawAmount);
 
-  if (!amount || amount <= 0) {
+  if (!Number.isFinite(amount) || amount <= 0) {
     return sendError(res, {
       status: 400,
       message: "Please add a valid amount",
@@ -795,34 +796,6 @@ router.post("/useWallet", legacyApiAuthMiddleware, idempotencyMiddleware, asyncH
 
   const customerId = customerResult.customer_id;
 
-  // Get wallet balance
-  const walletData = await sequelize.query<{ amount: number; wallet_type: string }>(
-    `SELECT amount, wallet_type FROM tbl_customer_wallet WHERE customer_id = $1 LIMIT 1`,
-    {
-      bind: [customerId],
-      type: QueryTypes.SELECT
-    }
-  );
-
-  if (walletData.length === 0) {
-    return sendError(res, { status: 404, message: "Payout address not found" });
-  }
-
-  if (walletData[0].amount < amount) {
-    return sendError(res, { status: 400, message: "Insufficient Balance!" });
-  }
-
-  const newAmount = toFixedStr(Number(walletData[0].amount) - Number(amount), 2);
-
-  // Debit wallet
-  await sequelize.query(
-    `UPDATE tbl_customer_wallet SET amount = $1, "updatedAt" = NOW() WHERE customer_id = $2`,
-    {
-      bind: [newAmount, customerId],
-      type: QueryTypes.UPDATE
-    }
-  );
-
   // Get company name for transaction details
   const companyData = await sequelize.query<{ company_name: string }>(
     `SELECT company_name FROM tbl_company WHERE company_id = $1`,
@@ -833,30 +806,67 @@ router.post("/useWallet", legacyApiAuthMiddleware, idempotencyMiddleware, asyncH
   );
 
   const companyName = companyData.length > 0 ? companyData[0].company_name : 'Unknown';
-
-  // Create transaction record
+  const debitStr = toFixedStr(amount, 2);
   const txId = Crypto.randomUUID();
   const txRef = Crypto.randomUUID();
 
-  await sequelize.query(
-    `INSERT INTO tbl_customer_transaction 
-     (id, company_id, customer_id, payment_mode, base_amount, base_currency, 
-      paid_amount, paid_currency, transaction_type, transaction_details, 
-      transaction_reference, status, "createdAt", "updatedAt")
-     VALUES ($1, $2, $3, 'WALLET', $4, $5, $4, $5, 'DEBIT', $6, $7, 'successful', NOW(), NOW())`,
-    {
-      bind: [
-        txId,
-        data.company_id,
-        customerId,
-        toFixedStr(amount, 2),
-        data.base_currency || 'USD',
-        `wallet transaction on ${companyName}`,
-        txRef
-      ],
-      type: QueryTypes.INSERT
+  // Atomic debit: the balance check and the decrement happen in ONE conditional
+  // UPDATE, and the ledger row is written in the same transaction — concurrent
+  // useWallet calls can no longer double-spend (the old read→compare→write raced).
+  let newAmount: string | null = null;
+  let walletMissing = false;
+  await sequelize.transaction(async (t) => {
+    const updated = await sequelize.query<{ amount: string }>(
+      `UPDATE tbl_customer_wallet
+          SET amount = ROUND((amount::numeric - $1::numeric), 2), "updatedAt" = NOW()
+        WHERE wallet_id = (
+                SELECT wallet_id FROM tbl_customer_wallet WHERE customer_id = $2
+                 ORDER BY "createdAt" ASC LIMIT 1 FOR UPDATE
+              )
+          AND amount::numeric >= $1::numeric
+        RETURNING amount`,
+      { bind: [debitStr, customerId], type: QueryTypes.SELECT, transaction: t }
+    );
+
+    if (updated.length === 0) {
+      const exists = await sequelize.query<{ wallet_id: string }>(
+        `SELECT wallet_id FROM tbl_customer_wallet WHERE customer_id = $1 LIMIT 1`,
+        { bind: [customerId], type: QueryTypes.SELECT, transaction: t }
+      );
+      walletMissing = exists.length === 0;
+      return;
     }
-  );
+
+    newAmount = toFixedStr(Number(updated[0].amount), 2);
+
+    await sequelize.query(
+      `INSERT INTO tbl_customer_transaction 
+       (id, company_id, customer_id, payment_mode, base_amount, base_currency, 
+        paid_amount, paid_currency, transaction_type, transaction_details, 
+        transaction_reference, status, "createdAt", "updatedAt")
+       VALUES ($1, $2, $3, 'WALLET', $4, $5, $4, $5, 'DEBIT', $6, $7, 'successful', NOW(), NOW())`,
+      {
+        bind: [
+          txId,
+          data.company_id,
+          customerId,
+          debitStr,
+          data.base_currency || 'USD',
+          `wallet transaction on ${companyName}`,
+          txRef
+        ],
+        type: QueryTypes.INSERT,
+        transaction: t,
+      }
+    );
+  });
+
+  if (walletMissing) {
+    return sendError(res, { status: 404, message: "Payout address not found" });
+  }
+  if (newAmount === null) {
+    return sendError(res, { status: 400, message: "Insufficient Balance!" });
+  }
 
   apiLogger.info(`[MerchantAPI] useWallet - Debited ${amount} from customer ${customerId}`);
 

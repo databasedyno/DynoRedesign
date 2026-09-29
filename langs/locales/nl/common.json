@@ -1724,7 +1724,8 @@
     "errConfirm": "Bevestig dat het terugbetalingsadres correct is voordat je verdergaat.",
     "errCreate": "Kan de terugbetaling niet aanmaken.",
     "errCancel": "Kan de terugbetaling niet annuleren.",
-    "errAdvance": "Kan terugbetaling niet vooruitsteken."
+    "errAdvance": "Kan terugbetaling niet vooruitsteken.",
+    "liveUnavailable": "On-chain terugbetalingen zijn nog niet beschikbaar. Er wordt geen stortingsadres aangemaakt en er worden geen tegoeden verplaatst — betaal de klant voorlopig rechtstreeks terug vanuit je eigen wallet."
   },
   "nameGate": {
     "firstRequired": "Voornaam is verplicht",

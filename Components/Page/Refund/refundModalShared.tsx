@@ -16,6 +16,8 @@ export interface Preview {
   deposit_asset: string;
   full_refund_deposit_total: number;
   dry_run: boolean;
+  live_available?: boolean;
+  unavailable_reason?: string | null;
   needs_address?: boolean;
   address_invalid?: boolean;
 }

@@ -1,5 +1,6 @@
 import express from "express";
 import statusController from "../controller/statusController";
+import adminAuthMiddleware from "../middleware/adminAuthMiddleware";
 import { getGatewayHealth } from "../controller/status/gatewayController";
 import { getLandingMetrics } from "../controller/status/landingMetricsController";
 import { getRecentSettlements, getOnchainProof } from "../controller/status/landingProofController";
@@ -26,8 +27,9 @@ statusRouter.get("/gateway", getGatewayHealth);
 // GET /api/status/health - Simple health check
 statusRouter.get("/health", statusController.healthCheck);
 
-// POST /api/status/check - Manually trigger health checks
-statusRouter.post("/check", statusController.triggerHealthCheck);
+// POST /api/status/check - Manually trigger health checks (admin only: each run
+// calls external providers and INSERTs rows into tbl_service_health).
+statusRouter.post("/check", adminAuthMiddleware, statusController.triggerHealthCheck);
 
 // GET /api/status/services - All services status
 statusRouter.get("/services", statusController.getServicesStatus);

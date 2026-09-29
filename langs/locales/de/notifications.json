@@ -81,5 +81,7 @@
   "category_confirming_title": "Bestätigungsfortschritt",
   "category_confirming_desc": "Eine E-Mail pro Block-Bestätigung („1 von 3…“). Standardmäßig aus — „Ausstehend“ und „Abgewickelt“ erhältst du immer.",
   "marketingEmailsTitle": "Marketing- und Produkt-E-Mails",
-  "marketingEmailsDescription": "News, Tipps und Produktupdates. Deaktivieren, um Werbe-E-Mails zu stoppen — Zahlungs-, Sicherheits- und Konto-E-Mails erhalten Sie weiterhin."
+  "marketingEmailsDescription": "News, Tipps und Produktupdates. Deaktivieren, um Werbe-E-Mails zu stoppen — Zahlungs-, Sicherheits- und Konto-E-Mails erhalten Sie weiterhin.",
+  "pushNotConfigured": "Browser‑Push ist auf dieser Plattform noch nicht aktiviert – E‑Mail‑ und In‑App‑Benachrichtigungen funktionieren weiterhin.",
+  "pushEnableFailed": "Browser‑Push konnte gerade nicht aktiviert werden. E‑Mail‑ und In‑App‑Benachrichtigungen funktionieren weiterhin."
 }

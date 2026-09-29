@@ -1,6 +1,5 @@
 import { raw as envRaw } from "../utils/config";
 import express from "express";
-import { publishCheckoutStatus } from "../services/checkoutStreamService";
 import crypto from "crypto";
 import { hmacSha256Hex, timingSafeCompare } from "../utils/hmac";
 import { verifyFlutterwaveHash } from "../utils/webhookSignature";
@@ -747,16 +746,26 @@ const tatumCryptoWebHook = async (
       asset: payload.asset,
     });
 
-    // Live checkout: the buyer's tab learns "payment detected" the moment the
-    // chain watcher reports the tx (before verification/settlement runs).
-    if (payload.txId && payload.address) {
-      publishCheckoutStatus(payload.address, "pending", { txId: payload.txId, asset: payload.asset });
-    }
+    // DB idempotency row (when ENABLE_INBOUND_EVENT_DEDUP recorded one) — closed
+    // here on receiver-level drops, or by the worker on processed/failed.
+    const inboundEventId: number | undefined = res.locals?.inboundEventId;
+    const skip = (reason: string) => {
+      if (inboundEventId) {
+        import("../services/idempotency/inboundEventService")
+          .then(({ markSkipped }) => markSkipped(inboundEventId, reason))
+          .catch(() => { /* best-effort */ });
+      }
+      return res.status(200).end();
+    };
+
+    // NOTE: the live-checkout "pending" (payment detected) status is published by
+    // the worker only AFTER on-chain verification passes (webhookProcessor 6b).
+    // Publishing on receipt let an unsigned/forged webhook flip the buyer's tab.
 
     // Basic validation before enqueue
     if (!payload.txId) {
       webhookLogs.warn("[tatumCryptoWebHook] Missing txId, ignoring");
-      return res.status(200).end();
+      return skip("missing txId");
     }
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -777,7 +786,7 @@ const tatumCryptoWebHook = async (
     // Receiver-level dedup: reject duplicate Tatum webhooks arriving within milliseconds
     if (alreadyReceived && Object.keys(alreadyReceived).length > 0) {
       webhookLogs.info(`[tatumCryptoWebHook] Duplicate webhook at receiver level, skipping: ${payload.txId}`);
-      return res.status(200).end();
+      return skip("duplicate (receiver dedup)");
     }
 
     // PERF: Fire-and-forget dedup SET — doesn't need to complete before enqueue
@@ -789,13 +798,13 @@ const tatumCryptoWebHook = async (
     // Quick duplicate check (fast-path reject, worker also checks)
     if (alreadyProcessed && Object.keys(alreadyProcessed).length > 0) {
       webhookLogs.info("[tatumCryptoWebHook] Already processed, skipping:", payload.txId);
-      return res.status(200).end();
+      return skip("already processed");
     }
 
     // Skip webhooks for our own outgoing transactions (settlement/sweep TXs)
     if (isOutgoingTx && Object.keys(isOutgoingTx).length > 0) {
       webhookLogs.info(`[tatumCryptoWebHook] Outgoing TX detected (${isOutgoingTx.type || 'unknown'}), skipping: ${payload.txId}`);
-      return res.status(200).end();
+      return skip(`outgoing tx (${isOutgoingTx.type || 'unknown'})`);
     }
 
     // ── EARLY SPAM FILTER: Reject obviously unknown/scam token assets ─────
@@ -814,7 +823,7 @@ const tatumCryptoWebHook = async (
           amount: payload.amount,
           asset: payload.asset,
         });
-        return res.status(200).end();
+        return skip(`unknown asset ${payload.asset}`);
       }
     }
 
@@ -848,6 +857,7 @@ const tatumCryptoWebHook = async (
       },
       receivedAt: new Date().toISOString(),
       source: "webhook",
+      ...(inboundEventId ? { inboundEventId } : {}),
     });
 
     // ACK immediately — processing happens asynchronously

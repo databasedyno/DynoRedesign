@@ -1724,7 +1724,8 @@
     "errConfirm": "Please confirm the refund address is correct before continuing.",
     "errCreate": "Unable to create the refund.",
     "errCancel": "Unable to cancel refund.",
-    "errAdvance": "Unable to advance refund."
+    "errAdvance": "Unable to advance refund.",
+    "liveUnavailable": "On-chain refunds are not available yet. No deposit address is created and no funds move — please refund the customer directly from your own wallet for now."
   },
   "nameGate": {
     "firstRequired": "First name is required",

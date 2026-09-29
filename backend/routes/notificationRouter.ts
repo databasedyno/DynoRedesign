@@ -83,9 +83,12 @@ notificationRouter.get("/unread-count", notificationController.getUnreadCount);
 notificationRouter.get("/types", notificationController.getNotificationTypes);
 
 // POST /api/notifications/trigger-weekly-summary - Manually trigger weekly summary (for testing)
+// Scoped to the CALLER only: an arbitrary/absent user_id used to fan out to every user.
 notificationRouter.post("/trigger-weekly-summary", async (req, res) => {
   try {
-    const results = await triggerWeeklySummary(req.body.user_id, { dryRun: req.body.dry_run === true || req.body.dryRun === true });
+    const selfId = Number((res.locals as { user?: { user_id?: number } })?.user?.user_id);
+    if (!selfId) return errorResponseHelper(res, 401, "Authentication required");
+    const results = await triggerWeeklySummary(selfId, { dryRun: req.body.dry_run === true || req.body.dryRun === true });
     return successResponseHelper(res, 200, "Weekly summary triggered", { results });
   } catch (e) {
     const message = getErrorMessage(e);
@@ -96,7 +99,9 @@ notificationRouter.post("/trigger-weekly-summary", async (req, res) => {
 // POST /api/notifications/trigger-wallet-reminder - Manually trigger wallet reminder (for testing)
 notificationRouter.post("/trigger-wallet-reminder", async (req, res) => {
   try {
-    const results = await triggerWalletReminder(req.body.user_id);
+    const selfId = Number((res.locals as { user?: { user_id?: number } })?.user?.user_id);
+    if (!selfId) return errorResponseHelper(res, 401, "Authentication required");
+    const results = await triggerWalletReminder(selfId);
     return successResponseHelper(res, 200, "Wallet reminder triggered", { results });
   } catch (e) {
     const message = getErrorMessage(e);

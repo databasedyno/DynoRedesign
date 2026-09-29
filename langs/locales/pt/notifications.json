@@ -81,5 +81,7 @@
   "category_confirming_title": "Progresso de confirmação",
   "category_confirming_desc": "Um e-mail por confirmação de bloco («1 de 3…»). Desativado por predefinição — recebe sempre Pendente e Liquidado.",
   "marketingEmailsTitle": "E-mails de Marketing e Produto",
-  "marketingEmailsDescription": "Novidades, dicas e atualizações do produto. Desative para parar os e-mails promocionais — continuará a receber e-mails de pagamento, segurança e conta."
+  "marketingEmailsDescription": "Novidades, dicas e atualizações do produto. Desative para parar os e-mails promocionais — continuará a receber e-mails de pagamento, segurança e conta.",
+  "pushNotConfigured": "As notificações push do navegador ainda não estão ativas nesta plataforma — os alertas por e‑mail e na app continuam a funcionar.",
+  "pushEnableFailed": "Não foi possível ativar o push do navegador agora. Os alertas por e‑mail e na app continuam a funcionar."
 }

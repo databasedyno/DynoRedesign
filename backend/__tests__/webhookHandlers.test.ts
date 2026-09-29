@@ -18,6 +18,16 @@ jest.mock('../services/webhookQueue', () => ({
   enqueueWebhook: jest.fn().mockResolvedValue(undefined),
 }));
 
+jest.mock('../services/checkoutStreamService', () => ({
+  publishCheckoutStatus: jest.fn(),
+}));
+
+jest.mock('../services/idempotency/inboundEventService', () => ({
+  markSkipped: jest.fn().mockResolvedValue(undefined),
+  markProcessed: jest.fn().mockResolvedValue(undefined),
+  markFailed: jest.fn().mockResolvedValue(undefined),
+}));
+
 jest.mock('../utils/loggers', () => ({
   webhookLogs: { info: jest.fn(), error: jest.fn(), warn: jest.fn() },
   apiLogger: { info: jest.fn(), error: jest.fn(), warn: jest.fn() },
@@ -63,6 +73,8 @@ jest.mock('../utils/currencyUtils', () => ({
 
 import { flutterwaveWebHook, tatumWebHook, tatumCryptoWebHook, callMerchantWebhook, verifyWebhookSignature } from '../webhooks';
 import { enqueueWebhook } from '../services/webhookQueue';
+import { publishCheckoutStatus } from '../services/checkoutStreamService';
+import { markSkipped } from '../services/idempotency/inboundEventService';
 import { getRedisItem, setRedisItem } from '../utils/redisInstance';
 import axios from 'axios';
 import crypto from 'crypto';
@@ -199,6 +211,43 @@ describe('tatumCryptoWebHook', () => {
     const enqueueCall = (enqueueWebhook as jest.Mock).mock.calls[0][0];
     expect(enqueueCall.receivedAt).toBeDefined();
     expect(new Date(enqueueCall.receivedAt).getTime()).toBeGreaterThan(0);
+  });
+
+  it('never publishes a checkout "pending" status on raw receipt (only the worker does, post on-chain gate)', async () => {
+    (getRedisItem as jest.Mock).mockResolvedValueOnce({});
+    const req = createReq(validPayload);
+    const res = createRes();
+
+    await tatumCryptoWebHook(req as any, res as any);
+
+    expect(publishCheckoutStatus).not.toHaveBeenCalled();
+    expect(enqueueWebhook).toHaveBeenCalledTimes(1);
+  });
+
+  it('propagates the inbound event id into the enqueued job', async () => {
+    (getRedisItem as jest.Mock).mockResolvedValueOnce({});
+    const req = createReq(validPayload);
+    const res = createRes();
+    res.locals = { inboundEventId: 4242 } as any;
+
+    await tatumCryptoWebHook(req as any, res as any);
+
+    expect(enqueueWebhook).toHaveBeenCalledWith(expect.objectContaining({ inboundEventId: 4242 }));
+    expect(markSkipped).not.toHaveBeenCalled();
+  });
+
+  it('marks the inbound event "skipped" on a receiver-level duplicate drop', async () => {
+    (getRedisItem as jest.Mock).mockResolvedValueOnce({ received: 1 }); // recv-dedup hit
+    const req = createReq(validPayload);
+    const res = createRes();
+    res.locals = { inboundEventId: 99 } as any;
+
+    await tatumCryptoWebHook(req as any, res as any);
+    await new Promise((r) => setImmediate(r));
+
+    expect(enqueueWebhook).not.toHaveBeenCalled();
+    expect(markSkipped).toHaveBeenCalledWith(99, expect.stringContaining('duplicate'));
+    expect(res.status).toHaveBeenCalledWith(200);
   });
 });
 

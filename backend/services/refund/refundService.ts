@@ -34,6 +34,18 @@ import {
 export const isRefundsEnabled = (): boolean => config.bool("ENABLE_CRYPTO_REFUNDS");
 export const isRefundDryRun = (): boolean => config.bool("REFUND_DRY_RUN");
 
+/**
+ * Phase C on-chain rails (detectDeposit / forwardToCustomer in refundWorker.ts)
+ * are still integration stubs. Until they are wired, a LIVE (non-dry-run) refund
+ * would reserve a real pool address and ask the merchant to deposit funds that
+ * nothing can ever forward — so live creation is refused up-front.
+ * Flip REFUND_FORWARDING_WIRED=true only once the worker rails are implemented.
+ */
+export const isForwardingWired = (): boolean => config.bool("REFUND_FORWARDING_WIRED");
+export const isLiveRefundAvailable = (): boolean => isRefundDryRun() || isForwardingWired();
+export const LIVE_REFUND_UNAVAILABLE_MSG =
+  "On-chain refunds are not available yet — the refund forwarding rails have not been enabled on this platform. No deposit address was created and no funds were moved. Please refund the customer directly from your own wallet for now.";
+
 export interface OriginalPayment {
   chain: string; // canonical CHAIN_META key
   meta: ChainMeta;
@@ -201,6 +213,9 @@ const persistSourceRefundAddress = async (
 export const createRefund = async (input: CreateRefundInput) => {
   const { sourceType, sourceRef, requestedAmount, reason, actorUserId } = input;
   const dryRun = isRefundDryRun();
+  if (!dryRun && !isForwardingWired()) {
+    throw new Error(LIVE_REFUND_UNAVAILABLE_MSG);
+  }
 
   const original = await resolveOriginalPayment(sourceType, sourceRef, actorUserId);
 

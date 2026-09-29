@@ -81,5 +81,7 @@
   "category_confirming_title": "Confirmation progress",
   "category_confirming_desc": "One email per block confirmation (“1 of 3…”). Off by default — you always get Pending and Settled.",
   "marketingEmailsTitle": "Marketing & Product Emails",
-  "marketingEmailsDescription": "News, tips and product updates. Turn off to stop promotional emails — you'll still get payment, security and account emails."
+  "marketingEmailsDescription": "News, tips and product updates. Turn off to stop promotional emails — you'll still get payment, security and account emails.",
+  "pushNotConfigured": "Browser push isn't enabled on this platform yet — email and in-app alerts still work.",
+  "pushEnableFailed": "Couldn't enable browser push right now. Email and in-app alerts still work."
 }

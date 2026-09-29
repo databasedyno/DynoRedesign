@@ -240,10 +240,13 @@ export async function verifyIncomingTxOnChain(input: VerifyInput): Promise<Chain
       const tx = chain === "eth" ? await bc.eth.ethGetTransaction(txId) : chain === "polygon" ? await bc.polygon.polygonGetTransaction(txId) : await bc.bsc.bscGetTransaction(txId);
       if (!tx) return { status: "not_found", reason: "empty response" };
       const p = parseEvmNative(tx, address);
-      if (!p.mined) return { status: "pending", reason: "tx not yet mined" };
-      if (!p.ok) return { status: "mismatch", reason: "tx reverted" };
+      // Recipient + amount are known from the tx itself (even unmined), so check
+      // them BEFORE the mined gate: a "pending" result then means "a real tx
+      // paying this address the right amount is in the mempool".
       if (!p.toMatches) return { status: "mismatch", reason: `tx.to ${tx.to || "?"} is not ${address} (internal/contract transfers are not creditable)` };
       if (!amountCovers(p.amount, amount)) return { status: "mismatch", reason: `on-chain ${p.amount} ${currency} < claimed ${amount}` };
+      if (!p.mined) return { status: "pending", reason: "tx not yet mined" };
+      if (!p.ok) return { status: "mismatch", reason: "tx reverted" };
       return { status: "verified", onChainAmount: p.amount, blockTime: p.blockTime };
     }
     if (EVM_TOKEN[currency]) {
@@ -315,7 +318,13 @@ export async function paymentCreatedAt(paymentId: string | null | undefined): Pr
   return Number.isFinite(t) ? t : null;
 }
 
-export class ChainVerifyRetry extends Error {}
+export class ChainVerifyRetry extends Error {
+  /** Verifier outcome that triggered the retry ("pending" = real tx seen on-chain, not yet mined). */
+  constructor(message: string, public readonly status: ChainVerifyResult["status"] | "unknown" = "unknown") {
+    super(message);
+    this.name = "ChainVerifyRetry";
+  }
+}
 
 /**
  * Gate used by the webhook processor. Returns "ok" to continue or "rejected" to drop the
@@ -356,6 +365,6 @@ export async function gateIncomingTx(input: VerifyInput & { paymentId?: string |
     default:
       if (soft) { webhookLogs.warn(`${tag} ⚠️ unverifiable right now (${result.status}: ${result.reason}) — allowing (warn mode)`); return { decision: "ok", result, note: result.reason }; }
       webhookLogs.warn(`${tag} ⏳ ${result.status}: ${result.reason} — will retry`);
-      throw new ChainVerifyRetry(`CHAIN_VERIFY_RETRY ${result.status}: ${result.reason}`);
+      throw new ChainVerifyRetry(`CHAIN_VERIFY_RETRY ${result.status}: ${result.reason}`, result.status);
   }
 }

@@ -1,4 +1,5 @@
 import express from 'express';
+import { literal } from 'sequelize';
 import sequelize from '../utils/dbInstance';
 import { apiModel } from '../models';
 import { apiLogger } from '../utils/loggers';
@@ -32,18 +33,18 @@ export const apiUsageLogger = async (
   try {
     const api = await apiModel.findOne({
       where: { key_hash: hashApiKey(apiKey) },
-      attributes: ['api_id', 'company_id', 'request_count', 'last_used_at'],
+      attributes: ['api_id', 'company_id'],
     });
 
     if (api) {
       apiId = api.dataValues.api_id;
       companyId = api.dataValues.company_id;
 
-      // Update last_used_at and increment request_count
+      // Atomic bump so concurrent requests never lose increments
       await apiModel.update(
         {
           last_used_at: new Date(),
-          request_count: (api.dataValues.request_count || 0) + 1,
+          request_count: literal('COALESCE(request_count, 0) + 1'),
         },
         { where: { api_id: apiId } }
       );
@@ -69,19 +70,10 @@ export const apiUsageLogger = async (
           if (statusCode >= 400) {
             try {
               const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
-              errorMessage = parsedData.message || parsedData.error || 'Unknown error';
+              errorMessage = parsedData?.message || parsedData?.error || 'Unknown error';
             } catch (e) {
               errorMessage = 'Failed to parse error response';
             }
-          }
-
-          // Truncate large responses
-          const dataStr = typeof data === 'string' ? data : JSON.stringify(data);
-          let responseBody: string;
-          if (dataStr && dataStr.length > 5000) {
-            responseBody = dataStr.substring(0, 5000) + '... (truncated)';
-          } else {
-            responseBody = dataStr;
           }
 
           await sequelize.query(

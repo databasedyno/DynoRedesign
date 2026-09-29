@@ -81,5 +81,7 @@
   "category_confirming_title": "Progression des confirmations",
   "category_confirming_desc": "Un e-mail par confirmation de bloc (« 1 sur 3… »). Désactivé par défaut — vous recevez toujours En attente et Réglé.",
   "marketingEmailsTitle": "E-mails Marketing et Produit",
-  "marketingEmailsDescription": "Actualités, conseils et nouveautés produit. Désactivez pour ne plus recevoir d'e-mails promotionnels — vous recevrez toujours les e-mails de paiement, de sécurité et de compte."
+  "marketingEmailsDescription": "Actualités, conseils et nouveautés produit. Désactivez pour ne plus recevoir d'e-mails promotionnels — vous recevrez toujours les e-mails de paiement, de sécurité et de compte.",
+  "pushNotConfigured": "Les notifications push du navigateur ne sont pas encore activées sur cette plateforme — les alertes par e‑mail et dans l’application fonctionnent toujours.",
+  "pushEnableFailed": "Impossible d’activer le push du navigateur pour le moment. Les alertes par e‑mail et dans l’application fonctionnent toujours."
 }

@@ -1724,7 +1724,8 @@
     "errConfirm": "Veuillez confirmer que l'adresse de remboursement est correcte avant de continuer.",
     "errCreate": "Impossible de créer le remboursement.",
     "errCancel": "Impossible d'annuler le remboursement.",
-    "errAdvance": "Impossible d'avancer le remboursement."
+    "errAdvance": "Impossible d'avancer le remboursement.",
+    "liveUnavailable": "Les remboursements on-chain ne sont pas encore disponibles. Aucune adresse de dépôt n’est créée et aucun fonds n’est déplacé — remboursez le client directement depuis votre propre portefeuille pour le moment."
   },
   "nameGate": {
     "firstRequired": "Le prénom est requis",

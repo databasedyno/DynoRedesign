@@ -8,13 +8,15 @@ const referralRouter = express.Router();
 
 // Public routes - User Referral Code (Type 1)
 referralRouter.post('/validate', referralController.validateReferralCode);
-referralRouter.post('/apply', referralController.applyReferralCode);
-referralRouter.get('/leaderboard', referralController.getReferralLeaderboard);
+// Applying a code MUTATES fee discounts / referrer credit for a user — bind it to
+// the authenticated account (user_id is taken from the JWT, never from the body).
+referralRouter.post('/apply', authMiddleware, referralController.applyReferralCode);
+referralRouter.get('/leaderboard', authMiddleware, referralController.getReferralLeaderboard);
 referralRouter.get('/leaderboard/public', referralController.getPublicReferralLeaderboard);
 
 // Public routes - Referee Code (Type 2 - from payment link email)
 referralRouter.post('/referee/validate', referralController.validateRefereeCode);
-referralRouter.post('/referee/redeem', referralController.redeemRefereeCode);
+referralRouter.post('/referee/redeem', authMiddleware, referralController.redeemRefereeCode);
 
 // Protected routes (require authentication)
 referralRouter.get('/my-code', authMiddleware, referralController.getMyReferralCode);

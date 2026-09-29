@@ -58,12 +58,18 @@ jest.mock('../models/paymentJournalModel', () => ({
 
 // On-chain verification gate (Stage 6b). Default = verified; individual tests override.
 jest.mock('../services/chainTxVerifier', () => {
-  class ChainVerifyRetry extends Error {}
+  class ChainVerifyRetry extends Error {
+    constructor(message: string, public readonly status: string = 'unknown') { super(message); }
+  }
   return {
     ChainVerifyRetry,
     gateIncomingTx: jest.fn().mockResolvedValue({ decision: 'ok', result: { status: 'verified' }, note: 'verified' }),
   };
 });
+
+jest.mock('../services/checkoutStreamService', () => ({
+  publishCheckoutStatus: jest.fn(),
+}));
 
 jest.mock('../services/merchantPool/merchantPoolConfig', () => ({
   ADMIN_WALLETS: { BTC: '0xAdminBTC', ETH: '0xAdminETH' },
@@ -92,6 +98,7 @@ import tatumApi from '../apis/tatumApi';
 import { callMerchantWebhook } from '../webhooks';
 import { sendPendingPaymentNotification } from '../services/pendingPaymentService';
 import { gateIncomingTx, ChainVerifyRetry } from '../services/chainTxVerifier';
+import { publishCheckoutStatus } from '../services/checkoutStreamService';
 import PaymentJournal from '../models/paymentJournalModel';
 import { companyModel, merchantPoolTransactionModel } from '../models';
 
@@ -1205,6 +1212,8 @@ describe('Webhook Processor — processWebhookJob', () => {
         txId: 'tx-gate-1', address: '0xTestAddress', currency: 'ETH', amount: 1.5, paymentId: 'pay-gate-1',
       }));
       expect(paymentController.cryptoVerification).toHaveBeenCalled();
+      // "payment detected" reaches the buyer's tab only after the gate said ok
+      expect(publishCheckoutStatus).toHaveBeenCalledWith('0xTestAddress', 'pending', expect.objectContaining({ txId: 'tx-gate-1' }));
     });
 
     it('FORGED webhook (chain says mismatch) → dropped, marked processed for 48h, nothing settled, no merchant webhook, no notification', async () => {
@@ -1216,6 +1225,7 @@ describe('Webhook Processor — processWebhookJob', () => {
       expect(paymentController.cryptoVerification).not.toHaveBeenCalled();
       expect(callMerchantWebhook).not.toHaveBeenCalled();
       expect(sendPendingPaymentNotification).not.toHaveBeenCalled();
+      expect(publishCheckoutStatus).not.toHaveBeenCalledWith('0xTestAddress', 'pending', expect.anything());
       expect(mockStore['crypto-0xTestAddress'].status).toBe('pending');
       expect(mockStore['crypto-0xTestAddress'].txId).toBeUndefined();
       expect(setRedisItem).toHaveBeenCalledWith('processed-tx-tx-forged-1', expect.objectContaining({ processed: true, type: 'onchain_rejected' }));
@@ -1230,9 +1240,21 @@ describe('Webhook Processor — processWebhookJob', () => {
       await expect(processWebhookJob(createJobData({ txId: 'tx-late-1' }))).rejects.toBeInstanceOf(ChainVerifyRetry);
 
       expect(paymentController.cryptoVerification).not.toHaveBeenCalled();
+      expect(publishCheckoutStatus).not.toHaveBeenCalled();
       expect(mockStore['processed-tx-tx-late-1']).toBeUndefined();
       expect(mockStore['crypto-0xTestAddress'].status).toBe('pending');
       expect(releaseLock).toHaveBeenCalledWith('tatum-webhook-tx-late-1');
+    });
+
+    it('real tx in the mempool (ChainVerifyRetry status=pending) → buyer tab gets "pending", job still retries', async () => {
+      seedRedis('crypto-0xTestAddress', createRedisPaymentData({ status: 'pending' }));
+      (gateIncomingTx as jest.Mock).mockRejectedValue(new ChainVerifyRetry('CHAIN_VERIFY_RETRY pending: tx not yet mined', 'pending'));
+
+      await expect(processWebhookJob(createJobData({ txId: 'tx-mempool-1' }))).rejects.toBeInstanceOf(ChainVerifyRetry);
+
+      expect(publishCheckoutStatus).toHaveBeenCalledWith('0xTestAddress', 'pending', expect.objectContaining({ txId: 'tx-mempool-1' }));
+      expect(paymentController.cryptoVerification).not.toHaveBeenCalled();
+      expect(mockStore['processed-tx-tx-mempool-1']).toBeUndefined();
     });
 
     it('a rejected forged tx is NOT re-processed on redelivery (dedup key honoured)', async () => {

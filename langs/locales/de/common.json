@@ -1724,7 +1724,8 @@
     "errConfirm": "Bitte bestätigen Sie, dass die Rückerstattungsadresse korrekt ist, bevor Sie fortfahren.",
     "errCreate": "Die Rückerstattung konnte nicht erstellt werden.",
     "errCancel": "Die Rückerstattung konnte nicht storniert werden.",
-    "errAdvance": "Rückerstattung kann nicht vorgezogen werden."
+    "errAdvance": "Rückerstattung kann nicht vorgezogen werden.",
+    "liveUnavailable": "On-Chain-Rückerstattungen sind noch nicht verfügbar. Es wird keine Einzahlungsadresse erstellt und es werden keine Gelder bewegt – bitte erstatten Sie dem Kunden vorerst direkt aus Ihrer eigenen Wallet."
   },
   "nameGate": {
     "firstRequired": "Vorname ist erforderlich",

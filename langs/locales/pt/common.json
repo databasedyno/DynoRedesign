@@ -1724,7 +1724,8 @@
     "errConfirm": "Por favor, confirme que o endereço de reembolso está correto antes de continuar.",
     "errCreate": "Não foi possível criar o reembolso.",
     "errCancel": "Não foi possível cancelar o reembolso.",
-    "errAdvance": "Não é possível avançar o reembolso."
+    "errAdvance": "Não é possível avançar o reembolso.",
+    "liveUnavailable": "Os reembolsos on-chain ainda não estão disponíveis. Nenhum endereço de depósito é criado e nenhum fundo é movimentado — por agora, reembolse o cliente diretamente a partir da sua própria carteira."
   },
   "nameGate": {
     "firstRequired": "O primeiro nome é obrigatório",

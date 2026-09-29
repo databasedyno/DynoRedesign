@@ -155,6 +155,8 @@ const NotificationPage = ({ initialTab = "inbox" }: { initialTab?: "inbox" | "se
     isSubscribed: pushSubscribed,
     loading: pushLoading,
     supported: pushSupported,
+    browserSupported: pushBrowserSupported,
+    serverEnabled: pushServerEnabled,
     subscribe: pushSubscribe,
     unsubscribe: pushUnsubscribe,
   } = usePushNotifications();
@@ -177,9 +179,17 @@ const NotificationPage = ({ initialTab = "inbox" }: { initialTab?: "inbox" | "se
         setToastMessage("Notifications blocked. Please enable in browser settings.");
         setToastSeverity("error");
         setOpenToast(true);
+      } else {
+        setToastMessage(
+          tNotifications("pushEnableFailed", {
+            defaultValue: "Couldn't enable browser push right now. Email and in-app alerts still work.",
+          })
+        );
+        setToastSeverity("error");
+        setOpenToast(true);
       }
     }
-  }, [pushSubscribed, pushSubscribe, pushUnsubscribe, pushPermission]);
+  }, [pushSubscribed, pushSubscribe, pushUnsubscribe, pushPermission, tNotifications]);
 
   const [openToast, setOpenToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("Settings updated successfully!");
@@ -823,13 +833,20 @@ const NotificationPage = ({ initialTab = "inbox" }: { initialTab?: "inbox" | "se
                   )}
                   {!pushSupported && (
                     <Typography
+                      data-testid="push-unavailable-note"
                       sx={{
                         fontSize: "13px",
                         color: theme.palette.text.secondary,
                         fontStyle: "italic",
                       }}
                     >
-                      {t("notSupportedInBrowser")}
+                      {pushBrowserSupported && pushServerEnabled === false
+                        ? tNotifications("pushNotConfigured", {
+                            defaultValue: "Browser push isn't enabled on this platform yet — email and in-app alerts still work.",
+                          })
+                        : pushServerEnabled === null && pushBrowserSupported
+                        ? "…"
+                        : t("notSupportedInBrowser")}
                     </Typography>
                   )}
                 </Box>

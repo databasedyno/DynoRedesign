@@ -15,6 +15,8 @@ import {
   resolveOriginalPayment,
   estimateGasBuffer,
   isRefundDryRun,
+  isLiveRefundAvailable,
+  LIVE_REFUND_UNAVAILABLE_MSG,
 } from "../../services/refund/refundService";
 import { computeDepositPlan, validateChainAddress } from "../../services/refund/refundChains";
 
@@ -61,6 +63,10 @@ export const previewRefund = async (req: Request, res: Response) => {
       // deposit total if the FULL amount is refunded (UI recomputes for partials)
       full_refund_deposit_total: plan.depositAmount,
       dry_run: dryRun,
+      // false ⇒ live refunds are switched on but the on-chain forwarding rails
+      // are not wired yet; the UI must not offer "Create refund".
+      live_available: isLiveRefundAvailable(),
+      unavailable_reason: isLiveRefundAvailable() ? null : LIVE_REFUND_UNAVAILABLE_MSG,
     });
   } catch (e: any) {
     apiLogger.warn(`[refund] preview failed: ${e?.message || e}`);

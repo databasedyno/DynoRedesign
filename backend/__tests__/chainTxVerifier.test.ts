@@ -188,6 +188,16 @@ describe("verifyIncomingTxOnChain (mocked SDK)", () => {
     sdk.blockchain.eth.ethGetTransaction = jest.fn().mockResolvedValue({ to: "0x0000000000000000000000000000000000000002", value: "1000000000000000000", blockNumber: 3, status: true });
     expect((await verifyIncomingTxOnChain({ txId: "t", address: "0x0000000000000000000000000000000000000001", currency: "ETH", amount: 1 })).status).toBe("mismatch");
   });
+  it("EVM native UNMINED tx to a different address / too small → mismatch (decided before the mined gate)", async () => {
+    sdk.blockchain.eth.ethGetTransaction = jest.fn().mockResolvedValue({ to: "0x0000000000000000000000000000000000000002", value: "1000000000000000000", blockNumber: null });
+    expect((await verifyIncomingTxOnChain({ txId: "t", address: "0x0000000000000000000000000000000000000001", currency: "ETH", amount: 1 })).status).toBe("mismatch");
+    sdk.blockchain.eth.ethGetTransaction = jest.fn().mockResolvedValue({ to: "0x0000000000000000000000000000000000000001", value: "1000", blockNumber: null });
+    expect((await verifyIncomingTxOnChain({ txId: "t", address: "0x0000000000000000000000000000000000000001", currency: "ETH", amount: 1 })).status).toBe("mismatch");
+  });
+  it("EVM native UNMINED tx paying us the right amount → pending (so checkout may show 'payment detected')", async () => {
+    sdk.blockchain.eth.ethGetTransaction = jest.fn().mockResolvedValue({ to: "0x0000000000000000000000000000000000000001", value: "1000000000000000000", blockNumber: null });
+    expect((await verifyIncomingTxOnChain({ txId: "t", address: "0x0000000000000000000000000000000000000001", currency: "ETH", amount: 1 })).status).toBe("pending");
+  });
   it("unknown currency → unsupported", async () => {
     expect((await verifyIncomingTxOnChain({ txId: "t", address: "x", currency: "SHIB", amount: 1 })).status).toBe("unsupported");
   });
@@ -229,6 +239,11 @@ describe("gateIncomingTx decisions", () => {
   it("forged txId → throws ChainVerifyRetry (BullMQ retries, nothing credited)", async () => {
     sdk.blockchain.tron.tronGetTransaction = jest.fn().mockRejectedValue(Object.assign(new Error("not found"), { status: 404 }));
     await expect(gateIncomingTx(input)).rejects.toBeInstanceOf(ChainVerifyRetry);
+    await expect(gateIncomingTx(input)).rejects.toMatchObject({ status: "not_found" });
+  });
+  it("unmined real tx → ChainVerifyRetry carries status 'pending' (worker publishes 'payment detected')", async () => {
+    sdk.blockchain.eth.ethGetTransaction = jest.fn().mockResolvedValue({ to: "0x0000000000000000000000000000000000000001", value: "1000000000000000000", blockNumber: null });
+    await expect(gateIncomingTx({ txId: "t", address: "0x0000000000000000000000000000000000000001", currency: "ETH", amount: 1 })).rejects.toMatchObject({ status: "pending" });
   });
   it("mismatch → rejected in enforce mode, ok in warn mode", async () => {
     sdk.blockchain.tron.tronGetTransaction = jest.fn().mockResolvedValue({ ret: [{ contractRet: "SUCCESS" }], blockNumber: 1, rawData: { contract: [] } });

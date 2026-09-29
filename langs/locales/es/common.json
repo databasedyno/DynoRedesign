@@ -1724,7 +1724,8 @@
     "errConfirm": "Por favor, confirma que la dirección de reembolso es correcta antes de continuar.",
     "errCreate": "No se puede crear el reembolso.",
     "errCancel": "No se puede cancelar el reembolso.",
-    "errAdvance": "No se puede adelantar el reembolso."
+    "errAdvance": "No se puede adelantar el reembolso.",
+    "liveUnavailable": "Los reembolsos on-chain aún no están disponibles. No se crea ninguna dirección de depósito ni se mueven fondos; por ahora, reembolsa al cliente directamente desde tu propia wallet."
   },
   "nameGate": {
     "firstRequired": "Se requiere el nombre",

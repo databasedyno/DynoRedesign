@@ -77,6 +77,8 @@ export interface WebhookJobData {
   };
   receivedAt: string;
   source: "webhook" | "reconciliation" | "admin-replay" | "watchdog-recovery";
+  /** tbl_inbound_events.id when the receiver recorded the event (DB idempotency layer). */
+  inboundEventId?: number;
 }
 
 // ── Enqueue Webhook ───────────────────────────────────────────────────────────
@@ -117,6 +119,10 @@ export function startWebhookWorker(
         await processFunction(job.data);
         webhookLogs.info(`[WebhookQueue] Job ${job.id} completed successfully`);
         log(`[WebhookQueue] ✅ Job DONE: ${job.id}, tx=${job.data?.payload?.txId || 'unknown'}`);
+        if (job.data?.inboundEventId) {
+          const { markProcessed } = await import("./idempotency/inboundEventService");
+          await markProcessed(job.data.inboundEventId);
+        }
       } catch (error: unknown) {
         const err = error as Error;
         webhookLogs.error(`[WebhookQueue] Job ${job.id} failed: ${err.message}`);
@@ -150,6 +156,11 @@ export function startWebhookWorker(
     if (attemptsLeft <= 0) {
       // Max retries exhausted → move to DLQ
       webhookLogs.error(`[WebhookQueue] Job ${job.id} EXHAUSTED all retries. Moving to DLQ.`);
+
+      if (job.data?.inboundEventId) {
+        const { markFailed } = await import("./idempotency/inboundEventService");
+        await markFailed(job.data.inboundEventId, error.message);
+      }
       
       try {
         const txId = job.data.payload?.txId || job.id;

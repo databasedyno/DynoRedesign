@@ -647,16 +647,31 @@ export async function processWebhookJob(data: WebhookJobData): Promise<void> {
     // Retryable outcomes (not indexed yet / pending / API error) throw so BullMQ
     // retries with backoff; definitive mismatches drop the webhook for good.
     {
-      const { gateIncomingTx } = require("./chainTxVerifier");
-      // Throws ChainVerifyRetry when the chain hasn't caught up yet → BullMQ retry (lock released in finally).
-      const gate: { decision: "ok" | "rejected"; note: string } = await gateIncomingTx({
+      const { gateIncomingTx, ChainVerifyRetry } = require("./chainTxVerifier");
+      const pendingExtra = {
         txId: payload.txId,
-        address,
-        currency: expectedCurrency || items.currency,
-        amount: incomingAmount,
-        destinationTag: resolvedDestinationTag,
-        paymentId: items.payment_id || items.unique_tx_id || null,
-      });
+        asset: payload.asset,
+        ...(resolvedDestinationTag ? { destination_tag: resolvedDestinationTag } : {}),
+      };
+      // Throws ChainVerifyRetry when the chain hasn't caught up yet → BullMQ retry (lock released in finally).
+      let gate: { decision: "ok" | "rejected"; note: string };
+      try {
+        gate = await gateIncomingTx({
+          txId: payload.txId,
+          address,
+          currency: expectedCurrency || items.currency,
+          amount: incomingAmount,
+          destinationTag: resolvedDestinationTag,
+          paymentId: items.payment_id || items.unique_tx_id || null,
+        });
+      } catch (gateErr) {
+        // A REAL tx paying this address is in the mempool (seen on-chain, not yet
+        // mined) → tell the buyer's tab "payment detected" while we wait for a block.
+        if (gateErr instanceof ChainVerifyRetry && gateErr.status === "pending") {
+          publishCheckoutStatus(address, "pending", pendingExtra);
+        }
+        throw gateErr;
+      }
       if (gate.decision === "rejected") {
         log(`[WebhookProcessor] ⛔ ON-CHAIN VERIFICATION FAILED — dropping webhook tx=${payload.txId} addr=${address} amount=${incomingAmount} ${expectedCurrency}: ${gate.note}`, "error");
         try {
@@ -667,6 +682,9 @@ export async function processWebhookJob(data: WebhookJobData): Promise<void> {
         await setRedisTTL(processedTxKey, 172800); // 48h — don't re-queue a forged tx on every restart
         return;
       }
+      // Live checkout: the buyer's tab learns "payment detected" only now — after the
+      // chain confirmed a real tx pays this address (never on raw webhook receipt).
+      publishCheckoutStatus(address, "pending", pendingExtra);
     }
 
     // ── RELIABILITY (deferred from earlier): Journal payment_detected ──

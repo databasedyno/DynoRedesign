@@ -29,6 +29,7 @@ import qualityRouter from "./qualityRouter";
 import {
   authMiddleware,
   walletMiddleware,
+  apiUsageLogger,
 } from "../middleware";
 import emailVerifiedMiddleware from "../middleware/emailVerifiedMiddleware";
 // ITatumWebHook, IWebHook imports removed - not used
@@ -177,6 +178,9 @@ const inboundEventDedup = (provider: string) =>
       if (!result.isNew) {
         return res.status(200).json({ status: "duplicate", message: "event already received" });
       }
+      // Carry the row id so the receiver/worker can close the lifecycle
+      // (received → processed | failed | skipped) instead of leaving every row "received".
+      if (result.id) res.locals.inboundEventId = result.id;
     } catch {
       // Fail-open — the existing Redis/DB guards still apply downstream.
     }
@@ -396,9 +400,11 @@ router.get("/geo-detect", async (req: express.Request, res: express.Response) =>
 // Public sandbox playground (extracted) — /api/public/sandbox/*
 router.use("/public/sandbox", publicSandboxRouter);
 
-// Merchant API routes (unified) — supports both OLD and NEW auth flows
-router.use("/user/customers", customerWalletApiRouter);
-router.use("/user", merchantApiRouter);
+// Merchant API routes (unified) — supports both OLD and NEW auth flows.
+// apiUsageLogger (x-api-key requests only) feeds tbl_api_usage_log + bumps
+// last_used_at/request_count — the source for the Developers "Usage"/"Last used" UI.
+router.use("/user/customers", apiUsageLogger, customerWalletApiRouter);
+router.use("/user", apiUsageLogger, merchantApiRouter);
 router.use("/admin/logs", adminLogsRouter); // Admin Live Console — SSE log stream + health pulse
 router.use("/admin", adminRouter);
 router.use("/company", authMiddleware, emailVerifiedMiddleware, companyRouter);

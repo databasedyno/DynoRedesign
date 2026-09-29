@@ -102,4 +102,14 @@ export async function markFailed(id: number, error: string): Promise<void> {
   } catch { /* best-effort */ }
 }
 
-export default { recordInbound, markProcessed, markFailed };
+/** Receiver-level drop (duplicate / outgoing tx / unknown asset) — nothing to process. */
+export async function markSkipped(id: number, reason: string): Promise<void> {
+  try {
+    await InboundEvent.update(
+      { status: "skipped", error: String(reason).slice(0, 2000), processed_at: new Date() },
+      { where: { id } }
+    );
+  } catch { /* best-effort */ }
+}
+
+export default { recordInbound, markProcessed, markFailed, markSkipped };
