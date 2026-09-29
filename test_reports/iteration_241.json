@@ -1,0 +1,30 @@
+{
+  "summary": "Verified the three prod-anomaly fixes (outbox stale-lease reclaim, per-target merchant webhook retries, withhold false payment.settlement_failed). All 36 unit suites / 710 tests pass. tsc --noEmit initially failed with TS2556 in the new __tests__/outboxReliability.test.ts (updateMock typed as jest.fn(async () => [1]) then spread with any[] args); fixed by explicitly typing the mock and tsc now exits 0. Live RO SQL confirms make_interval(secs => …) syntax is accepted and tbl_outbox has 0 rows in pending/processing. Backend /health is healthy.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "N/A (test file)", "issue": "__tests__/outboxReliability.test.ts line 18: updateMock inferred as zero-arg async fn caused TS2556 when spread with (...a: any[]). Fixed by typing as jest.Mock and accepting rest args."}
+    ]
+  },
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/__tests__/outboxReliability.test.ts",
+    "/app/backend/__tests__/webhookProcessor.test.ts"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Reclaim safety: PROCESSING_LEASE_MS=600s. claimBatch sets available_at = NOW() + 600s; reclaim triggers on available_at <= NOW() - 600s, i.e. ~20 min after claim. This gives a 10-min buffer beyond the lease before a live worker's row could be re-queued — safe.",
+    "outboxDispatchers.ts: all-transient-with-no-delivered path correctly throws plain Error (no deliveredTargets patch) so markRetry does NOT stamp payload.deliveredTargets — matches spec (b).",
+    "All-permanent-failures path returns early → row dispatched, no retry — matches spec (c).",
+    "webhooks/index.ts skipUrls Set filter runs before the fan-out loop, so a URL already in deliveredTargets cannot be POSTed again — no double delivery.",
+    "webhookProcessor.ts: journal lookup is wrapped in try/catch and defaults payoutAlreadyBroadcast=false on error → fail-open, cannot suppress webhook when journal has no broadcast row.",
+    "Redis state is still set to 'failed' even when the merchant webhook is withheld — reconciliation/auto-recovery paths continue as intended."
+  ],
+  "updated_files": ["/app/backend/__tests__/outboxReliability.test.ts"],
+  "success_rate": {"backend": "100% (710/710 unit tests, tsc exit 0)", "frontend": "n/a"},
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Full unit run takes ~40s. Only fixed a type-annotation issue in the new outbox test file so tsc passes. Live DB is SAFE-MODE read-only via scripts/ro_query.js; do NOT run the integration jest project. tbl_outbox pending/processing = 0 rows (prod row #612 already closed by ops).",
+  "rca of the issue": "N/A — reliability fixes under review; no new bug found. The one issue caught was TS2556 in the test double, not in production code."
+}

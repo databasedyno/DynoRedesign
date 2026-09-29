@@ -12,7 +12,7 @@ jest.mock("../utils/loggers", () => ({
   apiLogger: { info: jest.fn(), warn: jest.fn(), error: jest.fn() },
 }));
 
-const updateMock = jest.fn(async () => [1]);
+const updateMock: jest.Mock = jest.fn(async (..._a: any[]) => [1]);
 jest.mock("../models/outboxEventModel", () => ({
   __esModule: true,
   default: { update: (...a: any[]) => updateMock(...a), create: jest.fn(), findOne: jest.fn() },
