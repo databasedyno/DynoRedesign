@@ -36,6 +36,37 @@ const adminModel = sequelize.define(
       allowNull: false,
       defaultValue: "ADMIN",
     },
+    // SEC-002: mandatory TOTP + revocable sessions + lockout.
+    totp_secret: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    totp_enabled: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    totp_enrolled_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    totp_backup_codes: {
+      type: DataTypes.JSONB,
+      allowNull: true,
+    },
+    tokens_valid_after: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    failed_login_count: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
+    locked_until: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
   },
   {
     tableName: "tbl_admin",

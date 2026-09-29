@@ -1,3 +1,13 @@
+<!-- ADMIN CONSOLE 2FA (SEC-002, 2026-09-30) — admin login is now TWO-STEP + mandatory TOTP.
+     Real admin (moxxcompany@gmail.com) password UNCHANGED, but on next /admin/login they must
+     enroll TOTP (scan QR) once. Old 30d admin tokens are now invalid.
+     To TEST admin console without touching the real admin: seed a throwaway tbl_admin row, then
+     get live TOTP codes with:  cd /app/backend && node scripts/admin_2fa.cjs totp <admin_id>
+     Recovery if locked out:     node scripts/admin_2fa.cjs reset <admin_id>   (re-enroll on next login)
+     Endpoints: POST /api/admin/login/password -> {status:TOTP_REQUIRED|ENROLL_REQUIRED},
+     /api/admin/login/totp, /api/admin/enroll/begin, /api/admin/enroll/complete. -->
+
+
 ## 2026-09-29 (fork, pt13) — READ FIRST (supersedes pod-URL lines below)
 ## - LIVE preview URL for THIS pod = SERVER_URL in /app/backend/.env = https://f76a7948-40c4-425c-b700-24152c271b32.preview.emergentagent.com . Frontend = PRODUCTION Next build (no hot reload). Backend = ts-node (no auto-reload → `sudo supervisorctl restart backend`). Always send a browser User-Agent; UA "node"/"python-requests"/curl-like + scanner-looking paths get 403'd by middleware/botProtection.ts (in-memory, cleared by backend restart).
 ## - Owner/merchant: onarrival21@gmail.com / Katiekendra123@ (user_id 1, company_id 1 "The Dev Store"). TOTP enrolled: `node /app/backend/scripts/print_totp.cjs 1`. API login: POST /api/user/login → data.challenge_token → POST /api/user/2fa/validate {challenge_token, token} → data.accessToken. Cached token: /app/memory/tmp/merchant_token.txt (30-day). Admin: moxxcompany@gmail.com / Katiekendra123@.

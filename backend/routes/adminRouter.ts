@@ -1,5 +1,6 @@
 import express from "express";
 import adminController from "../controller/adminController";
+import adminAuthController from "../controller/adminAuthController";
 import supportInboxController from "../controller/supportInboxController";
 import adminSecurityController from "../controller/adminSecurityController";
 import feeReconciliationController from "../controller/admin/feeReconciliationController";
@@ -9,7 +10,17 @@ import { loginRateLimiter } from "../middleware/rateLimitMiddleware";
 
 const adminRouter = express.Router();
 
-adminRouter.post("/login", loginRateLimiter, adminController.login);
+// ── Admin auth (SEC-002): two-step login (password -> TOTP), enrollment, sessions ──
+adminRouter.post("/login/password", loginRateLimiter, adminAuthController.loginPassword);
+adminRouter.post("/login/totp", loginRateLimiter, adminAuthController.loginTotp);
+adminRouter.post("/enroll/begin", loginRateLimiter, adminAuthController.enrollBegin);
+adminRouter.post("/enroll/complete", loginRateLimiter, adminAuthController.enrollComplete);
+adminRouter.get("/me", adminAuthMiddleware, adminAuthController.me);
+adminRouter.get("/sessions", adminAuthMiddleware, adminAuthController.sessions);
+adminRouter.post("/logout", adminAuthMiddleware, adminAuthController.logout);
+adminRouter.post("/logout-all", adminAuthMiddleware, adminAuthController.logoutAll);
+adminRouter.post("/step-up", adminAuthMiddleware, adminAuthController.stepUp);
+
 adminRouter.post(
   "/createWallets",
   adminAuthMiddleware,

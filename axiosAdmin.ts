@@ -26,4 +26,23 @@ adminBaseApi.interceptors.request.use(
   (error) => console.error(error)
 );
 
+// On an expired/revoked admin session (401/403 from a protected admin route),
+// drop the stale token and bounce back to the login screen. The login/enroll
+// endpoints are exempt so their own error messages surface in the form.
+adminBaseApi.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error?.response?.status;
+    const url: string = error?.config?.url || "";
+    const isAuthRoute = /\/admin\/(login|enroll)\b/.test(url);
+    if ((status === 401 || status === 403) && !isAuthRoute && typeof window !== "undefined") {
+      localStorage.removeItem("admin_token");
+      if (!window.location.pathname.startsWith("/admin/login")) {
+        window.location.replace("/admin/login");
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default adminBaseApi;

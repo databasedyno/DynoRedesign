@@ -97,6 +97,7 @@ export async function getBootModels(): Promise<unknown[]> {
   const { paymentReceiptModel } = await import("../models"); // Shareable receipts (0021)
   const { vatValidationModel } = await import("../models"); // VAT validation cache (0028)
   const { escrowDealModel } = await import("../models"); // Escrow deals (0035)
+  const { default: adminSessionModel } = await import("../models/adminSessionModel"); // Admin sessions (0056)
   return [
     ...v1,
     ...extra,
@@ -111,6 +112,7 @@ export async function getBootModels(): Promise<unknown[]> {
     paymentReceiptModel,
     vatValidationModel,
     escrowDealModel,
+    adminSessionModel,
   ];
 }
 
@@ -993,6 +995,38 @@ const addTransactionEnvironment = async (): Promise<void> => {
   );
 };
 
+/**
+ * 0055 — Admin console 2FA hardening (SEC-002). Additive columns on tbl_admin:
+ *   - totp_secret / totp_enabled / totp_enrolled_at: mandatory authenticator enrolment.
+ *   - totp_backup_codes (JSONB): sha256-hashed single-use recovery codes.
+ *   - tokens_valid_after: "sign out everywhere" cutoff for admin sessions.
+ *   - failed_login_count / locked_until: admin login lockout.
+ * Additive + nullable/defaulted => metadata-only, idempotent, safe on live prod.
+ */
+const addAdminAuthColumns = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `ALTER TABLE "tbl_admin"
+       ADD COLUMN IF NOT EXISTS "totp_secret" TEXT,
+       ADD COLUMN IF NOT EXISTS "totp_enabled" BOOLEAN NOT NULL DEFAULT false,
+       ADD COLUMN IF NOT EXISTS "totp_enrolled_at" TIMESTAMPTZ,
+       ADD COLUMN IF NOT EXISTS "totp_backup_codes" JSONB,
+       ADD COLUMN IF NOT EXISTS "tokens_valid_after" TIMESTAMPTZ,
+       ADD COLUMN IF NOT EXISTS "failed_login_count" INTEGER NOT NULL DEFAULT 0,
+       ADD COLUMN IF NOT EXISTS "locked_until" TIMESTAMPTZ`
+  );
+};
+
+/**
+ * 0056 — Admin console sessions (tbl_admin_session, SEC-002). Brand-new table:
+ * one revocable row per admin login (session_id, jti, expiry, revoke, ip, ua).
+ * Create-only sync — no existing data touched, safe on live prod.
+ */
+const createAdminSessionTable = async (): Promise<void> => {
+  const { default: adminSessionModel } = await import("../models/adminSessionModel");
+  if (isSyncable(adminSessionModel)) await adminSessionModel.sync();
+};
+
 export async function buildBootMigrations(): Promise<Migration[]> {  const { v1, extra } = await loadBootModelGroups();  return [
     { version: "0001_boot_model_tables", up: syncGroup(v1) },
     { version: "0002_boot_model_tables_extra", up: syncGroup(extra) },
@@ -1045,6 +1079,8 @@ export async function buildBootMigrations(): Promise<Migration[]> {  const { v1,
     { version: "0052_safedeal_ledger_unique_reference", up: addSafeDealLedgerUniqueReference },
     { version: "0053_txn_environment", up: addTransactionEnvironment },
     { version: "0054_safedeal_session_security", up: addSafeDealSessionSecurity },
+    { version: "0055_admin_auth_columns", up: addAdminAuthColumns },
+    { version: "0056_admin_session", up: createAdminSessionTable },
     ...perfMigrations,
     ...securityMigrations,
   ];

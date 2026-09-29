@@ -1,10 +1,20 @@
-import { raw as envRaw } from "../utils/config";
 import express from "express";
-import jwt from "jsonwebtoken";
-import { errorResponseHelper, getErrorMessage } from "../helper";
-import { IUserType } from "../utils/types";
+import { errorResponseHelper } from "../helper";
 import { apiLogger } from "../utils/loggers";
+import { verifyAccessToken, consumeStepUp, AdminAuthError } from "../services/adminAuthService";
+import type { AdminStepUpReason } from "../services/adminAuthService";
 
+/**
+ * Admin console auth (SEC-002 hardened).
+ *
+ * Verifies a short-lived, session-backed admin JWT (issuer/audience pinned),
+ * then confirms the session is live (exists, jti matches, not revoked, not
+ * expired) and that the token predates no "sign out everywhere" cutoff. Legacy
+ * 30-day tokens (no iss/aud/sid) fail verification and force a fresh 2FA login.
+ *
+ * res.locals.user = { admin_id, email, role:"ADMIN", sid } — `email` + role are
+ * preserved for existing admin controllers; `res.locals.token` stays the raw JWT.
+ */
 const adminAuthMiddleware = async (
   req: express.Request,
   res: express.Response,
@@ -12,54 +22,46 @@ const adminAuthMiddleware = async (
 ) => {
   try {
     const authHeader = req.headers["authorization"];
-    const token = authHeader && authHeader?.split(" ")[1];
-    
-    if (!token) {
-      return errorResponseHelper(res, 403, "Your Login has Expired");
-    }
-    
-    const tokenSecret = envRaw("ACCESS_TOKEN_SECRET");
-    if (!tokenSecret) {
-      return errorResponseHelper(res, 500, "Server configuration error. Token secret not set.");
-    }
-    
-    try {
-      // Verify token synchronously
-      const decoded = jwt.verify(token, tokenSecret) as IUserType;
-      
-      // Check if decoded token is valid and has required fields
-      if (!decoded) {
-        return errorResponseHelper(res, 403, "Invalid token format");
-      }
-      
-      // Check if user has admin role
-      if (!decoded.role || decoded.role !== "ADMIN") {
-        return errorResponseHelper(res, 403, "Admin access required. You do not have permission.");
-      }
-      
-      // Store token in res.locals for use in controllers
-      res.locals.token = token;
-      res.locals.user = decoded;
-      
-      next();
-    } catch (err: unknown) {
-      // Handle JWT-specific errors
-      const error = err as { name?: string };
-      if (error.name === 'TokenExpiredError') {
-        return errorResponseHelper(res, 403, "Your Login has Expired");
-      } else if (error.name === 'JsonWebTokenError') {
-        return errorResponseHelper(res, 403, "Invalid token. Please login again.");
-      } else if (error.name === 'NotBeforeError') {
-        return errorResponseHelper(res, 403, "Token not active yet. Please try again later.");
-      } else {
-        throw err; // Re-throw to be caught by outer catch
-      }
-    }
-  } catch (e: unknown) {
+    const token = authHeader && authHeader.split(" ")[1];
+    if (!token) return errorResponseHelper(res, 403, "Your Login has Expired");
+
+    const admin = await verifyAccessToken(token);
+    res.locals.token = token;
+    res.locals.user = admin; // { admin_id, email, role, sid }
+    next();
+  } catch (e) {
+    if (e instanceof AdminAuthError) return errorResponseHelper(res, e.status, e.message);
     apiLogger.error("Admin Auth Middleware Error:", e);
-    const message = getErrorMessage(e);
-    errorResponseHelper(res, 500, message);
+    return errorResponseHelper(res, 500, "Server error");
   }
 };
+
+/**
+ * requireAdminStepUp("platform-settings") — gate a sensitive write behind a
+ * fresh, reason-bound, one-use step-up grant (X-Admin-Step-Up header). Must run
+ * AFTER adminAuthMiddleware.
+ */
+export const requireAdminStepUp =
+  (reason: AdminStepUpReason) =>
+  async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    try {
+      const sid = (res.locals.user as { sid?: string })?.sid;
+      const token = String(req.header("x-admin-step-up") || "");
+      const ok = sid ? await consumeStepUp(sid, reason, token) : false;
+      if (!ok) {
+        return res.status(403).json({
+          success: false,
+          statusCode: 403,
+          code: "ADMIN_STEPUP_REQUIRED",
+          reason,
+          message: "Please verify it's you to continue.",
+        });
+      }
+      next();
+    } catch (e) {
+      apiLogger.error("Admin StepUp Middleware Error:", e);
+      return errorResponseHelper(res, 500, "Server error");
+    }
+  };
 
 export default adminAuthMiddleware;

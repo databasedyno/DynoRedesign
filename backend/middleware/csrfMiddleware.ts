@@ -51,6 +51,7 @@ const EXEMPT_PATHS = [
   "/api/kb/articles/",
   "/api/support/chat",
   "/api/admin/login",
+  "/api/admin/enroll",
   "/api/user/login",
   "/api/team/accept",
   "/api/user/registerUser",
