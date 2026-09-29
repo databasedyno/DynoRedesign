@@ -6,7 +6,7 @@ const apiMiddleware = (
   res: express.Response,
   next: express.NextFunction
 ) => {
-  const { company_id, base_currency, plan_name, amount, interval } = req.body;
+  const { company_id, base_currency } = req.body;
   let validateFields, schema;
   const pathname = req.path;
 
@@ -17,28 +17,7 @@ const apiMiddleware = (
       company_id: Joi.number().required().messages({
         "number.empty": "Company is Required",
       }),
-      base_currency: Joi.string().required().messages({
-        "string.empty": "Currency is Required",
-      }),
-    };
-  } else if (pathname.includes("createPlan")) {
-    validateFields = { plan_name, amount, interval, company_id };
-
-    schema = {
-      plan_name: Joi.string().required().messages({
-        "string.empty": "Currency is Required",
-      }),
-
-      amount: Joi.number()
-        .required()
-        .min(5)
-        .messages({
-          "number.min": `Amount must be greater then or equal to ${5}`,
-        }),
-      interval: Joi.string().valid("monthly", "yearly").required(),
-      company_id: Joi.number().required().messages({
-        "number.empty": "Company is Required",
-      }),
+      base_currency: Joi.string().optional().allow("", null),
     };
   }
   const validationSchema = Joi.object({ ...schema });

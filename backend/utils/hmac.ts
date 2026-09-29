@@ -10,8 +10,6 @@
  * NOT used for:
  *   • Veriff webhooks — those sign with `crypto-js` HmacSHA256 (kept as-is to
  *     avoid touching the live KYC verification path; see `veriffService.ts`).
- *   • Flutterwave webhooks — a plain shared-secret (`verif-hash`) equality check,
- *     a different scheme entirely (see `webhooks/index.ts`).
  */
 
 import crypto from "crypto";

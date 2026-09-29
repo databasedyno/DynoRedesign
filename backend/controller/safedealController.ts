@@ -6,6 +6,7 @@
  * lands in each party's SafeDeal wallet (customer wallet ledger).
  */
 import { raw as envRaw } from "../utils/config";
+import { safedealLegalName } from "../utils/emailTemplate";
 import express from "express";
 import { shareCopyFor } from "./safedeal/safedealOgImage";
 import crypto from "crypto";
@@ -459,7 +460,7 @@ const config = async (_req: express.Request, res: express.Response) => {
     live_settlement: isLiveSettlementEnabled(),
     simulation_allowed: isSimulationAllowed(),
     dispute_auto_escalate_hours: Number(envRaw("ESCROW_DISPUTE_AUTO_ESCALATE_HOURS")) || 72,
-    legal_name: (envRaw("EMAIL_LEGAL_NAME") || "Dynopay").trim(),
+    legal_name: safedealLegalName(),
     price_currencies: PRICE_CURRENCIES,
     attachment_limits: { max_files: 5, max_mb: 10, types: ["PNG", "JPG", "WEBP", "GIF", "PDF"] },
     deal_types: DEAL_TYPES,
@@ -909,7 +910,7 @@ const dealAction = async (req: express.Request, res: express.Response) => {
       }
       case "dispute-escalate":
         await escrowEngine.actEscalateDispute(deal, actor);
-        msg = "Escalated to Dynopay — an admin will review and decide.";
+        msg = "Escalated to the SafeDeal team — they will review and decide.";
         break;
       default:
         return errorResponseHelper(res, 400, `Unknown action '${action}'.`);
@@ -1106,7 +1107,7 @@ const dealPdf = async (req: express.Request, res: express.Response) => {
       buyerEmail,
       sellerEmail,
       attachments,
-      legalName: (envRaw("EMAIL_LEGAL_NAME") || "Dynopay").trim(),
+      legalName: safedealLegalName(),
       viewer: { role: actor.role, email: sess.email },
       payouts: payouts.filter((p) => p.customer_id === sess.customer_id),
     });
@@ -1129,7 +1130,7 @@ const topupReceiptPdf = async (req: express.Request, res: express.Response) => {
       coinLabel: m?.label || row.coin,
       network: m?.network || row.coin,
       customerEmail: sess.email,
-      legalName: (envRaw("EMAIL_LEGAL_NAME") || "Dynopay").trim(),
+      legalName: safedealLegalName(),
     });
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename="safedeal-deposit-${row.topup_id}.pdf"`);

@@ -30,7 +30,7 @@ const customerTransactionModel = sequelize.define(
     },
     payment_mode: {
       type: DataTypes.STRING,
-      defaultValue: "CARD",
+      defaultValue: "CRYPTO",
     },
     base_amount: {
       type: DataTypes.FLOAT,

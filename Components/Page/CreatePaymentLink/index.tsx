@@ -69,6 +69,7 @@ import {
 } from "@/utils/types/create-pay-link";
 import { brandFg } from "@/constants/theme";
 import { toFixedStr } from "@/utils/money";
+import useDisplayFx from "@/hooks/useDisplayFx";
 
 function truncateByWords(text: string, maxLength: number) {
   if (text.length <= maxLength) return text;
@@ -447,12 +448,23 @@ const CreatePaymentLinkPage = ({
     }
   }, [setPageName, hasPaymentLinkData, linkKind, tPaymentLink]);
 
-  // Geo-default the pricing currency for NEW links so a merchant sees their
-  // local currency pre-selected (e.g. Nigeria → NGN, Kenya → KES). Never runs
-  // in edit mode (keeps the saved currency) and never overrides a currency the
-  // merchant has already changed away from the USD default.
+  // Default the pricing currency for NEW links: the brand currency when the
+  // merchant has explicitly set one (Settings → Brand currency), otherwise a
+  // geo-default so a merchant sees their local currency pre-selected (e.g.
+  // Nigeria → NGN). Never runs in edit mode (keeps the saved currency) and
+  // never overrides a currency the merchant has already changed away from USD.
+  const brandFx = useDisplayFx();
   useEffect(() => {
-    if (hasPaymentLinkData) return;
+    if (hasPaymentLinkData || !brandFx.ready) return;
+    if (brandFx.explicit) {
+      const supported = clampPricingCurrency(brandFx.currency, "");
+      if (supported) {
+        setPaymentSettings((prev) =>
+          prev.currency === "USD" && supported !== "USD" ? { ...prev, currency: supported } : prev,
+        );
+      }
+      return;
+    }
     let cancelled = false;
     (async () => {
       try {
@@ -469,7 +481,7 @@ const CreatePaymentLinkPage = ({
     return () => {
       cancelled = true;
     };
-  }, [hasPaymentLinkData]);
+  }, [hasPaymentLinkData, brandFx.ready, brandFx.explicit, brandFx.currency]);
 
   const [donationSettings, setDonationSettings] = useState<DonationSettingsState>(() => {
     const don = hasPaymentLinkData ? (paymentLinkData as PaymentLink).donation : null;

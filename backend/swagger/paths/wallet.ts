@@ -1210,8 +1210,8 @@ Wallet address is saved and ready to receive payments!`,
   '/api/wallet/addFunds': {
     post: {
       tags: ['Payments'],
-      summary: '💵 Add Funds to Wallet',
-      description: `Initiate adding funds to a fiat wallet via card or bank transfer.`,
+      summary: '₿ Add Funds (crypto deposit)',
+      description: `Reserve a deposit address so the merchant can top up a wallet with crypto. Crypto is the only rail.`,
       security: [{ BearerAuth: [] }],
       requestBody: {
         required: true,
@@ -1219,123 +1219,17 @@ Wallet address is saved and ready to receive payments!`,
           'application/json': {
             schema: {
               type: 'object',
-              required: ['amount', 'currency', 'payment_method'],
+              required: ['data'],
               properties: {
-                amount: { type: 'number', example: 100 },
-                currency: { type: 'string', enum: ['USD', 'EUR', 'NGN', 'GBP'] },
-                payment_method: { type: 'string', enum: ['card', 'bank_transfer'] },
-                card_details: {
-                  type: 'object',
-                  properties: {
-                    number: { type: 'string' },
-                    expiry: { type: 'string' },
-                    cvv: { type: 'string' }
-                  }
-                }
+                data: { type: 'string', description: 'AES-encrypted JSON of { paymentType: "CRYPTO", currency, amount }' }
               }
             }
           }
         }
       },
       responses: {
-        200: { description: 'Payment initiated' },
-        400: { description: 'Invalid payment details' }
-      }
-    }
-  },
-
-  '/api/wallet/authStep': {
-    post: {
-      tags: ['Payments'],
-      summary: '🔐 3D Secure Authentication Step',
-      description: `Handle 3D Secure authentication for card payments.`,
-      security: [{ BearerAuth: [] }],
-      requestBody: {
-        required: true,
-        content: {
-          'application/json': {
-            schema: {
-              type: 'object',
-              required: ['transaction_ref', 'otp'],
-              properties: {
-                transaction_ref: { type: 'string' },
-                otp: { type: 'string' }
-              }
-            }
-          }
-        }
-      },
-      responses: {
-        200: { description: 'Authentication successful' },
-        400: { description: 'Authentication failed' }
-      }
-    }
-  },
-
-  '/api/wallet/verifyPayment': {
-    post: {
-      tags: ['Payments'],
-      summary: '✅ Verify Payment',
-      description: `Verify payment status after completion.`,
-      security: [{ BearerAuth: [] }],
-      requestBody: {
-        required: true,
-        content: {
-          'application/json': {
-            schema: {
-              type: 'object',
-              required: ['transaction_ref'],
-              properties: {
-                transaction_ref: { type: 'string' },
-                payment_id: { type: 'string' }
-              }
-            }
-          }
-        }
-      },
-      responses: {
-        200: {
-          description: 'Payment status',
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                properties: {
-                  status: { type: 'string', enum: ['pending', 'success', 'failed'] },
-                  data: { type: 'object' }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  },
-
-  '/api/wallet/confirmPayment': {
-    post: {
-      tags: ['Payments'],
-      summary: '✅ Confirm Payment',
-      description: `Confirm and finalize a pending payment.`,
-      security: [{ BearerAuth: [] }],
-      requestBody: {
-        required: true,
-        content: {
-          'application/json': {
-            schema: {
-              type: 'object',
-              required: ['payment_id'],
-              properties: {
-                payment_id: { type: 'string' },
-                confirmation_code: { type: 'string' }
-              }
-            }
-          }
-        }
-      },
-      responses: {
-        200: { description: 'Payment confirmed' },
-        400: { description: 'Confirmation failed' }
+        200: { description: 'Deposit address + invoice returned' },
+        400: { description: 'Invalid payload' }
       }
     }
   },

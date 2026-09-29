@@ -21,7 +21,7 @@ import PublicVerifiedBadge from "@/Components/UI/PublicVerifiedBadge";
 import { GetServerSideProps } from "next";
 import { getCreatorBaseUrl } from "@/helpers/creatorUrl";
 import { resolveMetaLang, shopSeoStrings } from "@/helpers/shopSeoMeta";
-import { ssrFetchHeaders } from "@/helpers/ssrFetchHeaders";
+import { ssrFetchHeaders, isPlausibleHandleSegment } from "@/helpers/ssrFetchHeaders";
 import {
   Box, Container, Typography, Stack, Chip, TextField, IconButton,
   MenuItem, Select, FormControl, InputLabel, Button, Alert, Avatar, useTheme,
@@ -534,6 +534,7 @@ const ProductDetail: NextPageWithLayout<DetailProps> = ({ merchant, product, var
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const handle = String(ctx.params?.handle || "").toLowerCase();
   const slug = String(ctx.params?.slug || "").toLowerCase();
+  if (!isPlausibleHandleSegment(handle)) return { notFound: true };
   // SSR fetch base — internal loopback first (bypasses Cloudflare + bot-block).
   const base = (process.env.INTERNAL_API_URL || process.env.INTERNAL_BACKEND_URL || process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SERVER_URL || "").replace(/\/+$/, "");
   // Public URL for the client — never the internal loopback base.

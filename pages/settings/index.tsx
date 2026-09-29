@@ -25,7 +25,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 
 import DisplayCurrencySelector from "@/Components/UI/DisplayCurrencySelector";
-import UserDisplayCurrencySelector from "@/Components/UI/UserDisplayCurrencySelector";
 import CustomButton from "@/Components/UI/Buttons";
 import useIsMobile from "@/hooks/useIsMobile";
 import useEdgeFade from "@/hooks/useEdgeFade";
@@ -315,7 +314,6 @@ const CompanyConfigSection = ({
 
       {showDisplayCurrency && selectedId && (
         <>
-          <UserDisplayCurrencySelector />
           <DisplayCurrencySelector companyId={selectedId} />
         </>
       )}

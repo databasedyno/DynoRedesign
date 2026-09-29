@@ -1,7 +1,7 @@
 /**
  * Crypto checkout / payment-creation chain.
  * Extracted verbatim from paymentController.ts (no behavior change).
- * Contains: getData, Crypto, createCryptoPayment, confirmPayment.
+ * Contains: getData, Crypto, createCryptoPayment.
  */
 import { raw as envRaw } from "../../utils/config";
 import express from "express";
@@ -38,10 +38,8 @@ import { createNotification, NOTIFICATION_TYPES } from "../notificationControlle
 import {
   IFundData,
   IUserType,
-  IVerifyResponse,
 } from "../../utils/types";
 import { paymentTypes } from "../../utils/enums";
-import flw from "../../apis/flutterwaveApi";
 import crypto from "crypto";
 import axios from "axios";
 import { getClientIP, getCountryFromIP, getCountryFromTimezone } from "../../utils/geolocation";
@@ -1907,10 +1905,6 @@ const createCryptoPayment = async (
   }
 };
 
-// confirmPayment moved to ./confirmPayment.ts (2026-08-23n) so this file
-// stays under the size baseline. Re-exported at the bottom for backwards
-// compat with routes that import from cryptoCheckout.
-import { confirmPayment } from "./confirmPayment";
 
 
 
@@ -2002,4 +1996,4 @@ const getPaymentMeta = async (req: express.Request, res: express.Response) => {
   }
 };
 
-export { getData, getPaymentMeta, Crypto, createCryptoPayment, confirmPayment };
+export { getData, getPaymentMeta, Crypto, createCryptoPayment };

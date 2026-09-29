@@ -20,18 +20,6 @@ BREVO_API_KEY=your_brevo_api_key_here
 
 ---
 
-### 💸 Payment Processing (Flutterwave)
-**Service**: Fiat payment gateway (card payments, bank transfers)
-```env
-FLW_PUBLIC_KEY=your_flutterwave_public_key
-FLW_SECRET_KEY=your_flutterwave_secret_key
-FLW_SECRET_HASH=your_flutterwave_webhook_hash
-FLW_ENCRYPTION_KEY=your_flutterwave_encryption_key
-```
-**How to get**: Sign up at [Flutterwave](https://flutterwave.com/) → Dashboard → Settings → API Keys
-
----
-
 ### 🔗 Blockchain API (Tatum)
 **Service**: Cryptocurrency wallet management and blockchain interactions
 ```env
@@ -170,7 +158,6 @@ node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 - ✅ Redis URL
 - ✅ JWT secrets
 - ✅ Brevo API key
-- ✅ Flutterwave keys
 - ✅ Tatum API keys
 - ✅ Blockchain API keys
 - ✅ Google Cloud KMS credentials

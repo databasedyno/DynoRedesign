@@ -919,7 +919,7 @@ async function actDisputeMessage(deal: any, actor: ActorInfo, message?: string, 
 /** Escalate to admin arbitration (manual). Either party, during negotiation. */
 async function actEscalateDispute(deal: any, actor: ActorInfo): Promise<any> {
   if (deal.status !== "disputed") fail(409, `No open dispute to escalate (status '${deal.status}').`);
-  if ((deal.dispute_stage || "negotiation") === "escalated") fail(409, "This dispute is already with a Dynopay admin.");
+  if ((deal.dispute_stage || "negotiation") === "escalated") fail(409, isSafeDeal(deal) ? "This dispute is already with the SafeDeal team." : "This dispute is already with a Dynopay admin.");
   const now = new Date();
   deal.dispute_stage = "escalated";
   deal.dispute_escalated_at = now;
@@ -929,7 +929,7 @@ async function actEscalateDispute(deal: any, actor: ActorInfo): Promise<any> {
     type: "dispute_escalated",
     actor: actor.label,
     role: actor.role,
-    note: "Escalated to a Dynopay admin — no agreement reached.",
+    note: isSafeDeal(deal) ? "Escalated to the SafeDeal team — no agreement reached." : "Escalated to a Dynopay admin — no agreement reached.",
   });
   await deal.save();
   const { buyerEmail, sellerEmail } = await partyEmails(deal);

@@ -14,7 +14,7 @@ So you get one DO app, one domain, no extra routing config.
 
 > ⚠️ **Before anything else — rotate every secret you pasted in chat.** Treat the
 > DigitalOcean token, DB password, Redis URL, Binance keys, Google private key,
-> Flutterwave keys, `CYPHER_KEY`, `ACCESS_TOKEN_SECRET`, SSH password, Telegram/Telnyx
+> `CYPHER_KEY`, `ACCESS_TOKEN_SECRET`, SSH password, Telegram/Telnyx
 > tokens, etc. as compromised. Generate fresh values and use those below.
 
 ---
@@ -70,7 +70,7 @@ Next.js inlines these into the client bundle at build time:
 > build stage) or they won't be inlined. (Tell me and I'll patch the Dockerfile.)
 
 ### 3b. RUN-TIME vars
-Everything else (DB, Redis, blockchain/Tatum, Binance, Flutterwave, email/SMS, KMS,
+Everything else (DB, Redis, blockchain/Tatum, Binance, email/SMS, KMS,
 wallet addresses, sweep/fee config). Mark all credentials as **Encrypted/SECRET**.
 
 ### 3c. App-URL vars to point at DO
@@ -106,7 +106,7 @@ in logs after first boot that the tunnel connects and Binance calls succeed.
 - [ ] Backend logs show `PostgreSQL Connection has been established` and table sync lines.
 - [ ] Rotate/confirm all secrets are the **new** rotated values (not the leaked ones).
 - [ ] Attach custom domain (**Settings → Domains**) and update the URL env vars + redeploy.
-- [ ] Re-point any webhooks (Tatum `TATUM_WEBHOOK_SECRET` endpoint, Flutterwave, merchant
+- [ ] Re-point any webhooks (Tatum `TATUM_WEBHOOK_SECRET` endpoint, merchant
       webhooks) to the new DO domain.
 
 ---

@@ -1,10 +1,8 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import {
-  FW_API_Response,
   IFundData,
   IUserType,
-  IVerifyResponse,
 } from "../../utils/types";
 import sequelize from "../../utils/dbInstance";
 import { Op, QueryTypes } from "sequelize";
@@ -45,7 +43,6 @@ import {
 } from "../../utils/transactionDisplayStatus";
 import { PROCESSED_USD_EXPR, PROCESSED_STATUS_SQL } from "../../utils/processedVolume";
 import crypto from "crypto";
-import flw from "../../apis/flutterwaveApi";
 import {
   deleteRedisItem,
   getRedisItem,

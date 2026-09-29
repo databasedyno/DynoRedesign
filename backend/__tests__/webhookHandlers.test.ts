@@ -4,7 +4,6 @@
  * Tests the Express webhook handler functions in webhooks/index.ts:
  *   - tatumCryptoWebHook: Thin enqueuer (validate → dedup → enqueue → ACK 200)
  *   - tatumWebHook: Basic Redis-based webhook handler
- *   - flutterwaveWebHook: Flutterwave webhook with secret verification
  *   - callMerchantWebhook: Merchant webhook delivery (URL resolution, HMAC, retries)
  *   - verifyWebhookSignature: HMAC-SHA256 verification utility
  *
@@ -71,7 +70,7 @@ jest.mock('../utils/currencyUtils', () => ({
 
 // ── Imports ─────────────────────────────────────────────────────────────────
 
-import { flutterwaveWebHook, tatumWebHook, tatumCryptoWebHook, callMerchantWebhook, verifyWebhookSignature } from '../webhooks';
+import { tatumWebHook, tatumCryptoWebHook, callMerchantWebhook, verifyWebhookSignature } from '../webhooks';
 import { enqueueWebhook } from '../services/webhookQueue';
 import { publishCheckoutStatus } from '../services/checkoutStreamService';
 import { markSkipped } from '../services/idempotency/inboundEventService';
@@ -111,7 +110,6 @@ const createRes = () => {
 
 beforeEach(() => {
   jest.clearAllMocks();
-  delete process.env.FLW_SECRET_HASH;
 });
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -361,56 +359,7 @@ describe('tatumWebHook', () => {
 });
 
 // ═════════════════════════════════════════════════════════════════════════════
-// 3. flutterwaveWebHook — Secret Hash Verification
-// ═════════════════════════════════════════════════════════════════════════════
-
-describe('flutterwaveWebHook', () => {
-  it('returns 401 when signature is missing', async () => {
-    process.env.FLW_SECRET_HASH = 'secret123';
-
-    const req = createReq({ txRef: 'customer-ref-1', id: 1, status: 'success' });
-    const res = createRes();
-
-    await flutterwaveWebHook(req as any, res as any);
-
-    expect(res.status).toHaveBeenCalledWith(401);
-  });
-
-  it('returns 401 when signature does not match', async () => {
-    process.env.FLW_SECRET_HASH = 'secret123';
-
-    const req = createReq(
-      { txRef: 'customer-ref-1', id: 1, status: 'success' },
-      {},
-      { 'verif-hash': 'wrong-hash' }
-    );
-    const res = createRes();
-
-    await flutterwaveWebHook(req as any, res as any);
-
-    expect(res.status).toHaveBeenCalledWith(401);
-  });
-
-  it('processes valid webhook with correct signature', async () => {
-    process.env.FLW_SECRET_HASH = 'secret123';
-    (getRedisItem as jest.Mock).mockResolvedValueOnce({ amount: 100, status: 'pending' });
-
-    const req = createReq(
-      { txRef: 'customer-tx-ref', id: 42, status: 'successful' },
-      {},
-      { 'verif-hash': 'secret123' }
-    );
-    const res = createRes();
-
-    await flutterwaveWebHook(req as any, res as any);
-
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(setRedisItem).toHaveBeenCalled();
-  });
-});
-
-// ═════════════════════════════════════════════════════════════════════════════
-// 4. verifyWebhookSignature — Pure HMAC Utility
+// 3. verifyWebhookSignature — Pure HMAC Utility
 // ═════════════════════════════════════════════════════════════════════════════
 
 describe('verifyWebhookSignature', () => {

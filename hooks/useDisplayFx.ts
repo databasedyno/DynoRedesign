@@ -1,28 +1,29 @@
 import { useCallback } from "react";
 import useApiSWR from "@/hooks/useApiSWR";
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { toFixedStr, trimZeros } from "@/utils/money";
 import { formatWithSymbol } from "@/utils/locale";
 
 /**
- * useDisplayFx — resolves the merchant's chosen DISPLAY currency
- * (Settings → Payments: USD/EUR/GBP/NGN/CAD/AUD) plus the authoritative
- * USD→currency FX rate, so fiat estimates can be shown next to crypto
- * amounts in the merchant's own currency ("≈ €12.34") anywhere in the app.
+ * useDisplayFx — resolves the selected brand's currency (Settings → Brand
+ * currency: USD/EUR/GBP/NGN/CAD/AUD) plus the authoritative USD→currency FX
+ * rate, so fiat estimates can be shown next to crypto amounts in the brand's
+ * own currency ("≈ €12.34") anywhere in the app.
  *
- * The rate comes from the backend (`GET /api/user/display-currency`), which
- * reads a Redis-cached rate — no client-side FX guessing. Fails safe: if the
- * call fails we fall back to USD @ rate 1 so amounts still render.
+ * The rate comes from the backend (`GET /api/user/display-currency?company_id=`),
+ * which reads a Redis-cached rate — no client-side FX guessing. Fails safe: if
+ * the call fails we fall back to USD @ rate 1 so amounts still render.
  *
- * Data fetching standardized on the shared `useApiSWR` hook (refactor item 5).
- * SWR globally de-dupes the request across every mounted consumer (replacing
- * the old hand-rolled module-level cache). Revalidation is pinned off so the
- * behaviour matches the previous "fetch once and keep" semantics.
+ * Standard SWR revalidation is ON so a brand-currency change (which mutates
+ * this key) or a stale localStorage-hydrated value refreshes promptly.
  */
 
 interface DisplayFxState {
   currency: string;
   symbol: string;
   rate: number;
+  /** True when the brand explicitly chose its currency (vs. the USD default). */
+  explicit: boolean;
   ready: boolean;
 }
 
@@ -30,24 +31,26 @@ const DEFAULT: DisplayFxState = {
   currency: "USD",
   symbol: "$",
   rate: 1,
+  explicit: false,
   ready: false,
 };
 
-type Resolved = { currency: string; symbol: string; rate: number };
+type Resolved = { currency: string; symbol: string; rate: number; explicit: boolean };
 
 export function useDisplayFx() {
-  const { data, error } = useApiSWR<Resolved>("user/display-currency", {
+  const { selectedCompanyId } = useCompanyStore();
+  const key = selectedCompanyId != null ? `user/display-currency?company_id=${selectedCompanyId}` : "user/display-currency";
+  const { data, error } = useApiSWR<Resolved>(key, {
     select: (raw) => {
       const d = raw?.data;
       return {
         currency: d?.display_currency || "USD",
         symbol: d?.currency_info?.symbol || "$",
         rate: Number(d?.rate) > 0 ? Number(d.rate) : 1,
+        explicit: d?.brand_currency_set === true,
       };
     },
     revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    revalidateIfStale: false,
     shouldRetryOnError: false,
   });
 

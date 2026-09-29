@@ -9,7 +9,6 @@ import { userPaths } from "./paths/user";
 import { paymentPaths } from "./paths/payment";
 import { walletPaths } from "./paths/wallet";
 import { adminPaths } from "./paths/admin";
-import { subscriptionPaths } from "./paths/subscription";
 import { apiKeyPaths } from "./paths/apiKeys";
 import { notificationPaths } from "./paths/notification";
 import { referralPaths } from "./paths/referral";
@@ -36,7 +35,6 @@ const allPaths = {
   ...paymentPaths,
   ...walletPaths,
   ...adminPaths,
-  ...subscriptionPaths,
   ...apiKeyPaths,
   ...notificationPaths,
   ...referralPaths,
@@ -1089,39 +1087,6 @@ function verifyWebhookSignature(payload, signature, secret) {
             totalPages: { type: "integer" },
           },
         },
-        // Subscription Schema
-        Subscription: {
-          type: "object",
-          properties: {
-            subscription_id: { type: "integer" },
-            customer_email: { type: "string" },
-            customer_name: { type: "string" },
-            amount: { type: "number" },
-            currency: { type: "string" },
-            interval: { type: "string", enum: ["daily", "weekly", "monthly", "yearly"] },
-            status: { type: "string", enum: ["active", "paused", "cancelled", "expired"] },
-            description: { type: "string" },
-            start_date: { type: "string", format: "date" },
-            end_date: { type: "string", format: "date" },
-            next_billing_date: { type: "string", format: "date" },
-            created_at: { type: "string", format: "date-time" },
-          },
-        },
-        // API Plan Schema
-        ApiPlan: {
-          type: "object",
-          properties: {
-            plan_id: { type: "integer" },
-            plan_name: { type: "string" },
-            description: { type: "string" },
-            rate_limit: { type: "integer" },
-            price: { type: "number" },
-            currency: { type: "string" },
-            features: { type: "array", items: { type: "string" } },
-            is_active: { type: "boolean" },
-            created_at: { type: "string", format: "date-time" },
-          },
-        },
         // Referral Schemas
         Referral: {
           type: "object",
@@ -1238,7 +1203,6 @@ function verifyWebhookSignature(payload, signature, secret) {
       { name: "Transactions", description: "Transaction history and export" },
       { name: "Dashboard", description: "Analytics and statistics. ⚠️ Requires verified email." },
       { name: "Invoices", description: "Transaction invoices and PDF generation" },
-      { name: "Subscriptions", description: "Recurring payment management" },
       { name: "Auto-Stablecoin Conversion", description: `Automatic conversion of volatile crypto (BTC, ETH, SOL, etc.) to stablecoins (USDT/USDC) via Binance.
 
 **Flow:** Payment received in volatile crypto → Redirected to admin wallet (Binance deposit) → Binance Convert API → Stablecoin withdrawn to merchant's settlement wallet.

@@ -74,8 +74,9 @@ const validateApiKey = async (apiKey: string): Promise<ApiKeyData | null> => {
       environment: "production" | "development" | null;
       test_mode_restrictions: string | Record<string, unknown> | null;
     }>(
-      `SELECT a.company_id, a.user_id, a.base_currency, a.webhook_url, a.webhook_secret,
-              a.environment, a.test_mode_restrictions
+      `SELECT a.company_id, a.user_id, a.webhook_url, a.webhook_secret,
+              a.environment, a.test_mode_restrictions,
+              COALESCE(NULLIF(c.display_currency, ''), a.base_currency, 'USD') AS base_currency
          FROM tbl_api a
          JOIN tbl_company c ON c.company_id = a.company_id AND c.user_id = a.user_id
         WHERE a.key_hash = $1
@@ -92,10 +93,12 @@ const validateApiKey = async (apiKey: string): Promise<ApiKeyData | null> => {
     }
 
     const row = rows[0];
+    // Brand currency (one per company) is the default pricing + reporting currency
+    // for every key of that brand; the per-key column is legacy and only a fallback.
     const apiData: ApiKeyData = {
       company_id: row.company_id,
       adm_id: row.user_id,
-      base_currency: row.base_currency || "USD",
+      base_currency: String(row.base_currency || "USD").toUpperCase(),
       environment: row.environment || "production",
     };
     if (row.webhook_url) apiData.webhook_url = row.webhook_url;

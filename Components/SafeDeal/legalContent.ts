@@ -13,7 +13,7 @@ export const TERMS: LegalDoc = {
   title: "Terms of use",
   updated: "June 2026",
   draft: true,
-  intro: `SafeDeal is an escrow service operated by ${LEGAL_NAME_TOKEN} ("SafeDeal", "we"). By creating, accepting or funding a deal you agree to these terms.`,
+  intro: `SafeDeal is an escrow service${LEGAL_NAME_TOKEN} ("SafeDeal", "we"). By creating, accepting or funding a deal you agree to these terms.`,
   sections: [
     { h: "1. What SafeDeal does", p: ["SafeDeal lets a buyer and a seller agree a price and terms, have the buyer's payment held by SafeDeal, and release it to the seller when the deal is completed. SafeDeal is the escrow agent; it is not a party to the underlying sale and does not guarantee the goods or services themselves.", "Funds are held in the stablecoin USDT and shown to you in US dollars. Payouts are made in USDT or USDC to an address you provide."] },
     { h: "2. Accounts and sign-in", p: ["You sign in with an email address and a one-time code. You are responsible for keeping access to that inbox secure. Anyone who can read your email can act as you on SafeDeal.", "A SafeDeal wallet is created for your email address. It is not a bank account and does not earn interest."] },
@@ -32,7 +32,7 @@ export const PRIVACY: LegalDoc = {
   title: "Privacy",
   updated: "June 2026",
   draft: true,
-  intro: `This notice explains what ${LEGAL_NAME_TOKEN} collects when you use SafeDeal and why.`,
+  intro: `This notice explains what SafeDeal${LEGAL_NAME_TOKEN} collects when you use SafeDeal and why.`,
   sections: [
     { h: "What we collect", p: ["Your email address (to sign you in and notify you about deals), the details of the deals you take part in (title, amount, terms, messages, timestamps), your payout addresses, and technical data such as IP address and browser type used for security.", "We do not collect card numbers or bank details. Payments are made in cryptocurrency through SafeDeal's checkout."] },
     { h: "Why we use it", p: ["To run the escrow: sending invites and status emails, holding and releasing funds, resolving disputes and preventing fraud. Deal records are kept because both parties may need them later and because we are required to keep financial records."] },
@@ -60,4 +60,8 @@ export const HELP: LegalDoc = {
 };
 
 export const LEGAL_DOCS: Record<LegalDoc["slug"], LegalDoc> = { terms: TERMS, privacy: PRIVACY, help: HELP };
-export const fillLegal = (s: string, legalName: string) => s.split(LEGAL_NAME_TOKEN).join(legalName);
+/** Operator clause — empty when the operator is just "SafeDeal", else " operated by <legal entity>". */
+export const fillLegal = (s: string, legalName: string) => {
+  const op = legalName && legalName !== "SafeDeal" ? ` operated by ${legalName.replace(/\.$/, "")}` : "";
+  return s.split(LEGAL_NAME_TOKEN).join(op);
+};

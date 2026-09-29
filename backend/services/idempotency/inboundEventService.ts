@@ -5,7 +5,7 @@
  * A UNIQUE(provider, provider_event_id) violation means we have already seen
  * this event => the caller should treat it as a duplicate and no-op.
  *
- * This is intentionally provider-agnostic so Tatum, Flutterwave, Veriff, Binance
+ * This is intentionally provider-agnostic so Tatum, Veriff, Binance
  * etc. can all share the same "exactly once" guarantee.
  */
 

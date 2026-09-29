@@ -132,8 +132,6 @@ TATUM_WEBHOOK_SECRET=<generate_random_64_char_hex_string>
 # ============================================
 TATUM_KEY=REDACTED_TATUM_KEY
 TATUM_SECRET_KEY=REDACTED_TATUM_KEY
-FLW_PUBLIC_KEY=your_flutterwave_public_key
-FLW_SECRET_KEY=your_flutterwave_secret_key
 NODE_ENV=production
 ```
 

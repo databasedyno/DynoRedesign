@@ -56,16 +56,22 @@ export const updateUser = async (req: express.Request, res: express.Response) =>
       data = req.body.data;
     } 
     // Format 3: Individual form fields (NEW - Swagger UI friendly)
-    else if (req.body.name || req.body.email) {
-      data = {
-        name: req.body.name,
-        email: req.body.email,
-      };
-      // Remove undefined fields
-      Object.keys(data).forEach(key => data[key] === undefined && delete data[key]);
+    else if (req.body.name) {
+      data = { name: req.body.name };
     } else {
-      return res.status(400).json({ message: "Missing user data. Please provide name and email.", error: true });
+      return res.status(400).json({ message: "Missing user data. Please provide a name or a photo.", error: true });
     }
+
+    // Mass-assignment guard: this endpoint only edits the display name / photo.
+    // Email and phone are security factors and must go through their own
+    // OTP + step-up verified flows (addEmail/verifyAddEmail, addPhone/verifyAddPhone).
+    const ALLOWED_FIELDS = ["name", "first_name", "last_name", "remove_photo"] as const;
+    const rawKeys = Object.keys(data || {});
+    const rejected = rawKeys.filter((k) => !(ALLOWED_FIELDS as readonly string[]).includes(k));
+    if (rejected.includes("email") || rejected.includes("mobile")) {
+      return errorResponseHelper(res, 400, "Email and phone changes must be verified. Use the contact verification flow in Settings.");
+    }
+    data = Object.fromEntries(rawKeys.filter((k) => (ALLOWED_FIELDS as readonly string[]).includes(k)).map((k) => [k, data[k]]));
     
     const userData = jwt.decode(res.locals.token) as IUserType;
     const oldEmail = userData.email;
@@ -75,9 +81,6 @@ export const updateUser = async (req: express.Request, res: express.Response) =>
     const updatedFields: string[] = [];
     if (data.name && data.name !== oldName) {
       updatedFields.push(`Name: ${oldName} → ${data.name}`);
-    }
-    if (data.email && data.email !== oldEmail) {
-      updatedFields.push(`Email: ${oldEmail} → ${data.email}`);
     }
     
     // Photo handling: uploaded file -> new URL; explicit remove flag -> clear;
@@ -135,16 +138,15 @@ export const updateUser = async (req: express.Request, res: express.Response) =>
     await deleteRedisItem(`profile:${userData.user_id}`);
     
     // Send profile update notification email
-    if (updatedFields.length > 0) {
+    if (updatedFields.length > 0 && oldEmail) {
       const { sendUserProfileUpdatedEmail } = await import("../../services/emailService");
-      const newEmail = data.email || oldEmail;
       const newName = data.name || oldName;
       
       sendUserProfileUpdatedEmail(
-        newEmail,
+        oldEmail,
         newName,
         updatedFields,
-        data.email && data.email !== oldEmail ? oldEmail : undefined
+        undefined
       ).catch(err => {
         userLogger.error("[UpdateUser] Failed to send notification email:", err);
       });
@@ -223,22 +225,25 @@ export const getProfile = async (req: express.Request, res: express.Response) =>
 };
 
 /**
- * Update Profile (name, mobile, username)
+ * Update Profile (name, username, language)
  * PUT /api/user/profile
- * Allows updating basic profile fields without image
+ * Allows updating basic profile fields without image. Phone/email are security
+ * factors and are NOT writable here — they go through the OTP + step-up flows.
  */
 export const updateProfile = async (req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
   try {
-    const { name, mobile, username, language } = req.body;
+    const { name, mobile, email, username, language } = req.body;
+    if (mobile !== undefined || email !== undefined) {
+      return errorResponseHelper(res, 400, "Email and phone changes must be verified. Use the contact verification flow in Settings.");
+    }
     
     // Fetch current DB data for accurate comparison (JWT may be stale)
     const currentUser = await userModel.findOne({
       where: { user_id: userData.user_id },
-      attributes: ['name', 'mobile', 'username', 'language']
+      attributes: ['name', 'username', 'language']
     });
     const currentName = currentUser?.dataValues?.name || userData.name;
-    const currentMobile = currentUser?.dataValues?.mobile || userData.mobile;
     const currentUsername = currentUser?.dataValues?.username || userData.username;
     const currentLanguage = currentUser?.dataValues?.language || 'en';
     
@@ -262,10 +267,6 @@ export const updateProfile = async (req: express.Request, res: express.Response)
       updateData.first_name = nameParts.first_name;
       updateData.last_name = nameParts.last_name;
       updatedFields.push(`Name: ${currentName} → ${name}`);
-    }
-    if (mobile !== undefined && mobile !== currentMobile) {
-      updateData.mobile = mobile;
-      updatedFields.push(`Mobile: ${currentMobile || 'Not set'} → ${mobile}`);
     }
     if (username !== undefined && username !== currentUsername) {
       updateData.username = username;

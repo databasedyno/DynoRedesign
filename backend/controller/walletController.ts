@@ -12,9 +12,9 @@
  *   feesEstimates      — estimateFees, configured currencies, network fees, calc amount, encryptPayload
  *   transactionsList   — getAllTransactions
  *   transactionsDetail — getTransactionDetails, exportTransactions
- *   funding            — addFunds, authStep, verifyPayment, confirmPayment
+ *   funding            — addFunds (crypto)
  *   cryptoVerify       — verifyCryptoPayment
- *   fundingMethods     — card/bank/USSD/mobile-money/QR/crypto funding + getCurrencyRates
+ *   fundingMethods     — crypto funding + getCurrencyRates
  *   tempAddress        — sendConfirmationOTP, getTempAddressBatches
  *   withdrawals        — withdrawAssets
  *   addressBook        — getWalletAddresses, addWalletAddress
@@ -51,7 +51,7 @@ import { estimateFees, getConfiguredCurrencies, getNetworkFees, calculatePayment
 import { getAllTransactions } from "./wallet/transactionsList";
 import { getTransactionDetails, exportTransactions } from "./wallet/transactionsDetail";
 import { requestTopup } from "./wallet/transactionsTopup";
-import { addFunds, authStep, verifyPayment, confirmPayment } from "./wallet/funding";
+import { addFunds } from "./wallet/funding";
 import { verifyCryptoPayment } from "./wallet/cryptoVerify";
 import { getCurrencyRates } from "./wallet/fundingMethods";
 import { sendConfirmationOTP } from "./wallet/tempAddress";
@@ -69,13 +69,10 @@ import { batchWalletMutate } from "./wallet/walletBatch";
 export default {
   getWallet,
   addFunds,
-  authStep,
-  verifyPayment,
   estimateFees,
   getCurrencyRates,
   verifyCryptoPayment,
   getWalletTransactions,
-  confirmPayment,
   getAllTransactions,
   sendConfirmationOTP,
   withdrawAssets,

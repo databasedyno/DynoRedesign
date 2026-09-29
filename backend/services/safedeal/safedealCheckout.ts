@@ -108,7 +108,7 @@ export interface DynopayPaymentResult {
 /** Call Dynopay's Direct API as the SafeDeal merchant for a `coin` deposit address covering `amountUsd`. */
 export async function requestDynopayPayment(amountUsd: number, coin: string, meta: Record<string, unknown>, redirectPath: string, idem: string, customerEmail?: string | null): Promise<DynopayPaymentResult> {
   const key = apiKey();
-  if (!key) throw new Error("SafeDeal is not connected to Dynopay yet (SAFEDEAL_API_KEY missing).");
+  if (!key) throw new Error("SafeDeal crypto payments are not configured yet (SAFEDEAL_API_KEY missing).");
   const body: Record<string, unknown> = {
     amount: amountUsd,
     currency: coin,
@@ -127,7 +127,7 @@ export async function requestDynopayPayment(amountUsd: number, coin: string, met
   });
   const d = res.data?.data;
   if (res.status !== 200 || !d?.address) {
-    const msg = res.data?.message || res.data?.error?.message || `Dynopay API returned ${res.status}`;
+    const msg = res.data?.message || res.data?.error?.message || `Payment service returned ${res.status}`;
     apiLogger.error(`[SafeDeal] cryptoPayment failed (${coin}, ${idem}): ${msg}`);
     throw new Error(`Couldn't create the payment: ${msg}`);
   }
@@ -182,7 +182,7 @@ export async function createFundingPayment(deal: any, coin: string): Promise<Fun
     type: "funding_address",
     actor: "buyer",
     role: "buyer",
-    note: `Payment address issued: ${fp.crypto_amount} ${c} (${breakdown.buyerPays} ${deal.currency}) via Dynopay.`,
+    note: `Payment address issued: ${fp.crypto_amount} ${c} (${breakdown.buyerPays} ${deal.currency}).`,
     meta: { payment_id: fp.payment_id, coin: c },
   });
   await deal.save();

@@ -25,7 +25,7 @@ import { resolveMetaLang, shopSeoStrings } from "@/helpers/shopSeoMeta";
 import { toFixedStr } from "@/utils/money";
 import { getRuntimeFlags } from "@/helpers/runtimeFlags";
 import { sendCreatorVisitBeacon } from "@/helpers/creatorVisitBeacon";
-import { ssrFetchHeaders } from "@/helpers/ssrFetchHeaders";
+import { ssrFetchHeaders, isPlausibleHandleSegment } from "@/helpers/ssrFetchHeaders";
 
 interface ShopPageProps {
   merchant: ShopMerchant;
@@ -173,6 +173,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     return { notFound: true };
   }
   const handle = String(ctx.params?.handle || "").toLowerCase();
+  if (!isPlausibleHandleSegment(handle)) return { notFound: true };
   // SSR fetch base — hit the backend over an internal loopback URL so the
   // request bypasses Cloudflare + the bot-protection auto-block that silently
   // 403s public self-fetches. Falls back to the public URL if none is set.

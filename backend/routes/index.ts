@@ -15,7 +15,6 @@ import escrowRouter from "./escrowRouter";
 import safedealRouter from "./safedealRouter";
 import kycRouter from "./kycRouter";
 import statusRouter from "./statusRouter";
-import subscriptionRouter from "./subscriptionRouter";
 import testRouter from "./testRouter";
 import referralRouter from "./referralRouter";
 import knowledgeBaseRouter from "./knowledgeBaseRouter";
@@ -32,13 +31,11 @@ import {
   apiUsageLogger,
 } from "../middleware";
 import emailVerifiedMiddleware from "../middleware/emailVerifiedMiddleware";
-// ITatumWebHook, IWebHook imports removed - not used
 import { webhookRateLimiter } from "../middleware/rateLimitMiddleware";
 import apiRouter from "./apiRouter";
 import paymentRouter from "./paymentRouter";
 import paymentTestHookRouter from "./paymentTestHookRouter";
 import {
-  flutterwaveWebHook,
   tatumCryptoWebHook,
   tatumWebHook,
 } from "../webhooks";
@@ -216,7 +213,6 @@ router.get("/", (_req: express.Request, res: express.Response) => {
       notifications: "/api/notifications",
       kyc: "/api/kyc",
       status: "/api/status",
-      subscriptions: "/api/subscriptions",
       referrals: "/api/referral",
       knowledgeBase: "/api/kb",
       invoices: "/api/invoices"
@@ -420,7 +416,6 @@ router.use("/notifications", notificationRouter);
 router.use("/kyc", kycRouter);
 router.use("/status", statusRouter); // Public status page endpoints
 router.use("/quality", qualityRouter); // QA Quality Center (passcode-gated inside)
-router.use("/subscriptions", subscriptionRouter); // Subscription management
 router.use("/team", teamRouter); // Team Members / RBAC (invite/accept/manage)
 // ─────────────────────────────────────────────────────────────────────────────
 // /api/test/* — NOT mounted in production unless explicitly re-enabled.
@@ -459,8 +454,6 @@ router.use("/", invoiceRouter); // Invoice routes (transactions/:id/invoice, inv
 router.use("/", escrowRouter); // Escrow — Dynopay admin oversight only (/escrow/admin/*)
 router.use("/", safedealRouter); // SafeDeal — standalone escrow product on the Dynopay engine (/safedeal/*)
 
-router.post("/webhook", webhookRateLimiter, flutterwaveWebHook);
-router.post("/failed_webhook", webhookRateLimiter, flutterwaveWebHook);
 router.post("/tatum-webhook", webhookRateLimiter, verifyTatumWebhookSource, inboundEventDedup("tatum"), tatumWebHook);
 router.post("/tatum-crypto-webhook", webhookRateLimiter, verifyTatumWebhookSource, inboundEventDedup("tatum"), tatumCryptoWebHook);
 

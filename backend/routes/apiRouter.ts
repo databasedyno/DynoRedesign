@@ -73,12 +73,6 @@ apiRouter.get("/usage/:id", authMiddleware, apiController.getApiUsageStats);
 apiRouter.get("/logs/:id", authMiddleware, apiController.getApiLogs);
 apiRouter.put("/rateLimit/:id", authMiddleware, apiController.updateRateLimit);
 
-// Plan Management
-apiRouter.post("/createPlan", authMiddleware, apiMiddleware, apiController.createPlan);
-apiRouter.get("/getPlans/:id", authMiddleware, apiController.getPlans);
-apiRouter.put("/updatePlan/:id", authMiddleware, apiController.updatePlan);
-apiRouter.delete("/deletePlan/:id", authMiddleware, apiController.deletePlan);
-
 // Customer Management
 apiRouter.post("/getApiCustomers", authMiddleware, apiController.getApiCustomers);
 // Unified payments-derived customer directory (the re-imagined Customers page).

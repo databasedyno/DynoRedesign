@@ -728,7 +728,7 @@ export const createPaymentLink = async (
     
     // Validate modes if provided
     if (modes) {
-      const validModes = ['CRYPTO', 'CARD', 'BANK_TRANSFER', 'GOOGLE_PAY', 'APPLE_PAY', 'USSD', 'MOBILE_MONEY', 'QR_CODE'];
+      const validModes = ['CRYPTO'];
       const invalidModes = modes.filter((mode: string) => !validModes.includes(mode.toUpperCase()));
       
       if (invalidModes.length > 0) {
@@ -938,7 +938,7 @@ export const createPaymentLink = async (
     // ========================================
     
     // Default modes if not provided
-    const allowedModes = modes ? modes.join(",") : "crypto,card";
+    const allowedModes = modes ? modes.join(",") : "crypto";
     
     const payload = {
       transaction_id: crypto.randomUUID(),
@@ -1794,7 +1794,7 @@ export const updatePaymentLink = async (req: express.Request, res: express.Respo
       if (Array.isArray(allowedModes)) {
         modes = allowedModes.join(',');
       }
-      const validModes = ['CRYPTO', 'CARD', 'BANK'];
+      const validModes = ['CRYPTO'];
       const providedModes = modes.split(',').map((m: string) => m.trim().toUpperCase());
       const invalidModes = providedModes.filter((m: string) => !validModes.includes(m));
       if (invalidModes.length > 0) {

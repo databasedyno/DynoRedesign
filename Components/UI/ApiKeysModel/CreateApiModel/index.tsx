@@ -16,7 +16,6 @@ import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { rootReducer } from "@/utils/types";
 import InputField from "../../AuthLayout/InputFields";
 import CustomButton from "../../Buttons";
-import CurrencySelector from "../../CurrencySelector";
 import PanelCard from "../../PanelCard";
 import PopupModal from "../../PopupModal";
 import SuccessAPIModel from "../SuccessAPIModel";
@@ -61,7 +60,6 @@ const CreateApiModel: React.FC<CreateApiModelProps> = ({ open, onClose }) => {
       const { data } = await axiosBaseApi.post("userApi/addApi", {
         company_id: selectedCompanyId,
         api_name: values.key_name,
-        base_currency: values.base_currency || "USD",
         environment,
         expires_in_days: Number(expiresInDays) || 0,
       });
@@ -142,10 +140,9 @@ const CreateApiModel: React.FC<CreateApiModelProps> = ({ open, onClose }) => {
             {t("generate.modalSubtitle")}
           </Typography>
           <FormManager
-            initialValues={{ base_currency: "USD" }}
+            initialValues={{ key_name: "" }}
             yupSchema={yup.object().shape({
               key_name: yup.string().required(t("validation.required")),
-              base_currency: yup.string().required(t("validation.required")),
             })}
             onSubmit={onSubmit}
           >
@@ -173,29 +170,6 @@ const CreateApiModel: React.FC<CreateApiModelProps> = ({ open, onClose }) => {
                   value={values.key_name}
                   onChange={handleChange}
                   // sx={{ minHeight: "40px" }}
-                />
-
-                <CurrencySelector
-                  fullWidth
-                  label={t("generate.baseCurrency")}
-                  name="base_currency"
-                  value={values.base_currency || "USD"}
-                  onChange={(value) => {
-                    const event = {
-                      target: {
-                        name: "base_currency",
-                        value: value,
-                      },
-                    } as React.ChangeEvent<HTMLInputElement>;
-                    handleChange(event);
-                  }}
-                  required
-                  error={touched.base_currency && !!errors.base_currency}
-                  helperText={
-                    touched.base_currency && errors.base_currency
-                      ? errors.base_currency
-                      : undefined
-                  }
                 />
 
                 <Box>

@@ -4,7 +4,7 @@ export const paymentPaths = {
     post: {
       tags: ['Payments'],
       summary: 'Create payment link',
-      description: `Create a new payment link for accepting crypto or fiat payments. The link can be shared with customers to collect payments.
+      description: `Create a new payment link for accepting crypto payments. The link can be shared with customers to collect payments.
 
 **🔐 AUTHENTICATION:**
 This endpoint requires **JWT Token** authentication (not API Key).
@@ -49,15 +49,8 @@ The API supports flexible field naming for backward compatibility. You only need
 ⚠️ **IMPORTANT:** Only provide ONE of each field type. If both are provided, \`base_*\` fields take priority.
 
 **PAYMENT MODES:**
-Modes must be provided in **UPPERCASE**. Valid modes:
+Modes must be provided in **UPPERCASE**. Dynopay is crypto-only, so the only valid mode is:
 - \`CRYPTO\` - Cryptocurrency payments
-- \`CARD\` - Credit/debit card payments
-- \`BANK_TRANSFER\` - Bank transfer
-- \`GOOGLE_PAY\` - Google Pay
-- \`APPLE_PAY\` - Apple Pay
-- \`USSD\` - USSD payments
-- \`MOBILE_MONEY\` - Mobile money
-- \`QR_CODE\` - QR code payments
 
 **EXPIRATION OPTIONS:**
 - \`24h\` - Link expires in 24 hours
@@ -131,7 +124,7 @@ Modes must be provided in **UPPERCASE**. Valid modes:
                   type: 'array',
                   items: { 
                     type: 'string', 
-                    enum: ['CRYPTO', 'CARD', 'BANK_TRANSFER', 'GOOGLE_PAY', 'APPLE_PAY', 'USSD', 'MOBILE_MONEY', 'QR_CODE']
+                    enum: ['CRYPTO']
                   },
                   description: '📝 OPTIONAL: Payment modes (defaults to ["CRYPTO"]). Must be UPPERCASE',
                   example: ['CRYPTO'],
@@ -1284,158 +1277,53 @@ If the payment link has \`apply_tax: true\`, the crypto amount will include the 
       }
     }
   },
-  '/api/pay/confirmPayment': {
-    post: {
-      tags: ['Payment Processing'],
-      summary: 'Confirm payment completion',
-      description: 'Finalize and confirm a completed payment. Triggers webhook notification to merchant.',
-      requestBody: {
-        required: true,
-        content: {
-          'application/json': {
-            schema: {
-              type: 'object',
-              required: ['transaction_id'],
-              properties: {
-                transaction_id: { type: 'string', format: 'uuid' }
-              }
-            },
-            example: {
-              transaction_id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890'
-            }
-          }
-        }
-      },
-      responses: {
-        200: {
-          description: 'Payment confirmed',
-          content: {
-            'application/json': {
-              example: {
-                message: 'Payment confirmed successfully',
-                data: {
-                  status: 'completed',
-                  redirect_url: 'https://mystore.com/order/12345/success'
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  },
-
-  // ==================== FIAT PAYMENTS ====================
+  // ==================== CRYPTO PAYMENT (checkout) ====================
   '/api/pay/addPayment': {
     post: {
       tags: ['Payment Processing'],
-      summary: 'Initiate fiat payment',
-      description: 'Create fiat (card/bank) payment via Flutterwave',
+      summary: 'Start a crypto payment for a checkout session',
+      description: 'Reserves a deposit address for the customer-selected coin/network and returns the invoice (address, exact crypto amount, QR, expiry). Requires the customer checkout token. Crypto is the only payment rail — there are no card/bank/fiat modes.',
       requestBody: {
         required: true,
         content: {
           'application/json': {
             schema: {
               type: 'object',
-              required: ['transaction_id', 'payment_mode'],
+              required: ['data'],
               properties: {
-                transaction_id: { type: 'string', format: 'uuid' },
-                payment_mode: { type: 'string', enum: ['CARD', 'BANK'] },
-                customer: {
-                  type: 'object',
-                  properties: {
-                    email: { type: 'string', format: 'email' },
-                    name: { type: 'string' },
-                    phone: { type: 'string' }
-                  }
+                data: {
+                  type: 'string',
+                  description: 'AES-encrypted JSON string of { paymentType: "CRYPTO", currency: "<COIN>", amount: <number> } (see /api/pay/encrypt-payload)'
                 }
               }
             },
-            example: {
-              transaction_id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-              payment_mode: 'CARD',
-              customer: {
-                email: 'customer@example.com',
-                name: 'John Doe',
-                phone: '+1234567890'
-              }
-            }
+            example: { data: 'U2FsdGVkX1+…' }
           }
         }
       },
       responses: {
         200: {
-          description: 'Fiat payment initiated',
+          description: 'Crypto invoice created',
           content: {
             'application/json': {
               example: {
-                message: 'Payment initiated',
+                message: 'fund ',
                 data: {
-                  payment_url: 'https://checkout.flutterwave.com/v3/hosted/pay/xyz123',
-                  reference: 'FLW-TXN-123456'
+                  hash: 'a1b2c3d4e5f6…',
+                  address: 'TQn9Y2khEsLJW1ChVWFMSMeRDow5KcbLSE',
+                  amount: '25.13',
+                  currency: 'USDT-TRC20',
+                  qr_image: 'data:image/png;base64,…',
+                  remaining_minutes: 30
                 }
               }
             }
           }
-        }
+        },
+        400: { description: 'Payment session expired or invalid payload' }
       }
     }
   },
-  '/api/pay/verifyPayment': {
-    post: {
-      tags: ['Payment Processing'],
-      summary: 'Verify fiat payment',
-      description: 'Verify fiat payment status after redirect from payment provider',
-      requestBody: {
-        required: true,
-        content: {
-          'application/json': {
-            schema: {
-              type: 'object',
-              required: ['transaction_id'],
-              properties: {
-                transaction_id: { type: 'string', format: 'uuid' }
-              }
-            },
-            example: {
-              transaction_id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890'
-            }
-          }
-        }
-      },
-      responses: {
-        200: {
-          description: 'Payment verification result',
-          content: {
-            'application/json': {
-              examples: {
-                'Successful': {
-                  value: {
-                    status: 'successful',
-                    message: 'Payment completed',
-                    data: { redirect_url: 'https://mystore.com/success' }
-                  }
-                },
-                'Pending': {
-                  value: {
-                    status: 'pending',
-                    message: 'Payment is being processed'
-                  }
-                },
-                'Failed': {
-                  value: {
-                    status: 'failed',
-                    message: 'Payment was declined'
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  },
-
   // ==================== UTILITIES ====================
   '/api/pay/getCurrencyRates': {
     post: {
@@ -1809,36 +1697,6 @@ This endpoint uses multi-tenant routing for payment processing. When a crypto ad
       }
     }
   },
-  '/api/pay/authStep': {
-    post: {
-      tags: ['Payment Processing'],
-      summary: '3D Secure authentication',
-      description: 'Handle 3D Secure authentication step for card payments',
-      requestBody: {
-        required: true,
-        content: {
-          'application/json': {
-            schema: {
-              type: 'object',
-              properties: {
-                transaction_id: { type: 'string' },
-                otp: { type: 'string' }
-              }
-            },
-            example: {
-              transaction_id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-              otp: '123456'
-            }
-          }
-        }
-      },
-      responses: {
-        200: { description: 'Authentication successful' },
-        400: { description: 'Invalid OTP' }
-      }
-    }
-  },
-
   // ==================== FEE PREVIEW ====================
   '/api/pay/fee-preview': {
     get: {

@@ -5,7 +5,7 @@
  * Fire-and-forget; never throws into the settlement path. No-op for synthetic
  * (Telegram / internal) addresses, and suppressed → dumped in preview.
  */
-import { raw as envRaw } from "../../utils/config";
+import { safedealLegalName } from "../../utils/emailTemplate";
 import { apiLogger } from "../../utils/loggers";
 import { generateDealSummaryPdf, generateTopupReceiptPdf, pdfToBuffer } from "./safedealPdf";
 import { listAttachments } from "./safedealAttachments";
@@ -15,7 +15,7 @@ import { explorerTxUrl } from "../receiptLinkService";
 import { sendSafeDealDepositReceiptEmail, sendSafeDealDealInvoiceEmail } from "../email/safedealEmails";
 import type { TopupRow } from "./safedealTopup";
 
-const legalName = (): string => (envRaw("EMAIL_LEGAL_NAME") || "Dynopay").trim();
+const legalName = (): string => safedealLegalName();
 
 /** Email the customer their branded deposit receipt for a credited wallet top-up. */
 export async function emailSafeDealDepositReceipt(row: TopupRow, customerEmail: string): Promise<void> {

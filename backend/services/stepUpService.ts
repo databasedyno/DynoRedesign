@@ -76,6 +76,17 @@ export const readSession = async (userId: number, scope: StepUpScope) => {
   return { active: true, expiresAt: exp };
 };
 
+/**
+ * True when the account can complete a step-up at all: an enrolled authenticator,
+ * or a verified email / phone that can receive a code. Contact-change routes skip
+ * the gate ONLY for factor-less accounts (fresh social sign-ins with no contact yet),
+ * where adding the first contact is onboarding rather than a sensitive change.
+ */
+export const hasStepUpFactor = async (userId: number): Promise<boolean> => {
+  const [authenticator, contact] = await Promise.all([usesAuthenticator(userId), loadContact(userId)]);
+  return authenticator || !!contact.email || !!contact.mobile;
+};
+
 /** True when the account's enrolled 2FA factor is an authenticator app (totp/backup are then the ONLY step-up methods). */
 export const usesAuthenticator = async (userId: number): Promise<boolean> => {
   const twofa = await get2FAStatus(userId);

@@ -12,6 +12,7 @@ import {
 import { PaidRounded } from "@mui/icons-material";
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
+import { useSWRConfig } from "swr";
 import axiosBaseApi from "@/axiosConfig";
 import { DashboardAction } from "@/Redux/Actions";
 import { DASHBOARD_FETCH_ALL } from "@/Redux/Actions/DashboardAction";
@@ -24,15 +25,22 @@ type SupportedCurrency = {
   display_format: string;
 };
 
+/** SWR keys whose payloads are denominated in the brand currency — refreshed after a change. */
+const isCurrencyDependentKey = (key: unknown) =>
+  typeof key === "string" &&
+  (key.startsWith("dashboard") || key.startsWith("user/display-currency") || key.startsWith("company/display-currency") || key.startsWith("wallet"));
+
 /**
- * Dashboard Display Currency selector (Session 39).
- * Presentation-only merchant preference — never changes pricing, stored data,
- * invoices, exports, or webhooks. Reads/writes /api/company/display-currency/:id.
+ * Brand currency selector — ONE currency per brand (Stripe-style):
+ *   • default pricing currency for new payment links / API charges (each charge may still pass its own `currency`)
+ *   • reporting currency for the dashboard + wallet totals
+ * Reads/writes /api/company/display-currency/:id.
  */
 const DisplayCurrencySelector = ({ companyId }: { companyId: number | null }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const dispatch = useDispatch();
+  const { mutate: mutateSwr } = useSWRConfig();
   const { refetchWallets } = useWalletStore();
   const { t } = useTranslation("common");
 
@@ -70,11 +78,13 @@ const DisplayCurrencySelector = ({ companyId }: { companyId: number | null }) =>
       setToast({
         open: true,
         message: t("settingsPage.displayCurrencySaved", {
-          defaultValue: "Dashboard currency updated",
+          defaultValue: "Brand currency updated",
         }),
         severity: "success",
       });
-      // Refresh cached dashboard + wallet data so amounts re-render in the new currency.
+      // Flip every cached amount to the new currency right away: SWR (dashboard
+      // overview, FX rate, brand currency), redux dashboard stats and wallets.
+      void mutateSwr(isCurrencyDependentKey, undefined, { revalidate: true });
       dispatch(DashboardAction(DASHBOARD_FETCH_ALL));
       refetchWallets();
     } catch {
@@ -82,7 +92,7 @@ const DisplayCurrencySelector = ({ companyId }: { companyId: number | null }) =>
       setToast({
         open: true,
         message: t("settingsPage.displayCurrencyError", {
-          defaultValue: "Could not update dashboard currency. Please try again.",
+          defaultValue: "Could not update brand currency. Please try again.",
         }),
         severity: "error",
       });
@@ -128,28 +138,8 @@ const DisplayCurrencySelector = ({ companyId }: { companyId: number | null }) =>
             fontFamily: "var(--font-sans)",
           }}
         >
-          {t("settingsPage.displayCurrency", { defaultValue: "Display currency" })}
+          {t("settingsPage.displayCurrency", { defaultValue: "Brand currency" })}
         </Typography>
-        <Box
-          component="span"
-          data-testid="display-currency-viewonly-chip"
-          sx={{
-            px: "8px",
-            py: "2px",
-            borderRadius: "999px",
-            fontSize: "10px",
-            fontWeight: 700,
-            letterSpacing: "0.05em",
-            textTransform: "uppercase",
-            fontFamily: "var(--font-sans)",
-            color: isDark ? "#FFD100" : "#4B5563",
-            bgcolor: isDark ? "rgba(255,209,0,0.14)" : "#EEF0F4",
-            border: `1px solid ${isDark ? "rgba(255,209,0,0.3)" : "#D8DCE4"}`,
-            whiteSpace: "nowrap",
-          }}
-        >
-          {t("settingsPage.viewOnly", { defaultValue: "View only" })}
-        </Box>
       </Box>
 
       <Typography
@@ -163,7 +153,7 @@ const DisplayCurrencySelector = ({ companyId }: { companyId: number | null }) =>
       >
         {t("settingsPage.displayCurrencyHint", {
           defaultValue:
-            "Choose the currency your dashboard and wallet balances are shown in. This is display-only — it does not change your payment pricing, payouts, invoices, or how customers are charged.",
+            "The default currency for new payment links, API charges and your dashboard totals. Individual links and API calls can still set their own currency. Customers always pay in crypto.",
         })}
       </Typography>
 

@@ -11,7 +11,7 @@ import { useSdHref } from "./sdRouting";
 export default function LegalPage({ slug }: { slug: LegalDoc["slug"] }) {
   const href = useSdHref();
   const doc = LEGAL_DOCS[slug];
-  const [legalName, setLegalName] = useState("Dynopay");
+  const [legalName, setLegalName] = useState("SafeDeal");
   useEffect(() => {
     safedealApi.config().then((c) => c.legal_name && setLegalName(c.legal_name)).catch(() => undefined);
   }, []);

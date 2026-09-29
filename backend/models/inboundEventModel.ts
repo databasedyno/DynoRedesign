@@ -2,7 +2,7 @@
  * Inbound Event Model — DB-level idempotency for external provider callbacks
  * (Refactor Tier-2 Item #4).
  *
- * Every inbound provider event (Tatum crypto webhook, Flutterwave, Veriff KYC,
+ * Every inbound provider event (Tatum crypto webhook, Veriff KYC,
  * Binance, ...) can be recorded here BEFORE processing. The UNIQUE
  * (provider, provider_event_id) index makes "process exactly once" a
  * database-level guarantee rather than relying solely on a Redis dedup key.
@@ -23,7 +23,7 @@ export type InboundEventStatus = "received" | "processed" | "failed" | "skipped"
 
 export interface InboundEventAttributes {
   id?: number;
-  provider: string;              // 'tatum' | 'flutterwave' | 'veriff' | 'binance' | ...
+  provider: string;              // 'tatum' | 'veriff' | 'binance' | ...
   provider_event_id: string;     // Stable per-event id (txId:address:asset, subscription ref, ...)
   event_type: string | null;     // Optional classification (e.g. 'crypto.incoming')
   payment_id: string | null;     // Correlated payment UUID, if known

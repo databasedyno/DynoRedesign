@@ -2,10 +2,8 @@ import { raw as envRaw } from "../utils/config";
 import express from "express";
 import crypto from "crypto";
 import { hmacSha256Hex, timingSafeCompare } from "../utils/hmac";
-import { verifyFlutterwaveHash } from "../utils/webhookSignature";
 import { apiLogger, webhookLogs} from "../utils/loggers";
-import { getErrorMessage } from "../helper";
-import { ITatumWebHook, IWebHook } from "../utils/types";
+import { ITatumWebHook } from "../utils/types";
 import { getRedisItem, setRedisItem, setRedisTTL, setRedisItemWithTTL } from "../utils/redisInstance";
 import { paymentController } from "../controller";
 import { sendPendingPaymentNotification } from "../services/pendingPaymentService";
@@ -642,40 +640,6 @@ const callUrlWithPayload = async (
   }
 };
 
-const flutterwaveWebHook = async (
-  req: express.Request,
-  res: express.Response
-) => {
-  try {
-    // Centralized inbound verifier — plain shared-secret equality on `verif-hash`.
-    // Reject unauthenticated callbacks immediately (401 + return) so we never
-    // process an unsigned payload or double-write the response.
-    const signature = req.headers["verif-hash"];
-    if (!verifyFlutterwaveHash(signature)) {
-      res.status(401).end();
-      return;
-    }
-    const payload: IWebHook = req.body;
-    const txRef = payload.txRef.includes("customer")
-      ? payload.txRef
-      : "flw-txt-" + payload.txRef;
-    const items = await getRedisItem(txRef);
-    webhookLogs.info("here==========>", payload.id, payload.status, items);
-    await setRedisItem(txRef, {
-      ...items,
-      id: payload.id,
-      status: payload.status,
-    });
-
-    webhookLogs.info("IWebHook=============>", payload);
-    res.status(200).end();
-  } catch (e) {
-    const message = getErrorMessage(e);
-    apiLogger.error(message, { from: "flutterwave_webhook" }, new Error(e));
-    // Guard against ERR_HTTP_HEADERS_SENT if a response was already sent above.
-    if (!res.headersSent) res.status(500).end();
-  }
-};
 const tatumWebHook = async (req: express.Request, res: express.Response) => {
   const payload: ITatumWebHook = req.body;
   let address = payload.address;
@@ -883,4 +847,4 @@ const redeliverWebhook = (
   type: 'webhook' | 'callback' = 'webhook',
 ): Promise<WebhookResult> => callUrlWithPayload(url, eventData, secret, companyId, type, false);
 
-export { flutterwaveWebHook, tatumWebHook, tatumCryptoWebHook, callMerchantWebhook, redeliverWebhook };
+export { tatumWebHook, tatumCryptoWebHook, callMerchantWebhook, redeliverWebhook };

@@ -20,17 +20,16 @@ import {
   companyModel,
   customerModel,
   customerWalletModel,
-  planModel,
   userWalletModel,
   userTransactionModel,
 } from "../models";
 import { validateCompanyOwnership } from "../utils/validateCompanyOwnership";
 import { resolveMembership, membershipCan } from "../utils/permissions";
 import { apiLogger } from "../utils/loggers";
+import { getCompanyDisplayCurrency } from "../utils/currencyUtils";
 import crypto from "crypto";
 import sequelize from "../utils/dbInstance";
 import { Op, QueryTypes } from "sequelize";
-import flw from "../apis/flutterwaveApi";
 import { emailDateParts } from "../utils/emailI18n";
 import { assertSafeOutboundUrl } from "../utils/outboundUrlGuard";
 import { runSandboxSimulation } from "./payment/simulateSandboxPayment";
@@ -57,40 +56,12 @@ const addApi = async (req: express.Request, res: express.Response) => {
       return errorResponseHelper(res, 400, "Invalid environment. Must be 'production' or 'development'");
     }
 
-    // Validate base_currency - limited to supported currencies only
-    const SUPPORTED_BASE_CURRENCIES = [
-      'USD',  // US Dollar
-      'EUR',  // Euro
-      'GBP',  // British Pound
-      'AUD',  // Australian Dollar
-      'CAD',  // Canadian Dollar
-      'INR',  // Indian Rupee
-      'NGN',  // Nigerian Naira
-      'VND',  // Vietnamese Dong
-      'PKR',  // Pakistani Rupee
-      'BRL',  // Brazilian Real
-      'ARS',  // Argentine Peso
-      'PHP',  // Philippine Peso
-      'SGD',  // Singapore Dollar
-      'AED',  // UAE Dirham
-      'KES',  // Kenyan Shilling
-      'GHS',  // Ghanaian Cedi
-      'ZAR',  // South African Rand
-      'XOF',  // West African CFA Franc
-      'XAF',  // Central African CFA Franc
-      'EGP',  // Egyptian Pound
-      'MAD',  // Moroccan Dirham
-    ];
-    
-    if (!base_currency || !SUPPORTED_BASE_CURRENCIES.includes(base_currency.toUpperCase())) {
-      return errorResponseHelper(
-        res, 
-        400, 
-        `Base currency must be one of: ${SUPPORTED_BASE_CURRENCIES.join(', ')}`
-      );
-    }
-
-    const requestedCurrency = base_currency.toUpperCase();
+    // Currency is a BRAND setting (tbl_company.display_currency), not a per-key one.
+    // A legacy `base_currency` in the body is accepted for backwards compatibility
+    // but the brand currency always wins; the column is kept only as a fallback.
+    const brandCurrency = await getCompanyDisplayCurrency(company_id);
+    const finalCurrency = String(brandCurrency || base_currency || 'USD').toUpperCase();
+    const devKeyUpdated = false;
 
     // Check existing keys for this company
     const existingKeys = await apiModel.findAll({
@@ -102,34 +73,6 @@ const addApi = async (req: express.Request, res: express.Response) => {
 
     const existingProdKey = existingKeys.find(k => k.dataValues.environment === 'production');
     const existingDevKey = existingKeys.find(k => k.dataValues.environment === 'development');
-
-    let finalCurrency = requestedCurrency;
-    let devKeyUpdated = false;
-
-    // Currency synchronization logic
-    if (environment === 'development') {
-      // Creating development key
-      if (existingProdKey) {
-        // Production key exists - development MUST match production currency
-        finalCurrency = existingProdKey.dataValues.base_currency;
-        if (requestedCurrency !== finalCurrency) {
-          apiLogger.info(`[API] Dev key currency forced to ${finalCurrency} to match production key`);
-        }
-      }
-      // If no production key, development can use any currency
-    } else {
-      // Creating production key
-      // Production key can use any currency, but development key must be updated to match
-      if (existingDevKey && existingDevKey.dataValues.base_currency !== requestedCurrency) {
-        // Update development key to match new production currency
-        await apiModel.update(
-          { base_currency: requestedCurrency },
-          { where: { api_id: existingDevKey.dataValues.api_id } }
-        );
-        devKeyUpdated = true;
-        apiLogger.info(`[API] Dev key (api_id: ${existingDevKey.dataValues.api_id}) currency updated to ${requestedCurrency} to match new production key`);
-      }
-    }
 
     // Default permissions if not provided
     const defaultPermissions = ["payments", "transactions", "webhooks", "wallets"];
@@ -277,12 +220,7 @@ const addApi = async (req: express.Request, res: express.Response) => {
     });
 
     // Build success message
-    let successMessage = "API generated successfully!";
-    if (devKeyUpdated) {
-      successMessage = "API generated successfully! Development key currency has been updated to match.";
-    } else if (environment === 'development' && existingProdKey && requestedCurrency !== finalCurrency) {
-      successMessage = `API generated successfully! Currency set to ${finalCurrency} to match production key.`;
-    }
+    const successMessage = "API generated successfully!";
 
     const { key_hash: _omitHash, ...createdRow } = resData.dataValues as Record<string, unknown>;
     successResponseHelper(res, 200, successMessage, {
@@ -298,10 +236,9 @@ const addApi = async (req: express.Request, res: express.Response) => {
       webhook_secret: effectiveWebhookSecret,
       webhook_secret_auto_generated: !merchantSuppliedSecret,
       webhook_note: 'Store this webhook signing secret now — it is shown only once and verifies X-Dynopay-Signature-V2 on your webhooks.',
+      // Currency is the brand currency (Settings → Brand currency), not a per-key setting.
+      base_currency: finalCurrency,
       currency_synced: devKeyUpdated,
-      ...(devKeyUpdated && { 
-        sync_info: `Development key updated from ${existingDevKey?.dataValues.base_currency} to ${finalCurrency}` 
-      }),
     });
   } catch (e) {
 
@@ -579,61 +516,7 @@ const getApiCustomers = async (req: express.Request, res: express.Response) => {
   }
 };
 
-const createPlan = async (req: express.Request, res: express.Response) => {
-  const userData = jwt.decode(res.locals.token) as IUserType;
-  try {
-    const { plan_name, amount, interval, company_id } = req.body;
 
-    const apiData = await apiModel.findOne({ where: { company_id } });
-
-    const flwResponse = await flw.PaymentPlan.create({
-      name: plan_name,
-      amount,
-      interval,
-      currency: apiData?.dataValues?.base_currency ?? "USD",
-    }) as { data?: { id?: string } };
-
-    const payload = {
-      id: crypto.randomUUID(),
-      user_id: userData.user_id,
-      flw_plan_id: flwResponse.data?.id,
-      company_id,
-      plan_name,
-      amount,
-      interval,
-      currency: (req.body as Record<string, unknown>).currency,
-    };
-
-    const planData = await planModel.create({ ...payload });
-
-    successResponseHelper(res, 200, "Plan generated successfully!", planData);
-  } catch (e) {
-
-      handleControllerError(res, e, apiLogger, { user_id: userData.user_id, email: userData.email });
-  }
-};
-
-const getPlans = async (req: express.Request, res: express.Response) => {
-  const userData = jwt.decode(res.locals.token) as IUserType;
-  const company_id = req.params.id;
-  try {
-    const planData = await planModel.findAll({
-      where: {
-        company_id,
-        user_id: userData.user_id,
-      },
-    });
-
-    const message = planData.length === 0
-      ? "No subscription plans found. Create your first plan."
-      : `Successfully retrieved ${planData.length} subscription plan${planData.length === 1 ? '' : 's'}`;
-    
-    successResponseHelper(res, 200, message, planData);
-  } catch (e) {
-
-      handleControllerError(res, e, apiLogger, { user_id: userData.user_id, email: userData.email });
-  }
-};
 
 /**
  * Get API by ID
@@ -909,106 +792,7 @@ const regenerateApiKey = async (req: express.Request, res: express.Response) => 
   }
 };
 
-/**
- * Update Plan
- * PUT /api/userApi/updatePlan/:id
- */
-const updatePlan = async (req: express.Request, res: express.Response) => {
-  const userData = jwt.decode(res.locals.token) as IUserType;
-  try {
-    const plan_id = req.params.id;
-    const { plan_name, amount, interval } = req.body;
 
-    // Check if plan exists and belongs to user
-    const existingPlan = await planModel.findOne({
-      where: {
-        plan_id,
-        user_id: userData.user_id,
-      },
-    });
-
-    if (!existingPlan) {
-      return errorResponseHelper(res, 404, "Plan not found");
-    }
-
-    // Build update data
-    const updateData: Record<string, unknown> = {};
-    if (plan_name !== undefined) updateData.plan_name = plan_name;
-    if (amount !== undefined) updateData.amount = amount;
-    if (interval !== undefined) updateData.interval = interval;
-
-    if (Object.keys(updateData).length === 0) {
-      return errorResponseHelper(res, 400, "No valid fields to update");
-    }
-
-    // Update in Flutterwave if amount or interval changed
-    if (amount !== undefined || interval !== undefined) {
-      try {
-        await flw.PaymentPlan.update({
-          id: existingPlan.dataValues.flw_plan_id,
-          name: plan_name || existingPlan.dataValues.plan_name,
-          amount: amount || existingPlan.dataValues.amount,
-        });
-      } catch (flwError) {
-        apiLogger.warn(`Failed to update plan in Flutterwave: ${getErrorMessage(flwError)}`);
-        // Continue with local update even if Flutterwave fails
-      }
-    }
-
-    await planModel.update(updateData, {
-      where: { plan_id, user_id: userData.user_id },
-    });
-
-    const updatedPlan = await planModel.findOne({ where: { plan_id } });
-
-    apiLogger.info(`Plan ${plan_id} updated by user ${userData.user_id}`);
-    successResponseHelper(res, 200, "Plan updated successfully", updatedPlan);
-  } catch (e) {
-
-      handleControllerError(res, e, apiLogger, { user_id: userData.user_id, email: userData.email });
-  }
-};
-
-/**
- * Delete Plan
- * DELETE /api/userApi/deletePlan/:id
- */
-const deletePlan = async (req: express.Request, res: express.Response) => {
-  const userData = jwt.decode(res.locals.token) as IUserType;
-  try {
-    const plan_id = req.params.id;
-
-    // Check if plan exists and belongs to user
-    const existingPlan = await planModel.findOne({
-      where: {
-        plan_id,
-        user_id: userData.user_id,
-      },
-    });
-
-    if (!existingPlan) {
-      return errorResponseHelper(res, 404, "Plan not found");
-    }
-
-    // Try to cancel in Flutterwave
-    try {
-      await flw.PaymentPlan.cancel(existingPlan.dataValues.flw_plan_id);
-    } catch (flwError) {
-      apiLogger.warn(`Failed to cancel plan in Flutterwave: ${getErrorMessage(flwError)}`);
-      // Continue with local delete even if Flutterwave fails
-    }
-
-    await planModel.destroy({
-      where: { plan_id, user_id: userData.user_id },
-    });
-
-    apiLogger.info(`Plan ${plan_id} deleted by user ${userData.user_id}`);
-    successResponseHelper(res, 200, "Plan deleted successfully", { plan_id });
-  } catch (e) {
-
-      handleControllerError(res, e, apiLogger, { user_id: userData.user_id, email: userData.email });
-  }
-};
 
 /**
  * Update Customer
@@ -1886,10 +1670,6 @@ export default {
   getCustomerDetail,
   updateCustomer,
   deleteCustomer,
-  createPlan,
-  getPlans,
-  updatePlan,
-  deletePlan,
   getApiUsageStats,
   getApiLogs,
   updateRateLimit,

@@ -29,7 +29,7 @@ jest.mock('../controller/notificationController', () => ({
   createNotification: jest.fn(),
   NOTIFICATION_TYPES: {},
 }));
-jest.mock('../controller/subscriptionController', () => ({ __esModule: true, default: {} }));
+
 
 // Mock User model (for discount lookup)
 const mockUserFindByPk = jest.fn();

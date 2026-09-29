@@ -2,7 +2,7 @@ import adminFeeModel from "./adminFeeModel";
 import adminFeeTransactionModel from "./adminFeeTransactionModel";
 import adminTransferFeeModel from "./adminTransferFeeModel";
 import adminWalletModel from "./adminWalletModel";
-import { apiModel, planModel, subscriptionModel } from "./apiModels";
+import { apiModel } from "./apiModels";
 import { companyModel } from "./companyModels";
 
 import {
@@ -100,9 +100,7 @@ export {
   apiModel,
   adminFeeModel,
   payoutGasAuditModel,
-  planModel,
   feesModel,
-  subscriptionModel,
   userModel,
   companyModel,
   userWalletModel,

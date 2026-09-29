@@ -13,7 +13,8 @@ export const apiKeyPaths = {
 
 **⚠️ MULTI-TENANT REQUIREMENT:**
 - \`company_id\` is **REQUIRED** for proper data isolation
-- \`base_currency\` is **REQUIRED** for transaction processing
+
+**Currency:** the key uses your **brand currency** (Settings → Brand currency). \`base_currency\` is accepted for backwards compatibility but ignored — pass \`currency\` on individual API charges to price in another currency.
 
 **Optional Fields:**
 - \`api_name\` - Custom name (defaults to "{Company Name} {Environment} API")
@@ -25,7 +26,7 @@ export const apiKeyPaths = {
           'application/json': {
             schema: {
               type: 'object',
-              required: ['company_id', 'base_currency'],
+              required: ['company_id'],
               properties: {
                 company_id: {
                   type: 'integer',
@@ -34,8 +35,8 @@ export const apiKeyPaths = {
                 },
                 base_currency: {
                   type: 'string',
-                  enum: ['USD', 'EUR', 'GBP', 'AUD', 'CAD', 'NGN', 'BRL', 'ZAR', 'KES', 'GHS', 'JPY', 'CHF', 'SGD', 'HKD', 'NZD', 'MXN', 'BTC'],
-                  description: '✅ REQUIRED: Default currency for transactions',
+                  deprecated: true,
+                  description: '⚠️ DEPRECATED (ignored): keys inherit the brand currency set in Settings → Brand currency.',
                   example: 'USD'
                 },
                 api_name: {
@@ -356,136 +357,6 @@ export const apiKeyPaths = {
       responses: {
         200: { description: 'API key revoked' },
         404: { description: 'API key not found' }
-      }
-    }
-  },
-  '/api/userApi/createPlan': {
-    post: {
-      tags: ['API Keys'],
-      summary: 'Create API plan',
-      description: 'Create a new pricing plan for API access',
-      security: [{ BearerAuth: [] }],
-      requestBody: {
-        required: true,
-        content: {
-          'application/json': {
-            schema: {
-              type: 'object',
-              required: ['plan_name', 'rate_limit', 'price'],
-              properties: {
-                plan_name: { type: 'string', example: 'Premium' },
-                description: { type: 'string' },
-                rate_limit: { type: 'integer', example: 1000, description: 'Requests per minute' },
-                price: { type: 'number', example: 99.99 },
-                currency: { type: 'string', default: 'USD' },
-                features: { type: 'array', items: { type: 'string' } }
-              }
-            }
-          }
-        }
-      },
-      responses: {
-        200: {
-          description: 'Plan created',
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                properties: {
-                  message: { type: 'string' },
-                  data: { $ref: '#/components/schemas/ApiPlan' }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  },
-  '/api/userApi/getPlans/{id}': {
-    get: {
-      tags: ['API Keys'],
-      summary: 'Get API plans',
-      description: 'Retrieve API plans for an API key',
-      security: [{ BearerAuth: [] }],
-      parameters: [{
-        in: 'path',
-        name: 'id',
-        required: true,
-        schema: { type: 'integer' },
-        description: 'API key ID'
-      }],
-      responses: {
-        200: {
-          description: 'Plans retrieved',
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                properties: {
-                  data: {
-                    type: 'object',
-                    properties: {
-                      plans: { type: 'array', items: { $ref: '#/components/schemas/ApiPlan' } }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  },
-  '/api/userApi/updatePlan/{id}': {
-    put: {
-      tags: ['API Keys'],
-      summary: 'Update API plan',
-      description: 'Update an existing API plan',
-      security: [{ BearerAuth: [] }],
-      parameters: [{
-        in: 'path',
-        name: 'id',
-        required: true,
-        schema: { type: 'integer' },
-        description: 'Plan ID'
-      }],
-      requestBody: {
-        content: {
-          'application/json': {
-            schema: {
-              type: 'object',
-              properties: {
-                plan_name: { type: 'string' },
-                rate_limit: { type: 'integer' },
-                price: { type: 'number' },
-                features: { type: 'array', items: { type: 'string' } }
-              }
-            }
-          }
-        }
-      },
-      responses: {
-        200: { description: 'Plan updated' },
-        404: { description: 'Plan not found' }
-      }
-    }
-  },
-  '/api/userApi/deletePlan/{id}': {
-    delete: {
-      tags: ['API Keys'],
-      summary: 'Delete API plan',
-      description: 'Delete an API plan',
-      security: [{ BearerAuth: [] }],
-      parameters: [{
-        in: 'path',
-        name: 'id',
-        required: true,
-        schema: { type: 'integer' }
-      }],
-      responses: {
-        200: { description: 'Plan deleted' },
-        404: { description: 'Plan not found' }
       }
     }
   },

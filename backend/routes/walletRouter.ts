@@ -94,9 +94,6 @@ walletRouter.post("/transactions/:id/request-topup", walletController.requestTop
 
 walletRouter.post("/addFunds", walletController.addFunds);
 walletRouter.post("/encrypt-payload", walletController.encryptPayload);
-walletRouter.post("/authStep", walletController.authStep);
-walletRouter.post("/verifyPayment", walletController.verifyPayment);
-walletRouter.post("/confirmPayment", walletController.confirmPayment);
 walletRouter.post("/verifyCryptoPayment", walletController.verifyCryptoPayment);
 walletRouter.post("/getCurrencyRates", walletController.getCurrencyRates);
 walletRouter.post("/estimateFees", walletController.estimateFees);

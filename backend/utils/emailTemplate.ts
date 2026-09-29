@@ -104,6 +104,14 @@ export const legalEntity = (): { name: string; address: string } => ({
   address: (process.env.EMAIL_LEGAL_ADDRESS || '').trim(),
 });
 
+/**
+ * Operator name shown on SafeDeal surfaces (emails, PDFs, site footer, legal pages).
+ * SAFEDEAL_LEGAL_NAME wins, then the platform legal entity when it is EXPLICITLY
+ * configured, else "SafeDeal" — SafeDeal never falls back to the "Dynopay" default.
+ */
+export const safedealLegalName = (): string =>
+  (process.env.SAFEDEAL_LEGAL_NAME || process.env.EMAIL_LEGAL_NAME || 'SafeDeal').trim();
+
 export const baseEmailTemplate = (
   heading: string,
   bodyContent: string,
@@ -143,7 +151,10 @@ export const baseEmailTemplate = (
     bestRegards: tr('chrome.bestRegards', lang),
     team: isSafeDeal ? 'The SafeDeal team' : tr('chrome.teamSignature', lang),
     tagline: isSafeDeal ? 'Escrow for online deals' : tr('chrome.tagline', lang),
-    rights: tr('chrome.rights', lang, { year }),
+    // SafeDeal footer is SafeDeal-branded; the operator is named only when explicitly configured.
+    rights: isSafeDeal
+      ? `© SafeDeal ${year}. All rights reserved.${safedealLegalName() !== 'SafeDeal' ? ` Operated by ${safedealLegalName()}.` : ''}`
+      : tr('chrome.rights', lang, { year }),
     privacy: tr('chrome.privacy', lang),
     terms: tr('chrome.terms', lang),
     support: tr('chrome.support', lang),

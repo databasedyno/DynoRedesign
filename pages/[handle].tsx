@@ -8,7 +8,7 @@ import { CreatorAnalyticsData } from '@/Components/Page/Creator/AnalyticsWidget'
 import { getCreatorBaseUrl } from '@/helpers/creatorUrl'
 import { getRuntimeFlags } from '@/helpers/runtimeFlags'
 import { sendCreatorVisitBeacon } from '@/helpers/creatorVisitBeacon'
-import { ssrFetchHeaders } from '@/helpers/ssrFetchHeaders'
+import { ssrFetchHeaders, isPlausibleHandleSegment } from '@/helpers/ssrFetchHeaders'
 
 interface CreatorPageProps {
   creator: CreatorData
@@ -55,6 +55,10 @@ const CreatorPage = ({ creator, links, siteUrl, supportWidget, analytics, produc
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const handle = String(ctx.params?.handle || '').toLowerCase()
+  // Fast 404 for anything that can never be a creator handle or payment code
+  // (dots, slashes, >40 chars) — secrets scanners hit /.env, /config.json,
+  // /wp-config.php.bak… and each one used to cost 2–4 backend round-trips.
+  if (!isPlausibleHandleSegment(String(ctx.params?.handle || ''))) return { notFound: true }
   // Server-side fetch base: prefer an internal API URL (set in preview where
   // NEXT_PUBLIC_BASE_URL is empty), then the public app URL. This is used ONLY
   // to reach the backend during SSR — the shareable creator URL is separate.

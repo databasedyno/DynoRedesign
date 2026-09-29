@@ -63,16 +63,13 @@ import {
 import { sendBuyerPaymentExpiredEmail } from "../services/email/customerReceiptEmail";
 import { resolvePublicCompanyName } from "../helper/publicCompanyName";
 import {
-  FW_API_Response,
   IFundData,
   ITemporaryAddress,
   IUserType,
-  IVerifyResponse,
   IAdminData,
   PaymentUserJwtPayload,
 } from "../utils/types";
 import { paymentTypes } from "../utils/enums";
-import flw from "../apis/flutterwaveApi";
 import axios from "axios";
 import { getCountryFromIP } from "../utils/geolocation";
 import { safeDeleteSubscription } from "../helper/subscriptionHelpers";
@@ -108,7 +105,7 @@ import { calculateTaxForCheckout } from "./payment/taxService";
 import { settleCryptoTransaction, verifyCryptoPayment, cryptoVerification, downloadReceipt, createReceiptLink, getPublicReceipt, getPublicReceiptPdf, checkoutStatusStream, tokenFromQuery } from "./payment/cryptoSettlement";
 import { convertToUSD } from "./payment/paymentHelpers";
 import { computeReferralFeeCreditShift, consumeReferralCreditForTransaction } from "../services/referralCreditService";
-import { getData, getPaymentMeta, Crypto, createCryptoPayment, confirmPayment } from "./payment/cryptoCheckout";
+import { getData, getPaymentMeta, Crypto, createCryptoPayment } from "./payment/cryptoCheckout";
 import { getCampaignOgImage } from "./payment/campaignOgImage";
 import { trackCreatorVisit } from "./payment/creatorVisitTracking";
 
@@ -155,86 +152,6 @@ const addPayment = async (req: express.Request, res: express.Response) => {
           });
         }
 
-        if (value.paymentType === paymentTypes.CARD) {
-          const { paymentRes, uniqueRef } = await cardPayment(value, userData);
-          cronLogger.info(paymentRes);
-          if (paymentRes.status !== "successful") {
-            finalRes = { ...paymentRes.meta.authorization, hash: uniqueRef };
-            if (paymentRes.meta.authorization.mode !== "redirect") {
-              await setRedisItem(uniqueRef, {
-                ...items,
-                hash: data,
-                mode: paymentTypes.CARD,
-              });
-            } else {
-              await setRedisItem(uniqueRef, {
-                ...items,
-                id: paymentRes.data.id,
-                mode: paymentTypes.CARD,
-              });
-            }
-          }
-        }
-
-        if (value.paymentType === paymentTypes.BANK_TRANSFER) {
-          const { paymentRes, uniqueRef } = await bankTransfer(value, userData);
-          cronLogger.info(`[addPayment] bankTransfer response, ref: ${uniqueRef}`);
-          const { transfer_reference, ...rest } = paymentRes.meta.authorization;
-          finalRes = { hash: uniqueRef, ...rest };
-          await setRedisItem(uniqueRef, {
-            ...items,
-            mode: paymentTypes.BANK_TRANSFER,
-          });
-        }
-
-        if (value.paymentType === paymentTypes.USSD) {
-          const { paymentRes, uniqueRef } = await USSD(value, userData);
-          cronLogger.info(`[addPayment] USSD response, ref: ${uniqueRef}`);
-          const ussdResponse = paymentRes as { meta?: { authorization?: { note?: string } }; data?: { payment_code?: string } };
-          const { note } = ussdResponse.meta?.authorization || {};
-          const { payment_code } = ussdResponse.data || {};
-          finalRes = { hash: uniqueRef, note, payment_code };
-          await setRedisItem(uniqueRef, {
-            ...items,
-            mode: paymentTypes.USSD,
-          });
-        }
-
-        if (value.paymentType === paymentTypes.MOBILE_MONEY) {
-          const { paymentRes, uniqueRef } = await MobileMoney(value, userData);
-          cronLogger.info(`[addPayment] MobileMoney response, ref: ${uniqueRef}`);
-          const mobileResponse = paymentRes as { meta?: { authorization?: Record<string, unknown> } };
-          if (value.currency === "KES") {
-            finalRes = { hash: uniqueRef };
-          } else {
-            finalRes = { hash: uniqueRef, ...mobileResponse?.meta?.authorization };
-          }
-          await setRedisItem(uniqueRef, {
-            ...items,
-            mode: paymentTypes.MOBILE_MONEY,
-          });
-        }
-        if (value.paymentType === paymentTypes.BANK_ACCOUNT) {
-          const { paymentRes, uniqueRef } = await bankAccount(value, userData);
-          cronLogger.info(`[addPayment] bankAccount response, ref: ${uniqueRef}`);
-          finalRes = {
-            hash: uniqueRef,
-            ...paymentRes.data?.meta?.authorization,
-          };
-          await setRedisItem(uniqueRef, {
-            ...items,
-            mode: paymentTypes.BANK_ACCOUNT,
-          });
-        }
-        if (value.paymentType === paymentTypes.QR_CODE) {
-          const { paymentRes, uniqueRef } = await QRCode(value, userData);
-          cronLogger.info(`[addPayment] QRCode response, ref: ${uniqueRef}`);
-          finalRes = { hash: uniqueRef, ...paymentRes?.meta?.authorization };
-          await setRedisItem(uniqueRef, {
-            ...items,
-            mode: paymentTypes.QR_CODE,
-          });
-        }
         if (value.paymentType === paymentTypes.WALLET) {
           const status = await userWallet(value, userData);
 
@@ -253,24 +170,6 @@ const addPayment = async (req: express.Request, res: express.Response) => {
           };
         }
 
-        if (
-          value.paymentType === paymentTypes.GOOGLE_PAY ||
-          value.paymentType === paymentTypes.APPLE_PAY
-        ) {
-          const { paymentRes, uniqueRef } = await googleApplePay(
-            value,
-            userData
-          );
-          cronLogger.info(`[addPayment] fiatPayment response, ref: ${uniqueRef}`);
-          finalRes = {
-            hash: uniqueRef,
-            ...paymentRes.data?.meta?.authorization,
-          };
-          await setRedisItem(uniqueRef, {
-            ...items,
-            mode: value.paymentType,
-          });
-        }
         if (value.paymentType === paymentTypes.CRYPTO) {
           // Normalize checkout currency aliases to internal wallet types
           // Checkout sends "USDC" but wallets are "USDC-ERC20", "RLUSD-XRPL" but wallets are "RLUSD"
@@ -571,325 +470,14 @@ const addPayment = async (req: express.Request, res: express.Response) => {
   }
 };
 
-const authStep = async (req: express.Request, res: express.Response) => {
-  const userData = jwt.decode(res.locals.token) as IUserType;
-  try {
-    const { data } = req.body;
-    const value: IFundData = JSON.parse(decrypt(data));
-    if (typeof value === "object") {
-      let finalRes;
-      if (value.paymentType === paymentTypes.CARD) {
-        const tempData = await getRedisItem("customer-" + userData.ref);
 
-        cronLogger.info(value.uniqueRef);
-        if (value.mode === "otp") {
-          const flw_ref = tempData?.flw_ref;
-          const res = await flw.Charge.validate({
-            otp: value.otp,
-            flw_ref,
-          });
 
-          cronLogger.info(res);
-          const transactionId = res.data.id;
-          const { data }: IVerifyResponse = await flw.Transaction.verify({
-            id: transactionId,
-          });
-          finalRes = {
-            id: data.id,
-            flwRef: data.flw_ref,
-            status: data.status,
-          };
-        } else {
-          const cardData: IFundData = JSON.parse(decrypt(tempData?.hash));
-          const { paymentRes, uniqueRef } = await cardPayment(
-            { ...value, ...cardData },
-            userData,
-            true
-          );
-          cronLogger.info(paymentRes);
-          if (
-            paymentRes.status !== "error" &&
-            paymentRes.data?.status !== "successful"
-          ) {
-            finalRes = { ...paymentRes.meta.authorization, hash: uniqueRef };
 
-            if (paymentRes.meta.authorization.mode !== "redirect") {
-              await setRedisItem(uniqueRef, {
-                flw_ref: paymentRes.data.flw_ref,
-                ...tempData,
-              });
-            } else {
-              await setRedisItem(uniqueRef, {
-                id: paymentRes.data.id,
-                ...tempData,
-              });
-            }
-          } else if (paymentRes.data?.status === "successful") {
-            finalRes = {
-              flwRef: paymentRes.data.flw_ref,
-              txRef: uniqueRef,
-            };
-          } else {
-            finalRes = { ...paymentRes, txRef: uniqueRef };
-          }
-        }
-      }
 
-      successResponseHelper(res, 200, "Payment authenticated successfully", finalRes);
-    } else {
-      throw { message: "Please enter valid data!" };
-    }
-  } catch (e) {
-    cronLogger.info(e);
-    const message = getErrorMessage(e);
-    apiLogger.error(
-      message,
-      { customer_id: userData.customer_id, email: userData.email },
-      new Error(e)
-    );
-    errorResponseHelper(res, 500, message);
-  }
-};
 
-const verifyPayment = async (req: express.Request, res: express.Response) => {
-  const userData = jwt.decode(res.locals.token) as IUserType;
-  try {
-    const { uniqueRef } = req.body;
 
-    const tempData = await getRedisItem(uniqueRef);
 
-    let finalRes;
-    cronLogger.info(tempData, uniqueRef);
-    const transactionId = tempData?.id;
-    if (transactionId) {
-      const { data }: IVerifyResponse = await flw.Transaction.verify({
-        id: transactionId,
-      });
-      cronLogger.info(data);
-      finalRes = {
-        txRef: uniqueRef,
-      };
-      successResponseHelper(res, 200, "Payment verified successfully", finalRes);
-    } else {
-      errorResponseHelper(res, 500, "Transaction still in progress!");
-    }
-  } catch (e) {
 
-      handleControllerError(res, e, apiLogger, { customer_id: userData.customer_id, email: userData.email });
-  }
-};
-
-const cardPayment = async (
-  data: IFundData,
-  tokenData: IUserType,
-  revalidate = false
-) => {
-  const expiry = data.expiry.split("/");
-  const uniqueRef = "customer-" + tokenData.ref;
-  cronLogger.info("from card=============>", data);
-  const payload = {
-    card_number: data.number,
-    expiry_month: expiry[0],
-    expiry_year: expiry[1],
-    cvv: data.cvc,
-    currency: data.currency ?? "USD",
-    amount: data.amount,
-    email: tokenData.email,
-    fullname: tokenData?.customer_name,
-    tx_ref: uniqueRef,
-    enckey: envRaw("FLW_ENCRYPTION_KEY"),
-    ...(revalidate && {
-      authorization: {
-        mode: data.mode,
-        ...(data.mode === "pin"
-          ? { pin: data.pin }
-          : {
-            city: data.city,
-            address: data.address,
-            state: data.state,
-            country: "IN",
-            zipcode: data.zipcode,
-          }),
-      },
-    }),
-    redirect_url: (envRaw("CHECKOUT_URL") || '').trim() + "/pay/verify",
-  };
-
-  cronLogger.info("payload==========>", payload);
-
-  const paymentRes: FW_API_Response = await flw.Charge.card(payload);
-
-  return { paymentRes, uniqueRef };
-};
-
-const bankTransfer = async (data: IFundData, tokenData: IUserType) => {
-  const uniqueRef = "customer-" + tokenData.ref;
-  const payload = {
-    currency: data.currency,
-    amount: data.amount,
-    email: tokenData.email,
-    fullname: tokenData?.customer_name,
-    tx_ref: uniqueRef,
-  };
-
-  cronLogger.info("payload==========>", payload);
-
-  const paymentRes: FW_API_Response = await flw.Charge.bank_transfer(payload);
-
-  return { paymentRes, uniqueRef };
-};
-
-const bankAccount = async (data: IFundData, tokenData: IUserType) => {
-  const uniqueRef = "customer-" + tokenData.ref;
-  const payload = {
-    currency: data.currency,
-    amount: data.amount,
-    email: tokenData.email,
-    fullname: tokenData?.customer_name,
-    tx_ref: uniqueRef,
-  };
-
-  cronLogger.info("payload==========>", payload);
-
-  let paymentRes: FW_API_Response;
-
-  if (payload.currency === "NGN") {
-    paymentRes = await flw.Charge.ng(payload);
-  } else {
-    try {
-      paymentRes = await axios.post(
-        "https://api.flutterwave.com/v3/charges?type=account-ach-uk",
-        {
-          ...payload,
-          is_token_io: 1,
-        },
-        {
-          headers: {
-            Authorization: "Bearer " + envRaw("FLW_SECRET_KEY"),
-          },
-        }
-      );
-    } catch (e) {
-      cronLogger.info(e);
-    }
-  }
-
-  return { paymentRes, uniqueRef };
-};
-
-const googleApplePay = async (data: IFundData, tokenData: IUserType) => {
-  const uniqueRef = "customer-" + tokenData.ref;
-  const payload = {
-    currency: data.currency,
-    amount: data.amount,
-    email: tokenData.email,
-    fullname: tokenData?.customer_name,
-    tx_ref: uniqueRef + "_success_mock",
-  };
-
-  cronLogger.info("payload==========>", payload);
-
-  const type =
-    data.paymentType === paymentTypes.GOOGLE_PAY ? "googlepay" : "applepay";
-
-  const response = await axios.post(
-    "https://api.flutterwave.com/v3/charges?type=" + type,
-    {
-      ...payload,
-    },
-    {
-      headers: {
-        Authorization: "Bearer " + envRaw("FLW_SECRET_KEY"),
-      },
-    }
-  );
-  const paymentRes = response.data;
-
-  return { paymentRes, uniqueRef };
-};
-
-const USSD = async (data: IFundData, tokenData: IUserType) => {
-  const uniqueRef = "customer-" + tokenData.ref;
-  const payload = {
-    currency: "NGN",
-    account_bank: data.account_number,
-    amount: data.amount,
-    email: tokenData.email,
-    fullname: tokenData?.customer_name,
-    tx_ref: uniqueRef,
-  };
-
-  cronLogger.info("payload==========>", payload);
-
-  const paymentRes = await flw.Charge.ussd(payload);
-
-  return { paymentRes, uniqueRef };
-};
-
-const MobileMoney = async (data: IFundData, tokenData: IUserType) => {
-  const uniqueRef = "customer-" + tokenData.ref;
-  const payload = {
-    currency: data.currency,
-    amount: data.amount,
-    ...((data.currency === "UGX" || data.currency === "GHS") && {
-      network: data.network,
-    }),
-    ...(data.currency === "RWF" && {
-      order_id: uniqueRef,
-    }),
-    email: tokenData.email,
-    phone_number: data?.mobile,
-    fullname: tokenData?.customer_name,
-    tx_ref: uniqueRef,
-    ...(data.currency !== "KES" && {
-      redirect_url: (envRaw("CHECKOUT_URL") || '').trim() + "/pay/verify",
-    }),
-  };
-
-  cronLogger.info("payload==========>", payload);
-  let paymentRes;
-  if (data.currency === "KES")
-    paymentRes = await flw.MobileMoney.mpesa(payload);
-  else if (data.currency === "GHS")
-    paymentRes = await flw.MobileMoney.ghana(payload);
-  else if (data.currency === "UGX")
-    paymentRes = await flw.MobileMoney.uganda(payload);
-  else if (data.currency === "RWF")
-    paymentRes = await flw.MobileMoney.rwanda(payload);
-
-  return { paymentRes, uniqueRef };
-};
-
-const QRCode = async (data: IFundData, tokenData: IUserType) => {
-  const uniqueRef = "customer-" + tokenData.ref;
-  const payload = {
-    currency: "NGN",
-    amount: data.amount,
-    email: tokenData.email,
-    phone_number: tokenData?.mobile,
-    fullname: tokenData?.customer_name,
-    tx_ref: uniqueRef,
-    is_nqr: "1",
-  };
-
-  cronLogger.info("payload==========>", payload);
-
-  const resData = await axios.post(
-    "https://api.flutterwave.com/v3/charges?type=qr",
-    {
-      ...payload,
-    },
-    {
-      headers: {
-        Authorization: "Bearer " + envRaw("FLW_SECRET_KEY"),
-      },
-    }
-  );
-
-  const paymentRes = resData.data;
-
-  return { paymentRes, uniqueRef };
-};
 
 const userWallet = async (data: IFundData, tokenData: IUserType) => {
   const id = tokenData.id;
@@ -2430,7 +2018,6 @@ const processIncompletePayments = async () => {
 export default {
   getData,
   addPayment,
-  verifyPayment,
   verifyCryptoPayment,
   checkoutStatusStream,
   tokenFromQuery,
@@ -2439,9 +2026,7 @@ export default {
   getPublicReceipt,
   getPublicReceiptPdf,
   createCryptoPayment,
-  confirmPayment,
   getBalance,
-  authStep,
   getCurrencyRates,
   getPaymentLinks,
   getPaymentLinkById,

@@ -577,7 +577,6 @@ npx tsc --noEmit   # Check for type errors without emitting files
 
 | Variable | Description |
 |----------|-------------|
-| `FLW_PUBLIC_KEY` / `FLW_SECRET_KEY` | Flutterwave keys |
 | `CRYPTO_PUBLIC_KEY` / `CRYPTO_SECRET_KEY` | Crypto.com keys |
 | `BLOCK_BEE_API_KEY` | BlockBee API key |
 | `BLOCKCHAIR_API_KEY` | Blockchair API key |
@@ -806,10 +805,7 @@ Redis-backed error buffer with:
 - **Used in**: `kycController.ts`, `veriffService.ts`
 - **API Keys**: `VERIFF_API_KEY`, `VERIFF_API_SECRET`
 
-### Flutterwave (Fiat Payments)
-- **Purpose**: Fiat on-ramp
-- **Used in**: `routes/index.ts` (webhook), `paymentController.ts`
-- **API Keys**: `FLW_PUBLIC_KEY`, `FLW_SECRET_KEY`
+> **Crypto-only.** Dynopay has no fiat rail (no card / bank / Google Pay / Apple Pay). The legacy Flutterwave integration was removed in 2026-09; `FLW_*` env vars are unused and can be dropped.
 
 ---
 

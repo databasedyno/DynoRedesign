@@ -5,11 +5,7 @@ import axiosBaseApi from '@/axiosConfig'
 import { clearCheckoutToken, setCheckoutToken } from '@/helpers/checkoutSession'
 
 import paymentAuth from '@/Components/Page/Common/HOC/paymentAuth'
-import { createEncryption } from '@/helpers'
-import { paymentTypes } from '@/utils/enums'
 import {
-  CommonApiRes,
-  CommonDetails,
   currencyData
 } from '@/utils/types/paymentTypes'
 import {
@@ -31,7 +27,6 @@ import {
   AlertTitle
 } from '@mui/material'
 import React, { useEffect, useState, useCallback, useRef } from 'react'
-import 'react-credit-cards-2/dist/es/styles-compiled.css'
 import { useDispatch } from 'react-redux'
 import { walletState } from '../../utils/types/paymentTypes'
 
@@ -52,7 +47,7 @@ import type { DonationCampaignData } from '@/Components/Page/Pay3Components/dona
 import Pay3Layout from '@/Components/Layout/Pay3Layout'
 
 // Faster Checkout Open: the heavy checkout renderers (CleanCheckoutV2 ~72KB,
-// cryptoTransfer ~94KB, donationCampaign ~42KB, bankTransferCompo ~17KB) are
+// cryptoTransfer ~94KB, donationCampaign ~42KB) are
 // code-split so the /pay route ships a smaller initial bundle and only the
 // renderer the payment actually needs is loaded. A lightweight spinner shows
 // during the (usually sub-100ms) chunk fetch.
@@ -62,7 +57,6 @@ const CheckoutChunkLoader = () => (
   </Box>
 )
 const CryptoTransfer = dynamic(() => import('@/Components/Page/Pay3Components/cryptoTransfer'), { ssr: false, loading: CheckoutChunkLoader })
-const BankTransferCompo = dynamic(() => import('@/Components/Page/Pay3Components/bankTransferCompo'), { ssr: false, loading: CheckoutChunkLoader })
 const DonationCampaign = dynamic(() => import('@/Components/Page/Pay3Components/donationCampaign'), { ssr: false, loading: CheckoutChunkLoader })
 const CleanCheckoutV2 = dynamic(() => import('@/Components/Page/Pay3Components/CleanCheckoutV2'), { ssr: false, loading: CheckoutChunkLoader })
 import Image from 'next/image'
@@ -191,14 +185,11 @@ const Payment = () => {
   const dispatch = useDispatch()
   const { t, i18n } = useTranslation('common')
   
-  const [paymentType, setPaymentType] = useState(paymentTypes.CARD)
-  const [payLoading, setPayloading] = useState(false)
   const [paymentMode, setPaymentMode] = useState('payment')
   const [allowedModes, setAllowedModes] = useState<any[]>([])
   // Raw pay/getData response cache (keyed by ref) — handed to CleanCheckoutV2
   // as initialMeta so the checkout doesn't re-fetch the same payload again.
   const [prefetchedMeta, setPrefetchedMeta] = useState<{ ref: string; data: any } | null>(null)
-  const [accountDetails, setAccountDetails] = useState<CommonDetails>()
   const [selectedCurrency, setSelectedCurrency] = useState('USD')
   const [currencyRates, setCurrencyRates] = useState<currencyData>()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
@@ -221,7 +212,7 @@ const Payment = () => {
             Date.now() - parsed.timestamp < 30 * 60 * 1000 &&
             Number.isInteger(parsed.step) &&
             parsed.step >= 0 &&
-            parsed.step <= 2
+            parsed.step <= 1
           ) {
             return parsed.step;
           }
@@ -273,7 +264,6 @@ const Payment = () => {
   // an endless "Loading…" spinner or a buried error toast.
   const [linkError, setLinkError] = useState<{ expired: boolean; message: string } | null>(null)
   const [isSuccess, setIsSuccess] = useState(false)
-  const [isBank, setIsBank] = useState()
   const [feePayer, setFeePayer] = useState<string>('')
   const [linkId, setLinkId] = useState<string>('')
   const [redirectUrl, setRedirectUrl] = useState<string | null>(null)
@@ -437,16 +427,6 @@ const Payment = () => {
     
     return () => clearInterval(interval)
   }, [incompletePayment])
-
-  useEffect(() => {
-    if (
-      paymentType === paymentTypes.GOOGLE_PAY ||
-      paymentType === paymentTypes.APPLE_PAY
-    ) {
-      initiateGoogleApplyPayTransfer()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [paymentType])
 
   // Ref-latch: pay/getData must fire exactly once per payment ref.
   // router.query is a fresh object on every render and getQueryData has
@@ -734,24 +714,6 @@ const Payment = () => {
         }
       })
     }
-  }
-
-  const initiateGoogleApplyPayTransfer = async () => {
-    const finalPayload = {
-      paymentType,
-      currency: walletState.currency,
-      amount: walletState.amount
-    }
-    setPayloading(true)
-    const res = await createEncryption(JSON.stringify(finalPayload))
-
-    const {
-      data: { data }
-    }: { data: CommonApiRes } = await axiosBaseApi.post('pay/addPayment', {
-      data: res
-    })
-    setPayloading(false)
-    setAccountDetails(data)
   }
 
   // ─── Donation: start a contribution ────────────────────────────────
@@ -1784,44 +1746,19 @@ const Payment = () => {
               </Paper>
             </Box>
           ) : activeStep === 1 ? (
-            transferMethod === 'bank' ? (
-              <BankTransferCompo
-                activeStep={activeStep}
-                setActiveStep={setActiveStep}
-                walletState={walletState}
-                setIsSuccess={setIsSuccess}
-                setIsBank={setIsBank}
-                redirectUrl={redirectUrl}
-              />
-            ) : (
-              <CryptoTransfer
-                activeStep={activeStep}
-                setActiveStep={setActiveStep}
-                walletState={walletState}
-                feePayer={feePayer}
-                redirectUrl={redirectUrl}
-                taxInfo={taxInfo}
-                feeInfo={feeInfo}
-                merchantInfo={merchantInfo}
-                displayCurrency={displayCurrency}
-                transferRate={transferRate}
-                email={tokenData?.email}
-                transactionId={linkId}
-                customerName={customerName}
-                linkType={linkType}
-                contributionInfo={contributionInfo}
-              />
-            )
-          ) : activeStep === 2 ? (
-            <TransferExpectedCard
-              isTrue={isSuccess}
-              dataUrl={isBank || ''}
-              type={'bank'}
+            <CryptoTransfer
+              activeStep={activeStep}
+              setActiveStep={setActiveStep}
+              walletState={walletState}
+              feePayer={feePayer}
               redirectUrl={redirectUrl}
-              transactionId={linkId}
-              merchantName={merchantInfo?.name}
-              amount={`${formatWithSeparators(Number(totalAmount), displayCurrency)} ${displayCurrency}`}
+              taxInfo={taxInfo}
+              feeInfo={feeInfo}
+              merchantInfo={merchantInfo}
+              displayCurrency={displayCurrency}
+              transferRate={transferRate}
               email={tokenData?.email}
+              transactionId={linkId}
               customerName={customerName}
               linkType={linkType}
               contributionInfo={contributionInfo}

@@ -14,12 +14,17 @@ import twoFactorEnrollController from "../controller/twoFactorEnrollController";
 import twoFactorResetController from "../controller/twoFactorResetController";
 import trustedDeviceController from "../controller/trustedDeviceController";
 import { requireStepUp } from "../middleware/requireStepUp";
+import { hasStepUpFactor } from "../services/stepUpService";
 const userRouter = express.Router();
 
-// Step-up (scope `security`): password / email / 2FA changes need a fresh factor.
+// Step-up (scope `security`): password / email / phone / 2FA changes need a fresh factor.
 const securityStepUp = requireStepUp("security");
-// Adding a FIRST email is onboarding; changing an existing one is a sensitive action.
-const emailChangeStepUp = requireStepUp("security", { when: (_req, res) => !!res.locals.authUser?.email });
+// Adding the FIRST contact on a factor-less account is onboarding; on any account that
+// already has an authenticator, email or phone, adding/changing a contact is a sensitive
+// action and must be step-up verified (authenticator when enrolled, else emailed/SMS code).
+const contactChangeStepUp = requireStepUp("security", {
+  when: (_req, res) => hasStepUpFactor(Number((res.locals.user as { user_id?: number })?.user_id)),
+});
 
 // Registration endpoints - moderate rate limiting (10 per 15 min per IP)
 userRouter.post("/registerUser", moderateRateLimiter, validate(registerSchema), userMiddleware, userController.registerUser);
@@ -71,15 +76,15 @@ userRouter.get("/profile", authMiddleware, userController.getProfile);
 userRouter.put("/profile", authMiddleware, userController.updateProfile);
 userRouter.put("/dashboard-quick-actions", authMiddleware, userController.updateDashboardQuickActions);
 userRouter.put("/email", authMiddleware, securityStepUp, userController.changeEmail);
-userRouter.put("/phone", authMiddleware, userController.changePhone);
+userRouter.put("/phone", authMiddleware, securityStepUp, userController.changePhone);
 userRouter.delete("/email", authMiddleware, securityStepUp, userController.removeEmail);
-userRouter.delete("/phone", authMiddleware, userController.removePhone);
+userRouter.delete("/phone", authMiddleware, securityStepUp, userController.removePhone);
 
-// Add email/phone with OTP verification (requires auth)
-userRouter.post("/addEmail", authMiddleware, emailChangeStepUp, otpRateLimiter, userController.addEmail);
-userRouter.post("/verifyAddEmail", authMiddleware, emailChangeStepUp, otpRateLimiter, userController.verifyAddEmail);
-userRouter.post("/addPhone", authMiddleware, otpRateLimiter, userController.addPhone);
-userRouter.post("/verifyAddPhone", authMiddleware, otpRateLimiter, userController.verifyAddPhone);
+// Add / change email or phone with OTP verification (requires auth + step-up when the account has any factor)
+userRouter.post("/addEmail", authMiddleware, contactChangeStepUp, otpRateLimiter, userController.addEmail);
+userRouter.post("/verifyAddEmail", authMiddleware, contactChangeStepUp, otpRateLimiter, userController.verifyAddEmail);
+userRouter.post("/addPhone", authMiddleware, contactChangeStepUp, otpRateLimiter, userController.addPhone);
+userRouter.post("/verifyAddPhone", authMiddleware, contactChangeStepUp, otpRateLimiter, userController.verifyAddPhone);
 
 // Profile password management — identity is proven by the `security` step-up session.
 userRouter.post("/profile/set-password", authMiddleware, securityStepUp, userController.setPassword);
@@ -101,9 +106,8 @@ userRouter.get("/creator/funnel", authMiddleware, userController.getCreatorFunne
 userRouter.get("/creator/analytics", authMiddleware, userController.getCreatorAnalytics);
 userRouter.get("/creator/analytics/split", authMiddleware, userController.getCreatorAnalyticsSplit);
 
-// Per-user display-currency (Doc-3 workstream E)
+// Brand display currency for the signed-in user (read-only; set per brand via PATCH /company/display-currency/:id)
 userRouter.get("/display-currency", authMiddleware, userController.getUserDisplayCurrency);
-userRouter.patch("/display-currency", authMiddleware, userController.updateUserDisplayCurrency);
 
 // Merchant tax settings (Session 57)
 userRouter.get("/tax-settings", authMiddleware, userController.getMerchantTaxSettings);

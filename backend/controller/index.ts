@@ -6,7 +6,6 @@ import walletController from "./walletController";
 import taxController from "./taxController";
 import dashboardController from "./dashboardController";
 import notificationController, { createNotification, NOTIFICATION_TYPES } from "./notificationController";
-import subscriptionController from "./subscriptionController";
 
 // Re-export fee functions from centralized service (backward compatibility)
 export {
@@ -27,7 +26,6 @@ export {
   taxController,
   dashboardController,
   notificationController,
-  subscriptionController,
   createNotification,
   NOTIFICATION_TYPES,
 };

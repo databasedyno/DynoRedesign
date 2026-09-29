@@ -102,17 +102,7 @@ paymentRouter.post(
   paymentController.createCryptoPayment
 );
 
-paymentRouter.post(
-  "/authStep",
-  customerAuthMiddleware,
-  paymentController.authStep
-);
 
-paymentRouter.post(
-  "/verifyPayment",
-  customerAuthMiddleware,
-  paymentController.verifyPayment
-);
 
 paymentRouter.post(
   "/verifyCryptoPayment",
@@ -151,11 +141,6 @@ paymentRouter.post(
 paymentRouter.get("/receipt/:token", paymentRateLimiter, paymentController.getPublicReceipt);
 paymentRouter.get("/receipt/:token/pdf", paymentRateLimiter, paymentController.getPublicReceiptPdf);
 
-paymentRouter.post(
-  "/confirmPayment",
-  customerAuthMiddleware,
-  paymentController.confirmPayment
-);
 paymentRouter.post(
   "/getCurrencyRates",
   paymentRateLimiter,

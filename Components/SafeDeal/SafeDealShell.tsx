@@ -150,7 +150,7 @@ export default function SafeDealShell({
   // (position:fixed, bottom:0). Reserve safe-area at the very bottom so that
   // bar never covers the footer's legal line on small screens.
   const isDealPage = path.includes("/deal/");
-  const [legalName, setLegalName] = useState("Dynopay");
+  const [legalName, setLegalName] = useState("SafeDeal");
   useEffect(() => {
     safedealApi.config().then((c) => c.legal_name && setLegalName(c.legal_name)).catch(() => undefined);
   }, []);
@@ -303,7 +303,7 @@ export default function SafeDealShell({
             </Stack>
           </Stack>
           <Typography sx={{ fontSize: 12, color: dark ? "rgba(255,255,255,0.6)" : "#9C9AA3", mt: 3 }} data-testid="sd-footer-legal">
-            © {new Date().getFullYear()} SafeDeal · safedeal.sh · Operated by {legalName.replace(/\.$/, "")}. Not a bank; funds are held as USDT in SafeDeal escrow.
+            © {new Date().getFullYear()} SafeDeal · safedeal.sh{legalName && legalName !== "SafeDeal" ? ` · Operated by ${legalName.replace(/\.$/, "")}` : ""}. Not a bank; funds are held as USDT in SafeDeal escrow.
           </Typography>
         </Container>
       </Box>

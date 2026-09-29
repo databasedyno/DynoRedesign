@@ -62,7 +62,7 @@ import { checkHandle, checkHandlePublic, reserveHandle } from "./user/creatorHan
 import { updateCreatorProfile, uploadCoverImage, getCreatorProfileSettings } from "./user/creatorProfile";
 import { getCreatorStats, getCreatorAnalytics, getCreatorAnalyticsSplit } from "./user/creatorAnalytics";
 import { getCreatorFunnel } from "./user/creatorFunnel";
-import { getUserDisplayCurrency, updateUserDisplayCurrency, getMerchantTaxSettings, updateMerchantTaxSettings } from "./user/preferences";
+import { getUserDisplayCurrency, getMerchantTaxSettings, updateMerchantTaxSettings } from "./user/preferences";
 
 export default {
   registerUser,
@@ -124,7 +124,6 @@ export default {
   getCreatorAnalytics,
   getCreatorAnalyticsSplit,
   getUserDisplayCurrency,
-  updateUserDisplayCurrency,
   getMerchantTaxSettings,
   updateMerchantTaxSettings,
 };

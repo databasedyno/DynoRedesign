@@ -3,8 +3,8 @@
  * (utils/webhookSignature.ts). Standalone ts-node script — no DB, no network.
  *
  * Proves each verifier makes the SAME accept/reject decision as the original
- * hand-rolled logic it replaced (Tatum SHA512 / Veriff SHA256-raw / Flutterwave
- * plain equality), plus rejects malformed / short / empty / wrong-secret input.
+ * hand-rolled logic it replaced (Tatum SHA512 / Veriff SHA256-raw), plus
+ * rejects malformed / short / empty / wrong-secret input.
  *
  * Run:  node_modules/.bin/ts-node --transpile-only tests/test_webhook_signature.ts
  */
@@ -14,7 +14,6 @@ import {
   verifyHmacHex,
   verifyTatumSignature,
   verifyVeriffSignature,
-  verifyFlutterwaveHash,
 } from "../utils/webhookSignature";
 
 let pass = 0;
@@ -94,27 +93,6 @@ console.log("\n[Veriff verifyVeriffSignature]");
   const sameBytes = restringified === raw.toString();
   check("distinguishes raw vs re-stringified when bytes differ",
     sameBytes ? true : !verifyVeriffSignature(raw, wrongExpectedForRaw, secret));
-}
-
-// ── Flutterwave (plain shared-secret equality on verif-hash) ─────────────────
-console.log("\n[Flutterwave verifyFlutterwaveHash]");
-{
-  const secret = "FLW_SECRET_HASH_value";
-  check("accepts exact secret match", verifyFlutterwaveHash(secret, secret));
-  check("rejects wrong hash", !verifyFlutterwaveHash("wrong", secret));
-  check("rejects empty header", !verifyFlutterwaveHash("", secret));
-  check("rejects undefined header", !verifyFlutterwaveHash(undefined, secret));
-  check("rejects when secret unset", !verifyFlutterwaveHash(secret, ""));
-  check("takes first value from array header", verifyFlutterwaveHash([secret, "x"], secret));
-  // Equivalence to original `!signature || signature !== secretHash` (reject):
-  const cases: Array<string | undefined> = [secret, "wrong", "", undefined];
-  let equiv = true;
-  for (const sig of cases) {
-    const oldReject = !sig || sig !== secret;
-    const newReject = !verifyFlutterwaveHash(sig, secret);
-    if (oldReject !== newReject) equiv = false;
-  }
-  check("decision matches original for all string cases", equiv);
 }
 
 console.log(`\n──────────── RESULT: ${pass} passed, ${fail} failed ────────────\n`);

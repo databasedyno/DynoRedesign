@@ -43,6 +43,16 @@ const SCANNER_PATH_PATTERNS: RegExp[] = [
   /\/\.htaccess/,
   /\/\.htpasswd/,
 
+  // Secrets / config-file sweeps (seen 2026-09 against /api/pay/creator/<file>):
+  // dotfiles + well-known credential/config/build files. This is a Node API — none
+  // of these are ever legitimate URL segments.
+  /\/\.(?:boto|s3cfg|npmrc|amplifyrc|aws|ssh|dockerenv|bash_history|DS_Store)(?:\/|$)/i,
+  /\/(?:credentials|credentials\.(?:json|ini)|auth\.json|secrets?\.(?:json|ya?ml|env))(?:\/|$)/i,
+  /\/(?:config|settings|runtime-config|env-config|aws-exports|env)\.(?:js|json|ya?ml|env|txt)(?:\/|$)/i,
+  /\/(?:env|phpinfo|dockerfile|database\.sql|docker-compose\.ya?ml|composer\.json|package\.json|sendgrid\.env|twilio\.json)(?:\/|$)/i,
+  /\/appsettings(?:\.[a-z]+)?\.json(?:\/|$)/i,
+  /\.(?:bak|old|orig|swp|sql|sqlite|sqlite3|pem|key)(?:\/|$)/i,
+
   // Common CMS paths
   /\/joomla/i,
   /\/drupal/i,

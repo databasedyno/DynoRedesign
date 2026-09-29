@@ -41,24 +41,28 @@ export const getUserDisplayCurrency = async (
   try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const cu = require("../../utils/currencyUtils");
-    // Read raw override to answer "source"
-    const rawRows = (await sequelize.query(
-      `SELECT display_currency FROM tbl_user WHERE user_id = :uid LIMIT 1`,
-      { replacements: { uid: userData.user_id }, type: QueryTypes.SELECT }
-    )) as Array<{ display_currency: string | null }>;
-    const userOverride = rawRows.length ? rawRows[0].display_currency : null;
+    // One currency per brand: `?company_id=` (the brand selected in the UI) wins,
+    // else the user's last-used brand. Per-user overrides were retired (2026-09).
+    const queryCompany = Number(req.query?.company_id);
     const companyIdForResolve =
-      ((userData as any)?.last_company_id ?? userData?.company_id) || null;
+      (Number.isFinite(queryCompany) && queryCompany > 0 ? queryCompany : null) ??
+      (((userData as any)?.last_company_id ?? userData?.company_id) || null);
     const resolved: string = await cu.getUserDisplayCurrency(
       userData.user_id,
       companyIdForResolve
     );
+    // Whether the brand has EXPLICITLY chosen a currency (vs. the USD default) —
+    // the payment-link form only pre-selects an explicit brand currency.
+    let brandCurrencySet = false;
+    if (companyIdForResolve) {
+      const rows = (await sequelize.query(
+        `SELECT display_currency FROM tbl_company WHERE company_id = :id LIMIT 1`,
+        { replacements: { id: companyIdForResolve }, type: QueryTypes.SELECT }
+      )) as Array<{ display_currency: string | null }>;
+      brandCurrencySet = !!(rows[0]?.display_currency && String(rows[0].display_currency).trim());
+    }
     const supported = (cu.SUPPORTED_DISPLAY_CURRENCIES as string[]).map((code: string) => cu.getCurrencyInfo(code));
-    const source: "user" | "company" | "default" = userOverride
-      ? "user"
-      : companyIdForResolve
-        ? "company"
-        : "default";
+    const source: "company" | "default" = companyIdForResolve ? "company" : "default";
     // USD→display-currency FX rate (cached in Redis, 600s TTL). Lets the
     // frontend show a fiat estimate next to crypto amounts in the merchant's
     // chosen display currency without doing any client-side FX guessing.
@@ -70,71 +74,13 @@ export const getUserDisplayCurrency = async (
     }
     return successResponseHelper(res, 200, "Display currency retrieved", {
       display_currency: resolved,
-      user_override: userOverride,
+      brand_currency_set: brandCurrencySet,
+      user_override: null,
       source,
+      company_id: companyIdForResolve,
       currency_info: cu.getCurrencyInfo(resolved),
       rate,
       supported,
-    });
-  } catch (e) {
-    userLogger.error(getErrorMessage(e), { user_id: userData?.user_id }, new Error(e as any));
-    return errorResponseHelper(res, 500, getErrorMessage(e));
-  }
-};
-
-/**
- * PATCH /api/user/display-currency
- * Body: { display_currency: 'EUR' } to set, or { display_currency: null } to
- * clear the override (falls back to company preference). Validates against
- * the same supported list as company-level.
- */
-export const updateUserDisplayCurrency = async (
-  req: express.Request,
-  res: express.Response
-) => {
-  const userData = jwt.decode(res.locals.token) as IUserType;
-  const rawCur = req.body?.display_currency;
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const cu = require("../../utils/currencyUtils");
-
-    // Allow explicit null / "" to clear the override.
-    let nextValue: string | null = null;
-    if (rawCur !== null && rawCur !== undefined && rawCur !== "") {
-      const cur = String(rawCur).toUpperCase();
-      if (!cu.isSupportedDisplayCurrency(cur)) {
-        return errorResponseHelper(
-          res,
-          400,
-          `display_currency must be one of: ${cu.SUPPORTED_DISPLAY_CURRENCIES.join(", ")}`
-        );
-      }
-      nextValue = cur;
-    }
-
-    await sequelize.query(
-      `UPDATE tbl_user SET display_currency = :cur WHERE user_id = :uid`,
-      {
-        replacements: { cur: nextValue, uid: userData.user_id },
-        type: QueryTypes.UPDATE,
-      }
-    );
-
-    userLogger.info(
-      `[DisplayCurrency] User ${userData.user_id} display_currency set to ${nextValue || "NULL (inherit)"}`
-    );
-
-    const companyIdForResolve2 =
-      ((userData as any)?.last_company_id ?? userData?.company_id) || null;
-    const resolved: string = await cu.getUserDisplayCurrency(
-      userData.user_id,
-      companyIdForResolve2
-    );
-    return successResponseHelper(res, 200, "Display currency updated", {
-      display_currency: resolved,
-      user_override: nextValue,
-      source: nextValue ? "user" : companyIdForResolve2 ? "company" : "default",
-      currency_info: cu.getCurrencyInfo(resolved),
     });
   } catch (e) {
     userLogger.error(getErrorMessage(e), { user_id: userData?.user_id }, new Error(e as any));
