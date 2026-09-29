@@ -284,6 +284,50 @@ export function statementToCsv(rows: StatementRow[]): string {
   return [header.join(","), ...lines].join("\n");
 }
 
+/** Ledger rows that moved real money (simulated/sandbox funding is flagged in meta). */
+export const REAL_MONEY_SQL = `COALESCE(meta->>'simulated', 'false') <> 'true' AND COALESCE(meta->>'method', '') <> 'simulated'`;
+
+/**
+ * Deal buckets shared by every "deals" statistic (brand card, per-customer statement, admin readiness):
+ *  funded  = money actually entered escrow (funded_at set; completed/refunded/split/funded/delivered/disputed)
+ *  open    = still waiting for the buyer to fund (draft/invited/awaiting_payment)
+ *  closed_unfunded = ended before any money moved (cancelled/declined/expired)
+ * Only `funded` counts toward volume — an unfunded $1,500 invite is not $1,500 of business.
+ */
+export const DEAL_FUNDED_SQL = `funded_at IS NOT NULL AND COALESCE(simulated, false) = false`;
+export const DEAL_OPEN_SQL = `funded_at IS NULL AND status IN ('draft','invited','awaiting_payment')`;
+export const DEAL_CLOSED_UNFUNDED_SQL = `funded_at IS NULL AND status IN ('cancelled','declined','expired')`;
+export const DEAL_ACTIVE_SQL = `status IN ('funded','delivered','disputed')`;
+
+export const DEAL_STATS_SELECT = `
+  COUNT(*) AS deals_total,
+  COUNT(*) FILTER (WHERE ${DEAL_FUNDED_SQL}) AS deals_funded,
+  COALESCE(SUM(amount) FILTER (WHERE ${DEAL_FUNDED_SQL}), 0) AS deals_volume,
+  COUNT(*) FILTER (WHERE ${DEAL_ACTIVE_SQL}) AS deals_active,
+  COUNT(*) FILTER (WHERE ${DEAL_OPEN_SQL}) AS deals_open,
+  COALESCE(SUM(amount) FILTER (WHERE ${DEAL_OPEN_SQL}), 0) AS deals_open_volume,
+  COUNT(*) FILTER (WHERE ${DEAL_CLOSED_UNFUNDED_SQL}) AS deals_closed_unfunded`;
+
+export interface DealStats {
+  deals_total: number;
+  deals_funded: number;
+  deals_volume: number;
+  deals_active: number;
+  deals_open: number;
+  deals_open_volume: number;
+  deals_closed_unfunded: number;
+}
+
+export const toDealStats = (d?: Record<string, string> | null): DealStats => ({
+  deals_total: Number(d?.deals_total || 0),
+  deals_funded: Number(d?.deals_funded || 0),
+  deals_volume: round2(Number(d?.deals_volume || 0)),
+  deals_active: Number(d?.deals_active || 0),
+  deals_open: Number(d?.deals_open || 0),
+  deals_open_volume: round2(Number(d?.deals_open_volume || 0)),
+  deals_closed_unfunded: Number(d?.deals_closed_unfunded || 0),
+});
+
 /** Brand-level totals for the Dynopay owner: reconcilable against USDT custody. */
 export async function brandWalletTotals(companyId: number): Promise<{
   customers: number;
@@ -294,9 +338,7 @@ export async function brandWalletTotals(companyId: number): Promise<{
   costs_retained: number;
   withdrawals_paid: number;
   withdrawals_pending: number;
-  deals_total: number;
-  deals_volume: number;
-}> {
+} & DealStats> {
   const [w] = await sequelize.query<Record<string, string>>(
     `SELECT COUNT(DISTINCT c.customer_id) AS customers, COUNT(w.wallet_id) AS wallets,
             COALESCE(SUM(w.amount),0) AS available_total, COALESCE(SUM(w.held_amount),0) AS held_total
@@ -308,7 +350,8 @@ export async function brandWalletTotals(companyId: number): Promise<{
     `SELECT COALESCE(SUM(CASE WHEN meta->>'kind' IN ('escrow_fee','exchange_fee') THEN paid_amount ELSE 0 END),0) AS fees_earned,
             COALESCE(SUM(CASE WHEN meta->>'kind' = 'escrow_costs' THEN paid_amount ELSE 0 END),0) AS costs_retained,
             COALESCE(SUM(CASE WHEN meta->>'kind' IN ('withdrawal','payout') THEN paid_amount ELSE 0 END),0) AS withdrawals_paid
-       FROM tbl_customer_transaction WHERE company_id = :companyId AND payment_mode IN ('ESCROW','WITHDRAWAL')`,
+       FROM tbl_customer_transaction
+      WHERE company_id = :companyId AND payment_mode IN ('ESCROW','WITHDRAWAL') AND status = 'successful' AND ${REAL_MONEY_SQL}`,
     { replacements: { companyId }, type: QueryTypes.SELECT }
   );
   const [p] = await sequelize.query<Record<string, string>>(
@@ -317,7 +360,7 @@ export async function brandWalletTotals(companyId: number): Promise<{
     { replacements: { companyId }, type: QueryTypes.SELECT }
   );
   const [d] = await sequelize.query<Record<string, string>>(
-    `SELECT COUNT(*) AS deals_total, COALESCE(SUM(amount),0) AS deals_volume FROM tbl_escrow_deal WHERE company_id = :companyId AND source = 'safedeal'`,
+    `SELECT ${DEAL_STATS_SELECT} FROM tbl_escrow_deal WHERE company_id = :companyId AND source = 'safedeal'`,
     { replacements: { companyId }, type: QueryTypes.SELECT }
   );
   return {
@@ -329,7 +372,6 @@ export async function brandWalletTotals(companyId: number): Promise<{
     costs_retained: round2(Number(f?.costs_retained || 0)),
     withdrawals_paid: round2(Number(f?.withdrawals_paid || 0)),
     withdrawals_pending: round2(Number(p?.pending || 0)),
-    deals_total: Number(d?.deals_total || 0),
-    deals_volume: round2(Number(d?.deals_volume || 0)),
+    ...toDealStats(d),
   };
 }

@@ -22,7 +22,7 @@ import { escrowEngine, ActorInfo, DEAL_TYPES, normalizeDealType } from "./escrow
 import { EscrowRole, appendActivity, computeFeeBreakdown, dealFeeBreakdown, isLiveSettlementEnabled, isSimulationAllowed, resolveRoles } from "./escrow/escrowShared";
 import { ESCROW_PAYOUT_OPTIONS, refreshEscrowCostRates } from "../services/escrow/escrowCosts";
 import { resolveCustomerForBrand, resolveCustomerByTelegram, CustomerRow, CustomerWalletError } from "../services/customerWalletService";
-import { getBalances, getStatement, statementToCsv, brandWalletTotals } from "../services/safedeal/safedealWallet";
+import { getBalances, getStatement, statementToCsv, brandWalletTotals, DEAL_STATS_SELECT, toDealStats } from "../services/safedeal/safedealWallet";
 import {
   MIN_WITHDRAWAL_USD,
   APPROVAL_THRESHOLD_USD,
@@ -1541,7 +1541,7 @@ const adminReadiness = async (_req: express.Request, res: express.Response) => {
       cid ? adminListWithdrawals({ status: "pending_approval", companyId: cid }, 500) : Promise.resolve([]),
       cid
         ? sequelize.query<Record<string, string>>(
-            `SELECT COUNT(*) AS deals, COUNT(*) FILTER (WHERE status IN ('funded','delivered','disputed')) AS active,
+            `SELECT ${DEAL_STATS_SELECT},
                     COUNT(*) FILTER (WHERE status = 'disputed') AS disputed, COALESCE(SUM(custody_amount_stable) FILTER (WHERE status IN ('funded','delivered','disputed')),0) AS in_custody,
                     COALESCE(SUM(custody_realized_usd) FILTER (WHERE status IN ('funded','delivered','disputed')),0) AS realized
                FROM tbl_escrow_deal WHERE source = 'safedeal' AND company_id = :cid`,
@@ -1606,7 +1606,12 @@ const adminReadiness = async (_req: express.Request, res: express.Response) => {
       api_key: { ...keyStatus, webhook_url: safedealWebhookUrl() },
       wallets: configured.map((w) => ({ coin: w.coin, address: maskAddr(w.address), custody: custodyCoins.some((c) => c.coin === w.coin), pool_ready: poolByCoin[w.coin] || 0 })),
       totals: totals ? { ...totals, pending_approvals: pending.length } : null,
-      deals: stats ? { count: Number(stats.deals || 0), active: Number(stats.active || 0), disputed: Number(stats.disputed || 0), in_custody: Number(stats.in_custody || 0), realized: Number(stats.realized || 0) } : null,
+      deals: stats
+        ? (() => {
+            const ds = toDealStats(stats);
+            return { count: ds.deals_funded, total: ds.deals_total, open: ds.deals_open, closed_unfunded: ds.deals_closed_unfunded, volume: ds.deals_volume, active: ds.deals_active, disputed: Number(stats.disputed || 0), in_custody: Number(stats.in_custody || 0), realized: Number(stats.realized || 0) };
+          })()
+        : null,
       checks,
     });
   } catch (e) {
@@ -1649,17 +1654,17 @@ const brandCustomerStatement = async (req: express.Request, res: express.Respons
     }
     const balances = await getBalances(customer.customer_id);
     const [dealStats] = await sequelize.query<Record<string, string>>(
-      `SELECT COUNT(*) AS deals, COALESCE(SUM(amount),0) AS volume,
-              COUNT(*) FILTER (WHERE status IN ('funded','delivered','disputed')) AS active
+      `SELECT ${DEAL_STATS_SELECT}
          FROM tbl_escrow_deal WHERE source = 'safedeal' AND (creator_customer_id = :id OR counterparty_customer_id = :id)`,
       { replacements: { id: customer.customer_id }, type: QueryTypes.SELECT }
     );
+    const ds = toDealStats(dealStats);
     const wds = await listWithdrawals(customer.customer_id, 20);
     const addrs = await listAddresses(customer.customer_id);
     return successResponseHelper(res, 200, "OK", {
       customer: { customer_id: customer.customer_id, email: customer.email, name: customer.customer_name },
       wallet: balances,
-      deals: { count: Number(dealStats?.deals || 0), volume: Number(dealStats?.volume || 0), active: Number(dealStats?.active || 0) },
+      deals: { count: ds.deals_funded, volume: ds.deals_volume, active: ds.deals_active, open: ds.deals_open, total: ds.deals_total, closed_unfunded: ds.deals_closed_unfunded },
       entries: rows,
       withdrawals: wds,
       addresses: addrs.map((a) => ({ address_id: a.address_id, payout_key: a.payout_key, address: a.address, label: a.label })),

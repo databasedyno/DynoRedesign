@@ -15,7 +15,7 @@ interface Readiness {
   wallets: { coin: string; address: string; custody: boolean; pool_ready?: number }[];
   api_key?: { configured: boolean; resolves: boolean; company_match: boolean; active: boolean; key_hint: string | null; api_name: string | null; webhook_secret_synced: boolean; webhook_url: string } | null;
   totals: { available_total?: number; held_total?: number; customers?: number; fees_earned?: number; pending_approvals: number } | null;
-  deals: { count: number; active: number; disputed: number; in_custody: number; realized?: number } | null;
+  deals: { count: number; total?: number; open?: number; closed_unfunded?: number; volume?: number; active: number; disputed: number; in_custody: number; realized?: number } | null;
   checks: Check[];
 }
 
@@ -72,7 +72,8 @@ export default function AdminSafeDealReadiness() {
         {tile("Available balances", money(Number(data.totals?.available_total ?? 0)), "escrow-admin-readiness-available")}
         {tile("Pending approvals", String(data.totals?.pending_approvals ?? 0), "escrow-admin-readiness-pending")}
         {tile("SafeDeal profit (escrow fees, on Binance)", money(Number(data.totals?.fees_earned ?? 0)), "escrow-admin-readiness-profit")}
-        {tile("Active deals", `${data.deals?.active ?? 0} / ${data.deals?.count ?? 0}`, "escrow-admin-readiness-deals")}
+        {tile("Active / funded deals", `${data.deals?.active ?? 0} / ${data.deals?.count ?? 0}${data.deals?.open ? ` · ${data.deals.open} awaiting funding` : ""}`, "escrow-admin-readiness-deals")}
+        {tile("Funded volume (deal prices)", money(Number(data.deals?.volume ?? 0)), "escrow-admin-readiness-volume")}
         {tile("Realised custody (after conversion)", money(Number(data.deals?.realized ?? 0)), "escrow-admin-readiness-realized")}
         {tile("API key", data.api_key?.key_hint ? `${data.api_key.key_hint}` : "not set", "escrow-admin-readiness-apikey")}
       </Grid>

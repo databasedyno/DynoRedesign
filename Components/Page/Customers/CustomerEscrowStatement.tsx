@@ -21,7 +21,7 @@ interface Row {
 interface Statement {
   customer: { customer_id: number; email: string | null; name: string | null };
   wallet: { available: number; held: number; total: number; currency: string };
-  deals: { count: number; volume: number; active: number };
+  deals: { count: number; volume: number; active: number; open?: number; total?: number; closed_unfunded?: number };
   entries: Row[];
   withdrawals: { withdrawal_id: number; amount_usd: number | string; status: string; created_at: string }[];
 }
@@ -59,7 +59,7 @@ export const CustomerEscrowStatement: React.FC<{ companyId: string | number; cus
   useEffect(() => { void load(); }, [load]);
 
   if (loading) return <Box sx={{ mt: 1.5, display: "flex", justifyContent: "center" }}><CircularProgress size={14} /></Box>;
-  if (!data || (data.entries.length === 0 && data.deals.count === 0 && data.wallet.held === 0)) return null;
+  if (!data || (data.entries.length === 0 && (data.deals.total ?? data.deals.count) === 0 && data.wallet.held === 0)) return null;
 
   const csvUrl = `${(process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/+$/, "")}/api/safedeal/brand/${companyId}/customers/${customerId}/statement?format=csv`;
   const downloadCsv = async () => {
@@ -77,7 +77,7 @@ export const CustomerEscrowStatement: React.FC<{ companyId: string | number; cus
       <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
         <ShieldRounded sx={{ fontSize: 18, color: theme.palette.text.secondary }} />
         <Typography sx={{ fontSize: "13px", color: theme.palette.text.secondary, ...sans, flexGrow: 1 }}>SafeDeal escrow wallet</Typography>
-        <Chip size="small" label={`${data.deals.count} deal${data.deals.count === 1 ? "" : "s"} · ${toFixedStr(data.deals.volume, 2)} USD`} data-testid="customer-escrow-deals" sx={{ fontWeight: 700, fontSize: 11 }} />
+        <Chip size="small" label={`${data.deals.count} funded deal${data.deals.count === 1 ? "" : "s"} · ${toFixedStr(data.deals.volume, 2)} USD${data.deals.open ? ` · ${data.deals.open} awaiting funding` : ""}`} data-testid="customer-escrow-deals" sx={{ fontWeight: 700, fontSize: 11 }} />
       </Box>
       <Box sx={{ mt: 1, display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))", gap: 1 }}>
         {[
