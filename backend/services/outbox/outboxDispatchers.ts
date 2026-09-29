@@ -18,16 +18,16 @@
  * so it is a no-op unless ENABLE_OUTBOX is set.
  */
 
-import { registerDispatcher } from "./outboxService";
+import { registerDispatcher, OutboxPartialFailure } from "./outboxService";
 import { MERCHANT_WEBHOOK_EVENT_TYPE } from "./merchantWebhookOutbox";
 import { cronLogger, webhookLogs } from "../../utils/loggers";
 
 let registered = false;
 
 // A failed delivery here is thrown so the relay retries with backoff. But a
-// permanently-skipped endpoint (merchant disabled it, localhost, auto-disabled)
-// must NOT be retried forever — mark it dispatched instead.
-const PERMANENT_SKIP = /disabled|localhost|unreachable/i;
+// permanently-skipped endpoint (merchant disabled it, localhost/private URL,
+// unresolvable host, auto-disabled) must NOT be retried forever.
+const PERMANENT_SKIP = /disabled|localhost|unreachable|not a valid URL|must use http|could not be resolved/i;
 
 export function registerDefaultOutboxDispatchers(): void {
   if (registered) return;
@@ -47,36 +47,47 @@ export function registerDefaultOutboxDispatchers(): void {
   registerDispatcher("payment.settled", logOnly("payment.settled"));
 
   // Real merchant webhook delivery — the cutover target.
+  // Per-target retries: endpoints that already got the event are recorded in
+  // payload.deliveredTargets and skipped on the next attempt, so one 404 on a
+  // second endpoint is retried without double-delivering to the healthy one.
   registerDispatcher(MERCHANT_WEBHOOK_EVENT_TYPE, async (evt) => {
     const payload = (evt.payload || {}) as {
       customerData?: Record<string, unknown>;
       eventData?: Record<string, unknown>;
+      deliveredTargets?: string[];
     };
     const customerData = payload.customerData || {};
     const eventData = payload.eventData || {};
     const eventName = String((eventData as { event?: string }).event ?? "unknown");
+    const alreadyDelivered = Array.isArray(payload.deliveredTargets) ? payload.deliveredTargets : [];
 
     // Lazy require breaks the webhooks/index.ts <-> outbox import cycle.
     const { callMerchantWebhook } = require("../../webhooks");
-    const result = await callMerchantWebhook(customerData, eventData);
+    const result = await callMerchantWebhook(customerData, eventData, { skipUrls: alreadyDelivered });
 
-    if (result?.success) {
-      webhookLogs.info(
-        `[Outbox:merchant.webhook] delivered event=${evt.eventId} (${eventName}) aggregate=${evt.aggregateId}`
-      );
-      return; // delivered, or legitimately skipped (no URL / not subscribed)
+    const delivered: string[] = [...alreadyDelivered, ...(result?.delivered || [])];
+    const failures: Array<{ url: string; error: string }> = result?.failed || [];
+    const transient = failures.filter((f) => !PERMANENT_SKIP.test(f.error));
+    for (const f of failures.filter((x) => PERMANENT_SKIP.test(x.error))) {
+      webhookLogs.warn(`[Outbox:merchant.webhook] permanent skip event=${evt.eventId} (${eventName}) ${f.url}: ${f.error}`);
     }
 
-    const err = String(result?.error || "unknown webhook delivery error");
-    if (PERMANENT_SKIP.test(err)) {
-      webhookLogs.warn(
-        `[Outbox:merchant.webhook] permanent skip event=${evt.eventId} (${eventName}): ${err}`
-      );
-      return; // do not retry a disabled/localhost endpoint forever
+    if (transient.length === 0) {
+      if (result?.success || failures.length > 0 || delivered.length > 0) {
+        webhookLogs.info(
+          `[Outbox:merchant.webhook] delivered event=${evt.eventId} (${eventName}) aggregate=${evt.aggregateId} targets=${delivered.length}`
+        );
+        return; // every target delivered, legitimately skipped, or permanently unreachable
+      }
+      // Legacy shape (no per-target detail) and not successful → generic transient error.
+      const err = String(result?.error || "unknown webhook delivery error");
+      if (PERMANENT_SKIP.test(err)) return;
+      throw new Error(`merchant webhook delivery failed (${eventName}): ${err}`);
     }
 
-    // Transient failure — throw so the relay retries with exponential backoff.
-    throw new Error(`merchant webhook delivery failed (${eventName}): ${err}`);
+    const summary = `merchant webhook delivery failed (${eventName}) for ${transient.map((f) => f.url).join(", ")}: ${transient[0].error}`;
+    if (delivered.length > 0) throw new OutboxPartialFailure(summary, delivered);
+    throw new Error(summary);
   });
 }
 

@@ -1470,7 +1470,24 @@ async function handleNewTransaction(
       if (!failedCustomerData.company_id && items?.company_id) failedCustomerData.company_id = items.company_id;
       if (!failedCustomerData.link_id && items?.link_id) failedCustomerData.link_id = items.link_id;
 
-      if (failedCustomerData.webhook_url || failedCustomerData.callback_url) {
+      // A payout for this payment was already BROADCAST (journal settlement_tx_broadcast):
+      // this failure is almost certainly a retry racing an unmined/unrecorded payout
+      // (2026-09-27 f8e1ca0e: container swapped mid-confirmation → merchant got a false
+      // "settlement_failed" 5h before "settled"). Withhold the alarming webhook; the
+      // retry-time on-chain check / reconciliation auto-recovery will confirm and emit
+      // payment.settled. Fail-open: a journal read error still sends the webhook.
+      let payoutAlreadyBroadcast = false;
+      try {
+        const PaymentJournal = (await import("../models/paymentJournalModel")).default;
+        payoutAlreadyBroadcast = !!(await PaymentJournal.findOne({
+          where: { payment_id: paymentId, event: "settlement_tx_broadcast" },
+          attributes: ["id"],
+        }));
+      } catch { /* fail-open */ }
+
+      if (payoutAlreadyBroadcast) {
+        webhookLogs.warn(`[WebhookProcessor] ⏸️ Withholding payment.settlement_failed for ${paymentId} — a payout was already broadcast for this payment; awaiting on-chain confirmation / auto-recovery`);
+      } else if (failedCustomerData.webhook_url || failedCustomerData.callback_url) {
         const failedLinkId = failedCustomerData?.link_id || items?.link_id || null;
         const failedPaymentType = failedLinkId ? "payment_link" : "direct_api";
 

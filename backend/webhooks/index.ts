@@ -119,9 +119,21 @@ interface WebhookResult {
   success: boolean;
   error?: string;
   url?: string;
+  /** Per-target outcome (fan-out only) — lets the outbox retry just the endpoints that failed. */
+  delivered?: string[];
+  failed?: Array<{ url: string; error: string }>;
 }
 
-const callMerchantWebhook = async (customerData: Record<string, unknown>, eventData: Record<string, unknown>): Promise<WebhookResult> => {
+interface CallMerchantWebhookOptions {
+  /** Endpoints that already received this event on a previous attempt — skipped, never re-sent. */
+  skipUrls?: string[];
+}
+
+const callMerchantWebhook = async (
+  customerData: Record<string, unknown>,
+  eventData: Record<string, unknown>,
+  opts: CallMerchantWebhookOptions = {}
+): Promise<WebhookResult> => {
   try {
     const sequelize = require('../utils/dbInstance').default;
     const companyId = customerData?.company_id;
@@ -157,11 +169,16 @@ const callMerchantWebhook = async (customerData: Record<string, unknown>, eventD
     }
 
     // Resolve the ADDITIVE, de-duplicated list of delivery targets.
-    const targets = await resolveWebhookTargets(customerData, companyId as (number | string | null), companyWebhookDisabled);
+    const allTargets = await resolveWebhookTargets(customerData, companyId as (number | string | null), companyWebhookDisabled);
+    const skip = new Set((opts.skipUrls || []).map((u) => String(u)));
+    const targets = allTargets.filter((t) => !skip.has(t.url));
+    if (skip.size > 0 && targets.length < allTargets.length) {
+      webhookLogs.info(`[callMerchantWebhook] ${eventName}: skipping ${allTargets.length - targets.length} target(s) already delivered on a previous attempt`);
+    }
 
     if (targets.length === 0) {
-      webhookLogs.info("[callMerchantWebhook] No webhook/callback URL configured (per-request, payment_link, company or API key), skipping");
-      return { success: true }; // No webhook configured is not an error
+      if (allTargets.length === 0) webhookLogs.info("[callMerchantWebhook] No webhook/callback URL configured (per-request, payment_link, company or API key), skipping");
+      return { success: true, delivered: [], failed: [] }; // No (remaining) webhook target is not an error
     }
 
     // Enrich event data with fiat equivalent in the merchant's preferred currency
@@ -206,14 +223,14 @@ const callMerchantWebhook = async (customerData: Record<string, unknown>, eventD
       );
     }
 
-    // Aggregate. Success if ANY target delivered — this stops the outbox relay
-    // from retry-storming (which would double-deliver to the healthy endpoints).
-    // If every target failed, surface the first error: a permanent skip
-    // (disabled/localhost/unreachable) is left alone by the relay; a transient
-    // error triggers a retry of the batch (all failed anyway → no duplicates).
-    if (results.some(r => r.success)) return { success: true };
+    // Aggregate. `success` keeps its legacy meaning (ANY target delivered) for
+    // direct callers; the per-target `delivered` / `failed` lists let the outbox
+    // dispatcher retry ONLY the endpoints that failed (no double delivery).
+    const delivered = results.filter(r => r.success && r.url).map(r => r.url as string);
+    const failed = results.filter(r => !r.success).map(r => ({ url: r.url || "", error: r.error || "webhook delivery failed" }));
+    if (results.some(r => r.success)) return { success: true, delivered, failed };
     const firstErr = results.find(r => !r.success);
-    return { success: false, error: firstErr?.error || "webhook delivery failed", url: firstErr?.url };
+    return { success: false, error: firstErr?.error || "webhook delivery failed", url: firstErr?.url, delivered, failed };
 
   } catch (error: unknown) {
     // Log but don't throw - webhook failure shouldn't block payment processing

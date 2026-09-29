@@ -156,7 +156,51 @@ interface ClaimedRow {
   correlation_id: string | null;
 }
 
-/** Atomically claim a batch of due rows (multi-worker safe via SKIP LOCKED). */
+/** How long a claimed row may sit in `processing` before it is considered abandoned. */
+export const PROCESSING_LEASE_MS = 10 * 60_000;
+/** Abandoned rows older than this are closed as failed instead of being redelivered (stale intermediate events). */
+export const STALE_REDELIVERY_MAX_AGE_MS = 24 * 60 * 60_000;
+
+/**
+ * Thrown by a dispatcher when only SOME of its targets failed transiently.
+ * `deliveredTargets` is persisted on the row so the retry skips the endpoints
+ * that already received the event (no double delivery).
+ */
+export class OutboxPartialFailure extends Error {
+  constructor(message: string, public readonly deliveredTargets: string[]) {
+    super(message);
+    this.name = "OutboxPartialFailure";
+  }
+}
+
+/**
+ * Release rows whose `processing` lease expired (worker killed between claim and
+ * mark — e.g. a container swap). Recent rows go back to `pending`; rows older than
+ * 24h are closed as `failed` so a stale intermediate event is not replayed after a
+ * later event (payment.settled) already reached the merchant.
+ */
+export async function reclaimStaleProcessing(): Promise<{ requeued: number; closed: number }> {
+  const rows = (await sequelize.query(
+    `UPDATE tbl_outbox
+        SET status = CASE WHEN created_at > NOW() - make_interval(secs => :maxAgeS) THEN 'pending' ELSE 'failed' END,
+            last_error = CASE WHEN created_at > NOW() - make_interval(secs => :maxAgeS)
+                              THEN 'reclaimed: processing lease expired (worker did not finish)'
+                              ELSE 'stale processing lease expired (>24h) — not redelivered' END,
+            available_at = NOW()
+      WHERE status = 'processing' AND available_at <= NOW() - make_interval(secs => :leaseS)
+      RETURNING id, event_id, event_type, status`,
+    { type: QueryTypes.SELECT, replacements: { leaseS: PROCESSING_LEASE_MS / 1000, maxAgeS: STALE_REDELIVERY_MAX_AGE_MS / 1000 } }
+  )) as unknown as Array<{ id: number; event_id: string; event_type: string; status: string }>;
+  let requeued = 0;
+  let closed = 0;
+  for (const r of rows) {
+    if (r.status === "pending") requeued++; else closed++;
+    cronLogger.warn(`[Outbox] reclaimed stale processing row #${r.id} (${r.event_type}, ${r.event_id}) → ${r.status}`);
+  }
+  return { requeued, closed };
+}
+
+/** Atomically claim a batch of due rows (multi-worker safe via SKIP LOCKED). The claim carries a lease via available_at. */
 async function claimBatch(limit: number): Promise<ClaimedRow[]> {
   return sequelize.transaction(async (t) => {
     const rows = (await sequelize.query(
@@ -173,8 +217,8 @@ async function claimBatch(limit: number): Promise<ClaimedRow[]> {
     if (rows.length > 0) {
       const ids = rows.map((r) => r.id);
       await sequelize.query(
-        `UPDATE tbl_outbox SET status = 'processing' WHERE id IN (:ids)`,
-        { replacements: { ids }, transaction: t }
+        `UPDATE tbl_outbox SET status = 'processing', available_at = NOW() + make_interval(secs => :leaseS) WHERE id IN (:ids)`,
+        { replacements: { ids, leaseS: PROCESSING_LEASE_MS / 1000 }, transaction: t }
       );
     }
     return rows;
@@ -188,7 +232,7 @@ async function markDispatched(id: number): Promise<void> {
   );
 }
 
-async function markRetry(row: ClaimedRow, error: string): Promise<void> {
+async function markRetry(row: ClaimedRow, error: string, payloadPatch?: Record<string, unknown>): Promise<void> {
   const attempts = row.attempts + 1;
   const failed = attempts >= row.max_attempts;
   await OutboxEvent.update(
@@ -197,6 +241,7 @@ async function markRetry(row: ClaimedRow, error: string): Promise<void> {
       attempts,
       last_error: String(error).slice(0, 2000),
       available_at: new Date(Date.now() + backoffMs(attempts, row.event_type)),
+      ...(payloadPatch ? { payload: { ...(row.payload || {}), ...payloadPatch } } : {}),
     },
     { where: { id: row.id } }
   );
@@ -207,6 +252,11 @@ async function markRetry(row: ClaimedRow, error: string): Promise<void> {
 
 /** Dispatch one due batch. Returns how many were processed. */
 export async function relayPendingBatch(limit = 50): Promise<{ dispatched: number; retried: number }> {
+  try {
+    await reclaimStaleProcessing();
+  } catch (err) {
+    cronLogger.warn(`[Outbox] stale-lease reclaim failed (non-fatal): ${(err as Error).message}`);
+  }
   const rows = await claimBatch(limit);
   let dispatched = 0;
   let retried = 0;
@@ -230,7 +280,8 @@ export async function relayPendingBatch(limit = 50): Promise<{ dispatched: numbe
       await markDispatched(row.id);
       dispatched++;
     } catch (err) {
-      await markRetry(row, (err as Error).message || String(err));
+      const patch = err instanceof OutboxPartialFailure ? { deliveredTargets: err.deliveredTargets } : undefined;
+      await markRetry(row, (err as Error).message || String(err), patch);
       retried++;
     }
   }

@@ -50,6 +50,12 @@ jest.mock('../webhooks', () => ({
   callMerchantWebhook: jest.fn().mockResolvedValue({ success: true }),
 }));
 
+// Durable payment journal — only the settlement_failed guard reads it here.
+jest.mock('../models/paymentJournalModel', () => ({
+  __esModule: true,
+  default: { findOne: jest.fn().mockResolvedValue(null), create: jest.fn().mockResolvedValue({}) },
+}));
+
 // On-chain verification gate (Stage 6b). Default = verified; individual tests override.
 jest.mock('../services/chainTxVerifier', () => {
   class ChainVerifyRetry extends Error {}
@@ -86,6 +92,7 @@ import tatumApi from '../apis/tatumApi';
 import { callMerchantWebhook } from '../webhooks';
 import { sendPendingPaymentNotification } from '../services/pendingPaymentService';
 import { gateIncomingTx, ChainVerifyRetry } from '../services/chainTxVerifier';
+import PaymentJournal from '../models/paymentJournalModel';
 import { companyModel, merchantPoolTransactionModel } from '../models';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -991,6 +998,32 @@ describe('Webhook Processor — processWebhookJob', () => {
       await expect(processWebhookJob(createJobData())).rejects.toThrow(
         'cryptoVerification error 500'
       );
+    }, 30000);
+
+    it('sends payment.settlement_failed to the merchant when NO payout was broadcast', async () => {
+      seedRedis('ref-001', { adm_id: 1, company_id: 1, webhook_url: 'https://merchant.example.com/hook' });
+      (PaymentJournal.findOne as jest.Mock).mockResolvedValue(null);
+      (paymentController.cryptoVerification as jest.Mock).mockRejectedValue(new Error('server error'));
+
+      await expect(processWebhookJob(createJobData())).rejects.toThrow('server error');
+
+      const events = (callMerchantWebhook as jest.Mock).mock.calls.map((c) => c[1]?.event);
+      expect(events).toContain('payment.settlement_failed');
+    }, 30000);
+
+    it('WITHHOLDS payment.settlement_failed when a settlement_tx_broadcast journal exists (payout already sent — f8e1ca0e regression)', async () => {
+      seedRedis('ref-001', { adm_id: 1, company_id: 1, webhook_url: 'https://merchant.example.com/hook' });
+      (PaymentJournal.findOne as jest.Mock).mockImplementation(async (q: any) =>
+        q?.where?.event === 'settlement_tx_broadcast' ? { id: 42 } : null
+      );
+      (paymentController.cryptoVerification as jest.Mock).mockRejectedValue(new Error('insufficient funds for intrinsic transaction cost'));
+
+      await expect(processWebhookJob(createJobData())).rejects.toThrow('insufficient funds');
+
+      const events = (callMerchantWebhook as jest.Mock).mock.calls.map((c) => c[1]?.event);
+      expect(events).not.toContain('payment.settlement_failed');
+      // Payment still parked as failed so reconciliation / auto-recovery keeps working on it.
+      expect(setRedisItem).toHaveBeenCalledWith('crypto-0xTestAddress', expect.objectContaining({ status: 'failed' }));
     }, 30000);
   });
 
