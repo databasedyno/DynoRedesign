@@ -1,0 +1,32 @@
+{
+  "summary": "Iteration 243 — RETEST + new backend validation + admin analytics fix + admin UI sweep. ALL PASS. (1) Security regression harness /app/backend/tests/audit_security_test.sh reruns 8/8 PASS. (2) NEW input-validation script /app/backend/tests/iter243_validation_test.sh: 13/13 PASS — POST /api/pay/calculateFees {amount:'abc',cryptocurrency:123}→400 'Valid payment amount is required'; {amount:10,cryptocurrency:123}→400 'Cryptocurrency selection is required'; POST /api/referral/referee/validate {code:[1]}→400 'Referee code is required'; GET /api/company/webhook-history/1/detail/zz9 (merchant bearer)→400 'logId must be numeric'. (3) Admin analytics fix verified: POST /api/admin/login→data.accessToken; GET /api/admin/analytics/revenue?period=7d→200 with data.total_fees_collected=10.978864380000001 (numeric, no more 'column fee_amount does not exist'); analytics/users, /cohorts, /funnel, /onboarding, /attribution all→200. (4) Frontend notifications RETEST: logged in as owner (TOTP flow ok), /notifications Settings tab renders data-testid='push-unavailable-note' with exact text 'Browser push isn't enabled on this platform yet — email and in-app alerts still work.' on BOTH desktop 1920x1080 AND mobile 390x844; ZERO 'Blocked' text chips and ZERO 'Activate' buttons found in the DOM. Stale-bundle regression from iteration_242 is FIXED. (5) Admin UI sweep (read-only): /admin, /admin/merchants, /admin/transactions, /admin/escrow, /admin/live-console, /admin/support, /admin/fee-reconciliation, /admin/profile all render with 0 'Application error', 0 non-429 console errors, 0 /api/* 5xx XHRs. Admin login used email+password only (no 2FA prompt on UI). (6) Merchant regression sweep /dashboard, /transactions all clean; /pay-links, /referrals, /developer-keys observed a cascade of HTTP 429 rate-limit responses on rapid sequential navigation (not a functional bug — page still renders and no 5xx). Notification screenshots saved to /app/.screenshots/notif_desktop.png and /app/.screenshots/notif_mobile.png.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/audit_security_test.sh",
+    "/app/backend/tests/iter243_validation_test.sh"
+  ],
+  "action_items": [
+    "All spec items pass — no action items for main agent.",
+    "Consider: on tight test loops many concurrent page loads trigger the rate-limiter (429) causing Next.js static chunks to be served with wrong MIME (nginx text/html fallback). Not user-facing but generates noise during automated QA — main agent may want to relax rate-limits on /_next/static/ paths or return 304 from the CDN layer for shared static assets."
+  ],
+  "critical_code_review_comments": [
+    "Backend validators (feeController.calculateCheckoutFees, referralController.validateRefereeCode/redeemRefereeCode, companyController.getWebhookDetail, analyticsService.getRevenueAnalytics) now enforce type guards and return 400 with meaningful messages — previously 500. Coverage is minimal but correct.",
+    "Notification push flow now correctly gates on serverEnabled — hook contract `supported = browser && serverEnabled===true` respected end-to-end in the rebuilt Next.js production bundle.",
+    "Rate-limiter cascade during automated sweeps causes /_next/static/*.js to be returned as text/html; the browser then refuses to execute the chunk with a strict MIME error. In real user traffic this won't happen, but preview E2E QA is noisy. Consider excluding /_next/static from the express rate-limit middleware."
+  ],
+  "updated_files": [
+    "/app/backend/tests/iter243_validation_test.sh (new — reusable regression harness for 400 guards + admin analytics)"
+  ],
+  "success_rate": {"backend": "100% (8/8 security + 13/13 validation & analytics)", "frontend": "100% on spec items (notifications note desktop+mobile, admin sweep 8/8 pages, merchant regression clean)"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ (TOTP: node /app/backend/scripts/print_totp.cjs 1). Admin moxxcompany@gmail.com / Katiekendra123@ (no 2FA on API nor UI on this pod). sessionStorage.mfa_interstitial_seen='1' pre-login for owner.",
+  "seed_data_creation": "None — read-only against prod DB per instructions.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "All iteration_243 spec items PASS. Two reusable bash regression harnesses: /app/backend/tests/audit_security_test.sh (8 security guards) and /app/backend/tests/iter243_validation_test.sh (13 validation/analytics assertions). Admin login on this pod is API email+password only, no 2FA. Notifications settings tab must render data-testid='push-unavailable-note' with no Blocked chip / no Activate button — confirmed on desktop 1920x1080 and mobile 390x844. NEVER POST to /api/refunds, /api/admin/* mutation endpoints, or /api/status/check with admin — DB is prod.",
+  "rca of the issue": "N/A — no new regressions. iteration_242's push-unavailable-note regression was RCAed to a stale Next.js production bundle; main agent rebuilt .next-prod and this iteration confirms the fix on both breakpoints."
+}
