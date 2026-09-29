@@ -2170,3 +2170,11 @@ User approved scope (a): ALL customer-facing UI (auth, checkout, landing, chrome
 - Rewrote Components/Page/Pay3Components/donationCampaign.tsx + campaign/* (hero cover, glass cards, accent-driven progress, sticky donate box, 2-col trust cards). Merchant accent now returned by getData (merchant.accent_color).
 - Fixed `${organizer}`-style placeholders in 6 locale files → `{{organizer}}`/`{{amount}}`/`{{currency}}`/`{{minutes}}`; DonorWallV2 medal moved inline; story markdown decodes xss-escaped entities.
 - Verified via testing_agent iteration_239 (100%) on /pay?d=zEJtCe (QA campaign, link 611) + /pay/donation-demo.
+
+## 2026-09-29 — Droplet log RCA (SSH granted): 48h anomaly sweep closed out
+- SSH into root@134.209.94.115 (read-only journalctl/docker) confirmed all 3 open items.
+- Finding 2 (46-min job stall 09-27 15:10–15:56Z): CRASH-LOOP, not OOM. 15:11Z deploy shipped a build that exits 1 on boot; `unless-stopped` restart storm (~59 exit-1 restarts, restartCount→32, backoff 3s→60s) until a good deploy at 15:56:15Z (new container cd21617b). No OOM (mem limit 0, OOMKilled=false, exitCode=1). Preventive: health-gated rolling deploy + CI boot smoke test.
+- Finding 1 (14:09Z settlement false-fail): confirmed clean container swap 14:09:08–14:09:13Z interrupted payment f8e1ca0e mid-confirmation. Matches shipped webhookProcessor fix.
+- Finding 5 (SSRF guard): VERIFIED LIVE — image 4396c3c729… has compiled dist/utils/outboundUrlGuard.js with IPv4-mapped IPv6/loopback/private logic.
+- Current prod healthy: Up, RestartCount=0, crons running normally. Deploy gap: live image 4396c3c729… is behind HEAD 8e2bf4dd8 — this session's 3 anomaly fixes committed but NOT yet deployed (needs Save to GitHub → deploy).
+- Full RCA appended to /app/memory/PROD_ANOMALY_SWEEP_2026-09-28.md.

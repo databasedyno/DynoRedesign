@@ -34,3 +34,20 @@ Source: LIVE prod PostgreSQL (read-only, `backend/scripts/ro_anomaly_sweep{,2,3}
 - Finding 5 (SSRF fix deployed?) still unverified — needs droplet access.
 - Option d: generated /root/.ssh/dynopay_prod_ed25519 (pub: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAU9mWcLKYp5QPi3rMplIYylVFTpeqI2Vjbf4t7vbiom emergent-agent-dynopay-prodlogs-2026-09-28). User must append it to root@134.209.94.115:~/.ssh/authorized_keys. Then: `ssh -i ~/.ssh/dynopay_prod_ed25519 root@134.209.94.115 'docker ps; docker logs --since 2026-09-27T14:05:00Z --until 2026-09-27T14:20:00Z <container>'`.
 - NOTE: none of the backend fixes are live in prod until Save to GitHub → deploy. Unit suite 708/710 (paymentFees.test.ts flaked under full-suite load, passes alone; unrelated fee math).
+
+## Droplet log RCA 2026-09-29 (SSH access granted; read-only journalctl + docker)
+Host `root@134.209.94.115` (dynopay-prod-ams3), single container `dynopay`, image tag = git SHA. Container json-file logs only span the live container, so Sep 27 app stdout is gone (old containers `docker rm`'d on each deploy) — but **journald persists Sep 20→now**, so dockerd/containerd/kernel events for both windows were fully recoverable.
+
+- **Finding 2 (46-min stall 15:10–15:56Z) = CRASH-LOOP from a bad deploy, NOT an OOM.**
+  - No OOM anywhere: kernel log clean, container `HostConfig.Memory=0` (no cgroup mem limit), `OOMKilled=false`. Exit code was **1** (app startup crash), not 137 (OOM).
+  - Timeline (journald docker.service/containerd): deploys at 13:55, 14:09, 14:26 were clean container swaps. The **15:11:45Z deploy shipped a build that crashes on boot** — dockerd `restarting container … exitCode=1 … restartPolicy="{unless-stopped}"` fired continuously (container `d03bb13e…` then `be82676…`), ~59 exit-1 restarts, backoff growing 3s→60s, reaching restartCount=32 by 15:56.
+  - At **15:56:15Z** dockerd `stopping restart-manager` for `be82676…` and started a NEW good container `cd21617b…` → recovery. Matches DB "resumed off-schedule at 15:56:25Z". During the ~45-min loop the app never stayed up long enough to run BullMQ cron (service-health 15:15/30/45 missing, reconciliation 15:20–15:50 skipped).
+  - Root cause of the crash itself (which line exited 1) is NOT recoverable from logs — that container's stdout was deleted on the recovery deploy. Preventive: add a `healthcheck`-gated rolling deploy (don't `rm` the old container until the new one is healthy) and/or a CI smoke boot so a build that exits 1 never reaches prod. `unless-stopped` turned one bad build into a 45-min outage.
+
+- **Finding 1 (settlement false-failure 14:09Z):** confirmed a **clean container swap at 14:09:08–14:09:13Z** (deploy, graceful stop — not a crash) interrupted payment f8e1ca0e mid-confirmation exactly as hypothesised. Consistent with the already-committed webhookProcessor fix (withhold settlement_failed webhook when broadcast row exists).
+
+- **Finding 5 (SSRF guard) = VERIFIED LIVE.** Running image `4396c3c729…` contains compiled `/app/backend/dist/utils/outboundUrlGuard.js` (130 lines) with IPv4-mapped IPv6 / loopback / private-range logic (`ffff`, `::1`, `127.`, `isPrivate`, `IPv4-mapped`, `mapped`). Guard is deployed and running.
+
+- **Current prod health (00:10Z Sep 29):** container Up ~38m, healthy, RestartCount=0, mem 861Mi/3.8Gi, disk 12%. Crons running normally (RPCHealth, reconcileDeferredPayments, preWarmAddressPool, paymentWatchdog, refundForwarding, WebhookQueue health OK every 60s, WrongAsset/OrphanDetect scans). No crash strings.
+
+- **Deploy gap:** live image `4396c3c729…` is BEHIND repo HEAD `8e2bf4dd8`. This session's 3 anomaly fixes (outbox stale-lease, per-target fan-out, settlement false-failure) are committed but **NOT yet deployed** — needs Save to GitHub → deploy.
