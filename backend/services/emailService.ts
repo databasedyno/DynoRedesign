@@ -112,6 +112,7 @@ import {
 import {
   sendNewUserAdminNotification,
   sendOnboardingStuckAdminEmail,
+  sendOnboardingStuckDigestAdminEmail,
   sendOnboardingCompletedAdminEmail,
   sendFirstPaymentAdminEmail,
 } from "./email/adminNotificationEmails";
@@ -194,6 +195,7 @@ export default {
   // Admin notifications
   sendNewUserAdminNotification,
   sendOnboardingStuckAdminEmail,
+  sendOnboardingStuckDigestAdminEmail,
   sendOnboardingCompletedAdminEmail,
   sendFirstPaymentAdminEmail,
   // Volume-based fee tier

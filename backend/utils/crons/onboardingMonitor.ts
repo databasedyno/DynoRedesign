@@ -33,7 +33,7 @@ export const setupOnboardingMonitorCron = () => {
 
     try {
       const { getRedisItem, setRedisItemWithTTL } = await import("../redisInstance");
-      const { sendOnboardingStuckAdminEmail, sendOnboardingCompletedAdminEmail, sendOnboardingCompleteMerchantEmail, sendAddWalletReminderEmail } = await import("../../services/emailService");
+      const { sendOnboardingCompletedAdminEmail, sendOnboardingCompleteMerchantEmail, sendAddWalletReminderEmail } = await import("../../services/emailService");
 
       // Fetch users registered in the last 72 hours
       const users = await sequelize.query<{
@@ -58,7 +58,6 @@ export const setupOnboardingMonitorCron = () => {
 
       log(`Onboarding Monitor: Checking ${users.length} users registered in last 72h`, "info");
 
-      let stuckCount = 0;
       let completedCount = 0;
 
       for (const user of users) {
@@ -131,50 +130,23 @@ export const setupOnboardingMonitorCron = () => {
             continue; // Onboarding complete — no stuck check needed
           }
 
-          // ─── (A) Stuck detection ───
-          // Determine which step they're stuck at (first incomplete step)
+          // ─── (A) Stuck detection (merchant-facing wallet nudge only) ───
+          // Admin-facing stuck alerts moved to a single daily DIGEST
+          // (setupOnboardingStuckDigestCron) — owner request 2026-06. The old
+          // 4h/12h/24h/48h per-user tiers generated up to 4 admin emails per
+          // stuck user and were far too noisy.
+          if (hoursSinceReg < 4) continue; // Less than 4 hours — too early
+
+          // Determine the first incomplete step (for the wallet nudge below).
           let stuckStep = "";
-          const completedSteps: string[] = [];
-          const pendingSteps: string[] = [];
-
-          if (isEmailVerified) {
-            completedSteps.push("Email Verified");
-          } else {
-            if (!stuckStep) stuckStep = "Email Verification";
-            pendingSteps.push("Email Verification");
-          }
-
-          if (hasCompany) {
-            completedSteps.push("Company Created");
-          } else {
-            if (!stuckStep) stuckStep = "Company Setup";
-            pendingSteps.push("Company Setup");
-          }
-
-          if (hasWallet) {
-            completedSteps.push("Wallet Address Configured");
-          } else {
-            if (!stuckStep) stuckStep = "Wallet Setup";
-            pendingSteps.push("Wallet Setup");
-          }
-
-          // Tiered notification: send at 4h, 12h, 24h, 48h milestones
-          const tiers = [
-            { hours: 4, label: "4h" },
-            { hours: 12, label: "12h" },
-            { hours: 24, label: "24h" },
-            { hours: 48, label: "48h" },
-          ];
-
-          // Find the highest tier the user qualifies for
-          const applicableTier = tiers.filter(t => hoursSinceReg >= t.hours).pop();
-          if (!applicableTier) continue; // Less than 4 hours — too early
+          if (!isEmailVerified) stuckStep = "Email Verification";
+          else if (!hasCompany) stuckStep = "Company Setup";
+          else if (!hasWallet) stuckStep = "Wallet Setup";
 
           // ── (A2) User-facing "add your wallet" nudge ───────────────────
           // When the ONLY step left is adding a payout wallet (email verified +
           // account created), email the merchant a branded 1-tap CTA (→ /wallet)
-          // so more of them finish onboarding. Once per user (14-day Redis
-          // dedup) so we never spam. Independent of the admin tier dedup below.
+          // so more of them finish onboarding. Once per user (14-day Redis dedup).
           if (stuckStep === "Wallet Setup" && user.email) {
             const walletNudgeKey = `onboarding-wallet-nudge:${userId}`;
             const nudged = await getRedisItem(walletNudgeKey);
@@ -193,34 +165,12 @@ export const setupOnboardingMonitorCron = () => {
             }
           }
 
-          const stuckKey = `onboarding-stuck:${userId}:${applicableTier.label}`;
-          const alreadyNotified = await getRedisItem(stuckKey);
-          if (alreadyNotified && Object.keys(alreadyNotified).length > 0) continue; // Already sent for this tier
-
-          // Mark as notified for this tier (TTL = 7 days)
-          await setRedisItemWithTTL(stuckKey, { notified: true, step: stuckStep }, 7 * 86400);
-          stuckCount++;
-
-          await sendOnboardingStuckAdminEmail({
-            user_id: userId,
-            name: user.name,
-            email: user.email,
-            mobile: user.mobile,
-            registered_at: createdAt.toLocaleString("en-US", {
-              dateStyle: "medium", timeStyle: "short", timeZone: "UTC",
-            }) + " UTC",
-            hours_since_registration: hoursSinceReg,
-            stuck_step: stuckStep,
-            completed_steps: completedSteps,
-            pending_steps: pendingSteps,
-          });
-
         } catch (userErr) {
           log(`Onboarding Monitor: Error checking user ${user.user_id}: ${userErr}`, "error");
         }
       }
 
-      log(`Onboarding Monitor completed: ${stuckCount} stuck notifications, ${completedCount} completion notifications`, "info");
+      log(`Onboarding Monitor completed: ${completedCount} completion notifications (stuck alerts now sent as a daily digest)`, "info");
 
     } catch (e) {
       log(`Onboarding Monitor Error: ${e}`, "error");
@@ -229,6 +179,137 @@ export const setupOnboardingMonitorCron = () => {
   });
 
   log("Onboarding Monitor Cron scheduled for every hour at :15", "info");
+};
+
+/**
+ * Scan users registered in the last 72h and return everyone still stuck in
+ * onboarding (>= 4h old, not yet complete). Shared by the daily digest cron and
+ * the manual trigger below.
+ */
+export const collectStuckOnboardingRows = async () => {
+  const users = await sequelize.query<{
+    user_id: number;
+    name: string | null;
+    email: string | null;
+    mobile: string | null;
+    email_verified: boolean;
+    createdAt: string;
+  }>(
+    `SELECT user_id, name, email, mobile, email_verified, "createdAt"
+     FROM tbl_user
+     WHERE "createdAt" >= NOW() - INTERVAL '72 hours'
+     ORDER BY "createdAt" DESC`,
+    { type: QueryTypes.SELECT }
+  );
+
+  const rows: Array<{
+    user_id: number;
+    name: string | null;
+    contact: string | null;
+    registered_at: string;
+    hours_since_registration: number;
+    stuck_step: string;
+    pending_steps: string[];
+  }> = [];
+
+  for (const user of users) {
+    const userId = user.user_id;
+    const createdAt = new Date(user.createdAt);
+    const hoursSinceReg = Math.floor((Date.now() - createdAt.getTime()) / 3600000);
+    if (hoursSinceReg < 4) continue; // too fresh — give them time
+
+    const isEmailVerified = user.email_verified === true;
+
+    const companyResult = await sequelize.query<{ company_id: number }>(
+      `SELECT company_id FROM tbl_company WHERE user_id = :userId LIMIT 1`,
+      { replacements: { userId }, type: QueryTypes.SELECT }
+    );
+    const hasCompany = companyResult.length > 0;
+
+    const walletResult = await sequelize.query<{ cnt: string }>(
+      `SELECT COUNT(*) as cnt FROM (
+         SELECT 1 FROM tbl_user_wallet
+         WHERE user_id = :userId AND currency_type = 'CRYPTO'
+           AND wallet_address IS NOT NULL AND wallet_address != ''
+         UNION ALL
+         SELECT 1 FROM tbl_user_addresses WHERE user_id = :userId
+       ) combined`,
+      { replacements: { userId }, type: QueryTypes.SELECT }
+    );
+    const hasWallet = parseInt(walletResult[0]?.cnt || "0") > 0;
+
+    if (isEmailVerified && hasCompany && hasWallet) continue; // onboarding complete
+
+    let stuckStep = "";
+    const pending: string[] = [];
+    if (!isEmailVerified) { if (!stuckStep) stuckStep = "Email Verification"; pending.push("Email Verification"); }
+    if (!hasCompany) { if (!stuckStep) stuckStep = "Company Setup"; pending.push("Company Setup"); }
+    if (!hasWallet) { if (!stuckStep) stuckStep = "Wallet Setup"; pending.push("Wallet Setup"); }
+
+    rows.push({
+      user_id: userId,
+      name: user.name,
+      contact: user.email || user.mobile || null,
+      registered_at: createdAt.toLocaleString("en-US", {
+        dateStyle: "medium", timeStyle: "short", timeZone: "UTC",
+      }) + " UTC",
+      hours_since_registration: hoursSinceReg,
+      stuck_step: stuckStep,
+      pending_steps: pending,
+    });
+  }
+
+  return rows;
+};
+
+/**
+ * Daily digest cron — ONE admin email listing everyone still stuck in
+ * onboarding, replacing the old per-user tiered alerts (owner request 2026-06).
+ * Runs at 09:20 UTC. Per-day Redis guard prevents duplicate sends across leader
+ * re-elections. No email is sent when nobody is stuck.
+ */
+export const setupOnboardingStuckDigestCron = () => {
+  cron.schedule("20 9 * * *", async () => {
+    log("Onboarding Stuck Digest Cron starting...", "info");
+    try {
+      const rows = await collectStuckOnboardingRows();
+      if (rows.length === 0) {
+        log("Onboarding Stuck Digest: nobody stuck — no email sent", "info");
+        return;
+      }
+
+      const { getRedisItem, setRedisItemWithTTL } = await import("../redisInstance");
+      const dayKey = `onboarding-stuck-digest:${new Date().toISOString().slice(0, 10)}`;
+      const already = await getRedisItem(dayKey);
+      if (already && Object.keys(already).length > 0) {
+        log("Onboarding Stuck Digest: already sent today — skipping", "info");
+        return;
+      }
+      await setRedisItemWithTTL(dayKey, { sent: true }, 2 * 86400);
+
+      const { sendOnboardingStuckDigestAdminEmail } = await import("../../services/emailService");
+      await sendOnboardingStuckDigestAdminEmail(rows);
+      log(`Onboarding Stuck Digest: sent — ${rows.length} merchant(s)`, "info");
+    } catch (e) {
+      log(`Onboarding Stuck Digest Error: ${e}`, "error");
+      captureError(e, 'cron', { extraContext: 'setupOnboardingStuckDigestCron' });
+    }
+  });
+
+  log("Onboarding Stuck Digest Cron scheduled for daily at 09:20 UTC", "info");
+};
+
+/**
+ * Manual trigger (ops/testing). dryRun=true (default) returns the exact cohort
+ * that WOULD be in today's digest WITHOUT sending any email — safe on prod.
+ */
+export const triggerOnboardingStuckDigest = async (dryRun = true) => {
+  const rows = await collectStuckOnboardingRows();
+  if (!dryRun && rows.length > 0) {
+    const { sendOnboardingStuckDigestAdminEmail } = await import("../../services/emailService");
+    await sendOnboardingStuckDigestAdminEmail(rows);
+  }
+  return { dryRun, count: rows.length, rows };
 };
 
 /**

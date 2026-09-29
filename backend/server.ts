@@ -32,7 +32,7 @@ import { getTransactionFee, getBlockchainFee } from "./services/feeService";
 import { paymentController } from "./controller";
 import sequelize from "./utils/dbInstance";
 import config from "./utils/config";
-import { setupWeeklySummaryCron, setupWalletReminderCron, setupHealthCheckCron, setupRefereeCodeReminderCron, setupPaymentLinkReminderCron, setupOnboardingMonitorCron, setupFirstPaymentMonitorCron } from "./utils/cronJobs";
+import { setupWeeklySummaryCron, setupWalletReminderCron, setupHealthCheckCron, setupRefereeCodeReminderCron, setupPaymentLinkReminderCron, setupOnboardingMonitorCron, setupOnboardingStuckDigestCron, setupFirstPaymentMonitorCron } from "./utils/cronJobs";
 import { setupReferralRewardCron } from "./utils/crons/referralRewardMonitor";
 import { setupActivationDripCron } from "./utils/crons/activationDrip";
 import { setupSafeDealMaintenanceCron } from "./utils/crons/safedealMaintenance";
@@ -1337,6 +1337,10 @@ setupSafeDealMaintenanceCron();
 
 // Onboarding monitor — detects stuck/completed users, emails admin (A + B)
 setupOnboardingMonitorCron();
+
+// Onboarding stuck DIGEST — ONE daily admin email (09:20 UTC) summarizing every
+// merchant still stuck, replacing the old noisy per-user 4h/12h/24h/48h alerts.
+setupOnboardingStuckDigestCron();
 
 // First payment monitor — detects merchants' first successful payment, emails admin (C)
 setupFirstPaymentMonitorCron();

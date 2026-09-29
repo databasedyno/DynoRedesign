@@ -683,9 +683,11 @@ import {
 export { setupPaymentLinkReminderCron, triggerPaymentLinkReminders };
 import {
   setupOnboardingMonitorCron,
+  setupOnboardingStuckDigestCron,
   triggerOnboardingWalletNudge,
+  triggerOnboardingStuckDigest,
 } from "./crons/onboardingMonitor";
-export { setupOnboardingMonitorCron, triggerOnboardingWalletNudge };
+export { setupOnboardingMonitorCron, setupOnboardingStuckDigestCron, triggerOnboardingWalletNudge, triggerOnboardingStuckDigest };
 import {
   setupFirstPaymentMonitorCron,
 } from "./crons/firstPaymentMonitor";
@@ -703,6 +705,8 @@ export default {
   setupPaymentLinkReminderCron,
   triggerPaymentLinkReminders,
   setupOnboardingMonitorCron,
+  setupOnboardingStuckDigestCron,
   triggerOnboardingWalletNudge,
+  triggerOnboardingStuckDigest,
   setupFirstPaymentMonitorCron,
 };

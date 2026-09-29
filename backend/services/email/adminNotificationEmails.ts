@@ -25,6 +25,9 @@ export const sendNewUserAdminNotification = async (userData: {
   signup_ip?: string | null;
   country?: string | null;
 }) => {
+  // Disabled 2026-06 per owner request — a new-signup admin email on EVERY
+  // registration was too noisy. Re-enable by setting ADMIN_NOTIFY_NEW_USER=true.
+  if ((config.raw("ADMIN_NOTIFY_NEW_USER") || "false").toLowerCase() !== "true") return;
   try {
     const adminEmail = config.raw("ADMIN_EMAIL");
     if (!adminEmail) {
@@ -134,6 +137,61 @@ export const sendOnboardingStuckAdminEmail = async (userData: {
     apiLogger.info(`[Email] Onboarding stuck notification sent for user ${userData.user_id} (stuck at: ${stuckLabel}, ${hours}h)`);
   } catch (e) {
     apiLogger.error("[Email] Onboarding stuck notification error:", e);
+  }
+};
+
+/**
+ * Daily DIGEST to admin listing every merchant still stuck in onboarding.
+ * Replaces the old per-user, per-tier (4h/12h/24h/48h) stuck emails which were
+ * far too noisy — owner request 2026-06. One email per day, worst-first.
+ */
+export const sendOnboardingStuckDigestAdminEmail = async (rows: Array<{
+  user_id: number;
+  name?: string | null;
+  contact?: string | null;
+  registered_at: string;
+  hours_since_registration: number;
+  stuck_step: string;
+  pending_steps: string[];
+}>) => {
+  try {
+    const adminEmail = config.raw("ADMIN_EMAIL");
+    if (!adminEmail || rows.length === 0) return;
+    const L = await resolveEmailLang(undefined, adminEmail);
+
+    const sorted = [...rows].sort((a, b) => b.hours_since_registration - a.hours_since_registration);
+
+    const rowsHtml = sorted.map((r) => {
+      const color = r.hours_since_registration >= 48 ? "#ef4444" : r.hours_since_registration >= 24 ? "#f59e0b" : "#f97316";
+      const waited = r.hours_since_registration >= 48 ? `${Math.floor(r.hours_since_registration / 24)}d` : `${r.hours_since_registration}h`;
+      return `<tr>
+        <td style="padding:8px 10px;border-bottom:1px solid #eef0f3;font-size:13px;color:#111827;">${escapeHtml(r.name || "—")}<br/><span style="color:#6b7280;font-size:12px;">${escapeHtml(r.contact || "—")}</span></td>
+        <td style="padding:8px 10px;border-bottom:1px solid #eef0f3;font-size:13px;color:#374151;">#${r.user_id}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #eef0f3;font-size:13px;"><span style="color:${color};font-weight:600;">${escapeHtml(r.stuck_step)}</span></td>
+        <td style="padding:8px 10px;border-bottom:1px solid #eef0f3;font-size:13px;color:${color};font-weight:600;text-align:right;">${waited}</td>
+      </tr>`;
+    }).join("");
+
+    const th = (label: string, align = "left") =>
+      `<th style="padding:8px 10px;text-align:${align};font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#6b7280;border-bottom:2px solid #e5e7eb;">${label}</th>`;
+
+    const plural = rows.length === 1 ? "" : "s";
+    const subject = `Onboarding digest — ${rows.length} merchant${plural} still stuck`;
+
+    const content = `${p(`Daily onboarding digest — <strong>${rows.length}</strong> merchant${plural} registered in the last 72h ${rows.length === 1 ? "has" : "have"} not finished setup. Sorted longest-waiting first.`)}
+    ${infoBox(`
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+        <tr>${th("Merchant")}${th("User")}${th("Stuck at")}${th("Waiting", "right")}</tr>
+        ${rowsHtml}
+      </table>
+    `, EMAIL_TOKENS.brand)}
+    ${p(`You now receive one digest per day instead of a separate alert for every user and tier.`, `color:#6b7280;font-size:13px;`)}`;
+
+    const html = baseEmailTemplate("Onboarding — daily stuck digest", content, { audience: "admin", lang: L });
+    await mailTransporter({ to: adminEmail, name: "Dynopay Admin", subject, body: html });
+    apiLogger.info(`[Email] Onboarding stuck DIGEST sent — ${rows.length} merchant(s)`);
+  } catch (e) {
+    apiLogger.error("[Email] Onboarding stuck digest error:", e);
   }
 };
 

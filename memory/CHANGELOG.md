@@ -2189,3 +2189,10 @@ User approved scope (a): ALL customer-facing UI (auth, checkout, landing, chrome
 - Finding 5 (SSRF guard): VERIFIED LIVE — image 4396c3c729… has compiled dist/utils/outboundUrlGuard.js with IPv4-mapped IPv6/loopback/private logic.
 - Current prod healthy: Up, RestartCount=0, crons running normally. Deploy gap: live image 4396c3c729… is behind HEAD 8e2bf4dd8 — this session's 3 anomaly fixes committed but NOT yet deployed (needs Save to GitHub → deploy).
 - Full RCA appended to /app/memory/PROD_ANOMALY_SWEEP_2026-09-28.md.
+
+## 2026-09-29 (pt11) — Admin email noise reduced (owner request: too many "stuck onboarding" emails)
+- ROOT CAUSE: onboardingMonitor cron emailed ADMIN_EMAIL per stuck user at 4 tiers (4h/12h/24h/48h) → up to ~4 emails/user (14 currently stuck = up to ~56 emails). Plus a "new user registered" admin email on EVERY signup.
+- FIX (owner picks): (1) Stuck alerts → ONE daily DIGEST at 09:20 UTC listing all stuck merchants, worst-first — new setupOnboardingStuckDigestCron + sendOnboardingStuckDigestAdminEmail + collectStuckOnboardingRows/triggerOnboardingStuckDigest. (2) "New user registered" admin email DISABLED (guard: re-enable via env ADMIN_NOTIFY_NEW_USER=true). (3) Onboarding-completed + first-payment admin emails KEPT as-is.
+- Hourly onboardingMonitor now only does completion detection (B), merchant "all set" email, and merchant wallet nudge (A2) — no per-user admin stuck emails.
+- Files: backend/utils/crons/onboardingMonitor.ts, backend/services/email/adminNotificationEmails.ts, backend/services/emailService.ts, backend/utils/cronJobs.ts, backend/server.ts.
+- Verified: backend tsc --noEmit green (CI gate); dry-run against live DB returned 14 stuck merchants with coherent stuck_step/pending_steps; backend boots clean (preview SAFE MODE = background jobs disabled, so no prod emails from preview). NOT yet deployed — needs Save to GitHub → deploy for prod to take effect.
