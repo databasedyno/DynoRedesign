@@ -40,6 +40,6 @@
   "seed_data_creation": "None",
   "retest_needed": false,
   "should_main_agent_self_test": true,
-  "context_for_next_testing_agent": "Preview base URL: https://f76a7948-40c4-425c-b700-24152c271b32.preview.emergentagent.com. Handle 'devhub' is a public creator with 1 product ('Talk to a Developer', slug talk-to-a-developer, $100). Always MOCK /api/pay/addPayment and /api/pay/verifyCryptoPayment* in Playwright before selecting a coin (SAFE MODE — do not reserve real pool addresses, never click 'Pay with crypto'). Inline tip close/reset button lacks the 'creator-link-inline-close' testid — use text '← Change amount' selector instead until fixed. Product card lacks a 'product-card' testid — locate by title text.",
+  "context_for_next_testing_agent": "Preview base URL: https://vault-setup-14.preview.emergentagent.com. Handle 'devhub' is a public creator with 1 product ('Talk to a Developer', slug talk-to-a-developer, $100). Always MOCK /api/pay/addPayment and /api/pay/verifyCryptoPayment* in Playwright before selecting a coin (SAFE MODE — do not reserve real pool addresses, never click 'Pay with crypto'). Inline tip close/reset button lacks the 'creator-link-inline-close' testid — use text '← Change amount' selector instead until fixed. Product card lacks a 'product-card' testid — locate by title text.",
   "rca of the issue": "N/A — no functional bugs; only minor testability gaps (missing testids) that do not block the user flow."
 }

@@ -13,7 +13,7 @@ import pytest
 import requests
 
 BASE_URL = (os.environ.get("REACT_APP_BACKEND_URL")
-            or "https://vault-auth-8.preview.emergentagent.com").rstrip("/")
+            or "https://vault-setup-14.preview.emergentagent.com").rstrip("/")
 API = f"{BASE_URL}/api"
 TIMEOUT = 30
 
