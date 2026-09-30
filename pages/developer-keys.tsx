@@ -1,10 +1,10 @@
 import CustomButton from "@/Components/UI/Buttons";
 import OnboardingBanner from "@/Components/UI/OnboardingBanner";
 import useIsMobile from "@/hooks/useIsMobile";
-import useEdgeFade from "@/hooks/useEdgeFade";
+import OverflowTabs from "@/Components/UI/OverflowTabs";
 import { pageProps } from "@/utils/types";
 import { AddRounded } from "@mui/icons-material";
-import { Box, Skeleton, useTheme } from "@mui/material";
+import { Box, Skeleton } from "@mui/material";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -12,7 +12,6 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { Icon } from "@/styles/uiKit";
-import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
 
 /**
  * Developers — ONE door for keys, webhooks, events and docs (IA audit Batch B / N4,
@@ -49,9 +48,6 @@ const Developers = ({
 }: pageProps) => {
   const namespaces = ["apiScreen", "common"];
   const isMobile = useIsMobile("md");
-  const tabsFade = useEdgeFade<HTMLDivElement>();
-  const theme = useTheme();
-  const isDark = theme.palette.mode === "dark";
   const router = useRouter();
   const { t } = useTranslation(namespaces);
   const tApi = useCallback(
@@ -68,6 +64,12 @@ const Developers = ({
       { id: "docs", label: tApi("tabs.docs", "Docs"), icon: "book-open" },
     ],
     [tApi],
+  );
+
+  // OverflowTabs items — icon nodes built from the icon names above.
+  const tabItems = useMemo(
+    () => TABS.map((tb) => ({ id: tb.id, label: tb.label, icon: <Icon name={tb.icon} size={15} /> })),
+    [TABS],
   );
 
   // Tab lives in local state; the URL is the source of truth on load and
@@ -139,8 +141,6 @@ const Developers = ({
     return () => setPageAction(null);
   }, [setPageAction, tApi, isMobile, canCreateAnother, active]);
 
-  const indigo = isDark ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light;
-
   return (
     <div style={{ "--font-sans": "var(--font-inter)", fontFamily: "var(--font-inter)" } as any}>
       <Head>
@@ -152,76 +152,18 @@ const Developers = ({
           API-key age with rotation reminder, quick links. */}
       <DeveloperHealthStrip onGoTab={go} />
 
-      {/* Segmented tabs — same shell as /storefront. Edge fade = honest scroll
-          affordance so the last pill (Docs) no longer hard-clips on mobile. */}
-      <Box
-        ref={tabsFade.ref}
-        sx={{
-          display: "inline-flex",
-          gap: 0.5,
-          p: 0.5,
-          mb: 3,
-          borderRadius: 999,
-          border: `1px solid ${isDark ? CB_TOKENS.border.dark : CB_TOKENS.border.light}`,
-          backgroundColor: isDark ? CB_TOKENS.surface.dark : CB_TOKENS.surface.light,
-          maxWidth: "100%",
-          overflowX: "auto",
-          "&::-webkit-scrollbar": { display: "none" },
-          scrollbarWidth: "none",
-          maskImage: tabsFade.maskImage,
-          WebkitMaskImage: tabsFade.WebkitMaskImage,
-        }}
-        data-testid="developers-tabs"
-      >
-        {TABS.map((tab) => {
-          const isActive = tab.id === active;
-          return (
-            <Box
-              key={tab.id}
-              role="button"
-              tabIndex={0}
-              data-testid={`developers-tab-${tab.id}`}
-              aria-current={isActive ? "page" : undefined}
-              onClick={() => go(tab.id)}
-              onKeyDown={(e: React.KeyboardEvent) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  go(tab.id);
-                }
-              }}
-              sx={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 0.75,
-                px: { xs: 1.75, sm: 2.25 },
-                height: 38,
-                borderRadius: 999,
-                cursor: "pointer",
-                whiteSpace: "nowrap",
-                fontFamily: "var(--font-sans)",
-                fontSize: 13.5,
-                fontWeight: 700,
-                transition: "background-color 160ms ease, color 160ms ease",
-                color: isActive
-                  ? "#fff"
-                  : isDark
-                    ? CB_TOKENS.ink.secondaryDark
-                    : CB_TOKENS.ink.secondaryLight,
-                backgroundColor: isActive ? indigo : "transparent",
-                "&:hover": {
-                  backgroundColor: isActive
-                    ? indigo
-                    : isDark
-                      ? "rgba(255,255,255,0.05)"
-                      : "rgba(10,10,15,0.04)",
-                },
-              }}
-            >
-              <Icon name={tab.icon} size={15} />
-              {tab.label}
-            </Box>
-          );
-        })}
+      {/* Segmented tabs → OverflowTabs: collapses any tabs that don't fit into a
+          searchable "N more tabs…" pill on ANY viewport (desktop / tablet / phone),
+          instead of the old horizontal scroller that hid the last pill. */}
+      <Box sx={{ mb: 3, maxWidth: "100%" }}>
+        <OverflowTabs
+          items={tabItems}
+          value={active}
+          onChange={(id) => go(id as TabId)}
+          ariaLabel={tApi("tabs.aria", "Developer sections")}
+          containerTestId="developers-tabs"
+          itemTestIdPrefix="developers-tab"
+        />
       </Box>
 
       {active === "keys" && (

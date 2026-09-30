@@ -347,6 +347,9 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
           <Tabs
             value={activeTab}
             onChange={(_, v) => setActiveTab(v)}
+            variant="scrollable"
+            scrollButtons="auto"
+            allowScrollButtonsMobile
             sx={{
               "& .MuiTab-root": {
                 fontFamily: "var(--font-sans)",

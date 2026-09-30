@@ -324,6 +324,9 @@ const CampaignManager = ({ linkId, currency }: CampaignManagerProps) => {
           setTab(v);
           setError("");
         }}
+        variant="scrollable"
+        scrollButtons="auto"
+        allowScrollButtonsMobile
         sx={{
           minHeight: 40,
           mb: 2,

@@ -20,6 +20,15 @@ interface OverflowTabsProps {
   /** Show the search box in the dropdown once hidden count reaches this. Default 5. */
   searchThreshold?: number;
   ariaLabel?: string;
+  /**
+   * Per-tab data-testid prefix — a visible tab is `${itemTestIdPrefix}-${id}`.
+   * Lets a surface keep its historical testids (e.g. "developers-tab") when it
+   * adopts this component, so existing QA selectors keep resolving. Default
+   * "overflow-tab" (so `overflow-tab-<id>` is unchanged for the settings roll-out).
+   */
+  itemTestIdPrefix?: string;
+  /** data-testid for the strip container. Default "overflow-tabs". */
+  containerTestId?: string;
 }
 
 const GAP = 8;
@@ -36,6 +45,8 @@ const OverflowTabs = ({
   minVisible = 1,
   searchThreshold = 5,
   ariaLabel = "Sections",
+  itemTestIdPrefix = "overflow-tab",
+  containerTestId = "overflow-tabs",
 }: OverflowTabsProps) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
@@ -239,7 +250,7 @@ const OverflowTabs = ({
     <Box sx={{ position: "relative", width: "100%", minWidth: 0 }}>
       <Box
         ref={stripRef}
-        data-testid="overflow-tabs"
+        data-testid={containerTestId}
         role="tablist"
         aria-label={ariaLabel}
         sx={{ display: "flex", gap: `${GAP}px`, alignItems: "center", width: "100%", minWidth: 0, overflow: "hidden" }}
@@ -254,7 +265,7 @@ const OverflowTabs = ({
               role="tab"
               aria-selected={isActive}
               tabIndex={0}
-              data-testid={`overflow-tab-${id}`}
+              data-testid={`${itemTestIdPrefix}-${id}`}
               onClick={() => onChange(id)}
               onKeyDown={(e: React.KeyboardEvent) => {
                 if (e.key === "Enter" || e.key === " ") {

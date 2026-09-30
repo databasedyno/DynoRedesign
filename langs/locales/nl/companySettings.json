@@ -78,5 +78,12 @@
     "neverHint": "Kopers zien alleen het totaal dat ze betalen — zoals bij een kaartafrekening.",
     "label": "Toon de vergoedingenspecificatie aan klanten",
     "desc": "Beheert de rijen “Merchant ontvangt / Dynopay vergoeding” op je checkout, het succes scherm en de bon van de koper."
+  },
+  "savedToast": {
+    "company": "Bedrijfsgegevens opgeslagen",
+    "payment": "Betaalinstellingen opgeslagen",
+    "webhook": "Webhook-instellingen opgeslagen",
+    "crypto": "Automatische conversie opgeslagen",
+    "generic": "Instellingen opgeslagen"
   }
 }

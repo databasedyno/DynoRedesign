@@ -113,6 +113,21 @@ export default function CompanySettingsDialog({
   const dispatch = useDispatch();
   const companyState = useCompanyStore();
 
+  // Batch D — name the section in the save toast ("Payment settings saved")
+  // instead of a generic "Saved", when the dialog is scoped to one section.
+  const savedToastMessage = useMemo(() => {
+    if (sections.length === 1) {
+      const named: Record<string, string> = {
+        company: tSettings("savedToast.company", { defaultValue: "Business details saved" }),
+        payment: tSettings("savedToast.payment", { defaultValue: "Payment settings saved" }),
+        webhook: tSettings("savedToast.webhook", { defaultValue: "Webhook settings saved" }),
+        crypto: tSettings("savedToast.crypto", { defaultValue: "Auto-convert settings saved" }),
+      };
+      return named[sections[0]];
+    }
+    return tSettings("savedToast.generic", { defaultValue: "Settings saved" });
+  }, [sections, tSettings]);
+
   const [formKey, setFormKey] = useState(0);
   const [imagePreview, setImagePreview] = useState<string | undefined>();
   const [mediaFile, setMediaFile] = useState<File | undefined>();
@@ -425,7 +440,7 @@ export default function CompanySettingsDialog({
     if (mediaFile) formData.append("image", mediaFile);
 
     try {
-      await companyState.updateCompany({ id: company.company_id, formData });
+      await companyState.updateCompany({ id: company.company_id, formData, successMessage: savedToastMessage });
     } catch {
       // error toast handled inside the store — stop here so we don't flip type
       return;

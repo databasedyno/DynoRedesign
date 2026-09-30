@@ -79,7 +79,7 @@ export interface CompanyStore {
   selectCompany: (id: number) => void;
   refetchCompanies: () => Promise<any>;
   addCompany: (formData: any) => Promise<any>;
-  updateCompany: (args: { id: number | string; formData: any }) => Promise<any>;
+  updateCompany: (args: { id: number | string; formData: any; successMessage?: string }) => Promise<any>;
   deleteCompany: (id: number | string) => Promise<any>;
   validateTax: (args: {
     companyId: number | string;
@@ -216,14 +216,16 @@ export function CompanyDataProvider({ children }: { children: React.ReactNode })
   );
 
   const updateCompany = useCallback(
-    async ({ id, formData }: { id: number | string; formData: any }) => {
+    async ({ id, formData, successMessage }: { id: number | string; formData: any; successMessage?: string }) => {
       try {
         const {
           data: { data: d, message },
         } = await axios.put("company/updateCompany/" + id, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
-        dispatch({ type: TOAST_SHOW, payload: { message } });
+        // Callers may name the section that was saved (e.g. "Payment settings
+        // saved") for a clearer toast; otherwise fall back to the backend message.
+        dispatch({ type: TOAST_SHOW, payload: { message: successMessage || message } });
         await mutate();
         return d;
       } catch (e: any) {

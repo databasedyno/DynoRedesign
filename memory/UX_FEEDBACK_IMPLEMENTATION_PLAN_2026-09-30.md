@@ -43,7 +43,7 @@ loading has no bar/never auto-hides; phone = full-width bottom above sticky CTA;
 
 ---
 
-## BATCH B — "N more tabs…" overflow tab with search  (P1)  🟡 component ✅, roll-out partial
+## BATCH B — "N more tabs…" overflow tab with search  (P1)  ✅ DONE (component device-adaptive + roll-out)
 **Goal:** one shared tab strip that collapses overflow into a searchable "N more tabs…" pill; active tab
 always visible; phone-first fallback.
 
@@ -60,9 +60,25 @@ always visible; phone-first fallback.
 **Acceptance:** at 390px `/settings` shows ≤2 pills + "N more tabs…"; dropdown lists the rest; search "tax"
 → 1 row; select navigates + updates `?section=`; wide container shows all, pill absent; live re-flow, no flicker.
 
-**Roll-out remaining (⛔):** `pages/developer-keys.tsx` (4 tabs — low value), `pages/storefront/index.tsx`,
-`Components/Page/Admin/Transactions/index.tsx`, `pages/safedeal/wallet.tsx`, `pages/invoices.tsx`,
-`Components/UI/pay-link/CampaignManager.tsx`.
+**Roll-out (✅ done, 2026-09-30 session 2):**
+- **Component now device-adaptive at ALL viewports** (desktop / tablet / phone): the strip already
+  collapses by measured container width via ResizeObserver + ghost-row measurement (the `<480px`
+  rule is just the phone "active-pill-only" fallback). Added two props so surfaces keep their historical
+  QA selectors: `itemTestIdPrefix` (per-tab `${prefix}-${id}`, default "overflow-tab") and
+  `containerTestId` (default "overflow-tabs").
+- `pages/developer-keys.tsx` → **converted to `<OverflowTabs>`** (containerTestId="developers-tabs",
+  itemTestIdPrefix="developers-tab" — old `developers-tab-*` testids preserved). Removed the bespoke
+  edge-fade scroller (`useEdgeFade`, `CB_TOKENS`, `indigo`, `theme/isDark` cleaned up).
+- `pages/storefront/index.tsx` → **converted to `<OverflowTabs>`** (containerTestId="storefront-tabs",
+  itemTestIdPrefix="storefront-tab"; translated labels preserved). Company-hint chip left untouched.
+- `pages/invoices.tsx`, `Components/UI/pay-link/CampaignManager.tsx`,
+  `Components/Page/Admin/Transactions/index.tsx` → these are 2–3-tab MUI `<Tabs>` (some branded /
+  with long labels). Rather than restyle to generic pills (visual regression, ~no overflow gain on
+  2–3 tabs), **hardened to `variant="scrollable" scrollButtons="auto" allowScrollButtonsMobile`** so
+  nothing clips on tablet/phone while keeping each surface's look.
+- `pages/safedeal/wallet.tsx` → the real tabs live in `Components/SafeDeal/Home/SafeDealHome.tsx`
+  (gold-branded pill strip + a "deals" badge, 4 tabs, already `overflowX:auto`). **Left as-is** —
+  branded + already responsive; converting would drop the SafeDeal styling for little gain.
 
 ---
 
@@ -80,13 +96,17 @@ SafeDeal `NewDeal.tsx` step 0, storefront first-run, tax first-run.
 
 ---
 
-## BATCH D — Small polish + i18n  🟡 i18n ✅, save-toast copy ⛔
+## BATCH D — Small polish + i18n  ✅ DONE
 - ✅ **i18n** added to all 6 locales (`langs/locales/{de,en,es,fr,nl,pt}/common.json`):
   `tabs.moreCount`, `tabs.searchPlaceholder`, `tabs.noMatch`, `toast.dismiss`, `toast.undo`,
   `settingsPage.sectionsAria`.
 - ✅ **Restored the toast X** (was commented out) — part of Batch A.
-- ⛔ **Name the section in save toasts** ("Payments settings saved" not "Saved"). Lives in nested
-  `Components/UI/CompanySettingsDialog` sub-forms (TaxSettingsSection already names itself).
+- ✅ **Name the section in save toasts** (2026-09-30 session 2). `CompanySettingsDialog` now passes a
+  section-named `successMessage` to `updateCompany` ("Payment settings saved" / "Business details saved" /
+  "Webhook settings saved" / "Auto-convert settings saved" when scoped to one section; "Settings saved"
+  otherwise). Added optional `successMessage` param to `contexts/CompanyDataContext.tsx::updateCompany`
+  (back-compat: other callers still get the backend message). New `savedToast.*` keys added to all 6
+  `companySettings.json` locales. TaxSettingsSection already named itself.
 - Keep `InfoBanner`/`CustomAlert` inline (rule: banner = state, toast = event) — no change needed.
 
 ---
@@ -97,6 +117,18 @@ SafeDeal `NewDeal.tsx` step 0, storefront first-run, tax first-run.
 2. **Batch B settings + Batch C:** need 2FA login; run after those land.
 3. `/__toasttest` is TEMPORARY and will be deleted + rebuilt before handoff.
 
-## Order of remaining execution (proposed)
-B roll-out (storefront/admin/safedeal/invoices/campaign) → D save-toast copy → C shared pieces →
-C per-wizard (register → GetStarted → KYC → SafeDeal → first-runs), each with a testing pass.
+## Remaining execution (updated 2026-09-30 session 2)
+**Only BATCH C is left.** B + D are done (see above). C is deferred as a REVIEWED, incremental pass
+because it rewrites live signup / KYC / checkout forms on a production PSP (doc's own caveat: "do with
+review", needs 2FA-logged-in verification). Recommended order when resumed:
+C shared pieces (focus-ring `sx` in `Components/UI/_shared` + a `FormQuestion` layout) →
+apply per-wizard low-risk first (storefront first-run → tax first-run → GetStarted) →
+then the sensitive gates (register → KYC → SafeDeal NewDeal step 0), each with its own build + testing pass.
+
+## Verification (session 2)
+- ESLint clean on all changed FE files; full `next build` type-check passed; prod build swapped in and
+  serving (`/`, `/developer-keys`, `/storefront`, `/invoices` → 200).
+- Build/deploy on the pod: build to a NEW dist dir and **wait for the process to fully exit** before
+  `mv`-swapping into `.next-prod` — `prerender-manifest.json` is written late ("Finalizing"/"Collecting
+  build traces"); swapping mid-build yields an incomplete dir and `next start` crash-loops on
+  `ENOENT prerender-manifest.json`. Keep the previous `.next-prod-old` as an instant rollback.

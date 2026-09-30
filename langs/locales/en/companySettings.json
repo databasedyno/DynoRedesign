@@ -78,5 +78,12 @@
     "neverHint": "Buyers only ever see the total they pay — like a card checkout.",
     "label": "Show the fee breakdown to customers",
     "desc": "Controls the “Merchant receives / Dynopay fee” rows on your checkout, its success screen and the buyer's receipt."
+  },
+  "savedToast": {
+    "company": "Business details saved",
+    "payment": "Payment settings saved",
+    "webhook": "Webhook settings saved",
+    "crypto": "Auto-convert settings saved",
+    "generic": "Settings saved"
   }
 }

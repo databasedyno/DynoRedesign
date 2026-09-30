@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useTranslation, Trans } from "react-i18next";
 import { USER_PROFILE_FETCH, UserAction } from "@/Redux/Actions/UserAction";
 import { Icon } from "@/styles/uiKit";
+import OverflowTabs from "@/Components/UI/OverflowTabs";
 import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
 import { pageProps, rootReducer } from "@/utils/types";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
@@ -130,6 +131,19 @@ const Storefront = ({ setPageName, setPageDescription, setPageAction, setPageHea
 
   const indigo = isDark ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light;
 
+  // OverflowTabs items — translated labels + icon nodes.
+  const tabItems = useMemo(
+    () =>
+      TABS.map((tb) => ({
+        id: tb.id,
+        label: t(`storefront.tab${tb.id.charAt(0).toUpperCase()}${tb.id.slice(1)}`, {
+          defaultValue: tb.label,
+        }),
+        icon: <Icon name={tb.icon} size={15} />,
+      })),
+    [t],
+  );
+
   return (
     <>
       <Head>
@@ -186,72 +200,17 @@ const Storefront = ({ setPageName, setPageDescription, setPageAction, setPageHea
           </Box>
         )}
 
-        {/* Segmented tabs */}
-        <Box
-          sx={{
-            display: "inline-flex",
-            gap: 0.5,
-            p: 0.5,
-            mb: 3,
-            borderRadius: 999,
-            border: `1px solid ${isDark ? CB_TOKENS.border.dark : CB_TOKENS.border.light}`,
-            backgroundColor: isDark ? CB_TOKENS.surface.dark : CB_TOKENS.surface.light,
-            maxWidth: "100%",
-            overflowX: "auto",
-          }}
-        >
-          {TABS.map((tab) => {
-            const isActive = tab.id === active;
-            return (
-              <Box
-                key={tab.id}
-                role="button"
-                tabIndex={0}
-                data-testid={`storefront-tab-${tab.id}`}
-                aria-current={isActive ? "page" : undefined}
-                onClick={() => go(tab.id)}
-                onKeyDown={(e: React.KeyboardEvent) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    go(tab.id);
-                  }
-                }}
-                sx={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 0.75,
-                  px: { xs: 1.75, sm: 2.25 },
-                  height: 38,
-                  borderRadius: 999,
-                  cursor: "pointer",
-                  whiteSpace: "nowrap",
-                  fontFamily: "var(--font-sans)",
-                  fontSize: 13.5,
-                  fontWeight: 700,
-                  transition: "background-color 160ms ease, color 160ms ease",
-                  color: isActive
-                    ? "#fff"
-                    : isDark
-                      ? CB_TOKENS.ink.secondaryDark
-                      : CB_TOKENS.ink.secondaryLight,
-                  backgroundColor: isActive ? indigo : "transparent",
-                  "&:hover": {
-                    backgroundColor: isActive
-                      ? indigo
-                      : isDark
-                        ? "rgba(255,255,255,0.05)"
-                        : "rgba(10,10,15,0.04)",
-                  },
-                }}
-              >
-                <Icon name={tab.icon} size={15} />
-                {t(
-                  `storefront.tab${tab.id.charAt(0).toUpperCase()}${tab.id.slice(1)}`,
-                  { defaultValue: tab.label },
-                )}
-              </Box>
-            );
-          })}
+        {/* Segmented tabs → OverflowTabs: collapses tabs that don't fit into a
+            searchable "N more tabs…" pill on ANY viewport (desktop / tablet / phone). */}
+        <Box sx={{ mb: 3, maxWidth: "100%" }}>
+          <OverflowTabs
+            items={tabItems}
+            value={active}
+            onChange={(id) => go(id as TabId)}
+            ariaLabel={t("storefront.tabsAria", { defaultValue: "Storefront sections" })}
+            containerTestId="storefront-tabs"
+            itemTestIdPrefix="storefront-tab"
+          />
         </Box>
 
         {active === "page" && <PageTab />}

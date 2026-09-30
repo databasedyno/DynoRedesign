@@ -78,5 +78,12 @@
     "neverHint": "Los compradores solo ven el total que pagan — como en un pago con tarjeta.",
     "label": "Mostrar el desglose de tarifas a los clientes",
     "desc": "Controla las filas “El comerciante recibe / Tarifa de Dynopay” en tu pago, su pantalla de éxito y el recibo del comprador."
+  },
+  "savedToast": {
+    "company": "Datos de la empresa guardados",
+    "payment": "Ajustes de pago guardados",
+    "webhook": "Ajustes de webhook guardados",
+    "crypto": "Conversión automática guardada",
+    "generic": "Ajustes guardados"
   }
 }

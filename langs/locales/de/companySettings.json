@@ -78,5 +78,12 @@
     "neverHint": "Käufer sehen nur den Gesamtbetrag, den sie zahlen — wie bei einem Karten-Checkout.",
     "label": "Zeige die Gebührenaufteilung den Kunden",
     "desc": "Steuert die Zeilen „Händler erhält / Dynopay Gebühr“ in Ihrem Checkout, auf dem Erfolgsbildschirm und im Beleg des Käufers."
+  },
+  "savedToast": {
+    "company": "Unternehmensdaten gespeichert",
+    "payment": "Zahlungseinstellungen gespeichert",
+    "webhook": "Webhook-Einstellungen gespeichert",
+    "crypto": "Auto-Konvertierung gespeichert",
+    "generic": "Einstellungen gespeichert"
   }
 }

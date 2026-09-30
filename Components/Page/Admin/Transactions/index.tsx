@@ -196,6 +196,9 @@ const AdminTransactions: React.FC = () => {
         <Tabs
           value={tab}
           onChange={(_, v) => setTab(v)}
+          variant="scrollable"
+          scrollButtons="auto"
+          allowScrollButtonsMobile
           sx={{ px: 2, borderBottom: `1px solid ${theme.palette.divider}` }}
         >
           <Tab label={`Customer payments (${customerTx.length})`} data-testid="tx-tab-customer" />

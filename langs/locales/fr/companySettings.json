@@ -78,5 +78,12 @@
     "neverHint": "Les acheteurs ne voient jamais que le total qu'ils paient — comme lors d'un paiement par carte.",
     "label": "Afficher la répartition des frais aux clients",
     "desc": "Contrôle les lignes « Le commerçant reçoit / Frais Dynopay » sur votre paiement, son écran de succès et le reçu de l'acheteur."
+  },
+  "savedToast": {
+    "company": "Informations de l'entreprise enregistrées",
+    "payment": "Paramètres de paiement enregistrés",
+    "webhook": "Paramètres de webhook enregistrés",
+    "crypto": "Conversion automatique enregistrée",
+    "generic": "Paramètres enregistrés"
   }
 }

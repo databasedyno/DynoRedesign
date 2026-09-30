@@ -78,5 +78,12 @@
     "neverHint": "Os compradores veem apenas o total que pagam — como num checkout com cartão.",
     "label": "Mostrar a discriminação da taxa aos clientes",
     "desc": "Controla as linhas “O comerciante recebe / Taxa da Dynopay” no seu checkout, no ecrã de sucesso e no recibo do comprador."
+  },
+  "savedToast": {
+    "company": "Dados da empresa guardados",
+    "payment": "Definições de pagamento guardadas",
+    "webhook": "Definições de webhook guardadas",
+    "crypto": "Conversão automática guardada",
+    "generic": "Definições guardadas"
   }
 }
