@@ -98,15 +98,13 @@ function domName(d: any): string {
 }
 
 function printDnsRecords(records: any) {
-  if (!records) {
+  if (!records || typeof records !== "object") {
     console.log("     (no dns_records in response)");
     return;
   }
-  const keys = ["brevo_code", "dkim_record", "dkim1_record", "dkim2_record", "dmarc_record"];
   let printedAny = false;
-  for (const k of keys) {
-    const rec = records[k];
-    if (!rec) continue;
+  for (const [k, rec] of Object.entries<any>(records)) {
+    if (!rec || typeof rec !== "object" || !("value" in rec)) continue;
     printedAny = true;
     console.log(
       `     • ${k.padEnd(13)} type=${rec.type || "TXT"}  host=${rec.host_name || rec.hostName || "@"}\n` +
@@ -184,8 +182,10 @@ async function cmdReport() {
   console.log("\nRun `apply` to create them in the NEW account and print the DNS records to add.");
 }
 
-async function cmdApply() {
+async function cmdApply(scope: string = "all") {
   if (!NEW_KEY) throw new Error("NEW_BREVO_KEY is required for apply");
+  const doDomains = scope === "all" || scope === "domains";
+  const doSenders = scope === "all" || scope === "senders";
   const oc = client(OLD_KEY!);
   const nc = client(NEW_KEY);
   const oldDomains = await listDomains(oc);
@@ -195,8 +195,9 @@ async function cmdApply() {
   const newDomSet = new Set(newDomains.map(domName));
   const newSenderSet = new Set(newSenders.map((s: any) => String(s.email).toLowerCase()));
 
+  if (!doDomains) console.log("(skipping domains — scope=senders)");
   console.log("── Creating domains in NEW account ─────────────────────");
-  for (const d of oldDomains) {
+  for (const d of doDomains ? oldDomains : []) {
     const name = domName(d);
     if (!name) continue;
     if (newDomSet.has(name)) {
@@ -214,6 +215,11 @@ async function cmdApply() {
     printDnsRecords(r.data?.dns_records || r.data);
   }
 
+  if (!doSenders) {
+    console.log("\n(senders skipped — scope=domains. After DNS is live, run `authenticate all` then `apply senders`.)");
+    console.log("\nNext: add the DNS records above at Cloudflare, then run `authenticate all`.");
+    return;
+  }
   console.log("\n── Creating senders in NEW account ─────────────────────");
   for (const s of oldSenders) {
     const email = String(s.email || "").toLowerCase();
@@ -275,7 +281,7 @@ async function main() {
       await cmdCredits();
       break;
     case "apply":
-      await cmdApply();
+      await cmdApply(process.argv[3]);
       break;
     case "dns":
       await cmdDns(process.argv[3]);
