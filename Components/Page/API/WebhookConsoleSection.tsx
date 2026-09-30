@@ -57,6 +57,8 @@ interface WebhookLog {
   log_id: number;
   event_type: string;
   webhook_id: string;
+  /** Destination endpoint this attempt was delivered to (company URL, per-link URL, …). */
+  webhook_url?: string | null;
   status: "pending" | "success" | "failed" | string;
   response_status: number | null;
   response_time_ms: number | null;
@@ -68,7 +70,6 @@ interface WebhookLog {
 
 interface WebhookLogDetail extends WebhookLog {
   company_id?: number;
-  webhook_url?: string;
   payload?: string | null;
 }
 
@@ -103,6 +104,20 @@ const fmtTime = (iso?: string | null) => {
   return formatDateTimeI18n(iso, {
     month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
   }) || "—";
+};
+
+// Compact "host + path" form of a delivery endpoint for the list rows, so two
+// deliveries of the same event to DIFFERENT endpoints (e.g. a company URL and a
+// per-payment/link URL) are visibly distinct instead of looking like duplicates.
+const shortEndpoint = (raw?: string | null): string => {
+  if (!raw) return "";
+  try {
+    const u = new URL(raw);
+    const path = u.pathname && u.pathname !== "/" ? u.pathname : "";
+    return `${u.host}${path}`;
+  } catch {
+    return String(raw).replace(/^https?:\/\//, "");
+  }
 };
 
 const prettyJson = (raw?: string | null) => {
@@ -827,6 +842,17 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
                         <Typography sx={{ fontSize: 13, fontWeight: 700, color: t.primary, fontFamily: "monospace" }}>
                           {lg.event_type}
                         </Typography>
+                        {lg.webhook_url && (
+                          <Typography
+                            title={lg.webhook_url}
+                            sx={{
+                              fontSize: 11, color: t.secondary, fontFamily: "monospace",
+                              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                            }}
+                          >
+                            {"\u2192 "}{shortEndpoint(lg.webhook_url)}
+                          </Typography>
+                        )}
                         <Typography sx={{ fontSize: 11, color: t.secondary }}>
                           {fmtTime(lg.created_at)}
                           {lg.retry_count > 0 ? ` · ${lg.retry_count} retr${lg.retry_count === 1 ? "y" : "ies"}` : ""}

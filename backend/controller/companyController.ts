@@ -1714,6 +1714,7 @@ const getWebhookHistory = async (req: express.Request, res: express.Response) =>
         log_id,
         event_type,
         webhook_id,
+        webhook_url,
         status,
         response_status,
         response_time_ms,
