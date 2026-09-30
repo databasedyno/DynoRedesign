@@ -28,6 +28,7 @@ import DisplayCurrencySelector from "@/Components/UI/DisplayCurrencySelector";
 import CustomButton from "@/Components/UI/Buttons";
 import useIsMobile from "@/hooks/useIsMobile";
 import useEdgeFade from "@/hooks/useEdgeFade";
+import OverflowTabs from "@/Components/UI/OverflowTabs";
 import useTokenData from "@/hooks/useTokenData";
 import useAccountProfile from "@/hooks/useAccountProfile";
 import { UserAction } from "@/Redux/Actions";
@@ -588,6 +589,12 @@ const SettingsPageInner = ({
   };
 
   const activeMeta = sections.find((s) => s.key === active) || sections[0];
+  // Phone: sections collapse into an OverflowTabs strip ("N more tabs…" + search)
+  // instead of a horizontally-scrolling chip row users could not discover.
+  const phoneTabItems = useMemo(
+    () => sections.map((s) => ({ id: s.key as string, label: s.label, icon: s.icon, dirty: !!dirtyMap[s.key] })),
+    [sections, dirtyMap],
+  );
   // Scope chip (2026-08-23): which tenant does the active section apply to?
   const scopeStore = useCompanyStore();
   const scopeCompany = (scopeStore?.companyList || []).find(
@@ -632,7 +639,57 @@ const SettingsPageInner = ({
           alignItems: "flex-start",
         }}
       >
-        {/* Settings navigation rail */}
+        {/* Phone: OverflowTabs strip (replaces the horizontal chip scroller) */}
+        <Box sx={{ display: { xs: "block", md: "none" }, width: "100%" }}>
+          <OverflowTabs
+            items={phoneTabItems}
+            value={active}
+            onChange={(id) => selectSection(id as SectionKey)}
+            searchThreshold={5}
+            ariaLabel={t("settingsPage.sectionsAria", { defaultValue: "Settings sections" })}
+          />
+          {/* Pointers out of Settings — compact rows on phone */}
+          <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
+            {[
+              { key: "developers", label: t("settingsPage.developers", { defaultValue: "Developers" }), href: "/developer-keys", icon: <CodeRounded sx={{ fontSize: 18 }} /> },
+              { key: "referrals", label: t("settingsPage.referrals", { defaultValue: "Referrals" }), href: "/referrals", icon: <GroupAddRounded sx={{ fontSize: 18 }} /> },
+            ].map((p) => (
+              <Box
+                key={p.key}
+                role="button"
+                tabIndex={0}
+                data-testid={`settings-rail-${p.key}`}
+                onClick={() => router.push(p.href)}
+                onKeyDown={(e: React.KeyboardEvent) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    router.push(p.href);
+                  }
+                }}
+                sx={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 0.75,
+                  height: "34px",
+                  px: "12px",
+                  borderRadius: "10px",
+                  cursor: "pointer",
+                  fontFamily: "var(--font-sans)",
+                  fontSize: "13px",
+                  fontWeight: 500,
+                  color: theme.palette.text.secondary,
+                  bgcolor: isDark ? "rgba(255,255,255,0.04)" : "#F1F2F5",
+                }}
+              >
+                {p.icon}
+                {p.label}
+                <ArrowOutwardRounded sx={{ fontSize: 13, opacity: 0.55 }} />
+              </Box>
+            ))}
+          </Box>
+        </Box>
+
+        {/* Settings navigation rail (desktop) */}
         <Box
           ref={railFade.ref}
           sx={{
@@ -640,14 +697,12 @@ const SettingsPageInner = ({
             flexShrink: 0,
             position: { md: "sticky" },
             top: { md: 16 },
-            display: "flex",
-            flexDirection: { xs: "row", md: "column" },
+            display: { xs: "none", md: "flex" },
+            flexDirection: "column",
             gap: "4px",
-            overflowX: { xs: "auto", md: "visible" },
-            pb: { xs: 0.5, md: 0 },
+            overflowX: "visible",
+            pb: 0,
             "&::-webkit-scrollbar": { display: "none" },
-            WebkitMaskImage: { xs: railFade.WebkitMaskImage, md: "none" },
-            maskImage: { xs: railFade.maskImage, md: "none" },
           }}
           data-testid="settings-rail"
         >

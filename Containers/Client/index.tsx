@@ -10,16 +10,15 @@ import FeeFreeWelcomeModal from "@/Components/Modals/FeeFreeWelcomeModal";
 import NameGate from "@/Components/UI/NameGate";
 import FeeFreeBanner from "@/Components/UI/FeeFreeBanner";
 import InstallAppPrompt from "@/Components/UI/InstallAppPrompt";
-import Toast from "@/Components/UI/Toast";
+import ToastHost from "@/Components/UI/Toast/ToastHost";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useSidebarCollapsed } from "@/hooks/useSidebarCollapsed";
-import { LayoutProps, rootReducer } from "@/utils/types";
+import { LayoutProps } from "@/utils/types";
 import { recordShortcutVisit } from "@/helpers/shortcutUsage";
 import { Box, SxProps, Theme, ThemeProvider, useMediaQuery, useTheme } from "@mui/material";
 import { sidebarTheme } from "@/styles/appTheme";
 import { DARK } from "@/constants/theme";
 import { useRouter } from "next/router";
-import { useSelector } from "react-redux";
 import React, { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -98,7 +97,6 @@ const ClientLayout = ({
       router.events.off("routeChangeComplete", handleRouteChange);
     };
   }, [router.events]);
-  const ToastState = useSelector((state: rootReducer) => state.toastReducer);
   const isDashboard =
     router.pathname === "/dashboard" ||
     router.pathname === "/pay-links" ||
@@ -374,13 +372,7 @@ const ClientLayout = ({
           </Box>
         </Box>
       </CompanySettingsDialogProvider>
-    <Toast
-      open={ToastState.open}
-      message={ToastState.message}
-      severity={ToastState.severity || "success"}
-      loading={ToastState.loading}
-      placement={ToastState.placement}
-    />
+    <ToastHost />
     {/* Fee-free welcome (celebratory modal — shown once per user) */}
     <FeeFreeWelcomeModal />
     {/* Name gate — forces name-less accounts (social logins / legacy) to add

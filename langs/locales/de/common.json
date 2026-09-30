@@ -835,7 +835,8 @@
     "securityWallets": "Auszahlungsadressen",
     "securityDevices": "Geräte & Aktivitäten",
     "security": "Sicherheit",
-    "securityDesc": "Zwei-Faktor-Authentifizierung, Passwort, Schutz der Auszahlungsadresse und angemeldete Geräte."
+    "securityDesc": "Zwei-Faktor-Authentifizierung, Passwort, Schutz der Auszahlungsadresse und angemeldete Geräte.",
+    "sectionsAria": "Einstellungsbereiche"
   },
   "donation": {
     "defaultTitle": "Unterstütze diese Kampagne",
@@ -1841,5 +1842,14 @@
     "installBodyIos": "In Safari auf Teilen und dann „Zum Home-Bildschirm“ tippen.",
     "install": "Installieren",
     "dismiss": "Nicht jetzt"
+  },
+  "tabs": {
+    "moreCount": "{{count}} weitere Tabs…",
+    "searchPlaceholder": "Suchen…",
+    "noMatch": "Kein Tab gefunden"
+  },
+  "toast": {
+    "dismiss": "Schließen",
+    "undo": "Rückgängig"
   }
 }

@@ -835,7 +835,8 @@
     "securityWallets": "Direcciones de pago",
     "securityDevices": "Dispositivos y actividad",
     "security": "Seguridad",
-    "securityDesc": "Verificación en dos pasos, contraseña, protección de direcciones de pago y dispositivos conectados."
+    "securityDesc": "Verificación en dos pasos, contraseña, protección de direcciones de pago y dispositivos conectados.",
+    "sectionsAria": "Secciones de ajustes"
   },
   "donation": {
     "defaultTitle": "Apoya esta campaña",
@@ -1841,5 +1842,14 @@
     "installBodyIos": "En Safari, toca Compartir y luego “Añadir a pantalla de inicio”.",
     "install": "Instalar",
     "dismiss": "Ahora no"
+  },
+  "tabs": {
+    "moreCount": "{{count}} pestañas más…",
+    "searchPlaceholder": "Buscar…",
+    "noMatch": "Ninguna pestaña coincide"
+  },
+  "toast": {
+    "dismiss": "Descartar",
+    "undo": "Deshacer"
   }
 }

@@ -835,7 +835,8 @@
     "securityWallets": "Uitbetalingsadressen",
     "securityDevices": "Apparaten & activiteit",
     "security": "Beveiliging",
-    "securityDesc": "Twee-staps verificatie, wachtwoord, bescherming van uitbetalingsadressen en ingelogde apparaten."
+    "securityDesc": "Twee-staps verificatie, wachtwoord, bescherming van uitbetalingsadressen en ingelogde apparaten.",
+    "sectionsAria": "Instellingensecties"
   },
   "donation": {
     "defaultTitle": "Steun deze campagne",
@@ -1841,5 +1842,14 @@
     "installBodyIos": "Tik in Safari op Delen en daarna op ‘Zet op beginscherm’.",
     "install": "Installeren",
     "dismiss": "Niet nu"
+  },
+  "tabs": {
+    "moreCount": "{{count}} tabbladen meer…",
+    "searchPlaceholder": "Zoeken…",
+    "noMatch": "Geen tabblad gevonden"
+  },
+  "toast": {
+    "dismiss": "Sluiten",
+    "undo": "Ongedaan maken"
   }
 }

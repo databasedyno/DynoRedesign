@@ -1,193 +1,305 @@
-import React, { useEffect } from "react";
-import {Box, Typography, IconButton, useTheme} from "@mui/material";
-import { useDispatch } from "react-redux";
-import { TOAST_HIDE, ToastAction } from "../../../Redux/Actions/ToastAction";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { Box, Typography, IconButton, useTheme, ButtonBase } from "@mui/material";
 import LoadingIcon from "@/assets/Icons/LoadingIcon";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import CloseIcon from "@mui/icons-material/Close";
 import { IToastProps } from "@/utils/types";
 import useIsMobile from "@/hooks/useIsMobile";
-import BgImage from "@/assets/Images/toast-bg.png";
-import Image from "next/image";
 import SuccessIcon from "@/assets/Icons/success-icon.svg";
+import Image from "next/image";
+
+// Auto-hide durations by severity (ms). Errors stay readable; loading never auto-hides.
+const DURATION_BY_SEVERITY: Record<string, number> = {
+  success: 4000,
+  info: 5000,
+  warning: 6000,
+  error: 8000,
+};
+
+const prefersReducedMotion = () =>
+  typeof window !== "undefined" &&
+  typeof window.matchMedia === "function" &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/**
+ * Presentational toast card.
+ *  - Rendered standalone (position: fixed) by legacy local-state callers, OR
+ *  - Rendered inside ToastHost (hostMode) which owns the fixed stack container.
+ *
+ * Adds vs the old toast: a countdown bar synced to the auto-hide timer,
+ * pause-on-hover/focus, an explicit X, an optional action button, swipe-to-dismiss
+ * on phone, and role/aria-live for screen readers.
+ */
 const Toast = (props: IToastProps) => {
-  const dispatch = useDispatch();
   const theme = useTheme();
-  const { open, severity, message, loading, placement = "bottom-right" } = props;
+  const {
+    open,
+    severity,
+    message,
+    loading,
+    placement = "bottom-right",
+    durationMs,
+    action,
+    onClose,
+    hostMode = false,
+    id,
+  } = props;
   const isMobile = useIsMobile("sm");
   const topCenter = placement === "top-center";
 
-  const handleClose = () => {
-    dispatch({ type: TOAST_HIDE });
-  };
+  const duration = loading ? 0 : durationMs ?? DURATION_BY_SEVERITY[severity || "success"] ?? 4000;
+  // Only self-drive the countdown when we actually own dismissal (onClose given).
+  // Legacy controlled callers manage `open` themselves, so no bar/auto-hide for them.
+  const hasTimer = open && !loading && duration > 0 && !!onClose;
 
-  // Auto-hide toast after 4 seconds (unless it's loading)
-  // Reset timer when message or severity changes (new toast)
+  const [progress, setProgress] = useState(1); // 1 -> 0
+  const [paused, setPaused] = useState(false);
+  const reduced = useRef<boolean>(false);
+
+  const rafRef = useRef<number | null>(null);
+  const elapsedRef = useRef(0);
+  const lastTsRef = useRef(0);
+
   useEffect(() => {
-    if (open && !loading) {
-      const timer = setTimeout(() => {
-        dispatch({ type: TOAST_HIDE });
-      }, 4000);
-      return () => clearTimeout(timer);
+    reduced.current = prefersReducedMotion();
+  }, []);
+
+  const handleClose = useCallback(() => {
+    if (onClose) onClose();
+  }, [onClose]);
+
+  // Reset the countdown whenever a fresh toast takes this slot.
+  useEffect(() => {
+    elapsedRef.current = 0;
+    setProgress(1);
+    setPaused(false);
+  }, [id, message, severity, loading, open]);
+
+  // rAF-driven countdown: the SAME clock drives the bar AND the auto-hide,
+  // so they can never drift. Pausing simply stops the loop and freezes elapsed.
+  useEffect(() => {
+    if (!hasTimer || paused) {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+      return;
     }
-  }, [open, loading, message, severity, dispatch]);
+    lastTsRef.current = performance.now();
+    const tick = (ts: number) => {
+      const dt = ts - lastTsRef.current;
+      lastTsRef.current = ts;
+      elapsedRef.current += dt;
+      const p = Math.max(0, 1 - elapsedRef.current / duration);
+      setProgress(p);
+      if (elapsedRef.current >= duration) {
+        rafRef.current = null;
+        handleClose();
+        return;
+      }
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    };
+  }, [hasTimer, paused, duration, handleClose]);
+
+  // Swipe-down to dismiss on phone.
+  const dragStartY = useRef<number | null>(null);
+  const onPointerDown = (e: React.PointerEvent) => {
+    if (!isMobile) return;
+    dragStartY.current = e.clientY;
+  };
+  const onPointerUp = (e: React.PointerEvent) => {
+    if (!isMobile || dragStartY.current === null) return;
+    const delta = e.clientY - dragStartY.current;
+    dragStartY.current = null;
+    if (delta > 40) handleClose();
+  };
 
   if (!open) return null;
 
-  // Determine colors and icon based on severity
-  const getToastStyles = () => {
+  const getStyles = () => {
     if (loading) {
-      return {
-        borderColor: "#4CAF50",
-        icon: <LoadingIcon size={14} fill="#4CAF50" />,
-      };
+      return { accent: theme.palette.border.focus, icon: <LoadingIcon size={16} fill={theme.palette.border.focus} /> };
     }
-
-    // Explicitly check for error severity
     if (severity === "error") {
       return {
-        borderColor: theme.palette.border.error,
-        textColor: theme.palette.border.error,
-        icon: (
-          <ErrorOutlineIcon
-            sx={{ color: theme.palette.border.error, fontSize: "14px" }}
-          />
-        ),
+        accent: theme.palette.border.error,
+        icon: <ErrorOutlineIcon sx={{ color: theme.palette.border.error, fontSize: "16px" }} />,
       };
     }
-
     if (severity === "warning") {
       const amber = theme.palette.mode === "dark" ? "#FBBF24" : "#B45309";
+      return { accent: amber, icon: <ErrorOutlineIcon sx={{ color: amber, fontSize: "16px" }} /> };
+    }
+    if (severity === "info") {
       return {
-        borderColor: amber,
-        textColor: amber,
-        icon: <ErrorOutlineIcon sx={{ color: amber, fontSize: "14px" }} />,
+        accent: theme.palette.border.focus,
+        icon: <ErrorOutlineIcon sx={{ color: theme.palette.border.focus, fontSize: "16px" }} />,
       };
     }
-
-    // Default to success (green)
     return {
-      borderColor: theme.palette.border.success,
-      textColor: theme.palette.border.success,
-      icon: <Image src={SuccessIcon} alt="success" width={14} height={14} />,
+      accent: theme.palette.border.success,
+      icon: <Image src={SuccessIcon} alt="" width={16} height={16} />,
     };
   };
+  const { accent, icon } = getStyles();
 
-  const toastStyles = getToastStyles();
+  const isError = severity === "error";
+  const ariaRole = isError ? "alert" : "status";
+  const ariaLive = isError ? "assertive" : "polite";
+
+  // Placement: host owns the fixed stack, so in hostMode the card is relative.
+  const positionSx = hostMode
+    ? { position: "relative" as const, width: "100%" }
+    : topCenter
+    ? {
+        position: "fixed" as const,
+        top: isMobile ? "12px" : "20px",
+        left: "50%",
+        transform: "translateX(-50%)",
+        maxWidth: "calc(100vw - 32px)",
+        zIndex: 99999,
+      }
+    : isMobile
+    ? {
+        position: "fixed" as const,
+        left: "12px",
+        right: "12px",
+        bottom: "calc(var(--dp-sticky-cta, 0px) + env(safe-area-inset-bottom, 0px) + 12px)",
+        zIndex: 99999,
+      }
+    : {
+        position: "fixed" as const,
+        right: "24px",
+        bottom: "calc(var(--dp-sticky-cta, 0px) + 24px)",
+        maxWidth: "380px",
+        zIndex: 99999,
+      };
 
   return (
     <Box
       data-testid="app-toast"
       data-severity={loading ? "loading" : severity || "success"}
       data-placement={placement}
+      data-paused={paused ? "1" : "0"}
+      role={ariaRole}
+      aria-live={ariaLive}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocusCapture={() => setPaused(true)}
+      onBlurCapture={() => setPaused(false)}
+      onPointerDown={onPointerDown}
+      onPointerUp={onPointerUp}
       sx={{
-        position: "fixed",
-        ...(topCenter
-          ? { top: isMobile ? "12px" : "20px", left: "50%", transform: "translateX(-50%)", maxWidth: "calc(100vw - 32px)" }
-          : { bottom: isMobile ? "16px" : "24px", right: isMobile ? "16px" : "24px" }),
-        zIndex: 99999,
+        ...positionSx,
         backgroundColor: theme.palette.secondary.light,
-        border: `1px solid ${toastStyles.borderColor}`,
-        borderRadius: "14px",
-        boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.15)",
-        padding: isMobile ? "15px 24px" : "20px 24px",
+        border: `1px solid ${accent}`,
+        borderRadius: isMobile && !hostMode && !topCenter ? "16px 16px 12px 12px" : "14px",
+        boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.18)",
         display: "flex",
-        alignItems: "center",
-        gap: "12px",
+        flexDirection: "column",
         overflow: "hidden",
-        animation: topCenter ? "slideInDown 0.3s ease-out" : "slideInRight 0.3s ease-out",
-        "@keyframes slideInRight": {
-          "0%": {
-            transform: "translateX(100%)",
-            opacity: 0,
-          },
-          "100%": {
-            transform: "translateX(0)",
-            opacity: 1,
-          },
+        width: hostMode ? "100%" : undefined,
+        animation: reduced.current
+          ? "none"
+          : topCenter
+          ? "toastSlideDown 0.28s ease-out"
+          : "toastSlideUp 0.28s ease-out",
+        "@keyframes toastSlideUp": {
+          "0%": { transform: "translateY(12px)", opacity: 0 },
+          "100%": { transform: "translateY(0)", opacity: 1 },
         },
-        "@keyframes slideInDown": {
-          "0%": { transform: "translate(-50%, -16px)", opacity: 0 },
+        "@keyframes toastSlideDown": {
+          "0%": { transform: "translate(-50%, -12px)", opacity: 0 },
           "100%": { transform: "translate(-50%, 0)", opacity: 1 },
         },
       }}
     >
-      {/* Background Image */}
-      <Box
-        sx={{
-          position: "absolute",
-          top: isMobile ? "0px" : "6px",
-          left: isMobile ? "-6px" : "0px",
-          right: 0,
-          bottom: 0,
-          zIndex: -1,
-          width: "276px",
-          height: "100%",
-        }}
-      >
-        <Image
-          src={BgImage}
-          alt="background"
-          style={{
-            objectFit: "contain",
-            width: "100%",
-            height: "100%",
+      {/* Countdown bar (top edge). Hidden for loading toasts and reduced-motion. */}
+      {hasTimer && !reduced.current && (
+        <Box
+          data-testid="app-toast-countdown"
+          aria-hidden="true"
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            height: "3px",
+            transformOrigin: "left",
+            transform: `scaleX(${progress})`,
+            backgroundColor: accent,
+            willChange: "transform",
           }}
-          draggable={false}
         />
-      </Box>
+      )}
 
-      {/* Content */}
       <Box
         sx={{
-          position: "relative",
-          zIndex: 1,
           display: "flex",
           alignItems: "center",
-          gap: isMobile ? "8px" : "12px",
+          gap: isMobile ? "10px" : "12px",
+          padding: isMobile ? "14px 14px" : "16px 18px",
           width: "100%",
         }}
       >
-        {/* Icon */}
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            flexShrink: 0,
-          }}
-        >
-          {toastStyles.icon}
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          {icon}
         </Box>
 
-        {/* Message */}
         <Typography
           sx={{
             flex: 1,
-            fontSize: isMobile ? "13px" : "15px",
+            fontSize: isMobile ? "13px" : "14px",
             fontFamily: "var(--font-sans)",
-            color: toastStyles.textColor,
-            lineHeight: "1.5",
+            color: theme.palette.text.primary,
+            lineHeight: 1.5,
           }}
         >
           {message}
         </Typography>
 
-        {/* Close Button */}
-        {/* <IconButton
-          onClick={handleClose}
-          sx={{
-            padding: "4px",
-            color: theme.palette.text.secondary,
-            flexShrink: 0,
-            "&:hover": {
-              backgroundColor: "rgba(0, 0, 0, 0.04)",
-            },
-          }}
-          size="small"
-        >
-          <CloseIcon sx={{ fontSize: "18px" }} />
-        </IconButton> */}
+        {action?.label && (
+          <ButtonBase
+            data-testid="app-toast-action"
+            onClick={() => {
+              action.onClick?.();
+              handleClose();
+            }}
+            sx={{
+              flexShrink: 0,
+              px: "10px",
+              height: "32px",
+              borderRadius: "8px",
+              fontFamily: "var(--font-sans)",
+              fontSize: "13px",
+              fontWeight: 600,
+              color: accent,
+              "&:hover": { backgroundColor: "rgba(127,127,127,0.12)" },
+            }}
+          >
+            {action.label}
+          </ButtonBase>
+        )}
+
+        {onClose && (
+          <IconButton
+            data-testid="app-toast-close"
+            aria-label="Dismiss notification"
+            onClick={handleClose}
+            sx={{
+              flexShrink: 0,
+              width: "36px",
+              height: "36px",
+              color: theme.palette.text.secondary,
+              "&:hover": { backgroundColor: "rgba(127,127,127,0.12)" },
+            }}
+          >
+            <CloseIcon sx={{ fontSize: "18px" }} />
+          </IconButton>
+        )}
       </Box>
     </Box>
   );

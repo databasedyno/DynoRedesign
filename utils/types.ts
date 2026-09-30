@@ -183,13 +183,26 @@ export interface menuItem {
   disable?: boolean;
 }
 
-export interface toastReducer {
-  open: boolean;
-  severity: AlertColor;
-  message: string;
+export interface IToastAction {
+  label: string;
+  onClick?: () => void;
+}
+
+export interface IToastItem {
+  id?: string;
+  open?: boolean;
+  severity?: AlertColor;
+  message?: string;
   hide?: boolean;
   loading?: boolean;
   placement?: "bottom-right" | "top-center";
+  durationMs?: number;
+  action?: IToastAction;
+  createdAt?: number;
+}
+
+export interface toastReducer {
+  queue: IToastItem[];
 }
 
 export interface LayoutProps {
@@ -233,6 +246,13 @@ export interface IToastProps {
   hide?: boolean;
   loading?: boolean;
   placement?: "bottom-right" | "top-center";
+  durationMs?: number;
+  action?: IToastAction;
+  onClose?: () => void;
+  /** When rendered inside ToastHost the card is positioned by the host (relative), not fixed. */
+  hostMode?: boolean;
+  offsetIndex?: number;
+  id?: string;
 }
 
 export interface ISavedAddressTypes {

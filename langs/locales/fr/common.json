@@ -835,7 +835,8 @@
     "securityWallets": "Adresses de paiement",
     "securityDevices": "Appareils et activité",
     "security": "Sécurité",
-    "securityDesc": "Vérification en deux étapes, mot de passe, protection des adresses de paiement et appareils connectés."
+    "securityDesc": "Vérification en deux étapes, mot de passe, protection des adresses de paiement et appareils connectés.",
+    "sectionsAria": "Sections des paramètres"
   },
   "donation": {
     "defaultTitle": "Soutenez cette campagne",
@@ -1841,5 +1842,14 @@
     "installBodyIos": "Dans Safari, touchez Partager puis « Sur l’écran d’accueil ».",
     "install": "Installer",
     "dismiss": "Pas maintenant"
+  },
+  "tabs": {
+    "moreCount": "{{count}} onglets de plus…",
+    "searchPlaceholder": "Rechercher…",
+    "noMatch": "Aucun onglet ne correspond"
+  },
+  "toast": {
+    "dismiss": "Fermer",
+    "undo": "Annuler"
   }
 }

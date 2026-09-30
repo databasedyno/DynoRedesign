@@ -835,7 +835,8 @@
     "securityWallets": "Payout addresses",
     "securityDevices": "Devices & activity",
     "security": "Security",
-    "securityDesc": "Two-step verification, password, payout address protection and signed-in devices."
+    "securityDesc": "Two-step verification, password, payout address protection and signed-in devices.",
+    "sectionsAria": "Settings sections"
   },
   "donation": {
     "defaultTitle": "Support this campaign",
@@ -1841,5 +1842,14 @@
     "installBodyIos": "In Safari, tap Share, then “Add to Home Screen”.",
     "install": "Install",
     "dismiss": "Not now"
+  },
+  "tabs": {
+    "moreCount": "{{count}} more tabs…",
+    "searchPlaceholder": "Search…",
+    "noMatch": "No tab matches"
+  },
+  "toast": {
+    "dismiss": "Dismiss",
+    "undo": "Undo"
   }
 }
