@@ -1,3 +1,10 @@
+<!-- 2026-10-01 (pod 31539451, CURRENT — supersedes every pod URL below) — LIVE preview URL =
+     https://31539451-a5e9-4f5f-86c4-2d416921e801.preview.emergentagent.com (= SERVER_URL in /app/backend/.env).
+     Set up from env.vault.enc via scripts/pod-bootstrap.sh. SAFE MODE (bg jobs off, outbound email off), LIVE prod DB — mock every write in UI tests.
+     Merchant: onarrival21@gmail.com / Katiekendra123@ (user_id 1, company_id 1; TOTP: node /app/backend/scripts/print_totp.cjs 1).
+     Admin: moxxcompany@gmail.com / Katiekendra123@ (admin console now requires TOTP enrollment). Always send a browser User-Agent (curl/python UAs get 403'd). -->
+
+
 <!-- 2026-10-01 (pod 997e6bc8, CURRENT — supersedes every pod URL below) — LIVE preview URL =
      https://997e6bc8-c3ae-495f-bafa-dbb4dff064e0.preview.emergentagent.com (= SERVER_URL in /app/backend/.env).
      Merchant: onarrival21@gmail.com / Katiekendra123@ (user_id 1, company_id 1 "The Dev Store"; TOTP: node /app/backend/scripts/print_totp.cjs 1).
