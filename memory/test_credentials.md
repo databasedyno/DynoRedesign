@@ -1,3 +1,11 @@
+<!-- 2026-10-01 (pod setup via vault) — CURRENT POD URL = https://fe247d23-446c-404b-88bc-aedf65e5b056.preview.emergentagent.com
+     (= SERVER_URL in /app/backend/.env; all env URLs were migrated from the stale d6413bee/b3e8a0ae pods to this one).
+     Frontend = PRODUCTION Next build (distDir=.next-prod, no hot reload → after FE edits rebuild & `sudo supervisorctl restart frontend`).
+     Backend = ts-node via uvicorn proxy on 8001 → Node on 3300 (`sudo supervisorctl restart backend` to reload).
+     Owner/merchant: onarrival21@gmail.com / Katiekendra123@ (TOTP: node /app/backend/scripts/print_totp.cjs 1).
+     Admin: moxxcompany@gmail.com / Katiekendra123@. Always send a browser User-Agent (curl/python UAs get 403'd). -->
+
+
 <!-- ADMIN CONSOLE 2FA (SEC-002, 2026-09-30) — admin login is now TWO-STEP + mandatory TOTP.
      Real admin (moxxcompany@gmail.com) password UNCHANGED, but on next /admin/login they must
      enroll TOTP (scan QR) once. Old 30d admin tokens are now invalid.
