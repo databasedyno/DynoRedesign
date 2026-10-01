@@ -1,0 +1,34 @@
+{
+  "summary": "Frontend-only verification of the 3 UX fixes (tx status timeline, notifications→tx modal, developer webhooks auto-load + refetch-on-visible). All primary acceptance criteria PASS. Merchant 2FA login works. Transactions page rows open TransactionDetailsModal containing data-testid='tx-status-timeline' (with data-status), 'tx-status-banner', 'tx-status-banner-title', and the 4 progress steps 'tx-timeline-step-{created|received|confirmed|settled}' each carrying data-done + data-active. Notifications page opens the SAME modal with the timeline and renders a coherent state per notification (distinct for pending vs settled). Developer /developer-keys?tab=webhooks auto-loads webhook-settings/stats/history WITHOUT manual refresh. Simulated hidden→visible+focus past the 5s throttle re-fires 3 webhook requests, proving useRefetchOnVisible + SWR revalidateOnFocus. Modal Close + Invoice button regression intact.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verified": {
+    "login_2fa": "PASS — /auth/login → login-email-input → Continue → password-input → signin-submit-btn → login-2fa-dialog → TOTP via `node /app/backend/scripts/print_totp.cjs 1` → /dashboard.",
+    "tx_timeline_settled": "PASS — opened multiple settled rows (brand SMADAV). data-testid='tx-status-timeline' data-status='settled'; banner title 'Payment settled'; all 4 steps tx-timeline-step-{created,received,confirmed,settled} data-done='true'. tx-status-banner + tx-status-banner-title present.",
+    "notifications_distinct_states": "PASS — notification[0..2,4] opened settled tx (banner 'Payment settled'); notification[3] opened pending tx (data-status='pending', banner 'Awaiting payment — no funds received yet'). Confirmed distinct banner titles AND the awaiting-text does NOT leak into settled/confirmed states.",
+    "developer_webhooks_autoload": "PASS — /developer-keys?tab=webhooks renders data-testid='webhook-console' and auto-fires on mount (no manual refresh): /api/company/webhook-stats/71?days=30, /api/company/webhook-history/71?page=1&limit=20, /api/company/webhook-settings/71.",
+    "refetch_on_visible": "PASS — after waiting past the 5s focus throttle and dispatching visibilitychange hidden→visible plus window 'focus', the console re-fired 3 webhook requests: webhook-settings/71, webhook-stats/71?days=30, webhook-history/71?page=1&limit=20 (plus /api/company/getCompany). Confirms useRefetchOnVisible(loadSettings + refreshAll) + global SWRConfig revalidateOnFocus:true, focusThrottleInterval:5000.",
+    "regression_close_and_invoice": "PASS — modal close button (button[aria-label='Close transaction details']) closes the drawer; Invoice button renders on settled transactions."
+  },
+  "not_tested": [
+    "Confirmed/processing, underpaid, and failed timeline states were not surfaced in the live SMADAV/The Dev Store rows during this run (filter was dominated by settled rows + 1 pending notification). The spec explicitly allows this ('If the live account has only settled transactions, still verify the timeline renders correctly for those') — the 4-step helper buckets live in /app/helpers/txStatus.ts and the component paths are static.",
+    "Admin console auto-refresh was skipped per request (optional/best-effort; requires separate 2FA enrolment)."
+  ],
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "data-testid='webhook-stats' and 'webhook-deliveries' are rendered inside WebhookConsoleSection ONLY on view='events' (Events log tab), not on view='settings' (Webhooks tab). The task note says 'and/or' so this is acceptable, but if either testid should also appear on the settings view, main agent may want to adjust.",
+    "Timeline component correctly hides the progress rail for failed/expired buckets by returning only the banner (verified via source inspection of TxStatusTimeline.tsx); no failed tx was available to confirm visually in this live account."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "100% of primary assertions"},
+  "test_credentials": "Merchant onarrival21@gmail.com / Katiekendra123@ with TOTP (`node /app/backend/scripts/print_totp.cjs 1`). Preview URL: https://fe247d23-446c-404b-88bc-aedf65e5b056.preview.emergentagent.com.",
+  "seed_data_creation": "None.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "The brand active in this session was SMADAV (33 txs, mostly settled). To see non-settled timeline buckets in the Transactions table (confirmed, underpaid, failed), either switch to a brand with more state diversity or use a notification that references such a payment. Developer webhooks tab is at /developer-keys?tab=webhooks (NOT /developer or /developers). Status chip filters on /transactions ('All 33', 'Settled 14', 'Unpaid 19') are not standard <button> text — a programmatic click on text=/^Unpaid$/ fails; use page.get_by_role('tab'|'button', name=/Unpaid/) or click by nearest testid if added."
+}
