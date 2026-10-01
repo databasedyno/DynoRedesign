@@ -2,7 +2,7 @@
 **Date:** 2026-10-01  
 **Test Type:** READ-ONLY Backend Regression Smoke Test  
 **Environment:** SAFE MODE, LIVE PRODUCTION Postgres/Redis  
-**Base URL:** https://770c1826-adc7-4c38-80dd-e856b3b785a0.preview.emergentagent.com  
+**Base URL:** https://secure-passphrase-8.preview.emergentagent.com  
 
 ---
 

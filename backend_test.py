@@ -15,7 +15,7 @@ import time
 from typing import Dict, Any, Optional
 
 # Base URL from review request
-BASE_URL = "https://770c1826-adc7-4c38-80dd-e856b3b785a0.preview.emergentagent.com"
+BASE_URL = "https://secure-passphrase-8.preview.emergentagent.com"
 
 # Internal backend URL for health check (not exposed publicly)
 BACKEND_INTERNAL_URL = "http://localhost:3300"

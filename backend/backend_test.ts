@@ -11,7 +11,7 @@
 import axios, { AxiosInstance } from 'axios';
 
 // Configuration
-const BASE_URL = process.env.BACKEND_URL || 'https://passphrase-config-2.preview.emergentagent.com';
+const BASE_URL = process.env.BACKEND_URL || 'https://secure-passphrase-8.preview.emergentagent.com';
 const ADMIN_EMAIL = 'moxxcompany@gmail.com';
 const ADMIN_PASSWORD = 'Katiekendra123@';
 
