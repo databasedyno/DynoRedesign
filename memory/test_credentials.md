@@ -1,3 +1,10 @@
+<!-- 2026-10-01 (pod 31539451, pt3 — ONBOARDING UX OVERHAUL) — same preview URL / creds as pt2 below.
+     NEW this session (frontend, uncommitted): 3-state dashboard (setting-up hero+preview / ready-waiting SetupCompleteStrip+full dashboard / live), interruption-stack suppressed during onboarding, creator @handle claim auto-enables tip widget (backend) + gates on payout wallet, wizard reachability guard (2FA+about before step 4/5), sticky step footer on short viewports.
+     QA FIXTURE CHANGE: company 231 (QA MinOrder, user 221) now has country='US' (so about/step-4 is reachable under the new about-gate). To test a per-track wizard: cd /app/backend && node scripts/_pgq.js "UPDATE tbl_user SET purpose_vertical='creators' WHERE user_id=221" (values creators|fundraisers|developers|NULL) + browser localStorage dyno_purpose_vertical. RESET to NULL after.
+     New data-testids: gs-hero-feefree-chip; gs-setup-complete-strip, gs-strip-title, gs-strip-feefree-chip, gs-strip-cta-open_developers|open_page|open_campaigns|share_again, gs-strip-collapse-toggle; gs-handle-wallet-note, gs-handle-go-payouts, gs-handle-claim ("Claim & add payout address" when no wallet), gs-handle-open-editor ("Open the full editor →").
+     NOTE: a fresh brand's FIRST /dashboard visit still auto-redirects to /get-started once per session (FirstRunRedirect) unless a wallet exists or the 24h "do this later" cooldown (localStorage dyno_gs_later_until) is set — to observe state-1 hero on /dashboard, seed that cooldown or give the brand a wallet. -->
+
+
 <!-- 2026-10-01 (pod 31539451, CURRENT — supersedes every pod URL below) — LIVE preview URL =
      https://31539451-a5e9-4f5f-86c4-2d416921e801.preview.emergentagent.com (= SERVER_URL in /app/backend/.env).
      Set up from env.vault.enc via scripts/pod-bootstrap.sh. SAFE MODE (bg jobs off, outbound email off), LIVE prod DB — mock every write in UI tests.

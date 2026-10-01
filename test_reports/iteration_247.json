@@ -1,0 +1,32 @@
+{
+  "summary": "Frontend-only verification of the 3-state dashboard + context-aware onboarding wizard overhaul (Findings A/B/C/E/F/G/H/I/K). All critical flows PASSED. STATE 1 (QA 221, snoozed): new-merchant-getting-started + gs-hero + gs-hero-feefree-chip ('Your first payment is fee-free') + gs-dashboard-preview render; fee-free-welcome-modal, fee-free-banner and kyc-required-banner are all suppressed. Per-track hero copy on /dashboard for creators correctly shows step 4 = 'Claim your @handle' and step 5 = 'Share your page'. Reachability guard redirects /get-started?step=share back to step=link (gs-step-handle) when the @handle artefact does not exist yet. Creator claim-handle wallet gate renders all required testids (gs-handle-wallet-note, gs-handle-go-payouts, gs-handle-claim='Claim & add payout address', gs-handle-open-editor='Open the full editor \u2192'); subtitle no longer contains 'no other setup needed'. Typing a handle enables the primary CTA; clicking it with no wallet opens wallet-manager-modal (then triggers mandatory step-up verify dialog). Per-track eyebrow confirmed: 'Getting started \u00b7 Creator' and 'Getting started \u00b7 Developer' (visually verified via screenshot). Developer step-4='Your API key' and step-5='Make a test payment' labels render. Sticky step footer at 1280x720 has position:sticky; bottom:0 ancestor (gs-handle-claim visible at y=642 within 720 viewport). STATE 3 owner regression: dash2026-root + recent-payments-list render; no gs-hero / gs-setup-complete-strip. Mobile 390x844 state-1 and claim-handle both have zero horizontal overflow. STATE 2 (setup-complete strip) and full dark-mode spot shot not fully exercised: STATE 2 is unreachable without writes on the live DB, and the final dark-mode nav was interrupted by a Cloudflare 'Verify you are human' challenge after many rapid requests \u2014 reported but not blocking. QA 221 purpose_vertical reset to NULL; no writes left on prod (handle not claimed, wallet-manager modal cancelled).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "/dashboard initial visit without 'Do this later' snooze",
+        "issue": "On first /dashboard load for QA 221, the page auto-redirects to /get-started?step=<next incomplete>, so State-1 (new-merchant-getting-started + gs-hero) is only observable AFTER the 24h 'do this later' snooze keys are set in localStorage (dyno_wizard_snooze_<cid> / dyno_do_this_later_<cid>). This is likely the intended Finding F 'resume where you left off' behaviour, but the review-request wording 'open /dashboard \u2192 MUST render new-merchant-getting-started' can be read as expecting state-1 on cold entry. Please confirm whether the auto-resume redirect is intentional for fresh-brand users; if yes, update the acceptance criteria. If not, state-1 should render on the dashboard until the user explicitly enters the wizard.",
+        "affected_selectors": ["new-merchant-getting-started", "gs-hero"]
+      }
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Confirm expected /dashboard behaviour on a fresh brand with no snooze set: should it render state-1 (hero + faded preview) or auto-redirect to /get-started? Current build redirects on first visit \u2014 state-1 only shows after snooze/'Do this later' is clicked.",
+    "STATE 2 (gs-setup-complete-strip) could not be reached on the live DB without writes; consider an E2E-only toggle (query param or dev flag) so testers can observe this state without seeding wallet/link/MFA rows."
+  ],
+  "critical_code_review_comments": [
+    "WalletManagerModal correctly gates writes behind a step-up (security scope) verification \u2014 good defensive design. However the sequence 'click Claim & add payout address \u2192 wallet-manager-modal opens \u2192 immediate Verify-it's-you code dialog' is a 3-layer stack for an empty-wallet user; consider pre-flighting the step-up before opening the manager, or inlining the verify-OTP within the manager body to reduce modal-on-modal nesting.",
+    "Reachability guard correctly short-circuits step=share \u2192 step=link when the @handle artefact is missing. Suggest adding a visible banner/toast ('We moved you to step 4 because the previous step isn't done yet') so users understand the redirect instead of just appearing on a different step."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped per request)", "frontend": "95% (10/11 scenarios fully validated; STATE 2 not reachable without writes, dark-mode final shot blocked by Cloudflare challenge)"},
+  "test_credentials": "QA 221 token saved to /tmp/qa221.txt; owner token saved to /tmp/owner.txt (both JWT, 30d).",
+  "seed_data_creation": "No persistent seed. Temporarily toggled tbl_user.purpose_vertical for user 221 among creators/fundraisers/developers; RESET to NULL at the end (verified via SELECT).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "QA 221 purpose_vertical is back to NULL on prod DB. The only non-default behaviour: /dashboard auto-redirects to the next-incomplete wizard step on fresh entry \u2014 use these localStorage keys to force state-1 rendering: dyno_wizard_snooze_231, dyno_do_this_later_231 (both set to Date.now()). To test per-track UI without hitting DB, also set localStorage.dyno_purpose_vertical='creators'|'fundraisers'|'developers'. The wallet-manager-modal data-testid is 'wallet-manager-modal' (and 'wallet-manager-x-btn' to close). STATE 2 remains unreachable without seeding wallet+link+MFA rows on company 231.",
+  "rca of the issue": "N/A \u2014 no bugs found. Only one open question around intended /dashboard-vs-wizard redirect for fresh brands (noted above)."
+}
