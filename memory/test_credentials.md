@@ -1,3 +1,11 @@
+<!-- 2026-10-01 (pod 997e6bc8, CURRENT — supersedes every pod URL below) — LIVE preview URL =
+     https://997e6bc8-c3ae-495f-bafa-dbb4dff064e0.preview.emergentagent.com (= SERVER_URL in /app/backend/.env).
+     Merchant: onarrival21@gmail.com / Katiekendra123@ (user_id 1, company_id 1 "The Dev Store"; TOTP: node /app/backend/scripts/print_totp.cjs 1).
+     Fastest UI login (no OTP): localStorage.setItem('token', <contents of /app/memory/tmp/merchant_token.txt>) + localStorage.setItem('last_company_id','1') on the preview origin, then open the page.
+     Admin: moxxcompany@gmail.com / Katiekendra123@. Live PROD DB — mock every write (mark-read, create key, simulate) in UI tests.
+     Developer-signup fixture (real, read-only): gidineter@gmail.com = user 361, company 368, purpose_vertical=developers, no 2FA/keys/links. -->
+
+
 <!-- 2026-10-01 (pod setup via vault, re-bootstrapped) — CURRENT POD URL = https://vault-config-4.preview.emergentagent.com
      (all env URLs migrated to THIS pod by scripts/pod-bootstrap.sh; the secure-passphrase-8 URL below is now STALE.)
 <!-- 2026-10-01 (prior) — CURRENT POD URL = https://vault-config-4.preview.emergentagent.com

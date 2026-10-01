@@ -21,6 +21,7 @@ import {
 import { useRouter } from "next/router";
 import Head from "next/head";
 import dynamic from "next/dynamic";
+import { lazyLoading } from "@/Components/UI/DynamicFallback";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 
@@ -54,47 +55,53 @@ const SectionLoading = () => (
     <CircularProgress size={28} />
   </Box>
 );
+// next/dynamic swallows a failed chunk import and keeps rendering `loading`
+// with `error` set — a spinner-only fallback spun forever on post-deploy tabs.
+// lazyLoading() reloads once onto the new build, else shows Retry (2026-10-01).
+const sectionLoading = lazyLoading(<SectionLoading />, { minHeight: 220 });
+const silentLoading = lazyLoading(null, { silent: true });
 
 const ProfilePage = dynamic(() => import("@/Components/Page/Profile/ProfilePage"), {
   ssr: false,
-  loading: () => <SectionLoading />,
+  loading: sectionLoading,
 });
 const NotificationPage = dynamic(() => import("@/Components/Page/Notification/NotificationPage"), {
   ssr: false,
-  loading: () => <SectionLoading />,
+  loading: sectionLoading,
 });
 const TaxSettingsSection = dynamic(() => import("@/Components/Page/Settings/TaxSettingsSection"), {
   ssr: false,
-  loading: () => <SectionLoading />,
+  loading: sectionLoading,
 });
 const TeamSettingsSection = dynamic(() => import("@/Components/Page/Settings/TeamSettingsSection"), {
   ssr: false,
-  loading: () => <SectionLoading />,
+  loading: sectionLoading,
 });
 const PlanFeesSection = dynamic(() => import("@/Components/Page/Settings/PlanFeesSection"), {
   ssr: false,
-  loading: () => <SectionLoading />,
+  loading: sectionLoading,
 });
 const SecuritySection = dynamic(() => import("@/Components/Page/Settings/SecuritySection"), {
   ssr: false,
-  loading: () => <SectionLoading />,
+  loading: sectionLoading,
 });
 const LanguageSection = dynamic(() => import("@/Components/Page/Settings/LanguageSection"), {
   ssr: false,
-  loading: () => <SectionLoading />,
+  loading: sectionLoading,
 });
 const AccountDangerZone = dynamic(() => import("@/Components/Page/Settings/AccountDangerZone"), {
   ssr: false,
+  loading: silentLoading,
 });
 const CompanySettingsDialog = dynamic(() => import("@/Components/UI/CompanySettingsDialog"), {
   ssr: false,
-  loading: () => <SectionLoading />,
+  loading: sectionLoading,
 });
 // Only mounted while the modal is actually open (see usages), so its chunk is
 // never downloaded by a merchant who doesn't add a company.
 const CreateCompanyModal = dynamic(
   () => import("@/Components/UI/OnboardingFlow/CreateCompanyModal"),
-  { ssr: false },
+  { ssr: false, loading: silentLoading },
 );
 
 type SectionKey =

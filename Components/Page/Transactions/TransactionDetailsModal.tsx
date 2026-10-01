@@ -57,6 +57,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
   open,
   onClose,
   transaction,
+  event = null,
 }) => {
   const theme = useTheme();
   const isMobile = useIsMobile("md");
@@ -195,6 +196,25 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
   const hasOutgoing = Boolean(transaction.outgoingTransactionId);
   const isSettled = isSettledState || hasOutgoing;
 
+  // ── Notification event snapshot (2026-10-01) ─────────────────────────────
+  // Opened from a notification → show what THAT event reported. Detection-stage
+  // snapshots (detected / confirming / short payment) never show settlement-only
+  // things (fees, payout, invoice, resolve actions) — those happened later.
+  const isDetectionEvent = !!event && ["detected", "confirming", "partial", "partial_expired"].includes(event.kind);
+  const eventTimeLabel = (() => {
+    switch (event?.kind) {
+      case "detected": return tTransactions("eventDetectedAt", { defaultValue: "Detected at" });
+      case "confirming": return tTransactions("eventConfirmingAt", { defaultValue: "Confirmation update at" });
+      case "partial": return tTransactions("eventPartialAt", { defaultValue: "Short payment detected at" });
+      case "partial_expired": return tTransactions("eventProcessedAt", { defaultValue: "Processed at" });
+      case "overpaid": return tTransactions("eventOverpaidAt", { defaultValue: "Overpayment recorded at" });
+      case "confirmed": return tTransactions("eventConfirmedAt", { defaultValue: "Confirmed at" });
+      case "settled": return tTransactions("eventSettledAt", { defaultValue: "Settled at" });
+      default: return tTransactions("dateTime");
+    }
+  })();
+  const showCurrentStatus = !!event?.currentStatus && event.currentStatus !== transaction.status;
+
   // Estimated network fee to fold into the totals (only when nothing persisted).
   const estNetForTotal =
     estNetworkFeeUsd != null && estNetworkFeeUsd > 0 && !(Number(transaction.feesBreakdown?.blockchain) > 0)
@@ -263,7 +283,9 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
               whiteSpace: "nowrap",
             }}
           >
-            {tTransactions("transactionDetails")}
+            <Box component="span" data-testid="tx-modal-title">
+              {event?.title || tTransactions("transactionDetails")}
+            </Box>
           </Typography>
           <TransactionStatusBadge
             status={transaction.status}
@@ -301,11 +323,48 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                 <TitleValue>{transaction.id}</TitleValue>
               </TitleColumn>
               <TitleColumn>
-                <TitleLabel>{tTransactions("dateTime")}</TitleLabel>
-                <TitleValue>{transaction.dateTime}</TitleValue>
+                <TitleLabel data-testid="tx-detail-time-label">{event ? eventTimeLabel : tTransactions("dateTime")}</TitleLabel>
+                <TitleValue data-testid="tx-detail-time">{transaction.dateTime}</TitleValue>
               </TitleColumn>
             </HeaderTitleRow>
           </Box>
+          {event?.checkoutOpenedAt && (
+            <DetailRow data-testid="tx-event-checkout-opened" sx={{ mt: isMobile ? 1.25 : 1.75 }}>
+              <TitleLabel>{tTransactions("checkoutOpened", { defaultValue: "Checkout opened" })}</TitleLabel>
+              <TitleValue data-testid="tx-event-checkout-opened-value">{event.checkoutOpenedLabel || formatDisplayDateTime(event.checkoutOpenedAt)}</TitleValue>
+            </DetailRow>
+          )}
+          {event && (
+            <Box
+              data-testid="tx-event-snapshot"
+              sx={{
+                mt: isMobile ? 1.25 : 1.75,
+                display: "flex",
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: 1,
+                px: 1.5,
+                py: 1,
+                borderRadius: "10px",
+                backgroundColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "rgba(10,10,15,0.035)",
+              }}
+            >
+              <Box sx={{ display: "flex", color: theme.palette.text.secondary }}>
+                <Icon name="clock" size={14} />
+              </Box>
+              <Typography sx={{ flex: 1, minWidth: 160, fontSize: 12.5, lineHeight: 1.45, color: theme.palette.text.secondary }}>
+                {tTransactions("eventSnapshotNote", { defaultValue: "Details as of this notification." })}
+              </Typography>
+              {showCurrentStatus && (
+                <Box data-testid="tx-event-current-status" sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
+                  <Typography component="span" sx={{ fontSize: 12, fontWeight: 600, color: theme.palette.text.secondary }}>
+                    {tTransactions("eventCurrentStatus", { defaultValue: "Now:" })}
+                  </Typography>
+                  <TransactionStatusBadge status={event.currentStatus as string} variant="pill" />
+                </Box>
+              )}
+            </Box>
+          )}
           {/* Trace which payment link produced this payment, and when that link
               was created. Shown only for link-backed sources (payment link /
               tip / donation) — see resolveTransactionSource.link_created_at. */}
@@ -388,9 +447,48 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                 </CryptoIconChip>
               </DetailRow>
               <DetailRow>
-                <TitleLabel>{tTransactions("amount")}</TitleLabel>
-                <TitleValue>{transaction.amount}</TitleValue>
+                <TitleLabel>
+                  {event?.kind === "detected"
+                    ? tTransactions("amountDetected", { defaultValue: "Amount detected" })
+                    : event?.kind === "partial" || event?.kind === "partial_expired"
+                      ? tTransactions("amountRequested", { defaultValue: "Amount requested" })
+                      : event?.kind === "settled"
+                        ? tTransactions("amountPaid", { defaultValue: "Amount paid" })
+                        : tTransactions("amount")}
+                </TitleLabel>
+                <TitleValue data-testid="tx-detail-amount">{transaction.amount}</TitleValue>
               </DetailRow>
+              {event?.netAmount && (
+                <DetailRow data-testid="tx-event-net">
+                  <TitleLabel>{tTransactions("creditedToYou", { defaultValue: "Credited to you" })}</TitleLabel>
+                  <TitleValue sx={{ color: "#10B981", fontWeight: 600 }}>{event.netAmount}</TitleValue>
+                </DetailRow>
+              )}
+              {event?.excessAmount && (
+                <DetailRow data-testid="tx-event-excess">
+                  <TitleLabel>{tTransactions("overpaidBy", { defaultValue: "Overpaid by" })}</TitleLabel>
+                  <TitleValue sx={{ fontWeight: 600 }}>{event.excessAmount}</TitleValue>
+                </DetailRow>
+              )}
+              {event?.receivingAddress && (
+                <DetailRow data-testid="tx-event-address">
+                  <TitleLabel>{tTransactions("receivingAddress", { defaultValue: "Receiving address" })}</TitleLabel>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, minWidth: 0 }}>
+                    <TitleValue title={event.receivingAddress} sx={{ fontFamily: "var(--font-mono, monospace)" }}>
+                      {event.receivingAddress.length > 16
+                        ? `${event.receivingAddress.slice(0, 8)}…${event.receivingAddress.slice(-6)}`
+                        : event.receivingAddress}
+                    </TitleValue>
+                    <CopyInline value={event.receivingAddress} size={14} onCopied={onCopied} testId="tx-event-copy-address" />
+                  </Box>
+                </DetailRow>
+              )}
+              {event?.estimatedTime && (
+                <DetailRow data-testid="tx-event-eta">
+                  <TitleLabel>{tTransactions("estimatedConfirmation", { defaultValue: "Estimated confirmation" })}</TitleLabel>
+                  <TitleValue>{event.estimatedTime}</TitleValue>
+                </DetailRow>
+              )}
               {transaction.status === "underpaid" && (transaction as any).receivedAmountRaw != null && (
                 <>
                   <DetailRow>
@@ -785,7 +883,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
             </Box>
           )}
 
-          <TxResolveActions transaction={transaction} />
+          {!isDetectionEvent && <TxResolveActions transaction={transaction} />}
 
           <Box
             sx={{
@@ -808,7 +906,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
                 },
               }}
             />
-            {(transaction?.status === "settled" || transaction?.status === "confirmed") && (
+            {!isDetectionEvent && (transaction?.status === "settled" || transaction?.status === "confirmed") && (
               <CustomButton
                 label={tTransactions("invoice")}
                 startIcon={<Icon name="download" size={16} />}

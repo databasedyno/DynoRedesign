@@ -37,7 +37,7 @@ import {
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import NotificationsOffIcon from "@mui/icons-material/NotificationsOff";
 import TransactionDetailsModal from "@/Components/Page/Transactions/TransactionDetailsModal";
-import { ExtendedTransaction, TransactionSource, toAutoConvertInfo } from "@/utils/types/transaction";
+import { ExtendedTransaction, TransactionSource, TxNotificationEvent, TxNotificationEventKind, toAutoConvertInfo } from "@/utils/types/transaction";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
 import { useReportDirty } from "@/Components/Page/Settings/settingsDirty";
@@ -204,6 +204,8 @@ const NotificationPage = ({ initialTab = "inbox" }: { initialTab?: "inbox" | "se
   // Transaction detail modal state
   const [selectedTransaction, setSelectedTransaction] = useState<ExtendedTransaction | null>(null);
   const [txModalOpen, setTxModalOpen] = useState(false);
+  // The notification event the drawer is showing a snapshot of (null = live view).
+  const [selectedEvent, setSelectedEvent] = useState<TxNotificationEvent | null>(null);
 
   const isTransactionNotification = (type: string) => {
     return type.includes("payment") || type.includes("transaction") || type.includes("received") || type.includes("confirmed") || type.includes("partial");
@@ -299,17 +301,12 @@ const NotificationPage = ({ initialTab = "inbox" }: { initialTab?: "inbox" | "se
       const txCurrency = meta.currency || meta.base_currency || meta.crypto || "";
 
       const fromLedger = txRef ? await fetchTransactionForNotification(txRef) : null;
-      if (fromLedger) {
-        setSelectedTransaction(fromLedger);
-        setTxModalOpen(true);
-        return;
-      }
 
       // Fallback: build from the notification payload. A "payment_received" /
       // "transaction_confirmed" notification is only emitted AFTER settlement,
       // so never present it as "awaiting payment".
       const settledType = notif.type === "payment_received" || notif.type === "transaction_confirmed";
-      const transaction: ExtendedTransaction = {
+      const fromPayload: ExtendedTransaction = {
         id: txRef || notif.notification_id?.toString() || "",
         crypto: txCurrency,
         amount: txAmount ? `${formatDisplayAmount(Number(txAmount) || 0, txCurrency)} ${txCurrency}` : "",
@@ -327,9 +324,158 @@ const NotificationPage = ({ initialTab = "inbox" }: { initialTab?: "inbox" | "se
         outgoingTransactionId: meta.outgoing_tx_hash || "",
       };
 
-      setSelectedTransaction(transaction);
+      // Event snapshot: show what THIS notification reported (detected /
+      // confirming / short / settled …), not the payment's latest state.
+      const view = buildEventView(notif, fromLedger, fromPayload);
+      setSelectedTransaction(view.tx);
+      setSelectedEvent(view.event);
       setTxModalOpen(true);
     }
+  };
+
+  /* ---------------------------------------------------------------- */
+  /* Per-event snapshot (2026-10-01): "Payment pending" and "Payment   */
+  /* received" used to open the SAME live ledger row (already settled), */
+  /* so every payment notification showed identical details.           */
+  /* ---------------------------------------------------------------- */
+  const EVENT_KIND: Record<string, TxNotificationEventKind> = {
+    payment_pending: "detected",
+    payment_confirming: "confirming",
+    payment_partial: "partial",
+    payment_partial_expired: "partial_expired",
+    payment_overpaid: "overpaid",
+    transaction_confirmed: "confirmed",
+    payment_received: "settled",
+  };
+  const DETECTION_KINDS: TxNotificationEventKind[] = ["detected", "confirming", "partial", "partial_expired"];
+
+  const eventTitle = (kind: TxNotificationEventKind, notif: any): string => {
+    switch (kind) {
+      case "detected":
+        return tNotifications("txEvent.detected", { defaultValue: "Payment detected" });
+      case "confirming":
+        return tNotifications("txEvent.confirming", { defaultValue: "Confirming on-chain" });
+      case "partial":
+        return tNotifications("txEvent.partial", { defaultValue: "Short payment received" });
+      case "partial_expired":
+        return String(notif?.title || tNotifications("txEvent.partialExpired", { defaultValue: "Partial payment processed" }));
+      case "overpaid":
+        return tNotifications("txEvent.overpaid", { defaultValue: "Customer overpaid" });
+      case "confirmed":
+        return tNotifications("txEvent.confirmed", { defaultValue: "Payment confirmed" });
+      default:
+        return tNotifications("txEvent.settled", { defaultValue: "Payment received" });
+    }
+  };
+
+  const buildEventView = (
+    notif: any,
+    ledger: ExtendedTransaction | null,
+    fromPayload: ExtendedTransaction,
+  ): { tx: ExtendedTransaction; event: TxNotificationEvent | null } => {
+    const base = ledger ?? fromPayload;
+    const kind = EVENT_KIND[String(notif?.type || "")];
+    if (!kind) return { tx: base, event: null };
+
+    const meta = notif.data || notif.meta || {};
+    const currency = String(meta.currency || base.crypto || "");
+    const fmtAmt = (n: unknown) => `${formatDisplayAmount(Number(n) || 0, currency)} ${currency}`;
+    // Ledger USD/crypto rate → value the snapshot amount consistently.
+    const rate = base.cryptoAmountRaw > 0 && base.usdValueRaw > 0 ? base.usdValueRaw / base.cryptoAmountRaw : 0;
+    const at: string = notif.created_at;
+
+    const event: TxNotificationEvent = {
+      kind,
+      title: eventTitle(kind, notif),
+      at,
+      atLabel: fmtDateTime(at),
+      checkoutOpenedAt: ledger?.createdAtTs ? new Date(ledger.createdAtTs).toISOString() : (meta.paid_at || null),
+      currentStatus: ledger?.status ?? null,
+    };
+    event.checkoutOpenedLabel = event.checkoutOpenedAt ? fmtDateTime(event.checkoutOpenedAt) : null;
+
+    let tx: ExtendedTransaction = {
+      ...base,
+      crypto: base.crypto || currency,
+      dateTime: fmtDateTime(at),
+      createdAtTs: at ? new Date(at).getTime() || base.createdAtTs : base.createdAtTs,
+    };
+
+    if (DETECTION_KINDS.includes(kind)) {
+      // Nothing had settled yet at this moment → no fees / payout / settlement
+      // wallet / outgoing hash / webhook result (those belong to later events).
+      const stripped: ExtendedTransaction = {
+        ...tx,
+        fees: 0,
+        feesBreakdown: undefined,
+        referralCreditUsd: undefined,
+        outgoingTransactionId: "",
+        autoConvert: undefined,
+        autoConverted: false,
+        settlementAddress: "",
+        callbackUrl: "",
+        webhookResponse: undefined,
+        incomingTransactionId: meta.tx_id || meta.txid || base.incomingTransactionId || "",
+      };
+      event.receivingAddress = meta.address || null;
+
+      if (kind === "detected") {
+        const detected = Number(meta.amount) || base.cryptoAmountRaw;
+        const req = Number(meta.confirmations_required) || 0;
+        tx = {
+          ...stripped,
+          status: "processing",
+          amount: fmtAmt(detected),
+          cryptoAmountRaw: detected,
+          usdValueRaw: rate > 0 ? detected * rate : 0,
+          usdValue: rate > 0 ? formatWithSymbol(detected * rate, "$", 2) : "—",
+          confirmations: req > 0 ? `0/${req}` : "",
+        };
+        event.estimatedTime = meta.estimated_time || null;
+        event.confirmationsRequired = req || null;
+      } else if (kind === "confirming") {
+        const cur = Number(meta.current_confirmations) || 0;
+        const req = Number(meta.required_confirmations) || 0;
+        tx = {
+          ...stripped,
+          status: req > 0 && cur >= req ? "confirmed" : "processing",
+          confirmations: req > 0 ? `${cur}/${req}` : stripped.confirmations || "",
+        };
+        event.confirmationsRequired = req || null;
+      } else {
+        // Short payment (partial) / its grace-period outcome.
+        const expected = Number(meta.expected_amount) || base.cryptoAmountRaw;
+        const received = Number(meta.received_amount) || 0;
+        tx = {
+          ...stripped,
+          status: "underpaid",
+          amount: fmtAmt(expected),
+          cryptoAmountRaw: expected,
+          usdValueRaw: rate > 0 ? expected * rate : stripped.usdValueRaw,
+          usdValue: rate > 0 ? formatWithSymbol(expected * rate, "$", 2) : stripped.usdValue,
+          confirmations: "",
+          ...({
+            receivedAmountRaw: received,
+            remainingAmountRaw: meta.remaining_amount != null ? Number(meta.remaining_amount) : Math.max(0, expected - received),
+          } as Partial<ExtendedTransaction>),
+        };
+      }
+    } else {
+      // Settlement-family events: the full settled details are what happened.
+      tx = { ...tx, status: kind === "confirmed" ? "confirmed" : "settled" };
+      if (kind === "settled" && meta.amount != null) {
+        event.netAmount = meta.auto_converting
+          ? `≈ ${formatWithSymbol(Number(meta.amount) || 0, "$", 2)} → ${meta.currency}`
+          : fmtAmt(meta.amount);
+      }
+      if (kind === "overpaid" && meta.excess_amount != null) {
+        event.excessAmount = `${fmtAmt(meta.excess_amount)}${
+          meta.excess_amount_usd ? ` (≈ ${formatWithSymbol(Number(meta.excess_amount_usd) || 0, "$", 2)})` : ""
+        }`;
+      }
+    }
+
+    return { tx, event };
   };
 
   // Notifications list on SWR → cached between visits + deduped, keyed per
@@ -876,8 +1022,9 @@ const NotificationPage = ({ initialTab = "inbox" }: { initialTab?: "inbox" | "se
       />
       <TransactionDetailsModal
         open={txModalOpen}
-        onClose={() => { setTxModalOpen(false); setSelectedTransaction(null); }}
+        onClose={() => { setTxModalOpen(false); setSelectedTransaction(null); setSelectedEvent(null); }}
         transaction={selectedTransaction}
+        event={selectedEvent}
       />
     </Box>
   );

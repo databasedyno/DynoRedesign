@@ -6,6 +6,7 @@ import { pageProps } from "@/utils/types";
 import { AddRounded } from "@mui/icons-material";
 import { Box, Skeleton } from "@mui/material";
 import dynamic from "next/dynamic";
+import { lazyLoading } from "@/Components/UI/DynamicFallback";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -24,18 +25,19 @@ import { Icon } from "@/styles/uiKit";
  */
 
 const tabFallback = <Skeleton variant="rounded" height={420} sx={{ borderRadius: "16px" }} />;
+const tabLoading = lazyLoading(tabFallback, { minHeight: 420 });
 
 const ApiKeysPage = dynamic(() => import("@/Components/Page/API/ApiKeysPage"), {
   ssr: false,
-  loading: () => tabFallback,
+  loading: tabLoading,
 });
 const WebhookConsoleSection = dynamic(
   () => import("@/Components/Page/API/WebhookConsoleSection"),
-  { ssr: false, loading: () => tabFallback },
+  { ssr: false, loading: tabLoading },
 );
 const DeveloperHealthStrip = dynamic(
   () => import("@/Components/Page/API/DeveloperHealthStrip"),
-  { ssr: false },
+  { ssr: false, loading: lazyLoading(null, { silent: true }) },
 );
 
 type TabId = "keys" | "webhooks" | "events" | "docs";

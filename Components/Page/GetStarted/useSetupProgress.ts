@@ -4,12 +4,25 @@ import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { useWalletStore } from "@/contexts/WalletDataContext";
 import useAccountProfile from "@/hooks/useAccountProfile";
 import { PaymentLinkAction, PAYLINK_FETCH } from "@/Redux/Actions/PaymentLinkAction";
+import { ApiAction, API_FETCH } from "@/Redux/Actions/ApiAction";
+import { UserAction, USER_PROFILE_FETCH } from "@/Redux/Actions/UserAction";
 import { rootReducer } from "@/utils/types";
 import { useMfaEnforcement } from "@/Components/UI/MfaGate/useMfaEnforcement";
 import { isSafeDealBrandId } from "@/helpers/safedealBrand";
 
 export type SetupStepKey = "secure" | "about" | "payouts" | "link" | "share";
 export const SETUP_STEPS: SetupStepKey[] = ["secure", "about", "payouts", "link", "share"];
+
+/**
+ * Which flavour of the 5-step setup a user gets (2026-10-01).
+ *   default    → secure → about → payouts → first payment link → share it
+ *   developers → secure → about → payouts → API key → test payment
+ * Signups that picked "API developer" used to skip the wizard entirely
+ * (straight to /developer-keys) and never set up 2FA, a payout wallet or a
+ * first payment. Same step keys, so routing/analytics/progress stay shared.
+ */
+export type SetupTrack = "default" | "developers";
+export const PURPOSE_VERTICAL_KEY = "dyno_purpose_vertical";
 
 /** Any success-like transaction status counts as "a payment received" (source-agnostic). */
 const SETTLED_TX_STATUSES = ["confirmed", "completed", "settled", "success", "successful", "paid", "done"];
@@ -20,6 +33,48 @@ export const GS_SUPPRESS_KEY = "dyno_suppress_onboarding";
 /** A4: the Share step counts as done on the first copy / QR / share action, not only once money lands. */
 const GS_SHARED_KEY = (companyId: number) => `dyno_gs_shared:${companyId}`;
 const GS_SHARED_EVENT = "dynopay:gs-shared";
+/** Developer track: step 5 counts as done once a sandbox payment was simulated to settled. */
+const GS_TESTPAID_KEY = (companyId: number) => `dyno_gs_testpaid:${companyId}`;
+const GS_TESTPAID_EVENT = "dynopay:gs-testpaid";
+
+export const markTestPaymentDone = (companyId?: number | null) => {
+  if (typeof window === "undefined" || !companyId) return;
+  try {
+    window.localStorage.setItem(GS_TESTPAID_KEY(companyId), "1");
+  } catch { /* noop */ }
+  window.dispatchEvent(new Event(GS_TESTPAID_EVENT));
+};
+
+const useHasTestPayment = (companyId?: number) => {
+  const [done, setDone] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined" || !companyId) return;
+    const read = () => {
+      try {
+        setDone(window.localStorage.getItem(GS_TESTPAID_KEY(companyId)) === "1");
+      } catch {
+        setDone(false);
+      }
+    };
+    read();
+    window.addEventListener(GS_TESTPAID_EVENT, read);
+    return () => window.removeEventListener(GS_TESTPAID_EVENT, read);
+  }, [companyId]);
+  return done;
+};
+
+/** Stored purpose pick (PurposePicker writes it at signup) — fallback until the profile loads. */
+const useStoredVertical = () => {
+  const [v, setV] = useState<string | null>(null);
+  useEffect(() => {
+    try {
+      setV(window.localStorage.getItem(PURPOSE_VERTICAL_KEY));
+    } catch {
+      setV(null);
+    }
+  }, []);
+  return v;
+};
 
 export const markLinkShared = (companyId?: number | null) => {
   if (typeof window === "undefined" || !companyId) return;
@@ -46,6 +101,9 @@ export interface SetupStep {
 
 // Module-level dedupe so several mounted consumers only fetch links once per company.
 let lastLinksFetch: { companyId: number; at: number } | null = null;
+// Same for the developer track's API-key probe + the one-off profile fetch.
+let lastKeysFetch: { companyId: number; at: number } | null = null;
+let profileRequested = false;
 
 /**
  * Single source of truth for first-run progress, derived from REAL data
@@ -62,6 +120,9 @@ export const useSetupProgress = () => {
   const dashboardState = useSelector((s: rootReducer) => s.dashboardReducer);
   const { enforcement, settled: mfaSettled, refresh: refreshMfa } = useMfaEnforcement();
   const twoFaEnrolled = !!enforcement?.enrolled;
+  const userProfile: any = useSelector((s: rootReducer) => (s.userReducer as any)?.profile);
+  const apiState = useSelector((s: rootReducer) => s.apiReducer);
+  const storedVertical = useStoredVertical();
 
   const companyList = companyState.companyList ?? [];
   const companyId: number | undefined =
@@ -114,6 +175,41 @@ export const useSetupProgress = () => {
     walletProcessed ||
     recentSettled;
   const hasShared = useHasShared(companyId);
+  const hasTestPayment = useHasTestPayment(companyId);
+
+  // ── Track: the signup purpose decides the last two steps ───────────────
+  // The persisted tbl_user.purpose_vertical wins once the profile is loaded;
+  // until then the purpose picked on this browser at signup is used.
+  const profileLoaded = Boolean(userProfile?.user_id);
+  const vertical: string | null = profileLoaded ? (userProfile?.purpose_vertical ?? null) : storedVertical;
+  const track: SetupTrack = vertical === "developers" ? "developers" : "default";
+
+  useEffect(() => {
+    if (profileLoaded || profileRequested || !hasAccount) return;
+    profileRequested = true;
+    dispatch(UserAction(USER_PROFILE_FETCH));
+  }, [profileLoaded, hasAccount, dispatch]);
+
+  // Developer track only: does this brand have an active API key (sandbox or live)?
+  useEffect(() => {
+    if (track !== "developers" || !companyId || !hasAccount) return;
+    const now = Date.now();
+    if (lastKeysFetch && lastKeysFetch.companyId === companyId && now - lastKeysFetch.at < 10_000) return;
+    lastKeysFetch = { companyId, at: now };
+    dispatch(ApiAction(API_FETCH, { company_id: companyId }));
+  }, [track, companyId, hasAccount, dispatch]);
+
+  const activeKeys = useMemo(
+    () =>
+      ((apiState?.apiList as any[]) ?? []).filter(
+        (k) =>
+          k?.status === "active" &&
+          (!companyId || k?.company_id == null || Number(k.company_id) === Number(companyId)),
+      ),
+    [apiState?.apiList, companyId],
+  );
+  const hasApiKey = activeKeys.length > 0;
+  const hasTestKey = activeKeys.some((k) => k?.environment === "development");
 
   useEffect(() => {
     if (!companyId || !hasAccount) return;
@@ -130,10 +226,14 @@ export const useSetupProgress = () => {
       { key: "secure", done: twoFaEnrolled },
       { key: "about", done: profileComplete },
       { key: "payouts", done: hasWallet },
-      { key: "link", done: hasLink },
-      { key: "share", done: hasPayment || (hasLink && hasShared) },
+      track === "developers"
+        ? { key: "link", done: hasApiKey }
+        : { key: "link", done: hasLink },
+      track === "developers"
+        ? { key: "share", done: hasPayment || hasTestPayment }
+        : { key: "share", done: hasPayment || (hasLink && hasShared) },
     ],
-    [twoFaEnrolled, profileComplete, hasWallet, hasLink, hasPayment, hasShared],
+    [twoFaEnrolled, profileComplete, hasWallet, hasLink, hasPayment, hasShared, track, hasApiKey, hasTestPayment],
   );
 
   const doneCount = steps.filter((s) => s.done).length;
@@ -146,6 +246,8 @@ export const useSetupProgress = () => {
 
   const coreReady = Boolean(companyState.fetched && walletState.fetched && mfaSettled);
   const linksSettled = Boolean(payLinkState.fetched) || (!hasAccount && coreReady);
+  // Developer track also waits for the key list so step 4 doesn't flash "to do".
+  const keysSettled = track !== "developers" || Boolean(apiState?.fetched) || (!hasAccount && coreReady);
 
   return {
     account,
@@ -162,6 +264,10 @@ export const useSetupProgress = () => {
     newestLink,
     hasPayment,
     hasShared,
+    track,
+    hasApiKey,
+    hasTestKey,
+    hasTestPayment,
     isSafeDealBrand,
     steps,
     doneCount,
@@ -169,7 +275,7 @@ export const useSetupProgress = () => {
     firstIncomplete,
     coreReady,
     linksSettled,
-    ready: coreReady && linksSettled,
+    ready: coreReady && linksSettled && keysSettled,
   };
 };
 

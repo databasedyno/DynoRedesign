@@ -86,6 +86,8 @@ import Head from "next/head";
 import React, { ReactNode, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import NProgress from "nprogress";
 import dynamic from "next/dynamic";
+import { lazyLoading } from "@/Components/UI/DynamicFallback";
+import { isChunkLoadError, reloadOnceForStaleChunk } from "@/utils/staleChunkReload";
 import { useTranslation, I18nextProvider } from "react-i18next";
 
 import type { SxProps, Theme } from "@mui/material";
@@ -138,34 +140,39 @@ if (typeof window !== "undefined") {
 }
 
 // ─── Dynamic imports: each layout only loads when its route is hit ───
+// A layout chunk that fails to load (stale post-deploy tab) used to render
+// `null` forever = blank page. lazyLoading() reloads once onto the current
+// build, else shows Retry / Reload (Components/UI/DynamicFallback.tsx).
+const layoutLoading = lazyLoading(null, { minHeight: "60vh" });
 const HomeLayout = dynamic(() => import("@/Containers/Home"), {
-  loading: () => null,
+  loading: layoutLoading,
 });
 const ClientLayout = dynamic(() => import("@/Containers/Client"), {
-  loading: () => null,
+  loading: layoutLoading,
 });
 const AdminLayout = dynamic(() => import("@/Containers/Admin"), {
-  loading: () => null,
+  loading: layoutLoading,
 });
 const LoginLayout = dynamic(() => import("@/Containers/Login"), {
-  loading: () => null,
+  loading: layoutLoading,
 });
 const PaymentLayout = dynamic(() => import("@/Containers/Payment"), {
-  loading: () => null,
+  loading: layoutLoading,
 });
 
 // AI support chat widget — client-only (uses localStorage session), shown on
 // the public landing pages + inside the merchant app (not on checkout/admin).
 const SupportChatWidget = dynamic(
   () => import("@/Components/Common/SupportChatWidget"),
-  { ssr: false, loading: () => null }
+  // Decorative + optional: never reload the page for it, just stay hidden.
+  { ssr: false, loading: lazyLoading(null, { silent: true, autoReload: false }) }
 );
 
 // Unified step-up ("Verify it's you") dialog host — serves the axios
 // interceptor + explicit callers for every sensitive action. Client-only.
 const StepUpHost = dynamic(() => import("@/Components/UI/StepUp/StepUpHost"), {
   ssr: false,
-  loading: () => null,
+  loading: lazyLoading(null, { silent: true }),
 });
 
 // -----------------------------
@@ -219,26 +226,17 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
   // longer exist (404 -> ChunkLoadError). Force a ONE-TIME hard reload so the
   // tab picks up the current build. A sessionStorage guard prevents reload loops.
   useEffect(() => {
-    const RELOAD_KEY = "dp_chunk_reload_at";
-    const isChunkError = (msg?: string) =>
-      !!msg && /ChunkLoadError|Loading chunk [0-9]+ failed|Loading CSS chunk/i.test(msg);
-    const reloadOnce = () => {
-      try {
-        const last = Number(sessionStorage.getItem(RELOAD_KEY) || 0);
-        if (Date.now() - last < 10000) return; // already reloaded recently — avoid a loop
-        sessionStorage.setItem(RELOAD_KEY, String(Date.now()));
-      } catch { /* sessionStorage unavailable — still attempt a single reload */ }
-      window.location.reload();
-    };
+    // Shared with every next/dynamic fallback (utils/staleChunkReload.ts) —
+    // next/dynamic swallows its own import errors, so those are handled in
+    // Components/UI/DynamicFallback.tsx; this catches everything else.
     const onRouteError = (err: unknown) => {
-      const msg = err instanceof Error ? err.message : String(err || "");
-      if (isChunkError(msg)) reloadOnce();
+      if (isChunkLoadError(err)) reloadOnceForStaleChunk();
     };
-    const onWindowError = (e: ErrorEvent) => { if (isChunkError(e?.message)) reloadOnce(); };
+    const onWindowError = (e: ErrorEvent) => {
+      if (isChunkLoadError(e?.error) || isChunkLoadError(e?.message)) reloadOnceForStaleChunk();
+    };
     const onRejection = (e: PromiseRejectionEvent) => {
-      const r = e?.reason;
-      const msg = r instanceof Error ? r.message : String(r || "");
-      if (isChunkError(msg)) reloadOnce();
+      if (isChunkLoadError(e?.reason)) reloadOnceForStaleChunk();
     };
     router.events.on("routeChangeError", onRouteError);
     window.addEventListener("error", onWindowError);

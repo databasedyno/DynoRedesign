@@ -4,11 +4,12 @@ import { WarningAmberRounded } from "@mui/icons-material";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import dynamic from "next/dynamic";
+import { lazyLoading } from "@/Components/UI/DynamicFallback";
 import CustomButton from "@/Components/UI/Buttons";
 import useTokenData from "@/hooks/useTokenData";
 import { rootReducer } from "@/utils/types";
 
-const DeleteAccountModal = dynamic(() => import("@/Components/UI/DeleteAccountModal"), { ssr: false });
+const DeleteAccountModal = dynamic(() => import("@/Components/UI/DeleteAccountModal"), { ssr: false, loading: lazyLoading(null, { silent: true }) });
 
 /**
  * "Danger zone" card in Settings → Profile. Lets a merchant delete their whole

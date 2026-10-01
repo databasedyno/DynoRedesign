@@ -60,6 +60,8 @@ export interface apiReducer {
   loading: boolean;
   /** Plaintext keys returned ONCE by create/regenerate, kept for this session only (api_id → key). */
   revealedKeys: Record<number, string>;
+  /** True once a key-list fetch has finished (success OR error) — lets the setup wizard stop waiting. */
+  fetched?: boolean;
 }
 
 export interface transactionReducer {

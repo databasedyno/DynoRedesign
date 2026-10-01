@@ -274,13 +274,19 @@ const NotificationInbox: React.FC<Props> = ({ notifications, loading, unreadCoun
                         {notif.title}
                       </Typography>
                       <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, flexShrink: 0 }}>
-                        <Typography sx={{ fontSize: "12px", color: muted, fontFamily: "var(--font-sans)", whiteSpace: "nowrap" }}>
-                          {/* Bug #2 fix: payment notifications carry data.paid_at
-                              (the real on-chain payment time = tx createdAt) so the
-                              "X ago" matches the transactions table + email instead
-                              of the settlement moment this row was created. Falls
-                              back to created_at for all other notification types. */}
-                          {formatTimeAgo(notif.data?.paid_at || notif.created_at)}
+                        <Typography
+                          data-testid={`notification-time-${notif.notification_id}`}
+                          title={notif.created_at ? new Date(notif.created_at).toLocaleString() : undefined}
+                          sx={{ fontSize: "12px", color: muted, fontFamily: "var(--font-sans)", whiteSpace: "nowrap" }}
+                        >
+                          {/* Each row shows WHEN ITS OWN EVENT HAPPENED (created_at =
+                              detected for "Payment pending", settled for "Payment
+                              received"). The list is ordered by the same field, so
+                              times always read newest → oldest. data.paid_at is the
+                              checkout-OPENED time (tx createdAt) — showing it made a
+                              settlement look older than its own detection (2026-10-01).
+                              The details drawer still lists "Checkout opened". */}
+                          {formatTimeAgo(notif.created_at)}
                         </Typography>
                         {onDelete && (
                           <Box

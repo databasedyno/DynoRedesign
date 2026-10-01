@@ -5,9 +5,10 @@ import TransactionIcon from "@/assets/Icons/transaction.svg";
 import ArrowUpSuccessIcon from "@/assets/Icons/up-success.svg";
 import WalletIcon from "@/assets/Icons/wallet-grey.svg";
 import dynamic from "next/dynamic";
+import { lazyLoading } from "@/Components/UI/DynamicFallback";
 const Chart = dynamic(() => import("@/Components/UI/AreaChart"), {
   ssr: false,
-  loading: () => <div style={{ height: 300 }} />,
+  loading: lazyLoading(<div style={{ height: 300 }} />, { minHeight: 300 }),
 });
 import CustomButton from "@/Components/UI/Buttons";
 import {

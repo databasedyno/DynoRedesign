@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
+import { lazyLoading } from "@/Components/UI/DynamicFallback";
 import { useTranslation } from 'react-i18next'
 import { createPortal } from 'react-dom'
 import { Box, Button, Typography, useTheme } from '@mui/material'
@@ -21,7 +22,7 @@ import useStickyCtaFootprint from '@/hooks/useStickyCtaFootprint'
 // Lazy-load the analytics chart (recharts is heavy) so it stays out of the
 // public creator page's initial JS bundle. Client-only: it's below-the-fold
 // and only renders when analytics data is present.
-const AnalyticsWidget = dynamic(() => import('./AnalyticsWidget'), { ssr: false })
+const AnalyticsWidget = dynamic(() => import('./AnalyticsWidget'), { ssr: false, loading: lazyLoading(null, { silent: true }) })
 
 const MONO = 'var(--font-tech), ui-monospace, "JetBrains Mono", SFMono-Regular, Menlo, monospace'
 const HERO = 'var(--font-hero), var(--font-sans)'

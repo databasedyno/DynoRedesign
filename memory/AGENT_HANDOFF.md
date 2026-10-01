@@ -49,6 +49,7 @@ All backend TS typechecks clean (`cd /app/backend && npx tsc --noEmit` → exit 
 - Prod flags confirmed: `NODE_ENV=production`, `TATUM_TESTNET=false`, `ENABLE_TEST_ENDPOINTS` unset, `PAYMENT_TEST_HOOK_SECRET` unset → sandbox is NOT wired to a testnet/simulator (that's why the new simulator was built).
 
 ## PENDING / NEXT STEPS
+0. **(2026-10-01) Context-aware onboarding for creators + fundraisers** — full spec in `memory/TASK_CONTEXT_AWARE_ONBOARDING_ALL_VERTICALS.md`; its Step 0 = run testing_agent on the 3 previously shipped fixes (settings chunk fallback, notification ordering, developer wizard track).
 1. **#1 dropped-deposit RCA** needs prod logs via SSH. **SSH keypair already generated:** public `/root/.ssh/dynopay_prod_ed25519.pub` (`ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDe6kG3dVHGWgXU9IG4SGcX1E8uI2Yo8wxKqlFoyXfVZ emergent-agent-dynopay-logs`), private `/root/.ssh/dynopay_prod_ed25519`. User was installing the public key on `root@134.209.94.115` — **not yet confirmed working.** Once in: `docker ps` / `docker logs` (read-only), grep company_id 1 deposit + webhook flow.
 2. **#2 one-off unblock** for customer **ahzraelsound@gmail.com**: their stuck sandbox checkout predates the `environment` stamp (`null`) → the new simulator REFUSES it → needs a manual DB drive or one-off. New sandbox checkouts (post-deploy) simulate cleanly via the endpoint.
 3. **E2E test the simulator** — controlled `dpk_test_` run + cleanup, or staging, or post-deploy smoke test.

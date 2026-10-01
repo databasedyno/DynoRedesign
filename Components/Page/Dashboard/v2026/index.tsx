@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "next/router";
 import dynamic from "next/dynamic";
+import { lazyLoading } from "@/Components/UI/DynamicFallback";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useDashboardDensity } from "@/hooks/useDashboardDensity";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
@@ -26,8 +27,8 @@ const ChartSkeleton = ({ h }: { h: number }) => (
   <Box aria-hidden sx={{ height: h, width: "100%", borderRadius: 3, backgroundColor: "action.hover", opacity: 0.4 }} />
 );
 // recharts is heavy — load the trend card as its own async chunk.
-const TrendCard = dynamic(() => import("./command/TrendCard"), { ssr: false, loading: () => <ChartSkeleton h={420} /> });
-const FirstPaymentCelebrationModal = dynamic(() => import("@/Components/Modals/FirstPaymentCelebrationModal"), { ssr: false });
+const TrendCard = dynamic(() => import("./command/TrendCard"), { ssr: false, loading: lazyLoading(<ChartSkeleton h={420} />, { minHeight: 420 }) });
+const FirstPaymentCelebrationModal = dynamic(() => import("@/Components/Modals/FirstPaymentCelebrationModal"), { ssr: false, loading: lazyLoading(null, { silent: true }) });
 
 const SETTLED = ["confirmed", "completed", "settled", "success", "successful", "paid"];
 

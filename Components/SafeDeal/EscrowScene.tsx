@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import { lazyLoading } from "@/Components/UI/DynamicFallback";
 import { Box, Stack, Typography, useMediaQuery } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useReducedMotion } from "framer-motion";
 import { SD_GOLD, SD_INK_SOFT, goldAlpha } from "./sdTheme";
 
-const EscrowScene3D = dynamic(() => import("./EscrowScene3D"), { ssr: false, loading: () => null });
+// Decorative 3D scene: if its chunk fails just stay hidden (never reload the page for it).
+const EscrowScene3D = dynamic(() => import("./EscrowScene3D"), { ssr: false, loading: lazyLoading(null, { silent: true, autoReload: false }) });
 
 const hasWebGL = (): boolean => {
   try {

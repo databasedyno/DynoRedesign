@@ -42,6 +42,7 @@ import { Icon } from '@iconify/react'
 import BitCoinGreenIcon from '@/assets/Icons/BitCoinGreenIcon'
 import Logo from '@/assets/Icons/Logo'
 import dynamic from 'next/dynamic'
+import { lazyLoading } from "@/Components/UI/DynamicFallback";
 import type { DonationCampaignData } from '@/Components/Page/Pay3Components/donationCampaign'
 import Pay3Layout from '@/Components/Layout/Pay3Layout'
 
@@ -55,9 +56,12 @@ const CheckoutChunkLoader = () => (
     <CircularProgress size={28} />
   </Box>
 )
-const CryptoTransfer = dynamic(() => import('@/Components/Page/Pay3Components/cryptoTransfer'), { ssr: false, loading: CheckoutChunkLoader })
-const DonationCampaign = dynamic(() => import('@/Components/Page/Pay3Components/donationCampaign'), { ssr: false, loading: CheckoutChunkLoader })
-const CleanCheckoutV2 = dynamic(() => import('@/Components/Page/Pay3Components/CleanCheckoutV2'), { ssr: false, loading: CheckoutChunkLoader })
+// Checkout panels: on a failed chunk (stale post-deploy tab) reload once onto
+// the current build, else show Retry — never an endless spinner for a payer.
+const checkoutLoading = lazyLoading(<CheckoutChunkLoader />, { minHeight: 260 })
+const CryptoTransfer = dynamic(() => import('@/Components/Page/Pay3Components/cryptoTransfer'), { ssr: false, loading: checkoutLoading })
+const DonationCampaign = dynamic(() => import('@/Components/Page/Pay3Components/donationCampaign'), { ssr: false, loading: checkoutLoading })
+const CleanCheckoutV2 = dynamic(() => import('@/Components/Page/Pay3Components/CleanCheckoutV2'), { ssr: false, loading: checkoutLoading })
 import Image from 'next/image'
 // Flag icon imports - International
 import USDIcon from '../../assets/Icons/flag/USD.png'

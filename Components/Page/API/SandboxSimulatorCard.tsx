@@ -32,6 +32,7 @@ import CustomButton from "@/Components/UI/Buttons";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { Icon } from "@/styles/uiKit";
+import { markTestPaymentDone } from "@/Components/Page/GetStarted/useSetupProgress";
 
 interface WebhookResult {
   event: string;
@@ -162,6 +163,8 @@ const SandboxSimulatorCard = () => {
       const data: SimResult = res?.data?.data || {};
       setResult(data);
       setPaymentId(target);
+      // Completes the developer setup wizard's "Make a test payment" step.
+      markTestPaymentDone(selectedCompanyId);
       toast(
         data.already_settled
           ? tt("sandboxSim.alreadySettled", "This sandbox payment is already settled.")

@@ -46,6 +46,7 @@ const apiReducer = (state = apiInitialState, action: ReducerAction) => {
       return {
         ...state,
         loading: false,
+        fetched: true,
         apiList: payload,
       };
 
@@ -97,6 +98,7 @@ const apiReducer = (state = apiInitialState, action: ReducerAction) => {
       return {
         ...state,
         loading: false,
+        fetched: true,
       };
     default:
       return {

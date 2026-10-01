@@ -12,7 +12,10 @@ import type { Vertical } from "@/Components/UI/_shared";
  *   creators    → /creator                     (claim @handle, enable tips widget)
  *   merchants   → /get-started                 (guided 4-step wizard, plan 1.18 — brand → payout wallet → first link → share)
  *   fundraisers → /create-pay-link?type=donation (open the crowdfunding flow directly)
- *   developers  → /developer-keys              (grab API key + copy embed code)
+ *   developers  → /get-started                 (same guided wizard — secure → about → payouts →
+ *                                               API key → test payment; used to jump straight to
+ *                                               /developer-keys and skip 2FA, payout wallet and
+ *                                               first payment — fixed 2026-10-01)
  *
  * `null` = unknown vertical → falls through to /dashboard (safe default,
  * matches pre-audit behaviour).
@@ -43,7 +46,9 @@ const DESTINATIONS: Record<Vertical, OnboardingDestination> = {
     label: "campaign page",
   },
   developers: {
-    path: "/developer-keys?onboarding=1",
+    // The wizard reads purpose_vertical and swaps its last two steps for
+    // "Your API key" + "Make a test payment" (Components/Page/GetStarted).
+    path: "/get-started",
     label: "API access",
   },
 };

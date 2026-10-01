@@ -160,10 +160,52 @@ export interface ICustomerTransactions {
   source?: TransactionSource;
 }
 
+/**
+ * The moment a payment NOTIFICATION describes. When the drawer is opened from
+ * a notification it renders a snapshot of THAT stage (detected / settled / …)
+ * instead of the payment's latest state, so "Payment pending" and "Payment
+ * received" no longer open identical details (2026-10-01).
+ */
+export type TxNotificationEventKind =
+  | "detected"
+  | "confirming"
+  | "partial"
+  | "partial_expired"
+  | "overpaid"
+  | "confirmed"
+  | "settled";
+
+export interface TxNotificationEvent {
+  kind: TxNotificationEventKind;
+  /** Drawer title, e.g. "Payment detected". */
+  title: string;
+  /** ISO time of the event (= notification created_at). */
+  at: string;
+  /** Pre-formatted event time. */
+  atLabel: string;
+  /** ISO time the checkout was opened (ledger tx createdAt), when known. */
+  checkoutOpenedAt?: string | null;
+  /** Pre-formatted checkoutOpenedAt (same formatter as the event time). */
+  checkoutOpenedLabel?: string | null;
+  /** The payment's status NOW (ledger bucket), when it was looked up. */
+  currentStatus?: ExtendedTransaction["status"] | null;
+  /** Deposit address the customer paid into (detection events). */
+  receivingAddress?: string | null;
+  /** e.g. "10-60 minutes" (detection events). */
+  estimatedTime?: string | null;
+  confirmationsRequired?: number | null;
+  /** Formatted amount the merchant was credited (settlement events), e.g. "0.00038203 BTC". */
+  netAmount?: string | null;
+  /** Formatted excess amount (overpaid events). */
+  excessAmount?: string | null;
+}
+
 export interface TransactionDetailsModalProps {
   open: boolean;
   onClose: () => void;
   transaction: ExtendedTransaction | null;
+  /** Opened from a notification → render that event's snapshot (optional; /transactions omits it). */
+  event?: TxNotificationEvent | null;
 }
 
 /** Sortable transaction table columns. */

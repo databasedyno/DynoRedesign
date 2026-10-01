@@ -5,7 +5,7 @@ import { Icon } from "@/styles/uiKit";
 import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
 import { GRAIN_URL } from "@/constants/creatorTheme";
 import ProgressRing from "./ProgressRing";
-import { STEP_ICON, stepDesc, stepLabel } from "./stepMeta";
+import { stepDesc, stepIcon, stepLabel } from "./stepMeta";
 import type { SetupProgress, SetupStepKey } from "./useSetupProgress";
 import { SETUP_STEPS } from "./useSetupProgress";
 
@@ -42,7 +42,7 @@ const WizardShell: React.FC<Props> = ({ progress, current, onSelect, onLater, ch
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const { t } = useTranslation("dashboardLayout");
-  const { steps, doneCount, total, firstIncomplete } = progress;
+  const { steps, doneCount, total, firstIncomplete, track } = progress;
 
   const ink = isDark ? CB_TOKENS.ink.primaryDark : CB_TOKENS.ink.primaryLight;
   const muted = isDark ? CB_TOKENS.ink.mutedDark : CB_TOKENS.ink.mutedLight;
@@ -278,13 +278,13 @@ const WizardShell: React.FC<Props> = ({ progress, current, onSelect, onLater, ch
                   </Box>
                   <Box sx={{ minWidth: 0 }}>
                     <Box sx={{ fontFamily: "var(--font-sans)", fontSize: 13.5, fontWeight: active ? 700 : 600, color: active ? ink : s.done ? muted : ink, letterSpacing: "-0.005em" }}>
-                      {stepLabel(t, s.key)}
+                      {stepLabel(t, s.key, track)}
                     </Box>
                     <Box sx={{ fontFamily: "var(--font-sans)", fontSize: 12, color: muted, lineHeight: 1.35, mt: 0.125 }}>
-                      {s.done ? t("gs.stepDone", { defaultValue: "Done" }) : stepDesc(t, s.key)}
+                      {s.done ? t("gs.stepDone", { defaultValue: "Done" }) : stepDesc(t, s.key, track)}
                     </Box>
                   </Box>
-                  {!s.done && !active && <Box sx={{ ml: "auto", color: muted, display: "flex", opacity: 0.6 }}><Icon name={STEP_ICON[s.key]} size={15} /></Box>}
+                  {!s.done && !active && <Box sx={{ ml: "auto", color: muted, display: "flex", opacity: 0.6 }}><Icon name={stepIcon(s.key, track)} size={15} /></Box>}
                 </Box>
               );
             })}
@@ -300,7 +300,7 @@ const WizardShell: React.FC<Props> = ({ progress, current, onSelect, onLater, ch
                   {t("gs.stepOf", { n: currentIndex + 1, total, defaultValue: "Step {{n}} of {{total}}" })}
                 </Box>
                 <Box sx={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700, color: ink, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  {stepLabel(t, current)}
+                  {stepLabel(t, current, track)}
                 </Box>
               </Box>
               <Box sx={{ fontFamily: MONO, fontSize: 12, fontWeight: 600, color: muted, flexShrink: 0 }}>
@@ -317,7 +317,7 @@ const WizardShell: React.FC<Props> = ({ progress, current, onSelect, onLater, ch
                     component="button"
                     type="button"
                     data-testid={`gs-stepper-${s.key}`}
-                    aria-label={stepLabel(t, s.key)}
+                    aria-label={stepLabel(t, s.key, track)}
                     aria-current={active ? "step" : undefined}
                     disabled={!reachable}
                     onClick={() => onSelect(s.key)}

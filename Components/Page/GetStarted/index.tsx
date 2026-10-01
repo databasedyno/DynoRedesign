@@ -9,6 +9,8 @@ import StepAboutYou from "./StepAboutYou";
 import StepPayouts from "./StepPayouts";
 import StepFirstLink, { CreatedLink, linkFromRecord } from "./StepFirstLink";
 import StepShare from "./StepShare";
+import StepApiKey from "./StepApiKey";
+import StepTestPayment from "./StepTestPayment";
 import { STEP_TRACK_KEY } from "./stepMeta";
 import { GS_AUTO_OPEN_KEY, SETUP_STEPS, SetupStepKey, useSetupProgress } from "./useSetupProgress";
 
@@ -23,7 +25,9 @@ const GetStartedWizard: React.FC = () => {
   const router = useRouter();
   const { t } = useTranslation("dashboardLayout");
   const progress = useSetupProgress();
-  const { ready, firstIncomplete, hasLink, newestLink, hasWallet, twoFaEnrolled } = progress;
+  const { ready, firstIncomplete, hasLink, newestLink, hasWallet, twoFaEnrolled, track, hasApiKey } = progress;
+  // "API developer" signups: same secure → about → payouts start, then API key + test payment.
+  const isDev = track === "developers";
   const [created, setCreated] = useState<CreatedLink | null>(null);
   const [justCreated, setJustCreated] = useState(false);
   const [forceLinkForm, setForceLinkForm] = useState(false);
@@ -54,12 +58,19 @@ const GetStartedWizard: React.FC = () => {
   const current: SetupStepKey = queryStep ?? firstIncomplete;
   const shareLink = useMemo(() => created ?? linkFromRecord(newestLink), [created, newestLink]);
 
-  // Guards: the money steps (payouts → share) need a second factor first; "share" needs a link.
+  // Guards: the money steps (payouts → share) need a second factor first; "share" needs a link
+  // (developer track: the test-payment step needs an API key instead).
   useEffect(() => {
     if (!ready || !router.isReady) return;
     if (!twoFaEnrolled && SETUP_STEPS.indexOf(current) >= SETUP_STEPS.indexOf("payouts")) return void setStep("secure", true);
-    if (current === "share" && !shareLink) setStep("link", true);
-  }, [current, shareLink, ready, router.isReady, setStep, twoFaEnrolled]);
+    if (current === "share" && (isDev ? !hasApiKey : !shareLink)) setStep("link", true);
+  }, [current, shareLink, ready, router.isReady, setStep, twoFaEnrolled, isDev, hasApiKey]);
+
+  const finishDev = () => {
+    if (typeof window !== "undefined") window.sessionStorage.setItem(GS_AUTO_OPEN_KEY, "1");
+    trackOnboarding({ event_type: "step_completed", step_key: "payment", metadata: { surface: "wizard", track: "developers" } });
+    router.push("/developer-keys");
+  };
 
   const goLater = () => {
     if (typeof window !== "undefined") window.sessionStorage.setItem(GS_AUTO_OPEN_KEY, "1");
@@ -97,7 +108,11 @@ const GetStartedWizard: React.FC = () => {
       {current === "secure" && <StepSecure progress={progress} onNext={goNext} />}
       {current === "about" && <StepAboutYou progress={progress} onBack={goBack} onNext={goNext} />}
       {current === "payouts" && <StepPayouts progress={progress} onBack={goBack} onNext={goNext} />}
-      {current === "link" && (
+      {current === "link" && isDev && <StepApiKey progress={progress} onBack={goBack} onNext={goNext} />}
+      {current === "share" && isDev && (
+        <StepTestPayment progress={progress} onBack={goBack} onGoApiKey={() => setStep("link")} onFinish={finishDev} />
+      )}
+      {current === "link" && !isDev && (
         <StepFirstLink
           key={forceLinkForm ? "new" : hasLink ? "existing" : "fresh"}
           progress={progress}
@@ -115,7 +130,7 @@ const GetStartedWizard: React.FC = () => {
           onGoPayouts={() => setStep("payouts")}
         />
       )}
-      {current === "share" && shareLink && (
+      {current === "share" && !isDev && shareLink && (
         <StepShare
           link={shareLink}
           companyId={progress.companyId}

@@ -6,7 +6,7 @@ import { Icon } from "@/styles/uiKit";
 import { SurfaceCard, Eyebrow, PrimaryCTA, CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
 import { trackOnboarding } from "@/utils/trackOnboarding";
 import ProgressRing from "./ProgressRing";
-import { STEP_ICON, STEP_TRACK_KEY, stepDesc, stepLabel } from "./stepMeta";
+import { STEP_TRACK_KEY, stepDesc, stepIcon, stepLabel } from "./stepMeta";
 import type { SetupProgress, SetupStepKey } from "./useSetupProgress";
 
 interface Props {
@@ -23,7 +23,9 @@ const GettingStartedHero: React.FC<Props> = ({ progress }) => {
   const isDark = theme.palette.mode === "dark";
   const router = useRouter();
   const { t } = useTranslation("dashboardLayout");
-  const { steps, doneCount, total, firstIncomplete, hasLink, hasPayment } = progress;
+  const { steps, doneCount, total, firstIncomplete, hasLink, hasPayment, track, hasApiKey } = progress;
+  // Developer track: step 4 is the API key (not a payment link).
+  const hasStep4 = track === "developers" ? hasApiKey : hasLink;
 
   const ink = isDark ? CB_TOKENS.ink.primaryDark : CB_TOKENS.ink.primaryLight;
   const muted = isDark ? CB_TOKENS.ink.mutedDark : CB_TOKENS.ink.mutedLight;
@@ -32,33 +34,54 @@ const GettingStartedHero: React.FC<Props> = ({ progress }) => {
   const border = isDark ? CB_TOKENS.border.dark : CB_TOKENS.border.light;
   const positive = isDark ? CB_TOKENS.semantic.positive.dark : CB_TOKENS.semantic.positive.light;
 
-  const almost = doneCount === total - 1 && hasLink;
+  const almost = doneCount === total - 1 && hasStep4;
   // A4: every step done (link shared) but no money yet — celebrate the setup, wait for the payment.
   const allDone = doneCount === total && !hasPayment;
+  const isDev = track === "developers";
   const title = allDone
-    ? t("gs.heroTitleAllDone", { defaultValue: "You're all set — waiting for your first payment" })
+    ? isDev
+      ? t("gs.heroTitleAllDoneDev", { defaultValue: "You're all set — go live when you're ready" })
+      : t("gs.heroTitleAllDone", { defaultValue: "You're all set — waiting for your first payment" })
     : almost
-      ? t("gs.heroTitleAlmost", { defaultValue: "Almost there — share your link" })
+      ? isDev
+        ? t("gs.heroTitleAlmostDev", { defaultValue: "Almost there — make a test payment" })
+        : t("gs.heroTitleAlmost", { defaultValue: "Almost there — share your link" })
       : t("gs.heroTitle", { defaultValue: "Let's get you paid" });
   const subtitle = allDone
-    ? t("gs.heroSubtitleAllDone", {
-        defaultValue: "Your link is out there. The moment someone pays, this dashboard fills in with real numbers.",
-      })
-    : almost
-      ? t("gs.heroSubtitleAlmost", {
-          defaultValue:
-            "Everything is set. Share your payment link and your dashboard fills in the moment the first payment lands.",
+    ? isDev
+      ? t("gs.heroSubtitleAllDoneDev", {
+          defaultValue: "Your integration works end-to-end in sandbox. Switch to a live key to start accepting real payments.",
         })
-      : t("gs.heroSubtitle", {
-          defaultValue: "A few quick steps and your first crypto payment can land in your own wallet.",
-        });
+      : t("gs.heroSubtitleAllDone", {
+          defaultValue: "Your link is out there. The moment someone pays, this dashboard fills in with real numbers.",
+        })
+    : almost
+      ? isDev
+        ? t("gs.heroSubtitleAlmostDev", {
+            defaultValue: "Your key is ready. Simulate a sandbox payment to see the full pending → settled flow and your webhooks.",
+          })
+        : t("gs.heroSubtitleAlmost", {
+            defaultValue:
+              "Everything is set. Share your payment link and your dashboard fills in the moment the first payment lands.",
+          })
+      : isDev
+        ? t("gs.heroSubtitleDev", {
+            defaultValue: "Secure your account, set where payouts go, grab an API key and run a test payment.",
+          })
+        : t("gs.heroSubtitle", {
+            defaultValue: "A few quick steps and your first crypto payment can land in your own wallet.",
+          });
   const cta =
     doneCount === 0
       ? t("gs.ctaStart", { defaultValue: "Start setup" })
       : allDone
-        ? t("gs.ctaShareAgain", { defaultValue: "Share it again" })
+        ? isDev
+          ? t("gs.ctaOpenDevelopers", { defaultValue: "Open Developers" })
+          : t("gs.ctaShareAgain", { defaultValue: "Share it again" })
         : almost
-          ? t("gs.ctaShare", { defaultValue: "Share your link" })
+          ? isDev
+            ? t("gs.ctaTestPayment", { defaultValue: "Make a test payment" })
+            : t("gs.ctaShare", { defaultValue: "Share your link" })
           : t("gs.ctaContinue", { defaultValue: "Continue setup" });
 
   const go = (step: SetupStepKey) => {
@@ -128,7 +151,7 @@ const GettingStartedHero: React.FC<Props> = ({ progress }) => {
           >
             {steps.map((s, i) => {
               const isNext = s.key === firstIncomplete && !s.done;
-              const waiting = s.key === "share" && !hasPayment && hasLink;
+              const waiting = s.key === "share" && !hasPayment && hasStep4;
               return (
                 <Box
                   component="li"
@@ -182,7 +205,7 @@ const GettingStartedHero: React.FC<Props> = ({ progress }) => {
                       transition: "background-color 200ms ease",
                     }}
                   >
-                    <Icon name={s.done ? "check" : STEP_ICON[s.key]} size={16} />
+                    <Icon name={s.done ? "check" : stepIcon(s.key, track)} size={16} />
                   </Box>
                   <Box sx={{ flex: 1, minWidth: 0 }}>
                     <Box
@@ -198,7 +221,7 @@ const GettingStartedHero: React.FC<Props> = ({ progress }) => {
                       }}
                     >
                       <Box component="span" sx={{ color: muted, fontWeight: 500, mr: 0.75 }}>{i + 1}.</Box>
-                      {stepLabel(t, s.key)}
+                      {stepLabel(t, s.key, track)}
                     </Box>
                     {(!s.done || waiting) && (
                       <Box sx={{ fontFamily: "var(--font-sans)", fontSize: 12.5, color: muted, lineHeight: 1.35 }}>
@@ -206,7 +229,7 @@ const GettingStartedHero: React.FC<Props> = ({ progress }) => {
                           ? s.done
                             ? t("gs.stepSharedPending", { defaultValue: "Shared — waiting for your first payment" })
                             : t("gs.stepPending", { defaultValue: "Waiting for your first payment" })
-                          : stepDesc(t, s.key)}
+                          : stepDesc(t, s.key, track)}
                       </Box>
                     )}
                   </Box>
@@ -245,7 +268,7 @@ const GettingStartedHero: React.FC<Props> = ({ progress }) => {
           </Box>
           <PrimaryCTA
             data-testid="gs-hero-cta"
-            onClick={() => go(firstIncomplete)}
+            onClick={() => (isDev && allDone ? router.push("/developer-keys") : go(firstIncomplete))}
             endIcon={<Icon name="arrow-right" size={18} />}
             sx={{ height: 48, fontSize: 15 }}
           >

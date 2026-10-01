@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import dynamic from "next/dynamic";
+import { lazyLoading } from "@/Components/UI/DynamicFallback";
 import { Box, Typography, Skeleton, useTheme } from "@mui/material";
 import { Icon as Iconify } from "@iconify/react";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,22 +15,23 @@ import { pageProps, rootReducer } from "@/utils/types";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 
 const tabFallback = <Skeleton variant="rounded" height={420} sx={{ borderRadius: "16px" }} />;
+const tabLoading = lazyLoading(tabFallback, { minHeight: 420 });
 
 const PageTab = dynamic(() => import("@/Components/Page/Storefront/PageTab"), {
   ssr: false,
-  loading: () => tabFallback,
+  loading: tabLoading,
 });
 const ProductsTab = dynamic(() => import("@/Components/Page/Storefront/ProductsTab"), {
   ssr: false,
-  loading: () => tabFallback,
+  loading: tabLoading,
 });
 const ShareTab = dynamic(() => import("@/Components/Page/Storefront/ShareTab"), {
   ssr: false,
-  loading: () => tabFallback,
+  loading: tabLoading,
 });
 const StorefrontComparePanel = dynamic(
   () => import("@/Components/Page/Storefront/StorefrontComparePanel"),
-  { ssr: false },
+  { ssr: false, loading: lazyLoading(null, { silent: true }) },
 );
 
 /**
