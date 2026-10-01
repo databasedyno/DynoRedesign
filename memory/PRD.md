@@ -1,3 +1,27 @@
+# === 2026-10-01 (fork, pod 31539451) — CONTEXT-AWARE ONBOARDING FOR ALL 4 VERTICALS + FOCUSED-WIZARD BUG FIX (frontend; testing_agent pending) ===
+# Full spec + status: memory/TASK_CONTEXT_AWARE_ONBOARDING_ALL_VERTICALS.md (§8).
+# ONE wizard, FOUR tracks (steps 1–3 shared secure→about→payouts; 4–5 swap):
+#   merchants → first payment link → share | developers → API key → test payment |
+#   creators → claim @handle (StepClaimHandle) → share your page |
+#   fundraisers → first campaign (StepFirstCampaign mini donation form) → share campaign.
+# useSetupProgress: SetupTrack += creators|fundraisers; hasHandle/handle (useStorefrontProfile),
+#   hasCampaign/newestCampaign (donation links); ready waits storefront profile for creators.
+# verticalOnboarding: creators+fundraisers now → /get-started (was /creator, /create-pay-link).
+# register.tsx: SKIPPED picker (null vertical) → NEW signups go to /get-started default track (not bare /dashboard).
+# StepShare gained variant=link|page|campaign. index.tsx track switch + per-track Finish
+#   (creators→/storefront?tab=page, fundraisers→/pay-links, dev→/developer-keys, merchants→/dashboard).
+# Removed dead creators <OnboardingBanner> mount. i18n = code defaultValue (English), matching dev-track precedent (no JSON edits). 5 lucide icons merged into iconBundle.json.
+# BUG FIX (user): the guided /get-started flow was interrupted by the header "payout address setup" chip,
+#   the "Start accepting payments" fee-free banner, AND left-sidebar nav. FIX = FOCUSED ONBOARDING LAYOUT:
+#   on /get-started hide the sidebar + mobile bottom-bar + mobile hamburger + desktop "+ New" + wallet/KYC
+#   header chips + FeeFreeBanner. Kept brand/logo, account menu, search, bell, theme, and the wizard's
+#   "Do this later" as the single exit. Files: Containers/Client/index.tsx, Components/Layout/NewHeader/index.tsx,
+#   Components/UI/FeeFreeBanner/index.tsx (suppressPaths += /get-started).
+# GATES: npx tsc --noEmit = 0; ESLint clean; .next-prod rebuilt+swapped. testing_agent (auto_frontend_testing_agent) VERIFIED both: focused-layout bug fix (desktop+mobile, chrome hidden on /get-started & returns on /dashboard, 0 console errors) AND the 4 tracks (creator/fundraiser rail labels + step-4 components; merchant regression intact).
+# ============================================================================================
+
+
+
 # === 2026-10-01 (fork) — FRESH POD SETUP from env.vault.enc — DONE (no code changes) ===
 # User ran setup with vault passphrase. `bash scripts/pod-bootstrap.sh --pass '<vault>'` → .env.local (187 lines) + backend/.env (199 lines) restored, URLs synced to pod 31539451-a5e9-4f5f-86c4-2d416921e801, SAFE MODE (ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary, DISABLE_OUTBOUND_EMAIL=true).
 # Pod wiped /tmp mid-install (bootstrap killed) → services self-healed (backend ts-node up, start-frontend.sh ran next build → .next-prod). Verified: backend /health healthy (db+redis connected, tatum operational, background_jobs eligible=false); frontend 200 on :3000 + external landing/auth-login/pay all 200. Binance WS geo-blocked (CoinGecko fallback, benign).

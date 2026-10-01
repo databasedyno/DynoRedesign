@@ -8,7 +8,6 @@ import PageFunnelHeader from "@/Components/Page/Storefront/PageFunnelHeader";
 import HandleClaimNudge from "@/Components/UI/OnboardingFlow/HandleClaimNudge";
 import useStorefrontProfile from "@/hooks/useStorefrontProfile";
 import PanelCard from "@/Components/UI/PanelCard";
-import OnboardingBanner from "@/Components/UI/OnboardingBanner";
 
 /**
  * Storefront → Page.
@@ -68,8 +67,6 @@ const PageTab = () => {
 
   return (
     <Box sx={{ width: "100%" }} data-testid="creator-page">
-      <OnboardingBanner vertical="creators" />
-
       {/* Handle Availability Nudge — one-tap claim card shown right after a
           new company is created (falls back to nothing on companies that
           already have a handle). */}

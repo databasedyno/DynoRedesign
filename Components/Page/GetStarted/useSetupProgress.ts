@@ -9,19 +9,25 @@ import { UserAction, USER_PROFILE_FETCH } from "@/Redux/Actions/UserAction";
 import { rootReducer } from "@/utils/types";
 import { useMfaEnforcement } from "@/Components/UI/MfaGate/useMfaEnforcement";
 import { isSafeDealBrandId } from "@/helpers/safedealBrand";
+import useStorefrontProfile from "@/hooks/useStorefrontProfile";
 
 export type SetupStepKey = "secure" | "about" | "payouts" | "link" | "share";
 export const SETUP_STEPS: SetupStepKey[] = ["secure", "about", "payouts", "link", "share"];
 
 /**
- * Which flavour of the 5-step setup a user gets (2026-10-01).
- *   default    → secure → about → payouts → first payment link → share it
- *   developers → secure → about → payouts → API key → test payment
- * Signups that picked "API developer" used to skip the wizard entirely
- * (straight to /developer-keys) and never set up 2FA, a payout wallet or a
- * first payment. Same step keys, so routing/analytics/progress stay shared.
+ * Which flavour of the 5-step setup a user gets (2026-10-01, extended for all
+ * four signup verticals). Steps 1–3 (secure → about → payouts) are shared; the
+ * last two swap per track so the vocabulary matches the pill the user picked:
+ *   default     → first payment link → share it
+ *   developers  → API key           → test payment
+ *   creators    → claim @handle     → share your page
+ *   fundraisers → first campaign    → share your campaign
+ * Creators/fundraisers used to skip the wizard entirely (landing on a surface
+ * they couldn't fully use) and never set up 2FA, a payout wallet or their first
+ * artefact. Same step keys everywhere, so routing/analytics/progress stay shared.
  */
-export type SetupTrack = "default" | "developers";
+export type SetupTrack = "default" | "developers" | "creators" | "fundraisers";
+const TRACK_VERTICALS = ["developers", "creators", "fundraisers"] as const;
 export const PURPOSE_VERTICAL_KEY = "dyno_purpose_vertical";
 
 /** Any success-like transaction status counts as "a payment received" (source-agnostic). */
@@ -123,6 +129,10 @@ export const useSetupProgress = () => {
   const userProfile: any = useSelector((s: rootReducer) => (s.userReducer as any)?.profile);
   const apiState = useSelector((s: rootReducer) => s.apiReducer);
   const storedVertical = useStoredVertical();
+  // Creator track: the @handle lives on the per-company storefront profile
+  // (not the generic user profile). SWR-deduped, so this is shared with the
+  // storefront pages and adds at most one lightweight GET elsewhere.
+  const { profile: storefrontProfile } = useStorefrontProfile();
 
   const companyList = companyState.companyList ?? [];
   const companyId: number | undefined =
@@ -150,6 +160,18 @@ export const useSetupProgress = () => {
   );
   const hasLink = paymentLinks.length > 0;
   const newestLink = paymentLinks[0] ?? null;
+
+  // Fundraiser track: a "campaign" is a donation-type payment link.
+  const campaignLinks = useMemo(
+    () => paymentLinks.filter((l) => String(l?.link_type ?? "") === "donation"),
+    [paymentLinks],
+  );
+  const hasCampaign = campaignLinks.length > 0;
+  const newestCampaign = campaignLinks[0] ?? null;
+
+  // Creator track: the reserved public @handle (storefront profile).
+  const handle: string | null = (storefrontProfile?.handle as string | null) ?? null;
+  const hasHandle = Boolean(handle && String(handle).trim().length > 0);
 
   const stats: any = dashboardState.stats;
   // Dashboard stats only exist after /dashboard has loaded; the wallet list
@@ -182,7 +204,9 @@ export const useSetupProgress = () => {
   // until then the purpose picked on this browser at signup is used.
   const profileLoaded = Boolean(userProfile?.user_id);
   const vertical: string | null = profileLoaded ? (userProfile?.purpose_vertical ?? null) : storedVertical;
-  const track: SetupTrack = vertical === "developers" ? "developers" : "default";
+  const track: SetupTrack = (TRACK_VERTICALS as readonly string[]).includes(vertical ?? "")
+    ? (vertical as SetupTrack)
+    : "default";
 
   useEffect(() => {
     if (profileLoaded || profileRequested || !hasAccount) return;
@@ -221,19 +245,39 @@ export const useSetupProgress = () => {
     dispatch(PaymentLinkAction(PAYLINK_FETCH, { company_id: companyId }));
   }, [companyId, hasAccount, dispatch]);
 
+  const step4and5 = (): [SetupStep, SetupStep] => {
+    switch (track) {
+      case "developers":
+        return [
+          { key: "link", done: hasApiKey },
+          { key: "share", done: hasPayment || hasTestPayment },
+        ];
+      case "creators":
+        return [
+          { key: "link", done: hasHandle },
+          { key: "share", done: hasPayment || (hasHandle && hasShared) },
+        ];
+      case "fundraisers":
+        return [
+          { key: "link", done: hasCampaign },
+          { key: "share", done: hasPayment || (hasCampaign && hasShared) },
+        ];
+      default:
+        return [
+          { key: "link", done: hasLink },
+          { key: "share", done: hasPayment || (hasLink && hasShared) },
+        ];
+    }
+  };
+
   const steps: SetupStep[] = useMemo(
     () => [
       { key: "secure", done: twoFaEnrolled },
       { key: "about", done: profileComplete },
       { key: "payouts", done: hasWallet },
-      track === "developers"
-        ? { key: "link", done: hasApiKey }
-        : { key: "link", done: hasLink },
-      track === "developers"
-        ? { key: "share", done: hasPayment || hasTestPayment }
-        : { key: "share", done: hasPayment || (hasLink && hasShared) },
+      ...step4and5(),
     ],
-    [twoFaEnrolled, profileComplete, hasWallet, hasLink, hasPayment, hasShared, track, hasApiKey, hasTestPayment],
+    [twoFaEnrolled, profileComplete, hasWallet, hasLink, hasPayment, hasShared, track, hasApiKey, hasTestPayment, hasHandle, hasCampaign],
   );
 
   const doneCount = steps.filter((s) => s.done).length;
@@ -248,6 +292,9 @@ export const useSetupProgress = () => {
   const linksSettled = Boolean(payLinkState.fetched) || (!hasAccount && coreReady);
   // Developer track also waits for the key list so step 4 doesn't flash "to do".
   const keysSettled = track !== "developers" || Boolean(apiState?.fetched) || (!hasAccount && coreReady);
+  // Creator track waits for the storefront profile so step 4 (claim @handle)
+  // resumes correctly instead of flashing "to do" for someone who already has one.
+  const handleSettled = track !== "creators" || storefrontProfile !== undefined || (!hasAccount && coreReady);
 
   return {
     account,
@@ -262,6 +309,10 @@ export const useSetupProgress = () => {
     configuredWallets,
     hasLink,
     newestLink,
+    hasCampaign,
+    newestCampaign,
+    hasHandle,
+    handle,
     hasPayment,
     hasShared,
     track,
@@ -275,7 +326,7 @@ export const useSetupProgress = () => {
     firstIncomplete,
     coreReady,
     linksSettled,
-    ready: coreReady && linksSettled && keysSettled,
+    ready: coreReady && linksSettled && keysSettled && handleSettled,
   };
 };
 

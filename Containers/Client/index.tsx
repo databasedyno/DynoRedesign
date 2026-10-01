@@ -101,6 +101,13 @@ const ClientLayout = ({
     router.pathname === "/dashboard" ||
     router.pathname === "/pay-links" ||
     router.pathname === "/transactions";
+  // Focused first-run flow: the guided wizard (/get-started) hides the app's
+  // navigation chrome (left sidebar, mobile bottom bar + hamburger) so clicking
+  // a nav item can't yank the user out of the step-by-step setup mid-flow. The
+  // top bar stays (brand + account menu) and the wizard's own "Do this later"
+  // is the single, deliberate exit. Nudge chips + the fee-free banner are also
+  // suppressed here (see NewHeader + FeeFreeBanner).
+  const isOnboarding = router.pathname === "/get-started";
   const hasPageHeader = !!(pageName || pageDescription);
   const pageHeaderRef = useRef<HTMLDivElement | null>(null);
 
@@ -219,6 +226,7 @@ const ClientLayout = ({
               }}
             >
               {/* ================= SIDEBAR (dark-brown rail in both modes) ================= */}
+              {!isOnboarding && (
               <ThemeProvider theme={sidebarTheme}>
               <Box
                 component="nav"
@@ -240,6 +248,7 @@ const ClientLayout = ({
                 <NewSidebar forceCollapsed={isTabletRail} />
               </Box>
               </ThemeProvider>
+              )}
 
               {/* ================= MAIN CONTENT ================= */}
               <Box
@@ -367,9 +376,11 @@ const ClientLayout = ({
           </Box>
 
           {/* ================= MOBILE NAV ================= */}
+          {!isOnboarding && (
           <Box sx={{ display: "block", "@media (min-width:768px)": { display: "none" } }}>
             <MobileNavigationBar />
           </Box>
+          )}
         </Box>
       </CompanySettingsDialogProvider>
     <ToastHost />

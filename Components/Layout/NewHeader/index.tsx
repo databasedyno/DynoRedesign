@@ -62,8 +62,13 @@ const NewHeader = () => {
   // Blueprint §3 header slim-down: the profile-completeness prompt moved INTO the
   // avatar menu (see UserMenu), so it no longer lives as a header pill here.
   const { hasAccount } = useAccountProfile();
+  // Inside the guided first-run wizard (/get-started) we hide the header's
+  // "payout address setup" and "complete KYC" nudge chips: tapping them would
+  // yank the user out of the step-by-step flow onto /wallet or /kyc. Payouts
+  // are step 3 of the wizard itself, so the nudge is redundant there anyway.
+  const isOnboarding = router.pathname === "/get-started";
   // Show wallet warning only once the account exists (wallet depends on it)
-  const showWalletWarning = walletWarning && hasAccount;
+  const showWalletWarning = walletWarning && hasAccount && !isOnboarding;
   const [kycRequired, setKycRequired] = useState(false);
   const [kycLoading, setKycLoading] = useState(false);
   // UX-2026-08-02: Coinbase-style mobile top-left hamburger. Opens a Drawer
@@ -92,7 +97,9 @@ const NewHeader = () => {
   return (
     <HeaderContainer>
       <Box sx={{ display: "flex", alignItems: "center" }}>
-        {/* Mobile/tablet hamburger — top-left, opens full nav drawer (Coinbase pattern) */}
+        {/* Mobile/tablet hamburger — top-left, opens full nav drawer (Coinbase pattern).
+            Hidden during the focused first-run wizard so it can't reopen the nav mid-setup. */}
+        {!isOnboarding && (
         <IconButton
           data-testid="mobile-hamburger-toggle"
           aria-label={t("dashboardLayout:ariaOpenMenu")}
@@ -127,6 +134,7 @@ const NewHeader = () => {
         >
           <MenuRounded sx={{ fontSize: 22 }} />
         </IconButton>
+        )}
 
         <LogoContainer data-rail={sidebarCollapsed ? "true" : "false"} data-testid="app-brand-cell">
           <Image
@@ -177,10 +185,14 @@ const NewHeader = () => {
               Move 4: global search (⌘K / magnifier) joins the chrome. */}
           <GlobalSearchButton />
           {/* Plan 1.14: on phones the ONE create control is the centred "+" in
-              the bottom tab bar; the header slims to brand · search · bell · account. */}
+              the bottom tab bar; the header slims to brand · search · bell · account.
+              Hidden in the focused first-run wizard (a "+ New" jump to a create
+              flow would interrupt the guided setup). */}
+          {!isOnboarding && (
           <Box sx={{ display: "none", "@media (min-width:768px)": { display: "flex" } }}>
             <CreateNewButton />
           </Box>
+          )}
           <NotificationsBell />
           {/* Theme toggle — visible in the header on tablet AND desktop so it's
               easy to find. On phones it lives as a labelled row in the mobile
@@ -189,7 +201,7 @@ const NewHeader = () => {
             <ThemeToggle size="small" data-testid="theme-toggle-header" />
           </Box>
           <Box sx={{ display: { xs: "none", lg: "flex" }, gap: "20px" }}>
-            {kycRequired && (
+            {kycRequired && !isOnboarding && (
               <Box sx={{ order: { lg: 1, xl: 2 } }}>
                 <RequiredKYC
                   onClick={handleKycClick}

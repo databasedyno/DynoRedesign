@@ -513,7 +513,11 @@ const Register = () => {
         //   • New signups without a vertical (skipped the picker) → /dashboard
         setTimeout(() => {
           const dest = isLogin ? undefined : verticalToOnboarding(vertical);
-          router.push(dest?.path ?? "/dashboard");
+          // New signups always open the guided wizard. A skipped picker falls
+          // back to the default track (secure → about → payouts → first payment
+          // link → share) — the most universal "get paid" flow — instead of a
+          // bare dashboard. Existing-account logins keep going to /dashboard.
+          router.push(dest?.path ?? (isLogin ? "/dashboard" : "/get-started"));
         }, 1500);
       } else {
         setOtpError("Account creation failed. Please try again.");
@@ -1128,10 +1132,10 @@ const Register = () => {
                       ? t("redirectingToDashboard")
                       : (() => {
                           // Vertical-specific onboarding hint (2026-08-05 audit).
-                          // Fall back to the original success copy when no
-                          // vertical is set so legacy behaviour is preserved.
+                          // A skipped picker still heads to the guided wizard,
+                          // so point there with a generic setup message.
                           const dest = verticalToOnboarding(vertical);
-                          if (!dest) return t("accountReadyDesc");
+                          if (!dest) return t("accountReadySetup", { defaultValue: "Taking you to get set up…" });
                           return t("accountReadyDescVertical", {
                             defaultValue: `Taking you to set up your ${dest.label}…`,
                             label: dest.label,

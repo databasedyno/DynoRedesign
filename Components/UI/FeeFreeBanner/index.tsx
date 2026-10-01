@@ -34,9 +34,11 @@ const FeeFreeBanner: React.FC = () => {
   const [dismissed, setDismissed] = useState(false);
   const [storageKey, setStorageKey] = useState<string | null>(null);
 
-  // Suppress on unauthenticated pages (auth, marketing, checkout)
+  // Suppress on unauthenticated pages (auth, marketing, checkout) and inside the
+  // guided first-run wizard (/get-started), where a competing "Start accepting
+  // payments" CTA would pull the user out of the flow mid-setup.
   const path = router.pathname || "";
-  const suppressPaths = ["/auth", "/pay/", "/checkout", "/kyc", "/system-status"];
+  const suppressPaths = ["/auth", "/pay/", "/checkout", "/kyc", "/system-status", "/get-started"];
   const suppressed = suppressPaths.some((p) => path.startsWith(p));
 
   const { data } = useFeeFreeStatus({ enabled: !suppressed });

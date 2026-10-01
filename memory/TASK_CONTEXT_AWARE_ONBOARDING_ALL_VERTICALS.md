@@ -272,3 +272,24 @@ Scenarios: (A) creators fresh → claim → share → finish lands on storefront
 
 ## 8. Status log
 * 2026-10-01 — Investigation complete; this doc written. **No code changed for this task yet.** Step 0 (testing_agent for the three previous fixes) still outstanding. Awaiting user answers to Q1–Q4 (§3) before Step 1.
+
+* 2026-10-01 (pod 31539451) — **IMPLEMENTED + testing_agent VERIFIED (all 4 tracks + skip fallback + focused-layout bug fix).** User confirmed decisions Q1a/Q2a/Q3a/Q4a and testing order "build all, test together at end". Code done, tsc 0, ESLint clean, prod build swapped. **auto_frontend_testing_agent: PASS — creators rail "Claim your @handle"/"Share your page" + handle step (existing-handle path on brand 1 "the-dev-store"); fundraisers "Your first campaign"/"Share your campaign" + full campaign form; merchant regression (default payment-link step) intact; 0 console errors.**
+  - DONE — Step 1 (track plumbing): `useSetupProgress.ts` SetupTrack += creators|fundraisers; new flags `hasHandle`/`handle` (via `useStorefrontProfile`), `hasCampaign`/`newestCampaign` (donation links); per-track steps 4/5; `ready` waits on storefront profile for creators (`handleSettled`). `stepMeta.ts` creators/fundraisers labels+descs+icons (at-sign/megaphone, hand-heart/send).
+  - DONE — Step 2 (routing): `helpers/verticalOnboarding.ts` creators+fundraisers → `/get-started`.
+  - DONE — Step 3 (creators): NEW `StepClaimHandle.tsx` (check-handle + PUT creator/profile, existing-handle "Keep @handle" path). `StepShare.tsx` gained `variant` prop (link|page|campaign) + optional `onCreateAnother`/`doneLabel`.
+  - DONE — Step 4 (fundraisers): NEW `StepFirstCampaign.tsx` (mini donation form: title/goal/currency/3 presets/story + wallet gate mirroring StepFirstLink; `campaignFromRecord` export; existing-campaign "Use this campaign" path).
+  - DONE — Step 5 (wiring): `index.tsx` track switch for steps 4/5, per-track share guards (`shareArtefactReady`), per-track Finish (`finishTo`): creators→/storefront?tab=page, fundraisers→/pay-links, developers→/developer-keys, merchants→/dashboard. `GettingStartedHero.tsx` `hasStep4` now track-aware. `claimedHandle` state avoids a guard race after claim.
+  - DONE — SKIP FALLBACK (user-requested): `pages/auth/register.tsx` — a skipped PurposePicker (null vertical) now routes NEW signups to `/get-started` (default track = payment link→share), not a bare /dashboard. Success copy `accountReadySetup` added.
+  - DONE — Step 7 (cleanup, Q4a): removed the dead creators `<OnboardingBanner>` mount + import in `Storefront/PageTab.tsx`.
+  - DONE — i18n: all new strings are code `defaultValue` (English), matching the already-shipped developer-track convention; NO JSON locale edits (6 JSONs untouched, still valid). Non-English locales fall back to English for the new gs.* keys (same as dev track). **Next agent: optionally add the gs.* creator/fundraiser/dev keys to langs/locales/*/dashboardLayout.json for real translations.**
+  - DONE — icons: merged at-sign, megaphone, hand-heart, target, circle-x into styles/iconBundle.json (offline render).
+  - BUILD: `.next-prod` rebuilt + swapped twice (compiled ✓).
+
+* 2026-10-01 (pod 31539451) — **BUG FIX (user-reported): onboarding flow interrupted by competing nav/CTAs → FOCUSED ONBOARDING LAYOUT.**
+  - User: while in `/get-started`, clicking the header "payout address setup" chip, the "Start accepting payments" fee-free banner CTA, OR any left-sidebar nav item pulls you out of the guided flow. "Investigate similar issues and fix all."
+  - FIX (all gated on `router.pathname === "/get-started"`):
+    - `Containers/Client/index.tsx` (`isOnboarding`): hide the left sidebar `<nav>` + the mobile `<MobileNavigationBar>`.
+    - `Components/Layout/NewHeader/index.tsx` (`isOnboarding`): hide the mobile hamburger (opens the nav drawer), the desktop `+ New` button, the wallet-warning "payout address setup" chip (→/wallet) and the KYC chip (→/kyc).
+    - `Components/UI/FeeFreeBanner/index.tsx`: added `/get-started` to `suppressPaths` (hides "Start accepting payments →" which pushed to /create-pay-link).
+  - KEPT (deliberate, non-interrupting): top-bar brand/logo (→/dashboard), account menu, search, notifications, theme toggle, EmailVerificationBanner (inline resend, no nav), and the wizard's own "Do this later" (→/dashboard) as the single explicit exit. `MfaGate` already self-skips /get-started.
+  - **testing_agent VERIFIED (auto_frontend_testing_agent, desktop 1920 + mobile 390): on /get-started the sidebar, mobile bottom nav, hamburger, +New, fee-free banner and wallet/KYC chips are all ABSENT; "Do this later" still exits to /dashboard; chrome RETURNS on /dashboard (regression PASS); 0 console errors.**

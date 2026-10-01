@@ -9,13 +9,17 @@ import type { Vertical } from "@/Components/UI/_shared";
  * into the setup surface most relevant to their intent instead of a
  * one-size-fits-all "/dashboard".
  *
- *   creators    → /creator                     (claim @handle, enable tips widget)
- *   merchants   → /get-started                 (guided 4-step wizard, plan 1.18 — brand → payout wallet → first link → share)
- *   fundraisers → /create-pay-link?type=donation (open the crowdfunding flow directly)
+ *   creators    → /get-started                 (guided wizard — secure → about → payouts →
+ *                                               claim @handle → share your page)
+ *   merchants   → /get-started                 (guided 5-step wizard — secure → about → payout wallet → first link → share)
+ *   fundraisers → /get-started                 (guided wizard — secure → about → payouts →
+ *                                               first campaign → share your campaign)
  *   developers  → /get-started                 (same guided wizard — secure → about → payouts →
- *                                               API key → test payment; used to jump straight to
- *                                               /developer-keys and skip 2FA, payout wallet and
- *                                               first payment — fixed 2026-10-01)
+ *                                               API key → test payment)
+ *
+ * Before 2026-10-01 only merchants/developers got the wizard; creators were
+ * sent to /creator (→ /storefront) and fundraisers to /create-pay-link, both
+ * skipping 2FA / payout / first-artefact setup. Now all four share it.
  *
  * `null` = unknown vertical → falls through to /dashboard (safe default,
  * matches pre-audit behaviour).
@@ -34,7 +38,9 @@ export interface OnboardingDestination {
 
 const DESTINATIONS: Record<Vertical, OnboardingDestination> = {
   creators: {
-    path: "/creator?onboarding=1",
+    // The wizard reads purpose_vertical and swaps its last two steps for
+    // "Claim your @handle" + "Share your page" (Components/Page/GetStarted).
+    path: "/get-started",
     label: "creator page",
   },
   merchants: {
@@ -42,7 +48,9 @@ const DESTINATIONS: Record<Vertical, OnboardingDestination> = {
     label: "first payment link",
   },
   fundraisers: {
-    path: "/create-pay-link?type=donation&onboarding=1",
+    // The wizard swaps its last two steps for "Your first campaign" +
+    // "Share your campaign" (Components/Page/GetStarted).
+    path: "/get-started",
     label: "campaign page",
   },
   developers: {

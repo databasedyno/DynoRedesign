@@ -21,11 +21,15 @@ interface Props {
   justCreated: boolean;
   onBack: () => void;
   onDone: () => void;
-  onCreateAnother: () => void;
+  onCreateAnother?: () => void;
+  /** Vocabulary: a payment "link" (default), a creator "page", or a "campaign". */
+  variant?: "link" | "page" | "campaign";
+  /** Footer primary label override (per-track Finish destination copy). */
+  doneLabel?: string;
 }
 
-/** Step 4 — Share it: copy / QR / share / open, what happens next, then off to the dashboard. */
-const StepShare: React.FC<Props> = ({ link, companyId, justCreated, onBack, onDone, onCreateAnother }) => {
+/** Step 5 — Share it: copy / QR / share / open, what happens next, then off you go. */
+const StepShare: React.FC<Props> = ({ link, companyId, justCreated, onBack, onDone, onCreateAnother, variant = "link", doneLabel }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const { t } = useTranslation("dashboardLayout");
@@ -64,7 +68,8 @@ const StepShare: React.FC<Props> = ({ link, companyId, justCreated, onBack, onDo
     } else toastFail();
   };
   const handleShare = async () => {
-    const text = [link.description, formatPreviewAmount(link.amount, link.currency)].filter(Boolean).join(" — ");
+    const amountLabel = link.amount ? formatPreviewAmount(link.amount, link.currency) : "";
+    const text = [link.description, amountLabel].filter(Boolean).join(" — ") || link.url;
     if (typeof navigator !== "undefined" && typeof (navigator as any).share === "function") {
       try {
         await (navigator as any).share({ title: text, text, url: link.url });
@@ -87,18 +92,63 @@ const StepShare: React.FC<Props> = ({ link, companyId, justCreated, onBack, onDo
   };
 
   const iconBtnSx = { border: `1px solid ${border}`, borderRadius: "12px", minWidth: 46, minHeight: 46, flexShrink: 0, color: ink };
-  const nextSteps = [
-    t("gs.next1", { defaultValue: "Your customer opens the link and pays in the coin they choose." }),
-    t("gs.next2", { defaultValue: "The funds are forwarded straight to your payout address." }),
-    t("gs.next3", { defaultValue: "You get notified and your dashboard fills in." }),
-  ];
+
+  const COPY = {
+    link: {
+      title: t("gs.shareTitle", { defaultValue: "Your link is live" }),
+      subtitle: t("gs.shareSubtitle", { defaultValue: "Send it to a customer — the payment lands in your wallet and shows up on your dashboard." }),
+      ready: t("gs.linkReady", { defaultValue: "Ready to share" }),
+      next: [
+        t("gs.next1", { defaultValue: "Your customer opens the link and pays in the coin they choose." }),
+        t("gs.next2", { defaultValue: "The funds are forwarded straight to your payout address." }),
+        t("gs.next3", { defaultValue: "You get notified and your dashboard fills in." }),
+      ],
+      done: t("gs.goDashboard", { defaultValue: "Go to dashboard" }),
+      another: t("gs.createAnother", { defaultValue: "Create another link" }),
+    },
+    page: {
+      title: t("gs.sharePageTitle", { defaultValue: "Your page is live" }),
+      subtitle: t("gs.sharePageSubtitle", { defaultValue: "Post it anywhere — fans open your page and tips land straight in your wallet." }),
+      ready: t("gs.pageReady", { defaultValue: "Ready to share" }),
+      next: [
+        t("gs.pageNext1", { defaultValue: "A fan opens your page and sends a tip in any coin they like." }),
+        t("gs.pageNext2", { defaultValue: "The tip is forwarded straight to your payout address." }),
+        t("gs.pageNext3", { defaultValue: "You get notified and your dashboard fills in." }),
+      ],
+      done: t("gs.goToPage", { defaultValue: "Open your page editor" }),
+      another: "",
+    },
+    campaign: {
+      title: t("gs.shareCampaignTitle", { defaultValue: "Your campaign is live" }),
+      subtitle: t("gs.shareCampaignSubtitle", { defaultValue: "Share it with your supporters — every contribution counts toward your goal." }),
+      ready: t("gs.campaignReady", { defaultValue: "Ready to share" }),
+      next: [
+        t("gs.campaignNext1", { defaultValue: "A supporter opens your campaign and gives in any coin they choose." }),
+        t("gs.campaignNext2", { defaultValue: "The contribution is forwarded straight to your payout address." }),
+        t("gs.campaignNext3", { defaultValue: "The goal bar fills and you get notified of every gift." }),
+      ],
+      done: t("gs.goToCampaigns", { defaultValue: "Go to campaigns" }),
+      another: t("gs.createAnotherCampaign", { defaultValue: "Create another campaign" }),
+    },
+  }[variant];
+
+  const amountLabel = link.amount ? formatPreviewAmount(link.amount, link.currency) : "";
+  const summaryPrimary = variant === "link"
+    ? amountLabel
+    : link.description || link.url.replace(/^https?:\/\//, "");
+  const summarySecondary = variant === "link"
+    ? link.description
+    : variant === "campaign" && amountLabel
+      ? t("gs.campaignGoalLabel", { amount: amountLabel, defaultValue: "Goal {{amount}}" })
+      : "";
+  const nextSteps = COPY.next;
 
   return (
     <Box data-testid="gs-step-share">
       <StepHeader
         eyebrow={t("gs.stepOf", { n: 5, total: 5, defaultValue: "Step {{n}} of {{total}}" })}
-        title={t("gs.shareTitle", { defaultValue: "Your link is live" })}
-        subtitle={t("gs.shareSubtitle", { defaultValue: "Send it to a customer — the payment lands in your wallet and shows up on your dashboard." })}
+        title={COPY.title}
+        subtitle={COPY.subtitle}
       />
 
       <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "220px minmax(0, 1fr)" }, gap: { xs: 2.5, md: 4 }, alignItems: "start" }}>
@@ -111,12 +161,12 @@ const StepShare: React.FC<Props> = ({ link, companyId, justCreated, onBack, onDo
         <Box sx={{ minWidth: 0 }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, color: positive, fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700 }}>
             <Icon name="check-circle-2" size={18} />
-            {t("gs.linkReady", { defaultValue: "Ready to share" })}
+            {COPY.ready}
           </Box>
           <Box data-testid="gs-share-summary" sx={{ mt: 0.75, fontFamily: "var(--font-sans)", fontSize: 18, fontWeight: 700, color: ink, letterSpacing: "-0.01em" }}>
-            {formatPreviewAmount(link.amount, link.currency) || ""}
-            {link.description && (
-              <Box component="span" sx={{ color: muted, fontWeight: 500 }}> · {link.description}</Box>
+            {summaryPrimary || ""}
+            {summarySecondary && (
+              <Box component="span" sx={{ color: muted, fontWeight: 500 }}> · {summarySecondary}</Box>
             )}
           </Box>
 
@@ -162,11 +212,11 @@ const StepShare: React.FC<Props> = ({ link, companyId, justCreated, onBack, onDo
 
       <StepFooter
         onBack={onBack}
-        primaryLabel={t("gs.goDashboard", { defaultValue: "Go to dashboard" })}
+        primaryLabel={doneLabel || COPY.done}
         onPrimary={onDone}
         primaryTestId="gs-share-done"
-        secondaryLabel={t("gs.createAnother", { defaultValue: "Create another link" })}
-        onSecondary={onCreateAnother}
+        secondaryLabel={onCreateAnother && COPY.another ? COPY.another : undefined}
+        onSecondary={onCreateAnother && COPY.another ? onCreateAnother : undefined}
         secondaryTestId="gs-share-create-another"
       />
     </Box>

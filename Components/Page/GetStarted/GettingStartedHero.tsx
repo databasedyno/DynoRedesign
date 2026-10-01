@@ -23,9 +23,9 @@ const GettingStartedHero: React.FC<Props> = ({ progress }) => {
   const isDark = theme.palette.mode === "dark";
   const router = useRouter();
   const { t } = useTranslation("dashboardLayout");
-  const { steps, doneCount, total, firstIncomplete, hasLink, hasPayment, track, hasApiKey } = progress;
-  // Developer track: step 4 is the API key (not a payment link).
-  const hasStep4 = track === "developers" ? hasApiKey : hasLink;
+  const { steps, doneCount, total, firstIncomplete, hasLink, hasPayment, track, hasApiKey, hasCampaign, hasHandle } = progress;
+  // Step 4's artefact differs per track (API key / @handle / campaign / link).
+  const hasStep4 = track === "developers" ? hasApiKey : track === "creators" ? hasHandle : track === "fundraisers" ? hasCampaign : hasLink;
 
   const ink = isDark ? CB_TOKENS.ink.primaryDark : CB_TOKENS.ink.primaryLight;
   const muted = isDark ? CB_TOKENS.ink.mutedDark : CB_TOKENS.ink.mutedLight;
