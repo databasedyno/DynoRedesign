@@ -16,7 +16,7 @@ import subprocess
 import pytest
 import requests
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://vault-setup-14.preview.emergentagent.com").rstrip("/")
+BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://passphrase-config-2.preview.emergentagent.com").rstrip("/")
 BACKEND_DIR = "/app/backend"
 REAL_EMAILS = {"moxxcompany@gmail.com", "gidimeter@gmail.com", "gidineter@gmail.com"}
 DEAL_209_TOKEN = "26dffe8a2ab8432acb1362c54ea12ecddd95ca71d4365867"

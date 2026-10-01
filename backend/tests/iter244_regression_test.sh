@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # iter244 regression test — fiat routes removed + 2FA step-up + currency + scanner
 set -u
-URL="${SERVER_URL:-https://vault-setup-14.preview.emergentagent.com}"
+URL="${SERVER_URL:-https://passphrase-config-2.preview.emergentagent.com}"
 TOK=$(cat /app/memory/tmp/merchant_token.txt)
 UA="Mozilla/5.0"
 PASS=0; FAIL=0; FAILS=()

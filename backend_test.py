@@ -14,7 +14,7 @@ import sys
 from typing import Dict, Any, Optional, List
 
 # Base URLs - use the backend URL from environment
-BASE_URL = "https://vault-setup-14.preview.emergentagent.com"
+BASE_URL = "https://passphrase-config-2.preview.emergentagent.com"
 
 # Test credentials (merchant account)
 # Using onarrival21@gmail.com (user_id=1, company_id=1 "The Dev Store")
