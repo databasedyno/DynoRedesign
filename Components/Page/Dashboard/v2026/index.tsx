@@ -13,6 +13,7 @@ import RecentTransactionsWidget from "../RecentTransactionsWidget";
 import BrandEscrowTotals from "@/Components/Page/Customers/BrandEscrowTotals";
 import GettingStartedHero from "@/Components/Page/GetStarted/GettingStartedHero";
 import DashboardPreview from "@/Components/Page/GetStarted/DashboardPreview";
+import SetupCompleteStrip from "@/Components/Page/GetStarted/SetupCompleteStrip";
 import { useSetupProgress } from "@/Components/Page/GetStarted/useSetupProgress";
 import { CustomRange, RangeId } from "./ranges";
 import RangeBar from "./command/RangeBar";
@@ -108,8 +109,15 @@ const Dashboard2026: React.FC<{ onboarding?: boolean }> = ({ onboarding = true }
     if (Number(stats?.totalTransactions ?? 0) > 0 || Number(stats?.totalVolume ?? 0) > 0) return true;
     return ((recentTransactions as any[]) || []).some((tx) => SETTLED.includes(String(tx?.status || "").toLowerCase()));
   }, [stats?.totalTransactions, stats?.totalVolume, recentTransactions]);
-  const showGettingStarted =
-    onboarding && !loading && !!stats && setupProgress.coreReady && !hasPayment && !setupProgress.isSafeDealBrand;
+  // Three brand states (UX 2026-10): paid → full dashboard (state 3); all 5
+  // steps done but no live payment yet → full dashboard + "setup complete" strip
+  // (state 2, also graduates developers out of the forever-onboarding hero);
+  // still setting up → the Getting-started hero owns the page (state 1).
+  const paidOrLive = hasPayment || setupProgress.hasPayment;
+  const onboardingMode =
+    onboarding && !loading && !!stats && setupProgress.coreReady && !paidOrLive && !setupProgress.isSafeDealBrand;
+  const settingUp = onboardingMode && setupProgress.doneCount < setupProgress.total;
+  const readyWaiting = onboardingMode && setupProgress.doneCount >= setupProgress.total;
 
   const { items: attentionItems, dismiss, acknowledge } = useAttentionItems({ overview, onboarding });
 
@@ -152,7 +160,7 @@ const Dashboard2026: React.FC<{ onboarding?: boolean }> = ({ onboarding = true }
         companyName={selectedCompanyName}
         amountLabel={stats?.totalVolumeFormatted || null}
       />
-      {showGettingStarted ? (
+      {settingUp ? (
         <Box data-testid="new-merchant-getting-started" sx={{ display: "flex", flexDirection: "column", gap: stackGap }}>
           <GettingStartedHero progress={setupProgress} />
           <AttentionFeed items={attentionItems.filter((i) => i.group === "security")} onDismiss={dismiss} onAcknowledge={acknowledge} />
@@ -165,6 +173,7 @@ const Dashboard2026: React.FC<{ onboarding?: boolean }> = ({ onboarding = true }
         </Box>
       ) : (
         <Box sx={{ display: "flex", flexDirection: "column", gap: stackGap }}>
+          {readyWaiting && <SetupCompleteStrip progress={setupProgress} />}
           <RangeBar
             pulse={overview?.pulse}
             pulseLoading={overviewLoading}

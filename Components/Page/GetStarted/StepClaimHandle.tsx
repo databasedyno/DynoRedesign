@@ -12,6 +12,8 @@ import useDebounce from "@/hooks/useDebounce";
 import useStorefrontProfile from "@/hooks/useStorefrontProfile";
 import { getCreatorBaseUrl } from "@/helpers/creatorUrl";
 import { trackOnboarding } from "@/utils/trackOnboarding";
+import WalletManagerModal from "@/Components/UI/WalletManagerModal";
+import { useWalletStore } from "@/contexts/WalletDataContext";
 import { StepFooter, StepHeader } from "./StepChrome";
 import type { SetupProgress } from "./useSetupProgress";
 
@@ -35,8 +37,9 @@ const StepClaimHandle: React.FC<Props> = ({ progress, onBack, onNext }) => {
   const router = useRouter();
   const dispatch = useDispatch();
   const { t } = useTranslation("dashboardLayout");
-  const { account, hasHandle, handle: currentHandle } = progress;
+  const { account, hasHandle, handle: currentHandle, hasWallet, companyId } = progress;
   const { mutate: mutateStorefront } = useStorefrontProfile();
+  const walletState = useWalletStore();
 
   const siteDomain = useMemo(() => getCreatorBaseUrl().replace(/^https?:\/\//, "").replace(/\/+$/, ""), []);
 
@@ -68,6 +71,12 @@ const StepClaimHandle: React.FC<Props> = ({ progress, onBack, onNext }) => {
   const [coverError, setCoverError] = useState<string | null>(null);
   const [coverDrag, setCoverDrag] = useState(false);
   const coverFileRef = useRef<HTMLInputElement | null>(null);
+  // A: gate the claim on a payout wallet exactly like the fundraiser campaign
+  // step — a creator can design their page now, but tips only have somewhere to
+  // land once a payout address exists. Claiming with no wallet opens the wallet
+  // modal first, then completes the claim automatically.
+  const [walletOpen, setWalletOpen] = useState(false);
+  const [claimAfterWallet, setClaimAfterWallet] = useState(false);
 
   const uploadCoverFile = async (file?: File | null) => {
     if (!file) return;
@@ -160,6 +169,31 @@ const StepClaimHandle: React.FC<Props> = ({ progress, onBack, onNext }) => {
     }
   };
 
+  // A: claim button — if there's no payout wallet yet, collect it first, then
+  // auto-complete the claim so tips have somewhere to land from day one.
+  const onClaimPrimary = () => {
+    if (!canClaim) return;
+    if (!hasWallet) {
+      trackOnboarding({ event_type: "step_clicked", step_key: "wallet", metadata: { surface: "wizard_handle_step" } });
+      setWalletOpen(true);
+      return;
+    }
+    void claim();
+  };
+  const handleWalletSaved = () => {
+    trackOnboarding({ event_type: "step_completed", step_key: "wallet", metadata: { surface: "wizard_handle_step" } });
+    walletState.refetchWallets();
+    setWalletOpen(false);
+    setClaimAfterWallet(true);
+  };
+  useEffect(() => {
+    if (claimAfterWallet && hasWallet && !saving) {
+      setClaimAfterWallet(false);
+      void claim();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [claimAfterWallet, hasWallet]);
+
   const hintColor = formatError || availability?.available === false
     ? theme.palette.error.main
     : availability?.available
@@ -203,7 +237,7 @@ const StepClaimHandle: React.FC<Props> = ({ progress, onBack, onNext }) => {
             onNext(currentHandle);
           }}
           primaryTestId="gs-use-existing-handle"
-          secondaryLabel={t("gs.handleOpenEditor", { defaultValue: "Open page editor" })}
+          secondaryLabel={t("gs.handleOpenEditorFull", { defaultValue: "Open the full editor →" })}
           onSecondary={() => router.push("/storefront?tab=page")}
           secondaryTestId="gs-handle-open-editor"
         />
@@ -239,7 +273,7 @@ const StepClaimHandle: React.FC<Props> = ({ progress, onBack, onNext }) => {
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setHandle(e.target.value.toLowerCase().replace(/\s/g, "").replace(/[^a-z0-9_-]/g, "").slice(0, 30))
           }
-          onKeyDown={(e: React.KeyboardEvent) => { if (e.key === "Enter" && canClaim) { e.preventDefault(); void claim(); } }}
+          onKeyDown={(e: React.KeyboardEvent) => { if (e.key === "Enter" && canClaim) { e.preventDefault(); onClaimPrimary(); } }}
           placeholder={suggestion || "yourname"}
           sx={{ flex: 1, border: "none", outline: "none", background: "transparent", padding: "12px", fontFamily: MONO, fontSize: 14.5, color: ink, minWidth: 0 }}
         />
@@ -260,6 +294,19 @@ const StepClaimHandle: React.FC<Props> = ({ progress, onBack, onNext }) => {
       {error && (
         <Box role="alert" data-testid="gs-handle-error" sx={{ mt: 1, fontFamily: "var(--font-sans)", fontSize: 13, color: theme.palette.error.main }}>
           {error}
+        </Box>
+      )}
+
+      {/* A: payout-wallet gate — design the page now, tips go live once a payout address exists. */}
+      {!hasWallet && (
+        <Box data-testid="gs-handle-wallet-note" sx={{ mt: 2, display: "flex", gap: 1.25, alignItems: "flex-start", p: 1.5, borderRadius: "12px", border: `1px solid ${border}`, backgroundColor: isDark ? "rgba(255,255,255,0.02)" : "rgba(10,10,15,0.015)" }}>
+          <Box sx={{ color: indigo, display: "flex", mt: "1px" }}><Icon name="wallet" size={18} /></Box>
+          <Box sx={{ flex: 1, minWidth: 0, fontFamily: "var(--font-sans)", fontSize: 13, lineHeight: 1.5, color: muted }}>
+            {t("gs.handleNoWalletNote", { defaultValue: "Claim your @handle now — tips go live the moment you add the payout address they should land in. We'll ask for it when you claim." })}{" "}
+            <Box component="button" type="button" data-testid="gs-handle-go-payouts" onClick={onBack} sx={{ border: 0, p: 0, background: "transparent", cursor: "pointer", font: "inherit", fontWeight: 700, color: indigo }}>
+              {t("gs.addWalletFirst", { defaultValue: "Add the payout address first" })}
+            </Box>
+          </Box>
         </Box>
       )}
 
@@ -350,15 +397,21 @@ const StepClaimHandle: React.FC<Props> = ({ progress, onBack, onNext }) => {
 
       <StepFooter
         onBack={onBack}
-        primaryLabel={saving ? t("gs.claiming", { defaultValue: "Claiming…" }) : t("gs.claimHandle", { handle: handle || "handle", defaultValue: "Claim @{{handle}}" })}
-        onPrimary={claim}
+        primaryLabel={saving
+          ? t("gs.claiming", { defaultValue: "Claiming…" })
+          : hasWallet
+            ? t("gs.claimHandle", { handle: handle || "handle", defaultValue: "Claim @{{handle}}" })
+            : t("gs.claimHandleAddWallet", { defaultValue: "Claim & add payout address" })}
+        onPrimary={onClaimPrimary}
         primaryLoading={saving}
         primaryDisabled={!canClaim}
         primaryTestId="gs-handle-claim"
-        secondaryLabel={t("gs.handleOpenEditor", { defaultValue: "Open page editor" })}
+        secondaryLabel={t("gs.handleOpenEditorFull", { defaultValue: "Open the full editor →" })}
         onSecondary={() => router.push("/storefront?tab=page")}
         secondaryTestId="gs-handle-open-editor"
       />
+
+      <WalletManagerModal open={walletOpen} companyId={companyId ?? null} onClose={() => setWalletOpen(false)} onSaved={handleWalletSaved} />
     </Box>
   );
 };

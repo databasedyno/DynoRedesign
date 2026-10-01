@@ -343,6 +343,37 @@ export const updateCreatorProfile = async (req: express.Request, res: express.Re
       }
     }
 
+    // First-time @handle claim (creator onboarding) → turn the Tip / Support
+    // widget ON by default with sensible presets so the public page has a
+    // working tip button the moment it goes live. Without this, creators finish
+    // onboarding to a "your page is live — tips land in your wallet" page that
+    // has NO tip button (support_widget_enabled defaults to false). Only on the
+    // FIRST claim (no previous handle) and only for fields the client didn't set
+    // explicitly, so later handle edits / manual widget config always win.
+    if (typeof updates.handle === "string" && !previousHandle) {
+      if (support_widget_enabled === undefined && updates.support_widget_enabled === undefined) {
+        updates.support_widget_enabled = true;
+      }
+      if (support_widget_style === undefined && updates.support_widget_style === undefined) {
+        updates.support_widget_style = "coffee";
+      }
+      if (support_widget_preset_amounts === undefined && updates.support_widget_preset_amounts === undefined) {
+        updates.support_widget_preset_amounts = [10, 25, 50];
+      }
+      if (support_widget_currency === undefined && updates.support_widget_currency === undefined) {
+        try {
+          let cur: string | null = null;
+          if (perCompany && activeCompanyId) {
+            const c = await companyModel.findOne({ where: { company_id: activeCompanyId }, attributes: ["display_currency"] });
+            cur = ((c?.dataValues as { display_currency?: string } | undefined)?.display_currency) || null;
+          }
+          if (cur && /^[A-Z]{3}$/.test(String(cur).toUpperCase())) {
+            updates.support_widget_currency = String(cur).toUpperCase();
+          }
+        } catch { /* non-fatal — widget currency falls back to the column default */ }
+      }
+    }
+
     if (Object.keys(updates).length === 0) {
       return errorResponseHelper(res, 400, "Nothing to update");
     }

@@ -14,7 +14,7 @@ import StepShare from "./StepShare";
 import StepApiKey from "./StepApiKey";
 import StepTestPayment from "./StepTestPayment";
 import { STEP_TRACK_KEY } from "./stepMeta";
-import { GS_AUTO_OPEN_KEY, SETUP_STEPS, SetupStepKey, useSetupProgress } from "./useSetupProgress";
+import { GS_AUTO_OPEN_KEY, GS_LATER_COOLDOWN_KEY, GS_LATER_COOLDOWN_MS, SETUP_STEPS, SetupStepKey, useSetupProgress } from "./useSetupProgress";
 import { getCreatorBaseUrl } from "@/helpers/creatorUrl";
 
 const isStep = (v: unknown): v is SetupStepKey => typeof v === "string" && (SETUP_STEPS as string[]).includes(v);
@@ -28,7 +28,7 @@ const GetStartedWizard: React.FC = () => {
   const router = useRouter();
   const { t } = useTranslation("dashboardLayout");
   const progress = useSetupProgress();
-  const { ready, firstIncomplete, hasLink, newestLink, hasWallet, twoFaEnrolled, track, hasApiKey, hasCampaign, newestCampaign, hasHandle, handle } = progress;
+  const { ready, firstIncomplete, hasLink, newestLink, hasWallet, twoFaEnrolled, profileComplete, track, hasApiKey, hasCampaign, newestCampaign, hasHandle, handle } = progress;
   const isDev = track === "developers";
   const isCreator = track === "creators";
   const isFundraiser = track === "fundraisers";
@@ -82,13 +82,19 @@ const GetStartedWizard: React.FC = () => {
         ? (hasCampaign || !!created)
         : !!shareLink;
 
-  // Guards: the money steps (payouts → share) need a second factor first; "share"
-  // needs step 4's artefact (link / campaign / @handle / API key) to exist.
+  // Guards: the money steps (payouts → share) need a second factor first; the
+  // artefact + share steps need the "about" details. F: a forward ?step= deep
+  // link that skips a genuine prerequisite (2FA, or your about details) is
+  // redirected back — but the payout wallet is NOT a hard gate for step 4, so
+  // creators/fundraisers can design their page/campaign and add the payout
+  // address inline ("goes live when you add it"). "share" still needs the
+  // artefact (link / campaign / @handle / API key) to exist.
   useEffect(() => {
     if (!ready || !router.isReady) return;
     if (!twoFaEnrolled && SETUP_STEPS.indexOf(current) >= SETUP_STEPS.indexOf("payouts")) return void setStep("secure", true);
+    if (!profileComplete && SETUP_STEPS.indexOf(current) >= SETUP_STEPS.indexOf("link")) return void setStep("about", true);
     if (current === "share" && !shareArtefactReady) setStep("link", true);
-  }, [current, shareArtefactReady, ready, router.isReady, setStep, twoFaEnrolled]);
+  }, [current, shareArtefactReady, ready, router.isReady, setStep, twoFaEnrolled, profileComplete]);
 
   const finishTo = (path: string, trackName: string) => {
     if (typeof window !== "undefined") window.sessionStorage.setItem(GS_AUTO_OPEN_KEY, "1");
@@ -98,7 +104,11 @@ const GetStartedWizard: React.FC = () => {
   const finishDev = () => finishTo("/developer-keys", "developers");
 
   const goLater = () => {
-    if (typeof window !== "undefined") window.sessionStorage.setItem(GS_AUTO_OPEN_KEY, "1");
+    if (typeof window !== "undefined") {
+      window.sessionStorage.setItem(GS_AUTO_OPEN_KEY, "1");
+      // H: don't auto-reopen the wizard on the next session for 24h.
+      try { window.localStorage.setItem(GS_LATER_COOLDOWN_KEY, String(Date.now() + GS_LATER_COOLDOWN_MS)); } catch { /* noop */ }
+    }
     trackOnboarding({ event_type: "dismissed", step_key: STEP_TRACK_KEY[current], metadata: { surface: "wizard" } });
     router.push("/dashboard");
   };

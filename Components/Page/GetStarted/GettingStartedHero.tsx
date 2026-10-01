@@ -38,6 +38,19 @@ const GettingStartedHero: React.FC<Props> = ({ progress }) => {
   // A4: every step done (link shared) but no money yet — celebrate the setup, wait for the payment.
   const allDone = doneCount === total && !hasPayment;
   const isDev = track === "developers";
+  const isCreator = track === "creators";
+  const isFundraiser = track === "fundraisers";
+  // C: the step-5 share action is phrased per track (page / campaign / link).
+  const shareWhat = isCreator
+    ? t("gs.heroShareWhatPage", { defaultValue: "share your page" })
+    : isFundraiser
+      ? t("gs.heroShareWhatCampaign", { defaultValue: "share your campaign" })
+      : t("gs.heroShareWhatLink", { defaultValue: "share your link" });
+  const landsWhat = isCreator
+    ? t("gs.heroLandsTip", { defaultValue: "first tip" })
+    : isFundraiser
+      ? t("gs.heroLandsContribution", { defaultValue: "first contribution" })
+      : t("gs.heroLandsPayment", { defaultValue: "first payment" });
   const title = allDone
     ? isDev
       ? t("gs.heroTitleAllDoneDev", { defaultValue: "You're all set — go live when you're ready" })
@@ -45,7 +58,7 @@ const GettingStartedHero: React.FC<Props> = ({ progress }) => {
     : almost
       ? isDev
         ? t("gs.heroTitleAlmostDev", { defaultValue: "Almost there — make a test payment" })
-        : t("gs.heroTitleAlmost", { defaultValue: "Almost there — share your link" })
+        : t("gs.heroTitleAlmostShare", { what: shareWhat, defaultValue: "Almost there — {{what}}" })
       : t("gs.heroTitle", { defaultValue: "Let's get you paid" });
   const subtitle = allDone
     ? isDev
@@ -60,9 +73,10 @@ const GettingStartedHero: React.FC<Props> = ({ progress }) => {
         ? t("gs.heroSubtitleAlmostDev", {
             defaultValue: "Your key is ready. Simulate a sandbox payment to see the full pending → settled flow and your webhooks.",
           })
-        : t("gs.heroSubtitleAlmost", {
-            defaultValue:
-              "Everything is set. Share your payment link and your dashboard fills in the moment the first payment lands.",
+        : t("gs.heroSubtitleAlmostShare", {
+            what: shareWhat,
+            lands: landsWhat,
+            defaultValue: "Everything is set. Just {{what}} and your dashboard fills in the moment the {{lands}} lands.",
           })
       : isDev
         ? t("gs.heroSubtitleDev", {
@@ -81,7 +95,11 @@ const GettingStartedHero: React.FC<Props> = ({ progress }) => {
         : almost
           ? isDev
             ? t("gs.ctaTestPayment", { defaultValue: "Make a test payment" })
-            : t("gs.ctaShare", { defaultValue: "Share your link" })
+            : isCreator
+              ? t("gs.ctaSharePage", { defaultValue: "Share your page" })
+              : isFundraiser
+                ? t("gs.ctaShareCampaign", { defaultValue: "Share your campaign" })
+                : t("gs.ctaShare", { defaultValue: "Share your link" })
           : t("gs.ctaContinue", { defaultValue: "Continue setup" });
 
   const go = (step: SetupStepKey) => {
@@ -131,6 +149,30 @@ const GettingStartedHero: React.FC<Props> = ({ progress }) => {
               >
                 {subtitle}
               </Box>
+              {/* B: the fee-free promise lives inside the hero (not a competing modal/banner). */}
+              {!allDone && (
+                <Box
+                  data-testid="gs-hero-feefree-chip"
+                  sx={{
+                    mt: 1.5,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 0.625,
+                    px: 1,
+                    py: 0.375,
+                    borderRadius: 999,
+                    border: `1px solid ${isDark ? "rgba(63,217,138,0.35)" : "rgba(34,150,90,0.3)"}`,
+                    backgroundColor: isDark ? "rgba(63,217,138,0.1)" : "rgba(34,150,90,0.08)",
+                    fontFamily: "var(--font-sans)",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: positive,
+                  }}
+                >
+                  <Icon name="badge-check" size={13} />
+                  {t("gs.heroFeeFree", { defaultValue: "Your first payment is fee-free" })}
+                </Box>
+              )}
             </Box>
             <Box sx={{ display: { xs: "block", md: "none" } }}>
               <ProgressRing

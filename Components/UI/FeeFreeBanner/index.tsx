@@ -5,6 +5,7 @@ import LocalOfferRounded from "@mui/icons-material/LocalOfferRounded";
 import ArrowForwardRounded from "@mui/icons-material/ArrowForwardRounded";
 import { useRouter } from "next/router";
 import { useFeeFreeStatus } from "@/hooks/useFeeFreeStatus";
+import { useSetupProgress } from "@/Components/Page/GetStarted/useSetupProgress";
 import { useTranslation } from "react-i18next";
 
 /**
@@ -39,7 +40,12 @@ const FeeFreeBanner: React.FC = () => {
   // payments" CTA would pull the user out of the flow mid-setup.
   const path = router.pathname || "";
   const suppressPaths = ["/auth", "/pay/", "/checkout", "/kyc", "/system-status", "/get-started"];
-  const suppressed = suppressPaths.some((p) => path.startsWith(p));
+  // UX 2026-10 (Finding B): also stand down while a brand-new brand is still
+  // onboarding — the Getting-started hero / setup-complete strip owns the
+  // fee-free promise there, so the banner's competing "Start accepting payments"
+  // CTA doesn't pull the user off the guided path on their first dashboard visit.
+  const { onboardingActive } = useSetupProgress();
+  const suppressed = onboardingActive || suppressPaths.some((p) => path.startsWith(p));
 
   const { data } = useFeeFreeStatus({ enabled: !suppressed });
 

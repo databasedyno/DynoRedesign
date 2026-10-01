@@ -24,7 +24,7 @@ const StepPayouts: React.FC<Props> = ({ progress, onBack, onNext }) => {
   const isDark = theme.palette.mode === "dark";
   const { t } = useTranslation("dashboardLayout");
   const walletState = useWalletStore();
-  const { companyId, configuredWallets, hasWallet } = progress;
+  const { companyId, configuredWallets, hasWallet, track } = progress;
   const [open, setOpen] = useState(false);
 
   const ink = isDark ? CB_TOKENS.ink.primaryDark : CB_TOKENS.ink.primaryLight;
@@ -54,9 +54,17 @@ const StepPayouts: React.FC<Props> = ({ progress, onBack, onNext }) => {
       <StepHeader
         eyebrow={t("gs.stepOf", { n: 3, total: 5, defaultValue: "Step {{n}} of {{total}}" })}
         title={t("gs.payoutsTitle", { defaultValue: "Where should your money go?" })}
-        subtitle={t("gs.payoutsSubtitle", {
-          defaultValue: "Payments are forwarded straight to a wallet you control. Add at least one address so your links can go live.",
-        })}
+        subtitle={
+          track === "creators"
+            ? t("gs.payoutsSubtitleCreator", { defaultValue: "Tips are forwarded straight to a wallet you control. Add at least one address so your page can go live." })
+            : track === "fundraisers"
+              ? t("gs.payoutsSubtitleFundraiser", { defaultValue: "Contributions are forwarded straight to a wallet you control. Add at least one address so your campaign can go live." })
+              : track === "developers"
+                ? t("gs.payoutsSubtitleDev", { defaultValue: "Payments are forwarded straight to a wallet you control. Add at least one address so you can accept real payments." })
+                : t("gs.payoutsSubtitle", {
+                    defaultValue: "Payments are forwarded straight to a wallet you control. Add at least one address so your links can go live.",
+                  })
+        }
       />
 
       {/* Phones: the wallet action comes first and the "why" points read as a compact list beneath it. */}

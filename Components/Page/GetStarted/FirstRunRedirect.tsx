@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { trackOnboarding } from "@/utils/trackOnboarding";
-import { GS_AUTO_OPEN_KEY, GS_SUPPRESS_KEY, useSetupProgress } from "./useSetupProgress";
+import { GS_AUTO_OPEN_KEY, GS_LATER_COOLDOWN_KEY, GS_SUPPRESS_KEY, useSetupProgress } from "./useSetupProgress";
 
 /**
  * FirstRunRedirect — replaces the auto-popping CreateCompanyModal (plan 1.18).
@@ -22,6 +22,11 @@ const FirstRunRedirect = (): null => {
     if (typeof window === "undefined") return;
     const ss = window.sessionStorage;
     if (ss.getItem(GS_SUPPRESS_KEY) === "1" || ss.getItem(GS_AUTO_OPEN_KEY) === "1") return;
+    // H: respect the 24h cross-session cooldown set by the wizard's "Do this later".
+    try {
+      const until = Number(window.localStorage.getItem(GS_LATER_COOLDOWN_KEY) || 0);
+      if (until && Date.now() < until) return;
+    } catch { /* noop */ }
     if (companyCount !== 1 || hasWallet || hasLink || hasPayment || isSafeDealBrand) return;
     fired.current = true;
     ss.setItem(GS_AUTO_OPEN_KEY, "1");

@@ -1,5 +1,6 @@
 import useOnboardingStatus from "@/hooks/useOnboardingStatus";
 import useAccountProfile from "@/hooks/useAccountProfile";
+import { useSetupProgress } from "@/Components/Page/GetStarted/useSetupProgress";
 import Logo from "@/assets/Icons/home/dynopay-blackLogo.svg";
 import LogoDark from "@/assets/Icons/home/dynopay-whiteLogo.svg";
 import DynopayMark from "@/assets/Icons/Logo";
@@ -67,8 +68,15 @@ const NewHeader = () => {
   // yank the user out of the step-by-step flow onto /wallet or /kyc. Payouts
   // are step 3 of the wizard itself, so the nudge is redundant there anyway.
   const isOnboarding = router.pathname === "/get-started";
+  // UX 2026-10 (Finding B): also suppress the header nudge chips while a
+  // brand-new brand is still onboarding on the dashboard — they duplicate the
+  // Getting-started hero's own payout/KYC steps and add to the first-visit
+  // interruption stack. Nav chrome (hamburger/sidebar) still only hides on the
+  // wizard route itself.
+  const { onboardingActive } = useSetupProgress();
+  const inSetup = isOnboarding || onboardingActive;
   // Show wallet warning only once the account exists (wallet depends on it)
-  const showWalletWarning = walletWarning && hasAccount && !isOnboarding;
+  const showWalletWarning = walletWarning && hasAccount && !inSetup;
   const [kycRequired, setKycRequired] = useState(false);
   const [kycLoading, setKycLoading] = useState(false);
   // UX-2026-08-02: Coinbase-style mobile top-left hamburger. Opens a Drawer
@@ -201,7 +209,7 @@ const NewHeader = () => {
             <ThemeToggle size="small" data-testid="theme-toggle-header" />
           </Box>
           <Box sx={{ display: { xs: "none", lg: "flex" }, gap: "20px" }}>
-            {kycRequired && !isOnboarding && (
+            {kycRequired && !inSetup && (
               <Box sx={{ order: { lg: 1, xl: 2 } }}>
                 <RequiredKYC
                   onClick={handleKycClick}

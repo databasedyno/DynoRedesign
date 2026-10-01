@@ -43,6 +43,12 @@ const WizardShell: React.FC<Props> = ({ progress, current, onSelect, onLater, ch
   const isDark = theme.palette.mode === "dark";
   const { t } = useTranslation("dashboardLayout");
   const { steps, doneCount, total, firstIncomplete, track } = progress;
+  // I: per-track eyebrow — "Getting started · Creator".
+  const trackLabel =
+    track === "developers" ? t("gs.trackDeveloper", { defaultValue: "Developer" })
+      : track === "creators" ? t("gs.trackCreator", { defaultValue: "Creator" })
+        : track === "fundraisers" ? t("gs.trackFundraiser", { defaultValue: "Fundraiser" })
+          : "";
 
   const ink = isDark ? CB_TOKENS.ink.primaryDark : CB_TOKENS.ink.primaryLight;
   const muted = isDark ? CB_TOKENS.ink.mutedDark : CB_TOKENS.ink.mutedLight;
@@ -113,7 +119,7 @@ const WizardShell: React.FC<Props> = ({ progress, current, onSelect, onLater, ch
               "&::before": { content: '""', width: 6, height: 6, borderRadius: "50%", backgroundColor: GOLD, boxShadow: `0 0 10px ${GOLD}` },
             }}
           >
-            {t("gs.eyebrow", { defaultValue: "Getting started" })}
+            {t("gs.eyebrow", { defaultValue: "Getting started" })}{trackLabel ? ` · ${trackLabel}` : ""}
           </Box>
           <Box
             component="h1"

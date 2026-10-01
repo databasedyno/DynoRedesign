@@ -100,6 +100,22 @@ export const StepFooter: React.FC<FooterProps> = ({
         alignItems: { xs: "stretch", sm: "center" },
         justifyContent: "space-between",
         gap: 1.5,
+        // G: on short viewports the primary CTA was below the fold — pin the
+        // footer to the bottom of the card so it's always reachable without
+        // scrolling. Spans to the card edges (card padding is 2.5 / 4.5).
+        "@media (max-height: 820px)": {
+          position: "sticky",
+          bottom: 0,
+          zIndex: 3,
+          mt: { xs: 2, md: 2.5 },
+          mx: { xs: -2.5, md: -4.5 },
+          px: { xs: 2.5, md: 4.5 },
+          pb: { xs: 2, md: 2.5 },
+          background: isDark ? "rgba(20,20,26,0.92)" : "rgba(255,255,255,0.92)",
+          backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)",
+          boxShadow: isDark ? "0 -8px 24px rgba(0,0,0,0.4)" : "0 -8px 24px rgba(0,0,0,0.08)",
+        },
       }}
     >
       <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, minWidth: 0 }}>

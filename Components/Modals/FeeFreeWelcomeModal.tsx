@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { motion } from "framer-motion";
 import { useFeeFreeStatus } from "@/hooks/useFeeFreeStatus";
+import { useSetupProgress } from "@/Components/Page/GetStarted/useSetupProgress";
 import PopupModal from "@/Components/UI/PopupModal";
 import CustomButton from "@/Components/UI/Buttons";
 
@@ -87,6 +88,11 @@ const FeeFreeWelcomeModal: React.FC = () => {
   // Shared, deduped fee-free status (collapses this + FeeFreeBanner +
   // FeeFreeWidget into a single /company/fee-free-status request per page).
   const { data: ffData } = useFeeFreeStatus();
+  // UX 2026-10 (Finding B): while a brand-new brand is still being onboarded,
+  // the Getting-started hero / setup-complete strip carries the fee-free promise
+  // — so this celebratory modal stands down to avoid the first-dashboard
+  // interruption stack. It shows normally once the brand has graduated.
+  const { onboardingActive } = useSetupProgress();
   // Merchants who already made a link (e.g. straight out of the wizard) get "share" instead of "create".
   const hasLink = useSelector((s: any) => Array.isArray(s?.paymentLinkReducer?.paymentLinks) && s.paymentLinkReducer.paymentLinks.length > 0);
 
@@ -95,6 +101,9 @@ const FeeFreeWelcomeModal: React.FC = () => {
     if (!ffData) return;
     // Never interrupt the guided first-run wizard — the celebration waits for the dashboard.
     if (router.pathname.startsWith("/get-started")) return;
+    // Don't consume the one-time flag while the brand is still onboarding — wait
+    // until it has graduated so the promise isn't competing with the hero/strip.
+    if (onboardingActive) return;
 
     // Derive a RELOAD-STABLE identity from the JWT in localStorage.
     // (Redux userState.email is empty right after a reload — using it caused
@@ -132,7 +141,7 @@ const FeeFreeWelcomeModal: React.FC = () => {
       setRemaining(Number(ffData.fee_free_remaining_usd));
       setOpen(true);
     }
-  }, [ffData, router.pathname]);
+  }, [ffData, router.pathname, onboardingActive]);
 
   const markShown = () => {
     if (!storageKey) return;
@@ -186,7 +195,7 @@ const FeeFreeWelcomeModal: React.FC = () => {
   // when there's nothing left in the trial. Guards against any future code path
   // that flips `open` without re-checking the balance. Also hidden while any
   // other blocking Dialog is open (F5 — no stacked modals).
-  if (!open || otherDialogOpen) return null;
+  if (!open || otherDialogOpen || onboardingActive) return null;
   if (remaining <= 0) return null;
 
   const dark = theme.palette.mode === "dark";
