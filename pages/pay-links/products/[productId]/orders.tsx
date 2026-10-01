@@ -16,13 +16,14 @@ import { useRouter } from "next/router";
 import {
   Box, Typography, Stack, Chip, LinearProgress, Alert, IconButton,
   Dialog, DialogTitle, DialogContent, DialogActions, TextField,
-  FormControlLabel, Checkbox, Button, Snackbar,
+  FormControlLabel, Checkbox, Button,
 } from "@mui/material";
 import ArrowBackRounded from "@mui/icons-material/ArrowBackRounded";
 import OpenInNewRounded from "@mui/icons-material/OpenInNewRounded";
 import ReplayRounded from "@mui/icons-material/ReplayRounded";
 import CurrencyExchangeRounded from "@mui/icons-material/CurrencyExchangeRounded";
 import PanelCard from "@/Components/UI/PanelCard";
+import useToast from "@/hooks/useToast";
 import { pageProps } from "@/utils/types";
 import axiosBaseApi from "@/axiosConfig";
 import CryptoRefundModal from "@/Components/Page/Refund/CryptoRefundModal";
@@ -81,7 +82,7 @@ const ProductOrdersPage = ({ setPageName, setPageDescription, setPageAction }: p
   const [refundRestock, setRefundRestock] = useState(true);
   const [refundFinal, setRefundFinal] = useState(false);
   const [refunding, setRefunding] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
+  const { showToast } = useToast();
   const [cryptoRefundOrder, setCryptoRefundOrder] = useState<OrderRow | null>(null);
   const { refundMap, mutateRefunds } = useRefundMap("product_order");
 
@@ -125,15 +126,16 @@ const ProductOrdersPage = ({ setPageName, setPageDescription, setPageAction }: p
         }
       );
       const nextStatus = resp?.data?.data?.payment_status || "refund_requested";
-      setToast(
-        nextStatus === "refunded"
+      showToast({
+        message: nextStatus === "refunded"
           ? "Refund finalized. Buyer emailed."
-          : "Refund requested. Confirm off-chain, then mark final."
-      );
+          : "Refund requested. Confirm off-chain, then mark final.",
+        severity: "success",
+      });
       setRefundTarget(null);
       loadOrders();
     } catch (e: any) {
-      setToast(e?.response?.data?.message || "Refund failed");
+      showToast({ message: e?.response?.data?.message || "Refund failed", severity: "error" });
     } finally {
       setRefunding(false);
     }
@@ -319,15 +321,6 @@ const ProductOrdersPage = ({ setPageName, setPageDescription, setPageAction }: p
         </DialogActions>
       </Dialog>
 
-      <Snackbar
-        open={!!toast}
-        autoHideDuration={4000}
-        onClose={() => setToast(null)}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-        message={toast || ""}
-        data-testid="refund-toast"
-      />
-
       {/* On-chain crypto refund */}
       {cryptoRefundOrder && (
         <CryptoRefundModal
@@ -336,7 +329,7 @@ const ProductOrdersPage = ({ setPageName, setPageDescription, setPageAction }: p
           sourceType="product_order"
           sourceRef={cryptoRefundOrder.public_ref}
           onDone={() => {
-            setToast("Refund updated");
+            showToast({ message: "Refund updated", severity: "success" });
             mutateRefunds();
           }}
         />

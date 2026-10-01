@@ -5,6 +5,7 @@ import HomeFooter from "@/Components/Layout/HomeFooter";
 import HomeHeader from "@/Components/Layout/HomeHeader";
 import PublicDashboardBar from "@/Components/Layout/PublicDashboardBar";
 import ScrollToTopButton from "@/Components/Layout/ScrollToTopButton";
+import ToastHost from "@/Components/UI/Toast/ToastHost";
 import { PageTransition } from "@/Components/Page/Home/motion/PageTransition";
 import { MainBox, MainSection } from "./styled";
 
@@ -29,6 +30,8 @@ const HomeLayout: FC<HomeLayoutProps> = ({ children }) => {
         <PublicDashboardBar />
 
         <ScrollToTopButton />
+
+        <ToastHost />
       </MainBox>
     </MotionConfig>
   );

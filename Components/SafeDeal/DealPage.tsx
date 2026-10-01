@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Alert, Box, Button, Chip, Container, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Grid, Skeleton, Snackbar, Stack, TextField, Tooltip, Typography } from "@mui/material";
+import { Alert, Box, Button, Chip, Container, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Grid, Skeleton, Stack, TextField, Tooltip, Typography } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { SD_ACCENT } from "./sdTheme";
 import safedealApi, { SdConfig, SdDeal, SdDealPreview, SdDealAction, sdError, prettyParty } from "@/api/safedeal";
@@ -9,6 +9,7 @@ import DisputePanel from "@/Components/Page/Escrow/DisputePanel";
 import EscrowProgress from "@/Components/Page/Escrow/EscrowProgress";
 import { money } from "@/Components/Page/Escrow/escrowUtils";
 import { useSdHref, useSdSession } from "./sdRouting";
+import useToast from "@/hooks/useToast";
 import { SD_AMBER } from "./SafeDealShell";
 import NextStepBanner from "./NextStepBanner";
 import SdStatusChip from "./SdStatusChip";
@@ -47,15 +48,15 @@ export default function DealPage({ token }: { token: string }) {
   const [error, setError] = useState<string | null>(null);
   const [forbidden, setForbidden] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
-  const [toast, setToast] = useState<{ msg: string; severity: "success" | "error" } | null>(null);
   const [dialog, setDialog] = useState<DealDialog | null>(null);
   const [note, setNote] = useState("");
+  const { showToast } = useToast();
   const [cfg, setCfg] = useState<SdConfig | null>(null);
   const now = useNow();
   useEffect(() => {
     safedealApi.config().then(setCfg).catch(() => undefined);
   }, []);
-  const notify = (msg: string, severity: "success" | "error" = "success") => setToast({ msg, severity });
+  const notify = (msg: string, severity: "success" | "error" = "success") => showToast({ message: msg, severity });
 
   const load = useCallback(async () => {
     setError(null);
@@ -467,10 +468,6 @@ export default function DealPage({ token }: { token: string }) {
           <Button variant="contained" disabled={!!busy} onClick={() => void act("release")} data-testid="sd-act-release" sx={primaryBtn}>Release funds</Button>
         </DialogActions>
       </Dialog>
-
-      <Snackbar open={!!toast} autoHideDuration={4500} onClose={() => setToast(null)} anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
-        <Alert severity={toast?.severity || "success"} onClose={() => setToast(null)} data-testid="sd-toast" sx={{ fontWeight: 600 }}>{toast?.msg}</Alert>
-      </Snackbar>
     </Container>
   );
 }

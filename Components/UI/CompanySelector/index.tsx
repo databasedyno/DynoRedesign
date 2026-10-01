@@ -1,9 +1,8 @@
 import { BRAND_ACCENT, brandFg } from "@/constants/theme";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import EditIcon from "@/assets/Icons/edit-icon.svg";
-import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 import BrandAvatar from "@/Components/UI/BrandAvatar";
-import { Box, Divider, Popover, Snackbar, Typography, useTheme } from "@mui/material";
+import { Box, Divider, Popover, Typography, useTheme } from "@mui/material";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   CompanyItem,
@@ -25,6 +24,7 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
 import { useSelector, useDispatch } from "react-redux";
+import useToast from "@/hooks/useToast";
 import CustomButton from "../Buttons";
 import KycVerifiedBadge from "@/Components/UI/KycVerifiedBadge";
 import { HeaderDivider } from "../LanguageSwitcher/styled";
@@ -57,8 +57,7 @@ export default function CompanySelector() {
 
   // Add Company Flow states
   const [addCompanyPhase, setAddCompanyPhase] = useState<"idle" | "company" | "wallet" | "celebration">("idle");
-  const [switchToast, setSwitchToast] = useState<string | null>(null);
-  const [switchToastOpen, setSwitchToastOpen] = useState(false);
+  const { showToast } = useToast();
 
   const handleAddCompanyClick = useCallback(() => {
     setAddCompanyPhase("company");
@@ -166,11 +165,12 @@ export default function CompanySelector() {
     );
     companyState.selectCompany(companyId);
     handleClose();
-    // Show switch toast indicator. Keep the brand name set through the fade-out
-    // (we toggle a separate `open` flag) so the toast never flashes an empty name.
-    setSwitchToast(companyName);
-    setSwitchToastOpen(true);
-    setTimeout(() => setSwitchToastOpen(false), 2500);
+    // Show a brand-switch confirmation on the single global toast surface.
+    showToast({
+      message: `${t("nowViewing", { defaultValue: "Now viewing" })} ${companyName} — ${t("dashboard", { defaultValue: "Dashboard" })}`,
+      severity: "info",
+      placement: "top-center",
+    });
     // (selectCompany already persists last_company to the backend + localStorage;
     // no duplicate PUT here.)
     // Re-fetch all company-scoped data for the new company
@@ -567,26 +567,6 @@ export default function CompanySelector() {
       <CelebrationOverlay
         open={addCompanyPhase === "celebration"}
         onDismiss={handleCelebrationDismiss}
-      />
-      {/* Company switch toast indicator */}
-      <Snackbar
-        open={switchToastOpen}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-        message={
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }} data-testid="brand-switch-toast">
-            <BusinessCenterIcon sx={{ fontSize: 18, color: theme.palette.text.secondary }} />
-            <span>{t("nowViewing", { defaultValue: "Now viewing" })} <strong>{switchToast}</strong> — {t("dashboard", { defaultValue: "Dashboard" })}</span>
-          </Box>
-        }
-        ContentProps={{
-          sx: {
-            borderRadius: "10px",
-            fontFamily: "var(--font-sans)",
-            fontSize: "14px",
-            minWidth: "auto",
-            boxShadow: "0 4px 20px rgba(0,0,0,0.12)",
-          },
-        }}
       />
     </Box>
   );

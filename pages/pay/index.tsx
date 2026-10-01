@@ -22,7 +22,6 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
-  Snackbar,
   Alert,
   AlertTitle
 } from '@mui/material'
@@ -320,7 +319,6 @@ const Payment = () => {
   const [expiryInfo, setExpiryInfo] = useState<ExpiryInfo | null>(null)
   const [merchantInfo, setMerchantInfo] = useState<MerchantInfo | null>(null)
   const [countdown, setCountdown] = useState<string>('')
-  const [copySnackbar, setCopySnackbar] = useState(false)
 
   // ── Contribution-aware state (donation child link). When this checkout
   //    session was spawned from a donation campaign via /pay/startDonation,
@@ -803,7 +801,7 @@ const Payment = () => {
           document.execCommand('copy')
           document.body.removeChild(textArea)
         }
-        setCopySnackbar(true)
+        dispatch({ type: TOAST_SHOW, payload: { message: t('checkout.copied'), severity: 'success' } })
       } catch (_e) {
         const textArea = document.createElement('textarea')
         textArea.value = orderReference
@@ -814,7 +812,7 @@ const Payment = () => {
         textArea.select()
         document.execCommand('copy')
         document.body.removeChild(textArea)
-        setCopySnackbar(true)
+        dispatch({ type: TOAST_SHOW, payload: { message: t('checkout.copied'), severity: 'success' } })
       }
     }
   }, [orderReference])
@@ -835,7 +833,7 @@ const Payment = () => {
           document.execCommand('copy')
           document.body.removeChild(textArea)
         }
-        setCopySnackbar(true)
+        dispatch({ type: TOAST_SHOW, payload: { message: t('checkout.copied'), severity: 'success' } })
       } catch (_e) {
         const textArea = document.createElement('textarea')
         textArea.value = linkId
@@ -846,7 +844,7 @@ const Payment = () => {
         textArea.select()
         document.execCommand('copy')
         document.body.removeChild(textArea)
-        setCopySnackbar(true)
+        dispatch({ type: TOAST_SHOW, payload: { message: t('checkout.copied'), severity: 'success' } })
       }
     }
   }, [linkId])
@@ -1765,15 +1763,6 @@ const Payment = () => {
             />
           ) : null}
         </Box>
-
-        {/* Copy Success Snackbar */}
-        <Snackbar
-          open={copySnackbar}
-          autoHideDuration={2000}
-          onClose={() => setCopySnackbar(false)}
-          message={t('checkout.copied')}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        />
       </Box>
     </Pay3Layout>
   )

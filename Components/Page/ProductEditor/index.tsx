@@ -10,7 +10,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Box, Typography, TextField, MenuItem, Select, FormControl,
   InputLabel, Switch, Stack, IconButton, Divider, LinearProgress,
-  Chip, Alert, Snackbar, useTheme,
+  Chip, Alert, useTheme,
 } from "@mui/material";
 import AddRounded from "@mui/icons-material/AddRounded";
 import DeleteOutlineRounded from "@mui/icons-material/DeleteOutlineRounded";
@@ -20,6 +20,7 @@ import { useRouter } from "next/router";
 import type { ProductDraft } from "./ProductLivePreview";
 import { useTranslation } from "react-i18next";
 import PanelCard from "@/Components/UI/PanelCard";
+import useToast from "@/hooks/useToast";
 import CustomButton from "@/Components/UI/Buttons";
 import ImageCropperDialog from "@/Components/UI/ImageCropperDialog";
 import { isCroppableImage } from "@/Components/UI/ImageCropperDialog/cropImage";
@@ -117,7 +118,12 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId, onDraftC
   const [loading, setLoading] = useState<boolean>(mode === "edit");
   const [saving, setSaving] = useState<boolean>(false);
   const [publishing, setPublishing] = useState<boolean>(false);
-  const [toast, setToast] = useState<{ text: string; kind: "ok" | "err" } | null>(null);
+  const { showToast } = useToast();
+  // Shim kept so existing setToast({ text, kind }) call-sites route to the
+  // single global toast surface (ToastHost) instead of a local MUI Snackbar.
+  const setToast = (v: { text: string; kind: "ok" | "err" } | null) => {
+    if (v) showToast({ message: v.text, severity: v.kind === "ok" ? "success" : "error" });
+  };
   const [product, setProduct] = useState<ProductRow | null>(null);
   const [assets, setAssets] = useState<Asset[]>([]);
   const [variants, setVariants] = useState<Variant[]>([]);
@@ -752,26 +758,6 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId, onDraftC
 
   return (
     <Stack spacing={2} data-testid="product-editor">
-      {toast && (
-        <Snackbar
-          open
-          autoHideDuration={4000}
-          onClose={(_e, reason) => { if (reason !== "clickaway") setToast(null); }}
-          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-          sx={{ zIndex: (th) => th.zIndex.modal + 2 }}
-        >
-          <Alert
-            severity={toast.kind === "ok" ? "success" : "error"}
-            variant="filled"
-            onClose={() => setToast(null)}
-            data-testid="product-editor-toast"
-            sx={{ width: "100%", boxShadow: 6 }}
-          >
-            {toast.text}
-          </Alert>
-        </Snackbar>
-      )}
-
       <PanelCard title={mode === "new" ? t("productEditor.newProduct", { defaultValue: "New product" }) : t("productEditor.editProduct", { defaultValue: "Edit product" })}>
         <Stack spacing={2}>
           {product && (

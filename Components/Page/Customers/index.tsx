@@ -43,9 +43,9 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Snackbar,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import useToast from "@/hooks/useToast";
 import CloseIcon from "@mui/icons-material/Close";
 import PeopleAltRounded from "@mui/icons-material/PeopleAltRounded";
 import PaymentsRounded from "@mui/icons-material/PaymentsRounded";
@@ -209,8 +209,8 @@ const CustomersPage: React.FC = () => {
   const [copied, setCopied] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
-  const [toast, setToast] = useState<{ text: string; kind: "ok" | "err" } | null>(null);
-  const notify = (text: string, kind: "ok" | "err" = "ok") => setToast({ text, kind });
+  const { showToast } = useToast();
+  const notify = (text: string, kind: "ok" | "err" = "ok") => showToast({ message: text, severity: kind === "err" ? "error" : "success" });
 
   const selectedCompanyId = useCompanyStore().selectedCompanyId;
 
@@ -1117,22 +1117,6 @@ const CustomersPage: React.FC = () => {
         theme={theme}
         accent={accent}
       />
-      <Snackbar
-        open={!!toast}
-        autoHideDuration={3500}
-        onClose={() => setToast(null)}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert
-          severity={toast?.kind === "err" ? "error" : "success"}
-          variant="filled"
-          onClose={() => setToast(null)}
-          data-testid="customers-toast"
-          sx={{ width: "100%" }}
-        >
-          {toast?.text || ""}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 };

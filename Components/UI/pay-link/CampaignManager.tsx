@@ -18,8 +18,6 @@ import {
   Button,
   CircularProgress,
   Switch,
-  Tab,
-  Tabs,
   Typography,
   useTheme,
 } from "@mui/material";
@@ -27,6 +25,7 @@ import { Icon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
 import axiosBaseApi from "@/axiosConfig";
 import { API_ENDPOINTS } from "@/api/endpoints";
+import OverflowTabs from "@/Components/UI/OverflowTabs";
 
 interface Tier {
   tier_id: number;
@@ -318,45 +317,19 @@ const CampaignManager = ({ linkId, currency }: CampaignManagerProps) => {
         })}
       </Typography>
 
-      <Tabs
-        value={tab}
-        onChange={(_, v) => {
-          setTab(v);
-          setError("");
-        }}
-        variant="scrollable"
-        scrollButtons="auto"
-        allowScrollButtonsMobile
-        sx={{
-          minHeight: 40,
-          mb: 2,
-          "& .MuiTab-root": {
-            minHeight: 40,
-            textTransform: "none",
-            fontWeight: 600,
-            fontFamily: "var(--font-sans)",
-            fontSize: 13.5,
-          },
-          "& .Mui-selected": { color: `${green} !important` },
-          "& .MuiTabs-indicator": { backgroundColor: green },
-        }}
-      >
-        <Tab
-          data-testid="cm-tab-tiers"
-          value="tiers"
-          label={`${t("campaignTabTiers", { defaultValue: "Reward tiers" })} · ${tiers.length}`}
+      <Box sx={{ mb: 2 }}>
+        <OverflowTabs
+          value={tab}
+          onChange={(id) => { setTab(id as "tiers" | "updates" | "supporters"); setError(""); }}
+          itemTestIdPrefix="cm-tab"
+          ariaLabel="Campaign sections"
+          items={[
+            { id: "tiers", label: `${t("campaignTabTiers", { defaultValue: "Reward tiers" })} · ${tiers.length}` },
+            { id: "updates", label: `${t("campaignTabUpdates", { defaultValue: "Updates" })} · ${updates.length}` },
+            { id: "supporters", label: `${t("campaignTabSupporters", { defaultValue: "Supporters" })} · ${supporters.length}` },
+          ]}
         />
-        <Tab
-          data-testid="cm-tab-updates"
-          value="updates"
-          label={`${t("campaignTabUpdates", { defaultValue: "Updates" })} · ${updates.length}`}
-        />
-        <Tab
-          data-testid="cm-tab-supporters"
-          value="supporters"
-          label={`${t("campaignTabSupporters", { defaultValue: "Supporters" })} · ${supporters.length}`}
-        />
-      </Tabs>
+      </Box>
 
       {loading && (
         <Box sx={{ py: 4, display: "flex", justifyContent: "center" }}>

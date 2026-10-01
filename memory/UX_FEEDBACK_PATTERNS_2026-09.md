@@ -1,5 +1,17 @@
 # UX recommendations — action feedback toast, overflow tabs, single-question forms
-_Reference: Brevo web app screenshots supplied by the owner (2026-09-30). Status: RECOMMENDATION ONLY — nothing implemented yet. Next agent: implement in the order below, one PR-sized batch each, testing_agent after batch A and B._
+_Reference: Brevo web app screenshots supplied by the owner (2026-09-30)._
+
+## STATUS (updated 2026-10-01 — pod c2bbc664)
+- **Batch A — Toast with countdown bar: ✅ DONE** (component `Components/UI/Toast/index.tsx` was already rewritten earlier with countdown/pause/dismiss/stack/a11y). **Snackbar→toast migration: ✅ DONE this session** — all 15 raw MUI `<Snackbar>` sites migrated to the single global toast (`useToast()` hook / `dispatch(TOAST_SHOW)`):
+  OverPayment, UnderPayment, TransferExpectedCard, DisplayCurrencySelector, CompanySelector (brand-switch → top-center info toast), SafeDeal DealPage, SafeDeal Home, ProductEditor (setToast shim → showToast), ActiveSessions (shim), ShopHero, Customers (notify → showToast), CampaignShareTray, pay-links/products/[productId]/orders, pay/index, pay/demo.
+  ToastHost was **added** to `Components/SafeDeal/SafeDealShell.tsx` and `Containers/Home/index.tsx` so toasts render on SafeDeal + marketing/shop pages (which previously had no host). Gates: `tsc --noEmit` 0 errors, ESLint 0. `grep -rn "Snackbar" Components pages` → only a code comment remains.
+- **Batch B — OverflowTabs rollout: ✅ DONE this session** for the 4 remaining strips: `pages/invoices.tsx` (receipts/tax/collected), `Components/Page/Admin/Transactions` (customer/platform, testid prefix `tx-tab`), `Components/Page/Admin/Escrow` (disputes/all/withdrawals/safedeal, prefix `escrow-admin-tab`; removed now-unused `./tabSx` import), `Components/UI/pay-link/CampaignManager` (tiers/updates/supporters, prefix `cm-tab`). All preserve historical testids via `itemTestIdPrefix`. Gates tsc 0 / ESLint 0.
+  - **SafeDeal wallet (`Components/SafeDeal/Home/SafeDealHome.tsx` `TabBar`) INTENTIONALLY KEPT** as its custom gold-branded pill bar — converting to the generic OverflowTabs would strip SafeDeal brand colours (violates REBRAND_TASKS "do not touch SafeDeal colours") and it only has 4 tabs that already scroll. Leave as-is unless the owner asks for the collapse behaviour there.
+- **Batch C — Single-question form screens: ⏳ STILL PENDING.** Component `Components/UI/SingleQuestionForm/index.tsx` exists and is used in `Components/Page/GetStarted/StepAboutYou.tsx` + `pages/auth/register.tsx`. NOT yet adopted in: KYC (`pages/kyc/*`), SafeDeal `NewDeal.tsx` step 0, storefront first-run, tax settings first-run. These are real form refactors (not mechanical) on a LIVE app — scope each carefully before converting.
+- **NOT yet run:** frontend testing_agent for the migrated toasts + tab strips (awaiting user go). The frontend was rebuilt (`.next-prod`) + `supervisorctl restart frontend` so the changes are live in preview.
+
+_Original recommendation detail kept below for reference._
+
 
 ## What the owner liked in the reference
 1. **Bottom action toast with a countdown bar** — full-width green banner docked to the bottom of the viewport; a thin green progress bar across its top edge shrinks from 100 % → 0 % and the toast disappears when it empties. Check icon + message + explicit X.

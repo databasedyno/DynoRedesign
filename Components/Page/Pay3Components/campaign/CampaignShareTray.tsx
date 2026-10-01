@@ -7,17 +7,17 @@
  *
  * Keep it visually restrained — the page's main CTAs are pledge/donate.
  */
-import React, { useState } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import {
   Box,
   IconButton,
   Tooltip,
-  Snackbar,
   useTheme,
 } from "@mui/material";
 import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
 import copyToClipboard from "@/helpers/copyToClipboard";
+import useToast from "@/hooks/useToast";
 
 interface Props {
   title: string;
@@ -53,8 +53,8 @@ const LINKEDIN_ICON = (
 export default function CampaignShareTray({ title, url, ariaLabel, accent }: Props) {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
-  const [copied, setCopied] = useState(false);
   const { t } = useTranslation("landing");
+  const { showToast } = useToast();
 
   const shareText = t("campaignShare.shareText", { defaultValue: 'Back "{{title}}" on Dynopay — help this campaign hit its goal.', title });
   const encoded = encodeURIComponent(`${shareText} ${url}`);
@@ -71,9 +71,9 @@ export default function CampaignShareTray({ title, url, ariaLabel, accent }: Pro
   const handleCopy = async () => {
     try {
       await copyToClipboard(url);
-      setCopied(true);
+      showToast({ message: t("campaignShare.linkCopied", { defaultValue: "Link copied" }), severity: "success" });
     } catch {
-      setCopied(false);
+      // ignore copy failure
     }
   };
 
@@ -169,13 +169,6 @@ export default function CampaignShareTray({ title, url, ariaLabel, accent }: Pro
           <ContentCopyRoundedIcon sx={{ fontSize: 16 }} />
         </IconButton>
       </Tooltip>
-      <Snackbar
-        open={copied}
-        autoHideDuration={2200}
-        onClose={() => setCopied(false)}
-        message={t("campaignShare.linkCopied", { defaultValue: "Link copied" })}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      />
     </Box>
   );
 }

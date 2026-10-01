@@ -28,10 +28,10 @@ import { useDispatch } from "react-redux";
 import { escrowAdminApi, EscrowDeal, SettlementOutcome } from "@/api/escrow";
 import { BRAND_ACCENT, brandAlpha } from "@/constants/theme";
 import StatusChip from "@/Components/Page/Escrow/StatusChip";
+import OverflowTabs from "@/Components/UI/OverflowTabs";
 import { money, shortDate, titleize } from "@/Components/Page/Escrow/escrowUtils";
 import AdminWithdrawals from "./AdminWithdrawals";
 import AdminSafeDealReadiness from "./AdminSafeDealReadiness";
-import { tabSx } from "./tabSx";
 
 type Tab = "disputes" | "all" | "withdrawals" | "safedeal";
 
@@ -185,35 +185,21 @@ export default function AdminEscrow() {
       </Box>
 
       {/* Tabs */}
+      <Box sx={{ mb: 2 }}>
+        <OverflowTabs
+          value={tab}
+          onChange={(id) => setTab(id as Tab)}
+          itemTestIdPrefix="escrow-admin-tab"
+          ariaLabel="Escrow sections"
+          items={[
+            { id: "disputes", label: "Dispute queue" },
+            { id: "all", label: "All deals" },
+            { id: "withdrawals", label: "Withdrawals" },
+            { id: "safedeal", label: "SafeDeal setup" },
+          ]}
+        />
+      </Box>
       <Stack direction="row" spacing={1} sx={{ mb: 2, alignItems: "center", flexWrap: "wrap", rowGap: 1 }}>
-        <Chip
-          label="Dispute queue"
-          onClick={() => setTab("disputes")}
-          data-testid="escrow-admin-tab-disputes"
-          variant={tab === "disputes" ? "filled" : "outlined"}
-          sx={tabSx(tab === "disputes")}
-        />
-        <Chip
-          label="All deals"
-          onClick={() => setTab("all")}
-          data-testid="escrow-admin-tab-all"
-          variant={tab === "all" ? "filled" : "outlined"}
-          sx={tabSx(tab === "all")}
-        />
-        <Chip
-          label="Withdrawals"
-          onClick={() => setTab("withdrawals")}
-          data-testid="escrow-admin-tab-withdrawals"
-          variant={tab === "withdrawals" ? "filled" : "outlined"}
-          sx={tabSx(tab === "withdrawals")}
-        />
-        <Chip
-          label="SafeDeal setup"
-          onClick={() => setTab("safedeal")}
-          data-testid="escrow-admin-tab-safedeal"
-          variant={tab === "safedeal" ? "filled" : "outlined"}
-          sx={tabSx(tab === "safedeal")}
-        />
         {tab === "all" && (
           <Select
             size="small"

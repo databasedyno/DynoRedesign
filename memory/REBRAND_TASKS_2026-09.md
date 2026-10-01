@@ -83,6 +83,10 @@ until "Save to GitHub"._
 - Still pending (user decisions): logo concept-B final vector sign-off; ETH sweep fix + all of the above deploy on next "Save to GitHub".
 
 ## Carried-over pending items (from previous forks)
+_2026-10-01 (pod c2bbc664): the UX polish batches A+B (toast migration, OverflowTabs rollout) were shipped — see memory/UX_FEEDBACK_PATTERNS_2026-09.md. The 3 rebrand-tail items below were NOT touched this session and remain open:_
+- **[OPEN] `assets/Images/home/*.svg` still indigo (10 files)** — Bitcoin-bg, Dashboard, Ethereum-bg, Litecoin-bg, Payment-Container, Wallet, all-wallets, api-key, company-dropdown, payment-link-create. **FIRST `grep -rn "Images/home" Components pages` to confirm each is actually rendered** (several may be dead assets) — recolour only the live ones (gold/brown), delete the rest.
+- **[OPEN] 2FA card desktop layout tweak** (`Components/Page/Profile/TwoFactorAuth.tsx`) — screenshot-only polish, not yet done.
+- **[OPEN] Dynopay page-title localisation (6 langs)** — `pages/_app.tsx` builds titles from `useTranslation("pageTitles")` + `routeKeyMap`; verify `langs/locales/<lang>/pageTitles.json` covers every route key in all 6 locales (run `node scripts/check-i18n.mjs`).
 ### Rebrand
 - `assets/Images/home/*.svg` still indigo (10 files) — check they are rendered before recolouring.
 - `pages/QA.tsx` semantic badge blues (P2). Admin console accents (P1).

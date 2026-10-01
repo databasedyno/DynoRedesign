@@ -5,14 +5,12 @@ import {
   CircularProgress,
   InputAdornment,
   Paper,
-  Tab,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TablePagination,
   TableRow,
-  Tabs,
   TextField,
   Typography,
   useTheme,
@@ -24,6 +22,7 @@ import adminBaseApi from "@/axiosAdmin";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { AdminStatusChip, formatDateTime, formatCrypto, formatUSD } from "../adminUi";
 import SandboxChip from "@/Components/UI/SandboxChip";
+import OverflowTabs from "@/Components/UI/OverflowTabs";
 import { useRefetchOnVisible } from "@/hooks/useRefetchOnVisible";
 
 interface CustomerTx {
@@ -196,17 +195,18 @@ const AdminTransactions: React.FC = () => {
   return (
     <Box data-testid="admin-transactions">
       <Paper variant="outlined" sx={{ borderRadius: "16px", overflow: "hidden" }}>
-        <Tabs
-          value={tab}
-          onChange={(_, v) => setTab(v)}
-          variant="scrollable"
-          scrollButtons="auto"
-          allowScrollButtonsMobile
-          sx={{ px: 2, borderBottom: `1px solid ${theme.palette.divider}` }}
-        >
-          <Tab label={`Customer payments (${customerTx.length})`} data-testid="tx-tab-customer" />
-          <Tab label={`Platform transactions (${selfTx.length})`} data-testid="tx-tab-platform" />
-        </Tabs>
+        <Box sx={{ px: 2, py: 1.5, borderBottom: `1px solid ${theme.palette.divider}` }}>
+          <OverflowTabs
+            value={["customer", "platform"][tab] || "customer"}
+            onChange={(id) => setTab(id === "platform" ? 1 : 0)}
+            itemTestIdPrefix="tx-tab"
+            ariaLabel="Transaction type"
+            items={[
+              { id: "customer", label: `Customer payments (${customerTx.length})` },
+              { id: "platform", label: `Platform transactions (${selfTx.length})` },
+            ]}
+          />
+        </Box>
 
         {/* Toolbar */}
         <Box sx={{ p: 2, display: "flex", gap: 1.5, alignItems: "center", flexWrap: "wrap" }}>

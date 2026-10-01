@@ -10,7 +10,6 @@ import {
   useMediaQuery,
   useTheme,
   Tooltip,
-  Snackbar,
 } from "@mui/material";
 import CurrencyBitcoinIcon from "@mui/icons-material/CurrencyBitcoin";
 import CopyIcon from "@/assets/Icons/CopyIcon";
@@ -20,6 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { formatWithSeparators, formatCryptoAmount } from "@/utils/currencyFormat";
 import copyToClipboard from "@/helpers/copyToClipboard";
 import { toFixedStr } from "@/utils/money";
+import useToast from "@/hooks/useToast";
 
 interface UnderPaymentProps {
   paidAmount: number;
@@ -77,7 +77,7 @@ const UnderPayment = ({
   const convertedExpectedAmount = (expectedAmountUsd || 0) * transferRate;
   const convertedRemainingAmount = (remainingAmountUsd || 0) * transferRate;
   const { t } = useTranslation('common');
-  const [copySnackbar, setCopySnackbar] = useState(false);
+  const { showToast } = useToast();
   
   const progressPercent = expectedAmount > 0 
     ? Math.min((paidAmount / expectedAmount) * 100, 100) 
@@ -99,7 +99,7 @@ const UnderPayment = ({
           document.execCommand('copy');
           document.body.removeChild(textArea);
         }
-        setCopySnackbar(true);
+        showToast({ message: t('checkout.copied'), severity: "success" });
       } catch {
         const textArea = document.createElement('textarea');
         textArea.value = transactionId;
@@ -110,7 +110,7 @@ const UnderPayment = ({
         textArea.select();
         document.execCommand('copy');
         document.body.removeChild(textArea);
-        setCopySnackbar(true);
+        showToast({ message: t('checkout.copied'), severity: "success" });
       }
     }
   }, [transactionId]);
@@ -417,14 +417,6 @@ const UnderPayment = ({
           </Box>
         </Paper>
       </Box>
-
-      <Snackbar
-        open={copySnackbar}
-        autoHideDuration={2000}
-        onClose={() => setCopySnackbar(false)}
-        message={t('checkout.copied')}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      />
     </>
   );
 };

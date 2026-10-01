@@ -1,6 +1,7 @@
 import { brandFg } from "@/constants/theme";
 import { formatLocaleInt } from "@/utils/locale";
 import copyToClipboard from "@/helpers/copyToClipboard";
+import useToast from "@/hooks/useToast";
 import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import { 
   Box, 
@@ -10,8 +11,7 @@ import {
   useTheme, 
   CircularProgress,
   IconButton,
-  Tooltip,
-  Snackbar
+  Tooltip
 } from '@mui/material'
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined'
 import DoneIcon from '@mui/icons-material/Done'
@@ -80,7 +80,7 @@ export default function TransferExpectedCard({
   const [countdown, setCountdown] = useState(5)
   const [isAutoRedirecting, setIsAutoRedirecting] = useState(false)
   const [showDoneState, setShowDoneState] = useState(false)
-  const [copySnackbar, setCopySnackbar] = useState(false)
+  const { showToast } = useToast()
 
   // Auto-redirect after 5 seconds if redirectUrl is provided and payment is successful
   const handleRedirect = useCallback(() => {
@@ -132,7 +132,7 @@ export default function TransferExpectedCard({
           document.execCommand('copy')
           document.body.removeChild(textArea)
         }
-        setCopySnackbar(true)
+        showToast({ message: t('checkout.copied'), severity: "success" })
       } catch {
         const textArea = document.createElement('textarea')
         textArea.value = transactionId
@@ -143,7 +143,7 @@ export default function TransferExpectedCard({
         textArea.select()
         document.execCommand('copy')
         document.body.removeChild(textArea)
-        setCopySnackbar(true)
+        showToast({ message: t('checkout.copied'), severity: "success" })
       }
     }
   }, [transactionId])
@@ -676,7 +676,7 @@ export default function TransferExpectedCard({
                     // Fallback → clipboard
                     try {
                       await copyToClipboard(`${shareText} ${url}`.trim());
-                      setCopySnackbar(true);
+                      showToast({ message: t('checkout.copied'), severity: "success" });
                     } catch { /* ignore */ }
                   }}
                   startIcon={<Icon icon="mdi:share-variant" width={18} />}
@@ -767,14 +767,6 @@ export default function TransferExpectedCard({
             </Box>
           </Box>
         </Card>
-
-        <Snackbar
-          open={copySnackbar}
-          autoHideDuration={2000}
-          onClose={() => setCopySnackbar(false)}
-          message={t('checkout.copied')}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        />
       </Box>
     )
   }
@@ -932,14 +924,6 @@ export default function TransferExpectedCard({
           </Button>
         </Box>
       </Card>
-
-      <Snackbar
-        open={copySnackbar}
-        autoHideDuration={2000}
-        onClose={() => setCopySnackbar(false)}
-        message={t('checkout.copied')}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      />
     </Box>
   )
 }

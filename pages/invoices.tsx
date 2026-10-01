@@ -6,8 +6,6 @@ import { useRouter } from "next/router";
 import {
   Box,
   Typography,
-  Tab,
-  Tabs,
   Table,
   TableBody,
   TableCell,
@@ -36,6 +34,7 @@ import { useApiSWR } from "@/hooks/useApiSWR";
 import { prefetchInvoicePdf } from "@/helpers/invoicePdfCache";
 import CustomButton from "@/Components/UI/Buttons";
 import PanelCard from "@/Components/UI/PanelCard";
+import OverflowTabs from "@/Components/UI/OverflowTabs";
 import CollectedTaxReport from "@/Components/Page/Invoices/CollectedTaxReport";
 import PeriodTotals from "@/Components/Page/Invoices/PeriodTotals";
 import ReceiptsEmptyState from "@/Components/Page/Invoices/ReceiptsEmptyState";
@@ -337,46 +336,18 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
           onExport={handleExportCSV}
         />
         {/* Tabs */}
-        <Box
-          sx={{
-            borderBottom: 1,
-            borderColor: "divider",
-            mb: 3,
-          }}
-        >
-          <Tabs
-            value={activeTab}
-            onChange={(_, v) => setActiveTab(v)}
-            variant="scrollable"
-            scrollButtons="auto"
-            allowScrollButtonsMobile
-            sx={{
-              "& .MuiTab-root": {
-                fontFamily: "var(--font-sans)",
-                fontSize: isMobile ? 13 : 15,
-                textTransform: "none",
-              },
-            }}
-          >
-            <Tab
-              data-testid="invoices-tab-receipts"
-              icon={<Icon name="receipt-text" size={18} />}
-              iconPosition="start"
-              label={t("invoices.tabInvoices")}
-            />
-            <Tab
-              data-testid="invoices-tab-tax"
-              icon={<Icon name="bar-chart-3" size={18} />}
-              iconPosition="start"
-              label={t("invoices.tabTaxReport")}
-            />
-            <Tab
-              data-testid="invoices-tab-collected"
-              icon={<Icon name="globe" size={18} />}
-              iconPosition="start"
-              label="Collected tax"
-            />
-          </Tabs>
+        <Box sx={{ mb: 3 }}>
+          <OverflowTabs
+            value={["receipts", "tax", "collected"][activeTab] || "receipts"}
+            onChange={(id) => setActiveTab(({ receipts: 0, tax: 1, collected: 2 } as Record<string, number>)[id] ?? 0)}
+            itemTestIdPrefix="invoices-tab"
+            ariaLabel={t("invoices.tabInvoices")}
+            items={[
+              { id: "receipts", label: t("invoices.tabInvoices"), icon: <Icon name="receipt-text" size={18} /> },
+              { id: "tax", label: t("invoices.tabTaxReport"), icon: <Icon name="bar-chart-3" size={18} /> },
+              { id: "collected", label: "Collected tax", icon: <Icon name="globe" size={18} /> },
+            ]}
+          />
         </Box>
 
         {/* INVOICES TAB */}

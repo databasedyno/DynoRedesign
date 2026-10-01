@@ -9,6 +9,7 @@ import { useSdHref, useSdSession } from "./sdRouting";
 import SafeDealMark from "./SafeDealMark";
 import AddEmailDialog from "./AddEmailDialog";
 import InstallAppPrompt from "@/Components/UI/InstallAppPrompt";
+import ToastHost from "@/Components/UI/Toast/ToastHost";
 import {
   SD_GOLD,
   SD_GOLD_DARK,
@@ -316,6 +317,7 @@ export default function SafeDealShell({
       </Box>
       {isDealPage && <Box aria-hidden data-testid="sd-mobile-sticky-safearea" sx={{ display: { xs: "block", md: "none" }, height: 84 }} />}
       {user && <AddEmailDialog open={addEmailOpen} onClose={() => setAddEmailOpen(false)} onDone={(connected) => { if (connected > 0) router.reload(); }} />}
+      <ToastHost />
     </Box>
     </ThemeProvider>
   );

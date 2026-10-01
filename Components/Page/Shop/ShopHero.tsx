@@ -8,12 +8,13 @@
  */
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Box, Typography, Avatar, IconButton, Tooltip, Snackbar, useTheme } from "@mui/material";
+import { Box, Typography, Avatar, IconButton, Tooltip, useTheme } from "@mui/material";
 import { alpha, darken } from "@mui/material/styles";
 import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
 import { Icon } from "@iconify/react";
 import type { ShopMerchant, ShopProduct } from "./types";
 import copyToClipboard from "@/helpers/copyToClipboard";
+import useToast from "@/hooks/useToast";
 import PublicVerifiedBadge from "@/Components/UI/PublicVerifiedBadge";
 import { BRAND_ACCENT } from "@/constants/theme";
 import { buildCoverBackground, GRAIN_URL, readableOn, rise, type CoverStyle } from "@/constants/creatorTheme";
@@ -50,6 +51,7 @@ export default function ShopHero({ merchant, products, shopUrl }: Props) {
   const isDark = theme.palette.mode === "dark";
   const canvas = theme.palette.background.default;
   const { t } = useTranslation("landing");
+  const { showToast } = useToast();
   const [copied, setCopied] = useState(false);
 
   // Merchant theme — the same source of truth as the creator page.
@@ -81,6 +83,8 @@ export default function ShopHero({ merchant, products, shopUrl }: Props) {
     try {
       await copyToClipboard(shopUrl);
       setCopied(true);
+      showToast({ message: t("shop.linkCopied", { defaultValue: "Link copied" }), severity: "success" });
+      setTimeout(() => setCopied(false), 2200);
     } catch {
       setCopied(false);
     }
@@ -282,14 +286,6 @@ export default function ShopHero({ merchant, products, shopUrl }: Props) {
           {t("shop.instantCheckout", { defaultValue: "Instant crypto checkout" })}
         </Box>
       </Box>
-
-      <Snackbar
-        open={copied}
-        autoHideDuration={2200}
-        onClose={() => setCopied(false)}
-        message={t("shop.linkCopied", { defaultValue: "Link copied" })}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      />
     </Box>
   );
 }

@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import {
-  Alert,
   Box,
   CircularProgress,
   MenuItem,
   Select,
-  Snackbar,
   Typography,
   useTheme,
 } from "@mui/material";
@@ -18,6 +16,7 @@ import { DashboardAction } from "@/Redux/Actions";
 import { DASHBOARD_FETCH_ALL } from "@/Redux/Actions/DashboardAction";
 import { useWalletStore } from "@/contexts/WalletDataContext";
 import useApiSWR from "@/hooks/useApiSWR";
+import useToast from "@/hooks/useToast";
 
 type SupportedCurrency = {
   code: string;
@@ -60,11 +59,7 @@ const DisplayCurrencySelector = ({ companyId }: { companyId: number | null }) =>
   }, [dcData]);
 
   const [saving, setSaving] = useState(false);
-  const [toast, setToast] = useState<{ open: boolean; message: string; severity: "success" | "error" }>({
-    open: false,
-    message: "",
-    severity: "success",
-  });
+  const { showToast } = useToast();
 
   const handleChange = async (next: string) => {
     if (!companyId || next === current || saving) return;
@@ -75,8 +70,7 @@ const DisplayCurrencySelector = ({ companyId }: { companyId: number | null }) =>
       await axiosBaseApi.patch(`company/display-currency/${companyId}`, {
         display_currency: next,
       });
-      setToast({
-        open: true,
+      showToast({
         message: t("settingsPage.displayCurrencySaved", {
           defaultValue: "Brand currency updated",
         }),
@@ -89,8 +83,7 @@ const DisplayCurrencySelector = ({ companyId }: { companyId: number | null }) =>
       refetchWallets();
     } catch {
       setCurrent(prev);
-      setToast({
-        open: true,
+      showToast({
         message: t("settingsPage.displayCurrencyError", {
           defaultValue: "Could not update brand currency. Please try again.",
         }),
@@ -202,23 +195,6 @@ const DisplayCurrencySelector = ({ companyId }: { companyId: number | null }) =>
           <CircularProgress size={18} sx={{ color: theme.palette.text.disabled }} />
         )}
       </Box>
-
-      <Snackbar
-        open={toast.open}
-        autoHideDuration={3000}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-        onClose={() => setToast((s) => ({ ...s, open: false }))}
-      >
-        <Alert
-          severity={toast.severity}
-          variant="filled"
-          onClose={() => setToast((s) => ({ ...s, open: false }))}
-          sx={{ fontFamily: "var(--font-sans)", fontSize: 13.5 }}
-          data-testid="display-currency-toast"
-        >
-          {toast.message}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 };

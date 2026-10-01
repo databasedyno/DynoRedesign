@@ -5,11 +5,11 @@ import {
   Button,
   MenuItem,
   Select,
-  Snackbar,
   Typography,
   useTheme,
 } from '@mui/material'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import useToast from "@/hooks/useToast";
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { Icon } from '@iconify/react'
@@ -103,7 +103,7 @@ const PaymentDemo = () => {
   const [receiptEmail, setReceiptEmail] = useState('')
   const [emailSaved, setEmailSaved] = useState(false)
   const [copied, setCopied] = useState(false)
-  const [snack, setSnack] = useState<string | null>(null)
+  const { showToast } = useToast()
   const notifiedRef = useRef(false)
   const confirmTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -144,7 +144,7 @@ const PaymentDemo = () => {
   const copyAddress = useCallback(async () => {
     try { await navigator.clipboard?.writeText(coin.address) } catch { /* ignore */ }
     setCopied(true)
-    setSnack('Address copied')
+    showToast({ message: 'Address copied', severity: 'success' })
     setTimeout(() => setCopied(false), 2000)
   }, [coin.address])
 
@@ -429,14 +429,6 @@ const PaymentDemo = () => {
           )}
         </Box>
       </Box>
-
-      <Snackbar
-        open={!!snack}
-        autoHideDuration={2000}
-        onClose={() => setSnack(null)}
-        message={snack || ''}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      />
     </Pay3Layout>
   )
 }

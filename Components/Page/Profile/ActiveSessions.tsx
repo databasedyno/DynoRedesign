@@ -1,13 +1,12 @@
 import PanelCard from "@/Components/UI/PanelCard";
 import useIsMobile from "@/hooks/useIsMobile";
+import useToast from "@/hooks/useToast";
 import {
   Box,
   Button,
   Chip,
   CircularProgress,
   Skeleton,
-  Snackbar,
-  Alert,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -50,7 +49,11 @@ const ActiveSessions = () => {
   const loading = isLoading && data === undefined;
   const [revoking, setRevoking] = useState<number | null>(null);
   const [revokingAll, setRevokingAll] = useState(false);
-  const [toast, setToast] = useState<{ msg: string; sev: "success" | "error" } | null>(null);
+  const { showToast } = useToast();
+  // Shim: route existing setToast({ msg, sev }) calls to the single global toast.
+  const setToast = (v: { msg: string; sev: "success" | "error" } | null) => {
+    if (v) showToast({ message: v.msg, severity: v.sev });
+  };
 
   const revokeOne = async (id: number) => {
     setRevoking(id);
@@ -262,19 +265,6 @@ const ActiveSessions = () => {
           </Box>
         )}
       </PanelCard>
-
-      <Snackbar
-        open={!!toast}
-        autoHideDuration={3500}
-        onClose={() => setToast(null)}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        {toast ? (
-          <Alert severity={toast.sev} variant="filled" onClose={() => setToast(null)} sx={{ fontFamily: "var(--font-sans)" }}>
-            {toast.msg}
-          </Alert>
-        ) : undefined}
-      </Snackbar>
     </>
   );
 };

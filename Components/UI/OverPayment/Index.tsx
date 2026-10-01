@@ -9,7 +9,6 @@ import {
   Typography,
   useTheme,
   Tooltip,
-  Snackbar,
   CircularProgress,
 } from "@mui/material";
 import CopyIcon from "@/assets/Icons/CopyIcon";
@@ -19,6 +18,7 @@ import { Icon } from "@iconify/react";
 import { useTranslation } from 'react-i18next';
 import { formatWithSeparators, formatCryptoAmount } from "@/utils/currencyFormat";
 import copyToClipboard from "@/helpers/copyToClipboard";
+import useToast from "@/hooks/useToast";
 
 interface OverPaymentProps {
   paidAmount: number;
@@ -65,7 +65,7 @@ const OverPayment = ({
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
   const { t } = useTranslation('common');
-  const [copySnackbar, setCopySnackbar] = useState(false);
+  const { showToast } = useToast();
   const [countdown, setCountdown] = useState(5);
   const [isAutoRedirecting, setIsAutoRedirecting] = useState(false);
   
@@ -129,7 +129,7 @@ const OverPayment = ({
           document.execCommand('copy');
           document.body.removeChild(textArea);
         }
-        setCopySnackbar(true);
+        showToast({ message: t('checkout.copied'), severity: "success" });
       } catch {
         const textArea = document.createElement('textarea');
         textArea.value = transactionId;
@@ -140,7 +140,7 @@ const OverPayment = ({
         textArea.select();
         document.execCommand('copy');
         document.body.removeChild(textArea);
-        setCopySnackbar(true);
+        showToast({ message: t('checkout.copied'), severity: "success" });
       }
     }
   }, [transactionId]);
@@ -507,14 +507,6 @@ const OverPayment = ({
           </Box>
         </Paper>
       </Box>
-
-      <Snackbar
-        open={copySnackbar}
-        autoHideDuration={2000}
-        onClose={() => setCopySnackbar(false)}
-        message={t('checkout.copied')}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      />
     </>
   );
 };

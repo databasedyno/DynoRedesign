@@ -1,12 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Alert, Box, Button, Container, Skeleton, Snackbar, Stack, Typography } from "@mui/material";
+import { Alert, Box, Button, Container, Skeleton, Stack, Typography } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { motion, useReducedMotion } from "framer-motion";
 import safedealApi, { SdAddress, SdDeal, SdStatementRow, SdTopup, SdWallet, isPlaceholderSdEmail, sdError } from "@/api/safedeal";
 import { money } from "@/Components/Page/Escrow/escrowUtils";
 import { useRequireSdSession, useSdHref } from "../sdRouting";
+import useToast from "@/hooks/useToast";
 import { useNow } from "../sdFormat";
 import { SD_GOLD, SD_GOLD_DARK, SD_GOLD_DEEP, SD_INK, SD_BORDER, SD_TEXT_MUTED, SD_NOTE_BG, SD_NOTE_FG, SD_NOTE_BORDER, SD_PAGE, goldAlpha } from "../sdTheme";
 import { StepUpDialog } from "../StepUpDialog";
@@ -79,10 +80,10 @@ export default function SafeDealHome({ initialTab = "overview" }: { initialTab?:
   const [dealsError, setDealsError] = useState<string | null>(null);
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
-  const [toast, setToast] = useState<{ msg: string; severity: "success" | "error" } | null>(null);
+  const { showToast } = useToast();
   const [dialog, setDialog] = useState<Dialog>(null);
   const [addEmailOpen, setAddEmailOpen] = useState(false);
-  const notify = useCallback((msg: string, severity: "success" | "error" = "success") => setToast({ msg, severity }), []);
+  const notify = useCallback((msg: string, severity: "success" | "error" = "success") => showToast({ message: msg, severity }), [showToast]);
 
   useEffect(() => {
     if (router.isReady && isTab(router.query.tab)) setTab(router.query.tab);
@@ -293,10 +294,6 @@ export default function SafeDealHome({ initialTab = "overview" }: { initialTab?:
         />
       )}
       <AddEmailDialog open={addEmailOpen} onClose={() => setAddEmailOpen(false)} onDone={() => void load()} />
-
-      <Snackbar open={!!toast} autoHideDuration={4500} onClose={() => setToast(null)} anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
-        <Alert severity={toast?.severity || "success"} onClose={() => setToast(null)} data-testid="sd-toast" sx={{ fontWeight: 600 }}>{toast?.msg}</Alert>
-      </Snackbar>
     </Container>
   );
 }
