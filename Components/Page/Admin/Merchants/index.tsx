@@ -23,6 +23,7 @@ import { AdminStatusChip, formatDate, formatUSD } from "../adminUi";
 import MerchantDrawer, { Merchant } from "./MerchantDrawer";
 import DeletedBrandsPanel from "./DeletedBrandsPanel";
 import DeletedAccountsPanel from "./DeletedAccountsPanel";
+import { useRefetchOnVisible } from "@/hooks/useRefetchOnVisible";
 
 const STATUS_FILTERS = [
   { key: "all", label: "All" },
@@ -60,6 +61,8 @@ const AdminMerchants: React.FC = () => {
   useEffect(() => {
     fetchMerchants();
   }, [fetchMerchants]);
+
+  useRefetchOnVisible(fetchMerchants);
 
   const counts = useMemo(() => {
     const c: Record<string, number> = { all: merchants.length };

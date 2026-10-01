@@ -5,6 +5,7 @@ import adminBaseApi from "@/axiosAdmin";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import SessionList, { SupportSession, SummaryCounts } from "./SessionList";
 import ConversationPanel, { SessionMeta, SupportMessage } from "./ConversationPanel";
+import { useRefetchOnVisible } from "@/hooks/useRefetchOnVisible";
 
 const POLL_MS = 4000;
 
@@ -86,6 +87,12 @@ const SupportInbox: React.FC = () => {
     }, POLL_MS);
     return () => clearInterval(t);
   }, [fetchList, fetchDetail]);
+
+  // Instant reconcile when returning to the tab (background timers are throttled).
+  useRefetchOnVisible(() => {
+    fetchList();
+    if (selectedRef.current) fetchDetail(selectedRef.current, true);
+  });
 
   const selectSession = useCallback(
     (id: string) => {

@@ -43,6 +43,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import useApiSWR from "@/hooks/useApiSWR";
+import { useRefetchOnVisible } from "@/hooks/useRefetchOnVisible";
 
 import axiosBaseApi from "@/axiosConfig";
 import PanelCard from "@/Components/UI/PanelCard";
@@ -276,6 +277,16 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
     if (!companyId) return;
     loadSettings();
   }, [companyId, loadSettings]);
+
+  // Return-to-tab refresh: settings is a manual fetch (not SWR), so reload it
+  // and revalidate the SWR-backed stats + logs so the Developer console is
+  // never stale after switching tabs. (SWR lists also refresh via the global
+  // revalidateOnFocus; this keeps settings + lists in lock-step.)
+  useRefetchOnVisible(() => {
+    if (!companyId) return;
+    loadSettings();
+    refreshAll();
+  });
 
   const saveUrl = async () => {
     if (!companyId) return;

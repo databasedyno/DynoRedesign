@@ -44,6 +44,7 @@ import {
 import { CryptoIconChip } from "./styled";
 import { AutoConvertPayoutRow } from "./AutoConvertPayoutRow";
 import TxResolveActions from "./TxResolveActions";
+import TxStatusTimeline from "./TxStatusTimeline";
 import { explorerTxUrl } from "@/helpers/explorerUrl";
 import CopyInline from "@/Components/UX/CopyInline";
 import { API_ENDPOINTS } from "@/api/endpoints";
@@ -193,7 +194,6 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
   const hasIncoming = Boolean(transaction.incomingTransactionId);
   const hasOutgoing = Boolean(transaction.outgoingTransactionId);
   const isSettled = isSettledState || hasOutgoing;
-  const awaitingPayment = !hasIncoming && !hasOutgoing && !isSettledState && _status !== "underpaid";
 
   // Estimated network fee to fold into the totals (only when nothing persisted).
   const estNetForTotal =
@@ -328,53 +328,18 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
             )}
           <SectionDivider />
 
-          {/* Awaiting-payment notice: pending intent with no on-chain receipt.
-              Prevents merchants reading "Settled To …" as "funds arrived"
-              (support session df0936d9). */}
-          {awaitingPayment && (
-            <Box
-              data-testid="tx-awaiting-banner"
-              sx={{
-                display: "flex",
-                alignItems: "flex-start",
-                gap: 1.25,
-                p: 1.5,
-                mb: isMobile ? 1.5 : 2.5,
-                borderRadius: "12px",
-                border: `1px solid ${theme.palette.warning.main}40`,
-                backgroundColor: `${theme.palette.warning.main}14`,
-              }}
-            >
-              <Icon name="clock" size={18} />
-              <Box>
-                <Typography
-                  sx={{
-                    fontSize: 13.5,
-                    fontWeight: 700,
-                    color: theme.palette.text.primary,
-                    lineHeight: "18px",
-                    mb: 0.25,
-                  }}
-                >
-                  {tTransactions("awaitingPaymentTitle", {
-                    defaultValue: "Awaiting payment — no funds received yet",
-                  })}
-                </Typography>
-                <Typography
-                  sx={{
-                    fontSize: 12.5,
-                    color: theme.palette.text.secondary,
-                    lineHeight: "17px",
-                  }}
-                >
-                  {tTransactions("awaitingPaymentBody", {
-                    defaultValue:
-                      "We haven't detected an on-chain deposit for this payment, so nothing has been sent to your wallet yet. This entry will update automatically once the customer's funds arrive and are confirmed.",
-                  })}
-                </Typography>
-              </Box>
-            </Box>
-          )}
+          {/* State-specific status banner + progress rail (awaiting → confirming
+              → confirmed → settled). Replaces the old awaiting-only notice so the
+              drawer clearly distinguishes each state — especially when opened from
+              a notification. */}
+          <TxStatusTimeline
+            status={transaction.status}
+            autoConverted={transaction.autoConverted}
+            confirmations={transaction.confirmations}
+            hasIncoming={hasIncoming}
+            hasOutgoing={hasOutgoing}
+            isMobile={isMobile}
+          />
 
 
           <Box

@@ -6,6 +6,7 @@ import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { FeeAuditRow, FeeReconciliation, feeReconciliationApi } from "@/api/feeReconciliation";
 import { SectionCard, StatCard, formatCrypto, formatDateTime, formatUSD } from "../adminUi";
 import CrumbSweeperCard from "./CrumbSweeperCard";
+import { useRefetchOnVisible } from "@/hooks/useRefetchOnVisible";
 
 const STATUSES = [
   { key: "", label: "Any status" },
@@ -66,6 +67,7 @@ const AdminFeeReconciliation: React.FC = () => {
   }, [from, to, chain, status, verdict, page, limit, toast]);
 
   useEffect(() => { void load(); }, [load]);
+  useRefetchOnVisible(load);
 
   const run = async (what: "reconcile" | "backfill") => {
     setBusy(what);

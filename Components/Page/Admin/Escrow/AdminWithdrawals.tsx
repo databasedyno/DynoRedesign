@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Box, Button, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, Typography, useTheme } from "@mui/material";
 import { useDispatch } from "react-redux";
 import adminBaseApi from "@/axiosAdmin";
+import { useRefetchOnVisible } from "@/hooks/useRefetchOnVisible";
 import { BRAND_ACCENT } from "@/constants/theme";
 import { money, shortDate } from "@/Components/Page/Escrow/escrowUtils";
 import { tabSx } from "./tabSx";
@@ -56,6 +57,7 @@ export default function AdminWithdrawals() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
   useEffect(() => { void load(); }, [load]);
+  useRefetchOnVisible(load);
 
   const approve = async (w: Withdrawal) => {
     setBusy(w.withdrawal_id);

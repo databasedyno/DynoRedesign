@@ -36,6 +36,7 @@ import {
 } from "recharts";
 import { useDispatch } from "react-redux";
 import adminBaseApi from "@/axiosAdmin";
+import { useRefetchOnVisible } from "@/hooks/useRefetchOnVisible";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { StatCard, SectionCard, formatUSD, formatNumber, formatCrypto } from "../adminUi";
 import SecurityEventsPanel from "./SecurityEventsPanel";
@@ -93,6 +94,8 @@ const AdminOverview: React.FC = () => {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  useRefetchOnVisible(fetchData);
 
   const derived = useMemo(() => {
     const rates = data?.paymentSuccessRates?.[0];

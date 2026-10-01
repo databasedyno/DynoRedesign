@@ -3,6 +3,7 @@ import { Box, Button, Chip, CircularProgress, Table, TableBody, TableCell, Table
 import { LockOpenRounded, RefreshRounded, ShieldRounded } from "@mui/icons-material";
 import { useDispatch } from "react-redux";
 import adminBaseApi from "@/axiosAdmin";
+import { useRefetchOnVisible } from "@/hooks/useRefetchOnVisible";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { SectionCard, formatDateTime } from "../adminUi";
 
@@ -39,6 +40,7 @@ const SecurityEventsPanel: React.FC = () => {
   }, []);
 
   useEffect(() => { load(); }, [load]);
+  useRefetchOnVisible(load);
 
   const unfreeze = async (userId: number) => {
     setBusy(userId);

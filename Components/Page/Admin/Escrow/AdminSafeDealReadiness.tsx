@@ -3,6 +3,7 @@ import { Box, Chip, CircularProgress, Grid, Stack, Typography, useTheme } from "
 import { CheckCircleRounded, ErrorRounded, WarningAmberRounded } from "@mui/icons-material";
 import { useDispatch } from "react-redux";
 import adminBaseApi from "@/axiosAdmin";
+import { useRefetchOnVisible } from "@/hooks/useRefetchOnVisible";
 import { BRAND_ACCENT } from "@/constants/theme";
 import { money } from "@/Components/Page/Escrow/escrowUtils";
 
@@ -38,6 +39,7 @@ export default function AdminSafeDealReadiness() {
     }
   }, [dispatch]);
   useEffect(() => { void load(); }, [load]);
+  useRefetchOnVisible(load);
 
   if (loading) return <Box sx={{ display: "grid", placeItems: "center", py: 8 }}><CircularProgress size={28} sx={{ color: BRAND_ACCENT }} /></Box>;
   if (!data) return null;

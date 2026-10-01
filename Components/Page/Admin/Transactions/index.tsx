@@ -24,6 +24,7 @@ import adminBaseApi from "@/axiosAdmin";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { AdminStatusChip, formatDateTime, formatCrypto, formatUSD } from "../adminUi";
 import SandboxChip from "@/Components/UI/SandboxChip";
+import { useRefetchOnVisible } from "@/hooks/useRefetchOnVisible";
 
 interface CustomerTx {
   id?: string;
@@ -146,6 +147,8 @@ const AdminTransactions: React.FC = () => {
   useEffect(() => {
     fetchTx();
   }, [fetchTx]);
+
+  useRefetchOnVisible(fetchTx);
 
   useEffect(() => setPage(0), [q, status, tab]);
 

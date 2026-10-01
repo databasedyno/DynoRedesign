@@ -820,7 +820,13 @@ function App({
                     // instantly with last-known values, then revalidate in the
                     // background — no more skeletons on every visit.
                     provider: localStorageProvider,
-                    revalidateOnFocus: false,
+                    // F4: refresh on tab focus so dashboards / admin / developer
+                    // screens show fresh data when you return to the tab (no more
+                    // "stale until hard refresh"). Throttled to 5s and
+                    // stale-while-revalidate — cached values stay on screen while
+                    // the background refresh runs, so there's no blank/flicker.
+                    revalidateOnFocus: true,
+                    focusThrottleInterval: 5000,
                     revalidateOnReconnect: true,
                     shouldRetryOnError: true,
                     errorRetryCount: 2,
