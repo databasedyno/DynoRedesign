@@ -1,6 +1,7 @@
 import Logo from "@/assets/Icons/home/dynopay-blackLogo.svg";
 import WhiteLogo from "@/assets/Icons/home/dynopay-whiteLogo.svg";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
+import { FieldRow } from "@/Components/UI/SingleQuestionForm";
 import TitleDescription from "@/Components/UI/AuthLayout/TitleDescription";
 import TrustStrip from "@/Components/UI/AuthLayout/TrustStrip";
 import AuthBrandPanel from "@/Components/UI/AuthLayout/AuthBrandPanel";
@@ -805,6 +806,8 @@ const Register = () => {
                     <Box sx={{ mb: 1 }}>
                       <InputField
                         type="email"
+                        required
+                        accentFocus
                         value={email}
                         onChange={(e) => { setEmail(e.target.value); setEmailError(""); }}
                         onKeyDown={(e) => { if (e.key === "Enter") handleContinue(); }}
@@ -997,28 +1000,28 @@ const Register = () => {
                       WITH a first + last name. Hidden for existing-account OTP logins. */}
                   {!accountExists && (
                     <Box sx={{ mb: 2.5, display: "flex", flexDirection: "column", gap: 1.5 }}>
-                      <Box sx={{ display: "flex", gap: 1.5, flexDirection: isMobile ? "column" : "row" }}>
-                        <Box sx={{ flex: 1 }}>
-                          <InputField
-                            data-testid="register-first-name-input"
-                            type="text"
-                            value={firstName}
-                            onChange={(e) => { setFirstName(e.target.value); if (nameError) setNameError(""); }}
-                            label={t("nameFirstLabel", { defaultValue: "First name" })}
-                            placeholder={t("nameFirstLabel", { defaultValue: "First name" })}
-                          />
-                        </Box>
-                        <Box sx={{ flex: 1 }}>
-                          <InputField
-                            data-testid="register-last-name-input"
-                            type="text"
-                            value={lastName}
-                            onChange={(e) => { setLastName(e.target.value); if (nameError) setNameError(""); }}
-                            label={t("nameLastLabel", { defaultValue: "Last name" })}
-                            placeholder={t("nameLastLabel", { defaultValue: "Last name" })}
-                          />
-                        </Box>
-                      </Box>
+                      <FieldRow>
+                        <InputField
+                          data-testid="register-first-name-input"
+                          type="text"
+                          required
+                          accentFocus
+                          value={firstName}
+                          onChange={(e) => { setFirstName(e.target.value); if (nameError) setNameError(""); }}
+                          label={t("nameFirstLabel", { defaultValue: "First name" })}
+                          placeholder={t("nameFirstLabel", { defaultValue: "First name" })}
+                        />
+                        <InputField
+                          data-testid="register-last-name-input"
+                          type="text"
+                          required
+                          accentFocus
+                          value={lastName}
+                          onChange={(e) => { setLastName(e.target.value); if (nameError) setNameError(""); }}
+                          label={t("nameLastLabel", { defaultValue: "Last name" })}
+                          placeholder={t("nameLastLabel", { defaultValue: "Last name" })}
+                        />
+                      </FieldRow>
                       {nameError && (
                         <Typography
                           data-testid="register-name-error"

@@ -62,6 +62,11 @@ export interface InputFieldProps {
   maxRows?: number;
   ariaLabel?: string;
   ariaInvalid?: boolean;
+  /** Batch C (single-question forms): append a red required marker to the label
+      and set aria-required on the input. Default OFF → no change elsewhere. */
+  required?: boolean;
+  /** Batch C: show a 2px gold accent focus ring on focus. Default OFF. */
+  accentFocus?: boolean;
   // Additional attributes that flow through to the native <input>.
   // Added when login.tsx started using data-testid + autoFocus + id.
   id?: string;
@@ -111,6 +116,8 @@ const InputField: React.FC<InputFieldProps> = ({
   autoComplete,
   ariaLabel,
   ariaInvalid,
+  required = false,
+  accentFocus = false,
   "data-testid": dataTestId,
 }) => {
   const theme = useTheme();
@@ -290,6 +297,15 @@ const InputField: React.FC<InputFieldProps> = ({
           htmlFor={fieldId}
         >
           {typeof label === "string" ? <span>{label}</span> : label}
+          {required && (
+            <Box
+              component="span"
+              aria-hidden="true"
+              sx={{ color: theme.palette.error.main, ml: "2px", fontWeight: 700 }}
+            >
+              *
+            </Box>
+          )}
         </Typography>
       )}
 
@@ -345,6 +361,7 @@ const InputField: React.FC<InputFieldProps> = ({
               autoComplete: autoCompleteValue,
               "aria-invalid":
                 ariaInvalid !== undefined ? ariaInvalid : error || undefined,
+              "aria-required": required || undefined,
               "aria-label":
                 ariaLabel ?? (typeof label === "string" ? label : undefined),
               onKeyDown: handleKeyDown,
@@ -444,9 +461,16 @@ const InputField: React.FC<InputFieldProps> = ({
                 "&:hover fieldset": {
                   borderColor: disabled ? borderColor : focusBorderColor,
                 },
+                "&.Mui-focused": accentFocus && !error && !success
+                  ? {
+                      boxShadow: `0 0 0 3px ${theme.palette.mode === "dark" ? "rgba(255,209,0,0.30)" : "rgba(255,209,0,0.40)"}`,
+                    }
+                  : {},
                 "&.Mui-focused fieldset": {
-                  borderColor: focusBorderColor,
-                  borderWidth: "1px",
+                  borderColor: accentFocus && !error && !success
+                    ? (theme.palette.mode === "dark" ? "#FFD100" : "#C79A00")
+                    : focusBorderColor,
+                  borderWidth: accentFocus && !error && !success ? "2px" : "1px",
                 },
                 "&.Mui-disabled": {
                   backgroundColor: theme.palette.action.disabledBackground,

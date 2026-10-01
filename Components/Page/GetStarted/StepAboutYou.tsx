@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import type { ICountry } from "country-state-city";
 import { Icon } from "@/styles/uiKit";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
+import { FieldRow } from "@/Components/UI/SingleQuestionForm";
 import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import useIdentityVerified from "@/hooks/useIdentityVerified";
@@ -170,6 +171,14 @@ const StepAboutYou: React.FC<Props> = ({ progress, onBack, onNext }) => {
     },
     "& .MuiFormHelperText-root": { fontFamily: "var(--font-sans)", fontSize: 12, ml: "4px" },
   };
+  const countryInputSx = {
+    ...inputSx,
+    "& .MuiOutlinedInput-root": {
+      ...(inputSx["& .MuiOutlinedInput-root"] as Record<string, unknown>),
+      "&.Mui-focused": { boxShadow: `0 0 0 3px ${isDark ? "rgba(255,209,0,0.30)" : "rgba(255,209,0,0.40)"}` },
+      "&.Mui-focused fieldset": { borderColor: isDark ? "#FFD100" : "#C79A00", borderWidth: "2px" },
+    },
+  };
 
   return (
     <Box data-testid="gs-step-about">
@@ -269,10 +278,12 @@ const StepAboutYou: React.FC<Props> = ({ progress, onBack, onNext }) => {
             )}
           </Box>
         ) : (
-        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 1.5 }}>
+        <FieldRow>
           <InputField
             data-testid="gs-first-name"
             label={t("gs.firstName", { defaultValue: "First name" })}
+            required={!nameLocked}
+            accentFocus
             value={firstName}
             disabled={nameLocked}
             onChange={(e) => { setFirstName(e.target.value); if (errors.firstName) setErrors({ ...errors, firstName: "" }); }}
@@ -282,13 +293,15 @@ const StepAboutYou: React.FC<Props> = ({ progress, onBack, onNext }) => {
           <InputField
             data-testid="gs-last-name"
             label={t("gs.lastName", { defaultValue: "Last name" })}
+            required={!nameLocked}
+            accentFocus
             value={lastName}
             disabled={nameLocked}
             onChange={(e) => { setLastName(e.target.value); if (errors.lastName) setErrors({ ...errors, lastName: "" }); }}
             error={!!errors.lastName}
             helperText={errors.lastName}
           />
-        </Box>
+        </FieldRow>
         )}
         {nameLocked && (!identityKnown || editingName) && (
           <Box sx={{ mt: -1.25, fontFamily: "var(--font-sans)", fontSize: 12.5, color: muted }}>
@@ -299,6 +312,8 @@ const StepAboutYou: React.FC<Props> = ({ progress, onBack, onNext }) => {
         <InputField
           data-testid="gs-brand-name"
           label={t("gs.brandName", { defaultValue: "Brand or display name" })}
+          required
+          accentFocus
           placeholder={t("gs.brandNamePlaceholder", { defaultValue: "e.g. Ada's Studio" })}
           value={brandName}
           onChange={(e) => { setBrandName(e.target.value); if (errors.brandName) setErrors({ ...errors, brandName: "" }); }}
@@ -307,7 +322,10 @@ const StepAboutYou: React.FC<Props> = ({ progress, onBack, onNext }) => {
         />
 
         <Box>
-          <Box sx={labelSx}>{t("gs.country", { defaultValue: "Country" })}</Box>
+          <Box sx={labelSx}>
+            {t("gs.country", { defaultValue: "Country" })}
+            <Box component="span" aria-hidden="true" sx={{ color: theme.palette.error.main, ml: "2px", fontWeight: 700 }}>*</Box>
+          </Box>
           <Autocomplete
             fullWidth
             options={allCountries}
@@ -337,8 +355,8 @@ const StepAboutYou: React.FC<Props> = ({ progress, onBack, onNext }) => {
                   ...params.InputProps,
                   startAdornment: country ? <Box sx={{ px: 0.5, fontSize: 18 }}>{country.flag}</Box> : params.InputProps.startAdornment,
                 }}
-                sx={inputSx}
-                inputProps={{ ...params.inputProps, "data-testid": "gs-country-input" }}
+                sx={countryInputSx}
+                inputProps={{ ...params.inputProps, "data-testid": "gs-country-input", "aria-required": true }}
               />
             )}
           />
