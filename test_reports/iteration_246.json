@@ -1,0 +1,44 @@
+{
+  "summary": "Frontend-only validation of 3 NEW onboarding wizard features (i18n for 5 locales, creator cover+bio, fundraiser thermometer). ALL primary acceptance criteria PASS. Login via QA user 221 (qa_minorder_p1b@example.com, 2FA email with preview_otp) succeeded. Switched purpose_vertical in tbl_user between 'fundraisers' and 'creators' for the two tracks and reset to 'fundraisers' at the end. All creator/fundraiser testids render; mocked endpoints behave as spec'd; thermometer momentum math, i18n swap, and claim payload all verified.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verified": {
+    "creator_step4_en": "PASS — /get-started?step=link as creators-track user renders 'Claim your @handle'. gs-handle-extras-toggle collapsed by default (dropzone hidden before toggle, FOUND after). After toggle: gs-handle-extras, gs-handle-cover-dropzone, gs-handle-cover-file, gs-handle-bio-input all present.",
+    "creator_cover_upload": "PASS — With POST /user/creator/upload-cover mocked to picsum URL: file input accepted good PNG → gs-handle-cover-preview rendered with gs-handle-cover-replace + gs-handle-cover-remove. Remove restores gs-handle-cover-dropzone and clears preview. Non-image file → gs-handle-cover-error='Please choose an image file'. 11 MB file → gs-handle-cover-error='Image must be under 10 MB'.",
+    "creator_claim_with_extras": "PASS — PUT /user/creator/profile intercepted. Captured request body JSON keys = ['handle','bio','cover_image','theme_cover_style']. Values: handle='qamockhandle', bio='A short QA bio for the claim test.', cover_image='https://picsum.photos/seed/dyno/1200/400', theme_cover_style='image'. After claim, URL advanced to /get-started?step=share and 'Your page is live' / @qamockhandle rendered with QR + copy link.",
+    "fundraiser_thermometer": "PASS — gs-campaign-thermometer rendered with data-has-goal='false' + gs-thermometer-nogoal when goal empty. Typing 5000 flipped data-has-goal='true' and rendered gs-thermometer-raised ($0), gs-thermometer-percent ('0% funded'), gs-thermometer-track, gs-thermometer-fill. Tapping gs-thermometer-preset-1 ($25) updated raised to $25.00, percent to '1% funded', and gs-thermometer-impact='A $25.00 gift moves you 1% toward your goal'. Re-tapping active preset reset to $0/0%. gs-thermometer-reset also returns to $0/0%. Mobile 390x844 — no horizontal overflow (sw=cw=390).",
+    "localization_fundraiser_all_locales": "PASS — de/es/fr/nl/pt all swap correctly (html lang updates, localStorage.lang persists). Impact strings observed: DE 'Eine Spende von $25.00 bringt dich 1 % näher an dein Ziel', ES 'Una donación de $25.00 te acerca un 1 % a tu meta', FR 'Un don de $25.00 vous rapproche de 1 % de votre objectif', NL 'Een gift van $25.00 brengt je 1% dichter bij je doel', PT 'Uma doação de $25.00 te aproxima 1% da sua meta'. No English leak, no literal {amount}/{goal}/{percent} braces, expected localized step labels + thermometer titles all present.",
+    "localization_creator_de_es_fr": "PASS — DE: step label + title 'Sichere dir deinen @handle' present, 'Titelbild & Bio hinzufügen' toggle present, no 'Claim your @handle' / 'Add a cover image' leaks. ES: 'Reserva tu @handle' present. FR: 'Réservez votre @handle' present.",
+    "static_locale_coverage": "PASS — All 213 gs.* keys used by Components/Page/GetStarted/*.tsx exist in en/de/es/fr/nl/pt dashboardLayout.json (250 keys per locale). Only 1 identical-to-English string in DE (likely acceptable e.g. a brand term).",
+    "regression_fundraiser_en": "PASS — Fundraiser step 4 in English still renders correctly ('Launch your first campaign', thermometer, no crash, icons present)."
+  },
+  "test_notes": [
+    "To actually SWITCH locale during an authenticated session the test must set BOTH localStorage.lang=<lng> AND localStorage.lang_manual='true' (pending-sync flag). Otherwise LanguageBootstrap.reconcileLanguageOnAuth() pulls the account language (tbl_user.language='en' for QA user 221) and overwrites localStorage back to 'en'. This matches the designed behavior — the real language switcher calls setAppLanguage() which sets the pending flag — but it's an important nuance for future test runs. ?lang=XX URL param alone also works via applyDetectedLanguage().",
+    "To reach the creator step 4 screen, DB purpose_vertical must be flipped to 'creators' AND localStorage dyno_purpose_vertical='creators' must be injected via context.add_init_script BEFORE the first page load. Setting it after a prior goto('/') leaves SWR with the stale fundraiser profile and the UI stays on the fundraiser step.",
+    "QA user 221 (2FA method=email, example.com reserved domain + DISABLE_OUTBOUND_EMAIL=true) returns preview_otp in the login response — login code: POST /api/user/login → preview_otp → POST /api/user/2fa/validate → accessToken. OTPs are single-use so always re-login per test session."
+  ],
+  "mocks_applied": [
+    "POST **/user/creator/upload-cover → {success:true, data:{url:'https://picsum.photos/seed/dyno/1200/400'}}",
+    "GET  **/user/creator/check-handle* → {success:true, data:{available:true, reason:null}}",
+    "PUT  **/user/creator/profile → {success:true, data:{}} (captured request body for assertion)",
+    "PUT  **/api/user/profile → {success:true, data:{}} (prevents reconcile from mutating tbl_user.language on prod DB; GET passes through)"
+  ],
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "CampaignThermometer / StepFirstCampaign have NO horizontal overflow at 390px — verified (scrollWidth=clientWidth=390).",
+    "StepClaimHandle correctly guards upload: image-only MIME + 10MB cap, error surfaces via gs-handle-cover-error with localized text.",
+    "Claim payload is minimal and correct — only {handle, bio, cover_image, theme_cover_style} are sent; no extraneous fields leak."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (frontend-only)", "frontend": "100% (3/3 features, all 5 locales)"},
+  "test_credentials": "QA user 221 — qa_minorder_p1b@example.com / QaMinOrder123@ (company_id 231). 2FA email, preview_otp returned in login response.",
+  "seed_data_creation": "None persistent. tbl_user.purpose_vertical for user 221 was flipped 'fundraisers' ↔ 'creators' during the run and RESET to 'fundraisers' in a finally block.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "The 2FA preview_otp is single-use per login attempt — always re-run POST /api/user/login + POST /api/user/2fa/validate at the start of each test session (don't cache the challenge_token). To test locale switching for an authenticated user, inject BOTH localStorage.setItem('lang', <lng>) AND localStorage.setItem('lang_manual','true') AND mock PUT /api/user/profile OR temporarily update tbl_user.language — otherwise reconcileLanguageOnAuth() will override localStorage.lang with the account language. To test the creator track, update tbl_user.purpose_vertical='creators' via /app/backend/scripts/_pgq.js AND set localStorage.dyno_purpose_vertical='creators' in context.add_init_script before the first navigation (not after a prior goto)."
+}
