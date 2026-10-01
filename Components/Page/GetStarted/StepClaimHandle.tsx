@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Box, CircularProgress, useTheme } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/router";
@@ -46,6 +46,7 @@ const StepClaimHandle: React.FC<Props> = ({ progress, onBack, onNext }) => {
   const border = isDark ? CB_TOKENS.border.dark : CB_TOKENS.border.light;
   const positive = isDark ? CB_TOKENS.semantic.positive.dark : CB_TOKENS.semantic.positive.light;
   const surface = isDark ? "rgba(255,255,255,0.03)" : "rgba(10,10,15,0.02)";
+  const chipBtn = { display: "inline-flex", alignItems: "center", gap: 0.5, px: 1, py: 0.5, borderRadius: 999, border: 0, cursor: "pointer", fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, color: "#FFFFFF", backgroundColor: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)" } as const;
 
   const brandName = String((account as any)?.company_name || (account as any)?.first_name || "");
   const suggestion = useMemo(
@@ -58,6 +59,42 @@ const StepClaimHandle: React.FC<Props> = ({ progress, onBack, onNext }) => {
   const [checking, setChecking] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Optional cover + bio — collapsed by default to keep the step focused (2b).
+  const [showExtras, setShowExtras] = useState(false);
+  const [bio, setBio] = useState("");
+  const [coverImage, setCoverImage] = useState<string | null>(null);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [coverError, setCoverError] = useState<string | null>(null);
+  const [coverDrag, setCoverDrag] = useState(false);
+  const coverFileRef = useRef<HTMLInputElement | null>(null);
+
+  const uploadCoverFile = async (file?: File | null) => {
+    if (!file) return;
+    setCoverError(null);
+    if (!file.type || !file.type.startsWith("image/")) {
+      setCoverError(t("gs.handleCoverNotImage", { defaultValue: "Please choose an image file" }));
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setCoverError(t("gs.handleCoverTooBig", { defaultValue: "Image must be under 10 MB" }));
+      return;
+    }
+    setUploadingCover(true);
+    try {
+      const fd = new FormData();
+      fd.append("image", file);
+      const r = await axiosBaseApi.post(API_ENDPOINTS.creator.uploadCover, fd, { headers: { "Content-Type": "multipart/form-data" } });
+      const url = r?.data?.data?.url;
+      if (url) setCoverImage(url);
+      else setCoverError(t("gs.handleCoverFailed", { defaultValue: "Couldn't upload that image — please try again." }));
+    } catch {
+      setCoverError(t("gs.handleCoverFailed", { defaultValue: "Couldn't upload that image — please try again." }));
+    } finally {
+      setUploadingCover(false);
+      if (coverFileRef.current) coverFileRef.current.value = "";
+    }
+  };
 
   // Prefill once with a slug of the brand name.
   useEffect(() => {
@@ -105,7 +142,13 @@ const StepClaimHandle: React.FC<Props> = ({ progress, onBack, onNext }) => {
     setSaving(true);
     setError(null);
     try {
-      await axiosBaseApi.put(API_ENDPOINTS.creator.profile, { handle: handle.trim().toLowerCase() });
+      const profilePayload: Record<string, unknown> = { handle: handle.trim().toLowerCase() };
+      if (bio.trim()) profilePayload.bio = bio.trim();
+      if (coverImage) {
+        profilePayload.cover_image = coverImage;
+        profilePayload.theme_cover_style = "image";
+      }
+      await axiosBaseApi.put(API_ENDPOINTS.creator.profile, profilePayload);
       dispatch(UserAction(USER_PROFILE_FETCH));
       await mutateStorefront();
       trackOnboarding({ event_type: "step_completed", step_key: "link", metadata: { surface: "wizard", track: "creators" } });
@@ -219,6 +262,91 @@ const StepClaimHandle: React.FC<Props> = ({ progress, onBack, onNext }) => {
           {error}
         </Box>
       )}
+
+      {/* Optional cover + bio — collapsed by default so the step stays focused (2b). */}
+      <Box sx={{ mt: 2.5 }}>
+        <Box
+          component="button"
+          type="button"
+          data-testid="gs-handle-extras-toggle"
+          aria-expanded={showExtras}
+          onClick={() => setShowExtras((v) => !v)}
+          sx={{ display: "inline-flex", alignItems: "center", gap: 0.75, border: 0, p: 0, background: "transparent", cursor: "pointer", fontFamily: "var(--font-sans)", fontSize: 13.5, fontWeight: 700, color: indigo }}
+        >
+          <Icon name="image" size={16} />
+          {t("gs.handleExtrasToggle", { defaultValue: "Add a cover image & bio" })}
+          <Icon name={showExtras ? "chevron-up" : "chevron-down"} size={16} />
+        </Box>
+
+        {showExtras && (
+          <Box data-testid="gs-handle-extras" sx={{ mt: 1.5, display: "grid", gap: 2 }}>
+            <Box sx={{ fontFamily: "var(--font-sans)", fontSize: 12.5, color: muted, lineHeight: 1.5 }}>
+              {t("gs.handleExtrasNote", { defaultValue: "A cover and bio make your page feel complete from day one — you can change them anytime." })}
+            </Box>
+
+            <Box>
+              <Box sx={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 500, color: ink, mb: 0.75, ml: 0.25 }}>
+                {t("gs.handleCoverLabel", { defaultValue: "Cover image" })}
+              </Box>
+              <input ref={coverFileRef} type="file" accept="image/*" data-testid="gs-handle-cover-file" style={{ display: "none" }} onChange={(e) => void uploadCoverFile(e.target.files?.[0])} />
+              {coverImage ? (
+                <Box data-testid="gs-handle-cover-preview" sx={{ position: "relative", borderRadius: "14px", overflow: "hidden", border: `1px solid ${border}` }}>
+                  <Box component="img" src={coverImage} alt="" sx={{ display: "block", width: "100%", height: 140, objectFit: "cover" }} />
+                  <Box sx={{ position: "absolute", top: 8, right: 8, display: "flex", gap: 1 }}>
+                    <Box component="button" type="button" data-testid="gs-handle-cover-replace" onClick={() => { if (!uploadingCover) coverFileRef.current?.click(); }} sx={chipBtn}>
+                      <Icon name="pencil" size={13} /> {t("gs.handleCoverReplace", { defaultValue: "Replace image" })}
+                    </Box>
+                    <Box component="button" type="button" data-testid="gs-handle-cover-remove" onClick={() => setCoverImage(null)} sx={chipBtn}>
+                      <Icon name="trash-2" size={13} /> {t("gs.handleCoverRemove", { defaultValue: "Remove" })}
+                    </Box>
+                  </Box>
+                </Box>
+              ) : (
+                <Box
+                  data-testid="gs-handle-cover-dropzone"
+                  onClick={() => { if (!uploadingCover) coverFileRef.current?.click(); }}
+                  onDragOver={(e) => { e.preventDefault(); setCoverDrag(true); }}
+                  onDragLeave={() => setCoverDrag(false)}
+                  onDrop={(e) => { e.preventDefault(); setCoverDrag(false); void uploadCoverFile(e.dataTransfer.files?.[0]); }}
+                  sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1, minHeight: 112, borderRadius: "14px", border: `1.5px dashed ${coverDrag ? indigo : border}`, backgroundColor: coverDrag ? (isDark ? CB_TOKENS.indigo.darkGlow : CB_TOKENS.indigo.lightGlow) : surface, cursor: uploadingCover ? "default" : "pointer", textAlign: "center", px: 2 }}
+                >
+                  {uploadingCover ? (
+                    <>
+                      <CircularProgress size={22} />
+                      <Box sx={{ fontFamily: "var(--font-sans)", fontSize: 12.5, color: muted }}>{t("gs.handleCoverUploading", { defaultValue: "Uploading…" })}</Box>
+                    </>
+                  ) : (
+                    <>
+                      <Box sx={{ color: indigo, display: "flex" }}><Icon name="image" size={24} /></Box>
+                      <Box sx={{ fontFamily: "var(--font-sans)", fontSize: 12.5, color: muted }}>
+                        {coverDrag ? t("gs.handleCoverDrop", { defaultValue: "Drop image to upload" }) : t("gs.handleCoverHint", { defaultValue: "Drag & drop or click to upload (up to 10 MB)" })}
+                      </Box>
+                    </>
+                  )}
+                </Box>
+              )}
+              {coverError && (
+                <Box role="alert" data-testid="gs-handle-cover-error" sx={{ mt: 0.75, fontFamily: "var(--font-sans)", fontSize: 12.5, color: theme.palette.error.main }}>{coverError}</Box>
+              )}
+            </Box>
+
+            <Box>
+              <Box sx={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 500, color: ink, mb: 0.75, ml: 0.25 }}>{t("gs.handleBioLabel", { defaultValue: "Bio" })}</Box>
+              <Box
+                component="textarea"
+                data-testid="gs-handle-bio-input"
+                value={bio}
+                maxLength={500}
+                rows={3}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setBio(e.target.value)}
+                placeholder={t("gs.handleBioPlaceholder", { defaultValue: "Tell visitors who you are and what you're about…" })}
+                sx={{ width: "100%", boxSizing: "border-box", resize: "vertical", border: `1px solid ${border}`, borderRadius: "12px", outline: "none", background: surface, padding: "12px", fontFamily: "var(--font-sans)", fontSize: 14, lineHeight: 1.55, color: ink, "&:focus": { borderColor: theme.palette.primary.main } }}
+              />
+              <Box sx={{ mt: 0.25, textAlign: "right", fontFamily: MONO, fontSize: 11, color: muted }}>{bio.length}/500</Box>
+            </Box>
+          </Box>
+        )}
+      </Box>
 
       <StepFooter
         onBack={onBack}

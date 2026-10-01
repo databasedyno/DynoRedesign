@@ -12,6 +12,7 @@ import { trackOnboarding } from "@/utils/trackOnboarding";
 import WalletManagerModal from "@/Components/UI/WalletManagerModal";
 import { useWalletStore } from "@/contexts/WalletDataContext";
 import { formatPreviewAmount } from "./CheckoutPreview";
+import CampaignThermometer from "./CampaignThermometer";
 import { StepFooter, StepHeader } from "./StepChrome";
 import type { CreatedLink } from "./StepFirstLink";
 import type { SetupProgress } from "./useSetupProgress";
@@ -279,6 +280,12 @@ const StepFirstCampaign: React.FC<Props> = ({ progress, onBack, onCreated, onUse
               ))}
             </Box>
           </Box>
+
+          <CampaignThermometer
+            goalAmount={(() => { const n = parseFloat(goal); return isFinite(n) && n > 0 ? n : 0; })()}
+            currency={currency}
+            presets={presets.map((p) => parseFloat(p)).filter((n) => isFinite(n) && n > 0)}
+          />
 
           <Box>
             <Box sx={labelSx}>{t("gs.campaignStory", { defaultValue: "Tell your story (optional)" })}</Box>
