@@ -18,6 +18,7 @@ import {
   deleteRedisItem,
   getRedisItem,
   setRedisItem,
+  setRedisItemWithTTL,
   softDeleteRedisItem,
   setRedisTTL,
 } from "../../../utils/redisInstance";
@@ -1049,20 +1050,25 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
           if (adminEmail && adminAmountToSend > 1e-8) {
             // RACE CONDITION FIX: Check if admin fee email already sent for this transaction
             const adminFeeEmailKey = `admin-fee-email-${transactionId}`;
-            const adminFeeEmailSent = await getRedisItem(adminFeeEmailKey);
+            const adminFeeEmailState = await getRedisItem(adminFeeEmailKey);
+            const adminFeeInFlightFresh = !!(adminFeeEmailState && adminFeeEmailState.inFlight &&
+              adminFeeEmailState.claimedAt &&
+              (Date.now() - new Date(adminFeeEmailState.claimedAt).getTime()) < 90000);
             
-            if (adminFeeEmailSent && adminFeeEmailSent.sent) {
+            if (adminFeeEmailState && adminFeeEmailState.sent) {
               cronLogger.info(`[Admin Fee Notification] Email already sent for tx: ${transactionId}, skipping duplicate`);
+            } else if (adminFeeInFlightFresh) {
+              cronLogger.info(`[Admin Fee Notification] Email already in-flight for tx: ${transactionId}, skipping concurrent duplicate`);
             } else {
-              // Set flag immediately to prevent duplicates
-              await setRedisItem(adminFeeEmailKey, { sent: true, sentAt: new Date().toISOString() });
-              await setRedisTTL(adminFeeEmailKey, 86400); // 24 hour TTL
+              // Claim (2 min) — the dedup is sealed only AFTER a confirmed send below.
+              await setRedisItemWithTTL(adminFeeEmailKey, { sent: false, inFlight: true, claimedAt: new Date().toISOString() }, 120);
+              let adminFeeSent = false;
               
               const isUnderThreshold = userAmountToSend === 0 && adminAmountToSend === Number(totalAmountReceived) && !autoConvertEnabled;
               
               if (autoConvertEnabled) {
                 // Auto-convert: admin gets all crypto (fee + merchant-for-conversion)
-                await sendAdminFeeReceivedEmail(
+                const adminFeeInfoAC = await sendAdminFeeReceivedEmail(
                   adminEmail,
                   "Dynopay Admin",
                   toFixedStr(sub(adminAmountToSend, originalUserAmount), 8), // actual admin fee only
@@ -1072,9 +1078,10 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
                   toFixedStr(originalUserAmount, 8), // merchant portion pending conversion
                   toFixedStr(totalAmountReceived, 8)
                 );
+                adminFeeSent = !!adminFeeInfoAC;
                 cronLogger.info(`[Admin Fee Notification - AUTO-CONVERT] Sent email: fee=${toFixedStr((adminAmountToSend - originalUserAmount), 8)} ${tempCurrency}, merchant_for_conversion=${toFixedStr(originalUserAmount, 8)} ${tempCurrency} from Company ${company_data?.company_id || 'N/A'}`);
               } else {
-                await sendAdminFeeReceivedEmail(
+                const adminFeeInfoStd = await sendAdminFeeReceivedEmail(
                   adminEmail,
                   "Dynopay Admin",
                   toFixedStr(adminAmountToSend, 8),
@@ -1084,12 +1091,23 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
                   toFixedStr(userAmountToSend, 8),
                   toFixedStr(totalAmountReceived, 8)
                 );
+                adminFeeSent = !!adminFeeInfoStd;
                 
                 if (isUnderThreshold) {
                   cronLogger.info(`[Admin Fee Notification - UNDER THRESHOLD] Sent email: ${adminAmountToSend} ${tempCurrency} (100%) from Company ${company_data?.company_id || 'N/A'} - Payment below minimum threshold`);
                 } else {
                   cronLogger.info(`[Admin Fee Notification] Sent email for ${adminAmountToSend} ${tempCurrency} from Company ${company_data?.company_id || 'N/A'}`);
                 }
+              }
+
+              // Seal the dedup ONLY after a confirmed admin-fee send; clear on
+              // failure so a later sweep pass retries instead of silently dropping.
+              if (adminFeeSent) {
+                await setRedisItem(adminFeeEmailKey, { sent: true, sentAt: new Date().toISOString() });
+                await setRedisTTL(adminFeeEmailKey, 86400); // 24 hour TTL
+              } else {
+                await deleteRedisItem(adminFeeEmailKey);
+                cronLogger.error(`[Admin Fee Notification] Email send failed for tx: ${transactionId} — dedup cleared for retry`);
               }
             }
           }
@@ -1774,18 +1792,57 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
           linkType: (customerData as any)?.link_type ?? (tempData as any)?.link_type ?? null,
         });
 
-        // RACE CONDITION FIX: Check if payment received email already sent for this transaction
+        // Bug #2 fix (Option A) + session-49: resolve the actual on-chain payment
+        // detection time (tbl_user_transaction.createdAt) ONCE here so BOTH the
+        // merchant "payment received/settled" email AND the in-app notification
+        // report the SAME moment. Otherwise the notification (row created at
+        // settlement) showed "45s ago" while the tx table + email showed the real
+        // ~20-min-older payment time. Falls back to now() only on lookup failure.
+        let paymentDateTime: Date = new Date();
+        try {
+          const utxIdCandidate =
+            (tempData as any)?.user_tx_id ||
+            (tempData as any)?.unique_tx_id ||
+            (tempData as any)?.payment_id ||
+            customerPayload?.id;
+          if (utxIdCandidate) {
+            const utxRow = await userTransactionModel.findOne({
+              where: { id: utxIdCandidate },
+              attributes: ['createdAt'],
+            });
+            const utxCreatedAt = (utxRow as any)?.dataValues?.createdAt || (utxRow as any)?.createdAt;
+            if (utxCreatedAt) {
+              paymentDateTime = new Date(utxCreatedAt);
+              cronLogger.info(`[cryptoVerification] Using tx createdAt=${paymentDateTime.toISOString()} as payment timestamp for tx=${transactionId}`);
+            }
+          }
+        } catch (tsErr) {
+          cronLogger.warn(`[cryptoVerification] Failed to resolve payment timestamp for tx=${transactionId}: ${(tsErr as Error)?.message} — falling back to current time`);
+        }
+        const { date: paymentDateStr, time: paymentTimeStr } = emailDateParts(paymentDateTime);
+
+        // DEDUP + DELIVERY GUARANTEE: the merchant "payment received/settled" email
+        // must be sent AT MOST once, but the dedup key is sealed ONLY after a
+        // confirmed successful dispatch. Previously the key was set {sent:true}
+        // BEFORE the Brevo call, so any send failure (DKIM, timeout, 4xx) was
+        // silently swallowed and never retried while the in-app notification still
+        // fired — the exact "notification yes, email no" bug. Now a short-lived
+        // in-flight claim prevents concurrent duplicates, and the 30-day seal only
+        // happens on success; on failure the key is cleared so a sweep pass retries.
         const paymentReceivedEmailKey = `payment-received-email-${transactionId}`;
-        const paymentReceivedEmailSent = await getRedisItem(paymentReceivedEmailKey);
-        
-        if (paymentReceivedEmailSent && paymentReceivedEmailSent.sent) {
+        const paymentReceivedEmailState = await getRedisItem(paymentReceivedEmailKey);
+        const prInFlightFresh = !!(paymentReceivedEmailState && paymentReceivedEmailState.inFlight &&
+          paymentReceivedEmailState.claimedAt &&
+          (Date.now() - new Date(paymentReceivedEmailState.claimedAt).getTime()) < 90000);
+
+        if (paymentReceivedEmailState && paymentReceivedEmailState.sent) {
           cronLogger.info(`[cryptoVerification] Payment received email already sent for tx: ${transactionId}, skipping duplicate`);
+        } else if (prInFlightFresh) {
+          cronLogger.info(`[cryptoVerification] Payment received email already in-flight for tx: ${transactionId}, skipping concurrent duplicate`);
         } else {
-          // Set flag immediately to prevent duplicates
-          // TTL = 30 days (was 24h — too short; sweep recovery sends false-positive duplicate emails
-          // when sweeps happen >24h after the original payment, because the dedup key has expired)
-          await setRedisItem(paymentReceivedEmailKey, { sent: true, sentAt: new Date().toISOString() });
-          await setRedisTTL(paymentReceivedEmailKey, 2592000); // 30 day TTL
+          // Claim (2 min): long enough to cover the send, short enough that a crash
+          // mid-send lets a later pass retry. This is NOT a "sent" marker.
+          await setRedisItemWithTTL(paymentReceivedEmailKey, { sent: false, inFlight: true, claimedAt: new Date().toISOString() }, 120);
           
           // Send email notification for payment received
           const companyName = company_data?.company_name ?? "";
@@ -1797,34 +1854,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
               .filter(Boolean)
               .join(" ")
               .trim() || userData?.name || "";
-          // Bug fix (session 49): use the actual on-chain payment detection time
-          // (tbl_user_transaction.createdAt) instead of `new Date()`. Previously the
-          // email showed "paid at 13:54" when the customer actually paid at 13:49 —
-          // because this handler runs 5 minutes later, after N-block confirmation
-          // + sweep. Falls back to `new Date()` only when the row lookup fails.
-          let paymentDateTime: Date = new Date();
-          try {
-            const utxIdCandidate =
-              (tempData as any)?.user_tx_id ||
-              (tempData as any)?.unique_tx_id ||
-              (tempData as any)?.payment_id ||
-              customerPayload?.id;
-            if (utxIdCandidate) {
-              const utxRow = await userTransactionModel.findOne({
-                where: { id: utxIdCandidate },
-                attributes: ['createdAt'],
-              });
-              const utxCreatedAt = (utxRow as any)?.dataValues?.createdAt || (utxRow as any)?.createdAt;
-              if (utxCreatedAt) {
-                paymentDateTime = new Date(utxCreatedAt);
-                cronLogger.info(`[cryptoVerification] Using tx createdAt=${paymentDateTime.toISOString()} as payment-received email timestamp (email would previously show current time = ${new Date().toISOString()})`);
-              }
-            }
-          } catch (tsErr) {
-            cronLogger.warn(`[cryptoVerification] Failed to resolve payment timestamp for tx=${transactionId}: ${(tsErr as Error)?.message} — falling back to current time`);
-          }
-          const { date: paymentDateStr, time: paymentTimeStr } = emailDateParts(paymentDateTime);
-          
+
           // When auto-convert is ON, show the original merchant amount (before redirect to admin)
           // Merchant will receive USDT equivalent, not 0 ETH.
           // Otherwise the headline is what was ACTUALLY forwarded (net of the network fee) so the
@@ -1926,7 +1956,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
               : null,
           };
 
-          await dispatchCompanyEmail(
+          const prDispatch = await dispatchCompanyEmail(
             company_data?.company_id,
             "payments",
             { email: userData?.email, name: merchantContactName },
@@ -1948,6 +1978,17 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
               moneyPath                // Full money path → "Payment settled" layout
             )
           );
+          // Seal the 30-day dedup ONLY on a confirmed send (or when there was
+          // nothing to send — category disabled / no recipients). On a real send
+          // failure, clear the claim so a later sweep pass can retry.
+          if (prDispatch.succeeded > 0 || prDispatch.attempted === 0) {
+            await setRedisItem(paymentReceivedEmailKey, { sent: true, sentAt: new Date().toISOString() });
+            await setRedisTTL(paymentReceivedEmailKey, 2592000); // 30 day TTL
+            cronLogger.info(`[cryptoVerification] Payment received email sealed for tx: ${transactionId} (succeeded=${prDispatch.succeeded}/${prDispatch.attempted})`);
+          } else {
+            await deleteRedisItem(paymentReceivedEmailKey);
+            cronLogger.error(`[cryptoVerification] Payment received email FAILED for tx: ${transactionId} (attempted=${prDispatch.attempted}, all failed) — dedup cleared for retry`);
+          }
         }
 
         // Creator monthly tip goal: a settled tip may push this month past 50% / 100%.
@@ -2008,6 +2049,10 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
             company_name: merchantBrandName,
             company_id: company_data?.company_id,
             payment_source: paymentSourceKey,
+            // Bug #2 fix: carry the real payment time (tx createdAt) so the
+            // notification renders "received X ago" consistently with the tx
+            // table + email, instead of the settlement moment this row was created.
+            paid_at: paymentDateTime.toISOString(),
           },
           company_data?.company_id
         );
@@ -2019,14 +2064,18 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
           if (customerEmail && customerEmail.trim() !== "") {
             // DUPLICATE PREVENTION: Check if customer receipt email already sent
             const customerReceiptKey = `customer-receipt-email-${transactionId}`;
-            const customerReceiptSent = await getRedisItem(customerReceiptKey);
+            const customerReceiptState = await getRedisItem(customerReceiptKey);
+            const custReceiptInFlightFresh = !!(customerReceiptState && customerReceiptState.inFlight &&
+              customerReceiptState.claimedAt &&
+              (Date.now() - new Date(customerReceiptState.claimedAt).getTime()) < 90000);
             
-            if (customerReceiptSent && customerReceiptSent.sent) {
+            if (customerReceiptState && customerReceiptState.sent) {
               cronLogger.info(`[cryptoVerification] Customer receipt email already sent for tx: ${transactionId}, skipping duplicate`);
+            } else if (custReceiptInFlightFresh) {
+              cronLogger.info(`[cryptoVerification] Customer receipt email already in-flight for tx: ${transactionId}, skipping concurrent duplicate`);
             } else {
-              // Set flag immediately to prevent duplicates
-              await setRedisItem(customerReceiptKey, { sent: true, sentAt: new Date().toISOString() });
-              await setRedisTTL(customerReceiptKey, 86400); // 24 hour TTL
+              // Claim (2 min) — the dedup is sealed only AFTER a confirmed send below.
+              await setRedisItemWithTTL(customerReceiptKey, { sent: false, inFlight: true, claimedAt: new Date().toISOString() }, 120);
               
               const paymentDate = new Date();
               const description = customerData?.description || tempData?.description || null;
@@ -2043,7 +2092,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
                 buyerName: (customerData as any)?.customer_name ?? (tempData as any)?.customer_name ?? null,
               });
 
-              await sendCustomerPaymentConfirmationEmail(
+              const custReceiptInfo = await sendCustomerPaymentConfirmationEmail(
                 customerEmail,
                 null, // Customer name often not available
                 companyName,
@@ -2073,7 +2122,16 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
                 paymentSourceKey,
                 buyAgainLink
               );
-              cronLogger.info(`[cryptoVerification] Customer payment confirmation email sent to ${customerEmail} with PDF receipt`);
+              // Seal the dedup ONLY after a confirmed send; clear on failure so a
+              // later sweep pass retries instead of silently dropping the receipt.
+              if (custReceiptInfo) {
+                await setRedisItem(customerReceiptKey, { sent: true, sentAt: new Date().toISOString() });
+                await setRedisTTL(customerReceiptKey, 86400); // 24 hour TTL
+                cronLogger.info(`[cryptoVerification] Customer payment confirmation email sent to ${customerEmail} with PDF receipt`);
+              } else {
+                await deleteRedisItem(customerReceiptKey);
+                cronLogger.error(`[cryptoVerification] Customer payment confirmation email failed for tx: ${transactionId} — dedup cleared for retry`);
+              }
             }
           } else {
             cronLogger.info(`[cryptoVerification] No customer email available for payment confirmation`);

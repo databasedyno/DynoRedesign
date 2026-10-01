@@ -1,4 +1,52 @@
 # ============================================================================
+# >>> 2026-10-01 (vault-setup) — BTC EMAIL DEDUP (Bug #1) + NOTIFICATION
+#     TIMESTAMP (Bug #2, Option A) — from memory/BTC_EMAIL_AND_TIMESTAMP_BUGS_2026-06.md
+#     — IMPLEMENTED (backend), awaiting test <<<
+# ============================================================================
+#  POD: https://770c1826-adc7-4c38-80dd-e856b3b785a0.preview.emergentagent.com
+#  SAFE MODE, LIVE prod DB, DISABLE_OUTBOUND_EMAIL=true, settlement worker OFF.
+#  => The settlement email path (chainVerification) CANNOT be triggered via API
+#     here (needs a real on-chain payment + the chain-verification cron). Verify
+#     by tsc (clean) + healthy boot + READ-ONLY regression smoke of reachable
+#     endpoints. True E2E only validates after deploy to the droplet.
+#  Merchant: onarrival21@gmail.com / Katiekendra123@ (2FA TOTP: node
+#  /app/backend/scripts/print_totp.cjs 1). Admin: moxxcompany@gmail.com / same pw.
+#
+#  BUG #1 — merchant/admin/customer payment emails were silently dropped on any
+#  Brevo failure because the Redis dedup key was set {sent:true} BEFORE the send
+#  and send errors were swallowed (notification still fired → "notification yes,
+#  email no"). FIX: senders now RETURN the transporter result (truthy on success /
+#  {suppressed:true}, undefined on swallowed error); dispatchCompanyEmail returns
+#  {attempted,succeeded}; chainVerification now (a) places a short-lived in-flight
+#  claim, (b) seals the dedup key (setRedisItem+TTL) ONLY after a confirmed send
+#  (merchant: succeeded>0 || attempted===0), (c) deleteRedisItem on failure so a
+#  sweep pass retries. Applied to all 3 blocks: merchant payment-received,
+#  admin-fee, customer-receipt. + explicit success/fail cronLogger lines.
+#   Files: backend/services/email/paymentEmails.ts (sendPaymentReceivedEmail
+#   returns info), backend/services/email/customerReceiptEmail.ts
+#   (sendCustomerPaymentConfirmationEmail returns info), backend/services/email/
+#   companyDispatch.ts (returns {attempted,succeeded}), backend/controller/payment/
+#   settlement/chainVerification.ts (3 dedup blocks reworked + setRedisItemWithTTL import).
+#   NOTE: sendAdminFeeReceivedEmail already returned info (unchanged).
+#
+#  BUG #2 (Option A) — in-app "Payment Received" notification showed the SETTLEMENT
+#  time ("45s ago") while the tx table + email showed the real ~20-min-older
+#  payment time (tx createdAt). FIX: hoisted the paymentDateTime (tx createdAt)
+#  resolution ABOVE the merchant email block and added paid_at:
+#  paymentDateTime.toISOString() to the PAYMENT_RECEIVED notification data. The
+#  frontend render (NotificationInbox) will use data.paid_at ?? created_at
+#  (frontend change pending in this same session).
+#
+#  GATES: backend node_modules/.bin/tsc --noEmit = 0 errors; ESLint clean on
+#  changed files; backend restarted -> /health healthy (db+redis connected).
+#
+#  ⚠️ TESTING MUST BE READ-ONLY (live prod DB). Do NOT create payments, do NOT
+#  trigger settlements/sweeps, do NOT send mail. Only GET/login smoke checks.
+# ============================================================================
+
+
+
+# ============================================================================
 # >>> 2026-09-30 (vault-setup) — UX BATCH A + B + i18n (from
 #     memory/UX_FEEDBACK_PATTERNS_2026-09.md) — IMPLEMENTED, SELF-VERIFIED ✅ <<<
 # ============================================================================

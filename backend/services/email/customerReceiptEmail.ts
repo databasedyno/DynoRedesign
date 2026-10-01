@@ -143,10 +143,15 @@ export const sendCustomerPaymentConfirmationEmail = async (
     const html = dynoPayEmailTemplate(isContribution
         ? t('contributionThankYou.heading', L, { campaignName })
         : t('customerPaymentConfirmation.heading', L), content, !!receiptUrl, receiptUrl ? t('customerPaymentConfirmation.viewOnlineCta', L) : "", receiptUrl || "", isContribution ? t('contributionThankYou.preheader', L) : t('customerPaymentConfirmation.preheader', L), L, 'check', 'buyer');
-    await mailTransporter({ to: customerEmail, name: displayName, subject, body: html, attachments: pdfAttachment ? [pdfAttachment] : undefined });
+    // Return the transporter result (truthy on success / suppression) so the
+    // caller seals its dedup key ONLY after a confirmed send; a swallowed error
+    // returns undefined so a later sweep pass can retry.
+    const info = await mailTransporter({ to: customerEmail, name: displayName, subject, body: html, attachments: pdfAttachment ? [pdfAttachment] : undefined });
     apiLogger.info(`[Email] Customer payment confirmation sent to ${customerEmail} for ${amount} ${currency}${pdfAttachment ? ' with PDF receipt' : ''}`);
+    return info;
   } catch (e) {
     apiLogger.error("Customer payment confirmation email error:", e);
+    return undefined;
   }
 };
 

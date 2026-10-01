@@ -30,13 +30,25 @@ export async function dispatchCompanyEmail(
   category: NotificationCategory,
   fallback: { email?: string | null; name?: string | null },
   sendOne: (email: string, name: string) => Promise<unknown>,
-): Promise<void> {
+): Promise<{ attempted: number; succeeded: number }> {
   const cid = companyId ? Number(companyId) : 0;
   const fallbackName = fallback.name || "there";
 
+  // Track delivery so callers can seal a dedup key ONLY after a confirmed send.
+  // Contract with sendOne: it resolves a TRUTHY value on success (Brevo response
+  // or {suppressed:true} on a preview pod) and a FALSY value (undefined) when it
+  // swallowed a send error; a thrown error is also treated as a failure.
+  let attempted = 0;
+  let succeeded = 0;
   const sendTo = async (email: string, name: string) => {
+    attempted++;
     try {
-      await sendOne(email, name);
+      const r = await sendOne(email, name);
+      if (r === undefined || r === null || r === false) {
+        apiLogger.error(`[companyDispatch] send reported failure to ${email} (category=${category})`);
+      } else {
+        succeeded++;
+      }
     } catch (e) {
       apiLogger.error(`[companyDispatch] send failed to ${email} (category=${category})`, e);
     }
@@ -45,7 +57,7 @@ export async function dispatchCompanyEmail(
   // No company scope — preserve the legacy single send.
   if (!cid) {
     if (fallback.email) await sendTo(fallback.email, fallbackName);
-    return;
+    return { attempted, succeeded };
   }
 
   let recipients: Recipient[] = [];
@@ -59,7 +71,7 @@ export async function dispatchCompanyEmail(
 
   if (recipients.length > 0) {
     for (const r of recipients) await sendTo(r.email, r.name);
-    return;
+    return { attempted, succeeded };
   }
 
   // Empty list: suppress only when the merchant EXPLICITLY disabled this
@@ -69,13 +81,14 @@ export async function dispatchCompanyEmail(
     try {
       if (await isCategoryDisabled(cid, category)) {
         apiLogger.info(`[companyDispatch] category '${category}' disabled for company ${cid} — suppressed`);
-        return;
+        return { attempted, succeeded };
       }
     } catch (e) {
       apiLogger.error(`[companyDispatch] isCategoryDisabled failed (company=${cid})`, e);
     }
   }
   if (fallback.email) await sendTo(fallback.email, fallbackName);
+  return { attempted, succeeded };
 }
 
 export default { dispatchCompanyEmail };

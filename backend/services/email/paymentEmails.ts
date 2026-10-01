@@ -97,10 +97,15 @@ export const sendPaymentReceivedEmail = async (
         : t('paymentSettled.preheader', L, { net: moneyPath?.netCrypto ?? cryptoAmount ?? amount, asset: getCoinSymbol(moneyPath?.autoConvertTarget ?? moneyPath?.asset ?? currency) })
       : isContribution ? t('contributionReceived.preheader', L) : t('paymentReceived.preheader', L);
     const html = dynoPayEmailTemplate(heading, content, true, cta, txLink, preheader, L, settled ? undefined : 'check');
-    await mailTransporter({ to: email, name, subject, body: html });
+    // Return the transporter result (truthy on a real send, {suppressed:true} when
+    // outbound mail is disabled on a preview pod) so callers can seal a dedup key
+    // ONLY after a confirmed success. A swallowed error below returns undefined.
+    const info = await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`${settled ? 'Payment settled' : isContribution ? 'Contribution' : 'Payment'} received email sent to ${email}`);
+    return info;
   } catch (e) {
     captureError(e, 'email', { extraContext: 'sendPaymentReceivedEmail' });
+    return undefined;
   }
 };
 

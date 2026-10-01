@@ -275,7 +275,12 @@ const NotificationInbox: React.FC<Props> = ({ notifications, loading, unreadCoun
                       </Typography>
                       <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, flexShrink: 0 }}>
                         <Typography sx={{ fontSize: "12px", color: muted, fontFamily: "var(--font-sans)", whiteSpace: "nowrap" }}>
-                          {formatTimeAgo(notif.created_at)}
+                          {/* Bug #2 fix: payment notifications carry data.paid_at
+                              (the real on-chain payment time = tx createdAt) so the
+                              "X ago" matches the transactions table + email instead
+                              of the settlement moment this row was created. Falls
+                              back to created_at for all other notification types. */}
+                          {formatTimeAgo(notif.data?.paid_at || notif.created_at)}
                         </Typography>
                         {onDelete && (
                           <Box
