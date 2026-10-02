@@ -1,0 +1,25 @@
+{
+  "summary": "Tested the new Chain Readiness admin feature end-to-end (backend API + frontend page + Overview gas strip + mobile responsiveness). All 7 pytest backend assertions passed and every Playwright UI assertion passed. Live data confirms: POLYGON gas wallet empty (balance=0, level='empty', address 0x6508f517021b3fe14acb4515535b6772b0669f47), USDT-POLYGON blocked with gas_balance check=fail, other 3 gas wallets (TRX/ETH/XRP_MASTER) healthy, summary ready=6/degraded=8/blocked=1. Cache behavior works (cached:true on 2nd call, refresh=1 forces cached:false). Unauthenticated/bad-token requests return 401/403. Regression admin endpoints (fee-reconciliation, email-log/stats, security/events) still 200.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_chain_readiness.py",
+    "/app/test_reports/pytest/chain_readiness.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Backend only: initial pytest run timed out hitting the public Preview URL for ~5 min — root cause was that uvicorn (which fronts the Node TS backend) got wedged after watchfiles noticed test file creation in /app/backend/tests/. A `supervisorctl restart backend` cleared it. If the TS backend sometimes stalls after reload events, consider disabling watchfile reload for /app/backend/tests/* or adding a readiness/liveness probe that recycles the pod when uvicorn is accepting TCP but not serving requests."
+  ],
+  "updated_files": ["/app/backend/tests/test_chain_readiness.py"],
+  "success_rate": {"backend": "100% (7/7)", "frontend": "100%"},
+  "test_credentials": "Admin JWT at /app/memory/tmp/admin_token.txt (used via Authorization: Bearer and localStorage.admin_token for UI).",
+  "seed_data_creation": "None — read-only against live prod DB as required.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend: /app/backend/tests/test_chain_readiness.py covers auth gating, response schema (gas_wallets x4, currencies x15 incl. USDT-POLYGON blocked, POLYGON empty), 60s cache + refresh=1 bypass, and regression on 3 unrelated admin endpoints. UI covered via Playwright: /admin/chain-readiness KPIs/gas-wallet cards/table expand-collapse/refresh button, /admin overview gas strip + link navigation, and mobile 390x844 no-horizontal-overflow with vertical card stacking (scrollWidth=390 exact; table scrolls inside overflow-x:auto container only). If uvicorn appears to hang after test-file writes, restart backend before re-running pytest.",
+  "rca of the issue": "No functional issues found. Only infra flake: uvicorn watchfile reload wedge after creating test files in /app/backend/tests/ caused Cloudflare 502s externally and 60s read-timeouts internally. Resolved by `sudo supervisorctl restart backend`; subsequent 7/7 pytest run completed in 9.86s."
+}

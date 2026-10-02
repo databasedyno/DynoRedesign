@@ -1,3 +1,9 @@
+<!-- 2026-10-02 (pod 31539451, pt7 — CHAIN READINESS) — same preview URL / creds. No credential changes.
+     Admin page /admin/chain-readiness (sidebar "Chain Readiness"); API GET /api/admin/chain-readiness[?refresh=1] (Bearer admin token; 60s cache). Overview strip data-testid admin-gas-strip.
+     Live gas wallets: TRX TMHECc7emykw5XwX2njp5Y2K4FXLwsTZtC · ETH 0x2b29aa060c6c15c50c02999ba7d7d090105e1a6b · POL 0x6508f517021b3fe14acb4515535b6772b0669f47 (EMPTY until owner funds it → USDT-POLYGON row 'blocked') · XRP master raLiUmSWmQdqsEEjGTBAGDXrjaa3MfEQmw.
+     Read-only CLI balance check: cd /app/backend && node_modules/.bin/ts-node --transpile-only scripts/fee_wallet_balances.ts . Pytest: backend/tests/test_chain_readiness.py. -->
+
+
 <!-- 2026-10-02 (pod 31539451, pt6 — FRONTEND DEDUP) — same preview URL / creds. No credential changes.
      /developer-keys: Publishable keys on the KEYS tab (pk-* testids), Buy buttons on the DOCS tab (/developer-keys?tab=docs, bb-* testids incl. new bb-form-*). Shared confirm dialog: delete-modal-cancel / delete-modal-confirm.
      /pay/payment-states-demo (overpayment-card / underpayment-card) is 404 in prod builds — temporarily add BLOCK_DEV_PAGES=false to /app/.env.local + `sudo supervisorctl restart frontend` to QA it, then remove the key.

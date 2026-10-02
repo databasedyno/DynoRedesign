@@ -1,5 +1,28 @@
 # ══════════════════════════════════════════════════════════════════════════════
-# CURRENT OPEN BACKLOG — updated 2026-06 (fork, pod 31539451, post pt6 frontend-dedup)
+# CURRENT OPEN BACKLOG — updated 2026-10-02 (fork, pod 31539451, post pt7 chain-readiness)
+# Status of in-flight work: NONE in progress. Last shipped = admin Chain Readiness page/API
+#   (/admin/chain-readiness, GET /api/admin/chain-readiness) + Overview gas strip + fee-wallet monitor
+#   now covers the XRP master; verified testing_agent iteration_254 (BE 7/7, FE 100%, 0 bugs).
+# ──────────────────────────────────────────────────────────────────────────────
+#  P0 — OWNER ACTION: fund the POL gas wallet 0x6508f517021b3fe14acb4515535b6772b0669f47 with ≥10 POL
+#            (empty since 2026-07-11 → USDT-POLYGON payouts/sweeps fail). Also recommended: TRX fee wallet
+#            TMHECc7emykw5XwX2njp5Y2K4FXLwsTZtC → 120 TRX (+58), ETH fee wallet
+#            0x2b29aa060c6c15c50c02999ba7d7d090105e1a6b → 0.05 ETH (+0.019). /admin/chain-readiness re-check confirms.
+#  P0 — SHIP: press "Save to GitHub" (pt3→pt7 work is platform-checkpointed but NOT pushed/deployed).
+#
+#  P1 — SMADAV ETH payment email BOUNCE verification (needs prod Brevo logs + prod DB; see pt5 notes below).
+#  P1 — PRODUCT DECISION (open since pt6): move Buy Buttons onto the KEYS tab next to Publishable Keys?
+#
+#  P2 — GUIDED LIVE-TEST CHECKLIST for the 9 chains with zero prod settlements in 120d (USDT-POLYGON after POL
+#            funding, SOL, XRP, RLUSD, RLUSD-ERC20, USDC-ERC20, POLYGON, DOGE, BCH): one small real payment each via
+#            a throwaway link + the log lines / SQL to confirm settlement. User said "not now" (2026-10-02).
+#  P2 — XRP legacy fee wallet rNTAMbxNiMVeXVidBK2Xe5Bcza7gKcpvpL has no tbl_admin_fee_wallet row (legacy
+#            per-address trust-line retry logs "not found in DB"); harmless for tag-based XRP/RLUSD — decide: seed row or delete path.
+#  P2 — TECH-DEBT SWEEP (unused files / stripped imports / clone components). Ref: memory/EMAIL_SYSTEM_AND_OVERENGINEERING_AUDIT_2026-10.md.
+# ══════════════════════════════════════════════════════════════════════════════
+
+# ══════════════════════════════════════════════════════════════════════════════
+# PREVIOUS BACKLOG — 2026-06 (fork, pod 31539451, post pt6 frontend-dedup)
 # Status of in-flight work: NONE in progress. Last shipped = frontend dedup
 #   (OverPayment/UnderPayment → PaymentOutcome; PublishableKeys/BuyButtons → KeyedResourceSection),
 #   verified testing_agent iteration_252/253 (0 bugs). Email async queue (BullMQ/Redis) + Brevo
