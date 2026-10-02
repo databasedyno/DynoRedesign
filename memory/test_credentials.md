@@ -1,3 +1,8 @@
+<!-- 2026-10-02 (pod 31539451, pt6 — FRONTEND DEDUP) — same preview URL / creds. No credential changes.
+     /developer-keys: Publishable keys on the KEYS tab (pk-* testids), Buy buttons on the DOCS tab (/developer-keys?tab=docs, bb-* testids incl. new bb-form-*). Shared confirm dialog: delete-modal-cancel / delete-modal-confirm.
+     /pay/payment-states-demo (overpayment-card / underpayment-card) is 404 in prod builds — temporarily add BLOCK_DEV_PAGES=false to /app/.env.local + `sudo supervisorctl restart frontend` to QA it, then remove the key.
+     Merchant quick login still works: localStorage token from /app/memory/tmp/merchant_token.txt + last_company_id=1. -->
+
 <!-- 2026-10-02 (pod 31539451, pt5 — EMAIL QUEUE + EMAIL LOG + BREVO WEBHOOK + NOTIFICATION PREFS CLEANUP) — same preview URL / creds as pt4.
      Admin API login (TOTP): POST /api/admin/login/password {email:moxxcompany@gmail.com,password:Katiekendra123@} -> data.challengeToken ; code = `cd /app/backend && node scripts/admin_2fa.cjs totp 1` ; POST /api/admin/login/totp {challengeToken, code} -> data.accessToken (cached: /app/memory/tmp/admin_token.txt). Admin UI: /admin/login then Overview shows data-testid admin-email-log (EmailLogPanel).
      Admin email-log API: GET /api/admin/email-log?email=&status=&limit= ; GET /api/admin/email-log/stats ; GET /api/admin/email-log/dlq ; POST /api/admin/email-log/dlq/:jobId/retry ; POST /api/admin/email-log/bounces/clear {email}.

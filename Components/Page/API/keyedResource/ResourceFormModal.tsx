@@ -14,6 +14,7 @@ interface UseResourceFormOptions<F, T> {
   initial: T | null;
   defaults: () => F;
   fromItem: (item: T) => F;
+  /** Resolve → modal closes; throw → modal stays open and the error is shown. */
   submit: (form: F) => Promise<void>;
   onClose: () => void;
   failedMsg: string;
