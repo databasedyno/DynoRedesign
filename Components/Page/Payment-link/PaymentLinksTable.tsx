@@ -26,7 +26,9 @@ import QrCode2RoundedIcon from "@mui/icons-material/QrCode2Rounded";
 import React, { useCallback, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
-import { PaymentLinkAction, PAYLINK_DELETE } from "@/Redux/Actions/PaymentLinkAction";
+import { PaymentLinkAction, PAYLINK_DELETE, PAYLINK_FETCH } from "@/Redux/Actions/PaymentLinkAction";
+import axiosBaseApi from "@/axiosConfig";
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import {
   FooterText,
   TableBodyCell,
@@ -75,6 +77,7 @@ import {
 import { useRouter } from "next/router";
 import PaymentLinkDetailPanel from "./PaymentLinkDetailPanel";
 import CurrencyExchangeRounded from "@mui/icons-material/CurrencyExchangeRounded";
+import AutorenewRounded from "@mui/icons-material/AutorenewRounded";
 import CryptoRefundModal from "@/Components/Page/Refund/CryptoRefundModal";
 import { useRefundMap, RefundStatusChip } from "@/Components/Page/Refund/refundStatus";
 import { getRuntimeFlags } from "@/helpers/runtimeFlags";
@@ -177,6 +180,8 @@ const PaymentLinksTable = ({
   const [detailId, setDetailId] = useState<string | null>(null);
   const detailLink = detailId ? paymentLinks.find((l) => String(l.id) === detailId) ?? null : null;
   const openDetail = (row: PaymentLinkData) => setDetailId(String(row.id));
+  const { selectedCompanyId } = useCompanyStore();
+  const [extendingId, setExtendingId] = useState<string | null>(null);
   const [deleteModel, setDeleteModel] = useState<boolean>(false);
   const [cryptoRefundLinkId, setCryptoRefundLinkId] = useState<string | null>(null);
   const { refundMap, mutateRefunds } = useRefundMap("payment_link");
@@ -278,6 +283,29 @@ const PaymentLinksTable = ({
     );
   };
 
+  // ── Expired-link rescue: one-tap reactivate (fresh 7-day expiry) ──
+  const refetchLinks = () =>
+    dispatch(PaymentLinkAction(PAYLINK_FETCH, selectedCompanyId ? { company_id: selectedCompanyId } : undefined));
+  const handleExtend = async (id: string) => {
+    if (extendingId) return;
+    const linkId = String(id);
+    setExtendingId(linkId);
+    try {
+      const res = await axiosBaseApi.put(`/pay/links/${linkId}`, { expire: "7d" });
+      if (res?.data?.data) {
+        fireToast(String(t("extendSuccess", { defaultValue: "Link reactivated — live for 7 more days" })), "success");
+        setDetailId(null);
+        refetchLinks();
+      } else {
+        fireToast(res?.data?.message || String(t("extendError", { defaultValue: "Couldn't reactivate the link" })), "error");
+      }
+    } catch (e: any) {
+      fireToast(e?.response?.data?.message || String(t("extendError", { defaultValue: "Couldn't reactivate the link" })), "error");
+    } finally {
+      setExtendingId(null);
+    }
+  };
+
   // ── Bulk-action derived state + handlers ──
   const pageIds = paginatedData.map((r) => String(r.id));
   const pageAllSelected = pageIds.length > 0 && pageIds.every((id) => selectedIds.has(id));
@@ -360,6 +388,8 @@ const PaymentLinksTable = ({
         }}
         onRefund={CRYPTO_REFUNDS_ENABLED ? (id) => { setDetailId(null); setCryptoRefundLinkId(id); } : undefined}
         refundStatus={detailLink ? refundMap[String(detailLink.id)]?.status ?? null : null}
+        onExtend={handleExtend}
+        extending={!!detailLink && extendingId === String(detailLink.id)}
       />
       {CRYPTO_REFUNDS_ENABLED && cryptoRefundLinkId && (
         <CryptoRefundModal
@@ -493,6 +523,20 @@ const PaymentLinksTable = ({
                           <Image src={EyeIcon} alt="" width={14} height={14} draggable={false} className="themed-icon" />
                         </RowActionButton>
                       </Tooltip>
+                      {row.status === "expired" && row.linkType === "standard" && (
+                        <Tooltip title={t("extendLinkTooltip", { defaultValue: "Reactivate link (7 days)" })} arrow>
+                          <RowActionButton
+                            tone="primary"
+                            aria-label={t("extendLinkTooltip", { defaultValue: "Reactivate link (7 days)" })}
+                            data-testid={`paylink-extend-mobile-${row.id}`}
+                            disabled={extendingId === String(row.id)}
+                            onClick={() => handleExtend(String(row.id))}
+                            sx={{ width: 36, height: 36, minWidth: 36, borderRadius: "10px" }}
+                          >
+                            <AutorenewRounded sx={{ fontSize: 16 }} />
+                          </RowActionButton>
+                        </Tooltip>
+                      )}
                       {row.status !== "expired" && row.status !== "paid" && row.status !== "completed" && row.linkType !== "cart" && (
                         <Tooltip title={t("editLinkTooltip", { defaultValue: "Edit link" })} arrow>
                           <RowActionButton
@@ -838,6 +882,19 @@ const PaymentLinksTable = ({
                           />
                         </RowActionButton>
                       </Tooltip>
+                      {row.status === "expired" && row.linkType === "standard" && (
+                        <Tooltip title={t("extendLinkTooltip", { defaultValue: "Reactivate link (7 days)" })} arrow>
+                          <RowActionButton
+                            tone="primary"
+                            aria-label={t("extendLinkTooltip", { defaultValue: "Reactivate link (7 days)" })}
+                            data-testid={`paylink-extend-${row.id}`}
+                            disabled={extendingId === String(row.id)}
+                            onClick={() => handleExtend(String(row.id))}
+                          >
+                            <AutorenewRounded sx={{ fontSize: 17 }} />
+                          </RowActionButton>
+                        </Tooltip>
+                      )}
                       {CRYPTO_REFUNDS_ENABLED && refundMap[String(row.id)] && (
                         <RefundStatusChip
                           status={refundMap[String(row.id)].status}

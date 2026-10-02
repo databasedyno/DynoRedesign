@@ -1,0 +1,37 @@
+{
+  "summary": "Phase 3 re-verify completed in a single compact browser context to respect Cloudflare rate-limits. All 4 non-admin items PASS. Admin suite SKIPPED per instructions (best-effort, low-risk shared-primitive visual change, tsc=0).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verified_items": [
+    {"id": "HIGH-1 tx checkbox stopPropagation", "result": "PASS", "evidence": "Clicked tx-select-1365 → tx-detail-panel NOT visible, transactions-selection-bar shows '1 selected'. Second click → '2 selected'. transactions-selection-bar-select-page → '10 selected'. Confirms Box span onClick stopPropagation."},
+    {"id": "HIGH-2 selection persists across pages (/transactions)", "result": "PASS", "evidence": "Selected tx-select-1365 and tx-select-1360 on page 1, navigated pagination-next (list changed to tx-select-1327...), bar still '2 selected'; pagination-prev brought page 1 back and both original checkboxes remained checked (both input.is_checked() === true). Count unchanged."},
+    {"id": "/pay-links checkbox stopPropagation", "result": "PASS", "evidence": "Clicked paylink-select-591 → paylink-detail-panel NOT visible, paylinks-selection-bar shows '1 selected' with Export CSV / Copy links / Clear buttons."},
+    {"id": "MEDIUM CommandPalette active-row attributes", "result": "PASS", "evidence": "Ctrl+K opened [data-testid=command-palette]; typed 'trans' + ArrowDown. Verified: list container has role='listbox' (hasListbox=true); highlighted item has role='option' AND aria-selected='true' AND data-active='true'; activeText='Transactions'."},
+    {"id": "DARK MODE visual (/transactions + /pay-links)", "result": "PASS", "evidence": "localStorage.theme-mode-inapp='dark' + reload. body background rgb(19,19,18). Checkboxes, selection bar ('1 selected ... Export CSV ... Clear'), row text all legible in both /transactions and /pay-links screenshots. No invisible text, no overflow."},
+    {"id": "Admin suite (merchants/escrow/fee-reconciliation)", "result": "SKIPPED", "evidence": "Per request guidance, skipped admin TOTP login flow to avoid additional Cloudflare navigations; marked low-risk shared-primitive visual change (tsc=0)."}
+  ],
+  "minor_observations": [
+    "On desktop at 1440x900, elements [data-testid=pagination-next] and [data-testid=pagination-prev] have computed style display:none (rect 0x0). They are present in DOM and function correctly when invoked (programmatic click paginates the list), and persistence works end-to-end, so this does not block the HIGH test. Likely desktop pagination is replaced by a different control (rows-per-page / infinite scroll) but these two legacy test-id buttons remain hidden rather than removed. Main agent may want to either remove them or make them visible for parity with mobile/E2E discoverability."
+  ],
+  "test_report_links": [],
+  "action_items": [
+    "None blocking. Optional cleanup: resolve the display:none state of [data-testid=pagination-next]/[pagination-prev] on desktop /transactions — either remove the stale buttons or render the visible pagination control with those test ids so Playwright/E2E can click without JS fallback."
+  ],
+  "critical_code_review_comments": [
+    "Checkbox stopPropagation pattern is clean and correctly scoped to the first cell wrapper on both desktop and mobile; detail panel open-handler is no longer triggered by selection.",
+    "CommandPalette uses correct ARIA listbox/option semantics with a stable data-active='true' hook — good for automated testing and screen readers.",
+    "Dark-mode rendering of selection bar and row chips is consistent (no contrast regressions observed in captures)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped per request)", "frontend": "100% (5/5 non-admin items passing; admin item skipped per instruction)"},
+  "test_credentials": "Merchant JWT loaded from /app/memory/tmp/merchant_token.txt (user 1 / company 1 'The Dev Store') — quick login path, no 2FA.",
+  "seed_data_creation": "None. Read-only testing (ticks are client-side state only).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Prod build (.next-prod) at the preview URL is behind Cloudflare and rate-limits aggressively (one 429 toast seen during dark-mode /pay-links reload but did not affect assertions). Use the single-context pattern with the cached merchant JWT. The hidden pagination-next/prev test-ids on desktop still work via element.click() in page.evaluate — don't waste time on scroll_into_view_if_needed; it will time out.",
+  "rca of the issue": "n/a — all tested behaviours pass."
+}

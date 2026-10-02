@@ -23,7 +23,7 @@ import useIsMobile from "@/hooks/useIsMobile";
 import type { PaymentLinkData } from "@/utils/types/paymentLink";
 import EmbedSnippet from "./EmbedSnippet";
 import DetailSlideOver from "@/Components/Console/DetailSlideOver";
-import { isLinkEditable, isLinkPaid, linkStatusLabelKey, linkStatusTone } from "./linkStatus";
+import { isLinkEditable, isLinkExpired, isLinkPaid, linkStatusLabelKey, linkStatusTone } from "./linkStatus";
 import { useLinkPayments } from "./useLinkPayments";
 
 interface Props {
@@ -34,6 +34,9 @@ interface Props {
   onDelete: (id: string) => void;
   onRefund?: (id: string) => void;
   refundStatus?: string | null;
+  /** Reactivate an expired link (sets a fresh 7-day expiry). */
+  onExtend?: (id: string) => void;
+  extending?: boolean;
 }
 
 /** Parse the API's "DD/MM/YYYY HH:MM:SS" (or ISO) into a display string. */
@@ -50,7 +53,7 @@ const displayDate = (raw: string): string => {
  * link's recent payments. Replaces the old view dialog + the paid→/transactions
  * jump on the list; edit / delete / refund stay available in the footer.
  */
-const PaymentLinkDetailPanel: React.FC<Props> = ({ open, link, onClose, onEdit, onDelete, onRefund, refundStatus }) => {
+const PaymentLinkDetailPanel: React.FC<Props> = ({ open, link, onClose, onEdit, onDelete, onRefund, refundStatus, onExtend, extending }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const isMobile = useIsMobile("sm");
@@ -77,6 +80,9 @@ const PaymentLinkDetailPanel: React.FC<Props> = ({ open, link, onClose, onEdit, 
   const isDonation = link?.linkType === "donation";
   const editable = isLinkEditable(link?.status);
   const paid = isLinkPaid(link?.status);
+  // Expired-link rescue: a standard (non-donation / non-cart) expired link can
+  // be reactivated in one tap with a fresh 7-day expiry.
+  const canExtend = isLinkExpired(link?.status) && !isDonation && link?.linkType !== "cart" && !!onExtend;
 
   const toast = (message: string, severity: "success" | "error") =>
     dispatch({ type: "TOAST_SHOW", payload: { message, severity } });
@@ -140,6 +146,17 @@ const PaymentLinkDetailPanel: React.FC<Props> = ({ open, link, onClose, onEdit, 
       footer={
         link ? (
           <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", alignItems: "center" }}>
+            {canExtend && (
+              <Box sx={{ flex: "1 1 180px", "& button": { width: "100%", minHeight: 44 } }}>
+                <CustomButton
+                  label={extending ? t("detail.extending", { defaultValue: "Reactivating…" }) : t("detail.extend", { defaultValue: "Reactivate for 7 days" })}
+                  variant="primary"
+                  disabled={extending}
+                  onClick={() => onExtend!(String(link.id))}
+                  data-testid="paylink-detail-extend"
+                />
+              </Box>
+            )}
             {editable && (
               <Box sx={{ flex: "1 1 140px", "& button": { width: "100%", minHeight: 44 } }}>
                 <CustomButton label={t("editLinkTooltip", { defaultValue: "Edit link" })} variant="secondary" onClick={() => onEdit(String(link.id))} data-testid="paylink-detail-edit" />
