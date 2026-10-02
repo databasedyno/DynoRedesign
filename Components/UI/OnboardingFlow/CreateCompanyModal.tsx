@@ -18,7 +18,6 @@ import {
 import {
   Autocomplete,
   Box,
-  CircularProgress,
   Dialog,
   IconButton,
   Slide,

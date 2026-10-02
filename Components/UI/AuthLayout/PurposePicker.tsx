@@ -1,6 +1,6 @@
 import { Box, Typography, useTheme } from "@mui/material";
 import { Icon } from "@iconify/react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { Vertical } from "@/Components/UI/_shared";
 import { BRAND_ACCENT } from "@/constants/theme";

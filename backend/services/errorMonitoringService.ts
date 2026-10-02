@@ -16,6 +16,7 @@
 import { raw as envRaw } from "../utils/config";
 import crypto from "crypto";
 import { cronLogger } from "../utils/loggers";
+import { escapeHtml } from "../utils/escapeHtml";
 
 // Lazy-loaded Redis functions (avoids circular dependency at import time)
 let _redisGet: ((key: string) => Promise<any>) | null = null;
@@ -579,13 +580,6 @@ const formatImmediateAlertEmail = (entry: ErrorEntry): string => {
 </html>`;
 };
 
-const escapeHtml = (str: string): string => {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-};
 
 // ─── Email Sending ───────────────────────────────────────────────────────────
 

@@ -10,7 +10,7 @@ import crypto from "crypto";
 import { QueryTypes, Transaction } from "sequelize";
 import sequelize from "../../utils/dbInstance";
 import { apiLogger } from "../../utils/loggers";
-import { toFixedStr, toNumber } from "../../utils/money";
+import { toFixedStr, round2 } from "../../utils/money";
 import { CustomerRow, CustomerWalletError } from "../customerWalletService";
 
 export type EntryType = "CREDIT" | "DEBIT" | "HOLD" | "UNHOLD";
@@ -39,7 +39,6 @@ export interface WalletBalances {
   currency: string;
 }
 
-const round2 = (n: number): number => toNumber(Number(n) || 0, 2);
 const LEDGER_MODES = ["ESCROW", "WITHDRAWAL", "MERCHANT", "ADJUSTMENT", "TOPUP"];
 
 interface WalletRow {

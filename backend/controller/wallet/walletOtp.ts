@@ -5,27 +5,16 @@ import { IUserType } from "../../utils/types";
 import { Op } from "sequelize";
 import { errorResponseHelper, getErrorMessage, successResponseHelper, generateWalletName, generateApiKeyName } from "../../helper";
 import { API_KEY_VERSION_TOKEN, apiKeyHint, generateApiKeyToken, hashApiKey } from "../../helper/apiKeyToken";
-import { sendWithdrawalOTPEmail, sendWithdrawalSuccessEmail, sendExchangeOTPEmail, sendWalletUpdatedEmail, sendWalletUpdateOTPEmail, sendWalletDeletedEmail, sendWalletDeleteOTPEmail } from "../../services/emailService";
 import { handleControllerError } from "../../helper/controllerErrorHandler";
-import { incrementAdminFee, incrementUserWallet } from "../../helper/walletHelpers";
-import { formatAmountForDisplay, getCurrencyInfo, COMPANY_CURRENCY_QUERY, convertToUSD, convertToFiat, convertToMultiple, getUserDisplayCurrency } from "../../utils/currencyUtils";
-import { PROCESSED_USD_EXPR, PROCESSED_STATUS_SQL } from "../../utils/processedVolume";
 import crypto from "crypto";
-import { deleteRedisItem, getRedisItem, setRedisItem, setRedisTTL, redis } from "../../utils/redisInstance";
 import { userWalletModel, companyModel } from "../../models";
 import { apiModel, customerModel, customerWalletModel } from "../../models";
 import { walletLogger } from "../../utils/loggers";
 import { userModel } from "../../models/userModels";
 import { tatumClient } from "../../integrations/tatum/TatumClient";
-import { getTransactionFee, getBlockchainFee } from "../../services/feeService";
-import mailTransporter from "../../utils/mailTransporter";
 import * as merchantPoolService from "../../services/merchantPoolService";
-import { PaymentState, parseState, toRedisStatus } from "../../services/paymentStateMachine";
-import { getBlockchainNetworkFee, getAllBlockchainFees, calculateCustomerPaymentAmount } from "../../services/blockchainFeeService";
 import { invalidateWalletCache } from "./walletShared";
-import { t, resolveEmailLang } from "../../utils/emailI18n";
 import { notifyWalletChanges, assertWalletNotFrozen } from "../../services/wallet/walletChangeAlert";
-import { generateOtpCode } from "../../helper/otpGuard";
 
 /** Lightweight cross-chain guard: catches the common "pasted an address for the
  *  wrong network" mistake (e.g. an ETH 0x… address selected for BTC) so the API

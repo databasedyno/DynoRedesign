@@ -79,7 +79,6 @@ import {
 } from './checkout/checkoutHelpers'
 import { checkoutApi as api, fetchReceiptBlob, fetchReceiptLink, checkoutStreamUrl } from './checkout/checkoutApi'
 // WalletConnect "Pay with wallet" retired — hosted checkout uses QR + copy-address only.
-import { toFixedStr } from '@/utils/money'
 import { clearCheckoutToken } from '@/helpers/checkoutSession'
 import useStickyCtaFootprint from '@/hooks/useStickyCtaFootprint'
 import SaveMerchantButton from '@/Components/UI/SaveMerchantButton'

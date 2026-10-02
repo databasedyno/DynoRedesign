@@ -1,13 +1,10 @@
 import { useWalletStore } from "@/contexts/WalletDataContext";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   Box,
-  IconButton,
   useTheme,
 } from "@mui/material";
 import {
-  RequestQuoteRounded,
-  SwapHorizRounded,
   ReceiptLongRounded,
   ExpandMoreRounded,
   ArrowOutwardRounded,
@@ -17,8 +14,6 @@ import {
 } from "@mui/icons-material";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
-import { useSelector } from "react-redux";
-import { rootReducer } from "@/utils/types";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import {
   ActionIconBadge,

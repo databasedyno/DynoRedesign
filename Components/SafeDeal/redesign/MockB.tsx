@@ -5,7 +5,6 @@
  * Preview mockup only — does not touch the live /safedeal landing.
  */
 import React from "react";
-import Link from "next/link";
 import { Box, Button, Container, Grid, Stack, Typography } from "@mui/material";
 import { Icon } from "@iconify/react";
 import HeroDealForm from "@/Components/SafeDeal/HeroDealForm";
@@ -17,7 +16,6 @@ import {
   CoinMarquee,
   Eyebrow,
   Floaty,
-  NotifCard,
   Reveal,
   StatsStrip,
   StatusPill,

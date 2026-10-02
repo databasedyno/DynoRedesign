@@ -7,7 +7,6 @@ import ErrorIcon from "@mui/icons-material/Error";
 import HelpOutlineRounded from "@mui/icons-material/HelpOutlineRounded";
 import Inventory2Rounded from "@mui/icons-material/Inventory2Rounded";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import LanguageIcon from "@mui/icons-material/Language";
 import MoreHorizRounded from "@mui/icons-material/MoreHorizRounded";
 import SettingsRounded from "@mui/icons-material/SettingsRounded";
@@ -23,7 +22,6 @@ import Link from "next/link";
 
 import LanguageSwitcherModal from "@/Components/UI/MobileLanguageSwitcher";
 import { HeaderDivider } from "@/Components/UI/LanguageSwitcher/styled";
-import axiosBaseApi from "@/axiosConfig";
 import SidebarIcon from "@/utils/customIcons/sidebar-icons";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
@@ -45,7 +43,6 @@ import { useWalletData } from "@/hooks/useWalletData";
 import { useUnreadNotificationsCount } from "@/hooks/useUnreadNotificationsCount";
 import CreateNewButton from "@/Components/Layout/NewHeader/CreateNewButton";
 import { BRAND_ACCENT, brandFg } from "@/constants/theme";
-import { API_ENDPOINTS } from "@/api/endpoints";
 
 const MobileNavigationBar = () => {
   const router = useRouter();

@@ -21,9 +21,6 @@ validateEnvironment();
 
 // Redis imports
 import { connectRedis, acquireLock, releaseLock, cleanupStaleLocks } from "./utils/redisInstance";
-import {
-  companyModel,
-} from "./models";
 // Unused imports removed: currencyConvert, encrypt, sendEmail
 import { getErrorMessage } from "./helper";
 import { refreshBackgroundRateCache } from "./helper/currencyConvert";
@@ -43,7 +40,6 @@ import { migrateWebhookUrls } from "./services/migrateWebhookUrls";
 import { registerAccountProvisioningHooks } from "./services/accountProvisioning";
 import { markShuttingDown } from "./utils/shutdownState";
 import { processStablecoinConversions, getConversionStats, sendWeeklyConversionSummaries } from "./services/conversionService";
-import stablecoinConversionModel from "./models/stablecoinConversionModel";
 import { processWebhookRetryQueue } from "./utils/webhookRetry";
 import { startWebhookWorker, getQueueHealth, getDLQItems, retryDLQItem, shutdownWebhookQueue, enqueueWebhook } from "./services/webhookQueue";
 import { sweepExpiredPaymentLinks } from "./services/paymentExpirySweeper";

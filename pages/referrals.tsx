@@ -6,15 +6,12 @@ import {
   useTheme,
   Chip,
   Skeleton,
-  LinearProgress,
-  linearProgressClasses,
 } from "@mui/material";
 import { Icon, MONO } from "@/styles/uiKit";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useApiSWR } from "@/hooks/useApiSWR";
 import useIsMobile from "@/hooks/useIsMobile";
-import PanelCard from "@/Components/UI/PanelCard";
 import Toast from "@/Components/UI/Toast";
 import { pageProps } from "@/utils/types";
 import copyToClipboard from "@/helpers/copyToClipboard";

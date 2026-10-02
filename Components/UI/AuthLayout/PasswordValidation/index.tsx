@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Popover, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
 import CorrectIcon from "@/assets/Icons/correct-icon.png";

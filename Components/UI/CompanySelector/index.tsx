@@ -14,7 +14,6 @@ import {
 
 import { useCompanySettingsDialog } from "@/Components/UI/CompanySettingsDialog/context";
 import useIsMobile from "@/hooks/useIsMobile";
-import { rootReducer } from "@/utils/types";
 import { sanitizeBrandName } from "@/utils/brandName";
 import { Add } from "@mui/icons-material";
 import GridViewRounded from "@mui/icons-material/GridViewRounded";
@@ -23,7 +22,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import useToast from "@/hooks/useToast";
 import CustomButton from "../Buttons";
 import KycVerifiedBadge from "@/Components/UI/KycVerifiedBadge";

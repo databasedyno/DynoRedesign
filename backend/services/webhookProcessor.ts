@@ -21,7 +21,7 @@ import { webhookLogs } from "../utils/loggers";
 import { log } from "../utils/loggers";
 import { paymentController } from "../controller";
 import { sendPendingPaymentNotification, sendBuyerUnderpaidNudge } from "./pendingPaymentService";
-import { ADMIN_WALLETS, FEE_WALLETS, isTagBasedChain, getCryptoRedisKey, XRP_MASTER_ADDRESS } from "./merchantPool/merchantPoolConfig";
+import { ADMIN_WALLETS, FEE_WALLETS, getCryptoRedisKey, XRP_MASTER_ADDRESS } from "./merchantPool/merchantPoolConfig";
 import tatumApi from "../apis/tatumApi";
 import { deliverMerchantWebhook } from "./outbox/merchantWebhookOutbox";
 import { WebhookJobData } from "./webhookQueue";

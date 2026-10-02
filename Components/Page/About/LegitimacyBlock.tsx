@@ -8,7 +8,6 @@ import VerifiedUserRoundedIcon from "@mui/icons-material/VerifiedUserRounded";
 import AccountBalanceWalletRoundedIcon from "@mui/icons-material/AccountBalanceWalletRounded";
 import ArrowOutwardRoundedIcon from "@mui/icons-material/ArrowOutwardRounded";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "@/Components/Page/Home/v3/theme.v3";
-import { BRAND_ACCENT } from "@/constants/theme";
 import { Section, SectionHead } from "@/Components/Page/Home/v5/shared";
 
 const LEGAL_NAME = "Dynopay";

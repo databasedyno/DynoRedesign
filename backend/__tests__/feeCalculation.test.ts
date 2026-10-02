@@ -13,7 +13,7 @@
 
 // We test the fee math logic directly by importing feeConfigUtils
 // and replicating the calculation logic from calculateTransactionFees
-import { getFeeTiers, getTransactionFeePercent, FeeTier } from '../utils/feeConfigUtils';
+import { getFeeTiers, getTransactionFeePercent } from '../utils/feeConfigUtils';
 
 /**
  * Replicated pure-function version of calculateTransactionFees

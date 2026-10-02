@@ -17,6 +17,7 @@ import { applyEntry, applyEntries, getBalances, simulatedCreditsUsd, DEAL_FUNDED
 import { sendSafeDealWithdrawalEmail, sendSafeDealWithdrawalRejectedEmail, sendSafeDealAdminCashoutApprovalEmail, sendSafeDealAmlAlertEmail, type CashoutEmailOptions } from "../email/safedealEmails";
 import { explorerTxUrl } from "../receiptLinkService";
 import { redis } from "../../utils/redisInstance";
+import { round2Float as round2 } from "../../utils/money";
 
 export const MIN_WITHDRAWAL_USD = Number(envRaw("SAFEDEAL_MIN_WITHDRAWAL_USD")) || 10;
 export const APPROVAL_THRESHOLD_USD = Number(envRaw("SAFEDEAL_WITHDRAWAL_APPROVAL_USD")) || 1000;
@@ -102,7 +103,6 @@ export async function cashoutEmailOptions(w: { source?: string | null; escrow_id
 // Default 0 = disabled (owner turned the 24h hold off). Set SAFEDEAL_ADDRESS_COOLING_HOURS=24 to re-enable.
 export const ADDRESS_COOLING_HOURS = num("SAFEDEAL_ADDRESS_COOLING_HOURS", 0);
 
-const round2 = (n: number) => Math.round((Number(n) + Number.EPSILON) * 100) / 100;
 
 export interface PayoutAddressRow {
   address_id: number;

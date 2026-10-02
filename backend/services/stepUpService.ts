@@ -22,6 +22,8 @@ import { generateOtpCode } from "../helper/otpGuard";
 import { validate2FAToken, get2FAStatus } from "./twoFactorService";
 import { sendTelnyxSMS } from "../controller/user/userShared";
 import { sendStepUpCodeEmail } from "./email/securityEmails";
+import { hashCode, maskEmail } from "../utils/masking";
+export { maskEmail };
 
 export const STEP_UP_SCOPES = ["apikey", "wallet", "brand_delete", "security", "payout", "team", "settlement", "account_delete"] as const;
 export type StepUpScope = (typeof STEP_UP_SCOPES)[number];
@@ -49,8 +51,6 @@ export class StepUpError extends Error {
   }
 }
 
-const hashCode = (code: string) =>
-  crypto.createHmac("sha256", String(envRaw("API_SECRET") || "dynopay")).update(String(code)).digest("hex");
 
 const safeEqual = (a: string, b: string) => {
   const x = Buffer.from(String(a));
@@ -58,7 +58,6 @@ const safeEqual = (a: string, b: string) => {
   return x.length === y.length && crypto.timingSafeEqual(x, y);
 };
 
-export const maskEmail = (e?: string | null) => (e ? e.replace(/(.{2})(.*)(@.*)/, "$1***$3") : "");
 export const maskPhone = (p?: string | null) => (p ? `****${String(p).slice(-4)}` : "");
 
 type Contact = { email: string | null; mobile: string | null; name: string; language: string | null };

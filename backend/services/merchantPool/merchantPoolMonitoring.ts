@@ -12,7 +12,6 @@ import {
 } from "../../models";
 import { getRedisItem, setRedisItem, setRedisItemWithTTL, deleteRedisItem } from "../../utils/redisInstance";
 import tatumApi from "../../apis/tatumApi";
-import { getErrorMessage } from "../../helper";
 import { cronLogger } from "../../utils/loggers";
 import { paymentController } from "../../controller";
 import { deliverMerchantWebhook } from "../outbox/merchantWebhookOutbox";

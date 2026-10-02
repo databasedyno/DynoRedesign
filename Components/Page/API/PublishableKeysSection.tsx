@@ -1,59 +1,43 @@
-import { brandFg } from "@/constants/theme";
 /**
- * Publishable Keys Section — Phase 2C dashboard UI for Buy Button
- *
- * Renders a self-contained card at the bottom of the API Keys page:
- *   • List current publishable keys (pk_live_/pk_test_) for the selected company
- *   • Create new pk with allowed_domains, max_amount, allowed_currencies
- *   • Edit / Revoke (soft-delete) an existing pk
- *   • Copy full pk (browser-safe) + copy pre-filled <dynopay-buy-button> snippet
- *
- * Wires to backend routes (all mounted under /api):
- *   POST/GET/PATCH/DELETE /api/publishable-keys
+ * Publishable Keys Section — browser-safe pk_live_/pk_test_ keys for <dynopay-buy-button>.
+ * Wires to POST/GET/PATCH/DELETE /api/publishable-keys. Shared chrome lives in ./keyedResource.
  */
 
-import { useCompanyStore } from "@/contexts/CompanyDataContext";
-import {
-  Box,
-  Chip,
-  CircularProgress,
-  IconButton,
-  MenuItem,
-  Select,
-  Stack,
-  Tooltip,
-  Typography,
-  useTheme,
-} from "@mui/material";
-import { Icon } from "@/styles/uiKit";
-import { useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { Box, Typography, useTheme } from "@mui/material";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { Icon } from "@/styles/uiKit";
 
 import axiosBaseApi from "@/axiosConfig";
-import { isStepUpCancelled } from "@/Components/UI/StepUp/stepUpBus";
 import CustomButton from "@/Components/UI/Buttons";
-import DeleteModel from "@/Components/UI/DeleteModel";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
-import PanelCard from "@/Components/UI/PanelCard";
-import PopupModal from "@/Components/UI/PopupModal";
-import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
-import useIsMobile from "@/hooks/useIsMobile";
-import usePublishableKeys from "@/hooks/usePublishableKeys";
-import { rootReducer } from "@/utils/types";
-import copyToClipboard from "@/helpers/copyToClipboard";
 import CopyInline from "@/Components/UX/CopyInline";
+import usePublishableKeys from "@/hooks/usePublishableKeys";
+import KeyedResourceSection, { useEffectiveCompanyId, useKeyedResource } from "./keyedResource/KeyedResourceSection";
+import ResourceFormModal, { useResourceForm } from "./keyedResource/ResourceFormModal";
+import ResourceRow from "./keyedResource/ResourceRow";
+import {
+  FieldHint,
+  LabeledSelect,
+  MONO_FONT,
+  RowActionButton,
+  SNIPPET_BASE,
+  SectionLabel,
+  SnippetPre,
+  TokenChips,
+  describeLoadError,
+  parseTokens,
+  upperTokens,
+} from "./keyedResource/primitives";
 
-/* ------------------------------------------------------------------ */
-/* Types                                                               */
-/* ------------------------------------------------------------------ */
+type Environment = "production" | "development";
 
 interface PublishableKey {
   pub_key_id: number;
   publishable_key: string;
   key_prefix: string;
   key_masked: string;
-  environment: "production" | "development";
+  environment: Environment;
   status: "active" | "inactive" | "revoked";
   allowed_domains: string[];
   max_amount: number;
@@ -67,11 +51,11 @@ interface PublishableKey {
 }
 
 interface FormState {
-  environment: "production" | "development";
+  environment: Environment;
   key_name: string;
-  allowed_domains_input: string; // free-typed, comma/space/newline separated
+  allowed_domains_input: string;
   max_amount: string;
-  allowed_currencies_input: string; // comma-separated codes, blank = all
+  allowed_currencies_input: string;
 }
 
 const DEFAULT_FORM: FormState = {
@@ -82,91 +66,23 @@ const DEFAULT_FORM: FormState = {
   allowed_currencies_input: "",
 };
 
-const parseTokens = (raw: string): string[] =>
-  raw
-    .split(/[\s,;]+/g)
-    .map((s) => s.trim())
-    .filter(Boolean);
+const buildSnippet = (pk: PublishableKey) =>
+  `<!-- Load Dynopay embed SDK once per page -->\n` +
+  `<script src="${SNIPPET_BASE}/v1/embed.js"></script>\n\n` +
+  `<!-- Paste the button anywhere on your page -->\n` +
+  `<dynopay-buy-button\n` +
+  `  publishable-key="${pk.publishable_key}"\n` +
+  `  amount="50"\n` +
+  (pk.allowed_currencies && pk.allowed_currencies.length === 1
+    ? `  currency="${pk.allowed_currencies[0]}"\n`
+    : "") +
+  `  label="Pay with crypto"\n` +
+  `  mode="modal"\n` +
+  `  theme="dark"\n` +
+  `></dynopay-buy-button>`;
 
 /* ------------------------------------------------------------------ */
-/* Snippet card                                                        */
-/* ------------------------------------------------------------------ */
-
-const SnippetPre = ({ code, onCopy }: { code: string; onCopy: () => void }) => {
-  const theme = useTheme();
-  const { t } = useTranslation("apiScreen");
-  return (
-    <Box sx={{ mt: 1 }}>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mb: 0.5,
-        }}
-      >
-        <Typography
-          sx={{
-            fontSize: 11,
-            fontWeight: 700,
-            letterSpacing: 0.4,
-            textTransform: "uppercase",
-            color: theme.palette.text.secondary,
-          }}
-        >
-          &lt;dynopay-buy-button&gt; {t("pk.snippetSuffix", { defaultValue: "snippet" })}
-        </Typography>
-        <Box
-          component="button"
-          type="button"
-          onClick={onCopy}
-          sx={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 0.5,
-            border: `1px solid ${theme.palette.border.main}`,
-            background: "transparent",
-            color: theme.palette.text.secondary,
-            borderRadius: "6px",
-            px: 1,
-            py: 0.4,
-            cursor: "pointer",
-            fontSize: 12,
-            fontFamily: "var(--font-sans)",
-            "&:hover": { color: theme.palette.text.primary },
-          }}
-        >
-          <Icon name="copy" size={14} />
-          {t("pk.copy", { defaultValue: "Copy" })}
-        </Box>
-      </Box>
-      <Box
-        component="pre"
-        sx={{
-          m: 0,
-          p: 1.5,
-          borderRadius: "8px",
-          overflowX: "auto",
-          background:
-            theme.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "#0b0b0b",
-          color:
-            theme.palette.mode === "dark" ? "#d6f7c2" : "#e6e6e6",
-          fontSize: 12.5,
-          lineHeight: 1.6,
-          fontFamily:
-            "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
-          whiteSpace: "pre",
-          border: `1px solid ${theme.palette.border.main}`,
-        }}
-      >
-        {code}
-      </Box>
-    </Box>
-  );
-};
-
-/* ------------------------------------------------------------------ */
-/* Publishable Key Card (list item)                                    */
+/* Row                                                                 */
 /* ------------------------------------------------------------------ */
 
 interface RowProps {
@@ -175,333 +91,104 @@ interface RowProps {
   onEdit: (pk: PublishableKey) => void;
   onRevoke: (pk: PublishableKey) => void;
   onToggleStatus: (pk: PublishableKey) => void;
-  snippetBase: string;
 }
 
-const PublishableKeyRow = ({
-  pk,
-  onCopy,
-  onEdit,
-  onRevoke,
-  onToggleStatus,
-  snippetBase,
-}: RowProps) => {
+const PublishableKeyRow = ({ pk, onCopy, onEdit, onRevoke, onToggleStatus }: RowProps) => {
   const theme = useTheme();
   const { t } = useTranslation("apiScreen");
-  const isMobile = useIsMobile("md");
-  const [expanded, setExpanded] = useState(false);
-
-  const envLabel = pk.environment === "production" ? "LIVE" : "TEST";
-  const envColor =
-    pk.environment === "production"
-      ? theme.palette.success?.main || "#22C55E"
-      : theme.palette.warning?.main || "#F59E0B";
-
+  const id = pk.pub_key_id;
+  const isLive = pk.environment === "production";
+  const revoked = pk.status === "revoked";
+  const success = theme.palette.success?.main || "#22C55E";
+  const envColor = isLive ? success : theme.palette.warning?.main || "#F59E0B";
   const statusColor =
-    pk.status === "active"
-      ? theme.palette.success?.main || "#22C55E"
-      : pk.status === "inactive"
-        ? theme.palette.text.secondary
-        : theme.palette.error.main;
-
-  // Merchants read this snippet and paste into their site (browser-safe pk).
-  const snippet =
-    `<!-- Load Dynopay embed SDK once per page -->\n` +
-    `<script src="${snippetBase}/v1/embed.js"></script>\n\n` +
-    `<!-- Paste the button anywhere on your page -->\n` +
-    `<dynopay-buy-button\n` +
-    `  publishable-key="${pk.publishable_key}"\n` +
-    `  amount="50"\n` +
-    (pk.allowed_currencies && pk.allowed_currencies.length === 1
-      ? `  currency="${pk.allowed_currencies[0]}"\n`
-      : "") +
-    `  label="Pay with crypto"\n` +
-    `  mode="modal"\n` +
-    `  theme="dark"\n` +
-    `></dynopay-buy-button>`;
+    pk.status === "active" ? success : pk.status === "inactive" ? theme.palette.text.secondary : theme.palette.error.main;
+  const snippet = buildSnippet(pk);
+  const toggleLabel = pk.status === "active" ? t("pk.disable", { defaultValue: "Disable" }) : t("pk.enable", { defaultValue: "Enable" });
+  const currencyCount = pk.allowed_currencies?.length || 0;
 
   return (
-    <Box
-      sx={{
-        border: `1px solid ${theme.palette.border.main}`,
-        borderRadius: "12px",
-        background: theme.palette.background.paper,
-        p: { xs: 1.5, sm: 2 },
-        transition: "border-color 0.2s ease",
-        "&:hover": { borderColor: theme.palette.primary.main },
+    <ResourceRow
+      badge={{ label: isLive ? "LIVE" : "TEST", bgcolor: envColor, color: "#fff" }}
+      title={
+        pk.key_name ||
+        (isLive
+          ? t("pk.liveBuyButton", { defaultValue: "Live Buy Button" })
+          : t("pk.testBuyButton", { defaultValue: "Test Buy Button" }))
+      }
+      status={{ label: pk.status, color: statusColor, active: pk.status === "active" }}
+      actions={
+        <>
+          <RowActionButton title={toggleLabel} testId={`pk-toggle-${id}`} icon="power" disabled={revoked} onClick={() => onToggleStatus(pk)} />
+          <RowActionButton title={t("pk.edit", { defaultValue: "Edit" })} testId={`pk-edit-${id}`} icon="pencil" disabled={revoked} onClick={() => onEdit(pk)} />
+          <RowActionButton
+            title={t("pk.revoke", { defaultValue: "Revoke" })}
+            testId={`pk-revoke-${id}`}
+            icon="trash-2"
+            disabled={revoked}
+            color={theme.palette.error.main}
+            onClick={() => onRevoke(pk)}
+          />
+        </>
+      }
+      value={{
+        text: pk.publishable_key,
+        testId: `pk-value-${id}`,
+        action: (
+          <CopyInline
+            value={pk.publishable_key}
+            size={16}
+            testId={`pk-copy-${id}`}
+            copyLabel={t("pk.copyKey", { defaultValue: "Copy publishable key" })}
+          />
+        ),
+      }}
+      meta={[
+        t("pk.chipMax", { defaultValue: "Max {{amount}} {{currency}}", amount: pk.max_amount, currency: pk.base_currency || "USD" }),
+        t("pk.chipRate", { defaultValue: "{{rate}}/min", rate: pk.rate_limit_per_minute }),
+        t("pk.chipUses", { defaultValue: "{{count}} uses", count: pk.usage_count }),
+        currencyCount > 0
+          ? t("pk.chipCurrencies", { defaultValue: "{{count}} currencies", count: currencyCount })
+          : t("pk.chipAllCurrencies", { defaultValue: "All configured currencies" }),
+        t("pk.chipDomains", { defaultValue: "{{count}} domain(s)", count: pk.allowed_domains.length }),
+      ]}
+      expand={{
+        testId: `pk-expand-${id}`,
+        show: t("pk.showDetails", { defaultValue: "Show details & snippet" }),
+        hide: t("pk.hideDetails", { defaultValue: "Hide details & snippet" }),
       }}
     >
-      {/* Top row: badge + name + status + actions */}
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          alignItems: { xs: "flex-start", md: "center" },
-          justifyContent: "space-between",
-          gap: 1,
-        }}
-      >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1.25, minWidth: 0, flexWrap: "wrap" }}>
-          <Chip
-            label={envLabel}
-            size="small"
-            sx={{
-              height: 22,
-              fontSize: 11,
-              fontWeight: 700,
-              letterSpacing: 0.5,
-              bgcolor: envColor,
-              color: "#fff",
-              "& .MuiChip-label": { px: 1 },
-            }}
-          />
-          <Typography
-            sx={{
-              fontSize: { xs: 14, md: 15 },
-              fontWeight: 600,
-              color: theme.palette.text.primary,
-              fontFamily: "var(--font-sans)",
-            }}
-          >
-            {pk.key_name || (pk.environment === "production" ? t("pk.liveBuyButton", { defaultValue: "Live Buy Button" }) : t("pk.testBuyButton", { defaultValue: "Test Buy Button" }))}
-          </Typography>
-          <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, color: statusColor }}>
-            {pk.status === "active" ? (
-              <Icon name="circle-check" size={16} />
-            ) : (
-              <Icon name="ban" size={16} />
-            )}
-            <Typography sx={{ fontSize: 12, fontWeight: 600, textTransform: "capitalize", color: statusColor }}>
-              {pk.status}
-            </Typography>
-          </Box>
-        </Box>
+      <SectionLabel>{t("pk.allowedDomains", { defaultValue: "Allowed domains" })}</SectionLabel>
+      <TokenChips tokens={pk.allowed_domains} />
 
-        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flexShrink: 0 }}>
-          <Tooltip title={pk.status === "active" ? t("pk.disable", { defaultValue: "Disable" }) : t("pk.enable", { defaultValue: "Enable" })}>
-            <span>
-              <IconButton
-                size="small"
-                data-testid={`pk-toggle-${pk.pub_key_id}`}
-                aria-label={pk.status === "active" ? t("pk.disable", { defaultValue: "Disable" }) : t("pk.enable", { defaultValue: "Enable" })}
-                disabled={pk.status === "revoked"}
-                onClick={() => onToggleStatus(pk)}
-                sx={{ color: theme.palette.text.secondary }}
-              >
-                <Icon name="power" size={18} />
-              </IconButton>
-            </span>
-          </Tooltip>
-          <Tooltip title={t("pk.edit", { defaultValue: "Edit" })}>
-            <span>
-              <IconButton
-                size="small"
-                data-testid={`pk-edit-${pk.pub_key_id}`}
-                aria-label={t("pk.edit", { defaultValue: "Edit" })}
-                disabled={pk.status === "revoked"}
-                onClick={() => onEdit(pk)}
-                sx={{ color: theme.palette.text.secondary }}
-              >
-                <Icon name="pencil" size={18} />
-              </IconButton>
-            </span>
-          </Tooltip>
-          <Tooltip title={t("pk.revoke", { defaultValue: "Revoke" })}>
-            <span>
-              <IconButton
-                size="small"
-                data-testid={`pk-revoke-${pk.pub_key_id}`}
-                aria-label={t("pk.revoke", { defaultValue: "Revoke" })}
-                disabled={pk.status === "revoked"}
-                onClick={() => onRevoke(pk)}
-                sx={{ color: theme.palette.error.main }}
-              >
-                <Icon name="trash-2" size={18} />
-              </IconButton>
-            </span>
-          </Tooltip>
-        </Box>
-      </Box>
-
-      {/* Key + copy */}
-      <Box
-        sx={{
-          mt: 1.25,
-          display: "flex",
-          alignItems: "center",
-          gap: 1,
-          background:
-            theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "#F7F8FA",
-          border: `1px solid ${theme.palette.border.main}`,
-          borderRadius: "8px",
-          px: 1.25,
-          py: 0.75,
-          minWidth: 0,
-        }}
-      >
-        <Typography
-          sx={{
-            flex: 1,
-            minWidth: 0,
-            fontFamily:
-              "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
-            fontSize: { xs: 12, md: 13 },
-            color: theme.palette.text.primary,
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-          }}
-          data-testid={`pk-value-${pk.pub_key_id}`}
-        >
-          {pk.publishable_key}
-        </Typography>
-        <CopyInline
-          value={pk.publishable_key}
-          size={16}
-          testId={`pk-copy-${pk.pub_key_id}`}
-          copyLabel={t("pk.copyKey", { defaultValue: "Copy publishable key" })}
-        />
-      </Box>
-
-      {/* Meta */}
-      <Box
-        sx={{
-          mt: 1,
-          display: "flex",
-          flexWrap: "wrap",
-          gap: 0.75,
-          alignItems: "center",
-        }}
-      >
-        <Chip
-          size="small"
-          label={t("pk.chipMax", { defaultValue: "Max {{amount}} {{currency}}", amount: pk.max_amount, currency: pk.base_currency || "USD" })}
-          sx={{ height: 22, fontSize: 11 }}
-        />
-        <Chip
-          size="small"
-          label={t("pk.chipRate", { defaultValue: "{{rate}}/min", rate: pk.rate_limit_per_minute })}
-          sx={{ height: 22, fontSize: 11 }}
-        />
-        <Chip
-          size="small"
-          label={t("pk.chipUses", { defaultValue: "{{count}} uses", count: pk.usage_count })}
-          sx={{ height: 22, fontSize: 11 }}
-        />
-        {pk.allowed_currencies && pk.allowed_currencies.length > 0 ? (
-          <Chip
-            size="small"
-            label={t("pk.chipCurrencies", { defaultValue: "{{count}} currencies", count: pk.allowed_currencies.length })}
-            sx={{ height: 22, fontSize: 11 }}
-          />
-        ) : (
-          <Chip
-            size="small"
-            label={t("pk.chipAllCurrencies", { defaultValue: "All configured currencies" })}
-            sx={{ height: 22, fontSize: 11 }}
-          />
-        )}
-        <Chip
-          size="small"
-          label={t("pk.chipDomains", { defaultValue: "{{count}} domain(s)", count: pk.allowed_domains.length })}
-          sx={{ height: 22, fontSize: 11 }}
-        />
-      </Box>
-
-      {/* Expand / collapse details */}
-      <Box sx={{ mt: 1 }}>
-        <CustomButton
-          data-testid={`pk-expand-${pk.pub_key_id}`}
-          label={expanded ? t("pk.hideDetails", { defaultValue: "Hide details & snippet" }) : t("pk.showDetails", { defaultValue: "Show details & snippet" })}
-          variant="secondary"
-          size="small"
-          endIcon={
-            expanded ? (
-              <Icon name="chevron-up" size={16} />
-            ) : (
-              <Icon name="chevron-down" size={16} />
-            )
-          }
-          onClick={() => setExpanded((v) => !v)}
-          sx={{ height: 28, fontSize: 12 }}
-        />
-      </Box>
-
-      {expanded && (
-        <Box sx={{ mt: 1.25 }}>
-          <Typography
-            sx={{
-              fontSize: 12,
-              fontWeight: 700,
-              letterSpacing: 0.4,
-              textTransform: "uppercase",
-              color: theme.palette.text.secondary,
-              mb: 0.5,
-            }}
-          >
-            {t("pk.allowedDomains", { defaultValue: "Allowed domains" })}
-          </Typography>
-          <Stack direction="row" spacing={0.5} sx={{ flexWrap: "wrap", gap: 0.5 }}>
-            {pk.allowed_domains.map((d) => (
-              <Chip
-                key={d}
-                size="small"
-                label={d}
-                sx={{ height: 22, fontSize: 11 }}
-              />
-            ))}
-          </Stack>
-
-          {pk.allowed_currencies && pk.allowed_currencies.length > 0 && (
-            <>
-              <Typography
-                sx={{
-                  fontSize: 12,
-                  fontWeight: 700,
-                  letterSpacing: 0.4,
-                  textTransform: "uppercase",
-                  color: theme.palette.text.secondary,
-                  mt: 1.25,
-                  mb: 0.5,
-                }}
-              >
-                {t("pk.allowedCurrencies", { defaultValue: "Allowed currencies" })}
-              </Typography>
-              <Stack direction="row" spacing={0.5} sx={{ flexWrap: "wrap", gap: 0.5 }}>
-                {pk.allowed_currencies.map((c) => (
-                  <Chip
-                    key={c}
-                    size="small"
-                    label={c}
-                    sx={{ height: 22, fontSize: 11 }}
-                  />
-                ))}
-              </Stack>
-            </>
-          )}
-
-          <SnippetPre
-            code={snippet}
-            onCopy={() => onCopy(snippet, t("pk.buyButtonSnippetLabel", { defaultValue: "Buy Button snippet" }))}
-          />
-
-          <Typography
-            sx={{
-              mt: 1,
-              fontSize: 12,
-              color: theme.palette.text.secondary,
-            }}
-          >
-            {t("pk.rowDescription", { defaultValue: "Change amount and (optionally) currency as needed. This publishable key only accepts requests coming from the domains listed above, and only for amounts ≤ {{max}} {{currency}}.", max: pk.max_amount, currency: pk.base_currency })}
-          </Typography>
-        </Box>
+      {currencyCount > 0 && (
+        <>
+          <SectionLabel mt={1.25}>{t("pk.allowedCurrencies", { defaultValue: "Allowed currencies" })}</SectionLabel>
+          <TokenChips tokens={pk.allowed_currencies as string[]} />
+        </>
       )}
-    </Box>
+
+      <SnippetPre
+        code={snippet}
+        onCopy={() => onCopy(snippet, t("pk.buyButtonSnippetLabel", { defaultValue: "Buy Button snippet" }))}
+        suffixLabel={t("pk.snippetSuffix", { defaultValue: "snippet" })}
+        copyLabel={t("pk.copy", { defaultValue: "Copy" })}
+      />
+
+      <Typography sx={{ mt: 1, fontSize: 12, color: theme.palette.text.secondary }}>
+        {t("pk.rowDescription", {
+          defaultValue:
+            "Change amount and (optionally) currency as needed. This publishable key only accepts requests coming from the domains listed above, and only for amounts ≤ {{max}} {{currency}}.",
+          max: pk.max_amount,
+          currency: pk.base_currency,
+        })}
+      </Typography>
+    </ResourceRow>
   );
 };
 
 /* ------------------------------------------------------------------ */
-/* Create/Edit modal                                                   */
+/* Create / edit modal                                                 */
 /* ------------------------------------------------------------------ */
 
 interface KeyFormModalProps {
@@ -513,355 +200,180 @@ interface KeyFormModalProps {
   onSaved: (msg: string, createdKey?: PublishableKey) => void;
 }
 
-const KeyFormModal = ({
-  open,
-  mode,
-  companyId,
-  initialPk,
-  onClose,
-  onSaved,
-}: KeyFormModalProps) => {
-  const theme = useTheme();
+const KeyFormModal = ({ open, mode, companyId, initialPk, onClose, onSaved }: KeyFormModalProps) => {
   const { t } = useTranslation("apiScreen");
-  const isMobile = useIsMobile("md");
-  const dispatch = useDispatch();
 
-  const [form, setForm] = useState<FormState>(DEFAULT_FORM);
-  const [saving, setSaving] = useState(false);
-  const [serverError, setServerError] = useState<string | null>(null);
-
-  // Initialize form on modal open
-  useEffect(() => {
-    if (!open) return;
-    if (mode === "edit" && initialPk) {
-      setForm({
-        environment: initialPk.environment,
-        key_name: initialPk.key_name || "",
-        allowed_domains_input: (initialPk.allowed_domains || []).join(", "),
-        max_amount: String(initialPk.max_amount || 2000),
-        allowed_currencies_input: (initialPk.allowed_currencies || []).join(", "),
-      });
-    } else {
-      setForm(DEFAULT_FORM);
-    }
-    setServerError(null);
-  }, [open, mode, initialPk]);
-
-  const setField = <K extends keyof FormState>(k: K, v: FormState[K]) => {
-    setForm((f) => ({ ...f, [k]: v }));
-  };
-
-  const domains = useMemo(
-    () => parseTokens(form.allowed_domains_input),
-    [form.allowed_domains_input],
-  );
-  const currencies = useMemo(
-    () => parseTokens(form.allowed_currencies_input).map((c) => c.toUpperCase()),
-    [form.allowed_currencies_input],
-  );
-
-  const canSubmit =
-    !!companyId &&
-    domains.length > 0 &&
-    Number(form.max_amount) >= 5 &&
-    !saving;
-
-  const handleSubmit = async () => {
-    if (!companyId) return;
-    setServerError(null);
-
-    const body: Record<string, unknown> = {
-      allowed_domains: domains,
-      max_amount: Number(form.max_amount),
-      allowed_currencies: currencies.length > 0 ? currencies : null,
-      key_name: form.key_name.trim() || undefined,
-    };
-
-    setSaving(true);
-    try {
+  const { form, setField, saving, serverError, handleSubmit } = useResourceForm<FormState, PublishableKey>({
+    open,
+    mode,
+    initial: initialPk,
+    onClose,
+    defaults: () => DEFAULT_FORM,
+    fromItem: (pk) => ({
+      environment: pk.environment,
+      key_name: pk.key_name || "",
+      allowed_domains_input: (pk.allowed_domains || []).join(", "),
+      max_amount: String(pk.max_amount || 2000),
+      allowed_currencies_input: (pk.allowed_currencies || []).join(", "),
+    }),
+    failedMsg: t("pk.saveFailedMsg", { defaultValue: "Failed to save publishable key" }),
+    submit: async (f) => {
+      if (!companyId) return;
+      const allowed = upperTokens(f.allowed_currencies_input);
+      const body: Record<string, unknown> = {
+        allowed_domains: parseTokens(f.allowed_domains_input),
+        max_amount: Number(f.max_amount),
+        allowed_currencies: allowed.length > 0 ? allowed : null,
+        key_name: f.key_name.trim() || undefined,
+      };
       if (mode === "create") {
         body.company_id = companyId;
-        body.environment = form.environment;
+        body.environment = f.environment;
         const { data } = await axiosBaseApi.post("publishable-keys", body);
-        onSaved(
-          data?.message || t("pk.createdMsg", { defaultValue: "Publishable key created" }),
-          data?.data as PublishableKey,
-        );
+        onSaved(data?.message || t("pk.createdMsg", { defaultValue: "Publishable key created" }), data?.data as PublishableKey);
       } else if (initialPk) {
-        // Environment is immutable in edit (drop it from body)
-        const { data } = await axiosBaseApi.patch(
-          `publishable-keys/${initialPk.pub_key_id}`,
-          body,
-        );
+        const { data } = await axiosBaseApi.patch(`publishable-keys/${initialPk.pub_key_id}`, body);
         onSaved(data?.message || t("pk.updatedMsg", { defaultValue: "Publishable key updated" }));
       }
-      onClose();
-    } catch (err: any) {
-      if (isStepUpCancelled(err)) return;
-      const msg =
-        err?.response?.data?.message ||
-        err?.message ||
-        t("pk.saveFailedMsg", { defaultValue: "Failed to save publishable key" });
-      setServerError(msg);
-      dispatch({
-        type: TOAST_SHOW,
-        payload: { message: msg, severity: "error" },
-      });
-    } finally {
-      setSaving(false);
-    }
-  };
+    },
+  });
+
+  const domains = useMemo(() => parseTokens(form.allowed_domains_input), [form.allowed_domains_input]);
+  const currencies = useMemo(() => upperTokens(form.allowed_currencies_input), [form.allowed_currencies_input]);
+  const canSubmit = !!companyId && domains.length > 0 && Number(form.max_amount) >= 5 && !saving;
 
   return (
-    <PopupModal
+    <ResourceFormModal
       open={open}
-      showHeader={false}
-      transparent
-      handleClose={onClose}
-      sx={{
-        "& .MuiDialog-paper": {
-          width: "100%",
-          maxWidth: "540px",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          p: 2,
-        },
-      }}
+      onClose={onClose}
+      title={
+        mode === "create"
+          ? t("pk.createTitle", { defaultValue: "Create publishable key" })
+          : t("pk.editTitle", { defaultValue: "Edit publishable key" })
+      }
+      intro={t("pk.formIntro", {
+        defaultValue:
+          "Publishable keys are safe to use in browser code. Every request from them is checked against the domains you list below.",
+      })}
+      error={serverError}
+      errorTestId="pk-form-error"
+      cancelLabel={t("pk.cancel", { defaultValue: "Cancel" })}
+      cancelTestId="pk-form-cancel"
+      submitLabel={
+        mode === "create"
+          ? t("pk.createKey", { defaultValue: "Create key" })
+          : t("pk.saveChanges", { defaultValue: "Save changes" })
+      }
+      submitTestId="pk-form-submit"
+      canSubmit={canSubmit}
+      onSubmit={handleSubmit}
     >
-      <PanelCard
-        title={mode === "create" ? t("pk.createTitle", { defaultValue: "Create publishable key" }) : t("pk.editTitle", { defaultValue: "Edit publishable key" })}
-        showHeaderBorder={false}
-        bodyPadding={
-          isMobile
-            ? theme.spacing(2, 2, 2, 2)
-            : theme.spacing(1.5, 3.5, 3.5, 3.5)
-        }
-        headerPadding={theme.spacing(3, 3.5, 0, 3.5)}
-      >
-        <Typography
-          sx={{
-            fontSize: isMobile ? 13 : 14,
-            color: theme.palette.text.secondary,
-            mb: 2,
-          }}
-        >
-          {t("pk.formIntro", { defaultValue: "Publishable keys are safe to use in browser code. Every request from them is checked against the domains you list below." })}
-        </Typography>
+      {mode === "create" && (
+        <LabeledSelect
+          label={t("pk.environment", { defaultValue: "Environment" })}
+          value={form.environment}
+          onChange={(v) => setField("environment", v as Environment)}
+          testId="pk-form-env"
+          options={[
+            { value: "development", label: t("pk.envTest", { defaultValue: "Test — pk_test_… (recommended to try first)" }) },
+            { value: "production", label: t("pk.envLive", { defaultValue: "Live — pk_live_…" }) },
+          ]}
+        />
+      )}
 
-        <Stack spacing={2}>
-          {mode === "create" && (
-            <Box>
-              <Typography
-                sx={{
-                  fontSize: 13,
-                  fontWeight: 500,
-                  color: theme.palette.text.secondary,
-                  mb: 0.5,
-                }}
-              >
-                {t("pk.environment", { defaultValue: "Environment" })}
-              </Typography>
-              <Select
-                fullWidth
-                size="small"
-                value={form.environment}
-                onChange={(e) =>
-                  setField(
-                    "environment",
-                    e.target.value as "production" | "development",
-                  )
-                }
-                data-testid="pk-form-env"
-                sx={{
-                  fontFamily: "var(--font-sans)",
-                  fontSize: 14,
-                  borderRadius: "8px",
-                }}
-              >
-                <MenuItem value="development">
-                  {t("pk.envTest", { defaultValue: "Test — pk_test_… (recommended to try first)" })}
-                </MenuItem>
-                <MenuItem value="production">{t("pk.envLive", { defaultValue: "Live — pk_live_…" })}</MenuItem>
-              </Select>
-            </Box>
-          )}
+      <InputField
+        fullWidth
+        label={t("pk.keyNameLabel", { defaultValue: "Key name (optional)" })}
+        placeholder={t("pk.keyNamePlaceholder", { defaultValue: "e.g. Storefront checkout" })}
+        value={form.key_name}
+        onChange={(e: any) => setField("key_name", e.target.value)}
+        data-testid="pk-form-name"
+      />
 
-          <InputField
-            fullWidth
-            label={t("pk.keyNameLabel", { defaultValue: "Key name (optional)" })}
-            placeholder={t("pk.keyNamePlaceholder", { defaultValue: "e.g. Storefront checkout" })}
-            value={form.key_name}
-            onChange={(e: any) => setField("key_name", e.target.value)}
-            data-testid="pk-form-name"
-          />
+      <InputField
+        fullWidth
+        label={t("pk.allowedDomainsLabel", { defaultValue: "Allowed domains *" })}
+        placeholder="https://shop.com, *.shop.com"
+        multiline
+        minRows={2}
+        value={form.allowed_domains_input}
+        onChange={(e: any) => setField("allowed_domains_input", e.target.value)}
+        data-testid="pk-form-domains"
+      />
+      <FieldHint>
+        {t("pk.domainsHelp", {
+          defaultValue:
+            "Comma or space separated. Accepts full URLs (https://shop.com) or wildcard subdomains (*.shop.com). Requests from other origins are rejected.",
+        })}
+      </FieldHint>
+      {domains.length > 0 && <TokenChips tokens={domains} mt={-1} />}
 
-          <InputField
-            fullWidth
-            label={t("pk.allowedDomainsLabel", { defaultValue: "Allowed domains *" })}
-            placeholder="https://shop.com, *.shop.com"
-            multiline
-            minRows={2}
-            value={form.allowed_domains_input}
-            onChange={(e: any) =>
-              setField("allowed_domains_input", e.target.value)
-            }
-            data-testid="pk-form-domains"
-          />
-          <Typography
-            sx={{
-              mt: -1,
-              fontSize: 12,
-              color: theme.palette.text.secondary,
-            }}
-          >
-            {t("pk.domainsHelp", { defaultValue: "Comma or space separated. Accepts full URLs (https://shop.com) or wildcard subdomains (*.shop.com). Requests from other origins are rejected." })}
-          </Typography>
-          {domains.length > 0 && (
-            <Stack direction="row" spacing={0.5} sx={{ flexWrap: "wrap", gap: 0.5, mt: -1 }}>
-              {domains.map((d) => (
-                <Chip key={d} label={d} size="small" sx={{ height: 22, fontSize: 11 }} />
-              ))}
-            </Stack>
-          )}
+      <InputField
+        fullWidth
+        label={t("pk.maxAmountLabel", { defaultValue: "Max amount *" })}
+        placeholder="2000"
+        type="number"
+        value={form.max_amount}
+        onChange={(e: any) => setField("max_amount", e.target.value)}
+        data-testid="pk-form-max"
+      />
+      <FieldHint>
+        {t("pk.maxAmountHelp", {
+          defaultValue: "The largest single payment this key can create (in your base currency). Amount must be ≥ 5.",
+        })}
+      </FieldHint>
 
-          <InputField
-            fullWidth
-            label={t("pk.maxAmountLabel", { defaultValue: "Max amount *" })}
-            placeholder="2000"
-            type="number"
-            value={form.max_amount}
-            onChange={(e: any) => setField("max_amount", e.target.value)}
-            data-testid="pk-form-max"
-          />
-          <Typography sx={{ mt: -1, fontSize: 12, color: theme.palette.text.secondary }}>
-            {t("pk.maxAmountHelp", { defaultValue: "The largest single payment this key can create (in your base currency). Amount must be ≥ 5." })}
-          </Typography>
-
-          <InputField
-            fullWidth
-            label={t("pk.allowedCurrenciesLabel", { defaultValue: "Allowed currencies (optional)" })}
-            placeholder={t("pk.allowedCurrenciesPlaceholder", { defaultValue: "e.g. USDT-TRC20, USDC-ERC20 — leave empty to allow all configured wallets" })}
-            value={form.allowed_currencies_input}
-            onChange={(e: any) =>
-              setField("allowed_currencies_input", e.target.value)
-            }
-            data-testid="pk-form-currencies"
-          />
-          {currencies.length > 0 && (
-            <Stack direction="row" spacing={0.5} sx={{ flexWrap: "wrap", gap: 0.5, mt: -1 }}>
-              {currencies.map((c) => (
-                <Chip key={c} label={c} size="small" sx={{ height: 22, fontSize: 11 }} />
-              ))}
-            </Stack>
-          )}
-
-          {serverError && (
-            <Box
-              sx={{
-                border: `1px solid ${theme.palette.error.main}`,
-                borderRadius: "8px",
-                p: 1.25,
-                background:
-                  theme.palette.mode === "dark"
-                    ? "rgba(239,68,68,0.08)"
-                    : "rgba(239,68,68,0.06)",
-              }}
-              data-testid="pk-form-error"
-            >
-              <Typography
-                sx={{
-                  fontSize: 13,
-                  color: theme.palette.error.main,
-                  wordBreak: "break-word",
-                }}
-              >
-                {serverError}
-              </Typography>
-            </Box>
-          )}
-        </Stack>
-
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: isMobile ? "column-reverse" : "row",
-            gap: 1,
-            mt: 3,
-          }}
-        >
-          <CustomButton
-            variant="outlined"
-            size={isMobile ? "small" : "medium"}
-            label={t("pk.cancel", { defaultValue: "Cancel" })}
-            onClick={onClose}
-            data-testid="pk-form-cancel"
-            sx={{ flex: 1 }}
-          />
-          <CustomButton
-            variant="primary"
-            size={isMobile ? "small" : "medium"}
-            label={mode === "create" ? t("pk.createKey", { defaultValue: "Create key" }) : t("pk.saveChanges", { defaultValue: "Save changes" })}
-            onClick={handleSubmit}
-            disabled={!canSubmit}
-            data-testid="pk-form-submit"
-            sx={{ flex: 1 }}
-          />
-        </Box>
-      </PanelCard>
-    </PopupModal>
+      <InputField
+        fullWidth
+        label={t("pk.allowedCurrenciesLabel", { defaultValue: "Allowed currencies (optional)" })}
+        placeholder={t("pk.allowedCurrenciesPlaceholder", {
+          defaultValue: "e.g. USDT-TRC20, USDC-ERC20 — leave empty to allow all configured wallets",
+        })}
+        value={form.allowed_currencies_input}
+        onChange={(e: any) => setField("allowed_currencies_input", e.target.value)}
+        data-testid="pk-form-currencies"
+      />
+      {currencies.length > 0 && <TokenChips tokens={currencies} mt={-1} />}
+    </ResourceFormModal>
   );
 };
 
 /* ------------------------------------------------------------------ */
-/* "Just created" toast/panel — shows full key once with copy hint     */
+/* "Just created" banner — shows the full key once                     */
 /* ------------------------------------------------------------------ */
 
-const JustCreatedBanner = ({
-  pk,
-  onDismiss,
-  onCopy,
-}: {
-  pk: PublishableKey;
-  onDismiss: () => void;
-  onCopy: (v: string, label?: string) => void;
-}) => {
+const JustCreatedBanner = ({ pk, onDismiss }: { pk: PublishableKey; onDismiss: () => void }) => {
   const theme = useTheme();
   const { t } = useTranslation("apiScreen");
+  const success = theme.palette.success?.main || "#22C55E";
   return (
     <Box
       data-testid="pk-just-created-banner"
       sx={{
         mt: 1.5,
-        border: `1px solid ${theme.palette.success?.main || "#22C55E"}`,
-        background:
-          theme.palette.mode === "dark"
-            ? "rgba(34,197,94,0.08)"
-            : "rgba(34,197,94,0.06)",
+        border: `1px solid ${success}`,
+        background: theme.palette.mode === "dark" ? "rgba(34,197,94,0.08)" : "rgba(34,197,94,0.06)",
         borderRadius: "12px",
         p: 2,
       }}
     >
       <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-        <Icon
-          name="circle-check"
-          size={20}
-          color={theme.palette.success?.main || "#22C55E"}
-        />
+        <Icon name="circle-check" size={20} color={success} />
         <Typography sx={{ fontSize: 14, fontWeight: 700, color: theme.palette.text.primary }}>
           {t("pk.createdBannerTitle", { defaultValue: "Publishable key created" })}
         </Typography>
       </Box>
       <Typography sx={{ fontSize: 13, color: theme.palette.text.secondary, mb: 1 }}>
-        {t("pk.createdBannerBody", { defaultValue: "This key is safe to use in browser code. Copy it below — you can also re-copy it any time from the list." })}
+        {t("pk.createdBannerBody", {
+          defaultValue: "This key is safe to use in browser code. Copy it below — you can also re-copy it any time from the list.",
+        })}
       </Typography>
       <Box
         sx={{
           display: "flex",
           alignItems: "center",
           gap: 1,
-          background:
-            theme.palette.mode === "dark" ? "rgba(255,255,255,0.05)" : "#fff",
+          background: theme.palette.mode === "dark" ? "rgba(255,255,255,0.05)" : "#fff",
           border: `1px solid ${theme.palette.border.main}`,
           borderRadius: "8px",
           px: 1.25,
@@ -869,16 +381,7 @@ const JustCreatedBanner = ({
         }}
       >
         <Typography
-          sx={{
-            flex: 1,
-            minWidth: 0,
-            fontFamily:
-              "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
-            fontSize: 13,
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-          }}
+          sx={{ flex: 1, minWidth: 0, fontFamily: MONO_FONT, fontSize: 13, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
         >
           {pk.publishable_key}
         </Typography>
@@ -903,340 +406,113 @@ const JustCreatedBanner = ({
 };
 
 /* ------------------------------------------------------------------ */
-/* Main section                                                        */
+/* Section                                                             */
 /* ------------------------------------------------------------------ */
 
+const STATUS_RANK: Record<string, number> = { active: 0, inactive: 1, revoked: 2 };
+const ENV_RANK: Record<string, number> = { production: 0, development: 1 };
+
 const PublishableKeysSection = () => {
-  const theme = useTheme();
   const { t } = useTranslation("apiScreen");
-  const isMobile = useIsMobile("md");
-  const dispatch = useDispatch();
+  const companyId = useEffectiveCompanyId();
+  const { keys, loading, error, refetch } = usePublishableKeys<PublishableKey>(companyId, { enabled: !!companyId });
+  const kr = useKeyedResource<PublishableKey, number>({ i18nPrefix: "pk", refetch });
 
-  const selectedCompanyId = useCompanyStore().selectedCompanyId;
-  const companyList = useCompanyStore().companyList;
+  const sortedKeys = useMemo(
+    () =>
+      [...keys].sort((a, b) => {
+        const s = (STATUS_RANK[a.status] ?? 9) - (STATUS_RANK[b.status] ?? 9);
+        return s !== 0 ? s : (ENV_RANK[a.environment] ?? 9) - (ENV_RANK[b.environment] ?? 9);
+      }),
+    [keys],
+  );
 
-  // Fallback: if no company is selected yet but the user has exactly one, use it.
-  const effectiveCompanyId = useMemo(() => {
-    if (selectedCompanyId) return selectedCompanyId;
-    if (companyList.length === 1) return companyList[0].company_id;
-    return null;
-  }, [selectedCompanyId, companyList]);
-
-  // Publishable keys list — SWR-backed (shared with BuyButtonsSection + the
-  // API embed card so the list is deduped/cached instead of re-fetched per
-  // component). `loadKeys()` is kept as an alias for the SWR revalidate so all
-  // the mutation handlers below keep working unchanged.
-  const {
-    keys,
-    loading,
-    error: pkError,
-    refetch: loadKeys,
-  } = usePublishableKeys<PublishableKey>(effectiveCompanyId, {
-    enabled: !!effectiveCompanyId,
-  });
-  const loadError = pkError
-    ? (pkError as any)?.response?.data?.message ||
-      (pkError as any)?.message ||
-      t("pk.loadFailed", { defaultValue: "Failed to load publishable keys" })
-    : null;
-
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<"create" | "edit">("create");
-  const [modalKey, setModalKey] = useState<PublishableKey | null>(null);
-
-  const [revokeId, setRevokeId] = useState<number | null>(null);
-
-  const [justCreated, setJustCreated] = useState<PublishableKey | null>(null);
-
-  const snippetBase = useMemo(() => {
-    // Rendered inside merchant-facing copy-paste snippets — always canonical
-    // Dynopay host. Never fall back to window.location.origin (that would
-    // leak the preview/dev host into copy samples).
-    const fromEnv = (process.env.NEXT_PUBLIC_BASE_URL as string) || "";
-    if (fromEnv) return fromEnv.replace(/\/+$/, "");
-    return "https://checkout.dynopay.com";
-  }, []);
-
-  const handleCopy = (value: string, label = "Copied") => {
-    if (!value) return;
-    try {
-      copyToClipboard(value);
-      dispatch({
-        type: TOAST_SHOW,
-        payload: { message: t("pk.copiedToast", { defaultValue: "{{label}} copied", label }), severity: "info" },
-      });
-    } catch {
-      dispatch({
-        type: TOAST_SHOW,
-        payload: { message: t("pk.unableToCopy", { defaultValue: "Unable to copy" }), severity: "error" },
-      });
-    }
-  };
-
-  const openCreate = () => {
-    setModalMode("create");
-    setModalKey(null);
-    setModalOpen(true);
-  };
-
-  const openEdit = (pk: PublishableKey) => {
-    setModalMode("edit");
-    setModalKey(pk);
-    setModalOpen(true);
-  };
-
-  const onSaved = (msg: string, createdKey?: PublishableKey) => {
-    dispatch({
-      type: TOAST_SHOW,
-      payload: { message: msg, severity: "success" },
-    });
-    if (createdKey) setJustCreated(createdKey);
-    loadKeys();
-  };
-
-  const handleToggleStatus = async (pk: PublishableKey) => {
+  const toggleStatus = (pk: PublishableKey) => {
     if (pk.status === "revoked") return;
     const next = pk.status === "active" ? "inactive" : "active";
-    try {
-      await axiosBaseApi.patch(`publishable-keys/${pk.pub_key_id}`, {
-        status: next,
-      });
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
-          message: next === "active" ? t("pk.enabledToast", { defaultValue: "Publishable key enabled" }) : t("pk.disabledToast", { defaultValue: "Publishable key disabled" }),
-          severity: "success",
-        },
-      });
-      loadKeys();
-    } catch (err: any) {
-      if (isStepUpCancelled(err)) return;
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
-          message:
-            err?.response?.data?.message ||
-            t("pk.statusUpdateFailed", { defaultValue: "Failed to update publishable key status" }),
-          severity: "error",
-        },
-      });
-    }
+    kr.mutate(() => axiosBaseApi.patch(`publishable-keys/${pk.pub_key_id}`, { status: next }), {
+      success:
+        next === "active"
+          ? t("pk.enabledToast", { defaultValue: "Publishable key enabled" })
+          : t("pk.disabledToast", { defaultValue: "Publishable key disabled" }),
+      failed: t("pk.statusUpdateFailed", { defaultValue: "Failed to update publishable key status" }),
+    });
   };
 
   const confirmRevoke = async () => {
-    if (!revokeId) return;
+    const id = kr.removeId;
+    if (id === null) return;
     try {
-      await axiosBaseApi.delete(`publishable-keys/${revokeId}`);
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
-          message: t("pk.revokedToast", { defaultValue: "Publishable key revoked" }),
-          severity: "success",
-        },
-      });
-      loadKeys();
-    } catch (err: any) {
-      if (isStepUpCancelled(err)) return;
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
-          message:
-            err?.response?.data?.message || t("pk.revokeFailed", { defaultValue: "Failed to revoke publishable key" }),
-          severity: "error",
-        },
+      await kr.mutate(() => axiosBaseApi.delete(`publishable-keys/${id}`), {
+        success: t("pk.revokedToast", { defaultValue: "Publishable key revoked" }),
+        failed: t("pk.revokeFailed", { defaultValue: "Failed to revoke publishable key" }),
       });
     } finally {
-      setRevokeId(null);
+      kr.cancelRemove();
     }
   };
 
-  // Sort: active first, then inactive, then revoked; live before test within each.
-  const sortedKeys = useMemo(() => {
-    const statusRank: Record<string, number> = { active: 0, inactive: 1, revoked: 2 };
-    const envRank: Record<string, number> = { production: 0, development: 1 };
-    return [...keys].sort((a, b) => {
-      const s = (statusRank[a.status] ?? 9) - (statusRank[b.status] ?? 9);
-      if (s !== 0) return s;
-      return (envRank[a.environment] ?? 9) - (envRank[b.environment] ?? 9);
-    });
-  }, [keys]);
-
   return (
-    <Box
-      data-testid="publishable-keys-section"
-      sx={{
-        border: `1px solid ${theme.palette.border.main}`,
-        borderRadius: "12px",
-        background: theme.palette.background.paper,
-        p: { xs: 2, sm: 2.5 },
+    <KeyedResourceSection
+      prefix="pk"
+      sectionTestId="publishable-keys-section"
+      title={t("pk.sectionTitle", { defaultValue: "Publishable keys · Buy Button" })}
+      description={t("pk.sectionDescription", {
+        defaultValue:
+          "Browser-safe keys for drop-in <dynopay-buy-button>. Each key is domain-locked and amount-capped. Requires an active secret key of the same environment.",
+      })}
+      createLabel={{
+        short: t("pk.createShort", { defaultValue: "Create" }),
+        long: t("pk.createLong", { defaultValue: "Create publishable key" }),
       }}
+      companyId={companyId}
+      noCompanyText={t("pk.selectCompany", { defaultValue: "Select a brand to manage its publishable keys." })}
+      loading={loading}
+      loadError={describeLoadError(error, t("pk.loadFailed", { defaultValue: "Failed to load publishable keys" }))}
+      isEmpty={sortedKeys.length === 0}
+      empty={{
+        icon: "code-xml",
+        title: t("pk.emptyTitle", { defaultValue: "No publishable keys yet" }),
+        body: t("pk.emptyBody", {
+          defaultValue:
+            "Publishable keys let you embed a Buy Button or checkout on your own site. Create one to get your first embeddable snippet.",
+        }),
+        ctaLabel: t("pk.createLong", { defaultValue: "Create publishable key" }),
+      }}
+      onCreate={kr.openCreate}
+      banner={kr.justCreated && <JustCreatedBanner pk={kr.justCreated} onDismiss={kr.dismissJustCreated} />}
+      remove={{
+        open: kr.removeId !== null,
+        onClose: kr.cancelRemove,
+        onConfirm: confirmRevoke,
+        title: t("pk.revokeModalTitle", { defaultValue: "Revoke publishable key" }),
+        message: t("pk.revokeModalMessage", {
+          defaultValue:
+            "Once revoked, this publishable key can no longer create checkout sessions. Any Buy Buttons on your site using this key will stop working. This action cannot be undone.",
+        }),
+      }}
+      modal={
+        <KeyFormModal
+          open={kr.modal.open}
+          mode={kr.modal.mode}
+          companyId={companyId}
+          initialPk={kr.modal.item}
+          onClose={kr.closeModal}
+          onSaved={kr.onSaved}
+        />
+      }
     >
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: { xs: "column", sm: "row" },
-          justifyContent: "space-between",
-          alignItems: { xs: "flex-start", sm: "center" },
-          gap: 1,
-        }}
-      >
-        <Box>
-          <Typography
-            sx={{
-              fontSize: 18,
-              fontWeight: 700,
-              color: theme.palette.text.primary,
-              fontFamily: "var(--font-sans)",
-            }}
-          >
-            {t("pk.sectionTitle", { defaultValue: "Publishable keys · Buy Button" })}
-          </Typography>
-          <Typography sx={{ mt: 0.5, fontSize: 14, color: theme.palette.text.secondary }}>
-            {t("pk.sectionDescription", { defaultValue: "Browser-safe keys for drop-in <dynopay-buy-button>. Each key is domain-locked and amount-capped. Requires an active secret key of the same environment." })}
-          </Typography>
-        </Box>
-        <CustomButton
-          data-testid="pk-create-btn"
-          label={isMobile ? t("pk.createShort", { defaultValue: "Create" }) : t("pk.createLong", { defaultValue: "Create publishable key" })}
-          variant="primary"
-          size={isMobile ? "small" : "medium"}
-          endIcon={<Icon name="plus" size={isMobile ? 16 : 18} />}
-          onClick={openCreate}
-          disabled={!effectiveCompanyId}
-          sx={{ flexShrink: 0 }}
+      {sortedKeys.map((pk) => (
+        <PublishableKeyRow
+          key={pk.pub_key_id}
+          pk={pk}
+          onCopy={kr.handleCopy}
+          onEdit={kr.openEdit}
+          onRevoke={(row) => kr.requestRemove(row.pub_key_id)}
+          onToggleStatus={toggleStatus}
         />
-      </Box>
-
-      {justCreated && (
-        <JustCreatedBanner
-          pk={justCreated}
-          onDismiss={() => setJustCreated(null)}
-          onCopy={handleCopy}
-        />
-      )}
-
-      <Box sx={{ mt: 2 }}>
-        {!effectiveCompanyId ? (
-          <Box
-            sx={{
-              p: 3,
-              textAlign: "center",
-              border: `1px dashed ${theme.palette.border.main}`,
-              borderRadius: "12px",
-            }}
-            data-testid="pk-no-company"
-          >
-            <Typography sx={{ fontSize: 14, color: theme.palette.text.secondary }}>
-              {t("pk.selectCompany", { defaultValue: "Select a brand to manage its publishable keys." })}
-            </Typography>
-          </Box>
-        ) : loading ? (
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              py: 4,
-            }}
-          >
-            <CircularProgress
-              size={22}
-              sx={{ color: brandFg(theme.palette.mode === "dark") }}
-            />
-          </Box>
-        ) : loadError ? (
-          <Box
-            sx={{
-              p: 2,
-              border: `1px solid ${theme.palette.error.main}`,
-              borderRadius: "10px",
-            }}
-            data-testid="pk-load-error"
-          >
-            <Typography sx={{ fontSize: 13, color: theme.palette.error.main }}>
-              {loadError}
-            </Typography>
-          </Box>
-        ) : sortedKeys.length === 0 ? (
-          <Box
-            sx={{
-              p: 4,
-              textAlign: "center",
-              border: `1px dashed ${theme.palette.border.main}`,
-              borderRadius: "12px",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 1.25,
-            }}
-            data-testid="pk-empty"
-          >
-            <Box
-              sx={{
-                width: 48,
-                height: 48,
-                borderRadius: "14px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: theme.palette.action.hover,
-                color: brandFg(theme.palette.mode === "dark"),
-                mb: 0.5,
-              }}
-            >
-              <Icon name="code-xml" size={24} />
-            </Box>
-            <Typography sx={{ fontSize: 16, fontWeight: 700, color: theme.palette.text.primary }}>
-              {t("pk.emptyTitle", { defaultValue: "No publishable keys yet" })}
-            </Typography>
-            <Typography sx={{ fontSize: 13.5, color: theme.palette.text.secondary, maxWidth: 340, lineHeight: 1.55 }}>
-              {t("pk.emptyBody", { defaultValue: "Publishable keys let you embed a Buy Button or checkout on your own site. Create one to get your first embeddable snippet." })}
-            </Typography>
-            <Box sx={{ mt: 1 }}>
-              <CustomButton
-                label={t("pk.createLong", { defaultValue: "Create publishable key" })}
-                variant="primary"
-                size="small"
-                startIcon={<Icon name="plus" size={15} />}
-                onClick={openCreate}
-                data-testid="pk-empty-cta"
-              />
-            </Box>
-          </Box>
-        ) : (
-          <Stack spacing={1.25} data-testid="pk-list">
-            {sortedKeys.map((pk) => (
-              <PublishableKeyRow
-                key={pk.pub_key_id}
-                pk={pk}
-                onCopy={handleCopy}
-                onEdit={openEdit}
-                onRevoke={(row) => setRevokeId(row.pub_key_id)}
-                onToggleStatus={handleToggleStatus}
-                snippetBase={snippetBase}
-              />
-            ))}
-          </Stack>
-        )}
-      </Box>
-
-      <KeyFormModal
-        open={modalOpen}
-        mode={modalMode}
-        companyId={effectiveCompanyId}
-        initialPk={modalKey}
-        onClose={() => setModalOpen(false)}
-        onSaved={onSaved}
-      />
-
-      <DeleteModel
-        open={revokeId !== null}
-        onClose={() => setRevokeId(null)}
-        onConfirm={confirmRevoke}
-        title={t("pk.revokeModalTitle", { defaultValue: "Revoke publishable key" })}
-        message={t("pk.revokeModalMessage", { defaultValue: "Once revoked, this publishable key can no longer create checkout sessions. Any Buy Buttons on your site using this key will stop working. This action cannot be undone." })}
-      />
-    </Box>
+      ))}
+    </KeyedResourceSection>
   );
 };
 

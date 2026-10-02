@@ -1,5 +1,5 @@
 import useIsMobile from "@/hooks/useIsMobile";
-import { Box, Typography, CircularProgress, Skeleton, useTheme } from "@mui/material";
+import { Box, Typography, Skeleton } from "@mui/material";
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {

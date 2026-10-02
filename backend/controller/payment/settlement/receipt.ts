@@ -1,77 +1,27 @@
 import express from "express";
 import {
-  PAYMENT_TIMING,
-} from "../paymentConfig";
-import { convertToUSD, withRetry } from "../paymentHelpers";
-import {
-  currencyConvert,
   errorResponseHelper,
   getErrorMessage,
-  sendPaymentReceivedEmail,
-  sendAdminFeeReceivedEmail,
-  sendAdminFeeSweepEmail,
   successResponseHelper,
 } from "../../../helper";
-import { apiLogger, cronLogger, log } from "../../../utils/loggers";
+import { apiLogger } from "../../../utils/loggers";
 import {
-  deleteRedisItem,
   getRedisItem,
-  setRedisItem,
-  softDeleteRedisItem,
-  setRedisTTL,
 } from "../../../utils/redisInstance";
-import sequelize from "../../../utils/dbInstance";
-import { Op } from "sequelize";
 import jwt from "jsonwebtoken";
 // Product Catalog (Phase 1) — cart-order settlement fan-out
-import { handleCartPaymentSettled } from "../../../services/orderFulfillmentService";
-import { productOrderModel } from "../../../models";
 import { normalizeLang, resolveCustomerLanguage } from "../../../utils/emailI18n";
 import {
-  adminFeeModel,
   companyModel,
-  customerTransactionModel,
-  userModel,
-  userWalletModel,
 } from "../../../models";
-import { createNotification, NOTIFICATION_TYPES } from "../../notificationController";
 import { formatCryptoAmount } from "../../../utils/currencyUtils";
 import { formatBreakdown, resolveSettledBreakdown } from "./settledBreakdown";
-import { buildPaymentReceivedDisplay } from "../../../utils/paymentAmountDisplay";
-import {
-  sendPartialPaymentNotification,
-} from "../../../services/pendingPaymentService";
-import {
-  sendCustomerPaymentConfirmationEmail,
-} from "../../../services/emailService";
 import { generatePaymentReceipt, getReceiptFilename, type ReceiptData } from "../../../services/pdfReceiptService";
 import { ensureReceiptLink } from "../../../services/receiptLinkService";
 import { isMerchantIdentityVerified } from "../../../helper/merchantVerification";
-import crypto from "crypto";
-import { safeDeleteSubscription } from "../../../helper/subscriptionHelpers";
-import { incrementAdminFee, incrementUserWallet, incrementCustomerWallet } from "../../../helper/walletHelpers";
 
-import {
-  userTempAddressModel,
-  userTransactionModel,
-  merchantTempAddressModel,
-  paymentLinkModel,
-} from "../../../models";
-import { generateQRCodeWithLogo } from "../../../utils/qrCodeWithLogo";
-import { getAdminWalletAddress } from "../../../utils/adminUtils";
-import {
-  calculateTransactionFees,
-} from "../../../services/feeService";
-import { 
-  getBlockchainNetworkFee, 
-} from "../../../services/blockchainFeeService";
-import * as merchantPoolService from "../../../services/merchantPoolService";
 import { getCryptoRedisKey } from "../../../services/merchantPool/merchantPoolConfig";
-import { recordTransactionVolume, reverseTransactionVolume } from "../../../services/feeFreeService";
-import { isVolatileCrypto } from "../../../services/binanceService";
-import { createConversionRecord } from "../../../services/conversionService";
-import { PaymentState, parseState, toRedisStatus } from "../../../services/paymentStateMachine";
-import { calculateDynamicTRC20Fee } from "../../../services/tronEnergyService";
+import { PaymentState, parseState } from "../../../services/paymentStateMachine";
 import { toFixedStr } from "../../../utils/money";
 
 type CheckoutReceiptResolution =

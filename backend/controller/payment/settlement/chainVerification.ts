@@ -1,17 +1,14 @@
 import { raw as envRaw } from "../../../utils/config";
-import express from "express";
 import {
   PAYMENT_TIMING,
 } from "../paymentConfig";
-import { convertToUSD, withRetry } from "../paymentHelpers";
+import { convertToUSD } from "../paymentHelpers";
 import {
   currencyConvert,
-  errorResponseHelper,
   getErrorMessage,
   sendPaymentReceivedEmail,
   sendAdminFeeReceivedEmail,
   sendAdminFeeSweepEmail,
-  successResponseHelper,
 } from "../../../helper";
 import { apiLogger, cronLogger, log } from "../../../utils/loggers";
 import {
@@ -24,13 +21,11 @@ import {
 } from "../../../utils/redisInstance";
 import sequelize from "../../../utils/dbInstance";
 import { Op } from "sequelize";
-import jwt from "jsonwebtoken";
 // Product Catalog (Phase 1) — cart-order settlement fan-out
 import { handleCartPaymentSettled } from "../../../services/orderFulfillmentService";
 import { productOrderModel } from "../../../models";
 import { emailDateParts, normalizeLang, resolveCustomerLanguage } from "../../../utils/emailI18n";
 import {
-  adminFeeModel,
   companyModel,
   customerTransactionModel,
   userModel,
@@ -51,7 +46,6 @@ import {
 import {
   sendCustomerPaymentConfirmationEmail,
 } from "../../../services/emailService";
-import { generatePaymentReceipt, getReceiptFilename } from "../../../services/pdfReceiptService";
 import { explorerTxUrl } from "../../../services/receiptLinkService";
 import crypto from "crypto";
 import { safeDeleteSubscription } from "../../../helper/subscriptionHelpers";
@@ -70,16 +64,11 @@ import { getAdminWalletAddress } from "../../../utils/adminUtils";
 import {
   calculateTransactionFees,
 } from "../../../services/feeService";
-import { 
-  getBlockchainNetworkFee, 
-} from "../../../services/blockchainFeeService";
 import * as merchantPoolService from "../../../services/merchantPoolService";
-import { getCryptoRedisKey } from "../../../services/merchantPool/merchantPoolConfig";
 import { recordTransactionVolume, reverseTransactionVolume } from "../../../services/feeFreeService";
 import { isVolatileCrypto } from "../../../services/binanceService";
 import { createConversionRecord } from "../../../services/conversionService";
-import { PaymentState, parseState, toRedisStatus, persistTransition } from "../../../services/paymentStateMachine";
-import { calculateDynamicTRC20Fee } from "../../../services/tronEnergyService";
+import { PaymentState, toRedisStatus, persistTransition } from "../../../services/paymentStateMachine";
 import { getAvailableCreditForFees, consumeReferralCreditForTransaction } from "../../../services/referralCreditService";
 import { dispatchCompanyEmail } from "../../../services/email/companyDispatch";
 import { buildBuyAgainLink } from "../../../services/email/buyAgainLink";

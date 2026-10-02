@@ -25,7 +25,6 @@ import { randomUUID } from "crypto";
 import type { Transaction } from "sequelize";
 import LedgerEntry, { Direction } from "../../models/ledger/ledgerEntryModel";
 import LedgerAccount from "../../models/ledger/ledgerAccountModel";
-import { cronLogger } from "../../utils/loggers";
 import { toFixedStr } from "../../utils/money";
 
 // ─── Decimal helpers (avoid float loss; PG DECIMAL round-trip) ────────────────

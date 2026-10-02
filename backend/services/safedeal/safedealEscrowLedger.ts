@@ -6,8 +6,8 @@ import { resolveCustomerForBrand, CustomerRow } from "../customerWalletService";
 import { adminNotifyOnCreate } from "./safedealAdminNotify";
 import { applyEntries, EntryInput } from "./safedealWallet";
 import { toFixedStr } from "../../utils/money";
+import { round2Float as round2 } from "../../utils/money";
 
-const round2 = (n: number) => Math.round((Number(n) + Number.EPSILON) * 100) / 100;
 
 export interface DealParties {
   buyer: CustomerRow;

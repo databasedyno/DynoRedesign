@@ -73,6 +73,11 @@ jobs:
         working-directory: backend
         run: ./node_modules/.bin/tsc --noEmit
 
+      # Hygiene gate (2026-10 audit removed ~2,180 unused backend imports): fails
+      # when any import binding is unused. Fix locally with the same script minus --check.
+      - name: No unused imports (backend)
+        run: node scripts/qa/strip_unused_imports.cjs backend/tsconfig.json --check
+
   # ─────────────────────────────────────────────────────────────────────
   # Frontend strict tsc — HARD GATE (joined the club 2026-08-02 s97h).
   #
@@ -114,6 +119,10 @@ jobs:
 
       - name: Run tsc --noEmit (strict — zero errors allowed)
         run: ./node_modules/.bin/tsc --noEmit
+
+      # Hygiene gate (2026-10 audit): no unused import bindings in the frontend.
+      - name: No unused imports (frontend)
+        run: node scripts/qa/strip_unused_imports.cjs tsconfig.json --check --skip=backend,scripts
 
   # ─────────────────────────────────────────────────────────────────────
   # Exact Dockerfile build — the same `docker build` the deploy runs,

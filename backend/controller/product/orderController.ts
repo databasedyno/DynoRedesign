@@ -23,7 +23,6 @@ import {
   paymentReceiptModel,
 } from "../../models";
 import { buildReceiptUrl, loadMerchantContact } from "../../services/receiptLinkService";
-import productModel from "../../models/userModels/productModel";
 import {
   successResponseHelper,
   errorResponseHelper,

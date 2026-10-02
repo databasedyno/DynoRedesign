@@ -6,7 +6,6 @@
  */
 import sequelize from "../utils/dbInstance";
 import { QueryTypes } from "sequelize";
-import { apiLogger } from "../utils/loggers";
 import { getRedisItem, setRedisItem, setRedisTTL } from "../utils/redisInstance";
 import { processedStatusSql } from "../utils/processedVolume";
 import { toNumber } from "../utils/money";

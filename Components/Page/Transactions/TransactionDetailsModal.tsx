@@ -18,7 +18,6 @@ import USDTIcon from "@/assets/cryptocurrency/USDT-icon.svg";
 import USDCIcon from "@/assets/cryptocurrency/USDC-icon.svg";
 
 import RoundedStackIcon from "@/assets/Icons/roundedStck-icon.svg";
-import TransactionIcon from "@/assets/Icons/transaction-icon.svg";
 
 import InputField from "@/Components/UI/AuthLayout/InputFields";
 import Toast from "@/Components/UI/Toast";

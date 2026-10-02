@@ -16,6 +16,7 @@ import {
   isStableFundingCoin,
   DEFAULT_PAYOUT_KEY,
 } from "../../services/escrow/escrowCosts";
+import { round2Float as round2 } from "../../utils/money";
 
 export type EscrowRole = "buyer" | "seller";
 export type FeePayer = "buyer" | "seller" | "split";
@@ -151,9 +152,6 @@ export interface FeeBreakdown {
   feeModel: "v1" | "v2";
 }
 
-function round2(n: number): number {
-  return Math.round((Number(n) + Number.EPSILON) * 100) / 100;
-}
 
 /** True when a coin string represents USDT on any network (already the custody asset). */
 function isUsdtCoin(coin?: string | null): boolean {

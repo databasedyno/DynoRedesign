@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import useSWR from "swr";
 import { Box, Button, CircularProgress, Switch, Typography, useTheme, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import { Icon } from "@iconify/react";
@@ -11,7 +11,7 @@ import { USER_PROFILE_FETCH, UserAction } from "@/Redux/Actions/UserAction";
 import { rootReducer } from "@/utils/types";
 import { getCreatorBaseUrl } from "@/helpers/creatorUrl";
 import { isPlaceholderBrandName } from "@/helpers/brandName";
-import CreatorThemePicker, { CreatorTheme, CoverStyle } from "@/Components/Page/Creator/CreatorThemePicker";
+import CreatorThemePicker, { CoverStyle } from "@/Components/Page/Creator/CreatorThemePicker";
 import HandleQrCode from "@/Components/Page/Creator/HandleQrCode";
 import AnalyticsWidget, { CreatorAnalyticsData } from "@/Components/Page/Creator/AnalyticsWidget";
 import { BRAND_ACCENT, brandFg } from "@/constants/theme";

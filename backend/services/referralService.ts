@@ -1,7 +1,6 @@
 import crypto from 'crypto';
 import { apiLogger } from "../utils/loggers";
-import { Op, QueryTypes } from 'sequelize';
-import sequelize from '../utils/dbInstance';
+import { Op } from 'sequelize';
 import User from '../models/userModels/userModel';
 import RefereeCode from '../models/referralModels/refereeCodeModel';
 import Referral from '../models/referralModels/referralModel';

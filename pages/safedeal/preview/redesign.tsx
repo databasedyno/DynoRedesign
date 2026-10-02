@@ -5,7 +5,7 @@ import { Icon } from "@iconify/react";
 import type { NextPageWithLayout } from "@/pages/_app";
 import { useSdHref } from "@/Components/SafeDeal/sdRouting";
 import { SafeDealLogo } from "@/Components/SafeDeal/SafeDealShell";
-import { SD_GOLD, SD_GOLD_DARK, SD_INK, SD_BORDER, SD_TEXT_MUTED, goldAlpha } from "@/Components/SafeDeal/sdTheme";
+import { SD_GOLD, SD_GOLD_DARK, SD_INK, SD_TEXT_MUTED, goldAlpha } from "@/Components/SafeDeal/sdTheme";
 
 /**
  * PRIVATE compare page for the SafeDeal landing redesign round.

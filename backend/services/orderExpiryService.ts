@@ -28,7 +28,6 @@ import { Op } from "sequelize";
 import {
   productOrderModel,
   productOrderItemModel,
-  paymentLinkModel,
   userModel,
 } from "../models";
 import sequelize from "../utils/dbInstance";

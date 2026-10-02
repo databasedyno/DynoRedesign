@@ -12,7 +12,6 @@ import { formatDateI18n } from "@/utils/formatDate";
 import { brandFg } from "@/constants/theme";
 import CodeCopyButton from "@/Components/UI/CodeCopyButton";
 import {
-  Body,
   HeadlineL,
   HeadlineS,
 } from "@/Components/Page/Home/v3/styled.v3";

@@ -1,9 +1,8 @@
 import mailTransporter from "../../utils/mailTransporter";
-import config from "../../utils/config";
 import { apiLogger } from "../../utils/loggers";
 import { captureError } from "../errorMonitoringService";
 import { emailDateParts, t, resolveEmailLang, firstNameOnly } from "../../utils/emailI18n";
-import { baseEmailTemplate, infoBox, dataRow, statusBadge, p, feeRow, feeTotalRow, feeTable, mono } from "../../utils/emailTemplate";
+import { infoBox, dataRow, statusBadge, p, mono } from "../../utils/emailTemplate";
 import { EMAIL_TOKENS } from "../../utils/brandTokens";
 import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, dynoPayGreetingTemplate, formatMoneyForEmail } from "./emailShared";
 import { toFixedStr } from "../../utils/money";

@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo, useEffect, memo } from "react";
-import { Box, Typography, useTheme, useMediaQuery, Grid, Divider, Autocomplete, TextField, InputBase, Fab, Fade, Drawer, Button } from "@mui/material";
+import { Box, Typography, useTheme, Grid, Autocomplete, TextField, InputBase, Drawer, Button } from "@mui/material";
 import { brandFg } from "@/constants/theme";
-import { styled, alpha } from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 import { useRouter } from "next/router";
 import PublicPageHero from "@/Components/Page/Home/v5/PublicPageHero";
 import PublicFinalCta from "@/Components/Page/Home/v5/PublicFinalCta";
@@ -24,13 +24,11 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CheckIcon from "@mui/icons-material/Check";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import SearchIcon from "@mui/icons-material/Search";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import MenuBookOutlinedIcon from "@mui/icons-material/MenuBookOutlined";
-import { useTranslation } from "react-i18next";
 import copyToClipboard from "@/helpers/copyToClipboard";
-import { BRAND_ACCENT, GOLD, GOLD_DEEP } from "@/constants/theme";
+import { GOLD, GOLD_DEEP } from "@/constants/theme";
 
 /* ================================================================
    TYPES

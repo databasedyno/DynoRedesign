@@ -1,6 +1,6 @@
 import { pageProps } from "@/utils/types";
 import { Box } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import HelpAndSupport from "@/Components/Page/HelpAndSupport";
 

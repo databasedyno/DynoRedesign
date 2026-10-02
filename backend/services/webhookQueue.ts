@@ -13,7 +13,7 @@
 
 import { raw as envRaw } from "../utils/config";
 import { bullmqConnection } from "../utils/redisConnection";
-import { Queue, Worker, Job, QueueEvents } from "bullmq";
+import { Queue, Worker, Job } from "bullmq";
 import { webhookLogs } from "../utils/loggers";
 import { log } from "../utils/loggers";
 import { captureError } from "./errorMonitoringService";

@@ -41,7 +41,6 @@ import {
   isCancellationRefund,
   cancellationFeePercent,
 } from "./escrow/escrowShared";
-import { refreshEscrowCostRates } from "../services/escrow/escrowCosts";
 import { recordFundingReceived, fundFromBalance, settleToWallets } from "../services/safedeal/safedealEscrowLedger";
 import { getBalances } from "../services/safedeal/safedealWallet";
 import { settlementPayout, addWithdrawalFeeCredit, type SettlementPayoutResult } from "../services/safedeal/safedealWithdrawals";

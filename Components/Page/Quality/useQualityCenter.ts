@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TEST_SECTIONS } from "@/data/qaCatalog";
 import { resolveWhere } from "@/data/qaWhere";
 import { STATUS_META } from "./QaItemCard";

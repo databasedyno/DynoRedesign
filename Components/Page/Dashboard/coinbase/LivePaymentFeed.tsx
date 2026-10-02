@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { Box, Skeleton, useTheme, keyframes } from "@mui/material";
 import {
   BoltRounded,

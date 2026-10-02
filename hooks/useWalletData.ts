@@ -1,6 +1,5 @@
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { useWalletStore } from "@/contexts/WalletDataContext";
-import { rootReducer } from "@/utils/types";
 import { useEffect, useMemo, useState, useRef } from "react";
 
 import BitcoinIcon from "@/assets/cryptocurrency/Bitcoin-icon.svg";

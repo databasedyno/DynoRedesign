@@ -12,15 +12,7 @@ export const FRONTEND_BASE_URL = (config.frontendUrl || 'https://dynopay.com').r
 /**
  * Escape untrusted strings for embedding in HTML email bodies.
  */
-export const escapeHtml = (s: string | null | undefined): string => {
-  if (s == null) return "";
-  return String(s)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-};
+export { escapeHtml } from "../../utils/escapeHtml";
 
 /**
  * Dynopay Unified Email Service — shared template helpers

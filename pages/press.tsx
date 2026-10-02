@@ -9,7 +9,6 @@ import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import MailOutlineRoundedIcon from "@mui/icons-material/MailOutlineRounded";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "@/Components/Page/Home/v3/theme.v3";
-import { BRAND_ACCENT } from "@/constants/theme";
 import { Section, SectionHead, PrimaryBtn, SecondaryBtn } from "@/Components/Page/Home/v5/shared";
 import { Stagger, StaggerItem } from "@/Components/Page/Home/motion/Stagger";
 import PublicPageHero from "@/Components/Page/Home/v5/PublicPageHero";

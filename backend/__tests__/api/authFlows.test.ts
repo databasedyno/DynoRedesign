@@ -8,7 +8,6 @@
  * - Session management
  */
 import supertest from "supertest";
-import express from "express";
 
 // We test against the running server
 const BASE_URL = process.env.TEST_BASE_URL || "http://localhost:8001";

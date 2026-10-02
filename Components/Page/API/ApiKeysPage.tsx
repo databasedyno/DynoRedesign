@@ -30,7 +30,6 @@ import PublishableKeysSection from "./PublishableKeysSection";
 import BuyButtonsSection from "./BuyButtonsSection";
 import SandboxSimulatorCard from "./SandboxSimulatorCard";
 import WebhookConsoleSection from "./WebhookConsoleSection";
-import UnitedStatesFlag from "@/assets/Images/Icons/flags/united-states-flag.png";
 import { stringShorten } from "@/helpers";
 import useIsMobile from "@/hooks/useIsMobile";
 import usePublishableKeys from "@/hooks/usePublishableKeys";

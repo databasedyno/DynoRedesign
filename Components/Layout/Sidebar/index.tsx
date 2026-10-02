@@ -1,11 +1,10 @@
 import { Box } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 import { BottomBullets } from "./styled";
 import { useRouter } from "next/router";
 import {
   InfoRounded,
-  LoupeOutlined,
   SettingsRounded,
 } from "@mui/icons-material";
 import useTokenData from "@/hooks/useTokenData";

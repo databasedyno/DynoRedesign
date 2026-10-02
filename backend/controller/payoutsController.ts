@@ -10,7 +10,7 @@ import { IUserType } from "../utils/types";
 import { validateCompanyOwnership } from "../utils/validateCompanyOwnership";
 import { getRedisItem, setRedisItemWithTTL, invalidateCache } from "../utils/redisInstance";
 import { convertToFiat, getCurrencySymbol, getUserDisplayCurrency } from "../utils/currencyUtils";
-import { toNumber } from "../utils/money";
+import { toNumber, num } from "../utils/money";
 import { OverviewScope, coinsWithoutWallet } from "../services/dashboard/overviewQueries";
 import { resolveRange } from "./dashboardOverviewController";
 import {
@@ -23,10 +23,6 @@ import {
 } from "../services/payouts/payoutQueries";
 
 const CACHE_TTL = 30;
-const num = (v: unknown): number => {
-  const n = parseFloat(String(v ?? "0"));
-  return Number.isFinite(n) ? n : 0;
-};
 const mask = (a: unknown) => {
   const s = String(a || "");
   return s.length <= 12 ? s : `${s.slice(0, 6)}…${s.slice(-4)}`;

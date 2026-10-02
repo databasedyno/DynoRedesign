@@ -3,34 +3,17 @@ import express from "express";
 import {
   downloadUserImage,
   errorResponseHelper,
-  getErrorMessage,
-  getMinutesBetweenDates,
-  sendEmail,
   successResponseHelper,
 } from "../../helper/index";
 import { handleControllerError } from "../../helper/controllerErrorHandler";
 import emailService from "../../services/emailService";
-import { adminWalletModel, userModel, userWalletModel, companyModel, apiModel, loginActivityModel } from "../../models";
-import { userWalletAddressModel } from "../../models/userModels";
-import notificationModel from "../../models/notificationModel";
-import notificationPreferencesModel from "../../models/notificationPreferencesModel";
-import kycModel from "../../models/kycModel";
-import sha256 from "crypto-js/sha256";
-import { hashPassword, verifyPassword, validatePasswordStrength } from "../../helper/passwordHelper";
-import crypto from "crypto";
-import sequelize from "../../utils/dbInstance";
-import { QueryTypes, Op } from "sequelize";
-import jwt from "jsonwebtoken";
-import { IUserType } from "../../utils/types";
+import { userModel } from "../../models";
+import { Op } from "sequelize";
 import axios from "axios";
 import { userLogger } from "../../utils/loggers";
-import { getRedisItem, setRedisItem, setRedisTTL, deleteRedisItem, setRedisItemWithTTL, redis } from "../../utils/redisInstance";
-import { isAccountLocked, recordFailedAttempt, clearFailedAttempts } from "../../services/accountLockoutService";
 import { createSession } from "../../services/sessionService";
-import { finalizeUploadedImage } from "../../services/objectStorage";
-import { is2FARequired } from "../../services/twoFactorService";
 import { normalizeLang } from "../../utils/emailI18n";
-import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, requires2FAChallenge, getAccessToken, sendEmailOTP, sendTelnyxSMS } from "./userShared";
+import { _formatAttribution, createUserWallets, generateReferralCode, requires2FAChallenge } from "./userShared";
 import { getClientIp, captureSignupContext } from "../../utils/clientContext";
 import { deriveNameParts } from "../../utils/nameUtils";
 

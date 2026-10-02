@@ -77,7 +77,7 @@ export { recoverWrongAssetDeposits, WRONG_ASSET_TOKENS } from "./merchantPool/wr
 // Default export for backward compatibility with `import merchantPoolService from ...`
 import { POOL_CONFIG, UTXO_CHAINS, NATIVE_CURRENCIES, TOKEN_CHAINS, FEE_WALLETS, ADMIN_WALLETS, TOKEN_CONTRACTS, getSweepConfig } from "./merchantPool/merchantPoolConfig";
 import { getOrCreateMerchantWallet, addAddressToMerchantPool, initializeMerchantPool, prewarmPoolAddresses, retryPendingTrustLines } from "./merchantPool/merchantPoolWallet";
-import { reserveAddress, getAvailableAddress, markPaymentReceived, handlePartialPayment, handleBelowThresholdPayment, releaseExpiredReservations, releaseAddress, cleanupStaleAddresses, processQueuedPayments, preWarmAddressPool, replenishPreReservedPool } from "./merchantPool/merchantPoolReservation";
+import { reserveAddress, getAvailableAddress, markPaymentReceived, handlePartialPayment, handleBelowThresholdPayment, releaseExpiredReservations, releaseAddress, cleanupStaleAddresses, processQueuedPayments } from "./merchantPool/merchantPoolReservation";
 import { fundGasIfNeeded, reclaimExcessGas, sweepPoolAddress, sweepByThreshold, sweepByTime, performScheduledSweeps } from "./merchantPool/merchantPoolSweep";
 import { recordPoolTransaction, getPoolStatus, findByWalletAddress } from "./merchantPool/merchantPoolTransaction";
 import { ensurePoolSubscriptions, checkMissedPayments, detectOrphanPayments } from "./merchantPool/merchantPoolMonitoring";

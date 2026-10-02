@@ -18,10 +18,9 @@
 import { raw as envRaw } from "../utils/config";
 import WebSocket from "ws";
 import axios from "axios";
-import { SocksProxyAgent } from "socks-proxy-agent";
-import { setRedisItemWithTTL, getRedisItem } from "../utils/redisInstance";
+import { setRedisItemWithTTL } from "../utils/redisInstance";
 import { captureError } from "./errorMonitoringService";
-import { getEffectiveProxyAgent, detectBinanceAccess, setProxyStateChangeCallback } from "./binanceService";
+import { getEffectiveProxyAgent, setProxyStateChangeCallback } from "./binanceService";
 import { cronLogger } from "../utils/loggers";
 import { toFixedStr, toNumber } from "../utils/money";
 

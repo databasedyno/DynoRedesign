@@ -7,7 +7,7 @@ import crypto from "crypto";
 import { QueryTypes, Transaction } from "sequelize";
 import sequelize from "../utils/dbInstance";
 import { apiLogger } from "../utils/loggers";
-import { toFixedStr, toNumber } from "../utils/money";
+import { toFixedStr, round2 } from "../utils/money";
 
 export class CustomerWalletError extends Error {
   statusCode: number;
@@ -43,7 +43,6 @@ export interface LedgerEntry {
   created_at: string;
 }
 
-const round2 = (n: number): number => toNumber(Number(n) || 0, 2);
 
 /** Find a customer row that belongs to the brand — by numeric id or by e-mail (creates one when missing). */
 export const resolveCustomerForBrand = async (params: {

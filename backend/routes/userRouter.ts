@@ -7,7 +7,7 @@ import {
   loginRateLimiter,
   otpRateLimiter 
 } from "../middleware/rateLimitMiddleware";
-import { validate, loginSchema, registerSchema, forgotPasswordSchema, resetPasswordSchema, changePasswordSchema, twoFAValidateSchema } from "../middleware/validateRequest";
+import { validate, loginSchema, registerSchema, forgotPasswordSchema, changePasswordSchema, twoFAValidateSchema } from "../middleware/validateRequest";
 import sessionController from "../controller/sessionController";
 import twoFactorController from "../controller/twoFactorController";
 import twoFactorEnrollController from "../controller/twoFactorEnrollController";

@@ -5,7 +5,7 @@ import {
   SidebarFooter,
 } from "@/Components/Layout/NewSidebar/styled";
 import CardGiftcardRounded from "@mui/icons-material/CardGiftcardRounded";
-import { BRAND_ACCENT, brandFg } from "@/constants/theme";
+import { brandFg } from "@/constants/theme";
 import { useTheme } from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/router";

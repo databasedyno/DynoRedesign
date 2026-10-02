@@ -5,7 +5,7 @@ import { Box, InputAdornment, TextField, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { SxProps, Theme } from "@mui/system";
 import Image, { StaticImageData } from "next/image";
-import React, { useCallback, useId, useMemo, useState } from "react";
+import React, { useCallback, useId, useMemo } from "react";
 
 export interface InputFieldProps {
   label?: string | React.ReactNode | React.ReactElement;

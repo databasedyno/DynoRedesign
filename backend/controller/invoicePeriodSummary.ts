@@ -9,15 +9,11 @@ import { IUserType } from "../utils/types";
 import { validateCompanyOwnership } from "../utils/validateCompanyOwnership";
 import { getRedisItem, setRedisItemWithTTL } from "../utils/redisInstance";
 import { convertToFiat, getCurrencySymbol, getUserDisplayCurrency, getUsdToFiatRate } from "../utils/currencyUtils";
-import { toNumber } from "../utils/money";
+import { toNumber, num } from "../utils/money";
 import { PROCESSED_STATUS_SQL } from "../utils/processedVolume";
 import { GROSS_USD, NET_USD, companyScopeSql, fromClause, OverviewScope } from "../services/dashboard/overviewQueries";
 
 const CACHE_TTL = 60;
-const num = (v: unknown): number => {
-  const n = parseFloat(String(v ?? "0"));
-  return Number.isFinite(n) ? n : 0;
-};
 
 const parseDate = (v: unknown, fallback: Date): Date => {
   if (!v) return fallback;

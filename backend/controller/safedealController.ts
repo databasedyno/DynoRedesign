@@ -80,6 +80,7 @@ import {
   streamAttachment,
   validatePendingIds,
 } from "../services/safedeal/safedealAttachments";
+import { round2Float as round2 } from "../utils/money";
 
 const { EscrowError, fail } = escrowEngine;
 
@@ -570,7 +571,6 @@ const maskEmail = (e: string) => {
 // ── Multi-fiat pricing ───────────────────────────────────────────────────────
 // The deal is priced in `price_currency`; `amount` (USD) is indicative until the
 // buyer funds, then locked at the live rate so custody (USDT) matches the agreed price.
-const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
 export const PRICE_CURRENCIES = SUPPORTED_BASE_CURRENCIES;
 
 async function fiatToUsd(currency: string, amount: number): Promise<{ usd: number; rate: number }> {

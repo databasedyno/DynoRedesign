@@ -17,7 +17,7 @@ import { TransactionAction, TRANSACTION_FETCH } from "@/Redux/Actions/Transactio
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import useAccountProfile from "@/hooks/useAccountProfile";
-import { BRAND_ACCENT, brandFg } from "@/constants/theme";
+import { BRAND_ACCENT } from "@/constants/theme";
 import {
   IconBox,
   Menu,

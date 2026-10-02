@@ -1,24 +1,22 @@
 import { raw as envRaw } from "../utils/config";
 import express from "express";
 import {
-  encrypt,
   errorResponseHelper,
-  generateApiKeyName,
   getErrorMessage,
   successResponseHelper,
 } from "../helper";
 import { handleControllerError } from "../helper/controllerErrorHandler";
-import { formatAmountForDisplay, getCurrencyInfo, COMPANY_CURRENCY_QUERY, convertToFiat, getCompanyDisplayCurrency, getUserDisplayCurrency, SUPPORTED_DISPLAY_CURRENCIES, isSupportedDisplayCurrency } from "../utils/currencyUtils";
+import { formatAmountForDisplay, getCurrencyInfo, convertToFiat, getCompanyDisplayCurrency, getUserDisplayCurrency, SUPPORTED_DISPLAY_CURRENCIES, isSupportedDisplayCurrency } from "../utils/currencyUtils";
 import { resolveTransactionSource, SAFEDEAL_SOURCE_JOIN_SQL, SAFEDEAL_SOURCE_SELECT_SQL } from "../utils/transactionSource";
 import { deriveTxDisplayStatus } from "../utils/transactionDisplayStatus";
 import { validateBrandName } from "../utils/brandName";
 import jwt from "jsonwebtoken";
 import { IUserType } from "../utils/types";
-import { apiModel, companyModel, customerModel, customerWalletModel, userModel, stablecoinConversionModel, userWalletModel, teamMemberModel } from "../models";
+import { companyModel, userModel, teamMemberModel } from "../models";
 import { companyLogger } from "../utils/loggers";
 import sequelize from "../utils/dbInstance";
 import { QueryTypes, Op } from "sequelize";
-import { sendCompanyProfileCreatedEmail, sendCompanyProfileUpdatedEmail, sendCompanyDeletedEmail, sendBrandSoftDeletedEmail, sendBrandDeletedAdminEmail } from "../services/emailService";
+import { sendCompanyProfileCreatedEmail, sendCompanyProfileUpdatedEmail, sendBrandSoftDeletedEmail, sendBrandDeletedAdminEmail } from "../services/emailService";
 import { scheduleBrandWelcomeEmail } from "../services/email/brandWelcomeScheduler";
 import { BRAND_DELETE_GRACE_DAYS } from "../services/brandPurgeService";
 import { isSafeDealBrand } from "../helper/protectedEntities";

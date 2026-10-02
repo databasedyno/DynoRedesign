@@ -16,11 +16,11 @@ import { getEscrowCostRates, isStableFundingCoin, sweepFeeUsdFor, awaitFreshRate
 import { isLiveSettlementEnabled, isSimulationAllowed } from "../../controller/escrow/escrowShared";
 import { applyEntries } from "./safedealWallet";
 import { FUNDING_COIN_META, configuredFundingCoins, requestDynopayPayment } from "./safedealCheckout";
+import { round2Float as round2 } from "../../utils/money";
 
 export const MIN_TOPUP_USD = num("SAFEDEAL_MIN_TOPUP_USD", 10);
 export const MAX_TOPUP_USD = num("SAFEDEAL_MAX_TOPUP_USD", 25000);
 const RESERVATION_MINUTES = num("RESERVATION_TIMEOUT_MINUTES", 120);
-const round2 = (n: number) => Math.round((Number(n) + Number.EPSILON) * 100) / 100;
 
 export type TopupStatus = "waiting" | "pending" | "underpaid" | "credited" | "expired";
 

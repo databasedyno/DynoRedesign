@@ -1,39 +1,22 @@
 import { raw as envRaw } from "../../utils/config";
 import express from "express";
 import {
-  downloadUserImage,
   errorResponseHelper,
-  getErrorMessage,
-  getMinutesBetweenDates,
-  sendEmail,
   successResponseHelper,
 } from "../../helper/index";
 import { handleControllerError } from "../../helper/controllerErrorHandler";
-import emailService from "../../services/emailService";
-import { adminWalletModel, userModel, userWalletModel, companyModel, apiModel, loginActivityModel } from "../../models";
+import { userModel, companyModel, apiModel } from "../../models";
 import { userWalletAddressModel } from "../../models/userModels";
-import notificationModel from "../../models/notificationModel";
-import notificationPreferencesModel from "../../models/notificationPreferencesModel";
-import kycModel from "../../models/kycModel";
-import sha256 from "crypto-js/sha256";
-import { hashPassword, verifyPassword, validatePasswordStrength } from "../../helper/passwordHelper";
-import crypto from "crypto";
-import sequelize from "../../utils/dbInstance";
-import { QueryTypes, Op } from "sequelize";
 import jwt from "jsonwebtoken";
 import { IUserType } from "../../utils/types";
-import axios from "axios";
 import { userLogger } from "../../utils/loggers";
-import { getRedisItem, setRedisItem, setRedisTTL, deleteRedisItem, setRedisItemWithTTL, redis } from "../../utils/redisInstance";
-import { isAccountLocked, recordFailedAttempt, clearFailedAttempts } from "../../services/accountLockoutService";
-import { createSession } from "../../services/sessionService";
+import { getRedisItem, setRedisItem, setRedisTTL, deleteRedisItem } from "../../utils/redisInstance";
 import { finalizeUploadedImage } from "../../services/objectStorage";
-import { is2FARequired } from "../../services/twoFactorService";
 import { normalizeLang } from "../../utils/emailI18n";
 import { resolveFeeFreeRemaining } from "../../services/feeFreeService";
 import { isMerchantIdentityVerified } from "../../helper/merchantVerification";
 import { deriveNameParts } from "../../utils/nameUtils";
-import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, getAccessToken, sendEmailOTP, sendTelnyxSMS } from "./userShared";
+import { PROFILE_CACHE_TTL, _formatAttribution, getAccessToken } from "./userShared";
 
 // Legal name is locked once the account is identity-verified (KYC approved).
 // Shared message so updateUser + updateProfile stay in sync.

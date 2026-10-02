@@ -3,7 +3,6 @@
 import type React from "react";
 import { MenuRounded } from "@mui/icons-material";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
-import { BRAND_ACCENT } from "@/constants/theme";
 import {
   Box,
   BoxProps,

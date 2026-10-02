@@ -4,7 +4,7 @@ import sequelize from "../utils/dbInstance";
 import User from "../models/userModels/userModel";
 import Referral from "../models/referralModels/referralModel";
 import ReferralReward from "../models/referralModels/referralRewardModel";
-import { div, mul, roundTo, sum, toFixedStr, toNumber } from "../utils/money";
+import { div, mul, roundTo, sum, toFixedStr, round2 } from "../utils/money";
 import { redis } from "../utils/redisInstance";
 
 /** Fee-credit alert thresholds (Matrix B/C). Low alert fires below $10; exhausted at $0. */
@@ -80,7 +80,6 @@ export const maybeAlertReferralCredit = async (userId: number): Promise<void> =>
  * is reserved for USDT-TRC20 cash-out).
  */
 
-const round2 = (n: number): number => toNumber((Number(n) || 0), 2);
 
 /** Account-level referral balance available to spend as FEE CREDIT ($ USD). */
 export const getAvailableCreditForFees = async (userId: number): Promise<number> => {

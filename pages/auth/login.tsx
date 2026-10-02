@@ -3,7 +3,6 @@ import { keyframes } from "@emotion/react";
 import { brandFg } from "@/constants/theme";
 import EditIcon from "@/assets/Icons/editicon.png";
 import LoadingIcon from "@/assets/Icons/LoadingIcon";
-import ArrowUpwardIcon from "@/assets/Icons/up-arrow-icon.png";
 import Logo from "@/assets/Icons/home/dynopay-blackLogo.svg";
 import WhiteLogo from "@/assets/Icons/home/dynopay-whiteLogo.svg";
 import axiosBaseApi from "@/axiosConfig";
@@ -19,14 +18,11 @@ import { AuthHeaderControls } from "@/Components/UI/AuthLayout/AuthShell";
 import OtpDialog from "@/Components/UI/OtpDialog";
 import TwoFactorLoginDialog from "@/Components/UI/TwoFactorLoginDialog";
 import OtpInputPanel from "@/Components/UI/OtpInputPanel";
-import CustomRadio from "@/Components/UI/RadioGroup";
 import {
-  AuthContainer,
   AuthPageBackground,
   SplitScreenWrapper,
   SplitFormColumn,
   FormPanel,
-  CardWrapper,
 } from "@/Containers/Login/styled";
 import useIsMobile from "@/hooks/useIsMobile";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
@@ -52,7 +48,6 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import {
   Box,
   Divider,
-  RadioGroup,
   Typography,
   useTheme,
 } from "@mui/material";

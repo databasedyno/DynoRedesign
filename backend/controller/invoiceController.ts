@@ -1,10 +1,9 @@
 import { raw as envRaw } from "../utils/config";
 import express from "express";
 import jwt from "jsonwebtoken";
-import { Op, fn, col, literal } from "sequelize";
+import { Op } from "sequelize";
 import {
   errorResponseHelper,
-  getErrorMessage,
   successResponseHelper,
 } from "../helper";
 import { handleControllerError } from "../helper/controllerErrorHandler";

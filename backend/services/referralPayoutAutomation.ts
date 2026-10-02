@@ -6,7 +6,7 @@ import User from "../models/userModels/userModel";
 import ReferralPayout from "../models/referralModels/referralPayoutModel";
 import { MIN_PAYOUT_USDT } from "./referralPayoutService";
 import { sendReferralPayoutReadyEmail, sendReferralPayoutRequestedEmail } from "./emailService";
-import { toFixedStr, toNumber } from "../utils/money";
+import { toFixedStr, round2 } from "../utils/money";
 
 /**
  * Referral payout AUTOMATION (leader/prod cron only): the "you can cash out" nudge
@@ -14,7 +14,6 @@ import { toFixedStr, toNumber } from "../utils/money";
  * SAFE-MODE preview (registered inside registerLeaderCronJobs).
  */
 
-const round2 = (n: number): number => toNumber((Number(n) || 0), 2);
 const maskAddr = (a: string): string => (a && a.length > 14 ? `${a.slice(0, 8)}…${a.slice(-6)}` : a);
 
 /** Email a referrer once when their unpaid balance first crosses the cash-out minimum. */

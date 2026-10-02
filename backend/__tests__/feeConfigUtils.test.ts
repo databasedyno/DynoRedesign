@@ -6,7 +6,7 @@
  * every merchant payout will be miscalculated.
  */
 
-import { getBlockchainThreshold, getTransactionFeePercent, getFeeTiers, FeeTier } from '../utils/feeConfigUtils';
+import { getBlockchainThreshold, getTransactionFeePercent, getFeeTiers } from '../utils/feeConfigUtils';
 
 describe('feeConfigUtils', () => {
   const originalEnv = process.env;

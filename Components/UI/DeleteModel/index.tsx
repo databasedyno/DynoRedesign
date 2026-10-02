@@ -1,6 +1,6 @@
 import React from "react";
 import PopupModal from "../PopupModal";
-import { Box, IconButton, Typography } from "@mui/material";
+import { Box, IconButton } from "@mui/material";
 import Image from "next/image";
 import TrashIcon from "@/assets/Icons/trash-icon.svg";
 import { useTranslation } from "react-i18next";

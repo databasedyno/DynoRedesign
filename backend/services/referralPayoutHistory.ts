@@ -1,9 +1,9 @@
 import ReferralPayout from "../models/referralModels/referralPayoutModel";
 import { toFixedStr } from "../utils/money";
+import { maskAddress } from "../utils/masking";
 
 /** Referral payout history + CSV export (read-only). Split from referralPayoutService (R2 file-size). */
 
-const maskAddress = (a: string): string => (a && a.length > 14 ? `${a.slice(0, 8)}…${a.slice(-6)}` : a);
 const txUrl = (h: string | null): string | null => (h ? `https://tronscan.org/#/transaction/${h}` : null);
 
 export interface PayoutHistoryItem {

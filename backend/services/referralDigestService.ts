@@ -19,9 +19,8 @@ import sequelize from "../utils/dbInstance";
 import { apiLogger } from "../utils/loggers";
 import { getRedisItem, setRedisItemWithTTL } from "../utils/redisInstance";
 import { sendReferralMonthlyDigestEmail } from "./email/referralEmails";
-import { toFixedStr, toNumber } from "../utils/money";
+import { toFixedStr, round2 } from "../utils/money";
 
-const round2 = (n: number) => toNumber((Number(n) || 0), 2);
 
 /** Previous calendar month window in UTC: [firstOfPrevMonth, firstOfThisMonth). */
 export const getPrevMonthWindowUTC = (now: Date = new Date()): { start: Date; end: Date; label: string; key: string } => {

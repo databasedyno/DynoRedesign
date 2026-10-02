@@ -12,6 +12,7 @@ import { userLogger } from "../utils/loggers";
 import { generateOtpCode } from "../helper/otpGuard";
 import { sendPurposeOTPEmail } from "./email/otpEmails";
 import { validate2FAToken, TWO_FA_CHALLENGE_TTL, twoFAChallengeKey } from "./twoFactorService";
+import { hashCode, maskEmail } from "../utils/masking";
 
 export type ChallengeMethod = "totp" | "email";
 const MAX_ATTEMPTS = 5;
@@ -34,10 +35,7 @@ export class ChallengeError extends Error {
   }
 }
 
-const maskEmail = (e: string) => e.replace(/(.{2})(.*)(@.*)/, "$1***$3");
 
-const hashCode = (code: string) =>
-  crypto.createHmac("sha256", String(envRaw("API_SECRET") || "dynopay")).update(String(code)).digest("hex");
 
 const loadContact = async (userId: number) => {
   const u = await userModel.findOne({ where: { user_id: userId }, attributes: ["email", "name", "language"] });

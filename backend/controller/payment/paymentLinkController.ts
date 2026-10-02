@@ -12,11 +12,10 @@ import { apiLogger, cronLogger } from "../../utils/loggers";
 import {
   errorResponseHelper,
   successResponseHelper,
-  sendEmail,
 } from "../../helper";
 import { handleControllerError } from "../../helper/controllerErrorHandler";
 import { sendPaymentRequestEmail } from "../../services/email/securityEmails";
-import { getRedisItem, setRedisItem, setRedisTTL, deleteRedisItem, redis } from "../../utils/redisInstance";
+import { getRedisItem, setRedisItem, setRedisTTL, deleteRedisItem } from "../../utils/redisInstance";
 import { formatAmountForDisplay, getCurrencyInfo } from "../../utils/currencyUtils";
 import { companyModel, paymentLinkModel, userModel, userWalletModel } from "../../models";
 import { sendCustomerPaymentConfirmationEmail } from "../../services/email/customerReceiptEmail";
@@ -28,7 +27,6 @@ import { resolveCustomerLanguage } from "../../utils/emailI18n";
 import { classifyPaymentSource } from "../../utils/paymentSource";
 import { PaymentUserJwtPayload } from "../../utils/types";
 import { validateCompanyOwnership } from "../../utils/validateCompanyOwnership";
-import { resolveMembership, membershipCan } from "../../utils/permissions";
 import { checkKycEnforcement, KYC_THRESHOLD_USD } from "../../helper/kycEnforcement";
 import { sendActivationGateEmail } from "../../services/email/activationGateEmail";
 import { generateQRCodeWithLogo } from "../../utils/qrCodeWithLogo";

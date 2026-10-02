@@ -8,13 +8,12 @@ import CustomButton from "@/Components/UI/Buttons";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useWalletData } from "@/hooks/useWalletData";
 import { Icon } from "@/styles/uiKit";
-import { pageProps, rootReducer } from "@/utils/types";
+import { pageProps } from "@/utils/types";
 import { Box, Typography, useTheme } from "@mui/material";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSelector } from "react-redux";
 
 /**
  * Header action + page warning are rendered by their OWN components rather

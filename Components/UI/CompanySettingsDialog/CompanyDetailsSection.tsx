@@ -21,7 +21,7 @@ import { useCountryStateCity } from "@/hooks/useCountryStateCity";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
 import DownloadIcon from "@/assets/Icons/download-icon.svg";
 import { Text } from "@/Components/Page/CreatePaymentLink/styled";
@@ -35,7 +35,6 @@ import {
 } from "@/Components/UI/CryptocurrencySelector/styled";
 import SettingsAccordion from "@/Components/UI/SettingsAccordion";
 import ImageDropTarget from "@/Components/UI/ImageDropTarget";
-import { rootReducer } from "@/utils/types";
 import { brandFg } from "@/constants/theme";
 
 const useLocationData = (

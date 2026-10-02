@@ -19,7 +19,7 @@ import tatumApi from "../../apis/tatumApi";
 import * as keyCustody from "../keyCustody/keyCustodyService";
 import sequelize from "../../utils/dbInstance";
 import { getErrorMessage } from "../../helper";
-import { POOL_CONFIG, RLUSD_CONFIG, isTagBasedChain, XRP_MASTER_ADDRESS, getCryptoRedisKey } from "./merchantPoolConfig";
+import { POOL_CONFIG, RLUSD_CONFIG, isTagBasedChain, XRP_MASTER_ADDRESS } from "./merchantPoolConfig";
 import { adminFeeModel } from "../../models";
 import { getRedisItem, setRedisItemWithTTL } from "../../utils/redisInstance";
 import { generateQRCodeWithLogo } from "../../utils/qrCodeWithLogo";

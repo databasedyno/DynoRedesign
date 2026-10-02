@@ -4,7 +4,7 @@ import { apiLogger } from "../../utils/loggers";
 import { p, getCurrencySymbol } from "../../utils/emailTemplate";
 import { EMAIL_TOKENS as T } from "../../utils/brandTokens";
 import { t, normalizeLang, intlLocaleFor } from "../../utils/emailI18n";
-import { FRONTEND_BASE_URL, dynoPayEmailTemplate, brandSubject, escapeHtml, greetingLine } from "./emailShared";
+import { dynoPayEmailTemplate, brandSubject, escapeHtml, greetingLine } from "./emailShared";
 
 export type TipGoalMilestone = 50 | 100;
 

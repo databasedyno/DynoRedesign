@@ -17,7 +17,7 @@ import axios from "axios";
 import { ethers } from "ethers";
 import { TronWeb } from "tronweb";
 import { raw as envRaw } from "../../utils/config";
-import { merchantTempAddressModel, merchantPoolTransactionModel, merchantPoolSweepModel, customerTransactionModel, userTransactionModel } from "../../models";
+import { merchantTempAddressModel, merchantPoolSweepModel, customerTransactionModel, userTransactionModel } from "../../models";
 import { cronLogger } from "../../utils/loggers";
 import tatumApi from "../../apis/tatumApi";
 import * as keyCustody from "../keyCustody/keyCustodyService";

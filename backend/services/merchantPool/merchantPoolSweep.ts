@@ -23,7 +23,7 @@ import { getErrorMessage, sendAdminFeeSweepEmail } from "../../helper";
 import { sendPaymentReceivedEmail } from "../../helper/sendEmail";
 import { normalizeLang } from "../../utils/emailI18n";
 import { dispatchCompanyEmail } from "../email/companyDispatch";
-import { convertToUSD, convertToFiat, getCompanyBaseCurrency } from "../../utils/currencyUtils";
+import { convertToUSD } from "../../utils/currencyUtils";
 import { buildPaymentReceivedDisplay } from "../../utils/paymentAmountDisplay";
 import { getRedisItem, setRedisItem, setRedisTTL, setRedisItemWithTTL, deleteRedisItem } from "../../utils/redisInstance";
 import { QueryTypes } from "sequelize";

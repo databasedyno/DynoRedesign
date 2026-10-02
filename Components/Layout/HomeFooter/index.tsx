@@ -12,7 +12,7 @@ import Image, { StaticImageData } from "next/image";
 import Link from "next/link";
 import { getRuntimeFlags } from "@/helpers/runtimeFlags";
 import { useRouter } from "next/router";
-import { FC, memo, useEffect, useMemo, useState } from "react";
+import { FC, memo, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import HeaderLangMenu from "../HomeHeader/HeaderLangMenu";
 import {

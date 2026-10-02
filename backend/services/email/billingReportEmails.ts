@@ -1,13 +1,8 @@
 import mailTransporter from "../../utils/mailTransporter";
-import config from "../../utils/config";
 import { apiLogger } from "../../utils/loggers";
-import { captureError } from "../errorMonitoringService";
-import { generatePaymentReceipt, getReceiptFilename } from "../pdfReceiptService";
 import { formatEmailDate, t, normalizeLang, resolveEmailLang } from "../../utils/emailI18n";
-import { formatCryptoAmount } from "../../utils/currencyUtils";
-import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../../utils/emailTemplate";
-import { EMAIL_TOKENS } from "../../utils/brandTokens";
-import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, dynoPayGreetingTemplate, formatAmountWithCurrency, sendEmail, greetingLine } from "./emailShared";
+import { getCurrencySymbol, infoBox, dataRow, statusBadge, p, warnText, alertBox } from "../../utils/emailTemplate";
+import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, greetingLine } from "./emailShared";
 import { toFixedStr } from "../../utils/money";
 
 

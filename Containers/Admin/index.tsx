@@ -1,10 +1,8 @@
-import withAuth from "@/Components/Page/Common/HOC/withAuth";
 import { drawerWidth, toolbarHeight } from "@/styles/theme";
 import { LayoutProps } from "@/utils/types";
 import { Box, Drawer, useTheme } from "@mui/material";
 import React from "react";
 import useTokenData from "@/hooks/useTokenData";
-import Header from "@/Components/Layout/Header";
 import SideBar from "@/Components/Layout/Sidebar";
 import ToastHost from "@/Components/UI/Toast/ToastHost";
 import adminAuth from "@/Components/Page/Common/HOC/adminAuth";

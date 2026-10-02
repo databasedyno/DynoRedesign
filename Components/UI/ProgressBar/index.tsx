@@ -7,8 +7,7 @@ import {
   StepConnector,
   stepConnectorClasses,
   Box,
-  Typography,
-  useTheme
+  useTheme,
 } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import CheckIcon from '@mui/icons-material/Check'

@@ -1,7 +1,7 @@
 import { brandFg, BRAND_ON_ACCENT } from "@/constants/theme";
 import PanelCard from "@/Components/UI/PanelCard";
 import { getCurrencySymbol } from "@/helpers";
-import { formatCryptoAmount, formatDisplayAmount, isCryptoCurrency } from "@/utils/currencyFormat";
+import { formatDisplayAmount, isCryptoCurrency } from "@/utils/currencyFormat";
 import { useUsdRates } from "@/hooks/useUsdRates";
 import { useDisplayFx } from "@/hooks/useDisplayFx";
 import useIsMobile from "@/hooks/useIsMobile";

@@ -1,37 +1,18 @@
 import express from "express";
 import {
-  downloadUserImage,
   errorResponseHelper,
   getErrorMessage,
-  getMinutesBetweenDates,
-  sendEmail,
   successResponseHelper,
 } from "../../helper/index";
-import { handleControllerError } from "../../helper/controllerErrorHandler";
-import emailService from "../../services/emailService";
-import { adminWalletModel, userModel, userWalletModel, companyModel, apiModel, loginActivityModel } from "../../models";
-import { userWalletAddressModel } from "../../models/userModels";
-import notificationModel from "../../models/notificationModel";
-import notificationPreferencesModel from "../../models/notificationPreferencesModel";
-import kycModel from "../../models/kycModel";
-import sha256 from "crypto-js/sha256";
-import { hashPassword, verifyPassword, validatePasswordStrength } from "../../helper/passwordHelper";
-import crypto from "crypto";
+import { companyModel } from "../../models";
 import sequelize from "../../utils/dbInstance";
-import { QueryTypes, Op } from "sequelize";
+import { QueryTypes } from "sequelize";
 import jwt from "jsonwebtoken";
 import { IUserType } from "../../utils/types";
-import axios from "axios";
 import { userLogger } from "../../utils/loggers";
-import { getRedisItem, setRedisItem, setRedisTTL, deleteRedisItem, setRedisItemWithTTL, redis } from "../../utils/redisInstance";
-import { isAccountLocked, recordFailedAttempt, clearFailedAttempts } from "../../services/accountLockoutService";
-import { createSession } from "../../services/sessionService";
-import { finalizeUploadedImage } from "../../services/objectStorage";
-import { is2FARequired } from "../../services/twoFactorService";
 import { resolveActiveCompanyId } from "../storefrontScope";
 import { resolveTaxSettings } from "../../services/companyTaxService";
-import { normalizeLang } from "../../utils/emailI18n";
-import { PROFILE_CACHE_TTL, _formatAttribution, parseUserAgent, createUserWallets, generateReferralCode, finalizeLogin, getAccessToken, sendEmailOTP, sendTelnyxSMS } from "./userShared";
+import { _formatAttribution } from "./userShared";
 
 export const getUserDisplayCurrency = async (
   req: express.Request,

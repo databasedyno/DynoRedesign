@@ -24,7 +24,6 @@ import {
   Box,
   Button,
   Checkbox,
-  Chip,
   CircularProgress,
   Dialog,
   DialogContent,
@@ -40,7 +39,7 @@ import {
 } from "@mui/material";
 import { Icon } from "@/styles/uiKit";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 import useApiSWR from "@/hooks/useApiSWR";
 import { useRefetchOnVisible } from "@/hooks/useRefetchOnVisible";
@@ -50,7 +49,6 @@ import PanelCard from "@/Components/UI/PanelCard";
 import { StatusDot } from "@/Components/UI/StatusDot";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import useIsMobile from "@/hooks/useIsMobile";
-import { rootReducer } from "@/utils/types";
 import copyToClipboard from "@/helpers/copyToClipboard";
 import { API_ENDPOINTS } from "@/api/endpoints";
 

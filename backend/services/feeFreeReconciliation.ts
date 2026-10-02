@@ -18,7 +18,7 @@
 
 import { raw as envRaw } from "../utils/config";
 import sequelize from "../utils/dbInstance";
-import { log, cronLogger } from "../utils/loggers";
+import { cronLogger } from "../utils/loggers";
 import { processedStatusSql } from "../utils/processedVolume";
 import { toFixedStr } from "../utils/money";
 

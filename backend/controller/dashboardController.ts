@@ -9,11 +9,10 @@ import {
   successResponseHelper,
 } from "../helper";
 import { IUserType } from "../utils/types";
-import { userTransactionModel, userWalletModel, companyModel } from "../models";
 import { validateCompanyOwnership } from "../utils/validateCompanyOwnership";
 import sequelize from "../utils/dbInstance";
-import { getRedisItem, setRedisItem, setRedisItemWithTTL, setRedisTTL } from "../utils/redisInstance";
-import { getCurrencySymbol, getCurrencyInfo, formatAmountForDisplay, COMPANY_CURRENCY_QUERY, convertToFiat, convertToUSD, getUserDisplayCurrency } from "../utils/currencyUtils";
+import { getRedisItem, setRedisItemWithTTL } from "../utils/redisInstance";
+import { getCurrencySymbol, getCurrencyInfo, formatAmountForDisplay, convertToFiat, convertToUSD, getUserDisplayCurrency } from "../utils/currencyUtils";
 import { resolveTransactionSource, SAFEDEAL_SOURCE_JOIN_SQL, SAFEDEAL_SOURCE_SELECT_SQL } from "../utils/transactionSource";
 import { PROCESSED_USD_EXPR, PROCESSED_STATUS_SQL } from "../utils/processedVolume";
 import { deriveTxDisplayStatus, isPaymentDetected, FRESH_PENDING_SQL } from "../utils/transactionDisplayStatus";

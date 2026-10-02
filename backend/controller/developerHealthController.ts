@@ -7,12 +7,9 @@ import { successResponseHelper } from "../helper";
 import { apiLogger } from "../utils/loggers";
 import { IUserType } from "../utils/types";
 import { validateCompanyOwnership } from "../utils/validateCompanyOwnership";
+import { num } from "../utils/money";
 
 type Row = Record<string, unknown>;
-const num = (v: unknown): number => {
-  const n = parseFloat(String(v ?? "0"));
-  return Number.isFinite(n) ? n : 0;
-};
 const ROTATE_AFTER_DAYS = 365;
 
 /**

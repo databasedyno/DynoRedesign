@@ -7,7 +7,7 @@ import { IUserType } from "../utils/types";
 import { validateCompanyOwnership } from "../utils/validateCompanyOwnership";
 import { getRedisItem, setRedisItemWithTTL } from "../utils/redisInstance";
 import { convertToFiat, convertToUSD, getCurrencySymbol, getUserDisplayCurrency } from "../utils/currencyUtils";
-import { toNumber } from "../utils/money";
+import { toNumber, num } from "../utils/money";
 import {
   OverviewScope,
   autoConvertSummary,
@@ -24,10 +24,6 @@ const CACHE_TTL = 60;
 const STABLE = ["USD", "USDT", "USDC", "BUSD", "DAI", "USDP", "TUSD", "PYUSD", "FDUSD", "RLUSD"];
 const PERIOD_DAYS: Record<string, number> = { "7d": 7, "30d": 30, "90d": 90, "1y": 365 };
 
-const num = (v: unknown): number => {
-  const n = parseFloat(String(v ?? "0"));
-  return Number.isFinite(n) ? n : 0;
-};
 const pct = (cur: number, prev: number): number => {
   if (prev > 0) return Math.round(((cur - prev) / prev) * 1000) / 10;
   return cur > 0 ? 100 : 0;

@@ -3,8 +3,6 @@ import { useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { DashboardAction, DashboardChartAction } from "@/Redux/Actions";
 import {
-  DASHBOARD_FETCH,
-  DASHBOARD_CHART_FETCH,
   DASHBOARD_FETCH_ALL,
 } from "@/Redux/Actions/DashboardAction";
 // (DASHBOARD_CHART_FETCH kept for type parity; chart dispatches now go

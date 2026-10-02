@@ -14,7 +14,6 @@ import GlobalSearchButton from "@/Components/Common/CommandPalette";
 import NotificationsBell from "@/Components/Layout/NewHeader/NotificationsBell";
 import { useWalletData } from "@/hooks/useWalletData";
 import { useSidebarCollapsed } from "@/hooks/useSidebarCollapsed";
-import { rootReducer } from "@/utils/types";
 import { useTheme as useMuiTheme } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
@@ -25,9 +24,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
-import axiosBaseApi from "@/axiosConfig";
 import {
   HeaderContainer,
   LogoContainer,
@@ -37,7 +34,6 @@ import {
   RightSection,
 } from "./styled";
 import { HeaderDivider } from "@/Components/UI/LanguageSwitcher/styled";
-import { API_ENDPOINTS } from "@/api/endpoints";
 import useDisplayIdentity from "@/hooks/useDisplayIdentity";
 import UserAvatar from "@/Components/UI/UserAvatar";
 import { brandFg } from "@/constants/theme";

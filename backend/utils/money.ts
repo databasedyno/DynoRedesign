@@ -71,6 +71,15 @@ export const toAmountStr = (v: MoneyInput, dp: number = CRYPTO_DP, mode: RoundMo
   roundTo(v, dp, mode).toString();
 
 export const fiat = (v: MoneyInput): number => toNumber(v, FIAT_DP);
+/** Decimal-safe 2dp half-up round (NaN/undefined → 0). */
+export const round2 = (n: MoneyInput): number => toNumber(Number(n) || 0, 2);
+/** Float 2dp round with the EPSILON nudge (SafeDeal/escrow ledgers — kept bit-for-bit). */
+export const round2Float = (n: number): number => Math.round((Number(n) + Number.EPSILON) * 100) / 100;
+/** Lenient numeric parse for SQL aggregates/strings: non-finite → 0. */
+export const num = (v: unknown): number => {
+  const n = parseFloat(String(v ?? "0"));
+  return Number.isFinite(n) ? n : 0;
+};
 export const crypto = (v: MoneyInput, dp: number = CRYPTO_DP): number => toNumber(v, dp);
 
 /** Whole satoshi/base units for UTXO chains (exact, no `Math.round(x * 1e8)` drift). */

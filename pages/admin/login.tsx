@@ -286,7 +286,7 @@ const AdminLogin = () => {
               onClick={() => router.replace("/admin")}
               data-testid="admin-backup-continue-btn"
             >
-              I've saved them — continue
+              I&apos;ve saved them — continue
             </Button>
           </Box>
         )}

@@ -21,13 +21,11 @@ import { enableEmail2FA } from "../services/twoFactorService";
 import { getMfaEnforcement } from "../services/mfaEnforcement";
 import { ChallengeError, resendLoginChallengeCode } from "../services/twoFactorChallenge";
 import { trustDevice } from "../services/session/trustedDevices";
+import { hashCode, maskEmail } from "../utils/masking";
 
 const CODE_TTL = 10 * 60;
 const MAX_ATTEMPTS = 5;
 const enrollKey = (uid: number) => `2fa_enroll:${uid}`;
-const hashCode = (code: string) =>
-  crypto.createHmac("sha256", String(envRaw("API_SECRET") || "dynopay")).update(String(code)).digest("hex");
-const maskEmail = (e: string) => e.replace(/(.{2})(.*)(@.*)/, "$1***$3");
 
 const emailStart = async (req: express.Request, res: express.Response) => {
   try {

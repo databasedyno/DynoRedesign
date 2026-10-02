@@ -15,6 +15,7 @@
  */
 import { sendEmail, SendEmailOptions } from "./emailShared";
 import { p, otpBlock, infoBox, dataRow, amountHero, mono, type EmailHero } from "../../utils/emailTemplate";
+import { escapeBasic as esc } from "../../utils/escapeHtml";
 
 interface DealLike {
   title: string;
@@ -32,7 +33,6 @@ const money = (d: DealLike) =>
   d.price_currency && d.price_currency !== d.currency && d.price_amount != null
     ? `${fmt(d.price_amount)} ${d.price_currency} (≈ ${fmt(d.amount)} ${d.currency})`
     : `${fmt(d.amount)} ${d.currency}`;
-const esc = (s: unknown) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const cap = (s: string) => (s ? s[0].toUpperCase() + s.slice(1) : s);
 
 interface BrandVoice {

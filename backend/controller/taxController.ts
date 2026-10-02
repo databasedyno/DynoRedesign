@@ -3,7 +3,6 @@ import express from "express";
 import axios from "axios";
 import {
   errorResponseHelper,
-  getErrorMessage,
   successResponseHelper,
 } from "../helper";
 import { handleControllerErrorReturn } from "../helper/controllerErrorHandler";
@@ -11,7 +10,6 @@ import { taxRateModel } from "../models";
 import { taxLogger } from "../utils/loggers";
 import {
   FALLBACK_TAX_RATES,
-  TAX_ID_ACRONYMS,
   TAX_TYPE_ACRONYMS,
   COUNTRY_NAMES,
   EU_COUNTRIES,

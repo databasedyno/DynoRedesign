@@ -2,12 +2,10 @@ import mailTransporter from "../../utils/mailTransporter";
 import config from "../../utils/config";
 import { apiLogger } from "../../utils/loggers";
 import { captureError } from "../errorMonitoringService";
-import { generatePaymentReceipt, getReceiptFilename } from "../pdfReceiptService";
-import { t, normalizeLang, resolveEmailLang, firstNameOnly, formatEmailDateTime } from "../../utils/emailI18n";
-import { formatCryptoAmount } from "../../utils/currencyUtils";
-import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono, ctaButton, formatPercent } from "../../utils/emailTemplate";
+import { t, normalizeLang, resolveEmailLang, formatEmailDateTime } from "../../utils/emailI18n";
+import { getCurrencySymbol, infoBox, dataRow, p, successBox, ctaButton, formatPercent } from "../../utils/emailTemplate";
 import { EMAIL_TOKENS } from "../../utils/brandTokens";
-import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, dynoPayGreetingTemplate, formatAmountWithCurrency, sendEmail, greetingLine } from "./emailShared";
+import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, greetingLine } from "./emailShared";
 
 const FONT = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif";
 

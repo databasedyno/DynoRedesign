@@ -12,13 +12,11 @@ import {
   List,
   ListItem,
   ListItemButton,
-  Button,
-  Tooltip,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import User from "@/assets/Images/user_image.png";
 
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import useWindow from "@/hooks/useWindow";
 import useTokenData from "@/hooks/useTokenData";
 import { useRouter } from "next/router";

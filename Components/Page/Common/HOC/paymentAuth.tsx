@@ -1,8 +1,6 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
-import { rootReducer } from "@/utils/types";
-import { useSelector } from "react-redux";
 import { useWalletStore } from "@/contexts/WalletDataContext";
 
 const paymentAuth = (WrappedComponent: any) => {

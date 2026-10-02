@@ -8,7 +8,8 @@ import ReferralPayout from "../models/referralModels/referralPayoutModel";
 import { tatumClient } from "../integrations/tatum/TatumClient";
 import { sendReferralPayoutRequestedEmail, sendReferralAutoPayEnabledEmail } from "./emailService";
 import { getReferrerCommissionSummary } from "./referralService";
-import { toFixedStr, toNumber } from "../utils/money";
+import { toFixedStr, round2 } from "../utils/money";
+import { maskAddress } from "../utils/masking";
 
 /**
  * Referral revenue-share CASH-OUT (Phase 2). Reward accrues at the ACCOUNT level
@@ -33,10 +34,7 @@ const isValidTronAddress = (address: string): boolean => {
   }
 };
 
-const maskAddress = (a: string): string =>
-  a && a.length > 14 ? `${a.slice(0, 8)}…${a.slice(-6)}` : a;
 
-const round2 = (n: number): number => toNumber((Number(n) || 0), 2);
 
 // Cross-company reusable TRON wallets
 

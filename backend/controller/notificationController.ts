@@ -1,6 +1,6 @@
 import express from "express";
 import { apiLogger } from "../utils/loggers";
-import { handleControllerError, handleControllerErrorReturn } from "../helper/controllerErrorHandler";
+import { handleControllerErrorReturn } from "../helper/controllerErrorHandler";
 import jwt from "jsonwebtoken";
 // Op import removed - not used
 import {
@@ -12,7 +12,6 @@ import { IUserType } from "../utils/types";
 import { notificationModel, notificationPreferencesModel, companyModel, signupAttributionModel } from "../models";
 import { validateCompanyOwnership } from "../utils/validateCompanyOwnership";
 // sequelize import removed - not used
-import { getRedisItem, setRedisItem, setRedisTTL } from "../utils/redisInstance";
 
 // Cache TTL for notifications (15 seconds - shorter because notifications change often)
 // NOTIFICATION_CACHE_TTL removed - not used

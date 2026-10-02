@@ -8,7 +8,7 @@ import { acquireLock, releaseLock } from "../utils/redisInstance";
 import { sendWithdrawalSuccessEmail, sendReferralPayoutFailedEmail } from "./emailService";
 import binanceService from "./binanceService";
 import { alertTreasuryLow } from "../utils/treasuryAlert";
-import { toFixedStr, toNumber } from "../utils/money";
+import { toFixedStr, round2 } from "../utils/money";
 
 /**
  * Referral revenue-share PAYOUT EXECUTION (Phase 3). LEADER/PROD cron ONLY —
@@ -16,7 +16,6 @@ import { toFixedStr, toNumber } from "../utils/money";
  * (setupReferralRewardCron lives inside registerLeaderCronJobs).
  */
 
-const round2 = (n: number): number => toNumber((Number(n) || 0), 2);
 
 /** Reconcile a completed account-level payout back onto the per-referral totals. */
 const applyPayoutToReferrals = async (userId: number, amountUsd: number, txHash: string): Promise<void> => {

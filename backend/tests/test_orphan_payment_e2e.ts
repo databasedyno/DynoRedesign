@@ -14,7 +14,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import sequelize from "../utils/dbInstance";
-import { setRedisItem, getRedisItem, connectRedis, deleteRedisItem } from "../utils/redisInstance";
+import { setRedisItem, connectRedis, deleteRedisItem } from "../utils/redisInstance";
 import { releaseExpiredReservations, detectOrphanPayments } from "../services/merchantPoolService";
 
 const TEST_PAYMENT_ID = `test-orphan-e2e-${Date.now()}`;

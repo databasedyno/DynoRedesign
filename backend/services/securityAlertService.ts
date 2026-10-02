@@ -3,6 +3,7 @@ import { getCountryFromIP } from "../utils/geolocation";
 import { getRedisItem, setRedisItemWithTTL } from "../utils/redisInstance";
 import { resolveEmailLang, t } from "../utils/emailI18n";
 import { apiLogger } from "../utils/loggers";
+import { escapeHtml } from "../utils/escapeHtml";
 
 export type SuspiciousEvent = "otp_lockout" | "login_rate_limit";
 
@@ -18,7 +19,6 @@ interface SuspiciousActivity {
 
 const DEDUP_TTL_SECONDS = 60 * 60;
 
-const escapeHtml = (s: string) => s.replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch] as string));
 
 /**
  * Email the account owner when someone is hammering their codes or login.

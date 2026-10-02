@@ -7,7 +7,6 @@ import {
   Button,
   Typography,
   IconButton,
-  CircularProgress,
 } from "@mui/material";
 import { ModalContainer } from "./styled";
 import { TransitionProps } from "@mui/material/transitions";

@@ -25,7 +25,7 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import WalletTotalHero from "./WalletTotalHero";
 import WalletReuseNudge from "./WalletReuseNudge";
 import CoverageStrip from "./CoverageStrip";

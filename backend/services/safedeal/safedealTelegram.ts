@@ -11,12 +11,12 @@ import { raw as envRaw } from "../../utils/config";
 import { explorerTxUrl } from "../receiptLinkService";
 import { ESCROW_PAYOUT_OPTIONS } from "../escrow/escrowCosts";
 import { payoutKeyToCryptoCode, type WithdrawalRow } from "./safedealWithdrawals";
+import { escapeBasic as esc } from "../../utils/escapeHtml";
 
 const botToken = (): string => (envRaw("SAFEDEAL_TELEGRAM_BOT_TOKEN") || "").trim();
 export const botUsername = (): string | null => (envRaw("SAFEDEAL_TELEGRAM_BOT_USERNAME") || "").trim() || null;
 export const telegramConfigured = (): boolean => Boolean(botToken());
 
-const esc = (s: unknown): string => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const usd = (n: unknown): string => `$${(Number(n) || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const shortAddr = (a: string): string => (a.length > 14 ? `${a.slice(0, 6)}…${a.slice(-4)}` : a);
 

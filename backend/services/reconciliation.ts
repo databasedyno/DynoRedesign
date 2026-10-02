@@ -14,7 +14,7 @@ import { redis as redisClient, getRedisItem, setRedisItem, setRedisItemWithTTL }
 import { enqueueWebhook, WebhookJobData, webhookQueue } from "./webhookQueue";
 import { captureError } from "./errorMonitoringService";
 import { parseState, PaymentState } from "./paymentStateMachine";
-import { verifySettlementOnChain, markSettlementCompleted } from "./paymentReliability";
+import { verifySettlementOnChain } from "./paymentReliability";
 // Phase 4: resilient Tatum HTTP client (retries transient GET/read failures).
 import axios from "../utils/tatumHttp";
 import { TATUM_V4_URL, getTatumApiKey } from "../utils/tatumAuth";

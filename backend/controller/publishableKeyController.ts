@@ -14,9 +14,7 @@
 import { raw as envRaw } from "../utils/config";
 import type express from "express";
 import crypto from "crypto";
-import { QueryTypes } from "sequelize";
 import { apiModel, publishableKeyModel, buyButtonModel } from "../models";
-import sequelize from "../utils/dbInstance";
 import { setRedisItem } from "../utils/redisInstance";
 import { apiLogger } from "../utils/loggers";
 import { errorResponseHelper, successResponseHelper } from "../helper";

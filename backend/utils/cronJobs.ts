@@ -2,7 +2,6 @@ import cron from "node-cron";
 import { QueryTypes } from "sequelize";
 import sequelize from "./dbInstance";
 import { createNotification, NOTIFICATION_TYPES } from "../controller";
-import { notificationPreferencesModel, userTransactionModel } from "../models";
 import { cronLogger, log } from "./loggers";
 import { captureError } from "../services/errorMonitoringService";
 import { processedStatusSql, processedUsdExpr } from "./processedVolume";

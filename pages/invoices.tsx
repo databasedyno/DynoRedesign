@@ -1,6 +1,6 @@
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { rowKeyProps } from "@/helpers/a11y";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import {
@@ -12,7 +12,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   Chip,
   IconButton,
   Skeleton,
@@ -43,7 +42,6 @@ import { InvoicePeriod, isInvoicePeriod, periodParams } from "@/Components/Page/
 import InvoicePreviewDrawer, { InvoicePreviewInvoice } from "@/Components/Page/Invoices/InvoicePreviewDrawer";
 import { StatusPill } from "@/Components/UI/_shared";
 import { Icon, MONO } from "@/styles/uiKit";
-import { useSelector } from "react-redux";
 import { BRAND_ACCENT, brandFg } from "@/constants/theme";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import { useEdgeFades, EdgeFades } from "@/Components/Common/ScrollHint";

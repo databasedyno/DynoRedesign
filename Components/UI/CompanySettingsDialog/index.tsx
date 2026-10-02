@@ -2,7 +2,7 @@ import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { Box, useTheme } from "@mui/material";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import * as yup from "yup";
 
 import FormManager from "@/Components/Page/Common/FormManager";
@@ -10,7 +10,7 @@ import type { Values } from "@/Components/Page/Common/FormManager/types";
 import CustomButton from "@/Components/UI/Buttons";
 import PopupModal from "@/Components/UI/PopupModal";
 import useIsMobile from "@/hooks/useIsMobile";
-import { ICompany, rootReducer } from "@/utils/types";
+import { ICompany } from "@/utils/types";
 import axiosBaseApi from "@/axiosConfig";
 
 import Toast from "../Toast";

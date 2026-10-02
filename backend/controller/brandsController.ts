@@ -8,16 +8,12 @@ import { IUserType } from "../utils/types";
 import { companyModel, teamMemberModel, userModel } from "../models";
 import { getRedisItem, setRedisItemWithTTL } from "../utils/redisInstance";
 import { convertToFiat, getCurrencySymbol, isSupportedDisplayCurrency } from "../utils/currencyUtils";
-import { toNumber } from "../utils/money";
+import { toNumber, num } from "../utils/money";
 import { OverviewScope, coinsWithoutWallet } from "../services/dashboard/overviewQueries";
 import { brandStats, brandAttention } from "../services/dashboard/brandsQueries";
 import { resolveRange } from "./dashboardOverviewController";
 
 const CACHE_TTL = 60;
-const num = (v: unknown): number => {
-  const n = parseFloat(String(v ?? "0"));
-  return Number.isFinite(n) ? n : 0;
-};
 
 interface AccessibleBrand {
   company_id: number;

@@ -5,7 +5,6 @@ import { useRouter } from "next/router";
 import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { Icon, MONO } from "@/styles/uiKit";
-import CoinChips from "@/Components/UI/CoinChips";
 import LinkCoinsBadge from "./LinkCoinsBadge";
 import CopyInline from "@/Components/UX/CopyInline";
 import CustomButton from "@/Components/UI/Buttons";

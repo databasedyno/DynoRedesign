@@ -198,7 +198,7 @@ adminRouter.post(
 // );
 
 // ── Alert Service Endpoints ─────────────────────────────────────────────────
-import alertService, { sendAlert, getHealth as getAlertHealth } from "../services/slackAlertService";
+import { sendAlert, getHealth as getAlertHealth } from "../services/slackAlertService";
 import { getTunnelStatus } from "../services/sshTunnelManager";
 import { getProxyState } from "../services/binanceService";
 import { getStatus as getWsStatus } from "../services/binanceWebSocketService";

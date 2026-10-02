@@ -7,7 +7,7 @@
 import { Op, Transaction } from "sequelize";
 import { cronLogger } from "../../utils/loggers";
 import { merchantTempAddressModel } from "../../models";
-import { getRedisItem, setRedisItem, withLock, deleteRedisItem } from "../../utils/redisInstance";
+import { getRedisItem, withLock, deleteRedisItem } from "../../utils/redisInstance";
 import tatumApi from "../../apis/tatumApi";
 import sequelize from "../../utils/dbInstance";
 import { getErrorMessage } from "../../helper";

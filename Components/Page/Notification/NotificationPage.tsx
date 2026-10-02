@@ -1,6 +1,6 @@
 import { brandFg } from "@/constants/theme";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
-import { formatWithSeparators, formatDisplayAmount } from "@/utils/currencyFormat";
+import { formatDisplayAmount } from "@/utils/currencyFormat";
 import { formatWithSymbol } from "@/utils/locale";
 import { formatDateI18n, formatDateTimeI18n } from "@/utils/formatDate";
 import CustomButton from "@/Components/UI/Buttons";
@@ -8,7 +8,7 @@ import CustomSwitch from "@/Components/UI/CustomSwitch";
 import PanelCard from "@/Components/UI/PanelCard";
 import { StatusDot } from "@/Components/UI/StatusDot";
 import { toTxStatusBucket } from "@/helpers/txStatus";
-import { Box, Chip, CircularProgress, Divider, Grid, IconButton, Typography, useTheme } from "@mui/material";
+import { Box, CircularProgress, Divider, Grid, IconButton, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
 import React, { useRef, useState, useEffect } from "react";
 
@@ -25,7 +25,6 @@ import { useTranslation } from "react-i18next";
 import { useApiSWR } from "@/hooks/useApiSWR";
 import { useRelativeTime } from "@/hooks/useRelativeTime";
 import axiosBaseApi from "@/axiosConfig";
-import { useSelector } from "react-redux";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import {
   fetchUnreadCount,
@@ -38,7 +37,6 @@ import NotificationsOffIcon from "@mui/icons-material/NotificationsOff";
 import TransactionDetailsModal from "@/Components/Page/Transactions/TransactionDetailsModal";
 import { ExtendedTransaction, TransactionSource, TxNotificationEvent, TxNotificationEventKind, toAutoConvertInfo } from "@/utils/types/transaction";
 import { API_ENDPOINTS } from "@/api/endpoints";
-import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
 import { useReportDirty } from "@/Components/Page/Settings/settingsDirty";
 import { useRouter } from "next/router";
 import NotificationInbox, { NotifTarget } from "./NotificationInbox";

@@ -13,40 +13,32 @@ import {
   currencyConvert,
   errorResponseHelper,
   getErrorMessage,
-  sendAdminFeeReceivedEmail,
   successResponseHelper,
 } from "../../helper";
-import { apiLogger, cronLogger, webhookLogs } from "../../utils/loggers";
+import { apiLogger, cronLogger } from "../../utils/loggers";
 import {
   getRedisItem,
   setRedisItem,
   setRedisItemWithTTL,
-  softDeleteRedisItem,
 } from "../../utils/redisInstance";
-import { formatAmountForDisplay, getCurrencyInfo, formatCryptoAmount } from "../../utils/currencyUtils";
+import { formatCryptoAmount } from "../../utils/currencyUtils";
 import sequelize from "../../utils/dbInstance";
 import { Op, QueryTypes } from "sequelize";
 import jwt from "jsonwebtoken";
 import { normalizeLang } from "../../utils/emailI18n";
 import {
   companyModel,
-  customerTransactionModel,
-  customerWalletModel,
   userWalletModel,
 } from "../../models";
-import { createNotification, NOTIFICATION_TYPES } from "../notificationController";
 import {
   IFundData,
   IUserType,
 } from "../../utils/types";
 import { paymentTypes } from "../../utils/enums";
 import crypto from "crypto";
-import axios from "axios";
 import { getClientIP, getCountryFromIP, getCountryFromTimezone } from "../../utils/geolocation";
 import { checkKycEnforcement } from "../../helper/kycEnforcement";
-import { incrementAdminFee } from "../../helper/walletHelpers";
-import { autoGenerateInvoice } from "../invoiceController";
-import { D, add, div, mul, pct, roundTo, splitFee, sum, toFixedStr, toNumber } from "../../utils/money";
+import { add, div, mul, pct, sum, toFixedStr, toNumber } from "../../utils/money";
 import { computeCheckoutSplit, computeFallbackSplit } from "./checkoutMath";
 import { getCoinMinimumUsd, getCoinMinimumsUsd, getOrderMinimumUsd } from "../../services/checkout/checkoutMinimums";
 import { getMerchantMinOrderUsdByCompanyId } from "../../services/checkout/orderMinimums";
@@ -59,8 +51,6 @@ import {
 } from "../../models";
 import { generateQRCodeWithLogo } from "../../utils/qrCodeWithLogo";
 import {
-  getTransactionFee,
-  getBlockchainFee,
   calculateTransactionFees,
 } from "../../services/feeService";
 import { 
@@ -69,7 +59,6 @@ import {
 import * as merchantPoolService from "../../services/merchantPoolService";
 import { getCryptoRedisKey } from "../../services/merchantPool/merchantPoolConfig";
 import { emitPaymentCreated } from "../../services/webhookEvents";
-import { isStablecoin } from "../../services/binanceService";
 import { PaymentState, parseState, toRedisStatus } from "../../services/paymentStateMachine";
 
 // ============================================

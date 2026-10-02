@@ -66,7 +66,7 @@ import AccountBalanceWalletRounded from "@mui/icons-material/AccountBalanceWalle
 import axiosBaseApi from "@/axiosConfig";
 import { useApiSWR } from "@/hooks/useApiSWR";
 import { useTranslation } from "react-i18next";
-import { formatCryptoAmount, formatDisplayAmount } from "@/utils/currencyFormat";
+import { formatDisplayAmount } from "@/utils/currencyFormat";
 import { useDisplayFx } from "@/hooks/useDisplayFx";
 import useTableCardView from "@/hooks/useTableCardView";
 import useIsMobile from "@/hooks/useIsMobile";

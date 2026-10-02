@@ -115,8 +115,6 @@ import RouteTransitionLoader from "@/Components/Common/RouteTransitionLoader";
 import { createEmotionCache } from "@/utils/createEmotionCache";
 
 import { homeTheme, homeThemeDark } from "@/styles/homeTheme";
-import { theme, themeDark } from "@/styles/theme";
-import { lightTheme, darkTheme } from "@/styles/theme";
 import { authThemeLight, authThemeDark } from "@/styles/authTheme";
 import { appThemeLight, appThemeDark } from "@/styles/appTheme";
 

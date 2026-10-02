@@ -10,14 +10,13 @@ import {
   MenuItem,
   FormControl,
 } from "@mui/material";
-import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import Image from "next/image";
 
 import axiosBaseApi from "@/axiosConfig";
 import { useCompanySettingsDialog } from "@/Components/UI/CompanySettingsDialog/context";
 import useIsMobile from "@/hooks/useIsMobile";
-import { rootReducer, ICompany } from "@/utils/types";
+import { ICompany } from "@/utils/types";
 
 import SwapIcon from "@/assets/Icons/swap-round-icon.svg";
 import { API_ENDPOINTS } from "@/api/endpoints";

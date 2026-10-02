@@ -1,24 +1,18 @@
 import React, { useCallback, useRef, useState } from "react";
 import PopupModal from "../../PopupModal";
 import { useTranslation } from "react-i18next";
-import { Button, IconButton, Typography } from "@mui/material";
+import { IconButton } from "@mui/material";
 import { Box } from "@mui/material";
-import FormManager from "@/Components/Page/Common/FormManager";
 import { useTheme } from "@mui/material/styles";
 import InputField from "../../AuthLayout/InputFields";
 import PanelCard from "../../PanelCard";
 import Image from "next/image";
-import WalletIcon from "@/assets/Icons/wallet-icon.svg";
-import * as yup from "yup";
 import InfoIcon from "@/assets/Icons/info-icon.svg";
 import CopyIcon from "@/assets/Icons/copy-icon.svg";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {
-  PermissionsContainer,
   IconContainer,
   ContentContainer,
-  PermissionsTitle,
-  PermissionsList,
 } from "../CreateApiModel/styled";
 import CustomButton from "../../Buttons";
 import {

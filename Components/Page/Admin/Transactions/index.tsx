@@ -12,7 +12,6 @@ import {
   TablePagination,
   TableRow,
   TextField,
-  Typography,
   useTheme,
 } from "@mui/material";
 import { SearchRounded } from "@mui/icons-material";

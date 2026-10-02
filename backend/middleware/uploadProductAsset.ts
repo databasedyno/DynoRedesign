@@ -15,7 +15,6 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import crypto from "crypto";
-import express from "express";
 import { apiLogger } from "../utils/loggers";
 
 export const UPLOAD_ROOT =

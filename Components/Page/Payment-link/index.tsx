@@ -3,7 +3,7 @@ import { formatWithSeparators } from "@/utils/currencyFormat";
 import EmptyDataModel from "@/Components/UI/EmptyDataModel";
 import useIsMobile from "@/hooks/useIsMobile";
 import { PaymentLinkData, PaymentLinksProps } from "@/utils/types/paymentLink";
-import { Box, CircularProgress } from "@mui/material";
+import { Box } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { PaymentLinkAction } from "@/Redux/Actions";

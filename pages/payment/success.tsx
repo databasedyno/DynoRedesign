@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { Box, Typography, Button, CircularProgress, useTheme } from "@mui/material";
+import { Box, Typography, Button, useTheme } from "@mui/material";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import BrandLogo from "@/Components/Layout/BrandLogo";
 import { useTranslation } from "react-i18next";

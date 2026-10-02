@@ -1,13 +1,9 @@
 import mailTransporter from "../../utils/mailTransporter";
-import config from "../../utils/config";
 import { apiLogger } from "../../utils/loggers";
-import { captureError } from "../errorMonitoringService";
-import { generatePaymentReceipt, getReceiptFilename } from "../pdfReceiptService";
-import { emailDateParts, t, normalizeLang, resolveEmailLang, firstNameOnly } from "../../utils/emailI18n";
-import { formatCryptoAmount } from "../../utils/currencyUtils";
-import { baseEmailTemplate, getCurrencySymbol, infoBox, dataRow, statusBadge, p, otpBlock, warnText, alertBox, errorBox, successBox, neutralBox, statCard, twoColumnStats, feeRow, feeTotalRow, feeTable, mono } from "../../utils/emailTemplate";
+import { emailDateParts, t, resolveEmailLang, firstNameOnly } from "../../utils/emailI18n";
+import { infoBox, dataRow, statusBadge, p, warnText } from "../../utils/emailTemplate";
 import { EMAIL_TOKENS } from "../../utils/brandTokens";
-import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, dynoPayGreetingTemplate, formatAmountWithCurrency, formatMoneyForEmail, sendEmail, brandSubject } from "./emailShared";
+import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, formatMoneyForEmail, brandSubject } from "./emailShared";
 import { assetNetworkLabel } from "../../utils/networkLabels";
 import { explorerTxUrl } from "../receiptLinkService";
 import { sendStepUpCodeEmail } from "./securityEmails";

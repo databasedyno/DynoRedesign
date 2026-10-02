@@ -1,6 +1,5 @@
 import { Box, styled } from "@mui/material";
 import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
-import { BRAND_ACCENT } from "@/constants/theme";
 
 /**
  * SurfaceCard — the shared rounded card used across every fold outside the

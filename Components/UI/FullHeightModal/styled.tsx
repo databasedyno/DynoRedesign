@@ -1,4 +1,4 @@
-import { styled, Box, Dialog } from "@mui/material";
+import { styled, Dialog } from "@mui/material";
 
 export const ModalContainer = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
