@@ -1,6 +1,7 @@
 import { rowKeyProps } from "@/helpers/a11y";
 import {
   Box,
+  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
@@ -62,6 +63,8 @@ import RowsPerPageSelector from "@/Components/UI/RowsPerPageSelector";
 import Toast from "@/Components/UI/Toast";
 import { copyToClipboard } from "@/helpers/copyToClipboard";
 import { toShortPayLink } from "@/helpers/payLinkUrl";
+import SelectionBar from "@/Components/Common/SelectionBar";
+import { downloadCsv } from "@/helpers/downloadCsv";
 import { useEdgeFades } from "@/Components/Common/ScrollHint";
 import useIsMobile from "@/hooks/useIsMobile";
 import useTableCardView from "@/hooks/useTableCardView";
@@ -183,6 +186,14 @@ const PaymentLinksTable = ({
   // horizontal scroll.
   const [rowMenu, setRowMenu] = useState<{ anchor: HTMLElement; row: PaymentLinkData } | null>(null);
   const [qrRow, setQrRow] = useState<{ anchor: HTMLElement; row: PaymentLinkData } | null>(null);
+  // Bulk selection (across pages — keyed by link id).
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const toggleSelect = (id: string) =>
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
 
   const orderChip = (
     <TransactionSourceBadge source={{ type: "product", title: null }} />
@@ -267,6 +278,54 @@ const PaymentLinksTable = ({
     );
   };
 
+  // ── Bulk-action derived state + handlers ──
+  const pageIds = paginatedData.map((r) => String(r.id));
+  const pageAllSelected = pageIds.length > 0 && pageIds.every((id) => selectedIds.has(id));
+  const selectPage = () =>
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      pageIds.forEach((id) => next.add(id));
+      return next;
+    });
+  const clearSelection = () => setSelectedIds(new Set());
+  const selectedLinks = paymentLinks.filter((l) => selectedIds.has(String(l.id)));
+  const exportSelectedCsv = () => {
+    downloadCsv(
+      "payment-links.csv",
+      ["Link ID", "Description", "USD value", "Crypto", "Status", "Created", "Payments"],
+      selectedLinks.map((l) => [
+        l.id,
+        l.description || "",
+        l.usdValue || "",
+        l.cryptoValue || "",
+        l.status || "",
+        l.createdAt || "",
+        l.timesUsed ?? 0,
+      ]),
+    );
+  };
+  const copySelectedLinks = async () => {
+    const urls = selectedLinks
+      .map((l) => toShortPayLink(l.paymentUrl))
+      .filter(Boolean)
+      .join("\n");
+    const ok = await copyToClipboard(urls);
+    fireToast(ok ? String(tCommon("copiedToClipboard")) : String(tCommon("copyFailed")), ok ? "success" : "error");
+  };
+  const selectionBar = (
+    <SelectionBar
+      testid="paylinks-selection-bar"
+      count={selectedIds.size}
+      pageAllSelected={pageAllSelected}
+      onSelectPage={selectPage}
+      onClear={clearSelection}
+      actions={[
+        { label: t("exportSelected", { defaultValue: "Export CSV" }), onClick: exportSelectedCsv, icon: "download", testid: "paylinks-export-selected" },
+        { label: t("copySelectedLinks", { defaultValue: "Copy links" }), onClick: copySelectedLinks, icon: "copy", testid: "paylinks-copy-selected" },
+      ]}
+    />
+  );
+
   // Parse DD/MM/YYYY HH:MM:SS format from API
   function parseDateSafe(dateString: string): Date {
     if (!dateString) return new Date(NaN);
@@ -319,6 +378,7 @@ const PaymentLinksTable = ({
           p: isMobile ? 0 : "0px",
         }}
       >
+        {selectionBar}
         {/* MOBILE: Card layout */}
         {isMobile ? (
           <>
@@ -357,6 +417,15 @@ const PaymentLinksTable = ({
                 >
                   {/* Top: Description + Status */}
                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1.25 }}>
+                    <Checkbox
+                      size="small"
+                      checked={selectedIds.has(String(row.id))}
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={() => toggleSelect(String(row.id))}
+                      data-testid={`paylink-select-${row.id}`}
+                      inputProps={{ "aria-label": "Select payment link" }}
+                      sx={{ p: 0.5, mr: 0.25, mt: -0.5 }}
+                    />
                     <Box sx={{ display: "flex", alignItems: "center", gap: "6px", flex: 1, mr: 1, flexWrap: "wrap" }}>
                       <Typography sx={{ fontSize: "14px", fontFamily: "var(--font-sans)", fontWeight: 600, color: theme.palette.text.primary, lineHeight: 1.3 }}>
                         {row.description || t("paymentLinkFallback", { defaultValue: "Payment Link" })}
@@ -632,7 +701,20 @@ const PaymentLinksTable = ({
                       "&:hover, &:hover .sticky-cell": { backgroundColor: rowHover(theme) },
                     }}
                   >
-                    <TableBodyCell className="sticky-cell" sx={{ pl: "15px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontSize: "13px", color: theme.palette.text.secondary, ...stickyFirstCellSx }}>{row.id}</TableBodyCell>
+                    <TableBodyCell className="sticky-cell" sx={{ pl: "8px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontSize: "13px", color: theme.palette.text.secondary, ...stickyFirstCellSx }}>
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.25 }}>
+                        <Checkbox
+                          size="small"
+                          checked={selectedIds.has(String(row.id))}
+                          onClick={(e) => e.stopPropagation()}
+                          onChange={() => toggleSelect(String(row.id))}
+                          data-testid={`paylink-select-${row.id}`}
+                          inputProps={{ "aria-label": "Select payment link" }}
+                          sx={{ p: 0.25 }}
+                        />
+                        <Box component="span">{row.id}</Box>
+                      </Box>
+                    </TableBodyCell>
                     <TableBodyCell sx={{ maxWidth: 360 }} title={row.description || undefined}>
                       {row.linkType === "donation" ? (
                         <Box sx={{ display: "flex", flexDirection: "column", gap: "3px", minWidth: 130 }}>

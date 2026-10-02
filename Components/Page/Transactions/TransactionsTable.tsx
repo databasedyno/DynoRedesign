@@ -21,7 +21,7 @@ import { isOpenForFiatEstimate, toTxStatusBucket } from "@/helpers/txStatus";
 import { getAssetTicker } from "@/utils/networkLabels";
 import { isSyntheticCustomer } from "@/utils/txDisplay";
 import TransactionSourceBadge from "@/Components/UI/TransactionSourceBadge";
-import { Box, Tooltip, Typography, useTheme } from "@mui/material";
+import { Box, Checkbox, Tooltip, Typography, useTheme } from "@mui/material";
 import useUsdRates from "@/hooks/useUsdRates";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -70,6 +70,8 @@ import {
 } from "./styled";
 import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
 import TransactionDetailsModal from "./TransactionDetailsModal";
+import SelectionBar from "@/Components/Common/SelectionBar";
+import { downloadCsv } from "@/helpers/downloadCsv";
 import { toFixedStr } from "@/utils/money";
 
 const TransactionsTable: React.FC<TransactionsTableProps> = ({
@@ -203,6 +205,44 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     grouped &&
     (idx === 0 ||
       bucketOf(currentTransactions[idx - 1].createdAtTs) !== bucketOf(currentTransactions[idx].createdAtTs));
+
+  // ── Bulk selection (across pages — keyed by transaction id) ──
+  const [selectedTxIds, setSelectedTxIds] = useState<Set<string>>(new Set());
+  const toggleTxSelect = (id: string) =>
+    setSelectedTxIds((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  const txPageIds = currentTransactions.map((tx) => String(tx.id));
+  const txPageAllSelected = txPageIds.length > 0 && txPageIds.every((id) => selectedTxIds.has(id));
+  const selectTxPage = () =>
+    setSelectedTxIds((prev) => {
+      const next = new Set(prev);
+      txPageIds.forEach((id) => next.add(id));
+      return next;
+    });
+  const clearTxSelection = () => setSelectedTxIds(new Set());
+  const exportSelectedTx = () => {
+    const rows = sortedTransactions.filter((tx) => selectedTxIds.has(String(tx.id)));
+    downloadCsv(
+      "transactions.csv",
+      ["Transaction ID", "Date", "Status", "Asset", "Amount", "USD value"],
+      rows.map((tx) => [tx.id, tx.dateTime, tx.status, tx.crypto, tx.amount, tx.usdValue]),
+    );
+  };
+  const txSelectionBar = (
+    <SelectionBar
+      testid="transactions-selection-bar"
+      count={selectedTxIds.size}
+      pageAllSelected={txPageAllSelected}
+      onSelectPage={selectTxPage}
+      onClear={clearTxSelection}
+      actions={[
+        { label: tTransactions("exportSelected", { defaultValue: "Export CSV" }), onClick: exportSelectedTx, icon: "download", testid: "transactions-export-selected" },
+      ]}
+    />
+  );
 
   useEffect(() => {
     setCurrentPage(1);
@@ -479,6 +519,15 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
               >
                 {/* Row 1: coin tile · amount (mono) + ticker · status dot + time */}
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                  <Checkbox
+                    size="small"
+                    checked={selectedTxIds.has(String(transaction.id))}
+                    onClick={(e) => e.stopPropagation()}
+                    onChange={() => toggleTxSelect(String(transaction.id))}
+                    data-testid={`tx-select-${transaction.id}`}
+                    inputProps={{ "aria-label": "Select transaction" }}
+                    sx={{ p: 0.25, ml: -0.5 }}
+                  />
                   <Box
                     sx={{
                       width: 40,
@@ -772,6 +821,16 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                   }}
                 >
                   <TransactionsTableCell sx={stickyFirstCellSx}>
+                    <Box sx={{ display: "flex", alignItems: "flex-start", gap: 0.5, minWidth: 0 }}>
+                      <Checkbox
+                        size="small"
+                        checked={selectedTxIds.has(String(transaction.id))}
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={() => toggleTxSelect(String(transaction.id))}
+                        data-testid={`tx-select-${transaction.id}`}
+                        inputProps={{ "aria-label": "Select transaction" }}
+                        sx={{ p: 0.25, mt: -0.25 }}
+                      />
                     <Box
                       sx={{
                         display: "flex",
@@ -796,6 +855,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                       >
                         {transaction.id}
                       </Typography>
+                    </Box>
                     </Box>
                   </TransactionsTableCell>
 
@@ -995,6 +1055,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
       }}
     >
       {toolbar}
+      {txSelectionBar}
       {isMobile ? renderMobileCards() : renderDesktopTable()}
 
       {/* Footer Section */}

@@ -65,21 +65,40 @@ const STATUS_TONE: Record<string, ChipColor> = {
   expired: "default",
 };
 
+const STATUS_DOT: Record<ChipColor, { light: string; dark: string }> = {
+  success: { light: "#15803D", dark: "#4ADE80" },
+  warning: { light: "#B45309", dark: "#FBBF24" },
+  error: { light: "#B91C1C", dark: "#F87171" },
+  info: { light: "#1D4ED8", dark: "#60A5FA" },
+  default: { light: "#6B7280", dark: "#9CA3AF" },
+};
+
 export const AdminStatusChip: React.FC<{ status?: string | null; testid?: string }> = ({
   status,
   testid,
 }) => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
   const label = (status || "unknown").toString();
   const tone = STATUS_TONE[label.toLowerCase()] || "default";
+  const color = STATUS_DOT[tone][isDark ? "dark" : "light"];
   return (
-    <Chip
-      size="small"
-      label={label.charAt(0).toUpperCase() + label.slice(1)}
-      color={tone}
-      variant={tone === "default" ? "outlined" : "filled"}
-      sx={{ height: 22, fontSize: 11, fontWeight: 600, textTransform: "capitalize" }}
+    <Box
       data-testid={testid}
-    />
+      data-tone={tone}
+      sx={{ display: "inline-flex", alignItems: "center", gap: 0.75, minWidth: 0 }}
+    >
+      <Box
+        component="span"
+        sx={{ width: 7, height: 7, borderRadius: "50%", backgroundColor: color, flexShrink: 0, boxShadow: `0 0 0 3px ${color}1f` }}
+      />
+      <Typography
+        component="span"
+        sx={{ fontSize: 12.5, fontWeight: 600, color, textTransform: "capitalize", whiteSpace: "nowrap" }}
+      >
+        {label}
+      </Typography>
+    </Box>
   );
 };
 
@@ -109,15 +128,15 @@ export const StatCard: React.FC<StatCardProps> = ({
       data-testid={testid}
       sx={{
         p: 2.5,
-        borderRadius: "16px",
+        borderRadius: "12px",
         height: "100%",
         display: "flex",
         flexDirection: "column",
         gap: 0.75,
         position: "relative",
         overflow: "hidden",
-        transition: "border-color .2s ease, transform .2s ease",
-        "&:hover": { borderColor: color, transform: "translateY(-2px)" },
+        transition: "border-color .2s ease",
+        "&:hover": { borderColor: color },
       }}
     >
       <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -170,7 +189,7 @@ export const SectionCard: React.FC<{
   <Paper
     variant="outlined"
     data-testid={testid}
-    sx={{ p: 2.5, borderRadius: "16px", height: "100%", ...sx }}
+    sx={{ p: 2.5, borderRadius: "12px", height: "100%", ...sx }}
   >
     <Box
       sx={{

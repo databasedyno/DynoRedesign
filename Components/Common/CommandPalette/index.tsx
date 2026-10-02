@@ -35,7 +35,7 @@ export const QUICK_CREATE_LINK_EVENT = "dynopay:quick-create-link";
 
 type Item = {
   id: string;
-  group: "pages" | "actions" | "customers" | "links" | "transactions";
+  group: "pages" | "actions" | "customers" | "links" | "transactions" | "admin";
   label: string;
   sub?: string;
   keywords?: string;
@@ -133,6 +133,25 @@ const CommandPaletteDialog = ({ open, onClose }: { open: boolean; onClose: () =>
     [t, go, onClose],
   );
 
+  // ── Admin pages — only when an admin session is present (admin_token). ──
+  const isAdmin = typeof window !== "undefined" && !!localStorage.getItem("admin_token");
+  const adminPages = useMemo<Item[]>(
+    () =>
+      !isAdmin
+        ? []
+        : [
+            { id: "ap-overview", label: t("search.adminOverview", { defaultValue: "Admin · Overview" }), keywords: "admin console monitoring", path: "/admin" },
+            { id: "ap-merchants", label: t("search.adminMerchants", { defaultValue: "Admin · Merchants" }), keywords: "admin merchants accounts kyc", path: "/admin/merchants" },
+            { id: "ap-escrow", label: t("search.adminEscrow", { defaultValue: "Admin · Escrow" }), keywords: "admin safedeal escrow disputes", path: "/admin/escrow" },
+            { id: "ap-fees", label: t("search.adminFees", { defaultValue: "Admin · Fee reconciliation" }), keywords: "admin fees reconciliation revenue", path: "/admin/fee-reconciliation" },
+            { id: "ap-settings", label: t("search.adminSettings", { defaultValue: "Admin · Platform settings" }), keywords: "admin settings kill switch config", path: "/admin/settings" },
+            { id: "ap-live", label: t("search.adminLive", { defaultValue: "Admin · Live console" }), keywords: "admin logs live stream", path: "/admin/live-console" },
+            { id: "ap-chain", label: t("search.adminChain", { defaultValue: "Admin · Chain readiness" }), keywords: "admin chain gas wallets", path: "/admin/chain-readiness" },
+            { id: "ap-support", label: t("search.adminSupport", { defaultValue: "Admin · Support" }), keywords: "admin support inbox tickets", path: "/admin/support" },
+          ].map((p) => ({ id: p.id, group: "admin" as const, label: p.label, keywords: p.keywords, run: () => go(p.path) })),
+    [isAdmin, t, go],
+  );
+
   // ── Records: customers (server) + pay-links (fetch once, filter locally) ──
   useEffect(() => {
     if (!open) return;
@@ -204,12 +223,14 @@ const CommandPaletteDialog = ({ open, onClose }: { open: boolean; onClose: () =>
 
     const rankedActions = rank(actions);
     const rankedPages = rank(pages);
+    const rankedAdmin = rank(adminPages);
     const out: Item[] = [];
     // Whichever group holds the single best match leads the list.
     const bestAction = rankedActions.length ? score(rankedActions[0]) : 0;
     const bestPage = rankedPages.length ? score(rankedPages[0]) : 0;
     if (bestPage > bestAction) out.push(...rankedPages, ...rankedActions);
     else out.push(...rankedActions, ...rankedPages);
+    out.push(...rankedAdmin);
 
     if (query.length >= 2) {
       out.push(
@@ -247,7 +268,7 @@ const CommandPaletteDialog = ({ open, onClose }: { open: boolean; onClose: () =>
       }
     }
     return out;
-  }, [q, pages, actions, customers, links, go, t]);
+  }, [q, pages, actions, adminPages, customers, links, go, t]);
 
   useEffect(() => setActive(0), [q, items.length]);
 
@@ -257,6 +278,7 @@ const CommandPaletteDialog = ({ open, onClose }: { open: boolean; onClose: () =>
     customers: t("search.groupCustomers", { defaultValue: "Customers" }),
     links: t("search.groupLinks", { defaultValue: "Payment links" }),
     transactions: t("search.groupTransactions", { defaultValue: "Transactions" }),
+    admin: t("search.groupAdmin", { defaultValue: "Admin" }),
   };
 
   const onKeyDown = (e: React.KeyboardEvent) => {
@@ -374,8 +396,10 @@ const CommandPaletteDialog = ({ open, onClose }: { open: boolean; onClose: () =>
                     minHeight: 44,
                     borderRadius: "10px",
                     cursor: "pointer",
+                    borderLeft: `2px solid ${idx === active ? (isDark ? "#FFD100" : "#8B5E00") : "transparent"}`,
                     backgroundColor:
                       idx === active ? (isDark ? "rgba(255,209,0,0.14)" : "rgba(139,94,0,0.08)") : "transparent",
+                    transition: "background-color 120ms ease, border-color 120ms ease",
                   }}
                 >
                   <Box sx={{ flex: 1, minWidth: 0 }}>
