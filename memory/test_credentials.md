@@ -1,4 +1,11 @@
-<!-- 2026-10-02 (pod 31539451, pt7 — CHAIN READINESS) — same preview URL / creds. No credential changes.
+<!-- 2026-10-02 (pod 0dbd9c5d, pt8 — ADMIN PLATFORM SETTINGS, Deliverable 2 Phase 1) — same creds. No credential changes.
+     Current pod EXTERNAL preview URL = https://0dbd9c5d-2277-40e6-8155-b565e1c05c39.preview.emergentagent.com (supervisor APP_URL; backend/.env SERVER_URL d6413bee is STALE but harmless since NEXT_PUBLIC_BASE_URL is empty → same-origin /api).
+     NEW admin page /admin/settings (sidebar "Platform Settings", data-testid platform-settings-root). API (Bearer admin token): GET /api/admin/settings, GET /api/admin/settings/history[?key=&limit=], PUT /api/admin/settings/:key {value,reason} + POST /api/admin/settings/:key/revert {reason} — BOTH require a step-up header x-admin-step-up (mint via POST /api/admin/step-up {reason:"platform-settings",code:<TOTP>} → data.stepUpToken; one-use, 5-min, reason-bound).
+     Admin login (TOTP): POST /api/admin/login/password {moxxcompany@gmail.com/Katiekendra123@} → data.challengeToken ; code=`cd /app/backend && node scripts/admin_2fa.cjs totp 1` ; POST /api/admin/login/totp {challengeToken,code} → data.accessToken (localStorage admin_token). Always send a browser User-Agent.
+     tbl_platform_setting is the DB-override store (resolution DB→.env→default); keep it EMPTY except intentional overrides — a kill switch left ON (killswitch.pause_checkouts/pause_settlements/pause_cashouts/maintenance_mode) blocks money movement once deployed. Editable-live keys: fees.transaction_fee_percent, limits.min_order_*_usd, safedeal.{min_withdrawal,withdrawal_approval,velocity_cap}_usd + the 5 kill switches; all others are read-only (env-managed). -->
+
+
+
      Admin page /admin/chain-readiness (sidebar "Chain Readiness"); API GET /api/admin/chain-readiness[?refresh=1] (Bearer admin token; 60s cache). Overview strip data-testid admin-gas-strip.
      Live gas wallets: TRX TMHECc7emykw5XwX2njp5Y2K4FXLwsTZtC · ETH 0x2b29aa060c6c15c50c02999ba7d7d090105e1a6b · POL 0x6508f517021b3fe14acb4515535b6772b0669f47 (EMPTY until owner funds it → USDT-POLYGON row 'blocked') · XRP master raLiUmSWmQdqsEEjGTBAGDXrjaa3MfEQmw.
      Read-only CLI balance check: cd /app/backend && node_modules/.bin/ts-node --transpile-only scripts/fee_wallet_balances.ts . Pytest: backend/tests/test_chain_readiness.py. -->

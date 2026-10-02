@@ -1,0 +1,28 @@
+{
+  "summary": "Frontend-only QA of /admin/settings (Admin Platform Settings dashboard). Verified all 10 group tabs render, kill-switch toggle opens step-up modal and does not mutate until confirmed, VALID TOTP applies the change (chip -> ACTIVE, source=Override) and WRONG TOTP shows ps-stepup-error without logging the admin out. Fees edit flow (fees.transaction_fee_percent) works end-to-end: Save disabled until change, step-up modal, confirm with valid code -> source=Override + revert button appears, revert -> source=Environment and value 1.5 (confirmed via GET /api/admin/settings). Read-only chip on safedeal.fee_percent present with no Save control. History drawer (ps-history-drawer) opens with ps-history-row-* entries. All testids match spec.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "KillSwitchCard", "issue": "No per-row Revert affordance on kill-switch toggle rows when override exists but value equals default (e.g. killswitch.pause_checkouts override=false). ps-row-<key>-revert is not rendered for kill-switch group, only for numeric SettingRow. Leaves a residual tbl_platform_setting row after toggling off that only the DB cleanup can remove.", "selector": "ps-row-killswitch.pause_checkouts-revert (absent)", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Main agent: DELETE leftover tbl_platform_setting row killswitch.pause_checkouts (value=false, source=override) created during QA toggle-off step. Value is safe (same as default) but context requires empty table.",
+    "Consider surfacing a Revert control on kill-switch cards too so admins can clear an override row without a second toggle round-trip."
+  ],
+  "critical_code_review_comments": [
+    "Step-up modal correctly guards both PUT and POST revert; axiosAdmin exemption on 401/403 for step-up works (admin stayed on /admin/settings on wrong code).",
+    "History drawer initial render had a brief empty state before fetch resolved; adding a loading skeleton or awaited open would be polish."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (frontend-only)", "frontend": "100% (all 8 required flows passed)"},
+  "test_credentials": "admin: moxxcompany@gmail.com / Katiekendra123@ ; TOTP via `cd /app/backend && node scripts/admin_2fa.cjs totp 1`",
+  "seed_data_creation": "None. Transient tbl_platform_setting rows created during QA; all were reverted via UI except killswitch.pause_checkouts (false) which has no UI revert control — flagged for main-agent DELETE.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Phase 1 admin platform settings UI is working end-to-end. All testids per spec exist. Only cleanup gap is on kill-switch cards (no revert button).",
+  "rca of the issue": "Kill-switch toggle component renders a Switch and does not render the ps-row-<key>-revert button that SettingRow shows for numeric/editable rows. Fix: add a small Revert affordance on the kill-switch card when source==='override'."
+}

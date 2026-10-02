@@ -170,6 +170,13 @@ const AdminPlatformSettings: React.FC = () => {
                       </Box>
                       {s.description && <Typography sx={{ fontSize: 12, color: "text.secondary", mt: 0.25 }}>{s.description}</Typography>}
                     </Box>
+                    {s.source === "override" && (
+                      <Button size="small" color="inherit" onClick={() => askRevert(s)}
+                        data-testid={`ps-kill-switch-${s.key}-revert`}
+                        sx={{ textTransform: "none", fontSize: 11.5, minWidth: 0 }}>
+                        Revert
+                      </Button>
+                    )}
                     <Switch
                       color="error"
                       checked={!!s.value}
