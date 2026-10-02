@@ -165,6 +165,45 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
 
   const currentTransactions = sortedTransactions.slice(startIndex, endIndex);
 
+  // Date grouping (design spec): Today / Yesterday / This week / This month /
+  // Earlier — only when the table is sorted by date (the default). Grouping is
+  // per rendered page; a header appears whenever the bucket changes.
+  const grouped = sort.key === "dateTime";
+  const dateBounds = useMemo(() => {
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const dow = now.getDay();
+    const startOfWeek = startOfToday - ((dow + 6) % 7) * 86400000;
+    return {
+      startOfToday,
+      startOfYesterday: startOfToday - 86400000,
+      startOfWeek,
+      startOfMonth: new Date(now.getFullYear(), now.getMonth(), 1).getTime(),
+    };
+  }, []);
+  const bucketOf = (ts: number): string => {
+    if (!ts) return "earlier";
+    if (ts >= dateBounds.startOfToday) return "today";
+    if (ts >= dateBounds.startOfYesterday) return "yesterday";
+    if (ts >= dateBounds.startOfWeek) return "week";
+    if (ts >= dateBounds.startOfMonth) return "month";
+    return "earlier";
+  };
+  const bucketLabel = (b: string): string =>
+    b === "today"
+      ? tTransactions("groupToday", { defaultValue: "Today" })
+      : b === "yesterday"
+        ? tTransactions("groupYesterday", { defaultValue: "Yesterday" })
+        : b === "week"
+          ? tTransactions("groupThisWeek", { defaultValue: "This week" })
+          : b === "month"
+            ? tTransactions("groupThisMonth", { defaultValue: "This month" })
+            : tTransactions("groupEarlier", { defaultValue: "Earlier" });
+  const showGroupHeader = (idx: number): boolean =>
+    grouped &&
+    (idx === 0 ||
+      bucketOf(currentTransactions[idx - 1].createdAtTs) !== bucketOf(currentTransactions[idx].createdAtTs));
+
   useEffect(() => {
     setCurrentPage(1);
   }, [transactions]);
@@ -398,10 +437,28 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
         </Box>
       ) : (
         <>
-          {currentTransactions.map((transaction) => {
+          {currentTransactions.map((transaction, idx) => {
             const isDark = theme.palette.mode === "dark";
             const accent = getAssetColor(transaction.crypto);
             return (
+              <React.Fragment key={transaction.id}>
+              {showGroupHeader(idx) && (
+                <Box
+                  data-testid={`tx-group-m-${bucketOf(transaction.createdAtTs)}`}
+                  sx={{
+                    pt: idx === 0 ? 0 : 1,
+                    pb: 0.25,
+                    fontFamily: "var(--font-sans)",
+                    fontSize: "11px",
+                    fontWeight: 700,
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase",
+                    color: theme.palette.text.secondary,
+                  }}
+                >
+                  {bucketLabel(bucketOf(transaction.createdAtTs))}
+                </Box>
+              )}
               <Box
                 key={transaction.id}
                 onClick={() => handleRowClick(transaction)}
@@ -522,6 +579,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                   )}
                 </Box>
               </Box>
+              </React.Fragment>
             );
           })}
         </>
@@ -679,7 +737,29 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                 {t("transactionsNotAvailable", { ns: "common" })}
               </Box>
             ) : (
-              currentTransactions.map((transaction) => (
+              currentTransactions.map((transaction, idx) => (
+                <React.Fragment key={transaction.id}>
+                  {showGroupHeader(idx) && (
+                    <Box
+                      data-testid={`tx-group-${bucketOf(transaction.createdAtTs)}`}
+                      sx={{
+                        width: "100%",
+                        px: "16px",
+                        py: "7px",
+                        mt: idx === 0 ? 0 : "2px",
+                        fontFamily: "var(--font-sans)",
+                        fontSize: "11px",
+                        fontWeight: 700,
+                        letterSpacing: "0.08em",
+                        textTransform: "uppercase",
+                        color: theme.palette.text.secondary,
+                        bgcolor: theme.palette.mode === "dark" ? CB_TOKENS.surface.dark : CB_TOKENS.surface.light,
+                        borderBottom: `1px solid ${theme.palette.mode === "dark" ? CB_TOKENS.border.dark : CB_TOKENS.border.light}`,
+                      }}
+                    >
+                      {bucketLabel(bucketOf(transaction.createdAtTs))}
+                    </Box>
+                  )}
                 <TransactionsTableRow
                   key={transaction.id}
                   data-testid={`tx-row-${transaction.id}`}
@@ -879,6 +959,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                     </Box>
                   </TransactionsTableCell>
                 </TransactionsTableRow>
+                </React.Fragment>
               ))
             )}
           </TransactionsTableBody>

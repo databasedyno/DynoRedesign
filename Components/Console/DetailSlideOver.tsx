@@ -8,10 +8,12 @@ interface DetailSlideOverProps {
   onClose: () => void;
   title: React.ReactNode;
   subtitle?: React.ReactNode;
+  headerAccessory?: React.ReactNode;
   children: React.ReactNode;
   footer?: React.ReactNode;
   width?: number;
   testid?: string;
+  closeTestid?: string;
 }
 
 /** Right-side slide-over detail panel — keeps the list context behind it. */
@@ -20,10 +22,12 @@ const DetailSlideOver: React.FC<DetailSlideOverProps> = ({
   onClose,
   title,
   subtitle,
+  headerAccessory,
   children,
   footer,
   width = 440,
   testid = "detail-slide-over",
+  closeTestid = "slide-over-close",
 }) => {
   const t = useConsole();
   return (
@@ -62,12 +66,15 @@ const DetailSlideOver: React.FC<DetailSlideOverProps> = ({
         }}
       >
         <Box sx={{ minWidth: 0 }}>
-          <Typography sx={{ fontSize: 16, fontWeight: 600, color: t.ink, lineHeight: 1.3 }}>{title}</Typography>
-          {subtitle != null && <Typography sx={{ fontSize: 12.5, color: t.inkSecondary, mt: 0.25 }}>{subtitle}</Typography>}
+          <Typography component="div" sx={{ fontSize: 16, fontWeight: 600, color: t.ink, lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis" }}>{title}</Typography>
+          {subtitle != null && <Typography component="div" sx={{ fontSize: 12.5, color: t.inkSecondary, mt: 0.25, display: "flex", alignItems: "center", gap: 0.5, minWidth: 0 }}>{subtitle}</Typography>}
         </Box>
-        <IconButton onClick={onClose} size="small" data-testid="slide-over-close" sx={{ color: t.inkSecondary, mt: -0.5 }}>
-          <Icon name="x" size={18} />
-        </IconButton>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, flexShrink: 0 }}>
+          {headerAccessory}
+          <IconButton onClick={onClose} size="small" data-testid={closeTestid} sx={{ color: t.inkSecondary, mt: -0.25 }}>
+            <Icon name="x" size={18} />
+          </IconButton>
+        </Box>
       </Box>
 
       <Box sx={{ flex: 1, overflowY: "auto", px: 3, py: 2.5 }}>{children}</Box>

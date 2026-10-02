@@ -22,6 +22,7 @@ import { formatWithSymbol, localizeDecimal } from "@/utils/locale";
 import useIsMobile from "@/hooks/useIsMobile";
 import type { PaymentLinkData } from "@/utils/types/paymentLink";
 import EmbedSnippet from "./EmbedSnippet";
+import DetailSlideOver from "@/Components/Console/DetailSlideOver";
 import { isLinkEditable, isLinkPaid, linkStatusLabelKey, linkStatusTone } from "./linkStatus";
 import { useLinkPayments } from "./useLinkPayments";
 
@@ -121,44 +122,59 @@ const PaymentLinkDetailPanel: React.FC<Props> = ({ open, link, onClose, onEdit, 
   ];
 
   return (
-    <Drawer
-      anchor="right"
+    <DetailSlideOver
       open={open}
       onClose={onClose}
-      keepMounted={false}
-      transitionDuration={{ enter: 260, exit: 200 }}
-      PaperProps={{
-        "data-testid": "paylink-detail-panel",
-        sx: {
-          width: { xs: "100%", sm: 480, md: 520 },
-          maxWidth: "100%",
-          bgcolor: theme.palette.background.paper,
-          borderLeft: `1px solid ${border}`,
-          backgroundImage: "none",
-          display: "flex",
-          flexDirection: "column",
-        },
-      } as any}
-      BackdropProps={{ sx: { backgroundColor: isDark ? "rgba(0,0,0,0.55)" : "rgba(10,10,15,0.35)", backdropFilter: "blur(2px)" } }}
+      testid="paylink-detail-panel"
+      closeTestid="paylink-detail-close"
+      width={480}
+      title={<Box component="span" data-testid="paylink-detail-title">{title}</Box>}
+      subtitle={isDonation ? t("detail.eyebrowCampaign", { defaultValue: "Donation campaign" }) : t("detail.eyebrow", { defaultValue: "Payment link" })}
+      headerAccessory={
+        link ? (
+          <Box data-testid="paylink-detail-status" data-status={link.status}>
+            <StatusDot tone={linkStatusTone(link.status)}>{t(linkStatusLabelKey(link.status))}</StatusDot>
+          </Box>
+        ) : undefined
+      }
+      footer={
+        link ? (
+          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", alignItems: "center" }}>
+            {editable && (
+              <Box sx={{ flex: "1 1 140px", "& button": { width: "100%", minHeight: 44 } }}>
+                <CustomButton label={t("editLinkTooltip", { defaultValue: "Edit link" })} variant="secondary" onClick={() => onEdit(String(link.id))} data-testid="paylink-detail-edit" />
+              </Box>
+            )}
+            <Box sx={{ flex: "1 1 140px", "& button": { width: "100%", minHeight: 44 } }}>
+              <CustomButton
+                label={t("duplicateLink", { defaultValue: "Duplicate" })}
+                variant="secondary"
+                onClick={() => router.push(`/create-pay-link?duplicate=${encodeURIComponent(String(link.id))}`)}
+                data-testid="paylink-detail-duplicate"
+              />
+            </Box>
+            {paid && (
+              <Box sx={{ flex: "1 1 140px", "& button": { width: "100%", minHeight: 44 } }}>
+                <CustomButton label={t("viewTransactionsTooltip", { defaultValue: "View transactions" })} variant="secondary" onClick={viewInTransactions} data-testid="paylink-detail-view-transactions-footer" />
+              </Box>
+            )}
+            {onRefund && paid && (
+              <Box sx={{ flex: "1 1 140px", "& button": { width: "100%", minHeight: 44 } }}>
+                <CustomButton label={refundStatus ? t("detail.refundStatus", { status: refundStatus, defaultValue: "Refund: {{status}}" }) : t("cryptoRefundTooltip", { defaultValue: "Crypto refund" })} variant="secondary" disabled={!!refundStatus} onClick={() => onRefund(String(link.id))} data-testid="paylink-detail-refund" />
+              </Box>
+            )}
+            {editable && (
+              <Box component="button" type="button" data-testid="paylink-detail-delete" onClick={() => onDelete(String(link.id))} sx={{ ml: "auto", minHeight: 44, px: 1.5, border: 0, borderRadius: 999, background: "transparent", cursor: "pointer", fontFamily: "var(--font-sans)", fontSize: 13.5, fontWeight: 600, color: isDark ? CB_TOKENS.semantic.negative.dark : CB_TOKENS.semantic.negative.light, display: "inline-flex", alignItems: "center", gap: 0.75, "&:hover": { backgroundColor: isDark ? "rgba(251,113,133,0.10)" : "rgba(244,63,94,0.08)" } }}>
+                <Icon name="trash-2" size={16} />
+                {t("delete", { defaultValue: "Delete" })}
+              </Box>
+            )}
+          </Box>
+        ) : undefined
+      }
     >
       {link && (
-        <>
-          <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.5, p: theme.spacing(2.25, 2.5, 2, 3), borderBottom: `1px solid ${border}`, flexShrink: 0 }}>
-            <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Box sx={eyebrowSx}>{isDonation ? t("detail.eyebrowCampaign", { defaultValue: "Donation campaign" }) : t("detail.eyebrow", { defaultValue: "Payment link" })}</Box>
-              <Typography component="h2" data-testid="paylink-detail-title" sx={{ mt: 0.5, fontFamily: "var(--font-sans)", fontSize: 18, fontWeight: 700, letterSpacing: "-0.01em", color: ink, lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
-                {title}
-              </Typography>
-            </Box>
-            <Box sx={{ pt: 0.5 }} data-testid="paylink-detail-status" data-status={link.status}>
-              <StatusDot tone={linkStatusTone(link.status)}>{t(linkStatusLabelKey(link.status))}</StatusDot>
-            </Box>
-            <IconButton onClick={onClose} data-testid="paylink-detail-close" aria-label={t("detail.close", { defaultValue: "Close" })} size="small" sx={{ color: secondary, mt: -0.25, "&:hover": { color: ink, backgroundColor: theme.palette.action.hover } }}>
-              <Icon name="x" size={18} />
-            </IconButton>
-          </Box>
-
-          <Box sx={{ flex: 1, overflowY: "auto", p: isMobile ? 2 : 3, display: "grid", gap: 3, alignContent: "start" }}>
+        <Box sx={{ display: "grid", gap: 3, alignContent: "start" }}>
             <Box>
               <Box sx={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 2, flexWrap: "wrap" }}>
                 <Box data-testid="paylink-detail-amount" sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontSize: 30, fontWeight: 700, letterSpacing: "-0.02em", color: ink, lineHeight: 1.1 }}>
@@ -292,41 +308,8 @@ const PaymentLinkDetailPanel: React.FC<Props> = ({ open, link, onClose, onEdit, 
               </Box>
             </Box>
           </Box>
-
-          <Box sx={{ flexShrink: 0, p: isMobile ? 2 : 2.5, borderTop: `1px solid ${border}`, display: "flex", gap: 1, flexWrap: "wrap", alignItems: "center" }}>
-            {editable && (
-              <Box sx={{ flex: "1 1 140px", "& button": { width: "100%", minHeight: 44 } }}>
-                <CustomButton label={t("editLinkTooltip", { defaultValue: "Edit link" })} variant="secondary" onClick={() => onEdit(String(link.id))} data-testid="paylink-detail-edit" />
-              </Box>
-            )}
-            <Box sx={{ flex: "1 1 140px", "& button": { width: "100%", minHeight: 44 } }}>
-              <CustomButton
-                label={t("duplicateLink", { defaultValue: "Duplicate" })}
-                variant="secondary"
-                onClick={() => router.push(`/create-pay-link?duplicate=${encodeURIComponent(String(link.id))}`)}
-                data-testid="paylink-detail-duplicate"
-              />
-            </Box>
-            {paid && (
-              <Box sx={{ flex: "1 1 140px", "& button": { width: "100%", minHeight: 44 } }}>
-                <CustomButton label={t("viewTransactionsTooltip", { defaultValue: "View transactions" })} variant="secondary" onClick={viewInTransactions} data-testid="paylink-detail-view-transactions-footer" />
-              </Box>
-            )}
-            {onRefund && paid && (
-              <Box sx={{ flex: "1 1 140px", "& button": { width: "100%", minHeight: 44 } }}>
-                <CustomButton label={refundStatus ? t("detail.refundStatus", { status: refundStatus, defaultValue: "Refund: {{status}}" }) : t("cryptoRefundTooltip", { defaultValue: "Crypto refund" })} variant="secondary" disabled={!!refundStatus} onClick={() => onRefund(String(link.id))} data-testid="paylink-detail-refund" />
-              </Box>
-            )}
-            {editable && (
-              <Box component="button" type="button" data-testid="paylink-detail-delete" onClick={() => onDelete(String(link.id))} sx={{ ml: "auto", minHeight: 44, px: 1.5, border: 0, borderRadius: 999, background: "transparent", cursor: "pointer", fontFamily: "var(--font-sans)", fontSize: 13.5, fontWeight: 600, color: isDark ? CB_TOKENS.semantic.negative.dark : CB_TOKENS.semantic.negative.light, display: "inline-flex", alignItems: "center", gap: 0.75, "&:hover": { backgroundColor: isDark ? "rgba(251,113,133,0.10)" : "rgba(244,63,94,0.08)" } }}>
-                <Icon name="trash-2" size={16} />
-                {t("delete", { defaultValue: "Delete" })}
-              </Box>
-            )}
-          </Box>
-        </>
       )}
-    </Drawer>
+    </DetailSlideOver>
   );
 };
 

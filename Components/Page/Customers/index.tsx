@@ -83,6 +83,7 @@ import { toFixedStr } from "@/utils/money";
 import ConsoleSummaryStrip from "@/Components/Console/SummaryStrip";
 import ConsoleFilterBar from "@/Components/Console/FilterBar";
 import ConsoleEmptyState from "@/Components/Console/EmptyState";
+import ConsoleDetailSlideOver from "@/Components/Console/DetailSlideOver";
 
 /* ------------------------------------------------------------------ types */
 
@@ -982,24 +983,41 @@ const CustomersPage: React.FC = () => {
       )}
 
       {/* ------------------------------------------------- detail drawer */}
-      <Drawer
-        anchor={isMobile ? "bottom" : "right"}
+      <ConsoleDetailSlideOver
         open={!!detailKey}
         onClose={closeDetail}
-        data-testid="customer-detail-drawer"
-        PaperProps={{
-          sx: {
-            width: isMobile ? "100%" : 460,
-            maxHeight: isMobile ? "92vh" : "100%",
-            borderTopLeftRadius: isMobile ? "16px" : 0,
-            borderTopRightRadius: isMobile ? "16px" : 0,
-            bgcolor: isDark ? "#101014" : "#FFFFFF",
-            backgroundImage: "none",
-          },
-        }}
+        testid="customer-detail-drawer"
+        closeTestid="customer-detail-close"
+        width={480}
+        title={
+          detail ? (
+            <Box component="span" data-testid="customer-detail-name">{displayName(detail.profile)}</Box>
+          ) : (
+            t("customers.detailTitle", { defaultValue: "Customer" })
+          )
+        }
+        subtitle={
+          detail
+            ? detail.profile.kind === "person" && detail.profile.email
+              ? (
+                  <>
+                    <Box component="span" sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{detail.profile.email}</Box>
+                    <IconButton size="small" onClick={() => copyEmail(detail.profile.email!)} data-testid="customer-detail-copy-email" sx={{ p: 0.3, color: "inherit" }} aria-label={t("customers.copyEmail", { defaultValue: "Copy email" })}>
+                      {copied ? <CheckRounded sx={{ fontSize: 13, color: "#10B981" }} /> : <ContentCopyRounded sx={{ fontSize: 12, color: "inherit" }} />}
+                    </IconButton>
+                  </>
+                )
+              : (detail.profile.mobile || t("customers.anonHint", { defaultValue: "No contact details captured" }))
+            : undefined
+        }
+        headerAccessory={
+          detail ? (
+            <StatusDot tone={segmentTone(detail.profile.segment)}>{segmentLabel(detail.profile.segment)}</StatusDot>
+          ) : undefined
+        }
       >
         {detailLoading || !detail ? (
-          <Box sx={{ p: 6, display: "flex", justifyContent: "center" }}>
+          <Box sx={{ py: 6, display: "flex", justifyContent: "center" }}>
             <CircularProgress size={24} />
           </Box>
         ) : (
@@ -1026,7 +1044,7 @@ const CustomersPage: React.FC = () => {
             onDeleted={() => { setDetailKey(null); void mutate(); }}
           />
         )}
-      </Drawer>
+      </ConsoleDetailSlideOver>
 
       <AddCustomerDialog
         open={addOpen}
@@ -1235,73 +1253,7 @@ const DetailPanel: React.FC<{
   );
 
   return (
-    <Box sx={{ p: { xs: 2, md: 2.5 }, overflowY: "auto" }}>
-      {/* header */}
-      <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.5, mb: 2 }}>
-        {renderAvatar(c, 46)}
-        <Box sx={{ minWidth: 0, flexGrow: 1 }}>
-          <Typography
-            sx={{
-              fontWeight: 700,
-              fontSize: "16.5px",
-              color: theme.palette.text.primary,
-              ...sansSx,
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}
-            data-testid="customer-detail-name"
-          >
-            {displayName(c)}
-          </Typography>
-          {isPerson && c.email && (
-            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, minWidth: 0 }}>
-              <Typography
-                sx={{
-                  fontSize: "12.5px",
-                  color: theme.palette.text.secondary,
-                  ...sansSx,
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {c.email}
-              </Typography>
-              <IconButton
-                size="small"
-                onClick={() => onCopyEmail(c.email!)}
-                data-testid="customer-detail-copy-email"
-                sx={{ p: 0.4 }}
-                aria-label={t("customers.copyEmail", { defaultValue: "Copy email" })}
-              >
-                {copied ? (
-                  <CheckRounded sx={{ fontSize: 14, color: "#10B981" }} />
-                ) : (
-                  <ContentCopyRounded sx={{ fontSize: 13, color: theme.palette.text.secondary }} />
-                )}
-              </IconButton>
-            </Box>
-          )}
-          {!isPerson && (
-            <Typography sx={{ fontSize: "12.5px", color: theme.palette.text.secondary, ...sansSx }}>
-              {t("customers.anonHint", { defaultValue: "No contact details captured" })}
-            </Typography>
-          )}
-          {c.mobile && (
-            <Typography sx={{ fontSize: "12.5px", color: theme.palette.text.secondary, ...sansSx }}>
-              {c.mobile}
-            </Typography>
-          )}
-          <Box sx={{ mt: 0.75 }}>
-            <StatusDot tone={segmentTone(c.segment)}>{segmentLabel(c.segment)}</StatusDot>
-          </Box>
-        </Box>
-        <IconButton onClick={onClose} size="small" data-testid="customer-detail-close" aria-label="Close">
-          <CloseIcon sx={{ fontSize: 20 }} />
-        </IconButton>
-      </Box>
-
+    <Box>
       {/* actions */}
       {isPerson && c.email && (
         <Box sx={{ display: "flex", gap: 1, mb: 2 }}>

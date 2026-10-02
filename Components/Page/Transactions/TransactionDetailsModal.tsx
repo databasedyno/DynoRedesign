@@ -25,6 +25,7 @@ import useIsMobile from "@/hooks/useIsMobile";
 import { useDisplayFx } from "@/hooks/useDisplayFx";
 import axiosBaseApi from "@/axiosConfig";
 import { TransactionDetailsModalProps } from "@/utils/types/transaction";
+import DetailSlideOver from "@/Components/Console/DetailSlideOver";
 import TransactionStatusBadge from "@/Components/UI/TransactionStatusBadge";
 import {
   ActionButtonGroup,
@@ -230,91 +231,25 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
           click through a list of transactions in sequence. As a right-side
           drawer the table stays in view, keyboard focus is preserved, and
           the escape/back-tap gesture on mobile closes it naturally. */}
-      <Drawer
-        anchor="right"
+      <DetailSlideOver
         open={open}
         onClose={onClose}
-        keepMounted={false}
-        transitionDuration={{ enter: 260, exit: 200 }}
-        PaperProps={{
-          sx: {
-            width: { xs: "100%", sm: 460, md: 520 },
-            maxWidth: "100%",
-            bgcolor: theme.palette.background.paper,
-            borderLeft: `1px solid ${theme.palette.border?.main || "rgba(10,10,15,0.08)"}`,
-            backgroundImage: "none",
-            display: "flex",
-            flexDirection: "column",
-          },
-        }}
-        BackdropProps={{
-          sx: {
-            backgroundColor: theme.palette.mode === "dark"
-              ? "rgba(0,0,0,0.55)"
-              : "rgba(10,10,15,0.35)",
-            backdropFilter: "blur(2px)",
-          },
-        }}
-      >
-        {/* Sticky drawer header — title + status badge + close */}
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 1.5,
-            padding: theme.spacing(2.5, 3, 2, 3),
-            borderBottom: `1px solid ${theme.palette.border?.main || "rgba(10,10,15,0.08)"}`,
-            flexShrink: 0,
-          }}
-        >
-          <Typography
-            component="h2"
-            sx={{
-              flex: 1,
-              minWidth: 0,
-              fontFamily: "var(--font-hero), var(--font-body)",
-              fontSize: 18,
-              fontWeight: 700,
-              letterSpacing: "-0.01em",
-              color: theme.palette.text.primary,
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}
-          >
-            <Box component="span" data-testid="tx-modal-title">
-              {event?.title || tTransactions("transactionDetails")}
-            </Box>
-          </Typography>
+        testid="tx-detail-panel"
+        width={480}
+        title={
+          <Box component="span" data-testid="tx-modal-title">
+            {event?.title || tTransactions("transactionDetails")}
+          </Box>
+        }
+        headerAccessory={
           <TransactionStatusBadge
             status={transaction.status}
             autoConverted={transaction.autoConverted}
             variant="pill"
             data-testid="tx-modal-status"
           />
-          <IconButton
-            onClick={onClose}
-            aria-label="Close transaction details"
-            size="small"
-            sx={{
-              color: theme.palette.text.secondary,
-              "&:hover": { color: theme.palette.text.primary, backgroundColor: theme.palette.action.hover },
-            }}
-          >
-            <Icon name="x" size={18} />
-          </IconButton>
-        </Box>
-
-        {/* Scrollable body */}
-        <Box
-          sx={{
-            flex: 1,
-            overflowY: "auto",
-            padding: isMobile
-              ? theme.spacing(2)
-              : theme.spacing(3),
-          }}
-        >
+        }
+      >
           <Box>
             <HeaderTitleRow>
               <TitleColumn>
@@ -937,8 +872,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
               }}
             />
           </Box>
-        </Box>
-      </Drawer>
+      </DetailSlideOver>
       <Toast
         open={openToast}
         message={t("copyFailed", { ns: "common", defaultValue: "Couldn't copy — please copy it manually" })}
