@@ -1,0 +1,31 @@
+{
+  "summary": "Verified new 'Expired-link rescue' Extend feature on /pay-links. Mocked PUT /api/pay/links/* to protect the live prod DB. All 5 acceptance criteria pass on desktop (1920x900) and mobile (390).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verification_matrix": {
+    "desktop_inline_extend_present_on_expired": "PASS - paylink-extend-536 and paylink-extend-531 found (count=1 each)",
+    "desktop_inline_extend_absent_on_active": "PASS - 591, 578, 577, 576, 575, 548, 547 all count=0",
+    "mobile_inline_extend_present_on_expired": "PASS - paylink-extend-mobile-536, paylink-extend-mobile-531 found",
+    "put_request_body_exact": "PASS - PUT /api/pay/links/536 body=\"{\\\"expire\\\":\\\"7d\\\"}\" ; PUT /api/pay/links/531 body=\"{\\\"expire\\\":\\\"7d\\\"}\" (mocked, no DB write)",
+    "success_toast": "PASS - Toast text matches exactly: 'Link reactivated — live for 7 more days'",
+    "list_refetch": "PASS - GET /pay/getPaymentLinks fires after mocked success response (list reloaded)",
+    "detail_panel_extend_expired": "PASS - paylink-detail-extend visible for expired link 531 with label 'Reactivate for 7 days'; clicking fires PUT with {expire:'7d'}",
+    "detail_panel_extend_active_hidden": "PASS - paylink-detail-extend count=0 when opening active link 591",
+    "orders_cart_extend_absent": "PASS - Orders tab: no paylink-extend-* testids rendered",
+    "regression_expired_row_click_opens_detail": "PASS - clicking expired row still opens slide-over; Copy/Edit/Delete hidden appropriately (only view + extend icons visible in row for expired)"
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped per request)", "frontend": "100%"},
+  "test_credentials": "localStorage token from /app/memory/tmp/merchant_token.txt + last_company_id=1 + sessionStorage mfa_interstitial_seen=1",
+  "seed_data_creation": "None - mocked PUT at the Playwright route layer so live prod DB untouched.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Expired-link Extend action is fully working. Testids: paylink-extend-<id> (desktop row), paylink-extend-mobile-<id> (mobile row), paylink-detail-extend (slide-over footer). Payload always {expire:'7d'}. Toast copy = 'Link reactivated — live for 7 more days'. Always mock PUT **/api/pay/links/** during QA because the preview is wired to the LIVE prod DB."
+}

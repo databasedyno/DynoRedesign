@@ -2,6 +2,21 @@
 # >>> Pending now: P0 OWNER ACTION fund POL gas wallet 0x6508f517021b3fe14acb4515535b6772b0669f47 (≥10 POL) + Save to GitHub + deploy · P1 SMADAV ETH email-bounce prod verification · P1 Buy-Buttons-on-Keys-tab product decision · P2 tech-debt sweep · P2 guided live-test checklist for the 9 unproven chains (user said "not now").
 
 
+# === 2026-06 (fork, pt12) — EXPIRED-LINK RESCUE: one-tap Extend on /pay-links — DONE & VERIFIED (testing_agent iteration_261: 100%, desktop 1920 + mobile 390, 0 bugs; PUT mocked so the LIVE prod DB was untouched) ===
+# BACKLOG item (P1, agent's best-judgment pick — user said "proceed"): revive a dead/expired payment link in one tap instead of recreating it.
+# SCOPE DECISION: audited the two other candidate P0s first and found both already satisfied / risky:
+#   - Task2 "auto-convert icon missing for settled payments" = ALREADY DONE in code (backend GET /pay/getPaymentLinks returns auto_converted:true for settled conv rows [verified live: tx 941/944]; StatusChip.tsx:56 renders the "Converted" dot+label for bucket==='settled'; TransactionsTable asset cell shows the swap icon). Nothing to fix.
+#   - Issue4 "wrap fund-moving admin routes in requireAdminStepUp" = auth rabbit hole: credit/debit use adminOrApiKeyMiddleware (legacy ACCESS_TOKEN_SECRET JWT, NO sid) so requireAdminStepUp (needs res.locals.user.sid from the hardened admin session) can't gate them without a larger refactor; binance-sell + escrow dispute-resolve use the hardened adminAuthMiddleware and COULD take requireAdminStepUp('fund-transfer') cleanly — deferred (touches auth → needs integration_expert + user sign-off).
+# IMPLEMENTATION (FRONTEND ONLY — reuses the already-tested PUT /api/pay/links/:id updatePaymentLink `expire` branch, which recomputes expires_at from now AND refreshes the checkout Redis key so the public /pay page revives too):
+#   - Components/Page/Payment-link/PaymentLinksTable.tsx: handleExtend(id) → axiosBaseApi.put(`/pay/links/${id}`, {expire:'7d'}) → fireToast('Link reactivated — live for 7 more days') + refetchLinks() (dispatch PAYLINK_FETCH with selectedCompanyId) + close detail. New state extendingId (guards double-fire + disables button). Inline <AutorenewRounded> RowActionButton on expired STANDARD rows — desktop testid paylink-extend-<id> (next to the eye btn), mobile testid paylink-extend-mobile-<id>. Passes onExtend/extending to the detail panel. New imports: PAYLINK_FETCH, axiosBaseApi, useCompanyStore, AutorenewRounded.
+#   - Components/Page/Payment-link/PaymentLinkDetailPanel.tsx: new props onExtend/extending; primary CustomButton testid paylink-detail-extend ('Reactivate for 7 days' / 'Reactivating…') in the footer when canExtend = isLinkExpired(status) && !isDonation && linkType!=='cart' && !!onExtend. Imported isLinkExpired from ./linkStatus.
+#   - Eligibility: expired + linkType==='standard' only (donation campaigns have their own lifecycle; cart/order links are auto-created). Button ABSENT on active/pending/paid and on donation/cart (verified).
+#   - i18n: English defaultValue inline (extendLinkTooltip, detail.extend, detail.extending, extendSuccess, extendError) — matches the no-JSON-edit precedent.
+# OPS: tsc --noEmit = 0. FE production build rebuilt (.next-prod-new → swap → restart frontend; .next-prod-old removed). UNCOMMITTED → user "Save to GitHub".
+# NOT DONE (follow-ups): the "Resend" half (email the link again to the stored recipient) — needs a new backend send endpoint + template wiring; a duration picker (24h/7d/30d) instead of the fixed 7d one-tap; surfacing Extend inside the desktop '⋯' overflow menu (currently a dedicated inline icon). Expired links are still not deletable from the detail panel (unchanged).
+# ============================================================================================
+
+
 # === 2026-06 (fork, pt11) — CONSOLE REDESIGN Phase 2 (Wallet / Payouts / Invoices / Keys): AUDIT + redesign off-system bits — DONE & VERIFIED (testing_agent iteration_258: /invoices 100% on desktop; mobile/dark inconclusive ONLY due to Cloudflare rate-limit, not code) ===
 # USER item 3: audit the 4 Phase-2 pages and redesign only the off-system bits (KPI bands→SummaryStrip, toolbars→FilterBar, drawers→DetailSlideOver).
 # AUDIT RESULT (3 of 4 already on-system — NO code change, would regress):
