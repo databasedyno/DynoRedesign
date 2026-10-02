@@ -40,6 +40,8 @@ export interface EmailJobData {
   body: string;
   attachments?: EmailAttachment[];
   sender: { name: string; email: string };
+  /** Optional Reply-To address (e.g. SafeDeal support) so replies don't hit the no-reply box. */
+  replyTo?: { name?: string; email: string } | null;
   lane: EmailLane;
   template?: string | null;
   logId: number | null;
@@ -128,6 +130,9 @@ export const brevoPayload = (d: EmailJobData): Record<string, unknown> => {
     htmlContent: d.body,
     textContent: text.substring(0, 50000),
   };
+  if (d.replyTo?.email) {
+    payload.replyTo = d.replyTo.name ? { email: d.replyTo.email, name: d.replyTo.name } : { email: d.replyTo.email };
+  }
   if (d.attachments?.length) {
     payload.attachment = d.attachments.map((a) => ({ name: a.name, content: a.content, contentType: a.contentType || "application/pdf" }));
   }

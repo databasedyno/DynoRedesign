@@ -5,7 +5,7 @@ import { captureError } from "../errorMonitoringService";
 import { t, normalizeLang, resolveEmailLang, formatEmailDateTime } from "../../utils/emailI18n";
 import { getCurrencySymbol, infoBox, dataRow, p, successBox, ctaButton, formatPercent } from "../../utils/emailTemplate";
 import { EMAIL_TOKENS } from "../../utils/brandTokens";
-import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, greetingLine } from "./emailShared";
+import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, greetingLine, brandSubject } from "./emailShared";
 
 const FONT = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif";
 
@@ -54,7 +54,7 @@ export const sendPaymentLinkCreatedEmail = async (
   try {
     const L = await resolveEmailLang(lang, email);
     const brand = escapeHtml(brandName || "");
-    const subject = t('merchant.paymentLinkCreated.subject', L, { amount, currency });
+    const subject = brandSubject(brandName, t('merchant.paymentLinkCreated.subject', L, { amount, currency }));
 
     let shortDisplayUrl = paymentLink;
     try {

@@ -64,6 +64,7 @@ import {
   sendEscrowPaidEmail,
   sendEscrowChangesRequestedEmail,
 } from "../services/email/escrowEmails";
+import { notifyDealStage } from "../services/safedeal/safedealTelegram";
 
 // ── error type + utilities ───────────────────────────────────────────────────
 
@@ -453,8 +454,8 @@ async function notifyOutcome(deal: any, summary: string): Promise<void> {
   const url = dealUrl(deal);
   if (isSafeDeal(deal)) {
     // Funds land in wallets — one clear email per party, no "paste an address" nudges.
-    if (deal.seller_payout_state === "paid" && sellerEmail) void sendEscrowReleasedEmail(sellerEmail, sellerEmail, deal, summary);
-    if (deal.buyer_payout_state === "paid" && buyerEmail) void sendEscrowRefundedEmail(buyerEmail, buyerEmail, deal, summary);
+    if (deal.seller_payout_state === "paid" && sellerEmail) { void sendEscrowReleasedEmail(sellerEmail, sellerEmail, deal, summary); void notifyDealStage(deal, "released", sellerEmail, url); }
+    if (deal.buyer_payout_state === "paid" && buyerEmail) { void sendEscrowRefundedEmail(buyerEmail, buyerEmail, deal, summary); void notifyDealStage(deal, "refunded", buyerEmail, url); }
     // Branded SafeDeal invoice PDF (SD-<id>) to each party, on settlement.
     void import("../services/safedeal/safedealInvoiceEmail")
       .then((m) => m.emailSafeDealDealInvoices(deal, buyerEmail, sellerEmail))
@@ -498,7 +499,7 @@ async function actAccept(deal: any, actor: ActorInfo): Promise<any> {
   deal.activity_log = appendActivity(deal.activity_log, { type: "accepted", actor: actor.label, role: actor.role, note: "Counterparty accepted the terms." });
   await deal.save();
   const { creatorEmail, creatorName } = await loadCreatorAndCompany(deal);
-  if (creatorEmail) void sendEscrowAcceptedEmail(creatorEmail, creatorName, deal, actor.label);
+  if (creatorEmail) { void sendEscrowAcceptedEmail(creatorEmail, creatorName, deal, actor.label); void notifyDealStage(deal, "accepted", creatorEmail, dealUrl(deal)); }
   return deal;
 }
 
@@ -511,7 +512,7 @@ async function actDecline(deal: any, actor: ActorInfo, reason?: string): Promise
   deal.activity_log = appendActivity(deal.activity_log, { type: "declined", actor: actor.label, role: actor.role, note: reason || "Counterparty declined." });
   await deal.save();
   const { creatorEmail, creatorName } = await loadCreatorAndCompany(deal);
-  if (creatorEmail) void sendEscrowDeclinedEmail(creatorEmail, creatorName, deal, actor.label);
+  if (creatorEmail) { void sendEscrowDeclinedEmail(creatorEmail, creatorName, deal, actor.label); void notifyDealStage(deal, "declined", creatorEmail, dealUrl(deal)); }
   return deal;
 }
 
@@ -545,7 +546,7 @@ async function actCancel(deal: any, actor: ActorInfo, body: any): Promise<{ deal
   await deal.save();
   const { buyerEmail, sellerEmail } = await partyEmails(deal);
   const otherEmail = actor.role === "buyer" ? sellerEmail : buyerEmail;
-  if (otherEmail) void sendEscrowCancelledEmail(otherEmail, otherEmail, deal, actor.role);
+  if (otherEmail) { void sendEscrowCancelledEmail(otherEmail, otherEmail, deal, actor.role); void notifyDealStage(deal, "cancelled", otherEmail, dealUrl(deal)); }
   return { deal, requested: false };
 }
 
@@ -582,7 +583,7 @@ async function actFund(deal: any, actor: ActorInfo, coinIn?: string): Promise<an
   if (isSafeDeal(deal)) await recordFundingReceived(deal, breakdown.buyerPays, "simulated");
   await deal.save();
   const { sellerEmail } = await partyEmails(deal);
-  if (sellerEmail) void sendEscrowFundedEmail(sellerEmail, sellerEmail, deal);
+  if (sellerEmail) { void sendEscrowFundedEmail(sellerEmail, sellerEmail, deal); void notifyDealStage(deal, "funded_seller", sellerEmail, dealUrl(deal)); }
   return deal;
 }
 
@@ -622,8 +623,8 @@ async function actFundFromBalance(deal: any, actor: ActorInfo): Promise<any> {
   await deal.save();
   {
     const { sellerEmail, buyerEmail } = await partyEmails(deal);
-    if (sellerEmail) void sendEscrowFundedEmail(sellerEmail, sellerEmail, deal);
-    if (buyerEmail) void sendEscrowFundingReceiptEmail(buyerEmail, buyerEmail, deal, { paidUsd: breakdown.buyerPays, method: "balance" }, dealUrl(deal));
+    if (sellerEmail) { void sendEscrowFundedEmail(sellerEmail, sellerEmail, deal); void notifyDealStage(deal, "funded_seller", sellerEmail, dealUrl(deal)); }
+    if (buyerEmail) { void sendEscrowFundingReceiptEmail(buyerEmail, buyerEmail, deal, { paidUsd: breakdown.buyerPays, method: "balance" }, dealUrl(deal)); void notifyDealStage(deal, "funded_buyer", buyerEmail, dealUrl(deal)); }
   }
   return deal;
 }
@@ -658,7 +659,7 @@ async function actFundFromCheckout(deal: any, paidUsd: number, coin: string, txH
   await deal.save();
   {
     const { sellerEmail, buyerEmail } = await partyEmails(deal);
-    if (sellerEmail) void sendEscrowFundedEmail(sellerEmail, sellerEmail, deal);
+    if (sellerEmail) { void sendEscrowFundedEmail(sellerEmail, sellerEmail, deal); void notifyDealStage(deal, "funded_seller", sellerEmail, dealUrl(deal)); }
     // The buyer just sent crypto — confirm it landed, with the on-chain transaction.
     if (buyerEmail) {
       const realHash = txHash && !/^(SIMULATED-|WALLET-CREDIT|BINANCE-)/i.test(txHash) ? txHash : null;
@@ -669,6 +670,7 @@ async function actFundFromCheckout(deal: any, paidUsd: number, coin: string, txH
         { paidUsd, coin: coinLabel, txHash: realHash, explorerUrl: realHash ? explorerTxUrl(coin, realHash) : null, method: deal.funding_method },
         dealUrl(deal)
       );
+      void notifyDealStage(deal, "funded_buyer", buyerEmail, dealUrl(deal));
     }
   }
   return deal;
@@ -719,7 +721,7 @@ async function actDeliver(deal: any, actor: ActorInfo, note?: string, proof?: De
   });
   await deal.save();
   const { buyerEmail } = await partyEmails(deal);
-  if (buyerEmail) void sendEscrowDeliveredEmail(buyerEmail, buyerEmail, deal, Number(deal.auto_release_days || 3));
+  if (buyerEmail) { void sendEscrowDeliveredEmail(buyerEmail, buyerEmail, deal, Number(deal.auto_release_days || 3)); void notifyDealStage(deal, "delivered", buyerEmail, dealUrl(deal)); }
   return deal;
 }
 
@@ -756,7 +758,7 @@ async function actRequestChanges(deal: any, actor: ActorInfo, message?: string):
   deal.delivery_proof = null;
   await deal.save();
   const { sellerEmail } = await partyEmails(deal);
-  if (sellerEmail) void sendEscrowChangesRequestedEmail(sellerEmail, sellerEmail, deal, text, round + 1, MAX_REVISION_ROUNDS, dealUrl(deal));
+  if (sellerEmail) { void sendEscrowChangesRequestedEmail(sellerEmail, sellerEmail, deal, text, round + 1, MAX_REVISION_ROUNDS, dealUrl(deal)); void notifyDealStage(deal, "changes_requested", sellerEmail, dealUrl(deal)); }
   return deal;
 }
 
@@ -772,6 +774,7 @@ async function actResendInvite(deal: any, actor: ActorInfo): Promise<any> {
   deal.activity_log = appendActivity(deal.activity_log, { type: "invite_resent", actor: actor.label, role: actor.role, note: `Invite re-sent to ${deal.counterparty_email}.` });
   await deal.save();
   void sendEscrowInviteEmail(deal.counterparty_email, deal.counterparty_email, deal, actor.label, counterparty, dealUrl(deal));
+  void notifyDealStage(deal, "invited", deal.counterparty_email, dealUrl(deal));
   return deal;
 }
 
@@ -842,7 +845,7 @@ async function actRaiseDispute(deal: any, actor: ActorInfo, body: any): Promise<
   await deal.save();
   const { buyerEmail, sellerEmail } = await partyEmails(deal);
   const otherEmail = actor.role === "buyer" ? sellerEmail : buyerEmail;
-  if (otherEmail) void sendEscrowDisputeProposalEmail(otherEmail, otherEmail, deal, actor.role, outcome, split_percent_seller, message || undefined, dealUrl(deal), false, kind);
+  if (otherEmail) { void sendEscrowDisputeProposalEmail(otherEmail, otherEmail, deal, actor.role, outcome, split_percent_seller, message || undefined, dealUrl(deal), false, kind); void notifyDealStage(deal, "dispute_opened", otherEmail, dealUrl(deal)); }
   return deal;
 }
 
@@ -867,7 +870,7 @@ async function actCounterDispute(deal: any, actor: ActorInfo, body: any): Promis
   await deal.save();
   const { buyerEmail, sellerEmail } = await partyEmails(deal);
   const otherEmail = actor.role === "buyer" ? sellerEmail : buyerEmail;
-  if (otherEmail) void sendEscrowDisputeProposalEmail(otherEmail, otherEmail, deal, actor.role, outcome, split_percent_seller, message || undefined, dealUrl(deal), true);
+  if (otherEmail) { void sendEscrowDisputeProposalEmail(otherEmail, otherEmail, deal, actor.role, outcome, split_percent_seller, message || undefined, dealUrl(deal), true); void notifyDealStage(deal, "dispute_proposal", otherEmail, dealUrl(deal)); }
   return deal;
 }
 
@@ -896,8 +899,8 @@ async function actAcceptDispute(deal: any, actor: ActorInfo): Promise<any> {
   const { summary } = await settleOutcome(deal, outcome, { splitPercentSeller: splitPct, actorLabel: actor.label, actorRole: actor.role });
   const { buyerEmail, sellerEmail } = await partyEmails(deal);
   const msg = kind === "cancellation" ? `Deal cancelled by mutual agreement — ${summary}` : `Resolved by agreement — ${summary}`;
-  if (buyerEmail) void sendEscrowDisputeAgreedEmail(buyerEmail, buyerEmail, deal, msg);
-  if (sellerEmail) void sendEscrowDisputeAgreedEmail(sellerEmail, sellerEmail, deal, msg);
+  if (buyerEmail) { void sendEscrowDisputeAgreedEmail(buyerEmail, buyerEmail, deal, msg); void notifyDealStage(deal, "dispute_resolved", buyerEmail, dealUrl(deal)); }
+  if (sellerEmail) { void sendEscrowDisputeAgreedEmail(sellerEmail, sellerEmail, deal, msg); void notifyDealStage(deal, "dispute_resolved", sellerEmail, dealUrl(deal)); }
   return deal;
 }
 
@@ -932,8 +935,8 @@ async function actEscalateDispute(deal: any, actor: ActorInfo): Promise<any> {
   });
   await deal.save();
   const { buyerEmail, sellerEmail } = await partyEmails(deal);
-  if (buyerEmail) void sendEscrowDisputeEscalatedEmail(buyerEmail, buyerEmail, deal, actor.role);
-  if (sellerEmail) void sendEscrowDisputeEscalatedEmail(sellerEmail, sellerEmail, deal, actor.role);
+  if (buyerEmail) { void sendEscrowDisputeEscalatedEmail(buyerEmail, buyerEmail, deal, actor.role); void notifyDealStage(deal, "dispute_escalated", buyerEmail, dealUrl(deal)); }
+  if (sellerEmail) { void sendEscrowDisputeEscalatedEmail(sellerEmail, sellerEmail, deal, actor.role); void notifyDealStage(deal, "dispute_escalated", sellerEmail, dealUrl(deal)); }
   return deal;
 }
 

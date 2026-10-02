@@ -11,6 +11,7 @@ import {
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import useToast from "@/hooks/useToast";
 import Head from 'next/head'
+import { useTranslation } from "react-i18next"
 import { useRouter } from 'next/router'
 import { Icon } from '@iconify/react'
 import { QRCodeSVG } from 'qrcode.react'
@@ -91,6 +92,7 @@ const PaymentDemo = () => {
   const isDark = theme.palette.mode === 'dark'
   const router = useRouter()
   const notif = usePaymentNotification()
+  const { t } = useTranslation("pageTitles")
 
   // Theme tokens — mirror CleanCheckoutV2.
   const border = isDark ? 'rgba(255,255,255,0.10)' : 'rgba(10,10,15,0.08)'
@@ -167,7 +169,7 @@ const PaymentDemo = () => {
   return (
     <Pay3Layout embed={isEmbed}>
       <Head>
-        <title>Checkout demo · Dynopay</title>
+        <title>{t("payDemo_title", { defaultValue: "Checkout demo · Dynopay" })}</title>
         <meta name="description" content="Try the Dynopay hosted crypto checkout — a sandbox demo. No real payment is created." />
         <meta key="robots" name="robots" content="noindex, nofollow" />
       </Head>

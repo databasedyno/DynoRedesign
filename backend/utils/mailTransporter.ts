@@ -23,6 +23,8 @@ interface mailOptions {
   attachments?: Attachment[];
   /** Per-brand "from" identity. Falls back to Dynopay when omitted. */
   sender?: { name?: string; email?: string };
+  /** Optional Reply-To. If omitted, SafeDeal mail defaults to its support inbox. */
+  replyTo?: { name?: string; email: string };
   /** "otp" = sign-in / step-up codes: priority lane, never delivered after 10 min. */
   lane?: EmailLane;
   /** Short template id for the send log (defaults to the subject). */
@@ -87,11 +89,21 @@ const sendInline = async (job: EmailJobData): Promise<MailResult> => {
  * on preview pods (DISABLE_OUTBOUND_EMAIL). Throws only on invalid input or
  * when both the queue and the inline fallback are unavailable.
  */
-const mailTransporter = async ({ to, subject, body: rawBody, name, attachments, sender, lane = "default", template }: mailOptions): Promise<MailResult> => {
+const mailTransporter = async ({ to, subject, body: rawBody, name, attachments, sender, replyTo, lane = "default", template }: mailOptions): Promise<MailResult> => {
   // Per-brand sender: SafeDeal escrow mail sends from hi@safedeal.sh; Dynopay mail
   // stays on hi@dynopay.com. Resolved up-front so the preview log/dump shows it too.
   const senderName = sender?.name || "Dynopay";
   const senderEmail = sender?.email || envRaw("BREVO_SENDER_EMAIL") || "hi@dynopay.com";
+  // Reply-To: an explicit value wins; otherwise SafeDeal mail gets a reachable
+  // support inbox (so recipients don't reply into the hi@ no-reply box). Dynopay
+  // mail keeps no Reply-To (replies to the sender, unchanged behaviour).
+  const safedealSenderEmail = (envRaw("SAFEDEAL_SENDER_EMAIL") || "hi@safedeal.sh").trim().toLowerCase();
+  const isSafeDealSender = senderEmail.trim().toLowerCase() === safedealSenderEmail;
+  const resolvedReplyTo: { name?: string; email: string } | undefined =
+    replyTo ||
+    (isSafeDealSender
+      ? { name: "SafeDeal Support", email: (envRaw("SAFEDEAL_REPLY_TO") || "support@safedeal.sh").trim() }
+      : undefined);
   // Footer "you're receiving this because … (email)" — resolved here so every
   // template gets the real recipient without threading it through 110 senders.
   const body = String(rawBody || "").split(TO_EMAIL_TOKEN).join(
@@ -141,6 +153,7 @@ const mailTransporter = async ({ to, subject, body: rawBody, name, attachments, 
     body,
     attachments,
     sender: { name: senderName, email: senderEmail },
+    replyTo: resolvedReplyTo || null,
     lane,
     template: template || null,
     logId: await createEmailLog({ to, name, subject: subject.trim(), template, lane, senderEmail }),

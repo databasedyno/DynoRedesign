@@ -120,6 +120,8 @@ async function open(page, path) {
   }
   if (sd) {
     await open(page, "/safedeal/deals");
+    // Wait for the SafeDeal shell to render before measuring (avoids flaky null/0 reads).
+    await page.locator('[data-testid="sd-nav-deals"]').waitFor({ state: "visible", timeout: 12000 }).catch(() => {});
     const banner = page.locator('[data-testid="pwa-install-banner"][data-brand="safedeal"]');
     const vis = await banner.isVisible().catch(() => false);
     check("iOS: safedeal install hint visible on /safedeal/deals", vis, vis ? `body="${(await page.locator('[data-testid="pwa-install-body"]').innerText()).slice(0, 70)}"` : "not visible");
@@ -154,9 +156,8 @@ if (dyno) {
     ev.userChoice = Promise.resolve({ outcome: "accepted" });
     window.dispatchEvent(ev);
   });
-  await page.waitForTimeout(500);
   const btn = page.locator('[data-testid="pwa-install-btn"]');
-  const shown = await btn.isVisible().catch(() => false);
+  const shown = await btn.waitFor({ state: "visible", timeout: 5000 }).then(() => true).catch(() => false);
   check("android: Install button appears after beforeinstallprompt", shown);
   if (shown) {
     await page.screenshot({ path: `${OUT}/android_dashboard_install.png` });

@@ -58,12 +58,18 @@ export function usePwaInstall(storageKey: string) {
     }
     const onPrompt = (e: Event) => {
       e.preventDefault();
+      (window as unknown as { __bipEvent?: Event }).__bipEvent = e;
       setDeferred(e as BeforeInstallPromptEvent);
     };
     const onInstalled = () => {
+      (window as unknown as { __bipEvent?: Event | null }).__bipEvent = null;
       setDeferred(null);
       setStandalone(true);
     };
+    // Seed from the event captured in _document before this hook mounted (Chrome
+    // fires beforeinstallprompt once, early — it is otherwise lost on late mounts).
+    const early = (window as unknown as { __bipEvent?: Event | null }).__bipEvent;
+    if (early) setDeferred(early as BeforeInstallPromptEvent);
     window.addEventListener("beforeinstallprompt", onPrompt);
     window.addEventListener("appinstalled", onInstalled);
     return () => {
@@ -75,7 +81,7 @@ export function usePwaInstall(storageKey: string) {
   const dismiss = useCallback(() => {
     try {
       localStorage.setItem(`${storageKey}:snooze`, String(Date.now() + DISMISS_DAYS * 86400000));
-    } catch {}
+    } catch { /* snooze persistence is best-effort */ }
     setSnoozed(true);
   }, [storageKey]);
 
@@ -83,6 +89,7 @@ export function usePwaInstall(storageKey: string) {
     if (!deferred) return false;
     await deferred.prompt();
     const { outcome } = await deferred.userChoice;
+    (window as unknown as { __bipEvent?: Event | null }).__bipEvent = null;
     setDeferred(null);
     if (outcome !== "accepted") dismiss();
     return outcome === "accepted";

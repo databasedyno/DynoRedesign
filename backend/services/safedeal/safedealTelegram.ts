@@ -121,6 +121,81 @@ export const notifyPendingCashouts = async (limit = 20): Promise<number> => {
   return sent;
 };
 
+/** Resolve a deal party's linked Telegram chat id by company + email (null if not linked). */
+export const telegramIdForEmail = async (companyId: number, email: string): Promise<string | null> => {
+  if (!companyId || !email) return null;
+  const rows = await sequelize.query<{ telegram_id: string | null }>(
+    `SELECT telegram_id FROM tbl_customer
+      WHERE company_id = :cid AND lower(email) = lower(:email) AND telegram_id IS NOT NULL
+      LIMIT 1`,
+    { replacements: { cid: companyId, email: String(email).trim() }, type: QueryTypes.SELECT }
+  );
+  return rows[0]?.telegram_id || null;
+};
+
+/** Every SafeDeal lifecycle + stall-reminder stage that can push a Telegram notice. */
+export type DealStage =
+  | "invited" | "accepted" | "declined" | "cancelled"
+  | "funded_seller" | "funded_buyer" | "delivered" | "released" | "refunded"
+  | "changes_requested" | "dispute_opened" | "dispute_proposal"
+  | "dispute_resolved" | "dispute_escalated"
+  | "remind_invite" | "remind_unfunded" | "remind_inspection" | "remind_overdue";
+
+const dealTitle = (deal: { title?: string | null; escrow_id?: number }): string =>
+  esc(String(deal?.title || `Deal #${deal?.escrow_id ?? ""}`).trim().slice(0, 80));
+
+const STAGE_COPY: Record<DealStage, (d: any) => { emoji: string; title: string; line: string }> = {
+  invited:           (d) => ({ emoji: "📨", title: "You're invited to a SafeDeal escrow", line: `${dealTitle(d)} · ${usd(d.amount)}. Review the terms and accept to get started.` }),
+  accepted:          (d) => ({ emoji: "🤝", title: "Your SafeDeal invite was accepted", line: `${dealTitle(d)} · ${usd(d.amount)} is moving forward.` }),
+  declined:          (d) => ({ emoji: "🚫", title: "Your SafeDeal invite was declined", line: `${dealTitle(d)} won't go ahead.` }),
+  cancelled:         (d) => ({ emoji: "✖️", title: "A SafeDeal deal was cancelled", line: `${dealTitle(d)} · ${usd(d.amount)} was cancelled.` }),
+  funded_seller:     (d) => ({ emoji: "🔒", title: "Payment secured in escrow — ship now", line: `The buyer funded ${dealTitle(d)} · ${usd(d.amount)}. Ship it, then mark it delivered to get paid.` }),
+  funded_buyer:      (d) => ({ emoji: "🔒", title: "Your payment is secured in escrow", line: `${dealTitle(d)} · ${usd(d.amount)} is held safely until you confirm delivery.` }),
+  delivered:         (d) => ({ emoji: "📦", title: "Marked delivered — inspect & release", line: `The seller marked ${dealTitle(d)} delivered. Check it, then release the funds.` }),
+  released:          (d) => ({ emoji: "✅", title: "Funds released — payout on the way", line: `${dealTitle(d)} · ${usd(d.amount)} was released. Your payout is being sent.` }),
+  refunded:          (d) => ({ emoji: "↩️", title: "You've been refunded", line: `${dealTitle(d)} · ${usd(d.amount)} is on its way back to you.` }),
+  changes_requested: (d) => ({ emoji: "✏️", title: "Buyer requested changes", line: `The buyer asked for changes on ${dealTitle(d)}.` }),
+  dispute_opened:    (d) => ({ emoji: "⚖️", title: "A dispute was opened", line: `A dispute was opened on ${dealTitle(d)} · ${usd(d.amount)}. Review and respond.` }),
+  dispute_proposal:  (d) => ({ emoji: "⚖️", title: "A resolution was proposed", line: `A new resolution was proposed for ${dealTitle(d)}. Review and respond.` }),
+  dispute_resolved:  (d) => ({ emoji: "✅", title: "Your dispute was resolved", line: `The dispute on ${dealTitle(d)} has been resolved.` }),
+  dispute_escalated: (d) => ({ emoji: "🛡️", title: "Dispute escalated to the SafeDeal team", line: `${dealTitle(d)} was escalated — our team will review it.` }),
+  remind_invite:     (d) => ({ emoji: "⏰", title: "Reminder: an invite is waiting", line: `${dealTitle(d)} · ${usd(d.amount)} is still waiting for your response.` }),
+  remind_unfunded:   (d) => ({ emoji: "⏰", title: "Reminder: payment still needed", line: `${dealTitle(d)} · ${usd(d.amount)} is accepted but not yet funded.` }),
+  remind_inspection: (d) => ({ emoji: "⏰", title: "Reminder: inspection ending soon", line: `Your window to inspect ${dealTitle(d)} ends within 24h — it auto-releases after that.` }),
+  remind_overdue:    (d) => ({ emoji: "⏰", title: "Reminder: delivery is overdue", line: `${dealTitle(d)} is past its delivery due date.` }),
+};
+
+/** Pure message builder (exported for tests). Returns the HTML body for a stage. */
+export const buildDealStageMessage = (deal: any, stage: DealStage): string => {
+  const c = STAGE_COPY[stage](deal);
+  return `${c.emoji} <b>${esc(c.title)}</b>\n${c.line}`;
+};
+
+/**
+ * Push a SafeDeal lifecycle/reminder notice to one party's linked Telegram.
+ * No-ops (never throws) when the bot is unconfigured, the deal isn't SafeDeal,
+ * or the recipient hasn't linked Telegram. Fire-and-forget: `void` it at call sites.
+ */
+export const notifyDealStage = async (
+  deal: any,
+  stage: DealStage,
+  recipientEmail: string | null | undefined,
+  dealUrl?: string | null
+): Promise<boolean> => {
+  try {
+    if (!telegramConfigured() || !deal || deal.source !== "safedeal" || !recipientEmail) return false;
+    const chat = await telegramIdForEmail(Number(deal.company_id), String(recipientEmail));
+    if (!chat) return false;
+    const html = buildDealStageMessage(deal, stage);
+    const r = await sendTelegramMessage(chat, html, dealUrl ? [{ text: "View deal ↗", url: dealUrl }] : undefined);
+    if (r.ok) apiLogger.info(`[SafeDealTelegram] ✅ ${stage} → deal ${deal.escrow_id} (${recipientEmail})`);
+    return r.ok;
+  } catch (e) {
+    apiLogger.warn(`[SafeDealTelegram] notifyDealStage(${stage}) deal ${deal?.escrow_id} failed: ${(e as Error).message}`);
+    return false;
+  }
+};
+
 /** Attach a verified Telegram identity to an existing (email) customer. */
 export const linkTelegram = async (customerId: number, telegramId: string): Promise<{ ok: true } | { ok: false; reason: "taken" }> => {
   const owner = await sequelize.query<{ customer_id: number; company_id: number }>(

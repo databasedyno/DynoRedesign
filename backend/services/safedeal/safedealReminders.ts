@@ -17,6 +17,7 @@ import {
   sendEscrowInspectionEndingEmail,
   sendEscrowDeliveryOverdueEmail,
 } from "../email/escrowEmails";
+import { notifyDealStage } from "./safedealTelegram";
 
 const DAY = 86400000;
 type ReminderKey = "invite_3d" | "unfunded_2d" | "inspection_24h" | "due_passed";
@@ -44,6 +45,7 @@ export async function runSafeDealReminders(now = new Date()): Promise<ReminderRu
     if (!notSent(deal, "invite_3d")) continue;
     try {
       void sendEscrowInviteReminderEmail(deal.counterparty_email, deal, deal.creator_email || "the other party", escrowEngine.dealUrl(deal));
+      void notifyDealStage(deal, "remind_invite", deal.counterparty_email, escrowEngine.dealUrl(deal));
       await stamp(deal, "invite_3d");
       out.invite_3d.push(deal.escrow_id);
     } catch (e) {
@@ -58,6 +60,7 @@ export async function runSafeDealReminders(now = new Date()): Promise<ReminderRu
       const { buyerEmail } = await escrowEngine.partyEmails(deal);
       const b = computeFeeBreakdown({ amount: deal.amount, currency: deal.currency, feePercent: deal.fee_percent, feeMinUsd: deal.fee_min_usd, feePayer: deal.fee_payer });
       if (buyerEmail) void sendEscrowUnfundedReminderEmail(buyerEmail, deal, b.buyerPays, escrowEngine.dealUrl(deal));
+      if (buyerEmail) void notifyDealStage(deal, "remind_unfunded", buyerEmail, escrowEngine.dealUrl(deal));
       await stamp(deal, "unfunded_2d");
       out.unfunded_2d.push(deal.escrow_id);
     } catch (e) {
@@ -74,6 +77,7 @@ export async function runSafeDealReminders(now = new Date()): Promise<ReminderRu
     try {
       const { buyerEmail } = await escrowEngine.partyEmails(deal);
       if (buyerEmail) void sendEscrowInspectionEndingEmail(buyerEmail, deal, new Date(deal.auto_release_at), escrowEngine.dealUrl(deal));
+      if (buyerEmail) void notifyDealStage(deal, "remind_inspection", buyerEmail, escrowEngine.dealUrl(deal));
       await stamp(deal, "inspection_24h");
       out.inspection_24h.push(deal.escrow_id);
     } catch (e) {
@@ -89,6 +93,8 @@ export async function runSafeDealReminders(now = new Date()): Promise<ReminderRu
       const url = escrowEngine.dealUrl(deal);
       if (sellerEmail) void sendEscrowDeliveryOverdueEmail(sellerEmail, deal, "seller", new Date(deal.delivery_due_at), url);
       if (buyerEmail) void sendEscrowDeliveryOverdueEmail(buyerEmail, deal, "buyer", new Date(deal.delivery_due_at), url);
+      if (sellerEmail) void notifyDealStage(deal, "remind_overdue", sellerEmail, url);
+      if (buyerEmail) void notifyDealStage(deal, "remind_overdue", buyerEmail, url);
       await stamp(deal, "due_passed");
       out.due_passed.push(deal.escrow_id);
     } catch (e) {

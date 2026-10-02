@@ -68,6 +68,24 @@ export default function MyDocument({ emotionStyleTags, lang }: MyDocumentProps) 
         {emotionStyleTags}
       </Head>
       <body>
+        {/* ── Capture `beforeinstallprompt` BEFORE React hydrates ──
+             Chrome fires this once, early in page load — often before the
+             usePwaInstall hook has mounted and attached its listener. Stashing
+             it on window.__bipEvent here means the Android "Install" button can
+             still open the native sheet even when the app shell mounts late. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+(function(){
+  try {
+    window.__bipEvent = null;
+    window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); window.__bipEvent = e; });
+    window.addEventListener('appinstalled', function(){ window.__bipEvent = null; });
+  } catch(e) {}
+})();
+`,
+          }}
+        />
         {/* ── Blocking language script: sets <html lang> BEFORE React hydrates ── */}
         <script
           dangerouslySetInnerHTML={{

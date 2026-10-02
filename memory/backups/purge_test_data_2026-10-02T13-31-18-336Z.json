@@ -1,0 +1,179 @@
+{
+ "at": "2026-10-02T13:31:18.337Z",
+ "company_id": 262,
+ "keep": [
+  "moxxcompany@gmail.com",
+  "gidimeter@gmail.com",
+  "gidineter@gmail.com"
+ ],
+ "testCustomers": [
+  {
+   "customer_id": 1057,
+   "email": "sd-pwa-check-1790945756452@example.com"
+  },
+  {
+   "customer_id": 1059,
+   "email": "sd-pwa-check-1790946430657@example.com"
+  },
+  {
+   "customer_id": 1060,
+   "email": "sd-pwa-check-1790946661198@example.com"
+  },
+  {
+   "customer_id": 1061,
+   "email": "sd-repro-1790946931127@example.com"
+  },
+  {
+   "customer_id": 1063,
+   "email": "sd-pwa-check-1790947010245@example.com"
+  },
+  {
+   "customer_id": 1064,
+   "email": "sd-pwa-check-1790947108681@example.com"
+  },
+  {
+   "customer_id": 1065,
+   "email": "sd-pwa-check-1790947260890@example.com"
+  },
+  {
+   "customer_id": 1066,
+   "email": "sd-pwa-check-1790947370210@example.com"
+  }
+ ],
+ "deals": [],
+ "attachments": [],
+ "ledger": [],
+ "topups": [],
+ "withdrawals": [],
+ "addresses": [],
+ "profiles": [
+  {
+   "customer_id": 1057,
+   "company_id": 262,
+   "display_name": null,
+   "auto_withdraw": false,
+   "auto_withdraw_address_id": null,
+   "last_login_at": "2026-10-02T12:55:57.643Z",
+   "created_at": "2026-10-02T12:55:57.643Z",
+   "updated_at": "2026-10-02T12:55:57.643Z",
+   "parked_payout_usd": "0.00",
+   "deposit_reserved_usd": 0,
+   "withdrawal_fee_credit_usd": 0,
+   "tokens_valid_after": null,
+   "cashout_hold_until": null
+  },
+  {
+   "customer_id": 1060,
+   "company_id": 262,
+   "display_name": null,
+   "auto_withdraw": false,
+   "auto_withdraw_address_id": null,
+   "last_login_at": "2026-10-02T13:11:02.363Z",
+   "created_at": "2026-10-02T13:11:02.363Z",
+   "updated_at": "2026-10-02T13:11:02.363Z",
+   "parked_payout_usd": "0.00",
+   "deposit_reserved_usd": 0,
+   "withdrawal_fee_credit_usd": 0,
+   "tokens_valid_after": null,
+   "cashout_hold_until": null
+  },
+  {
+   "customer_id": 1063,
+   "company_id": 262,
+   "display_name": null,
+   "auto_withdraw": false,
+   "auto_withdraw_address_id": null,
+   "last_login_at": "2026-10-02T13:16:51.409Z",
+   "created_at": "2026-10-02T13:16:51.409Z",
+   "updated_at": "2026-10-02T13:16:51.409Z",
+   "parked_payout_usd": "0.00",
+   "deposit_reserved_usd": 0,
+   "withdrawal_fee_credit_usd": 0,
+   "tokens_valid_after": null,
+   "cashout_hold_until": null
+  },
+  {
+   "customer_id": 1065,
+   "company_id": 262,
+   "display_name": null,
+   "auto_withdraw": false,
+   "auto_withdraw_address_id": null,
+   "last_login_at": "2026-10-02T13:21:02.047Z",
+   "created_at": "2026-10-02T13:21:02.047Z",
+   "updated_at": "2026-10-02T13:21:02.047Z",
+   "parked_payout_usd": "0.00",
+   "deposit_reserved_usd": 0,
+   "withdrawal_fee_credit_usd": 0,
+   "tokens_valid_after": null,
+   "cashout_hold_until": null
+  },
+  {
+   "customer_id": 1059,
+   "company_id": 262,
+   "display_name": null,
+   "auto_withdraw": false,
+   "auto_withdraw_address_id": null,
+   "last_login_at": "2026-10-02T13:07:11.814Z",
+   "created_at": "2026-10-02T13:07:11.814Z",
+   "updated_at": "2026-10-02T13:07:11.814Z",
+   "parked_payout_usd": "0.00",
+   "deposit_reserved_usd": 0,
+   "withdrawal_fee_credit_usd": 0,
+   "tokens_valid_after": null,
+   "cashout_hold_until": null
+  },
+  {
+   "customer_id": 1061,
+   "company_id": 262,
+   "display_name": null,
+   "auto_withdraw": false,
+   "auto_withdraw_address_id": null,
+   "last_login_at": "2026-10-02T13:15:32.282Z",
+   "created_at": "2026-10-02T13:15:32.282Z",
+   "updated_at": "2026-10-02T13:15:32.282Z",
+   "parked_payout_usd": "0.00",
+   "deposit_reserved_usd": 0,
+   "withdrawal_fee_credit_usd": 0,
+   "tokens_valid_after": null,
+   "cashout_hold_until": null
+  },
+  {
+   "customer_id": 1064,
+   "company_id": 262,
+   "display_name": null,
+   "auto_withdraw": false,
+   "auto_withdraw_address_id": null,
+   "last_login_at": "2026-10-02T13:18:29.829Z",
+   "created_at": "2026-10-02T13:18:29.829Z",
+   "updated_at": "2026-10-02T13:18:29.829Z",
+   "parked_payout_usd": "0.00",
+   "deposit_reserved_usd": 0,
+   "withdrawal_fee_credit_usd": 0,
+   "tokens_valid_after": null,
+   "cashout_hold_until": null
+  },
+  {
+   "customer_id": 1066,
+   "company_id": 262,
+   "display_name": null,
+   "auto_withdraw": false,
+   "auto_withdraw_address_id": null,
+   "last_login_at": "2026-10-02T13:22:51.399Z",
+   "created_at": "2026-10-02T13:22:51.399Z",
+   "updated_at": "2026-10-02T13:22:51.399Z",
+   "parked_payout_usd": "0.00",
+   "deposit_reserved_usd": 0,
+   "withdrawal_fee_credit_usd": 0,
+   "tokens_valid_after": null,
+   "cashout_hold_until": null
+  }
+ ],
+ "wallets": [],
+ "checkouts": [],
+ "poolAddresses": [],
+ "realCids": [
+  696,
+  847,
+  753
+ ]
+}

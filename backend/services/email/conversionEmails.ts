@@ -207,7 +207,7 @@ export const sendWeeklyConversionSummaryEmail = async (
 
     if (totalConversions === 0) return;
 
-    const subject = `Weekly Conversion Report — ${totalConversions} conversion${totalConversions !== 1 ? 's' : ''}, $${toFixedStr(totalPayoutUsd, 2)} paid out`;
+    const subject = brandSubject(companyName, `Weekly Conversion Report — ${totalConversions} conversion${totalConversions !== 1 ? 's' : ''}, $${toFixedStr(totalPayoutUsd, 2)} paid out`);
 
     const maxDailyVolume = Math.max(...dailyVolume.map(d => d.payoutUsd), 1);
     const chartRows = dailyVolume.map(d => {

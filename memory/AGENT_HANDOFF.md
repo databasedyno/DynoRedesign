@@ -1,5 +1,17 @@
 # DynoPay — Agent Handoff (last session)
 
+## 2026-10-02 session (pod setup via vault) — SHIPPED (code-complete, NOT yet deployed)
+- **ahzraelsound@gmail.com / user 257** unblock DONE (live prod write, verified): the 4 stuck sandbox txns (1136/1137/1138/1141, company 269) were `environment=NULL` → stamped `environment='development'` (status still `pending`) so the Developers "Simulate payment" card accepts them. Guarded UPDATE, committed only because exactly 4 matched.
+- **Email brand names**: `sendPaymentLinkCreatedEmail` + `sendWeeklyConversionSummaryEmail` subjects now wrapped in `brandSubject(...)` (old weekly-summary email is retired; conversion summary is the live weekly merchant email). Verified via audit render harness.
+- **Page-title localization**: `pages/pay/demo.tsx` → existing `payDemo_title`; `pages/products.tsx` → NEW `products_title` added to all 6 locales (langs/locales/*/pageTitles.json, now 128 keys each). `_error.tsx` was already localized. Verified by frontend testing agent (titles correct on /products, /pay/demo).
+- **SafeDeal Reply-To**: `mailTransporter` now resolves `replyTo` (explicit wins, else SafeDeal mail → `SAFEDEAL_REPLY_TO` env or default `support@safedeal.sh`); threaded through `EmailJobData` + `brevoPayload`. Dynopay mail unchanged. Verified via brevoPayload unit check.
+- **SafeDeal Telegram lifecycle + reminders**: new `notifyDealStage(deal, stage, email, dealUrl)` in `safedealTelegram.ts` (18 stages, HTML-escaped, no-ops when bot unconfigured / not SafeDeal / recipient not linked). Wired at every transition in `escrowController.ts` (invited/accepted/declined/cancelled/funded seller+buyer×3 paths/delivered/released/refunded/changes/dispute opened+proposal+resolved+escalated) and at all 4 stall reminders in `safedealReminders.ts`. Telegram tokens already in env. Reminders run in the hourly maintenance cron (OFF in preview) → verify post-deploy with a real linked chat. tsc=0; all 18 messages verified.
+- **Email redesign Part 2** was already DONE+VERIFIED (A1 KYC threshold from KYC_THRESHOLD_USD, A2 crypto-native, preheaders: 92 keys ×6 locales) — the "not started" note was stale. No action needed.
+- **Mobile/PWA**: rebuilt `.next-prod`; fixed a REAL PWA bug — Chrome fires `beforeinstallprompt` before the hook mounts, so it was lost. Added an early capture in `pages/_document.tsx` (window.__bipEvent) + `usePwaInstall` seeds from it. Verified via polling repro (Android Install button visible ~30ms). Hardened `mobile_pwa_check.mjs` to auto-wait (was flaky fixed-500ms). Frontend testing agent on phones: 7/9 pass (the PWA-Android "fail" was a precondition artifact — the dynopay prompt only mounts in the authed dashboard shell). NOTE: a SafeDeal QA check (sd-nav/tabs) is intermittently flaky/env — pre-existing, unrelated.
+- Cleanup: purged 8 throwaway `sd-pwa-check-*@example.com` test customers (backup in memory/backups/). No .env changed → no vault re-seal needed.
+- Preview host for THIS pod = 0dbd9c5d-2277-40e6-8155-b565e1c05c39 (vault-sealed NEXT_PUBLIC_SERVER_URL=d6413bee is stale but harmless — frontend uses same-origin /api since NEXT_PUBLIC_BASE_URL is empty).
+
+
 ## App shape (NOT the standard template)
 - **Next.js frontend at `/app` root** + **Node/TS Express backend at `/app/backend`** (run via `server.py` → ts-node `server.ts`, proxied :8001→:3300) + **remote Railway Postgres & Redis**.
 - Frontend supervisor = `/app/frontend` "bridge" → `scripts/start-frontend.sh` builds/starts the Next.js app on :3000.

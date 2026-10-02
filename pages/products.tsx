@@ -10,6 +10,7 @@ import PaymentsRoundedIcon from "@mui/icons-material/PaymentsRounded";
 import CodeRoundedIcon from "@mui/icons-material/CodeRounded";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { useRouter } from "next/router";
+import { useTranslation } from "react-i18next";
 import { FONT_BODY, FONT_HERO, useAurora } from "@/Components/Page/Home/v3/theme.v3";
 import { AuroraInk } from "@/Components/Page/Home/v3/styled.v3";
 import PublicPageHero from "@/Components/Page/Home/v5/PublicPageHero";
@@ -77,11 +78,12 @@ const PRODUCTS = [
 const Products: React.FC = () => {
   const s = useAurora();
   const router = useRouter();
+  const { t } = useTranslation("pageTitles");
 
   return (
     <Box sx={{ width: "100%" }}>
       <Head>
-        <title>Products — every way to accept crypto | Dynopay</title>
+        <title>{t("products_title", { defaultValue: "Products — every way to accept crypto | Dynopay" })}</title>
         <meta
           name="description"
           content="Payment links, hosted checkout, creator pages, donations, invoices, payouts and a developer API — seven ways to accept crypto payments with Dynopay."

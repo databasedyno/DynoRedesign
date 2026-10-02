@@ -1,0 +1,107 @@
+[
+ {
+  "name": "dynopay manifest",
+  "pass": true,
+  "note": "200 scope=/ start=/dashboard?source=pwa"
+ },
+ {
+  "name": "safedeal manifest (preview host)",
+  "pass": true,
+  "note": "200 scope=/safedeal/ start=/safedeal/deals?source=pwa"
+ },
+ {
+  "name": "theme-color+title /auth/login",
+  "pass": true,
+  "note": "theme-color=#FFFFFF title=Dynopay"
+ },
+ {
+  "name": "theme-color+title /safedeal",
+  "pass": true,
+  "note": "theme-color=#FFC61A title=SafeDeal"
+ },
+ {
+  "name": "theme-color /pay",
+  "pass": true,
+  "note": "theme-color=#121214 title=Dynopay"
+ },
+ {
+  "name": "safedeal maskable icon 200",
+  "pass": true,
+  "note": "200"
+ },
+ {
+  "name": "iOS: dynopay install hint visible on /dashboard (2nd visit)",
+  "pass": true,
+  "note": "platform=ios body=\"In Safari, tap Share, then “Add to Home Screen”.\""
+ },
+ {
+  "name": "iOS: no Install button (Share hint instead)",
+  "pass": true,
+  "note": ""
+ },
+ {
+  "name": "iOS: dismiss hides banner",
+  "pass": true,
+  "note": ""
+ },
+ {
+  "name": "iOS: stays hidden after reload (30-day snooze)",
+  "pass": true,
+  "note": ""
+ },
+ {
+  "name": "touch: MUI PillButton gets ::after hit-area (pointer:coarse)",
+  "pass": true,
+  "note": "{\"content\":\"\\\"\\\"\",\"pos\":\"absolute\",\"h\":32,\"coarse\":true}"
+ },
+ {
+  "name": "shell: no duplicate status-bar padding on app-shell",
+  "pass": true,
+  "note": "pt=0px"
+ },
+ {
+  "name": "iOS: safedeal install hint visible on /safedeal/deals",
+  "pass": false,
+  "note": "not visible"
+ },
+ {
+  "name": "safedeal: header nav tap targets ≥36px (links 44)",
+  "pass": false,
+  "note": "[{\"id\":\"sd-nav-deals\",\"h\":null},{\"id\":\"sd-nav-wallet\",\"h\":null},{\"id\":\"sd-nav-signout\",\"h\":null}]"
+ },
+ {
+  "name": "safedeal: home tabs ≥40px on phones",
+  "pass": false,
+  "note": "h=0"
+ },
+ {
+  "name": "public: language bar chips ≥40px + close 40px + safe-area pb",
+  "pass": true,
+  "note": "{\"pb\":\"10px\",\"chipH\":40,\"closeH\":40,\"v\":\"calc(84px + 0px)\"}"
+ },
+ {
+  "name": "android: no banner before beforeinstallprompt fires",
+  "pass": true,
+  "note": ""
+ },
+ {
+  "name": "android: Install button appears after beforeinstallprompt",
+  "pass": true,
+  "note": ""
+ },
+ {
+  "name": "android: Install tap calls native prompt() and hides banner",
+  "pass": true,
+  "note": "prompt calls=1"
+ },
+ {
+  "name": "android: no banner on the very first visit",
+  "pass": true,
+  "note": ""
+ },
+ {
+  "name": "standalone: banner never shown inside installed app",
+  "pass": true,
+  "note": ""
+ }
+]
