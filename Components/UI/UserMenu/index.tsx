@@ -30,7 +30,7 @@ import { useTranslation } from "react-i18next";
 import CustomButton from "../Buttons";
 import { HeaderDivider } from "../LanguageSwitcher/styled";
 
-export default function UserMenu() {
+export default function UserMenu({ onboarding = false }: { onboarding?: boolean }) {
   const theme = useTheme();
   const isMobile = useIsMobile("md");
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -231,7 +231,7 @@ export default function UserMenu() {
 
           {/* Content */}
           <Box sx={{ mt: "7px" }}>
-            {showSetupWarning && (
+            {!onboarding && showSetupWarning && (
               <Link href={setupHref} style={{ textDecoration: "none" }}>
                 <MenuItemRow
                   data-testid="user-menu-setup-warning"
@@ -265,6 +265,10 @@ export default function UserMenu() {
                 </MenuItemRow>
               </Link>
             )}
+            {/* Focus-mode (guided wizard): hide the deep-link escapes — "Claim/View
+                creator page" and "Settings" — so the only exit is Log out. Theme,
+                language and Log out below stay available. */}
+            {!onboarding && (<>
             <MenuItemRow
               data-testid="user-menu-creator"
               role="menuitem"
@@ -328,6 +332,7 @@ export default function UserMenu() {
 
             {/* Preferences moved out of the header (Blueprint §3). */}
             <HeaderDivider style={{ margin: "8px 0" }} />
+            </>)}
 
             <MenuItemRow
               data-testid="user-menu-theme-toggle"

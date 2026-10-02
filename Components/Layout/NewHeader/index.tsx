@@ -146,25 +146,26 @@ const NewHeader = () => {
 
         <LogoContainer data-rail={sidebarCollapsed ? "true" : "false"} data-testid="app-brand-cell">
           <Image
-            onClick={() => router.push("/dashboard")}
+            onClick={isOnboarding ? undefined : () => router.push("/dashboard")}
             src={LogoDark}
             alt="Dynopay"
             width={134}
             height={45}
             draggable={false}
             className="logo"
+            style={{ cursor: isOnboarding ? "default" : "pointer" }}
           />
-          <Box className="logo-mark" onClick={() => router.push("/dashboard")} data-testid="app-brand-mark">
+          <Box className="logo-mark" onClick={isOnboarding ? undefined : () => router.push("/dashboard")} data-testid="app-brand-mark">
             <DynopayMark width={32} height={32} variant="onDark" />
           </Box>
         </LogoContainer>
 
         <Box
-          onClick={() => router.push("/dashboard")}
+          onClick={isOnboarding ? undefined : () => router.push("/dashboard")}
           sx={{
             display: { xs: "none", sm: "flex", lg: "none" },
             alignItems: "center",
-            cursor: "pointer",
+            cursor: isOnboarding ? "default" : "pointer",
             pl: 0.5,
           }}
         >
@@ -185,13 +186,19 @@ const NewHeader = () => {
       </Box>
 
       <MainContainer>
-        <CompanySelector />
+        {/* Focus-mode (guided wizard /get-started): hide the company switcher so
+            a brand can't be swapped mid-setup. A flex spacer keeps the right-hand
+            controls right-aligned. */}
+        {isOnboarding ? <Box sx={{ flex: 1 }} /> : <CompanySelector />}
 
         <RightSection>
           {/* Audit §4.1 header: `+ New · 🔔 inbox · account switcher`.
               One create control (law 3) and the inbox's new home (F8).
               Move 4: global search (⌘K / magnifier) joins the chrome. */}
-          <GlobalSearchButton />
+          {/* Focus-mode: no global ⌘K search during the guided wizard — it would
+              jump the user to any page and abandon setup. Unmounting the button
+              also tears down its global ⌘K / Ctrl-K key listener. */}
+          {!isOnboarding && <GlobalSearchButton />}
           {/* Plan 1.14: on phones the ONE create control is the centred "+" in
               the bottom tab bar; the header slims to brand · search · bell · account.
               Hidden in the focused first-run wizard (a "+ New" jump to a create
@@ -201,7 +208,8 @@ const NewHeader = () => {
             <CreateNewButton />
           </Box>
           )}
-          <NotificationsBell />
+          {/* Focus-mode: hide the notifications bell during the guided wizard. */}
+          {!isOnboarding && <NotificationsBell />}
           {/* Theme toggle — visible in the header on tablet AND desktop so it's
               easy to find. On phones it lives as a labelled row in the mobile
               nav drawer (below) + the user menu (user-menu-theme-toggle). */}
@@ -257,7 +265,7 @@ const NewHeader = () => {
               </Box>
             )}
           </Box>
-          <UserMenu />
+          <UserMenu onboarding={isOnboarding} />
         </RightSection>
       </MainContainer>
 
