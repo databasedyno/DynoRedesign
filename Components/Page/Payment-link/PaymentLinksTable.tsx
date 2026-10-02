@@ -417,6 +417,7 @@ const PaymentLinksTable = ({
                 >
                   {/* Top: Description + Status */}
                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1.25 }}>
+                    <Box component="span" onClick={(e) => e.stopPropagation()} sx={{ display: "inline-flex" }}>
                     <Checkbox
                       size="small"
                       checked={selectedIds.has(String(row.id))}
@@ -426,6 +427,7 @@ const PaymentLinksTable = ({
                       inputProps={{ "aria-label": "Select payment link" }}
                       sx={{ p: 0.5, mr: 0.25, mt: -0.5 }}
                     />
+                    </Box>
                     <Box sx={{ display: "flex", alignItems: "center", gap: "6px", flex: 1, mr: 1, flexWrap: "wrap" }}>
                       <Typography sx={{ fontSize: "14px", fontFamily: "var(--font-sans)", fontWeight: 600, color: theme.palette.text.primary, lineHeight: 1.3 }}>
                         {row.description || t("paymentLinkFallback", { defaultValue: "Payment Link" })}
@@ -703,6 +705,7 @@ const PaymentLinksTable = ({
                   >
                     <TableBodyCell className="sticky-cell" sx={{ pl: "8px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontSize: "13px", color: theme.palette.text.secondary, ...stickyFirstCellSx }}>
                       <Box sx={{ display: "flex", alignItems: "center", gap: 0.25 }}>
+                        <Box component="span" onClick={(e) => e.stopPropagation()} sx={{ display: "inline-flex" }}>
                         <Checkbox
                           size="small"
                           checked={selectedIds.has(String(row.id))}
@@ -712,6 +715,7 @@ const PaymentLinksTable = ({
                           inputProps={{ "aria-label": "Select payment link" }}
                           sx={{ p: 0.25 }}
                         />
+                        </Box>
                         <Box component="span">{row.id}</Box>
                       </Box>
                     </TableBodyCell>

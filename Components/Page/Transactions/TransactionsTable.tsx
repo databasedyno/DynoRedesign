@@ -519,6 +519,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
               >
                 {/* Row 1: coin tile · amount (mono) + ticker · status dot + time */}
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                  <Box component="span" onClick={(e) => e.stopPropagation()} sx={{ display: "inline-flex" }}>
                   <Checkbox
                     size="small"
                     checked={selectedTxIds.has(String(transaction.id))}
@@ -528,6 +529,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                     inputProps={{ "aria-label": "Select transaction" }}
                     sx={{ p: 0.25, ml: -0.5 }}
                   />
+                  </Box>
                   <Box
                     sx={{
                       width: 40,
@@ -822,6 +824,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                 >
                   <TransactionsTableCell sx={stickyFirstCellSx}>
                     <Box sx={{ display: "flex", alignItems: "flex-start", gap: 0.5, minWidth: 0 }}>
+                      <Box component="span" onClick={(e) => e.stopPropagation()} sx={{ display: "inline-flex" }}>
                       <Checkbox
                         size="small"
                         checked={selectedTxIds.has(String(transaction.id))}
@@ -831,6 +834,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                         inputProps={{ "aria-label": "Select transaction" }}
                         sx={{ p: 0.25, mt: -0.25 }}
                       />
+                      </Box>
                     <Box
                       sx={{
                         display: "flex",

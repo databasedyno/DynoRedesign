@@ -1,0 +1,44 @@
+{
+  "summary": "Dynopay Phase 3 — tested COMMAND PALETTE (merchant + admin gating), BULK ROW ACTIONS on /transactions and /pay-links, plus mobile 390 render. Admin suite skipped per request (best-effort last; preview was Cloudflare-rate-limited by the time we got there). Core bulk + palette flows PASS. One ambiguous signal around checkbox stopPropagation that needs eyes.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "CommandPalette", "issue": "Could not find the ACTIVE-row restyle marker. After typing 'trans' and pressing ArrowDown, no element inside [data-testid=\"command-palette\"] matches aria-selected=\"true\" OR data-active=\"true\" — so the gold left-accent 'active row' CSS cannot be programmatically verified. Palette still works (type/arrow/enter/Esc), but the active-row ARIA/data flag needed by tests + a11y appears missing or named differently (e.g. an internal className instead of a stable attribute).", "selector": "[data-testid=\"command-palette\"] [aria-selected=\"true\"], [data-active=\"true\"]", "priority": "MEDIUM"},
+      {"component": "TransactionsTable / PaymentLinksTable (checkbox stopPropagation)", "issue": "After clicking a row checkbox, a [role=\"dialog\"] element becomes present in the DOM on BOTH /transactions and /pay-links. The visible screenshots do NOT clearly show a slide-over panel (selection bar shows '1 selected', Export CSV still works), so this MAY be a benign MUI Popover/menu role=\"dialog\" rather than the detail slide-over. However, a follow-up click on the pagination 'Next page' button then timed out with 'element is not visible', which is consistent with an overlay partially covering the pager. Needs a human eyeball to confirm whether the detail slide-over actually opens when a checkbox is ticked. If it does → stopPropagation is missing on the checkbox onClick.", "selector": "[data-testid^=\"tx-select-\"], [data-testid^=\"paylink-select-\"]", "priority": "HIGH"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/pay-links & /transactions mobile 390", "issues": ["No horizontal overflow (scrollWidth-clientWidth = 0). Checkboxes render in the mobile card. Layout looks clean."]}
+    ]
+  },
+  "verified_pass": [
+    "Command palette opens via Ctrl+K and closes on Esc.",
+    "Typing 'trans' surfaces palette-item-p-transactions in a 'Pages' result.",
+    "Admin gating works both ways: with localStorage.admin_token set, 'admin' shows palette-item-ap-merchants / ap-escrow / ap-fees / ap-settings; after removeItem('admin_token') and reopening, all four admin items are gone.",
+    "/transactions renders tx-select-<id> checkboxes (10 per page). Ticking one reveals transactions-selection-bar with transactions-selection-bar-count='1 selected'. Clicking transactions-selection-bar-select-page updates count to '10 selected'. Clicking transactions-export-selected fires a client-side download of 'transactions.csv' (no error).",
+    "/pay-links renders paylink-select-<id> checkboxes (10 per page). Ticking one reveals paylinks-selection-bar with count='1 selected'. paylinks-export-selected downloads 'payment-links.csv'. paylinks-copy-selected clicks without error and surfaces a 'Copied to clipboard' toast.",
+    "Mobile 390: both /transactions and /pay-links show the new checkboxes with zero horizontal overflow."
+  ],
+  "not_verified": [
+    "Gold left-accent active-row border on the command palette (no stable aria/data attribute found to inspect computed styles).",
+    "Transactions selection PERSISTENCE across pagination — pagination 'Next page' click timed out; likely overlay or wrong selector, see HIGH bug above.",
+    "Dark mode visual pass on /transactions and /pay-links — Cloudflare threw 429s + MIME-type 'text/html' on JS/CSS chunks after the second navigation burst, so the dark pages never finished hydrating. (preview rate-limit, not a code bug — same preview is noted as Cloudflare-rate-limited in the request.)",
+    "ADMIN SUITE (/admin/merchants, /admin/escrow, /admin/fee-reconciliation) — explicitly flagged as best-effort last; skipped due to session rate-limit after bulk-actions pass."
+  ],
+  "test_report_links": [],
+  "action_items": [
+    "Confirm checkbox stopPropagation on both TransactionsTable row checkbox and PaymentLinksTable row checkbox — ticking must NOT open the detail slide-over. Add e.stopPropagation() on the Checkbox onClick (and ideally onChange) if missing.",
+    "Expose a stable attribute on the active row of CommandPalette (aria-selected=\"true\" or data-active=\"true\") so the gold-left-accent restyle can be verified by tests + screen readers can announce the active option."
+  ],
+  "critical_code_review_comments": [
+    "Checkbox cells inside a clickable row MUST call e.stopPropagation() in BOTH onClick AND onChange — React forwards onChange via a change event that can still trigger parent onClick in some MUI setups.",
+    "CommandPalette: the restyled 'active row' should set aria-selected on the listbox option (role=option under a role=listbox) for a11y + testability — a className-only highlight is invisible to tests and screen readers."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (frontend-only run)", "frontend": "~85% (6/7 priority checks pass; 1 inconclusive; dark-mode + admin skipped due to Cloudflare rate-limit)"},
+  "seed_data_creation": "None — strictly READ-ONLY per request. Reused /app/memory/tmp/merchant_token.txt (user 1, company 1 'The Dev Store').",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Preview is behind Cloudflare and rate-limits back-to-back navigation (429s + 'text/html' MIME on static chunks after ~6-8 full page loads). Keep the session COMPACT: open the palette once, test both bulk tables in one browser context, do mobile LAST, and only do dark-mode in a fresh session. Merchant quick-login = localStorage.token from /app/memory/tmp/merchant_token.txt + localStorage.last_company_id='1' + sessionStorage.mfa_interstitial_seen='1' (NO interactive 2FA needed). To re-verify the two HIGH-priority items: (1) In /transactions click any tx-select-* checkbox and visually confirm NO slide-over opens (then re-try pagination to confirm selection persists). (2) In the palette type 'trans', press ArrowDown, inspect the highlighted item — currently it has no aria-selected or data-active attribute. Admin suite still untested; use the API→localStorage admin_token flow from the request if the next session has budget.",
+  "test_credentials": "Merchant onarrival21@gmail.com / Katiekendra123@ (user 1, company 1). Cached JWT: /app/memory/tmp/merchant_token.txt. TOTP: node /app/backend/scripts/print_totp.cjs 1."
+}

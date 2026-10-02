@@ -353,7 +353,7 @@ const CommandPaletteDialog = ({ open, onClose }: { open: boolean; onClose: () =>
         </Box>
       </Box>
 
-      <Box ref={listRef} sx={{ maxHeight: "52vh", overflowY: "auto", py: 0.75 }}>
+      <Box ref={listRef} role="listbox" aria-label="Search results" sx={{ maxHeight: "52vh", overflowY: "auto", py: 0.75 }}>
         {items.length === 0 ? (
           <Typography sx={{ px: 2.5, py: 3, textAlign: "center", fontFamily: "var(--font-sans)", fontSize: 13.5, color: theme.palette.text.secondary }}>
             {t("search.noResults", { defaultValue: "No matches — try a page name, customer email or link name." })}
@@ -384,6 +384,9 @@ const CommandPaletteDialog = ({ open, onClose }: { open: boolean; onClose: () =>
                 <Box
                   data-idx={idx}
                   data-testid={`palette-item-${it.id}`}
+                  role="option"
+                  aria-selected={idx === active}
+                  data-active={idx === active ? "true" : undefined}
                   onClick={() => it.run()}
                   onMouseEnter={() => setActive(idx)}
                   sx={{
