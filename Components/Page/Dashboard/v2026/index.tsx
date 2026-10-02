@@ -114,10 +114,20 @@ const Dashboard2026: React.FC<{ onboarding?: boolean }> = ({ onboarding = true }
   // (state 2, also graduates developers out of the forever-onboarding hero);
   // still setting up → the Getting-started hero owns the page (state 1).
   const paidOrLive = hasPayment || setupProgress.hasPayment;
-  const onboardingMode =
-    onboarding && !loading && !!stats && setupProgress.coreReady && !paidOrLive && !setupProgress.isSafeDealBrand;
-  const settingUp = onboardingMode && setupProgress.doneCount < setupProgress.total;
-  const readyWaiting = onboardingMode && setupProgress.doneCount >= setupProgress.total;
+  const inOnboarding =
+    onboarding && setupProgress.coreReady && !paidOrLive && !setupProgress.isSafeDealBrand;
+  // State 1 (setting up) is gated on coreReady ONLY — NOT on the dashboard stats
+  // fetch. Stats only start loading when THIS page mounts, so gating the hero on
+  // them made a brand that had just left the wizard (e.g. via "Do this later" or
+  // "Save & exit setup") fall through to the plain dashboard until/unless stats
+  // resolved. coreReady (company + wallet + MFA) is already satisfied from the
+  // wizard's data, so the Getting-started hero shows immediately instead.
+  const settingUp = inOnboarding && setupProgress.doneCount < setupProgress.total;
+  // State 2 keeps the stats gate so an established brand whose payout wallet is
+  // momentarily empty doesn't flash the "setup complete" strip before stats
+  // confirm there is genuinely no payment yet.
+  const readyWaiting =
+    inOnboarding && setupProgress.doneCount >= setupProgress.total && !loading && !!stats;
 
   const { items: attentionItems, dismiss, acknowledge } = useAttentionItems({ overview, onboarding });
 
@@ -147,6 +157,18 @@ const Dashboard2026: React.FC<{ onboarding?: boolean }> = ({ onboarding = true }
   );
   const txRange = custom ? undefined : range === "1y" ? "all" : range;
   const moneyRow = <MoneyRow overview={overview} loading={overviewLoading} rangeLabel={rangeLabel} txRange={txRange} />;
+
+  // Until company + wallet + MFA have loaded we can't tell "setting up" from
+  // "live" — hold a neutral skeleton so the page doesn't paint the full
+  // dashboard chrome and then jump to the hero (or redirect into the wizard).
+  if (onboarding && !setupProgress.coreReady) {
+    return (
+      <Box data-testid="dash2026-root" data-state="loading" sx={{ display: "flex", flexDirection: "column", gap: stackGap }}>
+        <ChartSkeleton h={240} />
+        <ChartSkeleton h={160} />
+      </Box>
+    );
+  }
 
   return (
     <Box data-testid="dash2026-root" data-density={density} sx={riseSx}>

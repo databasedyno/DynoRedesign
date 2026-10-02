@@ -16,7 +16,7 @@ import { redis, getRedisItem, setRedisItemWithTTL, deleteRedisItem } from "../ut
 import { generateOtpCode } from "../helper/otpGuard";
 import { userModel } from "../models";
 import { sendPurposeOTPEmail } from "../services/email/otpEmails";
-import { send2FAEnabledEmail } from "../services/email/securityEmails";
+import { sendEmailCodesEnabledEmail } from "../services/email/securityEmails";
 import { enableEmail2FA } from "../services/twoFactorService";
 import { getMfaEnforcement } from "../services/mfaEnforcement";
 import { ChallengeError, resendLoginChallengeCode } from "../services/twoFactorChallenge";
@@ -79,7 +79,7 @@ const emailVerify = async (req: express.Request, res: express.Response) => {
 
     const backupCodes = await enableEmail2FA(userData.user_id);
     await trustDevice(userData.user_id, req, res).catch((e) => userLogger.warn("[2FA] trustDevice after email enrolment failed", e));
-    if (userData.email) void send2FAEnabledEmail(userData.email, userData.name || "", (userData as { language?: string }).language);
+    if (userData.email) void sendEmailCodesEnabledEmail(userData.email, userData.name || "", (userData as { language?: string }).language);
 
     successResponseHelper(res, 200, "Email codes are now your second step at sign-in.", {
       enabled: true,

@@ -44,8 +44,10 @@ const FeeFreeBanner: React.FC = () => {
   // onboarding — the Getting-started hero / setup-complete strip owns the
   // fee-free promise there, so the banner's competing "Start accepting payments"
   // CTA doesn't pull the user off the guided path on their first dashboard visit.
-  const { onboardingActive } = useSetupProgress();
-  const suppressed = onboardingActive || suppressPaths.some((p) => path.startsWith(p));
+  const { onboardingActive, coreReady } = useSetupProgress();
+  // Stay hidden until company/wallet/MFA have loaded — before that
+  // `onboardingActive` is still false and the banner would flash in.
+  const suppressed = !coreReady || onboardingActive || suppressPaths.some((p) => path.startsWith(p));
 
   const { data } = useFeeFreeStatus({ enabled: !suppressed });
 

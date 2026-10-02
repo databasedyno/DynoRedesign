@@ -39,6 +39,20 @@ export const GS_SUPPRESS_KEY = "dyno_suppress_onboarding";
 /** H: after "Do this later", stop auto-redirecting into the wizard for 24h ACROSS sessions. */
 export const GS_LATER_COOLDOWN_KEY = "dyno_gs_later_until";
 export const GS_LATER_COOLDOWN_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Forget the per-tab "wizard already auto-opened" guards on sign-out so the
+ * NEXT login in this tab resumes the wizard. "Save & exit setup" also clears
+ * the 24h "Do this later" snooze (explicit intent to come back to setup).
+ */
+export const clearOnboardingSessionFlags = (opts?: { clearLaterCooldown?: boolean }) => {
+  if (typeof window === "undefined") return;
+  try {
+    window.sessionStorage.removeItem(GS_AUTO_OPEN_KEY);
+    window.sessionStorage.removeItem(GS_SUPPRESS_KEY);
+    if (opts?.clearLaterCooldown) window.localStorage.removeItem(GS_LATER_COOLDOWN_KEY);
+  } catch { /* noop */ }
+};
 /** A4: the Share step counts as done on the first copy / QR / share action, not only once money lands. */
 const GS_SHARED_KEY = (companyId: number) => `dyno_gs_shared:${companyId}`;
 const GS_SHARED_EVENT = "dynopay:gs-shared";

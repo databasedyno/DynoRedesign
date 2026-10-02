@@ -19,6 +19,7 @@ import { companyLogger } from "../utils/loggers";
 import sequelize from "../utils/dbInstance";
 import { QueryTypes, Op } from "sequelize";
 import { sendCompanyProfileCreatedEmail, sendCompanyProfileUpdatedEmail, sendCompanyDeletedEmail, sendBrandSoftDeletedEmail, sendBrandDeletedAdminEmail } from "../services/emailService";
+import { scheduleBrandWelcomeEmail } from "../services/email/brandWelcomeScheduler";
 import { BRAND_DELETE_GRACE_DAYS } from "../services/brandPurgeService";
 import { isSafeDealBrand } from "../helper/protectedEntities";
 export const ONLY_BRAND_MESSAGE =
@@ -632,16 +633,24 @@ const updateCompany = async (req: express.Request, res: express.Response) => {
     const finalArray = resData[1][0].dataValues;
     invalidateMerchantMinCache(company_id); // Phase 1b: drop cached min after update
     const updatedFields = diffCompanyFields(before, data, photo);
+    // First-time completion (onboarding "About you"): the auto-provisioned
+    // account has no country until this write. That's a welcome moment, not a
+    // "your details were changed" alert — schedule the delayed brand welcome.
+    const firstCompletion =
+      !String((before as any)?.country ?? "").trim() && !!String(data.country ?? "").trim();
     
     // Send email notification to account holder
     try {
+      if (firstCompletion) {
+        void scheduleBrandWelcomeEmail({ userId: userData.user_id, companyId: Number(company_id) });
+      }
       // Get user details
       const user = await userModel.findOne({
         where: { user_id: userData.user_id },
         attributes: ['name', 'email']
       });
       
-      if (user && updatedFields.length > 0) {
+      if (user && updatedFields.length > 0 && !firstCompletion) {
         await sendCompanyProfileUpdatedEmail(
           user.dataValues.email,
           user.dataValues.name,

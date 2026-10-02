@@ -1514,6 +1514,11 @@ function startLeaderOnlyServices() {
     log(`BullMQ webhook worker failed to start: ${(workerErr as Error).message}`, 'error');
   }
 
+  // Delayed onboarding emails (brand welcome ~10 min after first brand-details save)
+  import("./services/email/brandWelcomeScheduler")
+    .then(({ startBrandWelcomeWorker }) => { startBrandWelcomeWorker(); log('BullMQ onboarding-emails worker started', 'info'); })
+    .catch(err => log(`Onboarding-emails worker failed to start: ${(err as Error).message}`, 'error'));
+
   // Fee-free balance reconciliation (corrects users with $500+ volume)
   import("./services/feeFreeReconciliation")
     .then(({ reconcileFeeFreeBalances }) => reconcileFeeFreeBalances())

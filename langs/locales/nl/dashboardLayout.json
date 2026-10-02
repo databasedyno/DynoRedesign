@@ -641,7 +641,15 @@
     "campaignPreviewTapHint": "Tik op een voorgesteld bedrag om het momentum te zien",
     "campaignPreviewGiftImpact": "Een gift van {{amount}} brengt je {{percent}}% dichter bij je doel",
     "campaignPreviewReset": "Voorbeeld resetten",
-    "campaignPreviewNoGoal": "Geen doel — supporters kunnen elk bedrag geven"
+    "campaignPreviewNoGoal": "Geen doel — supporters kunnen elk bedrag geven",
+    "saveExit": "Opslaan & installatie verlaten",
+    "saveExitShort": "Opslaan & afsluiten",
+    "saveExitTitle": "Uitloggen en later afmaken?",
+    "saveExitBody": "Je voortgang is opgeslagen – {{done}} van {{total}} stappen klaar. Als je weer inlogt, ga je verder bij stap {{n}}: {{label}}.",
+    "saveExitBodyNone": "Nog geen stap afgerond. Als je weer inlogt, begin je bij stap 1: {{label}}.",
+    "saveExitNote": "Wat je in de huidige stap hebt ingevuld maar nog niet hebt opgeslagen, moet je opnieuw invoeren.",
+    "saveExitKeepGoing": "Doorgaan",
+    "saveExitSignOut": "Uitloggen"
   },
   "kycPage": {
     "pageTitle": "Identiteitsverificatie",

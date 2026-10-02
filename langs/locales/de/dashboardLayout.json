@@ -641,7 +641,15 @@
     "campaignPreviewTapHint": "Tippe auf einen vorgeschlagenen Betrag, um die Dynamik zu sehen",
     "campaignPreviewGiftImpact": "Eine Spende von {{amount}} bringt dich {{percent}} % näher an dein Ziel",
     "campaignPreviewReset": "Vorschau zurücksetzen",
-    "campaignPreviewNoGoal": "Kein Ziel — Unterstützer können jeden Betrag geben"
+    "campaignPreviewNoGoal": "Kein Ziel — Unterstützer können jeden Betrag geben",
+    "saveExit": "Speichern & Einrichtung verlassen",
+    "saveExitShort": "Speichern & beenden",
+    "saveExitTitle": "Abmelden und später weitermachen?",
+    "saveExitBody": "Dein Fortschritt ist gespeichert – {{done}} von {{total}} Schritten erledigt. Nach der nächsten Anmeldung geht es bei Schritt {{n}} weiter: {{label}}.",
+    "saveExitBodyNone": "Noch kein Schritt abgeschlossen. Nach der nächsten Anmeldung startest du bei Schritt 1: {{label}}.",
+    "saveExitNote": "Eingaben im aktuellen Schritt, die noch nicht gespeichert wurden, müssen erneut eingegeben werden.",
+    "saveExitKeepGoing": "Weitermachen",
+    "saveExitSignOut": "Abmelden"
   },
   "kycPage": {
     "pageTitle": "Identitätsprüfung",

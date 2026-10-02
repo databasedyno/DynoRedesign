@@ -641,7 +641,15 @@
     "campaignPreviewTapHint": "Tap a suggested amount to picture the momentum",
     "campaignPreviewGiftImpact": "A {{amount}} gift moves you {{percent}}% toward your goal",
     "campaignPreviewReset": "Reset preview",
-    "campaignPreviewNoGoal": "No goal — supporters can give any amount"
+    "campaignPreviewNoGoal": "No goal — supporters can give any amount",
+    "saveExit": "Save & exit setup",
+    "saveExitShort": "Save & exit",
+    "saveExitTitle": "Sign out and finish later?",
+    "saveExitBody": "Your progress is saved — {{done}} of {{total}} steps done. When you sign back in, you'll pick up at step {{n}}: {{label}}.",
+    "saveExitBodyNone": "No steps completed yet. When you sign back in, you'll start at step 1: {{label}}.",
+    "saveExitNote": "Anything typed on the current step but not yet saved will need to be entered again.",
+    "saveExitKeepGoing": "Keep going",
+    "saveExitSignOut": "Sign out"
   },
   "kycPage": {
     "pageTitle": "Identity verification",

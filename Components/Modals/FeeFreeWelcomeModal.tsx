@@ -92,7 +92,7 @@ const FeeFreeWelcomeModal: React.FC = () => {
   // the Getting-started hero / setup-complete strip carries the fee-free promise
   // — so this celebratory modal stands down to avoid the first-dashboard
   // interruption stack. It shows normally once the brand has graduated.
-  const { onboardingActive } = useSetupProgress();
+  const { onboardingActive, coreReady } = useSetupProgress();
   // Merchants who already made a link (e.g. straight out of the wizard) get "share" instead of "create".
   const hasLink = useSelector((s: any) => Array.isArray(s?.paymentLinkReducer?.paymentLinks) && s.paymentLinkReducer.paymentLinks.length > 0);
 
@@ -103,7 +103,9 @@ const FeeFreeWelcomeModal: React.FC = () => {
     if (router.pathname.startsWith("/get-started")) return;
     // Don't consume the one-time flag while the brand is still onboarding — wait
     // until it has graduated so the promise isn't competing with the hero/strip.
-    if (onboardingActive) return;
+    // `onboardingActive` is only trustworthy once coreReady (company/wallet/MFA
+    // loaded); before that it reads false and the modal used to slip through.
+    if (!coreReady || onboardingActive) return;
 
     // Derive a RELOAD-STABLE identity from the JWT in localStorage.
     // (Redux userState.email is empty right after a reload — using it caused
@@ -141,7 +143,7 @@ const FeeFreeWelcomeModal: React.FC = () => {
       setRemaining(Number(ffData.fee_free_remaining_usd));
       setOpen(true);
     }
-  }, [ffData, router.pathname, onboardingActive]);
+  }, [ffData, router.pathname, onboardingActive, coreReady]);
 
   const markShown = () => {
     if (!storageKey) return;

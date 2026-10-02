@@ -105,6 +105,48 @@ export const sendCompanyProfileUpdatedEmail = async (
 };
 
 /**
+ * Template 2e: Brand welcome — sent ~10 minutes after a merchant first completes
+ * their brand details in the onboarding wizard (replaces the "brand details
+ * were changed" alert, which is wrong for a first-time fill). Evergreen copy;
+ * the next-step line adapts to whether a payout address exists at SEND time.
+ */
+export const sendBrandWelcomeEmail = async (
+  email: string,
+  name: string,
+  companyName: string,
+  opts: { hasWallet: boolean },
+  lang?: string | null
+) => {
+  try {
+    const L = await resolveEmailLang(lang ?? undefined, email);
+    const K = 'merchant.brandWelcome';
+    const brand = escapeHtml(companyName || '');
+    const subject = t(`${K}.subject`, L, { companyName: companyName || 'Dynopay' });
+    const row = (text: string) =>
+      `<tr><td style="padding: 4px 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${text}</td></tr>`;
+    const content = `${p(name ? t('common.greeting', L, { name: escapeHtml(firstNameOnly(name)) }) : t('common.greetingDefault', L))}
+    ${p(t(`${K}.intro1`, L, { companyName: brand }))}
+    ${infoBox(`
+      <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t(`${K}.unlockedTitle`, L)}</p>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        ${row(t(`${K}.unlocked1`, L))}
+        ${row(t(`${K}.unlocked2`, L))}
+        ${row(t(`${K}.unlocked3`, L))}
+      </table>
+    `)}
+    ${successBox(t(`${K}.promo`, L))}
+    ${p(t(opts.hasWallet ? `${K}.nextShare` : `${K}.nextWallet`, L))}
+    ${p(t(`${K}.questions`, L))}`;
+
+    const html = dynoPayEmailTemplate(t(`${K}.heading`, L, { companyName: brand }), content, true, t(`${K}.cta`, L), `${FRONTEND_BASE_URL}/dashboard`, t(`${K}.preheader`, L), L, 'store');
+    await mailTransporter({ to: email, name, subject, body: html });
+    apiLogger.info(`Brand welcome email sent to ${email}`);
+  } catch (e) {
+    apiLogger.error("Brand welcome email error:", e);
+  }
+};
+
+/**
  * Template 2d: Teammate joined — notify the OWNER when an invited teammate
  * accepts and joins the business. Plain-English (mirrors the referral-email
  * style); outbound is suppressed in preview via DISABLE_OUTBOUND_EMAIL.

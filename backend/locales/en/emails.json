@@ -1080,6 +1080,21 @@
    "rotate": "To rotate: open <strong>Developer › API keys</strong>, press <strong>Regenerate</strong>, copy the new key immediately and update your integration. The old key stops working the moment you regenerate.",
    "outro": "Questions? Reply to this email — we are happy to help.",
    "cta": "Open API keys"
+  },
+  "brandWelcome": {
+   "subject": "Welcome aboard — {{companyName}} is set up on Dynopay",
+   "heading": "{{companyName}} is set up",
+   "preheader": "Your brand is ready. Here's what you've unlocked and what's next.",
+   "intro1": "Welcome aboard! Your brand <strong>{{companyName}}</strong> is set up on Dynopay.",
+   "unlockedTitle": "What you've unlocked",
+   "unlocked1": "• Payment links and a hosted checkout under your own brand",
+   "unlocked2": "• Crypto payments forwarded straight to a wallet you control",
+   "unlocked3": "• Invoices and receipts that carry your brand details",
+   "promo": "Your first payment is on us — we waive our entire platform fee on your first settled payment, any amount.",
+   "nextWallet": "Next up: add a payout address so your first payment has somewhere to land. It takes about 30 seconds.",
+   "nextShare": "You're ready to get paid — share your first payment link or connect the API whenever you like.",
+   "questions": "Questions? Open the chat on our site or visit the Help centre — we're happy to help.",
+   "cta": "Open your dashboard"
   }
  },
  "contributor": {
@@ -1434,6 +1449,15 @@
    "intro": "Two-factor authentication (2FA) is now protecting your Dynopay account. From now on you'll need a code from your authenticator app each time you sign in.",
    "tip": "Keep your backup codes somewhere safe — they're the only way in if you lose access to your authenticator app.",
    "preheader": "Your account now requires an authenticator code to sign in."
+  },
+  "emailCodesEnabled": {
+   "subject": "Email codes are now your sign-in second step",
+   "heading": "Two-step verification: email codes",
+   "preheader": "Signing in on a new browser now needs a code we email you.",
+   "intro": "Email codes now protect your Dynopay account. When you sign in on a new browser, we'll email you a 6-digit code to finish signing in.",
+   "upgrade": "<strong>Want the strongest protection?</strong> Add an authenticator app (Google Authenticator, 1Password, Authy…). It works offline and can't be read from your inbox — it takes about a minute in Settings → Security.",
+   "tip": "Keep your backup codes somewhere safe — they're the only way in if you can't receive email.",
+   "cta": "Add an authenticator app"
   },
   "twoFaDisabled": {
    "subject": "2FA was turned off — was that you?",

@@ -641,7 +641,15 @@
     "campaignPreviewTapHint": "Touchez un montant suggéré pour visualiser l'élan",
     "campaignPreviewGiftImpact": "Un don de {{amount}} vous rapproche de {{percent}} % de votre objectif",
     "campaignPreviewReset": "Réinitialiser l'aperçu",
-    "campaignPreviewNoGoal": "Aucun objectif — les soutiens peuvent donner n'importe quel montant"
+    "campaignPreviewNoGoal": "Aucun objectif — les soutiens peuvent donner n'importe quel montant",
+    "saveExit": "Enregistrer et quitter la configuration",
+    "saveExitShort": "Enregistrer et quitter",
+    "saveExitTitle": "Se déconnecter et terminer plus tard ?",
+    "saveExitBody": "Votre progression est enregistrée : {{done}} étape(s) sur {{total}} terminée(s). À votre prochaine connexion, vous reprendrez à l'étape {{n}} : {{label}}.",
+    "saveExitBodyNone": "Aucune étape terminée pour l'instant. À votre prochaine connexion, vous commencerez à l'étape 1 : {{label}}.",
+    "saveExitNote": "Ce que vous avez saisi dans l'étape en cours sans l'enregistrer devra être ressaisi.",
+    "saveExitKeepGoing": "Continuer",
+    "saveExitSignOut": "Se déconnecter"
   },
   "kycPage": {
     "pageTitle": "Vérification d'identité",

@@ -641,7 +641,15 @@
     "campaignPreviewTapHint": "Toca un importe sugerido para ver el impulso",
     "campaignPreviewGiftImpact": "Una donación de {{amount}} te acerca un {{percent}} % a tu meta",
     "campaignPreviewReset": "Restablecer vista previa",
-    "campaignPreviewNoGoal": "Sin meta: los colaboradores pueden dar cualquier importe"
+    "campaignPreviewNoGoal": "Sin meta: los colaboradores pueden dar cualquier importe",
+    "saveExit": "Guardar y salir de la configuración",
+    "saveExitShort": "Guardar y salir",
+    "saveExitTitle": "¿Cerrar sesión y terminar más tarde?",
+    "saveExitBody": "Tu progreso está guardado: {{done}} de {{total}} pasos completados. Al volver a iniciar sesión, continuarás en el paso {{n}}: {{label}}.",
+    "saveExitBodyNone": "Aún no has completado ningún paso. Al volver a iniciar sesión, empezarás en el paso 1: {{label}}.",
+    "saveExitNote": "Lo que hayas escrito en el paso actual sin guardar tendrás que introducirlo de nuevo.",
+    "saveExitKeepGoing": "Seguir",
+    "saveExitSignOut": "Cerrar sesión"
   },
   "kycPage": {
     "pageTitle": "Verificación de identidad",

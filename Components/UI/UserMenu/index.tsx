@@ -27,6 +27,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
+import { clearOnboardingSessionFlags } from "@/Components/Page/GetStarted/useSetupProgress";
 import CustomButton from "../Buttons";
 import { HeaderDivider } from "../LanguageSwitcher/styled";
 
@@ -89,6 +90,8 @@ export default function UserMenu({ onboarding = false }: { onboarding?: boolean 
 
   const handleLogout = () => {
     if (customWindow) {
+      // A fresh login in this tab must be able to resume the setup wizard.
+      clearOnboardingSessionFlags();
       customWindow.localStorage.removeItem("token");
       customWindow.localStorage.removeItem("refreshToken");
       customWindow.location.replace("/auth/login");

@@ -110,6 +110,16 @@ export default function Login() {
           severity: "warning",
         },
       });
+    } else if (notice === "setup_saved") {
+      dispatch({
+        type: TOAST_SHOW,
+        payload: {
+          message: t("setupSaved", {
+            defaultValue: "Your setup progress is saved. Sign in anytime to pick up where you left off.",
+          }),
+          severity: "success",
+        },
+      });
     } else if (notice === "reset_invalid") {
       dispatch({
         type: TOAST_SHOW,

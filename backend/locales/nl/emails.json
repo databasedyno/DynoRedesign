@@ -1080,6 +1080,21 @@
    "rotate": "Roteren: open <strong>Ontwikkelaar › API-sleutels</strong>, klik op <strong>Opnieuw genereren</strong>, kopieer de nieuwe sleutel direct en werk uw integratie bij. De oude sleutel stopt met werken zodra u opnieuw genereert.",
    "outro": "Vragen? Beantwoord deze e-mail — we helpen u graag.",
    "cta": "API-sleutels openen"
+  },
+  "brandWelcome": {
+   "subject": "Welkom aan boord — {{companyName}} is ingesteld op Dynopay",
+   "heading": "{{companyName}} is ingesteld",
+   "preheader": "Je merk is klaar. Dit heb je ontgrendeld en zo gaat het verder.",
+   "intro1": "Welkom aan boord! Je merk <strong>{{companyName}}</strong> is ingesteld op Dynopay.",
+   "unlockedTitle": "Dit heb je ontgrendeld",
+   "unlocked1": "• Betaallinks en een gehoste checkout onder je eigen merk",
+   "unlocked2": "• Cryptobetalingen die rechtstreeks naar een wallet onder jouw beheer gaan",
+   "unlocked3": "• Facturen en bonnen met je merkgegevens",
+   "promo": "Je eerste betaling is van ons: we schelden de volledige platformkosten kwijt op je eerste afgewikkelde betaling, ongeacht het bedrag.",
+   "nextWallet": "Volgende stap: voeg een uitbetaaladres toe zodat je eerste betaling ergens kan landen. Dat duurt ongeveer 30 seconden.",
+   "nextShare": "Je kunt betaald worden: deel je eerste betaallink of koppel de API wanneer je wilt.",
+   "questions": "Vragen? Open de chat op onze site of bezoek het Helpcentrum – we helpen je graag.",
+   "cta": "Dashboard openen"
   }
  },
  "contributor": {
@@ -1450,6 +1465,15 @@
    "intro": "Tweestapsverificatie (2FA) beschermt nu uw Dynopay-account. Vanaf nu heeft u bij elke aanmelding een code uit uw authenticator-app nodig.",
    "tip": "Bewaar uw back-upcodes op een veilige plek: ze zijn de enige toegang als u uw authenticator-app verliest.",
    "preheader": "Voor aanmelden is nu een authenticator-code vereist."
+  },
+  "emailCodesEnabled": {
+   "subject": "E-mailcodes zijn nu je tweede stap bij het inloggen",
+   "heading": "Tweestapsverificatie: e-mailcodes",
+   "preheader": "Inloggen in een nieuwe browser vereist nu een code die we je e-mailen.",
+   "intro": "E-mailcodes beschermen nu je Dynopay-account. Als je inlogt in een nieuwe browser, e-mailen we je een 6-cijferige code om het inloggen af te ronden.",
+   "upgrade": "<strong>Wil je de sterkste bescherming?</strong> Voeg een authenticator-app toe (Google Authenticator, 1Password, Authy…). Die werkt offline en kan niet uit je inbox worden gelezen – het duurt ongeveer een minuut via Instellingen → Beveiliging.",
+   "tip": "Bewaar je back-upcodes op een veilige plek – ze zijn de enige manier om binnen te komen als je geen e-mail kunt ontvangen.",
+   "cta": "Authenticator-app toevoegen"
   },
   "twoFaDisabled": {
    "subject": "2FA is uitgezet — was jij dat?",

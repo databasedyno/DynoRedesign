@@ -40,6 +40,27 @@ export const send2FAEnabledEmail = async (email: string, name: string, lang?: st
   }
 };
 
+/**
+ * Email-code method enrolled (onboarding step 1 "email codes"). Deliberately
+ * NOT the authenticator-app "2FA is on" email: it names the method, keeps it
+ * short, and nudges toward an authenticator app for stronger protection.
+ */
+export const sendEmailCodesEnabledEmail = async (email: string, name: string, lang?: string | null) => {
+  try {
+    const L = await resolveEmailLang(lang, email);
+    const K = "security.emailCodesEnabled";
+    const content = `${greeting(name, L)}
+    ${p(t(`${K}.intro`, L))}
+    ${infoBox(`<p style="margin: 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t(`${K}.upgrade`, L)}</p>`, "#F0C300")}
+    ${p(t(`${K}.tip`, L))}
+    ${warnText(t("security.didntDoThis", L))}`;
+    const html = dynoPayEmailTemplate(t(`${K}.heading`, L), content, true, t(`${K}.cta`, L), SECURITY_URL, t(`${K}.preheader`, L), L, "shield-green");
+    await send(email, name, t(`${K}.subject`, L), html, "Email codes enabled");
+  } catch (e) {
+    apiLogger.error("Email codes enabled email error:", e);
+  }
+};
+
 export const send2FADisabledEmail = async (email: string, name: string, lang?: string | null) => {
   try {
     const L = await resolveEmailLang(lang, email);

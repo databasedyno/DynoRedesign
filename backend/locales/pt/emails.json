@@ -1080,6 +1080,21 @@
    "rotate": "Para rodar: abra <strong>Programador › Chaves API</strong>, carregue em <strong>Regenerar</strong>, copie de imediato a nova chave e atualize a sua integração. A chave antiga deixa de funcionar no momento em que regenera.",
    "outro": "Dúvidas? Responda a este e-mail — teremos todo o gosto em ajudar.",
    "cta": "Abrir chaves API"
+  },
+  "brandWelcome": {
+   "subject": "Bem-vindo a bordo — {{companyName}} está configurada na Dynopay",
+   "heading": "{{companyName}} está pronta",
+   "preheader": "A sua marca está pronta. Veja o que desbloqueou e o que se segue.",
+   "intro1": "Bem-vindo a bordo! A sua marca <strong>{{companyName}}</strong> está configurada na Dynopay.",
+   "unlockedTitle": "O que desbloqueou",
+   "unlocked1": "• Links de pagamento e um checkout alojado com a sua própria marca",
+   "unlocked2": "• Pagamentos em cripto encaminhados diretamente para uma carteira que controla",
+   "unlocked3": "• Faturas e recibos com os dados da sua marca",
+   "promo": "O seu primeiro pagamento é por nossa conta: dispensamos toda a comissão da plataforma no seu primeiro pagamento liquidado, seja qual for o valor.",
+   "nextWallet": "Próximo passo: adicione um endereço de levantamento para que o seu primeiro pagamento tenha destino. Demora cerca de 30 segundos.",
+   "nextShare": "Está pronto para receber: partilhe o seu primeiro link de pagamento ou ligue a API quando quiser.",
+   "questions": "Dúvidas? Abra o chat no nosso site ou visite o Centro de ajuda — teremos todo o gosto em ajudar.",
+   "cta": "Abrir o painel"
   }
  },
  "contributor": {
@@ -1450,6 +1465,15 @@
    "intro": "A autenticação de dois fatores (2FA) protege agora a sua conta Dynopay. A partir de agora, precisará de um código da sua aplicação de autenticação sempre que iniciar sessão.",
    "tip": "Guarde os seus códigos de recuperação num local seguro: são a única forma de entrar se perder o acesso à sua aplicação de autenticação.",
    "preheader": "A sua conta exige agora um código de autenticação para iniciar sessão."
+  },
+  "emailCodesEnabled": {
+   "subject": "Os códigos por e-mail são agora o seu segundo passo ao iniciar sessão",
+   "heading": "Verificação em dois passos: códigos por e-mail",
+   "preheader": "Iniciar sessão num novo navegador exige agora um código que lhe enviamos por e-mail.",
+   "intro": "Os códigos por e-mail protegem agora a sua conta Dynopay. Quando iniciar sessão num novo navegador, enviamos-lhe um código de 6 dígitos por e-mail para concluir o acesso.",
+   "upgrade": "<strong>Quer a proteção mais forte?</strong> Adicione uma app de autenticação (Google Authenticator, 1Password, Authy…). Funciona offline e não pode ser lida a partir da sua caixa de entrada — demora cerca de um minuto em Definições → Segurança.",
+   "tip": "Guarde os seus códigos de recuperação num local seguro — são a única forma de entrar se não conseguir receber e-mails.",
+   "cta": "Adicionar uma app de autenticação"
   },
   "twoFaDisabled": {
    "subject": "A 2FA foi desativada — foi você?",

@@ -1080,6 +1080,21 @@
    "rotate": "So rotieren Sie: <strong>Entwickler › API-Schlüssel</strong> öffnen, <strong>Neu generieren</strong> drücken, den neuen Schlüssel sofort kopieren und Ihre Integration aktualisieren. Der alte Schlüssel wird mit der Neugenerierung sofort ungültig.",
    "outro": "Fragen? Antworten Sie einfach auf diese E-Mail — wir helfen gern.",
    "cta": "API-Schlüssel öffnen"
+  },
+  "brandWelcome": {
+   "subject": "Willkommen an Bord — {{companyName}} ist auf Dynopay eingerichtet",
+   "heading": "{{companyName}} ist eingerichtet",
+   "preheader": "Deine Marke ist bereit. Das hast du freigeschaltet – und so geht es weiter.",
+   "intro1": "Willkommen an Bord! Deine Marke <strong>{{companyName}}</strong> ist auf Dynopay eingerichtet.",
+   "unlockedTitle": "Das hast du freigeschaltet",
+   "unlocked1": "• Zahlungslinks und ein gehosteter Checkout unter deiner eigenen Marke",
+   "unlocked2": "• Krypto-Zahlungen, die direkt an eine Wallet unter deiner Kontrolle weitergeleitet werden",
+   "unlocked3": "• Rechnungen und Belege mit deinen Markendaten",
+   "promo": "Deine erste Zahlung geht auf uns – wir erlassen die gesamte Plattformgebühr auf deine erste abgeschlossene Zahlung, egal in welcher Höhe.",
+   "nextWallet": "Als Nächstes: Füge eine Auszahlungsadresse hinzu, damit deine erste Zahlung ein Ziel hat. Das dauert etwa 30 Sekunden.",
+   "nextShare": "Du kannst loslegen – teile deinen ersten Zahlungslink oder verbinde die API, wann immer du willst.",
+   "questions": "Fragen? Öffne den Chat auf unserer Website oder besuche das Hilfecenter – wir helfen gern.",
+   "cta": "Dashboard öffnen"
   }
  },
  "contributor": {
@@ -1450,6 +1465,15 @@
    "intro": "Die Zwei-Faktor-Authentifizierung (2FA) schützt jetzt Ihr Dynopay-Konto. Ab sofort benötigen Sie bei jeder Anmeldung einen Code aus Ihrer Authenticator-App.",
    "tip": "Bewahren Sie Ihre Backup-Codes sicher auf – sie sind der einzige Zugang, falls Sie Ihre Authenticator-App verlieren.",
    "preheader": "Für die Anmeldung ist jetzt ein Authenticator-Code erforderlich."
+  },
+  "emailCodesEnabled": {
+   "subject": "E-Mail-Codes sind jetzt dein zweiter Schritt beim Anmelden",
+   "heading": "Zwei-Schritt-Verifizierung: E-Mail-Codes",
+   "preheader": "Beim Anmelden in einem neuen Browser brauchst du jetzt einen Code, den wir dir per E-Mail schicken.",
+   "intro": "E-Mail-Codes schützen jetzt dein Dynopay-Konto. Wenn du dich in einem neuen Browser anmeldest, schicken wir dir einen 6-stelligen Code per E-Mail, um die Anmeldung abzuschließen.",
+   "upgrade": "<strong>Du willst den stärksten Schutz?</strong> Füge eine Authenticator-App hinzu (Google Authenticator, 1Password, Authy …). Sie funktioniert offline und kann nicht aus deinem Posteingang gelesen werden – das dauert etwa eine Minute unter Einstellungen → Sicherheit.",
+   "tip": "Bewahre deine Backup-Codes sicher auf – sie sind der einzige Weg ins Konto, wenn du keine E-Mails empfangen kannst.",
+   "cta": "Authenticator-App hinzufügen"
   },
   "twoFaDisabled": {
    "subject": "2FA wurde deaktiviert — warst das du?",

@@ -1080,6 +1080,21 @@
    "rotate": "Pour effectuer une rotation : ouvrez <strong>Développeur › Clés API</strong>, cliquez sur <strong>Régénérer</strong>, copiez immédiatement la nouvelle clé et mettez à jour votre intégration. L'ancienne clé cesse de fonctionner dès la régénération.",
    "outro": "Des questions ? Répondez à cet e-mail, nous serons ravis de vous aider.",
    "cta": "Ouvrir les clés API"
+  },
+  "brandWelcome": {
+   "subject": "Bienvenue à bord — {{companyName}} est configurée sur Dynopay",
+   "heading": "{{companyName}} est prête",
+   "preheader": "Votre marque est prête. Voici ce que vous avez débloqué et la suite.",
+   "intro1": "Bienvenue à bord ! Votre marque <strong>{{companyName}}</strong> est configurée sur Dynopay.",
+   "unlockedTitle": "Ce que vous avez débloqué",
+   "unlocked1": "• Des liens de paiement et un checkout hébergé à votre marque",
+   "unlocked2": "• Des paiements crypto transférés directement vers un portefeuille que vous contrôlez",
+   "unlocked3": "• Des factures et reçus portant les informations de votre marque",
+   "promo": "Votre premier paiement est offert : nous supprimons la totalité de nos frais de plateforme sur votre premier paiement réglé, quel que soit le montant.",
+   "nextWallet": "Prochaine étape : ajoutez une adresse de versement pour que votre premier paiement ait une destination. Cela prend environ 30 secondes.",
+   "nextShare": "Vous êtes prêt à être payé : partagez votre premier lien de paiement ou connectez l'API quand vous le souhaitez.",
+   "questions": "Des questions ? Ouvrez le chat sur notre site ou consultez le Centre d'aide, nous serons ravis de vous aider.",
+   "cta": "Ouvrir mon tableau de bord"
   }
  },
  "contributor": {
@@ -1450,6 +1465,15 @@
    "intro": "L'authentification à deux facteurs (2FA) protège désormais votre compte Dynopay. À chaque connexion, un code de votre application d'authentification vous sera demandé.",
    "tip": "Conservez vos codes de secours en lieu sûr : ils sont le seul moyen d'accéder à votre compte si vous perdez votre application d'authentification.",
    "preheader": "Un code d'authentification est désormais requis pour vous connecter."
+  },
+  "emailCodesEnabled": {
+   "subject": "Les codes par e-mail sont désormais votre deuxième étape de connexion",
+   "heading": "Vérification en deux étapes : codes par e-mail",
+   "preheader": "La connexion depuis un nouveau navigateur nécessite désormais un code envoyé par e-mail.",
+   "intro": "Les codes par e-mail protègent désormais votre compte Dynopay. Lorsque vous vous connectez depuis un nouveau navigateur, nous vous envoyons un code à 6 chiffres par e-mail pour terminer la connexion.",
+   "upgrade": "<strong>Vous voulez la protection la plus forte ?</strong> Ajoutez une application d'authentification (Google Authenticator, 1Password, Authy…). Elle fonctionne hors ligne et ne peut pas être lue depuis votre boîte mail — cela prend environ une minute dans Paramètres → Sécurité.",
+   "tip": "Conservez vos codes de secours en lieu sûr : c'est le seul moyen d'accéder à votre compte si vous ne recevez plus d'e-mails.",
+   "cta": "Ajouter une application d'authentification"
   },
   "twoFaDisabled": {
    "subject": "La 2FA a été désactivée — était-ce vous ?",

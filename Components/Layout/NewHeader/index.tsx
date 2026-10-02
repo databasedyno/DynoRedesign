@@ -1,7 +1,7 @@
 import useOnboardingStatus from "@/hooks/useOnboardingStatus";
 import useAccountProfile from "@/hooks/useAccountProfile";
-import { useSetupProgress, GS_AUTO_OPEN_KEY, GS_LATER_COOLDOWN_KEY, GS_LATER_COOLDOWN_MS } from "@/Components/Page/GetStarted/useSetupProgress";
-import { trackOnboarding } from "@/utils/trackOnboarding";
+import { useSetupProgress } from "@/Components/Page/GetStarted/useSetupProgress";
+import SaveExitDialog from "@/Components/Page/GetStarted/SaveExitDialog";
 import Logo from "@/assets/Icons/home/dynopay-blackLogo.svg";
 import LogoDark from "@/assets/Icons/home/dynopay-whiteLogo.svg";
 import DynopayMark from "@/assets/Icons/Logo";
@@ -74,7 +74,8 @@ const NewHeader = () => {
   // Getting-started hero's own payout/KYC steps and add to the first-visit
   // interruption stack. Nav chrome (hamburger/sidebar) still only hides on the
   // wizard route itself.
-  const { onboardingActive } = useSetupProgress();
+  const setupProgress = useSetupProgress();
+  const { onboardingActive } = setupProgress;
   const inSetup = isOnboarding || onboardingActive;
   // Show wallet warning only once the account exists (wallet depends on it)
   const showWalletWarning = walletWarning && hasAccount && !inSetup;
@@ -105,18 +106,14 @@ const NewHeader = () => {
   };
 
   // Sanctioned exit from the guided wizard. Progress is saved as each step
-  // completes, so this just returns to the dashboard and snoozes the auto-open
-  // redirect (same contract as the wizard's in-body "Do this later").
-  const handleSaveExit = useCallback(() => {
-    if (typeof window !== "undefined") {
-      window.sessionStorage.setItem(GS_AUTO_OPEN_KEY, "1");
-      try { window.localStorage.setItem(GS_LATER_COOLDOWN_KEY, String(Date.now() + GS_LATER_COOLDOWN_MS)); } catch { /* noop */ }
-    }
-    trackOnboarding({ event_type: "dismissed", step_key: "company", metadata: { surface: "wizard_header_save_exit" } });
-    router.push("/dashboard");
-  }, [router]);
+  // completes, so leaving means SIGNING OUT (after a confirm) — the next login
+  // resumes the wizard on the first unfinished step. The in-wizard "Do this
+  // later" remains the soft escape to the dashboard hero.
+  const [saveExitOpen, setSaveExitOpen] = useState(false);
+  const handleSaveExit = useCallback(() => setSaveExitOpen(true), []);
   return (
     <HeaderContainer>
+      {isOnboarding && <SaveExitDialog open={saveExitOpen} onClose={() => setSaveExitOpen(false)} progress={setupProgress} />}
       <Box sx={{ display: "flex", alignItems: "center" }}>
         {/* Mobile/tablet hamburger — top-left, opens full nav drawer (Coinbase pattern).
             Hidden during the focused first-run wizard so it can't reopen the nav mid-setup. */}

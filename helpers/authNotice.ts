@@ -6,7 +6,7 @@
 
 export const AUTH_NOTICE_KEY = "dp_auth_notice";
 
-export type AuthNotice = "session_expired" | "reset_invalid";
+export type AuthNotice = "session_expired" | "reset_invalid" | "setup_saved";
 
 export const setAuthNotice = (notice: AuthNotice): void => {
   try {
