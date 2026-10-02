@@ -1,0 +1,25 @@
+{
+  "summary": "Frontend-only verification of the /get-started focus-mode header. All 7 acceptance criteria PASS. QA 221 (fresh brand, email 2FA) logged in via real UI (email + preview_otp) and landed on /get-started?step=payouts with gs-wizard rendered. On the wizard: header-global-search=0, header-notifications-bell=0, company-selector-trigger=0, create-new=0, mobile-hamburger-toggle=0 (all ABSENT as expected). user-menu-trigger=1 present. Pressing Control+K and Meta+K did NOT open command-palette (count stayed 0, listener correctly removed with the unmounted GlobalSearchButton). Clicking the brand logo (.logo image / app-brand-mark div) kept the URL on /get-started?step=payouts (no navigation to /dashboard). Opening user-menu-trigger shows user-menu with ONLY: Dark mode, Language, Logout — user-menu-settings=0, user-menu-creator=0, user-menu-setup-warning=0, user-menu-theme-toggle=1 all correct. NOTE: the logout control's visible text is 'Logout' (one word) not 'Log out' — minor label mismatch vs the request spec, functionally fine; clicking it signs the user out and redirects to /auth/login. Mobile 390x844 on /get-started shows only the brand logo + QM avatar in the header and horizontal scrollWidth-clientWidth=0 (no overflow). REGRESSION on owner (user 1, company 1 'The Dev Store') /dashboard: full header restored — header-global-search=1, header-notifications-bell=1, company-selector-trigger=1, user-menu-settings=1 (also 'View my creator page' and 'Finish your business profile' setup-warning present), confirming focus-mode is scoped to /get-started ONLY and the dashboard header is untouched. No writes made to the live prod DB.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/get-started focus-mode user-menu", "issues": ["Logout button text is 'Logout' (one word) — the review-request spec said text 'Log out'/'Logout'. Both are acceptable per spec; flagging for consistency with the rest of the app if 'Log out' is intended."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Focus-mode gate is driven by router.pathname==='/get-started'. Consider adding a startsWith check (e.g., router.pathname === '/get-started' || router.pathname.startsWith('/get-started/')) if any sub-routes get added later, so the lock stays consistent.",
+    "GlobalSearchButton owns the ⌘K keyboard listener and unmounting it removes the shortcut — clean. If the shortcut ever needs to be registered elsewhere, this coupling should be documented."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped per request)", "frontend": "100% (7/7 scenarios PASS: focus-mode gates, ⌘K/Ctrl+K disabled, logo non-navigating, minimal account menu, logout, owner /dashboard regression full header, mobile 390 spot-check)"},
+  "test_credentials": "QA 221 = qa_minorder_p1b@example.com / QaMinOrder123@ (email 2FA, preview_otp in /api/user/login response). Owner = onarrival21@gmail.com / Katiekendra123@ (TOTP via node /app/backend/scripts/print_totp.cjs 1).",
+  "seed_data_creation": "None. No writes to prod DB.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "The /get-started focus-mode header behaviour is now stable and matches spec. QA 221 lands on step=payouts (payout address is the first incomplete artefact). Logout button label is 'Logout' (one word), not 'Log out'. For UI logout detection use page.get_by_text('Logout', exact=False) or add a dedicated data-testid like user-menu-logout for easier targeting in future tests.",
+  "rca of the issue": "N/A — no bugs found. The feature works end-to-end on both desktop (1920) and mobile (390), and the regression test confirms the full header is intact everywhere else."
+}
