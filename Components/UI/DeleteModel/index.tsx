@@ -85,6 +85,7 @@ const DeleteModel = ({
               size="medium"
               label={t("actions.cancel")}
               onClick={onClose}
+              data-testid="delete-modal-cancel"
               sx={{
                 flex: 1,
                 [theme.breakpoints.down("sm")]: {
@@ -98,6 +99,7 @@ const DeleteModel = ({
               size="medium"
               label={t("delete.confirmButton")}
               onClick={onConfirm}
+              data-testid="delete-modal-confirm"
               sx={{
                 flex: 1,
                 [theme.breakpoints.down("sm")]: {
