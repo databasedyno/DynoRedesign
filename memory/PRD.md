@@ -2,6 +2,21 @@
 # >>> Pending now: P0 OWNER ACTION fund POL gas wallet 0x6508f517021b3fe14acb4515535b6772b0669f47 (≥10 POL) + Save to GitHub + deploy · P1 SMADAV ETH email-bounce prod verification · P1 Buy-Buttons-on-Keys-tab product decision · P2 tech-debt sweep · P2 guided live-test checklist for the 9 unproven chains (user said "not now").
 
 
+# === 2026-06 (fork, pt11) — CONSOLE REDESIGN Phase 2 (Wallet / Payouts / Invoices / Keys): AUDIT + redesign off-system bits — DONE & VERIFIED (testing_agent iteration_258: /invoices 100% on desktop; mobile/dark inconclusive ONLY due to Cloudflare rate-limit, not code) ===
+# USER item 3: audit the 4 Phase-2 pages and redesign only the off-system bits (KPI bands→SummaryStrip, toolbars→FilterBar, drawers→DetailSlideOver).
+# AUDIT RESULT (3 of 4 already on-system — NO code change, would regress):
+#   - PAYOUTS (Components/Page/Payouts): already CB_TOKENS + shared StatCard (v2026/styled) with rich bespoke money tiles (asset-breakdown bars, auto-convert toggle, captions). Generic SummaryStrip would strip those → regression. Range bar = TxRangePresets (specialized). Left as-is.
+#   - WALLET (Components/Page/Wallet): already CB_TOKENS + PanelCard rich cards (address reveal/copy, shared-address tags, network chips, ownership, total-processed, last-forward, actions) + WalletTotalHero + CoverageStrip + WalletSecurityStrip. No clean kit swap. Left as-is.
+#   - KEYS (pages/developer-keys → Components/Page/API/*): tab shell (OverflowTabs) + DeveloperHealthStrip (CB_TOKENS + dot-tone status cards + action links) + ApiKeysPage (rich key cards). Already on-system. Left as-is.
+# REDESIGNED — INVOICES (pages/invoices.tsx), behaviour + testids preserved:
+#   - Tax-Report tab's 3 bordered "Summary Cards" → <ConsoleSummaryStrip testid="tax-summary-strip"> (tiles tax-stat-revenue/-collected/-invoices). Dropped the per-card green/gold value colors for the calm uniform-ink console look (on-spec: color reserved for primary action).
+#   - Invoices-list search TextField → <ConsoleFilterBar testid="invoices-filter-bar" search={{testid:"invoices-search-input"}}>.
+#   - LEFT AS-IS: InvoicePreviewDrawer (full-bleed PDF viewer, 560/640px, edge-to-edge iframe — NOT a data panel, so the padded 480px DetailSlideOver would hurt it); invoices month-grouping + sticky col + edge fades; TextField/InputAdornment imports now unused (harmless, no noUnusedLocals).
+# OPS: tsc=0; FE production build rebuilt (.next-prod-new → swap → restart; .next-prod-old removed). UNCOMMITTED → user "Save to GitHub".
+# INFRA NOTE (not a code bug, flagged by QA): the preview is behind Cloudflare which 429s /_next/* chunks on back-to-back heavy navigations → ChunkLoadError / DynamicFallback error state. Affects testability AND real UX when a user hops several pages fast. Consider warming/retrying the chunk loader or raising CF allowance for /_next/*.
+# CONSOLE REDESIGN STATUS: Phase 1 (Dashboard/Transactions/Pay-links/Customers) ✅ + Phase-1 polish (unified slide-overs + tx date grouping) ✅ + Phase 2 (Wallet/Payouts/Invoices/Keys) ✅. Remaining (Phase 3 backlog): Admin suite redesign, Command palette (⌘K), bulk row actions.
+# ============================================================================================
+
 # === 2026-06 (fork, pt10) — CONSOLE REDESIGN Phase-1 polish: UNIFIED SLIDE-OVERS + TRANSACTION DATE GROUPING — DONE & VERIFIED (testing_agent iteration_257: 100% of feature checks, desktop+mobile, light+dark, 0 app console errors) ===
 # USER picked 3 next items (approved defaults 1a/2a/3a): (1) unify the 3 detail panels onto one DetailSlideOver (FULL chrome adoption), (2) add Today/Yesterday/This week/This month/Earlier date bands to Transactions (only when sorted by date; desktop+mobile), (3) THEN audit Phase-2 pages.
 # (1) UNIFIED SLIDE-OVERS: enhanced Components/Console/DetailSlideOver.tsx with `headerAccessory` + `closeTestid` props and made the header title/subtitle `component="div"` (so interactive children like the copy-email button are valid DOM). Routed all three bespoke right-Drawers through it, width=480, preserving every testid:
