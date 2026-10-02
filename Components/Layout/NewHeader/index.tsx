@@ -1,6 +1,7 @@
 import useOnboardingStatus from "@/hooks/useOnboardingStatus";
 import useAccountProfile from "@/hooks/useAccountProfile";
-import { useSetupProgress } from "@/Components/Page/GetStarted/useSetupProgress";
+import { useSetupProgress, GS_AUTO_OPEN_KEY, GS_LATER_COOLDOWN_KEY, GS_LATER_COOLDOWN_MS } from "@/Components/Page/GetStarted/useSetupProgress";
+import { trackOnboarding } from "@/utils/trackOnboarding";
 import Logo from "@/assets/Icons/home/dynopay-blackLogo.svg";
 import LogoDark from "@/assets/Icons/home/dynopay-whiteLogo.svg";
 import DynopayMark from "@/assets/Icons/Logo";
@@ -102,6 +103,18 @@ const NewHeader = () => {
   const handleKycClick = () => {
     router.push("/kyc");
   };
+
+  // Sanctioned exit from the guided wizard. Progress is saved as each step
+  // completes, so this just returns to the dashboard and snoozes the auto-open
+  // redirect (same contract as the wizard's in-body "Do this later").
+  const handleSaveExit = useCallback(() => {
+    if (typeof window !== "undefined") {
+      window.sessionStorage.setItem(GS_AUTO_OPEN_KEY, "1");
+      try { window.localStorage.setItem(GS_LATER_COOLDOWN_KEY, String(Date.now() + GS_LATER_COOLDOWN_MS)); } catch { /* noop */ }
+    }
+    trackOnboarding({ event_type: "dismissed", step_key: "company", metadata: { surface: "wizard_header_save_exit" } });
+    router.push("/dashboard");
+  }, [router]);
   return (
     <HeaderContainer>
       <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -183,6 +196,52 @@ const NewHeader = () => {
             style={{ width: "auto", height: "30px" }}
           />
         </Box>
+
+        {/* Sanctioned exit from the guided wizard — now that the stray escape
+            hatches (search, bell, settings, company switcher) are hidden, this
+            makes leaving obvious without trapping the user. Sits next to the
+            brand on every breakpoint. */}
+        {isOnboarding && (
+          <Box
+            component="button"
+            type="button"
+            data-testid="wizard-save-exit"
+            onClick={handleSaveExit}
+            aria-label={t("dashboardLayout:gs.saveExit", { defaultValue: "Save & exit setup" })}
+            sx={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 0.75,
+              ml: { xs: 1, sm: 1.5, lg: 2 },
+              height: 36,
+              px: 1.5,
+              borderRadius: 999,
+              cursor: "pointer",
+              border: `1px solid ${muiTheme.palette.mode === "dark" ? "rgba(255,255,255,0.14)" : "rgba(18,18,20,0.16)"}`,
+              background: "transparent",
+              color: muiTheme.palette.text.secondary,
+              fontFamily: "var(--font-sans)",
+              fontSize: 13,
+              fontWeight: 600,
+              whiteSpace: "nowrap",
+              transition: "background-color 160ms ease, color 160ms ease, border-color 160ms ease",
+              "&:hover": {
+                color: muiTheme.palette.text.primary,
+                borderColor: muiTheme.palette.mode === "dark" ? "rgba(255,255,255,0.24)" : "rgba(18,18,20,0.28)",
+                backgroundColor: muiTheme.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(10,10,15,0.04)",
+              },
+              "&:focus-visible": { outline: `2px solid ${muiTheme.palette.text.secondary}`, outlineOffset: 2 },
+            }}
+          >
+            <CloseRounded sx={{ fontSize: 16 }} />
+            <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
+              {t("dashboardLayout:gs.saveExit", { defaultValue: "Save & exit setup" })}
+            </Box>
+            <Box component="span" sx={{ display: { xs: "inline", sm: "none" } }}>
+              {t("dashboardLayout:gs.saveExitShort", { defaultValue: "Save & exit" })}
+            </Box>
+          </Box>
+        )}
       </Box>
 
       <MainContainer>
