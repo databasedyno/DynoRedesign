@@ -1,177 +1,226 @@
 {
-  "project_name": "Dynopay Creator, Tip & Public Storefront Redesign",
-  "archetype": "THE PERFORMANCE PRO / EDITORIAL FUTURE",
-  "theme": "hybrid_merchant_driven",
-  "overview": "A top 1% design system and visual blueprint for Dynopay public surfaces (Creator profile /{handle}, Tip & Support Widget flow, Public Shop /{handle}/shop, and Product Detail /{handle}/p/[slug]). Designed to break generic SaaS tropes through an editorial 2-column layout, rich tactile glassmorphism, dynamic merchant theme reactivity, and ultra-crisp crypto checkout UX.",
-  "visual_direction": {
-    "desktop_layout_choice": "EDITORIAL TWO-COLUMN SPLIT WITH STICKY IDENTITY RAIL",
-    "justification": "Single-column stacked layouts hide storefront products and payment links below dense support widgets. An editorial 2-column split (380px sticky identity rail on the left, 1fr flexible action stack on the right) keeps creator identity, verification badge, bio, and quick tip action visible at all times while allowing buyers to seamlessly scroll through storefront products, donation campaigns, and payment links.",
-    "grid_and_breakpoints": {
-      "max_width": "1200px",
-      "desktop_lg": "lg:grid-cols-[380px_1fr] gap-8 (>=1024px)",
-      "tablet_md": "md:grid-cols-1 gap-6 (<1024px, collapses to single column with sticky identity at top)",
-      "mobile_sm": "grid-cols-1 gap-4 (<640px, full-width cards, 390px mobile optimized)"
-    },
-    "cover_banner_treatment": {
-      "height_desktop": "260px",
-      "height_mobile": "180px",
-      "bleed_mode": "Full-bleed hero banner at page top with 24px rounded bottom corners on desktop, gradient scrim fading into canvas base, and soft radial ambient accent bleed behind content column."
-    }
-  },
-  "theme_system": {
-    "brand_constants": {
-      "dynopay_gold": "#FFD100",
-      "dynopay_gold_on_accent_ink": "#121214",
-      "dynopay_gold_deep_text": "#8B5E00",
-      "aqua_micro_accent": "#2BD4C4",
-      "dark_canvas": "#0A0A0D",
-      "dark_surface": "#121216",
-      "dark_card": "#18181F",
-      "light_canvas": "#F5F7FA",
-      "light_surface": "#FFFFFF",
-      "light_card": "#FFFFFF"
-    },
-    "merchant_theme_rules": {
-      "accent_color": "Merchant configured hex (defaults to Dynopay Gold #FFD100 or Aurora Indigo). Used for avatar rings, live indicator dots, progress bar gradients, chip active states, and active link borders.",
-      "cover_styles": [
-        "solid (Aurora Indigo or Tinted Ink radial glow)",
-        "gradient (Editorial multi-stop blends: Sunset, Ocean, Forest, Twilight, Midnight, Candy)",
-        "image (Uploaded high-res banner with linear scrim gradient)",
-        "pattern (Dot grid matrix on accent tint)"
-      ],
-      "contrast_guard": "All text sitting directly on solid merchant accents MUST pass readableOn(hex) logic: light accents (luminance > 0.6) use near-black ink #121214 text; dark accents use pure white #FFFFFF text.",
-      "primary_cta_hierarchy": "Only ONE primary gradient button per viewport. When Support Widget is active, its CTA uses the primary gradient; secondary links or featured campaigns adopt an outlined glass border style with hover accent glow."
-    }
-  },
   "typography": {
-    "fonts": {
-      "display_font": "Unbounded (--font-hero)",
-      "body_font": "Inter (--font-sans)",
-      "tech_mono_font": "JetBrains Mono / IBM Plex Mono (--font-mono)"
+    "font_families": {
+      "headings": "Manrope, sans-serif",
+      "body": "'IBM Plex Sans', sans-serif",
+      "mono": "'IBM Plex Mono', monospace"
     },
     "scale": {
-      "creator_name": "text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight (--font-hero)",
-      "section_heading": "text-xl sm:text-2xl font-bold tracking-tight (--font-hero)",
-      "card_title": "text-lg sm:text-xl font-bold tracking-tight",
-      "price_amount": "text-2xl sm:text-3xl font-extrabold tabular-nums (--font-mono)",
-      "handle_pill": "text-xs sm:text-sm font-semibold tracking-wide uppercase (--font-mono)",
-      "body_regular": "text-sm sm:text-base font-normal leading-relaxed",
-      "caption_micro": "text-xs font-medium text-secondary"
-    }
-  },
-  "component_specs": {
-    "hero_and_identity": {
-      "avatar": "112px desktop / 96px mobile, rounded-full with 3.5px multi-stop gradient border ring (accent -> gold -> blue), 16px soft shadow, overlapping cover bottom edge by -56px.",
-      "verified_badge": "20px crisp blue/gold SVG shield badge positioned adjacent to name with hover tooltip.",
-      "share_header_button": "36px circular glass pill with share icon, triggering native share drawer on mobile or instant clipboard copy on desktop with spring checkmark animation.",
-      "social_row": "Floating pill row with 42px circular glass buttons for X, Instagram, YouTube, TikTok, Telegram, Facebook, and Personal Website."
+      "kpi_number": {
+        "size": "32px",
+        "weight": "400",
+        "line_height": "1.2",
+        "letter_spacing": "-0.02em",
+        "features": "tnum"
+      },
+      "page_title": {
+        "size": "24px",
+        "weight": "500",
+        "line_height": "1.3",
+        "letter_spacing": "-0.01em"
+      },
+      "title": {
+        "size": "18px",
+        "weight": "500",
+        "line_height": "1.4",
+        "letter_spacing": "0"
+      },
+      "body": {
+        "size": "14px",
+        "weight": "400",
+        "line_height": "1.5",
+        "letter_spacing": "0"
+      },
+      "table_cell": {
+        "size": "13px",
+        "weight": "400",
+        "line_height": "1.5",
+        "letter_spacing": "0",
+        "features": "tnum"
+      },
+      "caption": {
+        "size": "12px",
+        "weight": "500",
+        "line_height": "1.4",
+        "letter_spacing": "0"
+      },
+      "eyebrow": {
+        "size": "11px",
+        "weight": "600",
+        "line_height": "1.4",
+        "letter_spacing": "0.05em",
+        "text_transform": "uppercase"
+      }
     },
-    "support_widget_card": {
-      "container": "3D Glassmorphic card with backdrop-blur-2xl, 1px subtle white/10 inner border, and soft radial top accent glow.",
-      "header": "44px gradient icon box (coffee / tip / support icon) + Unbounded header + thanks message subtitle.",
-      "preset_chips": "Grid of monetary pills ($10, $25, $50, $100 + Custom). Active chip transforms with gold gradient fill, deep shadow, and -2px Y elevation.",
-      "inputs": "Tactile 12px rounded input fields with focus ring in accent color, character counters, and progressive 'Add receipt email' expander.",
-      "goal_bar": "Animated progress tube showing monthly tips raised vs goal with glow tail.",
-      "supporter_wall": "Live feed of recent supporters with initial avatar tiles, donor names, crypto amounts, time ago, and donor notes."
-    },
-    "inline_checkout_phases": {
-      "coin_selection": "Grid of 2-col or 3-col interactive crypto tiles featuring official coin SVG icons (BTC, ETH, USDT-TRC20, USDC, SOL, XRP, BNB), real-time FX rate badge, and network label.",
-      "awaiting_payment": "176px white QR code panel with tap-to-copy feedback, truncated address bar with copy icon button, reservation countdown bar, and CheckoutStatusTimeline stream.",
-      "confirmed_state": "Confetti particle burst, 'Thank you!' heading, PDF receipt download button, and a canvas-rendered 1080x1080 'TipThankYouCard' with one-click PNG download & social share buttons."
-    },
-    "storefront_and_shop": {
-      "shop_hero": "CRITICAL FIX: Uses the exact same merchant theme (cover gradient/image + accent color) as the profile page for 1:1 brand consistency instead of random hash hue.",
-      "product_card": "16:10 aspect ratio cover image with hover scale (1.04x), sold count pill, category chip, price in Unbounded font, and 'Buy now' pill CTA.",
-      "featured_product_card": "Spans 2 columns on desktop grid with side-by-side wide layout, gold 'Featured' ribbon, and expanded description preview.",
-      "shop_toolbar": "Type filter chips (All / Digital / Physical / Service), category dropdown, search box, and sort menu."
-    },
-    "product_detail_page": {
-      "layout": "2-column product split (1:1 square media gallery on left; sticky buy-box on right).",
-      "gallery": "Square main display + horizontal thumbnail strip with active border indicator.",
-      "buy_box": "Title, category tag, large price display, variant selector dropdown, quantity stepper (+/- buttons with 44px touch targets or 'One-off service' pill), $10 minimum order notice banner, Add to Cart button, and Buy Now primary CTA.",
-      "trust_reassurance_strip": "Horizontal trust badge row: '⚡ Instant Crypto Payment', '🔒 Non-Custodial Direct', '📄 PDF Tax Receipt'.",
-      "description": "Rendered markdown block with styled headings, code snippets, blockquotes, and lists.",
-      "mobile_sticky_bar": "Fixed bottom bar on mobile viewports with product title, total price, and instant 'Buy Now' button."
-    }
-  },
-  "depth_texture_system": {
-    "glassmorphism": {
-      "dark_mode": "bg-[#121216]/80 backdrop-blur-xl border border-white/10 shadow-[0_24px_60px_rgba(0,0,0,0.5)]",
-      "light_mode": "bg-white/85 backdrop-blur-xl border border-black/5 shadow-[0_20px_50px_rgba(139,94,0,0.08)]"
-    },
-    "micro_interactions": {
-      "hover_elevation": "transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease. On hover: translateY(-2px).",
-      "press_state": "active: translateY(0px) scale(0.98)",
-      "forbidden_transition": "NEVER use transition: all. Explicitly specify target CSS properties."
-    },
-    "entrance_animations": {
-      "stagger_delay": "Page components stagger enter with 60ms delay (opacity 0 -> 1, translateY 12px -> 0px over 450ms cubic-bezier(0.22, 1, 0.36, 1))."
-    }
-  },
-  "accessibility_rules": {
-    "touch_targets": "All interactive elements, buttons, and input fields MUST have minimum height/width of 44px on touch devices.",
-    "contrast_standards": "Text contrast must meet APCA / WCAG AA standards (minimum 4.5:1 ratio). All hover states explicitly define text color.",
-    "keyboard_focus": "Visible focus ring (2px accent outline with 2px offset) on all focusable elements.",
-    "reduced_motion": "Respect prefers-reduced-motion media query by disabling transform animations and instant state switches."
-  },
-  "priority_implementation_order": [
-    {
-      "step": 1,
-      "task": "Adopt 2-Column Desktop Grid for CreatorProfile",
-      "files": ["Components/Page/Creator/CreatorProfile.tsx"],
-      "impact": "High visual lift — fixes vertical scrolling fatigue and makes shop products visible alongside identity rail."
-    },
-    {
-      "step": 2,
-      "task": "Unify ShopHero Merchant Theme with Creator Page Theme",
-      "files": ["Components/Page/Shop/ShopHero.tsx", "Components/Page/Shop/ShopClient.tsx"],
-      "impact": "High brand consistency — removes hardcoded hue math and reflects merchant custom cover/accent."
-    },
-    {
-      "step": 3,
-      "task": "Polish SupportWidget & Inline Checkout Surfaces",
-      "files": ["Components/Page/Creator/SupportWidget.tsx", "Components/Page/Creator/InlineTipCheckout.tsx"],
-      "impact": "Higher conversion — glassmorphic preset chips, tactile inputs, QR copy feedback, and thank-you card rendering."
-    },
-    {
-      "step": 4,
-      "task": "Enhance Product Detail Page (/{handle}/p/[slug])",
-      "files": ["pages/[handle]/p/[slug].tsx"],
-      "impact": "E-commerce trust — gallery thumbnails, sticky mobile buy bar, $10 floor alert, and reassurance strip."
-    },
-    {
-      "step": 5,
-      "task": "Product Card & Storefront Grid Polish",
-      "files": ["Components/Page/Shop/ProductCard.tsx", "Components/Page/Shop/ShopToolbar.tsx"],
-      "impact": "Refined browsing experience with smooth card hover states, sold badges, and category filtering."
-    }
-  ],
-  "exact_files_to_modify": [
-    "Components/Page/Creator/CreatorProfile.tsx",
-    "Components/Page/Creator/SupportWidget.tsx",
-    "Components/Page/Creator/InlineTipCheckout.tsx",
-    "Components/Page/Creator/CreatorShopSection.tsx",
-    "Components/Page/Shop/ShopClient.tsx",
-    "Components/Page/Shop/ShopHero.tsx",
-    "Components/Page/Shop/ShopToolbar.tsx",
-    "Components/Page/Shop/ProductCard.tsx",
-    "pages/[handle]/p/[slug].tsx"
-  ],
-  "curated_image_urls": {
-    "product_fallbacks": [
-      "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80"
-    ],
-    "creator_covers": [
-      "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1600&auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1600&auto=format&fit=crop&q=80"
+    "rules": [
+      "Use tabular numerals (tnum) for all financial figures, amounts, and dates so columns align perfectly.",
+      "Reserve IBM Plex Mono strictly for IDs, hashes, and wallet addresses. DO NOT use it for regular amounts.",
+      "Unbounded is strictly FORBIDDEN in the in-app chrome. Stick to Manrope for headings."
     ]
   },
-  "GENERAL UI UX DESIGN GUIDELINES": {
-    "data_testid_convention": "All interactive elements, buttons, links, inputs, cards, and modal dialogs MUST have unique kebab-case data-testid attributes (e.g. data-testid='creator-support-submit', data-testid='product-buy-now-btn').",
-    "no_transparent_overlays": "Never use pure transparent backgrounds on headers, dropdowns, or sticky mobile bars. Always use glassmorphism with backdrop-blur (12-24px blur) or solid tinted surfaces.",
-    "spacing_philosophy": "Use generous spacing (p-6, p-8, gap-6) inside containers with borders to prevent text collision.",
-    "typography_anti_patterns": "Never use Inter for primary headings; use Unbounded (--font-hero). Use JetBrains Mono / IBM Plex Mono for prices, crypto handles, and amounts."
+  "colors": {
+    "dark": {
+      "canvas": "#131312",
+      "surface": "#1A1A19",
+      "raised_card": "#222221",
+      "border_hairline": "rgba(255, 255, 255, 0.06)",
+      "border_strong": "rgba(255, 255, 255, 0.15)",
+      "ink_primary": "#F2F2F0",
+      "ink_secondary": "#A3A3A0",
+      "ink_muted": "#70706E",
+      "accent": "#FFD100",
+      "on_accent": "#1A1A19",
+      "semantic": {
+        "success_bg": "#1C3325",
+        "success_text": "#4ADE80",
+        "warning_bg": "#332B14",
+        "warning_text": "#FBBF24",
+        "error_bg": "#331C1C",
+        "error_text": "#F87171",
+        "info_bg": "#1C2633",
+        "info_text": "#60A5FA"
+      }
+    },
+    "light": {
+      "canvas": "#F9F9F8",
+      "surface": "#FFFFFF",
+      "raised_card": "#FFFFFF",
+      "border_hairline": "rgba(0, 0, 0, 0.08)",
+      "border_strong": "rgba(0, 0, 0, 0.15)",
+      "ink_primary": "#1A1A19",
+      "ink_secondary": "#666664",
+      "ink_muted": "#999996",
+      "accent": "#FFD100",
+      "on_accent": "#1A1A19",
+      "semantic": {
+        "success_bg": "#E8F5E9",
+        "success_text": "#2E7D32",
+        "warning_bg": "#FFF8E1",
+        "warning_text": "#F57F17",
+        "error_bg": "#FFEBEE",
+        "error_text": "#C62828",
+        "info_bg": "#E3F2FD",
+        "info_text": "#1565C0"
+      }
+    }
+  },
+  "visual_enhancers": {
+    "depth": {
+      "shadows": {
+        "soft": "0 2px 8px rgba(0, 0, 0, 0.04)",
+        "medium": "0 8px 24px rgba(0, 0, 0, 0.08)",
+        "slide_over": "-8px 0 32px rgba(0, 0, 0, 0.12)"
+      }
+    },
+    "radii": {
+      "sm": "6px",
+      "md": "8px",
+      "lg": "12px",
+      "xl": "16px",
+      "full": "9999px"
+    },
+    "glass": {
+      "rule": "Reserved ONLY for sticky bars (top nav, filter bars) and overlays. Do not spray across normal cards.",
+      "css": "backdrop-filter: blur(12px); background: rgba(var(--surface-rgb), 0.7);"
+    }
+  },
+  "grids_and_spacing": {
+    "scale": {
+      "xs": "4px",
+      "sm": "8px",
+      "md": "16px",
+      "lg": "24px",
+      "xl": "32px",
+      "2xl": "48px"
+    },
+    "layout": {
+      "nav_rail_width": "240px",
+      "nav_rail_collapsed_width": "72px",
+      "top_bar_height": "64px",
+      "content_max_width": "1200px"
+    }
+  },
+  "motion": {
+    "duration": {
+      "fast": "150ms",
+      "normal": "200ms",
+      "slide": "300ms"
+    },
+    "easing": {
+      "default": "cubic-bezier(0.4, 0, 0.2, 1)",
+      "slide": "cubic-bezier(0.32, 0.72, 0, 1)"
+    },
+    "rules": [
+      "Motion should be fast and functional. Avoid bouncy or springy animations.",
+      "Use slide-overs for details, sliding in from the right.",
+      "Hover states on table rows should be a gentle, quick transition of background color."
+    ]
+  },
+  "components": {
+    "AppChrome": {
+      "nav_rail": "Quieter left navigation rail. Dark mode uses canvas color, Light mode uses canvas color. Active states highlighted subtly. No loud backgrounds.",
+      "top_bar": "Cleaner top bar with sticky glassmorphism. Contains breadcrumbs or simple title, plus user/brand actions.",
+      "brand_switcher": "Refined company switcher. This is the ONLY place where a merchant's custom accent color should appear (as an avatar/identicon).",
+      "theme_density_toggles": "Subtle icon buttons in the nav rail or top bar footer."
+    },
+    "PageHeader": {
+      "structure": "Title (text-2xl), Context line/subtitle below it (text-sm, ink-secondary), Primary action button right-aligned.",
+      "padding": "py-6 px-8",
+      "data-testid": "page-header"
+    },
+    "SummaryStrip": {
+      "structure": "Small band of key figures. Horizontal flex or grid of 3-4 tiles.",
+      "tile_anatomy": "Caption/Eyebrow label (text-xs, ink-secondary), KPI Number (text-4xl, tabular nums, ink-primary).",
+      "styling": "No heavy borders, minimal separators between tiles. Airy and confident.",
+      "data-testid": "summary-strip"
+    },
+    "DataTable": {
+      "structure": "Financial-statement style. Pinned header, airy rows.",
+      "grouping": "Group transactions by date (Today, Yesterday, This week). Date header rows should be subdued (ink-secondary, border-b hairline).",
+      "cell_anatomy": "Right-align all numbers. Use tnum. Distinct styling for balance vs amount (e.g., amount is ink-primary, balance is ink-muted).",
+      "hover": "Calm hover: bg-[rgba(255,255,255,0.03)] on dark, bg-[rgba(0,0,0,0.02)] on light. Cursor pointer.",
+      "data-testid": "data-table"
+    },
+    "SlideOver": {
+      "structure": "Opens from right. Width ~400px. Used for transaction timeline + details/actions.",
+      "styling": "Surface color background. Left shadow `-8px 0 32px rgba(0,0,0,0.12)`. Pinned header with close button.",
+      "data-testid": "detail-slide-over"
+    },
+    "StatusDot": {
+      "structure": "Low-chroma dot + label. Replacing loud solid chips.",
+      "styling": "Dot: 6px x 6px circle, colored by status. Text: 12px or 13px ink-secondary. Wrapper: flex, items-center, gap-2.",
+      "data-testid": "status-indicator"
+    },
+    "FilterBar": {
+      "structure": "Search input, Status dropdown, Date range picker.",
+      "styling": "Hairline borders, 8px radius. Background transparent or surface. Quiet and out of the way.",
+      "data-testid": "filter-bar"
+    }
+  },
+  "instructions_to_main_agent": {
+    "theme_integration": [
+      "The codebase uses MUI (sx/styled) and a token file at constants/theme.ts. Update the DARK and LIGHT objects in constants/theme.ts with the exact hex values provided in this JSON.",
+      "In styles/appTheme.ts (MUI createTheme overrides), map the semantic colors and typography scales to the MUI theme.",
+      "Use MUI's sx prop for spacing, applying the hairline borders and soft shadows defined here.",
+      "Since lucide-react is the icon library, replace any existing MUI icons or custom SVGs with Lucide icons (e.g., ChevronRight, Search, Activity, Users, Link)."
+    ],
+    "development_guidelines": [
+      "Do not build a thick, card-heavy UI. The UI should be almost flat, separated by hairline borders and whitespace, similar to Mercury.",
+      "Ensure all amounts use tabular numerals (fontVariantNumeric: 'tabular-nums' in sx).",
+      "Keep the Dynopay gold (#FFD100) strictly for the primary action button and key active states. Do not use it as a general highlight color.",
+      "Ensure the slide-over opens on row click, preserving the main list context.",
+      "Implement the 'Needs Attention' area using a subtle warning or info semantic style."
+    ]
+  },
+  "universal_guidelines": {
+    "rules": [
+      "NEVER use generic centered layouts. Content must be left-aligned for data readability.",
+      "NEVER use complete transparent background in headers, overlays, or surfaces with content underneath. Always use the specified glass rule or solid surface color.",
+      "ALWAYS include data-testid attributes (kebab-case, role-based) on all interactive elements (buttons, table rows, filter inputs, toggles).",
+      "Use generous spacing (p-6, p-8) between main structural elements to avoid a cramped spreadsheet look.",
+      "Transitions should target specific properties (e.g., background-color, transform) and NOT 'all'.",
+      "Data empty states should be graceful: a quiet icon, a subtle message in ink-secondary, and a clear action if applicable.",
+      "Skeletons must match the table row height and column widths perfectly."
+    ]
   }
 }

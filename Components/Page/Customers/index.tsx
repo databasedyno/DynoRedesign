@@ -13,7 +13,7 @@
  */
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { rowKeyProps } from "@/helpers/a11y";
-import { MONO } from "@/styles/uiKit";
+import { MONO, Icon } from "@/styles/uiKit";
 import { formatDateI18n } from "@/utils/formatDate";
 import { avatarGradient } from "@/helpers/avatarGradient";
 import React, { useEffect, useMemo, useState } from "react";
@@ -21,7 +21,6 @@ import {
   Box,
   Typography,
   TextField,
-  InputAdornment,
   Table,
   TableBody,
   TableCell,
@@ -44,7 +43,6 @@ import {
   DialogContent,
   DialogActions,
 } from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
 import useToast from "@/hooks/useToast";
 import CloseIcon from "@mui/icons-material/Close";
 import PeopleAltRounded from "@mui/icons-material/PeopleAltRounded";
@@ -82,6 +80,9 @@ import { CustomerWalletPanel } from "./CustomerWalletPanel";
 import BrandEscrowTotals from "./BrandEscrowTotals";
 import { useEdgeFades, EdgeFades } from "@/Components/Common/ScrollHint";
 import { toFixedStr } from "@/utils/money";
+import ConsoleSummaryStrip from "@/Components/Console/SummaryStrip";
+import ConsoleFilterBar from "@/Components/Console/FilterBar";
+import ConsoleEmptyState from "@/Components/Console/EmptyState";
 
 /* ------------------------------------------------------------------ types */
 
@@ -555,108 +556,28 @@ const CustomersPage: React.FC = () => {
   /* ============================================================ render */
   return (
     <Box sx={{ px: { xs: 2, md: 0 }, py: { xs: 1, md: 0 } }}>
-      {/* Stats — 2×2 on phones, 4-up from sm */}
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: { xs: "repeat(2, 1fr)", md: "repeat(4, 1fr)" },
-          gap: { xs: "10px", md: "16px" },
-          mb: { xs: 2, md: 3 },
-        }}
-      >
-        {statCards.map((card) => (
-          <Box
-            key={card.id}
-            data-testid={`customers-stat-${card.id}`}
-            sx={{
-              bgcolor: cardBg,
-              border: `1px solid ${cardBorder}`,
-              borderRadius: "14px",
-              p: { xs: "12px 14px", md: "18px 22px" },
-              display: "flex",
-              flexDirection: "column",
-              gap: { xs: "6px", md: "10px" },
-              minWidth: 0,
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
-              <Typography sx={{ ...eyebrowSx, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                {card.label}
-              </Typography>
-              <Box
-                sx={{
-                  width: 28,
-                  height: 28,
-                  borderRadius: "8px",
-                  bgcolor: softBg,
-                  display: { xs: "none", md: "flex" },
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: theme.palette.text.secondary,
-                  flexShrink: 0,
-                }}
-              >
-                {card.icon}
-              </Box>
-            </Box>
-            <Typography
-              className="tabular-nums"
-              sx={{
-                fontSize: { xs: "20px", md: "clamp(17px, 1.9vw, 28px)" },
-                fontWeight: 700,
-                lineHeight: 1.15,
-                color: theme.palette.text.primary,
-                fontFamily: MONO,
-                fontVariantNumeric: "tabular-nums",
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-              }}
-            >
-              {loading ? <Skeleton width={70} /> : card.value}
-            </Typography>
-          </Box>
-        ))}
-      </Box>
+      {/* Stats — airy Console SummaryStrip (2×2 on phones, 4-up from sm) */}
+      <ConsoleSummaryStrip
+        testid="customers-summary-strip"
+        items={statCards.map((card) => ({
+          testid: `customers-stat-${card.id}`,
+          label: card.label,
+          value: loading ? <Skeleton width={64} /> : card.value,
+        }))}
+      />
 
       <BrandEscrowTotals companyId={selectedCompanyId} cardBorder={cardBorder} />
 
-      {/* Toolbar: search + sort + export */}
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          gap: 1.25,
-          mb: 1.5,
-          flexWrap: { xs: "wrap", sm: "nowrap" },
+      {/* Toolbar: search + sort + export — Console FilterBar */}
+      <ConsoleFilterBar
+        testid="customers-filter-bar"
+        search={{
+          value: search,
+          onChange: setSearch,
+          placeholder: t("customers.searchPlaceholder"),
+          testid: "customers-search-input",
         }}
       >
-        <TextField
-          placeholder={t("customers.searchPlaceholder")}
-          value={search}
-          size="small"
-          data-testid="customers-search-input"
-          onChange={(e) => setSearch(e.target.value)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon sx={{ fontSize: 19, color: theme.palette.text.secondary }} />
-              </InputAdornment>
-            ),
-          }}
-          sx={{
-            flexGrow: 1,
-            minWidth: { xs: "100%", sm: 220 },
-            maxWidth: { sm: 380 },
-            "& .MuiOutlinedInput-root": {
-              borderRadius: "10px",
-              bgcolor: cardBg,
-              ...sansSx,
-              fontSize: "14px",
-              "& fieldset": { borderColor: cardBorder },
-            },
-          }}
-        />
         <Select
           value={sort}
           size="small"
@@ -720,7 +641,7 @@ const CustomersPage: React.FC = () => {
             </IconButton>
           </span>
         </Tooltip>
-      </Box>
+      </ConsoleFilterBar>
 
       {/* Segment chips — horizontally scrollable on small screens */}
       <Box
@@ -1130,39 +1051,44 @@ const EmptyState: React.FC<{
   cardBg: string;
   cardBorder: string;
   onCreate: () => void;
-}> = ({ search, segment, t, theme, cardBg, cardBorder, onCreate }) => (
-  <Box
-    sx={{
-      p: 4,
-      borderRadius: "12px",
-      border: cardBorder === "transparent" ? 0 : `1px solid ${cardBorder}`,
-      bgcolor: cardBg,
-      textAlign: "center",
-    }}
-    data-testid="customers-empty-state"
-  >
-    <Typography sx={{ fontWeight: 600, color: theme.palette.text.primary, fontFamily: "var(--font-sans)", mb: 0.5 }}>
-      {search
-        ? t("customers.noCustomersSearch")
-        : segment !== "all"
-          ? t("customers.noCustomersSegment", { defaultValue: "No customers in this segment yet" })
-          : t("customers.noCustomersTitle")}
-    </Typography>
-    <Typography sx={{ fontSize: "13px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}>
-      {!search && segment === "all" && t("customers.noCustomersHint", { defaultValue: "Customers appear here automatically when someone pays a link, buys from your store, tips or donates." })}
-    </Typography>
-    {!search && segment === "all" && (
-      <Box sx={{ mt: 2, display: "flex", justifyContent: "center" }}>
-        <CustomButton
-          label={t("customers.noCustomersCtaCreate", { defaultValue: "Create a payment link" })}
-          variant="primary"
-          size="small"
-          onClick={onCreate}
-        />
-      </Box>
-    )}
-  </Box>
-);
+}> = ({ search, segment, t, cardBg, cardBorder, onCreate }) => {
+  const showCta = !search && segment === "all";
+  const title = search
+    ? t("customers.noCustomersSearch")
+    : segment !== "all"
+      ? t("customers.noCustomersSegment", { defaultValue: "No customers in this segment yet" })
+      : t("customers.noCustomersTitle");
+  return (
+    <Box
+      data-testid="customers-empty-state"
+      sx={{
+        borderRadius: "12px",
+        border: cardBorder === "transparent" ? 0 : `1px solid ${cardBorder}`,
+        bgcolor: cardBg,
+      }}
+    >
+      <ConsoleEmptyState
+        testid="customers-empty-inner"
+        icon={<Icon name="users" size={22} />}
+        title={title}
+        description={
+          showCta
+            ? t("customers.noCustomersHint", {
+                defaultValue:
+                  "Customers appear here automatically when someone pays a link, buys from your store, tips or donates.",
+              })
+            : undefined
+        }
+        action={
+          showCta
+            ? { label: t("customers.noCustomersCtaCreate", { defaultValue: "Create a payment link" }), onClick: onCreate }
+            : undefined
+        }
+        compact
+      />
+    </Box>
+  );
+};
 
 /* --------------------------------------------------------- detail panel */
 const DetailPanel: React.FC<{

@@ -93,73 +93,73 @@ export const WARNING_AMBER_LIGHT = "#FBBF24";
  * espresso raised → lighter espresso active. Gold fills + gold text accents.
  */
 export const DARK = {
-  canvas: BLACK,
-  surface: "#101014",
-  raised: ESPRESSO,
-  active: ESPRESSO_RAISED,
-  border: ESPRESSO_RAISED,
-  borderStrong: "#404347",
-  text: CREAM,
-  textSecondary: "#ADB1B8",
-  textMuted: "#81858C",
+  canvas: "#131312",
+  surface: "#1A1A19",
+  raised: "#222221",
+  active: "#2A2A28",
+  border: "#2B2B29",
+  borderStrong: "#3A3A37",
+  text: "#F2F2F0",
+  textSecondary: "#A3A3A0",
+  textMuted: "#70706E",
   /** Solid fills (buttons, active nav) — pairs with `BRAND_ON_ACCENT`. */
   accent: BRAND_ACCENT,
   accentHover: BRAND_ACCENT_HOVER,
   /** Brand-tinted TEXT / icons on dark surfaces (gold). */
   accentText: GOLD,
-  accentSoft: "rgba(255,209,0,0.14)",
+  accentSoft: "rgba(255,209,0,0.12)",
   success: "#4ADE80",
   warning: "#FBBF24",
   error: "#F87171",
-  /** Info = brown-neutral on dark (cream text, gold icon). */
-  info: "#ADB1B8",
+  /** Info = calm blue on dark (status only). */
+  info: "#60A5FA",
   /** Hairline light-tint borders. */
-  hairline: "rgba(255,255,255,0.08)",
-  hairlineStrong: "rgba(255,255,255,0.15)",
-  /** Elevation shadows for layered surfaces. */
-  shadowSoft: "0 2px 12px rgba(0,0,0,0.35)",
-  shadow: "0 6px 28px rgba(0,0,0,0.48)",
-  cardShadow: "0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06)",
-  cardShadowHover: "0 12px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.10), 0 0 48px rgba(255,209,0,0.08)",
-  /** Accent glow for focused inputs / primary CTAs / active elements. */
-  glowAccent: "0 0 40px rgba(255,209,0,0.14)",
-  glowAccentStrong: "0 0 24px rgba(255,209,0,0.36)",
-  glowSuccess: "0 0 16px rgba(74,222,128,0.32)",
-  focusRing: "0 0 0 3px rgba(255,209,0,0.40)",
-  /** Gradients — hero / primary surfaces only. */
+  hairline: "rgba(255,255,255,0.06)",
+  hairlineStrong: "rgba(255,255,255,0.12)",
+  /** Elevation shadows — soft + flat (the console relies on hairlines, not glow). */
+  shadowSoft: "0 1px 2px rgba(0,0,0,0.40)",
+  shadow: "0 8px 24px rgba(0,0,0,0.40)",
+  cardShadow: "0 1px 2px rgba(0,0,0,0.40)",
+  cardShadowHover: "0 4px 16px rgba(0,0,0,0.50)",
+  /** Accent glow for focused inputs / primary CTAs (used sparingly). */
+  glowAccent: "0 0 24px rgba(255,209,0,0.10)",
+  glowAccentStrong: "0 0 20px rgba(255,209,0,0.28)",
+  glowSuccess: "0 0 16px rgba(74,222,128,0.28)",
+  focusRing: "0 0 0 3px rgba(255,209,0,0.35)",
+  /** Gradients — hero / pulse surfaces only. */
   gradient: "linear-gradient(135deg, #FFD100 0%, #FFB300 100%)",
   gradientHover: "linear-gradient(135deg, #FFDA33 0%, #FFBE2E 100%)",
   gradientWarm: "linear-gradient(135deg, #F59E0B 0%, #F43F5E 100%)",
 } as const;
 
-/** Light-mode counterparts — cool neutral grounds, Bybit-black text. */
+/** Light-mode counterparts — warm off-white grounds, deep graphite text. */
 export const LIGHT = {
-  canvas: CREAM,
+  canvas: "#F9F9F8",
   surface: CARD,
-  raised: "#E9ECF0",
-  active: "#E1E5EA",
-  border: HAIRLINE,
-  borderStrong: "#D5DAE0",
-  text: INK,
-  textSecondary: "#6A6E73",
-  textMuted: "#81858C",
+  raised: "#F2F2F0",
+  active: "#ECECEA",
+  border: "#EAEAE7",
+  borderStrong: "#DCDCD8",
+  text: "#1A1A19",
+  textSecondary: "#666664",
+  textMuted: "#999996",
   accent: BRAND_ACCENT,
   accentHover: BRAND_ACCENT_HOVER,
   accentSoft: "#FFF6CC",
   success: "#15803D",
   warning: "#B45309",
   error: "#B91C1C",
-  /** Info = brown-neutral on light (deep gold icon). */
-  info: GOLD_DEEP,
+  /** Info = calm blue on light (status only). */
+  info: "#1565C0",
   /** Hairline warm borders. */
-  hairline: "rgba(18,18,20,0.08)",
-  hairlineStrong: "rgba(18,18,20,0.14)",
-  /** Elevation shadows — light parity with the DARK scale. */
-  shadowSoft: "0 1px 2px rgba(18,18,20,0.06)",
-  shadow: "0 4px 16px rgba(18,18,20,0.10)",
-  cardShadow: "0 1px 2px rgba(18,18,20,0.06)",
-  cardShadowHover: "0 6px 20px rgba(18,18,20,0.10)",
-  focusRing: "0 0 0 3px rgba(255,209,0,0.55)",
+  hairline: "rgba(0,0,0,0.06)",
+  hairlineStrong: "rgba(0,0,0,0.12)",
+  /** Elevation shadows — soft + flat. */
+  shadowSoft: "0 1px 2px rgba(0,0,0,0.04)",
+  shadow: "0 8px 24px rgba(0,0,0,0.08)",
+  cardShadow: "0 1px 2px rgba(0,0,0,0.04)",
+  cardShadowHover: "0 4px 16px rgba(0,0,0,0.08)",
+  focusRing: "0 0 0 3px rgba(255,209,0,0.45)",
 } as const;
 
 /**
@@ -173,3 +173,28 @@ export const RADIUS = { control: 8, card: 12, chip: 100, pill: 9999 } as const;
 
 /** Canonical elevation scale (theme-aware helper). */
 export const elevation = (isDark: boolean) => (isDark ? DARK : LIGHT);
+
+/**
+ * Restrained status system (console redesign) — a low-chroma DOT + label, not a
+ * loud chip. One palette drives payment / payout / link / customer states.
+ * `dot` is the mode-agnostic swatch; `text` is tuned per mode for AA contrast.
+ */
+export type StatusTone = "success" | "warning" | "error" | "info" | "neutral";
+
+export const STATUS_PALETTE: Record<StatusTone, { dot: string; dark: string; light: string }> = {
+  success: { dot: "#22C55E", dark: "#4ADE80", light: "#15803D" },
+  warning: { dot: "#F59E0B", dark: "#FBBF24", light: "#B45309" },
+  error: { dot: "#EF4444", dark: "#F87171", light: "#B91C1C" },
+  info: { dot: "#3B82F6", dark: "#60A5FA", light: "#1565C0" },
+  neutral: { dot: "#8A8A86", dark: "#A3A3A0", light: "#666664" },
+};
+
+/** Map a raw payment/payout/link status string to a status tone. */
+export const statusTone = (raw?: string | null): StatusTone => {
+  const s = (raw || "").toLowerCase();
+  if (/(paid|settled|success|succeeded|completed|complete|active|confirmed|released|credited|delivered|sent|approved)/.test(s)) return "success";
+  if (/(pending|processing|awaiting|waiting|in_progress|open|invited|queued|underpaid|partial|review)/.test(s)) return "warning";
+  if (/(failed|declined|error|expired|cancelled|canceled|rejected|refunded|disputed|frozen|banned|overpaid)/.test(s)) return "error";
+  if (/(draft|new|info|created|scheduled)/.test(s)) return "info";
+  return "neutral";
+};

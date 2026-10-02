@@ -1,113 +1,58 @@
-# Dynopay + SafeDeal — End-to-End Experience Audit & Fix Program
+# Dynopay In-App Redesign — The Operations Console
 
-A full walk-through of every screen and flow on Dynopay (merchant dashboard, hosted checkout, public site, admin) and SafeDeal (deal lifecycle, wallet, Telegram entry), recording every UX, UI, feature and engagement gap — then closing them, from broken flows down to polish and retention hooks.
-The outcome is a product where a new merchant reaches their first payment without help, a buyer never wonders "did it go through?", and SafeDeal parties finish a deal and come back for the next one.
+A system-wide visual redesign of the signed-in Dynopay app into a calm, premium financial-operations console inspired by Mercury, tuned for reading dense data without fatigue.
+It replaces today's flat, utilitarian in-app styling with one disciplined design language applied across every page, rolled out starting with the most-used screens.
 
 ## Who it's for
+People who log into Dynopay every day to run money: merchants and their team members monitoring payments, reconciling settlements, managing payment links and customers, and running payouts — plus internal admins. These are operators scanning financial data quickly, not first-time visitors, so legibility, consistency and speed matter more than marketing flourish.
 
-- **New merchants**: signed up, no brand / link / payment yet — must reach first payment received.
-- **Active merchants**: manage links, invoices, storefront, wallet, withdrawals, API keys, webhooks, team, settings.
-- **Buyers**: land on a pay link / invoice / storefront, choose a coin, pay, and need certainty about status and receipt.
-- **SafeDeal buyers and sellers**: arrive from Telegram or a shared deal link, create/accept a deal, fund, deliver, release or dispute, cash out.
-- **Operators (admin)**: watch payments, settlements, withdrawals, disputes and system health; intervene when something is stuck.
+## The problem being solved
+The public-facing pages (creator profile, shop, checkout) already have a lush, premium editorial design. The signed-in app does not: it uses a flat, hairline-card, spreadsheet-like style that gets noisy when populated with real data — walls of monospace figures, low-contrast secondary text, many competing chips/badges, thin visual hierarchy, and little depth or rhythm. Each page was also styled somewhat independently, so the app lacks a single coherent voice. The result reads as "rough when there's data."
 
 ## Core features and experience
+One design language, applied everywhere, expressed through a small set of shared building blocks so every page looks and behaves like part of the same product:
 
-**1. The audit itself (delivered as a living report)**
-Every route is walked as each persona above, on desktop and on a phone, in light and dark mode, with the primary language plus a spot-check of the other five. Each finding is logged per screen with severity:
-- **P0** — flow is broken, blocked, or misleading about money (wrong amount/status, dead end, error with no way out).
-- **P1** — confusing or high-friction: unclear next step, missing empty/loading/error state, inconsistent labels, mobile overflow, copy that doesn't say what happens next.
-- **P2** — polish: spacing, hierarchy, iconography, micro-interactions, dark-mode contrast, wording tone.
-- **Engagement** — a missing nudge, reminder, celebration, or return hook at a moment where the user would otherwise stall.
-The report also records what is already good, so nothing gets "fixed" that isn't a gap.
+- **A single design system** — one set of color, type, spacing, elevation, radius and motion rules. Every screen inherits it, so pages stop drifting apart.
+- **Redesigned app chrome** — a quieter, more confident left navigation, a cleaner top bar, a refined brand/company switcher, and one consistent page-header pattern (title, short context line, primary action) used on every page.
+- **"Financial-statement" data tables** — the core of the app. Airy rows with comfortable height, numbers treated as first-class UI (tabular, right-aligned, balances styled distinctly from amounts), transactions grouped by date (Today / Yesterday / This week), a pinned header, calm hover, and quiet handling of empty cells. Clicking a row opens a right-side slide-over detail panel instead of a dense modal, so you keep your place in the list.
+- **Summary strips** — each data page opens with a small band of key figures (e.g. volume, net, pending) presented as large, confident numbers, so the headline is readable at a glance before the table.
+- **Restrained status system** — a low-chroma dot-plus-label style for payment/payout states, replacing the current mix of loud chips, so status is scannable without shouting.
+- **Consistent supporting pieces** — one filter/toolbar pattern, graceful empty states, and skeleton loaders while data arrives, so the "with data", "no data" and "loading" states all feel intentional.
+- **Dark-first, with a polished light mode** — a deep, warm near-black canvas as the hero, and a refined warm-neutral light theme, both carried by the same tokens.
 
-**2. Merchant activation (signup → first link → first payment)**
-- A persistent onboarding checklist on the dashboard until complete: verify email → create brand → set payout wallet → create first payment link → share it → first payment received. Each step deep-links to the exact screen and shows what "done" looks like.
-- Empty states everywhere (links, invoices, transactions, customers, wallet) that explain the object in one sentence and offer the single most useful action, not a blank table.
-- Sandbox made obvious: "Try a test payment in 30 seconds" from the dashboard, with the simulator result appearing in the same place a real payment would.
-- First-payment moment: a celebratory confirmation with the receipt, what happens next (settlement timing, fee shown), and the next best action (create another link / set up webhooks / invite team).
-- Share mechanics on every link/invoice/storefront: copy, QR, Telegram/WhatsApp/X share, embed snippet — one click, no hunting.
-
-**3. Buyer completion (hosted checkout, invoices, storefront, receipts)**
-- A single, always-visible status timeline: Waiting → Detected → Confirming (n/12) → Settled, with plain-language explanation of each stage and realistic timing per coin.
-- "Payment detected" only shows after the payment is verified on-chain (currently it can flip on an unverified notification).
-- Expiry handled gracefully: countdown, then "Get a fresh address" rather than a dead page; late payments explained ("we received it after the window — the merchant has been notified").
-- Under/over-payment messaging in exact amounts with the one thing the buyer must do (send the remaining X, or nothing).
-- Coin/network mistakes prevented: network confirmation before showing the address, wrong-network warning kept prominent, memo/tag copy for XRP.
-- Receipt: email capture on the success screen, downloadable/printable receipt, link back to the merchant's storefront.
-- Mobile-first checkout: address/QR/amount above the fold at 390px, tap-to-copy feedback, wallet-pay button prominent where supported.
-
-**4. SafeDeal deal completion and repeat deals**
-- Entry from Telegram and from a shared deal link lands on a page that says who the deal is with, the amount, the fee, and exactly what to do next — no sign-in wall before the user understands the deal.
-- Deal creation reduced to the essentials (what, how much, who pays the fee, deadline) with a live summary and a share step that defaults to Telegram.
-- Funding step: fee transparency up front, per-coin network fee, clear "send exactly" instructions, same status timeline as Dynopay checkout, and a confirmation the other party can see.
-- Delivery / release / dispute: each state has one obvious action per party, the other party's view is described ("Seller sees: awaiting your release"), deadlines and auto-actions spelled out.
-- Wallet and cashout: balance breakdown (available / in escrow / pending cashout), cashout fee shown before confirming, transaction hash and explorer link after, Telegram alert on confirmation.
-- Repeat: "Start another deal with this person", recent counterparties, deal templates from past deals; a deal history that reads like a receipt list, not a table.
-- Trust signals on every SafeDeal page: how escrow protects each side, dispute policy in one paragraph, what SafeDeal never does.
-
-**5. Retention and return visits (both products)**
-- Notification center consistency: every event that emails also appears in-app with a deep link; unread state and mark-all-read behave the same on every screen.
-- Reminders at stall points: unpaid payment link/invoice after 24h (merchant + optional buyer reminder), unfunded deal after 24h, deal awaiting release after delivery, pending cashout confirmations.
-- Telegram alerts for SafeDeal at every lifecycle stage (created, funded, delivered, released, disputed, cashout confirmed) — today only cashout confirmation exists.
-- Merchant weekly summary email: volume, fees, top links, pending items, one suggested action.
-
-**6. Admin console**
-- Operational visibility for what was hard to see today: payments looping in reconciliation, webhooks failing delivery, settlements without bookkeeping, SafeDeal withdrawals awaiting approval — each with age, last error and a one-click drill-down.
-- Consistent tables, filters and detail drawers across admin sections; mobile-usable for the on-call operator.
-
-**7. Consistency and polish sweep**
-- One vocabulary per concept across UI, emails and docs (e.g., "cashout" not "withdraw" on SafeDeal; "settled" not "completed"/"successful" interchangeably).
-- Dark mode contrast, focus states, keyboard reachability, button hierarchy (one primary per screen), consistent spacing and card padding, locale-correct number/date formatting where still hard-coded.
-- Restyle screens where the UI itself is the gap (within the existing gold/graphite Dynopay brand and SafeDeal's light gold/black brand).
+MVP surfaces (redesigned first, in Phase 1): **Dashboard, Transactions, Payment links, Customers** — the screens operators live in — plus the shared foundation and chrome that every later page reuses.
 
 ## User flow
-
-**New merchant**: lands on dynopay.com → understands pricing and what happens after signup in one screen → signs up → dashboard shows the checklist → creates brand and payout wallet → creates a payment link → shares it (or fires a sandbox test) → sees the first payment arrive with a celebration + receipt + next step → gets a weekly summary from then on.
-
-**Buyer**: opens link → sees merchant, amount, and "pay with" → picks coin (network confirmed) → sees address/QR/amount above the fold → pays → timeline moves Waiting → Detected → Confirming → Settled → optional email receipt → returns to merchant.
-
-**SafeDeal**: enters via Telegram or deal link → sees deal summary and their role → signs in (Telegram or email code) → creates/accepts → funds with fee shown → both parties see the same timeline → delivery → release (or dispute with a clear path) → seller sees balance and cashes out with fee shown → Telegram alert on confirmation → "start another deal with this person".
-
-**Operator**: opens admin → dashboard shows anything stuck or failing at the top with age and last error → drills into the item → resolves or escalates → sees the queue clear.
+1. A merchant signs in and lands on the **Dashboard**: a calm pulse line, a summary strip of key figures, a "needs attention" area, a trend chart, and a recent-payments list — all in the new voice.
+2. They open **Transactions**: a statement-style table grouped by date, with a consistent filter bar; they scan amounts and statuses, then click a row to open a **slide-over detail panel** with the full timeline and actions.
+3. They move to **Payment links** and **Customers**: the same header, filter bar, table and detail-panel patterns, so there is nothing new to learn — only the data differs.
+4. They switch brand/theme/density from the same chrome everywhere; the whole app responds consistently.
 
 ## UI/UX feel
-
-Direct and reassuring. Every screen answers three questions without scrolling: where am I, what is the state of my money, what do I do next. Money states use consistent colour semantics (green settled, amber waiting/confirming, red action needed). Copy is short, specific and in the user's language ("Send exactly 0.00185 ETH on Ethereum" not "Awaiting payment"). Motion is used only to confirm actions and progress (copy feedback, timeline steps, first-payment celebration). Dynopay stays on its gold/graphite brand with dark mode; SafeDeal stays light, gold and black, English-only. Mobile is treated as the primary SafeDeal device and a first-class Dynopay checkout device.
+Calm, cinematic, data-first — closer to a financial operations console than a typical dashboard. A deep near-black canvas (not pure black) with off-white ink in dark mode; a warm cream/off-white surface with deep graphite text in light mode. A single reserved accent (Dynopay gold) used sparingly for primary actions and active states; a graphite neutral scale as the backbone; a small semantic palette (green/amber/red/blue) only for meaning like status. A clean grotesk at intermediate weights with generous line-height; figures in tabular numerals so columns align; a mono reserved strictly for IDs, hashes and wallet addresses. Generous whitespace and clear hierarchy. Depth is subtle — hairline separators, soft shadows, 12–16px radii; glass/blur is reserved for overlays and sticky bars, not sprayed across cards. Motion is fast and functional (≈150–200ms): slide-over panels, gentle hovers, skeletons — nothing bouncy. One consistent icon set replaces today's mix of custom SVGs and framework icons.
 
 ## Implementation phases
 
-**Phase 1 — Audit + fix what blocks or confuses (built now)**
-- Full walk-through of all five surfaces as every persona, desktop + mobile, light + dark; the report with P0/P1/P2/engagement findings and screenshots.
-- Fix every P0 and P1 found: broken or dead-end flows, misleading money states, missing empty/loading/error states, mobile breakage, inconsistent labels.
-- Activation core: dashboard onboarding checklist, empty-state CTAs, sandbox promotion, first-payment celebration, one-click share on links/invoices.
-- Checkout core: verified status timeline (detected only after on-chain check), graceful expiry, exact under/over-payment messaging, mobile above-the-fold layout, receipt email capture.
-- SafeDeal core: deal-link landing that explains before asking to sign in, simplified creation with Telegram-first share, fee transparency on funding and cashout, one obvious action per state per party, balance breakdown, "start another deal with this person".
-- Admin: stuck-payment / failing-webhook / pending-withdrawal visibility with age and last error.
-- Vocabulary and colour-semantics consistency pass across UI and emails.
+**Phase 1 — MVP (built now): foundation + the most-used pages**
+- The shared design system (tokens, type, color, elevation, spacing, motion) and the reusable building blocks (page header, summary tile, data table, status, detail slide-over, filter bar, empty state, skeletons).
+- The redesigned app chrome (navigation, top bar, brand/company switcher, page-header pattern).
+- Four surfaces fully redesigned on the new system: **Dashboard, Transactions, Payment links, Customers** — in both dark and light themes, desktop and mobile.
 
-**Phase 2 — Engagement and return hooks**
-- Reminders at stall points (unpaid link/invoice, unfunded deal, awaiting release, pending cashout) by email and, for SafeDeal, Telegram.
-- Telegram alerts for every SafeDeal lifecycle stage.
-- Notification center parity with email; deep links everywhere.
-- Merchant weekly summary email; recent counterparties and deal templates on SafeDeal.
-- Trust/explainer content on SafeDeal pages; storefront "back to merchant" loops.
+**Phase 2 — roll the system across the rest of the merchant app**
+- Wallet / Payout addresses, Payouts, Invoices & Tax, Developer keys, Notifications, Referrals, and Settings/Profile — re-skinned onto the Phase-1 system and components.
 
-**Phase 3 — Depth and polish**
-- Screen restyles where the UI is the remaining gap; accessibility pass (contrast, focus, keyboard, screen-reader labels).
-- Full six-language copy and formatting audit on Dynopay surfaces.
-- Admin console table/filter/drawer unification and mobile usability.
-- Public site: pricing/what-happens-next clarity, docs entry points from the dashboard, comparison and FAQ refinements.
+**Phase 3 — admin suite + advanced console affordances + cohesion polish**
+- The admin console pages (Overview, Merchants, Transactions, Escrow, Fee reconciliation, Chain readiness, Platform settings, Support).
+- Power-user features that suit a console: a command palette, saved filters/views, bulk row actions, and richer data-visualisation.
+- Final polish so the signed-in app and the public pages feel like one family.
 
 ## Assumptions
-
-- Fixes ship continuously in small batches per surface through the existing canary → swap → auto-rollback pipeline; the audit report is written first and updated as items close. No batching for prior review — you can stop any batch.
-- Severity order is fixed: P0 → P1 → activation/checkout/SafeDeal completion → admin visibility → P2 polish. Engagement features that need new background jobs (reminders, digests) are Phase 2, not now.
-- No new third-party services: email uses the existing sender, Telegram uses the existing SafeDeal bot, no analytics vendor is added; engagement is measured with existing data (payments, deals, logins).
-- Fee policy, settlement math, security controls and the recent on-chain verification are not changed by this program; only how they are explained and displayed.
-- SafeDeal remains English-only and light-themed; Dynopay keeps six languages and dark mode.
-- "Detected" on checkout will wait for the on-chain check (adds roughly a second of latency) in exchange for never showing a false "payment detected".
-- Restyles stay within the current brands; no logo, palette or typography change.
-- The audit is performed against the live sites and the preview build; real money is not moved during the audit (sandbox and read-only checks only).
-- Findings that turn out to be intentional product decisions (e.g., initials-only avatars, one-factor step-up) are recorded, not changed, unless you say otherwise.
-- Admin console improvements are limited to visibility and navigation; no new operator actions that move funds are added in this program.
+- **Scope answer "g" is read as:** redesign the whole app, but build only the most-used pages now — Dashboard, Transactions, Payment links, Customers — as the MVP, with the shared foundation they all reuse. The rest follow in Phases 2–3.
+- **Direction is Mercury-style "data console" (answer b):** restrained, airy, legible; not the public pages' expressive editorial-glass look. The public pages are left unchanged.
+- **Accent handling ("best option"):** the app chrome stays neutrally Dynopay-branded with a single reserved accent (gold) for primary actions and active states; a merchant's custom accent colour appears only on the brand/identity element (switcher/avatar), **not** across tables, charts or statuses — so dense data reads consistently regardless of brand. (This differs from the public pages, which are fully merchant-themed.)
+- **Typography:** a clean grotesk at intermediate weights across the app (keeping the existing body typeface, used more deliberately), with tabular numerals for all figures and a mono reserved for IDs/hashes/addresses. The expressive display face used on public pages is intentionally kept **out** of the in-app chrome.
+- **Theme:** dark-first is the hero; a refined light mode ships alongside it. The existing theme toggle and density preference are preserved.
+- **Behaviour is preserved:** this is a presentation-layer redesign. Page logic, data, routes, permissions and existing automation hooks are kept as-is; detail views keep their current actions (re-housed into slide-over panels where that improves scanning). No changes to backends or data.
+- **Detail pattern:** list rows open a right-side slide-over panel rather than a centered modal, except where a modal is clearly better (e.g. confirmations).
+- **Known data-heavy niceties included in the MVP tables:** date grouping, a summary strip, quiet empty/loading states, and the restrained status style. Command palette, saved views and bulk actions are deferred to Phase 3.
+- **No new third-party integrations** are required for the redesign.
