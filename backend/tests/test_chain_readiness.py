@@ -4,7 +4,7 @@ import time
 import pytest
 import requests
 
-BASE_URL = "https://31539451-a5e9-4f5f-86c4-2d416921e801.preview.emergentagent.com"
+BASE_URL = "https://secure-passphrase-10.preview.emergentagent.com"
 TOKEN = open("/app/memory/tmp/admin_token.txt").read().strip()
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/120.0 Safari/537.36"
 

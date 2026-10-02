@@ -21,7 +21,7 @@ import { resolve } from 'path';
 // Load environment variables
 config({ path: resolve(__dirname, '.env') });
 
-const BASE_URL = process.env.BACKEND_URL || 'https://vault-config-4.preview.emergentagent.com';
+const BASE_URL = process.env.BACKEND_URL || 'https://secure-passphrase-10.preview.emergentagent.com';
 
 const results: { test: string; status: 'PASS' | 'FAIL'; details: string }[] = [];
 
