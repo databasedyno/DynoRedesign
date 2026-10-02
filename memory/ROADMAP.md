@@ -1,3 +1,33 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# CURRENT OPEN BACKLOG — updated 2026-06 (fork, pod 31539451, post pt6 frontend-dedup)
+# Status of in-flight work: NONE in progress. Last shipped = frontend dedup
+#   (OverPayment/UnderPayment → PaymentOutcome; PublishableKeys/BuyButtons → KeyedResourceSection),
+#   verified testing_agent iteration_252/253 (0 bugs). Email async queue (BullMQ/Redis) + Brevo
+#   webhook + email-log + notification-prefs cleanup shipped in pt5. All tsc/eslint gates clean.
+# ──────────────────────────────────────────────────────────────────────────────
+#  P0 — SHIP: press "Save to GitHub" (pt3→pt6 work is platform-checkpointed but NOT pushed/deployed;
+#            prod still runs pre-dedup, pre-email-queue code until deployed to the droplet).
+#
+#  P1 — SMADAV ETH payment email BOUNCE verification. Confirm the Brevo webhook bounce-handling
+#            resolves the missing-email issue ONCE MONITORED IN PRODUCTION. NOT reproducible in-pod:
+#            SAFE MODE + DISABLE_OUTBOUND_EMAIL=true ⇒ nothing is queued/logged here (tbl_email_log
+#            stays empty; the BullMQ "emails" worker only runs in prod). Needs prod Brevo logs + prod DB.
+#            Related investigation history: memory/BTC_EMAIL_AND_TIMESTAMP_BUGS_2026-06.md.
+#            OPTIONAL enabler: add Brevo bounce monitoring/alerting to the admin console so this class of
+#            issue is visible after deploy (admin email-log DLQ + bounces panel already exist — pt5).
+#
+#  P1 — PRODUCT DECISION (open since pt6): move Buy Buttons onto the KEYS tab next to Publishable
+#            Keys? Today BuyButtonsSection renders on the DOCS tab (/developer-keys?tab=docs) and
+#            PublishableKeysSection on the KEYS tab — pre-existing split since commit cc5570ac3, NOT a
+#            regression. Awaiting owner call before any move.
+#
+#  P2 — TECH-DEBT SWEEP (follow-up to the hygiene/over-engineering audit): keep scanning for
+#            remaining unused files / stripped-import opportunities / further clone components to merge.
+#            Reference: memory/EMAIL_SYSTEM_AND_OVERENGINEERING_AUDIT_2026-10.md, memory/REFACTOR_STATUS.md.
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+
 # ═══ NEXT SESSION — DYNOPAY REBRAND STEP 2/3 (2026-09-22) ═══
 #  P0 — Landing/public: remove hero square + all decorative tiles (no replacement shape); aqua→yellow corner glow + fine grain on dark-brown hero; new logo in HomeHeader/HomeFooter; fees/marketing pages; recolour assets/Images/home/*.svg (10 indigo files); hosted checkout (Dynopay default theme only), receipts web/PDF, public receipt page.
 #  P0 — QA: dark-mode DOM colour scan + interactions (rail collapse, theme toggle, paylink detail, 2FA dialog open/cancel) via scripts/qa/rebrand_qa.mjs, or testing_agent if it stops timing out.

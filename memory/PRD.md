@@ -1,3 +1,7 @@
+# >>> LIVE OPEN BACKLOG / PENDING TASKS live at the TOP of memory/ROADMAP.md (updated 2026-06, post pt6).
+# >>> Pending now: P0 Save to GitHub + deploy · P1 SMADAV ETH email-bounce prod verification · P1 Buy-Buttons-on-Keys-tab product decision · P2 tech-debt sweep. No code tasks in progress.
+
+
 # === 2026-10-02 (fork, pod 31539451, pt6) — FRONTEND DEDUP: OverPayment/UnderPayment + PublishableKeys/BuyButtons merged onto shared layers — DONE & VERIFIED (testing_agent iteration_252 A+B 100%, iteration_253 C 100%, 0 bugs) ===
 # USER chose: (1) dedup OverPayment/UnderPayment as described, (2) FULL merge of PublishableKeysSection/BuyButtonsSection into a generic keyed-resource layer, (3) verify with testing_agent. ESLint error in pages/admin/login.tsx reported by the handoff was ALREADY fixed (full eslint = 0 errors).
 # (1) NEW Components/UI/PaymentOutcome/index.tsx = OutcomeCard(testId, icon, title, subtitle, children → +SecureBadge) · TxIdBox(transactionId; copy-transaction-btn, uses helpers/copyToClipboard which already has the execCommand fallback) · AmountRow(label, amount, currency, fiatUsd, rate, fiatCurrency, emphasis, py) · AmountPanel(rows, children) · SecureBadge · useOutcomeTheme. OverPayment/Index.tsx (515→230 lines) and UnderPayment/Index.tsx (425→190) are thin compositions; props, i18n keys, testids (overpayment-card, underpayment-card, copy-transaction-btn, return-btn, pay-remaining-btn) unchanged. OverPayment countdown now uses a redirectRef so parent re-renders no longer restart the 1s interval.
