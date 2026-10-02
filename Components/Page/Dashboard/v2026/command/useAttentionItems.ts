@@ -171,6 +171,22 @@ export const useAttentionItems = ({ overview, onboarding, includeDismissed = fal
         testId: "attention-mfa",
       });
     }
+    if (onboarding && profile?.email_bounced_at) {
+      list.push({
+        id: "bounce",
+        group: "security",
+        severity: "critical",
+        icon: "mail",
+        text: t("command.emailBounced", {
+          email: profile.email,
+          defaultValue: "We can't deliver email to {{email}} — update your address so codes and payment alerts reach you",
+        }),
+        actionLabel: t("command.updateEmail", { defaultValue: "Update email" }),
+        href: "/settings?section=profile",
+        fingerprint: `bounce:${profile.email_bounced_at}`,
+        testId: "attention-email-bounced",
+      });
+    }
     if (onboarding && freeze?.frozen) {
       list.push({
         id: "freeze",

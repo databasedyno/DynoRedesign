@@ -14,7 +14,6 @@ import React, { useRef, useState, useEffect } from "react";
 
 import BellIcon from "@/assets/Icons/bell-icon.svg";
 import EnvelopeIcon from "@/assets/Icons/envelope-icon.svg";
-import MobileIcon from "@/assets/Icons/mobile-icon.svg";
 import Toast from "@/Components/UI/Toast";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useNotificationPreferences, isValidEmail } from "@/hooks/useNotificationPreferences";
@@ -46,13 +45,15 @@ import NotificationInbox, { NotifTarget } from "./NotificationInbox";
 import { useDashboardOverview } from "@/Components/Page/Dashboard/v2026/command/useDashboardOverview";
 import { useAttentionItems } from "@/Components/Page/Dashboard/v2026/command/useAttentionItems";
 
-const NotificationItem: React.FC<NotificationItemProps> = ({
+const NotificationItem: React.FC<NotificationItemProps & { locked?: boolean; lockedLabel?: string }> = ({
   title,
   description,
   checked,
   onChange,
   showDivider = true,
   testId,
+  locked = false,
+  lockedLabel,
 }) => {
   const theme = useTheme();
   const isMobile = useIsMobile("md");
@@ -90,17 +91,21 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
             {description}
           </Typography>
         </Box>
-        <CustomSwitch
-          checked={checked}
-          onChange={(e, checked) => onChange(checked)}
-          data-testid={testId}
-          inputProps={{ "aria-label": title }}
-          sx={{
-            "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
-              backgroundColor: theme.palette.primary.main,
-            },
-          }}
-        />
+        {locked ? (
+          <StatusDot tone="settled" data-testid={testId}>{lockedLabel}</StatusDot>
+        ) : (
+          <CustomSwitch
+            checked={checked}
+            onChange={(e, checked) => onChange(checked)}
+            data-testid={testId}
+            inputProps={{ "aria-label": title }}
+            sx={{
+              "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
+                backgroundColor: theme.palette.primary.main,
+              },
+            }}
+          />
+        )}
       </Box>
       {showDivider && (
         <Divider
@@ -678,10 +683,9 @@ const NotificationPage = ({ initialTab = "inbox" }: { initialTab?: "inbox" | "se
             />
           </Grid>
         )}
-        {/* Left Column - Two Cards Stacked */}
+        {/* Left Column — the per-user flags the backend actually enforces */}
         <Grid item xs={12} md={6}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
-            {/* Transaction Alerts Card */}
             <PanelCard
               headerSx={{ fontSize: { xs: "15px", md: "20px" } }}
               subTitleSx={{
@@ -689,8 +693,10 @@ const NotificationPage = ({ initialTab = "inbox" }: { initialTab?: "inbox" | "se
                 color: theme.palette.text.primary,
               }}
               titleGap={{ gap: isMobile ? "12.41px" : "12px" }}
-              title={tNotifications("transactionAlertsTitle")}
-              subTitle={tNotifications("transactionAlertsSubtitle")}
+              title={tNotifications("accountEmailsTitle", { defaultValue: "Account emails" })}
+              subTitle={tNotifications("accountEmailsSubtitle", {
+                defaultValue: "Reports and sign-in alerts for your personal account. Payment, payout and order emails are set per brand above.",
+              })}
               showHeaderBorder={false}
               headerPadding={
                 isMobile
@@ -731,73 +737,6 @@ const NotificationPage = ({ initialTab = "inbox" }: { initialTab?: "inbox" | "se
                 }}
               >
                 <NotificationItem
-                  title={tNotifications("transactionUpdatesTitle")}
-                  testId="notification-pref-transactionUpdates"
-                  description={tNotifications("transactionUpdatesDescription")}
-                  checked={preferences.transactionUpdates}
-                  onChange={(val) => updatePreference("transactionUpdates", val)}
-                />
-                <NotificationItem
-                  title={tNotifications("paymentReceivedTitle")}
-                  testId="notification-pref-paymentReceived"
-                  description={tNotifications("paymentReceivedDescription")}
-                  checked={preferences.paymentReceived}
-                  onChange={(val) => updatePreference("paymentReceived", val)}
-                  showDivider={false}
-                />
-              </Box>
-            </PanelCard>
-
-            {/* Weekly Reports Card */}
-            <PanelCard
-              headerSx={{ fontSize: { xs: "15px", md: "20px" } }}
-              subTitleSx={{
-                fontSize: { xs: "13px", md: "15px" },
-                color: theme.palette.text.primary,
-              }}
-              titleGap={{ gap: isMobile ? "12.41px" : "12px" }}
-              title={tNotifications("weeklyReportsTitle")}
-              subTitle={tNotifications("weeklyReportsSubtitle")}
-              showHeaderBorder={false}
-              headerPadding={
-                isMobile
-                  ? theme.spacing(2, 2, 0, 2)
-                  : theme.spacing(2.5, 2.5, 0, 2.5)
-              }
-              bodyPadding={
-                isMobile
-                  ? theme.spacing(0, 2, 2, 2)
-                  : theme.spacing(0, "18px", 2.5, 2.5)
-              }
-              headerAction={
-                <IconButton
-                  sx={{
-                    height: isMobile ? "32px" : "40px",
-                    width: isMobile ? "32px" : "40px",
-                    padding: "8px",
-                    "&:hover": { backgroundColor: "transparent" },
-                  }}
-                >
-                  <Image
-                    src={MobileIcon.src}
-                    alt="mobile-icon"
-                    width={isMobile ? 14 : 20}
-                    height={isMobile ? 14 : 20}
-                    draggable={false}
-                  />
-                </IconButton>
-              }
-              sx={{ height: "100%" }}
-            >
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: isMobile ? "10px" : 2,
-                  pt: { xs: 3, md: "46px" },
-                }}
-              >
-                <NotificationItem
                   title={tNotifications("weeklySummaryTitle")}
                   testId="notification-pref-weeklySummary"
                   description={tNotifications("weeklySummaryDescription")}
@@ -805,11 +744,24 @@ const NotificationPage = ({ initialTab = "inbox" }: { initialTab?: "inbox" | "se
                   onChange={(val) => updatePreference("weeklySummary", val)}
                 />
                 <NotificationItem
+                  title={tNotifications("newDeviceOnlyTitle", { defaultValue: "Sign-in alerts: new devices only" })}
+                  testId="notification-pref-newDeviceOnly"
+                  description={tNotifications("newDeviceOnlyDescription", {
+                    defaultValue: "Email me only when a sign-in comes from a device or location I haven't used before, instead of every new session.",
+                  })}
+                  checked={preferences.newDeviceOnly}
+                  onChange={(val) => updatePreference("newDeviceOnly", val)}
+                />
+                <NotificationItem
                   title={tNotifications("securityAlertsTitle")}
                   testId="notification-pref-securityAlerts"
-                  description={tNotifications("securityAlertsDescription")}
-                  checked={preferences.securityAlerts}
-                  onChange={(val) => updatePreference("securityAlerts", val)}
+                  description={tNotifications("securityAlertsAlwaysOn", {
+                    defaultValue: "Password, 2FA, payout-address and new-device alerts are always sent — they protect your money and can't be switched off.",
+                  })}
+                  checked
+                  locked
+                  lockedLabel={tNotifications("alwaysOn", { defaultValue: "Always on" })}
+                  onChange={() => undefined}
                   showDivider={false}
                 />
               </Box>
@@ -817,7 +769,7 @@ const NotificationPage = ({ initialTab = "inbox" }: { initialTab?: "inbox" | "se
           </Box>
         </Grid>
 
-        {/* Right Column - Single Taller Card */}
+        {/* Right Column — marketing opt-in + browser push */}
         <Grid item xs={12} md={6}>
           <Box
             sx={{
@@ -835,8 +787,8 @@ const NotificationPage = ({ initialTab = "inbox" }: { initialTab?: "inbox" | "se
                 color: theme.palette.text.primary,
               }}
               titleGap={{ gap: isMobile ? "12.41px" : "12px" }}
-              title={tNotifications("emailNotificationsCardTitle")}
-              subTitle={tNotifications("emailNotificationsCardSubtitle")}
+              title={tNotifications("otherChannelsTitle", { defaultValue: "Product updates & push" })}
+              subTitle={tNotifications("otherChannelsSubtitle", { defaultValue: "Optional emails and browser notifications" })}
               showHeaderBorder={false}
               bodyPadding={
                 isMobile
@@ -877,25 +829,11 @@ const NotificationPage = ({ initialTab = "inbox" }: { initialTab?: "inbox" | "se
                 }}
               >
                 <NotificationItem
-                  title={tNotifications("emailNotificationsTitle")}
-                  testId="notification-pref-emailNotifications"
-                  description={tNotifications("emailNotificationsDescription")}
-                  checked={preferences.emailNotifications}
-                  onChange={(val) => updatePreference("emailNotifications", val)}
-                />
-                <NotificationItem
                   title={tNotifications("marketingEmailsTitle")}
                   testId="notification-pref-marketingEmails"
                   description={tNotifications("marketingEmailsDescription")}
                   checked={preferences.marketingEmails}
                   onChange={(val) => updatePreference("marketingEmails", val)}
-                />
-                <NotificationItem
-                  title={tNotifications("smsNotificationsTitle")}
-                  testId="notification-pref-smsNotifications"
-                  description={tNotifications("smsNotificationsDescription")}
-                  checked={preferences.smsNotifications}
-                  onChange={(val) => updatePreference("smsNotifications", val)}
                 />
                 {/* Browser Push Notifications - Web Push API */}
                 <Box

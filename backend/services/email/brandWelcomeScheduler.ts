@@ -17,6 +17,7 @@ import { Queue, Worker } from "bullmq";
 import { QueryTypes } from "sequelize";
 import sequelize from "../../utils/dbInstance";
 import { raw as envRaw } from "../../utils/config";
+import { bullmqConnection } from "../../utils/redisConnection";
 import { apiLogger, log } from "../../utils/loggers";
 import { getRedisItem, setRedisItemWithTTL } from "../../utils/redisInstance";
 import { captureError } from "../errorMonitoringService";
@@ -26,6 +27,8 @@ const QUEUE_NAME = "onboarding-emails";
 const JOB_BRAND_WELCOME = "brand_welcome";
 export const BRAND_WELCOME_DELAY_MS = Number(envRaw("BRAND_WELCOME_DELAY_MS")) || 10 * 60 * 1000;
 const SENT_KEY = (companyId: number) => `brand_welcome_sent:${companyId}`;
+/** Set the moment the job is scheduled so the hourly "you're all set" cron stands down (no double welcome). */
+export const SCHEDULED_KEY = (companyId: number) => `brand_welcome_scheduled:${companyId}`;
 const SENT_TTL_SEC = 30 * 24 * 3600;
 
 interface BrandWelcomeJob {
@@ -33,21 +36,11 @@ interface BrandWelcomeJob {
   companyId: number;
 }
 
-const parseRedisUrl = (url: string) => {
-  const parsed = new URL(url);
-  return {
-    host: parsed.hostname,
-    port: parseInt(parsed.port, 10) || 6379,
-    password: parsed.password || undefined,
-    username: parsed.username && parsed.username !== "default" ? parsed.username : undefined,
-  };
-};
-
 let queue: Queue | null = null;
 const getQueue = () => {
   if (!queue) {
     queue = new Queue(QUEUE_NAME, {
-      connection: parseRedisUrl(envRaw("REDIS_PUBLIC_URL") || "redis://localhost:6379"),
+      connection: bullmqConnection(),
       defaultJobOptions: {
         attempts: 3,
         backoff: { type: "exponential", delay: 60_000 },
@@ -95,6 +88,7 @@ export const deliverBrandWelcome = async ({ userId, companyId }: BrandWelcomeJob
 /** Called from updateCompany on the first completion of brand details. Fire-and-forget safe. */
 export const scheduleBrandWelcomeEmail = async (job: BrandWelcomeJob): Promise<void> => {
   try {
+    await setRedisItemWithTTL(SCHEDULED_KEY(job.companyId), { at: new Date().toISOString() }, SENT_TTL_SEC);
     if (outboundDisabled()) {
       // Preview: keep the job OFF the shared Redis (prod worker would send it for real).
       const timer = setTimeout(() => {
@@ -125,7 +119,7 @@ export const startBrandWelcomeWorker = (): void => {
       const outcome = await deliverBrandWelcome(job.data);
       log(`[BrandWelcome] job ${job.id} ${outcome} (company ${job.data.companyId})`, "info");
     },
-    { connection: parseRedisUrl(envRaw("REDIS_PUBLIC_URL") || "redis://localhost:6379"), concurrency: 2 }
+    { connection: bullmqConnection(), concurrency: 2 }
   );
   worker.on("failed", (job, err) => {
     log(`[BrandWelcome] job ${job?.id} failed: ${err.message}`, "error");

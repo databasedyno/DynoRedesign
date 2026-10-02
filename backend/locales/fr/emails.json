@@ -114,7 +114,7 @@
    "whatToDoTitle": "<strong>Ce que vous devez faire :</strong>",
    "steps": "1. Vérifiez que l'URL est correcte et accessible depuis l'internet public.<br>2. Confirmez que votre point de terminaison renvoie HTTP 2xx en moins de 10 secondes.<br>3. Réactivez la livraison depuis la <a href=\"{{settingsUrl}}\" style=\"color:#05936A;font-weight:600;\">page des paramètres des webhooks</a>.",
    "noLost": "Aucun paiement n'a été perdu — chaque tentative a été enregistrée dans votre <a href=\"{{settingsUrl}}\" style=\"color:#05936A;\">journal de livraison des webhooks</a> et peut être renvoyée une fois votre point de terminaison rétabli.",
-   "notRecognize": "Si vous ne reconnaissez pas ce point de terminaison ou pensez qu'il s'agit d'une erreur, répondez à cet e-mail et nous enquêterons immédiatement."
+   "notRecognize": "Si vous ne reconnaissez pas ce point de terminaison ou pensez qu'il s'agit d'une erreur, contactez notre assistance et nous enquêterons immédiatement."
   },
   "webhookRedirect": {
    "companyFallback": "votre entreprise",
@@ -528,7 +528,7 @@
    "next1": "1. Créez le profil de votre marque",
    "next2": "2. Ajoutez votre adresse de versement",
    "next3": "3. Partagez un lien de paiement ou connectez l'API — et encaissez",
-   "questions": "Des questions en chemin ? Répondez simplement à cet e-mail ou ouvrez le chat sur notre site — nous sommes ravis de vous aider.",
+   "questions": "Des questions en chemin ? Ouvrez le chat sur notre site — nous sommes ravis de vous aider.",
    "cta": "Terminer la configuration",
    "preheader": "Vous y êtes — terminez quelques étapes rapides pour accepter la crypto."
   },
@@ -778,7 +778,7 @@
    "intro": "Votre marque <strong>{{companyName}}</strong> vient d'être supprimée sur Dynopay. Pas d'inquiétude : rien n'est encore perdu. Nous conservons tout (liens de paiement, adresses de versement, paramètres et historique) en sécurité pendant les <strong>7 prochains jours</strong>, au cas où il s'agirait d'une erreur.",
    "status": "Suppression programmée",
    "restoreBefore": "Restaurer avant le",
-   "changedMind": "<strong>Vous avez changé d'avis ?</strong> Répondez simplement à cet e-mail ou contactez notre équipe d'assistance avant le <strong>{{date}}</strong> et nous rétablirons la marque exactement comme elle était, en un clic.",
+   "changedMind": "<strong>Vous avez changé d'avis ?</strong> Contactez notre équipe d'assistance avant le <strong>{{date}}</strong> et nous rétablirons la marque exactement comme elle était, en un clic.",
    "afterDate": "Après le {{date}}, la marque et toutes ses données seront définitivement supprimées et ne pourront plus être récupérées.",
    "didntDoThis": "Si vous n'avez pas supprimé cette marque, contactez-nous immédiatement afin que nous puissions sécuriser votre compte.",
    "cta": "Contacter l'assistance",
@@ -790,7 +790,7 @@
    "intro": "Le délai de récupération de 7 jours de votre marque <strong>{{companyName}}</strong> est écoulé : la marque et toutes ses données ont donc été <strong>définitivement supprimées</strong> de Dynopay. Cette action est irréversible.",
    "status": "Définitivement supprimée",
    "createNew": "Si vous souhaitez accepter de nouveau des paiements, vous pouvez créer une nouvelle marque à tout moment depuis votre tableau de bord.",
-   "didntExpect": "Si vous ne vous attendiez pas à cela, répondez à cet e-mail et nous vous aiderons.",
+   "didntExpect": "Si vous ne vous attendiez pas à cela, contactez notre assistance et nous vous aiderons.",
    "cta": "Accéder au tableau de bord",
    "preheader": "{{companyName}} a été définitivement supprimée de Dynopay."
   },
@@ -810,7 +810,7 @@
    "timeLeft": "Temps restant",
    "timeLeftBadge": "Plus que {{daysLabel}}",
    "deletesOn": "Suppression le",
-   "wantItBack": "Si vous souhaitez la récupérer, répondez simplement à cet e-mail ou contactez l'assistance avant le <strong>{{date}}</strong> et nous la restaurerons en un clic. Si la suppression était volontaire, aucune action n'est nécessaire.",
+   "wantItBack": "Si vous souhaitez la récupérer, contactez l'assistance avant le <strong>{{date}}</strong> et nous la restaurerons en un clic. Si la suppression était volontaire, aucune action n'est nécessaire.",
    "dayOne": "1 jour",
    "dayOther": "{{count}} jours",
    "cta": "Contacter l'assistance",
@@ -1042,7 +1042,7 @@
    "reasonLabel": "Raison",
    "paymentLabel": "Paiement",
    "idLabel": "ID de conversion",
-   "next": "Ouvrez Paiements pour réessayer en un clic, ou répondez à cet e-mail et nous réglerons cela avec vous.",
+   "next": "Ouvrez Paiements pour réessayer en un clic, ou contactez notre assistance et nous réglerons cela avec vous.",
    "cta": "Ouvrir Paiements"
   },
   "signupOtp": {
@@ -1078,7 +1078,7 @@
    "actionLabel": "Action requise",
    "actionValue": "Aucune — sauf si vous n'avez enregistré votre clé nulle part. Dans ce cas, effectuez une rotation depuis Développeur › Clés API.",
    "rotate": "Pour effectuer une rotation : ouvrez <strong>Développeur › Clés API</strong>, cliquez sur <strong>Régénérer</strong>, copiez immédiatement la nouvelle clé et mettez à jour votre intégration. L'ancienne clé cesse de fonctionner dès la régénération.",
-   "outro": "Des questions ? Répondez à cet e-mail, nous serons ravis de vous aider.",
+   "outro": "Des questions ? Contactez notre assistance, nous serons ravis de vous aider.",
    "cta": "Ouvrir les clés API"
   },
   "brandWelcome": {
@@ -1233,7 +1233,7 @@
     "amountLabel": "Montant",
     "addressLabel": "Adresse de versement",
     "reasonLabel": "Motif",
-    "outro": "Vos récompenses sont en sécurité et toujours dans votre solde. Veuillez vérifier votre adresse de versement sur votre page de parrainage et réessayer — si l'échec persiste, répondez simplement à cet e-mail et nous vous aiderons.",
+    "outro": "Vos récompenses sont en sécurité et toujours dans votre solde. Veuillez vérifier votre adresse de versement sur votre page de parrainage et réessayer — si l'échec persiste, contactez notre assistance et nous vous aiderons.",
     "cta": "Vérifier le versement"
    },
    "accrual": {
@@ -1520,7 +1520,7 @@
    "subject": "Votre compte Dynopay a été suspendu",
    "heading": "Compte suspendu",
    "intro": "Votre compte Dynopay a été temporairement suspendu. Vous ne pourrez ni vous connecter ni traiter de paiements pendant la suspension.",
-   "outro": "Si vous pensez qu'il s'agit d'une erreur, ou si vous souhaitez régulariser la situation, répondez à cet e-mail ou contactez notre support.",
+   "outro": "Si vous pensez qu'il s'agit d'une erreur, ou si vous souhaitez régulariser la situation, contactez notre assistance ou contactez notre support.",
    "preheader": "La connexion et les paiements sont suspendus sur votre compte."
   },
   "accountBanned": {
@@ -1692,7 +1692,7 @@
    "heading": "Notre équipe finalise votre versement",
    "preheader": "{{amount}} n'a pas pu être versé automatiquement — nous le réglons manuellement.",
    "intro": "{{companyName}} a reçu {{amount}} d'un acheteur, mais le versement automatique n'a pas abouti.",
-   "next": "Notre équipe opérations a été alertée et règle ce versement manuellement. Attendez-vous à un e-mail de confirmation sous un jour ouvré ; répondez à cet e-mail si vous en avez besoin plus tôt."
+   "next": "Notre équipe opérations a été alertée et règle ce versement manuellement. Attendez-vous à un e-mail de confirmation sous un jour ouvré ; contactez notre assistance si vous en avez besoin plus tôt."
   },
   "heroSub": "En attente d'arriver à votre adresse de versement"
  },

@@ -24,6 +24,7 @@ import customerWalletApiRouter from "./customerWalletApiRouter";
 import trackRouter from "./trackRouter";
 import productRouter from "./productRouter";
 import qualityRouter from "./qualityRouter";
+import emailLogController from "../controller/emailLogController";
 
 import {
   authMiddleware,
@@ -456,5 +457,7 @@ router.use("/", safedealRouter); // SafeDeal — standalone escrow product on th
 
 router.post("/tatum-webhook", webhookRateLimiter, verifyTatumWebhookSource, inboundEventDedup("tatum"), tatumWebHook);
 router.post("/tatum-crypto-webhook", webhookRateLimiter, verifyTatumWebhookSource, inboundEventDedup("tatum"), tatumCryptoWebHook);
+// Brevo transactional events (delivered / bounces / spam) — token-authenticated via ?token=
+router.post("/webhooks/brevo", webhookRateLimiter, emailLogController.brevoWebhook);
 
 export default router;

@@ -12,26 +12,14 @@
  */
 
 import { raw as envRaw } from "../utils/config";
+import { bullmqConnection } from "../utils/redisConnection";
 import { Queue, Worker, Job, QueueEvents } from "bullmq";
 import { webhookLogs } from "../utils/loggers";
 import { log } from "../utils/loggers";
 import { captureError } from "./errorMonitoringService";
 import { baseEmailTemplate, infoBox, dataRow, statusBadge, p } from "../utils/emailTemplate";
 
-// Redis connection config (reuse from environment)
-const REDIS_URL = envRaw("REDIS_PUBLIC_URL") || "redis://localhost:6379";
-
-function parseRedisUrl(url: string) {
-  const parsed = new URL(url);
-  return {
-    host: parsed.hostname,
-    port: parseInt(parsed.port, 10) || 6379,
-    password: parsed.password || undefined,
-    username: parsed.username && parsed.username !== "default" ? parsed.username : undefined,
-  };
-}
-
-const redisConnection = parseRedisUrl(REDIS_URL);
+const redisConnection = bullmqConnection();
 const DLQ_ALERT_COOLDOWN_SEC = 6 * 60 * 60;
 
 // ── Queue Definition ──────────────────────────────────────────────────────────

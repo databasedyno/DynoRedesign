@@ -213,6 +213,16 @@ const userModel = sequelize.define(
       allowNull: true,
       comment: "Last company the user was working with, restored on next login",
     },
+    // Brevo hard-bounce suppression (set by the Brevo webhook, cleared on a new verified email / delivery)
+    email_bounced_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      comment: "Set when the account email hard-bounced at Brevo; non-critical mail is suppressed while set",
+    },
+    email_bounce_reason: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
     // Phase 2: Fee-Free Trial Tracking (user-based)
     cumulative_volume_usd: {
       type: DataTypes.DECIMAL(14, 2),

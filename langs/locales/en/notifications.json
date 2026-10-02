@@ -83,5 +83,13 @@
   "marketingEmailsTitle": "Marketing & Product Emails",
   "marketingEmailsDescription": "News, tips and product updates. Turn off to stop promotional emails — you'll still get payment, security and account emails.",
   "pushNotConfigured": "Browser push isn't enabled on this platform yet — email and in-app alerts still work.",
-  "pushEnableFailed": "Couldn't enable browser push right now. Email and in-app alerts still work."
+  "pushEnableFailed": "Couldn't enable browser push right now. Email and in-app alerts still work.",
+  "accountEmailsTitle": "Account emails",
+  "accountEmailsSubtitle": "Reports and sign-in alerts for your personal account. Payment, payout and order emails are set per brand above.",
+  "newDeviceOnlyTitle": "Sign-in alerts: new devices only",
+  "newDeviceOnlyDescription": "Email me only when a sign-in comes from a device or location I haven't used before, instead of every new session.",
+  "securityAlertsAlwaysOn": "Password, 2FA, payout-address and new-device alerts are always sent — they protect your money and can't be switched off.",
+  "alwaysOn": "Always on",
+  "otherChannelsTitle": "Product updates & push",
+  "otherChannelsSubtitle": "Optional emails and browser notifications"
 }

@@ -72,10 +72,12 @@ export const sendPayoutDelayedEmail = async (
       t(`${K}.heading`, L), content, true, t("payoutDelayed.cta", L), `${FRONTEND_BASE_URL}/payouts`,
       t(`${K}.preheader`, L, { amount: amountStr }), L, undefined,
     );
-    await mailTransporter({ to: email, name, subject, body: html });
+    const info = await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[email] payout ${data.stage} sent to ${email} (${amountStr})`);
+    return info;
   } catch (e) {
     captureError(e, "email", { extraContext: "sendPayoutDelayedEmail" });
+    return undefined;
   }
 };
 

@@ -81,9 +81,11 @@ export const sendTipGoalMilestoneEmail = async (
       t(`${K}.heading`, L), content, true, t("tipGoal.cta", L), data.pageUrl,
       t(`${K}.preheader`, L, { raised: raisedStr, goal: goalStr }), L, data.milestone >= 100 ? "trophy" : "chart",
     );
-    await mailTransporter({ to: email, name, subject, body: html });
+    const info = await mailTransporter({ to: email, name, subject, body: html });
     apiLogger.info(`[email] tip goal ${data.milestone}% milestone sent to ${email} (${raisedStr} / ${goalStr})`);
+    return info;
   } catch (e) {
     captureError(e, "email", { extraContext: "sendTipGoalMilestoneEmail" });
+    return undefined;
   }
 };

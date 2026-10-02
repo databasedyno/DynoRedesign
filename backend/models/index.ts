@@ -38,6 +38,7 @@ import invoiceModel from "./invoiceModel";
 import escrowDealModel from "./escrowDealModel";
 import notificationModel from "./notificationModel";
 import notificationPreferencesModel from "./notificationPreferencesModel";
+import emailLogModel from "./emailLogModel";
 import kycModel from "./kycModel";
 import webhookDeliveryLogModel from "./webhookDeliveryLogModel";
 
@@ -125,6 +126,7 @@ export {
   escrowDealModel,
   notificationModel,
   notificationPreferencesModel,
+  emailLogModel,
   kycModel,
   webhookDeliveryLogModel,
   // Referral models

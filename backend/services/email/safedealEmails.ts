@@ -60,7 +60,7 @@ export async function sendSafeDealCodeEmail(
     stepUp ? `${code} — ${stepUp.subject}` : `${code} is your SafeDeal sign-in code`,
     message,
     false,
-    sdAccount("key", { heading: stepUp ? stepUp.heading : "Your sign-in code" })
+    sdAccount("key", { heading: stepUp ? stepUp.heading : "Your sign-in code", lane: "otp", template: `safedeal.${purpose}Code` })
   );
 }
 

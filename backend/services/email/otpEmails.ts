@@ -44,7 +44,7 @@ export const sendPurposeOTPEmail = async (
     ${p(t(`${keyBase}.expiry`, L))}`;
 
     const html = dynoPayEmailTemplate(t(`${keyBase}.heading`, L), content, false, "", "", t(`${keyBase}.preheader`, L), L, hero);
-    await mailTransporter({ to: email, name, subject, body: html });
+    await mailTransporter({ to: email, name, subject, body: html, lane: "otp", template: `otp.${purpose}` });
     apiLogger.info(`OTP email (${purpose}) sent to ${email}`);
   } catch (e) {
     apiLogger.error(`OTP email (${purpose}) error:`, e);

@@ -247,7 +247,7 @@ export const verifyAddEmail = async (req: express.Request, res: express.Response
 
     // Save email to user account
     await userModel.update(
-      { email: email.toLowerCase(), email_verified: true },
+      { email: email.toLowerCase(), email_verified: true, email_bounced_at: null, email_bounce_reason: null },
       { where: { user_id: userData.user_id } }
     );
     await deleteRedisItem(otpKey);

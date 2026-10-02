@@ -114,7 +114,7 @@
    "whatToDoTitle": "<strong>Was zu tun ist:</strong>",
    "steps": "1. Prüfe, ob die URL korrekt und aus dem öffentlichen Internet erreichbar ist.<br>2. Stelle sicher, dass dein Endpunkt innerhalb von 10 Sekunden HTTP 2xx zurückgibt.<br>3. Aktiviere die Zustellung wieder auf der <a href=\"{{settingsUrl}}\" style=\"color:#05936A;font-weight:600;\">Webhook-Einstellungsseite</a>.",
    "noLost": "Es gingen keine Zahlungen verloren — jeder Versuch wurde in deinem <a href=\"{{settingsUrl}}\" style=\"color:#05936A;\">Webhook-Zustellprotokoll</a> erfasst und kann erneut gesendet werden, sobald dein Endpunkt wieder funktioniert.",
-   "notRecognize": "Wenn du diesen Endpunkt nicht kennst oder dies für einen Fehler hältst, antworte einfach auf diese E-Mail und wir prüfen es umgehend."
+   "notRecognize": "Wenn du diesen Endpunkt nicht kennst oder dies für einen Fehler hältst, kontaktiere einfach unseren Support und wir prüfen es umgehend."
   },
   "webhookRedirect": {
    "companyFallback": "dein Unternehmen",
@@ -528,7 +528,7 @@
    "next1": "1. Erstelle dein Markenprofil",
    "next2": "2. Füge deine Auszahlungsadresse hinzu",
    "next3": "3. Teile einen Zahlungslink oder verbinde die API — und werde bezahlt",
-   "questions": "Fragen unterwegs? Antworte einfach auf diese E-Mail oder öffne den Chat auf unserer Website — wir helfen gerne.",
+   "questions": "Fragen unterwegs? Öffne den Chat auf unserer Website — wir helfen gerne.",
    "cta": "Einrichtung abschließen",
    "preheader": "Du bist dabei — schließe ein paar schnelle Schritte ab, um Krypto anzunehmen."
   },
@@ -778,7 +778,7 @@
    "intro": "Ihre Marke <strong>{{companyName}}</strong> wurde gerade auf Dynopay gelöscht. Keine Sorge – noch ist nichts verloren. Wir bewahren alles (Zahlungslinks, Auszahlungsadressen, Einstellungen und Verlauf) für die nächsten <strong>7 Tage</strong> sicher auf, falls dies ein Versehen war.",
    "status": "Zur Löschung vorgemerkt",
    "restoreBefore": "Wiederherstellen bis",
-   "changedMind": "<strong>Meinung geändert?</strong> Antworten Sie einfach auf diese E-Mail oder kontaktieren Sie unser Support-Team vor dem <strong>{{date}}</strong> – wir stellen die Marke mit einem Klick genau so wieder her, wie sie war.",
+   "changedMind": "<strong>Meinung geändert?</strong> Kontaktieren Sie unser Support-Team vor dem <strong>{{date}}</strong> – wir stellen die Marke mit einem Klick genau so wieder her, wie sie war.",
    "afterDate": "Nach dem {{date}} werden die Marke und alle ihre Daten dauerhaft gelöscht und können nicht mehr wiederhergestellt werden.",
    "didntDoThis": "Falls Sie diese Marke nicht gelöscht haben, kontaktieren Sie uns bitte sofort, damit wir Ihr Konto absichern können.",
    "cta": "Support kontaktieren",
@@ -790,7 +790,7 @@
    "intro": "Die 7-tägige Wiederherstellungsfrist für Ihre Marke <strong>{{companyName}}</strong> ist abgelaufen. Die Marke und alle ihre Daten wurden daher <strong>dauerhaft von Dynopay gelöscht</strong>. Dies kann nicht rückgängig gemacht werden.",
    "status": "Dauerhaft gelöscht",
    "createNew": "Wenn Sie wieder Zahlungen annehmen möchten, können Sie jederzeit über Ihr Dashboard eine neue Marke erstellen.",
-   "didntExpect": "Falls Sie dies nicht erwartet haben, antworten Sie bitte auf diese E-Mail – wir helfen Ihnen weiter.",
+   "didntExpect": "Falls Sie dies nicht erwartet haben, kontaktieren Sie bitte unseren Support – wir helfen Ihnen weiter.",
    "cta": "Zum Dashboard",
    "preheader": "{{companyName}} wurde dauerhaft von Dynopay gelöscht."
   },
@@ -810,7 +810,7 @@
    "timeLeft": "Verbleibende Zeit",
    "timeLeftBadge": "Noch {{daysLabel}}",
    "deletesOn": "Wird gelöscht am",
-   "wantItBack": "Wenn Sie die Marke zurückhaben möchten, antworten Sie einfach auf diese E-Mail oder kontaktieren Sie den Support vor dem <strong>{{date}}</strong> – wir stellen sie mit einem Klick wieder her. Wenn die Löschung beabsichtigt war, müssen Sie nichts weiter tun.",
+   "wantItBack": "Wenn Sie die Marke zurückhaben möchten, kontaktieren Sie den Support vor dem <strong>{{date}}</strong> – wir stellen sie mit einem Klick wieder her. Wenn die Löschung beabsichtigt war, müssen Sie nichts weiter tun.",
    "dayOne": "1 Tag",
    "dayOther": "{{count}} Tage",
    "cta": "Support kontaktieren",
@@ -1042,7 +1042,7 @@
    "reasonLabel": "Grund",
    "paymentLabel": "Zahlung",
    "idLabel": "Umwandlungs-ID",
-   "next": "Öffnen Sie Auszahlungen, um es mit einem Klick erneut zu versuchen, oder antworten Sie auf diese E-Mail — wir klären das mit Ihnen.",
+   "next": "Öffnen Sie Auszahlungen, um es mit einem Klick erneut zu versuchen, oder kontaktieren Sie unseren Support — wir klären das mit Ihnen.",
    "cta": "Auszahlungen öffnen"
   },
   "signupOtp": {
@@ -1078,7 +1078,7 @@
    "actionLabel": "Handlungsbedarf",
    "actionValue": "Keiner — es sei denn, Sie haben Ihren Schlüssel nirgends gespeichert. Rotieren Sie ihn dann einmal unter Entwickler › API-Schlüssel.",
    "rotate": "So rotieren Sie: <strong>Entwickler › API-Schlüssel</strong> öffnen, <strong>Neu generieren</strong> drücken, den neuen Schlüssel sofort kopieren und Ihre Integration aktualisieren. Der alte Schlüssel wird mit der Neugenerierung sofort ungültig.",
-   "outro": "Fragen? Antworten Sie einfach auf diese E-Mail — wir helfen gern.",
+   "outro": "Fragen? Kontaktieren Sie unseren Support — wir helfen gern.",
    "cta": "API-Schlüssel öffnen"
   },
   "brandWelcome": {
@@ -1233,7 +1233,7 @@
     "amountLabel": "Betrag",
     "addressLabel": "Auszahlungsadresse",
     "reasonLabel": "Grund",
-    "outro": "Deine Prämien sind sicher und weiterhin in deinem Guthaben. Bitte überprüfe deine Auszahlungsadresse auf deiner Empfehlungsseite und versuche es erneut — wenn es weiterhin fehlschlägt, antworte einfach auf diese E-Mail und wir helfen dir.",
+    "outro": "Deine Prämien sind sicher und weiterhin in deinem Guthaben. Bitte überprüfe deine Auszahlungsadresse auf deiner Empfehlungsseite und versuche es erneut — wenn es weiterhin fehlschlägt, kontaktiere einfach unseren Support und wir helfen dir.",
     "cta": "Auszahlung prüfen"
    },
    "accrual": {
@@ -1520,7 +1520,7 @@
    "subject": "Ihr Dynopay-Konto wurde gesperrt",
    "heading": "Konto gesperrt",
    "intro": "Ihr Dynopay-Konto wurde vorübergehend gesperrt. Während der Sperre können Sie sich nicht anmelden und keine Zahlungen verarbeiten.",
-   "outro": "Wenn Sie glauben, dass dies ein Irrtum ist, oder das Problem lösen möchten, antworten Sie auf diese E-Mail oder kontaktieren Sie unseren Support.",
+   "outro": "Wenn Sie glauben, dass dies ein Irrtum ist, oder das Problem lösen möchten, kontaktieren Sie unseren Support.",
    "preheader": "Anmeldung und Zahlungen sind für Ihr Konto pausiert."
   },
   "accountBanned": {
@@ -1692,7 +1692,7 @@
    "heading": "Unser Team schließt Ihre Auszahlung ab",
    "preheader": "{{amount}} konnte nicht automatisch ausgezahlt werden — wir wickeln es manuell ab.",
    "intro": "{{companyName}} hat {{amount}} von einem Käufer erhalten, die automatische Auszahlung ist jedoch nicht durchgegangen.",
-   "next": "Unser Betriebsteam wurde benachrichtigt und wickelt diese Auszahlung manuell ab. Erwarten Sie innerhalb eines Werktags eine Bestätigungs-E-Mail; antworten Sie auf diese E-Mail, wenn Sie sie früher benötigen."
+   "next": "Unser Betriebsteam wurde benachrichtigt und wickelt diese Auszahlung manuell ab. Erwarten Sie innerhalb eines Werktags eine Bestätigungs-E-Mail; kontaktieren Sie unseren Support, wenn Sie sie früher benötigen."
   },
   "heroSub": "Wartet auf Ihre Auszahlungsadresse"
  },

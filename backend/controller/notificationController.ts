@@ -86,23 +86,27 @@ const getPreferences = async (req: express.Request, res: express.Response) => {
       return successResponseHelper(res, 200, "Default notification preferences", {
         user_id: userId,
         company_id: company_id || null,
-        transaction_updates: true,
-        payment_received: true,
-        payment_pending: true,
         weekly_summary: true,
         payout_digest_weekly: false,
-        security_alerts: false,
-        email_notifications: true,
-        sms_notifications: false,
-        browser_notifications: false,
+        notify_new_device_only: false,
         marketing_emails,
         ...companyExtras,
         is_default: true,
       });
     }
 
+    // Only the ENFORCED per-user flags are exposed: weekly_summary (cronJobs),
+    // payout_digest_weekly (payoutDigestService), notify_new_device_only (login
+    // alerts), marketing_emails (activation drip). Operational email categories
+    // are per brand (company_notification_prefs) and security alerts always send.
+    const { preference_id, weekly_summary, payout_digest_weekly, notify_new_device_only } = preferences.dataValues as Record<string, unknown>;
     return successResponseHelper(res, 200, "Notification preferences retrieved", {
-      ...preferences.dataValues,
+      preference_id,
+      user_id: userId,
+      company_id: company_id || null,
+      weekly_summary,
+      payout_digest_weekly,
+      notify_new_device_only: notify_new_device_only ?? false,
       marketing_emails,
       ...companyExtras,
       is_default: false,
@@ -126,14 +130,9 @@ const updatePreferences = async (req: express.Request, res: express.Response) =>
     const userId = userData.user_id;
     const {
       company_id,
-      transaction_updates,
-      payment_received,
       weekly_summary,
       payout_digest_weekly,
-      security_alerts,
-      email_notifications,
-      sms_notifications,
-      browser_notifications,
+      notify_new_device_only,
       marketing_emails,
       company_notification_email,
       company_notification_prefs,
@@ -171,14 +170,9 @@ const updatePreferences = async (req: express.Request, res: express.Response) =>
     });
 
     const updateData = {
-      ...(transaction_updates !== undefined && { transaction_updates }),
-      ...(payment_received !== undefined && { payment_received }),
-      ...(weekly_summary !== undefined && { weekly_summary }),
-      ...(payout_digest_weekly !== undefined && { payout_digest_weekly }),
-      ...(security_alerts !== undefined && { security_alerts }),
-      ...(email_notifications !== undefined && { email_notifications }),
-      ...(sms_notifications !== undefined && { sms_notifications }),
-      ...(browser_notifications !== undefined && { browser_notifications }),
+      ...(weekly_summary !== undefined && { weekly_summary: !!weekly_summary }),
+      ...(payout_digest_weekly !== undefined && { payout_digest_weekly: !!payout_digest_weekly }),
+      ...(notify_new_device_only !== undefined && { notify_new_device_only: !!notify_new_device_only }),
     };
 
     if (preferences) {
@@ -198,14 +192,9 @@ const updatePreferences = async (req: express.Request, res: express.Response) =>
       preferences = await notificationPreferencesModel.create({
         user_id: userId,
         company_id: company_id || null,
-        transaction_updates: transaction_updates ?? true,
-        payment_received: payment_received ?? false,
         weekly_summary: weekly_summary ?? true,
         payout_digest_weekly: payout_digest_weekly ?? false,
-        security_alerts: security_alerts ?? false,
-        email_notifications: email_notifications ?? true,
-        sms_notifications: sms_notifications ?? false,
-        browser_notifications: browser_notifications ?? false,
+        notify_new_device_only: notify_new_device_only ?? false,
       });
     }
 
@@ -241,9 +230,15 @@ const updatePreferences = async (req: express.Request, res: express.Response) =>
       }
     }
 
+    const saved = (preferences?.dataValues ?? {}) as Record<string, unknown>;
     return successResponseHelper(res, 200, "Notification preferences updated", {
-      ...(preferences?.dataValues ?? {}),
-      ...(marketing_emails !== undefined && { marketing_emails }),
+      preference_id: saved.preference_id,
+      user_id: userId,
+      company_id: company_id || null,
+      weekly_summary: saved.weekly_summary,
+      payout_digest_weekly: saved.payout_digest_weekly,
+      notify_new_device_only: saved.notify_new_device_only ?? false,
+      ...(marketing_emails !== undefined && { marketing_emails: !!marketing_emails }),
     });
 
   } catch (e) {

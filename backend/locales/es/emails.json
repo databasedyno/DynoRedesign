@@ -114,7 +114,7 @@
    "whatToDoTitle": "<strong>Lo que debes hacer:</strong>",
    "steps": "1. Comprueba que la URL es correcta y accesible desde internet.<br>2. Confirma que tu endpoint devuelve HTTP 2xx en menos de 10 segundos.<br>3. Reactiva la entrega desde la <a href=\"{{settingsUrl}}\" style=\"color:#05936A;font-weight:600;\">página de ajustes de webhooks</a>.",
    "noLost": "No se perdió ningún pago — cada intento quedó registrado en tu <a href=\"{{settingsUrl}}\" style=\"color:#05936A;\">registro de entrega de webhooks</a> y puede reenviarse cuando tu endpoint vuelva a funcionar.",
-   "notRecognize": "Si no reconoces este endpoint o crees que es un error, responde a este correo y lo investigaremos de inmediato."
+   "notRecognize": "Si no reconoces este endpoint o crees que es un error, contacta con soporte y lo investigaremos de inmediato."
   },
   "webhookRedirect": {
    "companyFallback": "tu empresa",
@@ -528,7 +528,7 @@
    "next1": "1. Crea el perfil de tu marca",
    "next2": "2. Añade tu dirección de cobro",
    "next3": "3. Comparte un enlace de pago o conecta la API — y cobra",
-   "questions": "¿Dudas por el camino? Responde a este correo o abre el chat en nuestro sitio — estaremos encantados de ayudarte.",
+   "questions": "¿Dudas por el camino? Abre el chat en nuestro sitio — estaremos encantados de ayudarte.",
    "cta": "Terminar configuración",
    "preheader": "Ya estás dentro — termina un par de pasos rápidos para empezar a aceptar cripto."
   },
@@ -778,7 +778,7 @@
    "intro": "Su marca <strong>{{companyName}}</strong> acaba de eliminarse en Dynopay. No se preocupe: todavía no se ha perdido nada. Conservaremos todo (enlaces de pago, direcciones de cobro, configuración e historial) a buen recaudo durante los próximos <strong>7 días</strong> por si ha sido un error.",
    "status": "Programada para eliminación",
    "restoreBefore": "Restaurar antes del",
-   "changedMind": "<strong>¿Ha cambiado de opinión?</strong> Responda a este correo o contacte con nuestro equipo de soporte antes del <strong>{{date}}</strong> y recuperaremos la marca exactamente como estaba, con un solo clic.",
+   "changedMind": "<strong>¿Ha cambiado de opinión?</strong> Contacte con nuestro equipo de soporte antes del <strong>{{date}}</strong> y recuperaremos la marca exactamente como estaba, con un solo clic.",
    "afterDate": "Después del {{date}}, la marca y todos sus datos se eliminarán de forma permanente y ya no podrán recuperarse.",
    "didntDoThis": "Si no ha eliminado esta marca, contacte con nosotros de inmediato para que podamos proteger su cuenta.",
    "cta": "Contactar con soporte",
@@ -790,7 +790,7 @@
    "intro": "El plazo de recuperación de 7 días de su marca <strong>{{companyName}}</strong> ha terminado, por lo que la marca y todos sus datos se han <strong>eliminado permanentemente</strong> de Dynopay. Esta acción no se puede deshacer.",
    "status": "Eliminada permanentemente",
    "createNew": "Si desea volver a aceptar pagos, puede crear una nueva marca en cualquier momento desde su panel.",
-   "didntExpect": "Si no esperaba esto, responda a este correo y le ayudaremos.",
+   "didntExpect": "Si no esperaba esto, contacte con soporte y le ayudaremos.",
    "cta": "Ir al panel",
    "preheader": "{{companyName}} se ha eliminado permanentemente de Dynopay."
   },
@@ -810,7 +810,7 @@
    "timeLeft": "Tiempo restante",
    "timeLeftBadge": "Restante: {{daysLabel}}",
    "deletesOn": "Se elimina el",
-   "wantItBack": "Si desea recuperarla, responda a este correo o contacte con soporte antes del <strong>{{date}}</strong> y la restauraremos con un solo clic. Si tenía intención de eliminarla, no necesita hacer nada.",
+   "wantItBack": "Si desea recuperarla, contacte con soporte antes del <strong>{{date}}</strong> y la restauraremos con un solo clic. Si tenía intención de eliminarla, no necesita hacer nada.",
    "dayOne": "1 día",
    "dayOther": "{{count}} días",
    "cta": "Contactar con soporte",
@@ -1042,7 +1042,7 @@
    "reasonLabel": "Motivo",
    "paymentLabel": "Pago",
    "idLabel": "ID de conversión",
-   "next": "Abre Pagos para reintentar con un clic, o responde a este correo y lo resolveremos contigo.",
+   "next": "Abre Pagos para reintentar con un clic, o contacta con soporte y lo resolveremos contigo.",
    "cta": "Abrir Pagos"
   },
   "signupOtp": {
@@ -1078,7 +1078,7 @@
    "actionLabel": "Acción necesaria",
    "actionValue": "Ninguna, salvo que no haya guardado su clave en ningún sitio. En ese caso, rótela una vez desde Desarrollador › Claves API.",
    "rotate": "Para rotar: abra <strong>Desarrollador › Claves API</strong>, pulse <strong>Regenerar</strong>, copie la nueva clave de inmediato y actualice su integración. La clave anterior deja de funcionar en el momento en que regenera.",
-   "outro": "¿Preguntas? Responda a este correo; estaremos encantados de ayudarle.",
+   "outro": "¿Preguntas? Contacte con soporte; estaremos encantados de ayudarle.",
    "cta": "Abrir claves API"
   },
   "brandWelcome": {
@@ -1233,7 +1233,7 @@
     "amountLabel": "Importe",
     "addressLabel": "Dirección de cobro",
     "reasonLabel": "Motivo",
-    "outro": "Tus recompensas están a salvo y siguen en tu saldo. Revisa tu dirección de cobro en tu página de referidos e inténtalo de nuevo — si sigue fallando, responde a este correo y te ayudamos.",
+    "outro": "Tus recompensas están a salvo y siguen en tu saldo. Revisa tu dirección de cobro en tu página de referidos e inténtalo de nuevo — si sigue fallando, contacta con soporte y te ayudamos.",
     "cta": "Revisar cobro"
    },
    "accrual": {
@@ -1520,7 +1520,7 @@
    "subject": "Su cuenta de Dynopay ha sido suspendida",
    "heading": "Cuenta suspendida",
    "intro": "Su cuenta de Dynopay ha sido suspendida temporalmente. No podrá iniciar sesión ni procesar pagos mientras esté suspendida.",
-   "outro": "Si cree que se trata de un error o desea resolverlo, responda a este correo o contacte con nuestro equipo de soporte.",
+   "outro": "Si cree que se trata de un error o desea resolverlo, contacte con nuestro equipo de soporte.",
    "preheader": "El inicio de sesión y los pagos están en pausa en su cuenta."
   },
   "accountBanned": {
@@ -1692,7 +1692,7 @@
    "heading": "Nuestro equipo está finalizando su pago",
    "preheader": "{{amount}} no pudo pagarse automáticamente — lo estamos liquidando a mano.",
    "intro": "{{companyName}} recibió {{amount}} de un comprador, pero el pago automático no se completó.",
-   "next": "Nuestro equipo de operaciones ha sido alertado y está liquidando este pago manualmente. Recibirá un correo de confirmación en un día hábil; responda a este correo si lo necesita antes."
+   "next": "Nuestro equipo de operaciones ha sido alertado y está liquidando este pago manualmente. Recibirá un correo de confirmación en un día hábil; contacte con soporte si lo necesita antes."
   },
   "heroSub": "Esperando llegar a su dirección de pago"
  },

@@ -3,6 +3,7 @@ import adminController from "../controller/adminController";
 import adminAuthController from "../controller/adminAuthController";
 import supportInboxController from "../controller/supportInboxController";
 import adminSecurityController from "../controller/adminSecurityController";
+import emailLogController from "../controller/emailLogController";
 import feeReconciliationController from "../controller/admin/feeReconciliationController";
 import { adminAuthMiddleware } from "../middleware";
 import adminOrApiKeyMiddleware from "../middleware/adminOrApiKeyMiddleware";
@@ -123,6 +124,13 @@ adminRouter.post(
 // ── Security events (2FA resets, wallet freezes) ─────────────────────────
 adminRouter.get("/security/events", adminAuthMiddleware, adminSecurityController.events);
 adminRouter.post("/security/users/:userId/unfreeze", adminAuthMiddleware, adminSecurityController.unfreeze);
+
+// ── Email log (send history, queue health, bounces, DLQ) ─────────────────────
+adminRouter.get("/email-log", adminAuthMiddleware, emailLogController.list);
+adminRouter.get("/email-log/stats", adminAuthMiddleware, emailLogController.stats);
+adminRouter.get("/email-log/dlq", adminAuthMiddleware, emailLogController.dlq);
+adminRouter.post("/email-log/dlq/:jobId/retry", adminAuthMiddleware, emailLogController.retry);
+adminRouter.post("/email-log/bounces/clear", adminAuthMiddleware, emailLogController.clearBounce);
 
 // ── Deleted Brands (7-day soft-delete grace window) ─────────────────────────
 adminRouter.get(

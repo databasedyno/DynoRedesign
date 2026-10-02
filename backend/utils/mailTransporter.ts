@@ -1,14 +1,19 @@
 import { raw as envRaw } from "./config";
-import axios from "axios";
 import { captureError } from "../services/errorMonitoringService";
 import { log } from "../utils/loggers";
 import { TO_EMAIL_TOKEN } from "./emailTemplate";
+import { createEmailLog, markEmailLog } from "../services/email/emailLog";
+import {
+  BrevoSendError,
+  EmailAttachment,
+  EmailJobData,
+  EmailLane,
+  OTP_TTL_MS,
+  enqueueEmail,
+  sendViaBrevo,
+} from "../services/email/emailQueue";
 
-interface Attachment {
-  name: string;
-  content: string; // Base64 encoded content
-  contentType?: string;
-}
+type Attachment = EmailAttachment;
 
 interface mailOptions {
   to: string;
@@ -18,31 +23,26 @@ interface mailOptions {
   attachments?: Attachment[];
   /** Per-brand "from" identity. Falls back to Dynopay when omitted. */
   sender?: { name?: string; email?: string };
+  /** "otp" = sign-in / step-up codes: priority lane, never delivered after 10 min. */
+  lane?: EmailLane;
+  /** Short template id for the send log (defaults to the subject). */
+  template?: string;
 }
 
-/**
- * Strip HTML tags for plain text fallback
- */
-const stripHtml = (html: string): string => {
-  return html
-    .replace(/<style[^>]*>.*?<\/style>/gi, '')
-    .replace(/<script[^>]*>.*?<\/script>/gi, '')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-};
+export interface MailResult {
+  queued?: boolean;
+  suppressed?: boolean;
+  sent?: boolean;
+  jobId?: string;
+  logId?: number | null;
+  messageId?: string | null;
+}
 
-/**
- * Basic email validation (catches obvious bad inputs before hitting Brevo)
- */
 const isValidEmail = (email: string): boolean => {
-  if (!email || typeof email !== 'string') return false;
+  if (!email || typeof email !== "string") return false;
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 };
 
-/**
- * Send email using Brevo (formerly Sendinblue) API
- */
 /** Preview-only: when EMAIL_DUMP_DIR is set, suppressed emails are written as HTML for review. */
 const dumpForReview = (to: string, subject: string, body: string, from?: string) => {
   const dir = envRaw("EMAIL_DUMP_DIR");
@@ -59,7 +59,35 @@ const dumpForReview = (to: string, subject: string, body: string, from?: string)
   }
 };
 
-const mailTransporter = async ({ to, subject, body: rawBody, name, attachments, sender }: mailOptions) => {
+/** Last resort when Redis/the queue is unavailable: 3 quick inline attempts (300/900/2700 ms). */
+const sendInline = async (job: EmailJobData): Promise<MailResult> => {
+  const BACKOFF_MS = [300, 900, 2700];
+  let lastError: BrevoSendError | undefined;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const { messageId } = await sendViaBrevo(job);
+      await markEmailLog(job.logId, { status: "sent", attempts: attempt, brevo_message_id: messageId, sent_at: new Date(), job_id: "inline" });
+      log(`[Email] Sent inline to ${job.to}${attempt > 1 ? ` (attempt ${attempt}/3)` : ""}: ${job.subject}`);
+      return { sent: true, messageId, logId: job.logId };
+    } catch (e) {
+      lastError = e as BrevoSendError;
+      if (!lastError.retryable || attempt === 3) break;
+      await new Promise((r) => setTimeout(r, BACKOFF_MS[attempt - 1]));
+    }
+  }
+  await markEmailLog(job.logId, { status: "failed", last_error: lastError?.message, job_id: "inline" });
+  captureError(lastError, "email", { extraContext: `Brevo inline send | to=${job.to} | subject=${job.subject.substring(0, 60)}` });
+  throw lastError;
+};
+
+/**
+ * Send an email via Brevo. Resolves as soon as the job is durably queued
+ * (production) — delivery, retries and bounce handling happen in the
+ * emails worker (services/email/emailQueue.ts). Resolves {suppressed:true}
+ * on preview pods (DISABLE_OUTBOUND_EMAIL). Throws only on invalid input or
+ * when both the queue and the inline fallback are unavailable.
+ */
+const mailTransporter = async ({ to, subject, body: rawBody, name, attachments, sender, lane = "default", template }: mailOptions): Promise<MailResult> => {
   // Per-brand sender: SafeDeal escrow mail sends from hi@safedeal.sh; Dynopay mail
   // stays on hi@dynopay.com. Resolved up-front so the preview log/dump shows it too.
   const senderName = sender?.name || "Dynopay";
@@ -69,16 +97,12 @@ const mailTransporter = async ({ to, subject, body: rawBody, name, attachments, 
   const body = String(rawBody || "").split(TO_EMAIL_TOKEN).join(
     String(to || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"),
   );
+
   // --- PREVIEW/SANDBOX SAFETY: never send real email from a non-prod pod ---
   // When DISABLE_OUTBOUND_EMAIL=true (the Emergent preview is wired to the LIVE
-  // production DB), skip the Brevo API entirely so no real merchant / customer /
-  // admin email is ever sent from this environment. Production never sets this flag.
-  //
-  // EXCEPTION — EMAIL_TEST_ALLOWLIST: a comma-separated list of addresses that
-  // are STILL allowed to receive mail while suppression is on. Used to verify the
-  // real "payment confirmed" receipt end-to-end against a single throwaway inbox
-  // without opening the floodgates to real merchants/customers. Leave empty in
-  // normal preview operation.
+  // production DB + Redis) nothing is enqueued and Brevo is never called.
+  // EXCEPTION — EMAIL_TEST_ALLOWLIST: comma-separated addresses still allowed
+  // through (inline send) to verify a template end-to-end against one inbox.
   if (envRaw("DISABLE_OUTBOUND_EMAIL") === "true") {
     const allowlist = String(envRaw("EMAIL_TEST_ALLOWLIST") || "")
       .split(",")
@@ -86,9 +110,9 @@ const mailTransporter = async ({ to, subject, body: rawBody, name, attachments, 
       .filter(Boolean);
     const recipient = String(to || "").trim().toLowerCase();
     if (!allowlist.includes(recipient)) {
-      log(`[Email] SUPPRESSED (DISABLE_OUTBOUND_EMAIL) -> from=${senderEmail} to=${to} | subject=${subject}${attachments?.length ? ` | attachments=${attachments.length}` : ""}`);
+      log(`[Email] SUPPRESSED (DISABLE_OUTBOUND_EMAIL) -> from=${senderEmail} to=${to} | lane=${lane} | subject=${subject}${attachments?.length ? ` | attachments=${attachments.length}` : ""}`);
       dumpForReview(to, subject, body, senderEmail);
-      return { suppressed: true } as unknown;
+      return { suppressed: true };
     }
     log(`[Email] TEST-ALLOWLISTED (DISABLE_OUTBOUND_EMAIL bypassed) -> to=${to} | subject=${subject}`);
   }
@@ -96,100 +120,49 @@ const mailTransporter = async ({ to, subject, body: rawBody, name, attachments, 
   // --- Input validation (prevent Brevo 400s from bad data) ---
   if (!to || !isValidEmail(to)) {
     const err = new Error(`Invalid recipient email: "${to}"`);
-    captureError(err, 'email', { extraContext: `mailTransporter validation | subject=${subject}` });
+    captureError(err, "email", { extraContext: `mailTransporter validation | subject=${subject}` });
     throw err;
   }
   if (!subject || subject.trim().length === 0) {
     const err = new Error(`Empty subject for email to ${to}`);
-    captureError(err, 'email', { extraContext: 'mailTransporter validation' });
+    captureError(err, "email", { extraContext: "mailTransporter validation" });
     throw err;
   }
   if (!body || body.trim().length === 0) {
     const err = new Error(`Empty body for email to ${to} | subject=${subject}`);
-    captureError(err, 'email', { extraContext: 'mailTransporter validation' });
+    captureError(err, "email", { extraContext: "mailTransporter validation" });
     throw err;
   }
 
-  // Sanitize name: Brevo rejects empty string names
-  const safeName = (name && name.trim().length > 0) ? name.trim() : to;
-
-  const payload: Record<string, unknown> = {
-    sender: {
-      name: senderName,
-      email: senderEmail,
-    },
+  const job: EmailJobData = {
+    to: to.trim(),
+    name: name && name.trim().length > 0 ? name.trim() : to.trim(),
     subject: subject.trim(),
-    to: [
-      {
-        email: to.trim(),
-        name: safeName,
-      },
-    ],
-    htmlContent: body,
-    textContent: stripHtml(body).substring(0, 50000), // Brevo textContent cap: prevent oversized payloads
+    body,
+    attachments,
+    sender: { name: senderName, email: senderEmail },
+    lane,
+    template: template || null,
+    logId: await createEmailLog({ to, name, subject: subject.trim(), template, lane, senderEmail }),
+    expiresAt: lane === "otp" ? Date.now() + OTP_TTL_MS : undefined,
   };
 
-  // Add attachments if provided
-  if (attachments && attachments.length > 0) {
-    payload.attachment = attachments.map(att => ({
-      name: att.name,
-      content: att.content,
-      contentType: att.contentType || 'application/pdf',
-    }));
+  if (envRaw("DISABLE_OUTBOUND_EMAIL") === "true" || envRaw("EMAIL_QUEUE_DISABLED") === "true") {
+    return sendInline(job);
   }
 
-  // Retry Brevo with short exponential backoff to absorb transient 5xx / network
-  // blips. Most Brevo "invalid_request 500" events we've seen recover within
-  // <1s, so 3 attempts at 300ms/900ms/2700ms is enough without noticeable delay.
-  const MAX_ATTEMPTS = 3;
-  const BACKOFF_MS = [300, 900, 2700];
-  let lastError: any;
-
-  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-    try {
-      const { data } = await axios.post(
-        "https://api.brevo.com/v3/smtp/email",
-        payload,
-        {
-          headers: {
-            "api-key": envRaw("BREVO_API_KEY"),
-          },
-          timeout: 15000,
-        }
-      );
-      if (attempt > 1) {
-        log(`[Email] Sent to ${to} (attempt ${attempt}/${MAX_ATTEMPTS}): ${subject}`);
-      } else {
-        log(`[Email] Sent to ${to}: ${subject}${attachments ? ` (with ${attachments.length} attachment(s))` : ''}`);
-      }
-      return data;
-    } catch (apiError: any) {
-      lastError = apiError;
-      const status = apiError?.response?.status;
-      // Only retry on 5xx / network errors. 4xx (bad payload) is permanent.
-      const isRetryable =
-        !status ||                    // network error (ECONNRESET, timeout, etc.)
-        status >= 500 ||
-        apiError?.code === 'ECONNABORTED' ||
-        apiError?.code === 'ETIMEDOUT' ||
-        apiError?.code === 'ECONNRESET';
-
-      if (!isRetryable || attempt === MAX_ATTEMPTS) {
-        // Final failure — capture and rethrow
-        captureError(apiError, 'email', {
-          extraContext: `Brevo API call | to=${to} | subject=${subject.substring(0, 60)} | payloadSize=${JSON.stringify(payload).length} | attempts=${attempt}/${MAX_ATTEMPTS}`,
-        });
-        throw apiError;
-      }
-
-      // Retryable — wait and try again (don't spam captureError for transient 5xx)
-      await new Promise((r) => setTimeout(r, BACKOFF_MS[attempt - 1]));
-    }
+  try {
+    const jobId = await enqueueEmail(job);
+    await markEmailLog(job.logId, { job_id: jobId });
+    log(`[Email] Queued for ${to} (job ${jobId}, lane=${lane}): ${subject}${attachments?.length ? ` (${attachments.length} attachment(s))` : ""}`);
+    return { queued: true, jobId, logId: job.logId };
+  } catch (queueErr) {
+    // Redis down → do not lose the email: send inline right now.
+    log(`[Email] queue unavailable (${(queueErr as Error).message}) — sending inline to ${to}`, "warn");
+    captureError(queueErr, "email", { extraContext: "mailTransporter enqueue failed — inline fallback" });
+    return sendInline(job);
   }
-
-  // Unreachable, but keeps TS happy
-  throw lastError;
 };
 
 export default mailTransporter;
-export type { mailOptions, Attachment };
+export type { mailOptions, Attachment, EmailLane };

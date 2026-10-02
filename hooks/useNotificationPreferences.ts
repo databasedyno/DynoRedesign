@@ -2,25 +2,21 @@ import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { useState, useEffect, useCallback } from "react";
 import axiosBaseApi from "@/axiosConfig";
 
+/** Only flags the backend ENFORCES. Operational emails (payments/payouts/orders)
+ *  are per-brand categories (CompanyRouting); security alerts always send. */
 interface NotificationPreferences {
-  transactionUpdates: boolean;
-  paymentReceived: boolean;
+  /** Monday activity summary (cronJobs weekly_summary). */
   weeklySummary: boolean;
-  securityAlerts: boolean;
-  emailNotifications: boolean;
-  smsNotifications: boolean;
+  /** Sign-in alert only for never-seen devices (notify_new_device_only). */
+  newDeviceOnly: boolean;
   /** Marketing & product emails (true = opted in). Persisted as the inverse opt-out
    *  flag the marketing/activation senders already honour. */
   marketingEmails: boolean;
 }
 
 const defaultPreferences: NotificationPreferences = {
-  transactionUpdates: true,
-  paymentReceived: false,
   weeklySummary: true,
-  securityAlerts: false,
-  emailNotifications: true,
-  smsNotifications: false,
+  newDeviceOnly: false,
   marketingEmails: true,
 };
 
@@ -57,12 +53,8 @@ const defaultRouting: CompanyRouting = {
 // Backend uses snake_case keys; the frontend hook exposes camelCase to consumers.
 // These mappers are the single source of truth for the naming translation.
 type BackendPreferences = {
-  transaction_updates?: boolean;
-  payment_received?: boolean;
   weekly_summary?: boolean;
-  security_alerts?: boolean;
-  email_notifications?: boolean;
-  sms_notifications?: boolean;
+  notify_new_device_only?: boolean;
   marketing_emails?: boolean;
   company_notification_email?: string | null;
   company_notification_prefs?: {
@@ -72,22 +64,14 @@ type BackendPreferences = {
 };
 
 const fromBackend = (b: BackendPreferences | undefined | null): NotificationPreferences => ({
-  transactionUpdates: b?.transaction_updates ?? defaultPreferences.transactionUpdates,
-  paymentReceived: b?.payment_received ?? defaultPreferences.paymentReceived,
   weeklySummary: b?.weekly_summary ?? defaultPreferences.weeklySummary,
-  securityAlerts: b?.security_alerts ?? defaultPreferences.securityAlerts,
-  emailNotifications: b?.email_notifications ?? defaultPreferences.emailNotifications,
-  smsNotifications: b?.sms_notifications ?? defaultPreferences.smsNotifications,
+  newDeviceOnly: b?.notify_new_device_only ?? defaultPreferences.newDeviceOnly,
   marketingEmails: b?.marketing_emails ?? defaultPreferences.marketingEmails,
 });
 
 const toBackend = (p: NotificationPreferences): BackendPreferences => ({
-  transaction_updates: p.transactionUpdates,
-  payment_received: p.paymentReceived,
   weekly_summary: p.weeklySummary,
-  security_alerts: p.securityAlerts,
-  email_notifications: p.emailNotifications,
-  sms_notifications: p.smsNotifications,
+  notify_new_device_only: p.newDeviceOnly,
   marketing_emails: p.marketingEmails,
 });
 

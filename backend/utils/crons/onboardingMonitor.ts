@@ -114,7 +114,17 @@ export const setupOnboardingMonitorCron = () => {
               });
 
               // Merchant-facing "you're all set" milestone (same one-time guard).
-              if (user.email) {
+              // Skipped when the delayed brand-welcome email already covered it
+              // (or is still scheduled) — three welcome-ish emails in the first
+              // hour was too much (email audit 2026-10).
+              const companyId = companyResult[0]?.company_id;
+              const brandWelcome = companyId
+                ? (await getRedisItem(`brand_welcome_sent:${companyId}`)) || (await getRedisItem(`brand_welcome_scheduled:${companyId}`))
+                : null;
+              const brandWelcomeCovered = !!brandWelcome && Object.keys(brandWelcome as object).length > 0;
+              if (user.email && brandWelcomeCovered) {
+                log(`Onboarding Monitor: "all set" email skipped for merchant ${userId} — brand welcome already sent`, "info");
+              } else if (user.email) {
                 try {
                   await sendOnboardingCompleteMerchantEmail(
                     user.email,

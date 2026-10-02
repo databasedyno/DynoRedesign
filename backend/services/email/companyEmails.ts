@@ -209,7 +209,7 @@ export const sendCompanyDeleteOTPEmail = async (
     ${warnText(t('merchant.companyDeleteOtp.expiry', L))}`;
 
     const html = dynoPayEmailTemplate(t('merchant.companyDeleteOtp.heading', L), content, false, "", "", t('merchant.companyDeleteOtp.preheader', L, { companyName: brand }), L, 'lock-red');
-    await mailTransporter({ to: email, name, subject, body: html });
+    await mailTransporter({ to: email, name, subject, body: html, lane: "otp", template: "otp.companyDelete" });
     apiLogger.info(`Brand delete OTP email sent to ${email}`);
   } catch (e) {
     apiLogger.error("Brand delete OTP email error:", e);

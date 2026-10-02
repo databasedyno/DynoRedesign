@@ -114,7 +114,7 @@
    "whatToDoTitle": "<strong>Wat je moet doen:</strong>",
    "steps": "1. Controleer of de URL klopt en bereikbaar is vanaf het publieke internet.<br>2. Bevestig dat je endpoint binnen 10 seconden HTTP 2xx teruggeeft.<br>3. Schakel de bezorging weer in via de <a href=\"{{settingsUrl}}\" style=\"color:#05936A;font-weight:600;\">webhook-instellingenpagina</a>.",
    "noLost": "Er gingen geen betalingen verloren — elke poging is vastgelegd in je <a href=\"{{settingsUrl}}\" style=\"color:#05936A;\">webhookbezorglog</a> en kan opnieuw worden verzonden zodra je endpoint weer werkt.",
-   "notRecognize": "Als je dit endpoint niet herkent of denkt dat dit een fout is, beantwoord dan deze e-mail en we onderzoeken het meteen."
+   "notRecognize": "Als je dit endpoint niet herkent of denkt dat dit een fout is, neem dan contact op met support en we onderzoeken het meteen."
   },
   "webhookRedirect": {
    "companyFallback": "je bedrijf",
@@ -528,7 +528,7 @@
    "next1": "1. Maak je merkprofiel aan",
    "next2": "2. Voeg je uitbetaaladres toe",
    "next3": "3. Deel een betaallink of koppel de API — en word betaald",
-   "questions": "Vragen onderweg? Beantwoord gewoon deze e-mail of open de chat op onze site — we helpen je graag.",
+   "questions": "Vragen onderweg? Open de chat op onze site — we helpen je graag.",
    "cta": "Setup afronden",
    "preheader": "Je bent binnen — rond een paar snelle stappen af om crypto te accepteren."
   },
@@ -778,7 +778,7 @@
    "intro": "Uw merk <strong>{{companyName}}</strong> is zojuist verwijderd op Dynopay. Geen zorgen — er is nog niets verloren. We bewaren alles (betaallinks, uitbetalingsadressen, instellingen en geschiedenis) de komende <strong>7 dagen</strong> veilig, voor het geval dit een vergissing was.",
    "status": "Ingepland voor verwijdering",
    "restoreBefore": "Herstellen vóór",
-   "changedMind": "<strong>Van gedachten veranderd?</strong> Beantwoord deze e-mail of neem vóór <strong>{{date}}</strong> contact op met ons supportteam en we zetten het merk met één klik precies terug zoals het was.",
+   "changedMind": "<strong>Van gedachten veranderd?</strong> Neem vóór <strong>{{date}}</strong> contact op met ons supportteam en we zetten het merk met één klik precies terug zoals het was.",
    "afterDate": "Na {{date}} worden het merk en alle bijbehorende gegevens definitief verwijderd en kunnen ze niet meer worden hersteld.",
    "didntDoThis": "Heeft u dit merk niet verwijderd? Neem dan direct contact met ons op, zodat we uw account kunnen beveiligen.",
    "cta": "Contact opnemen met support",
@@ -790,7 +790,7 @@
    "intro": "De hersteltermijn van 7 dagen voor uw merk <strong>{{companyName}}</strong> is verstreken. Het merk en alle bijbehorende gegevens zijn daarom <strong>definitief verwijderd</strong> van Dynopay. Dit kan niet ongedaan worden gemaakt.",
    "status": "Definitief verwijderd",
    "createNew": "Wilt u opnieuw betalingen accepteren? Dan kunt u op elk moment een nieuw merk aanmaken vanuit uw dashboard.",
-   "didntExpect": "Had u dit niet verwacht? Beantwoord dan deze e-mail en we helpen u verder.",
+   "didntExpect": "Had u dit niet verwacht? Neem dan contact op met support en we helpen u verder.",
    "cta": "Naar het dashboard",
    "preheader": "{{companyName}} is definitief verwijderd van Dynopay."
   },
@@ -810,7 +810,7 @@
    "timeLeft": "Resterende tijd",
    "timeLeftBadge": "Nog {{daysLabel}}",
    "deletesOn": "Wordt verwijderd op",
-   "wantItBack": "Wilt u het merk terug? Beantwoord dan deze e-mail of neem vóór <strong>{{date}}</strong> contact op met support en we herstellen het met één klik. Was de verwijdering de bedoeling, dan hoeft u niets te doen.",
+   "wantItBack": "Wilt u het merk terug? Neem dan vóór <strong>{{date}}</strong> contact op met support en we herstellen het met één klik. Was de verwijdering de bedoeling, dan hoeft u niets te doen.",
    "dayOne": "1 dag",
    "dayOther": "{{count}} dagen",
    "cta": "Contact opnemen met support",
@@ -1042,7 +1042,7 @@
    "reasonLabel": "Reden",
    "paymentLabel": "Betaling",
    "idLabel": "Omzettings-ID",
-   "next": "Open Uitbetalingen om het met één klik opnieuw te proberen, of beantwoord deze e-mail en we lossen het samen op.",
+   "next": "Open Uitbetalingen om het met één klik opnieuw te proberen, of neem contact op met support en we lossen het samen op.",
    "cta": "Uitbetalingen openen"
   },
   "signupOtp": {
@@ -1078,7 +1078,7 @@
    "actionLabel": "Actie vereist",
    "actionValue": "Geen — tenzij u uw sleutel nergens hebt opgeslagen. Roteer hem dan één keer via Ontwikkelaar › API-sleutels.",
    "rotate": "Roteren: open <strong>Ontwikkelaar › API-sleutels</strong>, klik op <strong>Opnieuw genereren</strong>, kopieer de nieuwe sleutel direct en werk uw integratie bij. De oude sleutel stopt met werken zodra u opnieuw genereert.",
-   "outro": "Vragen? Beantwoord deze e-mail — we helpen u graag.",
+   "outro": "Vragen? Neem contact op met support — we helpen u graag.",
    "cta": "API-sleutels openen"
   },
   "brandWelcome": {
@@ -1233,7 +1233,7 @@
     "amountLabel": "Bedrag",
     "addressLabel": "Uitbetaaladres",
     "reasonLabel": "Reden",
-    "outro": "Je beloningen zijn veilig en staan nog in je saldo. Controleer je uitbetaaladres op je verwijzingspagina en probeer het opnieuw — als het blijft mislukken, beantwoord deze e-mail dan en we helpen je.",
+    "outro": "Je beloningen zijn veilig en staan nog in je saldo. Controleer je uitbetaaladres op je verwijzingspagina en probeer het opnieuw — als het blijft mislukken, neem contact op met support dan en we helpen je.",
     "cta": "Uitbetaling controleren"
    },
    "accrual": {
@@ -1520,7 +1520,7 @@
    "subject": "Uw Dynopay-account is geschorst",
    "heading": "Account geschorst",
    "intro": "Uw Dynopay-account is tijdelijk geschorst. Zolang de schorsing duurt, kunt u niet aanmelden en geen betalingen verwerken.",
-   "outro": "Denkt u dat dit een vergissing is, of wilt u dit oplossen? Beantwoord deze e-mail of neem contact op met onze support.",
+   "outro": "Denkt u dat dit een vergissing is, of wilt u dit oplossen? Neem contact op met onze support.",
    "preheader": "Aanmelden en betalingen zijn gepauzeerd voor uw account."
   },
   "accountBanned": {
@@ -1692,7 +1692,7 @@
    "heading": "Ons team rondt uw uitbetaling af",
    "preheader": "{{amount}} kon niet automatisch worden uitbetaald — we wikkelen het handmatig af.",
    "intro": "{{companyName}} heeft {{amount}} van een koper ontvangen, maar de automatische uitbetaling is niet gelukt.",
-   "next": "Ons operationele team is gewaarschuwd en wikkelt deze uitbetaling handmatig af. Verwacht binnen één werkdag een bevestigingsmail; antwoord op deze e-mail als u het eerder nodig heeft."
+   "next": "Ons operationele team is gewaarschuwd en wikkelt deze uitbetaling handmatig af. Verwacht binnen één werkdag een bevestigingsmail; neem contact op met support als u het eerder nodig heeft."
   },
   "heroSub": "Wacht om uw uitbetaaladres te bereiken"
  },

@@ -205,7 +205,7 @@ export const sendEmailVerificationOTPEmail = async (
     ${p(t('merchant.emailVerifyOtp.expiry', L))}`;
 
     const html = dynoPayEmailTemplate(t('merchant.emailVerifyOtp.heading', L), content, false, "", "", t('merchant.emailVerifyOtp.preheader', L), L, 'mail');
-    await mailTransporter({ to: email, name, subject, body: html });
+    await mailTransporter({ to: email, name, subject, body: html, lane: "otp", template: "otp.emailVerify" });
     apiLogger.info(`Email verification OTP sent to ${email}`);
   } catch (e) {
     apiLogger.error("Email verification OTP email error:", e);
@@ -230,7 +230,7 @@ export const sendLoginOTPEmail = async (
     ${p(t('merchant.loginOtp.expiry', L))}`;
 
     const html = dynoPayEmailTemplate(t('merchant.loginOtp.heading', L), content, false, "", "", t('merchant.loginOtp.preheader', L), L, 'key');
-    await mailTransporter({ to: email, name, subject, body: html });
+    await mailTransporter({ to: email, name, subject, body: html, lane: "otp", template: "otp.login" });
     apiLogger.info(`Login OTP email sent to ${email}`);
   } catch (e) {
     apiLogger.error("Login OTP email error:", e);

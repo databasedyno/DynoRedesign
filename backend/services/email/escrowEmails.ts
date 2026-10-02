@@ -211,7 +211,7 @@ export async function sendEscrowOtpEmail(toEmail: string, deal: DealLike, otp: s
     `<p>Use this one-time code to verify your email for the deal <b>${esc(deal.title)}</b> (${money(deal)}):</p>` +
     otpBlock(otp, deal.source === "safedeal" ? "#FFC61A" : undefined) +
     p("It expires in 10 minutes. If you didn't request it, you can safely ignore this email.");
-  await sendEmail(toEmail, toEmail, `${otp} is your ${v.name} verification code`, message, false, { ...v.opts("key"), heading: "Your verification code" });
+  await sendEmail(toEmail, toEmail, `${otp} is your ${v.name} verification code`, message, false, { ...v.opts("key"), heading: "Your verification code", lane: "otp", template: "escrow.otp" });
 }
 
 export async function sendEscrowPayoutPendingEmail(toEmail: string, toName: string, deal: DealLike, role: string, addUrl: string): Promise<void> {

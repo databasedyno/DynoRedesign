@@ -1732,6 +1732,14 @@ const startServer = async () => {
     //   - BullMQ webhook worker (both consumed the shared queue)
     //   - startup + fee-free reconciliation (duplicate re-queues)
     if (isCronEnabled) {
+      // Durable outbound-email worker — runs on EVERY job-eligible instance (not
+      // leader-only: more throughput, no single point of failure). Never where
+      // outbound email is disabled (preview pods share the live Redis).
+      if (config.str("DISABLE_OUTBOUND_EMAIL") !== "true" && config.str("EMAIL_QUEUE_DISABLED") !== "true") {
+        import("./services/email/emailQueue")
+          .then(({ startEmailWorker }) => { startEmailWorker(); log("BullMQ emails worker started", "info"); })
+          .catch((e: Error) => log(`Emails worker failed to start: ${e.message}`, "error"));
+      }
       // Tier-2 Item #10 — transactional-outbox relay. Uses FOR UPDATE SKIP LOCKED
       // so it is safe to run on every primary replica (no leader election needed).
       // Gated by ENABLE_OUTBOX (default OFF) => no-op until explicitly enabled.
@@ -1915,7 +1923,10 @@ const gracefulShutdown = async (signal: string) => {
   const SETTLEMENT_DRAIN_MS = Number(process.env.SETTLEMENT_DRAIN_MS || 18000);
   try {
     await Promise.race([
-      shutdownWebhookQueue(),
+      Promise.allSettled([
+        shutdownWebhookQueue(),
+        import("./services/email/emailQueue").then(({ shutdownEmailQueue }) => shutdownEmailQueue()),
+      ]),
       new Promise<void>((resolve) => setTimeout(resolve, SETTLEMENT_DRAIN_MS)),
     ]);
     log('Webhook queue drained (in-flight settlements given time to finish).', 'info');

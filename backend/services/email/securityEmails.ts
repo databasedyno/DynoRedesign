@@ -20,8 +20,8 @@ const whenRow = (L: string) => {
 
 const SECURITY_URL = `${FRONTEND_BASE_URL}/settings?section=profile`;
 
-const send = async (email: string, name: string, subject: string, html: string, tag: string) => {
-  await mailTransporter({ to: email, name, subject, body: html });
+const send = async (email: string, name: string, subject: string, html: string, tag: string, lane: "otp" | "default" = "default") => {
+  await mailTransporter({ to: email, name, subject, body: html, lane, template: tag });
   apiLogger.info(`[Email] ${tag} sent to ${email}`);
 };
 
@@ -203,7 +203,7 @@ export const sendAccountDeleteOTPEmail = async (email: string, name: string, otp
     ${otpBlock(otpCode)}
     ${warnText(`This code expires shortly. If you didn't request this, ignore this email and change your password right away.`)}`;
     const html = dynoPayEmailTemplate("Confirm account deletion", content, false, "", "", "Your Dynopay account-deletion code", null, "lock-red");
-    await send(email, name, "Confirm account deletion – Dynopay", html, "Account delete OTP");
+    await send(email, name, "Confirm account deletion – Dynopay", html, "Account delete OTP", "otp");
   } catch (e) {
     apiLogger.error("Account delete OTP email error:", e);
   }
@@ -257,7 +257,7 @@ export const sendStepUpCodeEmail = async (email: string, name: string, code: str
     ${p(t("security.stepUp.expiry", L), "font-size: 14px; color: #6b7280; text-align: center; margin: 0;")}
     ${warnText(t("security.stepUp.ignore", L))}`;
     const html = dynoPayEmailTemplate(t("security.stepUp.heading", L), content, false, "", "", t("security.stepUp.preheader", L), L, "key");
-    await send(email, name, t("security.stepUp.subject", L), html, `Step-up code (${scope})`);
+    await send(email, name, t("security.stepUp.subject", L), html, `Step-up code (${scope})`, "otp");
   } catch (e) {
     apiLogger.error("Step-up code email error:", e);
   }
@@ -273,7 +273,7 @@ export const send2FAResetLinkEmail = async (email: string, name: string, link: s
     ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${whenRow(L)}</table>`, "#F79009")}
     ${warnText(t("security.twoFaReset.ignore", L))}`;
     const html = dynoPayEmailTemplate(t("security.twoFaReset.heading", L), content, true, t("security.twoFaReset.cta", L), link, t("security.twoFaReset.preheader", L), L, "shield-red");
-    await send(email, name, t("security.twoFaReset.subject", L), html, "2FA reset link");
+    await send(email, name, t("security.twoFaReset.subject", L), html, "2FA reset link", "otp");
   } catch (e) {
     apiLogger.error("2FA reset link email error:", e);
   }

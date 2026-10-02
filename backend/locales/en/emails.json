@@ -114,7 +114,7 @@
    "whatToDoTitle": "<strong>What you need to do:</strong>",
    "steps": "1. Verify the URL is correct and reachable from the public internet.<br>2. Confirm your endpoint returns HTTP 2xx within 10 seconds.<br>3. Re-enable delivery from the <a href=\"{{settingsUrl}}\" style=\"color:#05936A;font-weight:600;\">webhook settings page</a>.",
    "noLost": "No payments were lost — every attempt was captured in your <a href=\"{{settingsUrl}}\" style=\"color:#05936A;\">webhook delivery log</a> and can be re-fired once your endpoint is healthy again.",
-   "notRecognize": "If you don't recognize this endpoint or believe this is a mistake, please reply to this email and we'll investigate immediately."
+   "notRecognize": "If you don't recognize this endpoint or believe this is a mistake, please contact support and we'll investigate immediately."
   },
   "webhookRedirect": {
    "companyFallback": "your company",
@@ -528,7 +528,7 @@
    "next1": "1. Create your brand profile",
    "next2": "2. Add your payout address",
    "next3": "3. Share a payment link or connect the API — and get paid",
-   "questions": "Questions along the way? Just reply to this email or open the chat on our site — we're happy to help.",
+   "questions": "Questions along the way? Open the chat on our site or contact support — we're happy to help.",
    "cta": "Finish setup",
    "preheader": "You're in — finish a couple of quick steps to start accepting crypto."
   },
@@ -778,7 +778,7 @@
    "intro": "Your brand <strong>{{companyName}}</strong> was just deleted on Dynopay. Don't worry — nothing is gone yet. We're keeping everything (payment links, payout addresses, settings and history) safe for the next <strong>7 days</strong> in case this was a mistake.",
    "status": "Scheduled for deletion",
    "restoreBefore": "Restore before",
-   "changedMind": "<strong>Changed your mind?</strong> Just reply to this email or contact our support team before <strong>{{date}}</strong> and we'll bring the brand back exactly as it was — with one click.",
+   "changedMind": "<strong>Changed your mind?</strong> Contact our support team before <strong>{{date}}</strong> and we'll bring the brand back exactly as it was — with one click.",
    "afterDate": "After {{date}} the brand and all of its data are permanently deleted and can no longer be recovered.",
    "didntDoThis": "If you didn't delete this brand, please contact us straight away so we can secure your account.",
    "cta": "Contact support",
@@ -790,7 +790,7 @@
    "intro": "The 7-day recovery window for your brand <strong>{{companyName}}</strong> has now passed, so it and all of its data have been <strong>permanently deleted</strong> from Dynopay. This can't be undone.",
    "status": "Permanently deleted",
    "createNew": "If you'd like to accept payments again, you can create a fresh brand anytime from your dashboard.",
-   "didntExpect": "If you didn't expect this, please reply to this email and we'll help.",
+   "didntExpect": "If you didn't expect this, please contact support and we'll help.",
    "cta": "Go to dashboard",
    "preheader": "{{companyName}} has been permanently deleted from Dynopay."
   },
@@ -810,7 +810,7 @@
    "timeLeft": "Time left",
    "timeLeftBadge": "{{daysLabel}} left",
    "deletesOn": "Deletes on",
-   "wantItBack": "If you'd like it back, just reply to this email or contact support before <strong>{{date}}</strong> and we'll restore it with one click. If you meant to delete it, no action is needed.",
+   "wantItBack": "If you'd like it back, contact support before <strong>{{date}}</strong> and we'll restore it with one click. If you meant to delete it, no action is needed.",
    "dayOne": "1 day",
    "dayOther": "{{count}} days",
    "cta": "Contact support",
@@ -1078,7 +1078,7 @@
    "actionLabel": "Action needed",
    "actionValue": "None — unless you have not saved your key anywhere. In that case, rotate it once from Developer › API keys.",
    "rotate": "To rotate: open <strong>Developer › API keys</strong>, press <strong>Regenerate</strong>, copy the new key immediately and update your integration. The old key stops working the moment you regenerate.",
-   "outro": "Questions? Reply to this email — we are happy to help.",
+   "outro": "Questions? Contact support — we are happy to help.",
    "cta": "Open API keys"
   },
   "brandWelcome": {
@@ -1233,7 +1233,7 @@
     "amountLabel": "Amount",
     "addressLabel": "Payout address",
     "reasonLabel": "Reason",
-    "outro": "Your rewards are safe and still in your balance. Please double-check your payout address on your referrals page and try again — if it keeps failing, just reply to this email and we'll help.",
+    "outro": "Your rewards are safe and still in your balance. Please double-check your payout address on your referrals page and try again — if it keeps failing, contact support and we'll help.",
     "cta": "Review payout"
    },
    "accrual": {
@@ -1504,7 +1504,7 @@
    "subject": "Your Dynopay account has been suspended",
    "heading": "Account suspended",
    "intro": "Your Dynopay account has been temporarily suspended. You won't be able to sign in or process payments while it's suspended.",
-   "outro": "If you believe this is a mistake, or you'd like to resolve it, reply to this email or contact our support team.",
+   "outro": "If you believe this is a mistake, or you'd like to resolve it, contact our support team.",
    "preheader": "Sign-in and payments are paused on your account."
   },
   "accountBanned": {
@@ -1692,7 +1692,7 @@
    "heading": "Our team is finishing your payout",
    "preheader": "{{amount}} could not be paid out automatically — we're settling it by hand.",
    "intro": "{{companyName}} received {{amount}} from a buyer, but the automatic payout did not go through.",
-   "next": "Our operations team has been alerted and is settling this payout manually. Expect a confirmation email within one business day; reply to this email if you need it sooner."
+   "next": "Our operations team has been alerted and is settling this payout manually. Expect a confirmation email within one business day; contact support if you need it sooner."
   },
   "heroSub": "Waiting to reach your payout address"
  },

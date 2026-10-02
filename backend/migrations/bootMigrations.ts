@@ -1027,6 +1027,46 @@ const createAdminSessionTable = async (): Promise<void> => {
   if (isSyncable(adminSessionModel)) await adminSessionModel.sync();
 };
 
+// 0057 — outbound email send log (queued → sent → delivered | bounced …). Additive + idempotent.
+const createEmailLogTable = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `CREATE TABLE IF NOT EXISTS "tbl_email_log" (
+       "log_id" BIGSERIAL PRIMARY KEY,
+       "to_email" VARCHAR(320) NOT NULL,
+       "to_name" VARCHAR(255),
+       "subject" VARCHAR(500) NOT NULL,
+       "template" VARCHAR(120),
+       "lane" VARCHAR(16) NOT NULL DEFAULT 'default',
+       "sender_email" VARCHAR(320),
+       "status" VARCHAR(24) NOT NULL DEFAULT 'queued',
+       "attempts" SMALLINT NOT NULL DEFAULT 0,
+       "job_id" VARCHAR(120),
+       "brevo_message_id" VARCHAR(255),
+       "last_error" TEXT,
+       "last_event" VARCHAR(32),
+       "last_event_at" TIMESTAMPTZ,
+       "sent_at" TIMESTAMPTZ,
+       "created_at" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+       "updated_at" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+     )`
+  );
+  await sequelize.query(`CREATE INDEX IF NOT EXISTS "idx_email_log_to_created" ON "tbl_email_log" ("to_email", "created_at" DESC)`);
+  await sequelize.query(`CREATE INDEX IF NOT EXISTS "idx_email_log_message_id" ON "tbl_email_log" ("brevo_message_id")`);
+  await sequelize.query(`CREATE INDEX IF NOT EXISTS "idx_email_log_status_created" ON "tbl_email_log" ("status", "created_at" DESC)`);
+};
+
+// 0058 — Brevo bounce suppression: when the account email hard-bounces we stop non-critical mail and nudge the user.
+const addUserEmailBounce = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `ALTER TABLE "tbl_user"
+       ADD COLUMN IF NOT EXISTS "email_bounced_at" TIMESTAMPTZ,
+       ADD COLUMN IF NOT EXISTS "email_bounce_reason" VARCHAR(255)`
+  );
+};
+
+
 export async function buildBootMigrations(): Promise<Migration[]> {  const { v1, extra } = await loadBootModelGroups();  return [
     { version: "0001_boot_model_tables", up: syncGroup(v1) },
     { version: "0002_boot_model_tables_extra", up: syncGroup(extra) },
@@ -1081,6 +1121,8 @@ export async function buildBootMigrations(): Promise<Migration[]> {  const { v1,
     { version: "0054_safedeal_session_security", up: addSafeDealSessionSecurity },
     { version: "0055_admin_auth_columns", up: addAdminAuthColumns },
     { version: "0056_admin_session", up: createAdminSessionTable },
+    { version: "0057_email_log", up: createEmailLogTable },
+    { version: "0058_user_email_bounce", up: addUserEmailBounce },
     ...perfMigrations,
     ...securityMigrations,
   ];
