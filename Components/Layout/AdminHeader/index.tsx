@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   Box,
   Typography,
@@ -84,6 +84,16 @@ const AdminHeader = ({ pageName, pageDescription, component }: AdminHeaderProps)
     }
   };
 
+  // If the profile photo fails to load (missing, 404, or a CORS-blocked remote
+  // URL), fall back to the bundled default user image exactly once so the menu
+  // trigger never renders as a torn-image placeholder with overflowing alt text.
+  const handleAvatarError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget;
+    if (img.dataset.fallback === "1") return;
+    img.dataset.fallback = "1";
+    img.src = User.src;
+  };
+
   return (
     <>
       <AppBar
@@ -157,6 +167,9 @@ const AdminHeader = ({ pageName, pageDescription, component }: AdminHeaderProps)
                     height: "45px",
                     borderRadius: "100%",
                     objectFit: "cover",
+                    overflow: "hidden",
+                    color: "transparent",
+                    backgroundColor: "rgba(127,127,127,0.18)",
                   },
                   "&:hover": {
                     background: "#f8f8f8",
@@ -167,8 +180,10 @@ const AdminHeader = ({ pageName, pageDescription, component }: AdminHeaderProps)
                 {/* eslint-disable-next-line */}
                 <img
                   src={userPhotoSrc || User.src}
-                  alt="no user"
-                  crossOrigin="anonymous"
+                  alt="Account menu"
+                  width={45}
+                  height={45}
+                  onError={handleAvatarError}
                 />
               </Box>
             </Box>
@@ -218,6 +233,9 @@ const AdminHeader = ({ pageName, pageDescription, component }: AdminHeaderProps)
                     height: "45px",
                     borderRadius: "100%",
                     objectFit: "cover",
+                    overflow: "hidden",
+                    color: "transparent",
+                    backgroundColor: "rgba(127,127,127,0.18)",
                   },
                   "&:hover": {
                     background: "#f8f8f8",
@@ -228,8 +246,10 @@ const AdminHeader = ({ pageName, pageDescription, component }: AdminHeaderProps)
                 {/* eslint-disable-next-line */}
                 <img
                   src={userPhotoSrc || User.src}
-                  alt="no user"
-                  crossOrigin="anonymous"
+                  alt="Account menu"
+                  width={45}
+                  height={45}
+                  onError={handleAvatarError}
                 />
               </Box>
             </Box>
