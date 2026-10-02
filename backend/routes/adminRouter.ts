@@ -5,6 +5,7 @@ import supportInboxController from "../controller/supportInboxController";
 import adminSecurityController from "../controller/adminSecurityController";
 import emailLogController from "../controller/emailLogController";
 import feeReconciliationController from "../controller/admin/feeReconciliationController";
+import chainReadinessController from "../controller/admin/chainReadinessController";
 import { adminAuthMiddleware } from "../middleware";
 import adminOrApiKeyMiddleware from "../middleware/adminOrApiKeyMiddleware";
 import { loginRateLimiter } from "../middleware/rateLimitMiddleware";
@@ -40,6 +41,7 @@ adminRouter.post("/fee-reconciliation/backfill", adminAuthMiddleware, feeReconci
 adminRouter.post("/fee-reconciliation/reconcile", adminAuthMiddleware, feeReconciliationController.reconcile);
 adminRouter.post("/pool/consolidate-crumbs", adminAuthMiddleware, feeReconciliationController.startCrumbSweep);
 adminRouter.get("/pool/crumbs-report", adminAuthMiddleware, feeReconciliationController.crumbReport);
+adminRouter.get("/chain-readiness", adminAuthMiddleware, chainReadinessController.getReport);
 adminRouter.get(
   "/getAllTransactions",
   adminAuthMiddleware,

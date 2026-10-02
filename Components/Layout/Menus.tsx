@@ -5,6 +5,7 @@ import {
   GroupsRounded,
   HandshakeRounded,
   HomeRounded,
+  HubRounded,
   LocalGasStationRounded,
   ReceiptLongRounded,
   RssFeedRounded,
@@ -96,6 +97,11 @@ const adminMenus = [
     icon: <LocalGasStationRounded color="inherit" />,
     name: "Fee Reconciliation",
     link: "/admin/fee-reconciliation",
+  },
+  {
+    icon: <HubRounded color="inherit" />,
+    name: "Chain Readiness",
+    link: "/admin/chain-readiness",
   },
   {
     icon: <RssFeedRounded color="inherit" />,

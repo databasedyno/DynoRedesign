@@ -41,6 +41,7 @@ import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { StatCard, SectionCard, formatUSD, formatNumber, formatCrypto } from "../adminUi";
 import SecurityEventsPanel from "./SecurityEventsPanel";
 import EmailLogPanel from "./EmailLogPanel";
+import GasWalletsStrip from "./GasWalletsStrip";
 
 interface RevenueRow {
   base_currency: string;
@@ -183,6 +184,7 @@ const AdminOverview: React.FC = () => {
 
   return (
     <Box data-testid="admin-overview">
+      <GasWalletsStrip />
       {/* Period filter */}
       <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 0.75, mb: 2, flexWrap: "wrap" }}>
         {PERIODS.map((p) => {

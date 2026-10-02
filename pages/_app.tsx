@@ -465,6 +465,8 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
       "/admin/merchants":          "admin",
       "/admin/transactions":       "admin",
       "/admin/live-console":       "admin",
+      "/admin/fee-reconciliation": "admin",
+      "/admin/chain-readiness":    "admin",
     };
 
     const key = routeKeyMap[pathname];

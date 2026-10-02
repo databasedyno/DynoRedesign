@@ -491,7 +491,8 @@ export const settleCryptoTransaction = async ({
         if (gasFundingResult.funded && gasFundingResult.txId) {
           const gasTimeouts: Record<string, number> = {
             ETH: 120000,   // 120s — ETH blocks ~12s, mempool can delay significantly
-            MATIC: 45000,  // 45s  — Polygon blocks ~2s but can have congestion
+            POLYGON: 45000, // 45s  — Polygon blocks ~2s but can have congestion
+            MATIC: 45000,
             TRX: 15000,    // 15s  — TRX blocks ~3s, fast finality
             BSC: 30000,    // 30s  — BSC blocks ~3s
           };

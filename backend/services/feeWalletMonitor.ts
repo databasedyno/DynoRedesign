@@ -38,11 +38,14 @@ const ALERT_EMAIL =
 // while capping worst-case at 4 emails/chain/day even when nobody tops up.
 const ALERT_COOLDOWN_MS = 6 * 60 * 60 * 1000; // 6 hours
 
-interface ChainConfig {
-  chain: string;          // canonical Tatum currency code (TRX/ETH/POLYGON)
-  displayName: string;    // human label used in emails/logs (TRX/ETH/MATIC…)
+export interface ChainConfig {
+  id: string;             // unique key for per-wallet state (TRX/ETH/POLYGON/XRP_MASTER)
+  chain: string;          // canonical Tatum currency code used for the balance lookup (TRX/ETH/POLYGON/XRP)
+  displayName: string;    // human label used in emails/logs (TRX/ETH/POL/XRP)
+  envKey: string;         // env var that holds the address
   address: string;        // fee wallet address
-  criticalThreshold: number;  // native units (TRX / ETH / POL)
+  role: string;           // what this wallet pays for (shown in alerts + admin readiness)
+  criticalThreshold: number;  // native units (TRX / ETH / POL / XRP)
   warningThreshold: number;
   healthyThreshold: number;
   supportsStaking: boolean;   // true only for TRX (Stake 2.0 frozen counts toward total)
@@ -50,20 +53,26 @@ interface ChainConfig {
 
 // Chain configuration. Thresholds picked to cover ~5-20 sweep/settlement txs
 // at typical gas prices (as of 2026-07-11). Tune by tweaking env or this map.
-const CHAIN_CONFIGS: ChainConfig[] = [
+export const FEE_WALLET_CONFIGS: ChainConfig[] = [
   {
+    id: 'TRX',
     chain: 'TRX',
     displayName: 'TRX',
+    envKey: 'TRX_FEE_WALLET',
     address: config.str("TRX_FEE_WALLET"),
+    role: 'Gas for USDT-TRC20 payouts and fee sweeps',
     criticalThreshold: config.num("TRX_FEE_WALLET_CRITICAL", 30),
     warningThreshold: config.num("TRX_FEE_WALLET_WARNING", 60),
     healthyThreshold: config.num("TRX_FEE_WALLET_HEALTHY", 120),
     supportsStaking: true,
   },
   {
+    id: 'ETH',
     chain: 'ETH',
     displayName: 'ETH',
+    envKey: 'ETH_FEE_WALLET',
     address: config.str("ETH_FEE_WALLET"),
+    role: 'Gas for USDT-ERC20, USDC-ERC20 and RLUSD-ERC20 payouts and fee sweeps',
     // ETH mainnet gas: ~50k gas × 20-30 gwei ≈ 0.001-0.0015 ETH per ERC20 tx.
     // Warning at 0.02 ETH ≈ 10-20 operations; critical at 0.01 ≈ 5-10.
     criticalThreshold: config.num("ETH_FEE_WALLET_CRITICAL", 0.01),
@@ -72,18 +81,37 @@ const CHAIN_CONFIGS: ChainConfig[] = [
     supportsStaking: false,
   },
   {
+    id: 'POLYGON',
     chain: 'POLYGON',
     displayName: 'POL',
+    envKey: 'POLYGON_FEE_WALLET',
     address: config.str("POLYGON_FEE_WALLET"),
+    role: 'Gas for USDT-POLYGON payouts and fee sweeps',
     // Polygon gas: ~$0.005-0.05/tx. 5 POL comfortably covers weeks.
     criticalThreshold: config.num("POLYGON_FEE_WALLET_CRITICAL", 2),
     warningThreshold: config.num("POLYGON_FEE_WALLET_WARNING", 5),
     healthyThreshold: config.num("POLYGON_FEE_WALLET_HEALTHY", 10),
     supportsStaking: false,
   },
+  {
+    id: 'XRP_MASTER',
+    chain: 'XRP',
+    displayName: 'XRP',
+    envKey: 'XRP_MASTER_WALLET',
+    address: config.str("XRP_MASTER_WALLET"),
+    role: 'Receives all XRP / RLUSD payments (destination tags); must stay above the XRPL reserve (1 XRP + 0.2 per trust line) to sweep',
+    // Reserve is ~1.2 XRP (1 base + 1 RLUSD trust line); sweeps cost ~0.00001 XRP.
+    criticalThreshold: config.num("XRP_MASTER_WALLET_CRITICAL", 2),
+    warningThreshold: config.num("XRP_MASTER_WALLET_WARNING", 3),
+    healthyThreshold: config.num("XRP_MASTER_WALLET_HEALTHY", 5),
+    supportsStaking: false,
+  },
 ];
 
-interface WalletStatus {
+const CHAIN_CONFIGS = FEE_WALLET_CONFIGS;
+
+export interface WalletStatus {
+  id: string;
   chain: string;
   balance: number;         // TOTAL (liquid + frozen where applicable)
   liquid?: number;         // spendable
@@ -118,7 +146,7 @@ async function fetchValidatedBalance(cfg: ChainConfig): Promise<{ total: number;
     const result = await tatumApi.getAddressBalance(cfg.address, cfg.chain, true) as
       { balance?: string; liquid?: string; frozen?: string; total?: string } | null | undefined;
     if (!result || result.balance === undefined || result.balance === null) {
-      cronLogger.warn(`[FeeWalletMonitor][${cfg.chain}] Tatum returned no balance field — treating as API failure`);
+      cronLogger.warn(`[FeeWalletMonitor][${cfg.id}] Tatum returned no balance field — treating as API failure`);
       return null;
     }
     // For TRX we use .total (liquid + frozen). For EVM chains .total is absent so
@@ -128,17 +156,17 @@ async function fetchValidatedBalance(cfg: ChainConfig): Promise<{ total: number;
     const liquid = Number(result.liquid ?? result.balance);
     const frozen = Number(result.frozen ?? 0);
     if (!Number.isFinite(total)) {
-      cronLogger.warn(`[FeeWalletMonitor][${cfg.chain}] Balance parsed as non-finite (${totalStr}) — treating as API failure`);
+      cronLogger.warn(`[FeeWalletMonitor][${cfg.id}] Balance parsed as non-finite (${totalStr}) — treating as API failure`);
       return null;
     }
     return { total, liquid, frozen };
   } catch (err) {
-    cronLogger.warn(`[FeeWalletMonitor][${cfg.chain}] Tatum call threw: ${safeErrorMsg(err)}`);
+    cronLogger.warn(`[FeeWalletMonitor][${cfg.id}] Tatum call threw: ${safeErrorMsg(err)}`);
     return null;
   }
 }
 
-function computeStatus(cfg: ChainConfig, balance: number): 'healthy' | 'warning' | 'critical' | 'empty' {
+export function computeStatus(cfg: Pick<ChainConfig, 'criticalThreshold' | 'warningThreshold'>, balance: number): 'healthy' | 'warning' | 'critical' | 'empty' {
   if (balance === 0) return 'empty';
   if (balance < cfg.criticalThreshold) return 'critical';
   if (balance < cfg.warningThreshold) return 'warning';
@@ -152,11 +180,11 @@ function computeStatus(cfg: ChainConfig, balance: number): 'healthy' | 'warning'
  */
 async function checkChainFeeWallet(cfg: ChainConfig): Promise<WalletStatus | null> {
   if (!cfg.address) {
-    cronLogger.warn(`[FeeWalletMonitor][${cfg.chain}] address not configured (env ${cfg.chain}_FEE_WALLET) — skipping`);
+    cronLogger.warn(`[FeeWalletMonitor][${cfg.id}] address not configured (env ${cfg.envKey}) — skipping`);
     return null;
   }
 
-  const lastStatus = lastStatusByChain.get(cfg.chain);
+  const lastStatus = lastStatusByChain.get(cfg.id);
 
   // First read
   let bal = await fetchValidatedBalance(cfg);
@@ -164,6 +192,7 @@ async function checkChainFeeWallet(cfg: ChainConfig): Promise<WalletStatus | nul
   // If API failed entirely, fall back to last-known status WITHOUT alerting.
   if (bal === null) {
     const fallbackStatus: WalletStatus = {
+      id: cfg.id,
       chain: cfg.chain,
       balance: lastStatus?.balance ?? -1,
       liquid: lastStatus?.liquid,
@@ -173,18 +202,19 @@ async function checkChainFeeWallet(cfg: ChainConfig): Promise<WalletStatus | nul
       lastAlertSent: lastStatus?.lastAlertSent,
       lastAlertLevel: lastStatus?.lastAlertLevel,
     };
-    cronLogger.info(`[FeeWalletMonitor][${cfg.chain}] ⏭️ Using last known status (${lastStatus?.balance?.toFixed(6) ?? 'unknown'} ${cfg.displayName}) due to API error`);
+    cronLogger.info(`[FeeWalletMonitor][${cfg.id}] ⏭️ Using last known status (${lastStatus?.balance?.toFixed(6) ?? 'unknown'} ${cfg.displayName}) due to API error`);
     return fallbackStatus;
   }
 
   // Double-check a suspicious 0 after a healthy read (transient blip guard).
   if (bal.total === 0 && lastStatus && lastStatus.balance > cfg.criticalThreshold) {
-    cronLogger.warn(`[FeeWalletMonitor][${cfg.chain}] First 0-balance read after a healthy read — re-verifying before firing empty alert`);
+    cronLogger.warn(`[FeeWalletMonitor][${cfg.id}] First 0-balance read after a healthy read — re-verifying before firing empty alert`);
     await new Promise((r) => setTimeout(r, 3000));
     const bal2 = await fetchValidatedBalance(cfg);
     if (bal2 === null) {
-      cronLogger.warn(`[FeeWalletMonitor][${cfg.chain}] Re-verification failed; treating as API error, keeping last status`);
+      cronLogger.warn(`[FeeWalletMonitor][${cfg.id}] Re-verification failed; treating as API error, keeping last status`);
       return {
+        id: cfg.id,
         chain: cfg.chain,
         balance: lastStatus.balance,
         liquid: lastStatus.liquid,
@@ -203,12 +233,13 @@ async function checkChainFeeWallet(cfg: ChainConfig): Promise<WalletStatus | nul
 
   // Track consecutive empties
   if (status === 'empty') {
-    consecutiveEmptyByChain.set(cfg.chain, (consecutiveEmptyByChain.get(cfg.chain) || 0) + 1);
+    consecutiveEmptyByChain.set(cfg.id, (consecutiveEmptyByChain.get(cfg.id) || 0) + 1);
   } else {
-    consecutiveEmptyByChain.set(cfg.chain, 0);
+    consecutiveEmptyByChain.set(cfg.id, 0);
   }
 
   const currentStatus: WalletStatus = {
+    id: cfg.id,
     chain: cfg.chain,
     balance,
     liquid: bal.liquid,
@@ -222,7 +253,7 @@ async function checkChainFeeWallet(cfg: ChainConfig): Promise<WalletStatus | nul
   const emoji = { healthy: '✅', warning: '⚠️', critical: '🚨', empty: '❌' }[status];
   const frozenNote = bal.frozen > 0 ? ` (liquid ${toFixedStr(bal.liquid, 6)} + frozen ${toFixedStr(bal.frozen, 6)})` : '';
   const precision = cfg.chain === 'TRX' ? 2 : 6; // TRX values are whole numbers, EVM native is fractional
-  cronLogger.info(`[FeeWalletMonitor][${cfg.chain}] ${emoji} ${cfg.displayName} Fee Wallet: ${toFixedStr(balance, precision)} ${cfg.displayName}${frozenNote} (${status.toUpperCase()})`);
+  cronLogger.info(`[FeeWalletMonitor][${cfg.id}] ${emoji} ${cfg.displayName} Fee Wallet: ${toFixedStr(balance, precision)} ${cfg.displayName}${frozenNote} (${status.toUpperCase()})`);
 
   // Alerting
   if (shouldSendAlert(cfg, currentStatus, lastStatus)) {
@@ -231,7 +262,7 @@ async function checkChainFeeWallet(cfg: ChainConfig): Promise<WalletStatus | nul
     currentStatus.lastAlertLevel = status;
   }
 
-  lastStatusByChain.set(cfg.chain, currentStatus);
+  lastStatusByChain.set(cfg.id, currentStatus);
   return currentStatus;
 }
 
@@ -239,8 +270,8 @@ function shouldSendAlert(cfg: ChainConfig, current: WalletStatus, last: WalletSt
   if (current.status === 'healthy') return false;
 
   // Require TWO consecutive empty reads before firing an empty alert
-  if (current.status === 'empty' && (consecutiveEmptyByChain.get(cfg.chain) || 0) < 2) {
-    cronLogger.info(`[FeeWalletMonitor][${cfg.chain}] Empty read #${consecutiveEmptyByChain.get(cfg.chain)}/2 — waiting for confirmation before alerting`);
+  if (current.status === 'empty' && (consecutiveEmptyByChain.get(cfg.id) || 0) < 2) {
+    cronLogger.info(`[FeeWalletMonitor][${cfg.id}] Empty read #${consecutiveEmptyByChain.get(cfg.id)}/2 — waiting for confirmation before alerting`);
     return false;
   }
 
@@ -255,7 +286,7 @@ function shouldSendAlert(cfg: ChainConfig, current: WalletStatus, last: WalletSt
   if (last?.lastAlertSent) {
     const dt = Date.now() - last.lastAlertSent.getTime();
     if (dt < ALERT_COOLDOWN_MS) {
-      cronLogger.info(`[FeeWalletMonitor][${cfg.chain}] Alert cooldown active (${Math.round(dt / 60000)}min since last alert)`);
+      cronLogger.info(`[FeeWalletMonitor][${cfg.id}] Alert cooldown active (${Math.round(dt / 60000)}min since last alert)`);
       return false;
     }
   }
@@ -283,31 +314,33 @@ async function sendAlert(cfg: ChainConfig, status: WalletStatus): Promise<void> 
     : '';
 
   const precision = cfg.chain === 'TRX' ? 2 : 6;
+  const roleLine = `<p style="color:#6b7280;font-size:13px;">Wallet role: ${cfg.role}</p>`;
+  const topUp = Math.max(0, cfg.healthyThreshold - balance);
 
   const message = {
     empty: `
       <h2 style="color: #dc2626;">🚨 ${label} Fee Wallet is EMPTY!</h2>
       <p><strong>Current Balance:</strong> ${toFixedStr(balance, precision)} ${label} (total)</p>
-      ${breakdown}
+      ${breakdown}${roleLine}
       <p><strong>Impact:</strong> ${impactLabel(cfg, 'empty')}</p>
-      <p><strong>Action Required:</strong> Send at least ${cfg.healthyThreshold} ${label} to:<br/>
+      <p><strong>Action Required:</strong> Send at least ${toFixedStr(topUp, precision)} ${label} (to reach ${cfg.healthyThreshold} ${label}) to:<br/>
       <code>${cfg.address}</code></p>
     `,
     critical: `
       <h2 style="color: #ea580c;">🚨 ${label} Fee Wallet Critically Low</h2>
       <p><strong>Current Balance:</strong> ${toFixedStr(balance, precision)} ${label} (total)</p>
-      ${breakdown}
+      ${breakdown}${roleLine}
       <p><strong>Threshold:</strong> &lt; ${cfg.criticalThreshold} ${label}</p>
       <p><strong>Impact:</strong> ${impactLabel(cfg, 'critical')}</p>
-      <p><strong>Action Required:</strong> Top up soon to at least ${cfg.healthyThreshold} ${label}:<br/>
+      <p><strong>Action Required:</strong> Top up ${toFixedStr(topUp, precision)} ${label} soon to reach ${cfg.healthyThreshold} ${label}:<br/>
       <code>${cfg.address}</code></p>
     `,
     warning: `
       <h2 style="color: #f59e0b;">⚠️ ${label} Fee Wallet Low</h2>
       <p><strong>Current Balance:</strong> ${toFixedStr(balance, precision)} ${label} (total)</p>
-      ${breakdown}
+      ${breakdown}${roleLine}
       <p><strong>Threshold:</strong> &lt; ${cfg.warningThreshold} ${label}</p>
-      <p><strong>Recommendation:</strong> Top up to ${cfg.healthyThreshold}+ ${label} soon:<br/>
+      <p><strong>Recommendation:</strong> Top up ${toFixedStr(topUp, precision)} ${label} to reach ${cfg.healthyThreshold} ${label} soon:<br/>
       <code>${cfg.address}</code></p>
       <p>System is still operational but running low on gas funds.</p>
     `,
@@ -321,27 +354,32 @@ async function sendAlert(cfg: ChainConfig, status: WalletStatus): Promise<void> 
       body: dynoPayGreetingTemplate('Admin', message, subject),
       name: 'Admin',
     });
-    cronLogger.info(`[FeeWalletMonitor][${cfg.chain}] ${level.toUpperCase()} alert sent to ${ALERT_EMAIL}`);
+    cronLogger.info(`[FeeWalletMonitor][${cfg.id}] ${level.toUpperCase()} alert sent to ${ALERT_EMAIL}`);
   } catch (emailError) {
-    cronLogger.error(`[FeeWalletMonitor][${cfg.chain}] Failed to send alert email: ${safeErrorMsg(emailError)}`);
+    cronLogger.error(`[FeeWalletMonitor][${cfg.id}] Failed to send alert email: ${safeErrorMsg(emailError)}`);
   }
 }
 
-function impactLabel(cfg: ChainConfig, level: 'empty' | 'critical'): string {
-  if (cfg.chain === 'TRX') {
+export function impactLabel(cfg: Pick<ChainConfig, 'id'>, level: 'empty' | 'critical' | 'warning'): string {
+  if (cfg.id === 'TRX') {
     return level === 'empty'
       ? 'ALL USDT-TRC20 payments will FAIL until topped up!'
       : 'SmartGas may fail, causing USDT-TRC20 payment delays.';
   }
-  if (cfg.chain === 'ETH') {
+  if (cfg.id === 'ETH') {
     return level === 'empty'
       ? 'ALL USDT/USDC/RLUSD-ERC20 sweeps and admin-fee transfers will FAIL until topped up!'
       : 'ERC20 sweeps may fail, causing payment delays.';
   }
-  if (cfg.chain === 'POLYGON') {
+  if (cfg.id === 'POLYGON') {
     return level === 'empty'
       ? 'ALL USDT-POLYGON sweeps and admin-fee transfers will FAIL until topped up!'
       : 'Polygon sweeps may fail, causing payment delays.';
+  }
+  if (cfg.id === 'XRP_MASTER') {
+    return level === 'empty'
+      ? 'XRP / RLUSD master account is below the XRPL reserve — payouts and sweeps from it will FAIL!'
+      : 'XRP / RLUSD sweeps may fail once the balance drops under the 1.2 XRP reserve.';
   }
   return 'Gas-dependent operations may fail.';
 }
@@ -358,7 +396,7 @@ export async function checkAllFeeWallets(): Promise<WalletStatus[]> {
       if (s) results.push(s);
     } catch (err) {
       // Per-chain isolation: never let one failure abort the others.
-      cronLogger.error(`[FeeWalletMonitor][${cfg.chain}] Uncaught error: ${safeErrorMsg(err)}`);
+      cronLogger.error(`[FeeWalletMonitor][${cfg.id}] Uncaught error: ${safeErrorMsg(err)}`);
     }
   }
   return results;
@@ -371,12 +409,13 @@ export async function checkAllFeeWallets(): Promise<WalletStatus[]> {
  */
 export async function checkFeeWalletBalance(): Promise<WalletStatus> {
   const results = await checkAllFeeWallets();
-  const trx = results.find((r) => r.chain === 'TRX');
+  const trx = results.find((r) => r.id === 'TRX');
   if (trx) return trx;
   // If TRX is not configured but other chains are, return the first available.
   if (results[0]) return results[0];
   // Nothing configured
   return {
+    id: 'TRX',
     chain: 'TRX',
     balance: 0,
     status: 'empty',
@@ -389,7 +428,7 @@ export async function checkFeeWalletBalance(): Promise<WalletStatus> {
  * Runs an initial check immediately, then repeats every `intervalMinutes`.
  */
 export async function startFeeWalletMonitoring(intervalMinutes: number = 60): Promise<void> {
-  const configured = CHAIN_CONFIGS.filter((c) => !!c.address).map((c) => c.chain);
+  const configured = CHAIN_CONFIGS.filter((c) => !!c.address).map((c) => c.id);
   cronLogger.info(`[FeeWalletMonitor] Starting multi-chain fee wallet monitoring for ${configured.join(', ') || 'NONE (no chains configured)'} (every ${intervalMinutes} min)`);
 
   await checkAllFeeWallets();
