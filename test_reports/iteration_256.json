@@ -1,0 +1,42 @@
+{
+  "summary": "Frontend-only Phase-1 Console redesign QA focused on /customers (The Dev Store, company 1). Logged in via 2-step + TOTP, verified all required data-testids, light + dark modes, desktop 1920 and mobile 390. Smoke-tested /dashboard, /transactions, /pay-links. No console errors observed. All critical testids present and functional. Read-only — no data mutated.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/customers", "issues": ["Minor UX inconsistency: KPI tile 'customers-stat-customers' shows 11 while the segment/count label on the right of FilterBar reads '15 customers'. The 4 extra are the aggregated 'anonymous' rows (API/Payment Link/Direct). Not a regression from this session, but may confuse merchants — consider aligning both numbers or clarifying the KPI label."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Optional: reconcile the KPI 'Customers=11' vs FilterBar '15 customers' label on /customers so users don't see two different totals.",
+    "Optional: /pay-links uses data-testid='paylink-row' (not row-scoped by id) while the review request implied 'paylink-row-<id>' — rows are still clickable but any id-suffixed selector will miss. Consider using 'paylink-row-<id>' for parity with 'tx-row-<id>' and 'customer-row-<id>'."
+  ],
+  "critical_code_review_comments": [
+    "Console SummaryStrip renders a true 2x2 grid at 390px (gridTemplateColumns measured as two tracks ~156px/167px). No horizontal overflow at 390px in either light or dark mode.",
+    "Console FilterBar wraps search + Most-recent sort + Add + Export cleanly in both themes; all four testids present and clickable.",
+    "ConsoleEmptyState correctly renders for segments with zero rows (repeat / dormant / new) with wrapper 'customers-empty-state' + inner 'customers-empty-inner'.",
+    "Customer detail drawer opens on both desktop row click and mobile card click; close button restores list; name field populated.",
+    "No console errors across /customers, /dashboard, /transactions, /pay-links during the session."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped per request)", "frontend": "100% of required flows passed"},
+  "test_credentials": "onarrival21@gmail.com / Katiekendra123@ + TOTP via node /app/backend/scripts/print_totp.cjs 1",
+  "seed_data_creation": "None (SAFE MODE read-only on production DB).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Phase-1 Console redesign on /customers verified end-to-end (desktop+mobile, light+dark). SummaryStrip/FilterBar/EmptyState shared kit from @/Components/Console/* wired correctly. Other three Phase-1 pages (/dashboard, /transactions, /pay-links) load without errors and keep their key testids (dash2026-root, transactions-status-chips, tx-row-*, detail-slide-over, paylink-row). Note /pay-links uses bare 'paylink-row' testid (not id-suffixed).",
+  "verification_details": {
+    "customers_summary_strip_testids_present": ["customers-summary-strip","customers-stat-customers (11)","customers-stat-revenue ($33,809.58)","customers-stat-repeat (0%)","customers-stat-new (9)"],
+    "filterbar_testids_present": ["customers-filter-bar","customers-search-input","customers-sort-select","customers-add-btn","customers-export-csv"],
+    "segments_tested": {"repeat":"0 rows → empty state shown","dormant":"0 rows → empty state shown","new":"0 rows → empty state shown","prospects":"11 rows","anonymous":"4 rows","all":"15 rows"},
+    "drawer_desktop": "opens on customer-row- click, customer-detail-name populated ('API payments'), customer-detail-close closes it",
+    "drawer_mobile": "opens on customer-card- tap, closes correctly",
+    "mobile_390_overflow": "no horizontal overflow (scrollW=clientW=390)",
+    "summarystrip_mobile_grid": "2x2 (two tracks measured)",
+    "dark_mode": "renders cleanly in both desktop and mobile",
+    "smoke": {"/dashboard":"dash2026-root present","/transactions":"transactions-status-chips present, tx-row-* clickable, detail-slide-over opens","/pay-links":"list renders 10/42, 'paylink-row' testids present (not id-scoped)"},
+    "console_errors": 0
+  }
+}
