@@ -6,7 +6,9 @@ import adminSecurityController from "../controller/adminSecurityController";
 import emailLogController from "../controller/emailLogController";
 import feeReconciliationController from "../controller/admin/feeReconciliationController";
 import chainReadinessController from "../controller/admin/chainReadinessController";
+import platformSettingsController from "../controller/admin/platformSettingsController";
 import { adminAuthMiddleware } from "../middleware";
+import { requireAdminStepUp } from "../middleware/adminAuthMiddleware";
 import adminOrApiKeyMiddleware from "../middleware/adminOrApiKeyMiddleware";
 import { loginRateLimiter } from "../middleware/rateLimitMiddleware";
 
@@ -42,6 +44,13 @@ adminRouter.post("/fee-reconciliation/reconcile", adminAuthMiddleware, feeReconc
 adminRouter.post("/pool/consolidate-crumbs", adminAuthMiddleware, feeReconciliationController.startCrumbSweep);
 adminRouter.get("/pool/crumbs-report", adminAuthMiddleware, feeReconciliationController.crumbReport);
 adminRouter.get("/chain-readiness", adminAuthMiddleware, chainReadinessController.getReport);
+
+// ── Platform Settings (Deliverable 2): dashboard-managed config + kill switches ──
+adminRouter.get("/settings", adminAuthMiddleware, platformSettingsController.getAll);
+adminRouter.get("/settings/history", adminAuthMiddleware, platformSettingsController.history);
+adminRouter.put("/settings/:key", adminAuthMiddleware, requireAdminStepUp("platform-settings"), platformSettingsController.put);
+adminRouter.post("/settings/:key/revert", adminAuthMiddleware, requireAdminStepUp("platform-settings"), platformSettingsController.revert);
+
 adminRouter.get(
   "/getAllTransactions",
   adminAuthMiddleware,

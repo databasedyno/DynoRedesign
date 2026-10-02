@@ -18,12 +18,15 @@ import { sendSafeDealWithdrawalEmail, sendSafeDealWithdrawalRejectedEmail, sendS
 import { explorerTxUrl } from "../receiptLinkService";
 import { redis } from "../../utils/redisInstance";
 import { round2Float as round2 } from "../../utils/money";
+import * as platformSettings from "../platformSettings";
 
-export const MIN_WITHDRAWAL_USD = Number(envRaw("SAFEDEAL_MIN_WITHDRAWAL_USD")) || 10;
-export const APPROVAL_THRESHOLD_USD = Number(envRaw("SAFEDEAL_WITHDRAWAL_APPROVAL_USD")) || 1000;
+// Dashboard-managed (DB override → .env → default), read live on every call so an
+// admin change applies without a redeploy. See services/platformSettings.
+export const minWithdrawalUsd = (): number => platformSettings.getNumber("safedeal.min_withdrawal_usd");
+export const approvalThresholdUsd = (): number => platformSettings.getNumber("safedeal.withdrawal_approval_usd");
 // AML velocity cap: rolling 24h cashout total (across ALL sources incl. settlement payouts).
 // Anything that would push the trailing-24h total above this routes to admin approval.
-export const VELOCITY_CAP_USD = Number(envRaw("SAFEDEAL_VELOCITY_CAP_USD")) || 1000;
+export const velocityCapUsd = (): number => platformSettings.getNumber("safedeal.velocity_cap_usd");
 
 /** Trailing-24h sum of money that has left / is committed to leave (queued, awaiting approval, or sent). */
 async function rolling24hCashoutUsd(customerId: number): Promise<number> {
@@ -89,7 +92,7 @@ export const payoutKeyToCryptoCode = (payoutKey: string): string => {
 
 /** Everything the cashout emails need beyond the row itself (threshold, deal title, explorer link). */
 export async function cashoutEmailOptions(w: { source?: string | null; escrow_id?: number | null; payout_key: string; chain_tx_hash?: string | null }): Promise<CashoutEmailOptions> {
-  const opts: CashoutEmailOptions = { approvalThresholdUsd: APPROVAL_THRESHOLD_USD };
+  const opts: CashoutEmailOptions = { approvalThresholdUsd: approvalThresholdUsd() };
   if (w.source === "settlement" && w.escrow_id) {
     try {
       const rows = await sequelize.query<{ title: string }>(`SELECT title FROM tbl_escrow_deal WHERE escrow_id = :id LIMIT 1`, { replacements: { id: w.escrow_id }, type: QueryTypes.SELECT });
@@ -230,7 +233,7 @@ export function quoteWithdrawal(payoutKey: string, amountUsd: number, feeCreditU
   // A fee reserved by an earlier deal quote (funds kept in balance) pays for this withdrawal.
   const fee_waived = round2(Math.min(listFee, Math.max(0, Number(feeCreditUsd) || 0)));
   const fee = round2(listFee - fee_waived);
-  return { amount, fee, fee_waived, net: round2(amount - fee), payout_key, min: MIN_WITHDRAWAL_USD, approval_threshold: APPROVAL_THRESHOLD_USD };
+  return { amount, fee, fee_waived, net: round2(amount - fee), payout_key, min: minWithdrawalUsd(), approval_threshold: approvalThresholdUsd() };
 }
 
 // ── withdrawal-fee credit (reserved in a deal quote, never spent) ─────────────
@@ -367,6 +370,12 @@ export async function requestWithdrawal(
   customer: CustomerRow,
   input: { address_id: number; amount: number; source?: "manual" | "auto" | "settlement"; escrow_id?: number | null; fee_covered?: boolean; skip_cooling?: boolean; deal_title?: string | null }
 ): Promise<WithdrawalRow> {
+  // Kill switch: pause customer-initiated cashouts. Deal-release settlement
+  // payouts (source="settlement") are never blocked — that would strand
+  // already-released escrow funds.
+  if (input.source !== "settlement" && platformSettings.getBool("killswitch.pause_cashouts")) {
+    throw new CustomerWalletError(503, "Cashouts are temporarily paused. Please try again shortly.");
+  }
   const addr = await loadAddress(customer.customer_id, Number(input.address_id));
   if (!input.skip_cooling) assertAddressUsable(addr);
   const isSettlement = input.source === "settlement";
@@ -375,7 +384,7 @@ export async function requestWithdrawal(
   const q = quoteWithdrawal(addr.payout_key, Number(input.amount), feeCredit);
   // Escrow payouts: the withdrawal fee was already collected in the deal quote (cost reserve) — never charge it twice.
   if (input.fee_covered) { q.fee = 0; q.fee_waived = 0; q.net = q.amount; }
-  if (!Number.isFinite(q.amount) || (!isSettlement && q.amount < MIN_WITHDRAWAL_USD)) throw new CustomerWalletError(400, `Minimum cashout is $${MIN_WITHDRAWAL_USD}.`);
+  if (!Number.isFinite(q.amount) || (!isSettlement && q.amount < minWithdrawalUsd())) throw new CustomerWalletError(400, `Minimum cashout is $${minWithdrawalUsd()}.`);
   if (q.net <= 0) throw new CustomerWalletError(400, `Amount must exceed the ${toFixedStr(q.fee, 2)} USD network fee.`);
   await assertNoSimulatedFunds(customer.customer_id);
   const bal = await getBalances(customer.customer_id);
@@ -386,13 +395,13 @@ export async function requestWithdrawal(
   //   3. it would push the trailing-24h cashout total over the velocity cap (EVERY source, incl. settlement).
   const held = await cashoutHeld(customer.customer_id);
   const rolling24h = await rolling24hCashoutUsd(customer.customer_id);
-  const overVelocity = round2(rolling24h + q.amount) > VELOCITY_CAP_USD;
+  const overVelocity = round2(rolling24h + q.amount) > velocityCapUsd();
   const requiresApproval =
-    (input.source !== "settlement" && q.amount >= APPROVAL_THRESHOLD_USD) || held || overVelocity;
+    (input.source !== "settlement" && q.amount >= approvalThresholdUsd()) || held || overVelocity;
   const approvalReason = [
-    input.source !== "settlement" && q.amount >= APPROVAL_THRESHOLD_USD ? `single cashout ≥ $${APPROVAL_THRESHOLD_USD}` : null,
+    input.source !== "settlement" && q.amount >= approvalThresholdUsd() ? `single cashout ≥ $${approvalThresholdUsd()}` : null,
     held ? "24h hold after a recent email change" : null,
-    overVelocity ? `24h velocity over $${VELOCITY_CAP_USD} (rolling ${toFixedStr(rolling24h, 2)} + ${toFixedStr(q.amount, 2)} USD)` : null,
+    overVelocity ? `24h velocity over $${velocityCapUsd()} (rolling ${toFixedStr(rolling24h, 2)} + ${toFixedStr(q.amount, 2)} USD)` : null,
   ].filter(Boolean).join("; ");
   // AML tripwire on owner-initiated cashouts: deposit→withdraw with no deals ever done.
   if (input.source == null || input.source === "manual" || input.source === "auto") {
@@ -480,7 +489,7 @@ export async function requestWithdrawal(
           w,
           opt?.label || w.payout_key,
           { customer_id: customer.customer_id, email: customer.email ?? null, name: (customer as { customer_name?: string | null }).customer_name ?? null },
-          { adminPanelUrl, approvalThresholdUsd: APPROVAL_THRESHOLD_USD, source: input.source || "manual", dealTitle: o.dealTitle ?? null }
+          { adminPanelUrl, approvalThresholdUsd: approvalThresholdUsd(), source: input.source || "manual", dealTitle: o.dealTitle ?? null }
         )
       );
     } else {
@@ -756,7 +765,7 @@ export async function sweepBalanceToAutoWithdraw(customerId: number): Promise<{ 
     );
     return { mode: "parked", amount };
   }
-  if (amount < MIN_WITHDRAWAL_USD) return { mode: "skipped", amount }; // below the minimum withdrawal — leave it in the balance
+  if (amount < minWithdrawalUsd()) return { mode: "skipped", amount }; // below the minimum withdrawal — leave it in the balance
   const customer = await customerById(customerId);
   if (!customer) return { mode: "skipped", amount: 0 };
   try {

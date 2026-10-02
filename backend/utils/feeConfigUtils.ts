@@ -1,4 +1,5 @@
 import { raw as envRaw } from "./config";
+import { getNumber as settingNumber } from "../services/platformSettings";
 export interface FeeTier {
     min: number;
     max: number | null;
@@ -12,8 +13,8 @@ export const getBlockchainThreshold = (blockchain: string): number => {
 };
 
 export const getTransactionFeePercent = (): number => {
-    const val = Number(envRaw("TRANSACTION_FEE_PERCENT"));
-    return isNaN(val) ? 1.5 : val;
+    // DB override → TRANSACTION_FEE_PERCENT → 1.5 (resolved by the settings service).
+    return settingNumber("fees.transaction_fee_percent");
 };
 
 export const getFeeTiers = (): FeeTier[] => {

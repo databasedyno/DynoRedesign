@@ -24,8 +24,8 @@ import { ESCROW_PAYOUT_OPTIONS, refreshEscrowCostRates } from "../services/escro
 import { resolveCustomerForBrand, resolveCustomerByTelegram, CustomerRow, CustomerWalletError } from "../services/customerWalletService";
 import { getBalances, getStatement, statementToCsv, brandWalletTotals, DEAL_STATS_SELECT, toDealStats } from "../services/safedeal/safedealWallet";
 import {
-  MIN_WITHDRAWAL_USD,
-  APPROVAL_THRESHOLD_USD,
+  minWithdrawalUsd,
+  approvalThresholdUsd,
   ADDRESS_COOLING_HOURS,
   listAddresses,
   addAddress,
@@ -494,10 +494,10 @@ const config = async (_req: express.Request, res: express.Response) => {
     auto_release_presets: escrowEngine.ESCROW_AUTO_RELEASE_PRESETS,
     auto_release_default: escrowEngine.ESCROW_AUTO_RELEASE_DEFAULT,
     payout_options: ESCROW_PAYOUT_OPTIONS,
-    min_withdrawal_usd: MIN_WITHDRAWAL_USD,
+    min_withdrawal_usd: minWithdrawalUsd(),
     min_topup_usd: MIN_TOPUP_USD,
     max_topup_usd: MAX_TOPUP_USD,
-    withdrawal_approval_usd: APPROVAL_THRESHOLD_USD,
+    withdrawal_approval_usd: approvalThresholdUsd(),
     live_settlement: isLiveSettlementEnabled(),
     simulation_allowed: isSimulationAllowed(),
     dispute_auto_escalate_hours: Number(envRaw("ESCROW_DISPUTE_AUTO_ESCALATE_HOURS")) || 72,
@@ -1346,7 +1346,7 @@ const wallet = async (_req: express.Request, res: express.Response) => {
       withdrawals,
       topups,
       profile: { auto_withdraw: !!profile?.auto_withdraw, auto_withdraw_address_id: profile?.auto_withdraw_address_id || null, parked_payout_usd: Math.min(Number(profile?.parked_payout_usd || 0), eligible), deposit_reserved_usd: Number(profile?.deposit_reserved_usd || 0), withdrawal_fee_credit_usd: round2(Number(profile?.withdrawal_fee_credit_usd || 0)) },
-      limits: { min_withdrawal_usd: MIN_WITHDRAWAL_USD, approval_threshold_usd: APPROVAL_THRESHOLD_USD, min_topup_usd: MIN_TOPUP_USD, max_topup_usd: MAX_TOPUP_USD },
+      limits: { min_withdrawal_usd: minWithdrawalUsd(), approval_threshold_usd: approvalThresholdUsd(), min_topup_usd: MIN_TOPUP_USD, max_topup_usd: MAX_TOPUP_USD },
       payout_options: ESCROW_PAYOUT_OPTIONS,
       live: isLiveSettlementEnabled(),
       simulation_allowed: isSimulationAllowed(),
@@ -1494,7 +1494,7 @@ const withdrawQuote = async (req: express.Request, res: express.Response) => {
     if (!key) return errorResponseHelper(res, 400, "Choose a payout address.");
     const [bal, feeCredit] = await Promise.all([getBalances(sess.customer_id), getWithdrawalFeeCredit(sess.customer_id)]);
     const q = quoteWithdrawal(String(key), Number(amount || 0), feeCredit);
-    return successResponseHelper(res, 200, "OK", { ...q, fee_credit_available: feeCredit, available: bal.available, below_min: q.amount < MIN_WITHDRAWAL_USD, requires_approval: false });
+    return successResponseHelper(res, 200, "OK", { ...q, fee_credit_available: feeCredit, available: bal.available, below_min: q.amount < minWithdrawalUsd(), requires_approval: false });
   } catch (e) {
     return handle(res, e, "withdrawQuote");
   }
@@ -1649,7 +1649,7 @@ const adminReadiness = async (_req: express.Request, res: express.Response) => {
       { key: "pool", ok: configured.length > 0 && coinsWithoutPool.length === 0, warn: coinsWithoutPool.length > 0, label: "Merchant pool has deposit addresses for every funding coin", detail: coinsWithoutPool.length ? `No pre-warmed pool address for: ${coinsWithoutPool.join(", ")} — the first payment in that coin creates one on the fly (slower).` : `Ready addresses: ${configured.map((w) => `${w.coin} ${poolByCoin[w.coin]}`).join(" · ")}` },
       { key: "fee_exempt", ok: feeExempt, label: "No Dynopay merchant fee on the SafeDeal brand", detail: feeExempt ? "Brand is first-party: 0% + $0 platform fee, no fee-sweep transaction. Only the escrow fee & real network costs apply." : "Brand is being charged the normal Dynopay merchant fee — add it to PLATFORM_FEE_EXEMPT_COMPANY_IDS." },
       { key: "autoconvert", ok: !!b?.auto_convert_enabled, warn: !b?.auto_convert_enabled, label: "Auto-convert volatile coins to USDT on Binance (held, not withdrawn)", detail: b?.auto_convert_enabled ? `${b.settlement_currency} on ${b.settlement_chain} · converted USDT is HELD on Binance as escrow custody (Phase 3 withdrawal skipped for this brand)` : "Off — BTC/ETH funding would stay volatile. Enable auto-convert on the brand (Settings → Payouts); any settlement address works, it's never used for SafeDeal." },
-      { key: "fees", ok: escrowEngine.ESCROW_FEE_PERCENT > 0 && escrowEngine.ESCROW_FEE_MIN_USD > 0 && escrowEngine.ESCROW_MIN_DEAL_USD >= escrowEngine.ESCROW_FEE_MIN_USD, label: "Escrow fee & minimums", detail: `fee ${escrowEngine.ESCROW_FEE_PERCENT}% (min $${escrowEngine.ESCROW_FEE_MIN_USD}) · min deal $${escrowEngine.ESCROW_MIN_DEAL_USD} · min withdrawal $${MIN_WITHDRAWAL_USD} · approval above $${APPROVAL_THRESHOLD_USD} · payouts at close via Binance to the party's address` },
+      { key: "fees", ok: escrowEngine.ESCROW_FEE_PERCENT > 0 && escrowEngine.ESCROW_FEE_MIN_USD > 0 && escrowEngine.ESCROW_MIN_DEAL_USD >= escrowEngine.ESCROW_FEE_MIN_USD, label: "Escrow fee & minimums", detail: `fee ${escrowEngine.ESCROW_FEE_PERCENT}% (min $${escrowEngine.ESCROW_FEE_MIN_USD}) · min deal $${escrowEngine.ESCROW_MIN_DEAL_USD} · min withdrawal $${minWithdrawalUsd()} · approval above $${approvalThresholdUsd()} · payouts at close via Binance to the party's address` },
       { key: "email", ok: true, warn: emailDisabled(), label: emailDisabled() ? "Outbound email OFF — codes are shown in the UI instead" : "Outbound email ON", detail: `DISABLE_OUTBOUND_EMAIL=${emailDisabled() ? "true" : "false"}` },
       {
         key: "binance_key",

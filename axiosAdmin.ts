@@ -34,8 +34,12 @@ adminBaseApi.interceptors.response.use(
   (error) => {
     const status = error?.response?.status;
     const url: string = error?.config?.url || "";
+    const code: string = error?.response?.data?.code || "";
     const isAuthRoute = /\/admin\/(login|enroll)\b/.test(url);
-    if ((status === 401 || status === 403) && !isAuthRoute && typeof window !== "undefined") {
+    // A wrong TOTP during step-up (401 on /admin/step-up) or a "step-up required"
+    // 403 from a settings write must NOT sign the admin out — the session is fine.
+    const isStepUp = /\/admin\/step-up\b/.test(url) || code === "ADMIN_STEPUP_REQUIRED";
+    if ((status === 401 || status === 403) && !isAuthRoute && !isStepUp && typeof window !== "undefined") {
       localStorage.removeItem("admin_token");
       if (!window.location.pathname.startsWith("/admin/login")) {
         window.location.replace("/admin/login");

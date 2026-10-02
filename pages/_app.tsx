@@ -467,6 +467,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
       "/admin/live-console":       "admin",
       "/admin/fee-reconciliation": "admin",
       "/admin/chain-readiness":    "admin",
+      "/admin/settings":           "admin",
     };
 
     const key = routeKeyMap[pathname];

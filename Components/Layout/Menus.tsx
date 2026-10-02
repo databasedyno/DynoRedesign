@@ -6,6 +6,7 @@ import {
   HandshakeRounded,
   HomeRounded,
   HubRounded,
+  TuneRounded,
   LocalGasStationRounded,
   ReceiptLongRounded,
   RssFeedRounded,
@@ -102,6 +103,11 @@ const adminMenus = [
     icon: <HubRounded color="inherit" />,
     name: "Chain Readiness",
     link: "/admin/chain-readiness",
+  },
+  {
+    icon: <TuneRounded color="inherit" />,
+    name: "Platform Settings",
+    link: "/admin/settings",
   },
   {
     icon: <RssFeedRounded color="inherit" />,

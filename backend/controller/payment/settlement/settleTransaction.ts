@@ -27,6 +27,7 @@ import {
   getBlockchainNetworkFee, 
 } from "../../../services/blockchainFeeService";
 import * as merchantPoolService from "../../../services/merchantPoolService";
+import * as platformSettings from "../../../services/platformSettings";
 import { calculateDynamicTRC20Fee } from "../../../services/tronEnergyService";
 import { add, fromBaseUnits, mul, sub, toBaseUnits, toFixedStr, toNumber } from "../../../utils/money";
 
@@ -91,6 +92,14 @@ export const settleCryptoTransaction = async ({
       return idempotencyCheck.existingTxId
         ? { txId: idempotencyCheck.existingTxId, status: 'already_settled' }
         : { txId: null, status: 'settlement_in_progress' };
+    }
+
+    // Kill switch: defer merchant settlement broadcasts. The payment stays
+    // confirmed (not marked in-progress or failed) and settles on a later retry
+    // once settlements are resumed. Fail-safe: default OFF.
+    if (platformSettings.getBool("killswitch.pause_settlements")) {
+      cronLogger.warn(`[settleCryptoTransaction] ⏸ Settlements paused by kill switch — deferring payment ${paymentId}`);
+      return { txId: null, status: 'settlement_paused' };
     }
 
     // Mark settlement as in-progress (atomic claim)

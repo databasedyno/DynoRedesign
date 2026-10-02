@@ -1066,6 +1066,39 @@ const addUserEmailBounce = async (): Promise<void> => {
   );
 };
 
+/**
+ * 0059 — Platform Settings (Deliverable 2). Dashboard-managed config + append-only
+ * audit. tbl_platform_setting holds the DB override (jsonb) per key; resolution
+ * is DB → .env → code default so .env keeps working unchanged. History is
+ * immutable (who/what/before/after/why). Create-only — safe on live prod.
+ */
+const createPlatformSettingsTables = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `CREATE TABLE IF NOT EXISTS "tbl_platform_setting" (
+       "key" VARCHAR(120) PRIMARY KEY,
+       "value" JSONB NOT NULL,
+       "updated_by" VARCHAR(255),
+       "updated_at" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+       "version" INTEGER NOT NULL DEFAULT 1
+     )`
+  );
+  await sequelize.query(
+    `CREATE TABLE IF NOT EXISTS "tbl_platform_setting_history" (
+       "history_id" BIGSERIAL PRIMARY KEY,
+       "key" VARCHAR(120) NOT NULL,
+       "old_value" JSONB,
+       "new_value" JSONB,
+       "changed_by" VARCHAR(255),
+       "reason" TEXT,
+       "changed_at" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+     )`
+  );
+  await sequelize.query(
+    `CREATE INDEX IF NOT EXISTS "idx_platform_setting_history_key" ON "tbl_platform_setting_history" ("key", "changed_at" DESC)`
+  );
+};
+
 
 export async function buildBootMigrations(): Promise<Migration[]> {  const { v1, extra } = await loadBootModelGroups();  return [
     { version: "0001_boot_model_tables", up: syncGroup(v1) },
@@ -1123,6 +1156,7 @@ export async function buildBootMigrations(): Promise<Migration[]> {  const { v1,
     { version: "0056_admin_session", up: createAdminSessionTable },
     { version: "0057_email_log", up: createEmailLogTable },
     { version: "0058_user_email_bounce", up: addUserEmailBounce },
+    { version: "0059_platform_settings", up: createPlatformSettingsTables },
     ...perfMigrations,
     ...securityMigrations,
   ];

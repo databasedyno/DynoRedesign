@@ -57,6 +57,7 @@ import {
   getBlockchainNetworkFee, 
 } from "../../services/blockchainFeeService";
 import * as merchantPoolService from "../../services/merchantPoolService";
+import * as platformSettings from "../../services/platformSettings";
 import { getCryptoRedisKey } from "../../services/merchantPool/merchantPoolConfig";
 import { emitPaymentCreated } from "../../services/webhookEvents";
 import { PaymentState, parseState, toRedisStatus } from "../../services/paymentStateMachine";
@@ -1159,6 +1160,15 @@ const createCryptoPayment = async (
   try {
     const data: IFundData = req.body;
     if (DEBUG) cronLogger.info('[DEBUG] Step 2: Request body parsed:', { uniqueRef: data?.uniqueRef, currency: data?.currency });
+
+    // Kill switch: block new crypto payments platform-wide (maintenance or paused checkouts).
+    // Fail-safe: default OFF. In-flight payments continue to settle.
+    if (platformSettings.getBool("killswitch.maintenance_mode") || platformSettings.getBool("killswitch.pause_checkouts")) {
+      const msg = platformSettings.getBool("killswitch.maintenance_mode")
+        ? (platformSettings.getString("killswitch.maintenance_message") || "We're doing some quick maintenance and will be back shortly.")
+        : "New payments are temporarily paused. Please try again shortly.";
+      return errorResponseHelper(res, 503, msg);
+    }
     
     if (data) {
       let finalRes;

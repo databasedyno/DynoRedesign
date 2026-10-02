@@ -19,6 +19,7 @@
 import { toNumber } from "../../utils/money";
 import sequelize from "../../utils/dbInstance";
 import { QueryTypes } from "sequelize";
+import { getNumber as settingNumber } from "../platformSettings";
 
 export type MinSurface = "store" | "api" | "buy_button" | "payment_link";
 
@@ -27,13 +28,26 @@ const num = (v: string | undefined, d: number): number => {
   return Number.isFinite(n) && n >= 0 ? n : d;
 };
 
-/** Platform default minimum order (USD) per surface. */
+/** Platform default minimum order (USD) per surface — the .env snapshot at boot. */
 export const SURFACE_DEFAULT_MIN_USD: Record<MinSurface, number> = {
   store: num(process.env.MIN_ORDER_STORE_USD, 10),
   api: num(process.env.MIN_ORDER_API_USD, 5),
   buy_button: num(process.env.MIN_ORDER_BUY_BUTTON_USD, 5),
   payment_link: num(process.env.MIN_ORDER_PAYMENT_LINK_USD, 1),
 };
+
+/** Dashboard-managed setting key per surface (DB override → .env → default). */
+const SURFACE_SETTING_KEY: Record<MinSurface, string> = {
+  store: "limits.min_order_store_usd",
+  api: "limits.min_order_api_usd",
+  buy_button: "limits.min_order_buy_button_usd",
+  payment_link: "limits.min_order_payment_link_usd",
+};
+
+/** Live platform default minimum order (USD) for a surface. */
+export function surfaceDefaultMinUsd(surface: MinSurface): number {
+  return settingNumber(SURFACE_SETTING_KEY[surface]);
+}
 
 /** Bounds accepted for a merchant-set min_order_usd. */
 export const MERCHANT_MIN_ORDER_BOUNDS = { min: 1, max: 100000 };
@@ -75,7 +89,7 @@ export async function getMerchantMinOrderUsdByCompanyId(
 
 /** Effective creation-time minimum for a surface, raised by the merchant floor. */
 export function getEffectiveMinOrderUsd(surface: MinSurface, merchantMinUsd = 0): number {
-  return Math.max(SURFACE_DEFAULT_MIN_USD[surface] ?? 1, merchantMinUsd || 0);
+  return Math.max(surfaceDefaultMinUsd(surface) || 1, merchantMinUsd || 0);
 }
 
 /** Drop the cache entry after a merchant updates their setting. */
