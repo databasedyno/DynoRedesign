@@ -48,6 +48,8 @@ import { useEdgeFades, EdgeFades } from "@/Components/Common/ScrollHint";
 import { formatDateI18n } from "@/utils/formatDate";
 import { formatWithSymbol } from "@/utils/locale";
 import { toFixedStr } from "@/utils/money";
+import ConsoleSummaryStrip from "@/Components/Console/SummaryStrip";
+import ConsoleFilterBar from "@/Components/Console/FilterBar";
 
 interface Invoice {
   invoice_id: number;
@@ -358,21 +360,14 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
               bodyPadding={muiTheme.spacing(0)}
             >
               <Box sx={{ px: 2, pt: 2, pb: 1 }}>
-                <TextField
-                  size="small"
-                  fullWidth
-                  value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
-                  placeholder={t("invoices.searchPlaceholder", { defaultValue: "Search by invoice # or customer name" })}
-                  data-testid="invoices-search-input"
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Icon name="search" size={16} />
-                      </InputAdornment>
-                    ),
+                <ConsoleFilterBar
+                  testid="invoices-filter-bar"
+                  search={{
+                    value: searchInput,
+                    onChange: setSearchInput,
+                    placeholder: t("invoices.searchPlaceholder", { defaultValue: "Search by invoice # or customer name" }),
+                    testid: "invoices-search-input",
                   }}
-                  sx={{ maxWidth: { xs: "100%", sm: 420 } }}
                 />
               </Box>
               {/* Invoices — card list (<768) / table (>=768). §4.2 shared breakpoint. */}
@@ -883,77 +878,27 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                 </Box>
               )}
 
-            {/* Summary Cards */}
-            <Box
-              sx={{
-                display: "flex",
-                gap: isMobile ? 1.5 : 2.5,
-                flexWrap: "wrap",
-              }}
-            >
-              {[
+            {/* Summary — airy Console SummaryStrip (calm, hairline, uniform ink) */}
+            <ConsoleSummaryStrip
+              testid="tax-summary-strip"
+              items={[
                 {
+                  testid: "tax-stat-revenue",
                   label: t("invoices.totalRevenue"),
-                  value: taxReport
-                    ? formatTaxAmount(taxReport.summary.total_revenue)
-                    : "—",
-                  color: muiTheme.palette.text.primary,
+                  value: taxLoading ? <Skeleton width={90} /> : taxReport ? formatTaxAmount(taxReport.summary.total_revenue) : "—",
                 },
                 {
+                  testid: "tax-stat-collected",
                   label: t("invoices.taxCollected"),
-                  value: taxReport
-                    ? formatTaxAmount(taxReport.summary.total_tax)
-                    : "—",
-                  color: "#22C55E",
+                  value: taxLoading ? <Skeleton width={90} /> : taxReport ? formatTaxAmount(taxReport.summary.total_tax) : "—",
                 },
                 {
+                  testid: "tax-stat-invoices",
                   label: t("invoices.totalInvoices"),
-                  value: taxReport
-                    ? String(taxReport.summary.total_invoices)
-                    : "—",
-                  color: brandFg(muiTheme.palette.mode === "dark"),
+                  value: taxLoading ? <Skeleton width={60} /> : taxReport ? String(taxReport.summary.total_invoices) : "—",
                 },
-              ].map((card) => (
-                <Box
-                  key={card.label}
-                  sx={{
-                    flex: isMobile ? "1 1 100%" : "1 1 0",
-                    minWidth: isMobile ? "100%" : 180,
-                    border: "1px solid",
-                    borderColor: muiTheme.palette.divider,
-                    borderRadius: "14px",
-                    p: isMobile ? 2 : 2.5,
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      fontFamily: "var(--font-sans)",
-                      fontSize: isMobile ? 11 : 13,
-                      color: muiTheme.palette.text.secondary,
-                      mb: 0.5,
-                    }}
-                  >
-                    {card.label}
-                  </Typography>
-                  {taxLoading ? (
-                    <Skeleton width={80} height={32} />
-                  ) : (
-                    <Typography
-                      sx={{
-                        fontFamily: MONO,
-                        fontVariantNumeric: "tabular-nums",
-                        fontSize: isMobile ? 20 : 28,
-                        fontWeight: 600,
-                        color: card.color,
-                        lineHeight: 1.2,
-                      }}
-                    >
-                      {card.value}
-                    </Typography>
-                  )}
-                </Box>
-              ))}
-            </Box>
+              ]}
+            />
 
             {/* Tax by Period */}
             <PanelCard
