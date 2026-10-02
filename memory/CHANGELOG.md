@@ -2206,3 +2206,7 @@ User approved scope (a): ALL customer-facing UI (auth, checkout, landing, chrome
 - Hourly onboardingMonitor now only does completion detection (B), merchant "all set" email, and merchant wallet nudge (A2) — no per-user admin stuck emails.
 - Files: backend/utils/crons/onboardingMonitor.ts, backend/services/email/adminNotificationEmails.ts, backend/services/emailService.ts, backend/utils/cronJobs.ts, backend/server.ts.
 - Verified: backend tsc --noEmit green (CI gate); dry-run against live DB returned 14 stuck merchants with coherent stuck_step/pending_steps; backend boots clean (preview SAFE MODE = background jobs disabled, so no prod emails from preview). NOT yet deployed — needs Save to GitHub → deploy for prod to take effect.
+
+## 2026-10-02 — Onboarding: Save & exit = sign out + resume; brand-welcome + email-codes emails
+- Save & exit setup → confirm dialog → sign out → /auth/login?next=/get-started; any login of a single-brand owner still "setting up" resumes the wizard (FirstRunRedirect gates on brandPhase). "Do this later" unchanged (hero + 24h snooze). Fee-free modal/banner race on first login fixed (wait for coreReady). Dashboard shows neutral skeleton until coreReady.
+- Backend: first brand-details save → delayed (10 min, BullMQ) "Welcome aboard — {Brand} is set up" email instead of "brand details were changed"; email-code 2FA enrolment → "Email codes are now your sign-in second step" email. Locales ×6. testing_agent iteration_250 10/10.

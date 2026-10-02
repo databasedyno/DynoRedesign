@@ -1,3 +1,9 @@
+<!-- 2026-10-02 (pod 31539451, pt4 — SAVE & EXIT = SIGN OUT + RESUME) — same preview URL / creds as pt3.
+     Wizard header "Save & exit setup" (wizard-save-exit) now opens gs-save-exit-dialog (gs-save-exit-cancel / gs-save-exit-confirm); confirm signs out → /auth/login?next=%2Fget-started (toast "Your setup progress is saved…"). Any login of a single-brand owner with brandPhase==='setup' auto-redirects /dashboard → /get-started (unless localStorage dyno_gs_later_until snooze from "Do this later"). To observe the dashboard hero (state 1) click gs-do-later or seed that key.
+     QA user 221 / company 231: wizard at 2/5 (secure + about done) → resumes at ?step=payouts. Do NOT add a wallet/link to 231 (would graduate it).
+     Emails: first-time brand save logs "[BrandWelcome] preview timer set" (no "brand details changed" email); render all new onboarding emails: cd /app/backend && EMAIL_DUMP_DIR=/tmp/onb DISABLE_OUTBOUND_EMAIL=true node_modules/.bin/ts-node --transpile-only scripts/render_onboarding_emails.ts 231 221
+     QA token cache: /app/memory/tmp/qa221_token.txt (30d). -->
+
 <!-- 2026-10-01 (pod 31539451, pt3 — ONBOARDING UX OVERHAUL) — same preview URL / creds as pt2 below.
      NEW this session (frontend, uncommitted): 3-state dashboard (setting-up hero+preview / ready-waiting SetupCompleteStrip+full dashboard / live), interruption-stack suppressed during onboarding, creator @handle claim auto-enables tip widget (backend) + gates on payout wallet, wizard reachability guard (2FA+about before step 4/5), sticky step footer on short viewports.
      QA FIXTURE CHANGE: company 231 (QA MinOrder, user 221) now has country='US' (so about/step-4 is reachable under the new about-gate). To test a per-track wizard: cd /app/backend && node scripts/_pgq.js "UPDATE tbl_user SET purpose_vertical='creators' WHERE user_id=221" (values creators|fundraisers|developers|NULL) + browser localStorage dyno_purpose_vertical. RESET to NULL after.
