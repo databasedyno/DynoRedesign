@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { Box, Drawer, IconButton, Skeleton, Typography, useTheme } from "@mui/material";
+import { Box, IconButton, Skeleton, useTheme } from "@mui/material";
 import { QRCodeCanvas } from "qrcode.react";
 import { useRouter } from "next/router";
 import { useDispatch } from "react-redux";

@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Chip, Paper, Typography, useTheme } from "@mui/material";
+import { Box, Paper, Typography, useTheme } from "@mui/material";
 import { brandFg } from "@/constants/theme";
 
 // ── Formatting helpers (shared across admin monitoring screens) ──────────────

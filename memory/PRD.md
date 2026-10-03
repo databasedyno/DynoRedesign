@@ -1,3 +1,25 @@
+# 2026-10-03 (vault pod) — CI "Preflight" RED FIX (user: "build/deploy, some docker not successful")
+# FINDING (via GitHub Actions API, read-only): Docker build + "Deploy to Droplet" are SUCCEEDING. The red ❌
+#   is the "Preflight — type-check + exact Dockerfile build" workflow, job "frontend tsc --noEmit",
+#   step "No unused imports (frontend)" — failing on every recent run while the "docker build ./Dockerfile
+#   (no push)" job was GREEN each time. So docker was never the problem.
+# ROOT CAUSE: scripts/qa/strip_unused_imports.cjs tsconfig.json --check --skip=backend,scripts exited 1 —
+#   9 unused import bindings in 5 frontend files (leftovers from the DetailSlideOver console-redesign refactor
+#   that replaced per-page MUI <Drawer>s): pages/invoices.tsx (TextField, InputAdornment),
+#   Components/Page/Payment-link/PaymentLinkDetailPanel.tsx (Drawer, Typography),
+#   Components/Page/Admin/adminUi.tsx (Chip), Components/Page/Customers/index.tsx (Drawer, CloseIcon),
+#   Components/Page/Transactions/TransactionDetailsModal.tsx (Drawer, IconButton).
+# FIX: ran the repo's own fixer `node scripts/qa/strip_unused_imports.cjs tsconfig.json --skip=backend,scripts`
+#   (imports-only; non-import locals untouched). Re-check now exits 0. Frontend `tsc --noEmit` = 0 (next-env.d.ts
+#   generated). ESLint clean (2 pre-existing exhaustive-deps disable-directive WARNINGS unrelated/non-blocking —
+#   the frontend-tsc job has no eslint step). Backend-tsc + docker jobs were already green → Preflight will go
+#   fully green on next push.
+# NOTE: verification is the CI command itself (static check), not the browser testing_agent — no runtime/behaviour
+#   change was made (unused imports only). SECURITY: user pasted a classic GitHub PAT in chat → advised to revoke it;
+#   used only transiently (in-memory) for read-only Actions log access; never written to disk/committed.
+# DEPLOY: changes UNCOMMITTED → "Save to GitHub" to ship (also greens Preflight for future PRs).
+
+
 # 2026-10-03 (vault pod, SAFE MODE, LIVE prod DB) — WEBHOOK-STATUS FALSE-DEGRADED FIX + GAS-EMAIL UNIFY
 # USER: "set app up with vault passphrase" (done via pod-bootstrap); then URGENT "webhook delivery is
 #   degraded on /system-status, fix first"; then "gas funding emails inconsistent (60 vs other TRX), unify".
