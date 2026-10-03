@@ -17,7 +17,7 @@ import requests
 from typing import Dict, Any, Optional
 
 # Base URL from supervisor conf
-BASE_URL = os.getenv("BASE_URL", "https://vault-init-7.preview.emergentagent.com")
+BASE_URL = os.getenv("BASE_URL", "https://trx-limit-unified.preview.emergentagent.com")
 API_BASE = f"{BASE_URL}/api"
 
 # Test credentials

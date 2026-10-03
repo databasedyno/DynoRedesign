@@ -12,7 +12,17 @@ interface HealthCheckResult {
   healthy: boolean;
   latency: number;
   error?: string;
+  // Optional explicit status. When a probe can judge its own health beyond a
+  // simple up/down + latency (e.g. webhook_delivery uses the real delivery
+  // success-rate), it sets this and runHealthChecks honours it verbatim.
+  status?: "operational" | "degraded" | "outage";
 }
+
+// Webhook-delivery health is judged from the REAL recent delivery outcomes.
+// Below this many attempts in the window we treat the service as operational
+// (idle/low traffic is not a problem) to avoid false alarms from a stray blip.
+const WEBHOOK_MIN_SAMPLE = 10;
+const WEBHOOK_WINDOW_MINUTES = 60;
 
 // Service definitions with actual health check implementations
 const MONITORED_SERVICES = [
@@ -79,16 +89,48 @@ const MONITORED_SERVICES = [
     name: "Webhook Delivery",
     check: async (): Promise<HealthCheckResult> => {
       const start = Date.now();
+      // 1) Backbone gate: outbound webhooks ride the BullMQ queue on Redis.
+      //    If Redis is unreachable, nothing can be enqueued or delivered → outage.
       try {
-        // Redis connectivity probe — a SINGLE PING round-trip. The old
-        // getRedisItem("health_check_test") did a GET and, on a miss (this key
-        // never exists), fell back to hGetAll — 2 round-trips (~2× Redis RTT,
-        // ~81ms). PING is one round-trip (~40ms).
         await redis.ping();
-        // Redis is connected if no error thrown
-        return { healthy: true, latency: Date.now() - start };
       } catch (error: unknown) {
-        return { healthy: false, latency: Date.now() - start, error: (error as { message?: string }).message };
+        return {
+          healthy: false,
+          latency: Date.now() - start,
+          error: `Webhook queue (Redis) unreachable: ${(error as { message?: string }).message || "ping failed"}`,
+        };
+      }
+      // 2) Truthful signal: the ACTUAL merchant webhook delivery outcomes in the
+      //    recent window — NOT a bare Redis-ping latency (which a managed-Redis
+      //    proxy spike could falsely flag as "degraded"). Source of truth is the
+      //    same tbl_webhook_delivery_log the developer-health panel reads.
+      try {
+        const rows = (await sequelize.query(
+          `SELECT COUNT(*)::int AS total,
+                  COUNT(*) FILTER (WHERE status = 'success')::int AS ok,
+                  COALESCE(ROUND(AVG(response_time_ms) FILTER (WHERE status = 'success'))::int, 0) AS avg_ms
+             FROM tbl_webhook_delivery_log
+            WHERE created_at > NOW() - (:mins || ' minutes')::interval`,
+          { replacements: { mins: WEBHOOK_WINDOW_MINUTES }, type: QueryTypes.SELECT }
+        )) as Array<{ total: number; ok: number; avg_ms: number }>;
+        const total = Number(rows[0]?.total || 0);
+        const ok = Number(rows[0]?.ok || 0);
+        const avgMs = Number(rows[0]?.avg_ms || 0);
+        // Report a MEANINGFUL latency: the average successful delivery round-trip
+        // (external HTTP POST to the merchant), not the local Redis ping.
+        const latency = avgMs > 0 ? avgMs : Date.now() - start;
+        // Idle / very low volume → nothing to worry about.
+        if (total < WEBHOOK_MIN_SAMPLE) {
+          return { healthy: true, latency, status: "operational" };
+        }
+        const successRate = ok / total;
+        const status: HealthCheckResult["status"] =
+          successRate >= 0.9 ? "operational" : successRate >= 0.5 ? "degraded" : "outage";
+        return { healthy: true, latency, status };
+      } catch (error: unknown) {
+        // The delivery-log probe failed but Redis is up — don't fabricate a
+        // webhook outage over a transient read error; the backbone is healthy.
+        return { healthy: true, latency: Date.now() - start, status: "operational" };
       }
     }
   },
@@ -198,6 +240,10 @@ export const runHealthChecks = async (): Promise<void> => {
       let status: "operational" | "degraded" | "outage" = "operational";
       if (!result.healthy) {
         status = "outage";
+      } else if (result.status) {
+        // Probe judged its own health (e.g. webhook_delivery success-rate) —
+        // honour it verbatim instead of inferring from latency.
+        status = result.status;
       } else if (result.latency > budget.outage) {
         status = "outage"; // Pathologically slow = as good as down
       } else if (result.latency > budget.degraded) {
@@ -486,8 +532,41 @@ export const pruneOldHealthChecks = async (): Promise<{ deleted: number }> => {
   }
 };
 
+/**
+ * Compute CURRENT health for all services live — runs every probe and derives
+ * its status, but writes NOTHING (no tbl_service_health rows, no rollup). This
+ * is the read-only twin of runHealthChecks(): useful to preview the status the
+ * monitor WOULD record right now (e.g. to verify a probe change) without having
+ * to wait for the 15-min cron and without mutating the shared DB.
+ */
+export const computeLiveHealth = async (): Promise<Array<{
+  service_id: string;
+  service_name: string;
+  status: "operational" | "degraded" | "outage";
+  latency_ms: number;
+  error?: string;
+}>> => {
+  const out: Array<{ service_id: string; service_name: string; status: "operational" | "degraded" | "outage"; latency_ms: number; error?: string }> = [];
+  for (const service of MONITORED_SERVICES) {
+    try {
+      const result = await service.check();
+      const budget = budgetFor(service.id);
+      let status: "operational" | "degraded" | "outage" = "operational";
+      if (!result.healthy) status = "outage";
+      else if (result.status) status = result.status;
+      else if (result.latency > budget.outage) status = "outage";
+      else if (result.latency > budget.degraded) status = "degraded";
+      out.push({ service_id: service.id, service_name: service.name, status, latency_ms: result.latency, error: result.error });
+    } catch (error: unknown) {
+      out.push({ service_id: service.id, service_name: service.name, status: "outage", latency_ms: 0, error: (error as { message?: string }).message });
+    }
+  }
+  return out;
+};
+
 export default {
   runHealthChecks,
+  computeLiveHealth,
   getDailyServiceStatus,
   getCurrentServiceStatus,
   calculateServiceUptime,

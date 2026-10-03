@@ -31,6 +31,11 @@ statusRouter.get("/health", statusController.healthCheck);
 // calls external providers and INSERTs rows into tbl_service_health).
 statusRouter.post("/check", adminAuthMiddleware, statusController.triggerHealthCheck);
 
+// GET /api/status/check - Read-only dry-run: compute live health for every
+// service WITHOUT writing any rows (safe on preview; public). Previews the
+// status the monitor would record right now.
+statusRouter.get("/check", statusController.previewHealthCheck);
+
 // GET /api/status/services - All services status
 statusRouter.get("/services", statusController.getServicesStatus);
 

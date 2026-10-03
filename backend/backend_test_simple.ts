@@ -21,7 +21,7 @@ import { resolve } from 'path';
 // Load environment variables
 config({ path: resolve(__dirname, '.env') });
 
-const BASE_URL = process.env.BACKEND_URL || 'https://vault-init-7.preview.emergentagent.com';
+const BASE_URL = process.env.BACKEND_URL || 'https://trx-limit-unified.preview.emergentagent.com';
 
 const results: { test: string; status: 'PASS' | 'FAIL'; details: string }[] = [];
 

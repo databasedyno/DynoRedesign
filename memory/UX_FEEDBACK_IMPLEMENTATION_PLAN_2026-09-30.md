@@ -1,6 +1,6 @@
 # UX Feedback Implementation Plan — end to end
 _Source: `memory/UX_FEEDBACK_PATTERNS_2026-09.md` (Brevo reference, owner 2026-09-30)._
-_Pod: https://vault-init-7.preview.emergentagent.com — SAFE MODE, LIVE prod DB, Next.js PRODUCTION build._
+_Pod: https://trx-limit-unified.preview.emergentagent.com — SAFE MODE, LIVE prod DB, Next.js PRODUCTION build._
 _Status legend: ✅ done & self-verified · 🟡 partial · ⛔ not started._
 
 ## Environment / build workflow (important)

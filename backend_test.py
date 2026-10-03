@@ -1,34 +1,18 @@
 #!/usr/bin/env python3
 """
-READ-ONLY Backend Regression Smoke Test for DynoPay
-Date: 2026-10-01
-Context: BTC email dedup + notification timestamp bugs fixed in chain-verification worker
-         (NOT reachable via API). This test verifies no regression in reachable endpoints.
-
-ABSOLUTE RULE: READ-ONLY ONLY. No writes, no payments, no settlements.
+Backend API Testing for Webhook Status Fix (2026-10-03)
+READ-ONLY testing on LIVE production database
+Base URL: https://b4078c13-f759-46ae-ae48-1dec741b535b.preview.emergentagent.com
+All backend routes under /api
 """
 
 import requests
 import json
 import sys
-import time
 from typing import Dict, Any, Optional
 
-# Base URL from review request
-BASE_URL = "https://vault-init-7.preview.emergentagent.com"
-
-# Internal backend URL for health check (not exposed publicly)
-BACKEND_INTERNAL_URL = "http://localhost:3300"
-
-# Browser User-Agent (REQUIRED - curl/python UAs get 403'd)
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    "Accept": "application/json",
-}
-
-# Merchant credentials
-MERCHANT_EMAIL = "onarrival21@gmail.com"
-MERCHANT_PASSWORD = "Katiekendra123@"
+# Base URL from backend/.env SERVER_URL
+BASE_URL = "https://b4078c13-f759-46ae-ae48-1dec741b535b.preview.emergentagent.com"
 
 class Colors:
     GREEN = '\033[92m'
@@ -36,486 +20,462 @@ class Colors:
     YELLOW = '\033[93m'
     BLUE = '\033[94m'
     RESET = '\033[0m'
+    BOLD = '\033[1m'
 
-def log_test(test_name: str):
-    print(f"\n{Colors.BLUE}{'='*70}{Colors.RESET}")
-    print(f"{Colors.BLUE}TEST: {test_name}{Colors.RESET}")
-    print(f"{Colors.BLUE}{'='*70}{Colors.RESET}")
+def print_test_header(test_name: str):
+    print(f"\n{Colors.BLUE}{Colors.BOLD}{'='*80}{Colors.RESET}")
+    print(f"{Colors.BLUE}{Colors.BOLD}TEST: {test_name}{Colors.RESET}")
+    print(f"{Colors.BLUE}{Colors.BOLD}{'='*80}{Colors.RESET}")
 
-def log_pass(message: str):
+def print_pass(message: str):
     print(f"{Colors.GREEN}✓ PASS: {message}{Colors.RESET}")
 
-def log_fail(message: str):
+def print_fail(message: str):
     print(f"{Colors.RED}✗ FAIL: {message}{Colors.RESET}")
 
-def log_info(message: str):
+def print_info(message: str):
     print(f"{Colors.YELLOW}ℹ INFO: {message}{Colors.RESET}")
 
-def test_health_check() -> bool:
-    """Test 1: GET /health (no auth) - internal backend"""
-    log_test("1. Health Check (GET /health)")
+def print_critical(message: str):
+    print(f"{Colors.RED}{Colors.BOLD}🔴 CRITICAL: {message}{Colors.RESET}")
+
+def make_request(method: str, endpoint: str, **kwargs) -> Optional[requests.Response]:
+    """Make HTTP request with error handling"""
+    url = f"{BASE_URL}{endpoint}"
+    try:
+        print(f"\n{Colors.BLUE}→ {method} {endpoint}{Colors.RESET}")
+        response = requests.request(method, url, timeout=30, **kwargs)
+        print(f"  Status: {response.status_code}")
+        return response
+    except requests.exceptions.RequestException as e:
+        print_fail(f"Request failed: {e}")
+        return None
+
+def test_1_status_check_dry_run():
+    """
+    TEST 1: GET /api/status/check (NEW read-only dry-run endpoint)
+    CRITICAL: This is the main fix verification
+    """
+    print_test_header("1. GET /api/status/check (Read-only dry-run)")
+    
+    response = make_request("GET", "/api/status/check")
+    
+    if not response:
+        print_fail("Request failed")
+        return False
+    
+    # Check HTTP 200
+    if response.status_code != 200:
+        print_fail(f"Expected HTTP 200, got {response.status_code}")
+        return False
+    print_pass("HTTP 200 OK")
     
     try:
-        # Health endpoint is not exposed publicly, test against internal backend
-        response = requests.get(f"{BACKEND_INTERNAL_URL}/health", headers=HEADERS, timeout=10)
-        
-        log_info(f"Status Code: {response.status_code}")
-        
-        if response.status_code != 200:
-            log_fail(f"Expected 200, got {response.status_code}")
-            return False
-        
         data = response.json()
-        log_info(f"Response Body: {json.dumps(data, indent=2)}")
-        
-        # Check required fields
-        if data.get("status") != "healthy":
-            log_fail(f"status is '{data.get('status')}', expected 'healthy'")
-            return False
-        
-        if data.get("database") != "connected":
-            log_fail(f"database is '{data.get('database')}', expected 'connected'")
-            return False
-        
-        if data.get("redis") != "connected":
-            log_fail(f"redis is '{data.get('redis')}', expected 'connected'")
-            return False
-        
-        log_pass("Health check passed - backend is healthy")
-        log_pass(f"status: {data.get('status')}")
-        log_pass(f"database: {data.get('database')}")
-        log_pass(f"redis: {data.get('redis')}")
-        
-        return True
-        
-    except Exception as e:
-        log_fail(f"Health check failed with exception: {str(e)}")
+    except json.JSONDecodeError:
+        print_fail("Response is not valid JSON")
         return False
+    
+    # Check response structure
+    if not isinstance(data, dict) or 'data' not in data:
+        print_fail("Response missing 'data' field")
+        return False
+    
+    payload = data['data']
+    
+    # Check dry_run flag
+    if payload.get('dry_run') != True:
+        print_fail(f"Expected dry_run=true, got {payload.get('dry_run')}")
+        return False
+    print_pass("dry_run === true (no DB writes)")
+    
+    # Check results array
+    if 'results' not in payload or not isinstance(payload['results'], list):
+        print_fail("Missing or invalid 'results' array")
+        return False
+    
+    results = payload['results']
+    if len(results) != 5:
+        print_fail(f"Expected 5 services, got {len(results)}")
+        return False
+    print_pass(f"results array has 5 services")
+    
+    # Find webhook_delivery service
+    webhook_service = None
+    for service in results:
+        if service.get('service_id') == 'webhook_delivery':
+            webhook_service = service
+            break
+    
+    if not webhook_service:
+        print_fail("webhook_delivery service not found in results")
+        return False
+    print_pass("webhook_delivery service found in results")
+    
+    # CRITICAL ASSERTION: webhook_delivery status must be "operational"
+    webhook_status = webhook_service.get('status')
+    print(f"\n{Colors.BOLD}CRITICAL ASSERTION:{Colors.RESET}")
+    print(f"  webhook_delivery status: {Colors.BOLD}{webhook_status}{Colors.RESET}")
+    
+    if webhook_status != "operational":
+        print_critical(f"webhook_delivery status is '{webhook_status}', expected 'operational'")
+        print_critical("THE BUG IS NOT FIXED - webhook_delivery should be operational")
+        return False
+    
+    print_pass("✓✓✓ webhook_delivery status === 'operational' (BUG FIXED!)")
+    
+    # Check overall_status
+    overall_status = payload.get('overall_status')
+    print(f"\n  overall_status: {Colors.BOLD}{overall_status}{Colors.RESET}")
+    
+    if overall_status not in ['operational', 'degraded', 'partial_outage']:
+        print_fail(f"Invalid overall_status: {overall_status}")
+        return False
+    
+    # Overall status should be operational if webhook_delivery is operational
+    # (unless some OTHER service is genuinely slow right now)
+    if overall_status == 'operational':
+        print_pass("overall_status === 'operational' (all services healthy)")
+    else:
+        print_info(f"overall_status === '{overall_status}' (some other service may be slow, but webhook_delivery is operational)")
+    
+    # Print all service statuses for visibility
+    print(f"\n{Colors.BOLD}All Service Statuses:{Colors.RESET}")
+    for service in results:
+        sid = service.get('service_id', 'unknown')
+        status = service.get('status', 'unknown')
+        latency = service.get('latency_ms', 0)
+        color = Colors.GREEN if status == 'operational' else Colors.YELLOW if status == 'degraded' else Colors.RED
+        print(f"  {sid:20s} {color}{status:12s}{Colors.RESET} ({latency}ms)")
+    
+    print(f"\n{Colors.GREEN}{Colors.BOLD}✓✓✓ TEST 1 PASSED - BUG FIX VERIFIED{Colors.RESET}")
+    return True
 
-def get_cached_token() -> Optional[str]:
-    """Try to read cached merchant token"""
-    log_test("2a. Check Cached Merchant Token")
+def test_2_status_public():
+    """
+    TEST 2: GET /api/status (public endpoint)
+    NOTE: This reads stored rows written by PROD's monitor, so webhook_delivery
+    may still show "degraded" here - that's EXPECTED and NOT a failure
+    """
+    print_test_header("2. GET /api/status (Public status endpoint)")
+    
+    response = make_request("GET", "/api/status")
+    
+    if not response:
+        print_fail("Request failed")
+        return False
+    
+    # Check HTTP 200
+    if response.status_code != 200:
+        print_fail(f"Expected HTTP 200, got {response.status_code}")
+        return False
+    print_pass("HTTP 200 OK")
     
     try:
-        with open("/app/memory/tmp/merchant_token.txt", "r") as f:
-            token = f.read().strip()
-            if token:
-                log_pass(f"Found cached token (length: {len(token)})")
-                return token
-            else:
-                log_info("Cached token file is empty")
-                return None
-    except FileNotFoundError:
-        log_info("No cached token file found")
-        return None
-    except Exception as e:
-        log_info(f"Could not read cached token: {str(e)}")
-        return None
-
-def get_totp_code() -> str:
-    """Get current TOTP code for merchant"""
-    import subprocess
-    try:
-        result = subprocess.run(
-            ["node", "/app/backend/scripts/print_totp.cjs", "1"],
-            capture_output=True,
-            text=True,
-            timeout=5
-        )
-        totp = result.stdout.strip()
-        log_info(f"Generated TOTP code: {totp}")
-        return totp
-    except Exception as e:
-        log_fail(f"Failed to generate TOTP: {str(e)}")
-        return ""
-
-def merchant_login() -> Optional[str]:
-    """Test 2b: Merchant authentication via login + 2FA"""
-    log_test("2b. Merchant Authentication (Login + 2FA)")
-    
-    try:
-        # Step 1: POST /api/user/login
-        log_info("Step 1: POST /api/user/login")
-        login_data = {
-            "email": MERCHANT_EMAIL,
-            "password": MERCHANT_PASSWORD
-        }
-        
-        response = requests.post(
-            f"{BASE_URL}/api/user/login",
-            json=login_data,
-            headers=HEADERS,
-            timeout=10
-        )
-        
-        log_info(f"Login Status Code: {response.status_code}")
-        
-        if response.status_code != 200:
-            log_fail(f"Login failed with status {response.status_code}")
-            log_info(f"Response: {response.text}")
-            return None
-        
-        login_result = response.json()
-        
-        if not login_result.get("success"):
-            log_fail(f"Login returned success=false")
-            log_info(f"Response: {json.dumps(login_result, indent=2)}")
-            return None
-        
-        challenge_token = login_result.get("data", {}).get("challenge_token")
-        
-        if not challenge_token:
-            log_fail("No challenge_token in login response")
-            return None
-        
-        log_pass(f"Login successful, got challenge_token")
-        
-        # Step 2: Get TOTP code
-        log_info("Step 2: Generate TOTP code")
-        totp_code = get_totp_code()
-        
-        if not totp_code:
-            log_fail("Could not generate TOTP code")
-            return None
-        
-        # Step 3: POST /api/user/2fa/validate
-        log_info("Step 3: POST /api/user/2fa/validate")
-        twofa_data = {
-            "challenge_token": challenge_token,
-            "token": totp_code
-        }
-        
-        response = requests.post(
-            f"{BASE_URL}/api/user/2fa/validate",
-            json=twofa_data,
-            headers=HEADERS,
-            timeout=10
-        )
-        
-        log_info(f"2FA Validate Status Code: {response.status_code}")
-        
-        if response.status_code != 200:
-            log_fail(f"2FA validation failed with status {response.status_code}")
-            log_info(f"Response: {response.text}")
-            return None
-        
-        twofa_result = response.json()
-        
-        if not twofa_result.get("success"):
-            log_fail(f"2FA validation returned success=false")
-            log_info(f"Response: {json.dumps(twofa_result, indent=2)}")
-            return None
-        
-        access_token = twofa_result.get("data", {}).get("accessToken")
-        
-        if not access_token:
-            log_fail("No accessToken in 2FA response")
-            return None
-        
-        log_pass(f"2FA validation successful, got accessToken")
-        
-        # Cache the token for future use
-        try:
-            with open("/app/memory/tmp/merchant_token.txt", "w") as f:
-                f.write(access_token)
-            log_info("Cached new token to /app/memory/tmp/merchant_token.txt")
-        except Exception as e:
-            log_info(f"Could not cache token: {str(e)}")
-        
-        return access_token
-        
-    except Exception as e:
-        log_fail(f"Authentication failed with exception: {str(e)}")
-        return None
-
-def test_notifications_endpoint(token: str) -> bool:
-    """Test 3a: GET /api/notifications"""
-    log_test("3a. GET /api/notifications")
-    
-    try:
-        auth_headers = HEADERS.copy()
-        auth_headers["Authorization"] = f"Bearer {token}"
-        
-        response = requests.get(
-            f"{BASE_URL}/api/notifications",
-            headers=auth_headers,
-            timeout=10
-        )
-        
-        log_info(f"Status Code: {response.status_code}")
-        
-        if response.status_code != 200:
-            log_fail(f"Expected 200, got {response.status_code}")
-            log_info(f"Response: {response.text}")
-            return False
-        
         data = response.json()
-        
-        # Check if it's a list or has a data field
-        if isinstance(data, dict) and "data" in data:
-            notifications = data.get("data", [])
-        elif isinstance(data, list):
-            notifications = data
-        else:
-            notifications = []
-        
-        log_pass(f"Notifications endpoint returned 200")
-        log_info(f"Received {len(notifications)} notifications")
-        
-        # Check for payment notifications with paid_at field (newly added)
-        payment_notifications = []
-        for n in notifications:
-            if isinstance(n, dict) and n.get("type") == "PAYMENT_RECEIVED":
-                payment_notifications.append(n)
-        
-        if payment_notifications:
-            log_info(f"Found {len(payment_notifications)} PAYMENT_RECEIVED notifications")
-            
-            # Check if any have the new paid_at field
-            with_paid_at = [n for n in payment_notifications if n.get("data", {}).get("paid_at")]
-            
-            if with_paid_at:
-                log_info(f"{len(with_paid_at)} notifications have data.paid_at field (newly added)")
-                log_info(f"Example paid_at: {with_paid_at[0].get('data', {}).get('paid_at')}")
-            else:
-                log_info("No notifications have data.paid_at field yet (expected for existing rows)")
-        else:
-            log_info("No PAYMENT_RECEIVED notifications found")
-        
-        log_pass("Notifications endpoint working correctly")
-        return True
-        
-    except Exception as e:
-        log_fail(f"Notifications test failed with exception: {str(e)}")
+    except json.JSONDecodeError:
+        print_fail("Response is not valid JSON")
         return False
+    
+    # Check response structure
+    if not isinstance(data, dict) or 'data' not in data:
+        print_fail("Response missing 'data' field")
+        return False
+    
+    payload = data['data']
+    
+    # Check services array
+    if 'services' not in payload or not isinstance(payload['services'], list):
+        print_fail("Missing or invalid 'services' array")
+        return False
+    print_pass("services[] array present")
+    
+    # Check for webhook_delivery entry
+    webhook_found = False
+    for service in payload['services']:
+        if service.get('id') == 'webhook_delivery':
+            webhook_found = True
+            webhook_status = service.get('status')
+            print_info(f"webhook_delivery status in stored data: {webhook_status}")
+            print_info("(May still be 'degraded' from old PROD monitor - this is EXPECTED)")
+            break
+    
+    if not webhook_found:
+        print_fail("webhook_delivery not found in services array")
+        return False
+    print_pass("webhook_delivery entry found in services[]")
+    
+    # Check overall_status present
+    if 'overall_status' not in payload:
+        print_fail("Missing overall_status field")
+        return False
+    print_pass(f"overall_status present: {payload['overall_status']}")
+    
+    # Check no 500 error
+    if response.status_code == 500:
+        print_fail("Endpoint returned 500 error")
+        return False
+    print_pass("No 500 error")
+    
+    print(f"\n{Colors.GREEN}✓ TEST 2 PASSED{Colors.RESET}")
+    return True
 
-def test_transactions_endpoint(token: str) -> bool:
-    """Test 3b: GET transactions list"""
-    log_test("3b. GET Transactions List")
+def test_3_status_services():
+    """
+    TEST 3: GET /api/status/services
+    """
+    print_test_header("3. GET /api/status/services")
+    
+    response = make_request("GET", "/api/status/services")
+    
+    if not response:
+        print_fail("Request failed")
+        return False
+    
+    # Check HTTP 200
+    if response.status_code != 200:
+        print_fail(f"Expected HTTP 200, got {response.status_code}")
+        return False
+    print_pass("HTTP 200 OK")
     
     try:
-        auth_headers = HEADERS.copy()
-        auth_headers["Authorization"] = f"Bearer {token}"
-        
-        # Try common transaction endpoints
-        endpoints = [
-            "/api/user/getAllTransactions",
-            "/api/wallet/getAllTransactions",
-        ]
-        
-        for endpoint in endpoints:
-            log_info(f"Trying: {endpoint}")
-            
-            response = requests.post(
-                f"{BASE_URL}{endpoint}",
-                json={"company_id": 1},
-                headers=auth_headers,
-                timeout=10
-            )
-            
-            log_info(f"Status Code: {response.status_code}")
-            
-            if response.status_code == 200:
-                data = response.json()
-                
-                # Check structure
-                if data.get("success"):
-                    transactions = data.get("data", {})
-                    
-                    if isinstance(transactions, dict):
-                        # Count transactions
-                        total = 0
-                        for key, value in transactions.items():
-                            if isinstance(value, list):
-                                total += len(value)
-                        
-                        log_pass(f"Transactions endpoint {endpoint} returned 200")
-                        log_info(f"Response contains transaction data")
-                        return True
-                    elif isinstance(transactions, list):
-                        log_pass(f"Transactions endpoint {endpoint} returned 200")
-                        log_info(f"Received {len(transactions)} transactions")
-                        return True
-                
-                log_pass(f"Transactions endpoint {endpoint} returned 200")
-                return True
-            elif response.status_code == 404:
-                log_info(f"Endpoint {endpoint} not found, trying next...")
-                continue
-            else:
-                log_info(f"Endpoint {endpoint} returned {response.status_code}")
-                log_info(f"Response: {response.text[:200]}")
-        
-        log_fail("Could not find working transactions endpoint")
+        data = response.json()
+    except json.JSONDecodeError:
+        print_fail("Response is not valid JSON")
         return False
-        
-    except Exception as e:
-        log_fail(f"Transactions test failed with exception: {str(e)}")
+    
+    # Check response structure
+    if not isinstance(data, dict) or 'data' not in data:
+        print_fail("Response missing 'data' field")
         return False
+    
+    payload = data['data']
+    
+    # Check services array
+    if 'services' not in payload or not isinstance(payload['services'], list):
+        print_fail("Missing or invalid 'services' array")
+        return False
+    
+    services = payload['services']
+    if len(services) != 5:
+        print_fail(f"Expected 5 services, got {len(services)}")
+        return False
+    print_pass(f"Returns 5 services")
+    
+    # Check each service has required fields
+    for service in services:
+        if not all(k in service for k in ['id', 'name', 'status', 'uptime', 'latency_ms']):
+            print_fail(f"Service missing required fields: {service.get('id', 'unknown')}")
+            return False
+    print_pass("All services have required fields (id, name, status, uptime, latency_ms)")
+    
+    # Check no 500 error
+    if response.status_code == 500:
+        print_fail("Endpoint returned 500 error")
+        return False
+    print_pass("No 500 error")
+    
+    print(f"\n{Colors.GREEN}✓ TEST 3 PASSED{Colors.RESET}")
+    return True
 
-def test_profile_endpoint(token: str) -> bool:
-    """Test 3c: GET profile/me endpoint"""
-    log_test("3c. GET Profile/Me Endpoint")
+def test_4_service_webhook_uptime():
+    """
+    TEST 4: GET /api/status/service/webhook_delivery/uptime
+    """
+    print_test_header("4. GET /api/status/service/webhook_delivery/uptime")
+    
+    response = make_request("GET", "/api/status/service/webhook_delivery/uptime")
+    
+    if not response:
+        print_fail("Request failed")
+        return False
+    
+    # Check HTTP 200
+    if response.status_code != 200:
+        print_fail(f"Expected HTTP 200, got {response.status_code}")
+        return False
+    print_pass("HTTP 200 OK")
     
     try:
-        auth_headers = HEADERS.copy()
-        auth_headers["Authorization"] = f"Bearer {token}"
-        
-        # Try common profile endpoints
-        endpoints = [
-            "/api/user/getProfile",
-            "/api/user/profile",
-            "/api/user/me",
-        ]
-        
-        for endpoint in endpoints:
-            log_info(f"Trying: {endpoint}")
-            
-            response = requests.get(
-                f"{BASE_URL}{endpoint}",
-                headers=auth_headers,
-                timeout=10
-            )
-            
-            log_info(f"Status Code: {response.status_code}")
-            
-            if response.status_code == 200:
-                data = response.json()
-                log_pass(f"Profile endpoint {endpoint} returned 200")
-                
-                # Check if we got user data
-                user_data = data.get("data", {}) if isinstance(data, dict) else data
-                
-                if user_data.get("email") or user_data.get("user_id"):
-                    log_info(f"Profile data retrieved successfully")
-                
-                return True
-            elif response.status_code == 404:
-                log_info(f"Endpoint {endpoint} not found, trying next...")
-                continue
-            else:
-                log_info(f"Endpoint {endpoint} returned {response.status_code}")
-        
-        log_fail("Could not find working profile endpoint")
+        data = response.json()
+    except json.JSONDecodeError:
+        print_fail("Response is not valid JSON")
         return False
-        
-    except Exception as e:
-        log_fail(f"Profile test failed with exception: {str(e)}")
+    
+    # Check response structure
+    if not isinstance(data, dict) or 'data' not in data:
+        print_fail("Response missing 'data' field")
         return False
+    
+    payload = data['data']
+    
+    # Check daily_status array
+    if 'daily_status' not in payload or not isinstance(payload['daily_status'], list):
+        print_fail("Missing or invalid 'daily_status' array")
+        return False
+    print_pass("daily_status array present")
+    
+    # Check uptime_percentage
+    if 'uptime_percentage' not in payload:
+        print_fail("Missing uptime_percentage field")
+        return False
+    print_pass(f"uptime_percentage present: {payload['uptime_percentage']}%")
+    
+    # Check no 500 error
+    if response.status_code == 500:
+        print_fail("Endpoint returned 500 error")
+        return False
+    print_pass("No 500 error")
+    
+    print(f"\n{Colors.GREEN}✓ TEST 4 PASSED{Colors.RESET}")
+    return True
 
-def check_backend_logs() -> bool:
-    """Test 4: Check backend logs for errors"""
-    log_test("4. Backend Error Logs Check")
+def test_5_status_incidents():
+    """
+    TEST 5: GET /api/status/incidents
+    """
+    print_test_header("5. GET /api/status/incidents")
+    
+    response = make_request("GET", "/api/status/incidents")
+    
+    if not response:
+        print_fail("Request failed")
+        return False
+    
+    # Check HTTP 200
+    if response.status_code != 200:
+        print_fail(f"Expected HTTP 200, got {response.status_code}")
+        return False
+    print_pass("HTTP 200 OK")
     
     try:
-        import subprocess
-        
-        # Check backend error logs
-        result = subprocess.run(
-            ["tail", "-n", "100", "/var/log/supervisor/backend.err.log"],
-            capture_output=True,
-            text=True,
-            timeout=5
-        )
-        
-        log_info("Checking last 100 lines of backend.err.log")
-        
-        lines = result.stdout.strip().split('\n')
-        
-        # Filter for actual errors (ignore known warnings)
-        known_safe_patterns = [
-            "background jobs disabled",
-            "Binance geo-block",
-            "tatum circuit",
-            "DISABLE_OUTBOUND_EMAIL",
-            "SAFE MODE",
-        ]
-        
-        error_lines = []
-        for line in lines:
-            if line.strip() and any(pattern in line.lower() for pattern in ["error", "exception", "traceback"]):
-                # Check if it's a known safe pattern
-                if not any(safe in line for safe in known_safe_patterns):
-                    error_lines.append(line)
-        
-        if error_lines:
-            log_info(f"Found {len(error_lines)} potential error lines:")
-            for line in error_lines[:10]:  # Show first 10
-                log_info(f"  {line}")
-            
-            # This is informational, not a failure
-            log_info("Review these errors to determine if they're related to the changes")
-        else:
-            log_pass("No new runtime errors found in backend logs")
-        
-        return True
-        
-    except Exception as e:
-        log_info(f"Could not check logs: {str(e)}")
-        return True  # Don't fail the test if we can't check logs
+        data = response.json()
+    except json.JSONDecodeError:
+        print_fail("Response is not valid JSON")
+        return False
+    
+    # Check response structure
+    if not isinstance(data, dict) or 'data' not in data:
+        print_fail("Response missing 'data' field")
+        return False
+    
+    payload = data['data']
+    
+    # Check incidents array
+    if 'incidents' not in payload or not isinstance(payload['incidents'], list):
+        print_fail("Missing or invalid 'incidents' array")
+        return False
+    print_pass(f"incidents array present (count: {len(payload['incidents'])})")
+    
+    # Check no 500 error
+    if response.status_code == 500:
+        print_fail("Endpoint returned 500 error")
+        return False
+    print_pass("No 500 error")
+    
+    print(f"\n{Colors.GREEN}✓ TEST 5 PASSED{Colors.RESET}")
+    return True
+
+def test_6_health_check():
+    """
+    TEST 6: GET /health (backend health check)
+    NOTE: /health is at root level, not under /api, so we access it via localhost:8001
+    """
+    print_test_header("6. GET /health (Backend health check)")
+    
+    # /health is not under /api, so we access it via localhost:8001
+    url = "http://localhost:8001/health"
+    try:
+        print(f"\n{Colors.BLUE}→ GET /health (localhost:8001){Colors.RESET}")
+        response = requests.get(url, timeout=10)
+        print(f"  Status: {response.status_code}")
+    except requests.exceptions.RequestException as e:
+        print_fail(f"Request failed: {e}")
+        return False
+    
+    if not response:
+        print_fail("Request failed")
+        return False
+    
+    # Check HTTP 200
+    if response.status_code != 200:
+        print_fail(f"Expected HTTP 200, got {response.status_code}")
+        return False
+    print_pass("HTTP 200 OK")
+    
+    try:
+        data = response.json()
+    except json.JSONDecodeError:
+        print_fail("Response is not valid JSON")
+        return False
+    
+    # Check status field
+    if data.get('status') != 'healthy':
+        print_fail(f"Expected status='healthy', got {data.get('status')}")
+        return False
+    print_pass("status === 'healthy'")
+    
+    # Check database connection
+    if data.get('database') != 'connected':
+        print_fail(f"Database not connected: {data.get('database')}")
+        return False
+    print_pass("database === 'connected'")
+    
+    # Check redis connection
+    if data.get('redis') != 'connected':
+        print_fail(f"Redis not connected: {data.get('redis')}")
+        return False
+    print_pass("redis === 'connected'")
+    
+    print(f"\n{Colors.GREEN}✓ TEST 6 PASSED{Colors.RESET}")
+    return True
 
 def main():
-    print(f"\n{Colors.BLUE}{'='*70}{Colors.RESET}")
-    print(f"{Colors.BLUE}DynoPay Backend Regression Smoke Test (READ-ONLY){Colors.RESET}")
-    print(f"{Colors.BLUE}Date: 2026-10-01{Colors.RESET}")
-    print(f"{Colors.BLUE}Context: BTC email dedup + notification timestamp fixes{Colors.RESET}")
-    print(f"{Colors.BLUE}Base URL: {BASE_URL}{Colors.RESET}")
-    print(f"{Colors.BLUE}{'='*70}{Colors.RESET}")
+    print(f"\n{Colors.BOLD}{'='*80}{Colors.RESET}")
+    print(f"{Colors.BOLD}BACKEND API TESTING - Webhook Status Fix (2026-10-03){Colors.RESET}")
+    print(f"{Colors.BOLD}{'='*80}{Colors.RESET}")
+    print(f"Base URL: {BASE_URL}")
+    print(f"Environment: SAFE MODE, LIVE prod DB")
+    print(f"Testing: READ-ONLY endpoints only (no POST /api/status/check)")
+    print(f"{Colors.BOLD}{'='*80}{Colors.RESET}")
     
-    results = {}
+    results = []
     
-    # Test 1: Health Check
-    results["health"] = test_health_check()
-    
-    if not results["health"]:
-        log_fail("Health check failed - stopping tests")
-        sys.exit(1)
-    
-    # Test 2: Authentication
-    token = get_cached_token()
-    
-    if token:
-        log_pass("Using cached merchant token")
-        results["auth"] = True
-    else:
-        log_info("No cached token, performing login + 2FA")
-        token = merchant_login()
-        results["auth"] = token is not None
-    
-    if not token:
-        log_fail("Could not obtain authentication token - stopping endpoint tests")
-        results["notifications"] = False
-        results["transactions"] = False
-        results["profile"] = False
-    else:
-        # Test 3: Read endpoints
-        results["notifications"] = test_notifications_endpoint(token)
-        results["transactions"] = test_transactions_endpoint(token)
-        results["profile"] = test_profile_endpoint(token)
-    
-    # Test 4: Backend logs
-    results["logs"] = check_backend_logs()
+    # Run all tests
+    results.append(("TEST 1: GET /api/status/check (dry-run)", test_1_status_check_dry_run()))
+    results.append(("TEST 2: GET /api/status", test_2_status_public()))
+    results.append(("TEST 3: GET /api/status/services", test_3_status_services()))
+    results.append(("TEST 4: GET /api/status/service/webhook_delivery/uptime", test_4_service_webhook_uptime()))
+    results.append(("TEST 5: GET /api/status/incidents", test_5_status_incidents()))
+    results.append(("TEST 6: GET /health", test_6_health_check()))
     
     # Summary
-    print(f"\n{Colors.BLUE}{'='*70}{Colors.RESET}")
-    print(f"{Colors.BLUE}TEST SUMMARY{Colors.RESET}")
-    print(f"{Colors.BLUE}{'='*70}{Colors.RESET}")
+    print(f"\n{Colors.BOLD}{'='*80}{Colors.RESET}")
+    print(f"{Colors.BOLD}TEST SUMMARY{Colors.RESET}")
+    print(f"{Colors.BOLD}{'='*80}{Colors.RESET}")
     
+    passed = sum(1 for _, result in results if result)
     total = len(results)
-    passed = sum(1 for v in results.values() if v)
     
-    for test_name, passed_test in results.items():
-        status = f"{Colors.GREEN}PASS{Colors.RESET}" if passed_test else f"{Colors.RED}FAIL{Colors.RESET}"
-        print(f"{test_name.upper()}: {status}")
+    for test_name, result in results:
+        status = f"{Colors.GREEN}✓ PASS{Colors.RESET}" if result else f"{Colors.RED}✗ FAIL{Colors.RESET}"
+        print(f"{status} - {test_name}")
     
-    print(f"\n{Colors.BLUE}Total: {passed}/{total} tests passed{Colors.RESET}")
+    print(f"\n{Colors.BOLD}Total: {passed}/{total} tests passed{Colors.RESET}")
     
     if passed == total:
-        print(f"\n{Colors.GREEN}✓ ALL TESTS PASSED - No regression detected{Colors.RESET}")
-        print(f"{Colors.GREEN}Backend runs cleanly and reachable endpoints work correctly{Colors.RESET}")
+        print(f"\n{Colors.GREEN}{Colors.BOLD}{'='*80}{Colors.RESET}")
+        print(f"{Colors.GREEN}{Colors.BOLD}✓✓✓ ALL TESTS PASSED - BUG FIX VERIFIED ✓✓✓{Colors.RESET}")
+        print(f"{Colors.GREEN}{Colors.BOLD}{'='*80}{Colors.RESET}")
+        print(f"\n{Colors.GREEN}CRITICAL VERIFICATION:{Colors.RESET}")
+        print(f"{Colors.GREEN}✓ webhook_delivery status === 'operational' (bug fixed){Colors.RESET}")
+        print(f"{Colors.GREEN}✓ All endpoints return 200 with valid structure{Colors.RESET}")
+        print(f"{Colors.GREEN}✓ Backend process is healthy (database + redis connected){Colors.RESET}")
         return 0
     else:
-        print(f"\n{Colors.RED}✗ SOME TESTS FAILED - Review failures above{Colors.RESET}")
+        print(f"\n{Colors.RED}{Colors.BOLD}{'='*80}{Colors.RESET}")
+        print(f"{Colors.RED}{Colors.BOLD}✗✗✗ SOME TESTS FAILED ✗✗✗{Colors.RESET}")
+        print(f"{Colors.RED}{Colors.BOLD}{'='*80}{Colors.RESET}")
         return 1
 
 if __name__ == "__main__":

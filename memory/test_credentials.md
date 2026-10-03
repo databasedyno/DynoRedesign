@@ -1,5 +1,5 @@
 <!-- 2026-07 (CURRENT POD — supersedes every pod URL below) — set up from env.vault.enc via scripts/pod-bootstrap.sh.
-     LIVE preview URL for THIS pod = https://52a71e16-99c2-4761-a808-c04713cc9f81.preview.emergentagent.com
+     LIVE preview URL for THIS pod = https://trx-limit-unified.preview.emergentagent.com
      (all env URLs were migrated to this pod by pod-bootstrap; the vault-init-7 URL below is now STALE).
      SAFE MODE enforced (ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary, outbound email off) on the LIVE prod DB — MOCK every write in UI tests.
      Merchant/owner: onarrival21@gmail.com / Katiekendra123@ (user_id 1, company_id 1 "The Dev Store"; TOTP: node /app/backend/scripts/print_totp.cjs 1).
@@ -8,7 +8,7 @@
 
 
 <!-- 2026-10-02 (pod 0dbd9c5d, pt8 — ADMIN PLATFORM SETTINGS, Deliverable 2 Phase 1) — same creds. No credential changes.
-     Current pod EXTERNAL preview URL = https://vault-init-7.preview.emergentagent.com (supervisor APP_URL; backend/.env SERVER_URL d6413bee is STALE but harmless since NEXT_PUBLIC_BASE_URL is empty → same-origin /api).
+     Current pod EXTERNAL preview URL = https://trx-limit-unified.preview.emergentagent.com (supervisor APP_URL; backend/.env SERVER_URL d6413bee is STALE but harmless since NEXT_PUBLIC_BASE_URL is empty → same-origin /api).
      NEW admin page /admin/settings (sidebar "Platform Settings", data-testid platform-settings-root). API (Bearer admin token): GET /api/admin/settings, GET /api/admin/settings/history[?key=&limit=], PUT /api/admin/settings/:key {value,reason} + POST /api/admin/settings/:key/revert {reason} — BOTH require a step-up header x-admin-step-up (mint via POST /api/admin/step-up {reason:"platform-settings",code:<TOTP>} → data.stepUpToken; one-use, 5-min, reason-bound).
      Admin login (TOTP): POST /api/admin/login/password {moxxcompany@gmail.com/Katiekendra123@} → data.challengeToken ; code=`cd /app/backend && node scripts/admin_2fa.cjs totp 1` ; POST /api/admin/login/totp {challengeToken,code} → data.accessToken (localStorage admin_token). Always send a browser User-Agent.
      tbl_platform_setting is the DB-override store (resolution DB→.env→default); keep it EMPTY except intentional overrides — a kill switch left ON (killswitch.pause_checkouts/pause_settlements/pause_cashouts/maintenance_mode) blocks money movement once deployed. Editable-live keys: fees.transaction_fee_percent, limits.min_order_*_usd, safedeal.{min_withdrawal,withdrawal_approval,velocity_cap}_usd + the 5 kill switches; all others are read-only (env-managed). -->
@@ -46,23 +46,23 @@
 
 
 <!-- 2026-10-01 (pod 31539451, CURRENT — supersedes every pod URL below) — LIVE preview URL =
-     https://vault-init-7.preview.emergentagent.com (= SERVER_URL in /app/backend/.env).
+     https://trx-limit-unified.preview.emergentagent.com (= SERVER_URL in /app/backend/.env).
      Set up from env.vault.enc via scripts/pod-bootstrap.sh. SAFE MODE (bg jobs off, outbound email off), LIVE prod DB — mock every write in UI tests.
      Merchant: onarrival21@gmail.com / Katiekendra123@ (user_id 1, company_id 1; TOTP: node /app/backend/scripts/print_totp.cjs 1).
      Admin: moxxcompany@gmail.com / Katiekendra123@ (admin console now requires TOTP enrollment). Always send a browser User-Agent (curl/python UAs get 403'd). -->
 
 
 <!-- 2026-10-01 (pod 997e6bc8, CURRENT — supersedes every pod URL below) — LIVE preview URL =
-     https://vault-init-7.preview.emergentagent.com (= SERVER_URL in /app/backend/.env).
+     https://trx-limit-unified.preview.emergentagent.com (= SERVER_URL in /app/backend/.env).
      Merchant: onarrival21@gmail.com / Katiekendra123@ (user_id 1, company_id 1 "The Dev Store"; TOTP: node /app/backend/scripts/print_totp.cjs 1).
      Fastest UI login (no OTP): localStorage.setItem('token', <contents of /app/memory/tmp/merchant_token.txt>) + localStorage.setItem('last_company_id','1') on the preview origin, then open the page.
      Admin: moxxcompany@gmail.com / Katiekendra123@. Live PROD DB — mock every write (mark-read, create key, simulate) in UI tests.
      Developer-signup fixture (real, read-only): gidineter@gmail.com = user 361, company 368, purpose_vertical=developers, no 2FA/keys/links. -->
 
 
-<!-- 2026-10-01 (pod setup via vault, re-bootstrapped) — CURRENT POD URL = https://vault-init-7.preview.emergentagent.com
+<!-- 2026-10-01 (pod setup via vault, re-bootstrapped) — CURRENT POD URL = https://trx-limit-unified.preview.emergentagent.com
      (all env URLs migrated to THIS pod by scripts/pod-bootstrap.sh; the secure-passphrase-8 URL below is now STALE.)
-<!-- 2026-10-01 (prior) — CURRENT POD URL = https://vault-init-7.preview.emergentagent.com
+<!-- 2026-10-01 (prior) — CURRENT POD URL = https://trx-limit-unified.preview.emergentagent.com
      (= SERVER_URL in /app/backend/.env; all env URLs were migrated from the stale d6413bee/b3e8a0ae pods to this one).
      Frontend = PRODUCTION Next build (distDir=.next-prod, no hot reload → after FE edits rebuild & `sudo supervisorctl restart frontend`).
      Backend = ts-node via uvicorn proxy on 8001 → Node on 3300 (`sudo supervisorctl restart backend` to reload).
@@ -81,7 +81,7 @@
 
 
 ## 2026-09-29 (fork, pt13) — READ FIRST (supersedes pod-URL lines below)
-## - LIVE preview URL for THIS pod = SERVER_URL in /app/backend/.env = https://vault-init-7.preview.emergentagent.com . Frontend = PRODUCTION Next build (no hot reload). Backend = ts-node (no auto-reload → `sudo supervisorctl restart backend`). Always send a browser User-Agent; UA "node"/"python-requests"/curl-like + scanner-looking paths get 403'd by middleware/botProtection.ts (in-memory, cleared by backend restart).
+## - LIVE preview URL for THIS pod = SERVER_URL in /app/backend/.env = https://trx-limit-unified.preview.emergentagent.com . Frontend = PRODUCTION Next build (no hot reload). Backend = ts-node (no auto-reload → `sudo supervisorctl restart backend`). Always send a browser User-Agent; UA "node"/"python-requests"/curl-like + scanner-looking paths get 403'd by middleware/botProtection.ts (in-memory, cleared by backend restart).
 ## - Owner/merchant: onarrival21@gmail.com / Katiekendra123@ (user_id 1, company_id 1 "The Dev Store"). TOTP enrolled: `node /app/backend/scripts/print_totp.cjs 1`. API login: POST /api/user/login → data.challenge_token → POST /api/user/2fa/validate {challenge_token, token} → data.accessToken. Cached token: /app/memory/tmp/merchant_token.txt (30-day). Admin: moxxcompany@gmail.com / Katiekendra123@.
 ## - CHANGES THIS FORK (all on LIVE prod DB — read-only unless noted):
 ##   1. Flutterwave / fiat rails REMOVED end-to-end: no /api/webhook, /api/failed_webhook, /api/subscriptions, /api/userApi/{createPlan,getPlans,updatePlan,deletePlan}, /api/pay/{authStep,verifyPayment,confirmPayment}, /api/wallet/{authStep,verifyPayment,confirmPayment} (all 404 now). Checkout is crypto-only (pages/pay/index.tsx: no BankTransferCompo / CARD / GOOGLE_PAY / APPLE_PAY). paymentTypes enum FE = {CRYPTO}; BE = {WALLET, CRYPTO}. DB: tbl_subscription + tbl_plan DROPPED (approved, 0 rows).
@@ -90,7 +90,7 @@
 ##   4. Scanner hardening: pages/[handle]{,/shop,/p/[slug]} return 404 before any SSR fetch when the segment has dots/slashes (isPlausibleHandleSegment in helpers/ssrFetchHeaders.ts). botProtection SCANNER_PATH_PATTERNS extended (credentials, config.*, .s3cfg, appsettings*.json, docker-compose, phpinfo, *.bak …).
 
 ## 2026-09-29 (fork, pt12) — E2E gap audit notes (read first)
-## - LIVE preview URL for THIS pod = https://vault-init-7.preview.emergentagent.com . Frontend runs in PRODUCTION mode: FE code edits are NOT live until `cd /app && NEXT_DIST_DIR=.next-prod-new node_modules/.bin/next build` (≈2.5 min, run in background) → `mv .next-prod .next-prod-old && mv .next-prod-new .next-prod && sudo supervisorctl restart frontend`. Do NOT commit yarn.lock changes produced by tooling (git checkout -- yarn.lock).
+## - LIVE preview URL for THIS pod = https://trx-limit-unified.preview.emergentagent.com . Frontend runs in PRODUCTION mode: FE code edits are NOT live until `cd /app && NEXT_DIST_DIR=.next-prod-new node_modules/.bin/next build` (≈2.5 min, run in background) → `mv .next-prod .next-prod-old && mv .next-prod-new .next-prod && sudo supervisorctl restart frontend`. Do NOT commit yarn.lock changes produced by tooling (git checkout -- yarn.lock).
 ## - Admin API login: POST /api/admin/login {email:moxxcompany@gmail.com,password:Katiekendra123@} → data.token (no 2FA). Fresh tokens cached in /app/memory/tmp/{admin,merchant}_token.txt (may expire).
 ## - Read-only route/contract tooling: `cd /app/backend && node_modules/.bin/ts-node --transpile-only scripts/dump_routes.ts | grep -o '\[{"method".*' > /tmp/routes_clean.json` then `python3 /app/scripts/qa/api_contract_xref.py`. Security/validation curl harnesses: backend/tests/audit_security_test.sh, backend/tests/iter243_validation_test.sh.
 ## - New guards to remember when testing: GET /api/referral/leaderboard, POST /api/referral/apply, POST /api/referral/referee/redeem, POST /api/status/check now require auth (merchant / merchant / merchant / admin). Live crypto refunds are refused unless REFUND_FORWARDING_WIRED=true (preview has ENABLE_CRYPTO_REFUNDS unset → /api/refunds/* = 404).
@@ -98,29 +98,29 @@
 ## 2026-09-28 (pt10b) — Donation page QA fixture: /pay?d=zEJtCe = throwaway campaign link 611 (The Dev Store, min $10, presets 25/50/100). Donate creates a pending child contribution link each time (expected) — ALWAYS mock **/api/pay/addPayment + **/api/pay/verifyCryptoPayment* before picking a coin. Prod-created campaigns (e.g. d=AGlM2I) show 'expired' on this pod (prod Redis ≠ pod Redis) — not a bug. Sandbox demo: /pay/donation-demo (toggles demo-scenario-campaign/endingsoon/nogoal/closed).
 
 ## 2026-09-28 (fork, pt10) — CURRENT POD URL (supersedes ALL lines below)
-## - LIVE preview URL for THIS pod = https://vault-init-7.preview.emergentagent.com (= SERVER_URL in /app/backend/.env). Public pages: /devhub, /devhub/shop, /devhub/p/talk-to-a-developer. Inline tip QA: mock **/api/pay/addPayment → {success:true,data:{address:'LbnAP43Ty8vvzxzTwJcocfytbCrX6GrGx4',qr_code:'',remaining_minutes:30,transaction_id:'qa-mock'}} + **/api/pay/verifyCryptoPayment* → {success:true,data:{status:'waiting',remaining_seconds:1790}}; coin tiles inline-tip-currency-<CODE>, back = inline-tip-change-amount.
+## - LIVE preview URL for THIS pod = https://trx-limit-unified.preview.emergentagent.com (= SERVER_URL in /app/backend/.env). Public pages: /devhub, /devhub/shop, /devhub/p/talk-to-a-developer. Inline tip QA: mock **/api/pay/addPayment → {success:true,data:{address:'LbnAP43Ty8vvzxzTwJcocfytbCrX6GrGx4',qr_code:'',remaining_minutes:30,transaction_id:'qa-mock'}} + **/api/pay/verifyCryptoPayment* → {success:true,data:{status:'waiting',remaining_seconds:1790}}; coin tiles inline-tip-currency-<CODE>, back = inline-tip-change-amount.
 
 
 ## 2026-09-28 (fork, pt9) — CURRENT POD URL (supersedes ALL lines below)
-## - LIVE preview URL for THIS pod = https://vault-init-7.preview.emergentagent.com (read SERVER_URL in /app/backend/.env). The vault-auth-8 URL below is STALE.
+## - LIVE preview URL for THIS pod = https://trx-limit-unified.preview.emergentagent.com (read SERVER_URL in /app/backend/.env). The vault-auth-8 URL below is STALE.
 ## - Owner/merchant: onarrival21@gmail.com / Katiekendra123@ (user_id 1, company_id 1 "The Dev Store", TOTP: node /app/backend/scripts/print_totp.cjs 1). Admin: moxxcompany@gmail.com / Katiekendra123@.
 ## - CHANGE THIS FORK: removed the WalletConnect "Verify ownership by signing / Connect wallet & sign" action from the merchant /wallet Payout addresses page (Components/Page/Wallet/WalletOwnershipRow.tsx). The historical "Ownership verified" chip still renders for already-verified addresses.
 
 
 ## 2026-09-28 (fork, pt8) — CURRENT POD URL (supersedes the pt6 line below)
-## - LIVE preview URL for THIS pod = https://vault-init-7.preview.emergentagent.com (read SERVER_URL in /app/backend/.env; there is NO /app/frontend/.env — Next.js app lives at repo root).
+## - LIVE preview URL for THIS pod = https://trx-limit-unified.preview.emergentagent.com (read SERVER_URL in /app/backend/.env; there is NO /app/frontend/.env — Next.js app lives at repo root).
 ## - Owner/merchant: onarrival21@gmail.com / Katiekendra123@ (user_id 1, company_id 1 "The Dev Store", TOTP: node /app/backend/scripts/print_totp.cjs 1). Admin: moxxcompany@gmail.com / Katiekendra123@.
 ## - Payment-link-created-date fixtures (read-only): tx 1295 = payment_link (link 492 created 2026-09-19); tx 557 = tip (child link 173, parent tip jar 59 created 2026-07-13).
 
 ## 2026-09-28 (fork, pt6) — CURRENT POD URL (use this, others below are stale)
-## - LIVE preview URL for THIS pod = https://vault-init-7.preview.emergentagent.com
+## - LIVE preview URL for THIS pod = https://trx-limit-unified.preview.emergentagent.com
 ## - Admin (SafeDeal / Dynopay) login: moxxcompany@gmail.com / Katiekendra123@ (also the vault passphrase)
 ## - SafeDeal customer sign-in: any *@example.com email → one-time code in UI (sd-signin-preview-code) and POST /api/safedeal/auth/send-code → data.preview_code.
 ## - Simulated funding is DISABLED on this pod (SAFEDEAL_ALLOW_SIMULATION unset) — cannot fund deals; test fee math via /api/safedeal/fee-preview and the create-deal quote UI.
 
 
 ## 2026-09-25 (fork) — POD PREVIEW URL + QA CENTER PASSCODE (read first)
-## - LIVE preview URL for THIS pod = https://vault-init-7.preview.emergentagent.com (env `preview_endpoint`). The parent-job URL db6f1699-…preview.emergentagent.com is STALE → resolves to Cloudflare/Webflow prod → 404s all /api/*. Never use it.
+## - LIVE preview URL for THIS pod = https://trx-limit-unified.preview.emergentagent.com (env `preview_endpoint`). The parent-job URL db6f1699-…preview.emergentagent.com is STALE → resolves to Cloudflare/Webflow prod → 404s all /api/*. Never use it.
 ## - Backend on this pod runs under uvicorn `--reload` (WatchFiles) → transient 502/503 "Backend starting" during reloads. Any fetch/curl/Playwright QA must send a browser User-Agent and retry on 5xx.
 ## - Quality Center (/quality) passcode: header `x-qa-passcode: Dynopay123@` (backend routes/qualityRouter.ts, env QA_PASSCODE overrides; not set here). Read QA notes: curl -s $URL/api/quality/data -H "x-qa-passcode: Dynopay123@". Statuses per item = latest comment.
 
@@ -186,7 +186,7 @@
 ## - Network fees now realistic per coin (USDT-TRC20 ~2.24 live / 2 floor; ERC20 3; POLYGON 0.1) with a Math.max floor so live never under-quotes. Top-up credits the FULL requested amount; fee added on top (send amount+fee).
 ## - Self-heal test helper: from /app/backend → `node -r dotenv/config scripts/topup_selfheal_test.js seed <customer_id>` → GET the topup (auto-credits) → `... cleanup <topup_id> <payment_id> <customer_id>`.
 ## - Pytest: /app/backend/tests/test_safedeal_iter209_topup_orphan_fees.py (7 pass, 3 skip: reserve-vs-autowithdraw needs a payout address which CSRF-blocks curl; deal-funding orphan needs LIVE_SETTLEMENT; both covered by code+top-up path).
-## - Preview URL (this pod): https://vault-init-7.preview.emergentagent.com (older memory-safe-12 URL is STALE).
+## - Preview URL (this pod): https://trx-limit-unified.preview.emergentagent.com (older memory-safe-12 URL is STALE).
 
 
 ## Telegram Login (SafeDeal) — added & VERIFIED (2026-06). Bot @SafeDealAlert_bot, token in backend/.env SAFEDEAL_TELEGRAM_BOT_TOKEN.
@@ -217,7 +217,7 @@
 
 # Test credentials (current pod)
 
-Preview URL (THIS pod): https://vault-init-7.preview.emergentagent.com  (source of truth: APP_URL in /etc/supervisor/conf.d/*.conf; frontend env = /app/.env.local, NOT /app/.env)
+Preview URL (THIS pod): https://trx-limit-unified.preview.emergentagent.com  (source of truth: APP_URL in /etc/supervisor/conf.d/*.conf; frontend env = /app/.env.local, NOT /app/.env)
 # NOTE (2026-09): Next DEV heap raised to 8192 in scripts/start-frontend.sh to cut the memory-recycle 502s that intermittently hit the edge. If E2E hits a 502, it's a ~5s dev-server recycle — retry after ~15s.
 
 ## Brands on the owner account (company selector: data-testid=company-option-<id>)

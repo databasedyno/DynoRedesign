@@ -319,6 +319,32 @@ const healthCheck = async (_req: express.Request, res: express.Response) => {
   }
 };
 
+/**
+ * GET /api/status/check
+ * Read-only "dry run": compute what the monitor WOULD record for each service
+ * right now (runs every probe, derives status) WITHOUT writing to the DB. Public
+ * + safe to call on a preview pod (no rows inserted). Use it to preview live
+ * health without waiting for the 15-min background cron.
+ */
+const previewHealthCheck = async (_req: express.Request, res: express.Response) => {
+  try {
+    const results = await monitoringService.computeLiveHealth();
+    const overall = results.some(r => r.status === "outage")
+      ? "partial_outage"
+      : results.every(r => r.status === "operational")
+        ? "operational"
+        : "degraded";
+    successResponseHelper(res, 200, "Live health computed (dry-run, no writes)", {
+      timestamp: new Date().toISOString(),
+      dry_run: true,
+      overall_status: overall,
+      results,
+    });
+  } catch (e) {
+    handleControllerError(res, e, apiLogger);
+  }
+};
+
 export default {
   getStatus,
   getServicesStatus,
@@ -327,6 +353,7 @@ export default {
   getAllServicesUptime,
   getUptimeChart,
   triggerHealthCheck,
+  previewHealthCheck,
   getIncidents,
   getIncident,
   healthCheck

@@ -4,7 +4,7 @@ import time
 import pytest
 import requests
 
-BASE_URL = "https://vault-init-7.preview.emergentagent.com"
+BASE_URL = "https://trx-limit-unified.preview.emergentagent.com"
 TOKEN = open("/app/memory/tmp/admin_token.txt").read().strip()
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/120.0 Safari/537.36"
 

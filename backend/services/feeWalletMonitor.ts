@@ -296,7 +296,15 @@ function shouldSendAlert(cfg: ChainConfig, current: WalletStatus, last: WalletSt
   return true; // cooldown expired and still non-healthy → re-alert
 }
 
-async function sendAlert(cfg: ChainConfig, status: WalletStatus): Promise<void> {
+/**
+ * Build the gas-funding alert email (subject + html) for one wallet status.
+ * Pure + exported so it can be unit-rendered/verified without sending.
+ *
+ * UNIFIED MESSAGING: every severity (warning/critical/empty) quotes the SAME
+ * single number to act on — "top up to reach the healthy balance" — sourced
+ * from cfg.healthyThreshold. The tier trigger is shown only as grey context.
+ */
+export function renderFeeWalletAlert(cfg: ChainConfig, status: WalletStatus): { subject: string; html: string } {
   const { balance, status: level, liquid, frozen } = status;
   const label = cfg.displayName;
 
@@ -315,46 +323,62 @@ async function sendAlert(cfg: ChainConfig, status: WalletStatus): Promise<void> 
 
   const precision = cfg.chain === 'TRX' ? 2 : 6;
   const roleLine = `<p style="color:#6b7280;font-size:13px;">Wallet role: ${cfg.role}</p>`;
-  const topUp = Math.max(0, cfg.healthyThreshold - balance);
 
-  const message = {
-    empty: `
-      <h2 style="color: #dc2626;">🚨 ${label} Fee Wallet is EMPTY!</h2>
-      <p><strong>Current Balance:</strong> ${toFixedStr(balance, precision)} ${label} (total)</p>
-      ${breakdown}${roleLine}
-      <p><strong>Impact:</strong> ${impactLabel(cfg, 'empty')}</p>
-      <p><strong>Action Required:</strong> Send at least ${toFixedStr(topUp, precision)} ${label} (to reach ${cfg.healthyThreshold} ${label}) to:<br/>
+  // ── UNIFIED gas-funding ask ───────────────────────────────────────────────
+  // Every severity quotes the SAME single number to act on: top up to the
+  // HEALTHY threshold (one source of truth = cfg.healthyThreshold). The tier
+  // trigger (warning/critical) is shown ONLY as secondary grey context, so an
+  // operator never sees conflicting "limits" again (the old emails headlined
+  // "< 60 TRX" / "< 30 TRX" / "reach 120 TRX" — 3 numbers for one wallet).
+  const topUp = Math.max(0, cfg.healthyThreshold - balance);
+  const topUpStr = toFixedStr(topUp, precision);
+  const targetStr = toFixedStr(cfg.healthyThreshold, precision);
+  const sev = (level === 'healthy' ? 'warning' : level) as 'empty' | 'critical' | 'warning';
+  const triggerContext = {
+    empty: `the wallet is empty`,
+    critical: `the balance fell below the critical level (${toFixedStr(cfg.criticalThreshold, precision)} ${label})`,
+    warning: `the balance fell below the warning level (${toFixedStr(cfg.warningThreshold, precision)} ${label})`,
+  }[sev];
+
+  // Identical action block across ALL tiers — one target, one top-up amount.
+  const actionBlock = `
+      <p><strong>Action required:</strong> top up <strong>${topUpStr} ${label}</strong> to reach the recommended balance of <strong>${targetStr} ${label}</strong>:<br/>
       <code>${cfg.address}</code></p>
-    `,
-    critical: `
-      <h2 style="color: #ea580c;">🚨 ${label} Fee Wallet Critically Low</h2>
-      <p><strong>Current Balance:</strong> ${toFixedStr(balance, precision)} ${label} (total)</p>
-      ${breakdown}${roleLine}
-      <p><strong>Threshold:</strong> &lt; ${cfg.criticalThreshold} ${label}</p>
-      <p><strong>Impact:</strong> ${impactLabel(cfg, 'critical')}</p>
-      <p><strong>Action Required:</strong> Top up ${toFixedStr(topUp, precision)} ${label} soon to reach ${cfg.healthyThreshold} ${label}:<br/>
-      <code>${cfg.address}</code></p>
-    `,
-    warning: `
-      <h2 style="color: #f59e0b;">⚠️ ${label} Fee Wallet Low</h2>
-      <p><strong>Current Balance:</strong> ${toFixedStr(balance, precision)} ${label} (total)</p>
-      ${breakdown}${roleLine}
-      <p><strong>Threshold:</strong> &lt; ${cfg.warningThreshold} ${label}</p>
-      <p><strong>Recommendation:</strong> Top up ${toFixedStr(topUp, precision)} ${label} to reach ${cfg.healthyThreshold} ${label} soon:<br/>
-      <code>${cfg.address}</code></p>
-      <p>System is still operational but running low on gas funds.</p>
-    `,
+      <p style="color:#6b7280;font-size:13px;">Why you're seeing this: ${triggerContext}. Target (healthy) balance for ${label}: ${targetStr} ${label}.</p>`;
+
+  const heading = {
+    empty: `<h2 style="color: #dc2626;">🚨 ${label} Fee Wallet is EMPTY</h2>`,
+    critical: `<h2 style="color: #ea580c;">🚨 ${label} Fee Wallet Critically Low</h2>`,
+    warning: `<h2 style="color: #f59e0b;">⚠️ ${label} Fee Wallet Low</h2>`,
     healthy: '',
   }[level];
 
+  const tail = level === 'warning'
+    ? `<p>The system is still operational but running low on gas funds.</p>`
+    : '';
+
+  const message = level === 'healthy' ? '' : `
+      ${heading}
+      <p><strong>Current balance:</strong> ${toFixedStr(balance, precision)} ${label} (total)</p>
+      ${breakdown}${roleLine}
+      <p><strong>Impact:</strong> ${impactLabel(cfg, sev)}</p>
+      ${actionBlock}
+      ${tail}
+    `;
+
+  return { subject, html: dynoPayGreetingTemplate('Admin', message, subject) };
+}
+
+async function sendAlert(cfg: ChainConfig, status: WalletStatus): Promise<void> {
+  const { subject, html } = renderFeeWalletAlert(cfg, status);
   try {
     await mailTransporter({
       to: ALERT_EMAIL,
       subject,
-      body: dynoPayGreetingTemplate('Admin', message, subject),
+      body: html,
       name: 'Admin',
     });
-    cronLogger.info(`[FeeWalletMonitor][${cfg.id}] ${level.toUpperCase()} alert sent to ${ALERT_EMAIL}`);
+    cronLogger.info(`[FeeWalletMonitor][${cfg.id}] ${status.status.toUpperCase()} alert sent to ${ALERT_EMAIL}`);
   } catch (emailError) {
     cronLogger.error(`[FeeWalletMonitor][${cfg.id}] Failed to send alert email: ${safeErrorMsg(emailError)}`);
   }
@@ -438,16 +462,13 @@ export async function startFeeWalletMonitoring(intervalMinutes: number = 60): Pr
   }, intervalMinutes * 60 * 1000);
 }
 
-// Legacy exports for tests / scripts that reference the old constants.
-export const CRITICAL_THRESHOLD = CHAIN_CONFIGS.find((c) => c.chain === 'TRX')?.criticalThreshold ?? 50;
-export const WARNING_THRESHOLD = CHAIN_CONFIGS.find((c) => c.chain === 'TRX')?.warningThreshold ?? 100;
-export const HEALTHY_THRESHOLD = CHAIN_CONFIGS.find((c) => c.chain === 'TRX')?.healthyThreshold ?? 200;
+// NOTE: the legacy TRX-only exports CRITICAL_THRESHOLD / WARNING_THRESHOLD /
+// HEALTHY_THRESHOLD were removed (2026-10) — they were unused and their 50/100/200
+// fallbacks contradicted the real TRX config (30/60/120), which made the gas-funding
+// alerts look inconsistent. The single source of truth is FEE_WALLET_CONFIGS above.
 
 export default {
   checkFeeWalletBalance,
   checkAllFeeWallets,
   startFeeWalletMonitoring,
-  CRITICAL_THRESHOLD,
-  WARNING_THRESHOLD,
-  HEALTHY_THRESHOLD,
 };

@@ -6,7 +6,7 @@ import pytest
 import time
 import requests
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://vault-init-7.preview.emergentagent.com").rstrip("/")
+BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://trx-limit-unified.preview.emergentagent.com").rstrip("/")
 
 
 @pytest.fixture(scope="module")
