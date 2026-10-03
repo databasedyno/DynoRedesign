@@ -4,6 +4,16 @@
 #   (/admin/chain-readiness, GET /api/admin/chain-readiness) + Overview gas strip + fee-wallet monitor
 #   now covers the XRP master; verified testing_agent iteration_254 (BE 7/7, FE 100%, 0 bugs).
 # ──────────────────────────────────────────────────────────────────────────────
+#  UI/UX STATUS VERIFIED 2026-06 (fork): ALREADY DONE (ignore any older "backlog" mention) —
+#    Command palette ⌘K (Components/Common/CommandPalette), OverflowTabs "N more tabs" pill (rolled out
+#    to developer-keys/settings/invoices/storefront/admin-escrow/admin-transactions), Toast upgrade
+#    (countdown bar app-toast-countdown + pause-on-hover + stack via ToastHost; 0 raw <Snackbar> left),
+#    bulk row actions on Payment Links, expired-link one-tap Extend (7d).
+#  STILL OPEN UI/UX: Admin-suite console redesign (no CB_TOKENS/SummaryStrip/DetailSlideOver in Components/Page/Admin);
+#    expired-link Resend + duration picker (24h/7d/30d) + surface Extend in the ⋯ menu + make expired links deletable;
+#    bulk actions on Transactions/Customers; Buy-Buttons-on-Keys-tab (still on Docs tab, product decision);
+#    full public-site QA sweep (1920+390, light+dark, EN+non-EN; /system-status & /documentation at 390/dark).
+# ──────────────────────────────────────────────────────────────────────────────
 #  P0 — OWNER ACTION: fund the POL gas wallet 0x6508f517021b3fe14acb4515535b6772b0669f47 with ≥10 POL
 #            (empty since 2026-07-11 → USDT-POLYGON payouts/sweeps fail). Also recommended: TRX fee wallet
 #            TMHECc7emykw5XwX2njp5Y2K4FXLwsTZtC → 120 TRX (+58), ETH fee wallet
