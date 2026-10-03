@@ -3,6 +3,7 @@ import { captureError } from "../services/errorMonitoringService";
 import { log } from "../utils/loggers";
 import { TO_EMAIL_TOKEN } from "./emailTemplate";
 import { createEmailLog, markEmailLog } from "../services/email/emailLog";
+import { getDispatchContext } from "../services/email/dispatchContext";
 import {
   BrevoSendError,
   EmailAttachment,
@@ -146,6 +147,11 @@ const mailTransporter = async ({ to, subject, body: rawBody, name, attachments, 
     throw err;
   }
 
+  // Company dispatch context: owner address that gets this exact email again
+  // if `to` bounces (see services/email/companyDispatch + fallbackReroute).
+  const ctx = getDispatchContext();
+  const fallbackTo = ctx?.fallbackTo && ctx.fallbackTo.trim().toLowerCase() !== to.trim().toLowerCase() ? ctx.fallbackTo.trim() : null;
+
   const job: EmailJobData = {
     to: to.trim(),
     name: name && name.trim().length > 0 ? name.trim() : to.trim(),
@@ -156,7 +162,10 @@ const mailTransporter = async ({ to, subject, body: rawBody, name, attachments, 
     replyTo: resolvedReplyTo || null,
     lane,
     template: template || null,
-    logId: await createEmailLog({ to, name, subject: subject.trim(), template, lane, senderEmail }),
+    companyId: ctx?.companyId ?? null,
+    fallbackTo,
+    fallbackName: fallbackTo ? ctx?.fallbackName || null : null,
+    logId: await createEmailLog({ to, name, subject: subject.trim(), template, lane, senderEmail, companyId: ctx?.companyId ?? null, fallbackTo }),
     expiresAt: lane === "otp" ? Date.now() + OTP_TTL_MS : undefined,
   };
 

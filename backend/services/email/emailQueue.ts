@@ -20,10 +20,13 @@ import { DelayedError, Job, Queue, UnrecoverableError, Worker } from "bullmq";
 import { raw as envRaw } from "../../utils/config";
 import { bullmqConnection } from "../../utils/redisConnection";
 import { log } from "../../utils/loggers";
-import { acquireLock, getRedisItem } from "../../utils/redisInstance";
+import { acquireLock } from "../../utils/redisInstance";
 import { captureError } from "../errorMonitoringService";
 import { sendAlertSafe } from "../slackAlertService";
 import { markEmailLog, purgeOldEmailLogs } from "./emailLog";
+import { SUPPRESSED_KEY, isSuppressed } from "./deliverability";
+
+export { SUPPRESSED_KEY, isSuppressed };
 
 export type EmailLane = "otp" | "default";
 
@@ -47,6 +50,11 @@ export interface EmailJobData {
   logId: number | null;
   /** Epoch ms after which the email is pointless (OTP lane). */
   expiresAt?: number;
+  /** Company the email is about (company-scoped sends only). */
+  companyId?: number | null;
+  /** Owner address that receives this exact email again if `to` bounces. */
+  fallbackTo?: string | null;
+  fallbackName?: string | null;
 }
 
 export const QUEUE_NAME = "emails";
@@ -54,7 +62,6 @@ const DLQ_NAME = "emails-dlq";
 const JOB_NAME = "send";
 export const OTP_TTL_MS = 10 * 60 * 1000;
 const DLQ_ALERT_COOLDOWN_SEC = 60 * 60;
-export const SUPPRESSED_KEY = (email: string) => `email:suppressed:${email.trim().toLowerCase()}`;
 
 const LANE_OPTS: Record<EmailLane, { priority: number; attempts: number; delay: number }> = {
   otp: { priority: 1, attempts: 4, delay: 15_000 },
@@ -149,15 +156,6 @@ export const sendViaBrevo = async (d: EmailJobData): Promise<{ messageId: string
     return { messageId: (data as { messageId?: string })?.messageId ?? null };
   } catch (e) {
     throw new BrevoSendError(e as AxiosError);
-  }
-};
-
-export const isSuppressed = async (email: string): Promise<boolean> => {
-  try {
-    const v = await getRedisItem(SUPPRESSED_KEY(email));
-    return !!v && Object.keys(v as object).length > 0;
-  } catch {
-    return false;
   }
 };
 

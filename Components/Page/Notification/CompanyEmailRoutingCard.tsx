@@ -155,6 +155,37 @@ const CompanyEmailRoutingCard: React.FC<Props> = ({
                   defaultValue: "Leave blank to use your account email. This does not change your login email.",
                 })}
           </Typography>
+          {routing.health?.block && (
+            <Typography
+              data-testid="company-notification-email-bounce"
+              sx={{
+                fontSize: "12.5px",
+                color: theme.palette.warning.main,
+                mt: 1,
+                px: 1.25,
+                py: 0.75,
+                borderRadius: "8px",
+                border: `1px solid ${theme.palette.warning.main}`,
+                fontFamily: "var(--font-sans)",
+                lineHeight: 1.45,
+              }}
+            >
+              {routing.health.fallback_email
+                ? t("companyEmailBounceWithFallback", {
+                    email: routing.health.primary_email,
+                    fallback: routing.health.fallback_email,
+                    reason: routing.health.block.reason || routing.health.block.event,
+                    defaultValue:
+                      "We couldn't deliver to {{email}} ({{reason}}). Copies of every brand email are going to {{fallback}} until this address accepts mail again — or set a different address above.",
+                  })
+                : t("companyEmailBounce", {
+                    email: routing.health.primary_email,
+                    reason: routing.health.block.reason || routing.health.block.event,
+                    defaultValue:
+                      "We couldn't deliver to {{email}} ({{reason}}). Set a different address above so payment alerts reach you.",
+                  })}
+            </Typography>
+          )}
         </Box>
 
         <Divider sx={{ borderColor: theme.palette.border.main }} />

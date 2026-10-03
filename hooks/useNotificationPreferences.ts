@@ -31,10 +31,19 @@ export type NotificationCategoryKey =
   | "digests"
   | "confirming";
 
+export interface CompanyEmailHealth {
+  primary_email: string;
+  owner_email: string | null;
+  fallback_email: string | null;
+  block: { kind: "suppressed" | "unreachable"; event: string; reason: string | null; at: string } | null;
+}
+
 export interface CompanyRouting {
   notificationEmail: string;
   teamFanout: boolean;
   categories: Record<NotificationCategoryKey, boolean>;
+  /** Read-only: Brevo bounce state of the address brand emails currently go to. */
+  health?: CompanyEmailHealth | null;
 }
 
 const defaultRouting: CompanyRouting = {
@@ -61,6 +70,7 @@ type BackendPreferences = {
     team_fanout?: boolean;
     categories?: Partial<Record<NotificationCategoryKey, boolean>>;
   } | null;
+  company_email_health?: CompanyEmailHealth | null;
 };
 
 const fromBackend = (b: BackendPreferences | undefined | null): NotificationPreferences => ({
@@ -83,6 +93,7 @@ const routingFromBackend = (b: BackendPreferences | undefined | null): CompanyRo
   return {
     notificationEmail: b?.company_notification_email ?? "",
     teamFanout: prefs.team_fanout !== false,
+    health: b?.company_email_health ?? null,
     categories: {
       payments: cats.payments !== false,
       payouts: cats.payouts !== false,

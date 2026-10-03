@@ -264,6 +264,29 @@ export const useAttentionItems = ({ overview, onboarding, includeDismissed = fal
       }
 
       // ── 3. Configuration gaps ──────────────────────────────────────────
+      const bounced = a.notification_email_unreachable;
+      if (onboarding && bounced?.email) {
+        list.push({
+          id: "company-email",
+          group: "config",
+          severity: "warning",
+          icon: "mail",
+          text: bounced.fallback_email
+            ? t("command.companyEmailBounced", {
+                email: bounced.email,
+                fallback: bounced.fallback_email,
+                defaultValue: "Emails to {{email}} are bouncing — copies now go to {{fallback}}. Update your brand notification email",
+              })
+            : t("command.companyEmailBouncedNoFallback", {
+                email: bounced.email,
+                defaultValue: "Emails to {{email}} are bouncing — update your brand notification email so payment alerts reach you",
+              }),
+          actionLabel: t("command.updateEmail", { defaultValue: "Update email" }),
+          href: "/notifications?tab=settings",
+          fingerprint: `cemail:${bounced.email}:${bounced.since || ""}`,
+          testId: "attention-company-email-unreachable",
+        });
+      }
       if (a.coins_without_wallet.length > 0) {
         list.push({
           id: "coins",

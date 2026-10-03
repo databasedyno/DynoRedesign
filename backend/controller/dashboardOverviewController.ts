@@ -19,6 +19,7 @@ import {
   topProducts,
   unlockedAmountsByCurrency,
 } from "../services/dashboard/overviewQueries";
+import { getCompanyEmailHealth } from "../services/email/deliverability";
 
 const CACHE_TTL = 60;
 const STABLE = ["USD", "USDT", "USDC", "BUSD", "DAI", "USDP", "TUSD", "PYUSD", "FDUSD", "RLUSD"];
@@ -94,7 +95,7 @@ const getOverview = async (req: express.Request, res: express.Response) => {
     const rangeKey = range.period === "custom"
       ? `${range.start.toISOString().slice(0, 10)}_${range.end.toISOString().slice(0, 10)}`
       : range.period;
-    const cacheKey = `dashboard:overview:${userId}:${company_id || "all"}:${rangeKey}:${currency}:v1`;
+    const cacheKey = `dashboard:overview:${userId}:${company_id || "all"}:${rangeKey}:${currency}:v2`;
     const cached = await getRedisItem(cacheKey);
     if (cached && Object.keys(cached).length > 0) {
       return successResponseHelper(res, 200, "Overview retrieved", cached);
@@ -110,7 +111,7 @@ const getOverview = async (req: express.Request, res: express.Response) => {
       startOfToday: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
     };
 
-    const [settled, fwdAssets, funnel, unlocked, links, products, gaps, autoConvert] = await Promise.all([
+    const [settled, fwdAssets, funnel, unlocked, links, products, gaps, autoConvert, emailHealth] = await Promise.all([
       settledAggregate(scope),
       forwardedByAsset(scope),
       funnelAggregate(scope),
@@ -119,6 +120,7 @@ const getOverview = async (req: express.Request, res: express.Response) => {
       topProducts(scope),
       configGaps(scope),
       autoConvertSummary(scope),
+      company_id ? getCompanyEmailHealth(Number(company_id)).catch(() => null) : Promise.resolve(null),
     ]);
 
     const [inFlightUsd, expiredTodayUsd] = await Promise.all([
@@ -249,6 +251,18 @@ const getOverview = async (req: express.Request, res: express.Response) => {
         })),
         coins_without_wallet: gaps.coins.map((c) => String(c.coin)),
         paylinks_expiring_48h: num(gaps.links.expiring),
+        // Brand notification address Brevo cannot deliver to (bounce flags);
+        // copies go to `fallback_email` (owner login) meanwhile.
+        notification_email_unreachable: emailHealth?.block
+          ? {
+              email: emailHealth.primary_email,
+              fallback_email: emailHealth.fallback_email,
+              kind: emailHealth.block.kind,
+              event: emailHealth.block.event,
+              reason: emailHealth.block.reason,
+              since: emailHealth.block.at || null,
+            }
+          : null,
       },
       top_sources: topSources,
       generated_at: now.toISOString(),

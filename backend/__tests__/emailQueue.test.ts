@@ -37,6 +37,7 @@ import sequelize from "../utils/dbInstance";
 import { getRedisItem } from "../utils/redisInstance";
 import { __clearMockStore, __setMockData } from "./__mocks__/redisInstance";
 import { processEmailJob, SUPPRESSED_KEY, OTP_TTL_MS } from "../services/email/emailQueue";
+import { UNREACHABLE_KEY } from "../services/email/deliverability";
 import { handleBrevoEvent, brevoWebhookToken, isValidBrevoToken } from "../services/email/brevoEvents";
 import mailTransporter from "../utils/mailTransporter";
 
@@ -148,9 +149,15 @@ describe("Brevo webhook events", () => {
     expect(q.mock.calls.map((c) => String(c[0])).join("\n")).toMatch(/SET email_bounced_at = NULL/);
   });
 
-  it("soft bounce is recorded only", async () => {
-    expect(await handleBrevoEvent({ event: "soft_bounce", email: "x@example.com", "message-id": "<m3>" })).toBe("recorded");
+  it("soft bounce flags the address unreachable (not suppressed) so the owner fallback kicks in", async () => {
+    expect(await handleBrevoEvent({ event: "soft_bounce", email: "x@example.com", "message-id": "<m3>", reason: "550 5.7.2 Sender IP rejected" })).toBe("unreachable");
     expect(await getRedisItem(SUPPRESSED_KEY("x@example.com"))).toBeNull();
+    expect(await getRedisItem(UNREACHABLE_KEY("x@example.com"))).toMatchObject({ event: "soft_bounce", reason: "550 5.7.2 Sender IP rejected" });
+  });
+
+  it("deferred is recorded only", async () => {
+    expect(await handleBrevoEvent({ event: "deferred", email: "y@example.com", "message-id": "<m4>" })).toBe("recorded");
+    expect(await getRedisItem(UNREACHABLE_KEY("y@example.com"))).toBeNull();
   });
 
   it("token is derived from BREVO_API_KEY and compared in constant time", () => {

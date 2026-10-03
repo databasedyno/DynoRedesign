@@ -7,6 +7,8 @@ export const TOKEN_CHAINS = ['USDT-TRC20', 'USDT-ERC20', 'USDC-ERC20', 'RLUSD', 
 // Mock Sequelize models as empty objects
 export const feesModel = { findOne: jest.fn() };
 export const companyModel = { findOne: jest.fn(), findAll: jest.fn() };
+export const userModel = { findOne: jest.fn(), findAll: jest.fn() };
+export const teamMemberModel = { findOne: jest.fn(), findAll: jest.fn().mockResolvedValue([]) };
 export const paymentLinkModel = { findOne: jest.fn() };
 export const customerTransactionModel = { findOne: jest.fn(), create: jest.fn() };
 // Merchant-pool models (used by webhookProcessor.isOwnOutgoingTransaction via
@@ -20,6 +22,8 @@ export default {
   TOKEN_CHAINS,
   feesModel,
   companyModel,
+  userModel,
+  teamMemberModel,
   paymentLinkModel,
   customerTransactionModel,
   merchantPoolTransactionModel,

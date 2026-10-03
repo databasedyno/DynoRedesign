@@ -10,7 +10,11 @@
 #            0x2b29aa060c6c15c50c02999ba7d7d090105e1a6b → 0.05 ETH (+0.019). /admin/chain-readiness re-check confirms.
 #  P0 — SHIP: press "Save to GitHub" (pt3→pt7 work is platform-checkpointed but NOT pushed/deployed).
 #
-#  P1 — SMADAV ETH payment email BOUNCE verification (needs prod Brevo logs + prod DB; see pt5 notes below).
+#  [RESOLVED 2026-06] SMADAV payment-email delivery — DIAGNOSED via real Brevo test send + event log (memory/SMADAV_EMAIL_DIAGNOSIS_2026-06.md).
+#            ROOT CAUSE = Brevo SHARED-IP (77.32.148.26) "550 5.7.2 Sender IP rejected: spam rate exceeded" at smadav@dyno.pt's
+#            Titan/Hostinger server (Gmail/Dev Store tolerates it → always lands). NOT a bad address, NOT the owner addr, NOT domain auth.
+#            dynopay.com SPF/DKIM/DMARC are ALL healthy & Brevo-verified (nothing to fix). SMADAV notification_email reverted to NULL.
+#            REMAINING LEVER (owner decision): Brevo DEDICATED IP (paid) — the only durable fix for shared-IP rate rejection.
 #  P1 — PRODUCT DECISION (open since pt6): move Buy Buttons onto the KEYS tab next to Publishable Keys?
 #
 #  P2 — GUIDED LIVE-TEST CHECKLIST for the 9 chains with zero prod settlements in 120d (USDT-POLYGON after POL

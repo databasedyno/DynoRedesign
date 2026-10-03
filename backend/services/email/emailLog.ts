@@ -16,6 +16,9 @@ export interface EmailLogCreate {
   template?: string | null;
   lane: string;
   senderEmail?: string | null;
+  companyId?: number | null;
+  /** Owner address the email is re-sent to if `to` bounces. */
+  fallbackTo?: string | null;
 }
 
 export interface EmailLogPatch {
@@ -27,6 +30,8 @@ export interface EmailLogPatch {
   last_event?: string | null;
   last_event_at?: Date | null;
   sent_at?: Date | null;
+  /** Log row of the copy re-sent to the fallback owner after a bounce. */
+  fallback_log_id?: number | null;
 }
 
 const trim = (v: string | null | undefined, max: number) => (v == null ? null : String(v).slice(0, max));
@@ -34,8 +39,8 @@ const trim = (v: string | null | undefined, max: number) => (v == null ? null : 
 export const createEmailLog = async (row: EmailLogCreate): Promise<number | null> => {
   try {
     const rows = await sequelize.query<{ log_id: string }>(
-      `INSERT INTO tbl_email_log (to_email, to_name, subject, template, lane, sender_email, status)
-       VALUES (:to, :name, :subject, :template, :lane, :sender, 'queued')
+      `INSERT INTO tbl_email_log (to_email, to_name, subject, template, lane, sender_email, status, company_id, fallback_to)
+       VALUES (:to, :name, :subject, :template, :lane, :sender, 'queued', :companyId, :fallbackTo)
        RETURNING log_id`,
       {
         replacements: {
@@ -45,6 +50,8 @@ export const createEmailLog = async (row: EmailLogCreate): Promise<number | null
           template: trim(row.template, 120),
           lane: trim(row.lane, 16),
           sender: trim(row.senderEmail, 320),
+          companyId: row.companyId ?? null,
+          fallbackTo: row.fallbackTo ? trim(row.fallbackTo.trim().toLowerCase(), 320) : null,
         },
         type: QueryTypes.SELECT,
       }
@@ -112,7 +119,24 @@ export interface EmailLogRow {
   last_event_at: string | null;
   sent_at: string | null;
   created_at: string;
+  fallback_to?: string | null;
+  fallback_log_id?: number | null;
 }
+
+/** Bounce re-route lookup: the row Brevo's event refers to. */
+export const findEmailLogByMessageId = async (
+  messageId: string,
+): Promise<Pick<EmailLogRow, "log_id" | "to_email" | "subject" | "job_id" | "fallback_to" | "fallback_log_id"> | null> => {
+  if (!messageId) return null;
+  const rows = await sequelize.query<{ log_id: string; to_email: string; subject: string; job_id: string | null; fallback_to: string | null; fallback_log_id: string | null }>(
+    `SELECT log_id, to_email, subject, job_id, fallback_to, fallback_log_id
+       FROM tbl_email_log WHERE brevo_message_id = :messageId ORDER BY created_at DESC LIMIT 1`,
+    { replacements: { messageId }, type: QueryTypes.SELECT },
+  );
+  const r = rows[0];
+  if (!r) return null;
+  return { ...r, log_id: Number(r.log_id), fallback_log_id: r.fallback_log_id == null ? null : Number(r.fallback_log_id) };
+};
 
 export const listEmailLogs = async (q: { email?: string; status?: string; limit?: number }): Promise<EmailLogRow[]> => {
   const where: string[] = [];
@@ -127,7 +151,7 @@ export const listEmailLogs = async (q: { email?: string; status?: string; limit?
   }
   const rows = await sequelize.query<EmailLogRow>(
     `SELECT log_id, to_email, to_name, subject, template, lane, sender_email, status, attempts, job_id,
-            brevo_message_id, last_error, last_event, last_event_at, sent_at, created_at
+            brevo_message_id, last_error, last_event, last_event_at, sent_at, created_at, fallback_to, fallback_log_id
        FROM tbl_email_log
        ${where.length ? `WHERE ${where.join(" AND ")}` : ""}
       ORDER BY created_at DESC

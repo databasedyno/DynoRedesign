@@ -1,5 +1,6 @@
 # >>> LIVE OPEN BACKLOG / PENDING TASKS live at the TOP of memory/ROADMAP.md (updated 2026-10-02, post pt7 chain-readiness).
-# >>> Pending now: P0 OWNER ACTION fund POL gas wallet 0x6508f517021b3fe14acb4515535b6772b0669f47 (≥10 POL) + Save to GitHub + deploy · P1 SMADAV ETH email-bounce prod verification · P1 Buy-Buttons-on-Keys-tab product decision · P2 tech-debt sweep · P2 guided live-test checklist for the 9 unproven chains (user said "not now").
+# >>> Pending now: P0 OWNER ACTION fund POL gas wallet 0x6508f517021b3fe14acb4515535b6772b0669f47 (≥10 POL) + Save to GitHub + deploy · P1 Buy-Buttons-on-Keys-tab product decision · P2 tech-debt sweep · P2 guided live-test checklist for the 9 unproven chains (user said "not now").
+# >>> [RESOLVED 2026-06] SMADAV payment-email delivery: root cause = Brevo shared-IP "spam rate exceeded" soft-bounce at smadav@dyno.pt (Titan); dynopay.com SPF/DKIM/DMARC all healthy+verified (no fix needed); SMADAV notification_email reverted to NULL. Only durable lever left = Brevo dedicated IP (owner decision). See memory/SMADAV_EMAIL_DIAGNOSIS_2026-06.md.
 
 
 # === 2026-06 (fork, pt12b) — BUGFIX: Admin header top-right menu trigger invisible/broken — DONE & VERIFIED (live headless login + DOM asserts) ===

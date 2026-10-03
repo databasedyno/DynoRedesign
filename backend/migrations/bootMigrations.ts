@@ -1098,6 +1098,16 @@ const createPlatformSettingsTables = async (): Promise<void> => {
     `CREATE INDEX IF NOT EXISTS "idx_platform_setting_history_key" ON "tbl_platform_setting_history" ("key", "changed_at" DESC)`
   );
 };
+// 0060 — bounce → owner re-route metadata on the email log (company scope, fallback address, re-sent copy).
+const addEmailLogFallback = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `ALTER TABLE "tbl_email_log"
+       ADD COLUMN IF NOT EXISTS "company_id" INTEGER,
+       ADD COLUMN IF NOT EXISTS "fallback_to" VARCHAR(320),
+       ADD COLUMN IF NOT EXISTS "fallback_log_id" BIGINT`
+  );
+};
 
 
 export async function buildBootMigrations(): Promise<Migration[]> {  const { v1, extra } = await loadBootModelGroups();  return [
@@ -1157,6 +1167,7 @@ export async function buildBootMigrations(): Promise<Migration[]> {  const { v1,
     { version: "0057_email_log", up: createEmailLogTable },
     { version: "0058_user_email_bounce", up: addUserEmailBounce },
     { version: "0059_platform_settings", up: createPlatformSettingsTables },
+    { version: "0060_email_log_fallback", up: addEmailLogFallback },
     ...perfMigrations,
     ...securityMigrations,
   ];

@@ -11,6 +11,7 @@ import {
 import { IUserType } from "../utils/types";
 import { notificationModel, notificationPreferencesModel, companyModel, signupAttributionModel } from "../models";
 import { validateCompanyOwnership } from "../utils/validateCompanyOwnership";
+import { getCompanyEmailHealth } from "../services/email/deliverability";
 // sequelize import removed - not used
 
 // Cache TTL for notifications (15 seconds - shorter because notifications change often)
@@ -62,6 +63,8 @@ const getPreferences = async (req: express.Request, res: express.Response) => {
       ? {
           company_notification_email: (companyData.notification_email as string | null) ?? null,
           company_notification_prefs: (companyData.notification_prefs as Record<string, unknown>) ?? {},
+          // Bounce state of the address brand emails currently route to (Brevo flags).
+          company_email_health: await getCompanyEmailHealth(Number(company_id)).catch(() => null),
         }
       : {};
 

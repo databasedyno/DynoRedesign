@@ -18,12 +18,14 @@
  *     NOT use this helper — they go to the buyer, never the company/team.
  */
 import {
-  resolveCompanyRecipients,
+  resolveCompanyDelivery,
   isCategoryDisabled,
   NotificationCategory,
   Recipient,
+  CompanyDelivery,
 } from "../../utils/notificationRecipients";
 import { apiLogger } from "../../utils/loggers";
+import { runWithDispatchContext } from "./dispatchContext";
 
 export async function dispatchCompanyEmail(
   companyId: number | null | undefined,
@@ -61,16 +63,27 @@ export async function dispatchCompanyEmail(
   }
 
   let recipients: Recipient[] = [];
+  let owner: CompanyDelivery["owner"] = null;
   let resolverErrored = false;
   try {
-    recipients = await resolveCompanyRecipients(cid, category);
+    ({ recipients, owner } = await resolveCompanyDelivery(cid, category));
   } catch (e) {
     resolverErrored = true;
     apiLogger.error(`[companyDispatch] resolveCompanyRecipients failed (company=${cid}, category=${category})`, e);
   }
 
   if (recipients.length > 0) {
-    for (const r of recipients) await sendTo(r.email, r.name);
+    // Bounce insurance for the PRIMARY company address: if Brevo later reports a
+    // bounce for this send, the webhook re-sends the identical email to the owner
+    // (fallbackReroute). Not needed when the owner is already a direct recipient.
+    const ownerIsRecipient = !!owner && recipients.some((r) => r.email.toLowerCase() === owner!.email.toLowerCase());
+    for (const r of recipients) {
+      if (r.source === "company" && owner && !ownerIsRecipient) {
+        await runWithDispatchContext({ companyId: cid, fallbackTo: owner.email, fallbackName: owner.name }, () => sendTo(r.email, r.name));
+      } else {
+        await runWithDispatchContext({ companyId: cid, fallbackTo: null, fallbackName: null }, () => sendTo(r.email, r.name));
+      }
+    }
     return { attempted, succeeded };
   }
 

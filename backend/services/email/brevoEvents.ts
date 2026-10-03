@@ -1,10 +1,13 @@
 /**
- * Brevo transactional-email webhook → delivery status + bounce suppression.
+ * Brevo transactional-email webhook → delivery status + bounce handling.
  *
- *   delivered                         → tbl_email_log.status = delivered (and heals an earlier bounce)
+ *   delivered                         → tbl_email_log.status = delivered (heals both bounce flags)
  *   hard_bounce|invalid_email|blocked|spam|unsubscribed
- *                                     → status = bounced, Redis suppression (30d), tbl_user.email_bounced_at
- *   soft_bounce|deferred|error        → recorded on the log row only
+ *                                     → status = bounced, Redis suppression (30d), tbl_user.email_bounced_at,
+ *                                       and the email is re-sent to the company owner (fallback) if one was recorded
+ *   soft_bounce                       → Brevo gave up on this message (mailbox full, "550 Sender IP rejected"…)
+ *                                     → address flagged unreachable (7d: owner also gets copies), email re-sent to the owner
+ *   deferred|error                    → recorded on the log row only (Brevo is still retrying)
  */
 import { createHmac, timingSafeEqual } from "crypto";
 import { QueryTypes } from "sequelize";
@@ -13,7 +16,8 @@ import { raw as envRaw } from "../../utils/config";
 import { apiLogger } from "../../utils/loggers";
 import { deleteRedisItem, setRedisItemWithTTL } from "../../utils/redisInstance";
 import { markEmailLogByMessageId } from "./emailLog";
-import { SUPPRESSED_KEY } from "./emailQueue";
+import { SUPPRESSED_KEY, clearUnreachable, markUnreachable } from "./deliverability";
+import { rerouteBouncedEmail } from "./fallbackReroute";
 
 const HARD_EVENTS = new Set(["hard_bounce", "invalid_email", "blocked", "spam", "unsubscribed"]);
 const SOFT_EVENTS = new Set(["soft_bounce", "deferred", "error"]);
@@ -61,6 +65,7 @@ export const suppressEmail = async (email: string, event: string, reason: string
 export const clearEmailSuppression = async (email: string): Promise<number> => {
   const e = email.trim().toLowerCase();
   await deleteRedisItem(SUPPRESSED_KEY(e)).catch(() => {});
+  await clearUnreachable(e);
   const rows = await sequelize.query<{ user_id: number }>(
     `UPDATE tbl_user SET email_bounced_at = NULL, email_bounce_reason = NULL
       WHERE LOWER(email) = :email AND email_bounced_at IS NOT NULL RETURNING user_id`,
@@ -87,7 +92,15 @@ export const handleBrevoEvent = async (ev: BrevoEvent): Promise<string> => {
     await markEmailLogByMessageId(messageId, { status: "bounced", last_event: event, last_event_at: at, last_error: ev.reason || event });
     await suppressEmail(email, event, ev.reason);
     apiLogger.warn(`[Brevo] ${event} for ${email}${ev.reason ? ` — ${ev.reason}` : ""} → suppressed`);
-    return "suppressed";
+    const reroute = await rerouteBouncedEmail(messageId, event);
+    return reroute === "rerouted" ? "suppressed+rerouted" : "suppressed";
+  }
+  if (event === "soft_bounce") {
+    await markEmailLogByMessageId(messageId, { last_event: event, last_event_at: at, last_error: ev.reason || event });
+    await markUnreachable(email, event, ev.reason);
+    apiLogger.warn(`[Brevo] soft_bounce for ${email}${ev.reason ? ` — ${ev.reason}` : ""} → flagged unreachable (owner fallback active)`);
+    const reroute = await rerouteBouncedEmail(messageId, event);
+    return reroute === "rerouted" ? "unreachable+rerouted" : "unreachable";
   }
   if (SOFT_EVENTS.has(event)) {
     await markEmailLogByMessageId(messageId, { last_event: event, last_event_at: at, last_error: ev.reason || undefined });

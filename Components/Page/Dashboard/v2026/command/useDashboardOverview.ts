@@ -69,6 +69,14 @@ export interface DashboardOverview {
     stale_api_keys: Array<{ hint: string | null; name: string | null; age_days: number }>;
     coins_without_wallet: string[];
     paylinks_expiring_48h: number;
+    notification_email_unreachable?: {
+      email: string;
+      fallback_email: string | null;
+      kind: "suppressed" | "unreachable";
+      event: string;
+      reason: string | null;
+      since: string | null;
+    } | null;
   };
   top_sources: OverviewSource[];
   generated_at: string;

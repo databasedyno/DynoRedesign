@@ -201,6 +201,10 @@ const NotificationPage = ({ initialTab = "inbox" }: { initialTab?: "inbox" | "se
 
   // Notification inbox state
   const [activeTab, setActiveTab] = useState<"inbox" | "settings">(initialTab);
+  // Deep link from the dashboard "Needs attention" rows: /notifications?tab=settings
+  useEffect(() => {
+    if (router.isReady && router.query.tab === "settings") setActiveTab("settings");
+  }, [router.isReady, router.query.tab]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [markingAllRead, setMarkingAllRead] = useState(false);
 

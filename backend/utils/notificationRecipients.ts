@@ -22,6 +22,8 @@
  */
 import { companyModel, userModel, teamMemberModel } from "../models";
 import { sanitizePermissions, PermissionKey } from "./permissions";
+import { apiLogger } from "./loggers";
+import { DeliveryBlock, getDeliveryBlock } from "../services/email/deliverability";
 
 export type NotificationCategory =
   | "payments"   // payment received/confirming/partial/failed, txn confirmed, large-txn alert
@@ -103,9 +105,31 @@ export async function resolveCompanyRecipients(
   companyId: number,
   category?: NotificationCategory,
 ): Promise<Recipient[]> {
-  if (!companyId) return [];
+  return (await resolveCompanyDelivery(companyId, category)).recipients;
+}
+
+export interface CompanyDelivery {
+  recipients: Recipient[];
+  /** Account owner (login email) — the fallback when the company address bounces. */
+  owner: { email: string; name: string; userId: number } | null;
+  /** Set when the primary company address is currently flagged by Brevo bounces. */
+  primaryBlock: DeliveryBlock | null;
+}
+
+/**
+ * resolveCompanyRecipients + the owner fallback metadata companyDispatch needs.
+ * When the primary company address (notification_email / company.email) is
+ * flagged suppressed/unreachable, the owner's login email is ADDED so payment
+ * alerts keep arriving somewhere the merchant actually reads.
+ */
+export async function resolveCompanyDelivery(
+  companyId: number,
+  category?: NotificationCategory,
+): Promise<CompanyDelivery> {
+  const none: CompanyDelivery = { recipients: [], owner: null, primaryBlock: null };
+  if (!companyId) return none;
   const c = await companyModel.findOne({ where: { company_id: companyId } });
-  if (!c) return [];
+  if (!c) return none;
   const cd = c.get({ plain: true }) as {
     company_id: number; user_id?: number; email?: string; company_name?: string;
     notification_email?: string | null; notification_prefs?: Record<string, unknown> | null;
@@ -116,7 +140,7 @@ export async function resolveCompanyRecipients(
     : {};
 
   // Company-level per-category master switch (missing => enabled).
-  if (category && prefs.categories && prefs.categories[category] === false) return [];
+  if (category && prefs.categories && prefs.categories[category] === false) return none;
 
   const owner = cd.user_id ? await userModel.findOne({ where: { user_id: cd.user_id } }) : null;
   const ownerData = owner ? (owner.get({ plain: true }) as { user_id: number; email?: string; name?: string }) : null;
@@ -127,18 +151,32 @@ export async function resolveCompanyRecipients(
   // The primary address represents the account owner, so prefer the owner's
   // personal name and fall back to a neutral greeting (never the company name).
   const primaryName = ownerData?.name || "there";
+  const ownerOut = ownerData && isEmail(ownerData.email)
+    ? { email: ownerData.email!.trim(), name: primaryName, userId: ownerData.user_id }
+    : null;
 
   const recipients: Recipient[] = [];
+  let primaryBlock: DeliveryBlock | null = null;
 
   // Primary company recipient (notification_email -> company.email -> owner email).
   const primaryEmail = [cd.notification_email, cd.email, ownerData?.email].find(isEmail);
   if (primaryEmail) {
+    const fromCompany = isEmail(cd.notification_email) || isEmail(cd.email);
     recipients.push({
       email: primaryEmail,
       name: primaryName,
       userId: ownerData?.user_id ?? null,
-      source: isEmail(cd.notification_email) || isEmail(cd.email) ? "company" : "owner",
+      source: fromCompany ? "company" : "owner",
     });
+    // Bounce-aware fallback: a company address Brevo cannot deliver to must not
+    // swallow payment alerts — the owner's login email receives them as well.
+    if (fromCompany && ownerOut && ownerOut.email.toLowerCase() !== primaryEmail.trim().toLowerCase()) {
+      primaryBlock = await getDeliveryBlock(primaryEmail);
+      if (primaryBlock) {
+        recipients.push({ email: ownerOut.email, name: ownerOut.name, userId: ownerOut.userId, source: "owner" });
+        apiLogger.warn(`[notificationRecipients] company ${companyId} address ${primaryEmail} is ${primaryBlock.kind} (${primaryBlock.event}) — owner ${ownerOut.email} added as recipient`);
+      }
+    }
   }
 
   // Team fan-out (default ON; opt-out via notification_prefs.team_fanout === false).
@@ -168,7 +206,7 @@ export async function resolveCompanyRecipients(
     }
   }
 
-  return dedupeRecipients(recipients);
+  return { recipients: dedupeRecipients(recipients), owner: ownerOut, primaryBlock };
 }
 
 /**
@@ -194,6 +232,7 @@ export async function isCategoryDisabled(
 export default {
   resolveAccountRecipient,
   resolveCompanyRecipients,
+  resolveCompanyDelivery,
   isCategoryDisabled,
   dedupeRecipients,
   dedupeEmails,
