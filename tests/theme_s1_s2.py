@@ -1,6 +1,6 @@
 import asyncio
 
-BASE = "https://secure-vault-init.preview.emergentagent.com"
+BASE = "https://secure-bootstrap.preview.emergentagent.com"
 
 MARKETING = ["/", "/fees", "/for/freelancers", "/products", "/blog", "/about",
              "/pay?d=jgQQzL", "/pay/demo", "/auth/login", "/auth/signup", "/reset-password"]
