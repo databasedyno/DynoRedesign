@@ -1,5 +1,13 @@
 # DynoPay — Agent Handoff (last session)
 
+## 2026-10-04 session (pod 0b940d6a) — merchant complaint RCA + gas-alert unification + error-digest fixes (UNCOMMITTED)
+- Full write-up at the top of `memory/PRD.md` (2026-10-04 block). Code: `pages/pay/index.tsx` (activeRef), `Components/Page/Pay3Components/CleanCheckoutV2.tsx` (amount<=0 message), `backend/services/feeWalletMonitor.ts` (consolidated email + Redis alert state), `backend/controller/paymentController.ts` (checkFeeBalance = DB refresh only), `backend/services/email/brandWelcomeScheduler.ts` (jobId), `backend/middleware/botProtection.ts` (no captureError), new `backend/__tests__/feeWalletMonitorDigest.test.ts`, `backend/scripts/render_gas_alert_digest.ts`.
+- **Preview Redis is NOT prod Redis** (prod checkout refs 404 on preview). Seed QA sessions with `node ../memory/tmp/qa/seed_preview_donation_sessions.js` (from /app/backend; 6h TTL) → `/pay?d=QAPAR1` (campaign) / `QACHD1` ($50 child). Mock `POST /api/pay/startDonation` + abort `addPayment` in browser tests so nothing is written to the LIVE prod DB.
+- Read-only prod DB: `node /app/memory/tmp/qa/ro_query.js "<SELECT …>"` (uses DATABASE_URL, forces read-only txn).
+- Droplet SSH key generated but NOT yet authorized by the owner: pub `ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOBNLNT0Zp6LQL7OD8D0wR54fUKcCsuni25a8YpRDVMa emergent-agent-dynopay-prodlogs-2026-10-04` (private `/root/.ssh/dynopay_prod_ed25519`). Logs on droplet: `/opt/dynopay/logs/*.log`.
+- OPEN QUESTIONS for owner: (a) did they move 0.031 ETH from the ETH fee wallet to 0x18e1d668…b867 → 0xe2f727dd…4e20 on 2026-10-03 15:14Z? If not → rotate the fee-wallet key. (b) Reply to Emmanuel (session 30d585d1): bug on our side, fixed after deploy; his campaign link pf6KZI is fine; also his brand-welcome email never went out (BullMQ jobId bug).
+- Follow-up candidates: per-brand breakdown in the Sunday payout digest (currently sums all brands silently); re-send Emmanuel's welcome email post-deploy.
+
 ## 2026-10-04 session (pod 0b940d6a, setup via vault) — SETUP ONLY, no code changes
 - `pod-bootstrap.sh` run with the vault passphrase → env restored, SAFE MODE on (bg jobs off, outbound email off), prod build served.
 - Live preview = **https://vault-auth-setup.preview.emergentagent.com** (re-synced with `--url` + rebuilt; supervisor APP_URL is the UUID host 0b940d6a — see POD_SETUP.md "Preview hostname gotcha").

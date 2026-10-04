@@ -1,3 +1,46 @@
+# 2026-10-04 (vault pod 0b940d6a, SAFE MODE, LIVE prod DB + SEPARATE preview Redis) — 3 INVESTIGATIONS + FIXES
+# USER: (1) locate+investigate merchant emmanuelniyongabo54@gmail.com's USDT complaint; (2) ETH gas alerts send two
+#   conflicting emails ($80 vs almost empty) → unify; (3) error digest with 3 errors (BullMQ "Custom Id cannot contain :",
+#   2× "Scanner probe"). Follow-ups: "which ETH wallet has the $80?" and "is the weekly payout email ($2,050.40) per brand?"
+# (1) COMPLAINT = support session 30d585d1 (user 359 / company 366, 07:05Z). Campaign "HELP SAVE KEZA DIVIN" link 682
+#   (pf6KZI) created 05:04Z the SAME day (the "2 weeks" claim is impossible; account is 3 days old). Screenshot = checkout
+#   "$0.00 USD" + "Rate unavailable". ROOT CAUSE (frontend, affects EVERY crowdfunding donor): pages/pay/index.tsx
+#   handleStartDonation swaps the URL to the child ref via history.replaceState (Next router never sees it) but
+#   <CleanCheckoutV2 d={router.query.d}> still used the PARENT campaign ref → self-fetched parent meta (amount 0) → $0.00 →
+#   getCurrencyRates(amount 0) → "Rate unavailable". Backend verified correct (prod getData for children 693/694/695 =
+#   $50/$25/$10). FIX: new `activeRef` state set in getQueryData; CleanCheckoutV2 keyed off `checkoutRef = activeRef ||
+#   router.query.d` (also for the initialMeta match). CleanCheckoutV2.reservePayment now fails fast with a clear
+#   "No payment amount is set…" message when amount<=0 (was blamed on the rate feed). VERIFIED on preview: seeded
+#   campaign+child sessions into the PREVIEW Redis (memory/tmp/qa/seed_preview_donation_sessions.js — preview Redis ≠ prod
+#   Redis, prod checkout refs 404 here), mocked POST startDonation in Playwright (no prod write), Donate $50 → URL /pay?d=child,
+#   header "$50.00 USD", INV-2026-693, no error, CleanCheckoutV2 did NOT refetch the parent.
+# (2) GAS ALERTS: TWO monitors emailed the same wallets — hourly legacy paymentController.checkFeeBalance ($100 USD threshold
+#   from tbl_admin_fee_wallet.feeLimit, plain text "Low Fee Wallet Balance Alert", Redis 12h cooldown) and 30-min
+#   feeWalletMonitor (native thresholds, HTML, per-chain). Both were accurate at send time: ON-CHAIN the ETH fee wallet
+#   0x2b29aa… sent 0.030+0.001 ETH → 0x18e1d668ee76a7f28434a1c918a2b26e2bb4b867 at 2026-10-03 15:14/15:18Z, which forwarded
+#   0.030 ETH → 0xe2f727dd9ef0da4416afd682a9f4254937844e20 at 15:26Z (still holds 0.03 ETH, 0 outgoing). NONE of these
+#   addresses exist in any Dynopay table; tbl_key_access_audit has no gas_funding/admin key use then → manual transfer by
+#   someone holding the key (owner?) OR key compromise — user asked to confirm. FIX: feeWalletMonitor is now the ONLY alert
+#   sender: checkChainFeeWallet returns {status, alertDue}; checkAllFeeWallets sends ONE consolidated email per cycle
+#   (renderFeeWalletDigest: every wallet, native + ≈USD via convertToUSD, status, exact top-up to healthy target, addresses,
+#   impact); alert state (lastAlertSent/level per chain) persisted in Redis key fee_wallet_alert_state (7d TTL) and hydrated on
+#   start so redeploys don't re-spam; escalation compares against lastAlertLevel. checkFeeBalance now ONLY refreshes
+#   tbl_admin_fee_wallet.amount for the admin UI (email/USD/Redis alert code removed; unused imports ADMIN_CONFIG/sendEmail/
+#   IAdminData dropped). Unit test __tests__/feeWalletMonitorDigest.test.ts (4/4): one email for multi-trip, cooldown,
+#   empty needs 2 reads + escalates, restart honours Redis state, silent when healthy/API down. Render harness:
+#   backend/scripts/render_gas_alert_digest.ts (screenshot-verified).
+# (3) ERROR DIGEST: (a) brandWelcomeScheduler jobId `brand_welcome:366` → BullMQ 5.81 rejects ':' → Emmanuel's brand-welcome
+#   email was never queued. FIX jobId `brand_welcome-<companyId>` (only ':' jobId in repo). (b)(c) botProtection no longer
+#   captureError()s blocked scanner probes (expected 403s; still apiLogger.warn + getBotProtectionStats) → digest = real errors only.
+# (4) PAYOUT DIGEST ANSWER: payoutDigestService.buildPayoutDigest(userId) has NO company filter → the Sunday 08:00Z email is
+#   ALL BRANDS COMBINED and never says so. Verified: window 2026-09-27 08:00Z→10-04 08:00Z, user 1: The Dev Store $1,394.17
+#   (23) + SMADAV $656.23 (9) = $2,050.40 (32) — exact match. Offered per-brand breakdown as next step (not built).
+# OPS: BE tsc 0, FE tsc 0, eslint 0, FE prod build rebuilt+swapped, backend restarted (/health ok). No prod DB writes.
+#   Droplet SSH: this pod has NO key; generated /root/.ssh/dynopay_prod_ed25519 (pub in AGENT_HANDOFF) — not yet authorized.
+#   Read-only DB helper: memory/tmp/qa/ro_query.js "<SELECT>". Changes UNCOMMITTED → "Save to GitHub" → droplet deploy.
+# NOT DONE: testing_agent not used (write flows would hit the LIVE prod DB; frontend flow verified with mocked write instead).
+
+
 # 2026-10-03 (vault pod) — CI "Preflight" RED FIX (user: "build/deploy, some docker not successful")
 # FINDING (via GitHub Actions API, read-only): Docker build + "Deploy to Droplet" are SUCCEEDING. The red ❌
 #   is the "Preflight — type-check + exact Dockerfile build" workflow, job "frontend tsc --noEmit",

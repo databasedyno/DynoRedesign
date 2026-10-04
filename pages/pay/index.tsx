@@ -293,6 +293,13 @@ const Payment = () => {
   const [donationData, setDonationData] = useState<DonationCampaignData | null>(null)
   const [donationRef, setDonationRef] = useState<string>('')
   const [donateSubmitting, setDonateSubmitting] = useState(false)
+  // The payment ref whose session is currently loaded. Diverges from
+  // router.query.d after a donor starts a contribution: handleStartDonation
+  // swaps the URL to the child ref with history.replaceState (so the campaign
+  // stays visible during the hand-off), which Next's router never sees. The
+  // checkout MUST key off this, not router.query.d — otherwise it reloads the
+  // PARENT campaign session (amount 0) and fails with "$0.00 / Rate unavailable".
+  const [activeRef, setActiveRef] = useState<string>('')
 
   // Save activeStep to sessionStorage when it changes (for language change persistence)
   useEffect(() => {
@@ -454,6 +461,7 @@ const Payment = () => {
   const getQueryData = async (refOverride?: string) => {
     try {
       const query_data = refOverride || router.query.d
+      setActiveRef(String(query_data || ''))
       
       // Clear any stale checkout-session token from a previous payment
       // (never touches the merchant login token in localStorage.token).
@@ -1133,9 +1141,12 @@ const Payment = () => {
   // server-side and shipped in __NEXT_DATA__) brings back the legacy stepper for
   // the entire /pay route.
   const cleanCheckoutFlag = getRuntimeFlags().cleanCheckoutV2;
+  // Prefer the loaded session ref (child contribution after a donation
+  // hand-off) over router.query.d, which can still point at the campaign parent.
+  const checkoutRef = activeRef || (typeof router.query.d === 'string' ? router.query.d : '');
   const cleanCheckoutEligible =
     cleanCheckoutFlag &&
-    typeof router.query.d === 'string' &&
+    !!checkoutRef &&
     // Every non-campaign link renders the single-panel V2 checkout (B14: the
     // legacy stepper is reachable only via the build-time flag). `donation`
     // parents are handled by the DonationCampaign branch above.
@@ -1144,8 +1155,8 @@ const Payment = () => {
     return (
       <Pay3Layout embed={isEmbed}>
         <CleanCheckoutV2
-          d={String(router.query.d)}
-          initialMeta={prefetchedMeta && prefetchedMeta.ref === String(router.query.d) ? prefetchedMeta.data : undefined}
+          d={checkoutRef}
+          initialMeta={prefetchedMeta && prefetchedMeta.ref === checkoutRef ? prefetchedMeta.data : undefined}
           redirectUrl={redirectUrl}
           embed={!!isEmbed}
           prefillEmail={typeof router.query.be === 'string' ? router.query.be : undefined}

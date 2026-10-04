@@ -25,6 +25,8 @@ import { dynoPayGreetingTemplate } from "./emailService";
 import mailTransporter from "../utils/mailTransporter";
 import config from "../utils/config";
 import { toFixedStr } from "../utils/money";
+import { getRedisItem, setRedisItemWithTTL } from "../utils/redisInstance";
+import { convertToUSD } from "../utils/currencyUtils";
 
 const ALERT_EMAIL =
   config.adminEmail || config.str("BREVO_SENDER_EMAIL") || "admin@dynopay.com";
@@ -37,6 +39,12 @@ const ALERT_EMAIL =
 // contributing to the Jul-17 Brevo spike (4497 emails). 6h keeps ops signal
 // while capping worst-case at 4 emails/chain/day even when nobody tops up.
 const ALERT_COOLDOWN_MS = 6 * 60 * 60 * 1000; // 6 hours
+
+// Redis key holding {chainId: {lastAlertSent, lastAlertLevel}} so a restart or
+// redeploy does not forget an alert that is still inside its cooldown window
+// (previously every deploy re-emailed within 30 min).
+const ALERT_STATE_KEY = "fee_wallet_alert_state";
+const ALERT_STATE_TTL_SEC = 7 * 24 * 3600;
 
 export interface ChainConfig {
   id: string;             // unique key for per-wallet state (TRX/ETH/POLYGON/XRP_MASTER)
@@ -120,11 +128,53 @@ export interface WalletStatus {
   lastChecked: Date;
   lastAlertSent?: Date;
   lastAlertLevel?: 'healthy' | 'warning' | 'critical' | 'empty';
+  usdValue?: number | null; // ≈ USD of `balance` (null when the price feed failed)
 }
+
+type AlertLevel = WalletStatus['status'];
 
 // Per-chain state
 const lastStatusByChain: Map<string, WalletStatus> = new Map();
 const consecutiveEmptyByChain: Map<string, number> = new Map();
+let alertStateHydrated = false;
+
+/** Seed per-chain alert memory from Redis (restart/redeploy safe). Runs once. */
+async function hydrateAlertState(): Promise<void> {
+  if (alertStateHydrated) return;
+  alertStateHydrated = true;
+  try {
+    const saved = (await getRedisItem(ALERT_STATE_KEY)) as
+      Record<string, { lastAlertSent?: string; lastAlertLevel?: AlertLevel }> | null;
+    if (!saved) return;
+    for (const cfg of CHAIN_CONFIGS) {
+      const s = saved[cfg.id];
+      if (!s?.lastAlertSent || lastStatusByChain.has(cfg.id)) continue;
+      lastStatusByChain.set(cfg.id, {
+        id: cfg.id,
+        chain: cfg.chain,
+        balance: -1, // unknown until the first live read
+        status: s.lastAlertLevel ?? 'warning',
+        lastChecked: new Date(0),
+        lastAlertSent: new Date(s.lastAlertSent),
+        lastAlertLevel: s.lastAlertLevel,
+      });
+    }
+  } catch (err) {
+    cronLogger.warn(`[FeeWalletMonitor] Could not load alert state from Redis: ${safeErrorMsg(err)}`);
+  }
+}
+
+async function persistAlertState(): Promise<void> {
+  const out: Record<string, { lastAlertSent: string; lastAlertLevel?: AlertLevel }> = {};
+  for (const [id, s] of lastStatusByChain) {
+    if (s.lastAlertSent) out[id] = { lastAlertSent: s.lastAlertSent.toISOString(), lastAlertLevel: s.lastAlertLevel };
+  }
+  try {
+    await setRedisItemWithTTL(ALERT_STATE_KEY, out, ALERT_STATE_TTL_SEC);
+  } catch (err) {
+    cronLogger.warn(`[FeeWalletMonitor] Could not persist alert state to Redis: ${safeErrorMsg(err)}`);
+  }
+}
 
 /** Safely extract a human-readable message from any thrown value */
 const safeErrorMsg = (err: unknown): string => {
@@ -174,17 +224,20 @@ export function computeStatus(cfg: Pick<ChainConfig, 'criticalThreshold' | 'warn
 }
 
 /**
- * Check a single chain's fee wallet balance and (if applicable) send an alert.
+ * Check a single chain's fee wallet balance. Returns the fresh status plus
+ * whether this chain is due for an alert — the EMAIL itself is sent once, for
+ * all chains together, by checkAllFeeWallets (one consolidated message).
  * Never throws — errors are logged and swallowed so a single chain failure
  * doesn't disrupt the overall monitor.
  */
-async function checkChainFeeWallet(cfg: ChainConfig): Promise<WalletStatus | null> {
+async function checkChainFeeWallet(cfg: ChainConfig): Promise<{ status: WalletStatus; alertDue: boolean } | null> {
   if (!cfg.address) {
     cronLogger.warn(`[FeeWalletMonitor][${cfg.id}] address not configured (env ${cfg.envKey}) — skipping`);
     return null;
   }
 
   const lastStatus = lastStatusByChain.get(cfg.id);
+  const lastKnownBalance = lastStatus && lastStatus.balance >= 0 ? lastStatus.balance : undefined;
 
   // First read
   let bal = await fetchValidatedBalance(cfg);
@@ -194,36 +247,27 @@ async function checkChainFeeWallet(cfg: ChainConfig): Promise<WalletStatus | nul
     const fallbackStatus: WalletStatus = {
       id: cfg.id,
       chain: cfg.chain,
-      balance: lastStatus?.balance ?? -1,
+      balance: lastKnownBalance ?? -1,
       liquid: lastStatus?.liquid,
       frozen: lastStatus?.frozen,
       status: lastStatus?.status ?? 'warning',
       lastChecked: new Date(),
       lastAlertSent: lastStatus?.lastAlertSent,
       lastAlertLevel: lastStatus?.lastAlertLevel,
+      usdValue: lastStatus?.usdValue ?? null,
     };
-    cronLogger.info(`[FeeWalletMonitor][${cfg.id}] ⏭️ Using last known status (${lastStatus?.balance?.toFixed(6) ?? 'unknown'} ${cfg.displayName}) due to API error`);
-    return fallbackStatus;
+    cronLogger.info(`[FeeWalletMonitor][${cfg.id}] ⏭️ Using last known status (${lastKnownBalance !== undefined ? lastKnownBalance.toFixed(6) : 'unknown'} ${cfg.displayName}) due to API error`);
+    return { status: fallbackStatus, alertDue: false };
   }
 
   // Double-check a suspicious 0 after a healthy read (transient blip guard).
-  if (bal.total === 0 && lastStatus && lastStatus.balance > cfg.criticalThreshold) {
+  if (bal.total === 0 && lastKnownBalance !== undefined && lastKnownBalance > cfg.criticalThreshold) {
     cronLogger.warn(`[FeeWalletMonitor][${cfg.id}] First 0-balance read after a healthy read — re-verifying before firing empty alert`);
     await new Promise((r) => setTimeout(r, 3000));
     const bal2 = await fetchValidatedBalance(cfg);
     if (bal2 === null) {
       cronLogger.warn(`[FeeWalletMonitor][${cfg.id}] Re-verification failed; treating as API error, keeping last status`);
-      return {
-        id: cfg.id,
-        chain: cfg.chain,
-        balance: lastStatus.balance,
-        liquid: lastStatus.liquid,
-        frozen: lastStatus.frozen,
-        status: lastStatus.status,
-        lastChecked: new Date(),
-        lastAlertSent: lastStatus.lastAlertSent,
-        lastAlertLevel: lastStatus.lastAlertLevel,
-      };
+      return { status: { ...(lastStatus as WalletStatus), lastChecked: new Date() }, alertDue: false };
     }
     bal = bal2;
   }
@@ -248,22 +292,30 @@ async function checkChainFeeWallet(cfg: ChainConfig): Promise<WalletStatus | nul
     lastChecked: new Date(),
     lastAlertSent: lastStatus?.lastAlertSent,
     lastAlertLevel: lastStatus?.lastAlertLevel,
+    usdValue: await fetchUsdValue(cfg, balance),
   };
 
   const emoji = { healthy: '✅', warning: '⚠️', critical: '🚨', empty: '❌' }[status];
   const frozenNote = bal.frozen > 0 ? ` (liquid ${toFixedStr(bal.liquid, 6)} + frozen ${toFixedStr(bal.frozen, 6)})` : '';
   const precision = cfg.chain === 'TRX' ? 2 : 6; // TRX values are whole numbers, EVM native is fractional
-  cronLogger.info(`[FeeWalletMonitor][${cfg.id}] ${emoji} ${cfg.displayName} Fee Wallet: ${toFixedStr(balance, precision)} ${cfg.displayName}${frozenNote} (${status.toUpperCase()})`);
+  const usdNote = currentStatus.usdValue != null ? ` ≈ $${toFixedStr(currentStatus.usdValue, 2)}` : '';
+  cronLogger.info(`[FeeWalletMonitor][${cfg.id}] ${emoji} ${cfg.displayName} Fee Wallet: ${toFixedStr(balance, precision)} ${cfg.displayName}${frozenNote}${usdNote} (${status.toUpperCase()})`);
 
-  // Alerting
-  if (shouldSendAlert(cfg, currentStatus, lastStatus)) {
-    await sendAlert(cfg, currentStatus);
-    currentStatus.lastAlertSent = new Date();
-    currentStatus.lastAlertLevel = status;
-  }
-
+  const alertDue = shouldSendAlert(cfg, currentStatus, lastStatus);
   lastStatusByChain.set(cfg.id, currentStatus);
-  return currentStatus;
+  return { status: currentStatus, alertDue };
+}
+
+/** ≈ USD of a native balance; null (never 0) when the price feed is unavailable. */
+async function fetchUsdValue(cfg: ChainConfig, balance: number): Promise<number | null> {
+  if (balance <= 0) return 0;
+  try {
+    const usd = await convertToUSD(cfg.chain, balance);
+    return Number.isFinite(usd) && usd > 0 ? usd : null;
+  } catch (err) {
+    cronLogger.warn(`[FeeWalletMonitor][${cfg.id}] USD conversion failed: ${safeErrorMsg(err)}`);
+    return null;
+  }
 }
 
 function shouldSendAlert(cfg: ChainConfig, current: WalletStatus, last: WalletStatus | undefined): boolean {
@@ -277,8 +329,10 @@ function shouldSendAlert(cfg: ChainConfig, current: WalletStatus, last: WalletSt
 
   const statusPriority: Record<string, number> = { healthy: 1, warning: 2, critical: 3, empty: 4 };
 
-  // Escalation bypasses cooldown
-  if (last && statusPriority[current.status] > statusPriority[last.status]) {
+  // Escalation bypasses cooldown (compared against the level we last ALERTED
+  // at, so a restart cannot turn "still critical" into a fresh escalation).
+  const lastLevel = last?.lastAlertLevel ?? last?.status;
+  if (lastLevel && statusPriority[current.status] > statusPriority[lastLevel]) {
     return true;
   }
 
@@ -291,86 +345,119 @@ function shouldSendAlert(cfg: ChainConfig, current: WalletStatus, last: WalletSt
     }
   }
 
-  // First non-healthy sighting → alert
-  if (!last) return true;
-  return true; // cooldown expired and still non-healthy → re-alert
+  // First non-healthy sighting, or cooldown expired and still non-healthy → alert
+  return true;
 }
 
+const LEVEL_LABEL: Record<AlertLevel, string> = {
+  healthy: 'Healthy',
+  warning: 'Low',
+  critical: 'Critically low',
+  empty: 'EMPTY',
+};
+const LEVEL_COLOR: Record<AlertLevel, string> = {
+  healthy: '#16a34a',
+  warning: '#f59e0b',
+  critical: '#ea580c',
+  empty: '#dc2626',
+};
+const LEVEL_PRIORITY: Record<AlertLevel, number> = { healthy: 1, warning: 2, critical: 3, empty: 4 };
+
+const fmtUsd = (usd: number | null | undefined): string =>
+  usd == null ? 'n/a' : `$${toFixedStr(usd, 2)}`;
+
 /**
- * Build the gas-funding alert email (subject + html) for one wallet status.
- * Pure + exported so it can be unit-rendered/verified without sending.
+ * Build the ONE consolidated gas-funding email (subject + html).
  *
- * UNIFIED MESSAGING: every severity (warning/critical/empty) quotes the SAME
- * single number to act on — "top up to reach the healthy balance" — sourced
- * from cfg.healthyThreshold. The tier trigger is shown only as grey context.
+ * Every monitored gas wallet is listed in a single table — balance in native
+ * units AND ≈USD, its status, and the exact top-up needed to reach the
+ * healthy target — so the operator never has to reconcile two emails that
+ * quote different numbers for the same wallet. `dueIds` marks the wallets
+ * whose status change triggered this email. Pure + exported for unit rendering.
  */
-export function renderFeeWalletAlert(cfg: ChainConfig, status: WalletStatus): { subject: string; html: string } {
-  const { balance, status: level, liquid, frozen } = status;
-  const label = cfg.displayName;
+export function renderFeeWalletDigest(
+  statuses: WalletStatus[],
+  dueIds: string[],
+  configs: ChainConfig[] = CHAIN_CONFIGS,
+): { subject: string; html: string } {
+  const byId = new Map(configs.map((c) => [c.id, c]));
+  const rows = statuses
+    .map((s) => ({ s, cfg: byId.get(s.id) }))
+    .filter((r): r is { s: WalletStatus; cfg: ChainConfig } => !!r.cfg)
+    .sort((a, b) => LEVEL_PRIORITY[b.s.status] - LEVEL_PRIORITY[a.s.status]);
 
-  const subject = {
-    empty: `🚨 URGENT: ${label} Fee Wallet Empty!`,
-    critical: `🚨 CRITICAL: ${label} Fee Wallet Very Low`,
-    warning: `⚠️ WARNING: ${label} Fee Wallet Low`,
-    healthy: `✅ ${label} Fee Wallet Healthy`,
-  }[level];
+  const due = rows.filter((r) => dueIds.includes(r.s.id));
+  const worst = due.reduce<AlertLevel>((acc, r) => (LEVEL_PRIORITY[r.s.status] > LEVEL_PRIORITY[acc] ? r.s.status : acc), 'warning');
+  const subjectIcon = worst === 'warning' ? '⚠️' : '🚨';
+  const summary = due.map((r) => `${r.cfg.displayName} ${LEVEL_LABEL[r.s.status].toLowerCase()}`).join(', ');
+  const subject = `${subjectIcon} Gas wallets need funding — ${summary}`;
 
-  // Show liquid/frozen breakdown when the wallet has staked funds (TRX Stake 2.0).
-  // Eliminates "the alert says X but TronScan shows Y" confusion.
-  const breakdown = (frozen && frozen > 0)
-    ? `<p style="color:#6b7280;font-size:13px;">Breakdown: <strong>${toFixedStr((liquid ?? 0), 6)} ${label}</strong> liquid + <strong>${toFixedStr(frozen, 6)} ${label}</strong> frozen (staked for energy)</p>`
-    : '';
+  const tr = (r: { s: WalletStatus; cfg: ChainConfig }) => {
+    const { s, cfg } = r;
+    const precision = cfg.chain === 'TRX' ? 2 : 6;
+    const topUp = Math.max(0, cfg.healthyThreshold - Math.max(0, s.balance));
+    const price = s.usdValue != null && s.balance > 0 ? s.usdValue / s.balance : null;
+    const topUpUsd = price != null ? topUp * price : null;
+    const highlight = dueIds.includes(s.id) ? 'background:#fff1e0;' : '';
+    const balanceStr = s.balance < 0 ? 'unknown' : `${toFixedStr(s.balance, precision)} ${cfg.displayName}`;
+    const frozenNote = s.frozen && s.frozen > 0
+      ? `<br/><span style="color:#6b7280;font-size:12px;">${toFixedStr(s.liquid ?? 0, 6)} liquid + ${toFixedStr(s.frozen, 6)} frozen (staked)</span>`
+      : '';
+    const action = topUp > 0
+      ? `<strong>${toFixedStr(topUp, precision)} ${cfg.displayName}</strong>${topUpUsd != null ? ` (≈ ${fmtUsd(topUpUsd)})` : ''}`
+      : '—';
+    return `
+      <tr style="${highlight}">
+        <td style="padding:10px 8px;border-bottom:1px solid #e5e7eb;vertical-align:top;">
+          <strong>${cfg.displayName}</strong><br/>
+          <span style="color:#6b7280;font-size:12px;">${cfg.role}</span>
+        </td>
+        <td style="padding:10px 8px;border-bottom:1px solid #e5e7eb;vertical-align:top;white-space:nowrap;">
+          ${balanceStr}<br/><span style="color:#6b7280;font-size:12px;">≈ ${fmtUsd(s.usdValue)}</span>${frozenNote}
+        </td>
+        <td style="padding:10px 8px;border-bottom:1px solid #e5e7eb;vertical-align:top;color:${LEVEL_COLOR[s.status]};font-weight:600;white-space:nowrap;">
+          ${LEVEL_LABEL[s.status]}
+        </td>
+        <td style="padding:10px 8px;border-bottom:1px solid #e5e7eb;vertical-align:top;">
+          ${action}<br/><span style="color:#6b7280;font-size:12px;">target ${toFixedStr(cfg.healthyThreshold, precision)} ${cfg.displayName}</span>
+        </td>
+      </tr>`;
+  };
 
-  const precision = cfg.chain === 'TRX' ? 2 : 6;
-  const roleLine = `<p style="color:#6b7280;font-size:13px;">Wallet role: ${cfg.role}</p>`;
+  const addresses = rows
+    .filter((r) => r.s.status !== 'healthy')
+    .map((r) => `<p style="margin:4px 0;"><strong>${r.cfg.displayName}</strong>: <code>${r.cfg.address}</code></p>`)
+    .join('');
 
-  // ── UNIFIED gas-funding ask ───────────────────────────────────────────────
-  // Every severity quotes the SAME single number to act on: top up to the
-  // HEALTHY threshold (one source of truth = cfg.healthyThreshold). The tier
-  // trigger (warning/critical) is shown ONLY as secondary grey context, so an
-  // operator never sees conflicting "limits" again (the old emails headlined
-  // "< 60 TRX" / "< 30 TRX" / "reach 120 TRX" — 3 numbers for one wallet).
-  const topUp = Math.max(0, cfg.healthyThreshold - balance);
-  const topUpStr = toFixedStr(topUp, precision);
-  const targetStr = toFixedStr(cfg.healthyThreshold, precision);
-  const sev = (level === 'healthy' ? 'warning' : level) as 'empty' | 'critical' | 'warning';
-  const triggerContext = {
-    empty: `the wallet is empty`,
-    critical: `the balance fell below the critical level (${toFixedStr(cfg.criticalThreshold, precision)} ${label})`,
-    warning: `the balance fell below the warning level (${toFixedStr(cfg.warningThreshold, precision)} ${label})`,
-  }[sev];
+  const impact = due
+    .map((r) => `<li><strong>${r.cfg.displayName}</strong>: ${impactLabel(r.cfg, r.s.status === 'healthy' ? 'warning' : r.s.status)}</li>`)
+    .join('');
 
-  // Identical action block across ALL tiers — one target, one top-up amount.
-  const actionBlock = `
-      <p><strong>Action required:</strong> top up <strong>${topUpStr} ${label}</strong> to reach the recommended balance of <strong>${targetStr} ${label}</strong>:<br/>
-      <code>${cfg.address}</code></p>
-      <p style="color:#6b7280;font-size:13px;">Why you're seeing this: ${triggerContext}. Target (healthy) balance for ${label}: ${targetStr} ${label}.</p>`;
-
-  const heading = {
-    empty: `<h2 style="color: #dc2626;">🚨 ${label} Fee Wallet is EMPTY</h2>`,
-    critical: `<h2 style="color: #ea580c;">🚨 ${label} Fee Wallet Critically Low</h2>`,
-    warning: `<h2 style="color: #f59e0b;">⚠️ ${label} Fee Wallet Low</h2>`,
-    healthy: '',
-  }[level];
-
-  const tail = level === 'warning'
-    ? `<p>The system is still operational but running low on gas funds.</p>`
-    : '';
-
-  const message = level === 'healthy' ? '' : `
-      ${heading}
-      <p><strong>Current balance:</strong> ${toFixedStr(balance, precision)} ${label} (total)</p>
-      ${breakdown}${roleLine}
-      <p><strong>Impact:</strong> ${impactLabel(cfg, sev)}</p>
-      ${actionBlock}
-      ${tail}
+  const message = `
+      <p>This is the single status report for ALL Dynopay gas / fee wallets. Rows highlighted in orange changed status and triggered this email; the others are shown for context so you can top up everything in one go.</p>
+      <table style="border-collapse:collapse;width:100%;font-size:14px;">
+        <thead>
+          <tr style="text-align:left;color:#6b7280;font-size:12px;text-transform:uppercase;">
+            <th style="padding:6px 8px;border-bottom:2px solid #e5e7eb;">Wallet</th>
+            <th style="padding:6px 8px;border-bottom:2px solid #e5e7eb;">Balance</th>
+            <th style="padding:6px 8px;border-bottom:2px solid #e5e7eb;">Status</th>
+            <th style="padding:6px 8px;border-bottom:2px solid #e5e7eb;">Top up to healthy</th>
+          </tr>
+        </thead>
+        <tbody>${rows.map(tr).join('')}</tbody>
+      </table>
+      <p style="margin-top:16px;"><strong>Impact if not funded:</strong></p>
+      <ul style="margin-top:4px;">${impact}</ul>
+      <p style="margin-top:16px;"><strong>Send funds to:</strong></p>
+      ${addresses}
+      <p style="color:#6b7280;font-size:13px;margin-top:16px;">Thresholds (native units): ${configs.map((c) => `${c.displayName} low &lt; ${c.warningThreshold}, critical &lt; ${c.criticalThreshold}, healthy ≥ ${c.healthyThreshold}`).join(' · ')}. USD values are live estimates. Re-checked every 30 min; the same wallet is re-notified at most every 6 h unless it gets worse.</p>
     `;
 
   return { subject, html: dynoPayGreetingTemplate('Admin', message, subject) };
 }
 
-async function sendAlert(cfg: ChainConfig, status: WalletStatus): Promise<void> {
-  const { subject, html } = renderFeeWalletAlert(cfg, status);
+async function sendConsolidatedAlert(statuses: WalletStatus[], dueIds: string[]): Promise<boolean> {
+  const { subject, html } = renderFeeWalletDigest(statuses, dueIds);
   try {
     await mailTransporter({
       to: ALERT_EMAIL,
@@ -378,9 +465,11 @@ async function sendAlert(cfg: ChainConfig, status: WalletStatus): Promise<void> 
       body: html,
       name: 'Admin',
     });
-    cronLogger.info(`[FeeWalletMonitor][${cfg.id}] ${status.status.toUpperCase()} alert sent to ${ALERT_EMAIL}`);
+    cronLogger.info(`[FeeWalletMonitor] Consolidated gas alert sent to ${ALERT_EMAIL} (triggered by ${dueIds.join(', ')})`);
+    return true;
   } catch (emailError) {
-    cronLogger.error(`[FeeWalletMonitor][${cfg.id}] Failed to send alert email: ${safeErrorMsg(emailError)}`);
+    cronLogger.error(`[FeeWalletMonitor] Failed to send alert email: ${safeErrorMsg(emailError)}`);
+    return false;
   }
 }
 
@@ -409,18 +498,37 @@ export function impactLabel(cfg: Pick<ChainConfig, 'id'>, level: 'empty' | 'crit
 }
 
 /**
- * Check ALL configured fee wallets. Backward-compat alias
- * `checkFeeWalletBalance` returns the TRX status for existing callers/tests.
+ * Check ALL configured fee wallets and send at most ONE consolidated email per
+ * cycle (listing every wallet) when any of them is due for an alert.
+ * Backward-compat alias `checkFeeWalletBalance` returns the TRX status.
  */
 export async function checkAllFeeWallets(): Promise<WalletStatus[]> {
+  await hydrateAlertState();
   const results: WalletStatus[] = [];
+  const dueIds: string[] = [];
   for (const cfg of CHAIN_CONFIGS) {
     try {
-      const s = await checkChainFeeWallet(cfg);
-      if (s) results.push(s);
+      const r = await checkChainFeeWallet(cfg);
+      if (!r) continue;
+      results.push(r.status);
+      if (r.alertDue) dueIds.push(cfg.id);
     } catch (err) {
       // Per-chain isolation: never let one failure abort the others.
       cronLogger.error(`[FeeWalletMonitor][${cfg.id}] Uncaught error: ${safeErrorMsg(err)}`);
+    }
+  }
+
+  if (dueIds.length > 0) {
+    const sent = await sendConsolidatedAlert(results, dueIds);
+    if (sent) {
+      const now = new Date();
+      for (const s of results) {
+        if (!dueIds.includes(s.id)) continue;
+        s.lastAlertSent = now;
+        s.lastAlertLevel = s.status;
+        lastStatusByChain.set(s.id, s);
+      }
+      await persistAlertState();
     }
   }
   return results;
@@ -466,6 +574,10 @@ export async function startFeeWalletMonitoring(intervalMinutes: number = 60): Pr
 // HEALTHY_THRESHOLD were removed (2026-10) — they were unused and their 50/100/200
 // fallbacks contradicted the real TRX config (30/60/120), which made the gas-funding
 // alerts look inconsistent. The single source of truth is FEE_WALLET_CONFIGS above.
+// 2026-10-04: this monitor is now the ONLY sender of gas-funding emails — the
+// legacy hourly "Low Fee Wallet Balance Alert" in paymentController.checkFeeBalance
+// (USD threshold from tbl_admin_fee_wallet) was retired because the two emails
+// quoted different thresholds/balances for the same wallet.
 
 export default {
   checkFeeWalletBalance,

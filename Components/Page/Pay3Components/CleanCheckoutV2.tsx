@@ -438,6 +438,13 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
     const feePayer = meta_.fee_payer || 'company'
     const taxAmount = Number(meta_.tax_amount) || 0
     const baseAmount = Number(meta_.amount) || 0
+    // A zero amount can never be quoted — say so instead of blaming the rate
+    // feed (a campaign parent session has no amount until a donor picks one).
+    if (baseAmount <= 0) {
+      setErrorMsg(t('checkout.error.noAmount', { defaultValue: 'No payment amount is set for this link. Please go back and choose an amount, or ask the merchant for a new link.' }))
+      setPhase('error')
+      return
+    }
     // customer pays fees → send base only (backend adds tax + fees);
     // company pays fees → send tax-inclusive amount (backend returns raw conversion).
     const amountForRates = feePayer === 'customer' ? baseAmount : baseAmount + taxAmount

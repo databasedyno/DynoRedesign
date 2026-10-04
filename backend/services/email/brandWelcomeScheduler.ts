@@ -100,7 +100,8 @@ export const scheduleBrandWelcomeEmail = async (job: BrandWelcomeJob): Promise<v
     }
     await getQueue().add(JOB_BRAND_WELCOME, job, {
       delay: BRAND_WELCOME_DELAY_MS,
-      jobId: `${JOB_BRAND_WELCOME}:${job.companyId}`,
+      // BullMQ forbids ':' in custom job ids (it is the Redis key separator).
+      jobId: `${JOB_BRAND_WELCOME}-${job.companyId}`,
     });
     apiLogger.info(`[BrandWelcome] scheduled in ${BRAND_WELCOME_DELAY_MS}ms for company ${job.companyId}`);
   } catch (e) {

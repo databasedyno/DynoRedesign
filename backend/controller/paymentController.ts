@@ -2,7 +2,6 @@ import { raw as envRaw } from "../utils/config";
 import express from "express";
 import {
   PAYMENT_TIMING,
-  ADMIN_CONFIG,
 } from "./payment/paymentConfig";
 import {
   createPaymentLink,
@@ -32,7 +31,6 @@ import {
   decrypt,
   errorResponseHelper,
   getErrorMessage,
-  sendEmail,
   sendAdminFeeReceivedEmail,
   successResponseHelper,
 } from "../helper";
@@ -65,7 +63,6 @@ import {
   IFundData,
   ITemporaryAddress,
   IUserType,
-  IAdminData,
   PaymentUserJwtPayload,
 } from "../utils/types";
 import { paymentTypes } from "../utils/enums";
@@ -1040,13 +1037,17 @@ const sweepNativeAdminFees = async () => {
   }
 };
 
+/**
+ * Hourly refresh of tbl_admin_fee_wallet.amount (powers the admin "fee wallets"
+ * panel). Gas-funding ALERTS are NOT sent from here any more — the multi-chain
+ * feeWalletMonitor is the single alert source (2026-10-04). Running both
+ * produced two emails with different thresholds/balances for the same wallet.
+ */
 const checkFeeBalance = async () => {
   try {
     const adminFeesWallets = await adminFeeModel.findAll({
       attributes: { exclude: ["privateKey", "mnemonic", "xpub"] },
     });
-
-    let textData = "";
 
     for (let i = 0; i < adminFeesWallets.length; i++) {
       const { feeLimit, wallet_type } = adminFeesWallets[i].dataValues;
@@ -1080,144 +1081,31 @@ const checkFeeBalance = async () => {
           continue;
         }
         // FIX (2026-07-11): Transient Tatum failures (rate-limit, invalidResponse, timeouts)
-        // MUST NOT abort the whole loop and MUST NOT fabricate a false "empty" alert.
-        // Skip THIS wallet only, keep checking the others; next cron cycle will retry.
+        // MUST NOT abort the whole loop. Skip THIS wallet only, keep checking the others.
         cronLogger.warn(`[checkFeeBalance] ⚠️ Tatum call failed for ${wallet_type} (${adminFeesWallets[i]?.dataValues.wallet_address?.substring(0, 12)}...): ${errMsg || 'unknown'} — skipping this wallet, will retry next cycle`);
         continue;
       }
-      let amount = adminFeesWallets[i]?.dataValues.amount;
       // NOTE: getAddressBalance() already converts SUN→TRX for TRX currency.
       // Do NOT divide by 1,000,000 again — double-division caused false $0 alerts.
       // FIX (2026-07-11): Tatum returns balance as a STRING (e.g. "94.281905"). Coerce
-      // to Number immediately so downstream comparisons (=== 0, !==) work correctly.
-      // Without this: (a) `amount === 0` fails for `"0"` → truly-empty wallets slip past
-      // the "skip unused wallets" guard and get alerted; (b) `newBalance !== dbAmount`
-      // (string vs number) is always true → DB write every cron cycle.
+      // to Number immediately so downstream comparisons work correctly.
       const rawNewBalance = currentBalance?.balance;
       const newBalance: number | undefined = (rawNewBalance === undefined || rawNewBalance === null)
         ? undefined
         : Number(rawNewBalance);
       const dbAmount = Number(adminFeesWallets[i]?.dataValues.amount || 0);
       
-      // Quiet mode: only log when balance changes, not every check cycle
+      // Only update if newBalance is a valid finite number AND meaningfully changed
       if (newBalance !== undefined && Number.isFinite(newBalance) && Math.abs(newBalance - dbAmount) > 0.000001) {
         cronLogger.info(`[checkFeeBalance] ${wallet_type}: balance changed ${dbAmount} → ${newBalance}`);
-      }
-      
-      // Only update if newBalance is a valid finite number AND meaningfully changed
-      if (newBalance !== undefined && Number.isFinite(newBalance)) {
-        if (Math.abs(newBalance - dbAmount) > 0.000001) {
-          amount = newBalance;
-          await adminFeeModel.update(
-            { amount },
-            {
-              where: {
-                fee_wallet_id: adminFeesWallets[i]?.dataValues.fee_wallet_id,
-              },
-            }
-          );
-        } else {
-          amount = dbAmount; // no meaningful change, keep numeric type
-        }
-      }
-
-      // Coerce amount to a numeric value for the zero/skip check below. This
-      // prevents a Tatum-returned "0" (string) from slipping past the guard.
-      const amountNum = Number(amount);
-      // Skip currency conversion if amount is null, undefined, 0, or NaN
-      if (amount === null || amount === undefined || amountNum === 0 || !Number.isFinite(amountNum)) {
-        // Don't alert for zero-balance wallets — they're likely unused/not yet funded
-        // Only alert for wallets that HAD balance but dropped below the limit
-        cronLogger.debug(`[checkFeeBalance] ${wallet_type}: zero/null balance — skipping (not actively depleted)`);
-        continue;
-      }
-
-      // Wrap currencyConvert in try-catch so one Tatum API failure (e.g., ETH→BRL)
-      // doesn't crash the entire loop via AggregateError — other wallets still get checked
-      let amount_in_usd: number;
-      try {
-        const tempData = await currencyConvert({
-          currency: ["USD"],
-          sourceCurrency: wallet_type,
-          amount,
-          fixedDecimal: true,
-        });
-        amount_in_usd = tempData[0].amount;
-      } catch (convErr: unknown) {
-        const convError = convErr as { message?: string };
-        cronLogger.warn(`[checkFeeBalance] ⚠️ Currency conversion failed for ${wallet_type}: ${convError?.message || 'unknown'} — skipping this wallet`);
-        continue;
-      }
-      if (amount_in_usd < feeLimit) {
-        textData += `\n⚠️ ${wallet_type} fee wallet: $${amount_in_usd} (threshold: $${feeLimit}) — balance: ${amount} ${wallet_type}`;
-      }
-    }
-
-    if (textData.length > 0) {
-      let flag = true;
-      const sentData = await getRedisItem("admin_fee_alert");
-      if (sentData) {
-        const { expiresAt } = sentData;
-        if (new Date().getTime() < Number(expiresAt)) {
-          flag = false;
-        }
-      }
-      if (flag) {
-        // Try to get admin email from database or centralized config
-        let adminEmail = ADMIN_CONFIG.EMAIL;
-        
-        try {
-          const adminData = await sequelize.query<IAdminData>(
-            "select email from tbl_admin limit 1",
-            {
-              type: QueryTypes.SELECT,
-            }
-          );
-          if (adminData && adminData.length > 0 && adminData[0].email) {
-            adminEmail = adminData[0].email;
+        await adminFeeModel.update(
+          { amount: newBalance },
+          {
+            where: {
+              fee_wallet_id: adminFeesWallets[i]?.dataValues.fee_wallet_id,
+            },
           }
-        } catch (dbError) {
-          cronLogger.info("[Cron] Could not fetch admin from database, using config email");
-        }
-        
-        if (!adminEmail) {
-          cronLogger.error("[Cron] No admin email configured - skipping notification");
-          return;
-        }
-        
-        textData += `\n\n Please recharge as soon as possible.`;
-        
-        cronLogger.info(`Sending low fee balance alert to: ${adminEmail}`);
-        
-        await sendEmail(
-          adminEmail,
-          "Dynopay Admin",
-          "⚠️ Low Fee Wallet Balance Alert",
-          `The following fee wallets are below their configured thresholds:\n${textData}\n\nPlease recharge the specific wallet(s) listed above.`
         );
-        
-        const alert_duration = adminFeesWallets[0]?.dataValues?.alert_duration || 48; // Default 48 hours to reduce alert fatigue
-        await setRedisItem("admin_fee_alert", {
-          status: "sent",
-          expiresAt:
-            new Date().getTime() + Number(alert_duration) * 60 * 60 * 1000,
-        });
-        
-        cronLogger.info(`Fee balance alert sent successfully to ${adminEmail}`);
-      } else {
-        // Quiet mode: Only log once per hour instead of every cron tick (every 15 min)
-        // This reduces log noise while still confirming the system is aware of the low balance
-        const sentData2 = await getRedisItem("admin_fee_alert");
-        if (sentData2) {
-          const { expiresAt, lastSkipLog } = sentData2 as Record<string, unknown>;
-          const now = Date.now();
-          const lastLogTime = Number(lastSkipLog || 0);
-          // Log "skipping" message at most once per hour
-          if (now - lastLogTime > 60 * 60 * 1000) {
-            cronLogger.info(`[checkFeeBalance] Low-balance alert suppressed (already sent, expires in ${Math.round((Number(expiresAt) - now) / 3600000)}h). Wallets with issues:${textData.replace(/\n/g, ' | ')}`);
-            await setRedisItem("admin_fee_alert", { ...sentData2, lastSkipLog: now });
-          }
-        }
       }
     }
   } catch (e) {

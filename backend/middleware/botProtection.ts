@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import { apiLogger } from "../utils/loggers";
-import { captureError } from "../services/errorMonitoringService";
 
 /**
  * Bot & Scanner Protection Middleware
@@ -204,22 +203,15 @@ const botProtectionMiddleware = (req: Request, res: Response, next: NextFunction
     // Record hit for IP tracking
     recordScannerHit(ip, path, ua);
 
-    // Log once per IP (first hit or when auto-blocked)
+    // Log once per IP (first hit or when auto-blocked). Blocked probes are
+    // expected traffic, not application errors — they are deliberately NOT
+    // sent to the error monitor (they were cluttering the admin error digest).
     const record = ipTracker.get(ip)!;
     if (record.hits === 1 || record.hits === AUTO_BLOCK_THRESHOLD) {
       const action = record.blocked ? "🚫 AUTO-BLOCKED" : "⚠️ SCANNER DETECTED";
       apiLogger.warn(
         `${action}: ${req.method} ${path} [${ip}] UA: ${ua.substring(0, 80)} (hits: ${record.hits})`
       );
-    }
-
-    // Track in error monitoring (low severity)
-    if (record.hits <= 2) {
-      captureError(new Error(`Scanner probe: ${path}`), "api", {
-        severity: "low",
-        requestContext: `${req.method} ${path}`,
-        extraContext: `IP: ${ip} | UA: ${ua.substring(0, 80)} | Hits: ${record.hits}`,
-      });
     }
 
     res.status(403).json({
