@@ -13,7 +13,7 @@ import json
 import requests
 import pytest
 
-BASE_URL = "https://trx-limit-unified.preview.emergentagent.com"
+BASE_URL = "https://vault-auth-setup.preview.emergentagent.com"
 UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
 
 MERCHANT_EMAIL = "onarrival21@gmail.com"

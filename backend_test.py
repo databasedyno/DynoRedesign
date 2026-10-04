@@ -2,7 +2,7 @@
 """
 Backend API Testing for Webhook Status Fix (2026-10-03)
 READ-ONLY testing on LIVE production database
-Base URL: https://b4078c13-f759-46ae-ae48-1dec741b535b.preview.emergentagent.com
+Base URL: https://vault-auth-setup.preview.emergentagent.com
 All backend routes under /api
 """
 
@@ -12,7 +12,7 @@ import sys
 from typing import Dict, Any, Optional
 
 # Base URL from backend/.env SERVER_URL
-BASE_URL = "https://b4078c13-f759-46ae-ae48-1dec741b535b.preview.emergentagent.com"
+BASE_URL = "https://vault-auth-setup.preview.emergentagent.com"
 
 class Colors:
     GREEN = '\033[92m'

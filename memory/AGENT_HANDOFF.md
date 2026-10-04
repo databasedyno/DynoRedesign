@@ -1,5 +1,10 @@
 # DynoPay — Agent Handoff (last session)
 
+## 2026-10-04 session (pod 0b940d6a, setup via vault) — SETUP ONLY, no code changes
+- `pod-bootstrap.sh` run with the vault passphrase → env restored, SAFE MODE on (bg jobs off, outbound email off), prod build served.
+- Live preview = **https://vault-auth-setup.preview.emergentagent.com** (re-synced with `--url` + rebuilt; supervisor APP_URL is the UUID host 0b940d6a — see POD_SETUP.md "Preview hostname gotcha").
+- Verified: backend /health (db+redis connected, background_jobs.eligible=false), landing 0 CORS errors, merchant dashboard (company 1) loads live data via cached token, 0 console errors. No prod DB writes.
+
 ## 2026-10-02 session (pod setup via vault) — SHIPPED (code-complete, NOT yet deployed)
 - **ahzraelsound@gmail.com / user 257** unblock DONE (live prod write, verified): the 4 stuck sandbox txns (1136/1137/1138/1141, company 269) were `environment=NULL` → stamped `environment='development'` (status still `pending`) so the Developers "Simulate payment" card accepts them. Guarded UPDATE, committed only because exactly 4 matched.
 - **Email brand names**: `sendPaymentLinkCreatedEmail` + `sendWeeklyConversionSummaryEmail` subjects now wrapped in `brandSubject(...)` (old weekly-summary email is retired; conversion summary is the live weekly merchant email). Verified via audit render harness.

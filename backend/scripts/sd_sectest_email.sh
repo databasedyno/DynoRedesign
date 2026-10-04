@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # E2E test of the SafeDeal email-change security fix (step-up + session kill + 24h hold).
 set -u
-HOST="https://trx-limit-unified.preview.emergentagent.com"
+HOST="https://vault-auth-setup.preview.emergentagent.com"
 API="$HOST/api/safedeal"
 R=$RANDOM$RANDOM
 EMAIL="sd-sectest-$R@example.com"

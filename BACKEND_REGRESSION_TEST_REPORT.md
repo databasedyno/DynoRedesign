@@ -2,7 +2,7 @@
 **Date:** 2026-10-01  
 **Test Type:** READ-ONLY Backend Regression Smoke Test  
 **Environment:** SAFE MODE, LIVE PRODUCTION Postgres/Redis  
-**Base URL:** https://trx-limit-unified.preview.emergentagent.com  
+**Base URL:** https://vault-auth-setup.preview.emergentagent.com  
 
 ---
 

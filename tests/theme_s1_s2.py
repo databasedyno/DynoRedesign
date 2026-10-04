@@ -1,6 +1,6 @@
 import asyncio
 
-BASE = "https://trx-limit-unified.preview.emergentagent.com"
+BASE = "https://vault-auth-setup.preview.emergentagent.com"
 
 MARKETING = ["/", "/fees", "/for/freelancers", "/products", "/blog", "/about",
              "/pay?d=jgQQzL", "/pay/demo", "/auth/login", "/auth/signup", "/reset-password"]

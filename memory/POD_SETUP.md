@@ -62,6 +62,15 @@ bash /app/scripts/env-vault.sh list '<passphrase>'   # inspect without writing
 - Lose the passphrase → the vault is unrecoverable (re-seal from a fresh paste).
 - Re-seal after ANY credential change so the next pod gets the new values.
 
+## Preview hostname gotcha (2026-10-04)
+- Supervisor `APP_URL` can be a UUID host (`<uuid>.preview.emergentagent.com`) while the
+  platform's user-facing preview is the pretty host (this job: `vault-auth-setup.preview.emergentagent.com`).
+  Both route to the pod, but the edge rewrites the `Origin` header, so any browser call to
+  `NEXT_PUBLIC_SERVER_URL` on the OTHER host is CORS-blocked (e.g. `/api/public/tickers`).
+- Fix = sync to the pretty host and rebuild (NEXT_PUBLIC_* are baked at build time):
+  `bash scripts/pod-bootstrap.sh --url https://<pretty-host> --no-restart && rm -rf /app/.next-prod && sudo supervisorctl restart backend frontend`
+  (~2.5 min rebuild). No vault re-seal needed — URL keys are rewritten per pod anyway.
+
 ## Speed notes
 - Frontend prewarms `/`, `/auth/login`, `/dashboard`, `/pay` in the background right
   after `next dev` is ready, so the first human click isn't a 15-35s compile.

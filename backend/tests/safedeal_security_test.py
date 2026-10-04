@@ -5,7 +5,7 @@ rate limiting, ledger DB invariants, and no fake balance mutation.
 """
 import os, time, subprocess, json, requests, pytest
 
-BASE = "https://trx-limit-unified.preview.emergentagent.com"
+BASE = "https://vault-auth-setup.preview.emergentagent.com"
 API = f"{BASE}/api/safedeal"
 TS = str(int(time.time()))
 
