@@ -1,0 +1,57 @@
+{
+  "summary": "Frontend-only verification of the rebuilt Dynopay public homepage ('/') per the v7 'Mercury-style' spec. Tested signed-out at desktop 1920x1080 and mobile 390x844, in light and dark themes, via the public preview URL. All 10 required sections render in correct order with the required data-testids, hero/pricing/security/three-ways/proof/faq/final-cta content is correct, FAQ expand/collapse + FAQPage JSON-LD work, hero and final CTAs navigate to the correct /auth/register?ref=... URLs, mobile menu drawer opens, there is NO horizontal overflow at either breakpoint, no console/pageerrors in either theme, and ?view=landing override works. Two minor header-anchor deviations from the spec were found (Pricing nav link + missing #products/#faq mega-menu anchors).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "HomeHeader > Pricing nav link",
+        "issue": "Header 'Pricing' link has href='/fees' and navigates away to the Fees page instead of smooth-scrolling to the on-page #pricing section as required by the spec ('Pricing nav link scrolls to #pricing').",
+        "selector": "header a:has-text('Pricing') (href='/fees')",
+        "priority": "MEDIUM"
+      },
+      {
+        "component": "HomeHeader > mega menu anchors",
+        "issue": "Spec expects mega-menu/anchor links for #how-it-works, #products and #faq to work on the homepage. Only /#how-it-works is present and functional. No in-DOM anchor links to #products or #faq were found anywhere on the homepage header or footer.",
+        "selector": "a[href*='#products'], a[href*='#faq'] (none present)",
+        "priority": "LOW"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verified_behaviours": [
+    "All 10 sections present in order: hero, coins-strip, trust-bar, how-it-works, pricing, security, three-ways, proof, faq, final-cta",
+    "No horizontal overflow at 1920 (sw=cw=1920) and 390 (sw=cw=390)",
+    "hero-headline reads 'Accept crypto payments. Get paid your way.'",
+    "hero-mock-wrap and hero-checkout-mock present",
+    "hero-primary-cta (button) -> /auth/register?ref=hero; hero-secondary-cta -> /pay/demo",
+    "trust-bar: 3 trust-stat tiles + trust-status-link -> /system-status",
+    "pricing-fees-cta -> /fees",
+    "security pillars present: security-noncustodial, security-compliance, security-keys, security-uptime; security-status-link -> /system-status; security-wallet-link -> /wallet-security",
+    "three-ways: way-nocode -> /products, way-checkout -> /pay/demo, way-api -> /documentation",
+    "proof section contains 'The Dev Store' and 'SafeDeal'",
+    "FAQ items faq-cost / faq-speed / faq-custody / faq-coins present; clicking faq-cost toggles aria-expanded true<->false and reveals the answer body",
+    "FAQPage application/ld+json script present in DOM",
+    "final-primary-cta -> /auth/register?ref=final; final-secondary-cta -> /documentation",
+    "Mega-menu link '/#how-it-works' smooth-scrolls the how-it-works section into view without a full page navigation",
+    "theme-toggle-button in header flips light<->dark; homepage renders cleanly in dark mode with no overflow or layout break",
+    "Mobile 390: mobile-menu-toggle opens the drawer with mnav-* items; no horizontal overflow",
+    "?view=landing on '/' renders the marketing homepage (hero data-testid present)",
+    "No console errors or pageerror events recorded in either theme"
+  ],
+  "test_report_links": [],
+  "action_items": [
+    "Make the header 'Pricing' link smooth-scroll to #pricing on the homepage (and only fall back to /fees on non-home pages), as required by the spec.",
+    "Add mega-menu / header anchor entries that link to /#products (or the equivalent three-ways section id) and /#faq so the full set of hash anchors from the spec is navigable."
+  ],
+  "critical_code_review_comments": [
+    "Hero and Final primary CTAs are <button> elements that imperatively navigate on click; they expose no href. This works functionally but hurts SEO/right-click/open-in-new-tab UX. Consider using <Link> / <a href='/auth/register?ref=hero'> with an onClick for tracking.",
+    "data-theme attribute on <html> is not toggled when switching themes (classList stays empty too). Visually dark mode works, but automated/CSS consumers that key off [data-theme='dark'] or .dark will miss it. Confirm Tailwind dark variant and consumer code are driven off whatever attribute is actually used."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped per request)", "frontend": "~92% (18/20 spec items pass; 2 minor header-anchor deviations)"},
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Preview URL: https://ed7125a5-77af-4433-bb69-616c1dd6886c.preview.emergentagent.com. Test signed-out (clear localStorage 'token'). Use ?view=landing to force the marketing homepage. Hero/Final primary CTAs are buttons (no href) that programmatically navigate to /auth/register?ref=hero|final. Theme toggle is data-testid 'theme-toggle-button' in the header; visually flips but does not set a data-theme attribute on <html>. Horizontal overflow must be measured on document.documentElement, not on individual marquee elements."
+}
